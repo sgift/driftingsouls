@@ -1,0 +1,63 @@
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+{if choff.message}
+	<span class="smallfont">
+		{choff.message}<br /><br />
+	</span>
+{/endif}
+
+{!table_begin 420,center}
+	<form action="./main.php" method="post">
+	<table class="noBorderX">
+	<tr>
+		<td class="noBorderX" colspan="2">Name</td>
+		<td class="noBorderX">Technik</td>
+		<td class="noBorderX">Waffen</td>
+		<td class="noBorderX">Navigation</td>
+		<td class="noBorderX">Sicherheit</td>
+		<td class="noBorderX">Kommandoeffizienz</td>
+		<td class="noBorderX">Spezial</td>
+		<td class="noBorderX"></td>
+	</tr>
+	<tr>
+		<td class="noBorderX">
+			<img src="{offizier.picture}" alt="" />
+		</td>
+		<td class="noBorderX">
+			<input name="name" type="text" size="15" value="{offizier.name}" />
+		</td>
+		<td class="noBorderX">{offizier.ability.ing}</td>
+		<td class="noBorderX">{offizier.ability.waf}</td>
+		<td class="noBorderX">{offizier.ability.nav}</td>
+		<td class="noBorderX">{offizier.ability.sec}</td>
+		<td class="noBorderX">{offizier.ability.com}</td>
+		<td class="noBorderX">{offizier.special}</td>
+		<td class="noBorderX"><input type="submit" value="&auml;ndern"></td>
+	</tr>
+	</table>
+	{!form_create_hidden rename, off:$offizier.id}
+	</form>
+{!table_end}
+<br />
+
+{if base.id}
+	{!link_to zur&uuml;ck zur Basis, default, module:base, css_class:back, col:$base.id}
+{else}
+	{!link_to zur&uuml;ck zum Schiff, default, css_class:back, module:schiff, ship:$ship.id}
+{/endif}

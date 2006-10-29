@@ -1,0 +1,165 @@
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<script type="text/javascript">
+<!--
+	function FleetWnd(params)
+	{
+		fenster1=window.open("./main.php?module=fleetmgnt&sess={global.sess}"+params,
+							 "Flotten",
+							"width=370,height=400,locationbar=0,menubar=0,scrollbars=1,statusbar=0,toolbar=0,resizeable=yes,directories=0");
+	}
+// -->
+</script>
+<table class="noBorder" cellspacing="0" cellpadding="0" width="100%">
+<tr>
+	<td class="noBorderS" colspan="2">
+		<span style="color:#ff0505; font-weight:bold">Schiffe</span>
+	</td>
+</tr>
+<tr>
+	<td class="noBorderS">
+		{!link_to Cargo, changeMode, only:$global.only, low:$global.low, crewless:$global.crewless, form[kampf_only]:$global.kampf_only, mode:carg}
+		 - 
+		{!link_to Norm, changeMode, only:$global.only, low:$global.low, crewless:$global.crewless, form[kampf_only]:$global.kampf_only, mode:norm}
+	</td>
+	{if only.tank}
+		<td class="noBorderS" align="right">{!link_to Sammelbefehl an alle Tanker, default, module:deutall, css_class:ok}</td>
+	{/endif}
+	{if only.kampf}
+		<td class="noBorderS" align="right">
+		<form action="./main.php" method="post" style="margin:0px">
+			<div>
+				<select size="1" name="form[kampf_only]">
+					<option value="-1" {only.kampf.selected-1}>alle</option>
+					<option value="2" {only.kampf.selected2}>Zerst&ouml;rer</option>
+					<option value="5" {only.kampf.selected5}>Korvetten</option>
+					<option value="6" {only.kampf.selected6}>Kreuzer</option>
+					<option value="7" {only.kampf.selected7}>Schwere Kreuzer</option>
+					<option value="9" {only.kampf.selected9}>J&auml;ger</option>
+					<option value="15" {only.kampf.selected15}>Tr&auml;ger</option>
+					<option value="16" {only.kampf.selected16}>Kommandoschiffe</option>
+					<option value="17" {only.kampf.selected17}>Bomber</option>
+				</select>
+				<input type="checkbox" name="form[showLJaeger]" id="form_showLJaeger" value="1" {only.kampf.showljaeger} /><label for="form_showLJaeger">Gelandete Schiffe anzeigen?</label>
+				{!form_create_hidden changeJDocked, only:kampf, low:$global.low, crewless:$global.crewless} 
+				<input type="submit" value="ok" />
+			</div>
+		</form>
+		</td>
+	{/endif}
+	{if only.other}
+		<td class="noBorderS" align="right"></td>
+	{/endif}
+</tr>
+<tr>
+	<td class="noBorderS" colspan="2">
+	<table class="show" width="100%">
+	<tr>
+	<td class="Border">{!link_to ID, changeOrder, order:id, only:$global.only, low:$global.low, crewless:$global.crewless, form[kampf_only]:$global.kampf_only}</td>
+	<td class="Border">{!link_to Name, changeOrder, order:name, only:$global.only, low:$global.low, crewless:$global.crewless, form[kampf_only]:$global.kampf_only}</td>
+	<td class="Border">{!link_to Klasse, changeOrder, order:type, only:$global.only, low:$global.low, crewless:$global.crewless, form[kampf_only]:$global.kampf_only}</td>
+	<td class="Border">{!link_to Koordinaten, changeOrder, order:sys, only:$global.only, low:$global.low, crewless:$global.crewless, form[kampf_only]:$global.kampf_only}</td>
+	<td class="Border">{!link_to Zustand, changeOrder, order:hull, only:$global.only, low:$global.low, crewless:$global.crewless, form[kampf_only]:$global.kampf_only}</td>
+	<td class="Border">{!link_to Crew, changeOrder, order:crew, only:$global.only, low:$global.low, crewless:$global.crewless, form[kampf_only]:$global.kampf_only}</td>
+	<td class="Border">&nbsp;</td>
+	<td class="Border">{!link_to Energie, changeOrder, order:e, only:$global.only, low:$global.low, crewless:$global.crewless, form[kampf_only]:$global.kampf_only}</td>
+	<td class="Border">Fracht</td></tr>
+	<!-- BEGIN schiffe.listitem -->
+		<tr>
+		<td class="schiffData">{!link_to $ship.id, default, module:schiff, ship:$ship.id}</td>
+		{if ship.battle}
+			<td class="schiffData"><a href="./main.php?module=angriff&amp;sess={global.sess}&amp;battle={ship.battle}&amp;ship={ship.id}"><img style="vertical-align:middle" src="{URL}battle_small.gif" alt="Schlacht" /></a> {ship.name}
+		{else}
+			<td class="schiffData">{ship.name}
+		{/endif}
+		{if ship.fleet}
+			<br /><a class="forschinfo" style="font-style:italic" href="javascript:FleetWnd('&amp;fleet={ship.fleet}&amp;act=show')">{ship.fleet.name}</a>
+		{/endif}
+		{if ship.docked.id}
+			<br />An {!link_to $ship.docked.name, default, css_style:font-style:italic, module:schiff, ship:$ship.docked.id}
+		{/endif}
+		{if ship.landed.id}
+			<br />Auf {!link_to $ship.landed.name, default, css_style:font-style:italic, module:schiff, ship:$ship.landed.id}
+		{/endif}
+		{if ship.docks}
+			<br />
+			{if ship.adocks}
+				<img src="{URL}data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./main.php?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.adocks.docked}/{ship.adocks}]</a>
+			{/endif}
+			{if ship.jdocks}
+				<img src="{URL}data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./main.php?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.jdocks.docked}/{ship.jdocks}]</a>
+			{/endif}
+		{/endif}
+		{if ship.werft}
+			{if ship.werft.building}
+				<br />
+				<a style="color:#CCAA33" class="nonbold" onmouseover="return overlib('&lt;span style=\'font-size:13px\'&gt;{ship.werft.popup}&lt;/span&gt;',TIMEOUT,0,DELAY,150,WIDTH,420,FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');" onmouseout="return nd();" href="./main.php?module=werft&amp;sess={global.sess}&amp;ship={ship.id}">
+					[<img style="vertical-align:middle; border:0px" src="{URL}data/interface/time.gif" alt="Dauer" />{ship.werft.dauer}]
+				</a>
+			{else}
+				<br />{!link_to [frei], default, module:werft, css_class:nonbold, css_style:color:#CCAA33, ship:$ship.id}
+			{/endif}
+		{/endif}
+		{if ship.awac}
+			<br />{!link_to [scan], default, module:scan, css_class:nonbold, css_style:color:#CCAA33, ship:$ship.id}	
+		{/endif}
+		</td>
+		<td class="schiffData"><a onmouseover="return overlib('{ship.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" class="noborder" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={ship.type}"><img src="{ship.image}" alt="" /></a></td>
+		<td class="schiffData">{ship.location}</td>
+		<td class="schiffData"><span style="color:{ship.hullcolor}">{ship.hull}</span>
+		{if ship.shields}
+			<br /><span style="color:orange"> {ship.shields}</span>
+		{else}
+			{if ship.spec}
+				<br /><span style="color:red"> 0</span>
+			{/endif}
+		{/endif}
+		</td>
+		<td class="schiffData"><span style="color:{ship.crewcolor}">{ship.crew}</span>{ship.offi}</td>
+		<td class="schiffData"><img src="{URL}data/interface/alarm/{ship.alarm}.jpg" alt="" /></td>
+		<td class="schiffData">{ship.e}</td>
+		<td class="schiffData">
+		<!-- BEGIN schiffe.resitem -->
+			<img src="{res.image}" alt="" title="{res.plainname}" />{if res.color}<span style="color:{res.color}">{/endif}{res.count}{if res.color}</span>{/endif}
+		<!-- END schiffe.resitem -->
+		{if ship.restcargo.show}
+			<img src="{URL}data/interface/leer.gif" alt="" title="Leer" />{ship.restcargo}
+		{/endif}
+		{if ship.e.none}
+			<img src="{URL}data/interface/energie.gif" alt="" title="Energie" /><span style="color:red">x</span>
+		{/endif}
+		&nbsp;</td>
+		</tr>
+	<!-- END schiffe.listitem -->
+	{if schiffe.nextoffset}
+		<tr>
+			<td class="schiffData" style="text-align:center" colspan="9">
+				{!link_to Weiter -->, default, css_class:ok, only:$global.only, low:$global.low, crewless:$global.crewless, form[kampf_only]:$global.kampf_only, listoffset:$schiffe.nextoffset}
+			</td>
+		</tr>
+	{/endif}
+
+	</table>
+	</td>
+</tr>
+
+{if only.tank}
+	<tr><td class="noBorderS" colspan="2"><br />{!link_to Sammelbefehl an alle Tanker, default, module:deutall, css_class:ok}</td></tr>
+{/endif}
+</table>

@@ -1,0 +1,107 @@
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+{if schiff.navigation.docked}
+	{if schiff.navigation.docked.extern}
+		Angedockt an<br />
+	{else}
+		Gelandet auf<br />
+	{/endif}
+	&gt;{!link_to $schiff.navigation.docked.master.name, default, css_class:academy, ship:$schiff.navigation.docked.master.id}&lt;<br />
+	{!link_to Abflug, abladen, ship:$schiff.navigation.docked.master.id, tar:$ship.id}<br />
+	{!link_to Auftanken, default, module:transport, to:$schiff.navigation.docked.master.id, from:$ship.id, way:stos}
+{else}
+	{if schiff.navigation.showmessage}
+		{schiff.navigation.showmessage}
+	{else}
+
+			<table class="nav" style="background-color:#cccccc" align="center">
+			<tr>
+			<!-- BEGIN schiff.navigation.nav.listitem -->
+				{if schiff.navigation.nav.newrow}
+					</tr>
+					<tr>
+				{/endif}
+				<td class="nav" style="width:{schiff.navigation.size}px; height:{schiff.navigation.size}px; text-align:center">
+					<div style="position:relative; top:0px; left:0px; margin:0px; width:{schiff.navigation.size}px; height:{schiff.navigation.size}px">
+						<div style="position:absolute; top:0px; left:0px; z-index:1; width:{schiff.navigation.size}px; height:{schiff.navigation.size}px">
+							<img style="width:{schiff.navigation.size}px; height:{schiff.navigation.size}px; border:0px" src="{schiff.navigation.nav.sectorimage}" alt="" />
+						</div>
+						<div style="position:absolute; top:0px; left:0px; z-index:2; width:{schiff.navigation.size}px; height:{schiff.navigation.size}px">
+							{if schiff.navigation.nav.warn}
+								<div onclick="ask('Wenn sie in diese Richtung fliegen werden Schiffe auf Alarmstufe Rot auf sie feuern!\nWollen sie diese Aktion wirklich ausf&uuml;hren?','./main.php?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;navigation_ops[act]={schiff.navigation.nav.direction}&amp;navigation_ops[count]=1')" style="display:table-cell; width:37px; height:37px; text-align:center; vertical-align:middle; font-size:9px; color:white; cursor:pointer">
+							{else}
+								<div onclick="document.location.href='./main.php?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;navigation_ops[act]={schiff.navigation.nav.direction}&amp;navigation_ops[count]=1'" style="display:table-cell; width:37px; height:37px; text-align:center; vertical-align:middle; font-size:9px; color:white; cursor:pointer">
+							{/endif}
+								{if schiff.navigation.nav.warn}
+									<span style="color:red">
+								{/endif}
+								{schiff.navigation.nav.location}
+								{if schiff.navigation.nav.warn}
+									</span>
+								{/endif}
+							</div>
+						</div>
+					</div>
+				</td>
+			<!-- END schiff.navigation.nav.listitem -->
+			</tr>
+			</table>
+		
+
+		<form action="./main.php" method="post">
+			<div>
+				<select name="navigation_ops[act]">
+					<option selected="selected" value="5">Richtung</option>
+					<option value="1">&#x2196; oben links</option>
+					<option value="2">&#x2191; oben</option>
+					<option value="3">&#x2197; oben rechts</option>
+					<option value="4">&#x2190; links</option>
+					<option value="6">&#x2192; rechts</option>
+					<option value="7">&#x2199; unten links</option>
+					<option value="8">&#x2193; unten</option>
+					<option value="9">&#x2198; unten rechts</option>
+				</select>
+				<input name="navigation_ops[count]" type="text" size="2" value="2" />
+				{!form_create_hidden plugin, plugin:$global.pluginid, navigation_ops[moveship]:1, ship:$ship.id}
+				<input type="submit" value="autopilot" /><br />
+			</div>
+		</form>
+	{/endif}
+	
+	<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+	<div class="smallfont">
+		++ Notiz ++<br />
+		<form action="./main.php" method="post">
+			<div>
+				Ziel:
+				<input name="navigation_ops[system]" type="text" size="3" value="{schiff.navigation.dest.system}" />
+				:
+				<input name="navigation_ops[x]" type="text" size="3" value="{schiff.navigation.dest.x}" />
+				/
+				<input name="navigation_ops[y]" type="text" size="3" value="{schiff.navigation.dest.y}" />
+				<br />
+				<textarea name="navigation_ops[com]" rows="5" cols="27">{schiff.navigation.dest.text}</textarea><br />
+				<input type="checkbox" name="navigation_ops[bookmark]" id="navigation_ops_bookmark" value="1" {if schiff.navigation.bookmarked}checked="checked"{/endif} />
+				<label for="navigation_ops_bookmark">Bookmark</label>
+				{!form_create_hidden plugin, ship:$ship.id, plugin:$global.pluginid, navigation_ops[setdest]:1}<br />
+				<input name="setdest" type="submit" value="Notiz speichern" />
+			</div>
+		</form>
+	</div>
+{/endif}

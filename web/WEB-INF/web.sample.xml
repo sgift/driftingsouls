@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<web-app>
+	<!-- General description of your web application -->
+	
+	<display-name>Drifing Souls</display-name>
+	<description>
+		Dies ist die Java Version von Drifting Souls 2
+	</description>
+			 
+	<context-param>
+		<param-name>configdir</param-name>
+		<param-value>/home/bktheg/Projects/dsj/web/WEB-INF/cfg/</param-value>
+		<description>
+			Die DS2-Hauptkonfigurationsverzeichnis
+		</description>
+	</context-param>
+	<context-param>
+		<param-name>logger</param-name>
+		<param-value>org.apache.commons.logging.impl.SimpleLog</param-value>
+	</context-param>
+
+	<servlet>
+		<servlet-name>ds</servlet-name>
+		<servlet-class>net.driftingsouls.ds2.server.framework.DriftingSoulsServlet</servlet-class>
+		<description>
+			Main DS Servlet
+		</description>
+		<!-- Load this servlet at server startup time -->
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>ds</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+</web-app> 

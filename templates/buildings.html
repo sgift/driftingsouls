@@ -1,0 +1,166 @@
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<div class="smallfont">
+{!table_begin 100%,left}
+	<table class="noBorderX" width="100%">
+	<tr>
+		<td class="noBorderX" colspan="2">Name</td>
+		<td class="noBorderX">Baukosten</td>
+		<td class="noBorderX">Verbrauch</td>
+		<td class="noBorderX">Produktion</td>
+		<td class="noBorderX">Arbeiter</td>
+		<td class="noBorderX">Effekt</td>
+	</tr>
+	<!-- BEGIN buildings.listitem -->
+		{if buildings.list}
+			<tr>
+				<td class="noBorderX" colspan="8">
+					<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+				</td>
+			</tr>
+		{/endif}
+		<tr>
+			<td class="noBorderX"><img src="{URL}{building.picture}" alt="" /></td>
+			<td class="noBorderX">{building.name}</td>
+			<td class="noBorderX" valign="top">
+				{if building.buildcosts.list}
+					<!-- BEGIN building.buildcosts.listitem -->
+						<img style="vertical-align:middle" src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}
+					<!-- END building.buildcosts.listitem -->
+				{else}
+					-
+				{/endif}
+			</td>
+			<td class="noBorderX" valign="top">
+				{if building.consumes.list}
+					<!-- BEGIN building.consumes.listitem -->
+						<img style="vertical-align:middle" src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}
+					<!-- END building.consumes.listitem -->
+				{else}
+					-
+				{/endif}
+			</td>
+			<td class="noBorderX" valign="top">
+				{if building.produces.list}
+					<!-- BEGIN building.produces.listitem -->
+						<img style="vertical-align:middle" src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}
+					<!-- END building.produces.listitem -->
+				{else}
+					-
+				{/endif}
+			</td>
+			<td class="noBorderX" valign="top">
+				{if building.arbeiter}
+					<img src="{URL}data/interface/narbeiter.gif" alt="Arbeiter" />{building.arbeiter}
+				{else}
+					-
+				{/endif}
+			</td>
+			<td class="noBorderX" valign="top">
+				{if building.bewohner}
+					<img src="{URL}data/interface/arbeiter.gif" alt="Bev&ouml;lkerung" />{building.bewohner}
+				{else}
+					-
+				{/endif}
+			</td>
+		</tr>
+		{if building.addinfo}
+			<tr>	
+				<td class="noBorderX">&nbsp;</td>
+				<td class="noBorderX" colspan="7">{building.addinfo}</td>
+			</tr>
+		{/endif}
+	<!-- END buildings.listitem -->
+	</table>
+{!table_end}
+<br />
+{if cores.list}
+	<br />
+	{!table_begin 100%,left}
+		<span style="color:#cdcdcd">Cores:</span><br />
+		<table class="noBorderX" width="100%">
+		<tr>
+			<td class="noBorderX" colspan="2">Name</td>
+			<td class="noBorderX">Baukosten</td>
+			<td class="noBorderX">Verbrauch</td>
+			<td class="noBorderX">Produktion</td>
+			<td class="noBorderX">Arbeiter</td>
+			<td class="noBorderX">Effekt</td>
+		</tr>
+		<!-- BEGIN cores.listitem -->
+			<tr>
+				<td class="noBorderX">
+					<img src="{URL}data/starmap/kolonie{core.astitype}_lrs/kolonie{core.astitype}_lrs.png" alt="" />
+				</td>
+				<td class="noBorderX">{core.name}</td>
+				<td class="noBorderX" valign="top">
+					{if core.buildcosts.list}
+						<!-- BEGIN core.buildcosts.listitem -->
+							<img style="vertical-align:middle" src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}
+						<!-- END core.buildcosts.listitem -->
+					{else}
+						-
+					{/endif}
+				</td>
+				<td class="noBorderX" valign="top">
+					{if core.consumes.list}
+						<!-- BEGIN core.consumes.listitem -->
+							<img style="vertical-align:middle" src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}
+						<!-- END core.consumes.listitem -->
+					{else}
+						-
+					{/endif}
+				</td>
+				<td class="noBorderX" valign="top">
+					{if core.produces.list}
+						<!-- BEGIN core.produces.listitem -->
+							<img style="vertical-align:middle" src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}
+						<!-- END core.produces.listitem -->
+					{else}
+						-
+					{/endif}
+				</td>
+				<td class="noBorderX" valign="top">
+					{if core.arbeiter}
+						<img src="{URL}data/interface/narbeiter.gif" alt="Arbeiter" />{core.arbeiter}
+					{else}
+						-
+					{/endif}
+				</td>
+				<td class="noBorderX" valign="top">
+					{if core.bewohner}
+						<img src="{URL}data/interface/arbeiter.gif" alt="Bev&ouml;lkerung" />{core.bewohner}
+					{else}
+						-
+					{/endif}
+				</td>
+			</tr>
+		<!-- END cores.listitem -->
+		</table>
+	{!table_end}
+	<br />
+{/endif}
+{if base.field}
+	{!link_to zur&uuml;ck, default, css_class:back, module:build, col:$base.id, field:$base.field}
+{else}
+	{if base.id}
+		{!link_to zur&uuml;ck, default, module:base, css_class:back, col:$base.id}
+	{/endif}
+{/endif}
+</div>

@@ -1,0 +1,231 @@
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<table class="noBorder">
+<tr>
+	<td class="noBorder" valign="top">
+		<table class="noBorder">
+		<tr>
+			<td class="noBorderS" valign="top">
+				{!link_to $user.name, default, css_class:profile, css_style:font-size:16px, module:userprofile, user:$user.id} ({user.id}) - {user.race}<br />
+				<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+				Letzter Tick: {global.ticktime}<br />
+				Zeitpunkt: {time.current} ({global.ticks})<br />
+				<img src="{res.nahrung.image}" alt="" />{if user.nahrung}Nahrung: {user.nahrung}{else}<span style="color:red">Nahrung: {user.nahrung}</span>{/endif}
+				{if user.nahrung.stat.tick}
+					&nbsp;-
+				{else}
+					{if user.nahrung.stat.plain < 0}
+						&nbsp;<span style="color:red">{user.nahrung.stat}</span>
+					{else}
+						&nbsp;<span style="color:green">+{user.nahrung.stat}</span>
+					{/endif}
+				{/endif}
+				<br />
+				{if flagschiff.id}
+					Flagschiff: {!link_to $flagschiff.name, default, module:schiff, ship:$flagschiff.id} ({flagschiff.id})<br />
+				{else}	
+					{if flagschiff.dauer}
+						Flagschiff: <img src="{URL}data/interface/time.gif" alt="" />{flagschiff.dauer} Runden
+					{/endif}
+				{/endif}
+			</td>
+			<td class="noBorderS" style="width:180px; text-align:center">
+				<table class="noBorder">
+				<tr>
+					<td class="noBorderS" valign="middle" align="center">
+						<img src="{URL}data/logos/user/{user.id}.gif" width="75" height="75" alt="Kein Logo vorhanden" />
+					</td>
+
+					{if ally.logo}
+						<td class="noBorderS" valign="middle" align="center">
+							<img src="{URL}data/logos/ally/{ally.logo}.gif" width="75" height="75" alt="Kein Allylogo vorhanden" />
+						</td>
+					{/endif}
+
+				</tr>
+				</table>
+			</td>
+		</tr>
+		</table>
+		
+		<table class="noBorder" style="height:300px">
+		<tr>
+			<td class="noBorderS">
+				{if message}
+					{!table_begin 550,left}
+						{message}
+					{!table_end}
+					<br />
+				{/endif}
+				{if interactivetutorial.show}
+					<br />
+					{!table_begin 700,left}
+						<table style="width:100%" class="noBorderX">
+						<tr>
+							<td class="noBorderX" valign="top">
+								<img src="{URL}data/interface/interactivetutorial/{sheet.headpic}" alt="" />
+							</td>
+							<td class="noBorderX" valign="top">
+								&nbsp;
+							</td>
+							<td class="noBorderX" valign="top">
+								{sheet.text}
+								{if sheet.endtutorial}
+									<br /><br />
+									<div style="text-align:center">{!link_to &gt; Ende &lt;,tutorial, css_class : ok, tutorial: -1}</div>
+								{/endif}
+								{if sheet.nextsheet}
+									<br /><br />
+									<div style="text-align:center">{!link_to &gt; Weiter &lt;, tutorial, css_class:ok, tutorial:1}</div>
+								{/endif}
+							</td>
+						</tr>
+						</table>
+					{!table_end}
+				{/endif}
+				<br />
+				{if global.battlelist}
+					{global.battlelist}
+				{else}
+					<br />
+				{/endif}
+
+				{if user.wait4vac}Achtung! Sie haben den Vacation-Modus aktiviert. Dieser wird in {user.wait4vac} Ticks die Kontrolle &uuml;bernehmen. {!link_to abbrechen, stopWait4Vac, css_class:error}<br /><br />{/endif}
+				{if global.survey}{!link_to Es gibt eine neue Umfrage an der Sie teilnehmen können, default, module:survey, css_style:color:orange;font-weight:bold}<br /><br />{/endif} 
+			</td>
+		</tr>
+		</table>
+	</td>
+	<td class="noBorderS" valign="top">
+		<!-- BEGIN quests.listitem -->
+			{!table_begin 280,left}
+				<table class="noBorderX">
+				<tr><td class="noBorderX" style="font-size:12px; text-align:center">{quest.name}</td><td class="noBorderX" style="width:20px;align:right">{!link_to x,stopQuest,css_class:error, questid:$quest.id}</td></tr>
+				<tr>
+					<td class="noBorderX" colspan="2" style="font-size:12px">
+						{quest.statustext}
+					</td>
+				</tr>
+				</table>
+			{!table_end}
+		<!-- END quests.listitem -->
+	</td>
+</tr>
+</table>
+
+<table class="noBorder">
+<tr>
+	<td class="noBorderS">
+		{!table_begin 440,left}
+			<div style="text-align:center; font-weight:bold">
+				{if show.bookmarks}Bookmarks{/endif}
+				{if show.fleets}Flotten{/endif}
+				<a onclick="javascript:overlib('&lt;div style=\'font-size:13px; text-align:center\'&gt;&lt;a style=\'font-size:13px\' class=\'forschinfo\' href=\'./main.php?sess={global.sess}&amp;module=ueber&amp;action=box&amp;box=bookmarks\'&gt;Bookmarks&lt;/a&gt;&lt;br /&gt;&lt;a style=\'font-size:13px\' class=\'forschinfo\' href=\'./main.php?sess={global.sess}&amp;module=ueber&amp;action=box&amp;box=fleets\'&gt;Flotten&lt;/a&gt;&lt;/div&gt;',REF,'box_popup', REFC,'LR',REFP,'UR',NOCLOSE,STICKY,WIDTH,150);" id="box_popup" name="box_popup" class="error" onmouseover="" onmouseout="return nd();" href="#">
+					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_dropdown.gif" alt="" />
+				</a>
+			</div>
+			<div style="height:130px; width:390px; overflow:auto; padding:4px; font-size:13px">
+				{if show.bookmarks}
+				<!-- BEGIN bookmarks.listitem -->
+					<a style="font-size:13px" class="forschinfo"  onmouseover="return overlib('&lt;span style=\'font-size:13px\'&gt;{bookmark.description}&lt;/span&gt;',TIMEOUT,0,DELAY,400,WIDTH,300);" onmouseout="return nd();" href="./main.php?module=schiff&amp;sess={global.sess}&amp;ship={bookmark.shipid}">{bookmark.shipname}</a> ({bookmark.shipid})
+					- {bookmark.shiptype} - {bookmark.location}<br />
+				<!-- END bookmarks.listitem -->
+				{/endif}
+				{if show.fleets}
+				<!-- BEGIN fleets.listitem -->
+					{if fleet.jaegerfleet}<br />+++ gelandete J&auml;gerstaffeln +++<br />{/endif}
+					{!link_to $fleet.name, default, css_style:font-size:13px, module:schiff, ship:$fleet.shipid}
+					- {fleet.shipcount} Schiffe - {fleet.location}<br />
+				<!-- END fleets.listitem -->
+				{/endif}
+			</div>
+		{!table_end}
+	</td>
+	<td class="noBorderS" valign="top">&nbsp;</td>
+	<td class="noBorderS" valign="top" style="font-size:17px">
+		<p>
+			<a class="error" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;low=9" {!overlib <span style='font-size:13px'>Schiffe mit Vorr&auml;ten f&uuml;r weniger als 10 Runden</span>, mo, delay:300}>
+				{if schiffe.mangel}
+					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_mangel.gif" alt="" />
+				{else}
+					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_mangel_none.gif" alt="" />
+				{/endif}
+			</a> 
+			{schiffe.mangel}
+		</p>
+		<p>
+			<a class="error" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;crewless=1" {!overlib <span style='font-size:13px'>Schiffe ohne Crew</span>, mo, delay:300, width:150}>
+				{if schiffe.nocrew}
+					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_nocrew.gif" alt="" />
+				{else}
+					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_nocrew_none.gif" alt="" />
+				{/endif}
+			</a> 
+			{schiffe.nocrew}
+		</p>
+		<p>
+			<a class="error" href="./main.php?module=basen&amp;sess={global.sess}" {!overlib <span style='font-size:13px'>Asteroiden mit Vorr&auml;ten welche f&uuml; weniger als 10 Runden reichen</span>, mo, delay:300, width:300}>
+				{if astis.mangel}
+					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_mangel_asti.gif" alt="" />
+				{else}
+					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_mangel_asti_none.gif" alt="" />
+				{/endif}
+			</a> 
+			{astis.mangel}
+		</p>
+		<p>
+			<a class="error" href="./main.php?module=comm&amp;sess={global.sess}&amp;action=showInbox" {!overlib <span style='font-size:13px'>Neue ungelesene PMs</span>, mo, delay:300, width:150}>
+				{if user.newmsgs}
+					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_pm.gif" alt="" />
+				{else}
+					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_pm_none.gif" alt="" />
+				{/endif}
+			</a> 
+			{user.newmsgs}
+		</p>
+	</td>
+	<td class="noBorderS" valign="top">&nbsp;&nbsp;</td>
+	<td class="noBorderS" valign="top" style="font-size:17px">
+		<p>
+			<a class="error" href="#" {!overlib <span style='font-size:13px'>Schlachten die du verloren hast</span>, mo, delay:300, width:200}>
+				<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_battle_lost.gif" alt="" />
+			</a> 
+			{user.lostBattles}
+		</p>
+		<p>
+			<a class="error" href="#" {!overlib <span style='font-size:13px'>Schlachten die du gewonnen hast</span>, mo, delay:300, width:200}>
+				<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_battle_won.gif" alt="" />
+			</a> 
+			{user.wonBattles}
+		</p>
+		<p>
+			<a class="error" href="#" {!overlib <span style='font-size:13px'>Schiffe die du verloren hast</span>, mo, delay:300, width:300}>
+				<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_lost_ships.gif" alt="" />
+			</a> 
+			{user.lostShips}
+		</p>
+		<p>
+			<a class="error" href="#" {!overlib <span style='font-size:13px'>Schiffe die von deinen Schiffen zerst&ouml;rt wurden</span>, mo, delay:300, width:300}>
+				<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_destroyed_ships.gif" alt="" />
+			</a> 
+			{user.destroyedShips}
+		</p>
+	</td>
+</tr>
+</table>

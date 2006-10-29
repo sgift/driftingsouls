@@ -1,0 +1,303 @@
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<script type="text/javascript">
+<!--
+	/*
+		1 -> Flottenpopup
+		2 -> Wichtige Objekte
+	*/
+	function PopupWnd(popupnr,params)
+	{
+		var script;
+		var title;
+		if( popupnr == 1 ) {
+			script = "./main.php?module=fleetmgnt";
+			title = "Flotten";
+		}
+
+		F1 = window.open(script + "&sess={global.sess}" + params, title,
+							 "width=370,height=400,locationbar=0,menubar=0,scrollbars=1,statusbar=0,toolbar=0,resizeable=yes,directories=0");
+	}
+
+	function helpme(helpstring)	{
+		{if user.tooltips}
+			return overlib(helpstring,TIMEOUT,0,DELAY,400,WIDTH,100);
+		{else}
+			return false;
+		{/endif}
+	}
+// -->
+</script>
+<div class="verysmallfont">
+{if ship.message}
+	{ship.message}<br />
+{/endif}
+</div>
+{if ship.showui}
+	<table class="show" cellspacing="3" cellpadding="3">
+	<tr>
+		<td class="schiff">
+			{ship.name} ({ship.id}) - {ship.location}
+		</td>
+		<td class="schiff">Navigation</td>
+		<td class="schiff" style="width:10px" align="right">
+			<a id="systeminfo" name="systeminfo" class="noborder" onclick="javascript:overlib('{tooltip.systeminfo}',REF,'systeminfo', REFC,'LL',REFP,'UR',FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip',NOCLOSE,STICKY);" onmouseout="return nd();" href="#">
+				<img src="{URL}data/interface/impobjects.gif" alt="?" />
+			</a>
+		</td>
+		<td class="schiff">Cargo</td>
+	</tr>
+	<tr>
+		<td class="schiffData" style="width:360px" valign="top">
+			<a class="noborder" target="_blank" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={ship.type}">
+				<img src="{shiptype.picture}" alt="{shiptype.name}" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:5px" />
+			</a>
+			Zustand: 
+			<span style="color:{ship.hull.color}">
+				{ship.hull}/{shiptype.hull}
+			</span>
+			{if shiptype.shields}
+				<br />
+				Schilde:
+				<span style="color:{ship.shields.color}">
+					{ship.shields}/{shiptype.shields}
+				</span>
+			{/endif} 
+			<br />Subsysteme:<br />
+			{if shiptype.cost}
+				+ Antrieb:
+				<span style="color:{ship.engine.color}">
+					{ship.engine}
+				</span><br />
+			{/endif}
+			{if shiptype.weapons}
+				+ Waffen:
+				<span style="color:{ship.weapons.color}">
+					{ship.weapons}
+				</span><br />
+			{/endif}
+			+ Kommunikation:
+			<span style="color:{ship.comm.color}">
+				{ship.comm}
+			</span><br />
+			+ Sensoren:
+			<span style="color:{ship.sensors.color}">
+				{ship.sensors}
+			</span><br />
+			{if shiptype.crew}
+				Crew:
+				<span style="color:{ship.crew.color}">
+					{ship.crew}/{shiptype.crew}
+				</span><br />
+			{/endif}
+			Energie:
+			<span style="color:{ship.e.color}">
+				{ship.e}/{shiptype.eps}
+			</span><br />
+			{if shiptype.cost}
+				Triebwerks&uuml;berhitzung:
+				<span style="color:{ship.s.color}">
+					{ship.s}/100
+				</span><br />
+			{/endif}
+			{if offiziere.list}
+				Offizier:
+				<!-- BEGIN offiziere.listitem -->
+					{if offiziere.list}, {/endif}
+					<span class="nobr"><img src="{offizier.picture}" alt="Rang {offizier.rang}" /> {!link_to $offizier.name, default, module:choff, off:$offizier.id}</span>
+				<!-- END offiziere.listitem -->
+				<br />
+			{/endif}
+			{if ship.fleet}
+				Flotte: <a class="forschinfo" href="javascript:PopupWnd(1,'&amp;fleet={ship.fleet}&amp;act=show')">{fleet.name}</a> 
+				{if ! ship.lock}
+					{!link_to (X), join, css_class:error, ship:$ship.id}
+				{/endif}
+				<br />
+			{/endif}
+			<a class="noborder" href="./main.php?module=schiff&amp;action=destroy&amp;sess={global.sess}&amp;ship={ship.id}">
+				<img src="{URL}data/interface/schiffe/schiff_selfdest.gif" alt="Selbstzerst&amp;ouml;rung" />
+			</a>
+			{if shiptype.werft}
+				<a class="forschinfo" href="./main.php?module=werft&amp;sess={global.sess}&amp;ship={ship.id}">
+					<img src="{URL}data/interface/schiffe/werft.gif" alt="Werftfunktionen" />
+				</a>
+			{/endif}
+			{if sector.handel}
+				<a class="noborder" onmouseover="return helpme('mit {sector.handel.name} handeln');" onmouseout="return nd();" href="./main.php?module=trade&amp;sess={global.sess}&amp;ship={ship.id}&amp;tradepost={sector.handel}">
+					<img src="{URL}data/interface/schiffe/schiff_handel.gif" alt="Handeln" />
+				</a>
+			{/endif}
+			{if tooltip.execnotes}
+				<script type="text/javascript">
+				<!--
+					function scripttooltip() {
+						var tooltiptext = "";
+						tooltiptext += "{tooltip.execnotes.begin}";
+						tooltiptext += "<span style='text-decoration:underline'>Scripteingabe</span> (<a class='error' onclick='return nd();' href='javascript:void(0)'>X</a>)<br />";
+						tooltiptext += "<form action='./main.php' method='post'><div>";
+						tooltiptext += "<input type='hidden' name='sess' value='{global.sess}' />";
+						tooltiptext += "<input type='hidden' name='module' value='schiff' />";
+						tooltiptext += "<input type='hidden' name='ship' value='{ship.id}' />";
+						tooltiptext += "<input type='hidden' name='action' value='script' />";
+						tooltiptext += "<textarea name='script' rows='12' cols='27' style='width:360px'>{tooltip.execnotes.script}</textarea><br />";
+						tooltiptext += "<input type='checkbox' id='script_reset' name='reset' value='1' /><label for='script_reset'>Reset</label><br />";
+						tooltiptext += "<input type='submit' value='speichern' />";
+						tooltiptext += "</div></form>";
+						tooltiptext += "{tooltip.execnotes.end}";
+						overlib(tooltiptext,REF,'shipscripttip', REFC,'UL',REFP,'UL',FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip',STICKY);
+					}		
+				// -->
+				</script>
+			
+				<a id="shipscripttip" name="shipscripttip" class="noborder" onclick="scripttooltip();" href="#">
+					<img src="{URL}data/interface/computer.png" alt="?" />
+				</a>
+			{/endif}
+			{if tooltip.admin}
+				<a id="shipstatustip" name="shipstatustip" class="noborder" onmouseover="javascript:overlib('{tooltip.admin}',REF,'shipstatustip', REFC,'LR',REFP,'UL',FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip',TIMEOUT,0);" onmouseout="return nd();" href="#">
+					<img src="{URL}data/interface/admin.png" alt="?" />
+				</a>
+			{/endif}
+			{if ship.show.respawn}
+				{if ship.hasrespawn}
+					<a id="shiprespawntip" name="shiprespawntip" class="noborder" onmouseover="javascript:overlib('Respawn-Dauer: {ship.respawn}',REF,'shiprespawntip', REFC,'LR',REFP,'UL',TIMEOUT,0);" onmouseout="return nd();" href="./main.php?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=respawn">
+						<img src="{URL}data/interface/respawn_yes.png" alt="" />
+					</a>
+				{else}
+					<script type="text/javascript">
+					<!--
+						function respawntooltip() {
+							var tooltiptext = "";
+							tooltiptext += "{tooltip.respawn.begin}";
+							tooltiptext += "<span style='text-decoration:underline'>Respawn-Daten</span> (<a class='error' onclick='return nd();' href='javascript:void(0)'>X</a>)<br />";
+							tooltiptext += "<form action='./main.php' method='post'><div>";
+							tooltiptext += "<input type='hidden' name='sess' value='{global.sess}' />";
+							tooltiptext += "<input type='hidden' name='module' value='schiff' />";
+							tooltiptext += "<input type='hidden' name='ship' value='{ship.id}' />";
+							tooltiptext += "<input type='hidden' name='action' value='respawn' />";
+							tooltiptext += "Zeit: <input type='text' name='respawntime' value='{ship.respawn}' size='5' /><br />";
+							tooltiptext += "<input type='submit' value='anlegen' />";
+							tooltiptext += "</div></form>";
+							tooltiptext += "{tooltip.respawn.end}";
+							overlib(tooltiptext,REF,'shiprespawntip', REFC,'UL',REFP,'UL',FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip',STICKY);
+						}		
+					// -->
+					</script>
+				
+					<a id="shiprespawntip" name="shiprespawntip" class="noborder" onclick="respawntooltip();" href="#">
+						<img src="{URL}data/interface/respawn.png" alt="?" />
+					</a>
+				{/endif}
+			{/endif}
+			{if ship.npcislandlink}
+				<a class="noborder" onmouseover="return helpme('zur Insel');" onmouseout="return nd();" href="./main.php?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=insel">
+					<img src="{URL}data/interface/schiffe/tunnel.png" alt="Insel der Gl&uuml;cksehligkeit" />
+				</a>
+			{/endif}
+			{if tooltip.module}
+				<a id="shipmoduletip" name="shipmoduleetip" class="noborder" onmouseover="javascript:overlib('{tooltip.module}',REF,'shipmoduletip', REFC,'LR',REFP,'UL',FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip',TIMEOUT,0);" onmouseout="return nd();" href="#">
+					<img src="{URL}data/interface/info.png" alt="?" />
+				</a>
+			{/endif}
+			{if tooltip.moduleext}
+				<a id="shipmoduletip" name="shipmoduleetip" class="noborder" onmouseover="javascript:overlib('{tooltip.moduleext}',REF,'shipmoduletip', REFC,'LR',REFP,'UL',FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip',TIMEOUT,0,STICKY,NOCLOSE);" onmouseout="return nd();" href="#">
+					<img src="{URL}data/interface/info.png" alt="?" />
+				</a>
+			{/endif}
+			<br />
+			<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+			{if ship.shields.reloade}
+				<form action="./main.php" method="post">
+					<div>
+						<label for="shup">Schilde:</label>
+						<input id="shup" name="shup" type="text" size="5" value="{ship.shields.reloade}" />
+						{!form_create_hidden shup, ship:$ship.id}
+						<input type="submit" value="aufladen" />
+					</div>
+				</form>
+			{/endif}
+			{if ship.showalarm}
+				<form action="./main.php" method="post">
+					<div>
+						<label for="alarm">Befehle:</label>
+						<select id="alarm" name="alarm">
+							<!-- BEGIN ship.alarms.listitem -->
+								<option {if alarm.selected}selected="selected"{/endif} value="{alarm.id}">{alarm.name}</option>
+							<!-- END ship.alarms.listitem -->
+						</select>
+						{!form_create_hidden alarm, ship:$ship.id}
+						<input type="submit" value="ok" />
+					</div>
+				</form>
+			{/endif}
+			
+			<form action="./main.php" method="post">
+				<div>
+					<label for="newname">Name:</label>
+					<input id="newname" name="newname" type="text" size="15" value="{ship.name}" />
+					{!form_create_hidden rename, ship:$ship.id}
+					<input type="submit" value="rename" />
+				</div>
+			</form>
+					
+			{if ship.consignable}
+				<form action="./main.php" method="post">
+					<div>
+						<label for="newowner">An User</label>
+						<input id="newowner" name="newowner" type="text" size="5" value="0" />
+						{!form_create_hidden consign, ship:$ship.id}
+						<input type="submit" value="&uuml;bergeben" />
+					</div>
+				</form>
+			{/endif}	
+		</td>
+		<td class="schiff" style="width:230px" valign="top" align="center" colspan="2">
+			{plugin.navigation}
+		</td>
+		<td class="schiffWaren" style="width:260px" valign="top">
+			{plugin.cargo}
+		</td>
+	</tr>
+	</table>
+	<div>
+		<br />
+	
+	{if ship.scriptparseroutput}
+		{!table_begin 850,left}
+			{ship.scriptparseroutput}
+		{!table_end}
+		<br />
+	{/endif}
+	<!-- BEGIN plugins.listitem -->
+		{plugin.output}
+		<br />
+	<!-- END plugins.listitem -->
+		<br />
+	</div>
+{else}
+	{if ship.scriptparseroutput}
+		{!table_begin 850,left}
+			{ship.scriptparseroutput}
+		{!table_end}
+		<div>
+			<br />
+		</div>
+	{/endif}
+{/endif}

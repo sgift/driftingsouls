@@ -1,0 +1,49 @@
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+{!table_begin 95%,left}
+<table width="100%" class="noBorderX" cellpadding="3" cellspacing="3">
+<tr>
+	<td valign="top" class="noBorderX">Sprungantrieb</td>
+</tr>
+<tr>
+	<td class="noBorderX">
+		{if schiff.jumpdrive.jumping}
+			Das Schiff springt gerade - Ziel: {schiff.jumpdrive.jumping}:{schiff.jumpdrive.jumpingx}/{schiff.jumpdrive.jumpingy} {!image_link_to interface/delete.gif, plugin, css_style:vertical-align:middle, plugin:$global.pluginid, ship:$ship.id, jumpdrive_ops[subaction]:cancel}<br /><br />
+			<form action="./main.php" method="post">
+				Ziel: <input name="jumpdrive_ops[system]" type="text" size="2" value="{schiff.jumpdrive.jumping}" />
+				<input name="jumpdrive_ops[x]" type="text" size="3" value="{schiff.jumpdrive.jumpingx}" />/<input name="jumpdrive_ops[y]" type="text" size="3" value="{schiff.jumpdrive.jumpingy}" />
+				
+				<input type="hidden" id="jumpdrive_subaction" name="jumpdrive_ops[subaction]" value="newtarget" /> 
+				<input type="submit" name="newtarget" value="Neues Ziel" />
+				{!form_create_hidden plugin, plugin:$global.pluginid, ship:$ship.id }
+			</form>
+		{else}
+			<form action="./main.php" method="post">
+				Ziel: <input name="jumpdrive_ops[system]" type="text" size="2" value="0" />:
+				<input name="jumpdrive_ops[x]" type="text" size="3" value="0" />/
+				<input name="jumpdrive_ops[y]" type="text" size="3" value="0" />
+				<input type="hidden" name="jumpdrive_ops[subaction]" value="set" /> 
+				{!form_create_hidden plugin, plugin:$global.pluginid, ship:$ship.id }
+				<input type="submit" name="jump" value="ok" /><br />
+			</form>
+		{/endif}
+	</td>
+</tr>
+</table>
+{!table_end}

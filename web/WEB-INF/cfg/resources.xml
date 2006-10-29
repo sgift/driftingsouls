@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<resources>
+	<resource id="0" name="Nahrung"				image="data/resources/Nahrung.gif"		hidden="false"	tag="Nahrung" />
+	<resource id="1" name="Deuterium"			image="data/resources/Deuterium.gif"	hidden="false"	tag="Deuterium" />
+	<resource id="2" name="Kunststoffe"			image="data/resources/Kunststoffe.gif"	hidden="false"	tag="Kunststoffe" />
+	<resource id="3" name="Titan"				image="data/resources/Titan.gif"		hidden="false"	tag="Titan" />
+	<resource id="4" name="Uran"				image="data/resources/Uran.gif"			hidden="false"	tag="Uran" />
+	<resource id="5" name="Antimaterie"			image="data/resources/Antimaterie.gif"	hidden="false"	tag="Antimaterie" />
+	<resource id="6" name="Adamatium"			image="data/resources/Adamatium.gif"	hidden="false"	tag="Adamatium" />
+	<resource id="7" name="Platin"				image="data/resources/Platin.gif"		hidden="false"	tag="Platin" />
+	<resource id="8" name="Silizium"			image="data/resources/Silizium.gif"		hidden="false"	tag="Silizium" />
+	<resource id="9" name="Xentronium"			image="data/resources/Xentronium.gif"	hidden="false"	tag="Xentronium" />
+	<resource id="10" name="Erz"				image="data/resources/Erz.gif"			hidden="false"	tag="Erz" />
+	<resource id="11" name="Isochips"			image="data/resources/Isochips.gif"		hidden="false"	tag="Isochips" />
+	<resource id="12" name="Batterien"			image="data/resources/Reservebatterien.gif"				hidden="false"	tag="Batterien" />
+	<resource id="13" name="Leere Batterien"		image="data/resources/Leere Reservebatterien.gif"	hidden="false"	tag="LBatterien" />
+	<resource id="14" name="Antarit"				image="data/resources/antarit.gif"					hidden="false"	tag="Antarit" />
+	<resource id="15" name="Shivanische Artefakte"	image="data/resources/shiv-arte.gif"				hidden="false"	tag="Shivarte" />
+	<resource id="16" name="Artefakte der Uralten"	image="data/resources/ancient-arte.gif"				hidden="false"	tag="Ancientarte" />
+	<resource id="17" name="Böse Admins"			image="data/resources/Soldaten.gif"					hidden="true"	tag="BAdmins" />
+	<resource id="18" name="Items"					image="data/resources/open.gif"						hidden="true" />
+</resources>

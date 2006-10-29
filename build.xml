@@ -1,0 +1,203 @@
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<project name="Drifting Souls" default="compile" basedir=".">
+	<!-- ===================== Property Definitions =========================== -->
+	
+	<property file="build.properties"/>
+	<property file="${user.home}/build.properties"/>
+	
+	
+	<!-- ==================== File and Directory Names ======================== -->
+
+	<property name="app.name"      value="driftingsouls"/>
+	<property name="app.path"      value="/${app.name}"/>
+	<property name="app.version"   value="2"/>
+	<property name="build.home"    value="${basedir}/build"/>
+	<property name="catalina.home" value="/opt/tomcat5"/> <!-- UPDATE THIS! -->
+	<property name="dist.home"     value="${basedir}/dist"/>
+	<property name="docs.home"     value="${basedir}/docs"/>
+	<property name="manager.url"   value="http://localhost:8080/manager"/>
+	<property name="src.home"      value="${basedir}/src"/>
+	<property name="web.home"      value="${basedir}/web"/>
+
+	<!--  ==================== Compilation Control Options ==================== -->
+
+	<property name="compile.debug"       value="true"/>
+	<property name="compile.deprecation" value="false"/>
+	<property name="compile.optimize"    value="true"/>
+
+	<!-- ==================== External Dependencies =========================== -->
+
+
+	<!-- ==================== Compilation Classpath =========================== -->
+
+	<path id="compile.classpath">
+
+		<fileset dir="web/WEB-INF/lib">
+			<include name="*.jar"/>
+		</fileset>
+
+		<pathelement location="${catalina.home}/common/classes"/>
+		<fileset dir="${catalina.home}/common/endorsed">
+			<include name="*.jar"/>
+		</fileset>
+		<fileset dir="${catalina.home}/common/lib">
+			<include name="*.jar"/>
+		</fileset>
+		<fileset dir="${catalina.home}/server/lib">
+			<include name="*.jar"/>
+		</fileset>
+		<pathelement location="${catalina.home}/shared/classes"/>
+		<fileset dir="${catalina.home}/shared/lib">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+	
+	<!-- ================== Custom Ant Task Definitions ======================= -->
+
+	<taskdef name="reload"   classname="org.apache.catalina.ant.ReloadTask"
+		classpathref="compile.classpath"/>
+	
+	<!-- ==================== All Target ====================================== -->
+
+	<target name="all" depends="clean,templates,compile"
+		description="Clean build and dist directories, then compile"/>
+
+	<!-- ==================== Clean Target ==================================== -->
+
+	<target name="clean" description="Delete old build and dist directories">
+		<delete>
+			<fileset dir="${build.home}">
+				<exclude name="**/data/**" />
+			</fileset>
+		</delete>
+		<delete dir="${build.home}/WEB-INF" />
+		<delete dir="${dist.home}"/>
+	</target>
+	
+	<!-- ==================== Compile Targets ================================== -->
+	
+	<target name="compile-framework" depends="prepare" description="Compile framework sources">
+		<javac srcdir="${src.home}"
+			   destdir="${build.home}/WEB-INF/classes"
+			   debug="${compile.debug}"
+			   deprecation="${compile.deprecation}"
+			   optimize="${compile.optimize}"
+				includes="**/server/framework/**">
+			<classpath refid="compile.classpath"/>
+		</javac>		
+	</target>
+	
+	<target name="compile-templates" depends="prepare" description="Compile template sources">
+			<javac srcdir="${src.home}"
+				   destdir="${build.home}/WEB-INF/classes"
+				   debug="${compile.debug}"
+				   deprecation="${compile.deprecation}"
+				   optimize="${compile.optimize}"
+					encoding="UTF-8"
+					includes="**/server/templates/**">
+				<classpath refid="compile.classpath"/>
+			</javac>
+	</target>
+	
+	<target name="compile-ds" depends="prepare" description="Compile template sources">
+		<javac srcdir="${src.home}"
+			   destdir="${build.home}/WEB-INF/classes"
+			   debug="${compile.debug}"
+			   deprecation="${compile.deprecation}"
+			   optimize="${compile.optimize}"
+				excludes="**/server/templates/**,**/server/framework/**">
+			<classpath refid="compile.classpath"/>
+		</javac>
+	</target>
+	
+	<target name="compile" depends="compile-framework,compile-templates,compile-ds" description="Compile meta target">
+	</target>
+	
+	<!-- ==================== jar Target ===================================== -->
+	<target name="jar" depends="templates,compile" description="Create a jar">
+		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-framework.jar" basedir="${build.home}/WEB-INF/classes" includes="**/server/framework/**" />
+		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-templates.jar" basedir="${build.home}/WEB-INF/classes" includes="**/server/templates/**" />
+		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-ds.jar" basedir="${build.home}/WEB-INF/classes" excludes="**/server/framework/**,**/server/templates/**" />
+	</target>
+
+	<!-- ==================== Dist Target ===================================== -->
+
+	<target name="dist" depends="compile,javadoc"
+		description="Create binary distribution">
+
+		<mkdir dir="${dist.home}/docs"/>
+		<copy todir="${dist.home}/docs">
+			<fileset dir="${docs.home}">
+				<exclude name="**/thirdparty/*" /> 
+				<exclude name="**/thirdparty" />
+			</fileset>
+		</copy>
+
+		<jar jarfile="${dist.home}/${app.name}-${app.version}.war" basedir="${build.home}"/>
+	</target>
+
+
+	<!-- ==================== Javadoc Target ================================== -->
+
+	<target name="javadoc" depends="compile" description="Create Javadoc API documentation">
+		<mkdir dir="${dist.home}/docs/api"/>
+		<javadoc sourcepath="${src.home}" destdir="${dist.home}/docs/api" packagenames="*">
+			<classpath refid="compile.classpath" />
+		</javadoc>
+	</target>
+
+	<!-- ==================== Prepare Target ================================== -->
+
+	<target name="prepare">
+		<mkdir  dir="${build.home}"/>
+		<mkdir  dir="${build.home}/WEB-INF"/>
+		<mkdir  dir="${build.home}/WEB-INF/classes"/>
+
+		<copy todir="${build.home}">
+			<fileset dir="${web.home}">
+				<exclude name="**/data/**" />
+			</fileset>
+		</copy>
+
+		<mkdir  dir="${build.home}/WEB-INF/lib"/>
+
+		<copy todir="${build.home}/WEB-INF/classes">
+			<fileset dir="${src.home}" excludes="**/*.java"/>
+		</copy>
+	</target>
+	
+	<!-- ==================== Template Target ================================== -->
+	
+	<target name="templates" depends="prepare">
+		<mkdir  dir="${src.home}/net/driftingsouls/ds2/server/templates"/>
+		<exec dir="${basedir}" executable="bash" failonerror="true">
+			<arg line="${basedir}/templates.sh"/>
+			<arg line="${basedir}/templates/"/>
+		</exec>
+	</target>
+
+
+	<!-- ==================== Reload Target =================================== -->
+
+	<target name="reload" description="Reload application on servlet container">
+		<reload url="${manager.url}" username="${manager.username}" password="${manager.password}" path="${app.path}"/>
+	</target>
+</project>
+ 

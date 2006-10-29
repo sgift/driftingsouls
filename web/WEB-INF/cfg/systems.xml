@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<systems>
+	<system id="0" width="500" height="500" allow-military="false" max-colonies="1">
+		<name>Vorlagen</name>
+		<access>admin</access>
+	</system>
+	<system id="1" width="200" height="500" allow-military="true">
+		<name>Delta Serpentis</name>
+		<order-location x="54" y="368" />
+		<order-location x="10" y="10" />
+		<order-location x="65" y="310" />
+		<order-location x="90" y="350" />
+		<order-location x="50" y="50" />
+		<!-- 
+		<description>[b]BlUb[/b]</description>
+		 -->
+	</system>
+	<system id="2" width="200" height="200" allow-military="true">
+		<name>Regulus</name>
+		<drop-zone x="35" y="35" />
+		<order-location x="30" y="100" />
+		<order-location x="150" y="120" />
+	</system>
+	
+	<system id="4" width="200" height="200" allow-military="true">
+		<name>Epsilon Pegasi</name>
+		<drop-zone x="95" y="95" />
+		<order-location x="25" y="25" />
+		<order-location x="25" y="160" />
+		<order-location x="100" y="50" />
+		<!-- 
+		<description>[u]Test\n[b]beschreibung[/b][/u]</description>
+		 -->
+	</system>
+	
+	<system id="5" width="200" height="200" allow-military="true">
+		<name>Chyron</name>
+		<drop-zone x="45" y="45" />
+		<order-location x="130" y="130" />
+		<order-location x="180" y="180" />
+		<order-location x="50" y="50" />
+	</system>
+	
+	<system id="6" width="200" height="200" allow-military="true">
+		<name>Gamma Boreolus</name>
+		<access>npc</access>
+	</system>
+	
+	<system id="7" width="200" height="200" allow-military="true" max-colonies="10">
+		<name>Sigma Draconis</name>
+	</system>
+	
+	<system id="8" width="200" height="200" allow-military="true">
+		<name>Yalon Tarh</name>
+		<drop-zone x="80" y="120" />
+		<order-location x="160" y="160" />
+		<order-location x="30" y="30" />
+		<order-location x="20" y="180" />
+	</system>
+	
+	<system id="99" width="20" height="20" allow-military="true">
+		<name>Insel der Glueckseeligkeit</name>
+		<access>admin</access>
+	</system>
+</systems>

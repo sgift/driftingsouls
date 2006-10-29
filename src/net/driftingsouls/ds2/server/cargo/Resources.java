@@ -1,0 +1,104 @@
+/*
+ *	Drifting Souls 2
+ *	Copyright (c) 2006 Christopher Jung
+ *
+ *	This library is free software; you can redistribute it and/or
+ *	modify it under the terms of the GNU Lesser General Public
+ *	License as published by the Free Software Foundation; either
+ *	version 2.1 of the License, or (at your option) any later version.
+ *
+ *	This library is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *	Lesser General Public License for more details.
+ *
+ *	You should have received a copy of the GNU Lesser General Public
+ *	License along with this library; if not, write to the Free Software
+ *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+package net.driftingsouls.ds2.server.cargo;
+
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+
+/**
+ * Liste von gaengigen Resourcen sowie einigen Hilfsfunktionen fuer Resourcen-IDs
+ * @author Christopher Jung
+ *
+ */
+public class Resources {
+	public static final ResourceID NAHRUNG = new WarenID(0);
+	public static final ResourceID DEUTERIUM = new WarenID(1);
+	public static final ResourceID KUNSTSTOFFE = new WarenID(2);
+	public static final ResourceID TITAN = new WarenID(3);
+	public static final ResourceID URAN = new WarenID(4);
+	public static final ResourceID ANTIMATERIE = new WarenID(5);
+	public static final ResourceID ADAMATIUM = new WarenID(6);
+	public static final ResourceID PLATIN = new WarenID(7);
+	public static final ResourceID SILIZIUM = new WarenID(8);
+	public static final ResourceID XENTRONIUM = new WarenID(9);
+	public static final ResourceID ERZ = new WarenID(10);
+	public static final ResourceID ISOCHIPS = new WarenID(11);
+	public static final ResourceID BATTERIEN = new WarenID(12);
+	public static final ResourceID LBATTERIEN = new WarenID(13);
+	public static final ResourceID ANTARIT = new WarenID(14);
+	public static final ResourceID SHIVARTE = new WarenID(15);
+	public static final ResourceID ANCIENTARTE = new WarenID(16);
+	public static final ResourceID BOESERADMIN = new WarenID(17);
+	public static final ResourceID ITEMS = new WarenID(18);
+
+	/**
+	 * Wandelt einen String in eine Resourcen-ID um.
+	 * Es werden sowohl normale Waren alsauch Items beruecksichtigt.
+	 * 
+	 * @param rid Der String
+	 * @return die Resourcen-ID
+	 */
+	public static ResourceID fromString(String rid) {
+		if( rid == null ) {
+			return null;
+		}
+		if( rid.equals("") ) {
+			return null;
+		}
+		ResourceID res = ItemID.fromString(rid);
+		if( res != null ) {
+			return res;
+		}
+
+		return new WarenID(Integer.parseInt(rid));
+	}
+	
+	/**
+	 * Gibt die <code>ResourceList</code> via TemplateEngine aus. Ein Item des TemplateBlocks
+	 * muss den Namen templateBlock+"item" haben.
+	 * 
+	 * @param t Das TemplateEngine
+	 * @param reslist Die ResourceList
+	 * @param templateblock Der Name des betreffenden TemplateBlocks
+	 */
+	public static void echoResList( TemplateEngine t, ResourceList reslist, String templateblock) {
+		echoResList(t,reslist,templateblock,templateblock+"item");
+	}
+	
+	/**
+	 * Gibt die <code>ResourceList</code> via TemplateEngine aus
+	 * @param t Das TemplateEngine
+	 * @param reslist Die ResourceList
+	 * @param templateblock Der Name des betreffenden TemplateBlocks
+	 * @param templateitem Der Name eines Items des TemplateBlocks
+	 */
+	public static void echoResList( TemplateEngine t, ResourceList reslist, String templateblock, String templateitem ) {
+		t.set_var(templateblock,"");
+		
+		for( ResourceEntry res : reslist ) {
+			t.set_var(	"res.image",		res.getImage(),
+						"res.cargo",		res.getCargo1(),
+						"res.cargo1",		res.getCargo1(),
+						"res.cargo2",		res.getCargo2(),
+						"res.name",			res.getName(),
+						"res.plainname",	res.getPlainName() );
+			
+			t.parse(templateblock,templateitem,true);
+		}
+	}
+}

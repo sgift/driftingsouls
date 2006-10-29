@@ -1,0 +1,39 @@
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+{if colonize.message}
+	{colonize.message}
+{else}
+	{!table_begin 500,left}
+		Leite Kolonisierung ein<br /><br />
+		Waren verf&uuml;gbar:<br />
+		<!-- BEGIN res.listitem -->
+			<img src="{res.image}" alt="" />{res.name} {res.cargo}<br />
+		<!-- END res.listitem -->
+		<br />Kolonisierung abgeschlossen<br />
+	{!table_end}
+{/endif}
+<br />
+<br />
+{if base.id}
+	{!link_to Zur Kolonie, default, module:base, css_class:back, col:$base.id}
+	|
+	{!link_to zur Kolonie&uuml;bersicht, default, css_class:back, module:basen}
+{else}
+	{!link_to zur&uuml;ck, default, css_class:back, module:schiff, ship:$ship.id}
+{/endif}

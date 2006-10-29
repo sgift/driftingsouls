@@ -1,0 +1,48 @@
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<table width="95%" class="show" cellpadding="3" cellspacing="3">
+<tr>
+	<td class="schiff" colspan="{ship.jdocks}">J&auml;gerdocks
+		{if ship.docklist}
+			- <a class="forschinfo" href="./main.php?sess={global.sess}&amp;module=transport&amp;from={ship.id}&amp;to={ship.docklist}&amp;way=stos">Alle Auftanken</a>
+		 	- <a class="forschinfo" href="./main.php?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;jdocks_ops[act]=unload">Alle Entladen</a>
+			- <a class="forschinfo" href="./main.php?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=start&amp;shiplist={ship.docklist}">Alle J&auml;ger starten</a>
+			{if ship.docklist.nofleet}
+				- <a class="forschinfo" href="javascript:PopupWnd(1,'&shiplist={ship.docklist}&action=create')">Flotte bilden</a>
+			{/endif}
+		{/endif}
+	</td>
+</tr>
+<tr>
+<!-- BEGIN jdocks.listitem -->
+	{if docks.endrow}
+		</tr><tr>
+	{/endif}
+	{if docks.entry.id}
+		<td class="schiffData" valign="top" width="{docks.width}%" align="center">
+			<a class="forschinfo" href="./main.php?module=schiff&amp;sess={global.sess}&amp;ship={docks.entry.id}">{docks.entry.name} ({docks.entry.id})</a><br />
+			<a class="noborder" target="_blank" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={docks.entry.type}"><img src="{docks.entry.image}" alt="" /></a><br />
+			<a class="forschinfo" href="./main.php?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=start&amp;shiplist={docks.entry.id}">abladen</a><br>
+			<a class="forschinfo" href="./main.php?sess={global.sess}&amp;module=transport&amp;to={docks.entry.id}&amp;from={ship.id}&amp;way=stos">Auftanken</a>
+		</td>
+	{else}
+		<td align="center" valign="middle" class="BorderS">Leer</td>
+	{/endif}
+<!-- END jdocks.listitem -->
+</tr></table>

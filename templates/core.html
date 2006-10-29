@@ -1,0 +1,183 @@
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+{if core.build}
+	<span class="smallfont">
+		{!table_begin 450,center}
+		<table class="noBorder" cellpadding="1" cellspacing="1">
+		<!-- BEGIN build.res.listitem -->
+			<tr>
+				<td class="noBorderS">
+					<img src="{res.image}" alt="" />{res.cargo.available} vorhanden
+				</td>
+				<td class="noBorderS"> - </td>
+				<td class="noBorderS">
+					<img src="{res.image}" alt="" />{res.cargo.needed} ben&ouml;tigt
+				</td>
+				{if res.missing}
+					<td class="noBorderS"> - </td>
+					<td class="noBorderS">
+						<span style="color:#ff0000">Es fehlen  <img src="{res.image}" alt="" />{res.missing}</span>
+					</td>
+				{else}
+					<td class="noBorderS"></td>
+					<td class="noBorderS"></td>
+				{/endif}
+			</tr>
+		<!-- END build.res.listitem -->
+		</table>
+		{if build.message}
+			<br />{build.message}
+		{/endif}
+		{!table_end}
+	</span>
+	<br />
+	<br />
+{/endif}
+{if core.message}
+	<span class="smallfont">
+		{core.message}
+	</span>
+	<br /><br />
+{/endif}
+{if base.core}
+	{!table_begin 420,left}
+		<div align="center">
+			<img align="middle" src="{URL}data/starmap/kolonie{core.astitype}_lrs/kolonie{core.astitype}_lrs.png" alt="" />{core.name}
+		</div><br />
+		{if core.activated}
+			<span style="color:#00ff00">Aktiv</span><br />
+		{else}
+			<span style="color:#ff0000">Inaktiv</span><br />
+		{/endif}
+		<br />Verbraucht:<br />
+		<div align="center">
+			<!-- BEGIN res.listitem -->
+				<img src="{res.image}" alt="" />{res.cargo}
+			<!-- END res.listitem -->
+			{if core.ever}
+				<img src="{URL}data/interface/energie.gif" alt="" />{core.ever}
+			{/endif}
+			{if ! consumes.res.list}
+				{if ! core.ever}
+					-
+				{/endif}
+			{/endif}
+		</div>
+		Produziert:<br />
+		<div align="center">
+			{produces.res.list}
+			{if core.eprodu}
+				<img src="{URL}data/interface/energie.gif" alt="" />{core.eprodu}
+			{/endif}
+			{if ! produces.res.list}
+				{if ! core.eprodu}
+					-
+				{/endif}
+			{/endif}
+		</div><br />
+		{if core.activated}
+			Aktionen: {!link_to deaktivieren, deactivate, css_class:error, col:$base.id}<br />
+		{else}
+			Aktionen: {!link_to aktivieren, activate, css_class:ok, col:$base.id}<br />
+		{/endif}
+	{!table_end}
+{else}
+	{if cores.list}
+		{!table_begin 900,left}
+			<table class="noBorderX">
+			<tr>
+				<td class="noBorderX">Name</td>
+				<td class="noBorderX">Baukosten</td>
+				<td class="noBorderX">Verbrauch</td>
+				<td class="noBorderX">Produktion</td>
+				<td class="noBorderX">Arbeiter</td>
+				<td class="noBorderX">Effekt</td>
+			</tr>
+			<!-- BEGIN cores.listitem -->
+				{if cores.list}
+					<tr>
+						<td colspan="6" class="noBorderX">
+							<hr noshade="noshade" size="1" style="color:#cccccc" />
+						</td>
+					</tr>
+				{/endif}
+				<tr>
+					<td class="noBorderX">
+						{if core.isbuildable}
+							{!link_to $core.name, build, col:$base.id, build:$core.id}
+						{else}
+							{!link_to $core.name, build, css_class:error, col:$base.id, build:$core.id}
+						{/endif}
+					</td>
+					<td class="noBorderX">
+						<!-- BEGIN costs.res.listitem -->
+							<img src="{res.image}" alt="" />{if res.red}<span style="color:red">{/endif}{res.cargo}{if res.red}</span>{/endif}
+						<!-- END costs.res.listitem -->
+						{if ! costs.res.list}-{/endif}
+					</td>
+					<td class="noBorderX">
+						{consumes.res.list}
+						{if core.ever}
+							<img src="{URL}data/interface/energie.gif" alt="" />{core.ever}
+						{/endif}
+						{if ! consumes.res.list}
+							{if ! core.ever}
+								-
+							{/endif}
+						{/endif}
+					</td>
+					<td class="noBorderX">
+						{produces.res.list}
+						{if core.eprodu}
+							<img src="{URL}data/interface/energie.gif" alt="" />{core.eprodu}
+						{/endif}
+						{if ! produces.res.list}
+							{if ! core.eprodu}
+								-
+							{/endif}
+						{/endif}
+					</td>
+					<td class="noBorderX">
+						{if core.arbeiter}
+							<img src="{URL}data/interface/narbeiter.gif" alt="Arbeiter" />{core.arbeiter}
+						{else}
+							-
+						{/endif}
+					</td>
+					<td class="noBorderX">
+						{if core.bewohner}
+							<img src="{URL}data/interface/arbeiter.gif" alt="Bewohner" />{core.bewohner}
+						{else}
+							-
+						{/endif}
+					</td>
+				</tr>
+			<!-- END cores.listitem -->
+			</table>
+		{!table_end}
+	{else}
+		{!table_begin 450,center}
+			Sie haben noch nicht die n&ouml;tigen Forschungen um eine passende Core bauen zu k&ouml;nnen<br />
+		{!table_end}
+	{/endif}
+{/endif}
+<br />
+<span class="smallfont">
+	{!link_to zur&uuml;ck, default, module:base, css_class:back, col:$base.id}
+</span>

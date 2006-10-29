@@ -1,0 +1,95 @@
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<div style="color:#ff0505">Asteroidenbasen<br /></div>
+<table class="show" width="95%" cellpadding="3" cellspacing="2">
+<tr>
+	<td class="schiffData">
+		<a class="forschinfo" href="./main.php?module=basen&amp;sess={global.sess}&amp;ord=id&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">ID</a>
+	</td>
+	<td class="schiffData">
+		<a class="forschinfo" href="./main.php?module=basen&amp;sess={global.sess}&amp;ord=name&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">Name</a>
+	</td>
+	<td class="schiffData">
+		<a class="forschinfo" href="./main.php?module=basen&amp;sess={global.sess}&amp;ord=sys&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">Koordinaten</a>
+	</td>
+	<td class="schiffData">
+		<a class="forschinfo" href="./main.php?module=basen&amp;sess={global.sess}&amp;ord=bew&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">Bewohner</a>
+	</td>
+	<td class="schiffData">
+		<a class="forschinfo" href="./main.php?module=basen&amp;sess={global.sess}&amp;ord=e&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">Energie</a>
+	</td>
+	<td class="schiffData"><span class="nobr">Mangel [<img style="vertical-align:middle" src="{URL}data/interface/time.gif" alt="" />]</span></td>
+	<td class="schiffData" style="width:35%">
+		Lager
+		{if global.l > 0}
+			<a class="forschinfo" href="./main.php?module=basen&amp;sess={global.sess}&amp;l=-1"><span style="font-size:8pt">(nicht anzeigen)</span></a>
+		{else}
+			<a class="forschinfo" href="./main.php?module=basen&amp;sess={global.sess}&amp;l=1"><span style="font-size:8pt">(anzeigen)</span></a>
+		{/endif}
+	</td>
+	<td class="schiffData">Spezialgeb&auml;ude</td>
+</tr>
+<!-- BEGIN bases.listitem -->
+	<tr>
+		<td class="schiffData">
+			{!link_to $base.id, default, module:base, col:$base.id}
+		</td>
+		<td class="schiffData">
+			<a class="forschinfo" href="./main.php?module=base&amp;sess={global.sess}&amp;col={base.id}">
+				<img style="vertical-align:middle; border:0px" src="{URL}data/starmap/kolonie{base.klasse}_lrs/kolonie{base.klasse}_lrs.png" alt="Kolonie" />&nbsp;
+				{base.name}
+			</a>
+		</td>
+		<td class="schiffData">{base.system}:{base.x}/{base.y}</td>
+		<td class="schiffData">{base.bewohner}</td>
+		<td class="schiffData">
+			{if base.e.diff < 0}
+				<span style="color:red">{base.e}-{base.e.diff}
+			{/endif}
+			{if base.e.diff == 0}
+				<span style="color:yellow">{base.e}
+			{/endif}
+			{if base.e.diff > 0}
+				<span style="color:green">{base.e}+{base.e.diff}
+			{/endif}
+			</span>
+		</td>
+		<td class="schiffData">
+			<span style="color:red">
+				<!-- BEGIN bases.mangel.listitem -->
+					<span class="nobr"><img style="vertical-align:middle" src="{mangel.image}" alt="" title="{mangel.plainname}" />{mangel.rounds}</span>
+				<!-- END bases.mangel.listitem -->
+			</span>
+		</td>
+		<td class="schiffData" style="width:35%">
+			{if global.l > 0}
+				<!-- BEGIN bases.cargo.listitem -->
+					<span class="nobr"><img style="vertical-align:middle" src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}</span>
+				<!-- END bases.cargo.listitem -->
+				<span class="nobr"><img style="vertical-align:middle" src="{URL}data/interface/leer.gif" alt="" title="Leer" />{bases.cargo.empty}</span>
+			{else}
+				{!link_to (anzeigen), default, css_style:font-size:8pt, l:1}
+			{/endif}
+		</td>
+		<td class="schiffData">
+			{base.shortcuts}
+		</td>
+	</tr>
+<!-- END bases.listitem -->
+</table>

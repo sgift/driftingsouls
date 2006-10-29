@@ -1,0 +1,166 @@
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<!-- BEGIN header -->
+	<style type="text/css">
+	<!--
+		<!-- BEGIN tiles.listitem -->
+			div.p{tile.id} {position: absolute; top:{tile.top}px; left:{tile.left}px; z-index: 2}
+			div.o{tile.id} {position: absolute; top:{tile.top}px; left:{tile.left}px; z-index: 3}
+		<!-- END tiles.listitem -->
+	-->
+	</style>
+<!-- END header -->
+{if base.message}
+	<div class="smallfont">
+		{base.message}<br /><br />
+	</div>
+{/endif}
+<script type="text/javascript">
+	var basename = "{base.name}";
+</script>
+<div>
+	{base.system}:{base.x}/{base.y} - {base.name} ({base.id})
+	<a class="noborder" id="changename" name="changename" onclick="javascript:overlib('{base.renametooltip}',REF,'changename', WIDTH,'300',REFC,'UL',REFP,'UL',FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'tooltip',NOCLOSE,STICKY);" onmouseout="return nd();" href="#">
+		<img style="vertical-align:middle; border:0px" src="{URL}data/interface/pen.gif" alt="Namen &auml;ndern" />
+	</a>
+	<br />
+	<br />
+	<span class="smallfont">
+		Core:
+		{if base.core}
+			{if base.core.active}
+				{!link_to $core.name, default, css_class:ok, module:core, col:$base.id}
+			{else}
+				{!link_to $core.name, default, css_class:error, module:core, col:$base.id}
+			{/endif}
+		{else}
+			{!link_to leer, default, css_class:ok, module:core, col:$base.id}
+		{/endif}
+	</span>
+	<br /><br />
+</div>
+<table class="noBorder" cellspacing="5" cellpadding="2">
+<tr>
+	<td class="Border">Karte</td>
+	<td style="width:5px" class="noBorder"></td>
+	<td style="width:280px" class="Border">Cargo</td>
+	<td style="width:5px" class="noBorder"></td>
+	<td style="width:240px" class="Border">Aktionen</td>
+</tr>
+<tr>
+	<td class="schiffData" valign="top">
+		<div style="z-index:2; position:relative; top:0px; left:0px; width:{base.map.width}px; height:{base.cargo.height}px; overflow:auto">
+		<!-- +START+ Karte -->
+		<!-- BEGIN base.map.listitem -->
+			<div class="p{tile.id}">
+				{if ! tile.overlay}
+					{if tile.building}
+						<a onmouseover="return overlib('{tile.building.name}',TIMEOUT,0,DELAY,600,WIDTH,100);" onmouseout="return nd();" href="./main.php?module=building&amp;sess={global.sess}&amp;col={base.id}&amp;field={tile.field}">
+					{else}
+						<a href="./main.php?module=build&amp;sess={global.sess}&amp;col={base.id}&amp;field={tile.field}">
+					{/endif}
+				{/endif}
+				<img style="border:0px" src="{URL}{tile.building.image}" alt="" />
+				{if ! tile.overlay}</a>{/endif}
+			</div>
+			{if tile.overlay}
+				<div class="o{tile.id}">
+					{if tile.building}
+						<a onmouseover="return overlib('{tile.building.name}',TIMEOUT,0,DELAY,600,WIDTH,100);" onmouseout="return nd();" href="./main.php?module=building&amp;sess={global.sess}&amp;col={base.id}&amp;field={tile.field}">
+					{else}
+						<a href="./main.php?module=build&amp;sess={global.sess}&amp;col={base.id}&amp;field={tile.field}">
+					{/endif}
+					<img style="border:0px" src="{URL}data/buildings/{tile.overlay.image}" alt="" />
+					</a>
+				</div>
+			{/endif}
+		<!-- END base.map.listitem -->
+		<!-- +END+ Karte -->
+		</div>
+	</td>
+	<td class="noBorder">&nbsp;</td>
+	<td valign="top" class="schiffWaren">
+		<div style="padding:5px; height:{base.cargo.height}px; overflow:auto">
+			<!-- +START+ Cargo -->
+			<!-- BEGIN base.cargo.listitem -->
+				{if res.plaincount2 > 0}
+					<img style="vertical-align:middle" src="{res.image}" alt="" /><span style="color:#00ff00">{res.name} {res.cargo1} +{res.cargo2}</span>
+				{/endif}
+				{if res.plaincount2 == 0}
+					<img style="vertical-align:middle" src="{res.image}" alt="" />{res.name} {res.cargo1}
+				{/endif}
+				{if res.plaincount2 < 0}
+					<img style="vertical-align:middle" src="{res.image}" alt="" /><span style="color:#ff0000">{res.name} {res.cargo1} {res.cargo2}</span>
+				{/endif}
+				{if res.nahrungspeciallink}
+					<a class="noborder" id="transfernahrung" name="transfernahrung" onclick="javascript:void(overlib('{res.nahrungspeciallink}',REF,'transfernahrung', WIDTH,'300',REFC,'UL',REFP,'UL',FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'tooltip',NOCLOSE,STICKY));" onmouseout="return nd();" href="#">
+						<img style="vertical-align:middle; border:0px" src="{URL}data/interface/right.gif" alt="Nahrung transferieren" />
+					</a>
+				{/endif}
+				<br />
+			<!-- END base.cargo.listitem -->
+			<img src="{URL}data/interface/leer.gif" alt="" />Leer {base.cargo.empty} {base.cstat}<br />
+			<!-- +END+ Cargo -->
+		</div>
+	</td>
+	<td class="noBorder">&nbsp;</td>
+	<td valign="top" class="schiffWaren">
+		<div style="padding:5px">
+			<table class="noBorderS">
+				<!-- BEGIN base.massonoff.listitem -->
+					<tr>
+						<td class="noBorderS" style="font-size:13px">{building.name}</td>
+						<td class="noBorderS" align="right">
+							{if building.allowoff}
+								{!image_link_to interface/nenergie.gif, changeBuildingStatus, css_class:noborder, col:$base.id, buildingonoff:$building.id, act:0}
+							{/endif}
+							{if building.allowon} 
+								{!image_link_to interface/energie.gif, changeBuildingStatus, css_class:noborder, col:$base.id, buildingonoff:$building.id, act:1}
+							{/endif}
+						</td>
+					</tr>
+				<!-- END base.massonoff.listitem -->
+			<tr>
+				<td colspan="2" class="noBorderS" align="center">
+					<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+					{!link_to Alles aktivieren, default, css_style:font-size:14px, css_class:ok, module:activateall, col:$base.id}<br />
+					{!link_to Alles deaktivieren, default, css_style:font-size:14px, css_class:error, module:activateall, col:$base.id, deaconly:1}<br />
+				</td>
+			</tr>
+			</table>
+		</div>
+	</td>
+</tr>
+<tr>
+	<td colspan="5" class="noBorderS">
+		<br />
+		{!table_begin 100%,left}
+			Aktuelle Energie: {base.e}<br />
+			Bilanz: {base.estat} 
+			<!-- BEGIN base.estat.listitem --><img style="vertical-align:middle" src="{estat.image}" alt="" />{if estat.break}<br />{/endif}<!-- END base.estat.listitem -->
+			<br />
+			Bev&ouml;lkerung: {base.bewohner}<br />
+			Arbeiter ben&ouml;tigt: {base.arbeiter.needed}<br />
+			Wohnraum: {base.wohnraum}<br />
+			<!-- BEGIN base.bev.listitem --><img style="border:0px" src=" {URL}data/interface/{bev.image}" alt="" />{if bev.break}<br />{/endif}<!-- END base.bev.listitem -->
+			<br /><br />
+		{!table_end}
+	</td>
+</tr>
+</table>

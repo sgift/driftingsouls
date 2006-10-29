@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<config>
+	<!-- DATABASE -->
+	<setting type="string" name="db_server" value="localhost" />
+	<setting type="string" name="db_database" value="ds2" />
+	<setting type="string" name="db_user" value="root" />
+	<setting type="string" name="db_password" value="" />
+	
+	<!-- Sonstiges -->
+	<setting type="string" name="SMTP-SERVER" value="localhost" />
+	<setting type="number" name="AUTOLOGOUT_TIME" value="3600" />
+	<setting type="string" name="URL" value="http://localhost:8080/driftingsouls/" />
+	<setting type="string" name="ABSOLUTE_PATH" value="/home/bktheg/Projects/dsj/web/" />
+	<setting type="string" name="TICKPATH" value="/home/bktheg/public_html/ds2/tick/" />
+	<setting type="string" name="QUESTPATH" value="/home/bktheg/public_html/ds2/quests/" />
+	<setting type="string" name="LOXPATH" value="/home/bktheg/public_html/ds2/lox/" />
+	<setting type="number" name="DEBUG" value="1" />
+	<setting type="string" name="SMILIE_PATH" value="http://forum.drifting-souls.net/phpBB2/images/smiles" />
+	<setting type="number" name="CONFIG_TRUEMMER" value="49" />
+	<setting type="number" name="CONFIG_TRUEMMER_HUELLE" value="451" />
+	<setting type="number" name="CONFIG_TRUEMMER_MAXITEMS" value="4" />
+	<setting type="string" name="ADMIN_PMS_ACCOUNT" value="-90,-99" />
+	<setting type="string" name="VERSION_TYPE" value="development" />
+	<setting type="string" name="GFXPAK_VERSION" value="1" />
+
+	<!-- 
+		Portal Einstellungen
+	-->
+	<setting type="number" name="ARTICLE_TUTORIAL" value="1" />
+	<setting type="number" name="ARTICLE_FAQ" value="5" />
+
+	<!-- 
+		Gameplay
+	-->
+	<setting type="number" name="DISABLE_FOOD_CONSUMPTION" value="0" />
+	<setting type="number" name="NOOB_PROTECTION" value="1" />
+	<setting type="number" name="DESTROYABLE_SHIPS" value="1" />
+	<setting type="number" name="ENABLE_CHEATS" value="1" />
+	
+	<!-- Register -->
+	<setting type="string" name="REGISTER_BASELAYOUT" value="1,0,2,6,17,0,0,2,0,0,0,0,0,0,0,7,0,0,0,0,7,0,0,0,0,4,0,0,0,3,4,0,0,0,5,4,0,0,0,5" />
+	<setting type="string" name="REGISTER_BASECARGO" value="0,500,1050,1300,450,0,200,500,600,100,0,0,0,0,0,0,0,0," />
+	<setting type="number" name="REGISTER_PM_SENDER" value="-16" />
+	
+	<!-- 
+		EMails / PMs
+	 -->
+	<setting type="string">
+		<name>PWNEW_EMAIL</name>
+		<value>Hallo {username}, 
+du hast ein neues Password angefordert. Dein neues Password lautet "{password}" und wurde verschluesselt gespeichert. Wenn es verloren geht, musst du dir ueber die "Passwort vergessen?" Funktion der Login-Seite ein neues erstellen lassen.
+Das Admin-Team wuenscht einen angenehmen Aufenthalt in Drifting Souls 2
+Gruss Guzman
+Admin
+{date} Serverzeit</value>
+	</setting>
+	<setting type="string">
+		<name>PWCHANGE_EMAIL</name>
+		<value>Hallo {username}, 
+du hast dein Password geaendert. Dein Password wird kodiert gespeichert. Wenn es verloren geht, musst Du Dir ueber die "neues Password zuteilen" Funktion der Login-Seite ein neues erstellen lassen.
+Das Admin-Team wuenscht einen angenehmen Aufenthalt in DS
+Gruss Guzman
+Admin
+{date} Serverzeit</value>
+	</setting>
+	<setting type="string">
+		<name>REGISTER_EMAIL</name>
+		<value>Hallo {username}, 
+du hast dich als "{username}" angemeldet. Dein Passwort lautet "{password}" (ohne \"\"). Im Spiel heisst du noch Kolonist. Dies sowie das Passwort kannst du aber unter "Optionen" aendern.
+
+Das Admin-Team wuenscht einen angenehmen Aufenthalt in DS
+Gruss Guzman
+Admin
+{date} Serverzeit</value>
+	</setting>
+	<setting type="string">
+		<name>REGISTER_PM</name>
+		<value>[font=arial]Herzlich willkommen bei Drifting Souls 2.
+		 Diese PM wird automatisch an alle neuen Spieler versandt, um ihnen Hilfsquellen fuer den relativ komplizierten Einstieg zu nennen.
+		 Falls Probleme auftreten sollten, gibt es: 
+		 - eine Wiki ([url=http://wiki.drifting-souls.net]Wiki zu Drifing-Souls[/url])
+		 - Informationen via Menue/Technische Datenbank 
+		 - einen IRC-Chat (Server: irc.eurirc.net / Chan #ds oder #ds-help - Erreichbar auch ueber die Startseite->Chat) 
+		 - das Forum via Menue/Technische Datenbank oder [url=http://forum.drifting-souls.net/phpBB2/]Forum-Link[/url]
+		 und die Moeglichkeit via PM an die ID -16 Fragen zu stellen.
+		 
+		 Unter [url=http://wiki.drifting-souls.net/Das_Ingame-Tutorial]Wiki:Ingame-Tutorial[/url] findest du den Text aus der Einfuehrung.
+		 
+		 Viel Spass; noch bei DS wuenschen dir die Admins[/font]</value>
+	</setting>
+</config>

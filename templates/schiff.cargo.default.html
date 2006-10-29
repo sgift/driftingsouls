@@ -1,0 +1,60 @@
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<!-- BEGIN schiff.cargo.reslist.listitem -->
+	<img style="vertical-align:middle" src="{res.image}" alt="" />{res.name} {res.cargo}
+	<br />
+<!-- END schiff.cargo.reslist.listitem -->
+<img src="{URL}data/interface/leer.gif" alt="Leer" />Leer {schiff.cargo.empty}
+<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+{if schiff.cargo.batterien}
+	<form action="./main.php" method="post">
+		<div>
+			Batterien entladen:<br />
+			<input name="cargo_ops[unload]" type="text" size="2" value="0" />
+			{!form_create_hidden plugin, ship:$ship.id, plugin:$global.pluginid}
+			<input type="hidden" name="cargo_ops[act]" value="unload" />
+			<input type="submit" value="entladen" />
+			<input type="submit" name="cargo_ops[max]" value="max" /><br />
+		</div>
+	</form><br />
+{/endif}
+{if schiff.cargo.lbatterien}
+	<form action="./main.php" method="post">
+		<div>
+			Batterien aufladen:<br />
+			<input name="cargo_ops[load]" type="text" size="2" value="0" />
+			{!form_create_hidden plugin, ship:$ship.id, plugin:$global.pluginid}
+			<input type="hidden" name="cargo_ops[act]" value="load" />
+			<input type="submit" value="aufladen" />
+			<input type="submit" name="cargo_ops[max]" value="max" />
+		</div>
+	</form><br />
+{/endif}
+{if schiff.cargo.tanker}
+	<form action="./main.php" method="post">
+		<div>
+			Automatisch <img style="vertical-align:middle" src="{resource.RES_DEUTERIUM.image}" alt="Deuterium" /> sammeln:<br />
+			<input id="cargo_ops_autodeut" name="cargo_ops[autodeut]" type="checkbox" value="1" {if schiff.cargo.tanker.autodeut}checked="checked"{/endif} />
+			<label for="cargo_ops_autodeut">aktivieren</label>&nbsp;
+			{!form_create_hidden plugin, ship:$ship.id, plugin:$global.pluginid}
+			<input type="hidden" name="cargo_ops[setautodeut]" value="1" />
+			<input type="submit" value="ok" />
+		</div>
+	</form>
+{/endif}

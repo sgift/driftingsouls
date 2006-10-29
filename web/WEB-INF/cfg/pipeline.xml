@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<pipeline>
+	<modules>
+		<generator class="net.driftingsouls.ds2.server.modules.PortalController" />
+		<transformer class="net.driftingsouls.ds2.server.framework.pipeline.transformer.PlainTransformer" />
+		<serializer class="net.driftingsouls.ds2.server.framework.pipeline.serializer.HtmlSerializer" />
+		
+		<module name="activateall">
+			<generator class="net.driftingsouls.ds2.server.modules.ActivateAllController" />
+		</module>
+		<module name="base">
+			<generator class="net.driftingsouls.ds2.server.modules.BaseController" />
+		</module>
+		<module name="basen">
+			<generator class="net.driftingsouls.ds2.server.modules.BasenController" />
+		</module>
+		<module name="bbcodeview">
+			<generator class="net.driftingsouls.ds2.server.modules.BBCodeViewController" />
+		</module>
+		<module name="build">
+			<generator class="net.driftingsouls.ds2.server.modules.BuildController" />
+		</module>
+		<module name="building">
+			<generator class="net.driftingsouls.ds2.server.modules.BuildingController" />
+		</module>
+		<module name="buildings">
+			<generator class="net.driftingsouls.ds2.server.modules.BuildingsController" />
+		</module>
+		<module name="choff">
+			<generator class="net.driftingsouls.ds2.server.modules.ChoffController" />
+		</module>
+		<module name="colonize">
+			<generator class="net.driftingsouls.ds2.server.modules.ColonizeController" />
+		</module>
+		<module name="comm">
+			<generator class="net.driftingsouls.ds2.server.modules.CommController" />
+		</module>
+		<module name="comnet">
+			<generator class="net.driftingsouls.ds2.server.modules.ComNetController" />
+		</module>
+		<module name="core">
+			<generator class="net.driftingsouls.ds2.server.modules.CoreController" />
+		</module>
+		<module name="links">
+			<generator class="net.driftingsouls.ds2.server.modules.LinksController" />
+		</module>
+		<module name="logout">
+			<generator class="net.driftingsouls.ds2.server.modules.LogoutController" />
+		</module>
+		<module name="main">
+			<generator class="net.driftingsouls.ds2.server.modules.MainController" />
+		</module>
+		<module name="portal">
+			<generator class="net.driftingsouls.ds2.server.modules.PortalController" />
+		</module>
+		<module name="schiff">
+			<generator class="net.driftingsouls.ds2.server.modules.SchiffController" />
+		</module>
+		<module name="schiffe">
+			<generator class="net.driftingsouls.ds2.server.modules.SchiffeController" />
+		</module>
+		<module name="schiffinfo">
+			<generator class="net.driftingsouls.ds2.server.modules.SchiffInfoController" />
+		</module>
+		<module name="ueber">
+			<generator class="net.driftingsouls.ds2.server.modules.UeberController" />
+		</module>
+	</modules>
+	<rules>
+		<match pattern="/.*data/.*\.(gif|png|jpg|css|js)">
+			<execute-reader>
+				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.FileReader" />
+				<file pattern=".*/data/(.*)" file="data/$1" />
+			</execute-reader>
+		</match>
+		<match pattern="/[^/]+\.(gif|png|jpg|css|js)">
+			<execute-reader>
+				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.FileReader" />
+				<file pattern="/(.*)" file="$1" />
+			</execute-reader>
+		</match>
+		<match pattern="/.*\.(gif|png|jpg|css|js)">
+			<execute-reader>
+				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.FileReader" />
+				<file pattern="/.*/([^/]+)" file="$1" />
+			</execute-reader>
+		</match>
+		<match pattern="(/ds|/main.php|/php/main.php)">
+			<execute-module>
+				<urlparameter name="module" />
+			</execute-module>
+		</match>
+		<match pattern="(/ajax.php|/php/ajax.php)">
+			<execute-module exec-mode="ajax">
+				<urlparameter name="module" />
+				<serializer class="net.driftingsouls.ds2.server.framework.pipeline.serializer.PlainSerializer" />
+			</execute-module>
+		</match>
+		<match pattern="/[^/]+/?">
+			<execute-module>
+				<urldirectory number="-1" />
+			</execute-module>
+		</match>
+		<match pattern="/downloads/auth/.*">
+			<actions>
+				<action class="net.driftingsouls.ds2.server.framework.pipeline.actions.AuthenticateAction" />
+			</actions>
+			<execute-reader>
+				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.FileReader" />
+				<file pattern="/(.*)" file="data/$1" />
+			</execute-reader>
+		</match>
+		<match pattern="/downloads/-?[0-9]+/.+">
+			<actions>
+				<action class="net.driftingsouls.ds2.server.framework.pipeline.actions.AuthenticateAction">
+					<parameter name="userid">
+						<urldirectory number="-2" />
+					</parameter>
+				</action>
+			</actions>
+			<execute-reader>
+				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.FileReader" />
+				<file pattern="/(.*)" file="data/$1" />
+			</execute-reader>
+		</match>
+		<match pattern="/downloads/[^/]+">
+			<execute-reader>
+				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.FileReader" />
+				<file pattern="/(.*)" file="data/$1" />
+			</execute-reader>
+		</match>
+		<match pattern="/">
+			<execute-module>
+				<plain name="portal" />
+			</execute-module>
+		</match>
+		<match pattern=".*">
+			<execute-reader>
+				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.FileReader" />
+				<file file="data/errors/no_pipeline.html" />
+			</execute-reader>
+		</match>
+	</rules>
+</pipeline> 

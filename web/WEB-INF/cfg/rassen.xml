@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<rassen>
+	<rasse id="0">
+		<name>GCP</name>
+		<head>-10</head>
+	</rasse>
+	<rasse id="1" playable="true" member-of="0">
+		<name>Terraner</name>
+		<generator type="person">php /home/bktheg/Projects/markov/terran.php</generator>
+		<description>
+			[align=left]
+			Terraner sind Menschen.
+			Sie stammen ursprünglich von der Erde, zu der aber keine Verbindung mehr besteht.
+			[list][*]Bauen kostengünstige aber weniger effiziente Schiffe
+			[*]Setzen primär auf Deuterium als Energiequelle (Billig &amp; weniger Effizent)
+			[/list]
+			[/align]
+		</description>
+	</rasse>
+	<rasse id="2" playable="true" member-of="0">
+		<name>Vasudaner</name>
+		<generator type="person">php /home/bktheg/Projects/markov/vasudan.php</generator>
+		<generator type="ship">php /home/bktheg/Projects/markov/vasudan.php</generator>
+		<description>
+			[align=left]
+			Hochentwickelte Spezies.
+			Ihr Heimatplanet ist Vasuda Prime, ein sehr heisser Planet.
+			Er wurde im ersten shivanischen Krieg angegriffen und dadurch fast unbewohnbar.
+			Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen und Nationen. 
+			[list][*]Teure aber effizente Schiffe
+			[*]Antimaterie ist ihre bevorzugte Energiequelle (Teuer &amp; Effizent)
+			[/list]
+			[/align]
+		</description>
+	</rasse>
+	<rasse id="3">
+		<name>Shivaner</name>
+	</rasse>
+	<rasse id="4">
+		<name>Uralte</name>
+	</rasse>
+	<rasse id="5">
+		<name>Nomads</name>
+	</rasse>
+	<rasse id="6" member-of="1" ext-playable="true">
+		<name>NTF</name>
+		<head>-20</head>
+	</rasse>
+	<rasse id="7" member-of="2">
+		<name>HoL</name>
+		<head>-29</head>
+	</rasse>
+	<rasse id="8" member-of="0">
+		<name>GTU</name>
+		<head>-2</head>
+	</rasse>
+	<rasse id="9" member-of="1" ext-playable="true">
+		<name>Piraten</name>
+		<head>-15</head>
+	</rasse>
+</rassen>

@@ -1,0 +1,223 @@
+/*
+ *	Drifting Souls 2
+ *	Copyright (c) 2006 Christopher Jung
+ *
+ *	This library is free software; you can redistribute it and/or
+ *	modify it under the terms of the GNU Lesser General Public
+ *	License as published by the Free Software Foundation; either
+ *	version 2.1 of the License, or (at your option) any later version.
+ *
+ *	This library is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *	Lesser General Public License for more details.
+ *
+ *	You should have received a copy of the GNU Lesser General Public
+ *	License along with this library; if not, write to the Free Software
+ *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+body 	{background-color: #000000; color: white; font-family: arial; }
+
+hr 		{color: white;}
+
+p 		{color: white; font-family: arial; margin-left: 5px;}
+
+form br { /* Alle Zeilenumbrueche in Formularen auswaehlen */
+  clear: left; /* das floating der labels und inputs aufheben */
+}
+
+form	{ padding:1px; margin:0px }
+
+span.smallfont		{color: white; font-family: arial; font-size: 16px;}
+span.verysmallfont	{color: white; font-family: arial; font-size: 12px;}
+span.libwarentt		{font-size: 14px}
+span.nobr			{white-space: nowrap}
+
+div.smallfont		{color: white; font-family: arial; font-size: 16px;}
+div.verysmallfont	{color: white; font-family: arial; font-size: 12px;}
+
+/*table	{color: white; font-family: arial; border-style: solid; border-width: 1px;}
+td		{border-style: solid; border-width: 1px; background-color: #000000; border-color: #808080; color: white;}*/
+
+table.links	{color: white; font-family: arial; border-style: solid; border-width: 0px;}
+td.links	{border-style: solid; border-right-width: 4px; border-left-width: 1px; border-top-width: 1px; border-bottom-width: 4px; background-color: #c0c0c0; border-color: #808080;  font-size: 16px;}
+
+td.angrifflog	{border-style: solid; border-width: 1px; background-color: #c0c0c0; border-color: #a0a0a0; color: #000050; font-size: 12px;}
+
+table.schiff 	{color: white; font-family: arial; border-style: solid; border-width: 1px;}
+td.schiff		{border-style: solid; border-width: 1px; background-color: #000000; border-color: #a0a0a0; font-size:16px}
+
+table.nav 	{color: white; font-family: arial; border-style: solid; border-width: 1px; border-spacing:0px }
+td.nav		{border-style: solid; border-width: 0px; background-color: #c0c0c0; border-color: #c0c0c0; font-size:16px}
+
+table.show 	{color: white; font-family: arial; border-style: solid; border-width: 0px;}
+td.show		{border-style: solid; border-width: 2px; background-color: #101010; border-color: #000000;}
+td.show2	{border-style: solid; border-width: 2px; background-color: #000000; border-color: #000000;}
+
+table.academy	{color: white; font-family: arial; border-style: solid; border-width: 0px;}
+
+td.schiffWaren	{ border-style: solid; border-color: #808080; border-width: 1px; background-color: #000000; color: white; font-family: arial; font-size: 13px; }
+td.schiffData	{ border-style: solid; border-color: #808080; border-width: 1px; background-color: #000000; color: white; font-family: arial; font-size: 16px; }
+
+table.tooltip	{color: white; font-family: arial; font-size: 14px; border-style: none; border-width: 0px;}
+td.tooltip		{border-style: solid; border-color: #808080; border-width: 1px; background-color: #000000; color: white; font-family: arial; font-size: 14px; }
+font.tooltip	{color: white; font-family: arial; font-size: 14px;}
+
+table.gfxtooltip	{color: white; font-family: arial; font-size: 14px; border-style: none; border-width: 0px; background-color: transparent; }
+td.gfxtooltip		{background-color: transparent; color: white; font-family: arial; font-size: 14px; border-style: none; border-width: 0px; }
+font.gfxtooltip		{color: white; font-family: arial; font-size: 14px;}
+
+font.smallTooltip	{color: white; font-family: arial; font-size: 14px;}
+
+td.friendlyShips	{background-color: #000000; color: green; font-family: arial;}
+td.enemyShips		{background-color: #000000; color: red; font-family: arial;}
+
+table.stats 	{color: #000000; font-family: arial; border-style: none; border-width: 0px;}
+td.statsData	{background-color: #000000; color: white; font-family: arial; font-size: 16px; border-style: none; border-width: 0px;}
+
+table.ally	 	{color: #000000; font-family: arial; border-style: none; border-width: 0px;}
+td.allyData		{background-color: #000000; color: white; font-family: arial; font-size: 16px; border-style: none; border-width: 0px;}
+
+table.noBorder 		{color: #000000; font-family: arial; border-style: none; border-width: 0px;}
+td.noBorder			{background-color: transparent; color: white; font-family: arial; border-style: none; border-width: 0px;}
+td.noBorderS		{background-color: transparent; color: white; font-family: arial; font-size: 16px; border-style: none; border-width: 0px;}
+
+table.Border 	{ border-style: solid; border-color: #808080; border-width: 1px; color: #000000; font-family: arial; }
+td.Border		{ border-style: solid; border-color: #808080; border-width: 1px; background-color: transparent; color: white; font-family: arial; }
+td.BorderS		{ border-style: solid; border-color: #808080; border-width: 1px; background-color: transparent; color: white; font-family: arial; font-size: 16px; }
+
+table.BorderX 	{ border-style: solid; border-color: #808080; border-width: 1px; background-color:transparent; color: #000000; font-family: 'BankGothic Md BT','Bank Gothic Medium BT','Bank Gothic','BankGothic',courier; font-size:14px}
+td.BorderX		{ border-style: solid; border-color: #808080; border-width: 1px; background-color:transparent; color: #C7C7C7; font-family: 'BankGothic Md BT','Bank Gothic Medium BT','Bank Gothic','BankGothic',courier; font-size:14px; background-image: url('./data/interface/border/border_background.gif')}
+td.BorderXnBG		{ border-style: solid; border-color: #808080; border-width: 1px; background-color:transparent; color: #C7C7C7; font-family: 'BankGothic Md BT','Bank Gothic Medium BT','Bank Gothic','BankGothic',courier; font-size:14px}
+
+table.noBorderX 	{background-color:transparent; color: #000000; font-family: 'BankGothic Md BT','Bank Gothic Medium BT','Bank Gothic','BankGothic',courier; border-style: none; border-width: 0px; font-size:14px}
+td.noBorderX		{background-color:transparent; color: #C7C7C7; font-family: 'BankGothic Md BT','Bank Gothic Medium BT','Bank Gothic','BankGothic',courier; border-style: none; border-width: 0px; font-size:14px; background-image: url('./data/interface/border/border_background.gif')}
+td.noBorderXnBG		{background-color:transparent; color: #C7C7C7; font-family: 'BankGothic Md BT','Bank Gothic Medium BT','Bank Gothic','BankGothic',courier; border-style: none; border-width: 0px; font-size:14px}
+
+a:link		{color: #000080; font-weight: bold; text-decoration: none;}
+a:visited	{color: #000080; font-weight: bold; text-decoration: none;}
+a:hover		{color: #F0A000; font-weight: bold; text-decoration: none;}
+a:active	{color: #0000FF; font-weight: bold; text-decoration: none;}
+
+a.cargo:link		{color: #1060F0; font-weight: bold; text-decoration: none;}
+a.cargo:visited		{color: #1060F0; font-weight: bold; text-decoration: none;}
+a.cargo:hover		{color: #F0A000; font-weight: bold; text-decoration: none;}
+a.cargo:active		{color: #0000FF; font-weight: bold; text-decoration: none;}
+
+a.starmap:link		{color: #000000; font-weight: bold; text-decoration: none;}
+a.starmap:visited	{color: #000000; font-weight: bold; text-decoration: none;}
+a.starmap:hover		{color: #F0A000; font-weight: bold; text-decoration: none;}
+a.starmap:active	{color: #0000FF; font-weight: bold; text-decoration: none;}
+
+a.schiff:link		{color: #0000a0; font-weight: bold; text-decoration: none;}
+a.schiff:visited	{color: #0000a0; font-weight: bold; text-decoration: none;}
+a.schiff:hover		{color: #F0F000; font-weight: bold; text-decoration: none;}
+a.schiff:active		{color: #0000FF; font-weight: bold; text-decoration: none;}
+
+a.academy:link		{color: #0060F0; font-weight: bold; text-decoration: none; font-size: 16px;}
+a.academy:visited	{color: #0060F0; font-weight: bold; text-decoration: none; font-size: 16px;}
+a.academy:hover		{color: #F0A000; font-weight: bold; text-decoration: none; font-size: 16px;}
+a.academy:active	{color: #0000FF; font-weight: bold; text-decoration: none; font-size: 16px;}
+
+a.back:link			{color: #00C000; font-size: 16px; text-decoration: none;}
+a.back:visited		{color: #00C000; font-size: 16px; text-decoration: none;}
+a.back:hover		{color: #F0A000; font-size: 16px; text-decoration: none;}
+a.back:active		{color: #00FF00; font-size: 16px; text-decoration: none;}
+
+a.ok:link			{color: #00E000; font-size: 16px; text-decoration: none;}
+a.ok:visited		{color: #00E000; font-size: 16px; text-decoration: none;}
+a.ok:hover			{color: #F0A000; font-size: 16px; text-decoration: none;}
+a.ok:active			{color: #00FF00; font-size: 16px; text-decoration: none;}
+
+a.error:link		{color: #E00000; font-size: 16px; text-decoration: none;}
+a.error:visited		{color: #E00000; font-size: 16px; text-decoration: none;}
+a.error:hover		{color: #F0A000; font-size: 16px; text-decoration: none;}
+a.error:active		{color: #FF0000; font-size: 16px; text-decoration: none;}
+
+td.noBorderX a.ok:link			{color: #00E000; font-weight:normal; font-size: 16px; text-decoration: none;}
+td.noBorderX a.ok:visited		{color: #00E000; font-weight:normal; font-size: 16px; text-decoration: none;}
+td.noBorderX a.ok:hover			{color: #F0A000; font-weight:normal; font-size: 16px; text-decoration: none;}
+td.noBorderX a.ok:active		{color: #00FF00; font-weight:normal; font-size: 16px; text-decoration: none;}
+
+td.noBorderX a.error:link		{color: #E00000; font-weight:normal; font-size: 16px; text-decoration: none;}
+td.noBorderX a.error:visited	{color: #E00000; font-weight:normal; font-size: 16px; text-decoration: none;}
+td.noBorderX a.error:hover		{color: #F0A000; font-weight:normal; font-size: 16px; text-decoration: none;}
+td.noBorderX a.error:active		{color: #FF0000; font-weight:normal; font-size: 16px; text-decoration: none;}
+
+a.forschinfo:link		{color: #0060F0; font-weight: normal; text-decoration: none; font-size: 16px;}
+a.forschinfo:visited	{color: #0060F0; font-weight: normal; text-decoration: none; font-size: 16px;}
+a.forschinfo:hover		{color: #F0A000; font-weight: normal; text-decoration: none; font-size: 16px;}
+a.forschinfo:active		{color: #0000FF; font-weight: normal; text-decoration: none; font-size: 16px;}
+
+a.handelwaren:link		{color: #0060F0; font-weight: normal; text-decoration: none; font-size: 14px;}
+a.handelwaren:visited	{color: #0060F0; font-weight: normal; text-decoration: none; font-size: 14px;}
+a.handelwaren:hover		{color: #F0A000; font-weight: normal; text-decoration: none; font-size: 14px;}
+a.handelwaren:active	{color: #0000FF; font-weight: normal; text-decoration: none; font-size: 14px;}
+
+a.schiffwaren:link		{color: #0060F0; font-weight: normal; text-decoration: none; font-size: 13px;}
+a.schiffwaren:visited	{color: #0060F0; font-weight: normal; text-decoration: none; font-size: 13px;}
+a.schiffwaren:hover		{color: #F0A000; font-weight: normal; text-decoration: none; font-size: 13px;}
+a.schiffwaren:active	{color: #0000FF; font-weight: normal; text-decoration: none; font-size: 13px;}
+
+a.nonbold:link		{color: #0060F0; font-weight: normal; text-decoration: none; font-size: 16px;}
+a.nonbold:visited	{color: #0060F0; font-weight: normal; text-decoration: none; font-size: 16px;}
+a.nonbold:hover		{color: #F0A000; font-weight: normal; text-decoration: none; font-size: 16px;}
+a.nonbold:active	{color: #0000FF; font-weight: normal; text-decoration: none; font-size: 16px;}
+
+a.aloglink:link		{color: #000080; font-weight: bold; text-decoration: none; font-size: 12px;}
+a.aloglink:visited	{color: #000080; font-weight: bold; text-decoration: none; font-size: 12px;}
+a.aloglink:hover	{color: #F0A000; font-weight: bold; text-decoration: none; font-size: 12px;}
+a.aloglink:active	{color: #0000F0; font-weight: bold; text-decoration: none; font-size: 12px;}
+
+a.white:link		{color: #FFFFFF; font-weight: bold; text-decoration: none;}
+a.white:visited		{color: #FFFFFF; font-weight: bold; text-decoration: none;}
+a.white:hover		{color: #FFFFFF; font-weight: bold; text-decoration: none;}
+a.white:active		{color: #FFFFFF; font-weight: bold; text-decoration: none;}
+
+a.profile:link		{color: #c7c7c7; font-weight: normal; text-decoration: none; font-size: 14px;}
+a.profile:visited	{color: #c7c7c7; font-weight: normal; text-decoration: none; font-size: 14px;}
+a.profile:hover		{color: #c7c7c7; font-weight: normal; text-decoration: none; font-size: 14px;}
+a.profile:active	{color: #c7c7c7; font-weight: normal; text-decoration: none; font-size: 14px;}
+
+a.profile_alog:link		{color: #000050; font-weight: normal; text-decoration: none; font-size: 12px;}
+a.profile_alog:visited	{color: #000050; font-weight: normal; text-decoration: none; font-size: 12px;}
+a.profile_alog:hover	{color: #000050; font-weight: normal; text-decoration: none; font-size: 12px;}
+a.profile_alog:active	{color: #000050; font-weight: normal; text-decoration: none; font-size: 12px;}
+
+/*
+   Die Link-Klassen fuer die neue Schiffsansicht (bekanntermassen nur in Mozilla richtig dargestellt)
+*/
+
+a.noborder:link		{color: #000000; font-weight: bold; text-decoration: none; font-size: 16px;}
+a.noborder:visited	{color: #000000; font-weight: bold; text-decoration: none; font-size: 16px;}
+a.noborder:hover	{color: #F0A000; font-weight: bold; text-decoration: none; font-size: 16px;}
+a.noborder:active	{color: #F0A000; font-weight: bold; text-decoration: none; font-size: 16px;}
+
+a.greenborder:link		{color: #000000; font-weight: bold; text-decoration: none; font-size: 16px;}
+a.greenborder:visited	{color: #000000; font-weight: bold; text-decoration: none; font-size: 16px;}
+a.greenborder:hover		{color: #00A000; font-weight: bold; text-decoration: none; font-size: 16px;}
+a.greenborder:active	{color: #00A000; font-weight: bold; text-decoration: none; font-size: 16px;}
+
+a.redborder:link	{color: #000000; font-weight: bold; text-decoration: none; font-size: 16px;}
+a.redborder:visited	{color: #000000; font-weight: bold; text-decoration: none; font-size: 16px;}
+a.redborder:hover	{color: #FF0000; font-weight: bold; text-decoration: none; font-size: 16px;}
+a.redborder:active	{color: #FF0000; font-weight: bold; text-decoration: none; font-size: 16px;}
+
+a.orangeborder:link		{color: #000000; font-weight: bold; text-decoration: none; font-size: 16px;}
+a.orangeborder:visited	{color: #000000; font-weight: bold; text-decoration: none; font-size: 16px;}
+a.orangeborder:hover	{color: #D0A000; font-weight: bold; text-decoration: none; font-size: 16px;}
+a.orangeborder:active	{color: #D0A000; font-weight: bold; text-decoration: none; font-size: 16px;}
+
+img.noborder:link 		{ border-style: solid; border: 1px ;border-color: #000000}
+img.noborder:visited	{ border-style: solid; border: 0px ;border-color: #000000}
+img.noborder:hover 		{ border-style: solid; border: 1px ;border-color: #F0A000}
+img.noborder:active 	{ border-style: solid; border: 0px ;border-color: #000000}
+
+/*img 		{ border-style: solid; border: 0px; border-color: #000000; color: #000000;}*/
+
+tooltip1		{color: #FFFFFF; background-color: #cccccc}
+
+/*
+	Inbox Ordner Hover
+*/
+td.inboxOrdnerHover	{background-color:#888800; background-image:none}

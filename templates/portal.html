@@ -1,0 +1,768 @@
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<head>
+	<title>DS2 - Drifting Souls 2</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="stylesheet" type="text/css" href="./format.css" />
+	<meta name="keywords" content="Spiel,Game,Games,Spiele,Browsergame,Strategie,Weltraum,Freespace,Strategiespiel,Strategiespiele,Browsergames,GTVA,Shivaner,Vasudaner,Onlinegame,Onlinespiel" />
+	<meta name="description" content="Drifting Souls 2 - Ein kostenloses werbefreies Browsergame, welches im Weltraum spielt und sich an Freespace anlehnt" />
+	<style type="text/css">
+	<!--
+		body  	{ margin-left:0px; background-color: #000000; }
+
+		img 	{display:block; border:none; padding:0px; margin:0px;}
+
+		table.noBorder 	{background-color:transparent; color: #000000; font-family: 'BankGothic Md BT','Bank Gothic Medium BT', courier; border-style: none; border-width: 0px; font-size:14px}
+		td.noBorder		{background-color:transparent; color: #C7C7C7; font-family: 'BankGothic Md BT','Bank Gothic Medium BT',courier; border-style: none; border-width: 0px; font-size:14px}
+		
+		form br { /* Alle Zeilenumbrueche in Formularen auswaehlen */
+ 			clear: left; /* das floating der labels und inputs aufheben */
+		}
+		
+		table.BorderX 	{ border-style: solid; border-color: #808080; border-width: 1px; background-color:transparent; color: #000000; font-family: 'BankGothic Md BT','Bank Gothic Medium BT','Bank Gothic','BankGothic',courier; font-size:14px}
+		td.BorderX		{ border-style: solid; border-color: #808080; border-width: 1px; background-color:transparent; color: #C7C7C7; font-family: 'BankGothic Md BT','Bank Gothic Medium BT','Bank Gothic','BankGothic',courier; font-size:14px; background-image: url('./data/interface/border/border_background.gif')}
+		td.BorderXnBG		{ border-style: solid; border-color: #808080; border-width: 1px; background-color:transparent; color: #C7C7C7; font-family: 'BankGothic Md BT','Bank Gothic Medium BT','Bank Gothic','BankGothic',courier; font-size:14px}
+
+		table.noBorderX 	{background-color:transparent; color: #000000; font-family: 'BankGothic Md BT','Bank Gothic Medium BT','Bank Gothic','BankGothic',courier; border-style: none; border-width: 0px; font-size:14px}
+		td.noBorderX		{background-color:transparent; color: #C7C7C7; font-family: 'BankGothic Md BT','Bank Gothic Medium BT','Bank Gothic','BankGothic',courier; border-style: none; border-width: 0px; font-size:14px; background-image: url('./data/interface/border/border_background.gif')}
+		td.noBorderXnBG		{background-color:transparent; color: #C7C7C7; font-family: 'BankGothic Md BT','Bank Gothic Medium BT','Bank Gothic','BankGothic',courier; border-style: none; border-width: 0px; font-size:14px}
+		
+		a.menu:link			{color: #c7c7c7; font-size:15px; font-weight: normal; text-decoration: none;}
+		a.menu:visited		{color: #c7c7c7; font-size:15px; font-weight: normal; text-decoration: none;}
+		a.menu:hover		{color: #719bef; font-size:15px; font-weight: normal; text-decoration: none;}
+		a.menu:active		{color: #719bef; font-size:15px; font-weight: normal; text-decoration: none;}
+		
+		a.submenu:link		{color: #c7c7c7; font-size:13px; font-weight: normal; text-decoration: none;}
+		a.submenu:visited	{color: #c7c7c7; font-size:13px; font-weight: normal; text-decoration: none;}
+		a.submenu:hover		{color: #719bef; font-size:13px; font-weight: normal; text-decoration: none;}
+		a.submenu:active	{color: #719bef; font-size:13px; font-weight: normal; text-decoration: none;}
+	-->
+	</style>
+	<script type="text/javascript" src="{URL}data/javascript/overlibmws.js"><!-- overLIB (c) Erik Bosrup --></script>
+	<script src="{URL}data/javascript/prototype.js" type="text/javascript"></script>
+	<script src="{URL}data/javascript/scriptaculous.js" type="text/javascript"></script>
+	<script type="text/javascript">
+	<!--
+		OLpageDefaults(TEXTPADDING,0,TEXTFONTCLASS,'tooltip',FGCLASS,'tooltip',BGCLASS,'tooltip');
+				
+		function ask(text,url) {
+			if( confirm(text) ) {
+				window.location.href = url;
+			}
+		}
+	// -->
+	</script>
+</head>
+<body>
+<table class="noBorder" cellpadding="3">
+<tr><td class="noBorderS" valign="top">
+	<table cellpadding="0" cellspacing="0" border="0" class="noBorderX" width="170">
+	<tr>
+		<td class="noBorderXnBG" style="background-image:url(./data/interface/border/border_top.gif); background-repeat:repeat-x"></td>
+		<td class="noBorderXnBG" style="width:19px"><img src="./data/interface/border/border_topright.gif" alt="" /></td>
+	</tr>
+	<tr>
+		<td class="noBorderX" colspan="1" align="left">
+			<table class="noBorderX" width="100%" cellspacing="1" cellpadding="0">
+			<tr>
+				<td class="noBorderX" colspan="2">
+					&nbsp;<a class="menu" href="./main.php?module=portal">News</a>
+				</td>
+			</tr>
+			<tr>
+				<td class="noBorderX" colspan="2">
+					&nbsp;<a class="menu" href="./main.php?module=portal&amp;action=login">Login</a>
+				</td>
+			</tr>
+			<tr>
+				<td class="noBorderX" colspan="2">
+					&nbsp;<a class="menu" href="./main.php?module=portal&amp;action=register">Registrieren</a>
+				</td>
+			</tr>
+			<tr>
+				<td class="noBorderX" colspan="2">
+					&nbsp;<a class="menu" href="./main.php?module=portal&amp;action=infos">Infos</a>
+				</td>
+			</tr>
+			<tr>
+				<td class="noBorderX" style="width:10px">&nbsp;</td>
+				<td class="noBorderX">
+					&nbsp;<a class="submenu" href="./main.php?module=portal&amp;action=infosArtikel&amp;artikel={FAQ_ID}">FAQ</a>
+				</td>
+			</tr>
+			<tr>
+				<td class="noBorderX" style="width:10px">&nbsp;</td>
+				<td class="noBorderX">
+					&nbsp;<a class="submenu" href="./main.php?module=portal&amp;action=infosDf">Daten &amp; Fakten</a>
+				</td>
+			</tr>
+			<tr>
+				<td class="noBorderX" style="width:10px">&nbsp;</td>
+				<td class="noBorderX">
+					&nbsp;<a class="submenu" href="./main.php?module=portal&amp;action=infosAgb">AGB</a>
+				</td>
+			</tr>
+			<tr>
+				<td class="noBorderX" style="width:10px">&nbsp;</td>
+				<td class="noBorderX">
+					&nbsp;<a class="submenu" href="./main.php?module=portal&amp;action=infosPlayerlist">Spielerliste</a>
+				</td>
+			</tr>
+			<tr>
+				<td class="noBorderX" style="width:10px">&nbsp;</td>
+				<td class="noBorderX">
+					&nbsp;<a class="submenu" href="http://wiki.drifting-souls.net/">Wiki</a>
+				</td>
+			</tr>
+			<tr>
+				<td class="noBorderX" style="width:10px">&nbsp;</td>
+				<td class="noBorderX">
+					&nbsp;<a class="submenu" href="http://fanart.drifting-souls.net/gallery/view_album.php?set_albumName=ds-fanart">Fan Art</a>
+				</td>
+			</tr>
+			<tr>
+				<td class="noBorderX" colspan="2">
+					&nbsp;<a class="menu" href="./main.php?module=portal&amp;action=javachat">Chat</a>
+				</td>
+			</tr>
+			<tr>
+				<td class="noBorderX" colspan="2">
+					&nbsp;<a class="menu" href="http://forum.drifting-souls.net/phpBB2/index.php">Forum</a>
+				</td>
+			</tr>
+			<tr>
+				<td class="noBorderX" colspan="2">
+					&nbsp;<a class="menu" href="./main.php?module=portal&amp;action=download">Downloads</a>
+				</td>
+			</tr>
+			<tr>
+				<td class="noBorderX" colspan="2">
+					&nbsp;<a class="menu" href="./main.php?module=portal&amp;action=links">Links</a>
+				</td>
+			</tr>
+			<tr>
+				<td class="noBorderX" colspan="2">
+					&nbsp;<a class="menu" href="mailto:ds-admin@drifting-souls.net">Feedback</a>
+				</td>
+			</tr>
+			<tr>
+				<td class="noBorderX" colspan="2">
+					&nbsp;<a class="menu" href="./main.php?module=portal&amp;action=impressum">Impressum</a>
+				</td>
+			</tr>
+			<tr>
+				<td class="noBorderX" colspan="2">
+					<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+				</td>
+			</tr>
+			<tr>
+				<td class="noBorderX" style="height:50px" colspan="2" align="center">
+					<a href='http://www.galaxy-news.de/?page=charts&amp;op=vote&amp;game_id=339' target='_blank'><img style="border:0px" src='{URL}vote.gif' alt="vote4ds" /></a><br />
+					<a href="http://www.browsergames24.de/modules.php?name=Web_Links&amp;l_op=ratelink&amp;lid=1159" target="_blank"><img src="http://www.browsergames24.de/votebg.gif" alt="Vote for us @ BG24" /></a>
+				</td>
+			</tr>
+			</table>
+		</td>
+		<td class="noBorderXnBG" rowspan="1" style="width:19px; background-image:url(./data/interface/border/border_right.gif); background-repeat:repeat-y"></td>
+	</tr>
+	<tr>
+		<td class="noBorderXnBG" colspan="1" style="background-image:url(./data/interface/border/border_bottom.gif); background-repeat:repeat-x"></td>
+		<td class="noBorderXnBG" style="width:19px"><img src="./data/interface/border/border_bottomright.gif" alt="" /></td>
+	</tr>
+	</table>
+</td>
+<td class="noBorderS" valign="top">
+{if show.message}
+	{!table_begin 500,center}
+		{show.message}
+	{!table_end}
+	<br />
+	<br />
+{/endif}
+{if show.news}
+	{if show.news.archiv}
+		{!table_begin 700,center}
+			News-Archiv
+		{!table_end}
+		<br />
+	{/endif}
+	<!-- BEGIN news.listitem -->
+		{!table_begin 700,left}
+			<table class="noBorderX">
+			<tr>
+				<td class="noBorderX" width="170">{news.date}</td>
+				<td class="noBorderX" width="352" align="center">{news.title}</td>
+				<td class="noBorderX" width="140">von: {news.author}</td>
+			</tr>
+			<tr>
+				<td class="noBorderX" colspan="3">
+					<hr noshade="noshade" size="1" style="color:#cccccc" />
+					{news.text}
+				</td>
+			</tr>
+			</table>
+ 		{!table_end}<br />
+	<!-- END news.listitem -->
+	
+	{if ! show.news.archiv}
+		<div style="width:700px; text-align:center">
+			{!link_to Zum News-Archiv, default, archiv:1, css_style:font-size:12px}
+		</div>
+	{/endif}
+{/endif}
+
+
+{if show.msg.login.wrongpassword}
+	<span style="color:red; font-weight:bold">Das Passwort stimmt nicht!</span>
+	<br /><span style="color:white">Offenbar ist etwas schiefgelaufen .... Versuch geloggt</span><br /><br />
+{/endif}
+{if show.login.msg.accdisabled}
+	<span style="color:red; font-weight:bold">Der Account wurde gesperrt! Login nicht m&auml;glich!</span><br /><br />
+{/endif}
+{if show.login.msg.tick}
+	<span style="color:red; font-weight:bold">Der Tick bearbeitet gerade einige ihrer Accountdaten. Bitte versuchen sie es gleich nochmal!</span><br /><br />
+{/endif}
+{if show.login.browserwarning}
+	{!table_begin 420,justify}
+		<div style="text-align:center; color:red">Achtung</div>
+		Der von ihnen verwendete Browser &quot;<span style="font-weight:bold">{browser.name} {browser.version}</span>&quot; unterst&uuml;tzt auf Grund von Fehlern und/oder nicht vorhandenen Funktion Drifting Souls 2 nicht vollst&auml;ndig.
+		Es kann daher zu <span style="font-weight:bold">Darstellungsfehlern</span> und/oder <span style="font-weight:bold">fehlenden Funktionen</span> kommen.<br />
+		Wir empfehlen ihnen einen der folgenden Browser zu verwenden:<br /><ul>
+		<li><a class="forschinfo" target="_blank" href="http://www.mozilla.org">Mozilla Firefox</a></li>
+		<li><a class="forschinfo" target="_blank" href="http://www.opera.com">Opera ab Version 8.0</a></li>
+		</ul>
+		Beide Browser sind kostenfrei und ohne Registrierung/Anmeldung erh&auml;ltlich
+	{!table_end}
+	<br />
+{/endif}
+{if show.login.msg.ok}
+	<a class="ok" id="login_redirect" href="./main.php?module=main&amp;sess={login.sess}">Zum Spiel</a><br /><br />
+	{if login.checkgfxpak}
+		<script src="{login.checkgfxpak.path}data/javascript/gfxpakversion.js" type="text/javascript"></script>
+		<script type="text/javascript">
+		<!-- 
+			if( _GFXPAKVERSION ) {
+				$('login_redirect').href = $('login_redirect')+"&gfxpakversion="+_GFXPAKVERSION;
+			}
+		// -->
+		</script>
+	{/endif}
+{/endif}
+{if show.login.logindisabled}
+	{!table_begin 450,center}
+		<span style="color:red">Es ist zur Zeit leider nicht m&ouml;glich sich in Drifting Souls einzuloggen</span><br />
+		<br />
+		Grund:<br />
+		{login.logindisabled.msg}
+	{!table_end}		
+{/endif}
+{if show.login.vacmode.msg.accerror}
+	<span style="color:red; font-weight:bold">Es liegt ein Problem mit den Accountdaten vor.<br />Bitte loggen sie sich neu ein und versuchen sie es nocheinmal!</span>
+{/endif}
+{if show.login.vacmode.msg.send}
+	{!table_begin 600,left}
+		<span style="color:green;">Ihre Anfrage wurde gesendet und wird von einem Administrator bearbeitet. Dies kann jedoch bis zu zwei oder drei Tagen in Anspruch nehmen</span>
+	{!table_end}
+{/endif}
+{if show.login.vacmode}
+	{!table_begin 450,center}
+		<span style="color:red">Ihr Account befindet sich noch f&uuml;r {login.vacmode.dauer} im Vacationmodus</span><br />
+		<hr noshade="noshade" size="1" style="color:#cccccc" />
+		Abschaltung beantragen:<br />
+		<form action="./main.php" method="post">
+			<input type="hidden" name="asess" value="{login.vacmode.sess}" />
+			<input type="hidden" name="action" value="loginVacmodeDeak" />
+			<input type="hidden" name="module" value="portal" />
+			<textarea name="reason" rows="5" cols="40">Sch&uuml;ssige Begr&uuml;ndung</textarea><br />
+			<input type="submit" value="absenden" />
+		</form>
+	{!table_end}	
+{/endif}
+{if show.login}
+	<form action="./main.php" method="post">
+	
+	{!table_begin 420,center}
+		Einloggen bitte mit Loginnamen und Passwort<br /><br />
+		<table class="noBorder" >
+		<tr>
+			<td class="noBorderX">Loginname</td>
+			<td class="noBorderX"><input style="width:180px" name="username" type="text" maxlength="40" value="{login.username}" /></td>
+		</tr>
+		<tr>
+			<td class="noBorderX">Passwort</td>
+			<td class="noBorderX"><input style="width:180px" name="password" type="password" value="" /></td>
+		</tr>
+		<tr>
+			<td class="noBorderX" align="center" colspan="2">
+				<input type="checkbox" id="login_usegfxpak" name="usegfxpak" value="1" checked="checked" /><label for="login_usegfxpak">Grafikpak aktivieren</label><br /><br />
+				<input type="hidden" name="action" value="login" />
+				<input type="hidden" name="module" value="portal" />
+				<input type="submit" value="Login" />
+				<input name="Reset" type="reset" value="Abbruch" />
+			</td>
+		</tr>
+		</table>
+		<br />
+		<a class="error" href="./main.php?module=portal&amp;action=passwordLost">Passwort vergessen?</a>
+	{!table_end}
+	</form>
+{/endif}
+
+
+{if show.register.msg.wrongname}
+	<a href="./main.php?module=portal&amp;action=register"><span style="color:red;font-weight:bold">Der von Ihnen gew&uuml;nschte Name ist bereits belegt.</span></a><br /><br />
+{/endif}
+{if show.register.msg.wrongemail}
+	<a href="./main.php?module=portal&amp;action=register"><span style="color:red;font-weight:bold">Die E-Mail Adresse wird bereits von einem anderen Account verwendet</span></a><br /><br />
+{/endif}
+{if show.register.msg.wrongrace}
+	<a href="./main.php?module=portal&amp;action=register"><span style="color:red;font-weight:bold">Die von Ihnen gew&uuml;nschte Rasse ist leider nicht spielbar. Bitte w&auml;hlen sie eine andere Rasse aus!</span></a><br /><br />
+{/endif}
+{if show.register.msg.wrongpassword}
+	<a href="./main.php?module=portal&amp;action=register"><span style="color:red;font-weight:bold">Die von Ihnen angegebenen Passw&ouml;rter sind leider nicht identisch</span></a><br /><br />
+{/endif}
+{if show.register.msg.wrongkey}
+	<a href="./main.php?module=portal&amp;action=register"><span style="color:red">Der von Ihnen angegebene Registrierungsschl&uuml;ssel ist ung&uuml;ltig</span></a><br /><br />
+{/endif}
+{if show.register.msg.ok}
+	{!table_begin 500,center}
+		Registrierung erfolgreich.<br />
+		Dein Account hat die ID "{register.newid}" bekommen. Au&szlig;erdem wurde dir das Passwort via E-Mail zugesendet.<br /><br />
+		Viel Spa&szlig; bei Drifting Souls 2
+	{!table_end}
+{/endif}
+{if show.register.registerdisabled}
+	{!table_begin 450,center}
+		<span style="color:red">Es ist zur Zeit leider nicht m&ouml;glich sich bei Drifting Souls anzumelden</span><br />
+		<br />
+		Grund:<br />
+		{register.registerdisabled.msg}
+	{!table_end}		
+{/endif}
+{if show.register.choosesystem}
+	<table class="noBorder">
+	<tr>
+		<td class="noBorder" style="vertical-align:top">
+			<script type="text/javascript">
+			<!--
+				var lastSystemSelect = {register.system.id};
+				
+				function actionSystemSelectChange(action) {
+					if( document.getElementById("register_systemdesc_"+action) != null ) {
+						document.getElementById("register_systemdesc_"+action).style.display = 'inline';
+					}
+					if( document.getElementById("register_systemdesc_"+lastSystemSelect) != null ) {
+						document.getElementById("register_systemdesc_"+lastSystemSelect).style.display = 'none';
+					}
+					lastSystemSelect = action;
+				}
+			-->
+			</script>
+			
+			{!table_begin 500,justify}
+				<div style="text-align:center">Startpunkt</div>
+				Es wurde automatisch das Sternensystem {register.system.name} als g&uuml;nstigster Startpunkt f&uuml;r sie festgestellt.<br />
+				Sollten sie einen anderen Startpunkt bevorzugen k&ouml;nnen sie diesen nun ausw&auml;hlen:<br /><br />
+				<div style="text-align:center">
+					<form action="./main.php" method="post">
+					<select name="system" size="1" style="width:300px" onchange="actionSystemSelectChange(this.options[this.options.selectedIndex].value)">
+					<!-- BEGIN register.systems.listitem -->
+						<option value="{system.id}" {if system.selected}selected="selected"{/endif}>{system.name}{if system.selected} (empfohlen){/endif}</option>
+					<!-- END register.systems.listitem -->
+					</select>
+					<br />
+					<br />
+					{!form_create_hidden register}
+					<input type="hidden" name="username" value="{register.username}" />
+					<input type="hidden" name="email" value="{register.email}" />
+					<input type="hidden" name="race" value="{register.race}" />
+					{if register.needkey}
+						<input type="hidden" name="key" value="{register.key}" />
+					{/endif}
+					<input type="submit" value="weiter" style="width:100px" />
+					</form>
+				</div>
+			{!table_end}
+		</td>
+		<td class="noBorder" style="width:20px">&nbsp;</td>
+		<td class="noBorder" style="vertical-align:top">
+			<!-- BEGIN register.systemdesc.listitem -->
+				{if system.description}
+					<div id="register_systemdesc_{system.id}" {if ! system.selected}style="display:none"{else}style="display:inline"{/endif}>
+						{!table_begin 350,justify}
+							<div style="text-align:center; font-weight:bold">{system.name}</div><br />
+							{system.description}
+						{!table_end}
+					</div>
+				{/endif}
+			<!-- END register.systemdesc.listitem -->
+		</td>
+	</tr>
+	</table>
+{/endif}
+{if show.register}
+	<form action="./main.php" method="post">
+	<table class="noBorder">
+	<tr>
+		<td class="noBorder" style="vertical-align:top">
+			<script type="text/javascript">
+			<!--
+				var lastRaceSelect = {register.rassen.selected};
+				
+				function actionRaceSelectChange(action) {
+					if( document.getElementById("register_rassendesc_"+action) != null ) {
+						document.getElementById("register_rassendesc_"+action).style.display = 'inline';
+					}
+					if( document.getElementById("register_rassendesc_"+lastRaceSelect) != null ) {
+						document.getElementById("register_rassendesc_"+lastRaceSelect).style.display = 'none';
+					}
+					lastRaceSelect = action;
+				}
+			-->
+			</script>
+			
+			{!table_begin 420,center}
+				Bitte f&uuml;llen sie alle Felder aus<br />
+				Das Passwort wird ihnen anschlie&szlig;end via E-Mail zugesandt<br /><br />
+				<span style="color:red">Das setzt die Angabe einer g&uuml;ltigen E-mail Adresse voraus.<br /></span>
+				<table class="show" border="1" width="100%">
+				<tr>
+					<td class="noBorderX">Rasse</td>
+					<td class="noBorderX">
+						<select name="race" size="1" style="width:200px" onchange="actionRaceSelectChange(this.options[this.options.selectedIndex].value)">
+						<!-- BEGIN register.rassen.listitem -->
+							<option value="{rasse.id}" {if rasse.selected}selected="selected"{/endif}>{rasse.name}</option>
+						<!-- END register.rassen.listitem -->
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td class="noBorderX">
+						Loginname
+					</td>
+					<td class="noBorderX">
+						<input name="username" type="text" style="width:200px"  maxlength="40" value="{register.username}" />
+					</td>
+				</tr>
+				<tr>
+					<td class="noBorderX">
+						E-Mail
+					</td>
+					<td class="noBorderX">
+						<input name="email" type="text" style="width:200px" maxlength="60" value="{register.email}" />
+					</td>
+				</tr>
+				{if register.needkey}
+					<tr>
+						<td class="noBorderX">
+							Reg.Schl&uuml;ssel
+						</td>
+						<td class="noBorderX">
+							<input name="key" type="text" style="width:200px" />
+						</td>
+					</tr>
+				{/endif}
+				<tr>
+					<td class="noBorderX" colspan="2" align="center">
+						<br />
+						<input type="hidden" name="action" value="register" />
+						<input type="hidden" name="module" value="portal" />
+						<input type="submit" value="Account registrieren" />
+					</td>
+				</tr>
+				</table>
+			{!table_end}
+		</td>
+		<td class="noBorder" style="width:20px">&nbsp;</td>
+		<td class="noBorder" style="vertical-align:top">
+			<!-- BEGIN register.rassendesc.listitem -->
+				{if rasse.description}
+					<div id="register_rassendesc_{rasse.id}" {if ! rasse.selected}style="display:none"{else}style="display:inline"{/endif}>
+						{!table_begin 350,justify}
+							<div style="text-align:center; font-weight:bold">{rasse.name}</div><br />
+							{rasse.description}
+						{!table_end}
+					</div>
+				{/endif}
+			<!-- END register.rassendesc.listitem -->
+		</td>
+	</tr>
+	</table>
+	</form>
+{/endif}
+
+
+{if show.passwordlost.msg.ok}
+	<span style="color:green; font-weight:bold">Das Password wurde erstellt und zu ihrer Email-Adresse gesendet</span><br /><br />
+{/endif}
+{if show.passwordlost.msg.error}
+	<span style="color:green; font-weight:bold">Der angegebene Username existiert nicht! Fehleingabe?</span><br />
+	Offenbar ist etwas schiefgelaufen .... Versuch geloggt<br /><br />
+{/endif}
+{if show.passwordlost}
+	{!table_begin 450,center}
+		<form action="./main.php" method="post">
+		<span style="font-weight:bold; color:red">Passwort vergessen?</span><br /><br />
+		Bitte geben Sie Ihren Usernamen ein!<br />Ein neues Passwort wird dann erstellt und Ihnen an die gespeicherte E-Mail-Adresse gesandt.<br />
+		<br/>
+		Username: <input name="username" type="text" value="" />
+		<input type="submit" value=".: ok" />
+		<input type="hidden" name="action" value="passwordLost" />
+		<input type="hidden" name="module" value="portal" />
+		</form>
+	{!table_end}
+{/endif}
+
+
+{if show.infos}
+	<span style="color:#ffff00">
+	Tickzeiten: 12,16,18,20,22,0,4<br />
+	</span>
+{/endif}
+
+
+{if show.faq}
+	{!table_begin 600,left}
+		{faq.text}
+	{!table_end}
+{/endif}
+
+
+{if show.articlelist}
+	<span style="color:#808080">
+	<!-- BEGIN articles.listitem -->
+		<a class="forschinfo" href="./main.php?module=portal&amp;action=infosArtikel&amp;artikel={article.id}">{article.title}</a> von {article.author}<br />
+	<!-- END articles.listitem -->
+	</span>
+{/endif}
+
+
+{if show.article}
+	<table class="noBorder" width="600">
+	<tr><td align="center" class="noBorder"><span style="font-weight:bold">{article.title}</span></td></tr>
+	<tr><td align="center" class="noBorderS">von {article.author}</td></tr>
+	<tr><td class="noBorderS"><br /><span style="color:#808080">
+	{article.text}
+	{if article.nextprev}
+		<tr><td class="noBorderS" align="center"><br />
+		{if article.prevpage}
+			<a class="forschinfo" href="./main.php?module=portal&amp;action=infosArtikel&amp;artikel={article.id}&amp;page={article.prevpage}">vorherige Seite</a>
+		{/endif}
+		{if article.nextprevpage} - {/endif}
+		{if article.nextpage}
+			<a class="forschinfo" href="./main.php?module=portal&amp;action=infosArtikel&amp;artikel={article.id}&amp;page={article.nextpage}">n&auml;chste Seite</a></td></tr>
+		{/endif}
+	{/endif}
+	</span></td></tr>
+
+	</table>
+{/endif}
+
+
+{if show.plist}
+	{!table_begin 500,left}
+		{plist.text}
+	{!table_end}
+{/endif}
+
+{if show.changelog}
+	<table class="noBorder" width="600">
+	<tr><td align="center" class="noBorder"><span style="font-weight:bold; font-size:15pt">Changelog</span></td></tr>
+	<tr><td align="center" class="noBorder">-Alle &Auml;nderungen der letzten Zeit-</td></tr>
+	<tr>
+		<td class="noBorder">
+			<br />
+			<span style="color:#808080">
+				{changelog.text}
+			</span>
+		</td>
+	</tr>
+	</table>
+{/endif}
+
+{if show.df}
+	<table class="noBorder" width="600">
+	<tr>
+		<td class="noBorder" valign="top" rowspan="3" width="170">
+			<!-- BEGIN facts.articlegroup.listitem -->
+				<table class="show">
+					<tr><td align="center" width="150">{articlegroup.name}:</td></tr>
+					<!-- BEGIN facts.articles.listitem -->
+						<tr><td align="left" width="150"><a class="forschinfo" href="./main.php?module=portal&amp;action=infosDf&amp;article={article.id}">{article.title}</a></td></tr>
+					<!-- END facts.articles.listitem -->
+				</table>
+				<br />
+			<!-- END facts.articlegroup.listitem -->
+		</td>
+		<td class="noBorder" valign="top">
+			<span style="font-weight:bold;font-size:15pt">{if article.text}{article.class}::{article.title}{/endif}</span>
+		</td>
+	</tr>
+	<tr>
+		<td class="noBorder" valign="top">&nbsp;</td>
+	</tr>
+	<tr>
+		<td class="noBorder" valign="top" align="justify">
+			{if article.text}
+				{article.text}
+			{/endif}
+		</td>
+	</tr>
+	</table>
+{/endif}
+
+{if show.agb}
+	<table class="noBorder" width="600">
+	<tr><td align="center" class="noBorder"><span style="font-weight:bold; font-size:15pt">Allgemeine Gesch&auml;ftsbedingungen</span></td></tr>
+	<tr><td class="noBorder"><br /><span style="color:#808080">
+		0. Durch die Benutzung von DS2 erkennt der Spieler diese AGB automatisch an 
+		1. Die Registrierung/Betreibung mehrerer Accounts durch die selbe Person ist untersagt.<br />
+		1a. Ausnahmegenehmigungen k&ouml;nnen durch die Administration erteilt werden.<br />
+		1b. Eine kurzzeitige &uuml;bernahme eines fremden Accounts zum Zwecke der Vertretung ist gestattet, sofern nur die Grundfunktionen aufrecht gehalten werden. Hierzu ist es erlaubt Waren vom eigenen Account zum vertretenen Account zu transferieren. Warentransfers in die andere Richtung sind dabei untersagt.<br /><br />
+		
+		2. Es besteht kein Recht auf einen Account<br /><br />
+		
+		3. Es wird keinerlei Haftung f&uuml;r Sch&auml;den &uuml;bernommen, welche durch die Benutzung von Drifting Souls 2 und damit zusammenh&auml;ngender Produkte entstehen.<br /><br />
+		
+		4. Es besteht keinerlei Anspruch auf die Teilnahme an Drifing Souls.<br /><br />
+		
+		5. Die Administration beh&auml;lt sich das Recht vor, jederzeit und ohne Ank&uuml;ndigung Accounts und ohne Nennung von Gr&uuml;nden zu sperren oder zu l&ouml;schen.<br /><br />
+		
+		6. Durch die Teilnahme an Drifing Souls werden diese Nutzungsbedingungen automatisch akzeptiert<br /><br />
+		
+		7. Drifting Souls ist kostenlos und werbefrei.<br /><br />
+		
+		8. Das Ausnutzen von Bugs zum Vorteil seines Accounts oder eines anderen bzw. zum Schaden eines anderen ist untersagt.<br />
+		8a. Durch den Nutzer gefundene Bugs sind der Administration unverz&uuml;glich zu melden.<br />
+		
+		9. Das Benutzen von Programmen, bei denen es sich nicht eindeutig um Internetbrowser handelt, um auf Drifting Souls 2 zuzugreifen ist nur gestattet, wenn die Administration informiert wurde und eine Genehmigung erteilt wurde. Auf Nachfrage sind die Quellentexte des Programms zu Kontrollzwecken herauszugeben sowie eine Zug&auml;nglichmachung f&uuml;r alle DS2-Spieler durchzuf&uuml;hren.<br /><br />
+		
+		10. Die Administration beh&auml;lt sich das Recht vor diese AGB jederzeit zu &auml;ndern.<br />
+		10a. Der Nutzer hat sich selbst&auml;ndig &uuml;ber &Auml;nderungen der AGBs zu informieren.<br />
+	</span></td></tr>
+	</table>
+{/endif}
+
+{if show.impressum}
+	<table class="noBorder" width="600">
+	<tr><td align="center" class="noBorder"><span style="font-weight:bold; font-size:15pt">Impressum</span></td></tr>
+	<tr><td class="noBorder"><br /><span style="color:#808080">
+	Webmaster: Ralf Hajek - Alias: Guzman<br />
+	Sch&ouml;nauer Stra&szlig;e 4
+	65232 Taunusstein
+	E-Mail: R.Hajek@t-online.de
+	Co-Administrator: Christopher Jung - Alias: bKtHeG<br />
+	Ehemalige Programmierer: Ra, BoLt<br />
+	Fleissige Helfer: Finrod Telperien, die Schatten-DS Crew<br />
+	</span></td></tr>
+	</table>
+{/endif}
+
+{if show.links}
+	<table class="noBorder" width="600">
+	<tr><td align="center" class="noBorder" colspan="2"><span style="font-weight:bold">Links</span></td></tr>
+	<!-- BEGIN links.listitem -->
+		<tr><td align="left" class="noBorderS"><a class="forschinfo" href="{link.url}">{link.name}</a></td>
+		<td class="noBorderS" align="left"><span style="color:#808080">{link.description}</span></td></tr>
+	<!-- END links.listitem -->
+	</table>
+{/endif}
+
+{if show.downloads}
+	{!table_begin 600}
+	<table class="noBorderX" width="100%">
+	<tr><td align="center" class="noBorderX" colspan="3"><span style="font-weight:bold">Downloads</span></td></tr>
+	<!-- BEGIN downloads.listitem -->
+		<tr><td align="left" class="noBorderX" style="vertical-align:top"><a class="forschinfo" href="{URL}downloads/{download.file}">{download.name}</a></td>
+		<td class="noBorderX" align="left" style="vertical-align:top"><span style="color:#808080">{download.date}</span></td>
+		<td class="noBorderX" align="left" style="vertical-align:top"><span style="color:#808080">{download.description}</span></td></tr>
+	<!-- END downloads.listitem -->
+	</table>
+	{!table_end}
+{/endif}
+
+{if show.javachat}
+	<applet code="IRCApplet.class" archive="chat/irc.jar" width="640" height="400">
+	<param name="CABINETS" value="chat/irc.cab" />
+
+	<param name="nick" value="DS-Noob" />
+	<param name="alternatenick" value="DS-Noob" />
+	<param name="name" value="DriftingSouls-Noob" />
+	<param name="host" value="irc.euirc.net" />
+	<param name="port" value="6667" />
+
+	<param name="timestamp" value="true" />
+
+	<param name="smileys" value="true" />
+
+	<param name="highlight" value="true" />
+	<param name="highlightnick" value="true" />
+
+	<param name="quitmessage" value="..." />
+
+	<param name="asl" value="true" />
+
+	<param name="bitmapsmileys" value="true" />
+
+	<param name="smiley1" value=":) img/sourire.gif" />
+	<param name="smiley2" value=":-) img/sourire.gif" />
+	<param name="smiley3" value=":-D img/content.gif" />
+	<param name="smiley4" value=":d img/content.gif" />
+	<param name="smiley5" value=":-O img/OH-2.gif" />
+	<param name="smiley6" value=":o img/OH-1.gif" />
+	<param name="smiley7" value=":-P img/langue.gif" />
+	<param name="smiley8" value=":p img/langue.gif" />
+	<param name="smiley9" value=";-) img/clin-oeuil.gif" />
+	<param name="smiley10" value=";) img/clin-oeuil.gif" />
+	<param name="smiley11" value=":-( img/triste.gif" />
+	<param name="smiley12" value=":( img/triste.gif" />
+	<param name="smiley13" value=":-| img/OH-3.gif" />
+	<param name="smiley14" value=":| img/OH-3.gif" />
+	<param name="smiley15" value=":'( img/pleure.gif" />
+	<param name="smiley16" value=":$ img/rouge.gif" />
+	<param name="smiley17" value=":-$ img/rouge.gif" />
+	<param name="smiley18" value="(H) img/cool.gif" />
+	<param name="smiley19" value="(h) img/cool.gif" />
+	<param name="smiley20" value=":-@ img/enerve1.gif" />
+	<param name="smiley21" value=":@ img/enerve2.gif" />
+	<param name="smiley22" value=":-S img/roll-eyes.gif" />
+	<param name="smiley23" value=":s img/roll-eyes.gif" />
+
+	<param name="channelfont" value="12 Arial" />
+	<param name="chanlistfont" value="12 Arial" />
+
+	<param name="nickfield" value="true" />
+	<param name="useinfo" value="true" />-->
+
+	<param name="styleselector" value="true" />
+	<param name="setfontonstyle" value="true" />
+
+	<param name="backgroundimage" value="true" />
+	<param name="defaultbackgroundimage" value="background.gif" />
+
+	<param name="floatingasl" value="true" />
+	<param name="language" value="german" />
+
+	<param name="command1" value="/join #ds" />
+
+	</applet>
+{/endif}
+</td>
+</tr>
+</table>

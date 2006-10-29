@@ -1,0 +1,1137 @@
+/*
+ *	Drifting Souls 2
+ *	Copyright (c) 2006 Christopher Jung
+ *
+ *	This library is free software; you can redistribute it and/or
+ *	modify it under the terms of the GNU Lesser General Public
+ *	License as published by the Free Software Foundation; either
+ *	version 2.1 of the License, or (at your option) any later version.
+ *
+ *	This library is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *	Lesser General Public License for more details.
+ *
+ *	You should have received a copy of the GNU Lesser General Public
+ *	License along with this library; if not, write to the Free Software
+ *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+package net.driftingsouls.ds2.server.framework;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.driftingsouls.ds2.server.framework.db.Database;
+import net.driftingsouls.ds2.server.framework.db.SQLQuery;
+import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+
+import org.apache.commons.lang.StringUtils;
+
+
+/**
+ * Die Benutzerklasse von DS
+ * @author bktheg
+ *
+ */
+public class User implements Loggable {	
+	public static final int TRANSFER_NORMAL = 0;
+	public static final int TRANSFER_SEMIAUTO = 1;
+	public static final int TRANSFER_AUTO = 2;
+	
+	public static final String FLAG_HIDE = "hide";
+	public static final String FLAG_MILITARY_JUMPS = "miljumps";
+	public static final String FLAG_VIEW_BATTLES = "viewbattles";
+	public static final String FLAG_ORDER_MENU = "ordermenu";
+	public static final String FLAG_VIEW_SYSTEMS = "viewsystems";
+	public static final String FLAG_VIEW_ALL_SYSTEMS = "viewallsystems";
+	public static final String FLAG_EXEC_NOTES = "execnotes";
+	public static final String FLAG_DISABLE_IP_SESSIONS = "NO_IP_SESS";
+	public static final String FLAG_DISABLE_AUTO_LOGOUT = "NO_AUTOLOGOUT";
+	public static final String FLAG_QUEST_BATTLES = "questbattles";
+	public static final String FLAG_SCRIPT_DEBUGGING = "scriptdebug";
+	public static final String FLAG_NO_SHIP_CONSIGN = "noshipconsign";
+	public static final String FLAG_NO_ACTION_BLOCKING = "noactionblocking";
+	public static final String FLAG_NPC_ISLAND = "npc_island";
+	public static final String FLAG_NO_JUMPNODE_BLOCK = "nojnblock";
+	public static final String FLAG_SUPER_DOCK = "superdock";
+	public static final String FLAG_MODERATOR_HANDEL = "moderator_handel";
+	public static final String FLAG_NOOB = "noob";
+	
+	/**
+	 * Die Arten von Beziehungen zwischen zwei Spielern
+	 * @author Christopher Jung
+	 *
+	 */
+	public enum Relation {
+		/**
+		 * Neutral
+		 */
+		NEUTRAL,	// 0
+		/**
+		 * Feindlich
+		 */
+		ENEMY,		// 1
+		/**
+		 * Freundlich
+		 */
+		FRIEND;		// 2
+	}
+	
+	/**
+	 * Klasse, welche die Beziehungen eines Spielers zu anderen
+	 * Spielern enthaelt
+	 * @author Christopher Jung
+	 *
+	 */
+	public class Relations {
+		/**
+		 * Die Beziehungen des Spielers zu anderen Spielern.
+		 * Schluessel ist die Spieler-ID
+		 */
+		public Map<Integer,Relation> toOther = new HashMap<Integer,Relation>();
+		/**
+		 * Die Beziehungen von anderen Spielern zum Spieler selbst.
+		 * Schluessel ist die Spieler-ID
+		 */
+		public Map<Integer,Relation> fromOther = new HashMap<Integer,Relation>();
+		
+		protected Relations() {
+			// EMPTY
+		}
+	}
+	
+	private static String[] dbfields = { "id", "un", "name", "passwort", "race", "inakt", "signup",
+			"history", "medals", "rang", "ally", "konto", "cargo", "nstat", "email", "log_fail",
+			"accesslevel", "npcpunkte", "nickname", "allyposten", "gtudropzone", "npcorderloc",
+			"imgpath", "flagschiff", "disabled", "flags", "vaccount", "wait4vac", "wonBattles",
+			"lostBattles", "lostShips", "destroyedShips", "knownItems" };
+	
+	private int id;
+	private List<String> preloadedValues = new ArrayList<String>();
+	private SQLResultRow data;
+	private Context context;
+	private int attachedID;
+	private SQLResultRow attachedData;
+	private boolean changed;
+	
+	private static String defaultImagePath = null;
+	
+	private UserFlagschiffLocation flagschiff = null;
+	
+	public User( Context c, int id, SQLResultRow sessiondata ) {
+		context = c;
+		changed = false;
+		attachedID = 0;
+		attachedData = null;
+		
+		String sqlPreload = "*";
+		
+		this.id = id;
+		
+		data = c.getDatabase().first("SELECT ",sqlPreload," FROM users WHERE id='",id,"'");
+		if( data.getInt("id") != id ) {
+			LOG.error("FAILED TO LOAD USER: "+id);
+		}
+		
+		preloadedValues.addAll(Arrays.asList(dbfields));
+
+		if( (sessiondata != null) && (sessiondata.getInt("usegfxpak") == 0) ) {
+			SQLResultRow column = c.getDatabase().first("SHOW FIELDS FROM users LIKE 'imgpath'");
+			data.put("imgpath", column.getString("Default"));
+		}
+		
+		context.cacheUser( this );
+	}
+	
+	public User( Context c, int id ) {
+		this( c, id, (SQLResultRow)null );
+	}
+
+	protected User( Context c, SQLResultRow row ) {
+		context = c;
+		changed = false;
+		attachedID = 0;
+		attachedData = null;
+		data = row;
+		
+		if( !data.containsKey("id") ) {
+			throw new RuntimeException("Feld 'id' nicht vorhanden, obwohl dies zwingend notwendig ist!");
+		}
+		id = data.getInt("id");
+		
+		for( int i=0; i < dbfields.length; i++ ) {
+			if( data.containsKey(dbfields[i]) ) {
+				preloadedValues.add(dbfields[i]);
+			}
+		}
+		
+		context.cacheUser( this );
+	}
+	
+	public void preloadValues(String[] preload) {
+		if( preload.length == 0 ) {
+			return;
+		}
+		List<String> preloadList = new ArrayList<String>(Arrays.asList(preload));
+
+		for( int i=0; i < preloadList.size(); i++ ) {
+			if( preloadedValues.contains(preloadList.get(i)) ) {
+				preloadList.remove(i);
+				i--;
+				continue;
+			}
+			if( !Common.inArray(preloadList.get(i),dbfields) ) {
+				context.addError("Fehler (User:"+id+"): Der Wertetyp '"+preloadList.get(i)+"' ist un&uuml;ltig");
+				preloadList.remove(i);
+				i--;
+			}	
+		}
+		if( preloadList.size() == 0 ) {
+			return;
+		}
+		String sqlPreload = Common.implode(",",preloadList);
+		
+		data.putAll(context.getDatabase().first("SELECT ",sqlPreload," FROM users WHERE id='",id,"'"));
+			
+		preloadedValues.addAll(preloadList);
+	}
+	
+	/**
+	 * Liefert die User-ID des User-Objekts zur?ck
+	 * 
+	 * @return Die User-ID
+	 */
+	public int getID() {
+		return id;
+	}
+	
+	public void attachToUser( int uid ) {
+		attachedID = uid;
+		
+		attachedData = context.getDatabase().first("SELECT ",Common.implode(",",preloadedValues)," FROM users WHERE id='",uid,"'");
+	}
+	
+	/**
+	 * Macht alle geladenen Benutzereigenschaften dem Templateengine bekannt.
+	 * Die daraus resultierenden Template-Variablen haben die Form "user."+Datenbankname.
+	 * Die Eigenschaft Wait4Vacation, welche den Datenbanknamen "wait4vac" hat, wuerde sich
+	 * somit in der Template-Variablen "user.wait4vac" wiederfinden
+	 * 
+	 * @param templateEngine Das Template-Engine, in dem die Variablen gesetzt werden sollen
+	 */
+	public void setTemplateVars(TemplateEngine templateEngine) {
+		setTemplateVars(templateEngine, "user");
+	}
+	
+	/**
+	 * Macht alle geladenen Benutzereigenschaften dem Templateengine bekannt.
+	 * Die daraus resultierenden Template-Variablen haben die Form Prefix+"."+Datenbankname.
+	 * Die Eigenschaft Wait4Vacation, welche den Datenbanknamen "wait4vac" hat, wuerde sich, beim 
+	 * Prefix "activeuser", somit in der Template-Variablen "activeuser.wait4vac" wiederfinden
+	 * 
+	 * @param templateEngine Das Template-Engine, in dem die Variablen gesetzt werden sollen
+	 * @param prefix Der fuer die Template-Variablen zu verwendende Prefix
+	 */
+	public void setTemplateVars(TemplateEngine templateEngine, String prefix) {
+		String pre = prefix+".";
+		for( String val : preloadedValues ) {
+			templateEngine.set_var(pre+val, data.get(val));
+		}
+	}
+	
+	public void save() {
+		if( changed ) {
+			
+		}
+	}
+	
+	/**
+	 * Liefert einen Profile-Link zu den Benutzer zurueck (als HTML).
+	 * Als CSS-Klasse fuer den Link wird die angegebene Klasse verwendet
+	 * @param username Der anzuzeigende Spielername
+	 * @return Der Profile-Link
+	 */
+	public String getProfileLink(String username) {
+		if( username == null || username.equals("") ) {
+			checkAndLoad("name");
+			username = Common._title(data.getString("name"));
+		}
+		
+		return "<a class=\"profile\" href=\""+Common.buildUrl(ContextMap.getContext(), "default", "module", "userprofile", "user", this.id)+"\">"+username+"</a>";
+	}
+	
+	/**
+	 * Liefert einen vollstaendigen Profile-Link zu den Benutzer zurueck (als HTML).
+	 * Der Linkt enthaelt einen &lt;a&gt;-Tag sowie den Benutzernamen als HTML
+	 * @return Der Profile-Link
+	 */
+	public String getProfileLink() {
+		return getProfileLink("");
+	}
+
+	/**
+	 * Liefert den Standard-Image-Path zurueck
+	 * @param db Eine Datenbankverbindung
+	 * @return Der Standard-Image-Path
+	 */
+	public static String getDefaultImagePath(Database db) {
+		if( defaultImagePath == null ) {
+			defaultImagePath = db.first("SHOW FIELDS FROM users LIKE 'imgpath'").getString("Default");
+		}
+		return defaultImagePath;
+	}
+
+	/**
+	 * Liefert den Image-Path dieses Benutzers zurueck.
+	 * 
+	 * @return Der Image-Path des Benutzers
+	 */
+	public String getUserImagePath() {
+		return context.getDatabase().first("SELECT imgpath FROM users WHERE id='",id,"'").getString("imgpath");
+	}
+	
+	/**
+	 * Setzt den Spieler-Cargo auf den angegebenen Cargo-String in der Datenbank.
+	 * Um inkonsistenzen zu vermeiden wird zudem geprueft, ob der urspruengliche
+	 * Cargo-String noch aktuell ist.
+	 * @param cargo Der neue Cargo-String
+	 * @param oldString Der urspruengliche Cargo-String
+	 */
+	public void setCargo(String cargo, String oldString) {
+		Database db = context.getDatabase();
+		
+		if( oldString != null ) {
+			db.tUpdate(1, "UPDATE users SET cargo='",cargo,"' WHERE id='",id,"' AND cargo='",oldString,"'");	
+		}
+		else {
+			db.tUpdate(1, "UPDATE users SET cargo='",cargo,"' WHERE id='",id,"'");	
+		}
+	}
+	
+	/**
+	 * Setzt den Spieler-Cargo auf den angegebenen Cargo-String in der Datenbank
+	 * @param cargo Der Cargo-String
+	 */
+	public void setCargo(String cargo) {
+		setCargo(cargo, null);
+	}
+	
+	/**
+	 * Ueberprueft, ob ein Flag fuer den Benutzer aktiv ist.
+	 * @param flag Das zu ueberpruefende Flag
+	 * @return <code>true</code>, falls das Flag aktiv ist
+	 */
+	public boolean hasFlag( String flag ) {
+		checkAndLoad("flags");
+		
+		if( data.getString("flags").indexOf(flag) > -1 ) {
+			return true;
+		}
+
+		if( (attachedID != 0) && (attachedData.getString("flags").indexOf(flag) > -1) ) {
+			return true;
+		}
+			
+		return false;
+	}
+	
+	/**
+	 * Setzt ein Flag fuer den User entweder auf aktiviert (<code>true</code>)
+	 * oder auf deaktiviert (<code>false</code>)
+	 * @param flag Das zu setzende Flag
+	 * @param on true, falls es aktiviert werden soll
+	 */
+	public void setFlag( String flag, boolean on ) {
+		checkAndLoad("flags");
+		String flagstring = "";
+		if( on ) {
+			if( !"".equals(data.getString("flags")) ) {
+				flagstring = data.getString("flags")+" "+flag;
+			}
+			else {
+				flagstring = flag;
+			}
+		}
+		else {
+			StringBuilder newflags = new StringBuilder();
+		
+			String[] flags = StringUtils.split(data.getString("flags"),' ');
+			for( String aflag : flags ) {
+				if( !aflag.equals(flag) ) {
+					if( newflags.length() > 0 ) {
+						newflags.append(" ");
+					}
+					newflags.append(aflag);
+				}
+			}
+			flagstring = newflags.toString();
+		}
+		
+		context.getDatabase().tUpdate(1,"UPDATE users SET flags='",flagstring,"' WHERE id='",id,"' AND flags='",data.getString("flags"),"'");
+		data.put("flags", flagstring);
+	}
+	
+	/**
+	 * Aktiviert ein Flag fuer den User
+	 * @param flag Das zu aktivierende Flag
+	 */
+	public void setFlag( String flag ) {
+		setFlag( flag, true );
+	}
+	
+	private int flagschiffSpace = -1;
+	
+	/**
+	 * Stellt fest, ob noch Platz fuer ein Flagschiff vorhanden ist
+	 * 
+	 * @return true, falls noch Platz vorhanden ist
+	 */
+	public boolean hasFlagschiffSpace() {
+		Database db = context.getDatabase();
+		
+		checkAndLoad("flagschiff");
+		
+		if( flagschiffSpace > -1 ) {
+			if( flagschiffSpace > 0 ) {
+				return false;
+			}	
+			return true;
+		}
+		
+		if( data.getInt("flagschiff") == 0 ) {
+			flagschiffSpace = db.first("SELECT flagschiff FROM werften t1,ships t2 WHERE t2.id>0 AND t1.flagschiff=1 AND t1.shipid=t2.id AND t2.owner='",this.id,"'").getInt("flagschiff");
+			if( flagschiffSpace == 0 ) {
+				flagschiffSpace = db.first("SELECT flagschiff FROM werften t1,bases t2 WHERE t1.flagschiff=1 AND t1.col=t2.id AND t2.owner='",this.id,"'").getInt("flagschiff");
+			}
+		}
+		else {
+			flagschiffSpace = 1;
+		}
+	
+		if( flagschiffSpace > 0 ) {
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * Liefert den Aufenthaltsort des Flagschiffs dieses Spielers.
+	 * Der Typ Aufenthaltsort kann entweder ein Schiff (normal), eine Basiswerft
+	 * oder eine Schiffswerft sein (in beiden Faellen wird das Schiff noch gebaut)
+	 * 
+	 * @return Infos zum Aufenthaltsort
+	 */
+	public UserFlagschiffLocation getFlagschiff() {
+		Database db = context.getDatabase();
+		
+		checkAndLoad("flagschiff");
+
+		if( flagschiff != null ) {
+			return (UserFlagschiffLocation)flagschiff.clone();	
+		}
+
+		if( data.getInt("flagschiff") == 0 ) {
+			SQLResultRow bFlagschiff = db.first("SELECT t2.id,t1.flagschiff FROM werften t1,ships t2 WHERE t2.id>0 AND t1.flagschiff=1 AND t1.shipid=t2.id AND t2.owner='",id,"'");
+			if( bFlagschiff.isEmpty() ) {
+				bFlagschiff = db.first("SELECT t2.id,t1.flagschiff FROM werften t1,bases t2 WHERE t1.flagschiff=1 AND t1.col=t2.id AND t2.owner='",id,"'");
+				if( !bFlagschiff.isEmpty() ) {
+					flagschiff = new UserFlagschiffLocation(UserFlagschiffLocation.Type.WERFT_BASE, bFlagschiff.getInt("id"));
+				}
+			}
+			else {
+				flagschiff = new UserFlagschiffLocation(UserFlagschiffLocation.Type.WERFT_SHIP, bFlagschiff.getInt("id"));
+			}
+		}
+		else {
+			flagschiff = new UserFlagschiffLocation(UserFlagschiffLocation.Type.SHIP, data.getInt("flagschiff"));
+		}
+	
+		if( flagschiff != null ) {
+			return (UserFlagschiffLocation)flagschiff.clone();
+		}
+		return null;
+	}
+	
+	/**
+	 * Setzt die Schiffs-ID des Flagschiffs. Falls diese 0 ist, besitzt der Spieler kein Flagschiff mehr
+	 * 
+	 * @param shipid Die Schiffs-ID des Flagschiffs
+	 */
+	public void setFlagschiff(int shipid) {
+		checkAndLoad("flagschiff");
+		context.getDatabase().tUpdate(1, "UPDATE users SET flagschiff='",shipid,"' WHERE id='",id,"' AND flagschiff='",data.get("flagschiff"),"'");
+		data.put("flagschiff", shipid);
+	}
+	
+	/**
+	 * Liefert den Wert eines User-Values zurueck.
+	 * User-Values sind die Eintraege, welche sich in der Tabelle user_values befinden
+	 * 
+	 * @param valuename Name des User-Values
+	 * @return Wert des User-Values
+	 */
+	public String getUserValue( String valuename ) {
+		Database db = context.getDatabase();
+		
+		SQLResultRow value = db.first("SELECT `id`,`value` FROM user_values WHERE `user_id`='",id,"' AND `name`='",valuename,"'");
+		
+		if( value.isEmpty() ) {
+			value = db.first("SELECT `id`,`value` FROM user_values WHERE `user_id`='0' AND `name`='",valuename,"'");
+		}
+
+		return value.getString("value");
+	}
+	
+	/**
+	 * Setzt ein User-Value auf einen bestimmten Wert
+	 * @see #getUserValue(String)
+	 * 
+	 * @param valuename Name des User-Values
+	 * @param newvalue neuer Wert des User-Values
+	 */
+	public void setUserValue( String valuename, String newvalue ) {
+		Database db = context.getDatabase();
+		
+		SQLResultRow valuen = db.first("SELECT `id`,`name` FROM user_values WHERE `user_id`='",id,"' AND `name`='",valuename,"'");
+
+		// Existiert noch kein Eintag?
+		if( valuen.isEmpty() ) {
+			db.update("INSERT INTO user_values (`user_id`,`name`,`value`) VALUES ('",id,"','",valuename,"','",newvalue,"')");
+		}
+		else {
+			db.update("UPDATE user_values SET `value`='",newvalue,"' WHERE `user_id`='",id,"' AND `name`='",valuename,"'");	
+		}
+	}
+	
+	private Relations relations = null;
+	
+	/**
+	 * Liefert alle Beziehungen vom Spieler selbst zu anderen Spielern und umgekehrt
+	 * 
+	 * @return Gibt ein Array zurueck. 
+	 * 	Position 0 enthaelt alle Beziehungen von einem selbst ($userid => $beziehung).
+	 * 	Position 1 enthaelt alle Beziehungen zu einem selbst ($userid => $beziehung).
+	 * 
+	 * 	Beziehungen zu Spieler 0 betreffen grundsaetzlich alle Spieler ohne eigene Regelung
+	 */
+	public Relations getRelations() {
+		Database db = context.getDatabase();
+		
+		if( this.relations == null ) {
+			Relations relations = new Relations();
+			SQLQuery relation = db.query("SELECT * FROM user_relations WHERE user_id='",this.id,"' OR target_id='",this.id,"' OR (user_id!='",this.id,"' AND target_id='0') ORDER BY ABS(target_id) DESC");
+			while( relation.next() ) {
+				if( relation.getInt("user_id") == this.id ) {
+					relations.toOther.put(relation.getInt("target_id"), Relation.values()[relation.getInt("status")]);	
+				}
+				else if( relations.fromOther.containsKey(relation.getInt("user_id")) ) {
+					relations.fromOther.put(relation.getInt("user_id"), Relation.values()[relation.getInt("status")]);
+				}
+			}
+			relation.free();
+			
+			if( relations.toOther.containsKey(0) ) {
+				relations.toOther.put(0, Relation.NEUTRAL);	
+			}
+			
+			relations.toOther.put(this.id, Relation.FRIEND);
+			relations.fromOther.put(this.id, Relation.FRIEND);
+			
+			this.relations = relations;
+		}
+
+		Relations rel = new Relations();
+		rel.fromOther.putAll(relations.fromOther);
+		rel.toOther.putAll(relations.toOther);
+		return rel;
+	}
+	
+	/**
+	 * Gibt den Status der Beziehung des Spielers zu einem anderen Spieler zurueck
+	 * @param userid Die ID des anderen Spielers
+	 * @return Der Status der Beziehungen zu dem anderen Spieler
+	 */
+	public Relation getRelation( int userid ) {
+		Database db = context.getDatabase();
+		
+		if( userid == this.id ) {
+			return Relation.FRIEND;
+		}
+		
+		Relation rel = Relation.NEUTRAL;
+		
+		if( relations == null ) {
+			SQLResultRow currelation = db.first("SELECT status FROM user_relations WHERE user_id='",id,"' AND target_id='",userid,"'");
+			if( currelation.isEmpty() ) {
+				currelation = db.first("SELECT status FROM user_relations WHERE user_id='",this.id,"' AND target_id='0'");
+			}
+		
+			if( !currelation.isEmpty() ) {
+				rel = Relation.values()[currelation.getInt("status")];	
+			}
+		}
+		else {
+			if( relations.toOther.containsKey(userid) ) {
+				rel = relations.toOther.get(userid);	
+			}
+		}
+		return rel;
+	}
+	
+	/**
+	 * Setzt die Beziehungen des Spielers zu einem anderen Spieler auf den angegebenen
+	 * Wert
+	 * @param userid Die ID des anderen Spielers
+	 * @param relation Der neue Status der Beziehungen
+	 */
+	public void setRelation( int userid, Relation relation ) {
+		Database db = context.getDatabase();
+		
+		if( userid == this.id ) {
+			return;
+		}
+		
+		SQLResultRow currelation = db.first("SELECT * FROM user_relations WHERE user_id='",this.id,"' AND target_id='",userid,"'");
+		if( userid != 0 ) {
+			SQLResultRow defrelation = db.first("SELECT * FROM user_relations WHERE user_id='",this.id,"' AND target_id='0'");
+		
+			if( defrelation.isEmpty() ) {
+				defrelation.put("user_id", this.id);
+				defrelation.put("target_id", 0);
+				defrelation.put("status", Relation.NEUTRAL.ordinal());	
+			}
+		
+			if( relation.ordinal() == defrelation.getInt("status") ) {
+				if( currelation.getInt("user_id") != 0 ) {
+					if( relations != null ) {
+						relations.toOther.remove(userid);
+					}
+					
+					db.update("DELETE FROM user_relations WHERE user_id='",this.id,"' AND target_id='",userid,"'");	
+				}
+			}
+			else {
+				if( relations != null ) {
+					relations.toOther.put(userid, relation);
+				}
+				if( !currelation.isEmpty() ) {
+					db.update("UPDATE user_relations SET status='",relation.ordinal(),"' WHERE user_id='",this.id,"' AND target_id='",userid,"'");	
+				}	
+				else {
+					db.update("INSERT INTO user_relations (user_id,target_id,status) VALUES ('",this.id,"','",userid,"','",relation.ordinal(),"')");	
+				}
+			}
+		}
+		else {
+			if( relation == Relation.NEUTRAL ) {
+				if( relations != null ) {
+					relations.toOther.put(0, Relation.NEUTRAL);
+				}
+				db.update("DELETE FROM user_relations WHERE user_id='",this.id,"' AND target_id='0'");
+			}
+			else {
+				relations.toOther.put(0, relation);
+				if( !currelation.isEmpty() ) {
+					db.update("UPDATE user_relations SET status='",relation,"' WHERE user_id='",this.id,"' AND target_id='0'");	
+				}	
+				else {
+					db.update("INSERT INTO user_relations (user_id,target_id,status) VALUES ('",this.id,"','0','",relation.ordinal(),"')");	
+				}
+			}
+			db.update("DELETE FROM user_relations WHERE user_id='",this.id,"' AND status='",relation.ordinal(),"' AND target_id!='0'");
+		}
+	}
+
+	/**
+	 * Transferiert einen bestimmten Geldbetrag (RE) von einem anderen Benutzer zum aktuellen.
+	 * Der Transfer kann entweder ein echter Transfer sein (Geld wird abgebucht) oder ein gefakter
+	 * Transfer (kein Geld wird abgebucht sondern nur hinzugefuegt).
+	 * Zudem faellt jeder Geldtransfer in eine von 3 Kategorien (automatisch, halbautomatisch und manuell).
+	 * 
+	 * @param fromID Die ID des Benutzers, von dem Geld abgebucht werden soll
+	 * @param count Die zu transferierende Geldmenge
+	 * @param text Der Hinweistext, welcher im "Kontoauszug" angezeigt werden soll
+	 * @param faketransfer Handelt es sich um einen "gefakten" Geldtransfer (<code>true</code>)?
+	 * @param transfertype Der Transfertyp (Kategorie)
+	 * @see #TRANSFER_AUTO
+	 * @see #TRANSFER_SEMIAUTO
+	 * @see #TRANSFER_NORMAL
+	 */
+	public void transferMoneyFrom( int fromID, long count, String text, boolean faketransfer, int transfertype) {
+		Database db = context.getDatabase();
+		
+		if( count != 0 ) {
+			if( (fromID != 0) && !faketransfer ) {			
+				if( context.getCachedUser(fromID) != null ) {
+					context.getCachedUser(fromID).setKonto( context.getCachedUser(fromID).getKonto()-count );
+				}
+				else {
+					db.tUpdate(1, "UPDATE users SET konto=konto-",count," WHERE id=",fromID);	
+				}
+			}
+		
+			db.tUpdate(1, "UPDATE users SET konto=konto+",count," WHERE id=",this.id);
+		
+			checkAndLoad("konto");
+		
+			data.put("konto", data.getLong("konto")+count);	
+		
+			db.update("INSERT INTO user_moneytransfer (`from`,`to`,`time`,`count`,`text`,`fake`,`type`) ",
+					"VALUES ('",fromID,"','",this.id,"','",Common.time(),"','",count,"','",db.prepareString(text),"','",(faketransfer ? 1 : 0),"','",transfertype,"')");
+		}
+	}
+	
+	/**
+	 * Transferiert einen bestimmten Geldbetrag (RE) von einem anderen Spieler zum aktuellen. Beim
+	 * Transfer handelt es sich um einen manuellen Transfer.
+	 * 
+	 * @param fromID Die ID des Benutzers, von dem Geld abgebucht werden soll
+	 * @param count Die zu transferierende Geldmenge
+	 * @param text Der Hinweistext, welcher im "Kontoauszug" angezeigt werden soll
+	 * @param faketransfer Handelt es sich um einen "gefakten" Geldtransfer (<code>true</code>)?
+	 * @see #transferMoneyFrom(int, long, String, boolean, int)
+	 */
+	public void transferMoneyFrom( int fromID, long count, String text, boolean faketransfer) {
+		transferMoneyFrom( fromID, count, text, faketransfer, TRANSFER_NORMAL );
+	}
+	
+	/**
+	 * Transferiert einen bestimmten Geldbetrag (RE) von einem anderen Spieler zum aktuellen. Beim
+	 * Transfer handelt es sich um einen manuellen Transfer. Das Geld wird tatsaechlich dem Ausgangsspieler
+	 * abgezogen (kein "gefakter" Transfer)
+	 * 
+	 * @param fromID Die ID des Benutzers, von dem Geld abgebucht werden soll
+	 * @param count Die zu transferierende Geldmenge
+	 * @param text Der Hinweistext, welcher im "Kontoauszug" angezeigt werden soll
+	 */
+	public void transferMoneyFrom( int fromID, long count, String text ) {
+		transferMoneyFrom( fromID, count, text, false );
+	}
+	
+	private SQLResultRow research = null;
+	
+	/**
+	 * Gibt den zum Spieler gehoerenden <code>user_f</code>-Eintrag als SQL-Ergebniszeile
+	 * zurueck
+	 * @return Der <code>user_f</code>-Eintrag
+	 */
+	public SQLResultRow getResearchedList() {
+		if( research == null ) {
+			research = context.getDatabase().first("SELECT * FROM user_f WHERE id='",id,"'");	
+		}
+		return research;
+	}
+	
+	/**
+	 * Prueft, ob die angegebene Forschung durch den Benutzer erforscht wurde
+	 * 
+	 * @param researchID Die ID der zu pruefenden Forschung
+	 * @return <code>true</code>, falls die Forschung erforscht wurde
+	 */
+	public boolean hasResearched( int researchID ) {
+		// Forschungs-ID -1 ist per Definition nicht erforschbar - also immer false zurueckgeben.
+		if( researchID == -1 ) {
+			return false;
+		}
+		if( research == null ) {
+			research = context.getDatabase().first("SELECT * FROM user_f WHERE id='",id,"'");	
+		}
+
+		return research.getBoolean("r"+researchID);
+	}
+	
+	/**
+	 * Fuegt eine Forschung zur Liste der durch den Benutzer erforschten Technologien hinzu
+	 * @param researchID Die ID der erforschten Technologie
+	 */
+	public void addResearch( int researchID ) {
+		if( !hasResearched( researchID ) ) {
+			research.put("r"+researchID, true);
+			
+			context.getDatabase().update("UPDATE user_f SET r",researchID,"='1' WHERE id='",this.id,"'");
+		}
+	}
+	
+	/**
+	 * Fuegt eine Zeile zur User-Historie hinzu
+	 * @param text Die hinzuzufuegende Zeile
+	 */
+	public void addHistory( String text ) {
+		Database db = context.getDatabase();
+		
+		checkAndLoad("history");
+		
+		String history = getHistory();
+		if( !"".equals(history) ) {
+			db.update("UPDATE users SET history='",db.prepareString(history+"\n"+text),"' WHERE id='",id,"'");
+			data.put("history", history+"\n"+text);
+		}
+		else {
+			db.update("UPDATE users SET history='",db.prepareString(text),"' WHERE id='",id,"'");
+			data.put("history", text);
+		}
+	}
+	
+	/**
+	 * Fuegt ein Item zur Liste der dem Spieler bekannten Items hinzu.
+	 * Die Funktion prueft nicht, ob das Item allgemein bekannt ist,
+	 * sondern geht davon aus, dass das angegebene Item allgemein unbekannt ist.
+	 * 
+	 * @param itemid Die Item-ID
+	 */
+	public void addKnownItem( int itemid ) {
+		checkAndLoad("knownItems");
+		
+		if( !isKnownItem(itemid) ) {
+			String itemlist = data.getString("knownItems").trim();
+			if( !itemlist.equals("") ) {
+				itemlist += ","+itemid;
+			}
+			else {
+				itemlist = ""+itemid;
+			}
+			context.getDatabase().tUpdate(1,"UPDATE users SET knownItems='",itemlist,"' WHERE id='",id,"' AND knownItems='",data.getString("knownItems"),"'");
+			data.put("knownItems", itemlist);
+		}
+	}
+	
+	/**
+	 * Prueft, ob das Item mit der angegebenen ID dem Benutzer bekannt ist.
+	 * Die Funktion prueft nicht, ob das Item allgemein bekannt ist,
+	 * sondern geht davon aus, dass das angegebene Item allgemein unbekannt ist.
+	 * @param itemid Die ID des Items
+	 * @return <code>true</code>, falls das Item den Spieler bekannt ist
+	 */
+	public boolean isKnownItem( int itemid ) {
+		checkAndLoad("knownItems");
+		String[] itemlist = data.getString("knownItems").split(",");
+		
+		return Common.inArray(""+itemid,itemlist);	
+	}
+	
+	/**
+	 * Gibt das Zugriffslevel des Benutzers zurueck
+	 * @return Das Zugriffslevel
+	 */
+	public int getAccessLevel() {
+		checkAndLoad("accesslevel");
+		int acl = data.getInt("accesslevel");
+		if( (attachedID != 0) && (attachedData.getInt("accesslevel") > acl)) {
+			return attachedData.getInt("accesslevel");
+		}
+		return acl;
+	}
+	
+	/**
+	 * Prueft, ob der Spieler noch unter Noob-Schutz steht
+	 * @return <code>true</code>, falls der Spieler noch ein Noob ist
+	 */
+	public boolean isNoob() {
+		if( Configuration.getIntSetting("NOOB_PROTECTION") > 0 ) {
+			if( id < 0 ) {
+				return false;
+			}
+			
+			return hasFlag( FLAG_NOOB );
+		}
+		return false;
+	}
+	
+	private void checkAndLoad( String pname ) {
+		if( !preloadedValues.contains(pname) ) {
+			data.putAll(context.getDatabase().first("SELECT `",pname,"` FROM users WHERE id='",id,"'"));
+			
+			if( attachedID != 0 ) {
+				attachedData.putAll(context.getDatabase().first("SELECT `",pname,"` FROM users WHERE id='",attachedID,"'"));
+			}
+			
+			preloadedValues.add(pname);
+		}
+	}
+	
+	/**
+	 * Gibt den Benutzernamen des Spielers zurueck. Der Benutzername
+	 * wird lediglich zum einloggen verwendet und wird nicht angezeigt.
+	 * @return Der Benutzername
+	 */
+	public String getUN() {
+		checkAndLoad("un");
+		return data.getString("un");
+	}
+	
+	/**
+	 * Gibt den vollstaendigen Ingame-Namen des Spielers zurueck.
+	 * Der vollstaendige Ingame-Name enthaelt den Ally-Tag sofern vorhanden
+	 * und ist ggf auch mittels BBCode formatiert 
+	 * @return Der vollstaendige Ingame-Name
+	 */
+	public String getName() {
+		checkAndLoad("name");
+		return data.getString("name");
+	}
+	
+	public void setName( String name ) {
+		checkAndLoad("name");
+		if( !name.equals(data.getString("name")) ) {
+			context.getDatabase().
+				prepare("UPDATE users SET name=?,plainname=? WHERE id=? AND name=?").
+				tUpdate(1, name, Common._titleNoFormat(name), id, data.getString("name"));
+			data.put("name", name);
+			data.put("plainname", Common._titleNoFormat(name));
+		}
+	}
+
+	/**
+	 * Gibt die ID der Rasse des Spielers zurueck
+	 * @return Die ID der Rasse
+	 */
+	public int getRace() {
+		checkAndLoad("race");
+		return data.getInt("race");
+	}
+
+	/**
+	 * Gibt das verschluesselte Passwort des Spielers zurueck
+	 * @return Das verschluesselte Passwort
+	 */
+	public String getPassword() {
+		checkAndLoad("passwort");
+		return data.getString("passwort");
+	}
+	
+	/**
+	 * Gibt die Inaktivitaet des Spielers in Ticks zurueck
+	 * @return Die Inaktivitaet des Spielers in Ticks
+	 */
+	public int getInactivity() {
+		checkAndLoad("inakt");
+		return data.getInt("inakt");
+	}
+	
+	/**
+	 * Gibt die Timestamp des Zeitpunkts zurueck, an dem Sich der Spieler 
+	 * angemeldet hat
+	 * @return Die Timestamp des Anmeldezeitpunkts
+	 */
+	public int getSignup() {
+		checkAndLoad("signup");
+		return data.getInt("signup");
+	}
+
+	/**
+	 * Gibt die Spielerhistorie als BBCode-formatierten String zurueck
+	 * @return Die Spielerhistorie
+	 */
+	public String getHistory() {
+		checkAndLoad("history");
+		return data.getString("history");
+	}
+	
+	public String getMedals() {
+		checkAndLoad("medals");
+		return data.getString("medals");
+	}
+	
+	/**
+	 * Liefert den Rang des Benutzers zurueck
+	 * @return Der Rang
+	 */
+	public int getRang() {
+		checkAndLoad("rang");
+		return data.getInt("rang");
+	}
+	
+	/**
+	 * Liefert die ID der Allianz des Benutzers zurueck.
+	 * Wenn der Benutzer in keiner Allianz ist, ist die ID 0.
+	 * 
+	 * @return Die ID der Allianz
+	 */
+	public int getAlly() {
+		checkAndLoad("ally");
+		return data.getInt("ally");
+	}
+	
+	/**
+	 * Liefert den Kontostand des Benutzers zurueck
+	 * @return Der Kontostand
+	 */
+	public long getKonto() {
+		checkAndLoad("konto");
+		return data.getLong("konto");
+	}
+	
+	/**
+	 * Setzt den Kontostand des Spielers auf den angegebenen Wert
+	 * @param count der neue Kontostand
+	 */
+	public void setKonto( long count ) {
+		checkAndLoad("konto");
+		context.getDatabase().tUpdate(1, "UPDATE users SET konto='",count,"' WHERE id='",id,"' AND konto='",data.getInt("konto"),"'");
+		data.put("konto", count);
+	}
+	
+	public String getCargo() {
+		checkAndLoad("cargo");
+		return data.getString("cargo");
+	}
+	
+	public String getNahrungsStat() {
+		checkAndLoad("nstat");
+		return data.getString("nstat");
+	}
+	
+	/**
+	 * Gibt die Email-Adresse des Spielers zurueck
+	 * @return Die Email-Adresse
+	 */
+	public String getEmail() { 
+		checkAndLoad("email");
+		return data.getString("email");
+	}
+	
+	public int getLoginFailedCount() {
+		checkAndLoad("log_fail");
+		return data.getInt("log_fail");
+	}
+	
+	public void setLoginFailedCount(int count) {
+		checkAndLoad("log_fail");
+		context.getDatabase().tUpdate(1, "UPDATE users SET log_fail='",count,"' WHERE id='",id,"' AND log_fail='",data.get("log_fail"),"'");
+		data.put("log_fail", count);
+	}
+	
+	/**
+	 * Liefert die Anzahl der NPC-Punkte des Benutzers zurueck.
+	 * @return Die Anzahl der NPC-Punkte
+	 */
+	public int getNpcPunkte() {
+		checkAndLoad("npcpunkte");
+		return data.getInt("npcpunkte");
+	}
+
+	/**
+	 * Gibt den Ingame-Namen des Spielers ohne Ally-Tag zurueck.
+	 * Der Name ist ggf mittels BBCodes formatiert
+	 * @return der Ingame-Name ohne Ally-Tag
+	 */
+	public String getNickname() {
+		checkAndLoad("nickname");
+		return data.getString("nickname");
+	}
+	
+	/**
+	 * Gibt den unformatierten Ingame-Namen des Spielers zurueck.
+	 * Der Name ist inklusive des Ally-Tags sofern vorhanden
+	 * @return Der unformatierte Name inkl. Ally-Tag
+	 */
+	public String getPlainname() {
+		checkAndLoad("plainname");
+		return data.getString("plainname");
+	}
+	
+	/**
+	 * Gibt die ID des durch den Spieler besetzten Allianz-Postens
+	 * zurueck. Sollte der Spieler keinen Allianz-Posten besetzen, so wird 0
+	 * zurueckgegeben. 
+	 * @return Die ID des Allianz-Postens oder 0
+	 */
+	public int getAllyPosten() {
+		checkAndLoad("allyposten");
+		return data.getInt("allyposten");
+	}
+	
+	public int getGtuDropZone() {
+		checkAndLoad("gtudropzone");
+		return data.getInt("gtudropzone");
+	}
+	
+	public String getNpcOrderLocation() {
+		checkAndLoad("npcorderloc");
+		return data.getString("npcorderloc");
+	}
+	
+	public String getImagePath() {
+		checkAndLoad("imgpath");
+		return data.getString("imgpath");
+	}
+	
+	/**
+	 * Gibt <code>true</code> zurueck, falls der Account deaktiviert ist
+	 * @return <code>true</code>, falls der Account deaktiviert ist
+	 */
+	public boolean getDisabled() {
+		checkAndLoad("disabled");
+		if( data.getInt("disabled") != 0 ) {
+			return true;
+		}
+		return false;
+	}
+	
+	public void setDisabled(boolean value) {
+		checkAndLoad("disabled");
+		context.getDatabase().tUpdate(1, "UPDATE users SET disabled='",(value ? 1 : 0),"' WHERE id='",id,"' AND disabled='",data.getInt("disabled"),"'");
+		data.put("disabled", (value ? 1 : 0));
+	}
+	
+	/**
+	 * Gibt die Anzahl der Ticks zurueck, die der Account noch im 
+	 * Vacation-Modus ist. Der Account kann sich auch noch im Vorlauf befinden!
+	 * @return Die Anzahl der verbleibenden Vac-Ticks
+	 */
+	public int getVacationCount() {
+		checkAndLoad("vaccount");
+		return data.getInt("vaccount");
+	}
+	
+	public void setVacationCount(int value) {
+		checkAndLoad("vaccount");
+		context.getDatabase().tUpdate(1, "UPDATE users SET vaccount='",value,"' WHERE id='",id,"' AND vaccount='",data.getInt("vaccount"),"'");
+		data.put("vaccount", value);
+	}
+
+	/**
+	 * Gibt zurueck, wieviele Ticks sich der Account noch im Vorlauf fuer den
+	 * Vacation-Modus befindet
+	 * @return Die Anzahl der verbleibenden Ticks im Vacation-Vorlauf 
+	 */
+	public int getWait4VacationCount() {
+		checkAndLoad("wait4vac");
+		return data.getInt("wait4vac");
+	}
+	
+	public void setWait4VacationCount(int value) {
+		checkAndLoad("wait4vac");
+		context.getDatabase().tUpdate(1, "UPDATE users SET wait4vac='",value,"' WHERE id='",id,"' AND wait4vac='",data.getInt("wait4vac"),"'");
+		data.put("wait4vac", value);
+	}
+	
+	public int getWonBattles() {
+		checkAndLoad("wonbattles");
+		return data.getInt("wonbattles");
+	}
+	
+	public int getLostBattles() {
+		checkAndLoad("lostbattles");
+		return data.getInt("lostbattles");
+	}
+	
+	public int getLostShips() {
+		checkAndLoad("lostships");
+		return data.getInt("lostships");
+	}
+	
+	public int getDestroyedShips() {
+		checkAndLoad("destroyedships");
+		return data.getInt("destroyedships");
+	}
+	
+	public String getKnownItems() {
+		checkAndLoad("knownItems");
+		return data.getString("knownItems");
+	}
+}

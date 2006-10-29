@@ -1,0 +1,270 @@
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<table class="show" cellspacing="2" cellpadding="2">
+<tr>
+	<td class="noBorderS" style="text-align:center;font-size:12px">Kommandozentrale<br />{base.name}</td>
+	<td class="noBorder">&nbsp;</td>
+	<td class="noBorderS">
+		{!table_begin 440,center}
+			{!link_to Allgemein, default, col:$base.id, field:$base.field, show:general}&nbsp;
+			&nbsp;|&nbsp;&nbsp;{!link_to Automatischer Verkauf, default, col:$base.id, field:$base.field, show:autogtu}
+		{!table_end}
+	</td>
+</tr>
+</table>
+<br />
+{if building.message}
+	<div class="smallfont">
+		{building.message}
+	</div>
+{/endif}
+
+{if show.autogtu}
+	{!table_begin 568, center}
+		<div style="text-align:left">Verkaufsauftr&auml;ge:<br /><br /></div>
+		<form action="main.php" method="post">
+			<table class="noBorderX" width="100%">
+			<!-- BEGIN autogtu.acts.listitem -->
+				<tr>
+					<td class="noBorderX">
+						<img style="vertical-align:middle" src="{res.image}" alt="" />{res.name}:
+					</td>
+					<td class="noBorderX">
+						{if res.action.total}
+							Immer {res.sellcount} Einheiten verkaufen
+						{else}
+							{if res.action.limit}
+								Alles &uuml;ber {res.sellcount} Einheiten verkaufen
+							{else}
+								Unbekannte Aktion
+							{/endif}
+						{/endif}
+					</td>
+					<td class="noBorderX">
+						{!link_to X, default, css_class:error, col:$base.id, field:$base.field, show:autogtu, baction:gtudel, gtuact:$res.actionstring}
+					</td>
+				</tr>
+			<!-- END autogtu.acts.listitem -->
+			{if autogtu.acts.list }
+				<tr>
+					<td class="noBorderX" colspan="3">
+						<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+					</td>
+				</tr>
+			{/endif}
+			<tr>
+				<td class="noBorderX">
+					<select name="resid" size="1">
+						<!-- BEGIN autogtu.reslist.listitem -->
+							<option value="{res.id}">{res.name}</option>
+						<!-- END autogtu.reslist.listitem -->
+					</select>:
+				</td>
+				<td class="noBorderX">
+					<select name="actid" size="1">
+						<option value="0" selected="selected">Immer</option>
+						<option value="1">Alles &uuml;ber</option>	
+					</select>
+					<input type="text" name="count" size="6" value="0" /> verkaufen
+				</td>
+		
+				<td class="noBorderX"><input type="submit" value="ok" /></td>
+			</tr>
+			</table>
+			{!form_create_hidden default, col:$base.id, field:$base.field, baction:gtuadd, show:autogtu}
+		</form>
+	{!table_end}
+	<div class="smallfont">
+		<br />
+	</div>
+{/endif}
+{if show.general}
+	{!table_begin 430,center}
+		<table class="noBorderX" cellpadding="2">
+		<tr>
+			<td class="noBorderX"><span style="font-weight:bold">Aktion</span></td>
+			<td class="noBorderX"><span style="font-weight:bold">Kosten</span></td>
+			<td class="noBorderX"></td>
+		</tr>
+		<tr>
+			<td class="noBorderX" valign="top">Batterien entladen</td>
+			<td class="noBorderX" valign="top"><img src="{res.batterien.image}" alt="" />1</td>
+			<td class="noBorderX" valign="top">
+				<form action="./main.php" method="post">
+				<div>
+					<input name="unload" type="text" size="2" value="0" />
+					{!form_create_hidden default, col:$base.id, field:$base.field, baction:unload, show:general}
+					<input type="submit" value="entladen" />
+				</div>
+				</form>
+			</td>
+		</tr>
+		<tr>
+			<td class="noBorderX" valign="top">Batterien aufladen</td>
+			<td class="noBorderX" valign="top"><img src="{URL}data/interface/energie.gif" alt="Energie" />1 <img src="{res.lbatterien.image}" alt="" />1</td>
+			<td class="noBorderX" valign="top">
+				<form action="./main.php" method="post">
+				<div>
+					<input name="load" type="text" size="2" value="0" />
+					{!form_create_hidden default, col:$base.id, field:$base.field, baction:load, show:general}
+					<input type="submit" value="aufladen" />
+				</div>
+				</form>
+			</td>
+		</tr>
+		<tr>
+			<td class="noBorderX" valign="top">Batterien herstellen</td>
+			<td class="noBorderX" valign="top"><img src="{res.platin.image}" alt="" />1</td>
+			<td class="noBorderX" valign="top">
+				<form action="./main.php" method="post">
+				<div>
+					<input name="create" type="text" size="2" value="0" />
+					{!form_create_hidden default, col:$base.id, field:$base.field, baction:create, show:general}
+					<input type="submit" value="herstellen" />
+				</div>
+				</form>
+			</td>
+		</tr>
+		</table>
+	{!table_end}
+	<div class="smallfont">
+		<br />
+		{if general.itemconsign.list}
+			</div>
+			{!table_begin 430,left}
+		{else}
+			{if general.shiptransfer.list}
+				</div>
+				{!table_begin 430,left}
+				<span style="font-weight:bold">Waren transferieren:</span><br />
+			{else}
+				{if general.basetransfer.list}
+					</div>
+					{!table_begin 430,left}
+					<span style="font-weight:bold">Waren transferieren:</span><br />
+				{/endif}
+			{/endif}
+		{/endif}
+		<!-- BEGIN general.itemconsign.listitem -->
+			{if ! general.itemconsign.list}
+				<form action="./main.php" method="post">
+					Item an Allianz &uuml;bergeben:<br />
+					<select style="width:250px" name="item" size="1">
+			{/endif}
+			<option value="{item.id}">{item.name}</option>
+		<!-- END general.itemconsign.listitem -->
+		{if general.itemconsign.list}
+				</select>
+				{!form_create_hidden default, col:$base.id, field:$base.field, baction:item, show:general}
+				<input type="submit" value="ok" />
+			</form>
+			<div class="smallfont">
+			<br />
+		{/endif}
+		
+		{if general.shiptransfer.list}
+			<form action="./main.php" method="post">
+			<div>
+				<select style="width:250px" name="to">
+					<option selected="selected">Ziel</option>
+		{/endif}
+		<!-- BEGIN general.shiptransfer.listitem -->
+			{if ship.endgroup}
+				</optgroup>
+			{/endif}
+			{if ship.begingroup}
+				<optgroup label="{base.system}:{ship.x}/{ship.y}">
+			{/endif}
+			<option value="{ship.id}">({ship.id}) {ship.name} {if ship.owner.name}({ship.owner.name}){/endif}</option>
+		<!-- END general.shiptransfer.listitem -->
+		{if general.shiptransfer.list}
+				{if base.size}
+					</optgroup>
+				{/endif}
+				</select>
+				{!form_create_hidden default, module:transport, from:$base.id, way:btos}
+				<input type="submit" value="zur Warenauswahl" />
+			</div>
+			</form>
+		{/endif}
+		
+		{if general.basetransfer.list}
+			{if general.itemconsign.list}
+				<br />
+			{else}
+				{if general.shiptransfer.list}
+					<br />
+				{/endif}
+			{/endif}
+		{/endif}
+		<!-- BEGIN general.basetransfer.listitem -->
+			<a class="forschinfo" href="./main.php?module=transport&amp;sess={global.sess}&amp;from={base.id}&amp;to={targetbase.id}&amp;way=btob">Transfer zu {targetbase.name}</a><br />
+		<!-- END general.basetransfer.listitem -->
+		
+		{if general.itemconsign.list}
+			{!table_end}
+			<br />
+		{else}
+			{if general.shiptransfer.list}
+				{!table_end}
+				<br />
+			{else}
+				{if general.basetransfer.list}
+					{!table_end}
+					<br />
+				{/endif}
+			{/endif}
+		{/endif}
+	</div>
+	
+	{!table_begin 430,center}
+		<form action="./main.php" method="post">
+		<table class="noBorderX" cellpadding="2" width="100%">
+		<tr>
+			<td colspan="4" class="noBorderX"><span style="font-weight:bold">Waren verkaufen:</span></td>
+		</tr>
+		<!-- BEGIN general.sell.listitem -->
+			<tr>
+				<td class="noBorderX">
+					<img src="{res.image}" alt="" />{res.name}
+				</td>
+				<td class="noBorderX">{res.cargo2}</td>
+				<td class="noBorderX"><input name="{res.id}to" type="text" size="6" value="0" /></td>
+				<td class="noBorderX">{res.cargo1}</td>
+			</tr>
+		<!-- END general.sell.listitem -->		
+		<tr>
+			<td class="noBorderX" colspan="4">
+				<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+			</td>
+		</tr>
+		<tr>
+			<td class="noBorderX" colspan="4" align="center">
+				{!form_create_hidden default, col:$base.id, field:$base.field, baction:sell, show:general}
+				<input type="submit" value="verkaufen" style="width:200px" />
+			</td>
+		</tr>
+		</table>
+		</form>
+	{!table_end}
+	
+	<div class="smallfont">
+		<br />
+	</div>
+{/endif}

@@ -1,0 +1,611 @@
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<script type="text/javascript">
+<!--
+//<![CDATA[
+	function PlayerList() {
+		fenster1=window.open("./main.php?module=plist&sess={global.sess}&compopup=1",
+							 "Spielerliste",
+							 "width=350,height=400,locationbar=0,menubar=0,scrollbars=1,statusbar=0,toolbar=0,resizeable=yes,directories=0");
+	}
+
+	function BBCodeInfo() {
+		fenster2=window.open("./main.php?module=bbcodeview&sess={global.sess}",
+							 "BBCodes",
+							 "width=550,height=400,locationbar=0,menubar=0,scrollbars=1,statusbar=0,toolbar=0,resizeable=yes,directories=0");
+	}
+
+	function insertRealTime(){
+		var Jetzt = new Date();
+		var Hours = appendZero(Jetzt.getHours());
+		var Minutes = appendZero(Jetzt.getMinutes());
+		var Seconds = appendZero(Jetzt.getSeconds());
+		document.getElementById('msg').value = document.getElementById('msg').value + Hours + ':' + Minutes + ':' + Seconds;
+		document.getElementById('msg').focus();
+	}
+
+	function appendZero(subject){
+		if(subject < 10){
+			subject = "0"+subject;
+		} 
+		return subject;
+	}
+
+	function insertTickTime(){
+		document.getElementById('msg').value = document.getElementById('msg').value + "{system.time}";
+		document.getElementById('msg').focus();
+	}
+
+	function insertSignature(){
+		document.getElementById('msg').value = document.getElementById('msg').value + document.getElementById('signature').value;
+		document.getElementById('msg').focus();
+	}
+//]]>
+// -->
+</script>
+{if show.menu}
+	<table class="show" cellspacing="2" cellpadding="2">
+	<tr>
+		<td class="noBorderS">Kommunikation</td>
+		<td class="noBorder">&nbsp;</td>
+		<td class="noBorder">	
+			{!table_begin 550,center}
+				{!link_to Nachricht schreiben, default, to:0}
+				&nbsp;&nbsp;|&nbsp;&nbsp;
+				{!link_to Posteingang, showInbox}
+				&nbsp;&nbsp;|&nbsp;&nbsp;
+				{!link_to Postausgang, showOutbox}
+			{!table_end}
+		</td>
+	</tr>
+	</table>
+	<div><br /></div>
+{/endif}
+{if show.message}
+	<div class="smallfont">
+		{show.message}
+		<br />
+		<br />
+	</div>
+{/endif}
+{if show.preview}
+	{!table_begin 710,left}
+		<div style="position:relative; width:635px; height:240px; margin: 0px; position: relative; top: 0px; left: 0px; overflow:auto">
+			{if pm.bgimage}
+				<div style="position:absolute; top:0px; left:0px; margin:0px; padding:0px; width:570px; overflow:hidden; background-image: url('{URL}data/interface/pms/{pm.bgimage}');'">
+					 <img src="{URL}data/interface/pms/{pm.bgimage}" width="570" alt="" /> 
+				</div>
+			{/endif}
+			<div style="width:570px; position:absolute; z-index:0; top:0px; left:0px; top:0px; left:0px; margin:0px; padding:0px;">
+				<div style="text-align:center; width:570px">
+					<table class="show2" style="width:500px; margin-left:auto; margin-right:auto">
+					{if pm.title}
+						<tr>
+							<td {if pm.flags.admin}style="color:orange"{/endif} class="BorderX" align="center">
+								{pm.title}
+							</td>
+						</tr>
+					{/endif}
+					<tr>
+						<td class="BorderX">
+							Von: {!link_to $pm.sender.name, default, css_class:profile, link_target:main, module:userprofile, user:$pm.sender}
+							Datum: {pm.time}<br />
+						</td>
+					</tr>
+					</table>
+					<br />
+					</div>
+					{pm.text}
+				</div>
+			</div>
+		</div>
+	{!table_end}
+	<br>
+{/endif}
+{if show.write}
+	{!table_begin 710,left}
+		<form action="./main.php" method="post">
+		<table class="noBorderX" cellspacing="2" cellpadding="4">
+		<tr>
+			<td class="noBorderX">An</td>
+			<td class="noBorderX"><input name="to" type="text" size="5" value="{write.to}" /> "ally" oder User-ID (<a class="forschinfo" href="javascript:PlayerList()">Liste</a>)</td>
+		</tr>
+		<tr>
+			<td class="noBorderX">Betreff</td>
+			<td class="noBorderX"><input name="title" type="text" size="30" maxlength="30" value="{write.title}" /></td>
+		</tr>
+		{if write.specialui.list}
+			<tr>
+				<td class="noBorderX">Spezial</td>
+				<td class="noBorderX">
+					<select name="special" size="1">
+					<!-- BEGIN write.specialui.listitem -->
+						<option value="{specialui.value}">{specialui.name}</option>
+					<!-- END write.specialui.listitem -->
+					</select>
+				</td>
+			</tr>
+		{/endif}
+		<tr>
+			<td class="noBorderX" valign="top">Nachricht<br /><br />
+				<input type="button" value="RL Zeit" onclick="insertRealTime()" style="width:80px" /><br /><br />
+				<input type="button" value="Tick Zeit" onclick="insertTickTime()" style="width:80px"/><br /><br />
+				<input type="button" value="Signatur" onclick="insertSignature()" style="width:80px" />
+				<textarea id="signature" style="display:none;">{user.signature}</textarea></td>
+			<td class="noBorderX"><textarea id="msg" name="msg" cols="65" rows="18" style="width:500px">{write.message}</textarea></td>
+		</tr>
+		<tr>
+			<td class="noBorderX">
+			</td>
+		</tr>
+		<tr>
+			<td class="noBorderX" valign="top">&nbsp;</td>
+			<td align="center" class="noBorderX">
+				{!form_create_hidden send}
+				<input type="submit" name="Vorschau" value="Vorschau" style="width:200px" onclick="this.form.action.value = 'preview'" />
+				<input type="submit" name="Senden" value="Nachricht senden" style="width:200px" onclick="this.form.action.value = 'send'" /><br />
+			</td>
+		</tr>
+		</table>
+		</form>
+		<hr noshade="noshade" size="1" style="color:#cccccc" />
+		<span style="font-weight:bold">Hinweis:</span><br />
+		Es k&ouml;nnen in der Nachricht die <a class="forschinfo" href="javascript:BBCodeInfo()">BBCodes</a> verwendet werden<br /><br />
+		<span style="font-weight:bold">M&ouml;gliche Empf&auml;nder:</span><br />
+		"ally" - Alle Mitglieder der Allianz<br />
+		User-ID -  Der Spieler mit dieser ID (<a class="forschinfo" href="javascript:PlayerList()">Liste</a>)
+	{!table_end}
+{/endif}
+{if show.inbox}
+	<script type="text/javascript">
+	<!--
+		function showpm(pmid) {
+			if( $('pm'+pmid) != null ) {
+				pmviewer.location.href = "./main.php?module=comm&sess={global.sess}&action=showPm&pmid="+pmid;
+				
+				$('pm'+pmid).innerHTML = "";
+			}
+		}
+
+		function setRenameAction(id) {
+			actionSelectChange("");
+			document.getElementById("form_ordnername").style.display = "inline";
+			document.getElementById("rename").disabled = false;
+			document.getElementById("select_action").value = "rename";
+			document.getElementById("subject").value = id;
+		}
+		
+		var movePMID = 0;
+		var movePMToID = 0;
+		
+		function finishMovePM( response ) {
+			$("inbox_waiter").style.visibility = "hidden";
+
+			if( parseInt(response.responseText) > 0 ) {
+				$("inbox_pm"+movePMID).style.display="none";
+				$("inbox_pm"+movePMID+"_row").parentNode.removeChild($("inbox_pm"+movePMID+"_row"));
+				$("inbox_ordner"+movePMToID+"_count").innerHTML = parseInt($("inbox_ordner"+movePMToID+"_count").innerHTML)+1;
+			}
+			else if( parseInt(response.responseText) ) {
+				alert("Die Nachricht konnte nicht lokalisiert werden");
+			}
+			else {
+				alert(response.responseText);
+			}
+			movePMID = 0;
+			movePMToID = 0;
+		}
+		
+		function movePM( pmid, ordnerid ) {
+			pmid = pmid.substr("inbox_pm".length);
+
+			if( !Ajax.getTransport() ) {
+				alert("Sorry, aber dein Browser kann kein Ajax");
+				return;
+			}
+		
+			movePMID = pmid;
+			movePMToID = ordnerid;
+			
+			$("inbox_waiter").style.visibility = "visible";
+			
+			var url = './ajax.php';
+			// Oh ich liebe das toooolle caching von *piep* ie
+			var params = 'module={global.module}&sess={global.sess}&action=move&ordner={ordner.parent}&moveto='+ordnerid+"&pm_"+pmid+"="+pmid+"&antiiecachingtimestamp="+(new Date().getTime());
+
+			var myAjax = new Ajax.Request( url, 
+			{
+				method: 'get', 
+				parameters: params, 
+				onComplete: finishMovePM
+			});
+		}
+		
+		var oldHoverStyles = new Array();
+		
+		function ordnerHover(drag, drop, overlap) {
+			nodes = drop.childNodes;
+			for( i=0; i < nodes.length; i++ ) {
+				if( nodes[i].nodeName.toUpperCase() != 'TD' ) {
+					continue;
+				}
+				oldHoverStyles['ordner'] = new Array();
+				oldHoverStyles['ordner']['bgcolor'] = nodes[i].style.backgroundColor;
+				oldHoverStyles['ordner']['bgimage'] = nodes[i].style.backgroundImage;
+				nodes[i].style.backgroundColor = '#557755';
+				nodes[i].style.backgroundImage = "none";
+			}
+		}
+		
+		function ordnerExit(drop) {
+			nodes = drop.childNodes;
+			for( i=0; i < nodes.length; i++ ) {
+				if( nodes[i].nodeName.toUpperCase() != 'TD' ) {
+					continue;
+				}
+				nodes[i].style.backgroundColor = oldHoverStyles['ordner']['bgcolor'];
+				nodes[i].style.backgroundImage = oldHoverStyles['ordner']['bgimage'];
+			}
+		}
+	// -->
+	</script>
+		<form action="./main.php" method="post">
+	{!table_begin 710,left}
+		<div style="position:relative; width:100%; height:240px">
+			<!--  Waiter Div -->
+			<div style="position:absolute; top:0px; left:0px; height:240px; width:100%; z-index:2; visibility:hidden" id="inbox_waiter">
+				<div style="position:absolute; top:0px; left:0px; height:240px; width:100%; text-align:center; vertical-align:middle; background-color:black; opacity:.6"></div>
+				<div style="position:absolute; top:0px; left:0px; height:240px; width:100%; text-align:center; vertical-align:middle; background-color:transparent">
+					<div style=" margin-top:100px; opacity:.9; font-size:200%">Bitte warten</div>
+				</div>
+			</div>
+			<!-- Inhalt -->
+			<div style="position:absolute; top:0px; left:0px; height:240px; overflow:auto; overflow-x:hidden; z-index:1">
+				<table class="noBorderX" width="95%">
+				<tr>
+					<td class="noBorderX"></td>
+					<td class="noBorderX"></td>
+					<td class="noBorderX">Titel</td>
+					<td class="noBorderX">Von</td>
+					<td class="noBorderX">Am</td>
+					<td class="noBorderX">Aktionen</td>
+				</tr>
+				<!-- BEGIN ordner.listitem -->
+					<tr id="inbox_ordner{ordner.id}">
+						<td class="noBorderX">
+							<script type="text/javascript" language="javascript">
+								 Droppables.add('inbox_ordner{ordner.id}', {
+								   accept: 'inbox_pm',
+								   hoverclass: 'inboxOrdnerHover',
+								   onDrop: function(element) 
+								     {  movePM(element.id,{ordner.id}); },
+								   onHover: ordnerHover,
+								   onExit: ordnerExit
+								  });
+							</script>
+							
+							{if ordner.flags.trash == 0}
+								{if ordner.flags.up == 0}
+									<input type="checkbox" name="ordner_{ordner.id}" value="{ordner.id}" />
+								{/endif}
+							{/endif}
+						</td>
+						<td class="noBorderX">
+								<img style="border:0px" src="{URL}data/interface/pms/{if ordner.flags.trash == 0}ordner{/endif}{if ordner.flags.trash}trash{if ordner.pms}-full{/endif}{/endif}.png" />
+							
+						</td>
+						<td style="background-color:red" class="noBorderX">
+							<a class="profile" href="./main.php?module=comm&amp;sess={global.sess}&amp;action=showInbox&amp;ordner={ordner.id}">
+								{ordner.name}
+							</a>&nbsp;
+						</td>
+						<td class="noBorderX" {if pm.flags.admin}style="color:orange"{/endif}>
+							<div id="inbox_ordner{ordner.id}_count" style="display:inline">{ordner.pms}</div>&nbsp;mails
+						</td>
+						<td class="noBorderX" {if pm.flags.admin}style="color:orange"{/endif}>
+							{if ordner.name.real}
+								({ordner.name.real})
+							{/endif}
+						</td>
+						<td class="noBorderX">
+							<a href="./main.php?module=comm&amp;sess={global.sess}&amp;action=showInbox&amp;ordner={ordner.id}" >
+								<img style="border:0px" src="{URL}data/interface/text.png" alt="&ouml;ffnen" title="&ouml;ffnen" />
+							</a>
+							{if ordner.flags.trash}
+									<a href="javascript:ask('Wollen sie wirklich alle gel&ouml;schten PMs wiederherstellen?','./main.php?module=comm&amp;sess={global.sess}&amp;action=recoverAll&amp;ordner={ordner.parent}')">
+									<img style="border:0px" src="{URL}data/interface/pms/recover.png" alt="wiederherstellen" title="wiederherstellen" />
+								</a>
+							{/endif}
+							{if ordner.flags.trash == 0}
+								{if ordner.flags.up == 0}
+									<a href="javascript:setRenameAction({ordner.id});" >
+										<img style="border:0px" src="{URL}data/interface/pen.gif" alt="umbenennen" title="umbenennen" />
+									</a>
+									<a href="javascript:ask('Wollen sie wirklich diesen Ordner samt enthaltener PMs und Unterordner löschen?','./main.php?module=comm&amp;sess={global.sess}&amp;action=delete&amp;ordner={ordner.parent}&amp;delord={ordner.id}')">
+										<img style="border:0px" src="{URL}data/interface/delete.gif" alt="umbenennen" title="L&ouml;schen" /></a>
+								{/endif}
+							{/endif}
+						</td>
+					</tr>
+				<!-- END ordner.listitem -->
+				<!-- BEGIN pms.listitem -->
+					<tr id="inbox_pm{pm.id}_row">
+						<td class="noBorderX">
+							{if pm.trash == 0}
+								<input type="checkbox" name="pm_{pm.id}" value="{pm.id}" />
+							{/endif}
+						</td>
+						<td class="noBorderX">
+							<span id="pm{pm.id}" style="color:yellow; font-size:10px">
+								{if pm.new}
+									NEU
+								{/endif}
+							</span>
+							<span style="color:yellow; font-size:10px">
+								{if pm.kommentar}
+									[K]
+								{/endif}
+							</span>
+						</td>
+						<td class="noBorderX">
+							<div id="inbox_pm{pm.id}" style=";width:100%" class="inbox_pm">
+							<a class="profile" {if pm.flags.admin}style="color:orange"{/endif} href="javascript:showpm({pm.id});">
+								{pm.title}
+							</a>&nbsp;
+							</div>
+							<script type="text/javascript" language="javascript">
+	 							new Draggable('inbox_pm{pm.id}',{ revert:true });
+							</script>
+						</td>
+						<td class="noBorderX" {if pm.flags.admin}style="color:orange"{/endif}>
+							{!link_to $pm.sender.name, default, css_class:profile, module:userprofile, user:$pm.sender.id}&nbsp;
+						</td>
+						<td class="noBorderX" {if pm.flags.admin}style="color:orange"{/endif}>
+							{pm.time}&nbsp;
+						</td>
+						<td class="noBorderX">
+							<a href="javascript:showpm({pm.id});" ><img style="border:0px" src="{URL}data/interface/text.png" alt="lesen" /></a>
+							{!image_link_to interface/pen.gif, default, reply:$pm.id}
+							{if pm.trash == 0}
+								{!image_link_to interface/delete.gif, delete, ordner:$ordner.parent, delete:$pm.id}
+							{else}
+								{!image_link_to interface/pms/recover.png, recover, ordner:$ordner.parent, recover:$pm.id}
+							{/endif}
+						</td>
+					</tr>
+				<!-- END pms.listitem -->
+				</table>
+			</div>
+		</div>
+		<input id="subject" type="hidden" name="subject" />
+		<script type="text/javascript">
+		<!--
+			function actionSelectChange( newval ) {
+				if( newval == "deletePlayer" ) {
+					document.getElementById("form_playerid").style.display = "inline";
+					document.getElementById("form_ordnername").style.display = "none";
+					document.getElementById("form_moveto").style.display = "none";
+				}
+				else{ 
+					if (newval == "newOrdner"){
+						document.getElementById("form_playerid").style.display = "none";
+						document.getElementById("form_ordnername").style.display = "inline";
+						document.getElementById("form_moveto").style.display = "none";
+					}
+					else {
+						if(newval == "moveAll" || newval == "moveSelected"){
+							document.getElementById("form_playerid").style.display = "none";
+							document.getElementById("form_ordnername").style.display = "none";
+							document.getElementById("form_moveto").style.display = "inline";
+						}
+						else{
+							document.getElementById("form_playerid").style.display = "none";
+							document.getElementById("form_ordnername").style.display = "none";
+							document.getElementById("form_moveto").style.display = "none";
+						}
+					}
+				}
+				document.getElementById("rename").disabled = true;
+			}
+		-->
+		</script>
+			<div style="position:relative; top:0px; left:0px; display:inline">
+				Aktionen: <select id="select_action" name="action" size="1" onchange="actionSelectChange(this.options[this.options.selectedIndex].value)">
+					<optgroup label="'alle' Aktionen">
+						<option value="deleteAll">alle l&ouml;schen</option>
+						<option value="readAll">alle als gelesen markieren</option>
+						<option value="deletePlayer">alle von Spieler # l&ouml;schen</option>
+						<option value="moveAll">alle verschieben</option>
+					</optgroup>
+					<optgroup label="'ausgew&auml;hlte' Aktionen">
+						<option value="readSelected">ausgew&auml;hlte als gelesen markieren</option>
+						<option value="deleteSelected">ausgew&auml;hlte l&ouml;schen</option>
+						<option value="moveSelected">ausgew&auml;hlte verschieben</option>
+					</optgroup>
+					<optgroup label="'Ordner' Aktionen">
+						<option value="newOrdner">Ordner erstellen</option>
+						<option id="rename" disabled value="rename">Ordner umbenennen</option>
+					</optgroup>
+				</select>
+				<input id="form_playerid" style="width:50px; display:none" type="text" name="playerid" value="ID" size="5" />
+				<div style="margin:0px; padding:0px; border:0px; display:inline">
+					<input id="form_ordnername" style="display:none; width:150px" type="text" name="ordnername" value="" size="5" />
+				</div>
+				<div style="margin:0px; padding:0px; border:0px; display:inline">
+					<select name="moveto" id="form_moveto" style="display:none; width:150px">
+						<!-- BEGIN availordner.listitem -->
+						<option value="{availordner.id}">{availordner.name}</option>
+						<!-- END availordner.listitem -->
+					</select>
+					<input style="display:none; width:0px" type="text" name="ordner" value="{ordner.parent}"/>
+				</div>
+				{!form_create_hidden -}
+				<div style="display:inline; margin:0px; padding:0px; border:0px" id="form_submit">
+					<input style="" type="submit" value="ok" />
+				</div>
+			</div>
+		</form>
+		<br />
+	{!table_end}
+	<br />
+	{!table_begin 710,left}
+		<iframe src="./main.php?module=comm&amp;sess={global.sess}&amp;action=showPm" name="pmviewer" width="630" height="240" scrolling="auto" marginheight="0" marginwidth="0" frameborder="0">
+			Dein Browser unterst&uuml;tzt leider keine iframes. Am besten installierst du einen Browser neueren Datums wie z.B. den <a class="forschinfo" href="http://www.mozilla.org">Mozilla Firefox</a>
+		</iframe>
+	{!table_end}
+{/endif}
+{if show.outbox}
+	<script type="text/javascript">
+	<!--
+		function showpm(pmid) {			
+			pmviewer.location.href = "./main.php?module=comm&sess={global.sess}&action=showPm&pmid="+pmid;
+		}
+	-->
+	</script>
+	{!table_begin 710,left}
+		<div style="height:240px; overflow:auto">
+			<table class="noBorderX" width="100%">
+			<tr>
+				<td class="noBorderX">Titel</td>
+				<td class="noBorderX">An</td>
+				<td class="noBorderX">Am</td>
+				<td class="noBorderX">Aktionen&nbsp;</td>
+			</tr>
+			<!-- BEGIN pms.out.listitem -->
+				<tr>
+					<td class="noBorderX">
+						<a class="profile" {if pm.flags.admin}style="color:orange"{/endif} href="javascript:showpm({pm.id});">
+							{pm.title}
+						</a>
+						&nbsp;
+					</td>
+					<td class="noBorderX">
+						{!link_to $pm.empfaenger.name, default, css_class:profile, module:userprofile, user:$pm.empfaenger}&nbsp;
+					</td>
+					<td class="noBorderX" {if pm.flags.admin}style="color:orange"{/endif}>
+						{pm.time}&nbsp;
+					</td>		
+					<td class="noBorderX">
+						<a href="javascript:showpm({pm.id});">
+							<img style="border:0px" src="{URL}data/interface/text.png" alt="lesen" />
+						</a>
+						{!image_link_to interface/pen.gif, default, reply:$pm.id}
+					</td>
+				</tr>
+			<!-- END pms.out.listitem -->
+			</table>
+		</div>
+		Hinweis: Diese PMs werden mit der Zeit automatisch gel&ouml;scht<br /><br />
+	{!table_end}
+	<br />
+	{!table_begin 710,left}
+		<iframe src="./main.php?module=comm&amp;sess={global.sess}&amp;action=showPm" name="pmviewer" width="630" height="240" scrolling="auto" marginheight="0" marginwidth="0" frameborder="0">
+			Dein Browser unterst&uuml;tzt leider keine iframes. Am besten installierst du einen Browser neueren Datums wie z.B. den <a class="forschinfo" href="http://www.mozilla.org">Mozilla Firefox</a>
+		</iframe>
+	{!table_end}
+{/endif}
+{if show.pm}
+	{if pm.bgimage}
+		<div style="z-index:1; position:absolute; top:0px; left:0px; margin:0px; padding:0px; width:570px; overflow:hidden; background-image: url('{URL}data/interface/pms/{pm.bgimage}');'">
+			 <img src="{URL}data/interface/pms/{pm.bgimage}" width="570" alt="" /> 
+		</div>
+	{/endif}
+	<table class="noBorderX" width="100%">
+	<tr>
+		<td class="noBorderX">
+			{if pm.id}
+				<div style="z-index:2; position:absolute; top:0px; left:0px">
+					<div style="text-align:center; width:570px">
+						<table class="show2" style="width:500px; margin-left:auto; margin-right:auto">
+						{if pm.title}
+							<tr>
+								<td {if pm.flags.admin}style="color:orange"{/endif} class="BorderX" align="center">
+									{pm.title}
+								</td>
+							</tr>
+						{/endif}
+						<tr>
+							<td class="BorderX">
+								{if pm.sender}
+									Von: {!link_to $pm.sender.name, default, css_class:profile, link_target:main, module:userprofile, user:$pm.sender}
+								{else}
+									An: {!link_to $pm.empfaenger.name, default, css_class:profile, link_target:main, module:userprofile, user:$pm.empfaenger}
+								{/endif}
+								 {!image_link_to interface/pen.gif, default, image_css_style:vertical-align:middle, link_target:main, reply:$pm.id}
+								{!image_link_to interface/pms/edit-comment.png, editComment, image_css_style:vertical-align:middle, link_target:main, pm:$pm.id, ordner:$ordner.parent}<br />
+								Datum: {pm.time}<br />
+							</td>
+						</tr>
+						</table>
+						<br />
+					</div>
+					{pm.text}
+					{if pm.kommentar}
+					<hr>
+					{pm.kommentar}
+					{/endif}
+				</div>
+			{else}
+				<div align="center">Keine Nachricht ausgew&auml;hlt</div>	
+			{/endif}
+		</td>
+	</tr>
+	</table>	
+{/endif}
+{if show.comment}
+	{!table_begin 710,left}
+		<form action="./main.php" method="post">
+		<table class="noBorderX" cellspacing="2" cellpadding="4">
+		<tr>
+			<td class="noBorderX" valign="top">Von:</td>
+			<td class="noBorderX">{pm.sender.name}</td>
+		</tr>
+		<tr>
+			<td class="noBorderX" valign="top">An:</td>
+			<td class="noBorderX">{pm.empfaenger.name}</td>
+		</tr>
+		<tr>
+			<td class="noBorderX" valign="top">Betreff:</td>
+			<td class="noBorderX">{pm.title}</td>
+		</tr>
+		<tr>
+			<td class="noBorderX" valign="top">Text:</td>
+			<td class="noBorderX">{pm.text}</td>
+		</tr>
+		<tr>
+			<td class="noBorderX" valign="top">Kommentar<br /><br />
+				<input type="button" value="RL Zeit" onclick="insertRealTime()" style="width:80px" /><br /><br />
+				<input type="button" value="Tick Zeit" onclick="insertTickTime()" style="width:80px" /><br /><br />
+				<input type="button" value="Signatur" onclick="insertSignature()" style="width:80px" />
+				<textarea id="signature" style="display:none;">{user.signature}</textarea></td>
+			<td class="noBorderX"><textarea id="msg" name="msg" cols="65" rows="18" style="width:500px">{comment.text}</textarea></td>
+		</tr>
+		<tr>
+			<td class="noBorderX" valign="top">&nbsp;</td>
+			<td align="center" class="noBorderX">
+				{!form_create_hidden send}
+				<input type="hidden" name="pmid" value="{pm.id}" />
+				<input type="hidden" name="ordner" value="{ordner.id}" />
+				<input type="submit" name="Senden" value="Kommentar aktualisieren" style="width:200px" onclick="this.form.action.value = 'sendComment'" /><br />
+			</td>
+		</tr>
+		</table>
+		</form>
+	{!table_end}
+{/endif}

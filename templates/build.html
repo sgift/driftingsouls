@@ -1,0 +1,114 @@
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<table class="show" cellspacing="2" cellpadding="2">
+<tr>
+	<td class="noBorderS" align="center" style="font-size:12px">Geb&auml;ude<br />{base.name}</td>
+	<td class="noBorder">&nbsp;</td>
+	<td class="noBorderS">
+		{!table_begin 620,center}
+			<table class="noBorderX">
+			<tr>
+				<td class="noBorderX">{!link_to Energie, default, col:$base.id, field:$global.field, cat:0}</td>
+				<td class="noBorderX">&nbsp;|&nbsp;</td>
+				<td class="noBorderX">{!link_to Nahrung/Wohnen, default, col:$base.id, field:$global.field, cat:1}</td>
+				<td class="noBorderX">&nbsp;|&nbsp;</td>
+				<td class="noBorderX">{!link_to Metalle, default, col:$base.id, field:$global.field, cat:2}</td>
+				<td class="noBorderX">&nbsp;|&nbsp;</td>
+				<td class="noBorderX">{!link_to Produktion, default, col:$base.id, field:$global.field, cat:3}</td>
+				<td class="noBorderX">&nbsp;|&nbsp;</td>
+				<td class="noBorderX">{!link_to Sonstiges, default, col:$base.id, field:$global.field, cat:4}</td>
+			</tr>
+			</table>
+		{!table_end}
+	</td>
+</tr>
+</table>
+<div>
+	<br />
+</div>
+{!table_begin 670,left}
+	{if show.build}
+		<table cellpadding="1" cellspacing="1" class="noBorderX">
+			<!-- BEGIN build.res.listitem -->
+				<tr>
+					<td class="noBorderX"><img src="{res.image}" alt="" />{res.owncargo} vorhanden</td>
+					<td class="noBorderX"> - </td>
+					<td class="noBorderX"><img src="{res.image}" alt="" />{res.needcargo} ben&ouml;tigt</td>
+					{if res.diff > 0}
+						<td class="noBorderX"> - </td>
+						<td class="noBorderX">
+							<span style="color:#ff0000">Es fehlen noch <img src="{res.image}" alt="" />{res.diff}</span>
+						</td>
+					{else}
+						<td class="noBorderX"></td>
+						<td class="noBorderX"></td>
+					{/endif}
+				</tr>
+			<!-- END build.res.listitem -->
+		</table>
+		<br />
+		{if build.lowworker}
+			<span style="color:#ff0000">Nicht gen&uuml;gend Arbeiter</span><br />
+		{else}
+			<span style="color:#00ff00">Geb&auml;ude aktiviert</span><br />
+		{/endif}
+	{/endif}
+	{if show.buildinglist}
+		<table class="noBorderX" width="640">
+		<tr>
+			<td class="noBorderX" colspan="2" style="width:220px">Name</td>
+			<td class="noBorderX">Baukosten</td>
+		</tr>
+		<!-- BEGIN buildings.listitem -->
+			{if buildings.list}
+				<tr>
+					<td colspan="3" class="noBorderX">
+						<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+					</td>
+				</tr>
+			{/endif}
+			<tr>
+				<td class="noBorderX">
+					<img src="{URL}{building.picture}" alt="" />
+				</td>
+				<td class="noBorderX">
+					{if building.buildable}
+						{!link_to $building.name, build, col:$base.id, field:$global.field, build:$building.id}&nbsp;
+					{else}
+						<span style="color:darkred; font-weight:bold">{building.name}&nbsp;</span>
+					{/endif}
+				</td>
+				<td class="noBorderX">
+					<!-- BEGIN buildings.res.listitem -->
+						<span class="nobr" {if res.diff > 0}style="color:red"{/endif}><img src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}</span> 
+					<!-- END buildings.res.listitem -->
+				</td>
+			</tr>
+		<!-- END buildings.listitem -->
+		</table>
+		<div style="text-align:center">
+			<br />
+			{!link_to Geb&auml;udeliste, default, module:buildings, col:$base.id, field:$global.field}
+		</div>
+	{/endif}
+{!table_end}
+<div class="smallfont">
+	<br />
+	{!link_to zur&uuml;ck, default, module:base, css_class:back, col:$base.id}<br />
+</div>
