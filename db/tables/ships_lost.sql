@@ -1,0 +1,20 @@
+CREATE TABLE `ships_lost` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `type` smallint(5) unsigned NOT NULL default '0',
+  `name` varchar(50) NOT NULL default '',
+  `time` int(10) unsigned NOT NULL default '0',
+  `owner` mediumint(9) NOT NULL default '0',
+  `ally` smallint(5) unsigned NOT NULL default '0',
+  `destowner` mediumint(9) NOT NULL default '0',
+  `destally` smallint(5) unsigned NOT NULL default '0',
+  `docked` int(10) unsigned NOT NULL default '0',
+  `battle` int(10) unsigned NOT NULL default '0',
+  `battlelog` varchar(60) NOT NULL default '',
+  PRIMARY KEY  (`id`),
+  KEY `owner` (`owner`),
+  KEY `ally` (`ally`),
+  KEY `battle` (`battle`),
+  KEY `battlelog` (`battlelog`),
+  KEY `destowner` (`destowner`),
+  KEY `destally` (`destally`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Liste aller zerstoerten Schiffe'; 
