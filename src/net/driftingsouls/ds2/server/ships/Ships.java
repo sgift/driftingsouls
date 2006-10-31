@@ -681,7 +681,7 @@ public class Ships {
 	public static synchronized int getNebula(Location loc) {
 		if( !nebel.containsKey(loc) ) {
 			SQLResultRow neb = pqGetNebula.pfirst(loc.getSystem(), loc.getX(), loc.getY());
-			if( nebel.isEmpty() ) {
+			if( neb.isEmpty() ) {
 				nebel.put(loc, -1);	
 			}
 			else {
