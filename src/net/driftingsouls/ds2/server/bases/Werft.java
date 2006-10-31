@@ -71,7 +71,6 @@ class Werft extends DefaultBuilding {
 	@Override
 	public String echoShortcut(Context context, int col, int field, int building) {
 		Database db = context.getDatabase();
-		User user = context.getActiveUser();
 		
 		String sess = context.getSession();
 		

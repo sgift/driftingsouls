@@ -29,6 +29,7 @@ public class DBConnectionPool {
 	private static ConnectionPool ds = null;
 	
 	private DBConnectionPool() {
+		// EMPTY
 	}
 
 	/**

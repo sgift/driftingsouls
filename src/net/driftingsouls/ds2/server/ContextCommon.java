@@ -29,6 +29,10 @@ import net.driftingsouls.ds2.server.framework.ContextInstance;
 public class ContextCommon {
 	private Context context = null;
 	
+	/**
+	 * Konstruktur - Wird vom Kontext aufgerufen
+	 * @param context Der Kontext, an den die Instanz gebunden werden soll
+	 */
 	public ContextCommon(Context context) {
 		this.context = context;
 	}

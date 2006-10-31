@@ -18,16 +18,43 @@
  */
 package net.driftingsouls.ds2.server.cargo;
 
+/**
+ * Interface fuer Resourcen-IDs
+ * @author Christopher Jung
+ *
+ */
 public interface ResourceID {
-
+	/**
+	 * Gibt die Nummer der Resource zurueck. Bei Items ist dies nicht die
+	 * ID des Items, sondern der zugeordneten Ware
+	 * @return Die ID der Resource
+	 */
 	public int getID();
 
+	/**
+	 * Prueft, ob es sich bei der Resource um ein Item handelt
+	 * @return <code>true</code>, falls es ein Item ist
+	 */
 	public boolean isItem();
 
+	/**
+	 * Gibt die ID des Items zurueck, falls es sich um ein Item handelt
+	 * @return Die ID des Items
+	 */
 	public int getItemID();
 
+	/**
+	 * Gibt die Anzahl der verbleibenden Benutzungen des Items zurueck, falls
+	 * es sich um eine Item-Resource handelt
+	 * @return Die Anzal der verbleibenden Benutzungen des Items
+	 */
 	public int getUses();
 
+	/**
+	 * Die ID des Quests des Items, falls
+	 * es sich um eine Item-Resource handelt
+	 * @return Die ID des Quests des Items
+	 */
 	public int getQuest();
 
 	public String toString();

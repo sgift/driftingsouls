@@ -18,9 +18,18 @@
  */
 package net.driftingsouls.ds2.server.cargo;
 
+/**
+ * Die ID einer normalen Ware
+ * @author Christopher Jung
+ *
+ */
 public class WarenID implements ResourceID {
 	private int resid;
 	
+	/**
+	 * Erstellt eine neue Resourcen-ID fuer die Ware mit der angegebenen ID
+	 * @param resid Die Waren-ID
+	 */
 	public WarenID(int resid) {
 		this.resid = resid;
 	}

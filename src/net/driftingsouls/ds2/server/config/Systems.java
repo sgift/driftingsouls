@@ -45,6 +45,7 @@ public class Systems implements Iterable<StarSystem>,Loggable {
 	private Map<Integer, StarSystem> list = new HashMap<Integer, StarSystem>();
 	
 	private Systems() {
+		// EMPTY
 	}
 
 	private void addSystem( StarSystem system ) {

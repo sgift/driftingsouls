@@ -44,6 +44,7 @@ public class Rassen implements Iterable<Rasse>, Loggable {
 	private Map<Integer, Rasse> list = new HashMap<Integer, Rasse>();
 	
 	private Rassen() {
+		// EMPTY
 	}
 
 	private void addRace( Rasse rasse ) {

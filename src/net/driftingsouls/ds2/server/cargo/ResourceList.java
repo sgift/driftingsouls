@@ -53,6 +53,7 @@ public class ResourceList implements Iterable<ResourceEntry>, Iterator<ResourceE
 	private Iterator<ResourceEntry> iter = null;
 	
 	protected ResourceList() {
+		// EMPTY
 	}
 	
 	/**
