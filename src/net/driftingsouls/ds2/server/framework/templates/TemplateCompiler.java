@@ -1,3 +1,21 @@
+/*
+ *	Drifting Souls 2
+ *	Copyright (c) 2006 Christopher Jung
+ *
+ *	This library is free software; you can redistribute it and/or
+ *	modify it under the terms of the GNU Lesser General Public
+ *	License as published by the Free Software Foundation; either
+ *	version 2.1 of the License, or (at your option) any later version.
+ *
+ *	This library is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *	Lesser General Public License for more details.
+ *
+ *	You should have received a copy of the GNU Lesser General Public
+ *	License along with this library; if not, write to the Free Software
+ *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 package net.driftingsouls.ds2.server.framework.templates;
 
 import java.io.BufferedReader;
@@ -15,8 +33,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.ServletException;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -25,8 +41,20 @@ import org.apache.commons.logging.impl.LogFactoryImpl;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.DriftingSouls;
 
+/**
+ * <h1>Der Template-Compiler</h1>
+ * Compiliert ein Template zu Java-Code, welcher anschliessend von javac weiterverarbeitet 
+ * werden kann
+ * @author Christopher Jung
+ *
+ */
 public class TemplateCompiler {
 	private interface TemplateCompileFunction {
+		/**
+		 * Fuehrt die Compilezeit-Funktion aus
+		 * @param parameter Die Parameter der Funktion
+		 * @return Der in das Template einzufuegende String
+		 */
 		public String process(List<String> parameter);
 	}
 	
@@ -316,6 +344,11 @@ public class TemplateCompiler {
 	private String file;
 	private String outputPath;
 	
+	/**
+	 * Konstruktor
+	 * @param file Die zu kompilierende Datei
+	 * @param outputPath Das Ausgabeverzeichnis, in dem die kompilierte Datei abgelegt werden soll
+	 */
 	public TemplateCompiler(String file, String outputPath) {
 		this.file = file;
 		this.outputPath = outputPath;
@@ -331,12 +364,15 @@ public class TemplateCompiler {
 			} 
 		}
 
+		// Test auf Wahrheit
 		if( bedingungen.size() < 2 ) {
 			bedingung = Pattern.compile("([a-zA-Z0-9_\\.]{3,})").matcher(bedingung).replaceAll("templateEngine.isVarTrue(\"$1\")");
 		}
+		// Negierter Test auf Wahrheit
 		else if( bedingungen.size() == 2 ) {
 			bedingung = Pattern.compile("([a-zA-Z0-9_\\.]{3,})").matcher(bedingungen.get(1)).replaceAll("!templateEngine.isVarTrue(\"$1\")");
 		}
+		// Vergleichsoperation
 		else if( bedingungen.size() == 3 ) {
 			String op = bedingungen.get(1);
 			String val1 = bedingungen.get(0);
@@ -433,9 +469,24 @@ public class TemplateCompiler {
 	}
 	
 	private class CompiledBlock {
+		/**
+		 * Der Name des Blocks
+		 */
 		String name;
+		
+		/**
+		 * Der Inhalt des Blocks
+		 */
 		String block;
+		
+		/**
+		 * Die im Block auftauchenden Variablen
+		 */
 		List<String> varlist;
+		
+		/**
+		 * Der Elternblock
+		 */
 		String parent;
 		
 		CompiledBlock(String name, String block, List<String> varlist, String parent) {
@@ -512,6 +563,10 @@ public class TemplateCompiler {
 		return result;	
 	}
 	
+	/**
+	 * Startet den Kompiliervorgang
+	 * @throws IOException
+	 */
 	public void compile() throws IOException {
 		String baseFileName = file.substring(file.lastIndexOf("/")+1, file.lastIndexOf(".html"));
 		BufferedReader reader = new BufferedReader(new FileReader(new File(file)));
@@ -530,10 +585,13 @@ public class TemplateCompiler {
 		str = StringUtils.replace(str, "\"", "\\\"");
 		str = StringUtils.replace(str, "\\'","\\\\'");
 		
+		// Funktionen ersetzen
 		str = parse_functions(str);
 
+		// if's ersetzen
 		str = parse_control_structures(str);
 		
+		// Variablen ersetzen
 		str = parse_vars(str);
 
 		Matcher match = Pattern.compile("templateEngine.getVar\\(\"([^\"]*)\"([^\\)]*)\\)").matcher(str);
@@ -548,9 +606,13 @@ public class TemplateCompiler {
 			completevarlist.add(match.group(1));
 		}
 		
+		// Bloecke ersetzen
 		StringBuilder strBuilder = new StringBuilder(str);
 		List<CompiledBlock> result = parse_blocks(strBuilder, "MAIN");
 		str = strBuilder.toString();
+		
+		// Compilierte Datei schreiben
+		// Zuerst der Header
 		
 		String bfname = StringUtils.replace(baseFileName, ".", "");
 		StringBuilder newfile = new StringBuilder(1000);
@@ -576,8 +638,11 @@ public class TemplateCompiler {
 
 			newfile.append("\t\ttemplateEngine.registerBlockItrnl(\""+block.name+"\",filehandle,"+parent+");\n");
 		}
-		
+	
 		newfile.append("\t}\n\n");
+		
+		// Jetzt die Klassen fuer die einzelnen Bloecke
+		
 		for( int i=0; i < result.size(); i++ ) {
 			CompiledBlock block = result.get(i);
 			
@@ -622,6 +687,8 @@ public class TemplateCompiler {
 			newfile.append("\t}\n");
 		}
 		
+		// Und jetzt den Rest
+		
 		newfile.append("\tpublic TemplateBlock getBlock(String block) {\n");
 		for( int i=0; i < result.size(); i++ ) {
 			CompiledBlock block = result.get(i);
@@ -665,6 +732,8 @@ public class TemplateCompiler {
 		}
 		newfile.append("\t\t}\n\t}\n");
 		
+		// Nicht zu vergessen: Der Inhalt der Templatedatei, der keinem Block zugeordnet ist...
+		
 		newfile.append("\tpublic String main( TemplateEngine templateEngine ) {\n");
 		newfile.append("\t\tStringBuilder str = new StringBuilder("+str.length()+");\n");
 		str = StringUtils.replace(str, "\r\n", "\n");
@@ -688,6 +757,7 @@ public class TemplateCompiler {
 	}
 	
 	/**
+	 * Main
 	 * @param args
 	 * @throws Exception 
 	 */
@@ -710,6 +780,9 @@ public class TemplateCompiler {
 		}
 		String file = args[1];
 		String outputPath = args[2];
+		
+		// Wenn es sich um ein Verzeichnis handelt, dann alle HTML-Dateien kompilieren, 
+		// sofern sie neuer sind als die kompilierten Fassungen
 		if( new File(file).isDirectory() ) {
 			File[] files = new File(file).listFiles();
 			for( int i=0; i < files.length; i++ ) {
@@ -727,7 +800,9 @@ public class TemplateCompiler {
 			}
 			
 		}
+		// Wenn direkt eine Datei angegeben wurde, dann diese auf jeden Fall kompilieren
 		else {
+			System.out.println("compiling "+file);
 			TemplateCompiler compiler = new TemplateCompiler(file, outputPath);
 			compiler.compile();
 		}
