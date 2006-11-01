@@ -63,24 +63,26 @@ public class DriftingSouls {
 		
 		Common.setLocale(Locale.GERMAN);
 		
-		LOG.info("Booting Classes...");
-
-		Document doc = XMLUtils.readFile(Configuration.getSetting("configdir")+"boot.xml");
-		NodeList nodes = XMLUtils.getNodesByXPath(doc, "/bootlist/boot");
-		for( int i=0; i < nodes.getLength(); i++ ) {
-			String className = XMLUtils.getStringByXPath(nodes.item(i), "@class");
-			String type = XMLUtils.getStringByXPath(nodes.item(i), "@type");
-			LOG.info("["+type+"] Booting "+className);
-
-			if( type.equals("static") ) {
-				Class.forName(className);
-			}
-			else if( type.equals("singleton") ) {
-				Class<?> cls = Class.forName(className);
-				cls.getMethod("getInstance").invoke(null);
-			}
-			else {
-				throw new Exception("Kann Klasse '"+className+"' nicht booten: Unbekannter Boot-Typ '"+type+"'");
+		if( boot ) {
+			LOG.info("Booting Classes...");
+	
+			Document doc = XMLUtils.readFile(Configuration.getSetting("configdir")+"boot.xml");
+			NodeList nodes = XMLUtils.getNodesByXPath(doc, "/bootlist/boot");
+			for( int i=0; i < nodes.getLength(); i++ ) {
+				String className = XMLUtils.getStringByXPath(nodes.item(i), "@class");
+				String type = XMLUtils.getStringByXPath(nodes.item(i), "@type");
+				LOG.info("["+type+"] Booting "+className);
+	
+				if( type.equals("static") ) {
+					Class.forName(className);
+				}
+				else if( type.equals("singleton") ) {
+					Class<?> cls = Class.forName(className);
+					cls.getMethod("getInstance").invoke(null);
+				}
+				else {
+					throw new Exception("Kann Klasse '"+className+"' nicht booten: Unbekannter Boot-Typ '"+type+"'");
+				}
 			}
 		}
 	}
