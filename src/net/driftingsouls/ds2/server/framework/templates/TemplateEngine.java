@@ -28,7 +28,6 @@ import java.util.Set;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
 
-// TODO: Compiler
 // TODO: Runtime-functions
 
 /**

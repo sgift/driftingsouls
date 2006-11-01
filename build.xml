@@ -35,6 +35,8 @@
 	<property name="manager.url"   value="http://localhost:8080/manager"/>
 	<property name="src.home"      value="${basedir}/src"/>
 	<property name="web.home"      value="${basedir}/web"/>
+	<property name="ds2.configdir" value="${basedir}/web/WEB-INF/cfg"/>
+	<property name="templates.compiledir" value="${src.home}/net/driftingsouls/ds2/server/templates" />
 
 	<!--  ==================== Compilation Control Options ==================== -->
 
@@ -89,6 +91,7 @@
 		</delete>
 		<delete dir="${build.home}/WEB-INF" />
 		<delete dir="${dist.home}"/>
+		<delete dir="${templates.compiledir}" />
 	</target>
 	
 	<!-- ==================== Compile Targets ================================== -->
@@ -185,12 +188,17 @@
 	
 	<!-- ==================== Template Target ================================== -->
 	
-	<target name="templates" depends="prepare">
-		<mkdir  dir="${src.home}/net/driftingsouls/ds2/server/templates"/>
-		<exec dir="${basedir}" executable="bash" failonerror="true">
-			<arg line="${basedir}/templates.sh"/>
-			<arg line="${basedir}/templates/"/>
-		</exec>
+	<target name="templates" depends="prepare,compile-framework">
+		<mkdir dir="${templates.compiledir}"/>
+		<java classname="net.driftingsouls.ds2.server.framework.templates.TemplateCompiler" fork="true">
+			<arg value="${ds2.configdir}" />
+			<arg value="${basedir}/templates" />
+			<arg value="${templates.compiledir}" />
+			<classpath>
+				<pathelement path="${build.home}/WEB-INF/classes" />
+			</classpath>
+			<classpath refid="compile.classpath" />
+		</java>
 	</target>
 
 
