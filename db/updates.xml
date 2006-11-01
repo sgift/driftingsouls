@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<updates>
+	<!-- Beispiel 
+		Aenderungen, die die Struktur der Datenbank aendern, sollten getrennt von reinen 
+		Aenderungen an den Daten gehalten werden. Dies erleichtert das aktualliseren des Servers
+		und auch eigener Datenbestaende, die man ggf angepasst hat. 
+		Ausgenommen sind Aenderungen an den Daten, die in Folge von Strukturaenderungen zwingent notwendig
+		sind. Diese sollten jedoch generisch formuliert sein, so dass sie nicht nur auf den Beispiedaten
+		funktionieren.
+		Die Identifikation erfolgt ueber das Attribut type, das entweder den Wert "structure", "data" 
+		oder "text" annehmen kann ("text" bezeichnet Updates, zu denen kein SQL-Kommando sondern nur eine
+		Beschreibung existiert)
+		Zusaetzlich verfuegt jedes update ueber ein Datum in der Form "JJJJ-MM-TT".
+		
+		<update type="structure" datum="2006-10-31"><![CDATA[
+			ALTER TABLE academy ...;
+			CREATE TABLE irgendwas (....);
+		]]></update>
+		
+		<update type="data" datum="2006-11-01"><![CDATA[
+			INSERT INTO ammo (name) VALUES ("Meine ganz tolle neue Supermunition");
+			UPDATE ship_types SET crew=1 WHERE crew > 1;
+		]]></update>
+		 
+	-->
+</updates>
