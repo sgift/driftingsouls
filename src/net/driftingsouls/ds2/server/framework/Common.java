@@ -220,6 +220,17 @@ public class Common implements Loggable {
 	 * @see #tableEnd()
 	 */
 	public static String tableBegin( int width, String align ) {
+		return tableBegin(Integer.toString(width), align);
+	}
+	
+	/**
+	 * Gibt den Anfangsteil einer DS-Tabelle als String zurueck
+	 * @param width Die gewuenschte Breite
+	 * @param align Die gewuenschte Ausrichtung des Inhalts (<code>left</code>,<code>center</code>,<code>right</code>,<code>justify</code>)
+	 * @return Der Tabellenkopf als String
+	 * @see #tableEnd()
+	 */
+	public static String tableBegin( String width, String align ) {
 		StringBuilder sb = new StringBuilder(200);
 		
 		String imagePath = Configuration.getSetting("URL");
