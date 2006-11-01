@@ -45,9 +45,10 @@ public class DriftingSouls {
 	 * 
 	 * @param log Logger, mit dem die Initalisierung protokolliert werden soll
 	 * @param configdir Das DS-Konfigurationsverzeichnis
+	 * @param boot Sollen die boot.xml abgearbeitet werden?
 	 * @throws Exception
 	 */
-	public DriftingSouls(Log log, String configdir) throws Exception {
+	public DriftingSouls(Log log, String configdir, boolean boot) throws Exception {
 		LOG = log;
 		LOG.info("Reading "+configdir+"config.xml");		
 		Configuration.init(configdir);

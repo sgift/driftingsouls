@@ -402,7 +402,7 @@ public class DriftingSoulsServlet extends HttpServlet {
 		LOG.info("Booting DS...");
 		
 		try {
-			new DriftingSouls(LOG,  config.getServletContext().getInitParameter("configdir"));
+			new DriftingSouls(LOG,  config.getServletContext().getInitParameter("configdir"), true);
 		}
 		catch( Exception e ) {
 			LOG.fatal(e, e);
