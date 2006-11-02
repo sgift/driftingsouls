@@ -1,0 +1,82 @@
+{if show.frame}
+	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
+	<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
+	<head>
+		<title>Drifting Souls</title>
+		<link rel="stylesheet" type="text/css" href="{URL}format.css"></head>
+	</head>
+	<frameset border="0" rows="105,*" framespacing="0" frameborder="0">
+	<frame src="./main.php?module=techdatabase&sess={global.sess}&action=menu" name="techmenubar" target="_self">
+	<frame src="./main.php?module=techdatabase&sess={global.sess}&action=nothing" name="techmenudata" scrolling="auto" target="techmenudata">
+	</frameset></html>
+{/endif}
+{if show.menu}
+	<table class="show" cellspacing="2" cellpadding="2">
+	<tr><td class="noBorderS">Tech. Datenbank</td><td class="noBorder">&nbsp;</td>
+	<td class="noBorder">
+		{!table_begin 690,center}
+			{!link_to Forschungen, default, module:techliste, link_target:techmenudata}
+			&nbsp;|&nbsp;
+			{!link_to Geb&auml;ude, default, module:buildings, link_target:techmenudata}
+			&nbsp;|&nbsp;
+			{!link_to Gegenst&auml;nde, known, module:iteminfo, link_target:techmenudata}
+			&nbsp;|&nbsp;
+			{!link_to Schiffe, schiffsliste, link_target:techmenudata}
+			<br />
+			{!link_to Daten &amp; Fakten, facts, link_target:techmenudata}
+			&nbsp;|&nbsp;
+			<a class="forschinfo" target="techmenudata" href="http://wiki.drifting-souls.net/">Wiki</a>	
+		{!table_end}
+	</td>
+	</tr></table>
+{/endif}
+{if show.none}
+	<table class="noBorder" width="100%" height="80%">
+	<tr><td class="noBorderS" align="center" valign="center">Bitte w&auml;hlen sie einen Eintrag</td></tr>
+	</table>
+{/endif}
+{if show.shiplist}
+	<table class="noBorder" width="600">
+	<tr><td align="center" class="noBorder"><span style="font-weight:bold">{shiplist.title}</span></td></tr>
+	<tr><td align="center" class="noBorderS">von {shiplist.author}</td></tr>
+	<tr><td class="noBorderS"><br /><span style="color:#808080">
+	{shiplist.text}
+	</span></td></tr>
+	</table>
+{/endif}
+{if show.changelog}
+	<table class="noBorder" width="600">
+	<tr><td align="center" class="noBorder"><span style="font-weight:bold">Changelog</span></td></tr>
+	<tr><td align="center" class="noBorderS">-Alle &Auml;nderungen der letzten Zeit-</td></tr>
+	<tr><td class="noBorderS"><br /><span style="color:#808080">
+	{changelog.text}
+	</span></td></tr>
+	</table>
+{/endif}
+{if show.facts}
+	<table class="noBorder" width="600">
+	<tr>
+		<td class="noBorder" valign="top" rowspan="3" width="170">
+			<!-- BEGIN facts.articlegroup.listitem -->
+			<table class="show">
+				<tr><td align="center" width="150">{articlegroup.name}:</td></tr>
+				<!-- BEGIN facts.articles.listitem -->
+					<tr>
+						<td align="left" width="150">
+							{!link_to $article.title, facts, article:$article.id}
+						</td>
+					</tr>
+				<!-- END facts.articles.listitem -->
+			</table>
+			<br />
+			<!-- END facts.articlegroup.listitem -->
+		</td>
+		<td class="noBorder" valign="top">
+			<span style="font-weight:bold">{if article.text}{article.class}::{article.title}{/endif}</span>
+		</td>
+	</tr>
+	<tr>
+		<td class="noBorderS" valign="top" align="justify"><br />{if article.text}{article.text}{/endif}</td>
+	</tr>
+	</table>
+{/endif}

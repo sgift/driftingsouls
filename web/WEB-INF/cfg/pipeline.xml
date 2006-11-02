@@ -83,6 +83,10 @@
 		<module name="ueber">
 			<generator class="net.driftingsouls.ds2.server.modules.UeberController" />
 		</module>
+		<module name="techdatabase">
+			<generator class="net.driftingsouls.ds2.server.modules.TechDatabaseController" />
+			<serializer class="net.driftingsouls.ds2.server.framework.pipeline.serializer.PlainSerializer" />
+		</module>
 	</modules>
 	<rules>
 		<match pattern="/.*data/.*\.(gif|png|jpg|css|js)">
