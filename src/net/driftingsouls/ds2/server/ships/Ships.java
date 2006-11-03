@@ -602,7 +602,6 @@ public class Ships {
 		for( int i=0; i < tasks.length; i++ ) {
 			taskmanager.removeTask(tasks[i].getTaskID());	
 		}
-		Common.stub();
 		
 		// Falls eine respawn-Zeit gesetzt ist und ein Respawn-Image existiert -> respawn-Task setzen
 		if( ship.getInt("respawn") != 0 ) {
@@ -691,9 +690,38 @@ public class Ships {
 		return nebel.get(loc);
 	}
 	
+	private static Map<Integer,Integer> fleetCountList = Collections.synchronizedMap(new CacheMap<Integer,Integer>(500));
+	
+	/**
+	 * Entfernt das Schiff aus der Flotte. 
+	 * @param ship Die SQL-Ergebniszeile des Schiffs
+	 */
 	public static void removeFromFleet( SQLResultRow ship ) {
-		// TODO
-		Common.stub();
+		Database db = ContextMap.getContext().getDatabase();
+		
+		if( ship.getInt("fleet") == 0 ) {
+			return;
+		}
+
+		if( fleetCountList.containsKey(ship.getInt("fleet")) ) {
+			// Kein Check auf id > 0, da auch (Spawn)Schiffe mit einer id < 0 der Flotte angehoeren koennen!
+			fleetCountList.put(ship.getInt("fleet"), db.first("SELECT count(*) count FROM ships WHERE fleet="+ship.getInt("fleet")).getInt("count"));
+		}
+		int fleetcount = fleetCountList.get(ship.getInt("fleet"));
+				
+		if( fleetcount > 2 ) {
+			db.tUpdate(1, "UPDATE ships SET fleet=0 WHERE id>0 AND id=",ship.getInt("id"));
+			MESSAGE.get().append("aus der Flotte ausgetreten");
+			
+			fleetCountList.put(ship.getInt("fleet"), --fleetcount);
+		} 
+		else {
+			db.tUpdate(1, "UPDATE ships SET fleet=0 WHERE fleet="+ship.getInt("fleet"));
+			db.tUpdate(1, "DELETE FROM ship_fleets WHERE id="+ship.getInt("fleet"));
+			MESSAGE.get().append("Flotte aufgel&ouml;&szlig;t");
+			
+			fleetCountList.remove(ship.getInt("fleet"));
+		}
 	}
 	
 	public static ShipTypeDataChangeset getTypeChangeSetFromXML(Node node) {
