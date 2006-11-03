@@ -81,7 +81,7 @@ public class PlayerList {
 		}
 		
 		// Ein Admin bekommt mehr zu sehen...
-		if( (user != null) && user.getAccessLevel() > 20 ) {
+		if( (comPopup == 0) && (user != null) && user.getAccessLevel() > 20 ) {
 			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\""+url+"&ord=inakt\">Inaktiv</a></td>");
 			echo.append("<td class=\"noBorderX\" align=\"center\">Astis</td>\n");
 			echo.append("<td class=\"noBorderX\" align=\"center\">Schiffe</td>\n");
