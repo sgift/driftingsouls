@@ -68,6 +68,9 @@
 		<module name="main">
 			<generator class="net.driftingsouls.ds2.server.modules.MainController" />
 		</module>
+		<module name="plist">
+			<generator class="net.driftingsouls.ds2.server.modules.PListController" />
+		</module>
 		<module name="portal">
 			<generator class="net.driftingsouls.ds2.server.modules.PortalController" />
 		</module>
