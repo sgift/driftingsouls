@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.ships;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +32,8 @@ import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.cargo.modules.Module;
+import net.driftingsouls.ds2.server.cargo.modules.Modules;
 import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.ItemEffect;
 import net.driftingsouls.ds2.server.framework.CacheMap;
@@ -453,9 +456,98 @@ public class Ships {
 		return result.toArray(new ModuleEntry[result.size()]);
 	}
 	
-	public static void addModule( SQLResultRow ship, int slot, int moduleid, int data ) {
-		// TODO
-		Common.stub();
+	/**
+	 * Fuegt ein Modul in ein Schiff ein
+	 * @param ship Das Schiff
+	 * @param slot Der Slot, in den das Modul eingebaut werden soll
+	 * @param moduleid Die Typen-ID des Modultyps
+	 * @param data Weitere Daten, welche das Modul identifizieren
+	 */
+	public static void addModule( SQLResultRow ship, int slot, int moduleid, String data ) {
+		Database db = ContextMap.getContext().getDatabase();
+
+		if( ship.getString("status").indexOf("tblmodules") == -1 ) {
+			db.update("INSERT INTO ships_modules (id) VALUES ('",ship.getInt("id"),"')");
+			if( ship.getString("status").length() != 0 ) {
+				ship.put("status", ship.getString("status")+" tblmodules");	
+			}	
+			else {
+				ship.put("status", "tblmodules");	
+			}
+			db.update("UPDATE ships SET status='",ship.getString("status"),"' WHERE id>0 AND id='",ship.getInt("id"),"'");
+		}
+		String oldModuleTbl = db.first("SELECT modules FROM ships_modules WHERE id='",ship.getInt("id"),"'").getString("modules");	
+		List<ModuleEntry> moduletbl = new ArrayList<ModuleEntry>();
+		moduletbl.addAll(Arrays.asList(getModules(ship)));
+				
+		//check modules
+		
+		//rebuild
+		moduletbl.add(new ModuleEntry(slot, moduleid, data ));
+		
+		SQLResultRow type = getShipType( ship.getInt("type"), false, true );
+		SQLResultRow basetype = new SQLResultRow();
+		basetype.putAll(type);
+		
+		Map<Integer,String[]>slotlist = new HashMap<Integer,String[]>();
+		String[] tmpslotlist = StringUtils.split(type.getString("modules"), ';');
+		for( int i=0; i < tmpslotlist.length; i++ ) {
+			String[] aslot = StringUtils.split(tmpslotlist[i], ':');
+			slotlist.put(Integer.parseInt(aslot[0]), aslot);
+		}
+		
+		List<Module> moduleobjlist = new ArrayList<Module>();
+		List<String> moduleSlotData = new ArrayList<String>(); 
+		
+		for( int i=0; i < moduletbl.size(); i++ ) {
+			ModuleEntry module = moduletbl.get(i);
+			if( module.moduleType != 0 ) {
+				Module moduleobj = Modules.getShipModule( module );
+				if( module.slot > 0 ) {
+					moduleobj.setSlotData(slotlist.get(module.slot)[2]);
+				}
+				moduleobjlist.add(moduleobj);
+			
+				moduleSlotData.set(i, module.slot+":"+module.moduleType+":"+module.data);
+			}
+		}
+		
+		for( int i=0; i < moduleobjlist.size(); i++ ) {
+			type = moduleobjlist.get(i).modifyStats( type, basetype, moduleobjlist );		
+		}
+		
+		String modulelist = Common.implode(";",moduleSlotData);
+	
+		db.tUpdate(1,"UPDATE ships_modules ",
+				"SET modules='",modulelist,"'," ,
+				"nickname='",type.getString("nickname"),"'," ,
+				"picture='",type.getString("picture"),"',",
+				"ru='",type.getInt("ru"),"'," ,
+				"rd='",type.getInt("rd"),"'," ,
+				"ra='",type.getInt("ra"),"'," ,
+				"rm='",type.getInt("rm"),"'," ,
+				"eps='",type.getInt("eps"),"'," ,
+				"cost='",type.getInt("cost"),"'," ,
+				"hull='",type.getInt("hull"),"'," ,
+				"panzerung='",type.getInt("panzerung"),"'," ,
+				"cargo='",type.getLong("cargo"),"'," ,
+				"heat='",type.getInt("heat"),"'," ,
+				"crew='",type.getInt("crew"),"'," ,
+				"weapons='",type.getString("weapons"),"'," ,
+				"maxheat='",type.getString("maxheat"),"'," ,
+				"torpedodef='",type.getInt("torpedodef"),"'," ,
+				"shields='",type.getInt("shields"),"'," ,
+				"size='",type.getInt("size"),"'," ,
+				"jdocks='",type.getInt("jdocks"),"'," ,
+				"adocks='",type.getInt("adocks"),"'," ,
+				"sensorrange='",type.getInt("sensorrange"),"'," ,
+				"hydro='",type.getInt("hydro"),"'," ,
+				"deutfactor='",type.getInt("deutfactor"),"'," ,
+				"recost='",type.getInt("recost"),"',",
+				"flags='",type.getString("flags"),"'," ,
+				"werft='",type.getString("werft"),"'," ,
+				"ow_werft='",type.getInt("ow_werft"),"'" ,
+				" WHERE id='",ship.getInt("id"),"' AND modules='",oldModuleTbl,"'");					
 	}
 	
 	public static void removeModule( SQLResultRow ship, int slot, int moduleid, int data ) {	
