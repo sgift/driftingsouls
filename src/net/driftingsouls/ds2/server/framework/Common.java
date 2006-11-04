@@ -1004,27 +1004,26 @@ public class Common implements Loggable {
 	 * Fuegt einen neuen Eintrag in die Log-DB ein. Als ausfuehrender Benutzer wird der in dem Kontext
 	 * aktive Benutzer verwendet
 	 * 
-	 * @param context Der Context, in dem das Logging ausgefuehrt werden soll
 	 * @param type Der Typ des Eintrags
 	 * @param source Die Quelle des Ereignisses
 	 * @param target Das Ziel des Ereignisses
 	 * @param data Weitere Daten in Form Schluessel, Wert, Schluessel, Wert (die Anzahl muss folglich gerade sein)
 	 */
-	public static void dblog( Context context, String type, String source, String target, String ... data) {
-		dblog(context, type, source, target, 0, data);
+	public static void dblog( String type, String source, String target, String ... data) {
+		dblog(type, source, target, 0, data);
 	}
 	
 	/**
 	 * Fuegt einen neuen Eintrag in die Log-DB ein
 	 * 
-	 * @param context Der Context, in dem das Logging ausgefuehrt werden soll
 	 * @param type Der Typ des Eintrags
 	 * @param source Die Quelle des Ereignisses
 	 * @param target Das Ziel des Ereignisses
 	 * @param userid Der Benutzer, der das Ereigniss ausgeloest hat (falls dieser vom aktiven Benutzer abweicht)
 	 * @param data Weitere Daten in Form Schluessel, Wert, Schluessel, Wert (die Anzahl muss folglich gerade sein)
 	 */
-	public static void dblog( Context context, String type, String source, String target, int userid, String ... data ) {
+	public static void dblog( String type, String source, String target, int userid, String ... data ) {
+		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 		
 		if( (userid == 0) && (context.getActiveUser() != null) ) {
