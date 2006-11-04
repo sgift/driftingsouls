@@ -24,10 +24,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.ItemEffect;
 import net.driftingsouls.ds2.server.framework.CacheMap;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -35,6 +38,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.ThreadLocalMessage;
 import net.driftingsouls.ds2.server.framework.User;
+import net.driftingsouls.ds2.server.framework.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
@@ -624,12 +628,114 @@ public class Ships {
 		Common.stub();
 	}
 	
+	/**
+	 * Uebergibt ein Schiff an einen anderen Spieler. Gedockte/Gelandete Schiffe
+	 * werden, falls moeglich, mituebergeben.
+	 * @param user Der aktuelle Besitzer des Schiffs
+	 * @param ship Das zu uebergebende Schiff
+	 * @param newowner Der neue Besitzer des Schiffs
+	 * @param testonly Soll nur getestet (<code>true</code>) oder wirklich uebergeben werden (<code>false</code>)
+	 * @return <code>true</code>, falls ein Fehler bei der Uebergabe aufgetaucht ist (Uebergabe nicht erfolgreich)
+	 */
 	public static boolean consign( User user, SQLResultRow ship, User newowner, boolean testonly ) {
-		// TODO
-		Common.stub();
+		if( newowner.getID() == 0 ) {
+			MESSAGE.get().append("Der angegebene Spieler existiert nicht");
+			return true;
+		}
+		
+		if( newowner.getVacationCount() != 0 ) {
+			MESSAGE.get().append("Sie k&ouml;nnen keine Schiffe an Spieler &uuml;bergeben, welche sich im Vacation-Modus befinden");
+			return true;
+		}
+			
+		if( newowner.hasFlag( User.FLAG_NO_SHIP_CONSIGN ) ) {
+			MESSAGE.get().append("Sie k&ouml;nnen diesem Spieler keine Schiffe &uuml;bergeben");
+		}
+		
+		if( ship.getString("lock").length() != 0 ) {
+			MESSAGE.get().append("Die '"+ship.getString("name")+"'("+ship.getInt("id")+") kann nicht &uuml;bergeben werden, da diese in ein Quest eingebunden ist");
+			return true;
+		}
+		
+		if( ship.getString("status").indexOf("noconsign") != -1 ) {
+			MESSAGE.get().append("Die '"+ship.getString("name")+"' ("+ship.getInt("id")+") kann nicht &uuml;bergeben werden");
+			return true;
+		}
+		
+		SQLResultRow shiptype = getShipType( ship, true );
+		
+		if( shiptype.getString("werft").length() != 0 ) {
+			MESSAGE.get().append("Die '"+ship.getString("name")+"' ("+ship.getInt("id")+") kann nicht &uuml;bergeben werden, da es sich um eine Werft handelt");
+			return true;
+		} 
+		
+		UserFlagschiffLocation flagschiff = user.getFlagschiff();
+		
+		boolean result = true;		
+		if( flagschiff.getID() == ship.getInt("id") ) {
+			result = newowner.hasFlagschiffSpace();
+		}
+	
+		if( !result  ) {
+			MESSAGE.get().append("Die "+ship.getString("name")+" ("+ship.getInt("id")+") kann nicht &uuml;bergeben werden, da der Spieler bereits &uuml;ber ein Flagschiff verf&uuml;gt");
+			return true;
+		}
+		
+		Database db = ContextMap.getContext().getDatabase();
+			
+		if( !testonly ) {	
+			ship.put("history", ship.getString("history")+"&Uuml;bergeben am [tick="+ContextMap.getContext().get(ContextCommon.class).getTick()+"] an "+newowner.getName()+" ("+newowner.getID()+")\n");
+				
+			db.prepare("UPDATE ships SET owner= ?,fleet=0,history= ? ,alarm='0' WHERE id= ? AND owner= ?")
+					.update(newowner.getID(), ship.getString("history"), ship.getInt("id"), ship.getInt("owner"));
+			db.update("UPDATE offiziere SET userid='",newowner.getID(),"' WHERE dest='s ",ship.getInt("id"),"'");
+	
+			Common.dblog( "consign", Integer.toString(ship.getInt("id")), Integer.toString(newowner.getID()),	
+					"pos", Location.fromResult(ship).toString(),
+					"shiptype", Integer.toString(ship.getInt("type")) );
+			
+			if( (flagschiff.getType() == UserFlagschiffLocation.Type.SHIP) && (flagschiff.getID() == ship.getInt("id")) ) {
+				user.setFlagschiff(0);
+				newowner.setFlagschiff(ship.getInt("id"));
+			}
+		}
+		
+		StringBuilder message = MESSAGE.get();
+		SQLQuery s = db.query("SELECT * FROM ships WHERE id>0 AND docked IN ('",ship.getInt("id")+"','l "+ship.getInt("id")+"')");
+		while( s.next() ) {
+			int oldlength = message.length();
+			boolean tmp = consign( user, s.getRow(), newowner, testonly );
+			if( tmp && !testonly ) {
+				dock( (s.getString("docked").charAt(0) == 'l' ? DockMode.START : DockMode.UNDOCK), newowner.getID(), ship.getInt("id"), new int[] {s.getInt("id")});			
+			}
+			
+			if( oldlength != message.length() ) {
+				message.insert(oldlength-1, "<br />");
+			}
+		}
+		s.free();
+		
+		Cargo cargo = new Cargo( Cargo.Type.STRING, ship.getString("cargo") );
+		List<ItemCargoEntry> itemlist = cargo.getItems();
+		for( ItemCargoEntry item : itemlist ) {
+			Item itemobject = item.getItemObject();
+			if( itemobject.isUnknownItem() ) {
+				newowner.addKnownItem(item.getItemID());
+			}
+		}
+	
 		return false;
 	}
 	
+	/**
+	 * Gibt den Positionstext unter Beruecksichtigung von Nebeleffekten zurueck.
+	 * Dadurch kann der Positionstext teilweise unleserlich werden (gewuenschter Effekt) 
+	 * @param system Die System-ID
+	 * @param x Die X-Koordinate
+	 * @param y Die Y-Koordinate
+	 * @param noSystem Soll das System angezeigt werden?
+	 * @return der Positionstext
+	 */
 	public static String getLocationText(int system, int x, int y, boolean noSystem) {
 		int nebel = getNebula(new Location(system, x, y));
 		
@@ -665,6 +771,11 @@ public class Ships {
 		Ships.nebel.put(new Location(nebel.getInt("system"), nebel.getInt("x"), nebel.getInt("y")), nebel.getInt("type"));
 	}
 	
+	/**
+	 * Gibt den Nebeltyp an der Position zurueck, an der sich das Schiff gerade befindet
+	 * @param ship Das Schiff
+	 * @return Der Typ des Nebels. <code>-1</code>, falls an der Stelle kein Nebel ist
+	 */
 	public static int getNebula(SQLResultRow ship) {
 		return getNebula(new Location(ship.getInt("system"), ship.getInt("x"), ship.getInt("y")));
 	}
