@@ -64,7 +64,7 @@ public class Ships {
 	 * Repraesentiert ein in ein Schiff eingebautes Modul (oder vielmehr die Daten, 
 	 * die hinterher verwendet werden um daraus ein Modul zu rekonstruieren)
 	 */
-	public class ModuleEntry {
+	public static class ModuleEntry {
 		/**
 		 * Der Slot in den das Modul eingebaut ist
 		 */
@@ -431,9 +431,26 @@ public class Ships {
 	 * @return Eine Liste von Moduleintraegen
 	 */
 	public static ModuleEntry[] getModules( SQLResultRow ship ) {
-		// TODO
-		Common.stub();
-		return null;
+		Database db = ContextMap.getContext().getDatabase();
+		
+		List<ModuleEntry> result = new ArrayList<ModuleEntry>();
+		
+		if( ship.getString("status").indexOf("tblmodules") == -1 ) {
+			return new ModuleEntry[0];
+		}
+		SQLResultRow moduletbl = db.first("SELECT * FROM ships_modules WHERE id='",ship.getInt("id"),"'");	
+		
+		if( moduletbl.getString("modules").length() != 0 ) {
+			String[] modulelist = StringUtils.split(moduletbl.getString("modules"), ';');
+			if( modulelist.length != 0 ) {
+				for( int i=0; i < modulelist.length; i++ ) {
+					String[] module = StringUtils.split(modulelist[i], ':');
+					result.add(new ModuleEntry(Integer.parseInt(module[0]), Integer.parseInt(module[1]), module[2]));	
+				}
+			}
+		}
+		
+		return result.toArray(new ModuleEntry[result.size()]);
 	}
 	
 	public static void addModule( SQLResultRow ship, int slot, int moduleid, int data ) {
