@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
@@ -34,6 +35,7 @@ import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.ItemEffect;
 import net.driftingsouls.ds2.server.framework.CacheMap;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.ThreadLocalMessage;
@@ -623,9 +625,99 @@ public class Ships {
 		db.update("DELETE FROM ships_modules WHERE id=",ship.getInt("id"));
 	}
 	
+	/**
+	 * Generiert ein Truemmerteil mit Loot fuer das angegebene Schiff unter Beruecksichtigung desjenigen,
+	 * der es zerstoert hat. Wenn fuer das Schiff kein Loot existiert oder keiner generiert wurde (Zufall spielt eine
+	 * Rolle!), dann wird kein Truemmerteil erzeugt.
+	 * @param shipid Die ID des Schiffes, fuer das Loot erzeugt werden soll
+	 * @param destroyer Die ID des Spielers, der es zerstoert hat
+	 */
 	public static void generateLoot( int shipid, int destroyer ) {
-		// TODO
-		Common.stub();
+		Database db = ContextMap.getContext().getDatabase();
+		
+		SQLResultRow ship = db.first("SELECT id,owner,x,y,system,history FROM ships WHERE id>0 AND id='",shipid,"'");
+		
+		SQLResultRow shiptype = getShipType( ship, true );
+	
+		int rnd = new Random().nextInt(101);
+		
+		// Gibts was zu looten?
+		if( rnd > shiptype.getInt("chance4Loot") ) {
+			return;
+		}
+		
+		// History analysieren (Alle Schiffe die erst kuerzlich uebergeben wurden, haben kein Loot)
+		String[] history = StringUtils.split(ship.getString("history").trim(), '\n');
+		if( history.length > 0 ) {
+			String lastHistory = history[history.length-1];
+			
+			if( lastHistory.indexOf("&Uuml;bergeben") != -1 ) {
+				int date = Integer.parseInt(lastHistory.substring("&Uuml;bergeben am [tick=".length(),lastHistory.indexOf("] an ")-"&Uuml;bergeben am [tick=".length()));
+				if( ContextMap.getContext().get(ContextCommon.class).getTick() - date < 49 ) {
+					return;
+				}
+			}
+		}	
+		
+		// Moeglichen Loot zusammensuchen
+		List<SQLResultRow> loot = new ArrayList<SQLResultRow>();
+		int maxchance = 0;
+		
+		SQLQuery lootHandle = db.query("SELECT id,chance,resource,count,totalmax " ,
+				"FROM ship_loot " ,
+				"WHERE owner='",ship.getInt("owner"),"' AND shiptype IN ('",ship.getInt("type"),"','-",ship.getInt("id"),"') AND targetuser IN ('0','",destroyer,"') AND totalmax!=0");
+				
+		while( lootHandle.next() ) {
+			maxchance += lootHandle.getInt("chance");
+			loot.add(lootHandle.getRow());
+		}
+		lootHandle.free();
+	
+		if( loot.size() == 0 ) {
+			return;	
+		}
+		
+		// Und nun den Loot generieren
+		Cargo cargo = new Cargo();
+		Random rand = new Random();
+		
+		for( int i=0; i <= Configuration.getIntSetting("CONFIG_TRUEMER_MAXITEMS"); i++ ) {
+			rnd = rand.nextInt(maxchance+1);
+			int currentchance = 0;
+			for( int j=0; j < loot.size(); j++ ) {
+				SQLResultRow aloot = loot.get(j);
+				if( aloot.getInt("chance") + currentchance > rnd ) {
+					if( aloot.getInt("totalmax") > 0 ) {
+						aloot.put("totalmax", aloot.getInt("totalmax")-1);
+											
+						db.update("UPDATE ship_loot SET totalmax='",aloot.getInt("totalmax"),"' WHERE id='",aloot.getInt("id"),"'");	
+					}
+					cargo.addResource( Resources.fromString(aloot.getString("resource")), aloot.getLong("count") );
+					break;	
+				}	
+				
+				currentchance += aloot.getInt("chance");
+			}
+			
+			rnd = rand.nextInt(101);
+		
+			// Gibts nichts mehr zu looten?
+			if( rnd > shiptype.getInt("chance4Loot") ) {
+				break;
+			}
+		}
+		
+		// Truemmer-Schiff hinzufuegen und entfernen-Task setzen
+		db.update("INSERT INTO ships ",
+				"(owner,name,type,cargo,x,y,system,hull,visibility) ",
+				"VALUES ",
+				"('-1','Tr&uuml;mmerteile',",Configuration.getIntSetting("CONFIG_TRUEMMER"),",'",cargo.save(),"','",
+				ship.getInt("x"),"','",ship.getInt("y"),"','",ship.getInt("system"),"','",
+				Configuration.getIntSetting("CONFIG_TRUEMMER_HUELLE"),"','",destroyer,"')");
+				
+		Taskmanager.getInstance().addTask(Taskmanager.Types.SHIP_DESTROY_COUNTDOWN, 21, Integer.toString(db.insertID()), "", "" );
+				
+		return;
 	}
 	
 	/**
