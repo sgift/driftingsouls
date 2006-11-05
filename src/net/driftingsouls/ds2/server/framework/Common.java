@@ -220,20 +220,20 @@ public class Common implements Loggable {
 	 * @see #tableEnd()
 	 */
 	public static String tableBegin( int width, String align ) {
-		return tableBegin(Integer.toString(width), align);
+		return tableBegin(Integer.toString(width), align, Configuration.getSetting("URL"));
 	}
 	
 	/**
 	 * Gibt den Anfangsteil einer DS-Tabelle als String zurueck
 	 * @param width Die gewuenschte Breite
 	 * @param align Die gewuenschte Ausrichtung des Inhalts (<code>left</code>,<code>center</code>,<code>right</code>,<code>justify</code>)
+	 * @param imagePath der Pfad zum Data-Verzeichnis
 	 * @return Der Tabellenkopf als String
 	 * @see #tableEnd()
 	 */
-	public static String tableBegin( String width, String align ) {
+	public static String tableBegin( String width, String align, String imagePath ) {
 		StringBuilder sb = new StringBuilder(200);
 		
-		String imagePath = Configuration.getSetting("URL");
 		sb.append("<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"noBorderX\" width=\""+width+"\">");
 		sb.append("<tr>");
 		sb.append("<td class=\"noBorderXnBG\" style=\"width:19px\"><img src=\""+imagePath+"data/interface/border/border_topleft.gif\" alt=\"\" /></td>");
@@ -253,9 +253,18 @@ public class Common implements Loggable {
 	 * @see #tableBegin(int, String)
 	 */
 	public static String tableEnd() {
+		return tableEnd(Configuration.getSetting("URL"));
+	}
+	
+	/**
+	 * Gibt den Endteil einer DS-Tabelle als String zurueck
+	 * @param imagePath der Pfad zum Data-Verzeichnis
+	 * @return Der Tabellenfuss als String
+	 * @see #tableBegin(int, String)
+	 */
+	public static String tableEnd(String imagePath) {
 		StringBuilder sb = new StringBuilder(200);
 		
-		String imagePath = Configuration.getSetting("URL");
 		sb.append("</td>");
 		sb.append("<td class=\"noBorderXnBG\" rowspan=\"1\" style=\"width:19px; background-image:url("+imagePath+"data/interface/border/border_right.gif); background-repeat:repeat-y\"></td>");
 		sb.append("</tr>");

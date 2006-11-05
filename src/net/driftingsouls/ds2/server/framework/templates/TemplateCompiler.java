@@ -76,7 +76,11 @@ public class TemplateCompiler {
 			}
 
 			// TODO: check & ggf fixme (slash-problem ?)
-			return StringUtils.replace(Common.tableBegin(width,align),"\"", "\\\"");
+			String txt = StringUtils.replace(Common.tableBegin("{$$WIDTH$$}","{$$ALIGN$$}","{$$IMAGEPATH$$}"),"\"", "\\\"");
+			txt = StringUtils.replace(txt, "{$$IMAGEPATH$}}", "\"); str.append(templateEngine.getVar(\"URL\")); str.append(\"");
+			txt = StringUtils.replace(txt, "{$$ALIGN$$}", align);
+			txt = StringUtils.replace(txt, "{$$WIDTH$$}", width);
+			return txt;
 		}	
 	}
 	
@@ -85,7 +89,8 @@ public class TemplateCompiler {
 			// EMPTY
 		}
 		public String process(List<String> parameter) {
-			return StringUtils.replace(Common.tableEnd(), "\"", "\\\"");	
+			String txt = StringUtils.replace(Common.tableEnd("{$$IMAGEPATH$$}"), "\"", "\\\"");
+			return StringUtils.replace(txt, "{$$IMAGEPATH$}}", "\"); str.append(templateEngine.getVar(\"URL\")); str.append(\"");
 		}	
 	}
 	
