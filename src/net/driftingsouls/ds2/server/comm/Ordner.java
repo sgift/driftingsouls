@@ -30,6 +30,11 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 /**
  * Repraesentiert einen Ordner im Postfach
+ * 
+ * Hinweis: Die Ordner-ID 0 hat eine spezielle Bedeutung. 
+ * Sie kennzeichnet den Hauptordner, in dem sich alle Unterordner
+ * befinden. Der Hauptordner existiert jedoch nicht als eigenstaendiger
+ * Ordner in der Datenbank.
  * @author Christoph Peltz
  * @author Christopher Jung
  */
@@ -88,6 +93,14 @@ public class Ordner {
 		return new Ordner( db.first("SELECT * FROM ordner WHERE playerid='",user_id,"' AND (flags & ",Ordner.FLAG_TRASH,")") );
 	}
 	
+	/**
+	 * Loescht einen bestimmten Ordner eines Users. Alle im Ordner enthaltenen
+	 * Unterordner und Pms werden ebenfalls geloescht.
+	 * @param ordner_id Die ID des Ordners
+	 * @param user_id Die ID des Besitzers
+	 * @return <code>0</code>, falls das Loeschen erfolgreich war, <code>1</code>, falls erst noch eine PM gelesen werden muss
+	 * und <code>2</code>, bei sonstigen Fehlern
+	 */
 	public static int deleteOrdnerByID( int ordner_id, int user_id ) {
 		Database db = ContextMap.getContext().getDatabase();
 		int result = 0;
@@ -106,6 +119,12 @@ public class Ordner {
 		return 0;
 	}
 	
+	/**
+	 * Erstellt einen neuen Ordner fuer einen bestimmten Spieler
+	 * @param name Der Name des neuen Ordners
+	 * @param parent_id Die ID des Elternordners
+	 * @param user_id Die ID des Besitzers
+	 */
 	public static void createNewOrdner( String name, int parent_id, int user_id ) {
 		Database db = ContextMap.getContext().getDatabase();
 		int trash = Ordner.getTrash( user_id ).getID();
@@ -114,6 +133,13 @@ public class Ordner {
 		}
 	}
 	
+	/**
+	 * Prueft, ob der Ordner mit der angegebenen ID eines bestimmten Besitzers
+	 * existiert
+	 * @param ordner_id Die ID des Ordners
+	 * @param user_id Die ID des Spielers
+	 * @return <code>true</code>, falls der Ordner existiert
+	 */
 	public static boolean existsOrdnerWithID( int ordner_id, int user_id ) {
 		Database db = ContextMap.getContext().getDatabase();
 		if( ordner_id != 0 ) {
@@ -122,6 +148,13 @@ public class Ordner {
 		return true;
 	}
 	
+	/**
+	 * Gibt die IDs aller Kindordner, ob direkt oder indirekt, eines bestimmten Ordners
+	 * eines Spielers zurueck
+	 * @param parent_id Die Ordner-ID
+	 * @param user_id Die Spieler-ID
+	 * @return Liste mit Ordner-IDs
+	 */
 	public static List<Integer> getAllChildIDs ( int parent_id, int user_id ) {
 		Database db = ContextMap.getContext().getDatabase();
 		
@@ -141,6 +174,13 @@ public class Ordner {
 		return childs;
 	}
 	
+	/**
+	 * Gibt die Anzahl der im Ordner vorhandenen PMs zurueck.
+	 * Unterordner werden nicht beruecksichtigt.
+	 * @param ordner_id Die ID des Ordners
+	 * @param user_id Der Besitzer des Ordners
+	 * @return Die Anzahl der PMs
+	 */
 	public static int countPMInOrdner( int ordner_id, int user_id ) {
 		Database db = ContextMap.getContext().getDatabase();
 		int trash = getTrash( user_id ).getID();
@@ -152,6 +192,16 @@ public class Ordner {
 		return db.first("SELECT count(*) count FROM transmissionen WHERE empfaenger='",user_id,"' AND ordner=",ordner_id," AND gelesen<",gelesen).getInt("count");
 	}
 	
+	/**
+	 * Gibt die Anzahl der PMs in allen Ordnern unterhalb eines bestimmten Ordners 
+	 * eines Spielers zurueck.
+	 * PMs in Unterordnern erhoehen die Anzahl der PMs im uebergeordneten Ordner.
+	 * Zurueckgegeben wird eine Map, in der die Ordner-ID der Schluessel ist. Der Wert
+	 * ist die Anzahl der PMs
+	 * @param parent_id Die OrdnerID
+	 * @param user_id Die Spieler-ID
+	 * @return Map mit der Anzahl der PMs in den jeweiligen Unterordnern
+	 */
 	public static Map<Integer,Integer> countPMInAllOrdner( int parent_id, int user_id ) { 
 		Database db = ContextMap.getContext().getDatabase();
 		List<Integer> ordners = getAllChildIDs( parent_id, user_id );
@@ -165,7 +215,9 @@ public class Ordner {
 		for( int i=0; i < ordners.size(); i++ ) {
 			SQLQuery child = db.query("SELECT id FROM ordner WHERE parent='",ordners.get(i),"'");
 			while( child.next() ){
-				result.put(ordners.get(i), result.get(i) + result.get(child.getInt("id")));
+				Integer thisResult = result.get(i);
+				Integer childResult = result.get(child.getInt("id"));
+				result.put(ordners.get(i), (thisResult != null ? thisResult : 0) + (childResult != null ? childResult : 0));
 			}
 			child.free();
 		}
@@ -173,20 +225,36 @@ public class Ordner {
 		return result;
 	}
 	
+	/**
+	 * Gibt die ID es Ordners zurueck
+	 * @return Die ID
+	 */
 	public int getID() {
 		return this.data.getInt("id");
 	}
 
+	/**
+	 * Gibt den Namen des Ordners zurueck
+	 * @return Der Name
+	 */
 	public String getName() {
 		return this.data.getString("name");
 	}
 
+	/**
+	 * Setzt den Namen des Ordners
+	 * @param name der neue Name
+	 */
 	public void setName( String name ) {
 		Database db = ContextMap.getContext().getDatabase();
 		db.prepare("UPDATE ordner SET name= ? WHERE id= ?").update(name, this.data.getInt("id"));
 		this.data.put("name", name);
 	}
 
+	/**
+	 * Gibt die Flags des Ordners zurueck
+	 * @return Die Flags
+	 */
 	public int getFlags() {
 		return this.data.getInt("flags");
 	}
