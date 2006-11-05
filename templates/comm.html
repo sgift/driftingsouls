@@ -307,7 +307,7 @@
 							{/endif}
 						</td>
 						<td class="noBorderX">
-								<img style="border:0px" src="{URL}data/interface/pms/{if ordner.flags.trash == 0}ordner{/endif}{if ordner.flags.trash}trash{if ordner.pms}-full{/endif}{/endif}.png" />
+								<img style="border:0px" src="{URL}data/interface/pms/{if ! ordner.flags.trash}ordner{/endif}{if ordner.flags.trash}trash{if ordner.pms}-full{/endif}{/endif}.png" />
 							
 						</td>
 						<td style="background-color:red" class="noBorderX">
