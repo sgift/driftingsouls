@@ -956,7 +956,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 					"ship.location",		Ships.getLocationText(ship, false),
 					"ship.type",			ship.getInt("type"),
 					"shiptype.picture",		shiptype.getString("picture"),
-					"shiptype.name",		shiptype.getString("name"),
+					"shiptype.name",		shiptype.getString("nickname"),
 					"ship.hull.color",		genSubColor(ship.getInt("hull"), shiptype.getInt("hull")),
 					"ship.hull",			Common.ln(ship.getInt("hull")),
 					"shiptype.hull",		Common.ln(shiptype.getInt("hull")),
@@ -1016,8 +1016,8 @@ public class SchiffController extends DSGenerator implements Loggable {
 		
 		shiptype.put("sensorrange", Math.round(shiptype.getInt("sensorrange")*(ship.getInt("sensors")/100f)));
 
-		if( shiptype.getInt("sensors") < 0 ) {
-			shiptype.put("sensors", 0);
+		if( shiptype.getInt("sensorrange") < 0 ) {
+			shiptype.put("sensorrange", 0);
 		}
 		
 		// Flottenlink
@@ -1067,8 +1067,8 @@ public class SchiffController extends DSGenerator implements Loggable {
 						"tooltip.respawn.end",		Common.tableEnd().replace( '"', '\'' ),
 						"ship.respawn",				ship.getInt("respawn") );
 
-			int rentry = db.first("SELECT id FROM ships WHERE id='-",ship.getInt("id"),"'").getInt("id");
-			if( rentry == -ship.getInt("id") ) {
+			SQLResultRow rentry = db.first("SELECT id FROM ships WHERE id='-",ship.getInt("id"),"'");
+			if( !rentry.isEmpty() ) {
 				t.set_var(	"ship.show.respawn",	1,
 							"ship.hasrespawn",		1);	
 			}

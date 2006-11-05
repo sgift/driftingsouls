@@ -306,7 +306,7 @@ public class SensorsDefault implements SchiffPlugin {
 			}
 			
 			boolean spaceToLand = false;
-			int fullcount = db.first("SELECT count(*) FROM ships WHERE id>0 AND docked='l ",data.getInt("id"),"'").getInt("fullcount");
+			int fullcount = db.first("SELECT count(*) fullcount FROM ships WHERE id>0 AND docked='l ",data.getInt("id"),"'").getInt("fullcount");
 			if( fullcount + 1 <= datatype.getInt("jdocks") ) {
 				spaceToLand = true;
 			}
