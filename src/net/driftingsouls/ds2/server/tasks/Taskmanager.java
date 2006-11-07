@@ -18,6 +18,19 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.db.Database;
+import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
+import net.driftingsouls.ds2.server.framework.db.SQLQuery;
+import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+
 /**
  * Der Taskmanager
  * @author Christopher Jung
@@ -59,6 +72,20 @@ public class Taskmanager {
 		protected Class getHandlerClass() {
 			return cls;
 		}
+		
+		/**
+		 * Gibt den Typ zu einer Typ-ID zurueck
+		 * @param id Die Typ-ID
+		 * @return Der Typ oder <code>null</code>
+		 */
+		protected static Types getTypeByID( int id ) {
+			for( int i=0; i < values().length; i++ ) {
+				if( values()[i].typeID == id ) {
+					return values()[i];
+				}
+			}
+			return null;
+		}
 	}
 	private static Taskmanager instance = null;
 	
@@ -76,37 +103,152 @@ public class Taskmanager {
 		}
 		return instance;
 	}
-	
-	private void registerTask( Types type ) {
-		throw new RuntimeException("STUB");
+
+	/**
+	 * Fuegt eine neue Task in die Datenbank ein.
+	 * Der Inhalt der Datenfelder ist abhaengig von Tasktyp
+	 * @param tasktype Der Typ der Task
+	 * @param timeout Der Timeout der Task in Ticks (0 bei keinem)
+	 * @param data1 Das erste Datenfeld
+	 * @param data2 Das zweite Datenfeld
+	 * @param data3 Das dritte Datenfeld
+	 * @return Die ID der neuen Task
+	 */
+	public String addTask( Types tasktype, int timeout, String data1, String data2, String data3 ) {
+		String taskid = Common.md5(""+new Random().nextInt(Integer.MAX_VALUE))+Common.time();
+		
+		Database db = ContextMap.getContext().getDatabase();
+		
+		db.prepare("INSERT INTO tasks ",
+				"(`taskid`,`type`,`time`,`timeout`,`data1`,`data2`,`data3`) ",
+				"VALUES",
+				"( ?, ?, ?, ?, ?, ?, ?)")
+			.update(taskid, tasktype.getTypeID(), Common.time(), timeout, data1, data2, data3);
+		
+		return taskid;
 	}
 	
-	public void addTask( Types tasktype, int timeout, String data1, String data2, String data3 ) {
-		throw new RuntimeException("STUB");
-	}
-	
+	/**
+	 * Modifiziert die Datenfelder einer Task
+	 * @param taskid Die ID der Task
+	 * @param data1 Das erste Datenfeld
+	 * @param data2 Das zweite Datenfeld
+	 * @param data3 Das dritte Datenfeld
+	 */
 	public void modifyTask( String taskid, String data1, String data2, String data3 ) {
-		throw new RuntimeException("STUB");
+		Database db = ContextMap.getContext().getDatabase();
+		
+		db.prepare("UPDATE tasks SET ",
+				"`data1`= ?,",
+				"`data2`= ?,",
+				"`data3`= ? ",
+				"WHERE taskid= ? ")
+			.update(data1, data2, data3, taskid);
 	}
 	
+	/**
+	 * Setzt den Timeout einer Task
+	 * @param taskid Die Task-ID
+	 * @param timeout Das Timeout in Ticks
+	 */
 	public void setTimeout( String taskid, int timeout ) {
-		throw new RuntimeException("STUB");
+		Database db = ContextMap.getContext().getDatabase();
+		db.prepare("UPDATE tasks SET ",
+				"`timeout`= ? ",
+				"WHERE taskid= ?")
+			.update(taskid, timeout);
 	}
 	
+	/**
+	 * Inkrementiert den Timeout einer Task um einen Tick
+	 * @param taskid Die ID der Task
+	 */
 	public void incTimeout( String taskid ) {
-		throw new RuntimeException("STUB");
+		Database db = ContextMap.getContext().getDatabase();
+		db.prepare("UPDATE tasks SET ",
+				"`timeout`= `timeout`+1 ",
+				"WHERE taskid= ?")
+			.update(taskid);
 	}
 	
+	/**
+	 * Gibt die Task mit der angegebenen ID zurueck. Wenn keine solche Task existiert,
+	 * so wird <code>null</code> zurueckgegeben.
+	 * @param taskid Die ID der Task
+	 * @return die Task oder <code>null</code>
+	 */
 	public Task getTaskByID( String taskid ) {
-		throw new RuntimeException("STUB");
+		Database db = ContextMap.getContext().getDatabase();
+		
+		SQLResultRow task = db.prepare("SELECT * FROM tasks WHERE taskid= ?").first(taskid);
+		if( !task.isEmpty() ) {
+			return new Task(task);	
+		}
+		return null;
 	}
 	
+	/**
+	 * Gibt alle Tasks zurueck, deren Timeout den angegebenen Wert hat
+	 * @param timeout das gesuchte Timeout
+	 * @return Die Liste aller Tasks mit diesem Timeout (oder eine leere Liste)
+	 */
 	public Task[] getTasksByTimeout( int timeout ) {
-		throw new RuntimeException("STUB");
+		Database db = ContextMap.getContext().getDatabase();
+		List<Task> resultlist = new ArrayList<Task>();
+		
+		SQLQuery atask = db.prepare("SELECT * FROM tasks WHERE timeout=? ORDER BY `time` ASC").query(timeout);
+		while( atask.next() ) {
+			resultlist.add(new Task(atask.getRow()));
+		}
+		atask.free();
+		
+		return resultlist.toArray(new Task[resultlist.size()]);
 	}
 	
+	/**
+	 * Ermittelt alle Tasks eines Typs deren Datenfelder einen bestimmten Inhalt enthalten.
+	 * Als Platzhalter fuer beliebigen Inhalt kann das <code>*</code> verwendet werden
+	 * @param type Der Typ der gesuchten Task
+	 * @param data1 Der Inhalt des ersten Datenfelds
+	 * @param data2 Der Inhalt des zweiten Datenfelds
+	 * @param data3 Der Inhalt des dritten Datenfelds
+	 * @return die Liste aller Tasks, die diesem Muster genuegen
+	 */
 	public Task[] getTasksByData( Types type, String data1, String data2, String data3 ) {
-		throw new RuntimeException("STUB");
+		Database db = ContextMap.getContext().getDatabase();
+		List<Task> resultlist = new ArrayList<Task>();
+		
+		String query = "SELECT * FROM tasks WHERE type=?";
+		if( !data1.equals("*") ) {
+			query += " AND data1=?";	
+		}
+		if( !data2.equals("*") ) {
+			query += " AND data2=?";	
+		}
+		if( !data3.equals("*")) {
+			query += " AND data3=?";	
+		}
+		query += " ORDER BY `time` ASC";
+		PreparedQuery pq = db.prepare(query);
+		pq.setInt(1, type.getTypeID());
+		if( !data1.equals("*") ) {
+			pq.setString(2, data1);
+		}
+		if( !data2.equals("*") ) {
+			pq.setString(3, data2);	
+		}
+		if( !data3.equals("*")) {
+			query += " AND data3=?";
+			pq.setString(4, data3);
+		}
+		
+		SQLQuery atask = pq.query();
+		while( atask.next() ) {
+			resultlist.add(new Task(atask.getRow()));
+		}
+		atask.free();
+		
+		return resultlist.toArray(new Task[resultlist.size()]);
 	}
 	
 	public void handleTask( String taskid, String signal ) {
@@ -114,11 +256,27 @@ public class Taskmanager {
 		// TODO
 	}
 	
+	/**
+	 * Loescht die Task mit der angegebenen ID
+	 * @param taskid Die ID der Task
+	 */
 	public void removeTask( String taskid ) {
-		throw new RuntimeException("STUB");
+		Database db = ContextMap.getContext().getDatabase();
+		db.prepare("DELETE FROM tasks WHERE taskid= ?")
+			.update(taskid);
 	}
-
+	
+	/**
+	 * Reduziert den Timeout aller Tasks um den angegebenen Wert
+	 * @param step Die Menge um die das Timeout reduziert werden soll
+	 */
 	public void reduceTimeout( int step ) {
-		throw new RuntimeException("STUB");
+		Database db = ContextMap.getContext().getDatabase();
+		db.prepare("UPDATE tasks SET timeout=timeout-? WHERE timeout>?")
+			.update(step, step-1);
+		
+		if( step > 1 ) { 
+			db.prepare("UPDATE tasks SET timeout=0 WHERE timeout<=?").update(step-1);
+		}
 	}
 }
