@@ -19,9 +19,7 @@
 package net.driftingsouls.ds2.server.tasks;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 import net.driftingsouls.ds2.server.framework.Common;
@@ -45,14 +43,18 @@ public class Taskmanager {
 		ALLY_FOUND(2, null),
 		ALLY_FOUND_CONFIRM(3, null),
 		ALLY_LOW_MEMBER(4, null),
-		SHIP_DESTROY_COUNTDOWN(5, null),
+		/**
+		 * Zerstoert ein Schiff beim Timeout der Task
+		 * data1 - Die ID des Schiffes
+		 */
+		SHIP_DESTROY_COUNTDOWN(5, new HandleShipDestroyCountdown()),
 		SHIP_RESPAWN_COUNTDOWN(6, null),
 		GANY_TRANSPORT(7, null);
 		
 		private int typeID;
-		private Class cls;
+		private TaskHandler cls;
 		
-		private Types( int typeID, Class cls ) {
+		private Types( int typeID, TaskHandler cls ) {
 			this.typeID = typeID;
 			this.cls = cls;
 		}
@@ -66,10 +68,10 @@ public class Taskmanager {
 		}
 		
 		/**
-		 * Gibt die Klasse zurueck, die fuer die Verarbeitung von Ereignissen zustaendig ist
-		 * @return die Ereignisverarbeitungsklasse
+		 * Gibt die Instanz einer Klasse zurueck, die fuer die Verarbeitung von Ereignissen zustaendig ist
+		 * @return die Ereignisverarbeitungsklasseninstanz
 		 */
-		protected Class getHandlerClass() {
+		protected TaskHandler getHandlerClass() {
 			return cls;
 		}
 		
@@ -251,9 +253,19 @@ public class Taskmanager {
 		return resultlist.toArray(new Task[resultlist.size()]);
 	}
 	
+	/**
+	 * Fuehrt fuer eine Task ein Ereignis aus
+	 * @param taskid Die ID der Task
+	 * @param signal Das Ereignis
+	 */
 	public void handleTask( String taskid, String signal ) {
-		throw new RuntimeException("STUB");
-		// TODO
+		Task task = getTaskByID(taskid);
+		if( task != null ) {
+			TaskHandler handler = task.getType().getHandlerClass();
+			if( handler != null ) {
+				handler.handleEvent(task, signal);
+			}
+		}
 	}
 	
 	/**
