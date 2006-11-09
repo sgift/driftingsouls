@@ -63,7 +63,7 @@ public class Taskmanager {
 		/**
 		 * Eine Allianz hat weniger als 3 Mitglieder (Praesi eingerechnet) und ist daher von der Aufloesung bedroht
 		 * 
-		 * 	- data1 -> die ID der betroffenen Allianz
+		 * data1 - die ID der betroffenen Allianz
 		 */
 		ALLY_LOW_MEMBER(4, new HandleAllyLowMember()),
 		/**
@@ -71,7 +71,14 @@ public class Taskmanager {
 		 * data1 - Die ID des Schiffes
 		 */
 		SHIP_DESTROY_COUNTDOWN(5, new HandleShipDestroyCountdown()),
-		SHIP_RESPAWN_COUNTDOWN(6, null),
+		/**
+		 * Ein Countdown bis zum Respawn des Schiffes
+		 * 
+		 * data1 - die ID des betroffenen Schiffes (neg. id!)
+		 * data2 - unbenutzt
+		 * data3 - unbenutzt
+		 */
+		SHIP_RESPAWN_COUNTDOWN(6, new HandleShipRespawnCountdown()),
 		GANY_TRANSPORT(7, null);
 		
 		private int typeID;
