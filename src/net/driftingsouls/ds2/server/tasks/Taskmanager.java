@@ -45,7 +45,14 @@ public class Taskmanager {
 		 * data2 - die ID des Spielers, der den Antrag gestellt hat
 		 */
 		ALLY_NEW_MEMBER(1, new HandleAllyNewMember()),
-		ALLY_FOUND(2, null),
+		/**
+		 * Gruendung einer Allianz
+		 * 
+		 * data1 - der Name der Allianz
+		 * data2 - die Anzahl der noch fehlenden Unterstuetzungen (vgl. TASK_ALLY_FOUND_CONFIRM)
+		 * data3 - die Spieler, die in die neu gegruendete Allianz sollen, jeweils durch ein , getrennt (Pos: 0 -> Praesident/Gruender)  
+		 */
+		ALLY_FOUND(2, new HandleAllyFound()),
 		ALLY_FOUND_CONFIRM(3, null),
 		ALLY_LOW_MEMBER(4, null),
 		/**
