@@ -39,7 +39,12 @@ public class Taskmanager {
 	 * Die verschiedenen Task-Typen
 	 */
 	public enum Types {
-		ALLY_NEW_MEMBER(1, null),
+		/**
+		 * Aufnahmeantrag in eine Allianz
+		 * data1 - die ID der Allianz
+		 * data2 - die ID des Spielers, der den Antrag gestellt hat
+		 */
+		ALLY_NEW_MEMBER(1, new HandleAllyNewMember()),
 		ALLY_FOUND(2, null),
 		ALLY_FOUND_CONFIRM(3, null),
 		ALLY_LOW_MEMBER(4, null),
