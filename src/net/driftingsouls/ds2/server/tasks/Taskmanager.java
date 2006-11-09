@@ -60,7 +60,12 @@ public class Taskmanager {
 		 *  data2 - die ID des angeschriebenen Spielers (um dessen Unterstuetzung gebeten wurde)
 		 */
 		ALLY_FOUND_CONFIRM(3, new HandleAllyFoundConfirm()),
-		ALLY_LOW_MEMBER(4, null),
+		/**
+		 * Eine Allianz hat weniger als 3 Mitglieder (Praesi eingerechnet) und ist daher von der Aufloesung bedroht
+		 * 
+		 * 	- data1 -> die ID der betroffenen Allianz
+		 */
+		ALLY_LOW_MEMBER(4, new HandleAllyLowMember()),
 		/**
 		 * Zerstoert ein Schiff beim Timeout der Task
 		 * data1 - Die ID des Schiffes
