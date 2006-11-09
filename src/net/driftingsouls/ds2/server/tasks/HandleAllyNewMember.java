@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.tasks;
 
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
  * TASK_ALLY_NEW_MEMBER

@@ -27,7 +27,6 @@ import net.driftingsouls.ds2.server.framework.Common;
  * 	- data1 -> der Name der Allianz
  *  - data2 -> die Anzahl der noch fehlenden Unterstuetzungen (vgl. TASK_ALLY_FOUND_CONFIRM)
  *  - data3 -> die Spieler, die in die neu gegruendete Allianz sollen, jeweils durch ein , getrennt (Pos: 0 -> Praesident/Gruender)  
- 
  *  @author Christopher Jung
  */
 class HandleAllyFound implements TaskHandler {
