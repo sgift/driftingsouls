@@ -53,7 +53,13 @@ public class Taskmanager {
 		 * data3 - die Spieler, die in die neu gegruendete Allianz sollen, jeweils durch ein , getrennt (Pos: 0 -> Praesident/Gruender)  
 		 */
 		ALLY_FOUND(2, new HandleAllyFound()),
-		ALLY_FOUND_CONFIRM(3, null),
+		/**
+		 *  Ein Unterstuetzungsantrag fuer eine Allianzgruendung
+		 * 
+		 * 	data1 - die TaskID der zugehoerigen TASK_ALLY_FOUND-Task
+		 *  data2 - die ID des angeschriebenen Spielers (um dessen Unterstuetzung gebeten wurde)
+		 */
+		ALLY_FOUND_CONFIRM(3, new HandleAllyFoundConfirm()),
 		ALLY_LOW_MEMBER(4, null),
 		/**
 		 * Zerstoert ein Schiff beim Timeout der Task
