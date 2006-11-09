@@ -75,11 +75,16 @@ public class Taskmanager {
 		 * Ein Countdown bis zum Respawn des Schiffes
 		 * 
 		 * data1 - die ID des betroffenen Schiffes (neg. id!)
-		 * data2 - unbenutzt
-		 * data3 - unbenutzt
 		 */
 		SHIP_RESPAWN_COUNTDOWN(6, new HandleShipRespawnCountdown()),
-		GANY_TRANSPORT(7, null);
+		/**
+		 * Ein Gany-Transportauftrag
+		 * 
+		 * data1 - die Order-ID des Auftrags
+		 * data2 - Schiffs-ID [Wird von der Task selbst gesetzt!]
+		 * data3 - Status [autom. gesetzt: Nichts = Warte auf Schiff od. flug zur Ganymede; 1 = Gany-Transport; 2 = Rueckweg]
+		 */
+		GANY_TRANSPORT(7, new HandleGanyTransport());
 		
 		private int typeID;
 		private TaskHandler cls;
