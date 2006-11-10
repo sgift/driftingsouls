@@ -18,6 +18,10 @@
  */
 package net.driftingsouls.ds2.server;
 
+import java.util.Random;
+
+import net.driftingsouls.ds2.server.config.Offiziere;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DSObject;
@@ -268,8 +272,84 @@ public class Offizier extends DSObject {
 	 * @return Die Anzahl der erfolgreichen Anwendungen des Skills
 	 */
 	public int useAbility( Ability ability, int difficulty ) {
-		// TODO
-		throw new RuntimeException("STUB");
+		int count = 0;
+
+		switch( ability ) {
+			case ING: {
+				int fak = difficulty;
+				if( this.spec == 3 ) {
+					fak *= 0.6;
+				}
+				Random rnd = new Random();
+				if( this.ing > fak*(rnd.nextInt(101)/100d) ) {
+					count++;
+					
+					if( rnd.nextInt(31) > 10 ) {
+						this.ingu++;
+						fak = 2;
+						if( this.spec == 2) {
+							fak = 1;
+						}
+						if( this.ingu > this.ing * fak ) {
+							MESSAGE.get().append(Common._plaintitle(this.name)+" hat seine Ingeneursf&auml;higkeit verbessert\n");
+							this.ing++;
+							this.ingu = 0;
+						}
+						this.changed = true;
+					}
+				}
+				break;
+			}
+			case WAF:
+				break;
+				
+			case NAV: {
+				int fak = difficulty;
+				if( this.spec == 5 ) {
+					fak *= 0.6;
+				}
+				Random rnd = new Random();
+				if( this.nav > fak*(rnd.nextInt(101)/100d) ) {
+					count++;
+					
+					if( rnd.nextInt(31) > 10 ) {
+						this.navu++;
+						fak = 2;
+						if( this.spec == 2) {
+							fak = 1;
+						}
+						if( this.navu > this.nav * fak ) {
+							MESSAGE.get().append(Common._plaintitle(this.name)+" hat seine Navigationsf&auml;higkeit verbessert\n");
+							this.nav++;
+							this.navu = 0;
+						}
+						this.changed = true;
+					}
+				}
+				break;
+			}	
+			case SEC:
+				break;
+				
+			case COM:
+				break;
+		}
+		
+		if( count != 0 ) {
+			double rangf = (this.ing+this.waf+this.nav+this.sec+this.com)/5;
+			int rang = (int)(rangf/125);
+			if( rang > Offiziere.MAX_RANG ) {
+				rang = Offiziere.MAX_RANG;
+			}
+						
+			if( rang > this.rang ) {
+				MESSAGE.get().append(this.name+" wurde bef&ouml;rdert\n");
+				this.rang = rang;
+				this.changed = true;
+			}
+		}
+
+		return count;	
 	}
 	
 	/**
