@@ -36,6 +36,8 @@ import net.driftingsouls.ds2.server.cargo.modules.Module;
 import net.driftingsouls.ds2.server.cargo.modules.Modules;
 import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.ItemEffect;
+import net.driftingsouls.ds2.server.config.StarSystem;
+import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.framework.CacheMap;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -48,6 +50,8 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.scripting.Quests;
+import net.driftingsouls.ds2.server.scripting.ScriptParser;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
@@ -123,6 +127,12 @@ public class Ships {
 	public static final String SF_SECONDROW = "secondrow";
 	public static final String SF_OFFITRANSPORT = "offitransport";
 	
+	/**
+	 * Gibt die Liste aller Flags zurueck, ueber die der angegebene
+	 * Schiffstyp verfuegt
+	 * @param shiptypeID Die ID des Schiffstyps
+	 * @return Die Liste der Flags
+	 */
 	public static String[] getShipTypeFlagList(int shiptypeID) {
 		SQLResultRow shiptype = getShipType(shiptypeID, false);
 		
@@ -210,6 +220,12 @@ public class Ships {
 		return shipTypeFlagNames.get(flag);
 	}
 	
+	/**
+	 * Gibt die zu einer Schiffsklassen-ID gehoerende Schiffsklasse
+	 * zurueck
+	 * @param classid Die Schiffsklassen-ID
+	 * @return Die Schiffsklasse
+	 */
 	public static ShipClasses getShipClass(int classid) {
 		return ShipClasses.values()[classid];
 	}
@@ -560,6 +576,11 @@ public class Ships {
 		Common.stub();
 	}
 	
+	private static void handleRedAlert( SQLResultRow ship ) {
+		// TODO
+		Common.stub();
+	}
+	
 	private static Integer[] redAlertCheck( SQLResultRow ship, boolean checkonly ) {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
@@ -614,10 +635,463 @@ public class Ships {
 		return false;
 	}
 	
-	public static boolean move(int shipID, int direction, int distance, boolean forceLowHeat, boolean disableQuests) {
+	private static class MovementResult {
+		int distance;
+		boolean moved;
+		boolean error;
+		
+		MovementResult(int distance, boolean moved, boolean error) {
+			this.distance = distance;
+			this.moved = moved;
+			this.error = error;
+		}
+	}
+	
+	private static MovementResult moveSingle(SQLResultRow ship, SQLResultRow shiptype, Offizier offizier, int direction, int distance, int adocked, boolean forceLowHeat) {
+		boolean moved = false;
+		boolean error = false;
+		
+		StringBuilder out = MESSAGE.get();
+		
+		if( ship.getInt("engine") <= 0 ) {
+			out.append("<span style=\"color:#ff0000\">Antrieb defekt</span><br />\n");
+			distance = 0;
+			
+			return new MovementResult(distance, moved, true);
+		}
+		
+		int newe = ship.getInt("e") - shiptype.getInt("cost");
+		int news = ship.getInt("s") + shiptype.getInt("heat");
+				
+		newe -= adocked;
+		if( shiptype.getInt("crew")/2 > ship.getInt("crew") ) {
+			newe--;
+			out.append("<span style=\"color:red\">Geringe Besatzung erh&ouml;ht Flugkosten</span><br />\n");
+		}
+		
+		// Antrieb teilweise beschaedigt?
+		if( ship.getInt("engine") < 60 ) {
+			newe -= 1;
+		} 
+		else if( ship.getInt("engine") < 40 ) {
+			newe -= 2;
+		} 
+		else if( ship.getInt("engine") < 20 ) { 
+			newe -= 4;
+		}
+		
+		if( newe < 0 ) {
+			out.append("<span style=\"color:#ff0000\">Keine Energie</span><br />\n");
+			distance = 0;
+			
+			return new MovementResult(distance, moved, true);
+		}
+
+		if( offizier != null ) {			
+			// Flugkosten
+			int success = offizier.useAbility( Offizier.Ability.NAV, 200 );
+			if( success > 0 ) {
+				newe += 2;
+				if( newe > ship.getInt("e")-1 ) {
+					newe = ship.getInt("e") - 1;
+				}
+				out.append(offizier.getName()+" verringert Flugkosten<br />\n");
+			}
+			// Ueberhitzung
+			success = offizier.useAbility( Offizier.Ability.ING, 200 );
+			if( success > 0 ) {
+				news -= 1;
+				if( news < ship.getInt("s") ) {
+					news = ship.getInt("s");
+				}
+				out.append(offizier.getName()+" verringert &Uuml;berhitzung<br />\n");
+			}
+			out.append(StringUtils.replace(offizier.MESSAGE.get().toString(),"\n", "<br />"));
+		}
+
+		int x = ship.getInt("x");
+		int y = ship.getInt("y");
+	
+		if( direction == 1 ) { x--; y--; }
+		else if( direction == 2 ) { y--; }
+		else if( direction == 3 ) { x++; y--; }
+		else if( direction == 4 ) { x--; }
+		else if( direction == 6 ) { x++; }
+		else if( direction == 7 ) { x--; y++; }
+		else if( direction == 8 ) { y++; }
+		else if( direction == 9 ) { x++; y++; }
+	
+		StarSystem sys = Systems.get().system(ship.getInt("system"));
+		
+		if( x > sys.getWidth()) { 
+			x = sys.getWidth();
+			distance = 0;
+		}
+		if( y > sys.getHeight()) { 
+			y = sys.getHeight();
+			distance = 0;
+		}
+		if( x < 1 ) {
+			x = 1;
+			distance = 0;
+		}
+		if( y < 1 ) {
+			y = 1;
+			distance = 0;
+		}
+		
+		if( (ship.getInt("x") != x) || (ship.getInt("y") != y) ) {
+			moved = true;
+			
+			if( ship.getInt("s") >= 100 ) {
+				out.append("<span style=\"color:#ff0000\">Triebwerke &uuml;berhitzt</span><br />\n");
+							
+				if( forceLowHeat ) {
+					out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
+					error = true;
+					distance = 0;
+				}
+				Random rnd = new Random();		
+				if( (rnd.nextInt(101)) < 3*(news-100) ) {
+					int dmg = (int)( (2*(rnd.nextInt(101)/100d)) + 1 ) * (news-100);
+					out.append("<span style=\"color:#ff0000\">Triebwerke nehmen "+dmg+" Schaden</span><br />\n");
+					ship.put("engine", ship.getInt("engine")-dmg);
+					if( ship.getInt("engine") < 0 ) {
+						ship.put("engine", 0);
+					}
+					if( distance > 0 ) {
+						out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
+						error = true;
+						distance = 0;
+					}
+				}
+			}
+						
+			ship.put("x", x);
+			ship.put("y", y);
+			ship.put("e", newe);
+			ship.put("s", news);
+			out.append(ship.getString("name")+" fliegt in "+getLocationText(ship,true)+" ein<br />\n");
+		}
+		
+		return new MovementResult(distance, moved, error);
+	}
+	
+	private static boolean moveFleet(SQLResultRow ship, int direction, boolean forceLowHeat)  {
 		// TODO
 		Common.stub();
 		return false;
+	}
+	
+	private static void saveFleetShips() {	
+		// TODO
+		Common.stub();
+	}
+	
+	public static boolean move(int shipID, int direction, int distance, boolean forceLowHeat, boolean disableQuests) {
+		StringBuilder out = MESSAGE.get();
+		
+		if( (direction < 1) || (direction > 9) || (direction == 5) ) {
+			return true;
+		}
+	
+		Database db = ContextMap.getContext().getDatabase();
+	
+		SQLResultRow ship = db.first("SELECT * FROM ships WHERE id=",shipID);
+		
+		if( ship.isEmpty() ) {
+			out.append("Fehler: Das angegebene Schiff existiert nicht\n");
+			return true; 
+		}
+		if( ship.getString("lock").length() != 0 ) {
+			out.append("Fehler: Das Schiff ist an ein Quest gebunden\n");
+			return true;
+		}
+	
+		User user = ContextMap.getContext().createUserObject(ship.getInt("owner"));
+				
+		SQLResultRow shiptype = getShipType(ship, true);
+		Offizier offizier = Offizier.getOffizierByDest('s',ship.getInt("id"));
+		
+		//Das Schiff soll sich offenbar bewegen
+		if( ship.getString("docked").length() != 0 ) {
+			out.append("Fehler: Sie k&ouml;nnen nicht mit dem Schiff fliegen, da es geladet/angedockt ist\n");
+			return true;
+		}
+	
+		if( shiptype.getInt("cost") == 0 ) {
+			out.append("Fehler: Das Objekt kann nicht fliegen, da es keinen Antieb hat\n");
+			return true;
+		}
+	
+		if( ship.getInt("battle") > 0 ) {
+			out.append("Fehler: Das Schiff ist in einen Kampf verwickelt\n");
+			return true;
+		}
+		
+		if( (ship.getInt("crew") <= 0) && (shiptype.getInt("crew") > 0) ) {
+			out.append("<span style=\"color:#ff0000\">Das Schiff verf&uuml;gt &uuml;ber keine Crew</span><br />\n");
+			return true;
+		}
+			
+		int docked = 0;
+		int adocked = 0;
+		boolean error = false;
+		
+		if( (shiptype.getInt("jdocks") > 0) || (shiptype.getInt("adocks") > 0) ) {
+			docked = db.first("SELECT count(*) count FROM ships WHERE id>0 AND docked IN ('l ",ship.getInt("id"),"','",ship.getInt("id"),"')").getInt("count");
+			if( shiptype.getInt("adocks") > 0 ) {
+				adocked = db.first("SELECT count(*) count FROM ships WHERE id>0 AND docked='",ship.getInt("id"),"'").getInt("count");
+			}
+		}
+		
+		boolean moved = false;
+		
+		// Zielkoordinaten/Bewegungsrichtung berechnen
+		String xbetween = "x='"+ship.getInt("x")+"'";
+		String ybetween = "y='"+ship.getInt("y")+"'";
+		int xoffset = 0;
+		int yoffset = 0;
+		if( direction <= 3 ) {
+			ybetween = "y BETWEEN '"+(ship.getInt("y")-distance)+"' AND '"+ship.getInt("y")+"'";
+			yoffset--;
+		}
+		else if( direction >= 7 ) {
+			ybetween = "y BETWEEN '"+ship.getInt("y")+"' AND '"+(ship.getInt("y")+distance)+"'";
+			yoffset++;
+		}
+		
+		if( (direction-1) % 3 == 0 ) {
+			xbetween = "x BETWEEN '"+(ship.getInt("x")-distance)+"' AND '"+ship.getInt("x")+"'";
+			xoffset--;
+		}
+		else if( direction % 3 == 0 ) {
+			xbetween = "x BETWEEN '"+ship.getInt("x")+"' AND '"+(ship.getInt("x")+distance)+"'";
+			xoffset++;
+		}
+		
+		// Alle potentiell relevanten Sektoren (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
+		Map<Location,SQLResultRow> sectorlist = new HashMap<Location,SQLResultRow>();
+		SQLQuery sectorRow = db.query("SELECT * FROM sectors " ,
+				"WHERE system IN (",ship.getInt("system"),",-1) AND (x='-1' OR ",xbetween,") AND (y='-1' OR ",ybetween,") ORDER BY system DESC");
+							 	
+		while( sectorRow.next() ) {
+			SQLResultRow row = sectorRow.getRow();
+			sectorlist.put(Location.fromResult(row), row);
+		}
+		sectorRow.free();
+		
+		// Alle potentiell relevanten Sektoren mit Schiffen auf rotem Alarm (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
+		Map<Location,Boolean> redalertlist = new HashMap<Location,Boolean>();
+		sectorRow = db.query("SELECT x,y FROM ships " ,
+				"WHERE owner!='",ship.getInt("owner"),"' AND alarm='1' AND system=",ship.getInt("system")," AND ",xbetween," AND ",ybetween);
+							 	
+		while( sectorRow.next() ) {
+			redalertlist.put(new Location(ship.getInt("system"), sectorRow.getInt("x"), sectorRow.getInt("y")), Boolean.TRUE);
+		}
+		sectorRow.free();
+		
+		// Alle potentiell relevanten Sektoren mit EMP-Nebeln (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
+		Map<Location,Boolean> nebulaemplist = new HashMap<Location,Boolean>();
+		sectorRow = db.query("SELECT system,x,y,type FROM nebel ",
+				"WHERE type>=3 AND type<=5 AND system=",ship.getInt("system")," AND ",xbetween," AND ",ybetween);
+							 	
+		while( sectorRow.next() ) {
+			cacheNebula(sectorRow.getRow());
+			nebulaemplist.put(new Location(ship.getInt("system"), sectorRow.getInt("x"), sectorRow.getInt("y")), Boolean.TRUE);
+		}
+		sectorRow.free();
+		
+		if( (distance > 1) && nebulaemplist.get(Location.fromResult(ship)) ) {
+			out.append("<span style=\"color:#ff0000\">Der Autopilot funktioniert in EMP-Nebeln nicht</span><br />\n");
+			return true;
+		}
+		
+		long starttime = System.currentTimeMillis();
+		
+		int startdistance = distance;
+		
+		// Und nun fliegen wir mal ne Runde....
+		while( distance > 0 ) {
+			// Schauen wir mal ob wir vor rotem Alarm warnen muessen
+			if( (startdistance > 1) && redalertlist.containsKey(new Location(ship.getInt("system"),ship.getInt("x")+xoffset, ship.getInt("y")+yoffset)) ) {
+				SQLResultRow newship = new SQLResultRow();
+				newship.putAll(ship);
+				newship.put("x", newship.getInt("x") + xoffset);
+				newship.put("y", newship.getInt("y") + yoffset);
+				Integer[] attackers = redAlertCheck(newship, false);
+				if( attackers.length != 0 ) {
+					out.append("<span style=\"color:#ff0000\">Feindliche Schiffe in Alarmbereitschaft im n&auml;chsten Sektor geortet</span><br />\n");
+					out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
+					distance = 0;
+					break;
+				}
+			}
+			
+			if( (startdistance > 1) && nebulaemplist.containsKey(new Location(ship.getInt("system"),ship.getInt("x")+xoffset, ship.getInt("y")+yoffset)) ) {
+				out.append("<span style=\"color:#ff0000\">EMP-Nebel im n&auml;chsten Sektor geortet</span><br />\n");
+				out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
+				distance = 0;
+				break;
+			}
+			
+			int olddirection = direction;
+			
+			// ACHTUNG: Ob das ganze hier noch sinnvoll funktioniert, wenn distance > 1 ist, ist mehr als fraglich...
+			if( nebulaemplist.containsKey(new Location(ship.getInt("system"),ship.getInt("x")+xoffset, ship.getInt("y")+yoffset)) && 
+				(new Random().nextInt(100+1) > 75) ) {
+				int nebel = getNebula(ship);
+				if( nebel == 5 ) {
+					direction = new Random().nextInt(10)+1;
+					if( direction > 4 ) {
+						direction++;
+						
+					}
+					// Nun muessen wir noch die Caches fuellen
+					if( direction != olddirection ) {
+						int tmpxoff = 0;
+						int tmpyoff = 0;
+						
+						if( direction <= 3 ) {
+							tmpyoff--;
+						}
+						else if( direction >= 7 ) {
+							tmpyoff++;
+						}
+						
+						if( (direction-1) % 3 == 0 ) {
+							tmpxoff--;
+						}
+						else if( direction % 3 == 0 ) {
+							tmpxoff++;
+						}
+						
+						SQLQuery sector = db.query("SELECT * FROM sectors " ,
+			 					"WHERE system IN (",ship.getInt("system"),",-1) AND (x='-1' OR ",(ship.getInt("x")+tmpxoff),") AND (y='-1' OR ",(ship.getInt("y")+tmpyoff),")  ORDER BY system DESC");
+						while( sector.next() ) {
+							SQLResultRow row = sector.getRow();
+							sectorlist.put(Location.fromResult(row), row);
+						}
+						sector.free();
+						
+						SQLResultRow rasect = db.first("SELECT x,y FROM ships " ,
+							 	"WHERE owner!='",ship.getInt("owner"),"' AND alarm='1' AND system=",ship.getInt("system")," AND x='",(ship.getInt("x")+tmpxoff),"' AND y='",(ship.getInt("y")+tmpyoff),"'");
+						 	
+						if( !rasect.isEmpty() ) {
+							redalertlist.put(new Location(ship.getInt("system"), rasect.getInt("x"), rasect.getInt("y")), Boolean.TRUE);
+						}
+					}
+				}
+			}
+			
+			distance--;
+			
+			SQLResultRow oldship = new SQLResultRow();
+			oldship.putAll(ship);
+			
+			MovementResult result = moveSingle(ship, shiptype, offizier, direction, distance, adocked, forceLowHeat);
+			error = result.error;
+			distance = result.distance;
+			
+			if( result.moved ) {
+				// Jetzt, da sich unser Schiff korrekt bewegt hat, fliegen wir auch die Flotte ein stueck weiter	
+				if( ship.getInt("fleet") > 0 ) {
+					boolean fleetResult = moveFleet(oldship, direction, forceLowHeat);
+					if( fleetResult != false  ) {
+						error = fleetResult;
+						distance = 0;
+					}
+				}
+				
+				moved = true;
+				if( !disableQuests && (sectorlist.size() != 0) ) {
+					// Schauen wir mal, ob es ein onenter-ereigniss gab
+					Location loc = Location.fromResult(ship);
+					
+					SQLResultRow sector = sectorlist.get(new Location(loc.getSystem(), -1, -1));
+					if( sectorlist.containsKey(loc) ) {
+						sector = sectorlist.get(loc);
+					}
+					else if( sectorlist.containsKey(loc.setX(-1)) ) { 
+						sector = sectorlist.get(loc.setX(-1));
+					}
+					else if( sectorlist.containsKey(loc.setY(-1)) ) { 
+						sector = sectorlist.get(loc.setY(-1));
+					}
+					
+					if( !sector.isEmpty() && sector.getString("onenter").length() > 0 ) {
+						db.update("UPDATE ships SET x=",ship.getInt("x"),",y=",ship.getInt("y"),",e=",ship.getInt("e"),",s=",ship.getInt("s"),",engine=",ship.getInt("engine"),",docked='' WHERE id=",ship.getInt("id"));
+						if( docked != 0 ) {
+							db.update("UPDATE ships SET x=",ship.getInt("x"),",y=",ship.getInt("y"),",system=",ship.getInt("system")," WHERE id>0 AND docked IN ('l ",ship.getInt("id"),"','",ship.getInt("id"),"')");
+						}
+						recalculateShipStatus(ship.getInt("id"));
+						saveFleetShips();
+		
+						if( offizier != null ) {
+							offizier.save();
+						}
+						
+						ScriptParser scriptparser = ContextMap.getContext().get(ContextCommon.class).getScriptParser(ScriptParser.NameSpace.QUEST);
+						scriptparser.setShip(ship);
+						if( !user.hasFlag(User.FLAG_SCRIPT_DEBUGGING) ) {
+							scriptparser.setLogFunction("");
+						}
+							
+						scriptparser.setRegister("SECTOR", loc.toString() );
+									
+						Quests.currentEventURL.set("&action=onenter");
+								
+						db.update("UPDATE ships SET x=",ship.getInt("x"),",y=",ship.getInt("y"),",e=",ship.getInt("e"),",s=",ship.getInt("s"),",engine=",ship.getInt("engine"),",docked='' WHERE id=",ship.getInt("id"));
+						if( docked != 0 ) {
+							db.update("UPDATE ships SET x=",ship.getInt("x"),",y=",ship.getInt("y"),",system=",ship.getInt("system")," WHERE id>0 AND docked IN ('l ",ship.getInt("id"),"','",ship.getInt("id"),"')");
+						}
+						
+						if( Quests.executeEvent(scriptparser, sector.getString("onenter"), ship.getInt("owner"), "" ) ) {
+							if( scriptparser.getOutput().length()!= 0 ) {							
+								distance = 0;
+							}
+						}
+					}
+				}
+				
+				if( redalertlist.containsKey(Location.fromResult(ship)) ) {
+					db.update("UPDATE ships SET x=",ship.getInt("x"),",y=",ship.getInt("y"),",e=",ship.getInt("e"),",s=",ship.getInt("s"),",engine=",ship.getInt("engine"),",docked='' WHERE id=",ship.getInt("id"));
+					if( docked != 0 ) {
+						db.update("UPDATE ships SET x=",ship.getInt("x"),",y=",ship.getInt("y"),",system=",ship.getInt("system")," WHERE id>0 AND docked IN ('l ",ship.getInt("id"),"','",ship.getInt("id"),"')");
+					}
+					recalculateShipStatus(ship.getInt("id"));
+					saveFleetShips();
+		
+					if( offizier != null ) {
+						offizier.save();
+					}
+					
+					handleRedAlert( ship );	
+				}
+			}
+			
+			// Wenn wir laenger als 25 Sekunden fuers fliegen gebraucht haben -> abbrechen!
+			if( System.currentTimeMillis() - starttime > 25000 ) {
+				out.append("<span style=\"color:#ff0000\">Flug dauert zu lange</span><br />\n");
+				out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
+				distance = 0;
+			}
+		}
+		
+		if( moved ) {
+			db.update("UPDATE ships SET x=",ship.getInt("x"),",y=",ship.getInt("y"),",e=",ship.getInt("e"),",s=",ship.getInt("s"),",engine=",ship.getInt("engine"),",docked='' WHERE id=",ship.getInt("id"));
+			if( docked != 0 ) {
+				db.update("UPDATE ships SET x=",ship.getInt("x"),",y=",ship.getInt("y"),",system=",ship.getInt("system")," WHERE id>0 AND docked IN ('l ",ship.getInt("id"),"','",ship.getInt("id"),"')");
+			}
+		}
+		recalculateShipStatus(ship.getInt("id"));
+		saveFleetShips();
+		
+		if( moved && (offizier != null) ) {
+			offizier.save();
+		}
+		
+		return error;
 	}
 	
 	public static boolean jump(int shipID, int nodeID, boolean knode ) {
@@ -746,7 +1220,7 @@ public class Ships {
 		
 		SQLResultRow ship = db.first("SELECT id,owner,x,y,system,history FROM ships WHERE id>0 AND id='",shipid,"'");
 		
-		SQLResultRow shiptype = getShipType( ship, true );
+		SQLResultRow shiptype = getShipType( ship );
 	
 		int rnd = new Random().nextInt(101);
 		
@@ -863,7 +1337,7 @@ public class Ships {
 			return true;
 		}
 		
-		SQLResultRow shiptype = getShipType( ship, true );
+		SQLResultRow shiptype = getShipType( ship );
 		
 		if( shiptype.getString("werft").length() != 0 ) {
 			MESSAGE.get().append("Die '"+ship.getString("name")+"' ("+ship.getInt("id")+") kann nicht &uuml;bergeben werden, da es sich um eine Werft handelt");
