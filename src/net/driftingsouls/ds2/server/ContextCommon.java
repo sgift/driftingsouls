@@ -18,8 +18,12 @@
  */
 package net.driftingsouls.ds2.server;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextInstance;
+import net.driftingsouls.ds2.server.scripting.ScriptParser;
 
 /**
  * Kontextlokale Operationen
@@ -49,5 +53,21 @@ public class ContextCommon {
 			tick = context.getDatabase().first("SELECT ticks FROM config").getInt("ticks");
 		}	
 		return tick;
+	}
+	
+	private Map<ScriptParser.NameSpace,ScriptParser> scriptParsers = new HashMap<ScriptParser.NameSpace,ScriptParser>();
+	
+	/**
+	 * Gibt eine Instanz des ScriptParsers fuer den angegebenen Namespace zurueck
+	 * @param namespace Der Namespace des ScriptParsers
+	 * @return der ScriptParser
+	 */
+	public ScriptParser getScriptParser( ScriptParser.NameSpace namespace ) {
+		if( !scriptParsers.containsKey(namespace) ) {
+			ScriptParser parser = new ScriptParser(namespace);
+			scriptParsers.put(namespace, parser);
+			return parser;
+		}
+		return scriptParsers.get(namespace);
 	}
 }
