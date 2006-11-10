@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -65,7 +66,6 @@ public class SchiffController extends DSGenerator implements Loggable {
 	private Offizier offizier = null;
 	private Map<String,SchiffPlugin> pluginMapper = new LinkedHashMap<String,SchiffPlugin>();
 	private boolean noob = false;
-	public ScriptParser scriptparser = null;
 	
 	public SchiffController(Context context) {
 		super(context);
@@ -560,7 +560,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 			return;
 		}
 	
-		scriptparser = new ScriptParser( ScriptParser.NameSpace.QUEST );
+		ScriptParser scriptparser = getContext().get(ContextCommon.class).getScriptParser( ScriptParser.NameSpace.QUEST );
 		scriptparser.setShip(ship);
 		if( !user.hasFlag( User.FLAG_SCRIPT_DEBUGGING ) ) {
 			scriptparser.setLogFunction("");
@@ -602,7 +602,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 			return;
 		}
 	
-		scriptparser = new ScriptParser( ScriptParser.NameSpace.QUEST );
+		ScriptParser scriptparser = getContext().get(ContextCommon.class).getScriptParser( ScriptParser.NameSpace.QUEST );
 		scriptparser.setShip(ship);
 		if( !user.hasFlag( User.FLAG_SCRIPT_DEBUGGING ) ) {
 			scriptparser.setLogFunction("");
@@ -644,7 +644,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 			return;
 		}
 	
-		scriptparser = new ScriptParser( ScriptParser.NameSpace.QUEST );
+		ScriptParser scriptparser = getContext().get(ContextCommon.class).getScriptParser( ScriptParser.NameSpace.QUEST );
 		scriptparser.setShip(ship);
 		if( !user.hasFlag( User.FLAG_SCRIPT_DEBUGGING ) ) {
 			scriptparser.setLogFunction("");
@@ -925,6 +925,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		ship = db.first("SELECT * FROM ships WHERE id>0 AND owner='",user.getID(),"' AND id=",ship.getInt("id"));
 		shiptype = Ships.getShipType(ship, true);
 		
+		ScriptParser scriptparser = getContext().get(ContextCommon.class).getScriptParser( ScriptParser.NameSpace.QUEST );
 		if( ship.isEmpty() ) {
 			if( (scriptparser != null) && !scriptparser.getOutput().equals("") ) {
 				t.set_var("ship.scriptparseroutput",scriptparser.getOutput().replace("{{var.sessid}}", getString("sess")) );

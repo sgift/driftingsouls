@@ -18,9 +18,11 @@
  */
 package net.driftingsouls.ds2.server.modules.schiffplugins;
 
+import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
@@ -86,7 +88,7 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 		int count = controller.getInteger("count");
 		
 		if( (act != 5) && (act >= 1) && (act <= 9) && !ship.getString("onmove").equals("") ) {	
-			ScriptParser scriptparser = new ScriptParser( ScriptParser.NameSpace.QUEST );
+			ScriptParser scriptparser = ContextMap.getContext().get(ContextCommon.class).getScriptParser( ScriptParser.NameSpace.QUEST );
 			scriptparser.setShip(ship);
 			scriptparser.setLogFunction("");
 			scriptparser.setRegister("DIRECTION",Integer.toString(act));
@@ -103,8 +105,6 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 			catch( NumberFormatException e ) {
 				LOG.warn("Illegales Zahlenformat nach Ausfuehrung von 'onmove'", e);
 			}
-			
-			controller.scriptparser = scriptparser;
 		}
 
 		//Das Schiff soll sich offenbar bewegen
