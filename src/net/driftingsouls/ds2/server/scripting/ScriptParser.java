@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.scripting;
 
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.Database;
 
 /**
@@ -96,7 +97,9 @@ public class ScriptParser {
 	}
 	
 	public String getOutput() {
-		throw new RuntimeException("STUB");
+		// TODO
+		Common.stub();
+		return "";
 	}
 	
 	public void out( String text ) {
