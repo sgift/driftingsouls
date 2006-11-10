@@ -132,7 +132,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		offizier = Offizier.getOffizierByDest('s', ship.getInt("id"));
 		
 		if( !action.equals("communicate") && !action.equals("onmove") && !action.equals("onenter") && !ship.getString("lock").equals("") ) {
-			scriptparser = new ScriptParser( ScriptParser.NameSpace.QUEST );
+			ScriptParser scriptparser = getContext().get(ContextCommon.class).getScriptParser( ScriptParser.NameSpace.QUEST );
 			scriptparser.setShip(ship);
 			if( !user.hasFlag( User.FLAG_SCRIPT_DEBUGGING ) ) {
 				scriptparser.setLogFunction("");
