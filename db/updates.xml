@@ -26,4 +26,7 @@
 	<update type="data" datum="2006-11-11"><![CDATA[
 		UPDATE users SET ally=0 WHERE id=-15;									
 	]]></update>
+	<update type="data" datum="2006-11-11"><![CDATA[
+		UPDATE users SET passwort='98f6bcd4621d373cade4e832627b4f6' WHERE passwort='098f6bcd4621d373cade4e832627b4f6';
+	]]></update>
 </updates>
