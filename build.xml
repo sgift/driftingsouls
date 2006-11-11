@@ -35,7 +35,7 @@
 	<property name="manager.url"   value="http://localhost:8080/manager"/>
 	<property name="src.home"      value="${basedir}/src"/>
 	<property name="web.home"      value="${basedir}/web"/>
-	<property name="ds2.configdir" value="${basedir}/web/WEB-INF/cfg"/>
+	<property name="ds2.configdir" value="${basedir}/web/WEB-INF/cfg/"/>
 	<property name="templates.compiledir" value="${src.home}/net/driftingsouls/ds2/server/templates" />
 
 	<!--  ==================== Compilation Control Options ==================== -->
