@@ -778,16 +778,159 @@ public class Ships {
 	}
 	
 	private static boolean moveFleet(SQLResultRow ship, int direction, boolean forceLowHeat)  {
-		// TODO
-		Common.stub();
-		return false;
+		StringBuilder out = MESSAGE.get();
+		boolean error = false;
+		
+		boolean firstEntry = true;
+		Context context = ContextMap.getContext();
+		HashMap<Integer,SQLResultRow> fleetships = (HashMap<Integer,SQLResultRow>)context.getVariable(Ships.class, "fleetships");
+		HashMap<Integer,Offizier> fleetoffiziere = (HashMap<Integer,Offizier>)context.getVariable(Ships.class, "fleetoffiziere");
+		
+		if( fleetships == null ) {
+			fleetships = new HashMap<Integer,SQLResultRow>();
+			fleetoffiziere = new HashMap<Integer,Offizier>();
+			
+			context.putVariable(Ships.class, "fleetships", fleetships);
+			context.putVariable(Ships.class, "fleetoffiziere", fleetoffiziere);
+			
+			Database db = context.getDatabase();
+			
+			SQLQuery fleetshipRow = db.query("SELECT id,name,type,x,y,crew,e,s,engine,system,status,`lock` FROM ships ", 
+									"WHERE id>0 AND fleet=",ship.getInt("fleet")," AND x='",ship.getInt("x"),"' AND y='",ship.getInt("y"),"' ", 
+									"AND system='",ship.getInt("system"),"' AND owner='",ship.getInt("owner"),"' AND docked='' AND ",
+									"id!='",ship.getInt("id"),"' AND e>0 AND battle=0");
+			while( fleetshipRow.next() ) {
+				if( firstEntry ) {
+					firstEntry = false;
+					out.append("<table class=\"noBorder\">\n");
+				}
+				SQLResultRow fleetship = fleetshipRow.getRow();
+				SQLResultRow shiptype = getShipType(fleetship);
+				
+				StringBuilder outpb = new StringBuilder();
+				
+				if( fleetship.getString("lock").length() != 0 ) {
+					outpb.append("<span style=\"color:red\">Fehler: Das Schiff ist an ein Quest gebunden</span>\n");
+					outpb.append("</span></td></tr>\n");
+					error = true;
+				}
+				
+				if( shiptype.getInt("cost") == 0 ) {
+					outpb.append("<span style=\"color:red\">Das Objekt kann nicht fliegen, da es keinen Antieb hat</span><br />");
+					error = true;
+				}
+				
+				if( (fleetship.getInt("crew") == 0) && (shiptype.getInt("crew") > 0) ) {
+					outpb.append("<span style=\"color:red\">Fehler: Sie haben keine Crew auf dem Schiff</span><br />");
+					error = true;
+				}
+				
+				if( outpb.length() != 0 ) {
+					out.append("<tr>\n");
+					out.append("<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange; font-size:12px\"> "+fleetship.getString("name")+" ("+fleetship.getInt("id")+"):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n");
+					out.append(outpb);
+					out.append("</span></td></tr>\n");
+				}
+				else {
+					fleetship.put("dockedcount", 0);
+					fleetship.put("adockedcount", 0);
+					if( (shiptype.getInt("jdocks") > 0) || (shiptype.getInt("adocks") > 0) ) { 
+						int docks = db.first("SELECT count(*) count FROM ships WHERE id>0 AND docked IN ('l ",fleetship.getInt("id"),"','",fleetship.getInt("id"),"')").getInt("count");
+					
+						fleetship.put("dockedcount", docks);
+						if( shiptype.getInt("adocks") > 0 ) {
+							int adocks = db.first("SELECT count(*) count FROM ships WHERE id>0 AND docked='",fleetship.getInt("id"),"'").getInt("count");
+							fleetship.put("adockedcount", adocks);	
+						} 
+					}
+				
+					if( fleetship.getString("status").indexOf("offizier") > -1 ) {
+						fleetoffiziere.put(fleetship.getInt("id"), Offizier.getOffizierByDest('s', fleetship.getInt("id")));
+					}
+									
+					fleetships.put(fleetship.getInt("id"), fleetship);
+				}
+			}
+			fleetshipRow.free();
+		}
+		
+		if( error ) {
+			return error;
+		}
+		
+		for( SQLResultRow fleetship : fleetships.values() ) {
+			if( firstEntry ) {
+				firstEntry = false;
+				out.append("<table class=\"noBorder\">\n");
+			}
+			
+			out.append("<tr>\n");
+			out.append("<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange; font-size:12px\"> "+fleetship.getString("name")+" ("+fleetship.getInt("id")+"):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n");
+					
+			Offizier offizierf = fleetoffiziere.get(fleetship.getInt("id"));
+	
+			SQLResultRow shiptype = getShipType(fleetship);
+			
+			MovementResult result = moveSingle(fleetship, shiptype, offizierf, direction, 1, fleetship.getInt("adockedcount"), forceLowHeat);
+			error = result.error;
+			
+			if( result.distance == 0 ) {
+				error = true;
+			}
+			
+			out.append("</span></td></tr>\n");
+		}
+		if( !firstEntry )
+			out.append("</table>\n");
+			
+		return error;
 	}
 	
 	private static void saveFleetShips() {	
-		// TODO
-		Common.stub();
+		Context context = ContextMap.getContext();
+		HashMap<Integer,SQLResultRow> fleetships = (HashMap<Integer,SQLResultRow>)context.getVariable(Ships.class, "fleetships");
+		HashMap<Integer,Offizier> fleetoffiziere = (HashMap<Integer,Offizier>)context.getVariable(Ships.class, "fleetoffiziere");
+		
+		if( fleetships != null ) {
+			Database db = context.getDatabase();
+			
+			PreparedQuery updateShip = db.prepare("UPDATE ships SET x= ?, y= ?, e= ?, s= ?, engine= ? WHERE id= ?"); 
+			PreparedQuery updateDocked = db.prepare("UPDATE ships SET x= ?, y= ?, system= ? WHERE id>0 AND docked IN ( ? , ?)");
+			
+			for( SQLResultRow fleetship : fleetships.values() ) {
+				updateShip.update(fleetship.getInt("x"), fleetship.getInt("y"), fleetship.getInt("e"), fleetship.getInt("s"), fleetship.getInt("engine"), fleetship.getInt("id"));
+
+				if( fleetship.getInt("dockedcount") > 0 ) {
+					updateDocked.update(fleetship.getInt("x"), fleetship.getInt("y"), fleetship.getInt("system"), "l "+fleetship.getInt("id"), fleetship.getInt("id"));
+				}
+	
+				if( fleetoffiziere.containsKey(fleetship.getInt("id")) ) {
+					fleetoffiziere.get(fleetship.getInt("id")).save();	
+				}
+				
+				recalculateShipStatus(fleetship.getInt("id"));
+			}
+		}
+		context.putVariable(Ships.class, "fleetships", null);
+		context.putVariable(Ships.class, "fleetoffiziere", null);
 	}
 	
+	/**
+	 * <p>Fliegt ein Schiff n Felder in eine Richtung. Falls das Schiff einer Flotte angehoert, fliegt
+	 * diese ebenfalls n Felder in diese Richtung.</p>
+	 * Die Richtungen:<br>
+	 * 1 2 3<br>
+	 * 4&nbsp;&nbsp;&nbsp;6<br>
+	 * 7 8 9<br>
+	 * <p>Der Flug wird abgebrochen sobald eines der Schiffe nicht mehr weiterfliegen kann</p>
+	 * 
+	 * @param shipID Die ID des Schiffes, welches fliegen soll
+	 * @param direction Die Richtung
+	 * @param distance Die Anzahl der zu fliegenden Felder
+	 * @param forceLowHeat Soll bei Ueberhitzung sofort abgebrochen werden?
+	 * @param disableQuests Sollen Questhandler ignoriert werden?
+	 * @return <code>true</code>, falls ein Fehler aufgetreten ist
+	 */
 	public static boolean move(int shipID, int direction, int distance, boolean forceLowHeat, boolean disableQuests) {
 		StringBuilder out = MESSAGE.get();
 		
