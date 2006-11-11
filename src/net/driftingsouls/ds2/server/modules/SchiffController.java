@@ -472,7 +472,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 					return;
 				}
 			
-				db.query("UPDATE ships SET fleet=",fleetship.getInt("fleet")," WHERE id>0 AND id=",ship.getInt("id"));
+				db.update("UPDATE ships SET fleet=",fleetship.getInt("fleet")," WHERE id>0 AND id=",ship.getInt("id"));
 				t.set_var("ship.message", "<span style=\"color:green\">Flotte &quot;"+Common._plaintitle(fleet.getString("name"))+"&quot; beigetreten</span><br />");
 			}
 		}
