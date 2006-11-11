@@ -29,6 +29,7 @@ import java.util.Random;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.Offizier;
+import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.Resources;
@@ -577,8 +578,50 @@ public class Ships {
 	}
 	
 	private static void handleRedAlert( SQLResultRow ship ) {
-		// TODO
-		Common.stub();
+		Integer[] attackers = redAlertCheck( ship, false );
+		
+		Database db = ContextMap.getContext().getDatabase();
+	
+		if( attackers.length > 0 ) {
+			// Schauen wir mal ob wir noch ein Schiff mit rotem Alarm ohne Schlacht finden (sortiert nach Besitzer-ID)
+			SQLResultRow eship = db.first("SELECT id,owner FROM ships WHERE id>0 AND x=",ship.getInt("x")," AND y=",ship.getInt("y")," ",
+									"AND system=",ship.getInt("system")," AND `lock` IS NULL AND docked='' AND e>0 AND owner IN (",Common.implode(",",attackers),") AND alarm=1 AND !LOCATE('nocrew',status) AND battle=0 ORDER BY owner");
+				
+			if( !eship.isEmpty() ) {
+				Battle battle = new Battle();
+				battle.setStartOwn(true);
+				battle.create(eship.getInt("owner"), eship.getInt("id"), ship.getInt("id"));
+				
+				MESSAGE.get().append("<span style=\"color:red\">Feindliche Schiffe feuern beim Einflug</span><br />\n");
+			}
+			else {
+				// Schlacht suchen und Schiffe hinzufuegen
+				eship = db.first("SELECT id,battle FROM ships WHERE id>0 AND x=",ship.getInt("x")," AND y=",ship.getInt("y")," ",
+									"AND system=",ship.getInt("system")," AND `lock` IS NULL AND docked='' AND e>0 AND owner IN (",Common.implode(",",attackers),") AND alarm=1 AND !LOCATE('nocrew',status) AND battle!=0 ORDER BY owner");
+						
+				if( !eship.isEmpty() ) {
+					Battle battle = new Battle();
+					int eside = db.first("SELECT side FROM battles_ships WHERE shipid='",eship.getInt("id"),"'").getInt("side");
+					int oside = (eside + 1) % 2 + 1;
+					battle.load(eship.getInt("battle"), ship.getInt("owner"), 0, 0, oside != 0);
+					
+					if( db.first("SELECT count(*) count FROM ships WHERE docked='",ship.getInt("id"),"'").getInt("count") != 0 ) {
+						SQLQuery sid = db.query("SELECT id FROM ships WHERE docked='",ship.getInt("id"),"'");
+						while( sid.next() ) {
+							battle.addShip( ship.getInt("owner"), sid.getInt("id"), oside-1 );
+						}
+						sid.free();
+					}
+					battle.addShip( ship.getInt("owner"), ship.getInt("id"), oside-1 );
+					
+					if( battle.getEnemyLog(true).length() != 0 ) {
+						battle.writeLog();
+					}
+					
+					MESSAGE.get().append("<br /><span style=\"color:red\">Feindliche Schiffe feuern beim Einflug</span><br />\n");
+				}
+			}
+		}
 	}
 	
 	private static Integer[] redAlertCheck( SQLResultRow ship, boolean checkonly ) {
