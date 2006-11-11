@@ -23,4 +23,7 @@
 		]]></update>
 		 
 	-->
+	<update type="data" datum="2006-11-11"><![CDATA[
+		UPDATE users SET ally=0 WHERE id=-15;									
+	]]></update>
 </updates>
