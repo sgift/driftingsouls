@@ -64,7 +64,7 @@ class Werft extends DefaultBuilding {
 	public void cleanup(Context context, int col) {
 		super.cleanup(context, col);
 		
-		context.getDatabase().query("DELETE FROM werften WHERE col=",col);
+		context.getDatabase().update("DELETE FROM werften WHERE col=",col);
 	}
 
 

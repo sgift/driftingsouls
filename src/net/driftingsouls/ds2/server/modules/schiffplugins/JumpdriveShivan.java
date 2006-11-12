@@ -103,7 +103,7 @@ public class JumpdriveShivan implements SchiffPlugin {
 			}	
 			else if ( subaction.equals("cancel") ) {
 				output += caller.ship.getString("name")+" stoppt den Sprungantrieb<br />\n";
-				db.query("DELETE FROM jumps WHERE shipid = "+caller.ship.getInt("id")+"");
+				db.update("DELETE FROM jumps WHERE shipid = "+caller.ship.getInt("id")+"");
 				if( caller.ship.getInt("fleet") != 0 ) {
 					output += "<table class=\"noBorder\">\n";
 	  	
@@ -118,7 +118,7 @@ public class JumpdriveShivan implements SchiffPlugin {
 						output += "<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange;font-size:12px\"> "+s.getString("name")+" ("+s.getInt("id")+"):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n";
 						output += "Das Schiff stoppt den Sprungantrieb";
 	  	
-						db.query("DELETE FROM jumps WHERE shipid = "+s.getInt("id")+"");
+						db.update("DELETE FROM jumps WHERE shipid = "+s.getInt("id")+"");
 	  	
 						output += "</span></td></tr>\n";
 					}

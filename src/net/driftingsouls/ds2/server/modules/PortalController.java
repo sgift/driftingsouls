@@ -804,7 +804,7 @@ class PortalController extends DSGenerator {
 		}
 		
 		if( !auser.hasFlag(User.FLAG_DISABLE_AUTO_LOGOUT) && (Common.time() - sessdata.getInt("lastaction") > Configuration.getIntSetting("AUTOLOGOUT_TIME")) ) {
-			db.query("DELETE FROM sessions WHERE id='",sessdata.getInt("id"),"'");
+			db.update("DELETE FROM sessions WHERE id='",sessdata.getInt("id"),"'");
 			t.set_var("show.login.vacmode.msg.accerror",1);
 			return;
 		}
