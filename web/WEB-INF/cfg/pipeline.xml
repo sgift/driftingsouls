@@ -59,6 +59,9 @@
 		<module name="core">
 			<generator class="net.driftingsouls.ds2.server.modules.CoreController" />
 		</module>
+		<module name="crewtausch">
+			<generator class="net.driftingsouls.ds2.server.modules.CrewtauschController" />
+		</module>
 		<module name="links">
 			<generator class="net.driftingsouls.ds2.server.modules.LinksController" />
 		</module>
