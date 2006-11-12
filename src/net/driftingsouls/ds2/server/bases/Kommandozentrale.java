@@ -55,9 +55,9 @@ class Kommandozentrale extends DefaultBuilding {
 		
 		Database db = context.getDatabase();
 		
-		db.query("UPDATE bases SET owner=0,autogtuacts='' WHERE id=",col);
-		db.query("UPDATE werften SET building=0,item = -1,remaining=0,flagschiff=0 WHERE col=",col);
-		db.query("UPDATE werften SET linked=0 WHERE linked=",col);
+		db.update("UPDATE bases SET owner=0,autogtuacts='' WHERE id=",col);
+		db.update("UPDATE werften SET building=0,item = -1,remaining=0,flagschiff=0 WHERE col=",col);
+		db.update("UPDATE werften SET linked=0 WHERE linked=",col);
 	}
 
 	@Override

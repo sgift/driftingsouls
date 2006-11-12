@@ -209,10 +209,10 @@ class Waffenfabrik extends DefaultBuilding {
 		
 		SQLResultRow wfentry = db.first("SELECT id FROM weaponfactory WHERE col=",col);
 		if( !wfentry.isEmpty() ) {
-			db.query("UPDATE weaponfactory SET count=count+1 WHERE id=",wfentry.getInt("id"));
+			db.update("UPDATE weaponfactory SET count=count+1 WHERE id=",wfentry.getInt("id"));
 		} 
 		else {
-			db.query("INSERT INTO weaponfactory (count,col) VALUES (1,",col,")");
+			db.update("INSERT INTO weaponfactory (count,col) VALUES (1,",col,")");
 		}
 	}
 
@@ -261,10 +261,10 @@ class Waffenfabrik extends DefaultBuilding {
 				wf.put("produces", Common.implode(";",plist));
 			}
 				
-			db.query("UPDATE weaponfactory SET count=count-1,produces='"+wf.getString("produces")+"' WHERE col=",col);
+			db.update("UPDATE weaponfactory SET count=count-1,produces='"+wf.getString("produces")+"' WHERE col=",col);
 		} 
 		else {
-			db.query("DELETE FROM weaponfactory WHERE col=",col);
+			db.update("DELETE FROM weaponfactory WHERE col=",col);
 		}
 	}
 

@@ -160,7 +160,7 @@ public class PM {
 		while( pm.next() ){
 			int gelesen = (trash == source) ? 1 : pm.getInt("gelesen");
 			gelesen = (trash == dest) ? 2 : gelesen;
-			db.query("UPDATE transmissionen SET ordner="+dest+", gelesen='"+gelesen+"' WHERE id="+pm.getInt("id"));
+			db.update("UPDATE transmissionen SET ordner="+dest+", gelesen='"+gelesen+"' WHERE id="+pm.getInt("id"));
 		}
 		pm.free();
 	}

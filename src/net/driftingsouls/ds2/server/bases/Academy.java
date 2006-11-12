@@ -69,7 +69,7 @@ class Academy extends DefaultBuilding {
 		
 		Context context = ContextMap.getContext();
 		
-		context.getDatabase().query("INSERT INTO academy VALUES(0,",col,",0,0,'')");
+		context.getDatabase().update("INSERT INTO academy VALUES(0,",col,",0,0,'')");
 	}
 
 	@Override
@@ -86,8 +86,8 @@ class Academy extends DefaultBuilding {
 	public void cleanup(Context context, int col) {
 		super.cleanup(context, col);
 		
-		context.getDatabase().query("DELETE FROM academy WHERE col=",col);
-		context.getDatabase().query("UPDATE offiziere SET dest='b ",col,"' WHERE dest='t ",col,"'");	
+		context.getDatabase().update("DELETE FROM academy WHERE col=",col);
+		context.getDatabase().update("UPDATE offiziere SET dest='b ",col,"' WHERE dest='t ",col,"'");	
 	}
 
 	@Override

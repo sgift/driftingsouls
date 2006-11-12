@@ -56,7 +56,7 @@ class Werft extends DefaultBuilding {
 	public void build(int col) {
 		super.build(col);
 		
-		ContextMap.getContext().getDatabase().query("INSERT INTO werften (type,col) VALUES(1,",col,")");
+		ContextMap.getContext().getDatabase().update("INSERT INTO werften (type,col) VALUES(1,",col,")");
 	}
 
 

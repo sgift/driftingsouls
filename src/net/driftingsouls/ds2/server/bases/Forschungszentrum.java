@@ -57,14 +57,14 @@ class Forschungszentrum extends DefaultBuilding {
 			throw new RuntimeException("No Context available");
 		}
 		
-		context.getDatabase().query("INSERT INTO fz VALUES(0,",col,",1,0,0)");
+		context.getDatabase().update("INSERT INTO fz VALUES(0,",col,",1,0,0)");
 	}
 
 	@Override
 	public void cleanup(Context context, int col) {
 		super.cleanup(context, col);
 		
-		context.getDatabase().query("DELETE FROM fz WHERE col=",col);
+		context.getDatabase().update("DELETE FROM fz WHERE col=",col);
 	}
 	
 	@Override
