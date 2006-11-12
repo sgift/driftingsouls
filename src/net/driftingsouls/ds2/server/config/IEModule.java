@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-import net.driftingsouls.ds2.server.ships.ShipTypeDataChangeset;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 import org.w3c.dom.Node;
@@ -37,9 +37,9 @@ import org.w3c.dom.NodeList;
 public class IEModule extends ItemEffect {
 	private List<String> slots;
 	private int set;
-	private ShipTypeDataChangeset mods;
+	private SQLResultRow mods;
 	
-	protected IEModule(List<String> slots, ShipTypeDataChangeset mods, int set) {
+	protected IEModule(List<String> slots, SQLResultRow mods, int set) {
 		super(ItemEffect.Type.MODULE);
 		
 		this.slots = Collections.unmodifiableList(slots);
@@ -68,7 +68,7 @@ public class IEModule extends ItemEffect {
 	 * Gibt das Aenderungsobjekt mit den durch das Modul geaenderten Schiffstypendaten zurueck
 	 * @return Das Aenderungsobjekt
 	 */
-	public ShipTypeDataChangeset getMods() {
+	public SQLResultRow getMods() {
 		return mods;
 	}
 	
@@ -81,7 +81,7 @@ public class IEModule extends ItemEffect {
 		
 		Number setId = XMLUtils.getNumberByXPath(effectNode, "@set");
 		
-		ShipTypeDataChangeset mods = Ships.getTypeChangeSetFromXML(XMLUtils.getNodeByXPath(effectNode, "shipdata"));
+		SQLResultRow mods = Ships.getTypeChangeSetFromXML(XMLUtils.getNodeByXPath(effectNode, "shipdata"));
 		
 		return new IEModule(slots, mods, setId != null ? setId.intValue() : -1);
 	}

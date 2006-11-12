@@ -39,6 +39,7 @@ import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.ItemEffect;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.framework.CacheMap;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -57,7 +58,9 @@ import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
 import org.apache.commons.lang.StringUtils;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Diverse Funktionen rund um Schiffe in DS
@@ -1696,8 +1699,87 @@ public class Ships {
 		}
 	}
 	
-	public static ShipTypeDataChangeset getTypeChangeSetFromXML(Node node) {
-		Common.stub();
-		return null;
+	public static SQLResultRow getTypeChangeSetFromXML(Node node) {
+		final String NAMESPACE = "http://www.drifting-souls.net/ds2/shipdata/2006";
+		
+		// TODO - fix namespaces
+		String prefix = "shd:";
+		
+		SQLResultRow row = new SQLResultRow();
+		NodeList nodes = node.getChildNodes();
+		for( int i=0; i < nodes.getLength(); i++ ) {
+			if( nodes.item(i).getNodeType() != Node.ELEMENT_NODE ) {
+				continue;
+			}
+			Element item = (Element)nodes.item(i);
+			if( !item.getNodeName().startsWith(prefix) ) {
+				continue;
+			}
+			
+			String name = item.getNodeName().substring(prefix.length());
+			if( name.equals("weapons") ) {
+				Map<String,Integer[]> wpnList = new HashMap<String,Integer[]>();
+				NodeList weapons = item.getChildNodes();
+				for( int j=0; j < weapons.getLength(); j++ ) {
+					if( (weapons.item(j).getNodeType() != Node.ELEMENT_NODE) ||
+							!(prefix+"weapon").equals(weapons.item(j).getNodeName())) {
+						continue;
+					}
+					String wpnName = weapons.item(j).getAttributes().getNamedItem("name").getNodeValue();
+					Integer wpnMaxHeat = new Integer(weapons.item(j).getAttributes().getNamedItem("maxheat").getNodeValue());
+					Integer wpnCount = new Integer(weapons.item(j).getAttributes().getNamedItem("count").getNodeValue());
+					wpnList.put(wpnName, new Integer[] {wpnCount, wpnMaxHeat});
+				}
+				row.put("weapons", wpnList);
+			}
+			else if( name.equals("maxheat") ) {
+				Map<String,Integer> heatList = new HashMap<String,Integer>();
+				NodeList heats = item.getChildNodes();
+				for( int j=0; j < heats.getLength(); j++ ) {
+					if( (heats.item(j).getNodeType() != Node.ELEMENT_NODE) ||
+						!(prefix+"weapon").equals(heats.item(j).getNodeName())) {
+						continue;
+					}
+					String wpnName = heats.item(j).getAttributes().getNamedItem("name").getNodeValue();
+					Integer wpnMaxHeat = new Integer(heats.item(j).getAttributes().getNamedItem("maxheat").getNodeValue());
+					heatList.put(wpnName, wpnMaxHeat);
+				}
+				row.put("maxheat", heatList);
+			}
+			else if( name.equals("flags") ) {
+				List<String> flagList = new ArrayList<String>();
+				NodeList flags = item.getChildNodes();
+				for( int j=0; j < flags.getLength(); j++ ) {
+					if( (flags.item(j).getNodeType() != Node.ELEMENT_NODE) ||
+						!(prefix+"set").equals(flags.item(j).getNodeName())) {
+						continue;
+					}
+					flagList.add(flags.item(j).getAttributes().getNamedItem("name").getNodeValue());
+				}
+				row.put("flags", Common.implode(" ", flagList));
+			}
+			else {
+				String value = item.getAttribute("value");
+				if( value == null ) {
+					continue;
+				}
+				try {
+					row.put(name, Long.parseLong(value));
+				}
+				catch(NumberFormatException e) {
+					// EMPTY
+				}
+				
+				try {
+					row.put(name, Double.parseDouble(value));
+				}
+				catch(NumberFormatException e) {
+					// EMPTY
+				}
+				
+				row.put(name, value);
+			}
+		}
+		return row;
 	}
 }

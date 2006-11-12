@@ -18,11 +18,13 @@
  */
 package net.driftingsouls.ds2.server.config;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-import net.driftingsouls.ds2.server.ships.ShipTypeDataChangeset;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 import org.w3c.dom.Node;
@@ -35,7 +37,7 @@ import org.w3c.dom.NodeList;
  */
 public class IEModuleSetMeta extends ItemEffect {
 	private String name;
-	private Map<Integer,ShipTypeDataChangeset> combos = new HashMap<Integer,ShipTypeDataChangeset>();
+	private Map<Integer,SQLResultRow> combos = new HashMap<Integer,SQLResultRow>();
 	
 	protected IEModuleSetMeta(String name) {
 		super(ItemEffect.Type.MODULE_SET_META);
@@ -43,7 +45,7 @@ public class IEModuleSetMeta extends ItemEffect {
 		this.name = name;
 	}
 	
-	protected void addCombo(int itemCount, ShipTypeDataChangeset combo) {
+	protected void addCombo(int itemCount, SQLResultRow combo) {
 		if( itemCount < 1 ) {
 			throw new IndexOutOfBoundsException("Die Anzahl der Items muss groesser oder gleich 1 sein!");
 		}
@@ -59,29 +61,22 @@ public class IEModuleSetMeta extends ItemEffect {
 	}
 	
 	/**
-	 * Gibt den Aenderungseffekt fuer die angegebene Anzahl an Items des Sets zurueck.
-	 * Aenderungseffekte, welche bei einer niederigeren Anzahl an Items eintreten, werden 
-	 * eingerechnet.
-	 * Sollten keine Aenderungen vorliegen, wird <code>null</code> zurueckgegeben.
+	 * Gibt die Aenderungseffekte fuer die angegebene Anzahl an Items des Sets zurueck.
+	 * Sollten keine Aenderungen vorliegen, wird eine leere Liste zurueckgegeben.
+	 * 
 	 * @param itemCount Die Anzahl an Items des Sets
-	 * @return Die kummulierten Aenderungseffekte fuer die Anzahl
+	 * @return Die Aenderungseffekte fuer die Anzahl
 	 */
-	public ShipTypeDataChangeset getCombo(int itemCount) {
-		ShipTypeDataChangeset combo = null;
+	public SQLResultRow[] getCombo(int itemCount) {
+		List<SQLResultRow> combos = new ArrayList<SQLResultRow>();
 		for( int i=1; i <= itemCount; i++ ) {
-			ShipTypeDataChangeset currentCombo = combos.get(i);
+			SQLResultRow currentCombo = this.combos.get(i);
 			if( currentCombo == null ) {
 				continue;
 			}
-			if( combo == null ) {
-				combo = currentCombo;
-			}
-			else {
-				currentCombo.setBase(combo);
-				combo = currentCombo;
-			}
+			combos.add(currentCombo);
 		}
-		return combo;
+		return combos.toArray(new SQLResultRow[combos.size()]);
 	}
 	
 	protected static ItemEffect fromXML(Node effectNode) throws Exception {
@@ -91,7 +86,7 @@ public class IEModuleSetMeta extends ItemEffect {
 		NodeList nodes = XMLUtils.getNodesByXPath(effectNode, "combo");
 		for( int i=0, length=nodes.getLength(); i < length; i++ ) {
 			int count = XMLUtils.getNumberByXPath(nodes.item(i), "@item-count").intValue();
-			ShipTypeDataChangeset combo = Ships.getTypeChangeSetFromXML(nodes.item(i));
+			SQLResultRow combo = Ships.getTypeChangeSetFromXML(nodes.item(i));
 			effect.addCombo(count, combo);
 		}
 		

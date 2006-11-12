@@ -42,6 +42,10 @@ public class XMLUtils {
 	private static DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 	private static XPathFactory xFactory = XPathFactory.newInstance();
 	
+	static {
+		factory.setNamespaceAware(true);
+	}
+	
 	public static Document readFile(String file) throws SAXException, IOException, ParserConfigurationException {
 		return factory.newDocumentBuilder().parse(new File(file));
 	}
