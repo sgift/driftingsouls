@@ -355,11 +355,11 @@ class PortalController extends DSGenerator {
 		SQLResultRow auser = db.first("SELECT * FROM users WHERE un='",uname,"'");
 		SQLResultRow auser2 = db.first("SELECT * FROM users WHERE email='",db.prepareString(email),"'");
 
-		if( auser.getInt("id") != 0 ) {
+		if( !auser.isEmpty() ) {
 			t.set_var("show.register.msg.wrongname",1);
 			return false;
 		}
-		if( auser2.getInt("id") != 0 ) {
+		if( !auser2.isEmpty() ) {
 			t.set_var("show.register.msg.wrongemail",1);
 			return false;
 		}
