@@ -1107,7 +1107,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 				Ships.ModuleEntry module = modulelist[i];
 				if( module.moduleType != 0 ) {
 					Module moduleobj = Modules.getShipModule( module );
-					if( module.slot > 0 ) {
+					if( (module.slot > 0) && (slotlist.get(module.slot).length > 2) ) {
 						moduleobj.setSlotData(slotlist.get(module.slot)[2]);
 					}
 					
