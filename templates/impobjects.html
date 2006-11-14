@@ -1,0 +1,31 @@
+<table class="noBorderX">
+<tr>
+	<td class="noBorderX">
+		<div style="font-weight:bold; font-size:16;text-align:center">Wichtige Objekte in {global.sysname} ({global.sysid})</div><br />
+		<table class="noBorderX">
+		{if jn.list}
+			<tr><td class="noBorderX"><span style="font-weight:bold">Jumpnodes</span></td></tr>
+			<!-- BEGIN jn.listitem -->
+				<tr><td class="noBorderX">{jn.x}/{jn.y} - nach {jn.targetname} ({jn.target})</td></tr>
+			<!-- END jn.listitem -->
+			<tr><td class="noBorderX">&nbsp;</td></tr>
+		{/endif}
+	
+		{if gtuposten.list}
+			<tr><td class="noBorderX"><span style="font-weight:bold">GTU Handelsposten</span></td></tr>
+			<!-- BEGIN gtuposten.listitem -->
+				<tr><td class="noBorderX">{gtuposten.x}/{gtuposten.y} - {gtuposten.name}</td></tr>
+			<!-- END gtuposten.listitem -->
+			<tr><td class="noBorderX">&nbsp;</td></tr>
+		{/endif}
+		
+		{if base.list}
+			<tr><td class="noBorderX"><span style="font-weight:bold">Eigene Basen</span></td></tr>
+			<!-- BEGIN base.listitem -->
+				<tr><td class="noBorderX">{base.x}/{base.y} - {base.name}</td></tr>
+			<!-- END base.listitem -->
+		{/endif}
+		</table>
+	</td>
+</tr>
+</table>
