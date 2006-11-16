@@ -62,7 +62,7 @@ public class BasicContext implements Context,Loggable {
 	 * @param request Die mit dem Kontext zu verbindende <code>Request</code>
 	 * @param response Die mit dem Kontext zu verbindende <code>Response</code>
 	 */
-	protected BasicContext(Request request, Response response) {
+	public BasicContext(Request request, Response response) {
 		database = new Database();
 		this.request = request;
 		this.response = response;
