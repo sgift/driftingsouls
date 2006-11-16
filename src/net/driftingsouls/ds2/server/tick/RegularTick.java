@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.tick;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.tick.regular.AcademyTick;
 
 /**
  * Der normale Tick
@@ -31,35 +32,39 @@ public class RegularTick extends AbstractTickExecuter {
 	@Override
 	protected void executeTicks() {
 		Common.stub();
-		// TODO
-		
-		publishStatus("berechne Basen");
-		//execTick(BaseTick.class);
-
-		publishStatus("berechne Schiffe");
-		//execTick(SchiffsTick.class);
-
-		publishStatus("berechne Werften");
-		//execTick(WerftTick.class);
-
-		publishStatus("berechne Forschungen");
-		//execTick(ForschungsTick.class);
-
-		publishStatus("fuehre NPC-Aktionen aus");
-		//execTick(NPCScriptTick.class);
-		//execTick(NPCOrderTick.class);
-
-		publishStatus("berechne Akademien");
-		//execTick(AcademyTick.class);
-
-		publishStatus("berechne GTU");
-		//execTick(RTCTick.class);
-
-		publishStatus("berechne Schlachten");
-		//execTick(BattleTick.class);
-
-		publishStatus("berechne Sonstiges");
-		//execTick(RestTick.class);
+		// TODO 
+		try {
+			publishStatus("berechne Basen");
+			//execTick(BaseTick.class);
+	
+			publishStatus("berechne Schiffe");
+			//execTick(SchiffsTick.class);
+	
+			publishStatus("berechne Werften");
+			//execTick(WerftTick.class);
+	
+			publishStatus("berechne Forschungen");
+			//execTick(ForschungsTick.class);
+	
+			publishStatus("fuehre NPC-Aktionen aus");
+			//execTick(NPCScriptTick.class);
+			//execTick(NPCOrderTick.class);
+	
+			publishStatus("berechne Akademien");
+			execTick(AcademyTick.class, false);
+	
+			publishStatus("berechne GTU");
+			//execTick(RTCTick.class);
+	
+			publishStatus("berechne Schlachten");
+			//execTick(BattleTick.class);
+	
+			publishStatus("berechne Sonstiges");
+			//execTick(RestTick.class);
+		}
+		catch( Exception e ) {
+			System.err.println("Fehler beim Ausfuehren der Ticks: "+e);
+		}
 	}
 
 	@Override
