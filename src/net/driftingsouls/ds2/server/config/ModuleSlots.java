@@ -76,7 +76,7 @@ public class ModuleSlots implements Loggable,Iterable<ModuleSlot> {
 	
 	static {
 		/*
-		 * items.xml parsen
+		 * moduleslots.xml parsen
 		 */
 		try {
 			Document doc = XMLUtils.readFile(Configuration.getSetting("configdir")+"moduleslots.xml");
@@ -97,7 +97,7 @@ public class ModuleSlots implements Loggable,Iterable<ModuleSlot> {
 			}
 		}
 		catch( Exception e ) {
-			LOG.fatal("FAILED: Kann Items nicht laden",e);
+			LOG.fatal("FAILED: Kann Modul-Slots nicht laden",e);
 		}
 	}
 }
