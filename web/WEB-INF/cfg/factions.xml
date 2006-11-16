@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<factions>
+	<faction id="-2" menusize="530">
+		<page id="versteigerung" />
+		<page id="paket" />
+		<page id="shop" />
+		<page id="other" />
+	</faction>
+	<faction id="-19" menusize="380">
+		<page id="general" />
+		<page id="angebote" />
+		<text>
+			Demolition Incorporated ist das führende Unternehmen auf dem Gebiet des modernen Bergbaus. Dank hochmoderner patentierter Technik aus eigenen Entwicklungslabors
+			kann Demolition Incorporated selbst in den unwirklichsten Umgebungen noch mit überdurchschnittlicher Rendite Mineralien und Erze fördern. Und dank einer engen
+			Kooperation mit führenden Logistikunternehmen ist es uns gelungen diese von überall her zuverlässig und absolut sicher zu unseren Lager- und Weiterverwertungsstätten zu transportieren.
+			Dank unseren hervorragenden Ingenieuren ist es uns sogar als erstem Unternehmen überhaupt gelungen ausgebeutete Asteroiden, trotz eines oft instabilen Kerns, in gewinnbringende Industriestandorte mit überdurchschnittlicher Flächennutzung zu verwandeln.
+			
+			[hr]
+			Auf der nachfolgenden Seite finden sie eine vorläufige Preisliste.
+			[align=right][size=7]Alle Angaben ohne Gewähr[/size][/align]
+		</text>
+	</faction>
+	<faction id="-26" menusize="380">
+		<page id="general" />
+		<page id="shop" />
+		<text>
+			Ito Kitami ist der führende vasudanische Händler für alle legalen und nicht so legalen Gegenstände. Wenn überhaupt jemand an diese Dinge kommt, dann Ito.
+			Allerdings sollte man nicht fragen woher die Waren stammen....
+			
+			Bezahlt wird im Vorraus. Eine Garantie, dass die Waren auch geliefert werden können gibt es nicht. Auch wann geliefert wird steht vorher nicht fest. Wenn die Waren dann ausgeliefert werden, dann wie üblich sehr diskret auf einen Asteroiden.
+		</text>
+	</faction>
+	<!-- 
+		<faction id="-99" menusize="380" disable="true">
+			<page id="general" />
+			<page id="shop" />
+			<text>
+				guzman, der: Spitzname: grunzman, der. Abgeleitet von der Angewohnheit, auf Anfragen aller Art mit einem grunzen undefinierten Tonfalls zu reagieren.
+				
+				In freier Wildbahn trifft man den guzman, eine Unterart des gemeinen Admins, in Krankenhäusern, bei seltsamen Direktlink-Onlinespielen auch mal auf der Strasse im Umgang mit Patienten. Aber auch in den Chaträumen zu den von ihm verwalteten Spielen, bei unserem exemplarischen Beispiel wäre das Drifting Souls, ist er anzutreffen, wenn auch nicht immer ganz so anwesend oder abwesend wie sein Nickname einem das glauben machen möchte.
+				
+				Bevorzugte Ernährung: Die Seelen unverschämter Spieler, Datenbanktabellen und in Ungnade gefallene NPCs.
+				
+				Masken: Der guzman ist auch unter den Namen guzman|work, guzman|zzzZZZzzz, guzman|gassi, guzman|BAfH und teilweise auch inkognito als GuestXYZ anzutreffen. Keine dieser Masken macht ihn harmloser. Auch die Ingame-Masken GCP Senat, GCP Sternenadmiral Horn, GCP Kolonialamt oder GCP Sternenadmiral S'Szart täuschen nur schlecht darüber hinweg, dass er in direkter Konfrontation ein gefährlicher Gegner und ein erboster Krieger ist.
+				
+				Und ausserdem ist er nur ein ra-Multi! (Ha! IHR könnt mir nichts - das Klingeln waren nur ein paar harmlose Versicherungskaufleute in Anzügen. Obwohl der tickende Koffer den sie hier vergessen haben schon seltsam ist...)
+				
+				Äh... ja... *versteck* hoffentlich liesst er das nicht.
+			</text>
+		</faction>
+	-->
+</factions>
