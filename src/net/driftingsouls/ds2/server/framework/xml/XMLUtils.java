@@ -101,4 +101,21 @@ public class XMLUtils {
 			return 0;
 		}
 	}
+	
+	/**
+	 * Gibt das angegebene Attribut der Node als String-Wert zurueck.
+	 * Sollte das Attribut nicht existieren, so wird <code>null</code> zurueckgegeben.
+	 * @param node Der Knoten
+	 * @param attr Der Attributname
+	 * @return Der String oder <code>null</code>
+	 */
+	public static String getStringAttribute(Node node, String attr) {
+		if( node.getAttributes() == null ) {
+			return null;
+		}
+		if( node.getAttributes().getNamedItem(attr) == null ) {
+			return null;
+		}
+		return node.getAttributes().getNamedItem(attr).getNodeValue();
+	}
 }
