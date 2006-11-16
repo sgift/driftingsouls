@@ -38,6 +38,14 @@ public class ModuleSlot {
 	}
 	
 	/**
+	 * Gibt die Typen-ID des Slots zurueck
+	 * @return Die Typen-ID des Slots
+	 */
+	public String getSlotType() {
+		return slottype;
+	}
+	
+	/**
 	 * Gibt den Namen/Beschreibung des Slots zurueck
 	 * @return der Name/Beschreibung
 	 */
@@ -81,7 +89,7 @@ public class ModuleSlot {
 			}
 		}
 		
-		if( this.slottype == slottype[0] ) {
+		if( this.slottype.equals(slottype[0]) ) {
 			return true;
 		}	
 		

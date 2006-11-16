@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<slots>
+	<!-- 
+		Misc-Slots
+	 -->
+	<slot id="misc" name="Diverses" />
+	<slot id="misc_large" name="Diverses [grosse Schiffe]" parent="misc" />
+	<slot id="misctanker" name="Diverses [Tanker]" parent="misc" />
+	<slot id="misc_weapon" name="Bewaffnung" parent="misc" />
+	<slot id="misc_large_weapon" name="Bewaffnung" parent="misc_weapon" />
+	<slot id="misc_station" name="Rüststlot Station" parent="misc" />
+	
+	<slot id="weapon_ganystation" name="Bewaffnung Ganymed-Station" />
+	<slot id="misc_ganystation" name="Rüstslot Ganymed-Station" parent="misc" />
+
+	<slot id="misc_shipyard" name="Werftpack" parent="misc" />
+	<slot id="misc_scanner" name="Diverses[Scanner]" parent="misc" />
+
+	<slot id="misc_kottos" name="Diverses [Kottos]" parent="misc" />
+
+	<slot id="paladin_misc" name="Rüstslot Paladin" parent="misc" />
+	
+	<!-- 
+		Ein paar weitere Slots
+	 -->
+	<slot id="drone_cont" name="Drohnen Kontrollslot" />
+	<slot id="weapon_station" name="Bewaffnung Station" />
+
+	<slot id="jprimary" name="Primärwaffe [Jäger]" />
+	<slot id="jsecondary" name="Sekundärwaffe [Jäger]" />
+	
+	<!-- 
+		Ruest-Slot
+	 -->
+	<slot id="vasudan_hcruiser_upgrade" name="Rüstslot vasudanischer schwerer Kreuzer" parent="vasudan_cruiser_upgrade" />
+
+	<slot id="vasudan_cruiser_upgrade" name="Rüstslot vasudanischer Kreuzer" />
+
+	<slot id="vasudan_corvette_upgrade" name="Rüstslot vasudanische Korvette" />
+
+	<slot id="terran_hcruiser_upgrade" name="Rüstslot terranischer schwerer Kreuzer" parent="terran_cruiser_upgrade" />
+
+	<slot id="terran_cruiser_upgrade" name="Rüstslot terranischer Kreuzer" />
+
+	<slot id="terran_corvette_upgrade" name="Rüstslot terranischer Korvette" />
+
+	<slot id="boarding_cruiser_upgrade" name="Rüstslot Kaperschiff" />
+
+	<slot id="spec_cruiser_upgrade" name="Rüstslot Kreuzer z.b.V." />
+
+	<!-- 
+		Zerstoerer-Slots
+	 -->
+	<slot id="destroyer_offensive" name="Zerstörer Offensivwaffen" />
+	<slot id="destroyer_deffensive" name="Zerstörer Deffensivwaffen" />
+	<slot id="destroyer_engine" name="Zerstörer Antrieb" />
+	<slot id="destroyer_reactor" name="Zerstörer Reaktor" />
+	<slot id="destroyer_tech" name="Zerstörer Technik" />
+	<slot id="destroyer_hull" name="Zerstörer Hülle" />
+	<slot id="destroyer_special" name="erstörer Spezial" />
+
+	<slot id="terran_destroyer_offensive" name="Terranische Zerstörer Offensivwaffen" parent="destroyer_offensive" />
+	<slot id="terran_destroyer_deffensive" name="Terranische Zerstörer Deffensivwaffen" parent="destroyer_deffensive" />
+	<slot id="terran_destroyer_engine" name="Terranische Zerstörer Antrieb" parent="destroyer_engine" />
+	<slot id="terran_destroyer_reactor" name="Terranische Zerstörer Reaktor" parent="destroyer_reactor" />
+	<slot id="terran_destroyer_tech" name="Terranische Zerstörer Technik" parent="destroyer_tech" />
+	<slot id="terran_destroyer_hull" name="Terranische Zerstörer Hülle" parent="destroyer_hull" />
+	<slot id="terran_destroyer_special" name="Terranische Zerstörer Spezial" parent="destroyer_special" />
+
+	<slot id="vasudan_destroyer_offensive" name="Vasudanische Zerstörer Offensivwaffen" parent="destroyer_offensive" />
+	<slot id="vasudan_destroyer_deffensive" name="Vasudanische Zerstörer Deffensivwaffen" parent="destroyer_deffensive" />
+	<slot id="vasudan_destroyer_engine" name="Vasudanische Zerstörer Antrieb" parent="destroyer_engine" />
+	<slot id="vasudan_destroyer_reactor" name="Vasudanische Zerstörer Reaktor" parent="destroyer_reactor" />
+	<slot id="vasudan_destroyer_tech" name="Vasudanische Zerstörer Technik" parent="destroyer_tech" />
+	<slot id="vasudan_destroyer_hull" name="Vasudanische Zerstörer Hülle" parent="destroyer_hull" />
+	<slot id="vasudan_destroyer_special" name="Vasudanische Zerstörer Spezial" parent="destroyer_special" />
+
+	<slot id="shivan_destroyer_offensive" name="Shivanische Zerstörer Offensivwaffen" parent="destroyer_offensive" />
+	<slot id="shivan_destroyer_deffensive" name="Shivanische Zerstörer Deffensivwaffen" parent="destroyer_deffensive" />
+	<slot id="shivan_destroyer_engine" name="Shivanische Zerstörer Antrieb" parent="destroyer_engine" />
+	<slot id="shivan_destroyer_reactor" name="'Shivanische Zerstörer Reaktor" parent="destroyer_reactor" />
+	<slot id="shivan_destroyer_tech" name="Shivanische Zerstörer Technik" parent="destroyer_tech" />
+	<slot id="shivan_destroyer_hull" name="Shivanische Zerstörer Hülle" parent="destroyer_hull" />
+	<slot id="shivan_destroyer_special" name="Shivanische Zerstörer Spezial" parent="destroyer_special" />
+
+	<slot id="orion_terran_destroyer_offensive" name="Orion Offensivwaffen" parent="terran_destroyer_offensive" />
+	<slot id="orion_terran_destroyer_deffensive" name="Orion Deffensivwaffen" parent="terran_destroyer_deffensive" />
+	<slot id="orion_terran_destroyer_engine" name="Orion Antrieb" parent="terran_destroyer_engine" />
+	<slot id="orion_terran_destroyer_reactor" name="Orion Reaktor" parent="terran_destroyer_reactor" />
+	<slot id="orion_terran_destroyer_tech" name="Orion Technik" parent="terran_destroyer_tech" />
+	<slot id="orion_terran_destroyer_hull" name="Orion Hülle" parent="terran_destroyer_hull" />
+	<slot id="orion_terran_destroyer_special" name="Orion Spezial" parent="terran_destroyer_special" />
+
+	<slot id="hecate_terran_destroyer_offensive" name="Hecate Offensivwaffen" parent="terran_destroyer_offensive" />
+	<slot id="hecate_terran_destroyer_deffensive" name="Hecate Deffensivwaffen" parent="terran_destroyer_deffensive" />
+	<slot id="hecate_terran_destroyer_engine" name="Hecate Antrieb" parent="terran_destroyer_engine" />
+	<slot id="hecate_terran_destroyer_reactor" name="Hecate Reaktor" parent="terran_destroyer_reactor" />
+	<slot id="hecate_terran_destroyer_tech" name="Hecate Technik" parent="terran_destroyer_tech" />
+	<slot id="hecate_terran_destroyer_hull" name="Hecate Hülle" parent="terran_destroyer_hull" />
+	<slot id="hecate_terran_destroyer_special" name="Hecate Spezial" parent="terran_destroyer_special" />
+
+	<slot id="typhoon_vasudan_destroyer_offensive" name="Typhoon Offensivwaffen" parent="vasudan_destroyer_offensive" />
+	<slot id="typhoon_vasudan_destroyer_deffensive" name="Typhoon Deffensivwaffen" parent="vasudan_destroyer_deffensive" />
+	<slot id="typhoon_vasudan_destroyer_engine" name="Typhoon Antrieb" parent="vasudan_destroyer_engine" />
+	<slot id="typhoon_vasudan_destroyer_reactor" name="Typhoon Reaktor" parent="vasudan_destroyer_reactor" />
+	<slot id="typhoon_vasudan_destroyer_tech" name="Typhoon Technik" parent="vasudan_destroyer_tech" />
+	<slot id="typhoon_vasudan_destroyer_hull" name="Typhoon Hülle" parent="vasudan_destroyer_hull" />
+	<slot id="typhoon_vasudan_destroyer_special" name="Typhoon Spezial" parent="vasudan_destroyer_special" />
+
+	<slot id="hatshepsut_vasudan_destroyer_offensive" name="Hatshepsut Offensivwaffen" parent="vasudan_destroyer_offensive" />
+	<slot id="hatshepsut_vasudan_destroyer_deffensive" name="Hatshepsut Deffensivwaffen" parent="vasudan_destroyer_deffensive" />
+	<slot id="hatshepsut_vasudan_destroyer_engine" name="Hatshepsut Antrieb" parent="vasudan_destroyer_engine" />
+	<slot id="hatshepsut_vasudan_destroyer_reactor" name="Hatshepsut Reaktor" parent="vasudan_destroyer_reactor" />
+	<slot id="hatshepsut_vasudan_destroyer_tech" name="Hatshepsut Technik" parent="vasudan_destroyer_tech" />
+	<slot id="hatshepsut_vasudan_destroyer_hull" name="Hatshepsut Hülle" parent="vasudan_destroyer_hull" />
+	<slot id="hatshepsut_vasudan_destroyer_special" name="Hatshepsut Spezial" parent="vasudan_destroyer_special" />
+</slots>

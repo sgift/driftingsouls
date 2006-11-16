@@ -22,8 +22,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import net.driftingsouls.ds2.server.framework.Common;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Loggable;
+import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
 /**
  * Repraesentiert die Liste aller in DS bekannten Modul-Slots.
@@ -42,7 +47,7 @@ public class ModuleSlots implements Loggable,Iterable<ModuleSlot> {
 	}
 
 	private void addModuleSlot( ModuleSlot mslot ) {
-		list.put(mslot.getName(), mslot);
+		list.put(mslot.getSlotType(), mslot);
 	}
 	
 	/**
@@ -70,7 +75,29 @@ public class ModuleSlots implements Loggable,Iterable<ModuleSlot> {
 	}
 	
 	static {
-		// TODO
-		Common.stub();
+		/*
+		 * items.xml parsen
+		 */
+		try {
+			Document doc = XMLUtils.readFile(Configuration.getSetting("configdir")+"moduleslots.xml");
+			NodeList nodes = XMLUtils.getNodesByXPath(doc, "slots/slot");
+			for( int i=0; i < nodes.getLength(); i++ ) {
+				Node node = nodes.item(i);
+				String id = XMLUtils.getStringAttribute(node, "id");
+				String name = XMLUtils.getStringAttribute(node, "name");
+				if( id == null || name == null ) {
+					throw new Exception("Jeder Slot muss ueber eine ID und einen Namen verfuegen");
+				}
+				
+				String parent = XMLUtils.getStringAttribute(node, "parent");
+				
+				ModuleSlot slot = new ModuleSlot(id, name, parent);
+				
+				moduleList.addModuleSlot(slot);
+			}
+		}
+		catch( Exception e ) {
+			LOG.fatal("FAILED: Kann Items nicht laden",e);
+		}
 	}
 }
