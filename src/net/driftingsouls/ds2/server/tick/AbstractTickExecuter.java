@@ -114,7 +114,7 @@ public abstract class AbstractTickExecuter extends TickController {
 	protected void copyLogs( int ticknr ) {
 		File[] files = new File(loxpath).listFiles();
 		for( int i=0; i < files.length; i++ ) {
-			if( files[i].getName().substring(files[i].getName().length()-4).equals(".log") ) {
+			if( files[i].getName().endsWith(".log") ) {
 				String filename = files[i].getName();
 				if( filename.lastIndexOf('/') > -1 ) {
 					filename = filename.substring(filename.lastIndexOf('/')+1);
