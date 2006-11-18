@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.tick;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.tick.regular.AcademyTick;
+import net.driftingsouls.ds2.server.tick.regular.ForschungsTick;
 
 /**
  * Der normale Tick
@@ -44,7 +45,7 @@ public class RegularTick extends AbstractTickExecuter {
 			//execTick(WerftTick.class);
 	
 			publishStatus("berechne Forschungen");
-			//execTick(ForschungsTick.class);
+			execTick(ForschungsTick.class, false);
 	
 			publishStatus("fuehre NPC-Aktionen aus");
 			//execTick(NPCScriptTick.class);
