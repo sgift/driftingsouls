@@ -36,6 +36,9 @@ class C3P0ConnectionPool implements ConnectionPool {
 		cpds.setMaxPoolSize(30);
 		cpds.setMaxStatements(180);
 		cpds.setMaxStatementsPerConnection(20);
+		cpds.setPreferredTestQuery("SELECT ticks FROM config LIMIT 1");
+		cpds.setIdleConnectionTestPeriod(30);
+		cpds.setMaxIdleTime(600);
 	}
 
 	public Connection getConnection() throws Exception {
