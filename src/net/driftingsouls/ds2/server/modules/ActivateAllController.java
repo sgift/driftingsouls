@@ -32,11 +32,18 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 /**
  * (De)aktivierung aller Gebaeude auf einer Basis
  * @author Christopher Jung
+ * 
+ * @urlparam Integer col Die ID der Basis
+ * @urlparam Integer deaconly != 0, falls die Gebaeude/Cores nur deaktiviert, nicht aber aktiviert werden sollen
  *
  */
 public class ActivateAllController extends DSGenerator {
 	private Base base = null;
 	
+	/**
+	 * Konstruktor
+	 * @param context Der zu verwendende Kontext
+	 */
 	public ActivateAllController(Context context) {
 		super(context);
 		
@@ -65,6 +72,9 @@ public class ActivateAllController extends DSGenerator {
 		return true;	
 	}
 	
+	/**
+	 * (de)aktiviert die Gebaeude/Cores
+	 */
 	@Override
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();

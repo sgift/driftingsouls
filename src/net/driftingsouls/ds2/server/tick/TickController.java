@@ -103,7 +103,7 @@ public abstract class TickController {
 	
 	/**
 	 * Entsperrt den angegebenen Spieler bzw alle Spieler.
-	 * @see #block(userid)
+	 * @see #block(int)
 	 * 
 	 * @param userid Der zu entsperrende User oder 0 (default) fuer alle User
 	 */
@@ -153,7 +153,7 @@ public abstract class TickController {
 	
 	/**
 	 * Loggt einen String
-	 * @param $string Der zu loggende String
+	 * @param string Der zu loggende String
 	 */
 	protected void slog(String string) {
 		for( int i : logTargets.keySet() ) {
@@ -174,7 +174,7 @@ public abstract class TickController {
 	
 	/**
 	 * Loggt eine Zeile. Fuer den Zeilenumbruch wird automatisch gesorgt
-	 * @param $string Die zu loggende Zeile
+	 * @param string Die zu loggende Zeile
 	 */
 	protected void log(String string) {
 		slog(string+"\n");
@@ -186,6 +186,7 @@ public abstract class TickController {
 	 * @param append Sollen die Daten angehangen werden?
 	 * 
 	 * @return Handle des Log-Ziels oder -1 (gescheitert)
+	 * @throws IOException 
 	 */
 	public int addLogTarget( String file, boolean append ) throws IOException {
 		Writer w = null;
@@ -216,6 +217,7 @@ public abstract class TickController {
 	 * @param handle Das Handle des Log-Ziels
 	 * 
 	 * @return true bei erfolgreichem entfernen
+	 * @throws IOException 
 	 */
 	public boolean removeLogTarget( int handle ) throws IOException {		
 		logTargets.get(handle).close();

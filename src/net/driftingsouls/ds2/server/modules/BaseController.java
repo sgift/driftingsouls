@@ -44,11 +44,16 @@ import org.apache.commons.lang.StringEscapeUtils;
  * Verwaltung einer Basis
  * @author Christopher Jung
  *
+ * @urlparam Integer col Die ID der Basis
  */
 public class BaseController extends DSGenerator {	
 	private Base base;
 	private int retryCount = 0;
 	
+	/**
+	 * Konstruktor
+	 * @param context Der zu verwendende Kontext
+	 */
 	public BaseController(Context context) {
 		super(context);
 		
@@ -77,6 +82,11 @@ public class BaseController extends DSGenerator {
 		return true;	
 	}
 	
+	/**
+	 * Transferiert Nahrung von/in den Nahrungspool
+	 * @urlparam Integer nahrung Die Menge der zu transferierenden Nahrung. Negative Werte transferieren Nahrung aus den Pool.
+	 *
+	 */
 	public void transferNahrungAction() {		
 		User user = getUser();
 		TemplateEngine t = getTemplateEngine();
@@ -131,6 +141,11 @@ public class BaseController extends DSGenerator {
 		redirect();
 	}
 	
+	/**
+	 * Aendert den Namen einer Basis
+	 * @urlparam String newname Der neue Name der Basis
+	 *
+	 */
 	public void changeNameAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -146,6 +161,12 @@ public class BaseController extends DSGenerator {
 		redirect();
 	}
 	
+	/**
+	 * (de)aktiviert Gebaeudegruppen
+	 * @urlparam Integer act 0, wenn die Gebaeude deaktiviert werden sollen. Andernfalls 1
+	 * @urlparam Integer buildingoff Die ID des Gebaeudetyps, dessen Gebaeude (de)aktiviert werden sollen
+	 *
+	 */
 	public void changeBuildingStatusAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -203,6 +224,9 @@ public class BaseController extends DSGenerator {
 		redirect();
 	}
 
+	/**
+	 * Zeigt die Basis an
+	 */
 	@Override
 	public void defaultAction() {
 		Database db = getDatabase();

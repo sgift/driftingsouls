@@ -92,6 +92,7 @@ public abstract class AbstractTickExecuter extends TickController {
 	 * Fuehrt ein Tickscript aus
 	 * @param tickname Eine Instanz des Tickscripts
 	 * @param useSTDOUT Soll STDOUT oder eine Logdatei mit dem Namen des Ticks verwendet werden?
+	 * @throws Exception 
 	 */
 	protected void execTick( Class<? extends TickController> tickname, boolean useSTDOUT ) throws Exception {
 		TickController tick = tickname.newInstance();
@@ -109,7 +110,7 @@ public abstract class AbstractTickExecuter extends TickController {
 	
 	/**
 	 * Kopiert alle Logs im Tick-Log-Verzeichnis in ein Unterverzeichnis mit der Tick-Nr
-	 * @param $ticknr Nummer des Ticks
+	 * @param ticknr Nummer des Ticks
 	 */
 	protected void copyLogs( int ticknr ) {
 		File[] files = new File(loxpath).listFiles();
@@ -142,8 +143,6 @@ public abstract class AbstractTickExecuter extends TickController {
 	
 	/**
 	 * Vor- und Nachbereitung der Tickausfuehrung
-	 * @throws Exception 
-	 * @throws ClassNotFoundException 
 	 */
 	@Override
 	final protected void tick() {
