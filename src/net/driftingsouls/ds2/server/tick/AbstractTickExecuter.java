@@ -157,8 +157,8 @@ public abstract class AbstractTickExecuter extends TickController {
 		
 		int ticknr = getContext().get(ContextCommon.class).getTick()+1;
 		
-		if( new File(loxpath+"/"+ticknr).mkdir() ) {
-			return;
+		if( !new File(loxpath+"/"+ticknr).isDirectory() ) {
+			new File(loxpath+"/"+ticknr).mkdir();
 		}
 		
 		executeTicks();
