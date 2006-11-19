@@ -1144,9 +1144,19 @@ public class Cargo implements Loggable, Cloneable {
 	 * @param count Die Menge
 	 * @return Die Masse, die die Resource in der Menge verbraucht
 	 */
-	public static int getResourceMass( ResourceID resourceid, int count ) {
-		Common.stub();
-		return 0;
+	public static long getResourceMass( ResourceID resourceid, long count ) {
+		long tmp = 0;
+	
+		if( resourceid.isItem() ) {
+			if( Items.get().item(resourceid.getItemID()) != null ) {
+				tmp = count * Items.get().item(resourceid.getItemID()).getCargo();
+			}
+		}
+		else {
+			tmp = count;
+		}
+		
+		return tmp;
 	}
 	
 	/**
