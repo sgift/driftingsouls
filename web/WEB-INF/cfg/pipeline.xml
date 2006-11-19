@@ -65,6 +65,9 @@
 		<module name="deutall">
 			<generator class="net.driftingsouls.ds2.server.modules.DeutAllController" />
 		</module>
+		<module name="deutsammeln">
+			<generator class="net.driftingsouls.ds2.server.modules.DeutSammelnController" />
+		</module>
 		<module name="impobjects">
 			<generator class="net.driftingsouls.ds2.server.modules.ImpObjectsController" />
 		</module>
