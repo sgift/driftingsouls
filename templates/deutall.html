@@ -1,0 +1,33 @@
+{!table_begin 550,left}
+<table cellpadding="1" cellspacing="1" class="noBorderX" width="100%">
+<!-- BEGIN ships.listitem -->
+	{if ship.newcoords}
+		<tr>
+			<td class="noBorderX" colspan="3">
+				{if ship.newcoords.break}
+					<br />	
+				{/endif}
+				{ship.location}:
+			</td>
+		</tr>
+	{/endif}
+	<tr>
+		<td class="noBorderX">
+			{!link_to $ship.name, default, module:schiff, ship:$ship.id}</td>
+		<td class="noBorderX">-</td>
+		<td class="noBorderX">
+			{if ship.message}
+				<span style="color:{ship.message.color}">{ship.message}</span>
+			{/endif}
+			{if ship.saugdeut}
+				{ship.saugdeut}<img src="{deuterium.image}" alt="" /> gesammelt
+			{/endif}
+		</td>
+	</tr>
+<!-- END ships.listitem -->
+</table>
+{!table_end}
+<br />
+<span class="smallfont">
+	{!link_to zur&uuml;ck, default, module:schiffe, css_class:back, only:tank}
+</span><br />

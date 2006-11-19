@@ -62,6 +62,9 @@
 		<module name="crewtausch">
 			<generator class="net.driftingsouls.ds2.server.modules.CrewtauschController" />
 		</module>
+		<module name="deutall">
+			<generator class="net.driftingsouls.ds2.server.modules.DeutAllController" />
+		</module>
 		<module name="impobjects">
 			<generator class="net.driftingsouls.ds2.server.modules.ImpObjectsController" />
 		</module>
