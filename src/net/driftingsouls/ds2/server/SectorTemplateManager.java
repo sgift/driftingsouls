@@ -28,7 +28,11 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 /**
- * Die Sektor-Template-Verwaltung
+ * <h1>Die Sektor-Template-Verwaltung</h1>
+ * Sektor-Templates sind Vorlagen, die 1..* Schiffe mit bestimmten Werten enthalten.
+ * Die Vorlagen liegen in System 0.<br>
+ * Der SectorTemplateManager fuegt diese Templates an einer Position fuer einen bestimmten
+ * Spieler ein.
  * @author Christopher Jung
  *
  */
@@ -36,10 +40,15 @@ public class SectorTemplateManager {
 	private static SectorTemplateManager instance = null;
 	
 	private SectorTemplateManager() {
+		// EMPTY
 	}
 
 	/*
 	 * TODO: Caching, Caching, Caching....
+	 */
+	/**
+	 * Gibt eine Instanz des SektorTemplateManagers zurueck
+	 * @return eine Instanz des SektorTemplateManagers
 	 */
 	public static SectorTemplateManager getInstance() {
 		if( instance == null ) {
@@ -49,25 +58,34 @@ public class SectorTemplateManager {
 	}
 
 	private class DockEntry {
-		public String docked;
-		public int shipid;
+		String docked;
+		int shipid;
 
-		public DockEntry(int shipid, String docked) {
+		DockEntry(int shipid, String docked) {
 			this.shipid = shipid;
 			this.docked = docked;
 		}
 	}
 	
 	private class FleetEntry {
-		public int fleetid;
-		public int shipid;
+		int fleetid;
+		int shipid;
 
-		public FleetEntry(int shipid, int fleetid) {
+		FleetEntry(int shipid, int fleetid) {
 			this.shipid = shipid;
 			this.fleetid = fleetid;
 		}
 	}
 	
+	/**
+	 * Fuegt Schiffe eines Templates an einer gegebenen Position ein
+	 * @param db Die DB-Verbindung
+	 * @param name Der Name des Templates
+	 * @param location Die Position, an der das Template eingefuegt werden soll
+	 * @param owner Der Besitzer der einzufuegenden Schiffe
+	 * @param smartid Soll die erste freie ID verwendet werden (<code>true</code>)?
+	 * @return Die IDs der eingefuegten Schiffe
+	 */
 	public Integer[] useTemplate(Database db, String name, Location location, int owner, boolean smartid ) {
 		if( smartid ) {
 			System.err.println("FIXME: SectorTemplateManager.useTemplate -> smartid not implemented");
@@ -138,7 +156,7 @@ public class SectorTemplateManager {
 						"(id,modules,nickname,picture,ru,rd,ra,rm," ,
 						"eps,cost,hull,panzerung,cargo,heat,crew,weapons,maxheat,torpedodef," ,
 						"shields,size,jdocks,adocks,sensorrange,hydro,deutfactor,recost,flags,werft,ow_werft) VALUES " ,
-						"('$shipid','",modules.get("modules"),"','",modules.get("nickname"),"','",modules.get("picture"),"','",modules.get("ru"),"','",modules.get("rd"),"','",modules.get("ra"),"','",modules.get("rm"),"'," ,
+						"('",shipid,",'",modules.get("modules"),"','",modules.get("nickname"),"','",modules.get("picture"),"','",modules.get("ru"),"','",modules.get("rd"),"','",modules.get("ra"),"','",modules.get("rm"),"'," ,
 						"'",modules.get("eps"),"','",modules.get("cost"),"','",modules.get("hull"),"','",modules.get("panzerung"),"','",modules.get("cargo"),"','",modules.get("heat"),"','",modules.get("crew"),"','",modules.get("weapons"),"','",modules.get("maxheat"),"','",modules.get("torpedodef"),"'," ,
 						"'",modules.get("shields"),"','",modules.get("size"),"','",modules.get("jdocks"),"','",modules.get("adocks"),"','",modules.get("sensorrange"),"','",modules.get("hydro"),"','",modules.get("deutfactor"),"','",modules.get("recost"),"','",modules.get("flags"),"','",modules.get("werft"),"','",modules.get("ow_werft"),"')");
 			}
@@ -186,6 +204,15 @@ public class SectorTemplateManager {
 		return shipids.toArray(new Integer[shipids.size()]);
 	}
 
+	/**
+	 * Fuegt Schiffe eines Templates an einer gegebenen Position ein. Als Schiffs-ID
+	 * wird die naechste von der DB vergebene verwendet
+	 * @param db Die DB-Verbindung
+	 * @param name Der Name des Templates
+	 * @param location Die Position, an der das Template eingefuegt werden soll
+	 * @param owner Der Besitzer der einzufuegenden Schiffe
+	 * @return Die IDs der eingefuegten Schiffe
+	 */
 	public Integer[] useTemplate(Database db, String name, Location location, int owner) {
 		return useTemplate(db, name, location, owner, false);
 	}
