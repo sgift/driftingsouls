@@ -102,6 +102,9 @@
 		<module name="ueber">
 			<generator class="net.driftingsouls.ds2.server.modules.UeberController" />
 		</module>
+		<module name="userprofile">
+			<generator class="net.driftingsouls.ds2.server.modules.UserProfileController" />
+		</module>
 		<module name="werft">
 			<generator class="net.driftingsouls.ds2.server.modules.WerftController" />
 		</module>
