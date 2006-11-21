@@ -95,12 +95,15 @@
 		<module name="schiffinfo">
 			<generator class="net.driftingsouls.ds2.server.modules.SchiffInfoController" />
 		</module>
-		<module name="ueber">
-			<generator class="net.driftingsouls.ds2.server.modules.UeberController" />
-		</module>
 		<module name="techdatabase">
 			<generator class="net.driftingsouls.ds2.server.modules.TechDatabaseController" />
 			<serializer class="net.driftingsouls.ds2.server.framework.pipeline.serializer.PlainSerializer" />
+		</module>
+		<module name="ueber">
+			<generator class="net.driftingsouls.ds2.server.modules.UeberController" />
+		</module>
+		<module name="werft">
+			<generator class="net.driftingsouls.ds2.server.modules.WerftController" />
 		</module>
 	</modules>
 	<rules>
