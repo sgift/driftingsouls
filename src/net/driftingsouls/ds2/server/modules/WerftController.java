@@ -33,6 +33,9 @@ import net.driftingsouls.ds2.server.werften.WerftGUI;
  * <h1>Anzeige einer Schiffswerft</h1>
  * Die GUI selbst wird von {@link net.driftingsouls.ds2.server.werften.WerftGUI} gezeichnet
  * @author Christopher Jung
+ * 
+ * @urlparam Integer ship Die ID des Schiffes, das die Werft ist
+ * @urlparam Integer linkedbase Die ID einer Basis, mit der die Werft gekoppelt werden soll oder -1, falls die Kopplung aufgehoben werden soll
  *
  */
 public class WerftController extends DSGenerator {
