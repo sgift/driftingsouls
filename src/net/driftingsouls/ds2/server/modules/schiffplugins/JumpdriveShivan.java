@@ -144,9 +144,9 @@ public class JumpdriveShivan implements SchiffPlugin {
 
 		t.set_var(	"global.pluginid",				pluginid,
 					"ship.id",						ship.getInt("id"),
-					"schiff.jumpdrive.jumping",		jump.getInt("system"),
-					"schiff.jumpdrive.jumpingx",	jump.getInt("x"),
-					"schiff.jumpdrive.jumpingy",	jump.getInt("y"),
+					"schiff.jumpdrive.jumping",		jump.isEmpty() ? 0 : jump.getInt("system"),
+					"schiff.jumpdrive.jumpingx",	jump.isEmpty() ? 0 : jump.getInt("x"),
+					"schiff.jumpdrive.jumpingy",	jump.isEmpty() ? 0 : jump.getInt("y"),
 					"schiff.jumpdrive.subaction",	"set" );
 		
 		t.parse(caller.target,"_PLUGIN_"+pluginid);
