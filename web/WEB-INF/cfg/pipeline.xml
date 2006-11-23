@@ -99,6 +99,9 @@
 			<generator class="net.driftingsouls.ds2.server.modules.TechDatabaseController" />
 			<serializer class="net.driftingsouls.ds2.server.framework.pipeline.serializer.PlainSerializer" />
 		</module>
+		<module name="transport">
+			<generator class="net.driftingsouls.ds2.server.modules.TransportController" />
+		</module>
 		<module name="ueber">
 			<generator class="net.driftingsouls.ds2.server.modules.UeberController" />
 		</module>
