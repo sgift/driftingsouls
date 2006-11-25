@@ -1068,7 +1068,9 @@ public class User implements Loggable {
 	 */
 	public void setNickname( String nick ) {
 		checkAndLoad("nickname");
-		context.getDatabase().tUpdate(1, "UPDATE users SET nickname='",nick,"' WHERE id='",id,"' AND nickname='",data.getString("nickname"),"'");
+		context.getDatabase()
+			.prepare( "UPDATE users SET nickname= ? WHERE id= ? AND nickname= ?")
+			.tUpdate(1, nick, id, data.getString("nickname"));
 		data.put("nickname", nick);
 	}
 	
@@ -1121,6 +1123,17 @@ public class User implements Loggable {
 	public String getImagePath() {
 		checkAndLoad("imgpath");
 		return data.getString("imgpath");
+	}
+	
+	/**
+	 * Setzt den Image-Pfad des Spielers auf den angegebenen Wert
+	 * @param value Der neue Image-Pfad des Spielers
+	 */
+	public void setImagePath(String value) {
+		checkAndLoad("imgpath");
+		context.getDatabase().prepare("UPDATE users SET imgpath= ? WHERE id= ? AND imgpath= ?")
+			.tUpdate(1, value, id, data.getString("imgpath"));
+		data.put("imgpath", value);
 	}
 	
 	/**
