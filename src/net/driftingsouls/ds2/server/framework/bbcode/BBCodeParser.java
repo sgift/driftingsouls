@@ -177,12 +177,6 @@ public class BBCodeParser {
 				buffer.append(']');
 				continue;
 			}
-			if( ign.contains(tagLC) ) {
-				buffer.append('[');
-				buffer.append(plainTag);
-				buffer.append(']');
-				continue;
-			}
 			
 			// Schliessenden Tag bestimmen
 			int closetag = -1;
@@ -209,6 +203,9 @@ public class BBCodeParser {
 
 			// Keinen schliessenden Tag? -> 0 Parameter
 			if( (closetag == -1) && tags.get(tagLC).contains(0) ) {
+				if( ign.contains(tagLC+"(0)") ) {
+					continue;
+				}
 				buffer.append(replaceFunctions.get(tagLC+"(0)").handleMatch(null));
 			}
 			else if( closetag != -1 ) {
@@ -222,9 +219,19 @@ public class BBCodeParser {
 				}
 				
 				if( tags.get(tagLC).contains(params) ) {
-					BBCodeFunction func = replaceFunctions.get(tagLC+"("+params+")");
-
-					buffer.append( func.handleMatch(paramText.toString(), options) );
+					StringBuilder tagLCNum = new StringBuilder(tagLC.length()+3);
+					tagLCNum.append(tagLC);
+					tagLCNum.append("(");
+					tagLCNum.append(params);
+					tagLCNum.append(")");
+					if( ign.contains(tagLCNum.toString())  ){
+						buffer.append(paramText);
+					}
+					else {
+						BBCodeFunction func = replaceFunctions.get(tagLC+"("+params+")");
+	
+						buffer.append( func.handleMatch(paramText.toString(), options) );
+					}
 				}
 				else {
 					buffer.append('[');
@@ -267,7 +274,10 @@ public class BBCodeParser {
 			ign.addAll(Arrays.asList(ignore));
 			
 			if( ign.contains("all") ) {
-				return text;
+				ign.remove("all");
+				for( String key : replaceFunctions.keySet() ) {
+					ign.add(key);
+				}
 			}
 		}
 		
