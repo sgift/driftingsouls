@@ -1,0 +1,240 @@
+<table class="show" cellspacing="2" cellpadding="2">
+<tr>
+	<td class="noBorderS">Optionen</td>
+	<td class="noBorder">&nbsp;</td>
+	<td class="noBorder">
+		{!table_begin 650,center}
+			{!link_to Allgemein, default}
+			&nbsp;&nbsp;|&nbsp;&nbsp;{!link_to Name &amp; Passwort, changeNamePass}
+			&nbsp;&nbsp;|&nbsp;&nbsp;{!link_to Erweitert, xtra}
+			&nbsp;&nbsp;|&nbsp;&nbsp;{!link_to L&ouml;schantrag, delAccount, css_style:color:red}
+		{!table_end}
+	</td>
+</tr>
+</table>
+<div class="smallfont">
+	<br />
+	{if options.message}
+		{options.message}
+		<br />
+	{/endif}
+</div>
+{if options.changenamepwd}
+	{!table_begin 670,left}
+		<div style="text-align:justify">
+			Es k&ouml;nnen die BBCode-Tags [b], [i], [u], [color], [font], [mark] und [align] verwendet werden.<br />
+			Nach der Password-&Auml;nderung wird Ihnen eine Best&auml;tigungsmail geschickt - das Password wird verschl&uuml;sselt gespeichert.<br />
+			Wenn sie nur den Benutzernamen bearbeiten wollen, lassen sie bitte die Passwort-Felder leer.<br /><br />
+		</div>
+		<form action="./main.php" method="post">
+		<div style="text-align:center">
+			<table class="noBorderX">
+			<tr>
+				<td class="noBorderX">Neuer Name:</td>
+				<td class="noBorderX"><input name="name" type="text" size="30" value="{options.changenamepwd.nickname}" /></td>
+			</tr>
+			<tr>
+				<td class="noBorderX">Neues Passwort:</td>
+				<td class="noBorderX"><input name="pw" type="password" size="30" /></td>
+			</tr>
+			<tr>
+				<td class="noBorderX">Passwort wiederholen:</td>
+				<td class="noBorderX"><input name="pw2" type="password" size="30" /></td>
+			</tr>
+			<tr>
+				<td class="noBorderX" colspan="2">
+					{!form_create_hidden changeNamePass}
+				</td>
+			</tr>
+			<tr>
+				<td class="noBorderX" colspan="2" align="center">
+					<input type="submit" value="&auml;ndern" />&nbsp;
+					<input type="reset" value="reset" />
+				</td>
+			</tr>
+			</table>
+		</div>
+		</form>
+	{!table_end}
+{/endif}
+{if options.delaccountform}
+	{!table_begin 540,left}
+		<div style="text-align:center; color:red">
+			L&ouml;schen des Accounts beantragen
+			<br />
+		</div>
+		<form action="main.php" method="post">
+			<div class="smallfont">
+				Bitte geben sie ein paar Gr&uuml;nde f&uuml;r das L&ouml;schen des Accounts an.
+				Wir w&uuml;rden uns dar&uuml;ber sehr freuen, da wir somit Drifting Souls verbessern k&ouml;nnen<br />
+				<br />
+				<div style="text-align:center">
+					<textarea cols="80" rows="17" name="form[reason]"></textarea><br />
+					{!form_create_hidden delAccount, form[del]:1}
+					<input type="submit" value="L&ouml;schung beantragen" />
+				</div>
+			</div>
+		</form>
+	{!table_end}
+{/endif}
+{if options.delaccountresp}
+	{!table_begin 540,justify}
+		<div style="text-align:center; font-weight:bold; color:red">Der Antrag auf L&ouml;schung des Accounts wurde versendet</div><br />
+		Es kann jedoch einige Tage oder Wochen dauern, bis die L&ouml;schung durchgef&uuml;hrt wird.<br />
+		Sollten sie es sich dennoch anders &uuml;berlegen, schreiben sie bitte
+		eine PM an einen Administrator (IDs: {delaccountresp.admins})<br />
+	{!table_end}
+{/endif}
+{if options.xtra}
+	<form action="main.php" method="post">
+
+	{!table_begin 520,center}
+		<table class="noBorderX">
+		<tr>
+			<td class="noBorderX">Schiffsgruppen-Multiplikator (0=Keine Gruppierungen):</td>
+			<td class="noBorderX"><input name="shipgroupmulti" type="text" size="8" value="{user.wrapfactor}" /></td>
+		</tr>
+		<tr>
+			<td class="noBorderX">Tutorial anzeigen:</td>
+			<td class="noBorderX"><input name="inttutorial" type="checkbox" value="1" {if user.inttutorial}checked="checked"{/endif} /></td>
+		</tr>
+		{if user.admin}
+			<tr>
+				<td class="noBorderX">Scripts debuggen:</td>
+				<td class="noBorderX">
+					<input name="scriptdebug" type="hidden" value="1" />
+					<input type="checkbox" name="scriptdebugstatus" {if user.scriptdebug}checked="checked"{/endif} value="1" />
+				</td>
+			</tr>
+		{/endif}
+		<tr>
+			<td class="noBorderX">Kartengr&ouml;&szlig;e:</td>
+			<td class="noBorderX">
+				<span class="nobr">
+					<input name="mapwidth" type="text" size="4" value="{user.mapwidth}" />x
+					<input name="mapheight" type="text" size="4" value="{user.mapheight}" />
+				</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="noBorderX">Diplomatie (Standard):</td>
+			<td class="noBorderX">
+				<span class="nobr">
+					<select name="defrelation" size="1">
+						<option value="1" {if user.defrelation == 1}selected="selected"{/endif}>Feindlich</option>
+						<option value="0" {if user.defrelation == 0}selected="selected"{/endif}>Neutral</option>
+						<option value="2" {if user.defrelation == 2}selected="selected"{/endif}>Freundlich</option>
+					</select>
+				</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="noBorderX" colspan="2" align="center"><br />
+				{!form_create_hidden changeXtra}
+				<input type="submit" value="speichern" />
+			</td>
+		</tr>
+		</table>
+	{!table_end}
+	
+	</form>
+{/endif}
+
+{if options.general}
+	{if user.noob}
+		{!table_begin 470,left}
+			Sie stehen noch unter GCP-Schutz. Klicken sie hier um diesen vorzeitig zu beenden.<br /><br />
+			<div style="text-align:center">
+				<input type="button" value="GCP-Schutz verlassen" style="width:300px" onclick="javascript:ask('Haben sie es sich auch genau &uuml;berlegt?\nEs gibt kein Zur&uuml;ck mehr!','./main.php?module=options&action=dropNoobProtection&sess={global.sess}')" />
+				<br />
+			</div>
+			<br />
+			<span style="color:red">Ohne GCP-Schutz k&ouml;nnen sie JEDERZEIT angegriffen werden.
+			Sobald sie einmal den GCP-Schutz verlassen haben gibt es kein zur&uuml;ck mehr!</span>
+		{!table_end}
+		<br />
+	{/endif}
+	{!table_begin 470,left}
+		<table class="noBorderX" cellpadding="2" cellspacing="2">
+		<tr>
+			<td class="noBorderX">Eigenes</td>
+			{if user.ally}
+				<td class="noBorderX">Allianz</td>
+			{/endif}
+		</tr>
+		<tr>
+			<td class="noBorderX"><img src="{URL}data/logos/user/{user.id}.gif" width="75" height="75" alt="Kein Logo vorhanden" /></td>
+			{if user.ally}
+				<td class="noBorderX"><img src="{URL}data/logos/ally/{user.ally}.gif" width="75" height="75" alt="Kein Allylogo vorhanden" /></td>
+			{/endif}
+		</tr>
+		</table>			
+		<br />
+		<form action="./main.php" method="post" enctype="multipart/form-data">
+			<div>
+				Neues Logo hochladen:<br />
+				<input type="file" name="logofile" />
+				{!form_create_hidden logo, MAX_FILE_SIZE:307200}
+				<input type="submit" value="Speichern" /><br />
+				(gif-format, 75*75 pixel, max 300kb)
+			</div>
+		</form>
+	{!table_end}
+	<div>
+		<br />
+	</div>
+	{!table_begin 470,left}
+		<form action="./main.php" method="post">
+			<div>
+				<span style="font-weight:bold">Anzeige</span><br />
+				{!checkbox Schiffe gruppieren, wrapfactor, user.wrapfactor}<br /><br />
+				<span style="font-weight:bold">Hilfe</span><br />
+				{!checkbox Anzeigen, showtooltip, user.tooltip}<br /><br />
+				<span style="font-weight:bold">Sicherheitseinstellungen</span><br />
+				{!checkbox Session-ID an IP-Adresse koppeln, enableipsess, user.ipsess}<br />
+				{!checkbox Autologout nach 30 Minuten, enableautologout, user.autologout}
+				{!form_create_hidden saveOptions}<br /><br />
+				<input type="submit" value="Speichern" /><br />
+			</div>
+		</form>
+	{!table_end}
+	<div>
+		<br />
+	</div>
+	{!table_begin 470,left}
+		<form action="./main.php" method="post">
+			<div>
+				<span style="font-weight:bold">Grafikpak (Pfad):</span><br />
+				<input name="gfxpak" type="text" size="30" value="{user.imgpath}" />
+				{!form_create_hidden gfxPak}
+				<input type="submit" value="Speichern" /><br />
+				<span style="font-size:10px">Download: <a target="_none" class="forschinfo" style="font-size:8pt" href="./main.php?module=portal&action=download">Hier zu finden</a><br /><br />
+					Hinweis:<br />Um die Grafiken wieder vom Server zu laden bitte das Feld leer lassen<br />
+				</span>
+			</div>
+		</form>
+	{!table_end}
+	<div>
+		<br />
+	</div>
+	{!table_begin 470,left}
+		<form action="./main.php" method="post">
+			<div>
+				<span style="font-weight:bold">Vacation-Modus:</span><br />
+				{!form_create_hidden vacMode}
+				<select name="vacmode" size="1">
+				<!-- BEGIN options.general.vac.listitem -->
+					<option value="{options.general.vac.index}">
+						{options.general.vac.dauer}
+					</option>
+				<!-- END options.general.vac.listitem -->
+				</select>
+				<input type="submit" value="ok" /><br /><br />
+				<span style="font-size:10px">Nach dem Starten den Vacationmodus dauert es einige Ticks bis dieser auch aktiviert wird (unter "Vorlauf" angegeben).
+					W&auml;hrenddessen k&ouml;nnen sie jeder Zeit den Vacationmodus abbrechen. Auch eine normale Nutzung des Accounts ist m&ouml;glich.
+					Sobald der Vacationmodus allerdings vollst&auml;ndig aktiviert ist, ist ein Login nicht mehr m&ouml;glich bis entweder der Vacationmodus abgelaufen ist oder durch einen Administrator abgeschaltet wurde.
+				</span>
+			</div>
+		</form>
+	{!table_end}
+{/endif}

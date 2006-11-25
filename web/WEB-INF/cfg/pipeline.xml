@@ -80,6 +80,9 @@
 		<module name="main">
 			<generator class="net.driftingsouls.ds2.server.modules.MainController" />
 		</module>
+		<module name="options">
+			<generator class="net.driftingsouls.ds2.server.modules.OptionsController" />
+		</module>
 		<module name="plist">
 			<generator class="net.driftingsouls.ds2.server.modules.PListController" />
 		</module>
