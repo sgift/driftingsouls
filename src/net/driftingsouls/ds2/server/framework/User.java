@@ -874,6 +874,13 @@ public class User implements Loggable {
 		return data.getString("name");
 	}
 	
+	/**
+	 * Setzt den vollstaendigen Ingame-Namen des Spielers auf den angegebenen
+	 * BBCode-String. Gleichzeitig wird das Feld <code>plainname</code> mit dem neuen
+	 * Namen ohne BBCodes aktuallisiert.
+	 * 
+	 * @param name der neue vollstaendige Ingame-Name
+	 */
 	public void setName( String name ) {
 		checkAndLoad("name");
 		if( !name.equals(data.getString("name")) ) {
@@ -904,6 +911,16 @@ public class User implements Loggable {
 	}
 	
 	/**
+	 * Setzt das Passwort fuer den Spieler
+	 * @param pw Das neue (mittels MD5 kodierte) Passwort
+	 */
+	public void setPassword( String pw ) {
+		checkAndLoad("passwort");
+		context.getDatabase().tUpdate(1, "UPDATE users SET passwort='",pw,"' WHERE id='",id,"' AND passwort='",data.getString("passwort"),"'");
+		data.put("passwort", pw);
+	}
+	
+	/**
 	 * Gibt die Inaktivitaet des Spielers in Ticks zurueck
 	 * @return Die Inaktivitaet des Spielers in Ticks
 	 */
@@ -931,6 +948,11 @@ public class User implements Loggable {
 		return data.getString("history");
 	}
 	
+	/**
+	 * Gibt die Liste aller Orden und Auszeichnungen des Spielers zurueck.
+	 * Die einzelnen Orden-IDs sind mittels ; verbunden
+	 * @return Die Liste aller Orden
+	 */
 	public String getMedals() {
 		checkAndLoad("medals");
 		return data.getString("medals");
@@ -975,11 +997,19 @@ public class User implements Loggable {
 		data.put("konto", count);
 	}
 	
+	/**
+	 * Gibt den Cargo des Spielers als Cargo-String zurueck
+	 * @return der Cargo des Spielers
+	 */
 	public String getCargo() {
 		checkAndLoad("cargo");
 		return data.getString("cargo");
 	}
 	
+	/**
+	 * Die Nahrungsbilanz des letzten Ticks
+	 * @return Die Nahrungsbilanz des letzten Ticks
+	 */
 	public String getNahrungsStat() {
 		checkAndLoad("nstat");
 		return data.getString("nstat");
@@ -994,11 +1024,19 @@ public class User implements Loggable {
 		return data.getString("email");
 	}
 	
+	/**
+	 * Gibt die Anzahl der fehlgeschlagenen Login-Versuche des Spielers zurueck
+	 * @return die Anzahl der fehlgeschlagenene Logins
+	 */
 	public int getLoginFailedCount() {
 		checkAndLoad("log_fail");
 		return data.getInt("log_fail");
 	}
 	
+	/**
+	 * Setzt die Anzahl der fehlgeschlagenen Logins des Spielers auf den angegebenen Wert
+	 * @param count Die neue Anzahl der fehlgeschlagenene Logins
+	 */
 	public void setLoginFailedCount(int count) {
 		checkAndLoad("log_fail");
 		context.getDatabase().tUpdate(1, "UPDATE users SET log_fail='",count,"' WHERE id='",id,"' AND log_fail='",data.get("log_fail"),"'");
@@ -1025,6 +1063,16 @@ public class User implements Loggable {
 	}
 	
 	/**
+	 * Setzt den Ingame-Namen ohne Ally-Tag des Spielers auf den angegebenen BBCode-String 
+	 * @param nick der neue Ingame-Name ohne Ally-Tag
+	 */
+	public void setNickname( String nick ) {
+		checkAndLoad("nickname");
+		context.getDatabase().tUpdate(1, "UPDATE users SET nickname='",nick,"' WHERE id='",id,"' AND nickname='",data.getString("nickname"),"'");
+		data.put("nickname", nick);
+	}
+	
+	/**
 	 * Gibt den unformatierten Ingame-Namen des Spielers zurueck.
 	 * Der Name ist inklusive des Ally-Tags sofern vorhanden
 	 * @return Der unformatierte Name inkl. Ally-Tag
@@ -1045,16 +1093,31 @@ public class User implements Loggable {
 		return data.getInt("allyposten");
 	}
 	
+	/**
+	 * Gibt die ID des Systems zurueck, in den die durch die GTU versteigerten Dinge erscheinen sollen.
+	 * Das System muss ueber eine Drop-Zone verfuegen.
+	 * 
+	 * @return Die ID des Systems in den die versteigerten Dinge auftauchen sollen
+	 */
 	public int getGtuDropZone() {
 		checkAndLoad("gtudropzone");
 		return data.getInt("gtudropzone");
 	}
 	
+	/**
+	 * Gibt die Koordinate des Ortes zurueck, an dem von NPCs georderte Dinge erscheinen sollen.
+	 * 
+	 * @return Die Koordinaten des Ortes, an dem georderte Dinge erscheinen sollen
+	 */
 	public String getNpcOrderLocation() {
 		checkAndLoad("npcorderloc");
 		return data.getString("npcorderloc");
 	}
 	
+	/**
+	 * Gibt den Image-Pfad des Spielers zurueck
+	 * @return Der Image-Pfad des Spielers
+	 */
 	public String getImagePath() {
 		checkAndLoad("imgpath");
 		return data.getString("imgpath");
@@ -1072,6 +1135,10 @@ public class User implements Loggable {
 		return false;
 	}
 	
+	/**
+	 * (De)aktiviert den Account. 
+	 * @param value <code>true</code>, wenn der Account deaktiviert sein soll. Andernfalls <code>false</code>
+	 */
 	public void setDisabled(boolean value) {
 		checkAndLoad("disabled");
 		context.getDatabase().tUpdate(1, "UPDATE users SET disabled='",(value ? 1 : 0),"' WHERE id='",id,"' AND disabled='",data.getInt("disabled"),"'");
@@ -1088,6 +1155,10 @@ public class User implements Loggable {
 		return data.getInt("vaccount");
 	}
 	
+	/**
+	 * Setzt die Anzahl der Ticks, die der Account im Vacation-Modus verbringen soll
+	 * @param value Die Anzahl der Ticks im Vacation-Modus
+	 */
 	public void setVacationCount(int value) {
 		checkAndLoad("vaccount");
 		context.getDatabase().tUpdate(1, "UPDATE users SET vaccount='",value,"' WHERE id='",id,"' AND vaccount='",data.getInt("vaccount"),"'");
@@ -1104,32 +1175,58 @@ public class User implements Loggable {
 		return data.getInt("wait4vac");
 	}
 	
+	/**
+	 * Setzt die Anzahl der Ticks des Vacation-Modus-Vorlaufs auf den angegebenen
+	 * Wert
+	 * @param value Die Anzahl der Ticks im Vacation-Modus-Vorlauf
+	 */
 	public void setWait4VacationCount(int value) {
 		checkAndLoad("wait4vac");
 		context.getDatabase().tUpdate(1, "UPDATE users SET wait4vac='",value,"' WHERE id='",id,"' AND wait4vac='",data.getInt("wait4vac"),"'");
 		data.put("wait4vac", value);
 	}
 	
+	/**
+	 * Gibt die Anzahl der gewonnenen Schlachten zurueck
+	 * @return die Anzahl der gewonnenen Schlachten
+	 */
 	public int getWonBattles() {
 		checkAndLoad("wonbattles");
 		return data.getInt("wonbattles");
 	}
 	
+	/**
+	 * Gibt die Anzahl der verlorenen Schlachten zurueck
+	 * @return die Anzahl der verlorenen Schlachten
+	 */
 	public int getLostBattles() {
 		checkAndLoad("lostbattles");
 		return data.getInt("lostbattles");
 	}
 	
+	/**
+	 * Gibt die Anzahl der verlorenen Schiffe zurueck
+	 * @return die Anzahl der verlorenen Schiffe
+	 */
 	public int getLostShips() {
 		checkAndLoad("lostships");
 		return data.getInt("lostships");
 	}
 	
+	/**
+	 * Gibt die Anzahl der zerstoerten Schiffe zurueck
+	 * @return die Anzahl der zerstoerten Schiffe
+	 */
 	public int getDestroyedShips() {
 		checkAndLoad("destroyedships");
 		return data.getInt("destroyedships");
 	}
 	
+	/**
+	 * Gibt die Liste der bekannten Items zurueck, welche per Default
+	 * unbekannt ist.
+	 * @return Die Liste der bekannten Items als Item-String
+	 */
 	public String getKnownItems() {
 		checkAndLoad("knownItems");
 		return data.getString("knownItems");
