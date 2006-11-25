@@ -328,7 +328,7 @@ public class TemplateCompiler {
 			String name = parameter.get(1);
 			String var = parameter.get(2);
 			
-			String ret = "<input type=\\\"checkbox\\\" name=\\\""+name+"\\\" id=\\\""+name+"\\\" {if "+var+"}checked=\\\"checked\\\"{/endif} value=\\\"1\\\" /><label for=\\\""+name+"\\\">"+text+"</label>";
+			String ret = "<input type=\"checkbox\" name=\""+name+"\" id=\""+name+"\" {if "+var+"}checked=\"checked\"{/endif} value=\"1\" /><label for=\""+name+"\">"+text+"</label>";
 			
 			return StringUtils.replace(ret, "\"", "\\\"");
 		}	
