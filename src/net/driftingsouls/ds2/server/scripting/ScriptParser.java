@@ -61,7 +61,8 @@ public class ScriptParser {
 	}
 	
 	public void setLogFunction( String func ) {
-		throw new RuntimeException("STUB");
+		// TODO
+		Common.stub();
 	}
 	
 	public void log( String txt ) {
@@ -77,7 +78,8 @@ public class ScriptParser {
 	}
 	
 	public void setShip( Object ship ) {
-		throw new RuntimeException("STUB");
+		// TODO
+		Common.stub();
 	}
 	
 	public Object getShip() {
@@ -85,11 +87,13 @@ public class ScriptParser {
 	}
 	
 	public void addExecutionData( String data ) {
-		throw new RuntimeException("STUB");
+		// TODO
+		Common.stub();
 	}
 	
 	public void setExecutionData( String data ) {
-		throw new RuntimeException("STUB");
+		// TODO
+		Common.stub();
 	}
 	
 	public String getExecutionData() {
@@ -107,11 +111,14 @@ public class ScriptParser {
 	}
 	
 	public String getRegister( String reg ) {
-		throw new RuntimeException("STUB");
+		// TODO
+		Common.stub();
+		return "";
 	}
 	
 	public void setRegister( String reg, String data ) {
-		throw new RuntimeException("STUB");
+		// TODO
+		Common.stub();
 	}
 	
 	public void cleanup() {
@@ -131,6 +138,7 @@ public class ScriptParser {
 	}
 	
 	public void executeScript( Database db, String script, String parameter ) {
-		throw new RuntimeException("STUB");
+		// TODO
+		Common.stub();
 	}
 }

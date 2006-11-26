@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.scripting;
 
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.User;
 
 /**
@@ -54,6 +55,7 @@ public class Quests {
 	 */
 	public static boolean executeEvent( ScriptParser scriptparser, String handler, int userid, String execparameter ) {
 		// TODO
-		throw new RuntimeException("STUB");
+		Common.stub();
+		return false;
 	}
 }
