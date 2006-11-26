@@ -20,6 +20,9 @@ package net.driftingsouls.ds2.server.framework.pipeline;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+
+import org.apache.commons.fileupload.FileItem;
 
 /**
  * Standardinterface fuer Requestdaten
@@ -41,4 +44,5 @@ public interface Request {
 	public String getRemoteAddress();
 	public String getRequestURL();
 	public String getUserAgent();
+	public List<FileItem> getUploadedFiles();
 }

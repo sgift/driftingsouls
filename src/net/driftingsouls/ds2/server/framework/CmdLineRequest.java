@@ -20,8 +20,12 @@ package net.driftingsouls.ds2.server.framework;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.fileupload.FileItem;
 
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 
@@ -113,6 +117,10 @@ public class CmdLineRequest implements Request {
 
 	public void setParameter(String parameter, String value) {
 		params.put(parameter, value);
+	}
+
+	public List<FileItem> getUploadedFiles() {
+		return new ArrayList<FileItem>();
 	}
 
 }

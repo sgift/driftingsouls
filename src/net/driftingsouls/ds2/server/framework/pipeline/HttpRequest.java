@@ -20,22 +20,58 @@ package net.driftingsouls.ds2.server.framework.pipeline;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+
+import net.driftingsouls.ds2.server.framework.Loggable;
+
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.FileUploadBase;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.servlet.ServletRequestContext;
 
 /**
  * Implementiert das Request-Interface fuer HTTP-Requests
  * @author Christopher Jung
  *
  */
-public class HttpRequest implements Request {
+public class HttpRequest implements Request,Loggable {
 	private HttpServletRequest request = null;
 	private Map<String,String> parameters = new HashMap<String,String>();
+	private boolean isMultipart = false;
+	private ServletRequestContext context = null;
+	private List uploadedFiles = null;
 	
 	public HttpRequest(HttpServletRequest request) {
 		this.request = request;
+		
+		context = new ServletRequestContext(request);
+		isMultipart = FileUploadBase.isMultipartContent(context);
+		if( isMultipart ) {
+			FileItemFactory factory = new DiskFileItemFactory();
+			ServletFileUpload upload = new ServletFileUpload(factory);
+
+			try {
+				uploadedFiles = upload.parseRequest(context);
+				for( int i=0; i < uploadedFiles.size(); i++ ) {
+					FileItem item = (FileItem)uploadedFiles.get(i);
+					if( !item.isFormField() ) {
+						continue;
+					}
+				    parameters.put(item.getFieldName(), item.getString());
+				}
+			}
+			catch( FileUploadException e ) {
+				LOG.error(e);
+			}
+		}
 	}
 
 	public String getParameter(String parameter) {
@@ -108,5 +144,25 @@ public class HttpRequest implements Request {
 			return "";
 		}
 		return str;
+	}
+
+	public List<FileItem> getUploadedFiles() {
+		if( !isMultipart ) {
+			return new ArrayList<FileItem>();
+		}
+		
+		List<FileItem> result = new ArrayList<FileItem>();
+		List items = uploadedFiles;
+		for( int i=0; i < items.size(); i++ ) {
+			if( items.get(i) instanceof FileItem ) {
+				FileItem item = (FileItem)items.get(i);
+				if( item.isFormField() ) {
+					continue;
+				}
+				result.add((FileItem)items.get(i));
+			}
+		}
+			
+		return result;
 	}
 }
