@@ -18,15 +18,27 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.io.File;
+import java.util.List;
+
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.FileUploadBase;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.StringUtils;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.db.Database;
+import net.driftingsouls.ds2.server.framework.db.SQLQuery;
+import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
@@ -35,7 +47,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * @author Christopher Jung
  *
  */
-public class OptionsController extends DSGenerator {
+public class OptionsController extends DSGenerator implements Loggable {
 	/**
 	 * Konstruktor
 	 * @param context Der zu verwendende Kontext
@@ -53,7 +65,9 @@ public class OptionsController extends DSGenerator {
 	
 	/**
 	 * Aendert den Namen und das Passwort des Benutzers
-	 *
+	 * @urlparam String name Der neue Benutzername
+	 * @urlparam String pw Das neue Passwort
+	 * @urlparam String pw2 Die Wiederholung des neuen Passworts
 	 */
 	public void changeNamePassAction() {
 		Database db = getDatabase();
@@ -122,16 +136,62 @@ public class OptionsController extends DSGenerator {
 	
 	/**
 	 * Sendet die Löschanfrage des Spielers
-	 *
+	 * @urlparam Integer del Der Interaktionsschritt. Bei 0 wird das Eingabeformular angezeigt. Andernfalls wird versucht die Anfrage zu senden
+	 * @urlparam String reason Die schluessige Begruendung. Muss mindestens die Laenge 5 haben
 	 */
 	public void delAccountAction() {
-		// TODO
-		Common.stub();
+		TemplateEngine t = getTemplateEngine();
+		User user = getUser();
+		
+		parameterNumber("del");
+		parameterString("reason");
+		
+		int del = getInteger("del");
+		String reason = getString("reason");
+		if( del == 0 ) {
+			t.set_var( "options.delaccountform", 1 );
+		
+			return;
+		}
+		else if( reason.length() < 5 ) {
+			t.set_var(	"options.message",			"Bitte geben sie Gr&uuml;nde f&uuml;r die L&ouml;schung an!<br />\n",
+						"options.delaccountform",	1 );
+		
+			return;
+		}
+		else {
+			StringBuilder msg = new StringBuilder(100);
+	 		msg.append("PLZ DELETE ME!!!\nMY ID IS: [userprofile=");
+	 		msg.append(user.getID());
+	 		msg.append("]");
+	 		msg.append(user.getID());
+	 		msg.append("[/userprofile]\n");
+	 		msg.append("MY UN IS: ");
+	 		msg.append(user.getUN());
+	 		msg.append("\n");
+	 		msg.append("MY CURRENT NAME IS: ");
+	 		msg.append(user.getName());
+	 		msg.append("\n");
+	 		msg.append("MY REASONS:\n");
+	 		msg.append(reason);
+	 		PM.sendToAdmins(getContext(), user.getID(), "Account l&ouml;schen", msg.toString(), 0);
+	 		
+			t.set_var(	"options.delaccountresp",		1,
+						"delaccountresp.admins",		Configuration.getSetting("ADMIN_PMS_ACCOUNT") );
+			
+			return;
+		}
 	}
 	
 	/**
 	 * Aendert die erweiterten Einstellungen des Spielers
-	 * 
+	 * @urlparam Integer shipgroupmulti der neue Schiffsgruppierungswert
+	 * @urlparam Integer inttutorial Die Seite des Tutorials in der Uebersicht (0 = deaktiviert)
+	 * @urlparam Integer scriptdebug Ist fuer den Spieler die Option zum Debugging von (ScriptParser-)Scripten sichtbar gewesen? (es wird hinterher noch auf das AccessLevel gecheckt. Daher kein "Einbruch" moeglich.
+	 * @urlparam Integer scriptdebugstatus Bei einem Wert != 0 wird das ScriptDebugging aktiviert (benoetigt AccessLevel >= 20)
+	 * @urlparam Integer mapwidth Die Breite der Sternenkarte
+	 * @urlparam Integer mapheight Die Hoehe der Sternenkarte
+	 * @urlparam Integer defrelation Die Default-Beziehung zu anderen Spielern (1 = feindlich, 2 = freundlich, sonst neutral)  
 	 */
 	public void changeXtraAction() {
 		User user = getUser();
@@ -232,17 +292,43 @@ public class OptionsController extends DSGenerator {
 					"user.defrelation",		user.getRelation(0) );
 	}
 	
+	private static final int MAX_UPLOAD_SIZE = 307200;
+	
 	/**
 	 * Aendert das Logo des Spielers
 	 *
 	 */
 	public void logoAction() {
-		// TODO
-		Common.stub();
+		TemplateEngine t = getTemplateEngine();
+		
+		List<FileItem> list = getContext().getRequest().getUploadedFiles();
+		if( list.size() == 0 ) {
+			redirect();
+			return;
+		}
+		
+		if( list.get(0).getSize() > MAX_UPLOAD_SIZE ) {
+			t.set_var("options.message","Das Logo ist leider zu gro&szlig;. Bitte w&auml;hle eine Datei mit maximal 300kB Gr&ouml;&stlig;e<br />");
+			redirect();
+			return;
+		}
+		
+		String uploaddir = Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/user/";
+		try {
+			File uploadedFile = new File(uploaddir+getUser().getID()+".gif");
+			list.get(0).write(uploadedFile);
+			t.set_var("options.message","Das neue Logo wurde auf dem Server gespeichert<br />");
+		}
+		catch( Exception e ) {
+			t.set_var("options.message","Offenbar ging beim Upload etwas schief (Ist die Datei evt. zu gro&szlig;?)<br />");
+			LOG.warn(e);
+		}
+		redirect();
 	}
 	
 	/**
 	 * Setzt die Grafikpak-Einstellungen fuer den Spieler
+	 * @urlparam String gfxpak Der neue GfxPak-Pfad. Wenn dieser leer ist, wird der Default-Pfad verwendet
 	 *
 	 */
 	public void gfxPakAction() {
@@ -281,19 +367,42 @@ public class OptionsController extends DSGenerator {
 	
 	/**
 	 * Aktiviert den Vac-Mode fuer den Spieler
-	 *
+	 * @urlparam Integer vacmode die ID des zu benutzenden Vacmodes
 	 */
 	public void vacModeAction() {
-		// TODO
-		Common.stub();
+		TemplateEngine t = getTemplateEngine();
+		User user = getUser();
+		
+		parameterNumber("vacmode");
+		int vacmodeID = getInteger("vacmode");
+	
+		SQLResultRow vacmode = getDatabase().first("SELECT * FROM config_vacmodes WHERE id=",vacmodeID);
+		if( !vacmode.isEmpty() ) {
+			StringBuilder changemsg = new StringBuilder();
+		
+			user.setVacationCount(vacmode.getInt("dauer"));
+			user.setWait4VacationCount(vacmode.getInt("vorlauf"));
+			
+			changemsg.append("Vacationmodus aktiviert (Dauer: ");
+			changemsg.append(Common.ticks2Days(vacmode.getInt("dauer")));
+			changemsg.append(")<br />\n");
+		
+			Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getContext().getRequest().getRemoteAddress()+"> ("+user.getID()+") <"+user.getUN()+"> Vac beantragt: "+vacmode.getInt("vorlauf")+" Wartezeit "+vacmode.getInt("dauer")+" Dauer Browser <"+getContext().getRequest().getUserAgent()+">\n");
+					
+			t.set_var( "options.message", changemsg.toString() );
+		}
+		
+		redirect();
 	}
 	
 	/**
 	 * Speichert die neuen Optionen
-	 *
+	 * @urlparam Integer enableipsess Falls != 0 wird die Koppelung der Session an die IP aktiviert
+	 * @urlparam Integer enableautologout Falls != 0 wird der automatische Logout aktiviert
+	 * @urlparam Integer showtooltip Falls != 0 werden die Hilfstooltips aktiviert
+	 * @urlparam Integer wrapfactor Der neue Schiffsgruppierungsfaktor (0 = keine Gruppierung)
 	 */
 	public void saveOptionsAction() {
-		Database db = getDatabase();
 		User user = getUser();
 		TemplateEngine t = getTemplateEngine();
 		
@@ -378,15 +487,15 @@ public class OptionsController extends DSGenerator {
 
 
 		t.set_block("_OPTIONS","options.general.vac.listitem","options.general.vac.list");
-		// TODO
-		Common.stub();
-		/*for( $__vacmodes as $k=>$vacmode ) {
-			$vacdauer = ticks2Days( $vacmode['dauer'])."; Vorlauf: ".$vacmode['vacwait']." Ticks";
+		SQLQuery vacmode = getDatabase().query("SELECT * FROM config_vacmodes");
+		while( vacmode.next() ) {
+			String vacdauer = Common.ticks2Days( vacmode.getInt("dauer"))+"; Vorlauf: "+vacmode.getInt("vorlauf")+" Ticks";
 	
-			$t->set_var( array( 'options.general.vac.dauer' => $vacdauer,
-								'options.general.vac.index'	=> $k ) );
+			t.set_var(	"options.general.vac.dauer",	vacdauer,
+						"options.general.vac.index",	vacmode.getInt("id") );
 	
-			$t->parse('options.general.vac.list','options.general.vac.listitem',true);
-		}*/
+			t.parse("options.general.vac.list","options.general.vac.listitem",true);
+		}
+		vacmode.free();
 	}
 }
