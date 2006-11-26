@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.mutable.MutableInt;
 import org.apache.commons.lang.mutable.MutableLong;
 
 import net.driftingsouls.ds2.server.Location;
@@ -43,6 +42,11 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ships;
 
+/**
+ * Transfer von Waren zwischen Basen und Schiffen
+ * @author Christopher Jung
+ *
+ */
 public class TransportController extends DSGenerator {
 	static class MultiTarget {
 		private String name;
@@ -55,6 +59,7 @@ public class TransportController extends DSGenerator {
 		
 		/**
 		 * Gibt den Namen des MultiTargets zurueck
+		 * @return Der Name
 		 */
 		String getName() {
 			return name;
@@ -62,6 +67,7 @@ public class TransportController extends DSGenerator {
 		
 		/**
 		 * Gibt eine |-separierte Liste mit Zielen zurueck
+		 * @return Liste der Ziele
 		 */
 		String getTargetList() {
 			return targetlist;
@@ -79,45 +85,115 @@ public class TransportController extends DSGenerator {
 		static final int ROLE_SOURCE = 1;
 		static final int ROLE_TARGET = 1;
 		
+		/**
+		 * Erstellt ein neues TransportTarget
+		 * @param role Die Rolle (Source oder Target)
+		 * @param id Die ID
+		 * @throws Exception
+		 */
 		void create(int role, int id) throws Exception {
 			this.role = role;
 			this.id = id;
 		}
 		
+		/**
+		 * Gibt den Radius des Objekts zurueck
+		 * @return Der Radius
+		 */
 		int getSize() {
 			return data.getInt("size");
 		}
+		
+		/**
+		 * Gibt die ID des Besitzers zurueck
+		 * @return Die ID des Besitzers
+		 */
 		int getOwner() {
 			return owner;
 		}
+		
+		/**
+		 * Setzt den Besitzer auf den angegebenen Wert
+		 * @param owner Der neue Besitzer
+		 */
 		void setOwner(int owner) {
 			this.owner = owner;
 		}
+		
+		/**
+		 * Gibt die SQL-Ergebniszeile zurueck
+		 * @return Die SQL-Ergebniszeile
+		 */
 		SQLResultRow getData() {
 			return data;
 		}
+		
+		/**
+		 * Setzt die SQL-Ergebniszeile auf den angegebenen Wert
+		 * @param row die neue SQL-Ergebniszeile
+		 */
 		void setData(SQLResultRow row) {
 			this.data = row;
 		}
+		
+		/**
+		 * Gibt den maximalen Cargo zurueck
+		 * @return Der maximale Cargo
+		 */
 		long getMaxCargo() {
 			return maxCargo;
 		}
+		
+		/**
+		 * Setzt den maximalen Cargo
+		 * @param maxcargo der neue maximale Cargo
+		 */
 		void setMaxCargo(long maxcargo) {
 			this.maxCargo = maxcargo;
 		}
+		
+		/**
+		 * Gibt den Cargo zurueck
+		 * @return Der Cargo
+		 */
 		Cargo getCargo() {
 			return cargo;
 		}
+		
+		/**
+		 * Setzt den Cargo auf den angegebenen Wert
+		 * @param cargo der neue Cargo
+		 */
 		void setCargo(Cargo cargo) {
 			this.cargo = cargo;
 		}
+		
+		/**
+		 * Schreibt die Daten in die Datenbank
+		 */
 		abstract void write();
+		/**
+		 * Laedt die Daten aus der Datenbank nach
+		 */
 		abstract void reload();
+		/**
+		 * Gibt die MultiTarget-Variante zurueck.
+		 * Wenn keine MultiTarget-Variante verfuegbar ist, so wird <code>null</code> zurueckgegeben
+		 * @return Die MultiTarget-Variante oder <code>null</code>
+		 */
 		abstract MultiTarget getMultiTarget();
+		
+		/**
+		 * Gibt den Namen des Target-Typen zurueck
+		 * @return Der Name
+		 */
 		abstract String getTargetName();
 	}
 	
 	static class ShipTransportTarget extends TransportTarget {
+		/**
+		 * Konstruktor
+		 */
 		public ShipTransportTarget() {
 			// EMPTY
 		}
@@ -202,6 +278,9 @@ public class TransportController extends DSGenerator {
 	}
 	
 	static class BaseTransportTarget extends TransportTarget {
+		/**
+		 * Konstruktor
+		 */
 		public BaseTransportTarget() {
 			// EMPTY
 		}
@@ -252,7 +331,6 @@ public class TransportController extends DSGenerator {
 			db.tUpdate(1,"UPDATE bases SET cargo='",getCargo().save(),"' WHERE id='",getData().getInt("id"),"' AND cargo='",getCargo().save(true),"'");
 		}
 	}
-	private String rawWay;
 	private String[] way;
 	
 	private List<TransportTarget> from;
