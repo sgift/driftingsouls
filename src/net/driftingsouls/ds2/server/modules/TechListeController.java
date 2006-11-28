@@ -23,7 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
 
 import net.driftingsouls.ds2.server.Forschung;
 import net.driftingsouls.ds2.server.cargo.Cargo;
