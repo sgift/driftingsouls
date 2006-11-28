@@ -1,0 +1,101 @@
+<div class="smallfont">
+{!table_begin 300,left}
+	Rasse: <a id="racelink" name="racelink" class="forschinfo" onclick="return overlib('&lt;div style=\'text-align:center\'&gt;{race.list}&lt;/div&gt;',TIMEOUT,0,WIDTH,270,REF,'racelink', REFC,'LR',REFP,'UL',NOCLOSE,STICKY,FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');" onmouseout="return nd();" href="#">{race.name}</a>	
+{!table_end}
+<br />
+</div>
+<div>
+<!-- BEGIN tech.listitem -->
+<tr>
+	<td class="noBorderX">{!link_to $tech.name, default, module:forschinfo, css_style:font-weight:bold, res:$tech.id}</td>
+	<td class="noBorderX">
+		<img style="vertical-align:middle" src="{URL}data/interface/time.gif" alt="Dauer" />{tech.dauer}&nbsp;
+		<!-- BEGIN res.listitem -->
+			<img style="vertical-align:middle" src="{warenb}" alt="{waren}" />{tech.cost}{if tech.cost.space}&nbsp;{/endif}
+		<!-- END res.listitem -->
+	</td>
+	<td class="noBorderX">
+		{if tech.req1.id}{!link_to $tech.req1.name, default, module:forschinfo, res:$tech.req1.id}{/endif}
+		{if tech.req2.id}<br />{!link_to $tech.req2.name, default, module:forschinfo, res:$tech.req2.id}{/endif}
+		{if tech.req3.id}<br />{!link_to $tech.req3.name, default, module:forschinfo, res:$tech.req3.id}{/endif}
+		{if tech.noreq}&nbsp;{/endif}
+	</td>
+</tr>
+<!-- END tech.listitem -->
+
+<!-- BEGIN tech.researchable.listitem -->
+	<td class="noBorderX" align="center">
+		<a class="forschinfo" style="font-weight:bold" href="./main.php?module=forschinfo&amp;sess={global.sess}&amp;res={tech.id}">
+			<img style="border:0px" src="{URL}data/tech/{tech.id}.gif" alt="" />
+		</a><br />
+		{!link_to $tech.name, default, module:forschinfo, css_style:font-weight:bold, res:$tech.id}<br />
+		{if tech.remaining}
+			[noch <img style="vertical-align:middle" src="{URL}data/interface/time.gif" alt="" />{tech.remaining}]<br />
+		{/endif}
+		{res.list}
+		<br />
+		<br />
+	</td>
+	{if tech.newline}
+		</tr>
+		<tr>
+	{/endif}
+<!-- END tech.researchable.listitem -->
+
+{if tech.researchable.list}
+	{!table_begin 700,center}
+	<span style="color:yellow">Erforschbar</span><br />
+	<table class="noBorderX" width="100%">
+	<tr>
+		{tech.researchable.list}
+	</tr>
+	</table>
+	{!table_end}
+	<br />
+{/endif}
+
+{if tech.notResearchable.list}
+	{!table_begin 700,center}
+	<span style="color:red">Noch nicht erforschbar</span><br />
+	<table class="noBorderX" width="100%">
+	<tr>
+		<td class="noBorderX" style="font-weight:bold">Name</td>
+		<td class="noBorderX">Kosten</td>
+		<td class="noBorderX">Vorraussetzungen</td>
+	</tr>
+	{tech.notResearchable.list}
+	</table>
+	{!table_end}
+	<br />
+{/endif}
+
+{if tech.invisible.list}
+	{!table_begin 700,center}
+	<span style="color:grey">Unsichtbar</span><br />
+	<table class="noBorderX" width="100%">
+	<tr>
+		<td class="noBorderX" style="font-weight:bold">Name</td>
+		<td class="noBorderX">Kosten</td>
+		<td class="noBorderX">Vorraussetzungen</td>
+	</tr>
+		{tech.invisible.list}
+	</table>
+	{!table_end}
+	<br />
+{/endif}
+
+{if tech.researched.list}
+	{!table_begin 700,center}
+	<span style="color:green">Bereits erforscht</span><br />
+	<table class="noBorderX" width="100%">
+	<tr>
+		<td class="noBorderX" style="font-weight:bold">Name</td>
+		<td class="noBorderX">Kosten</td>
+		<td class="noBorderX">Vorraussetzungen</td>
+	</tr>
+	{tech.researched.list}
+	</table>
+	{!table_end}
+	<br />
+{/endif}
+</div>

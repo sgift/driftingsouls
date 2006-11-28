@@ -102,6 +102,9 @@
 			<generator class="net.driftingsouls.ds2.server.modules.TechDatabaseController" />
 			<serializer class="net.driftingsouls.ds2.server.framework.pipeline.serializer.PlainSerializer" />
 		</module>
+		<module name="techliste">
+			<generator class="net.driftingsouls.ds2.server.modules.TechListeController" />
+		</module>
 		<module name="trade">
 			<generator class="net.driftingsouls.ds2.server.modules.TradeController" />
 		</module>
