@@ -79,6 +79,14 @@ public class ResourceList implements Iterable<ResourceEntry>, Iterator<ResourceE
 	public void sortByCargo( boolean descending ) {
 		Common.stub();
 	}
+	
+	/**
+	 * Gibt die Anzahl der Resourceneintraege in der Resourcenliste an
+	 * @return Die Anzahl der Resourceneintraege
+	 */
+	public int size() {
+		return list.size();
+	}
 
 	public Iterator<ResourceEntry> iterator() {
 		iter = list.iterator();
