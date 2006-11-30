@@ -26,7 +26,6 @@ import org.apache.commons.lang.StringUtils;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
@@ -36,6 +35,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
  *
  */
 public class ScriptParser {
+	
 	/**
 	 * Interface fuer ScriptParser-Logger
 	 * @author Christopher Jung
@@ -161,6 +161,8 @@ public class ScriptParser {
 	private StringBuffer out = new StringBuffer();
 	private NameSpace namespace = null;
 	private Map<String,String> register = null;
+	private Map<String,SPFunction> funcregister = null;
+	private Map<String,Args[]> funcargregister = null;
 	
 	/**
 	 * Konstruktor
@@ -178,10 +180,26 @@ public class ScriptParser {
 		
 		this.namespace = namespace;
 		this.register = new HashMap<String,String>();
+		this.funcregister = new HashMap<String,SPFunction>();
+		this.funcargregister = new HashMap<String,Args[]>();
 	}
 
-	public boolean registerCommand( String command, String function, Class cls, Args ... args ) {
-		throw new RuntimeException("STUB");
+	/**
+	 * Registriert eine ScriptParser-Funktion
+	 * @param command Der Name der Script-Parser-Funktion
+	 * @param function Die Funktionsimplementierung
+	 * @param args Die Parameterstruktur
+	 * @return <code>true</code>, falls das Kommando neu registriert wurde und noch nicht registriert war
+	 */
+	public boolean registerCommand( String command, SPFunction function, Args ... args ) {
+		command = "!"+command;
+		if( !funcregister.containsKey(command) ) {
+			funcregister.put(command, function);
+			funcargregister.put(command, args);
+			
+			return true;
+		}
+		return false;
 	}
 	
 	/**
