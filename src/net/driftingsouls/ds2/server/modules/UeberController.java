@@ -124,7 +124,7 @@ public class UeberController extends DSGenerator {
 		
 		ScriptParser scriptparser = new ScriptParser( ScriptParser.NameSpace.QUEST );
 		if( !getUser().hasFlag( User.FLAG_SCRIPT_DEBUGGING ) ) {
-			scriptparser.setLogFunction("");
+			scriptparser.setLogFunction(ScriptParser.LOGGER_NULL);
 		}
 
 		scriptparser.setExecutionData(questdata.getString("execdata"));

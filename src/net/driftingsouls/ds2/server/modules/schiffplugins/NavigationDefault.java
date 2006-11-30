@@ -90,7 +90,7 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 		if( (act != 5) && (act >= 1) && (act <= 9) && !ship.getString("onmove").equals("") ) {	
 			ScriptParser scriptparser = ContextMap.getContext().get(ContextCommon.class).getScriptParser( ScriptParser.NameSpace.QUEST );
 			scriptparser.setShip(ship);
-			scriptparser.setLogFunction("");
+			scriptparser.setLogFunction(ScriptParser.LOGGER_NULL);
 			scriptparser.setRegister("DIRECTION",Integer.toString(act));
 			scriptparser.setRegister("MOVEMENTCOUNT",Integer.toString(count));
 			scriptparser.setRegister("SECTOR", Location.fromResult(ship).toString());

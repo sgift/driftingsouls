@@ -1223,7 +1223,7 @@ public class Ships {
 						ScriptParser scriptparser = ContextMap.getContext().get(ContextCommon.class).getScriptParser(ScriptParser.NameSpace.QUEST);
 						scriptparser.setShip(ship);
 						if( !user.hasFlag(User.FLAG_SCRIPT_DEBUGGING) ) {
-							scriptparser.setLogFunction("");
+							scriptparser.setLogFunction(ScriptParser.LOGGER_NULL);
 						}
 							
 						scriptparser.setRegister("SECTOR", loc.toString() );

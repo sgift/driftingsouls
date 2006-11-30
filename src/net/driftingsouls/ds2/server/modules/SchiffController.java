@@ -135,7 +135,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 			ScriptParser scriptparser = getContext().get(ContextCommon.class).getScriptParser( ScriptParser.NameSpace.QUEST );
 			scriptparser.setShip(ship);
 			if( !user.hasFlag( User.FLAG_SCRIPT_DEBUGGING ) ) {
-				scriptparser.setLogFunction("");
+				scriptparser.setLogFunction(ScriptParser.LOGGER_NULL);
 			}
 			
 			Quests.executeLock(scriptparser, ship.getString("lock"), user);
@@ -563,7 +563,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		ScriptParser scriptparser = getContext().get(ContextCommon.class).getScriptParser( ScriptParser.NameSpace.QUEST );
 		scriptparser.setShip(ship);
 		if( !user.hasFlag( User.FLAG_SCRIPT_DEBUGGING ) ) {
-			scriptparser.setLogFunction("");
+			scriptparser.setLogFunction(ScriptParser.LOGGER_NULL);
 		}
 		
 		Quests.currentEventURL.set("&action=communicate&communicate="+communicate);
@@ -605,7 +605,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		ScriptParser scriptparser = getContext().get(ContextCommon.class).getScriptParser( ScriptParser.NameSpace.QUEST );
 		scriptparser.setShip(ship);
 		if( !user.hasFlag( User.FLAG_SCRIPT_DEBUGGING ) ) {
-			scriptparser.setLogFunction("");
+			scriptparser.setLogFunction(ScriptParser.LOGGER_NULL);
 		}
 	
 		Quests.currentEventURL.set("&action=onmove");
@@ -647,7 +647,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		ScriptParser scriptparser = getContext().get(ContextCommon.class).getScriptParser( ScriptParser.NameSpace.QUEST );
 		scriptparser.setShip(ship);
 		if( !user.hasFlag( User.FLAG_SCRIPT_DEBUGGING ) ) {
-			scriptparser.setLogFunction("");
+			scriptparser.setLogFunction(ScriptParser.LOGGER_NULL);
 		}
 		
 		// TODO: migrate to libquests

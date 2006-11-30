@@ -18,8 +18,17 @@
  */
 package net.driftingsouls.ds2.server.scripting;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.db.Database;
+import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 /**
  * Der ScriptParser
@@ -27,6 +36,102 @@ import net.driftingsouls.ds2.server.framework.db.Database;
  *
  */
 public class ScriptParser {
+	/**
+	 * Interface fuer ScriptParser-Logger
+	 * @author Christopher Jung
+	 *
+	 */
+	public static interface Logger {
+		/**
+		 * Startet das Logging (Log-Header)
+		 */
+		public void start();
+		/**
+		 * Loggt einen (ein- oder mehrzeiligen) Text
+		 * @param txt der zu loggende Text
+		 */
+		public void log(String txt);
+		/**
+		 * Beendet das Logging (Log-Footer
+		 */
+		public void stop();
+	}
+	
+	private static class TextLogger implements Logger {
+		public void start() {
+			System.out.println("###################Scriptparser [Debug]###################\n");
+		}
+		
+		public void log(String txt) {
+			System.out.println(txt);
+		}
+		
+		public void stop() {
+			System.out.println("#########################ENDE#############################\n");
+		}
+	}
+	
+	private static class HtmlLogger implements Logger {
+		public void start() {
+			Context context = ContextMap.getContext();
+			if( context == null ) {
+				return;
+			}
+			StringBuffer out = context.getResponse().getContent();
+			out.append(Common.tableBegin(500,"left"));
+			out.append("<div align=\"center\">Scriptparser [Debug]</div><br />");
+			out.append("<span style=\"font-size:11px\">\n");	
+		}
+		
+		public void log(String txt) {
+			Context context = ContextMap.getContext();
+			if( context == null ) {
+				return;
+			}
+			StringBuffer out = context.getResponse().getContent();
+			out.append(StringUtils.replace(txt, "\n", "<br />"));
+		}
+		
+		public void stop() {
+			Context context = ContextMap.getContext();
+			if( context == null ) {
+				return;
+			}
+			StringBuffer out = context.getResponse().getContent();
+			out.append("</span>\n");
+			out.append(Common.tableEnd());
+			out.append("<br />\n");
+		}
+	}
+	
+	private static class NullLogger implements Logger {
+		public void log(String txt) {
+			// EMPTY
+		}
+
+		public void start() {
+			// EMPTY
+		}
+
+		public void stop() {
+			// EMPTY
+		}
+	}
+	
+	/**
+	 * Loggt den ScriptParser-Output als Text in der Konsole
+	 */
+	public static Logger LOGGER_TEXT = new TextLogger();
+	/**
+	 * Loggt den ScriptParser-Output als HTML in den Ausgabe-Puffer
+	 */
+	public static Logger LOGGER_HTML = new HtmlLogger();
+	
+	/**
+	 * Loggt den ScriptParser-Output nicht
+	 */
+	public static Logger LOGGER_NULL = new NullLogger();
+	
 	public enum NameSpace {
 		ACTION,
 		QUEST
@@ -51,39 +156,84 @@ public class ScriptParser {
 		}
 	}
 	
+	private Logger logFunction = LOGGER_NULL;
+	private SQLResultRow ship = null;
+	private StringBuffer out = new StringBuffer();
+	private NameSpace namespace = null;
+	private Map<String,String> register = null;
+	
+	/**
+	 * Konstruktor
+	 * @param namespace Der Namespace, in dem der ScriptParser arbeiten soll
+	 */
 	public ScriptParser(NameSpace namespace) {
-		super();
+		// TODO: Nicht schoen. Bitte besser machen
+		if( (ContextMap.getContext() != null) && 
+			(ContextMap.getContext().getRequest().getClass().getName().toUpperCase().contains("HTTP")) ) {
+			setLogFunction(LOGGER_HTML);
+		}
+		else {
+			setLogFunction(LOGGER_TEXT);
+		}		
 		
+		this.namespace = namespace;
+		this.register = new HashMap<String,String>();
 	}
 
-	public void registerCommand( String command, String function, Class cls, Args ... args ) {
+	public boolean registerCommand( String command, String function, Class cls, Args ... args ) {
 		throw new RuntimeException("STUB");
 	}
 	
-	public void setLogFunction( String func ) {
-		// TODO
-		Common.stub();
+	/**
+	 * Setzt die Logger-Klasse
+	 * @param func Die neue Logger-Klasse
+	 */
+	public void setLogFunction( Logger func ) {
+		logFunction = func;
 	}
 	
+	/**
+	 * Loggt den angegebenen String
+	 * @param txt Der zu loggende String
+	 */
 	public void log( String txt ) {
-		throw new RuntimeException("STUB");
+		logFunction.log(txt);
 	}
 	
+	/**
+	 * Startet das Logging
+	 *
+	 */
 	public void startLogging() {
-		throw new RuntimeException("STUB");
+		logFunction.start();
 	}
 	
+	/**
+	 * Stoppt das Logging
+	 *
+	 */
 	public void stopLogging() {
-		throw new RuntimeException("STUB");
+		logFunction.stop();
 	}
 	
-	public void setShip( Object ship ) {
-		// TODO
-		Common.stub();
+	/**
+	 * Setzt das Schiff
+	 * @param ship Das Schiff
+	 * @deprecated Bitte das register <code>#SOURCESHIP</code>
+	 */
+	@Deprecated
+	public void setShip( SQLResultRow ship ) {
+		this.ship = ship;
 	}
 	
-	public Object getShip() {
-		throw new RuntimeException("STUB");
+	/**
+	 * Gibt das Schiff zurueck
+	 * @return Das Schiff
+	 * @deprecated Bitte das register <code>#SOURCESHIP</code>
+	 */
+	@Deprecated
+	public SQLResultRow getShip() {
+		return ship;
 	}
 	
 	public void addExecutionData( String data ) {
@@ -100,25 +250,48 @@ public class ScriptParser {
 		throw new RuntimeException("STUB");
 	}
 	
+	/**
+	 * Gibt die Ausgabe der Scripte zurueck
+	 * @return Die Scriptausgabe
+	 */
 	public String getOutput() {
-		// TODO
-		Common.stub();
-		return "";
+		return out.toString();
 	}
 	
+	/**
+	 * Fuegt den angegebenen Text zur Scriptausgabe hinzu
+	 * @param text der auszugebende Text
+	 */
 	public void out( String text ) {
-		throw new RuntimeException("STUB");
+		out.append(text);
 	}
 	
+	/**
+	 * Gibt das angegebene Register zurueck
+	 * @param reg Das Register
+	 * @return der Inhalt des Registers
+	 */
 	public String getRegister( String reg ) {
-		// TODO
-		Common.stub();
-		return "";
+		if( reg.charAt(0) == '#' ) {
+			reg = reg.substring(1);	
+		}
+		String val = this.register.get(reg);
+		if( val == null ) {
+			return "";
+		}
+		return val;
 	}
 	
+	/**
+	 * Setzt das angegebene Register auf den angegebenen Wert
+	 * @param reg Der Name des Registers
+	 * @param data Der Wert
+	 */
 	public void setRegister( String reg, String data ) {
-		// TODO
-		Common.stub();
+		if( reg.charAt(0) == '#' ) {
+			reg = reg.substring(1);	
+		}
+		this.register.put(reg, data);
 	}
 	
 	public void cleanup() {
