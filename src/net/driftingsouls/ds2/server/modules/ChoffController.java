@@ -114,7 +114,7 @@ public class ChoffController extends DSGenerator {
 					"offizier.ability.nav",	offizier.getAbility( Offizier.Ability.NAV ),
 					"offizier.ability.sec",	offizier.getAbility( Offizier.Ability.SEC ),
 					"offizier.ability.com",	offizier.getAbility( Offizier.Ability.COM ),
-					"offizier.special",		offizier.getSpecial(),
+					"offizier.special",		offizier.getSpecial().getName(),
 					"base.id",				(dest[0].equals("b") || dest[0].equals("t") ? dest[1] : 0),
 					"ship.id",				(dest[0].equals("s") ? dest[1] : 0) );
 	}
