@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.framework;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -645,6 +646,25 @@ public class User implements Loggable {
 			db.update("DELETE FROM user_relations WHERE user_id='",this.id,"' AND status='",relation.ordinal(),"' AND target_id!='0'");
 		}
 	}
+	/**
+	 * Transferiert einen bestimmten Geldbetrag (RE) von einem anderen Benutzer zum aktuellen.
+	 * Der Transfer kann entweder ein echter Transfer sein (Geld wird abgebucht) oder ein gefakter
+	 * Transfer (kein Geld wird abgebucht sondern nur hinzugefuegt).
+	 * Zudem faellt jeder Geldtransfer in eine von 3 Kategorien (automatisch, halbautomatisch und manuell).<br>
+	 * Die Berechnung erfolgt intern auf Basis von <code>BigInteger</code>
+	 * 
+	 * @param fromID Die ID des Benutzers, von dem Geld abgebucht werden soll
+	 * @param count Die zu transferierende Geldmenge
+	 * @param text Der Hinweistext, welcher im "Kontoauszug" angezeigt werden soll
+	 * @param faketransfer Handelt es sich um einen "gefakten" Geldtransfer (<code>true</code>)?
+	 * @param transfertype Der Transfertyp (Kategorie)
+	 * @see #TRANSFER_AUTO
+	 * @see #TRANSFER_SEMIAUTO
+	 * @see #TRANSFER_NORMAL
+	 */
+	public void transferMoneyFrom( int fromID, long count, String text, boolean faketransfer, int transfertype) {
+		transferMoneyFrom(fromID,BigInteger.valueOf(count), text, faketransfer, transfertype);
+	}
 
 	/**
 	 * Transferiert einen bestimmten Geldbetrag (RE) von einem anderen Benutzer zum aktuellen.
@@ -661,13 +681,13 @@ public class User implements Loggable {
 	 * @see #TRANSFER_SEMIAUTO
 	 * @see #TRANSFER_NORMAL
 	 */
-	public void transferMoneyFrom( int fromID, long count, String text, boolean faketransfer, int transfertype) {
+	public void transferMoneyFrom( int fromID, BigInteger count, String text, boolean faketransfer, int transfertype) {
 		Database db = context.getDatabase();
 		
-		if( count != 0 ) {
+		if( !count.equals(BigInteger.ZERO) ) {
 			if( (fromID != 0) && !faketransfer ) {			
 				if( context.getCachedUser(fromID) != null ) {
-					context.getCachedUser(fromID).setKonto( context.getCachedUser(fromID).getKonto()-count );
+					context.getCachedUser(fromID).setKonto( context.getCachedUser(fromID).getKonto().subtract(count) );
 				}
 				else {
 					db.tUpdate(1, "UPDATE users SET konto=konto-",count," WHERE id=",fromID);	
@@ -678,7 +698,7 @@ public class User implements Loggable {
 		
 			checkAndLoad("konto");
 		
-			data.put("konto", data.getLong("konto")+count);	
+			data.put("konto", data.getBigInteger("konto").add(count));	
 		
 			db.update("INSERT INTO user_moneytransfer (`from`,`to`,`time`,`count`,`text`,`fake`,`type`) ",
 					"VALUES ('",fromID,"','",this.id,"','",Common.time(),"','",count,"','",db.prepareString(text),"','",(faketransfer ? 1 : 0),"','",transfertype,"')");
@@ -982,19 +1002,21 @@ public class User implements Loggable {
 	 * Liefert den Kontostand des Benutzers zurueck
 	 * @return Der Kontostand
 	 */
-	public long getKonto() {
+	public BigInteger getKonto() {
 		checkAndLoad("konto");
-		return data.getLong("konto");
+		return data.getBigInteger("konto");
 	}
 	
 	/**
 	 * Setzt den Kontostand des Spielers auf den angegebenen Wert
 	 * @param count der neue Kontostand
 	 */
-	public void setKonto( long count ) {
+	public void setKonto( BigInteger count ) {
 		checkAndLoad("konto");
-		context.getDatabase().tUpdate(1, "UPDATE users SET konto='",count,"' WHERE id='",id,"' AND konto='",data.getInt("konto"),"'");
-		data.put("konto", count);
+		context.getDatabase().tUpdate(1, "UPDATE users SET konto='",count,"' WHERE id='",id,"' AND konto='",data.getBigInteger("konto"),"'");
+		if( !context.getDatabase().isTransaction() || context.getDatabase().tStatus() ) {
+			data.put("konto", count);
+		}
 	}
 	
 	/**
