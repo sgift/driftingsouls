@@ -276,7 +276,7 @@ public class Database implements Loggable {
 			if( transaction && (affectedRows() != count) ) {
 				tStatus = false;
 				if( debugTransaction ) {
-					LOG.warn("Transaktion fehlgeschlagen: "+query);
+					LOG.warn("Transaktion fehlgeschlagen: "+Common.implode("", query));
 				}
 			}
 		}
