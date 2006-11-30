@@ -25,7 +25,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceID;
  * @author Christopher Jung
  *
  */
-public class AutoGTUAction {
+public class AutoGTUAction implements Cloneable {
 	private ResourceID resid;
 	private int actid;
 	private long count;
@@ -70,4 +70,22 @@ public class AutoGTUAction {
 	public String toString() {
 		return resid.toString()+":"+actid+":"+count;
 	}
+
+	@Override
+	public Object clone() {
+		try {
+			AutoGTUAction act = (AutoGTUAction)super.clone();
+			act.actid = this.actid;
+			act.count = this.count;
+			act.resid = this.resid;
+			return act;
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	
 }
