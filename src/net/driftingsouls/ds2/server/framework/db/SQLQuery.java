@@ -64,7 +64,13 @@ public class SQLQuery {
 			int currentRow = result.getRow();
 			result.last();
 			int row = result.getRow();
-			result.absolute(currentRow);
+			if( currentRow > 0 ) {
+				result.absolute(currentRow);
+			}
+			else {
+				result.first();
+				result.previous();
+			}
 			return row;
 		}
 		catch( SQLException e ) {
