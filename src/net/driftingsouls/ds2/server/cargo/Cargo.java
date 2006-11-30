@@ -1083,8 +1083,14 @@ public class Cargo implements Loggable, Cloneable {
 			Cargo cargo = (Cargo)super.clone();
 			cargo.cargo = this.cargo.clone();
 			cargo.orgcargo = this.orgcargo.clone();
-			cargo.items = new ArrayList<Long[]>(this.items);
+			cargo.items = new ArrayList<Long[]>();
+			for( int i=0; i < this.items.size(); i++ ) {
+				cargo.items.add(i, this.items.get(i).clone());
+			}
 			cargo.orgitems = new ArrayList<Long[]>(this.orgitems);
+			for( int i=0; i < this.orgitems.size(); i++ ) {
+				cargo.orgitems.add(i, this.orgitems.get(i).clone());
+			}
 			cargo.linkclass = this.linkclass;
 			cargo.showmass = this.showmass;
 			cargo.largeImages = this.largeImages;
