@@ -218,7 +218,7 @@ public class Offizier extends DSObject {
 	 * @see #getDest()
 	 */
 	public void setDest( String dest, int objectid ) {
-		dest = dest+' '+objectid;
+		this.dest = dest+' '+objectid;
 		changed = true;
 	}
 	
