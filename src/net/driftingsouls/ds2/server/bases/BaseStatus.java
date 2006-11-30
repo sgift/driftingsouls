@@ -34,9 +34,9 @@ public class BaseStatus {
 	private int bewohner;
 	private int arbeiter;
 	private Map<Integer,Integer> blocations;
-	private int[] active;
+	private Integer[] active;
 	
-	protected BaseStatus(Cargo status, int e, int bewohner, int arbeiter, Map<Integer,Integer> blocations, int[] active ) {
+	protected BaseStatus(Cargo status, int e, int bewohner, int arbeiter, Map<Integer,Integer> blocations, Integer[] active ) {
 		super();
 		this.status = status;
 		this.e = e;
@@ -53,7 +53,7 @@ public class BaseStatus {
 	 * 
 	 * @return Liste der (de)aktivierten Gebaeude.
 	 */
-	public int[] getActiveBuildings() {
+	public Integer[] getActiveBuildings() {
 		return active;
 	}
 
