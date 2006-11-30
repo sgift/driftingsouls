@@ -149,6 +149,9 @@ class Waffenfabrik extends DefaultBuilding {
 			}
 			
 			SQLResultRow wf = db.first( "SELECT produces FROM weaponfactory WHERE col=",col);
+			if( wf.isEmpty() ) {
+				LOG.warn("Basis "+col+" verfuegt ueber keinen Waffenfabrik-Eintrag, obwohl es eine Waffenfabrik hat");
+			}
 			String[] plist = StringUtils.split(wf.getString("produces"), ';');
 			for( int i=0; i < plist.length; i++ ) {
 				String[] tmp = StringUtils.split(plist[i],'=');
