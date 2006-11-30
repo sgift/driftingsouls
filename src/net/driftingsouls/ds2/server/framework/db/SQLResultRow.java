@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.framework.db;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 
 import net.driftingsouls.ds2.server.framework.Loggable;
@@ -105,7 +106,27 @@ public class SQLResultRow extends HashMap<String,Object> implements Loggable {
 			LOG.warn("SQLResultRow: Unbekannte long-Spalte '"+column+"'", new Throwable());
 		}
 		return 0;
-	}	
+	}
+	
+	/**
+	 * Gibt den Wert einer Spalte als <code>BitInteger</code> zurueck
+	 * @param column Der Spaltenname
+	 * @return Der Wert
+	 */
+	public BigInteger getBigInteger(String column) {
+		Object val = get(column);
+		if( val != null ) {
+			if( val instanceof BigInteger ) {
+				return (BigInteger)val;
+			}
+			
+			return new BigInteger(val.toString());
+		}
+		else if( !containsKey(column) ) {
+			LOG.warn("SQLResultRow: Unbekannte BigInteger-Spalte '"+column+"'", new Throwable());
+		}
+		return BigInteger.ZERO;
+	}
 	
 	/**
 	 * Gibt den Wert einer Spalte als <code>double</code> zurueck
