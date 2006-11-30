@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.tick;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.tick.regular.AcademyTick;
+import net.driftingsouls.ds2.server.tick.regular.BaseTick;
 import net.driftingsouls.ds2.server.tick.regular.ForschungsTick;
 
 /**
@@ -36,7 +37,7 @@ public class RegularTick extends AbstractTickExecuter {
 		// TODO 
 		try {
 			publishStatus("berechne Basen");
-			//execTick(BaseTick.class);
+			execTick(BaseTick.class,false);
 	
 			publishStatus("berechne Schiffe");
 			//execTick(SchiffsTick.class);
@@ -65,6 +66,7 @@ public class RegularTick extends AbstractTickExecuter {
 		}
 		catch( Exception e ) {
 			System.err.println("Fehler beim Ausfuehren der Ticks: "+e);
+			e.printStackTrace();
 		}
 	}
 
