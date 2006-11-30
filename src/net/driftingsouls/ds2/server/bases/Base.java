@@ -41,7 +41,7 @@ import org.apache.commons.lang.StringUtils;
  * 
  * @author Christopher Jung
  */
-public class Base {
+public class Base implements Cloneable {
 	private SQLResultRow base;
 	private List<AutoGTUAction> autogtuacts;
 	
@@ -67,13 +67,13 @@ public class Base {
 		this.autogtuacts = acts;
 		
 		// Ggf die Feldergroessen fixen
-		if( getTerrain().length+getActive().length+getBebauung().length < getWidth()*getHeight()-1 ) {
+		if( getTerrain().length+getActive().length+getBebauung().length < getWidth()*getHeight()*3 ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
-			if( getTerrain().length < getWidth()*getHeight()-1 ) {
-				Integer[] terrain = new Integer[getWidth()*getHeight()-1];
+			if( getTerrain().length < getWidth()*getHeight() ) {
+				Integer[] terrain = new Integer[getWidth()*getHeight()];
 				System.arraycopy(getTerrain(), 0, terrain, 0, getTerrain().length );
-				for( int i=getTerrain().length-1; i < getWidth()*getHeight(); i++ ) {
+				for( int i=Math.max(getTerrain().length-1,0); i < getWidth()*getHeight(); i++ ) {
 					int rnd = new Random().nextInt(8);
 					if( rnd > 5 ) {
 						terrain[i] = rnd - 5;	
@@ -86,20 +86,20 @@ public class Base {
 				db.update("UPDATE bases SET terrain='",Common.implode("|", getTerrain()),"' WHERE id='",getID(),"'");
 			}
 			
-			if( getBebauung().length < getWidth()*getHeight()-1 ) {
-				Integer[] bebauung = new Integer[getWidth()*getHeight()-1];
+			if( getBebauung().length < getWidth()*getHeight() ) {
+				Integer[] bebauung = new Integer[getWidth()*getHeight()];
 				System.arraycopy(getBebauung(), 0, bebauung, 0, getBebauung().length );
-				for( int i=getBebauung().length-1; i < getWidth()*getHeight(); i++ ) {
+				for( int i=Math.max(getBebauung().length-1,0); i < getWidth()*getHeight(); i++ ) {
 					bebauung[i] = 0;	
 				}
 				put("bebauung", bebauung);
 				db.update("UPDATE bases SET bebauung='",Common.implode("|", getBebauung()),"' WHERE id='",getID(),"'");
 			}
 			
-			if( getActive().length < getWidth()*getHeight()-1 ) {
-				Integer[] active = new Integer[getWidth()*getHeight()-1];
+			if( getActive().length < getWidth()*getHeight() ) {
+				Integer[] active = new Integer[getWidth()*getHeight()];
 				System.arraycopy(getActive(), 0, active, 0, getActive().length );
-				for( int i=getActive().length-1; i < getWidth()*getHeight(); i++ ) {
+				for( int i=Math.max(getActive().length-1,0); i < getWidth()*getHeight(); i++ ) {
 					active[i] = 0;	
 				}
 				put("active", active);
@@ -327,7 +327,7 @@ public class Base {
 		
 		SQLResultRow baseRow = db.first("SELECT * FROM bases WHERE id='"+base+"'");	
 
-		return getStatus( context, baseRow );
+		return getStatus( context, new Base(baseRow) );
 	}
 	
 	/**
@@ -337,14 +337,24 @@ public class Base {
 	 * @return der aktuelle Verbrauchs/Produktions-Status
 	 */
 	public static BaseStatus getStatus( Context context, SQLResultRow base ) {
+		return getStatus(context, new Base(base));
+	}
+	
+	/**
+	 * Generiert den aktuellen Verbrauch/Produktion-Status einer Basis
+	 * @param context Der aktuelle Kontext
+	 * @param base die Basis
+	 * @return der aktuelle Verbrauchs/Produktions-Status
+	 */
+	public static BaseStatus getStatus( Context context, Base base ) {
 		Cargo stat = new Cargo();
 		int e = 0;
 		int arbeiter = 0;
 		int bewohner = 0;
 		Map<Integer,Integer> buildinglocs = new TreeMap<Integer,Integer>(); 
 	
-		if( (base.getInt("core") > 0) && (base.getInt("coreactive") == 1) ) {
-			Core core = Core.getCore(context.getDatabase(), base.getInt("core") );
+		if( (base.getCore() > 0) && base.isCoreActive() ) {
+			Core core = Core.getCore(context.getDatabase(), base.getCore() );
 	
 			stat.substractCargo(core.getConsumes());
 			stat.addCargo(core.getProduces());
@@ -354,10 +364,10 @@ public class Base {
 			bewohner += core.getBewohner();
 		}
 		
-		int[] bebauung = Common.explodeToInt("|", base.getString("bebauung"), base.getInt("width") * base.getInt("height"));
-		int[] bebon = Common.explodeToInt("|", base.getString("active"), base.getInt("width") * base.getInt("height"));
+		Integer[] bebauung = base.getBebauung();
+		Integer[] bebon = base.getActive();
 			
-		for( int o=0; o < base.getInt("width") * base.getInt("height"); o++ ) {
+		for( int o=0; o < base.getWidth() * base.getHeight(); o++ ) {
 			if( bebauung[o] == 0 ) {
 				continue;
 			} 
@@ -368,13 +378,13 @@ public class Base {
 				buildinglocs.put(building.getID(), o);
 			}
 				
-			bebon[o] = building.isActive( base.getInt("id"), bebon[o], o ) ? 1 : 0;
+			bebon[o] = building.isActive( base.getID(), bebon[o], o ) ? 1 : 0;
 		
 			if( bebon[o] == 0 ) {
 				continue;
 			}
 			
-			building.modifyStats( base.getInt("id"), stat );
+			building.modifyStats( base.getID(), stat );
 		
 			stat.substractCargo(building.getConsumes());
 			stat.addCargo(building.getProduces());
@@ -384,8 +394,32 @@ public class Base {
 			bewohner += building.getBewohner();
 		}
 	
-		stat.substractResource( Resources.NAHRUNG, base.getInt("bewohner") );
+		stat.substractResource( Resources.NAHRUNG, base.getBewohner() );
 
 		return new BaseStatus(stat, e, bewohner, arbeiter, Collections.unmodifiableMap(buildinglocs), bebon);
+	}
+
+	@Override
+	public Object clone() {
+		Base base;
+		try {
+			base = (Base)super.clone();
+			base.base = new SQLResultRow();
+			base.base.putAll(this.base);
+			base.base.put("terrain", this.getTerrain().clone());
+			base.base.put("active", this.getActive().clone());
+			base.base.put("bebauung", this.getBebauung().clone());
+			base.base.put("cargo", this.getCargo().clone());
+			
+			base.autogtuacts = new ArrayList<AutoGTUAction>();
+			for( int i=0; i < this.autogtuacts.size(); i++ ) {
+				base.autogtuacts.add((AutoGTUAction)this.autogtuacts.get(i).clone());
+			}
+		
+			return base;
+		} catch (CloneNotSupportedException e) {
+			// EMPTY
+		}
+		return null;
 	}
 }
