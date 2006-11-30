@@ -1,0 +1,103 @@
+<span class="smallfont">
+{if tc.message}
+	{!table_begin 400,center}
+		{tc.message}
+	{!table_end}
+	<br />
+	<br />
+{/endif}
+{if tc.selectoffizier}
+ 	{!table_begin 700,left}
+ 		<span style="font-weight:bold">Anwesende Offiziere:</span><br />
+		<table class="noBorderX" width="100%">
+		<tr>
+			<td class="noBorderX" colspan="2">Name</td>
+			<td class="noBorderX">Technik</td>
+			<td class="noBorderX">Waffen</td>
+			<td class="noBorderX">Navigation</td>
+			<td class="noBorderX">Sicherheit</td>
+			<td class="noBorderX">Kommando</td>
+			<td class="noBorderX">Spezial</td>
+		</tr>
+		<!-- BEGIN tc.offiziere.listitem -->
+			<tr>
+				<td class="noBorderX"><img src="{tc.offizier.picture}"></td>
+				<td class="noBorderX">
+					{!link_to $tc.offizier.name, $tc.mode, ship:$tc.ship, target:$tc.target, off:$tc.offizier.id}
+				</td>
+				<td class="noBorderX">{tc.offizier.ability.ing}</td>
+				<td class="noBorderX">{tc.offizier.ability.waf}</td>
+				<td class="noBorderX">{tc.offizier.ability.nav}</td>
+				<td class="noBorderX">{tc.offizier.ability.sec}</td>
+				<td class="noBorderX">{tc.offizier.ability.com}</td>
+				<td class="noBorderX">{tc.offizier.special}</td>
+			</tr>
+		<!-- END tc.offiziere.listitem -->
+		{if show.fleetupload}
+			<tr>
+				<td class="noBorderX" colspan="8"><hr style="height:1px; border:0px; background-color:#606060; color:#606060" /></td>
+			</tr>
+			<tr>
+				<td class="noBorderX" colspan="8" style="text-align:center">
+					<a class="forschinfo" href="javascript:ask('Achtung! Es werden beliebige Offiziere von diesem Asteroiden zu Schiffen der Flotte ohne Offizier transferier!\nWollen sie dies wirklich?','./main.php?module=tc&sess={global.sess}&action={tc.fleetmode}&ship={tc.ship}&target={tc.target}')">Flotte mit Offizieren ausr&uuml;sten</a>
+				</td>
+			</tr>
+		{/endif}
+		</table>
+	{!table_end}
+	<br />
+{/endif}
+{if tc.stos}
+	{if ! tc.selectoffizier}
+		{if tc.confirm}
+			{!table_begin 650,center}
+				Wollen sie den Offizier {tc.offizier.name} wirklich auf die {tc.target.name} ({tc.target}) transferieren?<br /><br />
+				{!link_to Offizier transferieren, $tc.mode, css_class:ok, ship:$tc.ship, target:$tc.target, conf:ok}
+			{!table_end}
+			<br />
+		{else}
+			{!table_begin 400,center}
+	 			{tc.offizier.name} wurde erfolgreich transferiert
+		 	{!table_end}
+			 <br />
+		{/endif}
+	{/endif}
+	{!link_to zur&uuml;ck, default, css_class:back, module:schiff, ship:$tc.ship}
+	{if tc.target.isown}
+		 | <a class="back" href="./main.php?module=schiff&sess={global.sess}&ship={tc.target}">zur {tc.target.name}</a>
+	{/endif}
+	<br /><br />
+{/endif}
+	
+{if tc.stob}
+	{if ! tc.selectoffizier}
+		{if tc.confirm}
+			{!table_begin 650,center}
+				Wollen sie den Offizier {tc.offizier.name} wirklich nach {tc.target.name} transferieren?<br /><br />
+				{!link_to Offizier transferieren, shipToBase, css_class:ok, ship:$tc.ship, target:$tc.target, conf:ok}
+			{!table_end}
+			<br />
+		{else}
+			{!table_begin 400,center}
+		 		{tc.offizier.name} wurde erfolgreich transferiert
+		 	{!table_end}
+		 	<br />
+		{/endif}
+	{/endif}
+	{!link_to zur&uuml;ck, default, css_class:back, module:schiff, ship:$tc.ship}
+	{if tc.target.isown}
+		| <a class="back" href="./main.php?module=base&sess={global.sess}&col={tc.target}">zur {tc.target.name}</a>
+	{/endif}
+	<br /><br />
+{/endif}
+	
+{if tc.captainzuweisen}
+	{if tc.offizier}
+		{!table_begin 400,center}
+	 		{tc.offizier.name} wurde erfolgreich transferiert
+	 	{!table_end}
+	 	<br />
+	{/endif}
+	{!link_to zur&uuml;ck, default, css_class:back, module:schiff, ship:$tc.ship}<br /><br />
+{/endif}
+</span>

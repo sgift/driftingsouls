@@ -98,6 +98,9 @@
 		<module name="schiffinfo">
 			<generator class="net.driftingsouls.ds2.server.modules.SchiffInfoController" />
 		</module>
+		<module name="tc">
+			<generator class="net.driftingsouls.ds2.server.modules.TCController" />
+		</module>
 		<module name="techdatabase">
 			<generator class="net.driftingsouls.ds2.server.modules.TechDatabaseController" />
 			<serializer class="net.driftingsouls.ds2.server.framework.pipeline.serializer.PlainSerializer" />
