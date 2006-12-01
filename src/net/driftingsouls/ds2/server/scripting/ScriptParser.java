@@ -18,7 +18,14 @@
  */
 package net.driftingsouls.ds2.server.scripting;
 
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -58,6 +65,10 @@ public class ScriptParser {
 	}
 	
 	private static class TextLogger implements Logger {
+		TextLogger() {
+			// EMPTY
+		}
+		
 		public void start() {
 			System.out.println("###################Scriptparser [Debug]###################\n");
 		}
@@ -72,6 +83,10 @@ public class ScriptParser {
 	}
 	
 	private static class HtmlLogger implements Logger {
+		HtmlLogger() {
+			// EMPTY
+		}
+		
 		public void start() {
 			Context context = ContextMap.getContext();
 			if( context == null ) {
@@ -105,6 +120,10 @@ public class ScriptParser {
 	}
 	
 	private static class NullLogger implements Logger {
+		NullLogger() {
+			// EMPTY
+		}
+		
 		public void log(String txt) {
 			// EMPTY
 		}
@@ -132,18 +151,53 @@ public class ScriptParser {
 	 */
 	public static Logger LOGGER_NULL = new NullLogger();
 	
+	/**
+	 * Die verschiedenen, dem ScriptParser bekannten, Namespaces
+	 *
+	 */
 	public enum NameSpace {
+		/**
+		 * Schiffsaktions-Scripte
+		 */
 		ACTION,
+		/**
+		 * Quest-Scripte
+		 */
 		QUEST
 	}
 	
+	/**
+	 * Die verschiedenen Argumenttypen
+	 *
+	 */
 	public enum Args {
+		/**
+		 * Variabele Anzahl an Parametern
+		 */
 		VARIABLE(1),
+		/**
+		 * Einfache Daten
+		 */
 		PLAIN(2),
+		/**
+		 * Register, welche die Daten enthalten
+		 */
 		REG(4),
+		/**
+		 * Einfache Daten oder Register
+		 */
 		PLAIN_REG(PLAIN.value() | REG.value()),
+		/**
+		 * Einfache Daten variabler Anzahl
+		 */
 		PLAIN_VARIABLE(PLAIN.value() | VARIABLE.value()),
+		/**
+		 * Register variabler Anzahl
+		 */
 		REG_VARIABLE(REG.value() | VARIABLE.value()),
+		/**
+		 * Einfache Daten oder Register variabler Anzahl
+		 */
 		PLAIN_REG_VARIABLE(PLAIN.value() | REG.value() | VARIABLE.value());
 
 		private int value = 0;
@@ -151,6 +205,10 @@ public class ScriptParser {
 			this.value = value;
 		}
 		
+		/**
+		 * Gibt die Integer-Repraesentation des Argument-Typs zurueck
+		 * @return Die Integer-Repraesentation
+		 */
 		public int value() {
 			return value;
 		}
@@ -163,6 +221,8 @@ public class ScriptParser {
 	private Map<String,String> register = null;
 	private Map<String,SPFunction> funcregister = null;
 	private Map<String,Args[]> funcargregister = null;
+	private int lastcommand = 0;
+	private List<String> addparameterlist = null;
 	
 	/**
 	 * Konstruktor
@@ -182,6 +242,7 @@ public class ScriptParser {
 		this.register = new HashMap<String,String>();
 		this.funcregister = new HashMap<String,SPFunction>();
 		this.funcargregister = new HashMap<String,Args[]>();
+		this.addparameterlist = new ArrayList<String>();
 	}
 
 	/**
@@ -254,18 +315,65 @@ public class ScriptParser {
 		return ship;
 	}
 	
-	public void addExecutionData( String data ) {
-		// TODO
-		Common.stub();
+	private class ExecData implements Serializable {
+		private static final long serialVersionUID = 1L;
+		
+		ExecData() {
+			// EMPTY
+		}
+		Map<String,String> register;
+		int lastcommand;
 	}
 	
-	public void setExecutionData( String data ) {
-		// TODO
-		Common.stub();
+	/**
+	 * Laedt Ausfuehrungsdaten aus dem angegebenen InputStream und fuegt sie dem ScriptParser hinzu
+	 * @param data Der InputStream
+	 * @throws Exception
+	 */
+	public void addExecutionData( InputStream data ) throws Exception {
+		if( data != null ) {
+			ObjectInputStream oinput = new ObjectInputStream(data);
+			ExecData entry = (ExecData)oinput.readObject();
+			if( (entry.register != null) && (entry.register.size() > 0) ) {
+				this.register.putAll(entry.register);
+			}
+			oinput.close();
+		}
 	}
 	
-	public String getExecutionData() {
-		throw new RuntimeException("STUB");
+	/**
+	 * Setzt die Ausfuehrungsdaten des ScriptParsers auf die im Stream enthaltenen Daten
+	 * @param data Der InputStream
+	 * @throws Exception
+	 */
+	public void setExecutionData( InputStream data ) throws Exception {
+		if( data == null ) {
+			return;
+		}
+		ObjectInputStream oinput = new ObjectInputStream(data);
+		ExecData entry = (ExecData)oinput.readObject();
+		
+		this.lastcommand = entry.lastcommand;
+		if( (entry.register != null) && (entry.register.size() > 0) ) {
+			this.register.putAll(entry.register);
+		}
+	}
+	
+	/**
+	 * Schreibt die Ausfuehrungsdaten des ScriptParsers in den angegebenen Stream
+	 * @param out Der OutputStream
+	 * @throws Exception
+	 */
+	public void writeExecutionData(OutputStream out) throws Exception {
+		if( out == null ) {
+			return;
+		}
+		ObjectOutputStream oout = new ObjectOutputStream(out);
+		ExecData entry = new ExecData();
+		entry.register = this.register;
+		entry.lastcommand = lastcommand;
+		oout.writeObject(entry);
+		oout.close();
 	}
 	
 	/**
@@ -312,22 +420,55 @@ public class ScriptParser {
 		this.register.put(reg, data);
 	}
 	
+	/**
+	 * Setzt die internen Daten des Scriptparsers auf den Ausgangsstatus zurueck
+	 */
 	public void cleanup() {
-		throw new RuntimeException("STUB");
+		this.lastcommand = 0;
+		this.register.clear();
+		this.out.setLength(0);
+		this.ship = null;
+		this.addparameterlist.clear();
 	}
 	
+	/**
+	 * Fuehrt einen Term aus und gibt das Ergebnis zurueck
+	 * @param term Der Term
+	 * @return Das Ergebnis
+	 */
 	public String evalTerm( String term ) {
 		throw new RuntimeException("STUB");
 	}
 	
+	/**
+	 * Gibt den Parameter mit der angegebenen Nummer zurueck.
+	 * Sollte kein Parameter mit der Nummer existiert wird <code>null</code>
+	 * zurueckgegeben.
+	 * @param number Die Nummer des Parameters
+	 * @return Der Inhalt oder <code>null</code>
+	 */
 	public String getParameter( int number ) {
-		throw new RuntimeException("STUB");
+		if( (number > -1) && (addparameterlist.size() >= number) ) { 
+			return this.addparameterlist.get(number);
+		}
+		return null;
 	}
 	
+	/**
+	 * Fuehrt das angegebene Script aus
+	 * @param db Eine offene DB-Verbindung
+	 * @param script das Script
+	 */
 	public void executeScript( Database db, String script ) {
 		executeScript(db, script, "");
 	}
 	
+	/**
+	 * Fuehrt das angegebene Script aus
+	 * @param db Eine offene DB-Verbindung
+	 * @param script Das Script
+	 * @param parameter Ausfuehrungsparameter
+	 */
 	public void executeScript( Database db, String script, String parameter ) {
 		// TODO
 		Common.stub();
