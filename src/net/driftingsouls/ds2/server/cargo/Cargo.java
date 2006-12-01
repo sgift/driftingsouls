@@ -154,7 +154,7 @@ public class Cargo implements Loggable, Cloneable {
 		this();
 		try {
 			switch(type) {
-			case STRING:
+			case STRING: {
 				String[] mycargo = source.split(",");
 				if( mycargo.length != MAX_RES + 1 ) {
 					String[] mycargo2 = new String[MAX_RES+1];
@@ -178,10 +178,19 @@ public class Cargo implements Loggable, Cloneable {
 					}
 				}
 				break;
+			}
 				
-			case ITEMSTRING:
-				throw new RuntimeException("STUB");
-				//break;
+			case ITEMSTRING: {
+				String[] myitems = source.split(";");
+				int itemcount = 0;
+				for( int i=0; i < myitems.length; i++ ) {
+					if( !myitems[i].equals("") ) { 
+						itemcount++;
+						items.add(parseItems(myitems[i]));
+					}
+				}
+				break;
+			}
 			}
 			
 			System.arraycopy(cargo, 0, orgcargo, 0, cargo.length);
@@ -223,7 +232,7 @@ public class Cargo implements Loggable, Cloneable {
 		}
 		
 		switch(type) {
-		case STRING:
+		case STRING: {
 			StringBuilder itemString = new StringBuilder(items.size()*8);
 			
 			if( !items.isEmpty() ) {
@@ -243,12 +252,22 @@ public class Cargo implements Loggable, Cloneable {
 			cargoString[Resources.ITEMS.getID()] = itemString.toString();
 			
 			return Common.implode(",", cargoString);
+		}
+		case ITEMSTRING: {
+			StringBuilder itemString = new StringBuilder(items.size()*8);
 			
-		case ITEMSTRING:
-			if( true ) {
-				throw new RuntimeException("STUB");
+			if( !items.isEmpty() ) {
+				for( Long[] aItem : items ) {
+					if( aItem[1] != 0 ) {
+						if( itemString.length() != 0 ) {
+							itemString.append(';');
+						}
+						itemString.append(Common.implode("|",aItem ));
+					}
+				}
 			}
-			break;
+			return itemString.toString();
+		}
 		case ARRAY:
 			throw new RuntimeException("DEPRECATED");
 		}
