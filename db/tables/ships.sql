@@ -32,7 +32,7 @@ CREATE TABLE `ships` (
   `autodeut` tinyint(3) unsigned NOT NULL default '1',
   `history` text NOT NULL,
   `script` text,
-  `scriptexedata` text,
+  `scriptexedata` BLOB,
   `oncommunicate` text,
   `lock` varchar(9) default NULL,
   `visibility` mediumint(9) default NULL,
