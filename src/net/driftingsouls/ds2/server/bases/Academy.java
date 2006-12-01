@@ -95,8 +95,11 @@ class Academy extends DefaultBuilding {
 		Database db = ContextMap.getContext().getDatabase();
 
 		SQLResultRow academy = db.first( "SELECT remain FROM academy WHERE col='",col,"'");
-		if( academy.getInt("remain") > 0 ) {
+		if( !academy.isEmpty() && (academy.getInt("remain") > 0) ) {
 			return true;
+		}
+		else if( academy.isEmpty() ) {
+			LOG.warn("Die Akademie auf Basis "+col+" verfuegt ueber keinen DB-Eintrag");
 		}
 		return false;
 	}
