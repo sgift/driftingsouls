@@ -34,6 +34,7 @@ import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.db.Database;
@@ -49,9 +50,13 @@ import net.driftingsouls.ds2.server.ships.Ships;
  * @author Christopher Jung
  *
  */
-public class UeberController extends DSGenerator {
+public class UeberController extends DSGenerator implements Loggable {
 	private String box = "";
 	
+	/**
+	 * Konstruktor
+	 * @param context Der zu verwendende Kontext
+	 */
 	public UeberController(Context context) {
 		super(context);
 		
@@ -65,6 +70,10 @@ public class UeberController extends DSGenerator {
 		return true;
 	}
 	
+	/**
+	 * Beendet den Vacation-Modus-Vorlauf
+	 *
+	 */
 	public void stopWait4VacAction() {
 		User user = getUser();
 		
@@ -77,8 +86,11 @@ public class UeberController extends DSGenerator {
 		redirect();
 	}
 	
+	/**
+	 * Wechselt die Tutorial-Seite bzw beendet das Tutorial 
+	 * @urlparam Integer tutorial 1, falls die naechste Tutorialseite angezeigt werden soll. Zum Beenden -1
+	 */
 	public void tutorialAction() {
-		Database db = getDatabase();
 		User user = getUser();
 		
 		parameterNumber("tutorial");
@@ -96,6 +108,11 @@ public class UeberController extends DSGenerator {
 		this.redirect();
 	}
 	
+	/**
+	 * Wechselt den Anzeigemodus der Flotten/Bookmark-Box
+	 * @urlparam String box Der Name des neuen Anzeigemodus
+	 *
+	 */
 	public void boxAction() {
 		parameterString("box");
 		
@@ -109,14 +126,20 @@ public class UeberController extends DSGenerator {
 		redirect();
 	}
 	
+	/**
+	 * Beendet das angegebene Quest
+	 * @urlparam Integer questid Die ID des zu beendenden Quests
+	 *
+	 */
 	public void stopQuestAction() {
 		Database db = getDatabase();
 		
 		parameterNumber("questid");
 		int questid = getInteger("questid");
 		
-		SQLResultRow questdata = db.first("SELECT * FROM quests_running WHERE id='",questid,"'");
-		if( questdata.isEmpty() || (questdata.getInt("userid") != getUser().getID()) ) {
+		SQLQuery questdata = db.query("SELECT * FROM quests_running WHERE id='",questid,"'");
+		if( !questdata.next() || (questdata.getInt("userid") != getUser().getID()) ) {
+			questdata.free();
 			addError("Sie k&ouml;nnen dieses Quest nicht abbrechen");
 			redirect();
 			return;
@@ -127,14 +150,27 @@ public class UeberController extends DSGenerator {
 			scriptparser.setLogFunction(ScriptParser.LOGGER_NULL);
 		}
 
-		scriptparser.setExecutionData(questdata.getString("execdata"));
+		try {
+			scriptparser.setExecutionData(questdata.getBlob("execdata").getBinaryStream());
+		}
+		catch( Exception e ) {
+			LOG.warn("Loading Script-ExecData failed (Quest: "+questid+": ",e);
+			redirect();
+			return;
+		}
 		scriptparser.setRegister("USER", Integer.toString(getUser().getID()));
 		scriptparser.setRegister("QUEST", "r"+questid);
 		scriptparser.executeScript(db, ":0\n!ENDQUEST\n!QUIT","0");
 		
+		questdata.free();
+		
 		redirect();	
 	}
 	
+	/**
+	 * Zeigt die Uebersicht an
+	 */
+	@Override
 	public void defaultAction() {
 		Database db = getDatabase();
 		User user = getUser();

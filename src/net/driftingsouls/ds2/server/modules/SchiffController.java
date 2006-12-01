@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.sql.Blob;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
@@ -58,6 +59,8 @@ import org.apache.commons.lang.StringUtils;
 /**
  * Die Schiffsansicht
  * @author Christopher Jung
+ * 
+ * @urlparam Integer ship Die ID des anzuzeigenden Schiffes
  *
  */
 public class SchiffController extends DSGenerator implements Loggable {
@@ -67,6 +70,10 @@ public class SchiffController extends DSGenerator implements Loggable {
 	private Map<String,SchiffPlugin> pluginMapper = new LinkedHashMap<String,SchiffPlugin>();
 	private boolean noob = false;
 	
+	/**
+	 * Konstruktor
+	 * @param context Der zu verwendende Kontext
+	 */
 	public SchiffController(Context context) {
 		super(context);
 		
@@ -167,6 +174,11 @@ public class SchiffController extends DSGenerator implements Loggable {
 		return true;	
 	}
 	
+	/**
+	 * Wechselt die Alarmstufe des Schiffes
+	 * @urlparam Integer alarm Die neue Alarmstufe
+	 *
+	 */
 	public void alarmAction() {
 		if( noob ) {
 			redirect();
@@ -194,6 +206,12 @@ public class SchiffController extends DSGenerator implements Loggable {
 		redirect();
 	}
 	
+	/**
+	 * Uebergibt das Schiff an einen anderen Spieler
+	 * @urlparam Integer newowner Die ID des neuen Besitzers
+	 * @urlparam Integer conf 1, falls die Sicherheitsabfrage positiv bestaetigt wurde
+	 *
+	 */
 	public void consignAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -245,8 +263,11 @@ public class SchiffController extends DSGenerator implements Loggable {
 		return;
 	}
 	
+	/**
+	 * Zerstoert das Schiff
+	 *
+	 */
 	public void destroyAction() {
-		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
 
 		if( !ship.getString("lock").equals("") ) {
@@ -273,6 +294,11 @@ public class SchiffController extends DSGenerator implements Loggable {
 		return;
 	}
 	
+	/**
+	 * Springt durch den angegebenen Sprungpunkt
+	 * @urlparam Integer knode Die ID des Sprungpunkts
+	 *
+	 */
 	public void jumpAction() {
 		TemplateEngine t = getTemplateEngine();
 		
@@ -292,6 +318,11 @@ public class SchiffController extends DSGenerator implements Loggable {
 		redirect();
 	}
 	
+	/**
+	 * Benutzt einen an ein Schiff assoziierten Sprungpunkt
+	 * @urlparam Integer knode Die ID des Schiffes mit dem Sprungpunkt
+	 *
+	 */
 	public void kjumpAction() {
 		TemplateEngine t = getTemplateEngine();
 		
@@ -311,6 +342,11 @@ public class SchiffController extends DSGenerator implements Loggable {
 		redirect();
 	}
 	
+	/**
+	 * Benennt das Schiff um
+	 * @urlparam String newname Der neue Name des Schiffes
+	 *
+	 */
 	public void renameAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -658,8 +694,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		}
 		
 		String usescript = lock[0];
-		String rquestid = lock[1].substring(1);
-		SQLResultRow runningdata = db.first("SELECT id,execdata FROM quests_running WHERE id='",rquestid,"'");	
+		String rquestid = lock[1].substring(1);	
 	
 		String usequest = lock[1];
 	
@@ -671,12 +706,25 @@ public class SchiffController extends DSGenerator implements Loggable {
 			}
 		
 			Quests.currentEventURL.set("&action=onenter");
+			
+			SQLQuery runningdata = db.query("SELECT id,execdata FROM quests_running WHERE id='",rquestid,"'");
+			Blob execdata = null;
 		
-			if( runningdata.getInt("id") != 0 ) {
-				scriptparser.setExecutionData( runningdata.getString("execdata") );
+			if( runningdata.next() ) {
+				try {
+					execdata = runningdata.getBlob("execdata");
+					scriptparser.setExecutionData(execdata.getBinaryStream() );
+				}
+				catch( Exception e ) {
+					LOG.warn("Setting Script-ExecData failed (Ship: "+ship.getInt("id")+": ",e);
+					return;
+				}
 			}
 			else {
+				runningdata.free();
 				t.set_var("ship.message", "FATAL QUEST ERROR: keine running-data gefunden!<br />");
+				redirect();
+				return;
 			}
 		
 			String script = db.first("SELECT script FROM scripts WHERE id='",usescript,"'").getString("script");
@@ -695,14 +743,17 @@ public class SchiffController extends DSGenerator implements Loggable {
 			usequest = scriptparser.getRegister("QUEST");
 			
 			if( !usequest.equals("") ) {
-				if( usequest.charAt(0) != 'r' ) {
-					db.update("UPDATE quests_running SET execdata='",scriptparser.getExecutionData(),"' WHERE questid='",usequest,"' AND userid='",user.getID(),"'");
+				try {
+					execdata.truncate(0);
+					scriptparser.writeExecutionData(execdata.setBinaryStream(0));	
 				}
-				else {
-					rquestid = usequest.substring(1);
-					db.update("UPDATE quests_running SET execdata='",scriptparser.getExecutionData(),"' WHERE id='",rquestid,"'");	
-				}	
+				catch( Exception e ) {
+					LOG.warn("Writing back Script-ExecData failed (Ship: "+ship.getInt("id")+": ",e);
+					return;
+				}
 			}
+			
+			runningdata.free();
 		}	
 		else {
 			t.set_var("ship.message", "Das angegebene Schiff antwortet auf ihre Funksignale nicht<br />");	
@@ -916,6 +967,9 @@ public class SchiffController extends DSGenerator implements Loggable {
 		moduleOutputList.put("jdocks", "J&auml;gerdocks ");
 	}
 	
+	/**
+	 * Zeigt die Schiffsansicht an
+	 */
 	@Override
 	public void defaultAction() {
 		User user = getUser();
