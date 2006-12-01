@@ -24,8 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Comparator;
 
-import net.driftingsouls.ds2.server.framework.Common;
-
 /**
  * Liste von Resourcen aus einem Cargo
  * @author Christopher Jung
@@ -46,6 +44,30 @@ public class ResourceList implements Iterable<ResourceEntry>, Iterator<ResourceE
 		
 		public int compare(ResourceEntry o1, ResourceEntry o2) {
 			return comp.compare(o1.getId(), o2.getId());
+		}
+	}
+	
+	/**
+	 * Vergleichsklasse fuer Resourcen-IDs. Verglichen wird auf Basis
+	 * der vorhandenen Resourcenmenge
+	 * @author Christopher Jung
+	 *
+	 */
+	private class CargoComparator implements Comparator<ResourceEntry> {
+		private boolean descending;
+		
+		CargoComparator(boolean descending) {
+			this.descending = descending;
+		}
+		
+		public int compare(ResourceEntry o1, ResourceEntry o2) {
+			if( o1.getCount1() > o2.getCount1() ) {
+				return (descending ? -1 : 1);
+			}
+			if( o1.getCount1() < o2.getCount1() ) {
+				return (descending ? 1 : -11);
+			}
+			return 0;
 		}
 	}
 	
@@ -77,7 +99,7 @@ public class ResourceList implements Iterable<ResourceEntry>, Iterator<ResourceE
 	 * @param descending Soll die Liste absteigend sortiert werden (<code>true</code>)?
 	 */
 	public void sortByCargo( boolean descending ) {
-		Common.stub();
+		Collections.sort(list, new CargoComparator(descending));
 	}
 	
 	/**
@@ -94,6 +116,9 @@ public class ResourceList implements Iterable<ResourceEntry>, Iterator<ResourceE
 	}
 
 	public boolean hasNext() {
+		if( iter == null ) {
+			iterator();
+		}
 		return iter.hasNext();
 	}
 
