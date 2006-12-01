@@ -694,19 +694,15 @@ public class Cargo implements Loggable, Cloneable {
 				long cargo1 = 0;
 				long cargo2 = 0;
 				
-				if( this.items.contains(aitem) ) {
-					for( Long[] myitem : this.items ) {
-						if( (myitem[0] == aitem.getItemID()) && (myitem[2] == aitem.getUses()) && (myitem[3] == aitem.getQuest()) ) {
-							cargo1 += myitem[1];
-						}
+				for( Long[] myitem : this.items ) {
+					if( (myitem[0] == aitem.getItemID()) && (myitem[2] == aitem.getUses()) && (myitem[3] == aitem.getQuest()) ) {
+						cargo1 += myitem[1];
 					}
 				}
 				
-				if( items.contains(aitem) ) {
-					for( Long[] myitem : items ) {
-						if( (myitem[0] == aitem.getItemID()) && (myitem[2] == aitem.getUses()) && (myitem[3] == aitem.getQuest()) ) {
-							cargo2 += myitem[1];
-						}
+				for( Long[] myitem : items ) {
+					if( (myitem[0] == aitem.getItemID()) && (myitem[2] == aitem.getUses()) && (myitem[3] == aitem.getQuest()) ) {
+						cargo2 += myitem[1];
 					}
 				}
 				
