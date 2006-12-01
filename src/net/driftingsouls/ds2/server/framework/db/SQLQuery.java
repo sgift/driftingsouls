@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.framework.db;
 
+import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -122,6 +123,21 @@ public class SQLQuery {
 		}
 		catch( SQLException e ) {
 			db.error("Couldn't fetch object column "+column+"\n"+e, null);
+			throw new SQLRuntimeException(e);
+		}
+	}
+	
+	/**
+	 * Gibt den Wert einer Spalte als <code>Object</code> zurueck
+	 * @param column Der Spaltenname
+	 * @return Der Wert
+	 */
+	public Blob getBlob(String column) {
+		try {
+			return result.getBlob(column);
+		}
+		catch( SQLException e ) {
+			db.error("Couldn't fetch blob column "+column+"\n"+e, null);
 			throw new SQLRuntimeException(e);
 		}
 	}
