@@ -152,7 +152,9 @@ public abstract class AbstractTickExecuter extends TickController {
 				execTick(Class.forName(getContext().getRequest().getParameterString("only")).asSubclass(TickController.class), true);
 			} catch (Exception e) {
 				System.err.println("Ausfuehrung des Ticks "+getContext().getRequest().getParameterString("only")+" fehlgeschlagen: "+e);
+				e.printStackTrace();
 			}
+			return;
 		}
 		
 		int ticknr = getContext().get(ContextCommon.class).getTick()+1;
