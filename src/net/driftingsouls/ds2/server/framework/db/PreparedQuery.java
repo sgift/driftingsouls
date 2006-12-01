@@ -22,6 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Loggable;
 
 /**
@@ -99,7 +100,7 @@ public class PreparedQuery implements Loggable {
 			if( db.isTransaction() && (affectedRows() != count) ) {
 				db.setTStatus(false);
 				if( db.isDebugTransaction() ) {
-					LOG.warn("Transaktion (PreparedStatement) fehlgeschlagen: "+query);
+					LOG.warn("Transaktion (PreparedStatement) fehlgeschlagen: "+query+"\nValues: "+Common.implode(" ;; ", values));
 				}
 			}
 		}
