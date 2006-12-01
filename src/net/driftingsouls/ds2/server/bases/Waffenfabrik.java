@@ -32,6 +32,7 @@ import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.config.IEAmmo;
+import net.driftingsouls.ds2.server.config.IEDraftAmmo;
 import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.ItemEffect;
 import net.driftingsouls.ds2.server.config.Items;
@@ -113,7 +114,7 @@ class Waffenfabrik extends DefaultBuilding {
 				
 				List<ItemCargoEntry> list = itemlist.getItemsWithEffect( ItemEffect.Type.DRAFT_AMMO ) ;
 				for( ItemCargoEntry item : list ) {
-					IEAmmo itemeffect = (IEAmmo)item.getItemEffect();
+					IEDraftAmmo itemeffect = (IEDraftAmmo)item.getItemEffect();
 					vars.ownerammobase.put(itemeffect.getAmmoID(), ammolist.get(itemeffect.getAmmoID()));
 					
 					if( (ammolist.get(itemeffect.getAmmoID()).getInt("replaces") != 0) && removelist.contains(ammolist.get(itemeffect.getAmmoID()).getInt("replaces")) ) {
@@ -144,7 +145,7 @@ class Waffenfabrik extends DefaultBuilding {
 			
 			List<ItemCargoEntry> list = cargo.getItemsWithEffect( ItemEffect.Type.DRAFT_AMMO ) ;
 			for( ItemCargoEntry item : list ) {
-				IEAmmo itemeffect = (IEAmmo)item.getItemEffect();
+				IEDraftAmmo itemeffect = (IEDraftAmmo)item.getItemEffect();
 				thisammolist.put(itemeffect.getAmmoID(), ammolist.get(itemeffect.getAmmoID()));
 			}
 			
@@ -386,7 +387,7 @@ class Waffenfabrik extends DefaultBuilding {
 		List<ItemCargoEntry> itemlist = cargo.getItemsWithEffect( ItemEffect.Type.DRAFT_AMMO );
 		for( ItemCargoEntry item : itemlist ) {
 			Item itemobject = item.getItemObject();
-			final int ammoid = ((IEAmmo)itemobject.getEffect()).getAmmoID();
+			final int ammoid = ((IEDraftAmmo)itemobject.getEffect()).getAmmoID();
 			
 			if( !ammolist.containsKey(ammoid) ) {
 				SQLResultRow ammo = Waffenfabrik.ammolist.get(ammoid);
@@ -405,7 +406,7 @@ class Waffenfabrik extends DefaultBuilding {
 			itemlist = allyitems.getItemsWithEffect( ItemEffect.Type.DRAFT_AMMO );
 			for( ItemCargoEntry item : itemlist ) {
 				Item itemobject = item.getItemObject();
-				final int ammoid = ((IEAmmo)itemobject.getEffect()).getAmmoID();
+				final int ammoid = ((IEDraftAmmo)itemobject.getEffect()).getAmmoID();
 				
 				if( !ammolist.containsKey(ammoid) ) {
 					SQLResultRow ammo = Waffenfabrik.ammolist.get(ammoid);
