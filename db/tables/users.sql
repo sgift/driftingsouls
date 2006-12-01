@@ -12,7 +12,7 @@ CREATE TABLE `users` (
   `ally` int(11) NOT NULL default '0',
   `konto` bigint(20) unsigned NOT NULL default '0',
   `cargo` text NOT NULL,
-  `nstat` varchar(15) NOT NULL default '0',
+  `nstat` varchar(30) NOT NULL default '0',
   `email` varchar(60) NOT NULL default '',
   `log_fail` mediumint(9) NOT NULL default '0',
   `accesslevel` int(11) NOT NULL default '0',

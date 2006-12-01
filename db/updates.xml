@@ -63,4 +63,8 @@
 		ALTER TABLE `quests_running` CHANGE `execdata` `execdata` BLOB NOT NULL;
 		ALTER TABLE `ships` CHANGE `scriptexedata` `scriptexedata` BLOB NULL DEFAULT NULL;
 	]]></update>
+	<update type="structure" datum="2006-12-01"><![CDATA[
+		ALTER TABLE users CHANGE nstat nstat VARCHAR(30) NOT NULL DEFAULT '';
+		ALTER TABLE stats_verkaeufe CHANGE system system TINYINT NOT NULL DEFAULT 1;
+	]]></update>
 </updates>
