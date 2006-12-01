@@ -82,8 +82,11 @@ class Forschungszentrum extends DefaultBuilding {
 		Database db = ContextMap.getContext().getDatabase();
 
 		SQLResultRow forschungszentrum = db.first( "SELECT dauer FROM fz WHERE col='",col,"'");
-		if( forschungszentrum.getInt("dauer") > 0 ) {
+		if( !forschungszentrum.isEmpty() && (forschungszentrum.getInt("dauer") > 0) ) {
 			return true;
+		}
+		else if( forschungszentrum.isEmpty() ) {
+			LOG.warn("Forschungszentrum ohne fz-Eintrag auf Basis "+col+" gefunden");
 		}
 		return false;
 	}
