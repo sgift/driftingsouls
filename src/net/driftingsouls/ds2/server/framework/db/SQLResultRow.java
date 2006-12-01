@@ -32,7 +32,7 @@ import net.driftingsouls.ds2.server.framework.Loggable;
  * @author Christopher Jung
  *
  */
-public class SQLResultRow extends HashMap<String,Object> implements Loggable {
+public class SQLResultRow extends HashMap<String,Object> implements Loggable,Cloneable {
 	private static final long serialVersionUID = 1L;
 
 	/**
@@ -145,5 +145,10 @@ public class SQLResultRow extends HashMap<String,Object> implements Loggable {
 			LOG.warn("SQLResultRow: Unbekannte double-Spalte '"+column+"'", new Throwable());
 		}
 		return 0d;
+	}
+	
+	@Override
+	public Object clone() {
+		return super.clone();
 	}
 }
