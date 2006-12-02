@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.tick.regular.BaseTick;
 import net.driftingsouls.ds2.server.tick.regular.ForschungsTick;
 import net.driftingsouls.ds2.server.tick.regular.NPCOrderTick;
 import net.driftingsouls.ds2.server.tick.regular.NPCScriptTick;
+import net.driftingsouls.ds2.server.tick.regular.RestTick;
 import net.driftingsouls.ds2.server.tick.regular.SchiffsTick;
 import net.driftingsouls.ds2.server.tick.regular.WerftTick;
 
@@ -66,7 +67,7 @@ public class RegularTick extends AbstractTickExecuter {
 			//execTick(BattleTick.class);
 	
 			publishStatus("berechne Sonstiges");
-			//execTick(RestTick.class);
+			execTick(RestTick.class, false);
 		}
 		catch( Exception e ) {
 			System.err.println("Fehler beim Ausfuehren der Ticks: "+e);
