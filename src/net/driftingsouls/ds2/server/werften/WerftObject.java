@@ -18,10 +18,19 @@
  */
 package net.driftingsouls.ds2.server.werften;
 
+import java.util.List;
+
+import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
+import net.driftingsouls.ds2.server.cargo.ItemID;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DSObject;
+import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
+import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.ships.Ships;
 
@@ -125,8 +134,99 @@ public abstract class WerftObject extends DSObject {
 	 * @return die ID des gebauten Schiffes oder 0
 	 */
 	public int finishBuildProcess() {
-		// TODO
-		throw new RuntimeException("STUB");
+		Context context = ContextMap.getContext();
+		Database db = context.getDatabase();
+		
+		SQLResultRow shipd = this.getBuildShipType();
+
+		int owner = this.getOwner();
+		int x = this.getX();
+		int y = this.getY();
+		int system = this.getSystem();
+					
+		Cargo cargo = new Cargo();
+		User auser = context.createUserObject(owner);
+		
+		String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
+		String history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getID()+")\n";
+			
+		PreparedQuery shipCreate = db.prepare("INSERT INTO ships " ,
+				"(id,owner,type,x,y,system,crew,hull,cargo,e,history) " ,
+				"VALUES " ,
+				"('', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		shipCreate.update(owner,shipd.getInt("id"), x, y, system, shipd.getInt("crew"), shipd.getInt("hull"), cargo.save(), shipd.getInt("eps"), history);
+
+		int id = shipCreate.insertID();
+
+		if( shipd.getString("werft").length() > 0 ) {
+			db.update("INSERT INTO werften (shipid) VALUES (",id,")");
+			this.MESSAGE.get().append("\tWerft '"+shipd.getString("werft")+"' in Liste der Werften eingetragen\n");
+		}
+		if( this.buildFlagschiff ) {
+			db.update("UPDATE users SET flagschiff=",id," WHERE id=",owner);
+			this.MESSAGE.get().append("\tFlagschiff eingetragen\n");
+		}
+		
+		// Item benutzen
+		if( this.getRequiredItem() > -1 ) {
+			cargo = this.getCargo(true);
+			List<ItemCargoEntry> itemlist = cargo.getItem(this.getRequiredItem());
+			boolean ok = false;
+			for( int i=0; i < itemlist.size(); i++ ) {
+				if( itemlist.get(i).getMaxUses() == 0 ) {
+					ok = true;
+					break;
+				}
+			}
+			
+			if( !ok ) {
+				User user = context.createUserObject(this.getOwner());
+				
+				Cargo allyitems = null;
+				if( user.getAlly() > 0 ) {
+					allyitems = new Cargo( Cargo.Type.ITEMSTRING, db.first("SELECT items FROM ally WHERE id=",user.getAlly()).getString("items"));
+					itemlist = allyitems.getItem(this.getRequiredItem());
+					for( int i=0; i < itemlist.size(); i++ ) {
+						if( itemlist.get(i).getMaxUses() == 0 ) {
+							ok = true;
+							break;
+						}
+					}
+				}
+				
+				if( !ok ) {
+					ItemCargoEntry item = null;
+					String source = "";
+					if( (user.getAlly() > 0) && allyitems.hasResource(new ItemID(this.getRequiredItem())) ) {
+						item = allyitems.getItem(this.getRequiredItem()).get(0);
+						source = "ally";
+					}
+					else {
+						item = cargo.getItem(this.getRequiredItem()).get(0);
+						source = "local";
+					}
+					
+					item.useItem();
+					
+					if( source.equals("local") ) {
+						this.setCargo(cargo, true);
+					}
+					else {
+						db.update("UPDATE users t1 JOIN ally t2 ON t1.ally=t2.id SET t2.items='",allyitems.getData(Cargo.Type.ITEMSTRING),"' WHERE t1.id=",this.getOwner());
+					}
+				}
+			}
+		}
+		
+		Ships.recalculateShipStatus(id);
+		
+		db.update("UPDATE werften SET building=0,remaining=0,item=-1,flagschiff=0 WHERE id=",this.getWerftID());
+		this.building = 0;
+		this.remaining = 0;
+		this.buildFlagschiff = false;
+		this.buildItem = -1;
+		
+		return id;
 	}
 	
 	/**
@@ -137,8 +237,27 @@ public abstract class WerftObject extends DSObject {
 	 * @return <code>true</code>, falls alle Voraussetzungen erfuellt sind
 	 */
 	public boolean isBuildContPossible() {
-		// TODO
-		throw new RuntimeException("STUB");
+		if( !this.isBuilding() ) {
+			return true;
+		}
+		
+		if( this.getRequiredItem() > -1 ) {
+			Context context = ContextMap.getContext();
+			Database db = context.getDatabase();
+			
+			Cargo cargo = this.getCargo(true);
+			User user = context.createUserObject(this.getOwner());
+			
+			if( user.getAlly() > 0 ) {
+				Cargo allyitems = new Cargo( Cargo.Type.ITEMSTRING, db.first("SELECT items FROM ally WHERE id=",user.getAlly()).getString("items"));
+				cargo.addCargo( allyitems );
+			}
+			
+			if( !cargo.hasResource(new ItemID(this.getRequiredItem())) ) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	/**
