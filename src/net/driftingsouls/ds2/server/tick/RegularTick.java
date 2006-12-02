@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.tick.regular.AcademyTick;
 import net.driftingsouls.ds2.server.tick.regular.BaseTick;
 import net.driftingsouls.ds2.server.tick.regular.ForschungsTick;
+import net.driftingsouls.ds2.server.tick.regular.NPCScriptTick;
 import net.driftingsouls.ds2.server.tick.regular.SchiffsTick;
 import net.driftingsouls.ds2.server.tick.regular.WerftTick;
 
@@ -51,7 +52,7 @@ public class RegularTick extends AbstractTickExecuter {
 			execTick(ForschungsTick.class, false);
 	
 			publishStatus("fuehre NPC-Aktionen aus");
-			//execTick(NPCScriptTick.class);
+			execTick(NPCScriptTick.class, false);
 			//execTick(NPCOrderTick.class);
 	
 			publishStatus("berechne Akademien");
