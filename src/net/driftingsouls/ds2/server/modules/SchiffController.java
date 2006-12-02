@@ -713,7 +713,9 @@ public class SchiffController extends DSGenerator implements Loggable {
 			if( runningdata.next() ) {
 				try {
 					execdata = runningdata.getBlob("execdata");
-					scriptparser.setExecutionData(execdata.getBinaryStream() );
+					if( (execdata != null) && (execdata.length() > 0) ) { 
+						scriptparser.setExecutionData(execdata.getBinaryStream() );
+					}
 				}
 				catch( Exception e ) {
 					LOG.warn("Setting Script-ExecData failed (Ship: "+ship.getInt("id")+": ",e);
@@ -744,8 +746,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 			
 			if( !usequest.equals("") ) {
 				try {
-					execdata.truncate(0);
-					scriptparser.writeExecutionData(execdata.setBinaryStream(0));	
+					scriptparser.writeExecutionData(execdata.setBinaryStream(1));
 				}
 				catch( Exception e ) {
 					LOG.warn("Writing back Script-ExecData failed (Ship: "+ship.getInt("id")+": ",e);

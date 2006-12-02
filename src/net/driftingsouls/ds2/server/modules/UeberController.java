@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.modules;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Blob;
 import java.util.ArrayList;
 
 import net.driftingsouls.ds2.server.ContextCommon;
@@ -151,7 +152,10 @@ public class UeberController extends DSGenerator implements Loggable {
 		}
 
 		try {
-			scriptparser.setExecutionData(questdata.getBlob("execdata").getBinaryStream());
+			Blob execdata = questdata.getBlob("execdata");
+			if( (execdata != null) && (execdata.length() > 0) ) {
+				scriptparser.setExecutionData(execdata.getBinaryStream());
+			}
 		}
 		catch( Exception e ) {
 			LOG.warn("Loading Script-ExecData failed (Quest: "+questid+": ",e);
