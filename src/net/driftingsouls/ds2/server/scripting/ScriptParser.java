@@ -25,11 +25,14 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -41,8 +44,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
  * @author Christopher Jung
  *
  */
-public class ScriptParser {
-	
+public class ScriptParser {	
 	/**
 	 * Interface fuer ScriptParser-Logger
 	 * @author Christopher Jung
@@ -214,6 +216,17 @@ public class ScriptParser {
 		}
 	}
 	
+	private static Map<String,Integer[]> JUMP_FUNCTIONS = new HashMap<String,Integer[]>();
+	
+	static {
+		JUMP_FUNCTIONS.put("JL", new Integer[] {-1});
+		JUMP_FUNCTIONS.put("JG", new Integer[] {1});
+		JUMP_FUNCTIONS.put("JE", new Integer[] {0});
+		JUMP_FUNCTIONS.put("JNE", new Integer[] {-1,1});
+		JUMP_FUNCTIONS.put("JLE", new Integer[] {-1,0});
+		JUMP_FUNCTIONS.put("JGE", new Integer[] {0,1});
+	}
+	
 	private Logger logFunction = LOGGER_NULL;
 	private SQLResultRow ship = null;
 	private StringBuffer out = new StringBuffer();
@@ -243,6 +256,8 @@ public class ScriptParser {
 		this.funcregister = new HashMap<String,SPFunction>();
 		this.funcargregister = new HashMap<String,Args[]>();
 		this.addparameterlist = new ArrayList<String>();
+		
+		new CommonFunctions().registerFunctions(this);
 	}
 
 	/**
@@ -470,7 +485,338 @@ public class ScriptParser {
 	 * @param parameter Ausfuehrungsparameter
 	 */
 	public void executeScript( Database db, String script, String parameter ) {
-		// TODO
-		Common.stub();
+		this.startLogging();
+		
+		this.out.setLength(0);
+		
+		this.addparameterlist.clear();
+
+		SQLResultRow ship = this.getShip();
+		
+		//Auswertung		
+		int restartcount = 0;
+		
+		int lastcommand = this.lastcommand;
+		
+		this.log("Gesetzte Register:\n");
+		for( String reg : this.register.keySet() ) {
+			this.log("#"+reg+" => "+this.register.get(reg)+"\n");	
+		}
+		this.log("\n");
+		
+		// Wurde die Ausfuehrung des Scripts beendet?
+		if( (this.namespace == NameSpace.ACTION) && 
+			(lastcommand == -1) && (parameter.length() == 0) ) {
+			this.log("Ausfuehrung des scripts bereits beendet\n");
+			this.stopLogging();
+			return;	
+		}
+		
+		// Script einlesen und untersuchen
+		script = StringUtils.replace(script,"\r\n","\n");
+		String[] lines = StringUtils.split(script, '\n');
+	
+		List<String[]> commands = new ArrayList<String[]>();
+		Map<String,Integer> parameterlist = new HashMap<String,Integer>();
+		
+		// Gueltige Parameter beim Scriptaufruf (gilt nicht fuer jumps! und den 0-Parameter)
+		// werden gesetzt via §parameter param1 param2 param3 ...
+		Set<String> validparameters = new HashSet<String>();
+		
+		// Interne immer gueltige Parameter beim Scriptaufruf
+		Set<String> validInternalParams = new HashSet<String>();
+		validInternalParams.add("0");
+		
+		// limitexeccount bestimmt wieviele befehle maximal abgearbeitet werden duerfen 
+		// int limitexeccount = -1; <--- unbegrenzt
+		int limitexeccount = 5000;
+		
+		int index = 0;
+		for(int i=0; i < lines.length; i++ ) {
+			String line = lines[i].trim();
+			if( line.length() == 0 ) {
+				continue;
+			}
+			
+			if( line.charAt(0) == '!' ) { 
+				String[] acommand = StringUtils.split(line, ' ');
+				commands.add(index, acommand);
+				index++;
+			}
+			else if( (line.charAt(0) == '#') && (line.indexOf('=') > -1) ) {
+				int pos = line.indexOf('=');
+				String reg = line.substring(0, pos);
+				String term = line.substring(pos+1);
+				commands.add(index, new String[] {reg.trim(), term.trim()});
+				index++;
+			}
+			else if( line.charAt(0) == ':' ) {
+				parameterlist.put(line, index);
+			}
+			else if( line.charAt(0) == '§' ) {
+				String[] acommand = StringUtils.split(line, ' ');
+				if( acommand[0].equals("§parameter") ) {
+					for( int j=1; j < acommand.length; j++ ) {
+						validparameters.add(acommand[j]);
+					}
+				}
+				else if( acommand[0].equals("§limitexec") ) {
+					limitexeccount = Integer.parseInt( acommand[1] );	
+					this.log("+++ Setzte max. Befehle auf "+limitexeccount+"\n\n");
+				}
+			}
+		}
+		
+		String[] addparameterlist = StringUtils.split(parameter, ':');
+		if( addparameterlist.length > 0 ) {
+			parameter = addparameterlist[0];
+		}
+		else {
+			parameter = "";
+		}
+
+		for( int i=1; i < addparameterlist.length; i++ ) {
+			this.addparameterlist.add(addparameterlist[i]);
+		}
+		
+		// Ggf. Parameter behandeln
+		if( parameter.length() > 0 ) {
+			
+			if( parameter.equals("-1") ) {
+				this.out.setLength(0);
+				this.out.append(this.getRegister("_OUTPUT"));
+				this.stopLogging();
+				return;
+			}
+			else if( !validInternalParams.contains(parameter) && !parameterlist.containsKey(':'+parameter) ) {
+				this.log("+++ Ungueltiger Parameter >"+parameter+"< - benutze >0<\n");
+				parameter = "0";	
+			}	
+			else if( !validInternalParams.contains(parameter) && (validparameters.size() > 0) && !validparameters.contains(parameter) ) {
+				this.log("+++ Parameter >"+parameter+"< gesperrt - benutze >0<\n");
+				parameter = "0";	
+			}
+			lastcommand = parameterlist.get(':'+parameter);
+		}
+		
+		// Und los gehts!
+		while( true ) {
+			if( lastcommand >= commands.size() ) {
+				if( (this.ship != null) && (this.namespace == NameSpace.ACTION) ) {
+					PM.send(ContextMap.getContext(), -1, ship.getInt("owner"), "Script beendet", "[Scriptsystem:"+ship.getInt("id")+"]\nDie "+ship.getString("name")+" hat ihre Befehle abgearbeitet!");
+				}
+				this.log("+++ Ausfuehrung beendet\n\n");
+				lastcommand = -1;
+				
+				break;
+			}
+			
+
+			if( commands.get(lastcommand)[0].charAt(0) == '#' ) {
+				String[] cmd = commands.get(lastcommand);
+				this.log("* Berechne Ausdruck '"+cmd[1]+"' nach "+cmd[0]+"\n");
+				
+				this.setRegister(cmd[0],this.evalTerm(cmd[1]));
+				
+				lastcommand++;
+				if( limitexeccount > 0 ) {
+					limitexeccount--;
+					if( limitexeccount == 0 ) {
+						this.log("+++ max. Befehle erreicht\n\n");
+						break;
+					}
+				}
+				
+				continue;
+			}
+			
+			String funcname = commands.get(lastcommand)[0].toUpperCase();
+			
+			if( this.funcregister.containsKey(funcname) ) {
+				String[] cmd = commands.get(lastcommand);
+				
+				SPFunction func = this.funcregister.get(funcname);
+				
+				Args[] args = this.funcargregister.get(funcname);
+				if( (cmd.length >= args.length) && ((args[cmd.length-1].ordinal() & Args.VARIABLE.value()) != 0) ) {
+					Args[] args2 = new Args[cmd.length];
+					System.arraycopy(args, 0, args2, 0, args.length);
+					
+					for( int i=args.length; i < cmd.length-1; i++ ) {
+						args2[i] = args[cmd.length-1];
+					}
+					
+					args = args2;
+				}
+
+				for( int i=0; i < args.length; i++ ) {
+					String cmdParam = cmd[i+1];
+						
+					if( (cmdParam.charAt(0) == '#') && ((args[i].ordinal() & Args.REG.ordinal()) > 0) ) {
+						cmdParam = this.getRegister(cmdParam);	
+					}
+						
+					cmd[i+1] = cmdParam;	
+				}
+				
+				this.log("*COMMAND: "+funcname+"\n");
+				
+				// ich HASSE eval(...), aber hier gehts leider nicht ohne...
+				boolean[] result = func.execute(db, this, cmd);
+				
+				lastcommand += (result[1] ? 1 : 0);
+				if( !result[0] ) {
+					break;
+				}
+				if( limitexeccount > 0 ) {
+					limitexeccount--;
+					if( limitexeccount == 0 ) {
+						this.log("+++ max. Befehle erreicht\n\n");
+						break;
+					}
+				}
+			}
+			else if( funcname.equals("!RESTART") ) {
+				this.log("*COMMAND: !RESTART\n");
+				restartcount++;
+				lastcommand = 0;
+				if( restartcount > 3 ) {
+					this.log("Maximale Anzahl an !RESTART-Befehlen in einer Ausfuehrung erreicht\n\n");
+					break;
+				}
+				this.log("\n");
+				
+				if( limitexeccount > 0 ) {
+					limitexeccount--;
+					if( limitexeccount == 0 ) {
+						this.log("+++ max. Befehle erreicht\n\n");
+						break;
+					}
+				}
+			} 
+			else if( funcname.equals("!QUIT") ) {
+				this.log("*COMMAND: !QUIT\n");
+				lastcommand = -1;
+				
+				this.log("+++ Ausfuehrung beendet\n\n");
+				break;
+			} 
+			else if( funcname.equals("!PAUSE") ) {
+				this.log("*COMMAND: !PAUSE\n");				
+				this.log("+++ Ausfuehrung vorerst angehalten\n\n");
+				break;
+			} 
+			else if( funcname.startsWith("J") && JUMP_FUNCTIONS.containsKey(funcname) ) {
+				this.log("*COMMAND: !JL\n");
+				boolean ok = false;
+				
+				int compResult = new Integer(this.getRegister("cmp")).compareTo(0);
+				
+				Integer[] vals = JUMP_FUNCTIONS.get(funcname);
+				for( int i=0; i < vals.length; i++ ) {
+					if( vals[i] == compResult ) {
+						ok = true;
+						break;
+					}
+				}
+				if( ok ) {
+					this.log("Marke: "+commands.get(lastcommand)[1]+"\n");
+					lastcommand = parameterlist.get(":"+commands.get(lastcommand)[1]);
+				}	
+				else {
+					lastcommand++;
+				}
+				
+				if( limitexeccount > 0 ) {
+					limitexeccount--;
+					if( limitexeccount == 0 ) {
+						this.log("+++ max. Befehle erreicht\n\n");
+						break;
+					}
+				}
+			} 
+			else if( funcname.equals("!JUMP") ) {
+				this.log("*COMMAND: !JUMP\n");
+				String jumptarget = commands.get(lastcommand)[1];
+				if( jumptarget.charAt(0) == '#' ) {
+					jumptarget = this.getRegister(jumptarget);
+				}
+				this.log("Marke: "+jumptarget+"\n");
+				
+				if( !parameterlist.containsKey(":"+jumptarget) ) {
+					this.log("WARNUNG: Unbekannte Sprungmarke $jumptarget\n");
+				}
+				lastcommand = parameterlist.get(":"+jumptarget);
+				
+				if( limitexeccount > 0 ) {
+					limitexeccount--;
+					if( limitexeccount == 0 ) {
+						this.log("+++ max. Befehle erreicht\n\n");
+						break;
+					}
+				}
+			} 
+			else if( funcname.equals("!DUMP") ) {
+				this.log("*COMMAND: !DUMP\n");
+				String dump = commands.get(lastcommand)[1];
+				
+				if( dump.equals("register") ) {
+					this.log("################# register ###################\n");
+					for( String reg : this.register.keySet() ) {
+						this.log(reg+" ("+this.register.get(reg)+"), ");
+					}
+					this.log("\n\n");
+				}
+				else if( dump.equals("jumpaddrs") ) {
+					this.log("################# jumpaddrs ###################\n");
+					for( String jumpname : parameterlist.keySet() ) {
+						this.log(jumpname+" ("+parameterlist.get(jumpname)+"), ");
+					}
+					this.log("\n\n");
+				}
+				else if( dump.equals("code") ) {
+					this.log("################# commands ###################\n");
+					for( int i=0; i < commands.size(); i++ ) {
+						this.log(i+": "+Common.implode(" ",commands.get(i))+"\n");
+					}
+					this.log("\n\n");
+				}
+				
+				this.log("############### END OF DUMP #################\n");
+				
+				lastcommand++;
+				
+				if( limitexeccount > 0 ) {
+					limitexeccount--;
+					if( limitexeccount == 0 ) {
+						this.log("+++ max. Befehle erreicht\n\n");
+						break;
+					}
+				}
+			} 
+			else {
+				this.log("*UNKNOWN COMMAND >"+funcname+"<\n");
+				this.log("*CURRENT COMMAND POINTER: "+lastcommand+"\n\n");
+				this.log("################# jumpaddrs ###################\n");
+				for( String jumpname : parameterlist.keySet() ) {
+					this.log(jumpname+" ("+parameterlist.get(jumpname)+"), ");
+				}
+				this.log("\n\n");
+				this.log("################# register ###################\n");
+				for( String reg : this.register.keySet() ) {
+					this.log(reg+" ("+this.register.get(reg)+"), ");
+				}
+				this.log("\n\n");
+				this.log("################# commands ###################\n");
+				for( int i=0; i < commands.size(); i++ ) {
+					this.log(i+": "+Common.implode(" ",commands.get(i))+"\n");
+				}
+				this.log("\n\n");
+				break;
+			}
+		}
+		this.lastcommand = lastcommand;
+		
+		this.stopLogging();
 	}
 }
