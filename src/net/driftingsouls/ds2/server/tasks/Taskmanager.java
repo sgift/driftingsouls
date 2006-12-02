@@ -127,7 +127,7 @@ public class Taskmanager {
 	private static Taskmanager instance = null;
 	
 	private Taskmanager() {
-		throw new RuntimeException("CLASS STUB");
+		// EMPTY
 	}
 	
 	/**
