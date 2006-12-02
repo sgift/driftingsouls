@@ -315,7 +315,7 @@ public class ScriptParser {
 		return ship;
 	}
 	
-	private class ExecData implements Serializable {
+	private static class ExecData implements Serializable {
 		private static final long serialVersionUID = 1L;
 		
 		ExecData() {
