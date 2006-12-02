@@ -24,6 +24,7 @@ import net.driftingsouls.ds2.server.tick.regular.AcademyTick;
 import net.driftingsouls.ds2.server.tick.regular.BaseTick;
 import net.driftingsouls.ds2.server.tick.regular.ForschungsTick;
 import net.driftingsouls.ds2.server.tick.regular.SchiffsTick;
+import net.driftingsouls.ds2.server.tick.regular.WerftTick;
 
 /**
  * Der normale Tick
@@ -44,7 +45,7 @@ public class RegularTick extends AbstractTickExecuter {
 			execTick(SchiffsTick.class,false);
 	
 			publishStatus("berechne Werften");
-			//execTick(WerftTick.class);
+			execTick(WerftTick.class, false);
 	
 			publishStatus("berechne Forschungen");
 			execTick(ForschungsTick.class, false);
