@@ -114,7 +114,11 @@ public class AcademyTick extends TickController {
 				
 				User auser = getContext().createUserObject(base.getInt("owner"));
 				if( namecache.get(auser.getRace()).size() > 0 ) {
-					//offiname = $this->namecache[$auser->getRace()][rand(0,count($this->namecache[$auser->getRace()]))];
+					List<String> names = this.namecache.get(auser.getRace());
+					offiname = names.get(rnd.nextInt(names.size()));
+					if( offiname.trim().length() == 0 ) {
+						offiname = "Offizier "+maxid;
+					}
 				}
 				int spec = 0;
 				String query = "INSERT INTO offiziere (userid,name,ing,waf,nav,sec,com,dest,spec) " +
