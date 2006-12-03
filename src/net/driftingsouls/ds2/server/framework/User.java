@@ -999,6 +999,18 @@ public class User implements Loggable {
 	}
 	
 	/**
+	 * Setzt die Allianz, der der Spieler angehoert, auf den angegebenen Wert
+	 * @param ally die neue Allianz
+	 */
+	public void setAlly( int ally ) {
+		checkAndLoad("ally");
+		context.getDatabase().tUpdate(1, "UPDATE users SET ally='",ally,"' WHERE id='",id,"' AND ally='",data.getInt("ally"),"'");
+		if( !context.getDatabase().isTransaction() || context.getDatabase().tStatus() ) {
+			data.put("ally", ally);
+		}
+	}
+	
+	/**
 	 * Liefert den Kontostand des Benutzers zurueck
 	 * @return Der Kontostand
 	 */
@@ -1115,6 +1127,18 @@ public class User implements Loggable {
 	public int getAllyPosten() {
 		checkAndLoad("allyposten");
 		return data.getInt("allyposten");
+	}
+	
+	/**
+	 * Setzt den durch den Spieler besetzten Allianz-Posten
+	 * @param posten Die ID des Allianzpostens
+	 */
+	public void setAllyPosten( int posten ) {
+		checkAndLoad("allyposten");
+		context.getDatabase().tUpdate(1, "UPDATE users SET allyposten='",posten,"' WHERE id='",id,"' AND allyposten='",data.getInt("allyposten"),"'");
+		if( !context.getDatabase().isTransaction() || context.getDatabase().tStatus() ) {
+			data.put("allyposten", posten);
+		}
 	}
 	
 	/**
