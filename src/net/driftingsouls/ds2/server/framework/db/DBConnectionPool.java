@@ -42,7 +42,7 @@ public class DBConnectionPool {
 	 */
 	public static void setupMySQLPool( String server, String database, String username, String password ) throws Exception {
 		ds = new C3P0ConnectionPool();
-		ds.setup("com.mysql.jdbc.Driver", username, password, "jdbc:mysql://"+server+"/"+database+"?autoReconnect=TRUE");		
+		ds.setup("com.mysql.jdbc.Driver", username, password, "jdbc:mysql://"+server+"/"+database+"?autoReconnect=TRUE&useUnicode=true&characterEncoding=UTF-8");		
 	}
 	
 	/**
