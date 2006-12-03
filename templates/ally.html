@@ -1,0 +1,591 @@
+{if ally}
+	<table class="show" cellspacing="2" cellpadding="2">
+	<tr>
+		<td class="noBorderS">{ally.name}</td>
+		<td class="noBorder">&nbsp;</td>
+		<td class="noBorder">
+			{!table_begin 650,center}
+				{!link_to Allgemeines, default, show:allgemein}
+				|
+				{!link_to Mitglieder, default, show:members}
+				|
+				{if user.president}
+					{!link_to Einstellungen, default, show:config}
+					|
+					{!link_to Posten, default, show:posten}
+					|
+				{/endif}
+				{!link_to K&auml;mpfe, default, show:battles}
+				|
+				{!link_to Allianzen auflisten, default, module:allylist}
+				|
+				{!link_to Austreten, part, css_class:error, show:$show}
+			{!table_end}
+		</td>
+	</tr>
+	</table>
+	<div class="smallfont">
+		<br />
+	</div>
+	{if ally.message}
+		{!table_begin 400,center}
+			<span style="color:red">{ally.message}</span>
+		{!table_end}
+		<div class="smallfont">
+			<br />
+		</div>
+	{/endif}
+	{if ally.statusmessage}
+		{!table_begin 400,center}
+			{ally.statusmessage}
+			{if ally.statusmessage.ask.url1}
+				<br />
+				<a class="ok" href="./main.php?module=ally&amp;sess={global.sess}{ally.statusmessage.ask.url1}">Ja</a> -
+				<a class="error" href="./main.php?module=ally&amp;sess={global.sess}{ally.statusmessage.ask.url2}">Nein</a>
+			{/endif}
+		{!table_end}
+		<div class="smallfont">
+			<br />
+		</div>
+	{/endif}
+	{if show.allgemein}
+		<div class="smallfont">
+			<img src="{URL}data/logos/ally/{ally.id}.gif" width="75" height="75" alt="Kein Allylogo vorhanden" /><br /><br />
+			<span style="color:#cccccc">{ally.description}</span><br /><br />
+		</div>
+		<table class="noBorder">
+		<tr>
+			<td class="noBorderS" valign="top">
+				Gegr&uuml;ndet: {ally.founded}<br />
+				Gewonnene Schlachten: {ally.wonBattles}<br />
+				Verlorene Schlachten: {ally.lostBattles}<br />
+				Zerst&ouml;rte Schiffe: {ally.destroyedShips}<br />
+				Verlorene Schiffe: {ally.lostShips}<br />
+				Mitglieder: {ally.membercount}<br /><br />
+			</td>
+			<td class="noBorderS" style="width:50px">&nbsp;&nbsp;&nbsp;&nbsp;</td>
+			<td class="noBorderS" valign="top">
+				{if ally.items.list}
+					Items:<br />
+					<!-- BEGIN ally.items.listitem -->
+						<img style="vertical-align:middle" src="{res.image}" alt="" />
+						{res.name}<br />
+					<!-- END ally.items.listitem -->
+				{/endif}
+			</td>
+		</tr>
+		</table>
+		<div class="smallfont">
+			<br />
+		</div>
+		
+		<table class="ally" cellspacing="2" cellpadding="2">
+ 		<tr>
+ 			<td class="allyData"><span style="font-weight:bold">{ally.pname}:</span></td>
+ 			<td class="allyData">
+ 				{!link_to $ally.president.name, default, module:userprofile, css_class:profile, user:$ally.president.id}
+ 			</td>
+ 		</tr>
+ 		{if ally.posten.list}
+ 			<!-- BEGIN ally.posten.listitem -->
+ 				<tr>
+	 				<td class="allyData">{ally.posten.name}:</td>
+ 					<td class="allyData">
+ 						{!link_to $ally.posten.user.name, default, module:userprofile, css_class:profile, user:$ally.posten.user.id}
+ 					</td>
+ 				</tr>
+ 			<!-- END ally.posten.listitem -->
+ 		{/endif}
+ 		
+ 		{if ally.addmembers.list}
+ 			<tr>
+ 				<td class="allyData" valign="top">Weitere Mitglieder:</td>
+ 				<td class="allyData">
+ 					<!-- BEGIN ally.addmembers.listitem -->
+ 						{!link_to $ally.addmembers.name, default, module:userprofile, css_class:profile, user:$ally.addmembers.id}
+ 						<br />
+ 					<!-- END ally.addmembers.listitem -->
+ 				</td>
+ 			</tr>
+ 		{/endif}
+ 		</table>
+ 		<div class="smallfont">
+ 			<br />
+ 		</div>
+	{/endif}
+	{if show.members}
+		{if user.president}
+			{!table_begin 600,left}
+		{else}
+			{!table_begin 400,left}
+		{/endif}
+		
+		<table class="noBorderX" width="100%">
+		<tr>
+			<td {if user.president}colspan="3"{/endif} class="noBorderX">
+				Mitglieder:
+			</td>
+			<td class="noBorderX" align="right">
+				{!link_to (An alle schreiben), default, module:comm, to:ally}
+			</td>
+		</tr>
+		<!-- BEGIN show.members.listitem -->
+			<tr>
+			{if user.president}
+				<td colspan="2" class="noBorderX">
+					<a class="profile" style="color:#c7c7c7;white-space:nowrap" onmouseover="return overlib('Aktivit&auml;t: <span style=\'font-weight:bold\'>{show.members.inaktstatus}</span>',TIMEOUT,0,DELAY,400);" onmouseout="return nd();" href="./main.php?module=userprofile&amp;sess={global.sess}&amp;user={show.members.id}">
+						{show.members.name}
+					</a>
+					({show.members.id})
+				</td>
+				<td class="noBorderX">
+					{!link_to rauswerfen, kick, kick:$show.members.id, show:$show}
+				</td>
+				<td class="noBorderX">
+					{!link_to zum Pr&auml;sidenten ernenne, newPraesi, presn:$show.members.id, show:$show}
+				</td>
+			{else}
+				<td colspan="2" class="noBorderX">
+					{!link_to $show.members.name, default, module:userprofile, css_class:profile, css_style:white-space:nowrap, user:$show.members.id}
+					({show.members.id})
+				</td>
+			{/endif}
+			</tr>
+		<!-- END show.members.listitem -->
+		</table>
+		{!table_end}
+	{/endif}
+	{if show.einstellungen}
+		{!table_begin 550,left}
+			Daten &auml;ndern:<br />
+			<form action="./main.php" method="post">
+			<table class="noBorderX">
+			<tr>
+				<td class="noBorderX">Name:</td>
+				<td class="noBorderX"><input name="name" type="text" size="50" style="width:350px" value="{ally.plainname}" /></td>
+			</tr>
+			<tr>
+				<td class="noBorderX">Beschreibung:</td>
+				<td class="noBorderX">
+					<textarea name="desc" rows="10" cols="45" style="width:350px">{ally.description}</textarea>
+				</td>
+			</tr>
+			<tr>
+				<td class="noBorderX">Homepage:</td>
+				<td class="noBorderX"><input name="hp" type="text" size="50" style="width:350px" value="{ally.hp}" /></td>
+			</tr>
+			<tr>
+				<td class="noBorderX">Allytag:</td>
+				<td class="noBorderX"><input name="allytag" type="text" size="50" style="width:350px" maxlength="255" value="{ally.allytag}" /></td>
+			</tr>
+			<tr>
+				<td class="noBorderX">Pr&auml;sident:</td>
+				<td class="noBorderX"><input name="praesi" type="text" size="50" style="width:350px" maxlength="100" value="{ally.pname}" /></td>
+			</tr>
+			<tr>
+				<td class="noBorderX">Basen anzeigen (Sternenkarte):</td>
+				<td class="noBorderX"><input name="showastis" type="checkbox" value="1" {if ally.showastis}checked="checked"{/endif} /></td>
+			</tr>
+			<tr>
+				<td class="noBorderX">Eigene GTU-Bieter anzeigen:</td>
+				<td class="noBorderX"><input name="showGtuBieter" type="checkbox" value="1" {if ally.showgtubieter}checked="checked"{/endif} /></td>
+			</tr>
+			<tr>
+				<td class="noBorderX">Gemeinsame Awac-LRS:</td>
+				<td class="noBorderX"><input name="showlrs" type="checkbox" value="1" {if ally.showlrs}checked="checked"{/endif} /></td>
+			</tr>
+			<tr>
+				<td align="center" colspan="2" class="noBorderX">
+					{!form_create_hidden changeSettings, show:$show}
+					<input type="submit" value="Daten &auml;ndern" style="width:300px" />
+				</td>
+			</tr>
+			</table>
+			<br />
+			<span style="font-size:10px">
+				<span style="font-weight:bold">Hinweis:</span> F&uuml;r Namen, Beschreibung & Allytag k&ouml;nnen die Com-Net Tags verwendet werden<br /><br />
+				<span style="font-weight:bold">Hinweise (Allytags):</span> F&uuml;r den Allytag existiert au&szlig;erdem noch der Tag [name], welcher hinterher automatisch durch den entsprechenden Spielernamen ersetzt wird!<br />
+			</span>
+		{!table_end}
+		</form>
+		<div class="smallfont">
+			<br />
+			<br />
+		</div>
+			
+		{!table_begin 450,left}
+			Allianzlogo hochladen:<br />
+			<form enctype="multipart/form-data" action="./main.php" method="post">
+				<input type="hidden" name="MAX_FILE_SIZE" value="307200" />
+				<input name="logofile" type="file" />
+				{!form_create_hidden uploadLogo, show:$show}
+				&nbsp;<input type="submit" value="Hochladen" /><br />
+				gif-format; 75x75; max 300kb
+			</form>
+		{!table_end}
+		<div class="smallfont">
+			<br />
+			<br />
+		</div>
+		
+		<script type="text/javascript">
+		<!--
+			function channelSelectChanged(type,id) {
+				if( type == 'read' ) {
+					type = 'Read';
+				}
+				else {
+					type = 'Write';
+				}
+
+				element = document.getElementById('channelSelect'+type+id);
+
+				if( element.options[element.options.selectedIndex].value == 'player' ) {
+					document.getElementById('channelACL'+type+id).style.visibility='visible';
+					document.getElementById('channelACL'+type+id).style.display='block';
+				}
+				else {
+					document.getElementById('channelACL'+type+id).style.visibility='hidden';
+					document.getElementById('channelACL'+type+id).style.display='none';
+				}
+			}
+		-->
+		</script>
+		
+		<table class="noBorder">
+		<tr>
+			<!-- BEGIN show.einstellungen.channels.listitem -->
+				<td class="noBorder" style="width:300px; vertical-align:top">
+					{!table_begin 320,left}
+						<div align="center">
+							{show.einstellungen.channels.index}. Com-Net Frequenz -
+							{if show.einstellungen.channels.id} 
+								{!link_to L&ouml;schen, deleteChannel, css_class:error, show:config, channel:$show.einstellungen.channels.id}
+							{/endif}
+						</div>
+						<form action="./main.php" method="post">
+							{if show.einstellungen.channels.id}
+								{!form_create_hidden editChannel, show:$show}
+							{else}
+								{!form_create_hidden createChannel, show:$show}
+							{/endif}
+							<table class="noBorderX">
+							<tr>
+								<td class="noBorderX">Name:</td>
+								<td class="noBorderX">
+									<input type="text" name="name" value="{show.einstellungen.channels.name}" length="60" size="30" style="width:180px" />
+									{if show.einstellungen.channels.id}
+										<input type="hidden" name="edit" value="{show.einstellungen.channels.id}" />
+									{else}
+										<input type="hidden" name="create" value="1" />
+									{/endif}
+								</td>
+							</tr>
+							<tr>
+								<td class="noBorderX" style="vertical-align:top">Lesen:</td>
+								<td class="noBorderX">
+									<select id="channelSelectRead{show.einstellungen.channels.id}" name="read" size="1" onchange="channelSelectChanged('read','{show.einstellungen.channels.id}')"  style="width:180px">	
+										{if show.einstellungen.channels.readall}
+											<option selected="selected" value="all">Alle</option>
+											<option value="ally">Allianz</option>
+											<option value="player">Einzelne Spieler</option>
+										{else}
+											{if show.einstellungen.channels.readally}
+												<option value="all">Alle</option>
+												<option selected="selected" value="ally">Allianz</option>
+												<option value="player">Einzelne Spieler</option>
+											{else}
+												<option value="all">Alle</option>
+												<option value="ally">Allianz</option>
+												<option selected="selected" value="player">Einzelne Spieler</option>
+											{/endif}
+										{/endif}
+									</select><br />
+									<div id="channelACLRead{show.einstellungen.channels.id}"
+									{if show.einstellungen.channels.readids}
+										style="visibility:visible; border:1px solid #a7a7a7; padding:5px; margin-top:5px; display:block">
+									{else}
+										style="visibility:hidden; border:1px solid #a7a7a7; padding:5px; margin-top:5px; display:none">
+									{/endif}
+										<input type="text" name="readids" value="{show.einstellungen.channels.readids}" size="30" style="width:170px" /><br />
+										<span style="font-size:12px">Spieler-IDs, durch Kommata getrennt, eingeben</span>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="noBorderX" style="vertical-align:top">Schreiben:</td>
+								<td class="noBorderX">
+									<select id="channelSelectWrite{show.einstellungen.channels.id}" name="write" size="1" onchange="channelSelectChanged('write','{show.einstellungen.channels.id}')"  style="width:180px">
+										{if show.einstellungen.channels.writeall}
+											<option selected="selected" value="all">Alle</option>
+											<option value="ally">Allianz</option>
+											<option value="player">Einzelne Spieler</option>
+										{else}
+											{if show.einstellungen.channels.writeally}
+												<option value="all">Alle</option>
+												<option selected="selected" value="ally">Allianz</option>
+												<option value="player">Einzelne Spieler</option>
+											{else}
+												<option value="all">Alle</option>
+												<option value="ally">Allianz</option>
+												<option selected="selected" value="player">Einzelne Spieler</option>
+											{/endif}
+										{/endif}
+									</select><br />
+									<div id="channelACLWrite{show.einstellungen.channels.id}"
+									{if show.einstellungen.channels.writeids}
+										style="visibility:visible; border:1px solid #a7a7a7; padding:5px; margin-top:5px; display:block">
+									{else}
+										style="visibility:hidden; border:1px solid #a7a7a7; padding:5px; margin-top:5px; display:none">
+									{/endif}
+										<input type="text" name="writeids" value="{show.einstellungen.channels.writeids}" size="30" style="width:170px" /><br />
+										<span style="font-size:12px">Spieler-IDs, durch Kommata getrennt, eingeben</span>
+									</div>
+								</td>
+ 							</tr>
+ 							<tr>
+ 								<td colspan="2" class="noBorderX" align="center">
+ 									<input type="submit" value="{if show.einstellungen.channels.id}&auml;ndern{else}erstellen{/endif}" style="width:200px" />
+ 								</td>
+ 							</tr>
+							</table>
+						</form>
+					{!table_end}
+				</td>
+			<!-- END show.einstellungen.channels.listitem -->
+		</tr>
+		</table>
+		<div class="smallfont">
+			<br />
+			{!link_to Allianz aufl&ouml;sen, kill, css_class:error}
+		</div>
+	{/endif}
+	{if show.posten}
+		{!table_begin 600,left}
+			<table class="noBorderX" width="100%">
+			<tr>
+				<td colspan="2" class="noBorderX">Posten bearbeiten:</td>
+				<td class="noBorderX" align="right">{show.posten.count} von {show.posten.maxcount}</td>
+			</tr>
+			<tr>
+				<td class="noBorderX" style="width:150px">Name</td>
+				<td class="noBorderX" style="width:250px">Spieler</td>
+				<td class="noBorderX">&nbsp;</td>
+			</tr>
+			<!-- BEGIN show.posten.modify.listitem -->
+				<form action="./main.php" method="post">
+				<tr>
+					<td class="noBorderX"><span class="nobr">{show.posten.modify.name}&nbsp;</span></td>
+					<td class="noBorderX">
+						<select size="1" name="user" style="width:220px">
+							<!-- BEGIN show.posten.modify.userlist.listitem -->
+									<option value="{show.posten.modify.userlist.id}" {if show.posten.modify.userlist.selected}selected="selected"{/endif}>{show.posten.modify.userlist.name}</option>
+							<!-- END show.posten.modify.userlist.listitem -->
+						</select>
+					</td>
+					<td class="noBorderX">
+						<span class="nobr">
+							{!form_create_hidden editPosten, show:$show, id:$show.posten.modify.id}
+							<input type="submit" value="speichern" />
+							&nbsp;[{!link_to x, deletePosten, css_class:error, show:$show, postenid:$show.posten.modify.id}]
+						</span>
+					</td>
+				</tr>
+				</form>
+			<!-- END show.posten.modify.listitem -->
+			</table>
+			<br />
+		{!table_end}
+		<div class="smallfont">
+			<br />
+			<br />
+		</div>
+		{if show.posten.addposten}
+			{!table_begin 600,left}
+				<table class="noBorderX" width="100%">
+				<tr>
+					<td colspan="3" class="noBorderX">Posten erstellen:</td>
+				</tr>
+				<tr>
+					<td class="noBorderX">Name</td>
+					<td class="noBorderX">Spieler</td>
+					<td class="noBorderX">&nbsp;</td>
+				</tr>
+				<form action="./main.php" method="post">
+				<tr>
+					<td class="noBorderX"><input type="text" name="name" size="30" value="Kein Name" /></td>
+					<td class="noBorderX">
+						<select size="1" name="user">
+							<!-- BEGIN show.posten.addposten.userlist.listitem -->
+								<option value="{show.posten.addposten.userlist.id}">{show.posten.addposten.userlist.name}</option>
+							<!-- END show.posten.addposten.userlist.listitem -->			
+						</select>
+					</td>
+					<td class="noBorderX">
+						{!form_create_hidden addPosten, show:$show}
+						<input type="submit" value="hinzuf&uuml;gen" />
+					</td>
+				</tr>
+				</form>
+				</table>
+			{!table_end}
+		{/endif}
+	{/endif}
+	{if show.battles}
+		<div class="smallfont">
+			Zerst&ouml;rte Schiffe:<br />
+		</div>
+		<table class="show" cellpadding="3" width="90%">
+		<tr>
+		<!-- BEGIN show.destships.listitem -->
+			<td class="schiffWaren" style="width:100px">
+				{show.destships.name}<br />
+				<a onmouseover="return overlib('{show.destships.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" target="_blank" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={show.destships.type}">
+					<img src="{show.destships.type.picture}" alt="" />
+				</a><br />
+				{show.destships.owner}<br />
+				{show.destships.time}
+			</td>
+			{if show.destships.newrow}
+				</tr>
+				<tr>
+			{/endif}
+		<!-- END show.destships.listitem -->
+		<!-- BEGIN show.destships.linefiller.listitem -->
+			<td class="schiffWaren" style="width:100px">&nbsp;</td>
+		<!-- END show.destships.linefiller.listitem -->
+		</tr>
+		<tr>
+			<td class="noBorderS" align="left" colspan="2">
+				{!link_to zur&uuml;ck, default, show:$show, destpos:$show.destpos.back}
+			</td>
+			<td class="noBorderS" align="right" colspan="3">
+				{!link_to vor, default, show:$show, destpos:$show.destpos.forward}
+			</td>
+		</tr>
+		</table>
+		<div class="smallfont">
+			<br />
+			Verlorene Schiffe:<br />
+		</div>
+		<table class="show" cellpadding="3" width="90%">
+		<tr>
+		<!-- BEGIN show.lostships.listitem -->
+			<td class="schiffWaren" style="width:100px">
+				{show.lostships.name}<br />
+				<a onmouseover="return overlib('{show.lostships.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" target="_blank" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={show.lostships.type}">
+					<img src="{show.lostships.type.picture}" alt="" />
+				</a><br />
+				{show.lostships.owner}<br />
+				[{show.lostships.destroyer}]<br />
+				{show.lostships.time}
+			</td>
+			{if show.lostships.newrow}
+				</tr>
+				<tr>
+			{/endif}
+		<!-- END show.lostships.listitem -->
+		<!-- BEGIN show.lostships.linefiller.listitem -->
+			<td class="schiffWaren" style="width:100px">&nbsp;</td>
+		<!-- END show.lostships.linefiller.listitem -->
+		</tr>
+		<tr>
+			<td class="noBorderS" align="left" colspan="2">
+				{!link_to zur&uuml;ck, default, show:$show, lostpos:$show.lostpos.back}
+			</td>
+			<td class="noBorderS" align="right" colspan="3">
+				{!link_to vor, default, show:$show, lostpos:$show.lostpos.forward}
+			</td>
+		</tr>
+		</table>
+	{/endif}
+{else}
+	<table class="show" cellspacing="2" cellpadding="2">
+	<tr>
+		<td class="noBorderS">Keine Allianz</td>
+		<td class="noBorder">&nbsp;</td>
+		<td class="noBorder">
+			{!table_begin 600,center}
+				{!link_to Allianz beitreten, defaultNoAlly, show:join}
+				&nbsp;|&nbsp;
+				{!link_to Allianz gr&uuml;nden, defaultNoAlly, show:create}
+				&nbsp;|&nbsp;
+				{!link_to Allianzen auflisten, default, module:allylist}
+			{!table_end}
+		</td>
+	</tr>
+	</table>
+	<div class="smallfont">
+		<br />
+	</div>
+	{if ally.message}
+		{!table_begin 400,center}
+			<span style="color:red">{ally.message}</span>
+		{!table_end}
+		<div class="smallfont">
+			<br />
+		</div>
+	{/endif}
+	{if ally.statusmessage}
+		{!table_begin 400,center}
+			{ally.statusmessage}
+			{if ally.statusmessage.ask.url1}
+				<br />
+				<a class="ok" href="./main.php?module=ally&amp;sess={global.sess}{ally.statusmessage.ask.url1}">Ja</a> -
+				<a class="error" href="./main.php?module=ally&amp;sess={global.sess}{ally.statusmessage.ask.url2}">Nein</a>
+			{/endif}
+		{!table_end}
+		<div class="smallfont">
+			<br />
+		</div>
+	{/endif}
+	
+	{if show.create}
+		{!table_begin 450,left}
+			<form action="./main.php" method="post">
+			<table class="noBorderX" border="1">
+			<tr>
+				<td class="noBorderX" colspan="2" align="center">Allianz gr&uuml;nden</td>
+			</tr>
+			<tr>
+				<td class="noBorderX">Name:</td>
+				<td class="noBorderX"><input name="name" type="text" size="20" value="" /></td>
+			</tr>
+			<tr>
+				<td class="noBorderX" colspan="2">Du ben&ouml;tigst zwei Spieler, die die Allianzgr&uuml;ndung unterst&uuml;tzen. Diese werden automatisch Mitglied der Allianz!</td>
+			</tr>
+			<tr>
+				<td class="noBorderX">1. Unterst&uuml;tzer:</td>
+				<td class="noBorderX"><input name="confuser1" type="text" size="20" value="ID" /></td>
+			</tr>
+			<tr>
+				<td class="noBorderX">2. Unterst&uuml;tzer:</td>
+				<td class="noBorderX"><input name="confuser2" type="text" size="20" value="ID" /></td>
+			</tr>
+			<tr>
+				<td colspan="2" align="center" class="noBorderX">
+					{!form_create_hidden found}
+					<br />
+					<input style="width:200px" type="submit" value="Allianz gr&uuml;nden" />
+				</td>
+			</tr>
+			</table>
+			</form>
+		{!table_end}
+	{/endif}
+	{if show.join}
+		<div class="smallfont">
+			Bitte w&auml;hlen sie die Allianz aus, der sie beitreten wollen:<br />
+		</div>
+		<table class="noBorder">
+		<!-- BEGIN show.join.allylist.listitem -->
+			<tr>
+				<td class="noBorderS">
+					{!link_to $show.join.allylist.name, join, join:$show.join.allylist.allyid}
+					&nbsp;&nbsp;{!link_to [details], details, css_class:back, module:allylist, details:$show.join.allylist.allyid}
+				</td>
+			</tr>
+		<!-- END show.join.allylist.listitem -->
+		</table>
+	{/endif}	
+{/endif}
