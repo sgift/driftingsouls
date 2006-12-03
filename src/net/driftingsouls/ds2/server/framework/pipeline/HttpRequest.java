@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.framework.pipeline;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,8 +50,23 @@ public class HttpRequest implements Request,Loggable {
 	private ServletRequestContext context = null;
 	private List uploadedFiles = null;
 	
+	/**
+	 * Konstruktor
+	 * @param request Die Servlet-Request
+	 */
 	public HttpRequest(HttpServletRequest request) {
 		this.request = request;
+		
+		// Standard-Encoding ist UTF-8
+		if( request.getCharacterEncoding() == null ) {
+			try {
+				request.setCharacterEncoding("UTF-8");
+			}
+			catch( UnsupportedEncodingException e1 ) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
 		
 		context = new ServletRequestContext(request);
 		isMultipart = FileUploadBase.isMultipartContent(context);
