@@ -29,6 +29,9 @@
 		<module name="ally">
 			<generator class="net.driftingsouls.ds2.server.modules.AllyController" />
 		</module>
+		<module name="allylist">
+			<generator class="net.driftingsouls.ds2.server.modules.AllyListController" />
+		</module>
 		<module name="base">
 			<generator class="net.driftingsouls.ds2.server.modules.BaseController" />
 		</module>

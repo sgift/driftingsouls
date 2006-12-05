@@ -1,0 +1,175 @@
+<table class="noBorder">
+<tr>
+	<td class="noBorder">
+	{if user.ally}
+		<table class="show" cellspacing="2" cellpadding="2">
+		<tr>
+			<td class="noBorderS">{user.ally.name}</td>
+			<td class="noBorder">&nbsp;</td>
+			<td class="noBorder">
+				{!table_begin 650,center}
+					{!link_to Allgemeines, default, module:ally, show:allgemein}
+					|
+					{!link_to Mitglieder, default, module:ally, show:members}
+					|
+					{if user.ally.president}
+						{!link_to Einstellungen, default, module:ally, show:config}
+						|
+						{!link_to Posten, default, module:ally, show:posten}
+						|
+					{/endif}
+					{!link_to K&auml;mpfe, default, module:ally, show:battles}
+					|
+					{!link_to Allianzen auflisten, default}
+					|
+					{!link_to Austreten, part, css_class:error, module:ally}
+				{!table_end}
+			</td>
+		</tr>
+		</table>
+	{else}
+		<table class="show" cellspacing="2" cellpadding="2">
+		<tr>
+			<td class="noBorderS">Keine Allianz</td>
+			<td class="noBorder">&nbsp;</td>
+			<td class="noBorder">
+				{!table_begin 600,center}
+					{!link_to Allianz beitreten, defaultNoAlly, module:ally, show:join}
+					&nbsp;|&nbsp;
+					{!link_to Allianz gr&uuml;nden, defaultNoAlly, module:ally, show:create}
+					&nbsp;|&nbsp;
+					{!link_to Allianzen auflisten, default}
+				{!table_end}
+			</td>
+		</tr>
+		</table>
+	{/endif}
+	<br />
+	</td>
+</tr>
+<tr>
+	<td class="noBorder">
+		{if ally.message}
+			<span style="color:red">{ally.message}</span><br /><br />
+		{/endif}
+		{if allylist.showally}
+			<div style="text-align:center">
+			{!table_begin 700,left}
+				<table class="noBorderX" width="100%">
+				<tr>	
+					<td class="noBorderX" style="width:75px">
+						<img src="{URL}data/logos/ally/{ally.id}.gif" width="75" height="75" alt="Kein Allylogo vorhanden" />
+						<br />
+						<br />
+					</td>	
+					<td class="noBorderX" align="center">
+						<span class="smallfont">{ally.name}</span>
+						<br />
+						{if user.changerelations}
+							{!link_to feindlich, changeRelation, css_class:error, css_style:font-size:10px, details:$ally.id, relation:1} -
+							{!link_to neutral, changeRelation, css_style:font-size:10px;color:#c7c7c7, details:$ally.id, relation:0} -
+							{!link_to freundlich, changeRelation, css_class:ok, css_style:font-size:10px, details:$ally.id, relation:2}
+							{if user.allyrelationchange}
+								<br />
+								<span style="font-size:10px">F&uuml;r alle ihre Allianzmitglieder:</span><br />
+								{!link_to feindlich, changeRelationAlly, css_class:error, css_style:font-size:10px, details:$ally.id, relation:1} -
+								{!link_to neutral, changeRelationAlly, css_style:font-size:10px;color:#c7c7c7, details:$ally.id, relation:0} -
+								{!link_to freundlich, changeRelationAlly, css_class:ok, css_style:font-size:10px, details:$ally.id, relation:2}
+							{/endif}
+						{/endif}
+					</td>
+					<td class="noBorderX" style="width:75px">
+						<img src="{URL}data/logos/ally/{ally.id}.gif" width="75" height="75" alt="Kein Allylogo vorhanden" />
+						<br />
+						<br />
+					</td>
+				</tr>
+				<tr>
+					<td class="noBorderX" colspan="3">
+						<div style="color:#cccccc">{ally.description}<br /><br /></div>
+					</td>
+				</tr>
+				</table>
+
+				<table class="noBorderX">
+				<tr>
+					<td class="noBorderX" valign="top">
+						Gegr&uuml;ndet: {ally.founded}<br />
+						Gewonnene Schlachten: {ally.wonBattles}<br />
+						Verlorene Schlachten: {ally.lostBattles}<br />
+						Zerst&ouml;rte Schiffe: {ally.destroyedShips}<br />
+						Verlorene Schiffe: {ally.lostShips}<br />
+						Mitglieder: {ally.membercount}<br /><br />
+					</td>
+					<td class="noBorderX" style="width:50px">&nbsp;&nbsp;&nbsp;&nbsp;</td>
+					<td class="noBorderX" valign="top">
+						{if ally.items.list}
+							Items:<br />
+							<!-- BEGIN ally.items.listitem -->
+								<img style="vertical-align:middle" src="{res.image}" alt="" />
+		 						{res.name}<br />
+							<!-- END ally.items.listitem -->
+						{/endif}
+					</td>
+				</tr>
+				</table>
+				<br />
+					
+				<table class="noBorderX" cellspacing="2" cellpadding="2">
+ 				<tr>
+ 					<td class="noBorderX">
+ 						<span style="font-weight:bold">{ally.pname}:</span>
+ 					</td>
+ 					<td class="noBorderX">
+ 						{!link_to $ally.president.name, default, css_class:profile, module:userprofile, user:$ally.president.id}
+ 					</td>
+ 				</tr>
+ 				<!-- BEGIN ally.minister.listitem -->
+ 					<tr>
+ 						<td class="noBorderX" valign="top">{ally.minister.posten}:</td>
+ 						<td class="noBorderX">
+ 							{!link_to $ally.minister.name, default, css_class:profile, module:userprofile, user:$ally.minister.id}<br />
+ 						</td>
+ 					</tr>
+ 				<!-- END ally.minister.listitem -->
+ 				{if ally.addmembers.list}
+ 					<tr>
+ 						<td class="noBorderX" valign="top">Weitere Mitglieder:</td>
+ 						<td class="noBorderX">
+ 							<!-- BEGIN ally.addmembers.listitem -->
+ 								{!link_to $ally.addmembers.name, default, css_class:profile, module:userprofile, user:$ally.addmembers.id}<br />
+ 							<!-- END ally.addmembers.listitem -->	
+ 						</td>
+ 					</tr>
+ 				{/endif}
+ 				</table>
+ 				<br />			
+			{!table_end}
+			</div>
+		{/endif}
+		{if allylist.showlist}
+			<!-- BEGIN allylist.ally.listitem -->
+				{!table_begin 400,center}
+					<table class="noBorderX" width="620">
+					<tr>
+						<td class="noBorderX" style="width:75px">
+							<img src="{URL}data/logos/ally/{allylist.ally.id}.gif" width="75" height="75" alt="Kein Allylogo vorhanden" />
+							<br />
+							<br />
+						</td>
+						<td class="noBorderX" align="center">
+							<span class="smallfont">{allylist.ally.name}</span><br /><br />
+						</td>
+						<td class="noBorderX" style="width:75px">
+							<img src="{URL}data/logos/ally/{allylist.ally.id}.gif" width="75" height="75" alt="Kein Allylogo vorhanden" />
+							<br />
+							<br />
+						</td>
+					</tr>
+					</table>
+				{!table_end}
+			<!-- END allylist.ally.listitem -->
+		{/endif}
+	</td>
+</tr>
+</table>
