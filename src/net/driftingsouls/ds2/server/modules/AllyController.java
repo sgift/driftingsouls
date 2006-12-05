@@ -43,6 +43,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
 /**
@@ -102,40 +103,390 @@ public class AllyController extends DSGenerator implements Loggable {
 		}
 	}
 	
+	/**
+	 * Leitet die Gruendung einer Allianz ein. Die Aktion erstellt
+	 * die notwendigen Tasks und benachrichtigt die Unterstuetzer der Gruendung
+	 * @urlparam String name Der Name der neuen Allianz
+	 * @urlparam Integer confuser1 Die User-ID des ersten Unterstuetzers
+	 * @urlparam Integer confuser2 Die User-ID des zweiten Unterstuetzers
+	 *
+	 */
 	public void foundAction() {
-		// TODO
-		Common.stub();
-		redirect("defaultNoAlly");
+		Database db = getDatabase();
+		User user = getUser();
+		TemplateEngine t = getTemplateEngine();
+	
+		if( user.getAlly() > 0 ) {
+			t.set_var( "ally.message", "Fehler: Sie sind bereits Mitglied in einer Allianz und k&ouml;nnen daher keine neue Allianz gr&uuml;nden" );
+			
+			redirect();
+			return;
+		}
+	
+		Taskmanager taskmanager = Taskmanager.getInstance();
+	
+		Task[] tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_NEW_MEMBER, "*", Integer.toString(user.getID()), "*" );
+		if( tasks.length > 0 ) {
+			t.set_var( "ally.message", "Fehler: Sie haben bereits einen Aufnahmeantrag bei einer Allianz gestellt" );
+			
+			redirect("defaultNoAlly");
+			return;	
+		}
+		
+		parameterString("name");
+		parameterNumber("confuser1");
+		parameterNumber("confuser2");
+		String name = getString("name");
+		int confuser1 = getInteger("confuser1");
+		int confuser2 = getInteger("confuser2");
+		
+		confuser1 = db.first("SELECT id FROM users WHERE id=",confuser1," AND id NOT IN (",user.getID(),",",confuser2,") AND ally='0'").getInt("id");
+		confuser2 = db.first("SELECT id FROM users WHERE id=",confuser2,"' AND id NOT IN (",user.getID(),",",confuser2,") AND ally='0'").getInt("id");
+	
+		if( (confuser1 == 0) || (confuser2 == 0) ) {
+			t.set_var("ally.statusmessage", "<span style=\"color:red\">Einer der angegebenen Unterst&uuml;tzer ist ung&uuml;ltig</span>\n");
+			
+			redirect("defaultNoAlly");
+			return; 	
+		}
+		
+		tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_FOUND_CONFIRM, "*", Integer.toString(confuser1), "*" );
+		if( tasks.length > 0 ) {
+			confuser1 = 0;	
+		}
+		else {
+			tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_NEW_MEMBER, "*", Integer.toString(confuser1), "*" );
+			if( tasks.length > 0 ) {
+				confuser1 = 0;	
+			}
+		}
+	
+		tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_FOUND_CONFIRM, "*", Integer.toString(confuser2), "*" );
+		if( tasks.length > 0 ) {
+			confuser2 = 0;	
+		}
+		else {
+			tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_NEW_MEMBER, "*", Integer.toString(confuser2), "*" );
+			if( tasks.length > 0 ) {
+				confuser2 = 0;	
+			}
+		}
+	
+		if( (confuser1 == 0) || (confuser2 == 0) ) {
+			t.set_var("ally.statusmessage", "<span style=\"color:red\">Einer der angegebenen Unterst&uuml;tzer ist ung&uuml;ltig</span>\n");
+			
+			redirect("defaultNoAlly");
+			return; 	
+		}
+	
+		String mastertaskid = taskmanager.addTask(Taskmanager.Types.ALLY_FOUND, 21, "2", name, user.getID()+","+confuser1+","+confuser2 );
+		String conf1taskid = taskmanager.addTask(Taskmanager.Types.ALLY_FOUND_CONFIRM, 21, mastertaskid, Integer.toString(confuser1), "" );
+		String conf2taskid = taskmanager.addTask(Taskmanager.Types.ALLY_FOUND_CONFIRM, 21, mastertaskid, Integer.toString(confuser2), "" );
+	
+		PM.send( getContext(), user.getID(), confuser1, "Allianzgr&uuml;ndung", "[automatische Nachricht]\nIch habe vor die Allianz "+name+" zu gr&uuml;nden. Da zwei Spieler dieses vorhaben unterst&uuml;tzen m&uuml;ssen habe ich mich an dich gewendet.\nAchtung: Durch die Unterst&uuml;tzung wirst du automatisch Mitglied!\n\n[_intrnlConfTask="+conf1taskid+"]Willst du die Allianzgr&uuml;ndung unterst&uuml;tzen?[/_intrnlConfTask]", false, PM.FLAGS_IMPORTANT);
+		PM.send( getContext(), user.getID(), confuser2, "Allianzgr&uuml;ndung", "[automatische Nachricht]\nIch habe vor die Allianz "+name+" zu gr&uuml;nden. Da zwei Spieler dieses vorhaben unterst&uuml;tzen m&uuml;ssen habe ich mich an dich gewendet.\nAchtung: Durch die Unterst&uuml;tzung wirst du automatisch Mitglied!\n\n[_intrnlConfTask="+conf2taskid+"]Willst du die Allianzgr&uuml;ndung unterst&uuml;tzen?[/_intrnlConfTask]", false, PM.FLAGS_IMPORTANT);
+	
+		user.setAlly(-1);
+	
+		t.set_var( "ally.statusmessage", "Die beiden angegebenen Spieler wurden via PM benachrichtigt. Sollten sich beide zur Unterst&uuml;tzung entschlossen haben, wird die Allianz augenblicklich gegr&uuml;ndet. Du wirst au&szlig;erdem via PM benachrichtigt." );
+		
+		return;
 	}
 	
+	/**
+	 * Leitet den Beitritt zu einer Allianz ein.
+	 * Die Aktion erstellt die notwendige Task und benachrichtigt
+	 * die "Minister" und den Praesident der Zielallianz
+	 *
+	 * @urlparam Integer join Die ID der Allianz, der der Benuzter beitreten moechte
+	 * @urlparam String conf Bestaetigt den Aufnahmewunsch falls der Wert "ok" ist
+	 */
 	public void joinAction() {
-		// TODO
-		Common.stub();
-		redirect("defaultNoAlly");
+		Database db = getDatabase();
+		TemplateEngine t = getTemplateEngine();
+		User user = getUser();
+	
+		parameterString("conf");
+		parameterNumber("join");
+		
+		String conf = getString("conf");
+		int join = getInteger("join");
+	
+		if( user.getAlly() > 0 ) {
+			t.set_var( "ally.message", "Sie sind bereits in einer Allianz. Sie m&uuml;ssen diese erst verlassen um in eine andere Allianz eintreten zu k&ouml;nnen!" );
+			
+			redirect("defaultNoAlly");
+			return;	
+		}
+		
+		SQLResultRow al = db.first("SELECT name,id,president FROM ally WHERE id=",join);
+		if( ally.isEmpty() ) {
+			t.set_var( "ally.message", "Die angegebene Allianz existiert nicht" );
+			
+			redirect("defaultNoAlly");
+			return;	
+		}
+	
+		Taskmanager taskmanager = Taskmanager.getInstance();
+		Task[] tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_FOUND_CONFIRM, "*", Integer.toString(user.getID()), "*" );
+		if( tasks.length > 0 ) {
+			t.set_var( "ally.message", "Es gibt eine oder mehrere Anfragen an sie zwecks Unterst&uuml;tzung einer Allianzgr&uuml;ndung. Sie m&uuml;ssen diese Anfragen erst bearbeiten bevor sie einer Allianz beitreten k&ouml;nnen." );
+			
+			redirect("defaultNoAlly");
+			return;	
+		}
+		
+		tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_NEW_MEMBER, "*", Integer.toString(user.getID()), "*" );
+		if( tasks.length > 0 ) {
+			t.set_var( "ally.message", "Fehler: Sie haben bereits einen Aufnahmeantrag bei einer Allianz gestellt" );
+			
+			redirect("defaultNoAlly");
+			return;	
+		}
+	
+		if( !conf.equals("ok") ) {	
+			t.set_var(	"ally.statusmessage",			"Wollen sie der Allianz &gt;"+Common._title(al.getString("name"))+"&lt; wirklich beitreten?",
+						"ally.statusmessage.ask.url1",	"&amp;action=join&amp;join=$join&amp;conf=ok",
+						"ally.statusmessage.ask.url2",	"" );
+								
+			redirect("defaultNoAlly");
+			return;
+		}
+		
+		String taskid = taskmanager.addTask(Taskmanager.Types.ALLY_NEW_MEMBER, 35, Integer.toString(join), Integer.toString(user.getID()), "");
+		
+		SQLQuery supermemberid = db.query("SELECT DISTINCT u.id FROM users u JOIN ally a ON u.ally=a.id WHERE u.ally=",join," AND (u.allyposten!=0 OR u.id=a.president)");
+		while( supermemberid.next() ) {
+			PM.send(getContext(), 0, supermemberid.getInt("id"), "Aufnahmeantrag", "[Automatische Nachricht]\nHiermit beantrage ich die Aufnahme in die Allianz.\n\n[_intrnlConfTask="+taskid+"]Wollen sie dem Aufnahmeantrag zustimmen?[/_intrnlConfTask]", false, PM.FLAGS_IMPORTANT);
+		}
+		supermemberid.free();	
+	
+		t.set_var( "ally.statusmessage", "Der Aufnahmeantrag wurde weitergeleitet. Die Bearbeitung kann jedoch abh&auml;ngig von der Allianz l&auml;ngere Zeit in anspruch nehmen. Sollten sie aufgenommen werden, wird automatisch eine PM an sie gesendet." );
+			
+		return;
 	}
 	
+	/**
+	 * Loescht einen Allianz-Posten
+	 * @urlparam Integer postenid Die ID des zu loeschenden Postens
+	 *
+	 */
 	public void deletePostenAction() {
-		// TODO
-		Common.stub();
+		TemplateEngine t = getTemplateEngine();
+		User user = getUser();
+		Database db = getDatabase();
+		
+		if( this.ally.getInt("president") != user.getID()) {
+			t.set_var("ally.message","Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
+			redirect();
+			
+			return;
+		}
+		
+		parameterNumber("postenid");
+		int postenid = getInteger("postenid");
+
+		db.tBegin();
+		db.update("UPDATE users SET allyposten=0 WHERE allyposten=",postenid);
+		db.tUpdate(1, "DELETE FROM ally_posten WHERE id=",postenid);
+		db.tCommit();
+	
+		t.set_var( "ally.statusmessage", "Posten gel&ouml;scht");
+		
 		redirect();
 	}
 	
+	/**
+	 * Weisst einem Posten einen neuen Users zu
+	 * @urlparam Integer user Die ID des neuen Inhabers des Postens
+	 * @urlparam Integer id Die ID des zu besetzenden Postens
+	 *
+	 */
 	public void editPostenAction() {
-		// TODO
-		Common.stub();
+		TemplateEngine t = getTemplateEngine();
+		User user = getUser();
+		Database db = getDatabase();
+		
+		if( this.ally.getInt("president") != user.getID()) {
+			t.set_var("ally.message","Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
+			redirect();
+			
+			return;
+		}
+		
+		parameterNumber("user");
+		parameterNumber("id");
+		int userid = getInteger("id");
+		int postenid = getInteger("id");
+		
+		if( userid == 0 ) {
+			t.set_var( "ally.message", "Fehler: Sie m&uuml;ssen den Posten jemandem zuweisen" );
+			redirect();
+			
+			return;
+		}
+
+		User formuser = getContext().createUserObject(userid);
+		if( formuser.getAllyPosten() != 0 ) {
+  			t.set_var( "ally.message", "Fehler: Jedem Mitglied darf maximal ein Posten zugewiesen werden" );
+  			redirect();
+  			
+			return;
+		}
+
+		db.tBegin();
+		db.tUpdate(1, "UPDATE users SET allyposten=0 WHERE allyposten=",postenid," AND ally=",this.ally.getInt("id"));
+		db.tUpdate(1, "UPDATE users SET allyposten=",postenid," WHERE id=",userid," AND allyposten=0");
+		db.tCommit();
+
+		t.set_var( "ally.statusmessage", "&Auml;nderungen gespeichert" );
 		redirect();
 	}
 	
+	/**
+	 * Erstellt einen neuen Posten
+	 * @urlparam String name Der Name des neuen Postens
+	 * @urlparam Integer user Die ID des Benutzers, der den Posten innehaben soll
+	 *
+	 */
 	public void addPostenAction() {
-		// TODO
-		Common.stub();
+		TemplateEngine t = getTemplateEngine();
+		User user = getUser();
+		Database db = getDatabase();
+		
+		if( this.ally.getInt("president") != user.getID()) {
+			t.set_var("ally.message","Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
+			redirect();
+			
+			return;
+		}
+		
+		parameterString("name");
+		parameterNumber("user");
+		String name = getString("name");
+		int userid = getInteger("user");
+
+		if( name.length() == 0 ) {
+			t.set_var( "ally.message", "Fehler: Sie m&uuml;ssen dem Posten einen Namen geben" );
+			this.redirect();
+			return;
+		}
+
+		User formuser = createUserObject(userid);
+		if( formuser.getAllyPosten() != 0 ) {
+  			t.set_var( "ally.message", "Fehler: Jedem Mitglied darf maximal ein Posten zugewiesen werden" );
+  			redirect();
+			return;
+		}
+
+		int postencount = db.first("SELECT count(*) postencount FROM ally_posten WHERE ally=",this.ally.getInt("id")).getInt("postencount");
+		int membercount = db.first("SELECT count(*) membercount FROM users WHERE ally=",this.ally.getInt("id")).getInt("membercount");
+
+		int maxposten = (int)Math.round(membercount*MAX_POSTENCOUNT);
+		if( maxposten < 2 ) {
+			maxposten = 2;
+		}
+
+		if( maxposten <= postencount ) {
+			t.set_var( "ally.message", "Fehler: Sie haben bereits die maximale Anzahl an Posten erreicht" );
+			redirect();
+			return;
+		}
+
+		db.tBegin();
+		PreparedQuery insert = db.prepare("INSERT INTO ally_posten (ally,name) VALUES ( ?, ? )");
+		insert.tUpdate(1, this.ally.getInt("id"), name);
+		formuser.setAllyPosten(insert.insertID());
+		insert.close();
+		db.tCommit();
+
+		t.set_var( "ally.statusmessage", "Der Posten "+Common._plaintitle(name)+" wurde erstellt und zugewiesen" );
 		redirect();
 	}
 	
+	/**
+	 * Erstellt fuer die Allianz einen neuen Comnet-Kanal
+	 * @urlparam String name Der Name des neuen Kanals
+	 * @urlparam String read Der Zugriffsmodus (all, ally, player)
+	 * @urlparam String readids Falls der Lesemodus player ist: Die Komma-separierte Liste der Spieler-IDs
+	 * @urlparam String write Der Zugriffsmodus fuer Schreibrechte (all, ally, player)
+	 * @urlparam String readids Falls der Schreibmodus player ist: Die Komma-separierte Liste der Spieler-IDs
+	 *
+	 */
 	public void createChannelAction() {
-		// TODO
-		Common.stub();
-		redirect();
+		TemplateEngine t = getTemplateEngine();
+		User user = getUser();
+		Database db = getDatabase();
+		
+		if( this.ally.getInt("president") != user.getID()) {
+			t.set_var( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
+			redirect();
+			return;
+		}
+		
+		int count = db.first("SELECT count(id) as count FROM skn_channels WHERE allyowner=",this.ally.getInt("id")).getInt("id");
+		if( count >= 2 ) {
+			t.set_var( "ally.message", "Fehler: Ihre Allianz besitzt bereits zwei Frequenzen" );
+			redirect();
+			return;
+		}
+		
+		parameterString("name");
+		parameterString("read");
+		parameterString("write");
+		parameterString("readids");
+		parameterString("writeids");
+		String name = getString("name");
+		String read = getString("read");
+		String write = getString("write");
+		String readids = getString("readids");
+		String writeids = getString("writeids");
+		
+		if( name.length() == 0 ) {
+			t.set_var( "ally.message", "Fehler: Sie haben keinen Namen f&uuml;r die Frequenz eingegeben" );
+			redirect();
+			return;
+		}
+		
+		PreparedQuery query = db.prepare("INSERT INTO skn_channels (name, readall, readnpc, readally, readplayer, writeall, writenpc, writeally, writeplayer, allyowner) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		
+		query.setString(1, name);
+		query.setInt(2, 0); // readall
+		query.setInt(3, 0); // readnpc
+		query.setInt(4, 0); // readally
+		query.setString(5, ""); // readplayer
+		query.setInt(6, 0); // writeall
+		query.setInt(7, 0); // writenpc
+		query.setInt(8, 0); // writeally
+		query.setString(9, ""); // writeplayer
+		query.setInt(10, this.ally.getInt("id")); // allyowner
+		
+		if( read.equals("all") ) {
+			query.setInt(2, 1);
+		}
+		else if( read.equals("ally") ) {
+			query.setInt(4, this.ally.getInt("id"));
+		}
+		else if( read.equals("player") ) {
+			readids = Common.implode(",", Common.explodeToInteger(",",readids));
+			query.setString(5, readids); 
+		}
+
+		if( write.equals("all") ) {
+			query.setInt(6, 1);
+		}
+		else if( write.equals("ally") ) {
+			query.setInt(8, this.ally.getInt("id"));
+		}
+		else if( write.equals("player") ) {
+			writeids = Common.implode(",", Common.explodeToInteger(",",writeids));
+			query.setString(9, writeids); 
+		}
+		query.update();
+		query.close();
+
+		t.set_var( "ally.statusmessage", "Frequenz "+Common._title(name)+" hinzugef&uuml;gt" );
+		redirect();	
 	}
 	
 	/**
@@ -221,6 +572,7 @@ public class AllyController extends DSGenerator implements Loggable {
 			query.setString(9, writeids); 
 		}
 		query.update();
+		query.close();
 		
 		t.set_var( "ally.statusmessage", "Frequenz "+Common._plaintitle(name)+" ge&auml;ndert" );
 		redirect();	
