@@ -1,0 +1,112 @@
+{if show.survey}
+	{!table_begin 600,left}
+		<div style="font-weight:bold;font-size:18px;text-align:center">
+			{survey.name}
+		</div>
+		<br />
+		<form action="./main.php" method="post">
+			<table class="noBorderX">
+			{survey.list}
+			<!-- BEGIN survey.textbox.listitem -->
+				<tr>
+					<td class="noBorderX" style="width:200px;vertical-align:top">
+						{entry.name}
+					</td>
+					<td class="noBorderX" style="width:30px">&nbsp;
+					</td>
+					<td class="noBorderX" style="vertical-align:top">
+						<textarea name="surveyentry_{entry.id}" rows="10" cols="60" style="width:310px;height:100px;"></textarea>
+	  				</td>
+	  			</tr>  
+	  			<tr>
+					<td colspan="3" class="noBorderX">
+						&nbsp;
+					</td>
+				</tr>
+			<!-- END survey.textbox.listitem -->
+			<!-- BEGIN survey.text.listitem -->
+				<tr>
+					<td class="noBorderX" style="width:200px;vertical-align:top">
+						{entry.name}
+					</td>
+					<td class="noBorderX" style="width:30px">&nbsp;
+					</td>
+					<td class="noBorderX" style="vertical-align:top">
+						<input type="text" name="surveyentry_{entry.id}" style="width:310px" />
+	  				</td>
+	  			</tr>  
+	  			<tr>
+					<td colspan="3" class="noBorderX">
+						&nbsp;
+					</td>
+				</tr>
+			<!-- END survey.text.listitem -->
+			<!-- BEGIN survey.ratebox.listitem -->
+				<tr>
+					<td class="noBorderX" style="width:200px;vertical-align:top">
+						{entry.name}
+					</td>
+					<td class="noBorderX" style="width:30px">&nbsp;
+					</td>
+					<td class="noBorderX" style="vertical-align:top">
+						<select name="surveyentry_{entry.id}" size="1" style="width:310px">
+							<option value="1">sehr gut</option>
+							<option value="2">gut</option>
+							<option value="3" selected="selected">ok</option>
+							<option value="4">geht so</option>
+							<option value="5">schlecht</option>
+							<option value="6">sehr schlecht</option>
+						</select>
+	  				</td>
+	  			</tr> 
+	  			<tr>
+					<td colspan="3" class="noBorderX">
+						&nbsp;
+					</td>
+				</tr>
+			<!-- END survey.ratebox.listitem -->
+			<!-- BEGIN survey.combobox.listitem -->
+				<tr>
+					<td class="noBorderX" style="width:200px;vertical-align:top">
+						{entry.name}
+					</td>
+					<td class="noBorderX" style="width:30px">&nbsp;
+					</td>
+					<td class="noBorderX" style="vertical-align:top">
+						<select name="surveyentry_{entry.id}" size="1" style="width:310px">
+							<!-- BEGIN comboentry.listitem -->
+								<option value="{comboentry.id}" {if ! comboentry.list}selected="selected"{/endif}>{comboentry.name}</option>
+							<!-- END comboentry.listitem -->
+						</select>
+	  				</td>
+	  			</tr> 
+	  			<tr>
+					<td colspan="3" class="noBorderX">
+						&nbsp;
+					</td>
+				</tr>
+			<!-- END survey.combobox.listitem -->
+			<!-- BEGIN survey.description.listitem -->
+				<tr>
+					<td class="noBorderX" colspan="3" style="width:310px;vertical-align:top">
+						<hr>
+						{entry.name}
+					</td>
+				</tr>
+				
+			<!-- END survey.description.listitem -->
+			</table>
+			<div style="text-align:center">
+				<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+				{!form_create_hidden submit,survey:$survey.id}
+				<input type="submit" value="abschicken" style="width:310px" />
+			</div>
+		</form>
+	{!table_end}
+{/endif}
+{if show.votesuccessful}
+	{!table_begin 450,center}
+		Ihre Angaben wurden in der Datenbank gespeichert.<br />
+		Wir danken Ihnen daf&uuml;r, dass Sie sich die Zeit genommen haben, an dieser Umfrage teilzunehmen.
+	{!table_end}
+{/endif}

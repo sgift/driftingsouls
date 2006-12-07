@@ -104,6 +104,9 @@
 		<module name="schiffinfo">
 			<generator class="net.driftingsouls.ds2.server.modules.SchiffInfoController" />
 		</module>
+		<module name="survey">
+			<generator class="net.driftingsouls.ds2.server.modules.SurveyController" />
+		</module>
 		<module name="tc">
 			<generator class="net.driftingsouls.ds2.server.modules.TCController" />
 		</module>
