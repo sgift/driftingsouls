@@ -18,7 +18,16 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.db.Database;
+import net.driftingsouls.ds2.server.framework.db.SQLQuery;
+import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 /**
  * TASK_SHIP_RESPAWN_COUNTDOWN
@@ -33,8 +42,137 @@ import net.driftingsouls.ds2.server.framework.Common;
 class HandleShipRespawnCountdown implements TaskHandler {
 
 	public void handleEvent(Task task, String event) {	
-		// TODO
-		Common.stub();
+		Context context = ContextMap.getContext();
+		Database db = context.getDatabase();
+		
+		if( event.equals("tick_timeout") ) {		
+			int shipid = Integer.parseInt(task.getData1());
+			if( shipid > 0 ) {
+				Taskmanager.getInstance().removeTask( task.getTaskID() );
+				return;
+			}
+			
+			// Ueberpruefen wir ersteinmal ob die ID noch frei ist....
+			SQLResultRow sid = db.first("SELECT id FROM ships WHERE id=",(-shipid));
+			if( sid.getInt("id") > 0 ) {
+				String msg = "[color=orange]WARNUNG[/color]\nDer Taskmanager kann das Schiff mit der ID "+(-shipid)+" nicht respawnen, da die ID durch ein anderes Schiff blockiert wurde. Der Respawn-Vorgang wurde bis zum n&auml;chsten Tick angehalten. Bitte korregieren sie das Problem umgehend.";
+				PM.sendToAdmins(context, -1, "Taskmanager-Warnung", msg, 0);
+				
+		 		Taskmanager.getInstance().incTimeout( task.getTaskID() );
+		 		return;
+			}
+			
+			// Schiff einfuegen
+			SQLResultRow ship = db.first("SELECT * FROM ships WHERE id=",shipid);
+			
+			List<String> queryfp = new ArrayList<String>();
+			List<String> querylp = new ArrayList<String>();
+				
+			SQLQuery afield = db.query("SHOW FIELDS FROM ships");
+			while( afield.next() ) {
+				queryfp.add("`"+afield.getString("Field")+"`");
+				if( afield.getString("Field").equals("id") ) {
+					querylp.add("'"+(-shipid)+"'");
+				}
+				else {
+					if( (ship.get(afield.getString("Field")) == null) && afield.getString("Null").equals("YES") ) {
+						querylp.add("NULL");
+					}
+					else {
+						querylp.add("'"+db.prepareString(ship.getString(afield.getString("Field")))+"'");
+					}
+				}
+			}
+			afield.free();
+			
+			db.update("INSERT INTO ships (",Common.implode(",",queryfp)+") VALUES ("+Common.implode(",",querylp)+")");
+			
+			// Moduldaten einfuegen, falls vorhanden
+			SQLResultRow shipmodules = db.first("SELECT * FROM ships_modules WHERE id='",shipid,"'");
+			if( !shipmodules.isEmpty() ) {
+				queryfp.clear();
+				querylp.clear();
+			
+				afield = db.query("SHOW FIELDS FROM ships_modules");
+				while( afield.next() ) {	
+					queryfp.add("`"+afield.getString("Field")+"`");
+					if( afield.getString("Field").equals("id") ) {
+						querylp.add("'"+(-shipid)+"'");
+					}
+					else {
+						if( (shipmodules.get(afield.getString("Field")) == null) && afield.getString("Null").equals("YES") ) {
+							querylp.add("NULL");
+						}
+						else {
+							querylp.add("'"+db.prepareString(shipmodules.getString(afield.getString("Field")))+"'");
+						}
+					}
+				}
+				afield.free();
+			
+				db.update("INSERT INTO ships_modules (",Common.implode(",",queryfp),") VALUES (",Common.implode(",",querylp),")");
+			}
+			
+			// Offiziere einfuegen, falls vorhanden
+			SQLQuery offizier = db.query("SELECT * FROM offiziere WHERE dest='s ",shipid,"'");
+			while( offizier.next() ) {
+				queryfp.clear();
+				querylp.clear();
+			
+				afield = db.query("SHOW FIELDS FROM offiziere");
+				while( afield.next() ) {
+					queryfp.add("`"+afield.getString("Field")+"`");
+					if( afield.getString("Field").equals("dest") ) {
+						querylp.add("'s "+(-shipid)+"'");
+					}
+					else if( afield.getString("Field").equals("id") ) {
+						querylp.add("''");
+					}
+					else {
+						if( (offizier.get(afield.getString("Field")) == null) && afield.getString("Null").equals("YES") ) {
+							querylp.add("NULL");
+						}
+						else {
+							querylp.add("'"+db.prepareString(offizier.getString(afield.getString("Field")))+"'");
+						}
+					}
+				}
+				afield.free();
+			
+				db.update("INSERT INTO offiziere (",Common.implode(",",queryfp),") VALUES (",Common.implode(",",querylp),")");
+			}
+			offizier.free();
+			
+			// Werfteintrag setzen, falls vorhanden
+			SQLResultRow werftentry = db.first("SELECT * FROM werften WHERE shipid='",shipid,"'");
+			if( !werftentry.isEmpty() ) {
+				queryfp.clear();
+				querylp.clear();
+		
+				afield = db.query("SHOW FIELDS FROM werften");
+				while( afield.next() ) {
+					queryfp.add("`"+afield.getString("Field")+"`");
+					if( afield.getString("Field").equals("shipid") ) {
+						querylp.add("'"+(-shipid)+"'");
+					}
+					else if( afield.getString("Field").equals("id") ) {
+						querylp.add("''");
+					}
+					else {
+						if( (werftentry.get(afield.getString("Field")) == null) && afield.getString("Null").equals("YES") ) {
+							querylp.add("NULL");
+						}
+						else {
+							querylp.add("'"+db.prepareString(werftentry.getString(afield.getString("Field")))+"'");
+						}
+					}
+				}
+				afield.free();
+			
+				db.update("INSERT INTO werften (",Common.implode(",",queryfp),") VALUES (",Common.implode(",",querylp),")");
+			}
+			Taskmanager.getInstance().removeTask( task.getTaskID() );
+		}
 	}
 
 }
