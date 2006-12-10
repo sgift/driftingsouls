@@ -570,7 +570,7 @@ public class Ships {
 				" WHERE id='",ship.getInt("id"),"' AND modules='",oldModuleTbl,"'");					
 	}
 	
-	public static void removeModule( SQLResultRow ship, int slot, int moduleid, int data ) {	
+	public static void removeModule( SQLResultRow ship, int slot, int moduleid, String data ) {	
 		// TODO
 		Common.stub();
 	}
