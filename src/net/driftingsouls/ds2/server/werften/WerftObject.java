@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.werften;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,10 +36,14 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.cargo.modules.Module;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleItemModule;
 import net.driftingsouls.ds2.server.cargo.modules.Modules;
+import net.driftingsouls.ds2.server.config.IEDisableShip;
+import net.driftingsouls.ds2.server.config.IEDraftShip;
 import net.driftingsouls.ds2.server.config.IEModule;
 import net.driftingsouls.ds2.server.config.ItemEffect;
 import net.driftingsouls.ds2.server.config.Items;
 import net.driftingsouls.ds2.server.config.ModuleSlots;
+import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -987,8 +992,174 @@ public abstract class WerftObject extends DSObject {
 	 * 			zur Bestimmung ob und wenn ja welcher Bauplan benoetigt wird zum bauen
 	 */
 	public SQLResultRow[] getBuildShipList() {
-		// TODO
-		throw new RuntimeException("STUB");
+		List<SQLResultRow> result = new ArrayList<SQLResultRow>();
+		
+		Context context = ContextMap.getContext();
+		Database db = context.getDatabase();
+		
+		User user = context.createUserObject(this.getOwner());
+	
+		boolean flagschiff = user.hasFlagschiffSpace();
+	
+		String fsquery = "";
+		if( !flagschiff ) {
+			fsquery = "AND t1.flagschiff=0";
+		}
+	
+		String sysreqquery = "";
+		if( !Systems.get().system(this.getSystem()).isMilitaryAllowed() ) {
+			sysreqquery = "t1.systemreq=0 AND ";
+		}
+		String query = "SELECT t1.id,t1.race,t1.type,t1.dauer,t1.costs,t1.ekosten,t1.crew,t1.tr1,t1.tr2,t1.tr3,t1.flagschiff,t1.linfactor " +
+			"FROM ships_baubar t1 JOIN ship_types t2 ON t1.type=t2.id " +
+			"WHERE "+sysreqquery+" LOCATE('"+this.getWerftTag()+"',t1.werftreq) "+fsquery+" " +
+			"ORDER BY t2.nickname";
+			
+	
+		Cargo availablecargo = this.getCargo(false);
+	
+		Cargo allyitems = null;
+		if( user.getAlly() > 0 ) {
+			allyitems = new Cargo(Cargo.Type.ITEMSTRING, db.first("SELECT items FROM ally WHERE id=",user.getAlly()).getString("items"));
+		}
+		else {
+			allyitems = new Cargo();
+		}
+	
+		Map<Integer,Boolean> disableShips = new HashMap<Integer,Boolean>();
+		
+		List<ItemCargoEntry> itemlist = availablecargo.getItemsWithEffect( ItemEffect.Type.DISABLE_SHIP );
+		for( int i=0; i < itemlist.size(); i++ ) {
+			IEDisableShip effect = (IEDisableShip)itemlist.get(i).getItemEffect();
+			disableShips.put(effect.getShipType(), true);
+		}
+		
+		itemlist = allyitems.getItemsWithEffect( ItemEffect.Type.DISABLE_SHIP );
+		for( int i=0; i < itemlist.size(); i++ ) {
+			IEDisableShip effect = (IEDisableShip)itemlist.get(i).getItemEffect();
+			disableShips.put(effect.getShipType(), true);
+		}
+		
+		SQLQuery shipdataRow = db.query(query);
+		while( shipdataRow.next() ) {
+			if( disableShips.containsKey(shipdataRow.getInt("type")) ) {
+				continue;
+			}
+			if( !Rassen.get().rasse(user.getRace()).isMemberIn(shipdataRow.getInt("race")) ) {
+				continue;
+			}
+
+			//Forschungen checken
+			if( !user.hasResearched(shipdataRow.getInt("tr1")) || 
+				!user.hasResearched(shipdataRow.getInt("tr2")) || 
+				!user.hasResearched(shipdataRow.getInt("tr3"))) {
+				continue;
+			}
+			
+			SQLResultRow shipdata = shipdataRow.getRow();
+
+			Cargo costs = new Cargo( Cargo.Type.STRING, shipdata.getString("costs") );
+	
+			// Kosten anpassen
+			if( shipdata.getInt("linfactor") > 0 ) {
+				int count = db.first("SELECT count(*) count FROM ships WHERE id>0 AND type=",shipdata.getInt("type")," AND owner=",user.getID()).getInt("count");
+				int count2 = db.first("SELECT count(t1.id) count FROM werften t1 JOIN bases t2 ON t1.col=t2.id WHERE t1.building=",shipdata.getInt("type")," AND t2.owner=",user.getID()).getInt("count");
+				int count3 = db.first("SELECT count(t1.id) count FROM werften t1 JOIN ships t2 ON t1.shipid=t2.id WHERE t2.id>0 AND t1.building=",shipdata.getInt("type")," AND t2.owner=",user.getID()).getInt("count");
+	
+				count = count + count2 + count3;
+				
+				costs.multiply( count*shipdata.getInt("linfactor")+1, Cargo.Round.NONE );
+			}
+	
+			shipdata.put("costs", costs);
+			shipdata.put("_item", false);
+			result.add(shipdata);
+		}
+		shipdataRow.free();
+	
+		//Items
+		Cargo localcargo = this.getCargo(true);
+		itemlist = localcargo.getItemsWithEffect( ItemEffect.Type.DRAFT_SHIP );
+		for( int i=0; i < itemlist.size(); i++ ) {
+			ItemCargoEntry item = itemlist.get(i);
+			IEDraftShip effect = (IEDraftShip)item.getItemEffect();
+	
+			// TODO
+			Common.stub();
+			/*if( strpos($effect->werftreq,$this->getWerftTag()) === false ) {
+				continue;
+			}
+	
+			if( !$flagschiff && $effect->flagschiff ) {
+				continue;
+			}
+	
+			//Forschungen checken
+			if(!$user->hasResearched($effect->tr[0]) || !$user->hasResearched($effect->tr[1]) || !$user->hasResearched($effect->tr[2])) {
+				continue;
+			}
+
+			$cost = new CCargo( CARGO_ARRAY, $effect->cost );
+			
+			$shipdata = array(	'id'		=> -1,
+								'type'		=> $effect->shipclass,
+								'costs'		=> $cost,
+								'linfactor'	=> 0,
+								'crew'		=> $effect->crew,
+								'dauer'		=> $effect->dauer,
+								'ekosten'	=> $effect->ecost,
+								'race'		=> $effect->race,
+								'systemreq'	=> $effect->systemreq,
+								'tr1'		=> $effect->tr[0],
+								'tr2'		=> $effect->tr[1],
+								'tr3'		=> $effect->tr[2],
+								'werftreq'	=> $effect->werftreq,
+								'flagschiff'=> $effect->flagschiff,
+								'_item'		=> array('local', $item->getResourceID()) );
+			$result[] = $shipdata;*/
+		}
+	
+		itemlist = allyitems.getItemsWithEffect( ItemEffect.Type.DRAFT_SHIP );
+		for( int i=0; i < itemlist.size(); i++ ) {
+			ItemCargoEntry item = itemlist.get(i);
+			IEDraftShip effect = (IEDraftShip)item.getItemEffect();
+	
+			// TODO
+			Common.stub();
+	    	/*if( strpos($effect->werftreq,$this->getWerftTag()) === false ) {
+				continue;
+			}
+			
+			if( !$flagschiff && $effect->flagschiff ) {
+				continue;
+			}
+	
+			//Forschungen checken
+			if(!$user->hasResearched($effect->tr[0]) || !$user->hasResearched($effect->tr[1]) || !$user->hasResearched($effect->tr[2])) {
+				continue;
+			}
+	
+			$cost = new CCargo( CARGO_ARRAY, $effect->cost );
+			
+			$shipdata = array(	'id'		=> -1,
+								'type'		=> $effect->shipclass,
+								'costs'		=> $cost,
+								'linfactor'	=> 0,
+								'crew'		=> $effect->crew,
+								'dauer'		=> $effect->dauer,
+								'ekosten'	=> $effect->ecost,
+								'race'		=> $effect->race,
+								'systemreq'	=> $effect->systemreq,
+								'tr1'		=> $effect->tr[0],
+								'tr2'		=> $effect->tr[1],
+								'tr3'		=> $effect->tr[2],
+								'werftreq'	=> $effect->werftreq,
+								'flagschiff'=> $effect->flagschiff,
+								'_item'		=> array('ally', $item->getResourceID()) );
+			$result[] = $shipdata;*/
+		}
+		
+		return result.toArray(new SQLResultRow[result.size()]);
 	}
 	
 	/**
