@@ -95,6 +95,9 @@
 		<module name="portal">
 			<generator class="net.driftingsouls.ds2.server.modules.PortalController" />
 		</module>
+		<module name="scan">
+			<generator class="net.driftingsouls.ds2.server.modules.ScanController" />
+		</module>
 		<module name="schiff">
 			<generator class="net.driftingsouls.ds2.server.modules.SchiffController" />
 		</module>
