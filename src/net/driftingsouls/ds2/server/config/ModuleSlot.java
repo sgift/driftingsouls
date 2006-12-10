@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.config;
 
+import java.util.List;
+
 /**
  * Repraesentiert einen Modulslot-Typ in DS.
  * Ein Modulslot hat einen Slottypen (der ID), einen Namen (der Beschreibung) und (optional)
@@ -51,6 +53,16 @@ public class ModuleSlot {
 	 */
 	public String getName() {
 		return name;	
+	}
+	
+	/**
+	 * Prueft, ob der Slot kompatibel (d.h., dass Module, die in diesen Slot passen,
+	 * in einen anderen Slot passen) zu einem der aufgelisteten Slots ist.
+	 * @param slottype Eine Liste von Slot-IDs
+	 * @return <code>true</code>, falls einer der aufgelisteten Slots kompatibel ist
+	 */
+	public boolean isMemberIn( List<String> slottype ) {
+		return isMemberIn(slottype.toArray(new String[slottype.size()]), "or");
 	}
 	
 	/**
