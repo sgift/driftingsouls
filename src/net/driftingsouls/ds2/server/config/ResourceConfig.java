@@ -19,7 +19,9 @@
 package net.driftingsouls.ds2.server.config;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Loggable;
@@ -49,6 +51,8 @@ public class ResourceConfig implements Loggable {
 			// EMPTY
 		}
 	}
+	
+	private static Map<String,Integer> tagMap = new HashMap<String,Integer>();
 	
 	private static List<Entry> resources = new ArrayList<Entry>();
 	
@@ -89,6 +93,15 @@ public class ResourceConfig implements Loggable {
 		return resources.get(id).tag;
 	}
 	
+	/**
+	 * Gibt fuer einen Resource-Tag die Resource-ID zurueck
+	 * @param tag der Tag
+	 * @return Die Resourcen-ID oder <code>null</code>
+	 */
+	public static Integer getResourceIDByTag(String tag) {
+		return tagMap.get(tag);
+	}
+	
 	static {
 		try {
 			Document doc = XMLUtils.readFile(Configuration.getSetting("configdir")+"resources.xml");
@@ -101,6 +114,7 @@ public class ResourceConfig implements Loggable {
 				entry.image = XMLUtils.getStringByXPath(node, "@image");
 				entry.tag = XMLUtils.getStringByXPath(node, "@tag");
 				entry.hidden = "true".equals(XMLUtils.getStringByXPath(node, "@hidden"));
+				tagMap.put(entry.tag, entry.id);
 				
 				resources.add(entry.id, entry);
 			}
