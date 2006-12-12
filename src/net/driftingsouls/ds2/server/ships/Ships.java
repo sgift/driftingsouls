@@ -39,12 +39,12 @@ import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.ItemEffect;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
-import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.framework.CacheMap;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.ThreadLocalMessage;
 import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.UserFlagschiffLocation;
@@ -68,7 +68,7 @@ import org.w3c.dom.NodeList;
  * @author Christopher Jung
  *
  */
-public class Ships {
+public class Ships implements Loggable {
 	private static final int MANGEL_TICKS = 9;
 	
 	/**
@@ -1701,10 +1701,7 @@ public class Ships {
 	
 	public static SQLResultRow getTypeChangeSetFromXML(Node node) {
 		final String NAMESPACE = "http://www.drifting-souls.net/ds2/shipdata/2006";
-		
-		// TODO - fix namespaces
-		String prefix = "shd:";
-		
+
 		SQLResultRow row = new SQLResultRow();
 		NodeList nodes = node.getChildNodes();
 		for( int i=0; i < nodes.getLength(); i++ ) {
@@ -1712,17 +1709,19 @@ public class Ships {
 				continue;
 			}
 			Element item = (Element)nodes.item(i);
-			if( !item.getNodeName().startsWith(prefix) ) {
+
+			if( !item.getNamespaceURI().equals(NAMESPACE) ) {
+				LOG.warn("Ungueltige XML-Namespace im ShipType-Changeset");
 				continue;
 			}
 			
-			String name = item.getNodeName().substring(prefix.length());
+			String name = item.getLocalName();
 			if( name.equals("weapons") ) {
 				Map<String,Integer[]> wpnList = new HashMap<String,Integer[]>();
 				NodeList weapons = item.getChildNodes();
 				for( int j=0; j < weapons.getLength(); j++ ) {
 					if( (weapons.item(j).getNodeType() != Node.ELEMENT_NODE) ||
-							!(prefix+"weapon").equals(weapons.item(j).getNodeName())) {
+							!("weapon").equals(weapons.item(j).getLocalName())) {
 						continue;
 					}
 					String wpnName = weapons.item(j).getAttributes().getNamedItem("name").getNodeValue();
@@ -1737,7 +1736,7 @@ public class Ships {
 				NodeList heats = item.getChildNodes();
 				for( int j=0; j < heats.getLength(); j++ ) {
 					if( (heats.item(j).getNodeType() != Node.ELEMENT_NODE) ||
-						!(prefix+"weapon").equals(heats.item(j).getNodeName())) {
+						!("weapon").equals(heats.item(j).getLocalName())) {
 						continue;
 					}
 					String wpnName = heats.item(j).getAttributes().getNamedItem("name").getNodeValue();
@@ -1751,7 +1750,7 @@ public class Ships {
 				NodeList flags = item.getChildNodes();
 				for( int j=0; j < flags.getLength(); j++ ) {
 					if( (flags.item(j).getNodeType() != Node.ELEMENT_NODE) ||
-						!(prefix+"set").equals(flags.item(j).getNodeName())) {
+						!("set").equals(flags.item(j).getLocalName())) {
 						continue;
 					}
 					flagList.add(flags.item(j).getAttributes().getNamedItem("name").getNodeValue());
