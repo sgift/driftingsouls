@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.werften;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
+import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -132,9 +133,72 @@ public class WerftGUI {
 		throw new RuntimeException("STUB");
 	}
 
-	private void out_buildShipList(WerftObject werft) {
-		// TODO
-		throw new RuntimeException("STUB");
+	private void out_buildShipList(WerftObject werft) {		
+		t.set_var("werftgui.buildshiplist", 1);
+		t.set_block("_WERFT.WERFTGUI", "buildshiplist.listitem", "buildshiplist.list");
+		t.set_block("buildshiplist.listitem", "buildship.res.listitem", "buildship.res.list");
+		
+		SQLResultRow[] shipdata = werft.getBuildShipList();
+
+		Cargo availablecargo = werft.getCargo(false);
+	
+		int energy = werft.getEnergy();
+		int crew = werft.getCrew();
+		
+		for( int i=0; i < shipdata.length; i++ ) {
+			SQLResultRow ashipdata = shipdata[i];
+			t.start_record();
+			
+			Cargo costs = (Cargo)ashipdata.get("costs");
+			costs.setOption( Cargo.Option.SHOWMASS, false );
+	
+			if( !(ashipdata.get("_item") instanceof Boolean) ) {
+				Object[] data = (Object[])ashipdata.get("_item");
+				ResourceID itemdata = (ResourceID)data[1];
+				
+				t.set_var(	"buildship.item.id",	itemdata.getItemID(),
+							"buildship.item.color",	(data[0].toString().equals("local") ? "#EECC44" : "#44EE44"),
+							"buildship.item.uses",	itemdata.getUses() );
+			}
+			
+			SQLResultRow tmptype = Ships.getShipType( ashipdata.getInt("type"), false );
+			
+			t.set_var(	"res.image",		Configuration.getSetting("URL")+"data/interface/time.gif",
+						"res.count",		ashipdata.getInt("dauer"),
+						"res.plainname",	"Dauer",
+						"res.mangel",		0 );
+			t.parse("buildship.res.list", "buildship.res.listitem", false);
+				
+			ResourceList reslist = costs.compare( availablecargo, false );
+			for( ResourceEntry res : reslist ) {
+				t.set_var(	"res.image",		res.getImage(),
+							"res.count",		res.getCargo1(),
+							"res.plainname",	res.getPlainName(),
+							"res.mangel",		res.getDiff() > 0 );
+				t.parse("buildship.res.list", "buildship.res.listitem", true);
+			}
+
+			t.set_var(	"res.image",		Configuration.getSetting("URL")+"data/interface/energie.gif",
+						"res.count",		ashipdata.getInt("ekosten"),
+						"res.plainname",	"Energie",
+						"res.mangel",		energy < ashipdata.getInt("ekosten") );
+			t.parse("buildship.res.list", "buildship.res.listitem", true);
+	
+			t.set_var(	"res.image",		Configuration.getSetting("URL")+"data/interface/besatzung.gif",
+						"res.count",		ashipdata.getInt("crew"),
+						"res.plainname",	"Besatzung",
+						"res.mangel",		crew < ashipdata.getInt("crew") );
+			t.parse("buildship.res.list", "buildship.res.listitem", true);
+
+			t.set_var(	"buildship.id",			ashipdata.getInt("id"),
+						"buildship.type.id",	ashipdata.getInt("type"),
+						"buildship.flagschiff",	ashipdata.getBoolean("flagschiff"),
+						"buildship.type.name",	tmptype.getString("nickname") );
+			t.parse("buildshiplist.list", "buildshiplist.listitem", true);
+			
+			t.stop_record();
+			t.clear_record();
+		}
 	}
 
 	private void out_ResourceList(WerftObject werft) {		
