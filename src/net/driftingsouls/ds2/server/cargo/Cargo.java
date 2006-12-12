@@ -32,9 +32,12 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.User;
+import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Repraesentiert einen Cargo, also eine Liste von Waren und Items mit jeweils einer bestimmten Menge, in DS
@@ -118,6 +121,8 @@ public class Cargo implements Loggable, Cloneable {
 		NOHTML
 	};
 	
+	private static final String NAMESPACE = "http://www.drifting-souls.net/ds2/resources/2006";
+	
 	private long[] cargo = new long[MAX_RES+1];
 	private long[] orgcargo = new long[MAX_RES+1];
 	
@@ -143,6 +148,34 @@ public class Cargo implements Loggable, Cloneable {
 			throw new RuntimeException("Ungueltiges Item '"+str+"'");
 		}
 		return new Long[] {Long.parseLong(items[0]), Long.parseLong(items[1]), Long.parseLong(items[2]), Long.parseLong(items[3])};
+	}
+	
+	/**
+	 * Erstellt einen Cargo aus einer XML-Node
+	 * @param node Die Node unter der die Cargo-Infos stehen
+	 */
+	public Cargo(Node node) {
+		NodeList list = node.getChildNodes();
+		for( int i=0; i < list.getLength(); i++ ) {
+			Node item = list.item(i);
+			if( item.getNodeType() != Node.ELEMENT_NODE ) {
+				continue;
+			}
+			if( !NAMESPACE.equals(item.getNamespaceURI()) ) {
+				continue;
+			}
+			String name = item.getLocalName();
+			Integer id = ResourceConfig.getResourceIDByTag(name);
+			if( id == null ) {
+				LOG.warn("Unbekannte Resource "+name+" - ignoriere Eintrag");
+				continue;
+			}
+			long count = XMLUtils.getLongAttribute(item, "count");
+			cargo[id] = count;
+			orgcargo[id] = count;
+		}
+		
+		// TODO: Item-Unterstuetzung
 	}
 	
 	/**
