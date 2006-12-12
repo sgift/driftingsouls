@@ -18,11 +18,8 @@
  */
 package net.driftingsouls.ds2.server.config;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
 import org.w3c.dom.Node;
@@ -163,7 +160,7 @@ public class IEDraftShip extends ItemEffect {
 			draft.werftreq[i] = XMLUtils.getStringAttribute(werftnodes.item(i), "type");
 		}	
 		
-		draft.buildcosts = new Cargo(XMLUtils.getNodeByXPath(effectNode, "buildcosts"));
+		draft.buildcosts = new UnmodifiableCargo(new Cargo(XMLUtils.getNodeByXPath(effectNode, "buildcosts")));
 		
 		return draft;
 	}
