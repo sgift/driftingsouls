@@ -1084,39 +1084,47 @@ public abstract class WerftObject extends DSObject {
 			ItemCargoEntry item = itemlist.get(i);
 			IEDraftShip effect = (IEDraftShip)item.getItemEffect();
 	
-			// TODO
-			Common.stub();
-			/*if( strpos($effect->werftreq,$this->getWerftTag()) === false ) {
+			boolean found = false;
+			for( int j=0; j < effect.getWerftReqs().length; j++ ) {
+				if( this.getWerftTag().indexOf(effect.getWerftReqs()[j])  > -1 ) {
+					found = true;
+					break;
+				}
+			}
+			if( !found ) {
 				continue;
 			}
-	
-			if( !$flagschiff && $effect->flagschiff ) {
+
+			if( !flagschiff && effect.isFlagschiff() ) {
 				continue;
 			}
 	
 			//Forschungen checken
-			if(!$user->hasResearched($effect->tr[0]) || !$user->hasResearched($effect->tr[1]) || !$user->hasResearched($effect->tr[2])) {
+			if(!user.hasResearched(effect.getTechReq(1)) || !user.hasResearched(effect.getTechReq(2)) || !user.hasResearched(effect.getTechReq(3))) {
 				continue;
 			}
 
-			$cost = new CCargo( CARGO_ARRAY, $effect->cost );
+			Cargo cost = effect.getBuildCosts();
 			
-			$shipdata = array(	'id'		=> -1,
-								'type'		=> $effect->shipclass,
-								'costs'		=> $cost,
-								'linfactor'	=> 0,
-								'crew'		=> $effect->crew,
-								'dauer'		=> $effect->dauer,
-								'ekosten'	=> $effect->ecost,
-								'race'		=> $effect->race,
-								'systemreq'	=> $effect->systemreq,
-								'tr1'		=> $effect->tr[0],
-								'tr2'		=> $effect->tr[1],
-								'tr3'		=> $effect->tr[2],
-								'werftreq'	=> $effect->werftreq,
-								'flagschiff'=> $effect->flagschiff,
-								'_item'		=> array('local', $item->getResourceID()) );
-			$result[] = $shipdata;*/
+			// TODO: Nicht schoen
+			SQLResultRow shipdata = new SQLResultRow();
+			shipdata.put("id", -1);
+			shipdata.put("type", effect.getShipType());
+			shipdata.put("costs", cost);
+			shipdata.put("linfactor", 0);
+			shipdata.put("crew", effect.getCrew());
+			shipdata.put("dauer", effect.getDauer());
+			shipdata.put("ekosten", effect.getE());
+			shipdata.put("race", effect.getRace());
+			shipdata.put("systemreq", effect.hasSystemReq());
+			shipdata.put("tr1", effect.getTechReq(1));
+			shipdata.put("tr2", effect.getTechReq(2));
+			shipdata.put("tr3", effect.getTechReq(3));
+			shipdata.put("werftreq", effect.getWerftReqs());
+			shipdata.put("flagschiff", effect.isFlagschiff());
+			shipdata.put("_item", new Object[] {"local", item.getResourceID()});
+			
+			result.add(shipdata);
 		}
 	
 		itemlist = allyitems.getItemsWithEffect( ItemEffect.Type.DRAFT_SHIP );
@@ -1124,39 +1132,47 @@ public abstract class WerftObject extends DSObject {
 			ItemCargoEntry item = itemlist.get(i);
 			IEDraftShip effect = (IEDraftShip)item.getItemEffect();
 	
-			// TODO
-			Common.stub();
-	    	/*if( strpos($effect->werftreq,$this->getWerftTag()) === false ) {
+			boolean found = false;
+			for( int j=0; j < effect.getWerftReqs().length; j++ ) {
+				if( this.getWerftTag().indexOf(effect.getWerftReqs()[j])  > -1 ) {
+					found = true;
+					break;
+				}
+			}
+			if( !found ) {
 				continue;
 			}
-			
-			if( !$flagschiff && $effect->flagschiff ) {
+
+			if( !flagschiff && effect.isFlagschiff() ) {
 				continue;
 			}
 	
 			//Forschungen checken
-			if(!$user->hasResearched($effect->tr[0]) || !$user->hasResearched($effect->tr[1]) || !$user->hasResearched($effect->tr[2])) {
+			if(!user.hasResearched(effect.getTechReq(1)) || !user.hasResearched(effect.getTechReq(2)) || !user.hasResearched(effect.getTechReq(3))) {
 				continue;
 			}
-	
-			$cost = new CCargo( CARGO_ARRAY, $effect->cost );
+
+			Cargo cost = effect.getBuildCosts();
 			
-			$shipdata = array(	'id'		=> -1,
-								'type'		=> $effect->shipclass,
-								'costs'		=> $cost,
-								'linfactor'	=> 0,
-								'crew'		=> $effect->crew,
-								'dauer'		=> $effect->dauer,
-								'ekosten'	=> $effect->ecost,
-								'race'		=> $effect->race,
-								'systemreq'	=> $effect->systemreq,
-								'tr1'		=> $effect->tr[0],
-								'tr2'		=> $effect->tr[1],
-								'tr3'		=> $effect->tr[2],
-								'werftreq'	=> $effect->werftreq,
-								'flagschiff'=> $effect->flagschiff,
-								'_item'		=> array('ally', $item->getResourceID()) );
-			$result[] = $shipdata;*/
+			// TODO: Nicht schoen
+			SQLResultRow shipdata = new SQLResultRow();
+			shipdata.put("id", -1);
+			shipdata.put("type", effect.getShipType());
+			shipdata.put("costs", cost);
+			shipdata.put("linfactor", 0);
+			shipdata.put("crew", effect.getCrew());
+			shipdata.put("dauer", effect.getDauer());
+			shipdata.put("ekosten", effect.getE());
+			shipdata.put("race", effect.getRace());
+			shipdata.put("systemreq", effect.hasSystemReq());
+			shipdata.put("tr1", effect.getTechReq(1));
+			shipdata.put("tr2", effect.getTechReq(2));
+			shipdata.put("tr3", effect.getTechReq(3));
+			shipdata.put("werftreq", effect.getWerftReqs());
+			shipdata.put("flagschiff", effect.isFlagschiff());
+			shipdata.put("_item", new Object[] {"ally", item.getResourceID()});
+			
+			result.add(shipdata);
 		}
 		
 		return result.toArray(new SQLResultRow[result.size()]);
