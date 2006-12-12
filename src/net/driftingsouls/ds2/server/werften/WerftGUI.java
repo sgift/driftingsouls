@@ -22,6 +22,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.db.Database;
@@ -129,8 +130,42 @@ public class WerftGUI {
 	}
 
 	private void out_wsShipList(WerftObject werft) {
-		// TODO
-		throw new RuntimeException("STUB");
+		Database db = context.getDatabase();
+
+		t.set_var("werftgui.wsshiplist", 1);
+		t.set_block("_WERFT.WERFTGUI", "wsshiplist.listitem", "wsshiplist.list");
+		
+		SQLQuery ship = db.query("SELECT t1.id,t1.name,t1.type,t1.status,t1.engine,t1.sensors,t1.comm,t1.weapons,t1.hull,t1.owner,t2.name AS ownername,t2.id AS userid ",
+								"FROM ships t1 JOIN users t2 ON t1.owner=t2.id ",
+								"WHERE t1.id>0 AND t1.x BETWEEN ",(werft.getX()-werft.getSize())," AND ",(werft.getX()+werft.getSize())," AND t1.y BETWEEN ",(werft.getY()-werft.getSize())," AND ",(werft.getY()+werft.getSize())," AND t1.system=",werft.getSystem()," AND !LOCATE('l ',t1.docked) AND t1.battle=0 ORDER BY t2.id,t1.id");
+	
+		while( ship.next() ) {
+			if( (werft.getWerftType() == WerftObject.SHIP) && (((ShipWerft)werft).getShipID() == ship.getInt("id")) ) {
+				continue;	
+			}
+			
+			SQLResultRow shiptype = Ships.getShipType( ship.getRow() );
+			
+			if( (ship.getInt("hull") < shiptype.getInt("hull")) || (ship.getInt("engine") < 100) ||
+				(ship.getInt("sensors") < 100) || (ship.getInt("comm") < 100) || (ship.getInt("weapons") < 100) ) {
+				t.set_var("ship.needsrepair", 1);
+			}
+			else {
+				t.set_var("ship.needsrepair", 0);
+			}
+			
+			String ownername = Common._title(ship.getString("ownername"));
+			if( ownername.length() == 0 ) {
+				ownername = "Unbekannter Spieler ("+ship.getInt("owner")+")"; 
+			}
+						
+			t.set_var(	"ship.id",			ship.getInt("id"),
+						"ship.name",		ship.getString("name"),
+						"ship.owner.name",	ownername );
+								
+			t.parse("wsshiplist.list", "wsshiplist.listitem", true);
+		}
+		ship.free();
 	}
 
 	private void out_buildShipList(WerftObject werft) {		
