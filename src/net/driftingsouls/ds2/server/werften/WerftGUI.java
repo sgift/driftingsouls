@@ -22,6 +22,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.config.Items;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -262,8 +263,29 @@ public class WerftGUI {
 	}
 
 	private void out_werftbuilding(WerftObject werft, String conf) {
-		// TODO
-		throw new RuntimeException("STUB");
+		String action = context.getRequest().getParameterString("werftact");
+			
+		SQLResultRow type = werft.getBuildShipType();
+
+		if( action.equals("canclebuild") && conf.equals("ok") ) {
+			t.set_var( "werftgui.building.cancel", 1 );
+			werft.cancelBuild();
+			return;
+		}
+		
+		t.set_var(	"werftgui.building",		1,
+					"ship.type.image",			type.getString("picture"),
+					"ship.type.id",				type.getInt("id"),
+					"ship.type.name",			type.getString("nickname"),
+					"ship.build.remaining",		werft.getRemainingTime(),
+					"ship.build.item",			werft.getRequiredItem(),
+					"werftgui.building.cancel.conf",	action.equals("canclebuild") && conf.equals("ok") );
+
+		if( werft.getRequiredItem() > -1 ) {
+			t.set_var(	"ship.build.item.picture",		Items.get().item(werft.getRequiredItem()).getPicture(),
+						"ship.build.item.name",			Items.get().item(werft.getRequiredItem()).getName(),
+						"ship.build.item.available",	werft.isBuildContPossible() );
+		}
 	}
 
 	private void out_ws(WerftObject werft, int ws) {
