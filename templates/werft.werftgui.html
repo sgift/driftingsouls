@@ -1,0 +1,329 @@
+<div class="smallfont">
+{if werftgui.msg}
+	{werftgui.msg}
+	<br />
+	<br />
+{/endif}
+{if werftgui.ws}
+	{!table_begin 570, left}
+		<table class="noBorderX" width="100%" cellpadding="2">
+		<tr>
+			<td colspan="2" class="noBorderX">
+				Werkstatt: {ship.name} ({ship.id})
+				{if ! ship.own}von <a class="profile" href="./main.php?module=userprofile&amp;sess={global.sess}&amp;user={ship.owner.id}">{ship.owner.name}</a>{/endif}
+				<br />
+				<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+			</td>
+		</tr>
+		<tr>
+			<td class="noBorderX" valign="top">
+			{if werftgui.ws.showinfo}
+				<a target="_blank" class="noborder" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={ship.type.id}">
+					<img src="{ship.type.picture}" alt="{ship.type.name}" title="{ship.type.name}" style="border:0px; float:right; margin-right:5px; margin-left:15px;margin-bottom:10px" />
+				</a>
+				Zustand: <span style="color:{ship.hull.color}">{ship.hull}/{ship.type.hull}</span><br />
+				Panzerung: {ship.panzerung}<br />
+				{if ship.type.shields}
+					Schilde: <span style="color:{ship.shields.color}">{ship.shields}/{ship.type.shields}</span><br />
+				{/endif}
+				Subsysteme:<br />
+				{if ship.type.engine}
+					+ Antrieb: <span style="color:{ship.engine.color}">{ship.engine}/{ship.type.engine}</span><br />
+				{/endif}
+				{if ship.type.weapons}
+					+ Waffen: <span style="color:{ship.weapons.color}">{ship.weapons}/{ship.type.weapons}</span><br />
+				{/endif}
+				{if ship.type.comm}
+					+ Kommunikation: <span style="color:{ship.comm.color}">{ship.comm}/{ship.type.comm}</span><br />
+				{/endif}
+				{if ship.type.sensors}
+					+ Sensoren: <span style="color:{ship.sensors.color}">{ship.sensors}/{ship.type.sensors}</span><br />
+				{/endif}
+				Crew: <span style="color:{ship.crew.color}">{ship.crew}/{ship.type.crew}</span><br />
+				Energie: <span style="color:{ship.e.color}">{ship.e}/{ship.type.e}</span><br />
+				Triebwerks&uuml;berhitzung: {ship.heat}<br />
+				{if ship.offizier.id}
+					Offizier: <img style="vertical-align:middle" src="{ship.offizier.picture}" alt="Rang {ship.offizier.rang}" title="Rang {ship.offizier.rang}" />
+					{!link_to $ship.offizier.name, default, module:choff, off:$ship.offizier.id}<br />
+				{/endif}
+			{/endif}
+			{if werftgui.ws.repair}
+				<div align="center">
+					<img src="{ship.type.image}" alt="" />
+				</div>
+				<br /><br />
+				<!-- BEGIN ws.repair.res.listitem -->
+					<img align="middle" src="{res.image}" alt="{res.plainname}" title="{res.plainname}" />{res.cargo.needed} ben&ouml;tigt - 
+					<img align="middle" src="{res.image}" alt="{res.plainname}" title="{res.plainname}" />{res.cargo.available} vorhanden<br />
+				<!-- END ws.repair.res.listitem -->
+				<br />
+				{if ws.repair.error}
+					<span style="color:red">
+						{ws.repair.error}
+					</span>
+				{else}
+					{ws.repair.message}
+					{if ws.repair.conf}
+						<br />
+						<div align="center">
+							<a class="ok" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;ws={ship.id}&amp;werftact=repair&amp;conf=ok">{ship.name} reparieren</a>
+						</div>
+					{else}
+						<div style="text-align:center; color:green">{ship.name} repariert</div>
+					{/endif}				
+				{/endif}
+			{/endif}
+			{if werftgui.ws.dismantle}
+				<div align="center">
+					<img src="{ship.type.image}" alt="" />
+				</div>
+				<br /><br />
+				Schiff demontieren f&uuml;r:<br />
+				<div align="center">
+					<!-- BEGIN ws.dismantle.res.listitem -->
+						<img align="middle" src="{res.image}" alt="{res.plainname}" title="{res.plainname}" />{res.cargo}
+					<!-- END ws.dismantle.res.listitem -->
+				</div>
+				<br />
+				Laderaum des Schiffes:<br />
+				<div align="center">
+					{ws.dismantle.available.list}
+				</div>
+				<br />
+				{if ws.dismantle.error}
+					<span style="color:red">Demontierung fehlgeschlagen:<br />
+						{ws.dismantle.error}
+					</span>
+				{else}
+					{if ws.dismantle.conf}
+						<div align="center">
+							<br />
+							<a class="ok" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;ws={ship.id}&amp;werftact=dismantle&amp;conf=ok">{ship.name} demontieren</a>
+						</div>
+					{else}
+						<div align="center" style="color:green">{ship.name} demontiert</div>
+						<br /><br />
+					{/endif}
+				{/endif}
+			{/endif}
+			{if werftgui.ws.modules}
+				<div align="center">
+					<img src="{ship.type.image}" alt="" />
+				</div>
+				<br /><br />
+				{if ws.modules.msg}
+					{ws.modules.msg}
+					<br />
+				{/endif}
+				<!-- BEGIN ws.modules.slots.listitem -->
+					* {slot.name}: 
+					{if slot.empty}
+						Leer
+						{if slot.items.list}
+							<form action="./main.php" method="post">
+							{werftgui.formhidden}
+							<input type="hidden" name="sess" value="{global.sess}" />
+							<input type="hidden" name="werftact" value="module" />
+							<input type="hidden" name="ws" value="{ship.id}" />
+							<input type="hidden" name="slot" value="{slot.id}" />
+							<select size="1" name="item">
+								<!-- BEGIN slot.items.listitem -->
+									<option value="{item.id}">{item.name}</option>
+								<!-- END slot.items.listitem -->
+							</select>
+							<input type="submit" value="einbauen" />
+							</form>
+						{/endif}
+					{else}
+						{slot.module.name}
+						<a class="error" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;ws={ship.id}&amp;werftact=module&amp;slot={slot.id}&amp;moduleaction=ausbauen">ausbauen</a>
+					{/endif}
+					<br />
+				<!-- END ws.modules.slots.listitem -->
+			{/endif}			
+			</td>
+			<td valign="top" align="center" class="noBorderX">
+				<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;ws={ship.id}">Infos</a><br />
+				<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;ws={ship.id}&amp;werftact=repair">Reparieren</a><br />
+				{if ship.own}
+					<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;ws={ship.id}&amp;werftact=dismantle">Demontieren</a><br />
+				{/endif}
+				{if ship.type.modules}
+					<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;ws={ship.id}&amp;werftact=module">Module</a><br />
+				{/endif}
+			</td>
+		</tr>
+		</table>
+		<br />
+	{!table_end}
+	<br />
+	<a class="back" href="{werftgui.urlbase}&amp;sess={global.sess}">Zur&uuml;ck zur Werft&uuml;bersicht</a>
+	{if ship.own}
+		 | {!link_to Zum Schiff, default, module:schiff, ship:$ship.id, css_class:back}
+	{/endif}
+	<br />
+{/endif}
+{if werftgui.build}
+	{!table_begin 500,left}
+		<div align="center">	
+			{build.type.name}<br />
+			<img src="{build.type.image}" alt="" />
+		</div>
+		<br />
+		Baukosten:<br />
+		<!-- BEGIN build.res.listitem -->
+			<img src="{res.image}" alt="" title="{res.plainname}" />{res.cargo.available} vorhanden - <img src="{res.image}" alt="" />{res.cargo.needed} ben&ouml;tigt
+			{if res.cargo.mangel}
+				 - <img src="{res.image}" alt="" title="{res.plainname}" /><span style="color:red">{res.cargo.mangel}</span> fehlen
+			{/endif}
+			<br />
+		<!-- END build.res.listitem -->
+		<br />
+		Energie- und Personalbedarf:<br />
+		{build.othercosts.list}
+		
+		{if build.error}
+			<br />
+			<div align="center">
+				<span style="color:red">{build.error}</span>
+			</div>
+			<br />
+		{else}
+			{if build.conf}
+				<br />
+				<div align="center">
+					<a class="ok" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;build={build.id}&amp;item={build.item.id}&amp;conf=ok">{build.type.name} bauen</a>
+				</div>
+			{else}
+				<br />
+				<div align="center">
+					<span style="font-weight:bold;color:green;">gen&uuml;gend Material vorhanden - beginne Bau</span>
+				</div>
+				<br />
+			{/endif}
+		{/endif}
+		
+	{!table_end}
+	<br />
+	<a class="back" href="{werftgui.urlbase}&amp;sess={global.sess}">Zur&uuml;ck</a><br />
+{/endif}
+{if werftgui.reslist}
+	{!table_begin 850,left}
+		Waren vorhanden:<br />
+		<!-- BEGIN reslist.res.listitem -->
+			<span class="nobr"><img style="vertical-align:middle" src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}</span>
+		<!-- END reslist.res.listitem -->
+	{!table_end}
+	<br />
+{/endif}
+{if werftgui.buildshiplist}
+	{!table_begin 850,left}
+	<table class="noBorderX" width="100%">
+	<tr><td class="noBorderX">ID</td><td class="noBorderX">Type</td><td class="noBorderX">?</td><td class="noBorderX">Kosten</td></tr>
+	<!-- BEGIN buildshiplist.listitem -->
+		<tr>
+			<td class="noBorderX">
+				<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;build={buildship.id}{if buildship.item.id}&amp;item={buildship.item.id}{/endif}">{buildship.type.id}</a>
+			</td>
+			<td class="noBorderX">
+				{if buildship.item.id}
+					<span style="color:{buildship.item.color}">[Item]</span>
+					{if buildship.item.uses}
+						<span style="font-style:italic">[{buildship.item.uses}]</span>
+					{/endif}
+				{/endif}
+				{if buildship.flagschiff}
+					<span class="smallfont" style="color:#EECC44">[Flagschiff]</span>
+				{/endif}
+				<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;build={buildship.id}{if buildship.item.id}&amp;item={buildship.item.id}{/endif}">{buildship.type.name}</a>
+			</td>
+			<td class="noBorderX">
+				<a class="forschinfo" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={buildship.type.id}" target="_blank">?</a>
+			</td>
+			<td class="noBorderX">
+				<!-- BEGIN buildship.res.listitem -->
+					<img src="{res.image}" alt="" title="{res.plainname}" />{if res.mangel}<span style="color:red">{/endif}{res.count}{if res.mangel}</span>{/endif}
+				<!-- END buildship.res.listitem -->
+			</td>
+		</tr>		
+	<!-- END buildshiplist.listitem -->
+	</table>
+	{!table_end}
+{/endif}
+{if werftgui.wsshiplist}
+	<br /><span style="font-weight:bold">Schiff in die Werkstatt:</span><br />
+	<form action="./main.php" method="post">
+	{werftgui.formhidden}
+	<div>
+		<select name="ws">
+			<option selected="selected">Ziel</option>
+			<!-- BEGIN wsshiplist.listitem -->
+				<option value="{ship.id}">{if ship.needsrepair}* {/endif}{ship.name} ({ship.id}){if ship.owner.name} {ship.owner.name}{/endif}</option>
+			<!-- END wsshiplist.listitem -->
+		</select>&nbsp;
+		
+		<input name="sess" type="hidden" value="{global.sess}" />
+		<input type="submit" value="zur Werkstatt" />
+	</div>
+	</form>
+{/endif}
+{if werftgui.building.cancel}
+	{!table_begin 500,left}
+		<div align="center">
+			<a class="error" href="{werftgui.urlbase}&amp;sess={global.sess}">Bau abgebrochen</a>
+		</div>
+	{!table_end}
+{/endif}
+{if werftgui.building}
+	{!table_begin 500,left}
+		<img style="float:left" src="{ship.type.image}" alt="" />
+		Baut: <a class="forschinfo" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={ship.type.id}">{ship.type.name}</a>
+		[<a class="error" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;werftact=canclebuild">x</a>]
+		<br />
+		Dauer: <img vertical-align="middle" src="{URL}data/interface/time.gif" alt="Dauer" title="Dauer" />{ship.build.remaining}
+		{if ship.build.item}
+			<br />
+			Ben&ouml;tigt:
+			<img style="vertical-align:middle" src="{ship.build.item.picture}" alt="{ship.build.item.name}" title="{ship.build.item.name}" />
+			<a class="forschinfo" href="./main.php?module=iteminfo&amp;sess={global.sess}&amp;action=details&amp;item={ship.build.item}">
+				{if ship.build.item.available}
+					<span style="color:green">
+				{else}
+					<span style="color:green">
+				{/endif}
+					{ship.build.item.name}
+				</span>
+			</a>
+		{/endif}
+		{if werftgui.building.cancel.conf}
+			<br />
+			<br />
+			<br />
+			Wollen sie den Bau des Schiffes wirklich abbrechen?<br />
+			Achtung: Die Resourcen werden nicht zur&uuml;ckerstattet<br />
+			
+			<div align="center">
+				<a class="error" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;werftact=canclebuild&amp;conf=ok">ja</a>
+				 - <a class="ok" href="{werftgui.urlbase}&amp;sess={global.sess}">nein</a>
+			</div>
+		{/endif}
+	{!table_end}
+	<br />
+{/endif}
+{if werftgui.linkedbase.list}
+	<br />
+	<form action="./main.php" method="post">
+	<div>
+		<span style="font-weight:bold">An Asteroid koppeln:</span><br />
+		<select name="linkedbase" size="1">
+		<!-- BEGIN werftgui.linkedbase.listitem -->
+			<option {if linkedbase.selected}selected="selected"{/endif} value="{linkedbase.value}">{linkedbase.name}</option>
+		<!-- END werftgui.linkedbase.listitem -->
+		</select>
+		{werftgui.formhidden}
+		<input name="sess" type="hidden" value="{global.sess}" />
+		<input type="submit" value="ok" /><br />
+	</div>
+	</form>
+{/endif}
+</div>

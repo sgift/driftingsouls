@@ -201,7 +201,7 @@ class Werft extends DefaultBuilding {
 		response.append("<div>Werft auf "+colony.getString("name")+"<br /><br /></div>\n");
 		
 		BaseWerft werft = new BaseWerft(werftdata,"pwerft",colony.getInt("system"),colony.getInt("owner"),colony.getInt("id"), field);
-		WerftGUI werftgui = new WerftGUI( context );
+		WerftGUI werftgui = new WerftGUI( context, t );
 		response.append(werftgui.execute( werft ));
 		
 		response.append("<div><br /></div>\n");
