@@ -1187,11 +1187,70 @@ public abstract class WerftObject extends DSObject {
 	 * @param build Die Schiffsbau-ID
 	 * @param item Die Item-ID
 	 * 
-	 * @return array( schiffsbaudaten, Ausgabestring )
+	 * @return schiffsbaudaten
 	 */
 	public SQLResultRow getShipBuildData( int build, int item ) {
-		// TODO
-		throw new RuntimeException("STUB");
+		Context context = ContextMap.getContext();
+		Database db = context.getDatabase();
+		User user = context.createUserObject(this.getOwner());
+		
+		Cargo allyitems = null;
+	   	if( user.getAlly() > 0 ) {
+			allyitems = new Cargo(Cargo.Type.STRING,db.first("SELECT items FROM ally WHERE id=",user.getAlly()).getString("items"));
+			Cargo localcargo = this.getCargo(true);
+			
+			allyitems.addCargo( localcargo );
+		}
+		else {
+			Cargo localcargo = this.getCargo(true);
+			allyitems = localcargo;
+		}
+	
+	   	SQLResultRow shipdata = null;
+		if( build > 0 ) {
+			shipdata = db.first("SELECT type,costs,ekosten,crew,dauer,race,systemreq,tr1,tr2,tr3,werftreq,flagschiff,linfactor FROM ships_baubar WHERE id=",build);
+			shipdata.put("costs", new Cargo(Cargo.Type.STRING, shipdata.getString("costs")));
+			
+			// Kosten anpassen
+			if( shipdata.getInt("linfactor") > 0 ) {
+				int count = db.first("SELECT count(*) count FROM ships WHERE id>0 AND type=",shipdata.getInt("type")," AND owner=",user.getID()).getInt("count");
+				int count2 = db.first("SELECT count(t1.id) count FROM werften t1 JOIN bases t2 ON t1.col=t2.id WHERE t1.building=",shipdata.getInt("type")," AND t2.owner=",user.getID()).getInt("count");
+				int count3 = db.first("SELECT count(t1.id) count FROM werften t1 JOIN ships t2 ON t1.shipid=t2.id WHERE t2.id>0 AND t1.building=",shipdata.getInt("type")," AND t2.owner=",user.getID()).getInt("count");
+		
+				count = count + count2 + count3;
+				((Cargo)shipdata.get("costs")).multiply( shipdata.getInt("linfactor")*count+1, Cargo.Round.NONE );
+			}
+		}
+		else {
+			int itemcount = allyitems.getItem( item ).size();
+			
+			if( itemcount == 0 ) {
+				MESSAGE.get().append("Kein passendes Item vorhanden");
+				return null;
+			}
+	
+			if( Items.get().item(item).getEffect().getType() != ItemEffect.Type.DRAFT_SHIP ) {
+			 	MESSAGE.get().append("Bei dem Item handelt es sich um keinen Schiffsbauplan");
+			 	return null;
+			}
+			IEDraftShip effect = (IEDraftShip)Items.get().item(item).getEffect();
+			shipdata = new SQLResultRow();
+			shipdata.put("type", effect.getShipType());
+			shipdata.put("costs", effect.getBuildCosts());
+			shipdata.put("linfactor", 0);
+			shipdata.put("crew", effect.getCrew());
+			shipdata.put("dauer", effect.getDauer());
+			shipdata.put("ekosten", effect.getE());
+			shipdata.put("race", effect.getRace());
+			shipdata.put("systemreq", effect.hasSystemReq());
+			shipdata.put("tr1", effect.getTechReq(1));
+			shipdata.put("tr2", effect.getTechReq(2));
+			shipdata.put("tr3", effect.getTechReq(3));
+			shipdata.put("werftreq", effect.getWerftReqs());
+			shipdata.put("flagschiff", effect.isFlagschiff());
+		}
+		
+		return shipdata;
 	}
 	
 	/**
@@ -1204,7 +1263,188 @@ public abstract class WerftObject extends DSObject {
 	 * @return true, wenn kein Fehler aufgetreten ist
 	 */
 	public boolean buildShip( int build, int item, boolean testonly ) {
-		// TODO
-		throw new RuntimeException("STUB");
+		StringBuilder output = MESSAGE.get();
+		
+		Context context = ContextMap.getContext();
+		Database db = context.getDatabase();
+		User user = context.createUserObject(this.getOwner());
+	
+		Cargo basec = this.getCargo(false);
+	   	Cargo newbasec = (Cargo)basec.clone();
+	
+	   	Cargo allyitems = null;
+	   	if( user.getAlly() > 0 ) {
+			allyitems = new Cargo(Cargo.Type.STRING,db.first("SELECT items FROM ally WHERE id=",user.getAlly()).getString("items"));
+
+			allyitems.addCargo( this.getCargo(true) );
+		}
+		else {
+			allyitems = this.getCargo(true);
+		}
+	
+		SQLResultRow shipdata = this.getShipBuildData( build, item );
+		if( (shipdata == null) || shipdata.isEmpty() ) {
+			return false;
+		}
+		
+		if( shipdata.getInt("type") == 0 ) {
+			output.append("Der angegebene (baubare) Schiffstyp existiert nicht");
+			
+			return false;
+		}
+	
+		List<ItemCargoEntry> itemlist = allyitems.getItemsWithEffect( ItemEffect.Type.DISABLE_SHIP );
+		for(int i=0; i < itemlist.size(); i++ ) {
+			IEDisableShip effect = (IEDisableShip)itemlist.get(i).getItemEffect();
+			
+			if( effect.getShipType() == shipdata.getInt("type") ) {
+				context.addError("Ihnen wurde der Bau dieses Schiffs verboten");
+				return false;
+			}
+		}
+	
+		//Kann die aktuelle Rasse das Schiff bauen?
+		if( !Rassen.get().rasse(user.getRace()).isMemberIn(shipdata.getInt("race")) ) {
+			context.addError("Ihre Rasse kann dieses Schiff nicht bauen");		
+			return false;
+		}
+	
+		//Kann das Schiff im aktuellen System gebaut werden?
+		if( shipdata.getBoolean("systemreq") && (!Systems.get().system(this.getSystem()).isMilitaryAllowed()) ) {
+			context.addError("Dieses Schiff l&auml;sst sich im aktuellen System nicht bauen");			
+			return false;
+		}
+	
+		//Verfuegt der Spieler ueber alle noetigen Forschungen?
+		if( !user.hasResearched(shipdata.getInt("tr1")) || !user.hasResearched(shipdata.getInt("tr2")) || !user.hasResearched(shipdata.getInt("tr3")) ) {
+			context.addError("Sie besitzen nicht alle zum Bau n&ouml;tigen Technologien");		
+			return false;
+		}
+	
+		//Kann das Schiff in dieser Werft gebaut werden?
+		String[] werftreq = null;
+		if( shipdata.get("werftreq") instanceof String ) {
+			werftreq = new String[] {shipdata.getString("werftreq")};
+		}
+		else {
+			werftreq = (String[])shipdata.get("werftreq");
+		}
+		
+		boolean found = false;
+		for( int j=0; j < werftreq.length; j++ ) {
+			if( this.getWerftTag().indexOf(werftreq[j])  > -1 ) {
+				found = true;
+				break;
+			}
+		}
+		if( !found ) {
+			context.addError("Dieses Werft ist nicht gro&szlig; genug f&uuml;r das Schiff");
+			return false;
+		}
+	
+		if( shipdata.getBoolean("flagschiff") ) {
+			boolean space = user.hasFlagschiffSpace();
+			if( !space ) {
+				context.addError("Sie k&ouml;nnen lediglich ein Flagschiff besitzen");				
+				return false;
+			}
+		}
+	
+		//Resourcenbedraft angeben
+		boolean ok = true;
+		
+		Cargo shipdataCosts = (Cargo)shipdata.get("costs");
+	
+	   	//Standardresourcen
+		ResourceList reslist = shipdataCosts.compare( basec, false );
+		for( ResourceEntry res : reslist ) {
+			if( res.getDiff() > 0 ) {
+				ok = false;
+				break;
+			}
+		}
+		
+		newbasec.substractCargo( shipdataCosts );
+	
+		int frei = this.getCrew();
+	
+		//E-Kosten
+		if( shipdata.getInt("ekosten") > this.getEnergy()) {
+			ok = false;
+		}
+		int e = this.getEnergy() - shipdata.getInt("ekosten");
+	
+		//Crew
+		if (shipdata.getInt("crew") > frei) {
+			ok = false;
+		}
+
+		frei -= shipdata.getInt("crew");
+	
+		if( !ok ) {
+			output.append("Nicht genug Material verf&uuml;gbar");
+			
+			return false;
+		}  
+		else if( testonly ) {
+			//Auf bestaetigung des "Auftrags" durch den Spieler warten
+			
+			return true;
+		} 
+		else {
+			if( this.getOneWayFlag() == 0 ) {
+				this.setCargo(newbasec, false);
+				this.setEnergy(e);
+				this.setCrew(frei);
+	
+			} 
+			// TODO: Ab nach ShipWerft...
+			else if( this.getWerftType() == SHIP ) {
+				// Einweg-Werft-Code
+				
+				ShipWerft werft = (ShipWerft)this;
+				
+				SQLResultRow newtype = Ships.getShipType( this.getOneWayFlag(), false );
+				int crew = db.first("SELECT crew FROM ships WHERE id>0 AND id=", werft.getShipID()).getInt("crew");
+	
+				db.update("DELETE FROM ships WHERE id>0 AND id=",werft.getShipID());
+				
+				String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
+				String history = "Baubeginn am "+currentTime+" durch "+user.getName()+" ("+user.getID()+"\n";
+				
+				db.update("INSERT INTO ships (id,name,type,hull,e,crew,x,y,system,owner,history) VALUES ",
+							"(",werft.getShipID(),",\"Baustelle\",",this.getOneWayFlag(),",",newtype.getInt("hull"),",",newtype.getInt("eps"),",",crew,",",
+							this.getX(),",",this.getY(),",",this.getSystem(),",",user.getID(),",'",db.prepareString(history),"')");
+	
+				db.update("UPDATE werften SET type=2 WHERE id=",this.getWerftID());
+	
+			} 
+			else {
+				output.append("WARNING: UNKNOWN OW_WERFT (possible: building) in buildShip@WerftObject.php");
+				
+				return false;
+			}
+	
+			/*
+				Werftauftrag einstellen
+			*/
+	
+			this.building = shipdata.getInt("type");
+			this.remaining = shipdata.getInt("dauer");
+			
+			String werftquery = "building="+shipdata.getInt("type")+",remaining="+shipdata.getInt("dauer");
+			if( shipdata.getBoolean("flagschiff") ) {
+				werftquery += ",flagschiff=1";
+				this.buildFlagschiff = true;
+			}
+			if( build == -1 ) {
+				werftquery += ",item="+item;
+				this.buildItem = item;
+			}
+	
+			db.update("UPDATE werften SET ",werftquery," WHERE id=",this.getWerftID());
+	
+			return true;
+		}
 	}
 }
