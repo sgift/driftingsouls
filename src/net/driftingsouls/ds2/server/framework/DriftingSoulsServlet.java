@@ -404,7 +404,7 @@ public class DriftingSoulsServlet extends HttpServlet {
 		try {
 			new DriftingSouls(LOG,  config.getServletContext().getInitParameter("configdir"), true);
 		}
-		catch( Exception e ) {
+		catch( Throwable e ) {
 			LOG.fatal(e, e);
 			throw new ServletException(e);
 		}
@@ -466,7 +466,7 @@ public class DriftingSoulsServlet extends HttpServlet {
 			response.send();
 			context.free();
 		}
-		catch( Exception e ) {
+		catch( Throwable e ) {
 			e.printStackTrace();
 			httpResponse.setContentType("text/html");
 			PrintWriter writer = httpResponse.getWriter();
