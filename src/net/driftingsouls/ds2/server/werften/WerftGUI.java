@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.werften;
 
+import org.apache.commons.lang.StringUtils;
+
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
@@ -293,8 +295,64 @@ public class WerftGUI {
 		throw new RuntimeException("STUB");
 	}
 
-	private void out_buildShip(int build, int item, WerftObject werft, String conf) {
-		// TODO
-		throw new RuntimeException("STUB");
+	private void out_buildShip(int build, int item, WerftObject werft, String conf) {	
+		Cargo cargo = werft.getCargo(false);
+	
+		SQLResultRow shipdata = werft.getShipBuildData( build, item );
+		if( (shipdata == null) || shipdata.isEmpty() ) {
+			t.set_var("werftgui.msg", "<span style=\"color:red\">"+werft.MESSAGE.getMessage()+"</span>");
+			return;
+		}
+		
+		SQLResultRow shiptype = Ships.getShipType( shipdata.getInt("type"), false );
+		
+		t.set_block("_WERFT.WERFTGUI", "build.res.listitem", "build.res.list");
+		
+		t.set_var(	"werftgui.build",	1,
+					"build.type.name",	shiptype.getString("nickname"),
+					"build.type.image",	shiptype.getString("picture"),
+					"build.conf",		!conf.equals("ok"),
+					"build.id",			build,
+					"build.item.id",	item );
+	
+		//Resourcenbedraft angeben
+		
+	   	//Standardresourcen
+		Cargo shipdataCosts = (Cargo)shipdata.get("costs");
+		ResourceList reslist = shipdataCosts.compare( cargo, false );
+		for( ResourceEntry res : reslist ) {
+			t.set_var(	"res.image",			res.getImage(),
+						"res.plainname",		res.getPlainName(),
+						"res.cargo.available",	res.getCargo2(),
+						"res.cargo.needed",		res.getCargo1(),
+						"res.cargo.mangel",		res.getDiff() > 0 ? res.getDiff() : 0 );
+			t.parse("build.res.list", "build.res.listitem", true);
+		}
+		
+		int frei = werft.getCrew();
+	
+		//E-Kosten
+		t.set_var(	"res.image",		Configuration.getSetting("URL")+"data/interface/energie.gif",
+					"res.plainname",	"Energie",
+					"res.cargo.available",	werft.getEnergy(),
+					"res.cargo.needed",	shipdata.getInt("ekosten"),
+					"res.cargo.mangel",	(shipdata.getInt("ekosten") > werft.getEnergy() ? shipdata.getInt("ekosten") - werft.getEnergy() : 0) );
+		t.parse("build.othercosts.list", "build.res.listitem", true);
+
+		//Crew
+		t.set_var(	"res.image",			Configuration.getSetting("URL")+"data/interface/arbeitslos.gif",
+					"res.plainname",		"Crew",
+					"res.cargo.available",	frei,
+					"res.cargo.needed",		shipdata.getInt("crew"),
+					"res.cargo.mangel",		(shipdata.getInt("crew") > frei ? shipdata.getInt("crew") - frei : 0));
+		t.parse("build.othercosts.list", "build.res.listitem", true);
+		
+		boolean result = werft.buildShip(build, item, !conf.equals("ok") );
+	
+		if( !result ) {
+			t.set_var("build.error", StringUtils.replace(werft.MESSAGE.getMessage(), "\n", "<br/>\n"));
+		}  
+		
+		return;   
 	}
 }
