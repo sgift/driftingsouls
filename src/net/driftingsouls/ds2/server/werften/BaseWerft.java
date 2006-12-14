@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.werften;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -37,20 +36,39 @@ public class BaseWerft extends WerftObject {
 	private String name = null;
 	private Integer size = null;
 
+	/**
+	 * Konstruktor
+	 * @param werftdata Die Werftdaten
+	 * @param werfttag Der Werfttag
+	 * @param system Das System in dem sich die Werft befindet
+	 * @param owner Der Besitzer der Werft
+	 * @param baseid Die ID der Basis, auf dem die Werft steht
+	 * @param fieldid Die Feld-ID auf der Basis oder -1, falls das Feld unbekannt ist
+	 */
 	public BaseWerft(SQLResultRow werftdata, String werfttag, int system, int owner, int baseid, int fieldid) {
 		super( werftdata, werfttag, system, owner );
 		this.baseid = baseid;
 		this.fieldid = fieldid;
 	}
 	
+	/**
+	 * Gibt die ID der Basis zurueck, auf dem die Werft steht
+	 * @return Die ID der Basis
+	 */
 	public int getBaseID() {
 		return this.baseid;
 	}
 	
+	/**
+	 * Gibt die Feld-ID zurueck, auf dem die Werft steht. Sollte
+	 * die Feld-ID unbekannt sein, so wird <code>-1</code> zurueckgegeben
+	 * @return Die Feld-ID oder -1
+	 */
 	public int getBaseField() {
 		return this.fieldid;
 	}
 
+	@Override
 	public int getWerftType() {
 		return WerftObject.BUILDING;
 	}
@@ -66,22 +84,21 @@ public class BaseWerft extends WerftObject {
 	
 	@Override
 	public void setCargo(Cargo cargo, boolean localonly) {
-		// TODO
-		throw new RuntimeException("STUB");
+		Database db = ContextMap.getContext().getDatabase();
+		db.update("UPDATE bases SET cargo='",cargo.save(),"' WHERE id=",this.baseid);
 	}
 	
 	@Override
 	public long getMaxCargo( boolean localonly ) {
-		// TODO
-		Common.stub();
-		return 0;
+		Database db = ContextMap.getContext().getDatabase();
+		return db.first("SELECT maxcargo FROM bases WHERE id=",this.baseid).getLong("maxcargo");
 	}
 	
 	@Override
 	public int getCrew() {
-		// TODO
-		Common.stub();
-		return 0;
+		Database db = ContextMap.getContext().getDatabase();
+		SQLResultRow base = db.first("SELECT bewohner,arbeiter FROM bases WHERE id=",this.baseid);
+		return (base.getInt("bewohner")-base.getInt("arbeiter"));
 	}
 	
 	@Override
@@ -91,21 +108,28 @@ public class BaseWerft extends WerftObject {
 	
 	@Override
 	public void setCrew(int crew) {
-		// TODO
-		Common.stub();
+		Database db = ContextMap.getContext().getDatabase();
+		
+		int arbeiter = db.first("SELECT arbeiter FROM bases WHERE id=",this.baseid).getInt("arbeiter");
+
+		int bewohner = crew + arbeiter;
+		db.update("UPDATE bases SET bewohner='",bewohner,"' WHERE id=",this.baseid);
 	}
 	
 	@Override
 	public int getEnergy() {
-		// TODO
-		Common.stub();
-		return 0;
+		Database db = ContextMap.getContext().getDatabase();
+		return db.first("SELECT e FROM bases WHERE id=",this.baseid).getInt("e");
 	}
 	
 	@Override
 	public void setEnergy(int e) {
-		// TODO
-		Common.stub();
+		if( e < 0 ) {
+			throw new RuntimeException("ERROR: BaseWerft.setEnergy(): e ("+e+") kleiner 0");
+		}
+
+		Database db = ContextMap.getContext().getDatabase();
+		db.update("UPDATE bases SET e='",e,"' WHERE id=",this.baseid);
 	}
 	
 	@Override
@@ -115,8 +139,8 @@ public class BaseWerft extends WerftObject {
 	
 	@Override
 	public void transferOffi(int offi) {
-		// TODO
-		Common.stub();
+		Database db = ContextMap.getContext().getDatabase();
+		db.update("UPDATE offiziere SET dest='b ",this.baseid,"' WHERE id=",offi);
 	}
 	
 	@Override
