@@ -124,7 +124,7 @@ public class ModuleItemModule extends Module implements Loggable {
 				Map<String,Integer> modHeats = (Map<String,Integer>)mods.get(key);
 				for( String wpn : modHeats.keySet() ) {
 					if( !heatlist.containsKey(wpn) ) {
-						heatlist.put(wpn, Integer.toString(modHeats.get(key)));
+						heatlist.put(wpn, Integer.toString(modHeats.get(wpn)));
 					}
 					else {
 						heatlist.put(wpn, Integer.toString(Integer.parseInt(heatlist.get(wpn))+modHeats.get(wpn)));
