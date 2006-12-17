@@ -1,0 +1,282 @@
+{!table_begin 900,left}
+	<table class="noBorderX" cellpadding="2" cellspacing="2" width="100%">
+	{if tech.race.notall}
+		<tr><td width="200" colspan="2" class="noBorderX">{tech.name}</td>
+	{else}
+		<tr><td width="200" class="noBorderX">{tech.name}</td>
+	{/endif}
+		
+	<td class="noBorderX">Vorraussetzungen</td>
+	<td width="140" class="noBorderX">Kosten</td>
+	<td class="noBorderX">Erm&ouml;glicht</td>
+	</tr>
+
+	<tr>
+	<td class="noBorderX"><img src="{URL}data/tech/{tech.id}.gif" alt="Kein Bild vorhanden" /></td>
+	{if tech.race.notall}
+		<td class="noBorderX" width="80">{tech.race.name}</td>
+	{/endif}
+		
+	<td class="noBorderX">
+	<!-- BEGIN tech.needs.listitem -->
+		{if tech.needs.item.break}
+			,<br />
+		{/endif}
+		{if tech.needs.item.researchable}
+			{!link_to $tech.needs.item.name, default, res:$tech.needs.item.id}
+		{else}
+			### Nicht erf&uuml;lbar
+		{/endif} 
+	<!-- END tech.needs.listitem -->
+	&nbsp;</td>
+	<td class="noBorderX">
+	<img style="vertical-align:middle" src="{URL}data/interface/time.gif" alt="Dauer" />{tech.time}
+	<!-- BEGIN tech.res.listitem -->
+		<img style="vertical-align:middle" src="{tech.res.item.image}" alt="" />{tech.res.item.cargo}
+	<!-- END tech.res.listitem -->
+	</td>
+	<td class="noBorderX" valign="top">
+	<!-- BEGIN tech.allows.listitem -->
+		{if tech.allows.item.break}
+			,<br />
+		{/endif}
+		{if tech.allows.item.hidden}
+			<a class="error" style="font-style:italic" href="./main.php?module=forschinfo&sess={global.sess}&res={tech.allows.item.id}">[{tech.allows.item.name}]</a>
+		{else}
+			{!link_to $tech.allows.item.name, default, res:$tech.allows.item.id}
+		{/endif}
+	<!-- END tech.allows.listitem -->
+	</td>
+	</tr>
+	{if tech.descrip}
+		<tr>
+			<td class="noBorderX" colspan="{tech.descrip.colspan}">
+				<hr noshade="noshade" size="1" style="color:#cccccc" />
+				{tech.descrip}
+			</td>
+		</tr>
+	{/endif}
+	</table>
+{!table_end}
+<br />
+<br />
+{if tech.buildings.list}
+	{!table_begin 900,left}
+		<table class="noBorderX" width="100%">
+		<tr>
+			<td class="noBorderX" colspan="2" width="100">Geb&auml;ude</td>
+			<td class="noBorderX">Baukosten</td>
+			<td class="noBorderX" width="100">Verbrauch</td>
+			<td class="noBorderX" width="100">Produktion</td>
+			<td class="noBorderX" width="90">Arbeiter</td>
+			<td class="noBorderX" width="100">Effekt</td>
+		</tr>
+		<!-- BEGIN tech.buildings.listitem -->
+			{if tech.building.hr}
+				<tr><td colspan="7" class="noBorderX"><hr noshade="noshade" size="1" style="color:#cccccc" /></td></tr>
+			{/endif}
+			<tr>
+				<td class="noBorderX">
+					<img src="{URL}{tech.building.picture}" alt="" />
+				</td>
+				<td class="noBorderX">{tech.building.name}</td>
+				<td class="noBorderX" valign="top">
+				{if tech.building.buildcosts.list}
+					<!-- BEGIN tech.building.buildcosts.listitem -->
+						<img style="vertical-align:middle" src="{res.image}" alt="" />{res.cargo}
+					<!-- END tech.building.buildcosts.listitem -->
+				{else}
+					--
+				{/endif}
+				</td>
+				<td class="noBorderX" valign="top">
+				{if tech.building.consumes.list}
+					<!-- BEGIN tech.building.consumes.listitem -->
+						<img style="vertical-align:middle" src="{res.image}" alt="" />{res.cargo}
+					<!-- END tech.building.consumes.listitem -->
+				{else}
+					-
+				{/endif}
+				</td><td class="noBorderX" valign="top">
+				{if tech.building.produces.list}
+					<!-- BEGIN tech.building.produces.listitem -->
+						<img style="vertical-align:middle" src="{res.image}" alt="" />{res.cargo}
+					<!-- END tech.building.produces.listitem -->
+				{else}
+					-
+				{/endif}
+				</td><td class="noBorderX" valign="top">
+				{if tech.building.arbeiter}
+					<img src="{URL}data/interface/narbeiter.gif" alt="Arbeiter" />{tech.building.arbeiter}
+				{else}
+					-
+				{/endif}
+				</td><td class="noBorderX" valign="top">
+				{if tech.building.bewohner}
+					<img src="{URL}data/interface/arbeiter.gif" alt="Bev&ouml;lkerung" />{tech.building.bewohner}
+				{else}
+					-
+				{/endif}
+				</td>
+			</tr>
+		<!-- END tech.buildings.listitem -->				
+		</table>
+	{!table_end}
+<br />
+<br />
+{/endif}
+
+{if tech.cores.list}
+	{!table_begin 900,left}
+		<table class="noBorderX" width="100%">
+		<tr>
+			<td class="noBorderX" width="100" colspan="2">Core</td>
+			<td class="noBorderX">Baukosten</td>
+			<td class="noBorderX" width="100">Verbrauch</td>
+			<td class="noBorderX" width="130">Produktion</td>
+			<td class="noBorderX" width="90">Arbeiter</td>
+			<td class="noBorderX" width="100">Effekt</td>
+		</tr>
+		<!-- BEGIN tech.cores.listitem -->
+			{if tech.core.hr}
+				<tr><td colspan="7" class="noBorderX"><hr noshade="noshade" size="1" style="color:#cccccc" /></td></tr>
+			{/endif}
+			<tr>
+			<td class="noBorderX">
+				<img src="{URL}data/starmap/kolonie{tech.core.astitype}_lrs/kolonie{tech.core.astitype}_lrs.jpg" alt="" />
+			</td>
+			<td class="noBorderX">{tech.core.name}&nbsp;</td>
+			<td class="noBorderX" valign="top">
+				{if tech.core.buildcosts.list}
+					<!-- BEGIN tech.core.buildcosts.listitem -->
+						<img style="vertical-align:middle" src="{res.image}" alt="" />{res.cargo}
+					<!-- END tech.core.buildcosts.listitem -->
+				{else}
+					-
+				{/endif}
+			</td>
+			<td class="noBorderX" valign="top">
+				{if tech.core.consumes.list}
+					<!-- BEGIN tech.core.consumes.listitem -->
+						<img style="vertical-align:middle" src="{res.image}" alt="" />{res.cargo}
+					<!-- END tech.core.consumes.listitem -->
+				{else}
+					-
+				{/endif}
+			</td>
+			<td class="noBorderX" valign="top">
+				{if tech.core.produces.list}
+					<!-- BEGIN tech.core.produces.listitem -->
+						<img style="vertical-align:middle" src="{res.image}" alt="" />{res.cargo}
+					<!-- END tech.core.produces.listitem -->
+				{else}
+					-
+				{/endif}
+			</td>
+			<td class="noBorderX" valign="top">
+				{if tech.core.arbeiter}
+					<img src="{URL}data/interface/narbeiter.gif" alt="Arbeiter" />{tech.core.arbeiter}
+				{else}
+					-
+				{/endif}
+			</td>
+			<td class="noBorderX" valign="top">
+				{if tech.core.bewohner}
+					<img src="{URL}data/interface/arbeiter.gif" alt="Bev&ouml;lkerung" />{tech.core.bewohner}
+				{else}
+					-
+				{/endif}
+			</td>
+			</tr>
+		<!-- END tech.cores.listitem -->
+		</table>
+	{!table_end}
+{/endif}
+
+{if tech.ships.list}
+	{!table_begin 900,left}
+		<table class="noBorderX" width="100%">
+		<tr>
+			<td class="noBorderX" width="130">Schiff</td>
+			<td class="noBorderX" width="470">Kosten</td>
+			<td class="noBorderX">Ben&ouml;tigt au&szlig;.</td>
+		</tr>
+		<!-- BEGIN tech.ships.listitem -->
+			{if tech.ship.hr}
+				<tr><td colspan="3" class="noBorderX"><hr noshade="noshade" size="1" style="color:#cccccc" /></td></tr>
+			{/endif}
+			<tr>
+				<td class="noBorderX">
+					<a onmouseover="return overlib('{tech.ship.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" class="noborder" href="./main.php?module=schiffinfo&sess={global.sess}&ship={tech.ship.id}">
+						<img border="0" src="{tech.ship.picture}" alt="" />
+					</a>
+				</td>
+				<td class="noBorderX">
+					{if tech.ship.dauer}
+						<img src="{URL}data/interface/time.gif" alt="Dauer" />{tech.ship.dauer}
+					{/endif}
+					<!-- BEGIN tech.ship.costs.listitem -->
+						<img style="vertical-align:middle" src="{res.image}" alt="" />{res.cargo}
+					<!-- END tech.ship.costs.listitem -->
+					{if tech.ship.ekosten}
+						<img src="{URL}data/interface/energie.gif" alt="Energie" />{tech.ship.ekosten}
+					{/endif}
+					{if tech.ship.crew}
+						<img src="{URL}data/interface/narbeiter.gif" alt="Crew" />{tech.ship.crew}
+					{/endif}
+				</td>
+				<td class="noBorderX">
+					<!-- BEGIN tech.ship.techs.listitem -->
+						{if tech.ship.tech.break}
+							,<br />
+						{/endif}
+						{!link_to $tech.ship.tech.name, default, res:$tech.ship.tech.id}
+					<!-- END tech.ship.techs.listitem -->
+				</td>
+			</tr>
+		<!-- END tech.ships.listitem -->
+		</table>
+	{!table_end}
+	<br />
+	<br />
+{/endif}
+
+{if tech.ammo.list}
+	{!table_begin 900,left}
+		<table class="show" cellpadding="2" cellspacing="2">
+		<tr>
+			<td colspan="2" class="noBorderX">Munition</td>
+			<td class="noBorderX">Kosten</td>
+			<td class="noBorderX" width="210">Daten</td>
+			<td class="noBorderX">Waffen</td>
+		</tr>
+		<!-- BEGIN tech.ammo.listitem -->
+			{if tech.ammo.hr}
+				<tr><td colspan="5" class="noBorderX"><hr noshade="noshade" size="1" style="color:#cccccc" /></td></tr>
+			{/endif}
+			<tr>
+				<td class="noBorderX" width="120">
+					{!link_to $tech.ammo.name, details, module:iteminfo, item:$tech.ammo.itemid}
+					<a class="ok" style="font-size:12pt" href="#" onmouseover="return overlib('<span class=\'verysmallfont\'>{tech.ammo.description}</span>',TIMEOUT,0,DELAY,400,WIDTH,200);" onmouseout="return nd();">
+						<img border="0" style="vertical-align:middle" src="{URL}data/interface/forschung/info.gif" alt="i" />
+					</a>
+				</td>
+				<td class="noBorderX">
+					<img src="{URL}data/ammo/{tech.ammo.picture}" alt="[Kein Bild]" />
+				</td>
+				<td class="noBorderX">
+					<img src="{URL}data/interface/time.gif" alt="Dauer" />{tech.ammo.dauer}
+					<!-- BEGIN tech.ammo.buildcosts.listitem -->
+						<img style="vertical-align:middle" src="{res.image}" alt="" />{res.cargo}
+					<!-- END tech.ammo.buildcosts.listitem -->
+				</td>
+				<td class="noBorderX">
+					{tech.ammo.data}
+				</td>
+				<td class="noBorderX">
+					{tech.ammo.weapons}
+				</td>
+		<!-- END tech.ammo.listitem -->
+		</table>
+	{!table_end}
+{/endif}
