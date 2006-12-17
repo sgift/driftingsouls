@@ -19,6 +19,8 @@
 package net.driftingsouls.ds2.server.config;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +35,8 @@ import org.apache.commons.lang.StringUtils;
  * @author Christopher Jung
  *
  */
-public class Weapons {
+public class Weapons implements Iterable<Weapon> {
+	private Map<String, Weapon> list = new HashMap<String, Weapon>();
 	private static Weapons instance = new Weapons();
 	
 	private Weapons() {
@@ -48,6 +51,10 @@ public class Weapons {
 		return instance;
 	}
 	
+	public Iterator<Weapon> iterator() {
+		return list.values().iterator();
+	}
+	
 	/**
 	 * Gibt die Instanz einer Waffe mit der angegebenen Waffen-ID zurueck.
 	 * Sollte keine passende Waffe bekannt sein, so wird <code>null</code> zurueckgegeben.
@@ -55,7 +62,7 @@ public class Weapons {
 	 * @return Die Instanz der Waffe oder <code>null</code>
 	 */
 	public Weapon weapon(String wpn) {
-		throw new RuntimeException("STUB");
+		return list.get(wpn);
 	}
 	
 	/**
@@ -94,6 +101,7 @@ public class Weapons {
 	}
 	
 	static {
+		// TODO
 		Common.stub();
 	}
 }
