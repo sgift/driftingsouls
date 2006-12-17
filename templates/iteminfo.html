@@ -1,0 +1,108 @@
+{!table_begin 420,left}
+	{if iteminfo.message}
+		{iteminfo.message}<br />
+	{/endif}
+	
+	{if iteminfo.details}
+		<table class="noBorderX" cellspacing="3" width="380">	
+		<tr>
+			<td class="noBorderX" style="width:80px">Name</td>
+			<td class="noBorderX">
+				<img style="vertical-align:middle" src="{item.picture}" alt="" />{item.name}
+			</td>
+		</tr>	
+		<tr>
+			<td class="noBorderX" style="width:80px">Cargo</td>
+			<td class="noBorderX">{item.cargo}</td>
+		</tr>
+		{if item.accesslevel}
+			<tr>
+				<td class="noBorderX" style="width:80px">Accesslevel</td>
+				<td class="noBorderX" style="color:red">{item.accesslevel}</td>
+			</tr>
+		{/endif}
+		{if item.allyitem}
+			<tr>
+				<td class="noBorderX" style="width:80px">Allyitem</td>
+				<td class="noBorderX">ja</td>
+			</tr>
+		{/endif}
+		<tr>
+			<td class="noBorderX" style="width:80px">Typ</td>
+			<td class="noBorderX">{item.class}</td>
+		</tr>
+		<!-- BEGIN itemdetails.entry -->
+			<tr>
+				<td class="noBorderX" valign="top">{entry.name}</td>
+				<td class="noBorderX" valign="top">{entry.data}</td>
+			</tr>
+		<!-- END itemdetails.entry -->		
+		<tr>
+			<td class="noBorderX" colspan="2">
+				<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+			</td>
+		</tr>
+		<tr>
+			<td class="noBorderX" colspan="2">
+				{item.description}
+			</td>
+		</tr>
+		</table>
+	{/endif}
+	
+	{if iteminfo.itemlist}
+		<table class="noBorderX" cellpadding="3">
+		<tr>
+			<td class="noBorderX">&nbsp;</td>
+			<td class="noBorderX" style="width:300px;font-size:16px">Name</td>
+			<td class="noBorderX" style="width:100px;font-size:16px">Typ</td>
+			<td class="noBorderX" style="width:120px;font-size:16px">Gr&ouml;&szlig;e</td>
+			<td class="noBorderX" style="width:100px;font-size:16px">Menge</td>
+		</tr>
+		<!-- BEGIN itemlist.listitem -->
+			<tr>
+				<td class="noBorderX"><img src="{item.picture}" alt="" /></td>
+				<td class="noBorderX">
+					{!link_to $item.name, details, item:$item.id}
+				</td>
+				<td class="noBorderX">{item.class}</td
+				<td class="noBorderX" align="center">{item.cargo}</td>
+				<td class="noBorderX">{item.count}</td>
+			</tr>
+		<!-- END itemlist.listitem -->
+		</table>
+	{/endif}
+	
+	{if iteminfo.knownlist}
+		<table class="noBorderX" cellpadding="3">
+		<tr>
+			<td class="noBorderX">&nbsp;</td>
+			<td class="noBorderX" style="width:300px;font-size:16px">Name</td>
+			<td class="noBorderX" style="width:100px;font-size:16px">Typ</td>
+			<td class="noBorderX" style="width:120px;font-size:16px">Gr&ouml;&szlig;e</td>
+			<td class="noBorderX" style="width:100px;font-size:16px">Menge</td>
+		</tr>
+		<!-- BEGIN knownlist.listitem -->
+			<tr>
+				<td class="noBorderX"><img src="{item.picture}" alt="" /></td>
+				<td class="noBorderX">
+					{!link_to $item.name, details, item:$item.id}
+				</td>
+				<td class="noBorderX">{item.class}</td>
+				<td class="noBorderX" align="center">{item.cargo}</td>
+				<td class="noBorderX">
+					{if item.count}
+						{if item.locationtext}
+							<a style="forschinfo" name="module{item.id}_popup" id="module{item.id}_popup" class="forschinfo" onmouseover="javascript:overlib('{item.locationtext}', REF,'module{item.id}_popup', REFY,22,REFX,-150,FGCLASS,'gfxtooltip',BGCLASS,'gfxclass',TEXTFONTCLASS,'gfxclass',TIMEOUT,0,NOCLOSE,STICKY);" onmouseout="return nd();" href="#">{item.count}</a>
+						{else}
+							{item.count}
+						{/endif}
+					{else}
+						-
+					{/endif}
+				</td>
+			</tr>
+		<!-- END knownlist.listitem -->
+		</table>
+	{/endif}
+{!table_end}
