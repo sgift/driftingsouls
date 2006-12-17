@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.config;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +78,17 @@ public class IEModuleSetMeta extends ItemEffect {
 			combos.add(currentCombo);
 		}
 		return combos.toArray(new SQLResultRow[combos.size()]);
+	}
+	
+	/**
+	 * Gibt die Liste aller Combos zurueck. Der Index ist die 
+	 * Anzahl der jeweils benoetigten Items. Der Effekt der jeweiligen
+	 * Stufe bildet sich durch kummulieren der Effekte der vorherigen
+	 * Stufen sowie des Effekts der Stufe selbst.
+	 * @return Die Combos
+	 */
+	public Map<Integer,SQLResultRow> getCombos() {
+		return Collections.unmodifiableMap(combos);
 	}
 	
 	protected static ItemEffect fromXML(Node effectNode) throws Exception {
