@@ -37,37 +37,51 @@ public abstract class ItemEffect {
 		/**
 		 * Kein Effekt
 		 */
-		NONE,
+		NONE("Nichts"),
 		/**
 		 * Schiffsbauplan
 		 */
-		DRAFT_SHIP,
+		DRAFT_SHIP("Schiffsbauplan"),
 		//DRAFT_BUILDING,
 		/**
 		 * Munitionsbauplan
 		 */
-		DRAFT_AMMO,
+		DRAFT_AMMO("Munitionsbauplan"),
 		//DRAFT_CORE,
 		/**
 		 * Modul
 		 */
-		MODULE,
+		MODULE("Modul"),
 		/**
 		 * Munition
 		 */
-		AMMO,
+		AMMO("Munition"),
 		/**
 		 * Schiffsbauplan-Deaktivierer
 		 */
-		DISABLE_SHIP,
+		DISABLE_SHIP("Schiffsverbot"),
 		/**
 		 * IFF-Deaktivierer
 		 */
-		DISABLE_IFF,
+		DISABLE_IFF("IFF-Sperre"),
 		/**
 		 * Modul-Set Metainformationen
 		 */
-		MODULE_SET_META
+		MODULE_SET_META("Modul-Set");
+		
+		private String name = null;
+		
+		private Type(String name) {
+			this.name = name;
+		}
+		
+		/**
+		 * Gibt den umgangssprachlichen Namen der Modulklasse zurueck
+		 * @return der Name
+		 */
+		public String getName() {
+			return name;
+		}
 	}
 	
 	private Type type = null;
