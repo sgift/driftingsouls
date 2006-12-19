@@ -587,8 +587,9 @@ public class TemplateCompiler {
 		
 		reader.close();
 		
+		str = StringUtils.replace(str, "\\", "\\\\");
 		str = StringUtils.replace(str, "\"", "\\\"");
-		str = StringUtils.replace(str, "\\'","\\\\'");
+		//str = StringUtils.replace(str, "\\'","\\\\'");
 		
 		// Funktionen ersetzen
 		str = parse_functions(str);
