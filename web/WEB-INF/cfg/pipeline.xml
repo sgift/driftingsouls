@@ -74,6 +74,9 @@
 		<module name="deutsammeln">
 			<generator class="net.driftingsouls.ds2.server.modules.DeutSammelnController" />
 		</module>
+		<module name="fleetmgnt">
+			<generator class="net.driftingsouls.ds2.server.modules.FleetMgntController" />
+		</module>
 		<module name="forschinfo">
 			<generator class="net.driftingsouls.ds2.server.modules.ForschinfoController" />
 		</module>

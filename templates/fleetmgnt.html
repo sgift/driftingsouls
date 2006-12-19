@@ -1,0 +1,230 @@
+<script type="text/javascript">
+<!--
+	function showShip( ship ) {
+		opener.parent.frames['main'].location.href = './main.php?module=schiff&sess={global.sess}&ship='+ship;
+	}
+
+	function refreshOwn() {
+		window.location.href = './main.php?module=fleetmgnt&sess={global.sess}&fleet={fleet.id}';
+	}
+
+	function removeShip( ship ) {
+		opener.parent.frames['main'].location.href = './main.php?module=schiff&sess={global.sess}&ship='+ship+'&action=join&join=0';
+		window.setTimeout("refreshOwn()", 1000);
+	}
+
+	function showBattle( battle, ship ) {
+		opener.parent.frames['main'].location.href = './main.php?module=angriff&sess={global.sess}&battle='+battle+'&ship='+ship;
+		window.close();
+	}
+	
+	var sessid;
+	
+	function reloadMainpage(sess) {
+		sessid = sess;
+		window.setTimeout("reloadMainpage2()", 1000);
+	}
+	
+	{if jscript.reloadmain}
+		var shipid = {jscript.reloadmain.ship};
+		
+		function reloadMainpage2() {
+			var szUrl = opener.parent.frames['main'].location.href;
+			if( (szUrl.search(/\?/) == -1) && (szUrl.search(/ship=/) == -1) && (shipid > 0) ) {
+				szUrl = szUrl + '?sess='+sessid+'&ship='+shipid;
+			}
+			szUrl = szUrl + "&tmp=1";
+
+			var szUrl2 = szUrl.replace(/plugin=(.*)\&/,"&");
+			szUrl2 = szUrl2.replace(/join=(.*)\&/,"&");
+			szUrl2 = szUrl2.replace(/node=(.*)\&/,"&");
+			szUrl2 = szUrl2.replace(/newname=(.*)\&/,"&");
+			szUrl2 = szUrl2.replace(/shup=(.*)\&/,"&");
+			szUrl2 = szUrl2.replace(/land=(.*)\&/,"&");
+			szUrl2 = szUrl2.replace(/newowner=(.*)\&/,"&");
+			szUrl2 = szUrl2.replace(/land=(.*)\&/,"&");
+			szUrl2 = szUrl2.replace(/shiplist=(.*)\&/,"&");
+			szUrl2 = szUrl2.replace(/\&tmp=(.*)1/,"");
+			szUrl2 = szUrl2.replace(/\&action=(.*)\&/,"&action=default&");
+
+			opener.parent.frames['main'].location = szUrl2;
+		}
+	{else}
+		function reloadMainpage2() {	
+		}
+	{/endif}
+-->
+</script>
+<span class="smallfont">
+{if fleetmgnt.message}
+	{fleetmgnt.message}<br /><br />
+{/endif}
+{if show.create}
+	<span style="font-weight:bold; font-style:italic">Flotte erstellen</span><br /><br />
+	<form action="main.php" method="post">
+		{!form_create_hidden create2, shiplist:$create.shiplist}
+		Name der Flotte: <input type="text" name="fleetname" value="Neue Flotte" /><br />
+		<input type="submit" value="Flotte erstellen" />
+	</form>
+{/endif}
+{if show.rename}
+	{!table_begin 355, center}
+		<span style="font-weight:bold; font-style: italic">Flotte umbenennen</span><br />
+		<span style="font-style:italic">&gt; {fleet.name} &lt;</span><br /><br />
+		<form action="main.php" method="post">
+			{!form_create_hidden rename2, fleet:$fleet.id}
+			<table class="noBorder">
+			<tr>
+				<td class="noBorderX">Name: <input type="text" name="fleetname" value="{fleet.name}" /></td>
+			</tr>
+			<tr>
+				<td class="noBorderX" align="center"><input type="submit" value="Flotte umbenennen" /></td>
+			</tr>
+			</table>
+		</form>
+	{!table_end}
+{/endif}
+{if show.export}
+	[{fleet.name}]<br />
+	<!-- BEGIN exportships.listitem -->
+		{ship.id},{ship.name}<br />
+	<!-- END exportships.listitem -->
+{/endif}
+{if show.kill}
+	{!table_begin 355, center}
+		<span style="font-weight:bold; font-style: italic">Flotte aufl&ouml;sen</span><br />
+		<span style="font-style:italic">&gt; {fleet.name} &lt;</span><br /><br />
+		Wollen sie die Flotte wirklich aufl&ouml;sen?<br />
+		{!link_to Nein, default, css_class:ok, fleet:$fleet.id} -
+		{!link_to Ja, kill2, css_class:error, fleet:$fleet.id}
+	{!table_end}
+{/endif}
+{if show.newowner}
+	{!table_begin 355, center}
+		<span style="font-weight:bold; font-style: italic">Flotte &uuml;bergeben</span><br />
+		<span style="font-style:italic">&gt; {fleet.name} &lt;</span><br /><br />
+		<form action="main.php" method="post">
+			{!form_create_hidden newowner2, fleet:$fleet.id}
+			Neuer Besitzer: <input type="text" name="ownerid" value="0" size="4" />
+			<input type="submit" value="ok" />
+		</form>
+	{!table_end}
+{/endif}
+{if show.newowner2}
+	{!table_begin 355, center}
+		<span style="font-weight:bold; font-style:italic">Flotte &uuml;bergeben</span><br />
+		<span style="font-style:italic">&gt; {fleet.name} &lt;</span><br /><br />
+		Wollen sie die Flotte wirklich an {newowner.name} &uuml;bergeben?<br />
+		{!link_to Nein, default, css_class:ok, fleet:$fleet.id} -
+		{!link_to Ja, newowner3, css_class:error, fleet:$fleet.id, ownerid:$newowner.id} 
+	{!table_end}
+{/endif}
+{if show.view}
+	{!table_begin 355,center}
+		<span style="font-style:italic">{fleet.name}</span><br /><br />
+		<table class="noBorderX">
+		<tr>
+			<td class="noBorderX" style="text-align:center; width:50px">ID</td>
+			<td class="noBorderX" style="text-align:center; width:150px">Name</td>
+			<td class="noBorderX" style="text-align:center; width:150px">Typ</td>
+			<td class="noBorderX"></td>
+		</tr>
+		<!-- BEGIN ships.listitem -->
+			<tr>
+				<td class="noBorderX">
+					<a class="forschinfo" href="javascript:showShip('{ship.id}')">{ship.id}</a>
+				</td>
+			
+				<td class="noBorderX">
+					{if ship.showwarning}
+						<img src="{URL}data/interface/warnung.png" alt="Warnung" />			
+					{/endif}
+					{if ship.showbattle}
+						<a href="javascript:showBattle('{ship.showbattle}','{ship.id}')">
+							<img src="{URL}battle_small.gif" alt="Schlacht" />
+						</a>
+					{/endif}
+					<a class="forschinfo" href="javascript:showShip('{ship.id}')">
+						{ship.name}
+					</a>
+				</td>
+			
+				<td class="noBorderX">{ship.type.name}</td>
+				<td class="noBorderX">
+					<a class="error" href="javascript:removeShip('{ship.id}')">[x]</a>
+				</td>
+			</tr>
+		<!-- END ships.listitem -->
+		</table>
+		<br />
+		<hr noshade="noshade" size="1" style="color:#cccccc" />
+		<div align="left">
+			<script type="text/javascript">
+			<!--
+				function actionSelectChange(action) {
+					{if jaegertypes.list}
+						if( action == "jland" ) {
+							document.getElementById("jaegertype").style.display = 'inline';
+						}
+						else {
+							document.getElementById("jaegertype").style.display = 'none';
+						}
+					{/endif}
+					{if fleetcombine.list}
+						if( action == "fleetcombine" ) {
+							document.getElementById("fleetcombine").style.display = 'inline';
+						}
+						else {
+							document.getElementById("fleetcombine").style.display = 'none';
+						}
+					{/endif}
+				}
+			-->
+			</script>
+
+			<span style="font-style:italic">Aktionen:</span><br />
+			<form action="./main.php" method="post">
+				<input type="hidden" name="sess" value="{global.sess}" />
+				<input type="hidden" name="fleet" value="{fleet.id}" />
+				<input type="hidden" name="module" value="fleetmgnt" />
+				<select name="action" size="1" onchange="actionSelectChange(this.options[this.options.selectedIndex].value)">
+					<option value="shup">Schilde aufladen</option>
+					<option value="dischargeBatteries">Batterien entladen</option>
+					<option value="show">---------</option>
+					<option value="jstart">J&auml;ger starten</option>
+					{if jaegertypes.list}
+						<option value="jland">J&auml;ger aufsammeln</option>
+					{/endif}
+					<option value="undock">Schiffe abdocken</option>
+					<option value="redock">Container aufsammeln</option>
+					<option value="show">---------</option>
+					{if fleetcombine.list}
+						<option value="fleetcombine">Flotten zusammenlegen</option>
+					{/endif}
+					<option value="rename">umbenennen</option>
+					<option value="kill">aufl&ouml;sen</option>
+					<option value="newowner">&uuml;bergeben</option>
+					<option value="show">---------</option>
+					<option value="export">exportieren</option>
+				</select>
+				{if jaegertypes.list}
+					<select id="jaegertype" name="jaegertype" size="1" style="display:none">
+						<option value="-1">alle</option>
+						<!-- BEGIN jaegertypes.listitem -->
+							<option value="{jaegertype.id}">{jaegertype.name}</option>
+						<!-- END jaegertypes.listitem -->
+					</select>
+				{/endif}
+				{if fleetcombine.list}
+					<select id="fleetcombine" name="fleetcombine" size="1" style="display:none">
+						<!-- BEGIN fleetcombine.listitem -->
+							<option value="{fleetcombine.id}">{fleetcombine.name} - {fleetcombine.shipcount} Schiffe</option>
+						<!-- END fleetcombine.listitem -->
+					</select>
+				{/endif}
+				<input type="submit" value="ok" />
+			</form>
+		</div>
+	{!table_end}
+{/endif}
+</span>
