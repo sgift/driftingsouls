@@ -229,7 +229,8 @@ public class FleetMgntController extends DSGenerator {
 		}
 		
 		if( fleetname.length() > 0 ) {
-			db.update("INSERT INTO ship_fleets (name) VALUES ('",fleetname,"')");
+			db.prepare("INSERT INTO ship_fleets (name) VALUES ( ? )")
+				.update(fleetname);
 
 			int fleetID = db.insertID();
 			
@@ -246,6 +247,87 @@ public class FleetMgntController extends DSGenerator {
 		else {
 			t.set_var("fleetmgnt.message", "Sie m&uuml;ssen einen Namen angeben" );
 			redirect("create");
+		}
+	}
+	
+	/**
+	 * Fuegt eine definierte Anzahl an Schiffen eines Typs aus einem Sektor zur
+	 * Flotte hinzu
+	 *
+	 */
+	public void addFromSRSGroupAction() {
+		TemplateEngine t = getTemplateEngine();
+		User user = getUser();
+		Database db = getDatabase();
+		
+		int sector = getInteger("sector");
+		int type = getInteger("type");
+		int count = getInteger("count");
+		
+		SQLResultRow sectorRow = db.first("SELECT x,y,system FROM ships WHERE id='",sector,"' AND owner='",user.getID(),"'");
+		
+		int shipcount = db.first("SELECT count(*) count FROM ships WHERE owner='",user.getID(),"' AND system='",sectorRow.getInt("system"),"' AND x='",sectorRow.getInt("x"),"' AND y='",sectorRow.getInt("y"),"' AND type='",type,"' AND docked=''").getInt("count");
+		
+		if( (count < 1) || (shipcount < count) ) {
+			t.set_var("fleetmgnt.message", "Es gibt nicht genug Schiffe im Sektor" );
+			return;
+		}
+		
+		List<Integer> shiplist = new ArrayList<Integer>();
+		SQLQuery s = db.query("SELECT id,fleet FROM ships WHERE owner='",user.getID(),"' AND system='",sectorRow.getInt("system"),"' AND x='",sectorRow.getInt("x"),"' AND y='",sectorRow.getInt("y"),"' AND type='",type,"' AND docked='' AND fleet!='",fleet.getInt("id"),"' ORDER BY fleet,id ASC LIMIT ",count);
+		while( s.next() ) {
+			if( s.getInt("fleet") != 0 ) {
+				Ships.removeFromFleet(s.getRow());	
+			}
+			shiplist.add(s.getInt("id"));
+		}
+		s.free();
+		
+		db.update("UPDATE ships SET fleet='",fleet.getInt("id"),"' WHERE id IN (",Common.implode(",",shiplist),")");
+		
+		t.set_var(	"fleetmgnt.message",	count+" Schiffe der Flotte hinzugef&uuml;gt",
+					"jscript.reloadmain",	1 );
+	}
+	
+	/**
+	 * Zeigt die Seite zum Umbenennen von Flotten an
+	 *
+	 */
+	public void renameAction() {
+		TemplateEngine t = getTemplateEngine();
+		
+		t.set_var(	"show.rename",	1,
+					"fleet.id",		fleet.getInt("id"),
+					"fleet.name",	Common._plaintitle(fleet.getString("name")) );
+	}
+	
+	/**
+	 * Benennt eine Flotte um
+	 * @urlparam String fleetname Der neue Name der Flotte
+	 *
+	 */
+	public void rename2Action() {
+		Database db = getDatabase();
+		TemplateEngine t = getTemplateEngine();
+		
+		parameterString("fleetname");
+		String fleetname = getString("fleetname");
+		
+		if( fleetname.length() > 0 ) {
+			db.prepare("UPDATE ship_fleets SET name= ? WHERE id= ?")
+				.update(fleetname, fleet.getInt("id"));
+
+			t.set_var(	"fleetmgnt.message",	"Flotte "+Common._plaintitle(fleetname)+" umbenannt",
+						"jscript.reloadmain",	1 );
+		
+			fleet.put("name", fleetname);
+		
+			redirect();
+		}
+		else {
+			t.set_var("fleetmgnt.message", "Sie m&uuml;ssen einen Namen angeben" );
+			
+			redirect("rename");
 		}
 	}
 	
