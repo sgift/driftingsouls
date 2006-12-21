@@ -1312,18 +1312,12 @@ public class Ships implements Loggable {
 		START;
 	}
 	
-	/*
-	 * dock
-	 * 		Schiffe an/abdocken sowie Jaeger landen/starten
-	 * 
-	 * $db -> Ein DB-Objekt
-	 * $mode -> DOCK_DOCK (Andocken), DOCK_UNDOCK (abdocken), DOCK_LAND (landen), DOCK_START (starten) 
-	 * $owner -> der Besitzer (der Schiffe oder ein Spieler mit superdock-flag)
-	 * $shipID -> das Ausgangs/Zielschiff
-	 * $dockids -> 	eine Schiffsid welches (ab)docken oder landen/starten soll
-	 * 				ein Array mit Schiffsids, welche (ab)docken oder landen/starten sollen
-	 * 				0, falls alle gedockten/gelandeten Schiffe abdocken/starten sollen [Default]
-	 * 
+	/**
+	 * Schiffe an/abdocken sowie Jaeger landen/starten
+	 * @param mode Der Dock-Modus (Andocken, Abdocken usw)
+	 * @param owner der Besitzer (der Schiffe oder ein Spieler mit superdock-flag)
+	 * @param shipID das Ausgangs/Zielschiff
+	 * @param dockids ein Array mit Schiffsids, welche (ab)docken oder landen/starten sollen. <code>null</code>, falls alle Schiffe abgedockt/gestartet werden sollen
 	 */
 	public static boolean dock(DockMode mode, int owner, int shipID, int[] dockids) {
 		// TODO
