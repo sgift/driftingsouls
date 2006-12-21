@@ -24,6 +24,9 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.User;
@@ -32,6 +35,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
@@ -358,6 +362,379 @@ public class FleetMgntController extends DSGenerator {
 					"jscript.reloadmain",	1 );
 	}
 
+	/**
+	 * Zeigt das Eingabefeld fuer die Uebergabe von Flotten an
+	 *
+	 */
+	public void newownerAction() {
+		TemplateEngine t = getTemplateEngine();
+		
+		t.set_var(	"show.newowner",	1,
+					"fleet.id",			this.fleet.getInt("id"),
+					"fleet.name",		Common._plaintitle(this.fleet.getString("name")) );
+	}
+	
+	/**
+	 * Zeigt die Bestaetigung fuer die Uebergabe der Flotte an
+	 * @urlparam Integer ownerid Die ID des Users, an den die Flotte uebergeben werden soll
+	 *
+	 */
+	public void newowner2Action() {
+		TemplateEngine t = getTemplateEngine();
+		
+		parameterNumber("ownerid");
+		int ownerid = getInteger("ownerid");
+		
+		User newowner = getContext().createUserObject(ownerid );
+		
+		if( newowner.getID() != 0 ) {
+			t.set_var(	"show.newowner2",	1,
+						"newowner.name",	Common._title(newowner.getName()),
+						"newowner.id",		newowner.getID(),
+						"fleet.id",			this.fleet.getInt("id"),
+						"fleet.name",		Common._plaintitle(this.fleet.getString("name")) );
+		}
+		else {
+			t.set_var( "fleetmgnt.message", "Der angegebene Spieler existiert nicht");
+			
+			redirect("newowner");	
+		}	
+	}
+	
+	/**
+	 * Uebergibt die Flotte an einen neuen Spieler
+	 * @urlparam Integer ownerid Die ID des neuen Besitzers
+	 *
+	 */
+	public void newowner3Action() {
+		TemplateEngine t = getTemplateEngine();
+		User user = this.getUser();
+		Database db = getDatabase();
+		
+		parameterNumber("ownerid");
+		int ownerid = getInteger("ownerid");
+		
+		User newowner = getContext().createUserObject(ownerid);
+		
+		if( newowner.getID() != 0 ) {
+			StringBuilder message = new StringBuilder(100);
+			int count = 0;
+			
+			List<Integer> idlist = new ArrayList<Integer>();
+			
+			SQLQuery s = db.query("SELECT * FROM ships WHERE fleet='",this.fleet.getInt("id"),"' AND battle=0" );
+			while( s.next() ) {
+				boolean tmp = Ships.consign(user, s.getRow(), newowner, false );
+			
+				String msg = Ships.MESSAGE.getMessage();
+				if( msg.length() > 0 ) {
+					message.append(msg+"<br />");	
+				}
+				if( !tmp ) {
+					count++;
+					idlist.add(s.getInt("id"));
+				}
+			}
+			s.free();
+
+			if( count != 0 ) {
+				// Da die Schiffe beim uebergeben aus der Flotte geschmissen werden, muessen wir sie nun wieder hinein tun
+				db.update("UPDATE ships SET fleet='",this.fleet.getInt("id"),"' WHERE id IN ("+Common.implode(",",idlist),")");
+				
+				SQLResultRow coords = db.first("SELECT x,y,system FROM ships WHERE owner='",newowner.getID(),"' AND fleet='",this.fleet.getInt("id"),"'");
+				
+				PM.send(getContext(), user.getID(), newowner.getID(), "Flotte &uuml;bergeben", "Ich habe dir die Flotte "+Common._plaintitle(this.fleet.getString("name"))+" &uuml;bergeben. Sie steht bei "+coords.getInt("system")+":"+coords.getInt("x")+"/"+coords.getInt("y"));
+		
+				t.set_var("fleetmgnt.message", message+"Die Flotte wurde &uuml;bergeben");
+			}
+			else {
+				t.set_var("fleetmgnt.message", message+"Flotten&uuml;bergabe gescheitert");
+			}
+		}
+		else {
+			t.set_var( "fleetmgnt.message", "Der angegebene Spieler existiert nicht");
+			
+			redirect("newowner");	
+		}
+	}
+	
+	/**
+	 * Laedt die Schilde aller Schiffe in der Flotte auf
+	 *
+	 */
+	public void shupAction() {
+		TemplateEngine t = getTemplateEngine();
+		Database db = getDatabase();
+		
+		StringBuilder message = new StringBuilder(100);
+		
+		db.tBegin();
+		SQLQuery s = db.query("SELECT t1.id,t1.name,t1.shields,t1.e,t1.status,t1.type FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id WHERE t1.fleet='",this.fleet.getInt("id"),"' AND (t1.shields < t2.shields OR LOCATE('tblmodules',t1.status)) AND t1.battle=0");
+		while( s.next() ) {
+			SQLResultRow sRow = s.getRow();
+			SQLResultRow stype = Ships.getShipType( sRow );
+			
+			int shieldfactor = 100;
+			if( stype.getInt("shields") < 1000 ) {
+				shieldfactor = 10;
+			}
+
+			int shup = (int)Math.ceil((stype.getInt("shields") - sRow.getInt("shields"))/(double)shieldfactor);
+			if( shup > sRow.getInt("e") ) {
+				shup = sRow.getInt("e");
+				message.append(sRow.getString("name")+" ("+sRow.getInt("id")+") - <span style=\"color:orange\">Schilde bei "+Math.round((sRow.getInt("shields")+shup*shieldfactor)/(double)stype.getInt("shields")*100)+"%</span><br />");
+			}
+			sRow.put("shields", sRow.getInt("shields") + shup*shieldfactor);
+			if( sRow.getInt("shields") > stype.getInt("shields") ) {
+				sRow.put("shields", stype.getInt("shields"));
+			}
+			db.tUpdate(1,"UPDATE ships SET shields='",sRow.getInt("shields"),"',e='",(sRow.getInt("e")-shup)+"' WHERE id>0 AND id='"+sRow.getInt("id")+"' AND e=",s.getInt("e")," AND shields=",s.getInt("shields"));
+		}
+		s.free();
+		db.tCommit();
+
+		t.set_var( "fleetmgnt.message", message+" Die Schilde wurden aufgeladen" );
+		
+		redirect();			
+	}
+	
+	/**
+	 * Entlaedt die Batterien auf den Schiffen der Flotte, um die EPS wieder aufzuladen
+	 *
+	 */
+	public void dischargeBatteriesAction() {
+		TemplateEngine t = getTemplateEngine();
+		Database db = getDatabase();
+		
+		StringBuilder message = new StringBuilder(100);
+		
+		db.tBegin();
+		
+		SQLQuery sRow = db.query("SELECT t1.* FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id WHERE t1.fleet='",this.fleet.getInt("id"),"' AND (t1.e < t2.eps OR LOCATE('tblmodules',t1.status)) AND t1.battle=0 AND t1.type=t2.id");
+		while( sRow.next() ) {
+			SQLResultRow s = sRow.getRow();
+			SQLResultRow stype = Ships.getShipType( s );
+			int olde = s.getInt("e");			
+			
+			if( s.getInt("e") >= stype.getInt("eps") ) {
+				continue;
+			}
+			
+			Cargo cargo = new Cargo( Cargo.Type.STRING, s.getString("cargo") );
+		
+			long unload = stype.getInt("eps") - s.getInt("e");
+			if( unload > cargo.getResourceCount( Resources.BATTERIEN ) ) {
+				unload = cargo.getResourceCount( Resources.BATTERIEN ) ;
+				
+				message.append(s.getString("name")+" ("+s.getInt("id")+") - <span style=\"color:orange\">Energie bei "+Math.round((s.getInt("e")+unload)/(double)stype.getInt("eps")*100)+"%</span><br />");
+			}
+			cargo.substractResource( Resources.BATTERIEN, unload );
+			cargo.addResource( Resources.LBATTERIEN, unload );
+		
+			s.put("e", s.getInt("e")+unload);
+			
+			db.tUpdate(1, "UPDATE ships SET e='",s.getInt("e"),"',cargo='",cargo.save(),"' WHERE id>0 AND id='",s.getInt("id"),"' AND cargo='",cargo.save(true),"' AND e='",olde,"'");
+		}
+		sRow.free();
+		
+		db.tCommit();
+
+		t.set_var( "fleetmgnt.message", message+"Batterien wurden entladen" );
+		
+		redirect();			
+	}
+	
+	/**
+	 * Exportiert die Schiffsliste der Flotte
+	 *
+	 */
+	public void exportAction() {
+		TemplateEngine t = getTemplateEngine();
+		Database db = getDatabase();
+		
+		t.set_var(	"fleet.name",	Common._plaintitle(this.fleet.getString("name")),
+					"show.export",	1 );
+							
+		t.set_block("_FLEETMGNT", "exportships.listitem", "exportships.list" );
+		
+		SQLQuery s = db.query("SELECT id,name FROM ships WHERE id>0 AND fleet=",this.fleet.getInt("id") );
+		while( s.next() ) {
+			t.set_var(	"ship.id",		s.getInt("id"),
+						"ship.name",	Common._plaintitle(s.getString("name")) );
+				
+			t.parse("exportships.list", "exportships.listitem", true);
+		}
+		s.free();
+	}
+	
+	/**
+	 * Dockt alle Schiffe der Flotte ab
+	 *
+	 */
+	public void undockAction() {
+		TemplateEngine t = getTemplateEngine();
+		Database db = getDatabase();
+		User user = getUser();
+		
+		SQLQuery s = db.query("SELECT id FROM ships WHERE id>0 AND fleet='",this.fleet.getInt("id"),"' AND battle=0" );
+		while( s.next() ) {
+			Ships.dock(Ships.DockMode.UNDOCK, user.getID(), s.getInt("id"), null);
+		}
+		s.free();
+		
+		t.set_var(	"fleetmgnt.message",	"Alle gedockten Schiffe wurden gestartet",
+					"jscript.reloadmain",	1 );
+
+		redirect();
+	}
+	
+	/**
+	 * Sammelt alle nicht gedockten eigenen Container im Sektor auf (sofern genug Platz vorhanden ist)
+	 *
+	 */
+	public void redockAction() {
+		TemplateEngine t = getTemplateEngine();
+		Database db = getDatabase();
+		User user = getUser();
+		
+		SQLQuery ship = db.query("SELECT * FROM ships WHERE id>0 AND fleet='",this.fleet.getInt("id"),"' AND battle=0" );
+		while( ship.next() ) {
+			SQLResultRow shiptype = Ships.getShipType(ship.getRow());
+			
+			if( shiptype.getInt("adocks") == 0 ) {
+				continue;
+			}
+
+			int free = shiptype.getInt("adocks");
+			free -= db.first("SELECT count(*) count FROM ships WHERE id>0 AND docked='",ship.getInt("id"),"'").getInt("count");
+			List<Integer> containerlist = new ArrayList<Integer>();
+			
+			SQLQuery container = db.query("SELECT t1.id FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id WHERE t1.owner='",user.getID(),"' AND t1.system='",ship.getInt("system"),"' AND t1.x='",ship.getInt("x"),"' AND t1.y='",ship.getInt("y"),"' AND t1.docked='' AND t1.type=t2.id AND t2.class='",ShipClasses.CONTAINER,"' ORDER BY fleet,type LIMIT ",free);
+			while( container.next() ) {
+				containerlist.add(container.getInt("id"));
+				free--;
+			}
+			container.free();
+			
+			int[] list = new int[containerlist.size()];
+			for( int i=0; i < containerlist.size(); i++ ) {
+				list[i] = containerlist.get(i);
+			}
+			
+			Ships.dock(Ships.DockMode.DOCK, user.getID(), ship.getInt("id"), list);
+		}
+		ship.free();
+
+		t.set_var(	"fleetmgnt.message",	"Container wurden aufgesammelt",
+					"jscript.reloadmain",	1 );
+
+		redirect();
+	}
+	
+	/**
+	 * Startet alle Jaeger der Flotte
+	 *
+	 */
+	public void jstartAction() {
+		TemplateEngine t = getTemplateEngine();
+		Database db = getDatabase();
+		User user = getUser();
+		
+		SQLQuery s = db.query("SELECT id FROM ships WHERE id>0 AND fleet='",this.fleet.getInt("id"),"' AND battle=0" );
+		while( s.next() ) {
+			Ships.dock(Ships.DockMode.START, user.getID(), s.getInt("id"), null);
+		}
+		s.free();
+		
+		t.set_var(	"fleetmgnt.message",	"Alle J&auml;ger sind gestartet",
+					"jscript.reloadmain",	1 );
+
+		redirect();
+	}
+	
+	/**
+	 * Sammelt alle nicht gelandeten eigenen Jaeger im Sektor auf (sofern genug Platz vorhanden ist)
+	 *
+	 */
+	public void jlandAction() {	
+		TemplateEngine t = getTemplateEngine();
+		Database db = getDatabase();
+		User user = getUser();
+		
+		parameterNumber("jaegertype");
+		int jaegertypeID = getInteger("jaegertype");
+		
+		SQLQuery ship = db.query("SELECT * FROM ships WHERE id>0 AND fleet='",this.fleet.getInt("id"),"' AND battle=0" );
+		while( ship.next() ) {
+			SQLResultRow shiptype = Ships.getShipType(ship.getRow());
+			
+			if( shiptype.getInt("jdocks") == 0 ) {
+				continue;
+			}
+			int free = shiptype.getInt("jdocks");
+			free -= db.first("SELECT count(*) count FROM ships WHERE id>0 AND docked='l ",ship.getInt("id"),"'").getInt("count");
+
+			List<Integer >jaegerlist = new ArrayList<Integer>();
+			
+			SQLQuery jaeger = db.query("SELECT t1.* FROM ships t1 JOIN ship_types t2 WHERE ",(jaegertypeID > 0 ? "t1.type="+jaegertypeID+" AND " : ""),"t1.owner='",user.getID(),"' AND t1.system='",ship.getInt("system"),"' AND t1.x='",ship.getInt("x"),"' AND t1.y='",ship.getInt("y"),"' AND t1.docked='' AND t1.type=t2.id AND (LOCATE('tblmodules',t1.status) OR LOCATE('",Ships.SF_JAEGER,"',t2.flags)) ORDER BY fleet,type");
+			while( jaeger.next() ) {
+				SQLResultRow jaegertype = Ships.getShipType(jaeger.getRow());
+				if( Ships.hasShipTypeFlag(jaegertype, Ships.SF_JAEGER) ) {
+					jaegerlist.add(jaeger.getInt("id"));
+					free--;
+				}
+			}
+			jaeger.free();
+			
+			int[] list = new int[jaegerlist.size()];
+			for( int i=0; i < jaegerlist.size(); i++ ) {
+				list[i] = jaegerlist.get(i);
+			}
+			
+			Ships.dock(Ships.DockMode.LAND, user.getID(), ship.getInt("id"), list);
+		}
+		ship.free();
+
+		t.set_var(	"fleetmgnt.message",	"J&auml;ger wurden aufgesammelt",
+					"jscript.reloadmain",	1 );
+
+		redirect();
+	}
+	
+	/**
+	 * Fuegt die Schiffe einer anderen Flotte der aktiven Flotte hinzu
+	 * @urlparam Integer fleetcombine Die ID der Flotte, deren Schiffe zur aktiven Flotte hinzugefuegt werden sollen
+	 *
+	 */
+	public void fleetcombineAction() {
+		TemplateEngine t = getTemplateEngine();
+		Database db = getDatabase();
+		User user = getUser();
+		
+		parameterNumber("fleetcombine");
+		int fleetID = getInteger("fleetcombine");
+		
+		SQLResultRow aowner = db.first("SELECT owner FROM ships WHERE id>0 AND fleet='",fleetID,"'");
+		if( aowner.isEmpty() || (aowner.getInt("owner") != user.getID()) ) {
+			addError("Die angegebene Flotte geh&ouml;rt nicht ihnen!");
+			this.redirect();
+			return;
+		}
+		
+		SQLResultRow fleetname = db.first("SELECT name FROM ship_fleets WHERE id='",fleetID,"'");
+		
+		db.update("UPDATE ships SET fleet='",fleet.getInt("id"),"' WHERE id>0 AND fleet='",fleetID,"'");
+		int count = db.first("SELECT count(*) count FROM ships WHERE fleet='",fleetID,"'").getInt("count");
+		if( count == 0 ) {
+			db.update("DELETE FROM ship_fleets WHERE id='",fleetID,"'");
+		}
+		
+		t.set_var(	"fleetmgnt.message",	"Alle Schiffe der Flotte '"+Common._plaintitle(fleetname.getString("name"))+"' sind beigetreten",
+					"jscript.reloadmain",	1 );
+							
+		this.redirect();
+	}
+	
 	@Override
 	public void defaultAction() {
 		Database db = getDatabase();
