@@ -528,7 +528,7 @@ public class Ships implements Loggable {
 				}
 				moduleobjlist.add(moduleobj);
 			
-				moduleSlotData.set(i, module.slot+":"+module.moduleType+":"+module.data);
+				moduleSlotData.add(i, module.slot+":"+module.moduleType+":"+module.data);
 			}
 		}
 		
@@ -1318,10 +1318,248 @@ public class Ships implements Loggable {
 	 * @param owner der Besitzer (der Schiffe oder ein Spieler mit superdock-flag)
 	 * @param shipID das Ausgangs/Zielschiff
 	 * @param dockids ein Array mit Schiffsids, welche (ab)docken oder landen/starten sollen. <code>null</code>, falls alle Schiffe abgedockt/gestartet werden sollen
+	 * @return <code>true</code>, falls ein Fehler aufgetreten ist
 	 */
 	public static boolean dock(DockMode mode, int owner, int shipID, int[] dockids) {
-		// TODO
-		Common.stub();
+		StringBuilder outputbuffer = MESSAGE.get();
+		
+		Context context = ContextMap.getContext();
+		Database db = context.getDatabase();
+	
+		// Existiert das Schiff?
+		SQLResultRow ship = db.first("SELECT * FROM ships WHERE id>0 AND owner='",owner,"' AND id=",shipID);
+		if( ship.isEmpty() ) {
+			outputbuffer.append("<span style=\"color:red\">Fehler: Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen</span>\n");
+			return true;
+		}
+	
+		SQLResultRow shiptype = getShipType(ship);
+	
+		//Alle bereits angedockten Schiffe laden
+		List<Integer> docked = new ArrayList<Integer>();
+		if( (mode == DockMode.UNDOCK || mode == DockMode.DOCK) && (shiptype.getInt("adocks") > 0) ) {
+			SQLQuery line = db.query("SELECT id FROM ships WHERE id>0 AND docked='",ship.getInt("id"),"'");
+			while( line.next() ){
+				docked.add(line.getInt("id"));
+			}
+			line.free();
+		}
+		
+		List<Integer> jdocked = new ArrayList<Integer>();
+		if( (mode == DockMode.LAND || mode == DockMode.START) && (shiptype.getInt("jdocks") > 0) ) {
+			SQLQuery line = db.query("SELECT id FROM ships WHERE id>0 AND docked='l ",ship.getInt("id"),"'");
+			while( line.next() ){
+				jdocked.add(line.getInt("id"));
+			}
+			line.free();
+		}
+	
+	
+		boolean superdock = false;
+		if( mode == DockMode.DOCK ) {
+			superdock = context.createUserObject(owner).hasFlag(User.FLAG_SUPER_DOCK);
+		}
+	
+		List<Integer> targetships = null;
+		
+		if( (dockids != null) && (dockids.length > 0) ) {
+			targetships = new ArrayList<Integer>();
+			for( int i=0; i < dockids.length; i++ ) {
+				targetships.add(dockids[i]);
+			}
+		} 
+		else {
+			if( mode == DockMode.LAND || mode == DockMode.START ) { 
+				targetships = jdocked;
+			} else {
+				targetships = docked;
+			}
+		}
+		
+		if(targetships.size() == 0 ) {
+			outputbuffer.append("<span style=\"color:red\">Fehler: Es wurden keine passenden Schiffe gefunden</span><br />\n");
+			return false;
+		}
+	
+		List<SQLResultRow> tarShipList = new ArrayList<SQLResultRow>();
+		
+		SQLQuery tarShip = null;
+		if( mode != DockMode.START ) {
+			tarShip = db.query("SELECT * FROM ships WHERE id>0 AND id IN (",Common.implode(",", targetships),")");
+		} else {
+			tarShip = db.query("SELECT id,name FROM ships WHERE id>0 AND id IN (",Common.implode(",", targetships),")");
+		}
+		
+		Location shipLoc = Location.fromResult(ship);
+		
+		while( tarShip.next() ) {
+			SQLResultRow tarShipRow = tarShip.getRow();
+			tarShipList.add(tarShip.getRow());
+		
+			if( (mode == DockMode.DOCK) || (mode == DockMode.LAND) ) {
+				if( !shipLoc.sameSector(0, Location.fromResult(tarShipRow), 0) ) {
+					outputbuffer.append("<span style=\"color:red\">Fehler: Die Schiffe befinden sich nicht im selben Sektor</span><br />\n");
+					return true;
+				}
+				
+				if( (tarShip.getString("lock") != null) && tarShip.getString("lock").length() > 0 ) {
+					outputbuffer.append("<span style=\"color:red\">Fehler: Das Schiff ist an ein Quest gebunden</span><br />\n");
+					return true;
+				}
+		
+				if( (mode == DockMode.DOCK) && !superdock && (tarShip.getInt("owner") != owner) ) {
+					outputbuffer.append("<span style=\"color:red\">Fehler: Eines der aufzuladendenden Schiffe geh&ouml;rt nicht ihnen</span><br />\n");
+					return true;
+				}
+				
+				if( (mode == DockMode.LAND) && (tarShip.getInt("owner") != owner) ) {
+					outputbuffer.append("<span style=\"color:red\">Fehler: Eines der zu landenden Schiffe geh&ouml;rt nicht ihnen</span><br />\n");
+					return true;
+				}
+					
+				SQLResultRow tarShipType = getShipType(tarShipRow);
+		
+				if( (mode == DockMode.DOCK) && !superdock && (tarShipType.getInt("size") > 2 ) ) {
+					outputbuffer.append("<span style=\"color:red\">Fehler: Eines der aufzuladendenden Schiffe ist zu gro&szlig;</span><br />\n");
+					return true;
+				}
+				
+				if( (mode == DockMode.LAND) && !hasShipTypeFlag(tarShipType, SF_JAEGER) ) {
+					outputbuffer.append("<span style=\"color:red\">Fehler: Eines der zu landenden Schiffe ist kein J&auml;ger</span><br />\n");
+					return true;
+				}
+			}
+		}
+		tarShip.free();
+	
+		if( (mode == DockMode.DOCK) && (shiptype.getInt("adocks") < docked.size()+tarShipList.size())  ) {
+			outputbuffer.append("<span style=\"color:red\">Fehler: Nicht gen&uuml;gend freier Andockplatz vorhanden</span><br />\n");
+			return true;
+		}
+		else if( (mode == DockMode.LAND) && (shiptype.getInt("jdocks") < jdocked.size()+tarShipList.size())  ) {
+			outputbuffer.append("<span style=\"color:red\">Fehler: Nicht gen&uuml;gend freier Landepl&auml;tze vorhanden</span><br />\n");
+			return true;
+		}
+		
+		//Namensliste bauen
+		StringBuilder tarNameList = new StringBuilder(tarShipList.size()*10);
+		for( int i=0; i < tarShipList.size(); i++ ) {
+			if( tarNameList.length() > 0 ) {
+				tarNameList.append(" ");
+			}
+			tarNameList.append("<a class=\"forschinfo\" style=\"font-size:12pt\" href=\"./main.php?module=schiff&sess="+context.getSession()+"&ship="+tarShipList.get(i).getInt("id")+"\">"+tarShipList.get(i).getString("name")+"</a> ("+tarShipList.get(i).getInt("id")+"),");
+		}
+		tarNameList.setLength(tarNameList.length()-1);
+	
+		//Schiff aufladen
+		if( mode == DockMode.DOCK ) {
+			db.tBegin();
+			outputbuffer.append(ship.getString("name")+" ("+ship.getInt("id")+") l&auml;dt $tarNameList auf<br />\n");
+			db.update("UPDATE ships SET docked='",ship.getInt("id"),"' WHERE id>0 AND id IN ('",Common.implode("','",targetships),"')");
+			
+			Cargo cargo = new Cargo( Cargo.Type.STRING, ship.getString("cargo"));
+			
+			final String emptycargo = new Cargo().save();
+	
+			boolean gotmodule = false;
+	
+			for( int i=0; i < tarShipList.size(); i++ ) {
+				SQLResultRow aship = tarShipList.get(i);
+				SQLResultRow type = getShipType( aship );
+				
+				if( type.getInt("class") != ShipClasses.CONTAINER.ordinal() ) {
+					continue;
+				}
+				gotmodule = true;
+				
+				Cargo dockcargo =  new Cargo( Cargo.Type.STRING, db.first("SELECT cargo FROM ships WHERE id>0 AND id=",aship.getInt("id")).getString("cargo"));
+				cargo.addCargo( dockcargo );
+				
+				if( !dockcargo.isEmpty() ) {
+					db.tUpdate(1,"UPDATE ships SET cargo='",emptycargo,"' WHERE id>0 AND id=",aship.getInt("id")," AND cargo='",dockcargo.save(true),"'");
+				}
+				
+				addModule( aship, 0, Modules.MODULE_CONTAINER_SHIP, aship.getInt("id")+"_"+(-type.getLong("cargo")) );
+				addModule( ship, 0, Modules.MODULE_CONTAINER_SHIP, aship.getInt("id")+"_"+type.getLong("cargo") );
+			}
+			
+			if( gotmodule && !cargo.save(true).equals(cargo.save()) ) {
+				db.tUpdate(1,"UPDATE ships SET cargo='",cargo.save(),"' WHERE id>0 AND id='",ship.getInt("id"),"' AND cargo='",cargo.save(true),"'");
+			}
+			if( !db.tCommit() ) {
+				outputbuffer.append("<span style=\"color:red\">Dockvorgang wegen Fehlfunktion der Dockklammern abgebrochen.<br />Bitte versuchen sie es erneut</span>");
+				return true;
+			}
+		}
+		//Schiff abladen
+		else if( mode == DockMode.UNDOCK ) {
+			db.tBegin();
+			outputbuffer.append(ship.getString("name")+" ("+ship.getInt("id")+") l&auml;dt $tarNameList ab<br />\n");
+			db.update("UPDATE ships SET docked='' WHERE id>0 AND id IN ('",Common.implode("','", targetships),"')");
+			
+			boolean gotmodule = false;
+			
+			for( int i=0; i < tarShipList.size(); i++ ) {
+				SQLResultRow aship = tarShipList.get(i);
+				SQLResultRow type = getShipType( aship );
+
+				if( type.getInt("class") != ShipClasses.CONTAINER.ordinal() ) {
+					continue;
+				}
+				gotmodule = true;
+				
+				removeModule( aship, 0, Modules.MODULE_CONTAINER_SHIP, Integer.toString(aship.getInt("id")) );		
+				removeModule( ship, 0, Modules.MODULE_CONTAINER_SHIP, Integer.toString(aship.getInt("id")) );
+			}
+			
+			if( gotmodule ) {
+				Cargo cargo = new Cargo(Cargo.Type.STRING, ship.getString("cargo"));
+				Cargo oldcargo = (Cargo)cargo.clone();
+			
+				Cargo newcargo = cargo;
+				if( cargo.getMass() > shiptype.getLong("cargo") ) {
+					newcargo = cargo.cutCargo( shiptype.getLong("cargo") );	
+				}
+				else {
+					cargo = new Cargo();	
+				}
+				final String emptycargo = new Cargo().save();
+			
+				for( int i=0; i < tarShipList.size() && cargo.getMass() > 0; i++ ) {
+					SQLResultRow aship = tarShipList.get(i);
+					SQLResultRow ashiptype = getShipType( aship );
+											
+					if( (ashiptype.getInt("class") == ShipClasses.CONTAINER.ordinal()) && (cargo.getMass() > 0) ) {
+						Cargo acargo = cargo.cutCargo( ashiptype.getLong("cargo") );
+						if( !acargo.isEmpty() ) {
+							db.tUpdate(1,"UPDATE ships SET cargo='",acargo.save(),"' WHERE id>0 AND id=",aship.getInt("id")," AND cargo='",emptycargo,"'");
+						}	
+					}
+				}
+				
+				if( !oldcargo.save().equals(newcargo.save()) ) {
+					db.tUpdate(1,"UPDATE ships SET cargo='",newcargo.save(),"' WHERE id>0 AND id=",ship.getInt("id")," AND cargo='",oldcargo.save(),"'");
+				}
+			}
+			if( !db.tCommit() ) {
+				outputbuffer.append("<span style=\"color:red\">Abdockvorgang wegen Fehlfunktion der Dockklammern abgebrochen.<br />Bitte versuchen sie es erneut</span>");
+				return true;
+			}
+		}
+		//Schiff landen
+		else if( mode == DockMode.LAND ) {
+			outputbuffer.append(tarNameList+" lande"+(tarShipList.size()>1?"n":"t")+" auf "+ship.getString("name")+" ("+ship.getInt("id")+")<br />\n");
+			db.update("UPDATE ships SET docked='l ",ship.getInt("id"),"' WHERE id>0 AND id IN (",Common.implode(",",targetships),")");
+		}
+		
+		//Schiff abladen
+		else if( mode == DockMode.START ) {
+			outputbuffer.append(tarNameList+" starte"+(tarShipList.size()>1?"n":"t")+" von "+ship.getString("name")+" ("+ship.getInt("id")+")<br />\n");
+			db.update("UPDATE ships SET docked='' WHERE id>0 AND id IN ("+Common.implode(",", targetships)+")");
+		}
+	
+		recalculateShipStatus(shipID);
+	
 		return false;
 	}
 	
@@ -1621,10 +1859,22 @@ public class Ships implements Loggable {
 		return text.toString();
 	}
 	
+	/**
+	 * Gibt den Positionstext fuer die Position zurueck, an der sich das angegebene Schiff gerade befindet.
+	 * Beruecksichtigt werden Nebeleffekten.
+	 * Dadurch kann der Positionstext teilweise unleserlich werden (gewuenschter Effekt) 
+	 * @param ship Das Schiff
+	 * @param noSystem Soll die System-ID angezeigt werden?
+	 * @return Der Positionstext
+	 */
 	public static String getLocationText(SQLResultRow ship, boolean noSystem) {
 		return getLocationText(ship.getInt("system"), ship.getInt("x"), ship.getInt("y"), noSystem);
 	}
 
+	/**
+	 * Cachet den angegebenen Nebel
+	 * @param nebel Der zu cachende Nebel
+	 */
 	public static void cacheNebula( SQLResultRow nebel ) {	
 		Ships.nebel.put(new Location(nebel.getInt("system"), nebel.getInt("x"), nebel.getInt("y")), nebel.getInt("type"));
 	}
@@ -1693,6 +1943,11 @@ public class Ships implements Loggable {
 		}
 	}
 	
+	/**
+	 * Liesst ein Aenderungsset fuer Schiffstypen aus einem XML-Knoten aus
+	 * @param node Der XML-Knoten
+	 * @return Die Schiffstypen-Aenderungen
+	 */
 	public static SQLResultRow getTypeChangeSetFromXML(Node node) {
 		final String NAMESPACE = "http://www.drifting-souls.net/ds2/shipdata/2006";
 
