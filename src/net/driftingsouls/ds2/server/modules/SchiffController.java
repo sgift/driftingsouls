@@ -134,7 +134,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		}
 
 
-		shiptype = Ships.getShipType(ship, true);
+		shiptype = Ships.getShipType(ship);
 
 		offizier = Offizier.getOffizierByDest('s', ship.getInt("id"));
 		
@@ -978,7 +978,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		Database db = getDatabase();
 		
 		ship = db.first("SELECT * FROM ships WHERE id>0 AND owner='",user.getID(),"' AND id=",ship.getInt("id"));
-		shiptype = Ships.getShipType(ship, true);
+		shiptype = Ships.getShipType(ship);
 		
 		ScriptParser scriptparser = getContext().get(ContextCommon.class).getScriptParser( ScriptParser.NameSpace.QUEST );
 		if( ship.isEmpty() ) {

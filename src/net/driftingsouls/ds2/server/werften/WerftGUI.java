@@ -577,7 +577,7 @@ public class WerftGUI {
 		
 		SQLResultRow ship = db.first("SELECT * FROM ships WHERE id>0 AND id=",repair);
 		
-		SQLResultRow shiptype = Ships.getShipType( ship, true );
+		SQLResultRow shiptype = Ships.getShipType( ship );
 
 		t.set_block("_WERFT.WERFTGUI", "ws.repair.res.listitem", "ws.repair.res.list");
 

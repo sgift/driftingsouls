@@ -349,7 +349,7 @@ public class SensorsDefault implements SchiffPlugin {
 			}
 			
 			while( datas.next() ) {
-				SQLResultRow ashiptype = Ships.getShipType( datas.getRow(), false );
+				SQLResultRow ashiptype = Ships.getShipType( datas.getRow() );
 				SQLResultRow mastertype = Ships.getShipType( datas.getInt("type"), false );
 
 				// Schiff nur als/in Gruppe anzeigen
@@ -643,7 +643,7 @@ public class SensorsDefault implements SchiffPlugin {
 									if( jaegerfleet == -1) {
 										SQLQuery tmp = db.query("SELECT id,type,status FROM ships WHERE id>0 AND fleet='"+data.getInt("fleet")+"'");
 										while( tmp.next() ) {
-											SQLResultRow tmptype = Ships.getShipType( tmp.getRow(), true );
+											SQLResultRow tmptype = Ships.getShipType( tmp.getRow() );
 											if( !Ships.hasShipTypeFlag(tmptype, Ships.SF_JAEGER) ) {
 												ok = false;
 												break;

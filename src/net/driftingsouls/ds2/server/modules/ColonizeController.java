@@ -78,7 +78,7 @@ public class ColonizeController extends DSGenerator {
 			return false;
 		}
 		
-		SQLResultRow shiptype = Ships.getShipType( ship, true );
+		SQLResultRow shiptype = Ships.getShipType( ship );
 		if( !Ships.hasShipTypeFlag(shiptype, Ships.SF_COLONIZER) ) {
 			addError("Fehler: Das angegebene Schiff kann keine Planeten kolonisieren", Common.buildUrl(getContext(), "default", "module" , "schiff", "ship", shipId) );
 			
