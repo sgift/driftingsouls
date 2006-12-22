@@ -284,7 +284,7 @@ public class Ships implements Loggable {
 	public static SQLResultRow getShipType( SQLResultRow shipdata, boolean plaindata ) {
 		int shiptype = shipdata.getInt("type");
 		if( shipdata.getString("status").indexOf("tblmodules") != -1 ) {
-			shipdata = pqGetModuleRow.pfirst(shiptype);
+			shipdata = pqGetModuleRow.pfirst(shipdata.getInt("id"));
 		}
 		else {
 			shipdata = null;
@@ -299,14 +299,15 @@ public class Ships implements Loggable {
 		if( isShip ) {
 			// TODO: Cache!
 			SQLResultRow shipdata = pqGetShipInfos.pfirst(shiptype);
-			shiptype = shipdata.getInt("type");
 			
 			if( shipdata.getString("status").indexOf("tblmodules") != -1 ) {
-				shipdata = pqGetModuleRow.first(shiptype);
+				shipdata = pqGetModuleRow.pfirst(shiptype);
 			}
 			else {
 				shipdata = null;
 			}
+			
+			shiptype = shipdata.getInt("type");
 			
 			return getShipType(shiptype, shipdata, plaindata);
 		}
@@ -315,7 +316,7 @@ public class Ships implements Loggable {
 	
 	private static PreparedQuery pqGetShipType = db.prepare("SELECT *,LOCATE('=',weapons) as military FROM ship_types WHERE id= ? ");
 	
-	private static SQLResultRow getShipType( int shiptype, SQLResultRow shipdata, boolean plaindata ) {
+	private static SQLResultRow getShipType( int shiptype, SQLResultRow shipdata, boolean plaindata ) {System.out.println(shipdata);
 		synchronized (shiptypes) {
 			if( !shiptypes.containsKey(shiptype) ) {
 				shiptypes.put(shiptype, pqGetShipType.pfirst(shiptype));
@@ -528,7 +529,7 @@ public class Ships implements Loggable {
 				}
 				moduleobjlist.add(moduleobj);
 			
-				moduleSlotData.add(i, module.slot+":"+module.moduleType+":"+module.data);
+				moduleSlotData.add(module.slot+":"+module.moduleType+":"+module.data);
 			}
 		}
 		
@@ -570,9 +571,109 @@ public class Ships implements Loggable {
 				" WHERE id='",ship.getInt("id"),"' AND modules='",oldModuleTbl,"'");					
 	}
 	
+	/**
+	 * Entfernt ein Modul aus einem Schiff
+	 * @param ship Das Schiff
+	 * @param slot Der Slot, aus dem das Modul entfernt werden soll
+	 * @param moduleid Die Typen-ID des Modultyps
+	 * @param data Weitere Daten, welche das Modul identifizieren
+	 */
 	public static void removeModule( SQLResultRow ship, int slot, int moduleid, String data ) {	
-		// TODO
-		Common.stub();
+		Database db = ContextMap.getContext().getDatabase();
+		
+		if( ship.getString("status").indexOf("tblmodules") == -1 ) {
+			return;
+		}
+		String oldModuleTbl = db.first("SELECT modules FROM ships_modules WHERE id='",ship.getInt("id"),"'").getString("modules");
+		List<ModuleEntry> moduletbl = new ArrayList<ModuleEntry>();
+		moduletbl.addAll(Arrays.asList(getModules(ship)));
+		
+		//check modules
+		
+		//rebuild	
+		SQLResultRow type = getShipType( ship.getInt("type"), false, true );
+		SQLResultRow basetype = new SQLResultRow();
+		basetype.putAll(type);
+		
+		Map<Integer,String[]>slotlist = new HashMap<Integer,String[]>();
+		String[] tmpslotlist = StringUtils.split(type.getString("modules"), ';');
+		for( int i=0; i < tmpslotlist.length; i++ ) {
+			String[] aslot = StringUtils.split(tmpslotlist[i], ':');
+			slotlist.put(Integer.parseInt(aslot[0]), aslot);
+		}
+		
+		List<Module> moduleobjlist = new ArrayList<Module>();
+		List<String> moduleSlotData = new ArrayList<String>(); 
+		
+		for( int i=0; i < moduletbl.size(); i++ ) {
+			ModuleEntry module = moduletbl.get(i);
+			if( module.moduleType != 0 ) {
+				Module moduleobj = Modules.getShipModule( module );
+				
+				if( moduleobj.isSame(slot, moduleid, data) ) {
+					continue;
+				}
+				
+				if( module.slot > 0 ) {
+					moduleobj.setSlotData(slotlist.get(module.slot)[2]);
+				}
+				moduleobjlist.add(moduleobj);
+			
+				moduleSlotData.add(module.slot+":"+module.moduleType+":"+module.data);
+			}
+		}
+
+		for( int i=0; i < moduleobjlist.size(); i++ ) {
+			type = moduleobjlist.get(i).modifyStats( type, basetype, moduleobjlist );		
+		}
+		
+		if( moduleSlotData.size() > 0 ) {
+			String modulelist = Common.implode(";",moduleSlotData);
+			
+			db.tUpdate(1,"UPDATE ships_modules ",
+					"SET modules='",modulelist,"'," ,
+					"nickname='",type.getString("nickname"),"'," ,
+					"picture='",type.getString("picture"),"',",
+					"ru='",type.getInt("ru"),"'," ,
+					"rd='",type.getInt("rd"),"'," ,
+					"ra='",type.getInt("ra"),"'," ,
+					"rm='",type.getInt("rm"),"'," ,
+					"eps='",type.getInt("eps"),"'," ,
+					"cost='",type.getInt("cost"),"'," ,
+					"hull='",type.getInt("hull"),"'," ,
+					"panzerung='",type.getInt("panzerung"),"'," ,
+					"cargo='",type.getLong("cargo"),"'," ,
+					"heat='",type.getInt("heat"),"'," ,
+					"crew='",type.getInt("crew"),"'," ,
+					"weapons='",type.getString("weapons"),"'," ,
+					"maxheat='",type.getString("maxheat"),"'," ,
+					"torpedodef='",type.getInt("torpedodef"),"'," ,
+					"shields='",type.getInt("shields"),"'," ,
+					"size='",type.getInt("size"),"'," ,
+					"jdocks='",type.getInt("jdocks"),"'," ,
+					"adocks='",type.getInt("adocks"),"'," ,
+					"sensorrange='",type.getInt("sensorrange"),"'," ,
+					"hydro='",type.getInt("hydro"),"'," ,
+					"deutfactor='",type.getInt("deutfactor"),"'," ,
+					"recost='",type.getInt("recost"),"',",
+					"flags='",type.getString("flags"),"'," ,
+					"werft='",type.getString("werft"),"'," ,
+					"ow_werft='",type.getInt("ow_werft"),"'" ,
+					" WHERE id='",ship.getInt("id"),"' AND modules='",oldModuleTbl,"'");	
+		}
+		else {
+			db.update("DELETE FROM ships_modules WHERE id=",ship.getInt("id"));
+			String[] status = StringUtils.split(ship.getString("status"), ' ');
+			String[] newstatus = new String[status.length-1];
+			
+			for( int i=0,j=0; i < status.length; i++ ) {
+				if( !status[i].equals("tblmodules") ) {
+					newstatus[j++] = status[i];	
+				}	
+			}
+	
+			db.update("UPDATE ships SET status='",Common.implode(" ",newstatus),"' WHERE id>0 AND id=",ship.getInt("id"));
+		}
 	}
 	
 	public static void recalculateModules( SQLResultRow ship ) {
@@ -999,7 +1100,7 @@ public class Ships implements Loggable {
 	
 		User user = ContextMap.getContext().createUserObject(ship.getInt("owner"));
 				
-		SQLResultRow shiptype = getShipType(ship, true);
+		SQLResultRow shiptype = getShipType(ship);
 		Offizier offizier = Offizier.getOffizierByDest('s',ship.getInt("id"));
 		
 		//Das Schiff soll sich offenbar bewegen
@@ -1454,7 +1555,7 @@ public class Ships implements Loggable {
 		//Schiff aufladen
 		if( mode == DockMode.DOCK ) {
 			db.tBegin();
-			outputbuffer.append(ship.getString("name")+" ("+ship.getInt("id")+") l&auml;dt $tarNameList auf<br />\n");
+			outputbuffer.append(ship.getString("name")+" ("+ship.getInt("id")+") l&auml;dt "+tarNameList+" auf<br />\n");
 			db.update("UPDATE ships SET docked='",ship.getInt("id"),"' WHERE id>0 AND id IN ('",Common.implode("','",targetships),"')");
 			
 			Cargo cargo = new Cargo( Cargo.Type.STRING, ship.getString("cargo"));
@@ -1494,7 +1595,7 @@ public class Ships implements Loggable {
 		//Schiff abladen
 		else if( mode == DockMode.UNDOCK ) {
 			db.tBegin();
-			outputbuffer.append(ship.getString("name")+" ("+ship.getInt("id")+") l&auml;dt $tarNameList ab<br />\n");
+			outputbuffer.append(ship.getString("name")+" ("+ship.getInt("id")+") l&auml;dt "+tarNameList+" ab<br />\n");
 			db.update("UPDATE ships SET docked='' WHERE id>0 AND id IN ('",Common.implode("','", targetships),"')");
 			
 			boolean gotmodule = false;
