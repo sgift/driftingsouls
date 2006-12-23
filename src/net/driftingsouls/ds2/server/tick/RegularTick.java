@@ -69,9 +69,10 @@ public class RegularTick extends AbstractTickExecuter {
 			publishStatus("berechne Sonstiges");
 			execTick(RestTick.class, false);
 		}
-		catch( Exception e ) {
+		catch( Throwable e ) {
 			System.err.println("Fehler beim Ausfuehren der Ticks: "+e);
 			e.printStackTrace();
+			Common.mailThrowable(e, "RegularTick Exception", null);
 		}
 	}
 
