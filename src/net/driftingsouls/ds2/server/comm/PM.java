@@ -44,16 +44,42 @@ public class PM {
 	
 	public static final int TASK = Integer.MIN_VALUE;
 
+	/**
+	 * Sendet eine PM von einem Spieler zu einem anderen
+	 * @param context Der Kontext
+	 * @param from Die ID des versendenden Spielers
+	 * @param to Die ID des Spielers, der die PM erhalten soll
+	 * @param title Der Titel der PM
+	 * @param txt Der Text
+	 */
 	public static void send( Context context, int from, int to, String title, String txt ) {
 		send( context, from, to, title, txt, false, 0);
 	}
 	
+	/**
+	 * Sendet eine PM von einem Spieler zu einem anderen Spieler oder einer Allianz
+	 * @param context Der Kontext
+	 * @param from Die ID des versendenden Spielers
+	 * @param to Die ID des Spielers/der Allianz, welche die PM erhalten soll
+	 * @param title Der Titel der PM
+	 * @param txt Der Text
+	 * @param toAlly <code>true</code>, falls es sich um eine Allianz handelt
+	 */
 	public static void send( Context context, int from, int to, String title, String txt, boolean toAlly ) {
 		send( context, from, to, title, txt, toAlly, 0);
 	}
 	
+	/**
+	 * Sendet eine PM von einem Spieler zu einem anderen Spieler oder einer Allianz
+	 * @param context Der Kontext
+	 * @param from Die ID des versendenden Spielers
+	 * @param to Die ID des Spielers/der Allianz, welche die PM erhalten soll
+	 * @param title Der Titel der PM
+	 * @param txt Der Text
+	 * @param toAlly <code>true</code>, falls es sich um eine Allianz handelt
+	 * @param flags Flags, welche die PM erhalten soll
+	 */
 	public static void send( Context context, int from, int to, String title, String txt, boolean toAlly, int flags ) {
-		BBCodeParser parser = BBCodeParser.getInstance();
 		Database db = context.getDatabase();
 
 		if( !toAlly ) {
@@ -112,6 +138,14 @@ public class PM {
 		}
 	}
 	
+	/**
+	 * Sendet eine PM an alle Admins (spezifiziert durch den Konfigurationseintrag <code>ADMIN_PMS_ACCOUT</code>)
+	 * @param context Der Kontext
+	 * @param from Der versendende Spieler
+	 * @param title Der Titel der PM
+	 * @param txt Der Text
+	 * @param flags Flags, welche die PM erhalten soll
+	 */
 	public static void sendToAdmins( Context context, int from, String title, String txt, int flags  ) {
 		String[] adminlist = Configuration.getSetting("ADMIN_PMS_ACCOUNT").split(",");
 		for( String admin : adminlist ) {
@@ -119,6 +153,13 @@ public class PM {
 		}
 	}
 
+	/**
+	 * Loescht alle PMs aus einem Ordner eines bestimmten Spielers.
+	 * Der Vorgang schlaegt fehl, wenn noch nicht alle wichtigen PMs gelesen wurden
+	 * @param ordner_id Der Ordner, dessen Inhalt geloescht werden soll
+	 * @param user_id Die ID des Besitzers des Ordners
+	 * @return 0, falls der Vorgang erfolgreich war. 1, wenn ein Fehler aufgetreten ist und 2, falls nicht alle PMs gelesen wurden
+	 */
 	public static int deleteAllInOrdner( int ordner_id, int user_id ){
 		Database db = ContextMap.getContext().getDatabase();
 		int trash = Ordner.getTrash( user_id ).getID();
