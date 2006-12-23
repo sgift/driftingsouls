@@ -45,6 +45,7 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
@@ -82,6 +83,12 @@ public class Common implements Loggable {
 		if( !stubWarnList.contains(elements[1]) ) {
 			stubWarnList.add(elements[1]);
 			LOG.warn("STUB: "+elements[1].toString());
+		}
+		
+		Context context = ContextMap.getContext();
+		if( context != null ) {
+			PM.sendToAdmins(context, (context.getActiveUser() != null ? context.getActiveUser().getID() : -1), "[AUTO] STUB", elements[1].toString(), 0);
+			PM.send(context, -1, (context.getActiveUser() != null ? context.getActiveUser().getID() : -1), "[AUTO] STUB", elements[1].toString());
 		}
 	}
 	
@@ -988,6 +995,37 @@ public class Common implements Loggable {
 		catch( Exception e ) {
 			LOG.error(e,e);
 		}
+	}
+	
+	/**
+	 * Sendet, falls eine Mailadresse angegeben ist, eine Exception als Text an die in der Konfiguration unter
+	 * EXCEPTION_MAIL angegebene Email-Adresse
+	 * @param t Das Throwable mit den Infos zur Exception
+	 * @param addInfo weitere Informationen, welche in der Email angezeigt werden sollen
+	 * @param title der Titel der Mail
+	 */
+	public static void mailThrowable(Throwable t, String title, String addInfo) {
+		if( Configuration.getSetting("EXCEPTION_MAIL") == null ) {
+			return;
+		}
+		
+		StringBuilder msg = new StringBuilder(100);
+		if( (addInfo != null) && (addInfo.length() > 0) ) {
+			msg.append(addInfo);
+			msg.append("\n\n------------------------------\n\n");
+		}
+		do {
+			msg.append("\nThrowable: \n");
+			msg.append(t+"\n");
+			StackTraceElement[] st = t.getStackTrace();
+			for( int i=0; i < st.length; i++ ) {
+				msg.append(st[i].toString()+"\n");
+			}
+			msg.append("\n");
+		}
+		while( (t = t.getCause()) != null );
+		
+		Common.mail(Configuration.getSetting("EXCEPTION_MAIL"), "[DS2J] "+(title != null && title.length() > 0 ? title : "Exception"), msg.toString());
 	}
 
 	/**
