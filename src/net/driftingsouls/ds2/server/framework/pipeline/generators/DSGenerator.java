@@ -518,7 +518,7 @@ public abstract class DSGenerator extends Generator {
 				method.invoke(this);
 			}
 			catch( InvocationTargetException e ) {
-				Throwable t = e.getTargetException();
+				Throwable t = e.getCause();
 				t.printStackTrace();
 				StackTraceElement[] st = t.getStackTrace();
 				String stacktrace = "";
@@ -527,12 +527,15 @@ public abstract class DSGenerator extends Generator {
 				}
 					
 				addError("Es ist ein Fehler in der Action '"+action+"' aufgetreten:\n"+t.toString()+"\n\n"+stacktrace);
+				
+				Common.mailThrowable(e, "DSGenerator Invocation Target Exception", "Action: "+action+"\nActionType: "+actionType+"\nUser: "+(getActiveUser() != null ? getActiveUser().getID() : "none"));
 			}
 			catch( NoSuchMethodException e ) {
 				addError("Die Aktion '"+action+"' existiert nicht!");
 			}
 			catch( Exception e ) {
 				addError("Es ist ein Fehler beim Aufruf der Action '"+action+"' aufgetreten:\n"+e.toString());
+				Common.mailThrowable(e, "DSGenerator Exception", "Action: "+action+"\nActionType: "+actionType+"\nUser: "+(getActiveUser() != null ? getActiveUser().getID() : "none"));
 			}
 		}
 		else {				

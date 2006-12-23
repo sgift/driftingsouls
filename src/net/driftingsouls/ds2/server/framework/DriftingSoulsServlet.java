@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.framework;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -467,6 +468,13 @@ public class DriftingSoulsServlet extends HttpServlet {
 			context.free();
 		}
 		catch( Throwable e ) {
+			StringBuilder msg = new StringBuilder(100);
+			msg.append("Time: "+new Date()+"\n");
+			msg.append("URI: "+httpRequest.getRequestURI()+"\n");
+			msg.append("QUERY_STRING: "+httpRequest.getQueryString()+"\n");
+			msg.append("Session: "+httpRequest.getParameter("sess")+"\n");
+			Common.mailThrowable(e, "Framework Exception", msg.toString());
+			
 			e.printStackTrace();
 			httpResponse.setContentType("text/html");
 			PrintWriter writer = httpResponse.getWriter();
