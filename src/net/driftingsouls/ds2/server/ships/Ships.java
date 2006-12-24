@@ -37,6 +37,7 @@ import net.driftingsouls.ds2.server.cargo.modules.Module;
 import net.driftingsouls.ds2.server.cargo.modules.Modules;
 import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.ItemEffect;
+import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.framework.CacheMap;
@@ -1384,10 +1385,220 @@ public class Ships implements Loggable {
 		return error;
 	}
 	
-	public static boolean jump(int shipID, int nodeID, boolean knode ) {
+	private static boolean fleetJump( SQLResultRow ship, int nodeId, boolean knode ) {
 		// TODO
 		Common.stub();
+		return false;
+	}
+	
+	/**
+	 * <p>Laesst ein Schiff durch einen Sprungpunkt springen.
+	 * Der Sprungpunkt kann entweder ein normaler Sprungpunkt
+	 * oder ein "Knossos"-Sprungpunkt (als ein mit einem Schiff verbundener
+	 * Sprungpunkt) sein.</p>
+	 * <p>Bei letzterem kann der Sprung scheitern, wenn keine Sprungberechtigung
+	 * vorliegt.</p>
+	 * 
+	 * @param shipID Die ID des Schiffes, welches fliegen soll
+	 * @param nodeID Die ID des Sprungpunkts/Des Schiffes mit dem Sprungpunkt
+	 * @param knode <code>true</code>, falls es sich um einen "Knossos"-Sprungpunkt handelt
+	 * @return <code>true</code>, falls ein Fehler aufgetreten ist
+	 */
+	public static boolean jump(int shipID, int nodeID, boolean knode ) {
+		Context context = ContextMap.getContext();
+		Database db = context.getDatabase();
 		
+		SQLResultRow ship = db.first("SELECT * FROM ships WHERE id>0 AND id=",shipID);
+		SQLResultRow shiptype = getShipType(ship);
+		StringBuilder outputbuffer = MESSAGE.get();
+
+		if( ship.getString("lock").length() > 0 ) {
+			outputbuffer.append("Fehler: Das Schiff ist an ein Quest gebunden<br />\n");
+			return true;
+		}
+			 
+		String nodetypename = "";
+		String nodetarget = "";
+		
+		User user = context.createUserObject(ship.getInt("owner"));
+		SQLResultRow datan = null;
+		
+		if( !knode ) {
+			nodetypename = "Der Sprungpunkt";
+			
+			datan = db.first("SELECT name,x,y,system,xout,yout,systemout,wpnblock,gcpcolonistblock FROM jumpnodes WHERE id=",nodeID);
+			if( datan.isEmpty() ) {
+				outputbuffer.append("Fehler: Der angegebene Sprungpunkt existiert nicht<br />\n");
+				return true;
+			}
+			
+			nodetarget = datan.getString("name")+" ("+datan.getInt("systemout")+")";
+			
+			if( (ship.getInt("owner") > 1) && datan.getBoolean("gcpcolonistblock") && Rassen.get().rasse(user.getRace()).isMemberIn( 0 ) && !user.hasFlag(User.FLAG_NO_JUMPNODE_BLOCK) ) {
+				outputbuffer.append("<span style=\"color:red\">Die GCP hat diesen Sprungpunkt f&uuml;r Kolonisten gesperrt</span><br />\n");
+				return true;
+			}
+	
+			if( datan.getBoolean("wpnblock") && !user.hasFlag(User.FLAG_MILITARY_JUMPS) ) {
+				//Schiff Ueberprfen
+				if( shiptype.getInt("military") > 0 ) {
+					outputbuffer.append("<span style=\"color:red\">Die GCP verwehrt ihrem Kriegsschiff den Einflug nach "+datan.getString("name")+"</span><br />\n");
+					return true;
+				}
+	
+				//Angedockte Schiffe ueberprfen
+				if( shiptype.getInt("adocks")>0 || shiptype.getInt("jdocks")>0 ) {
+					boolean wpnfound = false;
+					SQLQuery wpncheckhandle = db.query("SELECT t1.id,t1.type,t1.status FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id WHERE id>0 AND t1.docked IN ('l ",ship.getInt("id"),"','",ship.getInt("id"),"') AND (LOCATE('=',t2.weapons) OR LOCATE('tblmodules',t1.status))");
+					while( wpncheckhandle.next() ) {
+						SQLResultRow checktype = getShipType(wpncheckhandle.getRow());
+						if( shiptype.getInt("military") > 0 ) {
+							wpnfound = true;
+							break;	
+						}
+					}
+					wpncheckhandle.free();
+						
+					if(	wpnfound ) {
+						outputbuffer.append("<span style=\"color:red\">Die GCP verwehrt einem/mehreren ihrer angedockten Kriegsschiffe den Einflug nach "+datan.getString("name")+"</span><br />\n");
+						return true;
+					}
+				}
+			}
+		} 
+		else {	
+			/* Behandlung Knossosportale:
+			 *
+			 * Ziel wird mit ships.jumptarget festgelegt - Format: art|koords/id|user/ally/gruppe
+			 * Beispiele: 
+			 * fix|2:35/35|all:
+			 * ship|id:10000|ally:1
+			 * base|id:255|group:-15,455,1200
+			 * fix|8:20/100|default <--- diese Einstellung entspricht der bisherigen Praxis
+			 */
+			nodetypename = "Knossosportal";
+			
+			datan = db.first("SELECT t1.name,t1.x,t1.y,t1.system,t1.jumptarget,t1.owner,t2.ally,t1.type FROM ships t1 JOIN users t2 ON t1.owner=t2.id WHERE t1.id>0 AND t1.id=",nodeID);
+			if( datan.isEmpty() ) {
+				outputbuffer.append("Fehler: Der angegebene Sprungpunkt existiert nicht<br />\n");
+				return true;
+			}
+			
+			nodetypename = getShipType(datan).getString("nickname");
+			
+			/* 
+			 * Ermittlung der Zielkoordinaten
+			 * geprueft wird bei Schiffen und Basen das Vorhandensein der Gegenstation
+			 * existiert keine, findet kein Sprung statt
+			 */
+			
+			Location targetLoc = null;
+			
+			String[] target = StringUtils.split(datan.getString("jumptarget"), '|');
+			if( target[0].equals("fix") ) {
+				targetLoc = Location.fromString(target[1]);
+								
+				nodetarget = target[1];
+			} 
+			else if( target[0].equals("ship") ) {
+				String[] shiptarget = StringUtils.split(target[1], ':');
+				SQLResultRow jmptarget = db.first("SELECT system,x,y FROM ships WHERE id=",shiptarget[1]);
+				if( jmptarget.isEmpty() ) {
+					outputbuffer.append("<span style=\"color:red\">Die Empfangsstation existiert nicht!</span><br />\n");
+					return true;
+				}
+				
+				targetLoc = Location.fromResult(jmptarget);
+				nodetarget = targetLoc.toString();
+			}	
+			else if( target[0].equals("base") ) {
+				String[] shiptarget = StringUtils.split(target[1], ':');
+				SQLResultRow jmptarget = db.first("SELECT system,x,y FROM bases WHERE id=",shiptarget[1]);
+				if( jmptarget.isEmpty() ) {
+					outputbuffer.append("<span style=\"color:red\">Die Empfangsbasis existiert nicht!</span><br />\n");
+					return true;
+				}
+				
+				targetLoc = Location.fromResult(jmptarget);
+				nodetarget = targetLoc.toString();
+			}
+			
+			datan.put("systemout", targetLoc.getSystem());
+			datan.put("xout", targetLoc.getX());
+			datan.put("yout", targetLoc.getY());
+				
+	
+			if( nodeID == ship.getInt("id") ) {
+				outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen nicht mit dem $nodetypename durch sich selbst springen</span><br />\n");
+				return true;
+			}
+			
+			/* Ermittlung der Sprungberechtigten
+			 * 
+			 * 
+			 */
+			String[] jmpnodeuser = StringUtils.split(target[2], ':'); // Format art:ids aufgespalten
+			
+			if( jmpnodeuser[0].equals("all") ) {
+				// Keine Einschraenkungen
+			}
+			// die alte variante 
+			else if( jmpnodeuser[0].equals("default") || jmpnodeuser[0].equals("ownally") ){
+				if( ( (user.getAlly() > 0) && (datan.getInt("ally") != user.getAlly()) ) || 
+					( user.getAlly() == 0 && (datan.getInt("owner") != user.getID()) ) ) {
+					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes "+nodetypename+" benutzen - default</span><br />\n");
+					return true;
+				}
+			}
+			// user:$userid
+			else if ( jmpnodeuser[0].equals("user") ){
+				if( Integer.parseInt(jmpnodeuser[1]) != user.getID() )  {
+					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes "+nodetypename+" benutzen - owner</span><br />\n");
+					return true;
+				}
+			}
+			// ally:$allyid
+			else if ( jmpnodeuser[0].equals("ally") ){
+				if( (user.getAlly() == 0) || (Integer.parseInt(jmpnodeuser[1]) != user.getAlly()) )  {
+					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes "+nodetypename+" benutzen - ally</span><br />\n");
+					return true;
+				}
+			}
+			// group:userid1,userid2, ...,useridn
+			else if ( jmpnodeuser[0].equals("group") ){
+				Integer[] userlist = Common.explodeToInteger(",", jmpnodeuser[1]);
+				if( !Common.inArray(user.getID(), userlist) )  {
+					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes "+nodetypename+" benutzen - group</span><br />\n");
+					return true;
+				}
+			}
+		}
+		
+		Location shipLoc = Location.fromResult(ship);
+		Location nodeLoc = Location.fromResult(datan);
+			
+		if( !shipLoc.sameSector(0, nodeLoc, 0) ) {
+			outputbuffer.append("<span style=\"color:red\">Fehler: "+nodetypename+" befindet sich nicht im selben Sektor wie das Schiff</span><br />\n");
+			return true;
+		}
+
+		if( ship.getInt("e") < 5 ) {
+			outputbuffer.append("<span style=\"color:red\">Zuwenig Energie zum Springen</span><br />\n");
+			return true;
+		}
+		
+		if( ship.getInt("fleet") > 0 ) { 
+			boolean result = fleetJump(ship, nodeID, knode);
+			if( result ) {
+				return true;
+			}
+		}
+			
+		outputbuffer.append(ship.getString("name")+" springt nach "+nodetarget+"<br />\n");
+		db.update("UPDATE ships SET x=",datan.getInt("xout"),",y=",datan.getInt("yout"),",system=",datan.getInt("systemout"),",e=",ship.getInt("e")-5," WHERE id>0 AND id=",ship.getInt("id"));
+		db.update("UPDATE ships SET x=",datan.getInt("xout"),",y=",datan.getInt("yout"),",system=",datan.getInt("systemout")," WHERE id>0 AND docked IN ('l ",ship.getInt("id"),"','",ship.getInt("id"),"')");
+		recalculateShipStatus(ship.getInt("id"));
+	
 		return false;
 	}
 	
