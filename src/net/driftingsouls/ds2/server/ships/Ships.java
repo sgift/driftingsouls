@@ -317,7 +317,7 @@ public class Ships implements Loggable {
 	
 	private static PreparedQuery pqGetShipType = db.prepare("SELECT *,LOCATE('=',weapons) as military FROM ship_types WHERE id= ? ");
 	
-	private static SQLResultRow getShipType( int shiptype, SQLResultRow shipdata, boolean plaindata ) {System.out.println(shipdata);
+	private static SQLResultRow getShipType( int shiptype, SQLResultRow shipdata, boolean plaindata ) {
 		synchronized (shiptypes) {
 			if( !shiptypes.containsKey(shiptype) ) {
 				shiptypes.put(shiptype, pqGetShipType.pfirst(shiptype));
@@ -1271,7 +1271,7 @@ public class Ships implements Loggable {
 		}
 		sectorRow.free();
 		
-		if( (distance > 1) && nebulaemplist.get(Location.fromResult(ship)) ) {
+		if( (distance > 1) && nebulaemplist.containsKey(Location.fromResult(ship)) ) {
 			out.append("<span style=\"color:#ff0000\">Der Autopilot funktioniert in EMP-Nebeln nicht</span><br />\n");
 			return true;
 		}
