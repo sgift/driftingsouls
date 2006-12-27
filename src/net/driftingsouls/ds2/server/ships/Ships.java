@@ -677,9 +677,87 @@ public class Ships implements Loggable {
 		}
 	}
 	
+	/**
+	 * Berechnet die durch Module verursachten Effekte eines Schiffes neu
+	 * @param ship Das Schiff, dessen Moduleffekte neuberechnet werden sollen
+	 */
 	public static void recalculateModules( SQLResultRow ship ) {
-		// TODO
-		Common.stub();
+		Database db = ContextMap.getContext().getDatabase();
+		
+		if( ship.getString("status").indexOf("tblmodules") == -1 ) {
+			return;
+		}
+		String oldModuleTbl = db.first("SELECT modules FROM ships_modules WHERE id='",ship.getInt("id"),"'").getString("modules");
+		List<ModuleEntry> moduletbl = new ArrayList<ModuleEntry>();
+		moduletbl.addAll(Arrays.asList(getModules(ship)));
+		
+		//check modules
+		
+		//rebuild	
+		SQLResultRow type = getShipType( ship.getInt("type"), false, true );
+		SQLResultRow basetype = new SQLResultRow();
+		basetype.putAll(type);
+		
+		Map<Integer,String[]>slotlist = new HashMap<Integer,String[]>();
+		String[] tmpslotlist = StringUtils.split(type.getString("modules"), ';');
+		for( int i=0; i < tmpslotlist.length; i++ ) {
+			String[] aslot = StringUtils.split(tmpslotlist[i], ':');
+			slotlist.put(Integer.parseInt(aslot[0]), aslot);
+		}
+		
+		List<Module> moduleobjlist = new ArrayList<Module>();
+		List<String> moduleSlotData = new ArrayList<String>(); 
+		
+		for( int i=0; i < moduletbl.size(); i++ ) {
+			ModuleEntry module = moduletbl.get(i);
+			if( module.moduleType != 0 ) {
+				Module moduleobj = Modules.getShipModule( module );
+				
+				if( module.slot > 0 ) {
+					moduleobj.setSlotData(slotlist.get(module.slot)[2]);
+				}
+				moduleobjlist.add(moduleobj);
+			
+				moduleSlotData.add(module.slot+":"+module.moduleType+":"+module.data);
+			}
+		}
+
+		for( int i=0; i < moduleobjlist.size(); i++ ) {
+			type = moduleobjlist.get(i).modifyStats( type, basetype, moduleobjlist );		
+		}
+		
+		String modulelist = Common.implode(";",moduleSlotData);
+		
+		db.tUpdate(1,"UPDATE ships_modules ",
+				"SET modules='",modulelist,"'," ,
+				"nickname='",type.getString("nickname"),"'," ,
+				"picture='",type.getString("picture"),"',",
+				"ru='",type.getInt("ru"),"'," ,
+				"rd='",type.getInt("rd"),"'," ,
+				"ra='",type.getInt("ra"),"'," ,
+				"rm='",type.getInt("rm"),"'," ,
+				"eps='",type.getInt("eps"),"'," ,
+				"cost='",type.getInt("cost"),"'," ,
+				"hull='",type.getInt("hull"),"'," ,
+				"panzerung='",type.getInt("panzerung"),"'," ,
+				"cargo='",type.getLong("cargo"),"'," ,
+				"heat='",type.getInt("heat"),"'," ,
+				"crew='",type.getInt("crew"),"'," ,
+				"weapons='",type.getString("weapons"),"'," ,
+				"maxheat='",type.getString("maxheat"),"'," ,
+				"torpedodef='",type.getInt("torpedodef"),"'," ,
+				"shields='",type.getInt("shields"),"'," ,
+				"size='",type.getInt("size"),"'," ,
+				"jdocks='",type.getInt("jdocks"),"'," ,
+				"adocks='",type.getInt("adocks"),"'," ,
+				"sensorrange='",type.getInt("sensorrange"),"'," ,
+				"hydro='",type.getInt("hydro"),"'," ,
+				"deutfactor='",type.getInt("deutfactor"),"'," ,
+				"recost='",type.getInt("recost"),"',",
+				"flags='",type.getString("flags"),"'," ,
+				"werft='",type.getString("werft"),"'," ,
+				"ow_werft='",type.getInt("ow_werft"),"'" ,
+				" WHERE id='",ship.getInt("id"),"' AND modules='",oldModuleTbl,"'");	
 	}
 	
 	private static void handleRedAlert( SQLResultRow ship ) {
