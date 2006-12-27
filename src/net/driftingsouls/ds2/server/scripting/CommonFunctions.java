@@ -33,13 +33,13 @@ class CommonFunctions {
 		parser.registerCommand( "SUBSTRACT", new Substract(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "MULTIPLY", new Multiply(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "DIVIDE", new Divide(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
-		//parser.registerCommand( "RANDOM", "random", "common", ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
+		parser.registerCommand( "RANDOM", new Random(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		//parser.registerCommand( "COPYELEMENT", "copyelement", "common", ScriptParser.Args.PLAIN, ScriptParser.Args.REG, ScriptParser.Args.PLAIN_REG);
 		//parser.registerCommand( "ARRAYRESET", "arrayreset", "common", ScriptParser.Args.PLAIN);
 		//parser.registerCommand( "ARRAYNEXT", "arraynext", "common", ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN);
-		//parser.registerCommand( "STRAPPEND", "strappend", "common", ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN_REG);
-		//parser.registerCommand( "COPYSTRING", "copystring", "common", ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN_REG);
-		//parser.registerCommand( "GETSCRIPTPARAMETER", "getScriptParameter", "common", ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN);
+		parser.registerCommand( "STRAPPEND", new StrAppend(), ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN_REG);
+		parser.registerCommand( "COPYSTRING", new CopyString(), ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN_REG);
+		parser.registerCommand( "GETSCRIPTPARAMETER", new GetScriptParameter(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN);
 	}
 	
 	class Compare implements SPFunction {
@@ -125,6 +125,77 @@ class CommonFunctions {
 			scriptparser.log("val2: "+val2+"\n");
 			
 			scriptparser.setRegister("#MATH",Double.toString(val1/val2));
+			
+			return CONTINUE;
+		}
+	}
+	
+	class Random implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			int min = Integer.parseInt(command[1]);
+			int max = Integer.parseInt(command[2]);
+		
+			int myrand = new java.util.Random().nextInt(max-min+1)-min;
+			
+			scriptparser.log("min: "+min+" - max: "+max+" - rand: "+myrand+"\n");
+			
+			scriptparser.setRegister("#MATH",Integer.toString(myrand));
+			
+			return CONTINUE;
+		}
+	}
+	
+	class StrAppend implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			String mystring = "";
+			if( command[1].charAt(0) == '#' ) {
+				mystring = scriptparser.getRegister(command[1]);
+			} 	 
+			scriptparser.log("String1: "+mystring+"\n");
+			
+			mystring += command[2];
+			scriptparser.log("String2: "+command[2]+"\n");
+			
+			if( command[1].charAt(0) == '#' ) {
+				scriptparser.setRegister(command[1],mystring);
+			}
+			
+			return CONTINUE;
+		}
+	}
+	
+	class CopyString implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			String targetstring = "";
+			if( command[1].charAt(0) == '#' ) {
+				targetstring = scriptparser.getRegister(command[1]);
+			} 	 
+			scriptparser.log("String (target): "+targetstring);
+			
+			String sourcestring = command[2];
+			scriptparser.log("String (source): "+sourcestring);
+			
+			if( command[1].charAt(0) == '#' ) {
+				scriptparser.setRegister(command[1],command[2]);
+			}
+			
+			return CONTINUE;
+		}
+	}
+	
+	class GetScriptParameter implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			int paramNum = Integer.parseInt(command[1]);
+			scriptparser.log("Parameter: "+paramNum+"\n");
+		
+			String target = command[2];
+			scriptparser.log("Target: "+target+"\n");
+			
+			String param = scriptparser.getParameter(paramNum);
+			
+			if( target.charAt(0) == '#' ) {
+				scriptparser.setRegister(target,param);
+			}
 			
 			return CONTINUE;
 		}
