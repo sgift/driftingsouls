@@ -80,6 +80,9 @@
 		<module name="forschinfo">
 			<generator class="net.driftingsouls.ds2.server.modules.ForschinfoController" />
 		</module>
+		<module name="handel">
+			<generator class="net.driftingsouls.ds2.server.modules.HandelController" />
+		</module>
 		<module name="impobjects">
 			<generator class="net.driftingsouls.ds2.server.modules.ImpObjectsController" />
 		</module>

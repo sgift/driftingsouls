@@ -1,0 +1,140 @@
+<table class="show" cellspacing="2" cellpadding="2">
+<tr>
+	<td class="noBorderS">Handel</td><td class="noBorder">&nbsp;</td>
+	<td class="noBorder">
+	{!table_begin 450,center}
+		{!link_to Aktuelle Angebote, default}
+			&nbsp;&nbsp;|&nbsp;&nbsp;
+		{!link_to Angebot hinzuf&uuml;gen, add}
+	{!table_end}
+	</td>
+</tr>
+</table>
+{if handel.message}
+	<div class="smallfont">{handel.message}<br /><br /></div>
+{/endif}
+{if handel.view}
+	<table class="noBorder" cellpadding="4" cellspacing="4" width="90%">
+	<!-- BEGIN angebote.listitem -->
+		{if angebot.endline}
+			</tr>
+		{/endif}	
+		{if angebot.newline}
+			<tr>
+				<td class="noBorderS" colspan="3">&nbsp;</td>
+			</tr>
+			<tr>
+		{/endif}
+		<td class="noBorder" style="width:30%; vertical-align:top">
+			{!table_begin 100%,center}
+				<div style="font-weight:bold; font-size:15px; text-align:center">
+					{!link_to $angebot.owner.name, default, css_class:profile, module:userprofile, user:$angebot.owner}
+					{if angebot.showdelete}
+						({!link_to x, delete, css_class:error, del:$angebot.id})
+					{/endif}
+					<br />
+					<span style="font-size:10px">{angebot.date}</span>								
+				</div>
+				<br />
+				{if angebot.want.list}
+					<div style="text-align:left">Suche</div>
+					<div style="text-align:center">
+						<!-- BEGIN angebot.want.listitem -->
+							<span class="nobr"><img style="vertical-align:middle" src="{res.image}" alt="" />{res.cargo}</span>
+							{if ! _BROWSER_MOZILLA}
+								<br />
+							{/endif}
+						<!-- END angebot.want.listitem -->
+					</div>
+				{/endif}
+				{if angebot.need.list}
+					{if angebot.want.list}
+						<br />
+					{/endif}
+					<div style="text-align:left">Biete</div>
+					<div style="text-align:center">
+						<!-- BEGIN angebot.need.listitem -->
+							<span class="nobr"><img style="vertical-align:middle" src="{res.image}" alt="" />{res.cargo}</span>
+							{if ! _BROWSER_MOZILLA}
+								<br />
+							{/endif}
+						<!-- END angebot.need.listitem -->
+					</div>
+				{/endif}
+				{if angebot.want.list}
+					<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+				{else}				
+					{if angebot.need.list}
+						<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+					{/endif}
+				{/endif}
+				<br />
+				{if angebot.description.overflow}
+					<div style="height:250px; overflow:auto;">
+				{else}
+					<div>
+				{/endif}
+					<div style="text-align:left">
+						{angebot.description}
+					</div>
+				</div>
+			{!table_end}
+		</td>
+	<!-- END angebote.listitem -->
+	<!-- BEGIN emptyangebote.listitem -->
+		<td class="noBorderS" style="width:25%">&nbsp;</td>
+	<!-- END emptyangebote.listitem -->
+	</tr>
+	</table>
+{/endif}
+{if handel.add}
+	<form action="main.php" method="post">
+	<table class="noBorder">
+	<tr>
+		<td class="noBorder">
+			{!table_begin 400,center}
+				<div style="text-align:center">1. Waren eintragen</div>
+			
+				<table class="noBorderX" cellspacing="3" cellpadding="3">
+				<tr>
+					<td class="noBorderX" style="width:240px">Ware</td>
+					<td class="noBorderX" style="width:60px">suche</td>
+					<td class="noBorderX" style="width:60px">biete</td>
+				</tr>
+				</table>
+				<div style="height:500px; overflow:auto">
+					<table class="noBorderX" cellspacing="3" cellpadding="3">
+					<tr>
+						<td class="noBorderX"><img src="{URL}data/interface/handel/open.gif" alt="egal" />Egal</td>
+						<td class="noBorderX"><input name="-1need" type="text" size="4" value="0" /></td>
+						<td class="noBorderX"><input name="-1have" type="text" size="4" value="0" /></td>
+					</tr>
+					<!-- BEGIN addresources.listitem -->
+						<tr>
+							<td class="noBorderX"><img src="{res.image}" alt="" />{res.name}</td>
+							<td class="noBorderX">
+								<input name="{res.id}need" type="text" size="4" value="0" />
+							</td>
+							<td class="noBorderX">
+								<input name="{res.id}have" type="text" size="4" value="0" />
+							</td>
+						</tr>
+					<!-- END addresources.listitem -->
+					</table>
+				</div>
+			{!table_end}
+		</td>
+		<td class="noBorder">&nbsp;&nbsp;</td>
+		<td class="noBorder" valign="top">
+			{!table_begin 400,center}
+				<div style="text-align:center">2. Beschreibung eingeben</div>
+				<textarea name="comm" rows="8" cols="42">Anmerkungen (z.b Koordinaten)</textarea><br />
+				<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+				{!form_create_hidden enter}
+				<input type="submit" value="Angebot eintragen" />
+			{!table_end}
+		</td>
+	</tr>
+	</table>
+	</form>
+{/endif}
