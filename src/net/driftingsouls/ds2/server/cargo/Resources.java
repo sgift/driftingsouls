@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.cargo;
 
+import net.driftingsouls.ds2.server.config.Item;
+import net.driftingsouls.ds2.server.config.Items;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
@@ -45,6 +47,26 @@ public class Resources {
 	public static final ResourceID ANCIENTARTE = new WarenID(16);
 	public static final ResourceID BOESERADMIN = new WarenID(17);
 	public static final ResourceID ITEMS = new WarenID(18);
+	
+	/**
+	 * Ein Cargo, in dem jede Resource genau einmal vorkommt. Items sind in der Form ohne Questbindung und mit
+	 * unbegrenzter Nutzbarkeit vorhanden
+	 */
+	public static final Cargo RESOURCE_LIST;
+	
+	static {
+		Cargo resList = new Cargo();
+		
+		for( int i=0; i < Cargo.MAX_RES; i++ ) {
+			resList.addResource(new WarenID(i), 1);
+		}
+		
+		for( Item item : Items.get() ) {
+			resList.addResource(new ItemID(item.getID()), 1);
+		}
+		
+		RESOURCE_LIST = new UnmodifiableCargo(resList);
+	}
 
 	/**
 	 * Wandelt einen String in eine Resourcen-ID um.
