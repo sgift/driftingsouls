@@ -258,6 +258,10 @@ public class ScriptParser {
 		this.addparameterlist = new ArrayList<String>();
 		
 		new CommonFunctions().registerFunctions(this);
+		
+		if( namespace == NameSpace.ACTION ) {
+			new ActionFunctions().registerFunctions(this);
+		}
 	}
 
 	/**
@@ -313,9 +317,7 @@ public class ScriptParser {
 	/**
 	 * Setzt das Schiff
 	 * @param ship Das Schiff
-	 * @deprecated Bitte das register <code>#SOURCESHIP</code>
 	 */
-	@Deprecated
 	public void setShip( SQLResultRow ship ) {
 		this.ship = ship;
 	}
@@ -323,9 +325,7 @@ public class ScriptParser {
 	/**
 	 * Gibt das Schiff zurueck
 	 * @return Das Schiff
-	 * @deprecated Bitte das register <code>#SOURCESHIP</code>
 	 */
-	@Deprecated
 	public SQLResultRow getShip() {
 		return ship;
 	}
@@ -638,8 +638,8 @@ public class ScriptParser {
 				SPFunction func = this.funcregister.get(funcname);
 				
 				Args[] args = this.funcargregister.get(funcname);
-				if( (cmd.length >= args.length) && ((args[cmd.length-1].ordinal() & Args.VARIABLE.value()) != 0) ) {
-					Args[] args2 = new Args[cmd.length];
+				if( (cmd.length-1 > args.length) && ((args[args.length-1].ordinal() & Args.VARIABLE.value()) != 0) ) {
+					Args[] args2 = new Args[cmd.length-1];
 					System.arraycopy(args, 0, args2, 0, args.length);
 					
 					for( int i=args.length; i < cmd.length-1; i++ ) {
@@ -649,7 +649,7 @@ public class ScriptParser {
 					args = args2;
 				}
 
-				for( int i=0; i < args.length; i++ ) {
+				for( int i=0; i < Math.min(args.length,cmd.length-1); i++ ) {
 					String cmdParam = cmd[i+1];
 						
 					if( (cmdParam.charAt(0) == '#') && ((args[i].ordinal() & Args.REG.ordinal()) > 0) ) {
