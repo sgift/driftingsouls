@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.User;
+import net.driftingsouls.ds2.server.framework.UserIterator;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
@@ -263,6 +264,14 @@ public class OptionsController extends DSGenerator implements Loggable {
 			changemsg += "Diplomatiehaltung ge&auml;ndert...<br />\n";
 
 			user.setRelation(0,rel);
+			if( user.getAlly() != 0 ) {
+				UserIterator iter = getContext().createUserIterator("SELECT * FROM users WHERE ally=",user.getAlly()," AND id!=",user.getID());
+				for( User auser : iter ) {
+					user.setRelation(auser.getID(), User.Relation.FRIEND);
+					auser.setRelation(user.getID(), User.Relation.FRIEND);
+				}
+				iter.free();
+			}
 		}
 		
 		t.set_var( "options.message", changemsg );
