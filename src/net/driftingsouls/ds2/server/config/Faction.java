@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.config;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,6 +59,14 @@ public class Faction implements Loggable {
 	 */
 	public static Faction get(int id) {
 		return factionList.get(id);
+	}
+	
+	/**
+	 * Gibt die Liste aller bekannten Fraktionen zurueck
+	 * @return Die Liste der bekannten Fraktionen
+	 */
+	public static Map<Integer,Faction> getFactions() {
+		return Collections.unmodifiableMap(factionList);
 	}
 	
 	private FactionPages pages = null;
