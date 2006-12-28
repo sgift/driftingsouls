@@ -176,10 +176,10 @@
 	<script type="text/javascript">
 	<!--
 		function showpm(pmid) {
-			if( $('pm'+pmid) != null ) {
-				pmviewer.location.href = "./main.php?module=comm&sess={global.sess}&action=showPm&pmid="+pmid;
-				
-				$('pm'+pmid).innerHTML = "";
+			pmviewer.location.href = "./main.php?module=comm&sess={global.sess}&action=showPm&pmid="+pmid;
+			
+			if( $('pm'+pmid) != null ) {	
+				$('pm'+pmid).firstChild.nodeValue = "";
 			}
 		}
 
@@ -276,7 +276,7 @@
 				</div>
 			</div>
 			<!-- Inhalt -->
-			<div style="position:absolute; top:0px; left:0px; height:240px; overflow:auto; overflow-x:hidden; z-index:1">
+			<div style="position:absolute; top:0px; left:0px; width:100%; height:240px; overflow:auto; overflow-x:hidden; z-index:1">
 				<table class="noBorderX" width="95%">
 				<tr>
 					<td class="noBorderX"></td>
@@ -352,22 +352,14 @@
 							{/endif}
 						</td>
 						<td class="noBorderX">
-							<span id="pm{pm.id}" style="color:yellow; font-size:10px">
-								{if pm.new}
-									NEU
-								{/endif}
-							</span>
-							<span style="color:yellow; font-size:10px">
-								{if pm.kommentar}
-									[K]
-								{/endif}
-							</span>
+							{if pm.new}<span id="pm{pm.id}" style="color:yellow; font-size:10px">NEU</span>{/endif}
+							{if pm.kommentar}<span style="color:yellow; font-size:10px">[K]</span>{/endif}
 						</td>
 						<td class="noBorderX">
 							<div id="inbox_pm{pm.id}" style=";width:100%" class="inbox_pm">
-							<a class="profile" {if pm.flags.admin}style="color:orange"{/endif} href="javascript:showpm({pm.id});">
-								{pm.title}
-							</a>&nbsp;
+								<a class="profile" {if pm.flags.admin}style="color:orange"{/endif} href="javascript:showpm({pm.id});">
+									{pm.title}
+								</a>&nbsp;
 							</div>
 							<script type="text/javascript" language="javascript">
 	 							new Draggable('inbox_pm{pm.id}',{ revert:true });

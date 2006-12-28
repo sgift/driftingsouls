@@ -386,6 +386,8 @@ public class ItemInfoController extends DSGenerator {
 						"entry.data",	(effect.isFlagschiff() ? "ja" : "nein") );
 			
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
+			
+			break;
 		}
 		/*
 		
@@ -405,6 +407,8 @@ public class ItemInfoController extends DSGenerator {
 			}
 			
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
+			
+			break;
 		}
 		/*
 		
@@ -478,6 +482,8 @@ public class ItemInfoController extends DSGenerator {
 					}
 				}	
 			}
+			
+			break;
 		}	
 		/*
 		
@@ -600,6 +606,8 @@ public class ItemInfoController extends DSGenerator {
 					t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 				}
 			}
+			
+			break;
 		}
 		/*
 		 * 
@@ -630,6 +638,8 @@ public class ItemInfoController extends DSGenerator {
 			
 				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 			}
+			
+			break;
 		}
 		} // Ende switch
 	}
@@ -643,7 +653,14 @@ public class ItemInfoController extends DSGenerator {
 		User user = getUser();
 		Database db = getDatabase();
 		
-		Cargo owncargo = new Cargo( Cargo.Type.STRING, db.first("SELECT cargo FROM stats_user_cargo WHERE user_id=",user.getID()).getString("cargo"));
+		SQLResultRow ownCargoRow = db.first("SELECT cargo FROM stats_user_cargo WHERE user_id=",user.getID());
+		Cargo owncargo = null;
+		if( !ownCargoRow.isEmpty() ) {
+			owncargo = new Cargo( Cargo.Type.STRING, ownCargoRow.getString("cargo"));
+		}
+		else {
+			owncargo = new Cargo();
+		}
 
 		t.set_var("iteminfo.knownlist", 1);
 
