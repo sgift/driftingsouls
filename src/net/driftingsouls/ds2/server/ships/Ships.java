@@ -113,23 +113,79 @@ public class Ships implements Loggable {
 	private static Map<Integer,SQLResultRow> shiptypes = new HashMap<Integer,SQLResultRow>();
 	private static Map<Location,Integer> nebel = Collections.synchronizedMap(new CacheMap<Location,Integer>(1000));
 	
+	/**
+	 * Kennzeichnet das Schiff als Jaeger
+	 */
 	public static final String SF_JAEGER = "jaeger";
+	/**
+	 * Das angegebene Schiff verfuegt ueber eine Zerstoererpanzerung
+	 */
 	public static final String SF_ZERSTOERERPANZERUNG = "zerstoererpanzerung";
+	/**
+	 * Das angegebene Schiff kann Asteroiden kolonisieren
+	 */
 	public static final String SF_COLONIZER = "colonizer";
+	/**
+	 * Das angegebene Schiff kann in Kaempfen fluechtende Schiffe abfangen
+	 */
 	public static final String SF_ABFANGEN = "abfangen";
+	/**
+	 * Das angegebene Schiff ist nicht kaperbar
+	 */
 	public static final String SF_NICHT_KAPERBAR = "nicht_kaperbar";
+	/**
+	 * Das Schiff wird nach einem Transfervorgang beim naechsten Tick zerstoert
+	 */
 	public static final String SF_INSTABIL = "instabil";
+	/**
+	 * Das Schiff ist nur sichtbar, wenn man sich im selben Sektor befindet
+	 */
 	public static final String SF_SEHR_KLEIN = "sehr_klein";
+	/**
+	 * Transfers von und zu dem Schiff sind nicht moeglich
+	 */
 	public static final String SF_KEIN_TRANSFER = "kein_transfer";
+	/**
+	 * Das Schiff verfuegt ueber erweiterte SRS-Sensoren (mehr Informationen)
+	 */
 	public static final String SF_SRS_AWAC = "srs_awac";
+	/**
+	 * Das Schiff verfuegt ueber zusaetzliche Erweiterungen zuzueglich zu den erweiterten SRS-Sensoren.
+	 * (Nur wirksam in Kombination mit {@link #SF_SRS_AWAC}
+	 */
 	public static final String SF_SRS_EXT_AWAC = "srs_ext_awac";
+	/**
+	 * Das Schiff verfuegt ueber einen shivanischen Sprungantrieb
+	 */
 	public static final String SF_JUMPDRIVE_SHIVAN = "jumpdrive_shivan";
+	/**
+	 * Das Schiff kann direkt einer Schlacht beitreten ohne eine Runde "aussetzen" zu muessen
+	 */
 	public static final String SF_INSTANT_BATTLE_ENTER = "instant_battle_enter";
+	/**
+	 * Das Schiff kann nicht gepluendert werden
+	 */
 	public static final String SF_NICHT_PLUENDERBAR = "nicht_pluenderbar";
+	/**
+	 * Das Schiff kann nicht zerstoert werden
+	 */
 	public static final String SF_GOD_MODE = "god_mode";
+	/**
+	 * Das Schiff kann Drohnen kontrollieren
+	 */
 	public static final String SF_DROHNEN_CONTROLLER = "drohnen_controller";
+	/**
+	 * Das Schiff ist eine Drohne und kann daher nur im selben Sektor wie ein Drohnenkontroller agieren ({@link #SF_DROHNEN_CONTROLLER}).
+	 * Wenn kein Drohnenkontroller vorhanden ist, ist es handlungsunfaehig
+	 */
 	public static final String SF_DROHNE = "drohne";
+	/**
+	 * Das Schiff kann in einer Schlacht in die zweite Reihe fliegen
+	 */
 	public static final String SF_SECONDROW = "secondrow";
+	/**
+	 * Das Schiff kann Offiziere in Hoehe der eigenen max. Crew aufnehmen
+	 */
 	public static final String SF_OFFITRANSPORT = "offitransport";
 	
 	/**
@@ -235,9 +291,12 @@ public class Ships implements Loggable {
 		return ShipClasses.values()[classid];
 	}
 	
+	/**
+	 * Leert den Cache fuer Schiffsdaten
+	 *
+	 */
 	public static void clearShipCache() {
-		// TODO
-		Common.stub();
+		// TODO - Schiffcache implementieren
 	}
 	
 	private static String buildShipPicturePath( SQLResultRow type, boolean forceServer ) {
@@ -298,7 +357,7 @@ public class Ships implements Loggable {
 	
 	private static SQLResultRow getShipType( int shiptype, boolean isShip, boolean plaindata ) {
 		if( isShip ) {
-			// TODO: Cache!
+			// TODO: Schiffscache implementieren!
 			SQLResultRow shipdata = pqGetShipInfos.pfirst(shiptype);
 			
 			if( shipdata.getString("status").indexOf("tblmodules") != -1 ) {
@@ -345,9 +404,29 @@ public class Ships implements Loggable {
 		return type;
 	}
 	
+	/**
+	 * Liesst die Schiffstypen mit der angegebenen ID aus der Datenbank aus und legt sie im Cache ab
+	 * @param shiptypelist Die Liste der zu cachenden Schiffstypen
+	 */
 	public static void cacheShipTypes(int[] shiptypelist) {
-		// TODO
-		Common.stub();
+		List<Integer> tmptypelist = new ArrayList<Integer>();
+		
+		synchronized(shiptypes) {
+			for( int i=0; i < shiptypelist.length; i++ ) {
+				if( !shiptypes.containsKey(shiptypelist[i]) ) {
+					tmptypelist.add(shiptypelist[i]);
+				}
+			}
+		
+			if( tmptypelist.size() > 0 ) {
+				Database db = ContextMap.getContext().getDatabase();
+				SQLQuery shiptype = db.query("SELECT *,LOCATE('=',weapons) AS military FROM ship_types WHERE id IN (",Common.implode(",",tmptypelist),")");
+				while( shiptype.next() ) {
+					shiptypes.put(shiptype.getInt("id"), shiptype.getRow());
+				}
+				shiptype.free();
+			}
+		}
 	}
 	
 	/**
