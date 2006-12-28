@@ -74,6 +74,9 @@
 		<module name="deutsammeln">
 			<generator class="net.driftingsouls.ds2.server.modules.DeutSammelnController" />
 		</module>
+		<module name="ersteigern">
+			<generator class="net.driftingsouls.ds2.server.modules.ErsteigernController" />
+		</module>
 		<module name="fleetmgnt">
 			<generator class="net.driftingsouls.ds2.server.modules.FleetMgntController" />
 		</module>

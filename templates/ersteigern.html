@@ -1,0 +1,682 @@
+<table class="show" cellspacing="2" cellpadding="2">
+<tr>
+<td class="noBorderS">
+	<div align="center">
+		<span class="verysmallfont">
+			<a style="font-size:12px" class="profile" name="factionmenu" id="factionmenu"
+				onclick="javascript:overlib('{global.factionmenu}', REF,'factionmenu', REFY,22,FGCLASS,'gfxtooltip',BGCLASS,'gfxclass',TEXTFONTCLASS,'gfxclass',NOCLOSE,STICKY);" 
+				onmouseout="return nd();" 
+				href="#">{global.faction.name}<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_dropdown.gif" alt="" /></a>
+			<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+			{user.konto} RE
+		</span>
+	</div>
+</td>
+<td class="noBorder">&nbsp;</td>
+<td class="noBorder">
+	{!table_begin $global.menusize,center}
+		{if faction.general}
+			{!link_to Allgemeines, general, faction:$global.faction}
+		{/endif}
+		{if faction.versteigerung}
+			{!link_to Versteigerungen, versteigerung, faction:$global.faction}
+		{/endif}
+		{if faction.paket}
+			{if gtu.paket}
+				&nbsp;&nbsp;|&nbsp;&nbsp;{!link_to Paket, paket, faction:$global.faction}
+			{else}
+				&nbsp;&nbsp;|&nbsp;&nbsp;<span style="font-weight:bold; font-size:16px">Paket</span>
+			{/endif}
+		{/endif}
+		{if faction.angebote}
+			&nbsp;&nbsp;|&nbsp;&nbsp;{!link_to Angebote, angebote, faction:$global.faction}
+		{/endif}
+		{if faction.shop}
+			&nbsp;&nbsp;|&nbsp;&nbsp;{!link_to Shop, shop, faction:$global.faction}
+		{/endif}
+		{if faction.other}
+			&nbsp;&nbsp;|&nbsp;&nbsp;{!link_to Sonstiges, other, faction:$global.faction}
+		{/endif}
+	{!table_end}
+</td>
+</tr></table>
+<div class="smallfont">
+	<br />
+	{if show.lowres}
+		<span style="color:red">Zuwenig RE auf ihrem Konto</span><br />
+		<br />
+	{/endif}
+
+	{if show.highestbid}
+		Sie sind der h&ouml;chstbietende<br />
+		<br />
+	{/endif}
+
+	{if show.newcoords}
+		Neue Lieferkoordinate gespeichert<br /><br />
+	{/endif}
+	
+	{if show.message}
+		{show.message}<br /><br />
+	{/endif}
+</div>
+{if show.ueberweisen}
+	{!table_begin 400,center}
+		{ueberweisen.betrag} RE an {ueberweisen.to.name} ({ueberweisen.to}) &uuml;berweisen?<br />
+		{!link_to ja, ueberweisen, css_class:ok, to:$ueberweisen.to, count:$ueberweisen.betrag.plain, ack:yes, faction:$global.faction}&nbsp;|&nbsp;
+		{!link_to nein, other, css_class:error, faction:$global.faction}<br />
+	{!table_end}
+	<br />
+{/endif}
+
+{if show.bid.entry}
+	{!table_begin 630,left}
+		<form action="./main.php" method="post">
+		<table class="noBorderX" cellspacing="3" cellpadding="3">
+		<tr>
+			<td class="noBorderX" align="center">Typ</td><td class="noBorderX">H&ouml;chstbietender</td><td class="noBorderX"></td>
+		</tr>
+		<tr>
+			<td class="noBorderX" valign="middle" align="center">
+				{if entry.count}
+					<span style="font-size:12px">{entry.count}x</span>
+				{/endif}
+				<a class="noborder" onmouseover="return overlib('{entry.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();"  href="{entry.link}">
+					<img style="vertical-align:middle; border:0px; {if entry.width}width:{entry.width}px; {/endif} {if entry.height}height:{entry.height}px{/endif}" src="{entry.type.image}" alt="" />
+				</a>
+			</td>
+			{if bid.player}
+				<td class="noBorderX">{!link_to $bid.player,default,module:userprofile,css_class:profile,user:$bid.player.id}</td>
+			{else}
+				<td class="noBorderX">?</td>
+			{/endif}
+			<td class="noBorderX">
+				{!form_create_hidden bidEntry, auk:$bid.id, faction:$global.faction}
+				<input name="bid" type="text" size="15" value="{bid.price}" />
+				<input type="submit" value="bieten" />
+			</td>
+		</tr>
+		</table>
+		</form>
+	{!table_end}
+{/endif}
+
+{if show.bid.paket}
+	{!table_begin 350,center}
+		<form action="./main.php" method="post">
+			<div>
+				<div style="text-align:center;font-weight:bold; font-size:14px">&gt;&gt;Paket&lt;&lt;</div><br /><br />
+				Bieten: <input name="bid" type"text" size="15" value="{bid.price}" />
+				{!form_create_hidden bidPaket, auk:$bid.id, faction:$global.faction}
+				<input type="submit" value="bieten" />
+			</div>
+		</form>
+	{!table_end}
+{/endif}
+
+{if show.versteigerungen}
+	{if gtuzwischenlager.list}
+		{!table_begin 630,left}
+			<span style="color:red">Es warten noch Waren an folgenden GTU-Posten auf Abholung:</span><br />
+			<ul>
+			<!-- BEGIN gtuzwischenlager.listitem -->
+				<li>{gtuzwischenlager.name} - {gtuzwischenlager.system}:{gtuzwischenlager.x}/{gtuzwischenlager.y}</li>
+			<!-- END gtuzwischenlager.listitem -->
+			</ul>
+		{!table_end}
+		<br />
+	{/endif}
+	
+	{!table_begin 630,left}
+		<table class="noBorderX" cellspacing="3" cellpadding="3" width="100%">
+		<tr><td class="noBorderX" align="center" style="width:170px">Typ</td><td class="noBorderX">Gebot</td><td class="noBorderX">H&ouml;chstbietender</td><td class="noBorderX">Dauer</td></tr>
+		<!-- BEGIN entry.listitem -->
+		<tr>
+			<td class="noBorderX" align="center" valign="middle">
+				<span class="nobr">
+					{if entry.count}
+						<span style="font-size:12px">{entry.count}x</span>
+					{/endif}
+					<a class="noborder" onmouseover="return overlib('{entry.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" href="{entry.link}">
+						<img style="vertical-align:middle; border:0px" {if entry.width}width="{entry.width}"{/endif} {if entry.height}height="{entry.height}"{/endif} src="{entry.type.image}" alt="" />
+					</a>
+				</span>
+			</td>
+			<td class="noBorderX">
+				{if entry.user}
+					<span style="color:yellow" onmouseover="return overlib('Diese Versteigerung wird von einem Spieler durchgef&uuml;hrt',TIMEOUT,0,DELAY,400,WIDTH,200);" onmouseout="return nd();">
+						{entry.preis}
+					</span>
+				{else}
+					{entry.preis}
+				{/endif}
+			</td>
+			<td class="noBorderX">
+				{if entry.bieter}
+					{!link_to $entry.bieter, default, css_class:profile, module:userprofile, user:$entry.bieter.id}
+				{else}
+					?
+				{/endif}
+				{if entry.user.name}
+					<br />
+					[{!link_to $entry.user.name, default, css_class:profile, module:userprofile, user:$entry.user.id}]
+				{/endif}
+			</td>
+			<td class="noBorderX">{entry.dauer}</td>
+			<td class="noBorderX" align="center">
+				{if entry.ownauction}
+					<span style="color:yellow">Eigene Versteigerung</span> 
+				{else}
+					{!link_to &uuml;berbieten, bidEntry, auk:$entry.aukid, bid:0, faction:$global.faction}
+				{/endif}
+			</td>
+		</tr>
+		<!-- END entry.listitem -->
+
+		</table><br />
+	{!table_end}
+	<div class="smallfont">
+		<br />
+		<br />
+	</div>
+	<form action="./main.php" method="post">
+		<div class="smallfont">
+			Schiffe ordern in <select name="favsys" size="1">
+			<!-- BEGIN gtu.dropzones.listitem -->
+				<option value="{dropzone.system.id}" {if dropzone.selected}selected="selected"{/endif}>{dropzone.system.name} ({dropzone.system.id})</option>
+			<!-- END gtu.dropzones.listitem -->
+			</select>
+			{!form_create_hidden changeDropZone, faction:$global.faction}
+			<input type="submit" value="speichern" />
+		</div>
+	</form>
+{/endif}
+{if show.pakete}
+	{if paket.id}
+		{!table_begin 530,center}
+			<table class="noBorderX">
+			<tr>
+				<td class="noBorderX">H&ouml;chstbietender:</td>
+				{if paket.bieter}
+					<td class="noBorderX">&nbsp;&nbsp;{!link_to $paket.bieter,default,module:userprofile,css_class:profile,user:$paket.bieter.id}</td>
+				{else}
+					<td class="noBorderX">&nbsp;&nbsp;?</td>
+				{/endif}
+			</tr>
+			<tr><td class="noBorderX" align="right">Dauer:</td><td class="noBorderX">&nbsp;&nbsp;{paket.dauer}</td></tr>
+			<tr><td class="noBorderX" align="right">Preis:</td><td class="noBorderX">&nbsp;&nbsp;{paket.preis} RE</td></tr>
+			<tr><td class="noBorderX" colspan="2" align="center">{!link_to &gt;&gt;&gt; &uuml;berbieten &lt;&lt;&lt;, bidPaket, auk:$paket.id, bid:0, faction:$global.faction}</td></tr>
+			</table>
+		{!table_end}
+		<br />
+		{!table_begin 360,center}
+			<table class="noBorderX" cellspacing="3" cellpadding="3" width="100%">
+			<tr><td class="noBorderX" align="center">Typ</td><td style="width:150px" class="noBorderX">Name</td></tr>
+			<!-- BEGIN paket.reslistitem -->
+				<tr>
+					<td class="noBorderX" align="right">
+						{if res.count}{res.count}x {/endif}
+						<img style="vertical-align:middle; border:0px" src="{res.image}" {if res.fixedsize}height="50" width="50"{/endif} alt="" />
+					</td>
+					<td class="noBorderX">{res.name}</td>
+				</tr>
+			<!-- END paket.reslistitem -->
+			<!-- BEGIN paket.shiplistitem -->
+				<tr><td class="noBorderX"><a class="noborder" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={ship.type}"><img style="border:0px" src="{ship.type.image}" alt="" /></a></td>
+				<td class="noBorderX">{ship.type.name}</td></tr>
+			<!-- END paket.shiplistitem -->
+			</table>
+		{!table_end}
+	{else}
+		{!table_begin 530,center}
+			Aktuell wird kein Paket angeboten
+		{!table_end}	
+	{/endif}
+{/endif}
+{if show.angebote}
+	<div class="smallfont">
+		<div style="text-align:center">Sollten sie Interesse an einem Angebot haben, kontaktieren sie uns via PM unter der ID {global.faction}</div>
+		<br />
+	</div>
+	<table class="noBorder" cellpadding="4" cellspacing="4" width="81%">
+	<tr>
+		<!-- BEGIN angebote.item -->
+		<td class="noBorder" style="width:27%" valign="top">
+			{!table_begin 100%,center}
+				<div style="font-weight:bold; font-size:15px; text-align:center">{angebot.title}<br />
+				<img src="{URL}{angebot.image}" alt="" /></div><br />
+				<div style="text-align:left">
+					{angebot.description}
+				</div>
+			{!table_end}
+		</td>
+		{if angebot.linebreak}
+		</tr>
+		<tr>
+		{/endif}
+		<!-- END angebote.item -->
+		
+		<!-- BEGIN angebote.emptyitem -->
+			<td class="noBorderS" width="25%">&nbsp;</td>
+		<!-- END angebote.emptyitem -->
+	</tr>
+	</table>
+{/endif}
+{if show.other}
+	<form action="./main.php" method="post">
+		<div class="smallfont">
+			<input name="count" type="text" value="0">
+			<select name="to">
+			<!-- BEGIN ueberweisen.listitem -->
+				<option value="{target.id}">{target.name} ({target.id})
+			<!-- END ueberweisen.listitem -->
+			</select>
+			{!form_create_hidden ueberweisen, faction:$global.faction}
+			<input type="submit" value="&uuml;berweisen" />
+		</span>
+	</form>
+	<div class="smallfont">
+		<br />
+		<br />
+	</div>
+	<table width="650" class="noBorder">
+	<tr>
+		<td class="noBorderS">
+			Die letzten 40 Kontobewegungen:
+		</td>
+		<td class="noBorderS" style="text-align:right">
+			<form action="main.php" method="post">
+			<div class="smallfont">
+				{!form_create_hidden showKontoTransactionType,faction:$global.faction,type:$konto.newtranstype}
+				<input type="submit" value="{konto.newtranstype.name}" />
+			</div>
+			</form>
+		</td>
+	</tr>
+	</table>
+	{!table_begin 650,left}
+		<div style="height:200px; width:610px; overflow:auto; padding:4px">
+			<table class="noBorderX" width="100%">
+			<tr>
+				<td class="noBorderX" align="center">Zeitpunkt</td>
+				<td class="noBorderX" align="center">Von/An</td>
+				<td class="noBorderX" align="center">Betrag</td>
+				<td class="noBorderX" align="center">Grund</td>
+			</tr>
+			<tr>
+				<td class="noBorderX" colspan="4">
+					<hr noshade="noshade" size="1" style="color:#cccccc" />
+				</td>
+			</tr>
+			<!-- BEGIN moneytransfer.listitem -->
+				<tr>
+					<td width="90" class="noBorderX" align="center">
+						{moneytransfer.time}
+					</td>
+					<td class="noBorderX" style="width:130px" align="center">
+						{!link_to $moneytransfer.player, default, module:userprofile, css_class:profile, user:$moneytransfer.player.id}
+					</td>
+					<td style="width:100px; color:{if moneytransfer.from}red{else}green{/endif}; text-align:center" class="noBorderX">
+						{moneytransfer.count}
+					</td>
+					<td class="noBorderX">
+						{moneytransfer.reason}
+					</td>
+				</tr>
+			<!-- END moneytransfer.listitem -->
+			</table>
+		</div>
+	{!table_end}
+	<div class="smallfont">
+		<br />
+		<br />Kurse:<br />
+	</div>
+
+	<table class="noBorder" cellpadding="3"><tr>
+	<!-- BEGIN kurse.listitem -->
+		<td class="noBorder" valign="top">
+		{!table_begin 230,left}
+			<span style="text-decoration:underline">{posten.name}:</span><br />
+			<!-- BEGIN kurse.waren.listitem -->
+				<img src="{ware.image}" alt="" />
+				{if ware.preis}{ware.preis} RE{else}Kein bedarf{/endif}<br />
+			<!-- END kurse.waren.listitem -->
+		{!table_end}
+		</td>
+	<!-- END kurse.listitem -->
+	</tr></table>
+{/endif}
+{if show.general}
+	{!table_begin 530,center}
+		<div style="text-align:center;font-size:25px;font-style:italic;font-weight:bold">
+			{global.faction.name}
+		</div>
+		<br />
+		{global.faction.text}
+	{!table_end}
+{/endif}
+{if show.shopOrderGanymedeSummary}
+	{!table_begin 530}
+		<div style="text-align:center;font-size:16px">
+			Ganymede-Transport
+			<br />
+			<br />
+		</div>
+		<table class="noBorderX" width="90%">
+		<tr>
+			<td class="noBorderX" style="width:150px; text-align:right">
+				Objekt:
+			</td>
+			<td class="noBorderX" style="width:20px">
+				&nbsp;
+			</td>
+			<td class="noBorderX" style="text-align:left">
+				{ganymede.name} ({ganymede.id})
+			</td>
+		</tr>
+		<tr>
+			<td class="noBorderX" style="width:150px; text-align:right">
+				Von:
+			</td>
+			<td class="noBorderX" style="width:20px">
+				&nbsp;
+			</td>
+			<td class="noBorderX" style="text-align:left">
+				{source.system}:{source.x}/{source.y}
+			</td>
+		</tr>
+		<tr>
+			<td class="noBorderX" style="width:150px; text-align:right">
+				Nach:
+			</td>
+			<td class="noBorderX" style="width:20px">
+				&nbsp;
+			</td>
+			<td class="noBorderX" style="text-align:left">
+				{target.system}:{target.x}/{target.y}
+			</td>
+		</tr>
+		<tr>
+			<td class="noBorderX" style="width:150px; text-align:right">
+				Preis:
+			</td>
+			<td class="noBorderX" style="width:20px">
+				&nbsp;
+			</td>
+			<td class="noBorderX" style="text-align:left">
+				{transport.price}
+			</td>
+		</tr>
+		{if transport.enableOrder}
+			<tr>
+				<td class="noBorderX" colspan="3" style="text-align:center">
+					<form action="./main.php" method="post">
+						{!form_create_hidden shopOrderGanymedeSummary,faction:$global.faction,sourcesystem:$source.system,ganymedeid:$ganymede.id,targetsystem:$target.system,targetx:$target.x,targety:$target.y,transport:1}
+						<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+						<input type="submit" style="width:110px" value="bestellen" />
+					</form>
+				</td>
+			</tr>
+		{/endif}
+		</table>
+	{!table_end}
+{/endif}
+{if show.shopOrderGanymede}
+	{!table_begin 530}
+		<div style="text-align:center;font-size:16px">
+			Ganymede-Transport
+			<br />
+			<br />
+		</div>
+		{if ganytrans.sourcesystem.list}
+			<form name="form_ganytrans" action="./main.php" method="post">
+				<div style="text-align:center">
+					{!form_create_hidden shopOrderGanymede, faction:$global.faction}
+		
+					<table class="noBorderX" width="90%">
+					<tr>
+						<td class="noBorderX" style="width:150px; text-align:right">
+							Ausgangssystem:
+						</td>
+						<td class="noBorderX" style="width:20px">
+							&nbsp;
+						</td>
+						<td class="noBorderX" style="text-align:left">
+							<select name="sourcesystem" size="1" style="width:220px" onchange="document.getElementsByName('form_ganytrans')[0].submit()">
+							<!-- BEGIN ganytrans.sourcesystem.listitem -->
+								<option value="{sourcesystem.id}" {if sourcesystem.selected}selected="selected"{/endif}>{sourcesystem.name}{if sourcesystem.id} ({sourcesystem.id}){/endif}</option>
+							<!-- END ganytrans.sourcesystem.listitem -->
+							</select>
+						</td>
+					</tr>
+					{if sourcesystem.known}
+						<tr>
+							<td class="noBorderX" style="width:150px; text-align:right">
+								Ganymede:
+							</td>
+							<td class="noBorderX" style="width:20px">
+								&nbsp;
+							</td>
+							<td class="noBorderX" style="text-align:left">
+								<select name="ganymedeid" size="1" style="width:220px">
+								<!-- BEGIN ganytrans.ganymedes.listitem -->
+									<option value="{ganymede.id}" {if ganymede.selected}selected="selected"{/endif}>{ganymede.name} ({ganymede.id})</option>
+								<!-- END ganytrans.ganymedes.listitem -->
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td class="noBorderX" style="width:150px; text-align:right">
+								Zielsystem:
+							</td>
+							<td class="noBorderX" style="width:20px">
+								&nbsp;
+							</td>
+							<td class="noBorderX" style="text-align:left">
+								<select name="targetsystem" size="1" style="width:220px">
+								<!-- BEGIN ganytrans.targetsystem.listitem -->
+									<option value="{targetsystem.id}" {if targetsystem.selected}selected="selected"{/endif}>{targetsystem.name}{if targetsystem.id} ({targetsystem.id}){/endif}</option>
+								<!-- END ganytrans.targetsystem.listitem -->
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td class="noBorderX" style="width:150px; text-align:right">
+								Zielkoordinaten:
+							</td>
+							<td class="noBorderX" style="width:20px">
+								&nbsp;
+							</td>
+							<td class="noBorderX" style="text-align:left">
+								<input type="text" name="targetx" size="3" value="0" />/<input type="text" name="targety" size="3" value="0" />
+							</td>
+						</tr>
+						<tr>
+							<td class="noBorderX" colspan="3" style="text-align:center">
+								<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+								<input type="submit" style="width:110px" value="weiter" />
+							</td>
+						</tr>
+					{/endif}
+					</table>
+				</div>
+			</form>
+		{else}
+			<div style="text-align:center;color:red">
+				Sie verf&uuml;gen &uuml;ber keine Ganymedes
+			</div>
+		{/endif}
+	{!table_end}
+{/endif}
+{if show.shopOrderLocation}
+	{!table_begin 530,center}
+		<div style="text-align:center;font-size:16px">
+			Lieferkoordinaten
+			<br />
+			<br />
+		</div>
+		<div style="text-algin:center">
+			{if order.count > 1}{order.count}x {/endif}{order.name}<br /><br />
+		</div>
+		<form name="form_ganytrans" action="./main.php" method="post">
+			<div style="text-align:center">
+				{!form_create_hidden shopOrder, faction:$global.faction, shopentry:$order.entry, ordercount:$order.count}
+				<input type="text" name="ordersys" size="4" value="0" /> :
+				<input type="text" name="orderx" size="4" value="0" /> / 
+				<input type="text" name="ordery" size="4" value="0" />
+				<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+				<input type="submit" value="bestellen" style="width:150px" />
+			</div>
+		</form>
+	{!table_end}
+{/endif}
+{if show.shop}
+	{if shop.orderlist.list}
+		{!table_begin 630,center}
+			<table class="noBorderX" width="100%">
+			<tr>
+				<td class="noBorderX"></td>
+				<td class="noBorderX" style="text-align:center" colspan="2">Typ</td>
+				<td class="noBorderX" style="text-align:center">Preis</td>
+				<td class="noBorderX" style="text-align:center;width:180px">Status</td>
+			</tr>
+			<!-- BEGIN shop.orderlist.listitem -->
+				<tr>
+				<td style="text-align:center" class="noBorderX">
+					<div style="background-color:{orderentry.bgcolor};height:40px;width:20px"  onmouseover="return overlib('{orderentry.status}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();">
+						&nbsp;&nbsp;
+					</div>
+				</td>
+				<td class="noBorderX">
+					<span class="nobr">
+						{if orderentry.count > 1}{orderentry.count}x {/endif}
+						<img style="vertical-align:middle; border:0px" width="50" src="{orderentry.type.image}" alt="" />
+					</span>
+				</td>
+				<td class="noBorderX">
+					<a class="forschinfo" href="{orderentry.link}">
+						{orderentry.name}
+					</a>
+					{if orderentry.adddata}
+						<br />
+						{orderentry.adddata}
+					{/endif}
+				</td>
+				<td class="noBorderX" style="width:50px;text-align:center">
+					{orderentry.price}
+				</td>
+				<td class="noBorderX" style="text-align:center">
+					&nbsp;{orderentry.status}&nbsp;
+				</td>
+				</tr>
+			<!-- END shop.orderlist.listitem -->
+			</table>
+		{!table_end}
+		<br />
+	{/endif}
+	{if shop.shopownerlist.list}
+		{!table_begin 630,center}
+			<table class="noBorderX" width="100%">
+			<tr>
+				<td class="noBorderX"></td>
+				<td class="noBorderX" style="text-align:center">Spieler</td>
+				<td class="noBorderX" style="text-align:center">Typ</td>
+				<td class="noBorderX" style="text-align:center">Preis</td>
+				<td class="noBorderX" style="text-align:center;width:180px">Status</td>
+			</tr>
+			<!-- BEGIN shop.shopownerlist.listitem -->
+				<tr>
+				<td style="text-align:center" class="noBorderX">
+					<div style="background-color:{orderentry.bgcolor};height:40px;width:20px"  onmouseover="return overlib('{orderentry.status.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();">
+						&nbsp;&nbsp;
+					</div>
+				</td>
+				<td class="noBorderX" style="width:20px;text-align:center">
+					{!link_to $orderentry.owner.name,default,module:userprofile,css_class:profile,user:$orderentry.owner}
+				</td>
+				<td class="noBorderX">
+					&nbsp;{orderentry.count}x 
+					<a class="forschinfo" href="{orderentry.link}">
+						{orderentry.name}
+					</a>
+					{if orderentry.adddata}
+						<br />
+						{orderentry.adddata}
+					{/endif}
+				</td>
+				<td class="noBorderX" style="width:50px;text-align:center">
+					{orderentry.price}
+				</td>
+				<td class="noBorderX" style="text-align:center">
+					<form action="./main.php" method="post">
+						<select name="orderstatus" size="1">
+							<option value="0" {if orderentry.status == 0}selected="selected"{/endif}>Neu</option>
+							<option value="1" {if orderentry.status == 1}selected="selected"{/endif}>In Bearbeitung</option>
+							<option value="2" {if orderentry.status == 2}selected="selected"{/endif}>Auslieferung</option>
+							<option value="3" {if orderentry.status == 3}selected="selected"{/endif}>Nicht verf&uuml;gbar</option>
+							<option>-------------------</option>
+							<option value="4">L&ouml;schen</option>
+						</select>
+						{!form_create_hidden changeShopOrderStatus, orderentry:$orderentry.id, faction:$global.faction}
+						<input type="submit" value="ok" />
+					</form>
+				</td>
+				</tr>
+			<!-- END shop.shopownerlist.listitem -->
+			</table>
+		{!table_end}
+		<br />
+	{/endif}
+	{!table_begin 630,center}
+		<table class="noBorderX" width="100%">
+		<tr>
+			<td class="noBorderX" colspan="3" style="text-align:center">Typ</td>
+			<td class="noBorderX"></td>
+			<td class="noBorderX" style="text-align:center">Preis</td>
+			<td class="noBorderX"></td>
+		</tr>
+		<!-- BEGIN shop.listitem -->
+			<tr>
+				<td style="text-align:left;width:30px" class="noBorderX">
+					<div style="background-color:{entry.availability.color};height:40px;width:20px"  onmouseover="return overlib('{entry.availability.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();">
+						&nbsp;&nbsp;
+					</div>
+				</td>
+				<td class="noBorderX">
+					<img style="vertical-align:middle; border:0px" width="50" src="{entry.type.image}" alt="" />
+				</td>
+				<td class="noBorderX">
+					<a class="forschinfo" href="{entry.link}">
+						{entry.name}
+					</a>
+				</td>
+				<td class="noBorderX" style="width:20px">
+					&nbsp;
+				</td>
+				<td class="noBorderX">
+					{entry.price}
+				</td>
+				<td class="noBorderX">
+					<form action="./main.php" method="post">
+						{if shop.owner}
+							<select name="availability" size="1">
+								<option value="0" {if entry.availability == 0}selected="selected"{/endif}>normal</option>
+								<option value="1" {if entry.availability == 1}selected="selected"{/endif}>1-3</option>
+								<option value="2" {if entry.availability == 2}selected="selected"{/endif}>nichts</option>
+							</select>
+							{!form_create_hidden shopChangeAvailability, shopentry:$entry.id, faction:$global.faction}
+							<input type="submit" value="&auml;ndern" />
+						{else}
+							{if entry.showamountinput}
+								<input type="text" name="ordercount" size="6" value="0" />
+							{/endif}
+							{!form_create_hidden shopOrder, shopentry:$entry.id, faction:$global.faction}
+							<input type="submit" value="bestellen" />
+						{/endif}
+					</form>
+				</td>
+			</tr>
+		<!-- END shop.listitem -->
+		</table>
+	{!table_end}
+{/endif}
