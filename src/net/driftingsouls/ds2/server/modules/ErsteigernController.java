@@ -39,6 +39,7 @@ import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.User;
+import net.driftingsouls.ds2.server.framework.UserIterator;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -181,6 +182,13 @@ public class ErsteigernController extends DSGenerator {
 		redirect();	
 	}
 	
+	/**
+	 * Gibt ein Gebot auf eine Versteigerung ab bzw zeigt, falls kein Gebot angegeben wurde, 
+	 * die angegebene Versteigerung an
+	 * @urlparam Integer bid Der gebotene Betrag oder 0
+	 * @urlparam Integer auk Die Auktion auf die geboten werden soll
+	 *
+	 */
 	public void bidEntryAction() {
 		if( !Faction.get(faction).getPages().hasPage("versteigerung") ) {
 			redirect();
@@ -353,24 +361,239 @@ public class ErsteigernController extends DSGenerator {
 		Common.stub();
 	}
 
+	/**
+	 * Aendert den Anzeigetyp fuer Kontotransaktionen
+	 * @urlparam Integer type Der neue Anzeigetyp (0-2)
+	 *
+	 */
 	public void showKontoTransactionTypeAction() {
-		// TODO
-		Common.stub();
+		if( !Faction.get(faction).getPages().hasPage("other") ) {
+			redirect();	
+			return;
+		}
+		TemplateEngine t = getTemplateEngine();
+		User user = getUser();
+		
+		parameterNumber("type");
+		int type = getInteger("type");
+		
+		if( (type >= 0) && (type < 3) ) {
+			user.setUserValue("TBLORDER/factions/konto_maxtype", Integer.toString(type));
+		}
+		redirect("other"); 
 	}
 	
+	/**
+	 * Zeigt die Seite mit diversen weiteren Infos an
+	 *
+	 */
 	public void otherAction() {
-		// TODO
-		Common.stub();
+		if( !Faction.get(faction).getPages().hasPage("other") ) {
+			redirect();	
+			return;
+		}
+		
+		TemplateEngine t = this.getTemplateEngine();
+		Database db = getDatabase();
+		User user = this.getUser();
+		
+		t.set_var("show.other",1);
+
+		// ueberweisungen
+		t.set_block("_ERSTEIGERN","ueberweisen.listitem","ueberweisen.list");
+
+		UserIterator iter = getContext().createUserIterator("SELECT * FROM users WHERE !LOCATE('hide',flags) AND id!=",user.getID()," ORDER BY id");
+		for( User usr : iter ) {
+			t.set_var(	"target.id",	usr.getID(),
+						"target.name",	Common._title(usr.getName()) );
+			t.parse("ueberweisen.list","ueberweisen.listitem",true);
+		}
+		iter.free();
+		
+		// Auwahl max. Transaktionstyp in der Kontoanzeige generieren
+		int transtype = Integer.parseInt(user.getUserValue("TBLORDER/factions/konto_maxtype"));
+		
+		
+		String newtypetext = "";
+		switch(transtype-1 % 3) {
+		case 0: 
+			newtypetext = "Nur manuelle anzeigen";
+			break;
+		case 1: 
+			newtypetext = "Alle nicht-automatischen anzeigen";
+			break;
+		case 2:
+		default:
+			newtypetext = "Alle anzeigen";
+			transtype = 2;
+		}
+
+		t.set_var(	"konto.newtranstype.name",	newtypetext,
+					"konto.newtranstype",		transtype-1 % 3 );
+							
+		// Kontobewegungen anzeigen
+		t.set_block("_UEBER", "moneytransfer.listitem", "moneytransfer.list");
+		
+		SQLQuery entry = db.query("SELECT * FROM user_moneytransfer WHERE `type`<='",transtype,"' AND ((`from`=",user.getID(),") OR (`to`=",user.getID(),"')) ORDER BY `time` DESC LIMIT 40");
+		while( entry.next() ) {
+			User player = null;
+			
+			if( entry.getInt("from") == user.getID() ) {
+				player = getContext().createUserObject(entry.getInt("to"));
+			}
+			else {
+				player = getContext().createUserObject(entry.getInt("from"));
+			}
+			
+			t.set_var(	"moneytransfer.time",		Common.date("j.n.Y H:i",entry.getLong("time")),
+						"moneytransfer.from",		(entry.getInt("from") == user.getID() ? 1 : 0),
+						"moneytransfer.player",		Common._title(player.getName()),
+						"moneytransfer.player.id",	player.getID(),
+						"moneytransfer.count",		Common.ln(entry.getLong("count")),
+						"moneytransfer.reason",		entry.getString("text") );
+								
+			t.parse("moneytransfer.list", "moneytransfer.listitem", true);
+		}
+		entry.free();
+
+		// GTU-Preise
+		t.set_block("_ERSTEIGERN","kurse.listitem","kurse.list");
+		t.set_block("kurse.listitem","kurse.waren.listitem","kurse.waren.list");
+
+		SQLQuery kurse = db.query("SELECT * FROM warenkurse");
+		while( kurse.next() ) {
+			Cargo kurseCargo = new Cargo( Cargo.Type.STRING, kurse.getString("kurse") );
+			kurseCargo.setOption( Cargo.Option.SHOWMASS, false );
+			
+			t.set_var(	"posten.name",		kurse.getString("name"),
+						"kurse.waren.list",	"" );
+								
+			ResourceList reslist = kurseCargo.getResourceList();
+			for( ResourceEntry res : reslist ) {
+				t.set_var(	"ware.image",	res.getImage(),
+							"ware.preis",	(res.getCount1()/1000d > 0.05 ? res.getCount1()/1000d:"") );
+									
+				t.parse("kurse.waren.list","kurse.waren.listitem",true);
+			}
+			t.parse("kurse.list","kurse.listitem",true);
+		}
+		kurse.free();
 	}
 	
+	/**
+	 * Zeigt die Angebote der Fraktion an
+	 *
+	 */
 	public void angeboteAction() {
-		// TODO
-		Common.stub();
+		if( !Faction.get(faction).getPages().hasPage("angebote") ) {
+			redirect();	
+			return;
+		}
+		
+		TemplateEngine t = getTemplateEngine();
+		Database db = getDatabase();
+		
+		t.set_var("show.angebote",1);
+	
+		t.set_block("_ERSTEIGERN","angebote.item","angebote.list");
+		t.set_block("_ERSTEIGERN","angebote.emptyitem","none");
+	
+		t.set_var( "none", "" );
+						
+		int count = 0;
+		SQLQuery angebot = db.query("SELECT title,image,description FROM factions_angebote WHERE faction=",this.faction);
+		while( angebot.next() ) {
+			count++;
+			t.set_var(	"angebot.title",		Common._title(angebot.getString("title")),
+						"angebot.image",		angebot.getString("image"),
+						"angebot.description",	Common._text(angebot.getString("description")), 
+						"angebot.linebreak",	(count % 3 == 0 ? "1" : "") );
+								
+			t.parse("angebote.list","angebote.item",true);
+		}
+		while( count % 3 > 0 ) {
+			count++;
+			t.parse("angebote.list","angebote.emptyitem",true);
+		}
+		angebot.free();
 	}
 	
+	/**
+	 * Zeigt das zur Versteigerung angebotene Paket an
+	 *
+	 */
 	public void paketAction() {
-		// TODO
-		Common.stub();
+		if( !Faction.get(faction).getPages().hasPage("paket") ) {
+			redirect();
+			return;	
+		}
+		
+		TemplateEngine t = getTemplateEngine();
+		Database db = getDatabase();
+		User user = getUser();
+		
+		SQLResultRow paket = db.first("SELECT * FROM versteigerungen_pakete");
+		t.set_var( "show.pakete", 1 );
+
+		if( !paket.isEmpty() ) {
+			User bieter = getContext().createUserObject(paket.getInt("bieter"));
+
+			String bietername = "";
+			
+			if( bieter.getID() == Faction.GTU ) {
+				bietername = bieter.getName();	
+			}
+			else if( bieter.getID() == user.getID() ) {
+				bietername = bieter.getName();	
+			}
+			else if( user.getAccessLevel() > 20 ) {
+				bietername = bieter.getName();	
+			}
+			else if( (bieter.getAlly() != 0) && (bieter.getAlly() == user.getAlly()) ) {
+				boolean showGtuBieter = db.first("SELECT showGtuBieter FROM ally WHERE id=",bieter.getAlly()).getBoolean("showGtuBieter");
+
+				if( showGtuBieter ) {
+					bietername = bieter.getName();	
+				}	
+			}
+
+			t.set_var(	"paket.id",			paket.getInt("id"),
+						"paket.dauer",		paket.getInt("tick")-this.ticks,
+						"paket.bieter",		Common._title(bietername),
+						"paket.bieter.id",	bieter.getID(),
+						"paket.preis",		Common.ln(paket.getLong("preis")) );
+
+			t.set_block("_ERSTEIGERN","paket.reslistitem","paket.reslist");
+			t.set_block("_ERSTEIGERN","paket.shiplistitem","paket.shiplist");
+
+			if( paket.getString("cargo").length() > 0 ) {
+				Cargo cargo = new Cargo( Cargo.Type.STRING, paket.getString("cargo"));
+				cargo.setOption( Cargo.Option.SHOWMASS, false );
+				cargo.setOption( Cargo.Option.LARGEIMAGES, true );			
+
+				ResourceList reslist = cargo.getResourceList();
+				for( ResourceEntry res : reslist ) {
+					t.set_var(	"res.image",		res.getImage(),
+								"res.name",			res.getName(),
+								"res.fixedsize",	!res.showLargeImages(),
+								"res.count",		(res.getCount1() > 1 ? res.getCount1() : 0 ) );
+									
+					t.parse("paket.reslist","paket.reslistitem",true);
+				}
+			}
+
+			if( paket.getString("ships").length() > 0 ) {
+				int[] shiplist = Common.explodeToInt("|", paket.getString("ships"));
+				for( int i=0; i < shiplist.length; i++ ) {
+					SQLResultRow shiptype = Ships.getShipType( shiplist[i], false );
+					t.set_var(	"ship.type.image",	shiptype.getString("picture"),
+								"ship.type.name",	shiptype.getString("nickname"),
+								"ship.type",		shiplist[i] );
+									
+					t.parse("paket.shiplist","paket.shiplistitem",true);
+				}
+			}
+		}
 	}
 	
 	/**
