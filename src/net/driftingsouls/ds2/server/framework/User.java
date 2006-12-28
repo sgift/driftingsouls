@@ -1153,6 +1153,18 @@ public class User implements Loggable {
 	}
 	
 	/**
+	 * Setzt die ID des von der GTU verwendeten Dropzone-Systems des Spielers
+	 * @param system Die ID des neuen Systems mit der bevorzugten GTU-Dropzone
+	 */
+	public void setGtuDropZone( int system ) {
+		checkAndLoad("gtudropzone");
+		context.getDatabase().tUpdate(1, "UPDATE users SET gtudropzone='",system,"' WHERE id='",id,"' AND gtudropzone='",data.getInt("gtudropzone"),"'");
+		if( !context.getDatabase().isTransaction() || context.getDatabase().tStatus() ) {
+			data.put("gtudropzone", system);
+		}
+	}
+	
+	/**
 	 * Gibt die Koordinate des Ortes zurueck, an dem von NPCs georderte Dinge erscheinen sollen.
 	 * 
 	 * @return Die Koordinaten des Ortes, an dem georderte Dinge erscheinen sollen
