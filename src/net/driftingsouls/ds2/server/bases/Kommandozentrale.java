@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.config.Factions;
+import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.Items;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -168,7 +168,7 @@ class Kommandozentrale extends DefaultBuilding {
 				
 				db.tUpdate(1, "UPDATE bases SET cargo='",cargo.save(),"' WHERE id='",col,"' AND cargo='",cargo.save(true),"'");
 				
-				user.transferMoneyFrom(Factions.GTU, totalRE, "Warenverkauf Asteroid "+col+" - "+base.getName(), false, User.TRANSFER_SEMIAUTO );
+				user.transferMoneyFrom(Faction.GTU, totalRE, "Warenverkauf Asteroid "+col+" - "+base.getName(), false, User.TRANSFER_SEMIAUTO );
 				
 				if( !db.tCommit() ) {
 					context.addError("Fehler: Die Transaktion der Waren war nicht erfolgreich");

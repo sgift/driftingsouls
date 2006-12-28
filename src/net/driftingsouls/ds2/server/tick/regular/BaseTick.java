@@ -31,7 +31,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.config.Factions;
+import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
@@ -276,7 +276,7 @@ public class BaseTick extends TickController {
 			// Haben wir was verkauft? Wenn ja nun das Geld ueberweisen
 			if( get > 0 ) {
 				User user = getContext().createUserObject(base.getOwner());
-				user.transferMoneyFrom(Factions.GTU, get, "Automatischer Warenverkauf Asteroid "+base.getID()+" - "+base.getName(), false, User.TRANSFER_AUTO);	
+				user.transferMoneyFrom(Faction.GTU, get, "Automatischer Warenverkauf Asteroid "+base.getID()+" - "+base.getName(), false, User.TRANSFER_AUTO);	
 			}
 			
 			if( (basedata.getArbeiter() != oldbase.getArbeiter()) || (bewohner != oldbase.getBewohner()) ||

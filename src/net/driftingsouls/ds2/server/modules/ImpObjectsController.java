@@ -18,7 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import net.driftingsouls.ds2.server.config.Factions;
+import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -110,7 +110,7 @@ public class ImpObjectsController extends DSGenerator {
 				Handelsposten
 			*/
 		
-			SQLQuery posten = db.query("SELECT x,y,name FROM ships WHERE id>0 AND owner=",Factions.GTU," AND system=",system," AND LOCATE('tradepost',status)");
+			SQLQuery posten = db.query("SELECT x,y,name FROM ships WHERE id>0 AND owner=",Faction.GTU," AND system=",system," AND LOCATE('tradepost',status)");
 			while( posten.next() ) {
 				t.set_var(	"gtuposten.x",		posten.getInt("x"),
 							"gtuposten.y",		posten.getInt("y"),

@@ -25,5 +25,6 @@
 	<boot class="net.driftingsouls.ds2.server.config.Weapons" type="static" />
 	<boot class="net.driftingsouls.ds2.server.config.ModuleSlots" type="static" />
 	<boot class="net.driftingsouls.ds2.server.config.Medals" type="static" />
+	<boot class="net.driftingsouls.ds2.server.config.Faction" type="static" />
 	<boot class="net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser" type="singleton" />
 </bootlist>
