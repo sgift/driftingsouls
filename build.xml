@@ -34,6 +34,7 @@
 	<property name="docs.home"     value="${basedir}/docs"/>
 	<property name="manager.url"   value="http://localhost:8080/manager"/>
 	<property name="src.home"      value="${basedir}/src"/>
+	<property name="src.jstarmap"  value="${basedir}/clients/jstarmap"/>
 	<property name="web.home"      value="${basedir}/web"/>
 	<property name="ds2.configdir" value="${basedir}/web/WEB-INF/cfg/"/>
 	<property name="templates.compiledir" value="${src.home}/net/driftingsouls/ds2/server/templates" />
@@ -52,6 +53,10 @@
 	<path id="compile.classpath">
 
 		<fileset dir="web/WEB-INF/lib">
+			<include name="*.jar"/>
+		</fileset>
+		
+		<fileset dir="web/java">
 			<include name="*.jar"/>
 		</fileset>
 
@@ -130,7 +135,25 @@
 		</javac>
 	</target>
 	
-	<target name="compile" depends="compile-framework,compile-templates,compile-ds" description="Compile meta target">
+	<target name="compile-jstarmap" depends="prepare" description="Compile client jstarmap sources">
+		<mkdir  dir="${build.home}/java/jstarmap"/>
+		<mkdir  dir="${build.home}/java/jstarmap/classes"/>
+		
+		<javac srcdir="${src.jstarmap}"
+			   destdir="${build.home}/java/jstarmap/classes"
+			   debug="${compile.debug}"
+			   deprecation="${compile.deprecation}"
+			   optimize="${compile.optimize}">
+			<classpath refid="compile.classpath"/>
+		</javac>
+		<jar jarfile="${build.home}/java/JStarmap.jar" manifest="${src.jstarmap}/jstarmap.manifest" basedir="${build.home}/java/jstarmap/classes" includes="**/ds2/jstarmap/**" />
+		<jar jarfile="${build.home}/java/JFramework.jar" manifest="${src.jstarmap}/jframework.manifest" basedir="${build.home}/java/jstarmap/classes" includes="**/ds2/framework/**" />
+	</target>
+	
+	<target name="compile-clients" depends="compile-jstarmap" description="Compile client meta target">
+	</target>
+	
+	<target name="compile" depends="compile-framework,compile-templates,compile-ds,compile-clients" description="Compile meta target">
 	</target>
 	
 	<!-- ==================== jar Target ===================================== -->
@@ -174,9 +197,7 @@
 		<mkdir  dir="${build.home}/WEB-INF/classes"/>
 
 		<copy todir="${build.home}">
-			<fileset dir="${web.home}">
-				<exclude name="**/data/**" />
-			</fileset>
+			<fileset dir="${web.home}" followsymlinks="false"/>
 		</copy>
 
 		<mkdir  dir="${build.home}/WEB-INF/lib"/>
