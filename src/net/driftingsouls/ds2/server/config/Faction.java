@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.config;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.w3c.dom.Document;
@@ -35,7 +35,7 @@ import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
  *
  */
 public class Faction implements Loggable {
-	private static Map<Integer,Faction> factionList = new HashMap<Integer,Faction>();
+	private static Map<Integer,Faction> factionList = new LinkedHashMap<Integer,Faction>();
 	
 	/**
 	 * Die Spieler-ID der GTU

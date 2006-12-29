@@ -18,8 +18,8 @@
  */
 package net.driftingsouls.ds2.server.config;
 
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.framework.Common;
@@ -41,7 +41,7 @@ import org.w3c.dom.NodeList;
  */
 public class Rassen implements Iterable<Rasse>, Loggable {
 	private static Rassen rassenList = new Rassen();
-	private Map<Integer, Rasse> list = new HashMap<Integer, Rasse>();
+	private Map<Integer, Rasse> list = new LinkedHashMap<Integer, Rasse>();
 	
 	private Rassen() {
 		// EMPTY

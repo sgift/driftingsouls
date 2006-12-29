@@ -36,7 +36,7 @@ import org.apache.commons.lang.StringUtils;
  *
  */
 public class Weapons implements Iterable<Weapon> {
-	private Map<String, Weapon> list = new HashMap<String, Weapon>();
+	private Map<String, Weapon> list = new LinkedHashMap<String, Weapon>();
 	private static Weapons instance = new Weapons();
 	
 	private Weapons() {

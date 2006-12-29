@@ -18,8 +18,8 @@
  */
 package net.driftingsouls.ds2.server.config;
 
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.framework.Common;
@@ -43,7 +43,7 @@ import org.w3c.dom.NodeList;
  */
 public class Items implements Loggable,Iterable<Item> {
 	private static Items itemList = new Items();
-	private Map<Integer, Item> list = new HashMap<Integer, Item>();
+	private Map<Integer, Item> list = new LinkedHashMap<Integer, Item>();
 	
 	private Items() {
 		// EMPTY

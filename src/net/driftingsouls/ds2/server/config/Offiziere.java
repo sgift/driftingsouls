@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.config;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -43,7 +43,7 @@ public class Offiziere {
 	static {
 		// TODO: In XML auslagern...
 		// TODO: ...eine richtige Klasse statt SQLResultRow waere auch nicht schlecht...
-		Map<Integer,SQLResultRow> liste = new HashMap<Integer,SQLResultRow>();
+		Map<Integer,SQLResultRow> liste = new LinkedHashMap<Integer,SQLResultRow>();
 		
 		SQLResultRow offi = new SQLResultRow();
 		offi.put("id", 1);

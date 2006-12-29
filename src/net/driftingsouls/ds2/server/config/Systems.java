@@ -18,8 +18,8 @@
  */
 package net.driftingsouls.ds2.server.config;
 
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.Location;
@@ -42,7 +42,7 @@ import org.w3c.dom.NodeList;
  */
 public class Systems implements Iterable<StarSystem>,Loggable {
 	private static Systems systemList = new Systems();
-	private Map<Integer, StarSystem> list = new HashMap<Integer, StarSystem>();
+	private Map<Integer, StarSystem> list = new LinkedHashMap<Integer, StarSystem>();
 	
 	private Systems() {
 		// EMPTY

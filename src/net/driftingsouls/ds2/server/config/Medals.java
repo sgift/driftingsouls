@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.config;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.w3c.dom.Document;
@@ -40,8 +40,8 @@ import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
  */
 public class Medals implements Loggable {
 	private static Medals medalList = new Medals();
-	private Map<Integer, Medal> list = new HashMap<Integer, Medal>();
-	private Map<Integer, Rang> raenge = new HashMap<Integer, Rang>();
+	private Map<Integer, Medal> list = new LinkedHashMap<Integer, Medal>();
+	private Map<Integer, Rang> raenge = new LinkedHashMap<Integer, Rang>();
 	
 	private Medals() {
 		// EMPTY

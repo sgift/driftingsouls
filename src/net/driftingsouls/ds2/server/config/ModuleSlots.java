@@ -18,8 +18,8 @@
  */
 package net.driftingsouls.ds2.server.config;
 
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.w3c.dom.Document;
@@ -40,7 +40,7 @@ import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
  */
 public class ModuleSlots implements Loggable,Iterable<ModuleSlot> {
 	private static ModuleSlots moduleList = new ModuleSlots();
-	private Map<String, ModuleSlot> list = new HashMap<String, ModuleSlot>();
+	private Map<String, ModuleSlot> list = new LinkedHashMap<String, ModuleSlot>();
 	
 	private ModuleSlots() {
 		// EMPTY
