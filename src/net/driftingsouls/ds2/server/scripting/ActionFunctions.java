@@ -177,7 +177,7 @@ public class ActionFunctions {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
 			SQLResultRow ship = scriptparser.getShip();
 			
-			String cmd = command[1];
+			String cmd = (command.length > 1 ? command[1] : "");
 			
 			if( cmd.equals("shipInRange") ) {	
 				int shipid = Integer.parseInt(command[2]);
