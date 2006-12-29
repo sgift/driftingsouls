@@ -292,6 +292,9 @@ public class ErsteigernController extends DSGenerator {
 	 *
 	 */
 	private static class ShopGanyTransportEntry extends ShopEntry {
+		/**
+		 * Die Schiffstypen-ID einer Ganymede
+		 */
 		public static final int SHIPTYPE_GANYMEDE = 33;
 		
 		private long minprice = Long.MAX_VALUE;
