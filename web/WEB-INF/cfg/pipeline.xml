@@ -101,6 +101,9 @@
 		<module name="main">
 			<generator class="net.driftingsouls.ds2.server.modules.MainController" />
 		</module>
+		<module name="map">
+			<generator class="net.driftingsouls.ds2.server.modules.MapController" />
+		</module>
 		<module name="options">
 			<generator class="net.driftingsouls.ds2.server.modules.OptionsController" />
 		</module>
@@ -188,6 +191,12 @@
 			<execute-module>
 				<urldirectory number="-1" />
 			</execute-module>
+		</match>
+		<match pattern="/java/.*\.jar">
+			<execute-reader>
+				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.FileReader" />
+				<file pattern="/(.*)" file="$1" />
+			</execute-reader>
 		</match>
 		<match pattern="/downloads/auth/.*">
 			<actions>

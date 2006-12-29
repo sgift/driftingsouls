@@ -1,0 +1,60 @@
+{!table_begin 600,left}
+	<table class="noBorderX">
+	<tr>
+		<td class="noBorderX" valign="top">
+			<form action="./main.php" method="post">
+			<table class="noBorderX" cellpadding="3">
+			{if map.message}
+				<tr><td class="noBorderX">{map.message}</td></tr>
+			{/endif}
+			<tr>
+				<td class="noBorderX">
+					System<br />
+					<select size="1" name="sys">
+						<!-- BEGIN systems.listitem -->
+							<option {if system.selected}selected="selected"{/endif} value="{system.id}">{system.name} ({system.id}){system.addinfo}</option>
+						<!-- END systems.listitem -->
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td class="noBorderX">
+					{!form_create_hidden default, loadmap:1}
+					<input type="submit" value="Sternenkarte laden" />
+				</td>
+			</tr>
+			</table>
+			</form>
+		</td>
+		<td class="noBorderX">&nbsp;</td>
+		{if map.showsystem}
+			<td class="noBorderX" valign="top">
+				<table class="noBorderX">
+				<tr>
+					<td colspan="3" class="noBorderX">Sprungpunkte:</td>
+				</tr>
+				<!-- BEGIN jumpnodes.listitem -->
+					<tr>
+						<td class="noBorderX" valign="top"><span class="nobr">{jumpnode.x}/{jumpnode.y}</span></td>
+						<td class="noBorderX">nach</td>
+						<td class="noBorderX"><span class="nobr">{jumpnode.name} ({jumpnode.systemout}){jumpnode.blocked}</span></td>
+					</tr>
+				<!-- END jumpnodes.listitem -->
+				</table>
+			</td>
+			</tr>
+			</table>
+		{else}
+			</tr>
+			</table>
+		{/endif}
+{!table_end}
+{if map.showsystem}
+	<br />
+	<applet code="net/driftingsouls/ds2/jstarmap/JStarmap.class" archive="JStarmap{map.applet.index}.jar, JFramework{map.framework.index}.jar, ksoap2.jar" width="{map.applet.width}" height="{map.applet.height}" codebase="{map.applet.codebase}" mayscript="mayscript">
+		<param name="starsystem" value="{map.system}" />
+		<param name="session" value="{global.sess}" />
+		<param name="background" value="#000000">
+		<param name="datapath" value="{global.datapath}">
+	</applet>
+{/endif}
