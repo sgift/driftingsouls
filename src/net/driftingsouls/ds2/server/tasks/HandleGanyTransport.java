@@ -75,14 +75,15 @@ class HandleGanyTransport implements TaskHandler {
 			for( int k=0; k < sysJNList.size(); k++ ) {
 				SQLResultRow ajn = sysJNList.get(k);
 				
-				if( systemInterestLevel.get(ajn.getInt("systemout")) < 0 ) {
+				if( systemInterestLevel.containsKey(ajn.getInt("systemout")) &&
+					systemInterestLevel.get(ajn.getInt("systemout")) < 0 ) {
 					continue;
 				}
 				int pathcost = Math.max(Math.abs(ajn.getInt("x")-currentx),Math.abs(ajn.getInt("y")-currenty));
 				
 				sysJNList.remove(k);
 				
-				Result cost = locateShortestJNPath(ajn.getInt("sysout"),ajn.getInt("xout"),ajn.getInt("yout"), targetsys, targetx, targety );
+				Result cost = locateShortestJNPath(ajn.getInt("systemout"),ajn.getInt("xout"),ajn.getInt("yout"), targetsys, targetx, targety );
 				if( cost == null ) {
 					if( !systemInterestLevel.containsKey(ajn.getInt("systemout")) ) {
 						systemInterestLevel.put(ajn.getInt("systemout"), -1);
