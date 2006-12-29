@@ -1098,7 +1098,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		// Tooltip: Schiffscripte
 		if( user.hasFlag( User.FLAG_EXEC_NOTES ) ) {
 		
-			String script = ship.getString("script").replace("\r\n", "\n").replace("\"", "\\\"");
+			String script = ship.getString("script").replace("\r\n", "\\n").replace("\"", "\\\"");
 			
 			t.set_var(	"tooltip.execnotes",		1,
 						"tooltip.execnotes.begin",	Common.tableBegin(400, "center").replace('"', '\''),
