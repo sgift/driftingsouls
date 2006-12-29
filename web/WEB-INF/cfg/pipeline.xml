@@ -233,8 +233,8 @@
 		</match>
 		<match pattern=".*">
 			<execute-reader>
-				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.FileReader" />
-				<file file="data/errors/no_pipeline.html" />
+				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.ErrorReader" />
+				<file file="404:data/errors/no_pipeline.html" />
 			</execute-reader>
 		</match>
 	</rules>
