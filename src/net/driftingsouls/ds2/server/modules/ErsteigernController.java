@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.modules;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -213,6 +212,7 @@ public class ErsteigernController extends DSGenerator {
 			return;
 		}
 		
+		// Wenn noch kein Gebot abgegeben wurde -> Versteigerung anzeigen
 		if( bid == 0 ) {
 			int entrywidth = 0;
 			int entryheight = 0;
@@ -292,6 +292,7 @@ public class ErsteigernController extends DSGenerator {
 						"bid.id",			auk );
 			return;
 		} 
+		// Gebot bestaetigt -> Versteigerung aktuallisieren
 		else if( bid > 0 ) {
 			long cost = entry.getLong("preis")+(long)(entry.getLong("preis")/20d);
 			if( cost == entry.getLong("preis") ) {
@@ -325,8 +326,6 @@ public class ErsteigernController extends DSGenerator {
 				 	bieter.transferMoneyFrom( faction, entry.getLong("preis"), "R&uuml;ck&uuml;berweisung Gebot #2"+entry.getInt("id")+" '"+entryname+"'", false, User.TRANSFER_SEMIAUTO);
 				}
 					
-				t.set_var("show.highestbid",1);
-					
 				db.tUpdate(1, "UPDATE versteigerungen " +
 						"SET tick=",entry.getInt("tick") <= ticks+3 ? ticks+3 : entry.getInt("tick"),",bieter=",user.getID(),",preis=",bid," " +
 						"WHERE id=",auk," AND tick=",entry.getInt("tick")," AND bieter=",entry.getInt("bieter")," AND preis=",entry.getInt("preis"));
@@ -341,7 +340,8 @@ public class ErsteigernController extends DSGenerator {
 				}
 				
 				user.setTemplateVars(t);
-				t.set_var( "user.konto", Common.ln(user.getKonto()) );
+				t.set_var( 	"user.konto", 		Common.ln(user.getKonto()),
+							"show.highestbid",	1);
 			}
 			else {
 				t.set_var("show.lowres",1);
@@ -351,14 +351,146 @@ public class ErsteigernController extends DSGenerator {
 		redirect();
 	}
 	
+	/**
+	 * Gibt ein Gebot auf die Versteigerung eines Pakets ab bzw zeigt, falls kein Gebot angegeben wurde, 
+	 * die angegebene Versteigerung an
+	 * @urlparam Integer bid Der gebotene Betrag oder 0
+	 * @urlparam Integer auk Die Auktion auf die geboten werden soll
+	 *
+	 */
 	public void bidPaketAction() {
-		// TODO
-		Common.stub();
+		if( !Faction.get(faction).getPages().hasPage("paket") ) {
+			redirect();
+			return;	
+		}
+		
+		User user = getUser();
+		TemplateEngine t = getTemplateEngine();
+		Database db = getDatabase();
+		
+		parameterNumber("bid");
+		long bid = getInteger("bid");
+		
+		parameterNumber("auk");
+		int auk = getInteger("auk");
+		
+		SQLResultRow paket = db.first("SELECT * FROM versteigerungen_pakete WHERE id=",auk);
+		if( paket.isEmpty() ) {
+			redirect("paket");
+			return;
+		}
+		
+		long cost = paket.getLong("preis")+(long)(paket.getLong("preis")/20d);
+		if( cost == paket.getLong("preis") ) {
+			cost++;
+		}
+		
+		// Wenn noch kein Gebot abgegeben wurde -> Versteigerung anzeigen
+		if( bid == 0 ) {
+			t.set_var(	"show.bid.paket",	1,
+						"bid.price",		cost,
+						"bid.id",			auk );
+
+			return;
+		} 
+		// Gebot bestaetigt -> Versteigerung aktuallisieren
+		else if( bid > 0 ) {		
+			if( (bid >= cost) && (user.getKonto().compareTo(new BigDecimal(bid).toBigInteger()) >= 0 ) ) {
+				db.tBegin();
+				
+				if( paket.getInt("bieter") != faction ) {
+					User bieter = getContext().createUserObject(paket.getInt("bieter"));
+						
+					PM.send(getContext(), faction, bieter.getID(), "Bei Versteigerung um das GTU-Paket &uuml;berboten", 
+							"Sie wurden bei der Versteigerung um das GTU-Paket &ueberboten. Die von ihnen gebotenen RE in H&ouml;he von "+Common.ln(paket.getLong("preis"))+" wurden auf ihr Konto zur&uuml;ck&uuml;berwiesen.\n\nGaltracorp Unlimited");
+					 
+				 	bieter.transferMoneyFrom( faction, paket.getLong("preis"), "R&uuml;ck&uuml;berweisung Gebot #9"+paket.getInt("id")+" 'GTU-Paket'", false, User.TRANSFER_SEMIAUTO);
+				}
+				
+				db.tUpdate(1, "UPDATE versteigerungen_pakete " +
+						"SET tick=",paket.getInt("tick") <= ticks+3 ? ticks+3 : paket.getInt("tick"),",bieter=",user.getID(),",preis=",bid," " +
+						"WHERE id=",auk," AND preis=",paket.getLong("preis")," AND bieter=",paket.getInt("bieter")," AND tick=",paket.getInt("tick"));
+				
+				User gtu = getContext().createUserObject( faction );
+				gtu.transferMoneyFrom( user.getID(), bid, "&Uuml;berweisung Gebot #9"+auk+" 'GTU-Paket'", false, User.TRANSFER_SEMIAUTO);
+				
+				if( !db.tCommit() ) {
+					addError("W&auml;hrend des Bietvorgangs ist ein Fehler aufgetreten. Bitte versuchen sie es sp&auml;ter erneut");
+					redirect("versteigerung");
+					return;
+				}
+							
+				user.setTemplateVars(t);
+				t.set_var( 	"user.konto", 		Common.ln(user.getKonto()),
+							"show.highestbid",	1);
+			} 
+			else {
+				t.set_var("show.lowres",1);
+			}
+		}
+		
+		redirect("paket");
 	}
 	
+	/**
+	 * Ueberweist einen bestimmten Geldbetrag an einen anderen Spieler.
+	 * Wenn die Ueberweisung noch nicht explizit bestaetigt wurde, wird die Bestaetigung
+	 * erfragt
+	 * @urlparam Integer to Die ID des Spielers, der Ziel der Ueberweisung sein soll
+	 * @urlparam String ack <code>yes</code> um die Ueberweisung zu bestaetigen
+	 * @urlparam Integer count Die zu ueberweisende Geldmenge
+	 *
+	 */
 	public void ueberweisenAction() {
-		// TODO
-		Common.stub();
+		if( !Faction.get(faction).getPages().hasPage("other") ) {
+			redirect();	
+			return;
+		}
+		
+		User user = getUser();
+		TemplateEngine t = getTemplateEngine();
+		
+		parameterNumber("to");
+		int to = getInteger("to");
+		
+		parameterString("ack");
+		String ack = getString("ack");
+		
+		parameterNumber("count");
+		int count = getInteger("count");
+		
+		if( user.getKonto().compareTo(new BigDecimal(count).toBigInteger()) < 0 ) {
+			count = user.getKonto().intValue();
+		}
+		
+		if( count <= 0 ) {
+			redirect();
+			return;
+		}
+		
+		// Falls noch keine Bestaetigung vorliegt: Bestaetigung der Ueberweisung erfragen
+		if( !ack.equals("yes") ) {
+			User tmp = getContext().createUserObject( to );
+			
+			t.set_var(	"show.ueberweisen",			1,
+						"ueberweisen.betrag",		Common.ln(count),
+						"ueberweisen.betrag.plain",	count,
+						"ueberweisen.to.name",		Common._title(tmp.getName()),
+						"ueberweisen.to",			tmp.getID() );
+			
+			return;
+		} 
+
+		User tmp = getContext().createUserObject( to );
+			
+		tmp.transferMoneyFrom( user.getID(), count, "&Uuml;berweisung vom "+Common.getIngameTime(this.ticks));
+			
+		PM.send(getContext(), user.getID(), tmp.getID(), "RE &uuml;berwiesen", "Ich habe dir soeben "+Common.ln(count)+" RE &uuml;berwiesen");
+			
+		user.setTemplateVars(t);
+		t.set_var( "user.konto", Common.ln(user.getKonto()) );
+	
+		redirect("other");	
 	}
 
 	/**
@@ -371,7 +503,7 @@ public class ErsteigernController extends DSGenerator {
 			redirect();	
 			return;
 		}
-		TemplateEngine t = getTemplateEngine();
+		
 		User user = getUser();
 		
 		parameterNumber("type");
@@ -434,7 +566,7 @@ public class ErsteigernController extends DSGenerator {
 		// Kontobewegungen anzeigen
 		t.set_block("_UEBER", "moneytransfer.listitem", "moneytransfer.list");
 		
-		SQLQuery entry = db.query("SELECT * FROM user_moneytransfer WHERE `type`<='",transtype,"' AND ((`from`=",user.getID(),") OR (`to`=",user.getID(),"')) ORDER BY `time` DESC LIMIT 40");
+		SQLQuery entry = db.query("SELECT * FROM user_moneytransfer WHERE `type`<=",transtype," AND ((`from`=",user.getID(),") OR (`to`=",user.getID(),")) ORDER BY `time` DESC LIMIT 40");
 		while( entry.next() ) {
 			User player = null;
 			
@@ -460,7 +592,7 @@ public class ErsteigernController extends DSGenerator {
 		t.set_block("_ERSTEIGERN","kurse.listitem","kurse.list");
 		t.set_block("kurse.listitem","kurse.waren.listitem","kurse.waren.list");
 
-		SQLQuery kurse = db.query("SELECT * FROM warenkurse");
+		SQLQuery kurse = db.query("SELECT * FROM gtu_warenkurse");
 		while( kurse.next() ) {
 			Cargo kurseCargo = new Cargo( Cargo.Type.STRING, kurse.getString("kurse") );
 			kurseCargo.setOption( Cargo.Option.SHOWMASS, false );
