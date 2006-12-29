@@ -143,6 +143,21 @@ public class SQLQuery {
 	}
 	
 	/**
+	 * Gibt den Wert einer Spalte als <code>boolean</code> zurueck
+	 * @param column Der Spaltenname
+	 * @return Der Wert
+	 */
+	public boolean getBoolean(String column) {
+		try {
+			return result.getBoolean(column);
+		}
+		catch( SQLException e ) {
+			db.error("Couldn't fetch boolean column "+column+"\n"+e, null);
+			throw new SQLRuntimeException(e);
+		}
+	}
+	
+	/**
 	 * Gibt den Wert einer Spalte als <code>int</code> zurueck
 	 * @param column Der Spaltenname
 	 * @return Der Wert
@@ -198,6 +213,22 @@ public class SQLQuery {
 		}
 		catch( SQLException e ) {
 			db.error("Couldn't fetch double column "+column+"\n"+e, null);
+			throw new SQLRuntimeException(e);
+		}
+	}
+	
+	/**
+	 * Setzt den Wert einer <code>boolean</code>-Spalte auf einen neuen Wert.
+	 * Die unterliegende Datenbank wird erst nach Aufruf von {@link #update()} aktuallisiert.
+	 * @param column Der Spaltenname
+	 * @param value Der neue Wert
+	 */
+	public void setBoolean( String column, boolean value ) {
+		try {
+			result.updateBoolean(column, value);
+		}
+		catch( SQLException e ) {
+			db.error("Couldn't update boolean column "+column+"\n"+e, null);
 			throw new SQLRuntimeException(e);
 		}
 	}
