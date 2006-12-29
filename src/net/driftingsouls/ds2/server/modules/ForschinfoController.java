@@ -62,7 +62,6 @@ public class ForschinfoController extends DSGenerator {
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		Database db = getDatabase();
 		User user = getUser();
 		
 		int researchid = getInteger("res");
