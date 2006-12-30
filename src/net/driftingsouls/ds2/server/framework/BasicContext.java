@@ -183,7 +183,8 @@ public class BasicContext implements Context,Loggable {
 	}
 	
 	public void revalidate() {
-		if( !currentSession.equals(request.getParameter("sess")) ) {
+		if( (currentSession == null && request.getParameter("sess") != null) || 
+			(currentSession != null && !currentSession.equals(request.getParameter("sess"))) ) {
 			errorList.clear();
 			authenticateUser();
 		}
