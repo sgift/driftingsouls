@@ -21,7 +21,9 @@ package net.driftingsouls.ds2.framework.services;
 
 
 import org.ksoap2.SoapEnvelope;
+import org.ksoap2.SoapFault;
 import org.ksoap2.serialization.SoapObject;
+import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
@@ -48,12 +50,17 @@ public class SoapConnector implements ServerConnectable {
 		SoapObject rpc =
 			new SoapObject("http://ds.drifting-souls.net/", "identifyShip");
 
-		rpc.addProperty("sess", ServerConnector.getInstance().getSession());
 		rpc.addProperty("shipid", String.valueOf(id) );
 			
 		SoapSerializationEnvelope envelope = soapCall(rpc);
 
-		return envelope.getResult().toString();
+		try {
+			return (String)envelope.getResponse();			
+		}
+		catch( SoapFault f ) {
+			System.err.println(f);
+			return null;
+		}
 	}
 	
 	/**
@@ -67,12 +74,17 @@ public class SoapConnector implements ServerConnectable {
 		SoapObject rpc =
 			new SoapObject("http://ds.drifting-souls.net/", "identifyBase");
 
-		rpc.addProperty("sess", ServerConnector.getInstance().getSession());
 		rpc.addProperty("baseid", String.valueOf(id) );
 			
 		SoapSerializationEnvelope envelope = soapCall(rpc);
 
-		return envelope.getResult().toString();
+		try {
+			return (String)envelope.getResponse();			
+		}
+		catch( SoapFault f ) {
+			System.err.println(f);
+			return null;
+		}
 	}
 	
 	/**
@@ -83,17 +95,14 @@ public class SoapConnector implements ServerConnectable {
 	public boolean validateSessID() {
 		SoapObject rpc =
 			new SoapObject("http://ds.drifting-souls.net/", "validateSessID");
-
-		rpc.addProperty("sess", ServerConnector.getInstance().getSession());
 			
 		SoapSerializationEnvelope envelope = soapCall(rpc);
 
-		String answer = envelope.getResult().toString();
-		
-		if( answer.equals("1") ) {
-			return true;
+		try {
+			return (Boolean)envelope.getResponse();			
 		}
-		else {
+		catch( SoapFault f ) {
+			System.err.println(f);
 			return false;
 		}
 	}
@@ -106,25 +115,15 @@ public class SoapConnector implements ServerConnectable {
 	public int hasNewPM() {
 		SoapObject rpc =
 			new SoapObject("http://ds.drifting-souls.net/", "hasNewPM");
-
-		rpc.addProperty("sess", ServerConnector.getInstance().getSession());
 			
 		SoapSerializationEnvelope envelope = soapCall(rpc);
 
-		String answer = envelope.getResult().toString();
-		
 		try {
-			if( answer == null ) {
-				answer = "0";
-			}
-		
-			return Integer.decode(answer).intValue();
+			return (Integer)envelope.getResponse();
 		}
-		catch( NumberFormatException e ) {
-			System.out.println("Ungueltiger Zahlenwert in SoapConnector::hasNewPM");
-			System.out.println("Fehlerbeschreibung: "+e.getClass().getName()+" "+e.getMessage());
-		
-			return 0;
+		catch( SoapFault f ) {
+			System.err.println(f);
+			return -1;
 		}
 	}
 	
@@ -138,12 +137,17 @@ public class SoapConnector implements ServerConnectable {
 		SoapObject rpc =
 			new SoapObject("http://ds.drifting-souls.net/", "admin_execcmd");
 
-		rpc.addProperty("sess", ServerConnector.getInstance().getSession());
 		rpc.addProperty("command", command);
 			
 		SoapSerializationEnvelope envelope = soapCall(rpc);
 
-		return envelope.getResult().toString();
+		try {
+			return (String)envelope.getResponse();
+		}
+		catch( SoapFault f ) {
+			System.err.println(f);
+			return null;
+		}
 	}
 	
 	/**
@@ -155,17 +159,14 @@ public class SoapConnector implements ServerConnectable {
 	public boolean admin_isAdmin() {
 		SoapObject rpc =
 			new SoapObject("http://ds.drifting-souls.net/", "admin_isAdmin");
-
-		rpc.addProperty("sess", ServerConnector.getInstance().getSession());
-			
+		
 		SoapSerializationEnvelope envelope = soapCall(rpc);
 
-		String answer = envelope.getResult().toString();
-
-		if( answer.equals("1") ) {
-			return true;
+		try {
+			return (Boolean)envelope.getResponse();
 		}
-		else {
+		catch( SoapFault f ) {
+			System.err.println(f);
 			return false;
 		}
 	}
@@ -182,13 +183,18 @@ public class SoapConnector implements ServerConnectable {
 	 */
 	public String getUserValue( String uservalue ) {
 		SoapObject rpc =
-			new SoapObject("http://ds.drifting-souls.net/", "soap_getUserValue");
+			new SoapObject("http://ds.drifting-souls.net/", "getUserValue");
 
-		rpc.addProperty("sess", ServerConnector.getInstance().getSession());
 		rpc.addProperty("uservalue", uservalue);
 			
 		SoapSerializationEnvelope envelope = soapCall(rpc);
-		return envelope.getResult().toString();
+		try {
+			return ((SoapPrimitive)envelope.getResponse()).toString();
+		}
+		catch( SoapFault f ) {
+			System.err.println(f);
+			return null;
+		}
 	}
 	
 	/**
@@ -200,9 +206,8 @@ public class SoapConnector implements ServerConnectable {
 	 */
 	public void setUserValue( String uservalue, String newvalue ) {
 		SoapObject rpc =
-			new SoapObject("http://ds.drifting-souls.net/", "soap_setUserValue");
+			new SoapObject("http://ds.drifting-souls.net/", "setUserValue");
 
-		rpc.addProperty("sess", ServerConnector.getInstance().getSession());
 		rpc.addProperty("uservalue", uservalue);
 		rpc.addProperty("newvalue", newvalue);
 			
@@ -216,18 +221,24 @@ public class SoapConnector implements ServerConnectable {
 	 * @return Ergebnis des Soap-Aufrufs
 	 */
 	private SoapSerializationEnvelope soapCall( SoapObject rpc ) {
-		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER10);
+		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
 		
 		try {
 			envelope.bodyOut = rpc;
 
-			HttpTransportSE ht = new HttpTransportSE(ServerConnector.getInstance().getServerURL()+"php/interface.php");
+			String soapPath = "soap";
+			String sess = ServerConnector.getInstance().getSession();
+			if( sess != null && sess.length() > 0 ) {
+				soapPath += "/"+sess;
+			}
+			
+			HttpTransportSE ht = new HttpTransportSE(ServerConnector.getInstance().getServerURL()+soapPath+"/interface");
 			
 			ht.call("http://ds.drifting-souls.net/#"+rpc.getName(), envelope);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("Error: "+e.toString());
+			System.err.println("Error: "+e.toString());
 		}
 		
 		return envelope;
