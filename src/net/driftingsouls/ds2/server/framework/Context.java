@@ -180,4 +180,11 @@ public interface Context {
 	 * @return Die Variable oder <code>null</code>, falls die Variable nicht existiert
 	 */
 	public abstract Object getVariable(Class<?> cls, String varname);
+	
+	/**
+	 * Ueberprueft, ob eine neue Session gesetzt wurde und authentifiziert ggf den Benutzer.
+	 * Die Liste der Fehler wird in dem Fall zurueckgesetzt. 
+	 *
+	 */
+	public abstract void revalidate();
 }

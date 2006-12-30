@@ -48,6 +48,7 @@ public class BasicContext implements Context,Loggable {
 	private List<Error> errorList = new ArrayList<Error>();
 	private Map<Class<?>, Object> contextSingletons = new HashMap<Class<?>,Object>();
 	private Map<Class<?>, Map<String,Object>> variables = new HashMap<Class<?>, Map<String, Object>>();
+	private String currentSession = "";
 	
 	private static String[] actionBlockingPhrases = {
 		"Immer mit der Ruhe!\nDer arme Server ist schon total erschl&ouml;pft.\nG&ouml;nn ihm mal ein oder zwei Minuten Pause :)",
@@ -67,7 +68,7 @@ public class BasicContext implements Context,Loggable {
 		this.request = request;
 		this.response = response;
 		
-		authenticateUser();
+		revalidate();
 		
 		ContextMap.addContext(this);
 	}
@@ -76,6 +77,7 @@ public class BasicContext implements Context,Loggable {
 		Database db = getDatabase();
 		
 		String sess = request.getParameter("sess");
+		currentSession = sess;
 		
 		String errorurl = Configuration.getSetting("URL")+"ds?module=portal&action=login";
 	
@@ -178,6 +180,13 @@ public class BasicContext implements Context,Loggable {
 		setActiveUser(user);
 		
 		return;
+	}
+	
+	public void revalidate() {
+		if( !currentSession.equals(request.getParameter("sess")) ) {
+			errorList.clear();
+			authenticateUser();
+		}
 	}
 
 	public User getCachedUser(int id) {
