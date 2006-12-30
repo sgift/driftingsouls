@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline;
 
+import org.w3c.dom.Node;
+
 import net.driftingsouls.ds2.server.framework.Context;
 
 /**
@@ -26,5 +28,17 @@ import net.driftingsouls.ds2.server.framework.Context;
  *
  */
 public interface Pipeline {
+	/**
+	 * Fuehrt die Pipeline aus
+	 * @param context Der Kontext, in dem die Pipeline ausgefuehrt werden soll
+	 * @throws Exception
+	 */
 	public void execute(Context context) throws Exception;
+	
+	/**
+	 * Setzt den XML-Konfigurationsknoten der Pipeline. Wenn dieser <code>null</code> ist, wird
+	 * kein Konfigurationsknoten verwendet
+	 * @param node Der XML-Konfigurationsknoten der Pipeline oder <code>null</code>
+	 */
+	public void setConfiguration(Node node);
 }

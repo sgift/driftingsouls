@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.framework.pipeline.reader;
 
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
+import net.driftingsouls.ds2.server.framework.pipeline.ReaderPipeline;
 
 /**
  * Meldet als Antwort einen HTTP-Fehlercode in Kombination mit einer HTML-Seite
@@ -29,7 +30,9 @@ import net.driftingsouls.ds2.server.framework.Loggable;
 public class ErrorReader extends FileReader implements Reader, Loggable {
 	
 	@Override
-	public void read(String filename, Context context) throws Exception {
+	public void read(Context context, ReaderPipeline pipeline) throws Exception {
+		String filename = pipeline.getFile();
+		
 		if( filename.indexOf(':') == -1 ) {
 			context.getResponse().setStatus(Integer.parseInt(filename));
 			return;
@@ -39,7 +42,8 @@ public class ErrorReader extends FileReader implements Reader, Loggable {
 		filename = filename.substring(filename.indexOf(":")+1);
 		
 		context.getResponse().setStatus(error);
+		pipeline.setFile(filename);
 		
-		super.read(filename, context);
+		super.read(context, pipeline);
 	}
 }

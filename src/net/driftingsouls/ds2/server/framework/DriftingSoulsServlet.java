@@ -62,7 +62,7 @@ public class DriftingSoulsServlet extends HttpServlet {
 	private ModuleSetting defaultModule = null;
 	private List<Rule> rules = new ArrayList<Rule>();
 	
-	private class ModuleSetting implements Cloneable {
+	private static class ModuleSetting implements Cloneable {
 		Class<?> generator = null;
 		Class<?> transformer = null;
 		Class<?> serializer = null;
@@ -112,6 +112,92 @@ public class DriftingSoulsServlet extends HttpServlet {
 		}
 	}
 	
+	private static class Parameter {
+		private static final int PLAIN = 0;
+		private static final int URL_PARAMETER = 1;
+		private static final int URL_DIRECTORY = 2;
+		
+		private int type = PLAIN;
+		private String data = "";
+		
+		/**
+		 * Erstellt aus einem Elternknoten, welcher Parameterinformationen enthaelt, ein
+		 * Parameterobjekt.
+		 * 
+		 * @param masternode Der Elternknoten mit Parameterinformationen
+		 * @throws Exception
+		 */
+		public Parameter(Node masternode) throws Exception {
+			Node node = XMLUtils.getNodeByXPath(masternode, "plain | urlparameter | urldirectory");
+			if( node == null ) {
+				throw new Exception("Keine Parameter vorhanden");
+			}
+			
+			if( "plain".equals(node.getNodeName()) ) {
+				type = PLAIN;
+				data = XMLUtils.getStringByXPath(node, "@name").trim();
+			}
+			else if( "urlparameter".equals(node.getNodeName()) ) {
+				type = URL_PARAMETER;
+				data = XMLUtils.getStringByXPath(node, "@name").trim();
+			}
+			else if( "urldirectory".equals(node.getNodeName()) ) {
+				type = URL_DIRECTORY;
+				data = XMLUtils.getStringByXPath(node, "@number").trim();
+				Integer.parseInt(data); // Check, ob das Konvertieren ohne Probleme geht
+			}
+		}
+		
+		/**
+		 * Liefert den sich aus dem Parameter und den aktuellen Kontext ergebenden Wert
+		 * @param context Der aktuelle Kontext
+		 * @return Der Wert
+		 * @throws Exception
+		 */
+		public String getValue(Context context) throws Exception {
+			switch( type ) {
+			case PLAIN:
+				return data;
+
+			case URL_PARAMETER:
+				return context.getRequest().getParameter(data);
+
+			case URL_DIRECTORY:
+				String[] dirs = context.getRequest().getPath().substring(1).split("\\/");
+				
+				int number = Integer.parseInt(data);
+				if( (Math.abs(number) > dirs.length) || (number == 0) ) {
+					throw new Exception("Match-Rule: Directory index out of bounds");
+				}
+				if( number > 0 ) {
+					return dirs[number-1];
+				}
+
+				return dirs[dirs.length+number];					
+			}
+			return null;
+		}
+	}
+	
+	private static class ParameterMap {
+		private Map<String, Parameter> paramMap = new HashMap<String,Parameter>();
+		
+		ParameterMap( Node node ) throws Exception {
+			NodeList nodes = XMLUtils.getNodesByXPath(node, "parameter");
+			for( int i=0; i < nodes.getLength(); i++ ) {
+				Node paramNode = nodes.item(i);
+				String name = XMLUtils.getStringAttribute(paramNode, "name");
+				paramMap.put(name, new Parameter(paramNode));
+			}
+		}
+		
+		void apply(Context context) throws Exception {
+			for( String param : paramMap.keySet() ) {
+				context.getRequest().setParameter(param, paramMap.get(param).getValue(context));
+			}
+		}
+	}
+	
 	/**
 	 * Repraesentiert einen Regel innerhalb der Pipeline-Konfiguration.
 	 * Aus allgemeinen Regeln werden die konkreten, fuer den jeweiligen Kontext
@@ -140,74 +226,10 @@ public class DriftingSoulsServlet extends HttpServlet {
 	}
 	
 	private abstract class AbstractRule implements Rule {		
-		private class Parameter {
-			private static final int PLAIN = 0;
-			private static final int URL_PARAMETER = 1;
-			private static final int URL_DIRECTORY = 2;
-			
-			private int type = PLAIN;
-			private String data = "";
-			
-			/**
-			 * Erstellt aus einem Elternknoten, welcher Parameterinformationen enthaelt, ein
-			 * Parameterobjekt.
-			 * 
-			 * @param masternode Der Elternknoten mit Parameterinformationen
-			 * @throws Exception
-			 */
-			public Parameter(Node masternode) throws Exception {
-				Node node = XMLUtils.getNodeByXPath(masternode, "plain | urlparameter | urldirectory");
-				if( node == null ) {
-					throw new Exception("Keine Parameter in der Match-Rule vorhanden");
-				}
-				
-				if( "plain".equals(node.getNodeName()) ) {
-					type = PLAIN;
-					data = XMLUtils.getStringByXPath(node, "@name").trim();
-				}
-				else if( "urlparameter".equals(node.getNodeName()) ) {
-					type = URL_PARAMETER;
-					data = XMLUtils.getStringByXPath(node, "@name").trim();
-				}
-				else if( "urldirectory".equals(node.getNodeName()) ) {
-					type = URL_DIRECTORY;
-					data = XMLUtils.getStringByXPath(node, "@number").trim();
-					Integer.parseInt(data); // Check, ob das Konvertieren ohne Probleme geht
-				}
-			}
-			
-			/**
-			 * Liefert den sich aus dem Parameter und den aktuellen Kontext ergebenden Wert
-			 * @param context Der aktuelle Kontext
-			 * @return Der Wert
-			 * @throws Exception
-			 */
-			public String getValue(Context context) throws Exception {
-				switch( type ) {
-				case PLAIN:
-					return data;
-
-				case URL_PARAMETER:
-					return context.getRequest().getParameter(data);
-
-				case URL_DIRECTORY:
-					String[] dirs = context.getRequest().getPath().substring(1).split("\\/");
-					
-					int number = Integer.parseInt(data);
-					if( (Math.abs(number) > dirs.length) || (number == 0) ) {
-						throw new Exception("Match-Rule: Directory index out of bounds");
-					}
-					if( number > 0 ) {
-						return dirs[number-1];
-					}
-
-					return dirs[dirs.length+number];					
-				}
-				return null;
-			}
-		}
 		private static final int EXECUTE_MODULE = 0;
 		private static final int EXECUTE_READER = 1;
+		
+		private Node config = null;
 		
 		// actions
 		private List<Action> actions = new ArrayList<Action>();
@@ -226,10 +248,22 @@ public class DriftingSoulsServlet extends HttpServlet {
 		
 		private int executionType = -1;
 		
+		private ParameterMap parameterMap = null;
+		
 		AbstractRule( Node matchNode ) throws Exception {
 			NodeList nodes = XMLUtils.getNodesByXPath(matchNode, "actions/*");
 			if( nodes != null ) {
 				setupActions(nodes);
+			}
+			
+			Node config = XMLUtils.getNodeByXPath(matchNode, "config");
+			if( config != null )  {
+				this.config = config;
+			}
+			
+			Node paramMap = XMLUtils.getNodeByXPath(matchNode, "parameter-map");
+			if( paramMap != null )  {
+				this.parameterMap = new ParameterMap(paramMap);
 			}
 			
 			Node node = XMLUtils.getNodeByXPath(matchNode, "execute-module");
@@ -331,14 +365,26 @@ public class DriftingSoulsServlet extends HttpServlet {
 			if( !executeable(context) ) {
 				return null;
 			}
-			if( executionType == EXECUTE_MODULE ) {
-				return executeModule(context);
-			}
-			if( executionType == EXECUTE_READER ) {
-				return executeReader(context);
+			
+			if( parameterMap != null ) {
+				parameterMap.apply(context);
+				context.revalidate();
 			}
 			
-			return null;
+			Pipeline pipe = null;
+			
+			if( executionType == EXECUTE_MODULE ) {
+				pipe = executeModule(context);
+			}
+			if( executionType == EXECUTE_READER ) {
+				pipe = executeReader(context);
+			}
+			
+			if( pipe != null ) {
+				pipe.setConfiguration(config);
+			}
+			
+			return pipe;
 		}
 		
 		private Pipeline executeReader(Context context) throws Exception {
@@ -450,6 +496,11 @@ public class DriftingSoulsServlet extends HttpServlet {
 			Request request = new HttpRequest(httpRequest); 
 			Response response = new HttpResponse(httpResponse);
 			BasicContext context = new BasicContext(request, response);
+			
+			context.putVariable(HttpServlet.class, "request", httpRequest);
+			context.putVariable(HttpServlet.class, "response", httpResponse);
+			context.putVariable(HttpServlet.class, "context", getServletContext());
+			context.putVariable(HttpServlet.class, "config", getServletConfig());
 			
 			for( Rule rule : rules ) {
 				if( (pipeline = rule.execute(context)) != null ) {

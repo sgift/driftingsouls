@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.framework.pipeline;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -35,7 +36,12 @@ public class HttpResponse implements Response {
 	private int contentLength;
 	private HttpServletResponse response;
 	private boolean send;
+	private boolean manualSend = false;
 	
+	/**
+	 * Konstruktor
+	 * @param response Die HttpServletResponse, welche die gesendeten Daten erhalten soll
+	 */
 	public HttpResponse(HttpServletResponse response) {
 		contentType = "text/html";
 		charSet = "UTF-8";
@@ -102,18 +108,22 @@ public class HttpResponse implements Response {
 	}
 
 	public void send() throws IOException {
-		if( !send ) {
-			if( contentLength != 0 ) {
-				response.setContentLength(contentLength);
+		if( !manualSend ) {
+			if( !send ) {
+				if( contentLength != 0 ) {
+					response.setContentLength(contentLength);
+				}
+				response.setHeader("Content-Type", contentType+"; charset="+charSet);
+				if( content.length() > 0 ) {
+					response.getOutputStream().print(content.toString());
+				}
+				response.getOutputStream().flush();
+				response.getOutputStream().close();
+				send = true;
 			}
-			response.setHeader("Content-Type", contentType+"; charset="+charSet);
-			response.getOutputStream().print(content.toString());
-			response.getOutputStream().flush();
-			response.getOutputStream().close();
-			send = true;
-		}
-		else {
-			throw new IOException("Response already sent");
+			else {
+				throw new IOException("Response already sent");
+			}
 		}
 	}
 
@@ -123,5 +133,14 @@ public class HttpResponse implements Response {
 
 	public void setHeader(String name, String value) {
 		response.setHeader(name, value);
+	}
+	
+	/**
+	 * Setzt den internen Status auf manuelles senden.
+	 * In diesem Fall sendet das Objekt selbst keine Daten mehr.
+	 *
+	 */
+	public void setManualSendStatus() {
+		this.manualSend = true;
 	}
 }

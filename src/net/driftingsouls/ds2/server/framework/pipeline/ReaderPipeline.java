@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline;
 
+import org.w3c.dom.Node;
+
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.reader.Reader;
 
@@ -29,7 +31,13 @@ import net.driftingsouls.ds2.server.framework.pipeline.reader.Reader;
 public class ReaderPipeline implements Pipeline {
 	private Class reader;
 	private String file;
+	private Node config;
 	
+	/**
+	 * Konstruktor
+	 * @param reader Der zu verwendende Reader
+	 * @param file Die zu lesende Datei
+	 */
 	public ReaderPipeline(Class reader, String file) {
 		this.reader = reader;
 		this.file = file;
@@ -38,6 +46,34 @@ public class ReaderPipeline implements Pipeline {
 	public void execute(Context context) throws Exception {
 		Reader reader = (Reader)this.reader.newInstance();
 		
-		reader.read(file, context);
+		reader.read(context, this);
+	}
+
+	public void setConfiguration(Node node) {
+		this.config = node;
+	}
+	
+	/**
+	 * Gibt den XML-Konfigurationsknoten oder <code>null</code> zurueck
+	 * @return Der XML-Konfigurationsknoten oder <code>null</code>
+	 */
+	public Node getConfiguration() {
+		return this.config;
+	}
+	
+	/**
+	 * Gibt die zu lesende Datei zurueck
+	 * @return Die zu lesende Datei
+	 */
+	public String getFile() {
+		return this.file;
+	}
+	
+	/**
+	 * Setzt die zu lesende Datei
+	 * @param file Die zu lesende Datei
+	 */
+	public void setFile(String file) {
+		this.file = file;
 	}
 }

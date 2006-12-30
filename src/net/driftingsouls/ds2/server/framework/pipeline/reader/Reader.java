@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.framework.pipeline.reader;
 
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.ReaderPipeline;
 
 /**
  * Standardinterface fuer alle Reader
@@ -26,5 +27,11 @@ import net.driftingsouls.ds2.server.framework.Context;
  *
  */
 public interface Reader {
-	public void read( String file, Context context ) throws Exception;
+	/**
+	 * Startet den Reader
+	 * @param context Der zu verwendende Kontext
+	 * @param pipeline Die Pipeline, welche den Reader aufgerufen hat
+	 * @throws Exception
+	 */
+	public void read( Context context, ReaderPipeline pipeline ) throws Exception;
 }

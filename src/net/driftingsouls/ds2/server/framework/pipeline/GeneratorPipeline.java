@@ -20,6 +20,8 @@ package net.driftingsouls.ds2.server.framework.pipeline;
 
 import java.lang.reflect.Constructor;
 
+import org.w3c.dom.Node;
+
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.pipeline.serializer.Serializer;
@@ -36,7 +38,15 @@ public class GeneratorPipeline implements Pipeline {
 	private Class transformer;
 	private Class serializer;
 	private DSGenerator.ActionType execType = DSGenerator.ActionType.DEFAULT;
+	private Node config = null;
 	
+	/**
+	 * Konstruktor
+	 * @param execType Der Ausfuehrungstyp (<code>"default"</code> oder <code>"ajax"</code>)
+	 * @param generator Der zu verwendende Generator
+	 * @param transformer Der zu verwendende Transformer
+	 * @param serializer Der zu verwendende Serializer
+	 */
 	public GeneratorPipeline( String execType, Class generator, Class transformer, Class serializer ) {
 		this.generator = generator;
 		this.transformer = transformer;
@@ -72,6 +82,10 @@ public class GeneratorPipeline implements Pipeline {
 		generateContent(context, generator);
 		applyTransformer(context, transformer);
 		applySerializer(context, serializer);
+	}
+
+	public void setConfiguration(Node node) {
+		this.config = node;
 	}
 
 }

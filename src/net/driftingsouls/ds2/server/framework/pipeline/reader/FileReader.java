@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
+import net.driftingsouls.ds2.server.framework.pipeline.ReaderPipeline;
 
 import org.apache.commons.io.IOUtils;
 
@@ -72,7 +73,9 @@ public class FileReader implements Reader, Loggable {
 		return null;
 	}
 	
-	public void read(String filename, Context context) throws Exception {
+	public void read(Context context, ReaderPipeline pipeline) throws Exception {
+		String filename = pipeline.getFile();
+		
 		/*
 		 * TODO: Die Nutzung von HttpServletResponse.SC_* ist nicht gerade so elegant....
 		 */
