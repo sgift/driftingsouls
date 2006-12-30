@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.framework.db.Database;
+import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -478,11 +479,13 @@ public class User implements Loggable {
 	public String getUserValue( String valuename ) {
 		Database db = context.getDatabase();
 		
-		SQLResultRow value = db.first("SELECT `id`,`value` FROM user_values WHERE `user_id`='",id,"' AND `name`='",valuename,"'");
+		PreparedQuery pq = db.prepare("SELECT `id`,`value` FROM user_values WHERE `user_id`= ? AND `name`= ?");
+		SQLResultRow value = pq.pfirst(id, valuename);
 		
 		if( value.isEmpty() ) {
-			value = db.first("SELECT `id`,`value` FROM user_values WHERE `user_id`='0' AND `name`='",valuename,"'");
+			value = pq.pfirst(0, valuename);
 		}
+		pq.close();
 
 		return value.getString("value");
 	}
@@ -497,14 +500,19 @@ public class User implements Loggable {
 	public void setUserValue( String valuename, String newvalue ) {
 		Database db = context.getDatabase();
 		
-		SQLResultRow valuen = db.first("SELECT `id`,`name` FROM user_values WHERE `user_id`='",id,"' AND `name`='",valuename,"'");
+		SQLResultRow valuen = db.prepare("SELECT `id`,`name` FROM user_values WHERE `user_id`= ? AND `name`= ?")
+			.first(id, valuename);
 
 		// Existiert noch kein Eintag?
 		if( valuen.isEmpty() ) {
-			db.update("INSERT INTO user_values (`user_id`,`name`,`value`) VALUES ('",id,"','",valuename,"','",newvalue,"')");
+			PreparedQuery pq = db.prepare("INSERT INTO user_values (`user_id`,`name`,`value`) VALUES ( ?, ?, ?)");
+			pq.update(id, valuename, newvalue);
+			pq.close();
 		}
 		else {
-			db.update("UPDATE user_values SET `value`='",newvalue,"' WHERE `user_id`='",id,"' AND `name`='",valuename,"'");	
+			PreparedQuery pq = db.prepare("UPDATE user_values SET `value`= ? WHERE `user_id`= ? AND `name`= ?");
+			pq.update(newvalue, id, valuename);
+			pq.close();
 		}
 	}
 	
