@@ -288,6 +288,33 @@ public class Common implements Loggable {
 	/**
 	 * Verknuepft ein Array mittels Trennzeichen zu einem String
 	 * 
+	 * @param <T> Der Typ des Sets
+	 * @param separator Das Trennzeichen
+	 * @param list Das zu verknuepfende Set
+	 * @return Das verknuepfte Set
+	 */
+	public static <T> String implode( String separator, Set<T> list ) {
+		if( list.size() > 0 ) {
+			StringBuilder sb = new StringBuilder(5*list.size());
+			boolean first = true;
+			
+			for( T entry : list ) {
+				if( !first) {
+					sb.append(separator);
+				}
+
+				sb.append(entry);
+				first = false;
+			}
+			
+			return sb.toString();
+		}
+		return "";
+	}
+	
+	/**
+	 * Verknuepft ein Array mittels Trennzeichen zu einem String
+	 * 
 	 * @param <T> Der Typ des Arrays
 	 * @param separator Das Trennzeichen
 	 * @param list Das zu verknuepfende Array
@@ -651,6 +678,22 @@ public class Common implements Loggable {
 		return false;
 	}
 	
+	/**
+	 * Prueft, ob ein Wert in einem Array vorhanden ist
+	 *
+	 * @param key Der zu suchende Wert
+	 * @param list Das Array
+	 * @return true, falls der Wert im Array vorhanden ist
+	 */
+	public static boolean inArray(int key, int[] list) {
+		for( int i=0; i < list.length; i++ ) {
+			if( list[i] == key ) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	private static Pattern specialChar = Pattern.compile("&([A-Za-z]{0,4}\\w{2,3};|#[0-9]{2,3};)");
 	
 	/**
@@ -881,7 +924,7 @@ public class Common implements Loggable {
 		File file = new File(Configuration.getSetting("LOXPATH")+log);
 		if( file.isFile() ) {
 			try {
-				BufferedWriter bf = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
+				BufferedWriter bf = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, true)));
 				bf.write(text);
 				bf.close();
 			}
