@@ -104,6 +104,10 @@
 		<module name="map">
 			<generator class="net.driftingsouls.ds2.server.modules.MapController" />
 		</module>
+		<module name="mapdata">
+			<generator class="net.driftingsouls.ds2.server.modules.MapDataController" />
+			<serializer class="net.driftingsouls.ds2.server.framework.pipeline.serializer.PlainSerializer" />
+		</module>
 		<module name="options">
 			<generator class="net.driftingsouls.ds2.server.modules.OptionsController" />
 		</module>
