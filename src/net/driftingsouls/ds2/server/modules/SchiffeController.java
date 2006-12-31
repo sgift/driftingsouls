@@ -60,8 +60,8 @@ public class SchiffeController extends DSGenerator {
 		parameterNumber("low");
 		parameterNumber("crewless");
 		parameterNumber("listoffset");
-		
-		parameterArray( "form", new String[] {"kampf_only", "showLJaeger"}, new String[] {"string", "number"});
+		parameterNumber("kampf_only");
+		parameterNumber("showLJaeger");
 	}
 	
 	@Override
@@ -92,9 +92,7 @@ public class SchiffeController extends DSGenerator {
 	}
 	
 	public void changeJDockedAction() {	
-		Map<String,Object> form = (Map<String,Object>)this.getParameter("form");
-
-		this.getUser().setUserValue("TBLORDER/schiffe/showjaeger", form.get("showLJaeger").toString());
+		this.getUser().setUserValue("TBLORDER/schiffe/showjaeger", Integer.toString(getInteger("showLJaeger")));
 		
 		this.redirect();
 	}
@@ -167,15 +165,14 @@ public class SchiffeController extends DSGenerator {
 			query += "(!LOCATE('=',t2.weapons) OR LOCATE('tblmodules',t1.status)) ORDER BY "+ow;
 		}
 		else if( only.equals("kampf") ) {
-			Map<String,Object> form = (Map<String,Object>)this.getParameter("form");
 			String sql_only = null;
 			
-			if( !form.containsKey("kampf_only") || form.get("kampf_only").equals("") ) {
+			if( getInteger("kampf_only") == 0 ) {
 				sql_only = "t2.class IN (2,4,5,6,7,9,15,16,17)";
 			}
 			else {
-				sql_only = "t2.class="+form.get("kampf_only");
-				t.set_var("global.kampf_only",form.get("kampf_only"));
+				sql_only = "t2.class="+getInteger("kampf_only");
+				t.set_var("global.kampf_only",getInteger("kampf_only"));
 			}
 			query += sql_only+" ORDER BY "+ow;
 		}
@@ -189,16 +186,14 @@ public class SchiffeController extends DSGenerator {
 			t.set_var("only.tank", 1);
 		} 
 		else if( only.equals("kampf") ) {
-			Map<String,Object> form = (Map<String,Object>)this.getParameter("form");
-			
 			t.set_var(	"only.kampf", 1,
 				 		"only.kampf.showljaeger", (showjaeger.equals("1")? "checked=\"checked\"":"") );
 		
-			if( !form.containsKey("kampf_only") ) {
+			if( getInteger("kampf_only") == 0 ) {
 				t.set_var("only.kampf.selected-1","selected=\"selected\"");
 			}
 			else {
-				t.set_var("only.kampf.selected"+form.get("kampf_only"), "selected=\"selected\"");
+				t.set_var("only.kampf.selected"+getInteger("kampf_only"), "selected=\"selected\"");
 			}
 		} 
 		else {

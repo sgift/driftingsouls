@@ -34,9 +34,9 @@
 </tr>
 <tr>
 	<td class="noBorderS">
-		{!link_to Cargo, changeMode, only:$global.only, low:$global.low, crewless:$global.crewless, form[kampf_only]:$global.kampf_only, mode:carg}
+		{!link_to Cargo, changeMode, only:$global.only, low:$global.low, crewless:$global.crewless, kampf_only:$global.kampf_only, mode:carg}
 		 - 
-		{!link_to Norm, changeMode, only:$global.only, low:$global.low, crewless:$global.crewless, form[kampf_only]:$global.kampf_only, mode:norm}
+		{!link_to Norm, changeMode, only:$global.only, low:$global.low, crewless:$global.crewless, kampf_only:$global.kampf_only, mode:norm}
 	</td>
 	{if only.tank}
 		<td class="noBorderS" align="right">{!link_to Sammelbefehl an alle Tanker, default, module:deutall, css_class:ok}</td>
@@ -45,7 +45,7 @@
 		<td class="noBorderS" align="right">
 		<form action="./main.php" method="post" style="margin:0px">
 			<div>
-				<select size="1" name="form[kampf_only]">
+				<select size="1" name="kampf_only">
 					<option value="-1" {only.kampf.selected-1}>alle</option>
 					<option value="2" {only.kampf.selected2}>Zerst&ouml;rer</option>
 					<option value="5" {only.kampf.selected5}>Korvetten</option>
@@ -56,7 +56,7 @@
 					<option value="16" {only.kampf.selected16}>Kommandoschiffe</option>
 					<option value="17" {only.kampf.selected17}>Bomber</option>
 				</select>
-				<input type="checkbox" name="form[showLJaeger]" id="form_showLJaeger" value="1" {only.kampf.showljaeger} /><label for="form_showLJaeger">Gelandete Schiffe anzeigen?</label>
+				<input type="checkbox" name="showLJaeger" id="form_showLJaeger" value="1" {only.kampf.showljaeger} /><label for="form_showLJaeger">Gelandete Schiffe anzeigen?</label>
 				{!form_create_hidden changeJDocked, only:kampf, low:$global.low, crewless:$global.crewless} 
 				<input type="submit" value="ok" />
 			</div>
@@ -71,14 +71,14 @@
 	<td class="noBorderS" colspan="2">
 	<table class="show" width="100%">
 	<tr>
-	<td class="Border">{!link_to ID, changeOrder, order:id, only:$global.only, low:$global.low, crewless:$global.crewless, form[kampf_only]:$global.kampf_only}</td>
-	<td class="Border">{!link_to Name, changeOrder, order:name, only:$global.only, low:$global.low, crewless:$global.crewless, form[kampf_only]:$global.kampf_only}</td>
-	<td class="Border">{!link_to Klasse, changeOrder, order:type, only:$global.only, low:$global.low, crewless:$global.crewless, form[kampf_only]:$global.kampf_only}</td>
-	<td class="Border">{!link_to Koordinaten, changeOrder, order:sys, only:$global.only, low:$global.low, crewless:$global.crewless, form[kampf_only]:$global.kampf_only}</td>
-	<td class="Border">{!link_to Zustand, changeOrder, order:hull, only:$global.only, low:$global.low, crewless:$global.crewless, form[kampf_only]:$global.kampf_only}</td>
-	<td class="Border">{!link_to Crew, changeOrder, order:crew, only:$global.only, low:$global.low, crewless:$global.crewless, form[kampf_only]:$global.kampf_only}</td>
+	<td class="Border">{!link_to ID, changeOrder, order:id, only:$global.only, low:$global.low, crewless:$global.crewless, kampf_only:$global.kampf_only}</td>
+	<td class="Border">{!link_to Name, changeOrder, order:name, only:$global.only, low:$global.low, crewless:$global.crewless, kampf_only:$global.kampf_only}</td>
+	<td class="Border">{!link_to Klasse, changeOrder, order:type, only:$global.only, low:$global.low, crewless:$global.crewless, kampf_only:$global.kampf_only}</td>
+	<td class="Border">{!link_to Koordinaten, changeOrder, order:sys, only:$global.only, low:$global.low, crewless:$global.crewless, kampf_only:$global.kampf_only}</td>
+	<td class="Border">{!link_to Zustand, changeOrder, order:hull, only:$global.only, low:$global.low, crewless:$global.crewless, kampf_only:$global.kampf_only}</td>
+	<td class="Border">{!link_to Crew, changeOrder, order:crew, only:$global.only, low:$global.low, crewless:$global.crewless, kampf_only:$global.kampf_only}</td>
 	<td class="Border">&nbsp;</td>
-	<td class="Border">{!link_to Energie, changeOrder, order:e, only:$global.only, low:$global.low, crewless:$global.crewless, form[kampf_only]:$global.kampf_only}</td>
+	<td class="Border">{!link_to Energie, changeOrder, order:e, only:$global.only, low:$global.low, crewless:$global.crewless, kampf_only:$global.kampf_only}</td>
 	<td class="Border">Fracht</td></tr>
 	<!-- BEGIN schiffe.listitem -->
 		<tr>
@@ -150,7 +150,7 @@
 	{if schiffe.nextoffset}
 		<tr>
 			<td class="schiffData" style="text-align:center" colspan="9">
-				{!link_to Weiter -->, default, css_class:ok, only:$global.only, low:$global.low, crewless:$global.crewless, form[kampf_only]:$global.kampf_only, listoffset:$schiffe.nextoffset}
+				{!link_to Weiter -->, default, css_class:ok, only:$global.only, low:$global.low, crewless:$global.crewless, kampf_only:$global.kampf_only, listoffset:$schiffe.nextoffset}
 			</td>
 		</tr>
 	{/endif}
