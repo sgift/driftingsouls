@@ -23,7 +23,6 @@ package net.driftingsouls.ds2.framework.services;
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
 import org.ksoap2.serialization.SoapObject;
-import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
@@ -31,7 +30,7 @@ import org.ksoap2.transport.HttpTransportSE;
 /**
  * SoapConnector ermöglicht ein stressfreies Aufrufen der Soap-Funktionen
  * von DS2 (es sind praktisch die selben wie die in DS1 für das Flottentool).
- * Jeder Aufruf verwendet die in {@see ServerConnector} eingestellte Session-ID.
+ * Jeder Aufruf verwendet die in {@link ServerConnector} eingestellte Session-ID.
  *
  * @author Christopher Jung
  */
@@ -177,7 +176,6 @@ public class SoapConnector implements ServerConnectable {
 	 * Liefert den Wert eines UserValues zurück. Das ganze funktioniert allerdings nur
 	 * mit UserValues, welche für Clients freigegeben sind (Liste s.o.)
 	 * 
-	 * @param sess	Eine gültige SessionID
 	 * @param uservalue Das abzufragende UserValue
 	 * @return Der Inhalt des UserValues
 	 */
@@ -189,7 +187,7 @@ public class SoapConnector implements ServerConnectable {
 			
 		SoapSerializationEnvelope envelope = soapCall(rpc);
 		try {
-			return ((SoapPrimitive)envelope.getResponse()).toString();
+			return (String)envelope.getResponse();
 		}
 		catch( SoapFault f ) {
 			System.err.println(f);
@@ -211,7 +209,7 @@ public class SoapConnector implements ServerConnectable {
 		rpc.addProperty("uservalue", uservalue);
 		rpc.addProperty("newvalue", newvalue);
 			
-		SoapSerializationEnvelope envelope = soapCall(rpc);
+		soapCall(rpc);
 	}
 	
 	/**
