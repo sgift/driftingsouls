@@ -865,7 +865,7 @@ public class Ships implements Loggable {
 					Battle battle = new Battle();
 					int eside = db.first("SELECT side FROM battles_ships WHERE shipid='",eship.getInt("id"),"'").getInt("side");
 					int oside = (eside + 1) % 2 + 1;
-					battle.load(eship.getInt("battle"), ship.getInt("owner"), 0, 0, oside != 0);
+					battle.load(eship.getInt("battle"), ship.getInt("owner"), 0, 0, oside);
 					
 					if( db.first("SELECT count(*) count FROM ships WHERE docked='",ship.getInt("id"),"'").getInt("count") != 0 ) {
 						SQLQuery sid = db.query("SELECT id FROM ships WHERE docked='",ship.getInt("id"),"'");
