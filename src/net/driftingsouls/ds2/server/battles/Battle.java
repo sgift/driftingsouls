@@ -1332,6 +1332,13 @@ public class Battle implements Loggable {
 		this.takeCommand[side] = id;
 	}
 	
+	public Map<Integer,Integer> getShipTypeCount( int side ) {
+		if( side == 0 ) {
+			return ownShipTypeCount;
+		}
+		return enemyShipTypeCount;
+	}
+	
 	public int getShipTypeCount( int side, int shiptype ) {
 		Integer count = (side == 0 ? ownShipTypeCount.get(shiptype) : enemyShipTypeCount.get(shiptype));
 		if( count == null ) {
