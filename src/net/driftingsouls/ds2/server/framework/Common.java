@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
@@ -1173,5 +1174,37 @@ public class Common implements Loggable {
 		}
 		
 		return result.toString();
+	}
+	
+	/**
+	 * Inkrementiert einen Integerwert in einer Map um den Wert 1
+	 * @param <T> Der Schluesseltyp der Map
+	 * @param map Die Map
+	 * @param property Der Schluessel, dessen Wert inkrementiert werden soll
+	 */
+	public static <T> void safeIntInc(Map<T,Integer> map, T property) {
+		Integer val = map.get(property);
+		if( val == null ) {
+			map.put(property, new Integer(0));
+			return;
+		}
+		
+		map.put(property, new Integer(val.intValue()+1));		
+	}
+	
+	/**
+	 * Inkrementiert einen Integerwert in einer Map um den Wert 1
+	 * @param <T> Der Schluesseltyp der Map
+	 * @param map Die Map
+	 * @param property Der Schluessel, dessen Wert inkrementiert werden soll
+	 */
+	public static <T> void safeLongInc(Map<T,Long> map, T property) {
+		Long val = map.get(property);
+		if( val == null ) {
+			map.put(property, new Long(0));
+			return;
+		}
+		
+		map.put(property, new Long(val.longValue()+1));		
 	}
 }
