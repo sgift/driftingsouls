@@ -118,4 +118,27 @@ public class XMLUtils {
 		}
 		return node.getAttributes().getNamedItem(attr).getNodeValue();
 	}
+	
+	/**
+	 * Gibt das erste Element mit einem bestimmten Tag-Namen unterhalb eines Knotens zurueck.
+	 * Wenn kein Element mit dem Tag direkt unter dem angegebenen Knoten gefunden wird, so wird <code>null</code>
+	 * zurueckgegeben.
+	 *  
+	 * @param node Der Knoten unter dem gesucht werden soll
+	 * @param name Der Name des zu suchenden Elements
+	 * @return Das erste Element mit dem Namen oder <code>null</code>
+	 */
+	public static Node firstNodeByTagName(Node node, String name) {
+		NodeList list = node.getChildNodes();
+		for( int i=0; i < list.getLength(); i++ ) {
+			if( list.item(i).getNodeType() != Node.ELEMENT_NODE ) {
+				continue;
+			}
+			if( list.item(i).getNodeName().equals(name) ) {
+				return list.item(i);
+			}
+		}
+		
+		return null;
+	}
 }

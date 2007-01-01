@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Drifting Souls 2
+ 	Copyright (c) 2006 Christopher Jung
+ 	
+ 	This library is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU Lesser General Public
+ 	License as published by the Free Software Foundation; either
+ 	version 2.1 of the License, or (at your option) any later version.
+ 
+ 	This library is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ 	Lesser General Public License for more details.
+ 
+ 	You should have received a copy of the GNU Lesser General Public
+ 	License along with this library; if not, write to the Free Software
+ 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<weapons>
+	<weapon id="BGreen" handler="net.driftingsouls.ds2.server.config.BeamWeapon">
+		<name>Schwere Strahlengeschuetze</name>
+		<treffer-ws default="70" sub="0" />
+		<cost ap="6" e="32" />
+		<damage hull="9600" shields="9600" />
+		<flags>
+			<flag id="LONG_RANGE" />
+		</flags>
+	</weapon>
+	
+	<weapon id="TerSlash" handler="net.driftingsouls.ds2.server.config.BeamWeapon">
+		<name>Leichte Strahlengeschuetze</name>
+		<treffer-ws default="90" sub="0" />
+		<cost ap="3" e="7" />
+		<damage hull="1400" shields="1400" />
+	</weapon>
+	
+	<weapon id="Terran_Huge_Turret">
+		<name>Schwere Lasergeschuetze</name>
+		<treffer-ws default="45" sub="0" />
+		<cost ap="1" e="3" />
+		<damage hull="300" shields="300" />
+	</weapon>
+	
+	<weapon id="Terran_Turret">
+		<name>Lasergeschuetze</name>
+		<treffer-ws default="90" small="60" torpedo="0.5" sub="0" />
+		<cost ap="1" e="1" />
+		<damage hull="35" shields="35" />
+	</weapon>
+	
+	<weapon id="GTW_Akheton_SDG">
+		<name>Disruptor</name>
+		<treffer-ws default="60" small="40" sub="50" />
+		<cost ap="2" e="8" />
+		<damage hull="1" shields="650" sub="50" />
+		<shots single="2" />
+	</weapon>
+	
+	<weapon id="raketen">
+		<name>Raketenwerfer</name>
+		<cost ap="1" e="1" />
+		<shots ammo="rak" />
+		<flags>
+			<flag id="AMMO_SELECT" />
+		</flags>
+	</weapon>
+	
+	<weapon id="standard_flak">
+		<name>Flakgeschuetze</name>
+		<cost ap="1" e="1" />
+		<shots single="2" ammo="flak" />
+	</weapon>
+	
+	<weapon id="AAAf">
+		<name>Anti-Jaeger Strahlengeschuetze</name>
+		<treffer-ws default="95" small="70" torpedo="3" sub="0" />
+		<cost ap="2" e="4" />
+		<damage hull="98" shields="98" />
+		<shots single="3" />
+	</weapon>
+	
+	<weapon id="ntf_cm_shipwrek">
+		<name>NTF-CM Shipwrek</name>
+		<treffer-ws default="90" small="30" sub="0" />
+		<cost ap="1" e="0" />
+		<damage hull="30000" shields="30000" area="4" />
+		<shots destroyable="true" />
+		<flags>
+			<flag id="DESTROY_AFTER" />
+		</flags>
+	</weapon>
+</weapons>

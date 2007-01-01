@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.config;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -26,8 +27,14 @@ import java.util.List;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.Loggable;
+import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
 import org.apache.commons.lang.StringUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Repraesentiert die Liste aller bekannten Waffen in DS sowie einige
@@ -35,7 +42,7 @@ import org.apache.commons.lang.StringUtils;
  * @author Christopher Jung
  *
  */
-public class Weapons implements Iterable<Weapon> {
+public class Weapons implements Iterable<Weapon>,Loggable {
 	private Map<String, Weapon> list = new LinkedHashMap<String, Weapon>();
 	private static Weapons instance = new Weapons();
 	
@@ -101,7 +108,34 @@ public class Weapons implements Iterable<Weapon> {
 	}
 	
 	static {
-		// TODO
-		Common.stub();
+		/*
+		 * items.xml parsen
+		 */
+		try {
+			final Class<Weapon> wpnClass = Weapon.class;
+			
+			Document doc = XMLUtils.readFile(Configuration.getSetting("configdir")+"weapons.xml");
+			NodeList nodes = XMLUtils.getNodesByXPath(doc, "weapons/weapon");
+			for( int i=0; i < nodes.getLength(); i++ ) {
+				Node node = nodes.item(i);
+				
+				String id = XMLUtils.getStringAttribute(node, "id");
+				String cls = XMLUtils.getStringAttribute(node, "handler");
+				
+				Class<? extends Weapon> concreteClass = wpnClass;
+				
+				if( cls != null ) {
+					concreteClass = Class.forName(cls).asSubclass(Weapon.class);
+				}
+				
+				Constructor<? extends Weapon> constr = concreteClass.getConstructor(Node.class);
+				Weapon wpn = constr.newInstance(node);
+				
+				instance.list.put(id, wpn);
+			}
+		}
+		catch( Exception e ) {
+			LOG.fatal("FAILED: Kann Waffen nicht laden",e);
+		}
 	}
 }
