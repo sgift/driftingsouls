@@ -429,6 +429,38 @@ public class Battle implements Loggable {
 		return this.enemyShips.get(this.activeSEnemy);
 	}
 	
+	/**
+	 * Gibt den Index des aktuell ausgewaehlten generischen Schiffes zurueck
+	 * @return Der Index des aktuell ausgewaehlten gegnerischen Schiffes
+	 */
+	public int getEnemyShipIndex() {
+		return this.activeSEnemy;
+	}
+	
+	/**
+	 * Setzt den Index des aktuell ausgewaehlten gegnerischen Schiffes
+	 * @param index Der neue Index
+	 */
+	public void setEnemyShipIndex(int index) {
+		this.activeSEnemy = index;
+	}
+	
+	/**
+	 * Gibt den Index des aktuell ausgewaehlten eigenen Schiffes zurueck
+	 * @return Der Index des aktuell ausgewaehlten eigenen Schiffes
+	 */
+	public int getOwnShipIndex() {
+		return this.activeSOwn;
+	}
+	
+	/**
+	 * Setzt den Index des aktuell ausgewaehlten eigenen Schiffes
+	 * @param index Der neue Index
+	 */
+	public void setOwnShipIndex(int index) {
+		this.activeSOwn = index;
+	}
+	
 	@Deprecated
 	public void syncOwnShip(SQLResultRow ownShip) {
 		throw new RuntimeException("STUB");
@@ -439,25 +471,107 @@ public class Battle implements Loggable {
 		throw new RuntimeException("STUB");
 	}
 	
-	//---------------------------------------
-	//
-	// save - Eine Schlacht speichern
-	//
-	//----------------------------------------
-
 	/**
 	 * Speichert die aktuellen Aenderungen in der Schlacht in der Datenbank
 	 * @param ignoreinakt Soll das Inaktivitaetsfeld nicht zurueckgesetzt werden (<code>true</code>)?
 	 */
 	public void save( boolean ignoreinakt  ) {
-		throw new RuntimeException("STUB");
-	}
+		Context context = ContextMap.getContext();
+		Database db = context.getDatabase();
+		
+		List<String> update = new ArrayList<String>();
+		List<Object> updateData = new ArrayList<Object>();
+		List<String> where = new ArrayList<String>();
+		List<Object> whereData = new ArrayList<Object>();
+		SQLResultRow data = new SQLResultRow();
+
+		data.put("ally1", ally[0]);
+		data.put("ally2", this.ally[1]);
+		data.put("commander1", this.commander[0]);
+		data.put("commander2", this.commander[1]);
+		data.put("com1Points", this.points[0]);
+		data.put("com2Points", this.points[1]);
+		data.put("ready1", this.ready[0]);
+		data.put("ready2", this.ready[1]);
+		data.put("com1BETAK", this.betak[0]);
+		data.put("com2BETAK", this.betak[1]);
+		data.put("takeCommand1", this.takeCommand[0]);
+		data.put("takeCommand2", this.takeCommand[1]);
+		data.put("blockcount", this.blockcount);
+		data.put("lastturn", this.lastturn);
+		data.put("flags", this.flags);
+		
+		for( String key : data.keySet() ) {
+			Object element = data.get(key);
+			if( ((element != null) && !element.equals(this.tableBuffer.get(key))) || (this.tableBuffer.get(key) != null) ) {
+				update.add(key+"= ? ");
+				updateData.add(element);
+				where.add(key+"= ? ");
+				whereData.add(this.tableBuffer.get(key));
+			}
+		}
+				
+		if( this.tableBuffer.getInt("quest") != this.quest ) {
+			if( this.quest != 0 ) {
+				update.add("quest= ? ");
+				updateData.add(this.quest);
+			}
+			else {
+				update.add("quest=NULL");
+			}
+			if( this.tableBuffer.getInt("quest") != 0 ) {
+				where.add("quest= ? ");
+				whereData.add(this.tableBuffer.getInt("quest"));
+			}
+			else {
+				where.add("quest=NULL");
+			}
+		}
+		
+		if( (this.visibility != null && !this.visibility.equals(this.tableBuffer.get("visibility"))) ||
+			(this.tableBuffer.get("visibility") != null) ) {
+			if( this.visibility != null ) {
+				update.add("visibility= ? ");
+				updateData.add(this.visibility);
+			}
+			else {
+				update.add("visibility=NULL");
+			}
+			if( this.tableBuffer.get("vsibility") != null ) {
+				where.add("visibility= ? ");
+				whereData.add(this.tableBuffer.get("visibility"));
+			}
+			else {
+				where.add("visibility=NULL");
+			}
+		}
+		
+		if( !ignoreinakt ) {
+			update.add("inakt= ? ");
+			updateData.add(0);
+		}
+		update.add("lastaction= ? ");
+		updateData.add(Common.time());
+		
+		where.add("id= ? ");
+		whereData.add(this.id);
 	
-	//----------------------------------------
-	//
-	// create - Eine neue Schlacht erstellen
-	//
-	//----------------------------------------
+		PreparedQuery pq = db.prepare("UPDATE battles ",
+					"SET ",Common.implode(",",update)+" ",
+					"WHERE "+Common.implode(" AND ",where));
+		System.out.println("UPDATE battles "+
+					"SET "+Common.implode(",",update)+" "+
+					"WHERE "+Common.implode(" AND ",where));
+		int index=1;
+		for( int i=0; i < updateData.size(); i++ ) {
+			pq.setObject(index++, updateData.get(i));
+		}
+		for( int i=0; i < whereData.size(); i++ ) {
+			pq.setObject(index++, whereData.get(i));
+		}
+		pq.tUpdate(1);
+		pq.close();
+	}
 
 	/**
 	 * Erstellt eine neue Schlacht
@@ -873,7 +987,7 @@ public class Battle implements Loggable {
 		this.takeCommand[1] = battledata.getInt("takeCommand2");
 		this.blockcount = battledata.getInt("blockcount");
 		this.lastturn = battledata.getInt("lastturn");
-		this.visibility = battledata.getString("visibility");
+		this.visibility = battledata.getString("visibility").length() == 0 ? null : battledata.getString("visibility");
 		this.quest = battledata.getInt("quest");
 		this.guest = false;
 		this.flags = battledata.getInt("flags");
@@ -1271,12 +1385,21 @@ public class Battle implements Loggable {
 	}
 	
 	/**
-	 * Gibt die Aktionspunkte einer seite zurueck
+	 * Gibt die Aktionspunkte einer Seite zurueck
 	 * @param side Die Seite
 	 * @return Die Anzahl der Aktionspunkte der Seite
 	 */
 	public int getPoints(int side) {
 		return this.points[side];
+	}
+	
+	/**
+	 * Setzt die Aktionspunkte einer Seite auf einen neuen Wert
+	 * @param side Die Seite
+	 * @param points Die neue Anzahl an Aktionspunkten
+	 */
+	public void setPoints(int side, int points) {
+		this.points[side] = points;
 	}
 	
 	/**
