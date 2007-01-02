@@ -67,7 +67,7 @@ public abstract class BasicKSMenuAction extends BasicKSAction {
 		t.parse("menu","menu.entry",true);
 	}
 	
-	protected void menuEntryAsk( String title, String[] params, String ask ) {
+	protected void menuEntryAsk( String title, Object[] params, String ask ) {
 		String paramStr = "";
 		if( params != null && params.length > 1 ) {
 			StringBuilder paramBuilder = new StringBuilder(params.length*5);
