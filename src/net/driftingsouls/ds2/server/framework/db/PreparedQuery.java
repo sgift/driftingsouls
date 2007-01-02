@@ -51,7 +51,7 @@ public class PreparedQuery implements Loggable {
 	 */
 	public synchronized SQLQuery query(Object ... values) {
 		try {
-			if( (values != null) || (values.length == 0) ) {
+			if( values != null ) {
 				stmt.clearParameters();
 				for( int i=0; i < values.length; i++ ) {
 					stmt.setObject(i+1, values[i]);
@@ -72,7 +72,7 @@ public class PreparedQuery implements Loggable {
 	 * @return Das Ergebnis der SQL-Query
 	 */
 	public SQLQuery query() {
-		return query(new Object[] {});
+		return query((Object[])null);
 	}
 	
 	/**
@@ -83,7 +83,7 @@ public class PreparedQuery implements Loggable {
 	 * @param count Die Anzahl der erwarteten betroffenen Zeilen
 	 */
 	public void tUpdate( int count ) {
-		tUpdate(count, new Object[] {});
+		tUpdate(count, (Object[])null);
 	}
 	
 	/**
@@ -113,7 +113,7 @@ public class PreparedQuery implements Loggable {
 	 * @return Die Anzahl der betroffenen Zeilen
 	 */
 	public int update() {
-		return update(new Object[] {});
+		return update((Object[])null);
 	}
 	
 	/**
@@ -124,7 +124,7 @@ public class PreparedQuery implements Loggable {
 	 */
 	public synchronized int update(Object ... values) {
 		try {
-			if( (values != null) || (values.length == 0) ) {
+			if( values != null ) {
 				stmt.clearParameters();
 				for( int i=0; i < values.length; i++ ) {
 					stmt.setObject(i+1, values[i]);
@@ -153,7 +153,7 @@ public class PreparedQuery implements Loggable {
 	 * @return Die erste Zeile des Ergebnisses
 	 */
 	public SQLResultRow first() {
-		return first(false, new Object[] {});
+		return first(false, (Object[])null);
 	}
 	
 	/**
@@ -177,7 +177,7 @@ public class PreparedQuery implements Loggable {
 	 * @return Die erste Zeile des Ergebnisses
 	 */
 	public SQLResultRow pfirst() {
-		return first(true, new Object[] {});
+		return first(true, (Object[])null);
 	}
 	
 	/**
