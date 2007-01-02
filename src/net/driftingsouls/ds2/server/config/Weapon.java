@@ -70,6 +70,30 @@ public class Weapon {
 		
 	}
 	
+	/**
+	 * Waffenflags
+	 */
+	public enum AmmoFlags {
+		/**
+		 * Area-Damage ueber die Distanz nicht reduzieren
+		 */
+		AD_FULL(1);
+		
+		private int bit;
+		private AmmoFlags(int bit) {
+			this.bit = bit;
+		}
+		
+		/**
+		 * Gibt das zum Flag gehoerende Bitmuster zurueck
+		 * @return Das Bitmuster
+		 */
+		public int getBits() {
+			return this.bit;
+		}
+		
+	}
+	
 	private String name = "";
 	
 	private int defTrefferWS = 50;
