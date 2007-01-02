@@ -30,6 +30,7 @@ import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.ItemEffect;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.User;
@@ -41,6 +42,9 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.ks.BasicKSAction;
 import net.driftingsouls.ds2.server.modules.ks.BasicKSMenuAction;
 import net.driftingsouls.ds2.server.modules.ks.KSAttackAction;
+import net.driftingsouls.ds2.server.modules.ks.KSCheatAPAction;
+import net.driftingsouls.ds2.server.modules.ks.KSCheatRegenerateEnemyAction;
+import net.driftingsouls.ds2.server.modules.ks.KSCheatRegenerateOwnAction;
 import net.driftingsouls.ds2.server.modules.ks.KSDischargeBatteriesAllAction;
 import net.driftingsouls.ds2.server.modules.ks.KSDischargeBatteriesClassAction;
 import net.driftingsouls.ds2.server.modules.ks.KSDischargeBatteriesSingleAction;
@@ -56,6 +60,7 @@ import net.driftingsouls.ds2.server.modules.ks.KSMenuAttackAction;
 import net.driftingsouls.ds2.server.modules.ks.KSMenuAttackMuniSelectAction;
 import net.driftingsouls.ds2.server.modules.ks.KSMenuBatteriesAction;
 import net.driftingsouls.ds2.server.modules.ks.KSMenuBattleConsignAction;
+import net.driftingsouls.ds2.server.modules.ks.KSMenuCheatsAction;
 import net.driftingsouls.ds2.server.modules.ks.KSMenuDefaultAction;
 import net.driftingsouls.ds2.server.modules.ks.KSMenuFluchtAction;
 import net.driftingsouls.ds2.server.modules.ks.KSMenuHistoryAction;
@@ -115,6 +120,11 @@ public class AngriffController extends DSGenerator implements Loggable {
 		ACTIONS.put("batterien_single", KSDischargeBatteriesSingleAction.class);
 		ACTIONS.put("batterien_all", KSDischargeBatteriesAllAction.class);
 		ACTIONS.put("batterien_class", KSDischargeBatteriesClassAction.class);
+		if( Configuration.getIntSetting("ENABLE_CHEATS") != 0 ) {
+			ACTIONS.put("cheat_ap", KSCheatAPAction.class);
+			ACTIONS.put("cheat_regenerate", KSCheatRegenerateOwnAction.class);
+			ACTIONS.put("cheat_regenerateenemy", KSCheatRegenerateEnemyAction.class);
+		}
 	}
 	
 	private static final Map<String,Class<? extends BasicKSMenuAction>> MENUACTIONS = new HashMap<String,Class<? extends BasicKSMenuAction>>();
@@ -128,6 +138,9 @@ public class AngriffController extends DSGenerator implements Loggable {
 		MENUACTIONS.put("new_commander", KSMenuBattleConsignAction.class);
 		MENUACTIONS.put("other", KSMenuOtherAction.class);
 		MENUACTIONS.put("shields", KSMenuShieldsAction.class);
+		if( Configuration.getIntSetting("ENABLE_CHEATS") != 0 ) {
+			MENUACTIONS.put("cheats", KSMenuCheatsAction.class);
+		}
 	}
 	
 	/**
