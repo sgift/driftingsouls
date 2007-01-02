@@ -1,0 +1,399 @@
+<table class="show" cellpadding="2" cellspacing="2" width="100%">
+<tr>
+	<td class="Border" style="width:30%">
+		{if ownside.secondrow.blocked}
+			<img style="vertical-align:middle" src="{URL}data/interface/ks/secondrow_blocked.png" alt="" title="Sie haben im Moment keine M&ouml;glichkeit in die zweite Reihe zu fliegen" />
+		{else}
+			{if ownside.secondrow.stable}
+				<img style="vertical-align:middle" src="{URL}data/interface/ks/secondrow.png" alt="" title="Ihre zweite Reihe ist im Moment stabil" />
+			{else}
+				<img style="vertical-align:middle" src="{URL}data/interface/ks/secondrow_unstable.png" alt="" title="Ihre zweite Reihe ist im Moment instabil, und kann daher vom Gegner &uuml;berrannt werden" />
+			{/endif}
+		{/endif}
+		<span style="color:green">
+			Eigene/Verb&uuml;ndete Schiffe&nbsp;
+		</span>
+		<span style="color:white">
+			 {ownship.system}:{ownship.x}/{ownship.y}
+		</span>
+	</td>
+	<td class="Border" style="width:30%">
+		Befehle
+	</td>
+	<td class="Border" style="width:30%">
+		{if enemyside.secondrow.blocked}
+			<img style="vertical-align:middle" src="{URL}data/interface/ks/secondrow_blocked.png" alt="" title="Der Gegner hat im Moment keine M&ouml;glichkeit in die zweite Reihe zu fliegen" />
+		{else}
+			{if enemyside.secondrow.stable}
+				<img style="vertical-align:middle" src="{URL}data/interface/ks/secondrow.png" alt="" title="Die zweite Reihe ihres Gegners ist im Moment stabil" />
+			{else}
+				<img style="vertical-align:middle" src="{URL}data/interface/ks/secondrow_unstable.png" alt="" title="Die zweite Reihe ihres Gegners ist im Moment instabil, und kann daher von ihnen &uuml;berrannt werden" />
+			{/endif}
+		{/endif}
+		<span style="color:red">
+			Feindliche Schiffe
+			{if battle.msginfo}<a href="./main.php?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction=showbattlelog{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}"><img border="0" src="{URL}data/interface/ks/info.gif" alt="" /></a>{/endif}
+		</span>
+	</td>
+</tr>
+<tr>
+	<td class="schiffData" style="width:30%">
+		<a class="forschinfo" href="./main.php?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ownship.name} ({ownship.id})</a> (aktiv)
+		{if ownship.action.hit}<img src="{URL}data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
+		{if ownship.action.destroyed}<img src="{URL}data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
+		{if ownship.action.flucht}<img src="{URL}data/interface/ks/flucht.gif" alt="" title="flucht"/>{/endif}
+		{if ownship.action.fluchtnext}<img src="{URL}data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde"/>{/endif}
+		{if ownship.action.shot}<img src="{URL}data/interface/ks/shot.gif" alt="" title="Waffen eingesetzt" />{/endif}
+		{if ownship.action.join}<img src="{URL}data/interface/ks/join.gif" alt="" title="tritt der Schacht bei" />{/endif}
+		{if ownship.action.secondrow}<img src="{URL}data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
+		{if ownship.mangelnahrung}<img src="{URL}data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
+		{if ownship.mangelreaktor}<img src="{URL}data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}		
+		<br />
+		<a class="noborder" onmouseover="return overlib('{ownship.type.name}{ownship.energy}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" target="_blank" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={ownship.type}"><img src="{ownship.type.image}" alt="" /></a><br />
+		<a class="profile" href="./main.php?sess={global.sess}&amp;module=userprofile&amp;user={ownship.owner.id}">{ownship.owner.name}</a><br />
+	</td>
+	<td rowspan="2" style="vertical-align:top;width:30%" class="schiffData">
+		{if battle.msg}
+			<table border="0" cellspacing="1" cellpadding="1" width="100%" class="nav">
+			<tr>
+				<td class="angrifflog">
+					<div style="text-align:center"><span class="smallfont" style="color:black">Kampfbericht</span></div>
+					<div style="height:180px; overflow:auto">
+						<br />
+						{battle.msg}
+					</div>
+					<br />
+					<div style="text-align:center">[ <a href="./main.php?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">ok</a> ]</div>
+				</td>
+			</tr>
+			</table>
+		{/endif}
+		{if battle.logoutput}
+			<table border="0" cellspacing="1" cellpadding="1" width="100%" class="nav">
+			<tr>
+				<td class="angrifflog">
+					{battle.logoutput}
+					<br /><br />
+					<div style="text-align:center">[ <a href="./main.php?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ksaction={global.ksaction}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">ok</a> ]</div>
+				</td>
+			</tr>
+			</table>
+		{/endif}
+		{if battle.takecommand.ask}
+			<table border="0" cellspacing="1" cellpadding="1" width="100%" class="nav">
+			<tr>
+				<td class="angrifflog" align="center">
+					!ACHTUNG!<br /><br />
+					{battle.takecommand.name} m&ouml;chte die Leitung der Schlacht &uuml;bernehmen.
+					<br /><br />
+					<div style="text-align:center">[
+						<a href="./main.php?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;ksaction=new_commander2&amp;newcom={battle.takecommand.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">ok</a> -
+						<a href="./main.php?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;ksaction=stop_take_command&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">ablehnen</a>
+					]</div>
+				</td>
+			</tr>
+			</table>
+		{/endif}
+		{if global.showmenu}
+			<table border="0" cellspacing="1" cellpadding="1" width="100%">
+				<!-- BEGIN menu.entry -->
+				<tr>
+					<td style="background-color:#CC3333" align="center"
+						onmouseover="this.style.cursor='pointer';this.style.backgroundColor='#33CC33'"
+						onclick="window.location.href='./main.php?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;scan='+getShowUrlPart()+'{menu.entry.params}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}'"
+						onmouseout="this.style.backgroundColor='#CC3333'">
+						<span class="smallfont" style="font-weight:bold">{menu.entry.title}</span>
+					</td>
+				</tr>
+				<!-- END menu.entry -->
+				<!-- BEGIN menu.entry.ask -->
+				<tr>
+					<td style="background-color:#CC3333" align="center"
+						onmouseover="this.style.cursor='pointer';this.style.backgroundColor='#33CC33'"
+						onclick="javascript:ask('{ask.text}','./main.php?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;scan='+getShowUrlPart()+'{menu.entry.params}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}')"
+						onmouseout="this.style.backgroundColor='#CC3333'">
+						<span class="smallfont" style="font-weight:bold">{menu.entry.title}</span>
+					</td>
+				</tr>
+				<!-- END menu.entry.ask -->
+			</table>
+		{/endif}
+		{if global.showlog}
+			<table border="0" cellspacing="1" cellpadding="1" width="100%" class="nav">
+			<tr>
+				<td class="angrifflog">
+					{global.showlog.text}
+					<br />
+					<div style="text-align:center;width:100%">
+						<div style="text-align:right;z-index:2;position:absolute;direction:rtl">
+							{if global.showlog.side1.show}
+								<a href="./main.php?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}{global.showlog.actionstr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}{global.logpagestr}&amp;modlogpagefilter=s1h"><img style="border:0px" src="{URL}data/interface/ks/icon_side1.png" alt="" title="Seite 2 verstecken" /></a>
+							{else}
+								<a href="./main.php?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}{global.showlog.actionstr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}{global.logpagestr}&amp;modlogpagefilter=s1s"><img style="border:0px" src="{URL}data/interface/ks/icon_side1_x.png" alt="" title="Seite 2 anzeigen" /></a>
+							{/endif}
+							{if global.showlog.side0.show}
+								<a href="./main.php?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}{global.showlog.actionstr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}{global.logpagestr}&amp;modlogpagefilter=s0h"><img style="border:0px" src="{URL}data/interface/ks/icon_side0.png" alt="" title="Seite 1 verstecken" /></a>
+							{else}
+								<a href="./main.php?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}{global.showlog.actionstr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}{global.logpagestr}&amp;modlogpagefilter=s0s"><img style="border:0px" src="{URL}data/interface/ks/icon_side0_x.png" alt="" title="Seite 1 anzeigen" /></a>
+							{/endif}
+						</div>
+						--- Was bisher geschah ---<br />
+						<!-- BEGIN global.showlog.turnlist.item -->
+							<span class="nobr">[ <a href="./main.php?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}{global.showlog.actionstr}&amp;logpage={global.showlog.turnlist.pageid}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}&amp;logpagefilter={global.showlog.filter}">Runde {global.showlog.turnlist.page}</a> ]</span>
+						<!-- END global.showlog.turnlist.item -->
+					</div>
+					<br />
+					<div style="height:220px; overflow:auto">
+						{global.showlog.log}
+					</div>
+					{if global.showlog.okbutton}
+						<div style="text-align:center">[ <a href="./main.php?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">ok</a> ]</div>
+					{/endif}
+					{if global.showlog.takecommand}
+						<div style="text-align:center">[ <a href="./main.php?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;ksaction=take_command&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">Schlacht &uuml;bernehmen</a> ]</div>
+					{/endif}
+				</td>
+			</tr>
+			</table>
+		{/endif}
+		<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+		<div style="text-align:center">
+			<a name="statsOwnShipLink" id="statsOwnShipLink" class="forschinfo" href="javascript:showInfoBox('Own')">Freund</a> |
+			<a name="statsEnemyShipLink" id="statsEnemyShipLink" class="forschinfo" href="javascript:showInfoBox('Enemy')">Feind</a><br />
+		</div>
+		<script type="text/javascript">
+		<!--
+			var currentOwner = '{infobox.active}';
+			element = document.getElementById('stats'+currentOwner+'ShipLink').style;
+			element.textDecoration = "underline"; 
+			
+			function getShowUrlPart() {
+				return currentOwner.toLowerCase();
+			}
+
+			function showInfoBox( owner ) {
+				element = document.getElementById('stats'+currentOwner+'Ship').style;
+				element.visibility = "hidden";
+				element.position = "absolute";
+
+				element = document.getElementById('stats'+currentOwner+'ShipLink').style;
+				element.textDecoration = "none";
+
+				currentOwner = owner;
+
+				element = document.getElementById('stats'+owner+'Ship').style;
+				element.visibility = "visible";
+				element.position = "relative";
+
+				element = document.getElementById('stats'+owner+'ShipLink').style;
+				element.textDecoration = "underline";
+				
+				elementlist = document.getElementsByTagName('a');
+				for( i=0; i < elementlist.length; i++ ) {
+					if( elementlist[i].href.indexOf('module=angriff') > -1 ) {
+						if( currentOwner == 'Own' ) {
+							elementlist[i].href = elementlist[i].href.replace(/scan=enemy/,'scan=own');
+						}
+						else {
+							elementlist[i].href = elementlist[i].href.replace(/scan=own/,'scan=enemy');
+						} 
+					}
+				}
+			}
+		-->
+		</script>
+		<div>
+			<div style="text-align:left;position:relative; top:0px; left:0px;">
+				<!-- BEGIN ship.info -->
+					{if shipinfo.show}
+						<div id="stats{shipinfo.jscriptid}Ship" style="position:relative; top:0px; left:0px; visibility:visible;">
+					{else}
+						<div id="stats{shipinfo.jscriptid}Ship" style="position:absolute; top:0px; left:0px; visibility:hidden;">
+					{/endif}
+						<a class="noborder" onmouseover="return overlib('{shipinfo.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" target="_blank" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={shipinfo.type}">
+						<img src="{shipinfo.type.image}" alt="" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:10px" /></a>
+						{if shipinfo.count}
+							Anzahl: {shipinfo.count} {if shipinfo.tmp.count}({shipinfo.tmp.count}){/endif}<br />
+						{/endif}
+						Zustand:
+						{if shipinfo.hull.bad}<span style="color:#ff0000">{/endif}
+						{if shipinfo.hull.normal}<span style="color:#ffff00">{/endif}
+						{if shipinfo.hull.good}<span style="color:#00ff00">{/endif}
+						{shipinfo.hull}/{shipinfo.type.hull}</span>{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.hull}){/endif}<br />
+	
+						Panzerung: {shipinfo.panzerung}{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.panzerung}){/endif}<br />
+	
+						{if shipinfo.type.shields}
+							Schilde:
+							{if shipinfo.shields.bad}<span style="color:#ff0000">{/endif}
+							{if shipinfo.shields.normal}<span style="color:#ffff00">{/endif}
+							{if shipinfo.shields.good}<span style="color:#00ff00">{/endif}
+							{shipinfo.shields}/{shipinfo.type.shields}</span>{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.shields}){/endif}<br />
+						{/endif}
+	
+						Subsysteme:<br />
+						{if shipinfo.type.cost}
+							+ Antrieb:
+							{if shipinfo.engine.bad}<span style="color:#ff0000">{/endif}
+							{if shipinfo.engine.normal}<span style="color:#ffff00">{/endif}
+							{if shipinfo.engine.good}<span style="color:#00ff00">{/endif}
+							{shipinfo.engine}</span>{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.engine}){/endif}<br />
+						{/endif}
+	
+						{if shipinfo.type.weapons}
+							+ Waffen:
+							{if shipinfo.weapons.bad}<span style="color:#ff0000">{/endif}
+							{if shipinfo.weapons.normal}<span style="color:#ffff00">{/endif}
+							{if shipinfo.weapons.good}<span style="color:#00ff00">{/endif}
+							{shipinfo.weapons}</span>{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.weapons}){/endif}<br />
+						{/endif}
+	
+						+ Kommunikation:
+						{if shipinfo.comm.bad}<span style="color:#ff0000">{/endif}
+						{if shipinfo.comm.normal}<span style="color:#ffff00">{/endif}
+						{if shipinfo.comm.good}<span style="color:#00ff00">{/endif}
+						{shipinfo.comm}</span>{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.comm}){/endif}<br />
+	
+						+ Sensoren:
+						{if shipinfo.sensors.bad}<span style="color:#ff0000">{/endif}
+						{if shipinfo.sensors.normal}<span style="color:#ffff00">{/endif}
+						{if shipinfo.sensors.good}<span style="color:#00ff00">{/endif}
+						{shipinfo.sensors}</span>{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.sensors}){/endif}<br />
+	
+						{if shipinfo.enemy}
+							{if shipinfo.nocrew}
+								Crew: <span style="color:#ff0000">0</span><br />
+							{/endif}
+						{else}
+							{if shipinfo.crew}
+								Crew:
+								{if shipinfo.crew.bad}<span style="color:#ff0000">{/endif}
+								{if shipinfo.crew.normal}<span style="color:#ffff00">{/endif}
+								{if shipinfo.crew.good}<span style="color:#00ff00">{/endif}
+								{shipinfo.crew}/{shipinfo.type.maxcrew}</span><br />
+							{else}
+								{if shipinfo.nocrew}
+									Crew: <span style="color:#ff0000">0</span><br />
+								{/endif}
+							{/endif}
+	
+							Energie:
+							{if shipinfo.energy.bad}<span style="color:#ff0000">{/endif}
+							{if shipinfo.energy.normal}<span style="color:#ffff00">{/endif}
+							{if shipinfo.energy.good}<span style="color:#00ff00">{/endif}
+							{shipinfo.energy}/{shipinfo.type.maxenergy}</span><br />
+	
+							&Uuml;berhitzung:<br />
+							+ Triebwerke: {shipinfo.heat}<br />
+							<!-- BEGIN shipinfo.weapons.listitem -->
+								+ {shipinfo.weapon.name}: {shipinfo.weapon.heat}/{shipinfo.weapon.maxheat}<br />
+							<!-- END shipinfo.weapons.listitem -->
+						{/endif}
+	
+						{if offizier.id}
+							Offizier: <img src="{URL}data/interface/offiziere/off{offizier.rang}.png" alt="Rang {offizer.rang}" /> <a class="forschinfo" href="./main.php?module=choff&amp;sess={global.sess}&amp;off={offizier.id}">{offizier.name}</a><br />
+						{/endif}
+	
+						{if shipinfo.enemy}
+						{else}
+							Munition:
+							<!-- BEGIN shipinfo.ammo.listitem -->
+								<img onmouseover="return overlib('{ammo.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" src="{ammo.image}" alt="{ammo.name}" />{ammo.count}
+							<!-- END shipinfo.ammo.listitem -->
+						{/endif}
+					</div>
+				<!-- END ship.info -->
+				{ownship.info}
+				{enemyship.info}
+			</div>
+		</div>
+	</td>
+	<td class="schiffData" style="width:30%">
+		<a class="forschinfo" href="./main.php?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{enemyship.name} ({enemyship.id})</a> (Ziel)
+		{if enemyship.action.hit}<img src="{URL}data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
+		{if enemyship.action.destroyed}<img src="{URL}data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
+		{if enemyship.action.flucht}<img src="{URL}data/interface/ks/flucht.gif" alt="" title="flucht" />{/endif}
+		{if enemyship.action.join}<img src="{URL}data/interface/ks/join.gif" alt="" title="tritt der Schlacht bei" />{/endif}
+		{if enemyship.action.secondrow}<img src="{URL}data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
+		<br />
+		<a class="noborder" onmouseover="return overlib('{enemyship.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" target="_blank" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={enemyship.type}"><img src="{enemyship.type.image}" alt="" /></a><br />
+		<a class="profile" href="./main.php?sess={global.sess}&module=userprofile&user={enemyship.owner.id}">{enemyship.owner.name}</a><br />
+	</td>
+</tr>
+<!-- BEGIN ships.typelist.item -->
+	{if shiptypelist.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
+	<a class="forschinfo" href="./main.php?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;{shiptypelist.side}shipgroup={shiptypelist.groupid}&amp;{shiptypelist.otherside}shipgroup={shiptypelist.otherside.id}&amp;weapon={global.weapon}">{shiptypelist.count} {shiptypelist.name}</a>
+	{if shiptypelist.destcount}&nbsp;<img src="{URL}data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{shiptypelist.destcount}{/endif}
+	{if shiptypelist.hitcount}&nbsp;<img src="{URL}data/interface/ks/hit.gif" alt="" title="getroffen" />{shiptypelist.hitcount}{/endif}
+	{if shiptypelist.fluchtcount}&nbsp;<img src="{URL}data/interface/ks/flucht.gif" alt="" title="flucht" />&nbsp;{shiptypelist.fluchtcount}{/endif}
+	{if shiptypelist.fluchtnextcount}<img src="{URL}data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde" />&nbsp;{shiptypelist.fluchtnextcount}{/endif}
+	{if shiptypelist.shotcount}&nbsp;<img src="{URL}data/interface/ks/shot.gif" alt="" title="Waffen abgefeuert" />&nbsp;{shiptypelist.shotcount}{/endif}
+	{if shiptypelist.joincount}&nbsp;<img src="{URL}data/interface/ks/join.gif" alt="" title="tritt der Schlacht bei" />&nbsp;{shiptypelist.joincount}{/endif}
+	{if shiptypelist.secondrowcount}<img src="{URL}data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />&nbsp;{shiptypelist.secondrowcount}{/endif}
+	{if shiptypelist.mangelnahrungcount}&nbsp;<img src="{URL}data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />&nbsp;{shiptypelist.mangelnahrungcount}{/endif}
+	{if shiptypelist.mangelreaktorcount}&nbsp;<img src="{URL}data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{shiptypelist.mangelreaktorcount}{/endif}
+	<br />
+	<a class="noborder" target="_blank" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={shiptypelist.id}"><img src="{shiptypelist.image}" alt="" /></a><br />
+<!-- END ships.typelist.item -->
+<tr>
+	<td class="schiffData" style="vertical-align:top;width:30%">
+		<div style="height:500px; overflow:auto; font-size:16px">
+			<!-- BEGIN ownShips.listitem -->
+				{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
+				<a class="forschinfo" href="./main.php?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;ship={ship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(aktiv){/endif}
+				{if ship.docked.name}auf {if ship.docked.name}{ship.docked.name}{else}{ship.docked.id}{/endif}{/endif}
+				{if ship.action.hit}<img src="{URL}data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
+				{if ship.action.destroyed}<img src="{URL}data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
+				{if ship.action.flucht}<img src="{URL}data/interface/ks/flucht.gif" alt="" title="flucht" />{/endif}
+				{if ship.action.fluchtnext}<img src="{URL}data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde" />{/endif}
+				{if ship.action.shot}<img src="{URL}data/interface/ks/shot.gif" alt="" title="Waffen abgefeuert" />{/endif}
+				{if ship.action.join}<img src="{URL}data/interface/ks/join.gif" alt="" title="tritt der Schlacht bei" />{/endif}
+				{if ship.action.secondrow}<img src="{URL}data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
+				{if ship.mangelnahrung}<img src="{URL}data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
+				{if ship.mangelreaktor}<img src="{URL}data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
+				<br />
+				<a class="noborder" onmouseover="return overlib('{ship.type.name}{ship.energy}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" target="_blank" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={ship.type}"><img src="{ship.type.image}" alt="" /></a><br />
+				<a class="profile" href="./main.php?sess={global.sess}&module=userprofile&user={ship.owner.id}">{ship.owner.name}</a><br />
+				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./main.php?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+			<!-- END ownShips.listitem -->
+		</div>
+	</td>
+
+	<td class="schiffData" style="vertical-align:top;width:30%">
+		<div style="height:500px; overflow:auto; font-size:16px">
+			<!-- BEGIN enemyShips.listitem -->
+				{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
+				<a class="forschinfo" href="./main.php?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={ship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(Ziel){/endif}
+				{if ship.docked.name}auf {ship.docked.name}{/endif}
+				{if ship.action.hit}<img src="{URL}data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
+				{if ship.action.destroyed}<img src="{URL}data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
+				{if ship.action.flucht}<img src="{URL}data/interface/ks/flucht.gif" alt="" title="flucht" />{/endif}
+				{if ship.action.join}<img src="{URL}data/interface/ks/join.gif" alt="" title="tritt der Schlacht bei" />{/endif}
+				{if ship.action.secondrow}<img src="{URL}data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
+				<br />
+				<a class="noborder" onmouseover="return overlib('{ship.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" target="_blank" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={ship.type}"><img src="{ship.type.image}" alt="" /></a><br />
+				<a class="profile" href="./main.php?sess={global.sess}&module=userprofile&user={ship.owner.id}">{ship.owner.name}</a><br />
+				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./main.php?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+			<!-- END enemyShips.listitem -->
+		</div>
+	</td>
+</tr>
+<tr>
+	{if user.commander}
+		<td class="BorderS" style="width:30%">Aktionspunkte: {battle.points.own}</td>
+		{if battle.turn.own}
+			<td style="text-align:center;width:30%" class="BorderS"><a class="forschinfo" href="javascript:ask('Wollen sie ihren Zug wirklich beenden?','./main.php?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ksaction=endturn&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}')">Zug beenden</a></td>
+		{else}
+			<td style="text-align:center;width:30%" class="BorderS">Warte auf Gegner</td>
+		{/endif}
+	{else}
+		<td class="BorderS" style="text-align:center;width:30%">{battle.owncom.name}{if battle.owncom.ready}&nbsp;<img src="{URL}data/interface/ks/ready.gif" alt="" />{/endif}</td>
+		{if battle.turn.own}
+			<td style="text-align:center;width:30%" class="BorderS">Warte auf Kommandanten</td>
+		{else}
+			<td style="text-align:center;width:30%" class="BorderS">Warte auf Gegner</td>
+		{/endif}
+	{/endif}
+	<td class="BorderS" style="text-align:center;width:30%">{battle.enemycom.name}{if battle.enemycom.ready}&nbsp;<img src="{URL}data/interface/ks/ready.gif" alt="" />{/endif}</td>
+</tr>
+</table>
