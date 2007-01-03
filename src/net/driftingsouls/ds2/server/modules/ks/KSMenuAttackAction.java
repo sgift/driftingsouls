@@ -191,9 +191,6 @@ public class KSMenuAttackAction extends BasicKSMenuAction {
 		
 		String attmode = this.getAttMode();
 		
-		Context context = ContextMap.getContext();
-		
-		Database db = context.getDatabase();
 		SQLResultRow ownShip = battle.getOwnShip();
 		SQLResultRow enemyShip = battle.getEnemyShip();
 		
