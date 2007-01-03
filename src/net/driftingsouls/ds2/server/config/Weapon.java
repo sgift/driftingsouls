@@ -189,7 +189,7 @@ public class Weapon {
 				this.singleshots = Integer.parseInt(single);
 			}
 			
-			String munition = XMLUtils.getStringAttribute(shots, "munition");
+			String munition = XMLUtils.getStringAttribute(shots, "ammo");
 			if( munition != null ) {
 				this.munition = munition;
 			}
