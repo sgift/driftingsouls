@@ -21,9 +21,14 @@ package net.driftingsouls.ds2.server.tick.regular;
 import java.sql.Blob;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.User;
+import net.driftingsouls.ds2.server.framework.UserIterator;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
+import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.scripting.ScriptParser;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
@@ -78,8 +83,61 @@ public class RestTick extends TickController {
 		Vac-Modus
 	*/
 	private void doVacation() {
-		// TODO
-		Common.stub();
+		Database db = getDatabase();
+		
+		this.log("");
+		this.log("Bearbeite Vacation-Modus");
+		db.update("UPDATE users SET name=REPLACE(name,' [VAC]',''),nickname=REPLACE(nickname,' [VAC]','') WHERE vaccount=1");
+		this.log("\t"+db.affectedRows()+" Spieler haben den VAC-Modus verlassen");
+		db.update("UPDATE users SET vaccount=vaccount-1 WHERE vaccount>0 AND wait4vac=0");
+		
+		UserIterator iter = getContext().createUserIterator("SELECT id,ally FROM users WHERE wait4vac=1");
+		for( User user : iter ) {
+			SQLResultRow newcommander = null;
+			if( user.getAlly() > 0 ) {
+				newcommander = db.first("SELECT id,name FROM users WHERE ally=",user.getAlly(),"  AND inakt <= 7 AND vaccount=0 AND (wait4vac>6 OR wait4vac=0)");
+			}
+			
+			SQLQuery battleid = db.query("SELECT id FROM battles WHERE commander1=",user.getID()," OR commander2=",user.getID());
+			while( battleid.next() ) {
+				Battle battle = new Battle();
+				battle.load(battleid.getInt("id"), user.getID(), 0, 0, 0 );
+				
+				if( newcommander != null ) {
+					this.log("\t\tUser"+user.getID()+": Die Leitung der Schlacht "+battleid.getInt("id")+" wurde an "+newcommander.getString("name")+" ("+newcommander.getInt("id")+") uebergeben");
+					
+					battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+getContext().get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
+		
+					PM.send(getContext(), user.getID(), newcommander.getInt("id"), "Schlacht &uuml;bernommen", "Die Leitung der Schlacht bei "+battle.getSystem()+" : "+battle.getX()+"/"+battle.getY()+" wurde dir automatisch &uuml;bergeben, da der bisherige Kommandant in den Vacationmodus gewechselt ist");
+			
+					battle.logenemy(Common._titleNoFormat(newcommander.getString("name"))+" kommandiert nun die gegnerischen Truppen\n\n");
+			
+					battle.setCommander(battle.getOwnSide(), newcommander.getInt("id"));
+			
+					battle.logenemy("]]></action>\n");
+			
+					battle.logenemy("<side"+(battle.getOwnSide()+1)+" commander=\""+battle.getCommander(battle.getOwnSide())+"\" ally=\""+battle.getAlly(battle.getOwnSide())+"\" />\n");
+			
+					battle.setTakeCommand(battle.getOwnSide(), 0);
+			
+					battle.save(true);
+					
+					battle.writeLog();
+				}
+				else {
+					this.log("\t\tUser"+user.getID()+": Die Schlacht $battleid wurde beendet");
+				
+					battle.endBattle(0, 0, true);
+					PM.send(getContext(), battle.getCommander(battle.getOwnSide()), battle.getCommander(battle.getEnemySide()), "Schlacht beendet", "Die Schlacht bei "+battle.getSystem()+" : "+battle.getX()+"/"+battle.getY()+" wurde automatisch beim wechseln in den Vacation-Modus beendet, da kein Ersatzkommandant ermittelt werden konnte!");
+				}
+			}
+			battleid.free();
+		}
+		iter.free();
+		
+		db.update("UPDATE users SET name=CONCAT(name,' [VAC]'),nickname=CONCAT(nickname,' [VAC]') WHERE wait4vac=1");
+		this.log("\t"+db.affectedRows()+" Spieler sind in den VAC-Modus gewechselt");
+		db.update("UPDATE users SET wait4vac=wait4vac-1 WHERE wait4vac>0");
 	}
 	
 	/*
