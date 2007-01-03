@@ -1331,12 +1331,12 @@ public class KSAttackAction extends BasicKSAction {
 					for( int i=1; i <= this.localweapon.getInt("areadamage"); i++ ) {
 						// Es kann sein, dass die Liste nicht vollstaendig gefuellt ist (leere Elemente, Arrays mit Laenge 0).
 						// Diese muessen wir jetzt rausfiltern
-						if( !areashiplist.get(targetindex-i).isEmpty() ) {
+						if( (targetindex-i >= 0) && !areashiplist.get(targetindex-i).isEmpty() ) {
 							SQLResultRow aeShip = areashiplist.get(targetindex-i);
 							
 							this.calcADStep(battle, trefferWS, navskill, aeShip, hit, schaden, shieldSchaden, 1-i*damagemod);
 						}
-						if( !areashiplist.get(targetindex+i).isEmpty() ) {
+						if( (targetindex+i < areashiplist.size()) && !areashiplist.get(targetindex+i).isEmpty() ) {
 							SQLResultRow aeShip = areashiplist.get(targetindex+i);
 							
 							this.calcADStep(battle, trefferWS, navskill, aeShip, hit, schaden, shieldSchaden, 1-i*damagemod);
