@@ -449,6 +449,8 @@ public class AngriffController extends DSGenerator implements Loggable {
 						catch( Exception e ) {
 							addError("Kann Menue nicht aufrufen: "+e);
 							LOG.error("Darstellung des KS-Menues "+action+" fehlgeschlagen", e);
+							
+							Common.mailThrowable(e, "KS-Menu-Error Schlacht "+battle.getID(), "Action: "+action+"\nownShip: "+ownShip.getInt("id")+"\nenemyShip: "+enemyShip.getInt("id"));
 						}
 					}
 				}
@@ -622,6 +624,8 @@ public class AngriffController extends DSGenerator implements Loggable {
 			catch( Exception e ) {
 				addError("Kann Aktion nicht ausfuehren: "+e);
 				LOG.error("Ausfuehrung der KS-Aktion "+action+" fehlgeschlagen", e);
+				
+				Common.mailThrowable(e, "KS-Action-Error Schlacht "+battle.getID(), "Action: "+action+"\nownShip: "+battle.getOwnShip().getInt("id")+"\nenemyShip: "+battle.getEnemyShip().getInt("id"));
 			}
 		}
 		
