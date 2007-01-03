@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.battles;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -162,6 +161,18 @@ public class Battle implements Loggable {
 	
 	private StringBuilder logoutputbuffer = new StringBuilder();
 	private StringBuilder logenemybuffer = new StringBuilder();
+	
+	/**
+	 * Generiert eine Stringrepraesentation eines Schiffes, welche
+	 * in KS-Logs geschrieben werden kann
+	 * @param ship Das Schiff
+	 * @return Die Stringrepraesentation
+	 */
+	public static String log_shiplink( SQLResultRow ship ) {
+		SQLResultRow shiptype = Ships.getShipType(ship);
+
+		return "[tooltip="+shiptype.getString("nickname")+"]"+ship.getString("name")+"[/tooltip] ("+ship.getInt("id")+")";
+	}
 	
 	/**
 	 * Gibt die ID der Schlacht zurueck
