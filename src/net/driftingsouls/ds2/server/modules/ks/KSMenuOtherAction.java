@@ -19,13 +19,68 @@
 package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
+/**
+ * Zeigt das Menue fuer sonstige Aktionen an, welche unter keine andere Kategorie fallen
+ * @author Christopher Jung
+ *
+ */
 public class KSMenuOtherAction extends BasicKSMenuAction {
 	@Override
 	public int execute(Battle battle) {
-		// TODO
-		Common.stub();
+		int result = super.execute(battle);
+		if( result != RESULT_OK ) {
+			return result;
+		}
+		
+		SQLResultRow ownShip = battle.getOwnShip();
+		SQLResultRow enemyShip = battle.getEnemyShip();
+		
+		//Cheat-Menue
+		if( Configuration.getIntSetting("ENABLE_CHEATS") != 0 ) {
+			menuEntry("Cheats",	"ship",		ownShip.getInt("id"),
+								"attack",	enemyShip.getInt("id"),
+								"ksaction",	"cheats" );
+		}
+
+		//Alle Abdocken
+		if( this.isPossible(battle, new KSUndockAllAction()) == RESULT_OK ) {
+			menuEntry("Alle Abdocken<br /><span style=\"font-weight:normal; font-size:14px\">Kosten: 1 AP</span>", 
+						"ship",		ownShip.getInt("id"),
+						"attack",	enemyShip.getInt("id"),
+						"ksaction",	"alleabdocken" );
+		}
+
+		//Schilde aufladen
+		if( this.isPossible(battle, new KSMenuShieldsAction()) == RESULT_OK ) {
+			menuEntry("Schilde aufladen",
+						"ship",			ownShip.getInt("id"),
+						"attack",		enemyShip.getInt("id"),
+						"ksaction",		"shields" );
+		}
+
+		if( this.isPossible(battle, new KSMenuBatteriesAction()) == RESULT_OK ) {
+			menuEntry("Batterien entladen",
+						"ship",			ownShip.getInt("id"),
+						"attack",		enemyShip.getInt("id"),
+						"ksaction",		"batterien" );
+		}
+
+		//Kampf uebergeben
+		menuEntry("Kampf &uuml;bergeben",	"ship",		ownShip.getInt("id"),
+											"attack",	enemyShip.getInt("id"),
+											"ksaction",	"new_commander" );
+
+		//History
+		menuEntry("Logbuch",	"ship",		ownShip.getInt("id"),
+								"attack",	enemyShip.getInt("id"),
+								"ksaction",	"history" );
+
+		menuEntry("zur&uuml;ck",	"ship",		ownShip.getInt("id"),
+									"attack",	enemyShip.getInt("id") );
+		
 		return RESULT_OK;
 	}
 }
