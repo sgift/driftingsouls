@@ -51,6 +51,10 @@ public class SchiffInfoController extends DSGenerator {
 	private SQLResultRow ship = null;
 	private SQLResultRow shipBuildData = null;
 	
+	/**
+	 * Konstruktor
+	 * @param context Der zu verwendende Kontext
+	 */
 	public SchiffInfoController(Context context) {
 		super(context);
 		
@@ -215,21 +219,23 @@ public class SchiffInfoController extends DSGenerator {
 		//Kann der User sehen, dass das Schiff baubar ist?
 		int visible = -1;
 
-		for( int i=1; i <= 3; i++ ) {
-			if( shipBuildData.getInt("tr"+i) != 0 ) {
-				SQLResultRow research = db.first("SELECT visibility,req1,req2,req3 FROM forschungen WHERE id=",shipBuildData.get("tr"+i));
-				
-				if( (research.getInt("visibility") != 1) && 
-					(user == null || !user.hasResearched(research.getInt("req1")) || 
-					 !user.hasResearched(research.getInt("req2")) || !user.hasResearched(research.getInt("req3")) ) ) {
-					 	
-					visible = shipBuildData.getInt("tr"+i);
+		if( !shipBuildData.isEmpty() ) {
+			for( int i=1; i <= 3; i++ ) {
+				if( shipBuildData.getInt("tr"+i) != 0 ) {
+					SQLResultRow research = db.first("SELECT visibility,req1,req2,req3 FROM forschungen WHERE id=",shipBuildData.get("tr"+i));
+					
+					if( (research.getInt("visibility") != 1) && 
+						(user == null || !user.hasResearched(research.getInt("req1")) || 
+						 !user.hasResearched(research.getInt("req2")) || !user.hasResearched(research.getInt("req3")) ) ) {
+						 	
+						visible = shipBuildData.getInt("tr"+i);
+					}
 				}
 			}
 		}
 
 		if( visible > 0 ) {
-			shipBuildData = null;
+			shipBuildData.clear();
 			
 			if( (user != null) && user.getAccessLevel() >= 10 ) {
 				t.set_var(	"shiptype.showbuildable",	1,
@@ -404,7 +410,7 @@ public class SchiffInfoController extends DSGenerator {
 					"shiptype.shields",		Common.ln(ship.getInt("shields")),
 					"shiptype.deutfactor",	ship.getInt("deutfactor"),
 					"shiptype.hydro",		ship.getInt("hydro"),
-					"shiptype.flagschiff",	shipBuildData.getBoolean("flagschiff"),
+					"shiptype.flagschiff",	!shipBuildData.isEmpty() && shipBuildData.getBoolean("flagschiff"),
 					"shiptype.recost",		ship.getInt("recost"),
 					"shiptype.torpedodef",	ship.getInt("torpedodef"),
 					"shiptype.moduleslots",	modulelist.length,
