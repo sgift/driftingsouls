@@ -35,6 +35,10 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
  *
  */
 public class PlayerList {
+	/**
+	 * Gibt die Spielerliste im angegebenen Kontext aus
+	 * @param context Der Kontext
+	 */
 	public static void draw(Context context) {
 		String ord = context.getRequest().getParameter("ord");
 		
@@ -228,6 +232,20 @@ public class PlayerList {
 				
 				// Ally
 				echo.append("<td class=\"noBorderX\">"+ally+"</td>\n");
+				
+				// Die Spezial-Admin-Infos anzeigen
+				if( (user != null) && (user.getAccessLevel() > 20) ) {
+					echo.append("<td class=\"noBorderX\">"+aUser.getInactivity()+"</td>\n");
+					if( !asticount.containsKey(aUser.getID()) ) {
+						asticount.put(aUser.getID(), 0);
+					}
+					echo.append("<td class=\"noBorderX\" style=\"text-align:center\">"+asticount.get(aUser.getID())+"</td>\n");
+					
+					if( !shipcount.containsKey(aUser.getID()) ) {
+						shipcount.put(aUser.getID(), 0);
+					}
+					echo.append("<td class=\"noBorderX\" style=\"text-align:center\">"+Common.ln(shipcount.get(aUser.getID()))+"</td>\n");
+				}
 			}
 			else {
 				echo.append("<td class=\"noBorderX\"><a style=\"font-size:14px;color:#c7c7c7\" href=\"javascript:playerPM("+aUser.getID()+");\">"+Common._title(aUser.getName())+"</a></td>\n");
