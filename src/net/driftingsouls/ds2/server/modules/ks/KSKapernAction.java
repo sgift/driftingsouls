@@ -20,6 +20,14 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.User;
+import net.driftingsouls.ds2.server.framework.UserFlagschiffLocation;
+import net.driftingsouls.ds2.server.framework.db.Database;
+import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 
 public class KSKapernAction extends BasicKSAction {
 	/**
@@ -33,8 +41,65 @@ public class KSKapernAction extends BasicKSAction {
 	
 	@Override
 	public int validate(Battle battle) {
-		// TODO
-		Common.stub();
+		SQLResultRow ownShip = battle.getOwnShip();
+		SQLResultRow enemyShip = battle.getEnemyShip();
+		
+		if( (ownShip.getInt("action") & Battle.BS_SECONDROW) != 0 ||
+			(enemyShip.getInt("action") & Battle.BS_SECONDROW) != 0 ) {
+			return RESULT_ERROR;
+		}
+		
+		Context context = ContextMap.getContext();
+		Database db = context.getDatabase();
+		
+		if( (ownShip.getInt("weapons") == 0) || (ownShip.getInt("engine") == 0) || 
+			(ownShip.getInt("crew") <= 0) || (ownShip.getInt("action") & Battle.BS_FLUCHT) != 0 ||
+			(ownShip.getInt("action") & Battle.BS_JOIN) != 0 || (enemyShip.getInt("action") & Battle.BS_FLUCHT) != 0 ||
+			(enemyShip.getInt("action") & Battle.BS_JOIN) != 0 || (enemyShip.getInt("action") & Battle.BS_DESTROYED) != 0 ) {
+			return RESULT_ERROR;
+		}
+		
+		SQLResultRow enemyShipType = Ships.getShipType( enemyShip );
+	
+		// Geschuetze sind nicht kaperbar
+		if( (enemyShipType.getInt("class") == ShipClasses.GESCHUETZ.ordinal() ) || 
+			((enemyShipType.getInt("cost") != 0) && (enemyShip.getInt("engine") != 0) && (enemyShip.getInt("crew") != 0)) ||
+			(ownShip.getInt("crew") == 0) || Ships.hasShipTypeFlag(enemyShipType, Ships.SF_NICHT_KAPERBAR) ) {
+			return RESULT_ERROR;
+		}
+		
+		if( enemyShipType.getInt("crew") == 0 ) {
+			return RESULT_ERROR;
+		}
+	
+		if( enemyShip.getString("docked").length() > 0 ) {
+			if( enemyShip.getString("docked").charAt(0) == 'l' ) {
+				return RESULT_ERROR;
+			} 
+
+			SQLResultRow mastership = db.first("SELECT engine,crew FROM ships WHERE id>0 AND id=",enemyShip.getString("docked"));
+			if( (mastership.getInt("engine") != 0) && (mastership.getInt("crew") != 0) ) {
+				return RESULT_ERROR;
+			}
+		}
+	
+		// IFF-Stoersender
+		boolean disableIFF = enemyShip.getString("status").indexOf("disable_iff") > -1;	
+		
+		if( disableIFF ) {
+			return RESULT_ERROR;
+		}
+	
+		//Flagschiff?
+		User ownuser = context.getActiveUser();
+		User enemyuser = context.createUserObject(enemyShip.getInt("owner"));
+	
+		UserFlagschiffLocation flagschiffstatus = enemyuser.getFlagschiff();
+		
+		if( !ownuser.hasFlagschiffSpace() && (flagschiffstatus.getID() == enemyShip.getInt("id")) ) {
+			return RESULT_ERROR;
+		}
+		
 		return RESULT_OK;
 	}
 

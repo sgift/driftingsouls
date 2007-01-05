@@ -18,14 +18,57 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
+import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.User;
 
+/**
+ * Beendet die Kampfrunde des aktuellen Spielers
+ * @author Christopher Jung
+ *
+ */
 public class KSEndTurnAction extends BasicKSAction {
 	@Override
 	public int execute(Battle battle) {
-		// TODO
-		Common.stub();
+		int result = execute(battle);
+		if( result != RESULT_OK ) {
+			return result;
+		}
+		
+		Context context = ContextMap.getContext();
+		User user = context.getActiveUser();
+
+		// Flush the logs
+		if( battle.getEnemyLog(true).length() > 0 ) {
+			battle.writeLog();
+
+			battle.clearEnemyLog();
+		}
+
+		if( battle.isReady(battle.getEnemySide()) ) {
+			if( battle.endTurn(true) ) {
+				return RESULT_HALT;
+			}
+
+			battle.logenemy("<endturn type=\"all\" side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\" />\n");
+			battle.logme( "++++ Runde beendet ++++" );
+			battle.addComMessage(battle.getEnemySide(), "++++ "+Common._titleNoFormat(user.getName())+" hat die Runde beendet ++++\n\n");
+			
+			battle.save(false);
+		}
+		else {
+			battle.logenemy("<endturn type=\"own\" side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\" />\n");
+
+			battle.logme("Zug beendet - warte auf Gegner");
+			battle.addComMessage(battle.getEnemySide(), Common._titleNoFormat(user.getName())+" hat seinen Zug beendet\n\n");
+			
+			battle.setReady(battle.getOwnSide(), true);
+			battle.save(false);
+		}
+		
 		return RESULT_OK;
 	}
 }

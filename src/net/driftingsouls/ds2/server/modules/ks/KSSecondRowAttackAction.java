@@ -18,9 +18,22 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
+import java.util.List;
+
+import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 
+/**
+ * Ermoeglicht den Angriff auf die zweite Reihe des Gegners
+ * @author Christopher Jung
+ *
+ */
 public class KSSecondRowAttackAction extends BasicKSAction {
 	/**
 	 * Konstruktor
@@ -32,15 +45,107 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 	
 	@Override
 	public int validate(Battle battle) {
-		// TODO
-		Common.stub();
+		if( battle.hasFlag(Battle.FLAG_FIRSTROUND) ) {
+			return RESULT_ERROR;
+		}
+		
+		if( battle.getPoints(battle.getOwnSide()) < 300 ) {
+			return RESULT_ERROR;
+		}
+		
+		if( (battle.getOwnSide() == 0) && battle.hasFlag(Battle.FLAG_DROP_SECONDROW_1) ) {
+			return RESULT_ERROR;
+		}
+		
+		if( (battle.getOwnSide() == 1) && battle.hasFlag(Battle.FLAG_DROP_SECONDROW_0) ) {
+			return RESULT_ERROR;
+		}
+		
+		if( !battle.isSecondRowStable(battle.getEnemySide(), null) ) {
+			return RESULT_ERROR;
+		}  
+		
+		int size = 0;
+		int rowcount = 0;
+		boolean gotone = false;
+		
+		List<SQLResultRow> ownShips = battle.getOwnShips();
+		for( int i=0; i < ownShips.size(); i++ ) {
+			SQLResultRow aship = ownShips.get(i);
+			
+			if( (aship.getInt("action") & Battle.BS_FLUCHT) != 0 || (aship.getInt("action") & Battle.BS_JOIN) != 0 ||
+				(aship.getInt("action") & Battle.BS_SECONDROW) != 0 ) {
+				continue;
+			}
+			SQLResultRow shiptype = Ships.getShipType(aship, true);
+			
+			if( shiptype.getInt("class") == ShipClasses.ZERSTOERER.ordinal() ) {
+				gotone = true;
+			}
+			
+			if( shiptype.getInt("size") > 3 ) {
+				size += shiptype.getInt("size");
+			}
+		}
+		
+		if( !gotone ) {
+			return RESULT_ERROR;
+		}
+		
+		List<SQLResultRow> enemyShips = battle.getOwnShips();
+		for( int i=0; i < enemyShips.size(); i++ ) {
+			SQLResultRow aship = enemyShips.get(i);
+			
+			if( (aship.getInt("action") & Battle.BS_FLUCHT) != 0 || (aship.getInt("action") & Battle.BS_JOIN) != 0  ) {
+				continue;
+			}
+			if( (aship.getInt("action") & Battle.BS_SECONDROW) != 0 ) {
+				rowcount++;
+				continue;
+			}
+			SQLResultRow shiptype = Ships.getShipType(aship, true);
+			
+			if( shiptype.getInt("size") > 3 ) {
+				size += shiptype.getInt("size");
+			}
+		}
+		
+		if( (rowcount == 0) || (size < 0) ) {
+			return RESULT_ERROR;
+		}
+		
 		return RESULT_OK;
 	}
 
 	@Override
 	public int execute(Battle battle) {
-		// TODO
-		Common.stub();
+		int result = execute(battle);
+		if( result != RESULT_OK ) {
+			return result;
+		}
+		
+		if( this.validate(battle) != RESULT_OK ) {
+			battle.logme("Die Aktion kann nicht ausgef&uuml;hrt werden");
+			return RESULT_ERROR;
+		}
+		
+		Context context = ContextMap.getContext();
+		
+		battle.setPoints(battle.getOwnSide(), battle.getPoints(battle.getOwnSide())-300);
+		if( battle.getOwnSide() == 0 ) {
+			battle.setFlag(Battle.FLAG_DROP_SECONDROW_1, true);
+		}
+		else {
+			battle.setFlag(Battle.FLAG_DROP_SECONDROW_0, true);
+		}
+		
+		battle.logme( "Ihre Schiffe r&uuml;cken vor und dr&auml;ngen die feindlichen Linien unter schwerem Feuer langsam zur&uuml;ck");
+		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
+		battle.logenemy("Die feindlichen Schiffe r&uuml;cken unter schwerem Feuer langsam vor und dr&auml;ngen trotz heftigsten Widerstands die Linien zur&uuml;ck\n");
+		battle.logenemy("]]></action>\n");	
+		
+		battle.save(false);
+		
 		return RESULT_OK;
 	}
 }
