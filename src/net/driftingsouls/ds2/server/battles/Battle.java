@@ -1213,6 +1213,14 @@ public class Battle implements Loggable {
 		return StringUtils.replace(this.logenemybuffer.toString(), "\n", "<br />");
 	}
 	
+	/**
+	 * Leert den Nachrichtenpuffer fuer den Gegner/fuer das Kampflog
+	 *
+	 */
+	public void clearEnemyLog() {
+		this.logenemybuffer.setLength(0);
+	}
+	
 	//-------------------------------------------------------------------------------
 	//
 	// endTurn - Eine Runde beenden
@@ -1220,7 +1228,7 @@ public class Battle implements Loggable {
 	//
 	//-------------------------------------------------------------------------------
 
-	public void endTurn( boolean calledByUser ) {
+	public boolean endTurn( boolean calledByUser ) {
 		throw new RuntimeException("STUB");
 	}
 	
