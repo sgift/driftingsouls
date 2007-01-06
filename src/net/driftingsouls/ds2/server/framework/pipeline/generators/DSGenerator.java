@@ -127,7 +127,7 @@ public abstract class DSGenerator extends Generator {
 					sb.append("QCount: "+getDatabase().getQCount()+"<br />\n");
 					sb.append("Execution-Time: "+(System.currentTimeMillis()-getStartTime())/1000d+"s<br />\n");
 					//echo "<a class=\"forschinfo\" target=\"none\" style=\"font-size:11px\" href=\"http://ds2.drifting-souls.net/mantis/\">Zum Bugtracker</a><br />\n";
-					if( getUser().getAccessLevel() >= 20 ) {
+					if( (getUser() != null) && (getUser().getAccessLevel() >= 20) ) {
 						sb.append("<div style=\"display:none\"><!--\n");
 						sb.append(getDatabase().getQueryLog());
 						sb.append("--></div>\n");
