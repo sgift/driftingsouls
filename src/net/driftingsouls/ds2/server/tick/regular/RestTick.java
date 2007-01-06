@@ -19,10 +19,17 @@
 package net.driftingsouls.ds2.server.tick.regular;
 
 import java.sql.Blob;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ResourceEntry;
+import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.UserIterator;
@@ -30,6 +37,7 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.scripting.ScriptParser;
+import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.tick.TickController;
@@ -146,8 +154,86 @@ public class RestTick extends TickController {
 			
 	*/	
 	private void doFelsbrocken() {
-		// TODO
-		Common.stub();
+		Database db = getDatabase();
+		
+		this.log("");
+		this.log("Fuege Felsbrocken ein");
+		
+		Random rand = new Random();
+		
+		int shouldId = 9999;
+		
+		SQLQuery system = db.query("SELECT system,count," +
+				"(SELECT count(*) FROM ships WHERE system=config_felsbrocken_systems.system AND type IN " +
+				"	(SELECT shiptype FROM config_felsbrocken WHERE system=config_felsbrocken_systems.system)" +
+				") present " +
+				"FROM config_felsbrocken_systems ORDER BY system");
+		while( system.next() ) {
+			int shipcount = system.getInt("present");
+			
+			this.log("\tSystem "+system.getInt("system")+": "+shipcount+" / "+system.getInt("count")+" Felsbrocken");
+			
+			if( system.getInt("count") < shipcount ) {
+				continue;
+			}
+			
+			List<SQLResultRow> loadout = new ArrayList<SQLResultRow>();
+			SQLQuery aLoadOut = db.query("SELECT * FROM config_felsbrocken WHERE system=",system.getInt("system"));
+			while( aLoadOut.next() ) {
+				loadout.add(aLoadOut.getRow());
+			}
+			aLoadOut.free();
+			
+			while( shipcount < system.getInt("count") ) {
+				int rnd = rand.nextInt(100)+1;
+				int currnd = 0;
+				for( int i=0; i < loadout.size(); i++ ) {
+					SQLResultRow aloadout = loadout.get(i);
+					currnd += aloadout.getInt("chance");
+	
+					if( currnd < rnd ) {
+						continue;
+					}
+					
+					// ID ermitteln
+					shouldId++;
+					
+					SQLQuery sid = db.query("SELECT DISTINCT abs(id) iid FROM ships WHERE abs(id) >= ",shouldId," ORDER BY iid");
+					while( sid.next() ) {
+						if( sid.getInt("iid") != shouldId ) {
+							break;
+						}
+						shouldId++;
+					}
+					sid.free();
+					
+					// Coords ermitteln
+					int x = rand.nextInt(Systems.get().system(system.getInt("system")).getWidth())+1;
+					int y = rand.nextInt(Systems.get().system(system.getInt("system")).getHeight())+1;
+					
+					this.log("\t*System "+system.getInt("system")+": Fuege Felsbrocken $shouldId ein");
+					
+					// Ladung einfuegen
+					this.log("\t- Loadout: ");					
+					Cargo cargo = new Cargo(Cargo.Type.STRING, aloadout.getString("cargo"));
+					ResourceList reslist = cargo.getResourceList();
+					for( ResourceEntry res : reslist ) {
+						this.log("\t   *"+res.getName()+" => "+res.getCount1());
+					}
+					
+					SQLResultRow shiptype = Ships.getShipType(aloadout.getInt("shiptype"), false);
+					
+					// Schiffseintrag einfuegen
+					db.update("INSERT INTO ships (id,name,type,owner,x,y,system,hull,crew,cargo) ",
+								"VALUES (",shouldId,",'Felsbrocken',",aloadout.getInt("shiptype"),",-1,",x,",",y,",",system.getInt("system"),",",shiptype.getInt("hull"),",",shiptype.getInt("crew"),",'",cargo.save(),"')");
+					this.log("");
+					
+					shipcount++;
+					
+					break;
+				}
+			}
+		}
 	}
 	
 	/*
