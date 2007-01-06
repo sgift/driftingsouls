@@ -43,7 +43,8 @@ CREATE TABLE `ships` (
   KEY `owner` (`owner`),
   KEY `battle` (`battle`),
   KEY `status` (`status`),
-  KEY `bookmark` (`bookmark`)
+  KEY `bookmark` (`bookmark`),
+  KEY `type` (`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 PACK_KEYS=0; 
 
 INSERT INTO `ships` (`id`, `owner`, `name`, `type`, `cargo`, `x`, `y`, `system`, `status`, `crew`, `e`, `s`, `hull`, `shields`, `heat`, `engine`, `weapons`, `comm`, `sensors`, `docked`, `alarm`, `fleet`, `destsystem`, `destx`, `desty`, `destcom`, `bookmark`, `battle`, `battleAction`, `jumptarget`, `autodeut`, `history`, `script`, `scriptexedata`, `oncommunicate`, `lock`, `visibility`, `onmove`, `respawn`) VALUES (2, -1, 'Frachter', 27, '0,0,0,0,50,0,0,0,0,0,0,0,0,0,0,0,0,0,', 1, 1, 0, 'noconsign', 50, 80, 0, 5000, 0, '', 100, 100, 100, 100, '', 0, 0, 0, 0, 0, '', 0, 0, 0, '', 1, '', NULL, NULL, NULL, NULL, NULL, NULL, NULL);

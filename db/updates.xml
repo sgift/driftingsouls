@@ -67,4 +67,7 @@
 		ALTER TABLE users CHANGE nstat nstat VARCHAR(30) NOT NULL DEFAULT '';
 		ALTER TABLE stats_verkaeufe CHANGE system system TINYINT NOT NULL DEFAULT 1;
 	]]></update>
+	<update type="structure" datum="2007-01-06"><![CDATA[
+		ALTER TABLE ships ADD INDEX type (type);
+	]]></update>
 </updates>
