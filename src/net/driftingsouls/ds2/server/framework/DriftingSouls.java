@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.framework;
 
+import java.util.Date;
 import java.util.Locale;
 
 import net.driftingsouls.ds2.server.framework.db.DBConnectionPool;
@@ -50,6 +51,7 @@ public class DriftingSouls {
 	 */
 	public DriftingSouls(Log log, String configdir, boolean boot) throws Exception {
 		LOG = log;
+		LOG.info("\n----------- DS2 Startup "+new Date()+" -----------\n");
 		LOG.info("Reading "+configdir+"config.xml");		
 		Configuration.init(configdir);
 		
