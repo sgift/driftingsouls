@@ -123,7 +123,14 @@ public class User implements Loggable {
 	private static String defaultImagePath = null;
 	
 	private UserFlagschiffLocation flagschiff = null;
+	private String userImagePath = null;
 	
+	/**
+	 * Konstruktor
+	 * @param c Der aktuelle Kontext
+	 * @param id Die ID des Spielers
+	 * @param sessiondata Sessiondaten
+	 */
 	public User( Context c, int id, SQLResultRow sessiondata ) {
 		context = c;
 		changed = false;
@@ -142,13 +149,17 @@ public class User implements Loggable {
 		preloadedValues.addAll(Arrays.asList(dbfields));
 
 		if( (sessiondata != null) && (sessiondata.getInt("usegfxpak") == 0) ) {
-			SQLResultRow column = c.getDatabase().first("SHOW FIELDS FROM users LIKE 'imgpath'");
-			data.put("imgpath", column.getString("Default"));
+			data.put("imgpath", getDefaultImagePath(context.getDatabase()));
 		}
 		
 		context.cacheUser( this );
 	}
 	
+	/**
+	 * Konstruktor
+	 * @param c Der aktuelle Kontext
+	 * @param id Die ID des Spielers
+	 */
 	public User( Context c, int id ) {
 		this( c, id, (SQLResultRow)null );
 	}
@@ -293,7 +304,10 @@ public class User implements Loggable {
 	 * @return Der Image-Path des Benutzers
 	 */
 	public String getUserImagePath() {
-		return context.getDatabase().first("SELECT imgpath FROM users WHERE id='",id,"'").getString("imgpath");
+		if( userImagePath == null ) {
+			userImagePath = context.getDatabase().first("SELECT imgpath FROM users WHERE id='",id,"'").getString("imgpath");
+		}
+		return userImagePath;
 	}
 	
 	/**
@@ -479,12 +493,8 @@ public class User implements Loggable {
 	public String getUserValue( String valuename ) {
 		Database db = context.getDatabase();
 		
-		PreparedQuery pq = db.prepare("SELECT `id`,`value` FROM user_values WHERE `user_id`= ? AND `name`= ?");
+		PreparedQuery pq = db.prepare("SELECT `id`,`value` FROM user_values WHERE `user_id`IN ( ? ,0) AND `name`= ? ORDER BY abs(user_id) DESC LIMIT 1");
 		SQLResultRow value = pq.pfirst(id, valuename);
-		
-		if( value.isEmpty() ) {
-			value = pq.pfirst(0, valuename);
-		}
 		pq.close();
 
 		return value.getString("value");
