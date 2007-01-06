@@ -31,6 +31,10 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
  */
 public class MainController extends DSGenerator {
 
+	/**
+	 * Konstruktor
+	 * @param context Der zu verwendende Kontext
+	 */
 	public MainController(Context context) {
 		super(context);
 	}
@@ -55,6 +59,10 @@ public class MainController extends DSGenerator {
 	protected void printFooter(String action) {
 	}
 	
+	/**
+	 * Generiert das Hauptframe
+	 */
+	@Override
 	public void defaultAction() {
 		User user = getUser();
 		StringBuffer out = getContext().getResponse().getContent();
@@ -75,7 +83,7 @@ public class MainController extends DSGenerator {
 			}
 		}
 	
-		if( user.getUserValue("TBLORDER/admin/show_cmdline") != null ) {
+		if( Integer.parseInt(user.getUserValue("TBLORDER/admin/show_cmdline")) != 0 ) {
 			out.append("<frameset cols=\"182,*\" framespacing=\"0\" border=\"0\" frameborder=\"0\">\n");
 			out.append("<frame src=\"./main.php?sess="+getString("sess")+"&amp;module=links\" id=\"_framenavi\" name=\"navi\" frameborder=\"0\" />\n");
 			out.append("<frameset rows=\"*,75\" framespacing=\"0\" border=\"0\" frameborder=\"0\">\n");
