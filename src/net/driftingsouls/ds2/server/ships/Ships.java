@@ -108,8 +108,6 @@ public class Ships implements Loggable {
 	 */
 	public static final ThreadLocalMessage MESSAGE = new ThreadLocalMessage();
 	
-	private static Database db = new Database();
-	
 	private static Map<Integer,SQLResultRow> shiptypes = new HashMap<Integer,SQLResultRow>();
 	private static Map<Location,Integer> nebel = Collections.synchronizedMap(new CacheMap<Location,Integer>(1000));
 	
@@ -307,6 +305,7 @@ public class Ships implements Loggable {
 			picture = context.getActiveUser().getImagePath()+picture;	
 		}
 		else {
+			Database db = ContextMap.getContext().getDatabase();
 			picture = User.getDefaultImagePath(db)+picture;
 		}
 		
@@ -331,9 +330,7 @@ public class Ships implements Loggable {
 	public static SQLResultRow getShipType( SQLResultRow shipdata ) {
 		return getShipType(shipdata, false);
 	}
-	
-	private static PreparedQuery pqGetModuleRow = db.prepare("SELECT nickname,picture,ru,rd,ra,rm,eps,cost,hull,panzerung,cargo,heat,crew,weapons,maxheat,torpedodef,shields,size,jdocks,adocks,sensorrange,hydro,deutfactor,recost,flags,werft,ow_werft FROM ships_modules WHERE id>0 AND id= ? ");
-	
+
 	/**
 	 * Gibt die Typen-Daten des angegebenen Schiffs zurueck 
 	 * @param shipdata Eine SQL-Ergebniszeile mit den daten des Schiffes
@@ -343,8 +340,13 @@ public class Ships implements Loggable {
 	 */
 	public static SQLResultRow getShipType( SQLResultRow shipdata, boolean plaindata ) {
 		int shiptype = shipdata.getInt("type");
+		
 		if( shipdata.getString("status").indexOf("tblmodules") != -1 ) {
-			shipdata = pqGetModuleRow.pfirst(shipdata.getInt("id"));
+			Database db = ContextMap.getContext().getDatabase();
+			shipdata = db.prepare("SELECT nickname,picture,ru,rd,ra,rm,eps,cost,hull,panzerung,cargo,heat,crew,weapons,maxheat,torpedodef,shields,size,jdocks,adocks,sensorrange,hydro,deutfactor,recost,flags,werft,ow_werft " +
+					"FROM ships_modules " +
+					"WHERE id>0 AND id= ? ")
+				.first(shipdata.getInt("id"));
 		}
 		else {
 			shipdata = null;
@@ -352,16 +354,20 @@ public class Ships implements Loggable {
 		
 		return getShipType(shiptype, shipdata, plaindata);
 	}
-	
-	private static PreparedQuery pqGetShipInfos = db.prepare("SELECT type,status FROM ships WHERE id>0 AND id= ?");
-	
+		
 	private static SQLResultRow getShipType( int shiptype, boolean isShip, boolean plaindata ) {
 		if( isShip ) {
 			// TODO: Schiffscache implementieren!
-			SQLResultRow shipdata = pqGetShipInfos.pfirst(shiptype);
+			
+			Database db = ContextMap.getContext().getDatabase();
+			SQLResultRow shipdata = db.prepare("SELECT type,status FROM ships WHERE id>0 AND id= ?")
+				.first(shiptype);
 			
 			if( shipdata.getString("status").indexOf("tblmodules") != -1 ) {
-				shipdata = pqGetModuleRow.pfirst(shiptype);
+				shipdata = db.prepare("SELECT nickname,picture,ru,rd,ra,rm,eps,cost,hull,panzerung,cargo,heat,crew,weapons,maxheat,torpedodef,shields,size,jdocks,adocks,sensorrange,hydro,deutfactor,recost,flags,werft,ow_werft " +
+						"FROM ships_modules " +
+						"WHERE id>0 AND id= ? ")
+					.first(shiptype);
 			}
 			else {
 				shipdata = null;
@@ -374,12 +380,14 @@ public class Ships implements Loggable {
 		return getShipType(shiptype, null, plaindata);
 	}
 	
-	private static PreparedQuery pqGetShipType = db.prepare("SELECT *,LOCATE('=',weapons) as military FROM ship_types WHERE id= ? ");
-	
 	private static SQLResultRow getShipType( int shiptype, SQLResultRow shipdata, boolean plaindata ) {
 		synchronized (shiptypes) {
 			if( !shiptypes.containsKey(shiptype) ) {
-				shiptypes.put(shiptype, pqGetShipType.pfirst(shiptype));
+				Database db = ContextMap.getContext().getDatabase();
+				SQLResultRow row = db.prepare("SELECT *,LOCATE('=',weapons) as military FROM ship_types WHERE id= ? ")
+					.first(shiptype);
+				
+				shiptypes.put(shiptype, row);
 			}
 		}
 		
@@ -2553,9 +2561,7 @@ public class Ships implements Loggable {
 	public static int getNebula(SQLResultRow ship) {
 		return getNebula(new Location(ship.getInt("system"), ship.getInt("x"), ship.getInt("y")));
 	}
-	
-	private static PreparedQuery pqGetNebula = db.prepare("SELECT id,type FROM nebel WHERE system= ? AND x= ? AND y= ? ");
-	
+		
 	/**
 	 * Gibt den Nebeltyp an der angegebenen Position zurueck. Sollte sich an der Position kein
 	 * Nebel befinden, wird <code>-1</code> zurueckgegeben.
@@ -2564,7 +2570,10 @@ public class Ships implements Loggable {
 	 */
 	public static synchronized int getNebula(Location loc) {
 		if( !nebel.containsKey(loc) ) {
-			SQLResultRow neb = pqGetNebula.pfirst(loc.getSystem(), loc.getX(), loc.getY());
+			Database db = ContextMap.getContext().getDatabase();
+			
+			SQLResultRow neb = db.prepare("SELECT id,type FROM nebel WHERE system= ? AND x= ? AND y= ? ").
+				first(loc.getSystem(), loc.getX(), loc.getY());
 			if( neb.isEmpty() ) {
 				nebel.put(loc, -1);	
 			}
