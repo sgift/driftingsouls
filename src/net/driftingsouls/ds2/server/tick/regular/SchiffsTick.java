@@ -318,7 +318,7 @@ public class SchiffsTick extends TickController {
 			oid.free();
 			
 			if( userIdList.size() > 0 ) {
-				userlist = " AND owner IN ("+Common.implode(",",userIdList)+") ";
+				userlist = " AND id IN ("+Common.implode(",",userIdList)+") ";
 			}
 		}
 		else {
