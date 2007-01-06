@@ -44,6 +44,8 @@ public class Database implements Loggable {
 	private boolean debugTransaction;
 	private boolean error = false;
 	private int qcount = 0;
+	private boolean queryLog = false;
+	private StringBuffer queryLogBuffer = null;
 	
 	/**
 	 * Erstellt eine neue Datenbank-Verbindung aus dem Verbindungspool
@@ -75,6 +77,44 @@ public class Database implements Loggable {
 			e.printStackTrace();
 			error("Unable to connect to "+url+"\n"+e, null);
 			throw new SQLRuntimeException(e);
+		}
+	}
+	
+	/**
+	 * (De)aktiviert das QueryLog
+	 * @param value <code>true</code>, falls das QueryLog aktiviert werden soll
+	 */
+	public void setQueryLogStatus( boolean value ) {
+		this.queryLog = value;
+		
+		if( this.queryLog && (queryLogBuffer == null) ) {
+			this.queryLogBuffer = new StringBuffer();
+		}
+	}
+	
+	/**
+	 * Gibt zurueck, ob das QueryLog aktiviert ist
+	 * @return <code>true</code>, falls das QueryLog aktiviert ist
+	 */
+	public boolean getQueryLogStatus() {
+		return this.queryLog;
+	}
+	
+	/**
+	 * Gibt die geloggten Queries zurueck, jeweils getrennt durch zwei Zeilenumbrueche
+	 * @return Die geloggten Queries
+	 */
+	public String getQueryLog() {
+		return this.queryLogBuffer.toString();
+	}
+	
+	/**
+	 * Loggt die angegebene Query im QueryLog
+	 * @param query Die zu loggende Query
+	 */
+	protected void logQuery(String query) {
+		if( queryLog ) {
+			queryLogBuffer.append(query+"\n\n");
 		}
 	}
 	
@@ -138,15 +178,14 @@ public class Database implements Loggable {
 		for( int i=0; i < queryList.length; i++ ) {
 			query.append(queryList[i]);
 		}
-		String queryString = query.toString();
-		
-		if( queryString.startsWith("UPDATE") || queryString.startsWith("INSERT") ) {
-			LOG.warn("Query '"+queryString+"' should be executed via update");
-		}
+				
 		Statement stmt = null;
 		try {
 			stmt = connection.createStatement();
 			qcount++;
+			if( this.queryLog ) {
+				logQuery(query.toString());
+			}
 			return new SQLQuery(this, stmt.executeQuery(query.toString()), stmt);
 		}
 		catch( SQLException e ) {
@@ -172,6 +211,9 @@ public class Database implements Loggable {
 		try {
 			stmt = connection.createStatement();
 			qcount++;
+			if( this.queryLog ) {
+				logQuery(query.toString());
+			}
 			affectedRows = stmt.executeUpdate(query.toString(), Statement.RETURN_GENERATED_KEYS);
 			ResultSet genkeys = stmt.getGeneratedKeys();
 			if( genkeys.next() ) {

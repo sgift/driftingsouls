@@ -22,6 +22,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Loggable;
 
@@ -58,6 +60,9 @@ public class PreparedQuery implements Loggable {
 				}
 			}
 			db.incQCount();
+			if( db.getQueryLogStatus() ) {
+				db.logQuery("PS: "+query+" Parameter: "+ArrayUtils.toString(values, "null"));
+			}
 			return new SQLQuery(db, stmt.executeQuery(), stmt);
 		}
 		catch( SQLException e ) {
@@ -131,6 +136,9 @@ public class PreparedQuery implements Loggable {
 				}
 			}
 			db.incQCount();
+			if( db.getQueryLogStatus() ) {
+				db.logQuery("PS: "+query+" Parameter: "+ArrayUtils.toString(values, "null"));
+			}
 			affectedRows = stmt.executeUpdate();
 			ResultSet genkeys = stmt.getGeneratedKeys();
 			if( genkeys.next() ) {
