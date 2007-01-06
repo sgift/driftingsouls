@@ -573,9 +573,7 @@ public class Battle implements Loggable {
 		PreparedQuery pq = db.prepare("UPDATE battles ",
 					"SET ",Common.implode(",",update)+" ",
 					"WHERE "+Common.implode(" AND ",where));
-		System.out.println("UPDATE battles "+
-					"SET "+Common.implode(",",update)+" "+
-					"WHERE "+Common.implode(" AND ",where));
+		
 		int index=1;
 		for( int i=0; i < updateData.size(); i++ ) {
 			pq.setObject(index++, updateData.get(i));
