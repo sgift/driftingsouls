@@ -24,8 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.config.IEModule;
@@ -37,6 +35,9 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+
+import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Repraesentiert ein Modul auf Item-Basis
@@ -66,57 +67,55 @@ public class ModuleItemModule extends Module implements Loggable {
 				stats.put( key, mods.get(key));
 			}	
 			else if( key.equals("weapons") ) {
-				Common.stub();
-				/*$wpnrpllist = $this->weaponrepl;
-				reset($wpnrpllist);
-				$wpnrpl = current($wpnrpllist);
+				String[] wpnrpllist = this.weaponrepl;
+				int index = 0;
 				
-				$weaponlist = parseWeaponList($stats['weapons']);
-				$heatlist = parseWeaponList($stats['maxheat']);
+				String wpnrpl = wpnrpllist.length > index ? wpnrpllist[index++] : null;
+							
+				Map<String,String> weaponlist = Weapons.parseWeaponList(stats.getString("weapons"));
+				Map<String,String> heatlist = Weapons.parseWeaponList(stats.getString("maxheat"));
 				
-				foreach( $mod as $aweapon => $awpnmods ) { 
-					if( is_array($awpnmods) ) {
-						$acount = $awpnmods[0];
-						$aheat = $awpnmods[1];	
-					}
-					else {
-						$aheat = $awpnmods;	
-						$acount = 1;
-					}
-
-					if( $wpnrpl ) {		
-						if( $weaponlist[$wpnrpl] ) {
-							if( $weaponlist[$wpnrpl] > $acount ) {
-								$heatlist[$wpnrpl] -= $acount*($heatlist[$wpnrpl]/$weaponlist[$wpnrpl]);
+				Map<String,Integer[]> mod = (Map<String,Integer[]>)mods.get(key);
+				for( String aweapon : mod.keySet() ) {
+					Integer[] awpnmods = mod.get(aweapon);
+					
+					int acount = awpnmods[0];
+					int aheat = awpnmods[1];
+					
+					if( wpnrpl != null ) {		
+						if( NumberUtils.toInt(weaponlist.get(wpnrpl)) > 0 ) {
+							if( NumberUtils.toInt(weaponlist.get(wpnrpl)) > acount ) {
+								int rplCount = NumberUtils.toInt(weaponlist.get(wpnrpl));
+								int rplHeat = NumberUtils.toInt(heatlist.get(wpnrpl));
+								heatlist.put(wpnrpl, Integer.toString(rplHeat - acount*(rplHeat/rplCount)));
+								weaponlist.put(wpnrpl, Integer.toString(rplCount - acount));
 								
-								$weaponlist[$wpnrpl] -= $acount;
-								$weaponlist[$aweapon] += $acount;
-								$heatlist[$aweapon] += $aheat;
+								weaponlist.put(aweapon, Integer.toString(NumberUtils.toInt(weaponlist.get(aweapon)) + acount));
+								heatlist.put(aweapon,  Integer.toString(NumberUtils.toInt(weaponlist.get(aweapon)) + aheat));
 							}
 							else {
-								unset($heatlist[$wpnrpl]);
-								unset($weaponlist[$wpnrpl]);	
+								heatlist.remove(wpnrpl);
+								weaponlist.remove(wpnrpl);
 								
-								$weaponlist[$aweapon] += $acount;
-								$heatlist[$aweapon] += $aheat;
+								weaponlist.put(aweapon, Integer.toString(NumberUtils.toInt(weaponlist.get(aweapon)) + acount));
+								heatlist.put(aweapon,  Integer.toString(NumberUtils.toInt(weaponlist.get(aweapon)) + aheat));
 							}
 						}
 					}
 					else {
-						$weaponlist[$aweapon] += $acount;
-						$heatlist[$aweapon] += $aheat;
+						weaponlist.put(aweapon, Integer.toString(NumberUtils.toInt(weaponlist.get(aweapon)) + acount));
+						heatlist.put(aweapon,  Integer.toString(NumberUtils.toInt(weaponlist.get(aweapon)) + aheat));
 
-						if( $weaponlist[$aweapon] == 0 ) {
-							unset($heatlist[$aweapon]);
-							unset($weaponlist[$aweapon]);	
+						if( NumberUtils.toInt(weaponlist.get(aweapon)) <= 0 ) {
+							heatlist.remove(aweapon);
+							weaponlist.remove(aweapon);
 						}
 					}
 					
-					next($wpnrpllist);
-					$wpnrpl = current($wpnrpllist);
+					wpnrpl = wpnrpllist.length > index ? wpnrpllist[index++] : null;
 				}	
-				$stats['weapons'] = packWeaponList($weaponlist);
-				$stats['maxheat'] = packWeaponList($heatlist);*/
+				stats.put("weapons", Weapons.packWeaponList(weaponlist));
+				stats.put("maxheat", Weapons.packWeaponList(heatlist));
 			}
 			else if( key.equals("maxheat") ) {
 				Map<String,String> heatlist = Weapons.parseWeaponList(stats.getString("maxheat"));	
