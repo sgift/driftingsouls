@@ -957,6 +957,9 @@ public class AngriffController extends DSGenerator implements Loggable {
 				if( shipTypes.get(stid) <= 0 ) { 
 					continue;
 				}
+				if( !shiptypegroupcount.containsKey(stid) ) {
+					continue;
+				}
 				for( int i=0; i <= shiptypegroupcount.get(stid)/SHIPGROUPSIZE; i++ ) {
 					int count = shiptypegroupcount.get(stid)-i*SHIPGROUPSIZE;
 					if( count > SHIPGROUPSIZE ) {
@@ -1168,6 +1171,9 @@ public class AngriffController extends DSGenerator implements Loggable {
 			Map<Integer,Integer> shipTypes = battle.getShipTypeCount(battle.getEnemySide());
 			for( Integer stid : shipTypes.keySet() ) {
 				if( shipTypes.get(stid) <= 0 ) { 
+					continue;
+				}
+				if( !shiptypegroupcount.containsKey(stid) ) {
 					continue;
 				}
 				for( int i=0; i <= shiptypegroupcount.get(stid)/SHIPGROUPSIZE; i++ ) {
