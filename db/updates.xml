@@ -99,4 +99,7 @@
 		  ADD CONSTRAINT `fk_config_felsbrocken_system` FOREIGN KEY (`system`) REFERENCES `config_felsbrocken_systems` (`system`) ON DELETE NO ACTION ON UPDATE NO ACTION,
 		  ADD CONSTRAINT `fk_config_felsbrocken_shiptype` FOREIGN KEY (`shiptype`) REFERENCES `ship_types` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 	]]></update>
+	<update type="structure" datum="2007-01-07"><![CDATA[
+		ALTER TABLE transmissionen ADD INDEX empfaenger (empfaenger,gelesen);
+	]]></update>
 </updates>

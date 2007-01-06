@@ -9,5 +9,6 @@ CREATE TABLE `transmissionen` (
   `flags` int(11) NOT NULL default '0',
   `inhalt` text NOT NULL,
   `kommentar` text NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `empfaenger` (`empfaenger`,`gelesen`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
