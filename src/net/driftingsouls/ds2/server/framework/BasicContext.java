@@ -65,6 +65,9 @@ public class BasicContext implements Context,Loggable {
 	 */
 	public BasicContext(Request request, Response response) {
 		database = new Database();
+		if( Configuration.getIntSetting("LOG_QUERIES") != 0 ) {
+			database.setQueryLogStatus(true);
+		}
 		this.request = request;
 		this.response = response;
 		

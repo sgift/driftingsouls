@@ -64,6 +64,7 @@ public abstract class DSGenerator extends Generator {
 	}
 	
 	protected class FWHtmlOutputHelper extends FWOutputHelper {
+		@Override
 		public void printHeader() {
 			if( !getParameter("_style").equals("xml") ) {
 				StringBuffer sb = getResponse().getContent();
@@ -111,6 +112,7 @@ public abstract class DSGenerator extends Generator {
 			}
 		}
 		
+		@Override
 		public void printFooter() {
 			if( !template.equals("") ) {
 				getTemplateEngine().parse( "OUT", masterTemplateID );
@@ -125,12 +127,18 @@ public abstract class DSGenerator extends Generator {
 					sb.append("QCount: "+getDatabase().getQCount()+"<br />\n");
 					sb.append("Execution-Time: "+(System.currentTimeMillis()-getStartTime())/1000d+"s<br />\n");
 					//echo "<a class=\"forschinfo\" target=\"none\" style=\"font-size:11px\" href=\"http://ds2.drifting-souls.net/mantis/\">Zum Bugtracker</a><br />\n";
+					if( getUser().getAccessLevel() >= 20 ) {
+						sb.append("<div style=\"display:none\"><!--\n");
+						sb.append(getDatabase().getQueryLog());
+						sb.append("--></div>\n");
+					}
 					sb.append("</div>\n");
 				}
 				sb.append("</body>");
 			}
 		}
 
+		@Override
 		public void printErrorList() {
 			StringBuffer sb = getResponse().getContent();
 			sb.append("<div align=\"center\">\n");
@@ -153,13 +161,16 @@ public abstract class DSGenerator extends Generator {
 	}
 	
 	protected class FWAjaxOutputHelper extends FWOutputHelper {
+		@Override
 		public void printHeader() {
 			// Moegliche Templates vorerst deaktivieren 
 			// (bis wir sie fuer ajax wirklich mal brauchen sollten)
 			// TODO
 			//$cntl->setTemplate('');
 		}
+		@Override
 		public void printFooter() {}
+		@Override
 		public void printErrorList() {}
 	}
 	
@@ -528,14 +539,14 @@ public abstract class DSGenerator extends Generator {
 					
 				addError("Es ist ein Fehler in der Action '"+action+"' aufgetreten:\n"+t.toString()+"\n\n"+stacktrace);
 				
-				Common.mailThrowable(e, "DSGenerator Invocation Target Exception", "Action: "+action+"\nActionType: "+actionType+"\nUser: "+(getActiveUser() != null ? getActiveUser().getID() : "none"));
+				Common.mailThrowable(e, "DSGenerator Invocation Target Exception", "Action: "+action+"\nActionType: "+actionType+"\nUser: "+(getActiveUser() != null ? getActiveUser().getID() : "none")+"\nQuery-String: "+getContext().getRequest().getQueryString());
 			}
 			catch( NoSuchMethodException e ) {
 				addError("Die Aktion '"+action+"' existiert nicht!");
 			}
 			catch( Exception e ) {
 				addError("Es ist ein Fehler beim Aufruf der Action '"+action+"' aufgetreten:\n"+e.toString());
-				Common.mailThrowable(e, "DSGenerator Exception", "Action: "+action+"\nActionType: "+actionType+"\nUser: "+(getActiveUser() != null ? getActiveUser().getID() : "none"));
+				Common.mailThrowable(e, "DSGenerator Exception", "Action: "+action+"\nActionType: "+actionType+"\nUser: "+(getActiveUser() != null ? getActiveUser().getID() : "none")+"\nQuery-String: "+getContext().getRequest().getQueryString());
 			}
 		}
 		else {				
