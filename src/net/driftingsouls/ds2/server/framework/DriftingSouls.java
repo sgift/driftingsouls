@@ -51,7 +51,7 @@ public class DriftingSouls {
 	 */
 	public DriftingSouls(Log log, String configdir, boolean boot) throws Exception {
 		LOG = log;
-		LOG.info("\n----------- DS2 Startup "+new Date()+" -----------\n");
+		LOG.info("----------- DS2 Startup "+new Date()+" -----------");
 		LOG.info("Reading "+configdir+"config.xml");		
 		Configuration.init(configdir);
 		
