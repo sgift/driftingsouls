@@ -22,6 +22,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.tick.regular.AcademyTick;
 import net.driftingsouls.ds2.server.tick.regular.BaseTick;
+import net.driftingsouls.ds2.server.tick.regular.BattleTick;
 import net.driftingsouls.ds2.server.tick.regular.ForschungsTick;
 import net.driftingsouls.ds2.server.tick.regular.NPCOrderTick;
 import net.driftingsouls.ds2.server.tick.regular.NPCScriptTick;
@@ -39,8 +40,6 @@ public class RegularTick extends AbstractTickExecuter {
 
 	@Override
 	protected void executeTicks() {
-		Common.stub();
-		// TODO 
 		try {
 			publishStatus("berechne Basen");
 			execTick(BaseTick.class,false);
@@ -65,7 +64,7 @@ public class RegularTick extends AbstractTickExecuter {
 			execTick(RTCTick.class, false);
 	
 			publishStatus("berechne Schlachten");
-			//execTick(BattleTick.class);
+			execTick(BattleTick.class, false);
 	
 			publishStatus("berechne Sonstiges");
 			execTick(RestTick.class, false);
