@@ -119,7 +119,7 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 
 	@Override
 	public int execute(Battle battle) {
-		int result = execute(battle);
+		int result = super.execute(battle);
 		if( result != RESULT_OK ) {
 			return result;
 		}

@@ -33,7 +33,7 @@ import net.driftingsouls.ds2.server.framework.User;
 public class KSEndTurnAction extends BasicKSAction {
 	@Override
 	public int execute(Battle battle) {
-		int result = execute(battle);
+		int result = super.execute(battle);
 		if( result != RESULT_OK ) {
 			return result;
 		}

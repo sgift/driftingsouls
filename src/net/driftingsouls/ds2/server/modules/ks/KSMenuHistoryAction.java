@@ -48,7 +48,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction {
 	}
 	
 	public void showTakeCommand(boolean value) {
-		this.showTakeCommand(value);
+		this.showTakeCommand = value;
 	}
 	
 	@Override
