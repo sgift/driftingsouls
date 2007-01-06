@@ -41,6 +41,7 @@
 	<setting type="string" name="EXCEPTION_MAIL" value="bktheg@web.de" />
 	<setting type="string" name="VERSION_TYPE" value="development" />
 	<setting type="string" name="GFXPAK_VERSION" value="1" />
+	<setting type="number" name="LOG_QUERIES" value="1" />
 
 	<!-- 
 		Portal Einstellungen
