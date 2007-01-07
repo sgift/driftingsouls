@@ -878,11 +878,11 @@ public class Ships implements Loggable {
 					if( db.first("SELECT count(*) count FROM ships WHERE docked='",ship.getInt("id"),"'").getInt("count") != 0 ) {
 						SQLQuery sid = db.query("SELECT id FROM ships WHERE docked='",ship.getInt("id"),"'");
 						while( sid.next() ) {
-							battle.addShip( ship.getInt("owner"), sid.getInt("id"), oside-1 );
+							battle.addShip( ship.getInt("owner"), sid.getInt("id") );
 						}
 						sid.free();
 					}
-					battle.addShip( ship.getInt("owner"), ship.getInt("id"), oside-1 );
+					battle.addShip( ship.getInt("owner"), ship.getInt("id") );
 					
 					if( battle.getEnemyLog(true).length() != 0 ) {
 						battle.writeLog();
