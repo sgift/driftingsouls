@@ -45,6 +45,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.User;
+import net.driftingsouls.ds2.server.framework.UserIterator;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
@@ -671,17 +672,14 @@ public class Battle implements Loggable {
 		Set<Integer> ownUsers = new HashSet<Integer>();
 		Set<Integer> enemyUsers = new HashSet<Integer>();		
 	
-		SQLQuery aShipRow = db.query("SELECT t1.*,t2.name AS username,t2.ally ",
-									"FROM ships t1 JOIN users t2 ON t1.owner=t2.id ",
-									"WHERE t1.id>0 AND t1.x=",tmpOwnShip.getInt("x")," AND t1.y=",tmpOwnShip.getInt("y")," AND " ,
-							   			"t1.system=",tmpOwnShip.getInt("system")," AND t1.battle=0 AND " ,
-							   			"t2.ally IN (",tmpOwnShip.getInt("ally"),",",tmpEnemyShip.getInt("ally"),") AND " ,
-							   			"!LOCATE('disable_iff',t1.status)");
+		SQLQuery aShipRow = db.query("SELECT s.*,u.name AS username,u.ally ",
+									"FROM ships s JOIN users u ON s.owner=u.id ",
+									"WHERE s.id>0 AND s.x=",tmpOwnShip.getInt("x")," AND s.y=",tmpOwnShip.getInt("y")," AND " ,
+							   			"s.system=",tmpOwnShip.getInt("system")," AND s.battle=0 AND " ,
+							   			"u.ally IN (",tmpOwnShip.getInt("ally"),",",tmpEnemyShip.getInt("ally"),") AND " ,
+							   			"!LOCATE('disable_iff',s.status) AND `lock` IS NULL AND (u.vaccount!=0 OR u.wait4vac > 0)");
 							   		
 		while( aShipRow.next() ) {
-			if( (aShipRow.getString("lock") != null) && aShipRow.getString("lock").length() > 0 ) {
-				continue;	
-			}
 			// Loot-Truemmer sollten in keine Schlacht wandern... (nicht schoen, gar nicht schoen geloest)
 			if( (aShipRow.getInt("owner") == -1) && (aShipRow.getInt("type") == Configuration.getIntSetting("CONFIG_TRUEMMER")) ) {
 				continue;
@@ -689,7 +687,7 @@ public class Battle implements Loggable {
 			
 			User tmpUser = context.createUserObject( aShipRow.getInt("owner") );
 						
-			if( ((tmpUser.getVacationCount() != 0) && (tmpUser.getWait4VacationCount() == 0)) || tmpUser.isNoob() ) {
+			if( tmpUser.isNoob() ) {
 				continue;
 			}
 			
@@ -941,19 +939,209 @@ public class Battle implements Loggable {
 		
 		return true;
 	}
-	
-	//---------------------------------------------------------------------
-	//
-	// addShip - Ein Schiff oder eine Flotte zu der Schlacht hinzufuegen
-	//
-	//---------------------------------------------------------------------
 
+	/**
+	 * Laesst eines oder mehrere Schiffe (in einer Flotte) der Schlacht beitreten
+	 * @param id Die ID des Besitzers der Schiffe
+	 * @param shipid Die ID eines der Schiffe, welche beitreten sollen
+	 * 
+	 * @return <code>true</code>, falls der Beitritt erfolgreich war
+	 */
 	public boolean addShip( int id, int shipid ) {
-		return addShip(id, shipid, -1);
-	}
+		Context context = ContextMap.getContext();
+		Database db = context.getDatabase();
+		
+		SQLResultRow shipd = db.first("SELECT * ",
+				 "FROM ships ",
+				 "WHERE id>0 AND id=",shipid);
 	
-	public boolean addShip( int id, int shipid, int forceside ) {
-		throw new RuntimeException("STUB");
+		if( shipd.isEmpty() ) {
+			context.addError("Das angegebene Schiff existiert nicht!");
+			return false;
+		}
+		if( shipd.getInt("owner") != id ) {
+			context.addError("Das angegebene Schiff geh&ouml;rt nicht ihnen!");
+			return false;
+		}
+		if( shipd.getString("lock").length() > 0 ) {
+			context.addError("Das Schiff ist an ein Quest gebunden");
+			return false;
+		}
+		if( !new Location(this.system,this.x,this.y).sameSector(0, Location.fromResult(shipd), 0) ) {
+			context.addError("Das angegebene Schiff befindet sich nicht im selben Sektor wie die Schlacht!");
+			return false;
+		}
+		if( shipd.getInt("battle") != 0 ) {
+			context.addError("Das angegebene Schiff befindet sich bereits in einer Schlacht!");
+			return false;
+		}
+		
+		if( this.visibility != null ) {
+			Integer[] visibility = Common.explodeToInteger(",",this.visibility);
+			if( !Common.inArray(id,visibility) ) {
+				context.addError("Sie k&ouml;nnen dieser Schlacht nicht beitreten!");
+				return false;
+			}
+		}
+		
+		User userobj = context.createUserObject(id);
+		if( userobj.isNoob() ) {
+			context.addError("Sie stehen unter GCP-Schutz und k&ouml;nnen daher keine Schiffe in diese Schlacht schicken!<br />Hinweis: der GCP-Schutz kann unter Optionen vorzeitig beendet werden");
+			return false;
+		}
+		
+		SQLResultRow shiptype = Ships.getShipType(shipd);
+		if( shiptype.getInt("class") == ShipClasses.GESCHUETZ.ordinal() ) {
+			context.addError("<span style=\"color:red\">Gesch&uuml;tze k&ouml;nnen einer Schlacht nicht beitreten!</span>");
+			return false;
+		}
+		
+		Map<Integer,Integer> shipcounts = new HashMap<Integer,Integer>();
+		
+		int side = this.ownSide;
+		
+		// Beziehungen aktuallisieren
+		Set<Integer> calcedallys = new HashSet<Integer>();
+		
+		List<User> ownUsers = new ArrayList<User>();
+		ownUsers.add(userobj);
+		Set<User> enemyUsers = new HashSet<User>();
+		
+		User curuser = userobj;
+		if( curuser.getAlly() != 0 ) {
+			UserIterator iter = context.createUserIterator("SELECT * FROM users WHERE ally=",curuser.getAlly(),"' AND id!=",curuser.getID());
+			for( User allyuser : iter ) {
+				ownUsers.add(allyuser);	
+			}
+			iter.free();
+		}
+		
+		UserIterator iter = context.createUserIterator("SELECT DISTINCT u.* FROM (users u JOIN ships s ON u.id=s.owner) JOIN battles_ships bs ON s.id=bs.shipid WHERE bs.side=",this.enemySide);
+		for( User euser : iter ) {
+			enemyUsers.add(euser);
+
+			if( (euser.getAlly() != 0) && calcedallys.contains(euser.getAlly()) ) {
+				UserIterator allyIter = context.createUserIterator("SELECT * FROM users WHERE ally=",euser.getAlly()," AND id!=",euser.getID());
+				for( User allyuser : allyIter ) {
+					enemyUsers.add(allyuser);	
+				}
+				allyIter.free();
+				
+				calcedallys.add(euser.getAlly());
+			}
+		}
+		iter.free();
+		
+		for( int i=0; i < ownUsers.size(); i++ ) {
+			User auser = ownUsers.get(i);
+			
+			for( User euser : enemyUsers ) {
+				auser.setRelation(euser.getID(), User.Relation.ENEMY);
+				euser.setRelation(auser.getID(), User.Relation.ENEMY);
+			}
+		}
+		
+		calcedallys = null;
+		
+		shipd.put("action", BS_JOIN);
+		
+		List<Integer> shiplist = new ArrayList<Integer>();
+		
+		SQLQuery sid = null;
+		
+		// Handelt es sich um eine Flotte?
+		if( shipd.getInt("fleet") > 0 ) {
+			sid = db.query("SELECT * FROM ships WHERE id>0 AND fleet=",shipd.getInt("fleet")," AND battle=0 AND x=",shipd.getInt("x")," AND y=",shipd.getInt("y")," AND system=",shipd.getInt("system")," AND `lock` IS NULL");
+		}
+		else {
+			sid = db.query("SELECT * FROM ships WHERE id>0 AND id=",shipd.getInt("id")," AND battle=0 AND x=",shipd.getInt("x")," AND y=",shipd.getInt("y")," AND system=",shipd.getInt("system")," AND `lock` IS NULL");
+		}
+		
+		while( sid.next() ) {
+			SQLResultRow sidRow = sid.getRow();
+			
+			shiptype = Ships.getShipType(sidRow);
+			if( shiptype.getInt("class") == ShipClasses.GESCHUETZ.ordinal() ) {
+				continue;
+			}
+			
+			shiplist.add(sid.getInt("id"));
+				
+			// ggf. gedockte Schiffe auch beruecksichtigen
+			db.update("UPDATE ships SET battle=",this.id," WHERE id>0 AND battle=0 AND docked IN ('",sid.getInt("id"),"','l ",sid.getInt("id"),"')");
+			if( db.affectedRows() > 0 ) {
+				SQLQuery sid2 = db.query("SELECT * FROM ships WHERE id>0 AND docked IN ('",sid.getInt("id"),"','l ",sid.getInt("id"),"')");
+				while( sid2.next() ) {
+					SQLResultRow sid2Row = sid2.getRow();
+					
+					SQLResultRow stype = Ships.getShipType(sid2Row);
+					if( stype.getInt("class") == ShipClasses.GESCHUETZ.ordinal() ) {
+						db.update("UPDATE ships SET docked='',battle=0 WHERE id=",sid2.getInt("id"));
+						continue;
+					}
+					
+					shiplist.add(sid2.getInt("id"));
+						
+					int sid2Action = 0;
+					
+					// Das neue Schiff in die Liste der eigenen Schiffe eintragen
+					if( !Ships.hasShipTypeFlag(shiptype, Ships.SF_INSTANT_BATTLE_ENTER) && 
+						!Ships.hasShipTypeFlag(stype, Ships.SF_INSTANT_BATTLE_ENTER) ) {
+						sid2Action = BS_JOIN;
+					}
+					
+					sid2Row.put("action", sid2Action);
+					sid2Row.put("side", this.ownSide);
+					sid2Row.put("count", stype.getInt("shipcount"));
+					this.ownShips.add(sid2Row);
+		
+					Common.safeIntInc(shipcounts, sid2.getInt("type"));
+		
+					db.update("INSERT INTO battles_ships ",
+								"(shipid,battleid,side,hull,shields,engine,weapons,comm,sensors,action,count) ",
+								"VALUES (",sid2.getInt("id"),",",this.id,",",side,",",sid2.getInt("hull"),",",sid2.getInt("shields"),",",sid2.getInt("engine"),",",sid2.getInt("weapons"),",",sid2.getInt("comm"),",",sid2.getInt("sensors"),",",sid2Action,",'",stype.getInt("shipcount"),"')");
+				}
+				sid2.free();
+			}
+		
+			int sidAction = 0; 
+			
+			// Das neue Schiff in die Liste der eigenen Schiffe eintragen
+			if( !Ships.hasShipTypeFlag(shiptype, Ships.SF_INSTANT_BATTLE_ENTER) ) {
+				sidAction = BS_JOIN;
+			}
+
+			sidRow.put("action", sidAction);
+			sidRow.put("side", this.ownSide);
+			sidRow.put("count", shiptype.getInt("shipcount"));
+			this.ownShips.add(sid.getRow());
+		
+			Common.safeIntInc(shipcounts, sid.getInt("type"));
+		
+			//Battles_ships Eintrag einfuegen
+			db.update("INSERT INTO battles_ships ",
+						"(shipid,battleid,side,hull,shields,engine,weapons,comm,sensors,action,count) ",
+						"VALUES (",sid.getInt("id"),",",this.id,",",side,",",sid.getInt("hull"),",",sid.getInt("shields"),",",sid.getInt("engine"),",",sid.getInt("weapons"),",",sid.getInt("comm"),",",sid.getInt("sensors"),",",sidAction,",'",shiptype.getInt("shipcount"),"')");
+		}
+		sid.free();
+		
+		int tick = context.get(ContextCommon.class).getTick();
+		
+		if( shiplist.size() > 1 ) {
+			db.update("UPDATE ships SET battle=",this.id," WHERE id>0 AND id IN (",Common.implode(",",shiplist),") AND battle=0 AND x=",shipd.getInt("x")," AND y=",shipd.getInt("y")," AND system=",shipd.getInt("system"));
+		
+			int addedShips = shiplist.size();
+			this.logenemy("<action side=\""+this.ownSide+"\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\nDie "+log_shiplink(shipd)+" ist zusammen mit "+addedShips+" weiteren Schiffen der Schlacht beigetreten\n]]></action>\n");
+			this.logme( "Die "+log_shiplink(shipd)+" ist zusammen mit "+addedShips+" weiteren Schiffen der Schlacht beigetreten\n\n" );
+		}
+		else {
+			this.logenemy("<action side=\""+this.ownSide+"\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\nDie "+log_shiplink(shipd)+" ist der Schlacht beigetreten\n]]></action>\n");
+			this.logme("Die "+log_shiplink(shipd)+" ist der Schlacht beigetreten\n\n");
+		
+			db.update("UPDATE ships SET battle=",this.id," WHERE id>0 AND battle=0 AND id=",shipid);
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -1950,7 +2138,7 @@ public class Battle implements Loggable {
 	 * @return Eine Map, welche angibt, wie haeufig ein Schiffstyp auf einer Seite vorkommt
 	 */
 	public Map<Integer,Integer> getShipTypeCount( int side ) {
-		if( side == 0 ) {
+		if( side == this.ownSide ) {
 			return ownShipTypeCount;
 		}
 		return enemyShipTypeCount;
@@ -1963,7 +2151,7 @@ public class Battle implements Loggable {
 	 * @return Die Anzahl der vorkommenden Schiffe des Schifftyps
 	 */
 	public int getShipTypeCount( int side, int shiptype ) {
-		Integer count = (side == 0 ? ownShipTypeCount.get(shiptype) : enemyShipTypeCount.get(shiptype));
+		Integer count = (side == this.ownSide ? ownShipTypeCount.get(shiptype) : enemyShipTypeCount.get(shiptype));
 		if( count == null ) {
 			return 0;
 		}
