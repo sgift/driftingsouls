@@ -102,4 +102,8 @@
 	<update type="structure" datum="2007-01-07"><![CDATA[
 		ALTER TABLE transmissionen ADD INDEX empfaenger (empfaenger,gelesen);
 	]]></update>
+	<update type="structure" datum="2007-01-07"><![CDATA[
+		ALTER TABLE skn ADD INDEX channel (channel);
+		ALTER TABLE skn_visits DROP INDEX user, ADD INDEX user (user, channel);
+	]]></update>
 </updates>

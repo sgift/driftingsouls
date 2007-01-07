@@ -4,5 +4,5 @@ CREATE TABLE `skn_visits` (
   `channel` int(11) unsigned NOT NULL default '0',
   `time` int(10) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`),
-  KEY `user` (`user`)
+  KEY `user` (`user`, `channel`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Com-Net visits'; 
