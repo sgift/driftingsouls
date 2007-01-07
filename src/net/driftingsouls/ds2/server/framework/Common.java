@@ -1185,7 +1185,7 @@ public class Common implements Loggable {
 	public static <T> void safeIntInc(Map<T,Integer> map, T property) {
 		Integer val = map.get(property);
 		if( val == null ) {
-			map.put(property, new Integer(0));
+			map.put(property, new Integer(1));
 			return;
 		}
 		
@@ -1201,7 +1201,7 @@ public class Common implements Loggable {
 	public static <T> void safeLongInc(Map<T,Long> map, T property) {
 		Long val = map.get(property);
 		if( val == null ) {
-			map.put(property, new Long(0));
+			map.put(property, new Long(1));
 			return;
 		}
 		
