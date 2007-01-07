@@ -227,7 +227,7 @@ public class SensorsDefault implements SchiffPlugin {
 			SQLQuery battle = db.query("SELECT * FROM battles WHERE x=",data.getInt("x")," AND y=",data.getInt("y")," AND system=",data.getInt("system"));
 			while( battle.next() ) {
 				boolean questbattle = false;
-				if( !battle.getString("visibility").equals("") ) {
+				if( (battle.getString("visibility") != null) && (battle.getString("visibility").length() > 0) ) {
 					Integer[] visibility = Common.explodeToInteger(",",battle.getString("visibility"));
 					if( Common.inArray(user.getID(),visibility) ) {
 						questbattle = true;
