@@ -589,7 +589,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 		// Schiff zur Schlacht hinzufgen
 		//
 		if( (!battleCreated) && addShipID != 0 && !battle.isGuest() ) {
-			if( !battle.addShip( user.getID(), addShipID, forcejoin-1 ) ) {
+			if( !battle.addShip( user.getID(), addShipID ) ) {
 				addShipID = 0;
 		
 				// Wenn das Schiff offenbar von jemandem ausserhalb der Kriegfhrenden Allys stammt - Laden abbrechen bei fehlschlag
