@@ -18,22 +18,32 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
-public class KSRegenerateShieldsClassAction extends BasicKSAction {
+/**
+ * Laedt die Schilde aller eigener Schiffe einer Klasse auf
+ * @author Christopher Jung
+ *
+ */
+public class KSRegenerateShieldsClassAction extends KSRegenerateShieldsAllAction {
+	private int shieldclass = 0;
+	
 	/**
 	 * Konstruktor
 	 *
 	 */
 	public KSRegenerateShieldsClassAction() {
 		this.requireAP(1);
+		
+		this.shieldclass = ContextMap.getContext().getRequest().getParameterInt("shieldclass");
 	}
-
+	
 	@Override
-	public int execute(Battle battle) {
-		// TODO
-		Common.stub();
-		return RESULT_OK;
+	protected boolean validateShipExt(SQLResultRow ship, SQLResultRow shiptype) {
+		if( shiptype.getInt("class") != this.shieldclass ) {
+			return false;
+		}
+		return true;
 	}
 }
