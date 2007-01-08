@@ -1037,7 +1037,7 @@ public class Common implements Loggable {
 			Transport.send(message);
 		}
 		catch( Exception e ) {
-			LOG.error(e,e);
+			LOG.error("Konnte Email '"+subject+"' an Addresse "+address+" nicht senden: "+e);
 		}
 	}
 	
