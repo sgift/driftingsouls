@@ -376,7 +376,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 		SQLResultRow enemyShip = battle.getEnemyShip();
 		
 		// TODO: evt sollte das hier in ne eigene Action ausgelagert werden?
-		if( action.equals("showbattlelog") && (battle.getComMessageBuffer(battle.getOwnSide()).length() > 0) && battle.isCommander(user.getID(),battle.getOwnSide()) ) {
+		if( action.toString().equals("showbattlelog") && (battle.getComMessageBuffer(battle.getOwnSide()).length() > 0) && battle.isCommander(user.getID(),battle.getOwnSide()) ) {
 			BBCodeParser bbcodeparser = BBCodeParser.getNewInstance();
 			try {
 				bbcodeparser.registerHandler( "tooltip", 2, "<a onmouseover=\"return overlib('$2',TIMEOUT,0,DELAY,400,WIDTH,100,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\"aloglink\" href=\"#\">$1</a>" );
