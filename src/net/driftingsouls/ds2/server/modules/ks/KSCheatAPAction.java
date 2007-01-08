@@ -18,14 +18,42 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
+import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 
+/**
+ * Cheat: Erhoeht die Anzahl der eigenen AP um 100
+ * @author Christopher Jung
+ *
+ */
 public class KSCheatAPAction extends BasicKSAction {
 	@Override
 	public int execute(Battle battle) {
-		// TODO
-		Common.stub();
+		int result = super.execute(battle);
+		if( result != RESULT_OK ) {
+			return result;
+		}
+		
+		Context context = ContextMap.getContext();
+		
+		if( Configuration.getIntSetting("ENABLE_CHEATS") == 0 ) {
+			context.addError("Cheats sind deaktiviert!");
+			return RESULT_HALT;
+		}
+		
+		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
+
+		battle.setPoints(battle.getOwnSide(), battle.getPoints(battle.getOwnSide()) + 100);
+		battle.save(false);
+		battle.logme( "CHEAT: +100 Aktionspunkte\n" );
+		battle.logenemy( "CHEAT: +100 Aktionspunkte\n" );
+
+		battle.logenemy("]]></action>\n");
+		
 		return RESULT_OK;
 	}
 }

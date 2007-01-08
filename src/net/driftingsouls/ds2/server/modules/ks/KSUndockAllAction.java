@@ -18,9 +18,20 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
+import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.db.Database;
+import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.Ships;
 
+/**
+ * Dockt alle Schiffe vom gerade ausgewaehlten Schiff ab
+ * @author Christopher Jung
+ *
+ */
 public class KSUndockAllAction extends BasicKSAction {
 	/**
 	 * Konstruktor
@@ -32,15 +43,49 @@ public class KSUndockAllAction extends BasicKSAction {
 	
 	@Override
 	public int validate(Battle battle) {
-		// TODO
-		Common.stub();
-		return RESULT_OK;
+		SQLResultRow ownShip = battle.getOwnShip();
+		Database db = ContextMap.getContext().getDatabase();
+		
+		SQLResultRow dock = db.first("SELECT id FROM ships WHERE docked IN ('l ",ownShip.getInt("id"),"','",ownShip.getInt("id"),"')");
+		if( !dock.isEmpty() ) {
+			return RESULT_OK;
+		}
+		return RESULT_ERROR;	
 	}
 
 	@Override
 	public int execute(Battle battle) {
-		// TODO
-		Common.stub();
+		int result = super.execute(battle);
+		if( result != RESULT_OK ) {
+			return result;
+		}
+		
+		if( this.validate(battle) != RESULT_OK ) {
+			battle.logme( "Validation failed\n" );
+			return RESULT_ERROR;
+		}
+		
+		Context context = ContextMap.getContext();
+		Database db = context.getDatabase();
+		SQLResultRow ownShip = battle.getOwnShip();
+		
+		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
+
+		db.update("UPDATE ships SET battleAction=1 WHERE id=",ownShip.getInt("id"));
+
+		db.update("UPDATE ships SET docked='',battleAction=1 WHERE docked IN ('l ",ownShip.getInt("id"),"','",ownShip.getInt("id"),"')");
+
+		battle.logme(db.affectedRows()+" Schiffe wurden abgedockt");
+		battle.logenemy(db.affectedRows()+" Schiffe wurden von der "+Battle.log_shiplink(ownShip)+" abgedockt\n");
+
+		battle.setPoints(battle.getOwnSide(), battle.getPoints(battle.getOwnSide()) - 1);
+
+		battle.logenemy("]]></action>\n");
+
+		battle.save(false);
+		
+		ownShip.put("status", Ships.recalculateShipStatus(ownShip.getInt("id")));
+		
 		return RESULT_OK;
 	}
 }

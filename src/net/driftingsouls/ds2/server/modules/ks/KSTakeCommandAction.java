@@ -19,8 +19,15 @@
 package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.User;
 
+/**
+ * Leitet die Uebernahme des Kommandos der Schlacht ein, wenn der aktuelle Kommandant inaktiv ist
+ * @author Christopher Jung
+ *
+ */
 public class KSTakeCommandAction extends BasicKSAction {
 	/**
 	 * Konstruktor
@@ -33,8 +40,37 @@ public class KSTakeCommandAction extends BasicKSAction {
 	
 	@Override
 	public int execute(Battle battle) {
-		// TODO
-		Common.stub();
-		return RESULT_OK;
+		int result = super.execute(battle);
+		if( result != RESULT_OK ) {
+			return result;
+		}
+		
+		Context context = ContextMap.getContext();
+		
+		User user = context.getActiveUser();	
+		
+		if( (battle.getAlly(battle.getOwnSide()) == 0) || (battle.getAlly(battle.getOwnSide()) != user.getAlly()) ) {
+			battle.logme( "Sie geh&ouml;ren nicht der kommandierenden Allianz an\n" );
+			return RESULT_ERROR;
+		}
+		
+		if( battle.getTakeCommand(battle.getOwnSide()) != 0 ) {
+			battle.logme( "Es versucht bereits ein anderer Spieler das Kommando zu &uuml;bernehmen\n" );
+			return RESULT_ERROR;
+		}
+		
+		User oldCommander = context.createUserObject(battle.getCommander(battle.getOwnSide()));
+		if( oldCommander.getInactivity() <= 0 ) {
+			battle.logme( "Der kommandierende Spieler ist noch anwesend\n" );
+			return RESULT_ERROR;
+		}
+		
+		battle.setTakeCommand(battle.getOwnSide(), user.getID());
+
+		battle.save(false);
+
+		battle.logme("Versuche das Kommando zu &uuml;bernehmen...\n\nBitte Warten sie bis zum n&auml;chsten automatischen Rundenwechsel!");
+				
+		return RESULT_OK;		
 	}
 }

@@ -19,8 +19,16 @@
 package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.User;
 
+/**
+ * Bricht die Uebernahme des Kommandos durch einen anderen Spieler ab
+ * @author Christopher Jung
+ *
+ */
 public class KSStopTakeCommandAction extends BasicKSAction {
 	/**
 	 * Konstruktor
@@ -32,8 +40,27 @@ public class KSStopTakeCommandAction extends BasicKSAction {
 	
 	@Override
 	public int execute(Battle battle) {
-		// TODO
-		Common.stub();
+		int result = super.execute(battle);
+		if( result != RESULT_OK ) {
+			return result;
+		}
+		
+		Context context = ContextMap.getContext();
+		
+		User user = context.getActiveUser();	
+		
+		if( battle.getTakeCommand(battle.getOwnSide()) == 0 ) {
+			battle.logme( "Es versucht niemand das Kommando zu &uuml;bernehmen\n" );
+			
+			return RESULT_ERROR;
+		}
+		
+		PM.send( context, user.getID(), battle.getTakeCommand(battle.getOwnSide()), "Schlacht-&uuml;bergabe abgelehnt","Die &Uuml;bergabe es Kommandos der Schlacht bei "+battle.getSystem()+":"+battle.getX()+"/"+battle.getY()+" wurde abgelehnt");
+
+		battle.setTakeCommand(battle.getOwnSide(), 0);
+
+		battle.save(false);
+		
 		return RESULT_OK;
 	}
 }

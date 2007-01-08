@@ -18,9 +18,22 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.framework.Common;
+import java.util.List;
 
+import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.User;
+import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+
+/**
+ * Uebergibt das Kommando ueber die Schlacht an einen anderen Spieler
+ * @author Christopher Jung
+ *
+ */
 public class KSNewCommanderAction extends BasicKSAction {
 	/**
 	 * Konstruktor
@@ -30,16 +43,59 @@ public class KSNewCommanderAction extends BasicKSAction {
 	}
 	
 	@Override
-	public int validate(Battle battle) {
-		// TODO
-		Common.stub();
-		return RESULT_OK;
-	}
-
-	@Override
 	public int execute(Battle battle) {
-		// TODO
-		Common.stub();
+		int result = super.execute(battle);
+		if( result != RESULT_OK ) {
+			return result;
+		}
+		
+		Context context = ContextMap.getContext();
+		User user = context.getActiveUser();		
+
+		int newcom = context.getRequest().getParameterInt("newcom");
+		User com = context.createUserObject(newcom);
+		
+		if( user.getID() == com.getID() ) {
+			battle.logme( "Sie k&ouml;nnen die Leitung der Schlacht nicht an sich selbst &uuml;bertragen\n" );
+			return RESULT_ERROR;
+		}
+		
+		if( (battle.getAlly(battle.getOwnSide()) == 0) || (com.getAlly() != battle.getAlly(battle.getOwnSide())) ) {
+			boolean found = false;
+			List<SQLResultRow> ownShips = battle.getOwnShips();
+			for( int i=0; i < ownShips.size(); i++ ) {
+				if( ownShips.get(i).getInt("owner") == com.getID() ) {
+					found = true;
+					break;
+				}
+			}
+			if( !found ) {
+				battle.logme( "Sie k&ouml;nnen diesem Spieler nicht die Leitung der Schlacht &uuml;bertragen!\n" );
+				return RESULT_ERROR;
+			}
+		}
+		
+		if( (com.getVacationCount() != 0) && (com.getWait4VacationCount() == 0) ) {
+			battle.logme( "Der Spieler befindet sich im Vacation-Modus!\n" );
+			return RESULT_ERROR;
+		} 
+
+		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
+
+		PM.send(context, user.getID(), com.getID(), "Schlacht &uuml;bergeben", "Ich habe dir die Leitung der Schlacht bei "+battle.getSystem()+" : "+battle.getX()+"/"+battle.getY()+" &uuml;bergeben.");
+
+		battle.logenemy("[userprofile="+com.getID()+",profile_alog]"+Common._titleNoFormat(com.getName())+"[/userprofile] kommandiert nun die gegnerischen Truppen\n\n");
+
+		battle.setCommander(battle.getOwnSide(), com.getID());
+
+		battle.logenemy("]]></action>\n");
+
+		battle.logenemy("<side"+(battle.getOwnSide()+1)+" commander=\""+battle.getCommander(battle.getOwnSide())+"\" ally=\""+battle.getAlly(battle.getOwnSide())+"\" />\n");
+
+		battle.setTakeCommand(battle.getOwnSide(), 0);
+
+		battle.save(false);
+		
 		return RESULT_OK;
 	}
 }

@@ -20,12 +20,57 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.User;
+import net.driftingsouls.ds2.server.framework.UserIterator;
+import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
+/**
+ * Zeigt das Menue zur Uebergabe der Schlacht an einen anderen an der Schlacht
+ * beteiligten Spieler
+ * @author Christopher Jung
+ *
+ */
 public class KSMenuBattleConsignAction extends BasicKSMenuAction {
 	@Override
-	public int execute(Battle battle) {
-		// TODO
-		Common.stub();
+	public int execute(Battle battle) {		
+		int result = super.execute(battle);
+		if( result != RESULT_OK ) {
+			return result;
+		}
+		
+		Context context = ContextMap.getContext();
+		User user = context.getActiveUser();	
+		
+		SQLResultRow ownShip = battle.getOwnShip();
+		SQLResultRow enemyShip = battle.getEnemyShip();
+		
+		String query =  "SELECT DISTINCT u.* FROM users u WHERE id IN (SELECT s.owner FROM ships s JOIN battles_ships bs ON s.id=bs.shipid WHERE s.battle="+battle.getID()+" AND bs.side="+battle.getOwnSide()+")";
+		if( battle.getAlly(battle.getOwnSide()) > 0 ) {
+			query += " OR ally="+battle.getAlly(battle.getOwnSide());
+		}
+		query += " ORDER BY u.id";
+		
+		UserIterator iter = context.createUserIterator(query);
+		for( User member : iter ) {
+			if( member.getID() == user.getID() ) {
+				continue;
+			}
+			this.menuEntryAsk( Common._titleNoFormat(member.getName()),
+								new Object[] {	"ship",		ownShip.getInt("id"),
+												"attack",	enemyShip.getInt("id"),
+												"ksaction",	"new_commander2",
+												"newcom",	member.getID() },
+								"Wollen sie das Kommando wirklich an "+Common._titleNoFormat(member.getName())+" &uuml;bergeben?" );
+		}
+		iter.free();
+		
+		this.menuEntry("zur&uuml;ck",
+				"ship",		ownShip.getInt("id"),
+				"attack",	enemyShip.getInt("id"),
+				"ksaction",	"other" );
+		
 		return RESULT_OK;
 	}
 }

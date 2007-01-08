@@ -19,13 +19,54 @@
 package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
+/**
+ * Zeigt das Cheatmenue an
+ * @author Christopher Jung
+ *
+ */
 public class KSMenuCheatsAction extends BasicKSMenuAction {
 	@Override
 	public int execute(Battle battle) {
-		// TODO
-		Common.stub();
-		return RESULT_OK;
+		int result = super.execute(battle);
+		if( result != RESULT_OK ) {
+			return result;
+		}
+		
+		Context context = ContextMap.getContext();
+		
+		if( Configuration.getIntSetting("ENABLE_CHEATS") == 0 ) {
+			context.addError("Cheats sind deaktiviert!");
+			return RESULT_HALT;
+		}
+		
+		SQLResultRow ownShip = battle.getOwnShip();
+		SQLResultRow enemyShip = battle.getEnemyShip();
+
+		this.menuEntry("+100 AP",	
+				"ship",		ownShip.getInt("id"),
+				"attack",	enemyShip.getInt("id"),
+				"ksaction",	"cheat_ap" );
+											
+		this.menuEntry("Schiff regenerieren",
+				"ship",		ownShip.getInt("id"),
+				"attack",	enemyShip.getInt("id"),
+				"ksaction",	"cheat_regenerate" );
+														
+		this.menuEntry("Gegner regenerieren",
+				"ship",		ownShip.getInt("id"),
+				"attack",	enemyShip.getInt("id"),
+				"ksaction",	"cheat_regenerateenemy" );
+														
+		this.menuEntry("zur&uuml;ck",
+				"ship",		ownShip.getInt("id"),
+				"attack",	enemyShip.getInt("id"),
+				"ksaction",	"other" );
+
+		return RESULT_OK;		
 	}
 }
