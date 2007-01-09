@@ -146,18 +146,22 @@ public class Quests implements Loggable {
 		for( int i=0; i < handlerArray.length; i++ ) {
 			String[] hentry = StringUtils.split(handlerArray[i], ':');
 
-			if( Integer.parseInt(hentry[0]) == userid ) {
+			if( hentry[0].equals(Integer.toString(userid)) ) {
 				usechance = -1;
 				forcenew = false;
 				
 				usescript = Integer.parseInt(hentry[1]);
-				usequest = hentry[2];
+				if( hentry.length > 2 ) {
+					usequest = hentry[2];
+				}
 				breakme = true;
 				parserest = true;
 			}	
 			else if( hentry[0].equals("*") ) {
 				usescript = Integer.parseInt(hentry[1]);
-				usequest = hentry[2];
+				if( hentry.length > 2 ) {
+					usequest = hentry[2];
+				}
 				parserest = true;
 			}
 			

@@ -448,27 +448,25 @@ public class ScriptParser {
 	}
 	
 	private String processOperator( String current, char operator, String number ) {
-		double numberVal = Double.parseDouble(number);
-		
 		if( operator != 0 ) {			
 			switch( operator ) {
 			case '+': 
-				current = "" + (Double.parseDouble(current) + numberVal);
+				current = Double.toString((Double.parseDouble(current) + Double.parseDouble(number)));
 				break;
 			case '-':
-				current = "" + (Double.parseDouble(current) - numberVal);
+				current = Double.toString((Double.parseDouble(current) - Double.parseDouble(number)));
 				break;
 			case '*':
-				current = "" + (Double.parseDouble(current) * numberVal);
+				current = Double.toString((Double.parseDouble(current) * Double.parseDouble(number)));
 				break;
 			case '/':
-				current = "" + (Double.parseDouble(current) / numberVal);
+				current = Double.toString((Double.parseDouble(current) / Double.parseDouble(number)));
 				break;
 			case '%':
-				current = "" + (Double.parseDouble(current) % numberVal);
+				current = Double.toString((Double.parseDouble(current) % Double.parseDouble(number)));
 				break;
 			case '^':
-				current = "" + Math.pow(Double.parseDouble(current), numberVal);
+				current = Double.toString(Math.pow(Double.parseDouble(current), Double.parseDouble(number)));
 				break;
 			case '.':
 				current += number;
