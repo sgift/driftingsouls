@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -446,13 +447,170 @@ public class ScriptParser {
 		this.addparameterlist.clear();
 	}
 	
+	private String processOperator( String current, char operator, String number ) {
+		double numberVal = Double.parseDouble(number);
+		
+		if( operator != 0 ) {			
+			switch( operator ) {
+			case '+': 
+				current = "" + (Double.parseDouble(current) + numberVal);
+				break;
+			case '-':
+				current = "" + (Double.parseDouble(current) - numberVal);
+				break;
+			case '*':
+				current = "" + (Double.parseDouble(current) * numberVal);
+				break;
+			case '/':
+				current = "" + (Double.parseDouble(current) / numberVal);
+				break;
+			case '%':
+				current = "" + (Double.parseDouble(current) % numberVal);
+				break;
+			case '^':
+				current = "" + Math.pow(Double.parseDouble(current), numberVal);
+				break;
+			case '.':
+				current += number;
+				break;
+			}
+		}
+		else {
+			current = number;
+		}
+		return current;
+	}
+	
+	private class TermElement {
+		char operator;
+		String current;
+		
+		TermElement(char operator, String current) {
+			this.operator=operator;
+			this.current=current;
+		}
+	}
+
+	private static  Set<Character> validops = new HashSet<Character>();
+	static {
+		validops.add('+');
+		validops.add('-');
+		validops.add('/');
+		validops.add('*');
+		validops.add('%');
+		validops.add('^');
+		validops.add('.');
+	}
+	
+	private static Set<Character> validbrackets = new HashSet<Character>();
+	static {
+		validbrackets.add('(');
+		validbrackets.add(')');
+	}
+	
+	private static Set<Character> validnumbers = new HashSet<Character>();
+	static {
+		validnumbers.add('0');
+		validnumbers.add('1');
+		validnumbers.add('2');
+		validnumbers.add('3');
+		validnumbers.add('4');
+		validnumbers.add('5');
+		validnumbers.add('6');
+		validnumbers.add('7');
+		validnumbers.add('8');
+		validnumbers.add('9');
+	}
+	
+	private static Set<Character> regends = new HashSet<Character>();
+	static {
+		regends.add('+');
+		regends.add('-');
+		regends.add('/');
+		regends.add('*');
+		regends.add('%');
+		regends.add('^');
+		regends.add('.');
+		regends.add(' ');
+	}
+	
 	/**
 	 * Fuehrt einen Term aus und gibt das Ergebnis zurueck
 	 * @param term Der Term
 	 * @return Das Ergebnis
 	 */
 	public String evalTerm( String term ) {
-		throw new RuntimeException("STUB");
+		int index = 0;
+		Stack<TermElement> stack = new Stack<TermElement>();
+		
+		String current = "";
+		char operator = 0;
+		
+		while( index < term.length() ) {
+			if( validnumbers.contains(term.charAt(index)) ) {
+				String number = "";
+				
+				while( (index < term.length()) && (validnumbers.contains(term.charAt(0)) || ((term.charAt(index) == '.') && (number.length() > 0) ) ) ) {
+					number += term.charAt(index++);
+				}
+
+				if( (number.length() > 0) && (number.charAt(number.length()-1) == '.') ) {
+					index--;
+					number = number.substring(0, number.length()-1);	
+				}
+
+				current = processOperator(current, operator, number);
+				operator = 0;
+			}
+			else if( validops.contains(term.charAt(index)) ) {
+				operator = term.charAt(index++);
+			}
+			else if( validbrackets.contains(term.charAt(index)) ) {
+				if( term.charAt(index) == '(' ) {
+					stack.push(new TermElement(operator,current));
+					current = "";
+					operator = 0;
+				}	
+				else if( term.charAt(index) == ')' ) {
+					TermElement val = stack.pop();
+					
+					current = processOperator(val.current, val.operator, current);
+					operator = 0;
+				}
+				index++;
+			}
+			else if( term.charAt(index) == '#' ) {
+				String reg = "";
+				
+				while( (index < term.length()) && !regends.contains(term.charAt(index)) ) {
+					reg += term.charAt(index++);
+				}
+				
+				String val = this.getRegister(reg);
+				
+				current = processOperator(current, operator, val);
+				operator = 0;
+			}
+			else if( term.charAt(index) == '"' ) {
+				index++;
+				String str = "";
+				
+				while( (index < term.length()) && ((term.charAt(index) != '"') || (term.charAt(index-1) == '\\')) ) {
+					str += term.charAt(index++);
+				}
+
+				index++;
+				current = processOperator(current, operator, str);
+			}
+			else if( term.charAt(index) == ' ' ) {
+				index++;	
+			}
+			else {
+				this.log("Ungueltiges Zeichen '"+term.charAt(index)+"' an Position "+index+" im Term '"+term+"' gefunden\n");
+				return "0";	
+			}
+		}
+		return current;
 	}
 	
 	/**
