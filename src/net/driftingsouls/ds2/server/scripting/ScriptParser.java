@@ -232,7 +232,7 @@ public class ScriptParser {
 	private SQLResultRow ship = null;
 	private StringBuffer out = new StringBuffer();
 	private NameSpace namespace = null;
-	private Map<String,String> register = null;
+	private Map<String,Object> register = null;
 	private Map<String,SPFunction> funcregister = null;
 	private Map<String,Args[]> funcargregister = null;
 	private int lastcommand = 0;
@@ -253,7 +253,7 @@ public class ScriptParser {
 		}		
 		
 		this.namespace = namespace;
-		this.register = new HashMap<String,String>();
+		this.register = new HashMap<String,Object>();
 		this.funcregister = new HashMap<String,SPFunction>();
 		this.funcargregister = new HashMap<String,Args[]>();
 		this.addparameterlist = new ArrayList<String>();
@@ -262,6 +262,9 @@ public class ScriptParser {
 		
 		if( namespace == NameSpace.ACTION ) {
 			new ActionFunctions().registerFunctions(this);
+		}
+		else if( namespace == NameSpace.QUEST ) {
+			new QuestFunctions().registerFunctions(this);
 		}
 	}
 
@@ -337,7 +340,7 @@ public class ScriptParser {
 		ExecData() {
 			// EMPTY
 		}
-		Map<String,String> register;
+		Map<String,Object> register;
 		int lastcommand;
 	}
 	
@@ -414,10 +417,19 @@ public class ScriptParser {
 	 * @return der Inhalt des Registers
 	 */
 	public String getRegister( String reg ) {
+		return getRegisterObject(reg).toString();
+	}
+	
+	/**
+	 * Gibt das angegebene Register zurueck
+	 * @param reg Das Register
+	 * @return der Inhalt des Registers
+	 */
+	public Object getRegisterObject( String reg ) {
 		if( reg.charAt(0) == '#' ) {
 			reg = reg.substring(1);	
 		}
-		String val = this.register.get(reg);
+		Object val = this.register.get(reg);
 		if( val == null ) {
 			return "";
 		}
@@ -429,7 +441,7 @@ public class ScriptParser {
 	 * @param reg Der Name des Registers
 	 * @param data Der Wert
 	 */
-	public void setRegister( String reg, String data ) {
+	public void setRegister( String reg, Object data ) {
 		if( reg.charAt(0) == '#' ) {
 			reg = reg.substring(1);	
 		}
