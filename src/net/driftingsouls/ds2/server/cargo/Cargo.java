@@ -855,7 +855,7 @@ public class Cargo implements Loggable, Cloneable {
 					this.items.add( new Long[] {item[0], -item[1], item[2], item[3]} );
 				}
 				else {
-					long sum = entry[1]+item[1];
+					long sum = entry[1]-item[1];
 					if( sum != 0 ) {
 						entry[1] = sum;
 					}
@@ -962,14 +962,16 @@ public class Cargo implements Loggable, Cloneable {
 	 * @return Das abgespaltene Cargoobjekt.
 	 */
 	public Cargo cutCargo( long mass ) {
-		Cargo retcargo = (Cargo)clone();
+		Cargo retcargo = null;
 		
 		if( mass >= getMass() ) {
+			retcargo = (Cargo)clone();
 			cargo = new long[MAX_RES+1];
 			items.clear();
 			
 			return retcargo;
 		}
+		retcargo = new Cargo();
 		
 		long currentmass = 0;
 
