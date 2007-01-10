@@ -348,6 +348,7 @@ public class TemplateCompiler {
 	
 	private String file;
 	private String outputPath;
+	private String subPackage;
 	
 	/**
 	 * Konstruktor
@@ -355,8 +356,19 @@ public class TemplateCompiler {
 	 * @param outputPath Das Ausgabeverzeichnis, in dem die kompilierte Datei abgelegt werden soll
 	 */
 	public TemplateCompiler(String file, String outputPath) {
+		this(file, outputPath, null);
+	}
+	
+	/**
+	 * Konstruktor
+	 * @param file Die zu kompilierende Datei
+	 * @param outputPath Das Ausgabeverzeichnis, in dem die kompilierte Datei abgelegt werden soll
+	 * @param subPackage Das zu verwendende Overlay-Paket. <code>null</code>, falls das Template in kein Overlay-Paket gehoert
+	 */
+	public TemplateCompiler(String file, String outputPath, String subPackage) {
 		this.file = file;
-		this.outputPath = outputPath;
+		this.outputPath = outputPath;	
+		this.subPackage = subPackage;
 	}
 	
 	private String parse_if( String bedingung ) {
@@ -622,7 +634,12 @@ public class TemplateCompiler {
 		
 		String bfname = StringUtils.replace(baseFileName, ".", "");
 		StringBuilder newfile = new StringBuilder(1000);
-		newfile.append("package net.driftingsouls.ds2.server.templates;\n");
+		if( subPackage == null ) {
+			newfile.append("package net.driftingsouls.ds2.server.templates;\n");
+		}
+		else {
+			newfile.append("package net.driftingsouls.ds2.server.templates."+subPackage+";\n");
+		}
 		newfile.append("import net.driftingsouls.ds2.server.framework.templates.Template;\n");
 		newfile.append("import net.driftingsouls.ds2.server.framework.templates.TemplateBlock;\n");
 		newfile.append("import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;\n\n");
@@ -762,6 +779,30 @@ public class TemplateCompiler {
 		writer.close();
 	}
 	
+	private static void compileDirectory( File dir, String outputPath, String subPackage ) throws IOException {
+		File[] files = dir.listFiles();
+		for( int i=0; i < files.length; i++ ) {
+			if( files[i].getName().indexOf(".html") != -1 ) {
+				String file = files[i].getAbsolutePath();
+				String baseFileName = file.substring(file.toString().lastIndexOf("/")+1, file.lastIndexOf(".html"));
+				String bfname = StringUtils.replace(baseFileName, ".", "");
+				File compiledFile = new File(outputPath+"/"+bfname+".java");
+				if( !compiledFile.exists() || (compiledFile.lastModified() < files[i].lastModified()) ) {
+					System.out.println("compiling "+file);
+					TemplateCompiler compiler = new TemplateCompiler(file, outputPath, subPackage);
+					compiler.compile();
+				}
+			}
+			else if( files[i].isDirectory() && !files[i].isHidden() ) {
+				String subOutputPath = outputPath+"/"+files[i].getName();
+				if( !new File(subOutputPath).exists() ) {
+					new File(subOutputPath).mkdir();
+				}
+				compileDirectory(files[i], subOutputPath, subPackage != null ? subPackage+"."+files[i].getName() : files[i].getName());
+			}
+		}
+	}
+	
 	/**
 	 * Main
 	 * @param args
@@ -790,21 +831,7 @@ public class TemplateCompiler {
 		// Wenn es sich um ein Verzeichnis handelt, dann alle HTML-Dateien kompilieren, 
 		// sofern sie neuer sind als die kompilierten Fassungen
 		if( new File(file).isDirectory() ) {
-			File[] files = new File(file).listFiles();
-			for( int i=0; i < files.length; i++ ) {
-				if( files[i].getName().indexOf(".html") != -1 ) {
-					file = files[i].getAbsolutePath();
-					String baseFileName = file.substring(file.toString().lastIndexOf("/")+1, file.lastIndexOf(".html"));
-					String bfname = StringUtils.replace(baseFileName, ".", "");
-					File compiledFile = new File(outputPath+"/"+bfname+".java");
-					if( !compiledFile.exists() || (compiledFile.lastModified() < files[i].lastModified()) ) {
-						System.out.println("compiling "+file);
-						TemplateCompiler compiler = new TemplateCompiler(file, outputPath);
-						compiler.compile();
-					}
-				}
-			}
-			
+			compileDirectory(new File(file), outputPath, null);
 		}
 		// Wenn direkt eine Datei angegeben wurde, dann diese auf jeden Fall kompilieren
 		else {
