@@ -903,9 +903,8 @@ public class Ships implements Loggable {
 	
 		List<Integer> attackers = new ArrayList<Integer>();
 		
-		SQLQuery aowner = db.query("SELECT owner FROM ships WHERE id>0 AND x=",ship.getInt("x")," AND y=",ship.getInt("y")," ",
-							"AND system=",ship.getInt("system")," AND e>0 AND owner!=",ship.getInt("owner")," AND alarm=1 AND `lock` IS NULL AND docked='' AND !LOCATE('nocrew',status) ",
-							"GROUP BY owner ",(checkonly ? "LIMIT 1" : "") );
+		SQLQuery aowner = db.query("SELECT DISTINCT owner FROM ships WHERE id>0 AND x=",ship.getInt("x")," AND y=",ship.getInt("y")," ",
+							"AND system=",ship.getInt("system")," AND e>0 AND owner!=",ship.getInt("owner")," AND alarm=1 AND `lock` IS NULL AND docked='' AND !LOCATE('nocrew',status) ");
 		while( aowner.next() ) {
 			User auser = context.createUserObject(aowner.getInt("owner"));
 			if( (auser.getVacationCount() != 0) && (auser.getWait4VacationCount() == 0) ) {
