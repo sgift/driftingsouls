@@ -160,7 +160,8 @@
 	<target name="jar" depends="templates,compile" description="Create a jar">
 		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-framework.jar" basedir="${build.home}/WEB-INF/classes" includes="**/server/framework/**" />
 		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-templates.jar" basedir="${build.home}/WEB-INF/classes" includes="**/server/templates/**" />
-		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-ds.jar" basedir="${build.home}/WEB-INF/classes" excludes="**/server/framework/**,**/server/templates/**" />
+		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-ds-pipeline.jar" basedir="${build.home}/WEB-INF/classes" includes="**/server/modules/**" />
+		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-ds.jar" basedir="${build.home}/WEB-INF/classes" excludes="**/server/framework/**,**/server/templates/**,**/server/modules/**" />
 	</target>
 
 	<!-- ==================== Dist Target ===================================== -->
