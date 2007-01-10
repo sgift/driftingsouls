@@ -86,6 +86,9 @@
 		<module name="forschinfo">
 			<generator class="net.driftingsouls.ds2.server.modules.ForschinfoController" />
 		</module>
+		<module name="gtuzwischenlager">
+			<generator class="net.driftingsouls.ds2.server.modules.GtuZwischenLagerController" />
+		</module>
 		<module name="handel">
 			<generator class="net.driftingsouls.ds2.server.modules.HandelController" />
 		</module>

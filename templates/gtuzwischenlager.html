@@ -1,0 +1,117 @@
+{if error.noentry}
+	{!link_to Fehler: Es wurde kein passender Handelseintrag gefunden, default, css_class:error, module:schiff, ship:$global.shipid}
+{/endif}
+{if error.transportown}
+	{!link_to Fehler: Sie m&uuml;ssen die Waren erst komplett bezahlen, default, css_class:error, module:schiff, ship:$global.shipid}
+{/endif}
+{if global.transferlist}
+	{!table_begin 500,center}
+		Transferiere Waren<br /><br />
+		<!-- BEGIN transferlist.res.listitem -->
+			<img border="0" src="{res.image}"alt="" />{res.name} {res.cargo} 
+		<!-- END transferlist.res.listitem -->
+	{!table_end}
+	<br />
+	{if transferlist.backlink}
+		<a class="back" href="./main.php?module=gtuzwischenlager&sess={global.sess}&ship={global.shipid}">zur&uuml;ck</a>
+	{/endif}
+{/endif}
+{if global.tradelist}
+	{!table_begin 600,left}
+		<div align="center">
+			Handelsliste<br /><br />
+		</div>
+		<table class="noBorderX" width="100%">
+		{if tradelist.list}
+			<tr>
+				<td class="noBorderX">Mit</td>
+				<td class="noBorderX">Waren</td>
+				<td class="noBorderX">Noch fehlend</td>
+				<td class="noBorderX">Status</td>
+			</tr>
+		{else}
+			<tr><td class="noBorderX" align="center">Keine Handelsvereinbarungen vorhanden</td></tr>
+		{/endif}
+		<!-- BEGIN tradelist.listitem -->
+		<tr>
+			<td class="noBorderX">
+				<a href="./main.php?module=gtuzwischenlager&sess={global.sess}&action=viewEntry&ship={global.shipid}&entry={list.entryid}">
+					<span style="color:#C7C7C7;font-weight:normal">{list.user}</span>
+				</a>
+			</td>
+			<td class="noBorderX">
+				<a href="./main.php?module=gtuzwischenlager&sess={global.sess}&action=viewEntry&ship={global.shipid}&entry={list.entryid}">
+					<span style="color:#C7C7C7;font-weight:normal">ansehen: 
+					<!-- BEGIN res.listitem -->
+						{if res.red}<span style="color:red">{/endif}
+						<span class="nobr"><img align="middle" border="0" src="{res.image}"alt="" />{res.cargo}</span>
+						{if res.red}</span>{/endif}
+					<!-- END res.listitem -->
+					</span>
+				</a>
+			</td>
+			<td class="noBorderX">
+				<a href="./main.php?module=gtuzwischenlager&sess={global.sess}&action=viewEntry&ship={global.shipid}&entry={list.entryid}">
+					<span style="color:#C7C7C7;font-weight:normal">
+					{if list.cargoreq.list}
+						{list.cargoreq.list}
+					{else}
+						nichts
+					{/endif}
+					</span>
+				</a>
+			</td>
+			<td class="noBorderX">
+				{list.status}
+			</td>
+		</tr>
+		<!-- END tradelist.listitem -->
+		</table>
+	{!table_end}
+	<br />
+	{!link_to zur&uuml;ck, default, css_class:back, module:schiff, ship:$global.shipid}
+{/endif}
+{if global.entry}
+	{!table_begin 500,left}
+		<div align="center">
+			Handelseintrag<br /><br />
+		</div>
+		<table class="noBorderX" width="100%">
+		<tr>
+			<td class="noBorderX">Handelspartner</td>
+			<td class="noBorderX">{tradeentry.partner}</td>
+		</tr>
+		<tr>
+			<td class="noBorderX">Waren<br />(<span style="color:red">rot</span>=fehlend)</td>
+			<td class="noBorderX">{tradeentry.waren}</td>
+		</tr>
+		{if tradeentry.missingcargo}
+			<tr>
+				<td class="noBorderX">Noch fehlende Bezahlung</td>
+				<td class="noBorderX">{tradeentry.missingcargo}</td>
+			</tr>
+			<tr>
+				<td class="noBorderX" colspan="2" align="center">
+					<br />
+					<form action="./main.php" method="post">
+						{!form_create_hidden transportMissing, ship:$global.shipid, entry:$tradeentry.id}
+						<input type="submit" value="Fehlende Bezahlung transferieren" />
+					</form>
+				</td>
+			</tr>
+		{else}
+			<tr>
+				<td class="noBorderX" colspan="2" align="center">
+					<br />
+					<form action="./main.php" method="post">
+						{!form_create_hidden transportOwn, ship:$global.shipid, entry:$tradeentry.id}
+						<input type="submit" value="Waren abholen" />
+					</form>
+				</td>
+			</tr>
+		{/endif}
+		</table>
+	{!table_end}
+	<br />
+	<a style="font-size:16px" class="back" href="./main.php?module=gtuzwischenlager&sess={global.sess}&ship={global.shipid}">zur&uuml;ck</a>
+{/endif}
