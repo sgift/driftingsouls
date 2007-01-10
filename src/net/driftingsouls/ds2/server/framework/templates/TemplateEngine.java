@@ -88,12 +88,6 @@ public class TemplateEngine implements Loggable {
 			// just return false
       		return false;
     	}
-		
-		Package pack = Package.getPackage(PACKAGE+"."+overlay);
-		if( pack == null ) {
-			LOG.warn("Overlay-Verzeichnis "+overlay+" exstiert nicht als Package");
-			return false;
-		}
 
 		this.overlay = overlay;
 		return true;
