@@ -1,0 +1,169 @@
+<!DOCTYPE shiptype [
+	<!ELEMENT shiptype (nickname,class,image,reaktor,(builddata)*,weapons,flightcosts,flightheat,size,sensorrange,eps,maxcrew,maxcargo,(jdocks)?,(adocks)?,(slots)?,hull,panzerung,(shields)?,(deutfactor)?,(hydro)?,(torpedodef)?,(unkeepcosts)?,flags,description)>
+	<!ATTLIST shiptype
+		id	CDATA	#REQUIRED
+	>
+	<!ELEMENT nickname (#PCDATA)*>
+	<!ELEMENT class (#PCDATA)*>
+	<!ELEMENT image (#PCDATA)*>
+	<!ELEMENT reaktor (ru,rd,ra,rm)>
+		<!ELEMENT ru (#PCDATA)>
+		<!ELEMENT rd (#PCDATA)>
+		<!ELEMENT ra (#PCDATA)>
+		<!ELEMENT rm (#PCDATA)>
+	
+	<!ELEMENT builddata (reqtechs,reqrace,costs,werften,(flagschiff)?)>
+		<!ELEMENT reqtechs (tech)*>
+			<!ELEMENT tech (#PCDATA)>
+			<!ATTLIST tech
+				id		CDATA	#REQUIRED
+  			>
+		<!ELEMENT reqrace (#PCDATA)>
+		<!ELEMENT costs ((res)*,e,crew,time,(factor)?)>
+			<!ELEMENT res (name,image)>
+				<!ELEMENT name (#PCDATA)>
+			<!ELEMENT e (#PCDATA)>
+			<!ELEMENT crew (#PCDATA)>
+			<!ELEMENT time (#PCDATA)>
+			<!ELEMENT factor (#PCDATA)>
+			
+		<!ELEMENT werften (werft)*>
+			<!ELEMENT werft (#PCDATA)>
+		<!ELEMENT flagschiff EMPTY>	
+	<!ELEMENT weapons (weapon)*>
+	<!ELEMENT weapon (name,count,description)>
+		<!ELEMENT count (#PCDATA)>
+		<!ELEMENT description (#PCDATA)>
+		
+	<!ELEMENT shipcount (#PCDATA)>
+	<!ELEMENT flightcosts (#PCDATA)>
+	<!ELEMENT flightheat (#PCDATA)>
+	<!ELEMENT size (#PCDATA)>
+	<!ELEMENT sensorrange (#PCDATA)>
+	<!ELEMENT eps (#PCDATA)>
+	<!ELEMENT maxcrew (#PCDATA)>
+	<!ELEMENT maxcargo (#PCDATA)>
+	<!ELEMENT jdocks (#PCDATA)>
+	<!ELEMENT adocks (#PCDATA)>
+	<!ELEMENT slots (#PCDATA)>
+	<!ATTLIST slots
+		count	CDATA	#REQUIRED
+  	>
+  	<!ELEMENT hull (#PCDATA)>
+  	<!ELEMENT panzerung (#PCDATA)>
+  	<!ELEMENT shields (#PCDATA)>
+  	<!ELEMENT deutfactor (#PCDATA)>
+  	<!ELEMENT hydro (#PCDATA)>
+  	<!ELEMENT torpedodef (#PCDATA)>
+  	<!ELEMENT unkeepcosts (#PCDATA)>
+  	<!ELEMENT flags (flag)>
+  		<!ELEMENT flag (name,(description)?)>
+]>
+<shiptype id="{shiptype.id}">
+	<nickname><![CDATA[{shiptype.nickname}]]></nickname>
+	<class><![CDATA[{shiptype.class}]]></class>
+	<image><![CDATA[{shiptype.image}]]></image>
+	<reaktor>
+		<ru>{shiptype.ru}</ru>
+		<rd>{shiptype.rd}</rd>
+		<ra>{shiptype.ra}</ra>
+		<rm>{shiptype.rm}</rm>
+	</reaktor>
+	
+	{if shiptype.buildable}
+		<builddata>
+			<reqtechs>
+				{if shiptype.tr1}
+					<tech id="{shiptype.tr1}"><![CDATA[{shiptype.tr1.name}]]></tech>
+				{/endif}
+				{if shiptype.tr2}
+					<tech id="{shiptype.tr2}"><![CDATA[{shiptype.tr2.name}]]></tech>
+				{/endif}
+				{if shiptype.tr3}
+					<tech id="{shiptype.tr3}"><![CDATA[{shiptype.tr3.name}]]></tech>
+				{/endif}
+			</reqtechs>
+			<reqrace>{shiptype.race}</reqrace>
+
+			<costs>
+				<!-- BEGIN res.listitem -->
+					<res>
+						<name><![CDATA[{res.name}]]></name>
+						<image><![CDATA[{res.image}]]></image>
+					</res>
+				<!-- END res.listitem -->
+				<e>{shiptype.cost.energie}</e>
+				<crew>{shiptype.cost.crew}</crew>
+				<time>{shiptype.cost.dauer}</time>
+				{if shiptype.cost.linfactor}
+					<factor>{shiptype.cost.linfactor}</factor>
+				{/endif}
+			</costs>
+			<werften>
+				<!-- BEGIN shiptype.werften.listitem -->
+					<werft>{werft.name}</werft>
+				<!-- END shiptype.werften.listitem -->
+			</werften>
+			{if shiptype.flagschiff}
+				<flagschiff />
+			{/endif}
+		</builddata>
+	{/endif}
+
+	<weapons>
+	<!-- BEGIN shiptype.weapons.listitem -->
+		<weapon>
+			<name><![CDATA[{shiptype.weapon.name}]]></name>
+			<count>{shiptype.weapon.count}</count>
+			<description><![CDATA[{shiptype.weapon.description}]]></description>
+		</weapon>
+	<!-- END shiptype.weapons.listitem -->
+	</weapons>
+	<shipcount>{shiptype.count}</shipcount>
+	<flightcosts>{shiptype.cost}</flightcosts>
+	<flightheat>{shiptype.heat}</flightheat>
+	<size>{shiptype.size}</size>
+	<sensorrange>{shiptype.sensorrange}</sensorrange>
+	<eps>{shiptype.eps}</eps>
+	<maxcrew>{shiptype.crew}</maxcrew>
+	<maxcargo>{shiptype.cargo}</maxcargo>
+	{if shiptype.jdocks}
+		<jdocks>{shiptype.jdocks}</jdocks>
+	{/endif}
+	{if shiptype.adocks}
+       <adocks>{shiptype.adocks}</adocks>
+	{/endif}
+	{if shiptype.moduleslots}
+		<slots count="{shiptype.moduleslots}"><![CDATA[{shiptype.moduleslots.desc}]]></slots>
+	{/endif}
+	<hull>{shiptype.hull}</hull>
+	<panzerung>{shiptype.panzerung}</panzerung>
+	{if shiptype.shields}
+   		<shields>{shiptype.shields}</shields>
+	{/endif}
+	{if shiptype.deutfactor}
+		<deutfactor>{shiptype.deutfactor}</deutfactor>
+	{/endif}
+	{if shiptype.hydro}
+		<hydro>{shiptype.hydro}</hydro>
+	{/endif}
+	{if shiptype.torpedodef}
+		<torpedodef>{shiptype.torpedodef}</torpedodef>
+	{/endif}
+	{if shiptype.recost}
+		<unkeepcosts>{shiptype.recost}</unkeepcosts>
+	{/endif}
+	<flags>
+	<!-- BEGIN shiptypeflags.listitem -->
+		<flag>
+			<name><![CDATA[{shiptypeflag.name}]]></name>
+			{if shiptypeflag.description}
+				<description><![CDATA[{shiptypeflag.description}]]></description>
+			{/endif}
+		</flag>
+	<!-- END shiptypeflags.listitem -->
+	</flags>
+	<description>
+		<![CDATA[{shiptype.description}]]>
+	</description>
+</shiptype>
