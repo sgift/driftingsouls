@@ -171,6 +171,9 @@ public class SchiffController extends DSGenerator implements Loggable {
 		
 		noob = user.isNoob();
 		
+		// URL fuer Quests setzen
+		Quests.currentEventURLBase.set("./main.php?module=schiff&sess="+getString("sess")+"&ship="+getInteger("ship"));
+		
 		return true;	
 	}
 	
@@ -361,6 +364,12 @@ public class SchiffController extends DSGenerator implements Loggable {
 		redirect();
 	}
 	
+	/**
+	 * Fuehrt Aktionen eines Plugins aus. Plugin-spezifische
+	 * Parameter haben die Form $PluginName_ops[$ParameterName]
+	 * @urlparam String plugin Der Name des Plugins 
+	 *
+	 */
 	public void pluginAction() {
 		TemplateEngine t = getTemplateEngine();
 		
@@ -387,6 +396,11 @@ public class SchiffController extends DSGenerator implements Loggable {
 		redirect();
 	}
 	
+	/**
+	 * Landet die angegebenen Schiffe auf dem aktuellen Schiff
+	 * @urlparameter String shiplist Eine mit | separierte Liste an Schiffs-IDs
+	 *
+	 */
 	public void landAction() {
 		TemplateEngine t = getTemplateEngine();
 		User user = getUser();
@@ -407,6 +421,11 @@ public class SchiffController extends DSGenerator implements Loggable {
 		redirect();
 	}
 	
+	/**
+	 * Startet die angegebenen Schiffe vom aktuellen Schiff
+	 * @urlparam String shiplist Eine mit | separierte Liste von Schiffs-IDs
+	 *
+	 */
 	public void startAction() {
 		TemplateEngine t = getTemplateEngine();
 		User user = getUser();
@@ -427,6 +446,11 @@ public class SchiffController extends DSGenerator implements Loggable {
 		redirect();
 	}
 	
+	/**
+	 * Dockt die angegebenen Schiffe an das aktuelle Schiff an
+	 * @urlparam String shiplist Eine mit | separierte Liste von Schiffs-IDs 
+	 *
+	 */
 	public void aufladenAction() {
 		TemplateEngine t = getTemplateEngine();
 		User user = getUser();
@@ -447,6 +471,11 @@ public class SchiffController extends DSGenerator implements Loggable {
 		redirect();
 	}
 	
+	/**
+	 * Dockt die angegebenen Schiffe vom aktuellen Schiff ab
+	 * @urlparam String shiplist Eine mit | separierte Liste von Schiffs-IDs
+	 *
+	 */
 	public void abladenAction() {
 		TemplateEngine t = getTemplateEngine();
 		User user = getUser();
@@ -467,6 +496,11 @@ public class SchiffController extends DSGenerator implements Loggable {
 		redirect();
 	}
 	
+	/**
+	 * Laesst ein Schiff einer Flotte beitreten oder aus der aktuellen Flotte austreten
+	 * @urlparam Integer join Die ID der Flotte, der das Schiff beitreten soll oder <code>0</code>, falls es aus der aktuellen Flotte austreten soll
+	 *
+	 */
 	public void joinAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -516,6 +550,11 @@ public class SchiffController extends DSGenerator implements Loggable {
 		redirect();
 	}
 	
+	/**
+	 * Laedt die Schilde des aktuellen Schiffes auf
+	 * @urlparam Integer shup Die Menge an Energie, die zum Aufladen der Schilde verwendet werden soll
+	 *
+	 */
 	public void shupAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -553,6 +592,13 @@ public class SchiffController extends DSGenerator implements Loggable {
 		redirect();
 	}
 	
+	/**
+	 * Speichert ein neues Schiffsaktionsscript und setzt optional
+	 * die aktuellen Ausfuehrungsdaten wieder zurueck
+	 * @urlparam String script das neue Schfifsaktionsscript
+	 * @urlparam Integer reset Wenn der Wert != 0 ist, dann werden die Ausfuehrungsdaten zurueckgesetzt
+	 *
+	 */
 	public void scriptAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -580,6 +626,12 @@ public class SchiffController extends DSGenerator implements Loggable {
 		redirect();
 	}
 	
+	/**
+	 * Behandelt ein OnCommunicate-Ereigniss
+	 * @urlparam Integer communicate Die ID des Schiffes, mit dem kommuniziert werden soll
+	 * @urlparam String execparameter Weitere Ausfuehrungsdaten
+	 *
+	 */
 	public void communicateAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -625,8 +677,12 @@ public class SchiffController extends DSGenerator implements Loggable {
 		redirect();
 	}
 	
+	/**
+	 * Behandelt ein OnMove-Ereigniss
+	 * @urlparam String execparameter Weitere Ausfuehrungsdaten
+	 *
+	 */
 	public void onmoveAction() {
-		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
 		User user = getUser();
 		
@@ -667,6 +723,11 @@ public class SchiffController extends DSGenerator implements Loggable {
 		redirect();
 	}
 	
+	/**
+	 * Behandelt ein OnEnter-Ereignis
+	 * @urlparam String execparameter Weitere Ausfuehrungsdaten
+	 *
+	 */
 	public void onenterAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -885,6 +946,13 @@ public class SchiffController extends DSGenerator implements Loggable {
 		Ships.destroy(-shipid);
 	}
 	
+	/**
+	 * Setzt die Respawn-Daten des Schiffes. Wenn bereits ein 
+	 * Respawn-Eintrag existiert, wird dieser zurueckgesetzt.
+	 * Andernfalls wird ein neuer Respawn-Eintrag erzeugt
+	 * @urlparam Integer respawntime Die Zeit in Ticks bis zum Respawn
+	 *
+	 */
 	public void respawnAction() {
 		Database db = getDatabase();
 		User user = getUser(); 
@@ -925,6 +993,10 @@ public class SchiffController extends DSGenerator implements Loggable {
 		redirect();
 	}
 	
+	/**
+	 * Transferiert das Schiff ins System 99
+	 *
+	 */
 	public void inselAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();

@@ -55,11 +55,27 @@ public class Quests implements Loggable {
 	public static final String EVENT_ONMOVE = "4";
 	
 	/**
-	 * Die fuer in Ereignissen produzierte Ausgabe zu verwendende URL-Basis
+	 * Die fuer in Ereignissen produzierte Ausgabe zu verwendenden URL-Parameter
 	 */
 	public static final ThreadLocal<String> currentEventURL = new ThreadLocal<String>() {
 		// EMPTY
 	};
+	
+	/**
+	 * Die fuer in Ereignissen produzierte Ausgabe zu verwendenden URL-Basis
+	 */
+	public static final ThreadLocal<String> currentEventURLBase = new ThreadLocal<String>() {
+		// EMPTY
+	};
+	
+	/**
+	 * Baut eine URL fuer eine Antwort in einem Questscript
+	 * @param answerid Die Antwort-ID
+	 * @return Die URL
+	 */
+	public static String buildQuestURL( String answerid ) {
+		return currentEventURLBase.get()+currentEventURL.get()+"&execparameter="+answerid;
+	}
 	
 	/**
 	 * Fuehrt einen Lock-String aus (bzw das dem Lock-String zugeordnete Script, sofern vorhanden)
