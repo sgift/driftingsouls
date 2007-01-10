@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.scripting;
 
+import org.apache.commons.lang.StringUtils;
+
 import net.driftingsouls.ds2.server.framework.db.Database;
 
 /**
@@ -39,6 +41,7 @@ class CommonFunctions {
 		//parser.registerCommand( "ARRAYNEXT", "arraynext", "common", ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN);
 		parser.registerCommand( "STRAPPEND", new StrAppend(), ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN_REG);
 		parser.registerCommand( "COPYSTRING", new CopyString(), ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN_REG);
+		parser.registerCommand( "STRREPLACE", new StrReplace(), ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "GETSCRIPTPARAMETER", new GetScriptParameter(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN);
 	}
 	
@@ -177,6 +180,30 @@ class CommonFunctions {
 			
 			if( command[1].charAt(0) == '#' ) {
 				scriptparser.setRegister(command[1],command[2]);
+			}
+			
+			return CONTINUE;
+		}
+	}
+	
+	class StrReplace implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			String strdata = "";
+			if( command[1].charAt(0) == '#' ) {
+				strdata = scriptparser.getRegister(command[1]);
+			}
+			
+			String myvar = command[2];
+			String replace = command[3];
+			
+			scriptparser.log("string: "+strdata+"\n");
+			scriptparser.log("var: "+myvar+"\n");
+			scriptparser.log("replace: "+replace+"\n");
+			
+			strdata = StringUtils.replace(strdata, "{"+myvar+"}", replace );
+			
+			if( command[1].charAt(0) == '#' ) {
+				scriptparser.setRegister(command[1], strdata);
 			}
 			
 			return CONTINUE;
