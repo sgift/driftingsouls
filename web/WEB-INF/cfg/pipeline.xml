@@ -26,6 +26,9 @@
 		<module name="activateall">
 			<generator class="net.driftingsouls.ds2.server.modules.ActivateAllController" />
 		</module>
+		<module name="admin">
+			<generator class="net.driftingsouls.ds2.server.modules.AdminController" />
+		</module>
 		<module name="ally">
 			<generator class="net.driftingsouls.ds2.server.modules.AllyController" />
 		</module>
