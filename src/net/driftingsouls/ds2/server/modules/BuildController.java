@@ -40,11 +40,17 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 /**
  * Der Gebaeudebau
  * @author Christopher Jung
- *
+ * 
+ * @urlparam Integer col Die Bases, auf der das Gebaeude gebaut werden soll 
+ * @urlparam Integer field Die ID des Feldes, auf dem das Gebaeude gebaut werden soll
  */
 public class BuildController extends DSGenerator {
 	private Base base;
 	
+	/**
+	 * Konstruktor
+	 * @param context Der zu verwendende Kontext
+	 */
 	public BuildController(Context context) {
 		super(context);
 		
@@ -78,6 +84,11 @@ public class BuildController extends DSGenerator {
 		return true;
 	}
 
+	/**
+	 * Baut ein Gebaeute auf der Kolonie
+	 * @urlparam Integer build Die ID des zu bauenden Gebaeudes
+	 *
+	 */
 	public void buildAction() {
 		Database db = getDatabase();
 		User user = getUser();
@@ -238,6 +249,10 @@ public class BuildController extends DSGenerator {
 		
 	}
 	
+	/**
+	 * Zeigt die Liste der baubaren Gebaeude, sortiert nach Kategorien, an
+	 * @urlparam Integer cat Die anzuzeigende Kategorie
+	 */
 	@Override
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
@@ -256,12 +271,7 @@ public class BuildController extends DSGenerator {
 		//Anzahl der Gebaeude berechnen
 		Map<Integer,Integer> buildingcount = new HashMap<Integer,Integer>();
 		for( int building : base.getBebauung() ) {
-			if( !buildingcount.containsKey(building) ) {
-				buildingcount.put(building,1);
-			}
-			else {
-				buildingcount.put(building, buildingcount.get(building)+1);
-			}
+			Common.safeIntInc(buildingcount, building);
 		}
 	
 		//Anzahl der Gebaeude pro Spieler berechnen
@@ -271,12 +281,7 @@ public class BuildController extends DSGenerator {
 		while( aBeb.next() ) {
 			int[] aBebList = Common.explodeToInt("|",aBeb.getString("bebauung"));
 			for( int bid : aBebList ) {
-				if( !ownerbuildingcount.containsKey(bid) ) {
-					ownerbuildingcount.put( bid, 1 );
-				}
-				else {
-					ownerbuildingcount.put( bid, ownerbuildingcount.get(bid)+1);
-				}
+				Common.safeIntInc(ownerbuildingcount, bid);
 			}
 		}
 		aBeb.free();
@@ -310,11 +315,13 @@ public class BuildController extends DSGenerator {
 		SQLQuery building = db.query("SELECT * FROM buildings WHERE category='"+cat+"' ORDER BY name");
 		while( building.next() ) {
 			//Existiert bereits die max. Anzahl dieses Geb. Typs auf dem Asti?
-			if( (building.getInt("perplanet") != 0) && (building.getInt("perplanet") <= buildingcount.get(building.getInt("id"))) ) {
+			if( (building.getInt("perplanet") != 0) && buildingcount.containsKey(building.getInt("id")) && 
+				(building.getInt("perplanet") <= buildingcount.get(building.getInt("id"))) ) {
 				continue;
 			}
 		
-			if( (building.getInt("perowner") != 0) && (building.getInt("perowner") <= ownerbuildingcount.get(building.getInt("id"))) ) {
+			if( (building.getInt("perowner") != 0) && ownerbuildingcount.containsKey(building.getInt("id")) && 
+				(building.getInt("perowner") <= ownerbuildingcount.get(building.getInt("id"))) ) {
 				continue;
 			}
 		
