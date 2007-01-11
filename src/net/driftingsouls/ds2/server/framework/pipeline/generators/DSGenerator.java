@@ -74,7 +74,7 @@ public abstract class DSGenerator extends Generator {
 					if( !getUser().getUserImagePath().equals(User.getDefaultImagePath(getDatabase())) ) {
 						usegfxpak = true;
 					}
-					url = getUser().getUserImagePath();
+					url = getUser().getImagePath();
 				}
 				
 				sb.append("<head>\n");
