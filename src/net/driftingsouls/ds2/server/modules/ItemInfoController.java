@@ -760,7 +760,17 @@ public class ItemInfoController extends DSGenerator {
 		User user = getUser();
 		
 		parameterString("itemlist");	
-		Cargo itemlist = new Cargo(Cargo.Type.ITEMSTRING,getString("itemlist"));
+		Cargo itemlist = null;
+
+		try {
+			itemlist = new Cargo();
+			itemlist.addResource(Resources.fromString(getString("itemlist")),1);
+		}
+		catch( Exception e ) {
+			// Offenbar keine Item-ID
+			// Jetzt versuchen, die Liste als Itemliste zu parsen
+			itemlist = new Cargo(Cargo.Type.ITEMSTRING,getString("itemlist"));
+		}
 
 		t.set_var("iteminfo.itemlist", 1);
 
