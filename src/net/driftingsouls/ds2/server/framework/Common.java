@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.mail.Message;
@@ -802,16 +803,16 @@ public class Common implements Loggable {
 		return result;
 	}
 	
+	private static final Pattern stripHTML = Pattern.compile("(<\\/?)(\\w+)([^>]*>)");
+	
 	/**
 	 * Entfernt alle HTML-Tags aus dem String und gibt ihn zurueck
 	 * @param text Der STring
 	 * @return Der String ohne HTML-Tags
 	 */
 	public static String _stripHTML( String text ) {
-		// TODO
-		Common.stub();
-		//return preg_replace('/(<\/?)(\w+)([^>]*>)/','',$text);
-		return text;
+		Matcher m = stripHTML.matcher(text);
+		return m.replaceAll("");
 	}
 	
 	/**

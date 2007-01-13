@@ -1222,7 +1222,7 @@ public class Cargo implements Loggable, Cloneable {
 	 */
 	@Deprecated
 	public static Object[] getItemDataFromRID( int rid ) {
-		Common.stub();
+		// EMPTY
 		return null;
 	}
 }

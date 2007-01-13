@@ -762,7 +762,6 @@ public class CommController extends DSGenerator implements Loggable {
 			
 			msg = "(Nachricht am "+Common.date("j.n.Y G:i",pm.getInt("time"))+" empfangen.)\n"+Pattern.compile("/\n>*/").matcher(pm.getString("inhalt")).replaceAll("\n"); //Fuehrende > entfernen
 			msg = msg.replaceAll("\t\r\n", " "); //Wegen der Einrueckung eingefuegte Umbrueche entfernen
-			Common.stub();
 			
 			// Reply-Verschachtelungstiefe ermitteln
 			int depth = 0;

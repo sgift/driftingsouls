@@ -50,7 +50,7 @@ public class TechDatabaseController extends DSGenerator {
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		// TODO Auto-generated method stub
+		// EMPTY
 		return true;
 	}
 	
