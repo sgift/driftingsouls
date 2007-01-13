@@ -1,0 +1,193 @@
+<table class="show" cellspacing="2" cellpadding="2">
+<tr>
+	<td class="noBorderS">NPC-Men&uuml;</td>
+	<td class="noBorder">&nbsp;</td>
+	<td class="noBorder">
+		{!table_begin 400,center}
+			{!link_to Ordermen&uuml;, default}
+			{if npcorder.factionhead}
+				&nbsp;|&nbsp;
+				{!link_to Orden &amp; R&auml;nge, medals}
+			{/endif}
+			{if npcorder.shop}
+				&nbsp;|&nbsp;
+				{!link_to Gany-Transport, viewTransports}
+			{/endif}			
+		{!table_end}
+	</td>
+</tr>
+</table>
+<br />
+<br />
+<span class="smallfont">
+	{if npcorder.message}
+		{npcorder.message}
+		<br />
+		<br />
+	{/endif}
+	{if npcorder.ordermenu}
+		<span style="font-weight:bold">Kommandopunkte: {user.npcpunkte}</span><br /><br />
+		<table class="noBorder">
+		<tr>
+			<td class="noBorderX" valign="top">
+				{!table_begin 400,left}
+					<table class="noBorderX" width="100%">
+					<tr>
+						<td class="noBorderX" colspan="2">Schiff</td>
+						<td class="noBorderX">?</td>
+						<td class="noBorderX">Kosten</td>
+						<td class="noBorderX"></td>
+					</tr>
+					<!-- BEGIN ships.listitem -->
+						{if ship.newclass}
+							<tr>
+								<td class="noBorderX" colspan="5">{ship.newclass.name}</td>
+							</tr>
+						{/endif}
+						<tr>
+							<td class="noBorderX">&nbsp;</td>
+							<td class="noBorderX">
+								{!link_to $ship.name, order, order:$ship.type} ({!link_to 5x, order, order:$ship.type, count:5}, {!link_to 10x, order, order:$ship.type, count:10})
+							</td>
+							<td class="noBorderX">
+								{!link_to ?, default, module:schiffinfo, ship:$ship.type}
+							</td>
+							<td class="noBorderX" align="center">{ship.cost}</td>
+							{if ship.ordercount}
+								<td class="noBorderX">&nbsp;{ship.ordercount}x&nbsp;</td>
+							{else}
+								<td class="noBorderX">&nbsp;</td>
+							{/endif}
+						</tr>
+						<!-- END ships.listitem -->
+					</table>
+				{!table_end}
+			</td>
+			<td class="noBorderS" width="40">&nbsp;&nbsp;</td>
+			<td class="noBorderS" valign="top">
+				{!table_begin 400, left}
+					<table class="noBorderX" width="100%">
+					<tr>
+						<td class="noBorderX">Offizier</td>
+						<td class="noBorderX">Rang</td>
+						<td class="noBorderX">Kosten</td>
+						<td class="noBorderX"></td>
+					</tr>
+					<!-- BEGIN offiziere.listitem -->
+						<tr>
+							<td class="noBorderX">
+								{!link_to $offizier.name, order, order:$offizier.id} ({!link_to 5x, order, order:$offizier.id, count:5}, {!link_to 10x, order, order:$offizier.id, count:10})
+							</td>
+							<td class="noBorderX" align="center">
+								<img src="{URL}data/interface/offiziere/off{offizier.rang}.png" alt="Rang {offizier.rang}" />
+							</td>
+							<td class="noBorderX" align="center">{offizier.cost}</td>
+							{if offizier.ordercount}
+								<td class="noBorderX">&nbsp;{offizier.ordercount}x&nbsp;</td>
+							{else}
+								<td class="noBorderX">&nbsp;</td>
+							{/endif}
+						</tr>
+					<!-- END offiziere.listitem -->
+					</table>
+				{!table_end}
+			</td>
+		</tr>	
+		</table>
+	{/endif}
+	{if npcorder.medalsmenu}
+		<br />
+		<div align="center" style="width:780px">
+			{!table_begin 400, center}
+				<form action="./main.php" method="post">
+					Spieler bearbeiten: <input type="text" name="edituser" value="{edituser.id}" style="width:50px" />
+ 					{!form_create_hidden medals}
+ 					<input type="submit" value="bearbeiten" />
+				</form>
+			{!table_end}
+			{if edituser.id}
+				<br />
+				{!table_begin 700, left}
+					<div align="center">
+						{!link_to $edituser.name, default, css_class:profile, module:userprofile, user:$edituser.id}<br />
+					</div>
+					<br />
+					<table width="100%" class="noBorderX">
+					<tr>
+						<td class="noBorderX" width="30">Rang:</td>
+						<td class="noBorderX">
+							<img align="middle" {!overlib $edituser.rang.name, mo, width:100} src="{URL}data/interface/medals/rang{edituser.rang}.png" alt="" />
+						</td>
+					</tr>
+					{if edituser.rang.next}
+						<tr>
+							<td class="noBorderX" align="center" colspan="2">
+								<a class="forschinfo" href="./main.php?module=npcorder&sess={global.sess}&action=changeRang&edituser={edituser.id}&rang={edituser.rang.next}">
+									Zum <img border="0" align="middle" {!overlib $edituser.rang.next.name, mo, width:100} src="{URL}data/interface/medals/rang{edituser.rang.next}.png" alt="" /> bef&ouml;rdern
+								</a>
+							</td>
+						</tr>
+					{/endif}
+					{if edituser.rang.prev}
+						<tr>
+							<td class="noBorderX" align="center" colspan="2">
+								<a class="forschinfo" href="./main.php?module=npcorder&sess={global.sess}&action=changeRang&edituser={edituser.id}&rang={edituser.rang.prev}">
+									Zum <img border="0" align="middle" {!overlib $edituser.rang.prev.name, mo, width:100} src="{URL}data/interface/medals/rang{edituser.rang.prev}.png" alt="" /> degradieren
+								</a>
+							</td>
+						</tr>
+					{/endif}
+					</table>
+					<hr noshade="noshade" size="1" style="color:#cccccc" />
+					<form action="./main.php" method="post">
+						<table class="noBorderX" width="100%">
+						<!-- BEGIN medals.listitem -->
+							{if medal.newrow}
+								<tr>
+							{/endif}
+							<td class="noBorderX" align="center">
+								<img src="{URL}data/{medal.image}" alt="" /><br />
+								<input type="radio" name="medal" id="_medal{medal.id}" value="{medal.id}" /><label for="_medal{medal.id}">{medal.name}</label>
+							</td>
+							{if medal.endrow}
+								</tr>
+							{/endif}
+						<!-- END medals.listitem -->
+						<tr>
+							<td class="noBorderX" colspan="8" align="center">
+								<br />
+								Grund: [...Aufgrund der/deiner ]<input type="text" name="reason" value="" size="40" /><br />
+								{!form_create_hidden awardMedal, edituser:$edituser.id}<br />
+								<input type="submit" value="Spieler auszeichnen" />
+							</td>
+						</tr>
+						</table>
+					</form> 
+				{!table_end}
+			{/endif}
+		</div>
+	{/endif}
+	{if npcorder.transports}
+		{!table_begin 700, center}
+			<table class="noBorderX" width="100%">
+			<tr>
+				<td class="noBorderX" style="text-align:center" colspan="2">Frachter</td>
+				<td class="noBorderX" style="text-align:center">Status</td>
+				<td class="noBorderX" style="text-align:center">Auftrag</td>
+			</tr>
+			<!-- BEGIN transports.listitem -->
+				<tr>
+					<td class="noBorderX">
+						<img style="vertical-align:middle;height:100px" src="{transport.ship.picture}" alt="" />
+					</td>
+					<td class="noBorderX">
+						{!link_to $transport.ship, default, module:schiff, ship:$transport.ship.id} ({transport.ship.id})
+					</td>
+					<td class="noBorderX" style="text-align:center">&nbsp;{transport.status}&nbsp;</td>
+					<td class="noBorderX" style="text-align:center">{transport.assignment}</td>
+				</tr>
+			<!-- END transports.listitem -->
+			</table>
+		{!table_end}
+	{/endif}
+</span>
