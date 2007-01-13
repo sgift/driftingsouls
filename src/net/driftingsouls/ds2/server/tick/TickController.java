@@ -159,6 +159,7 @@ public abstract class TickController {
 		for( int i : logTargets.keySet() ) {
 			try {
 				logTargets.get(i).write(string);
+				logTargets.get(i).flush();
 			}
 			catch( IOException e ) {
 				System.err.println("Fehler beim Schreiben - schliesse Handler: "+e);
