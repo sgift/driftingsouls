@@ -551,6 +551,10 @@ public class Ships implements Loggable {
 			return new ModuleEntry[0];
 		}
 		SQLResultRow moduletbl = db.first("SELECT * FROM ships_modules WHERE id='",ship.getInt("id"),"'");	
+		if( moduletbl.isEmpty() ) {
+			LOG.warn("Keine Modultabelle fuer Schiff "+ship.getInt("id")+" vorhanden");
+			return new ModuleEntry[0];
+		}
 		
 		if( moduletbl.getString("modules").length() != 0 ) {
 			String[] modulelist = StringUtils.split(moduletbl.getString("modules"), ';');
