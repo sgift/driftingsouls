@@ -55,6 +55,65 @@ public class NPCOrderController extends DSGenerator {
 		
 		return true;
 	}
+	
+	/**
+	 * Ordert eine Menge von Schiffen/Offizieren
+	 * @urlparam Integer order Das zu ordernde Objekt (positiv, dann Schiff; negativ, dann offizier)
+	 * @urlparam Integer count Die Menge der zu ordernden Objekte
+	 *
+	 */
+	public void orderAction() {
+		Database db = getDatabase();
+		TemplateEngine t = this.getTemplateEngine();
+		User user = this.getUser();
+		
+		parameterNumber("order");
+		parameterNumber("count");
+		
+		int costs = 0;
+		
+		int order = getInteger("order");
+		int count = getInteger("count");
+		
+		if( count <= 0 ) {
+			count = 1;	
+		}
+		
+		if( order > 0 ) {
+			costs = count*db.first("SELECT cost FROM orders_ships WHERE type=",order).getInt("cost");
+		}
+		else if( order < 0 ) {
+			costs = count*db.first("SELECT cost FROM orders_offiziere WHERE id=",(-order)).getInt("cost");
+		}
+		
+		String ordermessage = "";
+
+		if( costs > 0 ) {
+			if( user.getNpcPunkte() < costs ) {
+				ordermessage = "<span style=\"color:red\">Nicht genug Kommandopunkte</span>";
+			} 
+			else {
+				if( order > 0 ) {
+					ordermessage = "Schiff(e) zugeteilt - wird/werden in 3 Ticks eintreffen";
+				} 
+				else {
+					ordermessage = "Offizier(e) zugeteilt - wird/werden in 3 Ticks eintreffen";
+				}
+				for( int i=0; i < count; i++ ) {
+					db.update("INSERT INTO orders (type,tick,user) VALUES (",order,",3,",user.getID(),")");
+				}
+				
+				user.setNpcPunkte( user.getNpcPunkte() - costs );
+			}
+		} 
+		else {
+			ordermessage = "Sorry, aber umsonst bekommst du hier nichts...\n";
+		}
+		
+		t.set_var("npcorder.message", ordermessage);
+		
+		this.redirect();
+	}
 
 	/**
 	 * Zeigt die GUI zum Ordern von Schiffen/Offizieren
