@@ -1103,6 +1103,18 @@ public class User implements Loggable {
 		checkAndLoad("npcpunkte");
 		return data.getInt("npcpunkte");
 	}
+	
+	/**
+	 * Setzt die Anzahl der NPC-Punkte des Benutzers
+	 * @param punkte Die neue Anzahl der NPC-Punkte
+	 */
+	public void setNpcPunkte(int punkte) {
+		checkAndLoad("npcpunkte");
+		context.getDatabase().tUpdate(1, "UPDATE users SET npcpunkte='",punkte,"' WHERE id='",id,"' AND npcpunkte='",data.getInt("npcpunkte"),"'");
+		if( !context.getDatabase().isTransaction() || context.getDatabase().tStatus() ) {
+			data.put("npcpunkte", punkte);
+		}
+	}
 
 	/**
 	 * Gibt den Ingame-Namen des Spielers ohne Ally-Tag zurueck.
