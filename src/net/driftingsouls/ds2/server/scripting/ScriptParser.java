@@ -220,12 +220,12 @@ public class ScriptParser {
 	private static Map<String,Integer[]> JUMP_FUNCTIONS = new HashMap<String,Integer[]>();
 	
 	static {
-		JUMP_FUNCTIONS.put("JL", new Integer[] {-1});
-		JUMP_FUNCTIONS.put("JG", new Integer[] {1});
-		JUMP_FUNCTIONS.put("JE", new Integer[] {0});
-		JUMP_FUNCTIONS.put("JNE", new Integer[] {-1,1});
-		JUMP_FUNCTIONS.put("JLE", new Integer[] {-1,0});
-		JUMP_FUNCTIONS.put("JGE", new Integer[] {0,1});
+		JUMP_FUNCTIONS.put("!JL", new Integer[] {-1});
+		JUMP_FUNCTIONS.put("!JG", new Integer[] {1});
+		JUMP_FUNCTIONS.put("!JE", new Integer[] {0});
+		JUMP_FUNCTIONS.put("!JNE", new Integer[] {-1,1});
+		JUMP_FUNCTIONS.put("!JLE", new Integer[] {-1,0});
+		JUMP_FUNCTIONS.put("!JGE", new Integer[] {0,1});
 	}
 	
 	private Logger logFunction = LOGGER_NULL;
@@ -874,11 +874,11 @@ public class ScriptParser {
 				this.log("+++ Ausfuehrung vorerst angehalten\n\n");
 				break;
 			} 
-			else if( funcname.startsWith("J") && JUMP_FUNCTIONS.containsKey(funcname) ) {
+			else if( funcname.startsWith("!J") && JUMP_FUNCTIONS.containsKey(funcname) ) {
 				this.log("*COMMAND: !JL\n");
 				boolean ok = false;
 				
-				int compResult = new Integer(this.getRegister("cmp")).compareTo(0);
+				int compResult = new Double(this.getRegister("cmp")).compareTo(0d);
 				
 				Integer[] vals = JUMP_FUNCTIONS.get(funcname);
 				for( int i=0; i < vals.length; i++ ) {

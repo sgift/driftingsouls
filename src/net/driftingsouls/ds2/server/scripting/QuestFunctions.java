@@ -39,6 +39,7 @@ import net.driftingsouls.ds2.server.framework.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
  * Scriptbefehle fuer Questscripte
@@ -212,7 +213,7 @@ public class QuestFunctions {
 				else if( value[1].equals("flagschiff") ) {
 					User owner = ContextMap.getContext().createUserObject(ship.getInt("owner"));
 					UserFlagschiffLocation flagschiff = owner.getFlagschiff();
-					val = (flagschiff.getID() == ship.getInt("id"));
+					val = (flagschiff != null) && (flagschiff.getID() == ship.getInt("id"));
 				}
 				else {
 					val = ship.get(value[1].trim());	
@@ -291,6 +292,9 @@ public class QuestFunctions {
 				}
 			}
 			
+			if( val instanceof Boolean ) {
+				val = (val == Boolean.TRUE ? 1 : 0);
+			}
 			scriptparser.setRegister(command[1],val);
 			
 			return CONTINUE;
@@ -443,7 +447,7 @@ public class QuestFunctions {
 				//$scriptparser->setExecutionData($execdata);
 			}
 			
-			db.update("DELETE FROM ".SQL_TBL_QUESTS_RUNNING." WHERE id='".$runningdata['id']."'");
+			db.update("DELETE FROM quests_running WHERE id="+runningdata.getInt("id"));
 			
 			scriptparser.setRegister("QUEST","");
 			
@@ -655,8 +659,9 @@ public class QuestFunctions {
 	
 	class RemoveShip implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			int shipid = Integer.parseInt(command[1]);
+			
+			Ships.destroy( shipid );
 			
 			return CONTINUE;
 		}
