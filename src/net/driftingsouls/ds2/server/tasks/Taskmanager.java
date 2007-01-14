@@ -267,16 +267,17 @@ public class Taskmanager {
 		}
 		query += " ORDER BY `time` ASC";
 		PreparedQuery pq = db.prepare(query);
-		pq.setInt(1, type.getTypeID());
+		int index=1;
+		pq.setInt(index++, type.getTypeID());
 		if( !data1.equals("*") ) {
-			pq.setString(2, data1);
+			pq.setString(index++, data1);
 		}
 		if( !data2.equals("*") ) {
-			pq.setString(3, data2);	
+			pq.setString(index++, data2);	
 		}
 		if( !data3.equals("*")) {
 			query += " AND data3=?";
-			pq.setString(4, data3);
+			pq.setString(index++, data3);
 		}
 		
 		SQLQuery atask = pq.query();
