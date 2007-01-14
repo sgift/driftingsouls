@@ -45,7 +45,7 @@ public class RareTick extends AbstractTickExecuter {
 	@Override
 	protected void prepare() {
 		setName("");
-		setLogPath(Configuration.getSetting("LOXPATH")+"tick/");
+		setLogPath(Configuration.getSetting("LOXPATH")+"raretick/");
 	}
 	
 	/**
