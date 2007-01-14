@@ -77,7 +77,7 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 				(aship.getInt("action") & Battle.BS_SECONDROW) != 0 ) {
 				continue;
 			}
-			SQLResultRow shiptype = Ships.getShipType(aship, true);
+			SQLResultRow shiptype = Ships.getShipType(aship);
 			
 			if( shiptype.getInt("class") == ShipClasses.ZERSTOERER.ordinal() ) {
 				gotone = true;
@@ -103,7 +103,7 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 				rowcount++;
 				continue;
 			}
-			SQLResultRow shiptype = Ships.getShipType(aship, true);
+			SQLResultRow shiptype = Ships.getShipType(aship);
 			
 			if( shiptype.getInt("size") > 3 ) {
 				size += shiptype.getInt("size");

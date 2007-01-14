@@ -917,7 +917,7 @@ public class KSAttackAction extends BasicKSAction {
 		battle.logme("\n"+aeShip.getString("name")+" ("+aeShip.getInt("id")+"):\n");
 		battle.logenemy("\n"+aeShip.getString("name")+" ("+aeShip.getInt("id")+"):\n");
 					
-		SQLResultRow aeShipType = Ships.getShipType(aeShip, true);
+		SQLResultRow aeShipType = Ships.getShipType(aeShip);
 		
 		int[] tmpsubdmgs = null;
 					
@@ -1121,7 +1121,7 @@ public class KSAttackAction extends BasicKSAction {
 					battle.logenemy("\n");
 				}
 		
-				SQLResultRow enemyShipType = Ships.getShipType(this.enemyShip, true);
+				SQLResultRow enemyShipType = Ships.getShipType(this.enemyShip);
 				
 				/*
 				 * 	Die konkreten Waffendaten ermitteln

@@ -1662,7 +1662,7 @@ public class Ships implements Loggable {
 		
 				// Kann man durch die Jumpnode (mit Waffen) fliegen
 				if( node.getBoolean("wpnblock") && !user.hasFlag(User.FLAG_MILITARY_JUMPS) ) {
-					SQLResultRow shiptype = getShipType(aship.getRow(), true);
+					SQLResultRow shiptype = getShipType(aship.getRow());
 					
 					//Schiff Ueberprfen
 					if( shiptype.getInt("military") > 0 ) {

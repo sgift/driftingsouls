@@ -171,7 +171,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 	}
 	
 	private void echoSectorShipData( SQLResultRow aship, String relation ) throws UnsupportedEncodingException {
-		SQLResultRow stype = Ships.getShipType(aship, true);
+		SQLResultRow stype = Ships.getShipType(aship);
 		
 		StringBuffer echo = getContext().getResponse().getContent();
 		
