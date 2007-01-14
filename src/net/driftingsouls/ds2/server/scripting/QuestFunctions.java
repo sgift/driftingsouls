@@ -46,17 +46,15 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
  */
 public class QuestFunctions {
 	void registerFunctions(ScriptParser parser) {
-		Common.stub();
-		
 		// Questfunktionen
 		parser.registerCommand( "LOADDIALOG", new LoadDialog(), ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "INITDIALOG", new InitDialog(), ScriptParser.Args.PLAIN_VARIABLE );
 		parser.registerCommand( "ADDANSWER", new AddAnswer(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG_VARIABLE );
 		parser.registerCommand( "SETANSWERURL", new SetAnswerURL(), ScriptParser.Args.PLAIN, ScriptParser.Args.REG );
 		parser.registerCommand( "COPYVAR", new CopyVar(), ScriptParser.Args.PLAIN_VARIABLE );
-		/*parser.registerCommand( "SAVEVAR", new SaveVar(), ScriptParser.Args.PLAIN_VARIABLE );*/
+		parser.registerCommand( "SAVEVAR", new SaveVar(), ScriptParser.Args.PLAIN_VARIABLE );
 		parser.registerCommand( "SETDIALOGTEXTVAR", new SetDialogTextVar(), ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN_REG );
-		/*parser.registerCommand( "INITQUEST", new InitQuest(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
+		parser.registerCommand( "INITQUEST", new InitQuest(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "ENDQUEST", new EndQuest(), ScriptParser.Args.PLAIN_VARIABLE );
 		parser.registerCommand( "GETQUESTID", new GetQuestID(), ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "INSTALLHANDLER", new InstallHandler(), ScriptParser.Args.PLAIN_VARIABLE );
@@ -67,19 +65,19 @@ public class QuestFunctions {
 		parser.registerCommand( "SETQUESTUISTATUS", new SetQuestUIStatus(), ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "SAVEOUTPUT", new SaveOutput(), ScriptParser.Args.PLAIN_VARIABLE );
 		parser.registerCommand( "LOADQUESTCONTEXT", new LoadQuestContext(), ScriptParser.Args.PLAIN_REG );
-		parser.registerCommand( "SAVEQUESTCONTEXT", new SaveQuestContext(), ScriptParser.Args.PLAIN_REG );*/
+		parser.registerCommand( "SAVEQUESTCONTEXT", new SaveQuestContext(), ScriptParser.Args.PLAIN_REG );
 		
 		// Cargofunktionen
-		/*parser.registerCommand( "ADDQUESTITEM", new AddQuestItem(), ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
+		parser.registerCommand( "ADDQUESTITEM", new AddQuestItem(), ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "HASQUESTITEM", new HasQuestItem(), ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "ADDITEM", new AddItem(), ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "HASRESOURCE", new HasResource(), ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "GETRESOURCE", new GetResource(), ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "ADDRESOURCE", new AddResource(), ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
-		parser.registerCommand( "TRANSFERWHOLECARGO", new TransferWholeCargo(), ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN );*/
+		parser.registerCommand( "TRANSFERWHOLECARGO", new TransferWholeCargo(), ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN );
 		
 		// Schiffsfunktionen
-		/*parser.registerCommand( "LOCKSHIP", new LockShip(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN );
+		parser.registerCommand( "LOCKSHIP", new LockShip(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN );
 		parser.registerCommand( "UNLOCKSHIP", new UnlockShip(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN );
 		parser.registerCommand( "ADDQUESTSHIPS", new AddQuestShips(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "ADDSHIPS", new AddShips(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
@@ -87,11 +85,11 @@ public class QuestFunctions {
 		parser.registerCommand( "MOVESHIP", new MoveShip(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "ISSHIPDESTROYED", new IsShipDestroyed(), ScriptParser.Args.PLAIN_REG);
 		parser.registerCommand( "ADDLOOTTABLE", new AddLootTable(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
-		parser.registerCommand( "DELETELOOTTABLE", new DeleteLootTable(), ScriptParser.Args.PLAIN_REG);*/
+		parser.registerCommand( "DELETELOOTTABLE", new DeleteLootTable(), ScriptParser.Args.PLAIN_REG);
 		
 		// Diverses
 		parser.registerCommand( "MSG", new Msg(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.REG, ScriptParser.Args.REG );
-		/*parser.registerCommand( "ADDMONEY", new AddMoney(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.REG, ScriptParser.Args.PLAIN_REG );
+		parser.registerCommand( "ADDMONEY", new AddMoney(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "GETMONEY", new GetMoney(), ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "CLONEOFFIZIER", new CloneOffizier(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "REMOVEOFFIZIER", new RemoveOffizier(), ScriptParser.Args.PLAIN_REG );
@@ -99,12 +97,12 @@ public class QuestFunctions {
 		parser.registerCommand( "ADDBATTLEVISIBILITY", new AddBattleVisibility(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "ENDBATTLE", new EndBattle(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "GETNOOBSTATUS", new GetNoobStatus(), ScriptParser.Args.PLAIN_REG );
-		parser.registerCommand( "GETUSERVALUE", new GetUserBalue(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
+		parser.registerCommand( "GETUSERVALUE", new GetUserValue(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "SETUSERVALUE", new SetUserValue(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "GETSECTORPROPERTY", new GetSectorProperty(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "GETSYSTEMPROPERTY", new GetSystemProperty(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "GTUAUCTIONSHIP", new GtuAuctionShip(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
-		parser.registerCommand( "GTUAUCTIONCARGO", new GtuAuctionCargo(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );*/
+		parser.registerCommand( "GTUAUCTIONCARGO", new GtuAuctionCargo(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		
 		// QuickQuests
 		parser.registerCommand( "GENERATEQUICKQUESTSOURCEMENU", new GenerateQuickQuestSourceMenu(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
@@ -362,6 +360,15 @@ public class QuestFunctions {
 		}
 	}
 	
+	class SaveVar implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
 	class SetDialogTextVar implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
 			String myvar = command[1];
@@ -376,17 +383,270 @@ public class QuestFunctions {
 		}
 	}
 	
+	class InitQuest implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class EndQuest implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class GetQuestID implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class InstallHandler implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class RemoveHandler implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	
+	class AddUninstallCmd implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class CompleteQuest implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class HasQuestCompleted implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class SetQuestUIStatus implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class SaveOutput implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class LoadQuestContext implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class SaveQuestContext implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
 	/*—---------------------------------------------
 	 * 
 	 * 	Cargofunktionen
 	 *
 	 ----------------------------------------------*/
 	
+	class AddQuestItem implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class HasQuestItem implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class AddItem implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class HasResource implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class GetResource implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class AddResource implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class TransferWholeCargo implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+
 	/*—---------------------------------------------
 	 * 
 	 * 	Schiffsfunktionen
 	 *
 	 ----------------------------------------------*/
+	
+	class LockShip implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class UnlockShip implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class AddQuestShips implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class AddShips implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class RemoveShip implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class MoveShip implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class IsShipDestroyed implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class AddLootTable implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class DeleteLootTable implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
 	
 	/*—---------------------------------------------
 	 * 
@@ -409,6 +669,132 @@ public class QuestFunctions {
 			scriptparser.log("msg: "+msg+"\n\n");
 					
 			PM.send( ContextMap.getContext(), from, to, title, msg );
+			
+			return CONTINUE;
+		}
+	}
+	
+	class AddMoney implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class GetMoney implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class CloneOffizier implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class RemoveOffizier implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class StartBattle implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class AddBattleVisibility implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class EndBattle implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class GetNoobStatus implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class GetUserValue implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class SetUserValue implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class GetSectorProperty implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class GetSystemProperty implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class GtuAuctionShip implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
+			
+			return CONTINUE;
+		}
+	}
+	
+	class GtuAuctionCargo implements SPFunction {
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+			// TODO
+			Common.stub();
 			
 			return CONTINUE;
 		}
