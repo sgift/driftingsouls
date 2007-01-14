@@ -997,12 +997,36 @@ public class User implements Loggable {
 	}
 	
 	/**
+	 * Setzt die Liste der Orden des Spielers
+	 * @param medals Eine mittels ; separierte Liste von Orden
+	 */
+	public void setMedals( String medals ) {
+		checkAndLoad("medals");
+		context.getDatabase().tUpdate(1, "UPDATE users SET medals='",medals,"' WHERE id='",id,"' AND medals='",data.getString("medals"),"'");
+		if( !context.getDatabase().isTransaction() || context.getDatabase().tStatus() ) {
+			data.put("medals", medals);
+		}
+	}
+	
+	/**
 	 * Liefert den Rang des Benutzers zurueck
 	 * @return Der Rang
 	 */
 	public int getRang() {
 		checkAndLoad("rang");
 		return data.getInt("rang");
+	}
+	
+	/**
+	 * Setzt den Rang des Benutzers
+	 * @param rang Die ID des Rangs
+	 */
+	public void setRang( int rang ) {
+		checkAndLoad("rang");
+		context.getDatabase().tUpdate(1, "UPDATE users SET rang='",rang,"' WHERE id='",id,"' AND rang='",data.getInt("rang"),"'");
+		if( !context.getDatabase().isTransaction() || context.getDatabase().tStatus() ) {
+			data.put("rang", rang);
+		}
 	}
 	
 	/**
@@ -1202,6 +1226,18 @@ public class User implements Loggable {
 	public String getNpcOrderLocation() {
 		checkAndLoad("npcorderloc");
 		return data.getString("npcorderloc");
+	}
+	
+	/**
+	 * Setzt die Koordinaten des Ortes, an dem von NPCs georderte Dinge erscheinen sollen
+	 * @param loc Die Koordinaten des Ortes, an dem georderte Dinge erscheinen sollen
+	 */
+	public void setNpcOrderLocation( String loc ) {
+		checkAndLoad("npcorderloc");
+		context.getDatabase().tUpdate(1, "UPDATE users SET npcorderloc='",loc,"' WHERE id='",id,"' AND npcorderloc='",data.getInt("npcorderloc"),"'");
+		if( !context.getDatabase().isTransaction() || context.getDatabase().tStatus() ) {
+			data.put("npcorderloc", loc);
+		}
 	}
 	
 	/**
