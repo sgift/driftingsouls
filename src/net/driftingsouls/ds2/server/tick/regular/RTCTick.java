@@ -178,7 +178,7 @@ public class RTCTick extends TickController {
 						PM.send(getContext(), -1, Faction.GTU, entryname+" ersteigert", msg);
 					}
 					
-					db.update("INSERT INTO gtu_zwischenlager (posten,user1,user2,cargo1,cargo1need) VALUES (",posten.getInt("id"),",",owner,",",Faction.GTU,",'",mycargo.save(),"','",mycargo.save(),"')");
+					db.update("INSERT INTO gtu_zwischenlager (posten,user1,user2,cargo1,cargo1need,cargo2,cargo2need) VALUES (",posten.getInt("id"),",",owner,",",Faction.GTU,",'",mycargo.save(),"','",mycargo.save(),"','",new Cargo().save(),"','",new Cargo().save(),"')");
 				}
 			}
 			else {
