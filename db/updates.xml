@@ -106,4 +106,7 @@
 		ALTER TABLE skn ADD INDEX channel (channel);
 		ALTER TABLE skn_visits DROP INDEX user, ADD INDEX user (user, channel);
 	]]></update>
+	<update type="structure" datum="2007-01-14"><![CDATA[
+		ALTER TABLE ships_baubar CHANGE costs costs VARCHAR( 100 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'
+	]]></update>
 </updates>

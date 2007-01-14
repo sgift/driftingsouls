@@ -1,7 +1,7 @@
 CREATE TABLE `ships_baubar` (
   `id` int(11) NOT NULL auto_increment,
   `type` int(11) NOT NULL default '0',
-  `costs` varchar(100) NOT NULL default '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0',
+  `costs` varchar(100) NOT NULL default '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,',
   `linfactor` float NOT NULL default '0',
   `crew` smallint(6) NOT NULL default '0',
   `dauer` tinyint(4) NOT NULL default '0',
