@@ -1,0 +1,66 @@
+{if transfer.list}
+	<span class="smallfont">
+		<!-- BEGIN transfer.listitem -->
+			Transportiere <img src="{res.image}" alt="" />{transfer.count} zu {transfer.target}
+			{if transfer.notenoughcargo}
+				 - Nur <img src="{res.image}" alt="" />{transfer.cargo} vorhanden
+			{/endif}
+			{if transfer.notenoughspace}
+				 - Nur noch Platz f&uuml;r <img src="{res.image}" alt="" />{transfer.newcount} vorhanden
+			{/endif}
+			 - jetzt <img src="{res.image}" alt="" />{transfer.totalcargo} auf {transfer.target} vorhanden
+			 <br />
+		<!-- END transfer.listitem -->
+		{if toship.isinstabil}
+			<span style="color:red">Das gepl&uuml;nderte Schiff beginnt zu zerfallen</span><br />
+		{/endif}		
+	</span>
+	<br />
+{/endif}
+
+{!table_begin 400,center}
+	{fromship.name} ({fromship.id}) pl&uuml;ndert {toship.name} ({toship.id})<br /><br />
+	<form action="./main.php" method="post">
+	<table class="noBorderX" border="0">
+	<!-- BEGIN res.listitem -->
+		<tr>
+			<td class="noBorderX"><img src="{res.image}" alt="" /></td>
+			<td class="noBorderX">{res.name}</td>
+			<td class="noBorderX" align="right">{res.cargo1}</td>
+			<td class="noBorderX">
+				<input name="{res.id}to" type="text" size="3" value="0" />
+			</td>
+			<td class="noBorderX">
+				<input name="{res.id}from" type="text" size="3" value="0" />
+			</td>
+			<td class="noBorderX">
+				{res.cargo2}
+			</td>
+		</tr>
+	<!-- END res.listitem -->
+	<tr>
+		<td class="noBorderX" colspan="6">
+			<hr noshade="noshade" size="1" style="color:#cccccc" />
+		</td>
+	</tr>
+
+	<tr>
+		<td class="noBorderX"><img src="{URL}data/interface/leer.gif" alt= /></td>
+		<td class="noBorderX">Leer</td>
+		<td class="noBorderX" align="right">{fromship.cargo}</td>
+		<td class="noBorderX" align="center">-</td>
+		<td class="noBorderX" align="center">-</td>
+		<td class="noBorderX">{toship.cargo}</td>
+	</tr>
+
+	<tr>
+		<td class="noBorderX" colspan="6" align="center"><br />
+			{!form_create_hidden transfer, from:$fromship.id, to:$toship.id}
+			<input type="submit" value="pl&uuml;ndern" style="width:150px" />
+		</td>
+	</tr>
+	</table>
+	</form>
+{!table_end}
+<br />
+{!link_to zur&uuml;ck, default, module:kapern, css_class:back, ship:$fromship.id, tar:$toship.id}

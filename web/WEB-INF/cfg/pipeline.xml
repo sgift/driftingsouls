@@ -129,6 +129,9 @@
 		<module name="plist">
 			<generator class="net.driftingsouls.ds2.server.modules.PListController" />
 		</module>
+		<module name="pluendern">
+			<generator class="net.driftingsouls.ds2.server.modules.PluendernController" />
+		</module>
 		<module name="portal">
 			<generator class="net.driftingsouls.ds2.server.modules.PortalController" />
 		</module>
