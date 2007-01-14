@@ -30,6 +30,7 @@ import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -385,8 +386,35 @@ public class QuestFunctions {
 	
 	class InitQuest implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			String questid = command[1];
+			int noreuse = Integer.parseInt(command[2]);
+			
+			scriptparser.log("questid: "+questid+"\n");
+			
+			
+			int userid = Integer.parseInt(scriptparser.getRegister("USER"));
+			
+			Integer id = null;
+			if( (noreuse == 0) && (questid.charAt(0) != 'r') ) {
+				SQLResultRow idRow = db.first("SELECT id FROM quests_running WHERE questid=",questid," AND userid=",userid);
+				if( !idRow.isEmpty() ) {
+					id = idRow.getInt("id");
+				}
+			}
+			else if( noreuse == 0 ) {
+				String rquestid = questid.substring(1);
+				SQLResultRow idRow = db.first("SELECT id FROM quests_running WHERE id=",rquestid);
+				if( !idRow.isEmpty() ) {
+					id = idRow.getInt("id");
+				}
+			}
+			
+			if( id == null ) {
+				db.update("INSERT INTO quests_running (questid,userid) VALUES (",questid,",",userid,")");
+				id = db.insertID();
+			}
+			
+			scriptparser.setRegister("QUEST","r"+id);
 			
 			return CONTINUE;
 		}
@@ -394,8 +422,30 @@ public class QuestFunctions {
 	
 	class EndQuest implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			String questid = scriptparser.getRegister("QUEST");
+			int userid = Integer.parseInt(scriptparser.getRegister("USER"));
+			
+			SQLResultRow runningdata = null;
+			if( questid.charAt(0) != 'r' ) {
+				runningdata = db.first("SELECT id,uninstall FROM quests_running WHERE questid=",questid," AND userid=",userid);
+			}
+			else {
+				String rquestid = questid.substring(1);	
+				runningdata = db.first("SELECT id,uninstall FROM quests_running WHERE id=",rquestid);
+			}
+			
+			// ggf. das Quest "deinstallieren" (handler entfernen)
+			if( runningdata.getString("uninstall").length() > 0 ) {
+				//$execdata = $scriptparser->getExecutionData();
+				
+				scriptparser.executeScript( db, runningdata.getString("uninstall"), "0" );
+				
+				//$scriptparser->setExecutionData($execdata);
+			}
+			
+			db.update("DELETE FROM ".SQL_TBL_QUESTS_RUNNING." WHERE id='".$runningdata['id']."'");
+			
+			scriptparser.setRegister("QUEST","");
 			
 			return CONTINUE;
 		}
@@ -748,8 +798,24 @@ public class QuestFunctions {
 	
 	class GetUserValue implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			int userid = Integer.parseInt(command[1]);
+			scriptparser.log("userid: "+userid+"\n");
+			
+			String valuename = command[2];
+			scriptparser.log("value(key): "+valuename+"\n");
+			
+			User user = ContextMap.getContext().createUserObject(userid);
+			
+			String value = user.getUserValue(valuename);
+			
+			if( value.length() == 0 ) {
+				scriptparser.log("Uservalue ist nicht gesetzt - #cmp = -1\n");
+				scriptparser.setRegister("cmp",-1);	
+			}
+			else {
+				scriptparser.setRegister("cmp",0);	
+			}
+			scriptparser.setRegister("A",value);
 			
 			return CONTINUE;
 		}
@@ -784,8 +850,26 @@ public class QuestFunctions {
 	
 	class GtuAuctionShip implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			int shipid = Integer.parseInt(command[1]);
+			scriptparser.log("shiptypeid: "+shipid+"\n");
+			
+			int ticks = Integer.parseInt(command[2]);
+			scriptparser.log("ticks: "+ticks+"\n");
+			
+			int initbid = Integer.parseInt(command[3]);
+			scriptparser.log("initbid: "+initbid+"\n");
+			
+			int owner = Integer.parseInt(command[4]);
+			if( owner == 0 ) {
+				owner = Faction.GTU;
+			}
+			scriptparser.log("owner: "+owner+"\n");
+			
+			int curtick = ContextMap.getContext().get(ContextCommon.class).getTick();
+			ticks += curtick;
+			
+			db.update("INSERT INTO versteigerungen (mtype,type,tick,preis,owner)" ,
+					" VALUES ('1','",shipid,"',",ticks,",",initbid,",",owner,")");
 			
 			return CONTINUE;
 		}
