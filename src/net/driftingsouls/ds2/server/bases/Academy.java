@@ -338,6 +338,9 @@ class Academy extends DefaultBuilding {
 						
 						return echo.toString();
 					}
+					
+					echo.append(Common.tableEnd());
+					echo.append("<br />\n");
 				}
 			}
 		}
