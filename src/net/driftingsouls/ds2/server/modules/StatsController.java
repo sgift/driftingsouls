@@ -35,14 +35,22 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.modules.stats.StatBiggestAsteroid;
+import net.driftingsouls.ds2.server.modules.stats.StatBiggestPopulation;
 import net.driftingsouls.ds2.server.modules.stats.StatData;
+import net.driftingsouls.ds2.server.modules.stats.StatGtuPrice;
+import net.driftingsouls.ds2.server.modules.stats.StatMostResearch;
 import net.driftingsouls.ds2.server.modules.stats.StatOwnCiv;
 import net.driftingsouls.ds2.server.modules.stats.StatBiggestFleet;
 import net.driftingsouls.ds2.server.modules.stats.StatMemberCount;
 import net.driftingsouls.ds2.server.modules.stats.StatOwnKampf;
 import net.driftingsouls.ds2.server.modules.stats.StatOwnOffiziere;
 import net.driftingsouls.ds2.server.modules.stats.StatPlayerList;
+import net.driftingsouls.ds2.server.modules.stats.StatPopulationDensity;
+import net.driftingsouls.ds2.server.modules.stats.StatResearchIsos;
+import net.driftingsouls.ds2.server.modules.stats.StatResearchSilizium;
 import net.driftingsouls.ds2.server.modules.stats.StatShips;
+import net.driftingsouls.ds2.server.modules.stats.StatWaren;
 import net.driftingsouls.ds2.server.modules.stats.Statistic;
 
 /**
@@ -90,27 +98,25 @@ public class StatsController extends DSGenerator {
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		Common.stub();
-		
 		registerStat( "Spieler", new StatOwnCiv(), "Meine Zivilisation", 0 );
 		registerStat( "Spieler", new StatBiggestFleet(false), "Die gr&ouml;ssten Flotten", 60 );
-		/*registerStat( "Spieler", "statMostResearch", "Die meisten Forschungen", 60 );
-		registerStat( "Spieler", "statResearchSilizium", "Das meiste verforschte Silizium", 60 );
-		registerStat( "Spieler", "statResearchIsos", "Das meisten verforschten Isos", 60 );
-		registerStat( "Spieler", "statBiggestPopulation", "Die gr&ouml;&szlig;ten V&ouml;lker", 30 );
-		registerStat( "Spieler", "statBiggestAsteroid", "Die gr&ouml;&szlig;ten Asteroiden", 100 );
-		registerStat( "Spieler", "statGtuPrice", "Die h&ouml;chsten Gebote", 60 );*/
+		registerStat( "Spieler", new StatMostResearch(false), "Die meisten Forschungen", 60 );
+		registerStat( "Spieler", new StatResearchSilizium(false), "Das meiste verforschte Silizium", 60 );
+		registerStat( "Spieler", new StatResearchIsos(false), "Das meisten verforschten Isos", 60 );
+		registerStat( "Spieler", new StatBiggestPopulation(false), "Die gr&ouml;&szlig;ten V&ouml;lker", 30 );
+		registerStat( "Spieler", new StatBiggestAsteroid(), "Die gr&ouml;&szlig;ten Asteroiden", 100 );
+		registerStat( "Spieler", new StatGtuPrice(), "Die h&ouml;chsten Gebote", 60 );
 
 		registerStat( "Allianzen", new StatBiggestFleet(true), "Die gr&ouml;ssten Flotten", 60 );
-		/*registerStat( "Allianzen", "statMostResearch", "Die meisten Forschungen", 60 );
-		registerStat( "Allianzen", "statResearchSilizium", "Das meiste verforschte Silizium", 60 );
-		registerStat( "Allianzen", "statResearchIsos", "Das meisten verforschten Isos", 60 );
-		registerStat( "Allianzen", "statBiggestPopulation", "Die gr&ouml;&szlig;ten V&ouml;lker", 30 );*/
+		registerStat( "Allianzen", new StatMostResearch(true), "Die meisten Forschungen", 60 );
+		registerStat( "Allianzen", new StatResearchSilizium(true), "Das meiste verforschte Silizium", 60 );
+		registerStat( "Allianzen", new StatResearchIsos(true), "Das meisten verforschten Isos", 60 );
+		registerStat( "Allianzen", new StatBiggestPopulation(true), "Die gr&ouml;&szlig;ten V&ouml;lker", 30 );
 		registerStat( "Allianzen", new StatMemberCount(), "Die gr&ouml;&szlig;ten Allianzen", 30 );
 
-		/*registerStat( "Sonstiges", "statPopulationDensity", "Besiedlungsdichte" );*/
+		registerStat( "Sonstiges", new StatPopulationDensity(), "Besiedlungsdichte", 0 );
 		registerStat( "Sonstiges", new StatShips(), "Schiffe", 0 );
-		/*registerStat( "Sonstiges", "statWaren", "Waren" );*/
+		registerStat( "Sonstiges", new StatWaren(), "Waren", 0 );
 		registerStat( "Sonstiges", new StatData(), "Diverse Daten", 0 );
 		
 		registerStat( "Eigene K&auml;mpfe", new StatOwnKampf(), "Eigene K&auml;mpfe", 0 );

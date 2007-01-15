@@ -1,0 +1,70 @@
+/*
+ *	Drifting Souls 2
+ *	Copyright (c) 2006 Christopher Jung
+ *
+ *	This library is free software; you can redistribute it and/or
+ *	modify it under the terms of the GNU Lesser General Public
+ *	License as published by the Free Software Foundation; either
+ *	version 2.1 of the License, or (at your option) any later version.
+ *
+ *	This library is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *	Lesser General Public License for more details.
+ *
+ *	You should have received a copy of the GNU Lesser General Public
+ *	License along with this library; if not, write to the Free Software
+ *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+package net.driftingsouls.ds2.server.modules.stats;
+
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.db.Database;
+import net.driftingsouls.ds2.server.framework.db.SQLQuery;
+import net.driftingsouls.ds2.server.modules.StatsController;
+
+/**
+ * Zeigt die Liste der meisten Forschungen an
+ * @author Christopher Jung
+ *
+ */
+public class StatMostResearch extends AbstractStatistic implements Statistic {
+	private boolean allys;
+
+	/**
+	 * Konstruktor
+	 * @param allys Sollten Allianzen (<code>true</code>) angezeigt werden?
+	 */
+	public StatMostResearch(boolean allys) {
+		this.allys = allys;
+	}
+	
+	public void show(StatsController contr, int size) {
+		Context context = ContextMap.getContext();
+		Database db = context.getDatabase();
+
+		String url = null;
+		
+		SQLQuery tmp = null;
+		if( !allys ) {
+			tmp = db.query("SELECT u.id, tr.res count, u.name " +
+					"FROM tmpres tr JOIN users u ON tr.id=u.id " +
+					"ORDER BY count DESC LIMIT "+size);
+			
+			url = getUserURL();
+		}
+		else {
+			tmp = db.query("SELECT a.id, tr.res count, a.name " +
+					"FROM tmpres tr JOIN ally a ON tr.id=a.id " +
+					"ORDER BY count DESC LIMIT "+size);
+		
+			url = getAllyURL();
+		}
+	
+		this.generateStatistic("Die meisten Forschungen:", tmp, url);
+		
+		tmp.free();
+	}
+
+}
