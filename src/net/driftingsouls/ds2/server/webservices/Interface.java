@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.webservices;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.driftingsouls.ds2.server.AdminCommands;
 import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
@@ -103,10 +104,7 @@ public class Interface extends BasicWebService {
 	public String admin_execcmd( String command ) throws WebServiceException {
 		requireAuthentication();
 		
-		String ret = "";
-		//$ret = libadmin_execadmincmd( $db, $id, $command );
-		
-		return ret;
+		return AdminCommands.executeCommand(command);
 	}
 
 	/**
