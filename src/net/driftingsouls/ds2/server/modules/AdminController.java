@@ -104,6 +104,9 @@ public class AdminController extends DSGenerator {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(elem.openStream()));
 				String line = null;
 				while( (line = reader.readLine()) != null ) {
+					if( validPlugins.contains(line) ) {
+						continue;
+					}
 					Class<? extends AdminPlugin> aClass = Class.forName(line).asSubclass(AdminPlugin.class);
 					validPlugins.add(line);
 					
