@@ -200,12 +200,25 @@ public class AdminController extends DSGenerator {
 			}
 			else if( (namedplugin.length() > 0) && (validPlugins.contains(namedplugin)) ) {
 				try {
-					Class<? extends AdminPlugin> aClass = Class.forName(namedplugin).asSubclass(AdminPlugin.class);
+					Class<? extends AdminPlugin> aClass = null;
+					for( String aPage : this.menu.keySet() ) {
+						List<MenuEntry> actions = this.menu.get(aPage).actions;
+						for( int aAction=0; aAction < actions.size(); aAction++ ) {
+							if( actions.get(aAction).cls.getName().equals(namedplugin) ) {
+								aClass = actions.get(aAction).cls;
+								page = aPage;
+								act = aAction+1;
+								break;
+							}
+						}
+					}
+
 					AdminPlugin plugin = aClass.newInstance();
 					plugin.output(this, page, act);
 				}
 				catch( Exception e ) {
 					addError("Fehler beim Aufruf des Admin-Plugins: "+e);
+					e.printStackTrace();
 				}
 			}
 

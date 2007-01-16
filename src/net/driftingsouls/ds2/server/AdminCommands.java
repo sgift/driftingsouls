@@ -25,6 +25,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -374,21 +375,19 @@ public class AdminCommands implements Loggable {
 						new File(Configuration.getSetting("ABSOLUTE_PATH")+"data/bnkgothm.ttf"));
 			}
 			
-			BufferedImage image = ImageIO.read(
-					new BufferedInputStream(
-							AdminCommands.class.getClassLoader().getResourceAsStream(baseimg+".png")
-					)
-			);
-	
+			BufferedImage baseImage = ImageIO.read(new FileInputStream(baseimg+".png"));
+			BufferedImage image = new BufferedImage(baseImage.getWidth(), baseImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+			
 			Color red = new Color(255,95,95);
 			Color green = new Color(55,255,55);
 			Color blue = new Color(127,146,255);
 			
 			Graphics2D g = image.createGraphics();
+			g.drawImage(baseImage, 0, 0, image.getWidth(), image.getHeight(), 0, 0, image.getWidth(), image.getHeight(), null);
 			
-			g.setFont(font.deriveFont(12));
+			g.setFont(font.deriveFont(12f));
 	
-			String[] fleets = StringUtils.split(fleet, '_');
+			String[] fleets = StringUtils.splitPreserveAllTokens(fleet, '_');
 			if( fleets.length >= 4 ) {
 				g.setColor(green);
 				g.drawString("F", 0, 15);
@@ -507,7 +506,6 @@ public class AdminCommands implements Loggable {
 				if( !new File(path+".png").isFile() ) {
 					return "Unbekannte Grafik >"+img+"<";
 				}
-				imgcount = 0; 
 			}
 			else {
 				sizedimg = true;
@@ -531,15 +529,15 @@ public class AdminCommands implements Loggable {
 						continue;	
 					}
 					
-					if( new File(path+imgcount+fleet+".png").isFile() ) {
-						new File(path+imgcount+fleet+".png").delete();
+					if( new File(path+(sizedimg ? imgcount : "")+fleet+".png").isFile() ) {
+						new File(path+(sizedimg ? imgcount : "")+fleet+".png").delete();
 					}
 					
-					checkImage(path+imgcount,fleet);
+					checkImage(path+(sizedimg ? imgcount : ""),fleet);
 				}
 				if( sizedimg ) {
 					imgcount++;
-					if( !new File(path+imgcount+".png").isFile() ) {	
+					if( !new File(path+(sizedimg ? imgcount : "")+".png").isFile() ) {	
 						break;
 					}	
 				}
