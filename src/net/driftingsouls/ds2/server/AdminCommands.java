@@ -18,11 +18,18 @@
  */
 package net.driftingsouls.ds2.server;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import javax.imageio.ImageIO;
 
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -30,13 +37,13 @@ import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.cargo.modules.Modules;
 import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.config.IEModule;
 import net.driftingsouls.ds2.server.config.ItemEffect;
 import net.driftingsouls.ds2.server.config.Items;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
@@ -45,12 +52,14 @@ import net.driftingsouls.ds2.server.scripting.ScriptParser;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Fueht spezielle Admin-Kommandos aus
  * @author Christopher Jung
  *
  */
-public class AdminCommands {
+public class AdminCommands implements Loggable {
 	/**
 	 * Fueht das angegebene Admin-Kommando aus
 	 * @param cmd Das Kommando
@@ -347,13 +356,139 @@ public class AdminCommands {
 	}
 	
 	private static void checkImage( String baseimg, String fleet ) {
-		// TODO
-		Common.stub();
+		if( new File(baseimg+fleet+"+.png").isFile() ) {
+			return;
+		}
+		
+		try {
+			Font font = null;
+			if( !new File(Configuration.getSetting("ABSOLUTE_PATH")+"data/bnkgothm.ttf").isFile() ) {
+				LOG.warn("bnkgothm.ttf nicht auffindbar");
+				font = Font.getFont("bankgothic md bt");
+				if( font == null ) {
+					font = Font.getFont("courier");
+				}
+			}
+			else {
+				font = Font.createFont(Font.TRUETYPE_FONT, 
+						new File(Configuration.getSetting("ABSOLUTE_PATH")+"data/bnkgothm.ttf"));
+			}
+			
+			BufferedImage image = ImageIO.read(
+					new BufferedInputStream(
+							AdminCommands.class.getClassLoader().getResourceAsStream(baseimg+".png")
+					)
+			);
+	
+			Color red = new Color(255,95,95);
+			Color green = new Color(55,255,55);
+			Color blue = new Color(127,146,255);
+			
+			Graphics2D g = image.createGraphics();
+			
+			g.setFont(font.deriveFont(12));
+	
+			String[] fleets = StringUtils.split(fleet, '_');
+			if( fleets.length >= 4 ) {
+				g.setColor(green);
+				g.drawString("F", 0, 15);
+				g.setColor(blue);
+				g.drawString("F", 8, 15);
+				g.setColor(red);
+				g.drawString("F", 16, 15);
+			}
+			else if( fleets.length == 3 ) {
+				Color textcolor = blue;
+				if( Common.inArray("fo",fleets) ) {
+					textcolor = green;
+				}
+				g.setColor(textcolor);
+				g.drawString("F", 4, 15);
+	
+				textcolor = blue;
+				if( Common.inArray("fe",fleets) ) {
+					textcolor = red;
+				}
+	
+				g.setColor(textcolor);
+				g.drawString("F", 12, 15);
+			}
+			else if( fleets.length == 2 ) {
+				Color textcolor = red;
+				
+				if( fleets[1].equals("fo") )  {
+					textcolor = green;
+				}
+				else if( fleets[1].equals("fa") ) {
+					textcolor = blue;
+				}
+	
+				g.setColor(textcolor);
+				g.drawString("F", 8, 15);
+			}
+			
+			g.dispose();
+	
+			ImageIO.write(image, "png", new File(baseimg+fleet+".png"));
+		
+		}
+		catch( FontFormatException e ) {
+			LOG.error(e, e);
+		}
+		catch( IOException e ) {
+			LOG.error(e, e);
+		}
 	}
 	
 	private static String splitplanetimgs( String baseimg, String targetname ) {
-		// TODO
-		Common.stub();
+		String datadir = Configuration.getSetting("ABSOLUTE_PATH")+"data/starmap/";
+		
+		baseimg = datadir+baseimg;
+		targetname = datadir+targetname;
+		
+		if( !new File(baseimg+".png").isFile() ) {
+			return "FATAL ERROR: bild existiert nicht ("+baseimg+".png)<br />\n";
+		}
+		
+		try {
+			BufferedImage image = ImageIO.read(
+					new BufferedInputStream(
+							AdminCommands.class.getClassLoader().getResourceAsStream(baseimg+".png")
+					)
+			);
+			
+			int width = image.getWidth() / 25;
+			int height = image.getHeight() / 25;
+			if( width != height ) {
+				return "FATAL ERROR: ungueltige Bildgroesse<br />\n";	
+			}
+			
+			int size = (width - 1) / 2;
+			int cx = size + 1;
+			int cy = size + 1;
+	
+			int index = 0;
+			for( int y=0; y < height; y++ ) {
+				for( int x=0; x < width; x++ ) {
+					if( !new Location(0, cx, cy).sameSector( size, new Location(0, x+1, y+1), 0 ) ) {
+						continue;	
+					}
+					BufferedImage img = new BufferedImage(25,25, image.getType());
+					Graphics2D g = img.createGraphics();
+					g.drawImage(image, 0, 0, 25, 25, x*25, y*25, x*25+25, y*25+25, null);
+					
+					g.dispose();
+					
+					ImageIO.write(img, "png", new File(targetname+index+".png"));
+					
+					index++;
+				}
+			}
+		}
+		catch( IOException e ) {
+			return e.toString();
+		}
+		
 		return "";
 	}
 	
