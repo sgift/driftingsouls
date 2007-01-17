@@ -408,11 +408,13 @@ class PortalController extends DSGenerator {
 		 	int pos = 0;
 		 	for( pos=0; pos < keylist.length; pos++ ) {
 	 			if( keylist[pos].indexOf("<"+key+">") == 0 ) {
-	 				String[] params = keylist[pos].substring(("<"+key+">").length()+1).split(",");
-	 						
-	 				for( String param : params ) {
-	 					String[] aParam = param.split("="); 
-	 					parameters.put(aParam[0], aParam[1]);
+	 				if( keylist[pos].length() > ("<"+key+">").length() ) {
+		 				String[] params = keylist[pos].substring(("<"+key+">").length()).split(",");
+		 						
+		 				for( String param : params ) {
+		 					String[] aParam = param.split("="); 
+		 					parameters.put(aParam[0], aParam[1]);
+		 				}
 	 				}
 	 						
 	 				break;	
