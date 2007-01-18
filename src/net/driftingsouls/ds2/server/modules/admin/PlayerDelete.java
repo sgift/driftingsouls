@@ -176,7 +176,7 @@ public class PlayerDelete implements AdminPlugin, Loggable {
 		}
 		bid.free();
 		
-		if( context.getRequest().getParameterInt("present") == 0 ) {
+		if( context.getRequest().getParameterInt("preset") == 0 ) {
 			echo.append("&Uuml;bereigne Bases an Spieler 0...\n");
 
 			db.update("UPDATE bases " +
@@ -185,7 +185,7 @@ public class PlayerDelete implements AdminPlugin, Loggable {
 
 			if( baselist.size() > 0 ) {
 				db.update("UPDATE fz SET forschung=0,dauer=0 WHERE col IN ("+Common.implode(",",baselist)+")");
-				db.update("UPDATE academy SET train=0,remain=0,upgrade='' WHERE col IN ("+Common.implode(",",baselist)+")");
+				db.update("UPDATE academy SET train=0,remain=0,`upgrade`='' WHERE col IN ("+Common.implode(",",baselist)+")");
 				db.update("UPDATE werften SET remaining=0,building=0 WHERE col IN ("+Common.implode(",",baselist)+")");
 				db.update("UPDATE weaponfactory SET produces='' WHERE col IN ("+Common.implode(",",baselist)+")");
 			}
