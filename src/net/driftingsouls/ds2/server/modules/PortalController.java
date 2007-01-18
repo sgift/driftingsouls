@@ -55,6 +55,10 @@ import net.driftingsouls.ds2.server.uilibs.PlayerList;
 class PortalController extends DSGenerator {
 	private int retries = 5;
 
+	/**
+	 * Konstruktor
+	 * @param context Der zu verwendende Kontext
+	 */
 	public PortalController(Context context) {
 		super(context);
 
@@ -78,6 +82,10 @@ class PortalController extends DSGenerator {
 		return true;	
 	}
 	
+	/**
+	 * Zeigt die Liste der Downloads an
+	 *
+	 */
 	public void downloadAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -96,6 +104,12 @@ class PortalController extends DSGenerator {
 		dl.free();
 	}
 	
+	/**
+	 * Ermoeglicht das generieren eines neuen Passworts und anschliessenden
+	 * zumailens dessen
+	 * @urlparam String username der Benutzername des Accounts
+	 *
+	 */
 	public void passwordLostAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -138,10 +152,21 @@ class PortalController extends DSGenerator {
 		}
 	}
 	
+	/**
+	 * Zeigt allgemeine Infos an
+	 *
+	 */
 	public void infosAction() {
 		getTemplateEngine().set_var("show.infos",1);
 	}
 	
+	/**
+	 * Zeigt einen Artikel an oder, falls keiner angegeben ist, die Liste
+	 * der Artikel
+	 * @urlparam Integer artikel Der anzuzeigende Artikel. Falls 0, dann die Liste der Artikel
+	 * @urlparam Integer page Die anzuzeigende Seite des Artikels
+	 *
+	 */
 	public void infosArtikelAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -188,6 +213,10 @@ class PortalController extends DSGenerator {
 		}
 	}
 	
+	/**
+	 * Zeigt die Liste der registrierten Spieler an
+	 *
+	 */
 	public void infosPlayerlistAction() {
 		StringBuffer context = getContext().getResponse().getContent();
 		getContext().getResponse().resetContent();
@@ -210,6 +239,10 @@ class PortalController extends DSGenerator {
 		articleClasses.put("other", "Andere Fakten");
 	}
 	
+	/**
+	 * Zeigt die Daten und Fakten an
+	 *
+	 */
 	public void infosDfAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -253,14 +286,26 @@ class PortalController extends DSGenerator {
 		}
 	}
 	
+	/**
+	 * Zeigt die AGB an
+	 *
+	 */
 	public void infosAgbAction() {
 		getTemplateEngine().set_var("show.agb",1);
 	}
 
+	/**
+	 * Zeigt das Impressum an
+	 *
+	 */
 	public void impressumAction() {
 		getTemplateEngine().set_var("show.impressum",1);
 	}
 
+	/**
+	 * Zeigt die Links an
+	 *
+	 */
 	public void linksAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
@@ -278,6 +323,10 @@ class PortalController extends DSGenerator {
 		link.free();
 	}
 
+	/**
+	 * Zeigt den JavaChat an
+	 *
+	 */
 	public void javachatAction() {
 		getTemplateEngine().set_var("show.javachat",1);
 	}
@@ -453,9 +502,9 @@ class PortalController extends DSGenerator {
 		Cargo cargo = new Cargo();
 		cargo.addResource( Resources.NAHRUNG, 100000 );
 		
-		db.tUpdate(1,"INSERT INTO users (id,un,passwort,race,signup,history,email,cargo,flags) " ,
+		db.tUpdate(1,"INSERT INTO users (id,un,passwort,race,signup,history,email,cargo,flags,nstat) " ,
 				"VALUES " ,
-				"('",newid,"','",username,"','",enc_pw,"','",race,"','",Common.time(),"','",history,"','",email,"','",cargo.save(),"','",User.FLAG_NOOB,"')");
+				"('",newid,"','",username,"','",enc_pw,"','",race,"','",Common.time(),"','",history,"','",email,"','",cargo.save(),"','",User.FLAG_NOOB,"','0')");
 		
 		// Standard-Ordner erstellen
 		db.tUpdate(1, "INSERT INTO ordner SET name='Papierkorb',playerid='",newid,"',flags='",Ordner.FLAG_TRASH,"',parent=0");
@@ -572,6 +621,16 @@ class PortalController extends DSGenerator {
 		return true;
 	}
 	
+	/**
+	 * Registriert einen neuen Spieler. Falls keine Daten eingegeben wurden, 
+	 * wird die GUI zum registrieren angezeigt
+	 * @urlparam String username der Benutzername des Accounts
+	 * @urlparam Integer race Die Rasse des Accounts
+	 * @urlparam String email Die Email-Adresse
+	 * @urlparam String key Der Registrierungssschluessel
+	 * @urlparam Integer Das Startsystem
+	 *
+	 */
 	public void registerAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -645,6 +704,14 @@ class PortalController extends DSGenerator {
 		}
 	}
 	
+	/**
+	 * Loggt einen Spieler ein. Falls keine Daten angegeben wurden, 
+	 * wird die GUI zum einloggen angezeigt
+	 * @urlparam String username Der Benutzername
+	 * @urlparam String password Das Passwort
+	 * @urlparam Integer usegfxpak != 0, falls ein vorhandenes Grafikpak benutzt werden soll
+	 *
+	 */
 	public void loginAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -785,6 +852,12 @@ class PortalController extends DSGenerator {
 		}
 	}
 	
+	/**
+	 * Ermoeglicht das Absenden einer Anfrage zur Deaktivierung des Vac-Modus
+	 * @urlparam String asess Die Session-ID
+	 * @urlparam String reason Der Grund fuer eine vorzeitige Deaktivierung
+	 *
+	 */
 	public void loginVacmodeDeakAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -819,6 +892,11 @@ class PortalController extends DSGenerator {
 		t.set_var("show.login.vacmode.msg.send",1);
 	}
 	
+	/**
+	 * Zeigt die News an
+	 * @urlparam Integer archiv != 0, falls alte News angezeigt werden sollen
+	 */
+	@Override
 	public void defaultAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
