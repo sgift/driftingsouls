@@ -339,7 +339,7 @@ class Forschungszentrum extends DefaultBuilding {
 			
 			db.tBegin();
 			db.tUpdate(1,"UPDATE fz SET forschung=",researchid,",dauer=",tech.getTime()," WHERE col=",col," AND forschung=0 AND dauer=0");
-			db.tUpdate(1,"UPDATE fz SET cargo='",cargo.save(),"' WHERE id='",col,"' AND cargo='",cargo.save(true),"'");
+			db.tUpdate(1,"UPDATE bases SET cargo='",cargo.save(),"' WHERE id='",col,"' AND cargo='",cargo.save(true),"'");
 			if( !db.tCommit() ) {
 				context.addError("Beim Starten der Forschung ist ein Fehler aufgetreten. Bitte versuchen sie es sp&auml;ter erneut");
 			}
