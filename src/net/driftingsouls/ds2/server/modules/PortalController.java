@@ -69,6 +69,7 @@ class PortalController extends DSGenerator {
 	
 	@Override
 	protected void printHeader( String action ) {
+		// EMPTY
 	}
 	
 	@Override
