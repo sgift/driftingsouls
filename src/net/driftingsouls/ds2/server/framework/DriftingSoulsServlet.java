@@ -491,11 +491,12 @@ public class DriftingSoulsServlet extends HttpServlet {
 
 	private void doSomething(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws IOException,
 			ServletException {
+		BasicContext context = null;
 		try {
 			Pipeline pipeline = null;
 			Request request = new HttpRequest(httpRequest); 
 			Response response = new HttpResponse(httpResponse);
-			BasicContext context = new BasicContext(request, response);
+			context = new BasicContext(request, response);
 			
 			context.putVariable(HttpServlet.class, "request", httpRequest);
 			context.putVariable(HttpServlet.class, "response", httpResponse);
@@ -524,6 +525,7 @@ public class DriftingSoulsServlet extends HttpServlet {
 			msg.append("URI: "+httpRequest.getRequestURI()+"\n");
 			msg.append("QUERY_STRING: "+httpRequest.getQueryString()+"\n");
 			msg.append("Session: "+httpRequest.getParameter("sess")+"\n");
+			msg.append("User: "+(context != null && context.getActiveUser() != null ? context.getActiveUser() : "none")+"\n");
 			Common.mailThrowable(e, "Framework Exception", msg.toString());
 			
 			e.printStackTrace();
@@ -542,6 +544,10 @@ public class DriftingSoulsServlet extends HttpServlet {
 				writer.append(st[i].toString()+"<br />\n");
 			}
 			writer.append("</td></tr></table></body></html>");
+			
+			if( (context != null) && (context.getDatabase() != null) && context.getDatabase().isTransaction() ) {
+				context.getDatabase().tRollback();
+			}
 		}
 	}
 

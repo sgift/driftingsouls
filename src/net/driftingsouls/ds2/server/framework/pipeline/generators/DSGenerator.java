@@ -492,10 +492,6 @@ public abstract class DSGenerator extends Generator {
 			action = "default";
 		}
 		
-		if( actionType != ActionType.DEFAULT ) {
-			setDisableActionBlocking(true);
-		}
-		
 		String content = "";
 		if( requireValidSession && (getActiveUser() == null) && "".equals(getString("sess")) ) {
 			addError( "FATAL ERROR: Es wurde keine session-id &uuml;bergeben" );
@@ -540,6 +536,9 @@ public abstract class DSGenerator extends Generator {
 				addError("Es ist ein Fehler in der Action '"+action+"' aufgetreten:\n"+t.toString()+"\n\n"+stacktrace);
 				
 				Common.mailThrowable(e, "DSGenerator Invocation Target Exception", "Action: "+action+"\nActionType: "+actionType+"\nUser: "+(getActiveUser() != null ? getActiveUser().getID() : "none")+"\nQuery-String: "+getContext().getRequest().getQueryString());
+				if( getDatabase().isTransaction() ) {
+					getDatabase().tRollback();
+				}
 			}
 			catch( NoSuchMethodException e ) {
 				addError("Die Aktion '"+action+"' existiert nicht!");
@@ -547,6 +546,9 @@ public abstract class DSGenerator extends Generator {
 			catch( Exception e ) {
 				addError("Es ist ein Fehler beim Aufruf der Action '"+action+"' aufgetreten:\n"+e.toString());
 				Common.mailThrowable(e, "DSGenerator Exception", "Action: "+action+"\nActionType: "+actionType+"\nUser: "+(getActiveUser() != null ? getActiveUser().getID() : "none")+"\nQuery-String: "+getContext().getRequest().getQueryString());
+				if( getDatabase().isTransaction() ) {
+					getDatabase().tRollback();
+				}
 			}
 		}
 		else {				
