@@ -37,6 +37,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Stack;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1057,9 +1058,20 @@ public class Common implements Loggable {
 		StringBuilder msg = new StringBuilder(100);
 		if( (addInfo != null) && (addInfo.length() > 0) ) {
 			msg.append(addInfo);
-			msg.append("\n\n------------------------------\n\n");
+			msg.append("\n\n------------------------------\n");
 		}
+		
+		// Zuerst das innerste nested Throwable ausgeben.
+		// Das aeusserste hingegen zuletzt
+		Stack<Throwable> nestedThrowables = new Stack<Throwable>();
 		do {
+			nestedThrowables.push(t);
+		}
+		while( (t = t.getCause()) != null );
+		
+		while( !nestedThrowables.isEmpty() ) {
+			t = nestedThrowables.pop();
+			
 			msg.append("\nThrowable: \n");
 			msg.append(t+"\n");
 			StackTraceElement[] st = t.getStackTrace();
@@ -1068,7 +1080,6 @@ public class Common implements Loggable {
 			}
 			msg.append("\n");
 		}
-		while( (t = t.getCause()) != null );
 		
 		Common.mail(Configuration.getSetting("EXCEPTION_MAIL"), "[DS2J] "+(title != null && title.length() > 0 ? title : "Exception"), msg.toString());
 	}
