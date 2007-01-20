@@ -485,6 +485,101 @@ public class CommController extends DSGenerator implements Loggable {
 	}
 	
 	/**
+	 * Versendet eine Nachricht
+	 * @urlparam String to Der Empfaenger (Eine ID oder "task" oder "ally")
+	 * @urlparam Integer reply Falls != 0, dann die ID der Nachricht auf die geantwortet wird (Titel wird dann generiert)
+	 * @urlparam String msg Der Text der Nachricht
+	 * @urlparam String title Falls es sich nicht um eine Antwort handelt, dann der Titel der Nachricht
+	 * @urlparam String special Falls es sich nicht um eine Antwort handelt, dann das Spezialflag der Nachricht 
+	 *
+	 */
+	public void sendAction() {
+		User user = getUser();
+		TemplateEngine t = getTemplateEngine();
+		Database db = getDatabase();
+		
+		parameterString("to");
+		parameterNumber("reply");
+		parameterString("msg");
+		
+		String to = getString("to");
+		int reply = getInteger("reply");
+		String msg = getString("msg");
+		
+		String title = null;
+		String special = null;
+		
+		if( reply > 0 ) {
+			SQLResultRow pm = db.first("SELECT * FROM transmissionen " +
+					"WHERE id="+reply+" AND " +
+						"(empfaenger="+user.getID()+" OR sender="+user.getID()+") " +
+						"AND gelesen < 2");
+			int iTo = pm.getInt("sender");
+			if( iTo == user.getID() ) {
+				iTo = pm.getInt("empfaenger");	
+			}
+			to = Integer.toString(iTo);
+			title = "RE: "+Common._plaintitle(pm.getString("title"));
+			special = "";
+		}
+		else {
+			parameterString("title");
+			parameterString("special");
+			
+			title = getString("title");
+			special = getString("special");
+		}
+		
+		if( special.equals("admin") && (user.getAccessLevel() < 30) ) {
+			special = "";
+		}
+		if( special.equals("official") && !Rassen.get().rasse(user.getRace()).isHead(user.getID()) ) {
+			special = "";	
+		}
+		
+		int flags = 0;
+		
+		if( special.equals("admin") ) {
+			flags |= PM.FLAGS_ADMIN;
+			flags |= PM.FLAGS_IMPORTANT;	
+		}
+		else if( special.equals("official") ) {
+			flags |= PM.FLAGS_OFFICIAL;	
+		}
+
+		if( to.equals("task") ) {
+			t.set_var("show.message", "<span style=\"color:#00ff55\">Antwort verarbeitet</span>");
+			
+			PM.send(getContext(), user.getID(), PM.TASK, title, msg, false, flags );
+		} 
+		else if( to.equals("ally") ) {
+			if( user.getAlly() <= 0 ) {
+				t.set_var("show.message", "<span style=\"color:red; font-weight:bold\">Sie sind in keiner Allianz Mitglied</span>");
+				
+				return;
+			}
+			
+			String nameto = db.first("SELECT name FROM ally WHERE id="+user.getAlly()).getString("name");
+			t.set_var("show.message", "<span style=\"color:#00ff55\">Nachricht versendet an</span> "+Common._title(nameto));
+
+			PM.send(getContext(), user.getID(), user.getAlly(), title, msg, true, flags );
+		}
+		else {			
+			if( (to.length() == 0) || (Integer.parseInt(to) == 0) ) {
+				t.set_var("show.message", "<span style=\"color:#ff0000\">Sie m&uuml;ssen einen Empf&auml;nger angeben</span>");
+				return;
+			}
+			
+			int iTo = Integer.parseInt(to);
+		
+			User auser = getContext().createUserObject(iTo);
+			t.set_var("show.message", "<span style=\"color:#00ff55\">Nachricht versendet an</span> "+Common._title(auser.getName()));
+
+			PM.send(getContext(), user.getID(), iTo, title, msg, false, flags );
+		}
+	}
+	
+	/**
 	 * Zeigt eine empfangene/gesendete PM an
 	 * @urlparam Integer pmid Die ID der Nachricht
 	 * @urlparam Integer ordner Die ID des Ordners, in dem sich die Nachricht befindet
