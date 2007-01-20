@@ -144,7 +144,7 @@ public class CommController extends DSGenerator implements Loggable {
 				t.set_var("show.message", "<span style=\"color:red\">Sie m&uuml;ssen diese Nachricht erst lesen</span>");
 				break;
 			case 2:
-				addError("Fehler: L&ouml;schen der PM ist fehlgeschlagen");
+				addError("Fehler: L&ouml;schen "+(delete != 0 ? "der PM" : "des Ordners")+" ist fehlgeschlagen");
 				break;
 		}
 	
