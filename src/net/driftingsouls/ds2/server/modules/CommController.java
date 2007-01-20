@@ -864,7 +864,8 @@ public class CommController extends DSGenerator implements Loggable {
 		t.set_block("_COMM", "write.specialui.listitem", "write.specialui.list");
 		for( String uiname : specialuilist.keySet() ) {
 			t.set_var(	"specialui.name",	uiname,
-						"specialui.value",	specialuilist.get(uiname) );
+						"specialui.value",	specialuilist.get(uiname),
+						"specialui.selected",	special.equals(specialuilist.get(uiname)) ? true : false);
 								
 			t.parse("write.specialui.list", "write.specialui.listitem", true);
 		}
