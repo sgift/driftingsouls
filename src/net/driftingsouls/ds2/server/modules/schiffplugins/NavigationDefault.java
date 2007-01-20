@@ -147,7 +147,7 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 			}
 			SQLResultRow mastership = db.first("SELECT name FROM ships WHERE id>0 AND id=",mastershipid);
 			
-			t.set_var(	"schiff.navigation.docked.master.name",	mastership,
+			t.set_var(	"schiff.navigation.docked.master.name",	mastership.getString("name"),
 						"schiff.navigation.docked.master.id",	mastershipid );
 		} 
 		else if( datatype.getInt("cost") == 0 ) {
