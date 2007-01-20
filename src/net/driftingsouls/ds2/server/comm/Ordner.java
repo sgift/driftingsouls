@@ -78,7 +78,7 @@ public class Ordner {
 		}
 		SQLResultRow row = new SQLResultRow();
 		row.put("id", 0);
-		row.put("name", "Hauptverzeichniss");
+		row.put("name", "Hauptverzeichnis");
 		row.put("flags", 0);
 		return new Ordner( row );
 	}

@@ -724,7 +724,7 @@ public class CommController extends DSGenerator implements Loggable {
 		SQLQuery ordner = db.query("SELECT * FROM ordner WHERE playerid=",user.getID()," ORDER BY name ASC");
 
 		t.set_var(	"availordner.id",	0,
-					"availordner.name",	"Hauptverzeichniss" );
+					"availordner.name",	"Hauptverzeichnis" );
 			
 		t.parse("availordner.list", "availordner.listitem", true);
 
