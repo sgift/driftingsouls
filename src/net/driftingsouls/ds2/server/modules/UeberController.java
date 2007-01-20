@@ -318,7 +318,7 @@ public class UeberController extends DSGenerator implements Loggable {
 					.first(user.getID())
 					.getInt("count");
 						  
-		String nstat = "";			  
+		String nstat = "0";			  
 		if( ticktime.indexOf("Bitte warten") > -1 ) {
 			t.set_var("user.nahrung.stat.tick", 1);
 		}
