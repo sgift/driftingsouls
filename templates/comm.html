@@ -300,8 +300,8 @@
 								  });
 							</script>
 							
-							{if ordner.flags.trash == 0}
-								{if ordner.flags.up == 0}
+							{if ! ordner.flags.trash}
+								{if ! ordner.flags.up}
 									<input type="checkbox" name="ordner_{ordner.id}" value="{ordner.id}" />
 								{/endif}
 							{/endif}
@@ -332,8 +332,8 @@
 									<img style="border:0px" src="{URL}data/interface/pms/recover.png" alt="wiederherstellen" title="wiederherstellen" />
 								</a>
 							{/endif}
-							{if ordner.flags.trash == 0}
-								{if ordner.flags.up == 0}
+							{if ! ordner.flags.trash}
+								{if ! ordner.flags.up}
 									<a href="javascript:setRenameAction({ordner.id});" >
 										<img style="border:0px" src="{URL}data/interface/pen.gif" alt="umbenennen" title="umbenennen" />
 									</a>
@@ -347,7 +347,7 @@
 				<!-- BEGIN pms.listitem -->
 					<tr id="inbox_pm{pm.id}_row">
 						<td class="noBorderX">
-							{if pm.trash == 0}
+							{if ! pm.trash}
 								<input type="checkbox" name="pm_{pm.id}" value="{pm.id}" />
 							{/endif}
 						</td>
@@ -374,7 +374,7 @@
 						<td class="noBorderX">
 							<a href="javascript:showpm({pm.id});" ><img style="border:0px" src="{URL}data/interface/text.png" alt="lesen" /></a>
 							{!image_link_to interface/pen.gif, default, reply:$pm.id}
-							{if pm.trash == 0}
+							{if ! pm.trash}
 								{!image_link_to interface/delete.gif, delete, ordner:$ordner.parent, delete:$pm.id}
 							{else}
 								{!image_link_to interface/pms/recover.png, recover, ordner:$ordner.parent, recover:$pm.id}
