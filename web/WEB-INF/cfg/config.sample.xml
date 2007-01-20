@@ -48,6 +48,7 @@
 	-->
 	<setting type="number" name="ARTICLE_TUTORIAL" value="1" />
 	<setting type="number" name="ARTICLE_FAQ" value="5" />
+	<setting type="number" name="ARTICLE_SCHIFFSLISTE" value="2" />
 
 	<!-- 
 		Gameplay
