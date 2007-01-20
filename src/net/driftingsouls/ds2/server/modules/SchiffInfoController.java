@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
+import net.driftingsouls.ds2.server.Forschung;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -142,9 +143,11 @@ public class SchiffInfoController extends DSGenerator {
 		if( getUser() != null ) {
 			for( int i=1; i <= 3; i++ ) {
 				if( shipBuildData.getInt("tr"+i) != 0 ) {
-					SQLResultRow dat = db.first("SELECT t1.name, t2.r",shipBuildData.getInt("tr"+i)," AS research FROM forschungen AS t1,user_f AS t2 WHERE t1.id=",shipBuildData.get("tr"+i)," AND t2.id=",getUser().getID());
+					SQLResultRow dat = db.first("SELECT f.name, uf.r",shipBuildData.getInt("tr"+i)," AS research " +
+							"FROM forschungen f JOIN user_f uf " +
+							"WHERE f.id=",shipBuildData.get("tr"+i)," AND uf.id=",getUser().getID());
 					String cssClass = "error";
-					if( !dat.isEmpty() ) {
+					if( !dat.isEmpty() && dat.getBoolean("research") ) {
 						cssClass = "ok";
 					} 	
 
@@ -157,10 +160,10 @@ public class SchiffInfoController extends DSGenerator {
 		else {
 			for( int i=1; i <= 3; i++ ) {
 				if( shipBuildData.getInt("tr"+i) != 0 ) {
-					SQLResultRow dat = db.first("SELECT name FROM forschungen WHERE id=",shipBuildData.getInt("tr"+i));
-	
+					Forschung f = Forschung.getInstance(shipBuildData.getInt("tr"+1));
+
 					t.set_var(	"shiptype.tr"+i, shipBuildData.getInt("tr"+i),
-								"shiptype.tr"+i+".name", Common._title(dat.getString("name")) );
+								"shiptype.tr"+i+".name", Common._title(f.getName()) );
 				}
 			}
 		}
