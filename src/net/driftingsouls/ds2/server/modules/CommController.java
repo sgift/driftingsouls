@@ -52,6 +52,10 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  */
 public class CommController extends DSGenerator implements Loggable {
 
+	/**
+	 * Konstruktor
+	 * @param context Der zu verwendende Kontext
+	 */
 	public CommController(Context context) {
 		super(context);
 		
@@ -70,6 +74,11 @@ public class CommController extends DSGenerator implements Loggable {
 		return true;
 	}
 	
+	/**
+	 * Markiert alle PMs in einem Ordner als gelesen
+	 * @urlparam Integer ordner Die ID des Ordners
+	 *
+	 */
 	public void readAllAction() {
 		User user = getUser();
 		TemplateEngine t = getTemplateEngine();
@@ -84,6 +93,11 @@ public class CommController extends DSGenerator implements Loggable {
 		redirect("showInbox");
 	}
 	
+	/**
+	 * Loescht alle PMs in einem Ordner
+	 * @urlparam Integer ordner Der Ordner, dessen PMs geloescht werden sollen
+	 *
+	 */
 	public void deleteAllAction() {
 		User user = getUser();
 		TemplateEngine t = getTemplateEngine();
@@ -100,6 +114,12 @@ public class CommController extends DSGenerator implements Loggable {
 		redirect("showInbox");
 	}
 	
+	/**
+	 * Loescht einen Ordner/eine PM
+	 * @urlparam Integer delete Falls eine PM zu loeschen ist, dann enthaelt dies die ID der PM. Andernfalls 0
+	 * @urlparam Integer delord Die ID des zu loeschenden Ordners, andernfalls 0.
+	 *
+	 */
 	public void deleteAction() {
 		User user = getUser();
 		TemplateEngine t = getTemplateEngine();
@@ -131,6 +151,12 @@ public class CommController extends DSGenerator implements Loggable {
 		redirect("showInbox");
 	}
 	
+	/**
+	 * Erstellt einen neuen Ordner
+	 * @urlparam Integer ordner Der Basisordner
+	 * @urlparam String ordnername Der Name des neuen Ordners
+	 *
+	 */
 	public void newOrdnerAction() {
 		parameterString("ordnername");
 		parameterNumber("ordner");
@@ -142,6 +168,12 @@ public class CommController extends DSGenerator implements Loggable {
 		redirect("showInbox");
 	}
 	
+	/**
+	 * Verschiebt alle PMs von einem Ordner in einen anderen
+	 * @urlparam Integer ordner Der Ausgangsordner
+	 * @urlparam Integer moveto Der Zielordner
+	 *
+	 */
 	public void moveAllAction() {
 		User user = getUser();
 
@@ -158,6 +190,12 @@ public class CommController extends DSGenerator implements Loggable {
 		redirect("showInbox");
 	}
 	
+	/**
+	 * Benennt einen Ordner um
+	 * @urlparam String ordnername Der neue Name des Ordners
+	 * @urlparam Integer subject Die ID des Ordners
+	 *
+	 */
 	public void renameAction() {
 		User user = getUser();
 		Database db = getDatabase();
@@ -176,6 +214,12 @@ public class CommController extends DSGenerator implements Loggable {
 		redirect("showInbox");
 	}
 	
+	/**
+	 * Loescht alle PMs von einem bestimmten Spieler in einem Ordner
+	 * @urlparam Integer playerid Die ID des Spielers
+	 * @urlparam Integer ordner Die ID des Ordners
+	 *
+	 */
 	public void deletePlayerAction() {
 		User user = getUser();
 		TemplateEngine t = getTemplateEngine();
@@ -199,6 +243,11 @@ public class CommController extends DSGenerator implements Loggable {
 		redirect("showInbox");
 	}
 	
+	/**
+	 * Markiert die ausgewaehlten Nachrichten als gelesen
+	 * @urlparam Integer pm_$pmid Die ID einer als gelesen zu markierenden PM ($pmid gibt diese ebenfalls an)
+	 *
+	 */
 	public void readSelectedAction() {
 		User user = getUser();
 		TemplateEngine t = getTemplateEngine();
@@ -227,9 +276,16 @@ public class CommController extends DSGenerator implements Loggable {
 		redirect("showInbox");
 	}
 	
+	/**
+	 * Verschiebt die ausgewaehlten Nachrichten/Ordner von einem Basisordner in einen anderen
+	 * @urlparam Integer ordner Der Basisordner
+	 * @urlparam Integer moveto Die ID des Zielordners
+	 * @urlparam Integer ordner_$ordnerid Die ID eines zu verschiebenden Ordners ($ordnerid gibt diese ebenfalls an)
+	 * @urlparam Integer pm_$pmid Die ID einer zu verschiebenden PM ($pmid gibt diese ebenfalls an)
+	 *
+	 */
 	public void moveAjaxAct() {
 		User user = getUser();
-		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 
 		parameterNumber("moveto");
@@ -297,6 +353,14 @@ public class CommController extends DSGenerator implements Loggable {
 		return;
 	}
 	
+	/**
+	 * Verschiebt die ausgewaehlten Nachrichten/Ordner von einem Basisordner in einen anderen
+	 * @urlparam Integer ordner Der Basisordner
+	 * @urlparam Integer moveto Die ID des Zielordners
+	 * @urlparam Integer ordner_$ordnerid Die ID eines zu verschiebenden Ordners ($ordnerid gibt diese ebenfalls an)
+	 * @urlparam Integer pm_$pmid Die ID einer zu verschiebenden PM ($pmid gibt diese ebenfalls an)
+	 *
+	 */
 	public void moveSelectedAction() {
 		User user = getUser();
 		TemplateEngine t = getTemplateEngine();
@@ -366,6 +430,13 @@ public class CommController extends DSGenerator implements Loggable {
 		redirect("showInbox");
 	}
 
+	/**
+	 * Loescht die ausgewaehlten Nachrichten/Ordner in einem Basisordner
+	 * @urlparam Integer ordner Der Basisordner
+	 * @urlparam Integer ordner_$ordnerid Die ID eines zu loeschenden Ordners ($ordnerid gibt diese ebenfalls an)
+	 * @urlparam Integer pm_$pmid Die ID einer zu loeschenden PM ($pmid gibt diese ebenfalls an)
+	 *
+	 */
 	public void deleteSelectedAction() {
 		User user = getUser();
 		TemplateEngine t = getTemplateEngine();
@@ -413,6 +484,12 @@ public class CommController extends DSGenerator implements Loggable {
 		redirect("showInbox");
 	}
 	
+	/**
+	 * Zeigt eine empfangene/gesendete PM an
+	 * @urlparam Integer pmid Die ID der Nachricht
+	 * @urlparam Integer ordner Die ID des Ordners, in dem sich die Nachricht befindet
+	 *
+	 */
 	public void showPmAction() {
 		Database db = getDatabase();
 		User user = getUser();
@@ -497,6 +574,11 @@ public class CommController extends DSGenerator implements Loggable {
 					"pm.kommentar", 	Common.smiliesParse(Common._text(pm.getString("kommentar"))));
 	}
 	
+	/**
+	 * Stellt eine Nachricht aus dem Papierkorb wieder her
+	 * @urlparam Integer recover Die wiederherzustellende Nachricht
+	 *
+	 */
 	public void recoverAction() {
 		User user = getUser();
 
@@ -508,6 +590,10 @@ public class CommController extends DSGenerator implements Loggable {
 		redirect("showInbox");
 	}
 	
+	/**
+	 * Stellt alle geloeschten Nachrichten aus dem Papierkorb wieder her
+	 *
+	 */
 	public void recoverAllAction() {
 		User user = getUser();
 		TemplateEngine t = getTemplateEngine();
@@ -519,6 +605,11 @@ public class CommController extends DSGenerator implements Loggable {
 		redirect("showInbox");
 	}
 	
+	/**
+	 * Zeigt die Liste aller empfangenen Nachrichten an
+	 * @urlparam Integer Der anzuzeigende Ordner (0 ist die oberste Ebene)
+	 *
+	 */
 	public void showInboxAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -606,6 +697,10 @@ public class CommController extends DSGenerator implements Loggable {
 		pm.free();
 	}
 	
+	/**
+	 * Zeigt die Liste aller versendeten und noch nicht geloeschten PMs
+	 *
+	 */
 	public void showOutboxAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -631,9 +726,16 @@ public class CommController extends DSGenerator implements Loggable {
 		}
 		pm.free();
 	}
-	
+
+	/**
+	 * Zeigt eine Preview einer geschriebenen Nachricht an
+	 * @urlparam String msg Die Nachricht
+	 * @urlparam String to Der Empfaenger der Nachricht
+	 * @urlparam String title Der Titel der Nachricht
+	 * @urlparam String special Spezialflag der Nachricht
+	 *
+	 */
 	public void previewAction() {
-		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
 		User user = getUser();
 	
@@ -694,6 +796,12 @@ public class CommController extends DSGenerator implements Loggable {
 					"show.write",		1 );
 	}
 	
+	/**
+	 * Zeigt die GUI zum anlegen/bearbeiten eines Kommentars zu einer Nachricht an
+	 * @urlparam Integer pm Die Nachricht
+	 * @urlparam Integer ordner Der Ordner, in dem sich die Nachricht befindet
+	 *
+	 */
 	public void editCommentAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -719,6 +827,11 @@ public class CommController extends DSGenerator implements Loggable {
 		t.set_var("user.signature", user.getUserValue("PMS/signatur") );
 	}
 	
+	/**
+	 * Speichert einen Kommentar zu einer Nachricht
+	 * @urlparam Integer pmid Die ID der Nachricht
+	 * @urlparam String msg Der Kommentar
+	 */
 	public void sendCommentAction() {
 		Database db = getDatabase();
 		User user = getUser();
