@@ -112,7 +112,7 @@ public class BasicContext implements Context,Loggable {
 		}
 	
 		if( !auser.getString("flags").contains(User.FLAG_DISABLE_AUTO_LOGOUT) && (Common.time() - sessdata.getInt("lastaction") > Configuration.getIntSetting("AUTOLOGOUT_TIME")) ) {
-			db.first("DELETE FROM sessions WHERE id='",sessdata.getInt("id"),"'");
+			db.update("DELETE FROM sessions WHERE id='",sessdata.getInt("id"),"'");
 			addError( "Fehler: Diese Session ist bereits abgelaufen", errorurl );
 			
 			return;
