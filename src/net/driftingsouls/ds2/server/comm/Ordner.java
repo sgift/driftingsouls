@@ -104,6 +104,9 @@ public class Ordner {
 	public static int deleteOrdnerByID( int ordner_id, int user_id ) {
 		Database db = ContextMap.getContext().getDatabase();
 		int result = 0;
+		if( ordner_id == getTrash(user_id).getID() ) {
+			return 2;
+		}
 		if( (result = PM.deleteAllInOrdner( ordner_id, user_id )) != 0 ){
 			return result;
 		}
