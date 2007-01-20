@@ -59,7 +59,10 @@ public class StatPopulationDensity implements Statistic, Loggable {
 		while( systemStats.next() ) {
 			String systemAddInfo = "";
 			StarSystem system = Systems.get().system(systemStats.getInt("system"));
-			
+			if( system == null ) {
+				LOG.warn("Asteroiden im ungueltigen System "+systemStats.getInt("system")+" vorhanden");
+				continue;
+			}
 			if( (system.getAccess() == StarSystem.AC_ADMIN) && user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS) ) {
 				systemAddInfo = "<span style=\"font-style:italic\">[admin]</span>";
 			}
