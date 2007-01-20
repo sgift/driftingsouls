@@ -220,7 +220,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		}
 		
 		SQLResultRow al = db.first("SELECT name,id,president FROM ally WHERE id=",join);
-		if( ally.isEmpty() ) {
+		if( al.isEmpty() ) {
 			t.set_var( "ally.message", "Die angegebene Allianz existiert nicht" );
 			
 			redirect("defaultNoAlly");
