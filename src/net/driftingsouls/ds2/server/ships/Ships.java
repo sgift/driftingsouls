@@ -603,9 +603,9 @@ public class Ships implements Loggable {
 		basetype.putAll(type);
 		
 		Map<Integer,String[]>slotlist = new HashMap<Integer,String[]>();
-		String[] tmpslotlist = StringUtils.split(type.getString("modules"), ';');
+		String[] tmpslotlist = StringUtils.splitPreserveAllTokens(type.getString("modules"), ';');
 		for( int i=0; i < tmpslotlist.length; i++ ) {
-			String[] aslot = StringUtils.split(tmpslotlist[i], ':');
+			String[] aslot = StringUtils.splitPreserveAllTokens(tmpslotlist[i], ':');
 			slotlist.put(Integer.parseInt(aslot[0]), aslot);
 		}
 		
@@ -616,7 +616,7 @@ public class Ships implements Loggable {
 			ModuleEntry module = moduletbl.get(i);
 			if( module.moduleType != 0 ) {
 				Module moduleobj = Modules.getShipModule( module );
-				if( module.slot > 0 ) {
+				if( (module.slot > 0) && (slotlist.get(module.slot).length > 2) ) {
 					moduleobj.setSlotData(slotlist.get(module.slot)[2]);
 				}
 				moduleobjlist.add(moduleobj);
@@ -706,7 +706,7 @@ public class Ships implements Loggable {
 					continue;
 				}
 				
-				if( module.slot > 0 ) {
+				if( (module.slot > 0) && (slotlist.get(module.slot).length > 2) ) {
 					moduleobj.setSlotData(slotlist.get(module.slot)[2]);
 				}
 				moduleobjlist.add(moduleobj);
@@ -804,7 +804,7 @@ public class Ships implements Loggable {
 			if( module.moduleType != 0 ) {
 				Module moduleobj = Modules.getShipModule( module );
 				
-				if( module.slot > 0 ) {
+				if( (module.slot > 0) && (slotlist.get(module.slot).length > 2) ) {
 					moduleobj.setSlotData(slotlist.get(module.slot)[2]);
 				}
 				moduleobjlist.add(moduleobj);
