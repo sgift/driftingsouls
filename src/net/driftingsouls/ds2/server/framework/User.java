@@ -39,28 +39,91 @@ import org.apache.commons.lang.StringUtils;
  * @author bktheg
  *
  */
-public class User implements Loggable {	
+public class User implements Loggable {
+	/**
+	 * Geldtransfer - Der Transfer ist manuell vom Spieler durchgefuerht worden
+	 */
 	public static final int TRANSFER_NORMAL = 0;
+	/**
+	 * Geldtransfer - Der Transfer ist in direkter Folge einer Spieleraktion ausgefuehrt worden
+	 */
 	public static final int TRANSFER_SEMIAUTO = 1;
+	/**
+	 * Geldtransfer - Der Transfer ist automatisch erfolgt
+	 */
 	public static final int TRANSFER_AUTO = 2;
 	
+	/**
+	 * Der Spieler taucht in der Spielerliste nicht auf
+	 */
 	public static final String FLAG_HIDE = "hide";
+	/**
+	 * Der Spieler kann auch in entmilitarisierte Systeme mit Militaerschiffen springen
+	 */
 	public static final String FLAG_MILITARY_JUMPS = "miljumps";
+	/**
+	 * Der Spieler kann alle Schlachten sehen
+	 */
 	public static final String FLAG_VIEW_BATTLES = "viewbattles";
+	/**
+	 * Der Spieler hat Zugriff auf das NPC-Menue
+	 */
 	public static final String FLAG_ORDER_MENU = "ordermenu";
+	/**
+	 * Der Spieler kann auch NPC-Systeme sehen
+	 */
 	public static final String FLAG_VIEW_SYSTEMS = "viewsystems";
+	/**
+	 * Der Spieler kann sowohl Admin- als auch NPC-Systeme sehen 
+	 */
 	public static final String FLAG_VIEW_ALL_SYSTEMS = "viewallsystems";
+	/**
+	 * Der Spieler kann Schiffsscripte benutzen
+	 */
 	public static final String FLAG_EXEC_NOTES = "execnotes";
+	/**
+	 * Es findet keine Kopplung von IP und Session-ID statt
+	 */
 	public static final String FLAG_DISABLE_IP_SESSIONS = "NO_IP_SESS";
+	/**
+	 * Es findet kein Autologout in Folge von Inaktivitaet statt
+	 */
 	public static final String FLAG_DISABLE_AUTO_LOGOUT = "NO_AUTOLOGOUT";
+	/**
+	 * Der Spieler kann Questschlachten leiten (und uebernehmen)
+	 */
 	public static final String FLAG_QUEST_BATTLES = "questbattles";
+	/**
+	 * Der Spieler sieht den Debug-Output des Scriptparsers
+	 */
 	public static final String FLAG_SCRIPT_DEBUGGING = "scriptdebug";
+	/**
+	 * Dem Spieler koennen keine Schiffe uebergeben werden
+	 */
 	public static final String FLAG_NO_SHIP_CONSIGN = "noshipconsign";
+	/**
+	 * Der Spieler ist von der Klicksperre befreit
+	 */
 	public static final String FLAG_NO_ACTION_BLOCKING = "noactionblocking";
+	/**
+	 * Der Spieler kann mit Schiffen jederzeit ins System 99 springen
+	 */
 	public static final String FLAG_NPC_ISLAND = "npc_island";
+	/**
+	 * Sprungpunkte sind fuer den Spieler immer passierbar
+	 */
 	public static final String FLAG_NO_JUMPNODE_BLOCK = "nojnblock";
+	/**
+	 * Der Spieler kann jedes Schiff, egal welcher Besitzer und wie Gross andocken
+	 */
 	public static final String FLAG_SUPER_DOCK = "superdock";
+	/**
+	 * Der Spieler hat Moderatorrechte im Handel
+	 */
 	public static final String FLAG_MODERATOR_HANDEL = "moderator_handel";
+	/**
+	 * Der Spieler ist ein Noob
+	 */
 	public static final String FLAG_NOOB = "noob";
 	
 	/**
@@ -118,7 +181,6 @@ public class User implements Loggable {
 	private Context context;
 	private int attachedID;
 	private SQLResultRow attachedData;
-	private boolean changed;
 	
 	private static String defaultImagePath = null;
 	
@@ -133,7 +195,6 @@ public class User implements Loggable {
 	 */
 	public User( Context c, int id, SQLResultRow sessiondata ) {
 		context = c;
-		changed = false;
 		attachedID = 0;
 		attachedData = null;
 		
@@ -166,7 +227,6 @@ public class User implements Loggable {
 
 	protected User( Context c, SQLResultRow row ) {
 		context = c;
-		changed = false;
 		attachedID = 0;
 		attachedData = null;
 		data = row;
@@ -185,6 +245,10 @@ public class User implements Loggable {
 		context.cacheUser( this );
 	}
 	
+	/**
+	 * Laedt einige Parameter aus der Datenbank
+	 * @param preload Die zu ladenden Datenbankspalten
+	 */
 	public void preloadValues(String[] preload) {
 		if( preload.length == 0 ) {
 			return;
@@ -214,7 +278,7 @@ public class User implements Loggable {
 	}
 	
 	/**
-	 * Liefert die User-ID des User-Objekts zur?ck
+	 * Liefert die User-ID des User-Objekts zurueck
 	 * 
 	 * @return Die User-ID
 	 */
@@ -222,6 +286,11 @@ public class User implements Loggable {
 		return id;
 	}
 	
+	/**
+	 * Koppelt den Benutzer temporaer an einen anderen. Dadurch werden AccessLevel und Flags
+	 * des angegebenen Benutzers verwendet
+	 * @param uid Die ID des Benutzers, der temporaer an diesen gekoppelt werden soll
+	 */
 	public void attachToUser( int uid ) {
 		attachedID = uid;
 		
@@ -253,12 +322,6 @@ public class User implements Loggable {
 		String pre = prefix+".";
 		for( String val : preloadedValues ) {
 			templateEngine.set_var(pre+val, data.get(val));
-		}
-	}
-	
-	public void save() {
-		if( changed ) {
-			
 		}
 	}
 	
@@ -497,6 +560,10 @@ public class User implements Loggable {
 		SQLResultRow value = pq.pfirst(id, valuename);
 		pq.close();
 
+		if( value.isEmpty() ) {
+			LOG.warn("Uservalue "+valuename+" hat keinen Defaultwert");
+			return "";
+		}
 		return value.getString("value");
 	}
 	
