@@ -138,7 +138,7 @@ public class CommController extends DSGenerator implements Loggable {
 
 		switch ( result ){
 			case 0:
-				t.set_var("show.message", "<span style=\"color:red\">Nachricht gel&ouml;scht</span>");
+				t.set_var("show.message", "<span style=\"color:red\">"+(delete != 0 ? "Nachricht" : "Ordner")+" gel&ouml;scht</span>");
 				break;
 			case 1:
 				t.set_var("show.message", "<span style=\"color:red\">Sie m&uuml;ssen diese Nachricht erst lesen</span>");
