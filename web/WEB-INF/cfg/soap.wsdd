@@ -50,7 +50,7 @@
 		<parameter name="className" value="org.apache.axis.Version"/>
 		</service>-->
 
-	<service name="interface" provider="java:MSG">
+	<service name="interface" provider="java:RPC">
 		<parameter name="wsdlTargetNamespace"
 			value="http://ds.drifting-souls.net/" />
 		<parameter name="className"
