@@ -2,3 +2,4 @@ net.driftingsouls.ds2.server.modules.admin.PlayerLoginSuper
 net.driftingsouls.ds2.server.modules.admin.AdminConsole
 net.driftingsouls.ds2.server.modules.admin.PlayerDelete
 net.driftingsouls.ds2.server.modules.admin.AddShips
+net.driftingsouls.ds2.server.modules.admin.CreateObjects
