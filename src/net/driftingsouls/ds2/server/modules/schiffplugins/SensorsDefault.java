@@ -133,7 +133,7 @@ public class SensorsDefault implements SchiffPlugin {
 				
 				t.start_record();
 				t.set_var(	"base.id",			datan.getInt("id"),
-							"base.owner.id",	datan.getInt("id"),
+							"base.owner.id",	datan.getInt("owner"),
 							"base.name",		datan.getString("name"),
 							"base.klasse",		datan.getInt("klasse"),
 							"base.size",		datan.getInt("size"),
