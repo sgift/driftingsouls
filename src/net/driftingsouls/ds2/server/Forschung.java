@@ -155,7 +155,7 @@ public class Forschung {
 	 * @return Die Beschreibung
 	 */
 	public String getDescription() {
-		return data.getString("description");
+		return data.getString("descrip");
 	}
 	
 	/**

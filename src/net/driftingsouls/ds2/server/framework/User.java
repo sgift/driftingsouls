@@ -36,9 +36,11 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * Die Benutzerklasse von DS
- * @author bktheg
+ * @author Christopher Jung
  *
  */
+// TODO: Falls ein Benutzer in der Datenbank nicht existiert, sollte dies einen Fehler ausloesen
+// und nicht zu einem leeren Benutzer mit der ID 0 fuehren
 public class User implements Loggable {
 	/**
 	 * Geldtransfer - Der Transfer ist manuell vom Spieler durchgefuerht worden
@@ -197,14 +199,16 @@ public class User implements Loggable {
 		context = c;
 		attachedID = 0;
 		attachedData = null;
-		
-		String sqlPreload = "*";
-		
+
 		this.id = id;
 		
-		data = c.getDatabase().first("SELECT ",sqlPreload," FROM users WHERE id='",id,"'");
-		if( data.getInt("id") != id ) {
+		data = c.getDatabase().first("SELECT * FROM users WHERE id='",id,"'");
+		if( data.isEmpty() ) {
 			LOG.error("FAILED TO LOAD USER: "+id);
+			data.put("id", 0);
+		}
+		else {
+			userImagePath = data.getString("imgpath");
 		}
 		
 		preloadedValues.addAll(Arrays.asList(dbfields));
@@ -283,7 +287,7 @@ public class User implements Loggable {
 	 * @return Die User-ID
 	 */
 	public int getID() {
-		return id;
+		return data.getInt("id");
 	}
 	
 	/**
@@ -482,9 +486,18 @@ public class User implements Loggable {
 		}
 		
 		if( data.getInt("flagschiff") == 0 ) {
-			flagschiffSpace = db.first("SELECT flagschiff FROM werften t1,ships t2 WHERE t2.id>0 AND t1.flagschiff=1 AND t1.shipid=t2.id AND t2.owner='",this.id,"'").getInt("flagschiff");
-			if( flagschiffSpace == 0 ) {
-				flagschiffSpace = db.first("SELECT flagschiff FROM werften t1,bases t2 WHERE t1.flagschiff=1 AND t1.col=t2.id AND t2.owner='",this.id,"'").getInt("flagschiff");
+			SQLResultRow fs = db.first("SELECT flagschiff FROM werften t1,ships t2 WHERE t2.id>0 AND t1.flagschiff=1 AND t1.shipid=t2.id AND t2.owner='",this.id,"'");
+			if( fs.isEmpty() ) {
+				fs = db.first("SELECT flagschiff FROM werften t1,bases t2 WHERE t1.flagschiff=1 AND t1.col=t2.id AND t2.owner='",this.id,"'");
+				if( fs.isEmpty() ) {
+					flagschiffSpace = 0;
+				}
+				else {
+					flagschiffSpace = fs.getInt("flagschiff");
+				}
+			}
+			else {
+				flagschiffSpace = fs.getInt("flagschiff");
 			}
 		}
 		else {
