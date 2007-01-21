@@ -23,7 +23,6 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.User;
-import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -36,12 +35,30 @@ import net.driftingsouls.ds2.server.tasks.Taskmanager;
  *
  */
 public class PM {
+	/**
+	 * Die PM hat einen Admin-Hintergrund
+	 */
 	public static final int FLAGS_ADMIN = 1;
+	/**
+	 * Es handelt sich um eine automatisch versendete PM
+	 */
 	public static final int FLAGS_AUTOMATIC = 2;
+	/**
+	 * Die PM wurde durch den Tick versendet
+	 */
 	public static final int FLAGS_TICK = 4; 
+	/**
+	 * Die PM hat einen rassenspezifischen Hintergrund
+	 */
 	public static final int FLAGS_OFFICIAL = 8;	// Spezieller (fraktions/rassenspezifischer) Hintergrund
+	/**
+	 * Die PM muss gelesen werden bevor sie geloescht werden kann
+	 */
 	public static final int FLAGS_IMPORTANT = 16;	// Muss "absichtlich" gelesen werden
 	
+	/**
+	 * Der PM-Empfaenger des Taskmanagers
+	 */
 	public static final int TASK = Integer.MIN_VALUE;
 
 	/**
@@ -162,7 +179,9 @@ public class PM {
 	 */
 	public static int deleteAllInOrdner( int ordner_id, int user_id ){
 		Database db = ContextMap.getContext().getDatabase();
+		
 		int trash = Ordner.getTrash( user_id ).getID();
+		
 		SQLQuery pm = db.query("SELECT id,empfaenger,flags,gelesen FROM transmissionen WHERE ordner="+ordner_id);
 		while( pm.next() ){
 			if( pm.getInt("empfaenger") == user_id ) {
@@ -170,7 +189,8 @@ public class PM {
 					return 1;	//PM muss gelesen werden
 				}
 				db.update("UPDATE transmissionen SET gelesen=2, ordner="+trash+" WHERE id="+pm.getInt("id"));
-			} else {
+			} 
+			else {
 				return 2;	//Loeschen fehlgeschlagen
 			}
 		}
@@ -178,8 +198,15 @@ public class PM {
 		return 0;	//geloescht
 	}
 
+	/**
+	 * Loescht die PM eines Benutzers
+	 * @param pm_id Die ID der PM
+	 * @param user_id Die ID des Emfpaengers der PM
+	 * @return 0, falls der Vorgang erfolgreich war. 1, wenn ein Fehler aufgetreten ist und 2, falls nicht alle PMs gelesen wurden
+	 */
 	public static int deleteByID( int pm_id, int user_id ){
 		Database db = ContextMap.getContext().getDatabase();
+		
 		int trash = Ordner.getTrash( user_id ).getID();
 		SQLResultRow pm = db.first("SELECT empfaenger,flags,gelesen FROM transmissionen WHERE id="+pm_id);
 		if( pm.getInt("empfaenger") == user_id ) {
@@ -187,12 +214,19 @@ public class PM {
 				return 1;	//PM muss gelesen werden
 			}
 			db.update("UPDATE transmissionen SET gelesen=2, ordner="+trash+" WHERE id="+pm_id);
-		} else {
+		} 
+		else {
 			return 2;	//Loeschen fehlgeschlagen
 		}
 		return 0;	//geloescht
 	}
 
+	/**
+	 * Verschiebt alle PMs von einem Ordner in einen anderen
+	 * @param source Die ID des Ausgangsordners
+	 * @param dest Die ID des Zielordners
+	 * @param user_id Die ID des Besitzers der PM
+	 */
 	public static void moveAllToOrdner( int source, int dest , int user_id){
 		Database db = ContextMap.getContext().getDatabase();
 		int trash = Ordner.getTrash( user_id ).getID();
@@ -206,6 +240,11 @@ public class PM {
 		pm.free();
 	}
 
+	/**
+	 * Stellt eine geloeschte PM wieder her
+	 * @param pm_id Die ID der PM
+	 * @param user_id Die ID des Empfaengers der PM
+	 */
 	public static void recoverByID( int pm_id, int user_id ){
 		Database db = ContextMap.getContext().getDatabase();
 		int trash = Ordner.getTrash( user_id ).getID();
@@ -213,6 +252,10 @@ public class PM {
 		db.update("UPDATE transmissionen SET ordner=0,gelesen=1 WHERE ordner='"+trash+"' AND empfaenger='"+user_id+"' AND id='"+pm_id+"'");
 	}
 
+	/**
+	 * Stelllt alle geloeschten PMs eines Spielers wieder her
+	 * @param user_id Die ID des Spielers
+	 */
 	public static void recoverAll( int user_id ){
 		Database db = ContextMap.getContext().getDatabase();
 		int trash = Ordner.getTrash( user_id ).getID();
