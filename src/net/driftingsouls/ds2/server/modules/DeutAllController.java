@@ -136,12 +136,11 @@ public class DeutAllController extends DSGenerator {
 					t.set_var(	"ship.message",			"Kein Nebel",
 								"ship.message.color",	"red" );
 				}
-				
-				t.parse("ships.list", "ships.listitem", true);
-				
-				t.stop_record();
-				t.clear_record();
 			}
+			t.parse("ships.list", "ships.listitem", true);
+			
+			t.stop_record();
+			t.clear_record();
 		}
 		shipRow.free();
 	}
