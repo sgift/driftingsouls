@@ -1298,26 +1298,26 @@ public abstract class WerftObject extends DSObject {
 			IEDisableShip effect = (IEDisableShip)itemlist.get(i).getItemEffect();
 			
 			if( effect.getShipType() == shipdata.getInt("type") ) {
-				context.addError("Ihnen wurde der Bau dieses Schiffs verboten");
+				output.append("Ihnen wurde der Bau dieses Schiffs verboten");
 				return false;
 			}
 		}
 	
 		//Kann die aktuelle Rasse das Schiff bauen?
 		if( !Rassen.get().rasse(user.getRace()).isMemberIn(shipdata.getInt("race")) ) {
-			context.addError("Ihre Rasse kann dieses Schiff nicht bauen");		
+			output.append("Ihre Rasse kann dieses Schiff nicht bauen");		
 			return false;
 		}
 	
 		//Kann das Schiff im aktuellen System gebaut werden?
 		if( shipdata.getBoolean("systemreq") && (!Systems.get().system(this.getSystem()).isMilitaryAllowed()) ) {
-			context.addError("Dieses Schiff l&auml;sst sich im aktuellen System nicht bauen");			
+			output.append("Dieses Schiff l&auml;sst sich im aktuellen System nicht bauen");			
 			return false;
 		}
 	
 		//Verfuegt der Spieler ueber alle noetigen Forschungen?
 		if( !user.hasResearched(shipdata.getInt("tr1")) || !user.hasResearched(shipdata.getInt("tr2")) || !user.hasResearched(shipdata.getInt("tr3")) ) {
-			context.addError("Sie besitzen nicht alle zum Bau n&ouml;tigen Technologien");		
+			output.append("Sie besitzen nicht alle zum Bau n&ouml;tigen Technologien");		
 			return false;
 		}
 	
@@ -1332,20 +1332,20 @@ public abstract class WerftObject extends DSObject {
 		
 		boolean found = false;
 		for( int j=0; j < werftreq.length; j++ ) {
-			if( this.getWerftTag().indexOf(werftreq[j])  > -1 ) {
+			if( werftreq[j].indexOf(this.getWerftTag()) > -1 ) {
 				found = true;
 				break;
 			}
 		}
 		if( !found ) {
-			context.addError("Dieses Werft ist nicht gro&szlig; genug f&uuml;r das Schiff");
+			output.append("Dieses Werft ist nicht gro&szlig; genug f&uuml;r das Schiff");
 			return false;
 		}
 	
 		if( shipdata.getBoolean("flagschiff") ) {
 			boolean space = user.hasFlagschiffSpace();
 			if( !space ) {
-				context.addError("Sie k&ouml;nnen lediglich ein Flagschiff besitzen");				
+				output.append("Sie k&ouml;nnen lediglich ein Flagschiff besitzen");				
 				return false;
 			}
 		}
