@@ -40,6 +40,10 @@ import org.apache.commons.lang.ArrayUtils;
 /**
  * Die Basenliste
  * @author Christopher Jung
+ * 
+ * @urlparam Integer l Falls == 1 werden die Cargos der Basen angezeigt
+ * @urlparam String ord Das Attribut, nachdem geordnet werden soll
+ * @urlparam Integer order Falls == 1 wird absteigend sortiert
  *
  */
 public class BasenController extends DSGenerator {
@@ -52,6 +56,10 @@ public class BasenController extends DSGenerator {
 			{"bew", "bewohner"},
 			{"e", "e"} } );
 	
+	/**
+	 * Konstruktor
+	 * @param context Der zu verwendende Kontext
+	 */
 	public BasenController(Context context) {
 		super(context);
 		
@@ -67,6 +75,9 @@ public class BasenController extends DSGenerator {
 		return true;
 	}
 	
+	/**
+	 * Zeigt die Liste aller Basen an
+	 */
 	@Override
 	public void defaultAction() {
 		Database db = getDatabase();
