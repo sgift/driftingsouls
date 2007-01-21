@@ -336,7 +336,9 @@ public class SchiffsTick extends TickController {
 			db.update("UPDATE ships t1 JOIN users t2 ON t1.owner=t2.id SET t1.s=IF(t1.s>70,t1.s-70,0) WHERE t1.s>0 AND (t2.vaccount=0 OR t2.wait4vac>0) AND t1.id>0 AND t1.system!=0");
 		}
 		
-		SQLQuery auser = db.query("SELECT id,cargo,nstat FROM users WHERE id!=0 AND (vaccount=0 OR wait4vac) ",userlist," ORDER BY id ASC");
+		SQLQuery auser = db.query("SELECT id,cargo,nstat " +
+				"FROM users " +
+				"WHERE id!=0 AND (vaccount=0 OR wait4vac) ",userlist," ORDER BY id ASC");
 		while( auser.next() ) {
 			nonvacUserlist.add(auser.getInt("id"));
 					
@@ -350,10 +352,16 @@ public class SchiffsTick extends TickController {
 			long prevnahrung = this.usercargo.getResourceCount(Resources.NAHRUNG);
 			
 			// Schiffe berechnen
-			SQLQuery shipd = db.query("SELECT t1.id,t1.name,t1.crew,t1.e,t1.s,t1.type,t1.cargo,t1.docked,t1.engine,t1.weapons,t1.sensors,t1.comm,t1.battle,t1.autodeut,t1.x,t1.y,t1.system,t1.owner,t1.status,t1.alarm,t1.hull,t1.heat ",
-								   "FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id ",
-								   "WHERE t1.id>0 AND t1.owner='",auser.getInt("id"),"' AND ((t1.crew > 0) OR (t2.crew = 0) OR (t1.alarm=1) OR (t2.hydro>0) OR LOCATE('tblmodules',t1.status)) AND system!=0 AND ((t1.alarm=1) OR (t1.engine+t1.weapons+t1.sensors+t1.comm<400) OR (t1.e < t2.eps) OR LOCATE('tblmodules',t1.status) OR (t2.hydro>0)) AND ",battle," ",
-								   "ORDER BY t1.owner,t1.docked,t1.type ASC");
+			SQLQuery shipd = db.query(
+					"SELECT s.id,s.name,s.crew,s.e,s.s,s.type,s.cargo,s.docked,s.engine,s.weapons,s.sensors,s.comm,s.battle,s.autodeut,s.x,s.y,s.system,s.owner,s.status,s.alarm,s.hull,s.heat ",
+					"FROM ships s JOIN ship_types st ON s.type=st.id ",
+					"WHERE s.id>0 AND s.owner='",auser.getInt("id"),"' AND " +
+						"((s.crew > 0) OR (st.crew = 0)) " +
+						"AND system!=0 AND " +
+						"((s.alarm=1) OR (s.engine+s.weapons+s.sensors+s.comm<400) OR (s.e < st.eps) " +
+							"OR LOCATE('tblmodules',s.status) OR (st.hydro>0) OR (st.deutfactor>0) " +
+						"AND ",battle," ",
+					"ORDER BY s.owner,s.docked,s.type ASC");
 			
 			this.log(auser.getInt("id")+": Es sind "+shipd.numRows()+" Schiffe zu berechnen ("+battle+")");
 			
