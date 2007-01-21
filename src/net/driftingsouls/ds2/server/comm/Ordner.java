@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
@@ -88,9 +89,15 @@ public class Ordner {
 	 * @param user_id Die ID des Benutzers
 	 * @return Der Papierkorb
 	 */
-	public static Ordner getTrash ( int user_id ) {	//gibt die id des Papierkorbes des Spielers zurueck
-		Database db = ContextMap.getContext().getDatabase();
-		return new Ordner( db.first("SELECT * FROM ordner WHERE playerid='",user_id,"' AND (flags & ",Ordner.FLAG_TRASH,")") );
+	public static Ordner getTrash ( int user_id ) {
+		Context context = ContextMap.getContext();
+		Object trash = context.getVariable(Ordner.class, "trash"+user_id);
+		if( trash == null ) {
+			Database db = context.getDatabase();
+			trash = new Ordner(db.first("SELECT * FROM ordner WHERE playerid='",user_id,"' AND (flags & ",Ordner.FLAG_TRASH,")"));
+			context.putVariable(Ordner.class, "trash"+user_id, trash);
+		}
+		return (Ordner)trash;
 	}
 	
 	/**
