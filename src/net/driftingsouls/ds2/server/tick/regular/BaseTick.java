@@ -411,7 +411,10 @@ public class BaseTick extends TickController {
 					"cargo= ? ");
 		
 		// Nun holen wir uns mal die Basen...
-		SQLQuery base = db.query("SELECT t1.* FROM bases t1,users t2 WHERE t1.owner!=0 AND (t2.vaccount=0 OR t2.wait4vac!=0) AND t1.owner=t2.id ORDER BY t1.owner");
+		SQLQuery base = db.query("SELECT b.* " +
+				"FROM bases b JOIN users u ON b.owner=u.id " +
+				"WHERE b.owner!=0 AND (u.vaccount=0 OR u.wait4vac!=0) " +
+				"ORDER BY t1.owner");
 		
 		log("Kolonien: "+base.numRows());
 		log("");
@@ -419,6 +422,7 @@ public class BaseTick extends TickController {
 		while( base.next() ) {
 			// Muessen ggf noch alte Userdaten geschrieben und neue geladen werden?
 			if( base.getInt("owner") != this.lastowner ) {
+				log(base.getInt("owner")+":");
 				if( this.pmcache.length() != 0 ) {
 					PM.send(getContext(),-1, this.lastowner, "Basis-Tick", this.pmcache.toString(),false);
 					this.pmcache.setLength(0);
