@@ -414,7 +414,7 @@ public class BaseTick extends TickController {
 		SQLQuery base = db.query("SELECT b.* " +
 				"FROM bases b JOIN users u ON b.owner=u.id " +
 				"WHERE b.owner!=0 AND (u.vaccount=0 OR u.wait4vac!=0) " +
-				"ORDER BY t1.owner");
+				"ORDER BY b.owner");
 		
 		log("Kolonien: "+base.numRows());
 		log("");
