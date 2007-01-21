@@ -25,10 +25,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -52,7 +51,7 @@ public class AdminController extends DSGenerator {
 	 */
 	public static final String PLUGIN_LIST = "META-INF/driftingsouls/"+AdminController.class.getName();
 	
-	private static class MenuEntry {
+	private static class MenuEntry implements Comparable<MenuEntry> {
 		String name;
 		List<MenuEntry> actions = new ArrayList<MenuEntry>();
 		Class<? extends AdminPlugin> cls;
@@ -60,9 +59,13 @@ public class AdminController extends DSGenerator {
 		MenuEntry( String name ) {
 			this.name = name;
 		}
+
+		public int compareTo(MenuEntry o) {
+			return name.compareTo(o.name);
+		}
 	}
 	
-	Map<String,MenuEntry> menu = new LinkedHashMap<String,MenuEntry>();
+	TreeMap<String,MenuEntry> menu = new TreeMap<String,MenuEntry>();
 	Set<String> validPlugins = new HashSet<String>();
 	
 	/**
