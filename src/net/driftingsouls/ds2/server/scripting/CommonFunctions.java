@@ -47,8 +47,8 @@ class CommonFunctions {
 	
 	class Compare implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			double val1 = Double.parseDouble(command[1]);
-			double val2 = Double.parseDouble(command[2]);
+			double val1 = Value.Double(command[1]);
+			double val2 = Value.Double(command[2]);
 		
 			scriptparser.log("val1: "+val1+"\n");
 			scriptparser.log("val2: "+val2+"\n");
