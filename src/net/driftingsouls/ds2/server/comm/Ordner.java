@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
@@ -185,6 +186,32 @@ public class Ordner {
 	}
 	
 	/**
+	 * Gibt alle Kindordner, ob direkt oder indirekt, eines bestimmten Ordners
+	 * eines Spielers zurueck
+	 * @param parent_id Die Ordner-ID
+	 * @param user_id Die Spieler-ID
+	 * @return Liste mit Ordner-IDs
+	 */
+	public static List<Ordner> getAllChildren( int parent_id, int user_id ) {
+		Database db = ContextMap.getContext().getDatabase();
+		
+		List<Ordner> children = new ArrayList<Ordner>();
+		
+		SQLQuery child = db.query("SELECT * FROM ordner WHERE parent=",parent_id," AND playerid=",user_id);
+		while( child.next() ){
+			children.add(new Ordner(child.getRow()));
+		}
+
+		child.free();
+	
+		for( int i=0; i < children.size(); i++ ){
+			children.addAll( getAllChildren( children.get(i).getID(), user_id ) );
+		}
+
+		return children;
+	}
+	
+	/**
 	 * Gibt die Anzahl der im Ordner vorhandenen PMs zurueck.
 	 * Unterordner werden nicht beruecksichtigt.
 	 * @param ordner_id Die ID des Ordners
@@ -214,22 +241,64 @@ public class Ordner {
 	 */
 	public static Map<Integer,Integer> countPMInAllOrdner( int parent_id, int user_id ) { 
 		Database db = ContextMap.getContext().getDatabase();
-		List<Integer> ordners = getAllChildIDs( parent_id, user_id );
-
-		Map<Integer,Integer> result = new HashMap<Integer,Integer>(); 
-
+		Map<Integer,Integer> result = new HashMap<Integer,Integer>();
+		
+		List<Ordner> ordners = getAllChildren( parent_id, user_id );
+		
+		// Wenn der Ordner keine Unterordner hat, dann eine leere Map zurueckgeben
+		if( ordners.size() == 0 ) {
+			return result;
+		}
+		
+		// Array mit den Ordner-IDs erstellen sowie vermerken, wieviele Kindordner
+		// ein Ordner besitzt
+		Map<Integer,Integer> childCount = new HashMap<Integer,Integer>();
+		Integer[] ordnerIDs = new Integer[ordners.size()];
 		for( int i=0; i < ordners.size(); i++ ) {
-			result.put(ordners.get(i), countPMInOrdner( ordners.get(i), user_id ));
+			ordnerIDs[i] = ordners.get(i).getID();
+			Common.safeIntInc(childCount, ordners.get(i).getParent());
 		}
 
-		for( int i=0; i < ordners.size(); i++ ) {
-			SQLQuery child = db.query("SELECT id FROM ordner WHERE parent='",ordners.get(i),"'");
-			while( child.next() ){
-				Integer thisResult = result.get(i);
-				Integer childResult = result.get(child.getInt("id"));
-				result.put(ordners.get(i), (thisResult != null ? thisResult : 0) + (childResult != null ? childResult : 0));
+		// Map mit der Anzahl der PMs fuellen, die sich direkt im Ordner befinden
+		int trash = getTrash( user_id ).getID();
+		
+		SQLQuery pmcount = db.query(
+				"SELECT ordner, count(*) count " +
+				"FROM transmissionen " +
+				"WHERE empfaenger="+user_id+" AND " +
+						"ordner IN ("+Common.implode(",",ordnerIDs)+") AND " +
+						"gelesen < CASE WHEN ordner="+trash+" THEN 10 ELSE 2 END " +
+				"GROUP BY ordner");
+		while( pmcount.next() ) {
+			result.put(pmcount.getInt("ordner"), pmcount.getInt("count"));
+		}
+
+		// PMs in den einzelnen Ordnern unter Beruecksichtigung der 
+		// Unterordner berechnen - maximal 100 Zyklen lang
+		int maxloops = 100;
+		while( (childCount.size() > 0) && (maxloops-- > 0) ) {
+			for( int i=0; i < ordners.size(); i++ ) {
+				Ordner ordner = ordners.get(i);
+				if( childCount.get(ordner.getID()) != null ) {
+					continue;
+				}
+				
+				int parent = ordner.getParent();
+				// Die Anzahl der PMs des Elternordners um die 
+				// des aktuellen Ordners erhoehen. Anschliessend
+				// den aktuellen Ordner aus der Liste entfernen
+				if( !result.containsKey(parent) ) {
+					result.put(parent, 0);
+				}
+				Integer child = result.get(ordner.getID());
+				result.put(parent, result.get(parent)+ (child != null ? child : 0) );
+				
+				childCount.put(parent, childCount.get(parent)-1);
+				childCount.remove(ordner.getID());
+				
+				ordners.remove(i);
+				i--;
 			}
-			child.free();
 		}
 
 		return result;
@@ -249,6 +318,14 @@ public class Ordner {
 	 */
 	public String getName() {
 		return this.data.getString("name");
+	}
+	
+	/**
+	 * Gibt die ID des Eltern-Ordners zurueck
+	 * @return Der Elternordner
+	 */
+	public int getParent() {
+		return this.data.getInt("parent");
 	}
 
 	/**
