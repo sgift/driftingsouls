@@ -308,7 +308,7 @@ public class SchiffsTick extends TickController {
 		int battleid = getContext().getRequest().getParameterInt("battle");
 		if( battleid != 0 ) {
 			this.calledByBattle = true;
-			battle = "t1.battle="+battleid;
+			battle = "s.battle="+battleid;
 			
 			List<Integer> userIdList = new ArrayList<Integer>();
 			SQLQuery oid = db.query("SELECT owner FROM ships WHERE battle='",battleid,"' GROUP BY owner");
@@ -323,7 +323,7 @@ public class SchiffsTick extends TickController {
 		}
 		else {
 			this.calledByBattle = false;
-			battle = "t1.battle=0";
+			battle = "s.battle=0";
 		}
 		
 		this.usercargo = null;
@@ -359,7 +359,7 @@ public class SchiffsTick extends TickController {
 						"((s.crew > 0) OR (st.crew = 0)) " +
 						"AND system!=0 AND " +
 						"((s.alarm=1) OR (s.engine+s.weapons+s.sensors+s.comm<400) OR (s.e < st.eps) " +
-							"OR LOCATE('tblmodules',s.status) OR (st.hydro>0) OR (st.deutfactor>0) " +
+							"OR LOCATE('tblmodules',s.status) OR (st.hydro>0) OR (st.deutfactor>0)) " +
 						"AND ",battle," ",
 					"ORDER BY s.owner,s.docked,s.type ASC");
 			
@@ -384,7 +384,10 @@ public class SchiffsTick extends TickController {
 				if( idlist.size() > 0 ) {
 					idListStr = " AND NOT(id IN ("+Common.implode(",",idlist)+")) ";	
 				}
-				crewcount = db.first("SELECT sum(t1.crew) count FROM ships t1 WHERE t1.id>0 AND t1.system!=0 AND t1.owner='",auser.getInt("id"),"' AND t1.alarm!=1 AND ",battle,idListStr).getInt("count");
+				crewcount = db.first("SELECT sum(s.crew) count " +
+						"FROM ships s " +
+						"WHERE s.id>0 AND s.system!=0 AND s.owner=",auser.getInt("id")," " +
+								"AND s.alarm!=1 AND ",battle,idListStr).getInt("count");
 				
 				this.log("# base+: "+(prevnahrung-usernstat));
 				this.log("# Verbrauche "+crewcount+" Nahrung");
@@ -396,7 +399,10 @@ public class SchiffsTick extends TickController {
 					// Nicht genug Nahrung fuer alle -> verhungern
 					crewcount -= this.usercargo.getResourceCount(Resources.NAHRUNG);
 					this.usercargo.setResource(Resources.NAHRUNG, 0);
-					SQLQuery s = db.query("SELECT t1.* FROM ships t1 WHERE t1.id>0 AND t1.system!=0 AND t1.owner='",auser.getInt("id"),"' AND t1.crew>0 AND ",battle);
+					SQLQuery s = db.query("SELECT s.* " +
+							"FROM ships s " +
+							"WHERE s.id>0 AND s.system!=0 AND s.owner=",auser.getInt("id")," " +
+									"AND s.crew>0 AND ",battle);
 					while( s.next() ) {
 						if( s.getInt("crew") < crewcount ) {
 							db.update("UPDATE ships SET crew=0 WHERE id='",s.getInt("id"),"'");
