@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Random;
 
 import net.driftingsouls.ds2.server.framework.db.Database;
+import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.Error;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
@@ -89,53 +90,54 @@ public class BasicContext implements Context,Loggable {
 		}
 		
 		long time = Common.time();
-		SQLResultRow sessdata = db.prepare("SELECT id,ip,lastaction,actioncounter,usegfxpak,tick,attach FROM sessions WHERE session=?")
+		SQLResultRow sessdata = db.prepare("SELECT * FROM sessions WHERE session=?")
 								.first(sess);
 		
 		if( sessdata.isEmpty() ) {
 			addError( "Fehler: Sie sind offenbar nicht eingeloggt", errorurl );
-			
+
 			return;
 		}
 		
 		if( sessdata.getInt("tick") != 0 ) {
 			addError( "Im Moment werden einige Tick-Berechnungen f&uuml;r sie durchgef&uuml;hrt. Bitte haben sie daher ein wenig Geduld", getRequest().getRequestURL() );
-			
+
 			return;
 		}
 	
-		SQLResultRow auser = db.first("SELECT flags,vaccount,wait4vac FROM users WHERE id='",sessdata.getInt("id"),"'");
-		if( !auser.getString("flags").contains(User.FLAG_DISABLE_IP_SESSIONS) && !sessdata.getString("ip").contains("<"+getRequest().getRemoteAddress()+">") ) {
+		User user = new User( this, sessdata.getInt("id"), sessdata );
+		if( !user.hasFlag(User.FLAG_DISABLE_IP_SESSIONS) && !sessdata.getString("ip").contains("<"+getRequest().getRemoteAddress()+">") ) {
 			addError( "Fehler: Diese Session ist einer anderen IP zugeordnet", errorurl );
-			
+
 			return;
 		}
 	
-		if( !auser.getString("flags").contains(User.FLAG_DISABLE_AUTO_LOGOUT) && (Common.time() - sessdata.getInt("lastaction") > Configuration.getIntSetting("AUTOLOGOUT_TIME")) ) {
+		if( !user.hasFlag(User.FLAG_DISABLE_AUTO_LOGOUT) && (Common.time() - sessdata.getInt("lastaction") > Configuration.getIntSetting("AUTOLOGOUT_TIME")) ) {
 			db.update("DELETE FROM sessions WHERE id='",sessdata.getInt("id"),"'");
 			addError( "Fehler: Diese Session ist bereits abgelaufen", errorurl );
-			
+
 			return;
 		}
 		
-		if( (auser.getInt("vaccount") > 0) && (auser.getInt("wait4vac") == 0) ) {
+		if( (user.getVacationCount() > 0) && (user.getWait4VacationCount() == 0) ) {
 			addError( "Fehler: Dieser Account befindet sich noch im Vacationmodus", errorurl );
-			
+
 			return;
 		}
 		
 		db.prepare("UPDATE sessions SET lastaction=? WHERE session=?").update(time, sess);
 		
-		if( !auser.getString("flags").contains(User.FLAG_NO_ACTION_BLOCKING) ) {
+		if( !user.hasFlag(User.FLAG_NO_ACTION_BLOCKING) ) {
 			// Alle zwei Sekunden Counter um 1 reduzieren, sofern mindestens 5 Sekunden Pause vorhanden waren
 			int reduce = (int)(time - sessdata.getInt("lastaction")-2);
 			if( time < sessdata.getInt("lastaction") + 5 ) {
 				reduce = -1;
 			}
-			sessdata.put("actioncounter", sessdata.getInt("actioncounter")-reduce);
-			if( sessdata.getInt("actioncounter") < 0 ) {
-				sessdata.put("actioncounter", 0);
+			int actioncounter = sessdata.getInt("actioncounter")-reduce;
+			if( actioncounter < 0 ) {
+				actioncounter = 0;
 			}
+
 			if( reduce > 0 ) {
 				db.prepare("UPDATE sessions SET actioncounter=IF(actioncounter- ? <0,0,actioncounter- ?) WHERE session=?")
 					.update(reduce, reduce, sess);
@@ -145,12 +147,13 @@ public class BasicContext implements Context,Loggable {
 			}
 			
 			// Bei viel zu hoher Aktivitaet einfach die Ausfuehrung mit einem Fehler beenden
-			if( sessdata.getInt("actioncounter") > 25 ) {
+			if( actioncounter > 25 ) {
 				addError( actionBlockingPhrases[new Random().nextInt(actionBlockingPhrases.length)], errorurl );
+
 				return;
 			}
 			// Bei hoher Aktivitaet stattdessen nur eine Pause von 1 oder 2 Sekunden einlegen
-			else if( sessdata.getInt("actioncounter") > 20 ) {
+			else if( actioncounter > 20 ) {
 				try {
 					Thread.sleep(2000);
 				}
@@ -158,7 +161,7 @@ public class BasicContext implements Context,Loggable {
 					LOG.error(e,e);
 				}
 			}
-			else if( sessdata.getInt("actioncounter") > 10 ) {
+			else if( actioncounter > 10 ) {
 				try {
 					Thread.sleep(1000);
 				}
@@ -170,8 +173,6 @@ public class BasicContext implements Context,Loggable {
 		
 		// Inaktivitaet zuruecksetzen
 		db.update("UPDATE users SET inakt=0 WHERE id='",sessdata.getInt("id"),"'");
-		
-		User user = new User( this, sessdata.getInt("id"), sessdata );
 		
 		if( !"".equals(sessdata.getString("attach")) && !sessdata.getString("attach").equals("-1") ) {
 			SQLResultRow row = db.first("SELECT id FROM sessions WHERE session='",sessdata.getString("attach"),"'");
