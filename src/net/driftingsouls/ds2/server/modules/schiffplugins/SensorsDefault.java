@@ -164,8 +164,8 @@ public class SensorsDefault implements SchiffPlugin {
 				}
 
 				if( datan.getInt("owner") == user.getID() ) {
-					int werft = db.first("SELECT id FROM werften WHERE col=",datan.getInt("id")).getInt("id");
-					if( werft != 0 ) {
+					SQLResultRow werft = db.first("SELECT id FROM werften WHERE col=",datan.getInt("id"));
+					if( !werft.isEmpty() ) {
 						//Werftfeld suchen
 						Base baseData = new Base(db.first("SELECT * FROM bases WHERE id='",datan.getInt("id"),"'"));
 						
