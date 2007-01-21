@@ -125,7 +125,7 @@ public class BaseTick extends TickController {
 		for( ResourceEntry res : reslist ) {
 			this.log("\t   * "+res.getName()+" ("+res.getId()+") : cargo "+res.getCount1()+" stat "+res.getCount2());
 			
-			if( res.getId().equals(Resources.NAHRUNG) ) {
+			if( !res.getId().equals(Resources.NAHRUNG) ) {
 				if( res.getCount1() + res.getCount2() < 0 ) {
 					allok = false;
 					reason = "Sie haben zu wenig "+res.getName();
