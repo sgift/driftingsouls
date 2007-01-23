@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -41,7 +44,7 @@ public class StatOwnOffiziere implements Statistic {
 
 		StringBuffer echo = context.getResponse().getContent();
 	
-		SQLQuery offi = db.query("SELECT id,name,rang,ing,nav,waf,sec,com,spec,dest ",
+		SQLQuery offi = db.query("SELECT * ",
 					"FROM offiziere ",
 					"WHERE userid=",user.getID()," ",
 					"ORDER BY ing+nav+waf+sec+com DESC");
@@ -55,6 +58,9 @@ public class StatOwnOffiziere implements Statistic {
 		echo.append("<table class=\"noBorderX\" cellspacing=\"2\" cellpadding=\"3\">\n");
 		echo.append("<tr><td class=\"noBorderX\" align=\"left\" colspan=\"2\">Offizier</td><td class=\"noBorderX\">Auf</td><td class=\"noBorderX\">Technik</td><td class=\"noBorderX\">Navigation</td><td class=\"noBorderX\">Waffen</td><td class=\"noBorderX\">Sicherheit</td><td class=\"noBorderX\">Kommando</td><td class=\"noBorderX\">Spezial</td></tr>\n");
 		
+		Map<Integer,String> ships = new HashMap<Integer,String>();
+		Map<Integer,String> bases = new HashMap<Integer,String>();
+		
 		while( offi.next() ) {
 			Offizier offizier = new Offizier(offi.getRow());
 		   	echo.append("<tr>\n");
@@ -62,13 +68,20 @@ public class StatOwnOffiziere implements Statistic {
 			echo.append("<td class=\"noBorderX\">&nbsp;</td>\n");
 	
 			String[] dest = offizier.getDest();
+			int destid = Integer.parseInt(dest[1]);
 	
 			if( dest[0].equals("s") ) {
-				String shipname = db.first("SELECT name FROM ships WHERE id>0 AND id=",dest[1]).getString("name");
+				if( !ships.containsKey(destid) ) {
+					ships.put(destid, db.first("SELECT name FROM ships WHERE id>0 AND id=",destid).getString("name"));
+				}
+				String shipname = ships.get(destid);
 				echo.append("<td class=\"noBorderX\"><a class=\"forschinfo\" href=\""+Common.buildUrl(context, "default", "module", "schiff", "ship", dest[1])+"\">"+shipname+"</a></td>\n");
 			}
 			else {
-				String basename = db.first("SELECT name FROM bases WHERE id=",dest[1]).getString("name");
+				if( !bases.containsKey(destid) ) {
+					bases.put(destid, db.first("SELECT name FROM bases WHERE id=",destid).getString("name"));
+				}
+				String basename = bases.get(destid);
 				echo.append("<td class=\"noBorderX\"><a class=\"forschinfo\" href=\""+Common.buildUrl(context, "default", "module", "base", "col", dest[1])+"\">"+basename+"</a> "+(dest[0].equals("t") ? "(A)" : "")+"</td>\n");
 			}
 			
