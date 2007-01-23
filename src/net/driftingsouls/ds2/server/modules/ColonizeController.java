@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -119,15 +120,13 @@ public class ColonizeController extends DSGenerator {
 		Integer[] bebon = base.getActive();
 		
 		Map<Integer,Integer> bases = new HashMap<Integer,Integer>();
+		bases.put(base.getSystem(), 0);
 		int basecount = 0;
 		
 		SQLQuery tmp = db.query("SELECT system,width,height,maxtiles,cargo FROM bases WHERE owner='",user.getID(),"'");
 		while( tmp.next() ){
 			final int system = tmp.getInt("system");
-			if( !bases.containsKey(system) ) {
-				bases.put(system, 0);
-			}
-			bases.put(system, bases.get(system)+1);
+			Common.safeIntInc(bases, system);
 			basecount += tmp.getInt("maxtiles");
 		}
 		tmp.free();
