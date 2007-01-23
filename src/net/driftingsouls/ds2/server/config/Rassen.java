@@ -85,7 +85,7 @@ public class Rassen implements Iterable<Rasse>, Loggable {
 				boolean playable = "true".equals(XMLUtils.getStringByXPath(node, "@playable"));
 				boolean extPlayable = "true".equals(XMLUtils.getStringByXPath(node, "@ext-playable"));
 				int memberIn = -1;
-				if( XMLUtils.getNumberByXPath(node, "member-of") != null ) {
+				if( XMLUtils.getNodeByXPath(node, "member-of") != null ) {
 					memberIn = XMLUtils.getNumberByXPath(node, "member-of").intValue();
 				}
 				

@@ -104,8 +104,8 @@ public class Systems implements Iterable<StarSystem>,Loggable {
 				StarSystem system = new StarSystem(id, name, width, height, allowMilitary, access );
 				
 				// @max-colonies verarbeiten
-				if( XMLUtils.getNumberByXPath(node, "max-colonies") != null ) {
-					system.setMaxColonys(XMLUtils.getNumberByXPath(node, "max-colonies").intValue());
+				if( XMLUtils.getNodeByXPath(node, "@max-colonies") != null ) {
+					system.setMaxColonys(XMLUtils.getNumberByXPath(node, "@max-colonies").intValue());
 				}
 				
 				// <description> verarbeiten
