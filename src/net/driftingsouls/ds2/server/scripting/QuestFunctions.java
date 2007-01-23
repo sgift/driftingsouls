@@ -1363,7 +1363,7 @@ public class QuestFunctions {
 			scriptparser.log("Action: "+scriptparser.getParameter(0)+"\n");
 			
 			String action = scriptparser.getParameter(0);
-			if( action.equals("desc") ) {
+			if( "desc".equals(action) ) {
 				scriptparser.log("QQuest: "+scriptparser.getParameter(1)+"\n");
 				SQLResultRow qquest = db.first("SELECT * FROM quests_quick WHERE id="+Value.Int(scriptparser.getParameter(1)));
 				if( qquest.isEmpty() || !qquest.getString("sourcetype").equals(typeid) || 
@@ -1453,12 +1453,12 @@ public class QuestFunctions {
 				call(new InitDialog(), db, scriptparser);
 			} 
 			// ende action.equals("desc")
-			else if( action.equals("yes") ) {
+			else if( "yes".equals(action) ) {
 				// TODO
 				Common.stub();
 			} 
 			// ende if( action.equals("yes")
-			else if( action.equals("end") ) {
+			else if( "end".equals(action) ) {
 				// TODO
 				Common.stub();
 			} 
