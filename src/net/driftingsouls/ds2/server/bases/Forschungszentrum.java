@@ -236,7 +236,7 @@ class Forschungszentrum extends DefaultBuilding {
 		
 		SQLResultRow fz = db.first("SELECT t1.forschung,t1.dauer,t2.name FROM fz AS t1,forschungen AS t2 WHERE t1.col=",col," AND t1.forschung=t2.id");
 	
-		if( fz.getInt("forschung")!=0 ) {
+		if( !fz.isEmpty() ) {
 			echo.append("<img style=\"float:left;border:0px\" src=\""+Configuration.getSetting("URL")+"data/tech/"+fz.getInt("forschung")+".gif\" alt=\"\" />");
 			echo.append("Erforscht: <a class=\"forschinfo\" href=\"./main.php?module=forschinfo&amp;sess="+sess+"&amp;res="+fz.getInt("forschung")+"\">"+Common._plaintitle(fz.getString("name"))+"</a>\n");
 			echo.append("[<a class=\"error\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+col+"&amp;field="+field+"&amp;kill=yes\">x</a>]<br />\n");
