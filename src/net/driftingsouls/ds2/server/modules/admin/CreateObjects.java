@@ -26,6 +26,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -204,9 +205,9 @@ public class CreateObjects implements AdminPlugin {
 					int y =RandomUtils.nextInt(maxY-minY+1)+minY;
 
 					db.update( "INSERT INTO bases " +
-							"(id,x,y,system,klasse,height,width) " +
+							"(id,x,y,system,klasse,height,width,cargo) " +
 							"VALUES " +
-							"("+sid+","+x+","+y+","+system+","+klasse+","+height+","+width+")" );
+							"("+sid+","+x+","+y+","+system+","+klasse+","+height+","+width+",'",new Cargo().save(),"')" );
 
 					echo.append("Erstelle Kolonie: "+sid+"<br />\n");
 					sid++;
@@ -383,9 +384,9 @@ public class CreateObjects implements AdminPlugin {
 		}
 		
 		db.update( "INSERT INTO bases " +
-				"(x,y,system,klasse,height,width,maxcargo,maxtiles) " +
+				"(x,y,system,klasse,height,width,maxcargo,maxtiles,cargo) " +
 				"VALUES " +
-				"("+x+","+y+","+system+","+klasse+","+height+","+width+","+cargo+","+(width*height)+")" );
+				"("+x+","+y+","+system+","+klasse+","+height+","+width+","+cargo+","+(width*height)+",'",new Cargo().save(),"')" );
 					
 		echo.append("Erstelle Basis ($class) bei "+new Location(system,x,y)+"<br />\n");
 	}
