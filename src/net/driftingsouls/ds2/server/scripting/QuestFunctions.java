@@ -20,17 +20,20 @@ package net.driftingsouls.ds2.server.scripting;
 
 import java.sql.Blob;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
-
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.Offizier;
+import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ItemID;
+import net.driftingsouls.ds2.server.cargo.ResourceEntry;
+import net.driftingsouls.ds2.server.cargo.ResourceID;
+import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -44,6 +47,9 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.ships.Ships;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
 /**
  * Scriptbefehle fuer Questscripte
@@ -341,7 +347,7 @@ public class QuestFunctions {
 				}
 			}
 		
-			if( addparams.length() == 0 ) {
+			if( addparams.length() > 0 ) {
 				internalid += ":"+addparams;
 			}
 			
@@ -461,8 +467,20 @@ public class QuestFunctions {
 	
 	class GetQuestID implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			String rquestid = command[1];
+			
+			scriptparser.log("rquestid: "+rquestid+"\n");
+			
+			rquestid = rquestid.substring(1);
+			SQLResultRow qid = db.first("SELECT questid FROM quests_running WHERE id="+Value.Int(rquestid));
+			
+			if( qid.isEmpty() ) {
+				scriptparser.log("rquestid ist ungueltig!\n");
+				scriptparser.setRegister("A", "0");
+			}
+			else {
+				scriptparser.setRegister("A",Integer.toString(qid.getInt("questid")));
+			}
 			
 			return CONTINUE;
 		}
@@ -485,7 +503,6 @@ public class QuestFunctions {
 			return CONTINUE;
 		}
 	}
-	
 	
 	class AddUninstallCmd implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
@@ -610,8 +627,45 @@ public class QuestFunctions {
 	
 	class AddQuestItem implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			scriptparser.log("cargo: "+command[1]+"\n");
+			Object cargoObj = scriptparser.getRegisterObject(command[1]);
+			if( (cargoObj == null) || !(cargoObj instanceof Cargo) ) {
+				scriptparser.log("FATAL ERROR: Kein gueltiges Cargo-Objekt gefunden!\n");
+				return CONTINUE;
+			}
+			
+			Cargo cargo = (Cargo)cargoObj;
+			int newitem = Value.Int(command[2]);
+			scriptparser.log("item: "+newitem+"\n");
+			
+			int count = Value.Int(command[3]);
+			scriptparser.log("count: "+count+"\n");
+			
+			String questid = scriptparser.getRegister("QUEST");
+			if( questid.charAt(0) != 'r' ) {
+				int userid = Value.Int(scriptparser.getRegister("USER"));
+				SQLResultRow questRow = db.first("SELECT id FROM quests_running " +
+						"WHERE questid="+Value.Int(questid)+" AND userid="+userid);
+				
+				if( questRow.isEmpty() ) {
+					scriptparser.log("FATAL ERROR: Kein passendes Quest gefunden!\n");
+					return CONTINUE;
+				}
+				questid = Integer.toString(questRow.getInt("id"));
+			}
+			else {
+				questid = questid.substring(1);
+			}
+		
+			ResourceID item = new ItemID(newitem, 0, Value.Int(questid));
+			if( count > 0 ) {
+				cargo.addResource( item, count );
+			}
+			else {
+				cargo.substractResource( item, -count );	
+			}
+			
+			scriptparser.setRegister(command[1], cargo);
 			
 			return CONTINUE;
 		}
@@ -787,8 +841,29 @@ public class QuestFunctions {
 	
 	class AddMoney implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			int userid = Value.Int(command[1]);
+			scriptparser.log("userid: "+userid+"\n");
+			
+			int fromid = Value.Int(command[2]);
+			scriptparser.log("fromid: "+fromid+"\n");
+			
+			long money = Value.Long(command[3]);
+			scriptparser.log("money: "+money+"\n");
+			
+			String reason = command[4];
+			scriptparser.log("reason: "+reason+"\n");
+			
+			int fake = Value.Int(command[5]);
+			scriptparser.log("fake: "+fake+"\n");
+			
+			if( money > 0 ) {
+				User user = ContextMap.getContext().createUserObject(userid);
+				user.transferMoneyFrom(fromid, money, reason, fake != 0);
+			}
+			else {
+				User user = ContextMap.getContext().createUserObject(fromid);
+				user.transferMoneyFrom(userid, -money, reason, fake != 0);
+			}
 			
 			return CONTINUE;
 		}
@@ -796,8 +871,11 @@ public class QuestFunctions {
 	
 	class GetMoney implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			int userid = Value.Int(command[1]);
+			scriptparser.log("userid: "+userid+"\n");
+			
+			User user = ContextMap.getContext().createUserObject(userid);
+			scriptparser.setRegister("A",user.getKonto().toString());
 			
 			return CONTINUE;
 		}
@@ -814,8 +892,20 @@ public class QuestFunctions {
 	
 	class RemoveOffizier implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			int offiid = Value.Int(command[1]);
+			scriptparser.log("offiid: "+offiid+"\n");
+			
+			SQLResultRow dest = db.first("SELECT dest FROM offiziere WHERE id="+offiid);
+			if( dest.isEmpty() ) {
+				return CONTINUE;	
+			}
+			String[] destArray = StringUtils.split(dest.getString("dest"), ' ');
+						
+			db.update("DELETE FROM offiziere WHERE id="+offiid);
+			
+			if( destArray[0].equals("s") ) {
+				Ships.recalculateShipStatus(Value.Int(destArray[1]));	
+			}
 			
 			return CONTINUE;
 		}
@@ -823,39 +913,108 @@ public class QuestFunctions {
 	
 	class StartBattle implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			int attacker = Value.Int(command[1]);
+			scriptparser.log("attacker(ship): "+attacker+"\n");
+			
+			int defender = Value.Int(command[2]);
+			scriptparser.log("defender(ship): "+defender+"\n");
+			
+			int questbattle = Value.Int(command[3]);
+			scriptparser.log("questbattle: "+questbattle+"\n");
+				
+			SQLResultRow owner = db.first("SELECT owner FROM ships WHERE id>0 AND id="+attacker);
+			
+			Battle battle = new Battle();
+			battle.create( owner.getInt("owner"), attacker, defender );
+			
+			scriptparser.setRegister("A", Integer.toString(battle.getID()) );
+			
+			if( questbattle != 0 ) {
+				String questid = scriptparser.getRegister("QUEST");
+				if( questid.charAt(0) != 'r' ) {
+					int userid = Value.Int(scriptparser.getRegister("USER"));
+					questid = Integer.toString(
+							db.first("SELECT id FROM quests_running " +
+									"WHERE questid="+Value.Int(questid)+" AND userid="+userid).getInt("id")
+					);
+				}
+				else {
+					questid = questid.substring(1);	
+				}
+				
+				SQLResultRow defowner = db.first("SELECT owner FROM ships WHERE id>0 AND id="+defender);
+				battle.setQuest(Value.Int(questid));
+				battle.addToVisibility(owner.getInt("id"));
+				battle.addToVisibility(defowner.getInt("id"));	
+				battle.save(true);
+			}
 			
 			return CONTINUE;
 		}
 	}
+	
 	
 	class AddBattleVisibility implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			int battleid = Value.Int(command[1]);
+			scriptparser.log("battleid: "+battleid+"\n");
+			
+			int userid = Value.Int(command[2]);
+			scriptparser.log("userid: "+userid+"\n");
+			
+			Battle battle = new Battle();
+			battle.load( 0, battleid, 0, 0, 1 );
+			battle.addToVisibility(userid);
+			
+			battle.save(true);
 			
 			return CONTINUE;
 		}
 	}
+	
+	
 	
 	class EndBattle implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			int battleid = Value.Int(command[1]);
+			scriptparser.log("battleid: "+battleid+"\n");
+			
+			int side1points = Value.Int(command[2]);
+			scriptparser.log("side1points: "+side1points+"\n");
+			
+			int side2points = Value.Int(command[3]);
+			scriptparser.log("side2points: "+side2points+"\n");
+			
+			int executescripts = Value.Int(command[4]);
+			scriptparser.log("executescripts: "+executescripts+"\n");
+				
+			Battle battle = new Battle();
+			battle.load( 0, battleid, 0, 0, 1 );
+			battle.endBattle( side1points, side2points, executescripts != 0 );
 			
 			return CONTINUE;
 		}
 	}
 	
+	
 	class GetNoobStatus implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			int userid = Integer.parseInt(command[1]);
+			scriptparser.log("userid: "+userid+"\n");
 			
+			User user = ContextMap.getContext().createUserObject(userid);
+			if( user.isNoob() ) {
+				scriptparser.setRegister("A","1");
+			}	
+			else {
+				scriptparser.setRegister("A","0");
+			}	
+
 			return CONTINUE;
 		}
 	}
+	
+	
 	
 	class GetUserValue implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
@@ -882,28 +1041,115 @@ public class QuestFunctions {
 		}
 	}
 	
+	
 	class SetUserValue implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			int userid = Integer.parseInt(command[1]);
+			scriptparser.log("userid: "+userid+"\n");
+			
+			String valuename = command[2];
+			scriptparser.log("value(key): "+valuename+"\n");
+			
+			String value = command[3];
+			scriptparser.log("value: "+value+"\n");
+			
+			User user = ContextMap.getContext().createUserObject(userid);
+			user.setUserValue(valuename, value);
 			
 			return CONTINUE;
 		}
 	}
+	
 	
 	class GetSectorProperty implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			Location sector = Location.fromString(command[1]);
+			scriptparser.log("sector: "+sector+"\n");
+			
+			String property = command[2];
+			scriptparser.log("property: "+property+"\n");
+			
+			List<String> result = new ArrayList<String>();
+			
+			String locSQL = "system="+sector.getSystem()+" AND x="+sector.getX()+" AND y="+sector.getY();
+			if( property.equals("nebel") ) {
+				SQLResultRow nebel = db.first("SELECT id FROM nebel WHERE "+locSQL);
+				if( !nebel.isEmpty() ) {
+					result.add(Integer.toString(nebel.getInt("id")));
+				}
+			} 
+			else if( property.equals("bases") ) {
+				SQLQuery bid = db.query("SELECT id FROM bases WHERE "+locSQL);
+				while( bid.next() ) {
+					result.add(Integer.toString(bid.getInt("id")));	
+				}
+				bid.free();
+			}
+			else if( property.equals("jumpnodes") ) {
+				SQLQuery jn = db.query("SELECT id FROM jumpnodes WHERE "+locSQL);
+				while( jn.next() ) {
+					result.add(Integer.toString(jn.getInt("id")));	
+				}
+				jn.free();
+			}
+			else if( property.equals("ships") ) {
+				SQLQuery ship = db.query("SELECT id FROM ships WHERE id>0 AND "+locSQL);
+				while( ship.next() ) {
+					result.add(Integer.toString(ship.getInt("id")));	
+				}
+				ship.free();
+			}
+			else if( property.equals("shipsByOwner") ) {
+				int owner = Value.Int(command[3]);
+				scriptparser.log("owner: "+owner+"\n");
+				
+				SQLQuery ship = db.query("SELECT id FROM ships WHERE id>0 AND "+locSQL+" AND owner="+owner);
+				while( ship.next() ) {
+					result.add(Integer.toString(ship.getInt("id")));	
+				}
+				ship.free();
+			}
+			else if( property.equals("shipsByTag") ) {
+				String tag = command[3];
+				scriptparser.log("tag: "+tag+"\n");
+				
+				SQLQuery ship = db.prepare("SELECT id FROM ships WHERE id>0 AND "+locSQL+" AND LOCATE( ? ,status)")
+					.query("<"+tag+">");
+				while( ship.next() ) {
+					result.add(Integer.toString(ship.getInt("id")));	
+				}
+				ship.free();	
+			}
+		
+			scriptparser.setRegister("A",result.toArray(new String[result.size()]));
 			
 			return CONTINUE;
 		}
 	}
 	
+	
 	class GetSystemProperty implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			int system = Value.Int(command[1]);
+			scriptparser.log("system: "+system+"\n");
+			
+			String property = command[2];
+			scriptparser.log("property: "+property+"\n");
+			
+			List<String> result = new ArrayList<String>();
+			
+			if( property.equals("shipsByTag") ) {
+				String tag = command[3];
+				scriptparser.log("tag: "+tag+"\n");
+				
+				SQLQuery ship = db.query("SELECT id FROM ships WHERE id>0 AND system="+system+" AND LOCATE('<"+tag+">',status)");
+				while( ship.next() ) {
+					result.add(Integer.toString(ship.getInt("id")));
+				}
+				ship.free();
+			}
+		
+			scriptparser.setRegister("A",result.toArray(new String[result.size()]));
 			
 			return CONTINUE;
 		}
@@ -938,8 +1184,32 @@ public class QuestFunctions {
 	
 	class GtuAuctionCargo implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			ResourceID resid = Resources.fromString(command[1]);
+			scriptparser.log("resid: "+resid+"\n");
+			
+			int count = Value.Int(command[2]);
+			scriptparser.log("count: "+count+"\n");
+			
+			int ticks = Value.Int(command[3]);
+			scriptparser.log("ticks: "+ticks+"\n");
+			
+			int initbid = Value.Int(command[4]);
+			scriptparser.log("initbid: "+initbid+"\n");
+			
+			int owner = Value.Int(command[5]);
+			if( owner == 0 ) {
+				owner = Faction.GTU;
+			}
+			scriptparser.log("owner: "+owner+"\n");
+			
+			int curtick = ContextMap.getContext().get(ContextCommon.class).getTick();
+			ticks += curtick;
+			
+			Cargo cargo = new Cargo();
+			cargo.addResource(resid, count);
+			
+			db.update("INSERT INTO versteigerungen (mtype,type,tick,preis,owner)" +
+					" VALUES ('2','"+cargo.save()+"',"+ticks+","+initbid+","+owner+")");
 			
 			return CONTINUE;
 		}
@@ -951,8 +1221,9 @@ public class QuestFunctions {
 	 *
 	 ----------------------------------------------*/
 	
-	class GenerateQuickQuestSourceMenu implements SPFunction {
+	class GenerateQuickQuestSourceMenu implements SPFunction,Loggable {
 		private void call( SPFunction f, Database db, ScriptParser scriptparser, Object ... cmd) {
+			scriptparser.log("-> "+f.getClass().getSimpleName()+"\n");
 			String[] command = new String[cmd.length+1];
 			command[0] = "!"+f.getClass().getSimpleName();
 			for( int i=0; i < cmd.length; i++ ) {
@@ -972,7 +1243,7 @@ public class QuestFunctions {
 			SQLQuery qquest = db.query("SELECT * FROM quests_quick " +
 					"WHERE enabled>0 AND source="+shipid+" AND sourcetype='"+typeid+"'");
 			while( qquest.next() ) {
-				if( qquest.getInt("moreThanOnce") > 0 ) {
+				if( qquest.getInt("moreThanOnce") == 0 ) {
 					call(new HasQuestCompleted(), db, scriptparser, qquest.getInt("enabled"));
 					if( Integer.parseInt(scriptparser.getRegister("#cmp")) > 0 ) {
 						continue;
@@ -984,9 +1255,13 @@ public class QuestFunctions {
 					String[] qquests = StringUtils.split(qquest.getString("dependsOnQuests"), ';');
 					for( int i=0; i < qquests.length; i++ ) {
 						String[] tmp = StringUtils.split(qquests[i], ':');
-						int qid = db.first("SELECT id FROM quests WHERE qid='"+tmp[1]+"'").getInt("qid");
+						SQLResultRow qid = db.first("SELECT id FROM quests WHERE qid='"+tmp[1]+"'");
+						if( qid.isEmpty() ) {
+							LOG.warn("QQuest "+qquest.getInt("id")+" benoetigt Quest "+tmp[1]+", welches jedoch nicht existiert");
+							continue;
+						}
 		
-						call(new HasQuestCompleted(), db, scriptparser, qid);
+						call(new HasQuestCompleted(), db, scriptparser, qid.getInt("id"));
 						if( Value.Int(scriptparser.getRegister("#cmp")) <= 0 ) {
 							ok = false;
 							break;
@@ -1014,8 +1289,10 @@ public class QuestFunctions {
 		}
 	}
 	
+	
 	class GenerateQuickQuestTargetMenu implements SPFunction {
 		private void call( SPFunction f, Database db, ScriptParser scriptparser, Object ... cmd) {
+			scriptparser.log("-> "+f.getClass().getSimpleName()+"\n");
 			String[] command = new String[cmd.length+1];
 			command[0] = "!"+f.getClass().getSimpleName();
 			for( int i=0; i < cmd.length; i++ ) {
@@ -1063,10 +1340,131 @@ public class QuestFunctions {
 		}
 	}
 	
-	class HandleQuickQuestEvent implements SPFunction {
+	
+	class HandleQuickQuestEvent implements SPFunction, Loggable {
+		private void call( SPFunction f, Database db, ScriptParser scriptparser, Object ... cmd) {
+			scriptparser.log("-> "+f.getClass().getSimpleName()+"\n");
+			String[] command = new String[cmd.length+1];
+			command[0] = "!"+f.getClass().getSimpleName();
+			for( int i=0; i < cmd.length; i++ ) {
+				command[i+1] = cmd[i].toString();
+			}
+			
+			f.execute(db, scriptparser, command);
+		}
+		
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			String typeid = command[1];
+			scriptparser.log("TypeID: "+typeid+"\n");
+			
+			int shipid = Integer.parseInt(command[2]);
+			scriptparser.log("ShipID: "+shipid+"\n");
+			
+			scriptparser.log("Action: "+scriptparser.getParameter(0)+"\n");
+			
+			String action = scriptparser.getParameter(0);
+			if( action.equals("desc") ) {
+				scriptparser.log("QQuest: "+scriptparser.getParameter(1)+"\n");
+				SQLResultRow qquest = db.first("SELECT * FROM quests_quick WHERE id="+Value.Int(scriptparser.getParameter(1)));
+				if( qquest.isEmpty() || !qquest.getString("sourcetype").equals(typeid) || 
+					(qquest.getInt("source") != shipid) ) {
+					scriptparser.setRegister("#A","0");
+					return CONTINUE;	
+				}
+				
+				call(new LoadQuestContext(), db, scriptparser, qquest.getInt("enabled"));
+				call(new GetQuestID(), db, scriptparser, scriptparser.getRegister("#QUEST"));
+				
+				if( Value.Int(scriptparser.getRegister("#A")) == qquest.getInt("enabled") ) {
+					scriptparser.setRegister("#A","0");
+					return CONTINUE;	
+				}
+					
+				if( qquest.getInt("moreThanOnce") == 0 ) {
+					call(new HasQuestCompleted(), db, scriptparser, qquest.getInt("enabled"));
+					if( Value.Int(scriptparser.getRegister("#cmp")) > 0 ) {
+						scriptparser.setRegister("#A","0");
+						return CONTINUE;
+					}
+				}
+				
+				if( qquest.getString("dependsOnQuests").length() > 0 ) {
+					String[] qquests = StringUtils.split(qquest.getString("dependsOnQuests"), ';');
+					for( int i=0; i < qquests.length; i++ ) {
+						String[] tmp = StringUtils.split(qquests[i], ':');
+						SQLResultRow qid = db.first("SELECT id FROM quests WHERE qid='"+tmp[1]+"'");
+						if( qid.isEmpty() ) {
+							LOG.warn("QQuest "+qquest.getInt("id")+" benoetigt Quest "+tmp[1]+", welches jedoch nicht existiert");
+							continue;
+						}
+		
+						call(new HasQuestCompleted(), db, scriptparser, qid.getInt("id"));
+						if( Value.Int(scriptparser.getRegister("#cmp")) <= 0 ) {
+							scriptparser.setRegister("#A","0");
+							return CONTINUE;
+						}
+					}	
+				}
+				
+				String dialogtext = qquest.getString("shortdesc")+"[hr]\n"+qquest.getString("desc")+"\n\n";
+				if( (qquest.getString("reqitems").length() > 0) || (qquest.getInt("reqre") > 0) ) {
+					dialogtext += "Benötigt:[color=red]\n";
+					if( qquest.getString("reqitems").length() > 0 ) {
+						Cargo cargo = new Cargo(Cargo.Type.STRING, qquest.getString("reqitems"));
+					
+						ResourceList reslist = cargo.getResourceList();
+						for( ResourceEntry res : reslist ) {
+							dialogtext += "[resource="+res.getId()+"]"+res.getCount1()+"[/resource]\n";	
+						}
+					}
+					if( qquest.getInt("reqre") != 0 ) {
+						dialogtext += Common.ln(qquest.getInt("reqre"))+" RE\n";
+					}
+					dialogtext += "[/color]\n\n";
+				}
+				if( qquest.getString("awarditems").length() > 0 ) {
+					dialogtext += "Belohnung in Waren:\n";
+					Cargo cargo = new Cargo(Cargo.Type.STRING, qquest.getString("awarditems"));
+					
+					ResourceList reslist = cargo.getResourceList();
+					for( ResourceEntry res : reslist ) {
+						dialogtext += "[resource="+res.getId()+"]"+res.getCount1()+"[/resource]\n";	
+					}
+					dialogtext += "\n";
+				}
+				if( qquest.getString("awardre").length() > 0 ) {
+					dialogtext += "Belohnung in RE: "+Common.ln(qquest.getInt("awardre"))+"\n";	
+				}
+				
+				call(new LoadDialog(), db, scriptparser, 
+						dialogtext, 
+						qquest.getString("head"));
+				
+				call(new AddAnswer(), db, scriptparser,
+						"Annehmen",
+						"_quick_quests",
+						"yes",
+						qquest.getInt("id"));
+											
+				call(new AddAnswer(), db, scriptparser,
+						"Ablehnen",
+						"0");
+							
+				call(new InitDialog(), db, scriptparser);
+			} 
+			// ende action.equals("desc")
+			else if( action.equals("yes") ) {
+				// TODO
+				Common.stub();
+			} 
+			// ende if( action.equals("yes")
+			else if( action.equals("end") ) {
+				// TODO
+				Common.stub();
+			} 
+			// ende if( action.equals("end") ) 
+			
+			scriptparser.setRegister("#A","1");
 			
 			return CONTINUE;
 		}
