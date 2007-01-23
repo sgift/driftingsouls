@@ -631,7 +631,7 @@ public class ScriptParser {
 	 * @return Der Inhalt oder <code>null</code>
 	 */
 	public String getParameter( int number ) {
-		if( (number > -1) && (addparameterlist.size() >= number) ) { 
+		if( (number > -1) && (addparameterlist.size() > number) ) { 
 			return this.addparameterlist.get(number);
 		}
 		return null;
