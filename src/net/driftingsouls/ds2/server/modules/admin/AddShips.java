@@ -293,7 +293,7 @@ public class AddShips implements AdminPlugin {
 				}
 				else {
 					query = db.prepare("INSERT INTO ships (name,type,owner,x,y,system,hull,e,crew,shields,cargo,history) "+ 
-								"VALUES (newIntelliShipID( ? ), ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? )");
+								"VALUES (? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? )");
 					query.update(name, ship, owner, x, y, system, shiptype.getInt("hull"), shiptype.getInt("eps"), shiptype.getInt("crew"), shiptype.getInt("shields"), cargo.save(), history);
 				}
 				int shipid = query.insertID();
