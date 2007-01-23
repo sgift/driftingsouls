@@ -35,6 +35,21 @@ class Value {
 	}
 	
 	/**
+	 * Konvertiert einen beliebigen String in einen Longwert.
+	 * Wenn der String keine Zahl ist wird 0 zurueckgegeben.
+	 * @param val Der String
+	 * @return Die Zahl oder 0
+	 */
+	public static long Long(String val) {
+		try {
+			return Long.parseLong(val);
+		}
+		catch( NumberFormatException e ) {
+			return 0;
+		}
+	}
+	
+	/**
 	 * Konvertiert einen beliebigen String in einen Doublewert.
 	 * Wenn der String keine Zahl ist wird 0 zurueckgegeben.
 	 * @param val Der String
