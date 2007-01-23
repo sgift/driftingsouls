@@ -140,8 +140,8 @@ public class AllyController extends DSGenerator implements Loggable {
 		int confuser1 = getInteger("confuser1");
 		int confuser2 = getInteger("confuser2");
 		
-		confuser1 = db.first("SELECT id FROM users WHERE id=",confuser1," AND id NOT IN (",user.getID(),",",confuser2,") AND ally='0'").getInt("id");
-		confuser2 = db.first("SELECT id FROM users WHERE id=",confuser2,"' AND id NOT IN (",user.getID(),",",confuser2,") AND ally='0'").getInt("id");
+		confuser1 = db.first("SELECT id FROM users WHERE id=",confuser1," AND id NOT IN (",user.getID(),",",confuser2,") AND ally=0").getInt("id");
+		confuser2 = db.first("SELECT id FROM users WHERE id=",confuser2," AND id NOT IN (",user.getID(),",",confuser2,") AND ally=0").getInt("id");
 	
 		if( (confuser1 == 0) || (confuser2 == 0) ) {
 			t.set_var("ally.statusmessage", "<span style=\"color:red\">Einer der angegebenen Unterst&uuml;tzer ist ung&uuml;ltig</span>\n");
