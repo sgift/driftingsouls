@@ -39,7 +39,7 @@ public class TagIntrnlConfTask implements BBCodeFunction {
 		if( Taskmanager.getInstance().getTaskByID( taskid ) != null ) {	
 			str.append("<div align=\"center\">");
 			str.append("<table class=\"noBorderX\" width=\"500\"><tr><td class=\"BorderX\" align=\"center\">");
-			str.append(context);
+			str.append(content);
 			str.append("<br />");
 			str.append("<a class=\"ok\" target=\"main\" href=\"./main.php?module=comm&sess="+sess+"&action=send&to=task&title="+taskid+"&msg=handletm\">ja</a> - ");
 			str.append("<a class=\"error\" target=\"main\" href=\"./main.php?module=comm&sess="+sess+"&action=send&to=task&title="+taskid+"&msg=dismiss\">nein</a>");
@@ -49,7 +49,7 @@ public class TagIntrnlConfTask implements BBCodeFunction {
 		else {
 			str.append("<div align=\"center\">");
 			str.append("<table class=\"noBorderX\" width=\"500\"><tr><td class=\"BorderX\" align=\"center\">");
-			str.append(context);
+			str.append(content);
 			str.append("<br />");
 			str.append("<span style=\"color:red\">Die Anfrage wurde bereits bearbeitet</span>");
 			str.append("</td></tr></table>");
