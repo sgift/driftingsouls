@@ -137,54 +137,54 @@ public class AllyController extends DSGenerator implements Loggable {
 		parameterNumber("confuser1");
 		parameterNumber("confuser2");
 		String name = getString("name");
-		int confuser1 = getInteger("confuser1");
-		int confuser2 = getInteger("confuser2");
+		int confuser1ID = getInteger("confuser1");
+		int confuser2ID = getInteger("confuser2");
 		
-		confuser1 = db.first("SELECT id FROM users WHERE id=",confuser1," AND id NOT IN (",user.getID(),",",confuser2,") AND ally=0").getInt("id");
-		confuser2 = db.first("SELECT id FROM users WHERE id=",confuser2," AND id NOT IN (",user.getID(),",",confuser2,") AND ally=0").getInt("id");
+		SQLResultRow confuser1 = db.first("SELECT id FROM users WHERE id=",confuser1ID," AND id NOT IN (",user.getID(),",",confuser2ID,") AND ally=0");
+		SQLResultRow confuser2 = db.first("SELECT id FROM users WHERE id=",confuser2ID," AND id NOT IN (",user.getID(),",",confuser1ID,") AND ally=0");
 	
-		if( (confuser1 == 0) || (confuser2 == 0) ) {
+		if( confuser1.isEmpty() || confuser2.isEmpty() ) {
 			t.set_var("ally.statusmessage", "<span style=\"color:red\">Einer der angegebenen Unterst&uuml;tzer ist ung&uuml;ltig</span>\n");
 			
 			redirect("defaultNoAlly");
 			return; 	
 		}
 		
-		tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_FOUND_CONFIRM, "*", Integer.toString(confuser1), "*" );
+		tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_FOUND_CONFIRM, "*", Integer.toString(confuser1.getInt("id")), "*" );
 		if( tasks.length > 0 ) {
-			confuser1 = 0;	
+			confuser1.clear();	
 		}
 		else {
-			tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_NEW_MEMBER, "*", Integer.toString(confuser1), "*" );
+			tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_NEW_MEMBER, "*", Integer.toString(confuser1.getInt("id")), "*" );
 			if( tasks.length > 0 ) {
-				confuser1 = 0;	
+				confuser1.clear();	
 			}
 		}
 	
-		tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_FOUND_CONFIRM, "*", Integer.toString(confuser2), "*" );
+		tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_FOUND_CONFIRM, "*", Integer.toString(confuser2.getInt("id")), "*" );
 		if( tasks.length > 0 ) {
-			confuser2 = 0;	
+			confuser2.clear();	
 		}
 		else {
-			tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_NEW_MEMBER, "*", Integer.toString(confuser2), "*" );
+			tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_NEW_MEMBER, "*", Integer.toString(confuser2.getInt("id")), "*" );
 			if( tasks.length > 0 ) {
-				confuser2 = 0;	
+				confuser2.clear();	
 			}
 		}
 	
-		if( (confuser1 == 0) || (confuser2 == 0) ) {
-			t.set_var("ally.statusmessage", "<span style=\"color:red\">Einer der angegebenen Unterst&uuml;tzer ist ung&uuml;ltig</span>\n");
+		if( confuser1.isEmpty() || confuser2.isEmpty() ) {
+			t.set_var("ally.statusmessage", "<span style=\"color:red\">Einer der angegebenen Unterst&uuml;tzer ist versucht bereits in einer anderen Allianz Mitglied zu werden</span>\n");
 			
 			redirect("defaultNoAlly");
 			return; 	
 		}
 	
-		String mastertaskid = taskmanager.addTask(Taskmanager.Types.ALLY_FOUND, 21, "2", name, user.getID()+","+confuser1+","+confuser2 );
-		String conf1taskid = taskmanager.addTask(Taskmanager.Types.ALLY_FOUND_CONFIRM, 21, mastertaskid, Integer.toString(confuser1), "" );
-		String conf2taskid = taskmanager.addTask(Taskmanager.Types.ALLY_FOUND_CONFIRM, 21, mastertaskid, Integer.toString(confuser2), "" );
+		String mastertaskid = taskmanager.addTask(Taskmanager.Types.ALLY_FOUND, 21, "2", name, user.getID()+","+confuser1.getInt("id")+","+confuser2.getInt("id") );
+		String conf1taskid = taskmanager.addTask(Taskmanager.Types.ALLY_FOUND_CONFIRM, 21, mastertaskid, Integer.toString(confuser1.getInt("id")), "" );
+		String conf2taskid = taskmanager.addTask(Taskmanager.Types.ALLY_FOUND_CONFIRM, 21, mastertaskid, Integer.toString(confuser2.getInt("id")), "" );
 	
-		PM.send( getContext(), user.getID(), confuser1, "Allianzgr&uuml;ndung", "[automatische Nachricht]\nIch habe vor die Allianz "+name+" zu gr&uuml;nden. Da zwei Spieler dieses vorhaben unterst&uuml;tzen m&uuml;ssen habe ich mich an dich gewendet.\nAchtung: Durch die Unterst&uuml;tzung wirst du automatisch Mitglied!\n\n[_intrnlConfTask="+conf1taskid+"]Willst du die Allianzgr&uuml;ndung unterst&uuml;tzen?[/_intrnlConfTask]", false, PM.FLAGS_IMPORTANT);
-		PM.send( getContext(), user.getID(), confuser2, "Allianzgr&uuml;ndung", "[automatische Nachricht]\nIch habe vor die Allianz "+name+" zu gr&uuml;nden. Da zwei Spieler dieses vorhaben unterst&uuml;tzen m&uuml;ssen habe ich mich an dich gewendet.\nAchtung: Durch die Unterst&uuml;tzung wirst du automatisch Mitglied!\n\n[_intrnlConfTask="+conf2taskid+"]Willst du die Allianzgr&uuml;ndung unterst&uuml;tzen?[/_intrnlConfTask]", false, PM.FLAGS_IMPORTANT);
+		PM.send( getContext(), user.getID(), confuser1.getInt("id"), "Allianzgr&uuml;ndung", "[automatische Nachricht]\nIch habe vor die Allianz "+name+" zu gr&uuml;nden. Da zwei Spieler dieses vorhaben unterst&uuml;tzen m&uuml;ssen habe ich mich an dich gewendet.\nAchtung: Durch die Unterst&uuml;tzung wirst du automatisch Mitglied!\n\n[_intrnlConfTask="+conf1taskid+"]Willst du die Allianzgr&uuml;ndung unterst&uuml;tzen?[/_intrnlConfTask]", false, PM.FLAGS_IMPORTANT);
+		PM.send( getContext(), user.getID(), confuser2.getInt("id"), "Allianzgr&uuml;ndung", "[automatische Nachricht]\nIch habe vor die Allianz "+name+" zu gr&uuml;nden. Da zwei Spieler dieses vorhaben unterst&uuml;tzen m&uuml;ssen habe ich mich an dich gewendet.\nAchtung: Durch die Unterst&uuml;tzung wirst du automatisch Mitglied!\n\n[_intrnlConfTask="+conf2taskid+"]Willst du die Allianzgr&uuml;ndung unterst&uuml;tzen?[/_intrnlConfTask]", false, PM.FLAGS_IMPORTANT);
 	
 		user.setAlly(-1);
 	
@@ -316,7 +316,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		
 		parameterNumber("user");
 		parameterNumber("id");
-		int userid = getInteger("id");
+		int userid = getInteger("user");
 		int postenid = getInteger("id");
 		
 		if( userid == 0 ) {
@@ -514,7 +514,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		int edit = getInteger("edit");
 
 		SQLResultRow allyowner = db.first("SELECT allyowner FROM skn_channels WHERE id=",edit);
-		if( allyowner.isEmpty() || (allyowner.getInt("id") != this.ally.getInt("id")) ) {
+		if( allyowner.isEmpty() || (allyowner.getInt("allyowner") != this.ally.getInt("id")) ) {
 			t.set_var( "ally.message", "Fehler: Diese Frequenz geh&ouml;rt nicht ihrer Allianz" );
 			return;
 		}
@@ -656,7 +656,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		
 		String uploaddir = Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/ally/";
 		try {
-			File uploadedFile = new File(uploaddir+getUser().getID()+".gif");
+			File uploadedFile = new File(uploaddir+this.ally.getInt("id")+".gif");
 			list.get(0).write(uploadedFile);
 			t.set_var("options.message","Das neue Logo wurde auf dem Server gespeichert<br />");
 		}
@@ -905,7 +905,7 @@ public class AllyController extends DSGenerator implements Loggable {
 			return;	
 		}
 	
-		db.update("UPDATE ally SET president=",presnuser.getID(),"' WHERE id='",this.ally.getInt("id"));
+		db.update("UPDATE ally SET president=",presnuser.getID()," WHERE id=",this.ally.getInt("id"));
 		t.set_var( "ally.statusmessage", presnuser.getProfileLink()+" zum Pr&auml;sidenten ernannt" );
 	
 		PM.send(getContext(), this.ally.getInt("president"), presnuser.getID(), "Zum Pr&auml;sidenten ernannt", "Ich habe dich zum Pr&auml;sidenten der Allianz ernannt");
