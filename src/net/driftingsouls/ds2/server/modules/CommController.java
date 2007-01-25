@@ -660,12 +660,18 @@ public class CommController extends DSGenerator implements Loggable {
 			bgimg = "pm_"+Rassen.get().rasse(sender.getRace()).getName().toLowerCase()+"bg.png";	
 		}
 		
+		String text = pm.getString("inhalt");
+		text = bbcodeparser.parse(text);
+
+		text = StringUtils.replace(text, "\r\n", "<br />");
+		text = StringUtils.replace(text, "\n", "<br />");
+		
 		t.set_var(	"pm.id",			pm.getInt("id"),
 					"pm.title",			Common._plaintitle(pm.getString("title")),
 					"pm.flags.admin", 	(pm.getInt("flags") & PM.FLAGS_ADMIN),
 					"pm.bgimage", 		bgimg,
 					"pm.time", 			Common.date("j.n.Y G:i",pm.getInt("time")),
-					"pm.text", 			Common.smiliesParse(Common._text(pm.getString("inhalt"))),
+					"pm.text", 			Common.smiliesParse(text),
 					"pm.kommentar", 	Common.smiliesParse(Common._text(pm.getString("kommentar"))));
 	}
 	
