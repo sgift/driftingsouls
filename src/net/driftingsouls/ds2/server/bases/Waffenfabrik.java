@@ -158,6 +158,12 @@ class Waffenfabrik extends DefaultBuilding {
 				String[] tmp = StringUtils.split(plist[i],'=');
 				int aid = Integer.parseInt(tmp[0]);
 				int count = Integer.parseInt(tmp[1]);
+				
+				if( !ammolist.containsKey(aid) ) {
+					plist[i] = "";
+					continue;
+				}
+				
 				// Ammo ohne Plaene melden - veraltete Ammo aber ignorieren!
 				if( (count > 0) && !thisammolist.containsKey(aid) && !removelist.contains(aid) ) {
 					ok = false;
