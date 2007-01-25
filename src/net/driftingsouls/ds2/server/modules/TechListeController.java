@@ -103,13 +103,11 @@ public class TechListeController extends DSGenerator {
 		Map<Integer,Forschung>  researchable = new LinkedHashMap<Integer,Forschung>();
 		Map<Integer,Forschung>  notResearchable = new LinkedHashMap<Integer,Forschung>();
 		Map<Integer,Forschung>  invisible = new LinkedHashMap<Integer,Forschung>();
-		Map<Integer,Forschung>  researchCache = new LinkedHashMap<Integer,Forschung>();
 
 		//Alle Forschungen durchgehen
 		SQLQuery forschung = db.query("SELECT id FROM forschungen ORDER BY name");
 		while( forschung.next() ) {
 			Forschung f = Forschung.getInstance(forschung.getInt("id"));
-			researchCache.put(f.getID(), f);
 			
 			if( !Rassen.get().rasse(rasse).isMemberIn(f.getRace()) ) {
 				continue;	
@@ -197,7 +195,7 @@ public class TechListeController extends DSGenerator {
 				if( !mykey.equals("researchable") ) {
 					for( int i=1; i <= 3; i++ ) {
 						if( result.getRequiredResearch(i) > 0) {
-							String req = researchCache.get(result.getRequiredResearch(i)).getName();
+							String req = Forschung.getInstance(result.getRequiredResearch(i)).getName();
 							
 							t.set_var(	"tech.req"+i+".id",		result.getRequiredResearch(i),
 										"tech.req"+i+".name",	req );
