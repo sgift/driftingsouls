@@ -467,7 +467,9 @@ class Waffenfabrik extends DefaultBuilding {
 				}
 			
 				boolean entry = false;
-				List<String> producelist = Arrays.asList(StringUtils.split(wf.getString("produces"), ';'));
+				List<String> producelist = new ArrayList<String>(
+						Arrays.asList(StringUtils.split(wf.getString("produces"), ';'))
+				);
 				
 				for( int i=0; i < producelist.size(); i++ ) {
 					String[] tmp = StringUtils.split(producelist.get(i), '=');
