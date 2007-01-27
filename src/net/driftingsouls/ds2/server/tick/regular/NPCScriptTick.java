@@ -82,6 +82,8 @@ public class NPCScriptTick extends TickController {
 					scriptparser.executeScript( db, ship.getString("script") );
 					
 					scriptparser.writeExecutionData(scriptExecData.setBinaryStream(1));
+					db.prepare("UPDATE ships SET scriptexedata=? WHERE id=? ")
+						.update(scriptExecData, ship.getInt("id"));
 				}
 				catch( Exception e ) {
 					this.log("[FEHLER] Kann Script auf Schiff "+ship.getInt("id")+" nicht ausfuehren: "+e);

@@ -808,6 +808,8 @@ public class SchiffController extends DSGenerator implements Loggable {
 			if( !usequest.equals("") ) {
 				try {
 					scriptparser.writeExecutionData(execdata.setBinaryStream(1));
+					db.prepare("UPDATE quests_running SET execdata=? WHERE id=? ")
+						.update(execdata, runningdata.getInt("id"));
 				}
 				catch( Exception e ) {
 					LOG.warn("Writing back Script-ExecData failed (Ship: "+ship.getInt("id")+": ",e);

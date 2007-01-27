@@ -272,6 +272,8 @@ public class RestTick extends TickController {
 					
 				if( usequest != 0 ) {
 					scriptparser.writeExecutionData(execdata.setBinaryStream(1));	
+					db.prepare("UPDATE quests_running SET execdata=? WHERE id=? ")
+						.update(execdata, rquest.getInt("id"));
 				}
 			}
 			catch( Exception e ) {

@@ -262,26 +262,31 @@ public class Quests implements Loggable {
 		scriptparser.executeScript(db, script.getString("script"), execparameter);
 		
 		usequest = scriptparser.getRegister("QUEST");
-							
+
 		if( (usequest.length() > 0) && !usequest.equals("0") ) {
 			SQLQuery runningdata = null;
 			if( usequest.charAt(0) != 'r' ) {
-				runningdata = db.query("SELECT execdata FROM quests_running WHERE questid='",usequest,"' AND userid='",userid,"'");
+				runningdata = db.query("SELECT id,execdata FROM quests_running WHERE questid='",usequest,"' AND userid='",userid,"'");
 			}
 			else {
 				String rquestid = usequest.substring(1);
-				runningdata = db.query("SELECT execdata FROM quests_running WHERE id='",rquestid,"'");	
+				runningdata = db.query("SELECT id,execdata FROM quests_running WHERE id='",rquestid,"'");	
 			}
-			try {
-				Blob execdata = runningdata.getBlob("execdata");
-				if( (execdata != null) && (execdata.length() > 0) ) { 
+			if( !runningdata.next() ) {
+				LOG.error("Das Quest "+usequest+" hat keine Daten");
+			}
+			else {
+				try {
+					Blob execdata = runningdata.getBlob("execdata");
 					scriptparser.writeExecutionData( execdata.setBinaryStream(1) );
+					db.prepare("UPDATE quests_running SET execdata=? WHERE id=? ")
+						.update(execdata, runningdata.getInt("id"));
 				}
-			}
-			catch( Exception e ) {
-				runningdata.free();
-				LOG.warn("Writing back Script-ExecData failed: ",e);
-				return false;
+				catch( Exception e ) {
+					runningdata.free();
+					LOG.warn("Writing back Script-ExecData failed: ",e);
+					return false;
+				}
 			}
 			
 			runningdata.free();
