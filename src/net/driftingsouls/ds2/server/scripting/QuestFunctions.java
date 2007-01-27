@@ -377,8 +377,61 @@ public class QuestFunctions {
 	
 	class SaveVar implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			scriptparser.log("value: "+command[1]+"\n");
+			scriptparser.log("register: "+command[2]+"\n");
+			Object val = scriptparser.getRegisterObject(command[2]);
+			if( (command.length > 3) && (command[3].length() > 0) ) {
+				scriptparser.log("reg4value: "+command[3]+"\n");	
+			}
+			
+			String[] value = StringUtils.split(command[1], '.');
+			if( value[0].equals("shipsource") ) {
+				SQLResultRow ship = scriptparser.getShip();
+				if( (command.length > 3) && (command[3].length() > 0) ) {
+					Object shipObj = scriptparser.getRegister(command[3]);
+					if( !(shipObj instanceof SQLResultRow) ) {
+						ship = db.first("SELECT * FROM ships WHERE id>0 AND id="+Value.Int(shipObj.toString()));
+					}
+					else {
+						ship = (SQLResultRow)shipObj;
+					}
+				}
+				
+				if( !value[1].equals("cargo") ) {
+					ship.put(value[1].trim(), val);
+					db.prepare("UPDATE ships SET `?`= ? WHERE id>0 AND id= ?")
+						.update(value[1].trim(), val, ship.getInt("id"));
+				}
+				else {
+					ship.put("cargo", ((Cargo)val).save());
+					db.update("UPDATE ships SET `cargo`='"+ship.getString("cargo")+"' WHERE id>0 AND id="+ship.getInt("id"));
+				}
+				
+				if( (command.length == 3) || (command[3].length() == 0) ) {
+					scriptparser.setShip( ship );
+				}
+			}	
+			else if( value[0].equals("sessionid") ) {
+				// Kein speichern von sessionids moeglich
+				scriptparser.log("Speichern der Sessionid nicht moeglich\n");
+			}
+			else if( value[0].equals("base") ) {
+				Object baseObj = scriptparser.getRegisterObject(command[3]);
+				if( !(baseObj instanceof SQLResultRow) ) {
+					baseObj = db.first("SELECT * FROM bases WHERE id="+Value.Int(baseObj.toString()));
+				}
+				SQLResultRow base = (SQLResultRow)baseObj;
+				
+				if( !value[1].equals("cargo") ) {
+					base.put(value[1].trim(), val);
+					db.prepare("UPDATE bases SET `?`= ? WHERE id>0 AND id= ?")
+						.update(value[1].trim(), val, base.getInt("id"));
+				}
+				else {
+					base.put("cargo", ((Cargo)val).save());
+					db.update("UPDATE base SET `cargo`='"+base.getString("cargo")+"' WHERE id>0 AND id="+base.getInt("id"));
+				}
+			}
 			
 			return CONTINUE;
 		}
@@ -401,7 +454,10 @@ public class QuestFunctions {
 	class InitQuest implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
 			String questid = command[1];
-			int noreuse = Integer.parseInt(command[2]);
+			int noreuse = 0;
+			if( command.length > 2 ) {
+				noreuse = Value.Int(command[2]);
+			}
 			
 			scriptparser.log("questid: "+questid+"\n");
 			
@@ -451,9 +507,12 @@ public class QuestFunctions {
 			// ggf. das Quest "deinstallieren" (handler entfernen)
 			if( runningdata.getString("uninstall").length() > 0 ) {
 				//$execdata = $scriptparser->getExecutionData();
-				
+				String output = scriptparser.getOutput();
+
+				// TODO: Das muss auch besser gehen (ohne gleich den halben Scriptparser neu zu initalisieren)
 				scriptparser.executeScript( db, runningdata.getString("uninstall"), "0" );
 				
+				scriptparser.out(output);
 				//$scriptparser->setExecutionData($execdata);
 			}
 			
@@ -515,8 +574,24 @@ public class QuestFunctions {
 	
 	class CompleteQuest implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			String questidStr = command[1];
+			scriptparser.log("questid: "+questidStr+"\n");
+			
+			int questid = 0;
+			if( questidStr.charAt(0) == 'r' ) {
+				String rquestid = questidStr.substring(1);
+				questid = db.first("SELECT questid FROM quests_running WHERE id="+Value.Int(rquestid)).getInt("questid");
+			}
+			else {
+				questid = Value.Int(questidStr);
+			}
+			
+			int userid = Value.Int(scriptparser.getRegister("USER"));
+			
+			SQLResultRow cqid = db.first("SELECT id FROM quests_completed WHERE questid="+questid+" AND userid="+userid);
+			if( cqid.isEmpty() ) {	
+				db.update("INSERT INTO quests_completed (questid,userid) VALUES ("+questid+","+userid+")");
+			}
 			
 			return CONTINUE;
 		}
@@ -553,8 +628,28 @@ public class QuestFunctions {
 	
 	class SetQuestUIStatus implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			String statustext = "";
+			if( command[1].charAt(0) == '#' ) {
+				statustext = scriptparser.getRegister(command[1]);
+			}
+
+			scriptparser.log("statustext: "+statustext+"\n");
+			
+			int publish = Value.Int(command[2]);
+			scriptparser.log("publish: "+publish+"\n");
+			
+			String questid = scriptparser.getRegister("QUEST");
+			int userid = Value.Int(scriptparser.getRegister("USER"));
+		
+			if( questid.charAt(0) != 'r' ) {
+				db.prepare("UPDATE quests_running SET statustext= ? ,publish= ? WHERE userid= ? AND questid= ?")
+					.update(statustext, publish, userid, Value.Int(questid));
+			}
+			else {
+				String rquestid = questid.substring(1);
+				db.prepare("UPDATE quests_running SET statustext= ? ,publish= ? WHERE id= ?")
+					.update(statustext, publish, Value.Int(rquestid));	
+			}
 			
 			return CONTINUE;
 		}
@@ -562,8 +657,7 @@ public class QuestFunctions {
 	
 	class SaveOutput implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			scriptparser.setRegister("_OUTPUT",scriptparser.getOutput());
 			
 			return CONTINUE;
 		}
@@ -579,8 +673,8 @@ public class QuestFunctions {
 				int user = Value.Int(scriptparser.getRegister("USER"));
 				
 				questdata = db.query("SELECT id,execdata " +
-						"FROM quests_running W" +
-						"HERE questid="+Integer.parseInt(questid)+" AND userid="+user);	
+						"FROM quests_running " +
+						"WHERE questid="+Integer.parseInt(questid)+" AND userid="+user);	
 			}
 			else {
 				String rquestid = questid.substring(1);
@@ -605,15 +699,49 @@ public class QuestFunctions {
 					LOG.warn("Fehler beim Laden der Questdaten (Quest: "+questid+"): "+e,e);
 				}
 			}
+			questdata.free();
 			
 			return CONTINUE;
 		}
 	}
 	
-	class SaveQuestContext implements SPFunction {
+	class SaveQuestContext implements SPFunction, Loggable {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			String questid = command[1];
+			scriptparser.log("QuestID: "+questid+"\n");
+			
+			SQLQuery questdata = null;
+			if( questid.charAt(0) != 'r' ) {
+				int user = Value.Int(scriptparser.getRegister("USER"));
+				
+				questdata = db.query("SELECT id,execdata " +
+						"FROM quests_running " +
+						"HERE questid="+Integer.parseInt(questid)+" AND userid="+user);	
+			}
+			else {
+				String rquestid = questid.substring(1);
+				questdata = db.query("SELECT id,execdata " +
+						"FROM quests_running " +
+						"WHERE id="+Integer.parseInt(rquestid));
+			}
+			
+			if( !questdata.next() ) {
+				scriptparser.log("Warnung: Kein passendes laufendes Quest gefunden\n");
+			}
+			else {
+				try {
+					Blob blob = questdata.getBlob("execdata");
+					scriptparser.writeExecutionData(blob.setBinaryStream(1));
+					db.prepare("UPDATE quests_running SET execdata=? WHERE id=? ")
+						.update(blob, questdata.getInt("id"));
+				}
+				catch( Exception e ) {
+					scriptparser.log("Fehler: Konnte Questdaten nicht schreiben: "+e+"\n");
+					scriptparser.setRegister("QUEST","r"+questdata.getInt("id"));
+					LOG.warn("Fehler beim Schreiben der Questdaten (Quest: "+questid+"): "+e,e);
+				}
+			}
+			questdata.free();
 			
 			return CONTINUE;
 		}
@@ -638,7 +766,7 @@ public class QuestFunctions {
 			int newitem = Value.Int(command[2]);
 			scriptparser.log("item: "+newitem+"\n");
 			
-			int count = Value.Int(command[3]);
+			long count = Value.Long(command[3]);
 			scriptparser.log("count: "+count+"\n");
 			
 			String questid = scriptparser.getRegister("QUEST");
@@ -673,17 +801,71 @@ public class QuestFunctions {
 	
 	class HasQuestItem implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			scriptparser.log("cargo: "+command[1]+"\n");
+			Object cargoObj = scriptparser.getRegisterObject(command[1]);
+			if( (cargoObj == null) || !(cargoObj instanceof Cargo) ) {
+				scriptparser.log("FATAL ERROR: Kein gueltiges Cargo-Objekt gefunden!\n");
+				return CONTINUE;
+			}
+			
+			Cargo cargo = (Cargo)cargoObj;
+			
+			int newitem = Value.Int(command[2]);
+			scriptparser.log("item: "+newitem+"\n");
+			
+			int count = Value.Int(command[3]);
+			scriptparser.log("count: "+count+"\n");
+		
+			String questid = scriptparser.getRegister("QUEST");
+			if( questid.charAt(0) != 'r' ) {
+				int userid = Value.Int(scriptparser.getRegister("USER"));
+				SQLResultRow questRow = db.first("SELECT id FROM quests_running " +
+						"WHERE questid="+Value.Int(questid)+" AND userid="+userid);
+				
+				if( questRow.isEmpty() ) {
+					scriptparser.log("FATAL ERROR: Kein passendes Quest gefunden!\n");
+					return CONTINUE;
+				}
+				questid = Integer.toString(questRow.getInt("id"));
+			}
+			else {
+				questid = questid.substring(1);
+			}
+		
+			ResourceID item = new ItemID(newitem, 0, Value.Int(questid));
+			boolean result = cargo.hasResource( item );
+			
+			scriptparser.setRegister("cmp", result ? "1" : "0");
 			
 			return CONTINUE;
 		}
 	}
 	
 	class AddItem implements SPFunction {
-		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {		
+			scriptparser.log("cargo: "+command[1]+"\n");
+			Object cargoObj = scriptparser.getRegisterObject(command[1]);
+			if( (cargoObj == null) || !(cargoObj instanceof Cargo) ) {
+				scriptparser.log("FATAL ERROR: Kein gueltiges Cargo-Objekt gefunden!\n");
+				return CONTINUE;
+			}
+			
+			Cargo cargo = (Cargo)cargoObj;
+			
+			int newitem = Value.Int(command[2]);
+			scriptparser.log("item: "+newitem+"\n");
+			
+			long count = Value.Long(command[3]);
+			scriptparser.log("count: "+count+"\n");
+		
+			ResourceID resid = new ItemID(newitem);
+			if( count > 0 ) {
+				cargo.addResource( resid, count );
+			}
+			else {
+				cargo.substractResource( resid, -count );	
+			}
+			scriptparser.setRegister(command[1], cargo);
 			
 			return CONTINUE;
 		}
@@ -691,8 +873,24 @@ public class QuestFunctions {
 	
 	class HasResource implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			scriptparser.log("cargo: "+command[1]+"\n");
+			Object cargoObj = scriptparser.getRegisterObject(command[1]);
+			if( (cargoObj == null) || !(cargoObj instanceof Cargo) ) {
+				scriptparser.log("FATAL ERROR: Kein gueltiges Cargo-Objekt gefunden!\n");
+				return CONTINUE;
+			}
+			
+			Cargo cargo = (Cargo)cargoObj;
+			
+			ResourceID resid = Resources.fromString(command[2]);
+			scriptparser.log("resource: "+resid+"\n");
+			
+			long count = Value.Long(command[3]);
+			scriptparser.log("count: "+count+"\n");
+		
+			boolean result = cargo.hasResource( resid, count );
+			
+			scriptparser.setRegister("cmp", result ? "1" : "0");
 			
 			return CONTINUE;
 		}
@@ -700,8 +898,21 @@ public class QuestFunctions {
 	
 	class GetResource implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			scriptparser.log("cargo: "+command[1]+"\n");
+			Object cargoObj = scriptparser.getRegisterObject(command[1]);
+			if( (cargoObj == null) || !(cargoObj instanceof Cargo) ) {
+				scriptparser.log("FATAL ERROR: Kein gueltiges Cargo-Objekt gefunden!\n");
+				return CONTINUE;
+			}
+			
+			Cargo cargo = (Cargo)cargoObj;
+			
+			ResourceID resid = Resources.fromString(command[2]);
+			scriptparser.log("resource: "+resid+"\n");
+			
+			long result = cargo.getResourceCount( resid );
+			
+			scriptparser.setRegister("A", Long.toString(result));
 			
 			return CONTINUE;
 		}
@@ -709,8 +920,28 @@ public class QuestFunctions {
 	
 	class AddResource implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			scriptparser.log("cargo: "+command[1]+"\n");
+			Object cargoObj = scriptparser.getRegisterObject(command[1]);
+			if( (cargoObj == null) || !(cargoObj instanceof Cargo) ) {
+				scriptparser.log("FATAL ERROR: Kein gueltiges Cargo-Objekt gefunden!\n");
+				return CONTINUE;
+			}
+			
+			Cargo cargo = (Cargo)cargoObj;
+			
+			ResourceID resid = Resources.fromString(command[2]);
+			scriptparser.log("resource: "+resid+"\n");
+			
+			long count = Value.Long(command[3]);
+			scriptparser.log("count: "+count+"\n");
+		
+			if( count > 0 ) {
+				cargo.addResource( resid, count );
+			}
+			else {
+				cargo.substractResource( resid, -count );	
+			}
+			scriptparser.setRegister(command[1], cargo);
 			
 			return CONTINUE;
 		}
@@ -788,8 +1019,28 @@ public class QuestFunctions {
 	
 	class IsShipDestroyed implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			int shipid = Value.Int(command[1]);
+			scriptparser.log("shipid: "+shipid+"\n");
+			
+			SQLResultRow ship = db.first("SELECT id,battle FROM ships WHERE id>0 AND id="+shipid);
+			if( ship.isEmpty() ) {
+				scriptparser.setRegister("cmp","0");	
+			}
+			else if( ship.getInt("battle") != 0 ) {
+				SQLResultRow battleship = db.first("SELECT action " +
+						"FROM battles_ships " +
+						"WHERE shipid="+shipid+" AND battleid="+ship.getInt("battle"));
+
+				if( (battleship.getInt("action") & Battle.BS_DESTROYED) != 0 ) {
+					scriptparser.setRegister("cmp","0");
+				}
+				else {
+					scriptparser.setRegister("cmp","1");
+				}
+			}
+			else {
+				scriptparser.setRegister("cmp","1");	
+			}
 			
 			return CONTINUE;
 		}
@@ -797,8 +1048,71 @@ public class QuestFunctions {
 	
 	class AddLootTable implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			String questid = scriptparser.getRegister("QUEST");
+			int userid = Value.Int(scriptparser.getRegister("USER"));
+			
+			int shiptype = Value.Int(command[1]);
+			scriptparser.log("shiptype: "+shiptype+"\n");
+			
+			int shipowner = Value.Int(command[2]);
+			scriptparser.log("shipowner: "+shipowner+"\n");
+			
+			int chance = Value.Int(command[3]);
+			scriptparser.log("chance: "+chance);
+			
+			ResourceID resourceid = Resources.fromString(command[4]);
+			scriptparser.log("resourceid: "+resourceid+"\n");
+			if( resourceid.isItem() ) {
+				if( resourceid.getQuest() == 1 ) {
+					int qid = 0;
+					if( questid.charAt(0) != 'r' ) {
+						qid = db.first("SELECT id FROM quests_running WHERE questid="+Value.Int(questid)+" AND userid="+userid).getInt("id");
+					}
+					else {
+						qid = Value.Int(questid.substring(1));
+					}
+					
+					resourceid = new ItemID(resourceid.getItemID(), resourceid.getUses(), qid);
+				}
+			}
+			
+			long count = Value.Long(command[5]);
+			scriptparser.log("resource-count: "+count+"\n");
+			
+			long totalmax = 0;
+			if( command.length > 6 ) {
+				totalmax = Value.Long(command[6]);
+				scriptparser.log("totalmax: "+totalmax+"\n");
+			}
+			
+			if( totalmax == 0 ) {
+				totalmax = -1;
+			}
+			
+			db.update("INSERT INTO ship_loot " +
+					"(shiptype,owner,targetuser,chance,resource,count,totalmax) " +
+					"VALUES " +
+					"("+shiptype+","+shipowner+","+userid+","+chance+",'"+resourceid.toString()+"',"+count+","+totalmax+")");
+			
+			int loottable = db.insertID();
+			
+			SQLResultRow runningdata = null;
+			if( questid.charAt(0) != 'r' ) {
+				runningdata = db.first("SELECT id,uninstall FROM quests_running WHERE questid="+Value.Int(questid)+" AND userid="+userid);
+			}
+			else {
+				int rquestid = Value.Int(questid.substring(1));
+				runningdata = db.first("SELECT id,uninstall FROM quests_running WHERE id="+rquestid);
+			}
+				
+			if( !runningdata.isEmpty() ) {
+				if( runningdata.getString("uninstall").length() == 0 ) {
+					runningdata.put("uninstall", ":0\n");	
+				}
+				runningdata.put("uninstall", runningdata.getString("uninstall") + "!DELETELOOTTABLE "+loottable+"\n");
+					
+				db.update("UPDATE quests_running SET uninstall='"+runningdata.getString("uninstall")+"' WHERE id="+runningdata.getInt("id"));
+			}
 			
 			return CONTINUE;
 		}
@@ -806,8 +1120,12 @@ public class QuestFunctions {
 	
 	class DeleteLootTable implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			int lootid = Value.Int(command[1]);
+			scriptparser.log("loottable-id: "+lootid+"\n");
+			
+			if( lootid > 0 ) {
+				db.update("DELETE FROM ship_loot WHERE id="+lootid);
+			}
 			
 			return CONTINUE;
 		}
@@ -1290,7 +1608,7 @@ public class QuestFunctions {
 	}
 	
 	
-	class GenerateQuickQuestTargetMenu implements SPFunction {
+	class GenerateQuickQuestTargetMenu implements SPFunction, Loggable {
 		private void call( SPFunction f, Database db, ScriptParser scriptparser, Object ... cmd) {
 			scriptparser.log("-> "+f.getClass().getSimpleName()+"\n");
 			String[] command = new String[cmd.length+1];
@@ -1314,10 +1632,11 @@ public class QuestFunctions {
 			while( qquest.next() ) {
 				call(new LoadQuestContext(), db, scriptparser, qquest.getInt("enabled"));
 				
-				if( Value.Int(scriptparser.getRegister("#QUEST")) == 0  ) {
+				if( scriptparser.getRegister("#QUEST").length() == 0 || 
+					scriptparser.getRegister("#QUEST").equals("0")  ) {
 					continue;
 				}
-				
+
 				int rquestid = Integer.parseInt(scriptparser.getRegister("#QUEST").substring(1));
 				int qid = db.first("SELECT questid FROM quests_running WHERE id="+rquestid).getInt("questid");
 				if( qid != qquest.getInt("enabled") ) {
@@ -1403,7 +1722,7 @@ public class QuestFunctions {
 							scriptparser.setRegister("#A","0");
 							return CONTINUE;
 						}
-					}	
+					}
 				}
 				
 				String dialogtext = qquest.getString("shortdesc")+"[hr]\n"+qquest.getString("desc")+"\n\n";
@@ -1454,13 +1773,304 @@ public class QuestFunctions {
 			} 
 			// ende action.equals("desc")
 			else if( "yes".equals(action) ) {
-				// TODO
-				Common.stub();
+				scriptparser.log("QQuest: "+scriptparser.getParameter(1)+"\n");
+				SQLResultRow qquest = db.first("SELECT * FROM quests_quick WHERE id="+Value.Int(scriptparser.getParameter(1)));
+				if( qquest.isEmpty() || !qquest.getString("sourcetype").equals(typeid) || 
+					(qquest.getInt("source") != shipid) ) {
+					scriptparser.setRegister("#A","0");
+					return CONTINUE;	
+				}
+				
+				call(new LoadQuestContext(), db, scriptparser, qquest.getInt("enabled") );
+				call(new GetQuestID(), db, scriptparser, scriptparser.getRegister("#QUEST") );
+				if( Value.Int(scriptparser.getRegister("#A")) == qquest.getInt("enabled") ) {
+					scriptparser.setRegister("#A","0");
+					return CONTINUE;
+				}
+					
+				if( qquest.getInt("moreThanOnce") == 0 ) {
+					call(new HasQuestCompleted(), db, scriptparser, qquest.getInt("enabled") );
+					if( Value.Int(scriptparser.getRegister("#cmp")) > 0 ) {
+						scriptparser.setRegister("#A","0");
+						return CONTINUE;
+					}
+				}
+				if( qquest.getString("dependsOnQuests").length() > 0 ) {
+					String[] qquests = StringUtils.split(qquest.getString("dependsOnQuests"), ';');
+					for( int i=0; i < qquests.length; i++ ) {
+						String[] tmp = StringUtils.split(qquests[i], ':');
+						SQLResultRow qid = db.first("SELECT id FROM quests WHERE qid='"+tmp[1]+"'");
+						if( qid.isEmpty() ) {
+							LOG.warn("QQuest "+qquest.getInt("id")+" benoetigt Quest "+tmp[1]+", welches jedoch nicht existiert");
+							continue;
+						}
+		
+						call(new HasQuestCompleted(), db, scriptparser, qid.getInt("id"));
+						if( Value.Int(scriptparser.getRegister("#cmp")) <= 0 ) {
+							scriptparser.setRegister("#A","0");
+							return CONTINUE;
+						}
+					}
+				}
+				
+				call(new InitQuest(), db, scriptparser, qquest.getInt("enabled") );
+				scriptparser.setRegister("#QSTATUS","1");
+				
+				// Evt fuer das Quest benoetigte Items auf das Schiff transferieren
+				if( qquest.getString("startitems").length() > 0 ) {
+					call(new CopyVar(), db, scriptparser, 
+							"#ship",
+							"shipsource.cargo" );
+					
+					Cargo cargo = new Cargo( Cargo.Type.STRING, qquest.getString("startitems") );
+					
+					ResourceList reslist = cargo.getResourceList();
+					for( ResourceEntry res : reslist ) {
+						if( res.getId().isItem() ) {
+							if( res.getId().getQuest() != 0 ) {
+								call( new AddQuestItem(), db, scriptparser, 
+										"#ship",
+										res.getId().getItemID(),
+										res.getCount1() );
+							}
+							else {
+								call( new AddResource(), db, scriptparser, 
+										"#ship",
+										res.getId().toString(),
+										res.getCount1() );
+							}
+						}
+						else {
+							call( new AddResource(), db, scriptparser, 
+									"#ship",
+									res.getId().toString(),
+									res.getCount1() );
+						}
+					}
+					call( new SaveVar(), db, scriptparser, 
+							"shipsource.cargo",
+							"#ship" );
+					
+					scriptparser.setRegister("#ship","0");
+				}
+				// Loottable ergaenzen
+				if( qquest.getString("loottable").length() != 0 ) {
+					String[] loottable = StringUtils.split(qquest.getString("loottable"), ';');
+					for( int i=0; i < loottable.length; i++ ) {
+						String[] atable = StringUtils.split(loottable[i], ',');
+						if( atable.length > 4 ) {
+							call( new AddLootTable(), db, scriptparser, 
+									atable[0],
+									atable[1],
+									atable[2],
+									atable[3],
+									atable[4],
+									atable.length > 5 ? atable[5] : "" );
+						}	
+					}	
+				}
+				scriptparser.setRegister("#quest"+qquest.getInt("id")+"_status", qquest.getString("shortdesc"));
+				call( new SetQuestUIStatus(), db, scriptparser, 
+						"#quest"+qquest.getInt("id")+"_status",
+						"1" );	
 			} 
 			// ende if( action.equals("yes")
 			else if( "end".equals(action) ) {
-				// TODO
-				Common.stub();
+				scriptparser.log("QQuest: "+scriptparser.getParameter(1)+"\n");
+				SQLResultRow qquest = db.first("SELECT * FROM quests_quick WHERE id="+Value.Int(scriptparser.getParameter(1)));
+				if( qquest.isEmpty() || !qquest.getString("sourcetype").equals(typeid) || 
+					(qquest.getInt("source") != shipid) ) {
+					scriptparser.setRegister("#A","0");
+					return CONTINUE;	
+				}
+				
+				call(new LoadQuestContext(), db, scriptparser, qquest.getInt("enabled") );
+				
+				if( scriptparser.getRegister("#QUEST").length() == 0 ) {
+					scriptparser.setRegister("#A","0");
+					return CONTINUE;
+				}
+				
+				int rquestid = Value.Int(scriptparser.getRegister("#QUEST").substring(1));
+				SQLResultRow qid = db.first("SELECT questid FROM quests_running WHERE id="+rquestid);
+				if( qid.isEmpty() || (qid.getInt("questid") != qquest.getInt("enabled")) ) {
+					scriptparser.setRegister("#A","0");
+					return CONTINUE;
+				}
+					
+				if( Value.Int(scriptparser.getRegister("#QSTATUS")) != 1 ) {
+					scriptparser.setRegister("#A","0");
+					return CONTINUE;
+				}
+				
+				boolean quitable = true;
+				
+				// Die zum beenden benoetigten Items checken
+				if( qquest.getString("reqitems").length() != 0 ) {
+					Cargo cargo = new Cargo( Cargo.Type.STRING, qquest.getString("reqitems") );
+					
+					call( new CopyVar(), db, scriptparser, 
+							"#ship",
+							"shipsource.cargo" );
+					
+					ResourceList reslist = cargo.getResourceList();
+					for( ResourceEntry res : reslist ) {
+						if( res.getId().isItem() && (res.getId().getQuest() != 0) ) {
+							call( new HasQuestItem(), db, scriptparser, 
+									"#ship",
+									res.getId().getItemID(),
+									res.getCount1() );
+							
+							if( Value.Int(scriptparser.getRegister("#cmp")) <= 0 ) {
+								quitable = false;
+								break;
+							}					  
+						}
+						else {
+							call( new HasResource(), db, scriptparser, 
+									"#ship",
+									res.getId(),
+									res.getCount1() );
+							
+							if( Value.Int(scriptparser.getRegister("#cmp")) <= 0 ) {
+								quitable = false;
+								break;
+							}
+						}
+					}
+					scriptparser.setRegister("#ship","0");
+				} // end 'reqitems'
+				
+				if( quitable && (qquest.getLong("reqre") > 0) ) {
+					call( new GetMoney(), db, scriptparser, scriptparser.getRegister("#USER") );
+					if( Value.Int(scriptparser.getRegister("A")) < qquest.getLong("reqre") ) {
+						quitable = false;
+					}
+				}
+				
+				// Koennen wir das Quest nun beenden oder nicht?
+				if( quitable ) {
+					// Die ganzen gegenstaende abbuchen
+					if( qquest.getString("reqitems").length() > 0 ) {
+						Cargo cargo = new Cargo( Cargo.Type.STRING, qquest.getString("reqitems") );
+						
+						call( new CopyVar(), db, scriptparser, 
+								"#ship",
+								"shipsource.cargo" );
+						
+						ResourceList reslist = cargo.getResourceList();
+						for( ResourceEntry res : reslist ) {						
+							if( res.getId().isItem() && (res.getId().getQuest() != 0) ) {
+								call( new AddQuestItem(), db, scriptparser, 
+										"#ship",
+										res.getId().getItemID(),
+										-res.getCount1() );
+							}
+							else {				  
+								call( new AddResource(), db, scriptparser, 
+										"#ship",
+										res.getId(),
+										-res.getCount1() );
+							}
+						}
+						call(new SaveVar(), db, scriptparser, 
+								"shipsource.cargo",
+								"#ship" );
+						
+						scriptparser.setRegister("#ship","0");
+					} // end 'reqitems'
+						
+					if( qquest.getLong("reqre") != 0 ) {
+						call( new AddMoney(), db, scriptparser, 
+								0,
+								scriptparser.getRegister("#USER"),
+								qquest.getLong("reqre"),
+								"Kosten Quest '"+qquest.getString("qname")+"'",
+								0 );
+					}
+						
+					// Belohnungen (Waren/RE)
+					if( qquest.getString("awarditems").length() > 0 ) {
+						Cargo cargo = new Cargo( Cargo.Type.STRING, qquest.getString("awarditems") );
+						call( new CopyVar(), db, scriptparser, 
+								"#ship",
+								"shipsource.cargo" );
+						
+						ResourceList reslist = cargo.getResourceList();
+						for( ResourceEntry res : reslist ) {
+							call( new AddResource(), db, scriptparser, 
+									"#ship",
+									res.getId(),
+									res.getCount1() );
+						}
+						call( new SaveVar(), db, scriptparser, 
+								"shipsource.cargo",
+								"#ship" );
+						
+						scriptparser.setRegister("#ship","0");	
+					}
+					if( Value.Long(qquest.getString("awardre")) != 0 ) {
+						call( new AddMoney(), db, scriptparser, 
+								scriptparser.getRegister("#USER"),
+								0,
+								qquest.getString("awardre"),
+								"Belohnung Quest '"+qquest.getString("qname")+"'",
+								1 );
+					}
+					call( new CompleteQuest(), db, scriptparser, scriptparser.getRegister("#QUEST") );
+					
+					String dialogtext = null;
+					if( qquest.getString("finishtext").length() == 0 ) {
+						dialogtext = "Sehr gut! Du hast deine Aufgabe beendet.\nHier hast du ein paar Dinge die du sicher gut gebrauchen kannst:\n\n";
+					}
+					else {
+						dialogtext = qquest.getString("finishtext")+"\n\n";	
+					}
+						
+					if( qquest.getString("awarditems").length() > 0 ) {
+						dialogtext += "Belohnung in Waren:\n";
+						Cargo cargo = new Cargo(Cargo.Type.STRING, qquest.getString("awarditems"));
+					
+						ResourceList reslist = cargo.getResourceList();
+						for( ResourceEntry res : reslist ) {
+							dialogtext += "[resource="+res.getId()+"]"+res.getCount1()+"[/resource]\n";	
+						}
+						dialogtext += "\n";
+					}
+					if( Value.Long(qquest.getString("awardre")) != 0 ) {
+						dialogtext += "Belohnung in RE: "+Common.ln(Value.Long(qquest.getString("awardre")))+"\n";	
+					}
+						
+					call(new LoadDialog(), db, scriptparser, 
+							dialogtext,
+							qquest.getString("head") );
+																		
+					call(new AddAnswer(), db, scriptparser, 
+							"Auf Wiedersehen!",
+							"0" );
+					
+					call(new InitDialog(), db, scriptparser );
+						
+					call(new EndQuest(), db, scriptparser );
+				}
+				else {
+					String dialogtext = null;
+					if( qquest.getString("notyettext").length() > 0 ) {
+						dialogtext = qquest.getString("notyettext");	
+					}
+					else {
+						dialogtext = "Tut mir leid. Du hast die Aufgabe noch nicht komplett erledigt.";	
+					}
+					call( new LoadDialog(), db, scriptparser, 
+							dialogtext,
+							qquest.getString("head") );
+																		
+					call( new AddAnswer(), db, scriptparser, 
+							"Auf Wiedersehen!",
+							"0" );
+					
+					call( new InitDialog(), db, scriptparser );
+				}
 			} 
 			// ende if( action.equals("end") ) 
 			
