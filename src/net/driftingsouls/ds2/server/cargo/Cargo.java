@@ -214,12 +214,14 @@ public class Cargo implements Loggable, Cloneable {
 			}
 				
 			case ITEMSTRING: {
-				String[] myitems = source.split(";");
-				int itemcount = 0;
-				for( int i=0; i < myitems.length; i++ ) {
-					if( !myitems[i].equals("") ) { 
-						itemcount++;
-						items.add(parseItems(myitems[i]));
+				if( source.length() > 0 ) {
+					String[] myitems = source.split(";");
+					int itemcount = 0;
+					for( int i=0; i < myitems.length; i++ ) {
+						if( !myitems[i].equals("") ) { 
+							itemcount++;
+							items.add(parseItems(myitems[i]));
+						}
 					}
 				}
 				break;
