@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.framework.db;
 
+import java.sql.Blob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -307,6 +308,23 @@ public class PreparedQuery implements Loggable {
 		}
 		catch( SQLException e ) {
 			db.error("setBoolean faild: "+stmt+"\n"+e, stmt);
+			throw new SQLRuntimeException(e);
+		}
+		return this;
+	}
+	
+	/**
+	 * Setzt den Parameter mit dem angegebenen Index auf den angegebenen Wert
+	 * @param index Der Parameter-Index
+	 * @param value Der Wert
+	 * @return Dieses Objekt
+	 */
+	public PreparedQuery setBlob(int index, Blob value) {
+		try {
+			stmt.setBlob(index, value);
+		}
+		catch( SQLException e ) {
+			db.error("setBlob faild: "+stmt+"\n"+e, stmt);
 			throw new SQLRuntimeException(e);
 		}
 		return this;
