@@ -1274,7 +1274,7 @@ public abstract class WerftObject extends DSObject {
 	
 	   	Cargo allyitems = null;
 	   	if( user.getAlly() > 0 ) {
-			allyitems = new Cargo(Cargo.Type.STRING,db.first("SELECT items FROM ally WHERE id=",user.getAlly()).getString("items"));
+			allyitems = new Cargo(Cargo.Type.ITEMSTRING,db.first("SELECT items FROM ally WHERE id=",user.getAlly()).getString("items"));
 
 			allyitems.addCargo( this.getCargo(true) );
 		}
