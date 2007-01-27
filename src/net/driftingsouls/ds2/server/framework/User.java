@@ -627,7 +627,7 @@ public class User implements Loggable {
 				if( relation.getInt("user_id") == this.id ) {
 					relations.toOther.put(relation.getInt("target_id"), Relation.values()[relation.getInt("status")]);	
 				}
-				else if( relations.fromOther.containsKey(relation.getInt("user_id")) ) {
+				else if( !relations.fromOther.containsKey(relation.getInt("user_id")) ) {
 					relations.fromOther.put(relation.getInt("user_id"), Relation.values()[relation.getInt("status")]);
 				}
 			}
