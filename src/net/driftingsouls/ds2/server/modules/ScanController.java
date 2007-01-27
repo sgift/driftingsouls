@@ -41,11 +41,15 @@ import net.driftingsouls.ds2.server.ships.Ships;
  * @author Christopher Jung
  * 
  * @urlparam Integer ship Die ID des anzuzeigenden Schiffes
+ * @urlparam Integer admin Falls != 0 und AccessLevel >= 30 kann via range und base* die Position und Scanreichweite eingestellt werden
+ * @urlparam Integer range (Falls Admin-Modus) Die Scan-Reichweite
+ * @urlparam Integer baseloc (Falls Admin-Modus) Die Koordinate, von der aus gescannt werden soll
  *
  */
 public class ScanController extends DSGenerator {
 	private SQLResultRow ship = null;
 	private int range = 0;
+	private boolean admin = false;
 	
 	/**
 	 * Konstruktor
@@ -55,6 +59,9 @@ public class ScanController extends DSGenerator {
 		super(context);
 
 		parameterNumber("ship");
+		parameterNumber("admin");
+		parameterNumber("range");
+		parameterString("baseloc");
 		
 		setTemplate("scan.html");
 	}
@@ -62,59 +69,77 @@ public class ScanController extends DSGenerator {
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		Database db = getDatabase();
-		int shipID = getInteger("ship");
+		admin = getInteger("admin") != 0 && getUser().getAccessLevel() >= 30;
+		int shipID = -1;
 		
-		SQLResultRow ship = db.first("SELECT id,x,y,system,sensors,crew,type,status FROM ships WHERE owner='",getUser().getID(),"' AND id>0 AND id=",shipID);
-
-		if( ship.isEmpty() ) {
-			addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht", Common.buildUrl(getContext(), "default", "module", "schiffe") );
+		if( !admin ) {
+			shipID = getInteger("ship");
 			
-			return false;
-		}
-		
-		SQLResultRow shiptype = Ships.getShipType( ship );
-		int range = shiptype.getInt("sensorrange");
-
-		// Sollte das Schiff in einem Nebel stehen -> halbe Scannerreichweite
-		SQLResultRow nebel = db.first("SELECT id,type FROM nebel WHERE x=",ship.getInt("x")," AND y=",ship.getInt("y")," AND system=",ship.getInt("system"));
-		if( !nebel.isEmpty() ) {
-			switch( nebel.getInt("type") ) {
-			// Norm. Deut, DMG
-			case 0:
-			case 6: 
-				range = (int)Math.round(range/2d);
-				break;
+			SQLResultRow ship = db.first("SELECT id,x,y,system,sensors,crew,type,status FROM ships WHERE owner='",getUser().getID(),"' AND id>0 AND id=",shipID);
+	
+			if( ship.isEmpty() ) {
+				addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht", Common.buildUrl(getContext(), "default", "module", "schiffe") );
 				
-			// L. Deut
-			case 1:
-				range = (int)Math.round(range*0.75d);
-				break;
-				
-			// H. Deut
-			case 2:
-				range = (int)Math.round(range/3d);
-				break;
-				
-			default:
-				addError("Der Nebel verhindert den Einsatz von Langstreckensensoren", Common.buildUrl(getContext(), "default", "module", "schiff", "ship", shipID));
-			
 				return false;
 			}
-		}
-
-		if( ship.getInt("crew") < shiptype.getInt("crew")/3 ) {
-			addError("Es werden mindestens "+shiptype.getInt("crew")/3+" Crewmitglieder ben&ouml;tigt", Common.buildUrl(getContext(), "default", "module", "schiff", "ship", shipID));
 			
-			return false;
+			SQLResultRow shiptype = Ships.getShipType( ship );
+			int range = shiptype.getInt("sensorrange");
+	
+			// Sollte das Schiff in einem Nebel stehen -> halbe Scannerreichweite
+			SQLResultRow nebel = db.first("SELECT id,type FROM nebel WHERE x=",ship.getInt("x")," AND y=",ship.getInt("y")," AND system=",ship.getInt("system"));
+			if( !nebel.isEmpty() ) {
+				switch( nebel.getInt("type") ) {
+				// Norm. Deut, DMG
+				case 0:
+				case 6: 
+					range = (int)Math.round(range/2d);
+					break;
+					
+				// L. Deut
+				case 1:
+					range = (int)Math.round(range*0.75d);
+					break;
+					
+				// H. Deut
+				case 2:
+					range = (int)Math.round(range/3d);
+					break;
+					
+				default:
+					addError("Der Nebel verhindert den Einsatz von Langstreckensensoren", Common.buildUrl(getContext(), "default", "module", "schiff", "ship", shipID));
+				
+					return false;
+				}
+			}
+	
+			if( ship.getInt("crew") < shiptype.getInt("crew")/3 ) {
+				addError("Es werden mindestens "+shiptype.getInt("crew")/3+" Crewmitglieder ben&ouml;tigt", Common.buildUrl(getContext(), "default", "module", "schiff", "ship", shipID));
+				
+				return false;
+			}
+			
+			range = (int)Math.round(range*(ship.getInt("sensors")/100d));
+			
+			this.range = range;
+			this.ship = ship;
 		}
-		
-		range = (int)Math.round(range*(ship.getInt("sensors")/100d));
-		
-		this.range = range;
-		this.ship = ship;
+		else {
+			this.range = getInteger("range");
+			Location loc = Location.fromString(getString("baseloc"));
+			this.ship = new SQLResultRow();
+			this.ship.put("x", loc.getX());
+			this.ship.put("y", loc.getY());
+			this.ship.put("system", loc.getSystem());
+			
+			this.getTemplateEngine().set_var(	
+					"global.admin",	1,
+					"global.baseloc", loc.toString(),
+					"global.baserange", range);
+		}
 		
 		this.getTemplateEngine().set_var(	"global.ship.id",	shipID,
-											"global.range",		range+1,
+											"global.range",		this.range+1,
 											"global.scan.x",	ship.getInt("x"),
 											"global.scan.y",	ship.getInt("y") );
 		
@@ -159,7 +184,7 @@ public class ScanController extends DSGenerator {
 		boolean scanableNebel = false;
 	
 		SQLResultRow nebel = db.first("SELECT id,type FROM nebel WHERE x=",scanx," AND y=",scany," AND system="+system);
-		if( !nebel.isEmpty() && ((nebel.getInt("type") < 3) || (nebel.getInt("type") > 5)) ) {
+		if( !this.admin && !nebel.isEmpty() && ((nebel.getInt("type") < 3) || (nebel.getInt("type") > 5)) ) {
 			SQLQuery nebelship = db.query("SELECT id,status,type,sensors,crew FROM ships WHERE id>0 AND x=",scanx," AND y=",scany," AND system=",system," AND owner=",user.getID()," AND sensors > 30");
 			while( nebelship.next() ) {
 				SQLResultRow ownshiptype = Ships.getShipType( nebelship.getRow() );	
@@ -169,6 +194,10 @@ public class ScanController extends DSGenerator {
 				}
 			}
 			nebelship.free();
+		}
+		// Im Admin-Modus sind alle Nebel scanbar
+		else if( this.admin ) {
+			scanableNebel = true;
 		}
 	
 		/*
@@ -294,7 +323,8 @@ public class ScanController extends DSGenerator {
 			List<Integer> verysmallshiptypes = new ArrayList<Integer>();
 			verysmallshiptypes.add(0); // Ein dummy-Wert, damit es keine SQL-Fehler gibt
 			
-			if( (scanx != this.ship.getInt("x")) || (scany != this.ship.getInt("y")) ) {
+			// Falls nicht im Admin-Modus und nicht das aktuelle Feld gescannt wird: Liste der kleinen Schiffe generieren
+			if( !this.admin && (scanx != this.ship.getInt("x")) || (scany != this.ship.getInt("y")) ) {
 				SQLQuery stid = db.query("SELECT id FROM ship_types WHERE LOCATE('",Ships.SF_SEHR_KLEIN,"',flags)");
 				while( stid.next() ) {
 					verysmallshiptypes.add(stid.getInt("id"));
@@ -313,7 +343,9 @@ public class ScanController extends DSGenerator {
 				boolean disableIFF = (datas.getString("status").indexOf("disable_iff") > -1);
 				SQLResultRow shiptype = Ships.getShipType( datas.getRow() );
 				
-				if( Ships.hasShipTypeFlag(shiptype, Ships.SF_SEHR_KLEIN) ) {
+				// Falls nicht im Admin-Modus: Nur sehr kleine Schiffe im Feld des scannenden Schiffes anzeigen
+				if( !this.admin && (scanx != this.ship.getInt("x")) || (scany != this.ship.getInt("y")) &&
+					Ships.hasShipTypeFlag(shiptype, Ships.SF_SEHR_KLEIN) ) {
 					continue;	
 				}
 				
@@ -389,11 +421,14 @@ public class ScanController extends DSGenerator {
 		List<Integer> verysmallshiptypes = new ArrayList<Integer>();
 		verysmallshiptypes.add(0); // Ein dummy-Wert, damit es keine SQL-Fehler gibt
 		
-		SQLQuery stid = db.query("SELECT id FROM ship_types WHERE LOCATE('",Ships.SF_SEHR_KLEIN,"',flags)");
-		while( stid.next() ) {
-			verysmallshiptypes.add(stid.getInt("id"));
+		// Im Admin-Modus sind alle Schiffe sichtbar
+		if( !this.admin ) {
+			SQLQuery stid = db.query("SELECT id FROM ship_types WHERE LOCATE('",Ships.SF_SEHR_KLEIN,"',flags)");
+			while( stid.next() ) {
+				verysmallshiptypes.add(stid.getInt("id"));
+			}
+			stid.free();
 		}
-		stid.free();
 		
 		Map<Location,List<SQLResultRow>> shipmap = new HashMap<Location,List<SQLResultRow>>();
 		Map<Location,Boolean> ownshipmap = new HashMap<Location,Boolean>();
@@ -405,7 +440,8 @@ public class ScanController extends DSGenerator {
 		while( sRow.next() ) {
 			SQLResultRow st = Ships.getShipType(sRow.getRow());
 			
-			if( Ships.hasShipTypeFlag(st, Ships.SF_SEHR_KLEIN) ) {
+			// Im Admin-Modus sind alle Schiffe sichtbar
+			if( !this.admin && Ships.hasShipTypeFlag(st, Ships.SF_SEHR_KLEIN) ) {
 				continue;	
 			}
 			
