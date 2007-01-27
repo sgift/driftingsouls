@@ -376,8 +376,12 @@ class Kommandozentrale extends DefaultBuilding {
 				Waren zu Schiffen/Basen im Orbit transferieren
 			*/
 			
-			SQLQuery ship = db.query("SELECT id,name,x,y,owner FROM ships WHERE id>0 AND x BETWEEN "+(base.getX()-base.getSize())+" AND "+(base.getX()+base.getSize())+" AND y BETWEEN "+(base.getY()-base.getSize())+" AND "+(base.getY()+base.getSize())+" AND system="+base.getSystem()+" AND !LOCATE('l ',docked) ORDER BY x,y,owner,id");
-			if( ship.isEmpty() ) {
+			SQLQuery ship = db.query("SELECT id,name,x,y,owner FROM ships " +
+					"WHERE id>0 AND x BETWEEN "+(base.getX()-base.getSize())+" AND "+(base.getX()+base.getSize())+" AND " +
+							"y BETWEEN "+(base.getY()-base.getSize())+" AND "+(base.getY()+base.getSize())+" AND " +
+							"system="+base.getSystem()+" AND !LOCATE('l ',docked) AND battle=0 " +
+					"ORDER BY x,y,owner,id");
+			if( !ship.isEmpty() ) {
 				int oldx = 0;
 				int oldy = 0;
 
