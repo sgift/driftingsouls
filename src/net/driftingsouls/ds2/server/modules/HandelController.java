@@ -101,7 +101,7 @@ public class HandelController extends DSGenerator {
 				if( !Items.get().item(res.getId().getItemID()).getHandel() ) {
 					continue;
 				}
-				name = "i"+res.getId().getID();
+				name = "i"+res.getId().getItemID();
 			}
 			else {
 				if( ResourceConfig.getResourceHidden(res.getId().getID()) ) {
