@@ -42,8 +42,18 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  *
  */
 public abstract class DSGenerator extends Generator {
+	/**
+	 * Die verschiedenen Aufrufarten
+	 *
+	 */
 	public enum ActionType {
+		/**
+		 * Eine normale HTTP-Request mit HTML-Anwort
+		 */
 		DEFAULT("Action"),
+		/**
+		 * Eine Ajax-Request
+		 */
 		AJAX("AjaxAct");
 		
 		private String type;
@@ -52,21 +62,37 @@ public abstract class DSGenerator extends Generator {
 			this.type = type;
 		}
 		
+		/**
+		 * Gibt den Postfix der Aktionsmethoden zurueck
+		 * @return Der Postfix der Aktionsmethoden
+		 */
 		public String getActionExt() {
 			return type;
 		}
 	}
 	
 	protected abstract class FWOutputHelper {
+		/**
+		 * Gibt den Header aus
+		 *
+		 */
 		public abstract void printHeader();
+		/**
+		 * Gibt den Footer aus
+		 *
+		 */
 		public abstract void printFooter();
+		/**
+		 * Gibt die Fehlerliste aus
+		 *
+		 */
 		public abstract void printErrorList();
 	}
 	
 	protected class FWHtmlOutputHelper extends FWOutputHelper {
 		@Override
 		public void printHeader() {
-			if( !getParameter("_style").equals("xml") ) {
+			if( !getString("_style").equals("xml") ) {
 				StringBuffer sb = getResponse().getContent();
 				String url = Configuration.getSetting("URL")+"/";
 				boolean usegfxpak = false;
@@ -114,12 +140,12 @@ public abstract class DSGenerator extends Generator {
 		
 		@Override
 		public void printFooter() {
-			if( !template.equals("") ) {
-				getTemplateEngine().parse( "OUT", masterTemplateID );
+			if( getTemplateID().length() > 0 ) {
+				getTemplateEngine().parse( "OUT", getTemplateID() );
 					
 				getTemplateEngine().p("OUT");
 			}
-			if( !getParameter("_style").equals("xml") ) {
+			if( !getString("_style").equals("xml") ) {
 				StringBuffer sb = getResponse().getContent();
 				if( !getDisableDebugOutput() ) {
 					sb.append("<div style=\"text-align:center; font-size:11px;color:#c7c7c7; font-family:'BankGothic Md BT','Bank Gothic Medium BT','Bank Gothic','BankGothic',courier;\">\n");
@@ -177,12 +203,8 @@ public abstract class DSGenerator extends Generator {
 	private ActionType actionType;
 	private FWOutputHelper actionTypeHandler;
 	
-	private String template;
 	private TemplateEngine templateEngine;
 	private String masterTemplateID;
-	
-	private boolean noActionBlocking;
-	private boolean updateLastAction;
 	
 	private boolean disableDefaultCSS;
 	private boolean disableDebugOutput;
@@ -195,12 +217,13 @@ public abstract class DSGenerator extends Generator {
 	private String subParameter;
 	private List<String> preloadUserValues;
 	
-	
+	/**
+	 * Konstruktor
+	 * @param context Der Kontext
+	 */
 	public DSGenerator(Context context) {
 		super(context);
 		
-		setDisableActionBlocking(false);
-
 		parameter = new HashMap<String,Object>();
 		subParameter = "";
 		
@@ -221,11 +244,9 @@ public abstract class DSGenerator extends Generator {
 		preloadUserValues = new ArrayList<String>();
 		preloadUserValues.add("id");
 		
-		template = "";
 		templateEngine = null;
 		masterTemplateID = "";
-			
-		updateLastAction = true;
+
 		setActionType(ActionType.DEFAULT);
 
 		String browser = getRequest().getHeader("user-agent").toLowerCase();
@@ -241,26 +262,17 @@ public abstract class DSGenerator extends Generator {
 		}
 		this.browser = browser;
 	}
-	
-	@Deprecated
-	protected void requireUserProperty( String value ) {
-		/*if( !preloadUserValues.contains(value) ) {
-			preloadUserValues.add(value);
-		}*/
-	}
-	
-	@Deprecated
-	protected void requireUserProperty( String ... values ) {
-		for( String value : values ) {
-			requireUserProperty(value);	
-		}
-	}
-	
+		
+	/**
+	 * Gibt den aktiven User zurueck. Falls kein User eingeloggt ist
+	 * wird <code>null</code> zurueckgegeben
+	 * @return Der User oder <code>null</code>
+	 */
 	public User getUser() {
 		return getActiveUser();
 	}
 	
-	public Object getParameter( String parameter ) {
+	private Object getParameter( String parameter ) {
 		if( subParameter.equals("") ) {
 			return this.parameter.get(parameter);
 		}
@@ -354,32 +366,6 @@ public abstract class DSGenerator extends Generator {
 		}
 	}
 	
-	public void parameterArray( String parameter, String[] subparams, String[] types ) {
-		HashMap<String,Object> map = new HashMap<String,Object>();
-		
-		for( int i=0; i < subparams.length; i++ ) {
-			if( "number".equals(types[i]) ) {
-				String val = getRequest().getParameter(parameter+"["+subparams[i]+"]");
-				if( val != null ) {
-					try {
-						map.put(subparams[i], Common.getNumberFormat().parse(val));
-					}
-					catch( ParseException e ) {
-						addError("Parameter "+parameter+"["+subparams[i]+"] ist keine g&uuml;ltige Zahl");
-						map.put(subparams[i], 0d);
-					}
-				}
-				else {
-					map.put(subparams[i], 0d);
-				}
-			}
-			else if( "string".equals(types[i]) ) {
-				map.put(subparams[i], getRequest().getParameter(parameter+"["+subparams[i])+"]");
-			}
-		}
-		this.parameter.put(parameter, map);
-	}
-	
 	private void createTemplateEngine() {
 		if( templateEngine != null ) {
 			return;
@@ -434,9 +420,7 @@ public abstract class DSGenerator extends Generator {
 	 * @param file Der Dateiname der unkompilierten Template-Datei
 	 */
 	public void setTemplate( String file ) {
-		if( !file.equals("") ) {
-			template = file;
-		
+		if( !file.equals("") ) {		
 			if( templateEngine == null ) {
 				createTemplateEngine();
 			}
@@ -451,11 +435,9 @@ public abstract class DSGenerator extends Generator {
 
 			if( !templateEngine.set_file( masterTemplateID, file ) ) {
 				masterTemplateID = "";
-				template = "";	
 			}
 		}
 		else {
-			template = "";
 			masterTemplateID = "";	
 		}
 	}
@@ -485,6 +467,11 @@ public abstract class DSGenerator extends Generator {
 		redirect("default");
 	}
 	
+	/**
+	 * Fueht die angegebene Aktion aus
+	 * @param action Der Name der Aktion
+	 * @param actionType Der Typ der Aktion
+	 */
 	public void handleAction( String action, ActionType actionType ) {
 		setActionType( actionType );
 
@@ -498,8 +485,7 @@ public abstract class DSGenerator extends Generator {
 		}
 		
 		if( getErrorList().length != 0 ) {
-			template = "";
-			
+			masterTemplateID = "";
 			actionTypeHandler.printHeader();
 			
 			if( getErrorList().length > 0 ) {
@@ -551,8 +537,8 @@ public abstract class DSGenerator extends Generator {
 				}
 			}
 		}
-		else {				
-			template = "";	
+		else {
+			masterTemplateID = "";
 		}
 		parseSubParameter("");
 		content = getResponse().getContent().toString();
@@ -578,40 +564,59 @@ public abstract class DSGenerator extends Generator {
 		actionTypeHandler.printFooter();
 	}
 	
+	/**
+	 * Gibt an, ob fuer die Ausfuehrung einer Aktion eine gueltige Session
+	 * erforderlich ist (also, dass der Benutzer angemeldet ist)
+	 * @param value <code>true</code>, falls eine gueltige Session erforderlich ist
+	 */
 	public void requireValidSession( boolean value ) {
 		requireValidSession = value;
 	}
 	
+	/**
+	 * (De)aktiviert die Debug-Ausgaben
+	 * @param value <code>true</code> zur Deaktivierung
+	 */
 	public void setDisableDebugOutput( boolean value ) {
 		disableDebugOutput = value;
 	}
 	
+	/**
+	 * Gibt zurueck, ob die Debugausgabe deaktiviert ist
+	 * @return <code>true</code>, falls sie deaktiviert ist
+	 */
 	public boolean getDisableDebugOutput() {
 		return disableDebugOutput;	
 	}
 	
+	/**
+	 * (De)aktiviert die Default-CSS-Stile
+	 * @param value <code>true</code> zur Deaktivierung
+	 */
 	public void setDisableDefaultCSS( boolean value ) {
 		disableDefaultCSS = value;
 	}
 	
+	/**
+	 * Gibt zurueck, ob die Default-CSS-Stile deaktiviert sind
+	 * @return <code>true</code>, falls sie deaktiviert sind
+	 */
 	public boolean getDisableDefaultCSS() {
 		return disableDefaultCSS;	
 	}
 	
-	@Deprecated
-	public void setDisableActionBlocking( boolean value ) {
-		noActionBlocking = value;	
-	}
-	
-	@Deprecated
-	public void setDisableLastActionUpdate( boolean value ) {
-		updateLastAction = !value;	
-	}
-	
+	/**
+	 * Gibt den Startzeitpunkt der Verarbeitung zurueck
+	 * @return Der Startzeitpunkt der Verarbeitung
+	 */
 	public long getStartTime() {
 		return startTime;
 	}
 
+	/**
+	 * Gibt das <code>onLoad</code>-Attribut des HTML-Body-Tags zurueck
+	 * @return Das <code>onLoad</code>-Attribut
+	 */
 	public String getOnLoadText() {
 		if( onLoadFunctions.size() > 0 ) {
 			StringBuilder sb = new StringBuilder("onLoad=\"");
@@ -624,10 +629,19 @@ public abstract class DSGenerator extends Generator {
 		return "";	
 	}
 	
+	/**
+	 * Fuegt eine Javascript-Funktion zum <code>onLoad</code>-Aufruf des Body-Tags hinzu
+	 * @param func Der Javascript-Funktionsaufruf
+	 */
 	public void addOnLoadFunction( String func ) {
 		onLoadFunctions.add(func);
 	}
 	
+	/**
+	 * Gibt weitere HTML-Body-Tag-Attribute zurueck
+	 * @return Weitere HTML-Body-Tag-Attribute
+	 * @see #getOnLoadText()
+	 */
 	public String getBodyParameters() {
 		StringBuilder text = new StringBuilder();
 		
@@ -640,10 +654,21 @@ public abstract class DSGenerator extends Generator {
 		return text.toString();	
 	}
 	
+	/**
+	 * Fuegt ein weiteres HTML-Body-Tag-Attribut hinzu.
+	 * Sollte das Attribut bereits gesetzt seit, so wird es
+	 * ueberschrieben
+	 * @param parameter Der Name des Attributs
+	 * @param value Der Wert
+	 */
 	public void addBodyParameter( String parameter, String value ) {
 		bodyParameters.put(parameter,value);
 	}
 	
+	/**
+	 * Gibt den Identifikationsstring des Browsers des Spielers zurueck
+	 * @return Der Identifikationsstring des Browsers
+	 */
 	public String getBrowser() {
 		return browser;
 	}
@@ -661,10 +686,18 @@ public abstract class DSGenerator extends Generator {
 	
 	protected abstract boolean validateAndPrepare(String action);
 	
+	/**
+	 * Die Default-Ajax-Aktion
+	 *
+	 */
 	public void defaultAjaxAct() {
 		defaultAction();	
 	}
 	
+	/**
+	 * Die Default-HTML-Aktion
+	 *
+	 */
 	public void defaultAction() {
 		getResponse().getContent().append("DEFAULT");
 	}
