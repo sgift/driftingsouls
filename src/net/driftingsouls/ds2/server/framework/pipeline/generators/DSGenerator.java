@@ -269,7 +269,7 @@ public abstract class DSGenerator extends Generator {
 	 * @return Der User oder <code>null</code>
 	 */
 	public User getUser() {
-		return getActiveUser();
+		return getContext().getActiveUser();
 	}
 	
 	private Object getParameter( String parameter ) {
@@ -480,7 +480,8 @@ public abstract class DSGenerator extends Generator {
 		}
 		
 		String content = "";
-		if( requireValidSession && (getActiveUser() == null) && "".equals(getString("sess")) ) {
+		if( requireValidSession && (getContext().getActiveUser() == null) && 
+				getString("sess").length() == 0 ) {
 			addError( "FATAL ERROR: Es wurde keine session-id &uuml;bergeben" );
 		}
 		
@@ -497,8 +498,8 @@ public abstract class DSGenerator extends Generator {
 			return;
 		}
 		if( templateEngine != null ) {
-			if( getActiveUser() != null ) {
-				getActiveUser().setTemplateVars( templateEngine );	
+			if( getContext().getActiveUser() != null ) {
+				getContext().getActiveUser().setTemplateVars( templateEngine );	
 			}	
 		}
 		
@@ -521,7 +522,11 @@ public abstract class DSGenerator extends Generator {
 					
 				addError("Es ist ein Fehler in der Action '"+action+"' aufgetreten:\n"+t.toString()+"\n\n"+stacktrace);
 				
-				Common.mailThrowable(e, "DSGenerator Invocation Target Exception", "Action: "+action+"\nActionType: "+actionType+"\nUser: "+(getActiveUser() != null ? getActiveUser().getID() : "none")+"\nQuery-String: "+getContext().getRequest().getQueryString());
+				Common.mailThrowable(e, "DSGenerator Invocation Target Exception", 
+						"Action: "+action+"\n" +
+						"ActionType: "+actionType+"\n" +
+						"User: "+(getContext().getActiveUser() != null ? getContext().getActiveUser().getID() : "none")+"\n" +
+						"Query-String: "+getContext().getRequest().getQueryString());
 				if( getDatabase().isTransaction() ) {
 					getDatabase().tRollback();
 				}
@@ -531,7 +536,11 @@ public abstract class DSGenerator extends Generator {
 			}
 			catch( Exception e ) {
 				addError("Es ist ein Fehler beim Aufruf der Action '"+action+"' aufgetreten:\n"+e.toString());
-				Common.mailThrowable(e, "DSGenerator Exception", "Action: "+action+"\nActionType: "+actionType+"\nUser: "+(getActiveUser() != null ? getActiveUser().getID() : "none")+"\nQuery-String: "+getContext().getRequest().getQueryString());
+				Common.mailThrowable(e, "DSGenerator Exception", 
+						"Action: "+action+"\n" +
+						"ActionType: "+actionType+"\n"+
+						"User: "+(getContext().getActiveUser() != null ? getContext().getActiveUser().getID() : "none")+"\n" +
+						"Query-String: "+getContext().getRequest().getQueryString());
 				if( getDatabase().isTransaction() ) {
 					getDatabase().tRollback();
 				}
