@@ -67,10 +67,10 @@ public class CanvasWindowManager extends Canvas implements ActionListener, Mouse
 	private JImageCache imgCache;
 	private BufferStrategy strategy;
 	
-	private HashMap windows;
+	private HashMap<Integer,aWindowEntry> windows;
 	private int nextHandle;
-	private Vector windowZOrder;
-	private Vector eventList;
+	private Vector<Integer> windowZOrder;
+	private Vector<Vector<Object>> eventList;
 	
 	private String fontName;
 	
@@ -99,9 +99,9 @@ public class CanvasWindowManager extends Canvas implements ActionListener, Mouse
 		nextHandle = 1;		
 		redraw = true;
 		
-		windows = new HashMap();
-		windowZOrder = new Vector();
-		eventList = new Vector();
+		windows = new HashMap<Integer,aWindowEntry>();
+		windowZOrder = new Vector<Integer>();
+		eventList = new Vector<Vector<Object>>();
 		
 		mouseLastWindowHandle = -1;
 		inputFocusWindow = -1;
@@ -144,7 +144,7 @@ public class CanvasWindowManager extends Canvas implements ActionListener, Mouse
 	}
 	
 	protected aWindowEntry getWindowEntry( int handle ) {
-		return (aWindowEntry)windows.get(new Integer(handle));
+		return windows.get(handle);
 	}
 	
 	public void update(Graphics2D g) {
@@ -182,7 +182,7 @@ public class CanvasWindowManager extends Canvas implements ActionListener, Mouse
 			// Event-List verarbeiten
 			synchronized(this) {
 				for( int i=0; i < eventList.size(); i++ ) {
-					Vector aEvent = (Vector)eventList.get(i);
+					Vector<Object> aEvent = eventList.get(i);
 					JWindow aWindow = (JWindow)aEvent.get(1);
 					if( aWindow.getHandle() > 0 ) {
 						switch( ((Integer)aEvent.get(0)).intValue() ) {
@@ -236,9 +236,10 @@ public class CanvasWindowManager extends Canvas implements ActionListener, Mouse
   						g.setFont(myfont);
   					}
   			
-  					Vector localZOrder = (Vector)windowZOrder.clone();
+  					Vector<Integer> localZOrder = new Vector<Integer>();
+  					localZOrder.addAll(windowZOrder);
 	  				for( int i=localZOrder.size()-1; i >= 0; i-- ) {
-						Integer handle = (Integer)localZOrder.get(i);
+						Integer handle = localZOrder.get(i);
 						aWindowEntry entry = getWindowEntry(handle.intValue());
 						
 						if( entry == null ) {
@@ -550,9 +551,7 @@ public class CanvasWindowManager extends Canvas implements ActionListener, Mouse
 				
 				return;
 			}
-			else {
-				mouseLastWindowHandle = -1;
-			}
+			mouseLastWindowHandle = -1;
 		}
 	}
 	
@@ -721,9 +720,9 @@ public class CanvasWindowManager extends Canvas implements ActionListener, Mouse
 	 * @param handle	Das Handle des betreffenden Fenster
 	 * @param vis		Die neue Sichtbarkeit
 	 * 
-	 * @see setVisibility(int,boolean)
-	 * @see setVisibility(JWindow,int)
-	 * @see setVisibility(JWindow,boolean)
+	 * @see #setVisibility(int,boolean)
+	 * @see #setVisibility(JWindow,int)
+	 * @see #setVisibility(JWindow,boolean)
 	 */
 	protected void setVisibility( int handle, boolean vis ) {
 		if( handle == -1 ) {
@@ -744,16 +743,16 @@ public class CanvasWindowManager extends Canvas implements ActionListener, Mouse
 	
 	/**
 	 * Setzt die Sichtbarkeit eines Fensters auf einen bestimmten Zustand.
-	 * Gültige Zustände sind {@link aWindowEntry.VISIBILITY_FORCE_ON},
-	 * {@link aWindowEntry.VISIBILITY_FORCE_OFF},{@link aWindowEntry.VISIBILITY_ON} sowie
-	 * {@link aWindowEntry.VISIBILITY_OFF}.
+	 * Gültige Zustände sind {@link aWindowEntry#VISIBILITY_FORCE_ON},
+	 * {@link aWindowEntry#VISIBILITY_FORCE_OFF},{@link aWindowEntry#VISIBILITY_ON} sowie
+	 * {@link aWindowEntry#VISIBILITY_OFF}.
 	 * 
 	 * @param handle	Das Handle des betreffenden Fensters
 	 * @param vis		Der neue Sichtbarkeitswert
 	 * 
-	 * @see setVisibility(int,boolean)
-	 * @see setVisibility(JWindow,int)
-	 * @see setVisibility(JWindow,boolean)
+	 * @see #setVisibility(int,boolean)
+	 * @see #setVisibility(JWindow,int)
+	 * @see #setVisibility(JWindow,boolean)
 	 */
 	protected synchronized void setVisibility( int handle, int vis ) {
 		if( handle == -1 ) {
@@ -815,7 +814,7 @@ public class CanvasWindowManager extends Canvas implements ActionListener, Mouse
 					requestFocus(entry.getWindow());
 				}
 				
-				Vector event = new Vector();
+				Vector<Object> event = new Vector<Object>();
 				event.add(0, new Integer(EVENT_ON_CHANGE_VISIBILITY));
 				event.add(1, entry.getWindow());
 				event.add(2, Boolean.TRUE);
@@ -831,7 +830,7 @@ public class CanvasWindowManager extends Canvas implements ActionListener, Mouse
 					inputFocusWindow = -1;
 				}
 				
-				Vector event = new Vector();
+				Vector<Object> event = new Vector<Object>();
 				event.add(0, new Integer(EVENT_ON_CHANGE_VISIBILITY));
 				event.add(1, entry.getWindow());
 				event.add(2, Boolean.FALSE);
@@ -854,13 +853,9 @@ public class CanvasWindowManager extends Canvas implements ActionListener, Mouse
 			if( (entry.getVisibility() | aWindowEntry.VISIBILITY_FORCE) == aWindowEntry.VISIBILITY_FORCE_ON ) {
 				return true;
 			}
-			else {
-				return false;
-			}
-		}
-		else {
 			return false;
 		}
+		return false;
 	}
 	
 	/**
@@ -902,7 +897,7 @@ public class CanvasWindowManager extends Canvas implements ActionListener, Mouse
 			return new Vector();
 		}
 		
-		Vector parentList = new Vector();
+		Vector<JWindow> parentList = new Vector<JWindow>();
 		
 		Iterator iter = windows.values().iterator();
 		while( iter.hasNext() ) {
@@ -982,7 +977,7 @@ public class CanvasWindowManager extends Canvas implements ActionListener, Mouse
 		synchronized(this) {
 			// Events durchgehen
 			for( int i=0; i < eventList.size(); i++ ) {
-				Vector event = (Vector)eventList.get(i);
+				Vector<Object> event = eventList.get(i);
 				if( ((JWindow)event.get(1)).getHandle() == aWindow.getHandle() ) {
 					eventList.remove(i);
 				}
@@ -1005,7 +1000,7 @@ public class CanvasWindowManager extends Canvas implements ActionListener, Mouse
 	
 	public int getWindowUnderCoord( int x, int y ) {		
 		for( int i = 0; i < windowZOrder.size(); i++ ) {
-			int handle = ((Integer)windowZOrder.get(i)).intValue();
+			int handle = windowZOrder.get(i);
 		
 			aWindowEntry awnd = getWindowEntry(handle);
 			

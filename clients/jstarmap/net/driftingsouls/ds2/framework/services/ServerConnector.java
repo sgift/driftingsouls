@@ -33,7 +33,7 @@ import java.util.HashMap;
  * 
  */
 public class ServerConnector {
-	private HashMap connectors;	// <String, ServerConnectable>
+	private HashMap<String,ServerConnectable> connectors;
 	private String url;
 	private String session;
 	
@@ -47,14 +47,14 @@ public class ServerConnector {
 	 * @param session Session-ID
 	 */
 	private ServerConnector(String url, String session) {		
-		connectors = new HashMap();
+		connectors = new HashMap<String,ServerConnectable>();
 		this.url = url;
 		this.session = session;
 	}
 	
 	/**
-	 * Erzeugt eine Instanz des ServerConnectors und registriert einen Soap-Service {@see SoapConnector},
-	 * einen XML-Service {@see XMLConnector} und einen Karten-Service {@see MapConnector}
+	 * Erzeugt eine Instanz des ServerConnectors und registriert einen Soap-Service {@link SoapConnector},
+	 * einen XML-Service {@link XMLConnector} und einen Karten-Service {@link MapConnector}
 	 * 
 	 * @param url Pfad zum DS-Server (z.B. "http://www.server.com/ds/")
 	 * @param session Die zu verwendende Session-ID
@@ -99,7 +99,7 @@ public class ServerConnector {
 	 * @return Objekt bzw null
 	 */
 	public ServerConnectable getService( String service ) {
-		return (ServerConnectable)connectors.get(service);
+		return connectors.get(service);
 	}
 	
 	/**
@@ -121,7 +121,7 @@ public class ServerConnector {
 	
 	/**
 	 * Setzt die zu verwendende Session-ID
-	 * @param Session-ID
+	 * @param session Die Session-ID
 	 */
 	public void setSession(String session) {
 		this.session = session;
