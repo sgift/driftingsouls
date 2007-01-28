@@ -360,25 +360,30 @@ public class UeberController extends DSGenerator implements Loggable {
 
 				String eparty = "";
 				String comm = "";
-				if( ((user.getAlly() == 0) && (battle.getInt("commander1") != user.getID())) || ((user.getAlly() != 0) && (battle.getInt("ally1") != user.getAlly()) ) ) {
+				if( ((user.getAlly() == 0) && (battle.getInt("commander1") != user.getID())) || 
+					((user.getAlly() != 0) && (battle.getInt("ally1") != user.getAlly()) ) ) {
 					if( battle.getInt("ally1") == 0 ) {
-						eparty = Common._title(createUserObject(battle.getInt("commander1"), "name").getName());
+						eparty = Common._title(getContext().createUserObject(battle.getInt("commander1")).getName());
 					} 
 					else {
-						eparty = Common._title(db.first("SELECT name FROM ally WHERE id=",battle.getInt("ally1")).getString("name"));
+						eparty = Common._title(
+								db.first("SELECT name FROM ally WHERE id=",battle.getInt("ally1"))
+									.getString("name"));
 					}
 					
-					comm = Common._title(createUserObject(battle.getInt("commander2"), "name").getName());
+					comm = Common._title(getContext().createUserObject(battle.getInt("commander2")).getName());
 				} 
 				else {
 					if( battle.getInt("ally2") == 0 ) {
-						eparty = Common._title(createUserObject(battle.getInt("commander2"), "name").getName());
+						eparty = Common._title(getContext().createUserObject(battle.getInt("commander2")).getName());
 					} 
 					else {
-						eparty = Common._title(db.first("SELECT name FROM ally WHERE id=",battle.getInt("ally2")).getString("name"));
+						eparty = Common._title(
+								db.first("SELECT name FROM ally WHERE id=",battle.getInt("ally2"))
+									.getString("name"));
 					}
 
-					comm = Common._title(createUserObject(battle.getInt("commander1"), "name").getName());
+					comm = Common._title(getContext().createUserObject(battle.getInt("commander1")).getName());
 				}
 				
 				if( user.getAlly() != 0 ) {
@@ -415,24 +420,29 @@ public class UeberController extends DSGenerator implements Loggable {
 			String eparty = "";
 			String eparty2 = "";
 			if( battle.getInt("ally1") == 0 ) {
-				eparty = Common._title(createUserObject(battle.getInt("commander1"), "name").getName());
+				eparty = Common._title(getContext().createUserObject(battle.getInt("commander1")).getName());
 			} 
 			else {
-				eparty = Common._title(db.first("SELECT name FROM ally WHERE id=",battle.getInt("ally1")).getString("name"));
+				eparty = Common._title(
+							db.first("SELECT name FROM ally WHERE id=",battle.getInt("ally1"))
+								.getString("name"));
 			}
-			String comm1 = Common._title(createUserObject(battle.getInt("commander1"), "name").getName());
+			String comm1 = Common._title(getContext().createUserObject(battle.getInt("commander1")).getName());
 
 			if( battle.getInt("ally2") == 0 ) {
-				eparty2 = Common._title(createUserObject(battle.getInt("commander2"), "name").getName());
+				eparty2 = Common._title(getContext().createUserObject(battle.getInt("commander2")).getName());
 			} 
 			else {
-				eparty2 = Common._title(db.first("SELECT name FROM ally WHERE id=",battle.getInt("ally2")).getString("name"));
+				eparty2 = Common._title(
+						db.first("SELECT name FROM ally WHERE id=",battle.getInt("ally2"))
+							.getString("name"));
 			}
-			String comm2 = Common._title(createUserObject(battle.getInt("commander2"), "name").getName());
+			String comm2 = Common._title(getContext().createUserObject(battle.getInt("commander2")).getName());
 		
 			battlelist.append("<a class=\"error\" href=\"main.php?module=angriff&amp;sess="+getString("sess")+"&amp;battle="+battle.getInt("id")+"\">Schlacht "+eparty+" vs "+eparty2+" bei "+battle.getInt("system")+":"+battle.getInt("x")+"/"+battle.getInt("y")+"</a><br />*&nbsp;["+comm1+" vs "+comm2+"]<br />\n");
 			
-			if( ( (user.getAccessLevel() >= 20) || user.hasFlag(User.FLAG_QUEST_BATTLES) ) && (battle.getInt("quest") != 0) ) {
+			if( ( (user.getAccessLevel() >= 20) || user.hasFlag(User.FLAG_QUEST_BATTLES) ) 
+				&& (battle.getInt("quest") != 0) ) {
 				String questname = db.first("SELECT t2.name FROM quests_running t1, quests t2 WHERE t1.id='",battle.getInt("quest"),"' AND t1.questid=t2.id").getString("name");
 				battlelist.append("*&nbsp;[Quest: "+questname+"]<br />\n");
 			}

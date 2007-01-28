@@ -741,7 +741,7 @@ class PortalController extends DSGenerator {
 			username = db.prepareString(username);
 
 			int uid = db.first("SELECT id FROM users WHERE un='",username,"'").getInt("id");
-			User user = createUserObject(uid, "passwort","log_fail","disabled","vaccount","wait4vac" );
+			User user = getContext().createUserObject(uid);
 			
     		if( !user.getPassword().equals(enc_pw) ) {
 				t.set_var( "show.msg.login.wrongpassword",1 );
@@ -873,7 +873,7 @@ class PortalController extends DSGenerator {
 			return;
 		}
 		
-		User auser = createUserObject(sessdata.getInt("id"), "flags", "vaccount", "wait4vac");
+		User auser = getContext().createUserObject(sessdata.getInt("id"));
 		if( !auser.hasFlag(User.FLAG_DISABLE_IP_SESSIONS) && (sessdata.getString("ip").indexOf("<"+getRequest().getRemoteAddress()+">") > -1) ) {
 			t.set_var("show.login.vacmode.msg.accerror",1);
 			return;
