@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Random;
 
 import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.Error;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
