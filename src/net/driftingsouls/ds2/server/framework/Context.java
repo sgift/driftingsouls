@@ -72,7 +72,7 @@ public interface Context {
 	
 	
 	/**
-	 * Liefert eine Instanz der Datenbank-Klasse zur?ck
+	 * Liefert eine Instanz der Datenbank-Klasse zurueck
 	 * 
 	 * @return Eine Database-Instanz
 	 */
