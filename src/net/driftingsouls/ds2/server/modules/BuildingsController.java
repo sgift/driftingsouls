@@ -35,9 +35,16 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 /**
  * Die Liste aller baubaren Gebaeude und Cores
  * @author Christopher Jung
+ * 
+ * @urlparam Integer col Die ID der Basis, auf die der zurueck-Link zeigen soll
+ * @urlparam Integer field Die ID des Feldes, dessen Gebaeude der zurueck-Link ansteuern soll
  *
  */
 public class BuildingsController extends DSGenerator {
+	/**
+	 * Konstruktor
+	 * @param context Der zu verwendende Kontext
+	 */
 	public BuildingsController(Context context) {
 		super(context);
 		
@@ -67,6 +74,9 @@ public class BuildingsController extends DSGenerator {
 		return true;
 	}
 
+	/**
+	 * Zeigt die Liste aller baubaren Gebaeude und Cores an
+	 */
 	@Override
 	public void defaultAction() {
 		Database db = getDatabase();

@@ -34,12 +34,19 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 /**
  * Die Gebaeudeansicht
  * @author Christopher Jung
+ * 
+ * @urlparam Integer col Die ID der Basis
+ * @urlparam Integer field Die ID des Felds, dessen Gebaeude angezeigt werden soll
  *
  */
 public class BuildingController extends DSGenerator {
 	private Base base;
 	private Building building;
 	
+	/**
+	 * Konstruktor
+	 * @param context Der zu verwendende Kontext
+	 */
 	public BuildingController(Context context) {
 		super(context);
 		
@@ -74,6 +81,10 @@ public class BuildingController extends DSGenerator {
 		return true;	
 	}
 
+	/**
+	 * Aktiviert das Gebaeude
+	 *
+	 */
 	public void startAction() {
 		Database db = getDatabase();
 		
@@ -95,6 +106,10 @@ public class BuildingController extends DSGenerator {
 		redirect();	
 	}
 	
+	/**
+	 * Deaktiviert das Gebaeude
+	 *
+	 */
 	public void shutdownAction() {
 		Database db = getDatabase();
 		
@@ -117,6 +132,11 @@ public class BuildingController extends DSGenerator {
 		redirect();
 	}
 	
+	/**
+	 * Reisst das Gebaeude ab
+	 * @urlparam String conf Falls "ok" bestaetigt dies den Abriss
+	 *
+	 */
 	public void demoAction() {	
 		Database db = getDatabase();
 		
@@ -176,6 +196,9 @@ public class BuildingController extends DSGenerator {
 		echo.append("<a class=\"back\" href=\""+Common.buildUrl(getContext(), "default", "module", "base", "col", base.getID())+"\">zur&uuml;ck</a><br />\n");
 	}
 	
+	/**
+	 * Zeigt die GUI des Gebaeudes an
+	 */
 	@Override
 	public void defaultAction() {			
 		int field = getInteger("field");
