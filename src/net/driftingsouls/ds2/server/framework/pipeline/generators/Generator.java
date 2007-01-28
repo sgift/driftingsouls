@@ -35,58 +35,93 @@ import net.driftingsouls.ds2.server.framework.pipeline.Response;
 public abstract class Generator {
 	private Context context;
 	
+	/**
+	 * Konstruktor
+	 * @param context Der Kontext
+	 */
 	public Generator(Context context) {
 		this.context = context;
 	}
 	
-	public final User getCachedUser( int id ) {
-		return context.getCachedUser(id);
+	/**
+	 * Erstellt ein neues User-Objekt sofern nicht bereits ein gecachtes vorhanden ist.
+	 * 
+	 * @param id Die ID des zu erstellenden Users
+	 * @return Das User-Objekt
+	 */
+	public final User createUserObject( int id ) {
+		return context.createUserObject(id);
 	}
 	
-	public final User createUserObject( int id, String ... prepare ) {
-		return context.createUserObject(id, prepare);
-	}
-	
-	public final void cacheUser( User userobj ) {
-		context.cacheUser(userobj);
-	}
-	
+	/**
+	 * Liefert eine Instanz der Datenbank-Klasse zurueck
+	 * 
+	 * @return Eine Database-Instanz
+	 */
 	public final Database getDatabase() {
 		return context.getDatabase();
 	}
 	
-	public final User getActiveUser() {
-		return context.getActiveUser();
-	}
-	
-	public final void setActiveUser( User user ) {
-		context.setActiveUser(user);
-	}
-	
+	/**
+	 * Fuegt einen Fehler zur Fehlerliste hinzu
+	 * 
+	 * @param error Die Beschreibung des Fehlers
+	 */
 	public final void addError( String error ) {
 		context.addError(error);
 	}
 	
+	/**
+	 * Fuegt einen Fehler zur Fehlerliste hinzu und bietet zudem eine Ausweich-URL an.
+	 * 
+	 * @param error Die Beschreibung des Fehlers
+	 * @param link Die Ausweich-URL
+	 */
 	public final void addError( String error, String link ) {
 		context.addError(error, link);
 	}
 	
+	/**
+	 * Liefert den letzten Fehler zurueck
+	 * 
+	 * @return Der letzte Fehlers
+	 * 
+	 * @see #addError(String, String)
+	 * @see #addError(String)
+	 */
 	public final Error getLastError() {
 		return context.getLastError();
 	}
 	
+	/**
+	 * Liefert eine Liste aller Fehler zurueck
+	 * 
+	 * @return Eine Liste aller Fehlerbeschreibungen 
+	 */
 	public final Error[] getErrorList() {
 		return context.getErrorList();
 	}
 	
+	/**
+	 * Liefert die Request fuer diesen Aufruf
+	 * @return Die Request des Aufrufs
+	 */
 	public final Response getResponse() {
 		return context.getResponse();
 	}
 
+	/**
+	 * Liefert die zum Aufruf gehoerende Response
+	 * @return Die Response des Aufrufs
+	 */
 	public final Request getRequest() {
 		return context.getRequest();
 	}
 	
+	/**
+	 * Gibt den aktuellen Kontext zurueck
+	 * @return Der Kontext
+	 */
 	public Context getContext() {
 		return context;
 	}
