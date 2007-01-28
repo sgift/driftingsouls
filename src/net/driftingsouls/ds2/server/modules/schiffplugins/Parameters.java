@@ -28,10 +28,28 @@ import net.driftingsouls.ds2.server.modules.SchiffController;
  *
  */
 public class Parameters {
+	/**
+	 * Der Schiffscontroller
+	 */
 	public SchiffController controller;
+	/**
+	 * Die ID des Plugins
+	 */
 	public String pluginId;
+	/**
+	 * Die Zielvariable im Template
+	 */
 	public String target;
+	/**
+	 * Das Schiff
+	 */
 	public SQLResultRow ship;
+	/**
+	 * Der Schiffstyp
+	 */
 	public SQLResultRow shiptype;
+	/**
+	 * Der Offizier oder <code>null</code>
+	 */
 	public Offizier offizier;
 }

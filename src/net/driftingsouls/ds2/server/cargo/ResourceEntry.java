@@ -37,6 +37,15 @@ public class ResourceEntry {
 	private String cargo2 = null;
 	private boolean largeImages = false;
 	
+	/**
+	 * Konstruktor
+	 * @param id Die Resourcen-ID
+	 * @param name Der Name
+	 * @param plainname Der Name ohne Formatierung
+	 * @param image Das Bild der Resource
+	 * @param cargo Die Menge (formatiert)
+	 * @param count Die Menge ohne Formatierung
+	 */
 	public ResourceEntry(ResourceID id, String name, String plainname, String image, String cargo, long count) {
 		this.id = id;
 		this.name = name;
@@ -46,6 +55,18 @@ public class ResourceEntry {
 		this.cargo1 = cargo;
 	}
 	
+	/**
+	 * Konstruktor, falls zwei Cargos verglichen werden
+	 * @param id Die ID der Resource
+	 * @param name Der Name
+	 * @param plainname Der Name ohne Formatierung
+	 * @param image Das Bild der Resource
+	 * @param cargo1 Die Menge des ersten Cargos (formatiert)
+	 * @param cargo2 Die Menge des zweiten Cargos (formatiert)
+	 * @param count1 Die Menge des ersten Cargos
+	 * @param count2 Die Menge des zweiten Cargos
+	 * @param diff Die Differenz der beiden Cargos
+	 */
 	public ResourceEntry(ResourceID id, String name, String plainname, String image, String cargo1, String cargo2, long count1, long count2, long diff) {
 		this(id, name, plainname, image, cargo1, count1);
 		this.cargo2 = cargo2;
@@ -57,22 +78,42 @@ public class ResourceEntry {
 		largeImages = value;
 	}
 
+	/**
+	 * Gibt die Menge des ersten Cargos formatiert zurueck
+	 * @return Die Menge des ersten Cargos formatiert
+	 */
 	public String getCargo1() {
 		return cargo1;
 	}
 
+	/**
+	 * Gibt die Menge des zweiten Cargos formatiert zurueck
+	 * @return Die Menge des zweiten Cargos formatiert
+	 */
 	public String getCargo2() {
 		return cargo2;
 	}
 
+	/**
+	 * Gibt die Menge des ersten Cargos ohne Formatierung zurueck
+	 * @return Die Menge des ersten Cargos ohne Formatierung
+	 */
 	public long getCount1() {
 		return count1;
 	}
 
+	/**
+	 * Gibt die Menge des zweiten Cargos ohne Formatierung zurueck
+	 * @return Die Menge des zweiten Cargos ohne Formatierung
+	 */
 	public long getCount2() {
 		return count2;
 	}
 
+	/**
+	 * Gibt die Differenz der beiden Cargomengen zurueck
+	 * @return Die Differenz
+	 */
 	public long getDiff() {
 		return diff;
 	}

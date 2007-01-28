@@ -26,5 +26,9 @@ import net.driftingsouls.ds2.server.framework.Context;
  *
  */
 public interface Serializer {
+	/**
+	 * Bereitet den Kontext fuer die Ausgabe vor
+	 * @param context Der Kontext
+	 */
 	public void serialize( Context context );
 }

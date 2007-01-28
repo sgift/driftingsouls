@@ -24,6 +24,17 @@ package net.driftingsouls.ds2.server.framework.templates;
  *
  */
 public interface TemplateBlock {
+	/**
+	 * Gibt die Liste aller Variablen im Block zurueck
+	 * @param all Falls <code>true</code> werden auch Variablen von Unterbloecken zurueckgegeben
+	 * @return Die Liste aller Variablen
+	 */
 	public String[] getBlockVars(boolean all);
+	
+	/**
+	 * Generiert die Ausgabe des Blocks
+	 * @param te Das TemplateEngine
+	 * @return Die Ausgabe
+	 */
 	public String output( TemplateEngine te );
 }

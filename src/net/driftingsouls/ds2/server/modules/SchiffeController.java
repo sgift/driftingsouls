@@ -41,7 +41,6 @@ import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -49,8 +48,18 @@ import org.apache.commons.lang.StringUtils;
  * Die Schiffsliste
  * @author Christopher Jung
  *
+ * @urlparam String only Die anzuzeigende Schiffsart. Falls leer werden alle Schiffe angezeigt
+ * @urlparam Integer low Falls != 0 werden alle Schiffe mit Mangel angezeigt
+ * @urlparam Integer crewless Falls != 0 werden alle Schiffe ohne Crew angezeigt
+ * @urlparam Integer listoffset Der Offset innerhalb der Liste der Schiffe
+ * @urlparam Integer kampf_only Falls != 0 werden nur Kriegsschiffe der Schiffsklasse mit der angegebenen ID angezeigt
+ * 
  */
 public class SchiffeController extends DSGenerator {
+	/**
+	 * Konstruktor
+	 * @param context Der zu verwendende Kontext
+	 */
 	public SchiffeController(Context context) {
 		super(context);
 		
@@ -61,7 +70,6 @@ public class SchiffeController extends DSGenerator {
 		parameterNumber("crewless");
 		parameterNumber("listoffset");
 		parameterNumber("kampf_only");
-		parameterNumber("showLJaeger");
 	}
 	
 	@Override
@@ -69,6 +77,11 @@ public class SchiffeController extends DSGenerator {
 		return true;
 	}
 	
+	/**
+	 * Aendert den Anzeigemodus fuer den Cargo
+	 * @urlparam String mode Der Anzeigemodus fuer den Cargo (<code>carg</code> oder <code>norm</code>)
+	 *
+	 */
 	public void changeModeAction() {
 		parameterString("mode");
 		
@@ -80,6 +93,11 @@ public class SchiffeController extends DSGenerator {
 		redirect();
 	}
 	
+	/**
+	 * Aendert den Sortierungsmodus fuer die Schiffe
+	 * @urlparam String order Das neue Sortierkriterium
+	 *
+	 */
 	public void changeOrderAction() {
 		parameterString("order");
 		
@@ -91,7 +109,13 @@ public class SchiffeController extends DSGenerator {
 		this.redirect();
 	}
 	
+	/**
+	 * Aendert den Anzeigemodus fuer gelandete Jaeger
+	 * @urlparam Integer showLJaegder Falls != 0 werden gelandete Jaeger angezeigt
+	 */
 	public void changeJDockedAction() {	
+		parameterNumber("showLJaeger");
+		
 		this.getUser().setUserValue("TBLORDER/schiffe/showjaeger", Integer.toString(getInteger("showLJaeger")));
 		
 		this.redirect();
@@ -117,14 +141,14 @@ public class SchiffeController extends DSGenerator {
 		String mode = user.getUserValue("TBLORDER/schiffe/mode");
 		String showjaeger = user.getUserValue("TBLORDER/schiffe/showjaeger");
 		
-		Map<String,String> ordermapper = ArrayUtils.toMap(new String[][] {
-				{ "id", "id" },
-				{ "name", "name,id" },
-				{ "type", "type,id" },
-				{ "sys", "system,x+y,id" },
-				{ "crew", "crew,id" },
-				{ "hull", "hull,id" },
-				{ "e", "e,id" } });
+		Map<String,String> ordermapper = new HashMap<String,String>();
+		ordermapper.put("id", "id");
+		ordermapper.put("name", "name,id");
+		ordermapper.put("type", "type,id");
+		ordermapper.put("sys", "system,x+y,id");
+		ordermapper.put("crew", "crew,id");
+		ordermapper.put("hull", "hull,id");
+		ordermapper.put("e", "e,id");
 		
 		String ow = ordermapper.get(ord);
 		

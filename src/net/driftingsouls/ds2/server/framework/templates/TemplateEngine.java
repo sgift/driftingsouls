@@ -65,10 +65,18 @@ public class TemplateEngine implements Loggable {
 	
 	private Map<String,String> m_varNameMap = new HashMap<String,String>();
 	
+	/**
+	 * Konstruktor
+	 * @param controller Der mit dem Engine assoziierte Controller
+	 */
 	public TemplateEngine(Context controller) {
 		m_controller = controller;
 	}
 	
+	/**
+	 * Gibt den mit dem Engine assiziierten Controller zurueck
+	 * @return Der Controller
+	 */
 	public Context getController() {
 		return m_controller;
 	}
@@ -91,10 +99,6 @@ public class TemplateEngine implements Loggable {
 
 		this.overlay = overlay;
 		return true;
-	}
-	
-	public void compile( String fname ) {
-		throw new RuntimeException("Not implemented yet");
 	}
 	
 	private static Map<String,Template> templateMap = Collections.synchronizedMap(new HashMap<String,Template>());
@@ -222,6 +226,11 @@ public class TemplateEngine implements Loggable {
 		}
 	}
 	
+	/**
+	 * Setzt mehrere Template-Variablen
+	 * @param list Eine Liste von Werten, in der alle ungeraden Werte Variablennamen und alle Geraden Variablenwerte sind
+	 *
+	 */
 	public void set_var( Object ... list  ) {
 		if( list.length % 2 != 0 ) {
 			throw new RuntimeException("Illegal var list");
@@ -300,13 +309,19 @@ public class TemplateEngine implements Loggable {
 		return parse(target, handle, false);
 	}
 
-	/* 
-	 *	get_vars()
+	/**
+	 * Gibt alle im TemplateEngine bekannten Variablen mit samt Wert zurueck
+	 * @return Alle Templatevariablen inklusive Wert 
 	 */
 	public Map<String,Object> get_vars() {
 		return varvals;
 	}
 
+	/**
+	 * Gibt den Inhalt der Variablen zurueck, welche einen Block ersetzt hat
+	 * @param varname Der Name des Blocks
+	 * @return Der Inhalt der Variablen
+	 */
 	public String getBlockReplacementVar( String varname ) {
 		if( m_varNameMap.get(varname) != null ) {
 			return getVar(m_varNameMap.get(varname));
@@ -314,6 +329,12 @@ public class TemplateEngine implements Loggable {
 		return "";	
 	}
 	
+	/**
+	 * Prueft, ob der Inhalt einer Variablen wahr ist. Hierbei werden
+	 * sowohl Boolean als auch Number und String unterstuetzt
+	 * @param varname Der Name der Variable
+	 * @return <code>true</code>, falls der Inhalt wahr ist
+	 */
 	public boolean isVarTrue( String varname ) {
 		if( varvals.containsKey(varname) ) {
 			Object val = varvals.get(varname);
@@ -399,11 +420,21 @@ public class TemplateEngine implements Loggable {
 		m_controller.getResponse().getContent().append(value);
 	}
 	
+	/**
+	 * Registriert einen TemplateBlock
+	 * @param name Der Name
+	 * @param filehandle Das Dateihandle
+	 * @param parent Der Elternblock
+	 */
 	public void registerBlockItrnl( String name, String filehandle, String parent ) {
 		LOG.debug("registered block: >"+name+"< >"+filehandle+"< >"+parent+"<");
 		m_registeredBlocks.put(name, new String[] {filehandle, name, parent});
 	}
 
+	/**
+	 * Startet die Aufzeichnung aller Variablensetzungen
+	 *
+	 */
 	public void start_record() {
 		record = true;
 		if( LOG.isTraceEnabled() ) {
@@ -411,6 +442,10 @@ public class TemplateEngine implements Loggable {
 		}
   	}
 
+	/**
+	 * Beendet die Aufzeichnung aller Variablensetzungen
+	 *
+	 */
 	public void stop_record() {
 		record = false;
 		if( LOG.isTraceEnabled() ) {
@@ -418,6 +453,11 @@ public class TemplateEngine implements Loggable {
 		}
 	}
 
+	/**
+	 * Entfernt alle Variablen, die innerhalb eines Aufzeichnungsblocks
+	 * gesetzt wurden. Der Aufzeichnungspuffer wird anschliessend geleert
+	 *
+	 */
 	public void clear_record() {
 		for( String key : recordvars ) {
 			if( LOG.isTraceEnabled() ) {

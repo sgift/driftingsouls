@@ -80,6 +80,11 @@ public class SurveyController extends DSGenerator {
 		return true;
 	}
 
+	/**
+	 * Speichert ein Abstimmungsergebnis
+	 * @urlparam * surveyentry_* Parameter Abhaengig von Feldtyp
+	 *
+	 */
 	public void submitAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
@@ -140,10 +145,14 @@ public class SurveyController extends DSGenerator {
 		t.set_var("show.votesuccessful", 1);
 	}
 	
+	/**
+	 * Zeigt die Umfrage an
+	 * 
+	 */
+	@Override
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
-		User user = getUser();
 		
 		t.set_var(	"survey.name",	this.survey.getString("name"),
 					"survey.id",	this.survey.getInt("id"),

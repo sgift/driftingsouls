@@ -5,6 +5,13 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.uilibs.PlayerList;
 
+/**
+ * Zeigt die Spielerliste an
+ * @author Christopher Jung
+ * 
+ * @urlparam Integer compopup != 0, falls die Spielerliste als Popup der PM-Verwaltung dient
+ *
+ */
 public class PListController extends DSGenerator {
 
 	/**
