@@ -27,6 +27,7 @@ import java.util.Map;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.Offizier;
+import net.driftingsouls.ds2.server.SectorTemplateManager;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
@@ -44,6 +45,7 @@ import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.db.Database;
+import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.ships.Ships;
@@ -547,8 +549,139 @@ public class QuestFunctions {
 	
 	class InstallHandler implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			String event = command[1];
+			scriptparser.log("event: "+event+"\n");
+			
+			StringBuilder removescript = new StringBuilder();
+			String questid = "";
+			int userid = 0;
+			
+			if( event.equals("oncommunicate") || event.equals("onendbattle") || event.equals("onenter") ) {
+				// Object-ID
+				String objid = command[2];
+				if( objid.charAt(0) == '#' ) {
+					objid = scriptparser.getRegister(objid);	
+				}
+				scriptparser.log("objid: "+objid+"\n");
+				
+				// User-ID
+				if( command[3].charAt(0) == '#' ) {
+					command[3] = scriptparser.getRegister(command[3]);	
+				}
+				userid = Value.Int(command[3]);
+				
+				scriptparser.log("userid: "+userid+"\n");
+				
+				// Script-ID
+				if( command[4].charAt(0) == '#' ) {
+					command[4] = scriptparser.getRegister(command[4]);	
+				}
+				int scriptid = Value.Int( command[4] );
+				scriptparser.log("scriptid: "+scriptid+"\n");
+				
+				// Quest-ID
+				if( command[5].charAt(0) == '#' ) {
+					command[5] = scriptparser.getRegister(command[5]);	
+				}
+				questid = command[5];
+				scriptparser.log("questid: "+questid+"\n");
+			
+				// On-Communicate
+				if( event.equals("oncommunicate") ) {
+					SQLResultRow ship = db.first("SELECT id,oncommunicate FROM ships " +
+							"WHERE id>0 AND id="+Value.Int(objid));
+					if( !ship.isEmpty() ) {
+						String comm = ship.getString("oncommunicate");
+						if( comm.length() > 0 ) {
+							comm += ";";
+						}
+						comm += userid+":"+scriptid+":"+questid;
+						db.prepare("UPDATE ships SET oncommunicate= ? WHERE id>0 AND id= ?")
+							.update(comm, Value.Int(objid));
+					
+						removescript.append("!REMOVEHANDLER "+event+" "+objid+" "+userid+" "+scriptid+" "+questid+"\n");
+					}
+				}
+				// On-Enter
+				else if( event.equals("onenter") ) {
+					Location loc = Location.fromString(objid);
+					
+					SQLResultRow sector = db.first("SELECT system,x,y,onenter FROM sectors " +
+							"WHERE system="+loc.getSystem()+" AND x="+loc.getX()+" AND y="+loc.getY());
+					if( sector.isEmpty() ) {
+						db.update("INSERT INTO sectors (system,x,y) " +
+								"VALUES ("+loc.getSystem()+","+loc.getX()+","+loc.getY()+")");
+						sector.put("onenter", "");
+					}
+					
+					String onenter = sector.getString("onenter");
+					if( onenter.length() > 0) {
+						onenter += ";";	
+					}
+					onenter += userid+":"+scriptid+":"+questid;
+					
+					db.prepare("UPDATE sectors SET onenter= ? WHERE system= ? AND x= ? AND y= ?")
+						.update(onenter, loc.getSystem(), loc.getX(), loc.getY());
+					
+					removescript.append("!REMOVEHANDLER "+event+" "+objid+" "+userid+" "+scriptid+" "+questid+"\n");
+				}
+				// Battle-OnEnd
+				else {
+					db.prepare("UPDATE battles SET onend= ? WHERE id= ?")
+						.update(userid+":"+scriptid+":"+questid, Value.Int("objid"));	
+				}
+			}
+			// OnTick
+			else if( event.equals("ontick") ) {
+				// User-ID
+				if( command[2].charAt(0) == '#' ) {
+					command[2]= scriptparser.getRegister(command[2]);	
+				}
+				userid = Value.Int(command[2]);
+				scriptparser.log("userid: "+userid+"\n");
+				
+				// Script-ID
+				if( command[3].charAt(0) == '#' ) {
+					command[3] = scriptparser.getRegister(command[3]);	
+				}
+				int scriptid = Value.Int( command[3] );
+				scriptparser.log("scriptid: "+scriptid+"\n");
+				
+				// Quest-ID
+				if( command[4].charAt(0) == '#' ) {
+					command[4] = scriptparser.getRegister(command[4]);	
+				}
+				questid = command[4];
+				scriptparser.log("questid: "+questid+"\n");
+				
+				db.prepare("UPDATE quests_running SET ontick= ? WHERE questid= ? AND userid= ?")
+					.update(scriptid, questid, userid);
+				
+				removescript.append("!REMOVEHANDLER "+event+" "+userid+" "+questid+"\n");
+			}
+			
+			if( removescript.length() > 0 ) {
+				SQLResultRow runningdata = null;
+				if( questid.charAt(0) != 'r' ) {
+					runningdata = db.first("SELECT id,uninstall FROM quests_running " +
+							"WHERE questid="+Value.Int(questid)+" AND userid="+userid);
+				}
+				else {
+					int rquestid = Value.Int(questid.substring(1));
+					runningdata = db.first("SELECT id,uninstall FROM quests_running WHERE id="+rquestid);
+				}
+				
+				if( !runningdata.isEmpty() ) {
+					String uninstall = runningdata.getString("uninstall");
+					if( uninstall.length() == 0 ) {
+						uninstall = ":0\n";	
+					}
+					uninstall += removescript;
+					
+					db.prepare("UPDATE quests_running SET uninstall= ? WHERE id= ?")
+						.update(uninstall, runningdata.getInt("id"));
+				}
+			}
 			
 			return CONTINUE;
 		}
@@ -556,8 +689,128 @@ public class QuestFunctions {
 	
 	class RemoveHandler implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			String event = command[1];
+			scriptparser.log("event: "+event+"\n");
+			
+			String questid = "";
+			int userid = 0;
+		
+			if( event.equals("oncommunicate") || event.equals("onenter") ) {
+				// Object-ID
+				String objid = command[2];
+				if( objid.charAt(0) == '#' ) {
+					objid = scriptparser.getRegister(objid);	
+				}
+				scriptparser.log("objid: "+objid+"\n");
+				
+				// User-ID
+				if( command[3].charAt(0) == '#' ) {
+					command[3] = scriptparser.getRegister(command[3]);	
+				}
+				userid = Value.Int(command[3]);
+				
+				scriptparser.log("userid: "+userid+"\n");
+				
+				// Script-ID
+				if( command[4].charAt(0) == '#' ) {
+					command[4] = scriptparser.getRegister(command[4]);	
+				}
+				int scriptid = Value.Int( command[4] );
+				scriptparser.log("scriptid: "+scriptid+"\n");
+				
+				// Quest-ID
+				if( command[5].charAt(0) == '#' ) {
+					command[5] = scriptparser.getRegister(command[5]);	
+				}
+				questid = command[5];
+				scriptparser.log("questid: "+questid+"\n");
+		
+				if( event.equals("oncommunicate") ) {
+					SQLResultRow ship = db.first("SELECT id,oncommunicate FROM ships " +
+							"WHERE id>0 AND id="+Value.Int(objid));
+					if( !ship.isEmpty()  ) {
+						List<String> newcom = new ArrayList<String>();
+					
+						String[] com = StringUtils.split(ship.getString("oncommunicate"), ';');
+						for( int i=0; i < com.length; i++ ) {
+							String[] tmp = StringUtils.split(com[i], ':');
+							int usr = Value.Int(tmp[0]);
+							int script = Value.Int(tmp[1]);
+							String quest = tmp[2];
+							if( (usr != userid) || (script != scriptid) || !quest.equals(questid) ) {
+								newcom.add(com[i]);	
+							}	
+						}
+						
+						if( newcom.size() > 0 ) {
+							db.prepare("UPDATE ships SET oncommunicate=? WHERE id>0 AND id= ?")
+								.update(Common.implode(";", newcom), Value.Int(objid));
+						}
+						else {
+							db.update("UPDATE ships SET oncommunicate=NULL WHERE id>0 AND id="+Value.Int(objid));
+						}
+					}
+				}
+				else {
+					Location loc = Location.fromString(objid);
+					
+					SQLResultRow sector = db.first("SELECT system,x,y,onenter FROM sectors " +
+							"WHERE system="+loc.getSystem()+" AND x="+loc.getX()+" AND y="+loc.getY());
+					if( !sector.isEmpty() ) {
+						List<String> newenter = new ArrayList<String>();
+						
+						String[] enter = StringUtils.split(sector.getString("onenter"), ';');
+						for( int i=0; i < enter.length; i++ ) {
+							String[] tmp = StringUtils.split(enter[i], ':');
+							int usr = Value.Int(tmp[0]);
+							int script = Value.Int(tmp[1]);
+							String quest = tmp[2];
+							if( (usr != userid) || (script != scriptid) || !quest.equals(questid) ) {
+								newenter.add(enter[i]);	
+							}	
+						}
+						
+						if( newenter.size() > 0 ) {
+							db.prepare("UPDATE sectors SET onenter= ? WHERE system= ? AND x= ? AND y= ?")
+								.update(Common.implode(";", newenter), loc.getSystem(), loc.getX(), loc.getY());
+						}
+						else if( sector.getInt("objects") != 0 ) {
+							db.update("UPDATE ships SET onenter=NULL " +
+									"WHERE system="+loc.getSystem()+" " +
+											"AND x="+loc.getX()+" AND y="+loc.getY());
+						}
+						else {
+							db.update("DELETE FROM sectors " +
+									"WHERE system="+loc.getSystem()+" " +
+									"AND x="+loc.getX()+" AND y="+loc.getY());
+						}
+					}
+				}	
+			}
+			else if( event.equals("ontick") ) {
+				// User-ID
+				if( command[2].charAt(0) == '#' ) {
+					command[2]= scriptparser.getRegister(command[2]);	
+				}
+				userid = Value.Int(command[2]);
+				scriptparser.log("userid: "+userid+"\n");
+							
+				// Quest-ID
+				if( command[3].charAt(0) == '#' ) {
+					command[3] = scriptparser.getRegister(command[3]);	
+				}
+				questid = command[3];
+				scriptparser.log("questid: "+questid+"\n");
+				
+				if( questid.charAt(0) != 'r' ) {
+					db.update("UPDATE quests_running SET ontick=NULL " +
+							"WHERE questid="+Value.Int(questid)+" AND userid="+userid);
+				}
+				else {
+					int rquestid = Value.Int(questid.substring(1));
+					db.update("UPDATE quests_running SET ontick=NULL WHERE id="+rquestid);	
+				}
+			}
 			
 			return CONTINUE;
 		}
@@ -565,8 +818,50 @@ public class QuestFunctions {
 	
 	class AddUninstallCmd implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			String questid = scriptparser.getRegister("QUEST");
+			int userid = Value.Int(scriptparser.getRegister("USER"));
+			
+			StringBuilder removescript = new StringBuilder();
+			
+			for( int i=1; i < command.length; i++ ) {
+				String cmd = command[1];
+				if( cmd.charAt(0) == '#' ) {
+					removescript.append(scriptparser.getRegister(cmd)+' ');	
+				}	
+				else if( cmd.charAt(0) == '\\' ) {
+					removescript.append(cmd.substring(1)+' ');
+				}
+				else {
+					removescript.append(cmd+' ');	
+				}
+			}
+			
+			removescript.append("\n");
+			
+			SQLResultRow runningdata = null;
+			if( questid.charAt(0) != 'r' ) {
+				runningdata = db.first("SELECT id,uninstall FROM quests_running " +
+						"WHERE questid="+Value.Int(questid)+" AND userid="+userid);
+			}
+			else {
+				int rquestid = Value.Int(questid.substring(1));
+				runningdata = db.first("SELECT id,uninstall FROM quests_running WHERE id="+rquestid);	
+			}
+			
+			if( !runningdata.isEmpty() ) {
+				String uninstall = runningdata.getString("uninstall");
+				
+				if( uninstall.length() == 0 ) {
+					uninstall = ":0\n";	
+				}
+				uninstall += removescript.toString();
+					
+				db.prepare("UPDATE quests_running SET uninstall= ? WHERE id= ?")
+					.update(uninstall, runningdata.getInt("id"));
+			}
+			else {
+				scriptparser.log("WARNUNG: keine quest_running-data gefunden\n");	
+			}
 			
 			return CONTINUE;
 		}
@@ -949,8 +1244,19 @@ public class QuestFunctions {
 	
 	class TransferWholeCargo implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			scriptparser.log("cargo(target): "+command[1]+"\n");
+			Object cargotarObj = scriptparser.getRegisterObject(command[1]);
+			
+			scriptparser.log("cargo(source): "+command[2]+"\n");
+			Object cargosourceObj = scriptparser.getRegister(command[2]);
+			
+			if( (cargotarObj instanceof Cargo) && (cargosourceObj instanceof Cargo) ) {
+				((Cargo)cargotarObj).addCargo((Cargo)cargosourceObj);
+				cargosourceObj = new Cargo();
+			}
+			
+			scriptparser.setRegister(command[1], cargotarObj);
+			scriptparser.setRegister(command[2], cargosourceObj);
 			
 			return CONTINUE;
 		}
@@ -964,17 +1270,138 @@ public class QuestFunctions {
 	
 	class LockShip implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			int ship = Value.Int(command[1]);
+			scriptparser.log("ship: "+ship+"\n" );
 			
+			String event = command[2];
+			scriptparser.log("event: "+event+"\n" );
+			
+			String nevent = null;
+			
+			if( event.equals("oncommunicate") ) {
+				nevent = Quests.EVENT_ONCOMMUNICATE;
+			}
+			else if( event.equals("ontick[running]") ) {
+				nevent = Quests.EVENT_RUNNING_ONTICK;
+			}
+			else if( event.equals("onenter") ) {
+				nevent = Quests.EVENT_ONENTER;
+			}
+			
+			String questid = scriptparser.getRegister("QUEST");
+			int userid = Value.Int(scriptparser.getRegister("USER"));
+			int scriptid = Value.Int(scriptparser.getRegister("SCRIPT"));
+			
+			final String eventString = scriptid+":"+questid+":"+nevent;
+			
+			SQLResultRow shipdata = db.first("SELECT fleet,`lock` FROM ships WHERE id>0 AND id="+ship);
+			if( eventString.equals(shipdata.getString("lock")) ) {
+				return CONTINUE;
+			}
+			
+			db.prepare("UPDATE ships SET `lock`= ?,docked= ? " +
+					"WHERE id>0 AND id= ?")
+					.update(eventString, "", ship);
+					   
+			db.update("UPDATE ships SET `lock`='-1' " +
+					"WHERE id>0 AND docked IN ('"+ship+"','l "+ship+"')");
+					   
+			if( shipdata.getInt("fleet") != 0 ) {
+				SQLQuery sid = db.query("SELECT id FROM ships " +
+						"WHERE id>0 AND AND `lock`!='-1' AND " +
+							"fleet="+shipdata.getInt("fleet")+" AND id!="+ship);
+				
+				while( sid.next() ) {
+					db.prepare("UPDATE ships SET `lock`= ?, docked=? " +
+							"WHERE id>0 AND id= ?")
+							.update(eventString, "", sid.getInt("id"));
+					   
+					db.update("UPDATE ships SET `lock`='-1' " +
+					   			"WHERE id>0 AND docked IN ('"+sid.getInt("id")+"','l "+sid.getInt("id")+"')");	
+				}
+				sid.free();
+			}
+			
+			final String removescript = "!UNLOCKSHIP "+ship+" "+event+"\n";
+			
+			SQLResultRow runningdata = null;
+			if( questid.charAt(0) != 'r' ) {
+				runningdata = db.first("SELECT id,uninstall FROM quests_running " +
+						"WHERE questid="+Value.Int(questid)+" AND userid="+userid);
+			}
+			else {
+				int rquestid = Value.Int(questid.substring(1));
+				runningdata = db.first("SELECT id,uninstall FROM quests_running WHERE id="+rquestid);	
+			}
+			
+			String uninstall = runningdata.getString("uninstall");
+			if( uninstall.length() == 0 ) {
+				uninstall = ":0\n";
+			}
+			uninstall += removescript;
+					
+			db.prepare("UPDATE quests_running SET uninstall=? WHERE id= ?")
+				.update(uninstall, runningdata.getInt("id"));
+		
 			return CONTINUE;
 		}
 	}
 	
 	class UnlockShip implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			int ship = Value.Int(command[1]);
+			scriptparser.log("ship: "+ship+"\n" );
+			
+			String event = command[2];
+			scriptparser.log("event: "+event+"\n" );
+			
+			String questid = scriptparser.getRegister("QUEST");
+			int userid = Value.Int(scriptparser.getRegister("USER"));
+			
+			db.update("UPDATE ships SET `lock`=NULL WHERE id>0 AND id="+ship);
+			db.update("UPDATE ships SET `lock`=NULL WHERE id>0 AND docked IN ('"+ship+"','l "+ship+"')");
+			
+			SQLResultRow shipdata = db.first("SELECT fleet FROM ships WHERE id>0 AND id="+ship);
+			if( shipdata.getInt("fleet") != 0 ) {
+				SQLQuery sid = db.query("SELECT id FROM ships " +
+						"WHERE id>0 AND AND fleet="+shipdata.getInt("fleet")+" AND id!="+ship);
+				
+				while( sid.next() ) {
+					db.update("UPDATE ships SET `lock`=NULL " +
+							"WHERE id>0 AND id="+sid.getInt("id"));
+					db.update("UPDATE ships SET `lock`=NULL " +
+							"WHERE id>0 AND docked IN ('"+sid.getInt("id")+"','l "+sid.getInt("id")+"')");
+				}
+				sid.free();
+			}
+			
+			final String removescript = "!UNLOCKSHIP "+ship+" "+event+"\n";
+			
+			SQLResultRow runningdata = null;
+			if( questid.charAt(0) != 'r' ) {
+				runningdata = db.first("SELECT id,uninstall FROM quests_running " +
+						"WHERE questid="+Value.Int(questid)+" AND userid="+userid);
+			}
+			else {
+				int rquestid = Value.Int(questid.substring(1));
+				runningdata = db.first("SELECT id,uninstall FROM quests_running WHERE id="+rquestid);	
+			}
+			
+			String uninst = runningdata.getString("uninstall");
+			uninst = StringUtils.replace(uninst, "\r\n","\n");
+			String[] lines = StringUtils.split(uninst, '\n');
+			
+			StringBuilder newuninst = new StringBuilder();
+			for( int i=0; i < lines.length; i++ ) {
+				if( !lines[i].trim().equals(removescript) ) {
+					newuninst.append(lines[i]);	
+				}	
+			}
+					
+			db.prepare("UPDATE quests_running SET uninstall=? WHERE id= ?")
+				.update(uninst, runningdata.getInt("id"));
+		
+			scriptparser.setRegister("_OUTPUT", "");
 			
 			return CONTINUE;
 		}
@@ -982,8 +1409,64 @@ public class QuestFunctions {
 	
 	class AddQuestShips implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			SectorTemplateManager stm = SectorTemplateManager.getInstance();
+			
+			String stmid = command[1];
+			scriptparser.log("stmid: "+stmid+"\n");
+			
+			int system = Value.Int(command[2]);
+			int x = Value.Int(command[3]);
+			int y = Value.Int(command[4]);
+			Location loc = new Location(system, x, y);
+			scriptparser.log("coords: "+loc+"\n");
+			
+			int owner = Value.Int(command[5]);
+			scriptparser.log("owner: "+owner+"\n");
+			
+			boolean visibility = false;
+			if( command.length > 6 ) {
+				visibility = Value.Int(command[6]) != 0;
+				if( visibility ) {
+					scriptparser.log("visibile: true\n");
+				}
+			}
+				
+			Integer[] shipids = stm.useTemplate(db, stmid, loc, owner );
+		
+			// TODO: Wie Arrays behandeln?
+			scriptparser.setRegister("A",shipids);
+		
+			String questid = scriptparser.getRegister("QUEST");
+			int userid = Value.Int(scriptparser.getRegister("USER"));
+			
+			StringBuilder removescript = new StringBuilder();
+			for( int i=0; i < shipids.length; i++ ) {
+				removescript.append("!REMOVESHIP "+shipids[i]+"\n");
+			}	
+			
+			SQLResultRow runningdata = null;
+			if( questid.charAt(0) != 'r' ) {
+				runningdata = db.first("SELECT id,uninstall FROM quests_running " +
+						"WHERE questid="+Value.Int(questid)+" AND userid="+userid);
+			}
+			else {
+				int rquestid = Value.Int(questid.substring(1));
+				runningdata = db.first("SELECT id,uninstall FROM quests_running WHERE id="+rquestid);	
+			}
+			
+			String uninstall = runningdata.getString("uninstall");
+			if( uninstall.length() == 0 ) {
+				uninstall = ":0\n";
+			}
+			uninstall += removescript.toString();
+					
+			db.prepare("UPDATE quests_running SET uninstall=? WHERE id= ?")
+				.update(uninstall, runningdata.getInt("id"));
+			
+			if( !visibility ) {	
+				db.update("UPDATE ships SET visibility='"+userid+"' " +
+						"WHERE id>0 AND id IN ("+Common.implode(",",shipids)+")");
+			}
 			
 			return CONTINUE;
 		}
@@ -991,8 +1474,24 @@ public class QuestFunctions {
 	
 	class AddShips implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			SectorTemplateManager stm = SectorTemplateManager.getInstance();
+			
+			String stmid = command[1];
+			scriptparser.log("stmid: "+stmid+"\n");
+			
+			int system = Value.Int(command[2]);
+			int x = Value.Int(command[3]);
+			int y = Value.Int(command[4]);
+			Location loc = new Location(system, x, y);
+			scriptparser.log("coords: "+loc+"\n");
+			
+			int owner = Value.Int(command[5]);
+			scriptparser.log("owner: "+owner+"\n");
+			
+			Integer[] shipids = stm.useTemplate(db, stmid, loc, owner );
+		
+			// TODO: Wie Arrays behandeln?
+			scriptparser.setRegister("A",shipids);
 			
 			return CONTINUE;
 		}
@@ -1010,8 +1509,96 @@ public class QuestFunctions {
 	
 	class MoveShip implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			int shipid = Value.Int(command[1]);
+			scriptparser.log("shipid: "+shipid+"\n");
+			
+			Location target = Location.fromString(command[2]);
+			scriptparser.log("target: "+target+"\n");
+				
+			SQLResultRow ship = db.first("SELECT * FROM ships WHERE id>0 AND id="+shipid);
+			Location curpos = Location.fromResult(ship);
+			
+			int deltax = target.getX()-curpos.getX();
+			int deltay = target.getY()-curpos.getY();
+						
+			if( (deltax == 0) && (deltay == 0) ) {
+				scriptparser.log("Zielposition bereits erreicht!\n\n");
+				return CONTINUE;
+			}
+						
+			if( ship.getInt("s") > 100 ) {
+				scriptparser.log("Ausfuehrung bis zum naechsten Tick angehalten\n\n");
+				return STOP;
+			}
+					
+			int direction = -1;
+			int count = 0;
+			boolean wait = false;
+			while( true ) {
+				int newdirection = 5;
+				if( deltax > 0 ) {
+					newdirection += 1;
+				}
+				else if( deltax < 0 ) {
+					newdirection -= 1;
+				}
+							
+				if( deltay > 0 ) {
+					newdirection += 3;
+				}
+				else if( deltay < 0 ) {
+					newdirection -= 3;
+				}
+							
+				if( (direction != -1) && (direction != newdirection) ) {
+					boolean result = Ships.move(ship.getInt("id"), direction, count, true, true); 
+					scriptparser.log( Common._stripHTML(Ships.MESSAGE.getMessage()) );
+								
+					if( result ) {
+						wait = true;
+						break;
+					}
+								
+					if( newdirection == 5 ) {
+						break;
+					}
+					count = 1;
+					direction = newdirection;
+				} 
+				else {
+					count++;
+					direction = newdirection;
+				}
+				int xOffset = 0;
+				int yOffset = 0;
+				
+				if( direction == 1 ) { xOffset--; yOffset--;}
+				else if( direction == 2 ) { yOffset--;}
+				else if( direction == 3 ) { xOffset++; yOffset--;}
+				else if( direction == 4 ) { xOffset--;}
+				else if( direction == 6 ) { xOffset++;}
+				else if( direction == 7 ) { xOffset--; yOffset++;}
+				else if( direction == 8 ) { yOffset++;}
+				else if( direction == 9 ) { xOffset++; yOffset++;}
+				
+				curpos = new Location(curpos.getSystem(), 
+						curpos.getX()+xOffset, 
+						curpos.getY()+yOffset);
+					
+				deltax = target.getX()-curpos.getX();
+				deltay = target.getY()-curpos.getY();
+			}
+			if( wait ) {
+				scriptparser.setRegister("A","1");
+			}
+			else {
+				scriptparser.setRegister("A","0");
+			}
+			
+			if( Math.abs(deltax)+Math.abs(deltay) == 0 ) {
+				scriptparser.log("\n");
+				return CONTINUE;
+			}
 			
 			return CONTINUE;
 		}
@@ -1201,8 +1788,61 @@ public class QuestFunctions {
 	
 	class CloneOffizier implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			// TODO
-			Common.stub();
+			int offiid = Value.Int(command[1]);
+			scriptparser.log("offiid: "+offiid+"\n");
+			
+			String desttype = command[2];
+			scriptparser.log("desttype: "+desttype+"\n");
+			
+			int destid = Value.Int(command[3]);
+			scriptparser.log("destid: "+destid+"\n");
+			
+			SQLResultRow offizier = db.first("SELECT * FROM offiziere WHERE id="+offiid);
+			if( offizier.isEmpty() ) {
+				scriptparser.log("Warnung: Offizier konnte nicht gefunden werden");
+				return CONTINUE;
+			}
+			
+			int destowner = 0;
+			if( desttype.equals("s") ) {
+				destowner = db.first("SELECT owner FROM ships WHERE id>0 AND id="+destid).getInt("id");
+			}
+			else if( desttype.equals("b") ) {
+				destowner = db.first("SELECT owner FROM bases WHERE id="+destid).getInt("id");
+			}
+			
+			// Neuen Offizier in die DB schreiben
+			offizier.put("userid", destowner);
+			offizier.put("dest", desttype+" "+destid);
+			
+			StringBuilder columns = new StringBuilder();
+			StringBuilder values = new StringBuilder();
+			Object[] data = new Object[offizier.size()-1]; // ID wird nicht angegeben
+			
+			int i=0;
+			for( String key : offizier.keySet() ) {
+				if( key.equals("id") ) {
+					continue;
+				}
+				if( columns.length() > 0 ) {
+					columns.append(',');
+					values.append(',');
+				}
+				columns.append(key);
+				values.append('?');
+				data[i++] = offizier.get(key);
+			}
+			
+			PreparedQuery pq = db.prepare("INSERT INTO offiziere ("+columns+") VALUES ("+values+")");
+			pq.update(data);
+			int newoffiid = pq.insertID();
+			pq.close();
+			
+			scriptparser.setRegister("A",Integer.toString(newoffiid));
+				
+			if( desttype.equals("s") ) {
+				Ships.recalculateShipStatus(destid);	
+			}
 			
 			return CONTINUE;
 		}
