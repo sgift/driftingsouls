@@ -382,10 +382,10 @@ public class UeberController extends DSGenerator implements Loggable {
 				}
 				
 				if( user.getAlly() != 0 ) {
-					battlelist.append("<a class=\"error\" href=\"+/main.php?module=angriff&amp;sess="+getParameter("sess")+"&amp;battle="+battle.getInt("id")+"\">Schlacht mit "+eparty+" bei "+battle.getInt("system")+" : "+battle.getInt("x")+"/"+battle.getInt("y")+"</a> ["+comm+"]<br />\n");
+					battlelist.append("<a class=\"error\" href=\"+/main.php?module=angriff&amp;sess="+getString("sess")+"&amp;battle="+battle.getInt("id")+"\">Schlacht mit "+eparty+" bei "+battle.getInt("system")+" : "+battle.getInt("x")+"/"+battle.getInt("y")+"</a> ["+comm+"]<br />\n");
 				}
 				else {
-					battlelist.append("<a class=\"error\" href=\"+/main.php?module=angriff&amp;sess="+getParameter("sess")+"&amp;battle="+battle.getInt("id")+"\">Es ist eine Schlacht mit "+eparty+" bei "+battle.getInt("system")+" : "+battle.getInt("x")+"/"+battle.getInt("y")+" im Gange</a><br />\n");
+					battlelist.append("<a class=\"error\" href=\"+/main.php?module=angriff&amp;sess="+getString("sess")+"&amp;battle="+battle.getInt("id")+"\">Es ist eine Schlacht mit "+eparty+" bei "+battle.getInt("system")+" : "+battle.getInt("x")+"/"+battle.getInt("y")+" im Gange</a><br />\n");
 				}
 			}
 			battle.free();
@@ -430,7 +430,7 @@ public class UeberController extends DSGenerator implements Loggable {
 			}
 			String comm2 = Common._title(createUserObject(battle.getInt("commander2"), "name").getName());
 		
-			battlelist.append("<a class=\"error\" href=\"main.php?module=angriff&amp;sess="+getParameter("sess")+"&amp;battle="+battle.getInt("id")+"\">Schlacht "+eparty+" vs "+eparty2+" bei "+battle.getInt("system")+":"+battle.getInt("x")+"/"+battle.getInt("y")+"</a><br />*&nbsp;["+comm1+" vs "+comm2+"]<br />\n");
+			battlelist.append("<a class=\"error\" href=\"main.php?module=angriff&amp;sess="+getString("sess")+"&amp;battle="+battle.getInt("id")+"\">Schlacht "+eparty+" vs "+eparty2+" bei "+battle.getInt("system")+":"+battle.getInt("x")+"/"+battle.getInt("y")+"</a><br />*&nbsp;["+comm1+" vs "+comm2+"]<br />\n");
 			
 			if( ( (user.getAccessLevel() >= 20) || user.hasFlag(User.FLAG_QUEST_BATTLES) ) && (battle.getInt("quest") != 0) ) {
 				String questname = db.first("SELECT t2.name FROM quests_running t1, quests t2 WHERE t1.id='",battle.getInt("quest"),"' AND t1.questid=t2.id").getString("name");
