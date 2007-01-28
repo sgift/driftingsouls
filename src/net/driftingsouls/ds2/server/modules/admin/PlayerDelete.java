@@ -115,6 +115,9 @@ public class PlayerDelete implements AdminPlugin, Loggable {
 		}
 		rquest.free();
 		
+		echo.append("Loesche 'Abgeschlossen'-Status bei Quests<br />\n");
+		db.update("DELETE FROM quests_completed WHERE userid="+userid);
+		
 		if( user.getAlly() != 0 ) {
 			echo.append("Stelle fest ob die Ally jetzt zu wenig Member hat\n");
 				
