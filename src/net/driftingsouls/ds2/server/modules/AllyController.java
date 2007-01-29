@@ -1293,12 +1293,19 @@ public class AllyController extends DSGenerator implements Loggable {
 				counter++;
 	
 				User auser = getContext().createUserObject(s.getInt("owner"));
+				String ownername = null;
+				if( auser.getID() != 0 ) {
+					ownername = auser.getName();
+				}
+				else {
+					ownername = "Unbekannter Spieler ("+s.getInt("owner")+")";
+				}
 	
 				t.set_var(	"show.destships.name",			s.getString("name"),
 							"show.destships.type.name",		shiptype.getString("nickname"),
 							"show.destships.type",			s.getInt("type"),
 							"show.destships.type.picture",	shiptype.getString("picture"),
-							"show.destships.owner",			Common._title(auser.getName()),
+							"show.destships.owner",			Common._title(ownername),
 							"show.destships.time",			Common.date("d.m.Y H:i:s",s.getLong("time")),
 							"show.destships.newrow",		(counter % 5) == 0 );
 				
@@ -1340,13 +1347,29 @@ public class AllyController extends DSGenerator implements Loggable {
 				
 				User destowner = getContext().createUserObject(s.getInt("destowner"));
 				User owner = getContext().createUserObject(s.getInt("owner"));
+				
+				String ownername = null;
+				if( owner.getID() != 0 ) {
+					ownername = owner.getName();
+				}
+				else {
+					ownername = "Unbekannter Spieler ("+s.getInt("owner")+")";
+				}
+				
+				String destownername = null;
+				if( destowner.getID() != 0 ) {
+					destownername = destowner.getName();
+				}
+				else {
+					destownername = "Unbekannter Spieler ("+s.getInt("destowner")+")";
+				}
 							
 				t.set_var(	"show.lostships.name",			s.getString("name"),
 							"show.lostships.type.name",		shiptype.getString("nickname"),
 							"show.lostships.type",			s.getInt("type"),
 							"show.lostships.type.picture",	shiptype.getString("picture"),
-							"show.lostships.owner",			Common._title(destowner.getName()),
-							"show.lostships.destroyer",		Common._title(owner.getName()),
+							"show.lostships.owner",			Common._title(destownername),
+							"show.lostships.destroyer",		Common._title(ownername),
 							"show.lostships.time",			Common.date("d.m.Y H:i:s",s.getLong("time")),
 							"show.lostships.newrow",		(counter % 5) == 0 );
 				
