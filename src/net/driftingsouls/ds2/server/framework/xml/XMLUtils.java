@@ -46,30 +46,73 @@ public class XMLUtils {
 		factory.setNamespaceAware(true);
 	}
 	
+	/**
+	 * Liesst eine Datei als XML-Dokument ein
+	 * @param file Der Pfad zur Datei
+	 * @return Das XML-Dokument
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 */
 	public static Document readFile(String file) throws SAXException, IOException, ParserConfigurationException {
 		return factory.newDocumentBuilder().parse(new File(file));
 	}
 	
+	/**
+	 * Liefert eine Liste von Nodes als Ergebnis eines X-Path-Ausdrucks zurueck
+	 * @param node Der Basisknoten, von dem aus der Ausdruck ausgewertet werden soll
+	 * @param xpath Der X-Path-Ausdruck
+	 * @return Das Ergebnis
+	 * @throws XPathExpressionException
+	 */
 	public static NodeList getNodesByXPath(Node node, String xpath) throws XPathExpressionException {
 		XPath path = xFactory.newXPath();
 		return (NodeList)path.evaluate(xpath, node, XPathConstants.NODESET);
 	}
 	
+	/**
+	 * Liefert eine Node als Ergebnis eines X-Path-Ausdrucks zurueck
+	 * @param node Der Basisknoten, von dem aus der Ausdruck ausgewertet werden soll
+	 * @param xpath Der X-Path-Ausdruck
+	 * @return Das Ergebnis
+	 * @throws XPathExpressionException
+	 */
 	public static Node getNodeByXPath(Node node, String xpath) throws XPathExpressionException {
 		XPath path = xFactory.newXPath();
 		return (Node)path.evaluate(xpath, node, XPathConstants.NODE);
 	}
 	
+	/**
+	 * Liefert einen String als Ergebnis eines X-Path-Ausdrucks zurueck
+	 * @param node Der Basisknoten, von dem aus der Ausdruck ausgewertet werden soll
+	 * @param xpath Der X-Path-Ausdruck
+	 * @return Das Ergebnis
+	 * @throws XPathExpressionException
+	 */
 	public static String getStringByXPath(Node node, String xpath) throws XPathExpressionException {
 		XPath path = xFactory.newXPath();
 		return (String)path.evaluate(xpath, node, XPathConstants.STRING);
 	}
 	
+	/**
+	 * Liefert eine Number als Ergebnis eines X-Path-Ausdrucks zurueck
+	 * @param node Der Basisknoten, von dem aus der Ausdruck ausgewertet werden soll
+	 * @param xpath Der X-Path-Ausdruck
+	 * @return Das Ergebnis
+	 * @throws XPathExpressionException
+	 */
 	public static Number getNumberByXPath(Node node, String xpath) throws XPathExpressionException {
 		XPath path = xFactory.newXPath();
 		return (Number)path.evaluate(xpath, node, XPathConstants.NUMBER);
 	}
 	
+	/**
+	 * Liefert ein Booleans als Ergebnis eines X-Path-Ausdrucks zurueck
+	 * @param node Der Basisknoten, von dem aus der Ausdruck ausgewertet werden soll
+	 * @param xpath Der X-Path-Ausdruck
+	 * @return Das Ergebnis
+	 * @throws XPathExpressionException
+	 */
 	public static boolean getBooleanByXPath(Node node, String xpath) throws XPathExpressionException {
 		XPath path = xFactory.newXPath();
 		return (Boolean)path.evaluate(xpath, node, XPathConstants.BOOLEAN);

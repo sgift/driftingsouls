@@ -100,6 +100,10 @@ public class CacheMap<K,V> implements Map<K,V> {
 		map.clear();
 	}
 	
+	protected Map<Object,Long> getTimeStamps() {
+		return timestamps;
+	}
+	
 	private abstract class CacheIterator<E,F,G> implements Iterator<E> {
 		protected Iterator<Entry<F,G>> iter = null;
 		protected Entry<F,G> current = null;
@@ -116,7 +120,7 @@ public class CacheMap<K,V> implements Map<K,V> {
 		
 		public void remove() {
 			iter.remove();
-			CacheMap.this.timestamps.remove(current.getKey());
+			CacheMap.this.getTimeStamps().remove(current.getKey());
 		}	
 	}
 	

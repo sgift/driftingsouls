@@ -68,6 +68,7 @@ public interface Response {
 	/**
 	 * Liefert den Ausgabestrom
 	 * @return Der Ausgabestrom der Response
+	 * @throws IOException
 	 */
 	public OutputStream getOutputStream() throws IOException;
 	

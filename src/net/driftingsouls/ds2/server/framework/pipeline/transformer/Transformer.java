@@ -26,5 +26,9 @@ import net.driftingsouls.ds2.server.framework.Context;
  *
  */
 public interface Transformer {
+	/**
+	 * Transformiert den Inhalt des Contexts
+	 * @param context Der Context
+	 */
 	public void transform( Context context );
 }
