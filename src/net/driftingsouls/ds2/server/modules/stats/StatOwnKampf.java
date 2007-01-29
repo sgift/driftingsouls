@@ -76,8 +76,12 @@ public class StatOwnKampf implements Statistic {
 				echo.append("<a onmouseover=\"return overlib('"+Common._plaintitle(shiptype.getString("nickname"))+"',TIMEOUT,0,DELAY,400,WIDTH,100);\" onmouseout=\"return nd();\" target=\"_blank\" href=\"./main.php?module=schiffinfo&sess="+context.getSession()+"&ship="+s.getInt("type")+"\"><img border=\"0\" src=\""+shiptype.getString("picture")+"\"></a><br />");
 				
 				User auser = context.createUserObject(s.getInt("owner"));
-
-				echo.append(auser.getProfileLink()+"<br />");
+				if( auser.getID() != 0 ) {
+					echo.append(auser.getProfileLink()+"<br />");
+				}
+				else {
+					echo.append("Unbekannter Spieler ("+s.getInt("owner")+")<br />");
+				}
 				echo.append(Common.date("d.m.Y H:i:s",s.getLong("time")));
 				echo.append("</td>\n");
 				
@@ -150,7 +154,13 @@ public class StatOwnKampf implements Statistic {
 				echo.append("<a onmouseover=\"return overlib('"+Common._plaintitle(shiptype.getString("nickname"))+"',TIMEOUT,0,DELAY,400,WIDTH,100);\" onmouseout=\"return nd();\" target=\"_blank\" href=\"./main.php?module=schiffinfo&sess="+context.getSession()+"&ship="+s.getInt("type")+"\"><img border=\"0\" src=\""+shiptype.getString("picture")+"\"></a><br />");
 				
 				User auser = context.createUserObject(s.getInt("destowner"));
-				echo.append(auser.getProfileLink()+"<br />\n");
+
+				if( auser.getID() != 0 ) {
+					echo.append(auser.getProfileLink()+"<br />");
+				}
+				else {
+					echo.append("Unbekannter Spieler ("+s.getInt("destowner")+")<br />");
+				}
 				
 				echo.append(Common.date("d.m.Y H:i:s",s.getLong("time")));
 				echo.append("</td>\n");
