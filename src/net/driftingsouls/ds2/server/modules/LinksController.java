@@ -30,6 +30,10 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
  */
 public class LinksController extends DSGenerator {
 	private static final String SCRIPT_FORUM = "http://forum.drifting-souls.net/phpBB2/";
+	/**
+	 * Konstruktor
+	 * @param context Der zu verwendende Kontext
+	 */
 	public LinksController(Context context) {
 		super(context);
 		
@@ -45,6 +49,10 @@ public class LinksController extends DSGenerator {
 		return true;
 	}
 
+	/**
+	 * Prueft, ob der Spieler eine neue PM hat, welche noch nicht gelesen wurde
+	 *
+	 */
 	public void hasNewPmAjaxAct() {
 		User user = this.getUser();
 		Database db = getDatabase();
@@ -58,6 +66,10 @@ public class LinksController extends DSGenerator {
 		}
 	}
 	
+	/**
+	 * Zeigt die Menueleiste an
+	 */
+	@Override
 	public void defaultAction() {
 		User user = getUser();
 		

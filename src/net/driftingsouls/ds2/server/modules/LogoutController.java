@@ -27,7 +27,10 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
  *
  */
 public class LogoutController extends DSGenerator {
-
+	/**
+	 * Konstruktor
+	 * @param context Der zu verwendende Kontext
+	 */
 	public LogoutController(Context context) {
 		super(context);
 		
@@ -39,6 +42,10 @@ public class LogoutController extends DSGenerator {
 		return true;
 	}
 
+	/**
+	 * Loggt den Spieler aus
+	 */
+	@Override
 	public void defaultAction() {
 		String ownsess = getDatabase().first("SELECT session FROM sessions WHERE id='",getUser().getID(),"'").getString("session");
 		getDatabase().update("DELETE FROM sessions WHERE id=",getUser().getID()," OR attach='",ownsess,"'");
