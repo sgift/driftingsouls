@@ -442,6 +442,11 @@ public class TransportController extends DSGenerator {
 			return false;
 		}
 		
+		if( (this.from.size() == 0) || (this.to.size() == 0) ) {
+			addError("Sie muessen mindestens ein Quell- und ein Zielobjekt angeben");
+			
+			return false;
+		}
 		
 		/*
 			Sind die beiden Objekte auch im selben Sektor?
@@ -513,6 +518,12 @@ public class TransportController extends DSGenerator {
 		return count;
 	}
 	
+	/**
+	 * Transferiert die Waren
+	 * @urlparam Integer $resid+"to" Die Menge von $resid, welche zum Zielschiff transferiert werden soll
+	 * @urlparam Integer $resid+"from" Die Menge von $resid, welche von Zielschiff runter zum Quellschiff transferiert werden soll
+	 *
+	 */
 	public void transferAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
