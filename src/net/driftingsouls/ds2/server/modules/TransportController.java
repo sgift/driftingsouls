@@ -255,7 +255,7 @@ public class TransportController extends DSGenerator {
 		void reload() {
 			Database db = ContextMap.getContext().getDatabase();
 			
-			SQLResultRow data = db.first("SELECT owner,name,type,cargo,status,id,x,y,system,battle,status FROM ships WHERE id>0 AND id=",getData().getInt("id"));
+			SQLResultRow data = db.first("SELECT owner,name,type,cargo,status,id,x,y,system,battle,status,fleet FROM ships WHERE id>0 AND id=",getData().getInt("id"));
 			data.put("size", 0);
 			
 			SQLResultRow tmptype = Ships.getShipType( data );
@@ -662,36 +662,36 @@ public class TransportController extends DSGenerator {
 				}
 				t.parse("transfer.list", "transfer.listitem", true);
 			}
+		}
 		
-			Map<Integer, String> ownerpmlist = new HashMap<Integer,String>();
-			
-			List<String> sourceshiplist = new ArrayList<String>();;
-			for( int i=0; i < this.from.size(); i++ ) {
-				sourceshiplist.add(from.get(i).getData().getString("name")+" ("+from.get(i).getData().getInt("id")+")");	
-			}
-			
-			for( int j=0; j < tolist.size(); j++  ) {
-				TransportTarget to = tolist.get(j);
-				if( getUser().getID() != to.getOwner() ) {
-					if( msg.containsKey(to.getOwner()) && (msg.get(to.getOwner()).length() > 0) && !ownerpmlist.containsKey(to.getOwner()) ) {
-						Common.writeLog("transport.log", Common.date("d.m.y H:i:s")+": "+getUser().getID()+" -> "+to.getOwner()+" | "+getString("from")+" -> "+getString("to")+" ["+getString("way")+"] : "+"\n"+msg+"---------\n");
-					
-						t.set_var( "transfer.pm", 1 );
+		Map<Integer, String> ownerpmlist = new HashMap<Integer,String>();
+		
+		List<String> sourceshiplist = new ArrayList<String>();;
+		for( int i=0; i < this.from.size(); i++ ) {
+			sourceshiplist.add(from.get(i).getData().getString("name")+" ("+from.get(i).getData().getInt("id")+")");	
+		}
+		
+		for( int j=0; j < tolist.size(); j++  ) {
+			TransportTarget to = tolist.get(j);
+			if( getUser().getID() != to.getOwner() ) {
+				if( msg.containsKey(to.getOwner()) && (msg.get(to.getOwner()).length() > 0) && !ownerpmlist.containsKey(to.getOwner()) ) {
+					Common.writeLog("transport.log", Common.date("d.m.y H:i:s")+": "+getUser().getID()+" -> "+to.getOwner()+" | "+getString("from")+" -> "+getString("to")+" ["+getString("way")+"] : "+"\n"+msg+"---------\n");
+				
+					t.set_var( "transfer.pm", 1 );
 
-						List<String> shiplist = new ArrayList<String>();
-						
-						// TODO: check if this works (foreach+for)
-						for( int k=j; k < tolist.size(); k++ ) {
-							if( this.to.get(j).getOwner() == tolist.get(k).getOwner() ) {
-								shiplist.add(tolist.get(k).getData().getString("name")+" ("+tolist.get(k).getData().getInt("id")+")");	
-							}
+					List<String> shiplist = new ArrayList<String>();
+					
+					// TODO: check if this works (foreach+for)
+					for( int k=j; k < tolist.size(); k++ ) {
+						if( this.to.get(j).getOwner() == tolist.get(k).getOwner() ) {
+							shiplist.add(tolist.get(k).getData().getString("name")+" ("+tolist.get(k).getData().getInt("id")+")");	
 						}
-						
-						String tmpmsg = Common.implode(",",sourceshiplist)+" l&auml;dt Waren auf "+Common.implode(",",shiplist)+"\n"+msg.get(to.getOwner());
-						PM.send(getContext(), getUser().getID(), to.getOwner(), "Waren transferiert", tmpmsg);
-						
-						ownerpmlist.put(to.getOwner(), msg.get(to.getOwner()).toString());
 					}
+					
+					String tmpmsg = Common.implode(",",sourceshiplist)+" l&auml;dt Waren auf "+Common.implode(",",shiplist)+"\n"+msg.get(to.getOwner());
+					PM.send(getContext(), getUser().getID(), to.getOwner(), "Waren transferiert", tmpmsg);
+					
+					ownerpmlist.put(to.getOwner(), msg.get(to.getOwner()).toString());
 				}
 			}
 		}
