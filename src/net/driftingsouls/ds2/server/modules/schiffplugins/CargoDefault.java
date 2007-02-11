@@ -101,7 +101,7 @@ public class CargoDefault implements SchiffPlugin {
 			}
 
 			output += ship.getString("name")+" entl&auml;dt "+unload+" "+Cargo.getResourceName(Resources.BATTERIEN)+"<br /><br />\n";
-			cargo.substractResource( Resources.LBATTERIEN, unload );
+			cargo.substractResource( Resources.BATTERIEN, unload );
 			cargo.addResource( Resources.LBATTERIEN, unload );
 			
 			ship.put("e", ship.getInt("e") + unload);
