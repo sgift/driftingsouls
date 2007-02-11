@@ -180,13 +180,20 @@
 		</module>
 	</modules>
 	<rules>
+		<!-- Downloads -->
 		<match pattern="/downloads/auth/.*">
 			<actions>
 				<action class="net.driftingsouls.ds2.server.framework.pipeline.actions.AuthenticateAction" />
 			</actions>
 			<execute-reader>
 				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.FileReader" />
-				<file pattern="/(.*)" file="data/$1" />
+				<file pattern="/downloads/(.*)" file="downloads/$1" />
+			</execute-reader>
+		</match>
+		<match pattern="/downloads/auth/.*">
+			<execute-reader>
+				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.ErrorReader" />
+				<file file="404:data/errors/no_pipeline.html" />
 			</execute-reader>
 		</match>
 		<match pattern="/downloads/-?[0-9]+/.+">
@@ -199,15 +206,31 @@
 			</actions>
 			<execute-reader>
 				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.FileReader" />
-				<file pattern="/(.*)" file="data/$1" />
+				<file pattern="/downloads/(.*)" file="downloads/$1" />
+			</execute-reader>
+		</match>
+		<match pattern="/downloads/-?[0-9]+/.+">
+			<actions>
+				<action class="net.driftingsouls.ds2.server.framework.pipeline.actions.AuthenticateAction">
+					<parameter name="userid">
+						<urldirectory number="-2" />
+					</parameter>
+				</action>
+			</actions>
+			<execute-reader>
+				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.ErrorReader" />
+				<file file="404:data/errors/no_pipeline.html" />
 			</execute-reader>
 		</match>
 		<match pattern="/downloads/[^/]+">
 			<execute-reader>
 				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.FileReader" />
-				<file pattern="/(.*)" file="data/$1" />
+				<file pattern="/downloads/(.*)" file="downloads/$1" />
 			</execute-reader>
 		</match>
+		
+		<!-- Grafiken -->
+		
 		<match pattern="/.*data/.*\.(gif|png|jpg|css|js)">
 			<execute-reader>
 				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.FileReader" />
@@ -226,6 +249,9 @@
 				<file pattern="/.*/([^/]+)" file="$1" />
 			</execute-reader>
 		</match>
+		
+		<!--  Module -->
+		
 		<match pattern="(/ds|/main.php|/php/main.php)">
 			<execute-module>
 				<urlparameter name="module" />
