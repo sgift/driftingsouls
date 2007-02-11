@@ -20,8 +20,10 @@ package net.driftingsouls.ds2.server.modules;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
@@ -291,7 +293,7 @@ public class BuildController extends DSGenerator {
 		//Max UComplex-Gebaeude-Check
 		int grenze = (base.getWidth() * base.getHeight())/8;
 		
-		List<Integer> ucbuildings = new ArrayList<Integer>();
+		Set<Integer> ucbuildings = new HashSet<Integer>();
 		SQLQuery ucbid = db.query("SELECT id FROM buildings WHERE ucomplex='1'");
 		while( ucbid.next() ) {
 			ucbuildings.add(ucbid.getInt("id"));
@@ -306,7 +308,7 @@ public class BuildController extends DSGenerator {
 			}
 		}
 
-		boolean ucomplex = c > grenze-1;
+		boolean ucomplex = c <= grenze-1;
 
 		t.set_block("_BUILD", "buildings.listitem", "buildings.list");
 		t.set_block("buildings.listitem", "buildings.res.listitem", "buildings.res.list");
