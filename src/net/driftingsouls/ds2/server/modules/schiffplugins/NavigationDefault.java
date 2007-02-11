@@ -169,7 +169,7 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 			aJN.free();
 			
 			
-			SQLQuery aBase = db.query("SELECT DISTINCT x,y,owner,klasse,size FROM bases WHERE system=",sys," AND FLOOR(SQRT(POW(",x,"-x,2)+POW(",y,"-y,2)))-CAST(size AS SIGNED) <= 1");
+			SQLQuery aBase = db.query("SELECT DISTINCT x,y,owner,klasse,system,size FROM bases WHERE system=",sys," AND FLOOR(SQRT(POW(",x,"-x,2)+POW(",y,"-y,2)))-CAST(size AS SIGNED) <= 1");
 			while( aBase.next() ) {
 				if( (aBase.getInt("size") == 0) && (sectorimgs[aBase.getInt("x")-x+1][aBase.getInt("y")-y+1] == null) ) {
 					if( aBase.getInt("owner") == user.getID() ) {
