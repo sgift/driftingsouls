@@ -1139,7 +1139,7 @@ public class Cargo implements Loggable, Cloneable {
 			for( int i=0; i < this.items.size(); i++ ) {
 				cargo.items.add(i, this.items.get(i).clone());
 			}
-			cargo.orgitems = new ArrayList<Long[]>(this.orgitems);
+			cargo.orgitems = new ArrayList<Long[]>();
 			for( int i=0; i < this.orgitems.size(); i++ ) {
 				cargo.orgitems.add(i, this.orgitems.get(i).clone());
 			}
@@ -1226,5 +1226,10 @@ public class Cargo implements Loggable, Cloneable {
 	public static Object[] getItemDataFromRID( int rid ) {
 		// EMPTY
 		return null;
+	}
+	
+	@Override
+	public String toString() {
+		return save();
 	}
 }
