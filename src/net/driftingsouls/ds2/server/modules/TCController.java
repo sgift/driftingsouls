@@ -178,7 +178,7 @@ public class TCController extends DSGenerator {
 		SQLResultRow tarShipType = Ships.getShipType(tarShip);
 		
 		// Schiff gross genug?
-		if( tarShipType.getInt("size") < 3 ) {
+		if( tarShipType.getInt("size") <= 3 ) {
 			addError("Das Schiff ist zu klein f&uuml;r einen Offizier", errorurl);
 			setTemplate("");
 			
@@ -372,7 +372,7 @@ public class TCController extends DSGenerator {
 		SQLQuery ship = db.query("SELECT id FROM ships WHERE fleet='",this.ship.getInt("fleet"),"' AND owner='",user.getID(),"' AND system='",this.ship.getInt("system"),"' AND x='",this.ship.getInt("x"),"' AND y='",this.ship.getInt("y"),"' AND !LOCATE('offizier',status) LIMIT ",offilist.size());
 		while( ship.next() ) {
 			SQLResultRow shipType = Ships.getShipType(ship.getRow());
-			if( shipType.getInt("size") < 3 ) {
+			if( shipType.getInt("size") <= 3 ) {
 				continue;
 			}
 			
