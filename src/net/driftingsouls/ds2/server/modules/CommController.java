@@ -230,10 +230,10 @@ public class CommController extends DSGenerator implements Loggable {
 		int playerid = getInteger("playerid");
 		int ordner = getInteger("ordner");
 		
-		User auser = createUserObject(playerid);
+		User auser = getContext().createUserObject(playerid);
 		
 		if( auser.getID() != 0 ) {
-			db.update("UPDATE transmissionen SET gelesen=2 WHERE empfaenger='",user.getID(),"' AND sender='",user.getID(),"' AND ordner='",ordner,"' AND (gelesen=1 OR !(flags & ",PM.FLAGS_IMPORTANT,"))");
+			db.update("UPDATE transmissionen SET gelesen=2 WHERE empfaenger=",user.getID()," AND sender=",auser.getID()," AND ordner=",ordner," AND (gelesen=1 OR !(flags & ",PM.FLAGS_IMPORTANT,"))");
 			t.set_var("show.message", "<span style=\"color:red\">Alle Nachrichten von "+Common._title(user.getName())+" gel&ouml;scht</span>");
 		}
 		else {
