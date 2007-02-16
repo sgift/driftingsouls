@@ -344,7 +344,7 @@ public class ScanController extends DSGenerator {
 				SQLResultRow shiptype = Ships.getShipType( datas.getRow() );
 				
 				// Falls nicht im Admin-Modus: Nur sehr kleine Schiffe im Feld des scannenden Schiffes anzeigen
-				if( !this.admin && (scanx != this.ship.getInt("x")) || (scany != this.ship.getInt("y")) &&
+				if( !this.admin && ((scanx != this.ship.getInt("x")) || (scany != this.ship.getInt("y"))) &&
 					Ships.hasShipTypeFlag(shiptype, Ships.SF_SEHR_KLEIN) ) {
 					continue;	
 				}
