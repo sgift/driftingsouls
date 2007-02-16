@@ -204,7 +204,8 @@ public class WerftGUI {
 			SQLResultRow ashipdata = shipdata[i];
 			t.start_record();
 			
-			Cargo costs = (Cargo)ashipdata.get("costs");
+			Cargo costs = new Cargo();
+			costs.addCargo((Cargo)ashipdata.get("costs"));
 			costs.setOption( Cargo.Option.SHOWMASS, false );
 	
 			if( !(ashipdata.get("_item") instanceof Boolean) ) {
