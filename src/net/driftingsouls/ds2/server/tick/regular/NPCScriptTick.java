@@ -21,9 +21,11 @@ package net.driftingsouls.ds2.server.tick.regular;
 import java.sql.Blob;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.UserIterator;
 import net.driftingsouls.ds2.server.framework.db.Database;
+import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.scripting.ScriptParser;
 import net.driftingsouls.ds2.server.tick.TickController;
@@ -68,6 +70,9 @@ public class NPCScriptTick extends TickController {
 			else {
 				scriptparser.setLogFunction(new TickLogger());	
 			}
+			
+			PreparedQuery scriptExecUpdate = db.prepare("UPDATE ships SET scriptexedata=? WHERE id=?");
+			
 			this.log("+++++++++ User: "+user.getID()+" +++++++++");
 			SQLQuery ship = db.query("SELECT * FROM ships WHERE id>0 AND owner='",user.getID(),"' AND battle=0 AND script IS NOT NULL");
 			while( ship.next() ) {			
@@ -78,20 +83,29 @@ public class NPCScriptTick extends TickController {
 					if( (scriptExecData != null) && (scriptExecData.length() > 0) ) {
 						scriptparser.setExecutionData(scriptExecData.getBinaryStream());
 					}
+					else if( scriptExecData == null ) {
+						// Hochgradig umstaendliches erstellen eines leeren Blobs. Geht sicherlich einfacher... 
+						db.update("UPDATE ships SET scriptexedata='' WHERE id="+ship.getInt("id"));
+						SQLQuery tmp = db.query("SELECT scriptexedata FROM ships WHERE id=",ship.getInt("id"));
+						scriptExecData = tmp.getBlob("scriptexedata");
+						tmp.free();
+					}
 					
 					scriptparser.executeScript( db, ship.getString("script") );
 					
 					scriptparser.writeExecutionData(scriptExecData.setBinaryStream(1));
-					db.prepare("UPDATE ships SET scriptexedata=? WHERE id=? ")
-						.update(scriptExecData, ship.getInt("id"));
+					scriptExecUpdate.update(scriptExecData, ship.getInt("id"));
 				}
 				catch( Exception e ) {
 					this.log("[FEHLER] Kann Script auf Schiff "+ship.getInt("id")+" nicht ausfuehren: "+e);
 					e.printStackTrace();
+					Common.mailThrowable(e, "[DS2J] NPCScriptTick Exception", "Schiff: "+ship.getInt("id")+"\nUser: "+ship.getInt("owner"));
 				}
 				scriptparser.cleanup();
 			}
 			ship.free();
+			
+			scriptExecUpdate.close();
 		}
 		iter.free();
 	}
