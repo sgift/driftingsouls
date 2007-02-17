@@ -143,5 +143,6 @@
 	]]></update>
 	<update type="structure" datum="2007-02-07"><![CDATA[
 		ALTER TABLE ships ADD CONSTRAINT ships_type_fk FOREIGN KEY (type) REFERENCES ship_types(id);
+		ALTER TABLE ships_baubar ADD CONSTRAINT ships_baubar_type_fk FOREIGN KEY (type) REFERENCES ship_types(id);
 	]]></update>
 </updates>

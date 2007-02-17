@@ -16,6 +16,8 @@ CREATE TABLE `ships_baubar` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
  
+ALTER TABLE ships_baubar ADD CONSTRAINT ships_baubar_type_fk FOREIGN KEY (type) REFERENCES ship_types(id);
+ 
 INSERT INTO `ships_baubar` (`id`, `type`, `costs`, `linfactor`, `crew`, `dauer`, `ekosten`, `race`, `systemreq`, `tr1`, `tr2`, `tr3`, `werftreq`, `flagschiff`) VALUES (5, 12, '0,0,276,189,0,0,0,36,12,0,0,4,0,0,0,0,0,0,0', 0, 20, 9, 78, 2, 1, 7, 0, 0, 'pwerft ganymed', 0);
 INSERT INTO `ships_baubar` (`id`, `type`, `costs`, `linfactor`, `crew`, `dauer`, `ekosten`, `race`, `systemreq`, `tr1`, `tr2`, `tr3`, `werftreq`, `flagschiff`) VALUES (6, 2, '0,0,175,135,0,0,25,52,17,0,0,0,0,0,0,0,0,0,0', 0, 10, 6, 87, 1, 0, 1, 0, 0, 'pwerft ganymed', 0);
 INSERT INTO `ships_baubar` (`id`, `type`, `costs`, `linfactor`, `crew`, `dauer`, `ekosten`, `race`, `systemreq`, `tr1`, `tr2`, `tr3`, `werftreq`, `flagschiff`) VALUES (13, 13, '0,0,37,56,0,0,3,26,19,0,0,0,0,0,0,0,0,0,0', 0, 0, 2, 46, 1, 1, 12, 0, 0, 'pwerft ganymed', 0);
