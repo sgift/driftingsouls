@@ -87,6 +87,7 @@ public class NPCScriptTick extends TickController {
 						// Hochgradig umstaendliches erstellen eines leeren Blobs. Geht sicherlich einfacher... 
 						db.update("UPDATE ships SET scriptexedata='' WHERE id="+ship.getInt("id"));
 						SQLQuery tmp = db.query("SELECT scriptexedata FROM ships WHERE id=",ship.getInt("id"));
+						tmp.next();
 						scriptExecData = tmp.getBlob("scriptexedata");
 						tmp.free();
 					}
