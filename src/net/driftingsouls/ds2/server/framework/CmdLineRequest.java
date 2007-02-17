@@ -42,9 +42,16 @@ public class CmdLineRequest implements Request {
 	 * @param args Die Kommandozeilenparameter
 	 */
 	public CmdLineRequest(String[] args) {
-		for( int i=0; i < args.length-1; i+=2 ) {
+		for( int i=0; i < args.length; i++ ) {
 			if( args[i].startsWith("--") ) {
-				params.put(args[i].substring(2), args[i+1]);
+				String arg = args[i].substring(2);
+				String value = "true";
+				
+				if( (i < args.length - 1) && !args[i+1].startsWith("--") ) {
+					value = args[i+1];
+					i++;
+				}
+				params.put(arg, value);
 			}
 		}
 	}
