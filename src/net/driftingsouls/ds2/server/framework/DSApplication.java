@@ -135,9 +135,15 @@ public abstract class DSApplication {
 	 * das Programm komplett durchgelaufen ist
 	 */
 	public void dispose() {
+		int[] handles = new int[logTargets.size()];
+		
+		int index = 0;
 		for( int handle : logTargets.keySet() ) {
+			handles[index++] = handle;
+		}
+		for( int i=0; i < handles.length; i++ ) {
 			try {
-				removeLogTarget(handle);
+				removeLogTarget(handles[i]);
 			}
 			catch( IOException e ) {
 				// EMPTY
