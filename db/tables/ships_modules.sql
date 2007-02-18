@@ -3,7 +3,7 @@ CREATE TABLE `ships_modules` (
   `modules` text NOT NULL,
   `nametype` varchar(40) NOT NULL default '',
   `nickname` varchar(30) NOT NULL default '',
-  `picture` varchar(50) NOT NULL default '',
+  `picture` varchar(100) NOT NULL default '',
   `ru` int(11) NOT NULL default '0',
   `rd` int(11) NOT NULL default '0',
   `ra` int(11) NOT NULL default '0',
