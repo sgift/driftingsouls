@@ -2445,7 +2445,7 @@ public class Ships implements Loggable {
 		UserFlagschiffLocation flagschiff = user.getFlagschiff();
 		
 		boolean result = true;		
-		if( flagschiff.getID() == ship.getInt("id") ) {
+		if( (flagschiff != null) && (flagschiff.getID() == ship.getInt("id")) ) {
 			result = newowner.hasFlagschiffSpace();
 		}
 	
@@ -2467,7 +2467,8 @@ public class Ships implements Loggable {
 					"pos", Location.fromResult(ship).toString(),
 					"shiptype", Integer.toString(ship.getInt("type")) );
 			
-			if( (flagschiff.getType() == UserFlagschiffLocation.Type.SHIP) && (flagschiff.getID() == ship.getInt("id")) ) {
+			if( (flagschiff != null) && (flagschiff.getType() == UserFlagschiffLocation.Type.SHIP) && 
+				(flagschiff.getID() == ship.getInt("id")) ) {
 				user.setFlagschiff(0);
 				newowner.setFlagschiff(ship.getInt("id"));
 			}
