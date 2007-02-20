@@ -156,7 +156,7 @@ public class BaseWerft extends WerftObject {
 		if( fieldid == -1 ) {
 			throw new RuntimeException("BaseWerft: Werftfeld nicht gesetzt");
 		}
-		return "<input type=\"hidden\" name=\"ship\" value=\""+baseid+"\" />\n"+
+		return "<input type=\"hidden\" name=\"col\" value=\""+baseid+"\" />\n"+
 			"<input type=\"hidden\" name=\"field\" value=\""+fieldid+"\" />\n"+
 			"<input type=\"hidden\" name=\"module\" value=\"werft\" />\n";
 	}

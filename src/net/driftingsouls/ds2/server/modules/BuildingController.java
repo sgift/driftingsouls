@@ -70,7 +70,7 @@ public class BuildingController extends DSGenerator {
 		}
 		base = new Base(baseRow);		
 		
-		if( base.getBebauung()[field] == 0 ) {
+		if( (field >= base.getBebauung().length) || (base.getBebauung()[field] == 0) ) {
 			addError("Es existiert kein Geb&auml;ude an dieser Stelle");
 	
 			return false;
