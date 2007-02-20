@@ -671,13 +671,13 @@ public class Battle implements Loggable {
 		
 		Set<Integer> ownUsers = new HashSet<Integer>();
 		Set<Integer> enemyUsers = new HashSet<Integer>();		
-	
+
 		SQLQuery aShipRow = db.query("SELECT s.*,u.name AS username,u.ally ",
 									"FROM ships s JOIN users u ON s.owner=u.id ",
 									"WHERE s.id>0 AND s.x=",tmpOwnShip.getInt("x")," AND s.y=",tmpOwnShip.getInt("y")," AND " ,
 							   			"s.system=",tmpOwnShip.getInt("system")," AND s.battle=0 AND " ,
 							   			"u.ally IN (",tmpOwnShip.getInt("ally"),",",tmpEnemyShip.getInt("ally"),") AND " ,
-							   			"!LOCATE('disable_iff',s.status) AND `lock` IS NULL AND (u.vaccount!=0 OR u.wait4vac > 0)");
+							   			"!LOCATE('disable_iff',s.status) AND `lock` IS NULL AND (u.vaccount=0 OR u.wait4vac > 0)");
 							   		
 		while( aShipRow.next() ) {
 			// Loot-Truemmer sollten in keine Schlacht wandern... (nicht schoen, gar nicht schoen geloest)
