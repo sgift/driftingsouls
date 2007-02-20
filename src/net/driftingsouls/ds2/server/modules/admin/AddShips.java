@@ -370,7 +370,7 @@ public class AddShips implements AdminPlugin {
 						}
 						else {
 							query = db.prepare("INSERT INTO ships (name,type,owner,x,y,system,hull,e,crew,shields,docked,fleet,cargo,history) "+ 
-										"VALUES (newIntelliShipID( ? ), ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ?, ?, ? )");
+										"VALUES (? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ?, ?, ? )");
 							query.update(name+" "+j, jaeger, owner, x, y, system, jshiptype.getInt("hull"), jshiptype.getInt("eps"), jshiptype.getInt("crew"), jshiptype.getInt("shields"), "l "+shipid, fleetid, jcargo.save(), history);
 						}
 						int insid = query.insertID();
