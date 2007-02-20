@@ -158,7 +158,7 @@ public class BaseWerft extends WerftObject {
 		}
 		return "<input type=\"hidden\" name=\"col\" value=\""+baseid+"\" />\n"+
 			"<input type=\"hidden\" name=\"field\" value=\""+fieldid+"\" />\n"+
-			"<input type=\"hidden\" name=\"module\" value=\"werft\" />\n";
+			"<input type=\"hidden\" name=\"module\" value=\"building\" />\n";
 	}
 
 	@Override
