@@ -110,7 +110,7 @@ class Waffenfabrik extends DefaultBuilding {
 			if( user.getAlly() > 0 ) {			
 				SQLResultRow allyitems = db.first("SELECT items FROM ally WHERE id='",user.getAlly(),"'");
 			
-				Cargo itemlist = new Cargo( Cargo.Type.ITEMSTRING, allyitems.getString("cargo") );	
+				Cargo itemlist = new Cargo( Cargo.Type.ITEMSTRING, allyitems.getString("items") );	
 				
 				List<ItemCargoEntry> list = itemlist.getItemsWithEffect( ItemEffect.Type.DRAFT_AMMO ) ;
 				for( ItemCargoEntry item : list ) {
