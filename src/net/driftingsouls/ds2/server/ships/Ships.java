@@ -363,6 +363,8 @@ public class Ships implements Loggable {
 			SQLResultRow shipdata = db.prepare("SELECT type,status FROM ships WHERE id>0 AND id= ?")
 				.first(shiptype);
 			
+			shiptype = shipdata.getInt("type");
+			
 			if( shipdata.getString("status").indexOf("tblmodules") != -1 ) {
 				shipdata = db.prepare("SELECT nickname,picture,ru,rd,ra,rm,eps,cost,hull,panzerung,cargo,heat,crew,weapons,maxheat,torpedodef,shields,size,jdocks,adocks,sensorrange,hydro,deutfactor,recost,flags,werft,ow_werft " +
 						"FROM ships_modules " +
@@ -372,8 +374,6 @@ public class Ships implements Loggable {
 			else {
 				shipdata = null;
 			}
-			
-			shiptype = shipdata.getInt("type");
 			
 			return getShipType(shiptype, shipdata, plaindata);
 		}
