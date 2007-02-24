@@ -659,6 +659,8 @@ public class SchiffController extends DSGenerator implements Loggable {
 		if( (lock.length > 2) ) {		
 			scriptparser.setRegister("LOCKEXEC", "1");
 		}
+		
+		scriptparser.setRegister("TARGETSHIP", Integer.toString(communicate));
 	
 		parameterString("execparameter");
 		String execparameter = getString( "execparameter" );
