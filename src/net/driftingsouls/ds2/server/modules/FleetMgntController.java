@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
+import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
@@ -207,8 +208,8 @@ public class FleetMgntController extends DSGenerator {
 				return;
 			}
 		
-			int id = db.first("SELECT id FROM ships WHERE id IN (",Common.implode(",",shiplistInt),") AND owner!='",user.getID(),"'").getInt("id");
-			if( id != 0 ) {
+			SQLResultRow id = db.first("SELECT id FROM ships WHERE id IN (",Common.implode(",",shiplistInt),") AND owner!='",user.getID(),"'");
+			if( !id.isEmpty() ) {
 				t.set_var("fleetmgnt.message", "Alle Schiffe m&uuml;ssen ihrem Kommando unterstehen" );
 				return;
 			}
@@ -233,10 +234,12 @@ public class FleetMgntController extends DSGenerator {
 		}
 		
 		if( fleetname.length() > 0 ) {
-			db.prepare("INSERT INTO ship_fleets (name) VALUES ( ? )")
-				.update(fleetname);
+			PreparedQuery pq = db.prepare("INSERT INTO ship_fleets (name) VALUES ( ? )");
+			pq.update(fleetname);
 
-			int fleetID = db.insertID();
+			int fleetID = pq.insertID();
+			
+			pq.close();
 			
 			db.update("UPDATE ships SET fleet=",fleetID," WHERE id>0 AND id IN (",Common.implode(",",shiplistInt)+")");
 
