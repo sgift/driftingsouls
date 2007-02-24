@@ -350,8 +350,9 @@ public class UeberController extends DSGenerator implements Loggable {
 			}
 			
 			while( battle.next() ) {
-				if( (user.getAlly() != 0) && !"".equals(battle.getString("visibility")) ) {
-					String[] visibility = battle.getString("visibility").split(",");
+				if( (user.getAlly() != 0) && (battle.getString("visibility") != null) && 
+						(battle.getString("visibility").length() > 0) ) {
+					Integer[] visibility = Common.explodeToInteger(",", battle.getString("visibility"));
 					if( !Common.inArray(user.getID(),visibility) ) {
 						continue;	
 					}
