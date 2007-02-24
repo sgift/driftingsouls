@@ -471,7 +471,7 @@ public abstract class WerftObject extends DSObject {
 			usedslots.put(modules[i].slot, i);
 		}
 				
-		if( usedslots.containsKey(slot) ) {
+		if( !usedslots.containsKey(slot) ) {
 			MESSAGE.get().append("Es befindet sich kein Modul in diesem Slot\n");
 			return;
 		}
