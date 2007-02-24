@@ -149,7 +149,8 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 		
 		if( attcount == 0 ) {
 			User user = context.getActiveUser();
-			attcount = userattcount = Integer.parseInt(user.getUserValue("TBLORDER/ks/attackcount"));
+			String attCountStr = user.getUserValue("TBLORDER/ks/attackcount");
+			attcount = userattcount = (attCountStr.length() > 0 ? Integer.parseInt(attCountStr) : 0);
 		}
 		
 		if( attcount <= 0 || attcount > 3 ) {
