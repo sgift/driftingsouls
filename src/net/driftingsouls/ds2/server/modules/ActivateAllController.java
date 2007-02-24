@@ -94,10 +94,9 @@ public class ActivateAllController extends DSGenerator {
 			Alle Gebaeude deaktivieren
 		*/
 		String query = "";
-		Core core = null;
+		Core core = Core.getCore(db, base.getCore());
 		
-		if( base.getCore() != 0 ) {
-			core = Core.getCore(db, base.getCore());
+		if( (base.getCore() != 0) && base.isCoreActive() ) {
 			base.put("arbeiter", base.getArbeiter() - core.getArbeiter());
 			query = "coreactive=0,";
 			if( deakOnly != 0 ) {
