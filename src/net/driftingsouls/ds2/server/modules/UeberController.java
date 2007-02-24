@@ -388,10 +388,10 @@ public class UeberController extends DSGenerator implements Loggable {
 				}
 				
 				if( user.getAlly() != 0 ) {
-					battlelist.append("<a class=\"error\" href=\"+/main.php?module=angriff&amp;sess="+getString("sess")+"&amp;battle="+battle.getInt("id")+"\">Schlacht mit "+eparty+" bei "+battle.getInt("system")+" : "+battle.getInt("x")+"/"+battle.getInt("y")+"</a> ["+comm+"]<br />\n");
+					battlelist.append("<a class=\"error\" href=\"/main.php?module=angriff&amp;sess="+getString("sess")+"&amp;battle="+battle.getInt("id")+"\">Schlacht mit "+eparty+" bei "+battle.getInt("system")+" : "+battle.getInt("x")+"/"+battle.getInt("y")+"</a> ["+comm+"]<br />\n");
 				}
 				else {
-					battlelist.append("<a class=\"error\" href=\"+/main.php?module=angriff&amp;sess="+getString("sess")+"&amp;battle="+battle.getInt("id")+"\">Es ist eine Schlacht mit "+eparty+" bei "+battle.getInt("system")+" : "+battle.getInt("x")+"/"+battle.getInt("y")+" im Gange</a><br />\n");
+					battlelist.append("<a class=\"error\" href=\"/main.php?module=angriff&amp;sess="+getString("sess")+"&amp;battle="+battle.getInt("id")+"\">Es ist eine Schlacht mit "+eparty+" bei "+battle.getInt("system")+" : "+battle.getInt("x")+"/"+battle.getInt("y")+" im Gange</a><br />\n");
 				}
 			}
 			battle.free();
