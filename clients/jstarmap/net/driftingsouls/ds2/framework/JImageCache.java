@@ -47,17 +47,17 @@ import javax.imageio.*;
  * @author bKtHeG (Christopher Jung)
  */
 public class JImageCache implements ImageObserver {
-	private HashMap images;
-	private HashMap imageNotifierList;
-	private HashMap imageNotifierData;
-	private Vector resizeTodo;
+	protected Map<String,BufferedImage> images;
+	protected Map<String,IImageStatusNotifier> imageNotifierList;
+	protected Map<String,Object> imageNotifierData;
+	protected Vector<Vector<Object>> resizeTodo;
 	private String datapath;
 	private final GraphicsConfiguration gc;
 	private BufferedImage unknownImage;
-	private int loadercount;
-	private int resizerCount;
-	private Vector loadTodo;
-	private IWindowManager wm;
+	protected int loadercount;
+	protected int resizerCount;
+	protected Vector<String> loadTodo;
+	protected IWindowManager wm;
 	
 	/**
 	 * Erzeugt ein neues JImageCache-Objekt
@@ -66,11 +66,11 @@ public class JImageCache implements ImageObserver {
 	 * @param datapath	Der DS2-Datenpfad
 	 */
 	public JImageCache( IWindowManager wm, String datapath ) {
-		images = new HashMap();
-		imageNotifierList = new HashMap();
-		imageNotifierData = new HashMap();
-		loadTodo = new Vector();
-		resizeTodo = new Vector();
+		images = new HashMap<String,BufferedImage>();
+		imageNotifierList = new HashMap<String,IImageStatusNotifier>();
+		imageNotifierData = new HashMap<String,Object>();
+		loadTodo = new Vector<String>();
+		resizeTodo = new Vector<Vector<Object>>();
 		resizerCount = 0;
 		this.wm = wm;
 		loadercount = 0;
@@ -143,7 +143,7 @@ public class JImageCache implements ImageObserver {
 	 * @see #getImage(String,boolean,IImageStatusNotifier,Object)
 	 */
 	public BufferedImage getImage(final String myfile, boolean forceLoad ) {
-		BufferedImage myimg = (BufferedImage)images.get(myfile);
+		BufferedImage myimg = images.get(myfile);
 	
 		if( (myimg == null) && (myfile.indexOf('#') == -1) ) {
 			int status = loadTodo.indexOf(myfile); 
@@ -164,7 +164,7 @@ public class JImageCache implements ImageObserver {
 								while( !loadTodo.isEmpty() ) {
 									String nextfile;
 									synchronized(loadTodo) {
-										nextfile = (String)loadTodo.firstElement();
+										nextfile = loadTodo.firstElement();
 										loadTodo.remove(0);
 									}
 									BufferedImage aimg = loadImage(nextfile);
@@ -173,7 +173,7 @@ public class JImageCache implements ImageObserver {
 									
 									if( imageNotifierList.get(nextfile) != null ) {
 										Object data = imageNotifierData.get(nextfile);
-										((IImageStatusNotifier)imageNotifierList.get(nextfile)).onImageLoaded(nextfile,data);
+										imageNotifierList.get(nextfile).onImageLoaded(nextfile,data);
 										
 										imageNotifierData.remove(nextfile);
 										imageNotifierList.remove(nextfile);
@@ -199,7 +199,7 @@ public class JImageCache implements ImageObserver {
 		else if( (myimg == null) && (myfile.indexOf('#') > -1) ) {
 			String str = "interface/jstarmap/starmap_unknown.png" + myfile.substring(myfile.indexOf('#'));
 
-			myimg = (BufferedImage)images.get(str);
+			myimg = images.get(str);
 			if( myimg == null ) {
 				myimg = this.unknownImage;
 			}
@@ -248,13 +248,11 @@ public class JImageCache implements ImageObserver {
 	 * @return <code>true</code> fuer geladen. Andernfalls <code>false</code>
 	 */
 	public boolean isLoaded( String myfile ) {
-		BufferedImage myimg = (BufferedImage)images.get(myfile);
+		BufferedImage myimg = images.get(myfile);
 		if( myimg == null ) {
 			return false;
 		}
-		else {
-			return true;
-		}
+		return true;
 	}
 	
 	/**
@@ -300,7 +298,7 @@ public class JImageCache implements ImageObserver {
 			return;
 		}
 
-		Vector todoentry = new Vector();
+		Vector<Object> todoentry = new Vector<Object>();
 		todoentry.addElement(image);
 		todoentry.addElement(new Integer(width));
 		todoentry.addElement(new Integer(height));
@@ -323,9 +321,9 @@ public class JImageCache implements ImageObserver {
 							// Bild laden
 							try {
 								while( !resizeTodo.isEmpty() ) {
-									Vector nextfile;
+									Vector<Object> nextfile;
 									synchronized(resizeTodo) {
-										nextfile = (Vector)resizeTodo.firstElement();
+										nextfile = resizeTodo.firstElement();
 										resizeTodo.remove(0);
 									}
 									
@@ -358,7 +356,7 @@ public class JImageCache implements ImageObserver {
 										}
 									}
 									
-									BufferedImage currentImage = (BufferedImage)images.get(filename);
+									BufferedImage currentImage = images.get(filename);
 											
 									BufferedImage sizedImage = createImg( newwidth.intValue(), newheight.intValue(), currentImage.getColorModel().getTransparency() );
 									Graphics2D g = sizedImage.createGraphics();
@@ -391,7 +389,8 @@ public class JImageCache implements ImageObserver {
 	 */
 	
 	public void dropImages( String filename ) {
-		HashMap cloneMap = (HashMap)images.clone();
+		Map<String,BufferedImage> cloneMap = new HashMap<String,BufferedImage>();
+		cloneMap.putAll(images);
 		
 		Iterator itr = cloneMap.keySet().iterator();
 		
