@@ -186,4 +186,56 @@ public abstract class AbstractTickExecuter extends TickController {
 	 * Fuehrt alle Einzelticks aus
 	 */
 	protected abstract void executeTicks();
+	
+	/**
+	 * Erlaubt das Behandeln von Timeouts
+	 *
+	 */
+	protected static abstract class TimeoutChecker extends Thread {
+		private long timeout;
+		private boolean hasTimedOut;
+		
+		/**
+		 * Konstruktor
+		 * @param timeout Die Anzahl an Millisekunden, die nach dem Start gewartet werden soll
+		 */
+		protected TimeoutChecker(long timeout) {
+			this.timeout = timeout;
+			this.hasTimedOut = false;
+		}
+		
+		@Override
+		public void run() {
+			long start = Common.time();
+			
+			try {
+				while( start+timeout > Common.time() ) {
+					synchronized(this) {
+						wait(100);
+					}
+				}
+				if( start+timeout <= Common.time() ) {
+					this.hasTimedOut = true;
+					timeout();
+				}
+			}
+			catch( InterruptedException e ) {
+				// Exit
+			}
+		}
+		
+		/**
+		 * Wird aufgerufen, wenn ein Timeout geschieht
+		 *
+		 */
+		protected abstract void timeout();
+		
+		/**
+		 * Gibt zurueck, ob ein Timeout stattgefunden hat
+		 * @return <code>true</code>, falls ein Timeout stattgefunden hat
+		 */
+		public boolean hasTimedOut() {
+			return this.hasTimedOut;
+		}
+	}
 }
