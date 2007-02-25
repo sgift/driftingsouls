@@ -733,7 +733,9 @@ public class User implements Loggable {
 				db.update("DELETE FROM user_relations WHERE user_id='",this.id,"' AND target_id='0'");
 			}
 			else {
-				relations.toOther.put(0, relation);
+				if( relations != null ) {
+					relations.toOther.put(0, relation);
+				}
 				if( !currelation.isEmpty() ) {
 					db.update("UPDATE user_relations SET status='",relation,"' WHERE user_id='",this.id,"' AND target_id='0'");	
 				}	
