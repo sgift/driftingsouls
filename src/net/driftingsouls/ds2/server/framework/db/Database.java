@@ -418,18 +418,6 @@ public class Database implements Loggable {
 		return buffer.toString();
 	}
 	
-	/**
-	 * Entfernt die mittels {@link #prepareString(String)} eingefuegten Escape-Zeichen wieder
-	 * von einen String.
-	 * 
-	 * @param str Der zu bearbeitende String
-	 * @return der String ohne Escapezeichen
-	 */
-	public String checkoutString( String str ) {
-		Common.stub();
-		return str;
-	}
-	
 	protected void error( String text, Statement stmt ) {
 		error = true;
 		tStatus = false;
