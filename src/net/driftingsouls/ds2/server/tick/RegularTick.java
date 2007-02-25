@@ -41,6 +41,16 @@ public class RegularTick extends AbstractTickExecuter {
 	@Override
 	protected void executeTicks() {
 		try {
+			TimeoutChecker timeout = new TimeoutChecker(20*60*1000) {
+				@Override
+				public void timeout() {
+					System.out.println("Timeout");
+					Common.mailThrowable(new Exception("Regular Tick Timeout"), "[DS2J] RegularTick Timeout", null);
+				}
+			};
+			
+			timeout.start();
+			
 			publishStatus("berechne Basen");
 			execTick(BaseTick.class,false);
 	
@@ -68,6 +78,8 @@ public class RegularTick extends AbstractTickExecuter {
 	
 			publishStatus("berechne Sonstiges");
 			execTick(RestTick.class, false);
+			
+			timeout.interrupt();
 		}
 		catch( Throwable e ) {
 			System.err.println("Fehler beim Ausfuehren der Ticks: "+e);

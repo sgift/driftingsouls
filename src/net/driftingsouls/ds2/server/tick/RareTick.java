@@ -32,8 +32,19 @@ public class RareTick extends AbstractTickExecuter {
 	@Override
 	protected void executeTicks() {
 		try {
+			TimeoutChecker timeout = new TimeoutChecker(20*60*1000) {
+				@Override
+				public void timeout() {
+					Common.mailThrowable(new Exception("Rare Tick Timeout"), "[DS2J] RareTick Timeout", null);
+				}
+			};
+			
+			timeout.start();
+			
 			publishStatus("berechne Sonstiges");
 			execTick(RestTick.class, false);
+			
+			timeout.interrupt();
 		}
 		catch( Throwable e ) {
 			System.err.println("Fehler beim Ausfuehren der Ticks: "+e);
