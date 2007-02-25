@@ -42,11 +42,11 @@ public class NPCScriptTick extends TickController {
 		}
 
 		public void start() {
-			NPCScriptTick.this.log("###################Scriptparser [Debug]###################");
+			NPCScriptTick.this.slog("###################Scriptparser [Debug]###################\n");
 		}
 
 		public void stop() {
-			NPCScriptTick.this.log("#########################ENDE#############################");
+			NPCScriptTick.this.slog("#########################ENDE#############################\n");
 		}
 	}
 
@@ -110,5 +110,9 @@ public class NPCScriptTick extends TickController {
 		}
 		iter.free();
 	}
-
+	
+	@Override
+	public void slog(String string) {
+		super.slog(string);
+	}
 }
