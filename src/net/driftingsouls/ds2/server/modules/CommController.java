@@ -955,11 +955,11 @@ public class CommController extends DSGenerator implements Loggable {
 		Database db = getDatabase();
 		User user = getUser();
 		
-		parameterNumber("to");
+		parameterString("to");
 		parameterNumber("reply");
 		parameterString("msg");
 		
-		int to = getInteger("to");
+		String toStr = getString("to");
 		int reply = getInteger("reply");
 		String msg = getString("msg");
 		
@@ -968,7 +968,7 @@ public class CommController extends DSGenerator implements Loggable {
 		
 		if( reply != 0) {
 			SQLResultRow pm = db.first("SELECT * FROM transmissionen WHERE id='",reply,"' AND (empfaenger='",user.getID(),"' OR sender='",user.getID(),"') AND gelesen < 10");
-			to = pm.getInt("sender");
+			int to = pm.getInt("sender");
 			if( to == user.getID() ) {
 				to = pm.getInt("empfaenger");
 			}
@@ -998,7 +998,7 @@ public class CommController extends DSGenerator implements Loggable {
 			msg = Common.implode("\n", msg_lines); //Text wieder zusammenfuegen
 			msg += "\n\n"; // Zwei Leerzeilen koennen am Ende nicht schaden...
 			
-			
+			toStr = Integer.toString(to);
 		}
 		else {
 			parameterString("title");
@@ -1027,7 +1027,7 @@ public class CommController extends DSGenerator implements Loggable {
 		t.set_var(	"show.write", 1,
 					"write.title", title,
 					"write.message", msg,
-					"write.to", to,
+					"write.to", toStr,
 					"system.time", Common.getIngameTime(getContext().get(ContextCommon.class).getTick()),
 					"user.signature", user.getUserValue("PMS/signature") );
 		
