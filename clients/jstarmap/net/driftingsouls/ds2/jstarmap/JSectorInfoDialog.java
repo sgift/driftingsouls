@@ -41,15 +41,21 @@ import org.w3c.dom.*;
  * @author Christopher Jung
  */
 public class JSectorInfoDialog extends JDialog implements IImageStatusNotifier {
-	private Vector shipPanels;
+	private Vector<JShipInfo> shipPanels;
 	private String fontName;
 	
+	/**
+	 * Konstruktor
+	 * @param parent Das Elternfenster
+	 * @param windowmanager Der Fenstermanager
+	 * @param fontname Die zum Zeichnen zu verwendende Font
+	 */
 	public JSectorInfoDialog( JWindow parent, IWindowManager windowmanager, String fontname ) {
 		super( parent, windowmanager );
 		
 		fontName = fontname; 
 		
-		shipPanels = new Vector();
+		shipPanels = new Vector<JShipInfo>();
 	}
 	
 	private void parseTypeTag( Node typenode, JShipInfo shipinfo ) {
@@ -90,11 +96,15 @@ public class JSectorInfoDialog extends JDialog implements IImageStatusNotifier {
 		}
 	}
 	
+	/**
+	 * Setzt das XML-Dokument, welches die anzuzeigenden Daten enthaelt
+	 * @param doc Das XML-Dokument mit den anzuzeigenden Daten
+	 */
 	public void setDocumentSource( Document doc ) {
 		for( int i=0; i < shipPanels.size(); i++ ) {
-			((JShipInfo)shipPanels.get(i)).dispose();
+			shipPanels.get(i).dispose();
 		}
-		shipPanels = new Vector();
+		shipPanels.clear();
 		
 		int y = 0;
 		
@@ -112,7 +122,7 @@ public class JSectorInfoDialog extends JDialog implements IImageStatusNotifier {
 			String rel = relation.getValue();
 			shipinfo.setProperty("relation", rel);
 			
-			Attr id = ship.getAttributeNode("id");
+			//Attr id = ship.getAttributeNode("id");
 			
 			NodeList elements = ship.getChildNodes();
 			for( int j=0; j < elements.getLength(); j++ ) {
@@ -186,7 +196,7 @@ public class JSectorInfoDialog extends JDialog implements IImageStatusNotifier {
 		int y = 0;
 		
 		for( int i=0; i < shipPanels.size(); i++ ) {
-			JShipInfo shipinfo = (JShipInfo)shipPanels.get(i);
+			JShipInfo shipinfo = shipPanels.get(i);
 			
 			shipinfo.setPosition(0,y);
 			
@@ -203,6 +213,7 @@ public class JSectorInfoDialog extends JDialog implements IImageStatusNotifier {
 		getWindowManager().requestRedraw(this);
 	}
 	
+	@Override
 	public boolean mousePressed( int x, int y, int button ) {
 		boolean result = super.mousePressed( x, y, button );
 		
@@ -215,6 +226,7 @@ public class JSectorInfoDialog extends JDialog implements IImageStatusNotifier {
 		return result;		
 	}
 	
+	@Override
 	public void paint( Graphics2D g ) {
 		super.paint(g);
 	}

@@ -62,6 +62,12 @@ public class JConfigureDialog extends JDialog {
 	private MapConnector map;
 	private boolean isAdmin;
 
+	/**
+	 * Konstruktor
+	 * @param parent Das Elternfenster
+	 * @param windowmanager Der Fenstermanager
+	 * @param aMap Der Map-Connector
+	 */
 	public JConfigureDialog(JWindow parent, IWindowManager windowmanager, MapConnector aMap ) {
 		super(parent, windowmanager);
 		
@@ -154,6 +160,7 @@ public class JConfigureDialog extends JDialog {
 		bufferedModeCheckBox.setChecked(((Boolean)getWindowManager().getProperty(IWindowManager.PROPERTY_BUFFERED_OUTPUT)).booleanValue());
 	}
 	
+	@Override
 	public boolean handleEvent( int handle, String event ) {
 		boolean result = super.handleEvent( handle, event );
 		
@@ -179,6 +186,7 @@ public class JConfigureDialog extends JDialog {
 		return result;
 	}
 	
+	@Override
 	public boolean mousePressed( int x, int y, int button ) {
 		boolean result = super.mousePressed(x, y, button);
 		
@@ -199,6 +207,7 @@ public class JConfigureDialog extends JDialog {
 		return result;
 	}
 	
+	@Override
 	public void paint( Graphics2D g ) {
 		super.paint(g);
 		

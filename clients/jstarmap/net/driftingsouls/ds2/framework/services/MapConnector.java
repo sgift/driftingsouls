@@ -51,12 +51,15 @@ import org.w3c.dom.Document;
  * @author Christopher Jung
  */
 public class MapConnector implements ServerConnectable {
+	/**
+	 * Der Service-Name
+	 */
 	public static final String SERVICE = MapConnector.class.getName();
 	
 	private int map[][]; 
 	private String mapDescription[][];
 	private String mapLargeObjects[][];
-	private Stack mapLargeObjectsPrecache;
+	private Stack<String> mapLargeObjectsPrecache;
 	private int nSystem;
 	private int mapWidth;
 	private int mapHeight;
@@ -66,26 +69,39 @@ public class MapConnector implements ServerConnectable {
 	
 	private boolean bMapLoaded;
 	
-	private Vector notifyWindowList;
+	private Vector<JWindow> notifyWindowList;
 	
 	private static final int PROTOCOL = 8;
 	private static final int PROTOCOL_MINOR = 0;
 	private static final int ADDDATA_TEXT = 1;
 	private static final int ADDDATA_LARGE_OBJECT = 2;
 	
+	/**
+	 * Ein Sektor mit eigenen Schiffen
+	 */
 	public static final int SECTOR_OWN_SHIPS = 1;
+	/**
+	 * Ein Sektor mit alliierten Schiffen
+	 */
 	public static final int SECTOR_ALLY_SHIPS = 2;
+	/**
+	 * Ein Sektor mit feindlichen Schiffen
+	 */
 	public static final int SECTOR_ENEMY_SHIPS = 3;
 	
+	/**
+	 * Konstruktor
+	 *
+	 */
 	public MapConnector() {
 		bMapLoaded = false;
 		nSystem = 0;
 		mapLoadingStatus = 0;
 		currentUser = 0;
 		
-		notifyWindowList = new Vector();
+		notifyWindowList = new Vector<JWindow>();
 		
-		mapLargeObjectsPrecache = new Stack();
+		mapLargeObjectsPrecache = new Stack<String>();
 	}
 	
 	/**
@@ -408,7 +424,7 @@ public class MapConnector implements ServerConnectable {
 		
 		// Alle eingetragenen Fenster informieren, dass wir jetzt fertig sind
 		for( int i=0; i < notifyWindowList.size(); i++ ) {
-			JWindow wnd = (JWindow)notifyWindowList.get(i);
+			JWindow wnd = notifyWindowList.get(i);
 			wnd.handleEvent(wnd.getHandle(), "map_changed" );
 		}
 	}
@@ -594,25 +610,19 @@ public class MapConnector implements ServerConnectable {
 			if( (map[x][y] & 4) != 0 ) {
 				return true;
 			}
-			else {
-				return false;
-			}
+			return false;
 		}
 		else if( property == SECTOR_ALLY_SHIPS ) {
 			if( (map[x][y] & 2) != 0 ) {
 				return true;
 			}
-			else {
-				return false;
-			}
+			return false;
 		}
 		else if( property == SECTOR_ENEMY_SHIPS ) {
 			if( (map[x][y] & 1) != 0 ) {
 				return true;
 			}
-			else {
-				return false;
-			}
+			return false;
 		}
 		
 		return false;
@@ -628,7 +638,7 @@ public class MapConnector implements ServerConnectable {
 	 */
 	public void precacheImages(JImageCache imagecache ) {
 		while( !mapLargeObjectsPrecache.empty() ) {
-			String text = (String)mapLargeObjectsPrecache.pop();
+			String text = mapLargeObjectsPrecache.pop();
 			
 			BufferedImage masterimg = imagecache.loadImage("starmap/"+text+"_precache.png");
 			

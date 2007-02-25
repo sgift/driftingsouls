@@ -48,6 +48,13 @@ public class JInfoDialog extends JDialog {
 	private JSectorInfoDialog dlgSectorInfo;
 	private JButton addInfoButton;
 	
+	/**
+	 * Konstruktor
+	 * @param parent Das Elternfenster
+	 * @param windowmanager Der Fenstermanager
+	 * @param myfont Der zu verwendende Font
+	 * @param map Der Map-Connector
+	 */
 	public JInfoDialog( JWindow parent, IWindowManager windowmanager, String myfont, MapConnector map ) {
 		super( parent, windowmanager );
 		
@@ -64,6 +71,11 @@ public class JInfoDialog extends JDialog {
 		setPosition( IWindowManager.POSITION_ALWAYS_WITHIN_SCREEN );
 	}
 	
+	/**
+	 * Setzt den anzuzeigenden Sektor
+	 * @param x Die x-Koordinate des DS-Sektors
+	 * @param y Die y-Koordinate des DS-Sektors
+	 */
 	public void setSector( int x, int y ) {
 		currentX = x;
 		currentY = y;
@@ -98,6 +110,10 @@ public class JInfoDialog extends JDialog {
 		}
 	}
 	
+	/**
+	 * Setzt die automatische Hoehenanpassung
+	 * @param value <code>true</code>, wenn die automatische Hoehenanpassung aktiviert werden soll
+	 */
 	public void setAutoHeight( boolean value ) {		
 		if( value ) {
 			disableVScrolling();
@@ -109,6 +125,7 @@ public class JInfoDialog extends JDialog {
 		autoHeight = value;
 	}
 	
+	@Override
 	public void onResize() {
 		if( addInfoButton != null ) {
 			addInfoButton.setPosition(getClientWidth()-24, 0);
@@ -130,6 +147,7 @@ public class JInfoDialog extends JDialog {
 		}
 	}
 	
+	@Override
 	public boolean handleEvent( int handle, String event ) {
 		boolean result = super.handleEvent( handle, event );
 		
@@ -157,6 +175,7 @@ public class JInfoDialog extends JDialog {
 		return result;
 	}
 	
+	@Override
 	public boolean mousePressed( int x, int y, int button ) {
 		boolean result = super.mousePressed(x, y, button);
 		
@@ -169,6 +188,7 @@ public class JInfoDialog extends JDialog {
 		return result;
 	}
 	
+	@Override
 	public void paint(Graphics2D g) {		
 		super.paint(g);		
 		// ggf. die Hoehe des Dialogfelds automatisch anpassen

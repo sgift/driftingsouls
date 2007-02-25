@@ -45,23 +45,29 @@ public class JMapViewer extends JWindow {
 	
 	private JInfoDialog dlgToolTip;	
 	private JMapContextDialog dlgMapContext;
-	private Vector mapImageList;
+	protected Vector<String> mapImageList;
 	
 	private int xOffset;
 	private int yOffset;
-	private int oldXOffset;
-	private int oldYOffset;
+	//private int oldXOffset;
+	//private int oldYOffset;
 	
-	private int mapXOffset;
-	private int mapYOffset;
+	//private int mapXOffset;
+	//private int mapYOffset;
 	
 	private int lastX;
 	private int lastY;
 	
-	private MapConnector map;
+	protected MapConnector map;
 	
 	private int currentZoom;
 	
+	/**
+	 * Konstruktor
+	 * @param parent Das Elternfenster
+	 * @param windowmanager Der Fenstermanager
+	 * @param map Der Map-Connector
+	 */
 	public JMapViewer( JWindow parent, IWindowManager windowmanager, MapConnector map ) {
 		super( parent, windowmanager );
 		
@@ -71,10 +77,10 @@ public class JMapViewer extends JWindow {
 		
 		xOffset = 0;
 		yOffset = 0;
-		oldXOffset = 0;
+		/*oldXOffset = 0;
 		oldYOffset = 0;
 		mapXOffset = 0;
-		mapYOffset = 0;
+		mapYOffset = 0;*/
 		lastX = 0;
 		lastY = 0;
 		
@@ -96,7 +102,7 @@ public class JMapViewer extends JWindow {
 					// Bild laden
 					try {
 						if( mapImageList == null ) {
-							mapImageList = new Vector();
+							mapImageList = new Vector<String>();
 									
 							for( int tmpy=0; tmpy < map.getHeight(); tmpy++ ) {
 								for( int tmpx=0; tmpx < map.getWidth(); tmpx++ ) {
@@ -110,7 +116,7 @@ public class JMapViewer extends JWindow {
 						}
 								
 						for( int i=0; i < mapImageList.size(); i++ ) {
-							String file = (String)mapImageList.get(i);
+							String file = mapImageList.get(i);
 									
 							getImageCache().dropImages(file+"#"+oldTileSize+"_"+oldTileSize);
 						}
@@ -123,6 +129,7 @@ public class JMapViewer extends JWindow {
 		cleanerthread.start();
 	}
 	
+	@Override
 	public boolean handleEvent( int handle, String event ) {
 		boolean result = super.handleEvent( handle, event );
 		
@@ -136,18 +143,21 @@ public class JMapViewer extends JWindow {
 		return result;
 	}
 	
+	/**
+	 * Gibt den aktuellen Zoom der Karte zurueck
+	 * @return Der aktuelle Zoom
+	 */
 	public int getCurrentZoom() {
 		return currentZoom;
 	}
 	
-	/*
-	 * zoomMap
-	 *  Die Karte zoomen. factor enthält hierbei den entsprechenden Faktor
-	 *  factor=100 wären z.B. 100% (Normalgröße)
-	 *  x und y enthalten die Fensterkoordinate, um die gezoomt werden soll
+	/**
+	 * Zoomt die Karte um einen bestimmten Faktor um eine Koordinate des Fensters herum
+	 * @param factor der Faktor um den gezoomt werden soll (100 = Normalgroesse, 100%)
+	 * @param x Die X-Koordinate im Fenster auf die gezoomt werden soll
+	 * @param y Die Y-Koordinate im Fenster auf die gezoomt werden soll
 	 * 
 	 */
-	
 	public void zoomMap( int factor, int x, int y ) {
 		if( factor < 1 ) {
 			return;
@@ -171,8 +181,8 @@ public class JMapViewer extends JWindow {
 			tilesizeX = newTileSize;
 			tilesizeY = newTileSize;
 			
-			oldXOffset = 0;
-			oldYOffset = 0;
+			//oldXOffset = 0;
+			//oldYOffset = 0;
 		}
 		
 		xOffset += getClientWidth()/2;
@@ -199,6 +209,7 @@ public class JMapViewer extends JWindow {
 		getWindowManager().requestRedraw(this);
 	}
 	
+	@Override
 	public boolean mousePressed( int x, int y, int button ) {
 		boolean result = super.mousePressed(x, y, button);
 		
@@ -246,6 +257,7 @@ public class JMapViewer extends JWindow {
 		return result;
 	}
 	
+	@Override
 	public boolean mouseDragged( int x, int y, int button ) {
 		boolean result = super.mouseDragged( x, y, button );
 		
@@ -257,8 +269,8 @@ public class JMapViewer extends JWindow {
 			return result;
 		}
 		
-		oldXOffset = xOffset;
-		oldYOffset = yOffset;
+		//oldXOffset = xOffset;
+		//oldYOffset = yOffset;
 		
 		xOffset += x - lastX;
 		yOffset += y - lastY;
@@ -287,6 +299,7 @@ public class JMapViewer extends JWindow {
 		return true;
 	}
 	
+	@Override
 	public boolean keyPressed( int keycode, char key ) {
 		if( key == 'z' ) {	
 			getWindowManager().setVisibility( dlgMapContext, !getWindowManager().getVisibility(dlgMapContext) );
@@ -297,12 +310,15 @@ public class JMapViewer extends JWindow {
 			
 			return true;
 		}
-		else {
-			return super.keyPressed(keycode,key);
-		}
+		
+		return super.keyPressed(keycode,key);
 	}
 	
-	public void drawMap(Graphics2D g) {
+	/**
+	 * Zeichnet die Karte
+	 * @param g Der Zeichenkontext in dem gezeichnet werden soll
+	 */
+	protected void drawMap(Graphics2D g) {
 		int xbase = 1;
 		int ybase = 1;
 		
@@ -466,6 +482,7 @@ public class JMapViewer extends JWindow {
 		}
 	}
 	
+	@Override
 	public void paint(Graphics2D g) {
 		super.paint(g);
 		

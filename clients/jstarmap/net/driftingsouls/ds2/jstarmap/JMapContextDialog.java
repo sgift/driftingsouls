@@ -42,6 +42,12 @@ public class JMapContextDialog extends JDialog {
 	
 	private JConfigureDialog dlgConfigure;
 	
+	/**
+	 * Konstruktor
+	 * @param parent Das Elternfenster
+	 * @param windowmanager Der Fenstermanager
+	 * @param map Der Map-Connector
+	 */
 	public JMapContextDialog(JWindow parent, IWindowManager windowmanager, MapConnector map ) {
 		super(parent, windowmanager);
 		
@@ -76,6 +82,7 @@ public class JMapContextDialog extends JDialog {
 		dlgConfigure = null;
 	}
 	
+	@Override
 	public boolean handleEvent( int handle, String event ) {
 		boolean result = super.handleEvent( handle, event );
 		
@@ -111,6 +118,7 @@ public class JMapContextDialog extends JDialog {
 		return result;
 	}
 	
+	@Override
 	public boolean mousePressed( int x, int y, int button ) {
 		boolean result = super.mousePressed(x, y, button);
 		

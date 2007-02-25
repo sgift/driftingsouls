@@ -33,35 +33,48 @@ import net.driftingsouls.ds2.framework.IWindowManager;
  * @author Christopher Jung
  */
 public class JAboutDialog extends JDialog {	
-	private boolean autoHeight;
+	//private boolean autoHeight;
 	private JTextField textfield;
 	
+	/**
+	 * Konstruktor
+	 * @param parent Das Elternfenster
+	 * @param windowmanager Der Fenstermanager
+	 * @param myfont Die zu verwendende Font
+	 */
 	public JAboutDialog( JWindow parent, IWindowManager windowmanager, String myfont ) {
 		super( parent, windowmanager );
 		
-		autoHeight = false;
+		//autoHeight = false;
 		
 		textfield = new JTextField( this, windowmanager, myfont );
 		textfield.setSize(getClientWidth(),getClientHeight());
 		textfield.setPosition(0,0);
 	}
 	
+	/**
+	 * Setzt den anzuzeigenden Text
+	 * @param text Der anzuzeigende Text
+	 */
 	public void setText( String text ) {
 		textfield.setText( text );
 	}
 	
+	@Override
 	public void setSize( int width, int height ) {
 		super.setSize(width,height);
 		
 		textfield.setSize(getClientWidth(),getClientHeight());
 	}
 	
+	@Override
 	public void setClientSize( int width, int height ) {
 		super.setClientSize(width,height);
 		
 		textfield.setClientSize(getClientWidth(),getClientHeight());
 	}
 	
+	@Override
 	public boolean mousePressed( int x, int y, int button ) {
 		boolean result = super.mousePressed(x, y, button);
 		

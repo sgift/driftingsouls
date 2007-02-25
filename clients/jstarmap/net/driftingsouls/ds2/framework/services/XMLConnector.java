@@ -37,6 +37,9 @@ import org.xml.sax.InputSource;
  *
  */
 public class XMLConnector implements ServerConnectable {
+	/**
+	 * Der Service-Name
+	 */
 	public static final String SERVICE = XMLConnector.class.getName();
 	
 	/**
@@ -54,7 +57,7 @@ public class XMLConnector implements ServerConnectable {
 	}
 	
 	/**
-	 * Ruft eine DS-URL auf und gibt sie als XML-Dokument zurueck. Anders als bei {@see #fetchStyledURL(String, String, String)}
+	 * Ruft eine DS-URL auf und gibt sie als XML-Dokument zurueck. Anders als bei {@link #fetchStyledURL(String, String, String)}
 	 * wird nicht versucht eine alternative XML-Ausgabe zu bekommen
 	 * 
 	 * @param module Das aufzurufende Modul

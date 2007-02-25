@@ -36,6 +36,9 @@ import org.ksoap2.transport.HttpTransportSE;
  */
 
 public class SoapConnector implements ServerConnectable {
+	/**
+	 * Der Service-Name
+	 */
 	public static final String SERVICE = SoapConnector.class.getName();
 	
 	/**
@@ -170,6 +173,9 @@ public class SoapConnector implements ServerConnectable {
 		}
 	}
 	
+	/**
+	 * Der Uservalue fuer das gepufferte Zeichnen auf dem Bildschirm
+	 */
 	public static final String USERVALUE_STARMAP_BUFFEREDOUTPUT = "TBLORDER/clients/jstarmap/bufferedoutput";	// 1 oder 0
 	
 	/**

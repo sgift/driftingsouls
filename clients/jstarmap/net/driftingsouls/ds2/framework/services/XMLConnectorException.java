@@ -19,9 +19,18 @@
 
 package net.driftingsouls.ds2.framework.services;
 
+/**
+ * Kapselt einen Fehler im XMLConnector
+ * @author Christopher Jung
+ *
+ */
 public class XMLConnectorException extends Exception {
 	private static final long serialVersionUID = -4209104899616795575L;
 
+	/**
+	 * Konstruktor
+	 * @param cause Der eigendliche Fehler
+	 */
 	public XMLConnectorException(Throwable cause) {
 		super(cause);
 	}

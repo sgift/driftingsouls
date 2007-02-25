@@ -34,11 +34,11 @@ import java.util.Vector;
  * @author Christopher Jung
  */
 class aWindowEntry {
-	public static final int VISIBILITY_OFF = 1;
-	public static final int VISIBILITY_ON = 2;
-	public static final int VISIBILITY_FORCE_OFF = 5;
-	public static final int VISIBILITY_FORCE_ON = 6;
-	public static final int VISIBILITY_FORCE = 4;
+	static final int VISIBILITY_OFF = 1;
+	static final int VISIBILITY_ON = 2;
+	static final int VISIBILITY_FORCE_OFF = 5;
+	static final int VISIBILITY_FORCE_ON = 6;
+	static final int VISIBILITY_FORCE = 4;
 	
 	private int visibility;
 	private JWindow window;
@@ -63,7 +63,7 @@ class aWindowEntry {
 	private BufferedImage offscreenBuffer;
 	private boolean redraw;
 	
-	public aWindowEntry( CanvasWindowManager sm, JWindow aWindow, JWindow aParent ) {
+	aWindowEntry( CanvasWindowManager sm, JWindow aWindow, JWindow aParent ) {
 		visibility = VISIBILITY_OFF;
 		window = aWindow;
 		wm = sm;
@@ -83,11 +83,11 @@ class aWindowEntry {
 		redraw = false;
 	}
 	
-	public int getVisibility() {
+	int getVisibility() {
 		return visibility;
 	}
 	
-	public void setVisibility( int vis ) {
+	void setVisibility( int vis ) {
 		visibility = vis;
 		
 		if( vis == VISIBILITY_FORCE_ON ) {
@@ -103,95 +103,95 @@ class aWindowEntry {
 		}
 	}
 	
-	public JWindow getWindow() {
+	JWindow getWindow() {
 		return window;
 	}
 	
-	public JWindow getParent() {
+	JWindow getParent() {
 		return parent;
 	}
 	
-	public Shape getShape() {
+	Shape getShape() {
 		return shape;
 	}
 	
-	public void setShape( Shape ashape ) {
+	void setShape( Shape ashape ) {
 		shape = ashape;
 	}
 	
-	public Rectangle getWindowRect() {
+	Rectangle getWindowRect() {
 		return windowRect;
 	}
 	
-	public void setWindowRect(Rectangle rect) {
+	void setWindowRect(Rectangle rect) {
 		windowRect = rect;
 	}
 	
-	public Rectangle getClientRect() {
+	Rectangle getClientRect() {
 		return clientWindowRect;
 	}
 	
-	public void setClientRect(Rectangle rect) {
+	void setClientRect(Rectangle rect) {
 		clientWindowRect = rect;
 	}
 	
-	public Rectangle getVirtualClientRect() {
+	Rectangle getVirtualClientRect() {
 		return virtualClientWindowRect;
 	}
 	
-	public void setVirtualClientRect(Rectangle rect) {
+	void setVirtualClientRect(Rectangle rect) {
 		virtualClientWindowRect = rect;
 	}
 	
-	public Rectangle getMinimalVirtualClientRect() {
+	Rectangle getMinimalVirtualClientRect() {
 		return minVirtualClientWindowRect;
 	}
 	
-	public void setMinimalVirtualClientRect(Rectangle rect) {
+	void setMinimalVirtualClientRect(Rectangle rect) {
 		minVirtualClientWindowRect = rect;
 	}
 	
-	public Rectangle getBorderSize() {
+	Rectangle getBorderSize() {
 		return borderSize;
 	}
 	
-	public void setBorderSize(Rectangle rect) {
+	void setBorderSize(Rectangle rect) {
 		borderSize = rect;
 	}
 	
-	public int getScrollBarHandle() {
+	int getScrollBarHandle() {
 		return scrollBarHandle;
 	}
 	
-	public void setScrollBarHandle( int handle ) {
+	void setScrollBarHandle( int handle ) {
 		scrollBarHandle = handle;
 	}
 	
-	public Point getWindowPosition() {
+	Point getWindowPosition() {
 		return windowPosition;
 	}
 	
-	public Point getRelativeWindowPosition() {		
+	Point getRelativeWindowPosition() {		
 		return windowRelativePosition;
 	}
 	
-	public void setWindowRelativePosition( Point p ) {
+	void setWindowRelativePosition( Point p ) {
 		windowRelativePosition = p;
 	}
 	
-	public void setWindowPosition( Point p ) {
+	void setWindowPosition( Point p ) {
 		windowPosition = p;
 	}
 	
-	public int getWindowPositionMode() {
+	int getWindowPositionMode() {
 		return windowPositionMode;
 	}
 	
-	public void setWindowPositionMode( int mode ) {
+	void setWindowPositionMode( int mode ) {
 		windowPositionMode = mode;
 	}
 	
-	public Rectangle getVisibleClientRect() {
+	Rectangle getVisibleClientRect() {
 		Rectangle rect = new Rectangle(	windowPosition.x+borderSize.x,
 										windowPosition.y+borderSize.y,
 										clientWindowRect.width,
@@ -199,14 +199,14 @@ class aWindowEntry {
 		return rect;
 	}
 	
-	public int mapX( int absX ) {
+	int mapX( int absX ) {
 		absX -= windowPosition.x;
 		absX -= borderSize.x;
 		
 		return absX;
 	}
 	
-	public int mapY( int absY ) {
+	int mapY( int absY ) {
 		absY -= windowPosition.y;
 		absY -= borderSize.y;
 		
@@ -230,35 +230,35 @@ class aWindowEntry {
 		return absY;
 	}
 	
-	public int getVScrollOffset() {
+	int getVScrollOffset() {
 		return vScrollOffset;
 	}
 	
-	public void setVScrollOffset( int offset ) {
+	void setVScrollOffset( int offset ) {
 		vScrollOffset = offset;
 	}
 	
-	public boolean isScrollable() {
+	boolean isScrollable() {
 		return enableScrolling;
 	}
 	
-	public void setScrollable( boolean scroll ) {
+	void setScrollable( boolean scroll ) {
 		enableScrolling = scroll;
 	}
 	
-	public void setOffscreenBuffer( BufferedImage img ) {
+	void setOffscreenBuffer( BufferedImage img ) {
 		offscreenBuffer = img;
 	}
 	
-	public BufferedImage getOffscreenBuffer() {
+	BufferedImage getOffscreenBuffer() {
 		return offscreenBuffer;
 	}
 	
-	public boolean getRedrawStatus() {
+	boolean getRedrawStatus() {
 		return redraw;
 	}
 	
-	public void setRedrawStatus( boolean redraw ) {
+	void setRedrawStatus( boolean redraw ) {
 		this.redraw = redraw;
 	}
 }
