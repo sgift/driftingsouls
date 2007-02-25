@@ -195,7 +195,7 @@ public class Base implements Cloneable {
 			base.put(key, value);
 		}
 		else {
-			autogtuacts = (List<AutoGTUAction>)value;
+			throw new RuntimeException("Bitte setAutoGtuActs() benutzen");
 		}
 	}
 
@@ -314,6 +314,14 @@ public class Base implements Cloneable {
 	 */
 	public List<AutoGTUAction> getAutoGTUActs() {
 		return autogtuacts;
+	}
+	
+	/**
+	 * Setzt die Liste der automatischen GTU-Verkaufsaktionen
+	 * @param list Die neue Liste
+	 */
+	public void setAutoGTUActs(List<AutoGTUAction> list) {
+		this.autogtuacts = list;
 	}
 	
 	/**
