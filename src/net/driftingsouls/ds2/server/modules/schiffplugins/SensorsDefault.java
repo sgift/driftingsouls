@@ -217,7 +217,7 @@ public class SensorsDefault implements SchiffPlugin {
 				if( user.hasFlag( User.FLAG_NO_JUMPNODE_BLOCK ) ) blocked = 0;
 							
 				t.set_var(	"node.id",		node.getInt("id"),
-							"node.name",	node.getInt("name"),
+							"node.name",	node.getString("name"),
 							"node.blocked",	blocked );
 			}
 			
