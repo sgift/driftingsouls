@@ -435,9 +435,8 @@ public class TemplateCompiler {
 			}
 		
 			// TODO
-			Common.stub();
+			throw new RuntimeException("STUB");
 			//return ".\$templateEngine->$name( ".implode( ',', $parameter )." ).";
-			return "";
 		}
 		
 		// Compilezeit-Funktionen
