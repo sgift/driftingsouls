@@ -115,7 +115,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 		
 		int sys = getInteger("sys");
 		
-		if( Systems.get().system(sys) != null ) {
+		if( Systems.get().system(sys) == null ) {
 			sys = 1;
 		}
 
