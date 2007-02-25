@@ -48,7 +48,6 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
@@ -86,12 +85,6 @@ public class Common implements Loggable {
 		if( !stubWarnList.contains(elements[1]) ) {
 			stubWarnList.add(elements[1]);
 			LOG.warn("STUB: "+elements[1].toString());
-		}
-		
-		Context context = ContextMap.getContext();
-		if( context != null ) {
-			PM.sendToAdmins(context, (context.getActiveUser() != null ? context.getActiveUser().getID() : -1), "[AUTO] STUB", elements[1].toString(), 0);
-			PM.send(context, -1, (context.getActiveUser() != null ? context.getActiveUser().getID() : -1), "[AUTO] STUB", elements[1].toString());
 		}
 	}
 	
