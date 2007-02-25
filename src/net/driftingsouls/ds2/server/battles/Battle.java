@@ -27,11 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.SystemUtils;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
@@ -52,10 +48,14 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.scripting.ScriptParser;
-import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.tick.regular.SchiffsTick;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang.math.RandomUtils;
 
 /**
  * Repraesentiert eine Schlacht in DS
@@ -1846,14 +1846,19 @@ public class Battle implements Loggable {
 		
 		if( relocate && (ship.getString("docked").length() == 0) ) {
 			StarSystem sys = Systems.get().system(this.system);
-			Random rand = new Random();
-			
+			int maxRetries = 100;
+
 			while( ((loc.getX() == this.x) && (loc.getY() == this.y)) ||
 					(loc.getX() < 1) || (loc.getY() < 1) || 
 					(loc.getX() > sys.getWidth()) ||
 					(loc.getY() > sys.getHeight()) ) {
-				loc.setX(this.x + rand.nextInt(3) - 1);
-				loc.setY(this.y + rand.nextInt(3) - 1);
+				loc = loc.setX(this.x + RandomUtils.nextInt(3) - 1);
+				loc = loc.setY(this.y + RandomUtils.nextInt(3) - 1);
+				
+				maxRetries--;
+				if( maxRetries == 0 ) {
+					break;
+				}
 			}
 		}
 
