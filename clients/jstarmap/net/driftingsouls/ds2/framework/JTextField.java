@@ -20,6 +20,7 @@
 package net.driftingsouls.ds2.framework;
 
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Vector;
 import java.util.HashMap;
 import java.awt.image.BufferedImage;
@@ -41,25 +42,38 @@ import java.util.Stack;
  *
  */
 class aTextPart {
-	public static final int TYPE_TEXT 	= 1;
-	public static final int TYPE_COLOR 	= 2;
-	public static final int TYPE_BOLD 	= 3;
-	public static final int TYPE_FONT 	= 4;
-	public static final int TYPE_ITALIC = 5;
-	public static final int TYPE_SIZE = 5;
+	static final int TYPE_TEXT 	= 1;
+	static final int TYPE_COLOR 	= 2;
+	static final int TYPE_BOLD 	= 3;
+	static final int TYPE_FONT 	= 4;
+	static final int TYPE_ITALIC = 5;
+	static final int TYPE_SIZE = 5;
 	
 	private int type;
 	private Object data;
 	
+	/**
+	 * Konstruktor
+	 * @param type Der Typ
+	 * @param data Die assoziierten Daten
+	 */
 	public aTextPart( int type, Object data ) {
 		this.type = type;
 		this.data = data;
 	}
 	
+	/**
+	 * Gibt den Typ zurueck
+	 * @return Der Typ
+	 */
 	public int getType() {
 		return type;
 	}
 	
+	/**
+	 * Gibt die assoziierten Daten zurueck
+	 * @return Die Daten
+	 */
 	public Object getData() {
 		return data;
 	}
@@ -72,162 +86,162 @@ class aTextPart {
  * @author bKtHeG (Christopher Jung)
  */
 public class JTextField extends JWindow {
-	private static HashMap colorMap;
+	private static Map<String,Integer> colorMap;
 	
 	static {
-		colorMap = new HashMap();
+		colorMap = new HashMap<String,Integer>();
 		// VGA-16 Palette
-		colorMap.put( "black", 	new Integer(0x000000) );
-		colorMap.put( "maroon",	new Integer(0x800000) );
-		colorMap.put( "green", 	new Integer(0x008000) );
-		colorMap.put( "olive", 	new Integer(0x808000) );
-		colorMap.put( "navy", 	new Integer(0x000080) );
-		colorMap.put( "purple", 	new Integer(0x800080) );
-		colorMap.put( "teal", 	new Integer(0x008080) );
-		colorMap.put( "silver", 	new Integer(0xc0c0c0) );
-		colorMap.put( "gray", 	new Integer(0x808080) );
-		colorMap.put( "red", 		new Integer(0xFF0000) );
-		colorMap.put( "lime", 	new Integer(0x00FF00) );
-		colorMap.put( "yellow", 	new Integer(0xFFFF00) );
-		colorMap.put( "blue", 	new Integer(0x0000FF) );
-		colorMap.put( "fuchsia", 	new Integer(0xFF00FF) );
-		colorMap.put( "aqua",		new Integer(0x00FFFF) );
-		colorMap.put( "white",	new Integer(0xFFFFFF) );
+		colorMap.put( "black", 	0x000000 );
+		colorMap.put( "maroon",	0x800000 );
+		colorMap.put( "green", 	0x008000 );
+		colorMap.put( "olive", 	0x808000 );
+		colorMap.put( "navy", 	0x000080 );
+		colorMap.put( "purple", 	0x800080 );
+		colorMap.put( "teal", 	0x008080 );
+		colorMap.put( "silver", 	0xc0c0c0 );
+		colorMap.put( "gray", 	0x808080 );
+		colorMap.put( "red", 		0xFF0000 );
+		colorMap.put( "lime", 	0x00FF00 );
+		colorMap.put( "yellow", 	0xFFFF00 );
+		colorMap.put( "blue", 	0x0000FF );
+		colorMap.put( "fuchsia", 	0xFF00FF );
+		colorMap.put( "aqua",		0x00FFFF );
+		colorMap.put( "white",	0xFFFFFF );
 		
 		// Netscape 120
-		colorMap.put( "aliceblue",	new Integer(0xF0F8FF) );
-		colorMap.put( "antiquewhite",	new Integer(0xFAEBD7) );
-		colorMap.put( "aquamarine",	new Integer(0x7FFFD4) );
-		colorMap.put( "azure",		new Integer(0xF0FFFF) );
-		colorMap.put( "beige",		new Integer(0xF5F5DC) );
-		colorMap.put( "blueviolet",	new Integer(0x8A2BE2) );
-		colorMap.put( "brown",		new Integer(0xA52A2A) );
-		colorMap.put( "burlywood",	new Integer(0xDEB887) );
-		colorMap.put( "cadetblue",	new Integer(0x5F9EA0) );
-		colorMap.put( "chartreuse",	new Integer(0x7FFF00) );
-		colorMap.put( "chocolate",	new Integer(0xD2691E) );
-		colorMap.put( "coral",		new Integer(0xFF7F50) );
-		colorMap.put( "cornflowerblue",	new Integer(0x6495ED) );
-		colorMap.put( "cornsilk",		new Integer(0xFFF8DC) );
-		colorMap.put( "crimson",		new Integer(0xDC143C) );
-		colorMap.put( "darkblue",		new Integer(0x00008B) );
-		colorMap.put( "darkcyan",		new Integer(0x008B8B) );
-		colorMap.put( "darkgoldenrod",new Integer(0xB8860B) );
-		colorMap.put( "darkgray",		new Integer(0xA9A9A9) );
-		colorMap.put( "darkgreen",	new Integer(0x006400) );
-		colorMap.put( "darkkhaki",	new Integer(0xBDB76B) );
-		colorMap.put( "darkmagenta",	new Integer(0x8B008B) );
-		colorMap.put( "darkolivegreen",	new Integer(0x556B2F) );
-		colorMap.put( "darkorange",	new Integer(0xFF8C00) );
-		colorMap.put( "darkorchid",	new Integer(0x9932CC) );
-		colorMap.put( "darkred",		new Integer(0x8B0000) );
-		colorMap.put( "darksalmon",	new Integer(0xE9967A) );
-		colorMap.put( "darkseagreen",	new Integer(0x8FBC8F) );
-		colorMap.put( "darkslateblue",new Integer(0x483D8B) );
-		colorMap.put( "darkslategray",new Integer(0x2F4F4F) );
-		colorMap.put( "darkturquoise",new Integer(0x00CED1) );
-		colorMap.put( "darkviolet",	new Integer(0x9400D3) );
-		colorMap.put( "deeppink",		new Integer(0xFF1493) );
-		colorMap.put( "deepskyblue",	new Integer(0x00BFFF) );
-		colorMap.put( "dimgray",		new Integer(0x696969) );
-		colorMap.put( "dodgerblue",	new Integer(0x1E90FF) );
-		colorMap.put( "firebrick",	new Integer(0xB22222) );
-		colorMap.put( "floralwhite",	new Integer(0xFFFAF0) );
-		colorMap.put( "forestgreen",	new Integer(0x228B22) );
-		colorMap.put( "gainsboro",	new Integer(0xDCDCDC) );
-		colorMap.put( "ghostwhite",	new Integer(0xF8F8FF) );
-		colorMap.put( "gold",			new Integer(0xFFD700) );
-		colorMap.put( "goldenrod",	new Integer(0xDAA520) );
-		colorMap.put( "greenyellow",	new Integer(0xADFF2F) );
-		colorMap.put( "honeydew",		new Integer(0xF0FFF0) );
-		colorMap.put( "hotpink",		new Integer(0xFF69B4) );
-		colorMap.put( "indianred",	new Integer(0xCD5C5C) );
-		colorMap.put( "indigo",		new Integer(0x4B0082) );
-		colorMap.put( "ivory",		new Integer(0xFFFFF0) );
-		colorMap.put( "khaki",		new Integer(0xF0E68C) );
-		colorMap.put( "lavender",		new Integer(0xE6E6FA) );
-		colorMap.put( "lavenderblush",new Integer(0xFFF0F5) );
-		colorMap.put( "lawngreen",	new Integer(0x7CFC00) );
-		colorMap.put( "lemonchiffon",	new Integer(0xFFFACD) );
-		colorMap.put( "lightblue",	new Integer(0xADD8E6) );
-		colorMap.put( "lightcoral",	new Integer(0xF08080) );
-		colorMap.put( "lightcyan",	new Integer(0xE0FFFF) );
-		colorMap.put( "lightgoldenrodyellow",	new Integer(0xFAFAD2) );
-		colorMap.put( "lightgreen",	new Integer(0x90EE90) );
-		colorMap.put( "lightgrey",	new Integer(0xD3D3D3) );
-		colorMap.put( "lightpink",	new Integer(0xFFB6C1) );
-		colorMap.put( "lightsalmon",	new Integer(0xFFA07A) );
-		colorMap.put( "lightseagreen",new Integer(0x20B2AA) );
-		colorMap.put( "lightskyblue",	new Integer(0x87CEFA) );
-		colorMap.put( "lightslategray",	new Integer(0x778899) );
-		colorMap.put( "lightsteelblue",	new Integer(0xB0C4DE) );
-		colorMap.put( "lightyellow",	new Integer(0xFFFFE0) );
-		colorMap.put( "limegreen",	new Integer(0x32CD32) );
-		colorMap.put( "linen",		new Integer(0xFAF0E6) );
-		colorMap.put( "mediumaquamarine",	new Integer(0x66CDAA) );
-		colorMap.put( "mediumblue",	new Integer(0x0000CD) );
-		colorMap.put( "mediumorchid",	new Integer(0xBA55D3) );
-		colorMap.put( "mediumpurple",	new Integer(0x9370DB) );
-		colorMap.put( "mediumseagreen",	new Integer(0x3CB371) );
-		colorMap.put( "mediumslateblue",	new Integer(0x7B68EE) );
-		colorMap.put( "mediumspringgreen",new Integer(0x00FA9A) );
-		colorMap.put( "mediumturquoise",	new Integer(0x48D1CC) );
-		colorMap.put( "mediumvioletred",	new Integer(0xC71585) );
-		colorMap.put( "midnightblue",	new Integer(0x191970) );
-		colorMap.put( "mintcream",	new Integer(0xF5FFFA) );
-		colorMap.put( "mistyrose",	new Integer(0xFFE4E1) );
-		colorMap.put( "moccasin",		new Integer(0xFFE4B5) );
-		colorMap.put( "navajowhite",	new Integer(0xFFDEAD) );
-		colorMap.put( "oldlace",		new Integer(0xFDF5E6) );
-		colorMap.put( "olivedrab",	new Integer(0x6B8E23) );
-		colorMap.put( "orange",		new Integer(0xFFA500) );
-		colorMap.put( "orangered",	new Integer(0xFF4500) );
-		colorMap.put( "orchid",		new Integer(0xDA70D6) );
-		colorMap.put( "palegoldenrod",new Integer(0xEEE8AA) );
-		colorMap.put( "palegreen",	new Integer(0x98FB98) );
-		colorMap.put( "paleturquoise",new Integer(0xAFEEEE) );
-		colorMap.put( "palevioletred",new Integer(0xDB7093) );
-		colorMap.put( "papayawhip",	new Integer(0xFFEFD5) );
-		colorMap.put( "peachpuff",	new Integer(0xFFDAB9) );
-		colorMap.put( "peru",			new Integer(0xCD853F) );
-		colorMap.put( "pink",			new Integer(0xFFC0CB) );
-		colorMap.put( "plum",			new Integer(0xDDA0DD) );
-		colorMap.put( "powderblue",	new Integer(0xB0E0E6) );
-		colorMap.put( "rosybrown",	new Integer(0xBC8F8F) );
-		colorMap.put( "royalblue",	new Integer(0x4169E1) );
-		colorMap.put( "saddlebrown",	new Integer(0x8B4513) );
-		colorMap.put( "salmon",		new Integer(0xFA8072) );
-		colorMap.put( "sandybrown",	new Integer(0xF4A460) );
-		colorMap.put( "seagreen",		new Integer(0x2E8B57) );
-		colorMap.put( "seashell",		new Integer(0xFFF5EE) );
-		colorMap.put( "sienna",		new Integer(0xA0522D) );
-		colorMap.put( "skyblue",		new Integer(0x87CEEB) );
-		colorMap.put( "slateblue",	new Integer(0x6A5ACD) );
-		colorMap.put( "slategray",	new Integer(0x708090) );
-		colorMap.put( "snow",			new Integer(0xFFFAFA) );
-		colorMap.put( "springgreen",	new Integer(0x00FF7F) );
-		colorMap.put( "steelblue",	new Integer(0x4682B4) );
-		colorMap.put( "tan",			new Integer(0xD2B48C) );
-		colorMap.put( "thistle",		new Integer(0xD8BFD8) );
-		colorMap.put( "tomato",		new Integer(0xFF6347) );
-		colorMap.put( "turquoise",	new Integer(0x40E0D0) );
-		colorMap.put( "violet",		new Integer(0xEE82EE) );
-		colorMap.put( "wheat",		new Integer(0xF5DEB3) );
-		colorMap.put( "whitesmoke",	new Integer(0xF5F5F5) );
-		colorMap.put( "yellowgreen",	new Integer(0x9ACD32) );
+		colorMap.put( "aliceblue",	0xF0F8FF );
+		colorMap.put( "antiquewhite",	0xFAEBD7 );
+		colorMap.put( "aquamarine",	0x7FFFD4 );
+		colorMap.put( "azure",		0xF0FFFF );
+		colorMap.put( "beige",		0xF5F5DC );
+		colorMap.put( "blueviolet",	0x8A2BE2 );
+		colorMap.put( "brown",		0xA52A2A );
+		colorMap.put( "burlywood",	0xDEB887 );
+		colorMap.put( "cadetblue",	0x5F9EA0 );
+		colorMap.put( "chartreuse",	0x7FFF00 );
+		colorMap.put( "chocolate",	0xD2691E );
+		colorMap.put( "coral",		0xFF7F50 );
+		colorMap.put( "cornflowerblue",	0x6495ED );
+		colorMap.put( "cornsilk",		0xFFF8DC );
+		colorMap.put( "crimson",		0xDC143C );
+		colorMap.put( "darkblue",		0x00008B );
+		colorMap.put( "darkcyan",		0x008B8B );
+		colorMap.put( "darkgoldenrod",0xB8860B );
+		colorMap.put( "darkgray",		0xA9A9A9 );
+		colorMap.put( "darkgreen",	0x006400 );
+		colorMap.put( "darkkhaki",	0xBDB76B );
+		colorMap.put( "darkmagenta",	0x8B008B );
+		colorMap.put( "darkolivegreen",	0x556B2F );
+		colorMap.put( "darkorange",	0xFF8C00 );
+		colorMap.put( "darkorchid",	0x9932CC );
+		colorMap.put( "darkred",		0x8B0000 );
+		colorMap.put( "darksalmon",	0xE9967A );
+		colorMap.put( "darkseagreen",	0x8FBC8F );
+		colorMap.put( "darkslateblue",0x483D8B );
+		colorMap.put( "darkslategray",0x2F4F4F );
+		colorMap.put( "darkturquoise",0x00CED1 );
+		colorMap.put( "darkviolet",	0x9400D3 );
+		colorMap.put( "deeppink",		0xFF1493 );
+		colorMap.put( "deepskyblue",	0x00BFFF );
+		colorMap.put( "dimgray",		0x696969 );
+		colorMap.put( "dodgerblue",	0x1E90FF );
+		colorMap.put( "firebrick",	0xB22222 );
+		colorMap.put( "floralwhite",	0xFFFAF0 );
+		colorMap.put( "forestgreen",	0x228B22 );
+		colorMap.put( "gainsboro",	0xDCDCDC );
+		colorMap.put( "ghostwhite",	0xF8F8FF );
+		colorMap.put( "gold",			0xFFD700 );
+		colorMap.put( "goldenrod",	0xDAA520 );
+		colorMap.put( "greenyellow",	0xADFF2F );
+		colorMap.put( "honeydew",		0xF0FFF0 );
+		colorMap.put( "hotpink",		0xFF69B4 );
+		colorMap.put( "indianred",	0xCD5C5C );
+		colorMap.put( "indigo",		0x4B0082 );
+		colorMap.put( "ivory",		0xFFFFF0 );
+		colorMap.put( "khaki",		0xF0E68C );
+		colorMap.put( "lavender",		0xE6E6FA );
+		colorMap.put( "lavenderblush",0xFFF0F5 );
+		colorMap.put( "lawngreen",	0x7CFC00 );
+		colorMap.put( "lemonchiffon",	0xFFFACD );
+		colorMap.put( "lightblue",	0xADD8E6 );
+		colorMap.put( "lightcoral",	0xF08080 );
+		colorMap.put( "lightcyan",	0xE0FFFF );
+		colorMap.put( "lightgoldenrodyellow",	0xFAFAD2 );
+		colorMap.put( "lightgreen",	0x90EE90 );
+		colorMap.put( "lightgrey",	0xD3D3D3 );
+		colorMap.put( "lightpink",	0xFFB6C1 );
+		colorMap.put( "lightsalmon",	0xFFA07A );
+		colorMap.put( "lightseagreen",0x20B2AA );
+		colorMap.put( "lightskyblue",	0x87CEFA );
+		colorMap.put( "lightslategray",	0x778899 );
+		colorMap.put( "lightsteelblue",	0xB0C4DE );
+		colorMap.put( "lightyellow",	0xFFFFE0 );
+		colorMap.put( "limegreen",	0x32CD32 );
+		colorMap.put( "linen",		0xFAF0E6 );
+		colorMap.put( "mediumaquamarine",	0x66CDAA );
+		colorMap.put( "mediumblue",	0x0000CD );
+		colorMap.put( "mediumorchid",	0xBA55D3 );
+		colorMap.put( "mediumpurple",	0x9370DB );
+		colorMap.put( "mediumseagreen",	0x3CB371 );
+		colorMap.put( "mediumslateblue",	0x7B68EE );
+		colorMap.put( "mediumspringgreen",0x00FA9A );
+		colorMap.put( "mediumturquoise",	0x48D1CC );
+		colorMap.put( "mediumvioletred",	0xC71585 );
+		colorMap.put( "midnightblue",	0x191970 );
+		colorMap.put( "mintcream",	0xF5FFFA );
+		colorMap.put( "mistyrose",	0xFFE4E1 );
+		colorMap.put( "moccasin",		0xFFE4B5 );
+		colorMap.put( "navajowhite",	0xFFDEAD );
+		colorMap.put( "oldlace",		0xFDF5E6 );
+		colorMap.put( "olivedrab",	0x6B8E23 );
+		colorMap.put( "orange",		0xFFA500 );
+		colorMap.put( "orangered",	0xFF4500 );
+		colorMap.put( "orchid",		0xDA70D6 );
+		colorMap.put( "palegoldenrod",0xEEE8AA );
+		colorMap.put( "palegreen",	0x98FB98 );
+		colorMap.put( "paleturquoise",0xAFEEEE );
+		colorMap.put( "palevioletred",0xDB7093 );
+		colorMap.put( "papayawhip",	0xFFEFD5 );
+		colorMap.put( "peachpuff",	0xFFDAB9 );
+		colorMap.put( "peru",			0xCD853F );
+		colorMap.put( "pink",			0xFFC0CB );
+		colorMap.put( "plum",			0xDDA0DD );
+		colorMap.put( "powderblue",	0xB0E0E6 );
+		colorMap.put( "rosybrown",	0xBC8F8F );
+		colorMap.put( "royalblue",	0x4169E1 );
+		colorMap.put( "saddlebrown",	0x8B4513 );
+		colorMap.put( "salmon",		0xFA8072 );
+		colorMap.put( "sandybrown",	0xF4A460 );
+		colorMap.put( "seagreen",		0x2E8B57 );
+		colorMap.put( "seashell",		0xFFF5EE );
+		colorMap.put( "sienna",		0xA0522D );
+		colorMap.put( "skyblue",		0x87CEEB );
+		colorMap.put( "slateblue",	0x6A5ACD );
+		colorMap.put( "slategray",	0x708090 );
+		colorMap.put( "snow",			0xFFFAFA );
+		colorMap.put( "springgreen",	0x00FF7F );
+		colorMap.put( "steelblue",	0x4682B4 );
+		colorMap.put( "tan",			0xD2B48C );
+		colorMap.put( "thistle",		0xD8BFD8 );
+		colorMap.put( "tomato",		0xFF6347 );
+		colorMap.put( "turquoise",	0x40E0D0 );
+		colorMap.put( "violet",		0xEE82EE );
+		colorMap.put( "wheat",		0xF5DEB3 );
+		colorMap.put( "whitesmoke",	0xF5F5F5 );
+		colorMap.put( "yellowgreen",	0x9ACD32 );
 		
 		// Weitere (weil einige sich immer vertippen)
-		colorMap.put( "grey", 	new Integer(0x808080) );
+		colorMap.put( "grey", 	0x808080 );
 	}
 	
-	private LinkedList lineList;
-	private Vector textHeights;
+	private LinkedList<Vector<aTextPart>> lineList;
+	private Vector<Integer> textHeights;
 	private BufferedImage textImage;
 	
 	private String fontName;
 	
 	private String dialogText;
-	private int wantedHeight;
+	//private int wantedHeight;
 	private int oldWidth;
 	
 	/**
@@ -243,8 +257,8 @@ public class JTextField extends JWindow {
 		lineList = null;
 		textImage = null;
 		dialogText = " ";
-		textHeights = new Vector();
-		wantedHeight = getClientHeight();
+		textHeights = new Vector<Integer>();
+		//wantedHeight = getClientHeight();
 		
 		fontName = myfont;
 		
@@ -259,15 +273,15 @@ public class JTextField extends JWindow {
 	private void parseText( Graphics2D g ) {
 		// Text berechnen
 	
-		lineList = new LinkedList();
+		lineList = new LinkedList<Vector<aTextPart>>();
 		
-		Stack colors = new Stack();
-		colors.push(new Integer(0xc7c7c7));
+		Stack<Integer> colors = new Stack<Integer>();
+		colors.push(0xc7c7c7);
 		
-		Stack fonts = new Stack();
+		Stack<Font> fonts = new Stack<Font>();
 		fonts.push( g.getFont() );
 		
-		textHeights = new Vector();
+		textHeights = new Vector<Integer>();
 		
 		dialogText = dialogText.replaceAll("&auml;","ä");
 		dialogText = dialogText.replaceAll("&ouml;","ö");
@@ -292,7 +306,7 @@ public class JTextField extends JWindow {
 		/*String lineList[] = dialogText.split("\n");
 		for( int i=0; i < lineList.length; i++ ) {
 			String currentline = lineList[i];*/
-			Vector textvector = new Vector();
+			Vector<aTextPart> textvector = new Vector<aTextPart>();
 			StringBuffer tmpText = new StringBuffer();
 			int lineLength = 0;
 			StringBuffer word = new StringBuffer();
@@ -314,7 +328,7 @@ public class JTextField extends JWindow {
 							textHeights.add( new Integer(currentHeight) );
 							currentHeight = g.getFontMetrics().getHeight()+2;
 
-							textvector = new Vector();
+							textvector = new Vector<aTextPart>();
 							lineLength = 0;
 							tmpText = new StringBuffer(word);
 						}
@@ -344,7 +358,7 @@ public class JTextField extends JWindow {
 							textHeights.add( new Integer(currentHeight) );
 							currentHeight = g.getFontMetrics().getHeight()+2;
 							
-							textvector = new Vector();
+							textvector = new Vector<aTextPart>();
 							lineLength = 0;
 							tmpText = new StringBuffer(word);
 						}
@@ -450,7 +464,7 @@ public class JTextField extends JWindow {
 							}
 						}
 						else if( colorMap.get(colorcode.toLowerCase()) != null ) {
-							colorvalue = (Integer)colorMap.get(colorcode.toLowerCase());
+							colorvalue = colorMap.get(colorcode.toLowerCase());
 						}
 						else {
 							try {
@@ -472,7 +486,7 @@ public class JTextField extends JWindow {
 						if( colors.size() > 1 ) {
 							colors.pop(); //Tag "schliessen"
 							
-							Integer colorvalue = (Integer)colors.peek();
+							Integer colorvalue = colors.peek();
 							
 							textvector.add(new aTextPart(aTextPart.TYPE_COLOR,colorvalue));
 						}
@@ -502,7 +516,7 @@ public class JTextField extends JWindow {
 						if( fonts.size() > 1 ) {
 							fonts.pop(); //Tag "schliessen"
 							
-							Font oldFont = (Font)fonts.peek();
+							Font oldFont = fonts.peek();
 							
 							g.setFont(oldFont);
 							
@@ -545,7 +559,7 @@ public class JTextField extends JWindow {
 						if( fonts.size() > 1 ) {
 							fonts.pop(); //Tag "schliessen"
 							
-							Font oldFont = (Font)fonts.peek();
+							Font oldFont = fonts.peek();
 							
 							g.setFont(oldFont);
 							
@@ -581,7 +595,7 @@ public class JTextField extends JWindow {
 						if( fonts.size() > 1 ) {
 							fonts.pop(); //Tag "schliessen"
 							
-							Font oldFont = (Font)fonts.peek();
+							Font oldFont = fonts.peek();
 							
 							g.setFont(oldFont);
 							
@@ -636,7 +650,7 @@ public class JTextField extends JWindow {
 						if( fonts.size() > 1 ) {
 							fonts.pop(); //Tag "schliessen"
 							
-							Font oldFont = (Font)fonts.peek();
+							Font oldFont = fonts.peek();
 							
 							g.setFont(oldFont);
 							
@@ -669,7 +683,7 @@ public class JTextField extends JWindow {
 									textHeights.add( new Integer(currentHeight) );
 									currentHeight = g.getFontMetrics().getHeight()+2;
 
-									textvector = new Vector();
+									textvector = new Vector<aTextPart>();
 									lineLength = 0;
 									tmpText = new StringBuffer(word);
 								}
@@ -701,7 +715,7 @@ public class JTextField extends JWindow {
 					textHeights.add( new Integer(currentHeight) );
 					currentHeight = g.getFontMetrics().getHeight()+2;
 
-					textvector = new Vector();
+					textvector = new Vector<aTextPart>();
 					lineLength = 0;
 					tmpText = new StringBuffer(word);
 				}
@@ -717,7 +731,7 @@ public class JTextField extends JWindow {
 			}
 			
 			this.lineList.add(textvector);
-			textvector = new Vector();
+			textvector = new Vector<aTextPart>();
 				
 			textHeights.add( new Integer(currentHeight) );
 			currentHeight = g.getFontMetrics().getHeight()+2;
@@ -755,7 +769,7 @@ public class JTextField extends JWindow {
 		// Hoehe anpassen
 		int height = -2;
 		for( int i = 0; i < textHeights.size(); i++ ) {
-			height += ((Integer)textHeights.get(i)).intValue();
+			height += textHeights.get(i);
 		}
 		
 		if( height <= 0 ) {
@@ -764,7 +778,7 @@ public class JTextField extends JWindow {
 		
 		if( height != getClientHeight() ) {
 			needresize = true;
-			wantedHeight = height;
+			//wantedHeight = height;
 		}
 		
 		localg.dispose();
@@ -791,16 +805,16 @@ public class JTextField extends JWindow {
 		int yPosition = -4;
 		int xPosition = 0;
 		aTextPart txtpart = null;
-		Vector linevector = null;
+		Vector<aTextPart> linevector = null;
 		
 		for( int i=0; i < lineList.size(); i++ ) {
 			xPosition = 0;
-			yPosition += ((Integer)textHeights.get(i)).intValue();
+			yPosition += textHeights.get(i);
 			
-			linevector = (Vector)lineList.get(i);
+			linevector = lineList.get(i);
 			
 			for( int j = 0; j < linevector.size(); j++ ) {
-				txtpart = (aTextPart)linevector.get(j);
+				txtpart = linevector.get(j);
 				
 				if( txtpart.getType() == aTextPart.TYPE_TEXT ) {
 					localg.drawString(txtpart.getData().toString(),xPosition,yPosition);
@@ -834,6 +848,7 @@ public class JTextField extends JWindow {
 		getWindowManager().requestRedraw(this);
 	}
 	
+	@Override
 	public void onResize() {
 		if( (dialogText != "") && (getClientWidth() != oldWidth) ) {
 			setText(dialogText);
@@ -844,6 +859,7 @@ public class JTextField extends JWindow {
 		super.onResize();
 	}
 	
+	@Override
 	public void paint(Graphics2D g) {				
 		super.paint(g);
 		

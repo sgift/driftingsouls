@@ -31,11 +31,11 @@ import java.awt.geom.GeneralPath;
  * @author Christopher Jung
  */
 public class JDialog extends JWindow {
-	private JImageCache imageCache;
-	
-	private int screenWidth;
-	private int screenHeight;
-		
+	/**
+	 * Konstruktor
+	 * @param parent Das Elternfenster
+	 * @param windowmanager Der Fenstermanager
+	 */
 	public JDialog( JWindow parent, IWindowManager windowmanager ) {
 		super( parent, windowmanager );
 		
@@ -53,30 +53,37 @@ public class JDialog extends JWindow {
 		setBorder( 19, 18, 19, 18 );
 	}
 	
+	@Override
 	public boolean mouseClicked(int x, int y, int button) {
 		return true;
 	}
 	
+	@Override
 	public boolean mousePressed(int x, int y, int button) {
 		return true;
 	}
 	
+	@Override
 	public boolean mouseReleased(int x, int y, int button) {
 		return true;
 	}
 	
+	@Override
 	public boolean mouseDragged(int x, int y, int button) {
 		return true;
 	}
 	
+	@Override
 	public boolean mouseMoved(int x, int y, int button) {
 		return true;
 	}
 	
+	@Override
 	public void mouseExited(int x, int y, int button) {
 		return;
 	}
 	
+	@Override
 	public void paint(Graphics2D g) {
 		super.paint(g);
 		
@@ -125,6 +132,7 @@ public class JDialog extends JWindow {
 				cx,cy,cw,ch,null);
 	}
 	
+	@Override
 	public Shape getShape() {
 		GeneralPath path = new GeneralPath();
 		path.moveTo(getX()+16,getY());	

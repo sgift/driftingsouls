@@ -44,6 +44,11 @@ public class JScrollBar extends JWindow {
 	
 	private boolean showButtons;
 	
+	/**
+	 * Konstruktor
+	 * @param parent Das Elternfenster
+	 * @param windowmanager Der Fenstermanager
+	 */
 	public JScrollBar( JWindow parent, IWindowManager windowmanager ) {
 		super( parent, windowmanager );
 		
@@ -68,6 +73,7 @@ public class JScrollBar extends JWindow {
 		getImageCache().getImage("interface/scrollbar/top_h.png",false);
 	}
 	
+	@Override
 	public void onResize() {
 		super.onResize();
 		
@@ -80,6 +86,7 @@ public class JScrollBar extends JWindow {
 		getWindowManager().requestRedraw(this);
 	}
 	
+	@Override
 	public boolean mousePressed( int x, int y, int button ) {
 		boolean result = super.mousePressed( x, y, button );
 		
@@ -119,8 +126,9 @@ public class JScrollBar extends JWindow {
 		return true;
 	}
 	
+	@Override
 	public boolean mouseMoved( int x, int y, int button ) {
-		boolean result = super.mouseMoved( x, y, button );
+		/*boolean result = */super.mouseMoved( x, y, button );
 	
 		if( x <= 29 ) {
 			// Oberer Button
@@ -178,6 +186,7 @@ public class JScrollBar extends JWindow {
 		return true;
 	}
 	
+	@Override
 	public boolean mouseReleased( int x, int y, int button ) {
 		boolean result = super.mouseReleased(x,y,button);
 		
@@ -198,6 +207,7 @@ public class JScrollBar extends JWindow {
 		return result;
 	}
 	
+	@Override
 	public void mouseExited( int x, int y, int button ) {
 		super.mouseExited(x,y,button);
 		
@@ -216,6 +226,7 @@ public class JScrollBar extends JWindow {
 		return;
 	}
 	
+	@Override
 	public boolean mouseDragged( int x, int y, int button ) {
 		boolean result = super.mouseReleased(x,y,button);
 		
@@ -243,7 +254,7 @@ public class JScrollBar extends JWindow {
 				double vso = getParent().getVScrollOverflow();		// Sonst begreift Java ja nicht, dass es mit Kommawerten rechnen soll....
 				double ch = getClientHeight() - (addOffset*2+20);
 				
-				getParent().vScrollClientWindow((int)((double)diff*(vso/ch)));
+				getParent().vScrollClientWindow((int)(diff*(vso/ch)));
 				
 				double vsoff = -getParent().getVScrollOffset();
 				
@@ -262,6 +273,7 @@ public class JScrollBar extends JWindow {
 		return result;
 	}
 	
+	@Override
 	public void paint( Graphics2D g ) {
 		int addOffset = 0;
 		
