@@ -270,7 +270,7 @@ public class ScanController extends DSGenerator {
 			while( battle.next() ) {
 				boolean questbattle = false;
 				
-				if( battle.getString("visibility").length() != 0 ) {
+				if( (battle.getString("visibility") != null) && (battle.getString("visibility").length() != 0) ) {
 					Integer[] visibility = Common.explodeToInteger(",",battle.getString("visibility"));
 					if( !Common.inArray(user.getID(),visibility) ) {
 						questbattle = true;
