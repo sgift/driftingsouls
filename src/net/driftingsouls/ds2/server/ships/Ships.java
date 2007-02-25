@@ -1093,21 +1093,37 @@ public class Ships implements Loggable {
 		return new MovementResult(distance, moved, error);
 	}
 	
+	/**
+	 * Enthaelt die Daten der Schiffe in einer Flotte, welche sich gerade bewegt
+	 *
+	 */
+	private static class FleetMovementData {
+		FleetMovementData() {
+			// EMPTY
+		}
+		
+		/**
+		 * Die Schiffe in der Flotte
+		 */
+		Map<Integer,SQLResultRow> ships = new HashMap<Integer,SQLResultRow>();
+		/**
+		 * Die Offiziere auf den Schiffen der Flotte
+		 */
+		Map<Integer,Offizier> offiziere = new HashMap<Integer,Offizier>();
+	}
+	
 	private static boolean moveFleet(SQLResultRow ship, int direction, boolean forceLowHeat)  {
 		StringBuilder out = MESSAGE.get();
 		boolean error = false;
 		
 		boolean firstEntry = true;
 		Context context = ContextMap.getContext();
-		HashMap<Integer,SQLResultRow> fleetships = (HashMap<Integer,SQLResultRow>)context.getVariable(Ships.class, "fleetships");
-		HashMap<Integer,Offizier> fleetoffiziere = (HashMap<Integer,Offizier>)context.getVariable(Ships.class, "fleetoffiziere");
+		FleetMovementData fleetdata = (FleetMovementData)context.getVariable(Ships.class, "fleetdata");
 		
-		if( fleetships == null ) {
-			fleetships = new HashMap<Integer,SQLResultRow>();
-			fleetoffiziere = new HashMap<Integer,Offizier>();
+		if( fleetdata == null ) {
+			fleetdata = new FleetMovementData();
 			
-			context.putVariable(Ships.class, "fleetships", fleetships);
-			context.putVariable(Ships.class, "fleetoffiziere", fleetoffiziere);
+			context.putVariable(Ships.class, "fleetdata", fleetdata);
 			
 			Database db = context.getDatabase();
 			
@@ -1161,10 +1177,10 @@ public class Ships implements Loggable {
 					}
 				
 					if( fleetship.getString("status").indexOf("offizier") > -1 ) {
-						fleetoffiziere.put(fleetship.getInt("id"), Offizier.getOffizierByDest('s', fleetship.getInt("id")));
+						fleetdata.offiziere.put(fleetship.getInt("id"), Offizier.getOffizierByDest('s', fleetship.getInt("id")));
 					}
 									
-					fleetships.put(fleetship.getInt("id"), fleetship);
+					fleetdata.ships.put(fleetship.getInt("id"), fleetship);
 				}
 			}
 			fleetshipRow.free();
@@ -1174,7 +1190,7 @@ public class Ships implements Loggable {
 			return error;
 		}
 		
-		for( SQLResultRow fleetship : fleetships.values() ) {
+		for( SQLResultRow fleetship : fleetdata.ships.values() ) {
 			if( firstEntry ) {
 				firstEntry = false;
 				out.append("<table class=\"noBorder\">\n");
@@ -1183,7 +1199,7 @@ public class Ships implements Loggable {
 			out.append("<tr>\n");
 			out.append("<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange; font-size:12px\"> "+fleetship.getString("name")+" ("+fleetship.getInt("id")+"):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n");
 					
-			Offizier offizierf = fleetoffiziere.get(fleetship.getInt("id"));
+			Offizier offizierf = fleetdata.offiziere.get(fleetship.getInt("id"));
 	
 			SQLResultRow shiptype = getShipType(fleetship);
 			
@@ -1204,24 +1220,23 @@ public class Ships implements Loggable {
 	
 	private static void saveFleetShips() {	
 		Context context = ContextMap.getContext();
-		HashMap<Integer,SQLResultRow> fleetships = (HashMap<Integer,SQLResultRow>)context.getVariable(Ships.class, "fleetships");
-		HashMap<Integer,Offizier> fleetoffiziere = (HashMap<Integer,Offizier>)context.getVariable(Ships.class, "fleetoffiziere");
+		FleetMovementData fleetdata = (FleetMovementData)context.getVariable(Ships.class, "fleetdata");
 		
-		if( fleetships != null ) {
+		if( fleetdata != null ) {
 			Database db = context.getDatabase();
 			
 			PreparedQuery updateShip = db.prepare("UPDATE ships SET x= ?, y= ?, e= ?, s= ?, engine= ? WHERE id= ?"); 
 			PreparedQuery updateDocked = db.prepare("UPDATE ships SET x= ?, y= ?, system= ? WHERE id>0 AND docked IN ( ? , ?)");
 			
-			for( SQLResultRow fleetship : fleetships.values() ) {
+			for( SQLResultRow fleetship : fleetdata.ships.values() ) {
 				updateShip.update(fleetship.getInt("x"), fleetship.getInt("y"), fleetship.getInt("e"), fleetship.getInt("s"), fleetship.getInt("engine"), fleetship.getInt("id"));
 
 				if( fleetship.getInt("dockedcount") > 0 ) {
 					updateDocked.update(fleetship.getInt("x"), fleetship.getInt("y"), fleetship.getInt("system"), "l "+fleetship.getInt("id"), fleetship.getInt("id"));
 				}
 	
-				if( fleetoffiziere.containsKey(fleetship.getInt("id")) ) {
-					fleetoffiziere.get(fleetship.getInt("id")).save();	
+				if( fleetdata.offiziere.containsKey(fleetship.getInt("id")) ) {
+					fleetdata.offiziere.get(fleetship.getInt("id")).save();	
 				}
 				
 				recalculateShipStatus(fleetship.getInt("id"));
