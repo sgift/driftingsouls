@@ -45,7 +45,12 @@ public abstract class Core {
 	public static synchronized Core getCore(Database db, int id) {
 		if( !coreCache.containsKey(id) ) {
 			SQLResultRow row = db.first("SELECT * FROM cores WHERE id='",id,"'");
-			coreCache.put(id, new DefaultCore(row));
+			if( row.isEmpty() ) {
+				coreCache.put(id, null);
+			}
+			else {
+				coreCache.put(id, new DefaultCore(row));
+			}
 		}
 		return coreCache.get(id);
 	}
