@@ -39,7 +39,7 @@ class TagURL implements BBCodeFunction {
 	public String handleMatch(String title, String ... options) {
 		String url = title;
 		
-		if( options.length != 0 ) {
+		if( (options != null) && (options.length != 0) ) {
 			url = options[0];
 			if( "".equals(title.trim()) ) {
 				title = url;
