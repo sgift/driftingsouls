@@ -1862,8 +1862,8 @@ public class Battle implements Loggable {
 			}
 		}
 
-		int side = db.query("SELECT side FROM battles_ships WHERE shipid=",ship.getInt("id")).getInt("side");
-		int dockcount = db.query("SELECT count(*) count FROM ships WHERE docked IN ('l ",ship.getInt("id"),"','",ship.getInt("id"),"')").getInt("count");
+		int side = db.first("SELECT side FROM battles_ships WHERE shipid=",ship.getInt("id")).getInt("side");
+		int dockcount = db.first("SELECT count(*) count FROM ships WHERE docked IN ('l ",ship.getInt("id"),"','",ship.getInt("id"),"')").getInt("count");
 		
 		db.update("UPDATE ships SET battle=0,battleAction=0,x=",loc.getX(),",y=",loc.getY()," WHERE id>0 AND id=",ship.getInt("id"));
 		db.update("DELETE FROM battles_ships WHERE shipid=",ship.getInt("id"));
