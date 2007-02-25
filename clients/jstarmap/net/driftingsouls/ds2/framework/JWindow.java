@@ -41,7 +41,7 @@ public class JWindow {
 	private IWindowManager windowmanager;
 	private JWindow parent;
 	
-	private boolean disableVScrolling;
+	//private boolean disableVScrolling;
 	
 	/**
 	 * Erzeugt ein neues Fenster

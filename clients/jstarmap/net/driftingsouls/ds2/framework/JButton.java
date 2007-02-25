@@ -87,6 +87,7 @@ public class JButton extends JWindow {
 		}
 	}
 	
+	@Override
 	public boolean mouseMoved( int x, int y, int button ) {
 		super.mouseMoved(x, y, button);
 		
@@ -98,6 +99,7 @@ public class JButton extends JWindow {
 		return true;
 	}
 	
+	@Override
 	public void mouseExited( int x, int y, int button ) {
 		super.mouseExited( x, y, button );
 		
@@ -108,6 +110,7 @@ public class JButton extends JWindow {
 		}
 	}
 	
+	@Override
 	public boolean mousePressed( int x, int y, int button ) {
 		boolean result = super.mousePressed( x, y, button );
 		
@@ -131,6 +134,7 @@ public class JButton extends JWindow {
 		return result;
 	}
 	
+	@Override
 	public boolean mouseReleased( int x, int y, int button ) {
 		super.mouseReleased( x, y, button );
 		
@@ -147,6 +151,7 @@ public class JButton extends JWindow {
 		return true;
 	}
 	
+	@Override
 	public void paint( Graphics2D g ) {
 		if( (status == MODE_NORMAL) && (imgNormal != "") ) {
 			g.drawImage( getImageCache().getImage(imgNormal, false),

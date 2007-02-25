@@ -72,7 +72,7 @@ public class JCheckBox extends JWindow {
 	
 	/**
 	 * Gibt den CheckBox-Text zurück
-	 * @return
+	 * @return Der Text der CheckBox
 	 */
 	public String getText() {
 		return text;
@@ -95,6 +95,7 @@ public class JCheckBox extends JWindow {
 		this.checked = checked;
 	}
 
+	@Override
 	public boolean mousePressed(int x, int y, int button) {
 		boolean result = super.mousePressed(x, y, button);
 		if( (x <= 18) && (y <= 18) ) {
@@ -107,6 +108,7 @@ public class JCheckBox extends JWindow {
 		return result;
 	}
 	
+	@Override
 	public void onResize() {
 		super.onResize();
 		
@@ -117,6 +119,7 @@ public class JCheckBox extends JWindow {
 		}
 	}
 	
+	@Override
 	public void paint(Graphics2D g) {
 		super.paint(g);
 		

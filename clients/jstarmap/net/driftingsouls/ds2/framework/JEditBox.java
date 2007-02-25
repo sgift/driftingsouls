@@ -89,6 +89,7 @@ public class JEditBox extends JWindow {
 		return m_text;
 	}
 	
+	@Override
 	public void onResize() {
 		super.onResize();
 		
@@ -105,6 +106,7 @@ public class JEditBox extends JWindow {
 		}
 	}
 	
+	@Override
 	public boolean keyPressed( int keycode, char key ) {
 		if( keycode == KeyEvent.VK_BACK_SPACE ) {
 			if( (m_text.length() > 0) && (carret > 0) ) {
@@ -165,6 +167,7 @@ public class JEditBox extends JWindow {
 		return true;
 	}
 	
+	@Override
 	public void paint(Graphics2D g) {
 		super.paint(g);
 		

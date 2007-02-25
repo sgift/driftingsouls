@@ -38,11 +38,14 @@ import net.driftingsouls.ds2.framework.services.SoapConnector;
  * @author Christopher Jung
  */
 public class JStarmap extends JApplet {
-	private MapConnector map;
-	private JAboutDialog aboutDlg;
-	private JMapViewer mapViewer;
-	private CanvasWindowManager wm;
+	private static final long serialVersionUID = 1L;
 	
+	protected MapConnector map;
+	private JAboutDialog aboutDlg;
+	protected JMapViewer mapViewer;
+	protected CanvasWindowManager wm;
+	
+	@Override
 	public void init() {
 		setLayout(null);
 	
@@ -62,6 +65,9 @@ public class JStarmap extends JApplet {
 		
 		// Windowmanager erstellen und initalisieren
 		wm = new CanvasWindowManager(getParameter("datapath")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
 			public void keyPressed(KeyEvent evt) {
 				canvasKeyPressed(evt);
 				super.keyPressed(evt);
@@ -136,6 +142,10 @@ public class JStarmap extends JApplet {
 		aboutDlg.setText(dlgtext);
 	}
 	
+	/**
+	 * Behandelt einen Tastendruck im Canvas
+	 * @param evt Die Event-Daten
+	 */
 	public void canvasKeyPressed(KeyEvent evt) {
 		int key = evt.getKeyCode();
 		

@@ -22,6 +22,7 @@ package net.driftingsouls.ds2.framework;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
+import java.util.Map;
 import java.text.NumberFormat;
 
 /**
@@ -42,7 +43,7 @@ import java.text.NumberFormat;
  *
  */
 public class JShipInfo extends JWindow {
-	private HashMap properties;
+	private Map<String,String> properties;
 	private JTextField textfield;
 	private int imageWidth;
 	private boolean changed;
@@ -57,7 +58,7 @@ public class JShipInfo extends JWindow {
 	public JShipInfo( JWindow parent, IWindowManager windowmanager, String fontname ) {
 		super( parent, windowmanager );
 		
-		properties = new HashMap();
+		properties = new HashMap<String,String>();
 		
 		textfield = new JTextField(this, getWindowManager(), fontname );
 		
@@ -65,6 +66,7 @@ public class JShipInfo extends JWindow {
 		changed = false;
 	}
 	
+	@Override
 	public void onResize() {
 		int w = 0;
 		
@@ -80,7 +82,7 @@ public class JShipInfo extends JWindow {
 			img = getImageCache().getImage(getProperty("picture"),false);
 			
 			if( img.getWidth() > imageWidth ) {
-				newSize = (float)img.getHeight()*((float)imageWidth/(float)img.getWidth());
+				newSize = img.getHeight()*((float)imageWidth/(float)img.getWidth());
 			}
 			else {
 				newSize = img.getHeight();
@@ -120,7 +122,7 @@ public class JShipInfo extends JWindow {
 	 * @return Der Wert der Schiffseigenschaft
 	 */
 	public String getProperty( String name ) {
-		return (String)properties.get(name);
+		return properties.get(name);
 	}
 	
 	/**
@@ -131,7 +133,7 @@ public class JShipInfo extends JWindow {
 	 */
 	public int getIntegerProperty( String name ) {
 		try {
-			String text = (String)properties.get(name);
+			String text = properties.get(name);
 			if( text == null ) {
 				text = "0";
 			}
@@ -152,13 +154,11 @@ public class JShipInfo extends JWindow {
 	 * Berechnet den anzuzeigenden Text
 	 */
 	private void recalculateText() {
-		BufferedImage img = null;
-		
 		NumberFormat nf = NumberFormat.getInstance();
 		nf.setGroupingUsed(true);
 		
 		if( getProperty("picture") != null ) {
-			img = getImageCache().getImage(getProperty("picture"),false);
+			getImageCache().getImage(getProperty("picture"),false);
 		}
 		
 		String text = "";
@@ -240,6 +240,7 @@ public class JShipInfo extends JWindow {
 		imageWidth = width;
 	}
 	
+	@Override
 	public void paint(Graphics2D g) {	
 		if( changed ) {
 			changed = false;
@@ -250,7 +251,7 @@ public class JShipInfo extends JWindow {
 			BufferedImage img = getImageCache().getImage(getProperty("picture"),false);
 			
 			if( img.getWidth() > imageWidth ) {
-				float newSize = (float)img.getHeight()*((float)imageWidth/(float)img.getWidth());
+				float newSize = img.getHeight()*((float)imageWidth/(float)img.getWidth());
 				
 				g.drawImage( img, 0, 0, imageWidth, (int)newSize, null );
 			}

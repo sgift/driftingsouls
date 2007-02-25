@@ -180,6 +180,7 @@ public interface IWindowManager {
 	/**
 	 * Setzt die Fensterposition auf eine neue x/y-Position
 	 * 
+	 * @param aWindow Das Fenster
 	 * @param x	Die x-Koordinate
 	 * @param y	Die y-Koordinate
 	 */
