@@ -160,6 +160,7 @@ public class WSDDReader implements Reader, Loggable {
 			return req.isRequestedSessionIdFromURL();
 		}
 
+		@Deprecated
 		public boolean isRequestedSessionIdFromUrl() {
 			return req.isRequestedSessionIdFromUrl();
 		}
@@ -240,6 +241,7 @@ public class WSDDReader implements Reader, Loggable {
 			return req.getReader();
 		}
 
+		@Deprecated
 		public String getRealPath(String arg0) {
 			return req.getRealPath(arg0);
 		}
