@@ -99,7 +99,7 @@ public interface Response {
 	
 	/**
 	 * Sendet die Antwort
-	 *
+	 * @throws IOException
 	 */
 	public void send() throws IOException;
 }
