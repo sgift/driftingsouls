@@ -1739,14 +1739,14 @@ public class Battle implements Loggable {
 
 		if( this.ally[0] != 0 ) {
 			if( side1points > 0 ) {
-				db.update("UPDATE ally SET wonBattles=wonBattles + $side1points WHERE id=",this.ally[0]);
+				db.update("UPDATE ally SET wonBattles=wonBattles + "+side1points+" WHERE id=",this.ally[0]);
 			} 
 			else {
 				db.update("UPDATE ally SET lostBattles=lostBattles + ",-side1points," WHERE id=",this.ally[0]);
 			}
 		}
 		if( side1points > 0 ) {
-			db.update("UPDATE users SET wonBattles=wonBattles + $side1points WHERE id=",this.commander[0]);
+			db.update("UPDATE users SET wonBattles=wonBattles + "+side1points+" WHERE id=",this.commander[0]);
 		} 
 		else {
 			db.update("UPDATE users SET lostBattles=lostBattles + ",-side1points," WHERE id=",this.commander[0]);
@@ -1754,14 +1754,14 @@ public class Battle implements Loggable {
 
 		if( this.ally[1] != 0 ) {
 			if( side2points > 0 ) {
-				db.update("UPDATE ally SET wonBattles=wonBattles + $side2points WHERE id=",this.ally[1]);
+				db.update("UPDATE ally SET wonBattles=wonBattles + "+side2points+" WHERE id=",this.ally[1]);
 			} 
 			else {
 				db.update("UPDATE ally SET lostBattles=lostBattles + ",-side2points," WHERE id=",this.ally[1]);
 			}
 		}
 		if( side2points > 0 ) {
-			db.update("UPDATE ally SET wonBattles=wonBattles + $side2points WHERE id=",this.commander[1]);
+			db.update("UPDATE ally SET wonBattles=wonBattles + "+side2points+" WHERE id=",this.commander[1]);
 		} 
 		else {
 			db.update("UPDATE ally SET lostBattles=lostBattles + ",-side2points," WHERE id=",this.commander[1]);
