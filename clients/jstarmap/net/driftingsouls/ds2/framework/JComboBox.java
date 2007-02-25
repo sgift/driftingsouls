@@ -39,20 +39,26 @@ import java.awt.Rectangle;
  * @author Christopher Jung
  */
 class aComboBoxWindow extends JDialog {
-	private Vector items;
-	private Vector data;
+	private Vector<String> items;
+	private Vector<Object> data;
 	private JComboBox comboBox;
 	private int lineHeight;
 	private Object selectedItem;
 	
+	/**
+	 * Konstruktor
+	 * @param parent Das Elternfenster
+	 * @param windowmanager Der Fenstermanager
+	 * @param masterbox Die Kombobox zu der dieses Fenster gehoert
+	 */
 	public aComboBoxWindow( JWindow parent, IWindowManager windowmanager, JComboBox masterbox ) {
 		super( parent, windowmanager );
 		
 		comboBox = masterbox;
 		selectedItem = null;
 		
-		items = new Vector();
-		data = new Vector();
+		items = new Vector<String>();
+		data = new Vector<Object>();
 		
 		Graphics2D localg = getImageCache().createImg(1, 1, Transparency.OPAQUE ).createGraphics();
 		
@@ -64,6 +70,7 @@ class aComboBoxWindow extends JDialog {
 		lineHeight = localg.getFontMetrics().getHeight()+2;
 	}
 	
+	@Override
 	public void onResize() {
 		super.onResize();
 		
@@ -75,6 +82,11 @@ class aComboBoxWindow extends JDialog {
 		}
 	}
 	
+	/**
+	 * Fuegt ein Item zum Komboboxfenster hinzu
+	 * @param itemname Der Name des Items
+	 * @param itemdata Das Objekt, welches mit dem Eintrag assoziiert ist
+	 */
 	public void addItem( String itemname, Object itemdata ) {
 		items.add( itemname );
 		data.add( itemdata );
@@ -87,17 +99,26 @@ class aComboBoxWindow extends JDialog {
 		}
 	}
 	
+	/**
+	 * Entfernt alle Eintraege aus der Liste
+	 *
+	 */
 	public void clear() {
-		items = new Vector();
-		data = new Vector();
+		items.clear();
+		data.clear();
 		
 		getWindowManager().setWindowVClientMinSize( this, 0 );
 	}
 	
+	/**
+	 * Gibt das mit dem aktuell ausgewaehlten Eintrag assoziierte Objekt zurueck
+	 * @return Das Objekt des ausgewaehlten Eintrags oder <code>null</code>
+	 */
 	public Object getSelectedData() {
 		return selectedItem;
 	}
 	
+	@Override
 	public boolean mousePressed( int x, int y, int button ) {
 		boolean result = super.mousePressed( x, y, button );
 		
@@ -126,6 +147,7 @@ class aComboBoxWindow extends JDialog {
 		return result;
 	}
 	
+	@Override
 	public void paint( Graphics2D g ) {
 		super.paint(g);
 		
@@ -143,7 +165,7 @@ class aComboBoxWindow extends JDialog {
 		int yPosition = y+g.getFontMetrics().getHeight()-2+getVScrollOffset();
 		
 		for( int i=0; i < items.size(); i++ ) {
-			g.drawString( (String)items.get(i), x, yPosition );
+			g.drawString( items.get(i), x, yPosition );
 			
 			yPosition += g.getFontMetrics().getHeight() + 2;
 		}
@@ -160,8 +182,8 @@ class aComboBoxWindow extends JDialog {
  */
 
 public class JComboBox extends JWindow {
-	private LinkedHashMap names;
-	private LinkedHashMap data;
+	private LinkedHashMap<Integer,String> names;
+	private LinkedHashMap<Integer,Object> data;
 	private int index;
 	private int selected;
 	
@@ -186,13 +208,14 @@ public class JComboBox extends JWindow {
 		
 		cBoxWindow = null;
 		
-		names = new LinkedHashMap();
-		data = new LinkedHashMap();
+		names = new LinkedHashMap<Integer,String>();
+		data = new LinkedHashMap<Integer,Object>();
 		
 		getImageCache().getImage("interface/jstarmap/icon_dropdown.png", true);
 		getImageCache().getImage("interface/jstarmap/vertiefung.png", true);
 	}
 	
+	@Override
 	public void onResize() {
 		super.onResize();
 		
@@ -205,6 +228,7 @@ public class JComboBox extends JWindow {
 		}
 	}
 	
+	@Override
 	public void onChangeVisibility( boolean vis ) {
 		super.onChangeVisibility(vis);
 		
@@ -225,8 +249,8 @@ public class JComboBox extends JWindow {
 	 * @return Der Index des Elements
 	 */
 	public int addElement( String name, Object data ) {
-		this.names.put( new Integer(index), name );
-		this.data.put( new Integer(index), data );
+		this.names.put( index, name );
+		this.data.put( index, data );
 		
 		if( selected < 0 ) {
 			selected = index;
@@ -241,8 +265,8 @@ public class JComboBox extends JWindow {
 	 * @param index	Der Index des zu entfernenden Elements
 	 */
 	public void removeElement( int index ) {
-		names.remove( new Integer(index) );
-		data.remove( new Integer(index) );
+		names.remove( index );
+		data.remove( index );
 		
 		if( index == selected ) {
 			selected = -1;
@@ -256,7 +280,7 @@ public class JComboBox extends JWindow {
 	 * @param index	Der Index des auszuwählenden Elements
 	 */
 	public void setSelectedElement( int index ) {
-		if( names.get(new Integer(index)) != null ) {
+		if( names.get(index) != null ) {
 			selected = index;
 		}
 	}
@@ -280,7 +304,7 @@ public class JComboBox extends JWindow {
 	 * @see #getElementString
 	 */
 	public Object getElementData( int index ) {
-		return data.get(new Integer(index));
+		return data.get(index);
 	}
 	
 	/**
@@ -293,9 +317,10 @@ public class JComboBox extends JWindow {
 	 * @see #getElementData
 	 */
 	public String getElementString( int index ) {
-		return (String)names.get(new Integer(index));
+		return names.get(index);
 	}
 	
+	@Override
 	public boolean mousePressed( int x, int y, int button ) {
 		boolean result = super.mousePressed( x, y, button );
 		
@@ -312,7 +337,7 @@ public class JComboBox extends JWindow {
 					while( iter.hasNext() ) {
 						Integer key = (Integer)iter.next();
 						
-						cBoxWindow.addItem((String)names.get(key), key);
+						cBoxWindow.addItem(names.get(key), key);
 					}
 					getWindowManager().setVisibility(cBoxWindow,true);
 					
@@ -332,6 +357,7 @@ public class JComboBox extends JWindow {
 		return result;
 	}
 	
+	@Override
 	public boolean handleEvent( int handle, String event ) {
 		boolean result = super.handleEvent( handle, event );
 		
@@ -357,6 +383,7 @@ public class JComboBox extends JWindow {
 		return result;
 	}
 	
+	@Override
 	public void paint(Graphics2D g) {
 		super.paint(g);
 		
@@ -373,7 +400,7 @@ public class JComboBox extends JWindow {
 		
 		String text = "[leer]";
 		if( selected > -1 ) {
-			text = (String)names.get(new Integer(selected));
+			text = names.get(selected);
 			if( text == null ) {
 				text = "[leer]";
 			}

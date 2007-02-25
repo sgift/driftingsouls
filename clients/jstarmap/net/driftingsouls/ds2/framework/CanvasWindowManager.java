@@ -40,7 +40,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
@@ -94,6 +93,10 @@ public class CanvasWindowManager extends Canvas implements ActionListener, Mouse
 	private static final int EVENT_ON_CHANGE_VISIBILITY = 1;
 	private static final int EVENT_RECREATE_BACKBUFFER = 2;
 
+	/**
+	 * Konstruktor
+	 * @param datapath Pfad zum Datenverzeichnis
+	 */
 	public CanvasWindowManager(String datapath) {	
 		super();
 		nextHandle = 1;		
@@ -112,6 +115,10 @@ public class CanvasWindowManager extends Canvas implements ActionListener, Mouse
 		this.datapath = datapath;
 	}
 	
+	/**
+	 * Initalisiert den Fenstermanager
+	 *
+	 */
 	public void init() {
 		
 		imgCache = new JImageCache(this,datapath+"data/");
@@ -147,11 +154,19 @@ public class CanvasWindowManager extends Canvas implements ActionListener, Mouse
 		return windows.get(handle);
 	}
 	
+	/**
+	 * Fuellt die Zeichenflaeche mit Schwarz
+	 * @param g Die Zeichenflaeche
+	 */
 	public void update(Graphics2D g) {
 		g.setColor(Color.BLACK);
         g.fillRect(0,0,getWidth(),getHeight());
 	}
 	
+	/**
+	 * Startet den Hauptthread
+	 *
+	 */
 	public void start() {
     	if( mainThread == null ) {
     		mainThread = new Thread( this );
@@ -171,8 +186,8 @@ public class CanvasWindowManager extends Canvas implements ActionListener, Mouse
 			myfont = new Font(fontName,Font.TRUETYPE_FONT,12);
 		}
 		
-		ArrayList offScreenBufferList = new ArrayList();
-		final int MAX_OFFSCREEN_BUFFERS = 100;
+		//ArrayList offScreenBufferList = new ArrayList();
+		//final int MAX_OFFSCREEN_BUFFERS = 100;
 		
 		while( running ) {
 			long startTime = System.currentTimeMillis();
@@ -365,20 +380,30 @@ public class CanvasWindowManager extends Canvas implements ActionListener, Mouse
 		}
 	}
 
+	/**
+	 * Stoppt den Hauptthread
+	 *
+	 */
 	public void stop () {
     	if( mainThread != null ) {
         	running = false;
     	}
 	}
 	
+	@Override
 	public void update( Graphics g ) {
 		redraw = true;
 	}
 	
+	@Override
 	public void paint( Graphics g ) {
 		redraw = true;
 	}
 
+	/**
+	 * Beendet den Fenstermanager
+	 *
+	 */
 	public void destroy() {
 		stop();
 		try {
@@ -1700,7 +1725,7 @@ public class CanvasWindowManager extends Canvas implements ActionListener, Mouse
 			(awnd.getOffscreenBuffer().getWidth() != awnd.getWindowRect().width) ||
 			(awnd.getOffscreenBuffer().getHeight() != awnd.getWindowRect().height) ) {
 			
-			Vector event = new Vector();
+			Vector<Object> event = new Vector<Object>();
 			event.add(0, new Integer(EVENT_RECREATE_BACKBUFFER));
 			event.add(1, awnd.getWindow());
 			
