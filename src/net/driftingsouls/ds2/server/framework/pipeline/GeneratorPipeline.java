@@ -24,6 +24,7 @@ import org.w3c.dom.Node;
 
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Generator;
 import net.driftingsouls.ds2.server.framework.pipeline.serializer.Serializer;
 import net.driftingsouls.ds2.server.framework.pipeline.transformer.Transformer;
 
@@ -34,9 +35,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.transformer.Transformer;
  *
  */
 public class GeneratorPipeline implements Pipeline {
-	private Class generator;
-	private Class transformer;
-	private Class serializer;
+	private Class<? extends Generator> generator;
+	private Class<? extends Transformer> transformer;
+	private Class<? extends Serializer> serializer;
 	private DSGenerator.ActionType execType = DSGenerator.ActionType.DEFAULT;
 	private Node config = null;
 	
@@ -47,7 +48,8 @@ public class GeneratorPipeline implements Pipeline {
 	 * @param transformer Der zu verwendende Transformer
 	 * @param serializer Der zu verwendende Serializer
 	 */
-	public GeneratorPipeline( String execType, Class generator, Class transformer, Class serializer ) {
+	public GeneratorPipeline( String execType, Class<? extends Generator> generator, 
+			Class<? extends Transformer> transformer, Class<? extends Serializer> serializer ) {
 		this.generator = generator;
 		this.transformer = transformer;
 		this.serializer = serializer;
@@ -56,7 +58,7 @@ public class GeneratorPipeline implements Pipeline {
 		}
 	}
 	
-	private void generateContent(Context context, Class generator) throws Exception {
+	private void generateContent(Context context, Class<? extends Generator> generator) throws Exception {
 		Constructor constr = generator.getConstructor(Context.class);
 		constr.setAccessible(true);
 
@@ -66,14 +68,14 @@ public class GeneratorPipeline implements Pipeline {
 		((DSGenerator)cntl).handleAction(context.getRequest().getParameter("action"), execType);
 	}
 
-	private void applyTransformer(Context context, Class transformer) throws Exception {
-		Transformer tf = (Transformer)transformer.newInstance();
+	private void applyTransformer(Context context, Class<? extends Transformer> transformer) throws Exception {
+		Transformer tf = transformer.newInstance();
 
 		tf.transform(context);
 	}
 
-	private void applySerializer(Context context, Class serializer) throws Exception {
-		Serializer ser = (Serializer)serializer.newInstance();
+	private void applySerializer(Context context, Class<? extends Serializer> serializer) throws Exception {
+		Serializer ser = serializer.newInstance();
 
 		ser.serialize(context);
 	}

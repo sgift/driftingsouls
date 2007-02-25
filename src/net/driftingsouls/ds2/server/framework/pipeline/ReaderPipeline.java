@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.reader.Reader;
  *
  */
 public class ReaderPipeline implements Pipeline {
-	private Class reader;
+	private Class<? extends Reader> reader;
 	private String file;
 	private Node config;
 	
@@ -38,13 +38,13 @@ public class ReaderPipeline implements Pipeline {
 	 * @param reader Der zu verwendende Reader
 	 * @param file Die zu lesende Datei
 	 */
-	public ReaderPipeline(Class reader, String file) {
+	public ReaderPipeline(Class<? extends Reader> reader, String file) {
 		this.reader = reader;
 		this.file = file;
 	}
 
 	public void execute(Context context) throws Exception {
-		Reader reader = (Reader)this.reader.newInstance();
+		Reader reader = this.reader.newInstance();
 		
 		reader.read(context, this);
 	}

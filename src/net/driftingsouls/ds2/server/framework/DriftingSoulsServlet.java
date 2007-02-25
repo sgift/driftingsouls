@@ -41,6 +41,10 @@ import net.driftingsouls.ds2.server.framework.pipeline.ReaderPipeline;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
 import net.driftingsouls.ds2.server.framework.pipeline.actions.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Generator;
+import net.driftingsouls.ds2.server.framework.pipeline.reader.Reader;
+import net.driftingsouls.ds2.server.framework.pipeline.serializer.Serializer;
+import net.driftingsouls.ds2.server.framework.pipeline.transformer.Transformer;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
 import org.apache.commons.logging.Log;
@@ -63,19 +67,19 @@ public class DriftingSoulsServlet extends HttpServlet {
 	private List<Rule> rules = new ArrayList<Rule>();
 	
 	private static class ModuleSetting implements Cloneable {
-		Class<?> generator = null;
-		Class<?> transformer = null;
-		Class<?> serializer = null;
+		Class<? extends Generator> generator = null;
+		Class<? extends Transformer> transformer = null;
+		Class<? extends Serializer> serializer = null;
 		
 		ModuleSetting(String generator, String transformer, String serializer) throws ClassNotFoundException {
 			if( (generator != null) && !"".equals(generator.trim()) ) {
-				this.generator = Class.forName(generator);
+				this.generator = Class.forName(generator).asSubclass(Generator.class);
 			}
 			if( (transformer != null) && !"".equals(transformer.trim()) ) {
-				this.transformer = Class.forName(transformer);
+				this.transformer = Class.forName(transformer).asSubclass(Transformer.class);
 			}
 			if( (serializer != null) && !"".equals(serializer.trim()) ) {
-				this.serializer = Class.forName(serializer);
+				this.serializer = Class.forName(serializer).asSubclass(Serializer.class);
 			}
 		}
 		
@@ -238,13 +242,13 @@ public class DriftingSoulsServlet extends HttpServlet {
 		// execute-module
 		private Parameter parameter = null;
 		private String moduleExecMode = "default";
-		private Class<?> serializerClass = null;
-		private Class<?> transformerClass = null;
+		private Class<? extends Serializer> serializerClass = null;
+		private Class<? extends Transformer> transformerClass = null;
 		
 		// execute-reader
 		private String file = "";
 		private Pattern pattern = null;
-		private Class<?> readerClass = null;
+		private Class<? extends Reader> readerClass = null;
 		
 		private int executionType = -1;
 		
@@ -310,7 +314,8 @@ public class DriftingSoulsServlet extends HttpServlet {
 		private void setupReaderExecuter(Node node) throws Exception {
 			executionType = EXECUTE_READER;
 
-			readerClass = Class.forName(XMLUtils.getStringByXPath(node, "reader/@class"));
+			readerClass = Class.forName(XMLUtils.getStringByXPath(node, "reader/@class"))
+				.asSubclass(Reader.class);
 			file = XMLUtils.getStringByXPath(node, "file/@file");
 			String pattern = XMLUtils.getStringByXPath(node, "file/@pattern");
 
@@ -335,12 +340,12 @@ public class DriftingSoulsServlet extends HttpServlet {
 			
 			String transformer = XMLUtils.getStringByXPath(node, "transformer/@class");
 			if( (transformer != null) && !"".equals(transformer) ) {
-				transformerClass = Class.forName(transformer);
+				transformerClass = Class.forName(transformer).asSubclass(Transformer.class);
 			}
 			
 			String serializer = XMLUtils.getStringByXPath(node, "serializer/@class");
 			if( (serializer != null) && !"".equals(serializer) ) {
-				serializerClass = Class.forName(serializer);
+				serializerClass = Class.forName(serializer).asSubclass(Serializer.class);
 			}
 		}
 		
