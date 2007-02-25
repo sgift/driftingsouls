@@ -787,6 +787,9 @@ public class Common implements Loggable {
 	 * @return Der formatierte Text als HTML-Code
 	 */
 	public static String _text( String text, String[] ignore ) {
+		if( text == null ) {
+			return null;
+		}
 		String result = escapeHTML(text);
 		
 		result = BBCodeParser.getInstance().parse(result,ignore);
