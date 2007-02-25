@@ -56,8 +56,15 @@ public class StatWaren implements Statistic, Loggable {
 		StringBuffer echo = context.getResponse().getContent();
 	
 		Cargo cargo = new Cargo(Cargo.Type.STRING, db.first("SELECT cargo FROM stats_cargo ORDER BY tick DESC LIMIT 1").getString("cargo"));
-				
-		Cargo owncargo = new Cargo(Cargo.Type.STRING, db.first("SELECT cargo FROM stats_user_cargo WHERE user_id=",user.getID()).getString("cargo"));
+		
+		SQLResultRow userCargo = db.first("SELECT cargo FROM stats_user_cargo WHERE user_id=",user.getID());
+		Cargo owncargo = null;
+		if( !userCargo.isEmpty() ) {
+			owncargo = new Cargo(Cargo.Type.STRING, userCargo.getString("cargo"));
+		}
+		else {
+			owncargo = new Cargo();
+		}
 
 		// Ausgabe des Tabellenkopfs
 		echo.append("<table class=\"noBorderX\" cellspacing=\"1\" cellpadding=\"1\">\n");
