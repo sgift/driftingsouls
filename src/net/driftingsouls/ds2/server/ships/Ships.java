@@ -1232,7 +1232,7 @@ public class Ships implements Loggable {
 				updateShip.update(fleetship.getInt("x"), fleetship.getInt("y"), fleetship.getInt("e"), fleetship.getInt("s"), fleetship.getInt("engine"), fleetship.getInt("id"));
 
 				if( fleetship.getInt("dockedcount") > 0 ) {
-					updateDocked.update(fleetship.getInt("x"), fleetship.getInt("y"), fleetship.getInt("system"), "l "+fleetship.getInt("id"), fleetship.getInt("id"));
+					updateDocked.update(fleetship.getInt("x"), fleetship.getInt("y"), fleetship.getInt("system"), "l "+fleetship.getInt("id"), Integer.toString(fleetship.getInt("id")));
 				}
 	
 				if( fleetdata.offiziere.containsKey(fleetship.getInt("id")) ) {
