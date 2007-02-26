@@ -827,7 +827,7 @@ class PortalController extends DSGenerator {
 						else if( browsername.equals("msie") ) {
 							Matcher browserpattern = Pattern.compile("msie ([0-9\\.,]+)").matcher(browser);
 							browserpattern.find();
-							String tmp = browserpattern.group(0);
+							String tmp = browserpattern.group(1);
 
 							double version = Double.parseDouble(tmp);
 							if( version < 7.0 ) {
