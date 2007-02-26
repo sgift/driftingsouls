@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.config.Items;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
@@ -55,7 +56,7 @@ import org.apache.commons.lang.StringUtils;
  * @urlparam Integer kampf_only Falls != 0 werden nur Kriegsschiffe der Schiffsklasse mit der angegebenen ID angezeigt
  * 
  */
-public class SchiffeController extends DSGenerator {
+public class SchiffeController extends DSGenerator implements Loggable {
 	/**
 	 * Konstruktor
 	 * @param context Der zu verwendende Kontext
@@ -297,34 +298,39 @@ public class SchiffeController extends DSGenerator {
 					hullcolor = "#ffcc00";
 				}
 
-				if( !shiptype.getString("werft").equals("") ) {
+				if( shiptype.getString("werft").length() > 0 ) {
 					SQLResultRow werftRow = db.first("SELECT * FROM werften WHERE shipid=",ship.getInt("id"));
-					ShipWerft werft = new ShipWerft(werftRow,shiptype.getString("werft"),ship.getInt("system"),ship.getInt("owner"),ship.getInt("id"));
-					werft.setOneWayFlag(shiptype.getInt("ow_werft"));
-					SQLResultRow type = werft.getBuildShipType();
-					if( type != null ) {
-						StringBuilder popup = new StringBuilder(100);
-						popup.append(Common.tableBegin(420, "left").replace( '"', '\'') );
-						popup.append("<img align='left' border='0' src='"+type.getString("picture")+"' alt='"+type.getString("nickname")+"' />");
-						popup.append("&nbsp;Baut: "+type.getString("nickname")+"<br />");
-						popup.append("&nbsp;Dauer: <img style='vertical-align:middle' src='"+Configuration.getSetting("URL")+"data/interface/time.gif' alt='noch ' />"+werft.getRemainingTime()+"<br />");
-						if( werft.getRequiredItem() != -1 ) {					
-							popup.append("&nbsp;Ben&ouml;tigt: ");
-							popup.append("<img style='vertical-align:middle' src='../data/items/"+Items.get().item(werft.getRequiredItem()).getPicture()+"' alt='' />");
-							if( werft.isBuildContPossible() ) {
-								popup.append("<span style='color:green'>");
+					if( werftRow.isEmpty() ) {
+						LOG.warn("Schiff "+ship.getInt("id")+" hat keinen Werfteintrag");
+					}
+					else {
+						ShipWerft werft = new ShipWerft(werftRow,shiptype.getString("werft"),ship.getInt("system"),ship.getInt("owner"),ship.getInt("id"));
+						werft.setOneWayFlag(shiptype.getInt("ow_werft"));
+						SQLResultRow type = werft.getBuildShipType();
+						if( type != null ) {
+							StringBuilder popup = new StringBuilder(100);
+							popup.append(Common.tableBegin(420, "left").replace( '"', '\'') );
+							popup.append("<img align='left' border='0' src='"+type.getString("picture")+"' alt='"+type.getString("nickname")+"' />");
+							popup.append("&nbsp;Baut: "+type.getString("nickname")+"<br />");
+							popup.append("&nbsp;Dauer: <img style='vertical-align:middle' src='"+Configuration.getSetting("URL")+"data/interface/time.gif' alt='noch ' />"+werft.getRemainingTime()+"<br />");
+							if( werft.getRequiredItem() != -1 ) {					
+								popup.append("&nbsp;Ben&ouml;tigt: ");
+								popup.append("<img style='vertical-align:middle' src='../data/items/"+Items.get().item(werft.getRequiredItem()).getPicture()+"' alt='' />");
+								if( werft.isBuildContPossible() ) {
+									popup.append("<span style='color:green'>");
+								}
+								else {
+									popup.append("<span style='color:red'>");
+								}
+								popup.append(Items.get().item(werft.getRequiredItem()).getName()+"</span>");
 							}
-							else {
-								popup.append("<span style='color:red'>");
-							}
-							popup.append(Items.get().item(werft.getRequiredItem()).getName()+"</span>");
+							popup.append(Common.tableEnd().replace( '"', '\'' ));
+							String popupStr = StringEscapeUtils.escapeJavaScript(popup.toString().replace(">", "&gt;").replace("<", "&lt;"));
+	
+							t.set_var(	"ship.werft.popup",		popupStr,
+										"ship.werft.dauer",		werft.getRemainingTime(),
+										"ship.werft.building",	1 );
 						}
-						popup.append(Common.tableEnd().replace( '"', '\'' ));
-						String popupStr = StringEscapeUtils.escapeJavaScript(popup.toString().replace(">", "&gt;").replace("<", "&lt;"));
-
-						t.set_var(	"ship.werft.popup",		popupStr,
-									"ship.werft.dauer",		werft.getRemainingTime(),
-									"ship.werft.building",	1 );
 					}
 				}
 
