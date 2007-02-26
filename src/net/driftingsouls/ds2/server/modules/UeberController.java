@@ -497,7 +497,7 @@ public class UeberController extends DSGenerator implements Loggable {
 			SQLResultRow sheet = db.first("SELECT id,headimg,text FROM inttutorial WHERE id='",inttutorial,"' AND reqname='",(reqname ? 1 : 0),"' AND reqbase='",(reqbase ? 1 : 0),"' AND reqship='",(reqship ? 1 : 0),"'");
 	
 			// Ist die aktuelle Tutorialseite veraltet?
-			if( sheet.getInt("id") != inttutorial ) {		
+			if( sheet.isEmpty() || (sheet.getInt("id") != inttutorial) ) {		
 				sheet = db.first("SELECT id,headimg,text FROM inttutorial WHERE reqname='",(reqname ? 1 : 0),"' AND reqbase='",(reqbase ? 1 : 0),"' AND reqship='",(reqship ? 1 : 0),"' ORDER BY id");
 		
 				// Neue Tutorialseite speichern
