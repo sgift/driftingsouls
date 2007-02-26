@@ -175,8 +175,8 @@ public class FleetMgntController extends DSGenerator {
 			return;
 		}
 		
-		int id = db.first("SELECT id FROM ships WHERE id IN (",Common.implode(",",shiplist),") AND owner!='",user.getID(),"'").getInt("id");
-		if( id != 0 ) {
+		SQLResultRow id = db.first("SELECT id FROM ships WHERE id IN (",Common.implode(",",shiplist),") AND owner!=",user.getID());
+		if( !id.isEmpty() ) {
 			t.set_var("fleetmgnt.message", "Alle Schiffe m&uuml;ssen ihrem Kommando unterstehen" );
 		}
 		else {		
