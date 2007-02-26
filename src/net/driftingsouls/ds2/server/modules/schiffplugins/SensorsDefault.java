@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
@@ -535,13 +537,13 @@ public class SensorsDefault implements SchiffPlugin {
 					}
 
 					// Springen (Knossosportal)
-					if( !datas.getString("jumptarget").equals("") ) {
+					if( datas.getString("jumptarget").length() > 0 ) {
 						/*
 							Ermittlung der Sprungberechtigten
 							moeglich sind: default,all,user,ally,ownally,group
 						 */
-						String[] target = datas.getString("jumptarget").split("|");
-						String[] targetuser = target[2].split(":");
+						String[] target = StringUtils.split(datas.getString("jumptarget"), '|');
+						String[] targetuser = StringUtils.split(target[2], ':');
 						if( targetuser[0].equals("all") ) {
 							t.set_var("sships.action.jump",1);
 						}
