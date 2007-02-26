@@ -152,7 +152,7 @@ public class RTCTick extends TickController {
 				
 				SQLResultRow posten = db.first("SELECT id,x,y,system FROM ships WHERE id>0 AND owner=",Faction.GTU," AND LOCATE('tradepost',status) AND system=",loc.getSystem()," AND x=",loc.getX()," AND y=",loc.getY());
 				if( posten.isEmpty() ) {
-					posten = db.first("SELECT id,x,y,system FROM ships WHERE id>0 AND owner=",Faction.GTU," AND LOCATE('tradepost',status) AND system='$system'");
+					posten = db.first("SELECT id,x,y,system FROM ships WHERE id>0 AND owner=",Faction.GTU," AND LOCATE('tradepost',status) AND system="+loc.getSystem());
 				}
 				if( posten.isEmpty() ) {
 					posten = db.first("SELECT id,x,y,system FROM ships WHERE id>0 AND owner=",Faction.GTU," AND LOCATE('tradepost',status)");
