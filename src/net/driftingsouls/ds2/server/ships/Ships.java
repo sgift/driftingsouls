@@ -2275,7 +2275,7 @@ public class Ships implements Loggable {
 			int fleetcount = db.first("SELECT count(*) count FROM ships WHERE fleet=",ship.getInt("fleet")).getInt("count");
 			if( fleetcount <= 2 ) {
 				db.update("DELETE FROM ship_fleets WHERE id=",ship.getInt("fleet"));
-				db.update("UPDATE ship_fleets SET fleet=0 WHERE fleet=",ship.getInt("fleet"));
+				db.update("UPDATE ships SET fleet=0 WHERE fleet=",ship.getInt("fleet"));
 			}
 		}
 		
