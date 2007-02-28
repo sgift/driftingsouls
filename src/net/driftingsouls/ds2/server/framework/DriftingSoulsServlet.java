@@ -549,10 +549,10 @@ public class DriftingSoulsServlet extends HttpServlet {
 				writer.append(st[i].toString()+"<br />\n");
 			}
 			writer.append("</td></tr></table></body></html>");
-			
-			if( (context != null) && (context.getDatabase() != null) && context.getDatabase().isTransaction() ) {
-				context.getDatabase().tRollback();
-			}
+		}
+		if( (context != null) && (context.getDatabase() != null) && context.getDatabase().isTransaction() ) {
+			LOG.warn("Transaktion wurde nicht beendet: "+httpRequest.getRequestURI()+" QS: "+httpRequest.getQueryString());
+			context.getDatabase().tRollback();
 		}
 	}
 
