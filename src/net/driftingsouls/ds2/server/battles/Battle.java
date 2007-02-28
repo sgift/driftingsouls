@@ -1059,7 +1059,7 @@ public class Battle implements Loggable {
 		
 		User curuser = userobj;
 		if( curuser.getAlly() != 0 ) {
-			UserIterator iter = context.createUserIterator("SELECT * FROM users WHERE ally=",curuser.getAlly(),"' AND id!=",curuser.getID());
+			UserIterator iter = context.createUserIterator("SELECT * FROM users WHERE ally=",curuser.getAlly()," AND id!=",curuser.getID());
 			for( User allyuser : iter ) {
 				ownUsers.add(allyuser);	
 			}
