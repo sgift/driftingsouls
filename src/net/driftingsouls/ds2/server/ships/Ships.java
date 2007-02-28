@@ -2616,7 +2616,7 @@ public class Ships implements Loggable {
 			return;
 		}
 
-		if( fleetCountList.containsKey(ship.getInt("fleet")) ) {
+		if( !fleetCountList.containsKey(ship.getInt("fleet")) ) {
 			// Kein Check auf id > 0, da auch (Spawn)Schiffe mit einer id < 0 der Flotte angehoeren koennen!
 			fleetCountList.put(ship.getInt("fleet"), db.first("SELECT count(*) count FROM ships WHERE fleet="+ship.getInt("fleet")).getInt("count"));
 		}
