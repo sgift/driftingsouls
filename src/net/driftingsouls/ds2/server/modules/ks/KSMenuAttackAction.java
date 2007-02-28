@@ -273,7 +273,10 @@ public class KSMenuAttackAction extends BasicKSMenuAction {
 			}
 			
 			if( attmode.equals("alphastrike_max") || attmode.equals("strafe_max") ) {
-				int maxheat = Integer.parseInt(heatlist.get(wpnname))-Integer.parseInt(currentheatlist.get(wpnname));
+				int maxheat = Integer.parseInt(heatlist.get(wpnname));
+				if( currentheatlist.containsKey(wpnname) ) {
+					maxheat -= Integer.parseInt(currentheatlist.get(wpnname));
+				}
 				apmulti = (int)(maxheat/(double)Integer.parseInt(weaponlist.get(wpnname)));
 				if( apmulti < 1 ) {
 					apmulti = 1;	
