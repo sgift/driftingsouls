@@ -258,7 +258,7 @@ public class KSAttackAction extends BasicKSAction {
 		if( battle.getAlly(battle.getEnemySide()) != 0 ) {
 			db.update("UPDATE ally SET lostShips=lostShips+",remove," WHERE id=",battle.getAlly(battle.getEnemySide()));
 		}
-		db.update("UPDATE users SET lostShips=lostShips+",remove," WHERE id=",battle.getAlly(eShip.getInt("owner")));
+		db.update("UPDATE users SET lostShips=lostShips+",remove," WHERE id=",eShip.getInt("owner"));
 	
 	
 	
