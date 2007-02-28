@@ -121,7 +121,7 @@ public class TechListeController extends DSGenerator {
 					user.hasResearched(f.getRequiredResearch(3)) ) {
 				researchable.put(f.getID(), f);
 			} 
-			if( !f.isVisibile() ) {
+			else if( !f.isVisibile() ) {
 				if( user.getAccessLevel() >= 20 ) {
 					invisible.put(f.getID(), f);
 				}
