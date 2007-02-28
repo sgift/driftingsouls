@@ -705,6 +705,10 @@ public class Common implements Loggable {
 	 */
 	// http://www.rgagnon.com/javadetails/java-0306.html
 	public static String escapeHTML(String string) {
+		if( string == null ) {
+			return null;
+		}
+		
 		StringBuilder sb = new StringBuilder(string.length());
 		// true if last char was blank
 		boolean lastWasBlankChar = false;
@@ -852,6 +856,9 @@ public class Common implements Loggable {
 	 * @see #_TITLE_NAME
 	 */
 	public static String _title( String text, String[] ignore ) {
+		if( text == null ) {
+			return null;
+		}
 		String result = escapeHTML(text);
 				
 		result = BBCodeParser.getInstance().parse(result,ignore);
