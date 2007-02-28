@@ -148,4 +148,7 @@
 	<update type="structure" datum="2007-02-08"><![CDATA[
 		ALTER TABLE ships_modules MODIFY picture VARCHAR(100) NOT NULL;
 	]]></update>
+	<update type="structure" datum="2007-02-28"><![CDATA[
+		ALTER TABLE ships_lost MODIFY battlelog VARCHAR(120) NOT NULL;
+	]]></update>
 </updates>

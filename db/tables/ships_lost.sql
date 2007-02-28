@@ -9,7 +9,7 @@ CREATE TABLE `ships_lost` (
   `destally` smallint(5) unsigned NOT NULL default '0',
   `docked` int(10) unsigned NOT NULL default '0',
   `battle` int(10) unsigned NOT NULL default '0',
-  `battlelog` varchar(60) NOT NULL default '',
+  `battlelog` varchar(120) NOT NULL default '',
   PRIMARY KEY  (`id`),
   KEY `owner` (`owner`),
   KEY `ally` (`ally`),
