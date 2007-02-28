@@ -21,8 +21,6 @@ package net.driftingsouls.ds2.server.modules.ks;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.Offizier;
@@ -219,6 +217,9 @@ public class KSKapernAction extends BasicKSAction {
 			
 		// Wurde das Schiff gekapert?
 		if( ok ) {
+			// Ein neues Ziel auswaehlen
+			battle.setEnemyShipIndex(battle.getNewTargetIndex());
+			
 			// Unbekannte Items bekannt machen
 			Cargo cargo = new Cargo( Cargo.Type.STRING, enemyShip.getString("cargo") );
 			
@@ -310,34 +311,6 @@ public class KSKapernAction extends BasicKSAction {
 			}
 				
 			Ships.recalculateShipStatus(enemyShip.getInt("id"));
-			
-			boolean foundOne = false;
-			
-			// Ein neues Ziel auswaehlen
-			if( battle.getEnemyShipGroup().length() > 0 ) {
-				int group = Integer.parseInt(StringUtils.split(battle.getEnemyShipGroup(), ':')[0]);
-				for( int i=0; i < enemyShips.size(); i++ ) {
-					SQLResultRow aship = enemyShips.get(i);
-					
-					if( (aship.getInt("type") == group) && (aship.getString("docked").length() == 0 || aship.getString("docked").charAt(0) != 'l') && (aship.getInt("action") & Battle.BS_DESTROYED) == 0 ) {
-						foundOne = true;
-						battle.setEnemyShipIndex(i);
-						break;
-					}
-				}
-			}
-	
-			if( !foundOne ) {
-				for( int i=0; i < enemyShips.size(); i++ ) {
-					SQLResultRow aship = enemyShips.get(i);
-					
-					if( (aship.getString("docked").length() == 0 || aship.getString("docked").charAt(0) != 'l') && (aship.getInt("action") & Battle.BS_DESTROYED) == 0 ) {
-						foundOne = true;
-						battle.setEnemyShipIndex(i);
-						break;
-					}
-				}
-			}
 			
 			enemyShip = battle.getEnemyShip();
 		} 

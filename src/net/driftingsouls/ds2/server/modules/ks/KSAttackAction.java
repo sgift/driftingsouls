@@ -187,51 +187,6 @@ public class KSAttackAction extends BasicKSAction {
 		return remove;
 	}
 	
-	private int getNewTargetIndex(Battle battle) {
-		boolean foundOne = false;
-		boolean foundOld = false;
-	
-		SQLResultRow enemyShip = battle.getEnemyShip();
-		
-		int i = 0;
-		
-		List<SQLResultRow> enemyShips = battle.getEnemyShips();
-		for( i=0; i < enemyShips.size(); i++ ) {
-			SQLResultRow aship = enemyShips.get(i);
-			if( !foundOld && (aship.getInt("id") == enemyShip.getInt("id")) ) {
-				foundOld = true;	
-			}
-			else if( foundOld && (aship.getInt("type") == enemyShip.getInt("type")) && ((aship.getString("docked").length() == 0) || (aship.getString("docked").charAt(0) != 'l')) && (aship.getInt("action") & Battle.BS_DESTROYED) == 0 && (aship.getInt("action") & Battle.BS_SECONDROW) == 0 ) {
-				foundOne = true;
-				break;
-			}
-		}
-
-		if( !foundOne ) {
-			for( i=0; i < enemyShips.size(); i++ ) {
-				SQLResultRow aship = enemyShips.get(i);
-				if( aship.getInt("id") == enemyShip.getInt("id") ) {
-					break;
-				}
-				if( (aship.getInt("type") == enemyShip.getInt("type")) && ((aship.getString("docked").length() == 0) || (aship.getString("docked").charAt(0) != 'l')) && (aship.getInt("action") & Battle.BS_DESTROYED) == 0 && (aship.getInt("action") & Battle.BS_SECONDROW) == 0 ) {
-					foundOne = true;
-					break;
-				}
-			}
-		}
-	
-		if( !foundOne ) {
-			for( i=0; i < enemyShips.size(); i++ ) {
-				SQLResultRow aship = enemyShips.get(i);
-				if( ((aship.getString("docked").length() == 0) || (aship.getString("docked").charAt(0) != 'l')) && (aship.getInt("action") & Battle.BS_DESTROYED) == 0 && (aship.getInt("action") & Battle.BS_SECONDROW) == 0 ) {
-					break;
-				}
-			}
-		}
-		
-		return i;
-	}
-	
 	private void destroyShip(int id, Battle battle, SQLResultRow eShip, boolean selectnew) {	
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
@@ -260,13 +215,11 @@ public class KSAttackAction extends BasicKSAction {
 		}
 		db.update("UPDATE users SET lostShips=lostShips+",remove," WHERE id=",eShip.getInt("owner"));
 	
-	
-	
 		//
 		// Ein neues Ziel auswaehlen
 		//
 		if( selectnew ) {
-			battle.setEnemyShipIndex(this.getNewTargetIndex(battle));
+			battle.setEnemyShipIndex(battle.getNewTargetIndex());
 			eShip.clear();
 			eShip.putAll(battle.getEnemyShip());
 		}
@@ -1410,7 +1363,7 @@ public class KSAttackAction extends BasicKSAction {
 			}
 			
 			if( outerloop < nextShipLoop - 1) {
-				battle.setEnemyShipIndex(this.getNewTargetIndex(battle));
+				battle.setEnemyShipIndex(battle.getNewTargetIndex());
 			}
 			
 			if( breakFlag ) {

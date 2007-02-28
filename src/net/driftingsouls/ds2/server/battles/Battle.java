@@ -455,6 +455,50 @@ public class Battle implements Loggable {
 	}
 	
 	/**
+	 * Liefert den Index des naechsten feindlichen Schiffes nach dem aktuell ausgewaehlten. 
+	 * Bevorzugt werden Schiffe gleichen Typs
+	 * @return Der Index des naechsten passenden Schiffes
+	 */
+	public int getNewTargetIndex() {
+		boolean foundOld = false;
+	
+		SQLResultRow enemyShip = getEnemyShip();
+		
+		// Schiff gleichen Typs hinter dem aktuellen Schiff suchen
+		List<SQLResultRow> enemyShips = getEnemyShips();
+		for( int i=0; i < enemyShips.size(); i++ ) {
+			SQLResultRow aship = enemyShips.get(i);
+			if( !foundOld && (aship.getInt("id") == enemyShip.getInt("id")) ) {
+				foundOld = true;	
+			}
+			else if( foundOld && (aship.getInt("type") == enemyShip.getInt("type")) && ((aship.getString("docked").length() == 0) || (aship.getString("docked").charAt(0) != 'l')) && (aship.getInt("action") & Battle.BS_DESTROYED) == 0 && (aship.getInt("action") & Battle.BS_SECONDROW) == 0 ) {
+				return i;
+			}
+		}
+
+		// Schiff gleichen Typs vor dem aktuellen Schiff suchen
+		for( int i=0; i < enemyShips.size(); i++ ) {
+			SQLResultRow aship = enemyShips.get(i);
+			if( aship.getInt("id") == enemyShip.getInt("id") ) {
+				break;
+			}
+			if( (aship.getInt("type") == enemyShip.getInt("type")) && ((aship.getString("docked").length() == 0) || (aship.getString("docked").charAt(0) != 'l')) && (aship.getInt("action") & Battle.BS_DESTROYED) == 0 && (aship.getInt("action") & Battle.BS_SECONDROW) == 0 ) {
+				return i;
+			}
+		}
+	
+		// Irgendein nicht gelandetes Schiff suchen
+		for( int i=0; i < enemyShips.size(); i++ ) {
+			SQLResultRow aship = enemyShips.get(i);
+			if( ((aship.getString("docked").length() == 0) || (aship.getString("docked").charAt(0) != 'l')) && (aship.getInt("action") & Battle.BS_DESTROYED) == 0 && (aship.getInt("action") & Battle.BS_SECONDROW) == 0 ) {
+				return i;
+			}
+		}
+		
+		return 0;
+	}
+	
+	/**
 	 * Gibt den Index des aktuell ausgewaehlten generischen Schiffes zurueck
 	 * @return Der Index des aktuell ausgewaehlten gegnerischen Schiffes
 	 */
@@ -467,6 +511,9 @@ public class Battle implements Loggable {
 	 * @param index Der neue Index
 	 */
 	public void setEnemyShipIndex(int index) {
+		if( index >= this.enemyShips.size() ) {
+			throw new IndexOutOfBoundsException("Schiffsindex fuer gegnerische Schiffe '"+index+"' > als das das vorhandene Maximum ("+this.enemyShips.size()+")");
+		}
 		this.activeSEnemy = index;
 	}
 	
@@ -483,6 +530,9 @@ public class Battle implements Loggable {
 	 * @param index Der neue Index
 	 */
 	public void setOwnShipIndex(int index) {
+		if( index >= this.ownShips.size() ) {
+			throw new IndexOutOfBoundsException("Schiffsindex fuer eigene Schiffe '"+index+"' > als das das vorhandene Maximum ("+this.ownShips.size()+")");
+		}
 		this.activeSOwn = index;
 	}
 
