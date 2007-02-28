@@ -761,7 +761,11 @@ public class KSAttackAction extends BasicKSAction {
 			}
 			else if( !Weapons.get().weapon(wpn).getAmmoType().equals("none") && !Weapons.get().weapon(wpn).hasFlag(Weapon.Flags.AMMO_SELECT) ) {
 				if( !ammocache.containsKey(Weapons.get().weapon(wpn).getAmmoType()) ) {
-					ammocache.put(Weapons.get().weapon(wpn).getAmmoType(), db.first("SELECT torptrefferws FROM ammo WHERE type=",Weapons.get().weapon(wpn).getAmmoType(),"'"));
+					ammocache.put(
+							Weapons.get().weapon(wpn).getAmmoType(), 
+							db.first("SELECT torptrefferws FROM ammo " +
+									"WHERE type='",Weapons.get().weapon(wpn).getAmmoType(),"'")
+					);
 				}
 				antitorptrefferws *= Math.pow(1-(ammocache.get(Weapons.get().weapon(wpn).getAmmoType()).getInt("torptrefferws"))/100,count);
 			}
