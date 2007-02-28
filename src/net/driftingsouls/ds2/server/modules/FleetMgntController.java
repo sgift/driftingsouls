@@ -90,7 +90,12 @@ public class FleetMgntController extends DSGenerator {
 			int type = Integer.parseInt(tmp[2]);
 			
 			SQLResultRow sectorRow = db.first("SELECT x,y,system FROM ships WHERE id=",sector," AND owner=",user.getID());
-			shiplist = new Integer[] { db.first("SELECT id FROM ships WHERE owner=",user.getID()," AND system=",sectorRow.getInt("system")," AND x=",sectorRow.getInt("x")," AND y='",sectorRow.getInt("y")," AND type=",type," AND docked=''").getInt("id")};	
+			shiplist = new Integer[] { 
+					db.first("SELECT id FROM ships " +
+							"WHERE owner=",user.getID()," AND system=",sectorRow.getInt("system")," AND " +
+									"x=",sectorRow.getInt("x")," AND y='",sectorRow.getInt("y")," AND " +
+									"type=",type," AND docked=''")
+						.getInt("id")};	
 		}
 		
 		// Evt haben wir bereits eine Flotten-ID uebergeben bekommen -> checken
@@ -110,7 +115,8 @@ public class FleetMgntController extends DSGenerator {
 			db.update("UPDATE ships SET fleet='0' WHERE fleet=",fleetID," AND owner!=",user.getID());
 		}
 		
-		if( (fleet != null) && fleet.isEmpty() && !action.equals("createFromSRSGroup") && !action.equals("create") && action.equals("create2") ) {
+		if( ((fleet == null) || fleet.isEmpty()) && !action.equals("createFromSRSGroup") && 
+			!action.equals("create") && action.equals("create2") ) {
 			addError("Die angegebene Flotte existiert nicht");
 			
 			return false;
@@ -121,7 +127,7 @@ public class FleetMgntController extends DSGenerator {
 		if( (shiplist == null || shiplist.length == 0) && (fleetID != 0) ) {
 			shipid = db.first("SELECT id FROM ships WHERE id>0 AND owner=",this.getUser().getID()," AND fleet=",fleetID).getInt("id");
 		} 
-		else {
+		else if( (shiplist != null) && (shiplist.length > 0) ){
 			shipid = shiplist[0];
 		}
 		
