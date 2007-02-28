@@ -175,7 +175,8 @@ public class KSAttackAction extends BasicKSAction {
 				db.update("UPDATE battles_ships SET action=action | ",Battle.BS_DESTROYED," WHERE shipid=",s.getInt("id"));
 	
 				// ggf. den Flagschiffstatus zuruecksetzen
-				if( (loc.getType() == UserFlagschiffLocation.Type.SHIP) && (loc.getID() == s.getInt("id")) ) {
+				if( (loc != null) && (loc.getType() == UserFlagschiffLocation.Type.SHIP) && 
+					(loc.getID() == s.getInt("id")) ) {
 					eUser.setFlagschiff(0);
 				}
 				
