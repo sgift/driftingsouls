@@ -353,10 +353,12 @@ public class SensorsDefault implements SchiffPlugin {
 			while( datas.next() ) {
 				SQLResultRow ashiptype = Ships.getShipType( datas.getRow() );
 				SQLResultRow mastertype = Ships.getShipType( datas.getInt("type"), false );
+				
+				final String typeGroupID = datas.getInt("type")+"_"+datas.getInt("owner");
 
 				// Schiff nur als/in Gruppe anzeigen
 				if( (this.showOnly == 0) && (user_wrapfactor != 0) && (mastertype.getInt("groupwrap") != 0) && 
-					(types.get(datas.getInt("type")+"_"+datas.getInt("owner")) >= mastertype.getInt("groupwrap")*user_wrapfactor) && 
+					(types.get(typeGroupID) >= mastertype.getInt("groupwrap")*user_wrapfactor) && 
 					(datas.getString("status").indexOf("disable_iff") == -1))  {
 					
 					int fleetlesscount = 0;
@@ -371,7 +373,7 @@ public class SensorsDefault implements SchiffPlugin {
 					}		
 					
 					t.start_record();
-					t.set_var(	"sshipgroup.name",			types.get(datas.getInt("type")+"_"+datas.getInt("owner"))+" x "+mastertype.getString("nickname"),
+					t.set_var(	"sshipgroup.name",			types.get(typeGroupID)+" x "+mastertype.getString("nickname"),
 								"sshipgroup.idlist",		groupidlist,
 								"sshipgroup.type.id",		datas.getInt("type"),
 								"sshipgroup.owner.id",		datas.getInt("owner"),
@@ -380,7 +382,7 @@ public class SensorsDefault implements SchiffPlugin {
 								"sshipgroup.sublist",		0,																		
 								"sshipgroup.type.image",	mastertype.getString("picture"),
 								"sshipgroup.own",			datas.getInt("owner") == user.getID(),
-								"sshipgroup.count",			types.get(datas.getInt("type")+"_"+datas.getInt("owner")) + (data.getInt("type") == datas.getInt("type") ? 1 : 0) - ownfleetcount,
+								"sshipgroup.count",			types.get(typeGroupID) + (data.getInt("type") == datas.getInt("type") ? 1 : 0) - ownfleetcount,
 								"sshipgroup.fleetlesscount",	fleetlesscount );
 		
 					if( datas.getInt("owner") == user.getID() ) {
@@ -392,9 +394,9 @@ public class SensorsDefault implements SchiffPlugin {
 					t.parse("sships.list","sshipgroup.listitem",true);
 					t.stop_record();
 					t.clear_record();									
-					types.put(datas.getInt("type")+"_"+datas.getInt("owner"), -1);	// einmal anzeigen reicht
+					types.put(typeGroupID, -1);	// einmal anzeigen reicht
 				} 
-				else if( (this.showOnly != 0) || (types.get(datas.getInt("type")+"_"+datas.getInt("owner")) != -1) ) {
+				else if( (this.showOnly != 0) || !types.containsKey(typeGroupID) || (types.get(typeGroupID) != -1) ) {
 					if( (this.showOnly != 0) && firstentry ) {
 						int count = datas.numRows();		
 						
