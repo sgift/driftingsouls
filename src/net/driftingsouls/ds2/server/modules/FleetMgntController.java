@@ -93,7 +93,7 @@ public class FleetMgntController extends DSGenerator {
 			shiplist = new Integer[] { 
 					db.first("SELECT id FROM ships " +
 							"WHERE owner=",user.getID()," AND system=",sectorRow.getInt("system")," AND " +
-									"x=",sectorRow.getInt("x")," AND y='",sectorRow.getInt("y")," AND " +
+									"x=",sectorRow.getInt("x")," AND y=",sectorRow.getInt("y")," AND " +
 									"type=",type," AND docked=''")
 						.getInt("id")};	
 		}
