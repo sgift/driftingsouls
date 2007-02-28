@@ -501,7 +501,7 @@ public class KSAttackAction extends BasicKSAction {
 						subsysteme_name.add("Antrieb");
 					}
 	
-					if( eShipType.getInt("weapons") > 0 ) {
+					if( eShipType.getInt("military") > 0 ) {
 						subsysteme.add("weapons");
 						subsysteme_name.add("Waffen");
 					}
