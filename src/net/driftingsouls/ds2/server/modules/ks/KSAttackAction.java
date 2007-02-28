@@ -165,8 +165,10 @@ public class KSAttackAction extends BasicKSAction {
 			if( s.getString("docked").equals(eShip.getString("id")) || s.getString("docked").equals("l "+eShip.getInt("id")) ) {
 				if( generateStats ) {				
 					db.prepare("INSERT INTO ships_lost (type,name,time,owner,ally,destowner,destally,docked,battle,battlelog) ",
-								"VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-						.update(s.getInt("type"), s.getString("name"), Common.time(), s.getInt("owner"), eUser.getAlly(), ownShip.getInt("owner"), oUser.getAlly(), masterid, battle.getID(), Configuration.getSetting("LOXPATH")+"battles/battle_id"+battle.getID()+".log");
+								"VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+						.update(s.getInt("type"), s.getString("name"), Common.time(), s.getInt("owner"), eUser.getAlly(), 
+								ownShip.getInt("owner"), oUser.getAlly(), Integer.toString(masterid), battle.getID(), 
+								Configuration.getSetting("LOXPATH")+"battles/battle_id"+battle.getID()+".log");
 				}
 	
 				remove++;
