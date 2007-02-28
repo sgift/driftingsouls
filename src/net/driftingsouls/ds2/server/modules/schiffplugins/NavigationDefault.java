@@ -164,7 +164,7 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 			String[][] sectorimgs = new String[3][3];
 			SQLQuery aJN = db.query("SELECT x,y FROM jumpnodes WHERE system='",sys,"' AND (x BETWEEN ",(x-1)," AND ",(x+1),") AND (y BETWEEN ",(y-1)," AND ",(y+1),")");
 			while( aJN.next() ) {
-				sectorimgs[aJN.getInt("x")-x+1][aJN.getInt("y")-y+1] = "../data/starmap/jumpnode/jumpnode.png";
+				sectorimgs[aJN.getInt("x")-x+1][aJN.getInt("y")-y+1] = "data/starmap/jumpnode/jumpnode.png";
 			}
 			aJN.free();
 			
