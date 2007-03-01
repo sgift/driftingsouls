@@ -310,8 +310,8 @@ public class SchiffController extends DSGenerator implements Loggable {
 			return;
 		}
 		
-		parameterNumber("knode");
-		int node = getInteger("knode");
+		parameterNumber("node");
+		int node = getInteger("node");
 		
 		if( node != 0 ) {
 			Ships.jump(ship.getInt("id"), node, false);
