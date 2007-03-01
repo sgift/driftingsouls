@@ -99,7 +99,10 @@ public class BasicContext implements Context,Loggable {
 		}
 		
 		if( sessdata.getInt("tick") != 0 ) {
-			addError( "Im Moment werden einige Tick-Berechnungen f&uuml;r sie durchgef&uuml;hrt. Bitte haben sie daher ein wenig Geduld", getRequest().getRequestURL() );
+			addError( "Im Moment werden einige Tick-Berechnungen f&uuml;r sie durchgef&uuml;hrt. Bitte haben sie daher ein wenig Geduld", 
+					getRequest().getRequestURL() + 
+						(getRequest().getQueryString() != null ? "?" + getRequest().getQueryString() : "") 
+			);
 
 			return;
 		}
