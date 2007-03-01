@@ -485,7 +485,7 @@ public class WerftGUI {
 			String[] aslot = moduleslots.get(i);
 			
 			t.set_var(	"slot.name",		ModuleSlots.get().slot(aslot[1]).getName(),
-						"slot.empty",		usedslots.containsKey(Integer.parseInt(aslot[0])),
+						"slot.empty",		!usedslots.containsKey(Integer.parseInt(aslot[0])),
 						"slot.id",			aslot[0],
 						"slot.items.list",	"" );
 								
