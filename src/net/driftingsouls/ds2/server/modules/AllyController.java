@@ -246,7 +246,7 @@ public class AllyController extends DSGenerator implements Loggable {
 	
 		if( !conf.equals("ok") ) {	
 			t.set_var(	"ally.statusmessage",			"Wollen sie der Allianz &gt;"+Common._title(al.getString("name"))+"&lt; wirklich beitreten?",
-						"ally.statusmessage.ask.url1",	"&amp;action=join&amp;join=$join&amp;conf=ok",
+						"ally.statusmessage.ask.url1",	"&amp;action=join&amp;join="+join+"&amp;conf=ok",
 						"ally.statusmessage.ask.url2",	"" );
 								
 			redirect("defaultNoAlly");
@@ -257,7 +257,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		
 		SQLQuery supermemberid = db.query("SELECT DISTINCT u.id FROM users u JOIN ally a ON u.ally=a.id WHERE u.ally=",join," AND (u.allyposten!=0 OR u.id=a.president)");
 		while( supermemberid.next() ) {
-			PM.send(getContext(), 0, supermemberid.getInt("id"), "Aufnahmeantrag", "[Automatische Nachricht]\nHiermit beantrage ich die Aufnahme in die Allianz.\n\n[_intrnlConfTask="+taskid+"]Wollen sie dem Aufnahmeantrag zustimmen?[/_intrnlConfTask]", false, PM.FLAGS_IMPORTANT);
+			PM.send(getContext(), user.getID(), supermemberid.getInt("id"), "Aufnahmeantrag", "[Automatische Nachricht]\nHiermit beantrage ich die Aufnahme in die Allianz.\n\n[_intrnlConfTask="+taskid+"]Wollen sie dem Aufnahmeantrag zustimmen?[/_intrnlConfTask]", false, PM.FLAGS_IMPORTANT);
 		}
 		supermemberid.free();	
 	
