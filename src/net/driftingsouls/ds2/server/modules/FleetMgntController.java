@@ -116,7 +116,7 @@ public class FleetMgntController extends DSGenerator {
 		}
 		
 		if( ((fleet == null) || fleet.isEmpty()) && !action.equals("createFromSRSGroup") && 
-			!action.equals("create") && action.equals("create2") ) {
+			!action.equals("create") && !action.equals("create2") ) {
 			addError("Die angegebene Flotte existiert nicht");
 			
 			return false;
