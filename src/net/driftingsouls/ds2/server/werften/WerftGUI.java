@@ -492,7 +492,9 @@ public class WerftGUI {
 			if( usedslots.containsKey(Integer.parseInt(aslot[0])) ) {
 				ModuleEntry module = modules[usedslots.get(Integer.parseInt(aslot[0]))];
 				Module moduleobj = Modules.getShipModule( module );
-				moduleobj.setSlotData(aslot[2]);
+				if( aslot.length > 2 ) {
+					moduleobj.setSlotData(aslot[2]);
+				}
 				
 				t.set_var( "slot.module.name", moduleobj.getName() );
 			}	
