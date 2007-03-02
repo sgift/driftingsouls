@@ -112,7 +112,8 @@ public class KSKapernAction extends BasicKSAction {
 	
 		UserFlagschiffLocation flagschiffstatus = enemyuser.getFlagschiff();
 		
-		if( !ownuser.hasFlagschiffSpace() && (flagschiffstatus.getID() == enemyShip.getInt("id")) ) {
+		if( !ownuser.hasFlagschiffSpace() && (flagschiffstatus != null) && 
+			(flagschiffstatus.getID() == enemyShip.getInt("id")) ) {
 			return RESULT_ERROR;
 		}
 		
@@ -271,7 +272,8 @@ public class KSKapernAction extends BasicKSAction {
 			// Flagschiffeintraege aktuallisieren?
 			UserFlagschiffLocation flagschiffstatus = euser.getFlagschiff();
 	
-			if( (flagschiffstatus.getType() == UserFlagschiffLocation.Type.SHIP) && (enemyShip.getInt("id") == flagschiffstatus.getID()) ) {
+			if( (flagschiffstatus != null) && (flagschiffstatus.getType() == UserFlagschiffLocation.Type.SHIP) && 
+				(enemyShip.getInt("id") == flagschiffstatus.getID()) ) {
 				euser.setFlagschiff(0);
 				user.setFlagschiff(enemyShip.getInt("id"));
 			}
