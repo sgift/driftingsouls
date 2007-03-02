@@ -499,7 +499,9 @@ public abstract class WerftObject extends DSObject {
 		
 		ModuleEntry module = modules[usedslots.get(slot)];
 		Module moduleobj = Modules.getShipModule( module );
-		moduleobj.setSlotData(aslot[2]);
+		if( aslot.length > 2 ) {
+			moduleobj.setSlotData(aslot[2]);
+		}
 		
 		Cargo cargo = getCargo(false);
 		
