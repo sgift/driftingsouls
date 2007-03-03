@@ -59,16 +59,17 @@ public class BattleTick extends TickController {
 			Battle battle = new Battle();
 			battle.load( battledata.getInt("id"), comid, 0, 0, 0 );
 		
-			battle.endTurn(false);
-		
-			battle.logenemy("<endturn type=\"all\" side=\"-1\" time=\""+Common.time()+"\" tick=\""+getContext().get(ContextCommon.class).getTick()+"\" />\n");
-		
-			battle.save(true);
-		
-			battle.writeLog();
+			if( battle.endTurn(false) ) {
+				// Daten nur aktuallisieren, wenn die Schlacht auch weiterhin existiert
+				battle.logenemy("<endturn type=\"all\" side=\"-1\" time=\""+Common.time()+"\" tick=\""+getContext().get(ContextCommon.class).getTick()+"\" />\n");
 			
-			battle.addComMessage(battle.getOwnSide(), "++++ Das Tickscript hat die Runde beendet ++++\n\n");
-			battle.addComMessage(battle.getEnemySide(), "++++ Das Tickscript hat die Runde beendet ++++\n\n");
+				battle.save(true);
+			
+				battle.writeLog();
+				
+				battle.addComMessage(battle.getOwnSide(), "++++ Das Tickscript hat die Runde beendet ++++\n\n");
+				battle.addComMessage(battle.getEnemySide(), "++++ Das Tickscript hat die Runde beendet ++++\n\n");
+			}
 		}
 		battledata.free();
 	}

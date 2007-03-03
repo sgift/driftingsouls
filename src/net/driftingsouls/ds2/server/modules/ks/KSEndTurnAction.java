@@ -49,7 +49,7 @@ public class KSEndTurnAction extends BasicKSAction {
 		}
 
 		if( battle.isReady(battle.getEnemySide()) ) {
-			if( battle.endTurn(true) ) {
+			if( !battle.endTurn(true) ) {
 				return RESULT_HALT;
 			}
 

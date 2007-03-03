@@ -1713,10 +1713,11 @@ public class Battle implements Loggable {
 			if( !calledByUser ) {
 				context.getResponse().getContent().append("-> Die Schlacht wurde wegen Inaktivit&auml;t beendet"); 	
 			}
+			
+			return false;
 		} 
-		else {
-			db.update("UPDATE battles SET inakt="+(inakt+1)+" WHERE id=",this.id);
-		}
+
+		db.update("UPDATE battles SET inakt="+(inakt+1)+" WHERE id=",this.id);
 		
 		return true;
 	}
