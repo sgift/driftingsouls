@@ -127,7 +127,7 @@ public class Cargo implements Loggable, Cloneable {
 	private long[] orgcargo = new long[MAX_RES+1];
 	
 	private List<Long[]> items = new ArrayList<Long[]>();
-	private List<Long[]> orgitems = new ArrayList<Long[]>();
+	private String orgitems = null;
 	
 	private String linkclass = "forschinfo";
 	private boolean showmass = true;
@@ -188,16 +188,22 @@ public class Cargo implements Loggable, Cloneable {
 		try {
 			switch(type) {
 			case STRING: {
-				String[] mycargo = source.split(",");
+				String[] mycargo = StringUtils.splitPreserveAllTokens(source, ',');
+				
 				if( mycargo.length != MAX_RES + 1 ) {
 					String[] mycargo2 = new String[MAX_RES+1];
 					System.arraycopy(mycargo, 0, mycargo2, 0, Math.min(mycargo.length,mycargo2.length));
 					mycargo = mycargo2;
 				}
+				
 				String[] myitems = new String[0];
-				if( (mycargo[Resources.ITEMS.getID()] != null) && !"".equals(mycargo[Resources.ITEMS.getID()]) ) {
-					myitems = mycargo[Resources.ITEMS.getID()].split(";");
+				
+				orgitems = mycargo[Resources.ITEMS.getID()];
+				
+				if( (mycargo[Resources.ITEMS.getID()] != null) && (mycargo[Resources.ITEMS.getID()].length() > 0) ) {
+					myitems = StringUtils.splitPreserveAllTokens(mycargo[Resources.ITEMS.getID()],';');
 				}
+				
 				int itemcount = 0;
 				for( int i=0; i < myitems.length; i++ ) {
 					if( !myitems[i].equals("") ) { 
@@ -215,7 +221,9 @@ public class Cargo implements Loggable, Cloneable {
 				
 			case ITEMSTRING: {
 				if( source.length() > 0 ) {
-					String[] myitems = source.split(";");
+					orgitems = source;
+					
+					String[] myitems = StringUtils.splitPreserveAllTokens(source, ';');
 					int itemcount = 0;
 					for( int i=0; i < myitems.length; i++ ) {
 						if( !myitems[i].equals("") ) { 
@@ -229,7 +237,6 @@ public class Cargo implements Loggable, Cloneable {
 			}
 			
 			System.arraycopy(cargo, 0, orgcargo, 0, cargo.length);
-			orgitems = new ArrayList<Long[]>(items);
 		}
 		catch( RuntimeException e ) {
 			LOG.error("Kann Cargo-String '"+source+"' im Format "+type+"' nicht laden", e);
@@ -255,22 +262,20 @@ public class Cargo implements Loggable, Cloneable {
 	 */
 	public String getData(Type type, boolean orginalCargo ) {
 		long[] cargo = null;
-		List<Long[]> items = null;
+		List<Long[]> items = this.items;
 		
 		if( orginalCargo ) {
 			cargo = this.orgcargo;
-			items = this.orgitems;
 		}
 		else {
 			cargo = this.cargo;	
-			items = this.items;
 		}
 		
 		switch(type) {
 		case STRING: {
 			StringBuilder itemString = new StringBuilder(items.size()*8);
 			
-			if( !items.isEmpty() ) {
+			if( !items.isEmpty() && !orginalCargo ) {
 				for( Long[] aItem : items ) {
 					if( aItem[1] != 0 ) {
 						if( itemString.length() != 0 ) {
@@ -280,6 +285,10 @@ public class Cargo implements Loggable, Cloneable {
 					}
 				}
 			}
+			else if( orginalCargo ) {
+				itemString.append(orgitems);
+			}
+			
 			String[] cargoString = new String[cargo.length];
 			for( int i=0; i < cargo.length; i++ ) {
 				cargoString[i] = Long.toString(cargo[i]);
@@ -289,6 +298,10 @@ public class Cargo implements Loggable, Cloneable {
 			return Common.implode(",", cargoString);
 		}
 		case ITEMSTRING: {
+			if( orginalCargo ) {
+				return orgitems;
+			}
+			
 			StringBuilder itemString = new StringBuilder(items.size()*8);
 			
 			if( !items.isEmpty() ) {
@@ -415,8 +428,6 @@ public class Cargo implements Loggable, Cloneable {
 	 */
 	public void substractResource( ResourceID resourceid, long count ) {
 		if( resourceid.isItem() ) {
-			boolean done = false;
-			
 			for( int i=0; i < items.size(); i++ ) {
 				Long[] aitem = items.get(i);
 				if( isSameIID(resourceid, aitem) ) {
@@ -424,17 +435,13 @@ public class Cargo implements Loggable, Cloneable {
 					if( aitem[1] == 0 ) {
 						items.remove(i);
 					}
-					else {
-						items.set(i, aitem);
-					}
-					done = true;
-					break;
+
+					return;
 				}
 			}
 			
-			if( !done ) {
-				items.add( new Long[] {new Long(resourceid.getItemID()), -count, new Long(resourceid.getUses()), new Long(resourceid.getQuest())} );
-			}
+			// Diese Anweisung wird nur ausgefueht, wenn das Item nicht im Cargo vorhanden ist
+			items.add( new Long[] {new Long(resourceid.getItemID()), -count, new Long(resourceid.getUses()), new Long(resourceid.getQuest())} );
 		}
 		else {
 			cargo[resourceid.getID()] -= count;
@@ -1139,10 +1146,7 @@ public class Cargo implements Loggable, Cloneable {
 			for( int i=0; i < this.items.size(); i++ ) {
 				cargo.items.add(i, this.items.get(i).clone());
 			}
-			cargo.orgitems = new ArrayList<Long[]>();
-			for( int i=0; i < this.orgitems.size(); i++ ) {
-				cargo.orgitems.add(i, this.orgitems.get(i).clone());
-			}
+			cargo.orgitems = this.orgitems;
 			cargo.linkclass = this.linkclass;
 			cargo.showmass = this.showmass;
 			cargo.largeImages = this.largeImages;
