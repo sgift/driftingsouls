@@ -337,17 +337,7 @@ public class Base implements Cloneable {
 
 		return getStatus( context, new Base(baseRow) );
 	}
-	
-	/**
-	 * Generiert den aktuellen Verbrauch/Produktion-Status einer Basis
-	 * @param context Der aktuelle Kontext
-	 * @param base die SQL-Zeile der Basis
-	 * @return der aktuelle Verbrauchs/Produktions-Status
-	 */
-	public static BaseStatus getStatus( Context context, SQLResultRow base ) {
-		return getStatus(context, new Base(base));
-	}
-	
+		
 	/**
 	 * Generiert den aktuellen Verbrauch/Produktion-Status einer Basis
 	 * @param context Der aktuelle Kontext

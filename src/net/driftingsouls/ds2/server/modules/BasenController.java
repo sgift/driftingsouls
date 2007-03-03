@@ -131,7 +131,7 @@ public class BasenController extends DSGenerator {
 		
 		SQLQuery base = db.query("SELECT * FROM bases WHERE owner=",user.getID()," ORDER BY ",ow," ",om);
 		while( base.next() ) {
-			BaseStatus basedata = Base.getStatus(getContext(),base.getRow());
+			BaseStatus basedata = Base.getStatus(getContext(),new Base(base.getRow()));
 			
 			t.set_var( "base.id"		, base.get("id"),
 					"base.klasse"	, base.get("klasse"),

@@ -277,7 +277,7 @@ public class UeberController extends DSGenerator implements Loggable {
 		while( base.next() ) {
 			bases++;
 			
-			BaseStatus basedata = Base.getStatus(getContext(), base.getRow());
+			BaseStatus basedata = Base.getStatus(getContext(), new Base(base.getRow()));
 			
 			Cargo cargo = new Cargo( Cargo.Type.STRING, base.getString("cargo") );
 			cargo.addResource( Resources.NAHRUNG, usercargo.getResourceCount(Resources.NAHRUNG) );
