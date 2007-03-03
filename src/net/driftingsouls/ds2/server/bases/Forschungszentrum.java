@@ -92,16 +92,16 @@ class Forschungszentrum extends DefaultBuilding {
 	}
 
 	@Override
-	public String echoShortcut(Context context, int col, int field, int building) {
+	public String echoShortcut(Context context, Base base, int field, int building) {
 		Database db = context.getDatabase();
 		
 		String sess = context.getSession();
 		
 		StringBuilder result = new StringBuilder(100);
-		SQLResultRow fz = db.first("SELECT id,dauer,forschung FROM fz WHERE col=",col);
+		SQLResultRow fz = db.first("SELECT id,dauer,forschung FROM fz WHERE col="+base.getID());
 		if( !fz.isEmpty() ) {
 			if( fz.getInt("dauer") == 0 ) {
-				result.append("<a class=\"back\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+col+"&amp;field="+field+"\">[F]</a>");
+				result.append("<a class=\"back\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"\">[F]</a>");
 			}
 			else {
 				StringBuilder popup = new StringBuilder(Common.tableBegin( 350, "left" ).replace("\"", "'") );
@@ -111,7 +111,11 @@ class Forschungszentrum extends DefaultBuilding {
 				popup.append("Dauer: noch <img src='"+Configuration.getSetting("URL")+"data/interface/time.gif' alt='noch ' />"+fz.getInt("dauer")+"<br />");
 				popup.append( Common.tableEnd().replace("\"", "'") );
 
-				result.append("<a name=\"p"+col+"_"+field+"\" id=\"p"+col+"_"+field+"\" class=\"error\" onmouseover=\"return overlib('<span style=\\'font-size:13px\\'>"+StringEscapeUtils.escapeJavaScript(popup.toString())+"</span>',REF,'p"+col+"_"+field+"',REFY,22,NOJUSTY,TIMEOUT,0,DELAY,150,WIDTH,280,BGCLASS,'gfxtooltip',FGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');\" onmouseout=\"return nd();\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+col+"&amp;field="+field+"\">[F]<span style=\"font-weight:normal\">"+fz.getInt("dauer")+"</span></a>");
+				result.append("<a name=\"p"+base.getID()+"_"+field+"\" id=\"p"+base.getID()+"_"+field+"\" " +
+						"class=\"error\" " +
+						"onmouseover=\"return overlib('<span style=\\'font-size:13px\\'>"+StringEscapeUtils.escapeJavaScript(popup.toString())+"</span>',REF,'p"+base.getID()+"_"+field+"',REFY,22,NOJUSTY,TIMEOUT,0,DELAY,150,WIDTH,280,BGCLASS,'gfxtooltip',FGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');\" " +
+						"onmouseout=\"return nd();\" " +
+						"href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"\">[F]<span style=\"font-weight:normal\">"+fz.getInt("dauer")+"</span></a>");
 			}
 		}
 		else {

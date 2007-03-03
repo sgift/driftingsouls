@@ -69,24 +69,22 @@ class Werft extends DefaultBuilding {
 
 
 	@Override
-	public String echoShortcut(Context context, int col, int field, int building) {
+	public String echoShortcut(Context context, Base base, int field, int building) {
 		Database db = context.getDatabase();
 		
 		String sess = context.getSession();
-		
-		SQLResultRow colony = db.first("SELECT id,owner,system FROM bases WHERE id=",col);
-		
+				
 		StringBuilder result = new StringBuilder(200);
 		
-		SQLResultRow werftRow = db.first("SELECT * FROM werften WHERE col=",col);
+		SQLResultRow werftRow = db.first("SELECT * FROM werften WHERE col=",base.getID());
 		if( !werftRow.isEmpty() ) {
-			BaseWerft werft = new BaseWerft(werftRow,"pwerft",colony.getInt("system"),colony.getInt("owner"),colony.getInt("id"), field);
+			BaseWerft werft = new BaseWerft(werftRow,"pwerft",base.getSystem(),base.getOwner(),base.getID(), field);
 			
 			if( !werft.isBuilding() ) {
 				result.append("<a class=\"back\" href=\"./main.php?module=building&amp;sess=");
 				result.append(sess);
 				result.append("&amp;col=");
-				result.append(col);
+				result.append(base.getID());
 				result.append("&amp;field=");
 				result.append(field);
 				result.append("\">[W]</a>");
@@ -129,23 +127,23 @@ class Werft extends DefaultBuilding {
 				String popupStr = StringEscapeUtils.escapeJavaScript(popup.toString());
 				
 				result.append("<a name=\"p");
-				result.append(col);
+				result.append(base.getID());
 				result.append("_");
 				result.append(field);
 				result.append("\" id=\"p");
-				result.append(col);
+				result.append(base.getID());
 				result.append("_");
 				result.append(field);
 				result.append("\" class=\"error\" onmouseover=\"return overlib('<span style=\\'font-size:13px\\'>");
 				result.append(popupStr);
 				result.append("</span>',REF,'p");
-				result.append(col);
+				result.append(base.getID());
 				result.append("_");
 				result.append(field);
 				result.append("',REFY,22,NOJUSTY,FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip',TIMEOUT,0,DELAY,150,WIDTH,430);\" onmouseout=\"return nd();\" href=\"./main.php?module=building&amp;sess=");
 				result.append(sess);
 				result.append("&amp;col=");
-				result.append(col);
+				result.append(base.getID());
 				result.append("&amp;field=");
 				result.append(field);
 				result.append("\">[W]<span style=\"font-weight:normal\">");

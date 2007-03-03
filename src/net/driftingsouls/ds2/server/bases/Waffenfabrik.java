@@ -279,18 +279,18 @@ class Waffenfabrik extends DefaultBuilding {
 	}
 
 	@Override
-	public String echoShortcut(Context context, int col, int field, int building) {
+	public String echoShortcut(Context context, Base base, int field, int building) {
 		Database db = context.getDatabase();
 		
 		String sess = context.getSession();
 		
 		StringBuilder result = new StringBuilder(200);
 		
-		loaddata( col );
+		loaddata( base.getID() );
 		ContextVars vars = (ContextVars)ContextMap.getContext().getVariable(getClass(), "values");
 	
-		if( vars.usedcapacity.get(col).doubleValue() > 0 ) {
-			SQLResultRow wf = db.first("SELECT produces FROM weaponfactory WHERE col=",col);
+		if( vars.usedcapacity.get(base.getID()).doubleValue() > 0 ) {
+			SQLResultRow wf = db.first("SELECT produces FROM weaponfactory WHERE col=",base.getID());
 			String[] prodlist = StringUtils.split(wf.getString("produces"), ';');
 			
 			StringBuilder popup = new StringBuilder(200);
@@ -307,10 +307,14 @@ class Waffenfabrik extends DefaultBuilding {
 		
 			popup.append(Common.tableEnd().replace('"', '\'') );
 							
-			result.append("<a name=\"p"+col+"_"+field+"\" id=\"p"+col+"_"+field+"\" class=\"error\" onmouseover=\"return overlib('<span style=\\'font-size:13px\\'>"+StringEscapeUtils.escapeJavaScript(popup.toString())+"</span>',REF,'p"+col+"_"+field+"',REFY,22,NOJUSTY,TIMEOUT,0,DELAY,150,WIDTH,260,BGCLASS,'gfxtooltip',FGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');\" onmouseout=\"return nd();\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+col+"&amp;field="+field+"\">[WF]</a>");
+			result.append("<a name=\"p"+base.getID()+"_"+field+"\" id=\"p"+base.getID()+"_"+field+"\" " +
+					"class=\"error\" " +
+					"onmouseover=\"return overlib('<span style=\\'font-size:13px\\'>"+StringEscapeUtils.escapeJavaScript(popup.toString())+"</span>',REF,'p"+base.getID()+"_"+field+"',REFY,22,NOJUSTY,TIMEOUT,0,DELAY,150,WIDTH,260,BGCLASS,'gfxtooltip',FGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');\" " +
+					"onmouseout=\"return nd();\" " +
+					"href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"\">[WF]</a>");
 		} 
 		else {
-			result.append("<a class=\"back\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+col+"&amp;field="+field+"\">[WF]</a>");
+			result.append("<a class=\"back\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"\">[WF]</a>");
 		}
 	
 		return result.toString();

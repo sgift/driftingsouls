@@ -80,7 +80,7 @@ class DefaultBuilding extends Building {
 	}
 
 	@Override
-	public String echoShortcut(Context context, int col, int field, int building) {
+	public String echoShortcut(Context context, Base base, int field, int building) {
 		return "";
 	}
 

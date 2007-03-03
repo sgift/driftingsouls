@@ -235,12 +235,12 @@ public abstract class Building implements Loggable {
 	 * Generiert einen Shortcut-Link (String) sofern notwendig. Sollte das Gebaeude keinen haben 
 	 * wird ein leerer String zurueckgegeben
 	 * @param context der aktive Kontext
-	 * @param col Die ID der Basis
+	 * @param base Die Basis
 	 * @param field Das Feld, auf dem das Gebaeude steht
 	 * @param building die ID des Gebaeudetyps
 	 * @return Ein HTML-String, welcher den Shortcut enthaelt
 	 */
-	public abstract String echoShortcut( Context context, int col, int field, int building );
+	public abstract String echoShortcut( Context context, Base base, int field, int building );
 	
 	/**
 	 * Gibt <code>true</code> zurueck, wenn eine Kopfzeile ausgegeben werden soll (Enthaelt den Namen des Gebaeudes und ggf dessen Bild.

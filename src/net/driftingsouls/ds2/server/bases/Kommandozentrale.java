@@ -61,10 +61,10 @@ class Kommandozentrale extends DefaultBuilding {
 	}
 
 	@Override
-	public String echoShortcut(Context context, int col, int field, int building) {
+	public String echoShortcut(Context context, Base base, int field, int building) {
 		String sess = context.getSession();
 		
-		return "<a class=\"back\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+col+"&amp;field="+field+"\">[K]</a>";
+		return "<a class=\"back\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"\">[K]</a>";
 	}
 
 	@Override

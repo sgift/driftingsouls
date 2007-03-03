@@ -188,7 +188,7 @@ public class BasenController extends DSGenerator {
 			for( Integer bid : basedata.getBuildingLocations().keySet() ) {
 				Building building = Building.getBuilding(db, bid);
 		
-				shortcuts.append(building.echoShortcut( getContext(), base.getID(), basedata.getBuildingLocations().get(bid), bid ));
+				shortcuts.append(building.echoShortcut( getContext(), base, basedata.getBuildingLocations().get(bid), bid ));
 				shortcuts.append(" ");
 			}
 									
