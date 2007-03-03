@@ -60,6 +60,12 @@ public class PlayerLoginSuper implements AdminPlugin {
 		}
 		else {
 			int uid = user;
+			User userObj = context.createUserObject(uid);
+			if( userObj.getID() == 0 ) {
+				echo.append("<span style=\"color:red\">Der angegebene Spieler existiert nicht</span>");
+				return;
+			}
+			
 			String usess = null;
 			if( usesessid == 0 ) {
 				usess = Common.md5(""+new Random().nextInt(Integer.MAX_VALUE));
