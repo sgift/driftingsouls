@@ -69,7 +69,7 @@ class DefaultBuilding extends Building {
 	}
 
 	@Override
-	public String modifyStats(int col, Cargo stats) {
+	public String modifyStats(Base base, Cargo stats) {
 		// EMPTY
 		return "";
 	}

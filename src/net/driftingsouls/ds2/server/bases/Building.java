@@ -216,15 +216,15 @@ public abstract class Building implements Loggable {
 	
 	/**
 	 * Modifiziert das stats-objekt der Basis um die Stats dieses Gebaeudes
-	 * @param col Die ID der basis
+	 * @param base Die Basis
 	 * @param stats Ein Cargo-Objekt mit dem aktuellen Stats
 	 * @return Warnungen fuer den Benutzer/Fuers Log
 	 */
-	public abstract String modifyStats( int col, Cargo stats );
+	public abstract String modifyStats( Base base, Cargo stats );
 	
 	/**
 	 * Gibt <code>true</code> zurueck, wenn das Gebaeude aktiv ist
-	 * @param base Die ID der basis
+	 * @param base Die Basis
 	 * @param status der aktuelle Aktivierungsstatus (0 oder 1)
 	 * @param field Das Feld, auf dem das Gebaeude steht
 	 * @return <code>true</code>, falls das Gebaeude aktiv ist

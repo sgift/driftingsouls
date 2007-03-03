@@ -392,7 +392,7 @@ public class Base implements Cloneable {
 				continue;
 			}
 			
-			building.modifyStats( base.getID(), stat );
+			building.modifyStats( base, stat );
 		
 			stat.substractCargo(building.getConsumes());
 			stat.addCargo(building.getProduces());

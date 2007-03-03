@@ -328,8 +328,8 @@ class Waffenfabrik extends DefaultBuilding {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public String modifyStats(int col, Cargo stats) {
-		String msg = loaddata( col );
+	public String modifyStats(Base base, Cargo stats) {
+		String msg = loaddata( base.getID() );
 		
 		Context context = ContextMap.getContext();
 		ContextVars vars = (ContextVars)context.getVariable(getClass(), "values");
@@ -339,9 +339,9 @@ class Waffenfabrik extends DefaultBuilding {
 			context.putVariable(getClass(), "colcomplete", colcomplete);
 		}
 		
-		if( (vars.usedcapacity.get(col).compareTo(new BigDecimal(0)) > 0) && !colcomplete.containsKey(col) ) {
-			stats.addCargo( vars.stats.get(col) );
-			colcomplete.put(col, true);
+		if( (vars.usedcapacity.get(base.getID()).compareTo(new BigDecimal(0)) > 0) && !colcomplete.containsKey(base.getID()) ) {
+			stats.addCargo( vars.stats.get(base.getID()) );
+			colcomplete.put(base.getID(), true);
 		}
 	
 		return msg;
