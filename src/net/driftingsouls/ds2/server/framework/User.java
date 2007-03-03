@@ -633,7 +633,7 @@ public class User implements Loggable {
 			}
 			relation.free();
 			
-			if( relations.toOther.containsKey(0) ) {
+			if( !relations.toOther.containsKey(0) ) {
 				relations.toOther.put(0, Relation.NEUTRAL);	
 			}
 			
@@ -737,7 +737,7 @@ public class User implements Loggable {
 					relations.toOther.put(0, relation);
 				}
 				if( !currelation.isEmpty() ) {
-					db.update("UPDATE user_relations SET status='",relation,"' WHERE user_id='",this.id,"' AND target_id='0'");	
+					db.update("UPDATE user_relations SET status='",relation.ordinal(),"' WHERE user_id='",this.id,"' AND target_id='0'");	
 				}	
 				else {
 					db.update("INSERT INTO user_relations (user_id,target_id,status) VALUES ('",this.id,"','0','",relation.ordinal(),"')");	
