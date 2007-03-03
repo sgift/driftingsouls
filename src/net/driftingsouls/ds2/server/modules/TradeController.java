@@ -135,7 +135,7 @@ public class TradeController extends DSGenerator {
 		for( ResourceEntry res : reslist ) {
 			parameterNumber( res.getId()+"to" );
 			long tmp = getInteger( res.getId()+"to" );
-			
+
 			if( tmp > 0 ) {
 				if( tmp > shipCargo.getResourceCount( res.getId() ) ) {
 					tmp = shipCargo.getResourceCount( res.getId() );
@@ -150,7 +150,7 @@ public class TradeController extends DSGenerator {
 				t.set_var(	"waren.count",	tmp,
 							"waren.name",	res.getName(),
 							"waren.img",	res.getImage(),
-							"waren.re",		get );
+							"waren.re",		Common.ln(get) );
 								
 				t.parse("msgs.list","msgs.listitem",true);
 			
@@ -164,7 +164,7 @@ public class TradeController extends DSGenerator {
 		}
 		
 		if( changed ) {
-			db.tBegin();
+			db.tBegin(true);
 			
 			SQLResultRow statid = db.first("SELECT id FROM stats_verkaeufe WHERE tick=",tick," AND place='",this.place,"' AND system=",system);
 			if( statid.isEmpty() ) {
@@ -220,7 +220,7 @@ public class TradeController extends DSGenerator {
 				preis = "Kein Bedarf";
 			}
 			else {
-				preis = (res.getCount1()/1000d)+" RE";
+				preis = Common.ln(res.getCount1()/1000d)+" RE";
 			}
 	
 			t.set_var(	"res.img",		res.getImage(),

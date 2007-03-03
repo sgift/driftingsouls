@@ -909,7 +909,7 @@ public class ErsteigernController extends DSGenerator {
 			ResourceList reslist = kurseCargo.getResourceList();
 			for( ResourceEntry res : reslist ) {
 				t.set_var(	"ware.image",	res.getImage(),
-							"ware.preis",	(res.getCount1()/1000d > 0.05 ? res.getCount1()/1000d:"") );
+							"ware.preis",	(res.getCount1()/1000d > 0.05 ? Common.ln(res.getCount1()/1000d):"") );
 									
 				t.parse("kurse.waren.list","kurse.waren.listitem",true);
 			}
