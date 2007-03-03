@@ -134,7 +134,7 @@ public class BaseController extends DSGenerator {
 			redirect();
 			return;
 		}
-		base.put("cargo", cargo);
+		base.setCargo(cargo);
 	
 		t.set_var("base.message", "<img src=\""+Cargo.getResourceImage(Resources.NAHRUNG)+"\" alt=\"\" />"+Math.abs(count)+" 100er Pakete transferiert" );
 	

@@ -156,7 +156,7 @@ public class CoreController extends DSGenerator {
 			}
 			cargo.substractCargo( costs );
 	
-			base.put("cargo", cargo.save());
+			base.setCargo(cargo);
 			db.tBegin();
 			db.update("UPDATE bases " +
 					"SET core=",build,",cargo='",cargo.save(),"',coreactive=0 " +

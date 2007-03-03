@@ -37,13 +37,15 @@ import org.apache.commons.lang.StringUtils;
 
 //TODO: Echte Setter einbauen. Das aktuelle Verfahren ist einfach unsicher und grauenvoll...
 /**
- * Repraesentiert eine Basis in DS
+ * <p>Repraesentiert eine Basis in DS</p>
+ * Hinweis: Das setzen von Werten aktuallisiert nicht die Datenbank!
  * 
  * @author Christopher Jung
  */
 public class Base implements Cloneable {
 	private SQLResultRow base;
 	private List<AutoGTUAction> autogtuacts;
+	private Cargo cargo;
 	
 	/**
 	 * Erstellt eine neue Instanz einer Basis
@@ -55,7 +57,7 @@ public class Base implements Cloneable {
 		base.put("terrain", Common.explodeToInteger("|",base.getString("terrain")));
 		base.put("bebauung", Common.explodeToInteger("|",base.getString("bebauung")));
 		base.put("active", Common.explodeToInteger("|",base.getString("active")));
-		base.put("cargo", new Cargo( Cargo.Type.STRING, base.getString("cargo") ));
+		this.cargo = new Cargo( Cargo.Type.STRING, base.getString("cargo"));
 		
 		String[] autogtuacts = StringUtils.split(base.getString("autogtuacts"),";");
 		List<AutoGTUAction> acts = new ArrayList<AutoGTUAction>();
@@ -182,7 +184,15 @@ public class Base implements Cloneable {
 	 * @return Der Cargo
 	 */
 	public Cargo getCargo() {
-		return (Cargo)base.get("cargo");
+		return cargo;
+	}
+	
+	/**
+	 * Setzt den Cargo des Basisobjekts
+	 * @param cargo Der neue Cargo
+	 */
+	public void setCargo(Cargo cargo) {
+		this.cargo = cargo;
 	}
 	
 	/**
@@ -191,11 +201,11 @@ public class Base implements Cloneable {
 	 * @param value Der Wert
 	 */
 	public void put( String key, Object value ) {
-		if( !key.equals("autogtuacts") ) {
+		if( !key.equals("autogtuacts") && !key.equals("cargo") ) {
 			base.put(key, value);
 		}
 		else {
-			throw new RuntimeException("Bitte setAutoGtuActs() benutzen");
+			throw new RuntimeException("Bitte Setter benutzen");
 		}
 	}
 
