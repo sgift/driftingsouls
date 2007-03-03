@@ -129,18 +129,19 @@ public class BasenController extends DSGenerator {
 		t.set_block("bases.listitem", "bases.mangel.listitem", "bases.mangel.list");
 		t.set_block("bases.listitem", "bases.cargo.listitem", "bases.cargo.list");
 		
-		SQLQuery base = db.query("SELECT * FROM bases WHERE owner=",user.getID()," ORDER BY ",ow," ",om);
-		while( base.next() ) {
-			BaseStatus basedata = Base.getStatus(getContext(),new Base(base.getRow()));
+		SQLQuery baseRow = db.query("SELECT * FROM bases WHERE owner=",user.getID()," ORDER BY ",ow," ",om);
+		while( baseRow.next() ) {
+			Base base = new Base(baseRow.getRow());
+			BaseStatus basedata = Base.getStatus(getContext(),base);
 			
-			t.set_var( "base.id"		, base.get("id"),
-					"base.klasse"	, base.get("klasse"),
-					"base.name"		, Common._plaintitle(base.getString("name")),
-					"base.system"	, base.get("system"),
-					"base.x"		, base.get("x"),
-					"base.y"		, base.get("y"),
-					"base.bewohner"	, base.get("bewohner"),
-					"base.e"		, base.get("e"),
+			t.set_var( "base.id"		, base.getID(),
+					"base.klasse"	, base.getKlasse(),
+					"base.name"		, Common._plaintitle(base.getName()),
+					"base.system"	, base.getSystem(),
+					"base.x"		, base.getX(),
+					"base.y"		, base.getY(),
+					"base.bewohner"	, base.getBewohner(),
+					"base.e"		, base.getE(),
 					"base.e.diff"	, basedata.getE(),
 					"bases.mangel.list"	, "",
 					"bases.cargo.list"	, "" );
@@ -149,7 +150,7 @@ public class BasenController extends DSGenerator {
 				Mangel + Runden anzeigen
 			*/
 	
-			Cargo cargo = new Cargo( Cargo.Type.STRING, base.getString("cargo") );
+			Cargo cargo = base.getCargo();
 			cargo.addResource( Resources.NAHRUNG, usercargo.getResourceCount( Resources.NAHRUNG ) );
 	
 			ResourceList reslist = basedata.getStatus().getResourceList();
@@ -171,7 +172,7 @@ public class BasenController extends DSGenerator {
 			*/
 			
 			if( l == 1 ) {
-				t.set_var("bases.cargo.empty", Common.ln(base.getLong("maxcargo")-cargo.getMass()));
+				t.set_var("bases.cargo.empty", Common.ln(base.getMaxCargo()-cargo.getMass()));
 				
 				reslist = cargo.getResourceList();
 				Resources.echoResList(t, reslist, "bases.cargo.list");
@@ -187,7 +188,7 @@ public class BasenController extends DSGenerator {
 			for( Integer bid : basedata.getBuildingLocations().keySet() ) {
 				Building building = Building.getBuilding(db, bid);
 		
-				shortcuts.append(building.echoShortcut( getContext(), base.getInt("id"), basedata.getBuildingLocations().get(bid), bid ));
+				shortcuts.append(building.echoShortcut( getContext(), base.getID(), basedata.getBuildingLocations().get(bid), bid ));
 				shortcuts.append(" ");
 			}
 									
@@ -195,7 +196,7 @@ public class BasenController extends DSGenerator {
 									
 			t.parse("bases.list", "bases.listitem", true);
 		}
-		base.free();
+		baseRow.free();
 	}
 
 }
