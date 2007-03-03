@@ -91,15 +91,15 @@ class Academy extends DefaultBuilding {
 	}
 
 	@Override
-	public boolean isActive(int col, int status, int field) {
+	public boolean isActive(Base base, int status, int field) {
 		Database db = ContextMap.getContext().getDatabase();
 
-		SQLResultRow academy = db.first( "SELECT remain FROM academy WHERE col='",col,"'");
+		SQLResultRow academy = db.first( "SELECT remain FROM academy WHERE col="+base.getID());
 		if( !academy.isEmpty() && (academy.getInt("remain") > 0) ) {
 			return true;
 		}
 		else if( academy.isEmpty() ) {
-			LOG.warn("Die Akademie auf Basis "+col+" verfuegt ueber keinen DB-Eintrag");
+			LOG.warn("Die Akademie auf Basis "+base.getID()+" verfuegt ueber keinen DB-Eintrag");
 		}
 		return false;
 	}

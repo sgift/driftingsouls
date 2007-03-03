@@ -376,7 +376,7 @@ public class Base implements Cloneable {
 				buildinglocs.put(building.getID(), o);
 			}
 				
-			bebon[o] = building.isActive( base.getID(), bebon[o], o ) ? 1 : 0;
+			bebon[o] = building.isActive( base, bebon[o], o ) ? 1 : 0;
 		
 			if( bebon[o] == 0 ) {
 				continue;

@@ -224,12 +224,12 @@ public abstract class Building implements Loggable {
 	
 	/**
 	 * Gibt <code>true</code> zurueck, wenn das Gebaeude aktiv ist
-	 * @param col Die ID der basis
+	 * @param base Die ID der basis
 	 * @param status der aktuelle Aktivierungsstatus (0 oder 1)
 	 * @param field Das Feld, auf dem das Gebaeude steht
 	 * @return <code>true</code>, falls das Gebaeude aktiv ist
 	 */
-	public abstract boolean isActive( int col, int status, int field );
+	public abstract boolean isActive( Base base, int status, int field );
 	
 	/**
 	 * Generiert einen Shortcut-Link (String) sofern notwendig. Sollte das Gebaeude keinen haben 

@@ -158,14 +158,12 @@ class Werft extends DefaultBuilding {
 	}
 
 	@Override
-	public boolean isActive(int col, int status, int field) {
+	public boolean isActive(Base base, int status, int field) {
 		Database db = ContextMap.getContext().getDatabase();
 	
-		SQLResultRow werftRow = db.first("SELECT * FROM werften WHERE col=",col);
+		SQLResultRow werftRow = db.first("SELECT * FROM werften WHERE col=",base.getID());
 		if( !werftRow.isEmpty() ) {
-			SQLResultRow colony = db.first("SELECT id,owner,system FROM bases WHERE id=",col);
-			
-			WerftObject werft = new BaseWerft(werftRow,"pwerft",colony.getInt("system"),colony.getInt("owner"),colony.getInt("id"), field);
+			WerftObject werft = new BaseWerft(werftRow,"pwerft",base.getSystem(),base.getOwner(),base.getID(), field);
 			return (werft.isBuilding() ? true : false);
 		}
 		

@@ -317,10 +317,10 @@ class Waffenfabrik extends DefaultBuilding {
 	}
 
 	@Override
-	public boolean isActive(int col, int status, int field) {
-		loaddata( col );
+	public boolean isActive(Base base, int status, int field) {
+		loaddata( base.getID() );
 		ContextVars vars = (ContextVars)ContextMap.getContext().getVariable(getClass(), "values");
-		if( vars.usedcapacity.get(col).doubleValue() > 0 ) {
+		if( vars.usedcapacity.get(base.getID()).doubleValue() > 0 ) {
 			return true;
 		}
 		return false;

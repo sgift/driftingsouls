@@ -219,7 +219,7 @@ public class BuildingController extends DSGenerator {
 			}
 	
 			echo.append("Status: ");
-			if( building.isActive( base.getID(), base.getActive()[field], field ) ) {
+			if( building.isActive( base, base.getActive()[field], field ) ) {
 				echo.append("<span style=\"color:#00ff00\">Aktiv</span><br />\n");
 			} 
 			else {

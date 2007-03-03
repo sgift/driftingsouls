@@ -78,15 +78,15 @@ class Forschungszentrum extends DefaultBuilding {
 	}
 
 	@Override
-	public boolean isActive(int col, int status, int field) {
+	public boolean isActive(Base base, int status, int field) {
 		Database db = ContextMap.getContext().getDatabase();
 
-		SQLResultRow forschungszentrum = db.first( "SELECT dauer FROM fz WHERE col='",col,"'");
+		SQLResultRow forschungszentrum = db.first( "SELECT dauer FROM fz WHERE col=",base.getID());
 		if( !forschungszentrum.isEmpty() && (forschungszentrum.getInt("dauer") > 0) ) {
 			return true;
 		}
 		else if( forschungszentrum.isEmpty() ) {
-			LOG.warn("Forschungszentrum ohne fz-Eintrag auf Basis "+col+" gefunden");
+			LOG.warn("Forschungszentrum ohne fz-Eintrag auf Basis "+base.getID()+" gefunden");
 		}
 		return false;
 	}

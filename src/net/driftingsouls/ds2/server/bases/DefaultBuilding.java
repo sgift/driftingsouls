@@ -75,7 +75,7 @@ class DefaultBuilding extends Building {
 	}
 
 	@Override
-	public boolean isActive(int col, int status, int field) {
+	public boolean isActive(Base base, int status, int field) {
 		return status == 1;
 	}
 
