@@ -293,8 +293,8 @@ public class OptionsController extends DSGenerator implements Loggable {
 					"user.admin",			user.getAccessLevel() >= 20,
 					"user.mapwidth",		user.getUserValue("TBLORDER/map/width"),
 					"user.mapheight",		user.getUserValue("TBLORDER/map/height"),
-					"user.scriptdebug",		user.hasFlag( User.FLAG_SCRIPT_DEBUGGING),
-					"user.defrelation",		user.getRelation(0) );
+					"user.scriptdebug",		user.hasFlag(User.FLAG_SCRIPT_DEBUGGING),
+					"user.defrelation",		user.getRelation(0).ordinal() );
 	}
 	
 	private static final int MAX_UPLOAD_SIZE = 307200;
