@@ -241,7 +241,7 @@ public class TransportController extends DSGenerator {
 			}
 			Database db = ContextMap.getContext().getDatabase();
 			
-			String list = db.first("SELECT GROUP_CONCAT(id SEPARATOR '|') fleetlist FROM ships WHERE fleet='",fleet,"'").getString("fleetlist");
+			String list = db.first("SELECT CAST(GROUP_CONCAT(id SEPARATOR '|') AS CHAR) fleetlist FROM ships WHERE fleet='",fleet,"'").getString("fleetlist");
 			
 			return new MultiTarget("Flotte", list);
 		}
@@ -898,7 +898,8 @@ public class TransportController extends DSGenerator {
 			}
 			
 			// Multi to Multi
-			if( (multiFrom != null) && (multiTo != null)  ) {
+			if( (multiFrom != null) && (multiTo != null) && 
+				!multiFrom.getTargetList().equals(multiTo.getTargetList()) ) {
 				t.set_var(	"transfermode.to.name",		multiTo.getName(),
 							"transfermode.to",			multiTo.getTargetList(),
 							"transfermode.from.name",	multiFrom.getName(),
@@ -918,16 +919,14 @@ public class TransportController extends DSGenerator {
 			if( (getUser().getID() != to.getOwner()) && (to.getOwner() != 0) ) {
 				continue;
 			}
+			showtarget = true;
+			
 			ResourceList reslist = to.getCargo().getResourceList();
 			for( ResourceEntry res : reslist ) {
 				if( res.getCount1() > tocargo.getResourceCount(res.getId()) ) {
 					tocargo.setResource(res.getId(), res.getCount1());
 				}
 			}
-		}
-			
-		if( !tocargo.isEmpty() ) {
-			showtarget = true;
 		}
 		
 		t.set_var("target.show", showtarget);
