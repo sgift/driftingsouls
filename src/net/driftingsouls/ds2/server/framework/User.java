@@ -705,7 +705,7 @@ public class User implements Loggable {
 			}
 		
 			if( relation.ordinal() == defrelation.getInt("status") ) {
-				if( currelation.isEmpty() && (currelation.getInt("user_id") != 0) ) {
+				if( !currelation.isEmpty() && (currelation.getInt("user_id") != 0) ) {
 					if( relations != null ) {
 						relations.toOther.remove(userid);
 					}
