@@ -299,7 +299,7 @@ public class WerftGUI {
 					"ship.type.name",			type.getString("nickname"),
 					"ship.build.remaining",		werft.getRemainingTime(),
 					"ship.build.item",			werft.getRequiredItem(),
-					"werftgui.building.cancel.conf",	action.equals("canclebuild") && conf.equals("ok") );
+					"werftgui.building.cancel.conf",	action.equals("canclebuild") && !conf.equals("ok") );
 
 		if( werft.getRequiredItem() > -1 ) {
 			t.set_var(	"ship.build.item.picture",		Items.get().item(werft.getRequiredItem()).getPicture(),
