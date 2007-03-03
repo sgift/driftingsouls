@@ -82,11 +82,11 @@ class Waffenfabrik extends DefaultBuilding {
 		super(row);
 	}
 	
-	private String loaddata( int col ) {
+	private String loaddata( Base base ) {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 		
-		User user = context.createUserObject( db.first("SELECT owner FROM bases WHERE id=",col).getInt("owner") );
+		User user = context.createUserObject( base.getOwner() );
 		
 		ContextVars vars = (ContextVars)context.getVariable(getClass(), "values");
 		
@@ -133,15 +133,15 @@ class Waffenfabrik extends DefaultBuilding {
 		
 		StringBuilder wfreason = new StringBuilder(100);
 		
-		if( !vars.usedcapacity.containsKey(col) ) {
-			if( !vars.stats.containsKey(col) ) {
-				vars.stats.put(col, new Cargo());
+		if( !vars.usedcapacity.containsKey(base.getID()) ) {
+			if( !vars.stats.containsKey(base.getID()) ) {
+				vars.stats.put(base.getID(), new Cargo());
 			}
 			
 			boolean ok = true;
 			Map<Integer,SQLResultRow> thisammolist = vars.ownerammobase;	
 			
-			Cargo cargo = new Cargo( Cargo.Type.STRING, db.first("SELECT cargo FROM bases WHERE id='",col,"'").getString("cargo"));
+			Cargo cargo = base.getCargo();
 			
 			List<ItemCargoEntry> list = cargo.getItemsWithEffect( ItemEffect.Type.DRAFT_AMMO ) ;
 			for( ItemCargoEntry item : list ) {
@@ -149,9 +149,9 @@ class Waffenfabrik extends DefaultBuilding {
 				thisammolist.put(itemeffect.getAmmoID(), ammolist.get(itemeffect.getAmmoID()));
 			}
 			
-			SQLResultRow wf = db.first( "SELECT produces FROM weaponfactory WHERE col=",col);
+			SQLResultRow wf = db.first( "SELECT produces FROM weaponfactory WHERE col=",base.getID());
 			if( wf.isEmpty() ) {
-				LOG.warn("Basis "+col+" verfuegt ueber keinen Waffenfabrik-Eintrag, obwohl es eine Waffenfabrik hat");
+				LOG.warn("Basis "+base.getID()+" verfuegt ueber keinen Waffenfabrik-Eintrag, obwohl es eine Waffenfabrik hat");
 			}
 			String[] plist = StringUtils.split(wf.getString("produces"), ';');
 			for( int i=0; i < plist.length; i++ ) {
@@ -184,27 +184,27 @@ class Waffenfabrik extends DefaultBuilding {
 					int aid = Integer.parseInt(tmp[0]);
 					int count = Integer.parseInt(tmp[1]);
 					
-					if( !vars.usedcapacity.containsKey(col) ) {
-						vars.usedcapacity.put(col, new BigDecimal(0, MathContext.DECIMAL32));
+					if( !vars.usedcapacity.containsKey(base.getID()) ) {
+						vars.usedcapacity.put(base.getID(), new BigDecimal(0, MathContext.DECIMAL32));
 					}
-					vars.usedcapacity.put(col, vars.usedcapacity.get(col).add(new BigDecimal(ammolist.get(aid).getString("dauer")).multiply((new BigDecimal(count)))) );
+					vars.usedcapacity.put(base.getID(), vars.usedcapacity.get(base.getID()).add(new BigDecimal(ammolist.get(aid).getString("dauer")).multiply((new BigDecimal(count)))) );
 					if( count > 0 ) {
 						Cargo tmpcargo = (Cargo)((Cargo)ammolist.get(aid).get("buildcosts")).clone();
 						if( count > 1 ) {
 							tmpcargo.multiply( count, Cargo.Round.NONE );
 						}
-						vars.stats.get(col).substractCargo( tmpcargo );
-						vars.stats.get(col).addResource( new ItemID(ammolist.get(aid).getInt("itemid")), count );
+						vars.stats.get(base.getID()).substractCargo( tmpcargo );
+						vars.stats.get(base.getID()).addResource( new ItemID(ammolist.get(aid).getInt("itemid")), count );
 					}
 				}
 			}
 			else {
-				String basename = db.first("SELECT name FROM bases WHERE id='",col,"'").getString("name");
+				String basename = base.getName();
 				wfreason.insert(0, "[b]"+basename+"[/b] - Die Arbeiten in der Waffenfabrik zeitweise eingestellt.\nGrund:\n");
 			}
 			
-			if( !vars.usedcapacity.containsKey(col) || (vars.usedcapacity.get(col).doubleValue() <= 0) ) {
-				vars.usedcapacity.put(col, new BigDecimal(-1));
+			if( !vars.usedcapacity.containsKey(base.getID()) || (vars.usedcapacity.get(base.getID()).doubleValue() <= 0) ) {
+				vars.usedcapacity.put(base.getID(), new BigDecimal(-1));
 			}
 		}
 		
@@ -286,7 +286,7 @@ class Waffenfabrik extends DefaultBuilding {
 		
 		StringBuilder result = new StringBuilder(200);
 		
-		loaddata( base.getID() );
+		loaddata( base );
 		ContextVars vars = (ContextVars)ContextMap.getContext().getVariable(getClass(), "values");
 	
 		if( vars.usedcapacity.get(base.getID()).doubleValue() > 0 ) {
@@ -322,7 +322,7 @@ class Waffenfabrik extends DefaultBuilding {
 
 	@Override
 	public boolean isActive(Base base, int status, int field) {
-		loaddata( base.getID() );
+		loaddata( base );
 		ContextVars vars = (ContextVars)ContextMap.getContext().getVariable(getClass(), "values");
 		if( vars.usedcapacity.get(base.getID()).doubleValue() > 0 ) {
 			return true;
@@ -333,7 +333,7 @@ class Waffenfabrik extends DefaultBuilding {
 	@SuppressWarnings("unchecked")
 	@Override
 	public String modifyStats(Base base, Cargo stats) {
-		String msg = loaddata( base.getID() );
+		String msg = loaddata( base );
 		
 		Context context = ContextMap.getContext();
 		ContextVars vars = (ContextVars)context.getVariable(getClass(), "values");
