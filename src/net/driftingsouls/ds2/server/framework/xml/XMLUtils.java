@@ -119,6 +119,40 @@ public class XMLUtils {
 	}
 	
 	/**
+	 * Gibt das angegebene Attribut der Node als Number zurueck.
+	 * Sollte das Attribut nicht existieren oder keine Zahl sein,
+	 * so wird <code>null</code> zurueckgegeben.
+	 * @param node Der Knoten
+	 * @param attr Der Attributname
+	 * @return Der Wert oder null
+	 */
+	public static Number getNumberAttribute(Node node, String attr) {
+		if( node.getAttributes() == null ) {
+			return 0;
+		}
+		if( node.getAttributes().getNamedItem(attr) == null ) {
+			return 0;
+		}
+		String val = node.getAttributes().getNamedItem(attr).getNodeValue();
+		if( val == null ) {
+			return null;
+		}
+		try {
+			return new Long(val);
+		}
+		catch( NumberFormatException e ) {
+			// EMPTY
+		}
+		
+		try {
+			return new Double(val);
+		}
+		catch( NumberFormatException e ) {
+			return null;
+		}
+	}
+	
+	/**
 	 * Gibt das angegebene Attribut der Node als Long-Wert zurueck.
 	 * Sollte das Attribut nicht existieren oder keine Zahl sein,
 	 * so wird 0 zurueckgegeben.
