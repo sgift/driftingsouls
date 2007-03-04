@@ -941,6 +941,11 @@ public class KSAttackAction extends BasicKSAction {
 		Map<String,String> heatList = Weapons.parseWeaponList(this.ownShip.getString("heat"));
 		
 		final String weaponName = context.getRequest().getParameterString("weapon");
+		if( !weaponList.containsKey(weaponName) ) {
+			battle.logme("Ihr Schiff besitzt keine Waffen des Typs "+this.weapon.getName());
+			return RESULT_ERROR;
+		}
+		
 		int weapons = Integer.parseInt(weaponList.get(weaponName));
 		int maxheat = Integer.parseInt(maxheatList.get(weaponName));
 		int heat = 0;
