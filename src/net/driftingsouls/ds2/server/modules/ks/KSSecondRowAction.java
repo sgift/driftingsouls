@@ -50,8 +50,8 @@ public class KSSecondRowAction extends BasicKSAction {
 		Database db = context.getDatabase();
 		SQLResultRow ownShip = battle.getOwnShip();
 		
-		if( (ownShip.getInt("id") & Battle.BS_SECONDROW) != 0 || (ownShip.getInt("action") & Battle.BS_DESTROYED) != 0 ||
-			( ownShip.getInt("action") == 0 ) || ownShip.getString("docked").length() > 0 || (ownShip.getInt("action") & Battle.BS_FLUCHT) != 0 ||
+		if( (ownShip.getInt("action") & Battle.BS_SECONDROW) != 0 || (ownShip.getInt("action") & Battle.BS_DESTROYED) != 0 ||
+			( ownShip.getInt("engine") == 0 ) || ownShip.getString("docked").length() > 0 || (ownShip.getInt("action") & Battle.BS_FLUCHT) != 0 ||
 			( ownShip.getInt("action") & Battle.BS_JOIN ) != 0 ) {
 			return RESULT_ERROR;
 		}
