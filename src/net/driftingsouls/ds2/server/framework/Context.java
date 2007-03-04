@@ -44,18 +44,6 @@ public interface Context {
 	
 	/**
 	 * Erstellt ein neues User-Objekt sofern nicht bereits ein gecachtes vorhanden ist.
-	 * Wenn ein neues User-Objekt erstellt wird, werden die in prepare angegebenen Attribute
-	 * aus der Datenbank geholt
-	 * 
-	 * @param id Die ID des zu erstellenden Users
-	 * @param prepare Die aus der Datenbank zu ladenden Attribute
-	 * @return Das User-Objekt
-	 */
-	@Deprecated
-	public abstract User createUserObject(int id, String ... prepare);
-	
-	/**
-	 * Erstellt ein neues User-Objekt sofern nicht bereits ein gecachtes vorhanden ist.
 	 * 
 	 * @param id Die ID des zu erstellenden Users
 	 * @return Das User-Objekt

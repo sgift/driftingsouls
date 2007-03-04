@@ -207,11 +207,6 @@ public class BasicContext implements Context,Loggable {
 		return new User( this, id );
 	}
 	
-	@Deprecated
-	public User createUserObject(int id, String... prepare) {
-		return createUserObject(id);
-	}
-
 	public Database getDatabase() {
 		return database;
 	}
