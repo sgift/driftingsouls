@@ -210,9 +210,9 @@ public abstract class Building implements Loggable {
 	/**
 	 * Wird aufgerufen, wenn das Gebaeude auf einer Basis abgerissen wurde
 	 * @param context Der aktive Kontext
-	 * @param col Die ID der Basis
+	 * @param base Die Basis
 	 */
-	public abstract void cleanup( Context context, int col );
+	public abstract void cleanup( Context context, Base base );
 	
 	/**
 	 * Modifiziert das stats-objekt der Basis um die Stats dieses Gebaeudes

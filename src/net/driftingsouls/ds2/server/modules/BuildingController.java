@@ -178,7 +178,7 @@ public class BuildingController extends DSGenerator {
 		
 		base.getCargo().addCargo( addcargo );
 		
-		building.cleanup( getContext(), base.getID() );
+		building.cleanup( getContext(), base );
 
 		base.getBebauung()[field] = 0;
 		String bebdb = Common.implode("|", base.getBebauung());

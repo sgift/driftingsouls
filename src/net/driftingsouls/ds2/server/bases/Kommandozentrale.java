@@ -50,14 +50,18 @@ class Kommandozentrale extends DefaultBuilding {
 	}
 
 	@Override
-	public void cleanup(Context context, int col) {
-		super.cleanup(context, col);
+	public void cleanup(Context context, Base base) {
+		super.cleanup(context, base);
 		
 		Database db = context.getDatabase();
 		
-		db.update("UPDATE bases SET owner=0,autogtuacts='' WHERE id=",col);
-		db.update("UPDATE werften SET building=0,item = -1,remaining=0,flagschiff=0 WHERE col=",col);
-		db.update("UPDATE werften SET linked=0 WHERE linked=",col);
+		db.update("UPDATE bases SET owner=0,autogtuacts='' WHERE id="+base.getID());
+		base.getAutoGTUActs().clear();
+		base.put("owner", 0);
+		
+		// TODO: Unschoen. Das sollte die Werft selbst machen
+		db.update("UPDATE werften SET building=0,item=-1,remaining=0,flagschiff=0 WHERE col="+base.getID());
+		db.update("UPDATE werften SET linked=0 WHERE linked="+base.getID());
 	}
 
 	@Override

@@ -237,10 +237,10 @@ class Waffenfabrik extends DefaultBuilding {
 	}
 
 	@Override
-	public void cleanup(Context context, int col) {
+	public void cleanup(Context context, Base base) {
 		Database db = context.getDatabase();
 		
-		SQLResultRow wf = db.first("SELECT count,produces FROM weaponfactory WHERE col=",col);
+		SQLResultRow wf = db.first("SELECT count,produces FROM weaponfactory WHERE col="+base.getID());
 		if( wf.getInt("count") > 1 ) {	
 			BigDecimal usedcapacity = new BigDecimal(0, MathContext.DECIMAL32);
 	
@@ -271,10 +271,10 @@ class Waffenfabrik extends DefaultBuilding {
 				wf.put("produces", Common.implode(";",plist));
 			}
 				
-			db.update("UPDATE weaponfactory SET count=count-1,produces='"+wf.getString("produces")+"' WHERE col=",col);
+			db.update("UPDATE weaponfactory SET count=count-1,produces='"+wf.getString("produces")+"' WHERE col="+base.getID());
 		} 
 		else {
-			db.update("DELETE FROM weaponfactory WHERE col=",col);
+			db.update("DELETE FROM weaponfactory WHERE col="+base.getID());
 		}
 	}
 

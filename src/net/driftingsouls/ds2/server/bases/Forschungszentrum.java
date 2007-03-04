@@ -61,10 +61,10 @@ class Forschungszentrum extends DefaultBuilding {
 	}
 
 	@Override
-	public void cleanup(Context context, int col) {
-		super.cleanup(context, col);
+	public void cleanup(Context context, Base base) {
+		super.cleanup(context, base);
 		
-		context.getDatabase().update("DELETE FROM fz WHERE col=",col);
+		context.getDatabase().update("DELETE FROM fz WHERE col="+base.getID());
 	}
 	
 	@Override

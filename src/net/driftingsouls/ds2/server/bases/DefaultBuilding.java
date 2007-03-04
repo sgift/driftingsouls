@@ -64,7 +64,7 @@ class DefaultBuilding extends Building {
 	}
 
 	@Override
-	public void cleanup(Context context, int col) {
+	public void cleanup(Context context, Base base) {
 		// EMPTY
 	}
 
