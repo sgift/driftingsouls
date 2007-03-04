@@ -39,6 +39,7 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.NoSuchShipTypeException;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.Ships;
 
@@ -80,11 +81,20 @@ public class SchiffInfoController extends DSGenerator {
 		}
 		
 		t.set_var( "global.login", (getUser() != null) );
-							
-		SQLResultRow data = Ships.getShipType(ship, false);
+					
+		SQLResultRow data = null;
+		try {
+			data = Ships.getShipType(ship, false);
+		}
+		catch(NoSuchShipTypeException e) {
+			// EMPTY
+		}
 
 		//Dummydata, falls eine ungueltige Schiffs-ID eingegeben wurde
-		if( data.isEmpty() || (data.getBoolean("hide") && (user != null) && (user.getAccessLevel() < 10) ) || (data.getBoolean("hide") && user == null) ) {
+		if( (data == null) || 
+			(data.getBoolean("hide") && (user != null) && (user.getAccessLevel() < 10) ) || 
+			(data.getBoolean("hide") && user == null) ) {
+			
 			data.clear();
 			data.put( "id",ship );
 			data.put( "nickname","Unbekanntes Schiff" );

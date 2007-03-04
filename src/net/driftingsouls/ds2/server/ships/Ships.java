@@ -387,6 +387,10 @@ public class Ships implements Loggable {
 				SQLResultRow row = db.prepare("SELECT *,LOCATE('=',weapons) as military FROM ship_types WHERE id= ? ")
 					.first(shiptype);
 				
+				if( row.isEmpty() ) {
+					throw new NoSuchShipTypeException("Unbekannter Schiffstyp '"+shiptype+"'");
+				}
+				
 				shiptypes.put(shiptype, row);
 			}
 		}
