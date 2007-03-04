@@ -172,8 +172,9 @@ public class KSAttackAction extends BasicKSAction {
 				}
 	
 				remove++;
-				db.update("UPDATE battles_ships SET action=action | ",Battle.BS_DESTROYED," WHERE shipid=",s.getInt("id"));
-	
+				db.update("UPDATE battles_ships SET action=action | "+Battle.BS_DESTROYED+" WHERE shipid="+s.getInt("id"));
+				s.put("action", s.getInt("action") | Battle.BS_DESTROYED);
+				
 				// ggf. den Flagschiffstatus zuruecksetzen
 				if( (loc != null) && (loc.getType() == UserFlagschiffLocation.Type.SHIP) && 
 					(loc.getID() == s.getInt("id")) ) {
@@ -190,7 +191,7 @@ public class KSAttackAction extends BasicKSAction {
 		return remove;
 	}
 	
-	private void destroyShip(int id, Battle battle, SQLResultRow eShip, boolean selectnew) {	
+	private void destroyShip(int id, Battle battle, SQLResultRow eShip) {	
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 		
@@ -217,15 +218,6 @@ public class KSAttackAction extends BasicKSAction {
 			db.update("UPDATE ally SET lostShips=lostShips+",remove," WHERE id=",battle.getAlly(battle.getEnemySide()));
 		}
 		db.update("UPDATE users SET lostShips=lostShips+",remove," WHERE id=",eShip.getInt("owner"));
-	
-		//
-		// Ein neues Ziel auswaehlen
-		//
-		if( selectnew ) {
-			battle.setEnemyShipIndex(battle.getNewTargetIndex());
-			eShip.clear();
-			eShip.putAll(battle.getEnemyShip());
-		}
 	}
 	
 	private int getTrefferWS( Battle battle, int defTrefferWS, SQLResultRow eShip, SQLResultRow eShipType, int defensivskill, int navskill ) {
@@ -905,7 +897,7 @@ public class KSAttackAction extends BasicKSAction {
 		
 		boolean mydamage = this.calcDamage( battle, aeShip, aeShipType, hit, (int)(shieldSchaden*damagemod), (int)(schaden*damagemod), tmpsubdmgs, "" );
 		if( !mydamage && (Configuration.getIntSetting("DESTROYABLE_SHIPS") != 0) ) {
-			this.destroyShip(user.getID(), battle, aeShip, false);
+			this.destroyShip(user.getID(), battle, aeShip);
 		}
 	}
 	
@@ -1341,7 +1333,9 @@ public class KSAttackAction extends BasicKSAction {
 				 *	Schiff falls notwendig zerstoeren
 				 */
 				if( !savedamage && (Configuration.getIntSetting("DESTROYABLE_SHIPS") != 0) ) {
-					this.destroyShip(user.getID(), battle, this.enemyShip, true);
+					this.destroyShip(user.getID(), battle, this.enemyShip);
+					battle.setEnemyShipIndex(battle.getNewTargetIndex());
+					this.enemyShip = battle.getEnemyShip();
 				}
 				
 				/*
