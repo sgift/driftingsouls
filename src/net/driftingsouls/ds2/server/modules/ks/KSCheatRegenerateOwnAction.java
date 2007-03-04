@@ -49,7 +49,7 @@ public class KSCheatRegenerateOwnAction extends BasicKSAction {
 		}
 		
 		Database db = context.getDatabase();
-		SQLResultRow ownShip = battle.getEnemyShip();
+		SQLResultRow ownShip = battle.getOwnShip();
 
 		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
 		
