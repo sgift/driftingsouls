@@ -176,7 +176,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 		}
 
 		SQLResultRow shipType = Ships.getShipType(ship);
-		SQLResultRow battle_ship = db.first("SELECT hull,shields,engine,weapons,comm,sensors,newcount FROM battles_ships WHERE shipid=",ship.getInt("id"));
+		SQLResultRow battle_ship = db.first("SELECT hull,shields,engine,weapons,comm,sensors,count,newcount FROM battles_ships WHERE shipid=",ship.getInt("id"));
 
 		t.start_record();
 		t.set_var(	"shipinfo.jscriptid",		jscriptid,
