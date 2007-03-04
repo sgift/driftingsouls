@@ -19,14 +19,15 @@
 package net.driftingsouls.ds2.server.framework;
 
 /**
- * Lognachrichten auf Threadbasis
+ * Lognachrichten auf Contextbasis
  * @author Christopher Jung
  *
  */
-public class ThreadLocalMessage {
+public class ContextLocalMessage implements ContextListener {
 	private final ThreadLocal<StringBuilder> msg = new ThreadLocal<StringBuilder>() {
 		@Override
 		protected StringBuilder initialValue() {
+			ContextMap.getContext().registerListener(ContextLocalMessage.this);
 			return new StringBuilder();
 		}
 	};
@@ -35,7 +36,7 @@ public class ThreadLocalMessage {
 	 * Konstruktor
 	 *
 	 */
-	public ThreadLocalMessage() {
+	public ContextLocalMessage() {
 		// EMPTY
 	}
 	
@@ -56,5 +57,9 @@ public class ThreadLocalMessage {
 	 */
 	public StringBuilder get() {
 		return msg.get();
+	}
+
+	public void onContextDestory() {
+		msg.remove();
 	}
 }

@@ -27,5 +27,5 @@ public class DSObject implements Loggable {
 	/**
 	 * Lognachrichten der zuletzt aufgerufenen Methoden. Die Nachrichten sind Thread-Lokal
 	 */
-	public final ThreadLocalMessage MESSAGE = new ThreadLocalMessage();
+	public final ContextLocalMessage MESSAGE = new ContextLocalMessage();
 }

@@ -44,9 +44,9 @@ import net.driftingsouls.ds2.server.framework.CacheMap;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.ThreadLocalMessage;
 import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.db.Database;
@@ -106,7 +106,7 @@ public class Ships implements Loggable {
 	/**
 	 * Objekt mit Funktionsmeldungen
 	 */
-	public static final ThreadLocalMessage MESSAGE = new ThreadLocalMessage();
+	public static final ContextLocalMessage MESSAGE = new ContextLocalMessage();
 	
 	private static Map<Integer,SQLResultRow> shiptypes = new HashMap<Integer,SQLResultRow>();
 	private static Map<Location,Integer> nebel = Collections.synchronizedMap(new CacheMap<Location,Integer>(1000));
