@@ -49,12 +49,18 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 		for( int i=0; i < ownShips.size(); i++ ) {
 			SQLResultRow aship = ownShips.get(i);
 			
-			if( (aship.getInt("action") & Battle.BS_JOIN) != 0 ) continue;
+			if( (aship.getInt("action") & Battle.BS_JOIN) != 0 ) {
+				continue;
+			}
 			
 			SQLResultRow aShipType = Ships.getShipType( aship );
 				
-			if( aShipType.getInt("military") != 0 ) continue;
-			if( (aship.getInt("crew") == 0) && (aShipType.getInt("crew") != 0) ) continue;
+			if( aShipType.getInt("military") == 0 ) {
+				continue;
+			}
+			if( (aship.getInt("crew") == 0) && (aShipType.getInt("crew") != 0) ) {
+				continue;
+			}
 			if( Ships.hasShipTypeFlag(aShipType, Ships.SF_JAEGER) ) {
 				ownpower++;
 			} else { 
@@ -66,12 +72,18 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 		for( int i=0; i < enemyShips.size(); i++ ) {
 			SQLResultRow aship = enemyShips.get(i);
 			
-			if( (aship.getInt("action") & Battle.BS_JOIN) != 0 ) continue;
+			if( (aship.getInt("action") & Battle.BS_JOIN) != 0 ) {
+				continue;
+			}
 			
 			SQLResultRow aShipType = Ships.getShipType( aship );
 				
-			if( aShipType.getInt("military") != 0 ) continue;
-			if( (aship.getInt("crew") == 0) && (aShipType.getInt("crew") != 0) ) continue;
+			if( aShipType.getInt("military") == 0 ) {
+				continue;
+			}
+			if( (aship.getInt("crew") == 0) && (aShipType.getInt("crew") != 0) ) {
+				continue;
+			}
 			if( Ships.hasShipTypeFlag(aShipType, Ships.SF_JAEGER) ) {
 				enemypower++;
 			} else { 
