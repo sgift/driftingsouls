@@ -1001,20 +1001,21 @@ public class Cargo implements Loggable, Cloneable {
 		}
 		
 		if( currentmass != mass ) {
-			if( items.size() > 0 ) {
-				for( Long[] aitem : items ) {
-					if( Items.get().item(aitem[0].intValue()).getCargo()*aitem[1] + currentmass < mass ) {
-						currentmass += Items.get().item(aitem[0].intValue()).getCargo()*aitem[1];
-						retcargo.getItemArray().add(aitem);
-						items.remove(aitem);
-					}
-					else {
-						Long[] newitem = aitem.clone();
-						newitem[1] = (mass-currentmass)/Items.get().item(aitem[0].intValue()).getCargo();
-						aitem[1] -= newitem[1];
-						currentmass += Items.get().item(aitem[0].intValue()).getCargo()*newitem[1];
-						retcargo.getItemArray().add(newitem);
-					}
+			for( int i=0; i < items.size(); i++ ) {
+				Long[] aitem = items.get(i);
+				
+				if( Items.get().item(aitem[0].intValue()).getCargo()*aitem[1] + currentmass < mass ) {
+					currentmass += Items.get().item(aitem[0].intValue()).getCargo()*aitem[1];
+					retcargo.getItemArray().add(aitem);
+					items.remove(aitem);
+					i--;
+				}
+				else {
+					Long[] newitem = aitem.clone();
+					newitem[1] = (mass-currentmass)/Items.get().item(aitem[0].intValue()).getCargo();
+					aitem[1] -= newitem[1];
+					currentmass += Items.get().item(aitem[0].intValue()).getCargo()*newitem[1];
+					retcargo.getItemArray().add(newitem);
 				}
 			}
 		}
