@@ -256,7 +256,7 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 
 		if( Weapons.get().weapon(weapon).hasFlag(Weapon.Flags.AMMO_SELECT) ) {
 			Set<Integer> ammoids = new HashSet<Integer>();
-System.out.println("SELECT id FROM ammo WHERE type="+Weapons.get().weapon(weapon).getAmmoType());
+
 			SQLQuery ammoid = db.query("SELECT id FROM ammo WHERE type='",Weapons.get().weapon(weapon).getAmmoType()+"'");
 			while( ammoid.next() ) {
 				ammoids.add(ammoid.getInt("id"));
