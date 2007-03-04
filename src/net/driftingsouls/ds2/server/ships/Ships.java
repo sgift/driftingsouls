@@ -2335,7 +2335,7 @@ public class Ships implements Loggable {
 	public static void generateLoot( int shipid, int destroyer ) {
 		Database db = ContextMap.getContext().getDatabase();
 		
-		SQLResultRow ship = db.first("SELECT id,owner,x,y,system,history FROM ships WHERE id>0 AND id='",shipid,"'");
+		SQLResultRow ship = db.first("SELECT id,owner,x,y,system,history,type,status FROM ships WHERE id>0 AND id="+shipid);
 		
 		SQLResultRow shiptype = getShipType( ship );
 	
