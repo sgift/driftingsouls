@@ -214,8 +214,8 @@ public class AngriffController extends DSGenerator implements Loggable {
 
 		// Anzahl
 		if( shipType.getInt("shipcount") > 1 ) {
-			t.set_var(	"shipinfo.count",		ship.getInt("count"),
-						"shipinfo.tmp.count",	battle_ship.getInt("count") );
+			t.set_var(	"shipinfo.count",		battle_ship.getInt("count"),
+						"shipinfo.tmp.count",	battle_ship.getInt("newcount") );
 		}
 
 		// Huelle
