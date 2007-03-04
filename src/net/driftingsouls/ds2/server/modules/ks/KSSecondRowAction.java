@@ -92,7 +92,7 @@ public class KSSecondRowAction extends BasicKSAction {
 			return RESULT_ERROR;
 		}
 		
-		if( ownShipType.getInt("const") == 0 ) {
+		if( ownShipType.getInt("cost") == 0 ) {
 			return RESULT_ERROR;
 		}
 		 
