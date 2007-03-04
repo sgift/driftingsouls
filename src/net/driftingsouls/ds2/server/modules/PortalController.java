@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.SectorTemplateManager;
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
@@ -571,10 +572,12 @@ class PortalController extends DSGenerator {
 	 			"cargo='",base.get("cargo"),"'");
 	 	
 	 	db.update("UPDATE offiziere SET userid='",newbase.get("owner"),"' WHERE dest IN ('b ",base.get("id"),"','t ",base.get("id"),"')");
+	 	
+	 	Base newBaseObj = new Base(newbase);
 	 	for( int i=0; i < baselayout.length; i++ ) {
 			if( Integer.parseInt(baselayout[i]) > 0 ) {
 				Building building = Building.getBuilding(db, Integer.parseInt(baselayout[i]));
-				building.build(base.getInt("id"));	 			
+				building.build(newBaseObj);	 			
 			}
 		}
 	 	

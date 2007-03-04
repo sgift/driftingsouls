@@ -59,7 +59,7 @@ class DefaultBuilding extends Building {
 	}
 
 	@Override
-	public void build(int col) {
+	public void build(Base base) {
 		// EMPTY
 	}
 

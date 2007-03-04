@@ -64,12 +64,12 @@ class Academy extends DefaultBuilding {
 	}
 
 	@Override
-	public void build(int col) {
-		super.build(col);
+	public void build(Base base) {
+		super.build(base);
 		
 		Context context = ContextMap.getContext();
 		
-		context.getDatabase().update("INSERT INTO academy VALUES(0,",col,",0,0,'')");
+		context.getDatabase().update("INSERT INTO academy VALUES(0,"+base.getID()+",0,0,'')");
 	}
 
 	@Override

@@ -212,17 +212,17 @@ class Waffenfabrik extends DefaultBuilding {
 	}
 
 	@Override
-	public void build(int col) {
-		super.build(col);
+	public void build(Base base) {
+		super.build(base);
 		
 		Database db = ContextMap.getContext().getDatabase();
 		
-		SQLResultRow wfentry = db.first("SELECT id FROM weaponfactory WHERE col=",col);
+		SQLResultRow wfentry = db.first("SELECT id FROM weaponfactory WHERE col="+base.getID());
 		if( !wfentry.isEmpty() ) {
 			db.update("UPDATE weaponfactory SET count=count+1 WHERE id=",wfentry.getInt("id"));
 		} 
 		else {
-			db.update("INSERT INTO weaponfactory (count,col) VALUES (1,",col,")");
+			db.update("INSERT INTO weaponfactory (count,col) VALUES (1,"+base.getID()+")");
 		}
 	}
 

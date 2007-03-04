@@ -53,10 +53,10 @@ class Werft extends DefaultBuilding {
 	}
 
 	@Override
-	public void build(int col) {
-		super.build(col);
+	public void build(Base base) {
+		super.build(base);
 		
-		ContextMap.getContext().getDatabase().update("INSERT INTO werften (type,col) VALUES(1,",col,")");
+		ContextMap.getContext().getDatabase().update("INSERT INTO werften (type,col) VALUES(1,"+base.getID()+")");
 	}
 
 

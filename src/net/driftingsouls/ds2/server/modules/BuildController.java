@@ -245,7 +245,7 @@ public class BuildController extends DSGenerator {
 			db.update("UPDATE bases SET active='"+ondb+"',arbeiter=arbeiter+"+building.getArbeiter()+",bebauung='"+bebdb+"',cargo='"+basecargo.save()+"' WHERE id="+base.getID()+" AND cargo='"+basecargo.save(true)+"'");
 			if( db.affectedRows() != 0 ) {
 				// Evt. muss das Gebaeude selbst noch ein paar Dinge erledigen
-				building.build(base.getID());
+				building.build(base);
 			}
 		}
 		

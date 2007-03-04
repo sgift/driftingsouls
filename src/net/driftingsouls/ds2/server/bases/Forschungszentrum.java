@@ -49,15 +49,15 @@ class Forschungszentrum extends DefaultBuilding {
 	}
 
 	@Override
-	public void build(int col) {
-		super.build(col);
+	public void build(Base base) {
+		super.build(base);
 		
 		Context context = ContextMap.getContext();
 		if( context == null ) {
 			throw new RuntimeException("No Context available");
 		}
 		
-		context.getDatabase().update("INSERT INTO fz VALUES(0,",col,",1,0,0)");
+		context.getDatabase().update("INSERT INTO fz VALUES(0,"+base.getID()+",1,0,0)");
 	}
 
 	@Override

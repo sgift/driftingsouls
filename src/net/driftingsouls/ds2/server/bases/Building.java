@@ -203,9 +203,9 @@ public abstract class Building implements Loggable {
 
 	/**
 	 * Wird aufgerufen, wenn das Gebaeude auf einer Basis gebaut wurde
-	 * @param col Die ID der Basis
+	 * @param base Die Basis
 	 */
-	public abstract void build( int col );
+	public abstract void build( Base base );
 	
 	/**
 	 * Wird aufgerufen, wenn das Gebaeude auf einer Basis abgerissen wurde
