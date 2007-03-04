@@ -275,10 +275,12 @@ public abstract class WerftObject extends DSObject {
 				cargo.addCargo( allyitems );
 			}
 			
-			if( !cargo.hasResource(new ItemID(this.getRequiredItem())) ) {
+			List<ItemCargoEntry> itemlist = cargo.getItem(this.getRequiredItem());
+			if( itemlist.size() == 0 ) {
 				return false;
 			}
 		}
+	
 		return true;
 	}
 	
