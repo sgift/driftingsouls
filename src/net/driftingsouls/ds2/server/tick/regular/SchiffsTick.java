@@ -333,7 +333,9 @@ public class SchiffsTick extends TickController {
 		
 		// Ueberhitzung
 		if( !this.calledByBattle ) {
-			db.update("UPDATE ships t1 JOIN users t2 ON t1.owner=t2.id SET t1.s=IF(t1.s>70,t1.s-70,0) WHERE t1.s>0 AND (t2.vaccount=0 OR t2.wait4vac>0) AND t1.id>0 AND t1.system!=0");
+			db.update("UPDATE ships s JOIN users u ON s.owner=u.id " +
+					"SET s.s=IF(s.s>70,s.s-70,0) " +
+					"WHERE s.s>0 AND (u.vaccount=0 OR u.wait4vac>0) AND s.id>0 AND s.system!=0 AND s.battle=0");
 		}
 		
 		SQLQuery auser = db.query("SELECT id,cargo,nstat " +
