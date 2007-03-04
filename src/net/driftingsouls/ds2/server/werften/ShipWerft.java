@@ -176,7 +176,7 @@ public class ShipWerft extends WerftObject {
 	@Override
 	public int getMaxCrew() {
 		if( this.maxcrew == -1 ) {
-			if( this.linkedbase != 0 ) {
+			if( this.linkedbase == 0 ) {
 				SQLResultRow shiptype = Ships.getShipType( this.shipid, true );
 				this.maxcrew = shiptype.getInt("crew");
 			} else {
