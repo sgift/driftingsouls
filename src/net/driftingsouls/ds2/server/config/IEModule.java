@@ -76,10 +76,10 @@ public class IEModule extends ItemEffect {
 		List<String> slots = new ArrayList<String>();
 		NodeList nodes = XMLUtils.getNodesByXPath(effectNode, "slot");
 		for( int i=0, length=nodes.getLength(); i < length; i++ ) {
-			slots.add(XMLUtils.getStringByXPath(nodes.item(i), "@id"));
+			slots.add(XMLUtils.getStringAttribute(nodes.item(i), "id"));
 		}
 		
-		Number setId = XMLUtils.getNumberByXPath(effectNode, "@set");
+		Number setId = XMLUtils.getNumberAttribute(effectNode, "set");
 		
 		SQLResultRow mods = Ships.getTypeChangeSetFromXML(XMLUtils.getNodeByXPath(effectNode, "shipdata"));
 		

@@ -51,7 +51,7 @@ public class IEAmmo extends ItemEffect {
 	}
 	
 	protected static ItemEffect fromXML(Node effectNode) throws Exception {
-		int ammo = XMLUtils.getNumberByXPath(effectNode, "@ammo").intValue();
+		int ammo = XMLUtils.getNumberAttribute(effectNode, "ammo").intValue();
 		
 		return new IEAmmo(ammo);
 	}
