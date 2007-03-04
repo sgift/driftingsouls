@@ -49,6 +49,7 @@ public class BasicContext implements Context,Loggable {
 	private Map<Class<?>, Object> contextSingletons = new HashMap<Class<?>,Object>();
 	private Map<Class<?>, Map<String,Object>> variables = new HashMap<Class<?>, Map<String, Object>>();
 	private String currentSession = "";
+	private List<ContextListener> listener = new ArrayList<ContextListener>();
 	
 	private static String[] actionBlockingPhrases = {
 		"Immer mit der Ruhe!\nDer arme Server ist schon total erschl&ouml;pft.\nG&ouml;nn ihm mal ein oder zwei Minuten Pause :)",
@@ -254,6 +255,10 @@ public class BasicContext implements Context,Loggable {
 	 *
 	 */
 	public void free() {
+		for( int i=0; i < this.listener.size(); i++ ) {
+			listener.get(i).onContextDestory();
+		}
+		
 		database.close();
 		ContextMap.removeContext();
 	}
@@ -315,5 +320,9 @@ public class BasicContext implements Context,Loggable {
 		synchronized(map) {
 			map.put(varname, value);
 		}
+	}
+
+	public void registerListener(ContextListener listener) {
+		this.listener.add(listener);
 	}
 }

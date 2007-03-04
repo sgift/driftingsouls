@@ -175,4 +175,11 @@ public interface Context {
 	 *
 	 */
 	public abstract void revalidate();
+	
+	/**
+	 * Registriert einen Kontext-Observer im Kontextobjekt. Der Observer wird
+	 * fortan ueber Ereignisse des Kontexts informiert
+	 * @param listener Der Listener
+	 */
+	public abstract void registerListener(ContextListener listener);
 }
