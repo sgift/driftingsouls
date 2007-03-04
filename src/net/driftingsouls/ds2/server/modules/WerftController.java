@@ -129,7 +129,7 @@ public class WerftController extends DSGenerator {
 		echo.append("Werft "+Common._plaintitle(ship.getString("name"))+"<br /><br />\n");
 
 		WerftGUI werftgui = new WerftGUI( getContext(), getTemplateEngine() );
-		werftgui.execute( werft );
+		echo.append(werftgui.execute( werft ));
 		
 		echo.append("<br /><a class=\"back\" href=\""+Common.buildUrl(getContext(), "default", "module", "schiff", "ship", ship.getInt("id"))+"\">Zur&uuml;ck zum Schiff</a><br />\n");
 	}
