@@ -2351,8 +2351,13 @@ public class Ships implements Loggable {
 		if( history.length > 0 ) {
 			String lastHistory = history[history.length-1];
 			
-			if( lastHistory.indexOf("&Uuml;bergeben") != -1 ) {
-				int date = Integer.parseInt(lastHistory.substring("&Uuml;bergeben am [tick=".length(),lastHistory.indexOf("] an ")-"&Uuml;bergeben am [tick=".length()));
+			if( lastHistory.startsWith("&Uuml;bergeben") ) {
+				int date = Integer.parseInt(
+						lastHistory.substring(
+								 "&Uuml;bergeben am [tick=".length(),
+								lastHistory.lastIndexOf("] an ")-"&Uuml;bergeben am [tick=".length()
+						)
+				);
 				if( ContextMap.getContext().get(ContextCommon.class).getTick() - date < 49 ) {
 					return;
 				}
