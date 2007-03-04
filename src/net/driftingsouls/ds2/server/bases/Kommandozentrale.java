@@ -82,7 +82,7 @@ class Kommandozentrale extends DefaultBuilding {
 	}
 
 	@Override
-	public String output(Context context, TemplateEngine t, int col, int field, int building) {
+	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
 		Database db = context.getDatabase();
 		User user = context.getActiveUser();
 		
@@ -95,10 +95,7 @@ class Kommandozentrale extends DefaultBuilding {
 		if( !show.equals("general") && !show.equals("autogtu") ) {
 			show = "general";	
 		}
-		
-		SQLResultRow baseRow = db.first("SELECT * FROM bases WHERE id='",col,"'");
-		Base base = new Base(baseRow);
-		
+				
 		if( !t.set_file( "_BUILDING", "buildings.kommandozentrale.html" ) ) {
 			context.addError("Konnte das Template-Engine nicht initialisieren");
 			return "";
@@ -170,9 +167,9 @@ class Kommandozentrale extends DefaultBuilding {
 					db.tUpdate(1, "UPDATE stats_verkaeufe SET stats='",stats.save(),"' WHERE id='",statid.getInt("id"),"' AND stats='",stats.save(true),"'");
 				}
 				
-				db.tUpdate(1, "UPDATE bases SET cargo='",cargo.save(),"' WHERE id='",col,"' AND cargo='",cargo.save(true),"'");
+				db.tUpdate(1, "UPDATE bases SET cargo='",cargo.save(),"' WHERE id="+base.getID()+" AND cargo='",cargo.save(true),"'");
 				
-				user.transferMoneyFrom(Faction.GTU, totalRE, "Warenverkauf Asteroid "+col+" - "+base.getName(), false, User.TRANSFER_SEMIAUTO );
+				user.transferMoneyFrom(Faction.GTU, totalRE, "Warenverkauf Asteroid "+base.getID()+" - "+base.getName(), false, User.TRANSFER_SEMIAUTO );
 				
 				if( !db.tCommit() ) {
 					context.addError("Fehler: Die Transaktion der Waren war nicht erfolgreich");
@@ -208,7 +205,7 @@ class Kommandozentrale extends DefaultBuilding {
 				cargo.addResource( Resources.BATTERIEN, load );
 				e -= load;
 			
-				db.update("UPDATE bases SET e=",e,",cargo='",cargo.save(),"' WHERE id='",col,"' AND cargo='",cargo.save(true),"' AND e='",base.getE(),"'");
+				db.update("UPDATE bases SET e=",e,",cargo='",cargo.save(),"' WHERE id="+base.getID()+" AND cargo='",cargo.save(true),"' AND e='",base.getE(),"'");
 				if( db.affectedRows() != 0 ) {
 					base.put("e", e);	
 				}
@@ -239,7 +236,7 @@ class Kommandozentrale extends DefaultBuilding {
 				cargo.addResource( Resources.LBATTERIEN, unload );
 				e += unload;
 			
-				db.update("UPDATE bases SET e=",e,",cargo='",cargo.save(),"' WHERE id='",col,"' AND cargo='",cargo.save(true),"' AND e='",base.getE(),"'");
+				db.update("UPDATE bases SET e=",e,",cargo='",cargo.save(),"' WHERE id="+base.getID()+" AND cargo='",cargo.save(true),"' AND e='",base.getE(),"'");
 				if( db.affectedRows() != 0 ) {
 					base.put("e", e);	
 				}
@@ -263,7 +260,7 @@ class Kommandozentrale extends DefaultBuilding {
 				cargo.substractResource( Resources.PLATIN, create );
 				cargo.addResource( Resources.LBATTERIEN, create );
 			
-				db.update("UPDATE bases SET cargo='",cargo.save(),"' WHERE id='",col,"' AND cargo='",cargo.save(true),"'");
+				db.update("UPDATE bases SET cargo='",cargo.save(),"' WHERE id="+base.getID()+" AND cargo='",cargo.save(true),"'");
 			}
 		}
 		
@@ -292,7 +289,7 @@ class Kommandozentrale extends DefaultBuilding {
 				cargo.substractResource( new ItemID(item), 1 );
 		
 				db.update("UPDATE ally SET items='"+allyitems.getData( Cargo.Type.ITEMSTRING )+"' WHERE id="+ally);
-				db.update("UPDATE bases SET cargo='"+cargo.save()+"' WHERE id="+col);
+				db.update("UPDATE bases SET cargo='"+cargo.save()+"' WHERE id="+base.getID());
 						
 				String msg = "Ich habe das Item \""+Items.get().item(item).getName()+"\" der Allianz zur Verf&uuml;gung gestellt.";
 				PM.send(context, user.getID(), ally, "Item &uuml;berstellt", msg, true);
@@ -430,7 +427,7 @@ class Kommandozentrale extends DefaultBuilding {
 			ship.free();
 			
 			
-			SQLQuery targetbase = db.query("SELECT id,name FROM bases WHERE x="+base.getX()+" AND y="+base.getY()+" AND system="+base.getSystem()+" AND id!="+col+" AND owner='"+user.getID()+"'");
+			SQLQuery targetbase = db.query("SELECT id,name FROM bases WHERE x="+base.getX()+" AND y="+base.getY()+" AND system="+base.getSystem()+" AND id!="+base.getID()+" AND owner='"+user.getID()+"'");
 			while( targetbase.next() ) {
 				t.set_var(	"targetbase.id", 	targetbase.get("id"),
 							"targetbase.name",	Common._plaintitle(targetbase.getString("name")) );

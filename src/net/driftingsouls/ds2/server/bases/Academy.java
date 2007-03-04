@@ -183,7 +183,7 @@ class Academy extends DefaultBuilding {
 	}
 
 	@Override
-	public String output(Context context, TemplateEngine t, int col, int field, int building) {
+	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
 		Database db = context.getDatabase();
 		User user = context.getActiveUser();
 		
@@ -197,7 +197,7 @@ class Academy extends DefaultBuilding {
 		
 		echo.append("<div class=\"smallfont\">\n");
 		
-		SQLResultRow academy = db.first("SELECT id,train,remain,`upgrade` FROM academy WHERE col='",col,"'");
+		SQLResultRow academy = db.first("SELECT id,train,remain,`upgrade` FROM academy WHERE col="+base.getID());
 		if( academy.isEmpty() ) {
 			echo.append("<span style=\"color:#ff0000; font-weight:bold\">Fehler: Diese Akademie verf&uuml;gt &uuml;ber keinen Akademie-Eintrag in der Datenbank</span><br />\n");
 			return echo.toString();
@@ -209,7 +209,7 @@ class Academy extends DefaultBuilding {
 		
 		if( newo != 0 ) {
 			if( (academy.getInt("train") == 0) && (academy.getString("upgrade").length() == 0)) {
-				Cargo cargo = new Cargo(Cargo.Type.STRING, db.first("SELECT cargo FROM bases WHERE id='",col,"'").getString("cargo"));
+				Cargo cargo = base.getCargo();
 			
 				boolean ok = true;
 				if( cargo.getResourceCount( Resources.SILIZIUM ) < 25 ) {
@@ -234,8 +234,10 @@ class Academy extends DefaultBuilding {
 		
 					db.tBegin();
 					user.setCargo(usercargo.save(), usercargo.save(true));
-					db.tUpdate(1,"UPDATE academy SET train=",newo,",remain=8 WHERE col='",col,"' AND train='0' AND remain='0'");
-					db.tUpdate(1,"UPDATE bases SET cargo='",cargo.save(),"' WHERE id='",col,"' AND cargo='",cargo.save(true),"'");
+					db.tUpdate(1,"UPDATE academy SET train=",newo,",remain=8 WHERE col="+base.getID()+" AND train='0' AND remain='0'");
+					db.tUpdate(1,"UPDATE bases SET cargo='",cargo.save(),"' WHERE id="+base.getID()+" AND cargo='",cargo.save(true),"'");
+					base.setCargo(cargo);
+					
 					if( !db.tCommit() ) {
 						context.addError("Beginn der Ausbildung fehlgeschlagen. Bitte versuchen sie es erneut");
 					}
@@ -258,7 +260,7 @@ class Academy extends DefaultBuilding {
 		if( (train != 0) && (off != 0) ) {
 			if( (academy.getInt("train") == 0) && (academy.getString("update").length() == 0) ) {
 				SQLResultRow offizier = db.first("SELECT * FROM offiziere WHERE id='",off,"'");
-				if( offizier.getString("dest").equals("b "+col) ) {
+				if( offizier.getString("dest").equals("b "+base.getID()) ) {
 					echo.append(Common.tableBegin( 500, "left" ));
 					
 					echo.append("Trainiere "+offizier.getString("name")+":<br />\n");
@@ -290,7 +292,7 @@ class Academy extends DefaultBuilding {
 					}
 					echo.append(" - Kosten: <img src=\""+Configuration.getSetting("URL")+"data/interface/time.gif\" alt=\"Dauer\" />"+dauer+" <img src=\""+Cargo.getResourceImage(Resources.SILIZIUM)+"\" alt=\"\" />"+sk+" <img src=\""+Cargo.getResourceImage(Resources.NAHRUNG)+"\" alt=\"\" />"+nk+"<br />\n");
 					
-					Cargo cargo = new Cargo(Cargo.Type.STRING, db.first("SELECT cargo FROM bases WHERE id='",col,"'").getString("cargo"));
+					Cargo cargo = base.getCargo();
 
 					boolean ok = true;
 					if( cargo.getResourceCount( Resources.SILIZIUM ) < sk) {
@@ -304,7 +306,7 @@ class Academy extends DefaultBuilding {
 					}
 		
 					if( !conf.equals("ok") ) {
-						echo.append("<br /><div style=\"text-align:center\"><a class=\"back\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+col+"&amp;field="+field+"&amp;train="+train+"&amp;off="+off+"&amp;conf=ok\">Training durchf&uuml;hren</a></div>\n");
+						echo.append("<br /><div style=\"text-align:center\"><a class=\"back\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"&amp;train="+train+"&amp;off="+off+"&amp;conf=ok\">Training durchf&uuml;hren</a></div>\n");
 						echo.append(Common.tableEnd());
 						echo.append("<br />\n");
 						
@@ -323,9 +325,11 @@ class Academy extends DefaultBuilding {
 		
 						db.tBegin();
 						user.setCargo( usercargo.save(), usercargo.save(true) );
-						db.tUpdate(1,"UPDATE academy SET `upgrade`='",off," ",train,"',remain='",dauer,"' WHERE col='",col,"' AND remain='0' AND `upgrade`=''");
-						db.tUpdate(1,"UPDATE offiziere SET dest='t ",col,"' WHERE id='",off,"' AND dest='b ",col,"'");
-						db.tUpdate(1,"UPDATE bases SET cargo='",cargo.save(),"' WHERE id='",col,"' AND cargo='",cargo.save(true),"'");
+						db.tUpdate(1,"UPDATE academy SET `upgrade`='",off," ",train,"',remain='",dauer,"' WHERE col="+base.getID()+" AND remain=0 AND `upgrade`=''");
+						db.tUpdate(1,"UPDATE offiziere SET dest='t "+base.getID()+"' WHERE id=",off," AND dest='b "+base.getID()+"'");
+						db.tUpdate(1,"UPDATE bases SET cargo='",cargo.save(),"' WHERE id="+base.getID()+" AND cargo='",cargo.save(true),"'");
+						base.setCargo(cargo);
+						
 						if( !db.tCommit() ) {
 							context.addError("Beginn der Ausbildung fehlgeschlagen. Bitte versuchen sie es erneut");
 						}
@@ -386,7 +390,7 @@ class Academy extends DefaultBuilding {
 			echo.append("<td class=\"noBorderX\">Name</td><td class=\"noBorderX\">Technik</td><td class=\"noBorderX\">Waffen</td><td class=\"noBorderX\">Navigation</td><td class=\"noBorderX\">Sicherheit</td><td class=\"noBorderX\">Kommandoeffizienz</td></tr>\n");
 			for( SQLResultRow offi : Offiziere.LIST.values() ) {
 				echo.append("<tr>\n");
-				echo.append("<td class=\"noBorderX\"><a class=\"academy\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+col+"&amp;field="+field+"&amp;newo="+offi.getInt("id")+"\">"+Common._title(offi.getString("name"))+"</a></td>\n");
+				echo.append("<td class=\"noBorderX\"><a class=\"academy\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"&amp;newo="+offi.getInt("id")+"\">"+Common._title(offi.getString("name"))+"</a></td>\n");
 				echo.append("<td class=\"noBorderX\" align=\"center\">"+offi.getInt("ing")+"</td>\n");
 				echo.append("<td class=\"noBorderX\" align=\"center\">"+offi.getInt("waf")+"</td>\n");
 				echo.append("<td class=\"noBorderX\" align=\"center\">"+offi.getInt("nav")+"</td>\n");
@@ -405,7 +409,7 @@ class Academy extends DefaultBuilding {
 		
 		boolean firstEntry = true;
 		
-		SQLQuery offizier = db.query("SELECT * FROM offiziere WHERE dest='b ",col,"'");
+		SQLQuery offizier = db.query("SELECT * FROM offiziere WHERE dest='b "+base.getID()+"'");
 		while( offizier.next() ) {
 			if( firstEntry ) {
 				echo.append(Common.tableBegin(550, "left"));
@@ -432,7 +436,7 @@ class Academy extends DefaultBuilding {
 			
 			echo.append("<td class=\"noBorderX\" align=\"center\">\n");
 			if( allowActions ) {
-				echo.append("<a class=\"academy\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+col+"&amp;field="+field+"&amp;train=1&amp;off="+offi.getID()+"\">"+offi.getAbility(Offizier.Ability.ING)+"</a>\n");
+				echo.append("<a class=\"academy\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"&amp;train=1&amp;off="+offi.getID()+"\">"+offi.getAbility(Offizier.Ability.ING)+"</a>\n");
 			}
 			else {
 				echo.append(offi.getAbility(Offizier.Ability.ING));
@@ -441,7 +445,7 @@ class Academy extends DefaultBuilding {
 			
 			echo.append("<td class=\"noBorderX\" align=\"center\">\n");
 			if( allowActions ) {
-				echo.append("<a class=\"academy\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+col+"&amp;field="+field+"&amp;train=2&amp;off="+offi.getID()+"\">"+offi.getAbility(Offizier.Ability.WAF)+"</a>\n");
+				echo.append("<a class=\"academy\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"&amp;train=2&amp;off="+offi.getID()+"\">"+offi.getAbility(Offizier.Ability.WAF)+"</a>\n");
 			}
 			else {
 				echo.append(offi.getAbility(Offizier.Ability.WAF));
@@ -450,7 +454,7 @@ class Academy extends DefaultBuilding {
 			
 			echo.append("<td class=\"noBorderX\" align=\"center\">\n");
 			if( allowActions ) {
-				echo.append("<a class=\"academy\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+col+"&amp;field="+field+"&amp;train=3&amp;off="+offi.getID()+"\">"+offi.getAbility(Offizier.Ability.NAV)+"</a>\n");
+				echo.append("<a class=\"academy\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"&amp;train=3&amp;off="+offi.getID()+"\">"+offi.getAbility(Offizier.Ability.NAV)+"</a>\n");
 			}
 			else {
 				echo.append(offi.getAbility(Offizier.Ability.NAV));
@@ -459,7 +463,7 @@ class Academy extends DefaultBuilding {
 			
 			echo.append("<td class=\"noBorderX\" align=\"center\">\n");
 			if( allowActions ) {
-				echo.append("<a class=\"academy\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+col+"&amp;field="+field+"&amp;train=4&amp;off="+offi.getID()+"\">"+offi.getAbility(Offizier.Ability.SEC)+"</a>\n");
+				echo.append("<a class=\"academy\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"&amp;train=4&amp;off="+offi.getID()+"\">"+offi.getAbility(Offizier.Ability.SEC)+"</a>\n");
 			}
 			else {
 				echo.append(offi.getAbility(Offizier.Ability.SEC));
@@ -468,7 +472,7 @@ class Academy extends DefaultBuilding {
 			
 			echo.append("<td class=\"noBorderX\" align=\"center\">\n");
 			if( allowActions ) {
-				echo.append("<a class=\"academy\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+col+"&amp;field="+field+"&amp;train=5&amp;off="+offi.getID()+"\">"+offi.getAbility(Offizier.Ability.COM)+"</a>\n");
+				echo.append("<a class=\"academy\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"&amp;train=5&amp;off="+offi.getID()+"\">"+offi.getAbility(Offizier.Ability.COM)+"</a>\n");
 			}
 			else {
 				echo.append(offi.getAbility(Offizier.Ability.COM));

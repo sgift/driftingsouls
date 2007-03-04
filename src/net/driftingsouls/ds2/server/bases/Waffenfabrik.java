@@ -352,7 +352,7 @@ class Waffenfabrik extends DefaultBuilding {
 	}
 
 	@Override
-	public String output(Context context, TemplateEngine t, int col, int field, int building) {
+	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
 		Database db = context.getDatabase();
 		User user = context.getActiveUser();
 		
@@ -363,7 +363,7 @@ class Waffenfabrik extends DefaultBuilding {
 		
 		StringBuilder echo = new StringBuilder(2000);
 		
-		SQLResultRow wf = db.first("SELECT * FROM weaponfactory WHERE col=",col);
+		SQLResultRow wf = db.first("SELECT * FROM weaponfactory WHERE col="+base.getID());
 		
 		if( wf.isEmpty() ) {
 			echo.append("<div style=\"color:red\">FEHLER: Diese Waffenfabrik besitzt keinen Eintrag<br /></div>\n");
@@ -391,7 +391,7 @@ class Waffenfabrik extends DefaultBuilding {
 			}
 		}
 		
-		Cargo cargo = new Cargo( Cargo.Type.STRING, db.first("SELECT cargo FROM bases WHERE id=",col).getString("cargo"));
+		Cargo cargo = base.getCargo();
 		
 		// Lokale Ammobauplaene ermitteln
 		List<ItemCargoEntry> itemlist = cargo.getItemsWithEffect( ItemEffect.Type.DRAFT_AMMO );
@@ -611,7 +611,7 @@ class Waffenfabrik extends DefaultBuilding {
 			echo.append("<div>\n");
 			echo.append("<input name=\"count\" type=\"text\" size=\"2\" value=\"0\" />\n");
 			echo.append("<input name=\"produce\" type=\"hidden\" value=\""+ammoid+"\" />\n");
-			echo.append("<input name=\"col\" type=\"hidden\" value=\""+col+"\" />\n");
+			echo.append("<input name=\"col\" type=\"hidden\" value=\""+base.getID()+"\" />\n");
 			echo.append("<input name=\"sess\" type=\"hidden\" value=\""+sess+"\" />\n");
 			echo.append("<input name=\"field\" type=\"hidden\" value=\""+field+"\" />\n");
 			echo.append("<input name=\"module\" type=\"hidden\" value=\"building\" />\n");

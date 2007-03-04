@@ -18,20 +18,19 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 import net.driftingsouls.ds2.server.config.Items;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
 import net.driftingsouls.ds2.server.werften.WerftGUI;
 import net.driftingsouls.ds2.server.werften.WerftObject;
+
+import org.apache.commons.lang.StringEscapeUtils;
 
 class Werft extends DefaultBuilding {
 	/**
@@ -169,34 +168,21 @@ class Werft extends DefaultBuilding {
 	}
 
 	@Override
-	public String output(Context context, TemplateEngine t, int col, int field, int building) {
+	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
 		Database db = context.getDatabase();
-		User user = context.getActiveUser();
-		
+
 		String sess = context.getSession();
 		StringBuilder response = new StringBuilder(500);
-		
-		SQLResultRow colony = db.first("SELECT id,owner,name,x,y,system,e FROM bases WHERE id=",col);
-	
-		if( colony.isEmpty() ) {
-	   		response.append("<a href=\"./main.php?module=basen&amp;sess="+sess+"\"><span style=\"color:#ff0000; font-weight:bold\">Fehler: Die angegebene Kolonie existiert nicht</span></a>\n");
-			return response.toString();
-		}
-		
-		if( colony.getInt("owner") != user.getID()) {
-	   		response.append("<a href=\"./main.php?module=basen&amp;sess="+sess+"\"><span style=\"color:#ff0000; font-weight:bold\">Fehler: Diese Werft gehoert ihnen NICHT!</span></a>\n");
-			return response.toString();
-		}
-		
-		SQLResultRow werftdata = db.first("SELECT * FROM werften WHERE col=",colony.getInt("id"));
+				
+		SQLResultRow werftdata = db.first("SELECT * FROM werften WHERE col=",base.getID());
 		if( werftdata.isEmpty() ) {
 	   		response.append("<a href=\"./main.php?module=basen&amp;sess="+sess+"\"><span style=\"color:#ff0000; font-weight:bold\">Fehler: Die angegebene Kolonie hat keine Werft</span></a>\n");
 			return response.toString();
 		}
 		
-		response.append("<div>Werft auf "+colony.getString("name")+"<br /><br /></div>\n");
+		response.append("<div>Werft auf "+base.getName()+"<br /><br /></div>\n");
 		
-		BaseWerft werft = new BaseWerft(werftdata,"pwerft",colony.getInt("system"),colony.getInt("owner"),colony.getInt("id"), field);
+		BaseWerft werft = new BaseWerft(werftdata,"pwerft",base.getSystem(),base.getOwner(),base.getID(), field);
 		WerftGUI werftgui = new WerftGUI( context, t );
 		response.append(werftgui.execute( werft ));
 		

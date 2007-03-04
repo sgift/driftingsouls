@@ -95,7 +95,7 @@ class DefaultBuilding extends Building {
 	}
 
 	@Override
-	public String output(Context context, TemplateEngine t, int col, int field, int building) {
+	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("Verbraucht:<br />\n");
 		buffer.append("<div align=\"center\">\n");

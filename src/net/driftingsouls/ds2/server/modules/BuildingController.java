@@ -232,7 +232,7 @@ public class BuildingController extends DSGenerator {
 			}
 		}
 		
-		echo.append(building.output( getContext(), getTemplateEngine(), base.getID(), field, building.getID() ));
+		echo.append(building.output( getContext(), getTemplateEngine(), base, field, building.getID() ));
 		
 		if( !classicDesign ) {
 			echo.append("Aktionen: ");
