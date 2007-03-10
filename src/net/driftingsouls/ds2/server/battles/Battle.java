@@ -1490,6 +1490,8 @@ public class Battle implements Loggable {
 		//
 
 		for( int i=0; i < 2; i++ ) {
+			List<SQLResultRow> destroyList = new ArrayList<SQLResultRow>();
+			
 			List<SQLResultRow> shiplist = sides.get(i);
 			for( int key=0; key < shiplist.size(); key++ ) {
 				SQLResultRow aship = shiplist.get(key);
@@ -1516,7 +1518,7 @@ public class Battle implements Loggable {
 				}
 				else if( (aship.getInt("action") & BS_DESTROYED) != 0 ) {	
 					if( Configuration.getIntSetting("DESTROYABLE_SHIPS") != 0 ) {
-						this.destroyShip(aship);
+						destroyList.add(aship);
 	
 						continue;
 					}
@@ -1581,6 +1583,11 @@ public class Battle implements Loggable {
 				}
 	
 				db.update("UPDATE ships SET heat='",Weapons.packWeaponList(heat),"',battleAction=0 WHERE id>0 AND id=",aship.getInt("id"));
+			}
+			
+			// Zerstoerte Schiffe aus der Schlacht entfernen
+			for( int key=0; key < destroyList.size(); key++ ) {
+				this.destroyShip(destroyList.get(key));
 			}
 			
 			int points = this.getActionPoints(i);
