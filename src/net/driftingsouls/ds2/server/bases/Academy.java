@@ -479,7 +479,7 @@ class Academy extends DefaultBuilding {
 			}
 			echo.append("</td>");
 			
-			echo.append("<td class=\"noBorderX\">"+offi.getSpecial()+"</td>\n");
+			echo.append("<td class=\"noBorderX\">"+offi.getSpecial().getName()+"</td>\n");
 			echo.append("</tr>\n");
 		}
 		if( !firstEntry ) {

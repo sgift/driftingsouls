@@ -115,7 +115,7 @@ public class TCController extends DSGenerator {
 						"tc.offizier.ability.waf",	offi.getAbility( Offizier.Ability.WAF ),
 						"tc.offizier.ability.sec",	offi.getAbility( Offizier.Ability.SEC ),
 						"tc.offizier.ability.com",	offi.getAbility( Offizier.Ability.COM ),
-						"tc.offizier.special",		offi.getSpecial() );
+						"tc.offizier.special",		offi.getSpecial().getName() );
 				
 			t.parse( "tc.offiziere.list", "tc.offiziere.listitem", true );
 		}
