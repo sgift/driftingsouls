@@ -72,7 +72,7 @@ public class KSSecondRowEngageAction extends BasicKSAction {
 		
 		battle.setPoints(battle.getOwnSide(), battle.getPoints(battle.getOwnSide())-100);
 		
-		List<SQLResultRow> enemyShips = battle.getOwnShips();
+		List<SQLResultRow> enemyShips = battle.getEnemyShips();
 		for( int i=0; i < enemyShips.size(); i++ ) {
 			SQLResultRow eShip = enemyShips.get(i);
 			
