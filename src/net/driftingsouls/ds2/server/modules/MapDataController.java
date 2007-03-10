@@ -409,10 +409,10 @@ public class MapDataController extends DSGenerator implements Loggable {
 		//--------------------------------------
 		//Asteroiden in die Karte eintragen
 		//--------------------------------------
-		SQLQuery base = db.query("SELECT t1.x,t1.y,t1.owner,t1.klasse,t2.ally,t1.name,t2.name username " +
-				"FROM bases t1 JOIN users t2 ON t1.owner=t2.id " +
-				"WHERE t1.system=",this.system," AND size=0 AND (x BETWEEN 1 AND ",sys.getWidth(),") AND (y BETWEEN 1 AND ",sys.getHeight(),") " +
-				"ORDER BY t1.id");
+		SQLQuery base = db.query("SELECT b.x,b.y,b.owner,b.klasse,u.ally,b.name,u.name username " +
+				"FROM bases b JOIN users u ON b.owner=u.id " +
+				"WHERE b.system=",this.system," AND b.size=0 AND (b.x BETWEEN 1 AND ",sys.getWidth(),") AND (b.y BETWEEN 1 AND ",sys.getHeight(),") " +
+				"ORDER BY "+(this.usedUser != null ? "IF(b.owner="+this.usedUser.getID()+",0,1)," : "")+"b.id");
 		while( base.next() ) {
 			Location loc = new Location(system, base.getInt("x"), base.getInt("y"));
 			
@@ -420,13 +420,13 @@ public class MapDataController extends DSGenerator implements Loggable {
 				map[loc.getX()][loc.getY()] = OBJECT_ASTI_ALLY;
 				appendStr(maptext, loc.getX(), loc.getY(), base.getString("name")+" - "+base.getString("username")+"\n");
 			} 
-			else if( (this.usedUser == null) || (base.getInt("owner") != this.usedUser.getID()) ) {
-				map[loc.getX()][loc.getY()] = OBJECT_ASTI;
-			} 
-			else {
+			else  if( (this.usedUser != null) && (base.getInt("owner") == this.usedUser.getID()) ) {
 				map[loc.getX()][loc.getY()] = OBJECT_ASTI_OWN;
 				appendStr(maptext, loc.getX(), loc.getY(), base.getString("name")+" - "+base.getString("username")+"\n");
 			}
+			else if( map[loc.getX()][loc.getY()] != OBJECT_ASTI_OWN ) {
+				map[loc.getX()][loc.getY()] = OBJECT_ASTI;
+			} 
 		}
 		base.free();
 		
