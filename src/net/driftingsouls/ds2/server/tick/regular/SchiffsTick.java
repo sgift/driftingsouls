@@ -77,7 +77,8 @@ public class SchiffsTick extends TickController {
 		}
 	
 		// Nahrungsverbrauch berechnen
-		if( (Configuration.getIntSetting("DISABLE_FOOD_CONSUMPTION") != 0) && (shiptd.getInt("crew") > 0) && (shipd.getInt("crew")>0) /*&& ($shipd['alarm'] == 1)*/ ) {
+		if( (Configuration.getIntSetting("DISABLE_FOOD_CONSUMPTION") == 0) && 
+			(shiptd.getInt("crew") > 0) && (shipd.getInt("crew")>0) /*&& ($shipd['alarm'] == 1)*/ ) {
 			this.slog("\tCrew: ");
 			int crew = shipd.getInt("crew");
 			
@@ -380,16 +381,16 @@ public class SchiffsTick extends TickController {
 			Ships.clearShipCache();
 			
 			// Nahrung verarbeiten
-			if( Configuration.getIntSetting("DISABLE_FOOD_CONSUMPTION") != 0 ) {
+			if( Configuration.getIntSetting("DISABLE_FOOD_CONSUMPTION") == 0 ) {
 				int crewcount = 0;
 				String idListStr = "";
 				if( idlist.size() > 0 ) {
-					idListStr = " AND NOT(id IN ("+Common.implode(",",idlist)+")) ";	
+					idListStr = " AND id NOT IN ("+Common.implode(",",idlist)+") ";	
 				}
 				crewcount = db.first("SELECT sum(s.crew) count " +
 						"FROM ships s " +
 						"WHERE s.id>0 AND s.system!=0 AND s.owner=",auser.getInt("id")," " +
-								"AND s.alarm!=1 AND ",battle,idListStr).getInt("count");
+								"AND ",battle,idListStr).getInt("count");
 				
 				this.log("# base+: "+(prevnahrung-usernstat));
 				this.log("# Verbrauche "+crewcount+" Nahrung");
