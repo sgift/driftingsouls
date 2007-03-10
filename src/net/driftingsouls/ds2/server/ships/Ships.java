@@ -1026,7 +1026,7 @@ public class Ships implements Loggable {
 				}
 				out.append(offizier.getName()+" verringert &Uuml;berhitzung<br />\n");
 			}
-			out.append(StringUtils.replace(offizier.MESSAGE.get().toString(),"\n", "<br />"));
+			out.append(StringUtils.replace(offizier.MESSAGE.getMessage(),"\n", "<br />"));
 		}
 
 		int x = ship.getInt("x");
