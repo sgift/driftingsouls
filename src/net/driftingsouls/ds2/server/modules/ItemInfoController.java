@@ -123,7 +123,7 @@ public class ItemInfoController extends DSGenerator {
 			else if( key.equals("panzerung") ) {
 				effecttext.append("Panzerung "+mod);
 			}
-			else if( key.equals("elseif( $key == 'cargo") ) {
+			else if( key.equals("cargo") ) {
 				effecttext.append("Cargo "+mod);
 			}
 			else if( key.equals("crew") ) {

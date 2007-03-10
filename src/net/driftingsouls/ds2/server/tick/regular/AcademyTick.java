@@ -96,7 +96,7 @@ public class AcademyTick extends TickController {
 			SQLResultRow base = db.first("SELECT t1.name,t1.owner,t2.vaccount,t2.wait4vac FROM bases t1,users t2 WHERE t1.id=",acc.getInt("col")," AND t1.owner=t2.id");
 		
 			if( (base.getInt("vaccount") == 0) && (base.getInt("wait4vac") != 0) ) {
-				log("Ueberspringe Akademie $id [VAC]");
+				log("Ueberspringe Akademie "+id+" [VAC]");
 				vaclist.add(id);
 				continue;
 			}

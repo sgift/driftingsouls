@@ -912,7 +912,7 @@ public class ScriptParser {
 				this.log("Marke: "+jumptarget+"\n");
 				
 				if( !parameterlist.containsKey(":"+jumptarget) ) {
-					this.log("WARNUNG: Unbekannte Sprungmarke $jumptarget\n");
+					this.log("WARNUNG: Unbekannte Sprungmarke "+jumptarget+"\n");
 				}
 				lastcommand = parameterlist.get(":"+jumptarget);
 				

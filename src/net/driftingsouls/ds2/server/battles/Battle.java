@@ -918,7 +918,7 @@ public class Battle implements Loggable {
 				writer.append("<side2 commander=\""+enemyShip.getInt("owner")+"\" />\n");
 			}
 	
-			writer.append("<startdate tick=\"$tick\" time=\""+Common.time()+"\" />\n");
+			writer.append("<startdate tick=\""+tick+"\" time=\""+Common.time()+"\" />\n");
 			writer.close();
 			
 			if( SystemUtils.IS_OS_UNIX ) {

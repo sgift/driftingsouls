@@ -1714,7 +1714,7 @@ public class Ships implements Loggable {
 			// Gehoert das Knossosportal dem Spieler bzw seiner ally?
 			else {
 				if( nodeId == aship.getInt("id") ) {
-					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen nicht mit dem $nodetypename durch sich selbst springen</span><br />\n");
+					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen nicht mit dem "+nodetypename+" durch sich selbst springen</span><br />\n");
 					return true;
 				}
 				
@@ -1914,7 +1914,7 @@ public class Ships implements Loggable {
 			datan.put("yout", targetLoc.getY());
 				
 			if( nodeID == ship.getInt("id") ) {
-				outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen nicht mit dem $nodetypename durch sich selbst springen</span><br />\n");
+				outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen nicht mit dem "+nodetypename+" durch sich selbst springen</span><br />\n");
 				return true;
 			}
 			

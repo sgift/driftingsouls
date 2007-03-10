@@ -277,7 +277,7 @@ public class AdminCommands implements Loggable {
 			rquest.free();
 		}
 		else {
-			output = "Unknown quest sub-command >$cmd<";	
+			output = "Unknown quest sub-command >"+cmd+"<";	
 		}
 		return output;
 	}

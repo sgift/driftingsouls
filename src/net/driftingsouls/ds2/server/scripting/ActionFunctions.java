@@ -202,7 +202,7 @@ public class ActionFunctions {
 				int tick = ContextMap.getContext().get(ContextCommon.class).getTick();
 				int waittick = Integer.parseInt(command[2]);
 				
-				scriptparser.log("Warte auf Tick $waittick - aktuell: "+tick+"\n\n");
+				scriptparser.log("Warte auf Tick "+waittick+" - aktuell: "+tick+"\n\n");
 				
 				if( tick < waittick ) {
 					return STOP;

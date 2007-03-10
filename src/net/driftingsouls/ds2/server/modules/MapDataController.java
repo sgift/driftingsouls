@@ -224,7 +224,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 	
 		StringBuffer echo = getContext().getResponse().getContent();
 		echo.append("<?xml version='1.0' encoding='UTF-8'?>\n");
-		echo.append("<sector x=\"$x\" y=\"$y\" system=\""+this.system+"\">\n");
+		echo.append("<sector x=\""+x+"\" y=\""+y+"\" system=\""+this.system+"\">\n");
 	
 		if( usedUser == null ) {
 			echo.append("</sector>\n");

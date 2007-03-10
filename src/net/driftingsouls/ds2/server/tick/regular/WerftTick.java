@@ -47,7 +47,7 @@ public class WerftTick extends TickController {
 		Database db = getDatabase();
 		
 		SQLQuery werftRow = db.query("SELECT * FROM werften WHERE building!=0 ORDER BY id");
-		while( werftRow.next() ) {		
+		while( werftRow.next() ) {
 			int id = werftRow.getInt("id");
 			WerftObject werftd = null;
 			
@@ -57,7 +57,7 @@ public class WerftTick extends TickController {
 				
 				User owner = getContext().createUserObject(base.getInt("owner"));
 				if( (owner.getVacationCount() > 0) && (owner.getWait4VacationCount() == 0) ) {
-					this.log("xxx Ignoriere planetare Werft $id (Basis "+werftRow.getInt("col")+") [VAC]");
+					this.log("xxx Ignoriere planetare Werft "+id+" (Basis "+werftRow.getInt("col")+") [VAC]");
 					continue;
 				}
 				
@@ -85,7 +85,7 @@ public class WerftTick extends TickController {
 				continue;	
 			}
 			else {
-				this.log("+++ Unbekannte Werft $id:");
+				this.log("+++ Unbekannte Werft "+id+":");
 				continue;
 			}
 			

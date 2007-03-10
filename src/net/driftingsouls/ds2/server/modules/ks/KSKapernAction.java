@@ -188,8 +188,8 @@ public class KSKapernAction extends BasicKSAction {
 	
 				} 
 				else {
-					battle.logme(Math.round(dcrew*defmulti)+" Crewmitglieder fallen. $dcrew Feinde get&ouml;tet.\n[color=red]Das Schiff wurde erobert[/color]\n");
-					msg += Math.round(dcrew*defmulti)+" Angreifer erschossen. $dcrew Crewmitglieder sind gefallen.\n[color=red]Das Schiff ist verloren[/color]\n";
+					battle.logme(Math.round(dcrew*defmulti)+" Crewmitglieder fallen. "+dcrew+" Feinde get&ouml;tet.\n[color=red]Das Schiff wurde erobert[/color]\n");
+					msg += Math.round(dcrew*defmulti)+" Angreifer erschossen. "+dcrew+" Crewmitglieder sind gefallen.\n[color=red]Das Schiff ist verloren[/color]\n";
 					acrew = acrew - Math.round(dcrew*defmulti);
 					dcrew = 0;
 					ok = true;

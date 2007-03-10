@@ -133,7 +133,7 @@ public class RestTick extends TickController {
 					battle.writeLog();
 				}
 				else {
-					this.log("\t\tUser"+user.getID()+": Die Schlacht $battleid wurde beendet");
+					this.log("\t\tUser"+user.getID()+": Die Schlacht "+battleid+" wurde beendet");
 				
 					battle.endBattle(0, 0, true);
 					PM.send(getContext(), battle.getCommander(battle.getOwnSide()), battle.getCommander(battle.getEnemySide()), "Schlacht beendet", "Die Schlacht bei "+battle.getSystem()+" : "+battle.getX()+"/"+battle.getY()+" wurde automatisch beim wechseln in den Vacation-Modus beendet, da kein Ersatzkommandant ermittelt werden konnte!");
@@ -197,21 +197,13 @@ public class RestTick extends TickController {
 					
 					// ID ermitteln
 					shouldId++;
-					
-					SQLQuery sid = db.query("SELECT DISTINCT abs(id) iid FROM ships WHERE abs(id) >= ",shouldId," ORDER BY iid");
-					while( sid.next() ) {
-						if( sid.getInt("iid") != shouldId ) {
-							break;
-						}
-						shouldId++;
-					}
-					sid.free();
+					shouldId = db.first("SELECT newIntelliShipID( "+shouldId+" ) AS sid").getInt("sid");
 					
 					// Coords ermitteln
 					int x = rand.nextInt(Systems.get().system(system.getInt("system")).getWidth())+1;
 					int y = rand.nextInt(Systems.get().system(system.getInt("system")).getHeight())+1;
 					
-					this.log("\t*System "+system.getInt("system")+": Fuege Felsbrocken $shouldId ein");
+					this.log("\t*System "+system.getInt("system")+": Fuege Felsbrocken "+shouldId+" ein");
 					
 					// Ladung einfuegen
 					this.log("\t- Loadout: ");					

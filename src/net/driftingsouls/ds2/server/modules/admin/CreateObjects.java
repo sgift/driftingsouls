@@ -388,6 +388,6 @@ public class CreateObjects implements AdminPlugin {
 				"VALUES " +
 				"("+x+","+y+","+system+","+klasse+","+height+","+width+","+cargo+","+(width*height)+",'",new Cargo().save(),"')" );
 					
-		echo.append("Erstelle Basis ($class) bei "+new Location(system,x,y)+"<br />\n");
+		echo.append("Erstelle Basis ("+klasse+") bei "+new Location(system,x,y)+"<br />\n");
 	}
 }

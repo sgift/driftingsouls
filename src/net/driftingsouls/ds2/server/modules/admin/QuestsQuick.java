@@ -553,7 +553,7 @@ public class QuestsQuick implements AdminPlugin {
 				else {
 					echo.append("WARNUNG: unbekannter targettype '"+qquest.getString("targettype")+"' - injectscript muss manuell eingefuegt werden<br />\n");	
 				}
-				echo.append("&lt;part id=\"parameters\"&gt;$tsParams&lt;/part&gt;<br />\n");
+				echo.append("&lt;part id=\"parameters\"&gt;"+tsParams+"&lt;/part&gt;<br />\n");
 				echo.append("&lt;part id=\"menu\"&gt;<br />\n");
 				echo.append(tsMenu);
 				echo.append("&lt;/part&gt;<br />\n");
