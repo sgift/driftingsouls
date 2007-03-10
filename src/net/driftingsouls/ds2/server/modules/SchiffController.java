@@ -1352,12 +1352,12 @@ public class SchiffController extends DSGenerator implements Loggable {
 		
 		// Schilde aufladen
 		if( shiptype.getInt("shields") > 0 && (ship.getInt("shields") < shiptype.getInt("shields")) ) {
-			int shieldfactor = 10;
+			int shieldfactor = 100;
 			if( shiptype.getInt("shields") < 1000 ) {
 				shieldfactor = 10;
 			}
 			
-			t.set_var("ship.shields.reloade", Math.ceil((shiptype.getInt("shields") - ship.getInt("shields"))/shieldfactor));
+			t.set_var("ship.shields.reloade", Common.ln(Math.ceil((shiptype.getInt("shields") - ship.getInt("shields"))/shieldfactor)));
 		}
 		
 		String[] alarms = {"yellow","red"};
