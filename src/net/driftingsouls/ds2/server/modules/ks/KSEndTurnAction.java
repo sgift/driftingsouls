@@ -41,13 +41,6 @@ public class KSEndTurnAction extends BasicKSAction {
 		Context context = ContextMap.getContext();
 		User user = context.getActiveUser();
 
-		// Flush the logs
-		if( battle.getEnemyLog(true).length() > 0 ) {
-			battle.writeLog();
-
-			battle.clearEnemyLog();
-		}
-
 		if( battle.isReady(battle.getEnemySide()) ) {
 			if( !battle.endTurn(true) ) {
 				return RESULT_HALT;
