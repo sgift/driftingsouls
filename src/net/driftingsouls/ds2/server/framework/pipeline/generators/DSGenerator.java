@@ -337,7 +337,7 @@ public abstract class DSGenerator extends Generator {
 		if( (getRequest().getParameter(parameter) != null) && !"".equals(getRequest().getParameter(parameter)) ) {
 			String val = getRequest().getParameter(parameter);
 			try {
-				this.parameter.put(parameter, Common.getNumberFormat().parse(val));
+				this.parameter.put(parameter, Common.getNumberFormat().parse(val.trim()));
 			}
 			catch( ParseException e ) {
 				addError("Parameter "+parameter+" ist keine g&uuml;ltige Zahl");

@@ -502,7 +502,7 @@ public class CommController extends DSGenerator implements Loggable {
 		parameterNumber("reply");
 		parameterString("msg");
 		
-		String to = getString("to");
+		String to = getString("to").trim();
 		int reply = getInteger("reply");
 		String msg = getString("msg");
 		
