@@ -112,6 +112,9 @@ public abstract class WerftObject extends DSObject {
 	 * Dekrementiert die verbliebene Bauzeit um 1
 	 */
 	public void decRemainingTime() {
+		if( remaining <= 0 ) {
+			return;
+		}
 		remaining--;
 		ContextMap.getContext().getDatabase().update("UPDATE werften SET remaining=remaining-1 WHERE id=",getWerftID());
 	}
