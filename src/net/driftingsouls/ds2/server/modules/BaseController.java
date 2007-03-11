@@ -156,7 +156,7 @@ public class BaseController extends DSGenerator {
 		db.prepare("UPDATE bases SET name= ? WHERE id= ? ").update(newname, base.getID());
 		
 		t.set_var("base.message", "Name zu "+Common._plaintitle(newname)+" ge&auml;ndert");
-		base.put("name", newname);
+		base.setName(newname);
 		
 		redirect();
 	}
@@ -195,7 +195,7 @@ public class BaseController extends DSGenerator {
 						count++;
 					
 						if( bebstatus != 0 ) {
-							base.put("arbeiter", base.getArbeiter()+building.getArbeiter());
+							base.setArbeiter(base.getArbeiter()+building.getArbeiter());
 						}
 					}
 				}	
@@ -360,7 +360,7 @@ public class BaseController extends DSGenerator {
 		//----------------
 
 		db.update( "UPDATE bases SET arbeiter='"+basedata.getArbeiter()+"' WHERE id='"+base.getID()+"'");
-		base.put("arbeiter", basedata.getArbeiter());
+		base.setArbeiter(basedata.getArbeiter());
 		
 		int bue = base.getBewohner() - basedata.getArbeiter();
 		int wue = basedata.getBewohner() - base.getBewohner();

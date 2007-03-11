@@ -143,15 +143,15 @@ public class CoreController extends DSGenerator {
 
 		// Genuegend Res vorhanden -> Bauen
 		if( ok ) {
-			base.put("core", build);
+			base.setCore(build);
 		
-			base.put("coreactive", 0);
+			base.setCoreActive(false);
 		
 			if( core.getArbeiter()+base.getArbeiter() > base.getBewohner() ) {
 				t.set_var( "build.message", "<span style=\"color:#ff0000\">Nicht gen&uuml;gend Arbeiter</span>" );
 			} 
 			else {
-				base.put("coreactive", 1);
+				base.setCoreActive(true);
 				t.set_var( "build.message", "<span style=\"color:#00ff00\">aktiviert</span>" );
 			}
 			cargo.substractCargo( costs );
@@ -167,8 +167,8 @@ public class CoreController extends DSGenerator {
 						"SET coreactive='1',arbeiter=arbeiter+'",core.getArbeiter(),"',bewohner=bewohner+'",core.getBewohner(),"' " +
 						"WHERE id=",base.getID()," AND arbeiter='",base.getArbeiter(),"' AND coreactive='0' AND bewohner='",base.getBewohner(),"'");
 				
-				base.put("arbeiter", base.getArbeiter() + core.getArbeiter());
-				base.put("bewohner", base.getBewohner() + core.getBewohner());
+				base.setArbeiter(base.getArbeiter() + core.getArbeiter());
+				base.setBewohner(base.getBewohner() + core.getBewohner());
 			}
 			if( !db.tCommit() ) {
 				addError("Beim bauen der Core ist ein Fehler aufgetreten. Bitte versuchen sie es sp&auml;ter erneut");
@@ -196,9 +196,9 @@ public class CoreController extends DSGenerator {
 				"SET coreactive='0',arbeiter=arbeiter-'",core.getArbeiter(),"',bewohner=bewohner-'",core.getBewohner(),"' " +
 				"WHERE id=",base.getID()," AND arbeiter='",base.getArbeiter(),"' AND coreactive='1' AND bewohner='",base.getBewohner(),"'");
 		
-		base.put("arbeiter", base.getArbeiter() - core.getArbeiter());
-		base.put("bewohner", base.getBewohner() - core.getBewohner());
-		base.put("coreactive", 0);
+		base.setArbeiter(base.getArbeiter() - core.getArbeiter());
+		base.setBewohner(base.getBewohner() - core.getBewohner());
+		base.setCoreActive(false);
 		
 		t.set_var( "core.message", "<span style=\"color:#ff0000\">Core deaktiviert</span>" );
 		
@@ -227,9 +227,9 @@ public class CoreController extends DSGenerator {
 					"SET coreactive='1',arbeiter=arbeiter+'",core.getArbeiter(),"',bewohner=bewohner+'",core.getBewohner(),"' " +
 					"WHERE id=",base.getID()," AND arbeiter='",base.getArbeiter(),"' AND coreactive='0' AND bewohner='",base.getBewohner(),"'");
 			
-			base.put("arbeiter", base.getArbeiter() + core.getArbeiter());
-			base.put("bewohner", base.getBewohner() + core.getBewohner());
-			base.put("coreactive", 1);
+			base.setArbeiter(base.getArbeiter() + core.getArbeiter());
+			base.setBewohner(base.getBewohner() + core.getBewohner());
+			base.setCoreActive(true);
 		
 			t.set_var( "core.message", "<span style=\"color:#00ff00\">Core aktiviert</span>" );
 		}

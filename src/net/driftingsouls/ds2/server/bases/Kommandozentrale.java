@@ -57,7 +57,7 @@ class Kommandozentrale extends DefaultBuilding {
 		
 		db.update("UPDATE bases SET owner=0,autogtuacts='' WHERE id="+base.getID());
 		base.getAutoGTUActs().clear();
-		base.put("owner", 0);
+		base.setOwner(0);
 		
 		// TODO: Unschoen. Das sollte die Werft selbst machen
 		db.update("UPDATE werften SET building=0,item=-1,remaining=0,flagschiff=0 WHERE col="+base.getID());
@@ -207,7 +207,7 @@ class Kommandozentrale extends DefaultBuilding {
 			
 				db.update("UPDATE bases SET e=",e,",cargo='",cargo.save(),"' WHERE id="+base.getID()+" AND cargo='",cargo.save(true),"' AND e='",base.getE(),"'");
 				if( db.affectedRows() != 0 ) {
-					base.put("e", e);	
+					base.setE(e);	
 				}
 			}
 		}
@@ -238,7 +238,7 @@ class Kommandozentrale extends DefaultBuilding {
 			
 				db.update("UPDATE bases SET e=",e,",cargo='",cargo.save(),"' WHERE id="+base.getID()+" AND cargo='",cargo.save(true),"' AND e='",base.getE(),"'");
 				if( db.affectedRows() != 0 ) {
-					base.put("e", e);	
+					base.setE(e);	
 				}
 			}
 		}

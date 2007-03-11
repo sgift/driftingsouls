@@ -343,11 +343,9 @@ public class BaseTick extends TickController {
 				for( int i=0; i < base.getWidth()*base.getHeight(); i++ ) {
 					bebon[i] = 0;
 				}
-				base.put("coreactive", 0);
+				base.setCoreActive(false);
 				
-				if( (arbeiter != oldbase.getArbeiter()) || (arbeiter != oldbase.getBewohner()) ||
-					oldbase.isCoreActive() ) {
-						
+				if( (arbeiter != oldbase.getArbeiter()) || (arbeiter != oldbase.getBewohner()) ) {	
 					this.log("Schreibe neue Werte [hungersnot]...");
 					
 					db.tUpdate(1,"UPDATE bases " ,

@@ -96,7 +96,7 @@ public class BuildingController extends DSGenerator {
 		} 
 		else {
 			base.getActive()[field] = 1;
-			base.put("arbeiter", base.getArbeiter() + building.getArbeiter());
+			base.setArbeiter(base.getArbeiter() + building.getArbeiter());
 			String ondb = Common.implode("|",base.getActive());
 			
 			db.update("UPDATE bases SET active='",ondb,"',arbeiter=arbeiter+",building.getArbeiter()," WHERE id=",base.getID());
@@ -121,7 +121,7 @@ public class BuildingController extends DSGenerator {
 		}
 		else {
 			base.getActive()[field] = 0;
-			base.put( "arbeiter", base.getArbeiter() - building.getArbeiter());
+			base.setArbeiter(base.getArbeiter() - building.getArbeiter());
 			String ondb = Common.implode("|",base.getActive());
 			
 			db.update("UPDATE bases SET active='",ondb,"',arbeiter=arbeiter+",building.getArbeiter()," WHERE id=",base.getID());

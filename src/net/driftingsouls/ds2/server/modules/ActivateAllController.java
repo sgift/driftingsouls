@@ -97,8 +97,10 @@ public class ActivateAllController extends DSGenerator {
 		Core core = Core.getCore(db, base.getCore());
 		
 		if( (base.getCore() != 0) && base.isCoreActive() ) {
-			base.put("arbeiter", base.getArbeiter() - core.getArbeiter());
+			base.setArbeiter(base.getArbeiter() - core.getArbeiter());
+			base.setCoreActive(false);
 			query = "coreactive=0,";
+
 			if( deakOnly != 0 ) {
 				t.set_var("deak.name", Common._plaintitle(core.getName()) );
 				t.parse("deak.list", "deak.listitem", true);
@@ -111,7 +113,7 @@ public class ActivateAllController extends DSGenerator {
 				
 				if( building.isDeakAble() ) {
 					base.getActive()[i] = 0;
-					base.put("arbeiter", base.getArbeiter() - building.getArbeiter());
+					base.setArbeiter(base.getArbeiter() - building.getArbeiter());
 					
 					if( deakOnly != 0 ) {
 						t.set_var("deak.name", Common._plaintitle(building.getName()) );
@@ -134,7 +136,9 @@ public class ActivateAllController extends DSGenerator {
 
 			if( base.getCore() != 0 ) {
 				if( base.getBewohner() >= base.getArbeiter()+core.getArbeiter() ) {
-					base.put("arbeiter", base.getArbeiter() + core.getArbeiter());
+					base.setArbeiter(base.getArbeiter() + core.getArbeiter());
+					base.setCoreActive(true);
+					
 					query = "coreactive=1,";
 					t.set_var(	"activate.name",	Common._plaintitle(core.getName()),
 								"activate.success",	1 );
@@ -152,7 +156,7 @@ public class ActivateAllController extends DSGenerator {
 					
 					if( building.isDeakAble() && (base.getBewohner() >= base.getArbeiter()+building.getArbeiter()) ) {
 						this.base.getActive()[i] = 1;
-						this.base.put("arbeiter", base.getArbeiter() + building.getArbeiter());
+						this.base.setArbeiter(base.getArbeiter() + building.getArbeiter());
 						
 						t.set_var(	"activate.name",	Common._plaintitle(building.getName()),
 									"activate.success",	1 );

@@ -46,6 +46,9 @@ public class Base implements Cloneable {
 	private SQLResultRow base;
 	private List<AutoGTUAction> autogtuacts;
 	private Cargo cargo;
+	private Integer[] terrain;
+	private Integer[] bebauung;
+	private Integer[] active;
 	
 	/**
 	 * Erstellt eine neue Instanz einer Basis
@@ -54,9 +57,9 @@ public class Base implements Cloneable {
 	public Base(SQLResultRow base) {
 		this.base = base;
 		
-		base.put("terrain", Common.explodeToInteger("|",base.getString("terrain")));
-		base.put("bebauung", Common.explodeToInteger("|",base.getString("bebauung")));
-		base.put("active", Common.explodeToInteger("|",base.getString("active")));
+		this.terrain = Common.explodeToInteger("|",base.getString("terrain"));
+		this.bebauung = Common.explodeToInteger("|",base.getString("bebauung"));
+		this.active = Common.explodeToInteger("|",base.getString("active"));
 		this.cargo = new Cargo( Cargo.Type.STRING, base.getString("cargo"));
 		
 		String[] autogtuacts = StringUtils.split(base.getString("autogtuacts"),";");
@@ -84,7 +87,7 @@ public class Base implements Cloneable {
 						terrain[i] = 0;	
 					}
 				}
-				put("terrain", terrain);
+				this.terrain = terrain;
 				db.update("UPDATE bases SET terrain='",Common.implode("|", getTerrain()),"' WHERE id='",getID(),"'");
 			}
 			
@@ -94,7 +97,7 @@ public class Base implements Cloneable {
 				for( int i=Math.max(getBebauung().length-1,0); i < getWidth()*getHeight(); i++ ) {
 					bebauung[i] = 0;	
 				}
-				put("bebauung", bebauung);
+				this.bebauung = bebauung;
 				db.update("UPDATE bases SET bebauung='",Common.implode("|", getBebauung()),"' WHERE id='",getID(),"'");
 			}
 			
@@ -104,7 +107,7 @@ public class Base implements Cloneable {
 				for( int i=Math.max(getActive().length-1,0); i < getWidth()*getHeight(); i++ ) {
 					active[i] = 0;	
 				}
-				put("active", active);
+				this.active = active;
 				db.update("UPDATE bases SET active='",Common.implode("|", getActive()),"' WHERE id='",getID(),"'");
 			}
 		}
@@ -143,6 +146,14 @@ public class Base implements Cloneable {
 	}
 	
 	/**
+	 * Gibt der Basis einen neuen Namen
+	 * @param name Der neue Name
+	 */
+	public void setName(String name) {
+		base.put("name", name);
+	}
+	
+	/**
 	 * Gibt die ID des Besitzers zurueck.
 	 * Falls die Basis niemandem gehoert, wird 0 zurueckgegegeben.
 	 * 
@@ -153,11 +164,19 @@ public class Base implements Cloneable {
 	}
 	
 	/**
+	 * Setzt einen neuen Besitzer fuer die Basis
+	 * @param owner Die ID des neuen Besitzers
+	 */
+	public void setOwner(int owner) {
+		base.put("owner", owner);
+	}
+	
+	/**
 	 * Gibt die Terrain-Typen der einzelnen Basisfelder zurueck.
 	 * @return Die Terraintypen der Felder
 	 */
 	public Integer[] getTerrain() {
-		return (Integer[])base.get("terrain");
+		return this.terrain;
 	}
 	
 	/**
@@ -167,7 +186,15 @@ public class Base implements Cloneable {
 	 * @return Die IDs der Gebaeude
 	 */
 	public Integer[] getBebauung() {
-		return (Integer[])base.get("bebauung");
+		return this.bebauung;
+	}
+	
+	/**
+	 * Setzt die neue Bebauung der Basis
+	 * @param bebauung Die neue Bebauung
+	 */
+	public void setBebauung(Integer[] bebauung) {
+		this.bebauung = bebauung;
 	}
 	
 	/**
@@ -176,7 +203,16 @@ public class Base implements Cloneable {
 	 * @return Aktivierungsgrad der Gebaeude auf den Feldern
 	 */
 	public Integer[] getActive() {
-		return (Integer[])base.get("active");
+		return this.active;
+	}
+	
+	/**
+	 * Setzt den Aktivierungszustand aller Gebaeude. <code>1</code> bedeutet, dass das
+	 * Gebaeude aktiv ist. <code>0</code>, dass das Gebaeude nicht aktiv ist.
+	 * @param active Der neue Aktivierungszustand aller Gebaeude
+	 */
+	public void setActive(Integer[] active) {
+		this.active = active;
 	}
 	
 	/**
@@ -194,20 +230,6 @@ public class Base implements Cloneable {
 	public void setCargo(Cargo cargo) {
 		this.cargo = cargo;
 	}
-	
-	/**
-	 * Setzt eine Eigenschaft der Basis auf den angegebenen Wert
-	 * @param key Der Name der Eigenschaft
-	 * @param value Der Wert
-	 */
-	public void put( String key, Object value ) {
-		if( !key.equals("autogtuacts") && !key.equals("cargo") ) {
-			base.put(key, value);
-		}
-		else {
-			throw new RuntimeException("Bitte Setter benutzen");
-		}
-	}
 
 	/**
 	 * Gibt die ID der installierten Core der Basis zurueck.
@@ -217,6 +239,16 @@ public class Base implements Cloneable {
 	 */
 	public int getCore() {
 		return base.getInt("core");
+	}
+	
+	/**
+	 * Setzt den neuen Kern der Basis. <code>0</code> bedeutet,
+	 * dass kein Kern vorhanden ist.
+	 * 
+	 * @param core der neue Kern oder <code>0</code>
+	 */
+	public void setCore(int core) {
+		base.put("core", core);
 	}
 
 	/**
@@ -250,6 +282,14 @@ public class Base implements Cloneable {
 	public boolean isCoreActive() {
 		return base.getInt("coreactive") != 0;
 	}
+	
+	/**
+	 * Setzt den Aktivierungszustand der Core
+	 * @param active <code>true</code>, wenn die Core aktiv ist
+	 */
+	public void setCoreActive(boolean active) {
+		base.put("coreactive", active ? 1 : 0);
+	}
 
 	/**
 	 * Gibt die maximale Masse an Cargo zurueck, die auf der Basis gelagert werden kann
@@ -257,6 +297,14 @@ public class Base implements Cloneable {
 	 */
 	public long getMaxCargo() {
 		return base.getLong("maxcargo");
+	}
+	
+	/**
+	 * Setzt den neuen maximalen Cargo der Basis
+	 * @param cargo Der neue maximale Cargo
+	 */
+	public void setMaxCargo(long cargo) {
+		base.put("maxcargo", cargo);
 	}
 
 	/**
@@ -268,11 +316,27 @@ public class Base implements Cloneable {
 	}
 	
 	/**
+	 * Setzt die Anzahl der Bewohner auf der Basis
+	 * @param bewohner Die neue Anzahl der Bewohner
+	 */
+	public void setBewohner(int bewohner) {
+		base.put("bewohner", bewohner);
+	}
+	
+	/**
 	 * Gibt die Anzahl der Arbeiter auf der Basis zurueck
 	 * @return Die Arbeiter
 	 */
 	public int getArbeiter() {
 		return base.getInt("arbeiter");
+	}
+	
+	/**
+	 * Setzt die neue Menge der Arbeiter auf der Basis. 
+	 * @param arbeiter Die Anzahl der Arbeiter
+	 */
+	public void setArbeiter(int arbeiter) {
+		base.put("arbeiter", arbeiter);
 	}
 
 	/**
@@ -284,11 +348,27 @@ public class Base implements Cloneable {
 	}
 	
 	/**
+	 * Setzt die Menge der auf der Basis vorhandenen Energie
+	 * @param e Die auf der Basis vorhandene Energie
+	 */
+	public void setE(int e) {
+		base.put("e", e);
+	}
+	
+	/**
 	 * Gibt die maximal auf der Basis speicherbare Energiemenge zurueck
 	 * @return die max. Energiemenge
 	 */
 	public int getMaxE() {
 		return base.getInt("maxe");
+	}
+	
+	/**
+	 * Setzt die maximale Menge an Energie die auf der Basis gespeichert werden kann
+	 * @param maxe Die maximale Menge an Energie
+	 */
+	public void setMaxE(int maxe) {
+		base.put("maxe", maxe);
 	}
 	
 	/**
@@ -306,6 +386,14 @@ public class Base implements Cloneable {
 	 */
 	public int getMaxTiles() {
 		return base.getInt("maxtiles");
+	}
+	
+	/**
+	 * Setzt die Anzahl an Feldern, die in die Gesamtflaechenanzahl eingerechnet werden sollen
+	 * @param tiles Die Felderanzahl
+	 */
+	public void setMaxTiles(int tiles) {
+		base.put("maxtiles", tiles);
 	}
 	
 	/**
