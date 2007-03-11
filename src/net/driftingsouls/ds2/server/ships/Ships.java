@@ -1524,7 +1524,7 @@ public class Ships implements Loggable {
 						}
 						
 						if( Quests.executeEvent(scriptparser, sector.getString("onenter"), ship.getInt("owner"), "" ) ) {
-							if( scriptparser.getOutput().length()!= 0 ) {							
+							if( scriptparser.getContext().getOutput().length()!= 0 ) {							
 								distance = 0;
 							}
 						}

@@ -44,6 +44,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.scripting.ScriptParser;
+import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
@@ -154,7 +155,7 @@ public class UeberController extends DSGenerator implements Loggable {
 		try {
 			Blob execdata = questdata.getBlob("execdata");
 			if( (execdata != null) && (execdata.length() > 0) ) {
-				scriptparser.setExecutionData(execdata.getBinaryStream());
+				scriptparser.setContext(ScriptParserContext.fromStream(execdata.getBinaryStream()));
 			}
 		}
 		catch( Exception e ) {

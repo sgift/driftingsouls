@@ -38,6 +38,7 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.scripting.ScriptParser;
+import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
@@ -240,7 +241,6 @@ public class RestTick extends TickController {
 			return;
 		}
 		ScriptParser scriptparser = getContext().get(ContextCommon.class).getScriptParser(ScriptParser.NameSpace.QUEST);
-		scriptparser.setShip(null);
 		scriptparser.setLogFunction(ScriptParser.LOGGER_NULL);	
 		
 		while( rquest.next() ) {
@@ -248,7 +248,10 @@ public class RestTick extends TickController {
 			try {
 				Blob execdata = rquest.getBlob("execdata");
 				if( (execdata != null) && (execdata.length() > 0) ) { 
-					scriptparser.setExecutionData( execdata.getBinaryStream() );
+					scriptparser.setContext(ScriptParserContext.fromStream(execdata.getBinaryStream()));
+				}
+				else {
+					scriptparser.setContext(new ScriptParserContext());
 				}
 					
 				this.log("* quest: "+rquest.getInt("questid")+" - user:"+rquest.getInt("userid")+" - script: "+rquest.getInt("ontick"));
@@ -262,7 +265,7 @@ public class RestTick extends TickController {
 				int usequest = Integer.parseInt(scriptparser.getRegister("QUEST"));
 					
 				if( usequest != 0 ) {
-					scriptparser.writeExecutionData(execdata.setBinaryStream(1));	
+					scriptparser.getContext().toStream(execdata.setBinaryStream(1));	
 					db.prepare("UPDATE quests_running SET execdata=? WHERE id=? ")
 						.update(execdata, rquest.getInt("id"));
 				}

@@ -24,6 +24,7 @@ import java.util.Map;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextInstance;
 import net.driftingsouls.ds2.server.scripting.ScriptParser;
+import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
 
 /**
  * Kontextlokale Operationen
@@ -65,6 +66,7 @@ public class ContextCommon {
 	public ScriptParser getScriptParser( ScriptParser.NameSpace namespace ) {
 		if( !scriptParsers.containsKey(namespace) ) {
 			ScriptParser parser = new ScriptParser(namespace);
+			parser.setContext(new ScriptParserContext());
 			scriptParsers.put(namespace, parser);
 			return parser;
 		}

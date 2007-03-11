@@ -36,6 +36,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.scripting.ScriptParser;
+import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
@@ -98,7 +99,9 @@ public class PlayerDelete implements AdminPlugin, Loggable {
 		while( rquest.next() ) {
 			scriptparser.cleanup();
 			try {
-				scriptparser.setExecutionData(rquest.getBlob("execdata").getBinaryStream());
+				scriptparser.setContext(
+						ScriptParserContext.fromStream(rquest.getBlob("execdata").getBinaryStream())
+				);
 				scriptparser.setRegister("USER", userid);
 				scriptparser.setRegister("QUEST", "r"+rquest.getInt("id"));
 				scriptparser.executeScript(db, ":0\n!ENDQUEST\n!QUIT","0");

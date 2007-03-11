@@ -39,6 +39,7 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 import net.driftingsouls.ds2.server.scripting.ScriptParser;
+import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
 
 /**
  * Ermoeglicht das Verwalten von Quick-Quests
@@ -85,7 +86,9 @@ public class QuestsQuick implements AdminPlugin {
 				scriptparser.cleanup();
 				try {
 					Blob execdata = rquest.getBlob("execdata");
-					scriptparser.setExecutionData(execdata.getBinaryStream());
+					scriptparser.setContext(
+							ScriptParserContext.fromStream(execdata.getBinaryStream())
+					);
 				}
 				catch( Exception e ) {
 					echo.append("WARNUNG: Konnte Questdaten nicht laden: Laufendes Quest "+rquest.getInt("id")+"<br />\n");

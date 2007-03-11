@@ -18,11 +18,6 @@
  */
 package net.driftingsouls.ds2.server.scripting;
 
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,14 +26,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import org.apache.commons.lang.StringUtils;
-
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Der ScriptParser
@@ -229,14 +224,11 @@ public class ScriptParser {
 	}
 	
 	private Logger logFunction = LOGGER_NULL;
-	private SQLResultRow ship = null;
-	private StringBuffer out = new StringBuffer();
 	private NameSpace namespace = null;
-	private Map<String,Object> register = null;
 	private Map<String,SPFunction> funcregister = null;
 	private Map<String,Args[]> funcargregister = null;
-	private int lastcommand = 0;
 	private List<String> addparameterlist = null;
+	private ScriptParserContext context = null;
 	
 	/**
 	 * Konstruktor
@@ -253,7 +245,6 @@ public class ScriptParser {
 		}		
 		
 		this.namespace = namespace;
-		this.register = new HashMap<String,Object>();
 		this.funcregister = new HashMap<String,SPFunction>();
 		this.funcargregister = new HashMap<String,Args[]>();
 		this.addparameterlist = new ArrayList<String>();
@@ -323,7 +314,7 @@ public class ScriptParser {
 	 * @param ship Das Schiff
 	 */
 	public void setShip( SQLResultRow ship ) {
-		this.ship = ship;
+		context.setRegister("_SHIP", ship);
 	}
 	
 	/**
@@ -331,93 +322,16 @@ public class ScriptParser {
 	 * @return Das Schiff
 	 */
 	public SQLResultRow getShip() {
-		return ship;
+		return (SQLResultRow)context.getRegisterObject("_SHIP");
 	}
-	
-	private static class ExecData implements Serializable {
-		private static final long serialVersionUID = 1L;
 		
-		ExecData() {
-			// EMPTY
-		}
-		Map<String,Object> register;
-		int lastcommand;
-	}
-	
-	/**
-	 * Laedt Ausfuehrungsdaten aus dem angegebenen InputStream und fuegt sie dem ScriptParser hinzu
-	 * @param data Der InputStream
-	 * @throws Exception
-	 */
-	public void addExecutionData( InputStream data ) throws Exception {
-		if( data != null ) {
-			ObjectInputStream oinput = new ObjectInputStream(data);
-			ExecData entry = (ExecData)oinput.readObject();
-			if( (entry.register != null) && (entry.register.size() > 0) ) {
-				this.register.putAll(entry.register);
-			}
-			oinput.close();
-		}
-	}
-	
-	/**
-	 * Setzt die Ausfuehrungsdaten des ScriptParsers auf die im Stream enthaltenen Daten
-	 * @param data Der InputStream
-	 * @throws Exception
-	 */
-	public void setExecutionData( InputStream data ) throws Exception {
-		if( data == null ) {
-			return;
-		}
-		ObjectInputStream oinput = new ObjectInputStream(data);
-		ExecData entry = (ExecData)oinput.readObject();
-		
-		this.lastcommand = entry.lastcommand;
-		if( (entry.register != null) && (entry.register.size() > 0) ) {
-			this.register.putAll(entry.register);
-		}
-	}
-	
-	/**
-	 * Schreibt die Ausfuehrungsdaten des ScriptParsers in den angegebenen Stream
-	 * @param out Der OutputStream
-	 * @throws Exception
-	 */
-	public void writeExecutionData(OutputStream out) throws Exception {
-		if( out == null ) {
-			return;
-		}
-		ObjectOutputStream oout = new ObjectOutputStream(out);
-		ExecData entry = new ExecData();
-		entry.register = this.register;
-		entry.lastcommand = lastcommand;
-		oout.writeObject(entry);
-		oout.close();
-	}
-	
-	/**
-	 * Gibt die Ausgabe der Scripte zurueck
-	 * @return Die Scriptausgabe
-	 */
-	public String getOutput() {
-		return out.toString();
-	}
-	
-	/**
-	 * Fuegt den angegebenen Text zur Scriptausgabe hinzu
-	 * @param text der auszugebende Text
-	 */
-	public void out( String text ) {
-		out.append(text);
-	}
-	
 	/**
 	 * Gibt das angegebene Register zurueck
 	 * @param reg Das Register
 	 * @return der Inhalt des Registers
 	 */
 	public String getRegister( String reg ) {
-		return getRegisterObject(reg).toString();
+		return context.getRegister(reg);
 	}
 	
 	/**
@@ -426,14 +340,7 @@ public class ScriptParser {
 	 * @return der Inhalt des Registers
 	 */
 	public Object getRegisterObject( String reg ) {
-		if( reg.charAt(0) == '#' ) {
-			reg = reg.substring(1);	
-		}
-		Object val = this.register.get(reg);
-		if( val == null ) {
-			return "";
-		}
-		return val;
+		return context.getRegisterObject(reg);
 	}
 	
 	/**
@@ -442,20 +349,13 @@ public class ScriptParser {
 	 * @param data Der Wert
 	 */
 	public void setRegister( String reg, Object data ) {
-		if( reg.charAt(0) == '#' ) {
-			reg = reg.substring(1);	
-		}
-		this.register.put(reg, data);
+		context.setRegister(reg, data);
 	}
 	
 	/**
 	 * Setzt die internen Daten des Scriptparsers auf den Ausgangsstatus zurueck
 	 */
 	public void cleanup() {
-		this.lastcommand = 0;
-		this.register.clear();
-		this.out.setLength(0);
-		this.ship = null;
 		this.addparameterlist.clear();
 	}
 	
@@ -638,6 +538,22 @@ public class ScriptParser {
 	}
 	
 	/**
+	 * Setzt den zur Ausfuehrung von Scripten zu verwendenden Kontext
+	 * @param context Der Kontext
+	 */
+	public void setContext(ScriptParserContext context) {
+		this.context = context;
+	}
+	
+	/**
+	 * Gibt den aktuell zur Ausfuehrung von Scripten verwendeten Kontext zurueck
+	 * @return Der aktuelle Kontext
+	 */
+	public ScriptParserContext getContext() {
+		return this.context;
+	}
+	
+	/**
 	 * Fuehrt das angegebene Script aus
 	 * @param db Eine offene DB-Verbindung
 	 * @param script das Script
@@ -655,26 +571,18 @@ public class ScriptParser {
 	public void executeScript( Database db, String script, String parameter ) {
 		this.startLogging();
 		
-		this.out.setLength(0);
-		
-		this.addparameterlist.clear();
-
-		SQLResultRow ship = this.getShip();
-		
 		//Auswertung		
 		int restartcount = 0;
 		
-		int lastcommand = this.lastcommand;
-		
 		this.log("Gesetzte Register:\n");
-		for( String reg : this.register.keySet() ) {
-			this.log("#"+reg+" => "+this.register.get(reg)+"\n");	
+		for( String reg : context.getRegisterList() ) {
+			this.log("#"+reg+" => "+context.getRegister(reg)+"\n");	
 		}
 		this.log("\n");
 		
 		// Wurde die Ausfuehrung des Scripts beendet?
 		if( (this.namespace == NameSpace.ACTION) && 
-			(lastcommand == -1) && (parameter.length() == 0) ) {
+			(context.getLastCommand() == -1) && (parameter.length() == 0) ) {
 			this.log("Ausfuehrung des scripts bereits beendet\n");
 			this.stopLogging();
 			return;	
@@ -749,11 +657,10 @@ public class ScriptParser {
 		
 		// Ggf. Parameter behandeln
 		if( parameter.length() > 0 ) {
-			
 			if( parameter.equals("-1") ) {
-				this.out.setLength(0);
-				this.out.append(this.getRegister("_OUTPUT"));
+				context.out(context.getRegister("_OUTPUT"));
 				this.stopLogging();
+				
 				return;
 			}
 			else if( !validInternalParams.contains(parameter) && !parameterlist.containsKey(':'+parameter) ) {
@@ -764,29 +671,37 @@ public class ScriptParser {
 				this.log("+++ Parameter >"+parameter+"< gesperrt - benutze >0<\n");
 				parameter = "0";	
 			}
-			lastcommand = parameterlist.get(':'+parameter);
+			context.setLastCommand(parameterlist.get(':'+parameter));
 		}
 		
 		// Und los gehts!
 		while( true ) {
-			if( lastcommand >= commands.size() ) {
-				if( (this.ship != null) && (this.namespace == NameSpace.ACTION) ) {
-					PM.send(ContextMap.getContext(), -1, ship.getInt("owner"), "Script beendet", "[Scriptsystem:"+ship.getInt("id")+"]\nDie "+ship.getString("name")+" hat ihre Befehle abgearbeitet!");
+			// Falls der Befehlszeiger am Ende angekommen ist die Ausfuehrung beenden
+			if( context.getLastCommand() >= commands.size() ) {
+				// Wenn es sich um ein Aktionsscript handelt, dann den Besitzer des
+				// zugehoerigen Schiffes informieren
+				if( this.namespace == NameSpace.ACTION ) {
+					SQLResultRow ship = this.getShip();
+					PM.send(ContextMap.getContext(), -1, ship.getInt("owner"), "Script beendet", 
+							"[Scriptsystem:"+ship.getInt("id")+"]\nDie "+ship.getString("name")+
+							" hat ihre Befehle abgearbeitet!");
 				}
+				
 				this.log("+++ Ausfuehrung beendet\n\n");
-				lastcommand = -1;
+				context.setLastCommand(-1);
 				
 				break;
 			}
 			
+			String[] command = commands.get(context.getLastCommand());
 
-			if( commands.get(lastcommand)[0].charAt(0) == '#' ) {
-				String[] cmd = commands.get(lastcommand);
+			if( command[0].charAt(0) == '#' ) {
+				String[] cmd = commands.get(context.getLastCommand());
 				this.log("* Berechne Ausdruck '"+cmd[1]+"' nach "+cmd[0]+"\n");
 				
 				this.setRegister(cmd[0],this.evalTerm(cmd[1]));
 				
-				lastcommand++;
+				context.setLastCommand(context.getLastCommand()+1);
 				if( limitexeccount > 0 ) {
 					limitexeccount--;
 					if( limitexeccount == 0 ) {
@@ -798,41 +713,39 @@ public class ScriptParser {
 				continue;
 			}
 			
-			String funcname = commands.get(lastcommand)[0].toUpperCase();
+			String funcname = command[0].toUpperCase();
 			
 			if( this.funcregister.containsKey(funcname) ) {
-				String[] cmd = commands.get(lastcommand);
-				
 				SPFunction func = this.funcregister.get(funcname);
 				
 				Args[] args = this.funcargregister.get(funcname);
-				if( (cmd.length-1 > args.length) && ((args[args.length-1].ordinal() & Args.VARIABLE.value()) != 0) ) {
-					Args[] args2 = new Args[cmd.length-1];
+				if( (command.length-1 > args.length) && ((args[args.length-1].ordinal() & Args.VARIABLE.value()) != 0) ) {
+					Args[] args2 = new Args[command.length-1];
 					System.arraycopy(args, 0, args2, 0, args.length);
 					
-					for( int i=args.length; i < cmd.length-1; i++ ) {
-						args2[i] = args[cmd.length-1];
+					for( int i=args.length; i < command.length-1; i++ ) {
+						args2[i] = args[command.length-1];
 					}
 					
 					args = args2;
 				}
 
-				for( int i=0; i < Math.min(args.length,cmd.length-1); i++ ) {
-					String cmdParam = cmd[i+1];
+				for( int i=0; i < Math.min(args.length,command.length-1); i++ ) {
+					String cmdParam = command[i+1];
 						
 					if( (cmdParam.charAt(0) == '#') && ((args[i].ordinal() & Args.REG.ordinal()) > 0) ) {
 						cmdParam = this.getRegister(cmdParam);	
 					}
 						
-					cmd[i+1] = cmdParam;	
+					command[i+1] = cmdParam;	
 				}
 				
 				this.log("*COMMAND: "+funcname+"\n");
 				
 				// ich HASSE eval(...), aber hier gehts leider nicht ohne...
-				boolean[] result = func.execute(db, this, cmd);
+				boolean[] result = func.execute(db, this, command);
 				
-				lastcommand += (result[1] ? 1 : 0);
+				context.setLastCommand(context.getLastCommand()+(result[1] ? 1 : 0));
 				if( !result[0] ) {
 					break;
 				}
@@ -847,7 +760,8 @@ public class ScriptParser {
 			else if( funcname.equals("!RESTART") ) {
 				this.log("*COMMAND: !RESTART\n");
 				restartcount++;
-				lastcommand = 0;
+				context.setLastCommand(0);
+				
 				if( restartcount > 3 ) {
 					this.log("Maximale Anzahl an !RESTART-Befehlen in einer Ausfuehrung erreicht\n\n");
 					break;
@@ -864,7 +778,7 @@ public class ScriptParser {
 			} 
 			else if( funcname.equals("!QUIT") ) {
 				this.log("*COMMAND: !QUIT\n");
-				lastcommand = -1;
+				context.setLastCommand(-1);
 				
 				this.log("+++ Ausfuehrung beendet\n\n");
 				break;
@@ -888,11 +802,11 @@ public class ScriptParser {
 					}
 				}
 				if( ok ) {
-					this.log("Marke: "+commands.get(lastcommand)[1]+"\n");
-					lastcommand = parameterlist.get(":"+commands.get(lastcommand)[1]);
+					this.log("Marke: "+command[1]+"\n");
+					context.setLastCommand(parameterlist.get(":"+command[1]));
 				}	
 				else {
-					lastcommand++;
+					context.setLastCommand(context.getLastCommand());
 				}
 				
 				if( limitexeccount > 0 ) {
@@ -905,7 +819,7 @@ public class ScriptParser {
 			} 
 			else if( funcname.equals("!JUMP") ) {
 				this.log("*COMMAND: !JUMP\n");
-				String jumptarget = commands.get(lastcommand)[1];
+				String jumptarget = command[1];
 				if( jumptarget.charAt(0) == '#' ) {
 					jumptarget = this.getRegister(jumptarget);
 				}
@@ -914,7 +828,7 @@ public class ScriptParser {
 				if( !parameterlist.containsKey(":"+jumptarget) ) {
 					this.log("WARNUNG: Unbekannte Sprungmarke "+jumptarget+"\n");
 				}
-				lastcommand = parameterlist.get(":"+jumptarget);
+				context.setLastCommand(parameterlist.get(":"+jumptarget));
 				
 				if( limitexeccount > 0 ) {
 					limitexeccount--;
@@ -926,12 +840,12 @@ public class ScriptParser {
 			} 
 			else if( funcname.equals("!DUMP") ) {
 				this.log("*COMMAND: !DUMP\n");
-				String dump = commands.get(lastcommand)[1];
+				String dump = command[1];
 				
 				if( dump.equals("register") ) {
 					this.log("################# register ###################\n");
-					for( String reg : this.register.keySet() ) {
-						this.log(reg+" ("+this.register.get(reg)+"), ");
+					for( String reg : context.getRegisterList() ) {
+						this.log(reg+" ("+context.getRegister(reg)+"), ");
 					}
 					this.log("\n\n");
 				}
@@ -952,7 +866,7 @@ public class ScriptParser {
 				
 				this.log("############### END OF DUMP #################\n");
 				
-				lastcommand++;
+				context.setLastCommand(context.getLastCommand()+1);
 				
 				if( limitexeccount > 0 ) {
 					limitexeccount--;
@@ -964,15 +878,15 @@ public class ScriptParser {
 			} 
 			else {
 				this.log("*UNKNOWN COMMAND >"+funcname+"<\n");
-				this.log("*CURRENT COMMAND POINTER: "+lastcommand+"\n\n");
+				this.log("*CURRENT COMMAND POINTER: "+context.getLastCommand()+"\n\n");
 				this.log("################# jumpaddrs ###################\n");
 				for( String jumpname : parameterlist.keySet() ) {
 					this.log(jumpname+" ("+parameterlist.get(jumpname)+"), ");
 				}
 				this.log("\n\n");
 				this.log("################# register ###################\n");
-				for( String reg : this.register.keySet() ) {
-					this.log(reg+" ("+this.register.get(reg)+"), ");
+				for( String reg : context.getRegisterList() ) {
+					this.log(reg+" ("+context.getRegister(reg)+"), ");
 				}
 				this.log("\n\n");
 				this.log("################# commands ###################\n");
@@ -983,7 +897,6 @@ public class ScriptParser {
 				break;
 			}
 		}
-		this.lastcommand = lastcommand;
 		
 		this.stopLogging();
 	}

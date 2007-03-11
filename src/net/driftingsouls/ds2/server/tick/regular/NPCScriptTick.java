@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.scripting.ScriptParser;
+import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 /**
@@ -78,10 +79,12 @@ public class NPCScriptTick extends TickController {
 			while( ship.next() ) {			
 				try {
 					this.log("+++ Ship "+ship.getInt("id")+" +++");
-					scriptparser.setShip( ship.getRow() );
+					
 					Blob scriptExecData = ship.getBlob("scriptexedata");
 					if( (scriptExecData != null) && (scriptExecData.length() > 0) ) {
-						scriptparser.setExecutionData(scriptExecData.getBinaryStream());
+						scriptparser.setContext(
+								ScriptParserContext.fromStream(scriptExecData.getBinaryStream())
+						);
 					}
 					else if( scriptExecData == null ) {
 						// Hochgradig umstaendliches erstellen eines leeren Blobs. Geht sicherlich einfacher... 
@@ -90,11 +93,14 @@ public class NPCScriptTick extends TickController {
 						tmp.next();
 						scriptExecData = tmp.getBlob("scriptexedata");
 						tmp.free();
+						
+						scriptparser.setContext(new ScriptParserContext());
 					}
 					
+					scriptparser.setShip( ship.getRow() );
 					scriptparser.executeScript( db, ship.getString("script") );
 					
-					scriptparser.writeExecutionData(scriptExecData.setBinaryStream(1));
+					scriptparser.getContext().toStream(scriptExecData.setBinaryStream(1));
 					scriptExecUpdate.update(scriptExecData, ship.getInt("id"));
 				}
 				catch( Exception e ) {

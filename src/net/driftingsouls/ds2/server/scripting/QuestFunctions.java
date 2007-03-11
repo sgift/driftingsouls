@@ -174,16 +174,17 @@ public class QuestFunctions {
 			BBCodeParser bbcodeparser = BBCodeParser.getInstance();
 			
 			String text = bbcodeparser.parse(dialogText);
-					
-			scriptparser.out( "<table class=\"noBorderX\"><tr><td class=\"noBorderX\" valign=\"top\">" );
-			scriptparser.out( "<img src=\""+Configuration.getSetting("URL")+"data/quests/"+dialogImage+"\" alt=\"\" />" );
-			scriptparser.out( "</td><td class=\"noBorderX\" valign=\"top\">" );
-			scriptparser.out( StringUtils.replace(text, "\n", "<br />")+"<br /><br />" );
+			
+			ScriptParserContext context = scriptparser.getContext();
+			context.out( "<table class=\"noBorderX\"><tr><td class=\"noBorderX\" valign=\"top\">" );
+			context.out( "<img src=\""+Configuration.getSetting("URL")+"data/quests/"+dialogImage+"\" alt=\"\" />" );
+			context.out( "</td><td class=\"noBorderX\" valign=\"top\">" );
+			context.out( StringUtils.replace(text, "\n", "<br />")+"<br /><br />" );
 			
 			for( Answer answer : dialogAnswers.values() ) {	
-				scriptparser.out( "<a class=\"forschinfo\" href=\""+answer.url+"\">"+answer.text+"</a><br />" );
+				context.out( "<a class=\"forschinfo\" href=\""+answer.url+"\">"+answer.text+"</a><br />" );
 			}
-			scriptparser.out( "</td></tr></table>" );
+			context.out( "</td></tr></table>" );
 			
 			return CONTINUE;
 		}
@@ -508,14 +509,12 @@ public class QuestFunctions {
 			
 			// ggf. das Quest "deinstallieren" (handler entfernen)
 			if( runningdata.getString("uninstall").length() > 0 ) {
-				//$execdata = $scriptparser->getExecutionData();
-				String output = scriptparser.getOutput();
-
-				// TODO: Das muss auch besser gehen (ohne gleich den halben Scriptparser neu zu initalisieren)
+				ScriptParserContext context = scriptparser.getContext();
+				
+				scriptparser.setContext(new ScriptParserContext());
 				scriptparser.executeScript( db, runningdata.getString("uninstall"), "0" );
 				
-				scriptparser.out(output);
-				//$scriptparser->setExecutionData($execdata);
+				scriptparser.setContext(context);
 			}
 			
 			db.update("DELETE FROM quests_running WHERE id="+runningdata.getInt("id"));
@@ -952,7 +951,7 @@ public class QuestFunctions {
 	
 	class SaveOutput implements SPFunction {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
-			scriptparser.setRegister("_OUTPUT",scriptparser.getOutput());
+			scriptparser.setRegister("_OUTPUT",scriptparser.getContext().getOutput());
 			
 			return CONTINUE;
 		}
@@ -985,7 +984,9 @@ public class QuestFunctions {
 			else {
 				try {
 					Blob blob = questdata.getBlob("execdata");
-					scriptparser.addExecutionData(blob.getBinaryStream());
+					scriptparser.getContext().addContextData(
+							ScriptParserContext.fromStream(blob.getBinaryStream())
+					);
 					scriptparser.setRegister("QUEST","r"+questdata.getInt("id"));
 				}
 				catch( Exception e ) {
@@ -1026,7 +1027,7 @@ public class QuestFunctions {
 			else {
 				try {
 					Blob blob = questdata.getBlob("execdata");
-					scriptparser.writeExecutionData(blob.setBinaryStream(1));
+					scriptparser.getContext().toStream(blob.setBinaryStream(1));
 					db.prepare("UPDATE quests_running SET execdata=? WHERE id=? ")
 						.update(blob, questdata.getInt("id"));
 				}

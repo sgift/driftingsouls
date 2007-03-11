@@ -50,6 +50,7 @@ import net.driftingsouls.ds2.server.modules.schiffplugins.Parameters;
 import net.driftingsouls.ds2.server.modules.schiffplugins.SchiffPlugin;
 import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.scripting.ScriptParser;
+import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.Ships;
 
@@ -777,7 +778,9 @@ public class SchiffController extends DSGenerator implements Loggable {
 				try {
 					execdata = runningdata.getBlob("execdata");
 					if( (execdata != null) && (execdata.length() > 0) ) { 
-						scriptparser.setExecutionData(execdata.getBinaryStream() );
+						scriptparser.setContext(
+								ScriptParserContext.fromStream(execdata.getBinaryStream())
+						);
 					}
 				}
 				catch( Exception e ) {
@@ -809,7 +812,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 			
 			if( !usequest.equals("") ) {
 				try {
-					scriptparser.writeExecutionData(execdata.setBinaryStream(1));
+					scriptparser.getContext().toStream(execdata.setBinaryStream(1));
 					db.prepare("UPDATE quests_running SET execdata=? WHERE id=? ")
 						.update(execdata, runningdata.getInt("id"));
 				}
@@ -1058,16 +1061,18 @@ public class SchiffController extends DSGenerator implements Loggable {
 		
 		ScriptParser scriptparser = getContext().get(ContextCommon.class).getScriptParser( ScriptParser.NameSpace.QUEST );
 		if( ship.isEmpty() ) {
-			if( (scriptparser != null) && !scriptparser.getOutput().equals("") ) {
-				t.set_var("ship.scriptparseroutput",scriptparser.getOutput().replace("{{var.sessid}}", getString("sess")) );
+			if( (scriptparser != null) && (scriptparser.getContext().getOutput().length() != 0) ) {
+				t.set_var("ship.scriptparseroutput",
+						scriptparser.getContext().getOutput().replace("{{var.sessid}}", getString("sess")) );
 			}
 				
 			return;
 		}
 
 		if( ship.getInt("battle") > 0 ) {
-			if( (scriptparser != null) && !scriptparser.getOutput().equals("") ) {
-				t.set_var("ship.scriptparseroutput",scriptparser.getOutput().replace("{{var.sessid}}", getString("sess")) );
+			if( (scriptparser != null) && (scriptparser.getContext().getOutput().length() > 0) ) {
+				t.set_var("ship.scriptparseroutput",
+						scriptparser.getContext().getOutput().replace("{{var.sessid}}", getString("sess")) );
 			}
 		
 			addError("Das Schiff ist in einen Kampf verwickelt (hier klicken um zu diesem zu gelangen)!", Common.buildUrl(getContext(), "default", "module", "angriff", "battle", ship.getString("battle"), "ship", ship.getInt("id")) );
@@ -1411,8 +1416,9 @@ public class SchiffController extends DSGenerator implements Loggable {
 			Ok...das ist kein Plugin, es gehoert aber trotzdem zwischen die ganzen Plugins (Questoutput) 
 		*/
 	
-		if( (scriptparser != null) && !scriptparser.getOutput().equals("") ) {
-			t.set_var("ship.scriptparseroutput",scriptparser.getOutput().replace("{{var.sessid}}", getString("sess")));
+		if( (scriptparser != null) && (scriptparser.getContext().getOutput().length() > 0) ) {
+			t.set_var("ship.scriptparseroutput",
+					scriptparser.getContext().getOutput().replace("{{var.sessid}}", getString("sess")));
 		}
 	
 		caller.target = "plugin.output";

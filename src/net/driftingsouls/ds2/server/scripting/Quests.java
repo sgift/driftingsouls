@@ -116,7 +116,7 @@ public class Quests implements Loggable {
 		try {
 			Blob execdata = runningdata.getBlob("execdata");
 			if( (execdata != null) && (execdata.length() > 0) ) { 
-				scriptparser.setExecutionData(execdata.getBinaryStream() );
+				scriptparser.setContext(ScriptParserContext.fromStream(execdata.getBinaryStream()));
 			}
 		}
 		catch( Exception e ) {
@@ -232,7 +232,7 @@ public class Quests implements Loggable {
 				try {
 					Blob execdata = runningdata.getBlob("execdata");
 					if( (execdata != null) && (execdata.length() > 0) ) { 
-						scriptparser.setExecutionData(execdata.getBinaryStream() );
+						scriptparser.setContext(ScriptParserContext.fromStream(execdata.getBinaryStream()));
 					}
 				}
 				catch( Exception e ) {
@@ -278,7 +278,7 @@ public class Quests implements Loggable {
 			else {
 				try {
 					Blob execdata = runningdata.getBlob("execdata");
-					scriptparser.writeExecutionData( execdata.setBinaryStream(1) );
+					scriptparser.getContext().toStream( execdata.setBinaryStream(1) );
 					db.prepare("UPDATE quests_running SET execdata=? WHERE id=? ")
 						.update(execdata, runningdata.getInt("id"));
 				}
