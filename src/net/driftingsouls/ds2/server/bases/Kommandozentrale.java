@@ -410,12 +410,7 @@ class Kommandozentrale extends DefaultBuilding {
 					
 					if( ship.getInt("owner") != user.getID() ) {
 						User owner = context.createUserObject(ship.getInt("owner"));
-						if( owner.getID() != 0 ) {
-							t.set_var("ship.owner.name", owner.getPlainname());
-						}
-						else {
-							t.set_var("ship.owner.name", "Unbekannter Spieler "+ship.getInt("owner"));
-						}
+						t.set_var("ship.owner.name", owner.getPlainname());
 					}
 					else {
 						t.set_var("ship.owner.name", "");

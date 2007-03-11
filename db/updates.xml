@@ -151,4 +151,8 @@
 	<update type="structure" datum="2007-02-28"><![CDATA[
 		ALTER TABLE ships_lost MODIFY battlelog VARCHAR(120) NOT NULL;
 	]]></update>
+	<update type="structure" datum="2007-03-11"><![CDATA[
+		ALTER TABLE ships ADD CONSTRAINT ships_fk_users FOREIGN KEY (owner) REFERENCES users(id);
+		ALTER TABLE ships_modules ADD CONSTRAINT ships_modules_fk_ships FOREIGN KEY (id) REFERENCES ships(id);
+	]]></update>
 </updates>

@@ -47,7 +47,8 @@ CREATE TABLE `ships` (
   KEY `type` (`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 PACK_KEYS=0; 
 
-alter table ships add constraint ships_type_fk foreign key (type) references ship_types(id);
+ALTER TABLE ships ADD CONSTRAINT ships_fk_users FOREIGN KEY (owner) REFERENCES users(id);
+ALTER TABLE ships ADD CONSTRAINT ships_type_fk FOREIGN KEY (type) REFERENCES ship_types(id);
 
 INSERT INTO `ships` (`id`, `owner`, `name`, `type`, `cargo`, `x`, `y`, `system`, `status`, `crew`, `e`, `s`, `hull`, `shields`, `heat`, `engine`, `weapons`, `comm`, `sensors`, `docked`, `alarm`, `fleet`, `destsystem`, `destx`, `desty`, `destcom`, `bookmark`, `battle`, `battleAction`, `jumptarget`, `autodeut`, `history`, `script`, `scriptexedata`, `oncommunicate`, `lock`, `visibility`, `onmove`, `respawn`) VALUES (2, -1, 'Frachter', 27, '0,0,0,0,50,0,0,0,0,0,0,0,0,0,0,0,0,0,', 1, 1, 0, 'noconsign', 50, 80, 0, 5000, 0, '', 100, 100, 100, 100, '', 0, 0, 0, 0, 0, '', 0, 0, 0, '', 1, '', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `ships` (`id`, `owner`, `name`, `type`, `cargo`, `x`, `y`, `system`, `status`, `crew`, `e`, `s`, `hull`, `shields`, `heat`, `engine`, `weapons`, `comm`, `sensors`, `docked`, `alarm`, `fleet`, `destsystem`, `destx`, `desty`, `destcom`, `bookmark`, `battle`, `battleAction`, `jumptarget`, `autodeut`, `history`, `script`, `scriptexedata`, `oncommunicate`, `lock`, `visibility`, `onmove`, `respawn`) VALUES (3, -1, 'Tanker', 2, '0,300,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,', 1, 2, 0, 'noconsign', 30, 40, 0, 10000, 0, '', 100, 100, 100, 100, '', 0, 0, 0, 0, 0, '', 0, 0, 0, '', 1, '', NULL, NULL, NULL, NULL, NULL, NULL, NULL);

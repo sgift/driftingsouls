@@ -31,3 +31,5 @@ CREATE TABLE `ships_modules` (
   `ow_werft` smallint(6) NOT NULL default '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='modifizierte Schiffstypenwerte fuer "jedes" Schiff'; 
+
+ALTER TABLE ships_modules ADD CONSTRAINT ships_modules_fk_ships FOREIGN KEY (id) REFERENCES ships(id);
