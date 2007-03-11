@@ -25,9 +25,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Offiziere;
@@ -88,7 +88,6 @@ public class AcademyTick extends TickController {
 	@Override
 	protected void tick() {
 		Database db = getDatabase();
-		Random rnd = new Random();
 		
 		SQLQuery acc = db.query("SELECT * FROM academy WHERE remain!=0 ORDER BY id");
 		while( acc.next() ) {
@@ -115,7 +114,7 @@ public class AcademyTick extends TickController {
 				User auser = getContext().createUserObject(base.getInt("owner"));
 				if( namecache.get(auser.getRace()).size() > 0 ) {
 					List<String> names = this.namecache.get(auser.getRace());
-					offiname = names.get(rnd.nextInt(names.size()));
+					offiname = names.get(RandomUtils.nextInt(names.size()));
 					if( offiname.trim().length() == 0 ) {
 						offiname = "Offizier "+maxid;
 					}
@@ -128,14 +127,14 @@ public class AcademyTick extends TickController {
 					SQLResultRow offi = Offiziere.LIST.get(acc.getInt("train"));
 					query += offi.getInt("ing")+","+offi.getInt("waf")+","+offi.getInt("nav")+","+offi.getInt("sec")+","+offi.getInt("com");
 					
-					spec = rnd.nextInt(((int[])offi.get("specials")).length);
+					spec = RandomUtils.nextInt(((int[])offi.get("specials")).length);
 					spec = ((int[])offi.get("specials"))[spec];
 				}
 				else {
 					log("FEHLER: Unbekannter Offizierstyp "+acc.getInt("train"));
 					query += "25,20,10,5,5";
 					
-					spec = rnd.nextInt(6)+1;
+					spec = RandomUtils.nextInt(6)+1;
 				}
 				
 				db.update( query+",'b "+acc.getInt("col")+"',"+spec+")");

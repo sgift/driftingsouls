@@ -18,8 +18,6 @@
  */
 package net.driftingsouls.ds2.server;
 
-import java.util.Random;
-
 import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -29,6 +27,7 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 
 /**
  * Repraesentiert einen Offizier in DS
@@ -280,11 +279,10 @@ public class Offizier extends DSObject {
 				if( this.spec == 3 ) {
 					fak *= 0.6;
 				}
-				Random rnd = new Random();
-				if( this.ing > fak*(rnd.nextInt(101)/100d) ) {
+				if( this.ing > fak*(RandomUtils.nextInt(101)/100d) ) {
 					count++;
 					
-					if( rnd.nextInt(31) > 10 ) {
+					if( RandomUtils.nextInt(31) > 10 ) {
 						this.ingu++;
 						fak = 2;
 						if( this.spec == 2) {
@@ -308,11 +306,10 @@ public class Offizier extends DSObject {
 				if( this.spec == 5 ) {
 					fak *= 0.6;
 				}
-				Random rnd = new Random();
-				if( this.nav > fak*(rnd.nextInt(101)/100d) ) {
+				if( this.nav > fak*(RandomUtils.nextInt(101)/100d) ) {
 					count++;
 					
-					if( rnd.nextInt(31) > 10 ) {
+					if( RandomUtils.nextInt(31) > 10 ) {
 						this.navu++;
 						fak = 2;
 						if( this.spec == 2) {

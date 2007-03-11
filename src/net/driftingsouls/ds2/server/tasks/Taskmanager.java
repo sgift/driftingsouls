@@ -20,7 +20,8 @@ package net.driftingsouls.ds2.server.tasks;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+
+import org.apache.commons.lang.math.RandomUtils;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -152,7 +153,7 @@ public class Taskmanager {
 	 * @return Die ID der neuen Task
 	 */
 	public String addTask( Types tasktype, int timeout, String data1, String data2, String data3 ) {
-		String taskid = Common.md5(""+new Random().nextInt(Integer.MAX_VALUE))+Common.time();
+		String taskid = Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE))+Common.time();
 		
 		Database db = ContextMap.getContext().getDatabase();
 		

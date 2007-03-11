@@ -22,7 +22,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+
+import org.apache.commons.lang.math.RandomUtils;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Offizier;
@@ -59,7 +60,6 @@ public class KSAttackAction extends BasicKSAction {
 	private int apmulti;
 	private int attcount;
 	private int apcost;
-	private Random rand = new Random();
 	
 	/**
 	 * Konstruktor
@@ -461,7 +461,7 @@ public class KSAttackAction extends BasicKSAction {
 							continue;
 						}
 						
-						int rnd = rand.nextInt(subsysteme.size());
+						int rnd = RandomUtils.nextInt(subsysteme.size());
 						String subsys = subsysteme.get(rnd);
 						
 						battle_ship.put(subsys, battle_ship.getInt(subsys) - subdmg);
@@ -842,7 +842,7 @@ public class KSAttackAction extends BasicKSAction {
 		int totalSize = 0;
 		
 		for( int i=1; i <= this.localweapon.getInt("count")*this.localweapon.getInt("shotsPerShot"); i++) {
-			int rnd = rand.nextInt(101);
+			int rnd = RandomUtils.nextInt(101);
 			if( rnd <= trefferWS ) {
 				hit++;
 			}
@@ -1253,7 +1253,7 @@ public class KSAttackAction extends BasicKSAction {
 				int hit = 0;
 				int def = 0;
 				for( int i=1; i <= this.localweapon.getInt("count")*this.localweapon.getInt("shotsPerShot"); i++) {
-					int rnd = rand.nextInt(101);
+					int rnd = RandomUtils.nextInt(101);
 					if( rnd <= trefferWS ) {
 						hit++;
 					}

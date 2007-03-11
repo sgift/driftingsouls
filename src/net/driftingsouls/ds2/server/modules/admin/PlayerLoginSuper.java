@@ -18,7 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.util.Random;
+import org.apache.commons.lang.math.RandomUtils;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -68,12 +68,12 @@ public class PlayerLoginSuper implements AdminPlugin {
 			
 			String usess = null;
 			if( usesessid == 0 ) {
-				usess = Common.md5(""+new Random().nextInt(Integer.MAX_VALUE));
+				usess = Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE));
 				
 	  			db.update("INSERT INTO sessions (id,session,ip,lastaction,usegfxpak) VALUES('",uid,"','",usess,"','<",context.getRequest().getRemoteAddress(),">','",Common.time(),"','0')");
 			} 
 			else {
-				usess = Common.md5(""+new Random().nextInt(Integer.MAX_VALUE));
+				usess = Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE));
 				User currentUser = context.getActiveUser();
 				SQLResultRow ownsess = db.first("SELECT session FROM sessions WHERE id='",currentUser.getID(),"' AND attach IS NULL");
 				

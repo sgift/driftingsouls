@@ -21,7 +21,8 @@ package net.driftingsouls.ds2.server.tick.regular;
 import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+
+import org.apache.commons.lang.math.RandomUtils;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
@@ -158,9 +159,7 @@ public class RestTick extends TickController {
 		
 		this.log("");
 		this.log("Fuege Felsbrocken ein");
-		
-		Random rand = new Random();
-		
+			
 		int shouldId = 9999;
 		
 		SQLQuery system = db.query("SELECT system,count," +
@@ -185,7 +184,7 @@ public class RestTick extends TickController {
 			aLoadOut.free();
 			
 			while( shipcount < system.getInt("count") ) {
-				int rnd = rand.nextInt(100)+1;
+				int rnd = RandomUtils.nextInt(100)+1;
 				int currnd = 0;
 				for( int i=0; i < loadout.size(); i++ ) {
 					SQLResultRow aloadout = loadout.get(i);
@@ -200,8 +199,8 @@ public class RestTick extends TickController {
 					shouldId = db.first("SELECT newIntelliShipID( "+shouldId+" ) AS sid").getInt("sid");
 					
 					// Coords ermitteln
-					int x = rand.nextInt(Systems.get().system(system.getInt("system")).getWidth())+1;
-					int y = rand.nextInt(Systems.get().system(system.getInt("system")).getHeight())+1;
+					int x = RandomUtils.nextInt(Systems.get().system(system.getInt("system")).getWidth())+1;
+					int y = RandomUtils.nextInt(Systems.get().system(system.getInt("system")).getHeight())+1;
 					
 					this.log("\t*System "+system.getInt("system")+": Fuege Felsbrocken "+shouldId+" ein");
 					

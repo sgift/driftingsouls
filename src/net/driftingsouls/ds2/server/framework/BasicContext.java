@@ -23,7 +23,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+
+import org.apache.commons.lang.math.RandomUtils;
 
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -151,7 +152,7 @@ public class BasicContext implements Context,Loggable {
 			
 			// Bei viel zu hoher Aktivitaet einfach die Ausfuehrung mit einem Fehler beenden
 			if( actioncounter > 25 ) {
-				addError( actionBlockingPhrases[new Random().nextInt(actionBlockingPhrases.length)], errorurl );
+				addError( actionBlockingPhrases[RandomUtils.nextInt(actionBlockingPhrases.length)], errorurl );
 
 				return;
 			}

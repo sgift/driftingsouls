@@ -20,9 +20,10 @@ package net.driftingsouls.ds2.server.modules;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.lang.math.RandomUtils;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
@@ -129,7 +130,7 @@ class PortalController extends DSGenerator {
 			int loguserid = row.getInt("id");
 
 			if( !"".equals(email) ) {
-				String password = Common.md5(""+new Random().nextInt(Integer.MAX_VALUE));
+				String password = Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE));
 				String enc_pw = Common.md5(password);
 				db.update("UPDATE users SET passwort='",enc_pw,"' WHERE un='",username,"'");
 
@@ -491,7 +492,7 @@ class PortalController extends DSGenerator {
 	 		db.tBegin();
 	 	}
 		
-		String password = Common.md5(""+new Random().nextInt(Integer.MAX_VALUE));
+		String password = Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE));
 		String enc_pw = Common.md5(password);
 
 		int maxid = db.first("SELECT max(id) maxid FROM users").getInt("maxid");
@@ -770,7 +771,7 @@ class PortalController extends DSGenerator {
 
   					int id = user.getID();
 
-  					String sess = Common.md5(""+new Random().nextInt(Integer.MAX_VALUE));
+  					String sess = Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE));
 
   					db.update("DELETE FROM sessions WHERE id='",id,"' AND attach IS NULL");
   					db.update("INSERT INTO sessions (id,session,ip,lastaction,usegfxpak) ",

@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
@@ -59,6 +58,7 @@ import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -1071,9 +1071,8 @@ public class Ships implements Loggable {
 					error = true;
 					distance = 0;
 				}
-				Random rnd = new Random();		
-				if( (rnd.nextInt(101)) < 3*(news-100) ) {
-					int dmg = (int)( (2*(rnd.nextInt(101)/100d)) + 1 ) * (news-100);
+				if( (RandomUtils.nextInt(101)) < 3*(news-100) ) {
+					int dmg = (int)( (2*(RandomUtils.nextInt(101)/100d)) + 1 ) * (news-100);
 					out.append("<span style=\"color:#ff0000\">Triebwerke nehmen "+dmg+" Schaden</span><br />\n");
 					ship.put("engine", ship.getInt("engine")-dmg);
 					if( ship.getInt("engine") < 0 ) {
@@ -1417,10 +1416,10 @@ public class Ships implements Loggable {
 			
 			// ACHTUNG: Ob das ganze hier noch sinnvoll funktioniert, wenn distance > 1 ist, ist mehr als fraglich...
 			if( nebulaemplist.containsKey(new Location(ship.getInt("system"),ship.getInt("x")+xoffset, ship.getInt("y")+yoffset)) && 
-				(new Random().nextInt(100+1) > 75) ) {
+				(RandomUtils.nextInt(100+1) > 75) ) {
 				int nebel = getNebula(ship);
 				if( nebel == 5 ) {
-					direction = new Random().nextInt(10)+1;
+					direction = RandomUtils.nextInt(10)+1;
 					if( direction > 4 ) {
 						direction++;
 						
@@ -2339,7 +2338,7 @@ public class Ships implements Loggable {
 		
 		SQLResultRow shiptype = getShipType( ship );
 	
-		int rnd = new Random().nextInt(101);
+		int rnd = RandomUtils.nextInt(101);
 		
 		// Gibts was zu looten?
 		if( rnd > shiptype.getInt("chance4Loot") ) {
@@ -2384,10 +2383,9 @@ public class Ships implements Loggable {
 		
 		// Und nun den Loot generieren
 		Cargo cargo = new Cargo();
-		Random rand = new Random();
 		
 		for( int i=0; i <= Configuration.getIntSetting("CONFIG_TRUEMER_MAXITEMS"); i++ ) {
-			rnd = rand.nextInt(maxchance+1);
+			rnd = RandomUtils.nextInt(maxchance+1);
 			int currentchance = 0;
 			for( int j=0; j < loot.size(); j++ ) {
 				SQLResultRow aloot = loot.get(j);
@@ -2404,7 +2402,7 @@ public class Ships implements Loggable {
 				currentchance += aloot.getInt("chance");
 			}
 			
-			rnd = rand.nextInt(101);
+			rnd = RandomUtils.nextInt(101);
 		
 			// Gibts nichts mehr zu looten?
 			if( rnd > shiptype.getInt("chance4Loot") ) {

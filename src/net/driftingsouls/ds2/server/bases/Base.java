@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.TreeMap;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -34,8 +33,8 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 
-//TODO: Echte Setter einbauen. Das aktuelle Verfahren ist einfach unsicher und grauenvoll...
 /**
  * <p>Repraesentiert eine Basis in DS</p>
  * Hinweis: Das setzen von Werten aktuallisiert nicht die Datenbank!
@@ -79,9 +78,9 @@ public class Base implements Cloneable {
 				Integer[] terrain = new Integer[getWidth()*getHeight()];
 				System.arraycopy(getTerrain(), 0, terrain, 0, getTerrain().length );
 				for( int i=Math.max(getTerrain().length-1,0); i < getWidth()*getHeight(); i++ ) {
-					int rnd = new Random().nextInt(8);
-					if( rnd > 5 ) {
-						terrain[i] = rnd - 5;	
+					int rnd = RandomUtils.nextInt(7);
+					if( rnd > 4 ) {
+						terrain[i] = rnd - 4;	
 					}
 					else {
 						terrain[i] = 0;	

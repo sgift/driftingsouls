@@ -24,7 +24,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+
+import org.apache.commons.lang.math.RandomUtils;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
@@ -55,9 +56,7 @@ public class NPCOrderTick extends TickController {
 	private StringBuilder pmcache;
 	private int lastowner;
 	private String currentTime;
-	private Map<Integer,List<String>> offinamelist;
-	private Random rnd = new Random();
-	
+	private Map<Integer,List<String>> offinamelist;	
 	
 	@Override
 	protected void prepare() {
@@ -94,7 +93,7 @@ public class NPCOrderTick extends TickController {
 	private String getOffiName(User user) {
 		if( this.offinamelist.get(user.getRace()).size() > 0 ) {
 			List<String> names = this.offinamelist.get(user.getRace());
-			String name = names.get(rnd.nextInt(names.size()));
+			String name = names.get(RandomUtils.nextInt(names.size()));
 			if( name.trim().length() == 0 ) {
 				return "NPC-Lieferservice";
 			}
@@ -165,7 +164,7 @@ public class NPCOrderTick extends TickController {
 			// Es handelt sich um einen Offizier...
 			if( data.getInt("type") < 0 ) {
 				SQLResultRow offizier = db.first("SELECT name,rang,ing,waf,nav,sec,com FROM orders_offiziere WHERE id=",(-data.getInt("type")));
-				int special = rnd.nextInt(6)+1;
+				int special = RandomUtils.nextInt(6)+1;
 				
 				String dest = "s "+this.maxid;
 				if( !base.isEmpty() ) {
