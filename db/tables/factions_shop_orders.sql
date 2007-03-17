@@ -11,3 +11,5 @@ CREATE TABLE `factions_shop_orders` (
   KEY `shopentry_id` (`shopentry_id`),
   KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+
+ALTER TABLE factions_shop_orders ADD CONSTRAINT factions_shop_orders_fk_factions_shop_entries FOREIGN KEY (shopentry_id) REFERENCES factions_shop_entries(id);

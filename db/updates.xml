@@ -168,5 +168,6 @@
 		ALTER TABLE battles CHANGE commander2 commander2 INT NOT NULL DEFAULT '0';
 		ALTER TABLE battles ADD CONSTRAINT battles_fk_users1 FOREIGN KEY (commander1) REFERENCES users(id);
 		ALTER TABLE battles ADD CONSTRAINT battles_fk_users2 FOREIGN KEY (commander2) REFERENCES users(id);
+		ALTER TABLE factions_shop_orders ADD CONSTRAINT factions_shop_orders_fk_factions_shop_entries FOREIGN KEY (shopentry_id) REFERENCES factions_shop_entries(id);
 	]]></update>
 </updates>
