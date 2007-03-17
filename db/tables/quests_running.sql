@@ -10,3 +10,6 @@ CREATE TABLE `quests_running` (
   PRIMARY KEY  (`id`),
   KEY `questid` (`questid`,`userid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Die laufenden Quests'; 
+
+ALTER TABLE quests_running ADD CONSTRAINT quests_running_fk_users FOREIGN KEY (userid) REFERENCES users(id);
+ALTER TABLE quests_running ADD CONSTRAINT quests_running_fk_quests FOREIGN KEY (questid) REFERENCES quests(id);

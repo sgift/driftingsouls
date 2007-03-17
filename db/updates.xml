@@ -185,5 +185,7 @@
 		ALTER TABLE quests_completed CHANGE userid userid INT NOT NULL DEFAULT '0';
 		ALTER TABLE quests_completed ADD CONSTRAINT quests_completed_fk_users FOREIGN KEY (userid) REFERENCES users(id);
 		ALTER TABLE quests_completed ADD CONSTRAINT quests_completed_fk_quests FOREIGN KEY (questid) REFERENCES quests(id);
+		ALTER TABLE quests_running ADD CONSTRAINT quests_running_fk_users FOREIGN KEY (userid) REFERENCES users(id);
+		ALTER TABLE quests_running ADD CONSTRAINT quests_running_fk_quests FOREIGN KEY (questid) REFERENCES quests(id);
 	]]></update>
 </updates>
