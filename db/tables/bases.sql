@@ -26,3 +26,5 @@ CREATE TABLE `bases` (
   KEY `owner` (`owner`),
   KEY `coords` (`x`,`y`,`system`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+
+ALTER TABLE bases ADD CONSTRAINT bases_fk_users FOREIGN KEY (owner) REFERENCES users(id);
