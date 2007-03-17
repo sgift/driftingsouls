@@ -314,6 +314,8 @@ public class KSKapernAction extends BasicKSAction {
 				
 			Ships.recalculateShipStatus(enemyShip.getInt("id"));
 			
+			battle.setEnemyShipIndex(battle.getNewTargetIndex());
+			
 			enemyShip = battle.getEnemyShip();
 		} 
 		// Das Schiff konnte offenbar nicht gekapert werden....
