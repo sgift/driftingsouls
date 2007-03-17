@@ -34,9 +34,7 @@ import java.util.Set;
  * @author Christopher Jung
  *
  */
-public class ScriptParserContext implements Serializable {
-	private static final long serialVersionUID = 1L;
-	
+public class ScriptParserContext {
 	private Map<String,Object> register;
 	private int lastcommand;
 	private StringBuffer out = new StringBuffer();
@@ -127,6 +125,14 @@ public class ScriptParserContext implements Serializable {
 		out.append(text);
 	}
 	
+	/**
+	 * Leert die Scriptausgabe
+	 *
+	 */
+	public void clearOutput() {
+		out.setLength(0);
+	}
+	
 	private static class ExecData implements Serializable {
 		private static final long serialVersionUID = 1L;
 		
@@ -180,11 +186,16 @@ public class ScriptParserContext implements Serializable {
 		if( out == null ) {
 			return;
 		}
+		// Schiffsdaten nicht speichern
+		Object ship = this.register.remove("_SHIP");
+		
 		ObjectOutputStream oout = new ObjectOutputStream(out);
 		ExecData entry = new ExecData();
 		entry.register = this.register;
 		entry.lastcommand = lastcommand;
 		oout.writeObject(entry);
 		oout.close();
+		
+		this.register.put("_SHIP", ship);
 	}
 }

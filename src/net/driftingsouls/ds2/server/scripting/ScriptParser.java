@@ -574,12 +574,6 @@ public class ScriptParser {
 		//Auswertung		
 		int restartcount = 0;
 		
-		this.log("Gesetzte Register:\n");
-		for( String reg : context.getRegisterList() ) {
-			this.log("#"+reg+" => "+context.getRegister(reg)+"\n");	
-		}
-		this.log("\n");
-		
 		// Wurde die Ausfuehrung des Scripts beendet?
 		if( (this.namespace == NameSpace.ACTION) && 
 			(context.getLastCommand() == -1) && (parameter.length() == 0) ) {
@@ -845,6 +839,9 @@ public class ScriptParser {
 				if( dump.equals("register") ) {
 					this.log("################# register ###################\n");
 					for( String reg : context.getRegisterList() ) {
+						if( reg.equals("_SHIP") ) {
+							continue;
+						}
 						this.log(reg+" ("+context.getRegister(reg)+"), ");
 					}
 					this.log("\n\n");
@@ -886,6 +883,9 @@ public class ScriptParser {
 				this.log("\n\n");
 				this.log("################# register ###################\n");
 				for( String reg : context.getRegisterList() ) {
+					if( reg.equals("_SHIP") ) {
+						continue;
+					}
 					this.log(reg+" ("+context.getRegister(reg)+"), ");
 				}
 				this.log("\n\n");

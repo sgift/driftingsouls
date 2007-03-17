@@ -86,7 +86,7 @@ public class NPCScriptTick extends TickController {
 								ScriptParserContext.fromStream(scriptExecData.getBinaryStream())
 						);
 					}
-					else if( scriptExecData == null ) {
+					else {
 						// Hochgradig umstaendliches erstellen eines leeren Blobs. Geht sicherlich einfacher... 
 						db.update("UPDATE ships SET scriptexedata='' WHERE id="+ship.getInt("id"));
 						SQLQuery tmp = db.query("SELECT scriptexedata FROM ships WHERE id=",ship.getInt("id"));
