@@ -6,3 +6,6 @@ CREATE TABLE `user_relations` (
   PRIMARY KEY  (`id`),
   KEY `user_id` (`user_id`,`target_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+
+ALTER TABLE user_relations ADD CONSTRAINT user_relations_fk_users1 FOREIGN KEY (`user_id`) REFERENCES users(id);
+ALTER TABLE user_relations ADD CONSTRAINT user_relations_fk_users2 FOREIGN KEY (`target_id`) REFERENCES users(id);
