@@ -178,5 +178,7 @@
 		ALTER TABLE handel ADD CONSTRAINT handel_fk_users FOREIGN KEY (who) REFERENCES users(id);
 		ALTER TABLE jumps CHANGE shipid shipid INT NOT NULL DEFAULT '0';
 		ALTER TABLE jumps ADD CONSTRAINT jumps_fk_ships FOREIGN KEY (shipid) REFERENCES ships(id);
+		ALTER TABLE offiziere CHANGE userid userid INT NOT NULL DEFAULT '0';
+		ALTER TABLE offiziere ADD CONSTRAINT offiziere_fk_users FOREIGN KEY (userid) REFERENCES users(id);
 	]]></update>
 </updates>

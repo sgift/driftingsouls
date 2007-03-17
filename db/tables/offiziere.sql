@@ -1,6 +1,6 @@
 CREATE TABLE `offiziere` (
   `id` int(11) NOT NULL auto_increment,
-  `userid` mediumint(9) NOT NULL default '0',
+  `userid` int(11) NOT NULL default '0',
   `name` varchar(60) NOT NULL default 'noname',
   `rang` tinyint(4) NOT NULL default '0',
   `ing` int(11) NOT NULL default '0',
@@ -19,4 +19,5 @@ CREATE TABLE `offiziere` (
   KEY `dest` (`dest`),
   KEY `userid` (`userid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
- 
+
+ALTER TABLE offiziere ADD CONSTRAINT offiziere_fk_users FOREIGN KEY (userid) REFERENCES users(id);
