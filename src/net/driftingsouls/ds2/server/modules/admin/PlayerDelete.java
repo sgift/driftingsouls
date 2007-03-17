@@ -257,6 +257,9 @@ public class PlayerDelete implements AdminPlugin, Loggable {
 		echo.append("L&ouml;sche Statistik 'User-Cargo'...<br />\n");
 		db.update("DELETE FROM stats_user_cargo WHERE user_id="+userid);
 		
+		echo.append("L&ouml;sche Umfrageeintraege...<br />\n");
+		db.update("DELETE FROM survey_voted WHERE user_id="+userid);
+		
 		echo.append("L&ouml;sche Usereintrag...<br />\n");
 		db.update("DELETE FROM users WHERE id="+userid);
 
