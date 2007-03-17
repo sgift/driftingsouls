@@ -157,5 +157,6 @@
 	]]></update>
 	<update type="structure" datum="2007-03-17"><![CDATA[
 		ALTER TABLE academy ADD CONSTRAINT academy_fk_bases FOREIGN KEY (col) REFERENCES bases(id);
+		ALTER TABLE ally ADD CONSTRAINT ally_fk_users FOREIGN KEY (president) REFERENCES users(id);
 	]]></update>
 </updates>
