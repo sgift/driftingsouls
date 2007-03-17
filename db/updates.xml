@@ -192,5 +192,7 @@
 		ALTER TABLE ship_loot ADD CONSTRAINT ship_loot_fk_users2 FOREIGN KEY (targetuser) REFERENCES users(id);
 		ALTER TABLE skn_visits ADD CONSTRAINT skn_visits_fk_users FOREIGN KEY (user) REFERENCES users(id);
 		ALTER TABLE skn_visits ADD CONSTRAINT skn_visits_fk_skn_channels FOREIGN KEY (channel) REFERENCES skn_channels(id);
+		ALTER TABLE skn ADD CONSTRAINT skn_fk_skn_channels FOREIGN KEY (channel) REFERENCES skn_channels(id);
+		ALTER TABLE skn ADD CONSTRAINT skn_fk_users FOREIGN KEY (userid) REFERENCES users(id);
 	]]></update>
 </updates>
