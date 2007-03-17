@@ -11,3 +11,6 @@ CREATE TABLE `ship_loot` (
   KEY `shiptype` (`shiptype`),
   KEY `owner` (`owner`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Die Schiff-Loot-Table'; 
+
+ALTER TABLE ship_loot ADD CONSTRAINT ship_loot_fk_users1 FOREIGN KEY (owner) REFERENCES users(id);
+ALTER TABLE ship_loot ADD CONSTRAINT ship_loot_fk_users2 FOREIGN KEY (targetuser) REFERENCES users(id);

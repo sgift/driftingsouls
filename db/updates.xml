@@ -188,5 +188,7 @@
 		ALTER TABLE quests_running ADD CONSTRAINT quests_running_fk_users FOREIGN KEY (userid) REFERENCES users(id);
 		ALTER TABLE quests_running ADD CONSTRAINT quests_running_fk_quests FOREIGN KEY (questid) REFERENCES quests(id);
 		ALTER TABLE sessions ADD CONSTRAINT sessions_fk_users FOREIGN KEY (id) REFERENCES users(id);
+		ALTER TABLE ship_loot ADD CONSTRAINT ship_loot_fk_users1 FOREIGN KEY (owner) REFERENCES users(id);
+		ALTER TABLE ship_loot ADD CONSTRAINT ship_loot_fk_users2 FOREIGN KEY (targetuser) REFERENCES users(id);
 	]]></update>
 </updates>
