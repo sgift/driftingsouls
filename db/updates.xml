@@ -181,5 +181,6 @@
 		ALTER TABLE offiziere CHANGE userid userid INT NOT NULL DEFAULT '0';
 		ALTER TABLE offiziere ADD CONSTRAINT offiziere_fk_users FOREIGN KEY (userid) REFERENCES users(id);
 		ALTER TABLE orders_ships ADD CONSTRAINT orders_ships_fk_ship_types FOREIGN KEY (type) REFERENCES ship_types(id);
+		ALTER TABLE ordner ADD CONSTRAINT ordner_fk_users FOREIGN KEY (playerid) REFERENCES users(id);
 	]]></update>
 </updates>

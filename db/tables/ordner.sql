@@ -7,3 +7,5 @@ CREATE TABLE `ordner` (
   PRIMARY KEY  (`id`),
   KEY `playerid` (`playerid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+
+ALTER TABLE ordner ADD CONSTRAINT ordner_fk_users FOREIGN KEY (playerid) REFERENCES users(id);
