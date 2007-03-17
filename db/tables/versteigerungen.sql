@@ -8,3 +8,5 @@ CREATE TABLE `versteigerungen` (
   `owner` int(11) NOT NULL default '-2',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+
+ALTER TABLE versteigerungen ADD CONSTRAINT versteigerungen_fk_users FOREIGN KEY (bieter) REFERENCES users(id);
