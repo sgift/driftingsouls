@@ -6,3 +6,5 @@ CREATE TABLE `stats_module_locations` (
   PRIMARY KEY  (`id`),
   KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+
+ALTER TABLE stats_module_locations ADD CONSTRAINT stats_module_locations_fk_user_id FOREIGN KEY (user_id) REFERENCES users(id);

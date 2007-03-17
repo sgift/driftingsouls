@@ -194,5 +194,6 @@
 		ALTER TABLE skn_visits ADD CONSTRAINT skn_visits_fk_skn_channels FOREIGN KEY (channel) REFERENCES skn_channels(id);
 		ALTER TABLE skn ADD CONSTRAINT skn_fk_skn_channels FOREIGN KEY (channel) REFERENCES skn_channels(id);
 		ALTER TABLE skn ADD CONSTRAINT skn_fk_users FOREIGN KEY (userid) REFERENCES users(id);
+		ALTER TABLE stats_module_locations ADD CONSTRAINT stats_module_locations_fk_user_id FOREIGN KEY (user_id) REFERENCES users(id);
 	]]></update>
 </updates>
