@@ -171,5 +171,9 @@
 		ALTER TABLE factions_shop_orders ADD CONSTRAINT factions_shop_orders_fk_factions_shop_entries FOREIGN KEY (shopentry_id) REFERENCES factions_shop_entries(id);
 		ALTER TABLE factions_shop_orders ADD CONSTRAINT factions_shop_orders_fk_users FOREIGN KEY (user_id) REFERENCES users(id);
 		ALTER TABLE fz ADD CONSTRAINT fz_fk_bases FOREIGN KEY (col) REFERENCES bases(id);
+		ALTER TABLE gtu_zwischenlager CHANGE posten posten INT NOT NULL DEFAULT '0';
+		ALTER TABLE gtu_zwischenlager ADD CONSTRAINT gtu_zwischenlager_fk_ships FOREIGN KEY (posten) REFERENCES ships(id);
+		ALTER TABLE gtu_zwischenlager ADD CONSTRAINT gtu_zwischenlager_fk_users1 FOREIGN KEY (user1) REFERENCES users(id);
+		ALTER TABLE gtu_zwischenlager ADD CONSTRAINT gtu_zwischenlager_fk_users2 FOREIGN KEY (user2) REFERENCES users(id);
 	]]></update>
 </updates>
