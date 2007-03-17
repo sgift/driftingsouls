@@ -258,7 +258,7 @@ class Academy extends DefaultBuilding {
 		//--------------------------------------
 		
 		if( (train != 0) && (off != 0) ) {
-			if( (academy.getInt("train") == 0) && (academy.getString("update").length() == 0) ) {
+			if( (academy.getInt("train") == 0) && (academy.getString("upgrade").length() == 0) ) {
 				SQLResultRow offizier = db.first("SELECT * FROM offiziere WHERE id='",off,"'");
 				if( offizier.getString("dest").equals("b "+base.getID()) ) {
 					echo.append(Common.tableBegin( 500, "left" ));
