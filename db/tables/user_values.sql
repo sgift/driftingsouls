@@ -7,6 +7,8 @@ CREATE TABLE `user_values` (
   KEY `id` (`user_id`,`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
 
+ALTER TABLE user_values ADD CONSTRAINT user_values_fk_users FOREIGN KEY (`user_id`) REFERENCES users(id);
+
 INSERT INTO `user_values` (`id`, `user_id`, `name`, `value`) VALUES (607, 0, 'GAMEPLAY/bases/maxtiles', '500');
 INSERT INTO `user_values` (`id`, `user_id`, `name`, `value`) VALUES (20, 0, 'GTU_AUCTION_USER_COST', '10');
 INSERT INTO `user_values` (`id`, `user_id`, `name`, `value`) VALUES (2, 0, 'PIRATEN_Ansehen', '15');
