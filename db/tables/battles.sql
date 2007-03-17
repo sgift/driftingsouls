@@ -1,5 +1,5 @@
 CREATE TABLE `battles` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` smallint(6) unsigned NOT NULL auto_increment,
   `x` smallint(6) NOT NULL default '1',
   `y` smallint(6) NOT NULL default '1',
   `system` smallint(6) NOT NULL default '1',
@@ -28,3 +28,5 @@ CREATE TABLE `battles` (
   PRIMARY KEY  (`id`),
   KEY `coords` (`x`,`y`,`system`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Aktuelle Schlachten'; 
+
+ALTER TABLE battles_ships ADD CONSTRAINT battles_ships_fk_battles FOREIGN KEY (battleid) REFERENCES battles(id);

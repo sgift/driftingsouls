@@ -160,5 +160,7 @@
 		ALTER TABLE ally ADD CONSTRAINT ally_fk_users FOREIGN KEY (president) REFERENCES users(id);
 		ALTER TABLE ally_posten ADD CONSTRAINT ally_posten_fk_ally FOREIGN KEY (ally) REFERENCES ally(id);
 		ALTER TABLE bases ADD CONSTRAINT bases_fk_users FOREIGN KEY (owner) REFERENCES users(id);
+		ALTER TABLE battles CHANGE id id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT;
+		ALTER TABLE battles_ships ADD CONSTRAINT battles_ships_fk_battles FOREIGN KEY (battleid) REFERENCES battles(id);
 	]]></update>
 </updates>
