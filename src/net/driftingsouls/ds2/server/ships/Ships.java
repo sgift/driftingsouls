@@ -2328,6 +2328,7 @@ public class Ships implements Loggable {
 	
 		// Und nun loeschen wir es...
 		db.update("DELETE FROM offiziere WHERE dest='s ",ship.getInt("id"),"'");
+		db.update("DELETE FROM jumps WHERE shipid=",ship.getInt("id"));
 		
 		db.update("DELETE FROM werften WHERE shipid=",ship.getInt("id"));
 		db.update("DELETE FROM ships_modules WHERE id=",ship.getInt("id"));
