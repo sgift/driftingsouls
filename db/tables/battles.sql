@@ -5,9 +5,9 @@ CREATE TABLE `battles` (
   `system` smallint(6) NOT NULL default '1',
   `ally1` smallint(6) NOT NULL default '0',
   `ally2` smallint(6) NOT NULL default '0',
-  `commander1` smallint(6) NOT NULL default '0',
+  `commander1` int(11) NOT NULL default '0',
   `com1Points` smallint(6) NOT NULL default '0',
-  `commander2` smallint(6) NOT NULL default '0',
+  `commander2` int(11) NOT NULL default '0',
   `com2Points` smallint(6) NOT NULL default '0',
   `ready1` tinyint(1) unsigned NOT NULL default '0',
   `ready2` tinyint(1) unsigned NOT NULL default '0',
@@ -28,3 +28,6 @@ CREATE TABLE `battles` (
   PRIMARY KEY  (`id`),
   KEY `coords` (`x`,`y`,`system`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Aktuelle Schlachten'; 
+
+ALTER TABLE battles ADD CONSTRAINT battles_fk_users1 FOREIGN KEY (commander1) REFERENCES users(id);
+ALTER TABLE battles ADD CONSTRAINT battles_fk_users2 FOREIGN KEY (commander2) REFERENCES users(id);
