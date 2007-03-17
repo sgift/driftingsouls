@@ -190,5 +190,7 @@
 		ALTER TABLE sessions ADD CONSTRAINT sessions_fk_users FOREIGN KEY (id) REFERENCES users(id);
 		ALTER TABLE ship_loot ADD CONSTRAINT ship_loot_fk_users1 FOREIGN KEY (owner) REFERENCES users(id);
 		ALTER TABLE ship_loot ADD CONSTRAINT ship_loot_fk_users2 FOREIGN KEY (targetuser) REFERENCES users(id);
+		ALTER TABLE skn_visits ADD CONSTRAINT skn_visits_fk_users FOREIGN KEY (user) REFERENCES users(id);
+		ALTER TABLE skn_visits ADD CONSTRAINT skn_visits_fk_skn_channels FOREIGN KEY (channel) REFERENCES skn_channels(id);
 	]]></update>
 </updates>
