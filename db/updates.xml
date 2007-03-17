@@ -210,5 +210,7 @@
 		ALTER TABLE user_values ADD CONSTRAINT user_values_fk_users FOREIGN KEY (`user_id`) REFERENCES users(id);
 		ALTER TABLE versteigerungen_pakete ADD CONSTRAINT versteigerungen_pakete_fk_users FOREIGN KEY (bieter) REFERENCES users(id);
 		ALTER TABLE versteigerungen ADD CONSTRAINT versteigerungen_fk_users FOREIGN KEY (bieter) REFERENCES users(id);
+		ALTER TABLE weaponfactory CHANGE col col INT NOT NULL DEFAULT '0';
+		ALTER TABLE weaponfactory ADD CONSTRAINT weaponfactory_fk_bases FOREIGN KEY (col) REFERENCES bases(id);
 	]]></update>
 </updates>
