@@ -1,5 +1,5 @@
 CREATE TABLE `battles_ships` (
-  `shipid` mediumint(8) unsigned NOT NULL default '0',
+  `shipid` int(11) NOT NULL default '0',
   `battleid` smallint(5) unsigned NOT NULL default '0',
   `side` tinyint(3) unsigned NOT NULL default '0',
   `hull` mediumint(8) unsigned NOT NULL default '0',
@@ -14,3 +14,5 @@ CREATE TABLE `battles_ships` (
   PRIMARY KEY  (`shipid`),
   KEY `battleid` (`battleid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Die Schiffsdaten in Schlachten'; 
+
+ALTER TABLE battles_ships ADD CONSTRAINT battles_ships_fk_ships FOREIGN KEY (shipid) REFERENCES ships(id);

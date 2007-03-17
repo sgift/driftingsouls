@@ -162,5 +162,7 @@
 		ALTER TABLE bases ADD CONSTRAINT bases_fk_users FOREIGN KEY (owner) REFERENCES users(id);
 		ALTER TABLE battles CHANGE id id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT;
 		ALTER TABLE battles_ships ADD CONSTRAINT battles_ships_fk_battles FOREIGN KEY (battleid) REFERENCES battles(id);
+		ALTER TABLE battles_ships CHANGE shipid shipid INT NOT NULL DEFAULT '0';
+		ALTER TABLE battles_ships ADD CONSTRAINT battles_ships_fk_ships FOREIGN KEY (shipid) REFERENCES ships(id);
 	]]></update>
 </updates>

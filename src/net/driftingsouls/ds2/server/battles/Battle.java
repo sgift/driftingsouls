@@ -1873,8 +1873,9 @@ public class Battle implements Loggable {
 				
 				dockcount--;
 				
-				Ships.destroy( aship.getInt("id") );
 				db.update("DELETE FROM battles_ships WHERE shipid=",aship.getInt("id"));
+				
+				Ships.destroy( aship.getInt("id") );
 			}
 			
 			if( found && (dockcount == 0) ) {
