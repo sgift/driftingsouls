@@ -8,3 +8,4 @@ CREATE TABLE `versteigerungen_pakete` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='gtu - pakete';
  
+ALTER TABLE versteigerungen_pakete ADD CONSTRAINT versteigerungen_pakete_fk_users FOREIGN KEY (bieter) REFERENCES users(id);
