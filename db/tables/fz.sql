@@ -6,4 +6,6 @@ CREATE TABLE `fz` (
   `dauer` int(11) NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `col` (`col`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE fz ADD CONSTRAINT fz_fk_bases FOREIGN KEY (col) REFERENCES bases(id);
