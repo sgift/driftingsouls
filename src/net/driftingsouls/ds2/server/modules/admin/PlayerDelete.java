@@ -224,14 +224,14 @@ public class PlayerDelete implements AdminPlugin, Loggable {
 		echo.append("&Uuml;berstelle GTU-Gebote an die GTU (-2)...<br />");
 		db.update("UPDATE versteigerungen SET bieter=-2 WHERE bieter="+userid);
 		db.update("UPDATE versteigerungen_pakete SET bieter=-2 WHERE bieter="+userid);
-
-		echo.append("L&ouml;sche PM-Ordner...<br />\n");
-		db.update("DELETE FROM ordner WHERE playerid="+userid);
 		
 		echo.append("L&ouml;sche PM's...\n");
 		db.update("DELETE FROM transmissionen WHERE empfaenger="+userid);
 		echo.append(db.affectedRows()+" gel&ouml;scht<br />\n");
 		db.update("UPDATE transmissionen SET sender=0 WHERE sender="+userid);
+		
+		echo.append("L&ouml;sche PM-Ordner...<br />\n");
+		db.update("DELETE FROM ordner WHERE playerid="+userid);
 
 		echo.append("L&ouml;sche Diplomatieeintr&auml;ge...<br />\n");
 		db.update("DELETE FROM user_relations WHERE user_id="+userid+" OR target_id="+userid);

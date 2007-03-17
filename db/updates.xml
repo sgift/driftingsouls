@@ -200,5 +200,7 @@
 		ALTER TABLE survey_results ADD CONSTRAINT survey_results_fk_surveys FOREIGN KEY (survey_id) REFERENCES surveys(id);
 		ALTER TABLE survey_voted ADD CONSTRAINT survey_voted_fk_surveys FOREIGN KEY (survey_id) REFERENCES surveys(id);
 		ALTER TABLE survey_voted ADD CONSTRAINT survey_voted_fk_users FOREIGN KEY (user_id) REFERENCES users(id);
+		ALTER TABLE transmissionen ADD CONSTRAINT transmissionen_fk_users1 FOREIGN KEY (sender) REFERENCES users(id);
+		ALTER TABLE transmissionen ADD CONSTRAINT transmissionen_fk_users2 FOREIGN KEY (empfaenger) REFERENCES users(id);
 	]]></update>
 </updates>
