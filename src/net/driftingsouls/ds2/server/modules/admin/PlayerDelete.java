@@ -245,6 +245,9 @@ public class PlayerDelete implements AdminPlugin, Loggable {
 		echo.append("L&ouml;sche Shop-Auftraege...<br />\n");
 		db.update("DELETE FROM factions_shop_orders WHERE user_id="+userid);
 		
+		echo.append("L&ouml;sche Sessions...<br />\n");
+		db.update("DELETE FROM sessions WHERE id="+userid);
+		
 		echo.append("L&ouml;sche Usereintrag...<br />\n");
 		db.update("DELETE FROM users WHERE id="+userid);
 

@@ -9,3 +9,5 @@ CREATE TABLE `sessions` (
   `attach` varchar(36) default NULL,
   KEY `session` (`session`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+
+ALTER TABLE sessions ADD CONSTRAINT sessions_fk_users FOREIGN KEY (id) REFERENCES users(id);
