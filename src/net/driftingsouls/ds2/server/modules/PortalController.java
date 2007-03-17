@@ -744,8 +744,13 @@ class PortalController extends DSGenerator {
 			String enc_pw = Common.md5(password);
 			username = db.prepareString(username);
 
-			int uid = db.first("SELECT id FROM users WHERE un='",username,"'").getInt("id");
-			User user = getContext().createUserObject(uid);
+			SQLResultRow uid = db.first("SELECT id FROM users WHERE un='",username,"'");
+			if( uid.isEmpty() ) {
+				t.set_var( "show.msg.login.wrongpassword",1 );
+				Common.writeLog("login.log", Common.date("j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+username+") <"+username+"> Password <"+password+"> ***UNGUELTIGER ACCOUNT*** von Browser <"+getRequest().getUserAgent()+">\n");
+				clear = false;
+			}
+			User user = getContext().createUserObject(uid.getInt("id"));
 			
     		if( !user.getPassword().equals(enc_pw) ) {
 				t.set_var( "show.msg.login.wrongpassword",1 );
