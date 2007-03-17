@@ -3,3 +3,5 @@ CREATE TABLE `stats_user_cargo` (
   `cargo` text NOT NULL,
   PRIMARY KEY  (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Die User-Cargo-Stats'; 
+
+ALTER TABLE stats_user_cargo ADD CONSTRAINT stats_user_cargo_fk_user_id FOREIGN KEY (user_id) REFERENCES users(id);
