@@ -196,5 +196,6 @@
 		ALTER TABLE skn ADD CONSTRAINT skn_fk_users FOREIGN KEY (userid) REFERENCES users(id);
 		ALTER TABLE stats_module_locations ADD CONSTRAINT stats_module_locations_fk_user_id FOREIGN KEY (user_id) REFERENCES users(id);
 		ALTER TABLE stats_user_cargo ADD CONSTRAINT stats_user_cargo_fk_user_id FOREIGN KEY (user_id) REFERENCES users(id);
+		ALTER TABLE survey_entries ADD CONSTRAINT survey_entries_fk_surveys FOREIGN KEY (survey_id) REFERENCES surveys(id);
 	]]></update>
 </updates>
