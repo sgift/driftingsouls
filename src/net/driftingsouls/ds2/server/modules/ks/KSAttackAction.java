@@ -601,12 +601,13 @@ public class KSAttackAction extends BasicKSAction {
 		
 		// Munition
 		Cargo mycargo = new Cargo( Cargo.Type.STRING, ownShip.getString("cargo") );
-	
+		List<ItemCargoEntry> itemlist = null;
+		
 		if( this.weapon.hasFlag(Weapon.Flags.AMMO_SELECT) ) {
 			int ammoid = context.getRequest().getParameterInt("ammoid");
 	
 			ItemCargoEntry item = null;
-			List<ItemCargoEntry> itemlist = mycargo.getItemsWithEffect( ItemEffect.Type.AMMO );
+			itemlist = mycargo.getItemsWithEffect( ItemEffect.Type.AMMO );
 			for( int i=0; i < itemlist.size(); i++ ) {
 				if( itemlist.get(i).getItemID() == ammoid ) {
 					item = itemlist.get(i);
@@ -620,19 +621,11 @@ public class KSAttackAction extends BasicKSAction {
 			}
 	
 			ammo = db.first("SELECT id,name,damage,shielddamage,trefferws,smalltrefferws,shotspershot,destroyable,subws,subdamage,areadamage,flags FROM ammo WHERE itemid=",ammoid," AND `type`='",this.weapon.getAmmoType(),"'");
-			ammoitem = null;
-	
-			for( int i=0; i < itemlist.size(); i++ ) {
-				IEAmmo effect = (IEAmmo)itemlist.get(i).getItemEffect();
-				if( effect.getAmmoID() == ammo.getInt("id") ) {
-					ammoitem = itemlist.get(i);
-				}
-			}
 		} 
 		else {
 			List<Integer> ammoids = new ArrayList<Integer>();
 			
-			List<ItemCargoEntry> itemlist = mycargo.getItemsWithEffect( ItemEffect.Type.AMMO );
+			itemlist = mycargo.getItemsWithEffect( ItemEffect.Type.AMMO );
 			for( int i=0; i < itemlist.size(); i++ ) {
 				IEAmmo effect = (IEAmmo)itemlist.get(i).getItemEffect();
 				ammoids.add(effect.getAmmoID());
@@ -644,20 +637,19 @@ public class KSAttackAction extends BasicKSAction {
 			}
 	
 			ammo = db.first("SELECT id,name,damage,shielddamage,trefferws,smalltrefferws,shotspershot,destroyable,torptrefferws,subws,subdamage,areadamage,flags FROM ammo WHERE type='",this.weapon.getAmmoType(),"' AND id IN (",Common.implode(",",ammoids),") LIMIT 1");
-	
-			ammoitem = null;
-			
-			for( int i=0; i < itemlist.size(); i++ ) {
-				IEAmmo effect = (IEAmmo)itemlist.get(i).getItemEffect();
-				if( effect.getAmmoID() == ammo.getInt("id") ) {
-					ammoitem = itemlist.get(i);
-				}
-			}
 		}
 	
 		if( (ammo == null) || ammo.isEmpty() ) {
 			battle.logme("Der angegebene Munitionstyp existiert nicht\n" );
 			return null;
+		}
+		
+		ammoitem = null;
+		for( int i=0; i < itemlist.size(); i++ ) {
+			IEAmmo effect = (IEAmmo)itemlist.get(i).getItemEffect();
+			if( effect.getAmmoID() == ammo.getInt("id") ) {
+				ammoitem = itemlist.get(i);
+			}
 		}
 	
 		weaponCount = (int)(weaponCount*this.ownShip.getInt("count")/(double)ownShipType.getInt("shipcount"));
