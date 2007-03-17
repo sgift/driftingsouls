@@ -5,3 +5,5 @@ CREATE TABLE `survey_results` (
   PRIMARY KEY  (`id`),
   KEY `surveys_id` (`survey_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+
+ALTER TABLE survey_results ADD CONSTRAINT survey_results_fk_surveys FOREIGN KEY (survey_id) REFERENCES surveys(id);
