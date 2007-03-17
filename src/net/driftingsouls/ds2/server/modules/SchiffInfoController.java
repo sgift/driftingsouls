@@ -359,7 +359,7 @@ public class SchiffInfoController extends DSGenerator {
 		t.set_block("_SCHIFFINFO", "shiptypeflags.listitem", "shiptypeflags.list");
 		t.set_var("shiptypeflags.list","");
 
-		String[] flaglist = Ships.getShipTypeFlagList(shipID);
+		String[] flaglist = Ships.getShipTypeFlagList(this.ship);
 		Arrays.sort(flaglist);
 		for( int i=0; i < flaglist.length; i++ ) {
 			if( flaglist[i].length() == 0 ) {

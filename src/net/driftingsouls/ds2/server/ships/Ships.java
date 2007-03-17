@@ -195,6 +195,16 @@ public class Ships implements Loggable {
 	public static String[] getShipTypeFlagList(int shiptypeID) {
 		SQLResultRow shiptype = getShipType(shiptypeID, false);
 		
+		return getShipTypeFlagList(shiptype);
+	}
+	
+	/**
+	 * Gibt die Liste aller Flags zurueck, ueber die der angegebene
+	 * Schiffstyp verfuegt
+	 * @param shiptype Die Daten des Schiffstyps
+	 * @return Die Liste der Flags
+	 */
+	public static String[] getShipTypeFlagList(SQLResultRow shiptype) {
 		return StringUtils.split( shiptype.getString("flags"), ' ');
 	}
 	
