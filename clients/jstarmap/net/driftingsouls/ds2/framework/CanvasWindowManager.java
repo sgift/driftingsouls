@@ -137,8 +137,8 @@ public class CanvasWindowManager extends Canvas implements ActionListener, Mouse
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		Font fontList[] = ge.getAllFonts();
 		for( int i=0; i < fontList.length; i++ ) {
-			if( (fontList[i].getName().toLowerCase().equals(new String("bankgothic md bt"))) ||
-				(fontList[i].getName().toLowerCase().equals(new String("bank gothic medium bt"))) ) {
+			if( (fontList[i].getName().toLowerCase().equals(new String("arial"))) ||
+				(fontList[i].getName().toLowerCase().equals(new String("helvetica"))) ) {
 				fontName = fontList[i].getName();
 				break;
 			}

@@ -148,7 +148,7 @@ public abstract class DSGenerator extends Generator {
 			if( !getString("_style").equals("xml") ) {
 				StringBuffer sb = getResponse().getContent();
 				if( !getDisableDebugOutput() ) {
-					sb.append("<div style=\"text-align:center; font-size:11px;color:#c7c7c7; font-family:'BankGothic Md BT','Bank Gothic Medium BT','Bank Gothic','BankGothic',courier;\">\n");
+					sb.append("<div style=\"text-align:center; font-size:11px;color:#c7c7c7; font-family:arial, helvetica;\">\n");
 					sb.append("<br /><br /><br />\n");
 					sb.append("QCount: "+getDatabase().getQCount()+"<br />\n");
 					sb.append("Execution-Time: "+(System.currentTimeMillis()-getStartTime())/1000d+"s<br />\n");
