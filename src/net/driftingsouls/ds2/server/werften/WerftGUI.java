@@ -109,12 +109,19 @@ public class WerftGUI {
 		else if( werft.isBuilding() ) {
 			this.out_werftbuilding( werft, conf );
 		} 
-		else if( !werft.isBuilding() ) {
-			//Resourcenliste
-			this.out_ResourceList( werft );
-		
+		else if( !werft.isBuilding() ) {		
+			SQLResultRow[] shipdata = werft.getBuildShipList();
+			
+			// Resourcenliste
+			Cargo costs = new Cargo();
+			for( int i=0; i < shipdata.length; i++ ) {
+				costs.addCargo((Cargo)shipdata[i].get("costs"));
+			}
+			
+			this.out_ResourceList( werft, costs );
+			
 			//Schiffsliste
-			this.out_buildShipList( werft );
+			this.out_buildShipList( werft, shipdata );
 		
 			this.out_wsShipList(werft);
 		
@@ -188,12 +195,10 @@ public class WerftGUI {
 		ship.free();
 	}
 
-	private void out_buildShipList(WerftObject werft) {		
+	private void out_buildShipList(WerftObject werft, SQLResultRow[] shipdata) {		
 		t.set_var("werftgui.buildshiplist", 1);
 		t.set_block("_WERFT.WERFTGUI", "buildshiplist.listitem", "buildshiplist.list");
 		t.set_block("buildshiplist.listitem", "buildship.res.listitem", "buildship.res.list");
-		
-		SQLResultRow[] shipdata = werft.getBuildShipList();
 
 		Cargo availablecargo = werft.getCargo(false);
 	
@@ -246,8 +251,11 @@ public class WerftGUI {
 						"res.mangel",		crew < ashipdata.getInt("crew") );
 			t.parse("buildship.res.list", "buildship.res.listitem", true);
 
+			SQLResultRow shiptype = Ships.getShipType(ashipdata.getInt("type"), false);
+			
 			t.set_var(	"buildship.id",			ashipdata.getInt("id"),
 						"buildship.type.id",	ashipdata.getInt("type"),
+						"buildship.type.image",	shiptype.getString("picture"),
 						"buildship.flagschiff",	ashipdata.getBoolean("flagschiff"),
 						"buildship.type.name",	tmptype.getString("nickname") );
 			t.parse("buildshiplist.list", "buildshiplist.listitem", true);
@@ -257,18 +265,18 @@ public class WerftGUI {
 		}
 	}
 
-	private void out_ResourceList(WerftObject werft) {		
+	private void out_ResourceList(WerftObject werft, Cargo showonly) {		
 		t.set_var("werftgui.reslist", 1);
 		t.set_block("_WERFT.WERFTGUI", "reslist.res.listitem", "reslist.res.list");
 		
 		Cargo cargo = werft.getCargo(false);
 		int frei = werft.getCrew();
 	
-		ResourceList reslist = cargo.getResourceList();
+		ResourceList reslist = showonly.compare(cargo, false);
 		for( ResourceEntry res : reslist ) {
 			t.set_var(	"res.image",		res.getImage(),
 						"res.plainname",	res.getPlainName(),
-						"res.cargo",		res.getCargo1() );
+						"res.cargo",		res.getCargo2() );
 			t.parse("reslist.res.list", "reslist.res.listitem", true);
 		}
 		t.set_var(	"res.image",		Configuration.getSetting("URL")+"data/interface/energie.gif",

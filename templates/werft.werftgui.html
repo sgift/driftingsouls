@@ -226,46 +226,62 @@
 	{!table_end}
 {/endif}
 {if werftgui.reslist}
-	{!table_begin 850,left}
-		Waren vorhanden:<br />
+	{!table_begin 810}
+		<h3>Vorhandene Rohstoffe</h3>
+		<table class="noBorderX" style="width:90%; margin-left:auto; margin-right:auto">
+		<tr>
 		<!-- BEGIN reslist.res.listitem -->
-			<span class="nobr"><img style="vertical-align:middle" src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}</span>
+			<td class="noBorderX" style="text-align:center">
+				<img style="vertical-align:middle" src="{res.image}" alt="" title="{res.plainname}" /><br />
+				<span class="nobr">{res.cargo}</span>
+			</td>
 		<!-- END reslist.res.listitem -->
+		</tr>
+		</table>
 	{!table_end}
 	<br />
 {/endif}
 {if werftgui.buildshiplist}
-	{!table_begin 850,left}
-	<table class="noBorderX" width="100%">
-	<tr><td class="noBorderX">ID</td><td class="noBorderX">Type</td><td class="noBorderX">?</td><td class="noBorderX">Kosten</td></tr>
-	<!-- BEGIN buildshiplist.listitem -->
+	{!table_begin 810,left}
+	<div style="height:400px; overflow:auto;">
+		<table class="noBorderX" style="width:95%">
 		<tr>
-			<td class="noBorderX">
-				<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;build={buildship.id}{if buildship.item.id}&amp;item={buildship.item.id}{/endif}">{buildship.type.id}</a>
-			</td>
-			<td class="noBorderX">
-				{if buildship.item.id}
-					<span style="color:{buildship.item.color}">[Item]</span>
-					{if buildship.item.uses}
-						<span style="font-style:italic">[{buildship.item.uses}]</span>
+			<td class="noBorderX"></td>
+			<td class="noBorderX" style="text-align:center" colspan="2">Typ</td>
+			<td class="noBorderX" style="text-align:center">Kosten pro Schiff</td>
+			<td class="noBorderX"></td>
+		</tr>
+		<!-- BEGIN buildshiplist.listitem -->
+			<tr>
+				<td class="noBorderX">
+					{if buildship.item.id}
+						<span style="color:{buildship.item.color}">[Item]</span>
+						{if buildship.item.uses}
+							<span style="font-style:italic">[{buildship.item.uses}]</span>
+						{/endif}
 					{/endif}
-				{/endif}
-				{if buildship.flagschiff}
-					<span class="smallfont" style="color:#EECC44">[Flagschiff]</span>
-				{/endif}
-				<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;build={buildship.id}{if buildship.item.id}&amp;item={buildship.item.id}{/endif}">{buildship.type.name}</a>
-			</td>
-			<td class="noBorderX">
-				<a class="forschinfo" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={buildship.type.id}" target="_blank">?</a>
-			</td>
-			<td class="noBorderX">
-				<!-- BEGIN buildship.res.listitem -->
-					<img src="{res.image}" alt="" title="{res.plainname}" />{if res.mangel}<span style="color:red">{/endif}{res.count}{if res.mangel}</span>{/endif}
-				<!-- END buildship.res.listitem -->
-			</td>
-		</tr>		
-	<!-- END buildshiplist.listitem -->
-	</table>
+					{if buildship.flagschiff}
+						<span class="smallfont" style="color:#EECC44" title="Flagschiff">[FS]</span>
+					{/endif}
+				</td>
+				<td class="noBorderX">
+					<img style="vertical-align:middle;width:64px" src="{buildship.type.image}" alt="" />
+				</td>
+				<td class="noBorderX">
+					<a class="forschinfo" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={buildship.type.id}">{buildship.type.name}</a>
+				</td>
+				<td class="noBorderX">
+					<!-- BEGIN buildship.res.listitem -->
+						<span class="nobr"><img src="{res.image}" alt="" title="{res.plainname}" />{if res.mangel}<span style="color:red">{/endif}{res.count}{if res.mangel}</span>{/endif}</span>
+					<!-- END buildship.res.listitem -->
+				</td>
+				<td class="noBorderX">
+					<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;build={buildship.id}{if buildship.item.id}&amp;item={buildship.item.id}{/endif}">bauen</a>
+				</td>
+			</tr>		
+		<!-- END buildshiplist.listitem -->
+		</table>
+	</div>
 	{!table_end}
 {/endif}
 {if werftgui.wsshiplist}
