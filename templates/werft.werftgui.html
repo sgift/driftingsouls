@@ -165,47 +165,65 @@
 {/endif}
 {if werftgui.build}
 	{!table_begin 500,left}
-		<div align="center">	
-			{build.type.name}<br />
+		<div style="text-align:center">
+			<h2>{build.type.name}</h2>
 			<img src="{build.type.image}" alt="" />
-		</div>
-		<br />
-		Baukosten:<br />
-		<!-- BEGIN build.res.listitem -->
-			<img src="{res.image}" alt="" title="{res.plainname}" />{res.cargo.available} vorhanden - <img src="{res.image}" alt="" />{res.cargo.needed} ben&ouml;tigt
-			{if res.cargo.mangel}
-				 - <img src="{res.image}" alt="" title="{res.plainname}" /><span style="color:red">{res.cargo.mangel}</span> fehlen
-			{/endif}
+			
+			<hr noshade="noshade" size="1" style="color:#cccccc;width:80%" />
+			
+			<table class="noBorderX" cellpadding="2" cellspacing="1" style="margin-left:auto;margin-right:auto">
+			<tr>
+				<th style="text-align:center" colspan="3"><h3>Baukosten</h3></th>
+			</tr>
+			<tr>
+				<td class="noBorderX" style="width:32px"></td>
+				<td class="noBorderX" style="width:100px;text-align:right">Vorhanden</td>
+				<td class="noBorderX" style="width:100px;text-align:right">Sofort</td>
+			</tr>
+			<!-- BEGIN build.res.listitem -->
+				<tr>
+					<td class="noBorderX" style="width:20px">
+						<img src="{res.image}" alt="" title="{res.plainname}" />
+					</td>
+					<td class="noBorderX" style="width:100px;text-align:right">{res.cargo.available}</td>
+					<td class="noBorderX" style="width:100px;text-align:right">
+						{if res.cargo.mangel}
+					 		<a class="error" onmouseover="return overlib('&lt;span style=\'font-size:13px\'&gt;Mehrbedarf:<br />{res.cargo.mangel} Einheiten&lt;/span&gt;',TIMEOUT,0,DELAY,300,WIDTH,100);" onmouseout="return nd();" href="#">
+						{/endif}
+						{res.cargo.needed}
+						{if res.cargo.mangel}
+							</a>
+						{/endif}
+					</td>
+				</tr>
+			<!-- END build.res.listitem -->
+			<tr><td class="noBorderX" colspan="3"></td></tr>
+			<tr>
+				<th style="text-align:center" colspan="3"><h3>Werftkapazit&auml;t</h3></th>
+			</tr>
+			
+			{build.othercosts.list}
+			
+			</table>
 			<br />
-		<!-- END build.res.listitem -->
-		<br />
-		Energie- und Personalbedarf:<br />
-		{build.othercosts.list}
-		
-		{if build.error}
-			<br />
-			<div align="center">
-				<span style="color:red">{build.error}</span>
+			
+			<hr noshade="noshade" size="1" style="color:#cccccc;width:80%" />
+			<h3>Aktionen</h3>
+			<div style="margin-top:3px; margin-bottom:3px">
+				{if build.error}
+					<span class="error">{build.error}</span>
+				{else}
+					{if build.conf}
+						<a class="ok" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;build={build.id}&amp;item={build.item.id}&amp;conf=ok">{build.type.name} bauen</a>
+					{else}
+						<span class="ok">gen&uuml;gend Material vorhanden - beginne Bau</span>
+					{/endif}
+				{/endif}
 			</div>
-			<br />
-		{else}
-			{if build.conf}
-				<br />
-				<div align="center">
-					<a class="ok" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;build={build.id}&amp;item={build.item.id}&amp;conf=ok">{build.type.name} bauen</a>
-				</div>
-			{else}
-				<br />
-				<div align="center">
-					<span style="font-weight:bold;color:green;">gen&uuml;gend Material vorhanden - beginne Bau</span>
-				</div>
-				<br />
-			{/endif}
-		{/endif}
-		
+			<hr noshade="noshade" size="1" style="color:#cccccc; width:10%" />
+			<a class="ok" href="{werftgui.urlbase}&amp;sess={global.sess}">zur&uuml;ck</a><br />
+		</div>
 	{!table_end}
-	<br />
-	<a class="back" href="{werftgui.urlbase}&amp;sess={global.sess}">Zur&uuml;ck</a><br />
 {/endif}
 {if werftgui.reslist}
 	{!table_begin 850,left}
