@@ -298,11 +298,11 @@ public class WerftGUI {
 					"ship.type.id",				type.getInt("id"),
 					"ship.type.name",			type.getString("nickname"),
 					"ship.build.remaining",		werft.getRemainingTime(),
-					"ship.build.item",			werft.getRequiredItem(),
 					"werftgui.building.cancel.conf",	action.equals("canclebuild") && !conf.equals("ok") );
 
 		if( werft.getRequiredItem() > -1 ) {
-			t.set_var(	"ship.build.item.picture",		Items.get().item(werft.getRequiredItem()).getPicture(),
+			t.set_var(	"ship.build.item",				werft.getRequiredItem(),
+						"ship.build.item.picture",		Items.get().item(werft.getRequiredItem()).getPicture(),
 						"ship.build.item.name",			Items.get().item(werft.getRequiredItem()).getName(),
 						"ship.build.item.available",	werft.isBuildContPossible() );
 		}
