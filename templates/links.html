@@ -19,8 +19,6 @@
 <style type="text/css">
 	body  	{ margin-left:0px; background-color: #000000; }
 
-	img 	{display:block; border:none; padding:0px; margin:0px;}
-	
 	table.tooltip	{color: white; font-family: arial; font-size: 16px; border-style: none; border-width: 0px; }
 	td.tooltip		{background-color: transparent; color: white; font-family: arial; font-size: 16px; border-style: none; border-width: 0px; }
 	font.tooltip	{color: white; font-family: arial; font-size: 16px;}
@@ -33,122 +31,47 @@
 	a.sks:hover		{font-size:12px; color: #719bef; font-weight: bold; text-decoration: none;}
 	a.sks:active	{font-size:12px; color: #719bef; font-weight: bold; text-decoration: none;}
 	
-	a.sksx:link			{font-size:12px; color: #E00000; font-weight: bold; text-decoration: none;}
-	a.sksx:visited		{font-size:12px; color: #E00000; font-weight: bold; text-decoration: none;}
-	a.sksx:hover		{font-size:12px; color: #F0A000; font-weight: bold; text-decoration: none;}
-	a.sksx:active		{font-size:12px; color: #FF0000; font-weight: bold; text-decoration: none;}
+	a.sksx:link			{font-size:12px; color: #a70101; font-weight: bold; text-decoration: none;}
+	a.sksx:visited		{font-size:12px; color: #a70101; font-weight: bold; text-decoration: none;}
+	a.sksx:hover		{font-size:12px; color: #ff0000; font-weight: bold; text-decoration: none;}
+	a.sksx:active		{font-size:12px; color: #ff0000; font-weight: bold; text-decoration: none;}
+	
+	table.BorderX 	{ border-style: solid; border-color: #808080; border-width: 1px; background-color:transparent; color: #000000; font-family: 'BankGothic Md BT','Bank Gothic Medium BT','Bank Gothic','BankGothic',courier; font-size:14px}
+	td.BorderX		{ border-style: solid; border-color: #808080; border-width: 1px; background-color:transparent; color: #C7C7C7; font-family: 'BankGothic Md BT','Bank Gothic Medium BT','Bank Gothic','BankGothic',courier; font-size:14px; background-image: url('./data/interface/border/border_background.gif')}
+	td.BorderXnBG		{ border-style: solid; border-color: #808080; border-width: 1px; background-color:transparent; color: #C7C7C7; font-family: 'BankGothic Md BT','Bank Gothic Medium BT','Bank Gothic','BankGothic',courier; font-size:14px}
+
+	table.noBorderX 	{background-color:transparent; color: #000000; font-family: 'BankGothic Md BT','Bank Gothic Medium BT','Bank Gothic','BankGothic',courier; border-style: none; border-width: 0px; font-size:14px}
+	td.noBorderX		{background-color:transparent; color: #C7C7C7; font-family: 'BankGothic Md BT','Bank Gothic Medium BT','Bank Gothic','BankGothic',courier; border-style: none; border-width: 0px; font-size:14px; background-image: url('./data/interface/border/border_background.gif')}
+	td.noBorderXnBG		{background-color:transparent; color: #C7C7C7; font-family: 'BankGothic Md BT','Bank Gothic Medium BT','Bank Gothic','BankGothic',courier; border-style: none; border-width: 0px; font-size:14px}	
+	
+	a.pms:link			{color: #eeee11; font-size:13px; font-weight: bold; text-decoration: none;}
+	a.pms:visited		{color: #eeee11; font-size:13px; font-weight: bold; text-decoration: none;}
+	a.pms:hover			{color: #719bef; font-size:13px; font-weight: bold; text-decoration: none;}
+	a.pms:active		{color: #719bef; font-size:13px; font-weight: bold; text-decoration: none;}
+	
+	a.menu:link			{color: #c7c7c7; font-size:15px; font-weight: normal; text-decoration: none;}
+	a.menu:visited		{color: #c7c7c7; font-size:15px; font-weight: normal; text-decoration: none;}
+	a.menu:hover		{color: #719bef; font-size:15px; font-weight: normal; text-decoration: none;}
+	a.menu:active		{color: #719bef; font-size:15px; font-weight: normal; text-decoration: none;}
+	
+	a.low:link			{color: #a70101; font-size:15px; font-weight: bold; text-decoration: none;}
+	a.low:visited		{color: #a70101; font-size:15px; font-weight: bold; text-decoration: none;}
+	a.low:hover			{color: #ff0000; font-size:15px; font-weight: bold; text-decoration: none;}
+	a.low:active		{color: #ff0000; font-size:15px; font-weight: bold; text-decoration: none;}
+	
+	a.sublow:link		{color: #a70101; font-size:13px; font-weight: bold; text-decoration: none;}
+	a.sublow:visited	{color: #a70101; font-size:13px; font-weight: bold; text-decoration: none;}
+	a.sublow:hover		{color: #ff0000; font-size:13px; font-weight: bold; text-decoration: none;}
+	a.sublow:active		{color: #ff0000; font-size:13px; font-weight: bold; text-decoration: none;}
+		
+	a.submenu:link		{color: #c7c7c7; font-size:13px; font-weight: normal; text-decoration: none;}
+	a.submenu:visited	{color: #c7c7c7; font-size:13px; font-weight: normal; text-decoration: none;}
+	a.submenu:hover		{color: #719bef; font-size:13px; font-weight: normal; text-decoration: none;}
+	a.submenu:active	{color: #719bef; font-size:13px; font-weight: normal; text-decoration: none;}
 </style>
 
 <script type="text/javascript" language="JavaScript">
 <!--
-	function loadImage(url) {
-		res = new Image();
-		res.src = url;
-		return res;
-	}
-
-	uebersicht_l = loadImage('{global.datadir}/data/interface/menubar/menubar_uebersicht_l.gif');
-	uebersicht_h = loadImage('{global.datadir}/data/interface/menubar/menubar_uebersicht_h.gif');
-
-	basen_l = loadImage('{global.datadir}/data/interface/menubar/menubar_basen_l.gif');
-	basen_h = loadImage('{global.datadir}/data/interface/menubar/menubar_basen_h.gif');
-
-	schiffe_l = loadImage('{global.datadir}/data/interface/menubar/menubar_basen_l.gif');
-	schiffe_h = loadImage('{global.datadir}/data/interface/menubar/menubar_basen_h.gif');
-	schiffe_x_l = loadImage('{global.datadir}/data/interface/menubar/menubar_basen_x_l.gif');
-	schiffe_x_h = loadImage('{global.datadir}/data/interface/menubar/menubar_basen_x_h.gif');
-
-	schiffe_l = loadImage('{global.datadir}/data/interface/menubar/menubar_schiffe_l.gif');
-	schiffe_h = loadImage('{global.datadir}/data/interface/menubar/menubar_schiffe_h.gif');
-	schiffe_x_l = loadImage('{global.datadir}/data/interface/menubar/menubar_schiffe_x_l.gif');
-	schiffe_x_h = loadImage('{global.datadir}/data/interface/menubar/menubar_schiffe_x_h.gif');
-
-	zivilschiffe_l = loadImage('{global.datadir}/data/interface/menubar/menubar_zivilschiffe_l.gif');
-	zivilschiffe_h = loadImage('{global.datadir}/data/interface/menubar/menubar_zivilschiffe_h.gif');
-	zivilschiffe_x_l = loadImage('{global.datadir}/data/interface/menubar/menubar_zivilschiffe_x_l.gif');
-	zivilschiffe_x_h = loadImage('{global.datadir}/data/interface/menubar/menubar_zivilschiffe_x_h.gif');
-
-	tanker_l = loadImage('{global.datadir}/data/interface/menubar/menubar_tanker_l.gif');
-	tanker_h = loadImage('{global.datadir}/data/interface/menubar/menubar_tanker_h.gif');
-	tanker_x_l = loadImage('{global.datadir}/data/interface/menubar/menubar_tanker_x_l.gif');
-	tanker_x_h = loadImage('{global.datadir}/data/interface/menubar/menubar_tanker_x_h.gif');
-
-	frachter_l = loadImage('{global.datadir}/data/interface/menubar/menubar_frachter_l.gif');
-	frachter_h = loadImage('{global.datadir}/data/interface/menubar/menubar_frachter_h.gif');
-	frachter_x_l = loadImage('{global.datadir}/data/interface/menubar/menubar_frachter_x_l.gif');
-	frachter_x_h = loadImage('{global.datadir}/data/interface/menubar/menubar_frachter_x_h.gif');
-
-	stationen_l = loadImage('{global.datadir}/data/interface/menubar/menubar_stationen_l.gif');
-	stationen_h = loadImage('{global.datadir}/data/interface/menubar/menubar_stationen_h.gif');
-	stationen_x_l = loadImage('{global.datadir}/data/interface/menubar/menubar_stationen_x_l.gif');
-	stationen_x_h = loadImage('{global.datadir}/data/interface/menubar/menubar_stationen_x_h.gif');
-
-	awacs_l = loadImage('{global.datadir}/data/interface/menubar/menubar_awacs_l.gif');
-	awacs_h = loadImage('{global.datadir}/data/interface/menubar/menubar_awacs_h.gif');
-	awacs_x_l = loadImage('{global.datadir}/data/interface/menubar/menubar_awacs_x_l.gif');
-	awacs_x_h = loadImage('{global.datadir}/data/interface/menubar/menubar_awacs_x_h.gif');
-
-	kriegsschiffe_l = loadImage('{global.datadir}/data/interface/menubar/menubar_kriegsschiffe_l.gif');
-	kriegsschiffe_h = loadImage('{global.datadir}/data/interface/menubar/menubar_kriegsschiffe_h.gif');
-	kriegsschiffe_x_l = loadImage('{global.datadir}/data/interface/menubar/menubar_kriegsschiffe_x_l.gif');
-	kriegsschiffe_x_h = loadImage('{global.datadir}/data/interface/menubar/menubar_kriegsschiffe_x_h.gif');
-	kriegsschiffe_arrow_l = loadImage('{global.datadir}/data/interface/menubar/menubar_kriegsschiffe_arrow_l.gif');
-	kriegsschiffe_arrow_h = loadImage('{global.datadir}/data/interface/menubar/menubar_kriegsschiffe_arrow_h.gif');
-	
-	werften_l = loadImage('{global.datadir}/data/interface/menubar/menubar_werften_l.gif');
-	werften_h = loadImage('{global.datadir}/data/interface/menubar/menubar_werften_h.gif');
-	werften_x_l = loadImage('{global.datadir}/data/interface/menubar/menubar_werften_x_l.gif');
-	werften_x_h = loadImage('{global.datadir}/data/interface/menubar/menubar_werften_x_h.gif');
-
-	optionen_l = loadImage('{global.datadir}/data/interface/menubar/menubar_optionen_l.gif');
-	optionen_h = loadImage('{global.datadir}/data/interface/menubar/menubar_optionen_h.gif');
-
-	kommunikation_l = loadImage('{global.datadir}/data/interface/menubar/menubar_kommunikation_l.gif');
-	kommunikation_h = loadImage('{global.datadir}/data/interface/menubar/menubar_kommunikation_h.gif');
-
-	pms_l = loadImage('{global.datadir}/data/interface/menubar/menubar_pms_l.gif');
-	pms_h = loadImage('{global.datadir}/data/interface/menubar/menubar_pms_h.gif');
-	pms_a = loadImage('{global.datadir}/data/interface/menubar/menubar_pms_a.gif');
-
-	comnet_l = loadImage('{global.datadir}/data/interface/menubar/menubar_comnet_l.gif');
-	comnet_h = loadImage('{global.datadir}/data/interface/menubar/menubar_comnet_h.gif');
-
-	handel_l = loadImage('{global.datadir}/data/interface/menubar/menubar_handel_l.gif');
-	handel_h = loadImage('{global.datadir}/data/interface/menubar/menubar_handel_h.gif');
-
-	fraktionen_l = loadImage('{global.datadir}/data/interface/menubar/menubar_fraktionen_l.gif');
-	fraktionen_h = loadImage('{global.datadir}/data/interface/menubar/menubar_fraktionen_h.gif');
-
-	allianzen_l = loadImage('{global.datadir}/data/interface/menubar/menubar_allianzen_l.gif');
-	allianzen_h = loadImage('{global.datadir}/data/interface/menubar/menubar_allianzen_h.gif');
-
-	forum_l = loadImage('{global.datadir}/data/interface/menubar/menubar_forum_l.gif');
-	forum_h = loadImage('{global.datadir}/data/interface/menubar/menubar_forum_h.gif');
-
-	techdatabase_l = loadImage('{global.datadir}/data/interface/menubar/menubar_techdatabase_l.gif');
-	techdatabase_h = loadImage('{global.datadir}/data/interface/menubar/menubar_techdatabase_h.gif');
-
-	sternenkarte_l = loadImage('{global.datadir}/data/interface/menubar/menubar_sternenkarte_l.gif');
-	sternenkarte_h = loadImage('{global.datadir}/data/interface/menubar/menubar_sternenkarte_h.gif');
-
-	statistik_l = loadImage('{global.datadir}/data/interface/menubar/menubar_statistik_l.gif');
-	statistik_h = loadImage('{global.datadir}/data/interface/menubar/menubar_statistik_h.gif');
-
-	logout_l = loadImage('{global.datadir}/data/interface/menubar/menubar_logout_l.gif');
-	logout_h = loadImage('{global.datadir}/data/interface/menubar/menubar_logout_h.gif');
-
-	npc_l = loadImage('{global.datadir}/data/interface/menubar/menubar_npc_l.gif');
-	npc_h = loadImage('{global.datadir}/data/interface/menubar/menubar_npc_h.gif');
-
-	admin_l = loadImage('{global.datadir}/data/interface/menubar/menubar_admin_l.gif');
-	admin_h = loadImage('{global.datadir}/data/interface/menubar/menubar_admin_h.gif');
-
-	function bildwechsel(bildid,bildobjekt) {
- 		window.document.images[bildid].src = bildobjekt.src;
-	}
-	
-	pms_current = pms_l;
-	
 	function checkPMStatus() {
 		var url = './ajax.php';
 		var params = 'module={global.module}&sess={global.sess}&action=hasNewPm';
@@ -163,20 +86,16 @@
 	
 	function updatePMStatus( originalRequest ) {
 		if( originalRequest.responseText == '1' ) {
-			$('pms').src = '{global.datadir}/data/interface/menubar/menubar_pms_a.gif';
-			pms_current = pms_a;
+			$('pms').className = "pms";
 		}
 		else {
-			pms_current = pms_l;
-			$('pms').src = '{global.datadir}/data/interface/menubar/menubar_pms_l.gif'
+			$('pms').className = "menu";
 		}
 	}
 
 	new PeriodicalExecuter(checkPMStatus, 30); 
 	
 	function kampfschiffe_arrow() {
-		bildwechsel('kriegsschiffe_arrow',kriegsschiffe_arrow_h); 
-		
 		htmlcode = '<table cellpadding=\'0\' cellspacing=\'0\' border=\'0\' class=\'noBorder\' width=\'100\'>';
 		htmlcode += '<tr>'
 		htmlcode +=	'<td class=\'noBorder\'><img src=\'{global.datadir}/data/interface/border/border_topleft.gif\' width=\'19\' height=\'18\' alt=\'\' /></td>';
@@ -293,329 +212,269 @@
 		htmlcode += '</tr>';
 		htmlcode += '</table>';
 		
-		return overlib(htmlcode,REF,'kriegsschiffe_side2',REFC,'LL',REFP,'UR',WRAP,NOCLOSE,STICKY);
+		return overlib(htmlcode,REF,'kriegsschiffe_arrow',REFC,'LL',REFP,'UR',WRAP,NOCLOSE,STICKY);
 	}
 -->
 </script>
-
-<table cellpadding="0" cellspacing="0" border="0">
+<table cellpadding="0" cellspacing="0" border="0" class="noBorderX" width="169">
 <tr>
-	<td colspan="5">
-		<img src="{global.datadir}/data/interface/menubar/menubar_top.gif" alt="" />
-	</td>
+	<td class="noBorderXnBG" style="background-image:url({global.datadir}data/interface/border/border_top.gif); background-repeat:repeat-x"></td>
+	<td class="noBorderXnBG" style="width:19px"><img src="{global.datadir}data/interface/border/border_topright.gif" alt="" /></td>
 </tr>
-
 <tr>
-	<td><img src="{global.datadir}/data/interface/menubar/menubar_uebersicht_side1.gif" alt="" /></td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('uebersicht',uebersicht_h)" onmouseout="javascript:bildwechsel('uebersicht',uebersicht_l)" href="./main.php?sess={global.sess}&amp;module=ueber" target="main">
-			<img id="uebersicht" border="0" src="{global.datadir}/data/interface/menubar/menubar_uebersicht_l.gif" alt="" />
-		</a>
-	</td>
-	<td colspan="3"><img src="{global.datadir}/data/interface/menubar/menubar_uebersicht_side2.gif" alt="" /></td>
-</tr>
+	<td class="noBorderX" colspan="1" align="left">
+		<table cellpadding="0" cellspacing="1" border="0" width="100%" style="margin-left:5px">
+		<tr>
+			<td colspan="3">
+				<a class="menu" href="./main.php?sess={global.sess}&amp;module=ueber" target="main">
+					&Uuml;bersicht
+				</a>
+			</td>
+		</tr>
 
+		<tr>
+			<td colspan="3">
+				<a class="menu" href="./main.php?module=basen&amp;sess={global.sess}" target="main">
+					Basen
+				</a>
+			</td>
+		</tr>
+		
+		<tr>
+			<td colspan="2">
+				<a class="menu" href="./main.php?module=schiffe&amp;sess={global.sess}" target="main">
+					Schiffe
+				</a>
+			</td>
+			<td>[<a class="low" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;low=9" target="main">X</a>]</td>
+		</tr>
+		
+		<!-- Untermenue Schiffe -->
+		<tr>
+			<td style="width:10px"></td>
+			<td>
+				<a class="submenu" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=zivil" target="main">
+					Zivilschiffe
+				</a>
+			</td>
+			<td>[<a class="sublow" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=zivil&amp;low=9" target="main">X</a>]</td>
+		</tr>
+		
+		<tr>
+			<td style="width:10px"></td>
+			<td>
+				<a class="submenu" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=tank" target="main">
+					Tanker
+				</a>
+			</td>
+			<td>[<a class="sublow" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=tank&amp;low=9" target="main">X</a>]</td>
+		</tr>
+		
+		<tr>
+			<td style="width:10px"></td>
+			<td>
+				<a class="submenu" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=trans" target="main">
+					Frachter
+				</a>
+			</td>
+			<td>[<a class="sublow" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=trans&amp;low=9" target="main">X</a>]</td>
+		</tr>
+		
+		<tr>
+			<td style="width:10px"></td>
+			<td>
+				<a class="submenu" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=cargo" target="main">
+					Stationen
+				</a>
+			</td>
+			<td>[<a class="sublow" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=cargo&amp;low=9" target="main">X</a>]</td>
+		</tr>
+		
+		<tr>
+			<td style="width:10px"></td>
+			<td>
+				<a class="submenu" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=werften" target="main">
+					Werften
+				</a>
+			</td>
+			<td>[<a class="sublow" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=werften&amp;low=9" target="main">X</a>]</td>
+		</tr>
+		
+		<tr>
+			<td style="width:10px"></td>
+			<td>
+				<a class="submenu" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=sensor" target="main">
+					Awacs
+				</a>
+			</td>
+			<td>[<a class="sublow" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=sensor&amp;low=9" target="main">X</a>]</td>
+		</tr>
+		
+		<tr>
+			<td style="width:10px"></td>
+			<td style="vertical-align:middle">
+				<a class="submenu" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=kampf" target="main">
+					Kriegsschiffe
+				</a>
+			</td>
+			<td style="white-space: nowrap; vertical-align:middle">
+				[<a class="sublow" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=kampf&amp;low=9" target="main">X</a>]
+				<a onmousedown="javascript:kampfschiffe_arrow();" 
+					onmouseout="return nd();" href="javascript:void(0)">
+					<img name="kriegsschiffe_arrow" id="kriegsschiffe_arrow" style="border:0px; vertical-align:middle" src="{global.datadir}/data/interface/menubar/menubar_kriegsschiffe_arrow_l.gif" alt="" />
+				</a>
+			</td>
+		</tr>
+		
+		<!--  Ende Untermenue Schiffe -->
+		
+		<tr>
+			<td colspan="3">
+				<a class="menu" href="./main.php?module=options&amp;sess={global.sess}" target="main">
+					Optionen
+				</a>
+			</td>
+		</tr>
+		
+		<tr>
+			<td colspan="3">
+				<a class="menu" href="./main.php?module=comm&amp;sess={global.sess}&action=showInbox" target="main">
+					Kommunikation
+				</a>
+			</td>
+		</tr>
+		
+		<!--  Untermenue Kommunikation -->
+		
+		<tr>
+			<td style="width:10px"></td>
+			<td colspan="2">
+				<a id="pms" class="submenu" href="./main.php?module=comm&amp;sess={global.sess}&action=showInbox" target="main">
+					PMs
+				</a>
+			</td>
+		</tr>
+		
+		<tr>
+			<td style="width:10px"></td>
+			<td colspan="2">
+				<a class="submenu" href="./main.php?module=comnet&amp;sess={global.sess}" target="main">
+					Com-Net
+				</a>
+			</td>
+		</tr>
+		
+		<tr>
+			<td style="width:10px"></td>
+			<td colspan="2">
+				<a class="submenu" href="./main.php?module=handel&amp;sess={global.sess}" target="main">
+					Handel
+				</a>
+			</td>
+		</tr>
+		
+		<tr>
+			<td style="width:10px"></td>
+			<td colspan="2">
+				<a class="submenu" href="./main.php?module=ersteigern&amp;sess={global.sess}" target="main">
+					Fraktionen
+				</a>
+			</td>
+		</tr>
+		
+		<tr>
+			<td style="width:10px"></td>
+			<td colspan="2">
+				<a class="submenu" href="./main.php?module=ally&amp;sess={global.sess}" target="main">
+					Allianzen
+				</a>
+			</td>
+		</tr>
+		
+		<tr>
+			<td style="width:10px"></td>
+			<td colspan="2">
+				<a class="submenu" href="{SCRIPT_FORUM}" target="main">
+					Forum
+				</a>
+			</td>
+		</tr>
+		
+		<!--  Ende Untermenue Kommunikation -->
+		
+		<tr>
+			<td colspan="3">
+				<a class="menu" href="./main.php?module=techdatabase&amp;sess={global.sess}" target="main">
+					Tech. Datenbank
+				</a>
+			</td>
+		</tr>
+		
+		<tr>
+			<td colspan="3">
+				<a class="menu" href="./main.php?module=map&amp;sess={global.sess}&amp;sys=1" target="main">
+					Sternenkarte
+				</a>
+			</td>
+		</tr>
+		
+		<tr>
+			<td colspan="3">
+				<a class="menu" href="./main.php?module=stats&amp;sess={global.sess}" target="main">
+					Statistik
+				</a>
+			</td>
+		</tr>
+		
+		<tr>
+			<td colspan="3">
+				<a class="menu" href="./main.php?module=logout&amp;sess={global.sess}" target="main">
+					Logout
+				</a>
+			</td>
+		</tr>
+		
+		{if user.admin}
+			<tr>
+				<td colspan="3">
+					<hr noshade="noshade" size="1" style="color:#cccccc" />
+				</td>
+			</tr>
+		{else}
+			{if user.npc}
+				<tr>
+					<td colspan="3">
+						<hr noshade="noshade" size="1" style="color:#cccccc" />
+					</td>
+				</tr>
+			{/endif}
+		{/endif}
+		
+		{if user.npc}
+			<tr>
+				<td colspan="3">
+					<a class="menu" href="./main.php?module=npcorder&amp;sess={global.sess}" target="main">
+						NPC
+					</a>
+				</td>
+			</tr>
+		{/endif}
+		
+		{if user.admin}
+			<tr>
+				<td colspan="3">
+					<a class="menu" href="./main.php?module=admin&amp;sess={global.sess}" target="main">
+						Admin
+					</a>
+				</td>
+			</tr>
+		{/endif}
+		</table>
+	</td>
+	<td class="noBorderXnBG" rowspan="1" style="width:19px; background-image:url({global.datadir}data/interface/border/border_right.gif); background-repeat:repeat-y"></td>
+</tr>
 <tr>
-	<td><img src="{global.datadir}/data/interface/menubar/menubar_basen_side1.gif" alt="" /></td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('basen',basen_h)" onmouseout="javascript:bildwechsel('basen',basen_l)" href="./main.php?module=basen&amp;sess={global.sess}" target="main">
-			<img id="basen" border="0" src="{global.datadir}/data/interface/menubar/menubar_basen_l.gif" alt="" />
-		</a>
-	</td>
-	<td colspan="3"><img src="{global.datadir}/data/interface/menubar/menubar_basen_side2.gif" alt="" /></td>
-</tr>
-
-<tr>
-	<td><img src="{global.datadir}/data/interface/menubar/menubar_schiffe_side1.gif" alt="" /></td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('schiffe',schiffe_h)" onmouseout="javascript:bildwechsel('schiffe',schiffe_l)" href="./main.php?module=schiffe&amp;sess={global.sess}" target="main">
-			<img id="schiffe" border="0" src="{global.datadir}/data/interface/menubar/menubar_schiffe_l.gif" alt="" />
-		</a>
-	</td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('schiffe_x',schiffe_x_h)" onmouseout="javascript:bildwechsel('schiffe_x',schiffe_x_l)" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;low=9" target="main">
-			<img id="schiffe_x" border="0" src="{global.datadir}/data/interface/menubar/menubar_schiffe_x_l.gif" alt="" />
-		</a>
-	</td>
-	<td colspan="2"><img src="{global.datadir}/data/interface/menubar/menubar_schiffe_side2.gif" alt="" /></td>
-</tr>
-
-<tr>
-	<td><img src="{global.datadir}/data/interface/menubar/menubar_zivilschiffe_side1.gif" alt="" /></td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('zivilschiffe',zivilschiffe_h)" onmouseout="javascript:bildwechsel('zivilschiffe',zivilschiffe_l)" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=zivil" target="main">
-			<img id="zivilschiffe" border="0" src="{global.datadir}/data/interface/menubar/menubar_zivilschiffe_l.gif" alt="" />
-		</a>
-	</td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('zivilschiffe_x',zivilschiffe_x_h)" onmouseout="javascript:bildwechsel('zivilschiffe_x',zivilschiffe_x_l)" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=zivil&amp;low=9" target="main">
-			<img id="zivilschiffe_x" border="0" src="{global.datadir}/data/interface/menubar/menubar_zivilschiffe_x_l.gif" alt="" />
-		</a>
-	</td>
-	<td colspan="2"><img src="{global.datadir}/data/interface/menubar/menubar_zivilschiffe_side2.gif" alt="" /></td>
-</tr>
-
-<tr>
-	<td><img src="{global.datadir}/data/interface/menubar/menubar_tanker_side1.gif" alt="" /></td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('tanker',tanker_h)" onmouseout="javascript:bildwechsel('tanker',tanker_l)" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=tank" target="main">
-			<img id="tanker" border="0" src="{global.datadir}/data/interface/menubar/menubar_tanker_l.gif" alt="" />
-		</a>
-	</td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('tanker_x',tanker_x_h)" onmouseout="javascript:bildwechsel('tanker_x',tanker_x_l)" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=tank&amp;low=9" target="main">
-			<img id="tanker_x" border="0" src="{global.datadir}/data/interface/menubar/menubar_tanker_x_l.gif" alt="" />
-		</a>
-	</td>
-	<td colspan="2"><img src="{global.datadir}/data/interface/menubar/menubar_tanker_side2.gif" alt="" /></td>
-</tr>
-
-<tr>
-	<td><img src="{global.datadir}/data/interface/menubar/menubar_frachter_side1.gif" alt="" /></td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('frachter',frachter_h)" onmouseout="javascript:bildwechsel('frachter',frachter_l)" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=trans" target="main">
-			<img id="frachter" border="0" src="{global.datadir}/data/interface/menubar/menubar_frachter_l.gif" alt="" />
-		</a>
-	</td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('frachter_x',frachter_x_h)" onmouseout="javascript:bildwechsel('frachter_x',frachter_x_l)" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=trans&amp;low=9" target="main">
-			<img id="frachter_x" border="0" src="{global.datadir}/data/interface/menubar/menubar_frachter_x_l.gif" alt="" />
-		</a>
-	</td>
-	<td colspan="2"><img src="{global.datadir}/data/interface/menubar/menubar_frachter_side2.gif" alt="" /></td>
-</tr>
-
-<tr>
-	<td><img src="{global.datadir}/data/interface/menubar/menubar_stationen_side1.gif" alt="" /></td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('stationen',stationen_h)" onmouseout="javascript:bildwechsel('stationen',stationen_l)" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=cargo" target="main">
-			<img id="stationen" border="0" src="{global.datadir}/data/interface/menubar/menubar_stationen_l.gif" alt="" />
-		</a>
-	</td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('stationen_x',stationen_x_h)" onmouseout="javascript:bildwechsel('stationen_x',stationen_x_l)" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=cargo&amp;low=9" target="main">
-			<img id="stationen_x" border="0" src="{global.datadir}/data/interface/menubar/menubar_stationen_x_l.gif" alt="" />
-		</a>
-	</td>
-	<td colspan="2"><img src="{global.datadir}/data/interface/menubar/menubar_stationen_side2.gif" alt="" /></td>
-</tr>
-
-<tr>
-	<td><img src="{global.datadir}/data/interface/menubar/menubar_werften_side1.gif" alt="" /></td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('werften',werften_h)" onmouseout="javascript:bildwechsel('werften',werften_l)" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=werften" target="main">
-			<img id="werften" border="0" src="{global.datadir}/data/interface/menubar/menubar_werften_l.gif" alt="" />
-		</a>
-	</td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('werften_x',werften_x_h)" onmouseout="javascript:bildwechsel('werften_x',werften_x_l)" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=werften&amp;low=9" target="main">
-			<img id="werften_x" border="0" src="{global.datadir}/data/interface/menubar/menubar_werften_x_l.gif" alt="" />
-		</a>
-	</td>
-	<td colspan="2"><img src="{global.datadir}/data/interface/menubar/menubar_werften_side2.gif" alt="" /></td>
-</tr>
-
-<tr>
-	<td><img src="{global.datadir}/data/interface/menubar/menubar_awacs_side1.gif" alt="" /></td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('awacs',awacs_h)" onmouseout="javascript:bildwechsel('awacs',awacs_l)" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=sensor" target="main">
-			<img id="awacs" border="0" src="{global.datadir}/data/interface/menubar/menubar_awacs_l.gif" alt="" />
-		</a>
-	</td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('awacs_x',awacs_x_h)" onmouseout="javascript:bildwechsel('awacs_x',awacs_x_l)" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=sensor&amp;low=9" target="main">
-			<img id="awacs_x" border="0" src="{global.datadir}/data/interface/menubar/menubar_awacs_x_l.gif" alt="" />
-		</a>
-	</td>
-	<td colspan="2"><img src="{global.datadir}/data/interface/menubar/menubar_awacs_side2.gif" alt="" /></td>
-</tr>
-
-<tr>
-	<td><img src="{global.datadir}/data/interface/menubar/menubar_kriegsschiffe_side1.gif" alt="" /></td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('kriegsschiffe',kriegsschiffe_h)" onmouseout="javascript:bildwechsel('kriegsschiffe',kriegsschiffe_l)" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=kampf" target="main">
-			<img id="kriegsschiffe" border="0" src="{global.datadir}/data/interface/menubar/menubar_kriegsschiffe_l.gif" alt="" />
-		</a>
-	</td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('kriegsschiffe_x',kriegsschiffe_x_h)" onmouseout="javascript:bildwechsel('kriegsschiffe_x',kriegsschiffe_x_l)" href="./main.php?module=schiffe&amp;sess={global.sess}&amp;only=kampf&amp;low=9" target="main">
-			<img id="kriegsschiffe_x" border="0" src="{global.datadir}/data/interface/menubar/menubar_kriegsschiffe_x_l.gif" alt="" />
-		</a>
-	</td>
-	<td>
-		<a onmousedown="javascript:kampfschiffe_arrow();" 
-			onmouseout="javascript:bildwechsel('kriegsschiffe_arrow',kriegsschiffe_arrow_l); return nd();" href="javascript:void(0)">
-			<img name="kriegsschiffe_arrow" id="kriegsschiffe_arrow" border="0" src="{global.datadir}/data/interface/menubar/menubar_kriegsschiffe_arrow_l.gif" alt="" />
-		</a>
-	</td>
-	<td><img name="kriegsschiffe_side2" id="kriegsschiffe_side2" src="{global.datadir}/data/interface/menubar/menubar_kriegsschiffe_side2.gif" alt="" /></td>
-</tr>
-
-<tr>
-	<td><img src="{global.datadir}/data/interface/menubar/menubar_optionen_side1.gif" alt="" /></td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('optionen',optionen_h)" onmouseout="javascript:bildwechsel('optionen',optionen_l)" href="./main.php?sess={global.sess}&amp;module=options" target="main">
-			<img id="optionen" border="0" src="{global.datadir}/data/interface/menubar/menubar_optionen_l.gif" alt="" />
-		</a>
-	</td>
-	<td colspan="3"><img src="{global.datadir}/data/interface/menubar/menubar_optionen_side2.gif" alt="" /></td>
-</tr>
-
-<tr>
-	<td><img src="{global.datadir}/data/interface/menubar/menubar_kommunikation_side1.gif" alt="" /></td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('kommunikation',kommunikation_h)" onmouseout="javascript:bildwechsel('kommunikation',kommunikation_l)" href="./main.php?module=comm&amp;sess={global.sess}&amp;action=showInbox" target="main">
-			<img id="kommunikation" border="0" src="{global.datadir}/data/interface/menubar/menubar_kommunikation_l.gif" alt="" />
-		</a>
-	</td>
-	<td colspan="3"><img src="{global.datadir}/data/interface/menubar/menubar_kommunikation_side2.gif" alt="" /></td>
-</tr>
-
-<tr>
-	<td><img src="{global.datadir}/data/interface/menubar/menubar_pms_side1.gif" alt="" /></td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('pms',pms_h)" onmouseout="javascript:bildwechsel('pms',pms_current)" href="./main.php?module=comm&amp;sess={global.sess}&amp;action=showInbox" target="main">
-			<img id="pms" border="0" src="{global.datadir}/data/interface/menubar/menubar_pms_l.gif" alt="" />
-		</a>
-	</td>
-	<td colspan="3"><img src="{global.datadir}/data/interface/menubar/menubar_pms_side2.gif" alt="" /></td>
-</tr>
-
-<tr>
-	<td><img src="{global.datadir}/data/interface/menubar/menubar_comnet_side1.gif" alt="" /></td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('comnet',comnet_h)" onmouseout="javascript:bildwechsel('comnet',comnet_l)" href="main.php?module=comnet&amp;sess={global.sess}&amp;to=0" target="main">
-			<img id="comnet" border="0" src="{global.datadir}/data/interface/menubar/menubar_comnet_l.gif" alt="" />
-		</a>
-	</td>
-	<td colspan="3"><img src="{global.datadir}/data/interface/menubar/menubar_comnet_side2.gif" alt="" /></td>
-</tr>
-
-<tr>
-	<td><img src="{global.datadir}/data/interface/menubar/menubar_handel_side1.gif" alt="" /></td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('handel',handel_h)" onmouseout="javascript:bildwechsel('handel',handel_l)" href="./main.php?module=handel&amp;sess={global.sess}" target="main">
-			<img id="handel" border="0" src="{global.datadir}/data/interface/menubar/menubar_handel_l.gif" alt="" />
-		</a>
-	</td>
-	<td colspan="3"><img src="{global.datadir}/data/interface/menubar/menubar_handel_side2.gif" alt="" /></td>
-</tr>
-
-<tr>
-	<td><img src="{global.datadir}/data/interface/menubar/menubar_fraktionen_side1.gif" alt="" /></td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('fraktionen',fraktionen_h)" onmouseout="javascript:bildwechsel('fraktionen',fraktionen_l)" href="./main.php?module=ersteigern&amp;sess={global.sess}" target="main">
-			<img id="fraktionen" border="0" src="{global.datadir}/data/interface/menubar/menubar_fraktionen_l.gif" alt="" />
-		</a>
-	</td>
-	<td colspan="3"><img src="{global.datadir}/data/interface/menubar/menubar_fraktionen_side2.gif" alt="" /></td>
-</tr>
-
-<tr>
-	<td><img src="{global.datadir}/data/interface/menubar/menubar_allianzen_side1.gif" alt="" /></td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('allianzen',allianzen_h)" onmouseout="javascript:bildwechsel('allianzen',allianzen_l)" href="./main.php?module=ally&amp;sess={global.sess}" target="main">
-			<img id="allianzen" border="0" src="{global.datadir}/data/interface/menubar/menubar_allianzen_l.gif" alt="" />
-		</a>
-	</td>
-	<td colspan="3"><img src="{global.datadir}/data/interface/menubar/menubar_allianzen_side2.gif" alt="" /></td>
-</tr>
-
-<tr>
-	<td><img src="{global.datadir}/data/interface/menubar/menubar_forum_side1.gif" alt="" /></td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('forum',forum_h)" onmouseout="javascript:bildwechsel('forum',forum_l)" href="{SCRIPT_FORUM}" target="main">
-			<img id="forum" border="0" src="{global.datadir}/data/interface/menubar/menubar_forum_l.gif" alt="" />
-		</a>
-	</td>
-	<td colspan="3"><img src="{global.datadir}/data/interface/menubar/menubar_forum_side2.gif" alt="" /></td>
-</tr>
-
-<tr>
-	<td><img src="{global.datadir}/data/interface/menubar/menubar_techdatabase_side1.gif" alt="" /></td>
-	<td colspan="2">
-		<a onmouseover="javascript:bildwechsel('techdatabase',techdatabase_h)" onmouseout="javascript:bildwechsel('techdatabase',techdatabase_l)" href="./main.php?module=techdatabase&amp;sess={global.sess}" target="main">
-			<img id="techdatabase" border="0" src="{global.datadir}/data/interface/menubar/menubar_techdatabase_l.gif" alt="" />
-		</a>
-	</td>
-	<td colspan="2"><img src="{global.datadir}/data/interface/menubar/menubar_techdatabase_side2.gif" alt="" /></td>
-</tr>
-
-<tr>
-	<td><img src="{global.datadir}/data/interface/menubar/menubar_sternenkarte_side1.gif" alt="" /></td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('sternenkarte',sternenkarte_h)" onmouseout="javascript:bildwechsel('sternenkarte',sternenkarte_l)" href="./main.php?module=map&amp;sess={global.sess}&amp;sys=1" target="main">
-			<img id="sternenkarte" border="0" src="{global.datadir}/data/interface/menubar/menubar_sternenkarte_l.gif" alt="" />
-		</a>
-	</td>
-	<td colspan="3"><img src="{global.datadir}/data/interface/menubar/menubar_sternenkarte_side2.gif" alt="" /></td>
-</tr>
-
-<tr>
-	<td><img src="{global.datadir}/data/interface/menubar/menubar_statistik_side1.gif" alt="" /></td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('statistik',statistik_h)" onmouseout="javascript:bildwechsel('statistik',statistik_l)" href="./main.php?module=stats&amp;sess={global.sess}" target="main">
-			<img id="statistik" border="0" src="{global.datadir}/data/interface/menubar/menubar_statistik_l.gif" alt="" />
-		</a>
-	</td>
-	<td colspan="3"><img src="{global.datadir}/data/interface/menubar/menubar_statistik_side2.gif" alt="" /></td>
-</tr>
-
-<tr>
-	<td><img src="{global.datadir}/data/interface/menubar/menubar_logout_side1.gif" alt="" /></td>
-	<td>
-		<a onmouseover="javascript:bildwechsel('logout',logout_h)" onmouseout="javascript:bildwechsel('logout',logout_l)" href="./main.php?module=logout&amp;sess={global.sess}" target="main">
-			<img id="logout" border="0" src="{global.datadir}/data/interface/menubar/menubar_logout_l.gif" alt="" />
-		</a>
-	</td>
-	<td colspan="3"><img src="{global.datadir}/data/interface/menubar/menubar_logout_side2.gif" alt="" /></td>
-</tr>
-
-<tr>
-	<td colspan="5">
-		<img src="{global.datadir}/data/interface/menubar/menubar_spacer.gif" alt="" />
-	</td>
-</tr>
-
-{if user.npc}
-	<tr>
-		<td><img src="{global.datadir}/data/interface/menubar/menubar_npc_side1.gif" alt="" /></td>
-		<td>
-			<a onmouseover="javascript:bildwechsel('npc',npc_h)" onmouseout="javascript:bildwechsel('npc',npc_l)" href="./main.php?sess={global.sess}&amp;module=npcorder" target="main">
-				<img id="npc" border="0" src="{global.datadir}/data/interface/menubar/menubar_npc_l.gif" alt="" />
-			</a>
-		</td>
-		<td colspan="3"><img src="{global.datadir}/data/interface/menubar/menubar_npc_side2.gif" alt="" /></td>
-	</tr>
-{else}
-	<tr>
-		<td colspan="5">
-			<img src="{global.datadir}/data/interface/menubar/menubar_nonpc.gif" alt="" />
-		</td>
-	</tr>
-{/endif}
-
-{if user.admin}
-	<tr>
-		<td><img src="{global.datadir}/data/interface/menubar/menubar_admin_side1.gif" alt="" /></td>
-		<td>
-			<a onmouseover="javascript:bildwechsel('admin',admin_h)" onmouseout="javascript:bildwechsel('admin',admin_l)" href="./main.php?module=admin&amp;sess={global.sess}" target="main">
-				<img id="admin" border="0" src="{global.datadir}/data/interface/menubar/menubar_admin_l.gif" alt="" />
-			</a>
-		</td>
-		<td colspan="3"><img src="{global.datadir}/data/interface/menubar/menubar_admin_side2.gif" alt="" /></td>
-	</tr>
-{else}
-	<tr>
-	<td colspan="5">
-		<img src="{global.datadir}/data/interface/menubar/menubar_noadmin.gif" alt="" />
-	</td>
-</tr>
-{/endif}
-
-<tr>
-	<td colspan="5">
-		<img src="{global.datadir}/data/interface/menubar/menubar_bottom.gif" alt="" />
-	</td>
+	<td class="noBorderXnBG" colspan="1" style="background-image:url({global.datadir}data/interface/border/border_bottom.gif); background-repeat:repeat-x"></td>
+	<td class="noBorderXnBG" style="width:19px"><img src="{global.datadir}data/interface/border/border_bottomright.gif" alt="" /></td>
 </tr>
 </table>
