@@ -42,10 +42,22 @@ public class RegularTick extends AbstractTickExecuter {
 	protected void executeTicks() {
 		try {
 			TimeoutChecker timeout = new TimeoutChecker(20*60*1000) {
+				private Thread main = Thread.currentThread();
+				
 				@Override
 				public void timeout() {
+					StackTraceElement[] stack = main.getStackTrace();
+					// Falls der Stack 0 Elemente lang ist, ist der Thread nun doch fertig geworden
+					if( stack.length == 0 ) {
+						return;
+					}
+					StringBuilder stacktrace = new StringBuilder();
+					for( int i=0; i < stack.length; i++ ) {
+						stacktrace.append(stack[i]+"\n");
+					}
 					System.out.println("Timeout");
-					Common.mailThrowable(new Exception("Regular Tick Timeout"), "[DS2J] RegularTick Timeout", null);
+					System.out.println(stacktrace);
+					Common.mailThrowable(new Exception("Regular Tick Timeout"), "RegularTick Timeout", "Status: "+getStatus()+"\nStackTrace: "+stacktrace);
 				}
 			};
 			

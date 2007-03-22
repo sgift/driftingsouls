@@ -40,6 +40,7 @@ import net.driftingsouls.ds2.server.framework.SimpleResponse;
 public abstract class AbstractTickExecuter extends TickController {
 	private String loxpath = Configuration.getSetting("LOXPATH");
 	private String name = "";
+	private String status = null;
 	
 	/**
 	 * Bootet DS
@@ -135,10 +136,21 @@ public abstract class AbstractTickExecuter extends TickController {
 			int handle = addLogTarget(Configuration.getSetting("LOXPATH")+"ticktime.log", false);
 			log("Bitte warten - "+status);
 			removeLogTarget(handle);
+			
+			this.status = status;
 		}
 		catch( IOException e ) {
 			System.err.println("Tickstatus konnte nicht publiziert werden: "+e);
 		}
+	}
+	
+	/**
+	 * Gibt den aktuell veroeffentlichten Status des Ticks zurueck. Wenn noch kein Status gesetzt wurde,
+	 * dann wird <code>null</code> zurueckgegeben
+	 * @return Der aktuelle Status oder <code>null</code>
+	 */
+	protected String getStatus() {
+		return this.status;
 	}
 	
 	/**
