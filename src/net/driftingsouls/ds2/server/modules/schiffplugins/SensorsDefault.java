@@ -299,6 +299,16 @@ public class SensorsDefault implements SchiffPlugin {
 				Schiffe
 			*/
 			
+			int currentDockID = 0;
+			if( data.getString("docked").length() > 0 ) {
+				if( data.getString("docked").charAt(0) == '0' ) {
+					currentDockID = Integer.parseInt(data.getString("docked").substring(2));
+				}
+				else {
+					currentDockID = Integer.parseInt(data.getString("docked"));
+				}
+			}
+			
 			boolean superdock = false;
 			int user_wrapfactor = Integer.parseInt(user.getUserValue("TBLORDER/schiff/wrapfactor"));
 			final int dockCount = db.first("SELECT count(*) count FROM ships WHERE id>0 AND docked='",data.getInt("id"),"'").getInt("count");
@@ -637,7 +647,7 @@ public class SensorsDefault implements SchiffPlugin {
 					}
 
 					//Jaegerfunktionen: laden, Flotte landen
-					if( Ships.hasShipTypeFlag(datatype, Ships.SF_JAEGER) ) {
+					if( Ships.hasShipTypeFlag(datatype, Ships.SF_JAEGER) && (currentDockID != datas.getInt("id")) ) {
 						if( ( ashiptype.getInt("jdocks") > 0 ) && ( datas.getInt("owner") == user.getID() ) ) {
 							if( fullcount + 1 <= ashiptype.getInt("jdocks") ) {
 								t.set_var("sships.action.land",1);
