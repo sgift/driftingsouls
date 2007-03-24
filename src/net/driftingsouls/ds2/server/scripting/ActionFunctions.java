@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.scripting;
 
+import java.util.List;
+
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.battles.Battle;
@@ -29,8 +31,10 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.RouteFactory;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.Waypoint;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
 /**
@@ -84,90 +88,18 @@ public class ActionFunctions {
 				scriptparser.log("Ausfuehrung bis zum naechsten Tick angehalten\n\n");
 				return STOP;
 			}
+			
+			RouteFactory router = new RouteFactory();
+			List<Waypoint> route = router.findRoute(Location.fromResult(curpos), target, maxcount);
 					
-			int direction = -1;
-			int count = 0;
-			boolean wait = false;
-			while( true ) {
-				int newdirection = 5;
-				if( deltax > 0 ) {
-					newdirection += 1;
-				}
-				else if( deltax < 0 ) {
-					newdirection -= 1;
-				}
-							
-				if( deltay > 0 ) {
-					newdirection += 3;
-				}
-				else if( deltay < 0 ) {
-					newdirection -= 3;
-				}
-							
-				if( ((direction != -1) && (direction != newdirection)) || (maxcount == 0) ) {
-					boolean result = Ships.move(ship.getInt("id"), direction, count, true, false); 
-					scriptparser.log(Common._stripHTML(Ships.MESSAGE.getMessage()));
-								
-					if( result ) {
-						wait = true;
-						break;
-					}
-		
-					if( newdirection == 5 ) {
-						break;
-					}
-					count = 1;
-					if( maxcount > 0 ) {
-						maxcount--;	
-					} 
-					else {
-						wait = true;
-						break;	
-					}
-					direction = newdirection;
-				} 
-				else {
-					count++;
-					if( maxcount > 0 ) {
-						maxcount--;	
-					}
-					else {
-						count--;
-						if( count == 0 ) {
-							wait = true;
-							break;
-						}	
-					}
-					direction = newdirection;
-				}
-				int xOffset = 0;
-				int yOffset = 0;
-				
-				if( direction == 1 ) { xOffset--; yOffset--;}
-				else if( direction == 2 ) { yOffset--;}
-				else if( direction == 3 ) { xOffset++; yOffset--;}
-				else if( direction == 4 ) { xOffset--;}
-				else if( direction == 6 ) { xOffset++;}
-				else if( direction == 7 ) { xOffset--; yOffset++;}
-				else if( direction == 8 ) { yOffset++;}
-				else if( direction == 9 ) { xOffset++; yOffset++;}
-				
-				curpos.put("x", curpos.getInt("x")+xOffset);
-				curpos.put("y", curpos.getInt("y")+yOffset);
-					
-				deltax = target.getX()-curpos.getInt("x");
-				deltay = target.getY()-curpos.getInt("y");
-			}
+			boolean result = Ships.move(ship.getInt("id"), route, true, false); 
+			scriptparser.log(Common._stripHTML(Ships.MESSAGE.getMessage()));
 			ship = db.first("SELECT * FROM ships WHERE id=",ship.getInt("id"));
 			scriptparser.setShip(ship);
 			
-			if( wait ) {
+			if( result ) {
 				scriptparser.log("Ausfuehrung bis zum naechsten Tick angehalten\n\n");
 				return STOP;
-			}
-			if( Math.abs(deltax)+Math.abs(deltay) == 0 ) {
-				scriptparser.log("\n");
-				return CONTINUE;
 			}
 			
 			return CONTINUE;

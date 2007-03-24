@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules.schiffplugins;
 
+import java.util.List;
+
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -32,7 +34,9 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
 import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.scripting.ScriptParser;
+import net.driftingsouls.ds2.server.ships.RouteFactory;
 import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.Waypoint;
 
 /**
  * Schiffsmodul fuer die Anzeige der Navigation
@@ -55,10 +59,10 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 		}
 		
 		controller.parameterString("setdest");
-		String setdest = controller.getString("setdest");	
+		String setdest = controller.getString("setdest");
 
 		//Wird eine neue Beschreibung gesetzt?
-		if( !setdest.equals("") ) {
+		if( setdest.length() > 0 ) {
 			controller.parameterNumber("system");
 			controller.parameterNumber("x");
 			controller.parameterNumber("y");
@@ -84,15 +88,26 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 		
 		controller.parameterNumber("act");
 		controller.parameterNumber("count");
+		controller.parameterNumber("targetx");
+		controller.parameterNumber("targety");
 		int act = controller.getInteger("act");
 		int count = controller.getInteger("count");
+		int targetx = controller.getInteger("targetx");
+		int targety = controller.getInteger("targety");
 		
-		if( (act != 5) && (act >= 1) && (act <= 9) && !ship.getString("onmove").equals("") ) {	
+		if( (act > 9) || (act < 1) || count <= 0 ) {
+			return "Ung&uuml;ltige Flugparameter<br />\n";
+		}
+		
+		if( (ship.getString("onmove").length() > 0) && 
+			((targetx != 0) && (targety != 0)) || ((act != 5) && (act >= 1) && (act <= 9)) ) {	
 			ScriptParser scriptparser = ContextMap.getContext().get(ContextCommon.class).getScriptParser( ScriptParser.NameSpace.QUEST );
 			scriptparser.setShip(ship);
 			scriptparser.setLogFunction(ScriptParser.LOGGER_NULL);
 			scriptparser.setRegister("DIRECTION",Integer.toString(act));
 			scriptparser.setRegister("MOVEMENTCOUNT",Integer.toString(count));
+			scriptparser.setRegister("TARGETX",Integer.toString(targetx));
+			scriptparser.setRegister("TARGETY",Integer.toString(targety));
 			scriptparser.setRegister("SECTOR", Location.fromResult(ship).toString());
 		
 			Quests.currentEventURL.set("&action=onmove");
@@ -101,14 +116,31 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 			try {
 				act = Integer.parseInt(scriptparser.getRegister("DIRECTION"));
 				count = Integer.parseInt(scriptparser.getRegister("MOVEMENTCOUNT"));
+				targetx = Integer.parseInt(scriptparser.getRegister("TARGETX"));
+				targety = Integer.parseInt(scriptparser.getRegister("TARGETY"));
 			}
 			catch( NumberFormatException e ) {
 				LOG.warn("Illegales Zahlenformat nach Ausfuehrung von 'onmove'", e);
 			}
-		}
+			
 
+			if( (act > 9) || (act < 1) || count <= 0 ) {
+				return "Ung&uuml;ltige Flugparameter<br />\n";
+			}
+		}
+		
+		RouteFactory router = new RouteFactory();
+		List<Waypoint> route = null;
+		if( targetx == 0 || targety == 0 ) {
+			route = router.getMovementRoute(act, count);
+		}
+		else {
+			Location from = Location.fromResult(ship);
+			route = router.findRoute(from, new Location(from.getSystem(), targetx, targety));
+		}
+		
 		//Das Schiff soll sich offenbar bewegen
-		Ships.move(ship.getInt("id"), act, count, false, false);
+		Ships.move(ship.getInt("id"), route, true, false);
 		output += Ships.MESSAGE.getMessage();
 		
 		return output;

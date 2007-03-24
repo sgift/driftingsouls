@@ -924,28 +924,20 @@ public class Ships implements Loggable {
 	}
 	
 	/**
-	 * <p>Fliegt ein Schiff n Felder in eine Richtung. Falls das Schiff einer Flotte angehoert, fliegt
+	 * <p>Fliegt ein Schiff eine Flugroute entlang. Falls das Schiff einer Flotte angehoert, fliegt
 	 * diese ebenfalls n Felder in diese Richtung.</p>
-	 * Die Richtungen:<br>
-	 * 1 2 3<br>
-	 * 4&nbsp;&nbsp;&nbsp;6<br>
-	 * 7 8 9<br>
 	 * <p>Der Flug wird abgebrochen sobald eines der Schiffe nicht mehr weiterfliegen kann</p>
+	 * Die Flugrouteninformationen werden waehrend des Fluges modifiziert
 	 * 
 	 * @param shipID Die ID des Schiffes, welches fliegen soll
-	 * @param direction Die Richtung
-	 * @param distance Die Anzahl der zu fliegenden Felder
+	 * @param route Die Flugroute
 	 * @param forceLowHeat Soll bei Ueberhitzung sofort abgebrochen werden?
 	 * @param disableQuests Sollen Questhandler ignoriert werden?
 	 * @return <code>true</code>, falls ein Fehler aufgetreten ist
 	 */
-	public static boolean move(int shipID, int direction, int distance, boolean forceLowHeat, boolean disableQuests) {
+	public static boolean move(int shipID, List<Waypoint> route, boolean forceLowHeat, boolean disableQuests) {
 		StringBuilder out = MESSAGE.get();
 		
-		if( (direction < 1) || (direction > 9) || (direction == 5) ) {
-			return true;
-		}
-	
 		Database db = ContextMap.getContext().getDatabase();
 	
 		SQLResultRow ship = db.first("SELECT * FROM ships WHERE id=",shipID);
@@ -998,236 +990,252 @@ public class Ships implements Loggable {
 		
 		boolean moved = false;
 		
-		// Zielkoordinaten/Bewegungsrichtung berechnen
-		String xbetween = "x='"+ship.getInt("x")+"'";
-		String ybetween = "y='"+ship.getInt("y")+"'";
-		int xoffset = 0;
-		int yoffset = 0;
-		if( direction <= 3 ) {
-			ybetween = "y BETWEEN '"+(ship.getInt("y")-distance)+"' AND '"+ship.getInt("y")+"'";
-			yoffset--;
-		}
-		else if( direction >= 7 ) {
-			ybetween = "y BETWEEN '"+ship.getInt("y")+"' AND '"+(ship.getInt("y")+distance)+"'";
-			yoffset++;
-		}
-		
-		if( (direction-1) % 3 == 0 ) {
-			xbetween = "x BETWEEN '"+(ship.getInt("x")-distance)+"' AND '"+ship.getInt("x")+"'";
-			xoffset--;
-		}
-		else if( direction % 3 == 0 ) {
-			xbetween = "x BETWEEN '"+ship.getInt("x")+"' AND '"+(ship.getInt("x")+distance)+"'";
-			xoffset++;
-		}
-		
-		// Alle potentiell relevanten Sektoren (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
-		Map<Location,SQLResultRow> sectorlist = new HashMap<Location,SQLResultRow>();
-		SQLQuery sectorRow = db.query("SELECT * FROM sectors " ,
-				"WHERE system IN (",ship.getInt("system"),",-1) AND (x='-1' OR ",xbetween,") AND (y='-1' OR ",ybetween,") ORDER BY system DESC");
-							 	
-		while( sectorRow.next() ) {
-			SQLResultRow row = sectorRow.getRow();
-			sectorlist.put(Location.fromResult(row), row);
-		}
-		sectorRow.free();
-		
-		// Alle potentiell relevanten Sektoren mit Schiffen auf rotem Alarm (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
-		Map<Location,Boolean> redalertlist = new HashMap<Location,Boolean>();
-		sectorRow = db.query("SELECT x,y FROM ships " ,
-				"WHERE owner!='",ship.getInt("owner"),"' AND alarm='1' AND system=",ship.getInt("system")," AND ",xbetween," AND ",ybetween);
-							 	
-		while( sectorRow.next() ) {
-			redalertlist.put(new Location(ship.getInt("system"), sectorRow.getInt("x"), sectorRow.getInt("y")), Boolean.TRUE);
-		}
-		sectorRow.free();
-		
-		// Alle potentiell relevanten Sektoren mit EMP-Nebeln (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
-		Map<Location,Boolean> nebulaemplist = new HashMap<Location,Boolean>();
-		sectorRow = db.query("SELECT system,x,y,type FROM nebel ",
-				"WHERE type>=3 AND type<=5 AND system=",ship.getInt("system")," AND ",xbetween," AND ",ybetween);
-							 	
-		while( sectorRow.next() ) {
-			cacheNebula(sectorRow.getRow());
-			nebulaemplist.put(new Location(ship.getInt("system"), sectorRow.getInt("x"), sectorRow.getInt("y")), Boolean.TRUE);
-		}
-		sectorRow.free();
-		
-		if( (distance > 1) && nebulaemplist.containsKey(Location.fromResult(ship)) ) {
-			out.append("<span style=\"color:#ff0000\">Der Autopilot funktioniert in EMP-Nebeln nicht</span><br />\n");
-			return true;
-		}
-		
-		long starttime = System.currentTimeMillis();
-		
-		int startdistance = distance;
-		
-		// Und nun fliegen wir mal ne Runde....
-		while( distance > 0 ) {
-			// Schauen wir mal ob wir vor rotem Alarm warnen muessen
-			if( (startdistance > 1) && redalertlist.containsKey(new Location(ship.getInt("system"),ship.getInt("x")+xoffset, ship.getInt("y")+yoffset)) ) {
-				SQLResultRow newship = new SQLResultRow();
-				newship.putAll(ship);
-				newship.put("x", newship.getInt("x") + xoffset);
-				newship.put("y", newship.getInt("y") + yoffset);
-				Integer[] attackers = redAlertCheck(newship, false);
-				if( attackers.length != 0 ) {
-					out.append("<span style=\"color:#ff0000\">Feindliche Schiffe in Alarmbereitschaft im n&auml;chsten Sektor geortet</span><br />\n");
-					out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
-					distance = 0;
-					break;
-				}
+		while( !error && route.size() > 0 ) {
+			Waypoint waypoint = route.remove(0);
+			
+			if( waypoint.type != Waypoint.Type.MOVEMENT ) {
+				throw new RuntimeException("Es wird nur "+Waypoint.Type.MOVEMENT+" als Wegpunkt unterstuetzt");
 			}
 			
-			if( (startdistance > 1) && nebulaemplist.containsKey(new Location(ship.getInt("system"),ship.getInt("x")+xoffset, ship.getInt("y")+yoffset)) ) {
-				out.append("<span style=\"color:#ff0000\">EMP-Nebel im n&auml;chsten Sektor geortet</span><br />\n");
-				out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
-				distance = 0;
-				break;
+			if( waypoint.direction == 5 ) {
+				continue;
 			}
 			
-			int olddirection = direction;
-			
-			// ACHTUNG: Ob das ganze hier noch sinnvoll funktioniert, wenn distance > 1 ist, ist mehr als fraglich...
-			if( nebulaemplist.containsKey(new Location(ship.getInt("system"),ship.getInt("x")+xoffset, ship.getInt("y")+yoffset)) && 
-				(RandomUtils.nextInt(100+1) > 75) ) {
-				int nebel = getNebula(ship);
-				if( nebel == 5 ) {
-					direction = RandomUtils.nextInt(10)+1;
-					if( direction > 4 ) {
-						direction++;
-						
-					}
-					// Nun muessen wir noch die Caches fuellen
-					if( direction != olddirection ) {
-						int tmpxoff = 0;
-						int tmpyoff = 0;
-						
-						if( direction <= 3 ) {
-							tmpyoff--;
-						}
-						else if( direction >= 7 ) {
-							tmpyoff++;
-						}
-						
-						if( (direction-1) % 3 == 0 ) {
-							tmpxoff--;
-						}
-						else if( direction % 3 == 0 ) {
-							tmpxoff++;
-						}
-						
-						SQLQuery sector = db.query("SELECT * FROM sectors " ,
-			 					"WHERE system IN (",ship.getInt("system"),",-1) AND (x='-1' OR ",(ship.getInt("x")+tmpxoff),") AND (y='-1' OR ",(ship.getInt("y")+tmpyoff),")  ORDER BY system DESC");
-						while( sector.next() ) {
-							SQLResultRow row = sector.getRow();
-							sectorlist.put(Location.fromResult(row), row);
-						}
-						sector.free();
-						
-						SQLResultRow rasect = db.first("SELECT x,y FROM ships " ,
-							 	"WHERE owner!='",ship.getInt("owner"),"' AND alarm='1' AND system=",ship.getInt("system")," AND x='",(ship.getInt("x")+tmpxoff),"' AND y='",(ship.getInt("y")+tmpyoff),"'");
-						 	
-						if( !rasect.isEmpty() ) {
-							redalertlist.put(new Location(ship.getInt("system"), rasect.getInt("x"), rasect.getInt("y")), Boolean.TRUE);
-						}
-					}
-				}
+			// Zielkoordinaten/Bewegungsrichtung berechnen
+			String xbetween = "x='"+ship.getInt("x")+"'";
+			String ybetween = "y='"+ship.getInt("y")+"'";
+			int xoffset = 0;
+			int yoffset = 0;
+			if( waypoint.direction <= 3 ) {
+				ybetween = "y BETWEEN '"+(ship.getInt("y")-waypoint.distance)+"' AND '"+ship.getInt("y")+"'";
+				yoffset--;
+			}
+			else if( waypoint.direction >= 7 ) {
+				ybetween = "y BETWEEN '"+ship.getInt("y")+"' AND '"+(ship.getInt("y")+waypoint.distance)+"'";
+				yoffset++;
 			}
 			
-			distance--;
+			if( (waypoint.direction-1) % 3 == 0 ) {
+				xbetween = "x BETWEEN '"+(ship.getInt("x")-waypoint.distance)+"' AND '"+ship.getInt("x")+"'";
+				xoffset--;
+			}
+			else if( waypoint.direction % 3 == 0 ) {
+				xbetween = "x BETWEEN '"+ship.getInt("x")+"' AND '"+(ship.getInt("x")+waypoint.distance)+"'";
+				xoffset++;
+			}
 			
-			SQLResultRow oldship = new SQLResultRow();
-			oldship.putAll(ship);
+			// Alle potentiell relevanten Sektoren (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
+			Map<Location,SQLResultRow> sectorlist = new HashMap<Location,SQLResultRow>();
+			SQLQuery sectorRow = db.query("SELECT * FROM sectors " ,
+					"WHERE system IN (",ship.getInt("system"),",-1) AND (x='-1' OR ",xbetween,") AND (y='-1' OR ",ybetween,") ORDER BY system DESC");
+								 	
+			while( sectorRow.next() ) {
+				SQLResultRow row = sectorRow.getRow();
+				sectorlist.put(Location.fromResult(row), row);
+			}
+			sectorRow.free();
 			
-			MovementResult result = moveSingle(ship, shiptype, offizier, direction, distance, adocked, forceLowHeat);
-			error = result.error;
-			distance = result.distance;
+			// Alle potentiell relevanten Sektoren mit Schiffen auf rotem Alarm (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
+			Map<Location,Boolean> redalertlist = new HashMap<Location,Boolean>();
+			sectorRow = db.query("SELECT x,y FROM ships " ,
+					"WHERE owner!='",ship.getInt("owner"),"' AND alarm='1' AND system=",ship.getInt("system")," AND ",xbetween," AND ",ybetween);
+								 	
+			while( sectorRow.next() ) {
+				redalertlist.put(new Location(ship.getInt("system"), sectorRow.getInt("x"), sectorRow.getInt("y")), Boolean.TRUE);
+			}
+			sectorRow.free();
 			
-			if( result.moved ) {
-				// Jetzt, da sich unser Schiff korrekt bewegt hat, fliegen wir auch die Flotte ein stueck weiter	
-				if( ship.getInt("fleet") > 0 ) {
-					boolean fleetResult = moveFleet(oldship, direction, forceLowHeat);
-					if( fleetResult != false  ) {
-						error = fleetResult;
-						distance = 0;
+			// Alle potentiell relevanten Sektoren mit EMP-Nebeln (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
+			Map<Location,Boolean> nebulaemplist = new HashMap<Location,Boolean>();
+			sectorRow = db.query("SELECT system,x,y,type FROM nebel ",
+					"WHERE type>=3 AND type<=5 AND system=",ship.getInt("system")," AND ",xbetween," AND ",ybetween);
+								 	
+			while( sectorRow.next() ) {
+				cacheNebula(sectorRow.getRow());
+				nebulaemplist.put(new Location(ship.getInt("system"), sectorRow.getInt("x"), sectorRow.getInt("y")), Boolean.TRUE);
+			}
+			sectorRow.free();
+			
+			if( (waypoint.distance > 1) && nebulaemplist.containsKey(Location.fromResult(ship)) ) {
+				out.append("<span style=\"color:#ff0000\">Der Autopilot funktioniert in EMP-Nebeln nicht</span><br />\n");
+				return true;
+			}
+			
+			long starttime = System.currentTimeMillis();
+			
+			int startdistance = waypoint.distance;
+			
+			// Und nun fliegen wir mal ne Runde....
+			while( waypoint.distance > 0 ) {
+				// Schauen wir mal ob wir vor rotem Alarm warnen muessen
+				if( (startdistance > 1) && redalertlist.containsKey(new Location(ship.getInt("system"),ship.getInt("x")+xoffset, ship.getInt("y")+yoffset)) ) {
+					SQLResultRow newship = new SQLResultRow();
+					newship.putAll(ship);
+					newship.put("x", newship.getInt("x") + xoffset);
+					newship.put("y", newship.getInt("y") + yoffset);
+					Integer[] attackers = redAlertCheck(newship, false);
+					if( attackers.length != 0 ) {
+						out.append("<span style=\"color:#ff0000\">Feindliche Schiffe in Alarmbereitschaft im n&auml;chsten Sektor geortet</span><br />\n");
+						out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
+						error = true;
+						waypoint.distance = 0;
+						break;
 					}
 				}
 				
-				moved = true;
-				if( !disableQuests && (sectorlist.size() != 0) ) {
-					// Schauen wir mal, ob es ein onenter-ereigniss gab
-					Location loc = Location.fromResult(ship);
+				if( (startdistance > 1) && nebulaemplist.containsKey(new Location(ship.getInt("system"),ship.getInt("x")+xoffset, ship.getInt("y")+yoffset)) ) {
+					out.append("<span style=\"color:#ff0000\">EMP-Nebel im n&auml;chsten Sektor geortet</span><br />\n");
+					out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
+					error = true;
+					waypoint.distance = 0;
+					break;
+				}
+				
+				int olddirection = waypoint.direction;
+				
+				// ACHTUNG: Ob das ganze hier noch sinnvoll funktioniert, wenn distance > 1 ist, ist mehr als fraglich...
+				if( nebulaemplist.containsKey(new Location(ship.getInt("system"),ship.getInt("x")+xoffset, ship.getInt("y")+yoffset)) && 
+					(RandomUtils.nextInt(100+1) > 75) ) {
+					int nebel = getNebula(ship);
+					if( nebel == 5 ) {
+						waypoint.direction = RandomUtils.nextInt(10)+1;
+						if( waypoint.direction > 4 ) {
+							waypoint.direction++;
+							
+						}
+						// Nun muessen wir noch die Caches fuellen
+						if( waypoint.direction != olddirection ) {
+							int tmpxoff = 0;
+							int tmpyoff = 0;
+							
+							if( waypoint.direction <= 3 ) {
+								tmpyoff--;
+							}
+							else if( waypoint.direction >= 7 ) {
+								tmpyoff++;
+							}
+							
+							if( (waypoint.direction-1) % 3 == 0 ) {
+								tmpxoff--;
+							}
+							else if( waypoint.direction % 3 == 0 ) {
+								tmpxoff++;
+							}
+							
+							SQLQuery sector = db.query("SELECT * FROM sectors " ,
+				 					"WHERE system IN (",ship.getInt("system"),",-1) AND (x='-1' OR ",(ship.getInt("x")+tmpxoff),") AND (y='-1' OR ",(ship.getInt("y")+tmpyoff),")  ORDER BY system DESC");
+							while( sector.next() ) {
+								SQLResultRow row = sector.getRow();
+								sectorlist.put(Location.fromResult(row), row);
+							}
+							sector.free();
+							
+							SQLResultRow rasect = db.first("SELECT x,y FROM ships " ,
+								 	"WHERE owner!='",ship.getInt("owner"),"' AND alarm='1' AND system=",ship.getInt("system")," AND x='",(ship.getInt("x")+tmpxoff),"' AND y='",(ship.getInt("y")+tmpyoff),"'");
+							 	
+							if( !rasect.isEmpty() ) {
+								redalertlist.put(new Location(ship.getInt("system"), rasect.getInt("x"), rasect.getInt("y")), Boolean.TRUE);
+							}
+						}
+					}
+				}
+				
+				waypoint.distance--;
+				
+				SQLResultRow oldship = new SQLResultRow();
+				oldship.putAll(ship);
+				
+				MovementResult result = moveSingle(ship, shiptype, offizier, waypoint.direction, waypoint.distance, adocked, forceLowHeat);
+				error = result.error;
+				waypoint.distance = result.distance;
+				
+				if( result.moved ) {
+					// Jetzt, da sich unser Schiff korrekt bewegt hat, fliegen wir auch die Flotte ein stueck weiter	
+					if( ship.getInt("fleet") > 0 ) {
+						boolean fleetResult = moveFleet(oldship, waypoint.direction, forceLowHeat);
+						if( fleetResult != false  ) {
+							error = true;
+							waypoint.distance = 0;
+						}
+					}
 					
-					SQLResultRow sector = sectorlist.get(new Location(loc.getSystem(), -1, -1));
-					if( sectorlist.containsKey(loc) ) {
-						sector = sectorlist.get(loc);
-					}
-					else if( sectorlist.containsKey(loc.setX(-1)) ) { 
-						sector = sectorlist.get(loc.setX(-1));
-					}
-					else if( sectorlist.containsKey(loc.setY(-1)) ) { 
-						sector = sectorlist.get(loc.setY(-1));
+					moved = true;
+					if( !disableQuests && (sectorlist.size() != 0) ) {
+						// Schauen wir mal, ob es ein onenter-ereigniss gab
+						Location loc = Location.fromResult(ship);
+						
+						SQLResultRow sector = sectorlist.get(new Location(loc.getSystem(), -1, -1));
+						if( sectorlist.containsKey(loc) ) {
+							sector = sectorlist.get(loc);
+						}
+						else if( sectorlist.containsKey(loc.setX(-1)) ) { 
+							sector = sectorlist.get(loc.setX(-1));
+						}
+						else if( sectorlist.containsKey(loc.setY(-1)) ) { 
+							sector = sectorlist.get(loc.setY(-1));
+						}
+						
+						if( !sector.isEmpty() && sector.getString("onenter").length() > 0 ) {
+							db.update("UPDATE ships SET x=",ship.getInt("x"),",y=",ship.getInt("y"),",e=",ship.getInt("e"),",s=",ship.getInt("s"),",engine=",ship.getInt("engine"),",docked='' WHERE id=",ship.getInt("id"));
+							if( docked != 0 ) {
+								db.update("UPDATE ships SET x=",ship.getInt("x"),",y=",ship.getInt("y"),",system=",ship.getInt("system")," WHERE id>0 AND docked IN ('l ",ship.getInt("id"),"','",ship.getInt("id"),"')");
+							}
+							recalculateShipStatus(ship.getInt("id"));
+							saveFleetShips();
+			
+							if( offizier != null ) {
+								offizier.save();
+							}
+							
+							ScriptParser scriptparser = ContextMap.getContext().get(ContextCommon.class).getScriptParser(ScriptParser.NameSpace.QUEST);
+							scriptparser.setShip(ship);
+							if( !user.hasFlag(User.FLAG_SCRIPT_DEBUGGING) ) {
+								scriptparser.setLogFunction(ScriptParser.LOGGER_NULL);
+							}
+								
+							scriptparser.setRegister("SECTOR", loc.toString() );
+										
+							Quests.currentEventURL.set("&action=onenter");
+									
+							db.update("UPDATE ships SET x=",ship.getInt("x"),",y=",ship.getInt("y"),",e=",ship.getInt("e"),",s=",ship.getInt("s"),",engine=",ship.getInt("engine"),",docked='' WHERE id=",ship.getInt("id"));
+							if( docked != 0 ) {
+								db.update("UPDATE ships SET x=",ship.getInt("x"),",y=",ship.getInt("y"),",system=",ship.getInt("system")," WHERE id>0 AND docked IN ('l ",ship.getInt("id"),"','",ship.getInt("id"),"')");
+							}
+							
+							if( Quests.executeEvent(scriptparser, sector.getString("onenter"), ship.getInt("owner"), "" ) ) {
+								if( scriptparser.getContext().getOutput().length()!= 0 ) {							
+									waypoint.distance = 0;
+								}
+							}
+						}
 					}
 					
-					if( !sector.isEmpty() && sector.getString("onenter").length() > 0 ) {
+					if( redalertlist.containsKey(Location.fromResult(ship)) ) {
 						db.update("UPDATE ships SET x=",ship.getInt("x"),",y=",ship.getInt("y"),",e=",ship.getInt("e"),",s=",ship.getInt("s"),",engine=",ship.getInt("engine"),",docked='' WHERE id=",ship.getInt("id"));
 						if( docked != 0 ) {
 							db.update("UPDATE ships SET x=",ship.getInt("x"),",y=",ship.getInt("y"),",system=",ship.getInt("system")," WHERE id>0 AND docked IN ('l ",ship.getInt("id"),"','",ship.getInt("id"),"')");
 						}
 						recalculateShipStatus(ship.getInt("id"));
 						saveFleetShips();
-		
+			
 						if( offizier != null ) {
 							offizier.save();
 						}
 						
-						ScriptParser scriptparser = ContextMap.getContext().get(ContextCommon.class).getScriptParser(ScriptParser.NameSpace.QUEST);
-						scriptparser.setShip(ship);
-						if( !user.hasFlag(User.FLAG_SCRIPT_DEBUGGING) ) {
-							scriptparser.setLogFunction(ScriptParser.LOGGER_NULL);
-						}
-							
-						scriptparser.setRegister("SECTOR", loc.toString() );
-									
-						Quests.currentEventURL.set("&action=onenter");
-								
-						db.update("UPDATE ships SET x=",ship.getInt("x"),",y=",ship.getInt("y"),",e=",ship.getInt("e"),",s=",ship.getInt("s"),",engine=",ship.getInt("engine"),",docked='' WHERE id=",ship.getInt("id"));
-						if( docked != 0 ) {
-							db.update("UPDATE ships SET x=",ship.getInt("x"),",y=",ship.getInt("y"),",system=",ship.getInt("system")," WHERE id>0 AND docked IN ('l ",ship.getInt("id"),"','",ship.getInt("id"),"')");
-						}
-						
-						if( Quests.executeEvent(scriptparser, sector.getString("onenter"), ship.getInt("owner"), "" ) ) {
-							if( scriptparser.getContext().getOutput().length()!= 0 ) {							
-								distance = 0;
-							}
-						}
+						handleRedAlert( ship );	
 					}
 				}
 				
-				if( redalertlist.containsKey(Location.fromResult(ship)) ) {
-					db.update("UPDATE ships SET x=",ship.getInt("x"),",y=",ship.getInt("y"),",e=",ship.getInt("e"),",s=",ship.getInt("s"),",engine=",ship.getInt("engine"),",docked='' WHERE id=",ship.getInt("id"));
-					if( docked != 0 ) {
-						db.update("UPDATE ships SET x=",ship.getInt("x"),",y=",ship.getInt("y"),",system=",ship.getInt("system")," WHERE id>0 AND docked IN ('l ",ship.getInt("id"),"','",ship.getInt("id"),"')");
-					}
-					recalculateShipStatus(ship.getInt("id"));
-					saveFleetShips();
-		
-					if( offizier != null ) {
-						offizier.save();
-					}
-					
-					handleRedAlert( ship );	
+				// Wenn wir laenger als 25 Sekunden fuers fliegen gebraucht haben -> abbrechen!
+				if( System.currentTimeMillis() - starttime > 25000 ) {
+					out.append("<span style=\"color:#ff0000\">Flug dauert zu lange</span><br />\n");
+					out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
+					waypoint.distance = 0;
+					error = true;
 				}
-			}
+			}  // while distance > 0
 			
-			// Wenn wir laenger als 25 Sekunden fuers fliegen gebraucht haben -> abbrechen!
-			if( System.currentTimeMillis() - starttime > 25000 ) {
-				out.append("<span style=\"color:#ff0000\">Flug dauert zu lange</span><br />\n");
-				out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
-				distance = 0;
-			}
-		}
+		} // while !error && route.size() > 0
 		
 		if( moved ) {
 			db.update("UPDATE ships SET x=",ship.getInt("x"),",y=",ship.getInt("y"),",e=",ship.getInt("e"),",s=",ship.getInt("s"),",engine=",ship.getInt("engine"),",docked='' WHERE id=",ship.getInt("id"));

@@ -48,7 +48,9 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.RouteFactory;
 import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.Waypoint;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -1516,80 +1518,28 @@ public class QuestFunctions {
 			Location target = Location.fromString(command[2]);
 			scriptparser.log("target: "+target+"\n");
 				
-			SQLResultRow ship = db.first("SELECT * FROM ships WHERE id>0 AND id="+shipid);
-			Location curpos = Location.fromResult(ship);
+			SQLResultRow curpos = db.first("SELECT x,y,system,s FROM ships WHERE id=",shipid);
 			
-			int deltax = target.getX()-curpos.getX();
-			int deltay = target.getY()-curpos.getY();
+			int deltax = target.getX()-curpos.getInt("x");
+			int deltay = target.getY()-curpos.getInt("y");
 						
 			if( (deltax == 0) && (deltay == 0) ) {
 				scriptparser.log("Zielposition bereits erreicht!\n\n");
 				return CONTINUE;
 			}
 						
-			if( ship.getInt("s") > 100 ) {
+			if( curpos.getInt("s") > 100 ) {
 				scriptparser.log("Ausfuehrung bis zum naechsten Tick angehalten\n\n");
 				return STOP;
 			}
+			
+			RouteFactory router = new RouteFactory();
+			List<Waypoint> route = router.findRoute(Location.fromResult(curpos), target);
 					
-			int direction = -1;
-			int count = 0;
-			boolean wait = false;
-			while( true ) {
-				int newdirection = 5;
-				if( deltax > 0 ) {
-					newdirection += 1;
-				}
-				else if( deltax < 0 ) {
-					newdirection -= 1;
-				}
-							
-				if( deltay > 0 ) {
-					newdirection += 3;
-				}
-				else if( deltay < 0 ) {
-					newdirection -= 3;
-				}
-							
-				if( (direction != -1) && (direction != newdirection) ) {
-					boolean result = Ships.move(ship.getInt("id"), direction, count, true, true); 
-					scriptparser.log( Common._stripHTML(Ships.MESSAGE.getMessage()) );
-								
-					if( result ) {
-						wait = true;
-						break;
-					}
-								
-					if( newdirection == 5 ) {
-						break;
-					}
-					count = 1;
-					direction = newdirection;
-				} 
-				else {
-					count++;
-					direction = newdirection;
-				}
-				int xOffset = 0;
-				int yOffset = 0;
-				
-				if( direction == 1 ) { xOffset--; yOffset--;}
-				else if( direction == 2 ) { yOffset--;}
-				else if( direction == 3 ) { xOffset++; yOffset--;}
-				else if( direction == 4 ) { xOffset--;}
-				else if( direction == 6 ) { xOffset++;}
-				else if( direction == 7 ) { xOffset--; yOffset++;}
-				else if( direction == 8 ) { yOffset++;}
-				else if( direction == 9 ) { xOffset++; yOffset++;}
-				
-				curpos = new Location(curpos.getSystem(), 
-						curpos.getX()+xOffset, 
-						curpos.getY()+yOffset);
-					
-				deltax = target.getX()-curpos.getX();
-				deltay = target.getY()-curpos.getY();
-			}
-			if( wait ) {
+			boolean result = Ships.move(shipid, route, true, false); 
+			scriptparser.log(Common._stripHTML(Ships.MESSAGE.getMessage()));
+			
+			if( result ) {
 				scriptparser.setRegister("A","1");
 			}
 			else {
