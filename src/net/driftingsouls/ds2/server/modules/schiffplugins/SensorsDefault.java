@@ -629,7 +629,8 @@ public class SensorsDefault implements SchiffPlugin {
 					}
 
 					//Externe Docks: andocken
-					if( ( datatype.getInt("adocks") > dockCount ) && ( (datas.getInt("owner") == user.getID() ) || superdock) ) {
+					if( datas.getString("docked").length() == 0 && ( datatype.getInt("adocks") > dockCount ) && 
+						( (datas.getInt("owner") == user.getID() ) || superdock) ) {
 						if( superdock || ( ashiptype.getInt("size") < 3 ) ) {
 							t.set_var("sships.action.aufladen",1);
 						}

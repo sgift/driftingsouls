@@ -311,6 +311,30 @@ public class Common implements Loggable {
 	/**
 	 * Verknuepft ein Array mittels Trennzeichen zu einem String
 	 * 
+	 * @param separator Das Trennzeichen
+	 * @param list Das zu verknuepfende Array
+	 * @return Das verknuepfte Array
+	 */
+	public static String implode( String separator, int[] list ) {
+		if( list.length > 0 ) {
+			StringBuilder sb = new StringBuilder(5*list.length);
+			
+			for( int i=0; i < list.length; i++ ) {
+				if( i > 0 ) {
+					sb.append(separator);
+				}
+
+				sb.append(list[i]);
+			}
+			
+			return sb.toString();
+		}
+		return "";
+	}
+	
+	/**
+	 * Verknuepft ein Array mittels Trennzeichen zu einem String
+	 * 
 	 * @param <T> Der Typ des Arrays
 	 * @param separator Das Trennzeichen
 	 * @param list Das zu verknuepfende Array

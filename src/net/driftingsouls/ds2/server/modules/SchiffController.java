@@ -466,6 +466,22 @@ public class SchiffController extends DSGenerator implements Loggable {
 		
 		int[] shiplist = Common.explodeToInt("|",shipIdList);
 		
+		Database db = getContext().getDatabase();
+		
+		SQLQuery docked = db.query("SELECT id,docked FROM ships WHERE id > 0 AND id IN ("+Common.implode(",", shiplist)+") AND docked!=''");
+		while( docked.next() ) {
+			String target = docked.getString("docked");
+			int targetID = 0;
+			if( target.charAt(0) == 'l' ) {
+				targetID = Integer.parseInt(target.substring(2));
+			}
+			else {
+				targetID = Integer.parseInt(target);
+			}
+			
+			Ships.dock(Ships.DockMode.UNDOCK, user.getID(), targetID, new int[] {docked.getInt("id")});
+		}
+		
 		Ships.dock(Ships.DockMode.DOCK, user.getID(), ship.getInt("id"), shiplist);
 		t.set_var("ship.message", Ships.MESSAGE.getMessage());
 

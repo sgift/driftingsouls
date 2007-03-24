@@ -2117,6 +2117,11 @@ public class Ships implements Loggable {
 					return true;
 				}
 				
+				if( (mode == DockMode.DOCK) && (tarShip.getString("docked").length() != 0) ) {
+					outputbuffer.append("<span style=\"color:red\">Fehler: Eines der aufzuladendenden Schiffe ist bereits gedockt</span><br />\n");
+					return true;
+				}
+				
 				if( (mode == DockMode.LAND) && (tarShip.getInt("owner") != owner) ) {
 					outputbuffer.append("<span style=\"color:red\">Fehler: Eines der zu landenden Schiffe geh&ouml;rt nicht ihnen</span><br />\n");
 					return true;
