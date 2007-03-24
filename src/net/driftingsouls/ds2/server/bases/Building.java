@@ -62,30 +62,6 @@ public abstract class Building implements Loggable {
 		}
 	}
 	
-	// TODO: remove me
-	private static String fixPhpClassNames(String module) {
-		String prefix = Building.class.getPackage().getName()+".";
-		if( module.equals("default") ) {
-			return prefix+"DefaultBuilding";
-		}
-		if( module.equals("kommandozentrale") ) {
-			return prefix+"Kommandozentrale";
-		}
-		if( module.equals("forschungszentrum") ) {
-			return prefix+"Forschungszentrum";
-		}
-		if( module.equals("academy") ) {
-			return prefix+"Academy";
-		}
-		if( module.equals("werft") ) {
-			return prefix+"Werft";
-		}
-		if( module.equals("waffenfabrik") ) {
-			return prefix+"Waffenfabrik";
-		}
-		return prefix+"DefaultBuilding";
-	}
-	
 	/**
 	 * Gibt eine Instanz der Gebaudeklasse des angegebenen Gebaeudetyps zurueck.
 	 * Sollte kein passender Gebaeudetyp existieren, wird <code>null</code> zurueckgegeben.
@@ -102,7 +78,7 @@ public abstract class Building implements Loggable {
 			}
 			String module = row.getString("module");
 			try {
-				Class<?> cls = Class.forName(fixPhpClassNames(module));
+				Class<?> cls = Class.forName(module);
 				Class<? extends Building> buildingCls = cls.asSubclass(Building.class);
 				Constructor<? extends Building> constr = buildingCls.getConstructor(SQLResultRow.class);
 				buildingCache.put(id, constr.newInstance(row));

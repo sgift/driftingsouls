@@ -4,7 +4,7 @@
 		Aenderungen, die die Struktur der Datenbank aendern, sollten getrennt von reinen 
 		Aenderungen an den Daten gehalten werden. Dies erleichtert das aktualliseren des Servers
 		und auch eigener Datenbestaende, die man ggf angepasst hat. 
-		Ausgenommen sind Aenderungen an den Daten, die in Folge von Strukturaenderungen zwingent notwendig
+		Ausgenommen sind Aenderungen an den Daten, die in Folge von Strukturaenderungen zwingend notwendig
 		sind. Diese sollten jedoch generisch formuliert sein, so dass sie nicht nur auf den Beispiedaten
 		funktionieren.
 		Die Identifikation erfolgt ueber das Attribut type, das entweder den Wert "structure", "data" 
@@ -212,5 +212,16 @@
 		ALTER TABLE versteigerungen ADD CONSTRAINT versteigerungen_fk_users FOREIGN KEY (bieter) REFERENCES users(id);
 		ALTER TABLE weaponfactory CHANGE col col INT NOT NULL DEFAULT '0';
 		ALTER TABLE weaponfactory ADD CONSTRAINT weaponfactory_fk_bases FOREIGN KEY (col) REFERENCES bases(id);
+	]]></update>
+	<update type="structure" datum="2007-03-24"><![CDATA[
+		 ALTER TABLE buildings CHANGE module module VARCHAR( 60 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'net.driftingsouls.ds2.server.bases.DefaultBuilding';
+	]]></update>
+	<update type="data" datum="2007-03-24"><![CDATA[
+		 UPDATE buildings SET module='net.driftingsouls.ds2.server.bases.DefaultBuilding' WHERE module='default';
+		 UPDATE buildings SET module='net.driftingsouls.ds2.server.bases.Kommandozentrale' WHERE module='kommandozentrale';
+		 UPDATE buildings SET module='net.driftingsouls.ds2.server.bases.Forschungszentrum' WHERE module='forschungszentrum';
+		 UPDATE buildings SET module='net.driftingsouls.ds2.server.bases.Academy' WHERE module='academy';
+		 UPDATE buildings SET module='net.driftingsouls.ds2.server.bases.Werft' WHERE module='werft';
+		 UPDATE buildings SET module='net.driftingsouls.ds2.server.bases.Waffenfabrik' WHERE module='waffenfabrik';
 	]]></update>
 </updates>
