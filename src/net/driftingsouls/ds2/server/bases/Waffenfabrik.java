@@ -270,20 +270,24 @@ class Waffenfabrik extends DefaultBuilding {
 			}
 	
 			if( usedcapacity.compareTo(new BigDecimal(wf.getInt("count")-1)) > 0 ) {
+				BigDecimal targetCapacity = new BigDecimal(wf.getInt("count")-1);
+				
 				for( int i=0; i < plist.length; i++ ) {
 					String[] tmp = StringUtils.split(plist[i], '=');
 					int aid = Integer.parseInt(tmp[0]);
 					int ammoCount = Integer.parseInt(tmp[1]);
 					
-					if( usedcapacity.subtract(new BigDecimal(ammoCount).multiply(new BigDecimal(ammolist.get(aid).getString("dauer")))).compareTo(new BigDecimal(wf.getInt("count")-1)) < 0 ) {
-						plist[i] = aid+"="+
-							(usedcapacity.subtract(new BigDecimal(wf.getInt("count")-1)).divide(new BigDecimal(ammolist.get(aid).getString("dauer"))));
+					BigDecimal capUsedByAmmo = new BigDecimal(ammoCount).multiply(new BigDecimal(ammolist.get(aid).getString("dauer")));
+					
+					if( usedcapacity.subtract(capUsedByAmmo).compareTo(targetCapacity) < 0 ) {
+						BigDecimal capLeftForAmmo = capUsedByAmmo.subtract(usedcapacity.subtract(targetCapacity));
+						plist[i] = aid+"=" + capLeftForAmmo.divide(new BigDecimal(ammolist.get(aid).getString("dauer")), BigDecimal.ROUND_HALF_EVEN).intValue();
 						break;
 					}
 					plist[i] = aid+"=0";
-					usedcapacity = usedcapacity.subtract(new BigDecimal(ammoCount).multiply(new BigDecimal(ammolist.get(aid).getString("dauer"))));
+					usedcapacity = usedcapacity.subtract(capUsedByAmmo);
 						
-					if( usedcapacity.compareTo(new BigDecimal(wf.getInt("count")-1)) <= 0 ) break;
+					if( usedcapacity.compareTo(targetCapacity) <= 0 ) break;
 				}
 				wf.put("produces", Common.implode(";",plist));
 			}
@@ -484,7 +488,8 @@ class Waffenfabrik extends DefaultBuilding {
 					productlist.put(aid, ammoCount);
 				}
 				if( usedcapacity.add(new BigDecimal(count*ammo.getDouble("dauer"))).doubleValue() > wf.getInt("count") ) {
-					count = usedcapacity.multiply(new BigDecimal(-1)).add(new BigDecimal(wf.getInt("count"))).divide(new BigDecimal(ammo.getString("dauer"))).intValue();
+					BigDecimal availableCap = usedcapacity.multiply(new BigDecimal(-1)).add(new BigDecimal(wf.getInt("count")));
+					count = availableCap.divide(new BigDecimal(ammo.getString("dauer")), BigDecimal.ROUND_HALF_EVEN).intValue();
 				}
 			
 				boolean entry = false;
