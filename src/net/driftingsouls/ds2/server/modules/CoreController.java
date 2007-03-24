@@ -193,14 +193,19 @@ public class CoreController extends DSGenerator {
 		Core core = Core.getCore(db, base.getCore());
 
 		db.update("UPDATE bases " +
-				"SET coreactive='0',arbeiter=arbeiter-'",core.getArbeiter(),"',bewohner=bewohner-'",core.getBewohner(),"' " +
-				"WHERE id=",base.getID()," AND arbeiter='",base.getArbeiter(),"' AND coreactive='1' AND bewohner='",base.getBewohner(),"'");
+				"SET coreactive='0',arbeiter=arbeiter-'",core.getArbeiter(),"' " +
+				"WHERE id=",base.getID()," AND arbeiter='",base.getArbeiter(),"' AND bewohner='",base.getBewohner(),"' AND coreactive='1'");
+		
+		if( db.affectedRows() == 0 ) {
+			t.set_var("core.message", "<span class=\"error\">Deaktivierung fehlgeschlagen. Bitte versuchen sie es sp&auml;ter erneut</span>");
+			redirect();
+			return;
+		}
 		
 		base.setArbeiter(base.getArbeiter() - core.getArbeiter());
-		base.setBewohner(base.getBewohner() - core.getBewohner());
 		base.setCoreActive(false);
 		
-		t.set_var( "core.message", "<span style=\"color:#ff0000\">Core deaktiviert</span>" );
+		t.set_var( "core.message", "<span class=\"error\">Core deaktiviert</span>" );
 		
 		redirect();
 	}
@@ -224,14 +229,19 @@ public class CoreController extends DSGenerator {
 		} 
 		else {
 			db.update("UPDATE bases " +
-					"SET coreactive='1',arbeiter=arbeiter+'",core.getArbeiter(),"',bewohner=bewohner+'",core.getBewohner(),"' " +
+					"SET coreactive='1',arbeiter=arbeiter+'",core.getArbeiter(),"' " +
 					"WHERE id=",base.getID()," AND arbeiter='",base.getArbeiter(),"' AND coreactive='0' AND bewohner='",base.getBewohner(),"'");
 			
+			if( db.affectedRows() == 0 ) {
+				t.set_var("core.message", "<span class=\"error\">Aktivierung fehlgeschlagen. Bitte versuchen sie es sp&auml;ter erneut</span>");
+				redirect();
+				return;
+			}
+			
 			base.setArbeiter(base.getArbeiter() + core.getArbeiter());
-			base.setBewohner(base.getBewohner() + core.getBewohner());
 			base.setCoreActive(true);
 		
-			t.set_var( "core.message", "<span style=\"color:#00ff00\">Core aktiviert</span>" );
+			t.set_var( "core.message", "<span class=\"ok\">Core aktiviert</span>" );
 		}
 		
 		redirect();
