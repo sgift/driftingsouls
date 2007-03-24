@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.framework.caches.CacheManager;
+import net.driftingsouls.ds2.server.framework.caches.ControllableCache;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
@@ -33,6 +35,22 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
  */
 public abstract class Core {
 	private static Map<Integer,Core> coreCache = new HashMap<Integer,Core>();
+	
+	static {
+		CacheManager.getInstance().registerCache(
+			new ControllableCache() {
+				public void clear() {
+					Core.clearCache();
+				}
+			}
+		);
+	}
+	
+	static void clearCache() {
+		synchronized(coreCache) {
+			coreCache.clear();
+		}
+	}
 	
 	/**
 	 * Gibt eine Instanz der Coreklasse des angegebenen Coretyps zurueck.

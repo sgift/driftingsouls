@@ -41,6 +41,8 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.User;
+import net.driftingsouls.ds2.server.framework.caches.CacheManager;
+import net.driftingsouls.ds2.server.framework.caches.ControllableCache;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -50,9 +52,22 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
 class Waffenfabrik extends DefaultBuilding {
-	private static final Map<Integer,SQLResultRow> ammolist = new HashMap<Integer,SQLResultRow>();
+	private static transient Map<Integer,SQLResultRow> ammolist = new HashMap<Integer,SQLResultRow>();
 	
 	static {
+		cacheAmmo();
+		CacheManager.getInstance().registerCache(
+			new ControllableCache() {
+				public void clear() {
+					Waffenfabrik.cacheAmmo();
+				}
+			}
+		);
+	}
+		
+	static void cacheAmmo() {
+		Map<Integer,SQLResultRow> ammolist = new HashMap<Integer,SQLResultRow>();
+
 		Database db = new Database();
 		SQLQuery ammo = db.query("SELECT * FROM ammo");
 		while( ammo.next() ) {
@@ -62,6 +77,8 @@ class Waffenfabrik extends DefaultBuilding {
 		}
 		ammo.free();
 		db.close();
+
+		Waffenfabrik.ammolist = ammolist;
 	}
 	
 	private class ContextVars {

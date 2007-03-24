@@ -23,6 +23,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.caches.CacheManager;
+import net.driftingsouls.ds2.server.framework.caches.ControllableCache;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -45,6 +47,16 @@ public class Forschung {
 	
 	private static final Map<Integer,Forschung> cache = new HashMap<Integer,Forschung>();
 	
+	static {
+		CacheManager.getInstance().registerCache(
+			new ControllableCache() {
+				public void clear() {
+					Forschung.clearCache();
+				}
+			}
+		);
+	}
+	
 	/**
 	 * Gibt ein Forschungsobjekt fuer die angegebene Forschungs-ID zurueck.
 	 * Sollte keine solche Forschung existieren, so wird <code>null</code> zurueckgegeben
@@ -66,6 +78,16 @@ public class Forschung {
 		}
 		
 		return cache.get(fid);
+	}
+	
+	/**
+	 * Leert den Forschungscache
+	 *
+	 */
+	public static void clearCache() {
+		synchronized(cache) {
+			cache.clear();
+		}
 	}
 	
 	/**

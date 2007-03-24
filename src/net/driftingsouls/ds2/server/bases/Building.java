@@ -25,6 +25,8 @@ import java.util.Map;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
+import net.driftingsouls.ds2.server.framework.caches.CacheManager;
+import net.driftingsouls.ds2.server.framework.caches.ControllableCache;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -43,6 +45,22 @@ public abstract class Building implements Loggable {
 	public static final int KOMMANDOZENTRALE = 1;
 	
 	private static Map<Integer,Building> buildingCache = new HashMap<Integer,Building>();
+	
+	static {
+		CacheManager.getInstance().registerCache(
+			new ControllableCache() {
+				public void clear() {
+					Building.clearCache();
+				}
+			}
+		);
+	}
+	
+	static void clearCache() {
+		synchronized(buildingCache) {
+			buildingCache.clear();
+		}
+	}
 	
 	// TODO: remove me
 	private static String fixPhpClassNames(String module) {
