@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 
 /**
@@ -77,7 +77,7 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 				(aship.getInt("action") & Battle.BS_SECONDROW) != 0 ) {
 				continue;
 			}
-			SQLResultRow shiptype = Ships.getShipType(aship);
+			SQLResultRow shiptype = ShipTypes.getShipType(aship);
 			
 			if( shiptype.getInt("class") == ShipClasses.ZERSTOERER.ordinal() ) {
 				gotone = true;
@@ -103,7 +103,7 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 				rowcount++;
 				continue;
 			}
-			SQLResultRow shiptype = Ships.getShipType(aship);
+			SQLResultRow shiptype = ShipTypes.getShipType(aship);
 			
 			if( shiptype.getInt("size") > 3 ) {
 				size += shiptype.getInt("size");

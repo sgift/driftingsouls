@@ -28,7 +28,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
  * Schiffsmodul fuer die Anzeige der Jaegerdocks
@@ -112,7 +112,7 @@ public class JDocksDefault implements SchiffPlugin {
 			jdockedtype.add(line.getInt("type"));
 			jdockedname.add(line.getString("name"));
 			
-			SQLResultRow jdockedstype = Ships.getShipType( line.getRow() );
+			SQLResultRow jdockedstype = ShipTypes.getShipType( line.getRow() );
 			jdockedpicture.add(jdockedstype.getString("picture"));
 			if( line.getInt("fleet") != 0 ) {
 				nofleet = false;

@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
  * Ermoeglicht das Beenden der Schlacht im Falle vom einer klaren militaerischen Uebermacht gegenueber dem Gegner
@@ -53,7 +53,7 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 				continue;
 			}
 			
-			SQLResultRow aShipType = Ships.getShipType( aship );
+			SQLResultRow aShipType = ShipTypes.getShipType( aship );
 				
 			if( aShipType.getInt("military") == 0 ) {
 				continue;
@@ -61,7 +61,7 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 			if( (aship.getInt("crew") == 0) && (aShipType.getInt("crew") != 0) ) {
 				continue;
 			}
-			if( Ships.hasShipTypeFlag(aShipType, Ships.SF_JAEGER) ) {
+			if( ShipTypes.hasShipTypeFlag(aShipType, ShipTypes.SF_JAEGER) ) {
 				ownpower++;
 			} else { 
 				ownpower += 10;
@@ -76,7 +76,7 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 				continue;
 			}
 			
-			SQLResultRow aShipType = Ships.getShipType( aship );
+			SQLResultRow aShipType = ShipTypes.getShipType( aship );
 				
 			if( aShipType.getInt("military") == 0 ) {
 				continue;
@@ -84,7 +84,7 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 			if( (aship.getInt("crew") == 0) && (aShipType.getInt("crew") != 0) ) {
 				continue;
 			}
-			if( Ships.hasShipTypeFlag(aShipType, Ships.SF_JAEGER) ) {
+			if( ShipTypes.hasShipTypeFlag(aShipType, ShipTypes.SF_JAEGER) ) {
 				enemypower++;
 			} else { 
 				enemypower += 10;

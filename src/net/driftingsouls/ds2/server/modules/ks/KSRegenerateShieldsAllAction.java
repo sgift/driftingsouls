@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
@@ -67,7 +68,7 @@ public class KSRegenerateShieldsAllAction extends BasicKSAction {
 				continue;
 			}
 			
-			SQLResultRow ownShipType = Ships.getShipType(ownShip);
+			SQLResultRow ownShipType = ShipTypes.getShipType(ownShip);
 			
 			if( ownShipType.getInt("shields") < 1 ) {
 				continue;

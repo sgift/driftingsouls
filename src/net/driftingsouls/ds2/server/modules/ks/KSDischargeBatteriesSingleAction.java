@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
@@ -46,7 +47,7 @@ public class KSDischargeBatteriesSingleAction extends BasicKSAction {
 	@Override
 	public int validate(Battle battle) {
 		SQLResultRow ownShip = battle.getOwnShip();
-		SQLResultRow ownShipType = Ships.getShipType(ownShip);
+		SQLResultRow ownShipType = ShipTypes.getShipType(ownShip);
 		
 		Cargo mycargo = new Cargo( Cargo.Type.STRING, ownShip.getString("cargo") );
 		if( mycargo.hasResource( Resources.BATTERIEN ) && (ownShip.getInt("e") < ownShipType.getInt("eps")) ) {
@@ -70,7 +71,7 @@ public class KSDischargeBatteriesSingleAction extends BasicKSAction {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 		SQLResultRow ownShip = battle.getOwnShip();
-		SQLResultRow ownShipType = Ships.getShipType(ownShip);
+		SQLResultRow ownShipType = ShipTypes.getShipType(ownShip);
 		
 		Cargo mycargo = new Cargo( Cargo.Type.STRING, ownShip.getString("cargo") );
 		

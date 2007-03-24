@@ -22,7 +22,7 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 class TagShipType implements BBCodeFunction {
 
@@ -32,7 +32,7 @@ class TagShipType implements BBCodeFunction {
 	
 		url += "php/schiffinfo.php?sess="+context.getSession()+"&ship="+content;
 	
-		SQLResultRow shiptype = Ships.getShipType(Integer.parseInt(content), false);
+		SQLResultRow shiptype = ShipTypes.getShipType(Integer.parseInt(content), false);
 
 	 	return "<a target=\"main\" onmouseover=\"return overlib('"+shiptype.getString("nickname")+"',TIMEOUT,0,DELAY,400,WIDTH,150);\" onmouseout=\"return nd();\" class=\"noborder\" href=\""+url+"\"><img align=\"middle\" border=\"0\" src=\""+shiptype.getString("picture")+"\" alt=\"\" /></a>";
 	}

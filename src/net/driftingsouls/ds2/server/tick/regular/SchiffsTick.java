@@ -32,6 +32,7 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.tick.TickController;
@@ -61,7 +62,7 @@ public class SchiffsTick extends TickController {
 		
 		this.log(shipd.getString("name")+" ("+shipd.getInt("id")+"):");
 	
-		SQLResultRow shiptd = Ships.getShipType(shipd);
+		SQLResultRow shiptd = ShipTypes.getShipType(shipd);
 	
 		Cargo shipc = new Cargo( Cargo.Type.STRING, shipd.getString("cargo") );
 		

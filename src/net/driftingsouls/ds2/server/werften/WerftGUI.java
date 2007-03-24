@@ -48,6 +48,7 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.ships.Ships.ModuleEntry;
 
@@ -130,7 +131,7 @@ public class WerftGUI {
 				int shipid = ((ShipWerft)werft).getShipID();
 				int linkedbaseID = ((ShipWerft)werft).getLinkedBase();
 				
-				SQLResultRow shiptype = Ships.getShipType( shipid, true );
+				SQLResultRow shiptype = ShipTypes.getShipType( shipid, true );
 				if( shiptype.getInt("cost") == 0 ) {
 					t.set_block("_WERFT.WERFTGUI", "werftgui.linkedbase.listitem", "werftgui.linkedbase.list");
 		
@@ -171,7 +172,7 @@ public class WerftGUI {
 				continue;	
 			}
 			
-			SQLResultRow shiptype = Ships.getShipType( ship.getRow() );
+			SQLResultRow shiptype = ShipTypes.getShipType( ship.getRow() );
 			
 			if( (ship.getInt("hull") < shiptype.getInt("hull")) || (ship.getInt("engine") < 100) ||
 				(ship.getInt("sensors") < 100) || (ship.getInt("comm") < 100) || (ship.getInt("weapons") < 100) ) {
@@ -222,7 +223,7 @@ public class WerftGUI {
 							"buildship.item.uses",	itemdata.getUses() );
 			}
 			
-			SQLResultRow tmptype = Ships.getShipType( ashipdata.getInt("type"), false );
+			SQLResultRow tmptype = ShipTypes.getShipType( ashipdata.getInt("type"), false );
 			
 			t.set_var(	"res.image",		Configuration.getSetting("URL")+"data/interface/time.gif",
 						"res.count",		ashipdata.getInt("dauer"),
@@ -251,7 +252,7 @@ public class WerftGUI {
 						"res.mangel",		crew < ashipdata.getInt("crew") );
 			t.parse("buildship.res.list", "buildship.res.listitem", true);
 
-			SQLResultRow shiptype = Ships.getShipType(ashipdata.getInt("type"), false);
+			SQLResultRow shiptype = ShipTypes.getShipType(ashipdata.getInt("type"), false);
 			
 			t.set_var(	"buildship.id",			ashipdata.getInt("id"),
 						"buildship.type.id",	ashipdata.getInt("type"),
@@ -342,7 +343,7 @@ public class WerftGUI {
 			return;
 		}
 		
-		SQLResultRow shipType = Ships.getShipType(ship);
+		SQLResultRow shipType = ShipTypes.getShipType(ship);
 		
 		t.set_var(	"werftgui.ws",			1,
 					"ship.id",				ship.getInt("id"),
@@ -392,7 +393,7 @@ public class WerftGUI {
 	}
 
 	private void out_ws_info(SQLResultRow ship) {
-		SQLResultRow shipType = Ships.getShipType(ship);
+		SQLResultRow shipType = ShipTypes.getShipType(ship);
 		
 		t.set_var(	"werftgui.ws.showinfo",		1,
 					"ship.name",				ship.getString("name"),
@@ -453,7 +454,7 @@ public class WerftGUI {
 			return;
 		}
 		
-		SQLResultRow shiptype = Ships.getShipType( ship.getInt("type"), false );
+		SQLResultRow shiptype = ShipTypes.getShipType( ship.getInt("type"), false );
 
 		List<String[]> moduleslots = new ArrayList<String[]>();
 		String[] mslots = StringUtils.split(shiptype.getString("modules"), ';');
@@ -541,7 +542,7 @@ public class WerftGUI {
 			return;
 		}
 		
-		SQLResultRow shiptype = Ships.getShipType( ship );
+		SQLResultRow shiptype = ShipTypes.getShipType( ship );
 		Cargo scargo = new Cargo( Cargo.Type.STRING, ship.getString("cargo") );
 		
 		t.set_block("_WERFT.WERFTGUI", "ws.dismantle.res.listitem", "ws.dismantle.res.list");
@@ -588,7 +589,7 @@ public class WerftGUI {
 		
 		SQLResultRow ship = db.first("SELECT * FROM ships WHERE id>0 AND id=",repair);
 		
-		SQLResultRow shiptype = Ships.getShipType( ship );
+		SQLResultRow shiptype = ShipTypes.getShipType( ship );
 
 		t.set_block("_WERFT.WERFTGUI", "ws.repair.res.listitem", "ws.repair.res.list");
 
@@ -640,7 +641,7 @@ public class WerftGUI {
 			return;
 		}
 		
-		SQLResultRow shiptype = Ships.getShipType( shipdata.getInt("type"), false );
+		SQLResultRow shiptype = ShipTypes.getShipType( shipdata.getInt("type"), false );
 		
 		t.set_block("_WERFT.WERFTGUI", "build.res.listitem", "build.res.list");
 		

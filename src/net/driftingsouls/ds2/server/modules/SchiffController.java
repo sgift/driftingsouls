@@ -52,6 +52,7 @@ import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.scripting.ScriptParser;
 import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -135,7 +136,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		}
 
 
-		shiptype = Ships.getShipType(ship);
+		shiptype = ShipTypes.getShipType(ship);
 
 		offizier = Offizier.getOffizierByDest('s', ship.getInt("id"));
 		
@@ -156,7 +157,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 			pluginMapper.put("werft", getPluginByName("WerftDefault"));
 		}
 		
-		if( Ships.hasShipTypeFlag(shiptype, Ships.SF_JUMPDRIVE_SHIVAN) ) {
+		if( ShipTypes.hasShipTypeFlag(shiptype, ShipTypes.SF_JUMPDRIVE_SHIVAN) ) {
 			pluginMapper.put("jumpdrive", getPluginByName("JumpdriveShivan"));
 		}
 		
@@ -1073,7 +1074,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		Database db = getDatabase();
 		
 		ship = db.first("SELECT * FROM ships WHERE id>0 AND owner='",user.getID(),"' AND id=",ship.getInt("id"));
-		shiptype = Ships.getShipType(ship);
+		shiptype = ShipTypes.getShipType(ship);
 		
 		ScriptParser scriptparser = getContext().get(ContextCommon.class).getScriptParser( ScriptParser.NameSpace.QUEST );
 		if( ship.isEmpty() ) {
@@ -1241,7 +1242,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 			
 			Ships.ModuleEntry[] modulelist = Ships.getModules(ship);
 			
-			SQLResultRow type = Ships.getShipType( ship.getInt("type"), false );
+			SQLResultRow type = ShipTypes.getShipType( ship.getInt("type"), false );
 			SQLResultRow basetype = new SQLResultRow();
 			basetype.putAll(type);
 			
@@ -1344,8 +1345,8 @@ public class SchiffController extends DSGenerator implements Loggable {
 							continue;	
 						}	
 						
-						if( !Ships.hasShipTypeFlag(basetype, newflaglist[i]) ) {
-							tooltiplines.add("<span class='nobr' style='color:green'>"+Ships.getShipTypeFlagName(newflaglist[i])+"</span><br />");
+						if( !ShipTypes.hasShipTypeFlag(basetype, newflaglist[i]) ) {
+							tooltiplines.add("<span class='nobr' style='color:green'>"+ShipTypes.getShipTypeFlagName(newflaglist[i])+"</span><br />");
 						}
 					}
 				}

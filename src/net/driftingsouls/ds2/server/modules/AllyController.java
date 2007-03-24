@@ -42,7 +42,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
@@ -1288,7 +1288,7 @@ public class AllyController extends DSGenerator implements Loggable {
 	
 			SQLQuery s = db.query("SELECT name,type,time,owner FROM ships_lost WHERE destally=",this.ally.getInt("id")," ORDER BY time DESC LIMIT ",destpos,",10");
 			while( s.next() ) {
-				SQLResultRow shiptype = Ships.getShipType( s.getInt("type"), false );
+				SQLResultRow shiptype = ShipTypes.getShipType( s.getInt("type"), false );
 				
 				counter++;
 	
@@ -1341,7 +1341,7 @@ public class AllyController extends DSGenerator implements Loggable {
 	
 			s = db.query("SELECT name,type,time,owner,destowner FROM ships_lost WHERE ally=",this.ally.getInt("id")," ORDER BY time DESC LIMIT ",lostpos,",10");
 			while( s.next() ) {			
-				SQLResultRow shiptype = Ships.getShipType( s.getInt("type"), false );
+				SQLResultRow shiptype = ShipTypes.getShipType( s.getInt("type"), false );
 				
 				counter++;
 				

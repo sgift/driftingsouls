@@ -51,7 +51,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
 /**
@@ -217,7 +217,7 @@ public class ErsteigernController extends DSGenerator {
 		public ShopShipEntry( SQLResultRow data ) {
 			super(data);
 			
-			this.shiptype = Ships.getShipType(Integer.parseInt(this.getResource()), false);
+			this.shiptype = ShipTypes.getShipType(Integer.parseInt(this.getResource()), false);
 		}
 		
 		@Override
@@ -528,7 +528,7 @@ public class ErsteigernController extends DSGenerator {
 			String entrylink = "#";
 		
 			if( entry.getInt("mtype") == 1 ) {	//Schiff
-				SQLResultRow shiptype = Ships.getShipType(entry.getInt("type"), false);
+				SQLResultRow shiptype = ShipTypes.getShipType(entry.getInt("type"), false);
 				entryname = shiptype.getString("nickname");
 				entryimage = shiptype.getString("picture");
 				entrylink = Common.buildUrl(getContext(), "default", "module", "schiffinfo", "ship", entry.getInt("type") );
@@ -608,7 +608,7 @@ public class ErsteigernController extends DSGenerator {
 			String entryname = "";
 			
 			if( entry.getInt("mtype") == 1 ) {
-				SQLResultRow shiptype = Ships.getShipType(entry.getInt("type"), false);
+				SQLResultRow shiptype = ShipTypes.getShipType(entry.getInt("type"), false);
 				entryname = shiptype.getString("nickname");
 			}
 			else if( entry.getInt("mtype") == 2 ) { 
@@ -1023,7 +1023,7 @@ public class ErsteigernController extends DSGenerator {
 			if( paket.getString("ships").length() > 0 ) {
 				int[] shiplist = Common.explodeToInt("|", paket.getString("ships"));
 				for( int i=0; i < shiplist.length; i++ ) {
-					SQLResultRow shiptype = Ships.getShipType( shiplist[i], false );
+					SQLResultRow shiptype = ShipTypes.getShipType( shiplist[i], false );
 					t.set_var(	"ship.type.image",	shiptype.getString("picture"),
 								"ship.type.name",	shiptype.getString("nickname"),
 								"ship.type",		shiplist[i] );
@@ -1099,7 +1099,7 @@ public class ErsteigernController extends DSGenerator {
 			long entrycount = 1;
 		
 			if( entry.getInt("mtype") == 1 ) {	//Schiff
-				SQLResultRow shiptype = Ships.getShipType(entry.getInt("type"), false);
+				SQLResultRow shiptype = ShipTypes.getShipType(entry.getInt("type"), false);
 				entryname = shiptype.getString("nickname");
 				entryimage = shiptype.getString("picture");
 				entrylink = Common.buildUrl(getContext(), "default", "module", "schiffinfo", "ship", entry.getInt("type") );

@@ -51,6 +51,7 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.scripting.ScriptParser;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
@@ -155,7 +156,7 @@ public class AdminCommands implements Loggable {
 			if( ship.isEmpty() ) {
 				return "Das Schiff gibt es nicht";	
 			}
-			SQLResultRow shiptype = Ships.getShipType(ship);
+			SQLResultRow shiptype = ShipTypes.getShipType(ship);
 			
 			output += "Schiff: "+sid+"\n";
 			output += "Typ: "+shiptype.getString("nickname")+" ("+ship.getInt("type")+")\n";
@@ -187,7 +188,7 @@ public class AdminCommands implements Loggable {
 				
 			Ships.addModule( ship, slot, Modules.MODULE_ITEMMODULE, Integer.toString(item) );
 									
-			SQLResultRow shiptype = Ships.getShipType( ship );
+			SQLResultRow shiptype = ShipTypes.getShipType( ship );
 				
 			if( ship.getInt("hull") > shiptype.getInt("hull") ) {
 				ship.put("hull", shiptype.getInt("hull"));	

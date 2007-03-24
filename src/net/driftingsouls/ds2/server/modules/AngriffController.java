@@ -76,7 +76,7 @@ import net.driftingsouls.ds2.server.modules.ks.KSSecondRowEngageAction;
 import net.driftingsouls.ds2.server.modules.ks.KSStopTakeCommandAction;
 import net.driftingsouls.ds2.server.modules.ks.KSTakeCommandAction;
 import net.driftingsouls.ds2.server.modules.ks.KSUndockAllAction;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -175,7 +175,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 			return;	
 		}
 
-		SQLResultRow shipType = Ships.getShipType(ship);
+		SQLResultRow shipType = ShipTypes.getShipType(ship);
 		SQLResultRow battle_ship = db.first("SELECT hull,shields,engine,weapons,comm,sensors,count,newcount FROM battles_ships WHERE shipid=",ship.getInt("id"));
 
 		t.start_record();
@@ -630,9 +630,9 @@ public class AngriffController extends DSGenerator implements Loggable {
 		}
 		
 		SQLResultRow enemyShip = battle.getEnemyShip();
-		SQLResultRow enemyShipType = Ships.getShipType( enemyShip );
+		SQLResultRow enemyShipType = ShipTypes.getShipType( enemyShip );
 		SQLResultRow ownShip = battle.getOwnShip();
-		SQLResultRow ownShipType = Ships.getShipType( ownShip );
+		SQLResultRow ownShipType = ShipTypes.getShipType( ownShip );
 		
 		t.set_var(	"global.ksaction",			action,
 					"global.scan",				scan,
@@ -813,7 +813,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 				}
 		
 				if( !aship.isEmpty() ) {
-					SQLResultRow aShipType = Ships.getShipType( aship );
+					SQLResultRow aShipType = ShipTypes.getShipType( aship );
 					pos++;
 		
 					// Energiestatus anzeigen, wenn der User kein Gast ist
@@ -971,7 +971,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 					
 					final String key = stid+":"+i;
 					
-					SQLResultRow shiptype = Ships.getShipType(stid, false);
+					SQLResultRow shiptype = ShipTypes.getShipType(stid, false);
 					GroupEntry data = groupdata.get(key);
 					
 					t.set_var(	"shiptypelist.count",		count,
@@ -1068,7 +1068,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 				}
 		
 				if( !aship.isEmpty() ) {
-					SQLResultRow aShipType = Ships.getShipType( aship );
+					SQLResultRow aShipType = ShipTypes.getShipType( aship );
 					
 					pos++;
 		
@@ -1187,7 +1187,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 					}
 			
 					final String key = stid+":"+i;
-					SQLResultRow shiptype = Ships.getShipType(stid, false);
+					SQLResultRow shiptype = ShipTypes.getShipType(stid, false);
 					
 					GroupEntry data = groupdata.get(key);
 					
@@ -1195,7 +1195,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 								"shiptypelist.name",		shiptype.getString("nickname"),
 								"shiptypelist.id",			stid,
 								"shiptypelist.groupid",		stid+":"+i,
-								"shiptypelist.image",		Ships.getShipType(stid, false).getString("picture"),
+								"shiptypelist.image",		ShipTypes.getShipType(stid, false).getString("picture"),
 								"shiptypelist.side",		"enemy",
 								"shiptypelist.otherside",	"own",
 								"shiptypelist.otherside.id",	battle.getOwnShipGroup(),

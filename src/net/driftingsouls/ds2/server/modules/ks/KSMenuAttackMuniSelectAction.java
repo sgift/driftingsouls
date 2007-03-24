@@ -38,7 +38,7 @@ import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
  * Laesst den Benutzer fuer eine ammobasierte Waffe die gewuenschte Munition auswaehlen (sofern
@@ -91,20 +91,20 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 			return RESULT_ERROR;
 		}
 		
-		SQLResultRow ownShipType = Ships.getShipType(ownShip);
+		SQLResultRow ownShipType = ShipTypes.getShipType(ownShip);
 		
-		if( (enemyShip.getInt("action") & Battle.BS_FLUCHT) != 0 &&	!Ships.hasShipTypeFlag(ownShipType, Ships.SF_ABFANGEN) ) {
+		if( (enemyShip.getInt("action") & Battle.BS_FLUCHT) != 0 &&	!ShipTypes.hasShipTypeFlag(ownShipType, ShipTypes.SF_ABFANGEN) ) {
 			return RESULT_ERROR;
 		}
 		
 		boolean gotone = true;			
-		if( Ships.hasShipTypeFlag(ownShipType, Ships.SF_DROHNE) ) {
+		if( ShipTypes.hasShipTypeFlag(ownShipType, ShipTypes.SF_DROHNE) ) {
 			gotone = false;
 			List<SQLResultRow> ownShips = battle.getOwnShips();
 			for( int i=0; i < ownShips.size(); i++ ) {
 				SQLResultRow aship = ownShips.get(i);
-				SQLResultRow ashiptype = Ships.getShipType(aship);
-				if( Ships.hasShipTypeFlag(ashiptype, Ships.SF_DROHNEN_CONTROLLER) ) {
+				SQLResultRow ashiptype = ShipTypes.getShipType(aship);
+				if( ShipTypes.hasShipTypeFlag(ashiptype, ShipTypes.SF_DROHNEN_CONTROLLER) ) {
 					gotone = true;
 					break;	
 				}
@@ -203,7 +203,7 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 		Database db = context.getDatabase();
 		
 		SQLResultRow ownShip = battle.getOwnShip();
-		SQLResultRow ownShipType = Ships.getShipType(ownShip);
+		SQLResultRow ownShipType = ShipTypes.getShipType(ownShip);
 		SQLResultRow enemyShip = battle.getEnemyShip();
 		
 		final String weapon = context.getRequest().getParameterString("weapon");

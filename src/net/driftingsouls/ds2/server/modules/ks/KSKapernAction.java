@@ -37,6 +37,7 @@ import net.driftingsouls.ds2.server.framework.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 
@@ -75,12 +76,12 @@ public class KSKapernAction extends BasicKSAction {
 			return RESULT_ERROR;
 		}
 		
-		SQLResultRow enemyShipType = Ships.getShipType( enemyShip );
+		SQLResultRow enemyShipType = ShipTypes.getShipType( enemyShip );
 	
 		// Geschuetze sind nicht kaperbar
 		if( (enemyShipType.getInt("class") == ShipClasses.GESCHUETZ.ordinal() ) || 
 			((enemyShipType.getInt("cost") != 0) && (enemyShip.getInt("engine") != 0) && (enemyShip.getInt("crew") != 0)) ||
-			(ownShip.getInt("crew") == 0) || Ships.hasShipTypeFlag(enemyShipType, Ships.SF_NICHT_KAPERBAR) ) {
+			(ownShip.getInt("crew") == 0) || ShipTypes.hasShipTypeFlag(enemyShipType, ShipTypes.SF_NICHT_KAPERBAR) ) {
 			return RESULT_ERROR;
 		}
 		
@@ -139,7 +140,7 @@ public class KSKapernAction extends BasicKSAction {
 			return RESULT_ERROR;
 		}
 	
-		SQLResultRow enemyShipType = Ships.getShipType( enemyShip );
+		SQLResultRow enemyShipType = ShipTypes.getShipType( enemyShip );
 		
 		User euser = context.createUserObject(enemyShip.getInt("owner"));
 			

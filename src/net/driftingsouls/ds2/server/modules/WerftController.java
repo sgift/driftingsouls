@@ -25,7 +25,7 @@ import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 import net.driftingsouls.ds2.server.werften.WerftGUI;
 
@@ -71,7 +71,7 @@ public class WerftController extends DSGenerator {
 			return false;
 		}
 
-		type = Ships.getShipType( ship );
+		type = ShipTypes.getShipType( ship );
 
 		werftdata = db.first("SELECT * FROM werften WHERE shipid=",ship.getInt("id"));
 		if( werftdata.isEmpty() ) {

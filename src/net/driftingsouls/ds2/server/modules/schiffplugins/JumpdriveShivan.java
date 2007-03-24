@@ -24,7 +24,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
  * Schiffsmodul fuer die Anzeige der shivanischen Sprungantriebe
@@ -61,8 +61,8 @@ public class JumpdriveShivan implements SchiffPlugin {
 	  	
 					SQLQuery s = db.query("SELECT id,name,type,status FROM ships WHERE id>0 AND fleet='"+caller.ship.getInt("fleet")+"' AND owner='"+user.getID()+"' AND docked='' AND id!='"+caller.ship.getInt("id")+"'");
 					while( s.next() ) {
-						SQLResultRow st = Ships.getShipType(s.getRow());
-						if( !Ships.hasShipTypeFlag(st, Ships.SF_JUMPDRIVE_SHIVAN) ) {
+						SQLResultRow st = ShipTypes.getShipType(s.getRow());
+						if( !ShipTypes.hasShipTypeFlag(st, ShipTypes.SF_JUMPDRIVE_SHIVAN) ) {
 							continue;	
 						}
 						
@@ -85,8 +85,8 @@ public class JumpdriveShivan implements SchiffPlugin {
 	  	
 					SQLQuery s = db.query("SELECT id,name,type,status FROM ships WHERE id>0 AND fleet='"+caller.ship.getInt("fleet")+"' AND owner='"+user.getID()+"' AND docked='' AND id!='"+caller.ship.getInt("id")+"'");
 					while( s.next() ) {
-						SQLResultRow st = Ships.getShipType(s.getRow());
-						if( !Ships.hasShipTypeFlag(st, Ships.SF_JUMPDRIVE_SHIVAN) ) {
+						SQLResultRow st = ShipTypes.getShipType(s.getRow());
+						if( !ShipTypes.hasShipTypeFlag(st, ShipTypes.SF_JUMPDRIVE_SHIVAN) ) {
 							continue;	
 						}
 						
@@ -109,8 +109,8 @@ public class JumpdriveShivan implements SchiffPlugin {
 	  	
 					SQLQuery s = db.query("SELECT id,name,type,status FROM ships WHERE id>0 AND fleet='"+caller.ship.getInt("fleet")+"' AND owner='"+user.getID()+"' AND docked='' AND id!='"+caller.ship.getInt("id")+"'");
 					while( s.next() ) {
-						SQLResultRow st = Ships.getShipType(s.getRow());
-						if( !Ships.hasShipTypeFlag(st, Ships.SF_JUMPDRIVE_SHIVAN) ) {
+						SQLResultRow st = ShipTypes.getShipType(s.getRow());
+						if( !ShipTypes.hasShipTypeFlag(st, ShipTypes.SF_JUMPDRIVE_SHIVAN) ) {
 							continue;	
 						}
 						

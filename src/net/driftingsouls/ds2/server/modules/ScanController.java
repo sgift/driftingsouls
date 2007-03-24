@@ -34,7 +34,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
  * Zeigt die LRS-Scanner an
@@ -83,7 +83,7 @@ public class ScanController extends DSGenerator {
 				return false;
 			}
 			
-			SQLResultRow shiptype = Ships.getShipType( ship );
+			SQLResultRow shiptype = ShipTypes.getShipType( ship );
 			int range = shiptype.getInt("sensorrange");
 	
 			// Sollte das Schiff in einem Nebel stehen -> halbe Scannerreichweite
@@ -187,7 +187,7 @@ public class ScanController extends DSGenerator {
 		if( !this.admin && !nebel.isEmpty() && ((nebel.getInt("type") < 3) || (nebel.getInt("type") > 5)) ) {
 			SQLQuery nebelship = db.query("SELECT id,status,type,sensors,crew FROM ships WHERE id>0 AND x=",scanx," AND y=",scany," AND system=",system," AND owner=",user.getID()," AND sensors > 30");
 			while( nebelship.next() ) {
-				SQLResultRow ownshiptype = Ships.getShipType( nebelship.getRow() );	
+				SQLResultRow ownshiptype = ShipTypes.getShipType( nebelship.getRow() );	
 				if( nebelship.getInt("crew") >= ownshiptype.getInt("crew")/4 ) {
 					scanableNebel = true;
 					break;
@@ -325,7 +325,7 @@ public class ScanController extends DSGenerator {
 			
 			// Falls nicht im Admin-Modus und nicht das aktuelle Feld gescannt wird: Liste der kleinen Schiffe generieren
 			if( !this.admin && (scanx != this.ship.getInt("x")) || (scany != this.ship.getInt("y")) ) {
-				SQLQuery stid = db.query("SELECT id FROM ship_types WHERE LOCATE('",Ships.SF_SEHR_KLEIN,"',flags)");
+				SQLQuery stid = db.query("SELECT id FROM ship_types WHERE LOCATE('",ShipTypes.SF_SEHR_KLEIN,"',flags)");
 				while( stid.next() ) {
 					verysmallshiptypes.add(stid.getInt("id"));
 				}
@@ -341,11 +341,11 @@ public class ScanController extends DSGenerator {
 						
 			while( datas.next() ) {
 				boolean disableIFF = (datas.getString("status").indexOf("disable_iff") > -1);
-				SQLResultRow shiptype = Ships.getShipType( datas.getRow() );
+				SQLResultRow shiptype = ShipTypes.getShipType( datas.getRow() );
 				
 				// Falls nicht im Admin-Modus: Nur sehr kleine Schiffe im Feld des scannenden Schiffes anzeigen
 				if( !this.admin && ((scanx != this.ship.getInt("x")) || (scany != this.ship.getInt("y"))) &&
-					Ships.hasShipTypeFlag(shiptype, Ships.SF_SEHR_KLEIN) ) {
+					ShipTypes.hasShipTypeFlag(shiptype, ShipTypes.SF_SEHR_KLEIN) ) {
 					continue;	
 				}
 				
@@ -423,7 +423,7 @@ public class ScanController extends DSGenerator {
 		
 		// Im Admin-Modus sind alle Schiffe sichtbar
 		if( !this.admin ) {
-			SQLQuery stid = db.query("SELECT id FROM ship_types WHERE LOCATE('",Ships.SF_SEHR_KLEIN,"',flags)");
+			SQLQuery stid = db.query("SELECT id FROM ship_types WHERE LOCATE('",ShipTypes.SF_SEHR_KLEIN,"',flags)");
 			while( stid.next() ) {
 				verysmallshiptypes.add(stid.getInt("id"));
 			}
@@ -438,10 +438,10 @@ public class ScanController extends DSGenerator {
 								"WHERE t1.id>0 AND ",rangesql," AND (t1.visibility IS NULL OR t1.visibility='",user.getID(),"') AND " ,
 										"(!(t1.type IN (",Common.implode(",",verysmallshiptypes),")) OR LOCATE('tblmodules',t1.status))");
 		while( sRow.next() ) {
-			SQLResultRow st = Ships.getShipType(sRow.getRow());
+			SQLResultRow st = ShipTypes.getShipType(sRow.getRow());
 			
 			// Im Admin-Modus sind alle Schiffe sichtbar
-			if( !this.admin && Ships.hasShipTypeFlag(st, Ships.SF_SEHR_KLEIN) ) {
+			if( !this.admin && ShipTypes.hasShipTypeFlag(st, ShipTypes.SF_SEHR_KLEIN) ) {
 				continue;	
 			}
 			

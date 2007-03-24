@@ -53,7 +53,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
  * Zeigt Informationen zu Items an
@@ -170,7 +170,7 @@ public class ItemInfoController extends DSGenerator {
 					if( i > 0 ) {
 						effecttext.append("<br />\n");	
 					}
-					effecttext.append(Ships.getShipTypeFlagName(flags[i]));
+					effecttext.append(ShipTypes.getShipTypeFlagName(flags[i]));
 				}
 			}
 			else if( key.equals("weapons") ) {
@@ -274,7 +274,7 @@ public class ItemInfoController extends DSGenerator {
 		case DRAFT_SHIP: {
 			IEDraftShip effect = (IEDraftShip)Items.get().item(itemid).getEffect();
 			
-			SQLResultRow shiptype = Ships.getShipType( effect.getShipType(), false );
+			SQLResultRow shiptype = ShipTypes.getShipType( effect.getShipType(), false );
 	
 			StringBuilder data = new StringBuilder(100);
 			if( shiptype.getBoolean("hide") ) {
@@ -398,7 +398,7 @@ public class ItemInfoController extends DSGenerator {
 			IEDisableShip effect = (IEDisableShip)Items.get().item(itemid).getEffect();
 			t.set_var( "entry.name", "Schiffstyp" );
 			
-			SQLResultRow shiptype = Ships.getShipType( effect.getShipType(), false );
+			SQLResultRow shiptype = ShipTypes.getShipType( effect.getShipType(), false );
 			if( !shiptype.isEmpty() ) {
 				t.set_var("entry.data", "<a class=\"forschinfo\" href=\""+Common.buildUrl(getContext(),"default", "module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getString("nickname")+"</a>" );
 			}

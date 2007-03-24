@@ -53,6 +53,7 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.ships.Ships.ModuleEntry;
 
@@ -102,7 +103,7 @@ public abstract class WerftObject extends DSObject {
 	 */
 	public SQLResultRow getBuildShipType() {
 		if( building > 0 ) {
-			return Ships.getShipType(building, false);
+			return ShipTypes.getShipType(building, false);
 		}
 		
 		return null;
@@ -481,7 +482,7 @@ public abstract class WerftObject extends DSObject {
 			return;
 		}
 		
-		SQLResultRow shiptype = Ships.getShipType( ship.getInt("type"), false );
+		SQLResultRow shiptype = ShipTypes.getShipType( ship.getInt("type"), false );
 		
 		String[] aslot = null;
 		
@@ -524,7 +525,7 @@ public abstract class WerftObject extends DSObject {
 
 	private void moduleUpdateShipData(Database db, int shipID, SQLResultRow oldshiptype, Cargo cargo) {
 		SQLResultRow ship = db.first("SELECT id,x,y,system,owner,battle,type,status,hull,shields,e,cargo,crew FROM ships WHERE id>0 AND id=",shipID);
-		SQLResultRow shiptype = Ships.getShipType( ship );
+		SQLResultRow shiptype = ShipTypes.getShipType( ship );
 		
 		if( ship.getInt("hull") != shiptype.getInt("hull") ) {
 			double factor = ship.getInt("hull") / (double)oldshiptype.getInt("hull");
@@ -638,7 +639,7 @@ public abstract class WerftObject extends DSObject {
 		Cargo cargo = this.getCargo(false);
 		List<ItemCargoEntry> itemlist = cargo.getItemsWithEffect( ItemEffect.Type.MODULE );
 		
-		SQLResultRow shiptype = Ships.getShipType( ship.getInt("type"), false );
+		SQLResultRow shiptype = ShipTypes.getShipType( ship.getInt("type"), false );
 		
 		String[] aslot = null;
 		
@@ -704,7 +705,7 @@ public abstract class WerftObject extends DSObject {
 	public Cargo getDismantleCargo( SQLResultRow ship ) {
 		Database db = ContextMap.getContext().getDatabase();
 		
-		SQLResultRow shiptype = Ships.getShipType( ship );
+		SQLResultRow shiptype = ShipTypes.getShipType( ship );
 		
 		SQLResultRow baubar = db.first("SELECT costs FROM ships_baubar WHERE type=",ship.getInt("type"));
 			
@@ -885,7 +886,7 @@ public abstract class WerftObject extends DSObject {
 	 * @return Die Reparaturkosten
 	 */
 	public RepairCosts getRepairCosts( SQLResultRow ship ) {
-		SQLResultRow shiptype = Ships.getShipType( ship );
+		SQLResultRow shiptype = ShipTypes.getShipType( ship );
 		
 		//Kosten berechnen
 		int htr = shiptype.getInt("hull")-ship.getInt("hull");
@@ -951,7 +952,7 @@ public abstract class WerftObject extends DSObject {
 	public boolean repairShip(SQLResultRow ship, boolean testonly) {
 		Database db = ContextMap.getContext().getDatabase();
 		
-		SQLResultRow shiptype = Ships.getShipType( ship );
+		SQLResultRow shiptype = ShipTypes.getShipType( ship );
 		
 		Cargo cargo = this.getCargo(false);
 	
@@ -1411,7 +1412,7 @@ public abstract class WerftObject extends DSObject {
 				
 				ShipWerft werft = (ShipWerft)this;
 				
-				SQLResultRow newtype = Ships.getShipType( this.getOneWayFlag(), false );
+				SQLResultRow newtype = ShipTypes.getShipType( this.getOneWayFlag(), false );
 				int crew = db.first("SELECT crew FROM ships WHERE id>0 AND id=", werft.getShipID()).getInt("crew");
 	
 				db.update("DELETE FROM ships WHERE id>0 AND id=",werft.getShipID());

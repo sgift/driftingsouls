@@ -27,7 +27,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
  * Zeigt das Menue fuer Batterieentladeaktionen an
@@ -43,7 +43,7 @@ public class KSMenuBatteriesAction extends BasicKSMenuAction {
 		for( int i=0; i < ownShips.size(); i++ ) {
 			SQLResultRow aship = ownShips.get(i);
 			
-			SQLResultRow ashiptype = Ships.getShipType(aship);
+			SQLResultRow ashiptype = ShipTypes.getShipType(aship);
 			if( aship.getInt("e") >= ashiptype.getInt("eps") ) {
 				continue;
 			}
@@ -86,7 +86,7 @@ public class KSMenuBatteriesAction extends BasicKSMenuAction {
 		for( int i=0; i < ownShips.size(); i++ ) {
 			SQLResultRow aship = ownShips.get(i);
 			
-			SQLResultRow ashiptype = Ships.getShipType(aship);
+			SQLResultRow ashiptype = ShipTypes.getShipType(aship);
 			if( aship.getInt("e") >= ashiptype.getInt("eps") ) {
 				continue;
 			}
@@ -112,12 +112,12 @@ public class KSMenuBatteriesAction extends BasicKSMenuAction {
 			if( idlist == 0 ) {
 				continue;
 			} 
-			this.menuEntryAsk( "Bei allen "+Ships.getShipClass(classID).getPlural()+"n die Batterien entladen<br /><span style=\"font-weight:normal; font-size:14px\">Kosten: "+(idlist*3)+" AP</span>",
+			this.menuEntryAsk( "Bei allen "+ShipTypes.getShipClass(classID).getPlural()+"n die Batterien entladen<br /><span style=\"font-weight:normal; font-size:14px\">Kosten: "+(idlist*3)+" AP</span>",
 								new Object[] { 	"ship",			ownShip.getInt("id"),
 												"attack",		enemyShip.getInt("id"),
 												"ksaction",		"batterien_class",
 												"battsclass",	classID },
-								"Wollen sie wirklich bei allen Schiffen der Klasse '"+Ships.getShipClass(classID).getSingular()+"' die Batterien entladen?" );
+								"Wollen sie wirklich bei allen Schiffen der Klasse '"+ShipTypes.getShipClass(classID).getSingular()+"' die Batterien entladen?" );
 		}
 				
 		this.menuEntry("zur&uuml;ck",	

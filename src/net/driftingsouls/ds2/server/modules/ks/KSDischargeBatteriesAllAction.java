@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
@@ -73,7 +74,7 @@ public class KSDischargeBatteriesAllAction extends BasicKSAction {
 		for( int i=0; i < ownShips.size(); i++ ) {
 			SQLResultRow aship = ownShips.get(i);
 			
-			SQLResultRow ownShipType = Ships.getShipType(aship);
+			SQLResultRow ownShipType = ShipTypes.getShipType(aship);
 			
 			if( aship.getInt("e") >= ownShipType.getInt("eps") ) {
 				continue;

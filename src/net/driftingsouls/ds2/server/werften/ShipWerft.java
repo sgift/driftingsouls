@@ -24,6 +24,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
@@ -121,7 +122,7 @@ public class ShipWerft extends WerftObject {
 		Database db = ContextMap.getContext().getDatabase();
 		
 		if( (this.linkedbase != 0) && !localonly ) {
-			SQLResultRow shiptype = Ships.getShipType( this.shipid, true );
+			SQLResultRow shiptype = ShipTypes.getShipType( this.shipid, true );
 
 			Cargo basecargo = new Cargo(Cargo.Type.STRING, db.first("SELECT cargo FROM bases WHERE id=",this.linkedbase).getString("cargo"));
 
@@ -153,7 +154,7 @@ public class ShipWerft extends WerftObject {
 	public long getMaxCargo( boolean localonly ) {
 		Database db = ContextMap.getContext().getDatabase();
 		
-		SQLResultRow shiptype = Ships.getShipType( shipid, true );
+		SQLResultRow shiptype = ShipTypes.getShipType( shipid, true );
 		long cargo = shiptype.getLong("cargo");
 		if( linkedbase != 0 && !localonly ) {
 			cargo += db.first("SELECT maxcargo FROM bases WHERE id=",linkedbase).getLong("maxcargo");
@@ -177,7 +178,7 @@ public class ShipWerft extends WerftObject {
 	public int getMaxCrew() {
 		if( this.maxcrew == -1 ) {
 			if( this.linkedbase == 0 ) {
-				SQLResultRow shiptype = Ships.getShipType( this.shipid, true );
+				SQLResultRow shiptype = ShipTypes.getShipType( this.shipid, true );
 				this.maxcrew = shiptype.getInt("crew");
 			} else {
 				this.maxcrew = 99999;
@@ -197,7 +198,7 @@ public class ShipWerft extends WerftObject {
 
 		int shipcrew = 0;
 		if( this.linkedbase != 0 ) {
-			SQLResultRow shiptype = Ships.getShipType( this.shipid, true );
+			SQLResultRow shiptype = ShipTypes.getShipType( this.shipid, true );
 			SQLResultRow base = db.first("SELECT bewohner,arbeiter FROM bases WHERE id=",this.linkedbase);
 			int basecrew = base.getInt("bewohner")-base.getInt("arbeiter");
 			shipcrew = db.first("SELECT crew FROM ships WHERE id>0 AND id=",this.shipid).getInt("crew");
@@ -275,8 +276,8 @@ public class ShipWerft extends WerftObject {
 			
 			int officount = db.first("SELECT count(*) count FROM offiziere WHERE dest='s ",this.shipid,"'").getInt("count");
 			int maxoffis = 1;
-			SQLResultRow shiptype = Ships.getShipType(this.getShipID(), true);
-			if( Ships.hasShipTypeFlag(shiptype, Ships.SF_OFFITRANSPORT) ) {
+			SQLResultRow shiptype = ShipTypes.getShipType(this.getShipID(), true);
+			if( ShipTypes.hasShipTypeFlag(shiptype, ShipTypes.SF_OFFITRANSPORT) ) {
 				maxoffis = shiptype.getInt("crew");
 			}
 			if( officount >= maxoffis ) {

@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.tick.TickController;
 
@@ -105,7 +106,7 @@ public class RTCTick extends TickController {
 			String entryname = "";
 			
 			if( entry.getInt("mtype") == 1 ) {
-				SQLResultRow shiptype = Ships.getShipType(Integer.parseInt(type), false);
+				SQLResultRow shiptype = ShipTypes.getShipType(Integer.parseInt(type), false);
 				entryname = "eine "+shiptype.getString("nickname");
 				int spawntype = Integer.parseInt(type);
 				
@@ -235,12 +236,12 @@ public class RTCTick extends TickController {
 			if( (owner != 0) && (owner != Faction.GTU) ) {
 				this.log("[GTU-Paket] BEGIN");
 		
-				SQLResultRow shipd = Ships.getShipType( CARGO_TRANSPORTER, false );
+				SQLResultRow shipd = ShipTypes.getShipType( CARGO_TRANSPORTER, false );
 				
 				int transporter = CARGO_TRANSPORTER;
 				
 				if( cargo.getMass() > shipd.getLong("cargo") ) {		
-					shipd = Ships.getShipType( CARGO_TRANSPORTER_LARGE, false );
+					shipd = ShipTypes.getShipType( CARGO_TRANSPORTER_LARGE, false );
 					
 					this.log("\t% Es wird der grosse Transporter verwendet");
 					
@@ -277,7 +278,7 @@ public class RTCTick extends TickController {
 					
 					if( type == 0 ) continue;
 					
-					shipd = Ships.getShipType(type, false);
+					shipd = ShipTypes.getShipType(type, false);
 		
 					this.log("\t* Es wurde eine "+shipd.getString("nickname")+" von ID "+winner+" ersteigert");
 					this.maxid++;

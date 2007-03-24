@@ -37,7 +37,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
  * Zeigt Details zu einer Forschung an 
@@ -344,7 +344,7 @@ public class ForschinfoController extends DSGenerator {
 	
 			t.start_record();
 
-			SQLResultRow shiptype = Ships.getShipType(ship.getInt("type"), false);
+			SQLResultRow shiptype = ShipTypes.getShipType(ship.getInt("type"), false);
 			
 			t.set_var(	"tech.ship.id",			ship.getInt("type"),
 						"tech.ship.name",		Common._plaintitle(ship.getString("nickname")),

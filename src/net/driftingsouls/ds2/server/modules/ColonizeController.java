@@ -35,6 +35,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
@@ -78,8 +79,8 @@ public class ColonizeController extends DSGenerator {
 			return false;
 		}
 		
-		SQLResultRow shiptype = Ships.getShipType( ship );
-		if( !Ships.hasShipTypeFlag(shiptype, Ships.SF_COLONIZER) ) {
+		SQLResultRow shiptype = ShipTypes.getShipType( ship );
+		if( !ShipTypes.hasShipTypeFlag(shiptype, ShipTypes.SF_COLONIZER) ) {
 			addError("Fehler: Das angegebene Schiff kann keine Planeten kolonisieren", Common.buildUrl(getContext(), "default", "module" , "schiff", "ship", shipId) );
 			
 			return false;

@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
@@ -404,7 +405,7 @@ public class ActionFunctions {
 				count = cargo1.getResourceCount( resid );
 			}
 			
-			SQLResultRow shiptype2 = Ships.getShipType(ship2);
+			SQLResultRow shiptype2 = ShipTypes.getShipType(ship2);
 			if( count > shiptype2.getLong("cargo") - cargo2.getMass() ) {
 				count = shiptype2.getLong("cargo") - cargo2.getMass();
 			}

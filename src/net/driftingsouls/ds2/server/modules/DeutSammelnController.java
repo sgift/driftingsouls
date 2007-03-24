@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
@@ -72,7 +73,7 @@ public class DeutSammelnController extends DSGenerator {
 			return false;
 		}
 
-		SQLResultRow shiptype = Ships.getShipType( ship );
+		SQLResultRow shiptype = ShipTypes.getShipType( ship );
 
 		SQLResultRow nebel = db.first("SELECT id,x,y,system,type FROM nebel WHERE id=",nebelID);
 

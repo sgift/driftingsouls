@@ -38,7 +38,7 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
  * Generiert die Sternenkarte, die Sternensystem-Liste sowie die Liste der Schiffe in einem Sektor
@@ -171,7 +171,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 	}
 	
 	private void echoSectorShipData( SQLResultRow aship, String relation ) throws UnsupportedEncodingException {
-		SQLResultRow stype = Ships.getShipType(aship);
+		SQLResultRow stype = ShipTypes.getShipType(aship);
 		
 		StringBuffer echo = getContext().getResponse().getContent();
 		
@@ -275,7 +275,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 			List<Integer> verysmallshiptypes = new ArrayList<Integer>();
 			verysmallshiptypes.add(0); // Ein dummy-Wert, damit es keine SQL-Fehler gibt
 			
-			SQLQuery stid = db.query("SELECT id FROM ship_types WHERE LOCATE('",Ships.SF_SEHR_KLEIN,"',flags)");
+			SQLQuery stid = db.query("SELECT id FROM ship_types WHERE LOCATE('",ShipTypes.SF_SEHR_KLEIN,"',flags)");
 			while( stid.next() ) {
 				verysmallshiptypes.add(stid.getInt("id"));
 			}
@@ -286,7 +286,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 					"WHERE t1.id>0 AND t1.system=",this.system," AND t1.owner",usersql," AND " ,
 							"t2.class IN (11,13)");
 			while( scanner.next() ) {
-				SQLResultRow scannertype = Ships.getShipType( scanner.getRow() );
+				SQLResultRow scannertype = ShipTypes.getShipType( scanner.getRow() );
 					
 				if( scanner.getInt("crew") < scannertype.getInt("crew")/3 ) {
 					continue;
@@ -312,8 +312,8 @@ public class MapDataController extends DSGenerator implements Loggable {
 							"(t1.visibility IS NULL OR t1.visibility='",this.usedUser.getID(),"') AND (!(t1.type IN (",Common.implode(",",verysmallshiptypes),")) OR LOCATE('tblmodules',t1.status)) " ,
 							"ORDER BY t1.x,t1.y");
 				while( s.next() ) {			
-					SQLResultRow st = Ships.getShipType( s.getRow() );
-					if( Ships.hasShipTypeFlag(st, Ships.SF_SEHR_KLEIN) ) {
+					SQLResultRow st = ShipTypes.getShipType( s.getRow() );
+					if( ShipTypes.hasShipTypeFlag(st, ShipTypes.SF_SEHR_KLEIN) ) {
 						continue;	
 					}
 								
@@ -483,7 +483,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 			List<Integer> verysmallshiptypes = new ArrayList<Integer>();
 			verysmallshiptypes.add(0); // Ein dummy-Wert, damit es keine SQL-Fehler gibt
 			
-			SQLQuery stid = db.query("SELECT id FROM ship_types WHERE LOCATE('",Ships.SF_SEHR_KLEIN,"',flags)");
+			SQLQuery stid = db.query("SELECT id FROM ship_types WHERE LOCATE('",ShipTypes.SF_SEHR_KLEIN,"',flags)");
 			while( stid.next() ) {
 				verysmallshiptypes.add(stid.getInt("id"));
 			}
@@ -513,7 +513,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 			while( scanner.next() ) {
 				Location loc = new Location(system, scanner.getInt("x"), scanner.getInt("y"));
 				
-				SQLResultRow scannertype = Ships.getShipType( scanner.getRow() );
+				SQLResultRow scannertype = ShipTypes.getShipType( scanner.getRow() );
 				
 				if( scanner.getInt("crew") < scannertype.getInt("crew")/3 ) {
 					continue;
@@ -627,8 +627,8 @@ public class MapDataController extends DSGenerator implements Loggable {
 						continue;
 					}
 					
-					SQLResultRow st = Ships.getShipType( s.getRow() );
-					if( Ships.hasShipTypeFlag(st, Ships.SF_SEHR_KLEIN) ) {
+					SQLResultRow st = ShipTypes.getShipType( s.getRow() );
+					if( ShipTypes.hasShipTypeFlag(st, ShipTypes.SF_SEHR_KLEIN) ) {
 						continue;	
 					}
 					

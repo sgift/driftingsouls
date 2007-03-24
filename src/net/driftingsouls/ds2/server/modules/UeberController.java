@@ -45,6 +45,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.scripting.ScriptParser;
 import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
@@ -536,7 +537,7 @@ public class UeberController extends DSGenerator implements Loggable {
 	
 			SQLQuery bookmark = db.query("SELECT id,name,x,y,system,destx,desty,destsystem,destcom,status,type FROM ships WHERE id>0 AND bookmark=1 AND owner=",user.getID()," ORDER BY id DESC");
 			while( bookmark.next() ) {
-				SQLResultRow shiptype = Ships.getShipType( bookmark.getRow() );
+				SQLResultRow shiptype = ShipTypes.getShipType( bookmark.getRow() );
 				t.set_var(	"bookmark.shipid",		bookmark.getInt("id"),
 							"bookmark.shipname",	bookmark.getString("name"),
 							"bookmark.location",	Ships.getLocationText(bookmark.getRow(), false),

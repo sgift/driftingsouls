@@ -37,6 +37,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
@@ -481,7 +482,7 @@ public class FleetMgntController extends DSGenerator {
 		SQLQuery s = db.query("SELECT t1.id,t1.name,t1.shields,t1.e,t1.status,t1.type FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id WHERE t1.fleet='",this.fleet.getInt("id"),"' AND (t1.shields < t2.shields OR LOCATE('tblmodules',t1.status)) AND t1.battle=0");
 		while( s.next() ) {
 			SQLResultRow sRow = s.getRow();
-			SQLResultRow stype = Ships.getShipType( sRow );
+			SQLResultRow stype = ShipTypes.getShipType( sRow );
 			
 			int shieldfactor = 100;
 			if( stype.getInt("shields") < 1000 ) {
@@ -522,7 +523,7 @@ public class FleetMgntController extends DSGenerator {
 		SQLQuery sRow = db.query("SELECT t1.* FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id WHERE t1.fleet='",this.fleet.getInt("id"),"' AND (t1.e < t2.eps OR LOCATE('tblmodules',t1.status)) AND t1.battle=0 AND t1.type=t2.id");
 		while( sRow.next() ) {
 			SQLResultRow s = sRow.getRow();
-			SQLResultRow stype = Ships.getShipType( s );
+			SQLResultRow stype = ShipTypes.getShipType( s );
 			int olde = s.getInt("e");			
 			
 			if( s.getInt("e") >= stype.getInt("eps") ) {
@@ -608,7 +609,7 @@ public class FleetMgntController extends DSGenerator {
 		
 		SQLQuery ship = db.query("SELECT * FROM ships WHERE id>0 AND fleet='",this.fleet.getInt("id"),"' AND battle=0" );
 		while( ship.next() ) {
-			SQLResultRow shiptype = Ships.getShipType(ship.getRow());
+			SQLResultRow shiptype = ShipTypes.getShipType(ship.getRow());
 			
 			if( shiptype.getInt("adocks") == 0 ) {
 				continue;
@@ -675,7 +676,7 @@ public class FleetMgntController extends DSGenerator {
 		
 		SQLQuery ship = db.query("SELECT * FROM ships WHERE id>0 AND fleet='",this.fleet.getInt("id"),"' AND battle=0" );
 		while( ship.next() ) {
-			SQLResultRow shiptype = Ships.getShipType(ship.getRow());
+			SQLResultRow shiptype = ShipTypes.getShipType(ship.getRow());
 			
 			if( shiptype.getInt("jdocks") == 0 ) {
 				continue;
@@ -685,10 +686,10 @@ public class FleetMgntController extends DSGenerator {
 
 			List<Integer >jaegerlist = new ArrayList<Integer>();
 			
-			SQLQuery jaeger = db.query("SELECT t1.* FROM ships t1 JOIN ship_types t2 WHERE ",(jaegertypeID > 0 ? "t1.type="+jaegertypeID+" AND " : ""),"t1.owner='",user.getID(),"' AND t1.system='",ship.getInt("system"),"' AND t1.x='",ship.getInt("x"),"' AND t1.y='",ship.getInt("y"),"' AND t1.docked='' AND t1.type=t2.id AND (LOCATE('tblmodules',t1.status) OR LOCATE('",Ships.SF_JAEGER,"',t2.flags)) ORDER BY fleet,type");
+			SQLQuery jaeger = db.query("SELECT t1.* FROM ships t1 JOIN ship_types t2 WHERE ",(jaegertypeID > 0 ? "t1.type="+jaegertypeID+" AND " : ""),"t1.owner='",user.getID(),"' AND t1.system='",ship.getInt("system"),"' AND t1.x='",ship.getInt("x"),"' AND t1.y='",ship.getInt("y"),"' AND t1.docked='' AND t1.type=t2.id AND (LOCATE('tblmodules',t1.status) OR LOCATE('",ShipTypes.SF_JAEGER,"',t2.flags)) ORDER BY fleet,type");
 			while( jaeger.next() ) {
-				SQLResultRow jaegertype = Ships.getShipType(jaeger.getRow());
-				if( Ships.hasShipTypeFlag(jaegertype, Ships.SF_JAEGER) ) {
+				SQLResultRow jaegertype = ShipTypes.getShipType(jaeger.getRow());
+				if( ShipTypes.hasShipTypeFlag(jaegertype, ShipTypes.SF_JAEGER) ) {
 					jaegerlist.add(jaeger.getInt("id"));
 					free--;
 				}
@@ -767,7 +768,7 @@ public class FleetMgntController extends DSGenerator {
 		SQLQuery ship = db.query("SELECT name,id,battle,system,x,y,type,status FROM ships WHERE id>0 AND owner=",user.getID()," AND fleet=",this.fleet.getInt("id")," ORDER BY id");
 		while( ship.next() ) {
 			SQLResultRow shipRow = ship.getRow();
-			SQLResultRow shiptype = Ships.getShipType( shipRow );
+			SQLResultRow shiptype = ShipTypes.getShipType( shipRow );
 			Location loc = Location.fromResult(shipRow);
 			
 			t.set_var(	"ship.id",			ship.getInt("id"),
@@ -789,7 +790,7 @@ public class FleetMgntController extends DSGenerator {
 		
 		t.set_block("_FLEETMGNT", "jaegertypes.listitem", "jaegertypes.list");
 		
-		SQLQuery shiptype = db.query("SELECT nickname,id FROM ship_types WHERE LOCATE('"+Ships.SF_JAEGER+"',flags) "+(user.getAccessLevel() < 10 ? "AND hide=0" : ""));
+		SQLQuery shiptype = db.query("SELECT nickname,id FROM ship_types WHERE LOCATE('"+ShipTypes.SF_JAEGER+"',flags) "+(user.getAccessLevel() < 10 ? "AND hide=0" : ""));
 		while( shiptype.next() ) {
 			int count = db.first("SELECT count(*) count FROM ships WHERE owner=",user.getID()," AND type=",shiptype.getInt("id")," AND docked='' AND (",sectorstring,")").getInt("count");
 			if( count == 0 ) {

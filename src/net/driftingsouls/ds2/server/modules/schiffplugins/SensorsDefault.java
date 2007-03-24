@@ -38,6 +38,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
@@ -86,7 +87,7 @@ public class SensorsDefault implements SchiffPlugin {
 		t.set_var(	"global.ship",				ship,
 					"global.pluginid",			pluginid,
 					"ship.sensors.location",	Ships.getLocationText(data, true),
-					"global.awac",				Ships.hasShipTypeFlag(datatype, Ships.SF_SRS_AWAC) );
+					"global.awac",				ShipTypes.hasShipTypeFlag(datatype, ShipTypes.SF_SRS_AWAC) );
 
 		int jaegerfleet = -1;
 
@@ -141,7 +142,7 @@ public class SensorsDefault implements SchiffPlugin {
 							"base.size",		datan.getInt("size"),
 							"base.image",		Configuration.getSetting("URL")+"data/starmap/kolonie"+datan.getInt("klasse")+"_srs.png",
 							"base.transfer",	(datan.getInt("owner") != 0),
-							"base.colonize",	((datan.getInt("owner") == 0) || (datan.getInt("owner") == -1)) && Ships.hasShipTypeFlag(datatype,Ships.SF_COLONIZER),
+							"base.colonize",	((datan.getInt("owner") == 0) || (datan.getInt("owner") == -1)) && ShipTypes.hasShipTypeFlag(datatype,ShipTypes.SF_COLONIZER),
 							"base.action.repair",	0 );
 
 				if( datan.getInt("owner") == user.getID()) {
@@ -361,8 +362,8 @@ public class SensorsDefault implements SchiffPlugin {
 			}
 			
 			while( datas.next() ) {
-				SQLResultRow ashiptype = Ships.getShipType( datas.getRow() );
-				SQLResultRow mastertype = Ships.getShipType( datas.getInt("type"), false );
+				SQLResultRow ashiptype = ShipTypes.getShipType( datas.getRow() );
+				SQLResultRow mastertype = ShipTypes.getShipType( datas.getInt("type"), false );
 				
 				final String typeGroupID = datas.getInt("type")+"_"+datas.getInt("owner");
 
@@ -477,7 +478,7 @@ public class SensorsDefault implements SchiffPlugin {
 					}
 					
 					// Anzeige Heat (Standard)
-					if( Ships.hasShipTypeFlag(datatype, Ships.SF_SRS_EXT_AWAC) ) {
+					if( ShipTypes.hasShipTypeFlag(datatype, ShipTypes.SF_SRS_EXT_AWAC) ) {
 						t.set_var("sships.heat",datas.get("s"));
 						
 						// Anzeige Heat
@@ -504,7 +505,7 @@ public class SensorsDefault implements SchiffPlugin {
 							t.set_var("sships.e",datas.get("e"));
 						}
 					} 
-					else if( Ships.hasShipTypeFlag(datatype, Ships.SF_SRS_AWAC) ) {
+					else if( ShipTypes.hasShipTypeFlag(datatype, ShipTypes.SF_SRS_AWAC) ) {
 						t.set_var("global.standartawac",1);
 						
 						if( datas.getInt("s") > 100 ) {
@@ -603,7 +604,7 @@ public class SensorsDefault implements SchiffPlugin {
 					if( !disableIFF && (datas.getInt("owner") != user.getID()) && (ashiptype.getInt("class") != ShipClasses.GESCHUETZ.ordinal()) &&
 						((datas.getInt("owner") != -1) || (ashiptype.getInt("class") == ShipClasses.SCHROTT.ordinal() || ashiptype.getInt("class") == ShipClasses.FELSBROCKEN.ordinal())) ) {
 						if( ( (user.getAlly() > 0) && (datas.getInt("ally") != user.getAlly()) ) || (user.getAlly() == 0) ) {
-							if( !Ships.hasShipTypeFlag(ashiptype, Ships.SF_NICHT_KAPERBAR) ) {
+							if( !ShipTypes.hasShipTypeFlag(ashiptype, ShipTypes.SF_NICHT_KAPERBAR) ) {
 								t.set_var("sships.action.kapern",1);
 							}
 							else {
@@ -616,10 +617,10 @@ public class SensorsDefault implements SchiffPlugin {
 
 					//Offiziere: Captain transferieren
 					boolean hasoffizier = datas.getString("status").indexOf("offizier") != -1;
-					if( !disableIFF && (offizier != null) && (!hasoffizier || Ships.hasShipTypeFlag(ashiptype, Ships.SF_OFFITRANSPORT) ) ) {
+					if( !disableIFF && (offizier != null) && (!hasoffizier || ShipTypes.hasShipTypeFlag(ashiptype, ShipTypes.SF_OFFITRANSPORT) ) ) {
 						if( ashiptype.getInt("size") > 2 ) {
 							boolean ok = true;
-							if( Ships.hasShipTypeFlag(ashiptype, Ships.SF_OFFITRANSPORT) ) {
+							if( ShipTypes.hasShipTypeFlag(ashiptype, ShipTypes.SF_OFFITRANSPORT) ) {
 								int officount = db.first("SELECT count(*) count FROM offiziere WHERE dest='s "+datas.getInt("id")+"'").getInt("count");
 								
 								if( officount >= ashiptype.getInt("crew") ) {
@@ -647,7 +648,7 @@ public class SensorsDefault implements SchiffPlugin {
 					}
 
 					//Jaegerfunktionen: laden, Flotte landen
-					if( Ships.hasShipTypeFlag(datatype, Ships.SF_JAEGER) && (currentDockID != datas.getInt("id")) ) {
+					if( ShipTypes.hasShipTypeFlag(datatype, ShipTypes.SF_JAEGER) && (currentDockID != datas.getInt("id")) ) {
 						if( ( ashiptype.getInt("jdocks") > 0 ) && ( datas.getInt("owner") == user.getID() ) ) {
 							if( fullcount + 1 <= ashiptype.getInt("jdocks") ) {
 								t.set_var("sships.action.land",1);
@@ -658,8 +659,8 @@ public class SensorsDefault implements SchiffPlugin {
 									if( jaegerfleet == -1) {
 										SQLQuery tmp = db.query("SELECT id,type,status FROM ships WHERE id>0 AND fleet='"+data.getInt("fleet")+"'");
 										while( tmp.next() ) {
-											SQLResultRow tmptype = Ships.getShipType( tmp.getRow() );
-											if( !Ships.hasShipTypeFlag(tmptype, Ships.SF_JAEGER) ) {
+											SQLResultRow tmptype = ShipTypes.getShipType( tmp.getRow() );
+											if( !ShipTypes.hasShipTypeFlag(tmptype, ShipTypes.SF_JAEGER) ) {
 												ok = false;
 												break;
 											}
@@ -681,7 +682,7 @@ public class SensorsDefault implements SchiffPlugin {
 					}
 				
 					//Aktuellen Jaeger auf dem (ausgewaehlten) Traeger laden lassen
-					if( (datas.getInt("owner") == user.getID()) && spaceToLand && Ships.hasShipTypeFlag(ashiptype, Ships.SF_JAEGER) ) {
+					if( (datas.getInt("owner") == user.getID()) && spaceToLand && ShipTypes.hasShipTypeFlag(ashiptype, ShipTypes.SF_JAEGER) ) {
 						t.set_var("sships.action.landthis",1);
 					}
 

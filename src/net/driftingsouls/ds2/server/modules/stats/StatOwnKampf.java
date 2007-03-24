@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.StatsController;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
  * Zeigt in Schlachten zerstoerte und verlorene Schiffe an
@@ -69,7 +69,7 @@ public class StatOwnKampf implements Statistic {
 				}
 				counter++;
 				
-				SQLResultRow shiptype = Ships.getShipType( s.getInt("type"), false );
+				SQLResultRow shiptype = ShipTypes.getShipType( s.getInt("type"), false );
 				
 				echo.append("<td class=\"noBorderX\" style=\"width:100px; vertical-align:top; text-align:center\">");
 				echo.append(Common._plaintitle(s.getString("name"))+"<br />");
@@ -147,7 +147,7 @@ public class StatOwnKampf implements Statistic {
 				}
 				counter++;
 				
-				SQLResultRow shiptype = Ships.getShipType( s.getInt("type"), false );
+				SQLResultRow shiptype = ShipTypes.getShipType( s.getInt("type"), false );
 				
 				echo.append("<td class=\"noBorderX\" style=\"width:100px; text-align:center; vertical-align:top\">");
 				echo.append(Common._plaintitle(s.getString("name"))+"<br />");

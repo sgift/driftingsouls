@@ -49,6 +49,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.scripting.ScriptParser;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.tick.regular.SchiffsTick;
@@ -180,7 +181,7 @@ public class Battle implements Loggable {
 	 * @return Die Stringrepraesentation
 	 */
 	public static String log_shiplink( SQLResultRow ship ) {
-		SQLResultRow shiptype = Ships.getShipType(ship);
+		SQLResultRow shiptype = ShipTypes.getShipType(ship);
 
 		return "[tooltip="+shiptype.getString("nickname")+"]"+ship.getString("name")+"[/tooltip] ("+ship.getInt("id")+")";
 	}
@@ -243,7 +244,7 @@ public class Battle implements Loggable {
 			if( (aship.getInt("action") & BS_JOIN) != 0 || (aship.getInt("action") & BS_FLUCHT) != 0 ) {
 				continue;	
 			}
-			SQLResultRow type = Ships.getShipType(aship);
+			SQLResultRow type = ShipTypes.getShipType(aship);
 			
 			if( (aship.getInt("action") & BS_SECONDROW) != 0 ) {
 				if( aship.getString("docked").length() == 0 ) {
@@ -259,9 +260,9 @@ public class Battle implements Loggable {
 			for( int i=0; i < added.length; i++ ) {
 				SQLResultRow aship = added[i];
 				
-				SQLResultRow type = Ships.getShipType(aship);
+				SQLResultRow type = ShipTypes.getShipType(aship);
 				
-				if( !Ships.hasShipTypeFlag(type, Ships.SF_SECONDROW) ) {
+				if( !ShipTypes.hasShipTypeFlag(type, ShipTypes.SF_SECONDROW) ) {
 					continue;
 				}
 				
@@ -366,7 +367,7 @@ public class Battle implements Loggable {
 		for( int i=0; i < olist.size(); i++ ) {
 			SQLResultRow aShip = olist.get(i);
 			
-			SQLResultRow aShipType = Ships.getShipType(aShip);
+			SQLResultRow aShipType = ShipTypes.getShipType(aShip);
 			if( (aShipType.getInt("size") > 3) && (aShipType.getInt("military") != 0) && (aShipType.getInt("crew") > 0) ) {
 				double factor = aShip.getInt("crew") / (double)aShipType.getInt("crew");
 				ownsize += factor*aShipType.getInt("size");
@@ -377,7 +378,7 @@ public class Battle implements Loggable {
 		for( int i=0; i < elist.size(); i++ ) {
 			SQLResultRow aShip = elist.get(i);
 			
-			SQLResultRow aShipType = Ships.getShipType(aShip);
+			SQLResultRow aShipType = ShipTypes.getShipType(aShip);
 			if( (aShipType.getInt("size") > 3) && (aShipType.getInt("military") != 0) && (aShipType.getInt("crew") > 0) ) {
 				double factor = aShip.getInt("crew") / (double)aShipType.getInt("crew");
 				enemysize += factor*aShipType.getInt("size");
@@ -743,8 +744,8 @@ public class Battle implements Loggable {
 			
 			SQLResultRow aShip = aShipRow.getRow();
 			
-			SQLResultRow shiptype = Ships.getShipType(aShip);
-			if( (aShip.getString("docked").length() == 0) && Ships.hasShipTypeFlag(shiptype, Ships.SF_SECONDROW) ) {
+			SQLResultRow shiptype = ShipTypes.getShipType(aShip);
+			if( (aShip.getString("docked").length() == 0) && ShipTypes.hasShipTypeFlag(shiptype, ShipTypes.SF_SECONDROW) ) {
 				aShip.put("action", BS_SECONDROW);
 			}
 			else {
@@ -828,7 +829,7 @@ public class Battle implements Loggable {
 		}
 		idlist.add(enemyShip.getInt("id"));
 		
-		SQLResultRow enemyShipType = Ships.getShipType(enemyShip);
+		SQLResultRow enemyShipType = ShipTypes.getShipType(enemyShip);
 
 		db.update("INSERT INTO battles_ships ",
 					"(shipid,battleid,side,hull,shields,engine,weapons,comm,sensors,action,count) ",
@@ -844,7 +845,7 @@ public class Battle implements Loggable {
 			}
 			idlist.add(ship.getInt("id"));
 			
-			SQLResultRow shiptype = Ships.getShipType(ship);
+			SQLResultRow shiptype = ShipTypes.getShipType(ship);
 
 			db.update("INSERT INTO battles_ships ",
 					"(shipid,battleid,side,hull,shields,engine,weapons,comm,sensors,action,count) ",
@@ -861,7 +862,7 @@ public class Battle implements Loggable {
 		// * Eigene Schiffe in die Schlacht einfuegen
 		idlist.add(ownShip.getInt("id"));
 		
-		SQLResultRow ownShipType = Ships.getShipType(ownShip);
+		SQLResultRow ownShipType = ShipTypes.getShipType(ownShip);
 
 		db.update("INSERT INTO battles_ships ",
 				"(shipid,battleid,side,hull,shields,engine,weapons,comm,sensors,action,count) ",
@@ -876,7 +877,7 @@ public class Battle implements Loggable {
 			}
 			idlist.add(ship.getInt("id"));
 			
-			SQLResultRow shiptype = Ships.getShipType(ship);
+			SQLResultRow shiptype = ShipTypes.getShipType(ship);
 
 			db.update("INSERT INTO battles_ships ",
 					"(shipid,battleid,side,hull,shields,engine,weapons,comm,sensors,action,count) ",
@@ -1040,7 +1041,7 @@ public class Battle implements Loggable {
 			return false;
 		}
 		
-		SQLResultRow shiptype = Ships.getShipType(shipd);
+		SQLResultRow shiptype = ShipTypes.getShipType(shipd);
 		if( shiptype.getInt("class") == ShipClasses.GESCHUETZ.ordinal() ) {
 			context.addError("<span style=\"color:red\">Gesch&uuml;tze k&ouml;nnen einer Schlacht nicht beitreten!</span>");
 			return false;
@@ -1110,7 +1111,7 @@ public class Battle implements Loggable {
 		while( sid.next() ) {
 			SQLResultRow sidRow = sid.getRow();
 			
-			shiptype = Ships.getShipType(sidRow);
+			shiptype = ShipTypes.getShipType(sidRow);
 			if( shiptype.getInt("class") == ShipClasses.GESCHUETZ.ordinal() ) {
 				continue;
 			}
@@ -1124,7 +1125,7 @@ public class Battle implements Loggable {
 				while( sid2.next() ) {
 					SQLResultRow sid2Row = sid2.getRow();
 					
-					SQLResultRow stype = Ships.getShipType(sid2Row);
+					SQLResultRow stype = ShipTypes.getShipType(sid2Row);
 					if( stype.getInt("class") == ShipClasses.GESCHUETZ.ordinal() ) {
 						db.update("UPDATE ships SET docked='',battle=0 WHERE id=",sid2.getInt("id"));
 						continue;
@@ -1135,8 +1136,8 @@ public class Battle implements Loggable {
 					int sid2Action = 0;
 					
 					// Das neue Schiff in die Liste der eigenen Schiffe eintragen
-					if( !Ships.hasShipTypeFlag(shiptype, Ships.SF_INSTANT_BATTLE_ENTER) && 
-						!Ships.hasShipTypeFlag(stype, Ships.SF_INSTANT_BATTLE_ENTER) ) {
+					if( !ShipTypes.hasShipTypeFlag(shiptype, ShipTypes.SF_INSTANT_BATTLE_ENTER) && 
+						!ShipTypes.hasShipTypeFlag(stype, ShipTypes.SF_INSTANT_BATTLE_ENTER) ) {
 						sid2Action = BS_JOIN;
 					}
 					
@@ -1157,7 +1158,7 @@ public class Battle implements Loggable {
 			int sidAction = 0; 
 			
 			// Das neue Schiff in die Liste der eigenen Schiffe eintragen
-			if( !Ships.hasShipTypeFlag(shiptype, Ships.SF_INSTANT_BATTLE_ENTER) ) {
+			if( !ShipTypes.hasShipTypeFlag(shiptype, ShipTypes.SF_INSTANT_BATTLE_ENTER) ) {
 				sidAction = BS_JOIN;
 			}
 
@@ -1526,7 +1527,7 @@ public class Battle implements Loggable {
 					aship.put("action", aship.getInt("action") ^ BS_DESTROYED);
 				}
 				
-				SQLResultRow ashipType = Ships.getShipType( aship );
+				SQLResultRow ashipType = ShipTypes.getShipType( aship );
 				
 				if( (aship.getInt("action") & BS_FLUCHT) != 0 ) {
 					if( ashipType.getInt("cost") > 0 ) {
@@ -1561,7 +1562,7 @@ public class Battle implements Loggable {
 				}
 				
 				if( (aship.getInt("action") & BS_JOIN) != 0 ) {
-					if( Ships.hasShipTypeFlag(ashipType, Ships.SF_SECONDROW) && 
+					if( ShipTypes.hasShipTypeFlag(ashipType, ShipTypes.SF_SECONDROW) && 
 						this.isSecondRowStable(i, new SQLResultRow[] {aship}) ) {
 						aship.put("action", aship.getInt("action") ^ BS_SECONDROW);
 					}

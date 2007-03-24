@@ -39,6 +39,7 @@ import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.tick.TickController;
 
@@ -122,7 +123,7 @@ public class NPCOrderTick extends TickController {
 				type = data.getInt("type");
 			}
 		
-			SQLResultRow shipd = Ships.getShipType( type, false );
+			SQLResultRow shipd = ShipTypes.getShipType( type, false );
 		
 			if( data.getInt("type") > 0 ) {
 				this.log("* Order "+data.getInt("id")+" ready: "+shipd.getString("nickname")+" ("+type+") wird zu User "+data.getInt("user")+" geliefert");

@@ -34,7 +34,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
  * Die UI zum GTU-Zwischenlager
@@ -156,7 +156,7 @@ public class GtuZwischenLagerController extends DSGenerator {
 			return;	
 		}
 			
-		SQLResultRow shiptype = Ships.getShipType(this.ship);
+		SQLResultRow shiptype = ShipTypes.getShipType(this.ship);
 		
 		Cargo shipCargo = new Cargo(Cargo.Type.STRING, ship.getString("cargo"));
 		long freecargo = shiptype.getLong("cargo") - shipCargo.getMass();

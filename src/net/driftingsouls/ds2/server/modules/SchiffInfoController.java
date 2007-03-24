@@ -41,7 +41,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.NoSuchShipTypeException;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
  * Die Schiffstypen-Infos
@@ -84,7 +84,7 @@ public class SchiffInfoController extends DSGenerator {
 					
 		SQLResultRow data = null;
 		try {
-			data = Ships.getShipType(ship, false);
+			data = ShipTypes.getShipType(ship, false);
 		}
 		catch(NoSuchShipTypeException e) {
 			// EMPTY
@@ -359,14 +359,14 @@ public class SchiffInfoController extends DSGenerator {
 		t.set_block("_SCHIFFINFO", "shiptypeflags.listitem", "shiptypeflags.list");
 		t.set_var("shiptypeflags.list","");
 
-		String[] flaglist = Ships.getShipTypeFlagList(this.ship);
+		String[] flaglist = ShipTypes.getShipTypeFlagList(this.ship);
 		Arrays.sort(flaglist);
 		for( int i=0; i < flaglist.length; i++ ) {
 			if( flaglist[i].length() == 0 ) {
 				continue;	
 			}
-			t.set_var(	"shiptypeflag.name", 			Ships.getShipTypeFlagName(flaglist[i]),
-						"shiptypeflag.description",		Ships.getShipTypeFlagDescription(flaglist[i]) );
+			t.set_var(	"shiptypeflag.name", 			ShipTypes.getShipTypeFlagName(flaglist[i]),
+						"shiptypeflag.description",		ShipTypes.getShipTypeFlagDescription(flaglist[i]) );
 								
 			t.parse("shiptypeflags.list","shiptypeflags.listitem",true);
 		}
@@ -397,7 +397,7 @@ public class SchiffInfoController extends DSGenerator {
 
 		t.set_var(	"shiptype.nickname",	ship.getString("nickname"),
 					"shiptype.id",			ship.getInt("id"),
-					"shiptype.class",		Ships.getShipClass(ship.getInt("class")).getSingular(),
+					"shiptype.class",		ShipTypes.getShipClass(ship.getInt("class")).getSingular(),
 					"shiptype.image",		ship.getString("picture"),
 					"shiptype.ru",			ship.getInt("ru"),
 					"shiptype.rd",			ship.getInt("rd"),

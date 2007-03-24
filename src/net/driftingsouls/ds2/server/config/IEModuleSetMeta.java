@@ -26,7 +26,7 @@ import java.util.Map;
 
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -98,7 +98,7 @@ public class IEModuleSetMeta extends ItemEffect {
 		NodeList nodes = XMLUtils.getNodesByXPath(effectNode, "combo");
 		for( int i=0, length=nodes.getLength(); i < length; i++ ) {
 			int count = XMLUtils.getNumberByXPath(nodes.item(i), "@item-count").intValue();
-			SQLResultRow combo = Ships.getTypeChangeSetFromXML(nodes.item(i));
+			SQLResultRow combo = ShipTypes.getTypeChangeSetFromXML(nodes.item(i));
 			effect.addCombo(count, combo);
 		}
 		

@@ -27,7 +27,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
  * Laesst ein Schiff in die zweite Reihe fliegen
@@ -86,9 +86,9 @@ public class KSSecondRowAction extends BasicKSAction {
 			return RESULT_ERROR;
 		} 
 		
-		SQLResultRow ownShipType = Ships.getShipType( ownShip );
+		SQLResultRow ownShipType = ShipTypes.getShipType( ownShip );
 		
-		if( !Ships.hasShipTypeFlag(ownShipType, Ships.SF_SECONDROW) ) {
+		if( !ShipTypes.hasShipTypeFlag(ownShipType, ShipTypes.SF_SECONDROW) ) {
 			return RESULT_ERROR;
 		}
 		
@@ -101,12 +101,12 @@ public class KSSecondRowAction extends BasicKSAction {
 		}
 		
 		boolean gotone = false;
-		if( Ships.hasShipTypeFlag(ownShipType, Ships.SF_DROHNE) ) {
+		if( ShipTypes.hasShipTypeFlag(ownShipType, ShipTypes.SF_DROHNE) ) {
 			List<SQLResultRow> ownShips = battle.getOwnShips();
 			for( int i=0; i < ownShips.size(); i++ ) {
 				SQLResultRow aship = ownShips.get(i);
-				SQLResultRow ashiptype = Ships.getShipType(aship);
-				if( Ships.hasShipTypeFlag(ashiptype, Ships.SF_DROHNEN_CONTROLLER) ) {
+				SQLResultRow ashiptype = ShipTypes.getShipType(aship);
+				if( ShipTypes.hasShipTypeFlag(ashiptype, ShipTypes.SF_DROHNEN_CONTROLLER) ) {
 					gotone = true;
 					break;	
 				}

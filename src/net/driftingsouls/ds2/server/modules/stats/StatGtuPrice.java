@@ -30,7 +30,7 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.StatsController;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
  * Zeigt die Liste hoechsten Gebote (welche zur Ersteigerung fuehrten) in der GTU
@@ -67,7 +67,7 @@ public class StatGtuPrice extends AbstractStatistic implements Statistic {
 			String name = null;
 			
 			if( gebot.getInt("mtype") == 1 ) {
-				SQLResultRow shiptype = Ships.getShipType(gebot.getInt("type"), false);
+				SQLResultRow shiptype = ShipTypes.getShipType(gebot.getInt("type"), false);
 				name = "<a class=\"forschinfo\" href=\"./main.php?module=schiffinfo&sess="+context.getSession()+"&ship="+gebot.getInt("type")+"\">"+shiptype.getString("nickname")+"</a>";
 			}
 			else if( gebot.getInt("mtype") == 2 ) {
@@ -93,7 +93,7 @@ public class StatGtuPrice extends AbstractStatistic implements Statistic {
 				}
 	
 				for( int i=0; i < ships.length; i++ ) {
-					SQLResultRow shiptype = Ships.getShipType(ships[i], false);
+					SQLResultRow shiptype = ShipTypes.getShipType(ships[i], false);
 					text.append(shiptype.getString("nickname")+"<br />");
 				}
 	

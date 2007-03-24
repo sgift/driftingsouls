@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
@@ -53,7 +54,7 @@ public class KSCheatRegenerateOwnAction extends BasicKSAction {
 
 		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
 		
-		SQLResultRow ownShipType = Ships.getShipType(ownShip);
+		SQLResultRow ownShipType = ShipTypes.getShipType(ownShip);
 		ownShip.put("crew", ownShipType.getInt("crew"));
 		ownShip.put("hull", ownShipType.getInt("hull"));
 		ownShip.put("e", ownShipType.getInt("eps"));

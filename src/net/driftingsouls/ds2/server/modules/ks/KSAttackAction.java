@@ -43,6 +43,7 @@ import net.driftingsouls.ds2.server.framework.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
@@ -221,7 +222,7 @@ public class KSAttackAction extends BasicKSAction {
 	}
 	
 	private int getTrefferWS( Battle battle, int defTrefferWS, SQLResultRow eShip, SQLResultRow eShipType, int defensivskill, int navskill ) {
-		SQLResultRow ownShipType = Ships.getShipType(this.ownShip);
+		SQLResultRow ownShipType = ShipTypes.getShipType(this.ownShip);
 		
 		if( (eShip.getInt("crew") == 0) && (eShipType.getInt("crew") > 0) ) {
 			return 100;
@@ -280,7 +281,7 @@ public class KSAttackAction extends BasicKSAction {
 	}
 	
 	private int getSmallTrefferWS( Battle battle, int defTrefferWS, SQLResultRow eShip, SQLResultRow eShipType, int defensivskill, int navskill ) {
-		SQLResultRow ownShipType = Ships.getShipType(this.ownShip);
+		SQLResultRow ownShipType = ShipTypes.getShipType(this.ownShip);
 		
 		if( (eShip.getInt("crew") == 0) && (eShipType.getInt("crew") > 0) ) {
 			return 100;
@@ -399,7 +400,7 @@ public class KSAttackAction extends BasicKSAction {
 		if( hit != 0 ) {
 			int hulldamage = hit*schaden;
 
-			if( Ships.hasShipTypeFlag(eShipType, Ships.SF_ZERSTOERERPANZERUNG) ) {
+			if( ShipTypes.hasShipTypeFlag(eShipType, ShipTypes.SF_ZERSTOERERPANZERUNG) ) {
 				int dmgThisTurn = eShip.getInt("hull")-battle_ship.getInt("hull")+hulldamage;
 				if( dmgThisTurn / (double)eShipType.getInt("hull") > 0.33 ) {
 					int newhulldamage = (int)(eShipType.getInt("hull")*0.33 - (eShip.getInt("hull")-battle_ship.getInt("hull")));
@@ -410,7 +411,7 @@ public class KSAttackAction extends BasicKSAction {
 				}
 			}
 			
-			if( Ships.hasShipTypeFlag(eShipType, Ships.SF_GOD_MODE ) ) {
+			if( ShipTypes.hasShipTypeFlag(eShipType, ShipTypes.SF_GOD_MODE ) ) {
 				if( battle_ship.getInt("hull") - hulldamage < 1 ) {
 					hulldamage = battle_ship.getInt("hull") - 1;
 					battle.logme("+ Schiff nicht zerst&ouml;rbar\n");
@@ -555,8 +556,8 @@ public class KSAttackAction extends BasicKSAction {
 	}
 	
 	private SQLResultRow getWeaponData( Battle battle ) {	
-		SQLResultRow ownShipType = Ships.getShipType(this.ownShip);
-		SQLResultRow enemyShipType = Ships.getShipType(this.enemyShip);
+		SQLResultRow ownShipType = ShipTypes.getShipType(this.ownShip);
+		SQLResultRow enemyShipType = ShipTypes.getShipType(this.enemyShip);
 		
 		SQLResultRow localweapon = new SQLResultRow();
 		
@@ -586,8 +587,8 @@ public class KSAttackAction extends BasicKSAction {
 		Database db = context.getDatabase();
 		SQLResultRow ownShip = this.ownShip;
 		
-		SQLResultRow enemyShipType = Ships.getShipType(this.enemyShip);
-		SQLResultRow ownShipType = Ships.getShipType(ownShip);
+		SQLResultRow enemyShipType = ShipTypes.getShipType(this.enemyShip);
+		SQLResultRow ownShipType = ShipTypes.getShipType(ownShip);
 		
 		final String weaponName = context.getRequest().getParameterString("weapon");
 		
@@ -726,7 +727,7 @@ public class KSAttackAction extends BasicKSAction {
 		for( int i=0; i < enemyShips.size(); i++ ) {
 			SQLResultRow selectedShip = enemyShips.get(i);
 			
-			SQLResultRow type = Ships.getShipType(selectedShip);
+			SQLResultRow type = ShipTypes.getShipType(selectedShip);
 			if( (type.getInt("torpedodef") == 0) && (type.getInt("size") > 3) ) {
 				defcount++;
 			}
@@ -862,7 +863,7 @@ public class KSAttackAction extends BasicKSAction {
 		battle.logme("\n"+aeShip.getString("name")+" ("+aeShip.getInt("id")+"):\n");
 		battle.logenemy("\n"+aeShip.getString("name")+" ("+aeShip.getInt("id")+"):\n");
 					
-		SQLResultRow aeShipType = Ships.getShipType(aeShip);
+		SQLResultRow aeShipType = ShipTypes.getShipType(aeShip);
 		
 		int[] tmpsubdmgs = null;
 					
@@ -926,7 +927,7 @@ public class KSAttackAction extends BasicKSAction {
 		this.ownShip = battle.getOwnShip();
 		this.ownShipBackup = (SQLResultRow)this.ownShip.clone();
 	
-		SQLResultRow ownShipType = Ships.getShipType(this.ownShip);
+		SQLResultRow ownShipType = ShipTypes.getShipType(this.ownShip);
 		
 		Map<String,String> weaponList = Weapons.parseWeaponList(ownShipType.getString("weapons"));
 		Map<String,String> maxheatList = Weapons.parseWeaponList(ownShipType.getString("maxheat"));
@@ -1012,12 +1013,12 @@ public class KSAttackAction extends BasicKSAction {
 		}
 		
 		boolean gotone = false;
-		if( Ships.hasShipTypeFlag(ownShipType, Ships.SF_DROHNE) ) {
+		if( ShipTypes.hasShipTypeFlag(ownShipType, ShipTypes.SF_DROHNE) ) {
 			List<SQLResultRow> ownShips = battle.getOwnShips();
 			for( int i=0; i < ownShips.size(); i++ ) {
 				SQLResultRow aship = ownShips.get(i);
-				SQLResultRow ashiptype = Ships.getShipType(aship);
-				if( Ships.hasShipTypeFlag(ashiptype, Ships.SF_DROHNEN_CONTROLLER) ) {
+				SQLResultRow ashiptype = ShipTypes.getShipType(aship);
+				if( ShipTypes.hasShipTypeFlag(ashiptype, ShipTypes.SF_DROHNEN_CONTROLLER) ) {
 					gotone = true;
 					break;	
 				}
@@ -1071,7 +1072,7 @@ public class KSAttackAction extends BasicKSAction {
 					battle.logenemy("\n");
 				}
 		
-				SQLResultRow enemyShipType = Ships.getShipType(this.enemyShip);
+				SQLResultRow enemyShipType = ShipTypes.getShipType(this.enemyShip);
 				
 				/*
 				 * 	Die konkreten Waffendaten ermitteln
@@ -1124,7 +1125,7 @@ public class KSAttackAction extends BasicKSAction {
 					break;
 				}
 				
-				if( (this.enemyShip.getInt("action") & Battle.BS_FLUCHT) != 0 && !Ships.hasShipTypeFlag(ownShipType, Ships.SF_ABFANGEN) ) {
+				if( (this.enemyShip.getInt("action") & Battle.BS_FLUCHT) != 0 && !ShipTypes.hasShipTypeFlag(ownShipType, ShipTypes.SF_ABFANGEN) ) {
 					battle.logme( "Ihr Schiff kann keine fl&uuml;chtenden Schiffe abfangen\n" );
 					breakFlag = true;
 					break;
@@ -1171,7 +1172,7 @@ public class KSAttackAction extends BasicKSAction {
 				 */
 				Offizier eOffizier = Offizier.getOffizierByDest('s', this.enemyShip.getInt("id"));
 				
-				ownShipType = Ships.getShipType(this.ownShip);
+				ownShipType = ShipTypes.getShipType(this.ownShip);
 				this.weapon.calcShipTypes(ownShipType, enemyShipType);
 			
 				int offensivskill = this.getOffensivSkill( ownShipType, offizier );

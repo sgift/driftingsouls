@@ -24,7 +24,7 @@ import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
@@ -75,7 +75,7 @@ public class WerftTick extends TickController {
 				}
 				this.log("+++ Werft "+id+" (Schiff "+werftRow.getInt("shipid")+"):");
 				
-				SQLResultRow shiptype = Ships.getShipType(ship);
+				SQLResultRow shiptype = ShipTypes.getShipType(ship);
 				
 				werftd = new ShipWerft(werftRow.getRow(),shiptype.getString("werft"),ship.getInt("system"),ship.getInt("owner"),ship.getInt("id"));
 				werftd.setOneWayFlag(shiptype.getInt("ow_werft"));

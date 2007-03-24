@@ -28,7 +28,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
  * Schiffsmodul fuer die Anzeige von externen Docks
@@ -110,7 +110,7 @@ public class ADocksDefault implements SchiffPlugin {
 			dockedid.add(line.getInt("id"));
 			dockedtype.add(line.getInt("type"));
 			dockedname.add(line.getString("name"));
-			SQLResultRow dockedshiptype = Ships.getShipType( line.getRow() );
+			SQLResultRow dockedshiptype = ShipTypes.getShipType( line.getRow() );
 			dockedpicture.add(dockedshiptype.getString("picture"));
 		}
 		line.free();

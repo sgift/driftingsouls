@@ -32,6 +32,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
@@ -82,7 +83,7 @@ public class PluendernController extends DSGenerator {
 					
 			return false;
 		}
-		SQLResultRow shipTypeTo = Ships.getShipType(shipTo);
+		SQLResultRow shipTypeTo = ShipTypes.getShipType(shipTo);
 	
 		if( user.isNoob() ) {
 			addError("Sie stehen unter GCP-Schutz und k&ouml;nnen daher nicht pl&uuml;nndern<br />Hinweis: der GCP-Schutz kann unter Optionen vorzeitig beendet werden", errorurl);
@@ -164,13 +165,13 @@ public class PluendernController extends DSGenerator {
 			return false;
 		}
 
-		if( Ships.hasShipTypeFlag(shipTypeTo, Ships.SF_KEIN_TRANSFER) ) {
+		if( ShipTypes.hasShipTypeFlag(shipTypeTo, ShipTypes.SF_KEIN_TRANSFER) ) {
 			addError("Sie k&ouml;nnen keine Waren zu oder von diesem Schiff transferieren", errorurl);
 					
 			return false;
 		}
 		
-		if( Ships.hasShipTypeFlag(shipTypeTo, Ships.SF_NICHT_PLUENDERBAR) ) {
+		if( ShipTypes.hasShipTypeFlag(shipTypeTo, ShipTypes.SF_NICHT_PLUENDERBAR) ) {
 			addError("Sie k&ouml;nnen keine Waren von diesem Schiff pl&uuml;ndern", errorurl);
 					
 			return false;
@@ -182,8 +183,8 @@ public class PluendernController extends DSGenerator {
 			return false;
 		}
 		
-		SQLResultRow shipTypeFrom = Ships.getShipType(shipFrom);		
-		if( Ships.hasShipTypeFlag(shipTypeFrom, Ships.SF_KEIN_TRANSFER) ) {
+		SQLResultRow shipTypeFrom = ShipTypes.getShipType(shipFrom);		
+		if( ShipTypes.hasShipTypeFlag(shipTypeFrom, ShipTypes.SF_KEIN_TRANSFER) ) {
 			addError("Sie k&ouml;nnen keine Waren zu oder von ihrem Schiff transferieren", errorurl);
 					
 			return false;
@@ -215,8 +216,8 @@ public class PluendernController extends DSGenerator {
 		Cargo cargofrom = new Cargo( Cargo.Type.STRING, this.shipFrom.getString("cargo") );
 		Cargo cargoto = new Cargo( Cargo.Type.STRING, this.shipTo.getString("cargo") );
 		
-		SQLResultRow shipTypeTo = Ships.getShipType( this.shipTo );
-		SQLResultRow shipTypeFrom = Ships.getShipType( this.shipFrom );
+		SQLResultRow shipTypeTo = ShipTypes.getShipType( this.shipTo );
+		SQLResultRow shipTypeFrom = ShipTypes.getShipType( this.shipFrom );
 	
 		long curcargoto = shipTypeTo.getLong("cargo") - cargoto.getMass();
 		long curcargofrom = shipTypeFrom.getLong("cargo") - cargofrom.getMass();
@@ -353,7 +354,7 @@ public class PluendernController extends DSGenerator {
 			
 			// Falls das Schiff instabil ist, dann diesem den "destory"-Status geben,
 			// damit der Schiffstick dieses zerstoert
-			if( (totaltransferfcount > 0) && Ships.hasShipTypeFlag(shipTypeTo, Ships.SF_INSTABIL)  ) {
+			if( (totaltransferfcount > 0) && ShipTypes.hasShipTypeFlag(shipTypeTo, ShipTypes.SF_INSTABIL)  ) {
 				t.set_var("toship.isinstabil", 1);
 			
 				String statust = status;
@@ -401,8 +402,8 @@ public class PluendernController extends DSGenerator {
 		Cargo fromcargo = new Cargo( Cargo.Type.STRING, this.shipFrom.getString("cargo") );
 		Cargo tocargo = new Cargo( Cargo.Type.STRING, this.shipTo.getString("cargo") );
 
-		SQLResultRow shipTypeFrom = Ships.getShipType( this.shipFrom );
-		SQLResultRow shipTypeTo = Ships.getShipType( this.shipTo );
+		SQLResultRow shipTypeFrom = ShipTypes.getShipType( this.shipFrom );
+		SQLResultRow shipTypeTo = ShipTypes.getShipType( this.shipTo );
 
 		t.set_var(	"fromship.name",	this.shipFrom.getString("name"),
 					"fromship.id",		this.shipFrom.getInt("id"),

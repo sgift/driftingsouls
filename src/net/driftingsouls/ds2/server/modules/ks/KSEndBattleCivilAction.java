@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
  * Ermoeglicht es eine Schlacht zu beenden, wenn der Gegner nur noch zivile Schiffe hat
@@ -43,7 +43,7 @@ public class KSEndBattleCivilAction extends BasicKSAction {
 			for( int i=0; i < enemyShips.size(); i++ ) {
 				SQLResultRow eship = enemyShips.get(i);
 				
-				SQLResultRow eshiptype = Ships.getShipType( eship );
+				SQLResultRow eshiptype = ShipTypes.getShipType( eship );
 				if( eshiptype.getInt("military") != 0 ) {
 					onlyCivil = false;
 					break;

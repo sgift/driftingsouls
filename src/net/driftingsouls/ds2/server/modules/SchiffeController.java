@@ -39,6 +39,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 
@@ -246,7 +247,7 @@ public class SchiffeController extends DSGenerator implements Loggable {
 			
 			ResourceID[] normwarenlist = {Resources.NAHRUNG,Resources.URAN,Resources.DEUTERIUM,Resources.ANTIMATERIE,Resources.BATTERIEN};
 			
-			SQLResultRow shiptype = Ships.getShipType( ship.getRow() );
+			SQLResultRow shiptype = ShipTypes.getShipType( ship.getRow() );
 			
 			Cargo cargo = new Cargo( Cargo.Type.STRING, ship.getString("cargo") );
 	

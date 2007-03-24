@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
@@ -75,7 +76,7 @@ public class DeutAllController extends DSGenerator {
 			t.start_record();
 			SQLResultRow ship = shipRow.getRow();
 			
-			SQLResultRow shiptype = Ships.getShipType( ship );
+			SQLResultRow shiptype = ShipTypes.getShipType( ship );
 			if( shiptype.getInt("deutfactor") == 0 ) {
 				continue;	
 			}

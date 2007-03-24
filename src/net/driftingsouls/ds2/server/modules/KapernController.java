@@ -42,6 +42,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 
@@ -150,7 +151,7 @@ public class KapernController extends DSGenerator {
 			return false;
 		}
 		
-		SQLResultRow tard = Ships.getShipType( datan );
+		SQLResultRow tard = ShipTypes.getShipType( datan );
 
 		if( (tard.getInt("cost") != 0) && (datan.getInt("engine") != 0) && (datan.getInt("crew") != 0) ) {
 			addError("Das feindliche Schiff ist noch bewegungsf&auml;hig", errorurl);
@@ -228,7 +229,7 @@ public class KapernController extends DSGenerator {
 			return;
 		}
 	
-		if( Ships.hasShipTypeFlag(this.targetShipType, Ships.SF_NICHT_KAPERBAR ) ) {
+		if( ShipTypes.hasShipTypeFlag(this.targetShipType, ShipTypes.SF_NICHT_KAPERBAR ) ) {
 			addError("Sie k&ouml;nnen dieses Schiff nicht kapern", errorurl);
 			this.setTemplate("");
 					
@@ -252,7 +253,7 @@ public class KapernController extends DSGenerator {
 		int acrew = this.ownShip.getInt("crew");
 		int dcrew = this.targetShip.getInt("crew");
 
-		SQLResultRow ownShipType = Ships.getShipType( this.ownShip );
+		SQLResultRow ownShipType = ShipTypes.getShipType( this.ownShip );
 
 		String kapermessage = "<div align=\"center\">Die Crew st&uuml;rmt die "+this.targetShip.getString("name")+"</div><br />";
 		StringBuilder msg = new StringBuilder();
@@ -289,7 +290,7 @@ public class KapernController extends DSGenerator {
 									"!LOCATE('nocrew',t1.status) AND t1.type=t2.id");
 								
 				while( aship.next() ) {
-					SQLResultRow ashiptype = Ships.getShipType(aship.getRow());
+					SQLResultRow ashiptype = ShipTypes.getShipType(aship.getRow());
 					if( ashiptype.getInt("military") > 0 ) {
 						shipcount++;	
 					}
@@ -442,7 +443,7 @@ public class KapernController extends DSGenerator {
 			if( this.targetShip.getInt("crew") == 0 ) {
 				t.set_var(	"targetship.status",	"verlassen",
 							"menu.showpluendern",	1,
-							"menu.showkapern",		!Ships.hasShipTypeFlag(this.targetShipType, Ships.SF_NICHT_KAPERBAR ) );
+							"menu.showkapern",		!ShipTypes.hasShipTypeFlag(this.targetShipType, ShipTypes.SF_NICHT_KAPERBAR ) );
 			} 
 			else {
 				t.set_var("targetship.status", "noch bewegungsf&auml;hig");
@@ -451,7 +452,7 @@ public class KapernController extends DSGenerator {
 		else {
 			t.set_var(	"targetship.status",	"bewegungsunf&auml;hig",
 						"menu.showpluendern",	(this.targetShip.getInt("crew") == 0),
-						"menu.showkapern",		!Ships.hasShipTypeFlag(this.targetShipType, Ships.SF_NICHT_KAPERBAR) );
+						"menu.showkapern",		!ShipTypes.hasShipTypeFlag(this.targetShipType, ShipTypes.SF_NICHT_KAPERBAR) );
 		}
 	}
 }

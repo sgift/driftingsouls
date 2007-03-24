@@ -40,6 +40,7 @@ import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.AdminController;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 import org.apache.commons.lang.math.RandomUtils;
@@ -176,7 +177,7 @@ public class AddShips implements AdminPlugin {
 			echo.append("<td class=\"noBorderX\">\n");
 			echo.append("<select name=\"jaeger\" size=\"1\" onchange=\"jaegerSelectChange(this.options[this.options.selectedIndex].value)\">\n");
 			echo.append("<option id=\"0\">[Nichts]</option>\n");
-			st = db.query("SELECT nickname,id FROM ship_types WHERE LOCATE('"+Ships.SF_JAEGER+"',flags)");
+			st = db.query("SELECT nickname,id FROM ship_types WHERE LOCATE('"+ShipTypes.SF_JAEGER+"',flags)");
 			while( st.next() ) {
 				echo.append("<option value=\""+st.getInt("id")+"\">"+Common._plaintitle(st.getString("nickname"))+" ("+st.getInt("id")+")</option>\n");
 			}
@@ -258,7 +259,7 @@ public class AddShips implements AdminPlugin {
 			
 			String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
 			
-			SQLResultRow shiptype = Ships.getShipType(ship, false);
+			SQLResultRow shiptype = ShipTypes.getShipType(ship, false);
 			Cargo cargo = new Cargo();
 			cargo.addResource( Resources.DEUTERIUM, shiptype.getInt("rd")*10 );
 			cargo.addResource( Resources.URAN, shiptype.getInt("ru")*10 );
@@ -329,7 +330,7 @@ public class AddShips implements AdminPlugin {
 				// Jaeger einfuegen
 				if( (jaeger > 0) && (shiptype.getInt("jdocks")>0) ) {
 					echo.append("F&uuml;ge J&auml;ger ein:<br />\n");
-					SQLResultRow jshiptype = Ships.getShipType(jaeger, false);
+					SQLResultRow jshiptype = ShipTypes.getShipType(jaeger, false);
 
 					query = db.prepare("INSERT INTO ship_fleets (name) VALUES ( ? )");
 					query.update(name+"-Staffel");

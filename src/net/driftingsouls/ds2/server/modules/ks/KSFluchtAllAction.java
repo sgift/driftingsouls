@@ -27,7 +27,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
  * Laesst alle Schiffe einer Seite fliehen
@@ -117,24 +117,24 @@ public class KSFluchtAllAction extends BasicKSAction {
 				continue;
 			} 
 			
-			SQLResultRow ashipType = Ships.getShipType(aship);
+			SQLResultRow ashipType = ShipTypes.getShipType(aship);
 			 
 			if( (ashipType.getInt("crew") > 0) && (aship.getInt("crew") < (int)(ashipType.getInt("crew")/4d)) ) {
 				continue;
 			}
 	
-			if( (gotone == null) && Ships.hasShipTypeFlag(ashipType, Ships.SF_DROHNE) ) {
+			if( (gotone == null) && ShipTypes.hasShipTypeFlag(ashipType, ShipTypes.SF_DROHNE) ) {
 				gotone = Boolean.FALSE;
 				for( int j=0; j < ownShips.size(); j++ ) {
 					SQLResultRow as = ownShips.get(j);
-					SQLResultRow ast = Ships.getShipType(as);
-					if( Ships.hasShipTypeFlag(ast, Ships.SF_DROHNEN_CONTROLLER) ) {
+					SQLResultRow ast = ShipTypes.getShipType(as);
+					if( ShipTypes.hasShipTypeFlag(ast, ShipTypes.SF_DROHNEN_CONTROLLER) ) {
 						gotone = Boolean.TRUE;
 						break;	
 					}
 				}
 			}
-			if( (gotone == Boolean.FALSE) && Ships.hasShipTypeFlag(ashipType, Ships.SF_DROHNE) ) {
+			if( (gotone == Boolean.FALSE) && ShipTypes.hasShipTypeFlag(ashipType, ShipTypes.SF_DROHNE) ) {
 				continue;
 			}
 			

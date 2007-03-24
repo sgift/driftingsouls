@@ -40,6 +40,7 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
@@ -220,9 +221,9 @@ public class TransportController extends DSGenerator {
 				}
 			}
 			
-			SQLResultRow tmptype = Ships.getShipType( data );
+			SQLResultRow tmptype = ShipTypes.getShipType( data );
 			
-			if( Ships.hasShipTypeFlag(tmptype, Ships.SF_KEIN_TRANSFER) ) {
+			if( ShipTypes.hasShipTypeFlag(tmptype, ShipTypes.SF_KEIN_TRANSFER) ) {
 				throw new Exception("Sie k&ouml;nnen keine Waren zu oder von diesem Schiff (id:"+shipid+") transferieren");
 			}
 			
@@ -258,7 +259,7 @@ public class TransportController extends DSGenerator {
 			SQLResultRow data = db.first("SELECT owner,name,type,cargo,status,id,x,y,system,battle,status,fleet FROM ships WHERE id>0 AND id=",getData().getInt("id"));
 			data.put("size", 0);
 			
-			SQLResultRow tmptype = Ships.getShipType( data );
+			SQLResultRow tmptype = ShipTypes.getShipType( data );
 			
 			setData( data );
 			setOwner( data.getInt("owner") );

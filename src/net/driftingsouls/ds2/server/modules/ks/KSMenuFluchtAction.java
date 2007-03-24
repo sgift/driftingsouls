@@ -28,7 +28,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
  * Zeigt das Menue fuer die verschiedenen Fluchtaktionen
@@ -47,7 +47,7 @@ public class KSMenuFluchtAction extends BasicKSMenuAction {
 		Database db = context.getDatabase();
 		
 		SQLResultRow ownShip = battle.getOwnShip();
-		SQLResultRow ownShipType = Ships.getShipType(ownShip);
+		SQLResultRow ownShipType = ShipTypes.getShipType(ownShip);
 		
 		SQLResultRow enemyShip = battle.getEnemyShip();
 		
@@ -86,12 +86,12 @@ public class KSMenuFluchtAction extends BasicKSMenuAction {
 		
 		if( possible ) {
 			boolean gotone = false;
-			if( Ships.hasShipTypeFlag(ownShipType, Ships.SF_DROHNE) ) {
+			if( ShipTypes.hasShipTypeFlag(ownShipType, ShipTypes.SF_DROHNE) ) {
 				List<SQLResultRow> ownShips = battle.getOwnShips();
 				for( int i=0; i < ownShips.size(); i++ ) {
 					SQLResultRow aship = ownShips.get(i);
-					SQLResultRow ashiptype = Ships.getShipType(aship);
-					if( Ships.hasShipTypeFlag(ashiptype, Ships.SF_DROHNEN_CONTROLLER) ) {
+					SQLResultRow ashiptype = ShipTypes.getShipType(aship);
+					if( ShipTypes.hasShipTypeFlag(ashiptype, ShipTypes.SF_DROHNEN_CONTROLLER) ) {
 						gotone = true;
 						break;	
 					}
@@ -124,7 +124,7 @@ public class KSMenuFluchtAction extends BasicKSMenuAction {
 			List<SQLResultRow> ownShips = battle.getOwnShips();
 			for( int i=0; i < ownShips.size(); i++ ) {
 				SQLResultRow aship = ownShips.get(i);
-				SQLResultRow ashiptype = Ships.getShipType(aship);
+				SQLResultRow ashiptype = ShipTypes.getShipType(aship);
 				
 				if( (aship.getInt("action") & Battle.BS_JOIN ) == 0 && (aship.getInt("action") & Battle.BS_DESTROYED) == 0 && 
 					(aship.getInt("action") & Battle.BS_FLUCHT) == 0 && (aship.getString("docked").length() == 0) && (aship.getInt("engine") > 0) &&
@@ -150,14 +150,14 @@ public class KSMenuFluchtAction extends BasicKSMenuAction {
 				if( idlist == 0 ) {
 					continue;
 				} 
-				this.menuEntryAsk( "Alle "+Ships.getShipClass(classID).getPlural()+" fl&uuml;chten lassen",
+				this.menuEntryAsk( "Alle "+ShipTypes.getShipClass(classID).getPlural()+" fl&uuml;chten lassen",
 						new Object[] {
 							"ship",		ownShip.getInt("id"),
 							"attack",	enemyShip.getInt("id"),
 							"ksaction",	"flucht_class",
 							"fluchtclass",	classID,
 							"fluchtmode",	fluchtmode },
-						"Wollen sie wirklich mit allen Schiffen der Klasse '"+Ships.getShipClass(classID).getSingular()+"' fl&uuml;chten?" );
+						"Wollen sie wirklich mit allen Schiffen der Klasse '"+ShipTypes.getShipClass(classID).getSingular()+"' fl&uuml;chten?" );
 			}
 		}
 				

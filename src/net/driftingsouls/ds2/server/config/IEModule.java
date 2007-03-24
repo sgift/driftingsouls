@@ -24,7 +24,7 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -81,7 +81,7 @@ public class IEModule extends ItemEffect {
 		
 		Number setId = XMLUtils.getNumberAttribute(effectNode, "set");
 		
-		SQLResultRow mods = Ships.getTypeChangeSetFromXML(XMLUtils.getNodeByXPath(effectNode, "shipdata"));
+		SQLResultRow mods = ShipTypes.getTypeChangeSetFromXML(XMLUtils.getNodeByXPath(effectNode, "shipdata"));
 		
 		return new IEModule(slots, mods, setId != null ? setId.intValue() : -1);
 	}

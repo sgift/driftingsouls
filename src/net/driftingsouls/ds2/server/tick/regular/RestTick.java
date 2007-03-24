@@ -39,7 +39,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.scripting.ScriptParser;
 import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.tick.TickController;
@@ -213,7 +213,7 @@ public class RestTick extends TickController {
 						this.log("\t   *"+res.getName()+" => "+res.getCount1());
 					}
 					
-					SQLResultRow shiptype = Ships.getShipType(aloadout.getInt("shiptype"), false);
+					SQLResultRow shiptype = ShipTypes.getShipType(aloadout.getInt("shiptype"), false);
 					
 					// Schiffseintrag einfuegen
 					db.update("INSERT INTO ships (id,name,type,owner,x,y,system,hull,crew,cargo) ",

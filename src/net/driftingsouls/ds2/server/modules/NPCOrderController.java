@@ -19,7 +19,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
@@ -85,7 +85,7 @@ public class NPCOrderController extends DSGenerator {
 		
 		SQLQuery aship = db.query("SELECT * FROM ships WHERE owner="+user.getID()+" AND LOCATE('#!/tm gany_transport',destcom)");
 		while( aship.next() ) {
-			SQLResultRow ashiptype = Ships.getShipType(aship.getRow());
+			SQLResultRow ashiptype = ShipTypes.getShipType(aship.getRow());
 			
 			t.set_var(	"transport.ship",		Common._plaintitle(aship.getString("name")),
 						"transport.ship.id",	aship.getInt("id"),
@@ -473,7 +473,7 @@ public class NPCOrderController extends DSGenerator {
 			
 			if( ship.getInt("class") != oldclass ) {
 				t.set_var(	"ship.newclass",		1,
-							"ship.newclass.name",	Ships.getShipClass(ship.getInt("class")).getSingular() );
+							"ship.newclass.name",	ShipTypes.getShipClass(ship.getInt("class")).getSingular() );
 				
 				oldclass = ship.getInt("class");
 			}
