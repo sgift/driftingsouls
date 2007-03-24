@@ -412,7 +412,7 @@ public class ForschinfoController extends DSGenerator {
 						"tech.ammo.picture",	ammo.getString("picture"),
 						"tech.ammo.description",	Common._text(ammo.getString("description")),
 						"tech.ammo.itemid",		ammo.getInt("itemid"),
-						"tech.ammo.dauer",		ammo.getInt("dauer") );
+						"tech.ammo.dauer",		ammo.getString("dauer") );
 	
 			if( firstentry ) {
 				firstentry = false;
