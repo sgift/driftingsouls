@@ -46,6 +46,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.User;
+import net.driftingsouls.ds2.server.framework.caches.CacheManager;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -97,6 +98,9 @@ public class AdminCommands implements Loggable {
 		else if( command[0].equals("exectask") ) {
 			output = cmdExecTask(context, command);
 		}
+		else if( command[0].equals("clearcaches") ) {
+			output = cmdClearCaches(context, command);
+		}
 		else {
 			output = "Unbekannter Befehl "+command[0];
 		}
@@ -104,6 +108,14 @@ public class AdminCommands implements Loggable {
 		if( output.length() == 0 ) {
 			output = "1";
 		}
+		
+		return output;
+	}
+	
+	private static String cmdClearCaches( Context context, String[] command ) {
+		String output = "Caches geleert";
+		
+		CacheManager.getInstance().clearCaches();
 		
 		return output;
 	}
