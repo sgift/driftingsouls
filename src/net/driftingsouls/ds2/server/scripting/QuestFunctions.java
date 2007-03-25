@@ -2150,7 +2150,9 @@ public class QuestFunctions {
 			scriptparser.log("ShipID: "+shipid+"\n");
 		
 			SQLQuery qquest = db.query("SELECT * FROM quests_quick " +
-					"WHERE enabled>0 AND source="+shipid+" AND sourcetype='"+typeid+"'");
+					"WHERE enabled>0 AND " +
+					"(source='"+shipid+"' OR source LIKE '"+shipid+",%' OR source LIKE '%,"+shipid+"' OR source LIKE '%,"+shipid+",%') AND " +
+					"sourcetype='"+typeid+"'");
 			while( qquest.next() ) {
 				if( qquest.getInt("moreThanOnce") == 0 ) {
 					call(new HasQuestCompleted(), db, scriptparser, qquest.getInt("enabled"));
@@ -2219,7 +2221,9 @@ public class QuestFunctions {
 			scriptparser.log("ShipID: "+shipid+"\n");
 			
 			SQLQuery qquest = db.query("SELECT * FROM quests_quick " +
-					"WHERE enabled>0 AND target="+shipid+" AND targettype='"+typeid+"'");
+					"WHERE enabled>0 AND " +
+					"(target='"+shipid+"' OR target LIKE '"+shipid+",%' OR target LIKE '%,"+shipid+"' OR target LIKE '%,"+shipid+",%') AND " + 
+					"targettype='"+typeid+"'");
 			while( qquest.next() ) {
 				call(new LoadQuestContext(), db, scriptparser, qquest.getInt("enabled"));
 				
@@ -2276,10 +2280,15 @@ public class QuestFunctions {
 			if( "desc".equals(action) ) {
 				scriptparser.log("QQuest: "+scriptparser.getParameter(1)+"\n");
 				SQLResultRow qquest = db.first("SELECT * FROM quests_quick WHERE id="+Value.Int(scriptparser.getParameter(1)));
-				if( qquest.isEmpty() || !qquest.getString("sourcetype").equals(typeid) || 
-					(qquest.getInt("source") != shipid) ) {
+				if( qquest.isEmpty() || !qquest.getString("sourcetype").equals(typeid) ) {
 					scriptparser.setRegister("#A","0");
-					return CONTINUE;	
+					return CONTINUE;
+				}
+				
+				int[] sourcelist = Common.explodeToInt(",", qquest.getString("source"));
+				if( !Common.inArray(shipid, sourcelist) ) {
+					scriptparser.setRegister("#A","0");
+					return CONTINUE;
 				}
 				
 				call(new LoadQuestContext(), db, scriptparser, qquest.getInt("enabled"));
@@ -2366,10 +2375,15 @@ public class QuestFunctions {
 			else if( "yes".equals(action) ) {
 				scriptparser.log("QQuest: "+scriptparser.getParameter(1)+"\n");
 				SQLResultRow qquest = db.first("SELECT * FROM quests_quick WHERE id="+Value.Int(scriptparser.getParameter(1)));
-				if( qquest.isEmpty() || !qquest.getString("sourcetype").equals(typeid) || 
-					(qquest.getInt("source") != shipid) ) {
+				if( qquest.isEmpty() || !qquest.getString("sourcetype").equals(typeid) ) {
 					scriptparser.setRegister("#A","0");
 					return CONTINUE;	
+				}
+				
+				int[] sourcelist = Common.explodeToInt(",", qquest.getString("source"));
+				if( !Common.inArray(shipid, sourcelist) ) {
+					scriptparser.setRegister("#A","0");
+					return CONTINUE;
 				}
 				
 				call(new LoadQuestContext(), db, scriptparser, qquest.getInt("enabled") );
@@ -2469,10 +2483,15 @@ public class QuestFunctions {
 			else if( "end".equals(action) ) {
 				scriptparser.log("QQuest: "+scriptparser.getParameter(1)+"\n");
 				SQLResultRow qquest = db.first("SELECT * FROM quests_quick WHERE id="+Value.Int(scriptparser.getParameter(1)));
-				if( qquest.isEmpty() || !qquest.getString("sourcetype").equals(typeid) || 
-					(qquest.getInt("source") != shipid) ) {
+				if( qquest.isEmpty() || !qquest.getString("sourcetype").equals(typeid) ) {
 					scriptparser.setRegister("#A","0");
 					return CONTINUE;	
+				}
+				
+				int[] sourcelist = Common.explodeToInt(",", qquest.getString("source"));
+				if( !Common.inArray(shipid, sourcelist) ) {
+					scriptparser.setRegister("#A","0");
+					return CONTINUE;
 				}
 				
 				call(new LoadQuestContext(), db, scriptparser, qquest.getInt("enabled") );

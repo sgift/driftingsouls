@@ -224,4 +224,8 @@
 		 UPDATE buildings SET module='net.driftingsouls.ds2.server.bases.Werft' WHERE module='werft';
 		 UPDATE buildings SET module='net.driftingsouls.ds2.server.bases.Waffenfabrik' WHERE module='waffenfabrik';
 	]]></update>
+	<update type="structure" datum="2007-03-25"><![CDATA[
+		ALTER TABLE quests_quick CHANGE source source VARCHAR(30) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '';
+		ALTER TABLE quests_quick CHANGE target target VARCHAR(30) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '';
+	]]></update>
 </updates>

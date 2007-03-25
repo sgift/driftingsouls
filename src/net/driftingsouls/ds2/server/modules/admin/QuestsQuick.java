@@ -69,7 +69,7 @@ public class QuestsQuick implements AdminPlugin {
 				questdata.put("id", pq.insertID());
 				pq.close();
 			}
-			db.update("UPDATE quests_quick SET enabled="+questdata.getInt("id")+"' WHERE id="+id);
+			db.update("UPDATE quests_quick SET enabled='"+questdata.getInt("id")+"' WHERE id="+id);
 			
 			echo.append("Quest aktiviert<br /><br />");
 		}
@@ -163,8 +163,13 @@ public class QuestsQuick implements AdminPlugin {
 		else if( qact.equals("script") ) {
 			SQLResultRow qquest = db.first("SELECT * FROM quests_quick WHERE id="+id);
 			
-			int sourceobjectid = qquest.getInt("source");
-			int targetobjectid = qquest.getInt("target");
+			if( (qquest.getString("source").indexOf(',') > -1) || (qquest.getString("target").indexOf(',') > -1) ) {
+				echo.append("ERROR: QuickQuest-Scripte unterst&uuml;tzen im Moment nur EINE source und EIN target<br />");
+				return;
+			}
+			
+			int sourceobjectid = Integer.parseInt(qquest.getString("source"));
+			int targetobjectid = Integer.parseInt(qquest.getString("target"));
 			
 			String qquest_desc = StringUtils.replace(qquest.getString("desc"), "&", "&amp;");
 			qquest_desc = StringUtils.replace(qquest_desc, ">", "&gt;");
