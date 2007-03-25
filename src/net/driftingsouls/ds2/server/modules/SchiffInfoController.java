@@ -119,9 +119,14 @@ public class SchiffInfoController extends DSGenerator {
 			data.put( "sensorrage", 0 );
 			data.put( "hydro", 0 );
 			data.put( "recost" , 0 );
-			data.put( "deutfactor",0 );
+			data.put( "deutfactor", 0 );
 			data.put( "class",ShipClasses.UNBEKANNT.ordinal() );
 			data.put( "descrip", "&uuml;ber diesen Schiffstyp liegen leider keine Daten vor");
+			data.put( "panzerung", 0 );
+			data.put( "sensorrange", 0 );
+			data.put( "picture", "" );
+			data.put( "modules", "" );
+			
 			ship = 0;
 		}
 		else if( data.getBoolean("hide") && (user != null) && (user.getAccessLevel() >= 10) ) {
