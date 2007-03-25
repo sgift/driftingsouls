@@ -126,6 +126,12 @@ public class AdminCommands implements Loggable {
 		Database db = context.getDatabase();
 		
 		int sid = Integer.parseInt(command[1]);
+		
+		SQLResultRow ship = db.first("SELECT * FROM ships WHERE id > 0 AND id="+sid);
+		if( ship.isEmpty() ) {
+			return "Schiff '"+sid+"' nicht gefunden";
+		}
+		
 		if( command[2].equals("heat") ) {
 			db.update("UPDATE ships SET s="+Integer.parseInt(command[3])+" WHERE id>0 AND id="+sid);
 		}	
@@ -152,10 +158,6 @@ public class AdminCommands implements Loggable {
 				.update(command[3], sid);
 		}
 		else if( command[2].equals("info") ) {
-			SQLResultRow ship = db.first("SELECT * FROM ships WHERE id>0 AND id="+sid);
-			if( ship.isEmpty() ) {
-				return "Das Schiff gibt es nicht";	
-			}
 			SQLResultRow shiptype = ShipTypes.getShipType(ship);
 			
 			output += "Schiff: "+sid+"\n";
@@ -174,11 +176,6 @@ public class AdminCommands implements Loggable {
 			output += "Battle: "+ship.getInt("battle")+"\n";
 		}
 		else if( command[2].equals("additemmodule") ) {
-			SQLResultRow ship = db.first("SELECT * FROM ships WHERE id>0 AND id="+sid);
-			if( ship.isEmpty() ) {
-				return "Das Schiff gibt es nicht";	
-			}
-			
 			int slot = Integer.parseInt(command[3]);
 			int item = Integer.parseInt(command[4]);
 			
