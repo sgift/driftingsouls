@@ -655,7 +655,7 @@ public class QuestXMLParser extends DSObject {
 		if( installFile.exists() ) {
 			try {
 				XMLReader parser = XMLReaderFactory.createXMLReader();
-				parser.setContentHandler(new InstallParser("", true));
+				parser.setContentHandler(new InstallParser("", false));
 			
 				parser.parse(new InputSource(new FileInputStream(installFile)));			
 			}
