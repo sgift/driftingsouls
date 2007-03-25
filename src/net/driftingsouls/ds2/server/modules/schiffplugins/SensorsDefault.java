@@ -302,7 +302,7 @@ public class SensorsDefault implements SchiffPlugin {
 			
 			int currentDockID = 0;
 			if( data.getString("docked").length() > 0 ) {
-				if( data.getString("docked").charAt(0) == '0' ) {
+				if( data.getString("docked").charAt(0) == 'l' ) {
 					currentDockID = Integer.parseInt(data.getString("docked").substring(2));
 				}
 				else {
