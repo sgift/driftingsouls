@@ -783,7 +783,7 @@ public class ScriptParser {
 				break;
 			} 
 			else if( funcname.startsWith("!J") && JUMP_FUNCTIONS.containsKey(funcname) ) {
-				this.log("*COMMAND: !JL\n");
+				this.log("*COMMAND: "+funcname+"\n");
 				boolean ok = false;
 				
 				int compResult = new Double(this.getRegister("cmp")).compareTo(0d);
@@ -800,7 +800,7 @@ public class ScriptParser {
 					context.setLastCommand(parameterlist.get(":"+command[1]));
 				}	
 				else {
-					context.setLastCommand(context.getLastCommand());
+					context.setLastCommand(context.getLastCommand()+1);
 				}
 				
 				if( limitexeccount > 0 ) {
