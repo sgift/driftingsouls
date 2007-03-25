@@ -159,11 +159,20 @@ public class ModuleItemModule extends Module implements Loggable {
 					}
 				}
 			}
-			else if( key.equals("heat") || key.equals("cost") || key.equals("crew") || key.equals("hull") ) {
+			else if( key.equals("cost") || key.equals("crew") || key.equals("hull") ) {
 				if( typestats.getInt(key) > 0 ) {
 					stats.put( key, stats.getInt(key) + mods.getInt(key));	
 					if( stats.getInt(key) < 1 ) {
 						stats.put(key, 1);	
+					}
+				}
+			}
+			// Um lowheat + noheat-offi zu umschiffen
+			else if( key.equals("heat") ) {
+				if( typestats.getInt(key) > 0 ) {
+					stats.put( key, stats.getInt(key) + mods.getInt(key));	
+					if( stats.getInt(key) < 2 ) {
+						stats.put(key, 2);	
 					}
 				}
 			}
