@@ -152,7 +152,9 @@ public class BasicContext implements Context,Loggable {
 			
 			// Bei viel zu hoher Aktivitaet einfach die Ausfuehrung mit einem Fehler beenden
 			if( actioncounter > 25 ) {
-				addError( actionBlockingPhrases[RandomUtils.nextInt(actionBlockingPhrases.length)], errorurl );
+				addError( actionBlockingPhrases[RandomUtils.nextInt(actionBlockingPhrases.length)],
+						getRequest().getRequestURL() + 
+						(getRequest().getQueryString() != null ? "?" + getRequest().getQueryString() : "") );
 
 				return;
 			}
