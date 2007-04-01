@@ -39,6 +39,7 @@
 	<setting type="number" name="CONFIG_TRUEMMER_MAXITEMS" value="4" />
 	<setting type="string" name="ADMIN_PMS_ACCOUNT" value="-90,-99" />
 	<setting type="string" name="EXCEPTION_MAIL" value="bktheg@web.de" />
+	<setting type="string" name="EXCEPTION_MAIL_PREFIX" value="[DS2J]" />
 	<setting type="string" name="VERSION_TYPE" value="development" />
 	<setting type="string" name="GFXPAK_VERSION" value="1" />
 	<setting type="number" name="LOG_QUERIES" value="1" />

@@ -1108,9 +1108,11 @@ public class Common implements Loggable {
 			msg.append("\n");
 		}
 		
+		String prefix = Configuration.getSetting("EXCEPTION_MAIL_PREFIX");
+		
 		String[] mailAddrs = StringUtils.split(Configuration.getSetting("EXCEPTION_MAIL"), ';');
 		for( int i=0; i < mailAddrs.length; i++ ) {
-			Common.mail(mailAddrs[i], "[DS2J] "+(title != null && title.length() > 0 ? title : "Exception"), msg.toString());
+			Common.mail(mailAddrs[i], prefix+" "+(title != null && title.length() > 0 ? title : "Exception"), msg.toString());
 		}
 	}
 
