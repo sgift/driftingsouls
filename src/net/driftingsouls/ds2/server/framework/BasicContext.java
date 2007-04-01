@@ -132,9 +132,9 @@ public class BasicContext implements Context,Loggable {
 		db.prepare("UPDATE sessions SET lastaction=? WHERE session=?").update(time, sess);
 		
 		if( !user.hasFlag(User.FLAG_NO_ACTION_BLOCKING) ) {
-			// Alle zwei Sekunden Counter um 1 reduzieren, sofern mindestens 5 Sekunden Pause vorhanden waren
-			int reduce = (int)(time - sessdata.getInt("lastaction")-2);
-			if( time < sessdata.getInt("lastaction") + 5 ) {
+			// Alle zwei Sekunden Counter um 1 reduzieren, sofern mindestens 6 Sekunden Pause vorhanden waren
+			int reduce = (int)((time - sessdata.getInt("lastaction"))/2);
+			if( time < sessdata.getInt("lastaction") + 6 ) {
 				reduce = -1;
 			}
 			int actioncounter = sessdata.getInt("actioncounter")-reduce;
@@ -151,17 +151,17 @@ public class BasicContext implements Context,Loggable {
 			}
 			
 			// Bei viel zu hoher Aktivitaet einfach die Ausfuehrung mit einem Fehler beenden
-			if( actioncounter > 25 ) {
+			if( actioncounter >= 30 ) {
 				addError( actionBlockingPhrases[RandomUtils.nextInt(actionBlockingPhrases.length)],
 						getRequest().getRequestURL() + 
 						(getRequest().getQueryString() != null ? "?" + getRequest().getQueryString() : "") );
 
 				return;
 			}
-			// Bei hoher Aktivitaet stattdessen nur eine Pause von 1 oder 2 Sekunden einlegen
+			// Bei hoher Aktivitaet stattdessen nur eine Pause von 1 oder 2,5 Sekunden einlegen
 			else if( actioncounter > 20 ) {
 				try {
-					Thread.sleep(2000);
+					Thread.sleep(2500);
 				}
 				catch( InterruptedException e ) {
 					LOG.error(e,e);
