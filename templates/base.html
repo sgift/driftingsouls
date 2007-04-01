@@ -57,7 +57,7 @@
 </div>
 <table class="noBorder" cellspacing="5" cellpadding="2">
 <tr>
-	<td class="Border">Karte</td>
+	<td style="width:{base.map.width}px" class="Border">Karte</td>
 	<td style="width:5px" class="noBorder"></td>
 	<td style="width:280px" class="Border">Cargo</td>
 	<td style="width:5px" class="noBorder"></td>
@@ -153,12 +153,12 @@
 		{!table_begin 100%,left}
 			Aktuelle Energie: {base.e}<br />
 			Bilanz: {base.estat} 
-			<!-- BEGIN base.estat.listitem --><img style="vertical-align:middle" src="{estat.image}" alt="" />{if estat.break}<br />{/endif}<!-- END base.estat.listitem -->
+			<!-- BEGIN base.estat.listitem --><img style="vertical-align:middle" src="{estat.image}" alt="" /><!-- END base.estat.listitem -->
 			<br />
 			Bev&ouml;lkerung: {base.bewohner}<br />
 			Arbeiter ben&ouml;tigt: {base.arbeiter.needed}<br />
 			Wohnraum: {base.wohnraum}<br />
-			<!-- BEGIN base.bev.listitem --><img style="border:0px" src=" {URL}data/interface/{bev.image}" alt="" />{if bev.break}<br />{/endif}<!-- END base.bev.listitem -->
+			<!-- BEGIN base.bev.listitem --><img style="border:0px" src=" {URL}data/interface/{bev.image}" alt="" /><!-- END base.bev.listitem -->
 			<br /><br />
 		{!table_end}
 	</td>

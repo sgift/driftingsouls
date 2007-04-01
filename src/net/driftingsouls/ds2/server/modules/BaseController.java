@@ -463,51 +463,20 @@ public class BaseController extends DSGenerator {
 
 		t.set_block("_BASE", "base.estat.listitem", "base.estat.list");
 		
-		// Dieses dumme Konstrukt braucht der IE
-		int breakafter =(base.getWidth()*39+20+500)/16;
-		
-		int i = 0;
-
 		t.set_var("estat.image", baseimg+"_x.gif");
 		for( ;e_x > 0; e_x-- ) {
-			if( i == 0 ) {
-				t.set_var("estat.break", 0);
-			}
-			i++;
-			if( i > breakafter ) {
-				t.set_var("estat.break", 1);
-				i = 0;	
-			}
 			t.parse("base.estat.list", "base.estat.listitem", true);
 		}
 		
 		t.set_var("estat.image", baseimg+"_v.gif");
 		for( ;e_v > 0; e_v-- ) {
-			if( i == 0 ) {
-				t.set_var("estat.break", 0);
-			}
-			i++;
-			if( i > breakafter ) {
-				t.set_var("estat.break", 1);
-				i = 0;	
-			}
 			t.parse("base.estat.list", "base.estat.listitem", true);
 		}
 		t.set_var("estat.image", baseimg+".gif");
 		for( ;e > 0; e-- ) {
-			if( i == 0 ) {
-				t.set_var("estat.break", 0);
-			}
-			i++;
-			if( i > breakafter ) {
-				t.set_var("estat.break", 1);
-				i = 0;	
-			}
 			t.parse("base.estat.list", "base.estat.listitem", true);
 		}
 		
-		i = 0;
-		breakafter =(base.getWidth()*39+20+500)/8;
 		Map<Integer,String> bevstats = new LinkedHashMap<Integer,String>();
 
 		if( basedata.getBewohner() >= base.getBewohner() ) {
@@ -528,14 +497,6 @@ public class BaseController extends DSGenerator {
 			String image = bevstats.get(bevstat);
 			t.set_var("bev.image", image);
 			for( ;bevstat > 0; bevstat-- ) {
-				if( i == 0 ) {
-					t.set_var("bev.break", 0);
-				}
-				i++;
-				if( i > breakafter ) {
-					t.set_var("bev.break", 1);
-					i = 0;	
-				}
 				t.parse("base.bev.list", "base.bev.listitem", true);
 			}
 		}
