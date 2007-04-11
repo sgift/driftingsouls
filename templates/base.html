@@ -55,7 +55,7 @@
 	</span>
 	<br /><br />
 </div>
-<table class="noBorder" cellspacing="5" cellpadding="2">
+<table class="noBorder" cellspacing="5" cellpadding="2" style="table-layout:fixed">
 <tr>
 	<td style="width:{base.map.width}px" class="Border">Karte</td>
 	<td style="width:5px" class="noBorder"></td>
@@ -64,7 +64,7 @@
 	<td style="width:240px" class="Border">Aktionen</td>
 </tr>
 <tr>
-	<td class="schiffData" valign="top">
+	<td class="schiffData" style="vertical-align:top; width:{base.map.width}px">
 		<div style="z-index:2; position:relative; top:0px; left:0px; width:{base.map.width}px; height:{base.cargo.height}px; overflow:auto">
 		<!-- +START+ Karte -->
 		<!-- BEGIN base.map.listitem -->
@@ -94,8 +94,8 @@
 		<!-- +END+ Karte -->
 		</div>
 	</td>
-	<td class="noBorder">&nbsp;</td>
-	<td valign="top" class="schiffWaren">
+	<td class="noBorder" style="width:5px">&nbsp;</td>
+	<td style="vertical-align:top; width:280px" class="schiffWaren">
 		<div style="padding:5px; height:{base.cargo.height}px; overflow:auto">
 			<!-- +START+ Cargo -->
 			<!-- BEGIN base.cargo.listitem -->
@@ -119,8 +119,8 @@
 			<!-- +END+ Cargo -->
 		</div>
 	</td>
-	<td class="noBorder">&nbsp;</td>
-	<td valign="top" class="schiffWaren">
+	<td class="noBorder" style="width:5px">&nbsp;</td>
+	<td style="vertical-align:top; width:240px" class="schiffWaren">
 		<div style="padding:5px">
 			<table class="noBorderS">
 				<!-- BEGIN base.massonoff.listitem -->
