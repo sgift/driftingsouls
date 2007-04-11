@@ -827,7 +827,7 @@ class PortalController extends DSGenerator {
 							String tmp = browserpattern.group(0);
 							
 							double version = Double.parseDouble(tmp);
-							if( (version > 0) && (version < 8.0) ) {
+							if( (version > 0) && (version < 9.0) ) {
 								t.set_var(	"show.login.browserwarning", 1,
 											"browser.name", "Opera",
 											"browser.version", version );
@@ -839,11 +839,10 @@ class PortalController extends DSGenerator {
 							String tmp = browserpattern.group(1);
 
 							double version = Double.parseDouble(tmp);
-							if( version < 7.0 ) {
-								t.set_var(	"show.login.browserwarning", 1,
-											"browser.name", "Microsoft Internet Explorer",
-											"browser.version", version );
-							}
+							
+							t.set_var(	"show.login.browserwarning", 1,
+										"browser.name", "Microsoft Internet Explorer",
+										"browser.version", version );
 						}
 					}
 					catch( Exception e ) {
