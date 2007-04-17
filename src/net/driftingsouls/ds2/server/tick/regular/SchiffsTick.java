@@ -272,7 +272,10 @@ public class SchiffsTick extends TickController {
 							"heat='",oldshipd.getString("heat"),"' AND " ,
 							"hull='",oldshipd.getInt("hull"),"' AND " ,
 							"cargo='",oldshipd.getString("cargo"),"'");
-						
+			
+			String status = Ships.recalculateShipStatus(shipd.getInt("id"));
+			this.slog(status);
+			
 			// Schauen wir mal ob das Commiten auch geht
 			if( !db.tCommit() ) {
 				this.log("\t++++++++++++++ COMMIT ERROR - RETRYING ++++++++++++++");
@@ -292,9 +295,6 @@ public class SchiffsTick extends TickController {
 			this.log("\tKeine Aenderungen");	
 		}
 		this.slog("\tNeu: crew "+shipd.getInt("crew")+" e "+e+" status: <");
-		
-		String status = Ships.recalculateShipStatus(shipd.getInt("id"));
-		this.slog(status);
 		
 		this.log(">");
 	}
@@ -410,10 +410,12 @@ public class SchiffsTick extends TickController {
 					while( s.next() ) {
 						if( s.getInt("crew") < crewcount ) {
 							db.update("UPDATE ships SET crew=0 WHERE id='",s.getInt("id"),"'");
+							Ships.recalculateShipStatus(s.getInt("id"));
 							this.log(s.getInt("id")+" verhungert");
 						}
 						else {
 							db.update("UPDATE ships SET crew=crew-'",crewcount,"' WHERE id='",s.getInt("id"),"'");
+							Ships.recalculateShipStatus(s.getInt("id"));
 							this.log(s.getInt("id")+" "+crewcount+" Crew verhungert");
 							break;
 						}
