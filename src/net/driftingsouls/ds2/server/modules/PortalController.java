@@ -750,107 +750,109 @@ class PortalController extends DSGenerator {
 				Common.writeLog("login.log", Common.date("j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+username+") <"+username+"> Password <"+password+"> ***UNGUELTIGER ACCOUNT*** von Browser <"+getRequest().getUserAgent()+">\n");
 				clear = false;
 			}
-			User user = getContext().createUserObject(uid.getInt("id"));
-			
-    		if( !user.getPassword().equals(enc_pw) ) {
-				t.set_var( "show.msg.login.wrongpassword",1 );
-				user.setLoginFailedCount(user.getLoginFailedCount()+1);
-  				Common.writeLog("login.log", Common.date("j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getID()+") <"+username+"> Password <"+password+"> ***LOGIN GESCHEITERT*** von Browser <"+getRequest().getUserAgent()+">\n");
-				clear = false;
-			} 
-			else if( user.getDisabled() ) {
-				t.set_var("show.login.msg.accdisabled",1);
-				Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getID()+") <"+username+"> Password <"+password+"> ***ACCOUNT GESPERRT*** von Browser <"+getRequest().getUserAgent()+">\n");
-
-				db.update("DELETE FROM sessions WHERE id='",user.getID(),"'");
-				clear = false;
-			} 
 			else {
-				SQLResultRow session = db.first("SELECT * FROM sessions WHERE id='",user.getID(),"'");
-				if( !session.isEmpty() && (session.getInt("tick") != 0) ) {
-					t.set_var("show.login.msg.tick",1);
+				User user = getContext().createUserObject(uid.getInt("id"));
+				
+	    		if( !user.getPassword().equals(enc_pw) ) {
+					t.set_var( "show.msg.login.wrongpassword",1 );
+					user.setLoginFailedCount(user.getLoginFailedCount()+1);
+	  				Common.writeLog("login.log", Common.date("j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getID()+") <"+username+"> Password <"+password+"> ***LOGIN GESCHEITERT*** von Browser <"+getRequest().getUserAgent()+">\n");
 					clear = false;
-				}
-				else{
-					Common.writeLog("login.log",Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getID()+") <"+username+"> Login von Browser <"+getRequest().getUserAgent()+">\n");
-
-  					int id = user.getID();
-
-  					String sess = Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE));
-
-  					db.update("DELETE FROM sessions WHERE id='",id,"' AND attach IS NULL");
-  					db.update("INSERT INTO sessions (id,session,ip,lastaction,usegfxpak) ",
-								" VALUES('",id,"','",sess,"','<",getRequest().getRemoteAddress(),">','",Common.time(),"','",usegfxpak,"')");
-
-					if( (user.getVacationCount() == 0) || (user.getWait4VacationCount() != 0) ) {
-						t.set_var(	"show.login.msg.ok", 1,
-									"login.sess", sess );
-					}	
-					else {
-						t.set_var(	"show.login.vacmode", 1,
-									"login.vacmode.dauer", Common.ticks2Days(user.getVacationCount()),
-									"login.vacmode.sess", sess );
+				} 
+				else if( user.getDisabled() ) {
+					t.set_var("show.login.msg.accdisabled",1);
+					Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getID()+") <"+username+"> Password <"+password+"> ***ACCOUNT GESPERRT*** von Browser <"+getRequest().getUserAgent()+">\n");
+	
+					db.update("DELETE FROM sessions WHERE id='",user.getID(),"'");
+					clear = false;
+				} 
+				else {
+					SQLResultRow session = db.first("SELECT * FROM sessions WHERE id='",user.getID(),"'");
+					if( !session.isEmpty() && (session.getInt("tick") != 0) ) {
+						t.set_var("show.login.msg.tick",1);
+						clear = false;
 					}
-					
-					// Ueberpruefen ob das gfxpak noch aktuell ist
-					if( (usegfxpak != 0) && !user.getUserImagePath().equals(User.getDefaultImagePath(db)) ) {
-						t.set_var(	"login.checkgfxpak", 1,
-									"login.checkgfxpak.path", user.getUserImagePath() );
-					}
-					
-					/*
-					 * HACK (? - das ganze sollte vieleicht besser ins Framework)
-					 * 
-					 * Browser erkennen und ggf eine Warnung ausgeben
-					 * 
-					 */
-					
-					String browser = getRequest().getUserAgent().toLowerCase();
-					String browsername = null;
-					if( browser.indexOf("opera") != -1 ) {
-						browsername = "opera";
-					}
-					else if( browser.indexOf("msie") != -1 ) {
-						browsername = "msie";
-					}
-					else if( (browser.indexOf("firefox") != -1) || (browser.indexOf("gecko") != -1) ) {
-						browsername = "mozilla";
-					}
-					else {
-						browsername = "unknown";	
-					}
-					
-					try {
-						if( browsername.equals("opera") ) {
-							Matcher browserpattern = Pattern.compile("opera ([0-9\\.,]+)").matcher(browser);
-							browserpattern.find();
-							String tmp = browserpattern.group(0);
-							
-							double version = Double.parseDouble(tmp);
-							if( (version > 0) && (version < 9.0) ) {
+					else{
+						Common.writeLog("login.log",Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getID()+") <"+username+"> Login von Browser <"+getRequest().getUserAgent()+">\n");
+	
+	  					int id = user.getID();
+	
+	  					String sess = Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE));
+	
+	  					db.update("DELETE FROM sessions WHERE id='",id,"' AND attach IS NULL");
+	  					db.update("INSERT INTO sessions (id,session,ip,lastaction,usegfxpak) ",
+									" VALUES('",id,"','",sess,"','<",getRequest().getRemoteAddress(),">','",Common.time(),"','",usegfxpak,"')");
+	
+						if( (user.getVacationCount() == 0) || (user.getWait4VacationCount() != 0) ) {
+							t.set_var(	"show.login.msg.ok", 1,
+										"login.sess", sess );
+						}	
+						else {
+							t.set_var(	"show.login.vacmode", 1,
+										"login.vacmode.dauer", Common.ticks2Days(user.getVacationCount()),
+										"login.vacmode.sess", sess );
+						}
+						
+						// Ueberpruefen ob das gfxpak noch aktuell ist
+						if( (usegfxpak != 0) && !user.getUserImagePath().equals(User.getDefaultImagePath(db)) ) {
+							t.set_var(	"login.checkgfxpak", 1,
+										"login.checkgfxpak.path", user.getUserImagePath() );
+						}
+						
+						/*
+						 * HACK (? - das ganze sollte vieleicht besser ins Framework)
+						 * 
+						 * Browser erkennen und ggf eine Warnung ausgeben
+						 * 
+						 */
+						
+						String browser = getRequest().getUserAgent().toLowerCase();
+						String browsername = null;
+						if( browser.indexOf("opera") != -1 ) {
+							browsername = "opera";
+						}
+						else if( browser.indexOf("msie") != -1 ) {
+							browsername = "msie";
+						}
+						else if( (browser.indexOf("firefox") != -1) || (browser.indexOf("gecko") != -1) ) {
+							browsername = "mozilla";
+						}
+						else {
+							browsername = "unknown";	
+						}
+						
+						try {
+							if( browsername.equals("opera") ) {
+								Matcher browserpattern = Pattern.compile("opera ([0-9\\.,]+)").matcher(browser);
+								browserpattern.find();
+								String tmp = browserpattern.group(0);
+								
+								double version = Double.parseDouble(tmp);
+								if( (version > 0) && (version < 9.0) ) {
+									t.set_var(	"show.login.browserwarning", 1,
+												"browser.name", "Opera",
+												"browser.version", version );
+								}
+							}
+							else if( browsername.equals("msie") ) {
+								Matcher browserpattern = Pattern.compile("msie ([0-9\\.,]+)").matcher(browser);
+								browserpattern.find();
+								String tmp = browserpattern.group(1);
+	
+								double version = Double.parseDouble(tmp);
+								
 								t.set_var(	"show.login.browserwarning", 1,
-											"browser.name", "Opera",
+											"browser.name", "Microsoft Internet Explorer",
 											"browser.version", version );
 							}
 						}
-						else if( browsername.equals("msie") ) {
-							Matcher browserpattern = Pattern.compile("msie ([0-9\\.,]+)").matcher(browser);
-							browserpattern.find();
-							String tmp = browserpattern.group(1);
-
-							double version = Double.parseDouble(tmp);
-							
-							t.set_var(	"show.login.browserwarning", 1,
-										"browser.name", "Microsoft Internet Explorer",
-										"browser.version", version );
+						catch( Exception e ) {
+							java.lang.System.err.println(e);
+							e.printStackTrace();
 						}
+	
+	  					clear = true;
 					}
-					catch( Exception e ) {
-						java.lang.System.err.println(e);
-						e.printStackTrace();
-					}
-
-  					clear = true;
 				}
 			}
 		}
