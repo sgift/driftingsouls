@@ -493,11 +493,11 @@ public class User implements Loggable {
 					flagschiffSpace = 0;
 				}
 				else {
-					flagschiffSpace = fs.getInt("flagschiff");
+					flagschiffSpace = fs.getBoolean("flagschiff") ? 1 : 0;
 				}
 			}
 			else {
-				flagschiffSpace = fs.getInt("flagschiff");
+				flagschiffSpace = fs.getBoolean("flagschiff") ? 1 : 0;
 			}
 		}
 		else {
