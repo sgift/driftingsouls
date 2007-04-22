@@ -95,7 +95,12 @@ public class SchiffInfoController extends DSGenerator {
 			(data.getBoolean("hide") && (user != null) && (user.getAccessLevel() < 10) ) || 
 			(data.getBoolean("hide") && user == null) ) {
 			
-			data.clear();
+			if( data != null ) {
+				data.clear();
+			}
+			else {
+				data = new SQLResultRow();
+			}
 			data.put( "id",ship );
 			data.put( "nickname","Unbekanntes Schiff" );
 			data.put( "ru", 0 );

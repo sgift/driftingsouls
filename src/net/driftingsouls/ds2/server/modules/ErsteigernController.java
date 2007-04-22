@@ -1680,6 +1680,9 @@ public class ErsteigernController extends DSGenerator {
 		else if( shopentry.getInt("type") == 0 ) {	// Cargo	
 			entry = new ShopResourceEntry(shopentry);
 		}
+		else {
+			throw new RuntimeException("Unbekannter Versteigerungstyp '"+shopentry.getInt("type")+"'");
+		}
 		
 		if( user.getKonto().compareTo(new BigDecimal(entry.getPrice()*ordercount).toBigInteger()) < 0 ) {
 			t.set_var("show.message", "<span style=\"color:red\">Sie verf&uuml;gen nicht &uuml;ber genug Geld</span>");
@@ -1873,6 +1876,9 @@ public class ErsteigernController extends DSGenerator {
 
 					String[] coords = StringUtils.split(tmp[1], "->");
 					entryadddata = ganyname+" ("+ganyid+")<br />nach "+coords[1];
+				}
+				else {
+					throw new RuntimeException("Unbekannter Shopeintrag-Typ '"+shopentry.getInt("type")+"'");
 				}
 			
 				t.set_var(	"orderentry.name",			shopEntryObj.getName(),

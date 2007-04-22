@@ -227,7 +227,7 @@ public class Quests implements Loggable {
 				runningdata = db.query("SELECT id,execdata FROM quests_running WHERE id='",rquestid,"'");	
 			}
 								
-			if( runningdata.next() ) {
+			if( (runningdata != null) && runningdata.next() ) {
 				runningID = runningdata.getInt("id");
 				try {
 					Blob execdata = runningdata.getBlob("execdata");
@@ -240,13 +240,14 @@ public class Quests implements Loggable {
 					LOG.warn("Setting Script-ExecData failed: ",e);
 					return false;
 				}
+				
+				runningdata.free();
 			}
 			else {
 				db.update("INSERT INTO quests_running (questid,userid) VALUES ('",usequest,"','",userid,"')");
 				
 				runningID = db.insertID();
 			}
-			runningdata.free();
 		}
 		
 		SQLResultRow script = db.first("SELECT script FROM scripts WHERE id='",usescript,"'");
