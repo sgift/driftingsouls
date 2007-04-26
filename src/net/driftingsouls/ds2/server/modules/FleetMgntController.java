@@ -619,7 +619,11 @@ public class FleetMgntController extends DSGenerator {
 			free -= db.first("SELECT count(*) count FROM ships WHERE id>0 AND docked='",ship.getInt("id"),"'").getInt("count");
 			List<Integer> containerlist = new ArrayList<Integer>();
 			
-			SQLQuery container = db.query("SELECT t1.id FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id WHERE t1.owner='",user.getID(),"' AND t1.system='",ship.getInt("system"),"' AND t1.x='",ship.getInt("x"),"' AND t1.y='",ship.getInt("y"),"' AND t1.docked='' AND t1.type=t2.id AND t2.class='",ShipClasses.CONTAINER,"' ORDER BY fleet,type LIMIT ",free);
+			SQLQuery container = db.query("SELECT s.id FROM ships s JOIN ship_types st ON s.type=st.id " +
+					"WHERE s.owner='",user.getID(),"' AND s.system='",ship.getInt("system"),"' AND" +
+							" s.x='",ship.getInt("x"),"' AND s.y='",ship.getInt("y"),"' AND s.docked='' AND " +
+							"st.class='",ShipClasses.CONTAINER,"' AND s.battle=0 " +
+					"ORDER BY fleet,type LIMIT ",free);
 			while( container.next() ) {
 				containerlist.add(container.getInt("id"));
 				free--;
@@ -686,7 +690,11 @@ public class FleetMgntController extends DSGenerator {
 
 			List<Integer >jaegerlist = new ArrayList<Integer>();
 			
-			SQLQuery jaeger = db.query("SELECT t1.* FROM ships t1 JOIN ship_types t2 WHERE ",(jaegertypeID > 0 ? "t1.type="+jaegertypeID+" AND " : ""),"t1.owner='",user.getID(),"' AND t1.system='",ship.getInt("system"),"' AND t1.x='",ship.getInt("x"),"' AND t1.y='",ship.getInt("y"),"' AND t1.docked='' AND t1.type=t2.id AND (LOCATE('tblmodules',t1.status) OR LOCATE('",ShipTypes.SF_JAEGER,"',t2.flags)) ORDER BY fleet,type");
+			SQLQuery jaeger = db.query("SELECT s.* FROM ships s JOIN ship_types st ON s.type=st.id " +
+					"WHERE "+(jaegertypeID > 0 ? "s.type="+jaegertypeID+" AND " : "")+"s.owner='",user.getID(),"' AND " +
+							"s.system='",ship.getInt("system"),"' AND s.x='",ship.getInt("x"),"' AND s.y='",ship.getInt("y"),"' AND " +
+							"s.docked='' (LOCATE('tblmodules',s.status) OR LOCATE('",ShipTypes.SF_JAEGER,"',st.flags)) AND s.battle=0 " +
+					"ORDER BY fleet,type");
 			while( jaeger.next() ) {
 				SQLResultRow jaegertype = ShipTypes.getShipType(jaeger.getRow());
 				if( ShipTypes.hasShipTypeFlag(jaegertype, ShipTypes.SF_JAEGER) ) {
