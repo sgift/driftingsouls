@@ -778,7 +778,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		User user = getUser();
 		Database db = getDatabase();
 	
-		if( this.ally.getInt("president") != user.getID()) {
+		if( this.ally.getInt("president") == user.getID()) {
 			t.set_var( "ally.message", "<span style=\"color:red\">Sie k&ouml;nnen erst austreten, wenn ein anderer Pr&auml;sident bestimmt wurde" );
 			redirect();
 			return;
