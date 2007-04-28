@@ -1546,11 +1546,13 @@ public class QuestFunctions {
 				scriptparser.setRegister("A","0");
 			}
 			
-			if( Math.abs(deltax)+Math.abs(deltay) == 0 ) {
-				scriptparser.log("\n");
-				return CONTINUE;
+			SQLResultRow ship = db.first("SELECT id,x,y,system FROM ships WHERE id=",shipid);
+			if( !Location.fromResult(ship).equals(target) ) {
+				scriptparser.log("Position nicht korrekt - Ausfuehrung bis zum naechsten Tick angehalten\n\n");
+				return STOP;
 			}
 			
+			scriptparser.log("\n");
 			return CONTINUE;
 		}
 	}

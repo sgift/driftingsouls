@@ -101,6 +101,10 @@ public class ActionFunctions {
 				scriptparser.log("Ausfuehrung bis zum naechsten Tick angehalten\n\n");
 				return STOP;
 			}
+			if( !Location.fromResult(ship).equals(target) ) {
+				scriptparser.log("Position nicht korrekt - Ausfuehrung bis zum naechsten Tick angehalten\n\n");
+				return STOP;
+			}
 			
 			return CONTINUE;
 		}
