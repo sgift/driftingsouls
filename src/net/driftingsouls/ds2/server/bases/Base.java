@@ -71,44 +71,46 @@ public class Base implements Cloneable {
 		this.autogtuacts = acts;
 		
 		// Ggf die Feldergroessen fixen
-		if( getTerrain().length+getActive().length+getBebauung().length < getWidth()*getHeight()*3 ) {
+		if( getTerrain().length < getWidth()*getHeight() ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
-			if( getTerrain().length < getWidth()*getHeight() ) {
-				Integer[] terrain = new Integer[getWidth()*getHeight()];
-				System.arraycopy(getTerrain(), 0, terrain, 0, getTerrain().length );
-				for( int i=Math.max(getTerrain().length-1,0); i < getWidth()*getHeight(); i++ ) {
-					int rnd = RandomUtils.nextInt(7);
-					if( rnd > 4 ) {
-						terrain[i] = rnd - 4;	
-					}
-					else {
-						terrain[i] = 0;	
-					}
+			Integer[] terrain = new Integer[getWidth()*getHeight()];
+			System.arraycopy(getTerrain(), 0, terrain, 0, getTerrain().length );
+			for( int i=Math.max(getTerrain().length-1,0); i < getWidth()*getHeight(); i++ ) {
+				int rnd = RandomUtils.nextInt(7);
+				if( rnd > 4 ) {
+					terrain[i] = rnd - 4;	
 				}
-				this.terrain = terrain;
-				db.update("UPDATE bases SET terrain='",Common.implode("|", getTerrain()),"' WHERE id='",getID(),"'");
+				else {
+					terrain[i] = 0;	
+				}
 			}
+			this.terrain = terrain;
+			db.update("UPDATE bases SET terrain='",Common.implode("|", getTerrain()),"' WHERE id='",getID(),"'");
+		}
 			
-			if( getBebauung().length < getWidth()*getHeight() ) {
-				Integer[] bebauung = new Integer[getWidth()*getHeight()];
-				System.arraycopy(getBebauung(), 0, bebauung, 0, getBebauung().length );
-				for( int i=Math.max(getBebauung().length-1,0); i < getWidth()*getHeight(); i++ ) {
-					bebauung[i] = 0;	
-				}
-				this.bebauung = bebauung;
-				db.update("UPDATE bases SET bebauung='",Common.implode("|", getBebauung()),"' WHERE id='",getID(),"'");
-			}
+		if( getBebauung().length < getWidth()*getHeight() ) {
+			Database db = ContextMap.getContext().getDatabase();
 			
-			if( getActive().length < getWidth()*getHeight() ) {
-				Integer[] active = new Integer[getWidth()*getHeight()];
-				System.arraycopy(getActive(), 0, active, 0, getActive().length );
-				for( int i=Math.max(getActive().length-1,0); i < getWidth()*getHeight(); i++ ) {
-					active[i] = 0;	
-				}
-				this.active = active;
-				db.update("UPDATE bases SET active='",Common.implode("|", getActive()),"' WHERE id='",getID(),"'");
+			Integer[] bebauung = new Integer[getWidth()*getHeight()];
+			System.arraycopy(getBebauung(), 0, bebauung, 0, getBebauung().length );
+			for( int i=Math.max(getBebauung().length-1,0); i < getWidth()*getHeight(); i++ ) {
+				bebauung[i] = 0;	
 			}
+			this.bebauung = bebauung;
+			db.update("UPDATE bases SET bebauung='",Common.implode("|", getBebauung()),"' WHERE id='",getID(),"'");
+		}
+		
+		if( getActive().length < getWidth()*getHeight() ) {
+			Database db = ContextMap.getContext().getDatabase();
+			
+			Integer[] active = new Integer[getWidth()*getHeight()];
+			System.arraycopy(getActive(), 0, active, 0, getActive().length );
+			for( int i=Math.max(getActive().length-1,0); i < getWidth()*getHeight(); i++ ) {
+				active[i] = 0;	
+			}
+			this.active = active;
+			db.update("UPDATE bases SET active='",Common.implode("|", getActive()),"' WHERE id='",getID(),"'");
 		}
 	}
 	
