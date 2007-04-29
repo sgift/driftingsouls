@@ -30,7 +30,12 @@ class Value {
 			return Integer.parseInt(val);
 		}
 		catch( NumberFormatException e ) {
-			return 0;
+			try {
+				return (int)Double.parseDouble(val);
+			}
+			catch( NumberFormatException e2 ) {
+				return 0;
+			}
 		}
 	}
 	
@@ -45,7 +50,12 @@ class Value {
 			return Long.parseLong(val);
 		}
 		catch( NumberFormatException e ) {
-			return 0;
+			try {
+				return (long)Double.parseDouble(val);
+			}
+			catch( NumberFormatException e2 ) {
+				return 0;
+			}
 		}
 	}
 	
