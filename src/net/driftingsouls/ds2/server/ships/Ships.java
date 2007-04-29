@@ -138,7 +138,9 @@ public class Ships implements Loggable {
 		if( oldstatus.length > 0 ) {
 			for( int i=0; i < oldstatus.length; i++ ) {
 				String astatus = oldstatus[i];
-				if( !astatus.equals("disable_iff") && !astatus.equals("mangle_nahrung") && !astatus.equals("mangel_reaktor") && !astatus.equals("offizier") && !astatus.equals("nocrew") && !astatus.equals("nebel") ) {
+				if( !astatus.equals("disable_iff") && !astatus.equals("mangle_nahrung") && 
+					!astatus.equals("mangel_reaktor") && !astatus.equals("offizier") && 
+					!astatus.equals("nocrew") && !astatus.equals("nebel") && !astatus.equals("tblmodules") ) {
 					status.add(astatus);
 				}
 			}
@@ -199,6 +201,11 @@ public class Ships implements Loggable {
 		Offizier offi = Offizier.getOffizierByDest('s', shipID);
 		if( offi != null ) {
 			status.add("offizier");
+		}
+		
+		SQLResultRow modules = db.first("SELECT id FROM ships_modules WHERE id="+shipID);
+		if( !modules.isEmpty() ) {
+			status.add("tblmodules");
 		}
 		
 		boolean savestatus = true;
