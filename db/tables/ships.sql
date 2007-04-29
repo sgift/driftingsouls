@@ -44,7 +44,8 @@ CREATE TABLE `ships` (
   KEY `battle` (`battle`),
   KEY `status` (`status`),
   KEY `bookmark` (`bookmark`),
-  KEY `type` (`type`)
+  KEY `type` (`type`),
+  KEY `docked` (`docked`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 PACK_KEYS=0; 
 
 ALTER TABLE ships ADD CONSTRAINT ships_fk_users FOREIGN KEY (owner) REFERENCES users(id);

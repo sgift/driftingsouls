@@ -240,5 +240,6 @@
 	]]></update>
 	<update type="structure" datum="2007-04-29"><![CDATA[
 		ALTER TABLE transmissionen CHANGE ordner ordner int(10) unsigned NOT NULL DEFAULT '0';
+		ALTER TABLE `ships` ADD INDEX ( `docked` );
 	]]></update>
 </updates>
