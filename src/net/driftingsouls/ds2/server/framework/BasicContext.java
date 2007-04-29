@@ -95,7 +95,7 @@ public class BasicContext implements Context,Loggable {
 								.first(sess);
 		
 		if( sessdata.isEmpty() ) {
-			addError( "Fehler: Sie sind offenbar nicht eingeloggt", errorurl );
+			addError( "Sie sind offenbar nicht eingeloggt", errorurl );
 
 			return;
 		}
@@ -111,20 +111,20 @@ public class BasicContext implements Context,Loggable {
 	
 		User user = new User( this, sessdata.getInt("id"), sessdata );
 		if( !user.hasFlag(User.FLAG_DISABLE_IP_SESSIONS) && !sessdata.getString("ip").contains("<"+getRequest().getRemoteAddress()+">") ) {
-			addError( "Fehler: Diese Session ist einer anderen IP zugeordnet", errorurl );
+			addError( "Diese Session ist einer anderen IP zugeordnet", errorurl );
 
 			return;
 		}
 	
 		if( !user.hasFlag(User.FLAG_DISABLE_AUTO_LOGOUT) && (Common.time() - sessdata.getInt("lastaction") > Configuration.getIntSetting("AUTOLOGOUT_TIME")) ) {
 			db.update("DELETE FROM sessions WHERE id='",sessdata.getInt("id"),"'");
-			addError( "Fehler: Diese Session ist bereits abgelaufen", errorurl );
+			addError( "Diese Session ist bereits abgelaufen", errorurl );
 
 			return;
 		}
 		
 		if( (user.getVacationCount() > 0) && (user.getWait4VacationCount() == 0) ) {
-			addError( "Fehler: Dieser Account befindet sich noch im Vacationmodus", errorurl );
+			addError( "Dieser Account befindet sich noch im Vacationmodus", errorurl );
 
 			return;
 		}
