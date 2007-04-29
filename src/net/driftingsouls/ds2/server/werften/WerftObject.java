@@ -1220,13 +1220,13 @@ public abstract class WerftObject extends DSObject {
 			shipdata.put("costs", new Cargo(Cargo.Type.STRING, shipdata.getString("costs")));
 			
 			// Kosten anpassen
-			if( shipdata.getInt("linfactor") > 0 ) {
+			if( shipdata.getDouble("linfactor") > 0 ) {
 				int count = db.first("SELECT count(*) count FROM ships WHERE id>0 AND type=",shipdata.getInt("type")," AND owner=",user.getID()).getInt("count");
 				int count2 = db.first("SELECT count(t1.id) count FROM werften t1 JOIN bases t2 ON t1.col=t2.id WHERE t1.building=",shipdata.getInt("type")," AND t2.owner=",user.getID()).getInt("count");
 				int count3 = db.first("SELECT count(t1.id) count FROM werften t1 JOIN ships t2 ON t1.shipid=t2.id WHERE t2.id>0 AND t1.building=",shipdata.getInt("type")," AND t2.owner=",user.getID()).getInt("count");
 		
 				count = count + count2 + count3;
-				((Cargo)shipdata.get("costs")).multiply( shipdata.getInt("linfactor")*count+1, Cargo.Round.NONE );
+				((Cargo)shipdata.get("costs")).multiply( shipdata.getDouble("linfactor")*count+1, Cargo.Round.NONE );
 			}
 		}
 		else {
