@@ -47,6 +47,8 @@ public class ImpObjectsController extends DSGenerator {
 	public ImpObjectsController(Context context) {
 		super(context);
 		
+		this.viewableSystem = true;
+		
 		setTemplate("impobjects.html");
 		
 		addBodyParameter("style", "background-image: url('"+Configuration.getSetting("URL")+"data/interface/border/border_background.gif')");
