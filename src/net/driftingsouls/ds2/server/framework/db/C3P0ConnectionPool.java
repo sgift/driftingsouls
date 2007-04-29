@@ -31,11 +31,11 @@ class C3P0ConnectionPool implements ConnectionPool {
 		cpds.setJdbcUrl( url );
 		cpds.setUser(user);                                  
 		cpds.setPassword(password);
-		cpds.setMinPoolSize(5);                                     
-		cpds.setAcquireIncrement(5);
+		cpds.setMinPoolSize(2);                                     
+		cpds.setAcquireIncrement(2);
 		cpds.setMaxPoolSize(30);
 		cpds.setMaxStatements(180);
-		cpds.setMaxStatementsPerConnection(20);
+		cpds.setNumHelperThreads(10);
 		cpds.setPreferredTestQuery("SELECT ticks FROM config LIMIT 1");
 		cpds.setIdleConnectionTestPeriod(30);
 		cpds.setMaxIdleTime(600);
