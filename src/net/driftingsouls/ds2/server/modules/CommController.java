@@ -234,7 +234,7 @@ public class CommController extends DSGenerator implements Loggable {
 		
 		if( auser.getID() != 0 ) {
 			db.update("UPDATE transmissionen SET gelesen=2 WHERE empfaenger=",user.getID()," AND sender=",auser.getID()," AND ordner=",ordner," AND (gelesen=1 OR !(flags & ",PM.FLAGS_IMPORTANT,"))");
-			t.set_var("show.message", "<span style=\"color:red\">Alle Nachrichten von "+Common._title(user.getName())+" gel&ouml;scht</span>");
+			t.set_var("show.message", "<span style=\"color:red\">Alle Nachrichten von "+Common._title(auser.getName())+" gel&ouml;scht</span>");
 		}
 		else {
 			t.set_var("show.message", "<span style=\"color:red\">Der angegebene Spieler existiert nicht</span>");
