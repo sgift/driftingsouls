@@ -824,14 +824,15 @@ class PortalController extends DSGenerator {
 						try {
 							if( browsername.equals("opera") ) {
 								Matcher browserpattern = Pattern.compile("opera ([0-9\\.,]+)").matcher(browser);
-								browserpattern.find();
-								String tmp = browserpattern.group(0);
-								
-								double version = Double.parseDouble(tmp);
-								if( (version > 0) && (version < 9.0) ) {
-									t.set_var(	"show.login.browserwarning", 1,
-												"browser.name", "Opera",
-												"browser.version", version );
+								if( browserpattern.find() ) {
+									String tmp = browserpattern.group(0);
+									
+									double version = Double.parseDouble(tmp);
+									if( (version > 0) && (version < 9.0) ) {
+										t.set_var(	"show.login.browserwarning", 1,
+													"browser.name", "Opera",
+													"browser.version", version );
+									}
 								}
 							}
 							else if( browsername.equals("msie") ) {
