@@ -765,10 +765,12 @@ public class CommController extends DSGenerator implements Loggable {
 		ordner = db.query("SELECT * FROM ordner WHERE playerid=",user.getID()," AND parent=",current_ordner," ORDER BY name ASC");
 
 		while( ordner.next() ){
+			Integer count = ordners.get(ordner.getInt("id"));
+			
 			t.set_var(	"ordner.id",			ordner.getInt("id"),
 						"ordner.name",			ordner.getString("name"),
 						"ordner.parent",		ordner.getInt("parent"),
-						"ordner.pms",			ordners.get(ordner.getInt("id")),
+						"ordner.pms",			count != null ? count.intValue() : 0,
 						"ordner.flags.up",		0,
 						"ordner.flags.trash",	(ordner.getInt("flags") & Ordner.FLAG_TRASH) != 0 );
 			
