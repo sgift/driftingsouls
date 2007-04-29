@@ -8,7 +8,7 @@ CREATE TABLE `skn` (
   `pic` int(11) NOT NULL default '0',
   `allypic` int(11) NOT NULL default '0',
   `tick` mediumint(8) unsigned NOT NULL default '0',
-  `channel` tinyint(3) unsigned NOT NULL default '1',
+  `channel` int(10) unsigned NOT NULL default '1',
   PRIMARY KEY  (`post`),
   KEY `channel` (`channel`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 

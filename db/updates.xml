@@ -192,7 +192,6 @@
 		ALTER TABLE ship_loot ADD CONSTRAINT ship_loot_fk_users2 FOREIGN KEY (targetuser) REFERENCES users(id);
 		ALTER TABLE skn_visits ADD CONSTRAINT skn_visits_fk_users FOREIGN KEY (user) REFERENCES users(id);
 		ALTER TABLE skn_visits ADD CONSTRAINT skn_visits_fk_skn_channels FOREIGN KEY (channel) REFERENCES skn_channels(id);
-		ALTER TABLE skn ADD CONSTRAINT skn_fk_skn_channels FOREIGN KEY (channel) REFERENCES skn_channels(id);
 		ALTER TABLE skn ADD CONSTRAINT skn_fk_users FOREIGN KEY (userid) REFERENCES users(id);
 		ALTER TABLE stats_module_locations ADD CONSTRAINT stats_module_locations_fk_user_id FOREIGN KEY (user_id) REFERENCES users(id);
 		ALTER TABLE stats_user_cargo ADD CONSTRAINT stats_user_cargo_fk_user_id FOREIGN KEY (user_id) REFERENCES users(id);
@@ -227,5 +226,16 @@
 	<update type="structure" datum="2007-03-25"><![CDATA[
 		ALTER TABLE quests_quick CHANGE source source VARCHAR(30) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '';
 		ALTER TABLE quests_quick CHANGE target target VARCHAR(30) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '';
+	]]></update>
+	<update type="structure" datum="2007-04-28"><![CDATA[
+		ALTER TABLE skn CHANGE channel channel int(10) unsigned NOT NULL DEFAULT '1';
+		ALTER TABLE skn ADD CONSTRAINT skn_fk_skn_channels FOREIGN KEY (channel) REFERENCES skn_channels(id);
+		ALTER TABLE `jumpnodes` DROP INDEX `system`;
+		ALTER TABLE `jumpnodes` DROP INDEX `x`;
+		ALTER TABLE `jumpnodes` DROP INDEX `y`;
+		ALTER TABLE `jumpnodes` ADD INDEX `coords` ( `x` , `y` , `system` );
+		ALTER TABLE `sessions` ADD PRIMARY KEY ( `session` );
+		ALTER TABLE `sessions` DROP INDEX `session`;
+		ALTER TABLE `ships` CHANGE `jumptarget` `jumptarget` VARCHAR( 100 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
 	]]></update>
 </updates>

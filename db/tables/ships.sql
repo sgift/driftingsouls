@@ -28,7 +28,7 @@ CREATE TABLE `ships` (
   `bookmark` tinyint(1) unsigned NOT NULL default '0',
   `battle` int(11) NOT NULL default '0',
   `battleAction` tinyint(1) unsigned NOT NULL default '0',
-  `jumptarget` varchar(11) NOT NULL default '',
+  `jumptarget` varchar(100) NOT NULL default '',
   `autodeut` tinyint(3) unsigned NOT NULL default '1',
   `history` text NOT NULL,
   `script` text,

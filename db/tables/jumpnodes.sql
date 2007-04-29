@@ -11,8 +11,6 @@ CREATE TABLE `jumpnodes` (
   `gcpcolonistblock` tinyint(1) NOT NULL default '0',
   `hidden` tinyint(3) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`),
-  KEY `x` (`x`),
-  KEY `y` (`y`),
-  KEY `system` (`system`)
+  KEY `coords` (`x`,`y`,`system`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
  
