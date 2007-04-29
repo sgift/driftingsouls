@@ -230,7 +230,7 @@ public class UeberController extends DSGenerator implements Loggable {
 			switch( flagschiff.getType() ) {
 			case SHIP:
 				SQLResultRow ship = db.prepare("SELECT id,name FROM ships WHERE id>0 AND id=?").first(flagschiff.getID());
-				if( !ship.isEmpty() ) {
+				if( ship.isEmpty() ) {
 					user.setFlagschiff(0);
 				} 
 				else {
