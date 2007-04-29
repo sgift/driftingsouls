@@ -797,6 +797,10 @@ public class ScriptParser {
 				}
 				if( ok ) {
 					this.log("Marke: "+command[1]+"\n");
+					if( !parameterlist.containsKey(":"+command[1]) ) {
+						this.log("Unbekannte Sprungmarke: :"+command[1]);
+						break;
+					}
 					context.setLastCommand(parameterlist.get(":"+command[1]));
 				}	
 				else {
