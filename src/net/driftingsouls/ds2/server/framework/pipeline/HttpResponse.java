@@ -113,11 +113,19 @@ public class HttpResponse implements Response {
 					response.setContentLength(contentLength);
 				}
 				response.setHeader("Content-Type", contentType+"; charset="+charSet);
-				if( content.length() > 0 ) {
-					response.getOutputStream().print(content.toString());
+				try {
+					if( content.length() > 0 ) {
+						response.getOutputStream().print(content.toString());
+					}
+					response.getOutputStream().flush();
+					
+					response.getOutputStream().close();
 				}
-				response.getOutputStream().flush();
-				response.getOutputStream().close();
+				catch( IOException e ) {
+					// Ignorieren, da es sich vmtl um einen Browser handelt, der
+					// die Leitung zu frueh dicht gemacht hat
+				}
+				
 				send = true;
 			}
 			else {

@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.framework.pipeline.reader;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -120,6 +121,12 @@ public class FileReader implements Reader, Loggable {
 		context.getResponse().setHeader("Last-Modified", dateFormat.format( new Date(file.lastModified()) ) );
 		
 		FileInputStream fin = new FileInputStream(new File(path));
-		IOUtils.copy(fin, context.getResponse().getOutputStream());
+		try {
+			IOUtils.copy(fin, context.getResponse().getOutputStream());
+		}
+		catch( IOException e ) {
+			// Ignorieren, da es sich in den meisten Faellen um einen Browser handelt,
+			// der die Verbindung zu frueh dicht gemacht hat
+		}
 	}
 }
