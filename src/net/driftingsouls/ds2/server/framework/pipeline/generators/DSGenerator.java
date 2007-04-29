@@ -153,7 +153,7 @@ public abstract class DSGenerator extends Generator {
 					sb.append("QCount: "+getDatabase().getQCount()+"<br />\n");
 					sb.append("Execution-Time: "+(System.currentTimeMillis()-getStartTime())/1000d+"s<br />\n");
 					//echo "<a class=\"forschinfo\" target=\"none\" style=\"font-size:11px\" href=\"http://ds2.drifting-souls.net/mantis/\">Zum Bugtracker</a><br />\n";
-					if( (getUser() != null) && (getUser().getAccessLevel() >= 20) ) {
+					if( (getUser() != null) && (getUser().getAccessLevel() >= 20) && getDatabase().getQueryLogStatus() ) {
 						sb.append("<div style=\"display:none\"><!--\n");
 						sb.append(getDatabase().getQueryLog());
 						sb.append("--></div>\n");
@@ -178,7 +178,7 @@ public abstract class DSGenerator extends Generator {
 				else {
 					sb.append("<li><a class=\"error\" style=\"font-size:14px; font-weight:normal\" href=\""+error.getUrl()+"\">"+error.getDescription().replaceAll("\n","<br />")+"</a></li>\n");
 				}
-			}	
+			}
 					
 			sb.append("<ul>\n");
 			sb.append(Common.tableEnd());
@@ -197,7 +197,13 @@ public abstract class DSGenerator extends Generator {
 		@Override
 		public void printFooter() {}
 		@Override
-		public void printErrorList() {}
+		public void printErrorList() {
+			StringBuffer sb = getResponse().getContent();
+
+			for( Error error : getErrorList() ) {
+				sb.append("ERROR: "+error.getDescription().replaceAll("\n"," ")+"\n");
+			}
+		}
 	}
 	
 	private ActionType actionType;
@@ -249,18 +255,24 @@ public abstract class DSGenerator extends Generator {
 
 		setActionType(ActionType.DEFAULT);
 
-		String browser = getRequest().getHeader("user-agent").toLowerCase();
-		
-		if( browser.indexOf("opera") > -1  ) {
-			browser = "opera";
-		}
-		else if( browser.indexOf("msie") > -1 ) {
-			browser = "msie";
+		String browser = getRequest().getHeader("user-agent");
+		if( browser != null ) {		
+			browser = browser.toLowerCase();
+			
+			if( browser.indexOf("opera") > -1  ) {
+				browser = "opera";
+			}
+			else if( browser.indexOf("msie") > -1 ) {
+				browser = "msie";
+			}
+			else {
+				browser = "mozilla";
+			}
+			this.browser = browser;
 		}
 		else {
-			browser = "mozilla";
+			this.browser = "unknown";
 		}
-		this.browser = browser;
 	}
 		
 	/**
@@ -480,9 +492,12 @@ public abstract class DSGenerator extends Generator {
 		}
 		
 		String content = "";
+		
+		// Ungueltige Sessions brauchen nicht extra abgefangen zu werden,
+		// da fuer diese Bereits ein Fehler eingetragen wurde
 		if( requireValidSession && (getContext().getActiveUser() == null) && 
 				getString("sess").length() == 0 ) {
-			addError( "FATAL ERROR: Es wurde keine session-id &uuml;bergeben" );
+			addError( "Es wurde keine session-id &uuml;bergeben" );
 		}
 		
 		if( getErrorList().length != 0 ) {
