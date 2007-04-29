@@ -436,8 +436,14 @@ public class BaseTick extends TickController {
 		
 			this.retries = 5; // Max 5 versuche. Wenn die Basis dann noch immer nicht korrekt berechnet wurde: aufgeben
 
-			// Nun wollen wir die Basis mal berechnen....
-			this.tickBase(new Base(base.getRow()));
+			try {
+				// Nun wollen wir die Basis mal berechnen....
+				this.tickBase(new Base(base.getRow()));
+			}
+			catch( Exception e ) {
+				this.log("Base "+base.getInt("owner")+" failed: "+e);
+				e.printStackTrace();
+			}
 		}
 		base.free();
 		

@@ -374,7 +374,13 @@ public class SchiffsTick extends TickController {
 				
 				// Anzahl der Wiederholungen, falls ein Commit fehlschlaegt
 				this.retries = 5;
-				this.tickShip( db, shipd.getRow() );
+				try {
+					this.tickShip( db, shipd.getRow() );
+				}
+				catch( Exception e ) {
+					this.log("ship "+shipd.getInt("id")+" failed: "+e);
+					e.printStackTrace();
+				}
 			}
 			shipd.free();
 			
