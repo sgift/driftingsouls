@@ -732,9 +732,9 @@ class PortalController extends DSGenerator {
 		
 		String disablelogin = db.first("SELECT disablelogin FROM config").getString("disablelogin");
 		if( !"".equals(disablelogin) ) {
-			username = null;
-			password = null;
-			clear = true;;
+			username = "";
+			password = "";
+			clear = true;
 		
 			t.set_var(	"show.login.logindisabled", 1,
 						"login.logindisabled.msg", Common._text(disablelogin) );
