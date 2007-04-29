@@ -693,7 +693,7 @@ public class FleetMgntController extends DSGenerator {
 			SQLQuery jaeger = db.query("SELECT s.* FROM ships s JOIN ship_types st ON s.type=st.id " +
 					"WHERE "+(jaegertypeID > 0 ? "s.type="+jaegertypeID+" AND " : "")+"s.owner='",user.getID(),"' AND " +
 							"s.system='",ship.getInt("system"),"' AND s.x='",ship.getInt("x"),"' AND s.y='",ship.getInt("y"),"' AND " +
-							"s.docked='' (LOCATE('tblmodules',s.status) OR LOCATE('",ShipTypes.SF_JAEGER,"',st.flags)) AND s.battle=0 " +
+							"s.docked='' AND (LOCATE('tblmodules',s.status) OR LOCATE('",ShipTypes.SF_JAEGER,"',st.flags)) AND s.battle=0 " +
 					"ORDER BY fleet,type");
 			while( jaeger.next() ) {
 				SQLResultRow jaegertype = ShipTypes.getShipType(jaeger.getRow());
