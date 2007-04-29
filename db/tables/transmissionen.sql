@@ -5,7 +5,7 @@ CREATE TABLE `transmissionen` (
   `empfaenger` int(11) NOT NULL default '0',
   `title` varchar(50) NOT NULL default '',
   `time` int(11) NOT NULL default '0',
-  `ordner` tinyint(4) NOT NULL default '0',
+  `ordner` int(10) unsigned NOT NULL default '0',
   `flags` int(11) NOT NULL default '0',
   `inhalt` text NOT NULL,
   `kommentar` text NOT NULL,
