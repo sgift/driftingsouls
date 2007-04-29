@@ -40,8 +40,9 @@ public class RegularTick extends AbstractTickExecuter {
 
 	@Override
 	protected void executeTicks() {
+		TimeoutChecker timeout = null;
 		try {
-			TimeoutChecker timeout = new TimeoutChecker(20*60*1000) {
+			timeout = new TimeoutChecker(20*60*1000) {
 				private Thread main = Thread.currentThread();
 				
 				@Override
@@ -97,6 +98,11 @@ public class RegularTick extends AbstractTickExecuter {
 			System.err.println("Fehler beim Ausfuehren der Ticks: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RegularTick Exception", null);
+		}
+		finally {
+			if( timeout != null ) {
+				timeout.interrupt();
+			}
 		}
 	}
 

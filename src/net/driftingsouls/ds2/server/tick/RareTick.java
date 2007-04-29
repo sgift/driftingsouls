@@ -20,7 +20,6 @@ package net.driftingsouls.ds2.server.tick;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.tick.AbstractTickExecuter.TimeoutChecker;
 import net.driftingsouls.ds2.server.tick.rare.RestTick;
 
 /**
@@ -32,8 +31,9 @@ public class RareTick extends AbstractTickExecuter {
 
 	@Override
 	protected void executeTicks() {
+		TimeoutChecker timeout = null;
 		try {
-			TimeoutChecker timeout = new TimeoutChecker(20*60*1000) {
+			timeout = new TimeoutChecker(20*60*1000) {
 				private Thread main = Thread.currentThread();
 				
 				@Override
@@ -57,13 +57,16 @@ public class RareTick extends AbstractTickExecuter {
 			
 			publishStatus("berechne Sonstiges");
 			execTick(RestTick.class, false);
-			
-			timeout.interrupt();
 		}
 		catch( Throwable e ) {
 			System.err.println("Fehler beim Ausfuehren der Ticks: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RareTick Exception", null);
+		}
+		finally {
+			if( timeout != null ) {
+				timeout.interrupt();
+			}
 		}
 	}
 
