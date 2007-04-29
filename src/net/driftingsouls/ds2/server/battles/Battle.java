@@ -723,11 +723,11 @@ public class Battle implements Loggable {
 		Set<Integer> ownUsers = new HashSet<Integer>();
 		Set<Integer> enemyUsers = new HashSet<Integer>();		
 
-		SQLQuery aShipRow = db.query("SELECT s.*,u.name AS username,u.ally ",
-									"FROM ships s JOIN users u ON s.owner=u.id ",
-									"WHERE s.id>0 AND s.x=",tmpOwnShip.getInt("x")," AND s.y=",tmpOwnShip.getInt("y")," AND " ,
-							   			"s.system=",tmpOwnShip.getInt("system")," AND s.battle=0 AND " ,
-							   			"u.ally IN (",tmpOwnShip.getInt("ally"),",",tmpEnemyShip.getInt("ally"),") AND " ,
+		SQLQuery aShipRow = db.query("SELECT s.*,u.name AS username,u.ally "+
+									"FROM ships s JOIN users u ON s.owner=u.id "+
+									"WHERE s.id>0 AND s.x="+tmpOwnShip.getInt("x")+" AND s.y="+tmpOwnShip.getInt("y")+" AND " +
+							   			"s.system="+tmpOwnShip.getInt("system")+" AND s.battle=0 AND " +
+							   			"u.ally IN ("+tmpOwnShip.getInt("ally")+","+tmpEnemyShip.getInt("ally")+") AND " +
 							   			"!LOCATE('disable_iff',s.status) AND `lock` IS NULL AND (u.vaccount=0 OR u.wait4vac > 0)");
 							   		
 		while( aShipRow.next() ) {
@@ -735,9 +735,8 @@ public class Battle implements Loggable {
 			if( (aShipRow.getInt("owner") == -1) && (aShipRow.getInt("type") == Configuration.getIntSetting("CONFIG_TRUEMMER")) ) {
 				continue;
 			}
-			
 			User tmpUser = context.createUserObject( aShipRow.getInt("owner") );
-						
+					
 			if( tmpUser.isNoob() ) {
 				continue;
 			}
@@ -1492,6 +1491,8 @@ public class Battle implements Loggable {
 
 		for( int i=0; i < 2; i++ ) {
 			List<SQLResultRow> destroyList = new ArrayList<SQLResultRow>();
+			List<SQLResultRow> fluchtList = new ArrayList<SQLResultRow>();
+			List<SQLResultRow> fluchtReposList = new ArrayList<SQLResultRow>();
 			
 			List<SQLResultRow> shiplist = sides.get(i);
 			for( int key=0; key < shiplist.size(); key++ ) {
@@ -1531,10 +1532,10 @@ public class Battle implements Loggable {
 				
 				if( (aship.getInt("action") & BS_FLUCHT) != 0 ) {
 					if( ashipType.getInt("cost") > 0 ) {
-						this.removeShip(aship, true);
-					} 
+						fluchtReposList.add(aship);
+					}
 					else {
-						this.removeShip(aship, false);
+						fluchtList.add(aship);
 					}
 	
 					continue;
@@ -1589,6 +1590,14 @@ public class Battle implements Loggable {
 			// Zerstoerte Schiffe aus der Schlacht entfernen
 			for( int key=0; key < destroyList.size(); key++ ) {
 				this.destroyShip(destroyList.get(key));
+			}
+			
+			for( int key=0; key < fluchtList.size(); key++ ) {
+				this.removeShip(fluchtList.get(key), false);
+			}
+			
+			for( int key=0; key < fluchtReposList.size(); key++ ) {
+				this.removeShip(fluchtReposList.get(key), true);
 			}
 			
 			int points = this.getActionPoints(i);

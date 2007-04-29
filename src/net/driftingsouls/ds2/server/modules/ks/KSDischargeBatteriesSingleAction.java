@@ -88,7 +88,7 @@ public class KSDischargeBatteriesSingleAction extends BasicKSAction {
 		mycargo.substractResource( Resources.BATTERIEN, batterien );
 		mycargo.addResource( Resources.LBATTERIEN, batterien );
 
-		db.update("UPDATE ships SET e=",ownShip.getInt("e"),",battleAction=1,cargo='",mycargo.save(),"' WHERE id=",ownShip.getInt("e")," cargo='",mycargo.save(true),"' AND e=",oldE);
+		db.update("UPDATE ships SET e=",ownShip.getInt("e"),",battleAction=1,cargo='",mycargo.save(),"' WHERE id=",ownShip.getInt("id")," cargo='",mycargo.save(true),"' AND e=",oldE);
 		
 		if( db.affectedRows() > 0 ) {
 			battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");

@@ -107,7 +107,7 @@ public class KSDischargeBatteriesAllAction extends BasicKSAction {
 			mycargo.addResource( Resources.LBATTERIEN, batterien );
 
 			db.update("UPDATE ships SET e="+aship.getInt("e")+",battleAction=1,cargo='"+mycargo.save()+"' " +
-					"WHERE id="+aship.getInt("e")+" AND cargo='"+mycargo.save(true)+"' AND e="+oldE);
+					"WHERE id="+aship.getInt("id")+" AND cargo='"+mycargo.save(true)+"' AND e="+oldE);
 			
 			if( db.affectedRows() > 0 ) {
 				aship.put("cargo", mycargo.save());

@@ -56,7 +56,7 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 			
 		// Kampf beenden weil die eigene Streitmacht deutlich groesser ist?
 		if( this.isPossible(battle, new KSEndBattleEqualAction()) == RESULT_OK ) {
-			this.menuEntry("Kampf beenden (unentschieden)", 
+			this.menuEntryAsk("Kampf beenden (unentschieden)", 
 								new Object[] {	"ship",		ownShip.getInt("id"),
 												"attack",	enemyShip.getInt("id"),
 												"ksaction",	"endbattleequal" },
