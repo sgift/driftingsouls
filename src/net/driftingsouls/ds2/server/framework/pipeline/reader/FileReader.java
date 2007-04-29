@@ -84,6 +84,8 @@ public class FileReader implements Reader, Loggable {
 		String range = context.getRequest().getHeader("Range");
 		if( (range != null) && !"".equals(range) ) {
 			context.getResponse().setStatus(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
+			context.getResponse().getContent().append("416");
+			
 			return;
 		}
 		
@@ -91,7 +93,9 @@ public class FileReader implements Reader, Loggable {
 		File file = new File(path);
 		if( !file.exists() ) {
 			context.getResponse().setStatus(HttpServletResponse.SC_NOT_FOUND);
+			context.getResponse().getContent().append("404 - Die von ihnen gesuchte Datei existiert nicht");
 			LOG.warn("Warning: file not found: '"+file+"'");
+			
 			return;
 		}
 		
