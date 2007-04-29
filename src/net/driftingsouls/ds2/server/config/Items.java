@@ -92,6 +92,11 @@ public class Items implements Loggable,Iterable<Item> {
 				Node node = nodes.item(i);
 				int id = (int)XMLUtils.getLongAttribute(node, "id");
 				
+				String version = XMLUtils.getStringAttribute(node, "version");
+				if( (version != null) && !version.equalsIgnoreCase(Configuration.getSetting("VERSION_TYPE")) ) {
+					continue;
+				}
+				
 				String name = XMLUtils.getStringByXPath(node, "name/text()");
 				String picture = XMLUtils.getStringByXPath(node, "picture/text()");
 				if( picture == null || picture.equals("") ) {

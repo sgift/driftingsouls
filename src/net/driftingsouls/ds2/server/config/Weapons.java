@@ -119,6 +119,12 @@ public class Weapons implements Iterable<Weapon>,Loggable {
 				Node node = nodes.item(i);
 				
 				String id = XMLUtils.getStringAttribute(node, "id");
+				
+				String version = XMLUtils.getStringAttribute(node, "version");
+				if( (version != null) && !version.equalsIgnoreCase(Configuration.getSetting("VERSION_TYPE")) ) {
+					continue;
+				}
+				
 				String cls = XMLUtils.getStringAttribute(node, "handler");
 				
 				Class<? extends Weapon> concreteClass = wpnClass;
