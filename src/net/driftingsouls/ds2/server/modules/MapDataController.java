@@ -635,10 +635,10 @@ public class MapDataController extends DSGenerator implements Loggable {
 					if( (lastX != sLoc.getX()) || (lastY != sLoc.getY()) ) {
 						lrsScanSectors.add(new Location(system, lastX, lastY));
 						if( usercount.size() > 9 ) {
-							if( allycount != 0 && (maptext[lastX][lastY].indexOf("verb&uuml;ndete") == -1) ) {
+							if( allycount != 0 && ((maptext[lastX][lastY] == null) || (maptext[lastX][lastY].indexOf("verb&uuml;ndete") == -1)) ) {
 								appendStr(maptext, lastX, lastY, allycount+" verb&uuml;ndete"+(allycount==1?"s":"")+" Schiff"+(allycount==1?"":"e")+"\n");
 							}
-							if( enemycount != 0 && (maptext[lastX][lastY].indexOf("feindliche") == -1) ) {
+							if( enemycount != 0 && ((maptext[lastX][lastY] == null) || (maptext[lastX][lastY].indexOf("feindliche") == -1)) ) {
 								appendStr(maptext, lastX, lastY, enemycount+" feindliche"+(enemycount==1?"s":"")+" Schiff"+(enemycount==1?"":"e")+"\n"); 
 							}
 						}
@@ -684,10 +684,10 @@ public class MapDataController extends DSGenerator implements Loggable {
 				if( lastX != 0 && lastY != 0 ) {
 					lrsScanSectors.add(new Location(system, lastX, lastY));
 					if( usercount.size() > 9 ) {
-						if( allycount != 0 && (maptext[lastX][lastY].indexOf("verb&uuml;ndete") == -1) ) {
+						if( allycount != 0 && ((maptext[lastX][lastY] == null) || (maptext[lastX][lastY].indexOf("verb&uuml;ndete") == -1)) ) {
 							appendStr(maptext, lastX, lastY, allycount+" verb&uuml;ndete"+(allycount==1?"s":"")+" Schiff"+(allycount==1?"":"e")+"\n");
 						}
-						if( enemycount != 0 && (maptext[lastX][lastY].indexOf("feindliche") == -1) ) {
+						if( enemycount != 0 && ((maptext[lastX][lastY] == null) || (maptext[lastX][lastY].indexOf("feindliche") == -1)) ) {
 							appendStr(maptext, lastX, lastY, enemycount+" feindliche"+(enemycount==1?"s":"")+" Schiff"+(enemycount==1?"":"e")+"\n"); 
 						}
 					}
