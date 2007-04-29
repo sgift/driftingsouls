@@ -89,6 +89,14 @@ public class ActionFunctions {
 				return STOP;
 			}
 			
+			if( curpos.getInt("system") != target.getSystem() ) {
+				PM.send(ContextMap.getContext(), -1, ship.getInt("owner"), 
+						"Scriptparser Error - Schiff "+ship.getInt("id"), 
+						"Konnte Befehl !SHIPMOVE "+command[1]+" nicht ausfuehren. Ihr Schiff befindet sich im falschen System");
+				scriptparser.log("Falsches System - Ausfuehrung bis zum naechsten Tick angehalten\n\n");
+				return STOP;
+			}
+			
 			RouteFactory router = new RouteFactory();
 			List<Waypoint> route = router.findRoute(Location.fromResult(curpos), target, maxcount);
 					
@@ -298,7 +306,7 @@ public class ActionFunctions {
 			ResourceID resid = Resources.fromString(command[4]);
 			scriptparser.log("resid: "+resid+"\n");
 			
-			long count = Long.parseLong(command[5]);
+			long count = Value.Long(command[5]);
 			scriptparser.log("count: "+count+"\n");
 			
 			SQLResultRow ship1 = scriptparser.getShip();
