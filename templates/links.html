@@ -62,6 +62,17 @@
 
 <script type="text/javascript" language="JavaScript">
 <!--
+	/* PeriodicalExecuter stop function */
+	PeriodicalExecuter.prototype.registerCallback = function() {
+		this.intervalID = setInterval(this.onTimerEvent.bind(this), this.frequency * 1000);
+	}
+
+	PeriodicalExecuter.prototype.stop = function() {
+		clearInterval(this.intervalID);
+	}
+
+
+
 	function checkPMStatus() {
 		var url = './ajax.php';
 		var params = 'module={global.module}&sess={global.sess}&action=hasNewPm';
@@ -75,6 +86,13 @@
 	}
 	
 	function updatePMStatus( originalRequest ) {
+		var response = originalRequest.responseText;
+		
+		if( response.indexOf('nicht eingeloggt') > -1 ) {
+			checkPMStatusExecuter.stop();
+			return;
+		}
+		
 		if( originalRequest.responseText == '1' ) {
 			$('pms').className = "pms";
 		}
@@ -83,7 +101,7 @@
 		}
 	}
 
-	new PeriodicalExecuter(checkPMStatus, 30); 
+	var checkPMStatusExecuter = new PeriodicalExecuter(checkPMStatus, 30); 
 	
 	function kampfschiffe_arrow() {
 		htmlcode = '<table cellpadding=\'0\' cellspacing=\'0\' border=\'0\' class=\'noBorder\' style=\'width:150px\'>';
