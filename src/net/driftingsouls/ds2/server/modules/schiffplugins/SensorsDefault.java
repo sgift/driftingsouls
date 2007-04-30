@@ -368,9 +368,9 @@ public class SensorsDefault implements SchiffPlugin {
 				final String typeGroupID = datas.getInt("type")+"_"+datas.getInt("owner");
 
 				// Schiff nur als/in Gruppe anzeigen
-				if( (this.showOnly == 0) && (user_wrapfactor != 0) && (mastertype.getInt("groupwrap") != 0) && 
-					(types.get(typeGroupID) >= mastertype.getInt("groupwrap")*user_wrapfactor) && 
-					(datas.getString("status").indexOf("disable_iff") == -1))  {
+				if( (this.showOnly == 0) && !datas.getString("status").contains("disable_iff") && 
+					(user_wrapfactor != 0) && (mastertype.getInt("groupwrap") != 0) && 
+					(types.get(typeGroupID) >= mastertype.getInt("groupwrap")*user_wrapfactor) )  {
 					
 					int fleetlesscount = 0;
 					int ownfleetcount = 0;
