@@ -20,6 +20,8 @@ package net.driftingsouls.ds2.server.framework.bbcode;
 
 import java.util.regex.Pattern;
 
+import net.driftingsouls.ds2.server.framework.Common;
+
 class TagURL implements BBCodeFunction {
 	/**
 	 * Maximale Laenge des Titels
@@ -51,7 +53,10 @@ class TagURL implements BBCodeFunction {
 		}
 		
 		if( title.length() > MAXWIDTH ) {
-			title = title.substring(0,WIDTH_BEGIN)+"..."+title.substring(title.length()-WIDTH_END);
+			if( Common._stripHTML(title).length() > MAXWIDTH ) {
+				title = Common._stripHTML(title);
+				title = title.substring(0,WIDTH_BEGIN)+"..."+title.substring(title.length()-WIDTH_END);
+			}
 		}
 		
 		return "<a class=\"forschinfo\" href=\""+url+"\" target=\"_blank\">"+title+"</a>";
