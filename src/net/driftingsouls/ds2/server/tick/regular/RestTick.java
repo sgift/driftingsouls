@@ -76,6 +76,7 @@ public class RestTick extends TickController {
 		catch( Exception e ) {
 			this.log("Fehler beim Verarbeiten der Sprungantriebe: "+e);
 			e.printStackTrace();
+			Common.mailThrowable(e, "RestTick Exception", "doJumps failed");
 		}
 	}
 	
@@ -98,6 +99,7 @@ public class RestTick extends TickController {
 		catch( Exception e ) {
 			this.log("Fehler beim Anlegen der Statistiken: "+e);
 			e.printStackTrace();
+			Common.mailThrowable(e, "RestTick Exception", "doStatistics failed");
 		}
 	}
 
@@ -165,6 +167,7 @@ public class RestTick extends TickController {
 		catch( Exception e ) {
 			this.log("Fehler beim Verarbeiten der Vacationdaten: "+e);
 			e.printStackTrace();
+			Common.mailThrowable(e, "RestTick Exception", "doVacation failed");
 		}
 	}
 	
@@ -249,6 +252,7 @@ public class RestTick extends TickController {
 		catch( Exception e ) {
 			this.log("Fehler beim Erstellen der Felsbrocken: "+e);
 			e.printStackTrace();
+			Common.mailThrowable(e, "RestTick Exception", "doFelsbrocken failed");
 		}
 	}
 	
@@ -298,6 +302,7 @@ public class RestTick extends TickController {
 				catch( Exception e ) {
 					this.log("[FEHLER] Konnte Quest-Tick fuehr Quest "+rquest.getInt("questid")+" (Running-ID: "+rquest.getInt("id")+") nicht ausfuehren."+e);
 					e.printStackTrace();
+					Common.mailThrowable(e, "RestTick Exception", "Quest failed: "+rquest.getInt("questid")+"\nRunning-ID: "+rquest.getInt("id"));
 				}
 			}
 			rquest.free();
@@ -305,6 +310,7 @@ public class RestTick extends TickController {
 		catch( Exception e ) {
 			this.log("Fehler beim Verarbeiten der Quests: "+e);
 			e.printStackTrace();
+			Common.mailThrowable(e, "RestTick Exception", "doQuests failed");
 		}
 	}
 	
@@ -329,6 +335,7 @@ public class RestTick extends TickController {
 		catch( Exception e ) {
 			this.log("Fehler beim Bearbeiten der Tasks: "+e);
 			e.printStackTrace();
+			Common.mailThrowable(e, "RestTick Exception", "doTasks failed");
 		}
 	}
 	

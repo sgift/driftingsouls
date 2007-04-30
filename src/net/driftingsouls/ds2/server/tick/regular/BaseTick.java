@@ -441,8 +441,9 @@ public class BaseTick extends TickController {
 				this.tickBase(new Base(base.getRow()));
 			}
 			catch( Exception e ) {
-				this.log("Base "+base.getInt("owner")+" failed: "+e);
+				this.log("Base "+base.getInt("id")+" failed: "+e);
 				e.printStackTrace();
+				Common.mailThrowable(e, "BaseTick Exception", "Base: "+base.getInt("id"));
 			}
 		}
 		base.free();

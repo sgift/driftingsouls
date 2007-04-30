@@ -109,109 +109,116 @@ public class NPCOrderTick extends TickController {
 		
 		SQLQuery data = db.query("SELECT * FROM orders WHERE tick=1 ORDER BY user");
 		while( data.next() ) {
-			int owner = data.getInt("user");
-			User user = getContext().createUserObject(owner);
-				
-			if( (owner != this.lastowner) && this.pmcache.length() > 0 ) {
-				PM.send(getContext(), -1, this.lastowner, "NPC-Lieferservice", this.pmcache.toString());
-				pmcache.setLength(0);
-			}
-			lastowner = owner;
-		
-			int type = OFFIZIERSSCHIFF;
-			if( data.getInt("type") > 0 ) {
-				type = data.getInt("type");
-			}
-		
-			SQLResultRow shipd = ShipTypes.getShipType( type, false );
-		
-			if( data.getInt("type") > 0 ) {
-				this.log("* Order "+data.getInt("id")+" ready: "+shipd.getString("nickname")+" ("+type+") wird zu User "+data.getInt("user")+" geliefert");
-			}
-			else {
-				this.log("* Order "+data.getInt("id")+" ready: Offizier wird mittels "+shipd.getString("nickname")+" ("+type+") wird zu User "+data.getInt("user")+" geliefert");
-			}
-		
-			SQLResultRow base = db.first("SELECT id,x,y,system,name FROM bases WHERE owner=",data.getInt("user")," ORDER BY id");
-			Location loc = DEFAULT_LOCATION;
-			if( !base.isEmpty() ) {
-				loc = Location.fromResult(base);
-			}
-			
-			this.log("  Lieferung erfolgt bei "+loc);
-			// Falls ein Schiff geordert wurde oder keine Basis fuer den Offizier existiert (und er braucht somit ein Schiff)...
-			if( (data.getInt("type") > 0) || base.isEmpty() ) {
-				this.maxid++;
-			
-				Cargo cargo = new Cargo();
-				cargo.addResource( Resources.DEUTERIUM, shipd.getInt("rd")*10 );
-				cargo.addResource( Resources.URAN, shipd.getInt("ru")*10 );
-				cargo.addResource( Resources.ANTIMATERIE, shipd.getInt("ra")*10 );
-			
-				User auser = getContext().createUserObject(owner);	
-				String history = "Indienststellung am "+this.currentTime+" durch "+auser.getName()+" ("+auser.getID()+") [hide]NPC-Order[/hide]\n";
-							
-				db.prepare("INSERT INTO ships " ,
-						"(id,owner,name,type,x,y,system,crew,hull,e,cargo,history) " ,
-						"VALUES " ,
-						"( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-					.update(maxid, owner, "noname", type, loc.getX(), loc.getY(), loc.getSystem(), shipd.getInt("crew"), shipd.getInt("hull"), shipd.getInt("eps"), cargo.save(), history);
-				
-				if( shipd.getString("werft").length() > 0 ) {
-					db.update("INSERT INTO werften (shipid) VALUES ('",this.maxid,"')");
+			try {
+				int owner = data.getInt("user");
+				User user = getContext().createUserObject(owner);
+					
+				if( (owner != this.lastowner) && this.pmcache.length() > 0 ) {
+					PM.send(getContext(), -1, this.lastowner, "NPC-Lieferservice", this.pmcache.toString());
+					pmcache.setLength(0);
 				}
-			}
-		
-			// Es handelt sich um einen Offizier...
-			if( data.getInt("type") < 0 ) {
-				SQLResultRow offizier = db.first("SELECT name,rang,ing,waf,nav,sec,com FROM orders_offiziere WHERE id=",(-data.getInt("type")));
-				int special = RandomUtils.nextInt(6)+1;
-				
-				String dest = "s "+this.maxid;
-				if( !base.isEmpty() ) {
-					dest = "b "+base.getInt("id");	
+				lastowner = owner;
+			
+				int type = OFFIZIERSSCHIFF;
+				if( data.getInt("type") > 0 ) {
+					type = data.getInt("type");
 				}
-				String name = this.getOffiName(user);
-				
-				db.prepare("INSERT INTO offiziere ",
-							"(name,userid,rang,ing,waf,nav,sec,com,dest,spec) ",
-							"VALUES ",
-							"( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-					.update(name, owner, offizier.getInt("rang"), offizier.getInt("ing"), offizier.getInt("waf"), offizier.getInt("nav"), offizier.getInt("sec"), offizier.getInt("com"), dest, special);
-		
-				// PM-Nachricht erstellen
-				pmcache.append("Der von ihnen bestellte ");
-				pmcache.append(offizier.getString("name"));
-				pmcache.append(" wurde geliefert.\nEr befindet sich auf ");
-				
-				if( base.isEmpty() ) {
-					pmcache.append("einer ");
-					pmcache.append(shipd.getString("nickname"));
-					pmcache.append(" bei ");
+			
+				SQLResultRow shipd = ShipTypes.getShipType( type, false );
+			
+				if( data.getInt("type") > 0 ) {
+					this.log("* Order "+data.getInt("id")+" ready: "+shipd.getString("nickname")+" ("+type+") wird zu User "+data.getInt("user")+" geliefert");
 				}
 				else {
-					pmcache.append("auf ihrer Basis ");
-					pmcache.append(base.getString("name"));
-					pmcache.append(" (");
-					pmcache.append(base.getInt("id"));
-					pmcache.append(") im Sektor ");
+					this.log("* Order "+data.getInt("id")+" ready: Offizier wird mittels "+shipd.getString("nickname")+" ("+type+") wird zu User "+data.getInt("user")+" geliefert");
+				}
+			
+				SQLResultRow base = db.first("SELECT id,x,y,system,name FROM bases WHERE owner=",data.getInt("user")," ORDER BY id");
+				Location loc = DEFAULT_LOCATION;
+				if( !base.isEmpty() ) {
+					loc = Location.fromResult(base);
 				}
 				
-				pmcache.append(loc);
-				pmcache.append("\n\n");
-			}
-			// Es wurde nur ein Schiff geordert
-			else {
-				pmcache.append("Die von ihnen bestellte ");
-				pmcache.append(shipd.getString("nickname"));
-				pmcache.append(" wurde geliefert\nSie steht bei ");
-				pmcache.append(loc);
-				pmcache.append("\n\n");
-			}
+				this.log("  Lieferung erfolgt bei "+loc);
+				// Falls ein Schiff geordert wurde oder keine Basis fuer den Offizier existiert (und er braucht somit ein Schiff)...
+				if( (data.getInt("type") > 0) || base.isEmpty() ) {
+					this.maxid++;
+				
+					Cargo cargo = new Cargo();
+					cargo.addResource( Resources.DEUTERIUM, shipd.getInt("rd")*10 );
+					cargo.addResource( Resources.URAN, shipd.getInt("ru")*10 );
+					cargo.addResource( Resources.ANTIMATERIE, shipd.getInt("ra")*10 );
+				
+					User auser = getContext().createUserObject(owner);	
+					String history = "Indienststellung am "+this.currentTime+" durch "+auser.getName()+" ("+auser.getID()+") [hide]NPC-Order[/hide]\n";
+								
+					db.prepare("INSERT INTO ships " ,
+							"(id,owner,name,type,x,y,system,crew,hull,e,cargo,history) " ,
+							"VALUES " ,
+							"( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+						.update(maxid, owner, "noname", type, loc.getX(), loc.getY(), loc.getSystem(), shipd.getInt("crew"), shipd.getInt("hull"), shipd.getInt("eps"), cargo.save(), history);
+					
+					if( shipd.getString("werft").length() > 0 ) {
+						db.update("INSERT INTO werften (shipid) VALUES ('",this.maxid,"')");
+					}
+				}
 			
-			Ships.recalculateShipStatus(this.maxid);
-		
-			db.update("DELETE FROM orders WHERE id=",data.getInt("id"));
+				// Es handelt sich um einen Offizier...
+				if( data.getInt("type") < 0 ) {
+					SQLResultRow offizier = db.first("SELECT name,rang,ing,waf,nav,sec,com FROM orders_offiziere WHERE id=",(-data.getInt("type")));
+					int special = RandomUtils.nextInt(6)+1;
+					
+					String dest = "s "+this.maxid;
+					if( !base.isEmpty() ) {
+						dest = "b "+base.getInt("id");	
+					}
+					String name = this.getOffiName(user);
+					
+					db.prepare("INSERT INTO offiziere ",
+								"(name,userid,rang,ing,waf,nav,sec,com,dest,spec) ",
+								"VALUES ",
+								"( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+						.update(name, owner, offizier.getInt("rang"), offizier.getInt("ing"), offizier.getInt("waf"), offizier.getInt("nav"), offizier.getInt("sec"), offizier.getInt("com"), dest, special);
+			
+					// PM-Nachricht erstellen
+					pmcache.append("Der von ihnen bestellte ");
+					pmcache.append(offizier.getString("name"));
+					pmcache.append(" wurde geliefert.\nEr befindet sich auf ");
+					
+					if( base.isEmpty() ) {
+						pmcache.append("einer ");
+						pmcache.append(shipd.getString("nickname"));
+						pmcache.append(" bei ");
+					}
+					else {
+						pmcache.append("auf ihrer Basis ");
+						pmcache.append(base.getString("name"));
+						pmcache.append(" (");
+						pmcache.append(base.getInt("id"));
+						pmcache.append(") im Sektor ");
+					}
+					
+					pmcache.append(loc);
+					pmcache.append("\n\n");
+				}
+				// Es wurde nur ein Schiff geordert
+				else {
+					pmcache.append("Die von ihnen bestellte ");
+					pmcache.append(shipd.getString("nickname"));
+					pmcache.append(" wurde geliefert\nSie steht bei ");
+					pmcache.append(loc);
+					pmcache.append("\n\n");
+				}
+				
+				Ships.recalculateShipStatus(this.maxid);
+			
+				db.update("DELETE FROM orders WHERE id=",data.getInt("id"));
+			}
+			catch( Exception e ) {
+				this.log("Order "+data.getInt("id")+" failed: "+e);
+				e.printStackTrace();
+				Common.mailThrowable(e, "NPCOrderTick Exception", "order: "+data.getInt("id"));
+			}
 		}
 		data.free();
 		

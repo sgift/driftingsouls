@@ -52,23 +52,30 @@ public class BattleTick extends TickController {
 		
 		SQLQuery battledata = db.query("SELECT id,commander1 FROM battles WHERE blockcount<=0 OR lastaction<=",lastacttime);
 		while( battledata.next() ) {
-			this.log("+ Naechste Runde bei Schlacht "+battledata.getInt("id"));
-		
-			int comid = battledata.getInt("commander1");
-		
-			Battle battle = new Battle();
-			battle.load( battledata.getInt("id"), comid, 0, 0, 0 );
-		
-			if( battle.endTurn(false) ) {
-				// Daten nur aktuallisieren, wenn die Schlacht auch weiterhin existiert
-				battle.logenemy("<endturn type=\"all\" side=\"-1\" time=\""+Common.time()+"\" tick=\""+getContext().get(ContextCommon.class).getTick()+"\" />\n");
+			try {
+				this.log("+ Naechste Runde bei Schlacht "+battledata.getInt("id"));
 			
-				battle.save(true);
+				int comid = battledata.getInt("commander1");
 			
-				battle.writeLog();
+				Battle battle = new Battle();
+				battle.load( battledata.getInt("id"), comid, 0, 0, 0 );
+			
+				if( battle.endTurn(false) ) {
+					// Daten nur aktuallisieren, wenn die Schlacht auch weiterhin existiert
+					battle.logenemy("<endturn type=\"all\" side=\"-1\" time=\""+Common.time()+"\" tick=\""+getContext().get(ContextCommon.class).getTick()+"\" />\n");
 				
-				battle.addComMessage(battle.getOwnSide(), "++++ Das Tickscript hat die Runde beendet ++++\n\n");
-				battle.addComMessage(battle.getEnemySide(), "++++ Das Tickscript hat die Runde beendet ++++\n\n");
+					battle.save(true);
+				
+					battle.writeLog();
+					
+					battle.addComMessage(battle.getOwnSide(), "++++ Das Tickscript hat die Runde beendet ++++\n\n");
+					battle.addComMessage(battle.getEnemySide(), "++++ Das Tickscript hat die Runde beendet ++++\n\n");
+				}
+			}
+			catch( Exception e ) {
+				this.log("Battle "+battledata.getInt("id")+" failed: "+e);
+				e.printStackTrace();
+				Common.mailThrowable(e, "BattleTick Exception", "battle: "+battledata.getInt("id"));
 			}
 		}
 		battledata.free();

@@ -380,6 +380,7 @@ public class SchiffsTick extends TickController {
 				catch( Exception e ) {
 					this.log("ship "+shipd.getInt("id")+" failed: "+e);
 					e.printStackTrace();
+					Common.mailThrowable(e, "SchiffsTick Exception", "ship: "+shipd.getInt("id"));
 				}
 			}
 			shipd.free();

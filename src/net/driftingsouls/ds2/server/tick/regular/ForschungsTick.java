@@ -51,40 +51,47 @@ public class ForschungsTick extends TickController {
 		
 		SQLQuery fzdRow = db.query("SELECT id,forschung,dauer,col FROM fz WHERE dauer!=0");
 		while( fzdRow.next() ) {
-			SQLResultRow base = db.first("SELECT name,owner FROM bases WHERE id="+fzdRow.getInt("col"));
+			try {
+				SQLResultRow base = db.first("SELECT name,owner FROM bases WHERE id="+fzdRow.getInt("col"));
+				
+				User user = getContext().createUserObject(base.getInt("owner"));
 			
-			User user = getContext().createUserObject(base.getInt("owner"));
-		
-			if( (user.getVacationCount() != 0) && (user.getWait4VacationCount() == 0) ) {
-				log("Ueberspringe Forschungszentrum "+fzdRow.getInt("id")+" [VAC]");
-				vaclist.add(fzdRow.getInt("id"));
-				continue;
-			}
+				if( (user.getVacationCount() != 0) && (user.getWait4VacationCount() == 0) ) {
+					log("Ueberspringe Forschungszentrum "+fzdRow.getInt("id")+" [VAC]");
+					vaclist.add(fzdRow.getInt("id"));
+					continue;
+				}
+				
+				if( fzdRow.getInt("dauer") != 1 ) {
+					continue;
+				}
 			
-			if( fzdRow.getInt("dauer") != 1 ) {
-				continue;
+				log("fz "+fzdRow.getInt("id"));
+				log("\tforschung: "+fzdRow.getInt("forschung"));
+				Forschung forschung = Forschung.getInstance(fzdRow.getInt("forschung"));
+					
+				log("\t"+forschung.getName()+" ("+forschung.getID()+") erforscht");
+					
+				user.addResearch( forschung.getID() );
+					
+				String msg = "Das Forschungszentrum auf "+base.getString("name")+" hat die Forschungen an "+forschung.getName()+" abgeschlossen";
+					
+				if( forschung.hasFlag( Forschung.FLAG_DROP_NOOB_PROTECTION) && user.isNoob() ) {
+					msg += "\n\n[color=red]Durch die Erforschung dieser Technologie stehen sie nicht l&auml;nger unter GCP-Schutz.\nSie k&ouml;nnen nun sowohl angreifen als auch angegriffen werden![/color]";
+					user.setFlag( User.FLAG_NOOB, false );
+					
+					log("\t"+user.getID()+" steht nicht laenger unter gcp-schutz");
+				}
+					
+				PM.send(getContext(), -1, base.getInt("owner"), "Forschung abgeschlossen", msg);
+				
+				db.update("UPDATE fz SET forschung=0,dauer=0 WHERE id=",fzdRow.getInt("id"));
 			}
-		
-			log("fz "+fzdRow.getInt("id"));
-			log("\tforschung: "+fzdRow.getInt("forschung"));
-			Forschung forschung = Forschung.getInstance(fzdRow.getInt("forschung"));
-				
-			log("\t"+forschung.getName()+" ("+forschung.getID()+") erforscht");
-				
-			user.addResearch( forschung.getID() );
-				
-			String msg = "Das Forschungszentrum auf "+base.getString("name")+" hat die Forschungen an "+forschung.getName()+" abgeschlossen";
-				
-			if( forschung.hasFlag( Forschung.FLAG_DROP_NOOB_PROTECTION) && user.isNoob() ) {
-				msg += "\n\n[color=red]Durch die Erforschung dieser Technologie stehen sie nicht l&auml;nger unter GCP-Schutz.\nSie k&ouml;nnen nun sowohl angreifen als auch angegriffen werden![/color]";
-				user.setFlag( User.FLAG_NOOB, false );
-				
-				log("\t"+user.getID()+" steht nicht laenger unter gcp-schutz");
+			catch( Exception e ) {
+				this.log("Forschungszentrum "+fzdRow.getInt("id")+" failed: "+e);
+				e.printStackTrace();
+				Common.mailThrowable(e, "ForschungsTick Exception", "Forschungszentrum: "+fzdRow.getInt("id"));
 			}
-				
-			PM.send(getContext(), -1, base.getInt("owner"), "Forschung abgeschlossen", msg);
-			
-			db.update("UPDATE fz SET forschung=0,dauer=0 WHERE id=",fzdRow.getInt("id"));
 		}
 		fzdRow.free();
 		
