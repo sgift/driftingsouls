@@ -63,10 +63,16 @@ public class AcademyTick extends TickController {
 			namecache.put(race.getID(), new ArrayList<String>());
 			if( race.getNameGenerator(Rasse.GENERATOR_PERSON) != null ) {
 				try {
-					Process p = Runtime.getRuntime().exec(race.getNameGenerator(Rasse.GENERATOR_PERSON)+" 50 \\\n");
+					Process p = Runtime.getRuntime().exec(race.getNameGenerator(Rasse.GENERATOR_PERSON)+" 50 \\n");
 					BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
 					String tmp = null;
 					while( (tmp = in.readLine()) != null ) {
+						if( tmp.length() == 0 ) {
+							continue;
+						}
+						if( tmp.length() > 60 ) {
+							tmp = tmp.substring(0, 61);
+						}
 						namecache.get(race.getID()).add(tmp);
 					}
 				}
@@ -91,87 +97,94 @@ public class AcademyTick extends TickController {
 		
 		SQLQuery acc = db.query("SELECT * FROM academy WHERE remain!=0 ORDER BY id");
 		while( acc.next() ) {
-			int id = acc.getInt("id");
-			SQLResultRow base = db.first("SELECT t1.name,t1.owner,t2.vaccount,t2.wait4vac FROM bases t1,users t2 WHERE t1.id=",acc.getInt("col")," AND t1.owner=t2.id");
-		
-			if( (base.getInt("vaccount") == 0) && (base.getInt("wait4vac") != 0) ) {
-				log("Ueberspringe Akademie "+id+" [VAC]");
-				vaclist.add(id);
-				continue;
-			}
+			try {
+				int id = acc.getInt("id");
+				SQLResultRow base = db.first("SELECT t1.name,t1.owner,t2.vaccount,t2.wait4vac FROM bases t1,users t2 WHERE t1.id=",acc.getInt("col")," AND t1.owner=t2.id");
 			
-			if( acc.getInt("remain") != 1 ) {
-				continue;
-			}
-			
-			log("Akademie "+id+":");
-			
-			// Einen neuen Offizier ausbilden?
-			if( acc.getInt("train") != 0 ) {
-				log("\tAusbildung abgeschlossen");
-				String offiname = "Offizier "+maxid;
+				if( (base.getInt("vaccount") == 0) && (base.getInt("wait4vac") != 0) ) {
+					log("Ueberspringe Akademie "+id+" [VAC]");
+					vaclist.add(id);
+					continue;
+				}
 				
-				User auser = getContext().createUserObject(base.getInt("owner"));
-				if( namecache.get(auser.getRace()).size() > 0 ) {
-					List<String> names = this.namecache.get(auser.getRace());
-					offiname = names.get(RandomUtils.nextInt(names.size()));
-					if( offiname.trim().length() == 0 ) {
-						offiname = "Offizier "+maxid;
+				if( acc.getInt("remain") != 1 ) {
+					continue;
+				}
+				
+				log("Akademie "+id+":");
+				
+				// Einen neuen Offizier ausbilden?
+				if( acc.getInt("train") != 0 ) {
+					log("\tAusbildung abgeschlossen");
+					String offiname = "Offizier "+maxid;
+					
+					User auser = getContext().createUserObject(base.getInt("owner"));
+					if( namecache.get(auser.getRace()).size() > 0 ) {
+						List<String> names = this.namecache.get(auser.getRace());
+						offiname = names.get(RandomUtils.nextInt(names.size()));
+						if( offiname.trim().length() == 0 ) {
+							offiname = "Offizier "+maxid;
+						}
 					}
-				}
-				int spec = 0;
-				String query = "INSERT INTO offiziere (userid,name,ing,waf,nav,sec,com,dest,spec) " +
-						"VALUES " +
-						"("+base.getInt("owner")+",'"+offiname+"',";
-				if( Offiziere.LIST.containsKey(acc.getInt("train")) ) {
-					SQLResultRow offi = Offiziere.LIST.get(acc.getInt("train"));
-					query += offi.getInt("ing")+","+offi.getInt("waf")+","+offi.getInt("nav")+","+offi.getInt("sec")+","+offi.getInt("com");
+					int spec = 0;
+					String query = "INSERT INTO offiziere (userid,name,ing,waf,nav,sec,com,dest,spec) " +
+							"VALUES " +
+							"("+base.getInt("owner")+",'"+offiname+"',";
+					if( Offiziere.LIST.containsKey(acc.getInt("train")) ) {
+						SQLResultRow offi = Offiziere.LIST.get(acc.getInt("train"));
+						query += offi.getInt("ing")+","+offi.getInt("waf")+","+offi.getInt("nav")+","+offi.getInt("sec")+","+offi.getInt("com");
+						
+						spec = RandomUtils.nextInt(((int[])offi.get("specials")).length);
+						spec = ((int[])offi.get("specials"))[spec];
+					}
+					else {
+						log("FEHLER: Unbekannter Offizierstyp "+acc.getInt("train"));
+						query += "25,20,10,5,5";
+						
+						spec = RandomUtils.nextInt(6)+1;
+					}
 					
-					spec = RandomUtils.nextInt(((int[])offi.get("specials")).length);
-					spec = ((int[])offi.get("specials"))[spec];
+					db.update( query+",'b "+acc.getInt("col")+"',"+spec+")");
+					maxid++;
 				}
-				else {
-					log("FEHLER: Unbekannter Offizierstyp "+acc.getInt("train"));
-					query += "25,20,10,5,5";
-					
-					spec = RandomUtils.nextInt(6)+1;
+				// Einen bestehenden Offizier weiterbilden?
+				else if( acc.getString("upgrade").length() > 0 ) {
+					log("\tWeiterbildung abgeschlossen");
+					String[] dat = StringUtils.split(acc.getString("upgrade"), ' ');
+					StringBuilder query = new StringBuilder(50);
+					query.append("UPDATE offiziere SET ");
+					if( dat[1].equals("1") ) {
+						query.append("ing=ing");
+					}
+					if( dat[1].equals("2") ) {
+						query.append("waf=waf");
+					}
+					if( dat[1].equals("3") ) {
+						query.append("nav=nav");
+					}
+					if( dat[1].equals("4") ) {
+						query.append("sec=sec");
+					}
+					if( dat[1].equals("5") ) {
+						query.append("com=com");
+					}
+					query.append("+2, dest='b ");
+					query.append(acc.getInt("col"));
+					query.append("' WHERE id=");
+					query.append(dat[0]);
+					db.update(query.toString());
 				}
+				db.update("UPDATE academy SET remain=0,train=0,`upgrade`='' WHERE id=",id);
 				
-				db.update( query+",'b "+acc.getInt("col")+"',"+spec+")");
-				maxid++;
+				// Nachricht versenden
+				String msg = "Die Flottenakademie auf dem Asteroiden "+base.getString("name")+" hat die Ausbildung abgeschlossen";
+				PM.send(getContext(),-1, base.getInt("owner"), "Ausbildung abgeschlossen", msg);
 			}
-			// Einen bestehenden Offizier weiterbilden?
-			else if( acc.getString("upgrade").length() > 0 ) {
-				log("\tWeiterbildung abgeschlossen");
-				String[] dat = StringUtils.split(acc.getString("upgrade"), ' ');
-				StringBuilder query = new StringBuilder(50);
-				query.append("UPDATE offiziere SET ");
-				if( dat[1].equals("1") ) {
-					query.append("ing=ing");
-				}
-				if( dat[1].equals("2") ) {
-					query.append("waf=waf");
-				}
-				if( dat[1].equals("3") ) {
-					query.append("nav=nav");
-				}
-				if( dat[1].equals("4") ) {
-					query.append("sec=sec");
-				}
-				if( dat[1].equals("5") ) {
-					query.append("com=com");
-				}
-				query.append("+2, dest='b ");
-				query.append(acc.getInt("col"));
-				query.append("' WHERE id=");
-				query.append(dat[0]);
-				db.update(query.toString());
+			catch( Exception e ) {
+				this.log("Bearbeitung der Akademie "+acc.getInt("id")+" fehlgeschlagen: "+e);
+				e.printStackTrace();
+				Common.mailThrowable(e, "Academy Tick Exception", "Academy: "+acc.getInt("id"));
 			}
-			db.update("UPDATE academy SET remain=0,train=0,`upgrade`='' WHERE id=",id);
-			
-			// Nachricht versenden
-			String msg = "Die Flottenakademie auf dem Asteroiden "+base.getString("name")+" hat die Ausbildung abgeschlossen";
-			PM.send(getContext(),-1, base.getInt("owner"), "Ausbildung abgeschlossen", msg);
 		}
 		acc.free();
 		
