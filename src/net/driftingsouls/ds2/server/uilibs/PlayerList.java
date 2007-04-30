@@ -54,7 +54,7 @@ public class PlayerList {
 			show = "&show="+context.getRequest().getParameter("show");
 		}
 		
-		String url = Configuration.getSetting("URL");
+		String url = Configuration.getSetting("URL")+"ds";
 		if( context.getRequest().getParameter("module") != null ) {
 			url += "?module="+context.getRequest().getParameter("module");
 		}
