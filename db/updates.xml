@@ -242,4 +242,7 @@
 		ALTER TABLE transmissionen CHANGE ordner ordner int(10) unsigned NOT NULL DEFAULT '0';
 		ALTER TABLE `ships` ADD INDEX ( `docked` );
 	]]></update>
+	<update type="structure" datum="2007-04-30"><![CDATA[
+		ALTER TABLE `ships` CHANGE `destcom` `destcom` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+	]]></update>
 </updates>
