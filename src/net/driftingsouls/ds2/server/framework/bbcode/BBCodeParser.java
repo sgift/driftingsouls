@@ -179,6 +179,7 @@ public class BBCodeParser {
 			}
 			
 			// Schliessenden Tag bestimmen
+			// Dazu gleiche Tags (oeffnende und schliessende) zaehlen, bis der counter unter 0 faellt
 			int closetag = -1;
 			int counter = 0;
 			int tagIndex = textIndex-1;
@@ -193,6 +194,16 @@ public class BBCodeParser {
 					}
 				}
 				else if( (text.charAt(tagIndex-1) == '/') && (text.charAt(tagIndex-2) == '[') ) {
+					// Check, ob ueberhaupt noch genug Platz fuer den Endtag ist
+					if( text.length() - tagIndex <= tag.length() ) {
+						break;
+					}
+					
+					// Check, ob dies wirklich ein Endtag ist, er also mit einem ] beendet wird
+					if( text.charAt(tagIndex+tag.length()) != ']' ) {
+						continue;
+					}
+					
 					counter--;
 					if( counter < 0 ) {
 						closetag = tagIndex-2;
@@ -249,7 +260,10 @@ public class BBCodeParser {
 			return text;
 		}
 		
-		buffer.append(text.substring(textIndex));
+		if( textIndex < text.length()-1 ) {
+			buffer.append(text.substring(textIndex));
+		}
+
 		return buffer;
 	}
 	
