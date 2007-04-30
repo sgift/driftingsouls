@@ -106,12 +106,14 @@ class Waffenfabrik extends DefaultBuilding {
 		User user = context.createUserObject( base.getOwner() );
 		
 		ContextVars vars = (ContextVars)context.getVariable(getClass(), "values");
+		Integer lastUser = (Integer)context.getVariable(getClass(), "last_user");
 		
 		List<Integer> removelist = new ArrayList<Integer>();
 		
-		if( vars == null ) {
+		if( (vars == null) || (user.getID() != lastUser.intValue()) ) {
 			vars = new ContextVars();
 			context.putVariable(getClass(), "values", vars);
+			context.putVariable(getClass(), "last_user", user.getID());
 			
 			for( SQLResultRow ammo : ammolist.values() ) {
 				if( !user.hasResearched(ammo.getInt("res1")) || !user.hasResearched(ammo.getInt("res2")) || !user.hasResearched(ammo.getInt("res3")) ) {
