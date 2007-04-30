@@ -461,7 +461,9 @@ public class ForschinfoController extends DSGenerator {
 			*/
 			StringBuilder weapons = new StringBuilder(50);
 			for( Weapon weapon : Weapons.get() ) {
-				if( weapon.getAmmoType() != ammo.get("type") ) continue;
+				if( !weapon.getAmmoType().equals(ammo.get("type")) ) {
+					continue;
+				}
 		
 				if( weapons.length() == 0 ) {
 					weapons.append(weapon.getName());
