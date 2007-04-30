@@ -410,6 +410,7 @@ public class ShipTypes implements Loggable {
 	protected static SQLResultRow getShipType( int shiptype, boolean isShip, boolean plaindata ) {
 		if( isShip ) {
 			// TODO: Schiffscache implementieren!
+			int shipid = shiptype;
 			
 			Database db = ContextMap.getContext().getDatabase();
 			SQLResultRow shipdata = db.prepare("SELECT type,status FROM ships WHERE id>0 AND id= ?")
@@ -421,7 +422,7 @@ public class ShipTypes implements Loggable {
 				shipdata = db.prepare("SELECT nickname,picture,ru,rd,ra,rm,eps,cost,hull,panzerung,cargo,heat,crew,weapons,maxheat,torpedodef,shields,size,jdocks,adocks,sensorrange,hydro,deutfactor,recost,flags,werft,ow_werft " +
 						"FROM ships_modules " +
 						"WHERE id>0 AND id= ? ")
-					.first(shiptype);
+					.first(shipid);
 			}
 			else {
 				shipdata = null;
