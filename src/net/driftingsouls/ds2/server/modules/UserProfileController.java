@@ -152,7 +152,7 @@ public class UserProfileController extends DSGenerator {
 		}
 		allymember.free();
 		
-		t.set_var("userprofile.message', 'Beziehungsstatus ge&auml;ndert");	
+		t.set_var("userprofile.message", "Beziehungsstatus ge&auml;ndert");	
 		
 		redirect();
 	}
