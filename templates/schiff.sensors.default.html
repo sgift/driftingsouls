@@ -314,6 +314,8 @@
 					<a class="greenborder" onmouseover="return helpme('Flotte auf {sships.type.name} landen');" onmouseout="return nd();" href="./main.php?module=schiff&amp;sess={global.sess}&amp;action=land&amp;land={sships.id}&amp;ship={sships.id}&amp;shiplist={global.shiplist}"><img src="{URL}data/interface/schiffe/schiff_flottelanden.gif" alt="" /></a>
 				{/endif}{if sships.action.landthis}
 					<a class="greenborder" onmouseover="return helpme('{sships.type.name} landen lassen');" onmouseout="return nd();" href="./main.php?module=schiff&amp;sess={global.sess}&amp;action=land&amp;land={global.ship}&amp;ship={global.ship}&amp;shiplist={sships.id}"><img src="{URL}data/interface/schiffe/schiff_landen.gif" alt="" /></a>
+				{/endif}{if sships.action.landthisfleet}
+					<a class="greenborder" onmouseover="return helpme('{sships.type.name}\'s Flotte landen lassen');" onmouseout="return nd();" href="./main.php?module=schiff&amp;sess={global.sess}&amp;action=land&amp;land={global.ship}&amp;ship={global.ship}&amp;shiplist={sships.shiplist}"><img src="{URL}data/interface/schiffe/schiff_flottelanden.gif" alt="" /></a>
 				{/endif}{if sships.action.joinfleet}
 					<a class="greenborder" onmouseover="return helpme('an {sships.type.name}s Flotte anschliessen');" onmouseout="return nd();" href="./main.php?module=schiff&amp;sess={global.sess}&amp;action=join&amp;join={sships.id}&amp;ship={global.ship}"><img src="{URL}data/interface/schiffe/schiff_anschliessen.gif" alt="" /></a>
 				{/endif}{if sships.action.add2fleet}

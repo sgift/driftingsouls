@@ -300,6 +300,10 @@ public class SensorsDefault implements SchiffPlugin {
 				Schiffe
 			*/
 			
+			// Cache fuer Jaegerflotten. Key ist die Flotten-ID. Value die Liste der Schiffs-IDs der Flotte
+			Map<Integer,List<Integer>> jaegerFleetCache = new HashMap<Integer,List<Integer>>();
+			
+			// Die ID des Schiffes, an dem das aktuell ausgewaehlte Schiff angedockt ist
 			int currentDockID = 0;
 			if( data.getString("docked").length() > 0 ) {
 				if( data.getString("docked").charAt(0) == 'l' ) {
@@ -310,14 +314,19 @@ public class SensorsDefault implements SchiffPlugin {
 				}
 			}
 			
-			boolean superdock = false;
 			int user_wrapfactor = Integer.parseInt(user.getUserValue("TBLORDER/schiff/wrapfactor"));
+			
+			// dockCount - die Anzahl der aktuell angedockten Schiffe
 			final int dockCount = db.first("SELECT count(*) count FROM ships WHERE id>0 AND docked='",data.getInt("id"),"'").getInt("count");
 			
+			// superdock - Kann der aktuelle Benutzer alles andocken?
+			boolean superdock = false;
 			if( datatype.getInt("adocks") > dockCount ) {	
 				superdock = user.hasFlag( User.FLAG_SUPER_DOCK );
 			}
 			
+			// fullcount - Die Anzahl der freien Landeplaetze auf dem aktuell ausgewaehlten Traeger
+			// spaceToLand - Ist ueberhaupt noch Platz auf dem aktuell ausgewaehlten Traeger?
 			boolean spaceToLand = false;
 			int fullcount = db.first("SELECT count(*) fullcount FROM ships WHERE id>0 AND docked='l ",data.getInt("id"),"'").getInt("fullcount");
 			if( fullcount + 1 <= datatype.getInt("jdocks") ) {
@@ -656,6 +665,7 @@ public class SensorsDefault implements SchiffPlugin {
 								t.set_var("sships.action.land",1);
 								if( data.getInt("fleet") > 0 ) {
 									boolean ok = true;
+									// Falls noch nicht geschehen die Flotte des Jaegers ermitteln
 									if( fleetlist == null ) {
 										fleetlist = new ArrayList<Integer>();
 										
@@ -687,6 +697,37 @@ public class SensorsDefault implements SchiffPlugin {
 					//Aktuellen Jaeger auf dem (ausgewaehlten) Traeger laden lassen
 					if( (datas.getInt("owner") == user.getID()) && spaceToLand && ShipTypes.hasShipTypeFlag(ashiptype, ShipTypes.SF_JAEGER) ) {
 						t.set_var("sships.action.landthis",1);
+						
+						// Flotte des aktuellen Jaegers landen lassen
+						if( datas.getInt("fleet") != 0 ) {
+							if( !jaegerFleetCache.containsKey(datas.getInt("fleet"))) {
+								List<Integer> thisFleetList = new ArrayList<Integer>();
+								
+								boolean ok = true;
+								SQLQuery tmp = db.query("SELECT id,type,status FROM ships WHERE id>0 AND fleet='"+datas.getInt("fleet")+"'");
+								while( tmp.next() ) {
+									SQLResultRow tmptype = ShipTypes.getShipType( tmp.getRow() );
+									if( !ShipTypes.hasShipTypeFlag(tmptype, ShipTypes.SF_JAEGER) ) {
+										ok = false;
+										break;
+									}
+									thisFleetList.add(tmp.getInt("id"));
+								}		
+								tmp.free();
+								if( !ok ) {
+									thisFleetList.clear();
+								}
+								
+								jaegerFleetCache.put(datas.getInt("fleet"), thisFleetList);
+							}
+							List<Integer> thisFleetList = jaegerFleetCache.get(datas.getInt("fleet"));
+							
+							if( !thisFleetList.isEmpty() && (thisFleetList.size() <= datatype.getInt("jdocks")) ) {
+								if( fullcount + thisFleetList.size() <= datatype.getInt("jdocks") )
+									t.set_var(	"sships.action.landthisfleet", 1,
+												"sships.shiplist", Common.implode("|",thisFleetList) );
+							}
+						}
 					}
 
 					//Flottenfunktionen: anschliessen
