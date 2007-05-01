@@ -1351,7 +1351,7 @@ public class Ships implements Loggable {
 				firstentry = false;
 			}
 			
-			if( aship.getString("lock") == null || aship.getString("lock").length() == 0 ) {
+			if( aship.getString("lock") != null && aship.getString("lock").length() > 0 ) {
 				outputbuffer.append("<span style=\"color:red\">Die "+aship.getString("name")+" ("+aship.getInt("id")+") ist an ein Quest gebunden</span><br />\n");
 				error = true;
 				break;	
