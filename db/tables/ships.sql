@@ -24,7 +24,7 @@ CREATE TABLE `ships` (
   `destsystem` int(11) NOT NULL default '0',
   `destx` int(11) NOT NULL default '0',
   `desty` int(11) NOT NULL default '0',
-  `destcom` text NOT NULL,
+  `destcom` text NOT NULL default '',
   `bookmark` tinyint(1) unsigned NOT NULL default '0',
   `battle` int(11) NOT NULL default '0',
   `battleAction` tinyint(1) unsigned NOT NULL default '0',
