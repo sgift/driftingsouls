@@ -77,7 +77,7 @@ public class TemplateCompiler {
 
 			// TODO: check & ggf fixme (slash-problem ?)
 			String txt = StringUtils.replace(Common.tableBegin("{$$WIDTH$$}","{$$ALIGN$$}","{$$IMAGEPATH$$}"),"\"", "\\\"");
-			txt = StringUtils.replace(txt, "{$$IMAGEPATH$}}", "\"); str.append(templateEngine.getVar(\"URL\")); str.append(\"");
+			txt = StringUtils.replace(txt, "{$$IMAGEPATH$$}", "\"); str.append(templateEngine.getVar(\"global.datadir\")); str.append(\"");
 			txt = StringUtils.replace(txt, "{$$ALIGN$$}", align);
 			txt = StringUtils.replace(txt, "{$$WIDTH$$}", width);
 			return txt;
