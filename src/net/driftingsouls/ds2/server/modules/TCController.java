@@ -370,7 +370,7 @@ public class TCController extends DSGenerator {
 
 		int shipcount = 0;
 	
-		SQLQuery ship = db.query("SELECT id FROM ships WHERE fleet='",this.ship.getInt("fleet"),"' AND owner='",user.getID(),"' AND system='",this.ship.getInt("system"),"' AND x='",this.ship.getInt("x"),"' AND y='",this.ship.getInt("y"),"' AND !LOCATE('offizier',status) LIMIT ",offilist.size());
+		SQLQuery ship = db.query("SELECT id,type,status FROM ships WHERE fleet='",this.ship.getInt("fleet"),"' AND owner='",user.getID(),"' AND system='",this.ship.getInt("system"),"' AND x='",this.ship.getInt("x"),"' AND y='",this.ship.getInt("y"),"' AND !LOCATE('offizier',status) LIMIT ",offilist.size());
 		while( ship.next() ) {
 			SQLResultRow shipType = ShipTypes.getShipType(ship.getRow());
 			if( shipType.getInt("size") <= 3 ) {
