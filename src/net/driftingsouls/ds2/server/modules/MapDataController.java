@@ -133,8 +133,14 @@ public class MapDataController extends DSGenerator implements Loggable {
 
 	@Override
 	protected void printHeader( String action ) {
-		getContext().getResponse().setContentType("text/plain");
-		getContext().getResponse().setCharSet("ISO-8859-1");
+		if( action.equals("showSector") || action.equals("getSystems") ) {
+			getContext().getResponse().setContentType("text/xml");
+			getContext().getResponse().setCharSet("UTF-16");
+		}
+		else {
+			getContext().getResponse().setContentType("text/plain");
+			getContext().getResponse().setCharSet("ISO-8859-1");
+		}
 	}
 	
 	@Override
@@ -179,11 +185,11 @@ public class MapDataController extends DSGenerator implements Loggable {
 		echo.append("<owner>"+aship.getInt("owner")+"</owner>\n");
 		
 		User auser = getContext().createUserObject(aship.getInt("owner"));
-		echo.append("<ownername><![CDATA["+new String(auser.getName().getBytes("UTF-8"), "UTF-8")+"]]></ownername>\n");
-		echo.append("<picture><![CDATA["+new String(stype.getString("picture").getBytes("UTF-8"),"UTF-8")+"]]></picture>\n");
+		echo.append("<ownername><![CDATA["+auser.getName()+"]]></ownername>\n");
+		echo.append("<picture><![CDATA["+stype.getString("picture")+"]]></picture>\n");
 		
 		echo.append("<type id=\""+stype.getInt("id")+"\">\n");
-		echo.append("<name><![CDATA["+new String(stype.getString("nickname").getBytes("UTF-8"),"UTF-8")+"]]></name>\n");
+		echo.append("<name><![CDATA["+stype.getString("nickname")+"]]></name>\n");
 		echo.append("<hull>"+stype.getInt("hull")+"</hull>\n");
 		echo.append("<shields>"+stype.getInt("shields")+"</shields>\n");
 		echo.append("<crew>"+stype.getInt("crew")+"</crew>\n");
@@ -191,7 +197,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 		echo.append("<cargo>"+stype.getInt("cargo")+"</cargo>\n");
 		echo.append("</type>\n");
 			
-		echo.append("<name><![CDATA["+new String(aship.getString("name").getBytes("UTF-8"),"UTF-8")+"]]></name>\n");
+		echo.append("<name><![CDATA["+aship.getString("name")+"]]></name>\n");
 		echo.append("<hull>"+aship.getInt("hull")+"</hull>\n");
 		echo.append("<shields>"+aship.getInt("shields")+"</shields>\n");
 		echo.append("<fleet>"+aship.getInt("fleet")+"</fleet>\n");
@@ -223,7 +229,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 		int y = getInteger("y");
 	
 		StringBuffer echo = getContext().getResponse().getContent();
-		echo.append("<?xml version='1.0' encoding='UTF-8'?>\n");
+		echo.append("<?xml version='1.0' encoding='UTF-16'?>\n");
 		echo.append("<sector x=\""+x+"\" y=\""+y+"\" system=\""+this.system+"\">\n");
 	
 		if( usedUser == null ) {
@@ -344,7 +350,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 	public void getSystemsAction() {
 		StringBuffer echo = getContext().getResponse().getContent();
 		
-		echo.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+		echo.append("<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n");
 		echo.append("<systems>\n");
 		for( StarSystem asystem : Systems.get() ) {
 			if( (asystem.getAccess() == StarSystem.AC_ADMIN) && !this.getUser().hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) ) {
