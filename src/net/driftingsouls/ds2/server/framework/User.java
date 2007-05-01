@@ -841,7 +841,10 @@ public class User implements Loggable {
 	 */
 	public SQLResultRow getResearchedList() {
 		if( research == null ) {
-			research = context.getDatabase().first("SELECT * FROM user_f WHERE id='",id,"'");	
+			research = context.getDatabase().first("SELECT * FROM user_f WHERE id='",id,"'");
+			if( research.isEmpty() ) {
+				throw new RuntimeException("Spieler "+id+" verfuegt ueber keine Forschungstabelle");
+			}
 		}
 		return research;
 	}
@@ -858,7 +861,10 @@ public class User implements Loggable {
 			return false;
 		}
 		if( research == null ) {
-			research = context.getDatabase().first("SELECT * FROM user_f WHERE id='",id,"'");	
+			research = context.getDatabase().first("SELECT * FROM user_f WHERE id='",id,"'");
+			if( research.isEmpty() ) {
+				throw new RuntimeException("Spieler "+id+" verfuegt ueber keine Forschungstabelle");
+			}
 		}
 
 		return research.getBoolean("r"+researchID);
