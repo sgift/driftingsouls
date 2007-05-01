@@ -507,11 +507,13 @@ class Waffenfabrik extends DefaultBuilding {
 					// Veraltete Ammo automatisch entfernen
 					if( removelist.contains(aid) ) {
 						producelist.remove(i);
+						i--;
 						continue;	
 					}
 					
 					if( (aid == 0) || (ammoCount <= 0) ) {
 						producelist.remove(i);
+						i--;
 						continue;
 					}
 					
@@ -522,7 +524,13 @@ class Waffenfabrik extends DefaultBuilding {
 						ammoCount += count;
 						entry = true;
 					}
-					producelist.set(i, aid+"="+ammoCount);
+					if( ammoCount > 0 ) {
+						producelist.set(i, aid+"="+ammoCount);
+					}
+					else {
+						producelist.remove(i);
+						i--;
+					}
 				}
 				if( !entry ) {
 					if( count < 0 ) {
