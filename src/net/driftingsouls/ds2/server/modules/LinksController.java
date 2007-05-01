@@ -73,8 +73,8 @@ public class LinksController extends DSGenerator {
 	public void defaultAction() {
 		User user = getUser();
 		
-		getTemplateEngine().set_var(	"global.datadir", user.getImagePath(),
-										"user.npc"		, user.hasFlag( User.FLAG_ORDER_MENU ),
-										"user.admin"	, (user.getAccessLevel() >= 30) );
+		getTemplateEngine().set_var(
+				"user.npc"		, user.hasFlag( User.FLAG_ORDER_MENU ),
+				"user.admin"	, (user.getAccessLevel() >= 30) );
 	}
 }

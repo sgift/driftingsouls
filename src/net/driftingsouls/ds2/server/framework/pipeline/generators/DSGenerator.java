@@ -400,6 +400,13 @@ public abstract class DSGenerator extends Generator {
 			templateEngine.set_var("_BROWSER_MOZILLA",1);
 		}
 		
+		if( getUser() != null ) {
+			templateEngine.set_var("global.datadir", getUser().getImagePath());
+		}
+		else {
+			templateEngine.set_var("global.datadir", User.getDefaultImagePath(getDatabase()));
+		}
+		
 		templateEngine.set_var(	"global.sess",	getString("sess"),
 								"global.module", getString("module") );
 	}
