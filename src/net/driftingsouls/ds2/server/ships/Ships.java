@@ -1294,7 +1294,7 @@ public class Ships implements Loggable {
 			 * fix|8:20/100|default <--- diese Einstellung entspricht der bisherigen Praxis
 			 */
 			
-			node = db.first("SELECT t1.name,t1.x,t1.y,t1.system,t1.jumptarget,t1.owner,t2.ally,t1.type FROM ships t1 JOIN users t2 ON t1.owner=t2.id WHERE t1.id>0 AND t1.id=",nodeId);
+			node = db.first("SELECT t1.id,t1.name,t1.x,t1.y,t1.system,t1.jumptarget,t1.owner,t2.ally,t1.type,t1.status FROM ships t1 JOIN users t2 ON t1.owner=t2.id WHERE t1.id>0 AND t1.id=",nodeId);
 			if( node.isEmpty() ) {
 				outputbuffer.append("Fehler: Der angegebene Sprungpunkt existiert nicht<br />\n");
 				return true;
@@ -1552,7 +1552,7 @@ public class Ships implements Loggable {
 			 */
 			nodetypename = "Knossosportal";
 			
-			datan = db.first("SELECT t1.name,t1.x,t1.y,t1.system,t1.jumptarget,t1.owner,t2.ally,t1.type FROM ships t1 JOIN users t2 ON t1.owner=t2.id WHERE t1.id>0 AND t1.id=",nodeID);
+			datan = db.first("SELECT t1.id,t1.name,t1.x,t1.y,t1.system,t1.jumptarget,t1.owner,t2.ally,t1.type,t1.status FROM ships t1 JOIN users t2 ON t1.owner=t2.id WHERE t1.id>0 AND t1.id=",nodeID);
 			if( datan.isEmpty() ) {
 				outputbuffer.append("Fehler: Der angegebene Sprungpunkt existiert nicht<br />\n");
 				return true;
