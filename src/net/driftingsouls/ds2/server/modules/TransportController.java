@@ -498,8 +498,10 @@ public class TransportController extends DSGenerator {
 		
 		newtoc.addResource( res.getId(), count );
 		newfromc.substractResource( res.getId(), count );
-			
-		msg.append("[resource="+res.getId()+"]"+count+"[/resource] umgeladen\n");
+		
+		if( count > 0 ) {
+			msg.append("[resource="+res.getId()+"]"+count+"[/resource] umgeladen\n");
+		}
 		
 		if( mode == 't' ) {
 			cargofrom.setValue(fromItem.getMaxCargo() - newfromc.getMass());
@@ -682,7 +684,6 @@ public class TransportController extends DSGenerator {
 
 					List<String> shiplist = new ArrayList<String>();
 					
-					// TODO: check if this works (foreach+for)
 					for( int k=j; k < tolist.size(); k++ ) {
 						if( this.to.get(j).getOwner() == tolist.get(k).getOwner() ) {
 							shiplist.add(tolist.get(k).getData().getString("name")+" ("+tolist.get(k).getData().getInt("id")+")");	
