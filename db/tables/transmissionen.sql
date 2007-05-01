@@ -8,7 +8,7 @@ CREATE TABLE `transmissionen` (
   `ordner` int(10) unsigned NOT NULL default '0',
   `flags` int(11) NOT NULL default '0',
   `inhalt` text NOT NULL,
-  `kommentar` text NOT NULL,
+  `kommentar` text NOT NULL default '',
   PRIMARY KEY  (`id`),
   KEY `empfaenger` (`empfaenger`,`gelesen`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
