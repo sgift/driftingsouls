@@ -383,6 +383,12 @@ public class ShipTypes implements Loggable {
 	 * @return die Typen-Daten
 	 */
 	public static SQLResultRow getShipType( SQLResultRow shipdata, boolean plaindata ) {
+		if( !shipdata.containsKey("type") || !shipdata.containsKey("status") ) {
+			Database db = ContextMap.getContext().getDatabase();
+			shipdata = db.first("SELECT * FROM ships WHERE id="+shipdata.getInt("id"));
+			LOG.warn("getShipType: type oder status fehlen in den Schiffsdaten", new Throwable());
+		}
+		
 		int shiptype = shipdata.getInt("type");
 		
 		if( shipdata.getString("status").indexOf("tblmodules") != -1 ) {
@@ -461,6 +467,9 @@ public class ShipTypes implements Loggable {
 			String picture = "";
 			if( (shipdata == null) || !shipdata.containsKey("picture") ) {
 				picture = shiptypes.get(shiptype).getString("picture");
+			}
+			else {
+				picture = shipdata.getString("picture");
 			}
 	
 			type.put("picture", buildShipPicturePath(type, (!shiptypes.get(shiptype).getString("picture").equals(picture) ? true : false) ));
