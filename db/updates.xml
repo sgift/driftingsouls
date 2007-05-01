@@ -245,4 +245,8 @@
 	<update type="structure" datum="2007-04-30"><![CDATA[
 		ALTER TABLE `ships` CHANGE `destcom` `destcom` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
 	]]></update>
+	<update type="structure" datum="2007-05-01"><![CDATA[
+		ALTER TABLE ships DROP INDEX owner, ADD INDEX owner ( owner , id );
+		ALTER TABLE bases DROP INDEX owner, ADD INDEX owner ( owner , id );
+	]]></update>
 </updates>

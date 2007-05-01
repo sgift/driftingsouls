@@ -23,7 +23,7 @@ CREATE TABLE `bases` (
   `coreactive` tinyint(3) unsigned NOT NULL default '0',
   `autogtuacts` text NOT NULL,
   PRIMARY KEY  (`id`),
-  KEY `owner` (`owner`),
+  KEY `owner` (`owner`,`id`),
   KEY `coords` (`x`,`y`,`system`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
 

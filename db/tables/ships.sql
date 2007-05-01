@@ -40,7 +40,7 @@ CREATE TABLE `ships` (
   `respawn` tinyint(4) default NULL,
   PRIMARY KEY  (`id`),
   KEY `coords` (`x`,`y`,`system`),
-  KEY `owner` (`owner`),
+  KEY `owner` (`owner`,`id`),
   KEY `battle` (`battle`),
   KEY `status` (`status`),
   KEY `bookmark` (`bookmark`),
