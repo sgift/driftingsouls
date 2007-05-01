@@ -49,6 +49,17 @@ abstract class AbstractStatistic implements Statistic {
 	 * @param url Die fuer Links
 	 */
 	final protected void generateStatistic(String name, SQLQuery tmp, String url) {
+		generateStatistic(name, tmp, url, true);
+	}
+	
+	/**
+	 * Generiert eine Statistik mit Platz, Namen und Anzahl
+	 * @param name Der Name der Statistik
+	 * @param tmp Ein SQL-Ergebnis mit den Feldern (Spieler/Ally) "id", (Spieler/Ally) "name" und "count", welches den Plaetzen nach sortiert ist (1. Platz zuerst)
+	 * @param url Die fuer Links
+	 * @param showCount Soll die Spalte "count" angezeigt werden?
+	 */
+	final protected void generateStatistic(String name, SQLQuery tmp, String url, boolean showCount) {
 		StringBuffer echo = getContext().getResponse().getContent();
 		
 		echo.append("<table class=\"noBorderX\" cellspacing=\"1\" cellpadding=\"1\" width=\"100%\">\n");
@@ -58,8 +69,10 @@ abstract class AbstractStatistic implements Statistic {
 		while( tmp.next() ) {
 	   		echo.append("<tr><td class=\"noBorderX\" style=\"width:40px\">"+(count+1)+".</td>\n");
 			echo.append("<td class=\"noBorderX\"><a class=\"profile\" href=\""+url+tmp.getInt("id")+"\">"+Common._title(tmp.getString("name"))+" ("+tmp.getInt("id")+")</a></td>\n");
-			echo.append("<td class=\"noBorderX\">&nbsp;-&nbsp;</td>\n");
-			echo.append("<td class=\"noBorderX\">"+Common.ln(tmp.getInt("count"))+"</td></tr>\n");
+			if( showCount ) {
+				echo.append("<td class=\"noBorderX\">&nbsp;-&nbsp;</td>\n");
+				echo.append("<td class=\"noBorderX\">"+Common.ln(tmp.getInt("count"))+"</td></tr>\n");
+			}
 	   		
 	   		count++;
 		}
