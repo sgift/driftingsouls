@@ -1336,10 +1336,15 @@ public class User implements Loggable {
 	 * @param value Der neue Image-Pfad des Spielers
 	 */
 	public void setImagePath(String value) {
-		checkAndLoad("imgpath");
-		context.getDatabase().prepare("UPDATE users SET imgpath= ? WHERE id= ? AND imgpath= ?")
-			.tUpdate(1, value, id, data.getString("imgpath"));
-		data.put("imgpath", value);
+		if( this.userImagePath != null ) {
+			context.getDatabase().prepare("UPDATE users SET imgpath= ? WHERE id= ? AND imgpath= ?")
+				.tUpdate(1, value, id, userImagePath);
+		}
+		else {
+			context.getDatabase().prepare("UPDATE users SET imgpath= ? WHERE id= ?")
+				.tUpdate(1, value, id);
+		}
+		this.userImagePath = value;
 	}
 	
 	/**
