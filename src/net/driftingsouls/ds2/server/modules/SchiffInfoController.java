@@ -180,7 +180,7 @@ public class SchiffInfoController extends DSGenerator {
 		else {
 			for( int i=1; i <= 3; i++ ) {
 				if( shipBuildData.getInt("tr"+i) != 0 ) {
-					Forschung f = Forschung.getInstance(shipBuildData.getInt("tr"+1));
+					Forschung f = Forschung.getInstance(shipBuildData.getInt("tr"+i));
 
 					t.set_var(	"shiptype.tr"+i, shipBuildData.getInt("tr"+i),
 								"shiptype.tr"+i+".name", Common._title(f.getName()) );
