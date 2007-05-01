@@ -236,7 +236,7 @@
 		ALTER TABLE `jumpnodes` ADD INDEX `coords` ( `x` , `y` , `system` );
 		ALTER TABLE `sessions` ADD PRIMARY KEY ( `session` );
 		ALTER TABLE `sessions` DROP INDEX `session`;
-		ALTER TABLE `ships` CHANGE `jumptarget` `jumptarget` VARCHAR( 100 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+		ALTER TABLE `ships` CHANGE `jumptarget` `jumptarget` VARCHAR( 100 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL default '';
 	]]></update>
 	<update type="structure" datum="2007-04-29"><![CDATA[
 		ALTER TABLE transmissionen CHANGE ordner ordner int(10) unsigned NOT NULL DEFAULT '0';
