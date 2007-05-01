@@ -25,9 +25,11 @@ import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
+import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.StatsController;
 
 /**
@@ -35,7 +37,7 @@ import net.driftingsouls.ds2.server.modules.StatsController;
  * @author Christopher Jung
  *
  */
-public class StatOwnOffiziere implements Statistic {
+public class StatOwnOffiziere implements Statistic, Loggable {
 
 	public void show(StatsController contr, int size) {
 		Context context = ContextMap.getContext();
@@ -72,7 +74,14 @@ public class StatOwnOffiziere implements Statistic {
 	
 			if( dest[0].equals("s") ) {
 				if( !ships.containsKey(destid) ) {
-					ships.put(destid, db.first("SELECT name FROM ships WHERE id>0 AND id=",destid).getString("name"));
+					SQLResultRow ship = db.first("SELECT name FROM ships WHERE id>0 AND id=",destid);
+					if( ship.isEmpty() ) {
+						LOG.warn("Offizier '"+offizier.getID()+"' befindet sich auf einem ungueltigen Schiff: "+destid);
+						ships.put(destid, "");
+					}
+					else {
+						ships.put(destid, ship.getString("name"));
+					}
 				}
 				String shipname = ships.get(destid);
 				echo.append("<td class=\"noBorderX\"><a class=\"forschinfo\" href=\""+Common.buildUrl(context, "default", "module", "schiff", "ship", dest[1])+"\">"+shipname+"</a></td>\n");
