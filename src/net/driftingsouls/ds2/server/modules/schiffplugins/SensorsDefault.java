@@ -89,7 +89,7 @@ public class SensorsDefault implements SchiffPlugin {
 					"ship.sensors.location",	Ships.getLocationText(data, true),
 					"global.awac",				ShipTypes.hasShipTypeFlag(datatype, ShipTypes.SF_SRS_AWAC) );
 
-		int jaegerfleet = -1;
+		List<Integer> fleetlist = null;
 
 		Map<Integer,SQLResultRow> fleetcache = new HashMap<Integer,SQLResultRow>();
 		
@@ -650,13 +650,15 @@ public class SensorsDefault implements SchiffPlugin {
 					//Jaegerfunktionen: laden, Flotte landen
 					if( ShipTypes.hasShipTypeFlag(datatype, ShipTypes.SF_JAEGER) && (currentDockID != datas.getInt("id")) ) {
 						if( ( ashiptype.getInt("jdocks") > 0 ) && ( datas.getInt("owner") == user.getID() ) ) {
-							if( fullcount + 1 <= ashiptype.getInt("jdocks") ) {
+							int carrierFullCount = db.first("SELECT count(*) fullcount FROM ships WHERE id>0 AND docked='l ",datas.getInt("id"),"'").getInt("fullcount");
+
+							if( carrierFullCount + 1 <= ashiptype.getInt("jdocks") ) {
 								t.set_var("sships.action.land",1);
 								if( data.getInt("fleet") > 0 ) {
-									List<Integer> fleetlist = new ArrayList<Integer>();
-									
 									boolean ok = true;
-									if( jaegerfleet == -1) {
+									if( fleetlist == null ) {
+										fleetlist = new ArrayList<Integer>();
+										
 										SQLQuery tmp = db.query("SELECT id,type,status FROM ships WHERE id>0 AND fleet='"+data.getInt("fleet")+"'");
 										while( tmp.next() ) {
 											SQLResultRow tmptype = ShipTypes.getShipType( tmp.getRow() );
@@ -667,12 +669,13 @@ public class SensorsDefault implements SchiffPlugin {
 											fleetlist.add(tmp.getInt("id"));
 										}		
 										tmp.free();
-										if( ok ) jaegerfleet = 1;
-										else jaegerfleet = 0;
+										if( !ok ) {
+											fleetlist.clear();
+										}
 									}
 
-									if( (jaegerfleet == 1) && (fleetlist.size() <= ashiptype.getInt("jdocks")) ) {
-										if( fullcount + fleetlist.size() <= ashiptype.getInt("jdocks") )
+									if( !fleetlist.isEmpty() && (fleetlist.size() <= ashiptype.getInt("jdocks")) ) {
+										if( carrierFullCount + fleetlist.size() <= ashiptype.getInt("jdocks") )
 											t.set_var(	"sships.action.landfleet", 1,
 														"global.shiplist", Common.implode("|",fleetlist) );
 									}
