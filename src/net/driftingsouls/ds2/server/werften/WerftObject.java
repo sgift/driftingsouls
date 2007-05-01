@@ -179,7 +179,7 @@ public abstract class WerftObject extends DSObject {
 		PreparedQuery shipCreate = db.prepare("INSERT INTO ships " ,
 				"(id,owner,type,x,y,system,crew,hull,cargo,e,history) " ,
 				"VALUES " ,
-				"('', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+				"(null, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		shipCreate.update(owner,shipd.getInt("id"), x, y, system, shipd.getInt("crew"), shipd.getInt("hull"), cargo.save(), shipd.getInt("eps"), history);
 
 		int id = shipCreate.insertID();
