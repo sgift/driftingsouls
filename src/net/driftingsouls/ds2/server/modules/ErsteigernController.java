@@ -1453,7 +1453,7 @@ public class ErsteigernController extends DSGenerator {
 			PreparedQuery stmt = db.prepare("INSERT INTO factions_shop_orders " ,
 					"(shopentry_id,user_id,price,date,adddata) VALUES " ,
 					"( ?, ?, ?, ?, ?)");
-			stmt.update(shopentry, user.getID(), totalcost, Common.time(), adddataStr);
+			stmt.update(shopentry.getInt("id"), user.getID(), totalcost, Common.time(), adddataStr);
 	
 			Taskmanager taskmanager = Taskmanager.getInstance();
 			taskmanager.addTask( Taskmanager.Types.GANY_TRANSPORT, 1, Integer.toString(stmt.insertID()), "", "" );
