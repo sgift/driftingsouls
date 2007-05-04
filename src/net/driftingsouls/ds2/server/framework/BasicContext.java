@@ -132,9 +132,9 @@ public class BasicContext implements Context,Loggable {
 		db.prepare("UPDATE sessions SET lastaction=? WHERE session=?").update(time, sess);
 		
 		if( !user.hasFlag(User.FLAG_NO_ACTION_BLOCKING) ) {
-			// Alle zwei Sekunden Counter um 1 reduzieren, sofern mindestens 6 Sekunden Pause vorhanden waren
-			int reduce = (int)((time - sessdata.getInt("lastaction"))/2);
-			if( time < sessdata.getInt("lastaction") + 6 ) {
+			// Alle 1.5 Sekunden Counter um 1 reduzieren, sofern mindestens 5 Sekunden Pause vorhanden waren
+			int reduce = (int)((time - sessdata.getInt("lastaction"))/1.5);
+			if( time < sessdata.getInt("lastaction") + 5 ) {
 				reduce = -1;
 			}
 			int actioncounter = sessdata.getInt("actioncounter")-reduce;
