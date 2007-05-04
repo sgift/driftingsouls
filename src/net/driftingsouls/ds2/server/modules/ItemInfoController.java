@@ -509,8 +509,11 @@ public class ItemInfoController extends DSGenerator {
 						if( entry ) {
 							data.append(",<br />\n");
 						}
+						
 						Forschung dat = Forschung.getInstance(ammo.getInt("res"+i));
-						if( !dat.isVisibile() && (!user.hasResearched(dat.getRequiredResearch(1)) || !user.hasResearched(dat.getRequiredResearch(2)) || !user.hasResearched(dat.getRequiredResearch(3))) ) {
+						if( (ammo.getInt("res"+i) == -1) || 
+							(!dat.isVisibile() && (!user.hasResearched(dat.getRequiredResearch(1)) || !user.hasResearched(dat.getRequiredResearch(2)) || !user.hasResearched(dat.getRequiredResearch(3)))) ) {
+							
 							data.append("Unbekannte Technologie");
 							if( user.getAccessLevel() > 20 ) {
 								data.append(" [ID:"+ammo.getInt("res"+i)+"]");
