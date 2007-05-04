@@ -129,12 +129,12 @@ public class SectorTemplateManager {
 			db.update("INSERT INTO ships ", 
 					" (owner,x,y,system,name,type,cargo,status,crew,e,s,hull,shields,heat,engine,weapons,comm,sensors,docked,alarm,destx,desty,destsystem,destcom,bookmark,jumptarget,autodeut,history) ",
 					" VALUES ",
-					" ('",owner,"','",newx,"','",newy,"','",location.getSystem(),"','",ship.get("name"),"','",ship.get("type"),"','",ship.get("cargo"),"','",ship.get("status"),"', ",
-					 " '",ship.get("crew"),"','",ship.get("e"),"','",ship.get("s"),"','",ship.get("hull"),"','",ship.get("shields"),"', ",
-					 " '",ship.get("heat"),"','",ship.get("engine"),"','",ship.get("weapons"),"','",ship.get("comm"),"', ",
-					 " '",ship.get("sensors"),"','','",ship.get("alarm"),"', ",
-					 " '",ship.get("destx"),"','",ship.get("desty"),"','",ship.get("destsystem"),"','",ship.get("destcom"),"', ",
-					 " '",ship.get("bookmark"),"','",ship.get("jumptarget"),"','",ship.get("autodeut"),"','",ship.get("history"),"')");
+					" ('",owner,"','",newx,"','",newy,"','",location.getSystem(),"','",ship.get("name"),"','",ship.getInt("type"),"','",ship.getString("cargo"),"','",ship.get("status"),"', ",
+					 " '",ship.getInt("crew"),"','",ship.getInt("e"),"','",ship.getInt("s"),"','",ship.getInt("hull"),"','",ship.getInt("shields"),"', ",
+					 " '",ship.getString("heat"),"','",ship.getInt("engine"),"','",ship.getInt("weapons"),"','",ship.getInt("comm"),"', ",
+					 " '",ship.getInt("sensors"),"','','",ship.getInt("alarm"),"', ",
+					 " '",ship.getInt("destx"),"','",ship.getInt("desty"),"','",ship.getInt("destsystem"),"','",ship.getString("destcom"),"', ",
+					 " '",ship.getInt("bookmark"),"','",ship.get("jumptarget"),"','",ship.getInt("autodeut"),"','",ship.getString("history"),"')");
 			int shipid = db.insertID();
 			
 			idtable.put(ship.getInt("id"), shipid);
