@@ -152,6 +152,9 @@ public class BaseController extends DSGenerator {
 		
 		parameterString("newname");
 		String newname = getString("newname");
+		if( newname.length() > 50 ) {
+			newname = newname.substring(0,50);
+		}
 	
 		db.prepare("UPDATE bases SET name= ? WHERE id= ? ").update(newname, base.getID());
 		
@@ -257,7 +260,7 @@ public class BaseController extends DSGenerator {
 		StringBuilder tooltiptext = new StringBuilder(50);
 		tooltiptext.append(Common.tableBegin(300, "center").replace('"', '\''));
 		tooltiptext.append("<form action='./main.php' method='post'>");
-		tooltiptext.append("Name: <input name='newname' type='text' size='15' value='");
+		tooltiptext.append("Name: <input name='newname' type='text' size='15' maxlength='50' value='");
 		StringBuilder tooltiptext2 = new StringBuilder(50);
 		tooltiptext2.append("' />");
 		tooltiptext2.append("<input name='col' type='hidden' value='"+base.getID()+"' />");
