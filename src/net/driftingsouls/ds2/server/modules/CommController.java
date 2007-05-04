@@ -263,7 +263,7 @@ public class CommController extends DSGenerator implements Loggable {
 		long count_pm = pms.size();
 
 		for( int i = 0; i < count_pm; i++ ){
-			parameterString("pm_"+pms.get(i));
+			parameterNumber("pm_"+pms.get(i));
 			int pm = getInteger("pm_"+pms.get(i));
 
 			if( pm == pms.get(i)){
