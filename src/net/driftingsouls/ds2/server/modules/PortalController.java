@@ -727,7 +727,7 @@ class PortalController extends DSGenerator {
 		
 		String username = getString("username");
 		String password = getString("password");
-		int usegfxpak = getInteger("usegfxpak");
+		int usegfxpak = getInteger("usegfxpak") != 0 ? 1 : 0;
 		boolean clear = false;
 		
 		String disablelogin = db.first("SELECT disablelogin FROM config").getString("disablelogin");
