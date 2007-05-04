@@ -2046,14 +2046,22 @@ public class Ships implements Loggable {
 			String lastHistory = history[history.length-1];
 			
 			if( lastHistory.startsWith("&Uuml;bergeben") ) {
-				int date = Integer.parseInt(
-						lastHistory.substring(
-								 "&Uuml;bergeben am [tick=".length(),
-								lastHistory.lastIndexOf("] an ")-"&Uuml;bergeben am [tick=".length()
-						)
-				);
-				if( ContextMap.getContext().get(ContextCommon.class).getTick() - date < 49 ) {
-					return;
+				int endIndex = lastHistory.lastIndexOf("] an ");
+				if( endIndex > -1 ) {
+					final int length = "&Uuml;bergeben am [tick=".length();
+				
+					int date = Integer.parseInt(
+							lastHistory.substring(
+									length,
+									endIndex-length
+							)
+					);
+					if( ContextMap.getContext().get(ContextCommon.class).getTick() - date < 49 ) {
+						return;
+					}
+				}
+				else {
+					LOG.warn("[Ships.generateLoot] Fehler beim Parsen des Schiffshistoryeintrags '"+lastHistory+"'");
 				}
 			}
 		}	
