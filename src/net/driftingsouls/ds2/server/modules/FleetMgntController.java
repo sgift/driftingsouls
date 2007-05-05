@@ -623,10 +623,13 @@ public class FleetMgntController extends DSGenerator {
 					"WHERE s.owner='",user.getID(),"' AND s.system='",ship.getInt("system"),"' AND" +
 							" s.x='",ship.getInt("x"),"' AND s.y='",ship.getInt("y"),"' AND s.docked='' AND " +
 							"st.class='",ShipClasses.CONTAINER,"' AND s.battle=0 " +
-					"ORDER BY fleet,type LIMIT ",free);
+					"ORDER BY fleet,type ");
 			while( container.next() ) {
 				containerlist.add(container.getInt("id"));
 				free--;
+				if( free == 0 ) {
+					break;
+				}
 			}
 			container.free();
 			
@@ -700,6 +703,9 @@ public class FleetMgntController extends DSGenerator {
 				if( ShipTypes.hasShipTypeFlag(jaegertype, ShipTypes.SF_JAEGER) ) {
 					jaegerlist.add(jaeger.getInt("id"));
 					free--;
+					if( free == 0 ) {
+						break;
+					}
 				}
 			}
 			jaeger.free();
