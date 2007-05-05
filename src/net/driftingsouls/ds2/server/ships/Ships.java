@@ -1905,6 +1905,9 @@ public class Ships implements Loggable {
 				Cargo cargo = new Cargo(Cargo.Type.STRING, ship.getString("cargo"));
 				Cargo oldcargo = (Cargo)cargo.clone();
 			
+				// Schiffstyp neu abholen, da sich der Maxcargo geaendert hat
+				shiptype = ShipTypes.getShipType(ship);
+				
 				Cargo newcargo = cargo;
 				if( cargo.getMass() > shiptype.getLong("cargo") ) {
 					newcargo = cargo.cutCargo( shiptype.getLong("cargo") );	
