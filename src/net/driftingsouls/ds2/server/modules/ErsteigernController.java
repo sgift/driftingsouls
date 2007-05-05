@@ -51,6 +51,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.JumpNodeRouter;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
@@ -1210,71 +1211,6 @@ public class ErsteigernController extends DSGenerator {
 		return;
 	}
 	
-	static class Router {
-		class Result {
-			int distance;
-			List<SQLResultRow> path = new ArrayList<SQLResultRow>();
-		}
-		private Map<Integer,Integer> systemInterestLevel = new HashMap<Integer,Integer>();
-		private Map<Integer,List<SQLResultRow>> jnlist = new HashMap<Integer,List<SQLResultRow>>();
-		
-		Router(Map<Integer,List<SQLResultRow>> jns) {
-			for( Integer sys : jns.keySet() ) {
-				List<SQLResultRow> jnlist = jns.get(sys);
-				this.jnlist.put(sys, new ArrayList<SQLResultRow>(jnlist));
-			}
-		}
-		
-		Result locateShortestJNPath( int currentsys, int currentx, int currenty, int targetsys, int targetx, int targety) {				
-			if( !jnlist.containsKey(currentsys) ) {
-				return null;	
-			}
-	
-			if( currentsys == targetsys ) {
-				Result res = new Result();
-				res.distance = Math.max(Math.abs(targetx-currentx),Math.abs(targety-currenty));
-				return res;	
-			}
-			
-			Result shortestpath = null;
-			List<SQLResultRow> sysJNList = jnlist.get(currentsys);
-			for( int k=0; k < sysJNList.size(); k++ ) {
-				SQLResultRow ajn = sysJNList.get(k);
-				
-				if( systemInterestLevel.containsKey(ajn.getInt("systemout")) && 
-					systemInterestLevel.get(ajn.getInt("systemout")) < 0 ) {
-					continue;
-				}
-				int pathcost = Math.max(Math.abs(ajn.getInt("x")-currentx),Math.abs(ajn.getInt("y")-currenty));
-				
-				sysJNList.remove(k);
-				
-				Result cost = locateShortestJNPath(ajn.getInt("systemout"),ajn.getInt("xout"),ajn.getInt("yout"), targetsys, targetx, targety );
-				if( cost == null ) {
-					if( !systemInterestLevel.containsKey(ajn.getInt("systemout")) ) {
-						systemInterestLevel.put(ajn.getInt("systemout"), -1);
-					}
-					continue;
-				}
-				else if( shortestpath == null ) {
-					shortestpath = cost;
-					shortestpath.distance += pathcost;
-					shortestpath.path.add(0, ajn);
-				}
-				else if( shortestpath.distance > cost.distance+pathcost ) {
-					shortestpath = cost;
-					shortestpath.distance += pathcost;
-					shortestpath.path.add(0, ajn);
-				}
-				if( !systemInterestLevel.containsKey(ajn.getInt("systemout")) ) {
-					systemInterestLevel.put(ajn.getInt("systemout"), 1);
-				}
-			}
-				
-			return shortestpath;
-		}
-	}
-	
 	/**
 	 * Berechnet die Kosten eines Transportauftrags und speichert ihn in der Datenbank
 	 * @urlparam Integer sourcesystem Das Ausgangssystem
@@ -1375,7 +1311,9 @@ public class ErsteigernController extends DSGenerator {
 		jnRow.free();
 		
 		long totalcost = 0;
-		Router.Result shortestpath = new Router(jumpnodes).locateShortestJNPath(sourcesystem,gany.getInt("x"),gany.getInt("y"),targetsystem, targetx, targety);
+		JumpNodeRouter.Result shortestpath = new JumpNodeRouter(jumpnodes)
+			.locateShortestJNPath(sourcesystem,gany.getInt("x"),gany.getInt("y"),
+					targetsystem, targetx, targety);
 		if( shortestpath == null ) {
 			transport = 0;
 			t.set_var("transport.price", "<span style=\"color:red\">Kein Weg gefunden</span>");	

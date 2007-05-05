@@ -32,6 +32,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.JumpNodeRouter;
 
 /**
  * TASK_GANY_TRANSPORT
@@ -44,72 +45,6 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
  *  @author Christopher Jung
  */
 class HandleGanyTransport implements TaskHandler {
-	static class Router {
-		class Result {
-			int distance;
-			List<SQLResultRow> path = new ArrayList<SQLResultRow>();
-		}
-		private Map<Integer,Integer> systemInterestLevel = new HashMap<Integer,Integer>();
-		private Map<Integer,List<SQLResultRow>> jnlist = new HashMap<Integer,List<SQLResultRow>>();
-		
-		Router(Map<Integer,List<SQLResultRow>> jns) {
-			for( Integer sys : jns.keySet() ) {
-				List<SQLResultRow> jnlist = jns.get(sys);
-				this.jnlist.put(sys, new ArrayList<SQLResultRow>(jnlist));
-			}
-		}
-		
-		Result locateShortestJNPath( int currentsys, int currentx, int currenty, int targetsys, int targetx, int targety) {				
-			if( !jnlist.containsKey(currentsys) ) {
-				return null;	
-			}
-	
-			if( currentsys == targetsys ) {
-				Result res = new Result();
-				res.distance = Math.max(Math.abs(targetx-currentx),Math.abs(targety-currenty));
-				return res;	
-			}
-			
-			Result shortestpath = null;
-			List<SQLResultRow> sysJNList = jnlist.get(currentsys);
-			for( int k=0; k < sysJNList.size(); k++ ) {
-				SQLResultRow ajn = sysJNList.get(k);
-				
-				if( systemInterestLevel.containsKey(ajn.getInt("systemout")) &&
-					systemInterestLevel.get(ajn.getInt("systemout")) < 0 ) {
-					continue;
-				}
-				int pathcost = Math.max(Math.abs(ajn.getInt("x")-currentx),Math.abs(ajn.getInt("y")-currenty));
-				
-				sysJNList.remove(k);
-				
-				Result cost = locateShortestJNPath(ajn.getInt("systemout"),ajn.getInt("xout"),ajn.getInt("yout"), targetsys, targetx, targety );
-				if( cost == null ) {
-					if( !systemInterestLevel.containsKey(ajn.getInt("systemout")) ) {
-						systemInterestLevel.put(ajn.getInt("systemout"), -1);
-					}
-					continue;
-				}
-				else if( shortestpath == null ) {
-					shortestpath = cost;
-					shortestpath.distance += pathcost;
-					shortestpath.path.add(0, ajn);
-				}
-				else if( shortestpath.distance > cost.distance+pathcost ) {
-					shortestpath = cost;
-					shortestpath.distance += pathcost;
-					shortestpath.path.add(0, ajn);
-				}
-				if( !systemInterestLevel.containsKey(ajn.getInt("systemout")) ) {
-					systemInterestLevel.put(ajn.getInt("systemout"), 1);
-				}
-			}
-				
-			return shortestpath;
-		}
-	}
-	
-	
 	public void handleEvent(Task task, String event) {	
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
@@ -151,7 +86,9 @@ class HandleGanyTransport implements TaskHandler {
 					}
 					jnRow.free();
 					
-					Router.Result shortestpath = new Router(jumpnodes).locateShortestJNPath(source.getSystem(),source.getX(),source.getY(),target.getSystem(),target.getX(),target.getY());
+					JumpNodeRouter.Result shortestpath = new JumpNodeRouter(jumpnodes)
+						.locateShortestJNPath(source.getSystem(),source.getX(),source.getY(),
+								target.getSystem(),target.getX(),target.getY());
 					if( shortestpath == null ) {
 						String msg = "[color=orange]WARNUNG[/color]\nDer Taskmanager kann keinen Weg f&uuml;r die Gany-Transport-Order mit der ID "+orderid+" finden.";
 						PM.sendToAdmins(context, -1, "Taskmanager-Warnung", msg, 0);
@@ -160,7 +97,9 @@ class HandleGanyTransport implements TaskHandler {
 						return;
 					}
 					
-					Router.Result pathtogany = new Router(jumpnodes).locateShortestJNPath(shiptrans.getInt("system"),shiptrans.getInt("x"),shiptrans.getInt("y"),source.getSystem(),source.getX(),source.getY());
+					JumpNodeRouter.Result pathtogany = new JumpNodeRouter(jumpnodes)
+						.locateShortestJNPath(shiptrans.getInt("system"),shiptrans.getInt("x"),shiptrans.getInt("y"),
+								source.getSystem(),source.getX(),source.getY());
 					if( pathtogany == null ) {
 						// Eigenartig....es gibt kein Weg zur Gany. Pausieren wir besser mal
 						String msg = "[color=orange]WARNUNG[/color]\nDer Taskmanager kann keinen Weg zur Ganymede f&uuml;r die Gany-Transport-Order mit der ID "+orderid+" finden.";
@@ -171,8 +110,12 @@ class HandleGanyTransport implements TaskHandler {
 						return;
 					}
 					
-					Router.Result pathtohome = new Router(jumpnodes).locateShortestJNPath(target.getSystem(),target.getX(),target.getY(),shiptrans.getInt("system"),shiptrans.getInt("x"),shiptrans.getInt("y"));
-					Router.Result pathback = new Router(jumpnodes).locateShortestJNPath(source.getSystem(),source.getX(),source.getY(),shiptrans.getInt("system"),shiptrans.getInt("x"),shiptrans.getInt("y"));
+					JumpNodeRouter.Result pathtohome = new JumpNodeRouter(jumpnodes)
+						.locateShortestJNPath(target.getSystem(),target.getX(),target.getY(),
+								shiptrans.getInt("system"),shiptrans.getInt("x"),shiptrans.getInt("y"));
+					JumpNodeRouter.Result pathback = new JumpNodeRouter(jumpnodes)
+						.locateShortestJNPath(source.getSystem(),source.getX(),source.getY(),
+								shiptrans.getInt("system"),shiptrans.getInt("x"),shiptrans.getInt("y"));
 					
 					StringBuilder script = new StringBuilder(300);
 					for( int i=0; i < pathtogany.path.size(); i++ ) {
@@ -203,7 +146,7 @@ class HandleGanyTransport implements TaskHandler {
 					script.append(":error\n");
 					script.append("#title = \"Shop-Fehler: Order "+order.getInt("id")+"\"\n");
 					script.append("#msg = \"Der Besitzer der Gany "+ganyid+" konnte nicht korrekt &uuml;berpr&uuml;ft werden. Erwartet wurde ID "+order.getInt("user_id")+"\"\n");
-					script.append("!MSG "+entryowner+" #title #msg\n");
+					script.append("!MSG "+entryowner.getInt("faction_id")+" #title #msg\n");
 					script.append("!EXECUTETASK "+task.getTaskID()+" error\n");
 					for( int i=0; i < pathback.path.size(); i++ ) {
 						SQLResultRow jn = pathback.path.get(i);
@@ -234,7 +177,7 @@ class HandleGanyTransport implements TaskHandler {
 					script.append("!RESETSCRIPT\n");
 					
 					db.prepare("UPDATE ships SET script= ? WHERE id= ?")
-						.update(script, shiptrans.getInt("id"));
+						.update(script.toString(), shiptrans.getInt("id"));
 					tm.modifyTask( task.getTaskID(), task.getData1(), Integer.toString(shiptrans.getInt("id")), task.getData3() );
 
 					db.update("UPDATE factions_shop_orders SET status='2' WHERE id=",order.getInt("id"));
