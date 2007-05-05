@@ -1074,6 +1074,11 @@ public class SchiffController extends DSGenerator implements Loggable {
 		Database db = getDatabase();
 		
 		ship = db.first("SELECT * FROM ships WHERE id>0 AND owner='",user.getID(),"' AND id=",ship.getInt("id"));
+		if( ship.isEmpty() ) {
+			addError("Das Schiff existiert nicht mehr oder geh&ouml;rt nicht mehr ihnen");
+			return;
+		}
+		
 		shiptype = ShipTypes.getShipType(ship);
 		
 		ScriptParser scriptparser = getContext().get(ContextCommon.class).getScriptParser( ScriptParser.NameSpace.QUEST );
