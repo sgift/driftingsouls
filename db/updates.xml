@@ -251,4 +251,11 @@
 		ALTER TABLE `transmissionen` CHANGE `kommentar` `kommentar` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL default '';
 		ALTER TABLE `ships` CHANGE `destcom` `destcom` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL default '';
 	]]></update>
+	<update type="structure" datum="2007-05-05"><![CDATA[
+		ALTER TABLE `bases` CHANGE `terrain` `terrain` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL default '';
+		ALTER TABLE `bases` CHANGE `bebauung` `bebauung` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL default '';
+		ALTER TABLE `bases` CHANGE `active` `active` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL default '';
+		ALTER TABLE `bases` CHANGE `autogtuacts` `autogtuacts` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL default '';
+		ALTER TABLE `users` CHANGE `knownItems` `knownItems` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL default '';
+	]]></update>
 </updates>

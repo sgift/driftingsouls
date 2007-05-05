@@ -32,7 +32,7 @@ CREATE TABLE `users` (
   `wonBattles` smallint(5) unsigned NOT NULL default '0',
   `destroyedShips` int(10) unsigned NOT NULL default '0',
   `lostShips` int(10) unsigned NOT NULL default '0',
-  `knownItems` text NOT NULL,
+  `knownItems` text NOT NULL default '',
   PRIMARY KEY  (`id`),
   KEY `ally` (`ally`),
   KEY `vaccount` (`vaccount`,`wait4vac`),
