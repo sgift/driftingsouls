@@ -280,7 +280,9 @@ public class SchiffeController extends DSGenerator implements Loggable {
 				
 				if( ship.getString("status").indexOf("offizier") > -1 ) {
 					Offizier offizier = Offizier.getOffizierByDest('s', ship.getInt("id"));
-					offi = " <a class=\"forschinfo\" href=\""+Common.buildUrl(getContext(), "default", "module", "choff", "off", offizier.getID())+"\"><img style=\"vertical-align:middle\" src=\""+offizier.getPicture()+"\" alt=\"Rang "+offizier.getRang()+"\" /></a>";
+					if( offizier != null ) {
+						offi = " <a class=\"forschinfo\" href=\""+Common.buildUrl(getContext(), "default", "module", "choff", "off", offizier.getID())+"\"><img style=\"vertical-align:middle\" src=\""+offizier.getPicture()+"\" alt=\"Rang "+offizier.getRang()+"\" /></a>";
+					}
 				} 
 
 				String crewcolor = "#ffffff";
