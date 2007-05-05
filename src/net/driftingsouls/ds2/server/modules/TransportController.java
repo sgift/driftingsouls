@@ -242,7 +242,10 @@ public class TransportController extends DSGenerator {
 			}
 			Database db = ContextMap.getContext().getDatabase();
 			
-			String list = db.first("SELECT CAST(GROUP_CONCAT(id SEPARATOR '|') AS CHAR) fleetlist FROM ships WHERE fleet='",fleet,"'").getString("fleetlist");
+			String list = db.first("SELECT CAST(GROUP_CONCAT(id SEPARATOR '|') AS CHAR) fleetlist " +
+					"FROM ships " +
+					"WHERE fleet='",fleet,"' AND x="+data.getInt("x")+" AND y="+data.getInt("y")+" AND system="+data.getInt("system"))
+					.getString("fleetlist");
 			
 			return new MultiTarget("Flotte", list);
 		}
@@ -403,6 +406,13 @@ public class TransportController extends DSGenerator {
 				for( int i=0; i < fromlist.length; i++ ) {
 					TransportTarget handler = wayhandler.get(way[0]).getConstructor().newInstance();
 					handler.create( TransportTarget.ROLE_SOURCE, fromlist[i] );
+					if( this.from.size() > 0 ) {
+						Location loc = Location.fromResult(this.from.get(0).getData());
+						Location thisLoc = Location.fromResult(handler.getData());
+						if( !loc.sameSector(this.from.get(0).getSize(), thisLoc, handler.getSize()) ) {
+							continue;
+						}
+					}
 					this.from.add(handler);
 				}
 			}
@@ -428,6 +438,13 @@ public class TransportController extends DSGenerator {
 				try {
 					TransportTarget handler = wayhandler.get(way[1]).getConstructor().newInstance();
 					handler.create( TransportTarget.ROLE_TARGET, tolist[i] );
+					if( this.to.size() > 0 ) {
+						Location loc = Location.fromResult(this.to.get(0).getData());
+						Location thisLoc = Location.fromResult(handler.getData());
+						if( !loc.sameSector(this.to.get(0).getSize(), thisLoc, handler.getSize()) ) {
+							continue;
+						}
+					}
 					this.to.add(handler);
 				}
 				catch( Exception e ) {
