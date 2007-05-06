@@ -133,7 +133,7 @@ public class ModuleItemModule extends Module implements Loggable {
 				
 				stats.put("maxheat", Weapons.packWeaponList(heatlist));
 			}
-			else if( key.equals("flags") ) {System.err.println(mods.getString("flags"));
+			else if( key.equals("flags") ) {
 				String[] flags = StringUtils.split(mods.getString("flags"), ' ');
 				for( int i=0; i < flags.length; i++ ) {
 					String aflag = flags[i];
