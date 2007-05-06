@@ -37,6 +37,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
+import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -49,7 +50,7 @@ import net.driftingsouls.ds2.server.ships.Ships;
  *
  */
 public class TransportController extends DSGenerator {
-	static class MultiTarget {
+	private static class MultiTarget {
 		private String name;
 		private String targetlist;
 		
@@ -75,7 +76,91 @@ public class TransportController extends DSGenerator {
 		}
 	}
 	
-	abstract static class TransportTarget {
+	private abstract static class TransportFactory {
+		TransportFactory() {
+			//EMPTY
+		}
+		
+		abstract List<TransportTarget> createTargets(int role, String target) throws Exception;
+	}
+	
+	private static class BaseTransportFactory extends TransportFactory {
+		BaseTransportFactory() {
+			// EMPTY
+		}
+		
+		@Override
+		List<TransportTarget> createTargets(int role, String target) throws Exception {
+			List<TransportTarget> list = new ArrayList<TransportTarget>();
+			
+			int[] fromlist = Common.explodeToInt("|", target);
+			for( int i=0; i < fromlist.length; i++ ) {
+				TransportTarget handler = new BaseTransportTarget();
+				handler.create( role, fromlist[i] );
+				if( list.size() > 0 ) {
+					Location loc = Location.fromResult(list.get(0).getData());
+					Location thisLoc = Location.fromResult(handler.getData());
+					if( !loc.sameSector(list.get(0).getSize(), thisLoc, handler.getSize()) ) {
+						continue;
+					}
+				}
+				list.add(handler);
+			}
+			
+			return list;
+		}
+	}
+	
+	private static class ShipTransportFactory extends TransportFactory {
+		ShipTransportFactory() {
+			// EMPTY
+		}
+		
+		@Override
+		List<TransportTarget> createTargets(int role, String target) throws Exception {
+			List<TransportTarget> list = new ArrayList<TransportTarget>();
+					
+			String[] fromlist = StringUtils.split(target, '|');
+			for( int i=0; i < fromlist.length; i++ ) {				
+				if( fromlist[i].equals("fleet") ) {
+					if( list.size() == 0 ) {
+						throw new Exception("Es wurde kein Schiff angegeben, zu dem die Flotte ausgewaehlt werden soll");
+					}
+					TransportTarget handler  = list.remove(list.size()-1);
+					
+					Database db = ContextMap.getContext().getDatabase();
+					
+					SQLResultRow data = handler.getData();
+					
+					SQLQuery fleetdata = db.query("SELECT owner,name,type,cargo,status,id,x,y,system,battle,status,fleet " +
+							"FROM ships " +
+							"WHERE id>0 AND fleet='",data.getInt("fleet"),"' AND x="+data.getInt("x")+" AND y="+data.getInt("y")+" AND system="+data.getInt("system"));
+					while( fleetdata.next() ) {
+						ShipTransportTarget shiphandler = new ShipTransportTarget();
+						shiphandler.create(role, fleetdata.getRow());
+						list.add(shiphandler);
+					}
+					fleetdata.free();
+				}
+				else {
+					TransportTarget handler = new ShipTransportTarget();
+					handler.create( role, Integer.parseInt(fromlist[i]) );
+					if( list.size() > 0 ) {
+						Location loc = Location.fromResult(list.get(0).getData());
+						Location thisLoc = Location.fromResult(handler.getData());
+						if( !loc.sameSector(list.get(0).getSize(), thisLoc, handler.getSize()) ) {
+							continue;
+						}
+					}
+					list.add(handler);
+				}
+			}
+			
+			return list;
+		}
+	}
+	
+	private abstract static class TransportTarget {
 		protected SQLResultRow data;
 		protected int role;
 		protected int id;
@@ -85,6 +170,14 @@ public class TransportController extends DSGenerator {
 		
 		static final int ROLE_SOURCE = 1;
 		static final int ROLE_TARGET = 1;
+		
+		/**
+		 * Konstruktor
+		 *
+		 */
+		public TransportTarget() {
+			// EMPTY
+		}
 		
 		/**
 		 * Erstellt ein neues TransportTarget
@@ -191,7 +284,7 @@ public class TransportController extends DSGenerator {
 		abstract String getTargetName();
 	}
 	
-	static class ShipTransportTarget extends TransportTarget {
+	private static class ShipTransportTarget extends TransportTarget {
 		/**
 		 * Konstruktor
 		 */
@@ -199,32 +292,28 @@ public class TransportController extends DSGenerator {
 			// EMPTY
 		}
 		
-		@Override
-		void create(int role, int shipid) throws Exception {
-			super.create(role, shipid);
-			Database db = ContextMap.getContext().getDatabase();
-			
-			SQLResultRow data = db.first("SELECT owner,name,type,cargo,status,id,x,y,system,battle,status,fleet FROM ships WHERE id>0 AND id=",shipid);
+		void create(int role, SQLResultRow data) throws Exception {
+			super.create(role, data.getInt("id"));
 			
 			if( data.isEmpty() ) {
-				throw new Exception("Das angegebene Schiff (id:"+shipid+") existiert nicht");
+				throw new Exception("Das angegebene Schiff (id:"+data.getInt("id")+") existiert nicht");
 			}
 			data.put("size", 0);
 			
 			if( data.getInt("battle") != 0 ) {
-				throw new Exception("Das Schiff (id:"+shipid+") ist in einen Kampf verwickelt");
+				throw new Exception("Das Schiff (id:"+data.getInt("id")+") ist in einen Kampf verwickelt");
 			}
 
 			if( role == ROLE_TARGET ) {
 				if( data.getString("status").indexOf("disable_iff") > -1 ) {
-					throw new Exception("Zu dem angegebenen Schiff (id:"+shipid+") k&ouml;nnen sie keine Waren transportieren");
+					throw new Exception("Zu dem angegebenen Schiff (id:"+data.getInt("id")+") k&ouml;nnen sie keine Waren transportieren");
 				}
 			}
 			
 			SQLResultRow tmptype = ShipTypes.getShipType( data );
 			
 			if( ShipTypes.hasShipTypeFlag(tmptype, ShipTypes.SF_KEIN_TRANSFER) ) {
-				throw new Exception("Sie k&ouml;nnen keine Waren zu oder von diesem Schiff (id:"+shipid+") transferieren");
+				throw new Exception("Sie k&ouml;nnen keine Waren zu oder von diesem Schiff (id:"+data.getInt("id")+") transferieren");
 			}
 			
 			setOwner(data.getInt("owner"));
@@ -235,19 +324,22 @@ public class TransportController extends DSGenerator {
 		}
 		
 		@Override
+		void create(int role, int shipid) throws Exception {
+			Database db = ContextMap.getContext().getDatabase();
+			
+			SQLResultRow data = db.first("SELECT owner,name,type,cargo,status,id,x,y,system,battle,status,fleet FROM ships WHERE id>0 AND id=",shipid);
+			
+			create(role, data);
+		}
+		
+		@Override
 		MultiTarget getMultiTarget() {
 			int fleet = getData().getInt("fleet");
 			if( fleet == 0 ) {
 				return null;
 			}
-			Database db = ContextMap.getContext().getDatabase();
 			
-			String list = db.first("SELECT CAST(GROUP_CONCAT(id SEPARATOR '|') AS CHAR) fleetlist " +
-					"FROM ships " +
-					"WHERE fleet='",fleet,"' AND x="+data.getInt("x")+" AND y="+data.getInt("y")+" AND system="+data.getInt("system"))
-					.getString("fleetlist");
-			
-			return new MultiTarget("Flotte", list);
+			return new MultiTarget("Flotte", getData().getInt("id")+"|fleet");
 		}
 
 		@Override
@@ -281,7 +373,7 @@ public class TransportController extends DSGenerator {
 		
 	}
 	
-	static class BaseTransportTarget extends TransportTarget {
+	private static class BaseTransportTarget extends TransportTarget {
 		/**
 		 * Konstruktor
 		 */
@@ -365,36 +457,12 @@ public class TransportController extends DSGenerator {
 		String from = getString("from");
 		String rawway = getString("way");
 		String sess = getContext().getSession();
-		
-		Integer[] extarlist = null;
-		Integer[] exsrclist = null;
-
-		if( StringUtils.split(to, '|').length <= 1 ) {
-			to = new Integer(to).toString();
-		}
-		else {
-			extarlist = Common.explodeToInteger("|",to);
-			to = Common.implode("|", Common.explodeToInteger("|",to));
-		}
-		
-		exsrclist = Common.explodeToInteger("|",from);
-		from = Common.implode("|", Common.explodeToInteger("|",from));
 				
 		String[] way = StringUtils.split(rawway, "to");
 
-		for( int i=0; i < exsrclist.length; i++ ) {
-			int afrom = exsrclist[i];
-			if( way[0].equals(way[1]) && ( ( extarlist == null && (Integer.parseInt(to) == afrom) ) || 
-				 ( extarlist != null && Common.inArray( afrom, extarlist ) ) ) ) {
-				 	
-				addError("Sie k&ouml;nnen keine Waren zu sich selbst transportieren",(way[0]=="b"?"./main.php?module=base&":"./main.php?module=schiff&")+"sess="+sess+"&"+(way[0]=="b"?"col":"ship")+"="+afrom);
-				return false;
-			}
-		}
-		
-		Map<String,Class<? extends TransportTarget>> wayhandler = new HashMap<String,Class<? extends TransportTarget>>();
-		wayhandler.put("s", ShipTransportTarget.class);
-		wayhandler.put("b", BaseTransportTarget.class);
+		Map<String,TransportFactory> wayhandler = new HashMap<String,TransportFactory>();
+		wayhandler.put("s", new ShipTransportFactory());
+		wayhandler.put("b", new BaseTransportFactory());
 		
 		/*
 			"From" bearbeiten
@@ -402,19 +470,7 @@ public class TransportController extends DSGenerator {
 	
 		if( wayhandler.containsKey(way[0]) ) {
 			try {
-				int[] fromlist = Common.explodeToInt("|", from);
-				for( int i=0; i < fromlist.length; i++ ) {
-					TransportTarget handler = wayhandler.get(way[0]).getConstructor().newInstance();
-					handler.create( TransportTarget.ROLE_SOURCE, fromlist[i] );
-					if( this.from.size() > 0 ) {
-						Location loc = Location.fromResult(this.from.get(0).getData());
-						Location thisLoc = Location.fromResult(handler.getData());
-						if( !loc.sameSector(this.from.get(0).getSize(), thisLoc, handler.getSize()) ) {
-							continue;
-						}
-					}
-					this.from.add(handler);
-				}
+				this.from.addAll(wayhandler.get(way[0]).createTargets(TransportTarget.ROLE_SOURCE, from));
 			}
 			catch( Exception e ) {
 				e.printStackTrace();
@@ -432,26 +488,13 @@ public class TransportController extends DSGenerator {
 			"To" bearbeiten
 		*/
 		if( wayhandler.containsKey(way[1]) ) {
-			int[] tolist = Common.explodeToInt( "|", to );
-			
-			for( int i=0; i < tolist.length; i++ ) {
-				try {
-					TransportTarget handler = wayhandler.get(way[1]).getConstructor().newInstance();
-					handler.create( TransportTarget.ROLE_TARGET, tolist[i] );
-					if( this.to.size() > 0 ) {
-						Location loc = Location.fromResult(this.to.get(0).getData());
-						Location thisLoc = Location.fromResult(handler.getData());
-						if( !loc.sameSector(this.to.get(0).getSize(), thisLoc, handler.getSize()) ) {
-							continue;
-						}
-					}
-					this.to.add(handler);
-				}
-				catch( Exception e ) {
-					e.printStackTrace();
-					addError(e.toString());
-					return false;
-				}
+			try {
+				this.to.addAll(wayhandler.get(way[1]).createTargets(TransportTarget.ROLE_TARGET, to));
+			}
+			catch( Exception e ) {
+				e.printStackTrace();
+				addError(e.toString());
+				return false;
 			}
 		}
 		else {
@@ -464,6 +507,21 @@ public class TransportController extends DSGenerator {
 			addError("Sie muessen mindestens ein Quell- und ein Zielobjekt angeben");
 			
 			return false;
+		}
+		
+		/*
+			Check ob das selbe Objekt in Quelle in Ziel vorkommt
+		*/
+		if( way[0].equals(way[1]) ) {
+			for( int i=0; i < this.from.size(); i++ ) {
+				TransportTarget afrom = this.from.get(i);
+				for( int j=0; j < this.to.size(); j++ ) {
+					if( this.to.get(j).getData().getInt("id") == afrom.getData().getInt("id") ) {
+						addError("Sie k&ouml;nnen keine Waren zu sich selbst transportieren",(way[0]=="b"?"./main.php?module=base&":"./main.php?module=schiff&")+"sess="+sess+"&"+(way[0]=="b"?"col":"ship")+"="+afrom);
+						return false;
+					}
+				}
+			}
 		}
 		
 		/*
