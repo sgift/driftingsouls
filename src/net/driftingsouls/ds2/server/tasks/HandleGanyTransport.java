@@ -123,7 +123,7 @@ class HandleGanyTransport implements TaskHandler {
 						script.append("!SHIPMOVE "+jn.getInt("system")+":"+jn.getInt("x")+"/"+jn.getInt("y")+"\n");
 						script.append("!NJUMP "+jn.getInt("id")+"\n");
 					}
-					script.append("!SHIPMOVE "+source.getSystem()+":"+source.getX()+"/"+source.getY());
+					script.append("!SHIPMOVE "+source.getSystem()+":"+source.getX()+"/"+source.getY()+"\n");
 
 					script.append("!GETSHIPOWNER "+ganyid+"\n");
 					script.append("!COMPARE #A "+order.getInt("user_id")+"\n");
