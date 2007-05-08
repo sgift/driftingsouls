@@ -402,7 +402,7 @@ public class ActionFunctions {
 		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
 			SQLResultRow ship = scriptparser.getShip();
 			
-			db.query("UPDATE ships SET script=NULL,scriptexedata=NULL WHERE id=",ship.getInt("id")," LIMIT 1");
+			db.update("UPDATE ships SET script=NULL,scriptexedata=NULL WHERE id=",ship.getInt("id")," LIMIT 1");
 			ship.put("script", "");
 			ship.put("scriptexedata", "");
 			
