@@ -80,7 +80,7 @@ public class SensorsDefault implements SchiffPlugin {
 		Database db = controller.getDatabase();
 		User user = controller.getUser();
 		TemplateEngine t = controller.getTemplateEngine();
-
+		
 		int ship = data.getInt("id");
 		
 		t.set_file("_PLUGIN_"+pluginid, "schiff.sensors.default.html");
@@ -89,6 +89,8 @@ public class SensorsDefault implements SchiffPlugin {
 					"ship.sensors.location",	Ships.getLocationText(data, true),
 					"global.awac",				ShipTypes.hasShipTypeFlag(datatype, ShipTypes.SF_SRS_AWAC) );
 
+		final int dataOffizierCount = db.first("SELECT count(*) count FROM offiziere WHERE dest='s "+data.getInt("id")+"'").getInt("count");
+		
 		List<Integer> fleetlist = null;
 
 		Map<Integer,SQLResultRow> fleetcache = new HashMap<Integer,SQLResultRow>();
@@ -159,10 +161,23 @@ public class SensorsDefault implements SchiffPlugin {
 
 				// Offizier transferieren
 				if( datan.getInt("owner") == user.getID() ) {
+					boolean hasoffizier = offizier != null;
+					if( !hasoffizier || ShipTypes.hasShipTypeFlag(datatype, ShipTypes.SF_OFFITRANSPORT) ) {
+						if( datatype.getInt("size") > 2 ) {
+							boolean ok = true;
+							if( ShipTypes.hasShipTypeFlag(datatype, ShipTypes.SF_OFFITRANSPORT) ) {
+								if( dataOffizierCount >= datatype.getInt("crew") ) {
+									ok = false;
+								}
+							}
+							
+							if( ok ) {
+								t.set_var("base.offiziere.set",1);
+							}
+						}
+					}
 					if( offizier != null ) {
 						t.set_var("base.offiziere.transfer",1);
-					} else if( datan.getInt("owner") == user.getID() ) {
-						t.set_var("base.offiziere.set",1);
 					}
 				}
 
