@@ -323,15 +323,15 @@ public class StatsController extends DSGenerator {
 		
 		SQLQuery userf = null;
 		if( this.show == 1 ) {
-			userf = db.query("SELECT * FROM user_f WHERE id>",MIN_USER_ID);
+			userf = db.query("SELECT *,id theid FROM user_f WHERE id>",MIN_USER_ID);
 			
 		} 
 		else if( this.show == 2 ) {
-			userf = db.query("SELECT t1.*,t2.ally id FROM user_f t1 JOIN users t2 ON t1.id=t2.id WHERE t1.id>",MIN_USER_ID," AND t2.ally>0");
+			userf = db.query("SELECT t1.*,t2.ally theid FROM user_f t1 JOIN users t2 ON t1.id=t2.id WHERE t1.id>",MIN_USER_ID," AND t2.ally>0");
 		}
 		if( userf != null ) {
 			while( userf.next() ) {
-				int i = userf.getInt("id");
+				int i = userf.getInt("theid");
 				for( int a=1; a < MAX_RESID; a++ ) {
 					if( userf.getInt("r"+a) == 1 ) {
 						if( !res.containsKey(i) ) {
