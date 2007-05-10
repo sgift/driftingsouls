@@ -574,7 +574,7 @@ public class ErsteigernController extends DSGenerator {
 				bietername = bieter.getName();	
 			}
 			else if( (bieter.getAlly() != 0) && (bieter.getAlly() == user.getAlly()) ) {
-				boolean showGtuBieter = db.first("SELECT showGtuBieter FROM ally WHERE id=",bieter.getAlly()).getBoolean("showGtuBieter");
+				boolean showGtuBieter = db.first("SELECT showGtuBieter FROM ally WHERE id=",bieter.getAlly()).getInt("showGtuBieter") != 0;
 
 				if( showGtuBieter ) {
 					bietername = bieter.getName();	
@@ -989,7 +989,7 @@ public class ErsteigernController extends DSGenerator {
 				bietername = bieter.getName();	
 			}
 			else if( (bieter.getAlly() != 0) && (bieter.getAlly() == user.getAlly()) ) {
-				boolean showGtuBieter = db.first("SELECT showGtuBieter FROM ally WHERE id=",bieter.getAlly()).getBoolean("showGtuBieter");
+				boolean showGtuBieter = db.first("SELECT showGtuBieter FROM ally WHERE id=",bieter.getAlly()).getInt("showGtuBieter") != 0;
 
 				if( showGtuBieter ) {
 					bietername = bieter.getName();	
@@ -1145,10 +1145,9 @@ public class ErsteigernController extends DSGenerator {
 			else if( (bieter.getAlly() != 0) && (bieter.getAlly() == user.getAlly()) ) {
 				if( showGtuBieter == null ) {
 					SQLResultRow ally = db.first("SELECT showGtuBieter FROM ally WHERE id=",bieter.getAlly());
-					if( !ally.isEmpty() ) {
-						showGtuBieter = ally.getBoolean("showGtuBieter");
-					}
+					showGtuBieter = ally.getInt("showGtuBieter") != 0;
 				}
+				
 				if( showGtuBieter ) {
 					bietername = bieter.getName();	
 				}	
