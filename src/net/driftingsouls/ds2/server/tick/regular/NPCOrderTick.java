@@ -77,7 +77,7 @@ public class NPCOrderTick extends TickController {
 			offinamelist.put(race.getID(), new ArrayList<String>());
 			if( race.getNameGenerator(Rasse.GENERATOR_PERSON) != null ) {
 				try {
-					Process p = Runtime.getRuntime().exec(race.getNameGenerator(Rasse.GENERATOR_PERSON)+" 50 \\\n");
+					Process p = Runtime.getRuntime().exec(race.getNameGenerator(Rasse.GENERATOR_PERSON)+" 100 \\n");
 					BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
 					String tmp = null;
 					while( (tmp = in.readLine()) != null ) {
