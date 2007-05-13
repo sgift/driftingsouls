@@ -1691,7 +1691,7 @@ public class ErsteigernController extends DSGenerator {
 				return;
 			}
 			
-			db.query("UPDATE factions_shop_entries SET availability=",availability," WHERE id=",shopentry.getInt("id"));
+			db.update("UPDATE factions_shop_entries SET availability=",availability," WHERE id=",shopentry.getInt("id"));
 			
 			t.set_var("show.message", "Neuer Status erfolgreich zugewiesen");
 		}
