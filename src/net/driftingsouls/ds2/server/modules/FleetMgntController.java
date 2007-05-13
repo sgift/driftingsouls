@@ -208,6 +208,11 @@ public class FleetMgntController extends DSGenerator {
 		Integer[] shiplistInt = null;
 		
 		String shiplist = getString("shiplist");
+		if( shiplist.length() == 0 ) {
+			t.set_var("fleetmgnt.message", "Sie haben keine Schiffe angegeben" );
+			return;
+		}
+		
 		if( shiplist.charAt(0) != 'g' ) {
 			shiplistInt = Common.explodeToInteger("|", shiplist);
 			if( (getString("shiplist").length() == 0) || shiplistInt.length == 0 ) {
