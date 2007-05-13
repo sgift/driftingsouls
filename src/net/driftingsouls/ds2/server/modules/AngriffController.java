@@ -624,8 +624,23 @@ public class AngriffController extends DSGenerator implements Loggable {
 			catch( Exception e ) {
 				addError("Kann Aktion nicht ausfuehren: "+e);
 				LOG.error("Ausfuehrung der KS-Aktion "+action+" fehlgeschlagen", e);
+				int curOwnShipID = -1;
+				int curEnemyShipID = -1;
+				try {
+					curOwnShipID = battle.getOwnShip().getInt("id");
+				}
+				catch( IndexOutOfBoundsException e2 ) {
+					// EMPTY
+				}
 				
-				Common.mailThrowable(e, "KS-Action-Error Schlacht "+battle.getID(), "Action: "+action+"\nownShip: "+battle.getOwnShip().getInt("id")+"\nenemyShip: "+battle.getEnemyShip().getInt("id"));
+				try {
+					curEnemyShipID = battle.getEnemyShip().getInt("id");
+				}
+				catch( IndexOutOfBoundsException e2 ) {
+					// EMPTY
+				}
+				
+				Common.mailThrowable(e, "KS-Action-Error Schlacht "+battle.getID(), "Action: "+action+"\nownShip: "+curOwnShipID+"\nenemyShip: "+curEnemyShipID);
 			}
 		}
 		
