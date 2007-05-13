@@ -627,7 +627,7 @@ public class FleetMgntController extends DSGenerator {
 			SQLQuery container = db.query("SELECT s.id FROM ships s JOIN ship_types st ON s.type=st.id " +
 					"WHERE s.owner='",user.getID(),"' AND s.system='",ship.getInt("system"),"' AND" +
 							" s.x='",ship.getInt("x"),"' AND s.y='",ship.getInt("y"),"' AND s.docked='' AND " +
-							"st.class='",ShipClasses.CONTAINER,"' AND s.battle=0 " +
+							"st.class='",ShipClasses.CONTAINER.ordinal(),"' AND s.battle=0 " +
 					"ORDER BY fleet,type ");
 			while( container.next() ) {
 				containerlist.add(container.getInt("id"));
