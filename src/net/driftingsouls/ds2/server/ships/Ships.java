@@ -2144,7 +2144,7 @@ public class Ships implements Loggable {
 			return true;
 		}
 		
-		if( newowner.getVacationCount() != 0 ) {
+		if( (newowner.getVacationCount() != 0) && (newowner.getWait4VacationCount() == 0) ) {
 			MESSAGE.get().append("Sie k&ouml;nnen keine Schiffe an Spieler &uuml;bergeben, welche sich im Vacation-Modus befinden");
 			return true;
 		}
