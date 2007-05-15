@@ -696,6 +696,13 @@ public class User implements Loggable {
 		
 		SQLResultRow currelation = db.first("SELECT * FROM user_relations WHERE user_id='",this.id,"' AND target_id='",userid,"'");
 		if( userid != 0 ) {
+			if( (relation != Relation.FRIEND) && (getAlly() != 0) ) {
+				User targetuser = context.createUserObject(userid);
+				if( targetuser.getAlly() == getAlly() ) {
+					LOG.warn("Versuch die allyinterne Beziehung von User "+id+" zu "+userid+" auf "+relation+" zu aendern", new Throwable());
+					return;
+				}
+			}
 			SQLResultRow defrelation = db.first("SELECT * FROM user_relations WHERE user_id='",this.id,"' AND target_id='0'");
 		
 			if( defrelation.isEmpty() ) {
