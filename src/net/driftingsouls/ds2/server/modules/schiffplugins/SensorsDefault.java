@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
@@ -46,7 +47,7 @@ import net.driftingsouls.ds2.server.ships.Ships;
  * @author Christopher Jung
  *
  */
-public class SensorsDefault implements SchiffPlugin {
+public class SensorsDefault implements SchiffPlugin, Loggable {
 	private int showOnly = 0;
 	private int showId = 0;
 	
@@ -497,8 +498,14 @@ public class SensorsDefault implements SchiffPlugin {
 					}
 					// Gedockte Schiffe zuordnen (gelandete brauchen hier nicht beruecksichtigt werden, da sie von der Query bereits aussortiert wurden)
 					if( !datas.getString("docked").equals("") ) {
-						String shipname = db.first("SELECT name FROM ships WHERE id>0 AND id="+datas.getString("docked")).getString("name");
-						t.set_var("sships.docked.name",shipname);
+						SQLResultRow namerow = db.first("SELECT name FROM ships WHERE id>0 AND id="+datas.getString("docked"));
+						if( namerow.isEmpty() ) {
+							LOG.warn("Schiff "+datas.getInt("id")+" hat ungueltigen Dockeintrag '"+datas.getInt("docked")+"'");
+						}
+						else {
+							String shipname = namerow.getString("name");
+							t.set_var("sships.docked.name",shipname);
+						}
 					}
 					
 					// Anzeige Heat (Standard)
