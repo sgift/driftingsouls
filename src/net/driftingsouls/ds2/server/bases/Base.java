@@ -503,10 +503,10 @@ public class Base implements Cloneable {
 			base = (Base)super.clone();
 			base.base = new SQLResultRow();
 			base.base.putAll(this.base);
-			base.base.put("terrain", this.getTerrain().clone());
-			base.base.put("active", this.getActive().clone());
-			base.base.put("bebauung", this.getBebauung().clone());
-			base.base.put("cargo", this.getCargo().clone());
+			base.terrain = this.getTerrain().clone();
+			base.active = this.getActive().clone();
+			base.bebauung = this.getBebauung().clone();
+			base.cargo = (Cargo)this.getCargo().clone();
 			
 			base.autogtuacts = new ArrayList<AutoGTUAction>();
 			for( int i=0; i < this.autogtuacts.size(); i++ ) {
