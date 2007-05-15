@@ -138,6 +138,12 @@ public class TCController extends DSGenerator {
 		String errorurl = Common.buildUrl(getContext(), "default", "module", "schiff", "ship", ship.getInt("id"));
 		
 		SQLResultRow tarShip = db.first("SELECT * FROM ships WHERE id>0 AND id=",getInteger("target"));
+		if( tarShip.isEmpty() ) {
+			addError("Das angegebene Zielschiff existiert nicht", errorurl);
+			setTemplate("");
+			
+			return;
+		}
 	
 		t.set_var( 	"tc.ship",			ship.getInt("id"),
 					"tc.target",		tarShip.getInt("id"),
