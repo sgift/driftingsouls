@@ -138,7 +138,7 @@ public class Ships implements Loggable {
 		if( oldstatus.length > 0 ) {
 			for( int i=0; i < oldstatus.length; i++ ) {
 				String astatus = oldstatus[i];
-				if( !astatus.equals("disable_iff") && !astatus.equals("mangle_nahrung") && 
+				if( !astatus.equals("disable_iff") && !astatus.equals("mangel_nahrung") && 
 					!astatus.equals("mangel_reaktor") && !astatus.equals("offizier") && 
 					!astatus.equals("nocrew") && !astatus.equals("nebel") && !astatus.equals("tblmodules") ) {
 					status.add(astatus);
