@@ -85,7 +85,7 @@ public class KapernController extends DSGenerator {
 			tar = 0;	
 		}
 
-		SQLResultRow datas = db.first("SELECT id,name,x,y,system,e,type,engine,weapons,hull,battle,crew FROM ships WHERE id=",ship," AND owner=",user.getID());
+		SQLResultRow datas = db.first("SELECT * FROM ships WHERE id=",ship," AND owner=",user.getID());
 		SQLResultRow datan = db.first("SELECT * FROM ships WHERE id=",tar);
 
 		if( datas.isEmpty() ) {
