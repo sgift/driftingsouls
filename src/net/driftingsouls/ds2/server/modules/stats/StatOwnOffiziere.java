@@ -74,13 +74,18 @@ public class StatOwnOffiziere implements Statistic, Loggable {
 	
 			if( dest[0].equals("s") ) {
 				if( !ships.containsKey(destid) ) {
-					SQLResultRow ship = db.first("SELECT name FROM ships WHERE id>0 AND id=",destid);
-					if( ship.isEmpty() ) {
-						LOG.warn("Offizier '"+offizier.getID()+"' befindet sich auf einem ungueltigen Schiff: "+destid);
-						ships.put(destid, "");
+					if( destid > 0 ) {
+						SQLResultRow ship = db.first("SELECT name FROM ships WHERE id>0 AND id=",destid);
+						if( ship.isEmpty() ) {
+							LOG.warn("Offizier '"+offizier.getID()+"' befindet sich auf einem ungueltigen Schiff: "+destid);
+							ships.put(destid, "");
+						}
+						else {
+							ships.put(destid, ship.getString("name"));
+						}
 					}
 					else {
-						ships.put(destid, ship.getString("name"));
+						ships.put(destid, "[Respawn "+destid+"]");
 					}
 				}
 				String shipname = ships.get(destid);
