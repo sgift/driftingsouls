@@ -219,9 +219,6 @@ public class KSKapernAction extends BasicKSAction {
 			
 		// Wurde das Schiff gekapert?
 		if( ok ) {
-			// Ein neues Ziel auswaehlen
-			battle.setEnemyShipIndex(battle.getNewTargetIndex());
-			
 			// Unbekannte Items bekannt machen
 			Cargo cargo = new Cargo( Cargo.Type.STRING, enemyShip.getString("cargo") );
 			
@@ -294,6 +291,9 @@ public class KSKapernAction extends BasicKSAction {
 			}
 			sid.free();
 	
+			// Ein neues Ziel auswaehlen
+			battle.setEnemyShipIndex(battle.getNewTargetIndex());
+			
 			List<SQLResultRow> enemyShips = battle.getEnemyShips();
 			for( int i=0; i < enemyShips.size(); i++ ) {
 				SQLResultRow eship = enemyShips.get(i);
@@ -314,8 +314,6 @@ public class KSKapernAction extends BasicKSAction {
 			}
 				
 			Ships.recalculateShipStatus(enemyShip.getInt("id"));
-			
-			battle.setEnemyShipIndex(battle.getNewTargetIndex());
 			
 			enemyShip = battle.getEnemyShip();
 		} 
