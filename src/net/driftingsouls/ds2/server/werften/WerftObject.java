@@ -1217,6 +1217,11 @@ public abstract class WerftObject extends DSObject {
 	   	SQLResultRow shipdata = null;
 		if( build > 0 ) {
 			shipdata = db.first("SELECT type,costs,ekosten,crew,dauer,race,systemreq,tr1,tr2,tr3,werftreq,flagschiff,linfactor FROM ships_baubar WHERE id=",build);
+			if( shipdata.isEmpty() ) {
+				MESSAGE.get().append("Es wurde kein passender Schiffsbauplan gefunden");
+				return null;
+			}
+			
 			shipdata.put("costs", new Cargo(Cargo.Type.STRING, shipdata.getString("costs")));
 			
 			// Kosten anpassen
