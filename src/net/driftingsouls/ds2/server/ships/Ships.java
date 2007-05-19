@@ -709,6 +709,17 @@ public class Ships implements Loggable {
 			}
 			out.append(StringUtils.replace(offizier.MESSAGE.getMessage(),"\n", "<br />"));
 		}
+		
+		// Grillen wir uns bei dem Flug eventuell den Antrieb?
+		if( news > 100 )  {
+			if(forceLowHeat) {
+				out.append("<span style=\"color:#ff0000\">Triebwerk w&uuml;rde &uuml;berhitzen</span><br />\n");
+				out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei "+getLocationText(ship,true)+"</span><br />\n");
+				out.append("</span></td></tr>\n");
+				distance = 0;
+				return new MovementResult(distance, moved, true);
+			}
+		}
 
 		int x = ship.getInt("x");
 		int y = ship.getInt("y");
@@ -746,12 +757,6 @@ public class Ships implements Loggable {
 			
 			if( ship.getInt("s") >= 100 ) {
 				out.append("<span style=\"color:#ff0000\">Triebwerke &uuml;berhitzt</span><br />\n");
-							
-				if( forceLowHeat ) {
-					out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
-					error = true;
-					distance = 0;
-				}
 				if( (RandomUtils.nextInt(101)) < 3*(news-100) ) {
 					int dmg = (int)( (2*(RandomUtils.nextInt(101)/100d)) + 1 ) * (news-100);
 					out.append("<span style=\"color:#ff0000\">Triebwerke nehmen "+dmg+" Schaden</span><br />\n");
