@@ -129,18 +129,21 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 			}
 		}
 		
+		//Wir wollen nur beim Autopiloten lowheat erzwingen
+		boolean forceLowHeat = false;
 		RouteFactory router = new RouteFactory();
 		List<Waypoint> route = null;
 		if( targetx == 0 || targety == 0 ) {
 			route = router.getMovementRoute(act, count);
 		}
 		else {
+			forceLowHeat = true;
 			Location from = Location.fromResult(ship);
 			route = router.findRoute(from, new Location(from.getSystem(), targetx, targety));
 		}
 		
 		//Das Schiff soll sich offenbar bewegen
-		Ships.move(ship.getInt("id"), route, true, false);
+		Ships.move(ship.getInt("id"), route, forceLowHeat, false);
 		output += Ships.MESSAGE.getMessage();
 		
 		return output;
