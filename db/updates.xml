@@ -258,4 +258,7 @@
 		ALTER TABLE `bases` CHANGE `autogtuacts` `autogtuacts` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL default '';
 		ALTER TABLE `users` CHANGE `knownItems` `knownItems` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL default '';
 	]]></update>
+	<update type="data" datum="2007-05-18"><![CDATA[
+		INSERT INTO `user_values` (`id`, `user_id`, `name`, `value`) VALUES (974, 0, 'PMS/signature', '');
+	]]></update>
 </updates>

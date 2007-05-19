@@ -30,3 +30,4 @@ INSERT INTO `user_values` (`id`, `user_id`, `name`, `value`) VALUES (10, 0, 'TBL
 INSERT INTO `user_values` (`id`, `user_id`, `name`, `value`) VALUES (11, 0, 'TBLORDER/schiffe/showjaeger', '0');
 INSERT INTO `user_values` (`id`, `user_id`, `name`, `value`) VALUES (3, 0, 'TBLORDER/uebersicht/box', 'bookmarks');
 INSERT INTO `user_values` (`id`, `user_id`, `name`, `value`) VALUES (4, 0, 'TBLORDER/uebersicht/inttutorial', '5');
+INSERT INTO `user_values` (`id`, `user_id`, `name`, `value`) VALUES (974, 0, 'PMS/signature', '');
