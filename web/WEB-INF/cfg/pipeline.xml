@@ -252,12 +252,12 @@
 		
 		<!--  Module -->
 		
-		<match pattern="(/ds|/main.php|/php/main.php)">
+		<match pattern="(/ds|/main.php)">
 			<execute-module>
 				<urlparameter name="module" />
 			</execute-module>
 		</match>
-		<match pattern="(/ajax.php|/php/ajax.php)">
+		<match pattern="(/ajax.php|ajax)">
 			<execute-module exec-mode="ajax">
 				<urlparameter name="module" />
 				<serializer class="net.driftingsouls.ds2.server.framework.pipeline.serializer.PlainSerializer" />
