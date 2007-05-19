@@ -530,6 +530,10 @@ public class CommController extends DSGenerator implements Loggable {
 			special = getString("special");
 		}
 		
+		if( title.length() > 60 ) {
+			title = title.substring(0,60);
+		}
+		
 		if( special.equals("admin") && (user.getAccessLevel() < 30) ) {
 			special = "";
 		}
@@ -1008,6 +1012,10 @@ public class CommController extends DSGenerator implements Loggable {
 			
 			title = getString("title");
 			special = getString("special");
+		}
+		
+		if( title.length() > 60 ) {
+			title = title.substring(0,60);
 		}
 		
 		if( special.equals("admin") && (user.getAccessLevel() < 30) ) {
