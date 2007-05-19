@@ -366,16 +366,16 @@ class Academy extends DefaultBuilding {
 			
 					
 			if( academy.getInt("train") != 0 ) {
-				t.set_var("offizier.name", Common._plaintitle(Offiziere.LIST.get(academy.getInt("train")).getString("name")));
+				t.set_var("trainoffizier.name", Common._plaintitle(Offiziere.LIST.get(academy.getInt("train")).getString("name")));
 			}
 			else {
 				String[] upgradeData = StringUtils.split(academy.getString("upgrade"), ' ' );
 				Offizier offizier = Offizier.getOffizierByID(Integer.parseInt(upgradeData[0]));
 				
 				t.set_var(
-						"offizier.picture",	offizier.getPicture(),
-						"offizier.id",		offizier.getID(),
-						"offizier.name",	Common._plaintitle(offizier.getName()));
+						"trainoffizier.picture",	offizier.getPicture(),
+						"trainoffizier.id",		offizier.getID(),
+						"trainoffizier.name",	Common._plaintitle(offizier.getName()));
 			}
 
 			allowActions = false;

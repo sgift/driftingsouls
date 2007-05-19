@@ -39,11 +39,11 @@
 {if academy.show.training}
 	 {!table_begin 400,left}
 	 	<span style="font-weight:bold">Bildet aus:</span>
-	 	{if offizier.id}
-	 		<img style="vertical-align:middle" src="{offizier.picture}" alt="" />
-	 		<a class="academy" href="./main.php?module=choff&amp;sess={global.sess}&amp;off={offizier.id}">{offizier.name}</a><br />
+	 	{if trainoffizier.id}
+	 		<img style="vertical-align:middle" src="trainoffizier" alt="" />
+	 		<a class="academy" href="./main.php?module=choff&amp;sess={global.sess}&amp;off={trainoffizier.id}">{trainoffizier.name}</a><br />
 	 	{else}
-		 	{offizier.name}<br />
+		 	{trainoffizier.name}<br />
 		{/endif}
 		<span style="font-weight:bold">Dauer:</span> noch <img align="middle" src="{URL}data/interface/time.gif" alt="" />{training.remain} Runden<br />
 	 {!table_end}
