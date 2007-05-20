@@ -209,7 +209,7 @@ public class MapConnector implements ServerConnectable {
 		
 		nSystem = system;
 		
-		String tmpurl = ServerConnector.getInstance().getServerURL() + "php/main.php?module=mapdata&sess="+ServerConnector.getInstance().getSession()+"&sys=" + system;
+		String tmpurl = ServerConnector.getInstance().getServerURL() + "ds?module=mapdata&sess="+ServerConnector.getInstance().getSession()+"&sys=" + system;
 		if( user != 0 ) {
 			tmpurl += "&forceuser="+user;
 		}

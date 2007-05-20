@@ -53,7 +53,7 @@ public class XMLConnector implements ServerConnectable {
 	 * @throws XMLConnectorException
 	 */
 	public Document fetchStyledURL( String module, String action, String params ) throws XMLConnectorException {
-		return fetchXMLUrl( "php/main.php?module="+module+"&action="+action+"&sess="+ServerConnector.getInstance().getSession()+"&_style=xml"+params );
+		return fetchXMLUrl( "ds?module="+module+"&action="+action+"&sess="+ServerConnector.getInstance().getSession()+"&_style=xml"+params );
 	}
 	
 	/**
@@ -67,7 +67,7 @@ public class XMLConnector implements ServerConnectable {
 	 * @throws XMLConnectorException
 	 */
 	public Document fetchURL( String module, String action, String params ) throws XMLConnectorException {
-		return fetchXMLUrl( "php/main.php?module="+module+"&action="+action+"&sess="+ServerConnector.getInstance().getSession()+params );
+		return fetchXMLUrl( "ds?module="+module+"&action="+action+"&sess="+ServerConnector.getInstance().getSession()+params );
 	}
 	
 	private Document fetchXMLUrl( String addurl ) throws XMLConnectorException  {	
