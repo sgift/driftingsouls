@@ -303,7 +303,7 @@ class Kommandozentrale extends DefaultBuilding {
 		*/
 		if( baction.equals("gtuadd") ) {
 			ResourceID resid = Resources.fromString(context.getRequest().getParameterString("resid"));
-			System.out.println(resid);
+
 			int actid = context.getRequest().getParameterInt("actid");
 			int count = context.getRequest().getParameterInt("count");
 			
