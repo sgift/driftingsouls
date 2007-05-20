@@ -291,6 +291,10 @@ public class KSKapernAction extends BasicKSAction {
 			}
 			sid.free();
 	
+			// TODO: Das Entfernen eines Schiffes aus der Liste sollte in Battle 
+			// durchgefuehrt werden und den Zielindex automatisch anpassen
+			// (durch das Entfernen von Schiffen kann der Zielindex ungueltig geworden sein)
+			
 			// Ein neues Ziel auswaehlen
 			battle.setEnemyShipIndex(battle.getNewTargetIndex());
 			
@@ -312,7 +316,11 @@ public class KSKapernAction extends BasicKSAction {
 				
 				return RESULT_HALT;
 			}
-				
+			
+			if( !battle.isValidTarget() ) {
+				battle.setEnemyShipIndex(battle.getNewTargetIndex());
+			}
+			
 			Ships.recalculateShipStatus(enemyShip.getInt("id"));
 			
 			enemyShip = battle.getEnemyShip();

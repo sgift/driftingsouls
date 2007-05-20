@@ -456,43 +456,74 @@ public class Battle implements Loggable {
 	}
 	
 	/**
+	 * Prueft, ob das aktuell ausgewaehlte gegnerische Schiff ein gueltiges Ziel ist
+	 * (das Schiff also existiert). Bei gueltigen Zielen ist ein aufruf von {@link #getEnemyShip()}
+	 * gefahrlos moeglich.
+	 * @return <code>true</code>, falls das Ziel gueltig ist
+	 */
+	public boolean isValidTarget() {
+		if( this.activeSEnemy >= this.enemyShips.size() ) {
+			return false;
+		}
+		if( this.activeSEnemy < 0 ) {
+			return false;
+		}
+		return true;
+	}
+	
+	/**
 	 * Liefert den Index des naechsten feindlichen Schiffes nach dem aktuell ausgewaehlten. 
 	 * Bevorzugt werden Schiffe gleichen Typs
 	 * @return Der Index des naechsten passenden Schiffes
 	 */
 	public int getNewTargetIndex() {
-		if( this.activeSEnemy < this.enemyShips.size() ) {
-			boolean foundOld = false;
-			
-			SQLResultRow enemyShip = this.enemyShips.get(this.activeSEnemy);
-			
-			// Schiff gleichen Typs hinter dem aktuellen Schiff suchen
-			List<SQLResultRow> enemyShips = getEnemyShips();
+		// Falls das aktuelle Schiff ungueltig, dann das erstbeste in der Liste zurueckgeben
+		if( !this.isValidTarget() ) {
 			for( int i=0; i < enemyShips.size(); i++ ) {
 				SQLResultRow aship = enemyShips.get(i);
-				if( !foundOld && (aship.getInt("id") == enemyShip.getInt("id")) ) {
-					foundOld = true;	
-				}
-				else if( foundOld && (aship.getInt("type") == enemyShip.getInt("type")) && ((aship.getString("docked").length() == 0) || (aship.getString("docked").charAt(0) != 'l')) && (aship.getInt("action") & Battle.BS_DESTROYED) == 0 && (aship.getInt("action") & Battle.BS_SECONDROW) == 0 ) {
+				
+				if( ((aship.getString("docked").length() == 0) || (aship.getString("docked").charAt(0) != 'l')) && (aship.getInt("action") & Battle.BS_DESTROYED) == 0 && (aship.getInt("action") & Battle.BS_SECONDROW) == 0 ) {
 					return i;
 				}
 			}
+			
+			return 0;
+		}
+		
+		boolean foundOld = false;
+			
+		SQLResultRow enemyShip = this.enemyShips.get(this.activeSEnemy);
+		
+		// Schiff gleichen Typs hinter dem aktuellen Schiff suchen
+		List<SQLResultRow> enemyShips = getEnemyShips();
+		for( int i=0; i < enemyShips.size(); i++ ) {
+			SQLResultRow aship = enemyShips.get(i);
+			if( !foundOld && (aship.getInt("id") == enemyShip.getInt("id")) ) {
+				foundOld = true;	
+			}
+			else if( foundOld && (aship.getInt("type") == enemyShip.getInt("type")) && ((aship.getString("docked").length() == 0) || (aship.getString("docked").charAt(0) != 'l')) && (aship.getInt("action") & Battle.BS_DESTROYED) == 0 && (aship.getInt("action") & Battle.BS_SECONDROW) == 0 ) {
+				return i;
+			}
+		}
 	
-			// Schiff gleichen Typs vor dem aktuellen Schiff suchen
-			for( int i=0; i < enemyShips.size(); i++ ) {
-				SQLResultRow aship = enemyShips.get(i);
-				if( aship.getInt("id") == enemyShip.getInt("id") ) {
-					break;
-				}
-				if( (aship.getInt("type") == enemyShip.getInt("type")) && ((aship.getString("docked").length() == 0) || (aship.getString("docked").charAt(0) != 'l')) && (aship.getInt("action") & Battle.BS_DESTROYED) == 0 && (aship.getInt("action") & Battle.BS_SECONDROW) == 0 ) {
-					return i;
-				}
+		// Schiff gleichen Typs vor dem aktuellen Schiff suchen
+		for( int i=0; i < enemyShips.size(); i++ ) {
+			SQLResultRow aship = enemyShips.get(i);
+			if( aship.getInt("id") == enemyShip.getInt("id") ) {
+				break;
+			}
+			if( (aship.getInt("type") == enemyShip.getInt("type")) && ((aship.getString("docked").length() == 0) || (aship.getString("docked").charAt(0) != 'l')) && (aship.getInt("action") & Battle.BS_DESTROYED) == 0 && (aship.getInt("action") & Battle.BS_SECONDROW) == 0 ) {
+				return i;
 			}
 		}
 	
 		// Irgendein nicht gelandetes Schiff suchen
 		for( int i=0; i < enemyShips.size(); i++ ) {
 			SQLResultRow aship = enemyShips.get(i);
+			if( aship.getInt("id") == enemyShip.getInt("id") ) {
+				continue;
+			}
+			
 			if( ((aship.getString("docked").length() == 0) || (aship.getString("docked").charAt(0) != 'l')) && (aship.getInt("action") & Battle.BS_DESTROYED) == 0 && (aship.getInt("action") & Battle.BS_SECONDROW) == 0 ) {
 				return i;
 			}
