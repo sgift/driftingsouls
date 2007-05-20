@@ -305,7 +305,8 @@ public class TransportController extends DSGenerator {
 			}
 
 			if( role == ROLE_TARGET ) {
-				if( data.getString("status").indexOf("disable_iff") > -1 ) {
+				User user = ContextMap.getContext().getActiveUser();
+				if( (data.getString("status").indexOf("disable_iff") > -1) && (data.getInt("owner") != user.getID()) ) {
 					throw new Exception("Zu dem angegebenen Schiff (id:"+data.getInt("id")+") k&ouml;nnen sie keine Waren transportieren");
 				}
 			}
