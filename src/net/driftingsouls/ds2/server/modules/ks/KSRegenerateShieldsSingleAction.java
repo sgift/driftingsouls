@@ -101,7 +101,7 @@ public class KSRegenerateShieldsSingleAction extends BasicKSAction {
 		if( curShields > ownShipType.getInt("shields") ) {
 			curShields = ownShipType.getInt("shields");
 		}
-		db.query("UPDATE battles_ships SET shields=",curShields," WHERE shipid=",ownShip.getInt("id"));
+		db.update("UPDATE battles_ships SET shields=",curShields," WHERE shipid=",ownShip.getInt("id"));
 
 		battle.setPoints(battle.getOwnSide(), battle.getPoints(battle.getOwnSide())-1);
 
