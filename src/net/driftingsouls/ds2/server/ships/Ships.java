@@ -893,7 +893,12 @@ public class Ships implements Loggable {
 			SQLResultRow shiptype = ShipTypes.getShipType(fleetship);
 			
 			MovementResult result = moveSingle(fleetship, shiptype, offizierf, direction, 1, fleetship.getInt("adockedcount"), forceLowHeat);
-			error = result.error;
+			
+			//Einen einmal gesetzten Fehlerstatus nicht wieder aufheben
+			if(!error)
+			{
+				error = result.error;
+			}
 			
 			if( result.distance == 0 ) {
 				error = true;
