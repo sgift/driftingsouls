@@ -36,7 +36,7 @@ public class ResourceList implements Iterable<ResourceEntry>, Iterator<ResourceE
 	 * @author Christopher Jung
 	 *
 	 */
-	private class IDComparator implements Comparator<ResourceEntry> {
+	private static class IDComparator implements Comparator<ResourceEntry> {
 		private ResourceIDComparator comp;
 		IDComparator(boolean descending) {
 			this.comp = new ResourceIDComparator(descending);
@@ -53,7 +53,7 @@ public class ResourceList implements Iterable<ResourceEntry>, Iterator<ResourceE
 	 * @author Christopher Jung
 	 *
 	 */
-	private class CargoComparator implements Comparator<ResourceEntry> {
+	private static class CargoComparator implements Comparator<ResourceEntry> {
 		private boolean descending;
 		
 		CargoComparator(boolean descending) {

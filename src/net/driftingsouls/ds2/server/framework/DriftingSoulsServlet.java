@@ -101,13 +101,19 @@ public class DriftingSoulsServlet extends HttpServlet {
 		@Override
 		public Object clone() throws CloneNotSupportedException {
 			try {
-				return new ModuleSetting(generator.getName(), transformer.getName(), serializer.getName());
+				ModuleSetting setting = (ModuleSetting)super.clone();
+				setting.generator = this.generator;
+				setting.transformer = this.transformer;
+				setting.serializer = this.serializer;
+				
+				return setting;
 			}
 			catch( Exception e ) {
 				// Should not happen
 				e.printStackTrace();
+				
+				throw new CloneNotSupportedException();
 			}
-			return null;
 		}
 		
 		@Override

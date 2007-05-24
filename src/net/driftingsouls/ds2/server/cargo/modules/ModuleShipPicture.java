@@ -45,7 +45,7 @@ public class ModuleShipPicture extends Module {
 			return false;	
 		}
 		
-		if( this.picture != data ) {
+		if( !this.picture.equals(data) ) {
 			return false;	
 		}
 		return true;

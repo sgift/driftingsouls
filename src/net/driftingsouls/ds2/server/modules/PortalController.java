@@ -334,7 +334,7 @@ class PortalController extends DSGenerator {
 		getTemplateEngine().set_var("show.javachat",1);
 	}
 	
-	private class StartLocations {
+	private static class StartLocations {
 		int systemID;
 		int orderLocationID;
 		HashMap<Integer,StartLocation> minSysDistance;
@@ -346,7 +346,7 @@ class PortalController extends DSGenerator {
 		}
 	}
 	
-	private class StartLocation {
+	private static class StartLocation {
 		int orderLocationID;
 		int distance;
 

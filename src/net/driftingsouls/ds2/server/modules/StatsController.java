@@ -70,7 +70,7 @@ public class StatsController extends DSGenerator {
 	 */
 	public static final int MAX_RESID = 100;
 	
-	private class StatEntry {
+	private static class StatEntry {
 		Statistic stat;
 		String name;
 		int width;

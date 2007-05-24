@@ -81,7 +81,7 @@ class Waffenfabrik extends DefaultBuilding {
 		Waffenfabrik.ammolist = ammolist;
 	}
 	
-	private class ContextVars {
+	private static class ContextVars {
 		Map<Integer,SQLResultRow> ownerammobase = new HashMap<Integer,SQLResultRow>();
 		Map<Integer,Cargo> stats = new HashMap<Integer,Cargo>();
 		Map<Integer,BigDecimal> usedcapacity = new HashMap<Integer,BigDecimal>();

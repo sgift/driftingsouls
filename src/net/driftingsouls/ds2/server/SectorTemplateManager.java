@@ -57,7 +57,7 @@ public class SectorTemplateManager {
 		return instance;
 	}
 
-	private class DockEntry {
+	private static class DockEntry {
 		String docked;
 		int shipid;
 
@@ -67,7 +67,7 @@ public class SectorTemplateManager {
 		}
 	}
 	
-	private class FleetEntry {
+	private static class FleetEntry {
 		int fleetid;
 		int shipid;
 

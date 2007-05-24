@@ -35,7 +35,7 @@ public class JumpNodeRouter {
 	/**
 	 * Eine Route zwischen zwei Systemen
 	 */
-	public class Result {
+	public static class Result {
 		/**
 		 * Die Distanz
 		 */
@@ -45,6 +45,7 @@ public class JumpNodeRouter {
 		 */
 		public List<SQLResultRow> path = new ArrayList<SQLResultRow>();
 	}
+	
 	private Map<Integer,Integer> systemInterestLevel = new HashMap<Integer,Integer>();
 	private Map<Integer,List<SQLResultRow>> jnlist = new HashMap<Integer,List<SQLResultRow>>();
 	

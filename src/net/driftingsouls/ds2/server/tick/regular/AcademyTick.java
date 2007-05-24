@@ -75,6 +75,7 @@ public class AcademyTick extends TickController {
 						}
 						namecache.get(race.getID()).add(tmp);
 					}
+					in.close();
 				}
 				catch( Exception e ) {
 					log("FEHLER: Laden der Offiziersnamen nicht moeglich");

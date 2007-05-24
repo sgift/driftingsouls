@@ -391,7 +391,7 @@ public class ScriptParser {
 		return current;
 	}
 	
-	private class TermElement {
+	private static class TermElement {
 		char operator;
 		String current;
 		

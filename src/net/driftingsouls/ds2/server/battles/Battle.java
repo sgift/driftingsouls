@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
@@ -600,8 +601,9 @@ public class Battle implements Loggable {
 		data.put("lastturn", this.lastturn);
 		data.put("flags", this.flags);
 		
-		for( String key : data.keySet() ) {
-			Object element = data.get(key);
+		for( Entry<String,Object> entry : data.entrySet() ) {
+			Object element = entry.getValue();
+			String key = entry.getKey();
 			if( ((element != null) && !element.equals(this.tableBuffer.get(key))) || (this.tableBuffer.get(key) != null) ) {
 				update.add(key+"= ? ");
 				updateData.add(element);

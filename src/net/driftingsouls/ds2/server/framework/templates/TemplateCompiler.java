@@ -484,7 +484,7 @@ public class TemplateCompiler {
 		return Pattern.compile("\\{([^\\}^\\s^\\?]+)\\}").matcher(block).replaceAll("\\\"); str.append(templateEngine.getVar(\"$1\")); str.append(\\\"");
 	}
 	
-	private class CompiledBlock {
+	private static class CompiledBlock {
 		/**
 		 * Der Name des Blocks
 		 */
@@ -668,7 +668,7 @@ public class TemplateCompiler {
 		for( int i=0; i < result.size(); i++ ) {
 			CompiledBlock block = result.get(i);
 			
-			newfile.append("\tclass "+StringUtils.replace(block.name, ".", "")+" implements TemplateBlock {\n");
+			newfile.append("\tstatic class "+StringUtils.replace(block.name, ".", "")+" implements TemplateBlock {\n");
 			newfile.append("\t\tpublic String[] getBlockVars(boolean all) {\n");
 			newfile.append("\t\t\tif( !all ) {\n");
 			
@@ -783,7 +783,7 @@ public class TemplateCompiler {
 		for( int i=0; i < files.length; i++ ) {
 			if( files[i].getName().indexOf(".html") != -1 ) {
 				String file = files[i].getAbsolutePath();
-				String baseFileName = file.substring(file.toString().lastIndexOf("/")+1, file.lastIndexOf(".html"));
+				String baseFileName = file.substring(file.lastIndexOf("/")+1, file.lastIndexOf(".html"));
 				String bfname = StringUtils.replace(baseFileName, ".", "");
 				File compiledFile = new File(outputPath+"/"+bfname+".java");
 				if( !compiledFile.exists() || (compiledFile.lastModified() < files[i].lastModified()) ) {

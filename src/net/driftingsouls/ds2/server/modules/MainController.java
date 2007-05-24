@@ -67,7 +67,7 @@ public class MainController extends DSGenerator {
 		User user = getUser();
 		StringBuffer out = getContext().getResponse().getContent();
 		
-		if( user.getUserImagePath() != User.getDefaultImagePath(getDatabase()) ) {
+		if( !user.getUserImagePath().equals(User.getDefaultImagePath(getDatabase())) ) {
 			parameterNumber("gfxpakversion");
 			int gfxpakversion = getInteger("gfxpakversion");
 			

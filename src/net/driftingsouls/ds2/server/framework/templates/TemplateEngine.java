@@ -131,7 +131,9 @@ public class TemplateEngine implements Loggable {
 					templateMap.put(overlay+'.'+filename, t);
 					gotTemplate = true;
 				}
-				catch( Exception e ) {}
+				catch( Exception e ) {
+					// EMPTY
+				}
 			}
 			if( !gotTemplate ) {
 				try {

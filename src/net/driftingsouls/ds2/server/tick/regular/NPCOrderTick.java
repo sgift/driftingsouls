@@ -83,6 +83,7 @@ public class NPCOrderTick extends TickController {
 					while( (tmp = in.readLine()) != null ) {
 						offinamelist.get(race.getID()).add(tmp);
 					}
+					in.close();
 				}
 				catch( Exception e ) {
 					log("FEHLER: Laden der Offiziersnamen nicht moeglich");

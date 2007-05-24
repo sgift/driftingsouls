@@ -154,7 +154,7 @@ public class User implements Loggable {
 	 * @author Christopher Jung
 	 *
 	 */
-	public class Relations {
+	public static class Relations {
 		/**
 		 * Die Beziehungen des Spielers zu anderen Spielern.
 		 * Schluessel ist die Spieler-ID

@@ -117,6 +117,7 @@ public class AdminController extends DSGenerator {
 					
 					addMenuEntry(aClass, adminMenuEntry.category(), adminMenuEntry.name());
 				}
+				reader.close();
 			}	
 		}
 		catch( IOException e ) {

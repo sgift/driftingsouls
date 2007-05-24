@@ -370,7 +370,7 @@ public class ScanController extends DSGenerator {
 		}
 	}
 
-	private class BaseEntry {
+	private static class BaseEntry {
 		BaseEntry() {
 			// EMPTY
 		}

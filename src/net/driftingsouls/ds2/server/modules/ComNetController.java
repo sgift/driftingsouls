@@ -46,7 +46,7 @@ public class ComNetController extends DSGenerator {
 	 * Repraesentiert einen ComNet-Kanal
 	 *
 	 */
-	private class Channel {
+	private static class Channel {
 		final int id;
 		final int allyOwner;
 		final String name;
