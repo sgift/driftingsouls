@@ -1101,7 +1101,9 @@ public class Battle implements Loggable {
 			iter.free();
 		}
 		
-		UserIterator iter = context.createUserIterator("SELECT DISTINCT u.* FROM (users u JOIN ships s ON u.id=s.owner) JOIN battles_ships bs ON s.id=bs.shipid WHERE bs.side=",this.enemySide);
+		UserIterator iter = context.createUserIterator("SELECT DISTINCT u.* " +
+				"FROM (users u JOIN ships s ON u.id=s.owner) JOIN battles_ships bs ON s.id=bs.shipid " +
+				"WHERE bs.battleid="+this.id+" AND bs.side=",this.enemySide);
 		for( User euser : iter ) {
 			enemyUsers.add(euser);
 
@@ -1970,7 +1972,39 @@ public class Battle implements Loggable {
 			}
 		}
 
-		int side = db.first("SELECT side FROM battles_ships WHERE shipid=",ship.getInt("id")).getInt("side");
+		SQLResultRow side = db.first("SELECT side FROM battles_ships WHERE shipid=",ship.getInt("id"));
+		if( side.isEmpty() ) {
+			// Es kann vorkommen, dass das Schiff bereits entfernt wurde (wegen einer dock-Beziehung)
+			return;
+		}
+		
+		// Falls das Schiff an einem anderen Schiff gedockt ist, dann das 
+		// Elternschiff fliehen lassen. Dieses kuemmert sich dann um die
+		// gedockten Schiffe
+		if( ship.getString("docked").length() > 0 ) {
+			int masterid = 0;
+			if( ship.getString("docked").charAt(0) == 'l' ) {
+				masterid = Integer.parseInt(ship.getString("docked").substring(2));
+			}
+			else {
+				masterid = Integer.parseInt(ship.getString("docked"));
+			}
+			
+			List<SQLResultRow> shiplist = this.ownShips;
+			if( side.getInt("side") != this.ownSide ) {
+				shiplist = this.enemyShips;
+			}
+			
+			for( int i=0; i < shiplist.size(); i++ ) {
+				SQLResultRow aship = shiplist.get(i);
+				
+				if( aship.getInt("id") == masterid ) {
+					removeShip(aship, relocate);
+					return;
+				}
+			}
+		}
+		
 		int dockcount = db.first("SELECT count(*) count FROM ships WHERE docked IN ('l ",ship.getInt("id"),"','",ship.getInt("id"),"')").getInt("count");
 		
 		db.update("UPDATE ships SET battle=0,battleAction=0,x=",loc.getX(),",y=",loc.getY()," WHERE id>0 AND id=",ship.getInt("id"));
@@ -1985,7 +2019,7 @@ public class Battle implements Loggable {
 		boolean found = false;
 		List<SQLResultRow> shiplist = this.ownShips;
 		
-		if( side != this.ownSide ) {
+		if( side.getInt("side") != this.ownSide ) {
 			shiplist = this.enemyShips;
 		}
 		
@@ -2018,10 +2052,10 @@ public class Battle implements Loggable {
 			}
 		}
 		
-		if( (side == this.enemySide) && ((this.activeSEnemy >= shiplist.size()) || shiplist.get(this.activeSEnemy).isEmpty()) ) {
+		if( (side.getInt("side") == this.enemySide) && ((this.activeSEnemy >= shiplist.size()) || shiplist.get(this.activeSEnemy).isEmpty()) ) {
 			this.activeSEnemy = 0;
 		}
-		else if( (side == this.ownSide) && ((this.activeSOwn >= shiplist.size()) || shiplist.get(this.activeSOwn).isEmpty()) ) {
+		else if( (side.getInt("side") == this.ownSide) && ((this.activeSOwn >= shiplist.size()) || shiplist.get(this.activeSOwn).isEmpty()) ) {
 			this.activeSOwn = 0;
 		}
 	}
