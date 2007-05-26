@@ -1774,12 +1774,16 @@ public class Battle implements Loggable {
 		return true;
 	}
 	
+	private static Object LOG_WRITE_LOCK = new Object();
+	
 	/**
 	 * Schreibt das aktuelle Kampflog in die Logdatei
 	 */
 	public void writeLog() {
 		if( (this.ownShips.size() > 0) && (this.enemyShips.size() > 0) ) {
-			Common.writeLog("battles/battle_id"+this.id+".log", this.getEnemyLog(true));
+			synchronized(LOG_WRITE_LOCK) {
+				Common.writeLog("battles/battle_id"+this.id+".log", this.getEnemyLog(true));
+			}
 		}
 		
 		Database db = ContextMap.getContext().getDatabase();
