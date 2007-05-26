@@ -328,7 +328,7 @@ class Kommandozentrale extends DefaultBuilding {
 		if( baction.equals("gtudel") ) {
 			String gtuact = context.getRequest().getParameterString("gtuact");
 			
-			if( gtuact.length() == 0 ) {
+			if( gtuact.length() != 0 ) {
 				List<AutoGTUAction> autoactlist = base.getAutoGTUActs();
 				
 				for( AutoGTUAction autoact : autoactlist ) {
