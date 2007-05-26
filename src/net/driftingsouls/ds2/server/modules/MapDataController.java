@@ -273,7 +273,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 			}
 			aship.free();
 		
-			if( nebel.isEmpty() ) {
+			if( !nebel.isEmpty() ) {
 				echo.append("</sector>\n");
 				return;
 			}

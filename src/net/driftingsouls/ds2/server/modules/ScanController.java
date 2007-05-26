@@ -604,7 +604,7 @@ public class ScanController extends DSGenerator {
 						else if( basemap.containsKey(loc) ) {
 							BaseEntry entry = basemap.get(loc);
 							if( entry.size > 0 ) {
-								t.set_var(	"map.image",		"kolonie"+entry.klasse+"_lrs/kolonie"+entry.klasse+"_lrs"+entry.imgcount,
+								t.set_var(	"map.image",		"kolonie"+entry.klasse+"/kolonie"+entry.klasse+"_lrs"+entry.imgcount,
 											"map.image.name",	"Asteroid" );
 							}
 							else if( entry.owner == user.getID() ) {
