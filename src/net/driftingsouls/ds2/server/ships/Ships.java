@@ -1830,6 +1830,11 @@ public class Ships implements Loggable {
 			}
 		}
 		tarShip.free();
+		
+		if( tarShipList.isEmpty() ) {
+			outputbuffer.append("<span style=\"color:red\">Fehler: Keine passenden Schiffe gefunden</span><br />\n");
+			return true;
+		}
 	
 		if( (mode == DockMode.DOCK) && (shiptype.getInt("adocks") < docked.size()+tarShipList.size())  ) {
 			outputbuffer.append("<span style=\"color:red\">Fehler: Nicht gen&uuml;gend freier Andockplatz vorhanden</span><br />\n");
