@@ -2073,7 +2073,7 @@ public class Ships implements Loggable {
 						int date = Integer.parseInt(
 								lastHistory.substring(
 										length,
-										endIndex-length
+										endIndex
 								)
 						);
 						
