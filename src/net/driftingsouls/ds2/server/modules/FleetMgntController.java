@@ -302,6 +302,11 @@ public class FleetMgntController extends DSGenerator {
 		}
 		s.free();
 		
+		if( shiplist.isEmpty() ) {
+			t.set_var("fleetmgnt.message", "Es gibt nicht genug Schiffe im Sektor" );
+			return;
+		}
+		
 		db.update("UPDATE ships SET fleet='",fleet.getInt("id"),"' WHERE id IN (",Common.implode(",",shiplist),")");
 		
 		t.set_var(	"fleetmgnt.message",	count+" Schiffe der Flotte hinzugef&uuml;gt",
