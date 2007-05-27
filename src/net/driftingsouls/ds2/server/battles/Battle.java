@@ -1817,6 +1817,12 @@ public class Battle implements Loggable {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 		
+		SQLResultRow row = db.first("SELECT id FROM battles WHERE id="+this.id);
+		if( row.isEmpty() ) {
+			LOG.warn("Mehrfacher Aufruf von Battle.endBattle festgestellt", new Throwable());
+			return;
+		}
+		
 		if( executeScripts ) {
 			String onendhandler = db.first("SELECT onend FROM battles WHERE id=",this.id).getString("onend");
 			if( onendhandler.length() > 0 ) {			
