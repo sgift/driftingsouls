@@ -2059,15 +2059,16 @@ public class Ships implements Loggable {
 		}
 		
 		// History analysieren (Alle Schiffe die erst kuerzlich uebergeben wurden, haben kein Loot)
+		// TODO: Das funktioniert im Moment nur, weil im Log nur Uebergaben stehen...
 		String[] history = StringUtils.split(ship.getString("history").trim(), '\n');
 		if( history.length > 0 ) {
 			String lastHistory = history[history.length-1].trim();
 			
+			final int length = "&Uuml;bergeben am [tick=".length();
+			
 			if( lastHistory.startsWith("&Uuml;bergeben am [tick=") ) {
-				int endIndex = lastHistory.lastIndexOf("] an ");
-				if( endIndex > -1 ) {
-					final int length = "&Uuml;bergeben am [tick=".length();
-				
+				int endIndex = lastHistory.indexOf("] an ",length);
+				if( endIndex > -1 ) {				
 					try {
 						int date = Integer.parseInt(
 								lastHistory.substring(
@@ -2081,7 +2082,7 @@ public class Ships implements Loggable {
 						}
 					}
 					catch( StringIndexOutOfBoundsException e ) {
-						LOG.warn("[Ships.generateLoot] Fehler beim Parsen des Schiffshistoryeintrags '"+lastHistory+"'");
+						LOG.warn("[Ships.generateLoot] Fehler beim Parsen des Schiffshistoryeintrags '"+lastHistory+"' - "+length+", "+endIndex);
 					}
 				}
 				else {
