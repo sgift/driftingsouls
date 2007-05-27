@@ -629,7 +629,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 						continue;
 					}
 					
-					if( Math.round(Math.sqrt(Math.pow(loc.getY()-sLoc.getY(),2)+Math.pow(loc.getX()-loc.getX(),2))) > range )  {
+					if( Math.round(Math.sqrt(Math.pow(loc.getY()-sLoc.getY(),2)+Math.pow(loc.getX()-sLoc.getX(),2))) > range )  {
 						continue;
 					}
 					
