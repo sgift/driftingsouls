@@ -160,7 +160,11 @@ public class RestTick extends TickController {
 			}
 			iter.free();
 			
-			db.update("UPDATE users SET name=CONCAT(name,' [VAC]'),nickname=CONCAT(nickname,' [VAC]') WHERE wait4vac=1");
+			// TODO: Eine bessere Loesung fuer den Fall finden, wenn der Name mehr als 249 Zeichen lang ist
+			db.update("UPDATE users " +
+					"SET name=CONCAT(CASE WHEN CHAR_LENGTH(name) > 249 THEN SUBSTR(name,1,249) ELSE name END,' [VAC]')," +
+						"nickname=CONCAT(CASE WHEN CHAR_LENGTH(nickname) > 249 THEN SUBSTR(nickname,1,249) ELSE nickname END,' [VAC]') " +
+					"WHERE wait4vac=1");
 			this.log("\t"+db.affectedRows()+" Spieler sind in den VAC-Modus gewechselt");
 			db.update("UPDATE users SET wait4vac=wait4vac-1 WHERE wait4vac>0");
 		}
