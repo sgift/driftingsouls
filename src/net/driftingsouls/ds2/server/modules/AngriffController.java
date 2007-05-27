@@ -388,6 +388,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 			String msgbuffer = battle.getComMessageBuffer(battle.getOwnSide());
 			msgbuffer = StringUtils.replace(msgbuffer, "<![CDATA[", "");
 			msgbuffer = StringUtils.replace(msgbuffer, "]]>","");
+			msgbuffer = StringUtils.replace(msgbuffer, "<br />", "\n");
 			msgbuffer = Common._stripHTML(msgbuffer);
 			
 			t.set_var( "battle.msg", StringUtils.replace(bbcodeparser.parse(msgbuffer), "\n", "<br />") );
