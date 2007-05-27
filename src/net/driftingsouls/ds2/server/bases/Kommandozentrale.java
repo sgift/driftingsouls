@@ -340,7 +340,7 @@ class Kommandozentrale extends DefaultBuilding {
 					}
 				}
 				
-				db.update("UPDATE bases SET autogtuacts='"+Common.implode("|", autoactlist)+"' WHERE id='"+base.getID()+"'");
+				db.update("UPDATE bases SET autogtuacts='"+Common.implode(";", autoactlist)+"' WHERE id='"+base.getID()+"'");
 			}
 		}
 
