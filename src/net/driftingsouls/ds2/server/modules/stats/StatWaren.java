@@ -140,7 +140,12 @@ public class StatWaren implements Statistic, Loggable {
 					// Positionstyp Schiff
 					case 's':
 						if( !shipnamecache.containsKey(objectid) ) {
-							shipnamecache.put(objectid, Common._plaintitle(db.first("SELECT name FROM ships WHERE id=",objectid).getString("name")));
+							SQLResultRow ship = db.first("SELECT name FROM ships WHERE id=",objectid);
+							if( ship.isEmpty() ) {
+								tooltip.append("</tr>");
+								continue;
+							}
+							shipnamecache.put(objectid, Common._plaintitle(ship.getString("name")));
 						}
 						tooltip.append(shipimage+"<td class='noBorderX'>" +
 								"<a style='font-size:14px' class='forschinfo' " +
