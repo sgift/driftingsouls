@@ -296,7 +296,7 @@ public class KSKapernAction extends BasicKSAction {
 			// (durch das Entfernen von Schiffen kann der Zielindex ungueltig geworden sein)
 			
 			// Ein neues Ziel auswaehlen
-			battle.setEnemyShipIndex(battle.getNewTargetIndex());
+			//battle.setEnemyShipIndex(battle.getNewTargetIndex());
 			
 			List<SQLResultRow> enemyShips = battle.getEnemyShips();
 			for( int i=0; i < enemyShips.size(); i++ ) {
