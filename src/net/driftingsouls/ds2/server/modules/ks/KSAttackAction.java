@@ -691,14 +691,14 @@ public class KSAttackAction extends BasicKSAction {
 		
 		Map<String,String> eweapons = Weapons.parseWeaponList(enemyShipType.getString("weapons"));
 				
-		int antitorptrefferws = 1;
+		double antitorptrefferws = 1;
 		Map<String,SQLResultRow> ammocache = new HashMap<String,SQLResultRow>();
 				
 		for( String wpn : eweapons.keySet() ) {
 			int count = Integer.parseInt(eweapons.get(wpn));
 			
 			if( Weapons.get().weapon(wpn).getTorpTrefferWS() != 0 ) {
-				antitorptrefferws *= Math.pow(1-(Weapons.get().weapon(wpn).getTorpTrefferWS()/100),count);
+				antitorptrefferws *= Math.pow(1-(Weapons.get().weapon(wpn).getTorpTrefferWS()/100d),count);
 			}
 			else if( !Weapons.get().weapon(wpn).getAmmoType().equals("none") && !Weapons.get().weapon(wpn).hasFlag(Weapon.Flags.AMMO_SELECT) ) {
 				if( !ammocache.containsKey(Weapons.get().weapon(wpn).getAmmoType()) ) {
@@ -708,15 +708,15 @@ public class KSAttackAction extends BasicKSAction {
 									"WHERE type='",Weapons.get().weapon(wpn).getAmmoType(),"'")
 					);
 				}
-				antitorptrefferws *= Math.pow(1-(ammocache.get(Weapons.get().weapon(wpn).getAmmoType()).getInt("torptrefferws"))/100,count);
+				antitorptrefferws *= Math.pow(1-(ammocache.get(Weapons.get().weapon(wpn).getAmmoType()).getInt("torptrefferws"))/100d,count);
 			}
 		}	
 		antitorptrefferws = 1 - antitorptrefferws;
 		antitorptrefferws *= 100;
-		antitorptrefferws *= (this.enemyShip.getInt("weapons")/100);
+		antitorptrefferws *= (this.enemyShip.getInt("weapons")/100d);
 		antitorptrefferws /= this.localweapon.getDouble("destroyable");
 		
-		return antitorptrefferws;	
+		return (int)antitorptrefferws;	
 	}
 	
 	private int getFighterDefense( Battle battle ) {
