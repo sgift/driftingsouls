@@ -107,6 +107,8 @@
 			   debug="${compile.debug}"
 			   deprecation="${compile.deprecation}"
 			   optimize="${compile.optimize}"
+			   source="1.5"
+			   target="1.5"
 				includes="**/server/framework/**">
 			<classpath refid="compile.classpath"/>
 		</javac>		
@@ -118,6 +120,8 @@
 				   debug="${compile.debug}"
 				   deprecation="${compile.deprecation}"
 				   optimize="${compile.optimize}"
+				   source="1.5"
+				   target="1.5"
 					encoding="UTF-8"
 					includes="**/server/templates/**">
 				<classpath refid="compile.classpath"/>
@@ -130,6 +134,8 @@
 			   debug="${compile.debug}"
 			   deprecation="${compile.deprecation}"
 			   optimize="${compile.optimize}"
+			   source="1.5"
+			   target="1.5"
 				excludes="**/server/templates/**,**/server/framework/**">
 			<classpath refid="compile.classpath"/>
 		</javac>
@@ -143,6 +149,8 @@
 			   destdir="${build.home}/java/jstarmap/classes"
 			   debug="${compile.debug}"
 			   deprecation="${compile.deprecation}"
+			   source="1.5"
+			   target="1.5"
 			   optimize="${compile.optimize}">
 			<classpath refid="compile.classpath"/>
 		</javac>
