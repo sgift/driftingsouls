@@ -222,27 +222,27 @@ public class QuestsHandler implements AdminPlugin {
 						db.query("INSERT INTO sectors (system,x,y,onenter) VALUES ("+loc.getSystem()+","+loc.getX()+","+loc.getY()+",'"+handler+"')");
 					}
 					else {
-						db.query("UPDATE sectors SET onenter='"+handler+"' WHERE system="+loc.getSystem()+" AND x="+loc.getX()+" AND y="+loc.getY());
+						db.update("UPDATE sectors SET onenter='"+handler+"' WHERE system="+loc.getSystem()+" AND x="+loc.getX()+" AND y="+loc.getY());
 					}
 				}
 				else {
-					db.query("DELETE FROM sectors WHERE system="+loc.getSystem()+" AND x="+loc.getX()+" AND y="+loc.getY());
+					db.update("DELETE FROM sectors WHERE system="+loc.getSystem()+" AND x="+loc.getX()+" AND y="+loc.getY());
 				}	
 			}
 			else if( event.equals("ontick_rquest") ) {
 				if( handler.length() != 0 ) {
-					db.query("UPDATE quests_running SET ontick='"+handler+"' WHERE id="+Integer.parseInt(oid));
+					db.update("UPDATE quests_running SET ontick='"+handler+"' WHERE id="+Integer.parseInt(oid));
 				}
 				else {
-					db.query("UPDATE quests_running SET ontick=NULL WHERE id="+Integer.parseInt(oid));
+					db.update("UPDATE quests_running SET ontick=NULL WHERE id="+Integer.parseInt(oid));
 				}
 			}
 			else if( event.equals("onendbattle") ) {
 				if( handler.length() != 0 ) {
-					db.query("UPDATE battles SET onend='"+handler+"' WHERE id="+Integer.parseInt(oid));
+					db.update("UPDATE battles SET onend='"+handler+"' WHERE id="+Integer.parseInt(oid));
 				}
 				else {
-					db.query("UPDATE battles SET onend=NULL WHERE id="+Integer.parseInt(oid));
+					db.update("UPDATE battles SET onend=NULL WHERE id="+Integer.parseInt(oid));
 				}	
 			}
 			else {

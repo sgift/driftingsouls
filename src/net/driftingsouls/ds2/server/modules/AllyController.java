@@ -849,9 +849,9 @@ public class AllyController extends DSGenerator implements Loggable {
 	
 			SQLQuery chn = db.query("SELECT id FROM skn_channels WHERE allyowner=",this.ally.getInt("id"));
 			while( chn.next() ) {
-				db.query("DELETE FROM skn WHERE channel=",chn.getInt("id"));
-				db.query("DELETE FROM skn_visits WHERE channel=",chn.getInt("id"));
-				db.query("DELETE FROM skn_channels WHERE id=",chn.getInt("id"));
+				db.update("DELETE FROM skn WHERE channel=",chn.getInt("id"));
+				db.update("DELETE FROM skn_visits WHERE channel=",chn.getInt("id"));
+				db.update("DELETE FROM skn_channels WHERE id=",chn.getInt("id"));
 			}
 			chn.free();
 			
@@ -866,8 +866,8 @@ public class AllyController extends DSGenerator implements Loggable {
 			}
 			uid.free();
 			
-			db.query("DELETE FROM ally_posten WHERE ally=",this.ally.getInt("id"));
-			db.query("DELETE FROM ally WHERE id=",this.ally.getInt("id"));
+			db.update("DELETE FROM ally_posten WHERE ally=",this.ally.getInt("id"));
+			db.update("DELETE FROM ally WHERE id=",this.ally.getInt("id"));
 			db.tCommit();
 		
 			t.set_var( "ally.statusmessage", "Die Allianz wurde aufgel&ouml;st" );
