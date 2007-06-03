@@ -103,7 +103,7 @@ public class NPCOrderController extends DSGenerator {
 			Task task = tasks[0];
 			
 			String status = "";
-			if( task.getData3().equals("2") ) {
+			if( task.getData3().equals("1") ) {
 				status = "verschiebt gany";
 			}
 			else if( task.getData3().equals("2") ) {
