@@ -219,7 +219,7 @@ public class QuestsHandler implements AdminPlugin {
 				if( handler.length() != 0 ) {
 					SQLResultRow myx = db.first("SELECT x FROM sectors WHERE system="+loc.getSystem()+" AND x="+loc.getX()+" AND y="+loc.getY());
 					if( myx.isEmpty() ) {
-						db.query("INSERT INTO sectors (system,x,y,onenter) VALUES ("+loc.getSystem()+","+loc.getX()+","+loc.getY()+",'"+handler+"')");
+						db.update("INSERT INTO sectors (system,x,y,onenter) VALUES ("+loc.getSystem()+","+loc.getX()+","+loc.getY()+",'"+handler+"')");
 					}
 					else {
 						db.update("UPDATE sectors SET onenter='"+handler+"' WHERE system="+loc.getSystem()+" AND x="+loc.getX()+" AND y="+loc.getY());
