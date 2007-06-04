@@ -297,7 +297,14 @@ public class Database implements Loggable {
 			tStatus = true;
 			debugTransaction = debugtransact;
 			
-			update("START TRANSACTION");
+		
+			try {
+				connection.setAutoCommit(false);
+			}
+			catch( SQLException e ) {
+				e.printStackTrace();
+				throw new SQLRuntimeException(e);
+			}
 		}
 	}
 	
@@ -329,7 +336,14 @@ public class Database implements Loggable {
 	 *
 	 */
 	public void tRollback() {
-		update("ROLLBACK");
+		try {
+			connection.rollback();
+			connection.setAutoCommit(true);
+		}
+		catch( SQLException e ) {
+			e.printStackTrace();
+			throw new SQLRuntimeException(e);
+		}
 		transaction = false;
 	}
 	
@@ -341,7 +355,14 @@ public class Database implements Loggable {
 	 */
 	public boolean tCommit() {
 		if( tStatus == true ) {
-			update("COMMIT");
+			try {
+				connection.commit();
+				connection.setAutoCommit(true);
+			}
+			catch( SQLException e ) {
+				e.printStackTrace();
+				throw new SQLRuntimeException(e);
+			}
 		}
 		else {
 			tRollback();	
