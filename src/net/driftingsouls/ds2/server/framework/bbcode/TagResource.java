@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.framework.bbcode;
 
+import java.util.Iterator;
+
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
@@ -83,26 +85,31 @@ class TagResource implements BBCodeFunction {
 			}
 			cargo.setOption( Cargo.Option.SHOWMASS, false );
 	
-			ResourceList reslist = cargo.getResourceList();
-			ResourceEntry res = reslist.iterator().next();
-			
 			StringBuilder tmpString = new StringBuilder(30);
-	
-			if( count != 0 ) {
-				tmpString.append(Common.ln(count));
-				tmpString.append("x ");
-			}
-	
-			if( format.indexOf('i') != -1 ) {
-				tmpString.append("<img align=\"middle\" border=\"0\" src=\"");
-				tmpString.append(res.getImage());
-				tmpString.append("\" alt=\"\" />");
-			}
-	
-			if( format.indexOf('n') != -1 ) {
-				tmpString.append(res.getName());
-			}
 			
+			ResourceList reslist = cargo.getResourceList();
+			Iterator<ResourceEntry> iter = reslist.iterator();
+			if( iter.hasNext() ) {
+				ResourceEntry res = iter.next();
+		
+				if( count != 0 ) {
+					tmpString.append(Common.ln(count));
+					tmpString.append("x ");
+				}
+		
+				if( format.indexOf('i') != -1 ) {
+					tmpString.append("<img align=\"middle\" border=\"0\" src=\"");
+					tmpString.append(res.getImage());
+					tmpString.append("\" alt=\"\" />");
+				}
+		
+				if( format.indexOf('n') != -1 ) {
+					tmpString.append(res.getName());
+				}
+			}
+			else {
+				tmpString.append("Fehlerhafte Resource '"+rid+"'");
+			}
 
 			return tmpString.toString();
 		}
