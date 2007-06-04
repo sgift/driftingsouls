@@ -263,6 +263,8 @@
 				nodes[i].style.backgroundImage = oldHoverStyles['ordner']['bgimage'];
 			}
 		}
+		
+		var draggablePms = new Array();
 	// -->
 	</script>
 
@@ -363,7 +365,7 @@
 								</a>&nbsp;
 							</div>
 							<script type="text/javascript" language="javascript">
-	 							new Draggable('inbox_pm{pm.id}',{ revert:true });
+								draggablePms.push('{pm.id}');
 							</script>
 						</td>
 						<td class="noBorderX" {if pm.flags.admin}style="color:orange"{/endif}>
@@ -455,6 +457,14 @@
 			</div>
 		</form>
 		<br />
+		<script type="text/javascript">
+		<!--
+			for( var i=0; i < draggablePms.length; i++ ) {
+				new Draggable('inbox_pm'+draggablePms[i],{ revert:true });
+			}
+			draggablePms = null;
+		//-->
+		</script>
 	{!table_end}
 	<br />
 	{!table_begin 710,left}
