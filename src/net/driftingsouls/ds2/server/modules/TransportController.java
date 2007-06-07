@@ -550,6 +550,10 @@ public class TransportController extends DSGenerator {
 	private long transferSingleResource(TransportTarget fromItem, TransportTarget toItem, ResourceEntry res, long count, Cargo newfromc, Cargo newtoc, MutableLong cargofrom, MutableLong cargoto, StringBuilder msg, char mode) {
 		TemplateEngine t = getTemplateEngine();
 		
+		t.set_var(
+				"transfer.notenoughcargo", 0,
+				"transfer.notenoughspace", 0 );
+		
 		if( count > newfromc.getResourceCount( res.getId() ) ) {
 			t.set_var(	"transfer.notenoughcargo",	1,
 						"transfer.from.cargo",		Common.ln(newfromc.getResourceCount(res.getId()) ) );
