@@ -258,16 +258,16 @@ public class KSAttackAction extends BasicKSAction {
 		}
 	
 		// Nun die TrefferWS anteilig senken, wenn Crew/Sensoren nicht auf 100 sind
-		trefferWS *= (this.ownShip.getInt("sensors")/100);
+		trefferWS *= (this.ownShip.getInt("sensors")/100d);
 		if( (ownShipType.getInt("crew") > 0) && (this.ownShip.getInt("crew") < ownShipType.getInt("crew")) ) {
-			trefferWS *= this.ownShip.getInt("crew")/ownShipType.getInt("crew");
+			trefferWS *= this.ownShip.getInt("crew")/(double)ownShipType.getInt("crew");
 		}
 		
 		// Und nun die TrefferWS anteilig steigern, wenn die Gegnerische Crew/Antrie nicht auf 100 sind
 		int restws = 100-trefferWS;
 		trefferWS += restws*((100-eShip.getInt("engine"))/100);
 		if( eShip.getInt("crew") < eShipType.getInt("crew") ) {
-			trefferWS += restws*((eShipType.getInt("crew")-eShip.getInt("crew"))/eShipType.getInt("crew"));
+			trefferWS += restws*((eShipType.getInt("crew")-eShip.getInt("crew"))/(double)eShipType.getInt("crew"));
 		}
 		
 		if( trefferWS < 0 ) {
@@ -315,14 +315,14 @@ public class KSAttackAction extends BasicKSAction {
 		// Nun die TrefferWS anteilig senken, wenn Crew/Sensoren nicht auf 100 sind
 		trefferWS *= (this.ownShip.getInt("sensors")/100);
 		if( (ownShipType.getInt("crew") > 0) && (this.ownShip.getInt("crew") < ownShipType.getInt("crew")) ) {
-			trefferWS *= this.ownShip.getInt("crew")/ownShipType.getInt("crew");
+			trefferWS *= this.ownShip.getInt("crew")/(double)ownShipType.getInt("crew");
 		}
 		
 		// Und nun die TrefferWS anteilig steigern, wenn die Gegnerische Crew/Antrie nicht auf 100 sind
 		int restws = 100-trefferWS;
-		trefferWS += restws*((100-eShip.getInt("engine"))/100);
+		trefferWS += restws*((100-eShip.getInt("engine"))/100d);
 		if( eShip.getInt("crew") < eShipType.getInt("crew") ) {
-			trefferWS += restws*((eShipType.getInt("crew")-eShip.getInt("crew"))/eShipType.getInt("crew"));
+			trefferWS += restws*((eShipType.getInt("crew")-eShip.getInt("crew"))/(double)eShipType.getInt("crew"));
 		}
 		
 		if( trefferWS < 0 ) {
