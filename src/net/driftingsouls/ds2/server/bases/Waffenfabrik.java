@@ -283,7 +283,7 @@ class Waffenfabrik extends DefaultBuilding {
 					
 					if( usedcapacity.subtract(capUsedByAmmo).compareTo(targetCapacity) < 0 ) {
 						BigDecimal capLeftForAmmo = capUsedByAmmo.subtract(usedcapacity.subtract(targetCapacity));
-						plist[i] = aid+"=" + capLeftForAmmo.divide(new BigDecimal(ammolist.get(aid).getString("dauer")), BigDecimal.ROUND_HALF_EVEN).intValue();
+						plist[i] = aid+"=" + capLeftForAmmo.divide(new BigDecimal(ammolist.get(aid).getString("dauer")), BigDecimal.ROUND_DOWN).intValue();
 						break;
 					}
 					plist[i] = aid+"=0";
@@ -491,59 +491,58 @@ class Waffenfabrik extends DefaultBuilding {
 				}
 				if( usedcapacity.add(new BigDecimal(count*ammo.getDouble("dauer"))).doubleValue() > wf.getInt("count") ) {
 					BigDecimal availableCap = usedcapacity.multiply(new BigDecimal(-1)).add(new BigDecimal(wf.getInt("count")));
-					count = availableCap.divide(new BigDecimal(ammo.getString("dauer")), BigDecimal.ROUND_HALF_EVEN).intValue();
+					count = availableCap.divide(new BigDecimal(ammo.getString("dauer")), BigDecimal.ROUND_DOWN).intValue();
 				}
 			
-				boolean entry = false;
-				List<String> producelist = new ArrayList<String>(
-						Arrays.asList(StringUtils.split(wf.getString("produces"), ';'))
-				);
-				
-				for( int i=0; i < producelist.size(); i++ ) {
-					String[] tmp = StringUtils.split(producelist.get(i), '=');
-					int aid = Integer.parseInt(tmp[0]);
-					int ammoCount = Integer.parseInt(tmp[1]);
+				if( count != 0 ) {
+					boolean entry = false;
+					List<String> producelist = new ArrayList<String>(
+							Arrays.asList(StringUtils.split(wf.getString("produces"), ';'))
+					);
 					
-					// Veraltete Ammo automatisch entfernen
-					if( removelist.contains(aid) ) {
-						producelist.remove(i);
-						i--;
-						continue;	
-					}
-					
-					if( (aid == 0) || (ammoCount <= 0) ) {
-						producelist.remove(i);
-						i--;
-						continue;
-					}
-					
-					if( aid == ammo.getInt("id") ) {
-						if( (count < 0) && (ammoCount+count < 0) ) {
-							count = -ammoCount;
+					for( int i=0; i < producelist.size(); i++ ) {
+						String[] tmp = StringUtils.split(producelist.get(i), '=');
+						int aid = Integer.parseInt(tmp[0]);
+						int ammoCount = Integer.parseInt(tmp[1]);
+						
+						// Veraltete Ammo automatisch entfernen
+						if( removelist.contains(aid) ) {
+							producelist.remove(i);
+							i--;
+							continue;	
 						}
-						ammoCount += count;
-						entry = true;
+						
+						if( (aid == 0) || (ammoCount <= 0) ) {
+							producelist.remove(i);
+							i--;
+							continue;
+						}
+						
+						if( aid == ammo.getInt("id") ) {
+							if( (count < 0) && (ammoCount+count < 0) ) {
+								count = -ammoCount;
+							}
+							ammoCount += count;
+							entry = true;
+						}
+						if( ammoCount > 0 ) {
+							producelist.set(i, aid+"="+ammoCount);
+						}
+						else {
+							producelist.remove(i);
+							i--;
+						}
 					}
-					if( ammoCount > 0 ) {
-						producelist.set(i, aid+"="+ammoCount);
+					if( !entry && (count > 0) ) {
+						producelist.add(ammo.getInt("id")+"="+count);
 					}
-					else {
-						producelist.remove(i);
-						i--;
-					}
+					
+					wf.put("produces", Common.implode(";",producelist));
+					
+					db.update("UPDATE weaponfactory SET produces='"+wf.getString("produces")+"' WHERE id="+wf.getInt("id"));
+			
+					echo.append(Math.abs(count)+" "+Items.get().item(ammo.getInt("itemid")).getName()+" wurden "+(count>=0 ? "hinzugef&uuml;gt":"abgezogen")+"<br /><br />");
 				}
-				if( !entry ) {
-					if( count < 0 ) {
-						count = 0;
-					}
-					producelist.add(ammo.getInt("id")+"="+count);
-				}
-				
-				wf.put("produces", Common.implode(";",producelist));
-				
-				db.update("UPDATE weaponfactory SET produces='"+wf.getString("produces")+"' WHERE id="+wf.getInt("id"));
-		
-				echo.append(Math.abs(count)+" "+Items.get().item(ammo.getInt("itemid")).getName()+" wurden "+(count>=0 ? "hinzugef&uuml;gt":"abgezogen")+"<br /><br />");
 			} 
 			else {
 				echo.append("Sie haben nicht alle ben&ouml;tigten Forschungen f&uuml;r "+ammo.getString("name")+"<br /><br />");
