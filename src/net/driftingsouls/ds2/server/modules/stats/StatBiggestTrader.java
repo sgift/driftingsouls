@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.StatsController;
 
 /**
- * Zeigt die Liste groessten Handelsflotten an
+ * Zeigt die Liste der groessten Handelsflotten an
  * @author Simon Dietsch
  *
  */

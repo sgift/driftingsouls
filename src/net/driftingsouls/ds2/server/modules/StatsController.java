@@ -107,7 +107,7 @@ public class StatsController extends DSGenerator {
 		registerStat( "Spieler", new StatGtuPrice(), "Die h&ouml;chsten Gebote", 60 );
 
 		registerStat( "Allianzen", new StatBiggestFleet(true), "Die gr&ouml;ssten Flotten", 60 );
-		registerStat( "Allianzen", new StatBiggestTrader(false), "Die gr&ouml;ssten Handelsflotten", 60);
+		registerStat( "Allianzen", new StatBiggestTrader(true), "Die gr&ouml;ssten Handelsflotten", 60);
 		registerStat( "Allianzen", new StatBiggestPopulation(true), "Die gr&ouml;&szlig;ten V&ouml;lker", 30 );
 		registerStat( "Allianzen", new StatMemberCount(), "Die gr&ouml;&szlig;ten Allianzen", 30 );
 
