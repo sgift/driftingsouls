@@ -37,6 +37,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.modules.stats.StatBiggestAsteroid;
 import net.driftingsouls.ds2.server.modules.stats.StatBiggestPopulation;
+import net.driftingsouls.ds2.server.modules.stats.StatBiggestTrader;
 import net.driftingsouls.ds2.server.modules.stats.StatData;
 import net.driftingsouls.ds2.server.modules.stats.StatGtuPrice;
 import net.driftingsouls.ds2.server.modules.stats.StatMostResearch;
@@ -100,17 +101,13 @@ public class StatsController extends DSGenerator {
 	protected boolean validateAndPrepare(String action) {
 		registerStat( "Spieler", new StatOwnCiv(), "Meine Zivilisation", 0 );
 		registerStat( "Spieler", new StatBiggestFleet(false), "Die gr&ouml;ssten Flotten", 60 );
-		registerStat( "Spieler", new StatMostResearch(false), "Die meisten Forschungen", 60 );
-		registerStat( "Spieler", new StatResearchSilizium(false), "Das meiste verforschte Silizium", 60 );
-		registerStat( "Spieler", new StatResearchIsos(false), "Das meisten verforschten Isos", 60 );
+		registerStat( "Spieler", new StatBiggestTrader(false), "Die gr&ouml;ssten Handelsflotten", 60);
 		registerStat( "Spieler", new StatBiggestPopulation(false), "Die gr&ouml;&szlig;ten V&ouml;lker", 30 );
 		registerStat( "Spieler", new StatBiggestAsteroid(), "Die gr&ouml;&szlig;ten Asteroiden", 100 );
 		registerStat( "Spieler", new StatGtuPrice(), "Die h&ouml;chsten Gebote", 60 );
 
 		registerStat( "Allianzen", new StatBiggestFleet(true), "Die gr&ouml;ssten Flotten", 60 );
-		registerStat( "Allianzen", new StatMostResearch(true), "Die meisten Forschungen", 60 );
-		registerStat( "Allianzen", new StatResearchSilizium(true), "Das meiste verforschte Silizium", 60 );
-		registerStat( "Allianzen", new StatResearchIsos(true), "Das meisten verforschten Isos", 60 );
+		registerStat( "Allianzen", new StatBiggestTrader(false), "Die gr&ouml;ssten Handelsflotten", 60);
 		registerStat( "Allianzen", new StatBiggestPopulation(true), "Die gr&ouml;&szlig;ten V&ouml;lker", 30 );
 		registerStat( "Allianzen", new StatMemberCount(), "Die gr&ouml;&szlig;ten Allianzen", 30 );
 
@@ -316,7 +313,7 @@ public class StatsController extends DSGenerator {
 		}
 
 		///////////////////////////////////////////
-
+/* Auskommentiert, da im Moment nicht benutzt
 		Map<Integer,Integer> res = new HashMap<Integer,Integer>();
 		Map<Integer,Long> ress = new HashMap<Integer,Long>();
 		Map<Integer,Long> resi = new HashMap<Integer,Long>();
@@ -363,7 +360,7 @@ public class StatsController extends DSGenerator {
 		if( insertstring.size() > 0 ) {
 			db.update("INSERT INTO tmpres VALUES "+Common.implode(",", insertstring));
 		}
-		
+*/		
 		///////////////////////////////////////////
 		///////////////////////////////////////////
 
