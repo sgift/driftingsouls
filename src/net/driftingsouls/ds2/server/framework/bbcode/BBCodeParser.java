@@ -162,9 +162,9 @@ public class BBCodeParser {
 			}
 			// Falls vorhanden: Optionen (hinter dem = verarbeiten)
 			String[] options = null;
-			if( tagLC.indexOf('=') != -1 ) {
-				int optionIndex = tagLC.indexOf('=');
-				String option = tagLC.substring(optionIndex+1);
+			if( tag.indexOf('=') != -1 ) {
+				int optionIndex = tag.indexOf('=');
+				String option = tag.substring(optionIndex+1);
 				tagLC = tagLC.substring(0,optionIndex);
 				tag = tag.substring(0,optionIndex);
 				options = option.split(",");
