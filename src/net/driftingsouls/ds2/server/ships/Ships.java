@@ -2187,11 +2187,6 @@ public class Ships implements Loggable {
 		
 		SQLResultRow shiptype = ShipTypes.getShipType( ship );
 		
-		if( shiptype.getString("werft").length() != 0 ) {
-			MESSAGE.get().append("Die '"+ship.getString("name")+"' ("+ship.getInt("id")+") kann nicht &uuml;bergeben werden, da es sich um eine Werft handelt");
-			return true;
-		} 
-		
 		UserFlagschiffLocation flagschiff = user.getFlagschiff();
 		
 		boolean result = true;		

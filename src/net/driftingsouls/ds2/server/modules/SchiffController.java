@@ -1401,8 +1401,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 			t.parse("ship.alarms.list", "ship.alarms.listitem", true);
 		}
 
-		if( shiptype.getString("werft").equals("") && (ship.getString("status").indexOf("noconsign") == -1) && 
-			ship.getString("lock").equals("") ) {
+		if( (ship.getString("status").indexOf("noconsign") == -1) && ship.getString("lock").equals("") ) {
 			t.set_var("ship.consignable", 1);
 		}
 		
