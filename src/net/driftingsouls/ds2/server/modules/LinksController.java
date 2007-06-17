@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
  *
  */
 public class LinksController extends DSGenerator {
-	private static final String SCRIPT_FORUM = "http://forum.drifting-souls.net/phpBB2/";
+	private static final String SCRIPT_FORUM = "http://forum.drifting-souls.net/phpbb3/";
 	/**
 	 * Konstruktor
 	 * @param context Der zu verwendende Kontext
