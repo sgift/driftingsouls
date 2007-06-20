@@ -648,14 +648,18 @@ public class Ships implements Loggable {
 		}
 	}
 	
-	private static MovementResult moveSingle(SQLResultRow ship, SQLResultRow shiptype, Offizier offizier, int direction, int distance, int adocked, boolean forceLowHeat) {
+	private static MovementResult moveSingle(SQLResultRow ship, SQLResultRow shiptype, Offizier offizier, int direction, int distance, int adocked, boolean forceLowHeat, boolean verbose) {
 		boolean moved = false;
 		boolean error = false;
+		boolean firstOutput = true;
 		
 		StringBuilder out = MESSAGE.get();
 		
 		if( ship.getInt("engine") <= 0 ) {
-			out.append("<span style=\"color:#ff0000\">Antrieb defekt</span><br />\n");
+			if(verbose)
+			{
+				out.append("<span style=\"color:#ff0000\">Antrieb defekt</span><br />\n");
+			}
 			distance = 0;
 			
 			return new MovementResult(distance, moved, true);
@@ -667,7 +671,10 @@ public class Ships implements Loggable {
 		newe -= adocked;
 		if( shiptype.getInt("crew")/2 > ship.getInt("crew") ) {
 			newe--;
-			out.append("<span style=\"color:red\">Geringe Besatzung erh&ouml;ht Flugkosten</span><br />\n");
+			if(verbose)
+			{
+				out.append("<span style=\"color:red\">Geringe Besatzung erh&ouml;ht Flugkosten</span><br />\n");
+			}
 		}
 		
 		// Antrieb teilweise beschaedigt?
@@ -682,7 +689,12 @@ public class Ships implements Loggable {
 		}
 		
 		if( newe < 0 ) {
-			out.append("<span style=\"color:#ff0000\">Keine Energie</span><br />\n");
+			if(!verbose && firstOutput)
+			{
+				out.append(ship.getString("name")+" ("+ship.getInt("id")+"): ");
+				firstOutput = false;
+			}
+			out.append("<span style=\"color:#ff0000\">Keine Energie. Stoppe bei "+getLocationText(ship, true)+"</span><br />\n");
 			distance = 0;
 			
 			return new MovementResult(distance, moved, true);
@@ -696,7 +708,10 @@ public class Ships implements Loggable {
 				if( newe > ship.getInt("e")-1 ) {
 					newe = ship.getInt("e") - 1;
 				}
-				out.append(offizier.getName()+" verringert Flugkosten<br />\n");
+				if(verbose)
+				{
+					out.append(offizier.getName()+" verringert Flugkosten<br />\n");
+				}
 			}
 			// Ueberhitzung
 			success = offizier.useAbility( Offizier.Ability.ING, 200 );
@@ -705,17 +720,26 @@ public class Ships implements Loggable {
 				if( news < ship.getInt("s") ) {
 					news = ship.getInt("s");
 				}
-				out.append(offizier.getName()+" verringert &Uuml;berhitzung<br />\n");
+				if( verbose ) {
+					out.append(offizier.getName()+" verringert &Uuml;berhitzung<br />\n");
+				}
 			}
-			out.append(StringUtils.replace(offizier.MESSAGE.getMessage(),"\n", "<br />"));
+			if( verbose ) {
+				out.append(StringUtils.replace(offizier.MESSAGE.getMessage(),"\n", "<br />"));
+			}
 		}
 		
 		// Grillen wir uns bei dem Flug eventuell den Antrieb?
 		if( news > 100 )  {
-			if(forceLowHeat) {
+			if(forceLowHeat && distance > 0) {
+				if( !verbose && firstOutput ) {
+					out.append(ship.getString("name")+" ("+ship.getInt("id")+"): ");
+					firstOutput = false;
+				}
 				out.append("<span style=\"color:#ff0000\">Triebwerk w&uuml;rde &uuml;berhitzen</span><br />\n");
+
 				out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei "+getLocationText(ship,true)+"</span><br />\n");
-				out.append("</span></td></tr>\n");
+
 				distance = 0;
 				return new MovementResult(distance, moved, true);
 			}
@@ -756,7 +780,12 @@ public class Ships implements Loggable {
 			moved = true;
 			
 			if( ship.getInt("s") >= 100 ) {
+				if( !verbose && firstOutput) {
+					out.append(ship.getString("name")+" ("+ship.getInt("id")+"): ");
+					firstOutput = false;
+				}
 				out.append("<span style=\"color:#ff0000\">Triebwerke &uuml;berhitzt</span><br />\n");
+				
 				if( (RandomUtils.nextInt(101)) < 3*(news-100) ) {
 					int dmg = (int)( (2*(RandomUtils.nextInt(101)/100d)) + 1 ) * (news-100);
 					out.append("<span style=\"color:#ff0000\">Triebwerke nehmen "+dmg+" Schaden</span><br />\n");
@@ -765,7 +794,7 @@ public class Ships implements Loggable {
 						ship.put("engine", 0);
 					}
 					if( distance > 0 ) {
-						out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
+						out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei "+getLocationText(ship,true)+"</span><br />\n");
 						error = true;
 						distance = 0;
 					}
@@ -776,7 +805,10 @@ public class Ships implements Loggable {
 			ship.put("y", y);
 			ship.put("e", newe);
 			ship.put("s", news);
-			out.append(ship.getString("name")+" fliegt in "+getLocationText(ship,true)+" ein<br />\n");
+			
+			if( verbose ) {
+				out.append(ship.getString("name")+" fliegt in "+getLocationText(ship,true)+" ein<br />\n");
+			}
 		}
 		
 		return new MovementResult(distance, moved, error);
@@ -801,7 +833,7 @@ public class Ships implements Loggable {
 		Map<Integer,Offizier> offiziere = new HashMap<Integer,Offizier>();
 	}
 	
-	private static boolean moveFleet(SQLResultRow ship, int direction, boolean forceLowHeat)  {
+	private static boolean moveFleet(SQLResultRow ship, int direction, boolean forceLowHeat, boolean verbose)  {
 		StringBuilder out = MESSAGE.get();
 		boolean error = false;
 		
@@ -821,7 +853,7 @@ public class Ships implements Loggable {
 									"AND system='",ship.getInt("system"),"' AND owner='",ship.getInt("owner"),"' AND docked='' AND ",
 									"id!='",ship.getInt("id"),"' AND e>0 AND battle=0");
 			while( fleetshipRow.next() ) {
-				if( firstEntry ) {
+				if( verbose && firstEntry ) {
 					firstEntry = false;
 					out.append("<table class=\"noBorder\">\n");
 				}
@@ -880,19 +912,21 @@ public class Ships implements Loggable {
 		}
 		
 		for( SQLResultRow fleetship : fleetdata.ships.values() ) {
-			if( firstEntry ) {
+			if( verbose && firstEntry ) {
 				firstEntry = false;
 				out.append("<table class=\"noBorder\">\n");
 			}
 			
-			out.append("<tr>\n");
-			out.append("<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange; font-size:12px\"> "+fleetship.getString("name")+" ("+fleetship.getInt("id")+"):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n");
-					
+			if(verbose)
+			{
+				out.append("<tr>\n");
+				out.append("<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange; font-size:12px\"> "+fleetship.getString("name")+" ("+fleetship.getInt("id")+"):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n");
+			}	
 			Offizier offizierf = fleetdata.offiziere.get(fleetship.getInt("id"));
 	
 			SQLResultRow shiptype = ShipTypes.getShipType(fleetship);
 			
-			MovementResult result = moveSingle(fleetship, shiptype, offizierf, direction, 1, fleetship.getInt("adockedcount"), forceLowHeat);
+			MovementResult result = moveSingle(fleetship, shiptype, offizierf, direction, 1, fleetship.getInt("adockedcount"), forceLowHeat, verbose);
 			
 			//Einen einmal gesetzten Fehlerstatus nicht wieder aufheben
 			if(!error)
@@ -904,8 +938,12 @@ public class Ships implements Loggable {
 				error = true;
 			}
 			
-			out.append("</span></td></tr>\n");
+			if(verbose)
+			{
+				out.append("</span></td></tr>\n");
+			}
 		}
+		
 		if( !firstEntry )
 			out.append("</table>\n");
 			
@@ -1162,14 +1200,14 @@ public class Ships implements Loggable {
 				SQLResultRow oldship = new SQLResultRow();
 				oldship.putAll(ship);
 				
-				MovementResult result = moveSingle(ship, shiptype, offizier, waypoint.direction, waypoint.distance, adocked, forceLowHeat);
+				MovementResult result = moveSingle(ship, shiptype, offizier, waypoint.direction, waypoint.distance, adocked, forceLowHeat, false);
 				error = result.error;
 				waypoint.distance = result.distance;
 				
 				if( result.moved ) {
 					// Jetzt, da sich unser Schiff korrekt bewegt hat, fliegen wir auch die Flotte ein stueck weiter	
 					if( ship.getInt("fleet") > 0 ) {
-						boolean fleetResult = moveFleet(oldship, waypoint.direction, forceLowHeat);
+						boolean fleetResult = moveFleet(oldship, waypoint.direction, forceLowHeat, false);
 						if( fleetResult != false  ) {
 							error = true;
 							waypoint.distance = 0;
@@ -1255,6 +1293,8 @@ public class Ships implements Loggable {
 		} // while !error && route.size() > 0
 		
 		if( moved ) {
+			out.append("Ankunft bei "+getLocationText(ship,true)+"<br /><br />\n");
+			
 			db.update("UPDATE ships SET x=",ship.getInt("x"),",y=",ship.getInt("y"),",e=",ship.getInt("e"),",s=",ship.getInt("s"),",engine=",ship.getInt("engine"),",docked='' WHERE id=",ship.getInt("id"));
 			if( docked != 0 ) {
 				db.update("UPDATE ships SET x=",ship.getInt("x"),",y=",ship.getInt("y"),",system=",ship.getInt("system")," WHERE id>0 AND docked IN ('l ",ship.getInt("id"),"','",ship.getInt("id"),"')");
