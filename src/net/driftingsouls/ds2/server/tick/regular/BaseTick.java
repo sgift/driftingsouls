@@ -169,7 +169,7 @@ public class BaseTick extends TickController {
 			nc.addResource( Resources.BATTERIEN, load );
 			nc.substractResource( Resources.LBATTERIEN, load );
 			
-			newe = 1000;
+			newe = base.getMaxE();
 		}
 		
 		if( newe < 0 ) {
