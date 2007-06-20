@@ -97,10 +97,11 @@ public class ImpObjectsController extends DSGenerator {
 				Sprungpunkte
 			*/
 		
-			SQLQuery jn = db.query("SELECT x,y,systemout FROM jumpnodes WHERE system=",system," AND hidden=0");
+			SQLQuery jn = db.query("SELECT x,y,systemout,name FROM jumpnodes WHERE system=",system," AND hidden=0");
 			while( jn.next() ) {
 				t.set_var(	"jn.x",			jn.getInt("x"),
 						  	"jn.y",			jn.getInt("y"),
+						  	"jn.name",		jn.getString("name"),
 						 	"jn.target",	jn.getInt("systemout"),
 							"jn.targetname",	Systems.get().system(jn.getInt("systemout")).getName() );
 
