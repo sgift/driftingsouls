@@ -365,20 +365,21 @@ public class KSAttackAction extends BasicKSAction {
 	}
 	
 	private int getNavSkill( Battle battle, SQLResultRow ownShipType, Offizier offizier ) {
-		int navskill = ownShipType.getInt("size")*3;
+		double navskill = ownShipType.getInt("size")*3;
 		
 		if( offizier != null ) {
 			navskill = offizier.getAbility(Offizier.Ability.NAV);
 		} 
 		
-		navskill *= (battle.getOwnShip().getInt("engine")/100);
+		navskill *= (battle.getOwnShip().getInt("engine")/100d);
 	
-		return navskill;
+		return Math.max(1, (int)Math.round(navskill));
 	}
 	
 	private int getDefensivSkill( SQLResultRow enemyShipType, Offizier eOffizier ) {
 		if( eOffizier != null ) {
-			return (int)Math.round((eOffizier.getAbility(Offizier.Ability.NAV)+eOffizier.getAbility(Offizier.Ability.COM))/2d);
+			double value = (eOffizier.getAbility(Offizier.Ability.NAV)+eOffizier.getAbility(Offizier.Ability.COM))/2d;
+			return Math.max(1, (int)Math.round(value));
 		} 
 
 		return 1;
