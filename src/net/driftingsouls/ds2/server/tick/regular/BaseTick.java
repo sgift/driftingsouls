@@ -139,9 +139,10 @@ public class BaseTick extends TickController {
 		
 		Cargo nc = (Cargo)cargo.clone();
 		
-		this.usercargo.addResource(Resources.NAHRUNG, basedata.getStatus().getResourceCount(Resources.NAHRUNG));
-		if( this.usercargo.getResourceCount(Resources.NAHRUNG) < 0 ) {
-			basedata.getStatus().setResource(Resources.NAHRUNG, this.usercargo.getResourceCount(Resources.NAHRUNG));	
+		long usercargo = this.usercargo.getResourceCount(Resources.NAHRUNG) + basedata.getStatus().getResourceCount(Resources.NAHRUNG);
+		if( usercargo < 0 ) {
+			basedata.getStatus().setResource(Resources.NAHRUNG, usercargo);
+			usercargo = 0;
 		}
 		else {
 			basedata.getStatus().setResource(Resources.NAHRUNG, 0);
@@ -299,6 +300,9 @@ public class BaseTick extends TickController {
 					return;	
 				}
 				this.log("\t+++++++++++++++ GEBE AUF +++++++++++++++");	
+			}
+			else {
+				this.usercargo.setResource(Resources.NAHRUNG, usercargo);
 			}
 		}
 		// Offenbar haben wir es mit chaotischen Zustaenden zu tun....
