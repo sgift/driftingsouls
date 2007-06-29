@@ -79,7 +79,12 @@ class HandleShipRespawnCountdown implements TaskHandler {
 						querylp.add("NULL");
 					}
 					else {
-						querylp.add("'"+db.prepareString(ship.getString(afield.getString("Field")))+"'");
+						String value = ship.getString(afield.getString("Field"));
+						if( ship.get(afield.getString("Field")) instanceof Boolean ) {
+							boolean b = ship.getBoolean(afield.getString("Field"));
+							value = b ? "1" : "0";
+						}
+						querylp.add("'"+db.prepareString(value)+"'");
 					}
 				}
 			}
@@ -104,7 +109,12 @@ class HandleShipRespawnCountdown implements TaskHandler {
 							querylp.add("NULL");
 						}
 						else {
-							querylp.add("'"+db.prepareString(shipmodules.getString(afield.getString("Field")))+"'");
+							String value = shipmodules.getString(afield.getString("Field"));
+							if( shipmodules.get(afield.getString("Field")) instanceof Boolean ) {
+								boolean b = shipmodules.getBoolean(afield.getString("Field"));
+								value = b ? "1" : "0";
+							}
+							querylp.add("'"+db.prepareString(value)+"'");
 						}
 					}
 				}
@@ -133,7 +143,12 @@ class HandleShipRespawnCountdown implements TaskHandler {
 							querylp.add("NULL");
 						}
 						else {
-							querylp.add("'"+db.prepareString(offizier.getString(afield.getString("Field")))+"'");
+							String value = offizier.getString(afield.getString("Field"));
+							if( offizier.get(afield.getString("Field")) instanceof Boolean ) {
+								boolean b = offizier.getBoolean(afield.getString("Field"));
+								value = b ? "1" : "0";
+							}
+							querylp.add("'"+db.prepareString(value)+"'");
 						}
 					}
 				}
@@ -163,7 +178,12 @@ class HandleShipRespawnCountdown implements TaskHandler {
 							querylp.add("NULL");
 						}
 						else {
-							querylp.add("'"+db.prepareString(werftentry.getString(afield.getString("Field")))+"'");
+							String value = werftentry.getString(afield.getString("Field"));
+							if( werftentry.get(afield.getString("Field")) instanceof Boolean ) {
+								boolean b = werftentry.getBoolean(afield.getString("Field"));
+								value = b ? "1" : "0";
+							}
+							querylp.add("'"+db.prepareString(value)+"'");
 						}
 					}
 				}
