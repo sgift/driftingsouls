@@ -528,10 +528,28 @@ public class TransportController extends DSGenerator {
 		/*
 			Sind die beiden Objekte auch im selben Sektor?
 		*/
-		if( !Location.fromResult(this.from.get(0).getData()).sameSector( this.from.get(0).getSize(), Location.fromResult(this.to.get(0).getData()), this.to.get(0).getSize()) ) {
+		Location fromLoc = Location.fromResult(this.from.get(0).getData());
+		Location toLoc = Location.fromResult(this.to.get(0).getData());
+		if( !fromLoc.sameSector( this.from.get(0).getSize(), toLoc, this.to.get(0).getSize()) ) {
 			addError("Die angegebenen Objekte befinden sich nicht im selben Sektor" );
 			
 			return false;
+		}
+		
+		for( int i=1; i < this.from.size(); i++ ) {
+			if( !fromLoc.sameSector( this.from.get(0).getSize(), Location.fromResult(this.from.get(i).getData()), this.from.get(i).getSize()) ) {
+				addError("Die angegebenen Objekte befinden sich nicht im selben Sektor" );
+				
+				return false;
+			}
+		}
+		
+		for( int i=1; i < this.to.size(); i++ ) {
+			if( !toLoc.sameSector( this.to.get(0).getSize(), Location.fromResult(this.to.get(i).getData()), this.to.get(i).getSize()) ) {
+				addError("Die angegebenen Objekte befinden sich nicht im selben Sektor" );
+				
+				return false;
+			}
 		}
 
 		for( TransportTarget afrom : this.from ) {
