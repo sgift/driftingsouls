@@ -585,8 +585,9 @@ public class SchiffController extends DSGenerator implements Loggable {
 			shieldfactor = 10;
 		}
 
-		if( shup > (shiptype.getInt("shields") - ship.getInt("shields"))/shieldfactor ) {
-			shup = (shiptype.getInt("shields") - ship.getInt("shields"))/shieldfactor;
+		final int maxshup = (int)Math.ceil((shiptype.getInt("shields") - ship.getInt("shields"))/(double)shieldfactor);
+		if( shup > maxshup ) {
+			shup = maxshup;
 		}
 		if( shup > ship.getInt("e") ) {
 			shup = ship.getInt("e");
@@ -1386,7 +1387,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 				shieldfactor = 10;
 			}
 			
-			t.set_var("ship.shields.reloade", Common.ln(Math.ceil((shiptype.getInt("shields") - ship.getInt("shields"))/shieldfactor)));
+			t.set_var("ship.shields.reloade", Common.ln((int)Math.ceil((shiptype.getInt("shields") - ship.getInt("shields"))/(double)shieldfactor)));
 		}
 		
 		String[] alarms = {"yellow","red"};
