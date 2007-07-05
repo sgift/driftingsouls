@@ -671,6 +671,8 @@ public class TransportController extends DSGenerator {
 			
 			parameterNumber(res.getId()+"from");
 			int transf = getInteger(res.getId()+"from");
+			
+			t.set_var("transfer.multitarget.list", "");
 	
 			if( transt > 0 ) {
 				t.set_var(	"transfer.count",		Common.ln(transt),
