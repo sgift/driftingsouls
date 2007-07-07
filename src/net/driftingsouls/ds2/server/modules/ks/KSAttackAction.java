@@ -318,10 +318,13 @@ public class KSAttackAction extends BasicKSAction {
 		return trefferWS;
 	}
 	
-	private int calcTWSthroughDifference(int defensivskill, int navskill, SQLResultRow eShip, SQLResultRow eShipType, int defTrefferWS, SQLResultRow ownShipType) {
+	private int calcTWSthroughDifference(double defensivskill, double navskill, SQLResultRow eShip, SQLResultRow eShipType, int defTrefferWS, SQLResultRow ownShipType) {
 		double differenceSkillz = 0.0;
 		double differenceSize = 0.0;
-		if( defensivskill > navskill ) {
+
+		double eSize = eShipType.getInt("size");
+		double ownSize = ownShipType.getInt("size");
+		if ( defensivskill > navskill ){
 			differenceSkillz = ((defensivskill/navskill) - 1) * - 1;
 			if ( differenceSkillz < -0.4) {
 				differenceSkillz = -0.4;
@@ -338,14 +341,14 @@ public class KSAttackAction extends BasicKSAction {
 		}
 		// Berechne Aenderung der TWS durch unterschiedliche Schiffsgroesse
 		// Original  + round(($eShipType['size'] - $ownShipType['size'])*2)
-		if( eShipType.getInt("size") < ownShipType.getInt("size") ) {
-			differenceSize = ( (eShipType.getInt("size")/ownShipType.getInt("size")) - 1);
+		if ( eSize < ownSize ){
+			differenceSize = ( (eSize/ownSize) - 1);
 			if ( differenceSize < -0.4){
 				differenceSize = -0.4;
 			}
-		}
-		else if ( ownShipType.getInt("size") < eShipType.getInt("size") ){
-			differenceSize = ( (ownShipType.getInt("size")/eShipType.getInt("size")) -1) * -1;
+		} 
+		else if ( ownSize < eShipType.getInt("size") ){
+			differenceSize = ( (ownSize/eSize) -1) * -1;
 			if ( differenceSize > 0.4 ){
 				differenceSize = 0.4;
 			}
