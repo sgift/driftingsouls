@@ -591,7 +591,7 @@ public class Ships implements Loggable {
 		User.Relations relationlist = owner.getRelations();
 	
 		List<Integer> attackers = new ArrayList<Integer>();
-		
+
 		SQLQuery aowner = db.query("SELECT DISTINCT owner FROM ships WHERE id>0 AND x=",ship.getInt("x")," AND y=",ship.getInt("y")," ",
 							"AND system=",ship.getInt("system")," AND e>0 AND owner!=",ship.getInt("owner")," AND alarm=1 AND `lock` IS NULL AND docked='' AND !LOCATE('nocrew',status) ");
 		while( aowner.next() ) {
@@ -600,7 +600,7 @@ public class Ships implements Loggable {
 				continue;	
 			}
 			
-			if( relationlist.fromOther.get(aowner) == User.Relation.ENEMY ) {
+			if( relationlist.fromOther.get(auser.getID()) == User.Relation.ENEMY ) {
 				attackers.add(aowner.getInt("owner"));
 				if( checkonly ) {
 					break;
