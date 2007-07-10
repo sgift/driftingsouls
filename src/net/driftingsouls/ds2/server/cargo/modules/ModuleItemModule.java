@@ -91,20 +91,20 @@ public class ModuleItemModule extends Module implements Loggable {
 								weaponlist.put(wpnrpl, Integer.toString(rplCount - acount));
 								
 								weaponlist.put(aweapon, Integer.toString(NumberUtils.toInt(weaponlist.get(aweapon)) + acount));
-								heatlist.put(aweapon,  Integer.toString(NumberUtils.toInt(weaponlist.get(aweapon)) + aheat));
+								heatlist.put(aweapon,  Integer.toString(NumberUtils.toInt(heatlist.get(aweapon)) + aheat));
 							}
 							else {
 								heatlist.remove(wpnrpl);
 								weaponlist.remove(wpnrpl);
 								
 								weaponlist.put(aweapon, Integer.toString(NumberUtils.toInt(weaponlist.get(aweapon)) + acount));
-								heatlist.put(aweapon,  Integer.toString(NumberUtils.toInt(weaponlist.get(aweapon)) + aheat));
+								heatlist.put(aweapon,  Integer.toString(NumberUtils.toInt(heatlist.get(aweapon)) + aheat));
 							}
 						}
 					}
 					else {
 						weaponlist.put(aweapon, Integer.toString(NumberUtils.toInt(weaponlist.get(aweapon)) + acount));
-						heatlist.put(aweapon,  Integer.toString(NumberUtils.toInt(weaponlist.get(aweapon)) + aheat));
+						heatlist.put(aweapon,  Integer.toString(NumberUtils.toInt(heatlist.get(aweapon)) + aheat));
 
 						if( NumberUtils.toInt(weaponlist.get(aweapon)) <= 0 ) {
 							heatlist.remove(aweapon);
