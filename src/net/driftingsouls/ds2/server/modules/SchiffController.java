@@ -1306,9 +1306,9 @@ public class SchiffController extends DSGenerator implements Loggable {
 					text += Common.ln(value - baseValue)+"</span>)<br />";
 					tooltiplines.add(text);
 				}
-				else if( propname.equals("weapon") ) {
+				else if( propname.equals("weapons") ) {
 					Map<String,String> weaponlist = Weapons.parseWeaponList( type.getString(propname) );
-					Map<String,String> defweaponlist = Weapons.parseWeaponList( basetype.getString("weapon") );
+					Map<String,String> defweaponlist = Weapons.parseWeaponList( basetype.getString("weapons") );
 					
 					for( String aweapon : weaponlist.keySet() ) {
 						int aweaponcount = Integer.parseInt(weaponlist.get(aweapon));
