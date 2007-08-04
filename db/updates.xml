@@ -261,4 +261,7 @@
 	<update type="data" datum="2007-05-18"><![CDATA[
 		INSERT INTO `user_values` (`id`, `user_id`, `name`, `value`) VALUES (974, 0, 'PMS/signature', '');
 	]]></update>
+	<update type="structure" datum="2007-08-04"><![CDATA[
+		ALTER TABLE `ships_lost` CHANGE `ally` `ally` SMALLINT( 5 ) NOT NULL DEFAULT '0';										 
+	]]></update>
 </updates>

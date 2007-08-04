@@ -4,7 +4,7 @@ CREATE TABLE `ships_lost` (
   `name` varchar(50) NOT NULL default '',
   `time` int(10) unsigned NOT NULL default '0',
   `owner` mediumint(9) NOT NULL default '0',
-  `ally` smallint(5) unsigned NOT NULL default '0',
+  `ally` smallint(5) NOT NULL default '0',
   `destowner` mediumint(9) NOT NULL default '0',
   `destally` smallint(5) unsigned NOT NULL default '0',
   `docked` int(10) unsigned NOT NULL default '0',
