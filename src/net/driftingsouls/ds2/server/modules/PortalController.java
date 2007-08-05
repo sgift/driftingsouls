@@ -582,7 +582,7 @@ class PortalController extends DSGenerator {
 			}
 		}
 	 	
-	 	SQLResultRow nebel = db.first("SELECT *,sqrt((",base.get("x"),"-x)*(",base.get("x"),"-x)+(",base.get("y"),"-y)*(",base.get("y"),"-y)) distance,sqrt((",base.get("x"),"-x)*(",base.get("x"),"-x)+(",base.get("y"),"-y)*(",base.get("y"),"-y))*((type+1)%3)*3 moddist FROM nebel WHERE system='",system,"' AND type<3 ORDER BY moddist LIMIT 1");
+	 	SQLResultRow nebel = db.first("SELECT *,sqrt((",base.get("x"),"-x)*(",base.get("x"),"-x)+(",base.get("y"),"-y)*(",base.get("y"),"-y)) distance,sqrt((",base.get("x"),"-x)*(",base.get("x"),"-x)+(",base.get("y"),"-y)*(",base.get("y"),"-y))*(((type+1)%3)+1)*3 moddist FROM nebel WHERE system='",system,"' AND type<3 ORDER BY moddist LIMIT 1");
 	 	
 	 	if( race == 1 ) {		
 			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_TERRANER", new Location(system, base.getInt("x"), base.getInt("y")), newid);
