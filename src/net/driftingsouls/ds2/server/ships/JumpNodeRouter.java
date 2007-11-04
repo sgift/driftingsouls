@@ -44,6 +44,18 @@ public class JumpNodeRouter {
 		 * Der Pfad. Elemente sind die zu benutzenden Jumpnodes
 		 */
 		public List<SQLResultRow> path = new ArrayList<SQLResultRow>();
+		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder("[distance: "+distance+"\npath: ");
+			for( int i=0; i < path.size(); i++ ) {
+				SQLResultRow pathElem = path.get(i);
+				builder.append(pathElem.getInt("system")+":"+pathElem.getInt("x")+"/"+pathElem.getInt("y")+" -> "+pathElem.getInt("systemout")+":"+pathElem.getInt("xout")+"/"+pathElem.getInt("yout")+"\n");
+			}
+			
+			builder.append("]");
+			return builder.toString();
+		}
 	}
 	
 	private Map<Integer,Integer> systemInterestLevel = new HashMap<Integer,Integer>();
@@ -54,10 +66,14 @@ public class JumpNodeRouter {
 	 * @param jns Die benutzbaren Jumpnodes. Schluessel ist das Ausgangssystem der Jumpnode
 	 */
 	public JumpNodeRouter(Map<Integer,List<SQLResultRow>> jns) {
-		for( Integer sys : jns.keySet() ) {
-			List<SQLResultRow> jnlist = jns.get(sys);
-			this.jnlist.put(sys, new ArrayList<SQLResultRow>(jnlist));
+		for( Map.Entry<Integer, List<SQLResultRow>> entry: jns.entrySet()) {
+			List<SQLResultRow> jnlist = entry.getValue();
+			this.jnlist.put(entry.getKey(), new ArrayList<SQLResultRow>(jnlist));
 		}
+	}
+	
+	private int getMovementCost(int startX, int startY, int targetX, int targetY) {
+		return Math.max(Math.abs(targetX-startX),Math.abs(targetY-startY));
 	}
 	
 	/**
@@ -70,15 +86,15 @@ public class JumpNodeRouter {
 	 * @param targety Die Ziel-Y-Koordinate
 	 * @return Der Pfad oder <code>null</code>
 	 */
-	public Result locateShortestJNPath( int currentsys, int currentx, int currenty, int targetsys, int targetx, int targety) {				
-		if( !jnlist.containsKey(currentsys) ) {
-			return null;	
-		}
-
+	public Result locateShortestJNPath( int currentsys, int currentx, int currenty, int targetsys, int targetx, int targety) {
 		if( currentsys == targetsys ) {
 			Result res = new Result();
 			res.distance = Math.max(Math.abs(targetx-currentx),Math.abs(targety-currenty));
 			return res;	
+		}
+		
+		if( !jnlist.containsKey(currentsys) ) {
+			return null;	
 		}
 		
 		Result shortestpath = null;
@@ -90,33 +106,41 @@ public class JumpNodeRouter {
 				systemInterestLevel.get(ajn.getInt("systemout")) < 0 ) {
 				continue;
 			}
-			int pathcost = Math.max(Math.abs(ajn.getInt("x")-currentx),Math.abs(ajn.getInt("y")-currenty));
+			int pathcost = getMovementCost(currentx, currenty, ajn.getInt("x"), ajn.getInt("y"));
 			
+			// JN vorlaeufig aus der Liste entfernen um Endlosschleifen zu vermeiden
 			sysJNList.remove(k);
-			k--;
 			
 			Result cost = locateShortestJNPath(ajn.getInt("systemout"),ajn.getInt("xout"),ajn.getInt("yout"), targetsys, targetx, targety );
+			
+			sysJNList.add(k, ajn);
+			
+			// Keine Route gefunden -> JN-Zielsystem ignorieren
 			if( cost == null ) {
 				if( !systemInterestLevel.containsKey(ajn.getInt("systemout")) ) {
 					systemInterestLevel.put(ajn.getInt("systemout"), -1);
 				}
 				continue;
 			}
+			// Erste moegliche Route gefunden
 			else if( shortestpath == null ) {
 				shortestpath = cost;
 				shortestpath.distance += pathcost;
 				shortestpath.path.add(0, ajn);
 			}
+			// Neue Route mit der alten Route vergleichen
 			else if( shortestpath.distance > cost.distance+pathcost ) {
 				shortestpath = cost;
 				shortestpath.distance += pathcost;
 				shortestpath.path.add(0, ajn);
 			}
+			
+			// JN-Zielsystem bietet gueltige Route -> merken!
 			if( !systemInterestLevel.containsKey(ajn.getInt("systemout")) ) {
 				systemInterestLevel.put(ajn.getInt("systemout"), 1);
 			}
 		}
-			
+		
 		return shortestpath;
 	}
 }
