@@ -1536,10 +1536,10 @@ public class QuestFunctions {
 			RouteFactory router = new RouteFactory();
 			List<Waypoint> route = router.findRoute(Location.fromResult(curpos), target);
 					
-			boolean result = Ships.move(shipid, route, true, false); 
+			Ships.MovementStatus result = Ships.move(shipid, route, true, false); 
 			scriptparser.log(Common._stripHTML(Ships.MESSAGE.getMessage()));
 			
-			if( result ) {
+			if( result != Ships.MovementStatus.SUCCESS ) {
 				scriptparser.setRegister("A","1");
 			}
 			else {

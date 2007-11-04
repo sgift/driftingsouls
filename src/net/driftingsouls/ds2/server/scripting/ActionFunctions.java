@@ -75,19 +75,6 @@ public class ActionFunctions {
 			scriptparser.log("maxcount: "+maxcount+"\n");
 						
 			SQLResultRow curpos = db.first("SELECT x,y,system,s FROM ships WHERE id=",ship.getInt("id"));
-						
-			int deltax = target.getX()-curpos.getInt("x");
-			int deltay = target.getY()-curpos.getInt("y");
-						
-			if( (deltax == 0) && (deltay == 0) ) {
-				scriptparser.log("Zielposition bereits erreicht!\n\n");
-				return CONTINUE;
-			}
-						
-			if( curpos.getInt("s") > 100 ) {
-				scriptparser.log("Ausfuehrung bis zum naechsten Tick angehalten\n\n");
-				return STOP;
-			}
 			
 			if( curpos.getInt("system") != target.getSystem() ) {
 				PM.send(ContextMap.getContext(), -1, ship.getInt("owner"), 
@@ -97,18 +84,53 @@ public class ActionFunctions {
 				return STOP;
 			}
 			
-			RouteFactory router = new RouteFactory();
-			List<Waypoint> route = router.findRoute(Location.fromResult(curpos), target, maxcount);
-					
-			boolean result = Ships.move(ship.getInt("id"), route, true, false); 
-			scriptparser.log(Common._stripHTML(Ships.MESSAGE.getMessage()));
-			ship = db.first("SELECT * FROM ships WHERE id=",ship.getInt("id"));
-			scriptparser.setShip(ship);
+// TODO maxcount wird beim Flug durch EMP-Nebel falsch interpretiert
 			
-			if( result ) {
-				scriptparser.log("Ausfuehrung bis zum naechsten Tick angehalten\n\n");
-				return STOP;
+			int oldMaxCount = maxcount;
+			Ships.MovementStatus result = Ships.MovementStatus.SUCCESS;
+			
+			while( true ) {
+				int deltax = target.getX()-curpos.getInt("x");
+				int deltay = target.getY()-curpos.getInt("y");
+				
+				if( (deltax == 0) && (deltay == 0) ) {
+					scriptparser.log("Zielposition bereits erreicht!\n\n");
+					return CONTINUE;
+				}
+							
+				if( curpos.getInt("s") > 100 ) {
+					scriptparser.log("Ausfuehrung bis zum naechsten Tick angehalten\n\n");
+					return STOP;
+				}
+				
+				RouteFactory router = new RouteFactory();
+				List<Waypoint> route = router.findRoute(Location.fromResult(curpos), target, maxcount);
+				
+				result = Ships.move(ship.getInt("id"), route, true, false); 
+				scriptparser.log(Common._stripHTML(Ships.MESSAGE.getMessage()));
+				
+				curpos = db.first("SELECT * FROM ships WHERE id=",ship.getInt("id"));
+				scriptparser.setShip(curpos);
+				
+				if( result == Ships.MovementStatus.BLOCKED_BY_EMP ) {
+					maxcount = 1;
+					continue;
+				}
+				else if( result != Ships.MovementStatus.SUCCESS ) {
+					scriptparser.log("Ausfuehrung bis zum naechsten Tick angehalten\n\n");
+					return STOP;
+				}
+				// Nach einem Flug durch einen EMP-Nebel den Flug normal weiterfuehren
+				else if( oldMaxCount != maxcount ) {
+					maxcount = oldMaxCount;
+					
+					continue;
+				}
+				else {
+					break;
+				}
 			}
+			
 			if( !Location.fromResult(ship).equals(target) ) {
 				scriptparser.log("Position nicht korrekt - Ausfuehrung bis zum naechsten Tick angehalten\n\n");
 				return STOP;

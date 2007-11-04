@@ -636,21 +636,43 @@ public class Ships implements Loggable {
 		return false;
 	}
 	
+	/**
+	 * Die verschiedenen Zustaende, die zum Ende eines Fluges gefuehrt haben koennen
+	 */
+	public static enum MovementStatus {
+		/**
+		 * Der Flug war Erfolgreich
+		 */
+		SUCCESS,
+		/**
+		 * Der Flug wurde an einem EMP-Nebel abgebrochen
+		 */
+		BLOCKED_BY_EMP,
+		/**
+		 * Der Flug wurde vor einem Feld mit rotem Alarm abgebrochen
+		 */
+		BLOCKED_BY_RED_ALERT,
+		/**
+		 * Das Schiff konnte nicht mehr weiterfliegen
+		 */
+		SHIP_FAILURE
+	}
+	
 	private static class MovementResult {
 		int distance;
 		boolean moved;
-		boolean error;
-		
-		MovementResult(int distance, boolean moved, boolean error) {
+		MovementStatus status;
+
+		MovementResult(int distance, boolean moved, MovementStatus status) {
 			this.distance = distance;
 			this.moved = moved;
-			this.error = error;
+			this.status = status;
 		}
 	}
 	
 	private static MovementResult moveSingle(SQLResultRow ship, SQLResultRow shiptype, Offizier offizier, int direction, int distance, int adocked, boolean forceLowHeat, boolean verbose) {
 		boolean moved = false;
-		boolean error = false;
+		MovementStatus error = MovementStatus.SUCCESS;
 		boolean firstOutput = true;
 		
 		StringBuilder out = MESSAGE.get();
@@ -662,7 +684,7 @@ public class Ships implements Loggable {
 			}
 			distance = 0;
 			
-			return new MovementResult(distance, moved, true);
+			return new MovementResult(distance, moved, MovementStatus.SHIP_FAILURE);
 		}
 		
 		int newe = ship.getInt("e") - shiptype.getInt("cost");
@@ -697,7 +719,7 @@ public class Ships implements Loggable {
 			out.append("<span style=\"color:#ff0000\">Keine Energie. Stoppe bei "+getLocationText(ship, true)+"</span><br />\n");
 			distance = 0;
 			
-			return new MovementResult(distance, moved, true);
+			return new MovementResult(distance, moved, MovementStatus.SHIP_FAILURE);
 		}
 
 		if( offizier != null ) {			
@@ -741,7 +763,7 @@ public class Ships implements Loggable {
 				out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei "+getLocationText(ship,true)+"</span><br />\n");
 
 				distance = 0;
-				return new MovementResult(distance, moved, true);
+				return new MovementResult(distance, moved, MovementStatus.SHIP_FAILURE);
 			}
 		}
 
@@ -795,7 +817,7 @@ public class Ships implements Loggable {
 					}
 					if( distance > 0 ) {
 						out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei "+getLocationText(ship,true)+"</span><br />\n");
-						error = true;
+						error = MovementStatus.SHIP_FAILURE;
 						distance = 0;
 					}
 				}
@@ -833,9 +855,9 @@ public class Ships implements Loggable {
 		Map<Integer,Offizier> offiziere = new HashMap<Integer,Offizier>();
 	}
 	
-	private static boolean moveFleet(SQLResultRow ship, int direction, boolean forceLowHeat, boolean verbose)  {
+	private static MovementStatus moveFleet(SQLResultRow ship, int direction, boolean forceLowHeat, boolean verbose)  {
 		StringBuilder out = MESSAGE.get();
-		boolean error = false;
+		MovementStatus error = MovementStatus.SUCCESS;
 		
 		boolean firstEntry = true;
 		Context context = ContextMap.getContext();
@@ -865,17 +887,17 @@ public class Ships implements Loggable {
 				if( fleetship.getString("lock").length() != 0 ) {
 					outpb.append("<span style=\"color:red\">Fehler: Das Schiff ist an ein Quest gebunden</span>\n");
 					outpb.append("</span></td></tr>\n");
-					error = true;
+					error = MovementStatus.SHIP_FAILURE;
 				}
 				
 				if( shiptype.getInt("cost") == 0 ) {
 					outpb.append("<span style=\"color:red\">Das Objekt kann nicht fliegen, da es keinen Antieb hat</span><br />");
-					error = true;
+					error = MovementStatus.SHIP_FAILURE;
 				}
 				
 				if( (fleetship.getInt("crew") == 0) && (shiptype.getInt("crew") > 0) ) {
 					outpb.append("<span style=\"color:red\">Fehler: Sie haben keine Crew auf dem Schiff</span><br />");
-					error = true;
+					error = MovementStatus.SHIP_FAILURE;
 				}
 				
 				if( outpb.length() != 0 ) {
@@ -907,7 +929,7 @@ public class Ships implements Loggable {
 			fleetshipRow.free();
 		}
 		
-		if( error ) {
+		if( error != MovementStatus.SUCCESS ) {
 			return error;
 		}
 		
@@ -929,13 +951,9 @@ public class Ships implements Loggable {
 			MovementResult result = moveSingle(fleetship, shiptype, offizierf, direction, 1, fleetship.getInt("adockedcount"), forceLowHeat, verbose);
 			
 			//Einen einmal gesetzten Fehlerstatus nicht wieder aufheben
-			if(!error)
+			if(error == MovementStatus.SUCCESS)
 			{
-				error = result.error;
-			}
-			
-			if( result.distance == 0 ) {
-				error = true;
+				error = result.status;
 			}
 			
 			if(verbose)
@@ -988,9 +1006,9 @@ public class Ships implements Loggable {
 	 * @param route Die Flugroute
 	 * @param forceLowHeat Soll bei Ueberhitzung sofort abgebrochen werden?
 	 * @param disableQuests Sollen Questhandler ignoriert werden?
-	 * @return <code>true</code>, falls ein Fehler aufgetreten ist
+	 * @return Der Status der zum Abbruch des Fluges gefuehrt hat
 	 */
-	public static boolean move(int shipID, List<Waypoint> route, boolean forceLowHeat, boolean disableQuests) {
+	public static MovementStatus move(int shipID, List<Waypoint> route, boolean forceLowHeat, boolean disableQuests) {
 		StringBuilder out = MESSAGE.get();
 		
 		Database db = ContextMap.getContext().getDatabase();
@@ -999,11 +1017,11 @@ public class Ships implements Loggable {
 		
 		if( ship.isEmpty() ) {
 			out.append("Fehler: Das angegebene Schiff existiert nicht\n");
-			return true; 
+			return MovementStatus.SHIP_FAILURE; 
 		}
 		if( ship.getString("lock").length() != 0 ) {
 			out.append("Fehler: Das Schiff ist an ein Quest gebunden\n");
-			return true;
+			return MovementStatus.SHIP_FAILURE;
 		}
 	
 		User user = ContextMap.getContext().createUserObject(ship.getInt("owner"));
@@ -1014,27 +1032,27 @@ public class Ships implements Loggable {
 		//Das Schiff soll sich offenbar bewegen
 		if( ship.getString("docked").length() != 0 ) {
 			out.append("Fehler: Sie k&ouml;nnen nicht mit dem Schiff fliegen, da es geladet/angedockt ist\n");
-			return true;
+			return MovementStatus.SHIP_FAILURE;
 		}
 	
 		if( shiptype.getInt("cost") == 0 ) {
 			out.append("Fehler: Das Objekt kann nicht fliegen, da es keinen Antieb hat\n");
-			return true;
+			return MovementStatus.SHIP_FAILURE;
 		}
 	
 		if( ship.getInt("battle") > 0 ) {
 			out.append("Fehler: Das Schiff ist in einen Kampf verwickelt\n");
-			return true;
+			return MovementStatus.SHIP_FAILURE;
 		}
 		
 		if( (ship.getInt("crew") <= 0) && (shiptype.getInt("crew") > 0) ) {
 			out.append("<span style=\"color:#ff0000\">Das Schiff verf&uuml;gt &uuml;ber keine Crew</span><br />\n");
-			return true;
+			return MovementStatus.SHIP_FAILURE;
 		}
 			
 		int docked = 0;
 		int adocked = 0;
-		boolean error = false;
+		MovementStatus error = MovementStatus.SUCCESS;
 		
 		if( (shiptype.getInt("jdocks") > 0) || (shiptype.getInt("adocks") > 0) ) {
 			docked = db.first("SELECT count(*) count FROM ships WHERE id>0 AND docked IN ('l ",ship.getInt("id"),"','",ship.getInt("id"),"')").getInt("count");
@@ -1045,7 +1063,7 @@ public class Ships implements Loggable {
 		
 		boolean moved = false;
 		
-		while( !error && route.size() > 0 ) {
+		while( (error == MovementStatus.SUCCESS) && route.size() > 0 ) {
 			Waypoint waypoint = route.remove(0);
 			
 			if( waypoint.type != Waypoint.Type.MOVEMENT ) {
@@ -1113,7 +1131,7 @@ public class Ships implements Loggable {
 			
 			if( (waypoint.distance > 1) && nebulaemplist.containsKey(Location.fromResult(ship)) ) {
 				out.append("<span style=\"color:#ff0000\">Der Autopilot funktioniert in EMP-Nebeln nicht</span><br />\n");
-				return true;
+				return MovementStatus.BLOCKED_BY_EMP;
 			}
 			
 			long starttime = System.currentTimeMillis();
@@ -1132,7 +1150,7 @@ public class Ships implements Loggable {
 					if( attackers.length != 0 ) {
 						out.append("<span style=\"color:#ff0000\">Feindliche Schiffe in Alarmbereitschaft im n&auml;chsten Sektor geortet</span><br />\n");
 						out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
-						error = true;
+						error = MovementStatus.BLOCKED_BY_RED_ALERT;
 						waypoint.distance = 0;
 						break;
 					}
@@ -1141,7 +1159,7 @@ public class Ships implements Loggable {
 				if( (startdistance > 1) && nebulaemplist.containsKey(new Location(ship.getInt("system"),ship.getInt("x")+xoffset, ship.getInt("y")+yoffset)) ) {
 					out.append("<span style=\"color:#ff0000\">EMP-Nebel im n&auml;chsten Sektor geortet</span><br />\n");
 					out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
-					error = true;
+					error = MovementStatus.BLOCKED_BY_EMP;
 					waypoint.distance = 0;
 					break;
 				}
@@ -1201,15 +1219,15 @@ public class Ships implements Loggable {
 				oldship.putAll(ship);
 				
 				MovementResult result = moveSingle(ship, shiptype, offizier, waypoint.direction, waypoint.distance, adocked, forceLowHeat, false);
-				error = result.error;
+				error = result.status;
 				waypoint.distance = result.distance;
 				
 				if( result.moved ) {
 					// Jetzt, da sich unser Schiff korrekt bewegt hat, fliegen wir auch die Flotte ein stueck weiter	
 					if( ship.getInt("fleet") > 0 ) {
-						boolean fleetResult = moveFleet(oldship, waypoint.direction, forceLowHeat, false);
-						if( fleetResult != false  ) {
-							error = true;
+						MovementStatus fleetResult = moveFleet(oldship, waypoint.direction, forceLowHeat, false);
+						if( fleetResult != MovementStatus.SUCCESS  ) {
+							error = fleetResult;
 							waypoint.distance = 0;
 						}
 					}
@@ -1286,7 +1304,7 @@ public class Ships implements Loggable {
 					out.append("<span style=\"color:#ff0000\">Flug dauert zu lange</span><br />\n");
 					out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
 					waypoint.distance = 0;
-					error = true;
+					error = MovementStatus.SHIP_FAILURE;
 				}
 			}  // while distance > 0
 			
