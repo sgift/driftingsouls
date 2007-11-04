@@ -541,6 +541,20 @@ class PortalController extends DSGenerator {
 	 			"FROM bases " ,
 	 			"WHERE klasse=1 AND owner=0 AND system='",system,"' ORDER BY distance LIMIT 1");
 	 	
+	 	try {
+		 	Base baseobj = new Base(base);
+		 	Integer[] bebauung = baseobj.getBebauung();
+		 	for( int i=0; i < bebauung.length; i++ ) {
+		 		if( bebauung[i] != 0 ) {
+		 			Building.getBuilding(db, bebauung[i]).cleanup(getContext(), baseobj);
+		 		}
+		 	}
+	 	}
+	 	catch( RuntimeException e ) {
+	 		e.printStackTrace();
+	 		Common.mailThrowable(e, "Register Cleanup failed", "Base "+base.getInt("id"));
+	 	}
+	 	
 	 	SQLResultRow newbase = (SQLResultRow)base.clone();
 	 	newbase.put("e", base.get("maxe"));;
 	 	newbase.put("owner", newid);
