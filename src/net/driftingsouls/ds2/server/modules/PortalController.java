@@ -555,6 +555,10 @@ class PortalController extends DSGenerator {
 	 		Common.mailThrowable(e, "Register Cleanup failed", "Base "+base.getInt("id"));
 	 	}
 	 	
+	 	base = db.first("SELECT *,sqrt((",orderloc.getX(),"-x)*(",orderloc.getX(),"-x)+(",orderloc.getY(),"-y)*(",orderloc.getY(),"-y)) distance " ,
+	 			"FROM bases " ,
+	 			"WHERE id='",base.getInt("id"),"'");
+	 	
 	 	SQLResultRow newbase = (SQLResultRow)base.clone();
 	 	newbase.put("e", base.get("maxe"));;
 	 	newbase.put("owner", newid);
