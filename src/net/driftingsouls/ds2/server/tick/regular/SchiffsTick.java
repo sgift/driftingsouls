@@ -486,7 +486,7 @@ public class SchiffsTick extends TickController {
 				}
 			}
 			
-			db.update("UPDATE ships SET hull='",ship.getInt("hull"),"',engine=",sub[0],",weapons=",sub[1],",comm=",sub[2],"sensors=",sub[3]," WHERE id='",ship.getInt("id"),"'");
+			db.update("UPDATE ships SET hull='",ship.getInt("hull"),"',engine=",sub[0],",weapons=",sub[1],",comm=",sub[2],",sensors=",sub[3]," WHERE id='",ship.getInt("id"),"'");
 		}
 		ship.free();
 	}
