@@ -29,7 +29,6 @@
 	<property name="app.path"      value="/${app.name}"/>
 	<property name="app.version"   value="2"/>
 	<property name="build.home"    value="${basedir}/build"/>
-	<property name="catalina.home" value="/opt/tomcat5"/> <!-- UPDATE THIS! -->
 	<property name="dist.home"     value="${basedir}/dist"/>
 	<property name="docs.home"     value="${basedir}/docs"/>
 	<property name="manager.url"   value="http://localhost:8080/manager"/>
@@ -59,27 +58,7 @@
 		<fileset dir="web/java">
 			<include name="*.jar"/>
 		</fileset>
-
-		<pathelement location="${catalina.home}/common/classes"/>
-		<fileset dir="${catalina.home}/common/endorsed">
-			<include name="*.jar"/>
-		</fileset>
-		<fileset dir="${catalina.home}/common/lib">
-			<include name="*.jar"/>
-		</fileset>
-		<fileset dir="${catalina.home}/server/lib">
-			<include name="*.jar"/>
-		</fileset>
-		<pathelement location="${catalina.home}/shared/classes"/>
-		<fileset dir="${catalina.home}/shared/lib">
-			<include name="*.jar"/>
-		</fileset>
 	</path>
-	
-	<!-- ================== Custom Ant Task Definitions ======================= -->
-
-	<taskdef name="reload"   classname="org.apache.catalina.ant.ReloadTask"
-		classpathref="compile.classpath"/>
 	
 	<!-- ==================== All Target ====================================== -->
 
@@ -229,13 +208,6 @@
 			</classpath>
 			<classpath refid="compile.classpath" />
 		</java>
-	</target>
-
-
-	<!-- ==================== Reload Target =================================== -->
-
-	<target name="reload" description="Reload application on servlet container">
-		<reload url="${manager.url}" username="${manager.username}" password="${manager.password}" path="${app.path}"/>
 	</target>
 </project>
  
