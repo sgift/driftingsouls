@@ -33,13 +33,13 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.DriftingSouls;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.LogFactoryImpl;
-
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.DriftingSouls;
 
 /**
  * <h1>Der Template-Compiler</h1>
@@ -161,8 +161,8 @@ public class TemplateCompiler {
 			text.append("&amp;action="+action);
 			
 			if( paramlist.size() > 0 ) {
-				for( String key : paramlist.keySet() ) {
-					text.append("&amp;"+key+"="+paramlist.get(key));	
+				for( Map.Entry<String, String> entry : paramlist.entrySet() ) {
+					text.append("&amp;"+entry.getKey()+"="+entry.getValue());	
 				}
 			}
 			text.append("\\\">"+name+"</a>");
@@ -254,8 +254,8 @@ public class TemplateCompiler {
 			}
 			
 			List<String> paramtext = new ArrayList<String>();
-			for( String key : paramlist.keySet() ) {
-				paramtext.add(key+','+paramlist.get(key));
+			for( Map.Entry<String, String> entry: paramlist.entrySet() ) {
+				paramtext.add(entry.getKey()+','+entry.getValue());
 			}
 				
 			if( event.equals("mo") ) {
@@ -311,8 +311,8 @@ public class TemplateCompiler {
 			
 			text.append("<input type=\\\"hidden\\\" name=\\\"sess\\\" value=\\\"\"); str.append(templateEngine.getVar(\"global.sess\")); str.append(\"\\\" />\n");
 			
-			for( String key : paramlist.keySet() ) {
-				text.append("<input type=\\\"hidden\\\" name=\\\""+key+"\\\" value=\\\""+paramlist.get(key)+"\\\" />\n");
+			for( Map.Entry<String, String> entry : paramlist.entrySet() ) {
+				text.append("<input type=\\\"hidden\\\" name=\\\""+entry.getKey()+"\\\" value=\\\""+entry.getValue()+"\\\" />\n");
 			}
 			
 			return text.toString();
@@ -584,7 +584,8 @@ public class TemplateCompiler {
 	 * @throws IOException
 	 */
 	public void compile() throws IOException {
-		String baseFileName = file.substring(file.lastIndexOf("/")+1, file.lastIndexOf(".html"));
+		String baseFileName = new File(file).getName();
+		baseFileName = baseFileName.substring(0, baseFileName.lastIndexOf(".html"));
 		BufferedReader reader = new BufferedReader(new FileReader(new File(file)));
 		
 		String str = "";
