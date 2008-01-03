@@ -1203,7 +1203,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		if( user.hasFlag( User.FLAG_EXEC_NOTES ) ) {
 		
 			String script = StringUtils.replace(ship.getString("script"),"\r\n", "\\n");
-			script = StringUtils.replace(ship.getString("script"),"\n", "\\n");
+			script = StringUtils.replace(script,"\n", "\\n");
 			script = StringUtils.replace(script,"\"", "\\\"");
 			
 			t.set_var(	"tooltip.execnotes",		1,
