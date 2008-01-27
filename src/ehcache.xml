@@ -1,0 +1,39 @@
+<ehcache>
+	<defaultCache maxElementsInMemory="1000" eternal="false" timeToIdleSeconds="20" timeToLiveSeconds="60" overflowToDisk="false" />
+	
+	<cache  name="net.driftingsouls.ds2.server.entities.Ammo"
+			maxElementsInMemory="100"
+			eternal="true"
+			timeToIdleSeconds="5"
+			timeToLiveSeconds="10"
+			overflowToDisk="false"
+	/>
+	<cache  name="net.driftingsouls.ds2.server.bases.Building"
+			maxElementsInMemory="30"
+			eternal="true"
+			timeToIdleSeconds="60"
+			timeToLiveSeconds="600"
+			overflowToDisk="false"
+  	/>
+	<cache  name="net.driftingsouls.ds2.server.bases.Core"
+			maxElementsInMemory="20"
+			eternal="true"
+			timeToIdleSeconds="60"
+			timeToLiveSeconds="600"
+			overflowToDisk="false"
+	/>
+	<cache  name="net.driftingsouls.ds2.server.entities.Nebel"
+			maxElementsInMemory="200"
+			eternal="false"
+			timeToIdleSeconds="60"
+			timeToLiveSeconds="600"
+			overflowToDisk="false"
+	/>
+	<cache  name="net.driftingsouls.ds2.server.ships.ShipType"
+			maxElementsInMemory="100"
+			eternal="true"
+			timeToIdleSeconds="5"
+			timeToLiveSeconds="10"
+			overflowToDisk="false"
+	/>
+</ehcache>
