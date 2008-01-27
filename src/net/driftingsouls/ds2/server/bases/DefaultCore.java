@@ -45,7 +45,7 @@ public class DefaultCore extends Core {
 	}
 
 	@Override
-	public int getID() {
+	public int getId() {
 		return data.getInt("id");
 	}
 

@@ -314,7 +314,7 @@ public class CoreController extends DSGenerator {
 			t.setVar(	"core.isbuildable",		buildable,
 						"core.ever",			core.getEVerbrauch(), 
 						"core.name",			Common._plaintitle(core.getName()),
-						"core.id",				core.getID(),
+						"core.id",				core.getId(),
 						"core.eprodu",			core.getEProduktion(),
 						"core.arbeiter",		core.getArbeiter(),
 						"core.bewohner",		core.getBewohner(),

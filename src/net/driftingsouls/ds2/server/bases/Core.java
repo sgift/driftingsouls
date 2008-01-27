@@ -77,7 +77,7 @@ public abstract class Core {
 	 * Die ID des Coretyps
 	 * @return die ID
 	 */
-	public abstract int getID();
+	public abstract int getId();
 	
 	/**
 	 * Der Name der Core
