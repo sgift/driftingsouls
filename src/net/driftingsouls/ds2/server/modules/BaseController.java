@@ -120,7 +120,7 @@ public class BaseController extends DSGenerator {
 	
 		db.tBegin(true);
 		user.setCargo(usercargo.save(), usercargo.save(true));
-		db.tUpdate(1,"UPDATE bases SET cargo='",cargo.save(),"' WHERE id='",base.getID(),"' AND cargo='",cargo.save(true),"'");
+		db.tUpdate(1,"UPDATE bases SET cargo='",cargo.save(),"' WHERE id='",base.getId(),"' AND cargo='",cargo.save(true),"'");
 		
 		if( !db.tCommit() ) {
 			if( retryCount < 3 ) {
@@ -156,7 +156,7 @@ public class BaseController extends DSGenerator {
 			newname = newname.substring(0,50);
 		}
 	
-		db.prepare("UPDATE bases SET name= ? WHERE id= ? ").update(newname, base.getID());
+		db.prepare("UPDATE bases SET name= ? WHERE id= ? ").update(newname, base.getId());
 		
 		t.setVar("base.message", "Name zu "+Common._plaintitle(newname)+" ge&auml;ndert");
 		base.setName(newname);
@@ -205,7 +205,7 @@ public class BaseController extends DSGenerator {
 			}
 		
 			if( count != 0 ) {
-				db.update("UPDATE bases SET active='"+Common.implode("|",base.getActive())+"',arbeiter="+base.getArbeiter()+" WHERE id='"+base.getID()+"'");
+				db.update("UPDATE bases SET active='"+Common.implode("|",base.getActive())+"',arbeiter="+base.getArbeiter()+" WHERE id='"+base.getId()+"'");
 				
 				String result = "";
 				
@@ -263,7 +263,7 @@ public class BaseController extends DSGenerator {
 		tooltiptext.append("Name: <input name='newname' type='text' size='15' maxlength='50' value='");
 		StringBuilder tooltiptext2 = new StringBuilder(50);
 		tooltiptext2.append("' />");
-		tooltiptext2.append("<input name='col' type='hidden' value='"+base.getID()+"' />");
+		tooltiptext2.append("<input name='col' type='hidden' value='"+base.getId()+"' />");
 		tooltiptext2.append("<input name='sess' type='hidden' value='"+getString("sess")+"' />");
 		tooltiptext2.append("<input name='module' type='hidden' value='base' />");
 		tooltiptext2.append("<input name='action' type='hidden' value='changeName' />");
@@ -280,7 +280,7 @@ public class BaseController extends DSGenerator {
 		
 		int mapheight = (1 + base.getHeight() * 2) * 22+25;
 		
-		t.setVar(	"base.id",				base.getID(),
+		t.setVar(	"base.id",				base.getId(),
 					"base.name",			Common._plaintitle(base.getName()),
 					"base.x",				base.getX(),
 					"base.y",				base.getY(),
@@ -292,7 +292,7 @@ public class BaseController extends DSGenerator {
 					"base.cargo.height",	(mapheight < 280 ? "280" : mapheight),
 					"base.cargo.empty",		Common.ln(base.getMaxCargo() - base.getCargo().getMass()) );
 					
-		BaseStatus basedata = Base.getStatus(getContext(), base.getID());
+		BaseStatus basedata = Base.getStatus(getContext(), base.getId());
 					
 		//------------------
 		// Core
@@ -362,7 +362,7 @@ public class BaseController extends DSGenerator {
 		// Waren
 		//----------------
 
-		db.update( "UPDATE bases SET arbeiter='"+basedata.getArbeiter()+"' WHERE id='"+base.getID()+"'");
+		db.update( "UPDATE bases SET arbeiter='"+basedata.getArbeiter()+"' WHERE id='"+base.getId()+"'");
 		base.setArbeiter(basedata.getArbeiter());
 		
 		int bue = base.getBewohner() - basedata.getArbeiter();
@@ -400,7 +400,7 @@ public class BaseController extends DSGenerator {
 				tooltiptext.append("<form action='./main.php' method='post'>");
 				tooltiptext.append("<div>");
 				tooltiptext.append("Nahrung in 100er Paketen transferieren: <input name='nahrung' type='text' size='6' value='"+res.getCount1()+"' /><br />");
-				tooltiptext.append("<input name='col' type='hidden' value='"+base.getID()+"' />");
+				tooltiptext.append("<input name='col' type='hidden' value='"+base.getId()+"' />");
 				tooltiptext.append("<input name='sess' type='hidden' value='"+getString("sess")+"' />");
 				tooltiptext.append("<input name='module' type='hidden' value='base' />");
 				tooltiptext.append("<input name='action' type='hidden' value='transferNahrung' />");

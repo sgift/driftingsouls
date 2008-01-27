@@ -57,14 +57,14 @@ class Forschungszentrum extends DefaultBuilding {
 			throw new RuntimeException("No Context available");
 		}
 		
-		context.getDatabase().update("INSERT INTO fz VALUES(0,"+base.getID()+",1,0,0)");
+		context.getDatabase().update("INSERT INTO fz VALUES(0,"+base.getId()+",1,0,0)");
 	}
 
 	@Override
 	public void cleanup(Context context, Base base) {
 		super.cleanup(context, base);
 		
-		context.getDatabase().update("DELETE FROM fz WHERE col="+base.getID());
+		context.getDatabase().update("DELETE FROM fz WHERE col="+base.getId());
 	}
 	
 	@Override
@@ -81,12 +81,12 @@ class Forschungszentrum extends DefaultBuilding {
 	public boolean isActive(Base base, int status, int field) {
 		Database db = ContextMap.getContext().getDatabase();
 
-		SQLResultRow forschungszentrum = db.first( "SELECT dauer FROM fz WHERE col=",base.getID());
+		SQLResultRow forschungszentrum = db.first( "SELECT dauer FROM fz WHERE col=",base.getId());
 		if( !forschungszentrum.isEmpty() && (forschungszentrum.getInt("dauer") > 0) ) {
 			return true;
 		}
 		else if( forschungszentrum.isEmpty() ) {
-			LOG.warn("Forschungszentrum ohne fz-Eintrag auf Basis "+base.getID()+" gefunden");
+			LOG.warn("Forschungszentrum ohne fz-Eintrag auf Basis "+base.getId()+" gefunden");
 		}
 		return false;
 	}
@@ -98,10 +98,10 @@ class Forschungszentrum extends DefaultBuilding {
 		String sess = context.getSession();
 		
 		StringBuilder result = new StringBuilder(100);
-		SQLResultRow fz = db.first("SELECT id,dauer,forschung FROM fz WHERE col="+base.getID());
+		SQLResultRow fz = db.first("SELECT id,dauer,forschung FROM fz WHERE col="+base.getId());
 		if( !fz.isEmpty() ) {
 			if( fz.getInt("dauer") == 0 ) {
-				result.append("<a class=\"back\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"\">[F]</a>");
+				result.append("<a class=\"back\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"\">[F]</a>");
 			}
 			else {
 				StringBuilder popup = new StringBuilder(Common.tableBegin( 350, "left" ).replace("\"", "'") );
@@ -111,11 +111,11 @@ class Forschungszentrum extends DefaultBuilding {
 				popup.append("Dauer: noch <img src='"+Configuration.getSetting("URL")+"data/interface/time.gif' alt='noch ' />"+fz.getInt("dauer")+"<br />");
 				popup.append( Common.tableEnd().replace("\"", "'") );
 
-				result.append("<a name=\"p"+base.getID()+"_"+field+"\" id=\"p"+base.getID()+"_"+field+"\" " +
+				result.append("<a name=\"p"+base.getId()+"_"+field+"\" id=\"p"+base.getId()+"_"+field+"\" " +
 						"class=\"error\" " +
-						"onmouseover=\"return overlib('<span style=\\'font-size:13px\\'>"+StringEscapeUtils.escapeJavaScript(popup.toString())+"</span>',REF,'p"+base.getID()+"_"+field+"',REFY,22,NOJUSTY,TIMEOUT,0,DELAY,150,WIDTH,280,BGCLASS,'gfxtooltip',FGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');\" " +
+						"onmouseover=\"return overlib('<span style=\\'font-size:13px\\'>"+StringEscapeUtils.escapeJavaScript(popup.toString())+"</span>',REF,'p"+base.getId()+"_"+field+"',REFY,22,NOJUSTY,TIMEOUT,0,DELAY,150,WIDTH,280,BGCLASS,'gfxtooltip',FGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');\" " +
 						"onmouseout=\"return nd();\" " +
-						"href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"\">[F]<span style=\"font-weight:normal\">"+fz.getInt("dauer")+"</span></a>");
+						"href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"\">[F]<span style=\"font-weight:normal\">"+fz.getInt("dauer")+"</span></a>");
 			}
 		}
 		else {
@@ -181,13 +181,13 @@ class Forschungszentrum extends DefaultBuilding {
 				echo.append("<tr>\n");
 				echo.append("<td class=\"noBorderX\" style=\"width:60%\">\n");
 				if( !user.isNoob() || !tech.hasFlag(Forschung.FLAG_DROP_NOOB_PROTECTION) ) {
-					echo.append("<a class=\"forschinfo\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"&amp;res="+tech.getID()+"\">"+Common._plaintitle(tech.getName())+"</a>\n");
+					echo.append("<a class=\"forschinfo\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;res="+tech.getID()+"\">"+Common._plaintitle(tech.getName())+"</a>\n");
 				}
 				else {
 					echo.append("<a class=\"forschinfo\" " +
 							"href=\"javascript:ask(" +
 								"'Achtung!\\nWenn Sie diese Technologie erforschen verlieren sie den GCP-Schutz. Dies bedeutet, dass Sie sowohl angreifen als auch angegriffen werden k&ouml;nnen'," +
-								"'./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"&amp;res="+tech.getID()+"'" +
+								"'./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;res="+tech.getID()+"'" +
 							")\">"+Common._plaintitle(tech.getName())+"</a>\n");
 				}
 				echo.append("<a class=\"forschinfo\" href=\"./main.php?module=forschinfo&amp;sess="+sess+"&amp;res="+tech.getID()+"\"><img style=\"border:0px;vertical-align:middle\" src=\""+Configuration.getSetting("URL")+"data/interface/forschung/info.gif\" alt=\"?\" /></a>\n");
@@ -246,12 +246,12 @@ class Forschungszentrum extends DefaultBuilding {
 		
 		SQLResultRow fz = db.first("SELECT fz.forschung,fz.dauer,f.name " +
 				"FROM fz JOIN forschungen AS f ON fz.forschung=f.id " +
-				"WHERE fz.col="+base.getID());
+				"WHERE fz.col="+base.getId());
 	
 		if( !fz.isEmpty() ) {
 			echo.append("<img style=\"float:left;border:0px\" src=\""+Configuration.getSetting("URL")+"data/tech/"+fz.getInt("forschung")+".gif\" alt=\"\" />");
 			echo.append("Erforscht: <a class=\"forschinfo\" href=\"./main.php?module=forschinfo&amp;sess="+sess+"&amp;res="+fz.getInt("forschung")+"\">"+Common._plaintitle(fz.getString("name"))+"</a>\n");
-			echo.append("[<a class=\"error\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"&amp;kill=yes\">x</a>]<br />\n");
+			echo.append("[<a class=\"error\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;kill=yes\">x</a>]<br />\n");
 			echo.append("Dauer: noch <img style=\"vertical-align:middle\" src=\""+Configuration.getSetting("URL")+"data/interface/time.gif\" alt=\"\" />"+fz.getInt("dauer")+" Runden\n");
 			echo.append("<br /><br />\n");
 			return true;
@@ -267,11 +267,11 @@ class Forschungszentrum extends DefaultBuilding {
 			echo.append("<div style=\"text-align:center\">\n");
 			echo.append("Wollen sie die Forschung wirklich abbrechen?<br />\n");
 			echo.append("Achtung: Es erfolgt keine R&uuml;ckerstattung der Resourcen!<br /><br />\n");
-			echo.append("<a class=\"error\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"&amp;kill=yes&amp;conf=ok\">Forschung abbrechen</a><br />\n");
+			echo.append("<a class=\"error\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;kill=yes&amp;conf=ok\">Forschung abbrechen</a><br />\n");
 			echo.append("</div>\n");
 			return;
 		}
-		db.update("UPDATE fz SET forschung=0,dauer=0 WHERE col=",base.getID());
+		db.update("UPDATE fz SET forschung=0,dauer=0 WHERE col=",base.getId());
 		echo.append("<div style=\"text-align:center;color:red;font-weight:bold\">\n");
 		echo.append("Forschung abgebrochen<br />\n");
 		echo.append("</div>");
@@ -282,13 +282,13 @@ class Forschungszentrum extends DefaultBuilding {
 		String sess = context.getSession();
 		User user = context.getActiveUser();
 	
-		SQLResultRow fz = db.first("SELECT forschung,dauer FROM fz WHERE col="+base.getID());
+		SQLResultRow fz = db.first("SELECT forschung,dauer FROM fz WHERE col="+base.getId());
 	
 		Forschung tech = Forschung.getInstance(researchid);
 		boolean ok = true;
 	
 		if( !Rassen.get().rasse(user.getRace()).isMemberIn(tech.getRace()) ) {
-			echo.append("<a class=\"error\" href=\"./main.php?module=base&amp;sess="+sess+"&amp;col="+base.getID()+"\">Fehler: Diese Forschung kann von ihrer Rasse nicht erforscht werden</a>\n");
+			echo.append("<a class=\"error\" href=\"./main.php?module=base&amp;sess="+sess+"&amp;col="+base.getId()+"\">Fehler: Diese Forschung kann von ihrer Rasse nicht erforscht werden</a>\n");
 			return;
 		}
 		
@@ -306,7 +306,7 @@ class Forschungszentrum extends DefaultBuilding {
 			}
 			
 			echo.append("<br /><br />\n");
-			echo.append("<a class=\"ok\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"&amp;res="+researchid+"&amp;conf=ok\">Erforschen</a></span><br />\n");
+			echo.append("<a class=\"ok\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;res="+researchid+"&amp;conf=ok\">Erforschen</a></span><br />\n");
 			echo.append("</div>\n");
 			
 			return;
@@ -326,7 +326,7 @@ class Forschungszentrum extends DefaultBuilding {
 		}
 	
 		if( !ok ) {
-			echo.append("<a class=\"error\" href=\"./main.php?module=base&amp;sess="+sess+"&amp;col="+base.getID()+"\">Fehler: Forschung kann nicht durchgef&uuml;hrt werden</a>\n");
+			echo.append("<a class=\"error\" href=\"./main.php?module=base&amp;sess="+sess+"&amp;col="+base.getId()+"\">Fehler: Forschung kann nicht durchgef&uuml;hrt werden</a>\n");
 			return;
 		}
 	
@@ -350,8 +350,8 @@ class Forschungszentrum extends DefaultBuilding {
 			echo.append("</div>\n");
 			
 			db.tBegin();
-			db.tUpdate(1,"UPDATE fz SET forschung=",researchid,",dauer=",tech.getTime()," WHERE col="+base.getID()+" AND forschung=0 AND dauer=0");
-			db.tUpdate(1,"UPDATE bases SET cargo='",cargo.save(),"' WHERE id="+base.getID()+" AND cargo='",cargo.save(true),"'");
+			db.tUpdate(1,"UPDATE fz SET forschung=",researchid,",dauer=",tech.getTime()," WHERE col="+base.getId()+" AND forschung=0 AND dauer=0");
+			db.tUpdate(1,"UPDATE bases SET cargo='",cargo.save(),"' WHERE id="+base.getId()+" AND cargo='",cargo.save(true),"'");
 			base.setCargo(cargo);
 			
 			if( !db.tCommit() ) {
@@ -376,7 +376,7 @@ class Forschungszentrum extends DefaultBuilding {
 		
 		StringBuilder echo = new StringBuilder(2000);
 		
-		SQLResultRow fz = db.first("SELECT id FROM fz WHERE col="+base.getID());
+		SQLResultRow fz = db.first("SELECT id FROM fz WHERE col="+base.getId());
 		if( fz.isEmpty() ) {
 			echo.append("<span style=\"color:red\">Fehler: Dieses Forschungszentrum hat keinen Datenbank-Eintrag</span>\n");
 			return echo.toString();
@@ -390,8 +390,8 @@ class Forschungszentrum extends DefaultBuilding {
 	
 		echo.append(Common.tableBegin( 440, "center" ));
 		
-		echo.append("<a class=\"forschinfo\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"&amp;show=newres\">Neue Forschung</a>&nbsp;\n");
-		echo.append("&nbsp;|&nbsp;&nbsp;<a class=\"forschinfo\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"&amp;show=oldres\">Bereits erforscht</a>\n");
+		echo.append("<a class=\"forschinfo\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;show=newres\">Neue Forschung</a>&nbsp;\n");
+		echo.append("&nbsp;|&nbsp;&nbsp;<a class=\"forschinfo\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;show=oldres\">Bereits erforscht</a>\n");
 		
 		echo.append(Common.tableEnd());
 

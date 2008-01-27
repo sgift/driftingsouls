@@ -86,7 +86,7 @@ public class Base implements Cloneable {
 				}
 			}
 			this.terrain = terrain;
-			db.update("UPDATE bases SET terrain='",Common.implode("|", getTerrain()),"' WHERE id='",getID(),"'");
+			db.update("UPDATE bases SET terrain='",Common.implode("|", getTerrain()),"' WHERE id='",getId(),"'");
 		}
 			
 		if( getBebauung().length < getWidth()*getHeight() ) {
@@ -98,7 +98,7 @@ public class Base implements Cloneable {
 				bebauung[i] = 0;	
 			}
 			this.bebauung = bebauung;
-			db.update("UPDATE bases SET bebauung='",Common.implode("|", getBebauung()),"' WHERE id='",getID(),"'");
+			db.update("UPDATE bases SET bebauung='",Common.implode("|", getBebauung()),"' WHERE id='",getId(),"'");
 		}
 		
 		if( getActive().length < getWidth()*getHeight() ) {
@@ -110,7 +110,7 @@ public class Base implements Cloneable {
 				active[i] = 0;	
 			}
 			this.active = active;
-			db.update("UPDATE bases SET active='",Common.implode("|", getActive()),"' WHERE id='",getID(),"'");
+			db.update("UPDATE bases SET active='",Common.implode("|", getActive()),"' WHERE id='",getId(),"'");
 		}
 	}
 	
@@ -118,7 +118,7 @@ public class Base implements Cloneable {
 	 * Gibt die ID der Basis zurueck
 	 * @return die ID der Basis
 	 */
-	public int getID() {
+	public int getId() {
 		return base.getInt("id");
 	}
 	

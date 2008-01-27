@@ -55,7 +55,7 @@ class Werft extends DefaultBuilding {
 	public void build(Base base) {
 		super.build(base);
 		
-		ContextMap.getContext().getDatabase().update("INSERT INTO werften (type,col) VALUES(1,"+base.getID()+")");
+		ContextMap.getContext().getDatabase().update("INSERT INTO werften (type,col) VALUES(1,"+base.getId()+")");
 	}
 
 
@@ -63,7 +63,7 @@ class Werft extends DefaultBuilding {
 	public void cleanup(Context context, Base base) {
 		super.cleanup(context, base);
 		
-		context.getDatabase().update("DELETE FROM werften WHERE col="+base.getID());
+		context.getDatabase().update("DELETE FROM werften WHERE col="+base.getId());
 	}
 
 
@@ -75,15 +75,15 @@ class Werft extends DefaultBuilding {
 				
 		StringBuilder result = new StringBuilder(200);
 		
-		SQLResultRow werftRow = db.first("SELECT * FROM werften WHERE col=",base.getID());
+		SQLResultRow werftRow = db.first("SELECT * FROM werften WHERE col=",base.getId());
 		if( !werftRow.isEmpty() ) {
-			BaseWerft werft = new BaseWerft(werftRow,"pwerft",base.getSystem(),base.getOwner(),base.getID(), field);
+			BaseWerft werft = new BaseWerft(werftRow,"pwerft",base.getSystem(),base.getOwner(),base.getId(), field);
 			
 			if( !werft.isBuilding() ) {
 				result.append("<a class=\"back\" href=\"./main.php?module=building&amp;sess=");
 				result.append(sess);
 				result.append("&amp;col=");
-				result.append(base.getID());
+				result.append(base.getId());
 				result.append("&amp;field=");
 				result.append(field);
 				result.append("\">[W]</a>");
@@ -126,23 +126,23 @@ class Werft extends DefaultBuilding {
 				String popupStr = StringEscapeUtils.escapeJavaScript(popup.toString());
 				
 				result.append("<a name=\"p");
-				result.append(base.getID());
+				result.append(base.getId());
 				result.append("_");
 				result.append(field);
 				result.append("\" id=\"p");
-				result.append(base.getID());
+				result.append(base.getId());
 				result.append("_");
 				result.append(field);
 				result.append("\" class=\"error\" onmouseover=\"return overlib('<span style=\\'font-size:13px\\'>");
 				result.append(popupStr);
 				result.append("</span>',REF,'p");
-				result.append(base.getID());
+				result.append(base.getId());
 				result.append("_");
 				result.append(field);
 				result.append("',REFY,22,NOJUSTY,FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip',TIMEOUT,0,DELAY,150,WIDTH,430);\" onmouseout=\"return nd();\" href=\"./main.php?module=building&amp;sess=");
 				result.append(sess);
 				result.append("&amp;col=");
-				result.append(base.getID());
+				result.append(base.getId());
 				result.append("&amp;field=");
 				result.append(field);
 				result.append("\">[W]<span style=\"font-weight:normal\">");
@@ -158,9 +158,9 @@ class Werft extends DefaultBuilding {
 	public boolean isActive(Base base, int status, int field) {
 		Database db = ContextMap.getContext().getDatabase();
 	
-		SQLResultRow werftRow = db.first("SELECT * FROM werften WHERE col=",base.getID());
+		SQLResultRow werftRow = db.first("SELECT * FROM werften WHERE col=",base.getId());
 		if( !werftRow.isEmpty() ) {
-			WerftObject werft = new BaseWerft(werftRow,"pwerft",base.getSystem(),base.getOwner(),base.getID(), field);
+			WerftObject werft = new BaseWerft(werftRow,"pwerft",base.getSystem(),base.getOwner(),base.getId(), field);
 			return (werft.isBuilding() ? true : false);
 		}
 		
@@ -174,7 +174,7 @@ class Werft extends DefaultBuilding {
 		String sess = context.getSession();
 		StringBuilder response = new StringBuilder(500);
 				
-		SQLResultRow werftdata = db.first("SELECT * FROM werften WHERE col=",base.getID());
+		SQLResultRow werftdata = db.first("SELECT * FROM werften WHERE col=",base.getId());
 		if( werftdata.isEmpty() ) {
 	   		response.append("<a href=\"./main.php?module=basen&amp;sess="+sess+"\"><span style=\"color:#ff0000; font-weight:bold\">Fehler: Die angegebene Kolonie hat keine Werft</span></a>\n");
 			return response.toString();
@@ -182,7 +182,7 @@ class Werft extends DefaultBuilding {
 		
 		response.append("<div>Werft auf "+base.getName()+"<br /><br /></div>\n");
 		
-		BaseWerft werft = new BaseWerft(werftdata,"pwerft",base.getSystem(),base.getOwner(),base.getID(), field);
+		BaseWerft werft = new BaseWerft(werftdata,"pwerft",base.getSystem(),base.getOwner(),base.getId(), field);
 		WerftGUI werftgui = new WerftGUI( context, t );
 		response.append(werftgui.execute( werft ));
 		

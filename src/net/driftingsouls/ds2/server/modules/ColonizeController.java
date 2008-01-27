@@ -156,7 +156,7 @@ public class ColonizeController extends DSGenerator {
 		//Anzahl der Gebaeude pro Spieler berechnen
 		Map<Integer,Integer> ownerBuildingCount = new HashMap<Integer,Integer>();
 		
-		SQLQuery abebQuery = db.query("SELECT bebauung FROM bases WHERE owner="+user.getId()+" AND id!="+base.getID());
+		SQLQuery abebQuery = db.query("SELECT bebauung FROM bases WHERE owner="+user.getId()+" AND id!="+base.getId());
 		while( abebQuery.next() ) {
 			Integer[] abeb = Common.explodeToInteger("|", abebQuery.getString("bebauung"));
 			for( int i=0; i < abeb.length; i++ ) {
@@ -214,7 +214,7 @@ public class ColonizeController extends DSGenerator {
 		cargo.addCargo( cargo2 );
 
 		db.tBegin();
-		db.update("UPDATE offiziere SET dest='b ",base.getID(),"' WHERE dest='s ",ship.getInt("id"),"'");
+		db.update("UPDATE offiziere SET dest='b ",base.getId(),"' WHERE dest='s ",ship.getInt("id"),"'");
 		Ships.destroy( ship.getInt("id") );
 
 		// Die Kommandozentrale setzen
@@ -224,13 +224,13 @@ public class ColonizeController extends DSGenerator {
 		String bebDB = Common.implode("|",bebauung);
 		String onDB = Common.implode("|",bebon);
 
-		db.tUpdate(1, "UPDATE bases SET bebauung='",bebDB,"',active='",onDB,"',cargo='",cargo.save(),"',owner='",user.getId(),"',bewohner='",crew,"',e='",e,"' WHERE id='",base.getID(),"' AND owner=0 AND cargo='",cargo2.save(),"'");
+		db.tUpdate(1, "UPDATE bases SET bebauung='",bebDB,"',active='",onDB,"',cargo='",cargo.save(),"',owner='",user.getId(),"',bewohner='",crew,"',e='",e,"' WHERE id='",base.getId(),"' AND owner=0 AND cargo='",cargo2.save(),"'");
 
-		db.update("UPDATE offiziere SET userid=",user.getId()," WHERE dest IN ('b ",base.getID(),"','t "+base.getID(),"')");
+		db.update("UPDATE offiziere SET userid=",user.getId()," WHERE dest IN ('b ",base.getId(),"','t "+base.getId(),"')");
 		if( !db.tCommit() ) {
 			addError("Beim kolonisieren ist ein Fehler aufgetreten. Bitte versuchen sie es sp&auml;ter erneut");
 		}
-		t.setVar("base.id", base.getID());		
+		t.setVar("base.id", base.getId());		
 	}
 
 }

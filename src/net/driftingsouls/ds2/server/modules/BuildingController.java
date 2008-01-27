@@ -99,7 +99,7 @@ public class BuildingController extends DSGenerator {
 			base.setArbeiter(base.getArbeiter() + building.getArbeiter());
 			String ondb = Common.implode("|",base.getActive());
 			
-			db.update("UPDATE bases SET active='",ondb,"',arbeiter=arbeiter+",building.getArbeiter()," WHERE id=",base.getID());
+			db.update("UPDATE bases SET active='",ondb,"',arbeiter=arbeiter+",building.getArbeiter()," WHERE id=",base.getId());
 			echo.append("<span style=\"color:#00ff00\">Geb&auml;ude aktiviert</span><br /><br />\n");
 		}
 		
@@ -124,7 +124,7 @@ public class BuildingController extends DSGenerator {
 			base.setArbeiter(base.getArbeiter() - building.getArbeiter());
 			String ondb = Common.implode("|",base.getActive());
 			
-			db.update("UPDATE bases SET active='",ondb,"',arbeiter=arbeiter+",building.getArbeiter()," WHERE id=",base.getID());
+			db.update("UPDATE bases SET active='",ondb,"',arbeiter=arbeiter+",building.getArbeiter()," WHERE id=",base.getId());
 			
 			echo.append("<span style=\"color:#ff0000\">Geb&auml;ude deaktiviert</span><br /><br />\n");
 		}
@@ -152,11 +152,11 @@ public class BuildingController extends DSGenerator {
 			echo.append("<div align=\"center\">\n");
 			echo.append("<img align=\"middle\" src=\""+Configuration.getSetting("URL")+building.getPicture()+"\" alt=\"\" /> "+Common._plaintitle(building.getName())+"<br /><br />\n");
 			echo.append("Wollen sie dieses Geb&auml;ude wirklich abreissen?<br /><br />\n");
-			echo.append("<a class=\"error\" href=\""+Common.buildUrl(getContext(), "demo", "col", base.getID(), "field", field, "conf", "ok")+"\">abreissen</a><br /></div>");
+			echo.append("<a class=\"error\" href=\""+Common.buildUrl(getContext(), "demo", "col", base.getId(), "field", field, "conf", "ok")+"\">abreissen</a><br /></div>");
 			echo.append(Common.tableEnd());
 		
 			echo.append("<br />\n");
-			echo.append("<a class=\"back\" href=\""+Common.buildUrl(getContext(), "default", "module", "base", "col", base.getID())+"\">zur&uuml;ck</a><br />\n");
+			echo.append("<a class=\"back\" href=\""+Common.buildUrl(getContext(), "default", "module", "base", "col", base.getId())+"\">zur&uuml;ck</a><br />\n");
 		
 			return;
 		}
@@ -185,7 +185,7 @@ public class BuildingController extends DSGenerator {
 		
 		base.getActive()[field] = 0;
 		String ondb = Common.implode("|",base.getActive());
-		db.update("UPDATE bases SET active='",ondb,"',bebauung='",bebdb,"',cargo='",base.getCargo().save(),"' WHERE id=",base.getID()," AND cargo='",base.getCargo().save(true),"'");
+		db.update("UPDATE bases SET active='",ondb,"',bebauung='",bebdb,"',cargo='",base.getCargo().save(),"' WHERE id=",base.getId()," AND cargo='",base.getCargo().save(true),"'");
 			
 		echo.append("<br />\n");
 		echo.append("<hr noshade=\"noshade\" size=\"1\" style=\"color:#cccccc\" /><br />\n");
@@ -193,7 +193,7 @@ public class BuildingController extends DSGenerator {
 		echo.append(Common.tableEnd());
 	
 		echo.append("<br />\n");
-		echo.append("<a class=\"back\" href=\""+Common.buildUrl(getContext(), "default", "module", "base", "col", base.getID())+"\">zur&uuml;ck</a><br />\n");
+		echo.append("<a class=\"back\" href=\""+Common.buildUrl(getContext(), "default", "module", "base", "col", base.getId())+"\">zur&uuml;ck</a><br />\n");
 	}
 	
 	/**
@@ -243,10 +243,10 @@ public class BuildingController extends DSGenerator {
 
 		if( building.isDeakAble() ) {
 			if( base.getActive()[field] == 1 ) {
-				echo.append("<a style=\"font-size:16px\" class=\"forschinfo\" href=\""+Common.buildUrl(getContext(), "shutdown", "col" , base.getID(), "field" , field)+"\">deaktivieren</a>");
+				echo.append("<a style=\"font-size:16px\" class=\"forschinfo\" href=\""+Common.buildUrl(getContext(), "shutdown", "col" , base.getId(), "field" , field)+"\">deaktivieren</a>");
 			} 
 			else {
-				echo.append("<a style=\"font-size:16px\" class=\"forschinfo\" href=\""+Common.buildUrl(getContext(), "start", "col" , base.getID(), "field" , field)+"\">aktivieren</a>");
+				echo.append("<a style=\"font-size:16px\" class=\"forschinfo\" href=\""+Common.buildUrl(getContext(), "start", "col" , base.getId(), "field" , field)+"\">aktivieren</a>");
 			}
 
 			if( classicDesign ) {
@@ -258,10 +258,10 @@ public class BuildingController extends DSGenerator {
 		}
 
 		if( building.getId() != Building.KOMMANDOZENTRALE ) {
-			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\""+Common.buildUrl(getContext(), "demo", "col" , base.getID(), "field" , field)+"\">abreissen</a><br />");
+			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\""+Common.buildUrl(getContext(), "demo", "col" , base.getId(), "field" , field)+"\">abreissen</a><br />");
 		}
 		else {
-			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"javascript:ask(\'Wollen sie den Asteroiden wirklich aufgeben?\',\'"+Common.buildUrl(getContext(), "demo", "col" , base.getID(), "field" , field)+"\');\">Asteroid aufgeben</a><br />");
+			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"javascript:ask(\'Wollen sie den Asteroiden wirklich aufgeben?\',\'"+Common.buildUrl(getContext(), "demo", "col" , base.getId(), "field" , field)+"\');\">Asteroid aufgeben</a><br />");
 		}
 	
 		if( !classicDesign ) {
@@ -271,6 +271,6 @@ public class BuildingController extends DSGenerator {
 			echo.append("<br />\n");
 		}
 
-		echo.append("<br /><a style=\"font-size:16px\" class=\"back\" href=\""+Common.buildUrl(getContext(), "default", "module" , "base", "col" , base.getID())+"\">zur&uuml;ck</a><br /></div>\n");		
+		echo.append("<br /><a style=\"font-size:16px\" class=\"back\" href=\""+Common.buildUrl(getContext(), "default", "module" , "base", "col" , base.getId())+"\">zur&uuml;ck</a><br /></div>\n");		
 	}
 }

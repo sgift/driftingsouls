@@ -79,7 +79,7 @@ public class BuildController extends DSGenerator {
 		}
 		base = new Base(baseRow);		
 		
-		t.setVar(	"base.id",		base.getID(),
+		t.setVar(	"base.id",		base.getId(),
 					"base.name",	Common._plaintitle(base.getName()),
 					"global.field",	field );
 		
@@ -242,7 +242,7 @@ public class BuildController extends DSGenerator {
 			// Resourcen abziehen
 			basecargo.substractCargo( building.getBuildCosts() );
 		
-			db.update("UPDATE bases SET active='"+ondb+"',arbeiter=arbeiter+"+building.getArbeiter()+",bebauung='"+bebdb+"',cargo='"+basecargo.save()+"' WHERE id="+base.getID()+" AND cargo='"+basecargo.save(true)+"'");
+			db.update("UPDATE bases SET active='"+ondb+"',arbeiter=arbeiter+"+building.getArbeiter()+",bebauung='"+bebdb+"',cargo='"+basecargo.save()+"' WHERE id="+base.getId()+" AND cargo='"+basecargo.save(true)+"'");
 			if( db.affectedRows() != 0 ) {
 				// Evt. muss das Gebaeude selbst noch ein paar Dinge erledigen
 				building.build(base);
@@ -279,7 +279,7 @@ public class BuildController extends DSGenerator {
 		//Anzahl der Gebaeude pro Spieler berechnen
 		Map<Integer,Integer> ownerbuildingcount = new HashMap<Integer,Integer>(buildingcount);
 		
-		SQLQuery aBeb = db.query("SELECT bebauung FROM bases WHERE owner="+user.getId()+" AND id!="+base.getID());
+		SQLQuery aBeb = db.query("SELECT bebauung FROM bases WHERE owner="+user.getId()+" AND id!="+base.getId());
 		while( aBeb.next() ) {
 			int[] aBebList = Common.explodeToInt("|",aBeb.getString("bebauung"));
 			for( int bid : aBebList ) {

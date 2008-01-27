@@ -134,7 +134,7 @@ public class BasenController extends DSGenerator {
 			Base base = new Base(baseRow.getRow());
 			BaseStatus basedata = Base.getStatus(getContext(),base);
 			
-			t.setVar( "base.id"		, base.getID(),
+			t.setVar( "base.id"		, base.getId(),
 					"base.klasse"	, base.getKlasse(),
 					"base.name"		, Common._plaintitle(base.getName()),
 					"base.system"	, base.getSystem(),

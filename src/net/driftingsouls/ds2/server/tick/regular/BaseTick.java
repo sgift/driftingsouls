@@ -85,7 +85,7 @@ public class BaseTick extends TickController {
 		Cargo cargo = (Cargo)base.getCargo().clone();
 		cargo.setOption( Cargo.Option.NOHTML, true );
 		
-		this.log("berechne Asti "+base.getID()+":");
+		this.log("berechne Asti "+base.getId()+":");
 	
 		Integer[] bebon = base.getActive();
 	
@@ -277,14 +277,14 @@ public class BaseTick extends TickController {
 			// Haben wir was verkauft? Wenn ja nun das Geld ueberweisen
 			if( get > 0 ) {
 				User user = getContext().createUserObject(base.getOwner());
-				user.transferMoneyFrom(Faction.GTU, get, "Automatischer Warenverkauf Asteroid "+base.getID()+" - "+base.getName(), false, User.TRANSFER_AUTO);	
+				user.transferMoneyFrom(Faction.GTU, get, "Automatischer Warenverkauf Asteroid "+base.getId()+" - "+base.getName(), false, User.TRANSFER_AUTO);	
 			}
 			
 			if( (basedata.getArbeiter() != oldbase.getArbeiter()) || (bewohner != oldbase.getBewohner()) ||
 				(e != oldbase.getE()) || !nc.save().equals(oldbase.getCargo().save()) ) {
 					
 				updateBaseQuery.tUpdate(1, basedata.getArbeiter(), bewohner, newe, nc.save(), 
-						base.getID(), oldbase.getArbeiter(), oldbase.getBewohner(), oldbase.getE(), oldbase.getCargo().save() );
+						base.getId(), oldbase.getArbeiter(), oldbase.getBewohner(), oldbase.getE(), oldbase.getCargo().save() );
 			}
 			if( !db.tCommit() ) {
 				this.log("\t++++++++++++++ COMMIT ERROR - RETRYING ++++++++++++++");
@@ -294,7 +294,7 @@ public class BaseTick extends TickController {
 				
 				this.retries--;
 				if( this.retries > 0 ) {
-					base = new Base(db.first("SELECT * FROM bases WHERE id=",oldbase.getID()));
+					base = new Base(db.first("SELECT * FROM bases WHERE id=",oldbase.getId()));
 						  				 
 					tickBase( base );
 					return;	
@@ -323,7 +323,7 @@ public class BaseTick extends TickController {
 				this.log("Schreibe neue Werte...");
 
 				updateBaseQuery.tUpdate(1, basedata.getArbeiter(), basedata.getBewohner(), newe, cargo.save(), 
-						base.getID(), oldbase.getArbeiter(), oldbase.getBewohner(), oldbase.getE(), oldbase.getCargo().save() );
+						base.getId(), oldbase.getArbeiter(), oldbase.getBewohner(), oldbase.getE(), oldbase.getCargo().save() );
 			}
 	
 			this.pmcache.append("[b]");
@@ -357,7 +357,7 @@ public class BaseTick extends TickController {
 							"bewohner=",arbeiter,"," ,
 							"active='",Common.implode("|",bebon),"'," ,
 							"coreactive='",base.isCoreActive() ? 1 : 0,"' " ,
-						"WHERE id='",base.getID(),"' AND " ,
+						"WHERE id='",base.getId(),"' AND " ,
 							"arbeiter='",basedata.getArbeiter(),"' AND " ,
 							"bewohner='",basedata.getBewohner(),"' AND " ,
 							"active='",Common.implode("|", oldbase.getActive()),"' AND " ,
@@ -373,7 +373,7 @@ public class BaseTick extends TickController {
 				
 				this.retries--;
 				if( this.retries > 0 ) {
-					base = new Base(db.first("SELECT * FROM bases WHERE id=",oldbase.getID()));
+					base = new Base(db.first("SELECT * FROM bases WHERE id=",oldbase.getId()));
 						  				 
 					tickBase( base );
 					return;	

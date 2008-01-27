@@ -55,20 +55,20 @@ class Kommandozentrale extends DefaultBuilding {
 		
 		Database db = context.getDatabase();
 		
-		db.update("UPDATE bases SET owner=0,autogtuacts='' WHERE id="+base.getID());
+		db.update("UPDATE bases SET owner=0,autogtuacts='' WHERE id="+base.getId());
 		base.getAutoGTUActs().clear();
 		base.setOwner(0);
 		
 		// TODO: Unschoen. Das sollte die Werft selbst machen
-		db.update("UPDATE werften SET building=0,item=-1,remaining=0,flagschiff=0 WHERE col="+base.getID());
-		db.update("UPDATE werften SET linked=0 WHERE linked="+base.getID());
+		db.update("UPDATE werften SET building=0,item=-1,remaining=0,flagschiff=0 WHERE col="+base.getId());
+		db.update("UPDATE werften SET linked=0 WHERE linked="+base.getId());
 	}
 
 	@Override
 	public String echoShortcut(Context context, Base base, int field, int building) {
 		String sess = context.getSession();
 		
-		return "<a class=\"back\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"\">[K]</a>";
+		return "<a class=\"back\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"\">[K]</a>";
 	}
 
 	@Override
@@ -102,7 +102,7 @@ class Kommandozentrale extends DefaultBuilding {
 		}
 		
 		t.setVar(	"base.name",	base.getName(),
-					"base.id",		base.getID(),
+					"base.id",		base.getId(),
 					"base.field",	field,
 					"base.system",	base.getSystem(),
 					"base.size",	base.getSize());
@@ -167,9 +167,9 @@ class Kommandozentrale extends DefaultBuilding {
 					db.tUpdate(1, "UPDATE stats_verkaeufe SET stats='",stats.save(),"' WHERE id='",statid.getInt("id"),"' AND stats='",stats.save(true),"'");
 				}
 				
-				db.tUpdate(1, "UPDATE bases SET cargo='",cargo.save(),"' WHERE id="+base.getID()+" AND cargo='",cargo.save(true),"'");
+				db.tUpdate(1, "UPDATE bases SET cargo='",cargo.save(),"' WHERE id="+base.getId()+" AND cargo='",cargo.save(true),"'");
 				
-				user.transferMoneyFrom(Faction.GTU, totalRE, "Warenverkauf Asteroid "+base.getID()+" - "+base.getName(), false, User.TRANSFER_SEMIAUTO );
+				user.transferMoneyFrom(Faction.GTU, totalRE, "Warenverkauf Asteroid "+base.getId()+" - "+base.getName(), false, User.TRANSFER_SEMIAUTO );
 				
 				if( !db.tCommit() ) {
 					context.addError("Fehler: Die Transaktion der Waren war nicht erfolgreich");
@@ -205,7 +205,7 @@ class Kommandozentrale extends DefaultBuilding {
 				cargo.addResource( Resources.BATTERIEN, load );
 				e -= load;
 			
-				db.update("UPDATE bases SET e=",e,",cargo='",cargo.save(),"' WHERE id="+base.getID()+" AND cargo='",cargo.save(true),"' AND e='",base.getE(),"'");
+				db.update("UPDATE bases SET e=",e,",cargo='",cargo.save(),"' WHERE id="+base.getId()+" AND cargo='",cargo.save(true),"' AND e='",base.getE(),"'");
 				if( db.affectedRows() != 0 ) {
 					base.setE(e);	
 				}
@@ -236,7 +236,7 @@ class Kommandozentrale extends DefaultBuilding {
 				cargo.addResource( Resources.LBATTERIEN, unload );
 				e += unload;
 			
-				db.update("UPDATE bases SET e=",e,",cargo='",cargo.save(),"' WHERE id="+base.getID()+" AND cargo='",cargo.save(true),"' AND e='",base.getE(),"'");
+				db.update("UPDATE bases SET e=",e,",cargo='",cargo.save(),"' WHERE id="+base.getId()+" AND cargo='",cargo.save(true),"' AND e='",base.getE(),"'");
 				if( db.affectedRows() != 0 ) {
 					base.setE(e);	
 				}
@@ -260,7 +260,7 @@ class Kommandozentrale extends DefaultBuilding {
 				cargo.substractResource( Resources.PLATIN, create );
 				cargo.addResource( Resources.LBATTERIEN, create );
 			
-				db.update("UPDATE bases SET cargo='",cargo.save(),"' WHERE id="+base.getID()+" AND cargo='",cargo.save(true),"'");
+				db.update("UPDATE bases SET cargo='",cargo.save(),"' WHERE id="+base.getId()+" AND cargo='",cargo.save(true),"'");
 			}
 		}
 		
@@ -289,7 +289,7 @@ class Kommandozentrale extends DefaultBuilding {
 				cargo.substractResource( new ItemID(item), 1 );
 		
 				db.update("UPDATE ally SET items='"+allyitems.getData( Cargo.Type.ITEMSTRING )+"' WHERE id="+ally);
-				db.update("UPDATE bases SET cargo='"+cargo.save()+"' WHERE id="+base.getID());
+				db.update("UPDATE bases SET cargo='"+cargo.save()+"' WHERE id="+base.getId());
 						
 				String msg = "Ich habe das Item \""+Items.get().item(item).getName()+"\" der Allianz zur Verf&uuml;gung gestellt.";
 				PM.send(context, user.getId(), ally, "Item &uuml;berstellt", msg, true);
@@ -308,14 +308,14 @@ class Kommandozentrale extends DefaultBuilding {
 			int count = context.getRequest().getParameterInt("count");
 			
 			if( (actid >= 0) && (actid <= 1 ) && (count != 0 || (actid == 1)) ) {
-				BaseStatus basedata = Base.getStatus(context, base.getID());
+				BaseStatus basedata = Base.getStatus(context, base.getId());
 				Cargo stat = (Cargo)basedata.getStatus().clone();
 				stat.setResource(Resources.NAHRUNG, 0);
 				
 				if( stat.getResourceCount(resid) != 0 && kurse.getResourceCount(resid) != 0 ) {
 					base.getAutoGTUActs().add(new AutoGTUAction(resid,actid,count));
 					
-					db.update("UPDATE bases SET autogtuacts='"+Common.implode(";", base.getAutoGTUActs())+"' WHERE id='"+base.getID()+"'");
+					db.update("UPDATE bases SET autogtuacts='"+Common.implode(";", base.getAutoGTUActs())+"' WHERE id='"+base.getId()+"'");
 					
 					message.append("Automatischer Verkauf von <img style=\"vertical-align:middle\" src=\""+Cargo.getResourceImage(resid)+"\" alt=\"\" />"+Cargo.getResourceName(resid)+" hinzugef&uuml;gt<br /><br />\n");
 				}
@@ -340,7 +340,7 @@ class Kommandozentrale extends DefaultBuilding {
 					}
 				}
 				
-				db.update("UPDATE bases SET autogtuacts='"+Common.implode(";", autoactlist)+"' WHERE id='"+base.getID()+"'");
+				db.update("UPDATE bases SET autogtuacts='"+Common.implode(";", autoactlist)+"' WHERE id='"+base.getId()+"'");
 			}
 		}
 
@@ -422,7 +422,7 @@ class Kommandozentrale extends DefaultBuilding {
 			ship.free();
 			
 			
-			SQLQuery targetbase = db.query("SELECT id,name FROM bases WHERE x="+base.getX()+" AND y="+base.getY()+" AND system="+base.getSystem()+" AND id!="+base.getID()+" AND owner='"+user.getId()+"'");
+			SQLQuery targetbase = db.query("SELECT id,name FROM bases WHERE x="+base.getX()+" AND y="+base.getY()+" AND system="+base.getSystem()+" AND id!="+base.getId()+" AND owner='"+user.getId()+"'");
 			while( targetbase.next() ) {
 				t.setVar(	"targetbase.id", 	targetbase.get("id"),
 							"targetbase.name",	Common._plaintitle(targetbase.getString("name")) );
@@ -476,7 +476,7 @@ class Kommandozentrale extends DefaultBuilding {
 				t.parse("autogtu.acts.list", "autogtu.acts.listitem", true);
 			}
 			
-			BaseStatus basedata = Base.getStatus(context, base.getID());
+			BaseStatus basedata = Base.getStatus(context, base.getId());
 			Cargo stat = (Cargo)basedata.getStatus().clone();
 			stat.setResource( Resources.NAHRUNG, 0 );
 			stat.setOption( Cargo.Option.NOHTML, true );

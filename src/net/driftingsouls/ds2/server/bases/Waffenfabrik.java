@@ -152,9 +152,9 @@ class Waffenfabrik extends DefaultBuilding {
 		
 		StringBuilder wfreason = new StringBuilder(100);
 		
-		if( !vars.usedcapacity.containsKey(base.getID()) ) {
-			if( !vars.stats.containsKey(base.getID()) ) {
-				vars.stats.put(base.getID(), new Cargo());
+		if( !vars.usedcapacity.containsKey(base.getId()) ) {
+			if( !vars.stats.containsKey(base.getId()) ) {
+				vars.stats.put(base.getId(), new Cargo());
 			}
 			
 			boolean ok = true;
@@ -168,9 +168,9 @@ class Waffenfabrik extends DefaultBuilding {
 				thisammolist.put(itemeffect.getAmmoID(), ammolist.get(itemeffect.getAmmoID()));
 			}
 			
-			SQLResultRow wf = db.first( "SELECT produces FROM weaponfactory WHERE col=",base.getID());
+			SQLResultRow wf = db.first( "SELECT produces FROM weaponfactory WHERE col=",base.getId());
 			if( wf.isEmpty() ) {
-				LOG.warn("Basis "+base.getID()+" verfuegt ueber keinen Waffenfabrik-Eintrag, obwohl es eine Waffenfabrik hat");
+				LOG.warn("Basis "+base.getId()+" verfuegt ueber keinen Waffenfabrik-Eintrag, obwohl es eine Waffenfabrik hat");
 			}
 			String[] plist = StringUtils.split(wf.getString("produces"), ';');
 			for( int i=0; i < plist.length; i++ ) {
@@ -203,17 +203,17 @@ class Waffenfabrik extends DefaultBuilding {
 					int aid = Integer.parseInt(tmp[0]);
 					int count = Integer.parseInt(tmp[1]);
 					
-					if( !vars.usedcapacity.containsKey(base.getID()) ) {
-						vars.usedcapacity.put(base.getID(), new BigDecimal(0, MathContext.DECIMAL32));
+					if( !vars.usedcapacity.containsKey(base.getId()) ) {
+						vars.usedcapacity.put(base.getId(), new BigDecimal(0, MathContext.DECIMAL32));
 					}
-					vars.usedcapacity.put(base.getID(), vars.usedcapacity.get(base.getID()).add(new BigDecimal(ammolist.get(aid).getString("dauer")).multiply((new BigDecimal(count)))) );
+					vars.usedcapacity.put(base.getId(), vars.usedcapacity.get(base.getId()).add(new BigDecimal(ammolist.get(aid).getString("dauer")).multiply((new BigDecimal(count)))) );
 					if( count > 0 ) {
 						Cargo tmpcargo = (Cargo)((Cargo)ammolist.get(aid).get("buildcosts")).clone();
 						if( count > 1 ) {
 							tmpcargo.multiply( count, Cargo.Round.NONE );
 						}
-						vars.stats.get(base.getID()).substractCargo( tmpcargo );
-						vars.stats.get(base.getID()).addResource( new ItemID(ammolist.get(aid).getInt("itemid")), count );
+						vars.stats.get(base.getId()).substractCargo( tmpcargo );
+						vars.stats.get(base.getId()).addResource( new ItemID(ammolist.get(aid).getInt("itemid")), count );
 					}
 				}
 			}
@@ -222,8 +222,8 @@ class Waffenfabrik extends DefaultBuilding {
 				wfreason.insert(0, "[b]"+basename+"[/b] - Die Arbeiten in der Waffenfabrik zeitweise eingestellt.\nGrund:\n");
 			}
 			
-			if( !vars.usedcapacity.containsKey(base.getID()) || (vars.usedcapacity.get(base.getID()).doubleValue() <= 0) ) {
-				vars.usedcapacity.put(base.getID(), new BigDecimal(-1));
+			if( !vars.usedcapacity.containsKey(base.getId()) || (vars.usedcapacity.get(base.getId()).doubleValue() <= 0) ) {
+				vars.usedcapacity.put(base.getId(), new BigDecimal(-1));
 			}
 		}
 		
@@ -236,12 +236,12 @@ class Waffenfabrik extends DefaultBuilding {
 		
 		Database db = ContextMap.getContext().getDatabase();
 		
-		SQLResultRow wfentry = db.first("SELECT id FROM weaponfactory WHERE col="+base.getID());
+		SQLResultRow wfentry = db.first("SELECT id FROM weaponfactory WHERE col="+base.getId());
 		if( !wfentry.isEmpty() ) {
 			db.update("UPDATE weaponfactory SET count=count+1 WHERE id=",wfentry.getInt("id"));
 		} 
 		else {
-			db.update("INSERT INTO weaponfactory (count,col) VALUES (1,"+base.getID()+")");
+			db.update("INSERT INTO weaponfactory (count,col) VALUES (1,"+base.getId()+")");
 		}
 	}
 
@@ -259,7 +259,7 @@ class Waffenfabrik extends DefaultBuilding {
 	public void cleanup(Context context, Base base) {
 		Database db = context.getDatabase();
 		
-		SQLResultRow wf = db.first("SELECT count,produces FROM weaponfactory WHERE col="+base.getID());
+		SQLResultRow wf = db.first("SELECT count,produces FROM weaponfactory WHERE col="+base.getId());
 		if( wf.getInt("count") > 1 ) {	
 			BigDecimal usedcapacity = new BigDecimal(0, MathContext.DECIMAL32);
 	
@@ -294,10 +294,10 @@ class Waffenfabrik extends DefaultBuilding {
 				wf.put("produces", Common.implode(";",plist));
 			}
 				
-			db.update("UPDATE weaponfactory SET count=count-1,produces='"+wf.getString("produces")+"' WHERE col="+base.getID());
+			db.update("UPDATE weaponfactory SET count=count-1,produces='"+wf.getString("produces")+"' WHERE col="+base.getId());
 		} 
 		else {
-			db.update("DELETE FROM weaponfactory WHERE col="+base.getID());
+			db.update("DELETE FROM weaponfactory WHERE col="+base.getId());
 		}
 	}
 
@@ -312,8 +312,8 @@ class Waffenfabrik extends DefaultBuilding {
 		loaddata( base );
 		ContextVars vars = (ContextVars)ContextMap.getContext().getVariable(getClass(), "values");
 	
-		if( vars.usedcapacity.get(base.getID()).doubleValue() > 0 ) {
-			SQLResultRow wf = db.first("SELECT produces FROM weaponfactory WHERE col=",base.getID());
+		if( vars.usedcapacity.get(base.getId()).doubleValue() > 0 ) {
+			SQLResultRow wf = db.first("SELECT produces FROM weaponfactory WHERE col=",base.getId());
 			String[] prodlist = StringUtils.split(wf.getString("produces"), ';');
 			
 			StringBuilder popup = new StringBuilder(200);
@@ -330,14 +330,14 @@ class Waffenfabrik extends DefaultBuilding {
 		
 			popup.append(Common.tableEnd().replace('"', '\'') );
 							
-			result.append("<a name=\"p"+base.getID()+"_"+field+"\" id=\"p"+base.getID()+"_"+field+"\" " +
+			result.append("<a name=\"p"+base.getId()+"_"+field+"\" id=\"p"+base.getId()+"_"+field+"\" " +
 					"class=\"error\" " +
-					"onmouseover=\"return overlib('<span style=\\'font-size:13px\\'>"+StringEscapeUtils.escapeJavaScript(popup.toString())+"</span>',REF,'p"+base.getID()+"_"+field+"',REFY,22,NOJUSTY,TIMEOUT,0,DELAY,150,WIDTH,260,BGCLASS,'gfxtooltip',FGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');\" " +
+					"onmouseover=\"return overlib('<span style=\\'font-size:13px\\'>"+StringEscapeUtils.escapeJavaScript(popup.toString())+"</span>',REF,'p"+base.getId()+"_"+field+"',REFY,22,NOJUSTY,TIMEOUT,0,DELAY,150,WIDTH,260,BGCLASS,'gfxtooltip',FGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');\" " +
 					"onmouseout=\"return nd();\" " +
-					"href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"\">[WF]</a>");
+					"href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"\">[WF]</a>");
 		} 
 		else {
-			result.append("<a class=\"back\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getID()+"&amp;field="+field+"\">[WF]</a>");
+			result.append("<a class=\"back\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"\">[WF]</a>");
 		}
 	
 		return result.toString();
@@ -347,7 +347,7 @@ class Waffenfabrik extends DefaultBuilding {
 	public boolean isActive(Base base, int status, int field) {
 		loaddata( base );
 		ContextVars vars = (ContextVars)ContextMap.getContext().getVariable(getClass(), "values");
-		if( vars.usedcapacity.get(base.getID()).doubleValue() > 0 ) {
+		if( vars.usedcapacity.get(base.getId()).doubleValue() > 0 ) {
 			return true;
 		}
 		return false;
@@ -366,9 +366,9 @@ class Waffenfabrik extends DefaultBuilding {
 			context.putVariable(getClass(), "colcomplete", colcomplete);
 		}
 		
-		if( (vars.usedcapacity.get(base.getID()).compareTo(new BigDecimal(0)) > 0) && !colcomplete.containsKey(base.getID()) ) {
-			stats.addCargo( vars.stats.get(base.getID()) );
-			colcomplete.put(base.getID(), true);
+		if( (vars.usedcapacity.get(base.getId()).compareTo(new BigDecimal(0)) > 0) && !colcomplete.containsKey(base.getId()) ) {
+			stats.addCargo( vars.stats.get(base.getId()) );
+			colcomplete.put(base.getId(), true);
 		}
 	
 		return msg;
@@ -386,7 +386,7 @@ class Waffenfabrik extends DefaultBuilding {
 		
 		StringBuilder echo = new StringBuilder(2000);
 		
-		SQLResultRow wf = db.first("SELECT * FROM weaponfactory WHERE col="+base.getID());
+		SQLResultRow wf = db.first("SELECT * FROM weaponfactory WHERE col="+base.getId());
 		
 		if( wf.isEmpty() ) {
 			echo.append("<div style=\"color:red\">FEHLER: Diese Waffenfabrik besitzt keinen Eintrag<br /></div>\n");
@@ -642,7 +642,7 @@ class Waffenfabrik extends DefaultBuilding {
 			echo.append("<div>\n");
 			echo.append("<input name=\"count\" type=\"text\" size=\"2\" value=\"0\" />\n");
 			echo.append("<input name=\"produce\" type=\"hidden\" value=\""+ammoid+"\" />\n");
-			echo.append("<input name=\"col\" type=\"hidden\" value=\""+base.getID()+"\" />\n");
+			echo.append("<input name=\"col\" type=\"hidden\" value=\""+base.getId()+"\" />\n");
 			echo.append("<input name=\"sess\" type=\"hidden\" value=\""+sess+"\" />\n");
 			echo.append("<input name=\"field\" type=\"hidden\" value=\""+field+"\" />\n");
 			echo.append("<input name=\"module\" type=\"hidden\" value=\"building\" />\n");

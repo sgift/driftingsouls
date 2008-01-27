@@ -69,7 +69,7 @@ class Academy extends DefaultBuilding {
 		
 		Context context = ContextMap.getContext();
 		
-		context.getDatabase().update("INSERT INTO academy VALUES(0,"+base.getID()+",0,0,'')");
+		context.getDatabase().update("INSERT INTO academy VALUES(0,"+base.getId()+",0,0,'')");
 	}
 
 	@Override
@@ -86,20 +86,20 @@ class Academy extends DefaultBuilding {
 	public void cleanup(Context context, Base base) {
 		super.cleanup(context, base);
 		
-		context.getDatabase().update("DELETE FROM academy WHERE col="+base.getID());
-		context.getDatabase().update("UPDATE offiziere SET dest='b "+base.getID()+"' WHERE dest='t "+base.getID()+"'");	
+		context.getDatabase().update("DELETE FROM academy WHERE col="+base.getId());
+		context.getDatabase().update("UPDATE offiziere SET dest='b "+base.getId()+"' WHERE dest='t "+base.getId()+"'");	
 	}
 
 	@Override
 	public boolean isActive(Base base, int status, int field) {
 		Database db = ContextMap.getContext().getDatabase();
 
-		SQLResultRow academy = db.first( "SELECT remain FROM academy WHERE col="+base.getID());
+		SQLResultRow academy = db.first( "SELECT remain FROM academy WHERE col="+base.getId());
 		if( !academy.isEmpty() && (academy.getInt("remain") > 0) ) {
 			return true;
 		}
 		else if( academy.isEmpty() ) {
-			LOG.warn("Die Akademie auf Basis "+base.getID()+" verfuegt ueber keinen DB-Eintrag");
+			LOG.warn("Die Akademie auf Basis "+base.getId()+" verfuegt ueber keinen DB-Eintrag");
 		}
 		return false;
 	}
@@ -112,13 +112,13 @@ class Academy extends DefaultBuilding {
 		
 		StringBuilder result = new StringBuilder(200);
 		
-		SQLResultRow acc = db.first("SELECT id,remain,train,`upgrade` FROM academy WHERE col="+base.getID());
+		SQLResultRow acc = db.first("SELECT id,remain,train,`upgrade` FROM academy WHERE col="+base.getId());
 		if( !acc.isEmpty() ) {
 			if( acc.getInt("remain") == 0 ) {
 				result.append("<a class=\"back\" href=\"./main.php?module=building&amp;sess=");
 				result.append(sess);
 				result.append("&amp;col=");
-				result.append(base.getID());
+				result.append(base.getId());
 				result.append("&amp;field=");
 				result.append(field);
 				result.append("\">[A]</a>");
@@ -151,23 +151,23 @@ class Academy extends DefaultBuilding {
 				String popupStr = StringEscapeUtils.escapeJavaScript(popup.toString());
 				
 				result.append("<a name=\"p");
-				result.append(base.getID());
+				result.append(base.getId());
 				result.append("_");
 				result.append(field);
 				result.append("\" id=\"p");
-				result.append(base.getID());
+				result.append(base.getId());
 				result.append("_");
 				result.append(field);
 				result.append("\" class=\"error\" onmouseover=\"return overlib('<span style=\\'font-size:13px\\'>");
 				result.append(popupStr);
 				result.append("</span>',REF,'p");
-				result.append(base.getID());
+				result.append(base.getId());
 				result.append("_");
 				result.append(field);
 				result.append("',REFY,22,NOJUSTY,TIMEOUT,0,DELAY,150,WIDTH,300,BGCLASS,'gfxtooltip',FGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');\" onmouseout=\"return nd();\" href=\"./main.php?module=building&amp;sess=");
 				result.append(sess);
 				result.append("&amp;col=");
-				result.append(base.getID());
+				result.append(base.getId());
 				result.append("&amp;field=");
 				result.append(field);
 				result.append("\">[A]<span style=\"font-weight:normal\">");
@@ -197,7 +197,7 @@ class Academy extends DefaultBuilding {
 			return "";
 		}
 
-		SQLResultRow academy = db.first("SELECT id,train,remain,`upgrade` FROM academy WHERE col="+base.getID());
+		SQLResultRow academy = db.first("SELECT id,train,remain,`upgrade` FROM academy WHERE col="+base.getId());
 		if( academy.isEmpty() ) {
 			context.addError("Diese Akademie verf&uuml;gt &uuml;ber keinen Akademie-Eintrag in der Datenbank");
 			return "";
@@ -205,7 +205,7 @@ class Academy extends DefaultBuilding {
 		
 		t.setVar(	
 				"base.name",	base.getName(),
-				"base.id",		base.getID(),
+				"base.id",		base.getId(),
 				"base.field",	field);
 		
 		//---------------------------------
@@ -241,8 +241,8 @@ class Academy extends DefaultBuilding {
 		
 					db.tBegin();
 					user.setCargo(usercargo.save(), usercargo.save(true));
-					db.tUpdate(1,"UPDATE academy SET train=",newo,",remain=8 WHERE col="+base.getID()+" AND train='0' AND remain='0'");
-					db.tUpdate(1,"UPDATE bases SET cargo='",cargo.save(),"' WHERE id="+base.getID()+" AND cargo='",cargo.save(true),"'");
+					db.tUpdate(1,"UPDATE academy SET train=",newo,",remain=8 WHERE col="+base.getId()+" AND train='0' AND remain='0'");
+					db.tUpdate(1,"UPDATE bases SET cargo='",cargo.save(),"' WHERE id="+base.getId()+" AND cargo='",cargo.save(true),"'");
 					base.setCargo(cargo);
 					
 					if( !db.tCommit() ) {
@@ -264,7 +264,7 @@ class Academy extends DefaultBuilding {
 		if( (train != 0) && (off != 0) ) {
 			if( (academy.getInt("train") == 0) && (academy.getString("upgrade").length() == 0) ) {				
 				SQLResultRow offizier = db.first("SELECT * FROM offiziere WHERE id='",off,"'");
-				if( offizier.getString("dest").equals("b "+base.getID()) ) {					
+				if( offizier.getString("dest").equals("b "+base.getId()) ) {					
 					Map<Integer,String> dTrain = new HashMap<Integer,String>();
 					dTrain.put(1, "ing");
 					dTrain.put(2, "waf");
@@ -334,9 +334,9 @@ class Academy extends DefaultBuilding {
 		
 						db.tBegin();
 						user.setCargo( usercargo.save(), usercargo.save(true) );
-						db.tUpdate(1,"UPDATE academy SET `upgrade`='",off," ",train,"',remain='",dauer,"' WHERE col="+base.getID()+" AND remain=0 AND `upgrade`=''");
-						db.tUpdate(1,"UPDATE offiziere SET dest='t "+base.getID()+"' WHERE id=",off," AND dest='b "+base.getID()+"'");
-						db.tUpdate(1,"UPDATE bases SET cargo='",cargo.save(),"' WHERE id="+base.getID()+" AND cargo='",cargo.save(true),"'");
+						db.tUpdate(1,"UPDATE academy SET `upgrade`='",off," ",train,"',remain='",dauer,"' WHERE col="+base.getId()+" AND remain=0 AND `upgrade`=''");
+						db.tUpdate(1,"UPDATE offiziere SET dest='t "+base.getId()+"' WHERE id=",off," AND dest='b "+base.getId()+"'");
+						db.tUpdate(1,"UPDATE bases SET cargo='",cargo.save(),"' WHERE id="+base.getId()+" AND cargo='",cargo.save(true),"'");
 						base.setCargo(cargo);
 						
 						if( !db.tCommit() ) {
@@ -416,7 +416,7 @@ class Academy extends DefaultBuilding {
 		
 		t.setBlock("_BUILDING", "academy.offilist.listitem", "academy.offilist.list");
 		
-		SQLQuery offizier = db.query("SELECT * FROM offiziere WHERE dest='b "+base.getID()+"'");
+		SQLQuery offizier = db.query("SELECT * FROM offiziere WHERE dest='b "+base.getId()+"'");
 		while( offizier.next() ) {			
 			Offizier offi = new Offizier( offizier.getRow() );
 			

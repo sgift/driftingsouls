@@ -90,7 +90,7 @@ public class CoreController extends DSGenerator {
 		int build = getInteger("build");
 		
 		if( base.getCore() > 0 ) {
-			addError("Sie k&ouml;nnen nur eine Core pro Asteroid bauen", Common.buildUrl(getContext(), "default", "module", "base", "col", base.getID()));
+			addError("Sie k&ouml;nnen nur eine Core pro Asteroid bauen", Common.buildUrl(getContext(), "default", "module", "base", "col", base.getId()));
 			setTemplate("");
 			
 			return;
@@ -98,21 +98,21 @@ public class CoreController extends DSGenerator {
 		
 		Core core = Core.getCore(db, build);
 		if( core == null ) {
-			addError("Der angegebene Core-Typ existiert nicht", Common.buildUrl(getContext(), "default", "module", "base", "col", base.getID()));
+			addError("Der angegebene Core-Typ existiert nicht", Common.buildUrl(getContext(), "default", "module", "base", "col", base.getId()));
 			setTemplate("");
 			
 			return;
 		}
 		
 		if( !user.hasResearched(core.getTechRequired()) ) {
-			addError("Sie haben nicht alle ben&ouml;tigten Forschungen", Common.buildUrl(getContext(), "default", "module", "base", "col", base.getID()));
+			addError("Sie haben nicht alle ben&ouml;tigten Forschungen", Common.buildUrl(getContext(), "default", "module", "base", "col", base.getId()));
 			setTemplate("");
 			
 			return;
 		}
 	
 		if( core.getAstiType() != base.getKlasse() ) {
-			addError("Diese Core passt nicht in diesen Asteroiden rein", Common.buildUrl(getContext(), "default", "module", "base", "col", base.getID()));
+			addError("Diese Core passt nicht in diesen Asteroiden rein", Common.buildUrl(getContext(), "default", "module", "base", "col", base.getId()));
 			setTemplate("");
 			
 			return;
@@ -160,12 +160,12 @@ public class CoreController extends DSGenerator {
 			db.tBegin();
 			db.update("UPDATE bases " +
 					"SET core=",build,",cargo='",cargo.save(),"',coreactive=0 " +
-					"WHERE id=",base.getID()," AND core='0' AND cargo='",cargo.save(true),"'");
+					"WHERE id=",base.getId()," AND core='0' AND cargo='",cargo.save(true),"'");
 			
 			if( base.isCoreActive() ) {
 				db.update("UPDATE bases " +
 						"SET coreactive='1',arbeiter=arbeiter+'",core.getArbeiter(),"',bewohner=bewohner+'",core.getBewohner(),"' " +
-						"WHERE id=",base.getID()," AND arbeiter='",base.getArbeiter(),"' AND coreactive='0' AND bewohner='",base.getBewohner(),"'");
+						"WHERE id=",base.getId()," AND arbeiter='",base.getArbeiter(),"' AND coreactive='0' AND bewohner='",base.getBewohner(),"'");
 				
 				base.setArbeiter(base.getArbeiter() + core.getArbeiter());
 				base.setBewohner(base.getBewohner() + core.getBewohner());
@@ -194,7 +194,7 @@ public class CoreController extends DSGenerator {
 
 		db.update("UPDATE bases " +
 				"SET coreactive='0',arbeiter=arbeiter-'",core.getArbeiter(),"' " +
-				"WHERE id=",base.getID()," AND arbeiter='",base.getArbeiter(),"' AND bewohner='",base.getBewohner(),"' AND coreactive='1'");
+				"WHERE id=",base.getId()," AND arbeiter='",base.getArbeiter(),"' AND bewohner='",base.getBewohner(),"' AND coreactive='1'");
 		
 		if( db.affectedRows() == 0 ) {
 			t.setVar("core.message", "<span class=\"error\">Deaktivierung fehlgeschlagen. Bitte versuchen sie es sp&auml;ter erneut</span>");
@@ -230,7 +230,7 @@ public class CoreController extends DSGenerator {
 		else {
 			db.update("UPDATE bases " +
 					"SET coreactive='1',arbeiter=arbeiter+'",core.getArbeiter(),"' " +
-					"WHERE id=",base.getID()," AND arbeiter='",base.getArbeiter(),"' AND coreactive='0' AND bewohner='",base.getBewohner(),"'");
+					"WHERE id=",base.getId()," AND arbeiter='",base.getArbeiter(),"' AND coreactive='0' AND bewohner='",base.getBewohner(),"'");
 			
 			if( db.affectedRows() == 0 ) {
 				t.setVar("core.message", "<span class=\"error\">Aktivierung fehlgeschlagen. Bitte versuchen sie es sp&auml;ter erneut</span>");

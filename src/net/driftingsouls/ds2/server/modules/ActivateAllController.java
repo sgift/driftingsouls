@@ -80,7 +80,7 @@ public class ActivateAllController extends DSGenerator {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
-		t.setVar("base.id", base.getID());
+		t.setVar("base.id", base.getId());
 		
 		int deakOnly = getInteger("deaconly");
 		if( deakOnly != 0 ) {
@@ -126,7 +126,7 @@ public class ActivateAllController extends DSGenerator {
 		String ondb = Common.implode( "|", base.getActive() );
 		query += "active='"+ondb+"'";
 
-		db.update("UPDATE bases SET ",query,",arbeiter='"+this.base.getArbeiter()+"' WHERE id='"+base.getID()+"'");
+		db.update("UPDATE bases SET ",query,",arbeiter='"+this.base.getArbeiter()+"' WHERE id='"+base.getId()+"'");
 		
 		/*
 			Falls gewuenscht, nun alle Gebaeude nacheinander aktivieren
@@ -170,7 +170,7 @@ public class ActivateAllController extends DSGenerator {
 			}
 			ondb = Common.implode("|",base.getActive());
 			query += "active='"+ondb+"'";
-			db.update("UPDATE bases SET ",query,",arbeiter='",base.getArbeiter(),"' WHERE id='",base.getID(),"'");
+			db.update("UPDATE bases SET ",query,",arbeiter='",base.getArbeiter(),"' WHERE id='",base.getId(),"'");
 		} 
 	}
 
