@@ -1,0 +1,32 @@
+<!DOCTYPE hibernate-configuration PUBLIC
+	"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+	<session-factory>
+		<property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+
+		<!-- C3P0 connection pool -->
+		<property name="hibernate.c3p0.min_size">2</property>
+		<property name="hibernate.c3p0.acquire_increment">2</property>
+		<property name="hibernate.c3p0.max_size">30</property>
+		<property name="hibernate.c3p0.timeout">1800</property>
+		<property name="hibernate.c3p0.max_statements">180</property>
+		<property name="hibernate.c3p0.max_statements_per_connection">180</property>
+		<property name="hibernate.c3p0.max_idle_time">600</property>
+		<property name="hibernate.c3p0.preferred_test_query">SELECT ticks FROM config LIMIT 1</property>
+		<property name="hibernate.c3p0.idle_connection_test_period">30</property>
+
+        <!-- SQL dialect -->
+        <property name="dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
+
+        <!-- Enable Hibernate's automatic session context management -->
+        <property name="current_session_context_class">thread</property>
+
+        <!-- Second-level cache  -->
+        <property name="cache.provider_class">org.hibernate.cache.EhCacheProvider</property>
+
+        <!-- Echo all executed SQL to stdout -->
+        <property name="show_sql">true</property>
+	</session-factory>
+</hibernate-configuration>

@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import net.driftingsouls.ds2.server.framework.db.DBConnectionPool;
+import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
 import org.apache.commons.logging.Log;
@@ -67,6 +68,9 @@ public class DriftingSouls {
 		BasicContext context = new BasicContext(new CmdLineRequest(new String[0]), new SimpleResponse());
 		
 		Common.setLocale(Locale.GERMAN);
+		
+		// Hibernate Init (TODO)
+		HibernateFacade.getStatistics();
 		
 		if( boot ) {
 			LOG.info("Booting Classes...");
