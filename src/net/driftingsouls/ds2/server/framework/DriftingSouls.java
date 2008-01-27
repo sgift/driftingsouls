@@ -63,6 +63,9 @@ public class DriftingSouls {
 				Configuration.getSetting("db_user"),
 				Configuration.getSetting("db_password"));
 		
+		LOG.info("Setting up Boot Context...");
+		BasicContext context = new BasicContext(new CmdLineRequest(new String[0]), new SimpleResponse());
+		
 		Common.setLocale(Locale.GERMAN);
 		
 		if( boot ) {
@@ -87,5 +90,7 @@ public class DriftingSouls {
 				}
 			}
 		}
+		
+		context.free();
 	}
 }
