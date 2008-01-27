@@ -471,8 +471,8 @@ public class Base implements Cloneable {
 			
 			Building building = Building.getBuilding(context.getDatabase(), bebauung[o]);
 	
-			if( !buildinglocs.containsKey(building.getID()) ) {
-				buildinglocs.put(building.getID(), o);
+			if( !buildinglocs.containsKey(building.getId()) ) {
+				buildinglocs.put(building.getId(), o);
 			}
 				
 			bebon[o] = building.isActive( base, bebon[o], o ) ? 1 : 0;

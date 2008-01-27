@@ -95,7 +95,7 @@ public abstract class Building implements Loggable {
 	 * Gibt die ID des Gebaeudetyps zurueck
 	 * @return Die ID des Gebaeudetyps
 	 */
-	public abstract int getID();
+	public abstract int getId();
 	
 	/**
 	 * Gibt den Namen des Gebaeudetyps zurueck

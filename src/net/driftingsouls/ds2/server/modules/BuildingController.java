@@ -232,7 +232,7 @@ public class BuildingController extends DSGenerator {
 			}
 		}
 		
-		echo.append(building.output( getContext(), getTemplateEngine(), base, field, building.getID() ));
+		echo.append(building.output( getContext(), getTemplateEngine(), base, field, building.getId() ));
 		
 		if( !classicDesign ) {
 			echo.append("Aktionen: ");
@@ -257,7 +257,7 @@ public class BuildingController extends DSGenerator {
 			}
 		}
 
-		if( building.getID() != Building.KOMMANDOZENTRALE ) {
+		if( building.getId() != Building.KOMMANDOZENTRALE ) {
 			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\""+Common.buildUrl(getContext(), "demo", "col" , base.getID(), "field" , field)+"\">abreissen</a><br />");
 		}
 		else {

@@ -136,7 +136,7 @@ class DefaultBuilding extends Building {
 	}
 
 	@Override
-	public int getID() {
+	public int getId() {
 		return data.getInt("id");
 	}
 

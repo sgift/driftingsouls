@@ -123,7 +123,7 @@ public class BuildController extends DSGenerator {
 		if( building.getPerPlanetCount() != 0 ) {
 			int buildingcount = 0;
 			for( int bid : base.getBebauung() ) {
-				if( bid == building.getID() ) {
+				if( bid == building.getId() ) {
 					buildingcount++;
 				}
 			}
@@ -144,7 +144,7 @@ public class BuildController extends DSGenerator {
 			while( abeb.next() ) {
 				int[] aBebList = Common.explodeToInt("|",abeb.getString("bebauung"));
 				for( int bid : aBebList ) {
-					if( bid == building.getID() ) {
+					if( bid == building.getId() ) {
 						ownerbuildingcount++;
 					}
 				}
