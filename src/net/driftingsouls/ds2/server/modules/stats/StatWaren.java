@@ -57,7 +57,7 @@ public class StatWaren implements Statistic, Loggable {
 	
 		Cargo cargo = new Cargo(Cargo.Type.STRING, db.first("SELECT cargo FROM stats_cargo ORDER BY tick DESC LIMIT 1").getString("cargo"));
 		
-		SQLResultRow userCargo = db.first("SELECT cargo FROM stats_user_cargo WHERE user_id=",user.getID());
+		SQLResultRow userCargo = db.first("SELECT cargo FROM stats_user_cargo WHERE user_id=",user.getId());
 		Cargo owncargo = null;
 		if( !userCargo.isEmpty() ) {
 			owncargo = new Cargo(Cargo.Type.STRING, userCargo.getString("cargo"));
@@ -79,7 +79,7 @@ public class StatWaren implements Statistic, Loggable {
 		
 		// Itempositionen auslesen
 		Map<Integer,String[]> reslocationlist = new HashMap<Integer,String[]>();
-		SQLQuery amodule = db.query("SELECT item_id,locations FROM stats_module_locations WHERE user_id=",user.getID());
+		SQLQuery amodule = db.query("SELECT item_id,locations FROM stats_module_locations WHERE user_id=",user.getId());
 		while( amodule.next() ) {
 			reslocationlist.put(amodule.getInt("item_id"), StringUtils.split(amodule.getString("locations"), ';'));
 		}

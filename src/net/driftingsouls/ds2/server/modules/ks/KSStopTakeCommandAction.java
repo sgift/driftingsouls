@@ -55,7 +55,7 @@ public class KSStopTakeCommandAction extends BasicKSAction {
 			return RESULT_ERROR;
 		}
 		
-		PM.send( context, user.getID(), battle.getTakeCommand(battle.getOwnSide()), "Schlacht-&uuml;bergabe abgelehnt","Die &Uuml;bergabe es Kommandos der Schlacht bei "+battle.getSystem()+":"+battle.getX()+"/"+battle.getY()+" wurde abgelehnt");
+		PM.send( context, user.getId(), battle.getTakeCommand(battle.getOwnSide()), "Schlacht-&uuml;bergabe abgelehnt","Die &Uuml;bergabe es Kommandos der Schlacht bei "+battle.getSystem()+":"+battle.getX()+"/"+battle.getY()+" wurde abgelehnt");
 
 		battle.setTakeCommand(battle.getOwnSide(), 0);
 

@@ -45,7 +45,7 @@ public class AuthenticateAction implements Action {
 		if( context.getActiveUser() == null ) {
 			return false;
 		}
-		if( (userid != null) && (context.getActiveUser().getID() != userid) ) {
+		if( (userid != null) && (context.getActiveUser().getId() != userid) ) {
 			return false;
 		}
 		return true;

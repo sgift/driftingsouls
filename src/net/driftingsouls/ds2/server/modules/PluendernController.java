@@ -68,7 +68,7 @@ public class PluendernController extends DSGenerator {
 		int from = getInteger("from");
 		int to = getInteger("to");
 		
-		SQLResultRow shipFrom = db.first("SELECT * FROM ships WHERE id>0 AND id=",from," AND owner=",user.getID());
+		SQLResultRow shipFrom = db.first("SELECT * FROM ships WHERE id>0 AND id=",from," AND owner=",user.getId());
 		if( shipFrom.isEmpty() ) {
 			addError("Sie brauchen ein Schiff um zu pl&uuml;ndern", Common.buildUrl(getContext(), "default", "module", "schiff", "ship", from));
 					
@@ -111,7 +111,7 @@ public class PluendernController extends DSGenerator {
 			return false;
 		}
 		
-		if( (shipTo.getInt("visibility") != 0) && (shipTo.getInt("visibility") != user.getID()) ) {
+		if( (shipTo.getInt("visibility") != 0) && (shipTo.getInt("visibility") != user.getId()) ) {
 			addError("Sie k&ouml;nnen nur pl&uuml;ndern, was sie auch sehen", errorurl);
 					
 			return false;

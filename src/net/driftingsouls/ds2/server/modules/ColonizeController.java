@@ -72,7 +72,7 @@ public class ColonizeController extends DSGenerator {
 		int shipId = getInteger("ship");
 		int col = getInteger("col");
 		
-		SQLResultRow ship = db.first("SELECT * FROM ships WHERE id>0 AND owner='",user.getID(),"' AND id='",shipId,"'");
+		SQLResultRow ship = db.first("SELECT * FROM ships WHERE id>0 AND owner='",user.getId(),"' AND id='",shipId,"'");
 		if( ship.isEmpty() ) {
 			addError("Fehler: Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht", Common.buildUrl(getContext(), "default", "module", "schiffe") );
 			
@@ -123,7 +123,7 @@ public class ColonizeController extends DSGenerator {
 		bases.put(base.getSystem(), 0);
 		int basecount = 0;
 		
-		SQLQuery tmp = db.query("SELECT system,width,height,maxtiles,cargo FROM bases WHERE owner='",user.getID(),"'");
+		SQLQuery tmp = db.query("SELECT system,width,height,maxtiles,cargo FROM bases WHERE owner='",user.getId(),"'");
 		while( tmp.next() ){
 			final int system = tmp.getInt("system");
 			Common.safeIntInc(bases, system);
@@ -156,7 +156,7 @@ public class ColonizeController extends DSGenerator {
 		//Anzahl der Gebaeude pro Spieler berechnen
 		Map<Integer,Integer> ownerBuildingCount = new HashMap<Integer,Integer>();
 		
-		SQLQuery abebQuery = db.query("SELECT bebauung FROM bases WHERE owner="+user.getID()+" AND id!="+base.getID());
+		SQLQuery abebQuery = db.query("SELECT bebauung FROM bases WHERE owner="+user.getId()+" AND id!="+base.getID());
 		while( abebQuery.next() ) {
 			Integer[] abeb = Common.explodeToInteger("|", abebQuery.getString("bebauung"));
 			for( int i=0; i < abeb.length; i++ ) {
@@ -224,9 +224,9 @@ public class ColonizeController extends DSGenerator {
 		String bebDB = Common.implode("|",bebauung);
 		String onDB = Common.implode("|",bebon);
 
-		db.tUpdate(1, "UPDATE bases SET bebauung='",bebDB,"',active='",onDB,"',cargo='",cargo.save(),"',owner='",user.getID(),"',bewohner='",crew,"',e='",e,"' WHERE id='",base.getID(),"' AND owner=0 AND cargo='",cargo2.save(),"'");
+		db.tUpdate(1, "UPDATE bases SET bebauung='",bebDB,"',active='",onDB,"',cargo='",cargo.save(),"',owner='",user.getId(),"',bewohner='",crew,"',e='",e,"' WHERE id='",base.getID(),"' AND owner=0 AND cargo='",cargo2.save(),"'");
 
-		db.update("UPDATE offiziere SET userid=",user.getID()," WHERE dest IN ('b ",base.getID(),"','t "+base.getID(),"')");
+		db.update("UPDATE offiziere SET userid=",user.getId()," WHERE dest IN ('b ",base.getID(),"','t "+base.getID(),"')");
 		if( !db.tCommit() ) {
 			addError("Beim kolonisieren ist ein Fehler aufgetreten. Bitte versuchen sie es sp&auml;ter erneut");
 		}

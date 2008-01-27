@@ -68,13 +68,13 @@ class HandleAllyFound implements TaskHandler {
 					
 					// Beziehungen auf "Freund" setzen
 					for( int j=0; j < allymember.length; j++ ) {
-						if( allymember[j] == auser.getID() ) {
+						if( allymember[j] == auser.getId() ) {
 							continue;
 						}
 						User allyuser = context.createUserObject(allymember[j]);
 				
-						allyuser.setRelation(auser.getID(), User.Relation.FRIEND);
-						auser.setRelation(allyuser.getID(), User.Relation.FRIEND);
+						allyuser.setRelation(auser.getId(), User.Relation.FRIEND);
+						auser.setRelation(allyuser.getId(), User.Relation.FRIEND);
 					}
 				}
 				

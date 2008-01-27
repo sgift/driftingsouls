@@ -61,7 +61,7 @@ public class PlayerLoginSuper implements AdminPlugin {
 		else {
 			int uid = user;
 			User userObj = context.createUserObject(uid);
-			if( userObj.getID() == 0 ) {
+			if( userObj.getId() == 0 ) {
 				echo.append("<span style=\"color:red\">Der angegebene Spieler existiert nicht</span>");
 				return;
 			}
@@ -75,7 +75,7 @@ public class PlayerLoginSuper implements AdminPlugin {
 			else {
 				usess = Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE));
 				User currentUser = context.getActiveUser();
-				SQLResultRow ownsess = db.first("SELECT session FROM sessions WHERE id='",currentUser.getID(),"' AND attach IS NULL");
+				SQLResultRow ownsess = db.first("SELECT session FROM sessions WHERE id='",currentUser.getId(),"' AND attach IS NULL");
 				
 	  			db.update("INSERT INTO sessions (id,session,ip,lastaction,usegfxpak,attach) VALUES('",uid,"','",usess,"','<"+context.getRequest().getRemoteAddress()+">','"+Common.time()+"','0','",ownsess.getString("sess")+"')");
 			}

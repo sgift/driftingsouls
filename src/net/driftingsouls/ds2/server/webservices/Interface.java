@@ -47,7 +47,7 @@ public class Interface extends BasicWebService {
 
 		SQLResultRow name = null;
 		if( shipid > 0 ) {
-			name = getDatabase().first("SELECT name FROM ships WHERE owner=",getUser().getID()," AND id=",shipid);
+			name = getDatabase().first("SELECT name FROM ships WHERE owner=",getUser().getId()," AND id=",shipid);
 		}
 		if( name == null || name.isEmpty() ) {
 			throw new WebServiceException("Ungueltige Schiffs-ID");
@@ -67,7 +67,7 @@ public class Interface extends BasicWebService {
 
 		SQLResultRow name = null;
 		if( baseid > 0 ) {
-			name = getDatabase().first("SELECT name FROM bases WHERE owner=",getUser().getID()," AND id=",baseid);
+			name = getDatabase().first("SELECT name FROM bases WHERE owner=",getUser().getId()," AND id=",baseid);
 		}
 		if( name == null || name.isEmpty() ) {
 			throw new WebServiceException("Ungueltige Basis-ID");
@@ -92,7 +92,7 @@ public class Interface extends BasicWebService {
 	public int hasNewPM() throws WebServiceException {
 		requireAuthentication();
 
-		return getDatabase().first("SELECT count(*) newmsgs FROM transmissionen WHERE empfaenger=",getUser().getID()," AND gelesen=0").getInt("newmsgs");
+		return getDatabase().first("SELECT count(*) newmsgs FROM transmissionen WHERE empfaenger=",getUser().getId()," AND gelesen=0").getInt("newmsgs");
 	}
 
 	/**

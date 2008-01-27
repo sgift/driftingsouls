@@ -84,7 +84,7 @@ public class UeberController extends DSGenerator implements Loggable {
 		user.setWait4VacationCount(0);
 		
 		user.setTemplateVars(this.getTemplateEngine());
-		Common.writeLog("login.log", Common.date("j+m+Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getID()+") <"+user.getUN()+"> Abbruch Vac-Vorlauf Browser <"+getRequest().getUserAgent()+"> \n");
+		Common.writeLog("login.log", Common.date("j+m+Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+user.getUN()+"> Abbruch Vac-Vorlauf Browser <"+getRequest().getUserAgent()+"> \n");
 				
 		redirect();
 	}
@@ -141,7 +141,7 @@ public class UeberController extends DSGenerator implements Loggable {
 		int questid = getInteger("questid");
 		
 		SQLQuery questdata = db.query("SELECT * FROM quests_running WHERE id='",questid,"'");
-		if( !questdata.next() || (questdata.getInt("userid") != getUser().getID()) ) {
+		if( !questdata.next() || (questdata.getInt("userid") != getUser().getId()) ) {
 			questdata.free();
 			addError("Sie k&ouml;nnen dieses Quest nicht abbrechen");
 			redirect();
@@ -164,7 +164,7 @@ public class UeberController extends DSGenerator implements Loggable {
 			redirect();
 			return;
 		}
-		scriptparser.setRegister("USER", Integer.toString(getUser().getID()));
+		scriptparser.setRegister("USER", Integer.toString(getUser().getId()));
 		scriptparser.setRegister("QUEST", "r"+questid);
 		scriptparser.executeScript(db, ":0\n!ENDQUEST\n!QUIT","0");
 		
@@ -214,11 +214,11 @@ public class UeberController extends DSGenerator implements Loggable {
 		// Gibt es eine Umfrage an der wir teilnehmen koennen
 		SQLResultRow survey = db.prepare("SELECT * FROM surveys WHERE enabled='1' AND minid<=? AND maxid>=? AND ",
 				" mintime<=? AND maxtime>=? AND timeout>0")
-				.first(user.getID(), user.getID(), user.getSignup(), user.getSignup());
+				.first(user.getId(), user.getId(), user.getSignup(), user.getSignup());
 				
 		if( !survey.isEmpty() ) {
 			SQLResultRow voted = db.prepare("SELECT * FROM survey_voted WHERE survey_id=? AND user_id=?")
-				.first(survey.getInt("id"), user.getID());
+				.first(survey.getInt("id"), user.getId());
 			
 			if( !voted.isEmpty() ) {
 				t.setVar("global.survey", 1);
@@ -263,7 +263,7 @@ public class UeberController extends DSGenerator implements Loggable {
 		// auf neue Nachrichten checken
 		//------------------------------
 
-		int newCount = db.first("SELECT count(*) newmsgs FROM transmissionen WHERE empfaenger=",user.getID()," AND gelesen=0").getInt("newmsgs");
+		int newCount = db.first("SELECT count(*) newmsgs FROM transmissionen WHERE empfaenger=",user.getId()," AND gelesen=0").getInt("newmsgs");
 		t.setVar("user.newmsgs", Common.ln(newCount));
 
 		//------------------------------
@@ -275,7 +275,7 @@ public class UeberController extends DSGenerator implements Loggable {
 		int bw = 0;
 		int bases = 0;
 
-		SQLQuery base = db.prepare("SELECT * FROM bases WHERE owner=? ORDER BY id").query(user.getID());
+		SQLQuery base = db.prepare("SELECT * FROM bases WHERE owner=? ORDER BY id").query(user.getId());
 		while( base.next() ) {
 			bases++;
 			
@@ -312,12 +312,12 @@ public class UeberController extends DSGenerator implements Loggable {
 		sw = db.prepare("SELECT count(*) `count` ",
 					"FROM ships ",
 					"WHERE id>0 AND owner=? AND (LOCATE('mangel_nahrung',status) OR LOCATE('mangel_reaktor',status)) ORDER BY id")
-					.first(user.getID())
+					.first(user.getId())
 					.getInt("count");
 
 		shipNoCrew = db.prepare("SELECT count(id) `count` FROM ships ",
 							"WHERE id>0 AND owner=? AND LOCATE('nocrew',status)" )
-					.first(user.getID())
+					.first(user.getId())
 					.getInt("count");
 						  
 		String nstat = "0";			  
@@ -345,17 +345,17 @@ public class UeberController extends DSGenerator implements Loggable {
 		if( (user.getAccessLevel() < 20) && !user.hasFlag(User.FLAG_VIEW_BATTLES) && !user.hasFlag(User.FLAG_QUEST_BATTLES) ) {
 			SQLQuery battle = null;
 			if( user.getAlly() != 0 ) {
-				battle = db.query("SELECT * FROM battles WHERE commander1=",user.getID()," OR commander2=",user.getID()," OR ally1=",user.getAlly()," OR ally2=",user.getAlly());
+				battle = db.query("SELECT * FROM battles WHERE commander1=",user.getId()," OR commander2=",user.getId()," OR ally1=",user.getAlly()," OR ally2=",user.getAlly());
 			}
 			else {
-				battle = db.query("SELECT * FROM battles WHERE commander1=",user.getID()," OR commander2=",user.getID());
+				battle = db.query("SELECT * FROM battles WHERE commander1=",user.getId()," OR commander2=",user.getId());
 			}
 			
 			while( battle.next() ) {
 				if( (user.getAlly() != 0) && (battle.getString("visibility") != null) && 
 						(battle.getString("visibility").length() > 0) ) {
 					Integer[] visibility = Common.explodeToInteger(",", battle.getString("visibility"));
-					if( !Common.inArray(user.getID(),visibility) ) {
+					if( !Common.inArray(user.getId(),visibility) ) {
 						continue;	
 					}
 				}
@@ -363,7 +363,7 @@ public class UeberController extends DSGenerator implements Loggable {
 
 				String eparty = "";
 				String comm = "";
-				if( ((user.getAlly() == 0) && (battle.getInt("commander1") != user.getID())) || 
+				if( ((user.getAlly() == 0) && (battle.getInt("commander1") != user.getId())) || 
 					((user.getAlly() != 0) && (battle.getInt("ally1") != user.getAlly()) ) ) {
 					if( battle.getInt("ally1") == 0 ) {
 						eparty = Common._title(getContext().createUserObject(battle.getInt("commander1")).getName());
@@ -403,7 +403,7 @@ public class UeberController extends DSGenerator implements Loggable {
 		
 		//Nun alle Schlachten auflisten, wo der Spieler Schiffe drin hat (die aber noch nicht aufgelistet wurden) - oder zeige alle Schlachten an, wenn es jemand mit entsprechenden Rechten ist
 		if( (user.getAccessLevel() < 20) && user.hasFlag(User.FLAG_QUEST_BATTLES) ) {
-			battle = db.query("SELECT * FROM battles WHERE (quest IS NOT NULL AND (commander1<0 XOR commander2<0)) OR (commander1=",user.getID(),") OR (commander2=",user.getID(),")");
+			battle = db.query("SELECT * FROM battles WHERE (quest IS NOT NULL AND (commander1<0 XOR commander2<0)) OR (commander1=",user.getId(),") OR (commander2=",user.getId(),")");
 		}
 		else if( (user.getAccessLevel() >= 20) || user.hasFlag(User.FLAG_VIEW_BATTLES) ) {
 			battle = db.query("SELECT * FROM battles");
@@ -412,7 +412,7 @@ public class UeberController extends DSGenerator implements Loggable {
 			battlelist.append("<br />\n");
 			battle = db.query("SELECT t1.* ",
 							"FROM battles t1,ships t2 ",
-							"WHERE t2.id>0 AND t2.owner=",user.getID()," AND t2.battle=t1.id ",(!battleidlist.isEmpty() ? "AND !(t2.battle IN ("+Common.implode(",",battleidlist)+"))":"")," ",
+							"WHERE t2.id>0 AND t2.owner=",user.getId()," AND t2.battle=t1.id ",(!battleidlist.isEmpty() ? "AND !(t2.battle IN ("+Common.implode(",",battleidlist)+"))":"")," ",
 							"GROUP BY t1.id" );
 		}
 		
@@ -467,7 +467,7 @@ public class UeberController extends DSGenerator implements Loggable {
 		// Interaktives Tutorial
 		//------------------------------
 
-		int shipcount = db.first("SELECT count(*) `count` FROM ships WHERE id>0 AND owner='",user.getID(),"'").getInt("count");
+		int shipcount = db.first("SELECT count(*) `count` FROM ships WHERE id>0 AND owner='",user.getId(),"'").getInt("count");
 		int inttutorial = Integer.parseInt(user.getUserValue("TBLORDER/uebersicht/inttutorial"));
 
 		if( inttutorial != 0 ) {
@@ -535,7 +535,7 @@ public class UeberController extends DSGenerator implements Loggable {
 		if( box.equals("bookmarks") ) {
 			t.setVar("show.bookmarks",1);
 	
-			SQLQuery bookmark = db.query("SELECT id,name,x,y,system,destx,desty,destsystem,destcom,status,type FROM ships WHERE id>0 AND bookmark=1 AND owner=",user.getID()," ORDER BY id DESC");
+			SQLQuery bookmark = db.query("SELECT id,name,x,y,system,destx,desty,destsystem,destcom,status,type FROM ships WHERE id>0 AND bookmark=1 AND owner=",user.getId()," ORDER BY id DESC");
 			while( bookmark.next() ) {
 				SQLResultRow shiptype = ShipTypes.getShipType( bookmark.getRow() );
 				t.setVar(	"bookmark.shipid",		bookmark.getInt("id"),
@@ -551,7 +551,7 @@ public class UeberController extends DSGenerator implements Loggable {
 			t.setVar("show.fleets",1);
 			boolean jdocked = false;
 			
-			SQLQuery fleet = db.query("SELECT count(*) as shipcount,t1.x,t1.y,t1.system,t1.id,t1.docked,t2.name FROM ships t1,ship_fleets t2 WHERE t1.id>0 AND t1.owner=",user.getID()," AND t1.fleet=t2.id GROUP BY t2.id ORDER BY t1.docked,t1.system,t1.x,t1.y");
+			SQLQuery fleet = db.query("SELECT count(*) as shipcount,t1.x,t1.y,t1.system,t1.id,t1.docked,t2.name FROM ships t1,ship_fleets t2 WHERE t1.id>0 AND t1.owner=",user.getId()," AND t1.fleet=t2.id GROUP BY t2.id ORDER BY t1.docked,t1.system,t1.x,t1.y");
 			while( fleet.next() ) {
 				if( !jdocked && (fleet.getString("docked").indexOf('l') == 0) ) {
 					jdocked = true;
@@ -576,7 +576,7 @@ public class UeberController extends DSGenerator implements Loggable {
 		t.setBlock("_UEBER","quests.listitem","quests.list");
 		t.setVar("quests.list","");
 		
-		SQLQuery quest = db.query("SELECT t1.statustext,t1.id,t2.name FROM quests_running t1,quests t2 WHERE t1.userid='",user.getID(),"' AND t1.publish='1' AND t1.questid=t2.id");
+		SQLQuery quest = db.query("SELECT t1.statustext,t1.id,t2.name FROM quests_running t1,quests t2 WHERE t1.userid='",user.getId(),"' AND t1.publish='1' AND t1.questid=t2.id");
 		while( quest.next() ) {
 			t.setVar(	"quest.name",		quest.getString("name"),
 						"quest.statustext",	quest.getString("statustext"),

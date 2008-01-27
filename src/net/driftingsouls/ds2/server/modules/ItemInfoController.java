@@ -656,7 +656,7 @@ public class ItemInfoController extends DSGenerator {
 		User user = getUser();
 		Database db = getDatabase();
 		
-		SQLResultRow ownCargoRow = db.first("SELECT cargo FROM stats_user_cargo WHERE user_id=",user.getID());
+		SQLResultRow ownCargoRow = db.first("SELECT cargo FROM stats_user_cargo WHERE user_id=",user.getId());
 		Cargo owncargo = null;
 		if( !ownCargoRow.isEmpty() ) {
 			owncargo = new Cargo( Cargo.Type.STRING, ownCargoRow.getString("cargo"));
@@ -670,7 +670,7 @@ public class ItemInfoController extends DSGenerator {
 		t.setBlock("_ITEMINFO", "knownlist.listitem", "knownlist.list");
 		
 		Map<Integer,String[]> reslocations = new HashMap<Integer,String[]>();
-		SQLQuery amodule = db.query("SELECT item_id,locations FROM stats_module_locations WHERE user_id=",user.getID());
+		SQLQuery amodule = db.query("SELECT item_id,locations FROM stats_module_locations WHERE user_id=",user.getId());
 		while( amodule.next() ) {
 				reslocations.put(amodule.getInt("item_id"), StringUtils.split(amodule.getString("locations"),';'));
 		}

@@ -60,7 +60,7 @@ public class UserProfileController extends DSGenerator {
 		User user = getUser();
 		
 		User auser = getContext().createUserObject(getInteger("user"));
-		if( (auser.getID() == 0) || (auser.hasFlag(User.FLAG_HIDE) && (user.getAccessLevel() < 20)) ) {
+		if( (auser.getId() == 0) || (auser.hasFlag(User.FLAG_HIDE) && (user.getAccessLevel() < 20)) ) {
 			addError( "Ihnen ist kein Benutzer unter der angegebenen ID bekannt", Common.buildUrl(getContext(), "default", "module", "ueber") );
 			
 			return false;	
@@ -79,7 +79,7 @@ public class UserProfileController extends DSGenerator {
 		User user = getUser();
 		TemplateEngine t = getTemplateEngine();
 		
-		if( this.user.getID() == user.getID() ) {
+		if( this.user.getId() == user.getId() ) {
 			redirect();
 			return;
 		}
@@ -97,7 +97,7 @@ public class UserProfileController extends DSGenerator {
 			break;
 		}
 		
-		user.setRelation(this.user.getID(), rel);
+		user.setRelation(this.user.getId(), rel);
 		t.setVar("userprofile.message", "Beziehungsstatus ge&auml;ndert");	
 		
 		redirect();
@@ -126,7 +126,7 @@ public class UserProfileController extends DSGenerator {
 		}
 		
 		int allypresi = db.first("SELECT president FROM ally WHERE id='",user.getAlly(),"'").getInt("president");
-		if( allypresi != user.getID() ) {
+		if( allypresi != user.getId() ) {
 			addError("Sie sind nicht der Pr&auml;sident der Allianz");
 			redirect();
 			return;
@@ -148,7 +148,7 @@ public class UserProfileController extends DSGenerator {
 		SQLQuery allymember = db.query("SELECT id FROM users WHERE ally='",user.getAlly(),"'");
 		while( allymember.next() ) {
 			User auser = getContext().createUserObject(allymember.getInt("id"));
-			auser.setRelation(this.user.getID(), rel);
+			auser.setRelation(this.user.getId(), rel);
 		}
 		allymember.free();
 		
@@ -173,7 +173,7 @@ public class UserProfileController extends DSGenerator {
 						"user.ally.id",		this.user.getAlly() );
 			
 			String pstatus = "";
-			if( ally.getInt("president") == this.user.getID() ) {
+			if( ally.getInt("president") == this.user.getId() ) {
 				pstatus = "<span style=\"font-weight:bold; font-style:italic\">"+Common._plaintitle(ally.getString("pname"))+"</span>";
 			}
 			
@@ -189,14 +189,14 @@ public class UserProfileController extends DSGenerator {
 		if( (user.getAlly() != 0) && (user.getAlly() != this.user.getAlly()) ) {
 			int allypresi = getDatabase().first("SELECT president FROM ally WHERE id='",user.getAlly(),"'").getInt("president");
 		
-			if( allypresi == user.getID() ) {		
+			if( allypresi == user.getId() ) {		
 				t.setVar("user.allyrelationchange", 1);
 			}
 		}
 		
-		if( user.getID() != this.user.getID() ) {
+		if( user.getId() != this.user.getId() ) {
 			if( (user.getAlly() == 0) || (user.getAlly() !=  this.user.getAlly()) ) {
-				User.Relation relation = user.getRelation(this.user.getID());
+				User.Relation relation = user.getRelation(this.user.getId());
 			
 				if( relation == User.Relation.ENEMY ) {
 					t.setVar( "relation.enemy", 1 );
@@ -219,8 +219,8 @@ public class UserProfileController extends DSGenerator {
 		// Beziehung		
 		String relname = "neutral";
 		String relcolor = "#c7c7c7";
-		if( user.getID() != this.user.getID() ) {
-			User.Relation relation = this.user.getRelation(user.getID());
+		if( user.getId() != this.user.getId() ) {
+			User.Relation relation = this.user.getRelation(user.getId());
 			switch( relation ) {
 			case ENEMY:
 				relname = "feindlich";

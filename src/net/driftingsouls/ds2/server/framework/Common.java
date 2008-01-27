@@ -1162,7 +1162,7 @@ public class Common implements Loggable {
 		Database db = context.getDatabase();
 		
 		if( (userid == 0) && (context.getActiveUser() != null) ) {
-			userid = context.getActiveUser().getID();
+			userid = context.getActiveUser().getId();
 		}
 		
 		StringBuilder dataText = new StringBuilder();

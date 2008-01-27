@@ -350,7 +350,7 @@ public class ShipTypes implements Loggable {
 		}
 		else {
 			Database db = ContextMap.getContext().getDatabase();
-			picture = User.getDefaultImagePath(db)+picture;
+			picture = User.getDefaultImagePath()+picture;
 		}
 		
 		return picture;

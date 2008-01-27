@@ -85,7 +85,7 @@ public class GtuZwischenLagerController extends DSGenerator {
 		
 		int shipId = getInteger("ship");
 		
-		ship = db.first("SELECT * FROM ships WHERE id>0 AND owner=",user.getID()," AND id=",shipId);
+		ship = db.first("SELECT * FROM ships WHERE id>0 AND owner=",user.getId()," AND id=",shipId);
 		if( ship.isEmpty() ) {
 			addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen", Common.buildUrl(getContext(), "default", "module", "schiffe") );
 			
@@ -122,7 +122,7 @@ public class GtuZwischenLagerController extends DSGenerator {
 		
 		SQLResultRow tradeentry = db.first("SELECT * FROM gtu_zwischenlager WHERE posten=",this.handel," AND id=",entry);
 	
-		if( tradeentry.isEmpty() || ((tradeentry.getInt("user1") != user.getID()) && (tradeentry.getInt("user2") != user.getID())) ) {
+		if( tradeentry.isEmpty() || ((tradeentry.getInt("user1") != user.getId()) && (tradeentry.getInt("user2") != user.getId())) ) {
 			addError("Es wurde kein passender Handelseintrag gefunden", Common.buildUrl(getContext(), "default", "module", "schiff", "ship", this.ship.getInt("id")) );
 			this.setTemplate("");
 			
@@ -138,7 +138,7 @@ public class GtuZwischenLagerController extends DSGenerator {
 		Cargo owncargo = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo2"));
 		Cargo owncargoneed = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo2need"));
 	
-		if( tradepartner.getID() == user.getID() ) {
+		if( tradepartner.getId() == user.getId() ) {
 			tradepartner = getContext().createUserObject(tradeentry.getInt("user1"));
 			tradecargo = new Cargo(Cargo.Type.STRING,tradeentry.getString("cargo2"));
 			tradecargoneed = new Cargo(Cargo.Type.STRING,tradeentry.getString("cargo2need"));
@@ -205,7 +205,7 @@ public class GtuZwischenLagerController extends DSGenerator {
 			return;
 		}
 		
-		if( tradeentry.getInt("user1") == user.getID() ) {
+		if( tradeentry.getInt("user1") == user.getId() ) {
 			db.tUpdate(1, "UPDATE gtu_zwischenlager SET cargo1='",tradecargo.save(),"',cargo1need='",tradecargoneed.save(),"' " ,
 					"WHERE id='",entry,"' AND cargo1='",tradecargo.save(true),"' AND cargo1need='",tradecargoneed.save(true),"'");
 		}
@@ -250,7 +250,7 @@ public class GtuZwischenLagerController extends DSGenerator {
 		
 		SQLResultRow tradeentry = db.first("SELECT * FROM gtu_zwischenlager WHERE posten=",this.handel," AND id=",entry);
 	
-		if( tradeentry.isEmpty() || ((tradeentry.getInt("user1") != user.getID()) && (tradeentry.getInt("user2") != user.getID())) ) {
+		if( tradeentry.isEmpty() || ((tradeentry.getInt("user1") != user.getId()) && (tradeentry.getInt("user2") != user.getId())) ) {
 			addError("Es wurde kein passender Handelseintrag gefunden", Common.buildUrl(getContext(), "default", "module", "schiff", "ship", this.ship.getInt("id")) );
 			this.setTemplate("");
 			
@@ -269,7 +269,7 @@ public class GtuZwischenLagerController extends DSGenerator {
 		Cargo owncargo = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo2"));
 		Cargo owncargoneed = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo2need"));
 	
-		if( tradepartner.getID() == user.getID() ) {
+		if( tradepartner.getId() == user.getId() ) {
 			tradepartner = getContext().createUserObject(tradeentry.getInt("user1"));
 			tradecargo = new Cargo(Cargo.Type.STRING,tradeentry.getString("cargo2"));
 			owncargo = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo1"));
@@ -307,14 +307,14 @@ public class GtuZwischenLagerController extends DSGenerator {
 		t.setBlock("_GTUZWISCHENLAGER","tradelist.listitem","tradelist.list");
 		t.setBlock("tradelist.listitem","res.listitem","res.list");
 	
-		SQLQuery tradeentry = db.query("SELECT * FROM gtu_zwischenlager WHERE posten=",this.handel," AND (user1=",user.getID()," OR user2=",user.getID(),")");
+		SQLQuery tradeentry = db.query("SELECT * FROM gtu_zwischenlager WHERE posten=",this.handel," AND (user1=",user.getId()," OR user2=",user.getId(),")");
 		while( tradeentry.next() ) {
 			User tradepartner = getContext().createUserObject(tradeentry.getInt("user2"));
 			Cargo tradecargo = new Cargo(Cargo.Type.STRING,tradeentry.getString("cargo1"));
 			Cargo owncargo = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo2"));
 			Cargo owncargoneed = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo2need"));
 		
-			if( tradepartner.getID() == user.getID() ) {
+			if( tradepartner.getId() == user.getId() ) {
 				tradepartner = getContext().createUserObject(tradeentry.getInt("user1"));
 				tradecargo = new Cargo(Cargo.Type.STRING,tradeentry.getString("cargo2"));
 				owncargo = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo1"));

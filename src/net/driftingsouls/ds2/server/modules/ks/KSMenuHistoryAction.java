@@ -186,11 +186,11 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 					thisSide = 1;
 				}
 				User auser = context.createUserObject(Integer.parseInt(atts.getValue("commander")));
-				if( auser.getID() == 0 ) {
+				if( auser.getId() == 0 ) {
 					this.history_sides.put(thisSide, "Unbekannter Spieler ("+atts.getValue("commander")+")");
 				}
 				else {
-					this.history_sides.put(thisSide, "<a class=\"profile\" style=\"color:#000050\" href=\""+Common.buildUrl(context, "default", "module", "userprofile", "user", auser.getID())+"\">"+Common._titleNoFormat(auser.getName())+"</a>");
+					this.history_sides.put(thisSide, "<a class=\"profile\" style=\"color:#000050\" href=\""+Common.buildUrl(context, "default", "module", "userprofile", "user", auser.getId())+"\">"+Common._titleNoFormat(auser.getName())+"</a>");
 				}
 			} 
 		}

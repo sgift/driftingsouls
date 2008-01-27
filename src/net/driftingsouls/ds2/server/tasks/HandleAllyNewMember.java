@@ -64,16 +64,16 @@ class HandleAllyNewMember implements TaskHandler {
 			int membercount = 1;
 			
 			// Beziehungen auf "Freund" setzen
-			UserIterator iter = context.createUserIterator("SELECT * FROM users WHERE ally=",ally.getInt("id")," AND id!=",player.getID());
+			UserIterator iter = context.createUserIterator("SELECT * FROM users WHERE ally=",ally.getInt("id")," AND id!=",player.getId());
 			for( User allymember : iter ) {
-				allymember.setRelation(player.getID(), User.Relation.FRIEND);
-				player.setRelation(allymember.getID(), User.Relation.FRIEND);
+				allymember.setRelation(player.getId(), User.Relation.FRIEND);
+				player.setRelation(allymember.getId(), User.Relation.FRIEND);
 				
 				membercount++;
 			}
 			iter.free();
 			
-			PM.send( context, user.getID(), player.getID(), "Aufnahmeantrag", "[Automatische Nachricht]\nDu wurdest in die Allianz >"+ally.getString("name")+"< aufgenommen\n\nHerzlichen Gr&uuml;ckwunsch!");
+			PM.send( context, user.getId(), player.getId(), "Aufnahmeantrag", "[Automatische Nachricht]\nDu wurdest in die Allianz >"+ally.getString("name")+"< aufgenommen\n\nHerzlichen Gr&uuml;ckwunsch!");
 			
 			// Check, ob wir eine TM_TASK_LOW_MEMBER entfernen muessen
 			if( membercount == 3 ) {

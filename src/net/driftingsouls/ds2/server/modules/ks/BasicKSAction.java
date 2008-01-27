@@ -113,7 +113,7 @@ public abstract class BasicKSAction {
 		User user = ContextMap.getContext().getActiveUser();
 		
 		if( this.requireCommander ) {
-			if( !battle.isCommander(user.getID(), battle.getOwnSide()) ) {
+			if( !battle.isCommander(user.getId(), battle.getOwnSide()) ) {
 				battle.logme( "Sie k&ouml;nnen diese Aktion nicht durchf&uuml;hren, da sie ihre Seite nicht kommandieren\n" );
 				return RESULT_ERROR;
 			}

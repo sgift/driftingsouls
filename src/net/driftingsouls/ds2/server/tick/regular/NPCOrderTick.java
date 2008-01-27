@@ -151,7 +151,7 @@ public class NPCOrderTick extends TickController {
 					cargo.addResource( Resources.ANTIMATERIE, shipd.getInt("ra")*10 );
 				
 					User auser = getContext().createUserObject(owner);	
-					String history = "Indienststellung am "+this.currentTime+" durch "+auser.getName()+" ("+auser.getID()+") [hide]NPC-Order[/hide]\n";
+					String history = "Indienststellung am "+this.currentTime+" durch "+auser.getName()+" ("+auser.getId()+") [hide]NPC-Order[/hide]\n";
 								
 					db.prepare("INSERT INTO ships " ,
 							"(id,owner,name,type,x,y,system,crew,hull,e,cargo,history) " ,

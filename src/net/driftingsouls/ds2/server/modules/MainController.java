@@ -67,13 +67,13 @@ public class MainController extends DSGenerator {
 		User user = getUser();
 		StringBuffer out = getContext().getResponse().getContent();
 		
-		if( !user.getUserImagePath().equals(User.getDefaultImagePath(getDatabase())) ) {
+		if( !user.getUserImagePath().equals(User.getDefaultImagePath()) ) {
 			parameterNumber("gfxpakversion");
 			int gfxpakversion = getInteger("gfxpakversion");
 			
 			if( (gfxpakversion != 0) && (gfxpakversion != Configuration.getIntSetting("GFXPAK_VERSION")) ) {
 				Database db = getDatabase();
-				db.update("UPDATE sessions SET usegfxpak='0' WHERE session='",getString("sess"),"' AND id='",user.getID(),"'");
+				db.update("UPDATE sessions SET usegfxpak='0' WHERE session='",getString("sess"),"' AND id='",user.getId(),"'");
 				
 				out.append("<script type=\"text/javascript\">\n");
 				out.append("<!--\n");

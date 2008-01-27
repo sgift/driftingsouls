@@ -59,7 +59,7 @@ public class JumpdriveShivan implements SchiffPlugin {
 				if( caller.ship.getInt("fleet") != 0 ) {
 					output += "<table class=\"noBorder\">\n";
 	  	
-					SQLQuery s = db.query("SELECT id,name,type,status FROM ships WHERE id>0 AND fleet='"+caller.ship.getInt("fleet")+"' AND owner='"+user.getID()+"' AND docked='' AND id!='"+caller.ship.getInt("id")+"'");
+					SQLQuery s = db.query("SELECT id,name,type,status FROM ships WHERE id>0 AND fleet='"+caller.ship.getInt("fleet")+"' AND owner='"+user.getId()+"' AND docked='' AND id!='"+caller.ship.getInt("id")+"'");
 					while( s.next() ) {
 						SQLResultRow st = ShipTypes.getShipType(s.getRow());
 						if( !ShipTypes.hasShipTypeFlag(st, ShipTypes.SF_JUMPDRIVE_SHIVAN) ) {
@@ -83,7 +83,7 @@ public class JumpdriveShivan implements SchiffPlugin {
 				if( caller.ship.getInt("fleet") != 0 ) {
 					output += "<table class=\"noBorder\">\n";
 	  	
-					SQLQuery s = db.query("SELECT id,name,type,status FROM ships WHERE id>0 AND fleet='"+caller.ship.getInt("fleet")+"' AND owner='"+user.getID()+"' AND docked='' AND id!='"+caller.ship.getInt("id")+"'");
+					SQLQuery s = db.query("SELECT id,name,type,status FROM ships WHERE id>0 AND fleet='"+caller.ship.getInt("fleet")+"' AND owner='"+user.getId()+"' AND docked='' AND id!='"+caller.ship.getInt("id")+"'");
 					while( s.next() ) {
 						SQLResultRow st = ShipTypes.getShipType(s.getRow());
 						if( !ShipTypes.hasShipTypeFlag(st, ShipTypes.SF_JUMPDRIVE_SHIVAN) ) {
@@ -107,7 +107,7 @@ public class JumpdriveShivan implements SchiffPlugin {
 				if( caller.ship.getInt("fleet") != 0 ) {
 					output += "<table class=\"noBorder\">\n";
 	  	
-					SQLQuery s = db.query("SELECT id,name,type,status FROM ships WHERE id>0 AND fleet='"+caller.ship.getInt("fleet")+"' AND owner='"+user.getID()+"' AND docked='' AND id!='"+caller.ship.getInt("id")+"'");
+					SQLQuery s = db.query("SELECT id,name,type,status FROM ships WHERE id>0 AND fleet='"+caller.ship.getInt("fleet")+"' AND owner='"+user.getId()+"' AND docked='' AND id!='"+caller.ship.getInt("id")+"'");
 					while( s.next() ) {
 						SQLResultRow st = ShipTypes.getShipType(s.getRow());
 						if( !ShipTypes.hasShipTypeFlag(st, ShipTypes.SF_JUMPDRIVE_SHIVAN) ) {

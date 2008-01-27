@@ -246,7 +246,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 			return;	
 		}
 				
-		String usersql = "="+this.usedUser.getID();
+		String usersql = "="+this.usedUser.getId();
 		if( this.ally.getInt("showlrs") != 0 ) {				
 			SQLQuery uid = db.query("SELECT id FROM users WHERE ally=",this.usedUser.getAlly());
 			
@@ -267,7 +267,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 				if( !nebel.isEmpty() ) {
 					nebel.clear();
 				}
-				if( aship.getInt("owner") == this.usedUser.getID() ) {
+				if( aship.getInt("owner") == this.usedUser.getId() ) {
 					this.echoSectorShipData(aship.getRow(), "owner");
 				}
 			}
@@ -314,8 +314,8 @@ public class MapDataController extends DSGenerator implements Loggable {
 				// Schiffe
 				SQLQuery s = db.query("SELECT t1.*,t2.ally " ,
 						"FROM ships t1 JOIN users t2 ON t1.owner=t2.id " ,
-						"WHERE t1.id>0 AND !LOCATE('l ',docked) AND t1.system=",this.system," AND t1.owner!=",this.usedUser.getID()," AND t1.x=",x," AND t1.y=",y," AND " ,
-							"(t1.visibility IS NULL OR t1.visibility='",this.usedUser.getID(),"') AND (!(t1.type IN (",Common.implode(",",verysmallshiptypes),")) OR LOCATE('tblmodules',t1.status)) " ,
+						"WHERE t1.id>0 AND !LOCATE('l ',docked) AND t1.system=",this.system," AND t1.owner!=",this.usedUser.getId()," AND t1.x=",x," AND t1.y=",y," AND " ,
+							"(t1.visibility IS NULL OR t1.visibility='",this.usedUser.getId(),"') AND (!(t1.type IN (",Common.implode(",",verysmallshiptypes),")) OR LOCATE('tblmodules',t1.status)) " ,
 							"ORDER BY t1.x,t1.y");
 				while( s.next() ) {			
 					SQLResultRow st = ShipTypes.getShipType( s.getRow() );
@@ -418,15 +418,15 @@ public class MapDataController extends DSGenerator implements Loggable {
 		SQLQuery base = db.query("SELECT b.x,b.y,b.owner,b.klasse,u.ally,b.name,u.name username " +
 				"FROM bases b JOIN users u ON b.owner=u.id " +
 				"WHERE b.system=",this.system," AND b.size=0 AND (b.x BETWEEN 1 AND ",sys.getWidth(),") AND (b.y BETWEEN 1 AND ",sys.getHeight(),") " +
-				"ORDER BY "+(this.usedUser != null ? "IF(b.owner="+this.usedUser.getID()+",0,1)," : "")+"b.id");
+				"ORDER BY "+(this.usedUser != null ? "IF(b.owner="+this.usedUser.getId()+",0,1)," : "")+"b.id");
 		while( base.next() ) {
 			Location loc = new Location(system, base.getInt("x"), base.getInt("y"));
 			
-			if( this.ally.getBoolean("showastis") && (base.getInt("owner") != this.usedUser.getID()) && (base.getInt("ally") == this.usedUser.getAlly()) ) {	
+			if( this.ally.getBoolean("showastis") && (base.getInt("owner") != this.usedUser.getId()) && (base.getInt("ally") == this.usedUser.getAlly()) ) {	
 				map[loc.getX()][loc.getY()] = OBJECT_ASTI_ALLY;
 				appendStr(maptext, loc.getX(), loc.getY(), base.getString("name")+" - "+base.getString("username")+"\n");
 			} 
-			else  if( (this.usedUser != null) && (base.getInt("owner") == this.usedUser.getID()) ) {
+			else  if( (this.usedUser != null) && (base.getInt("owner") == this.usedUser.getId()) ) {
 				map[loc.getX()][loc.getY()] = OBJECT_ASTI_OWN;
 				appendStr(maptext, loc.getX(), loc.getY(), base.getString("name")+" - "+base.getString("username")+"\n");
 			}
@@ -462,7 +462,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 		//Eigene Schiffe in die Karte eintragen
 		//--------------------------------------
 		if( usedUser != null ) {
-			SQLQuery schiff = db.query("SELECT x,y,count(*) shipcount FROM ships WHERE id>0 AND owner=",this.usedUser.getID()," AND system=",this.system," GROUP BY x,y");
+			SQLQuery schiff = db.query("SELECT x,y,count(*) shipcount FROM ships WHERE id>0 AND owner=",this.usedUser.getId()," AND system=",this.system," GROUP BY x,y");
 		
 			while( schiff.next() ) {
 				Location loc = new Location(system, schiff.getInt("x"), schiff.getInt("y"));
@@ -495,7 +495,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 			}
 			stid.free();
 			
-			String usersql = "="+this.usedUser.getID();
+			String usersql = "="+this.usedUser.getId();
 			if( this.ally.getInt("showlrs") != 0 ) {				
 				SQLQuery uid = db.query("SELECT id FROM users WHERE ally=",this.usedUser.getAlly());
 				
@@ -548,7 +548,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 				// Basen
 				SQLQuery b = db.query("SELECT t1.x,t1.y,t2.ally,t1.owner,t1.name,t2.name username " +
 						"FROM bases t1 JOIN users t2 ON t1.owner=t2.id " +
-						"WHERE t1.system=",this.system," AND t1.owner!=",this.usedUser.getID()," AND t1.owner!=0 AND " +
+						"WHERE t1.system=",this.system," AND t1.owner!=",this.usedUser.getId()," AND t1.owner!=0 AND " +
 								"(t1.x BETWEEN ",(loc.getX()-range)," AND ",(loc.getX()+range),") AND " +
 								"(t1.y BETWEEN ",(loc.getY()-range)," AND ",(loc.getY()+range)+")");
 				while( b.next() ) {
@@ -601,8 +601,8 @@ public class MapDataController extends DSGenerator implements Loggable {
 				// Schiffe
 				SQLQuery s = db.query("SELECT t1.x,t1.y,t2.ally,t1.owner,t1.docked,t1.status,t1.type,t1.id " ,
 						"FROM ships t1 JOIN users t2 ON t1.owner=t2.id " ,
-						"WHERE t1.id>0 AND t1.system=",system," AND !LOCATE('l ',docked) AND t1.owner!=",this.usedUser.getID()," AND (t1.x BETWEEN ",(loc.getX()-range)," AND ",(loc.getX()+range),") AND (t1.y BETWEEN ",(loc.getY()-range)," AND ",(loc.getY()+range),") AND " ,
-							"(t1.visibility IS NULL OR t1.visibility=",this.usedUser.getID(),") AND (!(t1.type IN (",Common.implode(",",verysmallshiptypes),")) OR LOCATE('tblmodules',t1.status)) " ,
+						"WHERE t1.id>0 AND t1.system=",system," AND !LOCATE('l ',docked) AND t1.owner!=",this.usedUser.getId()," AND (t1.x BETWEEN ",(loc.getX()-range)," AND ",(loc.getX()+range),") AND (t1.y BETWEEN ",(loc.getY()-range)," AND ",(loc.getY()+range),") AND " ,
+							"(t1.visibility IS NULL OR t1.visibility=",this.usedUser.getId(),") AND (!(t1.type IN (",Common.implode(",",verysmallshiptypes),")) OR LOCATE('tblmodules',t1.status)) " ,
 						"ORDER BY t1.x,t1.y");
 				while( s.next() ) {
 					Location sLoc = new Location(system, s.getInt("x"), s.getInt("y"));
@@ -661,7 +661,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 						usercount.clear();
 					}
 					
-					if( s.getInt("owner") == this.usedUser.getID() ) {
+					if( s.getInt("owner") == this.usedUser.getId() ) {
 						continue;	
 					}
 					
@@ -721,13 +721,13 @@ public class MapDataController extends DSGenerator implements Loggable {
 			echo.append((char)PROTOCOL_VERSION);
 			echo.append((char)PROTOCOL_MINOR_VERSION);
 	
-			if( (this.usedUser != null) && this.usedUser.getID() < 0 ) {
+			if( (this.usedUser != null) && this.usedUser.getId() < 0 ) {
 				echo.append((char)1);
 			}
 			else {
 				echo.append((char)0);
 			}
-			echo.append(getStarmapValue(Math.abs(usedUser != null ? this.usedUser.getID() : 0)));
+			echo.append(getStarmapValue(Math.abs(usedUser != null ? this.usedUser.getId() : 0)));
 			
 			// Nun die Kartengroesse senden (erst x dann y - jeweils zwei stellen pro char)
 			int width = sys.getWidth();

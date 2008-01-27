@@ -71,7 +71,7 @@ public class BuildController extends DSGenerator {
 		int col = getInteger("col");
 		int field = getInteger("field");
 		
-		SQLResultRow baseRow = db.first("SELECT * FROM bases WHERE owner=",user.getID()," AND id=",col);
+		SQLResultRow baseRow = db.first("SELECT * FROM bases WHERE owner=",user.getId()," AND id=",col);
 		if( baseRow.isEmpty() ) {
 			addError("Die angegebene Kolonie existiert nicht", Common.buildUrl(getContext(), "default", "module", "basen"));
 			
@@ -140,7 +140,7 @@ public class BuildController extends DSGenerator {
 		if( building.getPerUserCount() != 0 ) {
 			int ownerbuildingcount = 0;
 		
-			SQLQuery abeb = db.query("SELECT bebauung FROM bases WHERE owner="+user.getID());
+			SQLQuery abeb = db.query("SELECT bebauung FROM bases WHERE owner="+user.getId());
 			while( abeb.next() ) {
 				int[] aBebList = Common.explodeToInt("|",abeb.getString("bebauung"));
 				for( int bid : aBebList ) {
@@ -279,7 +279,7 @@ public class BuildController extends DSGenerator {
 		//Anzahl der Gebaeude pro Spieler berechnen
 		Map<Integer,Integer> ownerbuildingcount = new HashMap<Integer,Integer>(buildingcount);
 		
-		SQLQuery aBeb = db.query("SELECT bebauung FROM bases WHERE owner="+user.getID()+" AND id!="+base.getID());
+		SQLQuery aBeb = db.query("SELECT bebauung FROM bases WHERE owner="+user.getId()+" AND id!="+base.getID());
 		while( aBeb.next() ) {
 			int[] aBebList = Common.explodeToInt("|",aBeb.getString("bebauung"));
 			for( int bid : aBebList ) {

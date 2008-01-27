@@ -80,7 +80,7 @@ public class ForschungsTick extends TickController {
 					msg += "\n\n[color=red]Durch die Erforschung dieser Technologie stehen sie nicht l&auml;nger unter GCP-Schutz.\nSie k&ouml;nnen nun sowohl angreifen als auch angegriffen werden![/color]";
 					user.setFlag( User.FLAG_NOOB, false );
 					
-					log("\t"+user.getID()+" steht nicht laenger unter gcp-schutz");
+					log("\t"+user.getId()+" steht nicht laenger unter gcp-schutz");
 				}
 					
 				PM.send(getContext(), -1, base.getInt("owner"), "Forschung abgeschlossen", msg);

@@ -174,7 +174,7 @@ public abstract class WerftObject extends DSObject {
 		User auser = context.createUserObject(owner);
 		
 		String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
-		String history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getID()+")\n";
+		String history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+")\n";
 			
 		PreparedQuery shipCreate = db.prepare("INSERT INTO ships " ,
 				"(id,owner,type,x,y,system,crew,hull,cargo,e,history) " ,
@@ -1070,9 +1070,9 @@ public abstract class WerftObject extends DSObject {
 	
 			// Kosten anpassen
 			if( shipdata.getDouble("linfactor") > 0 ) {
-				int count = db.first("SELECT count(*) count FROM ships WHERE id>0 AND type=",shipdata.getInt("type")," AND owner=",user.getID()).getInt("count");
-				int count2 = db.first("SELECT count(t1.id) count FROM werften t1 JOIN bases t2 ON t1.col=t2.id WHERE t1.building=",shipdata.getInt("type")," AND t2.owner=",user.getID()).getInt("count");
-				int count3 = db.first("SELECT count(t1.id) count FROM werften t1 JOIN ships t2 ON t1.shipid=t2.id WHERE t2.id>0 AND t1.building=",shipdata.getInt("type")," AND t2.owner=",user.getID()).getInt("count");
+				int count = db.first("SELECT count(*) count FROM ships WHERE id>0 AND type=",shipdata.getInt("type")," AND owner=",user.getId()).getInt("count");
+				int count2 = db.first("SELECT count(t1.id) count FROM werften t1 JOIN bases t2 ON t1.col=t2.id WHERE t1.building=",shipdata.getInt("type")," AND t2.owner=",user.getId()).getInt("count");
+				int count3 = db.first("SELECT count(t1.id) count FROM werften t1 JOIN ships t2 ON t1.shipid=t2.id WHERE t2.id>0 AND t1.building=",shipdata.getInt("type")," AND t2.owner=",user.getId()).getInt("count");
 	
 				count = count + count2 + count3;
 				
@@ -1226,9 +1226,9 @@ public abstract class WerftObject extends DSObject {
 			
 			// Kosten anpassen
 			if( shipdata.getDouble("linfactor") > 0 ) {
-				int count = db.first("SELECT count(*) count FROM ships WHERE id>0 AND type=",shipdata.getInt("type")," AND owner=",user.getID()).getInt("count");
-				int count2 = db.first("SELECT count(t1.id) count FROM werften t1 JOIN bases t2 ON t1.col=t2.id WHERE t1.building=",shipdata.getInt("type")," AND t2.owner=",user.getID()).getInt("count");
-				int count3 = db.first("SELECT count(t1.id) count FROM werften t1 JOIN ships t2 ON t1.shipid=t2.id WHERE t2.id>0 AND t1.building=",shipdata.getInt("type")," AND t2.owner=",user.getID()).getInt("count");
+				int count = db.first("SELECT count(*) count FROM ships WHERE id>0 AND type=",shipdata.getInt("type")," AND owner=",user.getId()).getInt("count");
+				int count2 = db.first("SELECT count(t1.id) count FROM werften t1 JOIN bases t2 ON t1.col=t2.id WHERE t1.building=",shipdata.getInt("type")," AND t2.owner=",user.getId()).getInt("count");
+				int count3 = db.first("SELECT count(t1.id) count FROM werften t1 JOIN ships t2 ON t1.shipid=t2.id WHERE t2.id>0 AND t1.building=",shipdata.getInt("type")," AND t2.owner=",user.getId()).getInt("count");
 		
 				count = count + count2 + count3;
 				((Cargo)shipdata.get("costs")).multiply( shipdata.getDouble("linfactor")*count+1, Cargo.Round.NONE );
@@ -1423,11 +1423,11 @@ public abstract class WerftObject extends DSObject {
 				db.update("DELETE FROM ships WHERE id>0 AND id=",werft.getShipID());
 				
 				String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
-				String history = "Baubeginn am "+currentTime+" durch "+user.getName()+" ("+user.getID()+"\n";
+				String history = "Baubeginn am "+currentTime+" durch "+user.getName()+" ("+user.getId()+"\n";
 				
 				db.update("INSERT INTO ships (id,name,type,hull,e,crew,x,y,system,owner,history) VALUES ",
 							"(",werft.getShipID(),",\"Baustelle\",",this.getOneWayFlag(),",",newtype.getInt("hull"),",",newtype.getInt("eps"),",",crew,",",
-							this.getX(),",",this.getY(),",",this.getSystem(),",",user.getID(),",'",db.prepareString(history),"')");
+							this.getX(),",",this.getY(),",",this.getSystem(),",",user.getId(),",'",db.prepareString(history),"')");
 	
 				db.update("UPDATE werften SET type=2 WHERE id=",this.getWerftID());
 	

@@ -75,7 +75,7 @@ public class ScanController extends DSGenerator {
 		if( !admin ) {
 			shipID = getInteger("ship");
 			
-			SQLResultRow ship = db.first("SELECT id,x,y,system,sensors,crew,type,status FROM ships WHERE owner='",getUser().getID(),"' AND id>0 AND id=",shipID);
+			SQLResultRow ship = db.first("SELECT id,x,y,system,sensors,crew,type,status FROM ships WHERE owner='",getUser().getId(),"' AND id>0 AND id=",shipID);
 	
 			if( ship.isEmpty() ) {
 				addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht", Common.buildUrl(getContext(), "default", "module", "schiffe") );
@@ -185,7 +185,7 @@ public class ScanController extends DSGenerator {
 	
 		SQLResultRow nebel = db.first("SELECT id,type FROM nebel WHERE x=",scanx," AND y=",scany," AND system="+system);
 		if( !this.admin && !nebel.isEmpty() && ((nebel.getInt("type") < 3) || (nebel.getInt("type") > 5)) ) {
-			SQLQuery nebelship = db.query("SELECT id,status,type,sensors,crew FROM ships WHERE id>0 AND x=",scanx," AND y=",scany," AND system=",system," AND owner=",user.getID()," AND sensors > 30");
+			SQLQuery nebelship = db.query("SELECT id,status,type,sensors,crew FROM ships WHERE id>0 AND x=",scanx," AND y=",scany," AND system=",system," AND owner=",user.getId()," AND sensors > 30");
 			while( nebelship.next() ) {
 				SQLResultRow ownshiptype = ShipTypes.getShipType( nebelship.getRow() );	
 				if( nebelship.getInt("crew") >= ownshiptype.getInt("crew")/4 ) {
@@ -228,14 +228,14 @@ public class ScanController extends DSGenerator {
 				t.start_record();
 				
 				t.setVar(	"base.id",			datan.getInt("id"),
-							"base.isown",		(datan.getInt("owner") == user.getID()),
+							"base.isown",		(datan.getInt("owner") == user.getId()),
 							"base.owner.id",	datan.getInt("owner"),
 							"base.owner.name",	Common._title(datan.getString("username")),
 							"base.name",		Common._plaintitle(datan.getString("name")),
 							"base.size",		datan.getInt("size"),
 							"base.klasse",		datan.getInt("klasse") );
 				
-				if( (datan.getInt("owner") != 0) && (datan.getInt("owner") != user.getID()) ) {
+				if( (datan.getInt("owner") != 0) && (datan.getInt("owner") != user.getId()) ) {
 					t.setVar("base.owner.link", 1);
 				}
 				
@@ -272,7 +272,7 @@ public class ScanController extends DSGenerator {
 				
 				if( (battle.getString("visibility") != null) && (battle.getString("visibility").length() != 0) ) {
 					Integer[] visibility = Common.explodeToInteger(",",battle.getString("visibility"));
-					if( !Common.inArray(user.getID(),visibility) ) {
+					if( !Common.inArray(user.getId(),visibility) ) {
 						questbattle = true;
 					}
 				}
@@ -336,7 +336,7 @@ public class ScanController extends DSGenerator {
 					"FROM ships s JOIN users u ON s.owner=u.id " ,
 					"WHERE s.id>0 AND s.x=",scanx," AND s.y=",scany," AND s.system=",system," AND s.battle=0 AND " ,
 						"(!(s.type IN (",Common.implode(",",verysmallshiptypes),")) OR LOCATE('tblmodules',s.status)) AND " ,
-						"(s.visibility IS NULL OR s.visibility='",user.getID(),"') AND !LOCATE('l ',s.docked) " ,
+						"(s.visibility IS NULL OR s.visibility='",user.getId(),"') AND !LOCATE('l ',s.docked) " ,
 						"ORDER BY s.id");
 						
 			while( datas.next() ) {
@@ -350,11 +350,11 @@ public class ScanController extends DSGenerator {
 				}
 				
 				t.setVar(	"ship.id",				datas.getInt("id"),
-							"ship.isown",			(datas.getInt("owner") == user.getID()),
+							"ship.isown",			(datas.getInt("owner") == user.getId()),
 							"ship.owner.id",		datas.getInt("owner"),
 							"ship.name",			Common._plaintitle(datas.getString("name")),
 							"ship.owner.name",		Common._title(datas.getString("username")),
-							"ship.ownerlink",		(datas.getInt("owner") != user.getID()),
+							"ship.ownerlink",		(datas.getInt("owner") != user.getId()),
 							"ship.battle",			datas.getInt("battle"),
 							"ship.type.name",		shiptype.getString("nickname"),
 							"ship.type",			datas.getInt("type"),
@@ -435,7 +435,7 @@ public class ScanController extends DSGenerator {
 
 		SQLQuery sRow = db.query("SELECT t1.id,t1.x,t1.y,t2.ally,t1.owner,t1.docked,t1.crew,t1.sensors,t1.type,t1.status " ,
 								"FROM ships t1 JOIN users t2 ON t1.owner=t2.id " ,
-								"WHERE t1.id>0 AND ",rangesql," AND (t1.visibility IS NULL OR t1.visibility='",user.getID(),"') AND " ,
+								"WHERE t1.id>0 AND ",rangesql," AND (t1.visibility IS NULL OR t1.visibility='",user.getId(),"') AND " ,
 										"(!(t1.type IN (",Common.implode(",",verysmallshiptypes),")) OR LOCATE('tblmodules',t1.status))");
 		while( sRow.next() ) {
 			SQLResultRow st = ShipTypes.getShipType(sRow.getRow());
@@ -451,7 +451,7 @@ public class ScanController extends DSGenerator {
 			}
 			shipmap.get(loc).add(sRow.getRow());
 
-			if( (sRow.getInt("owner") == user.getID()) && (sRow.getInt("sensors")>30) && !ownshipmap.containsKey(loc) ) {			
+			if( (sRow.getInt("owner") == user.getId()) && (sRow.getInt("sensors")>30) && !ownshipmap.containsKey(loc) ) {			
 				if( sRow.getInt("crew") >= st.getInt("crew")/4 ) {
 					ownshipmap.put(loc, true);
 				}
@@ -559,7 +559,7 @@ public class ScanController extends DSGenerator {
 							for( int i=0; i < myships.size(); i++ ) {
 								SQLResultRow myship = myships.get(i);
 								
-								if( myship.getInt("owner") == user.getID() ) {
+								if( myship.getInt("owner") == user.getId() ) {
 									if( (myship.getString("docked").length() == 0) || (myship.getString("docked").charAt(0) != 'l') ) {
 										if( own == 0 ) {
 											fleet[0] = "_fo";
@@ -567,7 +567,7 @@ public class ScanController extends DSGenerator {
 										own++;
 									}
 								}
-								else if( (myship.getInt("owner") != user.getID()) && (user.getAlly() != 0) && (myship.getInt("ally") == user.getAlly()) ) {
+								else if( (myship.getInt("owner") != user.getId()) && (user.getAlly() != 0) && (myship.getInt("ally") == user.getAlly()) ) {
 									if( (myship.getString("docked").length() == 0) || (myship.getString("docked").charAt(0) != 'l') ) {
 										if( ally == 0 ) {
 											fleet[1] = "_fa";
@@ -575,7 +575,7 @@ public class ScanController extends DSGenerator {
 										ally++;
 									}
 								}
-								else if( (myship.getInt("owner") != user.getID()) && ( (user.getAlly() == 0) || ((user.getAlly() != 0) && (myship.getInt("ally") != user.getAlly()) ) )  ) {
+								else if( (myship.getInt("owner") != user.getId()) && ( (user.getAlly() == 0) || ((user.getAlly() != 0) && (myship.getInt("ally") != user.getAlly()) ) )  ) {
 									if( (myship.getString("docked").length() == 0) || (myship.getString("docked").charAt(0) != 'l') ) {
 										if( enemy == 0 ) {
 											fleet[2] = "_fe";
@@ -607,7 +607,7 @@ public class ScanController extends DSGenerator {
 								t.setVar(	"map.image",		"kolonie"+entry.klasse+"_lrs/kolonie"+entry.klasse+"_lrs"+entry.imgcount,
 											"map.image.name",	"Asteroid" );
 							}
-							else if( entry.owner == user.getID() ) {
+							else if( entry.owner == user.getId() ) {
 								t.setVar(	"map.image",		"asti_own/asti_own",
 											"map.image.name",	"Eigener Asteroid" );
 							}

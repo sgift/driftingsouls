@@ -536,7 +536,7 @@ public class DriftingSoulsServlet extends HttpServlet {
 			msg.append("URI: "+httpRequest.getRequestURI()+"\n");
 			msg.append("QUERY_STRING: "+httpRequest.getQueryString()+"\n");
 			msg.append("Session: "+httpRequest.getParameter("sess")+"\n");
-			msg.append("User: "+(context != null && context.getActiveUser() != null ? context.getActiveUser().getID() : "none")+"\n");
+			msg.append("User: "+(context != null && context.getActiveUser() != null ? context.getActiveUser().getId() : "none")+"\n");
 			Common.mailThrowable(e, "Framework Exception", msg.toString());
 			
 			e.printStackTrace();

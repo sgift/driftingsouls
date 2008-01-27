@@ -306,7 +306,7 @@ public class TransportController extends DSGenerator {
 
 			if( role == ROLE_TARGET ) {
 				User user = ContextMap.getContext().getActiveUser();
-				if( (data.getString("status").indexOf("disable_iff") > -1) && (data.getInt("owner") != user.getID()) ) {
+				if( (data.getString("status").indexOf("disable_iff") > -1) && (data.getInt("owner") != user.getId()) ) {
 					throw new Exception("Zu dem angegebenen Schiff (id:"+data.getInt("id")+") k&ouml;nnen sie keine Waren transportieren");
 				}
 			}
@@ -553,7 +553,7 @@ public class TransportController extends DSGenerator {
 		}
 
 		for( TransportTarget afrom : this.from ) {
-			if( afrom.getOwner() != getUser().getID() ) {
+			if( afrom.getOwner() != getUser().getId() ) {
 				addError("Das Schiff geh&ouml;rt ihnen nicht", Common.buildUrl(getContext(), "default", "module", "ueber") );
 				
 				return false;
@@ -586,7 +586,7 @@ public class TransportController extends DSGenerator {
 			count = cargoto.longValue() / Cargo.getResourceMass( res.getId(), 1 );
 			
 			if( count < 0 ) {
-				Common.writeLog("transport.error.log", Common.date("d.m.y H:i:s")+": "+getUser().getID()+" -> "+toItem.getOwner()+" | "+getString("from")+" -> "+getString("to")+" ["+getString("way")+"] : "+mode+res.getId()+"@"+count+" ; "+msg+"\n---------\n");
+				Common.writeLog("transport.error.log", Common.date("d.m.y H:i:s")+": "+getUser().getId()+" -> "+toItem.getOwner()+" | "+getString("from")+" -> "+getString("to")+" ["+getString("way")+"] : "+mode+res.getId()+"@"+count+" ; "+msg+"\n---------\n");
 				count = 0;
 			}
 						
@@ -701,7 +701,7 @@ public class TransportController extends DSGenerator {
 							transfer = true;
 							
 							// Evt unbekannte Items bekannt machen
-							if( res.getId().isItem() && (getUser().getID() != to.getOwner()) ) {
+							if( res.getId().isItem() && (getUser().getId() != to.getOwner()) ) {
 								if( Items.get().item(res.getId().getItemID()).isUnknownItem() ) {
 									User auser = getContext().createUserObject( to.getOwner() );
 									auser.addKnownItem(res.getId().getItemID());
@@ -735,7 +735,7 @@ public class TransportController extends DSGenerator {
 							t.start_record();
 						}
 						
-						if( (to.getOwner() != getUser().getID()) && (to.getOwner() != 0) ) {
+						if( (to.getOwner() != getUser().getId()) && (to.getOwner() != 0) ) {
 							addError("Das geh&ouml;rt dir nicht!");
 							
 							redirect();
@@ -776,9 +776,9 @@ public class TransportController extends DSGenerator {
 		
 		for( int j=0; j < tolist.size(); j++  ) {
 			TransportTarget to = tolist.get(j);
-			if( getUser().getID() != to.getOwner() ) {
+			if( getUser().getId() != to.getOwner() ) {
 				if( msg.containsKey(to.getOwner()) && (msg.get(to.getOwner()).length() > 0) && !ownerpmlist.containsKey(to.getOwner()) ) {
-					Common.writeLog("transport.log", Common.date("d.m.y H:i:s")+": "+getUser().getID()+" -> "+to.getOwner()+" | "+getString("from")+" -> "+getString("to")+" ["+getString("way")+"] : "+"\n"+msg+"---------\n");
+					Common.writeLog("transport.log", Common.date("d.m.y H:i:s")+": "+getUser().getId()+" -> "+to.getOwner()+" | "+getString("from")+" -> "+getString("to")+" ["+getString("way")+"] : "+"\n"+msg+"---------\n");
 				
 					t.setVar( "transfer.pm", 1 );
 
@@ -791,7 +791,7 @@ public class TransportController extends DSGenerator {
 					}
 					
 					String tmpmsg = Common.implode(",",sourceshiplist)+" l&auml;dt Waren auf "+Common.implode(",",shiplist)+"\n"+msg.get(to.getOwner());
-					PM.send(getContext(), getUser().getID(), to.getOwner(), "Waren transferiert", tmpmsg);
+					PM.send(getContext(), getUser().getId(), to.getOwner(), "Waren transferiert", tmpmsg);
 					
 					ownerpmlist.put(to.getOwner(), msg.get(to.getOwner()).toString());
 				}
@@ -1018,7 +1018,7 @@ public class TransportController extends DSGenerator {
 		Cargo tocargo = new Cargo();
 		
 		for( TransportTarget to : this.to ) {
-			if( (getUser().getID() != to.getOwner()) && (to.getOwner() != 0) ) {
+			if( (getUser().getId() != to.getOwner()) && (to.getOwner() != 0) ) {
 				continue;
 			}
 			showtarget = true;

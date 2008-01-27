@@ -83,7 +83,7 @@ public class Items implements Loggable,Iterable<Item> {
 		 */
 		try {
 			Database db = new Database();
-			String imagepath = User.getDefaultImagePath(db)+"data/items/";
+			String imagepath = User.getDefaultImagePath()+"data/items/";
 			db.close();
 			
 			Document doc = XMLUtils.readFile(Configuration.getSetting("configdir")+"items.xml");

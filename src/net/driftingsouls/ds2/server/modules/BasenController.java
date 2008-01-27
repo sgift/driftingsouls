@@ -129,7 +129,7 @@ public class BasenController extends DSGenerator {
 		t.setBlock("bases.listitem", "bases.mangel.listitem", "bases.mangel.list");
 		t.setBlock("bases.listitem", "bases.cargo.listitem", "bases.cargo.list");
 		
-		SQLQuery baseRow = db.query("SELECT * FROM bases WHERE owner=",user.getID()," ORDER BY ",ow," ",om);
+		SQLQuery baseRow = db.query("SELECT * FROM bases WHERE owner=",user.getId()," ORDER BY ",ow," ",om);
 		while( baseRow.next() ) {
 			Base base = new Base(baseRow.getRow());
 			BaseStatus basedata = Base.getStatus(getContext(),base);

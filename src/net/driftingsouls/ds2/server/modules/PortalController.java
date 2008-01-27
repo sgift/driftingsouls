@@ -774,26 +774,26 @@ class PortalController extends DSGenerator {
 	    		if( !user.getPassword().equals(enc_pw) ) {
 					t.setVar( "show.msg.login.wrongpassword",1 );
 					user.setLoginFailedCount(user.getLoginFailedCount()+1);
-	  				Common.writeLog("login.log", Common.date("j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getID()+") <"+username+"> Password <"+password+"> ***LOGIN GESCHEITERT*** von Browser <"+getRequest().getUserAgent()+">\n");
+	  				Common.writeLog("login.log", Common.date("j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+username+"> Password <"+password+"> ***LOGIN GESCHEITERT*** von Browser <"+getRequest().getUserAgent()+">\n");
 					clear = false;
 				} 
 				else if( user.getDisabled() ) {
 					t.setVar("show.login.msg.accdisabled",1);
-					Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getID()+") <"+username+"> Password <"+password+"> ***ACCOUNT GESPERRT*** von Browser <"+getRequest().getUserAgent()+">\n");
+					Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+username+"> Password <"+password+"> ***ACCOUNT GESPERRT*** von Browser <"+getRequest().getUserAgent()+">\n");
 	
-					db.update("DELETE FROM sessions WHERE id='",user.getID(),"'");
+					db.update("DELETE FROM sessions WHERE id='",user.getId(),"'");
 					clear = false;
 				} 
 				else {
-					SQLResultRow session = db.first("SELECT * FROM sessions WHERE id='",user.getID(),"'");
+					SQLResultRow session = db.first("SELECT * FROM sessions WHERE id='",user.getId(),"'");
 					if( !session.isEmpty() && (session.getInt("tick") != 0) ) {
 						t.setVar("show.login.msg.tick",1);
 						clear = false;
 					}
 					else{
-						Common.writeLog("login.log",Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getID()+") <"+username+"> Login von Browser <"+getRequest().getUserAgent()+">\n");
+						Common.writeLog("login.log",Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+username+"> Login von Browser <"+getRequest().getUserAgent()+">\n");
 	
-	  					int id = user.getID();
+	  					int id = user.getId();
 	
 	  					String sess = Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE));
 	
@@ -812,7 +812,7 @@ class PortalController extends DSGenerator {
 						}
 						
 						// Ueberpruefen ob das gfxpak noch aktuell ist
-						if( (usegfxpak != 0) && !user.getUserImagePath().equals(User.getDefaultImagePath(db)) ) {
+						if( (usegfxpak != 0) && !user.getUserImagePath().equals(User.getDefaultImagePath()) ) {
 							t.setVar(	"login.checkgfxpak", 1,
 										"login.checkgfxpak.path", user.getUserImagePath() );
 						}

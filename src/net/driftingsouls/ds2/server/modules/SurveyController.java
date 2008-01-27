@@ -63,7 +63,7 @@ public class SurveyController extends DSGenerator {
 		Database db = getDatabase();
 		
 		survey = db.first("SELECT * FROM surveys " ,
-				"WHERE enabled='1' AND minid<='",user.getID(),"' AND maxid>='",user.getID(),"' AND " ,
+				"WHERE enabled='1' AND minid<='",user.getId(),"' AND maxid>='",user.getId(),"' AND " ,
 				" mintime<='",user.getSignup(),"' AND maxtime>='",user.getSignup(),"' AND timeout>0");
 				
 		if( survey.isEmpty() ) {
@@ -71,7 +71,7 @@ public class SurveyController extends DSGenerator {
 			return false;	
 		}
 		
-		SQLResultRow voted = db.first("SELECT * FROM survey_voted WHERE survey_id=",survey.getInt("id")," AND user_id=",user.getID());
+		SQLResultRow voted = db.first("SELECT * FROM survey_voted WHERE survey_id=",survey.getInt("id")," AND user_id=",user.getId());
 		if( !voted.isEmpty() ) {
 			addError("Sie haben bei dieser Umfrage bereits abgestimmt");
 			return false;	
@@ -140,7 +140,7 @@ public class SurveyController extends DSGenerator {
 		
 		db.prepare("INSERT INTO survey_results (survey_id,result) VALUES ( ?, ? )")
 			.update(this.survey.getInt("id"), Common.implode(",", data));
-		db.update("INSERT INTO survey_voted (survey_id,user_id) VALUES ('",this.survey.getInt("id"),"','",user.getID(),"')");
+		db.update("INSERT INTO survey_voted (survey_id,user_id) VALUES ('",this.survey.getInt("id"),"','",user.getId(),"')");
 		
 		t.setVar("show.votesuccessful", 1);
 	}

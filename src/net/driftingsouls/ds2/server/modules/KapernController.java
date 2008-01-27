@@ -85,7 +85,7 @@ public class KapernController extends DSGenerator {
 			tar = 0;	
 		}
 
-		SQLResultRow datas = db.first("SELECT * FROM ships WHERE id=",ship," AND owner=",user.getID());
+		SQLResultRow datas = db.first("SELECT * FROM ships WHERE id=",ship," AND owner=",user.getId());
 		SQLResultRow datan = db.first("SELECT * FROM ships WHERE id=",tar);
 
 		if( datas.isEmpty() ) {
@@ -121,13 +121,13 @@ public class KapernController extends DSGenerator {
 			return false;
 		}
 		
-		if( datan.getInt("owner") == user.getID() ) {
+		if( datan.getInt("owner") == user.getId() ) {
 			addError("Sie k&ouml;nnen ihre eigenen Schiffe nicht kapern", errorurl);
 					
 			return false;
 		}
 		
-		if( (datan.getInt("visibility") != 0) && (datan.getInt("visibility") != user.getID()) ) {
+		if( (datan.getInt("visibility") != 0) && (datan.getInt("visibility") != user.getId()) ) {
 			addError("Sie k&ouml;nnen nur kapern, was sie auch sehen", errorurl);
 					
 			return false;
@@ -274,12 +274,12 @@ public class KapernController extends DSGenerator {
 				if( targetUser.getAlly() > 0 ) {
 					UserIterator iter = getContext().createUserIterator("SELECT * FROM users WHERE ally=",targetUser.getAlly());
 					for( User uid : iter ) {
-						ownerlist.add(uid.getID());
+						ownerlist.add(uid.getId());
 					}
 					iter.free();
 				}		
 				else {
-					ownerlist.add(targetUser.getID());
+					ownerlist.add(targetUser.getId());
 				}
 				
 				int shipcount = 0;
@@ -313,7 +313,7 @@ public class KapernController extends DSGenerator {
 						PM.send( getContext(), -1, this.targetShip.getInt("owner"), "Kaperversuch entdeckt", "Ihre Schiffe haben einen Kaperversuch bei "+this.targetShip.getInt("system")+":"+this.targetShip.getInt("x")+"/"+this.targetShip.getInt("y")+" vereitelt und den Gegner angegriffen" );
 						
 						Battle battle = new Battle();
-						battle.create(user.getID(), this.ownShip.getInt("id"), this.targetShip.getInt("id"));
+						battle.create(user.getId(), this.ownShip.getInt("id"), this.targetShip.getInt("id"));
 												
 						t.setVar(
 							"kapern.message",	"Ihr Kaperversuch wurde entdeckt und einige gegnerischen Schiffe haben das Feuer er&ouml;ffnet",
@@ -379,7 +379,7 @@ public class KapernController extends DSGenerator {
 		db.tBegin();
 		
 		// Transmisson
-		PM.send( getContext(), user.getID(), this.targetShip.getInt("owner"), "Kaperversuch", msg.toString() );
+		PM.send( getContext(), user.getId(), this.targetShip.getInt("owner"), "Kaperversuch", msg.toString() );
 		
 		db.update("UPDATE ships SET crew=",acrew," WHERE id=",this.ownShip.getInt("id"));
 		db.update("UPDATE ships SET crew=",dcrew," WHERE id=",this.targetShip.getInt("id"));
@@ -401,11 +401,11 @@ public class KapernController extends DSGenerator {
 			String currentTime = Common.getIngameTime(getContext().get(ContextCommon.class).getTick());
 			
 			// Schiff uebereignen
-			this.targetShip.put("history", this.targetShip.getString("history")+"Gekapert am "+currentTime+" durch "+user.getName()+" ("+user.getID()+")\n");
+			this.targetShip.put("history", this.targetShip.getString("history")+"Gekapert am "+currentTime+" durch "+user.getName()+" ("+user.getId()+")\n");
 			
 			db.prepare("UPDATE ships SET owner= ?,fleet= ?,history= ? WHERE id= ? OR docked IN ( ?, ?)")
-				.update(user.getID(), 0, this.targetShip.getString("history"), this.targetShip.getInt("id"), "l "+this.targetShip.getInt("id"), Integer.toString(this.targetShip.getInt("id")));
-			db.update("UPDATE offiziere SET userid="+user.getID()+" WHERE dest='s "+this.targetShip.getInt("id")+"'");
+				.update(user.getId(), 0, this.targetShip.getString("history"), this.targetShip.getInt("id"), "l "+this.targetShip.getInt("id"), Integer.toString(this.targetShip.getInt("id")));
+			db.update("UPDATE offiziere SET userid="+user.getId()+" WHERE dest='s "+this.targetShip.getInt("id")+"'");
 			
 			if( this.targetShipType.getString("werft").length() > 0 ) {
 				db.update("UPDATE werften SET linked=0 WHERE shipid="+this.targetShip.getInt("id"));
@@ -422,7 +422,7 @@ public class KapernController extends DSGenerator {
 		Ships.recalculateShipStatus(this.ownShip.getInt("id"));
 		Ships.recalculateShipStatus(this.targetShip.getInt("id"));
 	
-		Common.dblog("kapern", Integer.toString(this.ownShip.getInt("id")), Integer.toString(this.targetShip.getInt("id")), user.getID(),
+		Common.dblog("kapern", Integer.toString(this.ownShip.getInt("id")), Integer.toString(this.targetShip.getInt("id")), user.getId(),
 				"owner",	Integer.toString(this.targetShip.getInt("owner")),
 				"pos",		Location.fromResult(this.targetShip).toString(),
 				"shiptype",	Integer.toString(this.targetShip.getInt("type")) );

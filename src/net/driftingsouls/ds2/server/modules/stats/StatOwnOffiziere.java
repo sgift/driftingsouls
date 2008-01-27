@@ -48,7 +48,7 @@ public class StatOwnOffiziere implements Statistic, Loggable {
 	
 		SQLQuery offi = db.query("SELECT * ",
 					"FROM offiziere ",
-					"WHERE userid=",user.getID()," ",
+					"WHERE userid=",user.getId()," ",
 					"ORDER BY ing+nav+waf+sec+com DESC");
 					
 		if( offi.numRows() == 0 ) {

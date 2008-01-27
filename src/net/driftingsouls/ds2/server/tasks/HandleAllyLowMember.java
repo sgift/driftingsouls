@@ -59,7 +59,7 @@ class HandleAllyLowMember implements TaskHandler {
 		
 			UserIterator iter = context.createUserIterator("SELECT * FROM users WHERE ally=",allyid);
 			for( User member : iter ) {
-				PM.send( context, 0, member.getID(), "Allianzaufl&ouml;sung", "[Automatische Nachricht]\n\nDeine Allianz wurde mit sofortiger Wirkung aufgel&ouml;st. Der Grund ist Spielermangel. Grunds&auml;tzlich m&uuml;ssen Allianzen mindestens 3 Mitglieder haben um bestehen zu k&ouml;nnen. Da deine Allianz in der vorgegebenen Zeit dieses Ziel nicht erreichen konnte war die Aufl&ouml;sung unumg&auml;nglich.");
+				PM.send( context, 0, member.getId(), "Allianzaufl&ouml;sung", "[Automatische Nachricht]\n\nDeine Allianz wurde mit sofortiger Wirkung aufgel&ouml;st. Der Grund ist Spielermangel. Grunds&auml;tzlich m&uuml;ssen Allianzen mindestens 3 Mitglieder haben um bestehen zu k&ouml;nnen. Da deine Allianz in der vorgegebenen Zeit dieses Ziel nicht erreichen konnte war die Aufl&ouml;sung unumg&auml;nglich.");
 				member.addHistory(Common.getIngameTime(tick)+": Austritt aus der Allianz "+ally.getString("name")+" im Zuge der Zwangaufl&ouml;sung");
 			}
 			iter.free();

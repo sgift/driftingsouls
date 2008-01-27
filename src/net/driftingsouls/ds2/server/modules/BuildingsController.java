@@ -62,7 +62,7 @@ public class BuildingsController extends DSGenerator {
 		int col = getInteger("col");
 		
 		if( col != 0 ) {
-			SQLResultRow chk = db.first("SELECT id FROM bases WHERE owner="+user.getID()+" AND id="+col);
+			SQLResultRow chk = db.first("SELECT id FROM bases WHERE owner="+user.getId()+" AND id="+col);
 
 			if( chk.isEmpty() ) {
 				addError("Die angegebene Kolonie existiert nicht");

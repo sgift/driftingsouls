@@ -95,7 +95,7 @@ public class OptionsController extends DSGenerator implements Loggable {
 			
 			changemsg += "<span style=\"color:green\">Der Ingame-Namen <span style=\"color:white\">"+Common._title(user.getNickname())+"</span> wurde in <span style=\"color:white\">"+Common._title(name)+"</span> ge&auml;ndert</span><br />\n";
 			
-			Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getContext().getRequest().getRemoteAddress()+"> ("+user.getID()+") <"+user.getUN()+"> Namensaenderung: Ingame-Namen <"+user.getNickname()+"> in <"+name+"> Browser <"+getContext().getRequest().getUserAgent()+">\n");
+			Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getContext().getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+user.getUN()+"> Namensaenderung: Ingame-Namen <"+user.getNickname()+"> in <"+name+"> Browser <"+getContext().getRequest().getUserAgent()+">\n");
 		
 			if( addhistory ) {
 				user.addHistory(Common.getIngameTime(getContext().get(ContextCommon.class).getTick())+": Umbenennung in "+newname);
@@ -120,7 +120,7 @@ public class OptionsController extends DSGenerator implements Loggable {
 			
 			Common.mail (user.getEmail(), subject, message);
 
-			Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getContext().getRequest().getRemoteAddress()+"> ("+user.getID()+") <"+user.getUN()+"> Passwortaenderung Browser <"+getContext().getRequest().getUserAgent()+"> \n");
+			Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getContext().getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+user.getUN()+"> Passwortaenderung Browser <"+getContext().getRequest().getUserAgent()+"> \n");
 		}
 		else if( pw.length() != 0 ) {
 			changemsg += "<span style=\"color:red\">Die beiden eingegebenen Passw&ouml;rter stimmen nicht &uuml;berein</span><br />\n";
@@ -159,9 +159,9 @@ public class OptionsController extends DSGenerator implements Loggable {
 		else {
 			StringBuilder msg = new StringBuilder(100);
 	 		msg.append("PLZ DELETE ME!!!\nMY ID IS: [userprofile=");
-	 		msg.append(user.getID());
+	 		msg.append(user.getId());
 	 		msg.append("]");
-	 		msg.append(user.getID());
+	 		msg.append(user.getId());
 	 		msg.append("[/userprofile]\n");
 	 		msg.append("MY UN IS: ");
 	 		msg.append(user.getUN());
@@ -171,7 +171,7 @@ public class OptionsController extends DSGenerator implements Loggable {
 	 		msg.append("\n");
 	 		msg.append("MY REASONS:\n");
 	 		msg.append(reason);
-	 		PM.sendToAdmins(getContext(), user.getID(), "Account l&ouml;schen", msg.toString(), 0);
+	 		PM.sendToAdmins(getContext(), user.getId(), "Account l&ouml;schen", msg.toString(), 0);
 	 		
 			t.setVar(	"options.delaccountresp",		1,
 						"delaccountresp.admins",		Configuration.getSetting("ADMIN_PMS_ACCOUNT") );
@@ -265,10 +265,10 @@ public class OptionsController extends DSGenerator implements Loggable {
 
 			user.setRelation(0,rel);
 			if( user.getAlly() != 0 ) {
-				UserIterator iter = getContext().createUserIterator("SELECT * FROM users WHERE ally=",user.getAlly()," AND id!=",user.getID());
+				UserIterator iter = getContext().createUserIterator("SELECT * FROM users WHERE ally=",user.getAlly()," AND id!=",user.getId());
 				for( User auser : iter ) {
-					user.setRelation(auser.getID(), User.Relation.FRIEND);
-					auser.setRelation(user.getID(), User.Relation.FRIEND);
+					user.setRelation(auser.getId(), User.Relation.FRIEND);
+					auser.setRelation(user.getId(), User.Relation.FRIEND);
 				}
 				iter.free();
 			}
@@ -320,7 +320,7 @@ public class OptionsController extends DSGenerator implements Loggable {
 		
 		String uploaddir = Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/user/";
 		try {
-			File uploadedFile = new File(uploaddir+getUser().getID()+".gif");
+			File uploadedFile = new File(uploaddir+getUser().getId()+".gif");
 			list.get(0).write(uploadedFile);
 			t.setVar("options.message","Das neue Logo wurde auf dem Server gespeichert<br />");
 		}
@@ -345,7 +345,7 @@ public class OptionsController extends DSGenerator implements Loggable {
 		String gfxpak = getString("gfxpak");
 
 		if( gfxpak.length() == 0 ) {
-			user.setImagePath(User.getDefaultImagePath(getDatabase()));
+			user.setImagePath(User.getDefaultImagePath());
 			
 			t.setVar( "options.message", "Pfad zum Grafikpak zur&uuml;ckgesetzt<br />\n" );
 		} 
@@ -392,7 +392,7 @@ public class OptionsController extends DSGenerator implements Loggable {
 			changemsg.append(Common.ticks2Days(vacmode.getInt("dauer")));
 			changemsg.append(")<br />\n");
 		
-			Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getContext().getRequest().getRemoteAddress()+"> ("+user.getID()+") <"+user.getUN()+"> Vac beantragt: "+vacmode.getInt("vorlauf")+" Wartezeit "+vacmode.getInt("dauer")+" Dauer Browser <"+getContext().getRequest().getUserAgent()+">\n");
+			Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getContext().getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+user.getUN()+"> Vac beantragt: "+vacmode.getInt("vorlauf")+" Wartezeit "+vacmode.getInt("dauer")+" Dauer Browser <"+getContext().getRequest().getUserAgent()+">\n");
 					
 			t.setVar( "options.message", changemsg.toString() );
 		}
@@ -478,7 +478,7 @@ public class OptionsController extends DSGenerator implements Loggable {
 		
 		String imagepath = user.getUserImagePath();
 			
-		if( imagepath.equals(User.getDefaultImagePath(getDatabase())) ) {
+		if( imagepath.equals(User.getDefaultImagePath()) ) {
 			imagepath = "";
 		}
 

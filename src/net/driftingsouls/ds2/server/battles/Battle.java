@@ -1004,8 +1004,8 @@ public class Battle implements Loggable {
 			for( Integer euserID : enemyUsers ) {
 				User euser = context.createUserObject(euserID);
 								
-				auser.setRelation(euser.getID(), User.Relation.ENEMY);
-				euser.setRelation(auser.getID(), User.Relation.ENEMY);
+				auser.setRelation(euser.getId(), User.Relation.ENEMY);
+				euser.setRelation(auser.getId(), User.Relation.ENEMY);
 			}
 		}
 		
@@ -1094,7 +1094,7 @@ public class Battle implements Loggable {
 		
 		User curuser = userobj;
 		if( curuser.getAlly() != 0 ) {
-			UserIterator iter = context.createUserIterator("SELECT * FROM users WHERE ally=",curuser.getAlly()," AND id!=",curuser.getID());
+			UserIterator iter = context.createUserIterator("SELECT * FROM users WHERE ally=",curuser.getAlly()," AND id!=",curuser.getId());
 			for( User allyuser : iter ) {
 				ownUsers.add(allyuser);	
 			}
@@ -1108,7 +1108,7 @@ public class Battle implements Loggable {
 			enemyUsers.add(euser);
 
 			if( (euser.getAlly() != 0) && calcedallys.contains(euser.getAlly()) ) {
-				UserIterator allyIter = context.createUserIterator("SELECT * FROM users WHERE ally=",euser.getAlly()," AND id!=",euser.getID());
+				UserIterator allyIter = context.createUserIterator("SELECT * FROM users WHERE ally=",euser.getAlly()," AND id!=",euser.getId());
 				for( User allyuser : allyIter ) {
 					enemyUsers.add(allyuser);	
 				}
@@ -1123,8 +1123,8 @@ public class Battle implements Loggable {
 			User auser = ownUsers.get(i);
 			
 			for( User euser : enemyUsers ) {
-				auser.setRelation(euser.getID(), User.Relation.ENEMY);
-				euser.setRelation(auser.getID(), User.Relation.ENEMY);
+				auser.setRelation(euser.getId(), User.Relation.ENEMY);
+				euser.setRelation(auser.getId(), User.Relation.ENEMY);
 			}
 		}
 		
@@ -1837,7 +1837,7 @@ public class Battle implements Loggable {
 					scriptparser.setLogFunction(ScriptParser.LOGGER_NULL);
 				}
 				
-				Quests.executeEvent( scriptparser, onendhandler, (context.getActiveUser() != null ? context.getActiveUser().getID() : 0), "" );
+				Quests.executeEvent( scriptparser, onendhandler, (context.getActiveUser() != null ? context.getActiveUser().getId() : 0), "" );
 			}
 		}
 

@@ -66,7 +66,7 @@ public class DeutSammelnController extends DSGenerator {
 		int shipID = getInteger("ship");
 		int nebelID = getInteger("nebel");
 		
-		SQLResultRow ship = db.first("SELECT * FROM ships WHERE owner=",user.getID()," AND id>0 AND id='",shipID,"'");
+		SQLResultRow ship = db.first("SELECT * FROM ships WHERE owner=",user.getId()," AND id>0 AND id='",shipID,"'");
 		if( ship.isEmpty() ) {
 			addError("Das angegebene Schiff existiert nicht", Common.buildUrl(getContext(), "default", "module", "schiffe") );
 			

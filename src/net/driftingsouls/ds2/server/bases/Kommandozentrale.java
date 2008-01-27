@@ -292,7 +292,7 @@ class Kommandozentrale extends DefaultBuilding {
 				db.update("UPDATE bases SET cargo='"+cargo.save()+"' WHERE id="+base.getID());
 						
 				String msg = "Ich habe das Item \""+Items.get().item(item).getName()+"\" der Allianz zur Verf&uuml;gung gestellt.";
-				PM.send(context, user.getID(), ally, "Item &uuml;berstellt", msg, true);
+				PM.send(context, user.getId(), ally, "Item &uuml;berstellt", msg, true);
 		
 				message.append("Das Item wurde an die Allianz &uuml;bergeben<br /><br />\n");
 			}
@@ -408,7 +408,7 @@ class Kommandozentrale extends DefaultBuilding {
 								"ship.x",		ship.getInt("x"),
 								"ship.y",		ship.getInt("y") );
 					
-					if( ship.getInt("owner") != user.getID() ) {
+					if( ship.getInt("owner") != user.getId() ) {
 						User owner = context.createUserObject(ship.getInt("owner"));
 						t.setVar("ship.owner.name", owner.getPlainname());
 					}
@@ -422,7 +422,7 @@ class Kommandozentrale extends DefaultBuilding {
 			ship.free();
 			
 			
-			SQLQuery targetbase = db.query("SELECT id,name FROM bases WHERE x="+base.getX()+" AND y="+base.getY()+" AND system="+base.getSystem()+" AND id!="+base.getID()+" AND owner='"+user.getID()+"'");
+			SQLQuery targetbase = db.query("SELECT id,name FROM bases WHERE x="+base.getX()+" AND y="+base.getY()+" AND system="+base.getSystem()+" AND id!="+base.getID()+" AND owner='"+user.getId()+"'");
 			while( targetbase.next() ) {
 				t.setVar(	"targetbase.id", 	targetbase.get("id"),
 							"targetbase.name",	Common._plaintitle(targetbase.getString("name")) );

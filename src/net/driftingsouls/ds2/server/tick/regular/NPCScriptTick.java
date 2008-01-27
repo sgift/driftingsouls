@@ -75,8 +75,8 @@ public class NPCScriptTick extends TickController {
 			// Query zum aktuallisieren von Schiffen, die nicht via !RESETSCRIPT zurueckgesetzt wurden
 			PreparedQuery scriptExecUpdate = db.prepare("UPDATE ships SET scriptexedata=? WHERE id=? AND script IS NOT NULL");
 			
-			this.log("+++++++++ User: "+user.getID()+" +++++++++");
-			SQLQuery ship = db.query("SELECT * FROM ships WHERE id>0 AND owner='",user.getID(),"' AND battle=0 AND script IS NOT NULL");
+			this.log("+++++++++ User: "+user.getId()+" +++++++++");
+			SQLQuery ship = db.query("SELECT * FROM ships WHERE id>0 AND owner='",user.getId(),"' AND battle=0 AND script IS NOT NULL");
 			while( ship.next() ) {			
 				try {
 					this.log("+++ Ship "+ship.getInt("id")+" +++");

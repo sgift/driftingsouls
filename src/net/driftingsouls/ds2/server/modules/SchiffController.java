@@ -124,7 +124,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		
 		int shipid = getInteger("ship");
 		
-		ship = db.first("SELECT * FROM ships WHERE id>0 AND owner='",user.getID(),"' AND id=",shipid);
+		ship = db.first("SELECT * FROM ships WHERE id>0 AND owner='",user.getId(),"' AND id=",shipid);
 		if( ship.isEmpty() ) {
 			addError("Das angegebene Schiff existiert nicht", Common.buildUrl(getContext(),"default", "module", "schiffe") );
 			return false;
@@ -232,7 +232,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		
 		if( conf == 0 ) {
 			String text = "<span style=\"color:white\">Wollen sie das Schiff "+Common._plaintitle(ship.getString("name"))+" ("+ship.getInt("id")+") wirklich an "+newowner.getProfileLink()+" &uuml;bergeben?</span><br />";
-			text += "<a class=\"ok\" href=\""+Common.buildUrl(getContext(), "consign", "ship", ship.getInt("id"), "conf" , 1, "newowner" , newowner.getID())+"\">&Uuml;bergeben</a></span><br />";
+			text += "<a class=\"ok\" href=\""+Common.buildUrl(getContext(), "consign", "ship", ship.getInt("id"), "conf" , 1, "newowner" , newowner.getId())+"\">&Uuml;bergeben</a></span><br />";
 			t.setVar( "ship.message", text );
 			
 			redirect();
@@ -250,7 +250,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		}
 		else {
 			String msg = "Ich habe dir die "+ship.getString("name")+" ("+ship.getInt("id")+"), ein Schiff der "+shiptype.getString("nickname")+"-Klasse, &uuml;bergeben\nSie steht bei "+ship.getInt("system")+":"+ship.getInt("x")+"/"+ship.getInt("y");
-			PM.send(getContext(), user.getID(), newowner.getID(), "Schiff &uuml;bergeben", msg);
+			PM.send(getContext(), user.getId(), newowner.getId(), "Schiff &uuml;bergeben", msg);
 		
 			String consMessage = Ships.MESSAGE.getMessage();
 			t.setVar("ship.message", (!consMessage.equals("") ? consMessage+"<br />" : "")+"<span style=\"color:green\">Das Schiff wurde erfolgreich an "+newowner.getProfileLink()+" &uuml;bergeben</span><br />");
@@ -417,7 +417,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		
 		int[] shiplist = Common.explodeToInt("|",shipIdList);
 		
-		Ships.dock(Ships.DockMode.LAND, user.getID(), ship.getInt("id"), shiplist);
+		Ships.dock(Ships.DockMode.LAND, user.getId(), ship.getInt("id"), shiplist);
 		t.setVar("ship.message", Ships.MESSAGE.getMessage());
 
 		redirect();
@@ -442,7 +442,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		
 		int[] shiplist = Common.explodeToInt("|",shipIdList);
 		
-		Ships.dock(Ships.DockMode.START, user.getID(), ship.getInt("id"), shiplist);
+		Ships.dock(Ships.DockMode.START, user.getId(), ship.getInt("id"), shiplist);
 		t.setVar("ship.message", Ships.MESSAGE.getMessage());
 
 		redirect();
@@ -480,10 +480,10 @@ public class SchiffController extends DSGenerator implements Loggable {
 				targetID = Integer.parseInt(target);
 			}
 			
-			Ships.dock(Ships.DockMode.UNDOCK, user.getID(), targetID, new int[] {docked.getInt("id")});
+			Ships.dock(Ships.DockMode.UNDOCK, user.getId(), targetID, new int[] {docked.getInt("id")});
 		}
 		
-		Ships.dock(Ships.DockMode.DOCK, user.getID(), ship.getInt("id"), shiplist);
+		Ships.dock(Ships.DockMode.DOCK, user.getId(), ship.getInt("id"), shiplist);
 		t.setVar("ship.message", Ships.MESSAGE.getMessage());
 
 		redirect();
@@ -508,7 +508,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		
 		int[] shiplist = Common.explodeToInt("|",shipIdList);
 		
-		Ships.dock(Ships.DockMode.UNDOCK, user.getID(), ship.getInt("id"), shiplist);
+		Ships.dock(Ships.DockMode.UNDOCK, user.getId(), ship.getInt("id"), shiplist);
 		t.setVar("ship.message", Ships.MESSAGE.getMessage());
 
 		redirect();
@@ -550,7 +550,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 				return;
 			}
 			
-			if( !Location.fromResult(ship).sameSector(0, Location.fromResult(fleetship), 0) || ( fleetship.getInt("owner") != user.getID() ) || (fleet.getInt("id") != fleetship.getInt("fleet")) ) {
+			if( !Location.fromResult(ship).sameSector(0, Location.fromResult(fleetship), 0) || ( fleetship.getInt("owner") != user.getId() ) || (fleet.getInt("id") != fleetship.getInt("fleet")) ) {
 				t.setVar("ship.message", "<span style=\"color:red\">Beitritt zur Flotte &quot;"+Common._plaintitle(fleet.getString("name"))+"&quot; nicht m&ouml;glich</span><br />");
 			}
 			else {
@@ -693,7 +693,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 			redirect();
 			return;
 		}
-		Quests.executeEvent( scriptparser, targetship.getString("oncommunicate"), user.getID(), execparameter );
+		Quests.executeEvent( scriptparser, targetship.getString("oncommunicate"), user.getId(), execparameter );
 		
 		redirect();
 	}
@@ -739,7 +739,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 			return;	
 		}
 
-		Quests.executeEvent( scriptparser, ship.getString("onmove"), user.getID(), execparameter );
+		Quests.executeEvent( scriptparser, ship.getString("onmove"), user.getId(), execparameter );
 	
 		redirect();
 	}
@@ -814,7 +814,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 			}
 		
 			String script = db.first("SELECT script FROM scripts WHERE id='",usescript,"'").getString("script");
-			scriptparser.setRegister("USER", Integer.toString(user.getID()));
+			scriptparser.setRegister("USER", Integer.toString(user.getId()));
 			if( !usequest.equals("") ) {
 				scriptparser.setRegister("QUEST", "r"+runningdata.getInt("id"));
 			}
@@ -1074,7 +1074,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
-		ship = db.first("SELECT * FROM ships WHERE id>0 AND owner='",user.getID(),"' AND id=",ship.getInt("id"));
+		ship = db.first("SELECT * FROM ships WHERE id>0 AND owner='",user.getId(),"' AND id=",ship.getInt("id"));
 		if( ship.isEmpty() ) {
 			addError("Das Schiff existiert nicht mehr oder geh&ouml;rt nicht mehr ihnen");
 			return;

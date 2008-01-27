@@ -164,34 +164,34 @@ public class PlayerList {
 			echo.append("<tr>\n");
 			
 			// ID
-			echo.append("<td class=\"noBorderX\">"+aUser.getID()+"</td>\n");
+			echo.append("<td class=\"noBorderX\">"+aUser.getId()+"</td>\n");
 			
 			if( comPopup == 0 ) {
 				// Diplomatie
 				echo.append("<td class=\"noBorderX\"><span class=\"nobr\">\n");
 				
-				if( (user != null) && (aUser.getID() != user.getID()) ) {
-					if( !relationlist.toOther.containsKey(aUser.getID()) ) {
-						relationlist.toOther.put(aUser.getID(), relationlist.toOther.get(0));	
+				if( (user != null) && (aUser.getId() != user.getId()) ) {
+					if( !relationlist.toOther.containsKey(aUser.getId()) ) {
+						relationlist.toOther.put(aUser.getId(), relationlist.toOther.get(0));	
 					}
 					
-					if( relationlist.toOther.get(aUser.getID()) == User.Relation.ENEMY ) {
+					if( relationlist.toOther.get(aUser.getId()) == User.Relation.ENEMY ) {
 						echo.append("<img src=\""+Configuration.getSetting("URL")+"data/interface/diplomacy/enemy1.png\" alt=\"\" title=\"Feindlich\" />");
 					}
-					else if( relationlist.toOther.get(aUser.getID()) == User.Relation.NEUTRAL ) {
+					else if( relationlist.toOther.get(aUser.getId()) == User.Relation.NEUTRAL ) {
 						echo.append("<img src=\""+Configuration.getSetting("URL")+"data/interface/diplomacy/neutral1.png\" alt=\"\" />");
 					}
-					else if( relationlist.toOther.get(aUser.getID()) == User.Relation.FRIEND ) {
+					else if( relationlist.toOther.get(aUser.getId()) == User.Relation.FRIEND ) {
 						echo.append("<img src=\""+Configuration.getSetting("URL")+"data/interface/diplomacy/friend1.png\" alt=\"\" title=\"Feundlich\" />");
 					}
 					
-					if( relationlist.fromOther.get(aUser.getID()) == User.Relation.ENEMY ) {
+					if( relationlist.fromOther.get(aUser.getId()) == User.Relation.ENEMY ) {
 						echo.append("<img src=\""+Configuration.getSetting("URL")+"data/interface/diplomacy/enemy2.png\" alt=\"\" title=\"Feindlich\" />");
 					}
-					else if( relationlist.fromOther.get(aUser.getID()) == User.Relation.NEUTRAL ) {
+					else if( relationlist.fromOther.get(aUser.getId()) == User.Relation.NEUTRAL ) {
 						echo.append("<img src=\""+Configuration.getSetting("URL")+"data/interface/diplomacy/neutral2.png\" alt=\"\" />");
 					}
-					else if( relationlist.fromOther.get(aUser.getID()) == User.Relation.FRIEND ) {
+					else if( relationlist.fromOther.get(aUser.getId()) == User.Relation.FRIEND ) {
 						echo.append("<img src=\""+Configuration.getSetting("URL")+"data/interface/diplomacy/friend2.png\" alt=\"\" title=\"Feundlich\" />");
 					}
 				}
@@ -200,7 +200,7 @@ public class PlayerList {
 				
 				// Spielername
 				if( context.getActiveUser() != null ) {
-					echo.append("<td class=\"noBorderX\"><a class=\"profile\" href=\""+Common.buildUrl(context, "default", "module", "userprofile", "user", aUser.getID())+"\">"+Common._title(aUser.getName())+"</a>");
+					echo.append("<td class=\"noBorderX\"><a class=\"profile\" href=\""+Common.buildUrl(context, "default", "module", "userprofile", "user", aUser.getId())+"\">"+Common._title(aUser.getName())+"</a>");
 				}
 				else {
 					echo.append("<td class=\"noBorderX\">"+Common._title(aUser.getName()));
@@ -236,19 +236,19 @@ public class PlayerList {
 				// Die Spezial-Admin-Infos anzeigen
 				if( (user != null) && (user.getAccessLevel() > 20) ) {
 					echo.append("<td class=\"noBorderX\">"+aUser.getInactivity()+"</td>\n");
-					if( !asticount.containsKey(aUser.getID()) ) {
-						asticount.put(aUser.getID(), 0);
+					if( !asticount.containsKey(aUser.getId()) ) {
+						asticount.put(aUser.getId(), 0);
 					}
-					echo.append("<td class=\"noBorderX\" style=\"text-align:center\">"+asticount.get(aUser.getID())+"</td>\n");
+					echo.append("<td class=\"noBorderX\" style=\"text-align:center\">"+asticount.get(aUser.getId())+"</td>\n");
 					
-					if( !shipcount.containsKey(aUser.getID()) ) {
-						shipcount.put(aUser.getID(), 0);
+					if( !shipcount.containsKey(aUser.getId()) ) {
+						shipcount.put(aUser.getId(), 0);
 					}
-					echo.append("<td class=\"noBorderX\" style=\"text-align:center\">"+Common.ln(shipcount.get(aUser.getID()))+"</td>\n");
+					echo.append("<td class=\"noBorderX\" style=\"text-align:center\">"+Common.ln(shipcount.get(aUser.getId()))+"</td>\n");
 				}
 			}
 			else {
-				echo.append("<td class=\"noBorderX\"><a style=\"font-size:14px;color:#c7c7c7\" href=\"javascript:playerPM("+aUser.getID()+");\">"+Common._title(aUser.getName())+"</a></td>\n");
+				echo.append("<td class=\"noBorderX\"><a style=\"font-size:14px;color:#c7c7c7\" href=\"javascript:playerPM("+aUser.getId()+");\">"+Common._title(aUser.getName())+"</a></td>\n");
 			}
 			
 			echo.append("</tr>\n");

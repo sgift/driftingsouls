@@ -93,7 +93,7 @@ public class RTCTick extends TickController {
 					loc = Systems.get().system(dropzone).getDropZone();
 				}
 				
-				int owner = winner.getID();
+				int owner = winner.getId();
 				
 				int gtucost = 100;
 				User targetuser = null;
@@ -114,7 +114,7 @@ public class RTCTick extends TickController {
 					if( (owner != 0) && (owner != Faction.GTU) ) {
 						this.log("Es wurde "+entryname+" (shipid: "+spawntype+") von ID "+winner+" fuer "+price+" RE ersteigert");
 					
-						String history = "Indienststellung am "+this.currentTime+" durch "+this.gtuuser.getName()+" (Versteigerung) f&uuml;r "+winner.getName()+" ("+winner.getID()+")\n";
+						String history = "Indienststellung am "+this.currentTime+" durch "+this.gtuuser.getName()+" (Versteigerung) f&uuml;r "+winner.getName()+" ("+winner.getId()+")\n";
 					
 						this.maxid++;			
 						db.prepare("INSERT INTO ships " ,
@@ -131,18 +131,18 @@ public class RTCTick extends TickController {
 						Ships.recalculateShipStatus(this.maxid);
 			
 						String msg = "Sie haben "+entryname+" ersteigert.\nDas Objekt wurde ihnen bei "+loc+" &uuml;bergeben.\n\nJack Miller\nHan Ronalds";
-						PM.send(getContext(), Faction.GTU, winner.getID(), entryname+" ersteigert", msg);
+						PM.send(getContext(), Faction.GTU, winner.getId(), entryname+" ersteigert", msg);
 			
 						if( entry.getInt("owner") != Faction.GTU ) {				
 							msg = "Es wurde ihre "+entryname+" versteigert.\nDas Objekt wurde dem Gewinner "+winner.getName()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben. Die GTU berechnet ihnen "+gtucost+"% des Gewinnes als Preis. Dies entspricht "+Common.ln(Math.ceil(price*gtucost/100d))+" RE. Ihnen bleiben somit noch "+Common.ln(price-Math.ceil(price*gtucost/100d))+" RE\n\nJack Miller\nHan Ronalds";
 							PM.send(getContext(), Faction.GTU, entry.getInt("owner"), entryname+" versteigert", msg);
 							
-							msg = "Es wurde "+entryname+" im Auftrag von "+entry.getInt("owner")+" versteigert.\nDas Objekt wurde bei "+loc+" dem Gewinner "+winner.getID()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben. Einnahme: "+Common.ln(Math.ceil(price*gtucost/100d))+" RE ("+gtucost+"%)";
+							msg = "Es wurde "+entryname+" im Auftrag von "+entry.getInt("owner")+" versteigert.\nDas Objekt wurde bei "+loc+" dem Gewinner "+winner.getId()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben. Einnahme: "+Common.ln(Math.ceil(price*gtucost/100d))+" RE ("+gtucost+"%)";
 							PM.send(getContext(), -1, Faction.GTU, entryname+" ersteigert", msg);
 						}
 						else {
-							msg = "Es wurde "+entryname+" versteigert.\nDas Objekt wurde bei "+loc+" dem Gewinner "+winner.getID()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben.";
-							PM.send(getContext(), winner.getID(), Faction.GTU, entryname+" versteigert", msg);
+							msg = "Es wurde "+entryname+" versteigert.\nDas Objekt wurde bei "+loc+" dem Gewinner "+winner.getId()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben.";
+							PM.send(getContext(), winner.getId(), Faction.GTU, entryname+" versteigert", msg);
 						}
 					}
 				}
@@ -161,18 +161,18 @@ public class RTCTick extends TickController {
 					}
 					
 					if( owner != 0 && (owner != Faction.GTU) ) {
-						this.log("Es wurde "+entryname+" von ID "+winner.getID()+" fuer "+price+" RE ersteigert");
+						this.log("Es wurde "+entryname+" von ID "+winner.getId()+" fuer "+price+" RE ersteigert");
 			
 						loc = Location.fromResult(posten);
 						
 						String msg = "Sie haben "+entryname+" ersteigert.\nDas Objekt wurde ihnen bei "+loc+" auf dem Handelsposten hinterlegt.\n\nGaltracorp Unlimited";
-						PM.send(getContext(), Faction.GTU, winner.getID(), entryname+" ersteigert", msg);
+						PM.send(getContext(), Faction.GTU, winner.getId(), entryname+" ersteigert", msg);
 			
 						if( entry.getInt("owner") != Faction.GTU ) {				
 							msg = "Es wurde ihr "+entryname+" versteigert.\nDas Objekt wurde dem Gewinner "+winner.getName()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben. Die GTU berechnet ihnen "+gtucost+"% des Gewinnes als Preis. Dies entspricht "+Common.ln(Math.ceil(price*gtucost/100d))+" RE. Ihnen bleiben somit noch "+Common.ln((price-Math.ceil(price*gtucost/100d)))+" RE\n\nJack Miller\nHan Ronalds";
 							PM.send(getContext(), Faction.GTU, entry.getInt("owner"), entryname+" versteigert", msg);
 							
-							msg = "Es wurde "+entryname+" im Auftrag von "+entry.getInt("owner")+" versteigert.\nDas Objekt wurde bei "+loc+" dem Gewinner "+winner.getID()+" f&uuml;r den Preis von "+Common.ln(price)+" RE hinterlegt. Einnahme: "+Common.ln(Math.ceil(price*gtucost/100d))+" RE ("+gtucost+"%)";
+							msg = "Es wurde "+entryname+" im Auftrag von "+entry.getInt("owner")+" versteigert.\nDas Objekt wurde bei "+loc+" dem Gewinner "+winner.getId()+" f&uuml;r den Preis von "+Common.ln(price)+" RE hinterlegt. Einnahme: "+Common.ln(Math.ceil(price*gtucost/100d))+" RE ("+gtucost+"%)";
 							PM.send(getContext(), -1, Faction.GTU, entryname+" ersteigert", msg);
 						}
 						else {
@@ -198,7 +198,7 @@ public class RTCTick extends TickController {
 							"(username,userid,mtype,type,preis,owner,ownername,gtugew) " +
 							"VALUES " +
 							"( ?, ?, ?, ?, ?, ?, ?, ?)")
-						.update(winner.getName(), winner.getID(), entry.getString("mtype"), type, price, entry.getInt("owner"), entryOwner.getName(), gtucost);
+						.update(winner.getName(), winner.getId(), entry.getString("mtype"), type, price, entry.getInt("owner"), entryOwner.getName(), gtucost);
 			
 					db.update("DELETE FROM versteigerungen WHERE id=",entry.getInt("id"));
 				} 
@@ -239,7 +239,7 @@ public class RTCTick extends TickController {
 					loc = Systems.get().system(dropzone).getDropZone();
 				}
 				
-				int owner = winner.getID();
+				int owner = winner.getId();
 			
 				if( (owner != 0) && (owner != Faction.GTU) ) {
 					this.log("[GTU-Paket] BEGIN");
@@ -256,7 +256,7 @@ public class RTCTick extends TickController {
 						transporter = CARGO_TRANSPORTER_LARGE;
 					}
 				
-					String history = "Indienststellung am "+this.currentTime+" durch "+this.gtuuser.getName()+" (Versteigerung) f&uuml;r "+winner.getName()+" ("+winner.getID()+")\n";
+					String history = "Indienststellung am "+this.currentTime+" durch "+this.gtuuser.getName()+" (Versteigerung) f&uuml;r "+winner.getName()+" ("+winner.getId()+")\n";
 					
 					this.maxid++;
 					db.prepare("INSERT INTO ships " ,
@@ -277,7 +277,7 @@ public class RTCTick extends TickController {
 						
 						index++;
 					}
-					this.log(" von ID "+winner.getID()+" ersteigert");
+					this.log(" von ID "+winner.getId()+" ersteigert");
 							
 					Ships.recalculateShipStatus(this.maxid);
 			
@@ -293,7 +293,7 @@ public class RTCTick extends TickController {
 						
 						cargo = new Cargo();
 						
-						history = "Indienststellung am "+this.currentTime+" durch "+this.gtuuser.getName()+" (Versteigerung) f&uuml;r "+winner.getName()+" ("+winner.getID()+")\n";
+						history = "Indienststellung am "+this.currentTime+" durch "+this.gtuuser.getName()+" (Versteigerung) f&uuml;r "+winner.getName()+" ("+winner.getId()+")\n";
 						
 						db.prepare("INSERT INTO ships " ,
 								"(id,owner,name,type,x,y,system,crew,e,hull,cargo,history) " ,
@@ -312,9 +312,9 @@ public class RTCTick extends TickController {
 					this.log("[GTU-Paket] END");
 			
 					String msg = "Sie haben ein GTU-Paket ersteigert.\nEs steht bei "+loc+" f&uuml;r sie bereit.\nJack Miller\nHan Ronalds";
-					PM.send(getContext(), Faction.GTU, winner.getID(), "GTU-Paket ersteigert", msg);
+					PM.send(getContext(), Faction.GTU, winner.getId(), "GTU-Paket ersteigert", msg);
 			
-					msg = "Ein GTU-Paket wurde versteigert.\nEs steht bei "+loc+" f&uuml;r "+winner.getID()+" zum Preis von "+Common.ln(price)+" RE bereit.";
+					msg = "Ein GTU-Paket wurde versteigert.\nEs steht bei "+loc+" f&uuml;r "+winner.getId()+" zum Preis von "+Common.ln(price)+" RE bereit.";
 					PM.send(getContext(), -1, Faction.GTU, "GTU-Paket versteigert", msg);
 			
 					String type = line.getString("cargo")+"/"+ships;
@@ -322,7 +322,7 @@ public class RTCTick extends TickController {
 					db.prepare("INSERT INTO stats_gtu (username,userid,mtype,type,preis) " +
 							"VALUES " +
 							"( ?, ?, ?, ?, ?)")
-						.update(winner.getName(), winner.getID(), 3, type, price);
+						.update(winner.getName(), winner.getId(), 3, type, price);
 			
 					db.update("DELETE FROM versteigerungen_pakete WHERE id=",line.getInt("id"));
 				} 

@@ -600,7 +600,7 @@ public class Ships implements Loggable {
 				continue;	
 			}
 			
-			if( relationlist.fromOther.get(auser.getID()) == User.Relation.ENEMY ) {
+			if( relationlist.fromOther.get(auser.getId()) == User.Relation.ENEMY ) {
 				attackers.add(aowner.getInt("owner"));
 				if( checkonly ) {
 					break;
@@ -1487,14 +1487,14 @@ public class Ships implements Loggable {
 				// die alte variante 
 				else if( jmpnodeuser[0].equals("default") || jmpnodeuser[0].equals("ownally") ){
 					if( ( (user.getAlly() > 0) && (node.getInt("ally") != user.getAlly()) ) || 
-						( user.getAlly() == 0 && (node.getInt("owner") != user.getID()) ) ) {
+						( user.getAlly() == 0 && (node.getInt("owner") != user.getId()) ) ) {
 						outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes "+nodetypename+" benutzen - default</span><br />\n");
 						return true;
 					}
 				}
 				// user:$userid
 				else if ( jmpnodeuser[0].equals("user") ){
-					if( Integer.parseInt(jmpnodeuser[1]) != user.getID() )  {
+					if( Integer.parseInt(jmpnodeuser[1]) != user.getId() )  {
 						outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes "+nodetypename+" benutzen - owner</span><br />\n");
 						return true;
 					}
@@ -1509,7 +1509,7 @@ public class Ships implements Loggable {
 				// group:userid1,userid2, ...,useridn
 				else if ( jmpnodeuser[0].equals("group") ){
 					Integer[] userlist = Common.explodeToInteger(",", jmpnodeuser[1]);
-					if( !Common.inArray(user.getID(), userlist) )  {
+					if( !Common.inArray(user.getId(), userlist) )  {
 						outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes "+nodetypename+" benutzen - group</span><br />\n");
 						return true;
 					}
@@ -1685,14 +1685,14 @@ public class Ships implements Loggable {
 			// die alte variante 
 			else if( jmpnodeuser[0].equals("default") || jmpnodeuser[0].equals("ownally") ){
 				if( ( (user.getAlly() > 0) && (datan.getInt("ally") != user.getAlly()) ) || 
-					( user.getAlly() == 0 && (datan.getInt("owner") != user.getID()) ) ) {
+					( user.getAlly() == 0 && (datan.getInt("owner") != user.getId()) ) ) {
 					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes "+nodetypename+" benutzen - default</span><br />\n");
 					return true;
 				}
 			}
 			// user:$userid
 			else if ( jmpnodeuser[0].equals("user") ){
-				if( Integer.parseInt(jmpnodeuser[1]) != user.getID() )  {
+				if( Integer.parseInt(jmpnodeuser[1]) != user.getId() )  {
 					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes "+nodetypename+" benutzen - owner</span><br />\n");
 					return true;
 				}
@@ -1707,7 +1707,7 @@ public class Ships implements Loggable {
 			// group:userid1,userid2, ...,useridn
 			else if ( jmpnodeuser[0].equals("group") ){
 				Integer[] userlist = Common.explodeToInteger(",", jmpnodeuser[1]);
-				if( !Common.inArray(user.getID(), userlist) )  {
+				if( !Common.inArray(user.getId(), userlist) )  {
 					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes "+nodetypename+" benutzen - group</span><br />\n");
 					return true;
 				}
@@ -2219,7 +2219,7 @@ public class Ships implements Loggable {
 	 * @return <code>true</code>, falls ein Fehler bei der Uebergabe aufgetaucht ist (Uebergabe nicht erfolgreich)
 	 */
 	public static boolean consign( User user, SQLResultRow ship, User newowner, boolean testonly ) {
-		if( newowner.getID() == 0 ) {
+		if( newowner.getId() == 0 ) {
 			MESSAGE.get().append("Der angegebene Spieler existiert nicht");
 			return true;
 		}
@@ -2260,13 +2260,13 @@ public class Ships implements Loggable {
 		Database db = ContextMap.getContext().getDatabase();
 			
 		if( !testonly ) {	
-			ship.put("history", ship.getString("history")+"&Uuml;bergeben am [tick="+ContextMap.getContext().get(ContextCommon.class).getTick()+"] an "+newowner.getName()+" ("+newowner.getID()+")\n");
+			ship.put("history", ship.getString("history")+"&Uuml;bergeben am [tick="+ContextMap.getContext().get(ContextCommon.class).getTick()+"] an "+newowner.getName()+" ("+newowner.getId()+")\n");
 				
 			db.prepare("UPDATE ships SET owner= ?,fleet=0,history= ? ,alarm='0' WHERE id= ? AND owner= ?")
-					.update(newowner.getID(), ship.getString("history"), ship.getInt("id"), ship.getInt("owner"));
-			db.update("UPDATE offiziere SET userid='",newowner.getID(),"' WHERE dest='s ",ship.getInt("id"),"'");
+					.update(newowner.getId(), ship.getString("history"), ship.getInt("id"), ship.getInt("owner"));
+			db.update("UPDATE offiziere SET userid='",newowner.getId(),"' WHERE dest='s ",ship.getInt("id"),"'");
 	
-			Common.dblog( "consign", Integer.toString(ship.getInt("id")), Integer.toString(newowner.getID()),	
+			Common.dblog( "consign", Integer.toString(ship.getInt("id")), Integer.toString(newowner.getId()),	
 					"pos", Location.fromResult(ship).toString(),
 					"shiptype", Integer.toString(ship.getInt("type")) );
 			
@@ -2283,7 +2283,7 @@ public class Ships implements Loggable {
 			int oldlength = message.length();
 			boolean tmp = consign( user, s.getRow(), newowner, testonly );
 			if( tmp && !testonly ) {
-				dock( (s.getString("docked").charAt(0) == 'l' ? DockMode.START : DockMode.UNDOCK), newowner.getID(), ship.getInt("id"), new int[] {s.getInt("id")});			
+				dock( (s.getString("docked").charAt(0) == 'l' ? DockMode.START : DockMode.UNDOCK), newowner.getId(), ship.getInt("id"), new int[] {s.getInt("id")});			
 			}
 			
 			if( oldlength != message.length() ) {

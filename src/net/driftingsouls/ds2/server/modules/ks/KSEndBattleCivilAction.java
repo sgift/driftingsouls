@@ -73,7 +73,7 @@ public class KSEndBattleCivilAction extends BasicKSAction {
 		
 		context.getResponse().getContent().append("Sie haben die Schlacht gewonnen.");
 
-		PM.send(context, user.getID(), battle.getCommander(battle.getEnemySide()), "Schlacht verloren", "Der Gegner hat die Schlacht beendet, da du nur noch zivile Schiffe hattest. Du hast die Schlacht bei "+battle.getSystem()+" : "+battle.getX()+"/"+battle.getY()+" gegen [userprofile="+user.getID()+"]"+user.getName()+"[/userprofile] somit verloren!");
+		PM.send(context, user.getId(), battle.getCommander(battle.getEnemySide()), "Schlacht verloren", "Der Gegner hat die Schlacht beendet, da du nur noch zivile Schiffe hattest. Du hast die Schlacht bei "+battle.getSystem()+" : "+battle.getX()+"/"+battle.getY()+" gegen [userprofile="+user.getId()+"]"+user.getName()+"[/userprofile] somit verloren!");
 
 		// Schlacht beenden -> +1 Siege fuer mich; +1 Niederlagen fuer den Gegner
 		battle.endTurn(true);

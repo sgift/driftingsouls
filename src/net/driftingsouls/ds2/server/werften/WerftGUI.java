@@ -348,11 +348,11 @@ public class WerftGUI {
 		t.setVar(	"werftgui.ws",			1,
 					"ship.id",				ship.getInt("id"),
 					"ship.name",			ship.getString("name"),
-					"ship.own",				(ship.getInt("owner") == user.getID()),
+					"ship.own",				(ship.getInt("owner") == user.getId()),
 					"ship.owner.id",		ship.getInt("owner"),
 					"ship.type.modules",	shipType.getString("modules") );
 	
-		if( ship.getInt("owner") != user.getID() ) {
+		if( ship.getInt("owner") != user.getId() ) {
 			User owner = context.createUserObject(ship.getInt("owner"));
 			t.setVar("ship.owner.name", Common._title(owner.getName()));
 		}
@@ -449,7 +449,7 @@ public class WerftGUI {
 		SQLResultRow ship = db.first("SELECT id,x,y,system,owner,battle,type,status FROM ships WHERE id>0 AND id=",shipID);
 	
 		//Gehoert das Schiff dem User?
-		if( (ship.getInt("owner") != user.getID()) && (user.getAccessLevel() < 100)) {
+		if( (ship.getInt("owner") != user.getId()) && (user.getAccessLevel() < 100)) {
 			context.addError("Das Schiff geh&ouml;rt ihnen nicht", werft.getUrlBase()+"&amp;sess="+sess);
 			return;
 		}
@@ -537,7 +537,7 @@ public class WerftGUI {
 		SQLResultRow ship = db.first("SELECT * FROM ships WHERE id>0 AND id=",dismantle);
 		
 		//Gehoert das Schiff dem User?
-		if( ship.getInt("owner") != user.getID() ) {
+		if( ship.getInt("owner") != user.getId() ) {
 			context.addError("Das Schiff geh&ouml;rt ihnen nicht", werft.getUrlBase()+"&amp;sess="+sess);
 			return;
 		}

@@ -47,14 +47,14 @@ public class StatOwnCiv implements Statistic {
 		
 		SQLQuery tmp = db.query("SELECT t1.type,t2.nickname,count(*) count,sum(t1.crew) sum " +
 				"FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id " +
-				"WHERE t1.id>0 AND t1.owner=",user.getID()," GROUP BY t1.type,t2.nickname");
+				"WHERE t1.id>0 AND t1.owner=",user.getId()," GROUP BY t1.type,t2.nickname");
 		while( tmp.next() ) {
 			echo.append(Common.ln(tmp.getInt("count"))+" "+tmp.getString("nickname")+"<br />\n");
    			crew += tmp.getInt("sum");
 		}
 		tmp.free();
 
-		long population = db.first("SELECT sum(bewohner) sum FROM bases WHERE owner=",user.getID()).getInt("sum");
+		long population = db.first("SELECT sum(bewohner) sum FROM bases WHERE owner=",user.getId()).getInt("sum");
 
 		echo.append("</td></tr>\n");
 		echo.append("<tr><td class=\"noBorderX\">Bev&ouml;lkerung:</td><td class=\"noBorderX\">"+Common.ln(crew+population)+"</td></tr>\n");

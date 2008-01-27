@@ -240,7 +240,7 @@ public class BasicContext implements Context,Loggable {
 	}
 
 	public void cacheUser(User userobj) {
-		cachedUsers.put( userobj.getID(), userobj );
+		cachedUsers.put( userobj.getId(), userobj );
 	}
 
 	public Request getRequest() {

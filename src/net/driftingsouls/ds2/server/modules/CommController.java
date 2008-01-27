@@ -87,7 +87,7 @@ public class CommController extends DSGenerator implements Loggable {
 		parameterNumber("ordner");
 		int ordner = getInteger("ordner");
 
-		db.update("UPDATE transmissionen SET gelesen=1 WHERE empfaenger='",user.getID(),"' AND ordner='",ordner,"' AND (gelesen=0 AND !(flags & ",PM.FLAGS_IMPORTANT,"))");
+		db.update("UPDATE transmissionen SET gelesen=1 WHERE empfaenger='",user.getId(),"' AND ordner='",ordner,"' AND (gelesen=0 AND !(flags & ",PM.FLAGS_IMPORTANT,"))");
 		t.setVar("show.message", "<span style=\"color:red\">Alle Nachrichten als gelesen markiert</span>");
 	
 		redirect("showInbox");
@@ -106,9 +106,9 @@ public class CommController extends DSGenerator implements Loggable {
 		parameterNumber("ordner");
 		int ordner = getInteger("ordner");
 
-		int trash = Ordner.getTrash( user.getID() ).getID();
+		int trash = Ordner.getTrash( user.getId() ).getID();
 
-		db.update("UPDATE transmissionen SET gelesen=2, ordner='",trash,"' WHERE empfaenger='",user.getID(),"' AND ordner='",ordner,"' AND (gelesen=1 OR !(flags & ",PM.FLAGS_IMPORTANT,"))");
+		db.update("UPDATE transmissionen SET gelesen=2, ordner='",trash,"' WHERE empfaenger='",user.getId(),"' AND ordner='",ordner,"' AND (gelesen=1 OR !(flags & ",PM.FLAGS_IMPORTANT,"))");
 		t.setVar("show.message", "<span style=\"color:red\">Alle Nachrichten gel&ouml;scht</span>");
 	
 		redirect("showInbox");
@@ -131,9 +131,9 @@ public class CommController extends DSGenerator implements Loggable {
 
 		int result = 0;
 		if( (ordner != 0) && (delete == 0) ) {
-			result = Ordner.deleteOrdnerByID( ordner, user.getID() );
+			result = Ordner.deleteOrdnerByID( ordner, user.getId() );
 		} else {
-			result = PM.deleteByID( delete, user.getID() );
+			result = PM.deleteByID( delete, user.getId() );
 		}
 
 		switch ( result ){
@@ -163,7 +163,7 @@ public class CommController extends DSGenerator implements Loggable {
 		String name = getString("ordnername");
 		int parent = getInteger("ordner");
 
-		Ordner.createNewOrdner(name, parent, getUser().getID());
+		Ordner.createNewOrdner(name, parent, getUser().getId());
 
 		redirect("showInbox");
 	}
@@ -183,8 +183,8 @@ public class CommController extends DSGenerator implements Loggable {
 		int moveto = getInteger("moveto");
 		int ordner = getInteger("ordner");
 
-		if( Ordner.existsOrdnerWithID( moveto, user.getID() ) ){
-			PM.moveAllToOrdner( ordner, moveto, user.getID() );
+		if( Ordner.existsOrdnerWithID( moveto, user.getId() ) ){
+			PM.moveAllToOrdner( ordner, moveto, user.getId() );
 		}
 
 		redirect("showInbox");
@@ -207,7 +207,7 @@ public class CommController extends DSGenerator implements Loggable {
 
 		newname = db.prepareString(newname);
 
-		Ordner ordner = Ordner.getOrdnerByID( subject, user.getID() );
+		Ordner ordner = Ordner.getOrdnerByID( subject, user.getId() );
 
 		ordner.setName( newname );
 
@@ -232,8 +232,8 @@ public class CommController extends DSGenerator implements Loggable {
 		
 		User auser = getContext().createUserObject(playerid);
 		
-		if( auser.getID() != 0 ) {
-			db.update("UPDATE transmissionen SET gelesen=2 WHERE empfaenger=",user.getID()," AND sender=",auser.getID()," AND ordner=",ordner," AND (gelesen=1 OR !(flags & ",PM.FLAGS_IMPORTANT,"))");
+		if( auser.getId() != 0 ) {
+			db.update("UPDATE transmissionen SET gelesen=2 WHERE empfaenger=",user.getId()," AND sender=",auser.getId()," AND ordner=",ordner," AND (gelesen=1 OR !(flags & ",PM.FLAGS_IMPORTANT,"))");
 			t.setVar("show.message", "<span style=\"color:red\">Alle Nachrichten von "+Common._title(auser.getName())+" gel&ouml;scht</span>");
 		}
 		else {
@@ -254,7 +254,7 @@ public class CommController extends DSGenerator implements Loggable {
 		Database db = getDatabase();
 		
 		List<Integer> pms = new ArrayList<Integer>();
-		SQLQuery all_pm = db.query("SELECT id FROM transmissionen WHERE empfaenger='",user.getID(),"' AND gelesen < 2");
+		SQLQuery all_pm = db.query("SELECT id FROM transmissionen WHERE empfaenger='",user.getId(),"' AND gelesen < 2");
 		while( all_pm.next() ){
 			pms.add(all_pm.getInt("id"));
 		}
@@ -267,7 +267,7 @@ public class CommController extends DSGenerator implements Loggable {
 			int pm = getInteger("pm_"+pms.get(i));
 
 			if( pm == pms.get(i)){
-				db.update("UPDATE transmissionen SET gelesen=1 WHERE id='",pms.get(i),"' AND empfaenger='",user.getID(),"' AND (gelesen=0 AND !(flags & ",PM.FLAGS_IMPORTANT,"))");
+				db.update("UPDATE transmissionen SET gelesen=1 WHERE id='",pms.get(i),"' AND empfaenger='",user.getId(),"' AND (gelesen=0 AND !(flags & ",PM.FLAGS_IMPORTANT,"))");
 			}
 		}
 
@@ -293,8 +293,8 @@ public class CommController extends DSGenerator implements Loggable {
 		int movetoID = getInteger("moveto");
 		int ordner = getInteger("ordner");
 		
-		Ordner moveto = Ordner.getOrdnerByID( movetoID, user.getID() );
-		Ordner trash = Ordner.getTrash( user.getID() );
+		Ordner moveto = Ordner.getOrdnerByID( movetoID, user.getId() );
+		Ordner trash = Ordner.getTrash( user.getId() );
 
 		if( moveto == null ) {
 			getContext().getResponse().getContent().append("Der angegebene Ordner existiert nicht");
@@ -306,8 +306,8 @@ public class CommController extends DSGenerator implements Loggable {
 			return;
 		}
 
-		SQLQuery all_pm = db.query("SELECT id FROM transmissionen WHERE empfaenger='",user.getID(),"' AND gelesen < 2 AND ordner='",ordner,"'");
-		SQLQuery all_ordner = db.query("SELECT id FROM ordner WHERE playerid='",user.getID(),"' AND !(flags=",Ordner.FLAG_TRASH,") AND parent='",ordner,"'");
+		SQLQuery all_pm = db.query("SELECT id FROM transmissionen WHERE empfaenger='",user.getId(),"' AND gelesen < 2 AND ordner='",ordner,"'");
+		SQLQuery all_ordner = db.query("SELECT id FROM ordner WHERE playerid='",user.getId(),"' AND !(flags=",Ordner.FLAG_TRASH,") AND parent='",ordner,"'");
 
 		List<Integer> pms = new ArrayList<Integer>();
 		while( all_pm.next() ){
@@ -328,7 +328,7 @@ public class CommController extends DSGenerator implements Loggable {
 		for(int i = 0; i < count_ordner; i++ ) {
 			parameterNumber("ordner_"+ordners.get(i));
 			int tomove = getInteger("ordner_"+ordners.get(i));
-			if( (tomove != 0) && Ordner.getAllChildIDs(tomove, user.getID()).contains(moveto.getID())) {
+			if( (tomove != 0) && Ordner.getAllChildIDs(tomove, user.getId()).contains(moveto.getID())) {
 				getContext().getResponse().getContent().append("ERROR: Es duerfen keine Ordner in ihre eignen Unterordner verschoben werden");
 				return ;
 			}
@@ -371,8 +371,8 @@ public class CommController extends DSGenerator implements Loggable {
 		int movetoID = getInteger("moveto");
 		int ordner = getInteger("ordner");
 		
-		Ordner moveto = Ordner.getOrdnerByID( movetoID, user.getID() );
-		Ordner trash = Ordner.getTrash( user.getID() );
+		Ordner moveto = Ordner.getOrdnerByID( movetoID, user.getId() );
+		Ordner trash = Ordner.getTrash( user.getId() );
 
 		if( moveto == null ) {
 			t.setVar("show.message", "<span style=\"color:red\">Der angegebene Ordner existiert nicht</span>");
@@ -386,8 +386,8 @@ public class CommController extends DSGenerator implements Loggable {
 			return;
 		}
 
-		SQLQuery all_pm = db.query("SELECT id FROM transmissionen WHERE empfaenger='",user.getID(),"' AND gelesen < 2 AND ordner='",ordner,"'");
-		SQLQuery all_ordner = db.query("SELECT id FROM ordner WHERE playerid='",user.getID(),"' AND !(flags=",Ordner.FLAG_TRASH,") AND parent='",ordner,"'");
+		SQLQuery all_pm = db.query("SELECT id FROM transmissionen WHERE empfaenger='",user.getId(),"' AND gelesen < 2 AND ordner='",ordner,"'");
+		SQLQuery all_ordner = db.query("SELECT id FROM ordner WHERE playerid='",user.getId(),"' AND !(flags=",Ordner.FLAG_TRASH,") AND parent='",ordner,"'");
 
 		List<Integer> pms = new ArrayList<Integer>();
 		while( all_pm.next() ){
@@ -407,7 +407,7 @@ public class CommController extends DSGenerator implements Loggable {
 		for(int i = 0; i < count_ordner; i++ ) {
 			parameterNumber("ordner_"+ordners.get(i));
 			int tomove = getInteger("ordner_"+ordners.get(i));
-			if( (tomove != 0) && Ordner.getAllChildIDs(tomove, user.getID()).contains(moveto.getID())) {
+			if( (tomove != 0) && Ordner.getAllChildIDs(tomove, user.getId()).contains(moveto.getID())) {
 				t.setVar("show.message", "<span style=\"color:red\">Es d&uuml;rfen keine Ordner in ihre eignen Unterordner verschoben werden.</span>");
 				redirect("showInbox");
 				return ;
@@ -445,8 +445,8 @@ public class CommController extends DSGenerator implements Loggable {
 		parameterNumber("ordner");
 		int ordner = getInteger("ordner");
 
-		SQLQuery all_pm = db.query("SELECT id FROM transmissionen WHERE empfaenger='",user.getID(),"' AND gelesen < 2");
-		SQLQuery all_ordner = db.query("SELECT id FROM ordner WHERE playerid='",user.getID(),"' AND !flags=",Ordner.FLAG_TRASH," AND parent='",ordner,"'");
+		SQLQuery all_pm = db.query("SELECT id FROM transmissionen WHERE empfaenger='",user.getId(),"' AND gelesen < 2");
+		SQLQuery all_ordner = db.query("SELECT id FROM ordner WHERE playerid='",user.getId(),"' AND !flags=",Ordner.FLAG_TRASH," AND parent='",ordner,"'");
 
 		List<Integer> pms = new ArrayList<Integer>();
 		while( all_pm.next() ){
@@ -466,7 +466,7 @@ public class CommController extends DSGenerator implements Loggable {
 			int delordner = getInteger("ordner_"+ordners.get(i));
 
 			if( delordner == ordners.get(i) ) {
-				Ordner.deleteOrdnerByID( delordner, user.getID() );
+				Ordner.deleteOrdnerByID( delordner, user.getId() );
 			}
 		}
 
@@ -475,7 +475,7 @@ public class CommController extends DSGenerator implements Loggable {
 			int pm_id = getInteger("pm_"+pms.get(i));
 
 			if( pm_id == pms.get(i) ) {
-				PM.deleteByID( pm_id, user.getID() );
+				PM.deleteByID( pm_id, user.getId() );
 			}
 		}
 		
@@ -512,10 +512,10 @@ public class CommController extends DSGenerator implements Loggable {
 		if( reply > 0 ) {
 			SQLResultRow pm = db.first("SELECT * FROM transmissionen " +
 					"WHERE id="+reply+" AND " +
-						"(empfaenger="+user.getID()+" OR sender="+user.getID()+") " +
+						"(empfaenger="+user.getId()+" OR sender="+user.getId()+") " +
 						"AND gelesen < 2");
 			int iTo = pm.getInt("sender");
-			if( iTo == user.getID() ) {
+			if( iTo == user.getId() ) {
 				iTo = pm.getInt("empfaenger");	
 			}
 			to = Integer.toString(iTo);
@@ -537,7 +537,7 @@ public class CommController extends DSGenerator implements Loggable {
 		if( special.equals("admin") && (user.getAccessLevel() < 30) ) {
 			special = "";
 		}
-		if( special.equals("official") && !Rassen.get().rasse(user.getRace()).isHead(user.getID()) ) {
+		if( special.equals("official") && !Rassen.get().rasse(user.getRace()).isHead(user.getId()) ) {
 			special = "";	
 		}
 		
@@ -554,7 +554,7 @@ public class CommController extends DSGenerator implements Loggable {
 		if( to.equals("task") ) {
 			t.setVar("show.message", "<span style=\"color:#00ff55\">Antwort verarbeitet</span>");
 			
-			PM.send(getContext(), user.getID(), PM.TASK, title, msg, false, flags );
+			PM.send(getContext(), user.getId(), PM.TASK, title, msg, false, flags );
 		} 
 		else if( to.equals("ally") ) {
 			if( user.getAlly() <= 0 ) {
@@ -566,7 +566,7 @@ public class CommController extends DSGenerator implements Loggable {
 			String nameto = db.first("SELECT name FROM ally WHERE id="+user.getAlly()).getString("name");
 			t.setVar("show.message", "<span style=\"color:#00ff55\">Nachricht versendet an</span> "+Common._title(nameto));
 
-			PM.send(getContext(), user.getID(), user.getAlly(), title, msg, true, flags );
+			PM.send(getContext(), user.getId(), user.getAlly(), title, msg, true, flags );
 		}
 		else {			
 			if( (to.length() == 0) || (Integer.parseInt(to) == 0) ) {
@@ -579,7 +579,7 @@ public class CommController extends DSGenerator implements Loggable {
 			User auser = getContext().createUserObject(iTo);
 			t.setVar("show.message", "<span style=\"color:#00ff55\">Nachricht versendet an</span> "+Common._title(auser.getName()));
 
-			PM.send(getContext(), user.getID(), iTo, title, msg, false, flags );
+			PM.send(getContext(), user.getId(), iTo, title, msg, false, flags );
 		}
 	}
 	
@@ -606,14 +606,14 @@ public class CommController extends DSGenerator implements Loggable {
 			return;	
 		}
 	
-		SQLResultRow pm = db.first("SELECT * FROM transmissionen WHERE id='",pmid,"' AND (empfaenger='",user.getID(),"' OR sender='",user.getID(),"')");
+		SQLResultRow pm = db.first("SELECT * FROM transmissionen WHERE id='",pmid,"' AND (empfaenger='",user.getId(),"' OR sender='",user.getId(),"')");
 		if( pm.isEmpty() ) {			
 			return;	
 		}
 		
 		User sender = null;
 		
-		if( pm.getInt("sender") == user.getID() ) {
+		if( pm.getInt("sender") == user.getId() ) {
 			try {
 				bbcodeparser.registerHandler( "_intrnlConfTask", 2, "<div style=\"text-align:center\"><table class=\"noBorderX\" width=\"500\"><tr><td class=\"BorderX\" align=\"center\">Entscheidungsm&ouml;glichkeit in der Orginal-PM</td></tr></table></div>");
 			}
@@ -622,15 +622,15 @@ public class CommController extends DSGenerator implements Loggable {
 				addError("Fehler beim Darstellen der PM");
 			}
 			
-			if( (pm.getInt("empfaenger") == user.getID()) && (pm.getInt("gelesen") == 0) ) {
+			if( (pm.getInt("empfaenger") == user.getId()) && (pm.getInt("gelesen") == 0) ) {
 				db.update("UPDATE transmissionen SET gelesen=1 WHERE id='",pmid,"'");	
 			}
 	
 			User empfaenger = createUserObject(pm.getInt("empfaenger"));
 			sender = user;
 			
-			t.setVar(	"pm.empfaenger",		empfaenger.getID(),
-						"pm.empfaenger.name",	(empfaenger.getID() != 0 ? Common._title(empfaenger.getName()) : "Unbekannt" ));
+			t.setVar(	"pm.empfaenger",		empfaenger.getId(),
+						"pm.empfaenger.name",	(empfaenger.getId() != 0 ? Common._title(empfaenger.getName()) : "Unbekannt" ));
 		}
 		else {
 			if( pm.getInt("gelesen") >= 2 ) {
@@ -650,8 +650,8 @@ public class CommController extends DSGenerator implements Loggable {
 			
 			sender = createUserObject(pm.getInt("sender"));
 			
-			t.setVar(	"pm.sender",		sender.getID(),
-						"pm.sender.name", 	(sender.getID() != 0? Common._title(sender.getName()) : "Unbekannt"),
+			t.setVar(	"pm.sender",		sender.getId(),
+						"pm.sender.name", 	(sender.getId() != 0? Common._title(sender.getName()) : "Unbekannt"),
 						"ordner.parent",	parent_id);
 		}
 	
@@ -690,7 +690,7 @@ public class CommController extends DSGenerator implements Loggable {
 		parameterNumber("recover");
 		int recover = getInteger("recover");
 	
-		PM.recoverByID( recover, user.getID() );
+		PM.recoverByID( recover, user.getId() );
 		
 		redirect("showInbox");
 	}
@@ -703,7 +703,7 @@ public class CommController extends DSGenerator implements Loggable {
 		User user = getUser();
 		TemplateEngine t = getTemplateEngine();
 	
-		PM.recoverAll( user.getID() );
+		PM.recoverAll( user.getId() );
 		
 		t.setVar("show.message", "<span style=\"color:red\">Nachrichten wiederhergestellt</span>");
 
@@ -731,7 +731,7 @@ public class CommController extends DSGenerator implements Loggable {
 		t.setBlock("_COMM", "availordner.listitem", "availordner.list");
 		
 		// Liste aller vorhandenen Ordner generieren
-		SQLQuery ordner = db.query("SELECT * FROM ordner WHERE playerid=",user.getID()," ORDER BY name ASC");
+		SQLQuery ordner = db.query("SELECT * FROM ordner WHERE playerid=",user.getId()," ORDER BY name ASC");
 
 		t.setVar(	"availordner.id",	0,
 					"availordner.name",	"Hauptverzeichnis" );
@@ -747,14 +747,14 @@ public class CommController extends DSGenerator implements Loggable {
 		ordner.free();
 
 		// Link zum uebergeordneten Ordner erstellen
-		Map<Integer,Integer> ordners = Ordner.countPMInAllOrdner( current_ordner, user.getID() );
+		Map<Integer,Integer> ordners = Ordner.countPMInAllOrdner( current_ordner, user.getId() );
 
 		if( current_ordner != 0 ) {
-			SQLResultRow ordnerRow = db.first("SELECT * FROM ordner WHERE playerid=",user.getID()," AND id=",current_ordner,"");
+			SQLResultRow ordnerRow = db.first("SELECT * FROM ordner WHERE playerid=",user.getId()," AND id=",current_ordner,"");
 			t.setVar(	"ordner.id",			ordnerRow.getInt("parent"),
 						"ordner.name",			"..",
 						"ordner.parent",		ordnerRow.getInt("id"),
-						"ordner.pms",			Ordner.countPMInOrdner(ordnerRow.getInt("parent"), user.getID()),
+						"ordner.pms",			Ordner.countPMInOrdner(ordnerRow.getInt("parent"), user.getId()),
 						"ordner.flags.up",		1,
 						"ordner.flags.trash",	(ordnerRow.getInt("flags") & Ordner.FLAG_TRASH),
 						"ordner.name.real",		ordnerRow.getString("name"));
@@ -766,7 +766,7 @@ public class CommController extends DSGenerator implements Loggable {
 		}
 
 		// Ordnerliste im aktuellen Ordner ausgeben
-		ordner = db.query("SELECT * FROM ordner WHERE playerid=",user.getID()," AND parent=",current_ordner," ORDER BY name ASC");
+		ordner = db.query("SELECT * FROM ordner WHERE playerid=",user.getId()," AND parent=",current_ordner," ORDER BY name ASC");
 
 		while( ordner.next() ){
 			Integer count = ordners.get(ordner.getInt("id"));
@@ -785,7 +785,7 @@ public class CommController extends DSGenerator implements Loggable {
 		// PMs im aktuellen Ordner ausgeben
 		SQLQuery pm = db.query("SELECT t1.id,t1.sender,t1.gelesen,t1.time,t1.title,t1.flags,t1.kommentar,t2.name AS sender_name " +
 				"FROM transmissionen AS t1,users AS t2 " +
-				"WHERE t1.empfaenger=",user.getID()," AND t1.gelesen<",gelesen," AND t1.sender=t2.id AND ordner=",current_ordner," "+
+				"WHERE t1.empfaenger=",user.getId()," AND t1.gelesen<",gelesen," AND t1.sender=t2.id AND ordner=",current_ordner," "+
 				"ORDER BY t1.id DESC");
 
 		while( pm.next() ) {	
@@ -818,7 +818,7 @@ public class CommController extends DSGenerator implements Loggable {
 		
 		SQLQuery pm = db.query("SELECT t1.id,t1.empfaenger,t1.time,t1.title,t1.flags,t2.name AS empfaenger_name " ,
 				"FROM transmissionen AS t1,users AS t2 " ,
-				"WHERE t1.sender='",user.getID(),"' AND t1.empfaenger=t2.id " ,
+				"WHERE t1.sender='",user.getId(),"' AND t1.empfaenger=t2.id " ,
 				"ORDER BY t1.id DESC");
 				
 		while( pm.next() ) {	
@@ -861,7 +861,7 @@ public class CommController extends DSGenerator implements Loggable {
 		if( user.getAccessLevel() >= 30 ) {
 			specialuilist.put("admin", "admin");
 		}
-		if( Rassen.get().rasse(user.getRace()).isHead(user.getID()) ) {
+		if( Rassen.get().rasse(user.getRace()).isHead(user.getId()) ) {
 			specialuilist.put("Offizielle PM", "official");
 		}
 
@@ -893,8 +893,8 @@ public class CommController extends DSGenerator implements Loggable {
 			
 		t.setVar(	"pm.text",			Common.smiliesParse(Common._text(msg)),
 					"pm.title",			title,
-					"pm.sender",		user.getID(),
-					"pm.sender.name",	(user.getID() != 0 ? Common._title(user.getName()) : "Unbekannt"),
+					"pm.sender",		user.getId(),
+					"pm.sender.name",	(user.getId() != 0 ? Common._title(user.getName()) : "Unbekannt"),
 					"pm.time",			Common.date("j.n.Y G:i", Common.time()),
 					"pm.bgimage",		bgimg,
 					"write.to",			to,
@@ -920,8 +920,8 @@ public class CommController extends DSGenerator implements Loggable {
 		int pmid = getInteger("pm");
 		int ordner = getInteger("ordner");
 
-		SQLResultRow pm = db.first("SELECT * FROM transmissionen WHERE id='",pmid,"' AND empfaenger='",user.getID(),"'");
-		db.update("UPDATE transmissionen SET gelesen=1 WHERE id=",pmid," AND gelesen=0 AND empfaenger=",user.getID());
+		SQLResultRow pm = db.first("SELECT * FROM transmissionen WHERE id='",pmid,"' AND empfaenger='",user.getId(),"'");
+		db.update("UPDATE transmissionen SET gelesen=1 WHERE id=",pmid," AND gelesen=0 AND empfaenger=",user.getId());
 
 		t.setVar("show.comment", 1);
 		t.setVar("comment.text", pm.getString("kommentar"));
@@ -950,7 +950,7 @@ public class CommController extends DSGenerator implements Loggable {
 		String msg = getString("msg");
 
 		db.prepare("UPDATE transmissionen SET kommentar= ? WHERE id= ? AND empfaenger= ?")
-			.update(msg, pmid, user.getID());
+			.update(msg, pmid, user.getId());
 
 		redirect("showInbox");
 	}
@@ -973,9 +973,9 @@ public class CommController extends DSGenerator implements Loggable {
 		String special = "";
 		
 		if( reply != 0) {
-			SQLResultRow pm = db.first("SELECT * FROM transmissionen WHERE id='",reply,"' AND (empfaenger='",user.getID(),"' OR sender='",user.getID(),"') AND gelesen < 10");
+			SQLResultRow pm = db.first("SELECT * FROM transmissionen WHERE id='",reply,"' AND (empfaenger='",user.getId(),"' OR sender='",user.getId(),"') AND gelesen < 10");
 			int to = pm.getInt("sender");
-			if( to == user.getID() ) {
+			if( to == user.getId() ) {
 				to = pm.getInt("empfaenger");
 			}
 			title = "RE: "+Common._plaintitle(pm.getString("title"));
@@ -1021,7 +1021,7 @@ public class CommController extends DSGenerator implements Loggable {
 		if( special.equals("admin") && (user.getAccessLevel() < 30) ) {
 			special = "";	
 		}
-		if( special.equals("official") && !Rassen.get().rasse(user.getRace()).isHead(user.getID()) ) {
+		if( special.equals("official") && !Rassen.get().rasse(user.getRace()).isHead(user.getId()) ) {
 			special = "";	
 		}
 		
@@ -1030,7 +1030,7 @@ public class CommController extends DSGenerator implements Loggable {
 		if( user.getAccessLevel() >= 30 ) {
 			specialuilist.put("admin", "admin");
 		}
-		if( Rassen.get().rasse(user.getRace()).isHead(user.getID()) ) {
+		if( Rassen.get().rasse(user.getRace()).isHead(user.getId()) ) {
 			specialuilist.put("Offizielle PM", "official");
 		}
 			

@@ -54,14 +54,14 @@ public class KSMenuBattleConsignAction extends BasicKSMenuAction {
 		
 		UserIterator iter = context.createUserIterator(query);
 		for( User member : iter ) {
-			if( member.getID() == user.getID() ) {
+			if( member.getId() == user.getId() ) {
 				continue;
 			}
 			this.menuEntryAsk( Common._titleNoFormat(member.getName()),
 								new Object[] {	"ship",		ownShip.getInt("id"),
 												"attack",	enemyShip.getInt("id"),
 												"ksaction",	"new_commander2",
-												"newcom",	member.getID() },
+												"newcom",	member.getId() },
 								"Wollen sie das Kommando wirklich an "+Common._titleNoFormat(member.getName())+" &uuml;bergeben?" );
 		}
 		iter.free();

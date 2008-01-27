@@ -65,7 +65,7 @@ public class KSTakeCommandAction extends BasicKSAction {
 			return RESULT_ERROR;
 		}
 		
-		battle.setTakeCommand(battle.getOwnSide(), user.getID());
+		battle.setTakeCommand(battle.getOwnSide(), user.getId());
 
 		battle.save(false);
 

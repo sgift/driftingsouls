@@ -144,7 +144,7 @@ public class TechListeController extends DSGenerator {
 		keys.put("invisible", invisible);
 
 		Map<Integer,Integer> currentResearches = new HashMap<Integer,Integer>();
-		SQLQuery resRow = db.query("SELECT t1.forschung,t1.dauer FROM fz AS t1,bases AS t2 WHERE t1.forschung>0 AND t1.col=t2.id AND t2.owner=",user.getID());
+		SQLQuery resRow = db.query("SELECT t1.forschung,t1.dauer FROM fz AS t1,bases AS t2 WHERE t1.forschung>0 AND t1.col=t2.id AND t2.owner=",user.getId());
 		while( resRow.next() ) {
 			currentResearches.put(resRow.getInt("forschung"), resRow.getInt("dauer"));
 		}

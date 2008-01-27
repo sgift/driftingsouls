@@ -102,7 +102,7 @@ public class Quests implements Loggable {
 	
 		SQLQuery runningdata = null;
 		if( usequest.charAt(0) != 'r' ) {
-			runningdata = db.query("SELECT id,execdata FROM quests_running WHERE questid='",usequest,"' AND userid='",user.getID(),"'");
+			runningdata = db.query("SELECT id,execdata FROM quests_running WHERE questid='",usequest,"' AND userid='",user.getId(),"'");
 		}
 		else {
 			String rquestid = usequest.substring(1);
@@ -131,7 +131,7 @@ public class Quests implements Loggable {
 			return;
 		}
 		
-		scriptparser.setRegister("USER", Integer.toString(user.getID()));
+		scriptparser.setRegister("USER", Integer.toString(user.getId()));
 		if( usequest.length() > 0 ) {
 			scriptparser.setRegister("QUEST", "r"+runningdata.getInt("id"));
 		}

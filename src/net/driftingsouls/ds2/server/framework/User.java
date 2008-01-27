@@ -214,7 +214,7 @@ public class User implements Loggable {
 		preloadedValues.addAll(Arrays.asList(dbfields));
 
 		if( (sessiondata != null) && (sessiondata.getInt("usegfxpak") == 0) ) {
-			data.put("imgpath", getDefaultImagePath(context.getDatabase()));
+			data.put("imgpath", getDefaultImagePath());
 		}
 		
 		context.cacheUser( this );
@@ -286,7 +286,7 @@ public class User implements Loggable {
 	 * 
 	 * @return Die User-ID
 	 */
-	public int getID() {
+	public int getId() {
 		return data.getInt("id");
 	}
 	
@@ -355,11 +355,11 @@ public class User implements Loggable {
 
 	/**
 	 * Liefert den Standard-Image-Path zurueck
-	 * @param db Eine Datenbankverbindung
 	 * @return Der Standard-Image-Path
 	 */
-	public static String getDefaultImagePath(Database db) {
+	public static String getDefaultImagePath() {
 		if( defaultImagePath == null ) {
+			Database db = ContextMap.getContext().getDatabase();
 			defaultImagePath = db.first("SHOW FIELDS FROM users LIKE 'imgpath'").getString("Default");
 		}
 		return defaultImagePath;

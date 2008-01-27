@@ -63,7 +63,7 @@ public class TradeController extends DSGenerator {
 		Database db = getDatabase();
 		int shipId = getInteger("ship");
 		
-		this.ship = db.first("SELECT * FROM ships WHERE owner='",getUser().getID(),"' AND id>0 AND id='",shipId,"'");
+		this.ship = db.first("SELECT * FROM ships WHERE owner='",getUser().getId(),"' AND id>0 AND id='",shipId,"'");
 		if( this.ship.isEmpty() ) {
 			addError( "Fehler: Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen", Common.buildUrl(getContext(), "default", "module", "schiffe") );
 			

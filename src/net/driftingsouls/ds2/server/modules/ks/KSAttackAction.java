@@ -915,7 +915,7 @@ public class KSAttackAction extends BasicKSAction {
 		
 		boolean mydamage = this.calcDamage( battle, aeShip, aeShipType, hit, (int)(shieldSchaden*damagemod), (int)(schaden*damagemod), tmpsubdmgs, "" );
 		if( !mydamage && (Configuration.getIntSetting("DESTROYABLE_SHIPS") != 0) ) {
-			this.destroyShip(user.getID(), battle, aeShip);
+			this.destroyShip(user.getId(), battle, aeShip);
 		}
 	}
 	
@@ -1356,7 +1356,7 @@ public class KSAttackAction extends BasicKSAction {
 				 *	Schiff falls notwendig zerstoeren
 				 */
 				if( !savedamage && (Configuration.getIntSetting("DESTROYABLE_SHIPS") != 0) ) {
-					this.destroyShip(user.getID(), battle, this.enemyShip);
+					this.destroyShip(user.getId(), battle, this.enemyShip);
 					battle.setEnemyShipIndex(battle.getNewTargetIndex());
 					this.enemyShip = battle.getEnemyShip();
 				}
@@ -1373,7 +1373,7 @@ public class KSAttackAction extends BasicKSAction {
 						this.ownShip.put("hull", Configuration.getIntSetting("CONFIG_TRUEMMER_HUELLE"));
 					}
 					else {
-						this.destroyShipOnly(user.getID(), battle, this.ownShip, false, false);
+						this.destroyShipOnly(user.getId(), battle, this.ownShip, false, false);
 						// Unschoen...ich weiss
 						this.ownShipBackup.put("action", this.ownShip.getInt("action"));
 						breakFlag = true;

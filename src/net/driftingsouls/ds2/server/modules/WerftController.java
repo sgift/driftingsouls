@@ -61,7 +61,7 @@ public class WerftController extends DSGenerator {
 		
 		int shipID = getInteger("ship");
 		
-		ship = db.first("SELECT id,owner,name,type,x,y,system,e,status FROM ships WHERE id>0 AND id=",shipID," AND owner='",user.getID(),"'");
+		ship = db.first("SELECT id,owner,name,type,x,y,system,e,status FROM ships WHERE id>0 AND id=",shipID," AND owner='",user.getId(),"'");
 		
 		String errorurl = Common.buildUrl(getContext(), "default", "module", "schiff", "ship", ship.getInt("id"));
 	

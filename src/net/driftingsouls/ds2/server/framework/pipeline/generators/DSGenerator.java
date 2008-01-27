@@ -97,7 +97,7 @@ public abstract class DSGenerator extends Generator {
 				String url = Configuration.getSetting("URL")+"/";
 				boolean usegfxpak = false;
 				if( getUser() != null ) {
-					if( !getUser().getUserImagePath().equals(User.getDefaultImagePath(getDatabase())) ) {
+					if( !getUser().getUserImagePath().equals(User.getDefaultImagePath()) ) {
 						usegfxpak = true;
 					}
 					url = getUser().getImagePath();
@@ -404,7 +404,7 @@ public abstract class DSGenerator extends Generator {
 			templateEngine.setVar("global.datadir", getUser().getImagePath());
 		}
 		else {
-			templateEngine.setVar("global.datadir", User.getDefaultImagePath(getDatabase()));
+			templateEngine.setVar("global.datadir", User.getDefaultImagePath());
 		}
 		
 		templateEngine.setVar(	"global.sess",	getString("sess"),
@@ -547,7 +547,7 @@ public abstract class DSGenerator extends Generator {
 				Common.mailThrowable(e, "DSGenerator Invocation Target Exception", 
 						"Action: "+action+"\n" +
 						"ActionType: "+actionType+"\n" +
-						"User: "+(getContext().getActiveUser() != null ? getContext().getActiveUser().getID() : "none")+"\n" +
+						"User: "+(getContext().getActiveUser() != null ? getContext().getActiveUser().getId() : "none")+"\n" +
 						"Query-String: "+getContext().getRequest().getQueryString());
 				if( getDatabase().isTransaction() ) {
 					getDatabase().tRollback();
@@ -561,7 +561,7 @@ public abstract class DSGenerator extends Generator {
 				Common.mailThrowable(e, "DSGenerator Exception", 
 						"Action: "+action+"\n" +
 						"ActionType: "+actionType+"\n"+
-						"User: "+(getContext().getActiveUser() != null ? getContext().getActiveUser().getID() : "none")+"\n" +
+						"User: "+(getContext().getActiveUser() != null ? getContext().getActiveUser().getId() : "none")+"\n" +
 						"Query-String: "+getContext().getRequest().getQueryString());
 				if( getDatabase().isTransaction() ) {
 					getDatabase().tRollback();

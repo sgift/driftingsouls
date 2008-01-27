@@ -55,7 +55,7 @@ public class KSNewCommanderAction extends BasicKSAction {
 		int newcom = context.getRequest().getParameterInt("newcom");
 		User com = context.createUserObject(newcom);
 		
-		if( user.getID() == com.getID() ) {
+		if( user.getId() == com.getId() ) {
 			battle.logme( "Sie k&ouml;nnen die Leitung der Schlacht nicht an sich selbst &uuml;bertragen\n" );
 			return RESULT_ERROR;
 		}
@@ -64,7 +64,7 @@ public class KSNewCommanderAction extends BasicKSAction {
 			boolean found = false;
 			List<SQLResultRow> ownShips = battle.getOwnShips();
 			for( int i=0; i < ownShips.size(); i++ ) {
-				if( ownShips.get(i).getInt("owner") == com.getID() ) {
+				if( ownShips.get(i).getInt("owner") == com.getId() ) {
 					found = true;
 					break;
 				}
@@ -82,11 +82,11 @@ public class KSNewCommanderAction extends BasicKSAction {
 
 		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
 
-		PM.send(context, user.getID(), com.getID(), "Schlacht &uuml;bergeben", "Ich habe dir die Leitung der Schlacht bei "+battle.getSystem()+" : "+battle.getX()+"/"+battle.getY()+" &uuml;bergeben.");
+		PM.send(context, user.getId(), com.getId(), "Schlacht &uuml;bergeben", "Ich habe dir die Leitung der Schlacht bei "+battle.getSystem()+" : "+battle.getX()+"/"+battle.getY()+" &uuml;bergeben.");
 
-		battle.logenemy("[userprofile="+com.getID()+",profile_alog]"+Common._titleNoFormat(com.getName())+"[/userprofile] kommandiert nun die gegnerischen Truppen\n\n");
+		battle.logenemy("[userprofile="+com.getId()+",profile_alog]"+Common._titleNoFormat(com.getName())+"[/userprofile] kommandiert nun die gegnerischen Truppen\n\n");
 
-		battle.setCommander(battle.getOwnSide(), com.getID());
+		battle.setCommander(battle.getOwnSide(), com.getId());
 
 		battle.logenemy("]]></action>\n");
 

@@ -47,7 +47,7 @@ public class LogoutController extends DSGenerator {
 	 */
 	@Override
 	public void defaultAction() {
-		String ownsess = getDatabase().first("SELECT session FROM sessions WHERE id='",getUser().getID(),"'").getString("session");
-		getDatabase().update("DELETE FROM sessions WHERE id=",getUser().getID()," OR attach='",ownsess,"'");
+		String ownsess = getDatabase().first("SELECT session FROM sessions WHERE id='",getUser().getId(),"'").getString("session");
+		getDatabase().update("DELETE FROM sessions WHERE id=",getUser().getId()," OR attach='",ownsess,"'");
 	}
 }

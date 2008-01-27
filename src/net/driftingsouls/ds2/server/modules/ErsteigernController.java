@@ -387,8 +387,8 @@ public class ErsteigernController extends DSGenerator {
 		User.Relations relationlist = user.getRelations();
 		
 		if( faction == 0 ) {
-			if( Faction.get(user.getID()) != null ) {
-				faction = user.getID();
+			if( Faction.get(user.getId()) != null ) {
+				faction = user.getId();
 			}
 			else {
 				Map<Integer,Faction> factions = Faction.getFactions();
@@ -513,7 +513,7 @@ public class ErsteigernController extends DSGenerator {
 		
 		SQLResultRow entry = db.first("SELECT * FROM versteigerungen WHERE id=",auk);
 		
-		if( entry.isEmpty() || (entry.getInt("owner") == user.getID()) ) {
+		if( entry.isEmpty() || (entry.getInt("owner") == user.getId()) ) {
 			addError("Sie k&ouml;nnen nicht bei eigenen Versteigerungen mitbieten");
 			redirect();
 			return;
@@ -564,10 +564,10 @@ public class ErsteigernController extends DSGenerator {
 
 			User bieter = getContext().createUserObject( entry.getInt("bieter") );
 			
-			if( bieter.getID() == faction ) {
+			if( bieter.getId() == faction ) {
 				bietername = bieter.getName();	
 			}
-			else if( bieter.getID() == user.getID() ) {
+			else if( bieter.getId() == user.getId() ) {
 				bietername = bieter.getName();
 			}
 			else if( user.getAccessLevel() > 20 ) {
@@ -594,7 +594,7 @@ public class ErsteigernController extends DSGenerator {
 						"entry.height",		entryheight,
 						"entry.count",		entrycount,
 						"bid.player",		Common._title(bietername),
-						"bid.player.id",	bieter.getID(),
+						"bid.player.id",	bieter.getId(),
 						"bid.price",		cost,
 						"bid.id",			auk );
 			return;
@@ -634,11 +634,11 @@ public class ErsteigernController extends DSGenerator {
 				}
 					
 				db.tUpdate(1, "UPDATE versteigerungen " +
-						"SET tick=",entry.getInt("tick") <= ticks+3 ? ticks+3 : entry.getInt("tick"),",bieter=",user.getID(),",preis=",bid," " +
+						"SET tick=",entry.getInt("tick") <= ticks+3 ? ticks+3 : entry.getInt("tick"),",bieter=",user.getId(),",preis=",bid," " +
 						"WHERE id=",auk," AND tick=",entry.getInt("tick")," AND bieter=",entry.getInt("bieter")," AND preis=",entry.getInt("preis"));
 					
 				User gtu = getContext().createUserObject( faction );
-				gtu.transferMoneyFrom( user.getID(), bid, "&Uuml;berweisung Gebot #2"+entry.getInt("id")+" '"+entryname+"'", false, User.TRANSFER_SEMIAUTO);
+				gtu.transferMoneyFrom( user.getId(), bid, "&Uuml;berweisung Gebot #2"+entry.getInt("id")+" '"+entryname+"'", false, User.TRANSFER_SEMIAUTO);
 				
 				if( !db.tCommit() ) {
 					addError("W&auml;hrend des Bietvorgangs ist ein Fehler aufgetreten. Bitte versuchen sie es sp&auml;ter erneut");
@@ -708,18 +708,18 @@ public class ErsteigernController extends DSGenerator {
 				if( paket.getInt("bieter") != faction ) {
 					User bieter = getContext().createUserObject(paket.getInt("bieter"));
 						
-					PM.send(getContext(), faction, bieter.getID(), "Bei Versteigerung um das GTU-Paket &uuml;berboten", 
+					PM.send(getContext(), faction, bieter.getId(), "Bei Versteigerung um das GTU-Paket &uuml;berboten", 
 							"Sie wurden bei der Versteigerung um das GTU-Paket &ueberboten. Die von ihnen gebotenen RE in H&ouml;he von "+Common.ln(paket.getLong("preis"))+" wurden auf ihr Konto zur&uuml;ck&uuml;berwiesen.\n\nGaltracorp Unlimited");
 					 
 				 	bieter.transferMoneyFrom( faction, paket.getLong("preis"), "R&uuml;ck&uuml;berweisung Gebot #9"+paket.getInt("id")+" 'GTU-Paket'", false, User.TRANSFER_SEMIAUTO);
 				}
 				
 				db.tUpdate(1, "UPDATE versteigerungen_pakete " +
-						"SET tick=",paket.getInt("tick") <= ticks+3 ? ticks+3 : paket.getInt("tick"),",bieter=",user.getID(),",preis=",bid," " +
+						"SET tick=",paket.getInt("tick") <= ticks+3 ? ticks+3 : paket.getInt("tick"),",bieter=",user.getId(),",preis=",bid," " +
 						"WHERE id=",auk," AND preis=",paket.getLong("preis")," AND bieter=",paket.getInt("bieter")," AND tick=",paket.getInt("tick"));
 				
 				User gtu = getContext().createUserObject( faction );
-				gtu.transferMoneyFrom( user.getID(), bid, "&Uuml;berweisung Gebot #9"+auk+" 'GTU-Paket'", false, User.TRANSFER_SEMIAUTO);
+				gtu.transferMoneyFrom( user.getId(), bid, "&Uuml;berweisung Gebot #9"+auk+" 'GTU-Paket'", false, User.TRANSFER_SEMIAUTO);
 				
 				if( !db.tCommit() ) {
 					addError("W&auml;hrend des Bietvorgangs ist ein Fehler aufgetreten. Bitte versuchen sie es sp&auml;ter erneut");
@@ -783,16 +783,16 @@ public class ErsteigernController extends DSGenerator {
 						"ueberweisen.betrag",		Common.ln(count),
 						"ueberweisen.betrag.plain",	count,
 						"ueberweisen.to.name",		Common._title(tmp.getName()),
-						"ueberweisen.to",			tmp.getID() );
+						"ueberweisen.to",			tmp.getId() );
 			
 			return;
 		} 
 
 		User tmp = getContext().createUserObject( to );
 			
-		tmp.transferMoneyFrom( user.getID(), count, "&Uuml;berweisung vom "+Common.getIngameTime(this.ticks));
+		tmp.transferMoneyFrom( user.getId(), count, "&Uuml;berweisung vom "+Common.getIngameTime(this.ticks));
 			
-		PM.send(getContext(), user.getID(), tmp.getID(), "RE &uuml;berwiesen", "Ich habe dir soeben "+Common.ln(count)+" RE &uuml;berwiesen");
+		PM.send(getContext(), user.getId(), tmp.getId(), "RE &uuml;berwiesen", "Ich habe dir soeben "+Common.ln(count)+" RE &uuml;berwiesen");
 			
 		user.setTemplateVars(t);
 		t.setVar( "user.konto", Common.ln(user.getKonto()) );
@@ -841,9 +841,9 @@ public class ErsteigernController extends DSGenerator {
 		// ueberweisungen
 		t.setBlock("_ERSTEIGERN","ueberweisen.listitem","ueberweisen.list");
 
-		UserIterator iter = getContext().createUserIterator("SELECT * FROM users WHERE !LOCATE('hide',flags) AND id!=",user.getID()," ORDER BY id");
+		UserIterator iter = getContext().createUserIterator("SELECT * FROM users WHERE !LOCATE('hide',flags) AND id!=",user.getId()," ORDER BY id");
 		for( User usr : iter ) {
-			t.setVar(	"target.id",	usr.getID(),
+			t.setVar(	"target.id",	usr.getId(),
 						"target.name",	Common._title(usr.getName()) );
 			t.parse("ueberweisen.list","ueberweisen.listitem",true);
 		}
@@ -873,11 +873,11 @@ public class ErsteigernController extends DSGenerator {
 		// Kontobewegungen anzeigen
 		t.setBlock("_UEBER", "moneytransfer.listitem", "moneytransfer.list");
 		
-		SQLQuery entry = db.query("SELECT * FROM user_moneytransfer WHERE `type`<=",transtype," AND ((`from`=",user.getID(),") OR (`to`=",user.getID(),")) ORDER BY `time` DESC LIMIT 40");
+		SQLQuery entry = db.query("SELECT * FROM user_moneytransfer WHERE `type`<=",transtype," AND ((`from`=",user.getId(),") OR (`to`=",user.getId(),")) ORDER BY `time` DESC LIMIT 40");
 		while( entry.next() ) {
 			User player = null;
 			
-			if( entry.getInt("from") == user.getID() ) {
+			if( entry.getInt("from") == user.getId() ) {
 				player = getContext().createUserObject(entry.getInt("to"));
 			}
 			else {
@@ -885,9 +885,9 @@ public class ErsteigernController extends DSGenerator {
 			}
 			
 			t.setVar(	"moneytransfer.time",		Common.date("j.n.Y H:i",entry.getLong("time")),
-						"moneytransfer.from",		(entry.getInt("from") == user.getID() ? 1 : 0),
+						"moneytransfer.from",		(entry.getInt("from") == user.getId() ? 1 : 0),
 						"moneytransfer.player",		Common._title(player.getName()),
-						"moneytransfer.player.id",	player.getID(),
+						"moneytransfer.player.id",	player.getId(),
 						"moneytransfer.count",		Common.ln(entry.getLong("count")),
 						"moneytransfer.reason",		entry.getString("text") );
 								
@@ -979,10 +979,10 @@ public class ErsteigernController extends DSGenerator {
 
 			String bietername = "";
 			
-			if( bieter.getID() == Faction.GTU ) {
+			if( bieter.getId() == Faction.GTU ) {
 				bietername = bieter.getName();	
 			}
-			else if( bieter.getID() == user.getID() ) {
+			else if( bieter.getId() == user.getId() ) {
 				bietername = bieter.getName();	
 			}
 			else if( user.getAccessLevel() > 20 ) {
@@ -999,7 +999,7 @@ public class ErsteigernController extends DSGenerator {
 			t.setVar(	"paket.id",			paket.getInt("id"),
 						"paket.dauer",		paket.getInt("tick")-this.ticks,
 						"paket.bieter",		Common._title(bietername),
-						"paket.bieter.id",	bieter.getID(),
+						"paket.bieter.id",	bieter.getId(),
 						"paket.preis",		Common.ln(paket.getLong("preis")) );
 
 			t.setBlock("_ERSTEIGERN","paket.reslistitem","paket.reslist");
@@ -1059,10 +1059,10 @@ public class ErsteigernController extends DSGenerator {
 		*/
 		Set<Integer> gzlliste = new HashSet<Integer>();
 		
-		SQLQuery aentry = db.query("SELECT * FROM gtu_zwischenlager WHERE user1=",user.getID()," OR user2=",user.getID());
+		SQLQuery aentry = db.query("SELECT * FROM gtu_zwischenlager WHERE user1=",user.getId()," OR user2=",user.getId());
 		while( aentry.next() ) {
 			String owncargoneed = aentry.getString("cargo1need");
-			if( aentry.getInt("user2") == user.getID() ) {
+			if( aentry.getInt("user2") == user.getId() ) {
 				owncargoneed = aentry.getString("cargo2need");
 			}
 			
@@ -1133,10 +1133,10 @@ public class ErsteigernController extends DSGenerator {
 			}
 			String bietername = "";
 
-			if( bieter.getID() == faction ) {
+			if( bieter.getId() == faction ) {
 				bietername = bieter.getName();	
 			}
-			else if( bieter.getID() == user.getID() ) {
+			else if( bieter.getId() == user.getId() ) {
 				bietername = bieter.getName();
 			}
 			else if( user.getAccessLevel() > 20 ) {
@@ -1155,7 +1155,7 @@ public class ErsteigernController extends DSGenerator {
 			
 			String ownername = "";
 			
-			if( (user.getAccessLevel() >= 20) && (entry.getInt("owner") != faction) && (entry.getInt("owner") != user.getID()) ) {
+			if( (user.getAccessLevel() >= 20) && (entry.getInt("owner") != faction) && (entry.getInt("owner") != user.getId()) ) {
 				User ownerobject = getContext().createUserObject(entry.getInt("owner"));
 				ownername = Common._title(ownerobject.getName()); 
 			}
@@ -1174,7 +1174,7 @@ public class ErsteigernController extends DSGenerator {
 						"entry.user.name",	ownername,
 						"entry.user.id",	entry.getInt("owner"),
 						"entry.user",		(entry.getInt("owner") != faction),
-						"entry.ownauction",	(entry.getInt("owner") == user.getID()) );
+						"entry.ownauction",	(entry.getInt("owner") == user.getId()) );
 	
 			t.parse("entry.list","entry.listitem",true);
 		}
@@ -1250,7 +1250,7 @@ public class ErsteigernController extends DSGenerator {
 		int targety = getInteger("targety");
 		int transport = getInteger("transport");
 		
-		SQLResultRow gany = db.first("SELECT id,x,y,name FROM ships WHERE id=",ganymedeid," AND owner=",user.getID()," AND type=",ShopGanyTransportEntry.SHIPTYPE_GANYMEDE," AND system=",sourcesystem);
+		SQLResultRow gany = db.first("SELECT id,x,y,name FROM ships WHERE id=",ganymedeid," AND owner=",user.getId()," AND type=",ShopGanyTransportEntry.SHIPTYPE_GANYMEDE," AND system=",sourcesystem);
 		if( gany.isEmpty() ) {
 			addError("Die angegebene Ganymede konnte im Ausgangssystem nicht lokalisiert werden");
 			unsetParameter("sourcesystem");
@@ -1260,7 +1260,7 @@ public class ErsteigernController extends DSGenerator {
 			return;
 		}
 		
-		SQLResultRow sameorder = db.first("SELECT id FROM factions_shop_orders WHERE user_id=",user.getID()," AND adddata LIKE \"",gany.getInt("id"),"@%\" AND status<4");
+		SQLResultRow sameorder = db.first("SELECT id FROM factions_shop_orders WHERE user_id=",user.getId()," AND adddata LIKE \"",gany.getInt("id"),"@%\" AND status<4");
 		if( !sameorder.isEmpty() ) {
 			addError("Es existiert bereits ein Transport-Auftrag f&uuml;r diese Ganymede");
 			unsetParameter("sourcesystem");
@@ -1370,7 +1370,7 @@ public class ErsteigernController extends DSGenerator {
 			db.tBegin();
 	
 			User faction = getContext().createUserObject( this.faction );
-			faction.transferMoneyFrom( user.getID(), totalcost, "&Uuml;berweisung Bestellung #ganytransXX"+gany.getInt("id"));	
+			faction.transferMoneyFrom( user.getId(), totalcost, "&Uuml;berweisung Bestellung #ganytransXX"+gany.getInt("id"));	
 		
 			StringBuilder waypoints = new StringBuilder(300);
 			waypoints.append("Start: "+sourcesystem+":"+gany.getInt("x")+"/"+gany.getInt("y")+"\n");
@@ -1383,14 +1383,14 @@ public class ErsteigernController extends DSGenerator {
 			}		
 			waypoints.append("Ziel: "+targetsystem+":"+targetx+"/"+targety+"\n");
 		
-			PM.send(getContext(), user.getID(), this.faction, "[auto] Shop-Bestellung [Ganymede]", "Besteller: [userprofile="+user.getID()+"]"+user.getName()+" ("+user.getID()+")[/userprofile]\nObjekt: "+gany.getString("name")+" ("+gany.getInt("id")+")\nPreis: "+Common.ln(totalcost)+"\nZeitpunkt: "+Common.date("d.m.Y H:i:s")+"\n\n[b][u]Pfad[/u][/b]:\n"+waypoints);
+			PM.send(getContext(), user.getId(), this.faction, "[auto] Shop-Bestellung [Ganymede]", "Besteller: [userprofile="+user.getId()+"]"+user.getName()+" ("+user.getId()+")[/userprofile]\nObjekt: "+gany.getString("name")+" ("+gany.getInt("id")+")\nPreis: "+Common.ln(totalcost)+"\nZeitpunkt: "+Common.date("d.m.Y H:i:s")+"\n\n[b][u]Pfad[/u][/b]:\n"+waypoints);
 		
 			String adddataStr = gany.getInt("id")+"@"+sourcesystem+":"+gany.getInt("x")+"/"+gany.getInt("y")+"->"+targetsystem+":"+targetx+"/"+targety;
 			
 			PreparedQuery stmt = db.prepare("INSERT INTO factions_shop_orders " ,
 					"(shopentry_id,user_id,price,date,adddata) VALUES " ,
 					"( ?, ?, ?, ?, ?)");
-			stmt.update(shopentry.getInt("id"), user.getID(), totalcost, Common.time(), adddataStr);
+			stmt.update(shopentry.getInt("id"), user.getId(), totalcost, Common.time(), adddataStr);
 	
 			Taskmanager taskmanager = Taskmanager.getInstance();
 			taskmanager.addTask( Taskmanager.Types.GANY_TRANSPORT, 1, Integer.toString(stmt.insertID()), "", "" );
@@ -1467,7 +1467,7 @@ public class ErsteigernController extends DSGenerator {
 		Set<Integer> blockedganylist = new HashSet<Integer>();
 		List<Integer> blockedganysqlList = new ArrayList<Integer>();
 		
-		SQLQuery adddata = db.query("SELECT t1.adddata FROM factions_shop_orders t1 JOIN factions_shop_entries t2 ON t1.shopentry_id=t2.id WHERE t1.user_id=",user.getID()," AND t1.status<4 AND t2.type=2");
+		SQLQuery adddata = db.query("SELECT t1.adddata FROM factions_shop_orders t1 JOIN factions_shop_entries t2 ON t1.shopentry_id=t2.id WHERE t1.user_id=",user.getId()," AND t1.status<4 AND t2.type=2");
 		while( adddata.next() ) {
 			String[] tmp = StringUtils.split(adddata.getString("adddata"), "@");
 			int ganyid = Integer.parseInt(tmp[0]);
@@ -1483,7 +1483,7 @@ public class ErsteigernController extends DSGenerator {
 		}
 			
 		boolean first = true;
-		SQLQuery asystem = db.query("SELECT system FROM ships WHERE type=",ShopGanyTransportEntry.SHIPTYPE_GANYMEDE," AND owner=",user.getID()," ",blockedganysql," GROUP BY system ORDER BY system");
+		SQLQuery asystem = db.query("SELECT system FROM ships WHERE type=",ShopGanyTransportEntry.SHIPTYPE_GANYMEDE," AND owner=",user.getId()," ",blockedganysql," GROUP BY system ORDER BY system");
 		while( asystem.next() ) {
 			if( sourcesystem == asystem.getInt("system") ) {
 				t.setVar("sourcesystem.selected", 1);
@@ -1510,7 +1510,7 @@ public class ErsteigernController extends DSGenerator {
 		
 		// Moegliche Ganymedes ausgeben
 		first = true;
-		SQLQuery agany = db.query("SELECT id,name FROM ships WHERE type=",ShopGanyTransportEntry.SHIPTYPE_GANYMEDE," AND owner=",user.getID()," AND system=",sourcesystem," ORDER BY x+y");
+		SQLQuery agany = db.query("SELECT id,name FROM ships WHERE type=",ShopGanyTransportEntry.SHIPTYPE_GANYMEDE," AND owner=",user.getId()," AND system=",sourcesystem," ORDER BY x+y");
 		while( agany.next() ) {
 			if( blockedganylist.contains(agany.getInt("id")) ) {
 				continue;
@@ -1637,12 +1637,12 @@ public class ErsteigernController extends DSGenerator {
 			db.tBegin();
 			db.update("INSERT INTO factions_shop_orders " ,
 					"(shopentry_id,user_id,count,price,date,adddata) VALUES " ,
-					"(",entry.getID(),",",user.getID(),",",ordercount,",",(ordercount*entry.getPrice()),",",Common.time(),",'",ordersys+":"+orderx+"/"+ordery+"')");
+					"(",entry.getID(),",",user.getId(),",",ordercount,",",(ordercount*entry.getPrice()),",",Common.time(),",'",ordersys+":"+orderx+"/"+ordery+"')");
 			
 			User faction = getContext().createUserObject( this.faction );
-			faction.transferMoneyFrom( user.getID(), entry.getPrice()*ordercount, "&Uuml;berweisung Bestellung #"+entry.getType()+entry.getResource()+"XX"+ordercount);	
+			faction.transferMoneyFrom( user.getId(), entry.getPrice()*ordercount, "&Uuml;berweisung Bestellung #"+entry.getType()+entry.getResource()+"XX"+ordercount);	
 			
-			PM.send(getContext(), user.getID(), this.faction, "[auto] Shop-Bestellung", "Besteller: [userprofile="+user.getID()+"]"+user.getName()+" ("+user.getID()+")[/userprofile]\nObjekt: "+entry.getName()+"\nMenge: "+ordercount+"\nLieferkoordinaten: "+ordersys+":"+orderx+"/"+ordery+"\nZeitpunkt: "+Common.date("d.m.Y H:i:s"));
+			PM.send(getContext(), user.getId(), this.faction, "[auto] Shop-Bestellung", "Besteller: [userprofile="+user.getId()+"]"+user.getName()+" ("+user.getId()+")[/userprofile]\nObjekt: "+entry.getName()+"\nMenge: "+ordercount+"\nLieferkoordinaten: "+ordersys+":"+orderx+"/"+ordery+"\nZeitpunkt: "+Common.date("d.m.Y H:i:s"));
 			if( !db.tCommit() ) {
 				addError("Die Bestellung konnte nicht korrekt verarbeitet werden. Bitte versuchen sie es erneut.");
 				redirect("shop");
@@ -1671,7 +1671,7 @@ public class ErsteigernController extends DSGenerator {
 			return;
 		}
 		
-		if( this.faction == user.getID() ) {
+		if( this.faction == user.getId() ) {
 			parameterNumber("shopentry");
 			parameterNumber("availability");
 			
@@ -1714,7 +1714,7 @@ public class ErsteigernController extends DSGenerator {
 			return;
 		}
 		
-		if( this.faction == user.getID() ) {
+		if( this.faction == user.getId() ) {
 			parameterNumber("orderstatus");
 			parameterNumber("orderentry");
 			
@@ -1789,8 +1789,8 @@ public class ErsteigernController extends DSGenerator {
 		t.setBlock("_ERSTEIGERN", "shop.orderlist.listitem", "shop.orderlist.list");
 		t.setBlock("_ERSTEIGERN", "shop.shopownerlist.listitem", "shop.shopownerlist.list");
 	
-		if( this.faction != user.getID() ) {									
-			SQLQuery orderentry = db.query("SELECT t1.* FROM factions_shop_orders t1 JOIN factions_shop_entries t2 ON t1.shopentry_id=t2.id WHERE t2.faction_id=",this.faction," AND t1.user_id=",user.getID()," AND t1.status<4");
+		if( this.faction != user.getId() ) {									
+			SQLQuery orderentry = db.query("SELECT t1.* FROM factions_shop_orders t1 JOIN factions_shop_entries t2 ON t1.shopentry_id=t2.id WHERE t2.faction_id=",this.faction," AND t1.user_id=",user.getId()," AND t1.status<4");
 			while( orderentry.next() ) {
 				// Keine so geschickte loesung, es reicht aber fuer den moment:
 				SQLResultRow shopentry = db.first("SELECT * FROM factions_shop_entries WHERE id=",orderentry.getInt("shopentry_id"));

@@ -90,10 +90,10 @@ public class FleetMgntController extends DSGenerator {
 			int sector = Integer.parseInt(tmp[1]);
 			int type = Integer.parseInt(tmp[2]);
 			
-			SQLResultRow sectorRow = db.first("SELECT x,y,system FROM ships WHERE id=",sector," AND owner=",user.getID());
+			SQLResultRow sectorRow = db.first("SELECT x,y,system FROM ships WHERE id=",sector," AND owner=",user.getId());
 			shiplist = new Integer[] { 
 					db.first("SELECT id FROM ships " +
-							"WHERE owner=",user.getID()," AND system=",sectorRow.getInt("system")," AND " +
+							"WHERE owner=",user.getId()," AND system=",sectorRow.getInt("system")," AND " +
 									"x=",sectorRow.getInt("x")," AND y=",sectorRow.getInt("y")," AND " +
 									"type=",type," AND docked=''")
 						.getInt("id")};	
@@ -105,7 +105,7 @@ public class FleetMgntController extends DSGenerator {
 			fleet = db.first("SELECT * FROM ship_fleets WHERE id=",fleetID);
 			SQLResultRow owner = db.first("SELECT owner FROM ships WHERE id>0 AND fleet=",fleetID);
 
-			if( fleet.isEmpty() || owner.isEmpty() || (user.getID() != owner.getInt("owner")) ) {
+			if( fleet.isEmpty() || owner.isEmpty() || (user.getId() != owner.getInt("owner")) ) {
 				fleet = null;
 				addError("Diese Flotte geh&ouml;rt einem anderen Spieler");
 			
@@ -113,7 +113,7 @@ public class FleetMgntController extends DSGenerator {
 			}
 			
 			// Falls sich doch ein Schiff eines anderen Spielers eingeschlichen hat
-			db.update("UPDATE ships SET fleet='0' WHERE fleet=",fleetID," AND owner!=",user.getID());
+			db.update("UPDATE ships SET fleet='0' WHERE fleet=",fleetID," AND owner!=",user.getId());
 		}
 		
 		if( ((fleet == null) || fleet.isEmpty()) && !action.equals("createFromSRSGroup") && 
@@ -126,7 +126,7 @@ public class FleetMgntController extends DSGenerator {
 		int shipid = 0;
 		// Nun brauchen wir die ID eines der Schiffe aus der Flotte fuer den javascript-code....
 		if( (shiplist == null || shiplist.length == 0) && (fleetID != 0) ) {
-			shipid = db.first("SELECT id FROM ships WHERE id>0 AND owner=",this.getUser().getID()," AND fleet=",fleetID).getInt("id");
+			shipid = db.first("SELECT id FROM ships WHERE id>0 AND owner=",this.getUser().getId()," AND fleet=",fleetID).getInt("id");
 		} 
 		else if( (shiplist != null) && (shiplist.length > 0) ){
 			shipid = shiplist[0];
@@ -153,9 +153,9 @@ public class FleetMgntController extends DSGenerator {
 		int type = getInteger("type");
 		int count = getInteger("count");
 		
-		SQLResultRow sectorcoord = db.first("SELECT x,y,system FROM ships WHERE id='",sector,"' AND owner='",user.getID(),"'");
+		SQLResultRow sectorcoord = db.first("SELECT x,y,system FROM ships WHERE id='",sector,"' AND owner='",user.getId(),"'");
 		
-		int shipcount = db.first("SELECT count(*) count FROM ships WHERE owner='",user.getID(),"' AND system='",sectorcoord.getInt("system"),"' AND x='",sectorcoord.getInt("x"),"' AND y='",sectorcoord.getInt("y"),"' AND type='",type,"' AND docked=''").getInt("count");
+		int shipcount = db.first("SELECT count(*) count FROM ships WHERE owner='",user.getId(),"' AND system='",sectorcoord.getInt("system"),"' AND x='",sectorcoord.getInt("x"),"' AND y='",sectorcoord.getInt("y"),"' AND type='",type,"' AND docked=''").getInt("count");
 		
 		if( (count < 1) || (shipcount < count) ) {
 			t.setVar("fleetmgnt.message", "Es gibt nicht genug Schiffe im Sektor" );
@@ -182,7 +182,7 @@ public class FleetMgntController extends DSGenerator {
 			return;
 		}
 		
-		SQLResultRow id = db.first("SELECT id FROM ships WHERE id IN (",Common.implode(",",shiplist),") AND owner!=",user.getID());
+		SQLResultRow id = db.first("SELECT id FROM ships WHERE id IN (",Common.implode(",",shiplist),") AND owner!=",user.getId());
 		if( !id.isEmpty() ) {
 			t.setVar("fleetmgnt.message", "Alle Schiffe m&uuml;ssen ihrem Kommando unterstehen" );
 		}
@@ -220,7 +220,7 @@ public class FleetMgntController extends DSGenerator {
 				return;
 			}
 		
-			SQLResultRow id = db.first("SELECT id FROM ships WHERE id IN (",Common.implode(",",shiplistInt),") AND owner!='",user.getID(),"'");
+			SQLResultRow id = db.first("SELECT id FROM ships WHERE id IN (",Common.implode(",",shiplistInt),") AND owner!='",user.getId(),"'");
 			if( !id.isEmpty() ) {
 				t.setVar("fleetmgnt.message", "Alle Schiffe m&uuml;ssen ihrem Kommando unterstehen" );
 				return;
@@ -231,9 +231,9 @@ public class FleetMgntController extends DSGenerator {
 			int sector = Integer.parseInt(tmp[1]);
 			int type = Integer.parseInt(tmp[2]);
 			int count = Integer.parseInt(tmp[3]);
-			SQLResultRow sectorRow = db.first("SELECT x,y,system FROM ships WHERE id='",sector,"' AND owner='",user.getID(),"'");
+			SQLResultRow sectorRow = db.first("SELECT x,y,system FROM ships WHERE id='",sector,"' AND owner='",user.getId(),"'");
 			
-			SQLQuery s = db.query("SELECT id,fleet FROM ships WHERE owner='",user.getID(),"' AND system='",sectorRow.getInt("system"),"' AND x='",sectorRow.getInt("x"),"' AND y='",sectorRow.getInt("y"),"' AND type='",type,"' AND docked='' ORDER BY fleet,id ASC LIMIT ",count);
+			SQLQuery s = db.query("SELECT id,fleet FROM ships WHERE owner='",user.getId(),"' AND system='",sectorRow.getInt("system"),"' AND x='",sectorRow.getInt("x"),"' AND y='",sectorRow.getInt("y"),"' AND type='",type,"' AND docked='' ORDER BY fleet,id ASC LIMIT ",count);
 			shiplistInt = new Integer[s.numRows()];
 			int i=0;
 			while( s.next() ) {
@@ -283,9 +283,9 @@ public class FleetMgntController extends DSGenerator {
 		int type = getInteger("type");
 		int count = getInteger("count");
 		
-		SQLResultRow sectorRow = db.first("SELECT x,y,system FROM ships WHERE id='",sector,"' AND owner='",user.getID(),"'");
+		SQLResultRow sectorRow = db.first("SELECT x,y,system FROM ships WHERE id='",sector,"' AND owner='",user.getId(),"'");
 		
-		int shipcount = db.first("SELECT count(*) count FROM ships WHERE owner='",user.getID(),"' AND system='",sectorRow.getInt("system"),"' AND x='",sectorRow.getInt("x"),"' AND y='",sectorRow.getInt("y"),"' AND type='",type,"' AND docked=''").getInt("count");
+		int shipcount = db.first("SELECT count(*) count FROM ships WHERE owner='",user.getId(),"' AND system='",sectorRow.getInt("system"),"' AND x='",sectorRow.getInt("x"),"' AND y='",sectorRow.getInt("y"),"' AND type='",type,"' AND docked=''").getInt("count");
 		
 		if( (count < 1) || (shipcount < count) ) {
 			t.setVar("fleetmgnt.message", "Es gibt nicht genug Schiffe im Sektor" );
@@ -293,7 +293,7 @@ public class FleetMgntController extends DSGenerator {
 		}
 		
 		List<Integer> shiplist = new ArrayList<Integer>();
-		SQLQuery s = db.query("SELECT id,fleet FROM ships WHERE owner='",user.getID(),"' AND system='",sectorRow.getInt("system"),"' AND x='",sectorRow.getInt("x"),"' AND y='",sectorRow.getInt("y"),"' AND type='",type,"' AND docked='' AND fleet!='",fleet.getInt("id"),"' ORDER BY fleet,id ASC LIMIT ",count);
+		SQLQuery s = db.query("SELECT id,fleet FROM ships WHERE owner='",user.getId(),"' AND system='",sectorRow.getInt("system"),"' AND x='",sectorRow.getInt("x"),"' AND y='",sectorRow.getInt("y"),"' AND type='",type,"' AND docked='' AND fleet!='",fleet.getInt("id"),"' ORDER BY fleet,id ASC LIMIT ",count);
 		while( s.next() ) {
 			if( s.getInt("fleet") != 0 ) {
 				Ships.removeFromFleet(s.getRow());	
@@ -407,10 +407,10 @@ public class FleetMgntController extends DSGenerator {
 		
 		User newowner = getContext().createUserObject(ownerid );
 		
-		if( newowner.getID() != 0 ) {
+		if( newowner.getId() != 0 ) {
 			t.setVar(	"show.newowner2",	1,
 						"newowner.name",	Common._title(newowner.getName()),
-						"newowner.id",		newowner.getID(),
+						"newowner.id",		newowner.getId(),
 						"fleet.id",			this.fleet.getInt("id"),
 						"fleet.name",		Common._plaintitle(this.fleet.getString("name")) );
 		}
@@ -436,7 +436,7 @@ public class FleetMgntController extends DSGenerator {
 		
 		User newowner = getContext().createUserObject(ownerid);
 		
-		if( newowner.getID() != 0 ) {
+		if( newowner.getId() != 0 ) {
 			StringBuilder message = new StringBuilder(100);
 			int count = 0;
 			
@@ -461,9 +461,9 @@ public class FleetMgntController extends DSGenerator {
 				// Da die Schiffe beim uebergeben aus der Flotte geschmissen werden, muessen wir sie nun wieder hinein tun
 				db.update("UPDATE ships SET fleet='",this.fleet.getInt("id"),"' WHERE id IN ("+Common.implode(",",idlist),")");
 				
-				SQLResultRow coords = db.first("SELECT x,y,system FROM ships WHERE owner='",newowner.getID(),"' AND fleet='",this.fleet.getInt("id"),"'");
+				SQLResultRow coords = db.first("SELECT x,y,system FROM ships WHERE owner='",newowner.getId(),"' AND fleet='",this.fleet.getInt("id"),"'");
 				
-				PM.send(getContext(), user.getID(), newowner.getID(), "Flotte &uuml;bergeben", "Ich habe dir die Flotte "+Common._plaintitle(this.fleet.getString("name"))+" &uuml;bergeben. Sie steht bei "+coords.getInt("system")+":"+coords.getInt("x")+"/"+coords.getInt("y"));
+				PM.send(getContext(), user.getId(), newowner.getId(), "Flotte &uuml;bergeben", "Ich habe dir die Flotte "+Common._plaintitle(this.fleet.getString("name"))+" &uuml;bergeben. Sie steht bei "+coords.getInt("system")+":"+coords.getInt("x")+"/"+coords.getInt("y"));
 		
 				t.setVar("fleetmgnt.message", message+"Die Flotte wurde &uuml;bergeben");
 			}
@@ -598,7 +598,7 @@ public class FleetMgntController extends DSGenerator {
 		
 		SQLQuery s = db.query("SELECT id FROM ships WHERE id>0 AND fleet='",this.fleet.getInt("id"),"' AND battle=0" );
 		while( s.next() ) {
-			Ships.dock(Ships.DockMode.UNDOCK, user.getID(), s.getInt("id"), null);
+			Ships.dock(Ships.DockMode.UNDOCK, user.getId(), s.getInt("id"), null);
 		}
 		s.free();
 		
@@ -630,7 +630,7 @@ public class FleetMgntController extends DSGenerator {
 			List<Integer> containerlist = new ArrayList<Integer>();
 			
 			SQLQuery container = db.query("SELECT s.id FROM ships s JOIN ship_types st ON s.type=st.id " +
-					"WHERE s.owner='",user.getID(),"' AND s.system='",ship.getInt("system"),"' AND" +
+					"WHERE s.owner='",user.getId(),"' AND s.system='",ship.getInt("system"),"' AND" +
 							" s.x='",ship.getInt("x"),"' AND s.y='",ship.getInt("y"),"' AND s.docked='' AND " +
 							"st.class='",ShipClasses.CONTAINER.ordinal(),"' AND s.battle=0 " +
 					"ORDER BY fleet,type ");
@@ -648,7 +648,7 @@ public class FleetMgntController extends DSGenerator {
 				list[i] = containerlist.get(i);
 			}
 			
-			Ships.dock(Ships.DockMode.DOCK, user.getID(), ship.getInt("id"), list);
+			Ships.dock(Ships.DockMode.DOCK, user.getId(), ship.getInt("id"), list);
 		}
 		ship.free();
 
@@ -669,7 +669,7 @@ public class FleetMgntController extends DSGenerator {
 		
 		SQLQuery s = db.query("SELECT id FROM ships WHERE id>0 AND fleet='",this.fleet.getInt("id"),"' AND battle=0" );
 		while( s.next() ) {
-			Ships.dock(Ships.DockMode.START, user.getID(), s.getInt("id"), null);
+			Ships.dock(Ships.DockMode.START, user.getId(), s.getInt("id"), null);
 		}
 		s.free();
 		
@@ -704,7 +704,7 @@ public class FleetMgntController extends DSGenerator {
 			List<Integer >jaegerlist = new ArrayList<Integer>();
 			
 			SQLQuery jaeger = db.query("SELECT s.* FROM ships s JOIN ship_types st ON s.type=st.id " +
-					"WHERE "+(jaegertypeID > 0 ? "s.type="+jaegertypeID+" AND " : "")+"s.owner='",user.getID(),"' AND " +
+					"WHERE "+(jaegertypeID > 0 ? "s.type="+jaegertypeID+" AND " : "")+"s.owner='",user.getId(),"' AND " +
 							"s.system='",ship.getInt("system"),"' AND s.x='",ship.getInt("x"),"' AND s.y='",ship.getInt("y"),"' AND " +
 							"s.docked='' AND (LOCATE('tblmodules',s.status) OR LOCATE('",ShipTypes.SF_JAEGER,"',st.flags)) AND s.battle=0 " +
 					"ORDER BY fleet,type");
@@ -725,7 +725,7 @@ public class FleetMgntController extends DSGenerator {
 				list[i] = jaegerlist.get(i);
 			}
 			
-			Ships.dock(Ships.DockMode.LAND, user.getID(), ship.getInt("id"), list);
+			Ships.dock(Ships.DockMode.LAND, user.getId(), ship.getInt("id"), list);
 		}
 		ship.free();
 
@@ -749,7 +749,7 @@ public class FleetMgntController extends DSGenerator {
 		int fleetID = getInteger("fleetcombine");
 		
 		SQLResultRow aowner = db.first("SELECT owner FROM ships WHERE id>0 AND fleet='",fleetID,"'");
-		if( aowner.isEmpty() || (aowner.getInt("owner") != user.getID()) ) {
+		if( aowner.isEmpty() || (aowner.getInt("owner") != user.getId()) ) {
 			addError("Die angegebene Flotte geh&ouml;rt nicht ihnen!");
 			this.redirect();
 			return;
@@ -789,7 +789,7 @@ public class FleetMgntController extends DSGenerator {
 	
 		Location aloc = Location.fromResult(aship);
 		
-		SQLQuery ship = db.query("SELECT name,id,battle,system,x,y,type,status FROM ships WHERE id>0 AND owner=",user.getID()," AND fleet=",this.fleet.getInt("id")," ORDER BY id");
+		SQLQuery ship = db.query("SELECT name,id,battle,system,x,y,type,status FROM ships WHERE id>0 AND owner=",user.getId()," AND fleet=",this.fleet.getInt("id")," ORDER BY id");
 		while( ship.next() ) {
 			SQLResultRow shipRow = ship.getRow();
 			SQLResultRow shiptype = ShipTypes.getShipType( shipRow );
@@ -816,7 +816,7 @@ public class FleetMgntController extends DSGenerator {
 		
 		SQLQuery shiptype = db.query("SELECT nickname,id FROM ship_types WHERE LOCATE('"+ShipTypes.SF_JAEGER+"',flags) "+(user.getAccessLevel() < 10 ? "AND hide=0" : ""));
 		while( shiptype.next() ) {
-			int count = db.first("SELECT count(*) count FROM ships WHERE owner=",user.getID()," AND type=",shiptype.getInt("id")," AND docked='' AND (",sectorstring,")").getInt("count");
+			int count = db.first("SELECT count(*) count FROM ships WHERE owner=",user.getId()," AND type=",shiptype.getInt("id")," AND docked='' AND (",sectorstring,")").getInt("count");
 			if( count == 0 ) {
 				continue;
 			}
@@ -830,7 +830,7 @@ public class FleetMgntController extends DSGenerator {
 		
 		// Flottenliste bauen
 		t.setBlock("_FLEETMGNT", "fleetcombine.listitem", "fleetcombine.list");
-		SQLQuery afleet = db.query("SELECT t2.id,t2.name FROM ships t1 JOIN ship_fleets t2 ON t1.fleet=t2.id WHERE t1.system='",aship.getInt("system"),"' AND t1.x='",aship.getInt("x"),"' AND t1.y='",aship.getInt("y"),"' AND docked='' AND owner='",user.getID(),"' AND t1.fleet!='",this.fleet.getInt("id"),"' GROUP BY t2.id");
+		SQLQuery afleet = db.query("SELECT t2.id,t2.name FROM ships t1 JOIN ship_fleets t2 ON t1.fleet=t2.id WHERE t1.system='",aship.getInt("system"),"' AND t1.x='",aship.getInt("x"),"' AND t1.y='",aship.getInt("y"),"' AND docked='' AND owner='",user.getId(),"' AND t1.fleet!='",this.fleet.getInt("id"),"' GROUP BY t2.id");
 		while( afleet.next() ) {
 			int count = db.first("SELECT count(*) count FROM ships WHERE fleet=",afleet.getInt("id")).getInt("count");
 			

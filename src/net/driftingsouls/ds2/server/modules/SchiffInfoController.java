@@ -165,7 +165,7 @@ public class SchiffInfoController extends DSGenerator {
 				if( shipBuildData.getInt("tr"+i) != 0 ) {
 					SQLResultRow dat = db.first("SELECT f.name, uf.r",shipBuildData.getInt("tr"+i)," AS research " +
 							"FROM forschungen f JOIN user_f uf " +
-							"WHERE f.id=",shipBuildData.get("tr"+i)," AND uf.id=",getUser().getID());
+							"WHERE f.id=",shipBuildData.get("tr"+i)," AND uf.id=",getUser().getId());
 					String cssClass = "error";
 					if( !dat.isEmpty() && dat.getBoolean("research") ) {
 						cssClass = "ok";

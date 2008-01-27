@@ -142,7 +142,7 @@ class Forschungszentrum extends DefaultBuilding {
 		List<Integer> researches = new ArrayList<Integer>();
 		SQLQuery research = db.query("SELECT fz.forschung " +
 				"FROM fz JOIN bases AS b ON fz.col=b.id " +
-				"WHERE fz.forschung>0 AND b.owner=",user.getID());
+				"WHERE fz.forschung>0 AND b.owner=",user.getId());
 		while( research.next() ) {
 			researches.add(research.getInt("forschung"));
 		}

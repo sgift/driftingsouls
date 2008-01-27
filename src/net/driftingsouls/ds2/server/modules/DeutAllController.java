@@ -70,7 +70,7 @@ public class DeutAllController extends DSGenerator {
 
 		SQLQuery shipRow = db.query("SELECT t1.id,t1.x,t1.y,t1.system,t1.e,t1.name,t1.crew,t1.cargo,t1.type,t1.status " ,
 								"FROM ships AS t1,ship_types AS t2 " ,
-								"WHERE t1.id>0 AND t1.owner=",user.getID()," AND t1.type=t2.id AND (t2.deutfactor>0 OR LOCATE('tblmodules',t1.status)) ORDER BY t1.system,t1.x,t1.y");
+								"WHERE t1.id>0 AND t1.owner=",user.getId()," AND t1.type=t2.id AND (t2.deutfactor>0 OR LOCATE('tblmodules',t1.status)) ORDER BY t1.system,t1.x,t1.y");
 		
 		while( shipRow.next() ) {
 			t.start_record();

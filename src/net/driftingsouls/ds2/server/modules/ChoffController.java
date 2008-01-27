@@ -65,7 +65,7 @@ public class ChoffController extends DSGenerator {
 
 		Offizier offizier = new Offizier( offizierRow );
 
-		if( offizier.getOwner() != user.getID() ) {
+		if( offizier.getOwner() != user.getId() ) {
 			addError("Dieser Offizier untersteht nicht ihrem Kommando", Common.buildUrl(getContext(), "default", "module", "ueber") );
 			
 			return false;

@@ -110,10 +110,10 @@ class Waffenfabrik extends DefaultBuilding {
 		
 		List<Integer> removelist = new ArrayList<Integer>();
 		
-		if( (vars == null) || (user.getID() != lastUser.intValue()) ) {
+		if( (vars == null) || (user.getId() != lastUser.intValue()) ) {
 			vars = new ContextVars();
 			context.putVariable(getClass(), "values", vars);
-			context.putVariable(getClass(), "last_user", user.getID());
+			context.putVariable(getClass(), "last_user", user.getId());
 			
 			for( SQLResultRow ammo : ammolist.values() ) {
 				if( !user.hasResearched(ammo.getInt("res1")) || !user.hasResearched(ammo.getInt("res2")) || !user.hasResearched(ammo.getInt("res3")) ) {

@@ -123,17 +123,17 @@ public class RestTick extends TickController {
 					newcommander = db.first("SELECT id,name FROM users WHERE ally=",user.getAlly(),"  AND inakt <= 7 AND vaccount=0 AND (wait4vac>6 OR wait4vac=0)");
 				}
 				
-				SQLQuery battleid = db.query("SELECT id FROM battles WHERE commander1=",user.getID()," OR commander2=",user.getID());
+				SQLQuery battleid = db.query("SELECT id FROM battles WHERE commander1=",user.getId()," OR commander2=",user.getId());
 				while( battleid.next() ) {
 					Battle battle = new Battle();
-					battle.load(battleid.getInt("id"), user.getID(), 0, 0, 0 );
+					battle.load(battleid.getInt("id"), user.getId(), 0, 0, 0 );
 					
 					if( newcommander != null ) {
-						this.log("\t\tUser"+user.getID()+": Die Leitung der Schlacht "+battleid.getInt("id")+" wurde an "+newcommander.getString("name")+" ("+newcommander.getInt("id")+") uebergeben");
+						this.log("\t\tUser"+user.getId()+": Die Leitung der Schlacht "+battleid.getInt("id")+" wurde an "+newcommander.getString("name")+" ("+newcommander.getInt("id")+") uebergeben");
 						
 						battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+getContext().get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
 			
-						PM.send(getContext(), user.getID(), newcommander.getInt("id"), "Schlacht &uuml;bernommen", "Die Leitung der Schlacht bei "+battle.getSystem()+" : "+battle.getX()+"/"+battle.getY()+" wurde dir automatisch &uuml;bergeben, da der bisherige Kommandant in den Vacationmodus gewechselt ist");
+						PM.send(getContext(), user.getId(), newcommander.getInt("id"), "Schlacht &uuml;bernommen", "Die Leitung der Schlacht bei "+battle.getSystem()+" : "+battle.getX()+"/"+battle.getY()+" wurde dir automatisch &uuml;bergeben, da der bisherige Kommandant in den Vacationmodus gewechselt ist");
 				
 						battle.logenemy(Common._titleNoFormat(newcommander.getString("name"))+" kommandiert nun die gegnerischen Truppen\n\n");
 				
@@ -150,7 +150,7 @@ public class RestTick extends TickController {
 						battle.writeLog();
 					}
 					else {
-						this.log("\t\tUser"+user.getID()+": Die Schlacht "+battleid+" wurde beendet");
+						this.log("\t\tUser"+user.getId()+": Die Schlacht "+battleid+" wurde beendet");
 					
 						battle.endBattle(0, 0, true);
 						PM.send(getContext(), battle.getCommander(battle.getOwnSide()), battle.getCommander(battle.getEnemySide()), "Schlacht beendet", "Die Schlacht bei "+battle.getSystem()+" : "+battle.getX()+"/"+battle.getY()+" wurde automatisch beim wechseln in den Vacation-Modus beendet, da kein Ersatzkommandant ermittelt werden konnte!");

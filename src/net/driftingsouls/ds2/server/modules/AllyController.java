@@ -125,7 +125,7 @@ public class AllyController extends DSGenerator implements Loggable {
 	
 		Taskmanager taskmanager = Taskmanager.getInstance();
 	
-		Task[] tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_NEW_MEMBER, "*", Integer.toString(user.getID()), "*" );
+		Task[] tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_NEW_MEMBER, "*", Integer.toString(user.getId()), "*" );
 		if( tasks.length > 0 ) {
 			t.setVar( "ally.message", "Fehler: Sie haben bereits einen Aufnahmeantrag bei einer Allianz gestellt" );
 			
@@ -140,8 +140,8 @@ public class AllyController extends DSGenerator implements Loggable {
 		int confuser1ID = getInteger("confuser1");
 		int confuser2ID = getInteger("confuser2");
 		
-		SQLResultRow confuser1 = db.first("SELECT id FROM users WHERE id=",confuser1ID," AND id NOT IN (",user.getID(),",",confuser2ID,") AND ally=0");
-		SQLResultRow confuser2 = db.first("SELECT id FROM users WHERE id=",confuser2ID," AND id NOT IN (",user.getID(),",",confuser1ID,") AND ally=0");
+		SQLResultRow confuser1 = db.first("SELECT id FROM users WHERE id=",confuser1ID," AND id NOT IN (",user.getId(),",",confuser2ID,") AND ally=0");
+		SQLResultRow confuser2 = db.first("SELECT id FROM users WHERE id=",confuser2ID," AND id NOT IN (",user.getId(),",",confuser1ID,") AND ally=0");
 	
 		if( confuser1.isEmpty() || confuser2.isEmpty() ) {
 			t.setVar("ally.statusmessage", "<span style=\"color:red\">Einer der angegebenen Unterst&uuml;tzer ist ung&uuml;ltig</span>\n");
@@ -179,12 +179,12 @@ public class AllyController extends DSGenerator implements Loggable {
 			return; 	
 		}
 	
-		String mastertaskid = taskmanager.addTask(Taskmanager.Types.ALLY_FOUND, 21, "2", name, user.getID()+","+confuser1.getInt("id")+","+confuser2.getInt("id") );
+		String mastertaskid = taskmanager.addTask(Taskmanager.Types.ALLY_FOUND, 21, "2", name, user.getId()+","+confuser1.getInt("id")+","+confuser2.getInt("id") );
 		String conf1taskid = taskmanager.addTask(Taskmanager.Types.ALLY_FOUND_CONFIRM, 21, mastertaskid, Integer.toString(confuser1.getInt("id")), "" );
 		String conf2taskid = taskmanager.addTask(Taskmanager.Types.ALLY_FOUND_CONFIRM, 21, mastertaskid, Integer.toString(confuser2.getInt("id")), "" );
 	
-		PM.send( getContext(), user.getID(), confuser1.getInt("id"), "Allianzgr&uuml;ndung", "[automatische Nachricht]\nIch habe vor die Allianz "+name+" zu gr&uuml;nden. Da zwei Spieler dieses vorhaben unterst&uuml;tzen m&uuml;ssen habe ich mich an dich gewendet.\nAchtung: Durch die Unterst&uuml;tzung wirst du automatisch Mitglied!\n\n[_intrnlConfTask="+conf1taskid+"]Willst du die Allianzgr&uuml;ndung unterst&uuml;tzen?[/_intrnlConfTask]", false, PM.FLAGS_IMPORTANT);
-		PM.send( getContext(), user.getID(), confuser2.getInt("id"), "Allianzgr&uuml;ndung", "[automatische Nachricht]\nIch habe vor die Allianz "+name+" zu gr&uuml;nden. Da zwei Spieler dieses vorhaben unterst&uuml;tzen m&uuml;ssen habe ich mich an dich gewendet.\nAchtung: Durch die Unterst&uuml;tzung wirst du automatisch Mitglied!\n\n[_intrnlConfTask="+conf2taskid+"]Willst du die Allianzgr&uuml;ndung unterst&uuml;tzen?[/_intrnlConfTask]", false, PM.FLAGS_IMPORTANT);
+		PM.send( getContext(), user.getId(), confuser1.getInt("id"), "Allianzgr&uuml;ndung", "[automatische Nachricht]\nIch habe vor die Allianz "+name+" zu gr&uuml;nden. Da zwei Spieler dieses vorhaben unterst&uuml;tzen m&uuml;ssen habe ich mich an dich gewendet.\nAchtung: Durch die Unterst&uuml;tzung wirst du automatisch Mitglied!\n\n[_intrnlConfTask="+conf1taskid+"]Willst du die Allianzgr&uuml;ndung unterst&uuml;tzen?[/_intrnlConfTask]", false, PM.FLAGS_IMPORTANT);
+		PM.send( getContext(), user.getId(), confuser2.getInt("id"), "Allianzgr&uuml;ndung", "[automatische Nachricht]\nIch habe vor die Allianz "+name+" zu gr&uuml;nden. Da zwei Spieler dieses vorhaben unterst&uuml;tzen m&uuml;ssen habe ich mich an dich gewendet.\nAchtung: Durch die Unterst&uuml;tzung wirst du automatisch Mitglied!\n\n[_intrnlConfTask="+conf2taskid+"]Willst du die Allianzgr&uuml;ndung unterst&uuml;tzen?[/_intrnlConfTask]", false, PM.FLAGS_IMPORTANT);
 	
 		user.setAlly(-1);
 	
@@ -228,7 +228,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		}
 	
 		Taskmanager taskmanager = Taskmanager.getInstance();
-		Task[] tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_FOUND_CONFIRM, "*", Integer.toString(user.getID()), "*" );
+		Task[] tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_FOUND_CONFIRM, "*", Integer.toString(user.getId()), "*" );
 		if( tasks.length > 0 ) {
 			t.setVar( "ally.message", "Es gibt eine oder mehrere Anfragen an sie zwecks Unterst&uuml;tzung einer Allianzgr&uuml;ndung. Sie m&uuml;ssen diese Anfragen erst bearbeiten bevor sie einer Allianz beitreten k&ouml;nnen." );
 			
@@ -236,7 +236,7 @@ public class AllyController extends DSGenerator implements Loggable {
 			return;	
 		}
 		
-		tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_NEW_MEMBER, "*", Integer.toString(user.getID()), "*" );
+		tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_NEW_MEMBER, "*", Integer.toString(user.getId()), "*" );
 		if( tasks.length > 0 ) {
 			t.setVar( "ally.message", "Fehler: Sie haben bereits einen Aufnahmeantrag bei einer Allianz gestellt" );
 			
@@ -253,11 +253,11 @@ public class AllyController extends DSGenerator implements Loggable {
 			return;
 		}
 		
-		String taskid = taskmanager.addTask(Taskmanager.Types.ALLY_NEW_MEMBER, 35, Integer.toString(join), Integer.toString(user.getID()), "");
+		String taskid = taskmanager.addTask(Taskmanager.Types.ALLY_NEW_MEMBER, 35, Integer.toString(join), Integer.toString(user.getId()), "");
 		
 		SQLQuery supermemberid = db.query("SELECT DISTINCT u.id FROM users u JOIN ally a ON u.ally=a.id WHERE u.ally=",join," AND (u.allyposten!=0 OR u.id=a.president)");
 		while( supermemberid.next() ) {
-			PM.send(getContext(), user.getID(), supermemberid.getInt("id"), "Aufnahmeantrag", "[Automatische Nachricht]\nHiermit beantrage ich die Aufnahme in die Allianz.\n\n[_intrnlConfTask="+taskid+"]Wollen sie dem Aufnahmeantrag zustimmen?[/_intrnlConfTask]", false, PM.FLAGS_IMPORTANT);
+			PM.send(getContext(), user.getId(), supermemberid.getInt("id"), "Aufnahmeantrag", "[Automatische Nachricht]\nHiermit beantrage ich die Aufnahme in die Allianz.\n\n[_intrnlConfTask="+taskid+"]Wollen sie dem Aufnahmeantrag zustimmen?[/_intrnlConfTask]", false, PM.FLAGS_IMPORTANT);
 		}
 		supermemberid.free();	
 	
@@ -276,7 +276,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		User user = getUser();
 		Database db = getDatabase();
 		
-		if( this.ally.getInt("president") != user.getID()) {
+		if( this.ally.getInt("president") != user.getId()) {
 			t.setVar("ally.message","Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
 			redirect();
 			
@@ -307,7 +307,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		User user = getUser();
 		Database db = getDatabase();
 		
-		if( this.ally.getInt("president") != user.getID()) {
+		if( this.ally.getInt("president") != user.getId()) {
 			t.setVar("ally.message","Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
 			redirect();
 			
@@ -354,7 +354,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		User user = getUser();
 		Database db = getDatabase();
 		
-		if( this.ally.getInt("president") != user.getID()) {
+		if( this.ally.getInt("president") != user.getId()) {
 			t.setVar("ally.message","Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
 			redirect();
 			
@@ -418,7 +418,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		User user = getUser();
 		Database db = getDatabase();
 		
-		if( this.ally.getInt("president") != user.getID()) {
+		if( this.ally.getInt("president") != user.getId()) {
 			t.setVar( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
 			redirect();
 			return;
@@ -504,7 +504,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		User user = getUser();
 		Database db = getDatabase();
 		
-		if( this.ally.getInt("president") != user.getID()) {
+		if( this.ally.getInt("president") != user.getId()) {
 			t.setVar( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
 			redirect();
 			return;
@@ -589,7 +589,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		User user = getUser();
 		Database db = getDatabase();
 		
-		if( this.ally.getInt("president") != user.getID()) {
+		if( this.ally.getInt("president") != user.getId()) {
 			t.setVar( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
 			redirect();
 			return;
@@ -636,7 +636,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		TemplateEngine t = getTemplateEngine();
 		User user = getUser();
 		
-		if( this.ally.getInt("president") != user.getID()) {
+		if( this.ally.getInt("president") != user.getId()) {
 			t.setVar( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
 			redirect();
 			return;
@@ -685,7 +685,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		User user = getUser();
 		Database db = getDatabase();
 		
-		if( this.ally.getInt("president") != user.getID()) {
+		if( this.ally.getInt("president") != user.getId()) {
 			t.setVar( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
 			redirect();
 			return;
@@ -778,7 +778,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		User user = getUser();
 		Database db = getDatabase();
 	
-		if( this.ally.getInt("president") == user.getID()) {
+		if( this.ally.getInt("president") == user.getId()) {
 			t.setVar( "ally.message", "<span style=\"color:red\">Sie k&ouml;nnen erst austreten, wenn ein anderer Pr&auml;sident bestimmt wurde" );
 			redirect();
 			return;
@@ -796,13 +796,13 @@ public class AllyController extends DSGenerator implements Loggable {
 			return;
 		}
 		
-		PM.send(getContext(), user.getID(), this.ally.getInt("president"), "Allianz verlassen", "Ich habe die Allianz verlassen");
+		PM.send(getContext(), user.getId(), this.ally.getInt("president"), "Allianz verlassen", "Ich habe die Allianz verlassen");
 		user.setAlly(0);
 		user.setAllyPosten(0);
 		user.setName(user.getNickname());
 		
-		db.update("UPDATE battles SET ally1=0 WHERE commander1=",user.getID()," AND ally1=",this.ally.getInt("id"));
-		db.update("UPDATE battles SET ally2=0 WHERE commander2=",user.getID()," AND ally2=",this.ally.getInt("id"));
+		db.update("UPDATE battles SET ally1=0 WHERE commander1=",user.getId()," AND ally1=",this.ally.getInt("id"));
+		db.update("UPDATE battles SET ally2=0 WHERE commander2=",user.getId()," AND ally2=",this.ally.getInt("id"));
 		
 		int ticks = getContext().get(ContextCommon.class).getTick();		
 		user.addHistory(Common.getIngameTime(ticks)+": Verlassen der Allianz "+this.ally.getString("name"));
@@ -827,7 +827,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		User user = getUser();
 		Database db = getDatabase();
 		
-		if( this.ally.getInt("president") != user.getID()) {
+		if( this.ally.getInt("president") != user.getId()) {
 			t.setVar( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
 			redirect();
 			return;
@@ -845,7 +845,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		} 
 		else {
 			db.tBegin();
-			PM.send(getContext(), user.getID(), this.ally.getInt("id"), "Allianz aufgel&ouml;st", "Die Allianz wurde mit sofortiger Wirkung aufgel&ouml;st", true );
+			PM.send(getContext(), user.getId(), this.ally.getInt("id"), "Allianz aufgel&ouml;st", "Die Allianz wurde mit sofortiger Wirkung aufgel&ouml;st", true );
 	
 			SQLQuery chn = db.query("SELECT id FROM skn_channels WHERE allyowner=",this.ally.getInt("id"));
 			while( chn.next() ) {
@@ -889,7 +889,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		User user = getUser();
 		Database db = getDatabase();
 		
-		if( this.ally.getInt("president") != user.getID()) {
+		if( this.ally.getInt("president") != user.getId()) {
 			t.setVar( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
 			redirect();
 			return;
@@ -905,12 +905,12 @@ public class AllyController extends DSGenerator implements Loggable {
 			return;	
 		}
 	
-		db.update("UPDATE ally SET president=",presnuser.getID()," WHERE id=",this.ally.getInt("id"));
+		db.update("UPDATE ally SET president=",presnuser.getId()," WHERE id=",this.ally.getInt("id"));
 		t.setVar( "ally.statusmessage", presnuser.getProfileLink()+" zum Pr&auml;sidenten ernannt" );
 	
-		PM.send(getContext(), this.ally.getInt("president"), presnuser.getID(), "Zum Pr&auml;sidenten ernannt", "Ich habe dich zum Pr&auml;sidenten der Allianz ernannt");
+		PM.send(getContext(), this.ally.getInt("president"), presnuser.getId(), "Zum Pr&auml;sidenten ernannt", "Ich habe dich zum Pr&auml;sidenten der Allianz ernannt");
 
-		this.ally.put("president", presnuser.getID());
+		this.ally.put("president", presnuser.getId());
 		redirect();
 	}
 
@@ -924,7 +924,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		User user = getUser();
 		Database db = getDatabase();
 		
-		if( this.ally.getInt("president") != user.getID()) {
+		if( this.ally.getInt("president") != user.getId()) {
 			t.setVar( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
 			redirect();
 			return;
@@ -933,7 +933,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		parameterNumber("kick");
 		int kick = getInteger("kick");
 		
-		if( kick == user.getID() ) {
+		if( kick == user.getId() ) {
 			t.setVar( "ally.message", "Sie k&ouml;nnen sich nicht selber aus der Allianz werfen" );
 			redirect();
 			return;
@@ -950,8 +950,8 @@ public class AllyController extends DSGenerator implements Loggable {
 		kickuser.setAllyPosten(0);
 		kickuser.setName(kickuser.getNickname());
 		
-		db.update("UPDATE battles SET ally1=0 WHERE commander1=",kickuser.getID()," AND ally1=",this.ally.getInt("id"));
-		db.update("UPDATE battles SET ally2=0 WHERE commander2=",kickuser.getID()," AND ally2=",this.ally.getInt("id"));
+		db.update("UPDATE battles SET ally1=0 WHERE commander1=",kickuser.getId()," AND ally1=",this.ally.getInt("id"));
+		db.update("UPDATE battles SET ally2=0 WHERE commander2=",kickuser.getId()," AND ally2=",this.ally.getInt("id"));
 		
 		int tick = getContext().get(ContextCommon.class).getTick();
 		kickuser.addHistory(Common.getIngameTime(tick)+": Verlassen der Allianz "+this.ally.getString("name"));
@@ -960,7 +960,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		
 		checkLowMember();
 
-		PM.send(getContext(), this.ally.getInt("president"), kickuser.getID(), "Aus der Allianz geworfen", "Ich habe dich aus der Allianz geworfen.");
+		PM.send(getContext(), this.ally.getInt("president"), kickuser.getId(), "Aus der Allianz geworfen", "Ich habe dich aus der Allianz geworfen.");
 		
 		redirect();
 	}
@@ -1021,7 +1021,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		}
 		
 		t.setVar(	"ally.name",		Common._title( this.ally.getString("name") ),
-					"user.president",	(user.getID() == this.ally.getInt("president")),
+					"user.president",	(user.getId() == this.ally.getInt("president")),
 					"ally.id",			this.ally.getInt("id") );
 		
 		/*
@@ -1085,7 +1085,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		*/
 		else if( show.equals("members") ) {
 			t.setVar(	"show.members",		1,
-						"user.president",	(user.getID() == this.ally.getInt("president")) );
+						"user.president",	(user.getId() == this.ally.getInt("president")) );
 								
 			t.setBlock( "_ALLY", "show.members.listitem", "show.members.list" );
 			
@@ -1095,7 +1095,7 @@ public class AllyController extends DSGenerator implements Loggable {
 				t.setVar(	"show.members.name",	Common._title( mem.getString("name") ),
 							"show.members.id",		mem.getInt("id") );
 											
-				if( user.getID() == this.ally.getInt("president") ) {
+				if( user.getId() == this.ally.getInt("president") ) {
 					String inakt_status = "";
 					int inakt = mem.getInt("inakt");
 					if( inakt <= 14 ) {
@@ -1127,7 +1127,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		/*
 			Einstellungen
 		*/
-		else if( show.equals("config") && (user.getID() == this.ally.getInt("president")) ) {
+		else if( show.equals("config") && (user.getId() == this.ally.getInt("president")) ) {
 			t.setVar(	"show.einstellungen",	1,
 						"ally.plainname",		this.ally.getString("name"),
 						"ally.description",		this.ally.getString("description"),
@@ -1294,7 +1294,7 @@ public class AllyController extends DSGenerator implements Loggable {
 	
 				User auser = getContext().createUserObject(s.getInt("owner"));
 				String ownername = null;
-				if( auser.getID() != 0 ) {
+				if( auser.getId() != 0 ) {
 					ownername = auser.getName();
 				}
 				else {
@@ -1349,7 +1349,7 @@ public class AllyController extends DSGenerator implements Loggable {
 				User owner = getContext().createUserObject(s.getInt("owner"));
 				
 				String ownername = null;
-				if( owner.getID() != 0 ) {
+				if( owner.getId() != 0 ) {
 					ownername = owner.getName();
 				}
 				else {
@@ -1357,7 +1357,7 @@ public class AllyController extends DSGenerator implements Loggable {
 				}
 				
 				String destownername = null;
-				if( destowner.getID() != 0 ) {
+				if( destowner.getId() != 0 ) {
 					destownername = destowner.getName();
 				}
 				else {

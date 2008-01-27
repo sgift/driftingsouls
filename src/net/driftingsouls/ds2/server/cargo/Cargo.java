@@ -1180,7 +1180,7 @@ public class Cargo implements Loggable, Cloneable {
 			return context.getActiveUser().getImagePath()+ResourceConfig.getResourceImage(resid.getID());
 		}
 		if( context != null ){
-			return User.getDefaultImagePath(context.getDatabase())+ResourceConfig.getResourceImage(resid.getID());
+			return User.getDefaultImagePath()+ResourceConfig.getResourceImage(resid.getID());
 		}
 		return Configuration.getSetting("URL")+ResourceConfig.getResourceImage(resid.getID());
 	}

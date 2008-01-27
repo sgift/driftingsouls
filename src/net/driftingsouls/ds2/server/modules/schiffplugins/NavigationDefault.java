@@ -112,7 +112,7 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 		
 			Quests.currentEventURL.set("&action=onmove");
 
-			Quests.executeEvent( scriptparser, ship.getString("onmove"), user.getID(), "0" );
+			Quests.executeEvent( scriptparser, ship.getString("onmove"), user.getId(), "0" );
 			try {
 				act = Integer.parseInt(scriptparser.getRegister("DIRECTION"));
 				count = Integer.parseInt(scriptparser.getRegister("MOVEMENTCOUNT"));
@@ -207,7 +207,7 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 			SQLQuery aBase = db.query("SELECT DISTINCT x,y,owner,klasse,system,size FROM bases WHERE system=",sys," AND FLOOR(SQRT(POW(",x,"-x,2)+POW(",y,"-y,2)))-CAST(size AS SIGNED) <= 1");
 			while( aBase.next() ) {
 				if( (aBase.getInt("size") == 0) && (sectorimgs[aBase.getInt("x")-x+1][aBase.getInt("y")-y+1] == null) ) {
-					if( aBase.getInt("owner") == user.getID() ) {
+					if( aBase.getInt("owner") == user.getId() ) {
 						sectorimgs[aBase.getInt("x")-x+1][aBase.getInt("y")-y+1] = "data/starmap/asti_own/asti_own.png";
 					}
 					else {
@@ -257,7 +257,7 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 								"schiff.navigation.nav.location",		Ships.getLocationText(sys, x+nx-1, y+ny-1, true),
 								"schiff.navigation.nav.sectorimage",	url + (sectorimgs[nx][ny] != null ? sectorimgs[nx][ny] : "data/starmap/space/space.png"),
 								"schiff.navigation.nav.newrow",			newrow,
-								"schiff.navigation.nav.warn",			(1 != nx || 1 != ny ? Ships.getRedAlertStatus(user.getID(),sys,x+nx-1,y+ny-1) : false) );
+								"schiff.navigation.nav.warn",			(1 != nx || 1 != ny ? Ships.getRedAlertStatus(user.getId(),sys,x+nx-1,y+ny-1) : false) );
 					
 					t.parse( "schiff.navigation.nav.list", "schiff.navigation.nav.listitem", true );
 					newrow = false;

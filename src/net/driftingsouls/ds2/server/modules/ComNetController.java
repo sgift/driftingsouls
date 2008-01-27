@@ -79,14 +79,14 @@ public class ComNetController extends DSGenerator {
 		 * @return <code>true</code>, falls er lesbar ist
 		 */
 		boolean isReadable( User user ) {
-			if( readall || ((user.getID() < 0) && readnpc) || 
+			if( readall || ((user.getId() < 0) && readnpc) || 
 				((user.getAlly() != 0) && (readally == user.getAlly())) || 
 				(user.getAccessLevel() >= 100) ) {
 					
 				return true;
 			}
 			
-			if( writeall || ((user.getID() < 0) && writenpc) || 
+			if( writeall || ((user.getId() < 0) && writenpc) || 
 				((user.getAlly() != 0) && (writeally == user.getAlly())) || 
 				(user.getAccessLevel() >= 100) ) {
 					
@@ -95,14 +95,14 @@ public class ComNetController extends DSGenerator {
 			
 			if( readplayer.length() != 0 ) {
 				Integer[] playerlist = Common.explodeToInteger(",",readplayer);
-				if( Common.inArray(user.getID(), playerlist) ) {
+				if( Common.inArray(user.getId(), playerlist) ) {
 					return true;
 				}
 			}
 			
 			if( writeplayer.length() != 0 ) {
 				Integer[] playerlist = Common.explodeToInteger(",",writeplayer);
-				if( Common.inArray(user.getID(), playerlist) ) {
+				if( Common.inArray(user.getId(), playerlist) ) {
 					return true;
 				}
 			}
@@ -116,7 +116,7 @@ public class ComNetController extends DSGenerator {
 		 * @return <code>true</code>, falls er schreibbar ist
 		 */
 		boolean isWriteable( User user ) {
-			if( writeall || ((user.getID() < 0) && writenpc) || 
+			if( writeall || ((user.getId() < 0) && writenpc) || 
 				((user.getAlly() != 0) && (writeally == user.getAlly())) || 
 				(user.getAccessLevel() >= 100) ) {
 					
@@ -125,7 +125,7 @@ public class ComNetController extends DSGenerator {
 
 			if( writeplayer.length() != 0 ) {
 				Integer[] playerlist = Common.explodeToInteger(",",writeplayer);
-				if( Common.inArray(user.getID(), playerlist) ) {
+				if( Common.inArray(user.getId(), playerlist) ) {
 					return true;
 				}
 			}
@@ -221,7 +221,7 @@ public class ComNetController extends DSGenerator {
 			t.setVar("channel.writeable",1);
 		}
 
-		db.update("UPDATE skn_visits SET time='",Common.time(),"' WHERE user=",user.getID()," AND channel=",activeChannel);
+		db.update("UPDATE skn_visits SET time='",Common.time(),"' WHERE user=",user.getId()," AND channel=",activeChannel);
 	
 		t.setBlock("_COMNET","posts.listitem","posts.list");
 
@@ -334,7 +334,7 @@ public class ComNetController extends DSGenerator {
 			t.setVar("channel.writeable",1);
 		}
 	
-		db.update("UPDATE skn_visits SET time='",Common.time(),"' WHERE user=",user.getID()," AND channel=",activeChannel);
+		db.update("UPDATE skn_visits SET time='",Common.time(),"' WHERE user=",user.getId()," AND channel=",activeChannel);
 
 		if( back < 0 ) {
 			back = 0;
@@ -422,7 +422,7 @@ public class ComNetController extends DSGenerator {
 		String head = getString("head");
 	
 		//Logo ermitteln
-		int pic = user.getID();
+		int pic = user.getId();
 		int allypic = 0;
 		if( user.getAlly() != 0 ) {
 			allypic = user.getAlly();
@@ -436,7 +436,7 @@ public class ComNetController extends DSGenerator {
 				"(userid,name,head,text,time,pic,allypic,channel,tick) " +
 				"VALUES " +
 				"( ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-			.update(user.getID(), user.getName(), head, text, Common.time(), pic, allypic, activeChannel, tick);
+			.update(user.getId(), user.getName(), head, text, Common.time(), pic, allypic, activeChannel, tick);
 		
 		t.setVar("show.submit",1);
 	}
@@ -500,8 +500,8 @@ public class ComNetController extends DSGenerator {
 					"post.raw.text",	text,
 					"post.postid",		1,
 					"post.name",		Common._title(user.getName()),
-					"post.id",			user.getID(),
-					"post.pic",			user.getID(),
+					"post.id",			user.getId(),
+					"post.pic",			user.getId(),
 					"post.allypic",		user.getAlly(),
 					"post.time",		Common.date("Y-m-d H:i:s"),
 					"post.ingametime",	Common.getIngameTime(tick) );	
@@ -531,7 +531,7 @@ public class ComNetController extends DSGenerator {
 		// Letzte "Besuche" auslesen
 		Map<Integer,SQLResultRow> visits = new HashMap<Integer,SQLResultRow>();
 
-		SQLQuery avisit = db.query("SELECT id,time,channel FROM skn_visits WHERE user='",user.getID(),"'");
+		SQLQuery avisit = db.query("SELECT id,time,channel FROM skn_visits WHERE user='",user.getId(),"'");
 		while( avisit.next() ) {
 			visits.put(avisit.getInt("channel"), avisit.getRow());
 		}
@@ -560,7 +560,7 @@ public class ComNetController extends DSGenerator {
 			SQLResultRow visit = visits.get(achannel.id);
 		
 			if( visit == null ) {
-				db.update("INSERT INTO skn_visits (user,channel,time) VALUES (",user.getID(),",",achannel.id,",0)");
+				db.update("INSERT INTO skn_visits (user,channel,time) VALUES (",user.getId(),",",achannel.id,",0)");
 				visit = new SQLResultRow();
 				visit.put("id", db.insertID());
 				visit.put("time", 0);

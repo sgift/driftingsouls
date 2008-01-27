@@ -376,7 +376,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 		SQLResultRow enemyShip = battle.getEnemyShip();
 		
 		// TODO: evt sollte das hier in ne eigene Action ausgelagert werden?
-		if( action.toString().equals("showbattlelog") && (battle.getComMessageBuffer(battle.getOwnSide()).length() > 0) && battle.isCommander(user.getID(),battle.getOwnSide()) ) {
+		if( action.toString().equals("showbattlelog") && (battle.getComMessageBuffer(battle.getOwnSide()).length() > 0) && battle.isCommander(user.getId(),battle.getOwnSide()) ) {
 			BBCodeParser bbcodeparser = BBCodeParser.getNewInstance();
 			try {
 				bbcodeparser.registerHandler( "tooltip", 2, "<a onmouseover=\"return overlib('$2',TIMEOUT,0,DELAY,400,WIDTH,100,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\"aloglink\" href=\"#\">$1</a>" );
@@ -400,7 +400,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 			action.setLength(0);
 		}
 		else if( battle.getOwnLog(true).length() == 0 ) {
-			if( battle.isCommander(user.getID(),battle.getOwnSide()) ) {
+			if( battle.isCommander(user.getId(),battle.getOwnSide()) ) {
 				if( battle.getTakeCommand(battle.getOwnSide()) != 0 ) {
 					User auser = getContext().createUserObject(battle.getTakeCommand(battle.getOwnSide()));
 		
@@ -562,7 +562,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 		
 		Battle battle = new Battle();
 		if( battleID == 0 ) {
-			if( !battle.create( user.getID(), ownShipID, enemyShipID) ) {
+			if( !battle.create( user.getId(), ownShipID, enemyShipID) ) {
 				this.setTemplate("");
 				
 				return;
@@ -572,11 +572,11 @@ public class AngriffController extends DSGenerator implements Loggable {
 		}
 		
 		if( forcejoin != 0 ) {
-			SQLResultRow jship = db.first("SELECT id FROM ships WHERE id>0 AND owner=",user.getID()," AND id=",addShipID);
+			SQLResultRow jship = db.first("SELECT id FROM ships WHERE id>0 AND owner=",user.getId()," AND id=",addShipID);
 			if( jship.isEmpty() ) forcejoin = 0;
 		}
 		
-		if( !battle.load(battleID, user.getID(), ownShipID, enemyShipID, forcejoin) ) {
+		if( !battle.load(battleID, user.getId(), ownShipID, enemyShipID, forcejoin) ) {
 			this.setTemplate("");
 			return;
 		}
@@ -590,7 +590,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 		// Schiff zur Schlacht hinzufgen
 		//
 		if( (!battleCreated) && addShipID != 0 && !battle.isGuest() ) {
-			if( !battle.addShip( user.getID(), addShipID ) ) {
+			if( !battle.addShip( user.getId(), addShipID ) ) {
 				addShipID = 0;
 		
 				// Wenn das Schiff offenbar von jemandem ausserhalb der Kriegfhrenden Allys stammt - Laden abbrechen bei fehlschlag
@@ -655,7 +655,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 					"global.ownshipgroup",		battle.getOwnShipGroup(),
 					"global.enemyshipgroup",	battle.getEnemyShipGroup(),
 					"global.weapon",			getString("weapon"),
-					"battle.msginfo",			(battle.getComMessageBuffer(battle.getOwnSide()).length() > 0 && battle.isCommander(user.getID(),battle.getOwnSide())),
+					"battle.msginfo",			(battle.getComMessageBuffer(battle.getOwnSide()).length() > 0 && battle.isCommander(user.getId(),battle.getOwnSide())),
 					"battle.id",				battle.getID(),
 					"ownside.secondrow.stable",	battle.isSecondRowStable(battle.getOwnSide(), null),
 					"enemyside.secondrow.stable",	battle.isSecondRowStable(battle.getEnemySide(), null),
@@ -1238,7 +1238,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 			Infos (APs, Runde, Gegnerischer Kommandant)
 		*/
 		
-		if( !battle.isCommander(user.getID(),battle.getOwnSide()) ) {
+		if( !battle.isCommander(user.getId(),battle.getOwnSide()) ) {
 			User auser = getContext().createUserObject(battle.getCommander(battle.getOwnSide()));
 			t.setVar(	"user.commander",		0,
 						"battle.owncom.name",	auser.getProfileLink(),

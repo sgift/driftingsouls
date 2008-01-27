@@ -57,7 +57,7 @@ public class LinksController extends DSGenerator {
 		User user = this.getUser();
 		Database db = getDatabase();
 		
-		int pmcount = db.first("SELECT count(*) `count` FROM transmissionen WHERE empfaenger='",user.getID(),"' AND gelesen='0'").getInt("count");
+		int pmcount = db.first("SELECT count(*) `count` FROM transmissionen WHERE empfaenger='",user.getId(),"' AND gelesen='0'").getInt("count");
 		if( pmcount > 0 ) {
 			getResponse().getContent().append("1");
 		}

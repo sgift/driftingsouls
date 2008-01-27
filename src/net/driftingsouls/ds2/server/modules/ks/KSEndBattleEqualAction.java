@@ -115,7 +115,7 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 		
 		context.getResponse().getContent().append("Sie haben die Schlacht mit einem unentschieden beendet");
 		
-		PM.send(context, user.getID(), battle.getCommander(battle.getEnemySide()), "Schlacht beendet", "Der Gegner hat die Schlacht mit einem unentschieden beendet. Somit ist die Schlacht bei "+battle.getSystem()+" : "+battle.getX()+"/"+battle.getY()+" gegen [userprofile="+user.getID()+"]"+user.getName()+"[/userprofile] zuende!");
+		PM.send(context, user.getId(), battle.getCommander(battle.getEnemySide()), "Schlacht beendet", "Der Gegner hat die Schlacht mit einem unentschieden beendet. Somit ist die Schlacht bei "+battle.getSystem()+" : "+battle.getX()+"/"+battle.getY()+" gegen [userprofile="+user.getId()+"]"+user.getName()+"[/userprofile] zuende!");
 	
 		// Schlacht beenden -> 0 Siege fuer mich; 0 Niederlagen fuer den Gegner
 		battle.endTurn(true);

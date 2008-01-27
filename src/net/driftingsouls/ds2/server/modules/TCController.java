@@ -72,7 +72,7 @@ public class TCController extends DSGenerator {
 		
 		t.setVar( "global.shipid", shipId );
 
-		ship = db.first("SELECT * FROM ships WHERE id>0 AND owner='",this.getUser().getID(),"' AND id='",shipId,"'");
+		ship = db.first("SELECT * FROM ships WHERE id>0 AND owner='",this.getUser().getId(),"' AND id='",shipId,"'");
 
 		if( ship.isEmpty() ) {
 			addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht",  Common.buildUrl(getContext(), "default", "module", "schiffe") );
@@ -148,7 +148,7 @@ public class TCController extends DSGenerator {
 		t.setVar( 	"tc.ship",			ship.getInt("id"),
 					"tc.target",		tarShip.getInt("id"),
 					"tc.target.name",	tarShip.getString("name"),
-					"tc.target.isown",	(tarShip.getInt("owner") == user.getID()),
+					"tc.target.isown",	(tarShip.getInt("owner") == user.getId()),
 					"tc.stos",			1,
 					"tc.mode",			"shipToShip" );
 	
@@ -165,7 +165,7 @@ public class TCController extends DSGenerator {
 			return;
 		}
 	
-		int officount = db.first("SELECT count(*) count FROM offiziere WHERE dest='s ",ship.getInt("id"),"' AND userid=",user.getID()).getInt("count");
+		int officount = db.first("SELECT count(*) count FROM offiziere WHERE dest='s ",ship.getInt("id"),"' AND userid=",user.getId()).getInt("count");
 		if( officount == 0 ) {
 			addError("Das Schiff hat keinen Offizier an Bord", errorurl );
 			setTemplate("");
@@ -221,7 +221,7 @@ public class TCController extends DSGenerator {
 			offizier = Offizier.getOffizierByDest('s', ship.getInt("id"));
 		}
 		
-		if( (offizier == null) || (offizier.getOwner() != user.getID()) ) {
+		if( (offizier == null) || (offizier.getOwner() != user.getId()) ) {
 			addError("Der angegebene Offizier existiert nicht oder geh&ouml;rt nicht ihnen", errorurl);
 			setTemplate("");
 			
@@ -239,7 +239,7 @@ public class TCController extends DSGenerator {
 		t.setVar( "tc.offizier.name", Common._plaintitle(offizier.getName()) );
 		
 		// Confirm?
-		if( (tarShip.getInt("owner") != user.getID()) && !conf.equals("ok") ) {
+		if( (tarShip.getInt("owner") != user.getId()) && !conf.equals("ok") ) {
 			t.setVar("tc.confirm",1);
 			
 			return;
@@ -273,7 +273,7 @@ public class TCController extends DSGenerator {
 		t.setVar(	"tc.ship",			ship.getInt("id"),
 					"tc.target",		tarBase.getInt("id"),
 					"tc.target.name",	tarBase.getString("name"),
-					"tc.target.isown",	(tarBase.getInt("owner") == user.getID()),
+					"tc.target.isown",	(tarBase.getInt("owner") == user.getId()),
 					"tc.stob",			1,
 					"tc.mode",			"shipToBase" );
 	
@@ -284,7 +284,7 @@ public class TCController extends DSGenerator {
 			return;
 		}
 	
-		int officount = db.first("SELECT count(*) count FROM offiziere WHERE dest='s ",ship.getInt("id"),"' AND userid=",user.getID()).getInt("count");
+		int officount = db.first("SELECT count(*) count FROM offiziere WHERE dest='s ",ship.getInt("id"),"' AND userid=",user.getId()).getInt("count");
 		if( officount == 0 ) {
 			addError("Das Schiff hat keinen Offizier an Bord", errorurl);
 			setTemplate("");
@@ -307,7 +307,7 @@ public class TCController extends DSGenerator {
 			offizier = Offizier.getOffizierByDest('s', ship.getInt("id"));
 		}
 
-		if( (offizier == null) || (offizier.getOwner() != user.getID()) ) {
+		if( (offizier == null) || (offizier.getOwner() != user.getId()) ) {
 			addError("Der angegebene Offizier existiert nicht oder geh&ouml;rt nicht ihnen", errorurl);
 			setTemplate("");
 			
@@ -325,7 +325,7 @@ public class TCController extends DSGenerator {
 		t.setVar( "tc.offizier.name", Common._plaintitle(offizier.getName()) );
 	
 		// Confirm ?
-		if( (tarBase.getInt("owner") != user.getID()) && (conf != "ok") ) {
+		if( (tarBase.getInt("owner") != user.getId()) && (conf != "ok") ) {
 			t.setVar( "tc.confirm", 1 );
 			
 			return;
@@ -353,7 +353,7 @@ public class TCController extends DSGenerator {
 		
 		t.setVar( "tc.ship", ship.getInt("id") );
 	
-		SQLResultRow upBase = db.first("SELECT id,x,y,system,size,owner,name FROM bases WHERE id=",getInteger("target")," AND owner='",user.getID(),"'");
+		SQLResultRow upBase = db.first("SELECT id,x,y,system,size,owner,name FROM bases WHERE id=",getInteger("target")," AND owner='",user.getId(),"'");
 		
 		if( !Location.fromResult(ship).sameSector(0, Location.fromResult(upBase), upBase.getInt("size")) ) {
 			addError("Schiff und Basis befinden sich nicht im selben Sektor", errorurl);
@@ -376,7 +376,7 @@ public class TCController extends DSGenerator {
 
 		int shipcount = 0;
 	
-		SQLQuery ship = db.query("SELECT id,type,status FROM ships WHERE fleet='",this.ship.getInt("fleet"),"' AND owner='",user.getID(),"' AND system='",this.ship.getInt("system"),"' AND x='",this.ship.getInt("x"),"' AND y='",this.ship.getInt("y"),"' AND !LOCATE('offizier',status) LIMIT ",offilist.size());
+		SQLQuery ship = db.query("SELECT id,type,status FROM ships WHERE fleet='",this.ship.getInt("fleet"),"' AND owner='",user.getId(),"' AND system='",this.ship.getInt("system"),"' AND x='",this.ship.getInt("x"),"' AND y='",this.ship.getInt("y"),"' AND !LOCATE('offizier',status) LIMIT ",offilist.size());
 		while( ship.next() ) {
 			SQLResultRow shipType = ShipTypes.getShipType(ship.getRow());
 			if( shipType.getInt("size") <= 3 ) {
@@ -411,7 +411,7 @@ public class TCController extends DSGenerator {
 		
 		t.setVar( "tc.ship", ship.getInt("id") );
 	
-		SQLResultRow upBase = db.first("SELECT id,x,y,system,size,owner,name FROM bases WHERE id=",getInteger("target")," AND owner='",user.getID(),"'");
+		SQLResultRow upBase = db.first("SELECT id,x,y,system,size,owner,name FROM bases WHERE id=",getInteger("target")," AND owner='",user.getId(),"'");
 		
 		if( !Location.fromResult(ship).sameSector(0, Location.fromResult(upBase), upBase.getInt("size")) ) {
 			addError("Schiff und Basis befinden sich nicht im selben Sektor", errorurl);
@@ -438,7 +438,7 @@ public class TCController extends DSGenerator {
 			echoOffiList("baseToShip", "b", upBase.getInt("id"));
 			
 			if( ship.getInt("fleet") != 0 ) {
-				int count = db.first("SELECT count(*) count FROM ships WHERE fleet='",ship.getInt("fleet"),"' AND owner='",user.getID(),"' AND system='",ship.getInt("system"),"' AND x='",ship.getInt("x"),"' AND y='",ship.getInt("y"),"' AND !LOCATE('offizier',status)").getInt("count");
+				int count = db.first("SELECT count(*) count FROM ships WHERE fleet='",ship.getInt("fleet"),"' AND owner='",user.getId(),"' AND system='",ship.getInt("system"),"' AND x='",ship.getInt("x"),"' AND y='",ship.getInt("y"),"' AND !LOCATE('offizier',status)").getInt("count");
 				if( count > 1 ) {
 					t.setVar(	"show.fleetupload",	1,
 								"tc.fleetmode",		"baseToFleet");

@@ -278,7 +278,7 @@ public class AddShips implements AdminPlugin {
 			}
 			for( int i=0; i < count; i++ ) {
 				User auser = context.createUserObject(owner);	
-				String history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getID()+") [hide]Admin: "+user.getID()+"[/hide]\n";
+				String history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+") [hide]Admin: "+user.getId()+"[/hide]\n";
 				
 				// Schiff erstellen
 				PreparedQuery query = null;
@@ -355,7 +355,7 @@ public class AddShips implements AdminPlugin {
 					}
 
 					for( int j=1; j <= shiptype.getInt("jdocks"); j++ ) {
-						history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getID()+") [hide]Admin: "+user.getID()+"[/hide]\n";
+						history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+") [hide]Admin: "+user.getId()+"[/hide]\n";
 						
 						// Jaeger erstellen
 						query = null;

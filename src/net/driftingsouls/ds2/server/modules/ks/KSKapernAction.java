@@ -255,14 +255,14 @@ public class KSKapernAction extends BasicKSAction {
 			
 			String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
 			
-			enemyShip.put("history", enemyShip.getString("history") + "Im Kampf gekapert am "+currentTime+" durch "+user.getName()+" ("+user.getID()+")\n");
+			enemyShip.put("history", enemyShip.getString("history") + "Im Kampf gekapert am "+currentTime+" durch "+user.getName()+" ("+user.getId()+")\n");
 			
-			db.update("UPDATE ships SET owner=",user.getID(),",fleet=0,battleAction=1,engine=",enemyShip.getInt("engine"),",weapons=",enemyShip.getInt("weapons"),",crew=",newshipcrew," WHERE id>0 AND id=",enemyShip.getInt("id"));
+			db.update("UPDATE ships SET owner=",user.getId(),",fleet=0,battleAction=1,engine=",enemyShip.getInt("engine"),",weapons=",enemyShip.getInt("weapons"),",crew=",newshipcrew," WHERE id>0 AND id=",enemyShip.getInt("id"));
 			db.update("UPDATE battles_ships SET side=",battle.getOwnSide(),",engine=",enemyShip.getInt("engine"),",weapons=",enemyShip.getInt("weapons")," WHERE shipid=",enemyShip.getInt("id"));
 				
-			db.update("UPDATE ships SET owner=",user.getID(),",fleet=0,battleAction=1 WHERE id>0 AND docked IN ('",enemyShip.getInt("id"),"','l ",enemyShip.getInt("id"),"')");
+			db.update("UPDATE ships SET owner=",user.getId(),",fleet=0,battleAction=1 WHERE id>0 AND docked IN ('",enemyShip.getInt("id"),"','l ",enemyShip.getInt("id"),"')");
 				
-			db.update("UPDATE offiziere SET userid=",user.getID()," WHERE dest='s ",enemyShip.getInt("id"),"'");
+			db.update("UPDATE offiziere SET userid=",user.getId()," WHERE dest='s ",enemyShip.getInt("id"),"'");
 			if( enemyShipType.getString("werft").length() > 0 ) {
 				db.update("UPDATE werften SET linked=0 WHERE shipid=",enemyShip.getInt("id"));
 			}

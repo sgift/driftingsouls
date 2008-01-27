@@ -53,13 +53,13 @@ public class NPCOrderController extends DSGenerator {
 			return false;
 		}
 		
-		if( Rassen.get().rasse(user.getRace()).isHead(user.getID()) ) {
+		if( Rassen.get().rasse(user.getRace()).isHead(user.getId()) ) {
 			t.setVar( "npcorder.factionhead", 1 );
 								
 			this.isHead = true;	
 		}
 		
-		if( Faction.get(user.getID()) != null && Faction.get(user.getID()).getPages().hasPage("shop") ) {
+		if( Faction.get(user.getId()) != null && Faction.get(user.getId()).getPages().hasPage("shop") ) {
 			t.setVar("npcorder.shop", 1);	
 		}
 		
@@ -75,7 +75,7 @@ public class NPCOrderController extends DSGenerator {
 		TemplateEngine t = this.getTemplateEngine();
 		User user = this.getUser();
 		
-		if( Faction.get(user.getID()) == null || !Faction.get(user.getID()).getPages().hasPage("shop") ) {
+		if( Faction.get(user.getId()) == null || !Faction.get(user.getId()).getPages().hasPage("shop") ) {
 			addError("Sie verf&uuml;gen &uuml;ber keinen Shop und k&ouml;nnen daher diese Seite nicht aufrufen");
 			redirect();
 			return;
@@ -83,7 +83,7 @@ public class NPCOrderController extends DSGenerator {
 		t.setVar("npcorder.transports", 1);
 		t.setBlock("_NPCORDER", "transports.listitem", "transports.list");
 		
-		SQLQuery aship = db.query("SELECT * FROM ships WHERE owner="+user.getID()+" AND LOCATE('#!/tm gany_transport',destcom)");
+		SQLQuery aship = db.query("SELECT * FROM ships WHERE owner="+user.getId()+" AND LOCATE('#!/tm gany_transport',destcom)");
 		while( aship.next() ) {
 			SQLResultRow ashiptype = ShipTypes.getShipType(aship.getRow());
 			
@@ -153,7 +153,7 @@ public class NPCOrderController extends DSGenerator {
 		
 		User edituser = getContext().createUserObject(edituserID);
 			
-		if( edituser.getID() == 0 ) {
+		if( edituser.getId() == 0 ) {
 			addError( "Der angegebene Spieler existiert nicht" );
 			this.redirect("medals");
 			
@@ -188,10 +188,10 @@ public class NPCOrderController extends DSGenerator {
 		
 		edituser.addHistory(Common.getIngameTime(ticks)+": Der Orden [img]"+
 				Configuration.getSetting("URL")+"data/"+Medals.get().medal(medal).getImage(Medal.IMAGE_SMALL)+"[/img]"+
-				Medals.get().medal(medal).getName()+" wurde von [userprofile="+user.getID()+"]"+
+				Medals.get().medal(medal).getName()+" wurde von [userprofile="+user.getId()+"]"+
 				user.getName()+"[/userprofile] verliehen Aufgrund der "+reason);
 		
-		PM.send(getContext(), user.getID(), edituser.getID(), 
+		PM.send(getContext(), user.getId(), edituser.getId(), 
 				"Orden '"+Medals.get().medal(medal).getName()+"' verliehen", 
 				"Ich habe dir den Orden [img]"+Configuration.getSetting("URL")+
 				"data/"+Medals.get().medal(medal).getImage(Medal.IMAGE_SMALL)+"[/img]'"+
@@ -226,7 +226,7 @@ public class NPCOrderController extends DSGenerator {
 		
 		User edituser = getContext().createUserObject(edituserID);
 			
-		if( edituser.getID() == 0 ) {
+		if( edituser.getId() == 0 ) {
 			addError( "Der angegebene Spieler existiert nicht" );
 			this.redirect("medals");
 			
@@ -305,7 +305,7 @@ public class NPCOrderController extends DSGenerator {
 		
 		User edituser = getContext().createUserObject(edituserID);
 			
-		if( edituser.getID() == 0 ) {
+		if( edituser.getId() == 0 ) {
 			t.setVar("edituser.id", 0);
 			
 			return;	
@@ -362,9 +362,9 @@ public class NPCOrderController extends DSGenerator {
 	
 		SQLResultRow ships = db.first("SELECT s.id FROM ships s JOIN ship_types st ON s.type=st.id " +
 				"WHERE st.class="+ShipClasses.STATION.ordinal()+" AND s.id>0 " +
-					"AND s.x="+loc.getX()+" AND s.y="+loc.getY()+" AND s.system="+loc.getSystem()+" AND s.owner="+user.getID());
+					"AND s.x="+loc.getX()+" AND s.y="+loc.getY()+" AND s.system="+loc.getSystem()+" AND s.owner="+user.getId());
 		
-		SQLResultRow bases = db.first("SELECT id FROM bases WHERE owner="+user.getID()+" AND " +
+		SQLResultRow bases = db.first("SELECT id FROM bases WHERE owner="+user.getId()+" AND " +
 				"s.x="+loc.getX()+" AND s.y="+loc.getY()+" AND s.system="+loc.getSystem());
 		
 		if( !bases.isEmpty() || !ships.isEmpty() ) {
@@ -425,7 +425,7 @@ public class NPCOrderController extends DSGenerator {
 					ordermessage = "Offizier(e) zugeteilt - wird/werden in 3 Ticks eintreffen";
 				}
 				for( int i=0; i < count; i++ ) {
-					db.update("INSERT INTO orders (type,tick,user) VALUES (",order,",3,",user.getID(),")");
+					db.update("INSERT INTO orders (type,tick,user) VALUES (",order,",3,",user.getId(),")");
 				}
 				
 				user.setNpcPunkte( user.getNpcPunkte() - costs );
@@ -453,7 +453,7 @@ public class NPCOrderController extends DSGenerator {
 		
 		t.setVar( "npcorder.ordermenu", 1 );
 
-		SQLQuery order = db.query("SELECT type FROM orders WHERE user=",user.getID());
+		SQLQuery order = db.query("SELECT type FROM orders WHERE user=",user.getId());
 		while( order.next() ) {
 			Common.safeIntInc(orders, order.getInt("type"));
 		}

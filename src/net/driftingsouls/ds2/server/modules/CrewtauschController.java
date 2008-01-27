@@ -67,7 +67,7 @@ public class CrewtauschController extends DSGenerator {
 		String mode = getString("mode");
 		int tar = getInteger("tar");
 		
-		SQLResultRow ship = db.first("SELECT id,name,crew,type,owner,status,x,y,system FROM ships WHERE owner=",user.getID()," AND id>0 AND id=",shipID);
+		SQLResultRow ship = db.first("SELECT id,name,crew,type,owner,status,x,y,system FROM ships WHERE owner=",user.getId()," AND id>0 AND id=",shipID);
 		if( ship.isEmpty() ) {
 			addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht", Common.buildUrl(getContext(), "default", "module", "schiffe") );
 			

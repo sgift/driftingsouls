@@ -57,7 +57,7 @@ public class AllyListController extends DSGenerator {
 			SQLResultRow ally = db.first("SELECT name,president FROM ally WHERE id="+user.getAlly());
 	
 			t.setVar(	"user.ally.name",		Common._title(ally.getString("name")),
-						"user.ally.president",	(user.getID() == ally.getInt("president") ));
+						"user.ally.president",	(user.getId() == ally.getInt("president") ));
 		}
 					
 		return true;
@@ -147,7 +147,7 @@ public class AllyListController extends DSGenerator {
 		}
 		
 		int allypresi = db.first("SELECT president FROM ally WHERE id=",user.getAlly()).getInt("president");
-		if( allypresi != user.getID() ) {
+		if( allypresi != user.getId() ) {
 			addError("Sie sind nicht der Pr&auml;sident der Allianz");
 			redirect("details");
 			return;
@@ -208,7 +208,7 @@ public class AllyListController extends DSGenerator {
 			if( (user.getAlly() != 0) && (user.getAlly() != ally.getInt("id")) ) {
 				int allypresi = getDatabase().first("SELECT president FROM ally WHERE id=",user.getAlly()).getInt("president");
 		
-				if( allypresi == user.getID() ) {		
+				if( allypresi == user.getId() ) {		
 					t.setVar("user.allyrelationchange", 1);
 				}
 			}

@@ -139,7 +139,7 @@ public class HandelController extends DSGenerator {
 
 		db.prepare("INSERT INTO handel " ,
 				"VALUES (0, ?, ?, ?, ?, ?)")
-			.update(getUser().getID(), Common.time(), needStr, haveStr, comm);
+			.update(getUser().getId(), Common.time(), needStr, haveStr, comm);
 
 		redirect();
 	}
@@ -190,7 +190,7 @@ public class HandelController extends DSGenerator {
 		int del = getInteger("del");
 		
 		SQLResultRow line = db.first("SELECT who FROM handel WHERE id=",del);
-		if( !line.isEmpty() && ((line.getInt("who") == user.getID()) || (user.getAccessLevel() >= 20) || user.hasFlag(User.FLAG_MODERATOR_HANDEL)) ) {
+		if( !line.isEmpty() && ((line.getInt("who") == user.getId()) || (user.getAccessLevel() >= 20) || user.hasFlag(User.FLAG_MODERATOR_HANDEL)) ) {
 			db.update("DELETE FROM handel WHERE id=",del);
 			t.setVar("handel.message", "Angebot gel&ouml;scht");
 		} 
@@ -262,7 +262,7 @@ public class HandelController extends DSGenerator {
 						"angebot.description.overflow",	Common._text(act.getString("comm")).length() > 220,
 						"angebot.newline",		(count % 3 == 0),
 						"angebot.endline",		(count % 3 == 0) && (count > 0),
-						"angebot.showdelete",	(act.getInt("who") == user.getID()) || (user.getAccessLevel() >= 20) || user.hasFlag(User.FLAG_MODERATOR_HANDEL) );
+						"angebot.showdelete",	(act.getInt("who") == user.getId()) || (user.getAccessLevel() >= 20) || user.hasFlag(User.FLAG_MODERATOR_HANDEL) );
 
 			count++;
 

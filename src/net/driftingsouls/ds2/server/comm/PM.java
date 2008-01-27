@@ -109,13 +109,13 @@ public class PM {
 				title = db.prepareString(title);
 			
 				User user = context.createUserObject(to);
-				if( user.getID() != 0 ) {
+				if( user.getId() != 0 ) {
 					db.update("INSERT INTO transmissionen (sender,empfaenger,inhalt,time,title,flags) VALUES ('",from,"','",to,"','",msg,"','",Common.time(),"','",title,"','",flags,"')");
 						
 					String forward = user.getUserValue("TBLORDER/pms/forward");
 					if( !"".equals(forward) && (Integer.parseInt(forward) != 0) ) {
 						User sender = context.createUserObject(from);
-						send(context, to, Integer.parseInt(forward), "Fwd: "+title, "[align=center][color=green]- Folgende Nachricht ist soeben eingegangen -[/color][/align]\n[b]Absender:[/b] [userprofile="+sender.getID()+"]"+sender.getName()+"[/userprofile] ("+sender.getID()+")\n\n"+txt, false, flags);
+						send(context, to, Integer.parseInt(forward), "Fwd: "+title, "[align=center][color=green]- Folgende Nachricht ist soeben eingegangen -[/color][/align]\n[b]Absender:[/b] [userprofile="+sender.getId()+"]"+sender.getName()+"[/userprofile] ("+sender.getId()+")\n\n"+txt, false, flags);
 					}
 				} 
 				else {

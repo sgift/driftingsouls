@@ -50,7 +50,7 @@ public class StatOwnKampf implements Statistic {
 	
 		int destpos = context.getRequest().getParameterInt("destpos");
 	
-		int destcount = db.first("SELECT count(*) count FROM ships_lost WHERE destowner=",user.getID()).getInt("count");
+		int destcount = db.first("SELECT count(*) count FROM ships_lost WHERE destowner=",user.getId()).getInt("count");
 		if( destcount > 0 ) {
 			if( destpos > destcount ) {
 				destpos = destcount - 8;
@@ -62,7 +62,7 @@ public class StatOwnKampf implements Statistic {
 	
 			echo.append("Zerst&ouml;rte Schiffe:<br />");
 			echo.append("<table class=\"noBorderX\" cellpadding=\"3\" width=\"100%\">\n");
-			SQLQuery s = db.query("SELECT name,type,time,owner FROM ships_lost WHERE destowner=",user.getID()," ORDER BY time DESC LIMIT ",destpos,",8");
+			SQLQuery s = db.query("SELECT name,type,time,owner FROM ships_lost WHERE destowner=",user.getId()," ORDER BY time DESC LIMIT ",destpos,",8");
 			while( s.next() ) {
 				if( counter == 0 ) {
 					echo.append("<tr>");
@@ -76,7 +76,7 @@ public class StatOwnKampf implements Statistic {
 				echo.append("<a onmouseover=\"return overlib('"+Common._plaintitle(shiptype.getString("nickname"))+"',TIMEOUT,0,DELAY,400,WIDTH,100);\" onmouseout=\"return nd();\" target=\"_blank\" href=\"./main.php?module=schiffinfo&sess="+context.getSession()+"&ship="+s.getInt("type")+"\"><img border=\"0\" src=\""+shiptype.getString("picture")+"\"></a><br />");
 				
 				User auser = context.createUserObject(s.getInt("owner"));
-				if( auser.getID() != 0 ) {
+				if( auser.getId() != 0 ) {
 					echo.append(auser.getProfileLink()+"<br />");
 				}
 				else {
@@ -124,7 +124,7 @@ public class StatOwnKampf implements Statistic {
 	
 		int lostpos = context.getRequest().getParameterInt("lostpos");
 	
-		int lostcount = db.first("SELECT count(*) count FROM ships_lost WHERE owner=",user.getID()).getInt("count");
+		int lostcount = db.first("SELECT count(*) count FROM ships_lost WHERE owner=",user.getId()).getInt("count");
 		if( lostcount > 0 ) {
 			if( lostpos > lostcount ) {
 				lostpos = lostcount - 8;
@@ -140,7 +140,7 @@ public class StatOwnKampf implements Statistic {
 	
 			echo.append("<br />Verlorene Schiffe:<br />");
 			echo.append("<table class=\"noBorderX\" cellpadding=\"3\" width=\"100%\">\n");
-			SQLQuery s = db.query("SELECT name,type,time,owner,destowner FROM ships_lost WHERE owner=",user.getID()," ORDER BY time DESC LIMIT ",lostpos,",8");
+			SQLQuery s = db.query("SELECT name,type,time,owner,destowner FROM ships_lost WHERE owner=",user.getId()," ORDER BY time DESC LIMIT ",lostpos,",8");
 			while( s.next() ) {
 				if( counter == 0 ) {
 					echo.append("<tr>");
@@ -155,7 +155,7 @@ public class StatOwnKampf implements Statistic {
 				
 				User auser = context.createUserObject(s.getInt("destowner"));
 
-				if( auser.getID() != 0 ) {
+				if( auser.getId() != 0 ) {
 					echo.append(auser.getProfileLink()+"<br />");
 				}
 				else {

@@ -156,7 +156,7 @@ public class SchiffeController extends DSGenerator implements Loggable {
 		
 		String query = "SELECT t1.* "+
 			"FROM ships AS t1,ship_types AS t2 "+
-			"WHERE t1.id>0 AND t1.owner="+user.getID()+" AND t2.id=t1.type AND ";
+			"WHERE t1.id>0 AND t1.owner="+user.getId()+" AND t2.id=t1.type AND ";
 		
 		if( low != 0 ) {
 			query += "(LOCATE('mangel_nahrung',t1.status) OR LOCATE('mangel_reaktor',t1.status)) AND ";

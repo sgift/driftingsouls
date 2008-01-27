@@ -129,7 +129,7 @@ public class ImpObjectsController extends DSGenerator {
 		*/
 		t.setBlock("_IMPOBJECTS", "base.listitem", "base.list");
 		
-		SQLQuery base = db.query("SELECT x,y,name FROM bases WHERE owner=",getUser().getID()," AND system=",system);
+		SQLQuery base = db.query("SELECT x,y,name FROM bases WHERE owner=",getUser().getId()," AND system=",system);
 		while( base.next() ) {
 			t.setVar(	"base.x",		base.getInt("x"),
 						"base.y",		base.getInt("y"),
