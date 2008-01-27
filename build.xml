@@ -16,7 +16,7 @@
  	License along with this library; if not, write to the Free Software
  	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 --> 
-<project name="Drifting Souls" default="compile" basedir=".">
+<project name="Drifting Souls 2" default="compile" basedir=".">
 	<!-- ===================== Property Definitions =========================== -->
 	
 	<property file="build.properties"/>
@@ -155,7 +155,8 @@
 		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-framework.jar" basedir="${build.home}/WEB-INF/classes" includes="**/server/framework/**" />
 		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-templates.jar" basedir="${build.home}/WEB-INF/classes" includes="**/server/templates/**" />
 		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-ds-pipeline.jar" basedir="${build.home}/WEB-INF/classes" includes="**/server/modules/**" />
-		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-ds.jar" basedir="${build.home}/WEB-INF/classes" excludes="**/server/framework/**,**/server/templates/**,**/server/modules/**" />
+		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-ds-tick.jar" basedir="${build.home}/WEB-INF/classes" includes="**/server/tick/**" />
+		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-ds.jar" basedir="${build.home}/WEB-INF/classes" excludes="**/server/framework/**,**/server/templates/**,**/server/modules/**,**/server/tick/**" />
 	</target>
 
 	<!-- ==================== Dist Target ===================================== -->
