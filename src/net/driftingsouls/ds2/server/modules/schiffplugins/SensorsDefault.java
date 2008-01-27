@@ -84,8 +84,8 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 		
 		int ship = data.getInt("id");
 		
-		t.set_file("_PLUGIN_"+pluginid, "schiff.sensors.default.html");
-		t.set_var(	"global.ship",				ship,
+		t.setFile("_PLUGIN_"+pluginid, "schiff.sensors.default.html");
+		t.setVar(	"global.ship",				ship,
 					"global.pluginid",			pluginid,
 					"ship.sensors.location",	Ships.getLocationText(data, true),
 					"global.awac",				ShipTypes.hasShipTypeFlag(datatype, ShipTypes.SF_SRS_AWAC) );
@@ -99,27 +99,27 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 		if ( ( datatype.getInt("sensorrange") > 0 ) && ( data.getInt("crew") >= datatype.getInt("crew")/3 ) ) {
 			int nebel = Ships.getNebula(data);
 			if( (nebel < 3) || (nebel > 5) ) {
-				t.set_var("global.longscan",1);
+				t.setVar("global.longscan",1);
 			}
 		}
 
 		String order = user.getUserValue("TBLORDER/schiff/sensororder");
 
 		if( ( data.getInt("sensors") > 30 ) && ( data.getInt("crew") >= datatype.getInt("crew") / 4 ) ) {
-			t.set_var("global.goodscan",1);
+			t.setVar("global.goodscan",1);
 		} else if( data.getInt("sensors") > 0 ) {
-			t.set_var("global.badscan",1);
+			t.setVar("global.badscan",1);
 		}
 
 		if( data.getInt("sensors") > 0 ) {
-			t.set_var("global.scan",1);
+			t.setVar("global.scan",1);
 		}
 
-		t.set_block("_SENSORS","bases.listitem","bases.list");
-		t.set_block("_SENSORS","battles.listitem","battles.list");
-		t.set_block("_SENSORS","sships.listitem","sships.list");
-		t.set_block("_SENSORS","sshipgroup.listitem","none");
-		t.set_var("none","");
+		t.setBlock("_SENSORS","bases.listitem","bases.list");
+		t.setBlock("_SENSORS","battles.listitem","battles.list");
+		t.setBlock("_SENSORS","sships.listitem","sships.list");
+		t.setBlock("_SENSORS","sshipgroup.listitem","none");
+		t.setVar("none","");
 		
 		/*
 			Asteroiden
@@ -138,7 +138,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 				SQLQuery datan = base;
 				
 				t.start_record();
-				t.set_var(	"base.id",			datan.getInt("id"),
+				t.setVar(	"base.id",			datan.getInt("id"),
 							"base.owner.id",	datan.getInt("owner"),
 							"base.name",		datan.getString("name"),
 							"base.klasse",		datan.getInt("klasse"),
@@ -149,16 +149,16 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 							"base.action.repair",	0 );
 
 				if( datan.getInt("owner") == user.getID()) {
-					t.set_var("base.ownbase",1);
+					t.setVar("base.ownbase",1);
 				}
 
 				String owner = Common._title(controller.createUserObject(datan.getInt("owner")).getName());
 				if( owner.equals("") ) owner = "-";
 				if( datan.getInt("owner") == -1) owner = "verlassen";
 				if( !owner.equals("-") && (datan.getInt("owner") != -1) && (datan.getInt("owner") != user.getID()) ) {
-					t.set_var("base.pm", 1);
+					t.setVar("base.pm", 1);
 				}
-				t.set_var("base.owner.name",owner);
+				t.setVar("base.owner.name",owner);
 
 				// Offizier transferieren
 				if( datan.getInt("owner") == user.getID() ) {
@@ -173,12 +173,12 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 							}
 							
 							if( ok ) {
-								t.set_var("base.offiziere.set",1);
+								t.setVar("base.offiziere.set",1);
 							}
 						}
 					}
 					if( offizier != null ) {
-						t.set_var("base.offiziere.transfer",1);
+						t.setVar("base.offiziere.transfer",1);
 					}
 				}
 
@@ -195,7 +195,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 								break;	
 							}
 						}
-						t.set_var(	"base.action.repair",	1,
+						t.setVar(	"base.action.repair",	1,
 									"base.werft.field",		i );
 					}
 				}
@@ -218,7 +218,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 			SQLResultRow nebel = db.first("SELECT id,type FROM nebel WHERE x=",data.getInt("x")," AND y=",data.getInt("y")," AND system=",data.getInt("system"));
 
 			if( !nebel.isEmpty() ) {
-				t.set_var(	"nebel.id",		nebel.getInt("id"),
+				t.setVar(	"nebel.id",		nebel.getInt("id"),
 							"nebel.type",	nebel.getInt("type"),
 							"global.ship.deutfactor", (datatype.getInt("deutfactor") != 0 && (nebel.getInt("type") < 3) ));
 			}
@@ -235,7 +235,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 				}
 				if( user.hasFlag( User.FLAG_NO_JUMPNODE_BLOCK ) ) blocked = 0;
 							
-				t.set_var(	"node.id",		node.getInt("id"),
+				t.setVar(	"node.id",		node.getInt("id"),
 							"node.name",	node.getString("name"),
 							"node.blocked",	blocked );
 			}
@@ -288,7 +288,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 					
 				int shipcount = db.first("SELECT count(*) count FROM ships WHERE id>0 AND battle='",battle.getInt("id"),"'").getInt("count");
 					
-				t.set_var(	"battle.id",		battle.getInt("id"),
+				t.setVar(	"battle.id",		battle.getInt("id"),
 							"battle.party1",	party1,
 							"battle.party2",	party2,
 							"battle.side1",		Common._stripHTML(party1),
@@ -308,7 +308,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 	
 			SQLResultRow jumps = db.first("SELECT count(*) count FROM jumps WHERE x=",data.getInt("x")," AND y=",data.getInt("y")," AND system=",data.getInt("system"));
 			if( !jumps.isEmpty() ) {
-				t.set_var(	"global.jumps",			jumps.getInt("count"),
+				t.setVar(	"global.jumps",			jumps.getInt("count"),
 							"global.jumps.name",	(jumps.getInt("count")>1 ? "Subraumspalten":"Subraumspalte"));
 			}
 			
@@ -409,7 +409,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 					}		
 					
 					t.start_record();
-					t.set_var(	"sshipgroup.name",			types.get(typeGroupID)+" x "+mastertype.getString("nickname"),
+					t.setVar(	"sshipgroup.name",			types.get(typeGroupID)+" x "+mastertype.getString("nickname"),
 								"sshipgroup.idlist",		groupidlist,
 								"sshipgroup.type.id",		datas.getInt("type"),
 								"sshipgroup.owner.id",		datas.getInt("owner"),
@@ -422,9 +422,9 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 								"sshipgroup.fleetlesscount",	fleetlesscount );
 		
 					if( datas.getInt("owner") == user.getID() ) {
-						t.set_var("sshipgroup.ownship",1);
+						t.setVar("sshipgroup.ownship",1);
 					} else {
-						t.set_var("sshipgroup.ownship",0);
+						t.setVar("sshipgroup.ownship",0);
 					}
 									
 					t.parse("sships.list","sshipgroup.listitem",true);
@@ -445,7 +445,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 							}
 						}	
 						
-						t.set_var(	"sshipgroup.name",			count+" x "+mastertype.getString("nickname"),
+						t.setVar(	"sshipgroup.name",			count+" x "+mastertype.getString("nickname"),
 									"sshipgroup.type.id",		datas.getInt("type"),
 									"sshipgroup.owner.id",		datas.getInt("owner"),
 									"sshipgroup.owner.name", 	Common._title(datas.getString("username")),
@@ -457,17 +457,17 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 									"sshipgroup.fleetlesscount",	fleetlesscount );
 				
 						if( datas.getInt("owner") == user.getID() ) {
-							t.set_var("sshipgroup.ownship",1);
+							t.setVar("sshipgroup.ownship",1);
 						} 
 						else {
-							t.set_var("sshipgroup.ownship",0);
+							t.setVar("sshipgroup.ownship",0);
 						}			
 						t.parse("sships.list","sshipgroup.listitem",true);	
 						
 						firstentry = false;
 					}
 					t.start_record();
-					t.set_var(	"sships.id",			datas.getInt("id"),
+					t.setVar(	"sships.id",			datas.getInt("id"),
 								"sships.owner.id" ,		datas.getInt("owner"),
 								"sships.owner.name",	Common._title(datas.getString("username")),
 								"sships.name",			Common._plaintitle(datas.getString("name")),
@@ -480,21 +480,21 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 								"sships.docked.id",		datas.getString("docked") );
 
 					boolean disableIFF = datas.getString("status").indexOf("disable_iff") > -1;
-					t.set_var("sships.disableiff",disableIFF);
+					t.setVar("sships.disableiff",disableIFF);
 		
 					if( datas.getInt("owner") == user.getID() ) {
-						t.set_var("sships.ownship",1);
+						t.setVar("sships.ownship",1);
 					} else {
-						t.set_var("sships.ownship",0);
+						t.setVar("sships.ownship",0);
 					}
 
-					if( disableIFF ) t.set_var("sships.owner.name","Unbekannt");
+					if( disableIFF ) t.setVar("sships.owner.name","Unbekannt");
 		
 					if( datas.getInt("fleet") > 0 ) {
 						if( !fleetcache.containsKey(datas.getInt("fleet")) ) {
 							fleetcache.put(datas.getInt("fleet"), db.first("SELECT * FROM ship_fleets WHERE id="+datas.getInt("fleet")));
 						}
-						t.set_var("sships.fleet.name",Common._plaintitle(fleetcache.get(datas.getInt("fleet")).getString("name")));
+						t.setVar("sships.fleet.name",Common._plaintitle(fleetcache.get(datas.getInt("fleet")).getString("name")));
 					}
 					// Gedockte Schiffe zuordnen (gelandete brauchen hier nicht beruecksichtigt werden, da sie von der Query bereits aussortiert wurden)
 					if( !datas.getString("docked").equals("") ) {
@@ -504,56 +504,56 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 						}
 						else {
 							String shipname = namerow.getString("name");
-							t.set_var("sships.docked.name",shipname);
+							t.setVar("sships.docked.name",shipname);
 						}
 					}
 					
 					// Anzeige Heat (Standard)
 					if( ShipTypes.hasShipTypeFlag(datatype, ShipTypes.SF_SRS_EXT_AWAC) ) {
-						t.set_var("sships.heat",datas.get("s"));
+						t.setVar("sships.heat",datas.get("s"));
 						
 						// Anzeige Heat
 						if( datas.getInt("s") == 0 ) {
-							t.set_var("sships.heat.none",1);
+							t.setVar("sships.heat.none",1);
 						}
 						if( (datas.getInt("s") > 0) && (datas.getInt("s") <= 100) ) {
-							t.set_var("sships.heat.medium",1);
+							t.setVar("sships.heat.medium",1);
 						} else if( datas.getInt("s") > 100 ) {
-							t.set_var("sships.heat.hight",1);
+							t.setVar("sships.heat.hight",1);
 						}
 		
 						// Anzeige Crew
 						if( (datas.getInt("crew") == 0) && (ashiptype.getInt("crew") != 0) ) {
-							t.set_var("sships.nocrew",1);
+							t.setVar("sships.nocrew",1);
 						} else if( datas.getInt("crew") > 0 ) {
-							t.set_var("sships.crew",datas.get("crew"));
+							t.setVar("sships.crew",datas.get("crew"));
 						}
 		
 						// Anzeige Energie
 						if( datas.getInt("e") == 0 ) {
-							t.set_var("sships.noe",1);
+							t.setVar("sships.noe",1);
 						} else if( datas.getInt("e") > 0 ) {
-							t.set_var("sships.e",datas.get("e"));
+							t.setVar("sships.e",datas.get("e"));
 						}
 					} 
 					else if( ShipTypes.hasShipTypeFlag(datatype, ShipTypes.SF_SRS_AWAC) ) {
-						t.set_var("global.standartawac",1);
+						t.setVar("global.standartawac",1);
 						
 						if( datas.getInt("s") > 100 ) {
-							t.set_var("sships.heat.high",1);
+							t.setVar("sships.heat.high",1);
 						} else if( datas.getInt("s") > 40 ) {
-							t.set_var("sships.heat.medium",1);
+							t.setVar("sships.heat.medium",1);
 						} else if( datas.getInt("s") > 0 ) {
-							t.set_var("sships.heat.low",1);
+							t.setVar("sships.heat.low",1);
 						} else {
-							t.set_var("sships.heat.none",1);
+							t.setVar("sships.heat.none",1);
 						}
 					}
 
 					//Angreifen
 					if( !disableIFF && (datas.getInt("owner") != user.getID()) && (datas.getInt("battle")==0) && (datatype.getInt("military") != 0) ) {
 						if( ( (user.getAlly() > 0) && (datas.getInt("ally") != user.getAlly()) ) || (user.getAlly() == 0) ) {
-							t.set_var("sships.action.angriff",1);
+							t.setVar("sships.action.angriff",1);
 						}
 					}
 
@@ -576,7 +576,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 						}
 						
 						if( found ) {
-							t.set_var("sships.action.communicate",1);
+							t.setVar("sships.action.communicate",1);
 						}
 					}
 
@@ -589,46 +589,46 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 						String[] target = StringUtils.split(datas.getString("jumptarget"), '|');
 						String[] targetuser = StringUtils.split(target[2], ':');
 						if( targetuser[0].equals("all") ) {
-							t.set_var("sships.action.jump",1);
+							t.setVar("sships.action.jump",1);
 						}
 						else if( targetuser[0].equals("ally") ) {
 							if(  (user.getAlly() > 0) && (Integer.parseInt(targetuser[1]) == user.getAlly()) ) {
-								t.set_var("sships.action.jump",1);
+								t.setVar("sships.action.jump",1);
 							}
 						}
 						else if( targetuser[0].equals("user") ) {
 							if ( Integer.parseInt(targetuser[1]) == user.getID() ){
-								t.set_var("sships.action.jump",1);
+								t.setVar("sships.action.jump",1);
 							}
 						}
 						else if( targetuser[0].equals("ownally") ) {
 							if ( (user.getAlly() > 0) && (datas.getInt("ally") == user.getAlly()) ){
-								t.set_var("sships.action.jump",1);
+								t.setVar("sships.action.jump",1);
 							}
 						}
 						else if( targetuser[0].equals("group") ) {
 							String[] userlist = targetuser[1].split(",");
 							if( Common.inArray(Integer.toString(user.getID()),userlist) )  {
-								t.set_var("sships.action.jump",1);
+								t.setVar("sships.action.jump",1);
 							}
 						}
 						else {
 							// Default: Selbe Allianz wie der Besitzer oder selbst der Besitzer
 							if( ( (user.getAlly() > 0) && (datas.getInt("ally") == user.getAlly()) ) || ((user.getAlly() == 0) && (datas.getInt("owner") == user.getID()) ) ) {
-								t.set_var("sships.action.jump",1);
+								t.setVar("sships.action.jump",1);
 							}
 						}
 					}
 
 					//Handeln, Pluendernlink, Waren transferieren
 					if( datas.getString("status").indexOf("tradepost") != -1 ) {
-						t.set_var("sships.action.trade",1);
+						t.setVar("sships.action.trade",1);
 					} 
 					else if( !disableIFF && (datas.getInt("owner") == -1) && (ashiptype.getInt("class") == ShipClasses.SCHROTT.ordinal() || ashiptype.getInt("class") == ShipClasses.FELSBROCKEN.ordinal()) ) {
-						t.set_var("sships.action.transferpluender",1);
+						t.setVar("sships.action.transferpluender",1);
 					} 
 					else if( !disableIFF || (datas.getInt("owner") == user.getID()) ) {
-						t.set_var("sships.action.transfer",1);
+						t.setVar("sships.action.transfer",1);
 					}
 
 					//Bemannen, Kapern
@@ -636,14 +636,14 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 						((datas.getInt("owner") != -1) || (ashiptype.getInt("class") == ShipClasses.SCHROTT.ordinal() || ashiptype.getInt("class") == ShipClasses.FELSBROCKEN.ordinal())) ) {
 						if( ( (user.getAlly() > 0) && (datas.getInt("ally") != user.getAlly()) ) || (user.getAlly() == 0) ) {
 							if( !ShipTypes.hasShipTypeFlag(ashiptype, ShipTypes.SF_NICHT_KAPERBAR) ) {
-								t.set_var("sships.action.kapern",1);
+								t.setVar("sships.action.kapern",1);
 							}
 							else {
-								t.set_var("sships.action.pluendern",1);
+								t.setVar("sships.action.pluendern",1);
 							}
 						}
 					} else if( !disableIFF && (datas.getInt("owner") == user.getID()) && (ashiptype.getInt("crew") > 0)  ) {
-						t.set_var("sships.action.crewtausch",1);
+						t.setVar("sships.action.crewtausch",1);
 					}
 
 					//Offiziere: Captain transferieren
@@ -660,21 +660,21 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 							}
 							
 							if( ok ) {
-								t.set_var("sships.action.tcaptain",1);
+								t.setVar("sships.action.tcaptain",1);
 							}
 						}
 					}
 
 					//Schiff in die Werft fliegen
 					if( (datas.getInt("owner") == user.getID()) && !ashiptype.getString("werft").equals("") ) {
-						t.set_var("sships.action.repair",1);
+						t.setVar("sships.action.repair",1);
 					}
 
 					//Externe Docks: andocken
 					if( datas.getString("docked").length() == 0 && ( datatype.getInt("adocks") > dockCount ) && 
 						( (datas.getInt("owner") == user.getID() ) || superdock) ) {
 						if( superdock || ( ashiptype.getInt("size") < 3 ) ) {
-							t.set_var("sships.action.aufladen",1);
+							t.setVar("sships.action.aufladen",1);
 						}
 					}
 
@@ -684,7 +684,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 							int carrierFullCount = db.first("SELECT count(*) fullcount FROM ships WHERE id>0 AND docked='l ",datas.getInt("id"),"'").getInt("fullcount");
 
 							if( carrierFullCount + 1 <= ashiptype.getInt("jdocks") ) {
-								t.set_var("sships.action.land",1);
+								t.setVar("sships.action.land",1);
 								if( data.getInt("fleet") > 0 ) {
 									boolean ok = true;
 									// Falls noch nicht geschehen die Flotte des Jaegers ermitteln
@@ -708,7 +708,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 
 									if( !fleetlist.isEmpty() && (fleetlist.size() <= ashiptype.getInt("jdocks")) ) {
 										if( carrierFullCount + fleetlist.size() <= ashiptype.getInt("jdocks") )
-											t.set_var(	"sships.action.landfleet", 1,
+											t.setVar(	"sships.action.landfleet", 1,
 														"global.shiplist", Common.implode("|",fleetlist) );
 									}
 								}
@@ -718,7 +718,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 				
 					//Aktuellen Jaeger auf dem (ausgewaehlten) Traeger laden lassen
 					if( (datas.getInt("owner") == user.getID()) && spaceToLand && ShipTypes.hasShipTypeFlag(ashiptype, ShipTypes.SF_JAEGER) ) {
-						t.set_var("sships.action.landthis",1);
+						t.setVar("sships.action.landthis",1);
 						
 						// Flotte des aktuellen Jaegers landen lassen
 						if( datas.getInt("fleet") != 0 ) {
@@ -746,7 +746,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 							
 							if( !thisFleetList.isEmpty() && (thisFleetList.size() <= datatype.getInt("jdocks")) ) {
 								if( fullcount + thisFleetList.size() <= datatype.getInt("jdocks") )
-									t.set_var(	"sships.action.landthisfleet", 1,
+									t.setVar(	"sships.action.landthisfleet", 1,
 												"sships.shiplist", Common.implode("|",thisFleetList) );
 							}
 						}
@@ -755,13 +755,13 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 					//Flottenfunktionen: anschliessen
 					if( datas.getInt("owner") == user.getID() ) {
 						if( (data.getInt("fleet") <= 0) && (datas.getInt("fleet")>0) ) {
-							t.set_var("sships.action.joinfleet",1);
+							t.setVar("sships.action.joinfleet",1);
 						}
 						else if( (data.getInt("fleet") > 0) && (datas.getInt("fleet") <= 0) ) {
-							t.set_var("sships.action.add2fleet",1);
+							t.setVar("sships.action.add2fleet",1);
 						}
 						else if( (datas.getInt("fleet")<=0) && (data.getInt("fleet")<=0) ) {
-							t.set_var("sships.action.createfleet",1);
+							t.setVar("sships.action.createfleet",1);
 						}
 					}
 					t.parse("sships.list","sships.listitem",true);

@@ -132,7 +132,7 @@ public class FleetMgntController extends DSGenerator {
 			shipid = shiplist[0];
 		}
 		
-		t.set_var(	"jscript.reloadmain.ship",	shipid,
+		t.setVar(	"jscript.reloadmain.ship",	shipid,
 					"fleet.id",					(fleet != null ? fleet.getInt("id") : 0) );
 		
 		return true;	
@@ -158,11 +158,11 @@ public class FleetMgntController extends DSGenerator {
 		int shipcount = db.first("SELECT count(*) count FROM ships WHERE owner='",user.getID(),"' AND system='",sectorcoord.getInt("system"),"' AND x='",sectorcoord.getInt("x"),"' AND y='",sectorcoord.getInt("y"),"' AND type='",type,"' AND docked=''").getInt("count");
 		
 		if( (count < 1) || (shipcount < count) ) {
-			t.set_var("fleetmgnt.message", "Es gibt nicht genug Schiffe im Sektor" );
+			t.setVar("fleetmgnt.message", "Es gibt nicht genug Schiffe im Sektor" );
 			return;
 		}
 			
-		t.set_var(	"show.create",		1,
+		t.setVar(	"show.create",		1,
 					"create.shiplist",	"g,"+sector+","+type+","+count );
 	}
 	
@@ -178,16 +178,16 @@ public class FleetMgntController extends DSGenerator {
 		Integer[] shiplist = Common.explodeToInteger("|", getString("shiplist"));
 		
 		if( (getString("shiplist").length() == 0) || (shiplist.length == 0) ) {
-			t.set_var("fleetmgnt.message", "Sie haben keine Schiffe angegeben" );
+			t.setVar("fleetmgnt.message", "Sie haben keine Schiffe angegeben" );
 			return;
 		}
 		
 		SQLResultRow id = db.first("SELECT id FROM ships WHERE id IN (",Common.implode(",",shiplist),") AND owner!=",user.getID());
 		if( !id.isEmpty() ) {
-			t.set_var("fleetmgnt.message", "Alle Schiffe m&uuml;ssen ihrem Kommando unterstehen" );
+			t.setVar("fleetmgnt.message", "Alle Schiffe m&uuml;ssen ihrem Kommando unterstehen" );
 		}
 		else {		
-			t.set_var(	"show.create",			1,
+			t.setVar(	"show.create",			1,
 						"create.shiplist",		Common.implode("|",shiplist) );
 		}
 	}
@@ -209,20 +209,20 @@ public class FleetMgntController extends DSGenerator {
 		
 		String shiplist = getString("shiplist");
 		if( shiplist.length() == 0 ) {
-			t.set_var("fleetmgnt.message", "Sie haben keine Schiffe angegeben" );
+			t.setVar("fleetmgnt.message", "Sie haben keine Schiffe angegeben" );
 			return;
 		}
 		
 		if( shiplist.charAt(0) != 'g' ) {
 			shiplistInt = Common.explodeToInteger("|", shiplist);
 			if( (getString("shiplist").length() == 0) || shiplistInt.length == 0 ) {
-				t.set_var("fleetmgnt.message", "Sie haben keine Schiffe angegeben" );
+				t.setVar("fleetmgnt.message", "Sie haben keine Schiffe angegeben" );
 				return;
 			}
 		
 			SQLResultRow id = db.first("SELECT id FROM ships WHERE id IN (",Common.implode(",",shiplistInt),") AND owner!='",user.getID(),"'");
 			if( !id.isEmpty() ) {
-				t.set_var("fleetmgnt.message", "Alle Schiffe m&uuml;ssen ihrem Kommando unterstehen" );
+				t.setVar("fleetmgnt.message", "Alle Schiffe m&uuml;ssen ihrem Kommando unterstehen" );
 				return;
 			}
 		}
@@ -255,7 +255,7 @@ public class FleetMgntController extends DSGenerator {
 			
 			db.update("UPDATE ships SET fleet=",fleetID," WHERE id>0 AND id IN (",Common.implode(",",shiplistInt)+")");
 
-			t.set_var(	"fleetmgnt.message",	"Flotte "+Common._plaintitle(fleetname)+" erstellt",
+			t.setVar(	"fleetmgnt.message",	"Flotte "+Common._plaintitle(fleetname)+" erstellt",
 						"jscript.reloadmain",	1,
 						"fleet.id",				fleetID );
 			
@@ -264,7 +264,7 @@ public class FleetMgntController extends DSGenerator {
 			this.redirect();
 		} 
 		else {
-			t.set_var("fleetmgnt.message", "Sie m&uuml;ssen einen Namen angeben" );
+			t.setVar("fleetmgnt.message", "Sie m&uuml;ssen einen Namen angeben" );
 			redirect("create");
 		}
 	}
@@ -288,7 +288,7 @@ public class FleetMgntController extends DSGenerator {
 		int shipcount = db.first("SELECT count(*) count FROM ships WHERE owner='",user.getID(),"' AND system='",sectorRow.getInt("system"),"' AND x='",sectorRow.getInt("x"),"' AND y='",sectorRow.getInt("y"),"' AND type='",type,"' AND docked=''").getInt("count");
 		
 		if( (count < 1) || (shipcount < count) ) {
-			t.set_var("fleetmgnt.message", "Es gibt nicht genug Schiffe im Sektor" );
+			t.setVar("fleetmgnt.message", "Es gibt nicht genug Schiffe im Sektor" );
 			return;
 		}
 		
@@ -303,13 +303,13 @@ public class FleetMgntController extends DSGenerator {
 		s.free();
 		
 		if( shiplist.isEmpty() ) {
-			t.set_var("fleetmgnt.message", "Es gibt nicht genug Schiffe im Sektor" );
+			t.setVar("fleetmgnt.message", "Es gibt nicht genug Schiffe im Sektor" );
 			return;
 		}
 		
 		db.update("UPDATE ships SET fleet='",fleet.getInt("id"),"' WHERE id IN (",Common.implode(",",shiplist),")");
 		
-		t.set_var(	"fleetmgnt.message",	count+" Schiffe der Flotte hinzugef&uuml;gt",
+		t.setVar(	"fleetmgnt.message",	count+" Schiffe der Flotte hinzugef&uuml;gt",
 					"jscript.reloadmain",	1 );
 	}
 	
@@ -320,7 +320,7 @@ public class FleetMgntController extends DSGenerator {
 	public void renameAction() {
 		TemplateEngine t = getTemplateEngine();
 		
-		t.set_var(	"show.rename",	1,
+		t.setVar(	"show.rename",	1,
 					"fleet.id",		fleet.getInt("id"),
 					"fleet.name",	Common._plaintitle(fleet.getString("name")) );
 	}
@@ -341,7 +341,7 @@ public class FleetMgntController extends DSGenerator {
 			db.prepare("UPDATE ship_fleets SET name= ? WHERE id= ?")
 				.update(fleetname, fleet.getInt("id"));
 
-			t.set_var(	"fleetmgnt.message",	"Flotte "+Common._plaintitle(fleetname)+" umbenannt",
+			t.setVar(	"fleetmgnt.message",	"Flotte "+Common._plaintitle(fleetname)+" umbenannt",
 						"jscript.reloadmain",	1 );
 		
 			fleet.put("name", fleetname);
@@ -349,7 +349,7 @@ public class FleetMgntController extends DSGenerator {
 			redirect();
 		}
 		else {
-			t.set_var("fleetmgnt.message", "Sie m&uuml;ssen einen Namen angeben" );
+			t.setVar("fleetmgnt.message", "Sie m&uuml;ssen einen Namen angeben" );
 			
 			redirect("rename");
 		}
@@ -362,7 +362,7 @@ public class FleetMgntController extends DSGenerator {
 	public void killAction() {
 		TemplateEngine t = getTemplateEngine();
 		
-		t.set_var(	"fleet.name",	Common._plaintitle(fleet.getString("name")),
+		t.setVar(	"fleet.name",	Common._plaintitle(fleet.getString("name")),
 					"fleet.id",		fleet.getInt("id"),
 					"show.kill",	1 );
 	}
@@ -378,7 +378,7 @@ public class FleetMgntController extends DSGenerator {
 		db.update("UPDATE ships SET fleet=0 WHERE fleet='",fleet.getInt("id"),"'");
 		db.update("DELETE FROM ship_fleets WHERE id='",fleet.getInt("id"),"'");
 
-		t.set_var(	"fleetmgnt.message",	"Die Flotte '"+fleet.getString("name")+"' wurde aufgel&ouml;st",
+		t.setVar(	"fleetmgnt.message",	"Die Flotte '"+fleet.getString("name")+"' wurde aufgel&ouml;st",
 					"jscript.reloadmain",	1 );
 	}
 
@@ -389,7 +389,7 @@ public class FleetMgntController extends DSGenerator {
 	public void newownerAction() {
 		TemplateEngine t = getTemplateEngine();
 		
-		t.set_var(	"show.newowner",	1,
+		t.setVar(	"show.newowner",	1,
 					"fleet.id",			this.fleet.getInt("id"),
 					"fleet.name",		Common._plaintitle(this.fleet.getString("name")) );
 	}
@@ -408,14 +408,14 @@ public class FleetMgntController extends DSGenerator {
 		User newowner = getContext().createUserObject(ownerid );
 		
 		if( newowner.getID() != 0 ) {
-			t.set_var(	"show.newowner2",	1,
+			t.setVar(	"show.newowner2",	1,
 						"newowner.name",	Common._title(newowner.getName()),
 						"newowner.id",		newowner.getID(),
 						"fleet.id",			this.fleet.getInt("id"),
 						"fleet.name",		Common._plaintitle(this.fleet.getString("name")) );
 		}
 		else {
-			t.set_var( "fleetmgnt.message", "Der angegebene Spieler existiert nicht");
+			t.setVar( "fleetmgnt.message", "Der angegebene Spieler existiert nicht");
 			
 			redirect("newowner");	
 		}	
@@ -465,14 +465,14 @@ public class FleetMgntController extends DSGenerator {
 				
 				PM.send(getContext(), user.getID(), newowner.getID(), "Flotte &uuml;bergeben", "Ich habe dir die Flotte "+Common._plaintitle(this.fleet.getString("name"))+" &uuml;bergeben. Sie steht bei "+coords.getInt("system")+":"+coords.getInt("x")+"/"+coords.getInt("y"));
 		
-				t.set_var("fleetmgnt.message", message+"Die Flotte wurde &uuml;bergeben");
+				t.setVar("fleetmgnt.message", message+"Die Flotte wurde &uuml;bergeben");
 			}
 			else {
-				t.set_var("fleetmgnt.message", message+"Flotten&uuml;bergabe gescheitert");
+				t.setVar("fleetmgnt.message", message+"Flotten&uuml;bergabe gescheitert");
 			}
 		}
 		else {
-			t.set_var( "fleetmgnt.message", "Der angegebene Spieler existiert nicht");
+			t.setVar( "fleetmgnt.message", "Der angegebene Spieler existiert nicht");
 			
 			redirect("newowner");	
 		}
@@ -513,7 +513,7 @@ public class FleetMgntController extends DSGenerator {
 		s.free();
 		db.tCommit();
 
-		t.set_var( "fleetmgnt.message", message+" Die Schilde wurden aufgeladen" );
+		t.setVar( "fleetmgnt.message", message+" Die Schilde wurden aufgeladen" );
 		
 		redirect();			
 	}
@@ -559,7 +559,7 @@ public class FleetMgntController extends DSGenerator {
 		
 		db.tCommit();
 
-		t.set_var( "fleetmgnt.message", message+"Batterien wurden entladen" );
+		t.setVar( "fleetmgnt.message", message+"Batterien wurden entladen" );
 		
 		redirect();			
 	}
@@ -572,14 +572,14 @@ public class FleetMgntController extends DSGenerator {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
-		t.set_var(	"fleet.name",	Common._plaintitle(this.fleet.getString("name")),
+		t.setVar(	"fleet.name",	Common._plaintitle(this.fleet.getString("name")),
 					"show.export",	1 );
 							
-		t.set_block("_FLEETMGNT", "exportships.listitem", "exportships.list" );
+		t.setBlock("_FLEETMGNT", "exportships.listitem", "exportships.list" );
 		
 		SQLQuery s = db.query("SELECT id,name FROM ships WHERE id>0 AND fleet=",this.fleet.getInt("id") );
 		while( s.next() ) {
-			t.set_var(	"ship.id",		s.getInt("id"),
+			t.setVar(	"ship.id",		s.getInt("id"),
 						"ship.name",	Common._plaintitle(s.getString("name")) );
 				
 			t.parse("exportships.list", "exportships.listitem", true);
@@ -602,7 +602,7 @@ public class FleetMgntController extends DSGenerator {
 		}
 		s.free();
 		
-		t.set_var(	"fleetmgnt.message",	"Alle gedockten Schiffe wurden gestartet",
+		t.setVar(	"fleetmgnt.message",	"Alle gedockten Schiffe wurden gestartet",
 					"jscript.reloadmain",	1 );
 
 		redirect();
@@ -652,7 +652,7 @@ public class FleetMgntController extends DSGenerator {
 		}
 		ship.free();
 
-		t.set_var(	"fleetmgnt.message",	"Container wurden aufgesammelt",
+		t.setVar(	"fleetmgnt.message",	"Container wurden aufgesammelt",
 					"jscript.reloadmain",	1 );
 
 		redirect();
@@ -673,7 +673,7 @@ public class FleetMgntController extends DSGenerator {
 		}
 		s.free();
 		
-		t.set_var(	"fleetmgnt.message",	"Alle J&auml;ger sind gestartet",
+		t.setVar(	"fleetmgnt.message",	"Alle J&auml;ger sind gestartet",
 					"jscript.reloadmain",	1 );
 
 		redirect();
@@ -729,7 +729,7 @@ public class FleetMgntController extends DSGenerator {
 		}
 		ship.free();
 
-		t.set_var(	"fleetmgnt.message",	"J&auml;ger wurden aufgesammelt",
+		t.setVar(	"fleetmgnt.message",	"J&auml;ger wurden aufgesammelt",
 					"jscript.reloadmain",	1 );
 
 		redirect();
@@ -763,7 +763,7 @@ public class FleetMgntController extends DSGenerator {
 			db.update("DELETE FROM ship_fleets WHERE id='",fleetID,"'");
 		}
 		
-		t.set_var(	"fleetmgnt.message",	"Alle Schiffe der Flotte '"+Common._plaintitle(fleetname.getString("name"))+"' sind beigetreten",
+		t.setVar(	"fleetmgnt.message",	"Alle Schiffe der Flotte '"+Common._plaintitle(fleetname.getString("name"))+"' sind beigetreten",
 					"jscript.reloadmain",	1 );
 							
 		this.redirect();
@@ -781,11 +781,11 @@ public class FleetMgntController extends DSGenerator {
 		
 		sectors.add("(x='"+aship.getInt("x")+"' AND y='"+aship.getInt("y")+"' AND system='"+aship.getInt("system")+"')");
 
-		t.set_var(	"show.view",	1,
+		t.setVar(	"show.view",	1,
 					"fleet.name",	Common._plaintitle(this.fleet.getString("name")),
 					"fleet.id",		this.fleet.getInt("id") );
 								
-		t.set_block("_FLEETMGNT", "ships.listitem", "ships.list");
+		t.setBlock("_FLEETMGNT", "ships.listitem", "ships.list");
 	
 		Location aloc = Location.fromResult(aship);
 		
@@ -795,7 +795,7 @@ public class FleetMgntController extends DSGenerator {
 			SQLResultRow shiptype = ShipTypes.getShipType( shipRow );
 			Location loc = Location.fromResult(shipRow);
 			
-			t.set_var(	"ship.id",			ship.getInt("id"),
+			t.setVar(	"ship.id",			ship.getInt("id"),
 						"ship.name",		Common._plaintitle(ship.getString("name")),
 						"ship.type.name",	shiptype.getString("nickname"),
 						"ship.showbattle",	ship.getInt("battle"),
@@ -812,7 +812,7 @@ public class FleetMgntController extends DSGenerator {
 		// Jaegerliste bauen
 		String sectorstring = Common.implode(" OR ", sectors);
 		
-		t.set_block("_FLEETMGNT", "jaegertypes.listitem", "jaegertypes.list");
+		t.setBlock("_FLEETMGNT", "jaegertypes.listitem", "jaegertypes.list");
 		
 		SQLQuery shiptype = db.query("SELECT nickname,id FROM ship_types WHERE LOCATE('"+ShipTypes.SF_JAEGER+"',flags) "+(user.getAccessLevel() < 10 ? "AND hide=0" : ""));
 		while( shiptype.next() ) {
@@ -821,7 +821,7 @@ public class FleetMgntController extends DSGenerator {
 				continue;
 			}
 			
-			t.set_var(	"jaegertype.id",	shiptype.getInt("id"),
+			t.setVar(	"jaegertype.id",	shiptype.getInt("id"),
 						"jaegertype.name",	shiptype.getString("nickname") );
 								
 			t.parse("jaegertypes.list", "jaegertypes.listitem", true);
@@ -829,12 +829,12 @@ public class FleetMgntController extends DSGenerator {
 		shiptype.free();
 		
 		// Flottenliste bauen
-		t.set_block("_FLEETMGNT", "fleetcombine.listitem", "fleetcombine.list");
+		t.setBlock("_FLEETMGNT", "fleetcombine.listitem", "fleetcombine.list");
 		SQLQuery afleet = db.query("SELECT t2.id,t2.name FROM ships t1 JOIN ship_fleets t2 ON t1.fleet=t2.id WHERE t1.system='",aship.getInt("system"),"' AND t1.x='",aship.getInt("x"),"' AND t1.y='",aship.getInt("y"),"' AND docked='' AND owner='",user.getID(),"' AND t1.fleet!='",this.fleet.getInt("id"),"' GROUP BY t2.id");
 		while( afleet.next() ) {
 			int count = db.first("SELECT count(*) count FROM ships WHERE fleet=",afleet.getInt("id")).getInt("count");
 			
-			t.set_var(	"fleetcombine.id",			afleet.getInt("id"),
+			t.setVar(	"fleetcombine.id",			afleet.getInt("id"),
 						"fleetcombine.name",		Common._plaintitle(afleet.getString("name")),
 						"fleetcombine.shipcount",	count );
 								

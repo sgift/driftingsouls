@@ -84,7 +84,7 @@ public class TechDatabaseController extends DSGenerator {
 	 */
 	@Override
 	public void defaultAction() {
-		getTemplateEngine().set_var( "show.frame", 1 );
+		getTemplateEngine().setVar( "show.frame", 1 );
 	}
 	
 	/**
@@ -92,7 +92,7 @@ public class TechDatabaseController extends DSGenerator {
 	 *
 	 */
 	public void nothingAction() {
-		getTemplateEngine().set_var( "show.none", 1 );
+		getTemplateEngine().setVar( "show.none", 1 );
 	}
 	
 	/**
@@ -102,7 +102,7 @@ public class TechDatabaseController extends DSGenerator {
 	public void menuAction() {
 		setDisableDebugOutput(true);
 		
-		getTemplateEngine().set_var( "show.menu", 1 );
+		getTemplateEngine().setVar( "show.menu", 1 );
 	}
 	
 	/**
@@ -117,7 +117,7 @@ public class TechDatabaseController extends DSGenerator {
 
 		String text = Common._text(article.getString("article"));
 		
-		t.set_var(	"show.shiplist",	1,
+		t.setVar(	"show.shiplist",	1,
 					"shiplist.text",	text,
 					"shiplist.author",	article.getString("author"),
 					"shiplist.title",	article.getString("title") );
@@ -135,7 +135,7 @@ public class TechDatabaseController extends DSGenerator {
 
 		String text = Common._text(article.getString("article"));
 		
-		t.set_var(	"show.shiplist",	1,
+		t.setVar(	"show.shiplist",	1,
 					"shiplist.text",	text,
 					"shiplist.author",	article.getString("author"),
 					"shiplist.title",	article.getString("title") );
@@ -162,10 +162,10 @@ public class TechDatabaseController extends DSGenerator {
 		
 		parameterNumber("article");
 		
-		t.set_var("show.facts",1);
+		t.setVar("show.facts",1);
 
-		t.set_block("_TECHDATABASE", "facts.articlegroup.listitem", "facts.articlegroup.list");
-		t.set_block("facts.articlegroup.listitem", "facts.articles.listitem", "facts.articles.list");
+		t.setBlock("_TECHDATABASE", "facts.articlegroup.listitem", "facts.articlegroup.list");
+		t.setBlock("facts.articlegroup.listitem", "facts.articles.listitem", "facts.articles.list");
 
 		String oldclass = "";
 
@@ -173,22 +173,22 @@ public class TechDatabaseController extends DSGenerator {
 		
 		while( article.next() ) {
 			if( (oldclass.length() != 0) && !oldclass.equals(article.getString("class")) ) {
-				t.set_var("articlegroup.name", articleClasses.get(oldclass));
+				t.setVar("articlegroup.name", articleClasses.get(oldclass));
 				t.parse("facts.articlegroup.list", "facts.articlegroup.listitem",true);
 				
-				t.set_var("facts.articles.list", "" );
+				t.setVar("facts.articles.list", "" );
 			}
 			
 			oldclass = article.getString("class");
 
-			t.set_var(	"article.id",		article.getInt("id"),
+			t.setVar(	"article.id",		article.getInt("id"),
 						"article.title",	Common._title(article.getString("title")) );
 
 			t.parse("facts.articles.list", "facts.articles.listitem", true);
 		}
 		article.free();
 
-		t.set_var("articlegroup.name", articleClasses.get(oldclass));
+		t.setVar("articlegroup.name", articleClasses.get(oldclass));
 		t.parse("facts.articlegroup.list", "facts.articlegroup.listitem", true);
 
 		int articleID = getInteger("article");
@@ -196,7 +196,7 @@ public class TechDatabaseController extends DSGenerator {
 		if( articleID != 0 ) {
 			SQLResultRow thisarticle = db.first("SELECT title,text,class FROM portal_facts WHERE id='"+articleID+"'");
 
-			t.set_var(	"article.class",	articleClasses.get(thisarticle.getString("class")),
+			t.setVar(	"article.class",	articleClasses.get(thisarticle.getString("class")),
 						"article.title",	Common._title(thisarticle.getString("title")),
 						"article.text",		Common._text(thisarticle.getString("text") ) );
 		}

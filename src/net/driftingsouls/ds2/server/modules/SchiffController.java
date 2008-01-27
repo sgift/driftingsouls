@@ -120,7 +120,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
-		t.set_var( "user.tooltips", user.getUserValue("TBLORDER/schiff/tooltips") );
+		t.setVar( "user.tooltips", user.getUserValue("TBLORDER/schiff/tooltips") );
 		
 		int shipid = getInteger("ship");
 		
@@ -203,7 +203,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		if( (alarm >= 0) && (alarm <= 1) ) { 
 			db.update("UPDATE ships SET alarm=",alarm," WHERE id>0 AND id=",ship.getInt("id"));
 			
-			getTemplateEngine().set_var("ship.message", "Alarmstufe erfolgreich ge&auml;ndert<br />");
+			getTemplateEngine().setVar("ship.message", "Alarmstufe erfolgreich ge&auml;ndert<br />");
 		}
 		
 		Ships.recalculateShipStatus(ship.getInt("id"));
@@ -233,7 +233,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		if( conf == 0 ) {
 			String text = "<span style=\"color:white\">Wollen sie das Schiff "+Common._plaintitle(ship.getString("name"))+" ("+ship.getInt("id")+") wirklich an "+newowner.getProfileLink()+" &uuml;bergeben?</span><br />";
 			text += "<a class=\"ok\" href=\""+Common.buildUrl(getContext(), "consign", "ship", ship.getInt("id"), "conf" , 1, "newowner" , newowner.getID())+"\">&Uuml;bergeben</a></span><br />";
-			t.set_var( "ship.message", text );
+			t.setVar( "ship.message", text );
 			
 			redirect();
 			return;
@@ -244,7 +244,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		boolean result = Ships.consign(user, ship, newowner, false );
 			
 		if( result ) {
-			t.set_var("ship.message", Ships.MESSAGE.getMessage());
+			t.setVar("ship.message", Ships.MESSAGE.getMessage());
 					
 			redirect();
 		}
@@ -253,7 +253,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 			PM.send(getContext(), user.getID(), newowner.getID(), "Schiff &uuml;bergeben", msg);
 		
 			String consMessage = Ships.MESSAGE.getMessage();
-			t.set_var("ship.message", (!consMessage.equals("") ? consMessage+"<br />" : "")+"<span style=\"color:green\">Das Schiff wurde erfolgreich an "+newowner.getProfileLink()+" &uuml;bergeben</span><br />");
+			t.setVar("ship.message", (!consMessage.equals("") ? consMessage+"<br />" : "")+"<span style=\"color:green\">Das Schiff wurde erfolgreich an "+newowner.getProfileLink()+" &uuml;bergeben</span><br />");
 			
 			if( fleet != 0 ) {
 				int fleetcount = db.first("SELECT count(*) count FROM ships WHERE id>0 AND fleet="+fleet).getInt("count");
@@ -276,7 +276,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		TemplateEngine t = getTemplateEngine();
 
 		if( !ship.getString("lock").equals("") ) {
-			t.set_var("ship.message", "<span style=\"color:red\">Dieses Schiff kann sich nicht selbstzerst&ouml;ren, da es in ein Quest eingebunden ist</span><br />");
+			t.setVar("ship.message", "<span style=\"color:red\">Dieses Schiff kann sich nicht selbstzerst&ouml;ren, da es in ein Quest eingebunden ist</span><br />");
 			redirect();
 			return;
 		}
@@ -287,7 +287,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		if( conf == 0 ) {
 			String text = "<span style=\"color:white\">Wollen sie Selbstzerst&ouml;rung des Schiffes "+Common._plaintitle(ship.getString("name"))+" ("+ship.getInt("id")+") wirklich ausf&uuml;hren?</span><br />\n";
 			text += "<a class=\"error\" href=\""+Common.buildUrl(getContext(), "destroy", "ship", ship.getInt("id"), "conf", 1)+"\">Selbstzerst&ouml;rung</a></span><br />";
-			t.set_var("ship.message", text);
+			t.setVar("ship.message", text);
 			
 			redirect();
 			return;
@@ -295,7 +295,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 	
 		Ships.destroy( ship.getInt("id") );
 
-		t.set_var("ship.message", "<span style=\"color:white\">Das Schiff hat sich selbstzerst&ouml;rt</span><br />");
+		t.setVar("ship.message", "<span style=\"color:white\">Das Schiff hat sich selbstzerst&ouml;rt</span><br />");
 		return;
 	}
 	
@@ -317,7 +317,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		
 		if( node != 0 ) {
 			Ships.jump(ship.getInt("id"), node, false);
-			t.set_var("ship.message", Ships.MESSAGE.getMessage());
+			t.setVar("ship.message", Ships.MESSAGE.getMessage());
 		}
 
 		redirect();
@@ -341,7 +341,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		
 		if( knode != 0 ) {
 			Ships.jump(ship.getInt("id"), knode, true);
-			t.set_var("ship.message", Ships.MESSAGE.getMessage());
+			t.setVar("ship.message", Ships.MESSAGE.getMessage());
 		}
 
 		redirect();
@@ -360,7 +360,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		String newname = getString("newname");
 		
 		db.prepare("UPDATE ships SET name= ? WHERE id= ?").update(newname, ship.getInt("id"));
-		t.set_var("ship.message", "Name zu "+Common._plaintitle(newname)+" ge&auml;ndert<br />");
+		t.setVar("ship.message", "Name zu "+Common._plaintitle(newname)+" ge&auml;ndert<br />");
 		ship.put("name", newname);
 	
 		redirect();
@@ -391,7 +391,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		}
 		
 		parseSubParameter(plugin+"_ops");
-		t.set_var("ship.message", pluginMapper.get(plugin).action(caller));
+		t.setVar("ship.message", pluginMapper.get(plugin).action(caller));
 		
 		parseSubParameter("");
 		
@@ -411,14 +411,14 @@ public class SchiffController extends DSGenerator implements Loggable {
 		String shipIdList = getString("shiplist");
 		
 		if( shipIdList.equals("") ) {
-			t.set_var("ship.message", "Es wurden keine Schiffe angegeben");
+			t.setVar("ship.message", "Es wurden keine Schiffe angegeben");
 			redirect();
 		}
 		
 		int[] shiplist = Common.explodeToInt("|",shipIdList);
 		
 		Ships.dock(Ships.DockMode.LAND, user.getID(), ship.getInt("id"), shiplist);
-		t.set_var("ship.message", Ships.MESSAGE.getMessage());
+		t.setVar("ship.message", Ships.MESSAGE.getMessage());
 
 		redirect();
 	}
@@ -436,14 +436,14 @@ public class SchiffController extends DSGenerator implements Loggable {
 		String shipIdList = getString("shiplist");
 		
 		if( shipIdList.equals("") ) {
-			t.set_var("ship.message", "Es wurden keine Schiffe angegeben");
+			t.setVar("ship.message", "Es wurden keine Schiffe angegeben");
 			redirect();
 		}
 		
 		int[] shiplist = Common.explodeToInt("|",shipIdList);
 		
 		Ships.dock(Ships.DockMode.START, user.getID(), ship.getInt("id"), shiplist);
-		t.set_var("ship.message", Ships.MESSAGE.getMessage());
+		t.setVar("ship.message", Ships.MESSAGE.getMessage());
 
 		redirect();
 	}
@@ -461,7 +461,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		String shipIdList = getString("tar");
 		
 		if( shipIdList.equals("") ) {
-			t.set_var("ship.message", "Es wurden keine Schiffe angegeben");
+			t.setVar("ship.message", "Es wurden keine Schiffe angegeben");
 			redirect();
 		}
 		
@@ -484,7 +484,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		}
 		
 		Ships.dock(Ships.DockMode.DOCK, user.getID(), ship.getInt("id"), shiplist);
-		t.set_var("ship.message", Ships.MESSAGE.getMessage());
+		t.setVar("ship.message", Ships.MESSAGE.getMessage());
 
 		redirect();
 	}
@@ -502,14 +502,14 @@ public class SchiffController extends DSGenerator implements Loggable {
 		String shipIdList = getString("tar");
 		
 		if( shipIdList.equals("") ) {
-			t.set_var("ship.message", "Es wurden keine Schiffe angegeben");
+			t.setVar("ship.message", "Es wurden keine Schiffe angegeben");
 			redirect();
 		}
 		
 		int[] shiplist = Common.explodeToInt("|",shipIdList);
 		
 		Ships.dock(Ships.DockMode.UNDOCK, user.getID(), ship.getInt("id"), shiplist);
-		t.set_var("ship.message", Ships.MESSAGE.getMessage());
+		t.setVar("ship.message", Ships.MESSAGE.getMessage());
 
 		redirect();
 	}
@@ -534,34 +534,34 @@ public class SchiffController extends DSGenerator implements Loggable {
 			Ships.removeFromFleet(ship);
 			ship.put("fleet", 0);
 			
-			t.set_var("ship.message", "<span style=\"color:green\">"+Ships.MESSAGE.getMessage()+"</span><br />");
+			t.setVar("ship.message", "<span style=\"color:green\">"+Ships.MESSAGE.getMessage()+"</span><br />");
 		} 
 		else if( join == 0 ) {
-			t.set_var("ship.message", "<span style=\"color:red\">Dieses Schiff kann nicht aus der Flotte austreten, da diese in ein Quest eingebunden ist</span><br />");		
+			t.setVar("ship.message", "<span style=\"color:red\">Dieses Schiff kann nicht aus der Flotte austreten, da diese in ein Quest eingebunden ist</span><br />");		
 		}
 		// Beitreten
 		else {
 			SQLResultRow fleet = db.first("SELECT id,name FROM ship_fleets WHERE id='",fleetship.getInt("fleet"),"'");
 		
 			if( !fleetship.getString("lock").equals("") || !ship.getString("lock").equals("") ) {
-				t.set_var("ship.message", "<span style=\"color:red\">Sie k&oumlnnen der Flotte nicht beitreten, solange entweder das Schiff oder die Flotte in ein Quest eingebunden ist</span><br />");
+				t.setVar("ship.message", "<span style=\"color:red\">Sie k&oumlnnen der Flotte nicht beitreten, solange entweder das Schiff oder die Flotte in ein Quest eingebunden ist</span><br />");
 				redirect();
 				
 				return;
 			}
 			
 			if( !Location.fromResult(ship).sameSector(0, Location.fromResult(fleetship), 0) || ( fleetship.getInt("owner") != user.getID() ) || (fleet.getInt("id") != fleetship.getInt("fleet")) ) {
-				t.set_var("ship.message", "<span style=\"color:red\">Beitritt zur Flotte &quot;"+Common._plaintitle(fleet.getString("name"))+"&quot; nicht m&ouml;glich</span><br />");
+				t.setVar("ship.message", "<span style=\"color:red\">Beitritt zur Flotte &quot;"+Common._plaintitle(fleet.getString("name"))+"&quot; nicht m&ouml;glich</span><br />");
 			}
 			else {
 				if( fleetship.getInt("fleet") == 0 ) {
-					t.set_var("ship.message", "<span style=\"color:red\">Sie m&uuml;ssen erst eine Flotte erstellen</span><br />");
+					t.setVar("ship.message", "<span style=\"color:red\">Sie m&uuml;ssen erst eine Flotte erstellen</span><br />");
 					redirect();
 					return;
 				}
 			
 				db.update("UPDATE ships SET fleet=",fleetship.getInt("fleet")," WHERE id>0 AND id=",ship.getInt("id"));
-				t.set_var("ship.message", "<span style=\"color:green\">Flotte &quot;"+Common._plaintitle(fleet.getString("name"))+"&quot; beigetreten</span><br />");
+				t.setVar("ship.message", "<span style=\"color:green\">Flotte &quot;"+Common._plaintitle(fleet.getString("name"))+"&quot; beigetreten</span><br />");
 			}
 		}
 		
@@ -593,7 +593,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 			shup = ship.getInt("e");
 		}
 
-		t.set_var("ship.message", "Schilde +"+(shup*shieldfactor)+"<br />");
+		t.setVar("ship.message", "Schilde +"+(shup*shieldfactor)+"<br />");
 		
 		int oldshields = ship.getInt("shields");
 		ship.put("shields", ship.getInt("shields") + shup*shieldfactor);
@@ -640,7 +640,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 			db.update("UPDATE ships SET script=NULL,scriptexedata=NULL WHERE id>0 AND id='",ship.getInt("id"),"'");		
 		}
 		
-		t.set_var("ship.message", "Script gespeichert<br />");
+		t.setVar("ship.message", "Script gespeichert<br />");
 	
 		redirect();
 	}
@@ -689,7 +689,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 	
 		SQLResultRow targetship = db.first("SELECT x,y,system,oncommunicate FROM ships WHERE id>0 AND id='",communicate,"'");
 		if( !Location.fromResult(targetship).sameSector(0, Location.fromResult(ship), 0) ) {
-			t.set_var("ship.message", "<span style=\"color:red\">Sie k&ouml;nnen nur mit Schiffen im selben Sektor kommunizieren</span><br />");
+			t.setVar("ship.message", "<span style=\"color:red\">Sie k&ouml;nnen nur mit Schiffen im selben Sektor kommunizieren</span><br />");
 			redirect();
 			return;
 		}
@@ -734,7 +734,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		}
 	
 		if( ship.getString("onmove").equals("") ) {
-			t.set_var("ship.message", "<span style=\"color:red\">Das angegebene Schiff verf&uuml;gt nicht &uuml;ber dieses Ereigniss</span><br />");
+			t.setVar("ship.message", "<span style=\"color:red\">Das angegebene Schiff verf&uuml;gt nicht &uuml;ber dieses Ereigniss</span><br />");
 			redirect();
 			return;	
 		}
@@ -808,7 +808,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 			}
 			else {
 				runningdata.free();
-				t.set_var("ship.message", "FATAL QUEST ERROR: keine running-data gefunden!<br />");
+				t.setVar("ship.message", "FATAL QUEST ERROR: keine running-data gefunden!<br />");
 				redirect();
 				return;
 			}
@@ -843,7 +843,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 			runningdata.free();
 		}	
 		else {
-			t.set_var("ship.message", "Das angegebene Schiff antwortet auf ihre Funksignale nicht<br />");	
+			t.setVar("ship.message", "Das angegebene Schiff antwortet auf ihre Funksignale nicht<br />");	
 		}
 		redirect();
 	}
@@ -998,7 +998,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 			}
 			sid.free();
 			
-			t.set_var("ship.message", "Die Respawn-Daten wurden gel&ouml;scht<br />");
+			t.setVar("ship.message", "Die Respawn-Daten wurden gel&ouml;scht<br />");
 		}
 		else {
 			parameterNumber("respawntime");
@@ -1012,7 +1012,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 			}
 			sid.free();
 			
-			t.set_var("ship.message", "Die Respawn-Daten wurden angelegt<br />");
+			t.setVar("ship.message", "Die Respawn-Daten wurden angelegt<br />");
 		}
 		
 		redirect();
@@ -1033,7 +1033,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		}
 		
 		db.update("UPDATE ships SET x='10',y='10',system='99' WHERE id='",ship.getInt("id"),"'");
-		t.set_var("ship.message", "<span style=\"color:green\">Willkommen auf der Insel <img align=\"middle\" src=\""+Configuration.getSetting("SMILIE_PATH")+"/icon_smile.gif\" alt=\":)\" /></span><br />");
+		t.setVar("ship.message", "<span style=\"color:green\">Willkommen auf der Insel <img align=\"middle\" src=\""+Configuration.getSetting("SMILIE_PATH")+"/icon_smile.gif\" alt=\":)\" /></span><br />");
 		
 		redirect();
 	}
@@ -1085,7 +1085,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		ScriptParser scriptparser = getContext().get(ContextCommon.class).getScriptParser( ScriptParser.NameSpace.QUEST );
 		if( ship.isEmpty() ) {
 			if( (scriptparser != null) && (scriptparser.getContext().getOutput().length() != 0) ) {
-				t.set_var("ship.scriptparseroutput",
+				t.setVar("ship.scriptparseroutput",
 						scriptparser.getContext().getOutput().replace("{{var.sessid}}", getString("sess")) );
 			}
 				
@@ -1094,7 +1094,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 
 		if( ship.getInt("battle") > 0 ) {
 			if( (scriptparser != null) && (scriptparser.getContext().getOutput().length() > 0) ) {
-				t.set_var("ship.scriptparseroutput",
+				t.setVar("ship.scriptparseroutput",
 						scriptparser.getContext().getOutput().replace("{{var.sessid}}", getString("sess")) );
 			}
 		
@@ -1110,7 +1110,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		tooltiptext.append(Common.tableEnd().replace('"', '\'') );
 		String tooltiptextStr = StringEscapeUtils.escapeJavaScript(tooltiptext.toString().replace(">", "&gt;").replace("<", "&lt;"));
 
-		t.set_var(	"ship.showui",			1,
+		t.setVar(	"ship.showui",			1,
 					"ship.id",				ship.getInt("id"),
 					"ship.name",			Common._plaintitle(ship.getString("name")),
 					"ship.location",		Ships.getLocationText(ship, false),
@@ -1147,24 +1147,24 @@ public class SchiffController extends DSGenerator implements Loggable {
 					"ship.showalarm",		!noob && (shiptype.getInt("class") != ShipClasses.GESCHUETZ.ordinal()) && shiptype.getInt("military") != 0 );
 		
 		if( ship.getInt("s") >= 100 ) {
-			t.set_var("ship.s.color", "red");	
+			t.setVar("ship.s.color", "red");	
 		}
 		else if( ship.getInt("s") > 40 ) {
-			t.set_var("ship.s.color", "yellow");	
+			t.setVar("ship.s.color", "yellow");	
 		}
 		else {
-			t.set_var("ship.s.color", "white");	
+			t.setVar("ship.s.color", "white");	
 		}
 		
 		if( offizier != null ) {
-			t.set_block("_SCHIFF", "offiziere.listitem", "offiziere.list");
+			t.setBlock("_SCHIFF", "offiziere.listitem", "offiziere.list");
 			
 			SQLQuery offi = db.query("SELECT * FROM offiziere WHERE dest='s ",ship.getInt("id"),"'");
 		
 			while( offi.next() ) {
 				Offizier offiObj = new Offizier( offi.getRow() );
 				
-				t.set_var(	"offizier.id",		offiObj.getID(),
+				t.setVar(	"offizier.id",		offiObj.getID(),
 							"offizier.name",	Common._plaintitle(offiObj.getName()),
 							"offizier.picture",	offiObj.getPicture(),
 							"offizier.rang",	offiObj.getRang() );
@@ -1184,10 +1184,10 @@ public class SchiffController extends DSGenerator implements Loggable {
 		if( ship.getInt("fleet") != 0 ) {
 			SQLResultRow fleet = db.first("SELECT name FROM ship_fleets WHERE id=",ship.getInt("fleet"));
 			if( !fleet.isEmpty() ) {
-				t.set_var("fleet.name", Common._plaintitle(fleet.getString("name")) );
+				t.setVar("fleet.name", Common._plaintitle(fleet.getString("name")) );
 			} 
 			else {
-				t.set_var("ship.fleet", 0);
+				t.setVar("ship.fleet", 0);
 				db.update("UPDATE ships SET fleet=0 WHERE id>0 AND id=",ship.getInt("id"));
 			}
 		}
@@ -1195,7 +1195,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		// Aktion: Schnelllink GTU-Handelsdepot
 		SQLResultRow handel = db.first("SELECT id,name FROM ships WHERE id>0 AND system=",ship.getInt("system")," AND x=",ship.getInt("x")," AND y=",ship.getInt("y")," AND LOCATE('tradepost',status)");
 		if( !handel.isEmpty() ) {
-			t.set_var(	"sector.handel",		handel.getInt("id"),
+			t.setVar(	"sector.handel",		handel.getInt("id"),
 						"sector.handel.name",	Common._plaintitle(handel.getString("name") ));
 		}
 		
@@ -1206,7 +1206,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 			script = StringUtils.replace(script,"\n", "\\n");
 			script = StringUtils.replace(script,"\"", "\\\"");
 			
-			t.set_var(	"tooltip.execnotes",		1,
+			t.setVar(	"tooltip.execnotes",		1,
 						"tooltip.execnotes.begin",	StringUtils.replaceChars(Common.tableBegin(400, "center"),'"', '\''),
 						"tooltip.execnotes.end",	StringUtils.replaceChars(Common.tableEnd(),'"', '\''),
 						"tooltip.execnotes.script",	script );
@@ -1223,24 +1223,24 @@ public class SchiffController extends DSGenerator implements Loggable {
 			tooltiptext.append(Common.tableEnd().replace( '"', '\''));
 			String tooltipStr = StringEscapeUtils.escapeJavaScript(tooltiptext.toString().replace(">", "&gt;").replace("<", "&lt;"));
 
-			t.set_var("tooltip.admin", tooltipStr );
+			t.setVar("tooltip.admin", tooltipStr );
 				
-			t.set_var(	"tooltip.respawn.begin",	Common.tableBegin(200,"center").replace( '"', '\''),
+			t.setVar(	"tooltip.respawn.begin",	Common.tableBegin(200,"center").replace( '"', '\''),
 						"tooltip.respawn.end",		Common.tableEnd().replace( '"', '\'' ),
 						"ship.respawn",				ship.getInt("respawn") );
 
 			SQLResultRow rentry = db.first("SELECT id FROM ships WHERE id='-",ship.getInt("id"),"'");
 			if( !rentry.isEmpty() ) {
-				t.set_var(	"ship.show.respawn",	1,
+				t.setVar(	"ship.show.respawn",	1,
 							"ship.hasrespawn",		1);	
 			}
 			else {
-				t.set_var( "ship.show.respawn", 1 );	
+				t.setVar( "ship.show.respawn", 1 );	
 			}
 		}
 		
 		if( user.hasFlag( User.FLAG_NPC_ISLAND ) ) {
-			t.set_var("ship.npcislandlink", 1);
+			t.setVar("ship.npcislandlink", 1);
 		}
 		
 		// Tooltip: Module
@@ -1373,10 +1373,10 @@ public class SchiffController extends DSGenerator implements Loggable {
 			String tooltipStr = StringEscapeUtils.escapeJavaScript(tooltiptext.toString().replace(">", "&gt;").replace("<", "&lt;"));
 					
 			if( tooltiplines.size() > 15 ) {
-				t.set_var("tooltip.moduleext", tooltipStr);
+				t.setVar("tooltip.moduleext", tooltipStr);
 			}
 			else {
-				t.set_var("tooltip.module", tooltipStr);
+				t.setVar("tooltip.module", tooltipStr);
 			}
 		}
 		
@@ -1387,23 +1387,23 @@ public class SchiffController extends DSGenerator implements Loggable {
 				shieldfactor = 10;
 			}
 			
-			t.set_var("ship.shields.reloade", Common.ln((int)Math.ceil((shiptype.getInt("shields") - ship.getInt("shields"))/(double)shieldfactor)));
+			t.setVar("ship.shields.reloade", Common.ln((int)Math.ceil((shiptype.getInt("shields") - ship.getInt("shields"))/(double)shieldfactor)));
 		}
 		
 		String[] alarms = {"yellow","red"};
 		String[] alarmn = {"gelb","rot"};
 	
 		// Alarmstufe aendern
-		t.set_block("_SCHIFF", "ship.alarms.listitem", "ship.alarms.list");
+		t.setBlock("_SCHIFF", "ship.alarms.listitem", "ship.alarms.list");
 		for( int a = 0; a < alarms.length; a++ ) {
-			t.set_var(	"alarm.id",			a,
+			t.setVar(	"alarm.id",			a,
 						"alarm.name", 		alarmn[a],
 						"alarm.selected",	(ship.getInt("alarm") == a) );
 			t.parse("ship.alarms.list", "ship.alarms.listitem", true);
 		}
 
 		if( (ship.getString("status").indexOf("noconsign") == -1) && ship.getString("lock").equals("") ) {
-			t.set_var("ship.consignable", 1);
+			t.setVar("ship.consignable", 1);
 		}
 		
 		//------------------------------------------------------------
@@ -1441,12 +1441,12 @@ public class SchiffController extends DSGenerator implements Loggable {
 		*/
 	
 		if( (scriptparser != null) && (scriptparser.getContext().getOutput().length() > 0) ) {
-			t.set_var("ship.scriptparseroutput",
+			t.setVar("ship.scriptparseroutput",
 					scriptparser.getContext().getOutput().replace("{{var.sessid}}", getString("sess")));
 		}
 	
 		caller.target = "plugin.output";
-		t.set_block("_SCHIFF","plugins.listitem","plugins.list");
+		t.setBlock("_SCHIFF","plugins.listitem","plugins.list");
 		
 		// Und nun weiter mit den Plugins
 		for( String pluginName : pluginMapper.keySet() ) {		

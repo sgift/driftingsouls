@@ -391,23 +391,23 @@ public abstract class DSGenerator extends Generator {
 		}
 				
 		if( getBrowser().equals("opera") ) {
-			templateEngine.set_var("_BROWSER_OPERA",1);
+			templateEngine.setVar("_BROWSER_OPERA",1);
 		}
 		else if( getBrowser().equals("msie") ) {
-			templateEngine.set_var("_BROWSER_MSIE",1);
+			templateEngine.setVar("_BROWSER_MSIE",1);
 		}
 		else {
-			templateEngine.set_var("_BROWSER_MOZILLA",1);
+			templateEngine.setVar("_BROWSER_MOZILLA",1);
 		}
 		
 		if( getUser() != null ) {
-			templateEngine.set_var("global.datadir", getUser().getImagePath());
+			templateEngine.setVar("global.datadir", getUser().getImagePath());
 		}
 		else {
-			templateEngine.set_var("global.datadir", User.getDefaultImagePath(getDatabase()));
+			templateEngine.setVar("global.datadir", User.getDefaultImagePath(getDatabase()));
 		}
 		
-		templateEngine.set_var(	"global.sess",	getString("sess"),
+		templateEngine.setVar(	"global.sess",	getString("sess"),
 								"global.module", getString("module") );
 	}
 	
@@ -452,7 +452,7 @@ public abstract class DSGenerator extends Generator {
 		
 			masterTemplateID = mastertemplate;
 
-			if( !templateEngine.set_file( masterTemplateID, file ) ) {
+			if( !templateEngine.setFile( masterTemplateID, file ) ) {
 				masterTemplateID = "";
 			}
 		}

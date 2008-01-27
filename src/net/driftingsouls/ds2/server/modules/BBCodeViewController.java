@@ -79,6 +79,6 @@ public class BBCodeViewController extends DSGenerator {
 	public void defaultAction(){
 		TemplateEngine t = getTemplateEngine();
 
-		t.set_var("bbcode.text", Common.implode("<br />", codes));
+		t.setVar("bbcode.text", Common.implode("<br />", codes));
 	}
 }

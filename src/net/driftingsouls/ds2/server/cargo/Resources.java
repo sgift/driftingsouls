@@ -167,10 +167,10 @@ public class Resources {
 	 * @param templateitem Der Name eines Items des TemplateBlocks
 	 */
 	public static void echoResList( TemplateEngine t, ResourceList reslist, String templateblock, String templateitem ) {
-		t.set_var(templateblock,"");
+		t.setVar(templateblock,"");
 		
 		for( ResourceEntry res : reslist ) {
-			t.set_var(	"res.image",		res.getImage(),
+			t.setVar(	"res.image",		res.getImage(),
 						"res.cargo",		res.getCargo1(),
 						"res.cargo1",		res.getCargo1(),
 						"res.cargo2",		res.getCargo2(),

@@ -136,7 +136,7 @@ public class BaseController extends DSGenerator {
 		}
 		base.setCargo(cargo);
 	
-		t.set_var("base.message", "<img src=\""+Cargo.getResourceImage(Resources.NAHRUNG)+"\" alt=\"\" />"+Math.abs(count)+" 100er Pakete transferiert" );
+		t.setVar("base.message", "<img src=\""+Cargo.getResourceImage(Resources.NAHRUNG)+"\" alt=\"\" />"+Math.abs(count)+" 100er Pakete transferiert" );
 	
 		redirect();
 	}
@@ -158,7 +158,7 @@ public class BaseController extends DSGenerator {
 	
 		db.prepare("UPDATE bases SET name= ? WHERE id= ? ").update(newname, base.getID());
 		
-		t.set_var("base.message", "Name zu "+Common._plaintitle(newname)+" ge&auml;ndert");
+		t.setVar("base.message", "Name zu "+Common._plaintitle(newname)+" ge&auml;ndert");
 		base.setName(newname);
 		
 		redirect();
@@ -217,11 +217,11 @@ public class BaseController extends DSGenerator {
 				}
 				result += count+" Geb&auml;ude wurde"+(count > 1 ? "n" : "")+' '+(bebstatus != 0 ? "" : "de")+"aktiviert</span>";
 				
-				t.set_var("base.message", result);
+				t.setVar("base.message", result);
 			}
 		}
 		else {
-			t.set_var("base.message", "<span style=\"color:red\">Sie k&ouml;nnen diese Geb&auml;ude nicht deaktivieren</span>");
+			t.setVar("base.message", "<span style=\"color:red\">Sie k&ouml;nnen diese Geb&auml;ude nicht deaktivieren</span>");
 		}
 	
 		redirect();
@@ -235,8 +235,8 @@ public class BaseController extends DSGenerator {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
 		
-		t.set_block("_BASE", "header", "none" );
-		t.set_block("header", "tiles.listitem", "tiles.list");
+		t.setBlock("_BASE", "header", "none" );
+		t.setBlock("header", "tiles.listitem", "tiles.list");
 		
 		int topOffset = 5;
 		int leftOffset = 5;
@@ -246,7 +246,7 @@ public class BaseController extends DSGenerator {
 				int top = topOffset + ((j % 2)+ i * 2) * 22;
 	   			int left = leftOffset + j * 39;
 	 	  		   				
-   				t.set_var(	"tile.id",		base.getWidth()*i+j,
+   				t.setVar(	"tile.id",		base.getWidth()*i+j,
    							"tile.top",		top,
    							"tile.left",	left );
    				
@@ -280,7 +280,7 @@ public class BaseController extends DSGenerator {
 		
 		int mapheight = (1 + base.getHeight() * 2) * 22+25;
 		
-		t.set_var(	"base.id",				base.getID(),
+		t.setVar(	"base.id",				base.getID(),
 					"base.name",			Common._plaintitle(base.getName()),
 					"base.x",				base.getX(),
 					"base.y",				base.getY(),
@@ -299,7 +299,7 @@ public class BaseController extends DSGenerator {
 		//------------------
 		if( base.getCore() > 0 ) {
 			Core core = Core.getCore(db, base.getCore());
-			t.set_var( "core.name", Common._plaintitle(core.getName()) );
+			t.setVar( "core.name", Common._plaintitle(core.getName()) );
 		}
 		
 		
@@ -309,7 +309,7 @@ public class BaseController extends DSGenerator {
 	
 		Map<Integer,Integer> buildingonoffstatus = new LinkedHashMap<Integer,Integer>();
 		
-		t.set_block("_BASE", "base.map.listitem", "base.map.list");
+		t.setBlock("_BASE", "base.map.listitem", "base.map.list");
 
 		for( int i = 0; i < base.getWidth() * base.getHeight(); i++ ) {	
 			t.start_record();
@@ -340,15 +340,15 @@ public class BaseController extends DSGenerator {
 				image = building.getPicture();
 
 				if( building.isDeakAble() && (base.getActive()[i] == 0) ) {
-					t.set_var(	"tile.overlay",			1,
+					t.setVar(	"tile.overlay",			1,
 								"tile.overlay.image",	"overlay_offline.png" );
 				}
 
-				t.set_var(	"tile.building",		1,
+				t.setVar(	"tile.building",		1,
 							"tile.building.name", Common._plaintitle(building.getName()) );
 			}
 			
-			t.set_var(	"tile.field",			i,
+			t.setVar(	"tile.field",			i,
 						"tile.building.image",	image,
 						"tile.id",				i );
 			
@@ -384,10 +384,10 @@ public class BaseController extends DSGenerator {
 		}
 		reslist.sortByID(false);
 		
-		t.set_block("_BASE", "base.cargo.listitem", "base.cargo.list");
+		t.setBlock("_BASE", "base.cargo.listitem", "base.cargo.list");
 		
 		for( ResourceEntry res : reslist ) {
-			t.set_var(	"res.name",		res.getName(),
+			t.setVar(	"res.name",		res.getName(),
 						"res.image",	res.getImage(),
 						"res.cargo1",	res.getCargo1(),
 						"res.cargo2",	res.getCargo2(),
@@ -411,7 +411,7 @@ public class BaseController extends DSGenerator {
 
 				tooltip = StringEscapeUtils.escapeJavaScript( StringEscapeUtils.escapeHtml(tooltiptext.toString()) );
 
-				t.set_var("res.nahrungspeciallink", tooltip);
+				t.setVar("res.nahrungspeciallink", tooltip);
 			}
 			t.parse("base.cargo.list", "base.cargo.listitem", true);
 		}
@@ -419,7 +419,7 @@ public class BaseController extends DSGenerator {
 		basedata.getStatus().setResource( Resources.NAHRUNG, 0 ); // Nahrung landet nicht im lokalen Cargo...
 		long cstat = -basedata.getStatus().getMass();
 		
-		t.set_var(	"base.cstat",		Common.ln(cstat),
+		t.setVar(	"base.cstat",		Common.ln(cstat),
 					"base.e",			base.getE(),
 					"base.estat",		basedata.getE(),
 					"base.bewohner",	base.getBewohner(),
@@ -430,7 +430,7 @@ public class BaseController extends DSGenerator {
 		// Aktionen
 		//----------------
 
-		t.set_block("_BASE", "base.massonoff.listitem", "base.massonoff.list");
+		t.setBlock("_BASE", "base.massonoff.listitem", "base.massonoff.list");
 
 		for( int bid : buildingonoffstatus.keySet() ) {
 			int bstatus = buildingonoffstatus.get(bid);
@@ -439,7 +439,7 @@ public class BaseController extends DSGenerator {
 			}
 
 			Building building = Building.getBuilding(db, bid);
-			t.set_var(	"building.name",	Common._plaintitle(building.getName()),
+			t.setVar(	"building.name",	Common._plaintitle(building.getName()),
 						"building.id",		bid,
 						"building.allowoff",	(bstatus == -1) || (bstatus == 2),
 						"building.allowon",	(bstatus == -1) || (bstatus == 1) );
@@ -464,18 +464,18 @@ public class BaseController extends DSGenerator {
 		int e_v = e / 5;
 		e %= 5;
 
-		t.set_block("_BASE", "base.estat.listitem", "base.estat.list");
+		t.setBlock("_BASE", "base.estat.listitem", "base.estat.list");
 		
-		t.set_var("estat.image", baseimg+"_x.gif");
+		t.setVar("estat.image", baseimg+"_x.gif");
 		for( ;e_x > 0; e_x-- ) {
 			t.parse("base.estat.list", "base.estat.listitem", true);
 		}
 		
-		t.set_var("estat.image", baseimg+"_v.gif");
+		t.setVar("estat.image", baseimg+"_v.gif");
 		for( ;e_v > 0; e_v-- ) {
 			t.parse("base.estat.list", "base.estat.listitem", true);
 		}
-		t.set_var("estat.image", baseimg+".gif");
+		t.setVar("estat.image", baseimg+".gif");
 		for( ;e > 0; e-- ) {
 			t.parse("base.estat.list", "base.estat.listitem", true);
 		}
@@ -494,11 +494,11 @@ public class BaseController extends DSGenerator {
 			bevstats.put(bue/10, "narbeiter.gif");
 		}
 		
-		t.set_block("_BASE", "base.bev.listitem", "base.bev.list");
+		t.setBlock("_BASE", "base.bev.listitem", "base.bev.list");
 		
 		for( int bevstat : bevstats.keySet() ) {
 			String image = bevstats.get(bevstat);
-			t.set_var("bev.image", image);
+			t.setVar("bev.image", image);
 			for( ;bevstat > 0; bevstat-- ) {
 				t.parse("base.bev.list", "base.bev.listitem", true);
 			}

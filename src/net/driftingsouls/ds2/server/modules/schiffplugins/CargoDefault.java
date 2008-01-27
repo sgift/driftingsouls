@@ -131,16 +131,16 @@ public class CargoDefault implements SchiffPlugin {
 		SQLResultRow shiptype = caller.shiptype;
 
 		TemplateEngine t = caller.controller.getTemplateEngine();
-		t.set_file("_PLUGIN_"+pluginid, "schiff.cargo.default.html");
+		t.setFile("_PLUGIN_"+pluginid, "schiff.cargo.default.html");
 
 		Cargo cargo = new Cargo( Cargo.Type.STRING, ship.getString("cargo") );
 		cargo.setOption(Cargo.Option.LINKCLASS,"schiffwaren");
 
-		t.set_block("_CARGO","schiff.cargo.reslist.listitem","schiff.cargo.reslist.list");
+		t.setBlock("_CARGO","schiff.cargo.reslist.listitem","schiff.cargo.reslist.list");
 		ResourceList reslist = cargo.getResourceList();
 		Resources.echoResList( t, reslist, "schiff.cargo.reslist.list" );
 		
-		t.set_var(	"schiff.cargo.empty",			Common.ln(shiptype.getLong("cargo")-cargo.getMass()),
+		t.setVar(	"schiff.cargo.empty",			Common.ln(shiptype.getLong("cargo")-cargo.getMass()),
 					"global.pluginid",				pluginid,
 					"ship.id",						ship.getInt("id"),
 					"schiff.cargo.batterien",		cargo.hasResource( Resources.BATTERIEN ),

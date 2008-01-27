@@ -126,7 +126,7 @@ public class OptionsController extends DSGenerator implements Loggable {
 			changemsg += "<span style=\"color:red\">Die beiden eingegebenen Passw&ouml;rter stimmen nicht &uuml;berein</span><br />\n";
 		}
 
-		t.set_var(	"options.changenamepwd",			1,
+		t.setVar(	"options.changenamepwd",			1,
 					"options.changenamepwd.nickname",	Common._plaintitle(user.getNickname()),
 					"options.message", 					changemsg );
 	}
@@ -146,12 +146,12 @@ public class OptionsController extends DSGenerator implements Loggable {
 		int del = getInteger("del");
 		String reason = getString("reason");
 		if( del == 0 ) {
-			t.set_var( "options.delaccountform", 1 );
+			t.setVar( "options.delaccountform", 1 );
 		
 			return;
 		}
 		else if( reason.length() < 5 ) {
-			t.set_var(	"options.message",			"Bitte geben sie Gr&uuml;nde f&uuml;r die L&ouml;schung an!<br />\n",
+			t.setVar(	"options.message",			"Bitte geben sie Gr&uuml;nde f&uuml;r die L&ouml;schung an!<br />\n",
 						"options.delaccountform",	1 );
 		
 			return;
@@ -173,7 +173,7 @@ public class OptionsController extends DSGenerator implements Loggable {
 	 		msg.append(reason);
 	 		PM.sendToAdmins(getContext(), user.getID(), "Account l&ouml;schen", msg.toString(), 0);
 	 		
-			t.set_var(	"options.delaccountresp",		1,
+			t.setVar(	"options.delaccountresp",		1,
 						"delaccountresp.admins",		Configuration.getSetting("ADMIN_PMS_ACCOUNT") );
 			
 			return;
@@ -274,7 +274,7 @@ public class OptionsController extends DSGenerator implements Loggable {
 			}
 		}
 		
-		t.set_var( "options.message", changemsg );
+		t.setVar( "options.message", changemsg );
 		
 		redirect("xtra");
 	}
@@ -287,7 +287,7 @@ public class OptionsController extends DSGenerator implements Loggable {
 		User user = getUser();
 		TemplateEngine t = getTemplateEngine();
 
-		t.set_var(	"options.xtra",			1,
+		t.setVar(	"options.xtra",			1,
 					"user.wrapfactor",		user.getUserValue("TBLORDER/schiff/wrapfactor"),
 					"user.inttutorial",		user.getUserValue("TBLORDER/uebersicht/inttutorial"),
 					"user.admin",			user.getAccessLevel() >= 20,
@@ -313,7 +313,7 @@ public class OptionsController extends DSGenerator implements Loggable {
 		}
 		
 		if( list.get(0).getSize() > MAX_UPLOAD_SIZE ) {
-			t.set_var("options.message","Das Logo ist leider zu gro&szlig;. Bitte w&auml;hle eine Datei mit maximal 300kB Gr&ouml;&stlig;e<br />");
+			t.setVar("options.message","Das Logo ist leider zu gro&szlig;. Bitte w&auml;hle eine Datei mit maximal 300kB Gr&ouml;&stlig;e<br />");
 			redirect();
 			return;
 		}
@@ -322,10 +322,10 @@ public class OptionsController extends DSGenerator implements Loggable {
 		try {
 			File uploadedFile = new File(uploaddir+getUser().getID()+".gif");
 			list.get(0).write(uploadedFile);
-			t.set_var("options.message","Das neue Logo wurde auf dem Server gespeichert<br />");
+			t.setVar("options.message","Das neue Logo wurde auf dem Server gespeichert<br />");
 		}
 		catch( Exception e ) {
-			t.set_var("options.message","Offenbar ging beim Upload etwas schief (Ist die Datei evt. zu gro&szlig;?)<br />");
+			t.setVar("options.message","Offenbar ging beim Upload etwas schief (Ist die Datei evt. zu gro&szlig;?)<br />");
 			LOG.warn(e);
 		}
 		redirect();
@@ -347,7 +347,7 @@ public class OptionsController extends DSGenerator implements Loggable {
 		if( gfxpak.length() == 0 ) {
 			user.setImagePath(User.getDefaultImagePath(getDatabase()));
 			
-			t.set_var( "options.message", "Pfad zum Grafikpak zur&uuml;ckgesetzt<br />\n" );
+			t.setVar( "options.message", "Pfad zum Grafikpak zur&uuml;ckgesetzt<br />\n" );
 		} 
 		else {
 			if( (gfxpak.indexOf('/') == -1) && (gfxpak.indexOf('\\') != -1) ) {
@@ -364,7 +364,7 @@ public class OptionsController extends DSGenerator implements Loggable {
 			}
 			user.setImagePath( gfxpak );
 			
-			t.set_var( "options.message", "Pfad zum Grafikpak ge&auml;ndert<br />\n" );
+			t.setVar( "options.message", "Pfad zum Grafikpak ge&auml;ndert<br />\n" );
 		}
 		
 		redirect();
@@ -394,7 +394,7 @@ public class OptionsController extends DSGenerator implements Loggable {
 		
 			Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getContext().getRequest().getRemoteAddress()+"> ("+user.getID()+") <"+user.getUN()+"> Vac beantragt: "+vacmode.getInt("vorlauf")+" Wartezeit "+vacmode.getInt("dauer")+" Dauer Browser <"+getContext().getRequest().getUserAgent()+">\n");
 					
-			t.set_var( "options.message", changemsg.toString() );
+			t.setVar( "options.message", changemsg.toString() );
 		}
 		
 		redirect();
@@ -447,7 +447,7 @@ public class OptionsController extends DSGenerator implements Loggable {
 			changemsg += "Schiffsgruppierungen "+(wrapfactor != 0 ? "aktiviert" : "deaktiviert")+"<br />\n";
 		}
 	
-		t.set_var( "options.message", changemsg );
+		t.setVar( "options.message", changemsg );
 	
 		redirect();
 	}
@@ -462,7 +462,7 @@ public class OptionsController extends DSGenerator implements Loggable {
 		
 		if( user.isNoob() ) {
 			user.setFlag( User.FLAG_NOOB, false );
-			t.set_var("options.message", "GCP-Schutz wurde vorzeitig aufgehoben.<br />");
+			t.setVar("options.message", "GCP-Schutz wurde vorzeitig aufgehoben.<br />");
 		}
 		
 		redirect();
@@ -482,7 +482,7 @@ public class OptionsController extends DSGenerator implements Loggable {
 			imagepath = "";
 		}
 
-		t.set_var(	"options.general",	1,
+		t.setVar(	"options.general",	1,
 					"user.wrapfactor",	user.getUserValue("TBLORDER/schiff/wrapfactor"),
 					"user.tooltip",		user.getUserValue("TBLORDER/schiff/tooltips"),
 					"user.ipsess",		!user.hasFlag( User.FLAG_DISABLE_IP_SESSIONS ),
@@ -491,12 +491,12 @@ public class OptionsController extends DSGenerator implements Loggable {
 					"user.noob",		user.isNoob() );
 
 
-		t.set_block("_OPTIONS","options.general.vac.listitem","options.general.vac.list");
+		t.setBlock("_OPTIONS","options.general.vac.listitem","options.general.vac.list");
 		SQLQuery vacmode = getDatabase().query("SELECT * FROM config_vacmodes");
 		while( vacmode.next() ) {
 			String vacdauer = Common.ticks2Days( vacmode.getInt("dauer"))+"; Vorlauf: "+vacmode.getInt("vorlauf")+" Ticks";
 	
-			t.set_var(	"options.general.vac.dauer",	vacdauer,
+			t.setVar(	"options.general.vac.dauer",	vacdauer,
 						"options.general.vac.index",	vacmode.getInt("id") );
 	
 			t.parse("options.general.vac.list","options.general.vac.listitem",true);

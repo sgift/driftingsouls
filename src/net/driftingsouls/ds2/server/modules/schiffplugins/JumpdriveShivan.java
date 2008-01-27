@@ -138,11 +138,11 @@ public class JumpdriveShivan implements SchiffPlugin {
 		Database db = controller.getDatabase();
 
 		TemplateEngine t = controller.getTemplateEngine();
-		t.set_file("_PLUGIN_"+pluginid, "schiff.jumpdrive.shivan.html");
+		t.setFile("_PLUGIN_"+pluginid, "schiff.jumpdrive.shivan.html");
 
 		SQLResultRow jump = db.first("SELECT x,y,system FROM jumps WHERE shipid=",ship.getInt("id"));
 
-		t.set_var(	"global.pluginid",				pluginid,
+		t.setVar(	"global.pluginid",				pluginid,
 					"ship.id",						ship.getInt("id"),
 					"schiff.jumpdrive.jumping",		jump.isEmpty() ? 0 : jump.getInt("system"),
 					"schiff.jumpdrive.jumpingx",	jump.isEmpty() ? 0 : jump.getInt("x"),

@@ -72,30 +72,30 @@ public class MapController extends DSGenerator implements Loggable {
 		}
 		
 		if( sys == 0 ) {
-			t.set_var("map.message", "Bitte w&auml;hlen sie ein System aus:" );
+			t.setVar("map.message", "Bitte w&auml;hlen sie ein System aus:" );
 			sys = 1;
 			showSystem = false; //Zeige das System nicht an
 		}
 		else if( Systems.get().system(sys) == null ) {
-			t.set_var("map.message", "&Uuml;ber dieses System liegen keine Informationen vor");
+			t.setVar("map.message", "&Uuml;ber dieses System liegen keine Informationen vor");
 			sys = 1;
 			showSystem = false; //Zeige das System nicht an
 		}
 
 		if( (Systems.get().system(sys).getAccess() == StarSystem.AC_ADMIN) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) ) {
-			t.set_var("map.message", "Sie haben keine entsprechenden Karten - Ihnen sind bekannt:");
+			t.setVar("map.message", "Sie haben keine entsprechenden Karten - Ihnen sind bekannt:");
 			sys = 1;
 			showSystem = false; //Zeige das System nicht an
 		} 
 		else if( (Systems.get().system(sys).getAccess() == StarSystem.AC_NPC) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) && !user.hasFlag( User.FLAG_VIEW_SYSTEMS ) ) {
-			t.set_var("map.message", "Sie haben keine entsprechenden Karten - Ihnen sind bekannt:");
+			t.setVar("map.message", "Sie haben keine entsprechenden Karten - Ihnen sind bekannt:");
 			sys = 1;
 			showSystem = false; //Zeige das System nicht an
 		}
 		
 		this.system = sys;
 		
-		t.set_var(	"map.showsystem",	showSystem,
+		t.setVar(	"map.showsystem",	showSystem,
 					"map.system",		sys,
 					"global.datapath",	Configuration.getSetting("URL") );
 		
@@ -111,7 +111,7 @@ public class MapController extends DSGenerator implements Loggable {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
-		t.set_block("_MAP", "systems.listitem", "systems.list");
+		t.setBlock("_MAP", "systems.listitem", "systems.list");
 
 		for( StarSystem system : Systems.get() ) {
 			String systemAddInfo = " ";
@@ -126,7 +126,7 @@ public class MapController extends DSGenerator implements Loggable {
 				continue;
 			}
 
-			t.set_var(	"system.name",		system.getName(),
+			t.setVar(	"system.name",		system.getName(),
 						"system.id",		system.getID(),
 						"system.addinfo",	systemAddInfo,
 						"system.selected",	(system.getID() == this.system) );
@@ -134,7 +134,7 @@ public class MapController extends DSGenerator implements Loggable {
 			t.parse("systems.list", "systems.listitem", true);
 		}
 	
-		t.set_block("_MAP", "jumpnodes.listitem", "jumpnodes.list");
+		t.setBlock("_MAP", "jumpnodes.listitem", "jumpnodes.list");
 			
 		if( !this.showSystem ) {
 			return;
@@ -147,7 +147,7 @@ public class MapController extends DSGenerator implements Loggable {
 				blocked = " - blockiert";
 			}
 			
-			t.set_var(	"jumpnode.x",			node.getInt("x"),
+			t.setVar(	"jumpnode.x",			node.getInt("x"),
 						"jumpnode.y",			node.getInt("y"),
 						"jumpnode.name",		node.getString("name"),
 						"jumpnode.systemout",	node.getInt("systemout"),
@@ -184,7 +184,7 @@ public class MapController extends DSGenerator implements Loggable {
 			}
 		}
 		
-		t.set_var(	"map.applet.index",		index,
+		t.setVar(	"map.applet.index",		index,
 					"map.framework.index",	findex,
 					"map.applet.codebase",	Configuration.getSetting("URL")+"java/",
 					"map.applet.width",		user.getUserValue("TBLORDER/map/width"),

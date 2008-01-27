@@ -142,7 +142,7 @@ public class SurveyController extends DSGenerator {
 			.update(this.survey.getInt("id"), Common.implode(",", data));
 		db.update("INSERT INTO survey_voted (survey_id,user_id) VALUES ('",this.survey.getInt("id"),"','",user.getID(),"')");
 		
-		t.set_var("show.votesuccessful", 1);
+		t.setVar("show.votesuccessful", 1);
 	}
 	
 	/**
@@ -154,20 +154,20 @@ public class SurveyController extends DSGenerator {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
-		t.set_var(	"survey.name",	this.survey.getString("name"),
+		t.setVar(	"survey.name",	this.survey.getString("name"),
 					"survey.id",	this.survey.getInt("id"),
 					"show.survey",	1 );
 		
-		t.set_block("_SURVEY", "survey.textbox.listitem", "tmp");
-		t.set_block("_SURVEY", "survey.text.listitem", "tmp");
-		t.set_block("_SURVEY", "survey.ratebox.listitem", "tmp");
-		t.set_block("_SURVEY", "survey.combobox.listitem", "tmp");
-		t.set_block("_SURVEY", "survey.description.listitem", "tmp");
-		t.set_block("survey.combobox.listitem", "comboentry.listitem","comboentry.list");
+		t.setBlock("_SURVEY", "survey.textbox.listitem", "tmp");
+		t.setBlock("_SURVEY", "survey.text.listitem", "tmp");
+		t.setBlock("_SURVEY", "survey.ratebox.listitem", "tmp");
+		t.setBlock("_SURVEY", "survey.combobox.listitem", "tmp");
+		t.setBlock("_SURVEY", "survey.description.listitem", "tmp");
+		t.setBlock("survey.combobox.listitem", "comboentry.listitem","comboentry.list");
 		
 		SQLQuery entry = db.query("SELECT * FROM survey_entries WHERE survey_id=",this.survey.getInt("id"));
 		while( entry.next() ) {
-			t.set_var(	"entry.name",	Common._text(entry.getString("name")),
+			t.setVar(	"entry.name",	Common._text(entry.getString("name")),
 						"entry.id",		entry.getInt("id") );
 			String entryblock = "";
 			
@@ -184,10 +184,10 @@ public class SurveyController extends DSGenerator {
 				entryblock = "survey.combobox.listitem";
 				String[] itemlist = StringUtils.split(StringUtils.replace(entry.getString("params"), "\r\n","\n"), "\n");
 				
-				t.set_var("comboentry.list", "");
+				t.setVar("comboentry.list", "");
 
 				for( int i=0; i < itemlist.length; i++ ) {
-					t.set_var(	"comboentry.id",	i,
+					t.setVar(	"comboentry.id",	i,
 								"comboentry.name",	itemlist[i] ); 	
 					
 					t.parse("comboentry.list", "comboentry.listitem", true);

@@ -102,7 +102,7 @@ public class ColonizeController extends DSGenerator {
 		this.base = new Base(base);
 		this.ship = ship;
 		
-		t.set_var( "ship.id", ship.getInt("id") );
+		t.setVar( "ship.id", ship.getInt("id") );
 		
 		return true;	
 	}
@@ -133,14 +133,14 @@ public class ColonizeController extends DSGenerator {
 		basecount += this.base.getMaxTiles();
 		
 		if( basecount > Integer.parseInt(user.getUserValue("GAMEPLAY/bases/maxtiles")) ) {
-			t.set_var("colonize.message", "<span style=\"color:#ff0000; font-weight:bold\">Kolonisierung unzul&auml;ssig, da dies die Gesamtzahl an zul&auml;ssigen Oberfl&auml;chenfeldern "+user.getUserValue("GAMEPLAY/bases/maxtiles")+" &uuml;bersteigen w&uuml;rde.</span>");
+			t.setVar("colonize.message", "<span style=\"color:#ff0000; font-weight:bold\">Kolonisierung unzul&auml;ssig, da dies die Gesamtzahl an zul&auml;ssigen Oberfl&auml;chenfeldern "+user.getUserValue("GAMEPLAY/bases/maxtiles")+" &uuml;bersteigen w&uuml;rde.</span>");
 	
 			return;
 		}
 
 		if( (Systems.get().system(base.getSystem()).getMaxColonies() >= 0) && 
 			(bases.get(base.getSystem()) >= Systems.get().system(base.getSystem()).getMaxColonies()) ) {
-			t.set_var("colonize.message", "<span style=\"color:#ff0000\">Sie d&uuml;rfen lediglich "+Systems.get().system(base.getSystem()).getMaxColonies()+" Asteroiden in "+Systems.get().system(base.getSystem()).getName()+" ("+base.getSystem()+") kolonisieren" );
+			t.setVar("colonize.message", "<span style=\"color:#ff0000\">Sie d&uuml;rfen lediglich "+Systems.get().system(base.getSystem()).getMaxColonies()+" Asteroiden in "+Systems.get().system(base.getSystem()).getName()+" ("+base.getSystem()+") kolonisieren" );
 			
 			return;
 		}
@@ -200,11 +200,11 @@ public class ColonizeController extends DSGenerator {
 
 		Cargo cargo = new Cargo( Cargo.Type.STRING, ship.getString("cargo") );
 		
-		t.set_block("_COLONIZE", "res.listitem", "res.list");
+		t.setBlock("_COLONIZE", "res.listitem", "res.list");
 		
 		ResourceList reslist = cargo.getResourceList();
 		for( ResourceEntry res : reslist ) {
-			t.set_var(	"res.image",	res.getImage(),
+			t.setVar(	"res.image",	res.getImage(),
 						"res.name",		res.getName(),
 						"res.cargo",	res.getCargo1() );
 			t.parse("res.list", "res.listitem", true);
@@ -230,7 +230,7 @@ public class ColonizeController extends DSGenerator {
 		if( !db.tCommit() ) {
 			addError("Beim kolonisieren ist ein Fehler aufgetreten. Bitte versuchen sie es sp&auml;ter erneut");
 		}
-		t.set_var("base.id", base.getID());		
+		t.setVar("base.id", base.getID());		
 	}
 
 }

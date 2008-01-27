@@ -151,9 +151,9 @@ public class HandelController extends DSGenerator {
 	public void addAction() {
 		TemplateEngine t = getTemplateEngine();
 		
-		t.set_var("handel.add", 1);
+		t.setVar("handel.add", 1);
 		
-		t.set_block("_HANDEL", "addresources.listitem", "addresources.list");
+		t.setBlock("_HANDEL", "addresources.listitem", "addresources.list");
 		
 		ResourceList reslist = Resources.RESOURCE_LIST.getResourceList();
 		for( ResourceEntry res : reslist ) {
@@ -168,7 +168,7 @@ public class HandelController extends DSGenerator {
 				}
 			}
 			
-			t.set_var(	"res.id",		(res.getId().isItem() ? "i"+res.getId().getItemID() : res.getId().getID()),
+			t.setVar(	"res.id",		(res.getId().isItem() ? "i"+res.getId().getItemID() : res.getId().getID()),
 						"res.name",		res.getName(),
 						"res.image",	res.getImage() );
 			
@@ -192,7 +192,7 @@ public class HandelController extends DSGenerator {
 		SQLResultRow line = db.first("SELECT who FROM handel WHERE id=",del);
 		if( !line.isEmpty() && ((line.getInt("who") == user.getID()) || (user.getAccessLevel() >= 20) || user.hasFlag(User.FLAG_MODERATOR_HANDEL)) ) {
 			db.update("DELETE FROM handel WHERE id=",del);
-			t.set_var("handel.message", "Angebot gel&ouml;scht");
+			t.setVar("handel.message", "Angebot gel&ouml;scht");
 		} 
 		else {
 			addError("Sie haben keine Berechtigung das Angebot zu l&ouml;schen");
@@ -210,19 +210,19 @@ public class HandelController extends DSGenerator {
 		TemplateEngine t = getTemplateEngine();
 		User user = getUser();
 		
-		t.set_var("handel.view", 1);
+		t.setVar("handel.view", 1);
 		
 		int count = 0;
 		
-		t.set_block("_HANDEL", "angebote.listitem", "angebote.list");
-		t.set_block("angebote.listitem", "angebot.want.listitem", "angebot.want.list");
-		t.set_block("angebote.listitem", "angebot.need.listitem", "angebot.need.list");
+		t.setBlock("_HANDEL", "angebote.listitem", "angebote.list");
+		t.setBlock("angebote.listitem", "angebot.want.listitem", "angebot.want.list");
+		t.setBlock("angebote.listitem", "angebot.need.listitem", "angebot.need.list");
 		
 		SQLQuery act = db.query("SELECT handel.* FROM handel JOIN users ON handel.who=users.id WHERE users.vaccount=0 OR users.wait4vac!=0 ORDER BY handel.time DESC");
 		while( act.next() ) {
 			User auser = getContext().createUserObject(act.getInt("who"));
 		
-			t.set_var(	"angebot.want.list",	"",
+			t.setVar(	"angebot.want.list",	"",
 						"angebot.need.list",	"" );
 			
 			for( int i = 0; i <= 1; i++ ) {
@@ -242,7 +242,7 @@ public class HandelController extends DSGenerator {
 					}
 				}
 				else {
-					t.set_var(	"res.cargo",	1,
+					t.setVar(	"res.cargo",	1,
 								"res.id",		-1,
 								"res.image",	Configuration.getSetting("URL")+"data/interface/handel/open.gif");
 					if( i == 0 ) {
@@ -254,7 +254,7 @@ public class HandelController extends DSGenerator {
 				}
 			}
 			
-			t.set_var(	"angebot.id",			act.getInt("id"),
+			t.setVar(	"angebot.id",			act.getInt("id"),
 						"angebot.owner",		act.getInt("who"),
 						"angebot.owner.name",	Common._title(auser.getName()),
 						"angebot.date",			Common.date("d.m.Y H:i:s",act.getLong("time")),
@@ -270,7 +270,7 @@ public class HandelController extends DSGenerator {
 		}
 		act.free();
 		
-		t.set_block("_HANDEL", "emptyangebote.listitem", "emptyangebote.list");
+		t.setBlock("_HANDEL", "emptyangebote.listitem", "emptyangebote.list");
 		while( count % 3 != 0 ) {
 			t.parse("emptyangebote.list", "emptyangebote.listitem", true);
 			count++;

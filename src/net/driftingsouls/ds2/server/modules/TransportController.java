@@ -568,12 +568,12 @@ public class TransportController extends DSGenerator {
 	private long transferSingleResource(TransportTarget fromItem, TransportTarget toItem, ResourceEntry res, long count, Cargo newfromc, Cargo newtoc, MutableLong cargofrom, MutableLong cargoto, StringBuilder msg, char mode) {
 		TemplateEngine t = getTemplateEngine();
 		
-		t.set_var(
+		t.setVar(
 				"transfer.notenoughcargo", 0,
 				"transfer.notenoughspace", 0 );
 		
 		if( count > newfromc.getResourceCount( res.getId() ) ) {
-			t.set_var(	"transfer.notenoughcargo",	1,
+			t.setVar(	"transfer.notenoughcargo",	1,
 						"transfer.from.cargo",		Common.ln(newfromc.getResourceCount(res.getId()) ) );
 						
 			count = newfromc.getResourceCount( res.getId() );
@@ -590,7 +590,7 @@ public class TransportController extends DSGenerator {
 				count = 0;
 			}
 						
-			t.set_var(	"transfer.notenoughspace",	1,
+			t.setVar(	"transfer.notenoughspace",	1,
 						"transfer.count.new",		Common.ln(count) );
 		}
 		
@@ -612,7 +612,7 @@ public class TransportController extends DSGenerator {
 		}
 			
 		if( (fromItem.getOwner() == toItem.getOwner()) || (toItem.getOwner() == 0) ) {
-			t.set_var(	"transfer.reportnew",		1,
+			t.setVar(	"transfer.reportnew",		1,
 						"transfer.count.complete",	Common.ln(newtoc.getResourceCount(res.getId()) ) );
 		}	
 		
@@ -628,13 +628,13 @@ public class TransportController extends DSGenerator {
 	public void transferAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
-		t.set_block( "_TRANSPORT", "transfer.listitem", "transfer.list" );
+		t.setBlock( "_TRANSPORT", "transfer.listitem", "transfer.list" );
 
 		boolean transfer = false;
 		List<TransportTarget> tolist = this.to;
 
 		if( this.to.size() == 1 ) {
-			t.set_var( "transfer.multitarget", 0 );		
+			t.setVar( "transfer.multitarget", 0 );		
 		}			
 			
 		List<Cargo> newtoclist = new ArrayList<Cargo>();
@@ -661,7 +661,7 @@ public class TransportController extends DSGenerator {
 		Map<Integer,StringBuilder> msg = new HashMap<Integer,StringBuilder>();
 		
 		if( (tolist.size() > 1) || (from.size() > 1) ) {
-			t.set_block("_TRANSPORT", "transfer.multitarget.listitem", "transfer.multitarget.list" );
+			t.setBlock("_TRANSPORT", "transfer.multitarget.listitem", "transfer.multitarget.list" );
 		}
 
 		ResourceList reslist = totalfromcargo.compare( totaltocargo, true );
@@ -672,16 +672,16 @@ public class TransportController extends DSGenerator {
 			parameterNumber(res.getId()+"from");
 			int transf = getInteger(res.getId()+"from");
 			
-			t.set_var("transfer.multitarget.list", "");
+			t.setVar("transfer.multitarget.list", "");
 	
 			if( transt > 0 ) {
-				t.set_var(	"transfer.count",		Common.ln(transt),
+				t.setVar(	"transfer.count",		Common.ln(transt),
 							"transfer.mode.to",		1,
 							"transfer.res.image",	res.getImage() );
 				
 				for( int k=0; k < from.size(); k++ ) {
 					TransportTarget from = this.from.get(k);
-					t.set_var("transfer.source.name", Common._plaintitle(from.getData().getString("name")));
+					t.setVar("transfer.source.name", Common._plaintitle(from.getData().getString("name")));
 					
 					for( int j=0; j < tolist.size(); j++ ) {
 						TransportTarget to = tolist.get(j);
@@ -689,7 +689,7 @@ public class TransportController extends DSGenerator {
 							t.start_record();
 						}
 						
-						t.set_var("transfer.target.name", Common._plaintitle(to.getData().getString("name")) );
+						t.setVar("transfer.target.name", Common._plaintitle(to.getData().getString("name")) );
 				
 						if( !msg.containsKey(to.getOwner()) ) {
 							msg.put(to.getOwner(), new StringBuilder());
@@ -722,12 +722,12 @@ public class TransportController extends DSGenerator {
 				t.parse("transfer.list", "transfer.listitem", true);
 			}
 			else if( transf > 0 ) {		
-				t.set_var(	"transfer.count",		Common.ln(transf),
+				t.setVar(	"transfer.count",		Common.ln(transf),
 							"transfer.res.image",	res.getImage(),
 							"transfer.mode.to",		0 );
 				for( int k=0; k < from.size(); k++ ) {
 					TransportTarget from = this.from.get(k);				
-					t.set_var("transfer.source.name", Common._plaintitle(from.getData().getString("name")));
+					t.setVar("transfer.source.name", Common._plaintitle(from.getData().getString("name")));
 					
 					for( int j=0; j < tolist.size(); j++ ) {
 						TransportTarget to = tolist.get(j);
@@ -742,7 +742,7 @@ public class TransportController extends DSGenerator {
 							return;
 						} 
 						
-						t.set_var("transfer.target.name", Common._plaintitle(to.getData().getString("name")) );
+						t.setVar("transfer.target.name", Common._plaintitle(to.getData().getString("name")) );
 				
 						if( !msg.containsKey(to.getOwner()) ) {
 							msg.put(to.getOwner(), new StringBuilder());
@@ -780,7 +780,7 @@ public class TransportController extends DSGenerator {
 				if( msg.containsKey(to.getOwner()) && (msg.get(to.getOwner()).length() > 0) && !ownerpmlist.containsKey(to.getOwner()) ) {
 					Common.writeLog("transport.log", Common.date("d.m.y H:i:s")+": "+getUser().getID()+" -> "+to.getOwner()+" | "+getString("from")+" -> "+getString("to")+" ["+getString("way")+"] : "+"\n"+msg+"---------\n");
 				
-					t.set_var( "transfer.pm", 1 );
+					t.setVar( "transfer.pm", 1 );
 
 					List<String> shiplist = new ArrayList<String>();
 					
@@ -831,7 +831,7 @@ public class TransportController extends DSGenerator {
 		}
 		
 		if( !db.tCommit() ) {
-			t.set_var(	"transfer.list",				"",
+			t.setVar(	"transfer.list",				"",
 						"transfer.multitarget.list",	"" );
 								
 			if( retryCount < 3 ) {									
@@ -858,10 +858,10 @@ public class TransportController extends DSGenerator {
 	@Override
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
-		t.set_block("_TRANSPORT", "target.targets.listitem", "target.targets.list" );
-		t.set_block("_TRANSPORT", "source.sources.listitem", "source.sources.list" );
+		t.setBlock("_TRANSPORT", "target.targets.listitem", "target.targets.list" );
+		t.setBlock("_TRANSPORT", "source.sources.listitem", "source.sources.list" );
 		
-		t.set_var(	"global.rawway",	getString("way"),
+		t.setVar(	"global.rawway",	getString("way"),
 					"source.isbase",	way[0].equals("b"),
 					"target.isbase",	way[1].equals("b") );
 
@@ -869,23 +869,23 @@ public class TransportController extends DSGenerator {
 		if( from.size() == 1 ) {
 			TransportTarget first = from.get(0);
 			
-			t.set_var(	"sourceobj.name",	first.getData().getString("name"),
+			t.setVar(	"sourceobj.name",	first.getData().getString("name"),
 						"sourceobj.id",		first.getData().getInt("id"),
 						"source.cargo",		Common.ln(first.getMaxCargo() - first.getCargo().getMass()) );
 			
-			t.set_var("source.id", first.getData().getInt("id"));
+			t.setVar("source.id", first.getData().getInt("id"));
 		}
 		else if( from.size() < 10 ){			
 			long cargo = 0;
 			for( TransportTarget afromd : from ) {
 				cargo = Math.max(afromd.getMaxCargo() - afromd.getCargo().getMass(), cargo);
-				t.set_var(	"sourceobj.name",	afromd.getData().getString("name"),
+				t.setVar(	"sourceobj.name",	afromd.getData().getString("name"),
 							"sourceobj.id",		afromd.getData().getInt("id") );
 				
 				t.parse( "source.sources.list", "source.sources.listitem", true );
 			}
 			
-			t.set_var(	"source.id",	getString("from"),
+			t.setVar(	"source.id",	getString("from"),
 						"sourceobj.id",	from.get(0).getData().getInt("id"),
 						"source.cargo",	"max "+Common.ln(cargo) );
 		}
@@ -896,33 +896,33 @@ public class TransportController extends DSGenerator {
 			}
 			TransportTarget first = from.get(0);
 			
-			t.set_var(	"sourceobj.name",		first.getData().getString("name"),
+			t.setVar(	"sourceobj.name",		first.getData().getString("name"),
 						"sourceobj.id",			first.getData().getInt("id"),
 						"sourceobj.addinfo",	"und "+(from.size()-1)+" weiteren Schiffen",
 						"source.cargo",			"max "+Common.ln(cargo) );
 								
-			t.set_var("source.id", getString("from"));
+			t.setVar("source.id", getString("from"));
 		}
 		
 		// Das Ziel / die Ziele ausgeben
 		if( to.size() == 1 ) {
-			t.set_var(	"targetobj.name",	to.get(0).getData().getString("name"),
+			t.setVar(	"targetobj.name",	to.get(0).getData().getString("name"),
 						"targetobj.id",		to.get(0).getData().getInt("id"),
 						"target.cargo",		Common.ln(to.get(0).getMaxCargo() - to.get(0).getCargo().getMass()) );
 			
-			t.set_var("target.id", to.get(0).getData().getInt("id"));
+			t.setVar("target.id", to.get(0).getData().getInt("id"));
 		} 
 		else if( to.size() < 10 ){		
 			long cargo = 0;
 			for( TransportTarget atod : to ) {
 				cargo = Math.max(atod.getMaxCargo() - atod.getCargo().getMass(), cargo);
-				t.set_var(	"targetobj.name",	atod.getData().getString("name"),
+				t.setVar(	"targetobj.name",	atod.getData().getString("name"),
 							"targetobj.id",		atod.getData().getInt("id") );
 				
 				t.parse( "target.targets.list", "target.targets.listitem", true );
 			}
 			
-			t.set_var(	"target.id",	getString("to"),
+			t.setVar(	"target.id",	getString("to"),
 						"targetobj.id",	to.get(0).getData().getInt("id"),
 						"target.cargo",	"max "+Common.ln(cargo) );
 		}
@@ -933,16 +933,16 @@ public class TransportController extends DSGenerator {
 			}
 			TransportTarget first = to.get(0);
 			
-			t.set_var(	"targetobj.name",	first.getData().getString("name"),
+			t.setVar(	"targetobj.name",	first.getData().getString("name"),
 						"targetobj.id",		first.getData().getInt("id"),
 						"targetobj.addinfo",	"und "+(to.size()-1)+" weiteren Schiffen",
 						"target.cargo",			"max "+Common.ln(cargo) );
 								
-			t.set_var("target.id", getString("to"));
+			t.setVar("target.id", getString("to"));
 		}
 		
 		// Transfermodi ausgeben
-		t.set_block( "_TRANSPORT","transfermode.listitem", "transfermode.list" );
+		t.setBlock( "_TRANSPORT","transfermode.listitem", "transfermode.list" );
 		if( (to.size() > 1) || (from.size() > 1) || (to.get(0).getMultiTarget() != null) ||
 			(from.get(0).getMultiTarget() != null) ) {
 			TransportTarget first = to.get(0);
@@ -971,7 +971,7 @@ public class TransportController extends DSGenerator {
 			}
 			
 			// Single to Single
-			t.set_var(	"transfermode.from.name",	second.getTargetName(),
+			t.setVar(	"transfermode.from.name",	second.getTargetName(),
 						"transfermode.from",		second.getData().getInt("id"),
 						"transfermode.to.name",		first.getTargetName(),
 						"transfermode.to",			first.getData().getInt("id"),
@@ -981,7 +981,7 @@ public class TransportController extends DSGenerator {
 			
 			// Single to Multi
 			if( multiTo != null ) {
-				t.set_var(	"transfermode.from.name",	second.getTargetName(),
+				t.setVar(	"transfermode.from.name",	second.getTargetName(),
 							"transfermode.from",		second.getData().getInt("id"),
 							"transfermode.to.name",		multiTo.getName(),
 							"transfermode.to",			multiTo.getTargetList(),
@@ -991,7 +991,7 @@ public class TransportController extends DSGenerator {
 			
 			// Multi to Single
 			if( multiFrom != null ) {
-				t.set_var(	"transfermode.to.name",		first.getTargetName(),
+				t.setVar(	"transfermode.to.name",		first.getTargetName(),
 							"transfermode.to",			first.getData().getInt("id"),
 							"transfermode.from.name",	multiFrom.getName(),
 							"transfermode.from",		multiFrom.getTargetList(),
@@ -1002,7 +1002,7 @@ public class TransportController extends DSGenerator {
 			// Multi to Multi
 			if( (multiFrom != null) && (multiTo != null) && 
 				!multiFrom.getTargetList().equals(multiTo.getTargetList()) ) {
-				t.set_var(	"transfermode.to.name",		multiTo.getName(),
+				t.setVar(	"transfermode.to.name",		multiTo.getName(),
 							"transfermode.to",			multiTo.getTargetList(),
 							"transfermode.from.name",	multiFrom.getName(),
 							"transfermode.from",		multiFrom.getTargetList(),
@@ -1011,7 +1011,7 @@ public class TransportController extends DSGenerator {
 			}
 		}
 		
-		t.set_block( "_TRANSPORT","res.listitem", "res.list" );
+		t.setBlock( "_TRANSPORT","res.listitem", "res.list" );
 
 		// Soll der Zielcargo gezeigt werden?
 		boolean showtarget = false;
@@ -1031,7 +1031,7 @@ public class TransportController extends DSGenerator {
 			}
 		}
 		
-		t.set_var("target.show", showtarget);
+		t.setVar("target.show", showtarget);
 		
 		Cargo fromcargo = new Cargo();
 		for( TransportTarget afrom : from ) {
@@ -1053,7 +1053,7 @@ public class TransportController extends DSGenerator {
 		}
 		
 		for( ResourceEntry res : reslist ) {
-			t.set_var(	"res.name",		res.getName(),
+			t.setVar(	"res.name",		res.getName(),
 						"res.image",	res.getImage(),
 						"res.id",		res.getId(),
 						"res.cargo.source",	(from.size() > 1 ? "max " : "")+res.getCargo1(),

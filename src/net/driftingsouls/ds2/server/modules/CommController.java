@@ -69,7 +69,7 @@ public class CommController extends DSGenerator implements Loggable {
 			setDisableDebugOutput(true);	
 		}
 		else {
-			getTemplateEngine().set_var("show.menu", 1);
+			getTemplateEngine().setVar("show.menu", 1);
 		}
 		return true;
 	}
@@ -88,7 +88,7 @@ public class CommController extends DSGenerator implements Loggable {
 		int ordner = getInteger("ordner");
 
 		db.update("UPDATE transmissionen SET gelesen=1 WHERE empfaenger='",user.getID(),"' AND ordner='",ordner,"' AND (gelesen=0 AND !(flags & ",PM.FLAGS_IMPORTANT,"))");
-		t.set_var("show.message", "<span style=\"color:red\">Alle Nachrichten als gelesen markiert</span>");
+		t.setVar("show.message", "<span style=\"color:red\">Alle Nachrichten als gelesen markiert</span>");
 	
 		redirect("showInbox");
 	}
@@ -109,7 +109,7 @@ public class CommController extends DSGenerator implements Loggable {
 		int trash = Ordner.getTrash( user.getID() ).getID();
 
 		db.update("UPDATE transmissionen SET gelesen=2, ordner='",trash,"' WHERE empfaenger='",user.getID(),"' AND ordner='",ordner,"' AND (gelesen=1 OR !(flags & ",PM.FLAGS_IMPORTANT,"))");
-		t.set_var("show.message", "<span style=\"color:red\">Alle Nachrichten gel&ouml;scht</span>");
+		t.setVar("show.message", "<span style=\"color:red\">Alle Nachrichten gel&ouml;scht</span>");
 	
 		redirect("showInbox");
 	}
@@ -138,10 +138,10 @@ public class CommController extends DSGenerator implements Loggable {
 
 		switch ( result ){
 			case 0:
-				t.set_var("show.message", "<span style=\"color:red\">"+(delete != 0 ? "Nachricht" : "Ordner")+" gel&ouml;scht</span>");
+				t.setVar("show.message", "<span style=\"color:red\">"+(delete != 0 ? "Nachricht" : "Ordner")+" gel&ouml;scht</span>");
 				break;
 			case 1:
-				t.set_var("show.message", "<span style=\"color:red\">Sie m&uuml;ssen diese Nachricht erst lesen</span>");
+				t.setVar("show.message", "<span style=\"color:red\">Sie m&uuml;ssen diese Nachricht erst lesen</span>");
 				break;
 			case 2:
 				addError("Fehler: L&ouml;schen "+(delete != 0 ? "der PM" : "des Ordners")+" ist fehlgeschlagen");
@@ -234,10 +234,10 @@ public class CommController extends DSGenerator implements Loggable {
 		
 		if( auser.getID() != 0 ) {
 			db.update("UPDATE transmissionen SET gelesen=2 WHERE empfaenger=",user.getID()," AND sender=",auser.getID()," AND ordner=",ordner," AND (gelesen=1 OR !(flags & ",PM.FLAGS_IMPORTANT,"))");
-			t.set_var("show.message", "<span style=\"color:red\">Alle Nachrichten von "+Common._title(auser.getName())+" gel&ouml;scht</span>");
+			t.setVar("show.message", "<span style=\"color:red\">Alle Nachrichten von "+Common._title(auser.getName())+" gel&ouml;scht</span>");
 		}
 		else {
-			t.set_var("show.message", "<span style=\"color:red\">Der angegebene Spieler existiert nicht</span>");
+			t.setVar("show.message", "<span style=\"color:red\">Der angegebene Spieler existiert nicht</span>");
 		}
 	
 		redirect("showInbox");
@@ -271,7 +271,7 @@ public class CommController extends DSGenerator implements Loggable {
 			}
 		}
 
-		t.set_var("show.message", "<span style=\"color:red\">Nachrichten als gelesen markiert</span>");
+		t.setVar("show.message", "<span style=\"color:red\">Nachrichten als gelesen markiert</span>");
 				
 		redirect("showInbox");
 	}
@@ -375,13 +375,13 @@ public class CommController extends DSGenerator implements Loggable {
 		Ordner trash = Ordner.getTrash( user.getID() );
 
 		if( moveto == null ) {
-			t.set_var("show.message", "<span style=\"color:red\">Der angegebene Ordner existiert nicht</span>");
+			t.setVar("show.message", "<span style=\"color:red\">Der angegebene Ordner existiert nicht</span>");
 			redirect("showInbox");
 			return;
 		}
 		
 		if( trash.getID() == moveto.getID()){
-			t.set_var("show.message", "<span style=\"color:red\">Es d&uuml;rfen keine Nachrichten/Ordner in den Papierkorb verschoben werden.</span>");
+			t.setVar("show.message", "<span style=\"color:red\">Es d&uuml;rfen keine Nachrichten/Ordner in den Papierkorb verschoben werden.</span>");
 			redirect("showInbox");
 			return;
 		}
@@ -408,7 +408,7 @@ public class CommController extends DSGenerator implements Loggable {
 			parameterNumber("ordner_"+ordners.get(i));
 			int tomove = getInteger("ordner_"+ordners.get(i));
 			if( (tomove != 0) && Ordner.getAllChildIDs(tomove, user.getID()).contains(moveto.getID())) {
-				t.set_var("show.message", "<span style=\"color:red\">Es d&uuml;rfen keine Ordner in ihre eignen Unterordner verschoben werden.</span>");
+				t.setVar("show.message", "<span style=\"color:red\">Es d&uuml;rfen keine Ordner in ihre eignen Unterordner verschoben werden.</span>");
 				redirect("showInbox");
 				return ;
 			}
@@ -479,7 +479,7 @@ public class CommController extends DSGenerator implements Loggable {
 			}
 		}
 		
-		t.set_var("show.message", "<span style=\"color:red\">Nachrichten gel&ouml;scht</span>");
+		t.setVar("show.message", "<span style=\"color:red\">Nachrichten gel&ouml;scht</span>");
 
 		redirect("showInbox");
 	}
@@ -552,32 +552,32 @@ public class CommController extends DSGenerator implements Loggable {
 		}
 
 		if( to.equals("task") ) {
-			t.set_var("show.message", "<span style=\"color:#00ff55\">Antwort verarbeitet</span>");
+			t.setVar("show.message", "<span style=\"color:#00ff55\">Antwort verarbeitet</span>");
 			
 			PM.send(getContext(), user.getID(), PM.TASK, title, msg, false, flags );
 		} 
 		else if( to.equals("ally") ) {
 			if( user.getAlly() <= 0 ) {
-				t.set_var("show.message", "<span style=\"color:red; font-weight:bold\">Sie sind in keiner Allianz Mitglied</span>");
+				t.setVar("show.message", "<span style=\"color:red; font-weight:bold\">Sie sind in keiner Allianz Mitglied</span>");
 				
 				return;
 			}
 			
 			String nameto = db.first("SELECT name FROM ally WHERE id="+user.getAlly()).getString("name");
-			t.set_var("show.message", "<span style=\"color:#00ff55\">Nachricht versendet an</span> "+Common._title(nameto));
+			t.setVar("show.message", "<span style=\"color:#00ff55\">Nachricht versendet an</span> "+Common._title(nameto));
 
 			PM.send(getContext(), user.getID(), user.getAlly(), title, msg, true, flags );
 		}
 		else {			
 			if( (to.length() == 0) || (Integer.parseInt(to) == 0) ) {
-				t.set_var("show.message", "<span style=\"color:#ff0000\">Sie m&uuml;ssen einen Empf&auml;nger angeben</span>");
+				t.setVar("show.message", "<span style=\"color:#ff0000\">Sie m&uuml;ssen einen Empf&auml;nger angeben</span>");
 				return;
 			}
 			
 			int iTo = Integer.parseInt(to);
 		
 			User auser = getContext().createUserObject(iTo);
-			t.set_var("show.message", "<span style=\"color:#00ff55\">Nachricht versendet an</span> "+Common._title(auser.getName()));
+			t.setVar("show.message", "<span style=\"color:#00ff55\">Nachricht versendet an</span> "+Common._title(auser.getName()));
 
 			PM.send(getContext(), user.getID(), iTo, title, msg, false, flags );
 		}
@@ -600,7 +600,7 @@ public class CommController extends DSGenerator implements Loggable {
 		int pmid = getInteger("pmid");
 		int parent_id = getInteger("ordner");
 		
-		t.set_var("show.pm", 1);
+		t.setVar("show.pm", 1);
 	
 		if( pmid == 0 ) {			
 			return;	
@@ -629,7 +629,7 @@ public class CommController extends DSGenerator implements Loggable {
 			User empfaenger = createUserObject(pm.getInt("empfaenger"));
 			sender = user;
 			
-			t.set_var(	"pm.empfaenger",		empfaenger.getID(),
+			t.setVar(	"pm.empfaenger",		empfaenger.getID(),
 						"pm.empfaenger.name",	(empfaenger.getID() != 0 ? Common._title(empfaenger.getName()) : "Unbekannt" ));
 		}
 		else {
@@ -650,7 +650,7 @@ public class CommController extends DSGenerator implements Loggable {
 			
 			sender = createUserObject(pm.getInt("sender"));
 			
-			t.set_var(	"pm.sender",		sender.getID(),
+			t.setVar(	"pm.sender",		sender.getID(),
 						"pm.sender.name", 	(sender.getID() != 0? Common._title(sender.getName()) : "Unbekannt"),
 						"ordner.parent",	parent_id);
 		}
@@ -670,7 +670,7 @@ public class CommController extends DSGenerator implements Loggable {
 		text = StringUtils.replace(text, "\r\n", "<br />");
 		text = StringUtils.replace(text, "\n", "<br />");
 		
-		t.set_var(	"pm.id",			pm.getInt("id"),
+		t.setVar(	"pm.id",			pm.getInt("id"),
 					"pm.title",			Common._plaintitle(pm.getString("title")),
 					"pm.flags.admin", 	(pm.getInt("flags") & PM.FLAGS_ADMIN),
 					"pm.bgimage", 		bgimg,
@@ -705,7 +705,7 @@ public class CommController extends DSGenerator implements Loggable {
 	
 		PM.recoverAll( user.getID() );
 		
-		t.set_var("show.message", "<span style=\"color:red\">Nachrichten wiederhergestellt</span>");
+		t.setVar("show.message", "<span style=\"color:red\">Nachrichten wiederhergestellt</span>");
 
 		redirect("showInbox");
 	}
@@ -725,21 +725,21 @@ public class CommController extends DSGenerator implements Loggable {
 
 		int gelesen = 2;
 		
-		t.set_var("show.inbox", 1);
-		t.set_block("_COMM", "pms.listitem", "pms.list");
-		t.set_block("_COMM", "ordner.listitem", "ordner.list");
-		t.set_block("_COMM", "availordner.listitem", "availordner.list");
+		t.setVar("show.inbox", 1);
+		t.setBlock("_COMM", "pms.listitem", "pms.list");
+		t.setBlock("_COMM", "ordner.listitem", "ordner.list");
+		t.setBlock("_COMM", "availordner.listitem", "availordner.list");
 		
 		// Liste aller vorhandenen Ordner generieren
 		SQLQuery ordner = db.query("SELECT * FROM ordner WHERE playerid=",user.getID()," ORDER BY name ASC");
 
-		t.set_var(	"availordner.id",	0,
+		t.setVar(	"availordner.id",	0,
 					"availordner.name",	"Hauptverzeichnis" );
 			
 		t.parse("availordner.list", "availordner.listitem", true);
 
 		while( ordner.next() ){
-			t.set_var(	"availordner.id",	ordner.getInt("id"),
+			t.setVar(	"availordner.id",	ordner.getInt("id"),
 						"availordner.name",	ordner.getString("name") );
 			
 			t.parse("availordner.list", "availordner.listitem", true);
@@ -751,7 +751,7 @@ public class CommController extends DSGenerator implements Loggable {
 
 		if( current_ordner != 0 ) {
 			SQLResultRow ordnerRow = db.first("SELECT * FROM ordner WHERE playerid=",user.getID()," AND id=",current_ordner,"");
-			t.set_var(	"ordner.id",			ordnerRow.getInt("parent"),
+			t.setVar(	"ordner.id",			ordnerRow.getInt("parent"),
 						"ordner.name",			"..",
 						"ordner.parent",		ordnerRow.getInt("id"),
 						"ordner.pms",			Ordner.countPMInOrdner(ordnerRow.getInt("parent"), user.getID()),
@@ -771,7 +771,7 @@ public class CommController extends DSGenerator implements Loggable {
 		while( ordner.next() ){
 			Integer count = ordners.get(ordner.getInt("id"));
 			
-			t.set_var(	"ordner.id",			ordner.getInt("id"),
+			t.setVar(	"ordner.id",			ordner.getInt("id"),
 						"ordner.name",			ordner.getString("name"),
 						"ordner.parent",		ordner.getInt("parent"),
 						"ordner.pms",			count != null ? count.intValue() : 0,
@@ -789,7 +789,7 @@ public class CommController extends DSGenerator implements Loggable {
 				"ORDER BY t1.id DESC");
 
 		while( pm.next() ) {	
-			t.set_var(	"pm.id",			pm.getInt("id"),
+			t.setVar(	"pm.id",			pm.getInt("id"),
 						"pm.new",			pm.getInt("gelesen") == 0,
 						"pm.flags.admin",	(pm.getInt("flags") & PM.FLAGS_ADMIN) != 0,
 						"pm.title",			Common._plaintitle(pm.getString("title")),
@@ -813,8 +813,8 @@ public class CommController extends DSGenerator implements Loggable {
 		TemplateEngine t = getTemplateEngine();
 		User user = getUser();
 		
-		t.set_var("show.outbox", 1);
-		t.set_block("_COMM", "pms.out.listitem", "pms.out.list");
+		t.setVar("show.outbox", 1);
+		t.setBlock("_COMM", "pms.out.listitem", "pms.out.list");
 		
 		SQLQuery pm = db.query("SELECT t1.id,t1.empfaenger,t1.time,t1.title,t1.flags,t2.name AS empfaenger_name " ,
 				"FROM transmissionen AS t1,users AS t2 " ,
@@ -822,7 +822,7 @@ public class CommController extends DSGenerator implements Loggable {
 				"ORDER BY t1.id DESC");
 				
 		while( pm.next() ) {	
-			t.set_var(	"pm.id",				pm.getInt("id"),
+			t.setVar(	"pm.id",				pm.getInt("id"),
 						"pm.flags.admin",		(pm.getInt("flags") & PM.FLAGS_ADMIN),
 						"pm.title",				Common._plaintitle(pm.getString("title")),
 						"pm.empfaenger.name",	Common._title(pm.getString("empfaenger_name")),
@@ -873,9 +873,9 @@ public class CommController extends DSGenerator implements Loggable {
 		specialuilist.remove(special_key);
 		specialuilist.put(special_key, special);
 			
-		t.set_block("_COMM", "write.specialui.listitem", "write.specialui.list");
+		t.setBlock("_COMM", "write.specialui.listitem", "write.specialui.list");
 		for( String uiname : specialuilist.keySet() ) {
-			t.set_var(	"specialui.name",	uiname,
+			t.setVar(	"specialui.name",	uiname,
 						"specialui.value",	specialuilist.get(uiname),
 						"specialui.selected",	special.equals(specialuilist.get(uiname)) ? true : false);
 								
@@ -891,7 +891,7 @@ public class CommController extends DSGenerator implements Loggable {
 			bgimg = "pm_"+Rassen.get().rasse(user.getRace()).getName()+"bg.png";	
 		}
 			
-		t.set_var(	"pm.text",			Common.smiliesParse(Common._text(msg)),
+		t.setVar(	"pm.text",			Common.smiliesParse(Common._text(msg)),
 					"pm.title",			title,
 					"pm.sender",		user.getID(),
 					"pm.sender.name",	(user.getID() != 0 ? Common._title(user.getName()) : "Unbekannt"),
@@ -923,16 +923,16 @@ public class CommController extends DSGenerator implements Loggable {
 		SQLResultRow pm = db.first("SELECT * FROM transmissionen WHERE id='",pmid,"' AND empfaenger='",user.getID(),"'");
 		db.update("UPDATE transmissionen SET gelesen=1 WHERE id=",pmid," AND gelesen=0 AND empfaenger=",user.getID());
 
-		t.set_var("show.comment", 1);
-		t.set_var("comment.text", pm.getString("kommentar"));
-		t.set_var("pm.id", pmid);
-		t.set_var("ordner.id", ordner);
-		t.set_var("pm.title", pm.getString("title"));
-		t.set_var("pm.empfaenger.name", Common._title(db.first("SELECT name FROM users WHERE id='",pm.getInt("empfaenger"),"'").getString("name")));
-		t.set_var("pm.sender.name", Common._title(db.first("SELECT name FROM users WHERE id='",pm.getInt("sender"),"'").getString("name")));
-		t.set_var("pm.text", Common.smiliesParse(Common._text(pm.getString("inhalt"))));
-		t.set_var("system.time", Common.getIngameTime(getContext().get(ContextCommon.class).getTick()));
-		t.set_var("user.signature", user.getUserValue("PMS/signatur") );
+		t.setVar("show.comment", 1);
+		t.setVar("comment.text", pm.getString("kommentar"));
+		t.setVar("pm.id", pmid);
+		t.setVar("ordner.id", ordner);
+		t.setVar("pm.title", pm.getString("title"));
+		t.setVar("pm.empfaenger.name", Common._title(db.first("SELECT name FROM users WHERE id='",pm.getInt("empfaenger"),"'").getString("name")));
+		t.setVar("pm.sender.name", Common._title(db.first("SELECT name FROM users WHERE id='",pm.getInt("sender"),"'").getString("name")));
+		t.setVar("pm.text", Common.smiliesParse(Common._text(pm.getString("inhalt"))));
+		t.setVar("system.time", Common.getIngameTime(getContext().get(ContextCommon.class).getTick()));
+		t.setVar("user.signature", user.getUserValue("PMS/signatur") );
 	}
 	
 	/**
@@ -1034,16 +1034,16 @@ public class CommController extends DSGenerator implements Loggable {
 			specialuilist.put("Offizielle PM", "official");
 		}
 			
-		t.set_var(	"show.write", 1,
+		t.setVar(	"show.write", 1,
 					"write.title", title,
 					"write.message", msg,
 					"write.to", toStr,
 					"system.time", Common.getIngameTime(getContext().get(ContextCommon.class).getTick()),
 					"user.signature", user.getUserValue("PMS/signature") );
 		
-		t.set_block("_COMM", "write.specialui.listitem", "write.specialui.list");
+		t.setBlock("_COMM", "write.specialui.listitem", "write.specialui.list");
 		for( String uiname : specialuilist.keySet() ) {
-			t.set_var(	"specialui.name", uiname,
+			t.setVar(	"specialui.name", uiname,
 						"specialui.value", specialuilist.get(uiname) );
 								
 			t.parse("write.specialui.list", "write.specialui.listitem", true);

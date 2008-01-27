@@ -204,7 +204,7 @@ public class UeberController extends DSGenerator implements Loggable {
 		
 		Cargo usercargo = new Cargo( Cargo.Type.STRING, user.getCargo() );
 		
-		t.set_var(	"user.name",		Common._title(user.getName()),
+		t.setVar(	"user.name",		Common._title(user.getName()),
 				  	"user.race",		race,
 				  	"res.nahrung.image",	Cargo.getResourceImage(Resources.NAHRUNG),
 				  	"user.nahrung",		Common.ln(usercargo.getResourceCount(Resources.NAHRUNG)),
@@ -221,7 +221,7 @@ public class UeberController extends DSGenerator implements Loggable {
 				.first(survey.getInt("id"), user.getID());
 			
 			if( !voted.isEmpty() ) {
-				t.set_var("global.survey", 1);
+				t.setVar("global.survey", 1);
 			}
 		}
 				  
@@ -234,19 +234,19 @@ public class UeberController extends DSGenerator implements Loggable {
 					user.setFlagschiff(0);
 				} 
 				else {
-					t.set_var(	"flagschiff.id",	flagschiff.getID(),
+					t.setVar(	"flagschiff.id",	flagschiff.getID(),
 								"flagschiff.name",	ship.getString("name") ) ;
 				}
 				break;
 			
 			case WERFT_SHIP:
 				int dauer = db.first("SELECT remaining FROM werften WHERE shipid=",flagschiff.getID()).getInt("remaining");
-				t.set_var("flagschiff.dauer",dauer);
+				t.setVar("flagschiff.dauer",dauer);
 				break;
 			
 			case WERFT_BASE:
 				dauer = db.first("SELECT remaining FROM werften WHERE col=",flagschiff.getID()).getInt("remaining");
-				t.set_var("flagschiff.dauer",dauer);
+				t.setVar("flagschiff.dauer",dauer);
 				break;
 			}
 		}
@@ -257,14 +257,14 @@ public class UeberController extends DSGenerator implements Loggable {
 
 		String curtime = Common.getIngameTime(ticks);
 
-		t.set_var("time.current", curtime);
+		t.setVar("time.current", curtime);
 
 		//------------------------------
 		// auf neue Nachrichten checken
 		//------------------------------
 
 		int newCount = db.first("SELECT count(*) newmsgs FROM transmissionen WHERE empfaenger=",user.getID()," AND gelesen=0").getInt("newmsgs");
-		t.set_var("user.newmsgs", Common.ln(newCount));
+		t.setVar("user.newmsgs", Common.ln(newCount));
 
 		//------------------------------
 		// Mangel auf Asterodien checken
@@ -300,7 +300,7 @@ public class UeberController extends DSGenerator implements Loggable {
 		}
 		base.free();
 
-		t.set_var("astis.mangel", bw);
+		t.setVar("astis.mangel", bw);
 
 		//------------------------------
 		// Mangel auf Schiffen checken
@@ -322,13 +322,13 @@ public class UeberController extends DSGenerator implements Loggable {
 						  
 		String nstat = "0";			  
 		if( ticktime.indexOf("Bitte warten") > -1 ) {
-			t.set_var("user.nahrung.stat.tick", 1);
+			t.setVar("user.nahrung.stat.tick", 1);
 		}
 		else {
 			nstat = user.getNahrungsStat();
 		}
 						  
-		t.set_var(	"schiffe.mangel", Common.ln(sw),
+		t.setVar(	"schiffe.mangel", Common.ln(sw),
 					"schiffe.nocrew", Common.ln(shipNoCrew),
 					"user.nahrung.stat", Common.ln(Long.parseLong(nstat)),
 					"user.nahrung.stat.plain", Long.parseLong(nstat) );
@@ -454,13 +454,13 @@ public class UeberController extends DSGenerator implements Loggable {
 		}
 		battle.free();
 
-		t.set_var("global.battlelist", battlelist);
+		t.setVar("global.battlelist", battlelist);
 		//------------------------------
 		// Logo anzeigen
 		//------------------------------
 
 		if( user.getAlly() != 0 ) {
-			t.set_var("ally.logo", user.getAlly());
+			t.setVar("ally.logo", user.getAlly());
 		}
 
 		//------------------------------
@@ -512,13 +512,13 @@ public class UeberController extends DSGenerator implements Loggable {
 	
 			// Kann das Tutorial jetzt beendet werden?
 			if( nextsheet.isEmpty() && reqname && reqship && reqbase ) {
-				t.set_var("sheet.endtutorial",1);
+				t.setVar("sheet.endtutorial",1);
 			}
 			else if( !nextsheet.isEmpty() ) {
-				t.set_var("sheet.nextsheet",1);
+				t.setVar("sheet.nextsheet",1);
 			}
 	
-			t.set_var(	"interactivetutorial.show",	1,
+			t.setVar(	"interactivetutorial.show",	1,
 						"sheet.headpic",			sheet.getString("headimg"),
 						"sheet.text",				Common._text(sheet.getString("text")) );
 		}
@@ -527,18 +527,18 @@ public class UeberController extends DSGenerator implements Loggable {
 		// Die Box (Bookmarks/Flotten)
 		//------------------------------------
 
-		t.set_block("_UEBER","bookmarks.listitem","bookmarks.list");
-		t.set_block("_UEBER","fleets.listitem","fleets.list");
-		t.set_var(	"bookmarks.list",	"",
+		t.setBlock("_UEBER","bookmarks.listitem","bookmarks.list");
+		t.setBlock("_UEBER","fleets.listitem","fleets.list");
+		t.setVar(	"bookmarks.list",	"",
 					"fleets.list",		"" );
 
 		if( box.equals("bookmarks") ) {
-			t.set_var("show.bookmarks",1);
+			t.setVar("show.bookmarks",1);
 	
 			SQLQuery bookmark = db.query("SELECT id,name,x,y,system,destx,desty,destsystem,destcom,status,type FROM ships WHERE id>0 AND bookmark=1 AND owner=",user.getID()," ORDER BY id DESC");
 			while( bookmark.next() ) {
 				SQLResultRow shiptype = ShipTypes.getShipType( bookmark.getRow() );
-				t.set_var(	"bookmark.shipid",		bookmark.getInt("id"),
+				t.setVar(	"bookmark.shipid",		bookmark.getInt("id"),
 							"bookmark.shipname",	bookmark.getString("name"),
 							"bookmark.location",	Ships.getLocationText(bookmark.getRow(), false),
 							"bookmark.shiptype",	shiptype.getString("nickname"),
@@ -548,20 +548,20 @@ public class UeberController extends DSGenerator implements Loggable {
 			bookmark.free();
 		}
 		else if( box.equals("fleets") ) {
-			t.set_var("show.fleets",1);
+			t.setVar("show.fleets",1);
 			boolean jdocked = false;
 			
 			SQLQuery fleet = db.query("SELECT count(*) as shipcount,t1.x,t1.y,t1.system,t1.id,t1.docked,t2.name FROM ships t1,ship_fleets t2 WHERE t1.id>0 AND t1.owner=",user.getID()," AND t1.fleet=t2.id GROUP BY t2.id ORDER BY t1.docked,t1.system,t1.x,t1.y");
 			while( fleet.next() ) {
 				if( !jdocked && (fleet.getString("docked").indexOf('l') == 0) ) {
 					jdocked = true;
-					t.set_var( "fleet.jaegerfleet", 1 );
+					t.setVar( "fleet.jaegerfleet", 1 );
 				}
 				else {
-					t.set_var( "fleet.jaegerfleet", 0 );
+					t.setVar( "fleet.jaegerfleet", 0 );
 				}
 
-				t.set_var(	"fleet.shipid",		fleet.getInt("id"),
+				t.setVar(	"fleet.shipid",		fleet.getInt("id"),
 							"fleet.name",		fleet.getString("name"),
 							"fleet.location",	Ships.getLocationText(fleet.getRow(), false),
 							"fleet.shipcount",	fleet.getInt("shipcount") );
@@ -573,12 +573,12 @@ public class UeberController extends DSGenerator implements Loggable {
 		//------------------------------------
 		// Die Quests
 		//------------------------------------
-		t.set_block("_UEBER","quests.listitem","quests.list");
-		t.set_var("quests.list","");
+		t.setBlock("_UEBER","quests.listitem","quests.list");
+		t.setVar("quests.list","");
 		
 		SQLQuery quest = db.query("SELECT t1.statustext,t1.id,t2.name FROM quests_running t1,quests t2 WHERE t1.userid='",user.getID(),"' AND t1.publish='1' AND t1.questid=t2.id");
 		while( quest.next() ) {
-			t.set_var(	"quest.name",		quest.getString("name"),
+			t.setVar(	"quest.name",		quest.getString("name"),
 						"quest.statustext",	quest.getString("statustext"),
 						"quest.id",			quest.getInt("id"));
 								

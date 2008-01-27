@@ -86,11 +86,11 @@ public class ImpObjectsController extends DSGenerator {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
-		t.set_var(	"global.sysname",	Systems.get().system(system).getName(),
+		t.setVar(	"global.sysname",	Systems.get().system(system).getName(),
 				 	"global.sysid",		system );
 		
-		t.set_block("_IMPOBJECTS", "jn.listitem", "jn.list");				 			
-		t.set_block("_IMPOBJECTS", "gtuposten.listitem", "gtuposten.list");
+		t.setBlock("_IMPOBJECTS", "jn.listitem", "jn.list");				 			
+		t.setBlock("_IMPOBJECTS", "gtuposten.listitem", "gtuposten.list");
 		
 		if( viewableSystem ) {	 			
 			/*
@@ -99,7 +99,7 @@ public class ImpObjectsController extends DSGenerator {
 		
 			SQLQuery jn = db.query("SELECT x,y,systemout,name FROM jumpnodes WHERE system=",system," AND hidden=0");
 			while( jn.next() ) {
-				t.set_var(	"jn.x",			jn.getInt("x"),
+				t.setVar(	"jn.x",			jn.getInt("x"),
 						  	"jn.y",			jn.getInt("y"),
 						  	"jn.name",		jn.getString("name"),
 						 	"jn.target",	jn.getInt("systemout"),
@@ -115,7 +115,7 @@ public class ImpObjectsController extends DSGenerator {
 		
 			SQLQuery posten = db.query("SELECT x,y,name FROM ships WHERE id>0 AND owner=",Faction.GTU," AND system=",system," AND LOCATE('tradepost',status)");
 			while( posten.next() ) {
-				t.set_var(	"gtuposten.x",		posten.getInt("x"),
+				t.setVar(	"gtuposten.x",		posten.getInt("x"),
 							"gtuposten.y",		posten.getInt("y"),
 							"gtuposten.name",	posten.getString("name") );
 
@@ -127,11 +127,11 @@ public class ImpObjectsController extends DSGenerator {
 		/*
 			Basen
 		*/
-		t.set_block("_IMPOBJECTS", "base.listitem", "base.list");
+		t.setBlock("_IMPOBJECTS", "base.listitem", "base.list");
 		
 		SQLQuery base = db.query("SELECT x,y,name FROM bases WHERE owner=",getUser().getID()," AND system=",system);
 		while( base.next() ) {
-			t.set_var(	"base.x",		base.getInt("x"),
+			t.setVar(	"base.x",		base.getInt("x"),
 						"base.y",		base.getInt("y"),
 						"base.name",	base.getString("name") );
 

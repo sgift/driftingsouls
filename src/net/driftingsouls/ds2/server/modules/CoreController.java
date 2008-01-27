@@ -68,7 +68,7 @@ public class CoreController extends DSGenerator {
 			return false;
 		}
 		
-		t.set_var( "base.id", base.getInt("id") );
+		t.setVar( "base.id", base.getInt("id") );
 							
 		this.base = new Base(base);
 		
@@ -120,12 +120,12 @@ public class CoreController extends DSGenerator {
 		
 		Cargo costs = core.getBuildCosts();
 		
-		t.set_var("core.build", 1);
+		t.setVar("core.build", 1);
 
 		//Benoetigte Res ueberpruefen
 		Cargo cargo = base.getCargo();
 	
-		t.set_block("_CORE", "build.res.listitem", "build.res.list");
+		t.setBlock("_CORE", "build.res.listitem", "build.res.list");
 	
 		boolean ok = true;
 		ResourceList reslist = costs.compare( cargo, false );
@@ -133,7 +133,7 @@ public class CoreController extends DSGenerator {
 			if( res.getDiff() > 0 ) {
 				ok = false;	
 			}
-			t.set_var(	"res.image",			res.getImage(),
+			t.setVar(	"res.image",			res.getImage(),
 						"res.cargo.available",	res.getCargo2(),
 						"res.cargo.needed",		res.getCargo1(),
 						"res.missing",			res.getDiff() > 0 ? res.getDiff() : 0 );
@@ -148,11 +148,11 @@ public class CoreController extends DSGenerator {
 			base.setCoreActive(false);
 		
 			if( core.getArbeiter()+base.getArbeiter() > base.getBewohner() ) {
-				t.set_var( "build.message", "<span style=\"color:#ff0000\">Nicht gen&uuml;gend Arbeiter</span>" );
+				t.setVar( "build.message", "<span style=\"color:#ff0000\">Nicht gen&uuml;gend Arbeiter</span>" );
 			} 
 			else {
 				base.setCoreActive(true);
-				t.set_var( "build.message", "<span style=\"color:#00ff00\">aktiviert</span>" );
+				t.setVar( "build.message", "<span style=\"color:#00ff00\">aktiviert</span>" );
 			}
 			cargo.substractCargo( costs );
 	
@@ -197,7 +197,7 @@ public class CoreController extends DSGenerator {
 				"WHERE id=",base.getID()," AND arbeiter='",base.getArbeiter(),"' AND bewohner='",base.getBewohner(),"' AND coreactive='1'");
 		
 		if( db.affectedRows() == 0 ) {
-			t.set_var("core.message", "<span class=\"error\">Deaktivierung fehlgeschlagen. Bitte versuchen sie es sp&auml;ter erneut</span>");
+			t.setVar("core.message", "<span class=\"error\">Deaktivierung fehlgeschlagen. Bitte versuchen sie es sp&auml;ter erneut</span>");
 			redirect();
 			return;
 		}
@@ -205,7 +205,7 @@ public class CoreController extends DSGenerator {
 		base.setArbeiter(base.getArbeiter() - core.getArbeiter());
 		base.setCoreActive(false);
 		
-		t.set_var( "core.message", "<span class=\"error\">Core deaktiviert</span>" );
+		t.setVar( "core.message", "<span class=\"error\">Core deaktiviert</span>" );
 		
 		redirect();
 	}
@@ -225,7 +225,7 @@ public class CoreController extends DSGenerator {
 		
 		Core core = Core.getCore(db, base.getCore());
 		if( core.getArbeiter()+base.getArbeiter() > base.getBewohner() ) {
-			t.set_var( "core.message", "<span style=\"color:#ff0000\">Nicht gen&uuml;gend Arbeiter</span>" );
+			t.setVar( "core.message", "<span style=\"color:#ff0000\">Nicht gen&uuml;gend Arbeiter</span>" );
 		} 
 		else {
 			db.update("UPDATE bases " +
@@ -233,7 +233,7 @@ public class CoreController extends DSGenerator {
 					"WHERE id=",base.getID()," AND arbeiter='",base.getArbeiter(),"' AND coreactive='0' AND bewohner='",base.getBewohner(),"'");
 			
 			if( db.affectedRows() == 0 ) {
-				t.set_var("core.message", "<span class=\"error\">Aktivierung fehlgeschlagen. Bitte versuchen sie es sp&auml;ter erneut</span>");
+				t.setVar("core.message", "<span class=\"error\">Aktivierung fehlgeschlagen. Bitte versuchen sie es sp&auml;ter erneut</span>");
 				redirect();
 				return;
 			}
@@ -241,7 +241,7 @@ public class CoreController extends DSGenerator {
 			base.setArbeiter(base.getArbeiter() + core.getArbeiter());
 			base.setCoreActive(true);
 		
-			t.set_var( "core.message", "<span class=\"ok\">Core aktiviert</span>" );
+			t.setVar( "core.message", "<span class=\"ok\">Core aktiviert</span>" );
 		}
 		
 		redirect();
@@ -253,7 +253,7 @@ public class CoreController extends DSGenerator {
 		
 		Core core = Core.getCore(db, base.getCore());
 		
-		t.set_var(	"core.astitype",	core.getAstiType(),
+		t.setVar(	"core.astitype",	core.getAstiType(),
 					"core.name",		Common._plaintitle(core.getName()),
 					"core.activated",	base.isCoreActive(),
 					"core.ever",		core.getEVerbrauch(),
@@ -262,11 +262,11 @@ public class CoreController extends DSGenerator {
 		Cargo produces = core.getProduces();
 		Cargo consumes = core.getConsumes();
 
-		t.set_block("_CORE", "res.listitem", "consumes.res.list");
+		t.setBlock("_CORE", "res.listitem", "consumes.res.list");
 		
 		ResourceList reslist = consumes.getResourceList();
 		for( ResourceEntry res : reslist ) {
-			t.set_var(	"res.image",	res.getImage(),
+			t.setVar(	"res.image",	res.getImage(),
 						"res.cargo",	res.getCargo1() );
 								
 			t.parse("consumes.res.list", "res.listitem", true);
@@ -274,7 +274,7 @@ public class CoreController extends DSGenerator {
 
 		reslist = produces.getResourceList();
 		for( ResourceEntry res : reslist ) {
-			t.set_var(	"res.image",	res.getImage(),
+			t.setVar(	"res.image",	res.getImage(),
 						"res.cargo",	res.getCargo1() );
 								
 			t.parse("produces.res.list", "res.listitem", true);
@@ -289,7 +289,7 @@ public class CoreController extends DSGenerator {
 		// Keine Core vorhanden
 		Cargo cargo = base.getCargo();
 
-		t.set_block("_CORE", "cores.listitem", "cores.list");
+		t.setBlock("_CORE", "cores.listitem", "cores.list");
 
 		SQLQuery coreID = db.query("SELECT id FROM cores WHERE astitype='",base.getKlasse(),"'");
 		while( coreID.next() ) {
@@ -311,7 +311,7 @@ public class CoreController extends DSGenerator {
 				}
 			}
 		
-			t.set_var(	"core.isbuildable",		buildable,
+			t.setVar(	"core.isbuildable",		buildable,
 						"core.ever",			core.getEVerbrauch(), 
 						"core.name",			Common._plaintitle(core.getName()),
 						"core.id",				core.getID(),
@@ -322,10 +322,10 @@ public class CoreController extends DSGenerator {
 						"consumes.res.list",	"",
 						"produces.res.list",	"" );
 
-			t.set_block("cores.listitem", "costs.res.listitem", "costs.res.list");
+			t.setBlock("cores.listitem", "costs.res.listitem", "costs.res.list");
 
 			for( ResourceEntry res : reslist ) { 
-				t.set_var(	"res.red",		res.getDiff() > 0,
+				t.setVar(	"res.red",		res.getDiff() > 0,
 							"res.image",	res.getImage(),
 							"res.cargo",	res.getCargo1() );
   				
@@ -334,7 +334,7 @@ public class CoreController extends DSGenerator {
 		
 			reslist = consumes.getResourceList();
 			for( ResourceEntry res : reslist ) { 
-				t.set_var(	"res.image",	res.getImage(),
+				t.setVar(	"res.image",	res.getImage(),
 							"res.cargo",	res.getCargo1() );
   				
   				t.parse("consumes.res.list", "costs.res.listitem", true);
@@ -342,7 +342,7 @@ public class CoreController extends DSGenerator {
 		
 			reslist = produces.getResourceList();
 			for( ResourceEntry res : reslist ) { 
-				t.set_var(	"res.image",	res.getImage(),
+				t.setVar(	"res.image",	res.getImage(),
 							"res.cargo",	res.getCargo1() );
   				
   				t.parse("produces.res.list", "costs.res.listitem", true);
@@ -360,7 +360,7 @@ public class CoreController extends DSGenerator {
 	@Override
 	public void defaultAction() {	
 		TemplateEngine t = getTemplateEngine();
-		t.set_var( "base.core", base.getCore() );
+		t.setVar( "base.core", base.getCore() );
 		
 		if( base.getCore() > 0 ) {
 			showCore();

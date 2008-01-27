@@ -83,10 +83,10 @@ public class BuildingsController extends DSGenerator {
 		User user = getUser();
 		TemplateEngine t = getTemplateEngine();
 		
-		t.set_block("_BUILDINGS", "buildings.listitem", "buildings.list");
-		t.set_block("buildings.listitem", "building.buildcosts.listitem", "building.buildcosts.list");
-		t.set_block("buildings.listitem", "building.produces.listitem", "building.produces.list");
-		t.set_block("buildings.listitem", "building.consumes.listitem", "building.consumes.list");
+		t.setBlock("_BUILDINGS", "buildings.listitem", "buildings.list");
+		t.setBlock("buildings.listitem", "building.buildcosts.listitem", "building.buildcosts.list");
+		t.setBlock("buildings.listitem", "building.produces.listitem", "building.produces.list");
+		t.setBlock("buildings.listitem", "building.consumes.listitem", "building.consumes.list");
 		
 		SQLQuery buildingID = db.query("SELECT id FROM buildings ORDER BY name" );
 		while( buildingID.next() ) {
@@ -95,7 +95,7 @@ public class BuildingsController extends DSGenerator {
 				continue;
 			}
 			
-			t.set_var(	"building.name",	Common._plaintitle(building.getName()),
+			t.setVar(	"building.name",	Common._plaintitle(building.getName()),
 						"building.picture",	building.getPicture(),
 						"building.arbeiter",	building.getArbeiter(),
 						"building.bewohner",	building.getBewohner() );
@@ -107,7 +107,7 @@ public class BuildingsController extends DSGenerator {
 			Resources.echoResList( t, reslist, "building.consumes.list" );
 	
 			if( building.getEVerbrauch() > 0 ) {
-				t.set_var(	"res.image",	Configuration.getSetting("URL")+"data/interface/energie.gif",
+				t.setVar(	"res.image",	Configuration.getSetting("URL")+"data/interface/energie.gif",
 							"res.cargo",	building.getEVerbrauch(),
 							"res.plainname",	"Energie" );
 							
@@ -118,7 +118,7 @@ public class BuildingsController extends DSGenerator {
 			Resources.echoResList( t, reslist, "building.produces.list" );
 
 			if( building.getEProduktion() > 0 ) {
-				t.set_var(	"res.image",		Configuration.getSetting("URL")+"data/interface/energie.gif",
+				t.setVar(	"res.image",		Configuration.getSetting("URL")+"data/interface/energie.gif",
 							"res.cargo",		building.getEProduktion(),
 							"res.plainname",	"Energie" );
 									
@@ -145,7 +145,7 @@ public class BuildingsController extends DSGenerator {
 				addinfo.append("Max. "+building.getPerUserCount()+"x pro Account");
 			}
 			
-			t.set_var("building.addinfo", addinfo);
+			t.setVar("building.addinfo", addinfo);
 			
 			t.parse("buildings.list", "buildings.listitem", true);
 		}
@@ -155,10 +155,10 @@ public class BuildingsController extends DSGenerator {
 		// Cores
 		//
 		
-		t.set_block("_BUILDINGS", "cores.listitem", "cores.list");
-		t.set_block("cores.listitem", "core.buildcosts.listitem", "core.buildcosts.list");
-		t.set_block("cores.listitem", "core.produces.listitem", "core.produces.list");
-		t.set_block("cores.listitem", "core.consumes.listitem", "core.consumes.list");
+		t.setBlock("_BUILDINGS", "cores.listitem", "cores.list");
+		t.setBlock("cores.listitem", "core.buildcosts.listitem", "core.buildcosts.list");
+		t.setBlock("cores.listitem", "core.produces.listitem", "core.produces.list");
+		t.setBlock("cores.listitem", "core.consumes.listitem", "core.consumes.list");
 		
 
 		SQLQuery coreID = db.query("SELECT id FROM cores ORDER BY name,astitype");
@@ -168,7 +168,7 @@ public class BuildingsController extends DSGenerator {
 				continue;
 			}
 			
-			t.set_var(	"core.astitype",	core.getAstiType(),
+			t.setVar(	"core.astitype",	core.getAstiType(),
 						"core.name",		Common._plaintitle(core.getName()),
 						"core.arbeiter",	core.getArbeiter(),
 						"core.bewohner",	core.getBewohner() );
@@ -180,7 +180,7 @@ public class BuildingsController extends DSGenerator {
 			Resources.echoResList( t, reslist, "core.consumes.list" );
 	
 			if( core.getEVerbrauch() > 0 ) {
-				t.set_var(	"res.image",	Configuration.getSetting("URL")+"data/interface/energie.gif",
+				t.setVar(	"res.image",	Configuration.getSetting("URL")+"data/interface/energie.gif",
 							"res.cargo",	core.getEVerbrauch(),
 							"res.plainname",	"Energie" );
 							
@@ -191,7 +191,7 @@ public class BuildingsController extends DSGenerator {
 			Resources.echoResList( t, reslist, "core.produces.list" );
 
 			if( core.getEProduktion() > 0 ) {
-				t.set_var(	"res.image",		Configuration.getSetting("URL")+"data/interface/energie.gif",
+				t.setVar(	"res.image",		Configuration.getSetting("URL")+"data/interface/energie.gif",
 							"res.cargo",		core.getEProduktion(),
 							"res.plainname",	"Energie" );
 									
@@ -202,7 +202,7 @@ public class BuildingsController extends DSGenerator {
 		}
 		coreID.free();
 		
-		t.set_var(	"base.id",		getInteger("col"),
+		t.setVar(	"base.id",		getInteger("col"),
 					"base.field",	getInteger("field") );
 	}
 }

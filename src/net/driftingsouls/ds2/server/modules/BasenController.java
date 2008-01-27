@@ -102,7 +102,7 @@ public class BasenController extends DSGenerator {
 			user.setUserValue("TBLORDER/basen/showcargo", Integer.toString(l));
 		}
 		
-		t.set_var(	"global.l",		l,
+		t.setVar(	"global.l",		l,
 					"global.order",	ord,
 					"global.omode", order );
 	
@@ -125,16 +125,16 @@ public class BasenController extends DSGenerator {
 		
 		Cargo usercargo = new Cargo( Cargo.Type.STRING, user.getCargo() );
 		
-		t.set_block("_BASEN", "bases.listitem", "bases.list");
-		t.set_block("bases.listitem", "bases.mangel.listitem", "bases.mangel.list");
-		t.set_block("bases.listitem", "bases.cargo.listitem", "bases.cargo.list");
+		t.setBlock("_BASEN", "bases.listitem", "bases.list");
+		t.setBlock("bases.listitem", "bases.mangel.listitem", "bases.mangel.list");
+		t.setBlock("bases.listitem", "bases.cargo.listitem", "bases.cargo.list");
 		
 		SQLQuery baseRow = db.query("SELECT * FROM bases WHERE owner=",user.getID()," ORDER BY ",ow," ",om);
 		while( baseRow.next() ) {
 			Base base = new Base(baseRow.getRow());
 			BaseStatus basedata = Base.getStatus(getContext(),base);
 			
-			t.set_var( "base.id"		, base.getID(),
+			t.setVar( "base.id"		, base.getID(),
 					"base.klasse"	, base.getKlasse(),
 					"base.name"		, Common._plaintitle(base.getName()),
 					"base.system"	, base.getSystem(),
@@ -157,7 +157,7 @@ public class BasenController extends DSGenerator {
 			for( ResourceEntry res : reslist ) {
 				if( res.getCount1() < 0 ) {
 					long rounds = -cargo.getResourceCount(res.getId())/res.getCount1();
-					t.set_var(	"mangel.rounds",	rounds,
+					t.setVar(	"mangel.rounds",	rounds,
 								"mangel.image",		res.getImage(),
 								"mangel.plainname",	res.getPlainName() );
 					
@@ -172,7 +172,7 @@ public class BasenController extends DSGenerator {
 			*/
 			
 			if( l == 1 ) {
-				t.set_var("bases.cargo.empty", Common.ln(base.getMaxCargo()-cargo.getMass()));
+				t.setVar("bases.cargo.empty", Common.ln(base.getMaxCargo()-cargo.getMass()));
 				
 				reslist = cargo.getResourceList();
 				Resources.echoResList(t, reslist, "bases.cargo.list");
@@ -192,7 +192,7 @@ public class BasenController extends DSGenerator {
 				shortcuts.append(" ");
 			}
 									
-			t.set_var("base.shortcuts", shortcuts);
+			t.setVar("base.shortcuts", shortcuts);
 									
 			t.parse("bases.list", "bases.listitem", true);
 		}

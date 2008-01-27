@@ -325,7 +325,7 @@ public class User implements Loggable {
 	public void setTemplateVars(TemplateEngine templateEngine, String prefix) {
 		String pre = prefix+".";
 		for( String val : preloadedValues ) {
-			templateEngine.set_var(pre+val, data.get(val));
+			templateEngine.setVar(pre+val, data.get(val));
 		}
 	}
 	

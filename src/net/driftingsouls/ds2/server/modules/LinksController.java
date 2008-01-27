@@ -44,7 +44,7 @@ public class LinksController extends DSGenerator {
 
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		getTemplateEngine().set_var("SCRIPT_FORUM", SCRIPT_FORUM);
+		getTemplateEngine().setVar("SCRIPT_FORUM", SCRIPT_FORUM);
 		
 		return true;
 	}
@@ -73,7 +73,7 @@ public class LinksController extends DSGenerator {
 	public void defaultAction() {
 		User user = getUser();
 		
-		getTemplateEngine().set_var(
+		getTemplateEngine().setVar(
 				"user.npc"		, user.hasFlag( User.FLAG_ORDER_MENU ),
 				"user.admin"	, (user.getAccessLevel() >= 30) );
 	}

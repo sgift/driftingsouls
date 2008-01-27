@@ -101,7 +101,7 @@ public class GtuZwischenLagerController extends DSGenerator {
 		
 		this.handel = handel.getInt("id");
 		
-		t.set_var( "global.shipid", shipId );
+		t.setVar( "global.shipid", shipId );
 		
 		return true;
 	}
@@ -175,12 +175,12 @@ public class GtuZwischenLagerController extends DSGenerator {
 			transportcargo = (Cargo)tradecargo.clone();	
 		}		
 
-		t.set_block("_GTUZWISCHENLAGER","transferlist.res.listitem","transferlist.res.list");
+		t.setBlock("_GTUZWISCHENLAGER","transferlist.res.listitem","transferlist.res.list");
 				
 		ResourceList reslist = transportcargo.getResourceList();
 		Resources.echoResList( t, reslist, "transferlist.res.list" );
 		
-		t.set_var("global.transferlist",1);
+		t.setVar("global.transferlist",1);
 		
 		shipCargo.addCargo( transportcargo );
 		tradecargoneed.substractCargo( transportcargo );
@@ -200,7 +200,7 @@ public class GtuZwischenLagerController extends DSGenerator {
 				addError("Die Waren konnten nicht erfolgreich zum Schiff transferiert werden");	
 			}
 			
-			t.set_var( "transferlist.backlink", 1 );
+			t.setVar( "transferlist.backlink", 1 );
 			
 			return;
 		}
@@ -257,9 +257,9 @@ public class GtuZwischenLagerController extends DSGenerator {
 			return;	
 		}
 		
-		t.set_var("global.entry", 1);
+		t.setVar("global.entry", 1);
 		
-		t.set_block("_GTUZWISCHENLAGER","res.listitem","res.list");
+		t.setBlock("_GTUZWISCHENLAGER","res.listitem","res.list");
 	
 		// Der Handelspartner
 		User tradepartner = getContext().createUserObject(tradeentry.getInt("user2"));
@@ -276,7 +276,7 @@ public class GtuZwischenLagerController extends DSGenerator {
 			owncargoneed = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo1need"));
 		}
 		
-		t.set_var(	"tradeentry.id",			tradeentry.getInt("id"),
+		t.setVar(	"tradeentry.id",			tradeentry.getInt("id"),
 					"tradeentry.partner",		Common._title(tradepartner.getName()),
 					"tradeentry.missingcargo",	"",
 					"tradeentry.waren",			"" );
@@ -303,9 +303,9 @@ public class GtuZwischenLagerController extends DSGenerator {
 		User user = this.getUser();
 		TemplateEngine t = this.getTemplateEngine();
 		
-		t.set_var("global.tradelist",1);
-		t.set_block("_GTUZWISCHENLAGER","tradelist.listitem","tradelist.list");
-		t.set_block("tradelist.listitem","res.listitem","res.list");
+		t.setVar("global.tradelist",1);
+		t.setBlock("_GTUZWISCHENLAGER","tradelist.listitem","tradelist.list");
+		t.setBlock("tradelist.listitem","res.listitem","res.list");
 	
 		SQLQuery tradeentry = db.query("SELECT * FROM gtu_zwischenlager WHERE posten=",this.handel," AND (user1=",user.getID()," OR user2=",user.getID(),")");
 		while( tradeentry.next() ) {
@@ -321,7 +321,7 @@ public class GtuZwischenLagerController extends DSGenerator {
 				owncargoneed = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo1need"));
 			}
 		
-			t.set_var(	"list.entryid",			tradeentry.getInt("id"),
+			t.setVar(	"list.entryid",			tradeentry.getInt("id"),
 						"list.user",			Common._title(tradepartner.getName()),
 						"res.list",				"",
 						"list.cargoreq.list",	"",

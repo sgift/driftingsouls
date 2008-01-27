@@ -143,7 +143,7 @@ public class CrewtauschController extends DSGenerator {
 		}
 		
 		if( send > 0 ) {
-			t.set_var(	"crewtausch.transfer",	1,
+			t.setVar(	"crewtausch.transfer",	1,
 						"transfer.way.to",		1,
 						"transfer.count",		send );
 			
@@ -199,7 +199,7 @@ public class CrewtauschController extends DSGenerator {
 		}
 		
 		if( rec > 0 ) {
-			t.set_var(	"crewtausch.transfer",	1,
+			t.setVar(	"crewtausch.transfer",	1,
 						"transfer.way.to",		0,
 						"transfer.count",		rec );
 		
@@ -239,7 +239,7 @@ public class CrewtauschController extends DSGenerator {
 		
 		String mode = getString("mode");
 		
-		t.set_var(	"ship.id",			ship.getInt("id"),
+		t.setVar(	"ship.id",			ship.getInt("id"),
 					"ship.name",		Common._plaintitle(ship.getString("name")),
 					"ship.crew",		ship.getInt("crew"),
 					"ship.maxcrew",		maxcrewf,

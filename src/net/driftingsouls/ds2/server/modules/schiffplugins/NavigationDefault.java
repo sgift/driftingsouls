@@ -159,9 +159,9 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 		Database db = controller.getDatabase();
 		
 		TemplateEngine t = controller.getTemplateEngine();
-		t.set_file("_PLUGIN_"+pluginid, "schiff.navigation.default.html");
+		t.setFile("_PLUGIN_"+pluginid, "schiff.navigation.default.html");
 		
-		t.set_var(	"global.pluginid",					pluginid,
+		t.setVar(	"global.pluginid",					pluginid,
 					"ship.id",							data.getInt("id"),
 					"schiff.navigation.docked",			data.getString("docked"),
 					"schiff.navigation.docked.extern",	data.getString("docked").equals("") || (data.getString("docked").charAt(0) != 'l'),
@@ -182,14 +182,14 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 			}
 			SQLResultRow mastership = db.first("SELECT name FROM ships WHERE id>0 AND id=",mastershipid);
 			
-			t.set_var(	"schiff.navigation.docked.master.name",	mastership.getString("name"),
+			t.setVar(	"schiff.navigation.docked.master.name",	mastership.getString("name"),
 						"schiff.navigation.docked.master.id",	mastershipid );
 		} 
 		else if( datatype.getInt("cost") == 0 ) {
-			t.set_var("schiff.navigation.showmessage","Dieses Objekt hat keinen Antrieb");
+			t.setVar("schiff.navigation.showmessage","Dieses Objekt hat keinen Antrieb");
 		} 
 		else if( !data.getString("lock").equals("") ) {
-			t.set_var("schiff.navigation.showmessage","Fahren sie im Quest fort<br />um das Schiff wieder bewegen<br />zu k&ouml;nnen");	
+			t.setVar("schiff.navigation.showmessage","Fahren sie im Quest fort<br />um das Schiff wieder bewegen<br />zu k&ouml;nnen");	
 		}
 		else {
 			int x = data.getInt("x");
@@ -245,15 +245,15 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 			boolean newrow = false;
 			final String url = Configuration.getSetting("URL"); 
 			
-			t.set_var("schiff.navigation.size",37);
+			t.setVar("schiff.navigation.size",37);
 			
-			t.set_block("_NAVIGATION","schiff.navigation.nav.listitem","schiff.navigation.nav.list");
+			t.setBlock("_NAVIGATION","schiff.navigation.nav.listitem","schiff.navigation.nav.list");
 			for( int ny = 0; ny <= 2; ny++ ) {
 				newrow = true;
 				for( int nx = 0; nx <= 2; nx++ ) {
 					tmp++;
 					
-					t.set_var(	"schiff.navigation.nav.direction",		tmp,
+					t.setVar(	"schiff.navigation.nav.direction",		tmp,
 								"schiff.navigation.nav.location",		Ships.getLocationText(sys, x+nx-1, y+ny-1, true),
 								"schiff.navigation.nav.sectorimage",	url + (sectorimgs[nx][ny] != null ? sectorimgs[nx][ny] : "data/starmap/space/space.png"),
 								"schiff.navigation.nav.newrow",			newrow,

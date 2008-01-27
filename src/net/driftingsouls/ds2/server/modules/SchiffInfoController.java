@@ -80,7 +80,7 @@ public class SchiffInfoController extends DSGenerator {
 			return false;
 		}
 		
-		t.set_var( "global.login", (getUser() != null) );
+		t.setVar( "global.login", (getUser() != null) );
 					
 		SQLResultRow data = null;
 		try {
@@ -135,7 +135,7 @@ public class SchiffInfoController extends DSGenerator {
 			ship = 0;
 		}
 		else if( data.getBoolean("hide") && (user != null) && (user.getAccessLevel() >= 10) ) {
-			t.set_var("shiptype.showinvisible",1);
+			t.setVar("shiptype.showinvisible",1);
 		}
 		
 		SQLResultRow sw = null;
@@ -171,7 +171,7 @@ public class SchiffInfoController extends DSGenerator {
 						cssClass = "ok";
 					} 	
 
-					t.set_var(	"shiptype.tr"+i, shipBuildData.getInt("tr"+i),
+					t.setVar(	"shiptype.tr"+i, shipBuildData.getInt("tr"+i),
 								"shiptype.tr"+i+".name"	, Common._title(dat.getString("name")),
 								"shiptype.tr"+i+".status", cssClass );
 				}
@@ -182,7 +182,7 @@ public class SchiffInfoController extends DSGenerator {
 				if( shipBuildData.getInt("tr"+i) != 0 ) {
 					Forschung f = Forschung.getInstance(shipBuildData.getInt("tr"+i));
 
-					t.set_var(	"shiptype.tr"+i, shipBuildData.getInt("tr"+i),
+					t.setVar(	"shiptype.tr"+i, shipBuildData.getInt("tr"+i),
 								"shiptype.tr"+i+".name", Common._title(f.getName()) );
 				}
 			}
@@ -195,18 +195,18 @@ public class SchiffInfoController extends DSGenerator {
 			race = Rassen.get().rasse(shipBuildData.getInt("race")).getName();
 		}
 
-		t.set_var("shiptype.race",race);
+		t.setVar("shiptype.race",race);
 	}
 	
 	private void outShipCost() {
 		TemplateEngine t = getTemplateEngine();
 
-		t.set_var(	"shiptype.cost.energie",		shipBuildData.getInt("ekosten"),
+		t.setVar(	"shiptype.cost.energie",		shipBuildData.getInt("ekosten"),
 					"shiptype.cost.crew",			shipBuildData.getInt("crew"),
 					"shiptype.cost.dauer",			shipBuildData.getInt("dauer"),
 					"shiptype.cost.linfactor",		shipBuildData.getInt("linfactor")*100 );
 
-		t.set_block("_SCHIFFINFO", "shiptype.werften.listitem", "shiptype.werften.list" );
+		t.setBlock("_SCHIFFINFO", "shiptype.werften.listitem", "shiptype.werften.list" );
 		String[] werftlist = StringUtils.split(shipBuildData.getString("werftreq"), " ");
 		
 		for( int i=0; i < werftlist.length; i++ ) {
@@ -217,16 +217,16 @@ public class SchiffInfoController extends DSGenerator {
 			else if( werftlist[i].equals("pwerft") ) {
 				name = "Werft";	
 			}
-			t.set_var("werft.name", name);
+			t.setVar("werft.name", name);
 			t.parse("shiptype.werften.list", "shiptype.werften.listitem", true);
 		}
 
-		t.set_block("_SCHIFFINFO","res.listitem","res.list");
+		t.setBlock("_SCHIFFINFO","res.listitem","res.list");
 	
 		Cargo costs = new Cargo( Cargo.Type.STRING, shipBuildData.getString("costs") );
 		ResourceList reslist = costs.getResourceList();
 		for( ResourceEntry res  : reslist ) {
-			t.set_var(	"res.name", res.getName(),
+			t.setVar(	"res.name", res.getName(),
 						"res.image", res.getImage(),
 						"res.count", res.getCargo1() );
 			t.parse("res.list","res.listitem",true);
@@ -261,7 +261,7 @@ public class SchiffInfoController extends DSGenerator {
 			shipBuildData.clear();
 			
 			if( (user != null) && user.getAccessLevel() >= 10 ) {
-				t.set_var(	"shiptype.showbuildable",	1,
+				t.setVar(	"shiptype.showbuildable",	1,
 							"shiptype.visibletech",		visible);
 			}	
 		}
@@ -270,7 +270,7 @@ public class SchiffInfoController extends DSGenerator {
 			SQLResultRow order = db.first("SELECT cost FROM orders_ships WHERE type=",shipID);
 			
 			if( !order.isEmpty() ) {
-				t.set_var(	"shiptype.showorderable",	1,
+				t.setVar(	"shiptype.showorderable",	1,
 							"shiptype.ordercost",		order.getInt("cost") );
 			}
 		}
@@ -278,11 +278,11 @@ public class SchiffInfoController extends DSGenerator {
 		Map<String,String> weapons = Weapons.parseWeaponList(ship.getString("weapons"));
 		Map<String,String> maxheat = Weapons.parseWeaponList(ship.getString("maxheat"));
 		
-		t.set_block("_SCHIFFINFO","shiptype.weapons.listitem","shiptype.weapons.list");
+		t.setBlock("_SCHIFFINFO","shiptype.weapons.listitem","shiptype.weapons.list");
 		for( String weapon : weapons.keySet() ) {
 			int count = Integer.parseInt(weapons.get(weapon));
 			if( Weapons.get().weapon(weapon) == null ) {
-				t.set_var(	"shiptype.weapon.name",			"<span style=\"color:red\">UNKNOWN: weapon</span>",
+				t.setVar(	"shiptype.weapon.name",			"<span style=\"color:red\">UNKNOWN: weapon</span>",
 							"shiptype.weapon.count",		count,
 							"shiptype.weapon.description",	"" );
 
@@ -354,7 +354,7 @@ public class SchiffInfoController extends DSGenerator {
 	
 			descrip.append("</span>");
 
-			t.set_var(	"shiptype.weapon.name",			Weapons.get().weapon(weapon).getName(),
+			t.setVar(	"shiptype.weapon.name",			Weapons.get().weapon(weapon).getName(),
 						"shiptype.weapon.count",		count,
 						"shiptype.weapon.description",	descrip );
 
@@ -362,12 +362,12 @@ public class SchiffInfoController extends DSGenerator {
 		}
 		
 		if( weapons.isEmpty() ) {
-			t.set_var("shiptype.noweapons",1);
+			t.setVar("shiptype.noweapons",1);
 		}
 		
 		// Flags auflisten
-		t.set_block("_SCHIFFINFO", "shiptypeflags.listitem", "shiptypeflags.list");
-		t.set_var("shiptypeflags.list","");
+		t.setBlock("_SCHIFFINFO", "shiptypeflags.listitem", "shiptypeflags.list");
+		t.setVar("shiptypeflags.list","");
 
 		String[] flaglist = ShipTypes.getShipTypeFlagList(this.ship);
 		Arrays.sort(flaglist);
@@ -375,7 +375,7 @@ public class SchiffInfoController extends DSGenerator {
 			if( flaglist[i].length() == 0 ) {
 				continue;	
 			}
-			t.set_var(	"shiptypeflag.name", 			ShipTypes.getShipTypeFlagName(flaglist[i]),
+			t.setVar(	"shiptypeflag.name", 			ShipTypes.getShipTypeFlagName(flaglist[i]),
 						"shiptypeflag.description",		ShipTypes.getShipTypeFlagDescription(flaglist[i]) );
 								
 			t.parse("shiptypeflags.list","shiptypeflags.listitem",true);
@@ -405,7 +405,7 @@ public class SchiffInfoController extends DSGenerator {
 			}
 		}
 
-		t.set_var(	"shiptype.nickname",	ship.getString("nickname"),
+		t.setVar(	"shiptype.nickname",	ship.getString("nickname"),
 					"shiptype.id",			ship.getInt("id"),
 					"shiptype.class",		ShipTypes.getShipClass(ship.getInt("class")).getSingular(),
 					"shiptype.image",		ship.getString("picture"),

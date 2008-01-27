@@ -49,12 +49,12 @@ public class WerftDefault implements SchiffPlugin {
 		werft.setOneWayFlag(shiptype.getInt("ow_werft"));
 
 		TemplateEngine t = controller.getTemplateEngine();
-		t.set_file("_PLUGIN_"+pluginid, "schiff.werft.default.html");
+		t.setFile("_PLUGIN_"+pluginid, "schiff.werft.default.html");
 
 		if( werft.isBuilding() ) {
 			SQLResultRow type = werft.getBuildShipType();
 			
-			t.set_var(	"global.pluginid",			pluginid,
+			t.setVar(	"global.pluginid",			pluginid,
 						"ship.id",					ship.getInt("id"),
 						"schiff.werft.prod.dauer",	werft.getRemainingTime(),
 						"schiff.werft.prod.type",	type.getInt("id"),
@@ -62,7 +62,7 @@ public class WerftDefault implements SchiffPlugin {
 						"schiff.werft.prod.picture",	type.getString("picture") );
 			
 			if( werft.getRequiredItem() != -1 ) {
-				t.set_var(	"schiff.werft.prod.item",			werft.getRequiredItem(),
+				t.setVar(	"schiff.werft.prod.item",			werft.getRequiredItem(),
 							"schiff.werft.prod.item.name",		Items.get().item(werft.getRequiredItem()).getName(),
 							"schiff.werft.prod.item.picture",	Items.get().item(werft.getRequiredItem()).getPicture(),
 							"schiff.werft.prod.item.available",	werft.isBuildContPossible() );

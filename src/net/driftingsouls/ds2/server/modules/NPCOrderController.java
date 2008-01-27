@@ -54,13 +54,13 @@ public class NPCOrderController extends DSGenerator {
 		}
 		
 		if( Rassen.get().rasse(user.getRace()).isHead(user.getID()) ) {
-			t.set_var( "npcorder.factionhead", 1 );
+			t.setVar( "npcorder.factionhead", 1 );
 								
 			this.isHead = true;	
 		}
 		
 		if( Faction.get(user.getID()) != null && Faction.get(user.getID()).getPages().hasPage("shop") ) {
-			t.set_var("npcorder.shop", 1);	
+			t.setVar("npcorder.shop", 1);	
 		}
 		
 		return true;
@@ -80,14 +80,14 @@ public class NPCOrderController extends DSGenerator {
 			redirect();
 			return;
 		}
-		t.set_var("npcorder.transports", 1);
-		t.set_block("_NPCORDER", "transports.listitem", "transports.list");
+		t.setVar("npcorder.transports", 1);
+		t.setBlock("_NPCORDER", "transports.listitem", "transports.list");
 		
 		SQLQuery aship = db.query("SELECT * FROM ships WHERE owner="+user.getID()+" AND LOCATE('#!/tm gany_transport',destcom)");
 		while( aship.next() ) {
 			SQLResultRow ashiptype = ShipTypes.getShipType(aship.getRow());
 			
-			t.set_var(	"transport.ship",		Common._plaintitle(aship.getString("name")),
+			t.setVar(	"transport.ship",		Common._plaintitle(aship.getString("name")),
 						"transport.ship.id",	aship.getInt("id"),
 						"transport.ship.picture",	ashiptype.getString("picture"),
 						"transport.status",		"langeweile",
@@ -113,13 +113,13 @@ public class NPCOrderController extends DSGenerator {
 				status = "anreise";	
 			}
 			
-			t.set_var("transport.status", status);
+			t.setVar("transport.status", status);
 			
 			SQLResultRow order = db.first("SELECT * FROM factions_shop_orders WHERE id="+Integer.parseInt(task.getData1()));
 			
 			User orderuser = getContext().createUserObject(order.getInt("user_id"));
 			
-			t.set_var("transport.assignment", order.getInt("id")+": "+Common._title(orderuser.getName())+"<br />"+order.getString("adddata"));
+			t.setVar("transport.assignment", order.getInt("id")+": "+Common._title(orderuser.getName())+"<br />"+order.getString("adddata"));
 							
 			t.parse("transports.list", "transports.listitem", true);
 		}
@@ -197,7 +197,7 @@ public class NPCOrderController extends DSGenerator {
 				"data/"+Medals.get().medal(medal).getImage(Medal.IMAGE_SMALL)+"[/img]'"+
 				Medals.get().medal(medal).getName()+"' verliehen Aufgrund deiner "+reason);
 		
-		t.set_var( "npcorder.message", "Dem Spieler wurde der Orden '"+Medals.get().medal(medal).getName()+"' verliehen" );
+		t.setVar( "npcorder.message", "Dem Spieler wurde der Orden '"+Medals.get().medal(medal).getName()+"' verliehen" );
 		
 		this.redirect("medals");
 	}
@@ -274,7 +274,7 @@ public class NPCOrderController extends DSGenerator {
 				Configuration.getSetting("URL")+"data/interface/medals/rang"+rang+"+png[/img] ["+
 				Medals.get().rang(rang).getName()+"] "+( rang > edituser.getRang() ? "bef&ouml;rdert" : "degradiert"));
 		
-		t.set_var( "npcorder.message", "Der Spieler wurde zum "+Medals.get().rang(rang).getName()+" "+
+		t.setVar( "npcorder.message", "Der Spieler wurde zum "+Medals.get().rang(rang).getName()+" "+
 				( rang > edituser.getRang() ? "bef&ouml;rdert" : "degradiert") );
 		
 		edituser.setRang(rang);
@@ -301,12 +301,12 @@ public class NPCOrderController extends DSGenerator {
 		parameterNumber("edituser");
 		int edituserID = getInteger("edituser");
 		
-		t.set_var("npcorder.medalsmenu", 1);
+		t.setVar("npcorder.medalsmenu", 1);
 		
 		User edituser = getContext().createUserObject(edituserID);
 			
 		if( edituser.getID() == 0 ) {
-			t.set_var("edituser.id", 0);
+			t.setVar("edituser.id", 0);
 			
 			return;	
 		}
@@ -315,7 +315,7 @@ public class NPCOrderController extends DSGenerator {
 		
 		boolean canEditRang = user.getRang() > edituser.getRang();
 		
-		t.set_var(	"edituser.name",			Common._title(edituser.getName() ),
+		t.setVar(	"edituser.name",			Common._title(edituser.getName() ),
 					"edituser.rang.name",		Medals.get().rang(edituser.getRang()).getName(),
 					"edituser.rang.next",		(edituser.getRang() < user.getRang()-1 ? edituser.getRang()+1 : 0),
 					"edituser.rang.next.name",	(edituser.getRang() < user.getRang()-1 ? Medals.get().rang(edituser.getRang()+1) : 0),
@@ -324,13 +324,13 @@ public class NPCOrderController extends DSGenerator {
 			
 		int i = 8;
 							
-		t.set_block("_NPCORDER", "medals.listitem", "medals.list");
+		t.setBlock("_NPCORDER", "medals.listitem", "medals.list");
 		for( Medal medal : Medals.get().medals().values() ) {
 			if( medal.isAdminOnly() ) {
 				continue;
 			}
 			
-			t.set_var(	"medal.name",	medal.getName(),
+			t.setVar(	"medal.name",	medal.getName(),
 						"medal.id",		medal.getID(),
 						"medal.image",	medal.getImage(Medal.IMAGE_NORMAL),
 						"medal.newrow",	(i % 8) == 0,
@@ -376,7 +376,7 @@ public class NPCOrderController extends DSGenerator {
 			ordermessage = "Keine Lieferung nach "+loc+" m&ouml;glich\n";
 		}
 		
-		t.set_var("npcorder.message", ordermessage);
+		t.setVar("npcorder.message", ordermessage);
 		
 		this.redirect();
 	}
@@ -435,7 +435,7 @@ public class NPCOrderController extends DSGenerator {
 			ordermessage = "Sorry, aber umsonst bekommst du hier nichts...\n";
 		}
 		
-		t.set_var("npcorder.message", ordermessage);
+		t.setVar("npcorder.message", ordermessage);
 		
 		this.redirect();
 	}
@@ -451,7 +451,7 @@ public class NPCOrderController extends DSGenerator {
 		
 		Map<Integer,Integer> orders = new HashMap<Integer,Integer>();
 		
-		t.set_var( "npcorder.ordermenu", 1 );
+		t.setVar( "npcorder.ordermenu", 1 );
 
 		SQLQuery order = db.query("SELECT type FROM orders WHERE user=",user.getID());
 		while( order.next() ) {
@@ -465,14 +465,14 @@ public class NPCOrderController extends DSGenerator {
 		
 		int oldclass = 0;
 
-		t.set_block("_NPCORDER", "ships.listitem", "ships.list");
+		t.setBlock("_NPCORDER", "ships.listitem", "ships.list");
 
 		SQLQuery ship = db.query("SELECT t1.*,t2.nickname name,t2.class FROM orders_ships t1 JOIN ship_types t2 ON t1.type=t2.id ORDER BY t2.class,t1.type");
 		while( ship.next() ) {
 			t.start_record();
 			
 			if( ship.getInt("class") != oldclass ) {
-				t.set_var(	"ship.newclass",		1,
+				t.setVar(	"ship.newclass",		1,
 							"ship.newclass.name",	ShipTypes.getShipClass(ship.getInt("class")).getSingular() );
 				
 				oldclass = ship.getInt("class");
@@ -482,7 +482,7 @@ public class NPCOrderController extends DSGenerator {
 				orders.put(ship.getInt("type"), 0);
 			}
 			
-			t.set_var(	"ship.name",		ship.getString("name"),
+			t.setVar(	"ship.name",		ship.getString("name"),
 						"ship.type",		ship.getInt("type"),
 						"ship.cost",		ship.getInt("cost"),
 						"ship.ordercount",	orders.get(ship.getInt("type")) );
@@ -498,7 +498,7 @@ public class NPCOrderController extends DSGenerator {
 			Offiziere
 		*/
 		
-		t.set_block("_NPCORDER", "offiziere.listitem", "offiziere.list");
+		t.setBlock("_NPCORDER", "offiziere.listitem", "offiziere.list");
 		
 		SQLQuery offizier = db.query("SELECT * FROM orders_offiziere WHERE cost > 0 ORDER BY id");
 		while( offizier.next() ) {
@@ -506,7 +506,7 @@ public class NPCOrderController extends DSGenerator {
 				orders.put(-offizier.getInt("id"), 0);
 			}
 			
-			t.set_var(	"offizier.name",		offizier.getString("name"),
+			t.setVar(	"offizier.name",		offizier.getString("name"),
 						"offizier.rang",		offizier.getInt("rang"),
 						"offizier.cost",		offizier.getInt("cost"),
 						"offizier.id",			-offizier.getInt("id"),

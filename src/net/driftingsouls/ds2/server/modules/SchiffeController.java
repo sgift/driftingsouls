@@ -134,7 +134,7 @@ public class SchiffeController extends DSGenerator implements Loggable {
 		int crewless = getInteger("crewless");
 		int listoffset = getInteger("listoffset");
 		
-		t.set_var(	"global.low",		low,
+		t.setVar(	"global.low",		low,
 				  	"global.crewless",	crewless,
 				  	"global.only",		only,
 				  	"user.race",		user.getRace());
@@ -198,7 +198,7 @@ public class SchiffeController extends DSGenerator implements Loggable {
 			}
 			else {
 				sql_only = "t2.class="+getInteger("kampf_only");
-				t.set_var("global.kampf_only",getInteger("kampf_only"));
+				t.setVar("global.kampf_only",getInteger("kampf_only"));
 			}
 			query += sql_only+" ORDER BY "+ow;
 		}
@@ -209,21 +209,21 @@ public class SchiffeController extends DSGenerator implements Loggable {
 		query += " LIMIT "+listoffset+",1501";
 
 		if( only.equals("tank") ) {
-			t.set_var("only.tank", 1);
+			t.setVar("only.tank", 1);
 		} 
 		else if( only.equals("kampf") ) {
-			t.set_var(	"only.kampf", 1,
+			t.setVar(	"only.kampf", 1,
 				 		"only.kampf.showljaeger", (showjaeger.equals("1")? "checked=\"checked\"":"") );
 		
 			if( getInteger("kampf_only") == 0 ) {
-				t.set_var("only.kampf.selected-1","selected=\"selected\"");
+				t.setVar("only.kampf.selected-1","selected=\"selected\"");
 			}
 			else {
-				t.set_var("only.kampf.selected"+getInteger("kampf_only"), "selected=\"selected\"");
+				t.setVar("only.kampf.selected"+getInteger("kampf_only"), "selected=\"selected\"");
 			}
 		} 
 		else {
-			t.set_var("only.other",1);
+			t.setVar("only.other",1);
 		}
 		
 		String[] alarms = {"yellow","red"};
@@ -232,8 +232,8 @@ public class SchiffeController extends DSGenerator implements Loggable {
 		
 		int shiplistcount = 0;
 
-		t.set_block("_SCHIFFE","schiffe.listitem","schiffe.list");
-		t.set_block("schiffe.listitem","schiffe.resitem","schiffe.reslist");
+		t.setBlock("_SCHIFFE","schiffe.listitem","schiffe.list");
+		t.setBlock("schiffe.listitem","schiffe.resitem","schiffe.reslist");
 		SQLQuery ship = db.query(query);
 		while( ship.next() ) {
 			t.start_record();
@@ -241,7 +241,7 @@ public class SchiffeController extends DSGenerator implements Loggable {
 			shiplistcount++;
 			
 			if( shiplistcount > 1500 ) {
-				t.set_var("schiffe.nextoffset", listoffset+1500);
+				t.setVar("schiffe.nextoffset", listoffset+1500);
 				break;	
 			}
 			
@@ -330,14 +330,14 @@ public class SchiffeController extends DSGenerator implements Loggable {
 							popup.append(Common.tableEnd().replace( '"', '\'' ));
 							String popupStr = StringEscapeUtils.escapeJavaScript(popup.toString().replace(">", "&gt;").replace("<", "&lt;"));
 	
-							t.set_var(	"ship.werft.popup",		popupStr,
+							t.setVar(	"ship.werft.popup",		popupStr,
 										"ship.werft.dauer",		werft.getRemainingTime(),
 										"ship.werft.building",	1 );
 						}
 					}
 				}
 
-				t.set_var(	"ship.id",		ship.getInt("id"),
+				t.setVar(	"ship.id",		ship.getInt("id"),
 							"ship.name",	Common._plaintitle(ship.getString("name")),
 							"ship.battle",	ship.getInt("battle"),
 							"ship.type",	ship.getInt("type"),
@@ -363,35 +363,35 @@ public class SchiffeController extends DSGenerator implements Loggable {
 					if( !fleetcache.containsKey(ship.getInt("fleet")) ) {
 						fleetcache.put(ship.getInt("fleet"), db.first("SELECT name FROM ship_fleets WHERE id=",ship.getInt("fleet")).getString("name"));
 					}
-					t.set_var("ship.fleet.name",Common._plaintitle(fleetcache.get(ship.getInt("fleet"))) );
+					t.setVar("ship.fleet.name",Common._plaintitle(fleetcache.get(ship.getInt("fleet"))) );
 				}
 				
 				if( !ship.getString("docked").equals("") ) {
 					if( ship.getString("docked").charAt(0) != 'l' ) {
 						String shipname = db.first("SELECT name FROM ships WHERE id>0 AND id=",ship.getString("docked")).getString("name");
-						t.set_var(	"ship.docked.name",	shipname,
+						t.setVar(	"ship.docked.name",	shipname,
 									"ship.docked.id",	ship.getString("docked") );
 					}
 					else {
 					 	String[] dockid = StringUtils.split(ship.getString("docked"), ' ');
 			 			String shipname = db.first("SELECT name FROM ships WHERE id>0 AND id=",dockid[1]).getString("name");
-						t.set_var(	"ship.landed.name",	shipname,
+						t.setVar(	"ship.landed.name",	shipname,
 									"ship.landed.id",	dockid[1] );
 					}
 				}
 				
  				if( shiptype.getInt("adocks") > 0 ) {
  					int docked = db.first("SELECT count(*) count FROM ships WHERE id>0 AND docked='",ship.getInt("id"),"'").getInt("count");
-					t.set_var("ship.adocks.docked",docked);
+					t.setVar("ship.adocks.docked",docked);
  				}
 				
 				if( shiptype.getInt("jdocks") > 0 ) {
 					int docked = db.first("SELECT count(*) count FROM ships WHERE id>0 AND docked='l ",ship.getInt("id"),"'").getInt("count");
-					t.set_var("ship.jdocks.docked",docked);
+					t.setVar("ship.jdocks.docked",docked);
  				}
 				
 				if( (shiptype.getInt("class") == ShipClasses.AWACS.ordinal()) || (shiptype.getInt("class") == ShipClasses.FORSCHUNGSKREUZER.ordinal()) ) {
-					t.set_var("ship.awac",1);
+					t.setVar("ship.awac",1);
 				}
 				
 				int wa = 0;
@@ -434,7 +434,7 @@ public class SchiffeController extends DSGenerator implements Loggable {
 						continue;
 					}
 					
-					t.set_var(	"res.image",		res.getImage(),
+					t.setVar(	"res.image",		res.getImage(),
 								"res.color",		color,
 								"res.count",		res.getCargo1(),
 								"res.plainname",	res.getPlainName() );
@@ -443,11 +443,11 @@ public class SchiffeController extends DSGenerator implements Loggable {
 				}
 				
 				if( mode.equals("carg") && (shiptype.getInt("cargo") != 0) ) {
-					t.set_var(	"ship.restcargo",	Common.ln(shiptype.getInt("cargo") - cargo.getMass()),
+					t.setVar(	"ship.restcargo",	Common.ln(shiptype.getInt("cargo") - cargo.getMass()),
 								"ship.restcargo.show", 1 );
 				}
 				if( (wa == 0) && (low != 0) ) {
-					t.set_var("ship.e.none",1);
+					t.setVar("ship.e.none",1);
 				}
 				t.parse("schiffe.list","schiffe.listitem",true);
 				

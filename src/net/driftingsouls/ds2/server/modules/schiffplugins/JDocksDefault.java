@@ -98,7 +98,7 @@ public class JDocksDefault implements SchiffPlugin {
 		Database db = controller.getDatabase();
 
 		TemplateEngine t = controller.getTemplateEngine();
-		t.set_file("_PLUGIN_"+pluginid, "schiff.jdocks.default.html");
+		t.setFile("_PLUGIN_"+pluginid, "schiff.jdocks.default.html");
 
 		boolean nofleet = true;
 		List<Integer> jdockedid = new ArrayList<Integer>();
@@ -124,21 +124,21 @@ public class JDocksDefault implements SchiffPlugin {
 			idlist = Common.implode("|",jdockedid);
 		}
 
-		t.set_var(	"global.pluginid",		pluginid,
+		t.setVar(	"global.pluginid",		pluginid,
 					"ship.id",				data.getInt("id"),
 					"ship.docklist",		idlist,
 					"ship.jdocks",			datatype.getInt("jdocks"),
 					"docks.width",			100/(datatype.getInt("jdocks")>4 ? 4 : datatype.getInt("jdocks") ),
 					"ship.docklist.nofleet",	nofleet );
 
-		t.set_block("_PLUGIN_"+pluginid,"jdocks.listitem","jdocks.list");
+		t.setBlock("_PLUGIN_"+pluginid,"jdocks.listitem","jdocks.list");
 		for( int j = 0; j < datatype.getInt("jdocks"); j++ ) {
 			t.start_record();
 			if( (j > 0) && (j % 4 == 0) )
-				t.set_var("docks.endrow",1);
+				t.setVar("docks.endrow",1);
 
 			if( jdockedid.size() > j ) {
-				t.set_var(	"docks.entry.id",		jdockedid.get(j),
+				t.setVar(	"docks.entry.id",		jdockedid.get(j),
 							"docks.entry.name",		jdockedname.get(j),
 							"docks.entry.type",		jdockedtype.get(j),
 							"docks.entry.image",	jdockedpicture.get(j) );

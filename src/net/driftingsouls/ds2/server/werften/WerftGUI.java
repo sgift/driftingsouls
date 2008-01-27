@@ -84,16 +84,16 @@ public class WerftGUI {
 		int ws = context.getRequest().getParameterInt("ws");
 		int item = context.getRequest().getParameterInt("item");
 		
-		if( !t.set_file( "_WERFT.WERFTGUI", "werft.werftgui.html" ) ) {
+		if( !t.setFile( "_WERFT.WERFTGUI", "werft.werftgui.html" ) ) {
 			context.addError("Konnte das Template-Engine nicht initialisieren");
 			return "";
 		}
-		t.set_var(	"werftgui.formhidden",	werft.getFormHidden(),
+		t.setVar(	"werftgui.formhidden",	werft.getFormHidden(),
 					"werftgui.urlbase",		werft.getUrlBase() );
 		
 		if( build != 0 ) {
 			if( werft.isBuilding() ) {
-				t.set_var("werftgui.msg", "Sie k&ouml;nnen nur ein Schiff zur selben Zeit bauen");
+				t.setVar("werftgui.msg", "Sie k&ouml;nnen nur ein Schiff zur selben Zeit bauen");
 			} 
 			else {
 				this.out_buildShip(build, item, werft, conf);
@@ -101,7 +101,7 @@ public class WerftGUI {
 		}
 		else if( ws != 0 ) {
 			if( werft.isBuilding() ) {
-				t.set_var("werftgui.msg", "Sie k&ouml;nnen nicht gleichzeitig ein Schiff der Werkstatt bearbeiten und eines bauen");
+				t.setVar("werftgui.msg", "Sie k&ouml;nnen nicht gleichzeitig ein Schiff der Werkstatt bearbeiten und eines bauen");
 			}
 			else {
 				this.out_ws(werft, ws);
@@ -133,9 +133,9 @@ public class WerftGUI {
 				
 				SQLResultRow shiptype = ShipTypes.getShipType( shipid, true );
 				if( shiptype.getInt("cost") == 0 ) {
-					t.set_block("_WERFT.WERFTGUI", "werftgui.linkedbase.listitem", "werftgui.linkedbase.list");
+					t.setBlock("_WERFT.WERFTGUI", "werftgui.linkedbase.listitem", "werftgui.linkedbase.list");
 		
-					t.set_var(	"linkedbase.selected",	linkedbaseID == 0,
+					t.setVar(	"linkedbase.selected",	linkedbaseID == 0,
 								"linkedbase.value",		"-1",
 								"linkedbase.name",		(linkedbaseID != 0 ? "kein " : "")+"Ziel" );
 										
@@ -144,7 +144,7 @@ public class WerftGUI {
 					SQLQuery base = db.query("SELECT id,name FROM bases ",
 								"WHERE x=",werft.getX()," AND y=",werft.getY()," AND system=",werft.getSystem()," AND owner=",werft.getOwner()," ORDER BY id");
 					while( base.next() ) {
-						t.set_var(	"linkedbase.selected",	(linkedbaseID == base.getInt("id")),
+						t.setVar(	"linkedbase.selected",	(linkedbaseID == base.getInt("id")),
 									"linkedbase.value",		base.getInt("id"),
 									"linkedbase.name",		base.getString("name")+" ("+base.getInt("id")+")" );
 						t.parse("werftgui.linkedbase.list", "werftgui.linkedbase.listitem", true);
@@ -160,8 +160,8 @@ public class WerftGUI {
 	private void out_wsShipList(WerftObject werft) {
 		Database db = context.getDatabase();
 
-		t.set_var("werftgui.wsshiplist", 1);
-		t.set_block("_WERFT.WERFTGUI", "wsshiplist.listitem", "wsshiplist.list");
+		t.setVar("werftgui.wsshiplist", 1);
+		t.setBlock("_WERFT.WERFTGUI", "wsshiplist.listitem", "wsshiplist.list");
 		
 		SQLQuery ship = db.query("SELECT t1.id,t1.name,t1.type,t1.status,t1.engine,t1.sensors,t1.comm,t1.weapons,t1.hull,t1.owner,t2.name AS ownername,t2.id AS userid ",
 								"FROM ships t1 JOIN users t2 ON t1.owner=t2.id ",
@@ -176,10 +176,10 @@ public class WerftGUI {
 			
 			if( (ship.getInt("hull") < shiptype.getInt("hull")) || (ship.getInt("engine") < 100) ||
 				(ship.getInt("sensors") < 100) || (ship.getInt("comm") < 100) || (ship.getInt("weapons") < 100) ) {
-				t.set_var("ship.needsrepair", 1);
+				t.setVar("ship.needsrepair", 1);
 			}
 			else {
-				t.set_var("ship.needsrepair", 0);
+				t.setVar("ship.needsrepair", 0);
 			}
 			
 			String ownername = Common._title(ship.getString("ownername"));
@@ -187,7 +187,7 @@ public class WerftGUI {
 				ownername = "Unbekannter Spieler ("+ship.getInt("owner")+")"; 
 			}
 						
-			t.set_var(	"ship.id",			ship.getInt("id"),
+			t.setVar(	"ship.id",			ship.getInt("id"),
 						"ship.name",		ship.getString("name"),
 						"ship.owner.name",	ownername );
 								
@@ -197,9 +197,9 @@ public class WerftGUI {
 	}
 
 	private void out_buildShipList(WerftObject werft, SQLResultRow[] shipdata) {		
-		t.set_var("werftgui.buildshiplist", 1);
-		t.set_block("_WERFT.WERFTGUI", "buildshiplist.listitem", "buildshiplist.list");
-		t.set_block("buildshiplist.listitem", "buildship.res.listitem", "buildship.res.list");
+		t.setVar("werftgui.buildshiplist", 1);
+		t.setBlock("_WERFT.WERFTGUI", "buildshiplist.listitem", "buildshiplist.list");
+		t.setBlock("buildshiplist.listitem", "buildship.res.listitem", "buildship.res.list");
 
 		Cargo availablecargo = werft.getCargo(false);
 	
@@ -218,14 +218,14 @@ public class WerftGUI {
 				Object[] data = (Object[])ashipdata.get("_item");
 				ResourceID itemdata = (ResourceID)data[1];
 				
-				t.set_var(	"buildship.item.id",	itemdata.getItemID(),
+				t.setVar(	"buildship.item.id",	itemdata.getItemID(),
 							"buildship.item.color",	(data[0].toString().equals("local") ? "#EECC44" : "#44EE44"),
 							"buildship.item.uses",	itemdata.getUses() );
 			}
 			
 			SQLResultRow tmptype = ShipTypes.getShipType( ashipdata.getInt("type"), false );
 			
-			t.set_var(	"res.image",		Configuration.getSetting("URL")+"data/interface/time.gif",
+			t.setVar(	"res.image",		Configuration.getSetting("URL")+"data/interface/time.gif",
 						"res.count",		ashipdata.getInt("dauer"),
 						"res.plainname",	"Dauer",
 						"res.mangel",		0 );
@@ -233,20 +233,20 @@ public class WerftGUI {
 				
 			ResourceList reslist = costs.compare( availablecargo, false );
 			for( ResourceEntry res : reslist ) {
-				t.set_var(	"res.image",		res.getImage(),
+				t.setVar(	"res.image",		res.getImage(),
 							"res.count",		res.getCargo1(),
 							"res.plainname",	res.getPlainName(),
 							"res.mangel",		res.getDiff() > 0 );
 				t.parse("buildship.res.list", "buildship.res.listitem", true);
 			}
 
-			t.set_var(	"res.image",		Configuration.getSetting("URL")+"data/interface/energie.gif",
+			t.setVar(	"res.image",		Configuration.getSetting("URL")+"data/interface/energie.gif",
 						"res.count",		ashipdata.getInt("ekosten"),
 						"res.plainname",	"Energie",
 						"res.mangel",		energy < ashipdata.getInt("ekosten") );
 			t.parse("buildship.res.list", "buildship.res.listitem", true);
 	
-			t.set_var(	"res.image",		Configuration.getSetting("URL")+"data/interface/besatzung.gif",
+			t.setVar(	"res.image",		Configuration.getSetting("URL")+"data/interface/besatzung.gif",
 						"res.count",		ashipdata.getInt("crew"),
 						"res.plainname",	"Besatzung",
 						"res.mangel",		crew < ashipdata.getInt("crew") );
@@ -254,7 +254,7 @@ public class WerftGUI {
 
 			SQLResultRow shiptype = ShipTypes.getShipType(ashipdata.getInt("type"), false);
 			
-			t.set_var(	"buildship.id",			ashipdata.getInt("id"),
+			t.setVar(	"buildship.id",			ashipdata.getInt("id"),
 						"buildship.type.id",	ashipdata.getInt("type"),
 						"buildship.type.image",	shiptype.getString("picture"),
 						"buildship.flagschiff",	ashipdata.getBoolean("flagschiff"),
@@ -267,25 +267,25 @@ public class WerftGUI {
 	}
 
 	private void out_ResourceList(WerftObject werft, Cargo showonly) {		
-		t.set_var("werftgui.reslist", 1);
-		t.set_block("_WERFT.WERFTGUI", "reslist.res.listitem", "reslist.res.list");
+		t.setVar("werftgui.reslist", 1);
+		t.setBlock("_WERFT.WERFTGUI", "reslist.res.listitem", "reslist.res.list");
 		
 		Cargo cargo = werft.getCargo(false);
 		int frei = werft.getCrew();
 	
 		ResourceList reslist = showonly.compare(cargo, false);
 		for( ResourceEntry res : reslist ) {
-			t.set_var(	"res.image",		res.getImage(),
+			t.setVar(	"res.image",		res.getImage(),
 						"res.plainname",	res.getPlainName(),
 						"res.cargo",		res.getCargo2() );
 			t.parse("reslist.res.list", "reslist.res.listitem", true);
 		}
-		t.set_var(	"res.image",		Configuration.getSetting("URL")+"data/interface/energie.gif",
+		t.setVar(	"res.image",		Configuration.getSetting("URL")+"data/interface/energie.gif",
 					"res.plainname",	"Energie",
 					"res.cargo",		werft.getEnergy() );
 		t.parse("reslist.res.list", "reslist.res.listitem", true);
 		
-		t.set_var(	"res.image",		Configuration.getSetting("URL")+"data/interface/arbeitslos.gif",
+		t.setVar(	"res.image",		Configuration.getSetting("URL")+"data/interface/arbeitslos.gif",
 					"res.plainname",	"Crew",
 					"res.cargo",		frei );
 		t.parse("reslist.res.list", "reslist.res.listitem", true);
@@ -297,12 +297,12 @@ public class WerftGUI {
 		SQLResultRow type = werft.getBuildShipType();
 
 		if( action.equals("canclebuild") && conf.equals("ok") ) {
-			t.set_var( "werftgui.building.cancel", 1 );
+			t.setVar( "werftgui.building.cancel", 1 );
 			werft.cancelBuild();
 			return;
 		}
 		
-		t.set_var(	"werftgui.building",		1,
+		t.setVar(	"werftgui.building",		1,
 					"ship.type.image",			type.getString("picture"),
 					"ship.type.id",				type.getInt("id"),
 					"ship.type.name",			type.getString("nickname"),
@@ -310,7 +310,7 @@ public class WerftGUI {
 					"werftgui.building.cancel.conf",	action.equals("canclebuild") && !conf.equals("ok") );
 
 		if( werft.getRequiredItem() > -1 ) {
-			t.set_var(	"ship.build.item",				werft.getRequiredItem(),
+			t.setVar(	"ship.build.item",				werft.getRequiredItem(),
 						"ship.build.item.picture",		Items.get().item(werft.getRequiredItem()).getPicture(),
 						"ship.build.item.name",			Items.get().item(werft.getRequiredItem()).getName(),
 						"ship.build.item.available",	werft.isBuildContPossible() );
@@ -345,7 +345,7 @@ public class WerftGUI {
 		
 		SQLResultRow shipType = ShipTypes.getShipType(ship);
 		
-		t.set_var(	"werftgui.ws",			1,
+		t.setVar(	"werftgui.ws",			1,
 					"ship.id",				ship.getInt("id"),
 					"ship.name",			ship.getString("name"),
 					"ship.own",				(ship.getInt("owner") == user.getID()),
@@ -354,7 +354,7 @@ public class WerftGUI {
 	
 		if( ship.getInt("owner") != user.getID() ) {
 			User owner = context.createUserObject(ship.getInt("owner"));
-			t.set_var("ship.owner.name", Common._title(owner.getName()));
+			t.setVar("ship.owner.name", Common._title(owner.getName()));
 		}
 
 		String action = context.getRequest().getParameterString("werftact");
@@ -395,7 +395,7 @@ public class WerftGUI {
 	private void out_ws_info(SQLResultRow ship) {
 		SQLResultRow shipType = ShipTypes.getShipType(ship);
 		
-		t.set_var(	"werftgui.ws.showinfo",		1,
+		t.setVar(	"werftgui.ws.showinfo",		1,
 					"ship.name",				ship.getString("name"),
 					"ship.type.id",				shipType.getInt("id"),
 					"ship.type.picture",		shipType.getString("picture"),
@@ -429,7 +429,7 @@ public class WerftGUI {
 	
 		Offizier offizier = Offizier.getOffizierByDest('s', ship.getInt("id"));
 		if( offizier != null ) {
-			t.set_var(	"ship.offizier.id",			offizier.getID(),
+			t.setVar(	"ship.offizier.id",			offizier.getID(),
 						"ship.offizier.rang",		offizier.getRang(),
 						"ship.offizier.picture",	offizier.getPicture(),
 						"ship.offizier.name",		Common._plaintitle(offizier.getName()) );
@@ -463,20 +463,20 @@ public class WerftGUI {
 			moduleslots.add(data);	
 		}
 		
-		t.set_block("_WERFT.WERFTGUI", "ws.modules.slots.listitem", "ws.modules.slots.list");
-		t.set_block("ws.modules.slots.listitem", "slot.items.listitem", "slot.items.list");
+		t.setBlock("_WERFT.WERFTGUI", "ws.modules.slots.listitem", "ws.modules.slots.list");
+		t.setBlock("ws.modules.slots.listitem", "slot.items.listitem", "slot.items.list");
 		
-		t.set_var(	"werftgui.ws.modules",	1,
+		t.setVar(	"werftgui.ws.modules",	1,
 					"ship.type.image",		shiptype.getString("picture") );
 			
 		// Modul einbauen
 		if( (item != 0) && (slot != 0) && (Items.get().item(item) != null) ) {
 			werft.addModule( ship, slot, item );
-			t.set_var("ws.modules.msg", Common._plaintext(werft.MESSAGE.getMessage()));
+			t.setVar("ws.modules.msg", Common._plaintext(werft.MESSAGE.getMessage()));
 		}
 		else if( moduleaction.equals("ausbauen") && (slot != 0) ) {
 			werft.removeModule( ship, slot );
-			t.set_var("ws.modules.msg", Common._plaintext(werft.MESSAGE.getMessage()));
+			t.setVar("ws.modules.msg", Common._plaintext(werft.MESSAGE.getMessage()));
 		}
 		
 		ModuleEntry[] modules = Ships.getModules(ship);
@@ -493,7 +493,7 @@ public class WerftGUI {
 		for( int i=0; i < moduleslots.size(); i++ ) {
 			String[] aslot = moduleslots.get(i);
 			
-			t.set_var(	"slot.name",		ModuleSlots.get().slot(aslot[1]).getName(),
+			t.setVar(	"slot.name",		ModuleSlots.get().slot(aslot[1]).getName(),
 						"slot.empty",		!usedslots.containsKey(Integer.parseInt(aslot[0])),
 						"slot.id",			aslot[0],
 						"slot.items.list",	"" );
@@ -505,7 +505,7 @@ public class WerftGUI {
 					moduleobj.setSlotData(aslot[2]);
 				}
 				
-				t.set_var( "slot.module.name", moduleobj.getName() );
+				t.setVar( "slot.module.name", moduleobj.getName() );
 			}	
 			else {
 				for( int j=0; j < itemlist.size(); j++ ) {
@@ -518,7 +518,7 @@ public class WerftGUI {
 					}
 					
 					Item itemobj = itemlist.get(j).getItemObject();
-					t.set_var(	"item.id",		itemlist.get(j).getItemID(),
+					t.setVar(	"item.id",		itemlist.get(j).getItemID(),
 								"item.name",	itemobj.getName() );
 
 					t.parse("slot.items.list", "slot.items.listitem", true);
@@ -545,9 +545,9 @@ public class WerftGUI {
 		SQLResultRow shiptype = ShipTypes.getShipType( ship );
 		Cargo scargo = new Cargo( Cargo.Type.STRING, ship.getString("cargo") );
 		
-		t.set_block("_WERFT.WERFTGUI", "ws.dismantle.res.listitem", "ws.dismantle.res.list");
+		t.setBlock("_WERFT.WERFTGUI", "ws.dismantle.res.listitem", "ws.dismantle.res.list");
 		
-		t.set_var(	"werftgui.ws.dismantle",	1,
+		t.setVar(	"werftgui.ws.dismantle",	1,
 					"ship.type.image",			shiptype.getString("picture"),
 					"ws.dismantle.conf",		!conf.equals("ok") );
 
@@ -556,7 +556,7 @@ public class WerftGUI {
 		
 		ResourceList reslist = cost.getResourceList();
 		for( ResourceEntry res : reslist ) {
-			t.set_var(	"res.image",		res.getImage(),
+			t.setVar(	"res.image",		res.getImage(),
 						"res.cargo",		res.getCargo1(),
 						"res.plainname",	res.getPlainName() );
 			t.parse("ws.dismantle.res.list", "ws.dismantle.res.listitem", true);
@@ -565,7 +565,7 @@ public class WerftGUI {
 		//Waren im Laderaum ausgeben	
 		reslist = scargo.getResourceList();
 		for( ResourceEntry res : reslist ) {
-			t.set_var(	"res.image",		res.getImage(),
+			t.setVar(	"res.image",		res.getImage(),
 						"res.cargo",		res.getCargo1(),
 						"res.plainname",	res.getPlainName() );
 			t.parse("ws.dismantle.available.list", "ws.dismantle.res.listitem", true);
@@ -573,12 +573,12 @@ public class WerftGUI {
 
 		boolean ok = werft.dismantleShip(dismantle, !conf.equals("ok"));
 		if( !ok ) {
-			t.set_var("ws.dismantle.error", werft.MESSAGE.getMessage() );
+			t.setVar("ws.dismantle.error", werft.MESSAGE.getMessage() );
 		}
 		else {
 			String msg = werft.MESSAGE.getMessage();
 			if( msg.length() > 0 ) {
-				t.set_var("ws.dismantle.msg", msg);
+				t.setVar("ws.dismantle.msg", msg);
 			}
 		}
 	}
@@ -591,9 +591,9 @@ public class WerftGUI {
 		
 		SQLResultRow shiptype = ShipTypes.getShipType( ship );
 
-		t.set_block("_WERFT.WERFTGUI", "ws.repair.res.listitem", "ws.repair.res.list");
+		t.setBlock("_WERFT.WERFTGUI", "ws.repair.res.listitem", "ws.repair.res.list");
 
-		t.set_var(	"ship.type.image",		shiptype.getString("picture"),
+		t.setVar(	"ship.type.image",		shiptype.getString("picture"),
 					"werftgui.ws.repair",	1,
 					"ws.repair.conf",		!conf.equals("ok") );
 		
@@ -604,7 +604,7 @@ public class WerftGUI {
 		//Kosten ausgeben
 		ResourceList reslist = repairCost.cost.compare( cargo, false );
 		for( ResourceEntry res : reslist ) {
-			t.set_var(	"res.image",			res.getImage(),
+			t.setVar(	"res.image",			res.getImage(),
 						"res.plainname",		res.getPlainName(),
 						"res.cargo.needed",		res.getCargo1(),
 						"res.cargo.available",	res.getCargo2() );
@@ -612,7 +612,7 @@ public class WerftGUI {
 		}
 		
 		if( repairCost.e > 0 ) {
-			t.set_var(	"res.image",			Configuration.getSetting("URL")+"data/interface/energie.gif",
+			t.setVar(	"res.image",			Configuration.getSetting("URL")+"data/interface/energie.gif",
 						"res.plainname",		"Energie",
 						"res.cargo.needed",		repairCost.e,
 						"res.cargo.available",	werft.getEnergy() );
@@ -622,12 +622,12 @@ public class WerftGUI {
 		boolean ok = werft.repairShip(ship, !conf.equals("ok"));
 		
 		if( !ok ) {
-			t.set_var("ws.repair.error", werft.MESSAGE.getMessage());
+			t.setVar("ws.repair.error", werft.MESSAGE.getMessage());
 		}
 		else {
 			String msg = werft.MESSAGE.getMessage();
 			if( msg.length() > 0 ) {
-				t.set_var("ws.repair.message", msg);
+				t.setVar("ws.repair.message", msg);
 			}
 		}
 	}
@@ -637,15 +637,15 @@ public class WerftGUI {
 	
 		SQLResultRow shipdata = werft.getShipBuildData( build, item );
 		if( (shipdata == null) || shipdata.isEmpty() ) {
-			t.set_var("werftgui.msg", "<span style=\"color:red\">"+werft.MESSAGE.getMessage()+"</span>");
+			t.setVar("werftgui.msg", "<span style=\"color:red\">"+werft.MESSAGE.getMessage()+"</span>");
 			return;
 		}
 		
 		SQLResultRow shiptype = ShipTypes.getShipType( shipdata.getInt("type"), false );
 		
-		t.set_block("_WERFT.WERFTGUI", "build.res.listitem", "build.res.list");
+		t.setBlock("_WERFT.WERFTGUI", "build.res.listitem", "build.res.list");
 		
-		t.set_var(	"werftgui.build",	1,
+		t.setVar(	"werftgui.build",	1,
 					"build.type.name",	shiptype.getString("nickname"),
 					"build.type.image",	shiptype.getString("picture"),
 					"build.conf",		!conf.equals("ok"),
@@ -658,7 +658,7 @@ public class WerftGUI {
 		Cargo shipdataCosts = (Cargo)shipdata.get("costs");
 		ResourceList reslist = shipdataCosts.compare( cargo, false );
 		for( ResourceEntry res : reslist ) {
-			t.set_var(	"res.image",			res.getImage(),
+			t.setVar(	"res.image",			res.getImage(),
 						"res.plainname",		res.getPlainName(),
 						"res.cargo.available",	res.getCargo2(),
 						"res.cargo.needed",		res.getCargo1(),
@@ -669,7 +669,7 @@ public class WerftGUI {
 		int frei = werft.getCrew();
 	
 		//E-Kosten
-		t.set_var(	"res.image",		Configuration.getSetting("URL")+"data/interface/energie.gif",
+		t.setVar(	"res.image",		Configuration.getSetting("URL")+"data/interface/energie.gif",
 					"res.plainname",	"Energie",
 					"res.cargo.available",	werft.getEnergy(),
 					"res.cargo.needed",	shipdata.getInt("ekosten"),
@@ -677,7 +677,7 @@ public class WerftGUI {
 		t.parse("build.othercosts.list", "build.res.listitem", true);
 
 		//Crew
-		t.set_var(	"res.image",			Configuration.getSetting("URL")+"data/interface/arbeitslos.gif",
+		t.setVar(	"res.image",			Configuration.getSetting("URL")+"data/interface/arbeitslos.gif",
 					"res.plainname",		"Crew",
 					"res.cargo.available",	frei,
 					"res.cargo.needed",		shipdata.getInt("crew"),
@@ -687,7 +687,7 @@ public class WerftGUI {
 		boolean result = werft.buildShip(build, item, !conf.equals("ok") );
 	
 		if( !result ) {
-			t.set_var("build.error", StringUtils.replace(werft.MESSAGE.getMessage(), "\n", "<br/>\n"));
+			t.setVar("build.error", StringUtils.replace(werft.MESSAGE.getMessage(), "\n", "<br/>\n"));
 		}  
 		
 		return;   

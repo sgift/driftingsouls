@@ -96,12 +96,12 @@ class Kommandozentrale extends DefaultBuilding {
 			show = "general";	
 		}
 				
-		if( !t.set_file( "_BUILDING", "buildings.kommandozentrale.html" ) ) {
+		if( !t.setFile( "_BUILDING", "buildings.kommandozentrale.html" ) ) {
 			context.addError("Konnte das Template-Engine nicht initialisieren");
 			return "";
 		}
 		
-		t.set_var(	"base.name",	base.getName(),
+		t.setVar(	"base.name",	base.getName(),
 					"base.id",		base.getID(),
 					"base.field",	field,
 					"base.system",	base.getSystem(),
@@ -344,17 +344,17 @@ class Kommandozentrale extends DefaultBuilding {
 			}
 		}
 
-		t.set_var("building.message", message.toString());
+		t.setVar("building.message", message.toString());
 		
 		if( show.equals("general") ) {
-			t.set_var("show.general", 1);
+			t.setVar("show.general", 1);
 			
-			t.set_block("_BUILDING", "general.itemconsign.listitem", "general.itemconsign.list");
-			t.set_block("_BUILDING", "general.shiptransfer.listitem", "general.shiptransfer.list");
-			t.set_block("_BUILDING", "general.basetransfer.listitem", "general.basetransfer.list");
-			t.set_block("_BUILDING", "general.sell.listitem", "general.sell.list");		
+			t.setBlock("_BUILDING", "general.itemconsign.listitem", "general.itemconsign.list");
+			t.setBlock("_BUILDING", "general.shiptransfer.listitem", "general.shiptransfer.list");
+			t.setBlock("_BUILDING", "general.basetransfer.listitem", "general.basetransfer.list");
+			t.setBlock("_BUILDING", "general.sell.listitem", "general.sell.list");		
 			
-			t.set_var(	"res.batterien.image",	Cargo.getResourceImage(Resources.BATTERIEN),
+			t.setVar(	"res.batterien.image",	Cargo.getResourceImage(Resources.BATTERIEN),
 						"res.lbatterien.image",	Cargo.getResourceImage(Resources.LBATTERIEN),
 						"res.platin.image",		Cargo.getResourceImage(Resources.PLATIN) );
 			
@@ -365,7 +365,7 @@ class Kommandozentrale extends DefaultBuilding {
 					for( ItemCargoEntry item : itemlist ) {
 						Item itemobject = item.getItemObject();
 						if( itemobject.getEffect().hasAllyEffect() ) {
-							t.set_var(	"item.id",		item.getItemID(),
+							t.setVar(	"item.id",		item.getItemID(),
 										"item.name",	itemobject.getName() );
 							t.parse("general.itemconsign.list", "general.itemconsign.listitem", true);
 						}
@@ -391,29 +391,29 @@ class Kommandozentrale extends DefaultBuilding {
 						oldx = ship.getInt("x");
 						oldy = ship.getInt("y");	
 						if( base.getSize() != 0 ) {
-							t.set_var("ship.begingroup", 1);
+							t.setVar("ship.begingroup", 1);
 						}
 					}
 					else if( (oldx != ship.getInt("x")) || (oldy != ship.getInt("y")) ) {
 						oldx = ship.getInt("x");
 						oldy = ship.getInt("y");	
 						if( base.getSize() != 0 ) {
-							t.set_var(	"ship.begingroup",	1,
+							t.setVar(	"ship.begingroup",	1,
 										"ship.endgroup",	1 );
 						}
 					}
 					
-					t.set_var(	"ship.id",		ship.getInt("id"),
+					t.setVar(	"ship.id",		ship.getInt("id"),
 								"ship.name",	Common._plaintitle(ship.getString("name")),
 								"ship.x",		ship.getInt("x"),
 								"ship.y",		ship.getInt("y") );
 					
 					if( ship.getInt("owner") != user.getID() ) {
 						User owner = context.createUserObject(ship.getInt("owner"));
-						t.set_var("ship.owner.name", owner.getPlainname());
+						t.setVar("ship.owner.name", owner.getPlainname());
 					}
 					else {
-						t.set_var("ship.owner.name", "");
+						t.setVar("ship.owner.name", "");
 					}
 					
 					t.parse("general.shiptransfer.list", "general.shiptransfer.listitem", true);
@@ -424,7 +424,7 @@ class Kommandozentrale extends DefaultBuilding {
 			
 			SQLQuery targetbase = db.query("SELECT id,name FROM bases WHERE x="+base.getX()+" AND y="+base.getY()+" AND system="+base.getSystem()+" AND id!="+base.getID()+" AND owner='"+user.getID()+"'");
 			while( targetbase.next() ) {
-				t.set_var(	"targetbase.id", 	targetbase.get("id"),
+				t.setVar(	"targetbase.id", 	targetbase.get("id"),
 							"targetbase.name",	Common._plaintitle(targetbase.getString("name")) );
 				t.parse("general.basetransfer.list", "general.basetransfer.listitem", true);
 			}
@@ -440,25 +440,25 @@ class Kommandozentrale extends DefaultBuilding {
 					continue;
 				}
 				
-				t.set_var(	"res.image",	res.getImage(),
+				t.setVar(	"res.image",	res.getImage(),
 							"res.name",		res.getName(),
 							"res.cargo2",	res.getCargo2(),
 							"res.id",		res.getId() );
 				
 				if( res.getCount1() <= 5 ) {
-					t.set_var("res.cargo1", "Kein Bedarf");
+					t.setVar("res.cargo1", "Kein Bedarf");
 				}
 				else {
-					t.set_var("res.cargo1", Common.ln(res.getCount1()/1000d)+" RE");
+					t.setVar("res.cargo1", Common.ln(res.getCount1()/1000d)+" RE");
 				}
 									
 				t.parse("general.sell.list", "general.sell.listitem", true);
 			}
 		}
 		else if( show.equals("autogtu") ) {
-			t.set_var("show.autogtu", 1);
-			t.set_block("_BUILDING", "autogtu.acts.listitem", "autogtu.acts.list");
-			t.set_block("_BUILDING", "autogtu.reslist.listitem", "autogtu.reslist.list");
+			t.setVar("show.autogtu", 1);
+			t.setBlock("_BUILDING", "autogtu.acts.listitem", "autogtu.acts.list");
+			t.setBlock("_BUILDING", "autogtu.reslist.listitem", "autogtu.reslist.list");
 			
 			List<AutoGTUAction> autoactlist = base.getAutoGTUActs();
 			for( AutoGTUAction autoact : autoactlist ) {
@@ -466,7 +466,7 @@ class Kommandozentrale extends DefaultBuilding {
 					continue;	
 				}
 					
-				t.set_var(	"res.image",		Cargo.getResourceImage(autoact.getResID()),
+				t.setVar(	"res.image",		Cargo.getResourceImage(autoact.getResID()),
 							"res.name",			Cargo.getResourceName(autoact.getResID()),
 							"res.sellcount"	,	Common.ln(autoact.getCount()),
 							"res.action.total",	autoact.getActID() == 0,
@@ -483,7 +483,7 @@ class Kommandozentrale extends DefaultBuilding {
 			ResourceList reslist = stat.compare(kurse, false);
 			for( ResourceEntry res : reslist ) {
 				if( (res.getCount1() > 0) && (res.getCount2() > 0) ) {
-					t.set_var(	"res.id",	res.getId(),
+					t.setVar(	"res.id",	res.getId(),
 								"res.name",	res.getName() );
 					t.parse("autogtu.reslist.list", "autogtu.reslist.listitem", true);
 				}	

@@ -66,7 +66,7 @@ public class DeutAllController extends DSGenerator {
 		
 		Location lastcoords = null;
 		
-		t.set_block("_DEUTALL", "ships.listitem", "ships.list");
+		t.setBlock("_DEUTALL", "ships.listitem", "ships.list");
 
 		SQLQuery shipRow = db.query("SELECT t1.id,t1.x,t1.y,t1.system,t1.e,t1.name,t1.crew,t1.cargo,t1.type,t1.status " ,
 								"FROM ships AS t1,ship_types AS t2 " ,
@@ -82,23 +82,23 @@ public class DeutAllController extends DSGenerator {
 			}
 	
 			if( (lastcoords == null) || !lastcoords.sameSector(0, Location.fromResult(ship), 0) ) {
-				t.set_var(	"ship.newcoords",		1,
+				t.setVar(	"ship.newcoords",		1,
 							"ship.location",		Ships.getLocationText(ship, false),
 							"ship.newcoords.break",	lastcoords != null );
 
 				lastcoords = Location.fromResult(ship);
 			}
 			
-			t.set_var(	"ship.id",		ship.getInt("id"),
+			t.setVar(	"ship.id",		ship.getInt("id"),
 						"ship.name",	Common._plaintitle(ship.getString("name")) );
 			
 			long e = ship.getInt("e");
 			if( e <= 0 ) {
-				t.set_var(	"ship.message",			"Keine Energie",
+				t.setVar(	"ship.message",			"Keine Energie",
 							"ship.message.color",	"red" );
 			}
 			else if( ship.getInt("crew") < (shiptype.getInt("crew")/2) ) {
-				t.set_var(	"ship.message",			"Nicht genug Crew",
+				t.setVar(	"ship.message",			"Nicht genug Crew",
 							"ship.message.color",	"red" );
 			}
 			else {
@@ -119,13 +119,13 @@ public class DeutAllController extends DSGenerator {
 					if( (e * deutfactor)*Cargo.getResourceMass( Resources.DEUTERIUM, 1 ) > (shiptype.getLong("cargo") - cargo) ) {
 						e = (shiptype.getLong("cargo")-cargo)/(deutfactor*Cargo.getResourceMass( Resources.DEUTERIUM, 1 ));
 							
-						t.set_var(	"ship.message",			"Kein Platz mehr im Frachtraum",
+						t.setVar(	"ship.message",			"Kein Platz mehr im Frachtraum",
 									"ship.message.color",	"#FF4444" );
 					}
 						
 					long saugdeut = e * deutfactor;
 						
-					t.set_var(	"ship.saugdeut",	saugdeut,
+					t.setVar(	"ship.saugdeut",	saugdeut,
 								"deuterium.image",	Cargo.getResourceImage(Resources.DEUTERIUM) );
 					shipCargo.addResource( Resources.DEUTERIUM, saugdeut );
 						
@@ -134,7 +134,7 @@ public class DeutAllController extends DSGenerator {
 					Ships.recalculateShipStatus(ship.getInt("id"));
 				} 
 				else {
-					t.set_var(	"ship.message",			"Kein Nebel",
+					t.setVar(	"ship.message",			"Kein Nebel",
 								"ship.message.color",	"red" );
 				}
 			}

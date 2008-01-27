@@ -113,7 +113,7 @@ public class TemplateEngine implements Loggable {
 	 * @return true, falls das Template korrekt registriert werden konnte
 	 *
 	 */
-	public boolean set_file( String handle, String filename) {
+	public boolean setFile( String handle, String filename) {
 		if( filename.equals("") ) {
 			error("set_file: Aufruf mit den Handle >"+handle+"< jedoch keinem Dateinamen");
 			return false;
@@ -169,7 +169,7 @@ public class TemplateEngine implements Loggable {
 	 * @param handle Der Name des Blocks
 	 * @param replace Der Name der Ersetzungsvariablen fuer den Block im Template.
 	 */
-	public void set_block( String parent, String handle, String replace ) {	
+	public void setBlock( String parent, String handle, String replace ) {	
 		if( !m_registeredBlocks.containsKey(handle) ) {
 			error("set_block: '"+handle+"' entspricht keinem registrierten Block");	
 		}
@@ -206,10 +206,10 @@ public class TemplateEngine implements Loggable {
 	 * 
 	 * @param parent Der Name (Handle) des Elternblocks oder der Template-Datei
 	 * @param handle Der Name des Blocks
-	 * @see #set_block(String, String, String)
+	 * @see #setBlock(String, String, String)
 	 */
-	public void set_block( String parent, String handle ) {
-		set_block( parent, handle, "" );
+	public void setBlock( String parent, String handle ) {
+		setBlock( parent, handle, "" );
 	}
 
 	/**
@@ -218,7 +218,7 @@ public class TemplateEngine implements Loggable {
 	 * @param value Der Wert der Template-Variablen
 	 *
 	 */
-	public void set_var(String varname, Object value) {
+	public void setVar(String varname, Object value) {
 		if( LOG.isTraceEnabled() ) {
 			LOG.trace("set_var [single]: setting >"+varname+"< to >"+value+"<\n");
 		}
@@ -233,12 +233,12 @@ public class TemplateEngine implements Loggable {
 	 * @param list Eine Liste von Werten, in der alle ungeraden Werte Variablennamen und alle Geraden Variablenwerte sind
 	 *
 	 */
-	public void set_var( Object ... list  ) {
+	public void setVar( Object ... list  ) {
 		if( list.length % 2 != 0 ) {
 			throw new RuntimeException("Illegal var list");
 		}
 		for( int i=0; i < list.length; i+=2 ) {
-			set_var(list[i].toString(), list[i+1]);
+			setVar(list[i].toString(), list[i+1]);
 		}
 	}
 
@@ -279,14 +279,14 @@ public class TemplateEngine implements Loggable {
 					obj = new StringBuffer(obj.toString());
 				}
 				((StringBuffer)obj).append(str);
-				set_var(target, obj);
+				setVar(target, obj);
 			}
 			else {
-				set_var(target, new StringBuffer(str));
+				setVar(target, new StringBuffer(str));
 			}
 		} 
 		else {
-			set_var(target, str);
+			setVar(target, str);
 		}
 		
 		if( LOG.isDebugEnabled() ) {

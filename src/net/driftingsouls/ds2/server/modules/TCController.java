@@ -70,7 +70,7 @@ public class TCController extends DSGenerator {
 		
 		int shipId = getInteger("ship");
 		
-		t.set_var( "global.shipid", shipId );
+		t.setVar( "global.shipid", shipId );
 
 		ship = db.first("SELECT * FROM ships WHERE id>0 AND owner='",this.getUser().getID(),"' AND id='",shipId,"'");
 
@@ -100,15 +100,15 @@ public class TCController extends DSGenerator {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
-		t.set_var(	"tc.selectoffizier",	1,
+		t.setVar(	"tc.selectoffizier",	1,
 					"tc.mode",				mode );
 				
-		t.set_block( "_TC", "tc.offiziere.listitem", "tc.offiziere.list" );
+		t.setBlock( "_TC", "tc.offiziere.listitem", "tc.offiziere.list" );
 		
 		SQLQuery offiRow = db.query("SELECT * FROM offiziere WHERE dest='",dest," ",destid,"'");
 		while( offiRow.next() ) {
 			Offizier offi = new Offizier( offiRow.getRow() );
-			t.set_var(	"tc.offizier.picture",		offi.getPicture(),
+			t.setVar(	"tc.offizier.picture",		offi.getPicture(),
 						"tc.offizier.id",			offi.getID(),
 						"tc.offizier.name",			Common._plaintitle(offi.getName()),
 						"tc.offizier.ability.ing",	offi.getAbility( Offizier.Ability.ING ),
@@ -145,7 +145,7 @@ public class TCController extends DSGenerator {
 			return;
 		}
 	
-		t.set_var( 	"tc.ship",			ship.getInt("id"),
+		t.setVar( 	"tc.ship",			ship.getInt("id"),
 					"tc.target",		tarShip.getInt("id"),
 					"tc.target.name",	tarShip.getString("name"),
 					"tc.target.isown",	(tarShip.getInt("owner") == user.getID()),
@@ -236,11 +236,11 @@ public class TCController extends DSGenerator {
 			return;
 		}
 	
-		t.set_var( "tc.offizier.name", Common._plaintitle(offizier.getName()) );
+		t.setVar( "tc.offizier.name", Common._plaintitle(offizier.getName()) );
 		
 		// Confirm?
 		if( (tarShip.getInt("owner") != user.getID()) && !conf.equals("ok") ) {
-			t.set_var("tc.confirm",1);
+			t.setVar("tc.confirm",1);
 			
 			return;
 		}
@@ -270,7 +270,7 @@ public class TCController extends DSGenerator {
 		
 		SQLResultRow tarBase = db.first("SELECT id,x,y,system,size,owner,name FROM bases WHERE id=",getInteger("target"));
 	
-		t.set_var(	"tc.ship",			ship.getInt("id"),
+		t.setVar(	"tc.ship",			ship.getInt("id"),
 					"tc.target",		tarBase.getInt("id"),
 					"tc.target.name",	tarBase.getString("name"),
 					"tc.target.isown",	(tarBase.getInt("owner") == user.getID()),
@@ -322,11 +322,11 @@ public class TCController extends DSGenerator {
 			return;
 		}
 		
-		t.set_var( "tc.offizier.name", Common._plaintitle(offizier.getName()) );
+		t.setVar( "tc.offizier.name", Common._plaintitle(offizier.getName()) );
 	
 		// Confirm ?
 		if( (tarBase.getInt("owner") != user.getID()) && (conf != "ok") ) {
-			t.set_var( "tc.confirm", 1 );
+			t.setVar( "tc.confirm", 1 );
 			
 			return;
 		}
@@ -351,7 +351,7 @@ public class TCController extends DSGenerator {
 		
 		String errorurl = Common.buildUrl(getContext(), "default", "module", "schiff", "ship", ship.getInt("id"));
 		
-		t.set_var( "tc.ship", ship.getInt("id") );
+		t.setVar( "tc.ship", ship.getInt("id") );
 	
 		SQLResultRow upBase = db.first("SELECT id,x,y,system,size,owner,name FROM bases WHERE id=",getInteger("target")," AND owner='",user.getID(),"'");
 		
@@ -362,7 +362,7 @@ public class TCController extends DSGenerator {
 			return;
 		}
 	
-		t.set_var(	"tc.captainzuweisen",	1,
+		t.setVar(	"tc.captainzuweisen",	1,
 					"tc.ship",				ship.getInt("id"),
 					"tc.target",			upBase.getInt("id") );
 							
@@ -393,7 +393,7 @@ public class TCController extends DSGenerator {
 		}
 		ship.free();
 		
-		t.set_var("tc.message", shipcount+" Offiziere wurden transferiert" );
+		t.setVar("tc.message", shipcount+" Offiziere wurden transferiert" );
 	}
 	
 	/**
@@ -409,7 +409,7 @@ public class TCController extends DSGenerator {
 		
 		String errorurl = Common.buildUrl(getContext(), "default", "module", "schiff", "ship", ship.getInt("id"));
 		
-		t.set_var( "tc.ship", ship.getInt("id") );
+		t.setVar( "tc.ship", ship.getInt("id") );
 	
 		SQLResultRow upBase = db.first("SELECT id,x,y,system,size,owner,name FROM bases WHERE id=",getInteger("target")," AND owner='",user.getID(),"'");
 		
@@ -428,7 +428,7 @@ public class TCController extends DSGenerator {
 			return;
 		}
 	
-		t.set_var(	"tc.captainzuweisen",	1,
+		t.setVar(	"tc.captainzuweisen",	1,
 					"tc.offizier",			off,
 					"tc.ship",				ship.getInt("id"),
 					"tc.target",			upBase.getInt("id") );
@@ -440,7 +440,7 @@ public class TCController extends DSGenerator {
 			if( ship.getInt("fleet") != 0 ) {
 				int count = db.first("SELECT count(*) count FROM ships WHERE fleet='",ship.getInt("fleet"),"' AND owner='",user.getID(),"' AND system='",ship.getInt("system"),"' AND x='",ship.getInt("x"),"' AND y='",ship.getInt("y"),"' AND !LOCATE('offizier',status)").getInt("count");
 				if( count > 1 ) {
-					t.set_var(	"show.fleetupload",	1,
+					t.setVar(	"show.fleetupload",	1,
 								"tc.fleetmode",		"baseToFleet");
 				}	
 			}
@@ -473,7 +473,7 @@ public class TCController extends DSGenerator {
 			
 			SQLResultRow offizierRow = db.first("SELECT * FROM offiziere WHERE id=",off);
 			Offizier offizier = new Offizier( offizierRow );
-			t.set_var("tc.offizier.name",Common._plaintitle(offizier.getName()));
+			t.setVar("tc.offizier.name",Common._plaintitle(offizier.getName()));
 				
 			offizier.setDest( "s", ship.getInt("id") );
 			offizier.save();

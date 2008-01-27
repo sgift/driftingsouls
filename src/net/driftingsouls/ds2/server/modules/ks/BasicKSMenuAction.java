@@ -48,7 +48,7 @@ public abstract class BasicKSMenuAction extends BasicKSAction {
 	 * @param ask Der Text der Sicherheitsabfrage
 	 */
 	public static void menuEntryAsk(TemplateEngine t, String title, String params, String ask ) {
-		t.set_var(	"menu.entry.params",	params,
+		t.setVar(	"menu.entry.params",	params,
 					"menu.entry.title",		title,
 					"ask.text",				StringEscapeUtils.escapeJavaScript(ask) );
 		t.parse("menu","menu.entry.ask",true);
@@ -62,7 +62,7 @@ public abstract class BasicKSMenuAction extends BasicKSAction {
 	 * @param params URL-Parameter
 	 */
 	public static void menuEntry(TemplateEngine t, String title, String params ) {
-		t.set_var(	"menu.entry.params",	params,
+		t.setVar(	"menu.entry.params",	params,
 					"menu.entry.title",		title );
 		t.parse("menu","menu.entry",true);
 	}

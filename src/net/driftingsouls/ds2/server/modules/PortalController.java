@@ -78,7 +78,7 @@ class PortalController extends DSGenerator {
 	protected boolean validateAndPrepare( String action ) {
 		TemplateEngine t = getTemplateEngine();
 		
-		t.set_var(	"TUTORIAL_ID", Configuration.getSetting("ARTICLE_TUTORIAL"),
+		t.setVar(	"TUTORIAL_ID", Configuration.getSetting("ARTICLE_TUTORIAL"),
 					"FAQ_ID", Configuration.getSetting("ARTICLE_FAQ"),
 					"URL", Configuration.getSetting("URL") );
 							
@@ -93,11 +93,11 @@ class PortalController extends DSGenerator {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
 		
-		t.set_var("show.downloads", 1);
-		t.set_block("_PORTAL", "downloads.listitem", "downloads.list");
+		t.setVar("show.downloads", 1);
+		t.setBlock("_PORTAL", "downloads.listitem", "downloads.list");
 		SQLQuery dl = db.query("SELECT * FROM portal_downloads ORDER BY `date` DESC");
 		while( dl.next() ) {
-			t.set_var(	"download.name", Common._plaintitle(dl.getString("name")),
+			t.setVar(	"download.name", Common._plaintitle(dl.getString("name")),
 						"download.file", dl.getString("file"),
 						"download.date", Common.date("j.n.Y G:i",dl.getInt("date")),
 						"download.description", Common._plaintext(dl.getString("description")) );
@@ -121,7 +121,7 @@ class PortalController extends DSGenerator {
 		String username = getString("username");
 
 		if( "".equals(username) ) {
-			t.set_var("show.passwordlost",1);
+			t.setVar("show.passwordlost",1);
 		}
 		else {
 			username = db.prepareString(username);
@@ -144,13 +144,13 @@ class PortalController extends DSGenerator {
 				
 				Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+loguserid+") <"+username+"> Passwortanforderung von Browser <"+getRequest().getUserAgent()+">\n");
 		
-				t.set_var(	"show.passwordlost.msg.ok", 1,
+				t.setVar(	"show.passwordlost.msg.ok", 1,
 							"passwordlost.email", email );
 			}
 			else {
 				Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+loguserid+") <"+username+"> Passwortanforderung von Browser <"+getRequest().getUserAgent()+">\n");
 
-				t.set_var("show.passwordlost.msg.error",1);
+				t.setVar("show.passwordlost.msg.error",1);
 			}
 		}
 	}
@@ -160,7 +160,7 @@ class PortalController extends DSGenerator {
 	 *
 	 */
 	public void infosAction() {
-		getTemplateEngine().set_var("show.infos",1);
+		getTemplateEngine().setVar("show.infos",1);
 	}
 	
 	/**
@@ -178,12 +178,12 @@ class PortalController extends DSGenerator {
 		int artikel = getInteger("artikel");
 
 		if( artikel == 0 ) {
-			t.set_var("show.articlelist",1);
-			t.set_block("_PORTAL","articles.listitem","articles.list");
+			t.setVar("show.articlelist",1);
+			t.setBlock("_PORTAL","articles.listitem","articles.list");
 
 			SQLQuery article = db.query("SELECT id,title,author FROM portal_articles ORDER BY id");
 			while( article.next() ) {
-				t.set_var(	"article.id", article.getInt("id"),
+				t.setVar(	"article.id", article.getInt("id"),
 							"article.title", article.getString("title"),
 							"article.author", article.getString("author") );
 				t.parse("articles.list","articles.listitem",true);
@@ -203,7 +203,7 @@ class PortalController extends DSGenerator {
 			String[] pages = article.getString("article").split("\\[nextpage\\]");
 			String text = pages[page-1];
 
-			t.set_var(	"show.article", 1,
+			t.setVar(	"show.article", 1,
 						"article.id", artikel,
 						"article.title", article.getString("title"),
 						"article.author", article.getString("author"),
@@ -229,7 +229,7 @@ class PortalController extends DSGenerator {
 		StringBuffer plist = getContext().getResponse().getContent();
 		getContext().getResponse().setContent(context.toString());
 
-		getTemplateEngine().set_var(	"show.plist", 1,
+		getTemplateEngine().setVar(	"show.plist", 1,
 										"plist.text", plist.toString() );
 	}
 	
@@ -250,31 +250,31 @@ class PortalController extends DSGenerator {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
 		
-		t.set_var("show.df",1);
+		t.setVar("show.df",1);
 
-		t.set_block("_PORTAL","facts.articlegroup.listitem","facts.articlegroup.list");
-		t.set_block("facts.articlegroup.listitem","facts.articles.listitem","facts.articles.list");
+		t.setBlock("_PORTAL","facts.articlegroup.listitem","facts.articlegroup.list");
+		t.setBlock("facts.articlegroup.listitem","facts.articles.listitem","facts.articles.list");
 
 		String oldclass = null;
 
 		SQLQuery article = db.query("SELECT id,class,title FROM portal_facts ORDER BY class,title");
 		while( article.next() ) {
 			if( (oldclass != null) && !oldclass.equals(article.getString("class")) ) {
-				t.set_var("articlegroup.name",articleClasses.get(oldclass));
+				t.setVar("articlegroup.name",articleClasses.get(oldclass));
 				t.parse("facts.articlegroup.list","facts.articlegroup.listitem",true);
 				
-				t.set_var("facts.articles.list","");
+				t.setVar("facts.articles.list","");
 			}
 			oldclass = article.getString("class");
 
-			t.set_var(	"article.id"	, article.getInt("id"),
+			t.setVar(	"article.id"	, article.getInt("id"),
 						"article.title"	, Common._title(article.getString("title")) );
 
 			t.parse("facts.articles.list","facts.articles.listitem",true);
 		}
 		article.free();
 
-		t.set_var("articlegroup.name",articleClasses.get(oldclass));
+		t.setVar("articlegroup.name",articleClasses.get(oldclass));
 		t.parse("facts.articlegroup.list","facts.articlegroup.listitem",true);
 
 		parameterNumber("article");
@@ -283,7 +283,7 @@ class PortalController extends DSGenerator {
 		if( articleID != 0 ) {
 			SQLResultRow thisarticle = db.first("SELECT title,text,class FROM portal_facts WHERE id='",articleID,"'");
 
-			t.set_var(	"article.class"	, articleClasses.get(thisarticle.getString("class")),
+			t.setVar(	"article.class"	, articleClasses.get(thisarticle.getString("class")),
 						"article.title"	, Common._title(thisarticle.getString("title")),
 						"article.text"	, Common._text(thisarticle.getString("text")) );
 		}
@@ -294,7 +294,7 @@ class PortalController extends DSGenerator {
 	 *
 	 */
 	public void infosAgbAction() {
-		getTemplateEngine().set_var("show.agb",1);
+		getTemplateEngine().setVar("show.agb",1);
 	}
 
 	/**
@@ -302,7 +302,7 @@ class PortalController extends DSGenerator {
 	 *
 	 */
 	public void impressumAction() {
-		getTemplateEngine().set_var("show.impressum",1);
+		getTemplateEngine().setVar("show.impressum",1);
 	}
 
 	/**
@@ -313,12 +313,12 @@ class PortalController extends DSGenerator {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
-		t.set_var("show.links",1);
-		t.set_block("_PORTAL","links.listitem","links.list");
+		t.setVar("show.links",1);
+		t.setBlock("_PORTAL","links.listitem","links.list");
 
 		SQLQuery link = db.query("SELECT url,name,descrip FROM portal_links ORDER BY id");
 		while( link.next() ) {
-			t.set_var(	"link.url", link.getString("url"),
+			t.setVar(	"link.url", link.getString("url"),
 						"link.name", link.getString("name"),
 						"link.description", link.getString("descrip") );
 			t.parse("links.list","links.listitem",true);
@@ -331,7 +331,7 @@ class PortalController extends DSGenerator {
 	 *
 	 */
 	public void javachatAction() {
-		getTemplateEngine().set_var("show.javachat",1);
+		getTemplateEngine().setVar("show.javachat",1);
 	}
 	
 	private static class StartLocations {
@@ -408,15 +408,15 @@ class PortalController extends DSGenerator {
 		SQLResultRow auser2 = db.first("SELECT * FROM users WHERE email='",db.prepareString(email),"'");
 
 		if( !auser.isEmpty() ) {
-			t.set_var("show.register.msg.wrongname",1);
+			t.setVar("show.register.msg.wrongname",1);
 			return false;
 		}
 		if( !auser2.isEmpty() ) {
-			t.set_var("show.register.msg.wrongemail",1);
+			t.setVar("show.register.msg.wrongemail",1);
 			return false;
 		}
 		if( !Rassen.get().rasse(race).isPlayable() ) {
-			t.set_var("show.register.msg.wrongrace",1);
+			t.setVar("show.register.msg.wrongrace",1);
 			return false;
 		}
 		
@@ -426,22 +426,22 @@ class PortalController extends DSGenerator {
 		}
 		
 		if( needkey && (settings.getString("keys").indexOf("<"+key+">") == -1) ) {
-			t.set_var("show.register.msg.wrongkey", 1);
+			t.setVar("show.register.msg.wrongkey", 1);
 			return false;	
 		}
 		
 		if( (system == 0) || (Systems.get().system(system) == null) || (Systems.get().system(system).getOrderLocations().length == 0) ) {
-			t.set_block("_PORTAL", "register.systems.listitem", "register.systems.list");
-			t.set_block("_PORTAL", "register.systemdesc.listitem", "register.systemdesc.list");
+			t.setBlock("_PORTAL", "register.systems.listitem", "register.systems.list");
+			t.setBlock("_PORTAL", "register.systemdesc.listitem", "register.systemdesc.list");
 			
 			StartLocations locations = getStartLocation();
-			t.set_var(	"register.system.id", locations.systemID,
+			t.setVar(	"register.system.id", locations.systemID,
 						"register.system.name", Systems.get().system(locations.systemID).getName(),
 						"show.register.choosesystem", 1 );
 		
 			for( StarSystem sys : Systems.get() ) {
 				if( sys.getOrderLocations().length > 0 ) {
-					t.set_var(	"system.id", sys.getID(),
+					t.setVar(	"system.id", sys.getID(),
 								"system.name", sys.getName(),
 								"system.selected", (sys.getID() == locations.systemID),
 								"system.description", Common._text(sys.getDescription()) );
@@ -474,7 +474,7 @@ class PortalController extends DSGenerator {
 	 		}
 	 		
 	 		if( parameters.containsKey("race") && (Integer.parseInt(parameters.get("race")) != race) ) {
-	 			t.set_var("show.register.msg.wrongrace",1);
+	 			t.setVar("show.register.msg.wrongrace",1);
 				return false;
 	 		}
 	 		String[] newKeyList = new String[keylist.length-1];
@@ -617,7 +617,7 @@ class PortalController extends DSGenerator {
 			PM.send( getContext(),Configuration.getIntSetting("REGISTER_PM_SENDER"), newid, 
 					"Willkommen bei Drifting Souls 2", Configuration.getSetting("REGISTER_PM"));
 		
-			t.set_var( "show.register.msg.ok", 1,
+			t.setVar( "show.register.msg.ok", 1,
 						"register.newid", newid );
 							
 			Common.copyFile(Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/user/0.gif",
@@ -635,7 +635,7 @@ class PortalController extends DSGenerator {
 				retries--;
 				return register( username, email, race, system, key, settings );
 			}
-			t.set_var("show.message", "Leider konnte die Registrierung nicht erfolgreich durchgef&uuml;hrt werden. Bitte versuchen sie es ein wenig sp&auml;ter erneut.<br />Die Administratoren wurden vorsorglich informiert und werden, falls ein Fehler vorliegt, diesen schnellstm&ouml;glich beheben");
+			t.setVar("show.message", "Leider konnte die Registrierung nicht erfolgreich durchgef&uuml;hrt werden. Bitte versuchen sie es ein wenig sp&auml;ter erneut.<br />Die Administratoren wurden vorsorglich informiert und werden, falls ein Fehler vorliegt, diesen schnellstm&ouml;glich beheben");
 			PM.sendToAdmins(getContext(), -1, "Registrierungsfehler", 
 							"[color=orange]WARNUNG[/color]\nEs konnte auch nach 5 Versuchen keine erfolgreiche Registrierung eines Spielers durchgef&uuml;hrt werden.\n\nUsername: "+username+"\nEmail: "+email+"\nRace: "+race+"\nSystem: "+system+"\nKey: "+key+"\nSettings: "+settings.getString("keys"),PM.FLAGS_IMPORTANT);
 			return false;
@@ -679,7 +679,7 @@ class PortalController extends DSGenerator {
 			email = null;
 			showform = false;
 		
-			t.set_var(	"show.register.registerdisabled" , 1,
+			t.setVar(	"show.register.registerdisabled" , 1,
 						"register.registerdisabled.msg" , Common._text(settings.getString("disableregister")) );
 								
 			return;
@@ -690,7 +690,7 @@ class PortalController extends DSGenerator {
 			needkey = true;
 		}		
 		
-		t.set_var(	"register.username"		, username,
+		t.setVar(	"register.username"		, username,
 					"register.email"		, email,
 					"register.needkey"		, needkey,
 					"register.key"			, key,
@@ -701,14 +701,14 @@ class PortalController extends DSGenerator {
 		showform = !register(username, email, race, system, key, settings);
 		
 		if( showform ) {
-			t.set_block("_PORTAL","register.rassen.listitem","register.rassen.list");
-			t.set_block("_PORTAL","register.rassendesc.listitem","register.rassendesc.list");
+			t.setBlock("_PORTAL","register.rassen.listitem","register.rassen.list");
+			t.setBlock("_PORTAL","register.rassendesc.listitem","register.rassendesc.list");
 
 			int first = -1;
 
 			for( Rasse rasse : Rassen.get() ) {
 				if( rasse.isPlayable() ) {
-					t.set_var(	"rasse.id"			, rasse.getID(),
+					t.setVar(	"rasse.id"			, rasse.getID(),
 								"rasse.name"		, rasse.getName(),
 								"rasse.selected"	, (first == -1 ? 1 : 0),
 								"rasse.description"	, Common._text(rasse.getDescription()) );
@@ -722,7 +722,7 @@ class PortalController extends DSGenerator {
 				}
 			}
 			
-			t.set_var(	"show.register"				, 1,
+			t.setVar(	"show.register"				, 1,
 						"register.rassen.selected"	, first );
 		}
 	}
@@ -754,7 +754,7 @@ class PortalController extends DSGenerator {
 			password = "";
 			clear = true;
 		
-			t.set_var(	"show.login.logindisabled", 1,
+			t.setVar(	"show.login.logindisabled", 1,
 						"login.logindisabled.msg", Common._text(disablelogin) );
 		}
 
@@ -764,7 +764,7 @@ class PortalController extends DSGenerator {
 
 			SQLResultRow uid = db.first("SELECT id FROM users WHERE un='",username,"'");
 			if( uid.isEmpty() ) {
-				t.set_var( "show.msg.login.wrongpassword",1 );
+				t.setVar( "show.msg.login.wrongpassword",1 );
 				Common.writeLog("login.log", Common.date("j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+username+") <"+username+"> Password <"+password+"> ***UNGUELTIGER ACCOUNT*** von Browser <"+getRequest().getUserAgent()+">\n");
 				clear = false;
 			}
@@ -772,13 +772,13 @@ class PortalController extends DSGenerator {
 				User user = getContext().createUserObject(uid.getInt("id"));
 				
 	    		if( !user.getPassword().equals(enc_pw) ) {
-					t.set_var( "show.msg.login.wrongpassword",1 );
+					t.setVar( "show.msg.login.wrongpassword",1 );
 					user.setLoginFailedCount(user.getLoginFailedCount()+1);
 	  				Common.writeLog("login.log", Common.date("j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getID()+") <"+username+"> Password <"+password+"> ***LOGIN GESCHEITERT*** von Browser <"+getRequest().getUserAgent()+">\n");
 					clear = false;
 				} 
 				else if( user.getDisabled() ) {
-					t.set_var("show.login.msg.accdisabled",1);
+					t.setVar("show.login.msg.accdisabled",1);
 					Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getID()+") <"+username+"> Password <"+password+"> ***ACCOUNT GESPERRT*** von Browser <"+getRequest().getUserAgent()+">\n");
 	
 					db.update("DELETE FROM sessions WHERE id='",user.getID(),"'");
@@ -787,7 +787,7 @@ class PortalController extends DSGenerator {
 				else {
 					SQLResultRow session = db.first("SELECT * FROM sessions WHERE id='",user.getID(),"'");
 					if( !session.isEmpty() && (session.getInt("tick") != 0) ) {
-						t.set_var("show.login.msg.tick",1);
+						t.setVar("show.login.msg.tick",1);
 						clear = false;
 					}
 					else{
@@ -802,18 +802,18 @@ class PortalController extends DSGenerator {
 									" VALUES('",id,"','",sess,"','<",getRequest().getRemoteAddress(),">','",Common.time(),"','",usegfxpak,"')");
 	
 						if( (user.getVacationCount() == 0) || (user.getWait4VacationCount() != 0) ) {
-							t.set_var(	"show.login.msg.ok", 1,
+							t.setVar(	"show.login.msg.ok", 1,
 										"login.sess", sess );
 						}	
 						else {
-							t.set_var(	"show.login.vacmode", 1,
+							t.setVar(	"show.login.vacmode", 1,
 										"login.vacmode.dauer", Common.ticks2Days(user.getVacationCount()),
 										"login.vacmode.sess", sess );
 						}
 						
 						// Ueberpruefen ob das gfxpak noch aktuell ist
 						if( (usegfxpak != 0) && !user.getUserImagePath().equals(User.getDefaultImagePath(db)) ) {
-							t.set_var(	"login.checkgfxpak", 1,
+							t.setVar(	"login.checkgfxpak", 1,
 										"login.checkgfxpak.path", user.getUserImagePath() );
 						}
 						
@@ -847,7 +847,7 @@ class PortalController extends DSGenerator {
 									
 									double version = Double.parseDouble(tmp);
 									if( (version > 0) && (version < 9.0) ) {
-										t.set_var(	"show.login.browserwarning", 1,
+										t.setVar(	"show.login.browserwarning", 1,
 													"browser.name", "Opera",
 													"browser.version", version );
 									}
@@ -860,7 +860,7 @@ class PortalController extends DSGenerator {
 	
 								double version = Double.parseDouble(tmp);
 								
-								t.set_var(	"show.login.browserwarning", 1,
+								t.setVar(	"show.login.browserwarning", 1,
 											"browser.name", "Microsoft Internet Explorer",
 											"browser.version", version );
 							}
@@ -877,7 +877,7 @@ class PortalController extends DSGenerator {
 		}
 
 		if( !clear ) {
-			t.set_var(	"show.login", 1,
+			t.setVar(	"show.login", 1,
 						"login.username", username );
 		}
 	}
@@ -898,19 +898,19 @@ class PortalController extends DSGenerator {
 		SQLResultRow sessdata = db.first("SELECT id,ip,lastaction,usegfxpak FROM sessions WHERE session='",sess,"'");
 
 		if( sessdata.isEmpty() ) {
-			t.set_var("show.login.vacmode.msg.accerror",1);
+			t.setVar("show.login.vacmode.msg.accerror",1);
 			return;
 		}
 		
 		User auser = getContext().createUserObject(sessdata.getInt("id"));
 		if( !auser.hasFlag(User.FLAG_DISABLE_IP_SESSIONS) && (sessdata.getString("ip").indexOf("<"+getRequest().getRemoteAddress()+">") > -1) ) {
-			t.set_var("show.login.vacmode.msg.accerror",1);
+			t.setVar("show.login.vacmode.msg.accerror",1);
 			return;
 		}
 		
 		if( !auser.hasFlag(User.FLAG_DISABLE_AUTO_LOGOUT) && (Common.time() - sessdata.getInt("lastaction") > Configuration.getIntSetting("AUTOLOGOUT_TIME")) ) {
 			db.update("DELETE FROM sessions WHERE id='",sessdata.getInt("id"),"'");
-			t.set_var("show.login.vacmode.msg.accerror",1);
+			t.setVar("show.login.vacmode.msg.accerror",1);
 			return;
 		}
 		
@@ -919,7 +919,7 @@ class PortalController extends DSGenerator {
 		
 		PM.sendToAdmins(getContext(), sessdata.getInt("id"), "VACMODE-DEAK", "[VACMODE-DEAK]\nMY ID: "+sessdata.getInt("id")+"\nREASON:\n"+reason, 0);
 		
-		t.set_var("show.login.vacmode.msg.send",1);
+		t.setVar("show.login.vacmode.msg.send",1);
 	}
 	
 	/**
@@ -934,13 +934,13 @@ class PortalController extends DSGenerator {
 		parameterNumber("archiv");
 		int archiv = getInteger("archiv");
 		
-		t.set_var( new Object[] {	"show.news",	1,
+		t.setVar( new Object[] {	"show.news",	1,
 									"show.news.archiv", archiv } );
-		t.set_block("_PORTAL","news.listitem","news.list");
+		t.setBlock("_PORTAL","news.listitem","news.list");
 
 		SQLQuery qhandle = db.query("SELECT * FROM portal_news ORDER BY date DESC LIMIT ",( archiv != 0 ? "5,100" : "5"));
 		while( qhandle.next() ) {
-			t.set_var(	"news.date", Common.date("d.m.Y H:i", qhandle.getInt("date")),
+			t.setVar(	"news.date", Common.date("d.m.Y H:i", qhandle.getInt("date")),
 						"news.title", qhandle.getString("title"),
 						"news.author", qhandle.getString("author"),
 						"news.text", Common._text(qhandle.getString("txt")) );

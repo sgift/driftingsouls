@@ -232,19 +232,19 @@ public class ItemInfoController extends DSGenerator {
 		int itemid = getInteger("item");
 				
 		if( Items.get().item(itemid) == null ) {
-			t.set_var("iteminfo.message", "Es ist kein Item mit dieser Identifikationsnummer bekannt");
+			t.setVar("iteminfo.message", "Es ist kein Item mit dieser Identifikationsnummer bekannt");
 		
 			return;
 		}
 		
 		if( Items.get().item(itemid).getAccessLevel() > user.getAccessLevel() ) {
-			t.set_var("iteminfo.message", "Es ist kein Item mit dieser Identifikationsnummer bekannt");
+			t.setVar("iteminfo.message", "Es ist kein Item mit dieser Identifikationsnummer bekannt");
 		
 			return;
 		}
 		
 		if( Items.get().item(itemid).isUnknownItem() && !user.isKnownItem(itemid) && (user.getAccessLevel() < 15) ) {
-			t.set_var("iteminfo.message", "Es ist kein Item mit dieser Identifikationsnummer bekannt");
+			t.setVar("iteminfo.message", "Es ist kein Item mit dieser Identifikationsnummer bekannt");
 		
 			return;
 		}
@@ -254,7 +254,7 @@ public class ItemInfoController extends DSGenerator {
 			name = "<span style=\"color:"+Items.get().item(itemid).getQuality().color()+"\">"+name+"</span>";	
 		}
 		
-		t.set_var(	"iteminfo.details",	1,
+		t.setVar(	"iteminfo.details",	1,
 					"item.picture",		Items.get().item(itemid).getPicture(),
 					"item.name",		name,
 					"item.cargo",		Items.get().item(itemid).getCargo(),
@@ -263,7 +263,7 @@ public class ItemInfoController extends DSGenerator {
 					"item.class",		Items.get().item(itemid).getEffect().getType().getName(),
 					"item.description",	Common._text(Items.get().item(itemid).getDescription()) );
 		
-		t.set_block("_ITEMINFO", "itemdetails.entry", "itemdetails.entrylist");
+		t.setBlock("_ITEMINFO", "itemdetails.entry", "itemdetails.entrylist");
 		
 		switch( Items.get().item(itemid).getEffect().getType() ) {
 		/*
@@ -292,12 +292,12 @@ public class ItemInfoController extends DSGenerator {
 				data.append("<span style=\"color:red\">Unbekannter Schiffstyp</span>");
 			}
 			
-			t.set_var(	"entry.name",	"Schiffstyp",
+			t.setVar(	"entry.name",	"Schiffstyp",
 						"entry.data",	data );
 			
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 						
-			t.set_var(	"entry.name",	"Rasse",
+			t.setVar(	"entry.name",	"Rasse",
 						"entry.data",	Rassen.get().rasse(effect.getRace()).getName() );
 			
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
@@ -335,7 +335,7 @@ public class ItemInfoController extends DSGenerator {
 				data.append("-");
 			}
 			
-			t.set_var(	"entry.name",	"Ben&ouml;tigt",
+			t.setVar(	"entry.name",	"Ben&ouml;tigt",
 						"entry.data",	data );
 			
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
@@ -349,12 +349,12 @@ public class ItemInfoController extends DSGenerator {
 			data.append("<img src=\""+Configuration.getSetting("URL")+"data/interface/energie.gif\" alt=\"\" />"+effect.getE()+"<br />\n");
 			data.append("<img src=\""+Configuration.getSetting("URL")+"data/interface/besatzung.gif\" alt=\"\" />"+effect.getCrew()+"<br />\n");
 			
-			t.set_var(	"entry.name",	"Kosten",
+			t.setVar(	"entry.name",	"Kosten",
 						"entry.data",	data );
 			
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 			
-			t.set_var(	"entry.name",	"Dauer",
+			t.setVar(	"entry.name",	"Dauer",
 						"entry.data",	"<img valign=\"middle\" src=\""+Configuration.getSetting("URL")+"data/interface/time.gif\" alt=\"\" />"+effect.getDauer() );
 			
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
@@ -377,12 +377,12 @@ public class ItemInfoController extends DSGenerator {
         		first = false;
 			}
 			
-			t.set_var(	"entry.name",	"Baubar in",
+			t.setVar(	"entry.name",	"Baubar in",
 						"entry.data",	data );
 			
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 	
-			t.set_var(	"entry.name",	"Flagschiff",
+			t.setVar(	"entry.name",	"Flagschiff",
 						"entry.data",	(effect.isFlagschiff() ? "ja" : "nein") );
 			
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
@@ -396,14 +396,14 @@ public class ItemInfoController extends DSGenerator {
 		*/
 		case DISABLE_SHIP: {
 			IEDisableShip effect = (IEDisableShip)Items.get().item(itemid).getEffect();
-			t.set_var( "entry.name", "Schiffstyp" );
+			t.setVar( "entry.name", "Schiffstyp" );
 			
 			SQLResultRow shiptype = ShipTypes.getShipType( effect.getShipType(), false );
 			if( !shiptype.isEmpty() ) {
-				t.set_var("entry.data", "<a class=\"forschinfo\" href=\""+Common.buildUrl(getContext(),"default", "module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getString("nickname")+"</a>" );
+				t.setVar("entry.data", "<a class=\"forschinfo\" href=\""+Common.buildUrl(getContext(),"default", "module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getString("nickname")+"</a>" );
 			}
 			else {
-				t.set_var("entry.data", "<span style=\"color:red\">Unbekannter Schiffstyp</span>");
+				t.setVar("entry.data", "<span style=\"color:red\">Unbekannter Schiffstyp</span>");
 			}
 			
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
@@ -448,20 +448,20 @@ public class ItemInfoController extends DSGenerator {
 					}
 				}
 				
-				t.set_var(	"entry.name",	"Set",
+				t.setVar(	"entry.name",	"Set",
 							"entry.data",	((IEModuleSetMeta)Items.get().item(effect.getSetID()).getEffect()).getName()+" ("+setcount+")" );
 								
 				t.parse("itemdetails.entrylist", "itemdetails.entry", true);	
 			}
 			
-			t.set_var(	"entry.name",	"Passt in",
+			t.setVar(	"entry.name",	"Passt in",
 						"entry.data",	targetslots.toString() );
 								
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 			
 			String effecttext = this.parseModuleModifiers( effect.getMods() );
 			
-			t.set_var(	"entry.name",	"Effekt",
+			t.setVar(	"entry.name",	"Effekt",
 						"entry.data",	effecttext );
 								
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
@@ -476,7 +476,7 @@ public class ItemInfoController extends DSGenerator {
 					if( modulecount <= setknowncount ) {
 						effecttext = this.parseModuleModifiers( mods );
 						
-						t.set_var(	"entry.name",	"Set-Combo ("+modulecount+" Items)",
+						t.setVar(	"entry.name",	"Set-Combo ("+modulecount+" Items)",
 									"entry.data",	effecttext );	
 						t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 					}
@@ -496,7 +496,7 @@ public class ItemInfoController extends DSGenerator {
 			SQLResultRow ammo = db.first("SELECT * FROM ammo WHERE id=",effect.getAmmoID());
 		
 			if( ammo.isEmpty() ) {
-				t.set_var(	"entry.name",	"Munition",
+				t.setVar(	"entry.name",	"Munition",
 							"entry.data",	"Es liegen keine genaueren Daten zur Munition vor" );
 			
 				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
@@ -538,7 +538,7 @@ public class ItemInfoController extends DSGenerator {
 					data.append("-");
 				}
 				
-				t.set_var(	"entry.name",	"Ben&ouml;tigt",
+				t.setVar(	"entry.name",	"Ben&ouml;tigt",
 							"entry.data",	data );
 			
 				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
@@ -552,7 +552,7 @@ public class ItemInfoController extends DSGenerator {
 					data.append("<img src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+" ");
 				}	
 				
-				t.set_var(	"entry.name",	"Kosten",
+				t.setVar(	"entry.name",	"Kosten",
 							"entry.data",	data );
 			
 				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
@@ -587,7 +587,7 @@ public class ItemInfoController extends DSGenerator {
 					data.append("<br />Ersetzt <a style=\"font-size:14px\" class=\"forschinfo\" href=\""+Common.buildUrl(getContext(), "details", "module", "iteminfo", "item", replammo.getInt("itemid"))+"\">"+replammo.getString("name")+"</a>\n");
 				}
 					
-				t.set_var(	"entry.name",	"Daten",
+				t.setVar(	"entry.name",	"Daten",
 							"entry.data",	data );
 			
 				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
@@ -604,7 +604,7 @@ public class ItemInfoController extends DSGenerator {
 					}
 				}
 				if( weapons.length() > 0 ) {
-					t.set_var(	"entry.name",	"Waffe",
+					t.setVar(	"entry.name",	"Waffe",
 								"entry.data",	weapons );
 					t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 				}
@@ -636,7 +636,7 @@ public class ItemInfoController extends DSGenerator {
 			}
 			
 			if( tmp.length() > 0 ) {
-				t.set_var(	"entry.name",	"Set-Items",
+				t.setVar(	"entry.name",	"Set-Items",
 							"entry.data",	tmp );
 			
 				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
@@ -665,9 +665,9 @@ public class ItemInfoController extends DSGenerator {
 			owncargo = new Cargo();
 		}
 
-		t.set_var("iteminfo.knownlist", 1);
+		t.setVar("iteminfo.knownlist", 1);
 
-		t.set_block("_ITEMINFO", "knownlist.listitem", "knownlist.list");
+		t.setBlock("_ITEMINFO", "knownlist.listitem", "knownlist.list");
 		
 		Map<Integer,String[]> reslocations = new HashMap<Integer,String[]>();
 		SQLQuery amodule = db.query("SELECT item_id,locations FROM stats_module_locations WHERE user_id=",user.getID());
@@ -741,7 +741,7 @@ public class ItemInfoController extends DSGenerator {
 				tooltip = StringEscapeUtils.escapeJavaScript(StringUtils.replace(StringUtils.replace(tooltiptext.toString(), ">", "&gt;"), "<", "&lt;"));
 			}
 		
-			t.set_var(	"item.picture",	aitem.getPicture(),
+			t.setVar(	"item.picture",	aitem.getPicture(),
 						"item.id",		itemid,
 						"item.name",	name,
 						"item.class",	itemeffect.getType().getName(),
@@ -775,9 +775,9 @@ public class ItemInfoController extends DSGenerator {
 			itemlist = new Cargo(Cargo.Type.ITEMSTRING,getString("itemlist"));
 		}
 
-		t.set_var("iteminfo.itemlist", 1);
+		t.setVar("iteminfo.itemlist", 1);
 
-		t.set_block("_ITEMINFO", "itemlist.listitem", "itemlist.list");
+		t.setBlock("_ITEMINFO", "itemlist.listitem", "itemlist.list");
 
 		List<ItemCargoEntry> myitemlist = itemlist.getItems();
 		for( int i=0; i < myitemlist.size(); i++ ) {
@@ -803,7 +803,7 @@ public class ItemInfoController extends DSGenerator {
 				name = "<span style=\"color:"+itemobject.getQuality().color()+"\">"+name+"</span>";	
 			}
 		
-			t.set_var(	"item.picture",	itemobject.getPicture(),
+			t.setVar(	"item.picture",	itemobject.getPicture(),
 						"item.id",		item.getItemID(),
 						"item.name",	name,
 						"item.class",	itemeffect.getType().getName(),

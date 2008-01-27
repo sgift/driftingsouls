@@ -168,7 +168,7 @@ public class DeutSammelnController extends DSGenerator {
 			Ships.recalculateShipStatus(ship.getInt("id"));
 		}
 		
-		t.set_var("deutsammeln.message", message);
+		t.setVar("deutsammeln.message", message);
 		
 		redirect();
 	}
@@ -189,7 +189,7 @@ public class DeutSammelnController extends DSGenerator {
 			deutfactor++;
 		}
 		
-		t.set_var(	"deuterium.image",		Cargo.getResourceImage(Resources.DEUTERIUM),
+		t.setVar(	"deuterium.image",		Cargo.getResourceImage(Resources.DEUTERIUM),
 					"nebel.id",				nebel.getInt("id"),
 					"ship.type.deutfactor",	deutfactor,
 					"ship.id",				ship.getInt("id"),

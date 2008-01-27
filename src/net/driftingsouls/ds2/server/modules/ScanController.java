@@ -132,13 +132,13 @@ public class ScanController extends DSGenerator {
 			this.ship.put("y", loc.getY());
 			this.ship.put("system", loc.getSystem());
 			
-			this.getTemplateEngine().set_var(	
+			this.getTemplateEngine().setVar(	
 					"global.admin",	1,
 					"global.baseloc", loc.toString(),
 					"global.baserange", range);
 		}
 		
-		this.getTemplateEngine().set_var(	"global.ship.id",	shipID,
+		this.getTemplateEngine().setVar(	"global.ship.id",	shipID,
 											"global.range",		this.range+1,
 											"global.scan.x",	ship.getInt("x"),
 											"global.scan.y",	ship.getInt("y") );
@@ -165,7 +165,7 @@ public class ScanController extends DSGenerator {
 		
 		final int system = this.ship.getInt("system");
 		
-		t.set_var("global.scansector",1);
+		t.setVar("global.scansector",1);
 		
 		if( (scany < 1) || (scany > Systems.get().system(system).getHeight()) ) {
 			return;
@@ -179,7 +179,7 @@ public class ScanController extends DSGenerator {
 			return;
 		}
 		
-		t.set_var("sector.isscanable",1);
+		t.setVar("sector.isscanable",1);
 		
 		boolean scanableNebel = false;
 	
@@ -205,20 +205,20 @@ public class ScanController extends DSGenerator {
 		*/
 
 		if( !nebel.isEmpty() && !scanableNebel ) {
-			t.set_var(	"sector.nebel",			1,
+			t.setVar(	"sector.nebel",			1,
 						"sector.nebel.id",		nebel.getInt("id"),
 						"sector.nebel.type",	nebel.getInt("type") );
 		}
 		else {
 			if( !nebel.isEmpty() ) {
-				t.set_var(	"sector.nebel",			1,
+				t.setVar(	"sector.nebel",			1,
 							"sector.nebel.id",		nebel.getInt("id"),
 							"sector.nebel.type",	nebel.getInt("type") );
 			}
 			/*
 				Basen
 			*/
-			t.set_block("_SCAN", "bases.listitem", "bases.list");
+			t.setBlock("_SCAN", "bases.listitem", "bases.list");
 			
 			SQLQuery datan = db.query("SELECT b.id,b.owner,b.klasse,b.name,b.size,u.name username " +
 					"FROM bases b JOIN users u ON b.owner=u.id " +
@@ -227,7 +227,7 @@ public class ScanController extends DSGenerator {
 			while( datan.next() ) {
 				t.start_record();
 				
-				t.set_var(	"base.id",			datan.getInt("id"),
+				t.setVar(	"base.id",			datan.getInt("id"),
 							"base.isown",		(datan.getInt("owner") == user.getID()),
 							"base.owner.id",	datan.getInt("owner"),
 							"base.owner.name",	Common._title(datan.getString("username")),
@@ -236,7 +236,7 @@ public class ScanController extends DSGenerator {
 							"base.klasse",		datan.getInt("klasse") );
 				
 				if( (datan.getInt("owner") != 0) && (datan.getInt("owner") != user.getID()) ) {
-					t.set_var("base.owner.link", 1);
+					t.setVar("base.owner.link", 1);
 				}
 				
 				t.parse("bases.list", "bases.listitem", true);
@@ -255,7 +255,7 @@ public class ScanController extends DSGenerator {
 					blocked = "<br />-Blockiert-";
 				}
 				
-				t.set_var(	"sector.jumpnode",	1,
+				t.setVar(	"sector.jumpnode",	1,
 							"jumpnode.id",		node.getInt("id"),
 							"jumpnode.name",	node.getString("name"),
 							"jumpnode.blocked",	blocked );
@@ -264,7 +264,7 @@ public class ScanController extends DSGenerator {
 			/*
 				Schlachten
 			*/
-			t.set_block("_SCAN", "battles.listitem", "battles.list");
+			t.setBlock("_SCAN", "battles.listitem", "battles.list");
 			
 			SQLQuery battle = db.query("SELECT * FROM battles WHERE x=",scanx," AND y=",scany," AND system=",system);
 			while( battle.next() ) {
@@ -295,7 +295,7 @@ public class ScanController extends DSGenerator {
 					
 				int shipcount = db.first("SELECT count(*) count FROM ships WHERE id>0 AND battle=",battle.getInt("id")).getInt("count");
 				
-				t.set_var(	"battle.id",			battle.getInt("id"),
+				t.setVar(	"battle.id",			battle.getInt("id"),
 							"battle.isquestbattle",	questbattle,
 							"battle.party1",		party1,
 							"battle.party2",		party2,
@@ -311,14 +311,14 @@ public class ScanController extends DSGenerator {
 
 			SQLResultRow jumps = db.first("SELECT count(*) count FROM jumps WHERE x=",scanx," AND y=",scany," AND system=",system);
 			if( !jumps.isEmpty() ) {
-				t.set_var("sector.subraumspalten", jumps.getInt("count"));
+				t.setVar("sector.subraumspalten", jumps.getInt("count"));
 			}
 
 			/*
 				Schiffe
 			*/
 		
-			t.set_block("_SCAN", "ships.listitem", "ships.list");
+			t.setBlock("_SCAN", "ships.listitem", "ships.list");
 		
 			List<Integer> verysmallshiptypes = new ArrayList<Integer>();
 			verysmallshiptypes.add(0); // Ein dummy-Wert, damit es keine SQL-Fehler gibt
@@ -349,7 +349,7 @@ public class ScanController extends DSGenerator {
 					continue;	
 				}
 				
-				t.set_var(	"ship.id",				datas.getInt("id"),
+				t.setVar(	"ship.id",				datas.getInt("id"),
 							"ship.isown",			(datas.getInt("owner") == user.getID()),
 							"ship.owner.id",		datas.getInt("owner"),
 							"ship.name",			Common._plaintitle(datas.getString("name")),
@@ -361,7 +361,7 @@ public class ScanController extends DSGenerator {
 							"ship.type.picture",	shiptype.getString("picture") );
 	
 				if( disableIFF ) {
-					t.set_var(	"ship.owner.name",	"Unbekannt",
+					t.setVar(	"ship.owner.name",	"Unbekannt",
 								"ship.ownerlink",	0 );
 				}
 				t.parse("ships.list", "ships.listitem", true);
@@ -496,11 +496,11 @@ public class ScanController extends DSGenerator {
 		
 		// Obere/Untere Koordinatenreihe
 		
-		t.set_block("_SCAN", "mapborder.listitem", "mapborder.list");
+		t.setBlock("_SCAN", "mapborder.listitem", "mapborder.list");
 		
 		for( int x = this.ship.getInt("x")-this.range; x <= this.ship.getInt("x")+this.range; x++ ) {
 			if( (x > 0) && (x <= Systems.get().system(this.ship.getInt("system")).getWidth()) ) {
-				t.set_var("mapborder.x", x);
+				t.setVar("mapborder.x", x);
 				t.parse("mapborder.list", "mapborder.listitem", true);
 			}
 		}
@@ -509,15 +509,15 @@ public class ScanController extends DSGenerator {
 			Ausgabe der Karte
 		*/
 		
-		t.set_block("_SCAN", "map.rowitem", "map.rowlist");
-		t.set_block("map.rowitem", "map.listitem", "map.list");
+		t.setBlock("_SCAN", "map.rowitem", "map.rowlist");
+		t.setBlock("map.rowitem", "map.listitem", "map.list");
 		
 		for( int y = this.ship.getInt("y")-this.range; y <= this.ship.getInt("y")+this.range; y++ ) {
 			if( (y < 1) || (y > Systems.get().system(this.ship.getInt("system")).getHeight()) ) {
 				continue;
 			}
 			
-			t.set_var(	"map.border.y",	y,
+			t.setVar(	"map.border.y",	y,
 						"map.list",		"" );
 	
 			// Einen einzelnen Sektor ausgeben
@@ -536,7 +536,7 @@ public class ScanController extends DSGenerator {
 				}
 				
 				if( Math.round(Math.sqrt(Math.pow(y-this.ship.getInt("y"),2)+Math.pow(x-this.ship.getInt("x"),2))) <= this.range ) {				
-					t.set_var(	"map.x",			x,
+					t.setVar(	"map.x",			x,
 								"map.y",			y,
 								"map.linkclass",	cssClass,
 								"map.showsector",	1 );
@@ -544,7 +544,7 @@ public class ScanController extends DSGenerator {
 					// Nebel
 					if( nebelmap.containsKey(loc) && 
 							(!ownshipmap.containsKey(loc) || ((nebelmap.get(loc) >= 3) && (nebelmap.get(loc) <= 5)) ) ) {
-						t.set_var(	"map.image",		"fog"+nebelmap.get(loc)+"/fog"+nebelmap.get(loc),
+						t.setVar(	"map.image",		"fog"+nebelmap.get(loc)+"/fog"+nebelmap.get(loc),
 									"map.image.name",	"Nebel" );
 					} 
 					else {
@@ -593,45 +593,45 @@ public class ScanController extends DSGenerator {
 							fleetStr = Common.implode("", fleet);
 						}
 					
-						t.set_var(	"map.tooltip",	tooltip,
+						t.setVar(	"map.tooltip",	tooltip,
 									"map.fleet",	fleetStr );
 					
 						// Nebel, Basen, Sprungpunkte
 						if( nebelmap.containsKey(loc) ) {
-							t.set_var(	"map.image",		"fog"+nebelmap.get(loc)+"/fog"+nebelmap.get(loc),
+							t.setVar(	"map.image",		"fog"+nebelmap.get(loc)+"/fog"+nebelmap.get(loc),
 										"map.image.name",	"Nebel" );
 						}
 						else if( basemap.containsKey(loc) ) {
 							BaseEntry entry = basemap.get(loc);
 							if( entry.size > 0 ) {
-								t.set_var(	"map.image",		"kolonie"+entry.klasse+"_lrs/kolonie"+entry.klasse+"_lrs"+entry.imgcount,
+								t.setVar(	"map.image",		"kolonie"+entry.klasse+"_lrs/kolonie"+entry.klasse+"_lrs"+entry.imgcount,
 											"map.image.name",	"Asteroid" );
 							}
 							else if( entry.owner == user.getID() ) {
-								t.set_var(	"map.image",		"asti_own/asti_own",
+								t.setVar(	"map.image",		"asti_own/asti_own",
 											"map.image.name",	"Eigener Asteroid" );
 							}
 							else if( (entry.owner != 0) && (user.getAlly() > 0) && (entry.ally == user.getAlly()) ) {
-								t.set_var(	"map.image",		"asti_ally/asti_ally",
+								t.setVar(	"map.image",		"asti_ally/asti_ally",
 											"map.image.name",	"Ally Asteroid" );
 							}
 							else if( (entry.owner != 0) ) {
-								t.set_var(	"map.image",		"asti_enemy/asti_enemy",
+								t.setVar(	"map.image",		"asti_enemy/asti_enemy",
 											"map.image.name",	"Feindlicher Asteroid" );
 							}
 							else {
 								String astiimg = "kolonie"+entry.klasse+"_lrs";
 								
-								t.set_var(	"map.image",		astiimg+"/"+astiimg,
+								t.setVar(	"map.image",		astiimg+"/"+astiimg,
 											"map.image.name",	"Asteroid" );
 							}
 						}
 						else if( nodemap.containsKey(loc) ) {
-							t.set_var(	"map.image",		"jumpnode/jumpnode",
+							t.setVar(	"map.image",		"jumpnode/jumpnode",
 										"map.image.name",	"Jumpnode" );
 						}
 						else {
-							t.set_var(	"map.image",		"space/space",
+							t.setVar(	"map.image",		"space/space",
 										"map.image.name",	"Leer" );
 						}
 					}

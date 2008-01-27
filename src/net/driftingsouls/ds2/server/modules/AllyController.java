@@ -79,7 +79,7 @@ public class AllyController extends DSGenerator implements Loggable {
 			this.ally = db.first("SELECT * FROM ally WHERE id=",user.getAlly());
 		}
 
-		t.set_var(	"ally",	user.getAlly(),
+		t.setVar(	"ally",	user.getAlly(),
 					"show",	this.getString("show") );
 					
 		return true;	
@@ -117,7 +117,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		TemplateEngine t = getTemplateEngine();
 	
 		if( user.getAlly() > 0 ) {
-			t.set_var( "ally.message", "Fehler: Sie sind bereits Mitglied in einer Allianz und k&ouml;nnen daher keine neue Allianz gr&uuml;nden" );
+			t.setVar( "ally.message", "Fehler: Sie sind bereits Mitglied in einer Allianz und k&ouml;nnen daher keine neue Allianz gr&uuml;nden" );
 			
 			redirect();
 			return;
@@ -127,7 +127,7 @@ public class AllyController extends DSGenerator implements Loggable {
 	
 		Task[] tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_NEW_MEMBER, "*", Integer.toString(user.getID()), "*" );
 		if( tasks.length > 0 ) {
-			t.set_var( "ally.message", "Fehler: Sie haben bereits einen Aufnahmeantrag bei einer Allianz gestellt" );
+			t.setVar( "ally.message", "Fehler: Sie haben bereits einen Aufnahmeantrag bei einer Allianz gestellt" );
 			
 			redirect("defaultNoAlly");
 			return;	
@@ -144,7 +144,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		SQLResultRow confuser2 = db.first("SELECT id FROM users WHERE id=",confuser2ID," AND id NOT IN (",user.getID(),",",confuser1ID,") AND ally=0");
 	
 		if( confuser1.isEmpty() || confuser2.isEmpty() ) {
-			t.set_var("ally.statusmessage", "<span style=\"color:red\">Einer der angegebenen Unterst&uuml;tzer ist ung&uuml;ltig</span>\n");
+			t.setVar("ally.statusmessage", "<span style=\"color:red\">Einer der angegebenen Unterst&uuml;tzer ist ung&uuml;ltig</span>\n");
 			
 			redirect("defaultNoAlly");
 			return; 	
@@ -173,7 +173,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		}
 	
 		if( confuser1.isEmpty() || confuser2.isEmpty() ) {
-			t.set_var("ally.statusmessage", "<span style=\"color:red\">Einer der angegebenen Unterst&uuml;tzer ist versucht bereits in einer anderen Allianz Mitglied zu werden</span>\n");
+			t.setVar("ally.statusmessage", "<span style=\"color:red\">Einer der angegebenen Unterst&uuml;tzer ist versucht bereits in einer anderen Allianz Mitglied zu werden</span>\n");
 			
 			redirect("defaultNoAlly");
 			return; 	
@@ -188,7 +188,7 @@ public class AllyController extends DSGenerator implements Loggable {
 	
 		user.setAlly(-1);
 	
-		t.set_var( "ally.statusmessage", "Die beiden angegebenen Spieler wurden via PM benachrichtigt. Sollten sich beide zur Unterst&uuml;tzung entschlossen haben, wird die Allianz augenblicklich gegr&uuml;ndet. Du wirst au&szlig;erdem via PM benachrichtigt." );
+		t.setVar( "ally.statusmessage", "Die beiden angegebenen Spieler wurden via PM benachrichtigt. Sollten sich beide zur Unterst&uuml;tzung entschlossen haben, wird die Allianz augenblicklich gegr&uuml;ndet. Du wirst au&szlig;erdem via PM benachrichtigt." );
 		
 		return;
 	}
@@ -213,7 +213,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		int join = getInteger("join");
 	
 		if( user.getAlly() > 0 ) {
-			t.set_var( "ally.message", "Sie sind bereits in einer Allianz. Sie m&uuml;ssen diese erst verlassen um in eine andere Allianz eintreten zu k&ouml;nnen!" );
+			t.setVar( "ally.message", "Sie sind bereits in einer Allianz. Sie m&uuml;ssen diese erst verlassen um in eine andere Allianz eintreten zu k&ouml;nnen!" );
 			
 			redirect("defaultNoAlly");
 			return;	
@@ -221,7 +221,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		
 		SQLResultRow al = db.first("SELECT name,id,president FROM ally WHERE id=",join);
 		if( al.isEmpty() ) {
-			t.set_var( "ally.message", "Die angegebene Allianz existiert nicht" );
+			t.setVar( "ally.message", "Die angegebene Allianz existiert nicht" );
 			
 			redirect("defaultNoAlly");
 			return;	
@@ -230,7 +230,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		Taskmanager taskmanager = Taskmanager.getInstance();
 		Task[] tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_FOUND_CONFIRM, "*", Integer.toString(user.getID()), "*" );
 		if( tasks.length > 0 ) {
-			t.set_var( "ally.message", "Es gibt eine oder mehrere Anfragen an sie zwecks Unterst&uuml;tzung einer Allianzgr&uuml;ndung. Sie m&uuml;ssen diese Anfragen erst bearbeiten bevor sie einer Allianz beitreten k&ouml;nnen." );
+			t.setVar( "ally.message", "Es gibt eine oder mehrere Anfragen an sie zwecks Unterst&uuml;tzung einer Allianzgr&uuml;ndung. Sie m&uuml;ssen diese Anfragen erst bearbeiten bevor sie einer Allianz beitreten k&ouml;nnen." );
 			
 			redirect("defaultNoAlly");
 			return;	
@@ -238,14 +238,14 @@ public class AllyController extends DSGenerator implements Loggable {
 		
 		tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_NEW_MEMBER, "*", Integer.toString(user.getID()), "*" );
 		if( tasks.length > 0 ) {
-			t.set_var( "ally.message", "Fehler: Sie haben bereits einen Aufnahmeantrag bei einer Allianz gestellt" );
+			t.setVar( "ally.message", "Fehler: Sie haben bereits einen Aufnahmeantrag bei einer Allianz gestellt" );
 			
 			redirect("defaultNoAlly");
 			return;	
 		}
 	
 		if( !conf.equals("ok") ) {	
-			t.set_var(	"ally.statusmessage",			"Wollen sie der Allianz &gt;"+Common._title(al.getString("name"))+"&lt; wirklich beitreten?",
+			t.setVar(	"ally.statusmessage",			"Wollen sie der Allianz &gt;"+Common._title(al.getString("name"))+"&lt; wirklich beitreten?",
 						"ally.statusmessage.ask.url1",	"&amp;action=join&amp;join="+join+"&amp;conf=ok",
 						"ally.statusmessage.ask.url2",	"" );
 								
@@ -261,7 +261,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		}
 		supermemberid.free();	
 	
-		t.set_var( "ally.statusmessage", "Der Aufnahmeantrag wurde weitergeleitet. Die Bearbeitung kann jedoch abh&auml;ngig von der Allianz l&auml;ngere Zeit in anspruch nehmen. Sollten sie aufgenommen werden, wird automatisch eine PM an sie gesendet." );
+		t.setVar( "ally.statusmessage", "Der Aufnahmeantrag wurde weitergeleitet. Die Bearbeitung kann jedoch abh&auml;ngig von der Allianz l&auml;ngere Zeit in anspruch nehmen. Sollten sie aufgenommen werden, wird automatisch eine PM an sie gesendet." );
 			
 		return;
 	}
@@ -277,7 +277,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		Database db = getDatabase();
 		
 		if( this.ally.getInt("president") != user.getID()) {
-			t.set_var("ally.message","Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
+			t.setVar("ally.message","Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
 			redirect();
 			
 			return;
@@ -291,7 +291,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		db.tUpdate(1, "DELETE FROM ally_posten WHERE id=",postenid);
 		db.tCommit();
 	
-		t.set_var( "ally.statusmessage", "Posten gel&ouml;scht");
+		t.setVar( "ally.statusmessage", "Posten gel&ouml;scht");
 		
 		redirect();
 	}
@@ -308,7 +308,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		Database db = getDatabase();
 		
 		if( this.ally.getInt("president") != user.getID()) {
-			t.set_var("ally.message","Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
+			t.setVar("ally.message","Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
 			redirect();
 			
 			return;
@@ -320,7 +320,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		int postenid = getInteger("id");
 		
 		if( userid == 0 ) {
-			t.set_var( "ally.message", "Fehler: Sie m&uuml;ssen den Posten jemandem zuweisen" );
+			t.setVar( "ally.message", "Fehler: Sie m&uuml;ssen den Posten jemandem zuweisen" );
 			redirect();
 			
 			return;
@@ -328,7 +328,7 @@ public class AllyController extends DSGenerator implements Loggable {
 
 		User formuser = getContext().createUserObject(userid);
 		if( formuser.getAllyPosten() != 0 ) {
-  			t.set_var( "ally.message", "Fehler: Jedem Mitglied darf maximal ein Posten zugewiesen werden" );
+  			t.setVar( "ally.message", "Fehler: Jedem Mitglied darf maximal ein Posten zugewiesen werden" );
   			redirect();
   			
 			return;
@@ -339,7 +339,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		db.tUpdate(1, "UPDATE users SET allyposten=",postenid," WHERE id=",userid," AND allyposten=0");
 		db.tCommit();
 
-		t.set_var( "ally.statusmessage", "&Auml;nderungen gespeichert" );
+		t.setVar( "ally.statusmessage", "&Auml;nderungen gespeichert" );
 		redirect();
 	}
 	
@@ -355,7 +355,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		Database db = getDatabase();
 		
 		if( this.ally.getInt("president") != user.getID()) {
-			t.set_var("ally.message","Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
+			t.setVar("ally.message","Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
 			redirect();
 			
 			return;
@@ -367,14 +367,14 @@ public class AllyController extends DSGenerator implements Loggable {
 		int userid = getInteger("user");
 
 		if( name.length() == 0 ) {
-			t.set_var( "ally.message", "Fehler: Sie m&uuml;ssen dem Posten einen Namen geben" );
+			t.setVar( "ally.message", "Fehler: Sie m&uuml;ssen dem Posten einen Namen geben" );
 			this.redirect();
 			return;
 		}
 
 		User formuser = createUserObject(userid);
 		if( formuser.getAllyPosten() != 0 ) {
-  			t.set_var( "ally.message", "Fehler: Jedem Mitglied darf maximal ein Posten zugewiesen werden" );
+  			t.setVar( "ally.message", "Fehler: Jedem Mitglied darf maximal ein Posten zugewiesen werden" );
   			redirect();
 			return;
 		}
@@ -388,7 +388,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		}
 
 		if( maxposten <= postencount ) {
-			t.set_var( "ally.message", "Fehler: Sie haben bereits die maximale Anzahl an Posten erreicht" );
+			t.setVar( "ally.message", "Fehler: Sie haben bereits die maximale Anzahl an Posten erreicht" );
 			redirect();
 			return;
 		}
@@ -400,7 +400,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		insert.close();
 		db.tCommit();
 
-		t.set_var( "ally.statusmessage", "Der Posten "+Common._plaintitle(name)+" wurde erstellt und zugewiesen" );
+		t.setVar( "ally.statusmessage", "Der Posten "+Common._plaintitle(name)+" wurde erstellt und zugewiesen" );
 		redirect();
 	}
 	
@@ -419,14 +419,14 @@ public class AllyController extends DSGenerator implements Loggable {
 		Database db = getDatabase();
 		
 		if( this.ally.getInt("president") != user.getID()) {
-			t.set_var( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
+			t.setVar( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
 			redirect();
 			return;
 		}
 		
 		int count = db.first("SELECT count(id) as count FROM skn_channels WHERE allyowner=",this.ally.getInt("id")).getInt("id");
 		if( count >= 2 ) {
-			t.set_var( "ally.message", "Fehler: Ihre Allianz besitzt bereits zwei Frequenzen" );
+			t.setVar( "ally.message", "Fehler: Ihre Allianz besitzt bereits zwei Frequenzen" );
 			redirect();
 			return;
 		}
@@ -443,7 +443,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		String writeids = getString("writeids");
 		
 		if( name.length() == 0 ) {
-			t.set_var( "ally.message", "Fehler: Sie haben keinen Namen f&uuml;r die Frequenz eingegeben" );
+			t.setVar( "ally.message", "Fehler: Sie haben keinen Namen f&uuml;r die Frequenz eingegeben" );
 			redirect();
 			return;
 		}
@@ -485,7 +485,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		query.update();
 		query.close();
 
-		t.set_var( "ally.statusmessage", "Frequenz "+Common._title(name)+" hinzugef&uuml;gt" );
+		t.setVar( "ally.statusmessage", "Frequenz "+Common._title(name)+" hinzugef&uuml;gt" );
 		redirect();	
 	}
 	
@@ -505,7 +505,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		Database db = getDatabase();
 		
 		if( this.ally.getInt("president") != user.getID()) {
-			t.set_var( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
+			t.setVar( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
 			redirect();
 			return;
 		}
@@ -515,7 +515,7 @@ public class AllyController extends DSGenerator implements Loggable {
 
 		SQLResultRow allyowner = db.first("SELECT allyowner FROM skn_channels WHERE id=",edit);
 		if( allyowner.isEmpty() || (allyowner.getInt("allyowner") != this.ally.getInt("id")) ) {
-			t.set_var( "ally.message", "Fehler: Diese Frequenz geh&ouml;rt nicht ihrer Allianz" );
+			t.setVar( "ally.message", "Fehler: Diese Frequenz geh&ouml;rt nicht ihrer Allianz" );
 			return;
 		}
 		
@@ -531,7 +531,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		String writeids = getString("writeids");
 		
 		if( name.length() == 0 ) {
-			t.set_var( "ally.message", "Fehler: Sie haben keinen Namen f&uuml;r die Frequenz eingegeben" );
+			t.setVar( "ally.message", "Fehler: Sie haben keinen Namen f&uuml;r die Frequenz eingegeben" );
 			redirect();
 			return;
 		}
@@ -574,7 +574,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		query.update();
 		query.close();
 		
-		t.set_var( "ally.statusmessage", "Frequenz "+Common._plaintitle(name)+" ge&auml;ndert" );
+		t.setVar( "ally.statusmessage", "Frequenz "+Common._plaintitle(name)+" ge&auml;ndert" );
 		redirect();	
 	}
 	
@@ -590,7 +590,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		Database db = getDatabase();
 		
 		if( this.ally.getInt("president") != user.getID()) {
-			t.set_var( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
+			t.setVar( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
 			redirect();
 			return;
 		}
@@ -600,7 +600,7 @@ public class AllyController extends DSGenerator implements Loggable {
 	
 		SQLResultRow channel = db.first("SELECT id,name,allyowner FROM skn_channels WHERE id=",channelID);
 		if( channel.isEmpty() || (channel.getInt("allyowner") != this.ally.getInt("id")) ) {
-			t.set_var( "ally.message", "Fehler: Diese Frequenz geh&ouml;rt nicht ihrer Allianz" );
+			t.setVar( "ally.message", "Fehler: Diese Frequenz geh&ouml;rt nicht ihrer Allianz" );
 			redirect();
 			return;
 		}
@@ -610,7 +610,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		String show = getString("show");
 	
 		if( !conf.equals("ok") ) {
-			t.set_var(	"ally.statusmessage",			"Wollen sie die Frequenz \""+Common._title(channel.getString("name"))+"\" wirklich l&ouml;schen?",
+			t.setVar(	"ally.statusmessage",			"Wollen sie die Frequenz \""+Common._title(channel.getString("name"))+"\" wirklich l&ouml;schen?",
 						"ally.statusmessage.ask.url1",	"&amp;action=deleteChannel&amp;channel="+channel.getInt("id")+"&amp;conf=ok&amp;show="+show,
 						"ally.statusmessage.ask.url2",	"&amp;show="+show );
 			return;
@@ -622,7 +622,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		db.update("DELETE FROM skn_channels WHERE id="+channel.getInt("id"));
 		db.tCommit();
 	
-		t.set_var( "ally.statusmessage", "Die Frequenz wurde gel&ouml;scht" );
+		t.setVar( "ally.statusmessage", "Die Frequenz wurde gel&ouml;scht" );
 		redirect();
 	}
 	
@@ -637,7 +637,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		User user = getUser();
 		
 		if( this.ally.getInt("president") != user.getID()) {
-			t.set_var( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
+			t.setVar( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
 			redirect();
 			return;
 		}
@@ -649,7 +649,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		}
 		
 		if( list.get(0).getSize() > MAX_UPLOAD_SIZE ) {
-			t.set_var("options.message","Das Logo ist leider zu gro&szlig;. Bitte w&auml;hle eine Datei mit maximal 300kB Gr&ouml;&stlig;e<br />");
+			t.setVar("options.message","Das Logo ist leider zu gro&szlig;. Bitte w&auml;hle eine Datei mit maximal 300kB Gr&ouml;&stlig;e<br />");
 			redirect();
 			return;
 		}
@@ -658,10 +658,10 @@ public class AllyController extends DSGenerator implements Loggable {
 		try {
 			File uploadedFile = new File(uploaddir+this.ally.getInt("id")+".gif");
 			list.get(0).write(uploadedFile);
-			t.set_var("options.message","Das neue Logo wurde auf dem Server gespeichert<br />");
+			t.setVar("options.message","Das neue Logo wurde auf dem Server gespeichert<br />");
 		}
 		catch( Exception e ) {
-			t.set_var("options.message","Offenbar ging beim Upload etwas schief (Ist die Datei evt. zu gro&szlig;?)<br />");
+			t.setVar("options.message","Offenbar ging beim Upload etwas schief (Ist die Datei evt. zu gro&szlig;?)<br />");
 			LOG.warn(e);
 		}
 		
@@ -686,7 +686,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		Database db = getDatabase();
 		
 		if( this.ally.getInt("president") != user.getID()) {
-			t.set_var( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
+			t.setVar( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
 			redirect();
 			return;
 		}
@@ -711,18 +711,18 @@ public class AllyController extends DSGenerator implements Loggable {
 
 		// Wurde der [name]-Tag vergessen?
 		if( allytag.indexOf("[name]") == -1 ) {
-			t.set_var( "ally.message", "Warnung: Der [name]-tag wurde vergessen. Dieser wird nun automatisch angeh&auml;ngt!" );
+			t.setVar( "ally.message", "Warnung: Der [name]-tag wurde vergessen. Dieser wird nun automatisch angeh&auml;ngt!" );
 			allytag += "[name]";
 		}
 	
 		if( name.length() == 0 ) {
-			t.set_var( "ally.message", "Fehler: Sie m&uuml;ssen einen Allianznamen angeben" );
+			t.setVar( "ally.message", "Fehler: Sie m&uuml;ssen einen Allianznamen angeben" );
 			redirect();
 			return;	
 		}
 	
 		if( praesi.length() == 0 ) {
-			t.set_var( "ally.message", "Fehler: Sie m&uuml;ssen dem Pr&auml;sidentenamt einen Namen geben" );
+			t.setVar( "ally.message", "Fehler: Sie m&uuml;ssen dem Pr&auml;sidentenamt einen Namen geben" );
 			redirect();
 			return;	
 		}
@@ -752,7 +752,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		allyusers.free();
 		
 		if( db.tCommit() ) {	
-			t.set_var( "ally.statusmessage", "Neue Daten gespeichert..." );
+			t.setVar( "ally.statusmessage", "Neue Daten gespeichert..." );
 			
 			this.ally.put("name", name);
 			this.ally.put("plainname", Common._titleNoFormat(name));
@@ -779,7 +779,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		Database db = getDatabase();
 	
 		if( this.ally.getInt("president") == user.getID()) {
-			t.set_var( "ally.message", "<span style=\"color:red\">Sie k&ouml;nnen erst austreten, wenn ein anderer Pr&auml;sident bestimmt wurde" );
+			t.setVar( "ally.message", "<span style=\"color:red\">Sie k&ouml;nnen erst austreten, wenn ein anderer Pr&auml;sident bestimmt wurde" );
 			redirect();
 			return;
 		}
@@ -790,7 +790,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		if( !conf.equals("ok") ) {
 			String show = getString("show");
 		
-			t.set_var(	"ally.statusmessage",				"Wollen sie wirklich aus der Allianz austreten?",
+			t.setVar(	"ally.statusmessage",				"Wollen sie wirklich aus der Allianz austreten?",
 						"ally.statusmessage.ask.url1",		"&amp;action=part&amp;conf=ok&amp;show="+show,
 						"ally.statusmessage.ask.url2",		"&amp;show="+show );
 			return;
@@ -807,12 +807,12 @@ public class AllyController extends DSGenerator implements Loggable {
 		int ticks = getContext().get(ContextCommon.class).getTick();		
 		user.addHistory(Common.getIngameTime(ticks)+": Verlassen der Allianz "+this.ally.getString("name"));
 		
-		t.set_var( "ally.showmessage", "Allianz verlassen" );
+		t.setVar( "ally.showmessage", "Allianz verlassen" );
 		
 		checkLowMember();
 		
 		this.ally = null;
-		t.set_var("ally", 0);
+		t.setVar("ally", 0);
 		
 		redirect("defaultNoAlly");
 	}
@@ -828,7 +828,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		Database db = getDatabase();
 		
 		if( this.ally.getInt("president") != user.getID()) {
-			t.set_var( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
+			t.setVar( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
 			redirect();
 			return;
 		}
@@ -839,7 +839,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		if( !conf.equals("ok") ) {
 			String show = getString("show");
 			
-			t.set_var(	"ally.statusmessage",			"Wollen sie die Allianz wirklich aufl&ouml;sen?",
+			t.setVar(	"ally.statusmessage",			"Wollen sie die Allianz wirklich aufl&ouml;sen?",
 						"ally.statusmessage.ask.url1",	"&amp;action=kill&amp;conf=ok&amp;show="+show,
 						"ally.statusmessage.ask.url2",	"&amp;show="+show );
 		} 
@@ -870,10 +870,10 @@ public class AllyController extends DSGenerator implements Loggable {
 			db.update("DELETE FROM ally WHERE id=",this.ally.getInt("id"));
 			db.tCommit();
 		
-			t.set_var( "ally.statusmessage", "Die Allianz wurde aufgel&ouml;st" );
+			t.setVar( "ally.statusmessage", "Die Allianz wurde aufgel&ouml;st" );
 			
 			this.ally = null;
-			t.set_var("ally", 0);
+			t.setVar("ally", 0);
 			
 			redirect("defaultNoAlly");
 		}
@@ -890,7 +890,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		Database db = getDatabase();
 		
 		if( this.ally.getInt("president") != user.getID()) {
-			t.set_var( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
+			t.setVar( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
 			redirect();
 			return;
 		}
@@ -900,13 +900,13 @@ public class AllyController extends DSGenerator implements Loggable {
 		
 		User presnuser = getContext().createUserObject(presn);
 		if( presnuser.getAlly() != this.ally.getInt("id") ) {
-			t.set_var( "ally.message", "Dieser Spieler ist nicht Mitglied ihrer Allianz" );
+			t.setVar( "ally.message", "Dieser Spieler ist nicht Mitglied ihrer Allianz" );
 			redirect();
 			return;	
 		}
 	
 		db.update("UPDATE ally SET president=",presnuser.getID()," WHERE id=",this.ally.getInt("id"));
-		t.set_var( "ally.statusmessage", presnuser.getProfileLink()+" zum Pr&auml;sidenten ernannt" );
+		t.setVar( "ally.statusmessage", presnuser.getProfileLink()+" zum Pr&auml;sidenten ernannt" );
 	
 		PM.send(getContext(), this.ally.getInt("president"), presnuser.getID(), "Zum Pr&auml;sidenten ernannt", "Ich habe dich zum Pr&auml;sidenten der Allianz ernannt");
 
@@ -925,7 +925,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		Database db = getDatabase();
 		
 		if( this.ally.getInt("president") != user.getID()) {
-			t.set_var( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
+			t.setVar( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
 			redirect();
 			return;
 		}
@@ -934,14 +934,14 @@ public class AllyController extends DSGenerator implements Loggable {
 		int kick = getInteger("kick");
 		
 		if( kick == user.getID() ) {
-			t.set_var( "ally.message", "Sie k&ouml;nnen sich nicht selber aus der Allianz werfen" );
+			t.setVar( "ally.message", "Sie k&ouml;nnen sich nicht selber aus der Allianz werfen" );
 			redirect();
 			return;
 		}
 	
 		User kickuser = getContext().createUserObject(kick);
 		if( kickuser.getAlly() != this.ally.getInt("id") ) {
-			t.set_var( "ally.message", "Dieser Spieler ist nicht Mitglied ihrer Allianz" );
+			t.setVar( "ally.message", "Dieser Spieler ist nicht Mitglied ihrer Allianz" );
 			redirect();
 			return;
 		}
@@ -956,7 +956,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		int tick = getContext().get(ContextCommon.class).getTick();
 		kickuser.addHistory(Common.getIngameTime(tick)+": Verlassen der Allianz "+this.ally.getString("name"));
 
-		t.set_var( "ally.statusmessage", Common._title(kickuser.getName())+" aus der Allianz geworfen" );
+		t.setVar( "ally.statusmessage", Common._title(kickuser.getName())+" aus der Allianz geworfen" );
 		
 		checkLowMember();
 
@@ -979,19 +979,19 @@ public class AllyController extends DSGenerator implements Loggable {
 		
 		if( show.equals("create") ) {		
 			if( Common.time() - user.getSignup() < 60*60*24*3 ) {
-				t.set_var("ally.message","Sie m&uuml;ssen seit mindestens 3 Tage dabei sein um eine Allianz gr&uuml;nden zu k&ouml;nnen");
+				t.setVar("ally.message","Sie m&uuml;ssen seit mindestens 3 Tage dabei sein um eine Allianz gr&uuml;nden zu k&ouml;nnen");
 			}
 			else {
-				t.set_var("show.create",1);
+				t.setVar("show.create",1);
 			}
 		}
 		else {
-			t.set_var( "show.join", 1 );
-			t.set_block( "_ALLY", "show.join.allylist.listitem", "show.join.allylist.list" );
+			t.setVar( "show.join", 1 );
+			t.setBlock( "_ALLY", "show.join.allylist.listitem", "show.join.allylist.list" );
 			
 			SQLQuery al = db.query("SELECT name,id FROM ally ORDER BY founded");
 			while( al.next() ) {
-				t.set_var(	"show.join.allylist.allyid",	al.getInt("id"),
+				t.setVar(	"show.join.allylist.allyid",	al.getInt("id"),
 							"show.join.allylist.name",		Common._title(al.getString("name")) );
 									
 				t.parse( "show.join.allylist.list", "show.join.allylist.listitem", true );
@@ -1020,7 +1020,7 @@ public class AllyController extends DSGenerator implements Loggable {
 			return;	
 		}
 		
-		t.set_var(	"ally.name",		Common._title( this.ally.getString("name") ),
+		t.setVar(	"ally.name",		Common._title( this.ally.getString("name") ),
 					"user.president",	(user.getID() == this.ally.getInt("president")),
 					"ally.id",			this.ally.getInt("id") );
 		
@@ -1032,7 +1032,7 @@ public class AllyController extends DSGenerator implements Loggable {
 			User presi = getContext().createUserObject(this.ally.getInt("president"));
 			int membercount = db.first("SELECT count(*) membercount FROM users WHERE ally=",this.ally.getInt("id")).getInt("membercount");
 			
-			t.set_var(	"show.allgemein",		1,
+			t.setVar(	"show.allgemein",		1,
 						"ally.description",		Common._text(this.ally.getString("description")),
 						"ally.founded",			this.ally.getString("founded"),
 						"ally.wonBattles",		this.ally.getInt("wonBattles"),
@@ -1046,18 +1046,18 @@ public class AllyController extends DSGenerator implements Loggable {
 						"ally.posten.list",		"" );
 		
 			if( ally.getString("items").length() > 0 ) {
-				t.set_block( "_ALLY", "ally.items.listitem", "ally.items.list" );
+				t.setBlock( "_ALLY", "ally.items.listitem", "ally.items.list" );
 				Cargo itemlist = new Cargo( Cargo.Type.ITEMSTRING, this.ally.getString("items") );
 				ResourceList reslist = itemlist.getResourceList();
 				
 				Resources.echoResList( t, reslist, "ally.items.list" );
 			}
 		
-			t.set_block( "_ALLY", "ally.posten.listitem", "ally.posten.list" );
+			t.setBlock( "_ALLY", "ally.posten.listitem", "ally.posten.list" );
 			
 			SQLQuery posten = db.query("SELECT t2.id,t1.name,t2.name username FROM ally_posten t1 JOIN users t2 ON t1.id=t2.allyposten WHERE t1.ally=",this.ally.getInt("id")," AND t2.ally=",this.ally.getInt("id"));
 			while( posten.next() ) {
-				t.set_var(	"ally.posten.name",			Common._title(posten.getString("name")),
+				t.setVar(	"ally.posten.name",			Common._title(posten.getString("name")),
 							"ally.posten.user.name",	Common._title(posten.getString("username")),
 							"ally.posten.user.id",		posten.getInt("id") );
 				
@@ -1067,11 +1067,11 @@ public class AllyController extends DSGenerator implements Loggable {
 			
 			SQLQuery allymember = db.query("SELECT id,name FROM users WHERE ally=",this.ally.getInt("id")," AND id!=",this.ally.getInt("president")," AND allyposten=0");
 			if( allymember.numRows() > 0 ) {
-				t.set_var( "ally.addmembers.list", "" );
-				t.set_block( "_ALLY", "ally.addmembers.listitem", "ally.addmembers.list" );
+				t.setVar( "ally.addmembers.list", "" );
+				t.setBlock( "_ALLY", "ally.addmembers.listitem", "ally.addmembers.list" );
 				
 				while( allymember.next() ) {
-					t.set_var(	"ally.addmembers.name",	Common._title(allymember.getString("name")),
+					t.setVar(	"ally.addmembers.name",	Common._title(allymember.getString("name")),
 								"ally.addmembers.id",	allymember.getInt("id") );
 					
 					t.parse( "ally.addmembers.list", "ally.addmembers.listitem", true );
@@ -1084,15 +1084,15 @@ public class AllyController extends DSGenerator implements Loggable {
 			Mitgliederliste
 		*/
 		else if( show.equals("members") ) {
-			t.set_var(	"show.members",		1,
+			t.setVar(	"show.members",		1,
 						"user.president",	(user.getID() == this.ally.getInt("president")) );
 								
-			t.set_block( "_ALLY", "show.members.listitem", "show.members.list" );
+			t.setBlock( "_ALLY", "show.members.listitem", "show.members.list" );
 			
 			//Mitglieder auflisten
 			SQLQuery mem = db.query("SELECT name,id,inakt FROM users WHERE ally=",this.ally.getInt("id")," ORDER BY name");
 			while( mem.next() ) {	
-				t.set_var(	"show.members.name",	Common._title( mem.getString("name") ),
+				t.setVar(	"show.members.name",	Common._title( mem.getString("name") ),
 							"show.members.id",		mem.getInt("id") );
 											
 				if( user.getID() == this.ally.getInt("president") ) {
@@ -1117,7 +1117,7 @@ public class AllyController extends DSGenerator implements Loggable {
 						inakt_status = "<span style=\\'color:#FF2222\\'>bald gel&ouml;scht</span>";
 					}
 					
-					t.set_var( "show.members.inaktstatus", inakt_status );
+					t.setVar( "show.members.inaktstatus", inakt_status );
 				}
 				
 				t.parse( "show.members.list", "show.members.listitem", true );
@@ -1128,7 +1128,7 @@ public class AllyController extends DSGenerator implements Loggable {
 			Einstellungen
 		*/
 		else if( show.equals("config") && (user.getID() == this.ally.getInt("president")) ) {
-			t.set_var(	"show.einstellungen",	1,
+			t.setVar(	"show.einstellungen",	1,
 						"ally.plainname",		this.ally.getString("name"),
 						"ally.description",		this.ally.getString("description"),
 						"ally.hp",				this.ally.getString("hp"),
@@ -1148,16 +1148,16 @@ public class AllyController extends DSGenerator implements Loggable {
 			channel.free();
 			channels.add(new SQLResultRow());
 			
-			t.set_block( "_ALLY", "show.einstellungen.channels.listitem", "show.einstellungen.channels.list" );
+			t.setBlock( "_ALLY", "show.einstellungen.channels.listitem", "show.einstellungen.channels.list" );
 	
 			// Nun die vorhandenen Channels anzeigen und ggf. eine Eingabemaske fuer neue Channels anzeigen
 			for( int i=0; i<=1; i++ ) {
 				t.start_record();
-				t.set_var(	"show.einstellungen.channels.id",		channels.get(i).isEmpty() ? 0 : channels.get(i).getInt("id"),
+				t.setVar(	"show.einstellungen.channels.id",		channels.get(i).isEmpty() ? 0 : channels.get(i).getInt("id"),
 							"show.einstellungen.channels.index",	i+1 );
 				
 				if( !channels.get(i).isEmpty() ) {
-					t.set_var(	"show.einstellungen.channels.name",			Common._plaintitle(channels.get(i).getString("name")),
+					t.setVar(	"show.einstellungen.channels.name",			Common._plaintitle(channels.get(i).getString("name")),
 								"show.einstellungen.channels.readall",		channels.get(i).getBoolean("readall"),
 								"show.einstellungen.channels.writeall",		channels.get(i).getBoolean("writeall"),
 								"show.einstellungen.channels.readally",		channels.get(i).getInt("readally"),
@@ -1166,7 +1166,7 @@ public class AllyController extends DSGenerator implements Loggable {
 								"show.einstellungen.channels.writeids",		channels.get(i).getString("writeplayer") );
 				}
 				else {
-					t.set_var(	"show.einstellungen.channels.name",		"",
+					t.setVar(	"show.einstellungen.channels.name",		"",
 								"show.einstellungen.channels.readall",	1,
 								"show.einstellungen.channels.writeall",	1 );
 				}
@@ -1201,25 +1201,25 @@ public class AllyController extends DSGenerator implements Loggable {
 				maxposten = 2;
 			}
 			
-			t.set_var(	"show.posten",				1,
+			t.setVar(	"show.posten",				1,
 						"show.posten.count",		postencount,
 						"show.posten.maxcount",		maxposten,
 						"show.posten.addposten",	(maxposten > postencount),
 						"show.posten.modify.list",	"" );
 								
-			t.set_block( "_ALLY", "show.posten.modify.listitem", "show.posten.modify.list" );
-			t.set_block( "show.posten.modify.listitem", "show.posten.modify.userlist.listitem", "show.posten.modify.userlist.list" );
+			t.setBlock( "_ALLY", "show.posten.modify.listitem", "show.posten.modify.list" );
+			t.setBlock( "show.posten.modify.listitem", "show.posten.modify.userlist.listitem", "show.posten.modify.userlist.list" );
 			
 			SQLQuery posten = db.query("SELECT ap.id,ap.name,u.id userid " +
 					"FROM ally_posten ap LEFT OUTER JOIN users u ON ap.id=u.allyposten " +
 					"WHERE ap.ally=",this.ally.getInt("id"));
 			while( posten.next() ) {
-				t.set_var(	"show.posten.modify.name",			Common._plaintitle(posten.getString("name")),
+				t.setVar(	"show.posten.modify.name",			Common._plaintitle(posten.getString("name")),
 							"show.posten.modify.id",			posten.getInt("id"),
 							"show.posten.modify.userlist.list",	"" );
 				
 				if( posten.getInt("userid") == 0 ) {
-					t.set_var(	"show.posten.modify.userlist.id",		"",
+					t.setVar(	"show.posten.modify.userlist.id",		"",
 								"show.posten.modify.userlist.name",		"KEINER",
 								"show.posten.modify.userlist.selected",	1 );
 										
@@ -1228,7 +1228,7 @@ public class AllyController extends DSGenerator implements Loggable {
 				
 				for( int i=0; i < allymember.size(); i++ ) {	
 					SQLResultRow member = allymember.get(i);
-					t.set_var(	"show.posten.modify.userlist.id",		member.getInt("id"),
+					t.setVar(	"show.posten.modify.userlist.id",		member.getInt("id"),
 								"show.posten.modify.userlist.name",		Common._title(member.getString("nickname")),
 								"show.posten.modify.userlist.selected",	posten.getInt("userid") == member.getInt("id") );
 										
@@ -1240,11 +1240,11 @@ public class AllyController extends DSGenerator implements Loggable {
 			posten.free();
 			
 			if( maxposten > postencount ) {
-				t.set_block( "_ALLY", "show.posten.addposten.userlist.listitem", "show.posten.addposten.userlist.list" );
+				t.setBlock( "_ALLY", "show.posten.addposten.userlist.listitem", "show.posten.addposten.userlist.list" );
 				
 				for( int i=0; i < allymember.size(); i++ ) {	
 					SQLResultRow member = allymember.get(i);
-					t.set_var(	"show.posten.addposten.userlist.id",	member.getInt("id"),
+					t.setVar(	"show.posten.addposten.userlist.id",	member.getInt("id"),
 								"show.posten.addposten.userlist.name",	Common._title(member.getString("nickname")) );
 										
 					t.parse( "show.posten.addposten.userlist.list", "show.posten.addposten.userlist.listitem", true );
@@ -1273,12 +1273,12 @@ public class AllyController extends DSGenerator implements Loggable {
 				destpos = 0;
 			}
 			
-			t.set_block( "_ALLY", "show.destships.listitem", "show.destships.list" );
-			t.set_block( "_ALLY", "show.destships.linefiller.listitem", "show.destships.linefiller.list" );
-			t.set_block( "_ALLY", "show.lostships.listitem", "show.lostships.list" );
-			t.set_block( "_ALLY", "show.lostships.linefiller.listitem", "show.lostships.linefiller.list" );
+			t.setBlock( "_ALLY", "show.destships.listitem", "show.destships.list" );
+			t.setBlock( "_ALLY", "show.destships.linefiller.listitem", "show.destships.linefiller.list" );
+			t.setBlock( "_ALLY", "show.lostships.listitem", "show.lostships.list" );
+			t.setBlock( "_ALLY", "show.lostships.linefiller.listitem", "show.lostships.linefiller.list" );
 			
-			t.set_var(	"show.battles",						1,
+			t.setVar(	"show.battles",						1,
 						"show.destships.list",				"",
 						"show.destships.linefiller.list",	"",
 						"show.lostships.list",				"",
@@ -1301,7 +1301,7 @@ public class AllyController extends DSGenerator implements Loggable {
 					ownername = "Unbekannter Spieler ("+s.getInt("owner")+")";
 				}
 	
-				t.set_var(	"show.destships.name",			s.getString("name"),
+				t.setVar(	"show.destships.name",			s.getString("name"),
 							"show.destships.type.name",		shiptype.getString("nickname"),
 							"show.destships.type",			s.getInt("type"),
 							"show.destships.type.picture",	shiptype.getString("picture"),
@@ -1336,7 +1336,7 @@ public class AllyController extends DSGenerator implements Loggable {
 				lostpos = 0;
 			}
 			
-			t.set_var(	"show.lostpos.back",	lostpos-10,
+			t.setVar(	"show.lostpos.back",	lostpos-10,
 						"show.lostpos.forward",	lostpos+10 );
 	
 			s = db.query("SELECT name,type,time,owner,destowner FROM ships_lost WHERE ally=",this.ally.getInt("id")," ORDER BY time DESC LIMIT ",lostpos,",10");
@@ -1364,7 +1364,7 @@ public class AllyController extends DSGenerator implements Loggable {
 					destownername = "Unbekannter Spieler ("+s.getInt("destowner")+")";
 				}
 							
-				t.set_var(	"show.lostships.name",			s.getString("name"),
+				t.setVar(	"show.lostships.name",			s.getString("name"),
 							"show.lostships.type.name",		shiptype.getString("nickname"),
 							"show.lostships.type",			s.getInt("type"),
 							"show.lostships.type.picture",	shiptype.getString("picture"),

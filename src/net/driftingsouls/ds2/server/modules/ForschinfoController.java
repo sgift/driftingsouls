@@ -94,7 +94,7 @@ public class ForschinfoController extends DSGenerator {
 		Database db = getDatabase();
 		
 		// Name und Bild
-		t.set_var(	"tech.name",			Common._plaintitle(research.getName()),
+		t.setVar(	"tech.name",			Common._plaintitle(research.getName()),
 					"tech.race.notall",		(research.getRace() != -1),
 					"tech.id",				research.getID(),
 					"tech.time",			research.getTime() );
@@ -110,29 +110,29 @@ public class ForschinfoController extends DSGenerator {
 				rasse = "<span style=\"color:red\">"+rasse+"</span>";
 			}
 	
-			t.set_var("tech.race.name",rasse);
+			t.setVar("tech.race.name",rasse);
 		}
 
 		// Voraussetzungen
-		t.set_block("_FORSCHINFO","tech.needs.listitem","tech.needs.list");
+		t.setBlock("_FORSCHINFO","tech.needs.listitem","tech.needs.list");
 		for( int i = 1; i <= 3; i++ ) {
 			t.start_record();
 	
 			if( (i > 1) && ((this.research.getRequiredResearch(i) > 0) || (this.research.getRequiredResearch(i) == -1)) ) {	
-				t.set_var("tech.needs.item.break",true);
+				t.setVar("tech.needs.item.break",true);
 			}
 	
 			if( this.research.getRequiredResearch(i) > 0 ) {
 				Forschung dat = Forschung.getInstance(this.research.getRequiredResearch(i));
 
-				t.set_var(	"tech.needs.item.researchable",	true,
+				t.setVar(	"tech.needs.item.researchable",	true,
 							"tech.needs.item.id",			this.research.getRequiredResearch(i),
 							"tech.needs.item.name",			Common._plaintitle(dat.getName()) );
 							
 				t.parse("tech.needs.list","tech.needs.listitem",true);
 			}
 			else if( this.research.getRequiredResearch(i) == -1 ) {
-				t.set_var("tech.needs.item.researchable",false);
+				t.setVar("tech.needs.item.researchable",false);
 				
 				t.parse("tech.needs.list","tech.needs.listitem",true);
 			}
@@ -145,18 +145,18 @@ public class ForschinfoController extends DSGenerator {
 		Cargo costs = new Cargo( Cargo.Type.STRING, this.research.getCosts() );
 		costs.setOption( Cargo.Option.SHOWMASS, false );
 
-		t.set_block("_FORSCHINFO","tech.res.listitem","tech.res.list");
+		t.setBlock("_FORSCHINFO","tech.res.listitem","tech.res.list");
 		
 		ResourceList reslist = costs.getResourceList();
 		for( ResourceEntry res : reslist ) {
-			t.set_var(	"tech.res.item.image",	res.getImage(),
+			t.setVar(	"tech.res.item.image",	res.getImage(),
 						"tech.res.item.cargo",	res.getCargo1() );
 								
 			t.parse("tech.res.list","tech.res.listitem",true);
 		}
 
 		// Ermoeglicht
-		t.set_block("_FORSCHINFO","tech.allows.listitem","tech.allows.list");
+		t.setBlock("_FORSCHINFO","tech.allows.listitem","tech.allows.list");
 
 		boolean entry = false;
 		SQLQuery result = db.query( "SELECT id FROM forschungen WHERE req1=",this.research.getID()," OR req2=",this.research.getID()," OR req3=",this.research.getID());
@@ -165,7 +165,7 @@ public class ForschinfoController extends DSGenerator {
 			
 			if( res.isVisibile() || 
 				(!res.isVisibile() && user.hasResearched(res.getRequiredResearch(1)) && user.hasResearched(res.getRequiredResearch(2)) && user.hasResearched(res.getRequiredResearch(3))) ) {
-				t.set_var(	"tech.allows.item.break",	entry,
+				t.setVar(	"tech.allows.item.break",	entry,
 							"tech.allows.item.id",		res.getID(),
 							"tech.allows.item.name",	Common._plaintitle(res.getName()),
 							"tech.allows.item.hidden",	false );
@@ -174,7 +174,7 @@ public class ForschinfoController extends DSGenerator {
 				t.parse("tech.allows.list","tech.allows.listitem",true);
 			}	
 			else if( (user.getAccessLevel() > 20) && !res.isVisibile() ) {
-				t.set_var(	"tech.allows.item.break",	entry,
+				t.setVar(	"tech.allows.item.break",	entry,
 							"tech.allows.item.id",		res.getID(),
 							"tech.allows.item.name",	Common._plaintitle(res.getName()),
 							"tech.allows.item.hidden",	true );
@@ -191,18 +191,18 @@ public class ForschinfoController extends DSGenerator {
 			if( this.research.getRace() != -1 ) {
 				colspan = 5;
 			}
-			t.set_var(	"tech.descrip",			Common._text(this.research.getDescription()),
+			t.setVar(	"tech.descrip",			Common._text(this.research.getDescription()),
 						"tech.descrip.colspan",	colspan );
 		}	
 		
 		//
 		// Gebaeude
 		//
-		t.set_block("_FORSCHINFO","tech.buildings.listitem","tech.buildings.list");
-		t.set_block("tech.buildings.listitem","tech.building.buildcosts.listitem","tech.building.buildcosts.list");
-		t.set_block("tech.buildings.listitem","tech.building.produces.listitem","tech.building.produces.list");
-		t.set_block("tech.buildings.listitem","tech.building.consumes.listitem","tech.building.consumes.list");
-		t.set_var("tech.buildings.list","");
+		t.setBlock("_FORSCHINFO","tech.buildings.listitem","tech.buildings.list");
+		t.setBlock("tech.buildings.listitem","tech.building.buildcosts.listitem","tech.building.buildcosts.list");
+		t.setBlock("tech.buildings.listitem","tech.building.produces.listitem","tech.building.produces.list");
+		t.setBlock("tech.buildings.listitem","tech.building.consumes.listitem","tech.building.consumes.list");
+		t.setVar("tech.buildings.list","");
 
 		boolean firstentry = true;
 
@@ -212,7 +212,7 @@ public class ForschinfoController extends DSGenerator {
 			
 			t.start_record();
 	
-			t.set_var(	"tech.building.hr",			!firstentry,
+			t.setVar(	"tech.building.hr",			!firstentry,
 						"tech.building.picture",	building.getPicture(),
 						"tech.building.name",		Common._plaintitle(building.getName()),
 						"tech.building.arbeiter",	building.getArbeiter(),
@@ -229,7 +229,7 @@ public class ForschinfoController extends DSGenerator {
 			Resources.echoResList( t, reslist, "tech.building.consumes.list" );
 	
 			if( building.getEVerbrauch() > 0 ) {
-				t.set_var(	"res.image",	Configuration.getSetting("URL")+"data/interface/energie.gif",
+				t.setVar(	"res.image",	Configuration.getSetting("URL")+"data/interface/energie.gif",
 							"res.cargo",	building.getEVerbrauch() );
 							
 				t.parse("tech.building.consumes.list","tech.building.consumes.listitem",true);
@@ -239,7 +239,7 @@ public class ForschinfoController extends DSGenerator {
 			Resources.echoResList( t, reslist, "tech.building.produces.list" );
 
 			if( building.getEProduktion() > 0 ) {
-				t.set_var(	"res.image",	Configuration.getSetting("URL")+"data/interface/energie.gif",
+				t.setVar(	"res.image",	Configuration.getSetting("URL")+"data/interface/energie.gif",
 							"res.cargo",	building.getEProduktion() );
 									
 				t.parse("tech.building.produces.list","tech.building.produces.listitem",true);
@@ -255,11 +255,11 @@ public class ForschinfoController extends DSGenerator {
 		//
 		// Cores
 		//
-		t.set_block("_FORSCHINFO","tech.cores.listitem","tech.cores.list");
-		t.set_block("tech.cores.listitem","tech.core.buildcosts.listitem","tech.core.buildcosts.list");
-		t.set_block("tech.cores.listitem","tech.core.consumes.listitem","tech.core.consumes.list");
-		t.set_block("tech.cores.listitem","tech.core.produces.listitem","tech.core.produces.list");
-		t.set_var("tech.cores.list","");
+		t.setBlock("_FORSCHINFO","tech.cores.listitem","tech.cores.list");
+		t.setBlock("tech.cores.listitem","tech.core.buildcosts.listitem","tech.core.buildcosts.list");
+		t.setBlock("tech.cores.listitem","tech.core.consumes.listitem","tech.core.consumes.list");
+		t.setBlock("tech.cores.listitem","tech.core.produces.listitem","tech.core.produces.list");
+		t.setVar("tech.cores.list","");
 
 		firstentry = true;
 		SQLQuery coreRow = db.query("SELECT id FROM cores WHERE techreq=",this.research.getID());
@@ -268,7 +268,7 @@ public class ForschinfoController extends DSGenerator {
 			
 			t.start_record();
 		
-			t.set_var(	"tech.core.astitype",	core.getAstiType(),
+			t.setVar(	"tech.core.astitype",	core.getAstiType(),
 						"tech.core.name",		Common._plaintitle(core.getName()),
 						"tech.core.hr",			!firstentry,
 						"tech.core.arbeiter",	core.getArbeiter(),
@@ -285,7 +285,7 @@ public class ForschinfoController extends DSGenerator {
 			Resources.echoResList( t, reslist, "tech.core.consumes.list" );
 
 			if( core.getEVerbrauch() > 0 ) {
-				t.set_var(	"res.image",	Configuration.getSetting("URL")+"data/interface/energie.gif",
+				t.setVar(	"res.image",	Configuration.getSetting("URL")+"data/interface/energie.gif",
 							"res.cargo",	core.getEVerbrauch() );
 							
 				t.parse("tech.core.consumes.list","tech.core.consumes.listitem",true);
@@ -295,7 +295,7 @@ public class ForschinfoController extends DSGenerator {
 			Resources.echoResList( t, reslist, "tech.core.produces.list" );
 
 			if( core.getEProduktion() > 0 ) {
-				t.set_var(	"res.image",	Configuration.getSetting("URL")+"data/interface/energie.gif",
+				t.setVar(	"res.image",	Configuration.getSetting("URL")+"data/interface/energie.gif",
 							"res.cargo",	core.getEProduktion() );
 							
 				t.parse("tech.core.produces.list","tech.core.produces.listitem",true);
@@ -312,10 +312,10 @@ public class ForschinfoController extends DSGenerator {
 		//
 		// Schiffe
 		//
-		t.set_block("_FORSCHINFO","tech.ships.listitem","tech.ships.list");
-		t.set_block("tech.ships.listitem","tech.ship.costs.listitem","tech.ship.costs.list");
-		t.set_block("tech.ships.listitem","tech.ship.techs.listitem","tech.ship.techs.list");
-		t.set_var("tech.ships.list","");
+		t.setBlock("_FORSCHINFO","tech.ships.listitem","tech.ships.list");
+		t.setBlock("tech.ships.listitem","tech.ship.costs.listitem","tech.ship.costs.list");
+		t.setBlock("tech.ships.listitem","tech.ship.techs.listitem","tech.ship.techs.list");
+		t.setVar("tech.ships.list","");
 
 		firstentry = true;
 		SQLQuery ship = db.query("SELECT t1.*,t2.nickname,t2.picture " +
@@ -346,7 +346,7 @@ public class ForschinfoController extends DSGenerator {
 
 			SQLResultRow shiptype = ShipTypes.getShipType(ship.getInt("type"), false);
 			
-			t.set_var(	"tech.ship.id",			ship.getInt("type"),
+			t.setVar(	"tech.ship.id",			ship.getInt("type"),
 						"tech.ship.name",		Common._plaintitle(ship.getString("nickname")),
 						"tech.ship.picture",	shiptype.getString("picture"),
 						"tech.ship.hr",			!firstentry,
@@ -370,10 +370,10 @@ public class ForschinfoController extends DSGenerator {
 				firstentry = true;
 				
 				//Es benoetigt weitere!
-				t.set_var("tech.ship.techs.list","");
+				t.setVar("tech.ship.techs.list","");
 		      	for( int b = 1; b <= 3; b++ ) {
          			if( (ship.getInt("tr"+b) != 0) && (ship.getInt("tr"+b) != this.research.getID()) ) {
-         				t.set_var(	"tech.ship.tech.break",	!firstentry,
+         				t.setVar(	"tech.ship.tech.break",	!firstentry,
          							"tech.ship.tech.id",	ship.getInt("tr"+b),
          							"tech.ship.tech.name",	Forschung.getInstance(ship.getInt("tr"+b)).getName() );
          							
@@ -397,9 +397,9 @@ public class ForschinfoController extends DSGenerator {
 		//
 		// Munition
 		//
-		t.set_block("_FORSCHINFO","tech.ammo.listitem","tech.ammo.list");
-		t.set_block("tech.ammo.listitem","tech.ammo.buildcosts.listitem","tech.ammo.buildcosts.list");
-		t.set_var("tech.ammo.list","");
+		t.setBlock("_FORSCHINFO","tech.ammo.listitem","tech.ammo.list");
+		t.setBlock("tech.ammo.listitem","tech.ammo.buildcosts.listitem","tech.ammo.buildcosts.list");
+		t.setVar("tech.ammo.list","");
 
 		firstentry = true;
 
@@ -407,7 +407,7 @@ public class ForschinfoController extends DSGenerator {
 		while( ammo.next() ) {
 			t.start_record();
 	
-			t.set_var(	"tech.ammo.hr",			!firstentry,
+			t.setVar(	"tech.ammo.hr",			!firstentry,
 						"tech.ammo.name",		Common._plaintitle(ammo.getString("name")),
 						"tech.ammo.picture",	ammo.getString("picture"),
 						"tech.ammo.description",	Common._text(ammo.getString("description")),
@@ -473,7 +473,7 @@ public class ForschinfoController extends DSGenerator {
 				}
 			}
 
-			t.set_var(	"tech.ammo.data",		data,
+			t.setVar(	"tech.ammo.data",		data,
 						"tech.ammo.weapons",	weapons );
 								
 			t.parse( "tech.ammo.list", "tech.ammo.listitem", true );

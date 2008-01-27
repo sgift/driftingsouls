@@ -305,11 +305,11 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 			else if( !filter.get(1) ) {
 				filterstr = "s1h";
 			}
-			t.set_var(	"global.logpagestr",		"&amp;logpage="+context.getRequest().getParameterInt("logpage")+"&amp;logpagefilter="+filterstr,
+			t.setVar(	"global.logpagestr",		"&amp;logpage="+context.getRequest().getParameterInt("logpage")+"&amp;logpagefilter="+filterstr,
 						"global.showlog.filter",	filterstr );
 		}
 		
-		t.set_var(	"global.showlog.side0.show",	filter.get(0),
+		t.setVar(	"global.showlog.side0.show",	filter.get(0),
 					"global.showlog.side1.show",	filter.get(1));
 
 		
@@ -318,14 +318,14 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 			this.history_page = context.getRequest().getParameterInt("logpage");
 		}
 
-		t.set_block("_ANGRIFF","global.showlog.turnlist.item","global.showlog.turnlist.list");
+		t.setBlock("_ANGRIFF","global.showlog.turnlist.item","global.showlog.turnlist.list");
 	
 		String actionstr = "";
 		if( this.showOK ) {
 			actionstr = "&amp;ksaction=history";
 		}
 		
-		t.set_var(	"global.showlog",				1,
+		t.setVar(	"global.showlog",				1,
 					"global.showlog.text",			this.text,
 					"global.showlog.okbutton",		this.showOK,
 					"global.showlog.takecommand",	this.showTakeCommand,
@@ -336,7 +336,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 			
 			File ksLog = new File(Configuration.getSetting("LOXPATH")+"battles/battle_id"+battle.getID()+".log");
 			if( !ksLog.isFile() ) {
-				t.set_var( "global.showlog.log", "Fehler: Konnte Kampflog nicht &ouml;ffnen");
+				t.setVar( "global.showlog.log", "Fehler: Konnte Kampflog nicht &ouml;ffnen");
 				return RESULT_ERROR;
 			}
 			
@@ -347,15 +347,15 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 			bbcodeparser.registerHandler( "tooltip", 2, "<a onmouseover=\"return overlib('$2',TIMEOUT,0,DELAY,400,WIDTH,100,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\"aloglink\" href=\"#\">$1</a>" );
 		
 			for( int i=0; i <= this.history_maxpage; i++ ) {
-				t.set_var(	"global.showlog.turnlist.pageid",	i,
+				t.setVar(	"global.showlog.turnlist.pageid",	i,
 							"global.showlog.turnlist.page",		i+1 );
 				t.parse("global.showlog.turnlist.list", "global.showlog.turnlist.item", true);
 			}
 		
-			t.set_var("global.showlog.log", StringUtils.replace(bbcodeparser.parse(this.history_text.toString()), "\n", "<br />"));
+			t.setVar("global.showlog.log", StringUtils.replace(bbcodeparser.parse(this.history_text.toString()), "\n", "<br />"));
 		}
 		catch( Exception e ) {
-			t.set_var("global.showlog.log", "Fehler beim Anzeigen der Kampfhistorie: "+e);
+			t.setVar("global.showlog.log", "Fehler beim Anzeigen der Kampfhistorie: "+e);
 			throw new RuntimeException(e);
 		}
 		

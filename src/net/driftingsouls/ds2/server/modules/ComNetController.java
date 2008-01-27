@@ -168,7 +168,7 @@ public class ComNetController extends DSGenerator {
 		
 		activeChannelObj = channel;
 		
-		t.set_var(	"channel.id",	activeChannel,
+		t.setVar(	"channel.id",	activeChannel,
 					"channel.name",	Common._title(channel.name) );
 		
 		return true;
@@ -205,11 +205,11 @@ public class ComNetController extends DSGenerator {
 		}
 		
 		if( searchtype == 0 ) {
-			t.set_var("show.searchform", 1);
+			t.setVar("show.searchform", 1);
 			return;
 		}
 		
-		t.set_var("show.read",1);
+		t.setVar("show.read",1);
 		if( !activeChannelObj.isReadable(user) ) {
 			addError( "Sie sind nicht berechtigt diesee Frequenz zu empfangen", Common.buildUrl(getContext(), "default", "channel", activeChannel) );
 			setTemplate("");
@@ -218,14 +218,14 @@ public class ComNetController extends DSGenerator {
 		}
 		
 		if( activeChannelObj.isWriteable(user) ) {
-			t.set_var("channel.writeable",1);
+			t.setVar("channel.writeable",1);
 		}
 
 		db.update("UPDATE skn_visits SET time='",Common.time(),"' WHERE user=",user.getID()," AND channel=",activeChannel);
 	
-		t.set_block("_COMNET","posts.listitem","posts.list");
+		t.setBlock("_COMNET","posts.listitem","posts.list");
 
-		t.set_var(	"posts.action",		"search",
+		t.setVar(	"posts.action",		"search",
 					"search.string",	search,
 					"search.type",		searchtype );
 
@@ -251,8 +251,8 @@ public class ComNetController extends DSGenerator {
 			.getInt("count");
 		 
 		if( channelPostCount == 0 ) {
-			t.set_var("show.read", 0);
-			t.set_var("show.searcherror", 1);
+			t.setVar("show.read", 0);
+			t.setVar("show.searcherror", 1);
 		}
 
 		int b = back + 10;
@@ -262,11 +262,11 @@ public class ComNetController extends DSGenerator {
 			b = 0;	
 		}
 				
-		t.set_var(	"show.vor",		v,
+		t.setVar(	"show.vor",		v,
 					"show.back",	b );
  
 		if( back > 0 ) {
-			t.set_var("read.nextpossible",1);
+			t.setVar("read.nextpossible",1);
 		}
 
 		int i = 0;
@@ -288,7 +288,7 @@ public class ComNetController extends DSGenerator {
 				head = Common._title(head);
 			}
 
-			t.set_var(	"post.pic",			ref.getInt("pic"),
+			t.setVar(	"post.pic",			ref.getInt("pic"),
 						"post.postid",		post,
 						"post.id",			ref.getInt("userid"),
 						"post.name",		Common._title(ref.getString("name")),
@@ -322,7 +322,7 @@ public class ComNetController extends DSGenerator {
 		parameterNumber("back");
 		int back = getInteger("back");
 		
-		t.set_var("show.read",1);
+		t.setVar("show.read",1);
 		if( !activeChannelObj.isReadable(user) ) {
 			addError( "Sie sind nicht berechtigt diesee Frequenz zu empfangen", Common.buildUrl(getContext(), "default", "channel", activeChannel) );
 			setTemplate("");
@@ -331,7 +331,7 @@ public class ComNetController extends DSGenerator {
 		}
 	
 		if( activeChannelObj.isWriteable(user) ) {
-			t.set_var("channel.writeable",1);
+			t.setVar("channel.writeable",1);
 		}
 	
 		db.update("UPDATE skn_visits SET time='",Common.time(),"' WHERE user=",user.getID()," AND channel=",activeChannel);
@@ -349,16 +349,16 @@ public class ComNetController extends DSGenerator {
 			b = 0;	
 		}
 		
-		t.set_var(	"show.vor",		v,
+		t.setVar(	"show.vor",		v,
 					"show.back",	b );
 
 		if( back > 0 ) {
-			t.set_var("read.nextpossible",1);
+			t.setVar("read.nextpossible",1);
 		}
 		
-		t.set_var("posts.action","read");
+		t.setVar("posts.action","read");
 
-		t.set_block("_COMNET","posts.listitem","posts.list");
+		t.setBlock("_COMNET","posts.listitem","posts.list");
 
 		int i = 0;
 		
@@ -378,7 +378,7 @@ public class ComNetController extends DSGenerator {
 				head = Common._title(head);
 			}
 
-			t.set_var(	"post.pic",			ref.getInt("pic"),
+			t.setVar(	"post.pic",			ref.getInt("pic"),
 						"post.postid",		post,
 						"post.id",			ref.getInt("userid"),
 						"post.name",		Common._title(ref.getString("name")),
@@ -438,7 +438,7 @@ public class ComNetController extends DSGenerator {
 				"( ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 			.update(user.getID(), user.getName(), head, text, Common.time(), pic, allypic, activeChannel, tick);
 		
-		t.set_var("show.submit",1);
+		t.setVar("show.submit",1);
 	}
 	
 	/**
@@ -457,7 +457,7 @@ public class ComNetController extends DSGenerator {
 			return;			
 		}
 		
-		t.set_var(	"show.inputform",	1,
+		t.setVar(	"show.inputform",	1,
 					"post.raw.title",	"",
 					"post.raw.text",	"" );
 	}
@@ -492,7 +492,7 @@ public class ComNetController extends DSGenerator {
 		//Aktuellen Tick ermitteln
 		int tick = getContext().get(ContextCommon.class).getTick();
 
-		t.set_var(	"show.vorschau",	1,
+		t.setVar(	"show.vorschau",	1,
 					"show.inputform",	1,
 					"post.title",		tmpHead,
 					"post.text",		tmpText,
@@ -518,14 +518,14 @@ public class ComNetController extends DSGenerator {
 		
 		Channel channel = activeChannelObj;
 		
-		t.set_var("show.channellist",1);
+		t.setVar("show.channellist",1);
 
 		if( channel.isWriteable(user) ) {	
-			t.set_var("channel.writeable", 1);
+			t.setVar("channel.writeable", 1);
 		}
 
 		if( channel.isReadable(user) ) {
-			t.set_var("channel.readable",1);
+			t.setVar("channel.readable",1);
 		}
 
 		// Letzte "Besuche" auslesen
@@ -538,7 +538,7 @@ public class ComNetController extends DSGenerator {
 		avisit.free();
 
 
-		t.set_block("_COMNET","channels.listitem","channels.list");
+		t.setBlock("_COMNET","channels.listitem","channels.list");
 
 		int lastowner = 0;
 		
@@ -553,7 +553,7 @@ public class ComNetController extends DSGenerator {
 			t.start_record();
 			
 			if( (lastowner == 0) && (lastowner != achannel.allyOwner) ) {
-				t.set_var("thischannel.showprivateinfo",1);
+				t.setVar("thischannel.showprivateinfo",1);
 				lastowner = achannel.allyOwner;
 			} 
 		
@@ -566,18 +566,18 @@ public class ComNetController extends DSGenerator {
 				visit.put("time", 0);
 			}	
 
-			t.set_var(	"thischannel.id",	achannel.id,
+			t.setVar(	"thischannel.id",	achannel.id,
 						"thischannel.name",	Common._title(achannel.name) );
 
 			long lastpost = db.first("SELECT max(time) maxtime FROM skn WHERE channel=",achannel.id).getLong("maxtime");
 
 
 			if( achannel.id == channel.id ) {
-				t.set_var("thischannel.isactive",1);
+				t.setVar("thischannel.isactive",1);
 			}
 
 			if( lastpost > visit.getInt("time") ) {
-				t.set_var("thischannel.newposts",1);
+				t.setVar("thischannel.newposts",1);
 			}
 
 			t.parse("channels.list","channels.listitem",true);

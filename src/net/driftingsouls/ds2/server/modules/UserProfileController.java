@@ -98,7 +98,7 @@ public class UserProfileController extends DSGenerator {
 		}
 		
 		user.setRelation(this.user.getID(), rel);
-		t.set_var("userprofile.message", "Beziehungsstatus ge&auml;ndert");	
+		t.setVar("userprofile.message", "Beziehungsstatus ge&auml;ndert");	
 		
 		redirect();
 	}
@@ -152,7 +152,7 @@ public class UserProfileController extends DSGenerator {
 		}
 		allymember.free();
 		
-		t.set_var("userprofile.message", "Beziehungsstatus ge&auml;ndert");	
+		t.setVar("userprofile.message", "Beziehungsstatus ge&auml;ndert");	
 		
 		redirect();
 	}
@@ -169,7 +169,7 @@ public class UserProfileController extends DSGenerator {
 		
 		if( this.user.getAlly() != 0 ) {
 			SQLResultRow ally = getDatabase().first("SELECT name,president,pname FROM ally WHERE id='",this.user.getAlly(),"'");
-			t.set_var(	"user.ally.name",	Common._title(ally.getString("name")),
+			t.setVar(	"user.ally.name",	Common._title(ally.getString("name")),
 						"user.ally.id",		this.user.getAlly() );
 			
 			String pstatus = "";
@@ -179,10 +179,10 @@ public class UserProfileController extends DSGenerator {
 			
 			if( this.user.getAllyPosten() != 0 ) {
 				String postenname = getDatabase().first("SELECT name FROM ally_posten WHERE id='"+this.user.getAllyPosten()+"'").getString("name");
-				t.set_var("user.ally.position", (pstatus.length() != 0 ? pstatus+", " : "")+Common._plaintitle(postenname) );				
+				t.setVar("user.ally.position", (pstatus.length() != 0 ? pstatus+", " : "")+Common._plaintitle(postenname) );				
 			}
 			else {
-				t.set_var("user.ally.position", pstatus );
+				t.setVar("user.ally.position", pstatus );
 			}
 		}
 		
@@ -190,7 +190,7 @@ public class UserProfileController extends DSGenerator {
 			int allypresi = getDatabase().first("SELECT president FROM ally WHERE id='",user.getAlly(),"'").getInt("president");
 		
 			if( allypresi == user.getID() ) {		
-				t.set_var("user.allyrelationchange", 1);
+				t.setVar("user.allyrelationchange", 1);
 			}
 		}
 		
@@ -199,18 +199,18 @@ public class UserProfileController extends DSGenerator {
 				User.Relation relation = user.getRelation(this.user.getID());
 			
 				if( relation == User.Relation.ENEMY ) {
-					t.set_var( "relation.enemy", 1 );
+					t.setVar( "relation.enemy", 1 );
 				}
 				else if( relation == User.Relation.NEUTRAL ) {
-					t.set_var( "relation.neutral", 1 );	
+					t.setVar( "relation.neutral", 1 );	
 				}
 				else {
-					t.set_var( "relation.friend", 1 );	
+					t.setVar( "relation.friend", 1 );	
 				}
 			}
 		}
 		
-		t.set_var(	"user.name",		Common._title(this.user.getName()),
+		t.setVar(	"user.name",		Common._title(this.user.getName()),
 					"user.rasse.name",	Rassen.get().rasse(this.user.getRace()).getName(),
 					"user.rang",		this.user.getRang(),
 					"user.rang.name",	Medals.get().rang(this.user.getRang()).getName(),
@@ -233,23 +233,23 @@ public class UserProfileController extends DSGenerator {
 			}
 		}
 		
-		t.set_var(	"user.relation",		relname,
+		t.setVar(	"user.relation",		relname,
 					"user.relation.color",	relcolor );
 							
 		// History
-		t.set_block("_USERPROFILE", "history.listitem", "history.list");
+		t.setBlock("_USERPROFILE", "history.listitem", "history.list");
 		if( this.user.getHistory().length() != 0 ) {
 			String[] history = StringUtils.split(StringUtils.replace(this.user.getHistory(),"\r\n", "\n"), "\n" );
 		
 			for( int i=0; i < history.length; i++ ) {
-				t.set_var( "history.line", Common._title(history[i], new String[0]) );
+				t.setVar( "history.line", Common._title(history[i], new String[0]) );
 			
 				t.parse("history.list", "history.listitem", true);	
 			}
 		}
 		
 		// Orden					
-		t.set_block("_USERPROFILE", "medals.listitem", "medals.list");
+		t.setBlock("_USERPROFILE", "medals.listitem", "medals.list");
 		
 		if( this.user.getMedals().length() != 0 ) {
 			int[] medals = Common.explodeToInt(";", this.user.getMedals());
@@ -259,7 +259,7 @@ public class UserProfileController extends DSGenerator {
 				if( Medals.get().medal(medal) == null ) {
 					continue;	
 				}
-				t.set_var(	"medal.index",				i,
+				t.setVar(	"medal.index",				i,
 							"medal.image",				Medals.get().medal(medal).getImage(Medal.IMAGE_NORMAL),
 							"medal.image.highlight",	Medals.get().medal(medal).getImage(Medal.IMAGE_HIGHLIGHT) );
 							

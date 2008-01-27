@@ -91,10 +91,10 @@ public class ChoffController extends DSGenerator {
 			offizier.setName(name);
 			offizier.save();
 			
-			t.set_var("choff.message", "Der Name wurde in "+Common._plaintitle(name)+" ge&auml;ndert");
+			t.setVar("choff.message", "Der Name wurde in "+Common._plaintitle(name)+" ge&auml;ndert");
 		}
 		else {
-			t.set_var("choff.message", "<span style=\"color:red\">Sie m&uuml;ssen einen Namen angeben</span>");
+			t.setVar("choff.message", "<span style=\"color:red\">Sie m&uuml;ssen einen Namen angeben</span>");
 		}
 	
 		redirect();	
@@ -106,7 +106,7 @@ public class ChoffController extends DSGenerator {
 		
 		String[] dest = offizier.getDest();
 		
-		t.set_var(	"offizier.id",			offizier.getID(),
+		t.setVar(	"offizier.id",			offizier.getID(),
 					"offizier.name",		Common._plaintitle(offizier.getName()),
 					"offizier.picture",		offizier.getPicture(),
 					"offizier.ability.ing",	offizier.getAbility( Offizier.Ability.ING ),

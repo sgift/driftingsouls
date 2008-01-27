@@ -97,10 +97,10 @@ public class TradeController extends DSGenerator {
 		this.kurse = new Cargo( Cargo.Type.STRING, kurse.getString("kurse") );
 		this.kurse.setOption( Cargo.Option.SHOWMASS, false );
 		
-		getTemplateEngine().set_var( "global.shipid", shipId );
-		getTemplateEngine().set_var( "global.tradepost", handel.getInt("id") );
+		getTemplateEngine().setVar( "global.shipid", shipId );
+		getTemplateEngine().setVar( "global.tradepost", handel.getInt("id") );
 		
-		getTemplateEngine().set_block("_TRADE","msgs.listitem","msgs.list");
+		getTemplateEngine().setBlock("_TRADE","msgs.listitem","msgs.list");
 		
 		return true;
 	}
@@ -147,7 +147,7 @@ public class TradeController extends DSGenerator {
 			
 				long get = (long)(tmp*res.getCount1()/1000d);
 			
-				t.set_var(	"waren.count",	tmp,
+				t.setVar(	"waren.count",	tmp,
 							"waren.name",	res.getName(),
 							"waren.img",	res.getImage(),
 							"waren.re",		Common.ln(get) );
@@ -185,7 +185,7 @@ public class TradeController extends DSGenerator {
 			
 			if( !db.tCommit() ) {
 				if( !db.getErrorStatus() && (this.sellRetryCount < 3) ) {
-					t.set_var("msgs.list","");
+					t.setVar("msgs.list","");
 					this.sellRetryCount++;
 					
 					redirect("sell");
@@ -206,8 +206,8 @@ public class TradeController extends DSGenerator {
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
 		
-		t.set_var("error.none",1);
-		t.set_block("_TRADE","res.listitem","res.list");
+		t.setVar("error.none",1);
+		t.setBlock("_TRADE","res.listitem","res.list");
 
 		ResourceList reslist = this.kurse.getResourceList();
 		for( ResourceEntry res : reslist ) {
@@ -223,7 +223,7 @@ public class TradeController extends DSGenerator {
 				preis = Common.ln(res.getCount1()/1000d)+" RE";
 			}
 	
-			t.set_var(	"res.img",		res.getImage(),
+			t.setVar(	"res.img",		res.getImage(),
 						"res.id",		res.getId(),
 						"res.name",		res.getName(),
 						"res.cargo",	this.shipCargo.getResourceCount( res.getId() ),

@@ -96,7 +96,7 @@ public class TechListeController extends DSGenerator {
 		
 		String rassenlisteStr = StringEscapeUtils.escapeJavaScript(rassenliste.toString().replace(">", "&gt;").replace("<", "&lt;"));
 		
-		t.set_var(	"race.name",	Rassen.get().rasse(rasse).getName(),
+		t.setVar(	"race.name",	Rassen.get().rasse(rasse).getName(),
 					"race.list",	rassenlisteStr );
 
 		Map<Integer,Forschung>  researched = new LinkedHashMap<Integer,Forschung>();
@@ -132,10 +132,10 @@ public class TechListeController extends DSGenerator {
 		}
 		forschung.free();
 
-		t.set_block("_TECHLISTE","tech.listitem","none");
+		t.setBlock("_TECHLISTE","tech.listitem","none");
 
-		t.set_block("_TECHLISTE","tech.researchable.listitem","none");
-		t.set_block("tech.researchable.listitem","res.listitem", "res.list" );
+		t.setBlock("_TECHLISTE","tech.researchable.listitem","none");
+		t.setBlock("tech.researchable.listitem","res.listitem", "res.list" );
 
 		Map<String,Map<Integer,Forschung>> keys = new LinkedHashMap<String,Map<Integer,Forschung>>();
 		keys.put("researched", researched);
@@ -165,7 +165,7 @@ public class TechListeController extends DSGenerator {
 			}
 	
 			for( Forschung result : var.values() ) {
-				t.set_var(	"tech.id",			result.getID(),
+				t.setVar(	"tech.id",			result.getID(),
 						  	"tech.name",		Common._title(result.getName()),
 						  	"tech.dauer",		result.getTime(),
 						  	"res.list",			"",
@@ -179,7 +179,7 @@ public class TechListeController extends DSGenerator {
 				int respos = 0;
 		
 				for( ResourceEntry res : reslist ) {
-					t.set_var(	"waren",			"",
+					t.setVar(	"waren",			"",
 								"warenb",			res.getImage(),
 								"tech.cost",		res.getCargo1(),
 							  	"tech.cost.space",	(respos < reslist.size() - 1 ? 1 : 0 ) );
@@ -197,37 +197,37 @@ public class TechListeController extends DSGenerator {
 						if( result.getRequiredResearch(i) > 0) {
 							String req = Forschung.getInstance(result.getRequiredResearch(i)).getName();
 							
-							t.set_var(	"tech.req"+i+".id",		result.getRequiredResearch(i),
+							t.setVar(	"tech.req"+i+".id",		result.getRequiredResearch(i),
 										"tech.req"+i+".name",	req );
 											  
 							resentry = true;
 						}
 						else if( (result.getRequiredResearch(i) < 0) && (user.getAccessLevel() >= 20) ) {
-							t.set_var(	"tech.req"+i+".id",		"1",
+							t.setVar(	"tech.req"+i+".id",		"1",
 										"tech.req"+i+".name",	"<span style=\"color:#C7C7C7; font-weight:normal\">### Nicht erf&uuml;llbar</span>");
 											  
 							resentry = true;
 						}
 						else {
-							t.set_var(	"tech.req"+i+".id",		"",
+							t.setVar(	"tech.req"+i+".id",		"",
 										"tech.req"+i+".name",	"");
 						}
 					}
 				}
 				if( !resentry ) { 
-					t.set_var("tech.noreq",1);
+					t.setVar("tech.noreq",1);
 				}
 				else {
-					t.set_var("tech.noreq",0);
+					t.setVar("tech.noreq",0);
 				}
 		
 				count++;
 		
 				if( count % 3 == 0 ) {
-					t.set_var( "tech.newline", 1 );	
+					t.setVar( "tech.newline", 1 );	
 				}
 				else {
-					t.set_var( "tech.newline", 0 );	
+					t.setVar( "tech.newline", 0 );	
 				}
 
 				t.parse("tech."+mykey+".list","tech."+prefix+"listitem",true);

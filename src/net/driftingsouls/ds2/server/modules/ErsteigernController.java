@@ -420,7 +420,7 @@ public class ErsteigernController extends DSGenerator {
 		
 		FactionPages pages = Faction.get(faction).getPages();
 		for( String aPage : pages.getPages() ) {
-			t.set_var("faction."+aPage,1);	
+			t.setVar("faction."+aPage,1);	
 		}
 		
 		this.faction = faction;
@@ -449,7 +449,7 @@ public class ErsteigernController extends DSGenerator {
 		
 		User factionuser = getContext().createUserObject(faction);
 		
-		t.set_var(	"user.konto",			Common.ln(user.getKonto()),
+		t.setVar(	"user.konto",			Common.ln(user.getKonto()),
 					"global.faction",		faction,
 					"global.faction.name",	Common._title(factionuser.getName()),
 					"global.menusize",		pages.getMenuSize(),
@@ -458,7 +458,7 @@ public class ErsteigernController extends DSGenerator {
 		this.ticks = getContext().get(ContextCommon.class).getTick();
 		
 		SQLResultRow paket = db.first("SELECT id FROM versteigerungen_pakete");
-		t.set_var("gtu.paket", !paket.isEmpty());
+		t.setVar("gtu.paket", !paket.isEmpty());
 					
 		return true;
 	}
@@ -482,7 +482,7 @@ public class ErsteigernController extends DSGenerator {
 		
 		if( Systems.get().system(favsys).getDropZone() != null ) {
 			user.setGtuDropZone( favsys );
-			t.set_var("show.newcoords",1);
+			t.setVar("show.newcoords",1);
 		}
 	
 		redirect();	
@@ -586,7 +586,7 @@ public class ErsteigernController extends DSGenerator {
 				cost++;
 			}
 
-			t.set_var(	"show.bid.entry",	1,
+			t.setVar(	"show.bid.entry",	1,
 						"entry.type.name",	StringEscapeUtils.escapeJavaScript(StringUtils.replaceChars(entryname, '"', '\'')),
 						"entry.type.image",	entryimage,
 						"entry.link",		entrylink,
@@ -647,11 +647,11 @@ public class ErsteigernController extends DSGenerator {
 				}
 				
 				user.setTemplateVars(t);
-				t.set_var( 	"user.konto", 		Common.ln(user.getKonto()),
+				t.setVar( 	"user.konto", 		Common.ln(user.getKonto()),
 							"show.highestbid",	1);
 			}
 			else {
-				t.set_var("show.lowres",1);
+				t.setVar("show.lowres",1);
 			}
 		}
 		
@@ -694,7 +694,7 @@ public class ErsteigernController extends DSGenerator {
 		
 		// Wenn noch kein Gebot abgegeben wurde -> Versteigerung anzeigen
 		if( bid == 0 ) {
-			t.set_var(	"show.bid.paket",	1,
+			t.setVar(	"show.bid.paket",	1,
 						"bid.price",		cost,
 						"bid.id",			auk );
 
@@ -728,11 +728,11 @@ public class ErsteigernController extends DSGenerator {
 				}
 							
 				user.setTemplateVars(t);
-				t.set_var( 	"user.konto", 		Common.ln(user.getKonto()),
+				t.setVar( 	"user.konto", 		Common.ln(user.getKonto()),
 							"show.highestbid",	1);
 			} 
 			else {
-				t.set_var("show.lowres",1);
+				t.setVar("show.lowres",1);
 			}
 		}
 		
@@ -779,7 +779,7 @@ public class ErsteigernController extends DSGenerator {
 		if( !ack.equals("yes") ) {
 			User tmp = getContext().createUserObject( to );
 			
-			t.set_var(	"show.ueberweisen",			1,
+			t.setVar(	"show.ueberweisen",			1,
 						"ueberweisen.betrag",		Common.ln(count),
 						"ueberweisen.betrag.plain",	count,
 						"ueberweisen.to.name",		Common._title(tmp.getName()),
@@ -795,7 +795,7 @@ public class ErsteigernController extends DSGenerator {
 		PM.send(getContext(), user.getID(), tmp.getID(), "RE &uuml;berwiesen", "Ich habe dir soeben "+Common.ln(count)+" RE &uuml;berwiesen");
 			
 		user.setTemplateVars(t);
-		t.set_var( "user.konto", Common.ln(user.getKonto()) );
+		t.setVar( "user.konto", Common.ln(user.getKonto()) );
 	
 		redirect("other");	
 	}
@@ -836,14 +836,14 @@ public class ErsteigernController extends DSGenerator {
 		Database db = getDatabase();
 		User user = this.getUser();
 		
-		t.set_var("show.other",1);
+		t.setVar("show.other",1);
 
 		// ueberweisungen
-		t.set_block("_ERSTEIGERN","ueberweisen.listitem","ueberweisen.list");
+		t.setBlock("_ERSTEIGERN","ueberweisen.listitem","ueberweisen.list");
 
 		UserIterator iter = getContext().createUserIterator("SELECT * FROM users WHERE !LOCATE('hide',flags) AND id!=",user.getID()," ORDER BY id");
 		for( User usr : iter ) {
-			t.set_var(	"target.id",	usr.getID(),
+			t.setVar(	"target.id",	usr.getID(),
 						"target.name",	Common._title(usr.getName()) );
 			t.parse("ueberweisen.list","ueberweisen.listitem",true);
 		}
@@ -867,11 +867,11 @@ public class ErsteigernController extends DSGenerator {
 			transtype = 2;
 		}
 
-		t.set_var(	"konto.newtranstype.name",	newtypetext,
+		t.setVar(	"konto.newtranstype.name",	newtypetext,
 					"konto.newtranstype",		transtype-1 % 3 );
 							
 		// Kontobewegungen anzeigen
-		t.set_block("_UEBER", "moneytransfer.listitem", "moneytransfer.list");
+		t.setBlock("_UEBER", "moneytransfer.listitem", "moneytransfer.list");
 		
 		SQLQuery entry = db.query("SELECT * FROM user_moneytransfer WHERE `type`<=",transtype," AND ((`from`=",user.getID(),") OR (`to`=",user.getID(),")) ORDER BY `time` DESC LIMIT 40");
 		while( entry.next() ) {
@@ -884,7 +884,7 @@ public class ErsteigernController extends DSGenerator {
 				player = getContext().createUserObject(entry.getInt("from"));
 			}
 			
-			t.set_var(	"moneytransfer.time",		Common.date("j.n.Y H:i",entry.getLong("time")),
+			t.setVar(	"moneytransfer.time",		Common.date("j.n.Y H:i",entry.getLong("time")),
 						"moneytransfer.from",		(entry.getInt("from") == user.getID() ? 1 : 0),
 						"moneytransfer.player",		Common._title(player.getName()),
 						"moneytransfer.player.id",	player.getID(),
@@ -896,20 +896,20 @@ public class ErsteigernController extends DSGenerator {
 		entry.free();
 
 		// GTU-Preise
-		t.set_block("_ERSTEIGERN","kurse.listitem","kurse.list");
-		t.set_block("kurse.listitem","kurse.waren.listitem","kurse.waren.list");
+		t.setBlock("_ERSTEIGERN","kurse.listitem","kurse.list");
+		t.setBlock("kurse.listitem","kurse.waren.listitem","kurse.waren.list");
 
 		SQLQuery kurse = db.query("SELECT * FROM gtu_warenkurse");
 		while( kurse.next() ) {
 			Cargo kurseCargo = new Cargo( Cargo.Type.STRING, kurse.getString("kurse") );
 			kurseCargo.setOption( Cargo.Option.SHOWMASS, false );
 			
-			t.set_var(	"posten.name",		kurse.getString("name"),
+			t.setVar(	"posten.name",		kurse.getString("name"),
 						"kurse.waren.list",	"" );
 								
 			ResourceList reslist = kurseCargo.getResourceList();
 			for( ResourceEntry res : reslist ) {
-				t.set_var(	"ware.image",	res.getImage(),
+				t.setVar(	"ware.image",	res.getImage(),
 							"ware.preis",	(res.getCount1()/1000d > 0.05 ? Common.ln(res.getCount1()/1000d):"") );
 									
 				t.parse("kurse.waren.list","kurse.waren.listitem",true);
@@ -932,18 +932,18 @@ public class ErsteigernController extends DSGenerator {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
-		t.set_var("show.angebote",1);
+		t.setVar("show.angebote",1);
 	
-		t.set_block("_ERSTEIGERN","angebote.item","angebote.list");
-		t.set_block("_ERSTEIGERN","angebote.emptyitem","none");
+		t.setBlock("_ERSTEIGERN","angebote.item","angebote.list");
+		t.setBlock("_ERSTEIGERN","angebote.emptyitem","none");
 	
-		t.set_var( "none", "" );
+		t.setVar( "none", "" );
 						
 		int count = 0;
 		SQLQuery angebot = db.query("SELECT title,image,description FROM factions_angebote WHERE faction=",this.faction);
 		while( angebot.next() ) {
 			count++;
-			t.set_var(	"angebot.title",		Common._title(angebot.getString("title")),
+			t.setVar(	"angebot.title",		Common._title(angebot.getString("title")),
 						"angebot.image",		angebot.getString("image"),
 						"angebot.description",	Common._text(angebot.getString("description")), 
 						"angebot.linebreak",	(count % 3 == 0 ? "1" : "") );
@@ -972,7 +972,7 @@ public class ErsteigernController extends DSGenerator {
 		User user = getUser();
 		
 		SQLResultRow paket = db.first("SELECT * FROM versteigerungen_pakete");
-		t.set_var( "show.pakete", 1 );
+		t.setVar( "show.pakete", 1 );
 
 		if( !paket.isEmpty() ) {
 			User bieter = getContext().createUserObject(paket.getInt("bieter"));
@@ -996,14 +996,14 @@ public class ErsteigernController extends DSGenerator {
 				}	
 			}
 
-			t.set_var(	"paket.id",			paket.getInt("id"),
+			t.setVar(	"paket.id",			paket.getInt("id"),
 						"paket.dauer",		paket.getInt("tick")-this.ticks,
 						"paket.bieter",		Common._title(bietername),
 						"paket.bieter.id",	bieter.getID(),
 						"paket.preis",		Common.ln(paket.getLong("preis")) );
 
-			t.set_block("_ERSTEIGERN","paket.reslistitem","paket.reslist");
-			t.set_block("_ERSTEIGERN","paket.shiplistitem","paket.shiplist");
+			t.setBlock("_ERSTEIGERN","paket.reslistitem","paket.reslist");
+			t.setBlock("_ERSTEIGERN","paket.shiplistitem","paket.shiplist");
 
 			if( paket.getString("cargo").length() > 0 ) {
 				Cargo cargo = new Cargo( Cargo.Type.STRING, paket.getString("cargo"));
@@ -1012,7 +1012,7 @@ public class ErsteigernController extends DSGenerator {
 
 				ResourceList reslist = cargo.getResourceList();
 				for( ResourceEntry res : reslist ) {
-					t.set_var(	"res.image",		res.getImage(),
+					t.setVar(	"res.image",		res.getImage(),
 								"res.name",			res.getName(),
 								"res.fixedsize",	!res.showLargeImages(),
 								"res.count",		(res.getCount1() > 1 ? res.getCount1() : 0 ) );
@@ -1025,7 +1025,7 @@ public class ErsteigernController extends DSGenerator {
 				int[] shiplist = Common.explodeToInt("|", paket.getString("ships"));
 				for( int i=0; i < shiplist.length; i++ ) {
 					SQLResultRow shiptype = ShipTypes.getShipType( shiplist[i], false );
-					t.set_var(	"ship.type.image",	shiptype.getString("picture"),
+					t.setVar(	"ship.type.image",	shiptype.getString("picture"),
 								"ship.type.name",	shiptype.getString("nickname"),
 								"ship.type",		shiplist[i] );
 									
@@ -1049,9 +1049,9 @@ public class ErsteigernController extends DSGenerator {
 			return;
 		}
 		
-		t.set_var( "show.versteigerungen", 1 );
-		t.set_block("_ERSTEIGERN","entry.listitem","entry.list");
-		t.set_block("_ERSTEIGERN","gtuzwischenlager.listitem","gtuzwischenlager.list");
+		t.setVar( "show.versteigerungen", 1 );
+		t.setBlock("_ERSTEIGERN","entry.listitem","entry.list");
+		t.setBlock("_ERSTEIGERN","gtuzwischenlager.listitem","gtuzwischenlager.list");
 		
 		/*
 			Laufende Handelsvereinbarungen anzeigen 
@@ -1074,7 +1074,7 @@ public class ErsteigernController extends DSGenerator {
 		
 		for( Integer postenid : gzlliste ) {
 			SQLResultRow aposten = db.first("SELECT name,x,y,system FROM ships WHERE id=",postenid);
-			t.set_var(	"gtuzwischenlager.name",	Common._plaintitle(aposten.getString("name")),
+			t.setVar(	"gtuzwischenlager.name",	Common._plaintitle(aposten.getString("name")),
 						"gtuzwischenlager.x",		aposten.getInt("x"),
 						"gtuzwischenlager.y",		aposten.getInt("y"),
 						"gtuzwischenlager.system",	aposten.getInt("system") );
@@ -1160,7 +1160,7 @@ public class ErsteigernController extends DSGenerator {
 				ownername = Common._title(ownerobject.getName()); 
 			}
 			
-			t.set_var(	"entry.link",		entrylink,
+			t.setVar(	"entry.link",		entrylink,
 						"entry.type.name",	StringEscapeUtils.escapeJavaScript(StringUtils.replaceChars(entryname, '"', '\'')),
 						"entry.type.image",	entryimage,
 						"entry.preis",		Common.ln(entry.getLong("preis")),
@@ -1180,10 +1180,10 @@ public class ErsteigernController extends DSGenerator {
 		}
 		entry.free();
 
-		t.set_block("_ERSTEIGERN","gtu.dropzones.listitem","gtu.dropzones.list");
+		t.setBlock("_ERSTEIGERN","gtu.dropzones.listitem","gtu.dropzones.list");
 		for( StarSystem system : Systems.get() ) {
 			if( system.getDropZone() != null ) {
-				t.set_var(	"dropzone.system.id",	system.getID(),
+				t.setVar(	"dropzone.system.id",	system.getID(),
 							"dropzone.system.name",	system.getName(),
 							"dropzone.selected",	(user.getGtuDropZone() == system.getID()) );
 
@@ -1204,7 +1204,7 @@ public class ErsteigernController extends DSGenerator {
 			return;
 		}
 		
-		t.set_var(	"show.general",			1,
+		t.setVar(	"show.general",			1,
 					"global.faction.text",	Common._text(Faction.get(faction).getPages().getFactionText()) );
 		
 		return;
@@ -1315,7 +1315,7 @@ public class ErsteigernController extends DSGenerator {
 					targetsystem, targetx, targety);
 		if( shortestpath == null ) {
 			transport = 0;
-			t.set_var("transport.price", "<span style=\"color:red\">Kein Weg gefunden</span>");	
+			t.setVar("transport.price", "<span style=\"color:red\">Kein Weg gefunden</span>");	
 		}
 		else {
 			Map<String,Long> costindex = new HashMap<String,Long>();
@@ -1346,17 +1346,17 @@ public class ErsteigernController extends DSGenerator {
 			}
 			
 			if( user.getKonto().compareTo(new BigDecimal(totalcost).toBigInteger()) >= 0 ) {
-				t.set_var(	"transport.price",			Common.ln(totalcost)+" RE",
+				t.setVar(	"transport.price",			Common.ln(totalcost)+" RE",
 							"transport.enableOrder",	1 );
 			}
 			else {
 				transport = 0;
-				t.set_var("transport.price", "<span style=\"color:red\">"+Common.ln(totalcost)+" RE</span>");
+				t.setVar("transport.price", "<span style=\"color:red\">"+Common.ln(totalcost)+" RE</span>");
 			}
 		}
 		
 		if( transport == 0 ) {
-			t.set_var(	"show.shopOrderGanymedeSummary",	1,
+			t.setVar(	"show.shopOrderGanymedeSummary",	1,
 						"ganymede.id",		gany.getInt("id"),
 						"ganymede.name",	gany.getString("name"),
 						"source.system",	sourcesystem,
@@ -1403,7 +1403,7 @@ public class ErsteigernController extends DSGenerator {
 				return;	
 			}
 		
-			t.set_var("show.message", "Bestellung &uuml;ber 1 Ganymede-Transport des Objekts "+gany.getInt("id")+" von "+sourcesystem+":"+gany.getInt("x")+"/"+gany.getInt("y")+" nach "+targetsystem+":"+targetx+"/"+targety+" f&uuml;r "+Common.ln(totalcost)+" erhalten und vom System best&auml;tigt.<br />Einen angenehmen Tag noch!");
+			t.setVar("show.message", "Bestellung &uuml;ber 1 Ganymede-Transport des Objekts "+gany.getInt("id")+" von "+sourcesystem+":"+gany.getInt("x")+"/"+gany.getInt("y")+" nach "+targetsystem+":"+targetx+"/"+targety+" f&uuml;r "+Common.ln(totalcost)+" erhalten und vom System best&auml;tigt.<br />Einen angenehmen Tag noch!");
 			
 		
 			redirect("shop");
@@ -1452,14 +1452,14 @@ public class ErsteigernController extends DSGenerator {
 			return;				
 		}
 		
-		t.set_block("_ERSTEIGERN", "ganytrans.sourcesystem.listitem", "ganytrans.sourcesystem.list");
-		t.set_block("_ERSTEIGERN", "ganytrans.ganymedes.listitem", "ganytrans.ganymedes.list");
-		t.set_block("_ERSTEIGERN", "ganytrans.targetsystem.listitem", "ganytrans.targetsystem.list");
-		t.set_var("show.shopOrderGanymede", 1);
+		t.setBlock("_ERSTEIGERN", "ganytrans.sourcesystem.listitem", "ganytrans.sourcesystem.list");
+		t.setBlock("_ERSTEIGERN", "ganytrans.ganymedes.listitem", "ganytrans.ganymedes.list");
+		t.setBlock("_ERSTEIGERN", "ganytrans.targetsystem.listitem", "ganytrans.targetsystem.list");
+		t.setVar("show.shopOrderGanymede", 1);
 		
 			
 		// Dummyeintrag (Ausgangssysteme)
-		t.set_var(	"sourcesystem.id",		0,
+		t.setVar(	"sourcesystem.id",		0,
 					"sourcesystem.name",	"-" );					
 		t.parse("ganytrans.sourcesystem.list", "ganytrans.sourcesystem.listitem", true);
 		
@@ -1486,14 +1486,14 @@ public class ErsteigernController extends DSGenerator {
 		SQLQuery asystem = db.query("SELECT system FROM ships WHERE type=",ShopGanyTransportEntry.SHIPTYPE_GANYMEDE," AND owner=",user.getID()," ",blockedganysql," GROUP BY system ORDER BY system");
 		while( asystem.next() ) {
 			if( sourcesystem == asystem.getInt("system") ) {
-				t.set_var("sourcesystem.selected", 1);
+				t.setVar("sourcesystem.selected", 1);
 				first = false;
 			}
 			else {
-				t.set_var("sourcesystem.selected", 0);
+				t.setVar("sourcesystem.selected", 0);
 			}
 
-			t.set_var(	"sourcesystem.id",	asystem.getInt("system"),
+			t.setVar(	"sourcesystem.id",	asystem.getInt("system"),
 						"sourcesystem.name",	Systems.get().system(asystem.getInt("system")).getName() );
 									
 			t.parse("ganytrans.sourcesystem.list", "ganytrans.sourcesystem.listitem", true);
@@ -1506,7 +1506,7 @@ public class ErsteigernController extends DSGenerator {
 			return;	
 		}
 		
-		t.set_var("sourcesystem.known", 1);
+		t.setVar("sourcesystem.known", 1);
 		
 		// Moegliche Ganymedes ausgeben
 		first = true;
@@ -1517,13 +1517,13 @@ public class ErsteigernController extends DSGenerator {
 			}
 			
 			if( first ) {
-				t.set_var("ganymede.selected", 1);
+				t.setVar("ganymede.selected", 1);
 				first = false;
 			}
 			else {
-				t.set_var("ganymede.selected", 0);
+				t.setVar("ganymede.selected", 0);
 			}
-			t.set_var(	"ganymede.id",		agany.getInt("id"),
+			t.setVar(	"ganymede.id",		agany.getInt("id"),
 						"ganymede.name",	Common._plaintitle(agany.getString("name")) );
 									
 			t.parse("ganytrans.ganymedes.list", "ganytrans.ganymedes.listitem", true);
@@ -1541,14 +1541,14 @@ public class ErsteigernController extends DSGenerator {
 			}
 		
 			if( first ) {
-				t.set_var("targetsystem.selected", 1);
+				t.setVar("targetsystem.selected", 1);
 				first = false;
 			}
 			else {
-				t.set_var("targetsystem.selected", 0);
+				t.setVar("targetsystem.selected", 0);
 			}
 			
-			t.set_var(	"targetsystem.id",		system.getID(),
+			t.setVar(	"targetsystem.id",		system.getID(),
 						"targetsystem.name",	system.getName() );
 									
 			t.parse("ganytrans.targetsystem.list", "ganytrans.targetsystem.listitem", true);
@@ -1584,7 +1584,7 @@ public class ErsteigernController extends DSGenerator {
 		
 		SQLResultRow shopentry = db.first("SELECT * FROM factions_shop_entries WHERE id=",shopentryID);
 		if( shopentry.isEmpty() ) {
-			t.set_var("show.message", "<span style=\"color:red\">Es existiert kein passendes Angebot</span>");
+			t.setVar("show.message", "<span style=\"color:red\">Es existiert kein passendes Angebot</span>");
 			redirect("shop");
 			return;	
 		}
@@ -1622,13 +1622,13 @@ public class ErsteigernController extends DSGenerator {
 		}
 		
 		if( user.getKonto().compareTo(new BigDecimal(entry.getPrice()*ordercount).toBigInteger()) < 0 ) {
-			t.set_var("show.message", "<span style=\"color:red\">Sie verf&uuml;gen nicht &uuml;ber genug Geld</span>");
+			t.setVar("show.message", "<span style=\"color:red\">Sie verf&uuml;gen nicht &uuml;ber genug Geld</span>");
 			redirect("shop");
 			return;	
 		}
 		
 		if( ordersys == 0 || orderx == 0 || ordery == 0 ) {
-			t.set_var(	"show.shopOrderLocation",	1,
+			t.setVar(	"show.shopOrderLocation",	1,
 						"order.count",				ordercount,
 						"order.name",				entry.getName(),
 						"order.entry",				entry.getID() );
@@ -1649,7 +1649,7 @@ public class ErsteigernController extends DSGenerator {
 				return;	
 			}
 			
-			t.set_var("show.message", "Bestellung &uuml;ber "+ordercount+"x "+entry.getName()+" f&uuml;r "+Common.ln(entry.getPrice()*ordercount)+" erhalten und vom System best&auml;tigt.<br />Sollten noch R&uuml;ckfragen bestehend so wird sich ein Sachbearbeiter bei ihnen melden.<br />Einen angenehmen Tag noch!");
+			t.setVar("show.message", "Bestellung &uuml;ber "+ordercount+"x "+entry.getName()+" f&uuml;r "+Common.ln(entry.getPrice()*ordercount)+" erhalten und vom System best&auml;tigt.<br />Sollten noch R&uuml;ckfragen bestehend so wird sich ein Sachbearbeiter bei ihnen melden.<br />Einen angenehmen Tag noch!");
 			
 			redirect("shop");
 		}
@@ -1693,7 +1693,7 @@ public class ErsteigernController extends DSGenerator {
 			
 			db.update("UPDATE factions_shop_entries SET availability=",availability," WHERE id=",shopentry.getInt("id"));
 			
-			t.set_var("show.message", "Neuer Status erfolgreich zugewiesen");
+			t.setVar("show.message", "Neuer Status erfolgreich zugewiesen");
 		}
 		redirect("shop");
 	}
@@ -1736,7 +1736,7 @@ public class ErsteigernController extends DSGenerator {
 			
 			db.update("UPDATE factions_shop_orders SET status=",orderstatus," WHERE id=",orderentry.getInt("id"));
 			
-			t.set_var("show.message", "Neuer Status erfolgreich zugewiesen");
+			t.setVar("show.message", "Neuer Status erfolgreich zugewiesen");
 		}
 		redirect("shop");
 	}
@@ -1783,11 +1783,11 @@ public class ErsteigernController extends DSGenerator {
 			return;
 		}			
 		
-		t.set_var( "show.shop", 1 );
+		t.setVar( "show.shop", 1 );
 		
-		t.set_block("_ERSTEIGERN", "shop.listitem", "shop.list");
-		t.set_block("_ERSTEIGERN", "shop.orderlist.listitem", "shop.orderlist.list");
-		t.set_block("_ERSTEIGERN", "shop.shopownerlist.listitem", "shop.shopownerlist.list");
+		t.setBlock("_ERSTEIGERN", "shop.listitem", "shop.list");
+		t.setBlock("_ERSTEIGERN", "shop.orderlist.listitem", "shop.orderlist.list");
+		t.setBlock("_ERSTEIGERN", "shop.shopownerlist.listitem", "shop.shopownerlist.list");
 	
 		if( this.faction != user.getID() ) {									
 			SQLQuery orderentry = db.query("SELECT t1.* FROM factions_shop_orders t1 JOIN factions_shop_entries t2 ON t1.shopentry_id=t2.id WHERE t2.faction_id=",this.faction," AND t1.user_id=",user.getID()," AND t1.status<4");
@@ -1818,7 +1818,7 @@ public class ErsteigernController extends DSGenerator {
 					throw new RuntimeException("Unbekannter Shopeintrag-Typ '"+shopentry.getInt("type")+"'");
 				}
 			
-				t.set_var(	"orderentry.name",			shopEntryObj.getName(),
+				t.setVar(	"orderentry.name",			shopEntryObj.getName(),
 							"orderentry.adddata",		entryadddata,
 							"orderentry.type.image",	shopEntryObj.getImage(),
 							"orderentry.link",			shopEntryObj.getLink(),
@@ -1833,7 +1833,7 @@ public class ErsteigernController extends DSGenerator {
 			orderentry.free();
 		}
 		else {						
-			t.set_var("shop.owner", 1);
+			t.setVar("shop.owner", 1);
 			
 			SQLQuery orderentry = db.query("SELECT t1.*,IF(!t1.status,t1.status,t1.date) as orderprio FROM factions_shop_orders t1 JOIN factions_shop_entries t2 ON t1.shopentry_id=t2.id WHERE t2.faction_id=",this.faction," AND t1.status<4 ORDER BY orderprio ASC");
 			while( orderentry.next() ) {
@@ -1863,7 +1863,7 @@ public class ErsteigernController extends DSGenerator {
 				
 				User ownerobj = getContext().createUserObject(orderentry.getInt("user_id"));
 				
-				t.set_var(	"orderentry.name",		shopEntryObj.getName(),
+				t.setVar(	"orderentry.name",		shopEntryObj.getName(),
 							"orderentry.adddata",	entryadddata,
 							"orderentry.owner",		orderentry.getInt("user_id"),
 							"orderentry.owner.name",	Common._title(ownerobj.getName()),
@@ -1896,7 +1896,7 @@ public class ErsteigernController extends DSGenerator {
 		if( ganytransport.length > 0 ) {
 			ShopEntry shopEntryObj = new ShopGanyTransportEntry(ganytransport);
 
-			t.set_var(	"entry.type.image",			shopEntryObj.getImage(),
+			t.setVar(	"entry.type.image",			shopEntryObj.getImage(),
 						"entry.name",				shopEntryObj.getName(),
 						"entry.link",				shopEntryObj.getLink(),
 						"entry.id",					shopEntryObj.getID(),
@@ -1920,7 +1920,7 @@ public class ErsteigernController extends DSGenerator {
 				shopEntryObj = new ShopResourceEntry(shopentry.getRow());
 			}
 			
-			t.set_var(	"entry.type.image",			shopEntryObj.getImage(),
+			t.setVar(	"entry.type.image",			shopEntryObj.getImage(),
 						"entry.name",				shopEntryObj.getName(),
 						"entry.link",				shopEntryObj.getLink(),
 						"entry.id",					shopEntryObj.getID(),

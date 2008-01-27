@@ -193,7 +193,7 @@ public class PluendernController extends DSGenerator {
 		this.shipFrom = shipFrom;
 		this.shipTo = shipTo;
 		
-		this.getTemplateEngine().set_var( 
+		this.getTemplateEngine().setVar( 
 				"fromship.name",	this.shipFrom.getString("name"),
 				"fromship.id",		this.shipFrom.getInt("id"),
 				"toship.name",		this.shipTo.getString("name"),
@@ -229,7 +229,7 @@ public class PluendernController extends DSGenerator {
 		long totaltransferfcount = 0;
 		boolean transfer = false;
 		
-		t.set_block("_PLUENDERN", "transfer.listitem", "transfer.list" );
+		t.setBlock("_PLUENDERN", "transfer.listitem", "transfer.list" );
 
 		ResourceList reslist = cargofrom.compare( cargoto, true );
 		for( ResourceEntry res : reslist ) {
@@ -241,24 +241,24 @@ public class PluendernController extends DSGenerator {
 
 			t.start_record();
 
-			t.set_var( "res.image", res.getImage() );
+			t.setVar( "res.image", res.getImage() );
 
 			// Transfer vom Ausgangsschiff zum Zielschiff
 			if( transt > 0 ) {				
-				t.set_var(	"transfer.target",	this.shipTo.getString("name"),
+				t.setVar(	"transfer.target",	this.shipTo.getString("name"),
 							"transfer.count",	transt );
 				
 				if( transt > res.getCount1() ) {
 					transt = res.getCount1();
 					
-					t.set_var(	"transfer.notenoughcargo",	1,
+					t.setVar(	"transfer.notenoughcargo",	1,
 								"transfer.cargo",			res.getCount1() );
 				} 
 
 				if( curcargoto - transt < 0 ) {
 					transt = (long)( curcargoto/(double)Cargo.getResourceMass( res.getId(), 1 ) );
 					
-					t.set_var(	"transfer.notenoughspace",	1,
+					t.setVar(	"transfer.notenoughspace",	1,
 								"transfer.newcount",		transt );
 				}
 				
@@ -276,7 +276,7 @@ public class PluendernController extends DSGenerator {
 				curcargoto = shipTypeTo.getLong("cargo") - newCargoTo.getMass();
 				curcargofrom = shipTypeFrom.getLong("cargo") - newCargoFrom.getMass();
 				
-				t.set_var( "transfer.totalcargo", newCargoTo.getResourceCount( res.getId() ) );
+				t.setVar( "transfer.totalcargo", newCargoTo.getResourceCount( res.getId() ) );
 				
 				if( transt > 0 ) {
 					transfer = true;
@@ -287,20 +287,20 @@ public class PluendernController extends DSGenerator {
 			}
 			// Transfer vom Zielschiff zum Ausgangsschiff
 			else if( transf > 0 ) {				
-				t.set_var(	"transfer.target",	this.shipFrom.getString("name"),
+				t.setVar(	"transfer.target",	this.shipFrom.getString("name"),
 							"transfer.count",	transf );
 				
 				if( transf > res.getCount2() ) {
 					transf = res.getCount2();
 					
-					t.set_var(	"transfer.notenoughcargo",	1,
+					t.setVar(	"transfer.notenoughcargo",	1,
 								"transfer.cargo",			res.getCount2() );
 				} 
 				
 				if( curcargofrom - transf < 0 ) {
 					transf = (long)( curcargofrom/(double)Cargo.getResourceMass( res.getId(), 1 ) );
 					
-					t.set_var(	"transfer.notenoughspace",	1,
+					t.setVar(	"transfer.notenoughspace",	1,
 								"transfer.newcount",		transf );
 				}
 				
@@ -320,7 +320,7 @@ public class PluendernController extends DSGenerator {
 				newCargoFrom.addResource( res.getId(), transf );
 				newCargoTo.substractResource( res.getId(), transf );
 				
-				t.set_var( "transfer.totalcargo", newCargoFrom.getResourceCount( res.getId() ) );
+				t.setVar( "transfer.totalcargo", newCargoFrom.getResourceCount( res.getId() ) );
 				
 				if( transf > 0 ) {
 					transfer = true;
@@ -355,7 +355,7 @@ public class PluendernController extends DSGenerator {
 			// Falls das Schiff instabil ist, dann diesem den "destory"-Status geben,
 			// damit der Schiffstick dieses zerstoert
 			if( (totaltransferfcount > 0) && ShipTypes.hasShipTypeFlag(shipTypeTo, ShipTypes.SF_INSTABIL)  ) {
-				t.set_var("toship.isinstabil", 1);
+				t.setVar("toship.isinstabil", 1);
 			
 				String statust = status;
 				
@@ -371,7 +371,7 @@ public class PluendernController extends DSGenerator {
 		
 			// Transaktion beenden
 			if( !db.tCommit() ) {
-				t.set_var( "transfer.list", "");
+				t.setVar( "transfer.list", "");
 			
 				if( this.retryCount < 3 ) {
 					this.retryCount++;
@@ -405,18 +405,18 @@ public class PluendernController extends DSGenerator {
 		SQLResultRow shipTypeFrom = ShipTypes.getShipType( this.shipFrom );
 		SQLResultRow shipTypeTo = ShipTypes.getShipType( this.shipTo );
 
-		t.set_var(	"fromship.name",	this.shipFrom.getString("name"),
+		t.setVar(	"fromship.name",	this.shipFrom.getString("name"),
 					"fromship.id",		this.shipFrom.getInt("id"),
 					"fromship.cargo",	shipTypeFrom.getLong("cargo")-fromcargo.getMass(),
 					"toship.name",		this.shipTo.getString("name"),
 					"toship.id",		this.shipTo.getInt("id"),
 					"toship.cargo",		shipTypeTo.getInt("cargo")-tocargo.getMass() );
 		
-		t.set_block("_PLUENDERN", "res.listitem", "res.list");
+		t.setBlock("_PLUENDERN", "res.listitem", "res.list");
 					
 		ResourceList reslist = fromcargo.compare( tocargo, true );
 		for( ResourceEntry res : reslist ) {
-			t.set_var(	"res.id",		res.getId(),
+			t.setVar(	"res.id",		res.getId(),
 						"res.name",		res.getName(),
 						"res.image",	res.getImage(),
 						"res.cargo1",	res.getCargo1(),

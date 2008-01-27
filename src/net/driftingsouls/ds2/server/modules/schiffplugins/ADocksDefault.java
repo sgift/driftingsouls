@@ -98,7 +98,7 @@ public class ADocksDefault implements SchiffPlugin {
 		Database db = controller.getDatabase();
 
 		TemplateEngine t = controller.getTemplateEngine();
-		t.set_file("_PLUGIN_"+pluginid, "schiff.adocks.default.html");
+		t.setFile("_PLUGIN_"+pluginid, "schiff.adocks.default.html");
 
 		List<Integer> dockedid = new ArrayList<Integer>();
 		List<Integer> dockedtype = new ArrayList<Integer>();
@@ -120,20 +120,20 @@ public class ADocksDefault implements SchiffPlugin {
 			idlist = Common.implode("|",dockedid);
 		}
 
-		t.set_var(	"global.pluginid",		pluginid,
+		t.setVar(	"global.pluginid",		pluginid,
 					"ship.id",				data.getInt("id"),
 					"ship.docklist",		idlist,
 					"ship.adocks",			datatype.getInt("adocks"),
 					"docks.width",			100/(datatype.getInt("adocks")>4 ? 4 : datatype.getInt("adocks")) );
 
-		t.set_block("_PLUGIN_"+pluginid,"adocks.listitem","adocks.list");
+		t.setBlock("_PLUGIN_"+pluginid,"adocks.listitem","adocks.list");
 		for( int j = 0; j < datatype.getInt("adocks"); j++ ) {
 			t.start_record();
 			if( (j > 0) && (j % 4 == 0) )
-				t.set_var("docks.endrow",1);
+				t.setVar("docks.endrow",1);
 
 			if( dockedid.size() > j ) {
-				t.set_var(	"docks.entry.id",		dockedid.get(j),
+				t.setVar(	"docks.entry.id",		dockedid.get(j),
 							"docks.entry.name",		dockedname.get(j),
 							"docks.entry.type",		dockedtype.get(j),
 							"docks.entry.image",	dockedpicture.get(j) );

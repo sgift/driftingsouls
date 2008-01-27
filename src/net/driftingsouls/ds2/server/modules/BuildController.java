@@ -79,7 +79,7 @@ public class BuildController extends DSGenerator {
 		}
 		base = new Base(baseRow);		
 		
-		t.set_var(	"base.id",		base.getID(),
+		t.setVar(	"base.id",		base.getID(),
 					"base.name",	Common._plaintitle(base.getName()),
 					"global.field",	field );
 		
@@ -199,18 +199,18 @@ public class BuildController extends DSGenerator {
 			return;
 		}
 		
-		t.set_var("show.build", 1);
+		t.setVar("show.build", 1);
 		
 		boolean ok = true;
 		
 		//noetige Resourcen berechnen/anzeigen
 		Cargo basecargo = base.getCargo();
 		
-		t.set_block("_BUILD", "build.res.listitem", "build.res.list");
+		t.setBlock("_BUILD", "build.res.listitem", "build.res.list");
 		
 		ResourceList compreslist = building.getBuildCosts().compare(basecargo, false);
 		for( ResourceEntry compres : compreslist ) {
-			t.set_var(	"res.image",		compres.getImage(),
+			t.setVar(	"res.image",		compres.getImage(),
 						"res.owncargo",		compres.getCargo2(),
 						"res.needcargo",	compres.getCargo1(),
 						"res.diff",			compres.getDiff() );
@@ -231,7 +231,7 @@ public class BuildController extends DSGenerator {
 			if( (building.getArbeiter() > 0) && (building.getArbeiter()+base.getArbeiter() > base.getBewohner()) ) {
 				base.getActive()[field] = 0;
 
-				t.set_var("build.lowworker", 1);
+				t.setVar("build.lowworker", 1);
 			} 
 			else {
 				base.getActive()[field] = 1;
@@ -268,7 +268,7 @@ public class BuildController extends DSGenerator {
 			cat = 0;	
 		} 
 		
-		t.set_var("show.buildinglist", 1);
+		t.setVar("show.buildinglist", 1);
 
 		//Anzahl der Gebaeude berechnen
 		Map<Integer,Integer> buildingcount = new HashMap<Integer,Integer>();
@@ -310,8 +310,8 @@ public class BuildController extends DSGenerator {
 
 		boolean ucomplex = c <= grenze-1;
 
-		t.set_block("_BUILD", "buildings.listitem", "buildings.list");
-		t.set_block("buildings.listitem", "buildings.res.listitem", "buildings.res.list");
+		t.setBlock("_BUILD", "buildings.listitem", "buildings.list");
+		t.setBlock("buildings.listitem", "buildings.res.listitem", "buildings.res.list");
 		
 		//Alle Gebaeude ausgeben
 		SQLQuery building = db.query("SELECT * FROM buildings WHERE category='"+cat+"' ORDER BY name");
@@ -346,7 +346,7 @@ public class BuildController extends DSGenerator {
 				}
 			}
 
-			t.set_var(	"building.picture",		building.getString("picture"),
+			t.setVar(	"building.picture",		building.getString("picture"),
 						"building.name",		Common._plaintitle(building.getString("name")),
 						"building.id",			building.getInt("id"),
 						"building.buildable", 	ok,
@@ -354,7 +354,7 @@ public class BuildController extends DSGenerator {
 
 			//Kosten
 			for( ResourceEntry compres : compreslist ) {
-				t.set_var(	"res.image",		compres.getImage(),
+				t.setVar(	"res.image",		compres.getImage(),
 							"res.cargo",		compres.getCargo1(),
 							"res.diff",			compres.getDiff(),
 							"res.plainname",	compres.getPlainName() );

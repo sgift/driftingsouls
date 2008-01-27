@@ -192,7 +192,7 @@ class Academy extends DefaultBuilding {
 		int off = context.getRequest().getParameterInt("off");
 		String conf = context.getRequest().getParameterString("conf");
 		
-		if( !t.set_file( "_BUILDING", "buildings.academy.html" ) ) {
+		if( !t.setFile( "_BUILDING", "buildings.academy.html" ) ) {
 			context.addError("Konnte das Template-Engine nicht initialisieren");
 			return "";
 		}
@@ -203,7 +203,7 @@ class Academy extends DefaultBuilding {
 			return "";
 		}
 		
-		t.set_var(	
+		t.setVar(	
 				"base.name",	base.getName(),
 				"base.id",		base.getID(),
 				"base.field",	field);
@@ -214,23 +214,23 @@ class Academy extends DefaultBuilding {
 		
 		if( newo != 0 ) {
 			if( (academy.getInt("train") == 0) && (academy.getString("upgrade").length() == 0)) {
-				t.set_var("academy.show.trainnewoffi", 1);
+				t.setVar("academy.show.trainnewoffi", 1);
 				
 				Cargo cargo = base.getCargo();
 			
 				boolean ok = true;
 				if( cargo.getResourceCount( Resources.SILIZIUM ) < 25 ) {
-					t.set_var("trainnewoffi.error", "Nicht genug Silizium");
+					t.setVar("trainnewoffi.error", "Nicht genug Silizium");
 					ok = false;
 				}
 				Cargo usercargo = new Cargo( Cargo.Type.STRING, user.getCargo() );
 				if( cargo.getResourceCount( Resources.NAHRUNG )+usercargo.getResourceCount( Resources.NAHRUNG ) < 35 ) {
-					t.set_var("trainnewoffi.error", "Nicht genug Nahrung");
+					t.setVar("trainnewoffi.error", "Nicht genug Nahrung");
 					ok = false;
 				}
 		
 				if( ok ) {
-					t.set_var("trainnewoffi.train", 1);
+					t.setVar("trainnewoffi.train", 1);
 		
 					cargo.substractResource( Resources.SILIZIUM, 25 );
 					usercargo.substractResource( Resources.NAHRUNG, 35 );
@@ -276,7 +276,7 @@ class Academy extends DefaultBuilding {
 					int nk = (int)(offizier.getInt(dTrain.get(train))*1.5d)+1;
 					int dauer = (int)(offizier.getInt(dTrain.get(train))/4d)+1;
 					
-					t.set_var(
+					t.setVar(
 							"academy.show.trainoffi", 1,
 							"trainoffi.id",			off,
 							"trainoffi.trainid",	train,
@@ -288,42 +288,42 @@ class Academy extends DefaultBuilding {
 							"resource.silizium.image",	Cargo.getResourceImage(Resources.SILIZIUM));
 					
 					if( train == 1 ) {
-						t.set_var("offizier.train.ability", "Technik");
+						t.setVar("offizier.train.ability", "Technik");
 					} 
 					else if( train == 2 ) {
-						t.set_var("offizier.train.ability", "Waffen");
+						t.setVar("offizier.train.ability", "Waffen");
 					} 
 					else if( train == 3 ) {
-						t.set_var("offizier.train.ability", "Navigation");
+						t.setVar("offizier.train.ability", "Navigation");
 					}
 					else if( train == 4 ) {
-						t.set_var("offizier.train.ability", "Sicherheit");
+						t.setVar("offizier.train.ability", "Sicherheit");
 					} 
 					else if( train == 5 ) {
-						t.set_var("offizier.train.ability", "Kommandoeffizienz");
+						t.setVar("offizier.train.ability", "Kommandoeffizienz");
 					}
 					
 					Cargo cargo = base.getCargo();
 
 					boolean ok = true;
 					if( cargo.getResourceCount( Resources.SILIZIUM ) < sk) {
-						t.set_var("trainoffi.error", "Nicht genug Silizium"); 
+						t.setVar("trainoffi.error", "Nicht genug Silizium"); 
 						ok = false;
 					}
 					Cargo usercargo = new Cargo( Cargo.Type.STRING, user.getCargo() );
 					if( cargo.getResourceCount( Resources.NAHRUNG )+usercargo.getResourceCount( Resources.NAHRUNG ) < nk ) {
-						t.set_var("trainoffi.error", "Nicht genug Nahrung"); 
+						t.setVar("trainoffi.error", "Nicht genug Nahrung"); 
 						ok = false;
 					}
 		
 					if( !conf.equals("ok") ) {
-						t.set_var("trainoffi.conf",	1);
+						t.setVar("trainoffi.conf",	1);
 						t.parse( "OUT", "_BUILDING" );	
 						return t.getVar("OUT");
 					}
 		
 					if( ok ) {
-						t.set_var("trainoffi.train", 1);
+						t.setVar("trainoffi.train", 1);
 		
 						cargo.substractResource( Resources.SILIZIUM, sk );
 						usercargo.substractResource( Resources.NAHRUNG, nk );
@@ -360,19 +360,19 @@ class Academy extends DefaultBuilding {
 		//-----------------------------------------------
 		
 		if( (academy.getInt("train") != 0) || (academy.getString("upgrade").length() != 0) ) {
-			t.set_var(	
+			t.setVar(	
 					"academy.show.training", 1,
 					"training.remain",	academy.getInt("remain"));
 			
 					
 			if( academy.getInt("train") != 0 ) {
-				t.set_var("trainoffizier.name", Common._plaintitle(Offiziere.LIST.get(academy.getInt("train")).getString("name")));
+				t.setVar("trainoffizier.name", Common._plaintitle(Offiziere.LIST.get(academy.getInt("train")).getString("name")));
 			}
 			else {
 				String[] upgradeData = StringUtils.split(academy.getString("upgrade"), ' ' );
 				Offizier offizier = Offizier.getOffizierByID(Integer.parseInt(upgradeData[0]));
 				
-				t.set_var(
+				t.setVar(
 						"trainoffizier.picture",	offizier.getPicture(),
 						"trainoffizier.id",		offizier.getID(),
 						"trainoffizier.name",	Common._plaintitle(offizier.getName()));
@@ -385,15 +385,15 @@ class Academy extends DefaultBuilding {
 		// Liste: Neue Offiziere ausbilden
 		//---------------------------------
 		if( allowActions ) {
-			t.set_var(
+			t.setVar(
 					"academy.show.trainnew",	1,
 					"resource.silizium.image",	Cargo.getResourceImage(Resources.SILIZIUM),
 					"resource.nahrung.image",	Cargo.getResourceImage(Resources.NAHRUNG));
 			
-			t.set_block("_BUILDING", "academy.trainnew.listitem", "academy.trainnew.list");
+			t.setBlock("_BUILDING", "academy.trainnew.listitem", "academy.trainnew.list");
 			
 			for( SQLResultRow offi : Offiziere.LIST.values() ) {
-				t.set_var( 
+				t.setVar( 
 						"offizier.id",		offi.getInt("id"),
 						"offizier.name",	Common._title(offi.getString("name")),
 						"offizier.ing",		offi.getInt("ing"),
@@ -410,17 +410,17 @@ class Academy extends DefaultBuilding {
 		// Liste: "Upgrade" von Offizieren
 		//---------------------------------
 		
-		t.set_var(
+		t.setVar(
 				"academy.show.offilist", 1,
 				"offilist.allowactions", allowActions);
 		
-		t.set_block("_BUILDING", "academy.offilist.listitem", "academy.offilist.list");
+		t.setBlock("_BUILDING", "academy.offilist.listitem", "academy.offilist.list");
 		
 		SQLQuery offizier = db.query("SELECT * FROM offiziere WHERE dest='b "+base.getID()+"'");
 		while( offizier.next() ) {			
 			Offizier offi = new Offizier( offizier.getRow() );
 			
-			t.set_var(
+			t.setVar(
 					"offizier.picture",	offi.getPicture(),
 					"offizier.id",		offi.getID(),
 					"offizier.name",	Common._plaintitle(offi.getName()),

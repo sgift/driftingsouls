@@ -80,14 +80,14 @@ public class ActivateAllController extends DSGenerator {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
-		t.set_var("base.id", base.getID());
+		t.setVar("base.id", base.getID());
 		
 		int deakOnly = getInteger("deaconly");
 		if( deakOnly != 0 ) {
-			t.set_block("_ACTIVATEALL", "deak.listitem", "deak.list");	
+			t.setBlock("_ACTIVATEALL", "deak.listitem", "deak.list");	
 		}
 		else {
-			t.set_block("_ACTIVATEALL", "activate.listitem", "activate.list");	
+			t.setBlock("_ACTIVATEALL", "activate.listitem", "activate.list");	
 		}
 		
 		/*
@@ -102,7 +102,7 @@ public class ActivateAllController extends DSGenerator {
 			query = "coreactive=0,";
 
 			if( deakOnly != 0 ) {
-				t.set_var("deak.name", Common._plaintitle(core.getName()) );
+				t.setVar("deak.name", Common._plaintitle(core.getName()) );
 				t.parse("deak.list", "deak.listitem", true);
 			}
 		} 
@@ -116,7 +116,7 @@ public class ActivateAllController extends DSGenerator {
 					base.setArbeiter(base.getArbeiter() - building.getArbeiter());
 					
 					if( deakOnly != 0 ) {
-						t.set_var("deak.name", Common._plaintitle(building.getName()) );
+						t.setVar("deak.name", Common._plaintitle(building.getName()) );
 						t.parse("deak.list", "deak.listitem", true);
 					}
 				} 
@@ -140,11 +140,11 @@ public class ActivateAllController extends DSGenerator {
 					base.setCoreActive(true);
 					
 					query = "coreactive=1,";
-					t.set_var(	"activate.name",	Common._plaintitle(core.getName()),
+					t.setVar(	"activate.name",	Common._plaintitle(core.getName()),
 								"activate.success",	1 );
 				} 
 				else {
-					t.set_var(	"activate.name",	Common._plaintitle(core.getName()),
+					t.setVar(	"activate.name",	Common._plaintitle(core.getName()),
 								"activate.success",	0 );
 				}
 				t.parse("activate.list", "activate.listitem", true);
@@ -158,11 +158,11 @@ public class ActivateAllController extends DSGenerator {
 						this.base.getActive()[i] = 1;
 						this.base.setArbeiter(base.getArbeiter() + building.getArbeiter());
 						
-						t.set_var(	"activate.name",	Common._plaintitle(building.getName()),
+						t.setVar(	"activate.name",	Common._plaintitle(building.getName()),
 									"activate.success",	1 );
 					} 
 					else if( building.isDeakAble() ) {
-						t.set_var(	"activate.name",	Common._plaintitle(building.getName()),
+						t.setVar(	"activate.name",	Common._plaintitle(building.getName()),
 									"activate.success",	0 );
 					}				
 					t.parse("activate.list", "activate.listitem", true);

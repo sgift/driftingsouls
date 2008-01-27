@@ -200,7 +200,7 @@ public class KapernController extends DSGenerator {
 		this.targetShip = datan;
 		this.targetShipType = tard;
 		
-		this.getTemplateEngine().set_var(
+		this.getTemplateEngine().setVar(
 				"ownship.id",		datas.getInt("id"),
 				"ownship.name",		datas.getString("name"),
 				"targetship.id",	datan.getInt("id"),
@@ -218,7 +218,7 @@ public class KapernController extends DSGenerator {
 		TemplateEngine t = getTemplateEngine();
 		User user = this.getUser();
 		
-		t.set_var("kapern.showkaperreport", 1);
+		t.setVar("kapern.showkaperreport", 1);
 		
 		String errorurl = Common.buildUrl(getContext(), "default", "module", "schiff", "ship", this.ownShip.getInt("id"));
 		
@@ -244,7 +244,7 @@ public class KapernController extends DSGenerator {
 		if( !flagschiffspace && (flagschiffstatus != null) && 
 			(flagschiffstatus.getID() == this.targetShip.getInt("id")) ) {
 			addError("Sie d&uuml;rfen lediglich ein Flagschiff besitzen");
-			t.set_var("kapern.showkaperreport", 0);
+			t.setVar("kapern.showkaperreport", 0);
 			
 			this.redirect();
 			return;
@@ -315,7 +315,7 @@ public class KapernController extends DSGenerator {
 						Battle battle = new Battle();
 						battle.create(user.getID(), this.ownShip.getInt("id"), this.targetShip.getInt("id"));
 												
-						t.set_var(
+						t.setVar(
 							"kapern.message",	"Ihr Kaperversuch wurde entdeckt und einige gegnerischen Schiffe haben das Feuer er&ouml;ffnet",
 							"kapern.battle",	battle.getID() );
 			
@@ -336,7 +336,7 @@ public class KapernController extends DSGenerator {
 			if( acrew >= dcrew*3*defmulti ) {
 				ok = true;
 				
-				t.set_var("kapern.message", kapermessage+"Die Crew gibt das Schiff kampflos auf und l&auml;uft &uuml;ber" );
+				t.setVar("kapern.message", kapermessage+"Die Crew gibt das Schiff kampflos auf und l&auml;uft &uuml;ber" );
 				msg.append("Ihre Crew gibt das Schiff kampflos auf l&auml;uft &uuml;ber.\n");
 			}
 			else {
@@ -352,13 +352,13 @@ public class KapernController extends DSGenerator {
 
 					dcrew = Math.round((dcrew*defmulti - oldacrew+acrew)/defmulti);
 					
-					t.set_var("kapern.message", kapermessage+"Der Feind verteidigt das Schiff:<br />"+(oldacrew-acrew)+" Crewmitglieder fallen.<br />"+(olddcrew-dcrew)+" Feinde get&ouml;tet.<br /><br /><span style=\"color:red\">Angriff abgebrochen</span>" );
+					t.setVar("kapern.message", kapermessage+"Der Feind verteidigt das Schiff:<br />"+(oldacrew-acrew)+" Crewmitglieder fallen.<br />"+(olddcrew-dcrew)+" Feinde get&ouml;tet.<br /><br /><span style=\"color:red\">Angriff abgebrochen</span>" );
 					msg.append("Ihre Crew verteidigt das Schiff:\n"+(oldacrew-acrew)+" Feinde werden erschossen.\n"+(olddcrew-dcrew)+" Besatzungsmitglieder haben ihr leben gelassen.\n\n[color=green]Der Feind flieht[/color]\n");
 					
 					ok = false;
 				} 
 				else {
-					t.set_var("kapern.message", kapermessage+"Der Feind verteidigt das Schiff:<br />"+Math.round(dcrew*defmulti)+" Crewmitglieder fallen.<br />"+dcrew+" Feinde get&ouml;tet" );
+					t.setVar("kapern.message", kapermessage+"Der Feind verteidigt das Schiff:<br />"+Math.round(dcrew*defmulti)+" Crewmitglieder fallen.<br />"+dcrew+" Feinde get&ouml;tet" );
 					msg.append("Ihre Crew verteidigt das Schiff:\n"+Math.round(dcrew*defmulti)+" Feinde werden erschossen.\n"+dcrew+" Besatzungsmitglieder haben ihr leben gelassen.\n\n[color=red]Die "+this.targetShip.getString("name")+" ist verloren[/color]\n");
 					
 					acrew -= Math.round(dcrew*defmulti);
@@ -371,7 +371,7 @@ public class KapernController extends DSGenerator {
 		else {
 			ok = true;
 			
-			t.set_var("kapern.message", kapermessage+"Das Schiff wird widerstandslos &uuml;bernommen");
+			t.setVar("kapern.message", kapermessage+"Das Schiff wird widerstandslos &uuml;bernommen");
 			
 			msg.append("Das Schiff "+this.targetShip.getString("name")+"("+this.targetShip.getInt("id")+"), eine "+this.targetShipType.getString("nickname")+", wird bei "+this.targetShip.getInt("system")+":"+this.targetShip.getInt("x")+"/"+this.targetShip.getInt("y")+" an "+this.ownShip.getString("name")+" ("+this.ownShip.getInt("id")+") &uuml;bergeben\n");
 		}
@@ -437,20 +437,20 @@ public class KapernController extends DSGenerator {
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
 		
-		t.set_var("kapern.showmenu", 1);
+		t.setVar("kapern.showmenu", 1);
 		
 		if( (this.targetShipType.getInt("cost") != 0) && (this.targetShip.getInt("engine") != 0) ) {
 			if( this.targetShip.getInt("crew") == 0 ) {
-				t.set_var(	"targetship.status",	"verlassen",
+				t.setVar(	"targetship.status",	"verlassen",
 							"menu.showpluendern",	1,
 							"menu.showkapern",		!ShipTypes.hasShipTypeFlag(this.targetShipType, ShipTypes.SF_NICHT_KAPERBAR ) );
 			} 
 			else {
-				t.set_var("targetship.status", "noch bewegungsf&auml;hig");
+				t.setVar("targetship.status", "noch bewegungsf&auml;hig");
 			}
 		} 
 		else {
-			t.set_var(	"targetship.status",	"bewegungsunf&auml;hig",
+			t.setVar(	"targetship.status",	"bewegungsunf&auml;hig",
 						"menu.showpluendern",	(this.targetShip.getInt("crew") == 0),
 						"menu.showkapern",		!ShipTypes.hasShipTypeFlag(this.targetShipType, ShipTypes.SF_NICHT_KAPERBAR) );
 		}
