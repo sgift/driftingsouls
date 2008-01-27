@@ -475,7 +475,10 @@ public class SchiffsTick extends TickController {
 			int[] sub = new int[] {ship.getInt("engine"),ship.getInt("weapons"),ship.getInt("comm"),ship.getInt("sensors")};
 			
 			for( int i=0; i < sub.length; i++ ) {
-				sub[i] -= 10;	
+				sub[i] -= 10;
+				if( sub[i] < 0 ) {
+					sub[i] = 0;
+				}
 			}
 			
 			int hull = ship.getInt("hull");
