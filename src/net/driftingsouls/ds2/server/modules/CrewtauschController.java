@@ -69,7 +69,7 @@ public class CrewtauschController extends DSGenerator {
 		
 		SQLResultRow ship = db.first("SELECT id,name,crew,type,owner,status,x,y,system FROM ships WHERE owner=",user.getId()," AND id>0 AND id=",shipID);
 		if( ship.isEmpty() ) {
-			addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht", Common.buildUrl(getContext(), "default", "module", "schiffe") );
+			addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht", Common.buildUrl("default", "module", "schiffe") );
 			
 			return false;
 		}	
@@ -82,7 +82,7 @@ public class CrewtauschController extends DSGenerator {
 			datat = db.first("SELECT id,name,crew,type,owner,x,y,system,status FROM ships WHERE id>0 AND id=",tar);
 
 			if( !Location.fromResult(ship).sameSector(0, Location.fromResult(datat), 0) ) {
-				addError("Die beiden Schiffe befinden sich nicht im selben Sektor", Common.buildUrl(getContext(), "default", "module", "schiff", "ship", shipID) );
+				addError("Die beiden Schiffe befinden sich nicht im selben Sektor", Common.buildUrl("default", "module", "schiff", "ship", shipID) );
 				
 				return false;
 			}
@@ -95,7 +95,7 @@ public class CrewtauschController extends DSGenerator {
 			datat = db.first("SELECT id,name,bewohner-arbeiter crew,bewohner,arbeiter,owner,x,y,system,size FROM bases WHERE id=",tar);
 
 			if( !Location.fromResult(ship).sameSector(0, Location.fromResult(datat), datat.getInt("size")) ) {
-				addError("Schiff und Basis befinden sich nicht im selben Sektor", Common.buildUrl(getContext(), "default", "module", "schiff", "ship", shipID) );
+				addError("Schiff und Basis befinden sich nicht im selben Sektor", Common.buildUrl("default", "module", "schiff", "ship", shipID) );
 				
 				return false;
 			}
@@ -105,7 +105,7 @@ public class CrewtauschController extends DSGenerator {
 		}
 		
 		if( ship.getInt("owner") != datat.getInt("owner") ) {
-			addError("Eines der Schiffe geh&ouml;rt ihnene nicht", Common.buildUrl(getContext(), "default", "module", "schiff", "ship", shipID) );
+			addError("Eines der Schiffe geh&ouml;rt ihnene nicht", Common.buildUrl("default", "module", "schiff", "ship", shipID) );
 				
 			return false;
 		}

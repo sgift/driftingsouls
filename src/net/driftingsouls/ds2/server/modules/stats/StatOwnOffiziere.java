@@ -66,7 +66,7 @@ public class StatOwnOffiziere implements Statistic, Loggable {
 		while( offi.next() ) {
 			Offizier offizier = new Offizier(offi.getRow());
 		   	echo.append("<tr>\n");
-			echo.append("<td class=\"noBorderX\"><img src=\""+offizier.getPicture()+"\" alt=\"Rang "+offizier.getRang()+"\" /> <a class=\"forschinfo\" href=\""+Common.buildUrl(context, "default", "module", "choff", "off", offizier.getID())+"\">"+Common._title(offizier.getName())+"</a> ("+offizier.getID()+")</td>\n");
+			echo.append("<td class=\"noBorderX\"><img src=\""+offizier.getPicture()+"\" alt=\"Rang "+offizier.getRang()+"\" /> <a class=\"forschinfo\" href=\""+Common.buildUrl("default", "module", "choff", "off", offizier.getID())+"\">"+Common._title(offizier.getName())+"</a> ("+offizier.getID()+")</td>\n");
 			echo.append("<td class=\"noBorderX\">&nbsp;</td>\n");
 	
 			String[] dest = offizier.getDest();
@@ -89,14 +89,14 @@ public class StatOwnOffiziere implements Statistic, Loggable {
 					}
 				}
 				String shipname = ships.get(destid);
-				echo.append("<td class=\"noBorderX\"><a class=\"forschinfo\" href=\""+Common.buildUrl(context, "default", "module", "schiff", "ship", dest[1])+"\">"+shipname+"</a></td>\n");
+				echo.append("<td class=\"noBorderX\"><a class=\"forschinfo\" href=\""+Common.buildUrl("default", "module", "schiff", "ship", dest[1])+"\">"+shipname+"</a></td>\n");
 			}
 			else {
 				if( !bases.containsKey(destid) ) {
 					bases.put(destid, db.first("SELECT name FROM bases WHERE id=",destid).getString("name"));
 				}
 				String basename = bases.get(destid);
-				echo.append("<td class=\"noBorderX\"><a class=\"forschinfo\" href=\""+Common.buildUrl(context, "default", "module", "base", "col", dest[1])+"\">"+basename+"</a> "+(dest[0].equals("t") ? "(A)" : "")+"</td>\n");
+				echo.append("<td class=\"noBorderX\"><a class=\"forschinfo\" href=\""+Common.buildUrl("default", "module", "base", "col", dest[1])+"\">"+basename+"</a> "+(dest[0].equals("t") ? "(A)" : "")+"</td>\n");
 			}
 			
 			echo.append("<td class=\"noBorderX\">"+offizier.getAbility(Offizier.Ability.ING)+"</td>\n");

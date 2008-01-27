@@ -453,7 +453,7 @@ public class ForschinfoController extends DSGenerator {
 			}
 			if( ammo.getInt("replaces") != 0 ) {
 				SQLResultRow replammo = db.first("SELECT itemid,name FROM ammo WHERE id=",ammo.getInt("replaces"));
-				data.append("<br />Ersetzt <a style=\"font-size:14px\" class=\"forschinfo\" href=\""+Common.buildUrl(getContext(), "details", "module", "iteminfo", "item", replammo.getInt("itemid"))+"\">"+replammo.getString("name")+"</a>\n");
+				data.append("<br />Ersetzt <a style=\"font-size:14px\" class=\"forschinfo\" href=\""+Common.buildUrl("details", "module", "iteminfo", "item", replammo.getInt("itemid"))+"\">"+replammo.getString("name")+"</a>\n");
 			}
 		
 			/*

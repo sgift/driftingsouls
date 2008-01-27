@@ -87,14 +87,14 @@ public class GtuZwischenLagerController extends DSGenerator {
 		
 		ship = db.first("SELECT * FROM ships WHERE id>0 AND owner=",user.getId()," AND id=",shipId);
 		if( ship.isEmpty() ) {
-			addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen", Common.buildUrl(getContext(), "default", "module", "schiffe") );
+			addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen", Common.buildUrl("default", "module", "schiffe") );
 			
 			return false;
 		}
 
 		SQLResultRow handel = db.first("SELECT id FROM ships WHERE id>0 AND owner=",Faction.GTU," AND LOCATE('tradepost',status) AND system=",ship.getInt("system")," AND x=",ship.getInt("x")," AND y=",ship.getInt("y"));
 		if( handel.isEmpty() ) {
-			addError("Es existiert kein Handelsposten in diesem Sektor", Common.buildUrl(getContext(), "default", "module", "schiff", "ship", shipId) );
+			addError("Es existiert kein Handelsposten in diesem Sektor", Common.buildUrl("default", "module", "schiff", "ship", shipId) );
 			
 			return false;
 		}
@@ -123,7 +123,7 @@ public class GtuZwischenLagerController extends DSGenerator {
 		SQLResultRow tradeentry = db.first("SELECT * FROM gtu_zwischenlager WHERE posten=",this.handel," AND id=",entry);
 	
 		if( tradeentry.isEmpty() || ((tradeentry.getInt("user1") != user.getId()) && (tradeentry.getInt("user2") != user.getId())) ) {
-			addError("Es wurde kein passender Handelseintrag gefunden", Common.buildUrl(getContext(), "default", "module", "schiff", "ship", this.ship.getInt("id")) );
+			addError("Es wurde kein passender Handelseintrag gefunden", Common.buildUrl("default", "module", "schiff", "ship", this.ship.getInt("id")) );
 			this.setTemplate("");
 			
 			return;	
@@ -150,7 +150,7 @@ public class GtuZwischenLagerController extends DSGenerator {
 		
 		tmpowncargoneed.substractCargo( owncargo );
 		if( !tmpowncargoneed.isEmpty() ) {
-			addError("Sie m&uuml;ssen die Waren erst komplett bezahlen", Common.buildUrl(getContext(), "default", "module", "schiff", "ship", this.ship.getInt("id")) );
+			addError("Sie m&uuml;ssen die Waren erst komplett bezahlen", Common.buildUrl("default", "module", "schiff", "ship", this.ship.getInt("id")) );
 			this.setTemplate("");
 			
 			return;	
@@ -251,7 +251,7 @@ public class GtuZwischenLagerController extends DSGenerator {
 		SQLResultRow tradeentry = db.first("SELECT * FROM gtu_zwischenlager WHERE posten=",this.handel," AND id=",entry);
 	
 		if( tradeentry.isEmpty() || ((tradeentry.getInt("user1") != user.getId()) && (tradeentry.getInt("user2") != user.getId())) ) {
-			addError("Es wurde kein passender Handelseintrag gefunden", Common.buildUrl(getContext(), "default", "module", "schiff", "ship", this.ship.getInt("id")) );
+			addError("Es wurde kein passender Handelseintrag gefunden", Common.buildUrl("default", "module", "schiff", "ship", this.ship.getInt("id")) );
 			this.setTemplate("");
 			
 			return;	

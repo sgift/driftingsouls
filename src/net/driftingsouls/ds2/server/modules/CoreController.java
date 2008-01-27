@@ -63,7 +63,7 @@ public class CoreController extends DSGenerator {
 		
 		SQLResultRow base = db.first("SELECT * FROM bases WHERE owner=",user.getId()," AND id=",col);
 		if( base.isEmpty() ) {
-			addError( "Die angegebene Kolonie existiert nicht", Common.buildUrl(getContext(), "default", "module", "basen") );
+			addError( "Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "basen") );
 			
 			return false;
 		}
@@ -90,7 +90,7 @@ public class CoreController extends DSGenerator {
 		int build = getInteger("build");
 		
 		if( base.getCore() > 0 ) {
-			addError("Sie k&ouml;nnen nur eine Core pro Asteroid bauen", Common.buildUrl(getContext(), "default", "module", "base", "col", base.getId()));
+			addError("Sie k&ouml;nnen nur eine Core pro Asteroid bauen", Common.buildUrl("default", "module", "base", "col", base.getId()));
 			setTemplate("");
 			
 			return;
@@ -98,21 +98,21 @@ public class CoreController extends DSGenerator {
 		
 		Core core = Core.getCore(db, build);
 		if( core == null ) {
-			addError("Der angegebene Core-Typ existiert nicht", Common.buildUrl(getContext(), "default", "module", "base", "col", base.getId()));
+			addError("Der angegebene Core-Typ existiert nicht", Common.buildUrl("default", "module", "base", "col", base.getId()));
 			setTemplate("");
 			
 			return;
 		}
 		
 		if( !user.hasResearched(core.getTechRequired()) ) {
-			addError("Sie haben nicht alle ben&ouml;tigten Forschungen", Common.buildUrl(getContext(), "default", "module", "base", "col", base.getId()));
+			addError("Sie haben nicht alle ben&ouml;tigten Forschungen", Common.buildUrl("default", "module", "base", "col", base.getId()));
 			setTemplate("");
 			
 			return;
 		}
 	
 		if( core.getAstiType() != base.getKlasse() ) {
-			addError("Diese Core passt nicht in diesen Asteroiden rein", Common.buildUrl(getContext(), "default", "module", "base", "col", base.getId()));
+			addError("Diese Core passt nicht in diesen Asteroiden rein", Common.buildUrl("default", "module", "base", "col", base.getId()));
 			setTemplate("");
 			
 			return;

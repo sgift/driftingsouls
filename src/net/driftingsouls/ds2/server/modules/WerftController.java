@@ -63,7 +63,7 @@ public class WerftController extends DSGenerator {
 		
 		ship = db.first("SELECT id,owner,name,type,x,y,system,e,status FROM ships WHERE id>0 AND id=",shipID," AND owner='",user.getId(),"'");
 		
-		String errorurl = Common.buildUrl(getContext(), "default", "module", "schiff", "ship", ship.getInt("id"));
+		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", ship.getInt("id"));
 	
 		if( ship.isEmpty() ) {
 			addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen", errorurl);
@@ -131,6 +131,6 @@ public class WerftController extends DSGenerator {
 		WerftGUI werftgui = new WerftGUI( getContext(), getTemplateEngine() );
 		echo.append(werftgui.execute( werft ));
 		
-		echo.append("<br /><a class=\"back\" href=\""+Common.buildUrl(getContext(), "default", "module", "schiff", "ship", ship.getInt("id"))+"\">Zur&uuml;ck zum Schiff</a><br />\n");
+		echo.append("<br /><a class=\"back\" href=\""+Common.buildUrl("default", "module", "schiff", "ship", ship.getInt("id"))+"\">Zur&uuml;ck zum Schiff</a><br />\n");
 	}
 }

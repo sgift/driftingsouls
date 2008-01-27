@@ -42,7 +42,6 @@ import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.UserIterator;
 import net.driftingsouls.ds2.server.framework.db.Database;
@@ -233,7 +232,7 @@ public class ErsteigernController extends DSGenerator {
 		
 		@Override
 		public String getLink() {
-			return Common.buildUrl(ContextMap.getContext(), "default", "module", "schiffinfo", "ship", shiptype.getInt("id") );
+			return Common.buildUrl("default", "module", "schiffinfo", "ship", shiptype.getInt("id") );
 		}
 	}
 	
@@ -272,7 +271,7 @@ public class ErsteigernController extends DSGenerator {
 		@Override
 		public String getLink() {
 			if( resourceEntry.getId().isItem() ) {
-				return Common.buildUrl(ContextMap.getContext(), "details", "module", "iteminfo", "item", resourceEntry.getId().getItemID());
+				return Common.buildUrl("details", "module", "iteminfo", "item", resourceEntry.getId().getItemID());
 			}
 			
 			return "#";	
@@ -441,7 +440,7 @@ public class ErsteigernController extends DSGenerator {
 				factionmenu.append("<span style='color:red;font-size:14px'>"+StringUtils.replaceChars(Common._title(aFactionUser.getName()), '"', '\'')+"</span><br />");	
 			}
 			else {	
-				factionmenu.append("<a style='font-size:14px' class='profile' href='"+Common.buildUrl(getContext(), "default", "faction", factionObj.getID())+"'>"+StringUtils.replaceChars(Common._title(aFactionUser.getName()), '"', '\'')+"</a><br />");
+				factionmenu.append("<a style='font-size:14px' class='profile' href='"+Common.buildUrl("default", "faction", factionObj.getID())+"'>"+StringUtils.replaceChars(Common._title(aFactionUser.getName()), '"', '\'')+"</a><br />");
 			}
 		}
 		factionmenu.append( StringUtils.replaceChars(Common.tableEnd(), '"', '\'') );
@@ -532,7 +531,7 @@ public class ErsteigernController extends DSGenerator {
 				SQLResultRow shiptype = ShipTypes.getShipType(entry.getInt("type"), false);
 				entryname = shiptype.getString("nickname");
 				entryimage = shiptype.getString("picture");
-				entrylink = Common.buildUrl(getContext(), "default", "module", "schiffinfo", "ship", entry.getInt("type") );
+				entrylink = Common.buildUrl("default", "module", "schiffinfo", "ship", entry.getInt("type") );
 			}
 			else if( entry.getInt("mtype") == 2 ) {	// Artefakt
 				Cargo cargo = new Cargo( Cargo.Type.STRING, entry.getString("type"));
@@ -544,7 +543,7 @@ public class ErsteigernController extends DSGenerator {
 				entryimage = resource.getImage();
 			
 				if( resource.getId().isItem() ) {
-					entrylink = Common.buildUrl(getContext(), "details", "module", "iteminfo", "item", resource.getId().getItemID() );
+					entrylink = Common.buildUrl("details", "module", "iteminfo", "item", resource.getId().getItemID() );
 				}
 				else {
 					entrylink = "#";	
@@ -1103,7 +1102,7 @@ public class ErsteigernController extends DSGenerator {
 				SQLResultRow shiptype = ShipTypes.getShipType(entry.getInt("type"), false);
 				entryname = shiptype.getString("nickname");
 				entryimage = shiptype.getString("picture");
-				entrylink = Common.buildUrl(getContext(), "default", "module", "schiffinfo", "ship", entry.getInt("type") );
+				entrylink = Common.buildUrl("default", "module", "schiffinfo", "ship", entry.getInt("type") );
 			}
 			else if( entry.getInt("mtype") == 2 ) {	// Cargo	
 				Cargo cargo = new Cargo( Cargo.Type.STRING, entry.getString("type") );
@@ -1116,7 +1115,7 @@ public class ErsteigernController extends DSGenerator {
 				entryimage = resource.getImage();
 			
 				if( resource.getId().isItem() ) {
-					entrylink = Common.buildUrl(getContext(), "details", "module", "iteminfo", "item", resource.getId().getItemID() );
+					entrylink = Common.buildUrl("details", "module", "iteminfo", "item", resource.getId().getItemID() );
 				}
 				else {
 					entrylink = "#";	

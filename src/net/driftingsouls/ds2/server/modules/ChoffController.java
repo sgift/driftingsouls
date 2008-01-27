@@ -58,7 +58,7 @@ public class ChoffController extends DSGenerator {
 
 		SQLResultRow offizierRow = db.first("SELECT * FROM offiziere WHERE id=",off);		
 		if( offizierRow.isEmpty() ) {
-			addError("Der angegebene Offizier ist ung&uuml;ltig", Common.buildUrl(getContext(), "default", "module", "ueber") );
+			addError("Der angegebene Offizier ist ung&uuml;ltig", Common.buildUrl("default", "module", "ueber") );
 			
 			return false;
 		}
@@ -66,7 +66,7 @@ public class ChoffController extends DSGenerator {
 		Offizier offizier = new Offizier( offizierRow );
 
 		if( offizier.getOwner() != user.getId() ) {
-			addError("Dieser Offizier untersteht nicht ihrem Kommando", Common.buildUrl(getContext(), "default", "module", "ueber") );
+			addError("Dieser Offizier untersteht nicht ihrem Kommando", Common.buildUrl("default", "module", "ueber") );
 			
 			return false;
 		}

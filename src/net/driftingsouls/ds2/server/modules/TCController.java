@@ -75,13 +75,13 @@ public class TCController extends DSGenerator {
 		ship = db.first("SELECT * FROM ships WHERE id>0 AND owner='",this.getUser().getId(),"' AND id='",shipId,"'");
 
 		if( ship.isEmpty() ) {
-			addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht",  Common.buildUrl(getContext(), "default", "module", "schiffe") );
+			addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht",  Common.buildUrl("default", "module", "schiffe") );
 			
 			return false;
 		}
 		
 		if( ship.getInt("battle") != 0 ) {
-			addError("Das angegebene Schiff befindet sich in einer Schlacht", Common.buildUrl(getContext(), "default", "module", "schiffe" ) );
+			addError("Das angegebene Schiff befindet sich in einer Schlacht", Common.buildUrl("default", "module", "schiffe" ) );
 			
 			return false;
 		}
@@ -135,7 +135,7 @@ public class TCController extends DSGenerator {
 		String conf = getString("conf");
 		int off = getInteger("off");
 		
-		String errorurl = Common.buildUrl(getContext(), "default", "module", "schiff", "ship", ship.getInt("id"));
+		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", ship.getInt("id"));
 		
 		SQLResultRow tarShip = db.first("SELECT * FROM ships WHERE id>0 AND id=",getInteger("target"));
 		if( tarShip.isEmpty() ) {
@@ -160,7 +160,7 @@ public class TCController extends DSGenerator {
 		}
 		
 		if( tarShip.getInt("battle") != 0 ) {
-			addError("Das Zielschiff befindet sich in einer Schlacht", Common.buildUrl(getContext(),"default", "module", "schiffe" ) );
+			addError("Das Zielschiff befindet sich in einer Schlacht", Common.buildUrl("default","module", "schiffe" ) );
 			
 			return;
 		}
@@ -266,7 +266,7 @@ public class TCController extends DSGenerator {
 		String conf = getString("conf");
 		int off = getInteger("off");
 		
-		String errorurl = Common.buildUrl(getContext(), "default", "module", "schiff", "ship", ship.getInt("id"));
+		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", ship.getInt("id"));
 		
 		SQLResultRow tarBase = db.first("SELECT id,x,y,system,size,owner,name FROM bases WHERE id=",getInteger("target"));
 	
@@ -349,7 +349,7 @@ public class TCController extends DSGenerator {
 		TemplateEngine t = getTemplateEngine();
 		User user = getUser();
 		
-		String errorurl = Common.buildUrl(getContext(), "default", "module", "schiff", "ship", ship.getInt("id"));
+		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", ship.getInt("id"));
 		
 		t.setVar( "tc.ship", ship.getInt("id") );
 	
@@ -407,7 +407,7 @@ public class TCController extends DSGenerator {
 		
 		int off = getInteger("off");
 		
-		String errorurl = Common.buildUrl(getContext(), "default", "module", "schiff", "ship", ship.getInt("id"));
+		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", ship.getInt("id"));
 		
 		t.setVar( "tc.ship", ship.getInt("id") );
 	

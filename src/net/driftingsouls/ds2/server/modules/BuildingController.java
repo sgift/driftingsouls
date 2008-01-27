@@ -64,7 +64,7 @@ public class BuildingController extends DSGenerator {
 		
 		SQLResultRow baseRow = db.first("SELECT * FROM bases WHERE owner=",user.getId()," AND id=",col);
 		if( baseRow.isEmpty() ) {
-			addError("Die angegebene Kolonie existiert nicht", Common.buildUrl(getContext(), "default", "module", "basen"));
+			addError("Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "basen"));
 			
 			return false;
 		}
@@ -152,11 +152,11 @@ public class BuildingController extends DSGenerator {
 			echo.append("<div align=\"center\">\n");
 			echo.append("<img align=\"middle\" src=\""+Configuration.getSetting("URL")+building.getPicture()+"\" alt=\"\" /> "+Common._plaintitle(building.getName())+"<br /><br />\n");
 			echo.append("Wollen sie dieses Geb&auml;ude wirklich abreissen?<br /><br />\n");
-			echo.append("<a class=\"error\" href=\""+Common.buildUrl(getContext(), "demo", "col", base.getId(), "field", field, "conf", "ok")+"\">abreissen</a><br /></div>");
+			echo.append("<a class=\"error\" href=\""+Common.buildUrl("demo", "col", base.getId(), "field", field, "conf", "ok")+"\">abreissen</a><br /></div>");
 			echo.append(Common.tableEnd());
 		
 			echo.append("<br />\n");
-			echo.append("<a class=\"back\" href=\""+Common.buildUrl(getContext(), "default", "module", "base", "col", base.getId())+"\">zur&uuml;ck</a><br />\n");
+			echo.append("<a class=\"back\" href=\""+Common.buildUrl("default", "module", "base", "col", base.getId())+"\">zur&uuml;ck</a><br />\n");
 		
 			return;
 		}
@@ -193,7 +193,7 @@ public class BuildingController extends DSGenerator {
 		echo.append(Common.tableEnd());
 	
 		echo.append("<br />\n");
-		echo.append("<a class=\"back\" href=\""+Common.buildUrl(getContext(), "default", "module", "base", "col", base.getId())+"\">zur&uuml;ck</a><br />\n");
+		echo.append("<a class=\"back\" href=\""+Common.buildUrl("default", "module", "base", "col", base.getId())+"\">zur&uuml;ck</a><br />\n");
 	}
 	
 	/**
@@ -243,10 +243,10 @@ public class BuildingController extends DSGenerator {
 
 		if( building.isDeakAble() ) {
 			if( base.getActive()[field] == 1 ) {
-				echo.append("<a style=\"font-size:16px\" class=\"forschinfo\" href=\""+Common.buildUrl(getContext(), "shutdown", "col" , base.getId(), "field" , field)+"\">deaktivieren</a>");
+				echo.append("<a style=\"font-size:16px\" class=\"forschinfo\" href=\""+Common.buildUrl("shutdown", "col", base.getId() , "field", field)+"\">deaktivieren</a>");
 			} 
 			else {
-				echo.append("<a style=\"font-size:16px\" class=\"forschinfo\" href=\""+Common.buildUrl(getContext(), "start", "col" , base.getId(), "field" , field)+"\">aktivieren</a>");
+				echo.append("<a style=\"font-size:16px\" class=\"forschinfo\" href=\""+Common.buildUrl("start", "col", base.getId() , "field", field)+"\">aktivieren</a>");
 			}
 
 			if( classicDesign ) {
@@ -258,10 +258,10 @@ public class BuildingController extends DSGenerator {
 		}
 
 		if( building.getId() != Building.KOMMANDOZENTRALE ) {
-			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\""+Common.buildUrl(getContext(), "demo", "col" , base.getId(), "field" , field)+"\">abreissen</a><br />");
+			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\""+Common.buildUrl("demo", "col", base.getId() , "field", field)+"\">abreissen</a><br />");
 		}
 		else {
-			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"javascript:ask(\'Wollen sie den Asteroiden wirklich aufgeben?\',\'"+Common.buildUrl(getContext(), "demo", "col" , base.getId(), "field" , field)+"\');\">Asteroid aufgeben</a><br />");
+			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"javascript:ask(\'Wollen sie den Asteroiden wirklich aufgeben?\',\'"+Common.buildUrl("demo", "col", base.getId() , "field", field)+"\');\">Asteroid aufgeben</a><br />");
 		}
 	
 		if( !classicDesign ) {
@@ -271,6 +271,6 @@ public class BuildingController extends DSGenerator {
 			echo.append("<br />\n");
 		}
 
-		echo.append("<br /><a style=\"font-size:16px\" class=\"back\" href=\""+Common.buildUrl(getContext(), "default", "module" , "base", "col" , base.getId())+"\">zur&uuml;ck</a><br /></div>\n");		
+		echo.append("<br /><a style=\"font-size:16px\" class=\"back\" href=\""+Common.buildUrl("default", "module", "base" , "col", base.getId())+"\">zur&uuml;ck</a><br /></div>\n");		
 	}
 }

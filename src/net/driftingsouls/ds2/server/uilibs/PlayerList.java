@@ -154,7 +154,7 @@ public class PlayerList {
 			String ally = "&nbsp;";
 			if( aUser.getAlly() != 0 ) {
 				if( user != null ) {
-					ally = "<a class=\"profile\" href=\""+Common.buildUrl(context, "details", "module", "allylist", "details", aUser.getAlly()) +"\">"+Common._title(allys.get(aUser.getAlly()))+"</a>";
+					ally = "<a class=\"profile\" href=\""+Common.buildUrl("details", "module", "allylist", "details", aUser.getAlly()) +"\">"+Common._title(allys.get(aUser.getAlly()))+"</a>";
 				}
 				else {
 					ally = Common._title(allys.get(aUser.getAlly()));
@@ -200,7 +200,7 @@ public class PlayerList {
 				
 				// Spielername
 				if( context.getActiveUser() != null ) {
-					echo.append("<td class=\"noBorderX\"><a class=\"profile\" href=\""+Common.buildUrl(context, "default", "module", "userprofile", "user", aUser.getId())+"\">"+Common._title(aUser.getName())+"</a>");
+					echo.append("<td class=\"noBorderX\"><a class=\"profile\" href=\""+Common.buildUrl("default", "module", "userprofile", "user", aUser.getId())+"\">"+Common._title(aUser.getName())+"</a>");
 				}
 				else {
 					echo.append("<td class=\"noBorderX\">"+Common._title(aUser.getName()));

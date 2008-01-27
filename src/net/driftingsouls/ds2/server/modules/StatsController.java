@@ -151,7 +151,7 @@ public class StatsController extends DSGenerator {
 			
 			List<StatEntry> alist = this.statslist.get(listkey);
 			for( int i=0; i < alist.size(); i++ ) {
-				builder.append("<a style='font-size:12px;font-weight:normal' class='back' href='"+Common.buildUrl(getContext(), "default", "show", listkey, "stat", i)+"'>"+alist.get(i).name+"</a><br />");
+				builder.append("<a style='font-size:12px;font-weight:normal' class='back' href='"+Common.buildUrl("default", "show", listkey, "stat", i)+"'>"+alist.get(i).name+"</a><br />");
 			}
 	
 			builder.append(StringUtils.replaceChars(Common.tableEnd(), '"', '\''));
@@ -173,7 +173,7 @@ public class StatsController extends DSGenerator {
 				echo.append(" name=\"m"+cat+"_popup\" id=\"m"+cat+"_popup\" class=\"forschinfo\" onclick=\"javascript:overlib('"+lists.get(cat)+"', REF,'m"+cat+"_popup', REFY,22,FGCLASS,'gfxtooltip',BGCLASS,'gfxclass',TEXTFONTCLASS,'gfxclass',NOCLOSE,STICKY);\" onmouseout=\"return nd();\" href=\"#\">"+catkey+"</a>\n");
 			}
 			else {
-				echo.append(" class=\"forschinfo\" href=\""+Common.buildUrl(getContext(), "default", "show", cat)+"\">"+catkey+"</a>\n");
+				echo.append(" class=\"forschinfo\" href=\""+Common.buildUrl("default", "show", cat)+"\">"+catkey+"</a>\n");
 			}
 	
 			if( catpos < catsize - 1 ) {

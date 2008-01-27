@@ -257,17 +257,17 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 				String party2 = null;
 				
 				if( battle.getInt("ally1") == 0 ) {
-					party1 = "<a class=\"profile\" href=\""+Common.buildUrl(controller.getContext(), "default", "module", "userprofile", "user", battle.getInt("commander1"))+"\">"+Common._title(db.first("SELECT name FROM users WHERE id=",battle.getInt("commander1")).getString("name"))+"</a>";
+					party1 = "<a class=\"profile\" href=\""+Common.buildUrl("default", "module", "userprofile", "user", battle.getInt("commander1"))+"\">"+Common._title(db.first("SELECT name FROM users WHERE id=",battle.getInt("commander1")).getString("name"))+"</a>";
 				} 
 				else {
-					party1 = "<a class=\"profile\" href=\""+Common.buildUrl(controller.getContext(), "default", "module", "allylist", "details", battle.getInt("ally1"))+"\">"+Common._title(db.first("SELECT name FROM ally WHERE id="+battle.getInt("ally1")).getString("name"))+"</a>";
+					party1 = "<a class=\"profile\" href=\""+Common.buildUrl("default", "module", "allylist", "details", battle.getInt("ally1"))+"\">"+Common._title(db.first("SELECT name FROM ally WHERE id="+battle.getInt("ally1")).getString("name"))+"</a>";
 				}
 	
 				if( battle.getInt("ally2") == 0 ) {
-					party2 = "<a class=\"profile\" href=\""+Common.buildUrl(controller.getContext(), "default", "module", "userprofile", "user", battle.getInt("commander2") )+"\">"+Common._title(db.first("SELECT name FROM users WHERE id=",battle.getInt("commander2")).getString("name"))+"</a>";
+					party2 = "<a class=\"profile\" href=\""+Common.buildUrl("default", "module", "userprofile", "user", battle.getInt("commander2") )+"\">"+Common._title(db.first("SELECT name FROM users WHERE id=",battle.getInt("commander2")).getString("name"))+"</a>";
 				} 
 				else {
-					party2 = "<a class=\"profile\" href=\""+Common.buildUrl(controller.getContext(), "default", "module", "allylist", "details", battle.getInt("ally2"))+"\">"+Common._title(db.first("SELECT name FROM ally WHERE id=",battle.getInt("ally2")).getString("name"))+"</a>";
+					party2 = "<a class=\"profile\" href=\""+Common.buildUrl("default", "module", "allylist", "details", battle.getInt("ally2"))+"\">"+Common._title(db.first("SELECT name FROM ally WHERE id=",battle.getInt("ally2")).getString("name"))+"</a>";
 				}
 				boolean fixedjoin = false;
 				if( (battle.getInt("commander1") == user.getId()) || 

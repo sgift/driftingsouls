@@ -70,12 +70,12 @@ public class PluendernController extends DSGenerator {
 		
 		SQLResultRow shipFrom = db.first("SELECT * FROM ships WHERE id>0 AND id=",from," AND owner=",user.getId());
 		if( shipFrom.isEmpty() ) {
-			addError("Sie brauchen ein Schiff um zu pl&uuml;ndern", Common.buildUrl(getContext(), "default", "module", "schiff", "ship", from));
+			addError("Sie brauchen ein Schiff um zu pl&uuml;ndern", Common.buildUrl("default", "module", "schiff", "ship", from));
 					
 			return false;	
 		}
 
-		final String errorurl = Common.buildUrl(getContext(), "default", "module", "schiff", "ship", from);
+		final String errorurl = Common.buildUrl("default", "module", "schiff", "ship", from);
 		
 		SQLResultRow shipTo = db.first("SELECT * FROM ships WHERE id>0 AND id=",to);
 		if( shipTo.isEmpty() ) {

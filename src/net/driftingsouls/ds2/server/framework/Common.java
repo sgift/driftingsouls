@@ -39,6 +39,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TimeZone;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -141,19 +142,20 @@ public class Common implements Loggable {
 	/**
 	 * Baut eine URL unter Verwendung des aktuellen Kontexts, einer Ziel-Action und weiterer Parameter
 	 * zusammen. Die weiteren Parameter sind inner in zweier Paerchen anzuordnen und bestehen immer aus
-	 * Parameternamen und -wert.  Sollte in diesen weiteren Parametern nicht der Parameter "module" auftauchen
+	 * Parameternamen und -wert. Sollte in diesen weiteren Parametern nicht der Parameter "module" auftauchen
 	 * wird automatisch das aktuelle Modul angegeben.
-	 *  
-	 * @param context Der aktive Kontext
 	 * @param action Die Ziel-Action
 	 * @param paramlist Weitere Parameter
+	 *  
 	 * @return die zusammengebaute URL
 	 */
-	public static String buildUrl( Context context, String action, Object ... paramlist ) {
-		StringBuilder buffer = new StringBuilder("?module=");	
-		Request request = context.getRequest();
+	public static String buildUrl( String action, Object ... paramlist ) {
+		final Context context = ContextMap.getContext();
 		
-		HashMap<String,String> params = new HashMap<String,String>();
+		final StringBuilder buffer = new StringBuilder("?module=");	
+		final Request request = context.getRequest();
+		
+		final HashMap<String,String> params = new HashMap<String,String>();
 		for( int i=0; i < paramlist.length; i+=2 ) {
 			params.put(paramlist[i].toString(), paramlist[i+1].toString());
 		}
@@ -174,8 +176,9 @@ public class Common implements Loggable {
 	
 		buffer.append("&amp;action="+action);
 	
-		for( String key : params.keySet() ) {
-			buffer.append("&amp;"+key+"="+params.get(key));
+		for( Entry<String, String> entry: params.entrySet() ) 
+		{
+			buffer.append("&amp;"+entry.getKey()+"="+entry.getValue());
 		}
 		
 		return buffer.toString();
@@ -245,7 +248,7 @@ public class Common implements Loggable {
 		sb.append("</tr>");
 		sb.append("<tr>");
 		sb.append("<td class=\"noBorderXnBG\" rowspan=\"1\" style=\"width:19px; background-image:url("+imagePath+"data/interface/border/border_left.gif); background-repeat:repeat-y\"></td>");
-		sb.append("<td class=\"noBorderX\" colspan=\"1\" align=\""+align+"\">");
+		sb.append("<td class=\"noBorderX\" colspan=\"1\" style=\"background-image: url("+imagePath+"data/interface/border/border_background.gif);\" align=\""+align+"\">");
 		
 		return sb.toString();
 	}
@@ -395,7 +398,7 @@ public class Common implements Loggable {
 		int[] result = explodeToInt(separator, array, -1);
 		Integer[] result2 = new Integer[result.length];
 		for( int i=0; i < result.length; i++ ) {
-			result2[i] = new Integer(result[i]);
+			result2[i] = Integer.valueOf(result[i]);
 		}
 		return result2;
 	}
@@ -858,7 +861,7 @@ public class Common implements Loggable {
 	/**
 	 * Liste von BBCodes, welche bei einzeligem Text problematisch sind.
 	 */
-	public static final String[] _TITLE_NAME = new String[] {"img(1)","url(1)","url(2)","imglf(1)","imgrf(1)","email(1)","email(2)","list(1)","list(2)","size(2)"};
+	private static final String[] _TITLE_NAME = new String[] {"img(1)","url(1)","url(2)","imglf(1)","imgrf(1)","email(1)","email(2)","list(1)","list(2)","size(2)"};
 	
 	/**
 	 * Formatiert einen Text in HTML-Code. Zeilenumbrueche werden ignoriert. Ebenso werden einige
@@ -1229,11 +1232,11 @@ public class Common implements Loggable {
 	public static <T> void safeIntInc(Map<T,Integer> map, T property) {
 		Integer val = map.get(property);
 		if( val == null ) {
-			map.put(property, new Integer(1));
+			map.put(property, 1);
 			return;
 		}
 		
-		map.put(property, new Integer(val.intValue()+1));		
+		map.put(property, val.intValue()+1);		
 	}
 	
 	/**
@@ -1245,10 +1248,10 @@ public class Common implements Loggable {
 	public static <T> void safeLongInc(Map<T,Long> map, T property) {
 		Long val = map.get(property);
 		if( val == null ) {
-			map.put(property, new Long(1));
+			map.put(property, Long.valueOf(1));
 			return;
 		}
 		
-		map.put(property, new Long(val.longValue()+1));		
+		map.put(property, val.longValue()+1);		
 	}
 }

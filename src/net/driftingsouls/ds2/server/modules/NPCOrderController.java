@@ -48,7 +48,7 @@ public class NPCOrderController extends DSGenerator {
 		TemplateEngine t = this.getTemplateEngine();
 		
 		if( !user.hasFlag( User.FLAG_ORDER_MENU ) ) {
-			addError("Nur NPCs k&ouml;nnen dieses Script nutzen", Common.buildUrl(getContext(), "default", "module", "ueber") );
+			addError("Nur NPCs k&ouml;nnen dieses Script nutzen", Common.buildUrl("default", "module", "ueber") );
 			
 			return false;
 		}

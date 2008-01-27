@@ -341,7 +341,7 @@ public class User implements Loggable {
 			username = Common._title(data.getString("name"));
 		}
 		
-		return "<a class=\"profile\" href=\""+Common.buildUrl(ContextMap.getContext(), "default", "module", "userprofile", "user", this.id)+"\">"+username+"</a>";
+		return "<a class=\"profile\" href=\""+Common.buildUrl("default", "module", "userprofile", "user", this.id)+"\">"+username+"</a>";
 	}
 	
 	/**

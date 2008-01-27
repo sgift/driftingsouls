@@ -89,12 +89,12 @@ public class KapernController extends DSGenerator {
 		SQLResultRow datan = db.first("SELECT * FROM ships WHERE id=",tar);
 
 		if( datas.isEmpty() ) {
-			addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen", Common.buildUrl(getContext(), "default", "module", "schiffe") );
+			addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen", Common.buildUrl("default", "module", "schiffe") );
 			
 			return false;
 		}
 		
-		String errorurl = Common.buildUrl(getContext(), "default", "module", "schiff", "ship", ship);
+		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", ship);
 		
 		if( datan.isEmpty() ) {
 			addError("Das angegebene Zielschiff existiert nicht", errorurl );
@@ -220,7 +220,7 @@ public class KapernController extends DSGenerator {
 		
 		t.setVar("kapern.showkaperreport", 1);
 		
-		String errorurl = Common.buildUrl(getContext(), "default", "module", "schiff", "ship", this.ownShip.getInt("id"));
+		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", this.ownShip.getInt("id"));
 		
 		if( (this.targetShip.getInt("system") == 1) && (this.targetShip.getInt("crew") > 0) ) {
 			addError("Sie k&ouml;nnen keine Schiffe im System "+Systems.get().system(1).getName()+" (1) st&uuml;rmen", errorurl);

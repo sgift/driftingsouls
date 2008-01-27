@@ -190,7 +190,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 					this.history_sides.put(thisSide, "Unbekannter Spieler ("+atts.getValue("commander")+")");
 				}
 				else {
-					this.history_sides.put(thisSide, "<a class=\"profile\" style=\"color:#000050\" href=\""+Common.buildUrl(context, "default", "module", "userprofile", "user", auser.getId())+"\">"+Common._titleNoFormat(auser.getName())+"</a>");
+					this.history_sides.put(thisSide, "<a class=\"profile\" style=\"color:#000050\" href=\""+Common.buildUrl("default", "module", "userprofile", "user", auser.getId())+"\">"+Common._titleNoFormat(auser.getName())+"</a>");
 				}
 			} 
 		}

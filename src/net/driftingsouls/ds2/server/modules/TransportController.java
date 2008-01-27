@@ -554,7 +554,7 @@ public class TransportController extends DSGenerator {
 
 		for( TransportTarget afrom : this.from ) {
 			if( afrom.getOwner() != getUser().getId() ) {
-				addError("Das Schiff geh&ouml;rt ihnen nicht", Common.buildUrl(getContext(), "default", "module", "ueber") );
+				addError("Das Schiff geh&ouml;rt ihnen nicht", Common.buildUrl("default", "module", "ueber") );
 				
 				return false;
 			}

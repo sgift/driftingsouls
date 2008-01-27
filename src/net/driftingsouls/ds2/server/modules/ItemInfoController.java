@@ -279,14 +279,14 @@ public class ItemInfoController extends DSGenerator {
 			StringBuilder data = new StringBuilder(100);
 			if( shiptype.getBoolean("hide") ) {
         		if( user.getAccessLevel() > 20 ) {
-        			data.append("<a class=\"forschinfo\" href=\""+Common.buildUrl(getContext(), "default", "module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getString("nickname")+"</a><br /><span style=\"font-style:italic;color:red\" class=\"verysmallfont\">[unsichtbar]</span>\n");
+        			data.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getString("nickname")+"</a><br /><span style=\"font-style:italic;color:red\" class=\"verysmallfont\">[unsichtbar]</span>\n");
 	        	} 
 	        	else {
     	    		data.append("Unbekannt");
         		}
 			}	
 			else if( !shiptype.isEmpty() ) {
-				data.append("<a class=\"forschinfo\" href=\""+Common.buildUrl(getContext(), "default", "module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getString("nickname")+"</a>\n");
+				data.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getString("nickname")+"</a>\n");
 			}	
 			else {
 				data.append("<span style=\"color:red\">Unbekannter Schiffstyp</span>");
@@ -318,7 +318,7 @@ public class ItemInfoController extends DSGenerator {
 						continue;
 					}
 					
-					data.append("<a class=\"nonbold\" href=\""+Common.buildUrl(getContext(),"default", "module", "forschinfo", "res", effect.getTechReq(i))+"\">");
+					data.append("<a class=\"nonbold\" href=\""+Common.buildUrl("default","module", "forschinfo", "res", effect.getTechReq(i))+"\">");
 			 		
 			 		if( user.hasResearched(effect.getTechReq(i)) ) {
 			 			data.append("<span style=\"color:green; font-size:14px\">");
@@ -400,7 +400,7 @@ public class ItemInfoController extends DSGenerator {
 			
 			SQLResultRow shiptype = ShipTypes.getShipType( effect.getShipType(), false );
 			if( !shiptype.isEmpty() ) {
-				t.setVar("entry.data", "<a class=\"forschinfo\" href=\""+Common.buildUrl(getContext(),"default", "module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getString("nickname")+"</a>" );
+				t.setVar("entry.data", "<a class=\"forschinfo\" href=\""+Common.buildUrl("default","module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getString("nickname")+"</a>" );
 			}
 			else {
 				t.setVar("entry.data", "<span style=\"color:red\">Unbekannter Schiffstyp</span>");
@@ -522,7 +522,7 @@ public class ItemInfoController extends DSGenerator {
 							continue;
 						}
 						
-						data.append("<a class=\"nonbold\" href=\""+Common.buildUrl(getContext(), "default", "module", "forschinfo", "res", ammo.getInt("res"+i))+"\">");
+						data.append("<a class=\"nonbold\" href=\""+Common.buildUrl("default", "module", "forschinfo", "res", ammo.getInt("res"+i))+"\">");
 		 				if( user.hasResearched(ammo.getInt("res"+i)) ) {
 		 					data.append("<span style=\"color:green; font-size:14px\">");
 		 				}
@@ -584,7 +584,7 @@ public class ItemInfoController extends DSGenerator {
 				}
 				if( ammo.getInt("replaces") != 0 ) {
 					SQLResultRow replammo = db.first("SELECT itemid,name FROM ammo WHERE id=",ammo.getInt("replaces"));
-					data.append("<br />Ersetzt <a style=\"font-size:14px\" class=\"forschinfo\" href=\""+Common.buildUrl(getContext(), "details", "module", "iteminfo", "item", replammo.getInt("itemid"))+"\">"+replammo.getString("name")+"</a>\n");
+					data.append("<br />Ersetzt <a style=\"font-size:14px\" class=\"forschinfo\" href=\""+Common.buildUrl("details", "module", "iteminfo", "item", replammo.getInt("itemid"))+"\">"+replammo.getString("name")+"</a>\n");
 				}
 					
 				t.setVar(	"entry.name",	"Daten",
@@ -715,14 +715,14 @@ public class ItemInfoController extends DSGenerator {
 						if( !shipnamecache.containsKey(objectid) ) {
 							shipnamecache.put(objectid, Common._plaintitle(db.first("SELECT name FROM ships WHERE id=",objectid).getString("name")));
 						}
-						tooltiptext.append(shipimage+"<td class='noBorderX'><a style='font-size:14px' class='forschinfo' href='"+Common.buildUrl(getContext(), "default", "module", "schiff", "ship", objectid)+"'>"+shipnamecache.get(objectid)+" ("+objectid+")</a></td>");
+						tooltiptext.append(shipimage+"<td class='noBorderX'><a style='font-size:14px' class='forschinfo' href='"+Common.buildUrl("default", "module", "schiff", "ship", objectid)+"'>"+shipnamecache.get(objectid)+" ("+objectid+")</a></td>");
 						break;
 					case 'b':
 						if( !basecache.containsKey(objectid) ) {
 							basecache.put(objectid, db.first("SELECT name,x,y,system FROM bases WHERE id=",objectid));
 							basecache.get(objectid).put("name", Common._plaintitle(basecache.get(objectid).getString("name")));
 						}
-						tooltiptext.append(baseimage+"<td class='noBorderX'><a style='font-size:14px' class='forschinfo' href='"+Common.buildUrl(getContext(), "default", "module", "base", "col", objectid)+"'>"+basecache.get(objectid).getString("name")+" - "+basecache.get(objectid).getInt("system")+":"+basecache.get(objectid).getInt("x")+"/"+basecache.get(objectid).getInt("y")+"</a></td>");
+						tooltiptext.append(baseimage+"<td class='noBorderX'><a style='font-size:14px' class='forschinfo' href='"+Common.buildUrl("default", "module", "base", "col", objectid)+"'>"+basecache.get(objectid).getString("name")+" - "+basecache.get(objectid).getInt("system")+":"+basecache.get(objectid).getInt("x")+"/"+basecache.get(objectid).getInt("y")+"</a></td>");
 						break;
 					case 'g':
 						if( !shipnamecache.containsKey(objectid) ) {

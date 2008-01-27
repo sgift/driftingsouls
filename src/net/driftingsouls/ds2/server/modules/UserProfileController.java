@@ -61,7 +61,7 @@ public class UserProfileController extends DSGenerator {
 		
 		User auser = getContext().createUserObject(getInteger("user"));
 		if( (auser.getId() == 0) || (auser.hasFlag(User.FLAG_HIDE) && (user.getAccessLevel() < 20)) ) {
-			addError( "Ihnen ist kein Benutzer unter der angegebenen ID bekannt", Common.buildUrl(getContext(), "default", "module", "ueber") );
+			addError( "Ihnen ist kein Benutzer unter der angegebenen ID bekannt", Common.buildUrl("default", "module", "ueber") );
 			
 			return false;	
 		}

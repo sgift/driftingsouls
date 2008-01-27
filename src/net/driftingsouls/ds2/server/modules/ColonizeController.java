@@ -74,27 +74,27 @@ public class ColonizeController extends DSGenerator {
 		
 		SQLResultRow ship = db.first("SELECT * FROM ships WHERE id>0 AND owner='",user.getId(),"' AND id='",shipId,"'");
 		if( ship.isEmpty() ) {
-			addError("Fehler: Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht", Common.buildUrl(getContext(), "default", "module", "schiffe") );
+			addError("Fehler: Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht", Common.buildUrl("default", "module", "schiffe") );
 			
 			return false;
 		}
 		
 		SQLResultRow shiptype = ShipTypes.getShipType( ship );
 		if( !ShipTypes.hasShipTypeFlag(shiptype, ShipTypes.SF_COLONIZER) ) {
-			addError("Fehler: Das angegebene Schiff kann keine Planeten kolonisieren", Common.buildUrl(getContext(), "default", "module" , "schiff", "ship", shipId) );
+			addError("Fehler: Das angegebene Schiff kann keine Planeten kolonisieren", Common.buildUrl("default", "module", "schiff" , "ship", shipId) );
 			
 			return false;
 		}
 
 		SQLResultRow base = db.first("SELECT * FROM bases WHERE owner=0 AND id='",col,"'");
 		if( base.isEmpty() ) {
-			addError("Fehler: Der angegebene Asteroid existiert nicht oder geh&ouml;rt bereits einem anderen Spieler", Common.buildUrl(getContext(), "default", "module" , "schiff", "ship", shipId) );
+			addError("Fehler: Der angegebene Asteroid existiert nicht oder geh&ouml;rt bereits einem anderen Spieler", Common.buildUrl("default", "module", "schiff" , "ship", shipId) );
 			
 			return false;
 		}
 
 		if( !Location.fromResult(ship).sameSector(0, Location.fromResult(base), base.getInt("size")) ) {
-			addError("Fehler: Der Asteroid befindet sich nicht im selben Sektor wie das Schiff", Common.buildUrl(getContext(), "default", "module", "schiff", "ship", shipId) );
+			addError("Fehler: Der Asteroid befindet sich nicht im selben Sektor wie das Schiff", Common.buildUrl("default", "module", "schiff", "ship", shipId) );
 			
 			return false;
 		}

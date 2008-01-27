@@ -287,7 +287,7 @@ public class AllyListController extends DSGenerator {
 	
 		SQLQuery ally = db.query("SELECT id,name,hp FROM ally ORDER BY founded");
 		while( ally.next() ) {
-			String name = "<a class=\"forschinfo\" href=\""+Common.buildUrl(getContext(), "details", "details", ally.getInt("id"))+"\">"+Common._title(ally.getString("name"))+"</a>";
+			String name = "<a class=\"forschinfo\" href=\""+Common.buildUrl("details", "details", ally.getInt("id"))+"\">"+Common._title(ally.getString("name"))+"</a>";
 
 			if( ally.getString("hp").length() > 0 ) {
 				name += " <a class=\"forschinfo\" target=\"_blank\" href=\""+ally.getString("hp")+"\">[HP]</a>";

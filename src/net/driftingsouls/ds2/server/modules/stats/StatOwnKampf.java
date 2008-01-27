@@ -99,7 +99,7 @@ public class StatOwnKampf implements Statistic {
 			echo.append("</tr>\n");
 			echo.append("<tr><td class=\"noBorderX\" align=\"left\" colspan=\"2\">\n");
 			if( destpos-8 >= 0 ) {
-				echo.append("<a class=\"forschinfo\" href=\""+Common.buildUrl(context, "default", "show", 4, "destpos", destpos-8)+"\">zur&uuml;ck</a>\n");
+				echo.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "show", 4, "destpos", destpos-8)+"\">zur&uuml;ck</a>\n");
 			}
 			else {
 				echo.append("zur&uuml;ck");	
@@ -107,7 +107,7 @@ public class StatOwnKampf implements Statistic {
 			echo.append("</td>");
 			echo.append("<td class=\"noBorderX\" align=\"right\" colspan=\"3\">\n");
 			if( destpos+8 < destcount ) {
-				echo.append("<a class=\"forschinfo\" href=\""+Common.buildUrl(context, "default", "show", 4, "destpos", destpos+8)+"\">vor</a>\n");
+				echo.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "show", 4, "destpos", destpos+8)+"\">vor</a>\n");
 			}
 			else {
 				echo.append("vor");	
@@ -177,7 +177,7 @@ public class StatOwnKampf implements Statistic {
 			echo.append("</tr>\n");
 			echo.append("<tr><td class=\"noBorderX\" align=\"left\" colspan=\"2\">\n");
 			if( lostpos-8 >= 0 ) {
-				echo.append("<a class=\"forschinfo\" href=\""+Common.buildUrl(context, "default", "show", 4, "lostpos", lostpos-8)+"\">zur&uuml;ck</a>\n");
+				echo.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "show", 4, "lostpos", lostpos-8)+"\">zur&uuml;ck</a>\n");
 			}
 			else {
 				echo.append("zur&uuml;ck");	
@@ -185,7 +185,7 @@ public class StatOwnKampf implements Statistic {
 			echo.append("</td>");
 			echo.append("<td class=\"noBorderX\" align=\"right\" colspan=\"3\">");
 			if( lostpos+8 < lostcount ) {
-				echo.append("<a class=\"forschinfo\" href=\""+Common.buildUrl(context, "default", "show", 4, "lostpos", lostpos+8)+"\">vor</a>\n");
+				echo.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "show", 4, "lostpos", lostpos+8)+"\">vor</a>\n");
 			}
 			else {
 				echo.append("vor");	

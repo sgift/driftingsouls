@@ -68,7 +68,7 @@ public class DeutSammelnController extends DSGenerator {
 		
 		SQLResultRow ship = db.first("SELECT * FROM ships WHERE owner=",user.getId()," AND id>0 AND id='",shipID,"'");
 		if( ship.isEmpty() ) {
-			addError("Das angegebene Schiff existiert nicht", Common.buildUrl(getContext(), "default", "module", "schiffe") );
+			addError("Das angegebene Schiff existiert nicht", Common.buildUrl("default", "module", "schiffe") );
 			
 			return false;
 		}
@@ -77,7 +77,7 @@ public class DeutSammelnController extends DSGenerator {
 
 		SQLResultRow nebel = db.first("SELECT id,x,y,system,type FROM nebel WHERE id=",nebelID);
 
-		String errorurl = Common.buildUrl(getContext(), "default", "module", "schiff", "ship", shipID);
+		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", shipID);
 
 		if( !Location.fromResult(nebel).sameSector(0, Location.fromResult(ship), 0) ) {
 			addError("Der Nebel befindet sich nicht im selben Sektor wie das Schiff", errorurl );

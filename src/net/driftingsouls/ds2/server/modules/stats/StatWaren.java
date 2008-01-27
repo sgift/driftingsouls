@@ -149,7 +149,7 @@ public class StatWaren implements Statistic, Loggable {
 						}
 						tooltip.append(shipimage+"<td class='noBorderX'>" +
 								"<a style='font-size:14px' class='forschinfo' " +
-								"href='"+Common.buildUrl(context, "default", "module", "schiff", "ship", objectid)+"'>"+
+								"href='"+Common.buildUrl("default", "module", "schiff", "ship", objectid)+"'>"+
 								shipnamecache.get(objectid)+" ("+objectid+")</a></td>");
 						break;
 
@@ -160,7 +160,7 @@ public class StatWaren implements Statistic, Loggable {
 						}
 						tooltip.append(baseimage+"<td class='noBorderX'>" +
 								"<a style='font-size:14px' class='forschinfo' " +
-								"href='"+Common.buildUrl(context, "default", "module", "base", "col", objectid)+"'>"+
+								"href='"+Common.buildUrl("default", "module", "base", "col", objectid)+"'>"+
 								Common._plaintitle(basecache.get(objectid).getString("name"))+" - "+
 								Location.fromResult(basecache.get(objectid))+
 								"</a></td>");

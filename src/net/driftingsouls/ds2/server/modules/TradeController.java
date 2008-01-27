@@ -65,7 +65,7 @@ public class TradeController extends DSGenerator {
 		
 		this.ship = db.first("SELECT * FROM ships WHERE owner='",getUser().getId(),"' AND id>0 AND id='",shipId,"'");
 		if( this.ship.isEmpty() ) {
-			addError( "Fehler: Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen", Common.buildUrl(getContext(), "default", "module", "schiffe") );
+			addError( "Fehler: Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen", Common.buildUrl("default", "module", "schiffe") );
 			
 			return false;
 		}
@@ -73,7 +73,7 @@ public class TradeController extends DSGenerator {
 		int tradepost = getInteger("tradepost");
 		SQLResultRow handel = db.first("SELECT * FROM ships WHERE id>0 AND system=",this.ship.getInt("system")," AND x=",this.ship.getInt("x")," AND y=",this.ship.getInt("y")," AND LOCATE('tradepost',status) AND id='",tradepost,"'");
 		if( handel.isEmpty() ) {
-			addError( "Fehler: Der angegebene Handelsposten konnte nicht im Sektor lokalisiert werden", Common.buildUrl(getContext(), "default", "module", "schiff", "ship", shipId));
+			addError( "Fehler: Der angegebene Handelsposten konnte nicht im Sektor lokalisiert werden", Common.buildUrl("default", "module", "schiff", "ship", shipId));
 			
 			return false;
 		}

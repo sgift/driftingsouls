@@ -126,12 +126,12 @@ public class SchiffController extends DSGenerator implements Loggable {
 		
 		ship = db.first("SELECT * FROM ships WHERE id>0 AND owner='",user.getId(),"' AND id=",shipid);
 		if( ship.isEmpty() ) {
-			addError("Das angegebene Schiff existiert nicht", Common.buildUrl(getContext(),"default", "module", "schiffe") );
+			addError("Das angegebene Schiff existiert nicht", Common.buildUrl("default","module", "schiffe") );
 			return false;
 		}
 
 		if( ship.getInt("battle") > 0 ) {
-			addError("Das Schiff ist in einen Kampf verwickelt (hier klicken um zu diesem zu gelangen)!", Common.buildUrl(getContext(), "default", "module", "angriff", "battle", ship.getInt("battle"), "ship", shipid) );
+			addError("Das Schiff ist in einen Kampf verwickelt (hier klicken um zu diesem zu gelangen)!", Common.buildUrl("default", "module", "angriff", "battle", ship.getInt("battle"), "ship", shipid) );
 			return false;
 		}
 
@@ -232,7 +232,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		
 		if( conf == 0 ) {
 			String text = "<span style=\"color:white\">Wollen sie das Schiff "+Common._plaintitle(ship.getString("name"))+" ("+ship.getInt("id")+") wirklich an "+newowner.getProfileLink()+" &uuml;bergeben?</span><br />";
-			text += "<a class=\"ok\" href=\""+Common.buildUrl(getContext(), "consign", "ship", ship.getInt("id"), "conf" , 1, "newowner" , newowner.getId())+"\">&Uuml;bergeben</a></span><br />";
+			text += "<a class=\"ok\" href=\""+Common.buildUrl("consign", "ship", ship.getInt("id"), "conf", 1 , "newowner", newowner.getId())+"\">&Uuml;bergeben</a></span><br />";
 			t.setVar( "ship.message", text );
 			
 			redirect();
@@ -286,7 +286,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 	
 		if( conf == 0 ) {
 			String text = "<span style=\"color:white\">Wollen sie Selbstzerst&ouml;rung des Schiffes "+Common._plaintitle(ship.getString("name"))+" ("+ship.getInt("id")+") wirklich ausf&uuml;hren?</span><br />\n";
-			text += "<a class=\"error\" href=\""+Common.buildUrl(getContext(), "destroy", "ship", ship.getInt("id"), "conf", 1)+"\">Selbstzerst&ouml;rung</a></span><br />";
+			text += "<a class=\"error\" href=\""+Common.buildUrl("destroy", "ship", ship.getInt("id"), "conf", 1)+"\">Selbstzerst&ouml;rung</a></span><br />";
 			t.setVar("ship.message", text);
 			
 			redirect();
@@ -1098,7 +1098,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 						scriptparser.getContext().getOutput().replace("{{var.sessid}}", getString("sess")) );
 			}
 		
-			addError("Das Schiff ist in einen Kampf verwickelt (hier klicken um zu diesem zu gelangen)!", Common.buildUrl(getContext(), "default", "module", "angriff", "battle", ship.getString("battle"), "ship", ship.getInt("id")) );
+			addError("Das Schiff ist in einen Kampf verwickelt (hier klicken um zu diesem zu gelangen)!", Common.buildUrl("default", "module", "angriff", "battle", ship.getString("battle"), "ship", ship.getInt("id")) );
 			return;
 		}
 		
@@ -1106,7 +1106,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 		
 		StringBuilder tooltiptext = new StringBuilder(100);
 		tooltiptext.append(Common.tableBegin(340, "center").replace('"', '\'') );
-		tooltiptext.append("<iframe src='"+Common.buildUrl(getContext(), "default", "module", "impobjects", "system", ship.getInt("system"))+"' name='sector' width='320' height='300' scrolling='auto' marginheight='0' marginwidth='0' frameborder='0'>Ihr Browser unterst&uuml;tzt keine iframes</iframe>");
+		tooltiptext.append("<iframe src='"+Common.buildUrl("default", "module", "impobjects", "system", ship.getInt("system"))+"' name='sector' width='320' height='300' scrolling='auto' marginheight='0' marginwidth='0' frameborder='0'>Ihr Browser unterst&uuml;tzt keine iframes</iframe>");
 		tooltiptext.append(Common.tableEnd().replace('"', '\'') );
 		String tooltiptextStr = StringEscapeUtils.escapeJavaScript(tooltiptext.toString().replace(">", "&gt;").replace("<", "&lt;"));
 

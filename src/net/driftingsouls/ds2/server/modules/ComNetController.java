@@ -211,7 +211,7 @@ public class ComNetController extends DSGenerator {
 		
 		t.setVar("show.read",1);
 		if( !activeChannelObj.isReadable(user) ) {
-			addError( "Sie sind nicht berechtigt diesee Frequenz zu empfangen", Common.buildUrl(getContext(), "default", "channel", activeChannel) );
+			addError( "Sie sind nicht berechtigt diesee Frequenz zu empfangen", Common.buildUrl("default", "channel", activeChannel) );
 			setTemplate("");
 			
 			return;			
@@ -324,7 +324,7 @@ public class ComNetController extends DSGenerator {
 		
 		t.setVar("show.read",1);
 		if( !activeChannelObj.isReadable(user) ) {
-			addError( "Sie sind nicht berechtigt diesee Frequenz zu empfangen", Common.buildUrl(getContext(), "default", "channel", activeChannel) );
+			addError( "Sie sind nicht berechtigt diesee Frequenz zu empfangen", Common.buildUrl("default", "channel", activeChannel) );
 			setTemplate("");
 			
 			return;			
@@ -409,7 +409,7 @@ public class ComNetController extends DSGenerator {
 		Database db = getDatabase();
 		
 		if( !activeChannelObj.isWriteable(user) ) {
-			addError( "Sie sind nicht berechtigt auf dieser Frequenz zu senden", Common.buildUrl(getContext(), "default", "channel", activeChannel) );
+			addError( "Sie sind nicht berechtigt auf dieser Frequenz zu senden", Common.buildUrl("default", "channel", activeChannel) );
 			setTemplate("");
 			
 			return;			
@@ -451,7 +451,7 @@ public class ComNetController extends DSGenerator {
 		TemplateEngine t = getTemplateEngine();
 		
 		if( !activeChannelObj.isWriteable(user) ) {
-			addError( "Sie sind nicht berechtigt auf dieser Frequenz zu senden", Common.buildUrl(getContext(), "default", "channel", activeChannel) );
+			addError( "Sie sind nicht berechtigt auf dieser Frequenz zu senden", Common.buildUrl("default", "channel", activeChannel) );
 			setTemplate("");
 			
 			return;			
@@ -474,7 +474,7 @@ public class ComNetController extends DSGenerator {
 		TemplateEngine t = getTemplateEngine();
 		
 		if( !activeChannelObj.isWriteable(user) ) {
-			addError( "Sie sind nicht berechtigt auf dieser Frequenz zu senden", Common.buildUrl(getContext(), "default", "channel", activeChannel) );
+			addError( "Sie sind nicht berechtigt auf dieser Frequenz zu senden", Common.buildUrl("default", "channel", activeChannel) );
 			setTemplate("");
 			
 			return;			

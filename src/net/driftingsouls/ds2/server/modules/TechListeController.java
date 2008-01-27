@@ -87,7 +87,7 @@ public class TechListeController extends DSGenerator {
 		
 		for( Rasse aRasse : Rassen.get() ) {
 			if( aRasse.isExtPlayable() ) {
-				rassenliste.append("<a href='"+Common.buildUrl(getContext(), "default", "rasse", aRasse.getID())+"'>");
+				rassenliste.append("<a href='"+Common.buildUrl("default", "rasse", aRasse.getID())+"'>");
 				rassenliste.append("<img style='border:0px' src='"+Configuration.getSetting("URL")+"data/interface/rassen/"+aRasse.getID()+".png' />");
 				rassenliste.append("</a>");		
 			}

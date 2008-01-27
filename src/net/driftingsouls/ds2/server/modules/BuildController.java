@@ -73,7 +73,7 @@ public class BuildController extends DSGenerator {
 		
 		SQLResultRow baseRow = db.first("SELECT * FROM bases WHERE owner=",user.getId()," AND id=",col);
 		if( baseRow.isEmpty() ) {
-			addError("Die angegebene Kolonie existiert nicht", Common.buildUrl(getContext(), "default", "module", "basen"));
+			addError("Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "basen"));
 			
 			return false;
 		}

@@ -78,7 +78,7 @@ public class ScanController extends DSGenerator {
 			SQLResultRow ship = db.first("SELECT id,x,y,system,sensors,crew,type,status FROM ships WHERE owner='",getUser().getId(),"' AND id>0 AND id=",shipID);
 	
 			if( ship.isEmpty() ) {
-				addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht", Common.buildUrl(getContext(), "default", "module", "schiffe") );
+				addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht", Common.buildUrl("default", "module", "schiffe") );
 				
 				return false;
 			}
@@ -107,14 +107,14 @@ public class ScanController extends DSGenerator {
 					break;
 					
 				default:
-					addError("Der Nebel verhindert den Einsatz von Langstreckensensoren", Common.buildUrl(getContext(), "default", "module", "schiff", "ship", shipID));
+					addError("Der Nebel verhindert den Einsatz von Langstreckensensoren", Common.buildUrl("default", "module", "schiff", "ship", shipID));
 				
 					return false;
 				}
 			}
 	
 			if( ship.getInt("crew") < shiptype.getInt("crew")/3 ) {
-				addError("Es werden mindestens "+shiptype.getInt("crew")/3+" Crewmitglieder ben&ouml;tigt", Common.buildUrl(getContext(), "default", "module", "schiff", "ship", shipID));
+				addError("Es werden mindestens "+shiptype.getInt("crew")/3+" Crewmitglieder ben&ouml;tigt", Common.buildUrl("default", "module", "schiff", "ship", shipID));
 				
 				return false;
 			}
