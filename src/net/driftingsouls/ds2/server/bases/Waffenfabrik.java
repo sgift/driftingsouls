@@ -50,11 +50,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
 class Waffenfabrik extends DefaultBuilding {
-	private static transient Map<Integer,SQLResultRow> ammolist = new HashMap<Integer,SQLResultRow>();
-	
-	static {
-		cacheAmmo();
-	}
+	private static transient Map<Integer,SQLResultRow> ammolist = null;
 		
 	static void cacheAmmo() {
 		if( Waffenfabrik.ammolist == null ) {
