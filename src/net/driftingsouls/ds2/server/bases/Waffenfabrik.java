@@ -36,13 +36,11 @@ import net.driftingsouls.ds2.server.config.IEDraftAmmo;
 import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.ItemEffect;
 import net.driftingsouls.ds2.server.config.Items;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
-import net.driftingsouls.ds2.server.framework.caches.CacheManager;
-import net.driftingsouls.ds2.server.framework.caches.ControllableCache;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -56,29 +54,23 @@ class Waffenfabrik extends DefaultBuilding {
 	
 	static {
 		cacheAmmo();
-		CacheManager.getInstance().registerCache(
-			new ControllableCache() {
-				public void clear() {
-					Waffenfabrik.cacheAmmo();
-				}
-			}
-		);
 	}
 		
 	static void cacheAmmo() {
-		Map<Integer,SQLResultRow> ammolist = new HashMap<Integer,SQLResultRow>();
-
-		Database db = new Database();
-		SQLQuery ammo = db.query("SELECT * FROM ammo");
-		while( ammo.next() ) {
-			SQLResultRow ammorow = ammo.getRow();
-			ammorow.put("buildcosts", new Cargo( Cargo.Type.STRING, ammorow.getString("buildcosts")) );
-			ammolist.put(ammo.getInt("id"), ammorow);
+		if( Waffenfabrik.ammolist == null ) {
+			Map<Integer,SQLResultRow> ammolist = new HashMap<Integer,SQLResultRow>();
+	
+			Database db = ContextMap.getContext().getDatabase();
+			SQLQuery ammo = db.query("SELECT * FROM ammo");
+			while( ammo.next() ) {
+				SQLResultRow ammorow = ammo.getRow();
+				ammorow.put("buildcosts", new Cargo( Cargo.Type.STRING, ammorow.getString("buildcosts")) );
+				ammolist.put(ammo.getInt("id"), ammorow);
+			}
+			ammo.free();
+	
+			Waffenfabrik.ammolist = ammolist;
 		}
-		ammo.free();
-		db.close();
-
-		Waffenfabrik.ammolist = ammolist;
 	}
 	
 	private static class ContextVars {
@@ -97,13 +89,15 @@ class Waffenfabrik extends DefaultBuilding {
 	 */
 	public Waffenfabrik(SQLResultRow row) {
 		super(row);
+		
+		cacheAmmo();
 	}
 	
 	private String loaddata( Base base ) {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 		
-		User user = context.createUserObject( base.getOwner() );
+		User user = (User)context.getDB().get(User.class, base.getOwner());
 		
 		ContextVars vars = (ContextVars)context.getVariable(getClass(), "values");
 		Integer lastUser = (Integer)context.getVariable(getClass(), "last_user");
@@ -377,7 +371,7 @@ class Waffenfabrik extends DefaultBuilding {
 	@Override
 	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
 		Database db = context.getDatabase();
-		User user = context.getActiveUser();
+		User user = (User)context.getActiveUser();
 		
 		String sess = context.getSession();
 		

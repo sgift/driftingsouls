@@ -91,13 +91,16 @@ public abstract class TickController {
 	 * @param userid Der zu sperrende User oder 0 (default) fuer alle User
 	 */
 	protected void block(int userid) {
-		Database db = getDatabase();
-		
 		if( userid != 0 ) {
-			db.update("UPDATE sessions SET tick=1 WHERE id='",userid,"'");
+			getContext().getDB()
+				.createQuery("update Session set tick=1 where id=?")
+				.setInteger(0, userid)
+				.executeUpdate();
 		}
 		else {
-			db.update("UPDATE sessions SET tick=1");
+			getContext().getDB()
+				.createQuery("update Session set tick=1")
+				.executeUpdate();
 		}
 	}
 	
@@ -108,13 +111,16 @@ public abstract class TickController {
 	 * @param userid Der zu entsperrende User oder 0 (default) fuer alle User
 	 */
 	protected void unblock( int userid ) {
-		Database db = getDatabase();
-		
 		if( userid != 0 ) {
-			db.update("UPDATE sessions SET tick=0 WHERE id='",userid,"'");
+			getContext().getDB()
+				.createQuery("update Session set tick=0 where id=?")
+				.setInteger(0, userid)
+				.executeUpdate();
 		}
 		else {
-			db.update("UPDATE sessions SET tick=0");
+			getContext().getDB()
+				.createQuery("update Session set tick=0")
+				.executeUpdate();
 		}
 	}
 	

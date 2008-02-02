@@ -18,17 +18,21 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.util.Iterator;
+import java.util.List;
+
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
-import net.driftingsouls.ds2.server.framework.UserIterator;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
@@ -36,7 +40,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * @author Christopher Jung
  *
  */
-public class AllyListController extends DSGenerator {
+public class AllyListController extends TemplateGenerator {
 	/**
 	 * Konstruktor
 	 * @param context Der zu verwendende Kontext
@@ -49,7 +53,7 @@ public class AllyListController extends DSGenerator {
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
@@ -69,8 +73,9 @@ public class AllyListController extends DSGenerator {
 	 * @urlparam Integer relation Die neue Beziehung. 1 fuer feindlich, 2 fuer freundlich und neural bei allen anderen Werten
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void changeRelationAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
@@ -119,8 +124,9 @@ public class AllyListController extends DSGenerator {
 	 * @urlparam Integer details Die ID der Allianz
 	 * @urlparam Integer relation Die neue Beziehung. 1 fuer feindlich, 2 fuer freundlich und neural bei allen anderen Werten
 	 */
+	@Action(ActionType.DEFAULT)
 	public void changeRelationAllyAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
@@ -166,15 +172,18 @@ public class AllyListController extends DSGenerator {
 		}
 		
 		db.tBegin();
-		UserIterator iter = getContext().createUserIterator("SELECT * FROM users WHERE ally=",user.getAlly());
-		for( User auser : iter ) {
+		List userList = getContext().getDB().createQuery("from User where ally= :ally")
+			.setInteger("ally", user.getAlly())
+			.list();
+		for( Iterator iter=userList.iterator(); iter.hasNext(); ) {
+			User auser = (User)iter.next();
+			
 			SQLQuery allymember = db.query("SELECT id FROM users WHERE ally=",ally.getInt("id"));
 			while( allymember.next() ) {
 				auser.setRelation(allymember.getInt("id"), rel);
 			}
 			allymember.free();
 		}
-		iter.free();
 		db.tCommit();
 			
 		t.setVar("ally.message", "Beziehungsstatus ge&auml;ndert");
@@ -187,8 +196,9 @@ public class AllyListController extends DSGenerator {
 	 * @urlparam Integer details Die ID der anzuzeigenden Allianz
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void detailsAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
@@ -216,7 +226,7 @@ public class AllyListController extends DSGenerator {
 		
 		t.setVar("allylist.showally", details);	
 
-		User presi = getContext().createUserObject(ally.getInt("president"));
+		User presi = (User)getDB().get(User.class, ally.getInt("president"));
 		int membercount = db.first("SELECT count(*) count FROM users WHERE ally=",ally.getInt("id")).getInt("count");
 	
 		t.setVar(	"ally.id",				ally.getInt("id"), 
@@ -276,6 +286,7 @@ public class AllyListController extends DSGenerator {
 	/**
 	 * Zeigt die Liste der Allianzen in DS an
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		Database db = getDatabase();

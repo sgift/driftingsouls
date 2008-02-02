@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.framework;
 
+import java.util.List;
+
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.pipeline.Error;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
@@ -35,50 +37,55 @@ import net.driftingsouls.ds2.server.framework.pipeline.Response;
  */
 public interface Context {
 	/**
-	 * Gibt einen gecachetes User-Objekt zur?ck
-	 * 
-	 * @param id Die ID des Users
-	 * @return Das User-Objekt bzw null
-	 */
-	public abstract User getCachedUser( int id );
-	
-	/**
-	 * Erstellt ein neues User-Objekt sofern nicht bereits ein gecachtes vorhanden ist.
-	 * 
-	 * @param id Die ID des zu erstellenden Users
-	 * @return Das User-Objekt
-	 */
-	public abstract User createUserObject(int id);
-
-	/**
-	 * Erstellt einen UserIterator fuer eine Datenbank-Query
-	 * 
-	 * @param query Die Query
-	 * @return Ein UserIterator
-	 */
-	public abstract UserIterator createUserIterator( Object ... query );
-	
-	
-	/**
 	 * Liefert eine Instanz der Datenbank-Klasse zurueck
 	 * 
 	 * @return Eine Database-Instanz
 	 */
 	public abstract Database getDatabase();
+	
+	/**
+	 * Liefert eine Instanz der berwendeten DB-Session zurueck
+	 * @return Die DB-Session
+	 */
+	public abstract org.hibernate.Session getDB();
+	
+	/**
+	 * Fuehrt ein Rollback auf der aktuellen Transaktion durch.
+	 * Anschliessend wird eine neue Transaktion begonnen.
+	 *
+	 */
+	public void rollback();
+	
+	/**
+	 * Schreibt die Aenderungen der aktuellen Transaktion in die
+	 * Datenbank, sofern die Transaktion nicht zurueckgerollt wurde.
+	 * Anschliessend wird eine neue Transaktion begonnen.
+	 *
+	 */
+	public void commit();
+	
+	/**
+	 * Fuehrt eine Query mittels DB-Session aus und gibt das Ergebnis als Liste zurueck
+	 * @param <T> Der Typ der einzelnen Ergebnisse
+	 * @param query Die Query
+	 * @param classType Die Klasse des Rueckgabetyps
+	 * @return Eine Liste mit dem Ergebnis
+	 */
+	public abstract <T> List<T> query(String query, Class<T> classType);
 
 	/**
 	 * Liefert den gerade aktiven User
 	 * 
 	 * @return Das zum gerade aktiven User gehoerende User-Objekt
 	 */
-	public abstract User getActiveUser();
+	public abstract BasicUser getActiveUser();
 
 	/**
 	 * Setzt den gerade aktiven User auf das angebene User-Objekt
 	 * 
 	 * @param user Der neue aktive User
 	 */
-	public abstract void setActiveUser(User user);
+	public abstract void setActiveUser(BasicUser user);
 
 	/**
 	 * Fuegt einen Fehler zur Fehlerliste hinzu
@@ -113,13 +120,6 @@ public interface Context {
 	public abstract Error[] getErrorList();
 	
 	/**
-	 * Cached ein User-Objekt
-	 * 
-	 * @param userobj Das zu cachende User-Objekt
-	 */
-	public abstract void cacheUser( User userobj );
-	
-	/**
 	 * Liefert die Request fuer diesen Aufruf
 	 * @return Die Request des Aufrufs
 	 */
@@ -130,6 +130,12 @@ public interface Context {
 	 * @return Die Response des Aufrufs
 	 */
 	public abstract Response getResponse();
+	
+	/**
+	 * Setzt das zum Aufruf gehoerende Response-Objekt
+	 * @param response Das Response-Objekt
+	 */
+	public abstract void setResponse(Response response);
 	
 	/**
 	 * Liefert eine pro Kontext einmalige Instanz einer Klasse.

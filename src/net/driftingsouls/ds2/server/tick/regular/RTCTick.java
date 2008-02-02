@@ -26,8 +26,8 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -62,7 +62,7 @@ public class RTCTick extends TickController {
 		
 		this.currentTime = Common.getIngameTime(ticks);
 		
-		this.gtuuser = getContext().createUserObject(Faction.GTU);
+		this.gtuuser = (User)getContext().getDB().get(User.class, Faction.GTU);
 		
 		this.log("tick: "+this.ticks);
 	}
@@ -78,7 +78,7 @@ public class RTCTick extends TickController {
 		SQLQuery entry = db.query("SELECT * FROM versteigerungen WHERE tick<=",this.ticks," ORDER BY id");
 		while( entry.next() ) {
 			try {
-				User winner = getContext().createUserObject(entry.getInt("bieter"));
+				User winner = (User)getContext().getDB().get(User.class, entry.getInt("bieter"));
 				long price = entry.getLong("preis");
 				String type = entry.getString("type");
 				int dropzone = winner.getGtuDropZone();
@@ -99,7 +99,7 @@ public class RTCTick extends TickController {
 				User targetuser = null;
 				
 				if( entry.getInt("owner") != Faction.GTU ) {
-					targetuser = getContext().createUserObject(entry.getInt("owner"));
+					targetuser = (User)getContext().getDB().get(User.class, entry.getInt("owner"));
 					
 					gtucost = Integer.parseInt(targetuser.getUserValue("GTU_AUCTION_USER_COST"));
 				}
@@ -192,7 +192,7 @@ public class RTCTick extends TickController {
 						targetuser.transferMoneyFrom( Faction.GTU, price-(long)Math.ceil(price*gtucost/100d), "Gewinn Versteigerung #2"+entry.getInt("id")+" abzgl. "+gtucost+"% Auktionskosten", false, User.TRANSFER_AUTO );
 					}
 					
-					User entryOwner = getContext().createUserObject(entry.getInt("owner"));
+					User entryOwner = (User)getContext().getDB().get(User.class, entry.getInt("owner"));
 			
 					db.prepare("INSERT INTO stats_gtu " +
 							"(username,userid,mtype,type,preis,owner,ownername,gtugew) " +
@@ -222,7 +222,7 @@ public class RTCTick extends TickController {
 		SQLQuery line = db.query("SELECT * FROM versteigerungen_pakete WHERE tick<=",this.ticks," ORDER BY id");
 		while( line.next() ) {
 			try {
-				User winner = getContext().createUserObject(line.getInt("bieter"));
+				User winner = (User)getContext().getDB().get(User.class, line.getInt("bieter"));
 				long price = line.getLong("preis");
 				String ships = line.getString("ships");
 				Cargo cargo = new Cargo( Cargo.Type.STRING, line.getString("cargo"));

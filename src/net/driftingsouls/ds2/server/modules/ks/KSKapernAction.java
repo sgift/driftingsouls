@@ -29,11 +29,11 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Item;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
-import net.driftingsouls.ds2.server.framework.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -108,8 +108,8 @@ public class KSKapernAction extends BasicKSAction {
 		}
 	
 		//Flagschiff?
-		User ownuser = context.getActiveUser();
-		User enemyuser = context.createUserObject(enemyShip.getInt("owner"));
+		User ownuser = (User)context.getActiveUser();
+		User enemyuser = (User)context.getDB().get(User.class, enemyShip.getInt("owner"));
 	
 		UserFlagschiffLocation flagschiffstatus = enemyuser.getFlagschiff();
 		
@@ -129,7 +129,7 @@ public class KSKapernAction extends BasicKSAction {
 		}
 		
 		Context context = ContextMap.getContext();
-		User user = context.getActiveUser();
+		User user = (User)context.getActiveUser();
 		
 		Database db = context.getDatabase();
 		SQLResultRow ownShip = battle.getOwnShip();
@@ -142,7 +142,7 @@ public class KSKapernAction extends BasicKSAction {
 	
 		SQLResultRow enemyShipType = ShipTypes.getShipType( enemyShip );
 		
-		User euser = context.createUserObject(enemyShip.getInt("owner"));
+		User euser = (User)context.getDB().get(User.class, enemyShip.getInt("owner"));
 			
 		int savecrew = (int)Math.round(ownShip.getInt("crew")/10d);
 		if( savecrew <= 0 ) {

@@ -25,12 +25,12 @@ import java.util.List;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -88,7 +88,7 @@ public class PlayerDelete implements AdminPlugin, Loggable {
 			
 			return;
 		}
-		User user = context.createUserObject(userid);
+		User user = (User)context.getDB().get(User.class, userid);
 			
 		ScriptParser scriptparser = context.get(ContextCommon.class).getScriptParser(ScriptParser.NameSpace.QUEST);
 			
@@ -111,9 +111,7 @@ public class PlayerDelete implements AdminPlugin, Loggable {
 				LOG.error(e,e);
 				echo.append(Common.tableEnd());
 				
-				db.tRollback();
-				
-				return;
+				throw new RuntimeException(e);
 			}
 		}
 		rquest.free();

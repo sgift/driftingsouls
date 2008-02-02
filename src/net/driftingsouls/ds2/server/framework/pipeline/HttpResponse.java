@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.framework.pipeline;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -114,12 +115,13 @@ public class HttpResponse implements Response {
 				}
 				response.setHeader("Content-Type", contentType+"; charset="+charSet);
 				try {
+					OutputStreamWriter writer = new OutputStreamWriter(response.getOutputStream(), charSet);
 					if( content.length() > 0 ) {
-						response.getOutputStream().print(content.toString());
+						writer.append(content.toString());
 					}
-					response.getOutputStream().flush();
+					writer.flush();
 					
-					response.getOutputStream().close();
+					writer.close();
 				}
 				catch( IOException e ) {
 					// Ignorieren, da es sich vmtl um einen Browser handelt, der
@@ -141,12 +143,7 @@ public class HttpResponse implements Response {
 	public void setHeader(String name, String value) {
 		response.setHeader(name, value);
 	}
-	
-	/**
-	 * Setzt den internen Status auf manuelles senden.
-	 * In diesem Fall sendet das Objekt selbst keine Daten mehr.
-	 *
-	 */
+
 	public void setManualSendStatus() {
 		this.manualSend = true;
 	}

@@ -28,11 +28,11 @@ import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Offiziere;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -185,7 +185,7 @@ class Academy extends DefaultBuilding {
 	@Override
 	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
 		Database db = context.getDatabase();
-		User user = context.getActiveUser();
+		User user = (User)context.getActiveUser();
 		
 		int newo = context.getRequest().getParameterInt("newo");
 		int train = context.getRequest().getParameterInt("train");
@@ -240,7 +240,7 @@ class Academy extends DefaultBuilding {
 					}
 		
 					db.tBegin();
-					user.setCargo(usercargo.save(), usercargo.save(true));
+					user.setCargo(usercargo.save());
 					db.tUpdate(1,"UPDATE academy SET train=",newo,",remain=8 WHERE col="+base.getId()+" AND train='0' AND remain='0'");
 					db.tUpdate(1,"UPDATE bases SET cargo='",cargo.save(),"' WHERE id="+base.getId()+" AND cargo='",cargo.save(true),"'");
 					base.setCargo(cargo);
@@ -333,7 +333,7 @@ class Academy extends DefaultBuilding {
 						}
 		
 						db.tBegin();
-						user.setCargo( usercargo.save(), usercargo.save(true) );
+						user.setCargo( usercargo.save() );
 						db.tUpdate(1,"UPDATE academy SET `upgrade`='",off," ",train,"',remain='",dauer,"' WHERE col="+base.getId()+" AND remain=0 AND `upgrade`=''");
 						db.tUpdate(1,"UPDATE offiziere SET dest='t "+base.getId()+"' WHERE id=",off," AND dest='b "+base.getId()+"'");
 						db.tUpdate(1,"UPDATE bases SET cargo='",cargo.save(),"' WHERE id="+base.getId()+" AND cargo='",cargo.save(true),"'");

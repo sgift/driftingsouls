@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.config;
 
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
@@ -57,12 +58,11 @@ public class IEDraftAmmo extends ItemEffect {
 	protected static ItemEffect fromXML(Node effectNode) throws Exception {
 		int ammo = (int)XMLUtils.getLongAttribute(effectNode, "ammo");
 		
-		Database db = new Database();
+		Database db = ContextMap.getContext().getDatabase();
 		SQLResultRow ammoEntry = db.first("SELECT id FROM ammo WHERE id="+ammo);
 		if( ammoEntry.isEmpty() ) {
 			throw new Exception("Illegaler Ammo-Typ '"+ammo+"' im Item-Effekt 'Munitionsbauplan'");
 		}
-		db.close();
 		
 		Boolean allyEffect = XMLUtils.getBooleanByXPath(effectNode, "@ally-effect");
 		if( allyEffect != null ) {

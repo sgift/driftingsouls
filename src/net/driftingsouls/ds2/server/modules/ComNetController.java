@@ -22,13 +22,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
+import net.driftingsouls.ds2.server.framework.bbcode.Smilie;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
@@ -38,7 +41,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  *
  * @urlparam Integer channel Die ID des ausgewaehlten ComNet-Kanals (0, falls keiner ausgewaehlt wurde)
  */
-public class ComNetController extends DSGenerator {
+public class ComNetController extends TemplateGenerator {
 	private int activeChannel = 1;
 	private Channel activeChannelObj = null;
 	
@@ -187,10 +190,11 @@ public class ComNetController extends DSGenerator {
 	 * 	von 0 bedeutet der neuste Post. Je groesser der Wert umso aelter der Post
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void searchAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		parameterString("search");
 		parameterNumber("searchtype");
@@ -279,7 +283,7 @@ public class ComNetController extends DSGenerator {
 			String head = ref.getString("head");
 			String text = ref.getString("text");
 
-			text = Common.smiliesParse(Common._text(text));
+			text = Smilie.parseSmilies(Common._text(text));
 
 			if( head.length() == 0 ) {
 				head = "-";
@@ -314,10 +318,11 @@ public class ComNetController extends DSGenerator {
 	 * 	von 0 bedeutet der neuste Post. Je groesser der Wert umso aelter der Post
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void readAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		parameterNumber("back");
 		int back = getInteger("back");
@@ -369,7 +374,7 @@ public class ComNetController extends DSGenerator {
 			String head = ref.getString("head");
 			String text = ref.getString("text");
 
-			text = Common.smiliesParse(Common._text(text));
+			text = Smilie.parseSmilies(Common._text(text));
 
 			if( head.length() == 0 ) {
 				head = "-";
@@ -403,8 +408,9 @@ public class ComNetController extends DSGenerator {
 	 * @urlparam String head Der Titel des Posts
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void sendenAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
@@ -446,8 +452,9 @@ public class ComNetController extends DSGenerator {
 	 * ausgewaehlten ComNet-Kanal, an.
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void writeAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		if( !activeChannelObj.isWriteable(user) ) {
@@ -469,8 +476,9 @@ public class ComNetController extends DSGenerator {
 	 * @urlparam String head Der Titel des Posts
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void vorschauAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		if( !activeChannelObj.isWriteable(user) ) {
@@ -486,7 +494,7 @@ public class ComNetController extends DSGenerator {
 		String text = getString("text");
 		String head = getString("head");
 		
-		String tmpText = Common.smiliesParse(Common._text(text));
+		String tmpText = Smilie.parseSmilies(Common._text(text));
 		String tmpHead = Common._title(head);
 		
 		//Aktuellen Tick ermitteln
@@ -510,11 +518,12 @@ public class ComNetController extends DSGenerator {
 	/**
 	 * Zeigt die Liste aller lesbaren ComNet-Kanaele an
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		Channel channel = activeChannelObj;
 		

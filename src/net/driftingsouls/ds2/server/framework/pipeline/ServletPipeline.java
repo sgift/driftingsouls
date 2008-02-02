@@ -16,19 +16,41 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.framework.pipeline.serializer;
+package net.driftingsouls.ds2.server.framework.pipeline;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServlet;
 
 import net.driftingsouls.ds2.server.framework.Context;
 
+import org.w3c.dom.Node;
+
 /**
- * Basisklasse fuer alle Serializer
+ * Eine Pipeline die die Filterchain weiter abarbeitet (also nachgelagerte Servlets ausfuehrt)
  * @author Christopher Jung
  *
  */
-public interface Serializer {
+public class ServletPipeline implements Pipeline {
 	/**
-	 * Bereitet den Kontext fuer die Ausgabe vor
-	 * @param context Der Kontext
+	 * Konstruktor
 	 */
-	public void serialize( Context context );
+	public ServletPipeline() {
+		// EMPTY
+	}
+
+	public void execute(Context context) throws Exception {
+		ServletRequest req = (ServletRequest)context.getVariable(HttpServlet.class, "request");
+		ServletResponse resp = (ServletResponse)context.getVariable(HttpServlet.class, "response");
+		FilterChain chain = (FilterChain)context.getVariable(HttpServlet.class, "chain");
+		
+		context.getResponse().setManualSendStatus();
+		
+		chain.doFilter(req, resp);
+	}
+
+	public void setConfiguration(Node node) {
+		// EMPTY
+	}
 }

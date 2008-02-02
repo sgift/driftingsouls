@@ -20,13 +20,10 @@ package net.driftingsouls.ds2.server.framework.pipeline;
 
 import java.lang.reflect.Constructor;
 
-import org.w3c.dom.Node;
-
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Generator;
-import net.driftingsouls.ds2.server.framework.pipeline.serializer.Serializer;
-import net.driftingsouls.ds2.server.framework.pipeline.transformer.Transformer;
+
+import org.w3c.dom.Node;
 
 /**
  * Eine Generator-basierte Pipeline bestehend aus Generator, Transformer und Serializer,
@@ -36,58 +33,29 @@ import net.driftingsouls.ds2.server.framework.pipeline.transformer.Transformer;
  */
 public class GeneratorPipeline implements Pipeline {
 	private Class<? extends Generator> generator;
-	private Class<? extends Transformer> transformer;
-	private Class<? extends Serializer> serializer;
-	private DSGenerator.ActionType execType = DSGenerator.ActionType.DEFAULT;
-	private Node config = null;
-	
+
 	/**
 	 * Konstruktor
-	 * @param execType Der Ausfuehrungstyp (<code>"default"</code> oder <code>"ajax"</code>)
 	 * @param generator Der zu verwendende Generator
-	 * @param transformer Der zu verwendende Transformer
-	 * @param serializer Der zu verwendende Serializer
 	 */
-	public GeneratorPipeline( String execType, Class<? extends Generator> generator, 
-			Class<? extends Transformer> transformer, Class<? extends Serializer> serializer ) {
+	public GeneratorPipeline( Class<? extends Generator> generator ) {
 		this.generator = generator;
-		this.transformer = transformer;
-		this.serializer = serializer;
-		if( "ajax".equals(execType) ) {
-			this.execType = DSGenerator.ActionType.AJAX;
-		}
 	}
 	
 	private void generateContent(Context context, Class<? extends Generator> generator) throws Exception {
-		Constructor constr = generator.getConstructor(Context.class);
+		Constructor<? extends Generator> constr = generator.getConstructor(Context.class);
 		constr.setAccessible(true);
 
-		Object cntl = constr.newInstance(context);
+		Generator cntl = constr.newInstance(context);
 
-		// TODO: seeeehr unschoen
-		((DSGenerator)cntl).handleAction(context.getRequest().getParameter("action"), execType);
+		cntl.handleAction(context.getRequest().getParameter("action"));
 	}
 
-	private void applyTransformer(Context context, Class<? extends Transformer> transformer) throws Exception {
-		Transformer tf = transformer.newInstance();
-
-		tf.transform(context);
-	}
-
-	private void applySerializer(Context context, Class<? extends Serializer> serializer) throws Exception {
-		Serializer ser = serializer.newInstance();
-
-		ser.serialize(context);
-	}
-	
 	public void execute(Context context) throws Exception {
 		generateContent(context, generator);
-		applyTransformer(context, transformer);
-		applySerializer(context, serializer);
 	}
 
-	public void setConfiguration(Node node) {
-		this.config = node;
+	public void setConfiguration(Node node)  {
+		//Won't used - only to fulfill contract - wrong interface?	
 	}
-
 }

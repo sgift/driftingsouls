@@ -18,9 +18,9 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline;
 
-import org.w3c.dom.Node;
-
 import net.driftingsouls.ds2.server.framework.Context;
+
+import org.w3c.dom.Node;
 
 /**
  * Standardinterface fuer Pipelines

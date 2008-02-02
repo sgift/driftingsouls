@@ -16,7 +16,7 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.framework.bbcode;
+package net.driftingsouls.ds2.server.bbcodes;
 
 import java.util.Iterator;
 
@@ -27,12 +27,18 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.Items;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeFunction;
 
-class TagResource implements BBCodeFunction {
+/**
+ * BBCode fuer Resourcen
+ * @author Christopher Jung
+ *
+ */
+public class TagResource implements BBCodeFunction {
 
 	public String handleMatch(String content, String... values) {
 		Context context = ContextMap.getContext();
@@ -61,7 +67,7 @@ class TagResource implements BBCodeFunction {
 					return unknstr;	
 				}
 				
-				User user = context.getActiveUser();
+				User user = (User)context.getActiveUser();
 				if( (user == null) && (item.getAccessLevel() > 0 || item.isUnknownItem() )) {
 					return unknstr;
 				}

@@ -26,13 +26,15 @@ import java.io.IOException;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
@@ -42,7 +44,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * @urlparam Integer sys Die ID des anzuzeigenden Systems
  * @urlparam Integer loadmap Falls != 0 wird die Sternenkarte geladen
  */
-public class MapController extends DSGenerator implements Loggable {
+public class MapController extends TemplateGenerator implements Loggable {
 	private int system = 1;
 	private boolean showSystem = true;
 	
@@ -61,7 +63,7 @@ public class MapController extends DSGenerator implements Loggable {
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		int sys = getInteger("sys");
 		
@@ -105,9 +107,10 @@ public class MapController extends DSGenerator implements Loggable {
 	/**
 	 * Zeigt die Sternenkarte an
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		

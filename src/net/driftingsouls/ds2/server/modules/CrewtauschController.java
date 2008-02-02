@@ -19,12 +19,14 @@
 package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
@@ -38,7 +40,7 @@ import net.driftingsouls.ds2.server.ships.Ships;
  * @urlparam String mode Der Transfermodus. Entweder ss (Schiff zu Schiff) oder sb (Schiff zu Basis) 
  *
  */
-public class CrewtauschController extends DSGenerator {
+public class CrewtauschController extends TemplateGenerator {
 	private SQLResultRow ship = null;
 	private SQLResultRow datat = null;
 	private int maxcrewf;
@@ -61,7 +63,7 @@ public class CrewtauschController extends DSGenerator {
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		int shipID = getInteger("ship");
 		String mode = getString("mode");
@@ -123,6 +125,7 @@ public class CrewtauschController extends DSGenerator {
 	 * @urlparam int send Die Anzahl der zu transferierenden Crew
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void sendAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -179,6 +182,7 @@ public class CrewtauschController extends DSGenerator {
 	 * @urlparam int rec Die Anzahl der zu transferierenden Crew
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void recAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -233,6 +237,7 @@ public class CrewtauschController extends DSGenerator {
 	/**
 	 * Anzeige von Infos sowie Eingabe der zu transferierenden Crew
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();

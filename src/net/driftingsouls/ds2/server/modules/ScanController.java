@@ -26,13 +26,15 @@ import java.util.Map;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
@@ -46,7 +48,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
  * @urlparam Integer baseloc (Falls Admin-Modus) Die Koordinate, von der aus gescannt werden soll
  *
  */
-public class ScanController extends DSGenerator {
+public class ScanController extends TemplateGenerator {
 	private SQLResultRow ship = null;
 	private int range = 0;
 	private boolean admin = false;
@@ -152,10 +154,11 @@ public class ScanController extends DSGenerator {
 	 * @urlparam Integer scany Die Y-Koordinate des Sektors
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void scanAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		parameterNumber("scanx");
 		parameterNumber("scany");
@@ -279,7 +282,8 @@ public class ScanController extends DSGenerator {
 
 				String party1 = "";
 				if( battle.getInt("ally1") == 0 ) {
-					party1 = Common._title(getContext().createUserObject(battle.getInt("commander1")).getName());
+					User com1 = (User)getDB().get(User.class, battle.getInt("commander1"));
+					party1 = Common._title(com1.getName());
 				} 
 				else {
 					party1 = Common._title(db.first("SELECT name FROM ally WHERE id=",battle.getInt("ally1")).getString("name"));
@@ -287,7 +291,8 @@ public class ScanController extends DSGenerator {
 	
 				String party2 = "";
 				if( battle.getInt("ally2") == 0 ) {
-					party2 = Common._title(getContext().createUserObject(battle.getInt("commander2")).getName());
+					User com2 = (User)getDB().get(User.class, battle.getInt("commander2"));
+					party2 = Common._title(com2.getName());
 				} 
 				else {
 					party2 = Common._title(db.first("SELECT name FROM ally WHERE id=",battle.getInt("ally2")).getString("name"));
@@ -385,11 +390,12 @@ public class ScanController extends DSGenerator {
 	/**
 	 * Zeigt die LRS-Karte an
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		/*
 			Alle Objekte zusammensuchen, die fuer uns in Frage kommen

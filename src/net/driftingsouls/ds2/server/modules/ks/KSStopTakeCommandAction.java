@@ -20,9 +20,9 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
 
 /**
  * Bricht die Uebernahme des Kommandos durch einen anderen Spieler ab
@@ -47,7 +47,7 @@ public class KSStopTakeCommandAction extends BasicKSAction {
 		
 		Context context = ContextMap.getContext();
 		
-		User user = context.getActiveUser();	
+		User user = (User)context.getActiveUser();	
 		
 		if( battle.getTakeCommand(battle.getOwnSide()) == 0 ) {
 			battle.logme( "Es versucht niemand das Kommando zu &uuml;bernehmen\n" );

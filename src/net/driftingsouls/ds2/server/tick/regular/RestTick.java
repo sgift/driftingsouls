@@ -20,9 +20,8 @@ package net.driftingsouls.ds2.server.tick.regular;
 
 import java.sql.Blob;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-
-import org.apache.commons.lang.math.RandomUtils;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
@@ -31,9 +30,8 @@ import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.User;
-import net.driftingsouls.ds2.server.framework.UserIterator;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -43,6 +41,8 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.tick.TickController;
+
+import org.apache.commons.lang.math.RandomUtils;
 
 /**
  * Berechnet sonstige Tick-Aktionen, welche keinen eigenen TickController haben
@@ -116,8 +116,11 @@ public class RestTick extends TickController {
 			this.log("\t"+db.affectedRows()+" Spieler haben den VAC-Modus verlassen");
 			db.update("UPDATE users SET vaccount=vaccount-1 WHERE vaccount>0 AND wait4vac=0");
 			
-			UserIterator iter = getContext().createUserIterator("SELECT id,ally FROM users WHERE wait4vac=1");
-			for( User user : iter ) {
+			List list = getContext().getDB().createQuery("from User where wait4vac=1")
+				.list();
+			for( Iterator iter=list.iterator(); iter.hasNext(); ) {
+				User user = (User)iter.next();
+				
 				SQLResultRow newcommander = null;
 				if( user.getAlly() > 0 ) {
 					newcommander = db.first("SELECT id,name FROM users WHERE ally=",user.getAlly(),"  AND inakt <= 7 AND vaccount=0 AND (wait4vac>6 OR wait4vac=0)");
@@ -158,7 +161,6 @@ public class RestTick extends TickController {
 				}
 				battleid.free();
 			}
-			iter.free();
 			
 			// TODO: Eine bessere Loesung fuer den Fall finden, wenn der Name mehr als 249 Zeichen lang ist
 			db.update("UPDATE users " +

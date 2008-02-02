@@ -23,33 +23,35 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.mutable.MutableLong;
-
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Items;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.mutable.MutableLong;
 
 /**
  * Transfer von Waren zwischen Basen und Schiffen
  * @author Christopher Jung
  *
  */
-public class TransportController extends DSGenerator {
+public class TransportController extends TemplateGenerator {
 	private static class MultiTarget {
 		private String name;
 		private String targetlist;
@@ -305,7 +307,7 @@ public class TransportController extends DSGenerator {
 			}
 
 			if( role == ROLE_TARGET ) {
-				User user = ContextMap.getContext().getActiveUser();
+				User user = (User)ContextMap.getContext().getActiveUser();
 				if( (data.getString("status").indexOf("disable_iff") > -1) && (data.getInt("owner") != user.getId()) ) {
 					throw new Exception("Zu dem angegebenen Schiff (id:"+data.getInt("id")+") k&ouml;nnen sie keine Waren transportieren");
 				}
@@ -625,6 +627,7 @@ public class TransportController extends DSGenerator {
 	 * @urlparam Integer $resid+"from" Die Menge von $resid, welche von Zielschiff runter zum Quellschiff transferiert werden soll
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void transferAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
@@ -703,7 +706,7 @@ public class TransportController extends DSGenerator {
 							// Evt unbekannte Items bekannt machen
 							if( res.getId().isItem() && (getUser().getId() != to.getOwner()) ) {
 								if( Items.get().item(res.getId().getItemID()).isUnknownItem() ) {
-									User auser = getContext().createUserObject( to.getOwner() );
+									User auser = (User)getDB().get(User.class,  to.getOwner() );
 									auser.addKnownItem(res.getId().getItemID());
 								}
 							}
@@ -855,6 +858,7 @@ public class TransportController extends DSGenerator {
 		redirect();	
 	}
 
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();

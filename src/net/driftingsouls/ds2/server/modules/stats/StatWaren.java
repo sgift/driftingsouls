@@ -26,12 +26,12 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.config.Items;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -51,7 +51,7 @@ public class StatWaren implements Statistic, Loggable {
 	public void show(StatsController contr, int size) {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
-		User user = context.getActiveUser();
+		User user = (User)context.getActiveUser();
 
 		StringBuffer echo = context.getResponse().getContent();
 	

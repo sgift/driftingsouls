@@ -20,8 +20,8 @@ package net.driftingsouls.ds2.server.tick.regular;
 
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Items;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -57,7 +57,7 @@ public class WerftTick extends TickController {
 				if( werftRow.getInt("col") > 0 ) {
 					SQLResultRow base = db.first("SELECT * FROM bases WHERE id=",werftRow.getInt("col"));
 					
-					User owner = getContext().createUserObject(base.getInt("owner"));
+					User owner = (User)getContext().getDB().get(User.class, base.getInt("owner"));
 					if( (owner.getVacationCount() > 0) && (owner.getWait4VacationCount() == 0) ) {
 						this.log("xxx Ignoriere planetare Werft "+id+" (Basis "+werftRow.getInt("col")+") [VAC]");
 						continue;
@@ -70,7 +70,7 @@ public class WerftTick extends TickController {
 				else if( werftRow.getInt("shipid") > 0 ) {
 					SQLResultRow ship = db.first("SELECT * FROM ships WHERE id>0 AND id=",werftRow.getInt("shipid"));
 					
-					User owner = getContext().createUserObject(ship.getInt("owner"));
+					User owner = (User)getContext().getDB().get(User.class, ship.getInt("owner"));
 					if( (owner.getVacationCount() > 0) && (owner.getWait4VacationCount() == 0) ) {
 						this.log("xxx  Ignoriere Werft "+id+" (Schiff "+werftRow.getInt("shipid")+") [VAC]");
 						continue;

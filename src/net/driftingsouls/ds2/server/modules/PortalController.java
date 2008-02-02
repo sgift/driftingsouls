@@ -23,8 +23,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.math.RandomUtils;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.SectorTemplateManager;
@@ -38,23 +36,28 @@ import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.uilibs.PlayerList;
+
+import org.apache.commons.lang.math.RandomUtils;
 
 /**
  * Das Portal
  * @author Christopher Jung
  *
  */
-class PortalController extends DSGenerator {
+class PortalController extends TemplateGenerator {
 	private int retries = 5;
 
 	/**
@@ -89,6 +92,7 @@ class PortalController extends DSGenerator {
 	 * Zeigt die Liste der Downloads an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void downloadAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -113,6 +117,7 @@ class PortalController extends DSGenerator {
 	 * @urlparam String username der Benutzername des Accounts
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void passwordLostAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -159,6 +164,7 @@ class PortalController extends DSGenerator {
 	 * Zeigt allgemeine Infos an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void infosAction() {
 		getTemplateEngine().setVar("show.infos",1);
 	}
@@ -170,6 +176,7 @@ class PortalController extends DSGenerator {
 	 * @urlparam Integer page Die anzuzeigende Seite des Artikels
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void infosArtikelAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -220,6 +227,7 @@ class PortalController extends DSGenerator {
 	 * Zeigt die Liste der registrierten Spieler an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void infosPlayerlistAction() {
 		StringBuffer context = getContext().getResponse().getContent();
 		getContext().getResponse().resetContent();
@@ -246,6 +254,7 @@ class PortalController extends DSGenerator {
 	 * Zeigt die Daten und Fakten an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void infosDfAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -293,6 +302,7 @@ class PortalController extends DSGenerator {
 	 * Zeigt die AGB an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void infosAgbAction() {
 		getTemplateEngine().setVar("show.agb",1);
 	}
@@ -301,6 +311,7 @@ class PortalController extends DSGenerator {
 	 * Zeigt das Impressum an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void impressumAction() {
 		getTemplateEngine().setVar("show.impressum",1);
 	}
@@ -309,6 +320,7 @@ class PortalController extends DSGenerator {
 	 * Zeigt die Links an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void linksAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
@@ -330,6 +342,7 @@ class PortalController extends DSGenerator {
 	 * Zeigt den JavaChat an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void javachatAction() {
 		getTemplateEngine().setVar("show.javachat",1);
 	}
@@ -654,6 +667,7 @@ class PortalController extends DSGenerator {
 	 * @urlparam Integer Das Startsystem
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void registerAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -735,6 +749,7 @@ class PortalController extends DSGenerator {
 	 * @urlparam Integer usegfxpak != 0, falls ein vorhandenes Grafikpak benutzt werden soll
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void loginAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -769,7 +784,7 @@ class PortalController extends DSGenerator {
 				clear = false;
 			}
 			else {
-				User user = getContext().createUserObject(uid.getInt("id"));
+				User user = (User)getDB().get(User.class, uid.getInt("id"));
 				
 	    		if( !user.getPassword().equals(enc_pw) ) {
 					t.setVar( "show.msg.login.wrongpassword",1 );
@@ -812,7 +827,7 @@ class PortalController extends DSGenerator {
 						}
 						
 						// Ueberpruefen ob das gfxpak noch aktuell ist
-						if( (usegfxpak != 0) && !user.getUserImagePath().equals(User.getDefaultImagePath()) ) {
+						if( (usegfxpak != 0) && !user.getUserImagePath().equals(BasicUser.getDefaultImagePath()) ) {
 							t.setVar(	"login.checkgfxpak", 1,
 										"login.checkgfxpak.path", user.getUserImagePath() );
 						}
@@ -888,6 +903,7 @@ class PortalController extends DSGenerator {
 	 * @urlparam String reason Der Grund fuer eine vorzeitige Deaktivierung
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void loginVacmodeDeakAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -902,13 +918,13 @@ class PortalController extends DSGenerator {
 			return;
 		}
 		
-		User auser = getContext().createUserObject(sessdata.getInt("id"));
-		if( !auser.hasFlag(User.FLAG_DISABLE_IP_SESSIONS) && (sessdata.getString("ip").indexOf("<"+getRequest().getRemoteAddress()+">") > -1) ) {
+		User auser = (User)getDB().get(User.class, sessdata.getInt("id"));
+		if( !auser.hasFlag(BasicUser.FLAG_DISABLE_IP_SESSIONS) && (sessdata.getString("ip").indexOf("<"+getRequest().getRemoteAddress()+">") > -1) ) {
 			t.setVar("show.login.vacmode.msg.accerror",1);
 			return;
 		}
 		
-		if( !auser.hasFlag(User.FLAG_DISABLE_AUTO_LOGOUT) && (Common.time() - sessdata.getInt("lastaction") > Configuration.getIntSetting("AUTOLOGOUT_TIME")) ) {
+		if( !auser.hasFlag(BasicUser.FLAG_DISABLE_AUTO_LOGOUT) && (Common.time() - sessdata.getInt("lastaction") > Configuration.getIntSetting("AUTOLOGOUT_TIME")) ) {
 			db.update("DELETE FROM sessions WHERE id='",sessdata.getInt("id"),"'");
 			t.setVar("show.login.vacmode.msg.accerror",1);
 			return;
@@ -926,6 +942,7 @@ class PortalController extends DSGenerator {
 	 * Zeigt die News an
 	 * @urlparam Integer archiv != 0, falls alte News angezeigt werden sollen
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		Database db = getDatabase();

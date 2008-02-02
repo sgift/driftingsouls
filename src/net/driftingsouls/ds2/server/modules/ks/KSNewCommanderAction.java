@@ -23,10 +23,10 @@ import java.util.List;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 /**
@@ -50,10 +50,10 @@ public class KSNewCommanderAction extends BasicKSAction {
 		}
 		
 		Context context = ContextMap.getContext();
-		User user = context.getActiveUser();		
+		User user = (User)context.getActiveUser();		
 
 		int newcom = context.getRequest().getParameterInt("newcom");
-		User com = context.createUserObject(newcom);
+		User com = (User)context.getDB().get(User.class, newcom);
 		
 		if( user.getId() == com.getId() ) {
 			battle.logme( "Sie k&ouml;nnen die Leitung der Schlacht nicht an sich selbst &uuml;bertragen\n" );

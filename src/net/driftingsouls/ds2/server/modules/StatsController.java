@@ -24,35 +24,31 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-
-import net.driftingsouls.ds2.server.Forschung;
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.modules.stats.StatBiggestAsteroid;
+import net.driftingsouls.ds2.server.modules.stats.StatBiggestFleet;
 import net.driftingsouls.ds2.server.modules.stats.StatBiggestPopulation;
 import net.driftingsouls.ds2.server.modules.stats.StatBiggestTrader;
 import net.driftingsouls.ds2.server.modules.stats.StatData;
 import net.driftingsouls.ds2.server.modules.stats.StatGtuPrice;
-import net.driftingsouls.ds2.server.modules.stats.StatMostResearch;
-import net.driftingsouls.ds2.server.modules.stats.StatOwnCiv;
-import net.driftingsouls.ds2.server.modules.stats.StatBiggestFleet;
 import net.driftingsouls.ds2.server.modules.stats.StatMemberCount;
+import net.driftingsouls.ds2.server.modules.stats.StatOwnCiv;
 import net.driftingsouls.ds2.server.modules.stats.StatOwnKampf;
 import net.driftingsouls.ds2.server.modules.stats.StatOwnOffiziere;
 import net.driftingsouls.ds2.server.modules.stats.StatPlayerList;
 import net.driftingsouls.ds2.server.modules.stats.StatPopulationDensity;
-import net.driftingsouls.ds2.server.modules.stats.StatResearchIsos;
-import net.driftingsouls.ds2.server.modules.stats.StatResearchSilizium;
 import net.driftingsouls.ds2.server.modules.stats.StatShips;
 import net.driftingsouls.ds2.server.modules.stats.StatWaren;
 import net.driftingsouls.ds2.server.modules.stats.Statistic;
+
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Die Statistikseite
@@ -188,6 +184,7 @@ public class StatsController extends DSGenerator {
 	/**
 	 * Anzeige der Statistiken
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		Database db = getDatabase();

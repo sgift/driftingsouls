@@ -116,6 +116,7 @@ public class Configuration implements Loggable {
 		Integer val = configInt.get(setting);
 		if( val == null ) {
 			LOG.error("couldn't read integer "+setting+" from Configuration");
+			throw new RuntimeException("couldn't read integer "+setting+" from Configuration");
 		}
 		
 		return val;

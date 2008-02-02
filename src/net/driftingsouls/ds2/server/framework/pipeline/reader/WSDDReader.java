@@ -27,11 +27,13 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
@@ -42,7 +44,6 @@ import javax.servlet.http.HttpSession;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.pipeline.HttpResponse;
 import net.driftingsouls.ds2.server.framework.pipeline.ReaderPipeline;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
@@ -291,6 +292,31 @@ public class WSDDReader implements Reader, Loggable {
 		}
 	}
 	
+	private static class DummyServletConfig implements ServletConfig {
+		private ServletContext context = null;
+		
+		DummyServletConfig(ServletContext context) {
+			this.context = context;
+		}
+		
+		public String getInitParameter(String arg0) {
+			return null;
+		}
+
+		public Enumeration getInitParameterNames() {
+			return new Vector().elements();
+		}
+
+		public ServletContext getServletContext() {
+			return this.context;
+		}
+
+		public String getServletName() {
+			return "WSDDReader";
+		}
+		
+	}
+	
 	private static Map<String, AxisBridge> server = new HashMap<String, AxisBridge>();
 	
 	private String fakeServletPath;
@@ -323,13 +349,14 @@ public class WSDDReader implements Reader, Loggable {
 		
 		readConfig(pipeline.getConfiguration());
 		
-		((HttpResponse)context.getResponse()).setManualSendStatus();
+		context.getResponse().setManualSendStatus();
 
 		HttpServletRequest req = (HttpServletRequest)context.getVariable(HttpServlet.class,
 				"request");
 		HttpServletResponse res = (HttpServletResponse)context.getVariable(HttpServlet.class,
 				"response");
-		ServletConfig conf = (ServletConfig)context.getVariable(HttpServlet.class, "config");
+		ServletConfig conf = new DummyServletConfig((ServletContext)context.getVariable(HttpServlet.class, 
+				"context"));
 
 		AxisBridge axis = null;
 		synchronized(server) {

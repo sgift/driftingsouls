@@ -40,12 +40,12 @@ import net.driftingsouls.ds2.server.cargo.modules.Modules;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.ItemEffect;
 import net.driftingsouls.ds2.server.config.Items;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.caches.CacheManager;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
@@ -70,7 +70,7 @@ public class AdminCommands implements Loggable {
 	 */
 	public static String executeCommand( String cmd ) {
 		Context context = ContextMap.getContext();
-		User user = context.getActiveUser();
+		User user = (User)context.getActiveUser();
 		if( (user == null) || (user.getAccessLevel() < 20) ) {
 			return "-1";
 		}

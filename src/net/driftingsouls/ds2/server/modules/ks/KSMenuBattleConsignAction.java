@@ -19,11 +19,11 @@
 package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
-import net.driftingsouls.ds2.server.framework.UserIterator;
+import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 /**
@@ -41,19 +41,20 @@ public class KSMenuBattleConsignAction extends BasicKSMenuAction {
 		}
 		
 		Context context = ContextMap.getContext();
-		User user = context.getActiveUser();	
+		User user = (User)context.getActiveUser();	
 		
 		SQLResultRow ownShip = battle.getOwnShip();
 		SQLResultRow enemyShip = battle.getEnemyShip();
 		
-		String query =  "SELECT DISTINCT u.* FROM users u WHERE id IN (SELECT s.owner FROM ships s JOIN battles_ships bs ON s.id=bs.shipid WHERE s.battle="+battle.getID()+" AND bs.side="+battle.getOwnSide()+")";
+		String query =  "SELECT DISTINCT u.id FROM users u WHERE id IN (SELECT s.owner FROM ships s JOIN battles_ships bs ON s.id=bs.shipid WHERE s.battle="+battle.getID()+" AND bs.side="+battle.getOwnSide()+")";
 		if( battle.getAlly(battle.getOwnSide()) > 0 ) {
 			query += " OR ally="+battle.getAlly(battle.getOwnSide());
 		}
 		query += " ORDER BY u.id";
 		
-		UserIterator iter = context.createUserIterator(query);
-		for( User member : iter ) {
+		SQLQuery userQuery = context.getDatabase().query(query);
+		while( userQuery.next() ) {
+			User member = (User)context.getDB().get(User.class, userQuery.getInt("id"));
 			if( member.getId() == user.getId() ) {
 				continue;
 			}
@@ -64,7 +65,7 @@ public class KSMenuBattleConsignAction extends BasicKSMenuAction {
 												"newcom",	member.getId() },
 								"Wollen sie das Kommando wirklich an "+Common._titleNoFormat(member.getName())+" &uuml;bergeben?" );
 		}
-		iter.free();
+		userQuery.free();
 		
 		this.menuEntry("zur&uuml;ck",
 				"ship",		ownShip.getInt("id"),

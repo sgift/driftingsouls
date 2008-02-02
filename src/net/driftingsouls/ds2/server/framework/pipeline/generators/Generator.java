@@ -18,8 +18,8 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline.generators;
 
+import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.pipeline.Error;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
@@ -34,6 +34,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Response;
  */
 public abstract class Generator {
 	private Context context;
+	private String browser;
 	
 	/**
 	 * Konstruktor
@@ -41,16 +42,25 @@ public abstract class Generator {
 	 */
 	public Generator(Context context) {
 		this.context = context;
-	}
-	
-	/**
-	 * Erstellt ein neues User-Objekt sofern nicht bereits ein gecachtes vorhanden ist.
-	 * 
-	 * @param id Die ID des zu erstellenden Users
-	 * @return Das User-Objekt
-	 */
-	public final User createUserObject( int id ) {
-		return context.createUserObject(id);
+		
+		String browser = getRequest().getHeader("user-agent");
+		if( browser != null ) {		
+			browser = browser.toLowerCase();
+			
+			if( browser.indexOf("opera") > -1  ) {
+				browser = "opera";
+			}
+			else if( browser.indexOf("msie") > -1 ) {
+				browser = "msie";
+			}
+			else {
+				browser = "mozilla";
+			}
+			this.browser = browser;
+		}
+		else {
+			this.browser = "unknown";
+		}
 	}
 	
 	/**
@@ -122,7 +132,38 @@ public abstract class Generator {
 	 * Gibt den aktuellen Kontext zurueck
 	 * @return Der Kontext
 	 */
-	public Context getContext() {
+	public final Context getContext() {
 		return context;
+	}
+	
+	/**
+	 * Gibt die aktuelle Hibernate-Session zurueck
+	 * @return Die aktuelle Hibernate-Session
+	 */
+	public final org.hibernate.Session getDB() {
+		return context.getDB();
+	}
+
+	/**
+	 * Gibt den aktiven User zurueck. Falls kein User eingeloggt ist
+	 * wird <code>null</code> zurueckgegeben
+	 * @return Der User oder <code>null</code>
+	 */
+	public BasicUser getUser() {
+		return getContext().getActiveUser();
+	}
+
+	/**
+	 * Fueht die angegebene Aktion aus
+	 * @param action Der Name der Aktion
+	 */
+	public abstract void handleAction( String action );
+	
+	/**
+	 * Gibt den Identifikationsstring des Browsers des Spielers zurueck
+	 * @return Der Identifikationsstring des Browsers
+	 */
+	public final String getBrowser() {
+		return browser;
 	}
 }

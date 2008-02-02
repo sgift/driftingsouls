@@ -19,8 +19,8 @@
 package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.AngriffController;
 
@@ -110,7 +110,7 @@ public abstract class BasicKSAction {
 	 * @return Das Ergebnis
 	 */
 	public int execute( Battle battle ) {
-		User user = ContextMap.getContext().getActiveUser();
+		User user = (User)ContextMap.getContext().getActiveUser();
 		
 		if( this.requireCommander ) {
 			if( !battle.isCommander(user.getId(), battle.getOwnSide()) ) {

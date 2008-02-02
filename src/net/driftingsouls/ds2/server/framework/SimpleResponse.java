@@ -81,4 +81,8 @@ public class SimpleResponse implements Response {
 	public void setStatus(int status) {
 		// EMPTY
 	}
+
+	public void setManualSendStatus() {
+		// EMPTY
+	}
 }

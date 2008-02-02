@@ -1,0 +1,108 @@
+/*
+ *	Drifting Souls 2
+ *	Copyright (c) 2007 Christopher Jung
+ *
+ *	This library is free software; you can redistribute it and/or
+ *	modify it under the terms of the GNU Lesser General Public
+ *	License as published by the Free Software Foundation; either
+ *	version 2.1 of the License, or (at your option) any later version.
+ *
+ *	This library is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *	Lesser General Public License for more details.
+ *
+ *	You should have received a copy of the GNU Lesser General Public
+ *	License along with this library; if not, write to the Free Software
+ *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+package net.driftingsouls.ds2.server.framework.bbcode;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+
+/**
+ * Ein Smilie
+ * @author Christopher Jung
+ *
+ */
+@Entity
+@Table(name="smilies")
+public class Smilie {
+	@Id
+	private int id;
+	private String tag;
+	private String image;
+	
+	/**
+	 * Konstruktor
+	 *
+	 */
+	public Smilie() {
+		// EMPTY
+	}
+
+	/**
+	 * Gibt die ID des Smilies zurueck
+	 * @return Die ID
+	 */
+	public int getId() {
+		return id;
+	}
+	
+	/**
+	 * Gibt das Bild des Smilies zurueck
+	 * @return Das Bild
+	 */
+	public String getImage() {
+		return image;
+	}
+
+	/**
+	 * Gibt den Tag des Smilies zurueck
+	 * @return Der Tag
+	 */
+	public String getTag() {
+		return tag;
+	}
+	
+	private static List<Pattern> smiliesSearch = null;
+	private static List<String> smiliesReplace = null;
+	private static Object LOCK = new Object();
+	
+	/**
+	 * Ersetzt alle bekannten Smilies in einem Text durch entsprechende Grafiken (als HTML-Code)
+	 * @param text Der Text
+	 * @return der Text mit den Grafiken
+	 */
+	public static String parseSmilies( String text ) {
+		synchronized(LOCK) {
+			if( smiliesSearch == null ) {
+				smiliesSearch = new ArrayList<Pattern>();
+				smiliesReplace = new ArrayList<String>();
+			
+				List<Smilie> smilies = ContextMap.getContext().query("from Smilie", Smilie.class);
+				for( Smilie smilie : smilies ) {
+					smiliesSearch.add(Pattern.compile("(?<=.\\W|\\W.|^\\W)"+Pattern.quote(smilie.getTag())+"(?=.\\W|\\W.|\\W$)"));
+					smiliesReplace.add("<img style=\"border:0px\" src=\""+Configuration.getSetting("SMILIE_PATH")+"/"+smilie.getImage()+"\" alt=\""+smilie.getTag()+"\" title=\""+smilie.getTag()+"\" />");
+				}
+			}
+		}
+		
+		for( int i=0; i < smiliesSearch.size(); i++ ) {
+			text = smiliesSearch.get(i).matcher(' '+text+' ').replaceAll(smiliesReplace.get(i));
+			text = text.substring(1, text.length()-1);
+		}
+
+
+		return text;
+	}
+}

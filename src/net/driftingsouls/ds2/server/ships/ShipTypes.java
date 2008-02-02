@@ -23,11 +23,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -349,8 +349,7 @@ public class ShipTypes implements Loggable {
 			picture = context.getActiveUser().getImagePath()+picture;	
 		}
 		else {
-			Database db = ContextMap.getContext().getDatabase();
-			picture = User.getDefaultImagePath()+picture;
+			picture = BasicUser.getDefaultImagePath()+picture;
 		}
 		
 		return picture;

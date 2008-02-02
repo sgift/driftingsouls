@@ -119,6 +119,17 @@ public class XMLUtils {
 	}
 	
 	/**
+	 * Gibt das angegebene Attribut der Node als Boolean zurueck.
+	 * Sollte das Attribut nicht existieren wird <code>false</code> zurueckgegeben.
+	 * @param node Der Basisknoten, von dem aus der Ausdruck ausgewertet werden soll
+	 * @param attr Der Attributname
+	 * @return Das Ergebnis
+	 */
+	public static boolean getBooleanAttribute(Node node, String attr) {
+		return "true".equalsIgnoreCase(getStringAttribute(node, attr));
+	}
+	
+	/**
 	 * Gibt das angegebene Attribut der Node als Number zurueck.
 	 * Sollte das Attribut nicht existieren oder keine Zahl sein,
 	 * so wird <code>null</code> zurueckgegeben.
@@ -212,6 +223,26 @@ public class XMLUtils {
 				continue;
 			}
 			if( list.item(i).getNodeName().equals(name) ) {
+				return list.item(i);
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Gibt den ersten Knoten eines bestimmten Typs unterhalb eines Knotens zurueck.
+	 * Wenn kein Knoten des Typs direkt unter dem angegebenen Knoten gefunden wird, so wird <code>null</code>
+	 * zurueckgegeben.
+	 *  
+	 * @param node Der Knoten unter dem gesucht werden soll
+	 * @param type Der Typ des Knotens
+	 * @return Der erste Knoten vom angegebenen Typ oder <code>null</code>
+	 */
+	public static Node firstChildOfType(Node node, short type) {
+		NodeList list = node.getChildNodes();
+		for( int i=0; i < list.getLength(); i++ ) {
+			if( list.item(i).getNodeType() == type) {
 				return list.item(i);
 			}
 		}

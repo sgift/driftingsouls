@@ -23,13 +23,15 @@ import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 
 /**
  * Die Gebaeudeansicht
@@ -39,7 +41,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
  * @urlparam Integer field Die ID des Felds, dessen Gebaeude angezeigt werden soll
  *
  */
-public class BuildingController extends DSGenerator {
+public class BuildingController extends TemplateGenerator {
 	private Base base;
 	private Building building;
 	
@@ -57,7 +59,7 @@ public class BuildingController extends DSGenerator {
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		int col = getInteger("col");
 		int field = getInteger("field");
@@ -85,6 +87,7 @@ public class BuildingController extends DSGenerator {
 	 * Aktiviert das Gebaeude
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void startAction() {
 		Database db = getDatabase();
 		
@@ -110,6 +113,7 @@ public class BuildingController extends DSGenerator {
 	 * Deaktiviert das Gebaeude
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void shutdownAction() {
 		Database db = getDatabase();
 		
@@ -137,6 +141,7 @@ public class BuildingController extends DSGenerator {
 	 * @urlparam String conf Falls "ok" bestaetigt dies den Abriss
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void demoAction() {	
 		Database db = getDatabase();
 		
@@ -199,6 +204,7 @@ public class BuildingController extends DSGenerator {
 	/**
 	 * Zeigt die GUI des Gebaeudes an
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {			
 		int field = getInteger("field");

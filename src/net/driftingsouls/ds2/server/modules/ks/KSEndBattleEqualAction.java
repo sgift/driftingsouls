@@ -22,9 +22,9 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
@@ -111,7 +111,7 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 		}
 		
 		Context context = ContextMap.getContext();
-		User user = context.getActiveUser();
+		User user = (User)context.getActiveUser();
 		
 		context.getResponse().getContent().append("Sie haben die Schlacht mit einem unentschieden beendet");
 		

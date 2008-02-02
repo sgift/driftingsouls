@@ -27,7 +27,6 @@ import java.io.OutputStreamWriter;
 import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -51,7 +50,6 @@ import javax.mail.internet.MimeMessage;
 
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 
 import org.apache.commons.lang.StringUtils;
@@ -87,39 +85,6 @@ public class Common implements Loggable {
 			stubWarnList.add(elements[1]);
 			LOG.warn("STUB: "+elements[1].toString());
 		}
-	}
-	
-	private static List<Pattern> smiliesSearch = null;
-	private static List<String> smiliesReplace = null;
-	
-	/**
-	 * Ersetzt alle bekannten Smilies in einem Text durch entsprechende Grafiken (als HTML-Code)
-	 * @param text Der Text
-	 * @return der Text mit den Grafiken
-	 */
-	public static String smiliesParse( String text ) {
-		if( smiliesSearch == null ) {
-			smiliesSearch = new ArrayList<Pattern>();
-			smiliesReplace = new ArrayList<String>();
-			Database db = new Database();
-			SQLQuery smilie = db.query("SELECT image,tag FROM smilies");
-			while( smilie.next() ) {
-				smiliesSearch.add(Pattern.compile("(?<=.\\W|\\W.|^\\W)"+Pattern.quote(smilie.getString("tag"))+"(?=.\\W|\\W.|\\W$)"));
-				smiliesReplace.add("<img style=\"border:0px\" src=\""+Configuration.getSetting("SMILIE_PATH")+"/"+smilie.getString("image")+"\" alt=\""+smilie.getString("tag")+"\" title=\""+smilie.getString("tag")+"\" />");
-			}
-			smilie.free();
-			
-			db.close();
-		}
-
-
-		for( int i=0; i < smiliesSearch.size(); i++ ) {
-			text = smiliesSearch.get(i).matcher(' '+text+' ').replaceAll(smiliesReplace.get(i));
-			text = text.substring(1, text.length()-1);
-		}
-
-
-		return text;
 	}
 	
 	/**

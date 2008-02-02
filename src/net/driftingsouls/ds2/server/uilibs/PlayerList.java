@@ -21,11 +21,10 @@ package net.driftingsouls.ds2.server.uilibs;
 import java.util.HashMap;
 
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
-import net.driftingsouls.ds2.server.framework.UserIterator;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 
@@ -46,7 +45,7 @@ public class PlayerList {
 				Integer.parseInt(context.getRequest().getParameter("compopup")) : 
 				0;
 				
-		User user = context.getActiveUser();
+		User user = (User)context.getActiveUser();
 		Database db = context.getDatabase();
 		
 		String show = "";
@@ -104,7 +103,7 @@ public class PlayerList {
 		
 		String query = "";
 		if( (user == null) || user.getAccessLevel() <= 20 ) {
-			query = "SELECT t1.id,t1.name,t1.race,t1.signup,t1.ally,t1.inakt,t1.flags FROM users t1 WHERE !LOCATE('hide',t1.flags) ORDER BY ";
+			query = "SELECT t1.id FROM users t1 WHERE !LOCATE('hide',t1.flags) ORDER BY ";
 		}
 		else {
 			// Asteroiden/Schiffe zaehlen
@@ -123,7 +122,7 @@ public class PlayerList {
 			}
 			scount.free();
 			
-			query = "SELECT t1.id,t1.name,t1.race,t1.signup,t1.ally,t1.inakt,t1.flags FROM users t1 ORDER BY ";
+			query = "SELECT t1.id FROM users t1 ORDER BY ";
 		}
 		
 		if( (ord == null) || "".equals(ord) ) {
@@ -144,8 +143,9 @@ public class PlayerList {
 			relationlist = user.getRelations();
 		}
 		
-		UserIterator iter = context.createUserIterator(query);
-		for( User aUser : iter ) {
+		SQLQuery userQuery = db.query(query);
+		while( userQuery.next() ) {
+			User aUser = (User)context.getDB().get(User.class, userQuery.getInt("id"));
 			String race = "???";
 			if( Rassen.get().rasse(aUser.getRace()) != null ) {
 				race = Rassen.get().rasse(aUser.getRace()).getName();
@@ -253,7 +253,7 @@ public class PlayerList {
 			
 			echo.append("</tr>\n");
 		}
-		iter.free();
+		userQuery.free();
 		
 		echo.append("</table>\n");
 	}

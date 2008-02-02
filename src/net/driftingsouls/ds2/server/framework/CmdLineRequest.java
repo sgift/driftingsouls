@@ -25,9 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.fileupload.FileItem;
-
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
+
+import org.apache.commons.fileupload.FileItem;
 
 /**
  * Repraesentiert eine Request auf Basis von Kommandozeilenparametern

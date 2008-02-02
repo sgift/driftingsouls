@@ -10,17 +10,19 @@ import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
@@ -29,7 +31,7 @@ import net.driftingsouls.ds2.server.tasks.Taskmanager;
  * @author Christopher Jung
  *
  */
-public class NPCOrderController extends DSGenerator {
+public class NPCOrderController extends TemplateGenerator {
 	private boolean isHead = false;
 	
 	/**
@@ -44,7 +46,7 @@ public class NPCOrderController extends DSGenerator {
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		User user = this.getUser();
+		User user = (User)this.getUser();
 		TemplateEngine t = this.getTemplateEngine();
 		
 		if( !user.hasFlag( User.FLAG_ORDER_MENU ) ) {
@@ -70,10 +72,11 @@ public class NPCOrderController extends DSGenerator {
 	 * Zeigt den aktuellen Status aller fuer Ganymede-Transporte reservierten Transporter an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void viewTransportsAction() {
 		Database db = getDatabase();
 		TemplateEngine t = this.getTemplateEngine();
-		User user = this.getUser();
+		User user = (User)this.getUser();
 		
 		if( Faction.get(user.getId()) == null || !Faction.get(user.getId()).getPages().hasPage("shop") ) {
 			addError("Sie verf&uuml;gen &uuml;ber keinen Shop und k&ouml;nnen daher diese Seite nicht aufrufen");
@@ -117,7 +120,7 @@ public class NPCOrderController extends DSGenerator {
 			
 			SQLResultRow order = db.first("SELECT * FROM factions_shop_orders WHERE id="+Integer.parseInt(task.getData1()));
 			
-			User orderuser = getContext().createUserObject(order.getInt("user_id"));
+			User orderuser = (User)getDB().get(User.class, order.getInt("user_id"));
 			
 			t.setVar("transport.assignment", order.getInt("id")+": "+Common._title(orderuser.getName())+"<br />"+order.getString("adddata"));
 							
@@ -133,9 +136,10 @@ public class NPCOrderController extends DSGenerator {
 	 * @urlparam String Der Grund, warum der Orden verliehen wurde
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void awardMedalAction() {
 		TemplateEngine t = this.getTemplateEngine();
-		User user = this.getUser();
+		User user = (User)this.getUser();
 		
 		if( !this.isHead ) {
 			addError( "Sie sind nicht berechtigt auf dieses Men&uuml; zuzugreifen" );
@@ -151,7 +155,7 @@ public class NPCOrderController extends DSGenerator {
 		int medal = this.getInteger("medal");
 		String reason = this.getString("reason");
 		
-		User edituser = getContext().createUserObject(edituserID);
+		User edituser = (User)getDB().get(User.class, edituserID);
 			
 		if( edituser.getId() == 0 ) {
 			addError( "Der angegebene Spieler existiert nicht" );
@@ -208,9 +212,10 @@ public class NPCOrderController extends DSGenerator {
 	 * @urlparam Integer rang Der neue Rang
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void changeRangAction() {
 		TemplateEngine t = this.getTemplateEngine();
-		User user = this.getUser();
+		User user = (User)this.getUser();
 		
 		if( !this.isHead ) {
 			addError( "Sie sind nicht berechtigt auf dieses Men&uuml; zuzugreifen" );
@@ -224,7 +229,7 @@ public class NPCOrderController extends DSGenerator {
 		int edituserID = this.getInteger("edituser");
 		int rang = this.getInteger("rang");
 		
-		User edituser = getContext().createUserObject(edituserID);
+		User edituser = (User)getDB().get(User.class, edituserID);
 			
 		if( edituser.getId() == 0 ) {
 			addError( "Der angegebene Spieler existiert nicht" );
@@ -277,7 +282,7 @@ public class NPCOrderController extends DSGenerator {
 		t.setVar( "npcorder.message", "Der Spieler wurde zum "+Medals.get().rang(rang).getName()+" "+
 				( rang > edituser.getRang() ? "bef&ouml;rdert" : "degradiert") );
 		
-		edituser.setRang(rang);
+		edituser.setRang((byte)rang);
 		
 		this.redirect("medals");
 	}
@@ -287,9 +292,10 @@ public class NPCOrderController extends DSGenerator {
 	 * setzen lassen
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void medalsAction() {
 		TemplateEngine t = this.getTemplateEngine();
-		User user = this.getUser();
+		User user = (User)this.getUser();
 		
 		if( !this.isHead ) {
 			addError( "Sie sind nicht berechtigt auf dieses Men&uuml; zuzugreifen" );
@@ -303,7 +309,7 @@ public class NPCOrderController extends DSGenerator {
 		
 		t.setVar("npcorder.medalsmenu", 1);
 		
-		User edituser = getContext().createUserObject(edituserID);
+		User edituser = (User)getDB().get(User.class, edituserID);
 			
 		if( edituser.getId() == 0 ) {
 			t.setVar("edituser.id", 0);
@@ -347,11 +353,12 @@ public class NPCOrderController extends DSGenerator {
 	 *
 	 * @urlparam String orderloc Die Koordinate des Ortes, an dem die georderten Objekte erscheinen sollen
 	 */
+	@Action(ActionType.DEFAULT)
 	// TODO: fertig implementieren (Interface, Ticks)
 	public void changeOrderLocationAction() {
 		Database db = getDatabase();
 		TemplateEngine t = this.getTemplateEngine();
-		User user = this.getUser();
+		User user = (User)this.getUser();
 		
 		parameterString("orderloc");
 		String orderloc = getString("orderloc");
@@ -387,10 +394,11 @@ public class NPCOrderController extends DSGenerator {
 	 * @urlparam Integer count Die Menge der zu ordernden Objekte
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void orderAction() {
 		Database db = getDatabase();
 		TemplateEngine t = this.getTemplateEngine();
-		User user = this.getUser();
+		User user = (User)this.getUser();
 		
 		parameterNumber("order");
 		parameterNumber("count");
@@ -443,11 +451,12 @@ public class NPCOrderController extends DSGenerator {
 	/**
 	 * Zeigt die GUI zum Ordern von Schiffen/Offizieren
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		Database db = getDatabase();
 		TemplateEngine t = this.getTemplateEngine();
-		User user = this.getUser();
+		User user = (User)this.getUser();
 		
 		Map<Integer,Integer> orders = new HashMap<Integer,Integer>();
 		

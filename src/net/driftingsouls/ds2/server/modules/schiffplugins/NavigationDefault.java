@@ -22,11 +22,11 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -50,7 +50,7 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 		SchiffController controller = caller.controller;
 		
 		Database db = controller.getDatabase();
-		User user = controller.getUser();
+		User user = (User)controller.getUser();
 		
 		String output = "";
 
@@ -155,7 +155,7 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 		SQLResultRow datatype = caller.shiptype;
 		SchiffController controller = caller.controller;
 		
-		User user = controller.getUser();
+		User user = (User)controller.getUser();
 		Database db = controller.getDatabase();
 		
 		TemplateEngine t = controller.getTemplateEngine();

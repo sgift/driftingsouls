@@ -22,11 +22,10 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.User;
-import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
 import org.w3c.dom.Document;
@@ -82,9 +81,7 @@ public class Items implements Loggable,Iterable<Item> {
 		 * items.xml parsen
 		 */
 		try {
-			Database db = new Database();
-			String imagepath = User.getDefaultImagePath()+"data/items/";
-			db.close();
+			String imagepath = BasicUser.getDefaultImagePath()+"data/items/";
 			
 			Document doc = XMLUtils.readFile(Configuration.getSetting("configdir")+"items.xml");
 			NodeList nodes = XMLUtils.getNodesByXPath(doc, "items/item");

@@ -37,12 +37,12 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.User;
-import net.driftingsouls.ds2.server.framework.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
@@ -226,7 +226,7 @@ public class QuestFunctions {
 					val = Offizier.getOffizierByDest('s', ship.getInt("id"));
 				}
 				else if( value[1].equals("flagschiff") ) {
-					User owner = ContextMap.getContext().createUserObject(ship.getInt("owner"));
+					User owner = (User)ContextMap.getContext().getDB().get(User.class, ship.getInt("owner"));
 					UserFlagschiffLocation flagschiff = owner.getFlagschiff();
 					val = (flagschiff != null) && (flagschiff.getID() == ship.getInt("id"));
 				}
@@ -1715,11 +1715,11 @@ public class QuestFunctions {
 			scriptparser.log("fake: "+fake+"\n");
 			
 			if( money > 0 ) {
-				User user = ContextMap.getContext().createUserObject(userid);
+				User user = (User)ContextMap.getContext().getDB().get(User.class, userid);
 				user.transferMoneyFrom(fromid, money, reason, fake != 0);
 			}
 			else {
-				User user = ContextMap.getContext().createUserObject(fromid);
+				User user = (User)ContextMap.getContext().getDB().get(User.class, fromid);
 				user.transferMoneyFrom(userid, -money, reason, fake != 0);
 			}
 			
@@ -1732,7 +1732,7 @@ public class QuestFunctions {
 			int userid = Value.Int(command[1]);
 			scriptparser.log("userid: "+userid+"\n");
 			
-			User user = ContextMap.getContext().createUserObject(userid);
+			User user = (User)ContextMap.getContext().getDB().get(User.class, userid);
 			scriptparser.setRegister("A",user.getKonto().toString());
 			
 			return CONTINUE;
@@ -1913,7 +1913,7 @@ public class QuestFunctions {
 			int userid = Integer.parseInt(command[1]);
 			scriptparser.log("userid: "+userid+"\n");
 			
-			User user = ContextMap.getContext().createUserObject(userid);
+			User user = (User)ContextMap.getContext().getDB().get(User.class, userid);
 			if( user.isNoob() ) {
 				scriptparser.setRegister("A","1");
 			}	
@@ -1935,7 +1935,7 @@ public class QuestFunctions {
 			String valuename = command[2];
 			scriptparser.log("value(key): "+valuename+"\n");
 			
-			User user = ContextMap.getContext().createUserObject(userid);
+			User user = (User)ContextMap.getContext().getDB().get(User.class, userid);
 			
 			String value = user.getUserValue(valuename);
 			
@@ -1964,7 +1964,7 @@ public class QuestFunctions {
 			String value = command[3];
 			scriptparser.log("value: "+value+"\n");
 			
-			User user = ContextMap.getContext().createUserObject(userid);
+			User user = (User)ContextMap.getContext().getDB().get(User.class, userid);
 			user.setUserValue(valuename, value);
 			
 			return CONTINUE;

@@ -29,9 +29,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
@@ -93,7 +95,7 @@ public class AdminController extends DSGenerator {
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		User user = this.getUser();
+		User user = (User)this.getUser();
 		
 		if( user.getAccessLevel() < 30 ) {
 			addError("Sie sind nicht berechtigt diese Seite aufzurufen");
@@ -137,6 +139,7 @@ public class AdminController extends DSGenerator {
 	/**
 	 * Zeigt die Gui an und fuehrt ein Admin-Plugin (sofern ausgewaehlt) aus
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {	
 		int cleanpage = getInteger("cleanpage");

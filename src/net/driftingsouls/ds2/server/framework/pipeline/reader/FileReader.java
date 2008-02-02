@@ -109,7 +109,7 @@ public class FileReader implements Reader, Loggable {
 			else {
 				String mimetype = new MimetypesFileTypeMap().getContentType(file);
 				if( mimetype != null ) {
-					context.getResponse().setContentType(type);
+					context.getResponse().setContentType(mimetype);
 				}
 			}
 		}

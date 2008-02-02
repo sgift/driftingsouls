@@ -29,13 +29,15 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -46,7 +48,7 @@ import org.apache.commons.lang.StringEscapeUtils;
  *
  * @urlparam Integer col Die ID der Basis
  */
-public class BaseController extends DSGenerator {	
+public class BaseController extends TemplateGenerator {	
 	private Base base;
 	private int retryCount = 0;
 	
@@ -65,7 +67,7 @@ public class BaseController extends DSGenerator {
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		int col = getInteger("col");
 		
@@ -87,8 +89,9 @@ public class BaseController extends DSGenerator {
 	 * @urlparam Integer nahrung Die Menge der zu transferierenden Nahrung. Negative Werte transferieren Nahrung aus den Pool.
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void transferNahrungAction() {		
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
@@ -119,7 +122,7 @@ public class BaseController extends DSGenerator {
 		usercargo.addResource( Resources.NAHRUNG, count*100 );
 	
 		db.tBegin(true);
-		user.setCargo(usercargo.save(), usercargo.save(true));
+		user.setCargo(usercargo.save());
 		db.tUpdate(1,"UPDATE bases SET cargo='",cargo.save(),"' WHERE id='",base.getId(),"' AND cargo='",cargo.save(true),"'");
 		
 		if( !db.tCommit() ) {
@@ -146,6 +149,7 @@ public class BaseController extends DSGenerator {
 	 * @urlparam String newname Der neue Name der Basis
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void changeNameAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -170,6 +174,7 @@ public class BaseController extends DSGenerator {
 	 * @urlparam Integer buildingoff Die ID des Gebaeudetyps, dessen Gebaeude (de)aktiviert werden sollen
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void changeBuildingStatusAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -230,6 +235,7 @@ public class BaseController extends DSGenerator {
 	/**
 	 * Zeigt die Basis an
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		Database db = getDatabase();

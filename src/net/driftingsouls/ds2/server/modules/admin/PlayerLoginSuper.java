@@ -18,14 +18,10 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import org.apache.commons.lang.math.RandomUtils;
-
-import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.framework.Session;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
@@ -43,11 +39,10 @@ public class PlayerLoginSuper implements AdminPlugin {
 		int user = context.getRequest().getParameterInt("user");
 		int usesessid = context.getRequest().getParameterInt("usesessid");
 		
-		Database db = context.getDatabase();
 		String sess = context.getSession();
 
 		if( user == 0 ) {
-			echo.append("<form action=\"./main.php\" method=\"post\">");
+			echo.append("<form action=\"./ds\" method=\"post\">");
 			echo.append("ID: <input type=\"text\" name=\"user\" size=\"10\" value=\"0\" />\n");
 			echo.append("<br /><br />\n");
 			echo.append("<input type=\"checkbox\" name=\"usesessid\" id=\"form[usesessid]\" value=\"1\" /><label for=\"usesessid\">Rechte vererben?</label><br /><br />\n");
@@ -60,26 +55,21 @@ public class PlayerLoginSuper implements AdminPlugin {
 		}
 		else {
 			int uid = user;
-			User userObj = context.createUserObject(uid);
-			if( userObj.getId() == 0 ) {
+			User userObj = (User)context.getDB().get(User.class, uid);
+			if( userObj == null ) {
 				echo.append("<span style=\"color:red\">Der angegebene Spieler existiert nicht</span>");
 				return;
 			}
 			
-			String usess = null;
-			if( usesessid == 0 ) {
-				usess = Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE));
-				
-	  			db.update("INSERT INTO sessions (id,session,ip,lastaction,usegfxpak) VALUES('",uid,"','",usess,"','<",context.getRequest().getRemoteAddress(),">','",Common.time(),"','0')");
-			} 
-			else {
-				usess = Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE));
-				User currentUser = context.getActiveUser();
-				SQLResultRow ownsess = db.first("SELECT session FROM sessions WHERE id='",currentUser.getId(),"' AND attach IS NULL");
-				
-	  			db.update("INSERT INTO sessions (id,session,ip,lastaction,usegfxpak,attach) VALUES('",uid,"','",usess,"','<"+context.getRequest().getRemoteAddress()+">','"+Common.time()+"','0','",ownsess.getString("sess")+"')");
+			Session session = new Session(userObj);
+			session.setIP("<"+context.getRequest().getRemoteAddress()+">");
+			session.setUseGfxPak(false);
+			if( usesessid != 0 ) {
+				session.setAttach(context.getSession());
 			}
-			echo.append("<a class=\"ok\" target=\"_blank\" href=\"./main.php?sess="+usess+"&module=main\">Zum Account</a>\n");
+			context.getDB().save(session);
+			
+			echo.append("<a class=\"ok\" target=\"_blank\" href=\"./ds?sess="+session.getSession()+"&module=main\">Zum Account</a>\n");
 		}
 	}
 

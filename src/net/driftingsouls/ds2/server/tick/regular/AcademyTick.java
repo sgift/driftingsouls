@@ -33,8 +33,8 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -119,7 +119,7 @@ public class AcademyTick extends TickController {
 					log("\tAusbildung abgeschlossen");
 					String offiname = "Offizier "+maxid;
 					
-					User auser = getContext().createUserObject(base.getInt("owner"));
+					User auser = (User)getContext().getDB().get(User.class, base.getInt("owner"));
 					if( namecache.get(auser.getRace()).size() > 0 ) {
 						List<String> names = this.namecache.get(auser.getRace());
 						offiname = names.get(RandomUtils.nextInt(names.size()));

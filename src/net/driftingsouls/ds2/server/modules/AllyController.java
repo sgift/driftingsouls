@@ -20,31 +20,33 @@ package net.driftingsouls.ds2.server.modules;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.lang.StringUtils;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.User;
-import net.driftingsouls.ds2.server.framework.UserIterator;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
+
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Zeigt die Allianzseite an
@@ -52,7 +54,7 @@ import net.driftingsouls.ds2.server.tasks.Taskmanager;
  *
  * @urlparam String show Die anzuzeigende Unterseite
  */
-public class AllyController extends DSGenerator implements Loggable {
+public class AllyController extends TemplateGenerator implements Loggable {
 	private static final double MAX_POSTENCOUNT = 0.3;
 	
 	private SQLResultRow ally = null;
@@ -71,7 +73,7 @@ public class AllyController extends DSGenerator implements Loggable {
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
@@ -111,9 +113,10 @@ public class AllyController extends DSGenerator implements Loggable {
 	 * @urlparam Integer confuser2 Die User-ID des zweiten Unterstuetzers
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void foundAction() {
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 	
 		if( user.getAlly() > 0 ) {
@@ -201,10 +204,11 @@ public class AllyController extends DSGenerator implements Loggable {
 	 * @urlparam Integer join Die ID der Allianz, der der Benuzter beitreten moechte
 	 * @urlparam String conf Bestaetigt den Aufnahmewunsch falls der Wert "ok" ist
 	 */
+	@Action(ActionType.DEFAULT)
 	public void joinAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 	
 		parameterString("conf");
 		parameterNumber("join");
@@ -271,9 +275,10 @@ public class AllyController extends DSGenerator implements Loggable {
 	 * @urlparam Integer postenid Die ID des zu loeschenden Postens
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void deletePostenAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 		
 		if( this.ally.getInt("president") != user.getId()) {
@@ -302,9 +307,10 @@ public class AllyController extends DSGenerator implements Loggable {
 	 * @urlparam Integer id Die ID des zu besetzenden Postens
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void editPostenAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 		
 		if( this.ally.getInt("president") != user.getId()) {
@@ -326,7 +332,7 @@ public class AllyController extends DSGenerator implements Loggable {
 			return;
 		}
 
-		User formuser = getContext().createUserObject(userid);
+		User formuser = (User)getDB().get(User.class, userid);
 		if( formuser.getAllyPosten() != 0 ) {
   			t.setVar( "ally.message", "Fehler: Jedem Mitglied darf maximal ein Posten zugewiesen werden" );
   			redirect();
@@ -349,9 +355,10 @@ public class AllyController extends DSGenerator implements Loggable {
 	 * @urlparam Integer user Die ID des Benutzers, der den Posten innehaben soll
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void addPostenAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 		
 		if( this.ally.getInt("president") != user.getId()) {
@@ -372,7 +379,7 @@ public class AllyController extends DSGenerator implements Loggable {
 			return;
 		}
 
-		User formuser = createUserObject(userid);
+		User formuser = (User)getDB().get(User.class, userid);
 		if( formuser.getAllyPosten() != 0 ) {
   			t.setVar( "ally.message", "Fehler: Jedem Mitglied darf maximal ein Posten zugewiesen werden" );
   			redirect();
@@ -413,9 +420,10 @@ public class AllyController extends DSGenerator implements Loggable {
 	 * @urlparam String readids Falls der Schreibmodus player ist: Die Komma-separierte Liste der Spieler-IDs
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void createChannelAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 		
 		if( this.ally.getInt("president") != user.getId()) {
@@ -499,9 +507,10 @@ public class AllyController extends DSGenerator implements Loggable {
 	 * @urlparam String readids Falls der Schreibmodus player ist: Die Komma-separierte Liste der Spieler-IDs
 	 * 
 	 */
+	@Action(ActionType.DEFAULT)
 	public void editChannelAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 		
 		if( this.ally.getInt("president") != user.getId()) {
@@ -584,9 +593,10 @@ public class AllyController extends DSGenerator implements Loggable {
 	 * @urlparam String conf Die Bestaetigung des Vorgangs. <code>ok</code>, falls der Vorgang durchgefuehrt werden soll
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void deleteChannelAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 		
 		if( this.ally.getInt("president") != user.getId()) {
@@ -632,9 +642,10 @@ public class AllyController extends DSGenerator implements Loggable {
 	 * Laedt das neue Logo der Allianz auf den Server
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void uploadLogoAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		if( this.ally.getInt("president") != user.getId()) {
 			t.setVar( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
@@ -680,9 +691,10 @@ public class AllyController extends DSGenerator implements Loggable {
 	 * @urlparam Integer showlrs Sollen die LRS der Awacs in der Sternenkarte innerhalb der Ally geteilt werden (<code>1</code>) oder nicht (<code>0</code>)
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void changeSettingsAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 		
 		if( this.ally.getInt("president") != user.getId()) {
@@ -741,15 +753,17 @@ public class AllyController extends DSGenerator implements Loggable {
 					this.ally.getString("pname"), this.ally.getInt("showGtuBieter"), this.ally.getInt("showlrs") );
 
 		//Benutzernamen aktualisieren
-		UserIterator allyusers = getContext().createUserIterator("SELECT * FROM users WHERE ally=",this.ally.getInt("id"));
-		for( User auser : allyusers ) {
+		List list = getContext().getDB().createQuery("from User where ally= :ally")
+			.setInteger("ally", this.ally.getInt("id"))
+			.list();
+		for( Iterator iter=list.iterator(); iter.hasNext(); ) {
+			User auser = (User)iter.next();
 			String newname = StringUtils.replace(allytag, "[name]", auser.getNickname());
 
 			if( !newname.equals(auser.getName()) ) {
 				auser.setName(newname);
 			}
 		}
-		allyusers.free();
 		
 		if( db.tCommit() ) {	
 			t.setVar( "ally.statusmessage", "Neue Daten gespeichert..." );
@@ -773,9 +787,10 @@ public class AllyController extends DSGenerator implements Loggable {
 	 * @urlparam String conf Falls <code>ok</code> wird der Austritt vollzogen
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void partAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 	
 		if( this.ally.getInt("president") == user.getId()) {
@@ -822,9 +837,10 @@ public class AllyController extends DSGenerator implements Loggable {
 	 * @urlparam String conf Bestaetigt die Aufloesung, wenn der Wert <code>ok</code> ist 
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void killAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 		
 		if( this.ally.getInt("president") != user.getId()) {
@@ -857,14 +873,16 @@ public class AllyController extends DSGenerator implements Loggable {
 			
 			int tick = getContext().get(ContextCommon.class).getTick();
 			
-			UserIterator uid = getContext().createUserIterator("SELECT * FROM users WHERE ally=",this.ally.getInt("id"));
-			for( User auser : uid ) {				
+			List list = getContext().getDB().createQuery("from User where ally= :ally")
+				.setInteger("ally", this.ally.getInt("id"))
+				.list();
+			for( Iterator iter=list.iterator(); iter.hasNext(); ) {
+				User auser = (User)iter.next();
 				auser.addHistory(Common.getIngameTime(tick)+": Verlassen der Allianz "+this.ally.getString("name")+" im Zuge der Aufl&ouml;sung dieser Allianz");
 				auser.setAlly(0);
 				auser.setAllyPosten(0);
 				auser.setName(auser.getNickname());
 			}
-			uid.free();
 			
 			db.update("DELETE FROM ally_posten WHERE ally=",this.ally.getInt("id"));
 			db.update("DELETE FROM ally WHERE id=",this.ally.getInt("id"));
@@ -884,9 +902,10 @@ public class AllyController extends DSGenerator implements Loggable {
 	 * @urlparam Integer presn Die ID des neuen Praesidenten der Allianz
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void newPraesiAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 		
 		if( this.ally.getInt("president") != user.getId()) {
@@ -898,7 +917,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		parameterNumber("presn");
 		int presn = getInteger("presn");
 		
-		User presnuser = getContext().createUserObject(presn);
+		User presnuser = (User)getDB().get(User.class, presn);
 		if( presnuser.getAlly() != this.ally.getInt("id") ) {
 			t.setVar( "ally.message", "Dieser Spieler ist nicht Mitglied ihrer Allianz" );
 			redirect();
@@ -919,9 +938,10 @@ public class AllyController extends DSGenerator implements Loggable {
 	 * @urlparam Integer kick Die ID des aus der Allianz zu werfenden Spielers
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void kickAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 		
 		if( this.ally.getInt("president") != user.getId()) {
@@ -939,7 +959,7 @@ public class AllyController extends DSGenerator implements Loggable {
 			return;
 		}
 	
-		User kickuser = getContext().createUserObject(kick);
+		User kickuser = (User)getDB().get(User.class, kick);
 		if( kickuser.getAlly() != this.ally.getInt("id") ) {
 			t.setVar( "ally.message", "Dieser Spieler ist nicht Mitglied ihrer Allianz" );
 			redirect();
@@ -970,9 +990,10 @@ public class AllyController extends DSGenerator implements Loggable {
 	 * fuer Spieler ohne Allianz, an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void defaultNoAllyAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 		
 		String show = getString("show");
@@ -1007,10 +1028,11 @@ public class AllyController extends DSGenerator implements Loggable {
 	 * @urlparam Integer destpos Offset fuer die Liste der zerstoerten Schiffe
 	 * @urlparam Integer lostpos Offset fuer die Liste der verlorenen Schiffe
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		String show = getString("show");
@@ -1029,7 +1051,7 @@ public class AllyController extends DSGenerator implements Loggable {
 		*/
 	
 		if( (show.length() == 0) || show.equals("allgemein") ) {
-			User presi = getContext().createUserObject(this.ally.getInt("president"));
+			User presi = (User)getDB().get(User.class, this.ally.getInt("president"));
 			int membercount = db.first("SELECT count(*) membercount FROM users WHERE ally=",this.ally.getInt("id")).getInt("membercount");
 			
 			t.setVar(	"show.allgemein",		1,
@@ -1292,7 +1314,7 @@ public class AllyController extends DSGenerator implements Loggable {
 				
 				counter++;
 	
-				User auser = getContext().createUserObject(s.getInt("owner"));
+				User auser = (User)getDB().get(User.class, s.getInt("owner"));
 				String ownername = null;
 				if( auser.getId() != 0 ) {
 					ownername = auser.getName();
@@ -1345,8 +1367,8 @@ public class AllyController extends DSGenerator implements Loggable {
 				
 				counter++;
 				
-				User destowner = getContext().createUserObject(s.getInt("destowner"));
-				User owner = getContext().createUserObject(s.getInt("owner"));
+				User destowner = (User)getDB().get(User.class, s.getInt("destowner"));
+				User owner = (User)getDB().get(User.class, s.getInt("owner"));
 				
 				String ownername = null;
 				if( owner.getId() != 0 ) {

@@ -30,11 +30,11 @@ import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.cargo.modules.Modules;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
@@ -57,7 +57,7 @@ public class AddShips implements AdminPlugin {
 		Context context = ContextMap.getContext();
 		StringBuffer echo = context.getResponse().getContent();
 		Database db = context.getDatabase();
-		User user = context.getActiveUser();
+		User user = (User)context.getActiveUser();
 		
 		int ship = context.getRequest().getParameterInt("ship");
 		int count = context.getRequest().getParameterInt("count");
@@ -277,7 +277,7 @@ public class AddShips implements AdminPlugin {
 				}
 			}
 			for( int i=0; i < count; i++ ) {
-				User auser = context.createUserObject(owner);	
+				User auser = (User)context.getDB().get(User.class, owner);	
 				String history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+") [hide]Admin: "+user.getId()+"[/hide]\n";
 				
 				// Schiff erstellen

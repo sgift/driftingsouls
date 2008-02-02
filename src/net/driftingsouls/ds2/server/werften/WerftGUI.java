@@ -39,11 +39,11 @@ import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.ItemEffect;
 import net.driftingsouls.ds2.server.config.Items;
 import net.driftingsouls.ds2.server.config.ModuleSlots;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -321,7 +321,7 @@ public class WerftGUI {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 
-		User user = context.getActiveUser();
+		User user = (User)context.getActiveUser();
 		String sess = context.getSession();
 		
 		SQLResultRow ship = db.first("SELECT * FROM ships WHERE id>0 AND id=",ws);
@@ -353,7 +353,7 @@ public class WerftGUI {
 					"ship.type.modules",	shipType.getString("modules") );
 	
 		if( ship.getInt("owner") != user.getId() ) {
-			User owner = context.createUserObject(ship.getInt("owner"));
+			User owner = (User)context.getDB().get(User.class, ship.getInt("owner"));
 			t.setVar("ship.owner.name", Common._title(owner.getName()));
 		}
 
@@ -440,7 +440,7 @@ public class WerftGUI {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 		String sess = context.getSession();
-		User user = context.getActiveUser();
+		User user = (User)context.getActiveUser();
 		
 		int item = context.getRequest().getParameterInt("item");
 		int slot = context.getRequest().getParameterInt("slot");
@@ -532,7 +532,7 @@ public class WerftGUI {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 		String sess = context.getSession();
-		User user = context.getActiveUser();
+		User user = (User)context.getActiveUser();
 		
 		SQLResultRow ship = db.first("SELECT * FROM ships WHERE id>0 AND id=",dismantle);
 		

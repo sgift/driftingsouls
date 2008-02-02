@@ -18,19 +18,21 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import org.apache.commons.lang.StringUtils;
-
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Zeigt das Profil eines Benutzers an
@@ -39,7 +41,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * @urlparam Integer user Die ID des anzuzeigenden Benutzers
  *
  */
-public class UserProfileController extends DSGenerator {
+public class UserProfileController extends TemplateGenerator {
 	private User user = null;
 	
 	/**
@@ -57,9 +59,9 @@ public class UserProfileController extends DSGenerator {
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		
-		User user = getUser();
+		User user = (User)getUser();
 		
-		User auser = getContext().createUserObject(getInteger("user"));
+		User auser = (User)getDB().get(User.class, getInteger("user"));
 		if( (auser.getId() == 0) || (auser.hasFlag(User.FLAG_HIDE) && (user.getAccessLevel() < 20)) ) {
 			addError( "Ihnen ist kein Benutzer unter der angegebenen ID bekannt", Common.buildUrl("default", "module", "ueber") );
 			
@@ -75,8 +77,9 @@ public class UserProfileController extends DSGenerator {
 	 * Setzt die Beziehung des Users mit dem aktuell angezeigtem User
 	 * @urlparam Integer relation Die neue Beziehung. 1 fuer feindlich, 2 fuer freundlich und neural bei allen anderen Werten
 	 */
+	@Action(ActionType.DEFAULT)
 	public void changeRelationAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		if( this.user.getId() == user.getId() ) {
@@ -108,8 +111,9 @@ public class UserProfileController extends DSGenerator {
 	 * Die Operation kann nur vom Allianzpraesidenten ausgefuehrt werden.
 	 * @urlparam Integer relation Die neue Beziehung. 1 fuer feindlich, 2 fuer freundlich und neural bei allen anderen Werten
 	 */
+	@Action(ActionType.DEFAULT)
 	public void changeRelationAllyAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 	
@@ -147,7 +151,7 @@ public class UserProfileController extends DSGenerator {
 		
 		SQLQuery allymember = db.query("SELECT id FROM users WHERE ally='",user.getAlly(),"'");
 		while( allymember.next() ) {
-			User auser = getContext().createUserObject(allymember.getInt("id"));
+			User auser = (User)getDB().get(User.class, allymember.getInt("id"));
 			auser.setRelation(this.user.getId(), rel);
 		}
 		allymember.free();
@@ -160,10 +164,11 @@ public class UserProfileController extends DSGenerator {
 	/**
 	 * Zeigt die Daten des angegebenen Benutzers an
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {		
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		this.user.setTemplateVars(t);
 		

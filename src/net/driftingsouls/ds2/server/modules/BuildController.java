@@ -30,13 +30,15 @@ import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
@@ -46,7 +48,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * @urlparam Integer col Die Bases, auf der das Gebaeude gebaut werden soll 
  * @urlparam Integer field Die ID des Feldes, auf dem das Gebaeude gebaut werden soll
  */
-public class BuildController extends DSGenerator {
+public class BuildController extends TemplateGenerator {
 	private Base base;
 	
 	/**
@@ -65,7 +67,7 @@ public class BuildController extends DSGenerator {
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		int col = getInteger("col");
@@ -91,9 +93,10 @@ public class BuildController extends DSGenerator {
 	 * @urlparam Integer build Die ID des zu bauenden Gebaeudes
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void buildAction() {
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		parameterNumber("build");
@@ -255,10 +258,11 @@ public class BuildController extends DSGenerator {
 	 * Zeigt die Liste der baubaren Gebaeude, sortiert nach Kategorien, an
 	 * @urlparam Integer cat Die anzuzeigende Kategorie
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 		
 		parameterNumber("cat");

@@ -102,4 +102,11 @@ public interface Response {
 	 * @throws IOException
 	 */
 	public void send() throws IOException;
+
+	/**
+	 * Setzt den internen Status auf manuelles senden.
+	 * In diesem Fall sendet das Objekt selbst keine Daten mehr.
+	 *
+	 */
+	public void setManualSendStatus();
 }

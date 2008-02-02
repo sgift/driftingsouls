@@ -1,6 +1,6 @@
 /*
  *	Drifting Souls 2
- *	Copyright (c) 2006 Christopher Jung
+ *	Copyright (c) 2007 Christopher Jung
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -16,16 +16,26 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.framework.pipeline.serializer;
+package net.driftingsouls.ds2.server.framework.pipeline.generators;
 
-import net.driftingsouls.ds2.server.framework.Context;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Leerer Serializer, der die Ausgabe nicht modifiziert
+ * Kennzeichnet eine Action
  * @author Christopher Jung
  *
  */
-public class PlainSerializer implements Serializer {
-	public void serialize(Context context) {
-	}
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Action {
+	/**
+	 * Der Typ der Action
+	 * @return Der Typ
+	 */
+	ActionType value();
 }

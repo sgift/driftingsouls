@@ -30,13 +30,15 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
@@ -90,7 +92,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 		
 		this.usedUser = user;
@@ -100,7 +102,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 			int forceuser = getInteger("forceuser");
 	
 			if( forceuser != 0 ) {
-				this.usedUser = getContext().createUserObject(forceuser);	
+				this.usedUser = (User)getDB().get(User.class, forceuser);	
 			}	
 		}
 		
@@ -184,7 +186,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 		echo.append("<ship id=\""+aship.getInt("id")+"\" relation=\""+relation+"\">\n");
 		echo.append("<owner>"+aship.getInt("owner")+"</owner>\n");
 		
-		User auser = getContext().createUserObject(aship.getInt("owner"));
+		User auser = (User)getDB().get(User.class, aship.getInt("owner"));
 		echo.append("<ownername><![CDATA["+auser.getName()+"]]></ownername>\n");
 		echo.append("<picture><![CDATA["+stype.getString("picture")+"]]></picture>\n");
 		
@@ -219,6 +221,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 	 * @urlparam Integer y Die Y-Koordinate des Sektors
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void showSectorAction() {
 		Database db = getDatabase();
 		
@@ -347,6 +350,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 	 * Gibt die Liste der Systeme als XML-Dokument zurueck
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void getSystemsAction() {
 		StringBuffer echo = getContext().getResponse().getContent();
 		
@@ -389,6 +393,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 	/**
 	 * Generiert die Sternenkarte
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		boolean debug = getInteger("debugme") != 0;
@@ -650,7 +655,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 						}
 						else if( !usercount.isEmpty() ) {
 							for( Integer userid : usercount.keySet() ) {
-								User userobj = getContext().createUserObject(userid);
+								User userobj = (User)getDB().get(User.class, userid);
 								appendStr(maptext, lastX, lastY, usercount.get(userid)+" Schiff"+(usercount.get(userid)==1?"":"e")+" "+userobj.getName()+"\n");
 							}
 						}
@@ -699,7 +704,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 					}
 					else if( !usercount.isEmpty() ) {
 						for( Integer userid : usercount.keySet() ) {
-							User userobj = getContext().createUserObject(userid);
+							User userobj = (User)getDB().get(User.class, userid);
 							appendStr(maptext, lastX, lastY, usercount.get(userid)+" Schiff"+(usercount.get(userid)==1?"":"e")+" "+userobj.getName()+"\n");
 						}
 					}

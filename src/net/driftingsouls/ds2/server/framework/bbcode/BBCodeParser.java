@@ -18,29 +18,48 @@
  */
 package net.driftingsouls.ds2.server.framework.bbcode;
 
+import java.net.URL;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Loggable;
+import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 /**
- * Der BBCodeParser formatiert einen Text mittels BBCodes. Bei BBCodes
+ * <p>Der BBCodeParser formatiert einen Text mittels BBCodes. Bei BBCodes
  * handelt es sich um Tags in der Form [name]...[/name] oder [name] oder 
- * [name=parameter1,parameter2]...[/name] usw.
- * Das Formatieren einzelner Tags kann dabei auch ueber Funktionen geschehen
- * ({@link BBCodeFunction}).
+ * [name=parameter1,parameter2]...[/name] usw.</p>
+ * <p>Das Formatieren einzelner Tags kann dabei auch ueber Funktionen geschehen
+ * ({@link BBCodeFunction}).</p>
+ * <p>Der BBCodeParser erlaubt es neben den Framework-BBCodes auf eigene 
+ * anwendungsspezifische BBCodes hinzuzufuegen. Diese muessen dazu in der
+ * Datei <code>META-INF/services/net.driftingsouls.ds2.server.framework.bbcode.BBCodeFunction</code>
+ * eingetragen werden. Zudem koennen zur Laufzeit weitere BBCodes registriert werden</p>
  * 
  * @author Christopher Jung
  *
  */
-public class BBCodeParser {
-	private static BBCodeParser instance = null;;
+public class BBCodeParser implements Loggable {
+	private static BBCodeParser instance = null;
 	
 	private Map<String,BBCodeFunction> replaceFunctions = new HashMap<String,BBCodeFunction>();
 	private Map<String,HashSet<Integer>> tags = new HashMap<String,HashSet<Integer>>();
 
 	private BBCodeParser() {
 		try {
+			// Framework-BBCodes registrieren
 			registerHandler( "url", 1, new TagURL() );
 			registerHandler( "url", 2, new TagURL() );
 			registerHandler( "img", 1, "<img style=\"vertical-align:middle; border:0px\" src=\"$1\" alt=\"\" />" );
@@ -60,13 +79,44 @@ public class BBCodeParser {
 			registerHandler( "font", 2, "<span style=\"font-family:$2\">$1</span>" );
 			registerHandler( "align", 2, "<div style=\"text-align:$2\">$1</div>" );
 			registerHandler( "mark", 2, "<span style=\"background-color:$2\">$1</span>" );
-			registerHandler( "shiptype", 1, new TagShipType() );
-			registerHandler( "resource", 3, new TagResource() );
-			registerHandler( "resource", 2, new TagResource() );
-			registerHandler( "userprofile", 2, "<a class=\"profile\" href=\"ds?module=userprofile&sess={{{__SESSID__}}}&user=$2\">$1</a>" );
-			registerHandler( "userprofile", 3, "<a class=\"$3\" href=\"ds?module=userprofile&sess={{{__SESSID__}}}&user=$2\">$1</a>" );
 			registerHandler( "hr", 0, "<hr style=\"height:1px; border:0px; background-color:#606060; color:#606060\" />" );
 			registerHandler( "hide", 1, "" );
+			
+			// Weitere BBCodes aus META-INF/services/net.driftingsouls.ds2.server.framework.bbcode.BBCodeFunction lesen
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			
+			ClassLoader loader = Thread.currentThread().getContextClassLoader();
+			Enumeration<URL> resources = loader.getResources("META-INF/services/"+BBCodeFunction.class.getName());
+			while( resources.hasMoreElements() ) {
+				URL elem = resources.nextElement();
+				
+				Document doc = builder.parse(elem.openStream());
+				Element root = doc.getDocumentElement();
+				NodeList bbcodes = root.getElementsByTagName("bbcode");
+				for( int i=0; i < bbcodes.getLength(); i++ ) {
+					Element bbcode = (Element)bbcodes.item(i);
+					
+					final String tag = bbcode.getAttribute("tag");
+					final int params = Integer.parseInt(bbcode.getAttribute("params")); 
+					
+					if( bbcode.getAttribute("handler").length() == 0 ) {
+						String text = XMLUtils.firstChildOfType(bbcode, Node.CDATA_SECTION_NODE).getNodeValue();
+						text = Common.trimLines(text).trim();
+						registerHandler(tag, params, text);
+					}
+					else {
+						String cls = bbcode.getAttribute("handler");
+						try {
+							Class<? extends BBCodeFunction> bbcodeCls = Class.forName(cls).asSubclass(BBCodeFunction.class);
+							registerHandler(tag, params, bbcodeCls.newInstance());
+						}
+						catch( ClassNotFoundException e ) {
+							LOG.warn("Konnte BBCode "+tag+"("+params+") nicht laden. Handler-Klasse '"+cls+"' nicht vorhanden");
+						}
+					}
+				}
+			}
 		}
 		catch( Exception e ) {
 			e.printStackTrace();

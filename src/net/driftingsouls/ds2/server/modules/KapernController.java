@@ -19,9 +19,8 @@
 package net.driftingsouls.ds2.server.modules;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-
-import org.apache.commons.lang.math.RandomUtils;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
@@ -32,19 +31,22 @@ import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
-import net.driftingsouls.ds2.server.framework.UserFlagschiffLocation;
-import net.driftingsouls.ds2.server.framework.UserIterator;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
-import net.driftingsouls.ds2.server.ships.ShipClasses;
+
+import org.apache.commons.lang.math.RandomUtils;
 
 /**
  * Ermoeglicht das Kapern eines Schiffes sowie verlinkt auf das Pluendern des Schiffes
@@ -53,7 +55,7 @@ import net.driftingsouls.ds2.server.ships.ShipClasses;
  * @urlparam Integer ship Die ID des Schiffes, mit dem der Spieler kapern moechte
  * @urlparam Integer tar Die ID des zu kapernden/pluendernden Schiffes
  */
-public class KapernController extends DSGenerator {
+public class KapernController extends TemplateGenerator {
 	private SQLResultRow ownShip;
 	private SQLResultRow targetShip;
 	private SQLResultRow targetShipType;
@@ -74,7 +76,7 @@ public class KapernController extends DSGenerator {
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		Database db = getDatabase();
-		User user = this.getUser();
+		User user = (User)this.getUser();
 		
 		int ship = getInteger("ship");
 		if( ship < 0 ) {
@@ -108,7 +110,7 @@ public class KapernController extends DSGenerator {
 			return false;
 		}
 		
-		User taruser = getContext().createUserObject( datan.getInt("owner") );
+		User taruser = (User)getDB().get(User.class,  datan.getInt("owner") );
 		if( taruser.isNoob() ) {
 			addError("Der Kolonist steht unter GCP-Schutz", errorurl );
 			
@@ -213,10 +215,11 @@ public class KapernController extends DSGenerator {
 	 * Kapert das Schiff
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void erobernAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
-		User user = this.getUser();
+		User user = (User)this.getUser();
 		
 		t.setVar("kapern.showkaperreport", 1);
 		
@@ -238,7 +241,7 @@ public class KapernController extends DSGenerator {
 		
 		boolean flagschiffspace = user.hasFlagschiffSpace();
 		
-		User targetUser = getContext().createUserObject(this.targetShip.getInt("owner"));
+		User targetUser = (User)getDB().get(User.class, this.targetShip.getInt("owner"));
 		UserFlagschiffLocation flagschiffstatus = targetUser.getFlagschiff();
 
 		if( !flagschiffspace && (flagschiffstatus != null) && 
@@ -272,11 +275,13 @@ public class KapernController extends DSGenerator {
 			if( this.targetShipType.getInt("class") == ShipClasses.STATION.ordinal() ) {
 				List<Integer> ownerlist = new ArrayList<Integer>();
 				if( targetUser.getAlly() > 0 ) {
-					UserIterator iter = getContext().createUserIterator("SELECT * FROM users WHERE ally=",targetUser.getAlly());
-					for( User uid : iter ) {
+					List list = getContext().getDB().createQuery("from User where ally= :ally")
+						.setInteger("ally", targetUser.getAlly())
+						.list();
+					for( Iterator iter=list.iterator(); iter.hasNext(); ) {
+						User uid = (User)iter.next();
 						ownerlist.add(uid.getId());
 					}
-					iter.free();
 				}		
 				else {
 					ownerlist.add(targetUser.getId());
@@ -433,6 +438,7 @@ public class KapernController extends DSGenerator {
 	/**
 	 * Zeigt die Auswahl ab, ob das Schiff gekapert oder gepluendert werden soll
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();

@@ -18,7 +18,6 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline.generators;
 
-import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.ParseException;
@@ -27,14 +26,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-
+import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Error;
-import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.pipeline.Response;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Basisklasse fuer alle DS-spezifischen Generatoren
@@ -42,36 +42,18 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  *
  */
 public abstract class DSGenerator extends Generator {
-	/**
-	 * Die verschiedenen Aufrufarten
-	 *
-	 */
-	public enum ActionType {
-		/**
-		 * Eine normale HTTP-Request mit HTML-Anwort
-		 */
-		DEFAULT("Action"),
-		/**
-		 * Eine Ajax-Request
-		 */
-		AJAX("AjaxAct");
+	protected static abstract class OutputHelper {
+		private Context context = null;
+		private Map<String,Object> attributes = new HashMap<String,Object>();
 		
-		private String type;
-		
-		private ActionType(String type) {
-			this.type = type;
+		/**
+		 * Konstruktor
+		 *
+		 */
+		public OutputHelper() {
+			context = ContextMap.getContext();
 		}
 		
-		/**
-		 * Gibt den Postfix der Aktionsmethoden zurueck
-		 * @return Der Postfix der Aktionsmethoden
-		 */
-		public String getActionExt() {
-			return type;
-		}
-	}
-	
-	protected abstract class FWOutputHelper {
 		/**
 		 * Gibt den Header aus
 		 *
@@ -87,91 +69,143 @@ public abstract class DSGenerator extends Generator {
 		 *
 		 */
 		public abstract void printErrorList();
+		
+		/**
+		 * Setzt ein Attribut
+		 * @param key Der Schluessel
+		 * @param value Der Wert
+		 */
+		public final void setAttribute(String key, Object value) {
+			this.attributes.put(key, value);
+		}
+		
+		/**
+		 * Gibt das Attribut mit dem angegebenen Schluessel zurueck
+		 * @param key Der Schluessel
+		 * @return Der Wert
+		 */
+		public final Object getAttribute(String key) {
+			return this.attributes.get(key);
+		}
+		
+		/**
+		 * Gibt den aktuellen Kontext zurueck
+		 * @return Der Kontext
+		 */
+		protected final Context getContext() {
+			return this.context;
+		}
 	}
 	
-	protected class FWHtmlOutputHelper extends FWOutputHelper {
+	/**
+	 * <p>Ausgabehilfe fuer HTML</p>
+	 * Attribute:
+	 * <ul>
+	 * <li><code>header</code> - String mit weiteren Header-Text
+	 * <li><code>module</code> - Das gerade ausgefuehrte Modul
+	 * <li><code>pagetitle</code> - Der Titel der Seite
+	 * <li><code>pagemenu</code> - Eine Liste von Menueeintraegen fuer die Seite
+	 * </ul>
+	 *
+	 */
+	protected class HtmlOutputHelper extends OutputHelper {
 		@Override
 		public void printHeader() {
-			if( !getString("_style").equals("xml") ) {
-				StringBuffer sb = getResponse().getContent();
-				String url = Configuration.getSetting("URL")+"/";
-				boolean usegfxpak = false;
-				if( getUser() != null ) {
-					if( !getUser().getUserImagePath().equals(User.getDefaultImagePath()) ) {
-						usegfxpak = true;
-					}
-					url = getUser().getImagePath();
-				}
-				
-				sb.append("<head>\n");
-				sb.append("<title>Drifting Souls 2</title>\n");
-				sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
-				if( !getDisableDefaultCSS() ) { 
-					sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+Configuration.getSetting("URL")+"format.css\" />\n");
-				}
-				sb.append("<!--[if IE]>\n");
-   				sb.append("<style type=\"text/css\">@import url("+Configuration.getSetting("URL")+"format_fuer_den_dummen_ie.css);</style>\n");
-  				sb.append("<![endif]-->\n");
-
-				sb.append(getTemplateEngine().getVar( "__HEADER" ) );
-				
-				sb.append("</head>\n");
-				sb.append("<body "+getOnLoadText()+" "+getBodyParameters()+" >\n");
-				sb.append("<div id=\"overDiv\" style=\"position:absolute; visibility:hidden; z-index:1000;\"></div>\n");
-				sb.append("<script type=\"text/javascript\" src=\""+url+"data/javascript/overlibmws.js\"><!-- overLIB (c) Erik Bosrup -->\n");
-				sb.append("</script>");
-				if( usegfxpak ) {
-					sb.append("<script src=\""+url+"data/javascript/gfxpakversion.js\" type=\"text/javascript\"></script>\n");
-				}
-				sb.append("<script src=\""+url+"data/javascript/prototype.js\" type=\"text/javascript\"></script>\n");
-				sb.append("<script src=\""+url+"data/javascript/scriptaculous.js\" type=\"text/javascript\"></script>\n");
-				sb.append("<script type=\"text/javascript\">\n");
-				sb.append("<!--\n");
-				sb.append("OLpageDefaults(TEXTPADDING,0,TEXTFONTCLASS,'tooltip',FGCLASS,'tooltip',BGCLASS,'tooltip');");
-				sb.append("function ask(text,url) {\n");
-				sb.append("if( confirm(text) ) {\n");
-				sb.append("window.location.href = url;\n");
-				sb.append("}\n");
-				sb.append("}\n");
-				sb.append("// -->\n");
-				sb.append("</script>\n");
+			Response response = getContext().getResponse();
+			
+			response.setContentType("text/html");
+			response.setCharSet("UTF-8");
+			
+			if( getContext().getRequest().getParameterString("_style").equals("xml") ) {
+				return;
 			}
+			StringBuffer sb = response.getContent();
+			String url = Configuration.getSetting("URL")+"/";
+			boolean usegfxpak = false;
+			final BasicUser user = getContext().getActiveUser();
+			if( user != null ) {
+				if( !user.getUserImagePath().equals(BasicUser.getDefaultImagePath()) ) {
+					usegfxpak = true;
+				}
+				url = user.getImagePath();
+			}
+			sb.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n");
+			sb.append("<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"de\" lang=\"de\">\n");
+			sb.append("<head>\n");
+			sb.append("<title>Drifting Souls 2</title>\n");
+			sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
+			if( !getDisableDefaultCSS() ) { 
+				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+Configuration.getSetting("URL")+"format.css\" />\n");
+			}
+			sb.append("<!--[if IE]>\n");
+			sb.append("<style type=\"text/css\">@import url("+Configuration.getSetting("URL")+"format_fuer_den_dummen_ie.css);</style>\n");
+			sb.append("<![endif]-->\n");
+
+			if( this.getAttribute("header") != null ) {
+				sb.append(this.getAttribute("header"));
+			}
+			
+			sb.append("</head>\n");
+			sb.append("<body "+getOnLoadText()+" "+getBodyParameters()+" >\n");
+			sb.append("<div id=\"overDiv\" style=\"position:absolute; visibility:hidden; z-index:1000;\"></div>\n");
+			sb.append("<script type=\"text/javascript\" src=\""+url+"data/javascript/overlibmws.js\"><!-- overLIB (c) Erik Bosrup -->\n");
+			sb.append("</script>");
+			if( usegfxpak ) {
+				sb.append("<script src=\""+url+"data/javascript/gfxpakversion.js\" type=\"text/javascript\"></script>\n");
+			}
+			sb.append("<script src=\""+url+"data/javascript/prototype.js\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\""+url+"data/javascript/scriptaculous.js\" type=\"text/javascript\"></script>\n");
+			sb.append("<script type=\"text/javascript\">\n");
+			sb.append("<!--\n");
+			sb.append("OLpageDefaults(TEXTPADDING,0,TEXTFONTCLASS,'tooltip',FGCLASS,'tooltip',BGCLASS,'tooltip');");
+			sb.append("function ask(text,url) {\n");
+			sb.append("if( confirm(text) ) {\n");
+			sb.append("window.location.href = url;\n");
+			sb.append("}\n");
+			sb.append("}\n");
+			
+			if( this.getAttribute("module") != null ) {
+				sb.append("if( parent && parent.setCurrentPage ) {\n");
+				sb.append("parent.setCurrentPage('"+this.getAttribute("module")+"','"+this.getAttribute("pagetitle")+"');\n");
+				PageMenuEntry[] entries = (PageMenuEntry[])this.getAttribute("pagemenu");
+				if( (entries != null) && (entries.length > 0) ) {
+					for( int i=0; i < entries.length; i++ ) {
+						sb.append("parent.addPageMenuEntry('"+entries[i].title+"','"+entries[i].url.replace("&amp;", "&")+"');");
+					}
+				}
+				sb.append("parent.completePage();");
+				sb.append("}\n");
+			}
+
+			sb.append("// -->\n");
+			sb.append("</script>\n");
 		}
 		
 		@Override
 		public void printFooter() {
-			if( getTemplateID().length() > 0 ) {
-				getTemplateEngine().parse( "OUT", getTemplateID() );
-					
-				getTemplateEngine().p("OUT");
+			if( getContext().getRequest().getParameterString("_style").equals("xml") ) {
+				return;
 			}
-			if( !getString("_style").equals("xml") ) {
-				StringBuffer sb = getResponse().getContent();
-				if( !getDisableDebugOutput() ) {
-					sb.append("<div style=\"text-align:center; font-size:11px;color:#c7c7c7; font-family:arial, helvetica;\">\n");
-					sb.append("<br /><br /><br />\n");
-					sb.append("QCount: "+getDatabase().getQCount()+"<br />\n");
-					sb.append("Execution-Time: "+(System.currentTimeMillis()-getStartTime())/1000d+"s<br />\n");
-					//echo "<a class=\"forschinfo\" target=\"none\" style=\"font-size:11px\" href=\"http://ds2.drifting-souls.net/mantis/\">Zum Bugtracker</a><br />\n";
-					if( (getUser() != null) && (getUser().getAccessLevel() >= 20) && getDatabase().getQueryLogStatus() ) {
-						sb.append("<div style=\"display:none\"><!--\n");
-						sb.append(getDatabase().getQueryLog());
-						sb.append("--></div>\n");
-					}
-					sb.append("</div>\n");
-				}
-				sb.append("</body>");
+			StringBuffer sb = getContext().getResponse().getContent();
+			if( !getDisableDebugOutput() ) {
+				sb.append("<div style=\"text-align:center; font-size:11px;color:#c7c7c7; font-family:arial, helvetica;\">\n");
+				sb.append("<br /><br /><br />\n");
+				sb.append("Execution-Time: "+(System.currentTimeMillis()-getStartTime())/1000d+"s<br />\n");
+				//echo "<a class=\"forschinfo\" target=\"none\" style=\"font-size:11px\" href=\"http://ds2.drifting-souls.net/mantis/\">Zum Bugtracker</a><br />\n";
+				sb.append("</div>\n");
 			}
+			sb.append("</body>");
+			sb.append("</html>");
 		}
 
 		@Override
 		public void printErrorList() {
-			StringBuffer sb = getResponse().getContent();
+			StringBuffer sb = getContext().getResponse().getContent();
 			sb.append("<div align=\"center\">\n");
 			sb.append(Common.tableBegin(430,"left"));
 			sb.append("<div style=\"text-align:center; font-size:14px; font-weight:bold\">Es sind Fehler aufgetreten:</div><ul>\n");
 					
-			for( Error error : getErrorList() ) {
+			for( Error error : getContext().getErrorList() ) {
 				if( error.getUrl() == null ) {
 					sb.append("<li><span style=\"font-size:14px; color:red\">"+error.getDescription().replaceAll("\n","<br />")+"</span></li>\n");
 				}
@@ -186,35 +220,36 @@ public abstract class DSGenerator extends Generator {
 		}
 	}
 	
-	protected class FWAjaxOutputHelper extends FWOutputHelper {
+	protected static class AjaxOutputHelper extends OutputHelper {
 		@Override
-		public void printHeader() {
-			// Moegliche Templates vorerst deaktivieren 
-			// (bis wir sie fuer ajax wirklich mal brauchen sollten)
-			// TODO
-			//$cntl->setTemplate('');
-		}
+		public void printHeader() {}
 		@Override
 		public void printFooter() {}
 		@Override
 		public void printErrorList() {
-			StringBuffer sb = getResponse().getContent();
+			StringBuffer sb = getContext().getResponse().getContent();
 
-			for( Error error : getErrorList() ) {
+			for( Error error : getContext().getErrorList() ) {
 				sb.append("ERROR: "+error.getDescription().replaceAll("\n"," ")+"\n");
 			}
 		}
 	}
 	
-	private ActionType actionType;
-	private FWOutputHelper actionTypeHandler;
+	private static class PageMenuEntry {
+		String title;
+		String url;
+		
+		PageMenuEntry(String title, String url) {
+			this.title = title;
+			this.url = url;
+		}
+	}
 	
-	private TemplateEngine templateEngine;
-	private String masterTemplateID;
+	private ActionType actionType;
+	private OutputHelper actionTypeHandler;
 	
 	private boolean disableDefaultCSS;
 	private boolean disableDebugOutput;
-	private String browser;
 	private long startTime;
 	private boolean requireValidSession;
 	private List<String> onLoadFunctions;
@@ -222,6 +257,9 @@ public abstract class DSGenerator extends Generator {
 	private Map<String, Object> parameter;
 	private String subParameter;
 	private List<String> preloadUserValues;
+	private String pageTitle;
+	private List<PageMenuEntry> pageMenuEntries;
+	private boolean disablePageMenu;
 	
 	/**
 	 * Konstruktor
@@ -230,60 +268,33 @@ public abstract class DSGenerator extends Generator {
 	public DSGenerator(Context context) {
 		super(context);
 		
-		parameter = new HashMap<String,Object>();
-		subParameter = "";
+		this.parameter = new HashMap<String,Object>();
+		this.subParameter = "";
 		
 		parameterString("sess");
 		parameterString("module");
 		parameterString("action");
 		parameterString("_style");
 		
-		startTime = System.currentTimeMillis();
+		this.startTime = System.currentTimeMillis();
 		
-		disableDebugOutput = false;
-		requireValidSession = true;
-		disableDefaultCSS = false;
+		this.disableDebugOutput = false;
+		this.requireValidSession = true;
+		this.disableDefaultCSS = false;
 		
-		onLoadFunctions = new ArrayList<String>();
-		bodyParameters = new HashMap<String,String>();
+		this.onLoadFunctions = new ArrayList<String>();
+		this.bodyParameters = new HashMap<String,String>();
 		
-		preloadUserValues = new ArrayList<String>();
-		preloadUserValues.add("id");
+		this.preloadUserValues = new ArrayList<String>();
+		this.preloadUserValues.add("id");
 		
-		templateEngine = null;
-		masterTemplateID = "";
+		this.pageTitle = null;
+		this.pageMenuEntries = new ArrayList<PageMenuEntry>();
+		this.disablePageMenu = false;
 
 		setActionType(ActionType.DEFAULT);
-
-		String browser = getRequest().getHeader("user-agent");
-		if( browser != null ) {		
-			browser = browser.toLowerCase();
-			
-			if( browser.indexOf("opera") > -1  ) {
-				browser = "opera";
-			}
-			else if( browser.indexOf("msie") > -1 ) {
-				browser = "msie";
-			}
-			else {
-				browser = "mozilla";
-			}
-			this.browser = browser;
-		}
-		else {
-			this.browser = "unknown";
-		}
 	}
 		
-	/**
-	 * Gibt den aktiven User zurueck. Falls kein User eingeloggt ist
-	 * wird <code>null</code> zurueckgegeben
-	 * @return Der User oder <code>null</code>
-	 */
-	public User getUser() {
-		return getContext().getActiveUser();
-	}
-	
 	private Object getParameter( String parameter ) {
 		if( subParameter.equals("") ) {
 			return this.parameter.get(parameter);
@@ -378,89 +389,6 @@ public abstract class DSGenerator extends Generator {
 		}
 	}
 	
-	private void createTemplateEngine() {
-		if( templateEngine != null ) {
-			return;
-		}
-				
-		templateEngine = new TemplateEngine(getContext());
-
-		String style = (String)getParameter("_style");
-		if( !style.equals("") ) {
-			templateEngine.setOverlay(style);	
-		}
-				
-		if( getBrowser().equals("opera") ) {
-			templateEngine.setVar("_BROWSER_OPERA",1);
-		}
-		else if( getBrowser().equals("msie") ) {
-			templateEngine.setVar("_BROWSER_MSIE",1);
-		}
-		else {
-			templateEngine.setVar("_BROWSER_MOZILLA",1);
-		}
-		
-		if( getUser() != null ) {
-			templateEngine.setVar("global.datadir", getUser().getImagePath());
-		}
-		else {
-			templateEngine.setVar("global.datadir", User.getDefaultImagePath());
-		}
-		
-		templateEngine.setVar(	"global.sess",	getString("sess"),
-								"global.module", getString("module") );
-	}
-	
-	/**
-	 * Gibt die mit dem Generator verknuepfte Instanz des Template-Engines zurueck
-	 * @return Das Template-Engine
-	 */
-	public TemplateEngine getTemplateEngine() {
-		if( templateEngine == null ) {
-			createTemplateEngine();
-		}
-		return templateEngine;
-	}
-	
-	/**
-	 * Gibt die ID der im System registrierten Template-File zurueck. 
-	 * Sollte noch kein Template-File registriert sein, so wird ein leerer
-	 * String zurueckgegeben
-	 * @return die ID der Template-File oder <code>""</code>
-	 */
-	public String getTemplateID() {
-		return masterTemplateID;
-	}
-	
-	/**
-	 * Setzt das vom Generator verwendete Template-File auf die angegebene Datei. Die Datei muss
-	 * in kompilierter Form im System vorliegen (das vorhandensein der unkompilierten Variante ist nicht
-	 * erforderlich).
-	 * @param file Der Dateiname der unkompilierten Template-Datei
-	 */
-	public void setTemplate( String file ) {
-		if( !file.equals("") ) {		
-			if( templateEngine == null ) {
-				createTemplateEngine();
-			}
-		
-			String mastertemplate = new File(file).getName();
-			if( mastertemplate.indexOf(".html") > -1 ) {
-				mastertemplate = mastertemplate.substring(0,mastertemplate.lastIndexOf(".html"));
-			}
-			mastertemplate = "_"+mastertemplate.toUpperCase();
-		
-			masterTemplateID = mastertemplate;
-
-			if( !templateEngine.setFile( masterTemplateID, file ) ) {
-				masterTemplateID = "";
-			}
-		}
-		else {
-			masterTemplateID = "";	
-		}
-	}
-	
 	/**
 	 * Fuehrt eine Aktion aus. Die zur Aktion gehoerende Funktion wird aufgerufen 
 	 * @param action Der Name der Aktion
@@ -486,15 +414,33 @@ public abstract class DSGenerator extends Generator {
 		redirect("default");
 	}
 	
-	/**
-	 * Fueht die angegebene Aktion aus
-	 * @param action Der Name der Aktion
-	 * @param actionType Der Typ der Aktion
-	 */
-	public void handleAction( String action, ActionType actionType ) {
-		setActionType( actionType );
-
-		if( (getRequest().getParameter("action") == null) || "".equals(getRequest().getParameter("action")) ) {
+	private Method getMethodForAction(String action) throws NoSuchMethodException {
+		Method[] methods = getClass().getMethods();
+		for( int i=0; i < methods.length; i++ ) {
+			Action actionAnnotation = methods[i].getAnnotation(Action.class);
+			if( actionAnnotation == null ) {
+				continue;
+			}
+			
+			if( methods[i].getName().equals(action+"Action") ) {
+				return methods[i];
+			}
+			
+			if( methods[i].getName().equals(action+"AjaxAct") ) {
+				return methods[i];
+			}
+			
+			if( methods[i].getName().equals(action) ) {
+				return methods[i];
+			}
+		}
+		
+		throw new NoSuchMethodException();
+	}
+	
+	@Override
+	public void handleAction( String action ) {
+		if( (action == null) || action.isEmpty() ) {
 			action = "default";
 		}
 		
@@ -508,86 +454,110 @@ public abstract class DSGenerator extends Generator {
 		}
 		
 		if( getErrorList().length != 0 ) {
-			masterTemplateID = "";
-			actionTypeHandler.printHeader();
+			printErrorList(true);
+			
+			return;
+		}
+	
+		try {
+			Method method = getMethodForAction(action);
+			setActionType(method.getAnnotation(Action.class).value());
+			
+			if( (getErrorList().length != 0) || !validateAndPrepare(action) ) {
+				printErrorList(true);
+				
+				return;
+			}
+			
+			method.setAccessible(true);
+			method.invoke(this);
+		}
+		catch( InvocationTargetException e ) {
+			Throwable t = e.getCause();
+			t.printStackTrace();
+			StackTraceElement[] st = t.getStackTrace();
+			String stacktrace = "";
+			for( StackTraceElement s : st ) {
+				stacktrace += s.toString()+"\n";
+			}
+				
+			addError("Es ist ein Fehler in der Action '"+action+"' aufgetreten:\n"+t.toString()+"\n\n"+stacktrace);
+			
+			Common.mailThrowable(e, "DSGenerator Invocation Target Exception", 
+					"Action: "+action+"\n" +
+					"ActionType: "+actionType+"\n" +
+					"User: "+(getContext().getActiveUser() != null ? getContext().getActiveUser().getId() : "none")+"\n" +
+					"Query-String: "+getContext().getRequest().getQueryString());
+			
+			getContext().rollback();
+		}
+		catch( NoSuchMethodException e ) {
+			addError("Die Aktion '"+action+"' existiert nicht!");
+		}
+		catch( Exception e ) {
+			addError("Es ist ein Fehler beim Aufruf der Action '"+action+"' aufgetreten:\n"+e.toString());
+			Common.mailThrowable(e, "DSGenerator Exception", 
+					"Action: "+action+"\n" +
+					"ActionType: "+actionType+"\n"+
+					"User: "+(getContext().getActiveUser() != null ? getContext().getActiveUser().getId() : "none")+"\n" +
+					"Query-String: "+getContext().getRequest().getQueryString());
+			getContext().rollback();
+		}
+		
+		parseSubParameter("");
+		content = getResponse().getContent().toString();
+		content = StringUtils.replace(content,"{{{__SESSID__}}}", getString("sess"));
+		getResponse().setContent(content);
+
+		if( getErrorList().length > 0 ) {
+			printErrorList(false);
+		}
+		else {
+			getResponse().resetContent();
+			
+			printHeader( action );
 			
 			if( getErrorList().length > 0 ) {
 				actionTypeHandler.printErrorList();
 			}
-
-			actionTypeHandler.printFooter();
 			
-			return;
+			getResponse().getContent().append(content);
+			
+			printFooter( action );
 		}
-		if( templateEngine != null ) {
-			if( getContext().getActiveUser() != null ) {
-				getContext().getActiveUser().setTemplateVars( templateEngine );	
-			}	
+	}
+	
+	protected void printErrorList(boolean init) {
+		String content = getResponse().getContent().toString();
+		if( !init ) {
+			getResponse().resetContent();
 		}
 		
-		if( (getErrorList().length == 0) && validateAndPrepare(action) ) {
-			String callAction = action + actionType.getActionExt();
-			
-			try {
-				Method method = getClass().getMethod(callAction);
-				method.setAccessible(true);
-				method.invoke(this);
-			}
-			catch( InvocationTargetException e ) {
-				Throwable t = e.getCause();
-				t.printStackTrace();
-				StackTraceElement[] st = t.getStackTrace();
-				String stacktrace = "";
-				for( StackTraceElement s : st ) {
-					stacktrace += s.toString()+"\n";
-				}
-					
-				addError("Es ist ein Fehler in der Action '"+action+"' aufgetreten:\n"+t.toString()+"\n\n"+stacktrace);
-				
-				Common.mailThrowable(e, "DSGenerator Invocation Target Exception", 
-						"Action: "+action+"\n" +
-						"ActionType: "+actionType+"\n" +
-						"User: "+(getContext().getActiveUser() != null ? getContext().getActiveUser().getId() : "none")+"\n" +
-						"Query-String: "+getContext().getRequest().getQueryString());
-				if( getDatabase().isTransaction() ) {
-					getDatabase().tRollback();
-				}
-			}
-			catch( NoSuchMethodException e ) {
-				addError("Die Aktion '"+action+"' existiert nicht!");
-			}
-			catch( Exception e ) {
-				addError("Es ist ein Fehler beim Aufruf der Action '"+action+"' aufgetreten:\n"+e.toString());
-				Common.mailThrowable(e, "DSGenerator Exception", 
-						"Action: "+action+"\n" +
-						"ActionType: "+actionType+"\n"+
-						"User: "+(getContext().getActiveUser() != null ? getContext().getActiveUser().getId() : "none")+"\n" +
-						"Query-String: "+getContext().getRequest().getQueryString());
-				if( getDatabase().isTransaction() ) {
-					getDatabase().tRollback();
-				}
-			}
+		if( !this.disablePageMenu ) {
+			actionTypeHandler.setAttribute("module", getString("module"));
+			actionTypeHandler.setAttribute("pagetitle", this.pageTitle);
+			actionTypeHandler.setAttribute("pagemenu", this.pageMenuEntries.toArray(new PageMenuEntry[this.pageMenuEntries.size()]));
 		}
-		else {
-			masterTemplateID = "";
-		}
-		parseSubParameter("");
-		content = getResponse().getContent().toString();
-		content = StringUtils.replace(content,"{{{__SESSID__}}}", getString("sess"));
-		getResponse().resetContent();
-			
-		printHeader( action );
+		actionTypeHandler.printHeader();
 		
 		if( getErrorList().length > 0 ) {
 			actionTypeHandler.printErrorList();
 		}
+
+		if( !init ) {
+			getResponse().getContent().append(content);
+		}
 		
-		getResponse().getContent().append(content);
-		
-		printFooter( action );
+		actionTypeHandler.printFooter();
 	}
 	
 	protected void printHeader( String action ) {
+		if( !this.disablePageMenu ) {
+			actionTypeHandler.setAttribute("module", getString("module"));
+			actionTypeHandler.setAttribute("pagetitle", this.pageTitle);
+			actionTypeHandler.setAttribute("pagemenu", this.pageMenuEntries.toArray(new PageMenuEntry[this.pageMenuEntries.size()]));
+		}
+		
 		actionTypeHandler.printHeader();
 	}
 	
@@ -634,6 +604,31 @@ public abstract class DSGenerator extends Generator {
 	 */
 	public boolean getDisableDefaultCSS() {
 		return disableDefaultCSS;	
+	}
+	
+	/**
+	 * Setzt die Bezeichnung der aktuellen Seite
+	 * @param title Die Bezeichnung
+	 */
+	public void setPageTitle(String title) {
+		this.pageTitle = title;
+	}
+	
+	/**
+	 * Fuegt dem Seitenmenue einen Eintrag hinzu
+	 * @param title Die Titel des Eintrags
+	 * @param url Die URL
+	 */
+	public void addPageMenuEntry(String title, String url) {
+		this.pageMenuEntries.add(new PageMenuEntry(title, url));
+	}
+	
+	/**
+	 * Setzt, ob das Seitenmenue nicht verwendet werden soll
+	 * @param value <code>true</code>, falls es nicht verwendet werden soll
+	 */
+	public void setDisablePageMenu(boolean value) {
+		this.disablePageMenu = value;
 	}
 	
 	/**
@@ -696,23 +691,31 @@ public abstract class DSGenerator extends Generator {
 		bodyParameters.put(parameter,value);
 	}
 	
-	/**
-	 * Gibt den Identifikationsstring des Browsers des Spielers zurueck
-	 * @return Der Identifikationsstring des Browsers
-	 */
-	public String getBrowser() {
-		return browser;
-	}
-	
 	protected void setActionType( ActionType type ) {
 		if( type == ActionType.DEFAULT ) {
-			actionTypeHandler = new FWHtmlOutputHelper();
+			actionTypeHandler = new HtmlOutputHelper();
 		}
 		else if( type == ActionType.AJAX ) {
-			actionTypeHandler = new FWAjaxOutputHelper();
+			actionTypeHandler = new AjaxOutputHelper();
 		}	
 		
 		actionType = type;
+	}
+	
+	/**
+	 * Gibt den aktuellen Aktionstyp zurueck
+	 * @return Der Aktionstyp
+	 */
+	protected ActionType getActionType() {
+		return actionType;
+	}
+	
+	/**
+	 * Gibt die Ausgabehilfe zurueck
+	 * @return Die Ausgabehilfe
+	 */
+	protected OutputHelper getOutputHelper() {
+		return actionTypeHandler;
 	}
 	
 	protected abstract boolean validateAndPrepare(String action);

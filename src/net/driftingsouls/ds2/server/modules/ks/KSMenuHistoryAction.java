@@ -30,11 +30,11 @@ import java.util.Map;
 import java.util.Set;
 
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
@@ -185,7 +185,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 				if( this.history_tag.equals("side2") ) {
 					thisSide = 1;
 				}
-				User auser = context.createUserObject(Integer.parseInt(atts.getValue("commander")));
+				User auser = (User)context.getDB().get(User.class, Integer.parseInt(atts.getValue("commander")));
 				if( auser.getId() == 0 ) {
 					this.history_sides.put(thisSide, "Unbekannter Spieler ("+atts.getValue("commander")+")");
 				}

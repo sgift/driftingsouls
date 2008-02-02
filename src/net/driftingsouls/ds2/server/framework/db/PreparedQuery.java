@@ -23,10 +23,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.apache.commons.lang.ArrayUtils;
-
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Loggable;
+
+import org.apache.commons.lang.ArrayUtils;
 
 /**
  * <h1>Ein PreparedStatement</h1>
@@ -101,14 +100,8 @@ public class PreparedQuery implements Loggable {
 	 * @param values Die Parameter des Statements in der Reihenfolge in der Query
 	 */
 	public void tUpdate( int count, Object ... values ) {
-		if( !db.isTransaction() || db.tStatus() ) {
-			update(values);
-			if( db.isTransaction() && (affectedRows() != count) ) {
-				db.setTStatus(false);
-				if( db.isDebugTransaction() ) {
-					LOG.warn("Transaktion (PreparedStatement) fehlgeschlagen: "+query+"\nValues: "+Common.implode(" ;; ", values));
-				}
-			}
+		if( update(values) != count ) {
+			throw new RuntimeException("Inkonsistenter DB-Status");
 		}
 	}
 	

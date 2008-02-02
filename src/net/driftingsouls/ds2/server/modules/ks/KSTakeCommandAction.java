@@ -19,9 +19,9 @@
 package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
 
 /**
  * Leitet die Uebernahme des Kommandos der Schlacht ein, wenn der aktuelle Kommandant inaktiv ist
@@ -47,7 +47,7 @@ public class KSTakeCommandAction extends BasicKSAction {
 		
 		Context context = ContextMap.getContext();
 		
-		User user = context.getActiveUser();	
+		User user = (User)context.getActiveUser();	
 		
 		if( (battle.getAlly(battle.getOwnSide()) == 0) || (battle.getAlly(battle.getOwnSide()) != user.getAlly()) ) {
 			battle.logme( "Sie geh&ouml;ren nicht der kommandierenden Allianz an\n" );
@@ -59,7 +59,7 @@ public class KSTakeCommandAction extends BasicKSAction {
 			return RESULT_ERROR;
 		}
 		
-		User oldCommander = context.createUserObject(battle.getCommander(battle.getOwnSide()));
+		User oldCommander = (User)context.getDB().get(User.class, battle.getCommander(battle.getOwnSide()));
 		if( oldCommander.getInactivity() <= 0 ) {
 			battle.logme( "Der kommandierende Spieler ist noch anwesend\n" );
 			return RESULT_ERROR;

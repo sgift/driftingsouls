@@ -21,12 +21,14 @@ package net.driftingsouls.ds2.server.modules;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.bases.Core;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
@@ -37,7 +39,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * @urlparam Integer deaconly != 0, falls die Gebaeude/Cores nur deaktiviert, nicht aber aktiviert werden sollen
  *
  */
-public class ActivateAllController extends DSGenerator {
+public class ActivateAllController extends TemplateGenerator {
 	private Base base = null;
 	
 	/**
@@ -56,7 +58,7 @@ public class ActivateAllController extends DSGenerator {
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		int col = getInteger("col");
 		
@@ -76,6 +78,7 @@ public class ActivateAllController extends DSGenerator {
 	 * (de)aktiviert die Gebaeude/Cores
 	 */
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();

@@ -32,9 +32,9 @@ import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.ItemEffect;
 import net.driftingsouls.ds2.server.config.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -125,7 +125,7 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 		String userattmode = "";
 		
 		if( attmode.length() == 0 ) {
-			User user = context.getActiveUser();
+			User user = (User)context.getActiveUser();
 			attmode = userattmode = user.getUserValue("TBLORDER/ks/attackmode");
 		}
 		
@@ -134,7 +134,7 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 		}
 		
 		if( !attmode.equals(userattmode) ) {
-			User user = context.getActiveUser();
+			User user = (User)context.getActiveUser();
 			user.setUserValue("TBLORDER/ks/attackmode", attmode);
 		}
 		
@@ -148,7 +148,7 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 		int userattcount = 0;
 		
 		if( attcount == 0 ) {
-			User user = context.getActiveUser();
+			User user = (User)context.getActiveUser();
 			String attCountStr = user.getUserValue("TBLORDER/ks/attackcount");
 			attcount = userattcount = (attCountStr.length() > 0 ? Integer.parseInt(attCountStr) : 0);
 		}
@@ -158,7 +158,7 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 		}
 		
 		if( attcount != userattcount ) {
-			User user = context.getActiveUser();
+			User user = (User)context.getActiveUser();
 			user.setUserValue("TBLORDER/ks/attackcount", Integer.toString(attcount));
 		}
 		

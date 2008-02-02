@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,13 +37,12 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.User;
-import net.driftingsouls.ds2.server.framework.UserIterator;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
@@ -684,7 +684,7 @@ public class Battle implements Loggable {
 		Database db = context.getDatabase();
 		
 		// Kann der Spieler ueberhaupt angreifen (Noob-Schutz?)
-		User user = context.createUserObject( id );
+		User user = (User)context.getDB().get(User.class, id);
 		if( user.isNoob() ) {
 			context.addError("Sie stehen unter GCP-Schutz und k&ouml;nnen daher keinen Gegner angreifen!<br />Hinweis: der GCP-Schutz kann unter Optionen vorzeitig beendet werden");
 			return false;
@@ -712,7 +712,7 @@ public class Battle implements Loggable {
 		// Kann der Spieler angegriffen werden (NOOB-Schutz?/Vac-Mode?)
 		//
 
-		User enemyUser = context.createUserObject( tmpEnemyShip.getInt("owner") );
+		User enemyUser = (User)context.getDB().get(User.class, tmpEnemyShip.getInt("owner"));
 		if( enemyUser.isNoob() ) {
 			context.addError("Der Gegner steht unter GCP-Schutz und kann daher nicht angegriffen werden!");
 			return false;
@@ -770,7 +770,7 @@ public class Battle implements Loggable {
 			if( (aShipRow.getInt("owner") == -1) && (aShipRow.getInt("type") == Configuration.getIntSetting("CONFIG_TRUEMMER")) ) {
 				continue;
 			}
-			User tmpUser = context.createUserObject( aShipRow.getInt("owner") );
+			User tmpUser = (User)context.getDB().get(User.class, aShipRow.getInt("owner"));
 					
 			if( tmpUser.isNoob() ) {
 				continue;
@@ -974,7 +974,7 @@ public class Battle implements Loggable {
 		Set<Integer> calcedallys = new HashSet<Integer>();
 		
 		for( Integer auserID : ownUsers ) {
-			User auser = context.createUserObject(auserID);
+			User auser = (User)context.getDB().get(User.class, auserID);
 			
 			if( (auser.getAlly() != 0) && calcedallys.contains(auser.getAlly()) ) {		
 				SQLQuery allyuser = db.query("SELECT id FROM users WHERE ally=",auser.getAlly()," AND !(id IN (",Common.implode(",",ownUsers),"))");
@@ -986,7 +986,7 @@ public class Battle implements Loggable {
 		}
 
 		for( Integer auserID : enemyUsers ) {
-			User auser = context.createUserObject(auserID);
+			User auser = (User)context.getDB().get(User.class, auserID);
 			
 			if( (auser.getAlly() != 0) && calcedallys.contains(auser.getAlly()) ) {		
 				SQLQuery allyuser = db.query("SELECT id FROM users WHERE ally=",auser.getAlly()," AND !(id IN (",Common.implode(",",enemyUsers),"))");
@@ -999,10 +999,10 @@ public class Battle implements Loggable {
 		calcedallys = null;
 		
 		for( Integer auserID : ownUsers ) {
-			User auser = context.createUserObject(auserID);
+			User auser = (User)context.getDB().get(User.class, auserID);
 			
 			for( Integer euserID : enemyUsers ) {
-				User euser = context.createUserObject(euserID);
+				User euser = (User)context.getDB().get(User.class, euserID);
 								
 				auser.setRelation(euser.getId(), User.Relation.ENEMY);
 				euser.setRelation(auser.getId(), User.Relation.ENEMY);
@@ -1069,7 +1069,7 @@ public class Battle implements Loggable {
 			}
 		}
 		
-		User userobj = context.createUserObject(id);
+		User userobj = (User)context.getDB().get(User.class, id);
 		if( userobj.isNoob() ) {
 			context.addError("Sie stehen unter GCP-Schutz und k&ouml;nnen daher keine Schiffe in diese Schlacht schicken!<br />Hinweis: der GCP-Schutz kann unter Optionen vorzeitig beendet werden");
 			return false;
@@ -1094,30 +1094,35 @@ public class Battle implements Loggable {
 		
 		User curuser = userobj;
 		if( curuser.getAlly() != 0 ) {
-			UserIterator iter = context.createUserIterator("SELECT * FROM users WHERE ally=",curuser.getAlly()," AND id!=",curuser.getId());
-			for( User allyuser : iter ) {
-				ownUsers.add(allyuser);	
+			List userList = context.getDB().createQuery("from User where ally= :ally and id != :user")
+				.setInteger("ally", curuser.getAlly())
+				.setInteger("user", curuser.getId())
+				.list();
+			for( Iterator iter=userList.iterator(); iter.hasNext(); ) {
+				ownUsers.add((User)iter.next());	
 			}
-			iter.free();
 		}
 		
-		UserIterator iter = context.createUserIterator("SELECT DISTINCT u.* " +
+		SQLQuery query = db.query("SELECT DISTINCT u.id " +
 				"FROM (users u JOIN ships s ON u.id=s.owner) JOIN battles_ships bs ON s.id=bs.shipid " +
 				"WHERE bs.battleid="+this.id+" AND bs.side=",this.enemySide);
-		for( User euser : iter ) {
+		while( query.next() ) {
+			User euser = (User)context.getDB().get(User.class, query.getInt("id"));
 			enemyUsers.add(euser);
 
 			if( (euser.getAlly() != 0) && calcedallys.contains(euser.getAlly()) ) {
-				UserIterator allyIter = context.createUserIterator("SELECT * FROM users WHERE ally=",euser.getAlly()," AND id!=",euser.getId());
-				for( User allyuser : allyIter ) {
-					enemyUsers.add(allyuser);	
+				List userList = context.getDB().createQuery("from User where ally= :ally and id != :user")
+					.setInteger("ally", euser.getAlly())
+					.setInteger("user", euser.getId())
+					.list();
+				for( Iterator iter=userList.iterator(); iter.hasNext(); ) {
+					enemyUsers.add((User)iter.next());	
 				}
-				allyIter.free();
 				
 				calcedallys.add(euser.getAlly());
 			}
 		}
-		iter.free();
+		query.free();
 		
 		for( int i=0; i < ownUsers.size(); i++ ) {
 			User auser = ownUsers.get(i);
@@ -1288,7 +1293,7 @@ public class Battle implements Loggable {
 	
 		this.tableBuffer = battledata;
 	
-		User auser = context.createUserObject(id);
+		User auser = (User)context.getDB().get(User.class, id);
 		
 		//
 		// Weitere Commander in Folge von Questschlachten feststellen
@@ -1646,8 +1651,8 @@ public class Battle implements Loggable {
 		int enemycount = db.first("SELECT count(*) count FROM battles_ships WHERE battleid=",this.id," AND side=",this.enemySide).getInt("count");
 
 		if( (owncount == 0) && (enemycount == 0) ) {
-			User user1 = context.createUserObject(this.commander[this.enemySide]);
-			User user2 = context.createUserObject(this.commander[this.ownSide]);
+			User user1 = (User)context.getDB().get(User.class, this.commander[this.enemySide]);
+			User user2 = (User)context.getDB().get(User.class, this.commander[this.ownSide]);
 
 			PM.send(context, this.commander[this.enemySide], this.commander[this.ownSide], "Schlacht unentschieden", "Die Schlacht bei "+this.system+" : "+this.x+"/"+this.y+" gegen "+user1.getName()+" wurde mit einem Unendschieden beendet!");
 			PM.send(context, this.commander[this.ownSide], this.commander[this.enemySide], "Schlacht unentschieden", "Die Schlacht bei "+this.system+" : "+this.x+"/"+this.y+" gegen "+user2.getName()+" wurde mit einem Unendschieden beendet!");
@@ -1664,8 +1669,8 @@ public class Battle implements Loggable {
 			return false;
 		}
 		else if( owncount == 0 ) {
-			User user1 = context.createUserObject(this.commander[this.enemySide]);
-			User user2 = context.createUserObject(this.commander[this.ownSide]);
+			User user1 = (User)context.getDB().get(User.class, this.commander[this.enemySide]);
+			User user2 = (User)context.getDB().get(User.class, this.commander[this.ownSide]);
 
 			PM.send(context, this.commander[this.enemySide], this.commander[this.ownSide], "Schlacht verloren", "Du hast die Schlacht bei "+this.system+" : "+this.x+"/"+this.y+" gegen "+user1.getName()+" verloren!");
 			PM.send(context, this.commander[this.ownSide], this.commander[this.enemySide], "Schlacht gewonnen", "Du hast die Schlacht bei "+this.system+" : "+this.x+"/"+this.y+" gegen "+user2.getName()+" gewonnen!");
@@ -1688,8 +1693,8 @@ public class Battle implements Loggable {
 			return false;
 		}
 		else if( enemycount == 0 ) {
-			User user1 = context.createUserObject(this.commander[this.enemySide]);
-			User user2 = context.createUserObject(this.commander[this.ownSide]);
+			User user1 = (User)context.getDB().get(User.class, this.commander[this.enemySide]);
+			User user2 = (User)context.getDB().get(User.class, this.commander[this.ownSide]);
 
 			PM.send(context, this.commander[this.enemySide], this.commander[this.ownSide], "Schlacht gewonnen", "Du hast die Schlacht bei "+this.system+" : "+this.x+"/"+this.y+" gegen "+user1.getName()+" gewonnen!");
 			PM.send(context, this.commander[this.ownSide], this.commander[this.enemySide], "Schlacht verloren", "Du hast die Schlacht bei "+this.system+" : "+this.x+"/"+this.y+" gegen "+user2.getName()+" verloren!");
@@ -1723,7 +1728,7 @@ public class Battle implements Loggable {
 			if( !calledByUser && this.takeCommand[i] != 0 ) {
 				this.logenemy("<action side=\""+i+"\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\n");
 	
-				User com = context.createUserObject(this.takeCommand[i]);
+				User com = (User)context.getDB().get(User.class, this.takeCommand[i]);
 	
 				PM.send(context, this.takeCommand[i], this.commander[i], "Schlacht &uuml;bernommen", "Ich habe die Leitung der Schlacht bei "+this.system+" : "+this.x+"/"+this.y+" &uuml;bernommen.");
 	
@@ -1828,7 +1833,7 @@ public class Battle implements Loggable {
 			if( onendhandler.length() > 0 ) {			
 				ScriptParser scriptparser = context.get(ContextCommon.class).getScriptParser(ScriptParser.NameSpace.QUEST);
 				if( context.getActiveUser() != null ) {
-					User activeuser = context.getActiveUser();
+					User activeuser = (User)context.getActiveUser();
 					if( !activeuser.hasFlag(User.FLAG_SCRIPT_DEBUGGING) ) {
 						scriptparser.setLogFunction(ScriptParser.LOGGER_NULL);
 					}

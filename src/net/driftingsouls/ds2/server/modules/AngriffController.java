@@ -29,15 +29,17 @@ import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.ItemEffect;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.ks.BasicKSAction;
 import net.driftingsouls.ds2.server.modules.ks.BasicKSMenuAction;
@@ -93,7 +95,7 @@ import org.apache.commons.lang.StringUtils;
  * @urlparam String scan Die im Scan anzuzeigende Seite (<code>own</code> oder <code>enemy</code>)
  *
  */
-public class AngriffController extends DSGenerator implements Loggable {
+public class AngriffController extends TemplateGenerator implements Loggable {
 	private static final int SHIPGROUPSIZE = 50;
 	
 	private static final Map<String,Class<? extends BasicKSAction>> ACTIONS = new HashMap<String,Class<? extends BasicKSAction>>();
@@ -369,7 +371,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 	}
 	
 	private boolean showMenu( Battle battle, StringBuilder action ) {
-		User user = this.getUser();
+		User user = (User)this.getUser();
 		TemplateEngine t = this.getTemplateEngine();		
 		
 		SQLResultRow ownShip = battle.getOwnShip();
@@ -402,7 +404,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 		else if( battle.getOwnLog(true).length() == 0 ) {
 			if( battle.isCommander(user.getId(),battle.getOwnSide()) ) {
 				if( battle.getTakeCommand(battle.getOwnSide()) != 0 ) {
-					User auser = getContext().createUserObject(battle.getTakeCommand(battle.getOwnSide()));
+					User auser = (User)getDB().get(User.class, battle.getTakeCommand(battle.getOwnSide()));
 		
 					t.setVar(	"battle.takecommand.ask",	1,
 								"battle.takecommand.id",	battle.getTakeCommand(battle.getOwnSide()),
@@ -462,7 +464,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 				historyobj.setController(this);
 				
 				if( (battle.getAlly(battle.getOwnSide()) != 0) && (battle.getTakeCommand(battle.getOwnSide()) == 0) && (battle.getAlly(battle.getOwnSide()) == user.getAlly()) ) {
-					User auser = getContext().createUserObject(battle.getCommander(battle.getOwnSide()));
+					User auser = (User)getDB().get(User.class, battle.getCommander(battle.getOwnSide()));
 					if( auser.getInactivity() > 0 ) {
 						historyobj.showTakeCommand(true);
 					}
@@ -522,9 +524,10 @@ public class AngriffController extends DSGenerator implements Loggable {
 	 * @urlparam String enemyshipgroup Die gegnerische ausgewaehlte Schiffsgruppe
 	 * @urlparam String weapon Die ID der gerade ausgewaehlten Waffe
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 
@@ -650,6 +653,9 @@ public class AngriffController extends DSGenerator implements Loggable {
 		SQLResultRow ownShip = battle.getOwnShip();
 		SQLResultRow ownShipType = ShipTypes.getShipType( ownShip );
 		
+		User oUser = (User)getDB().get(User.class, ownShip.getInt("owner"));
+		User eUser = (User)getDB().get(User.class, enemyShip.getInt("owner"));
+		
 		t.setVar(	"global.ksaction",			action,
 					"global.scan",				scan,
 					"global.ownshipgroup",		battle.getOwnShipGroup(),
@@ -667,7 +673,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 					"ownship.y",				ownShip.getInt("y"),
 					"ownship.type.name",		ownShipType.getString("nickname"),
 					"ownship.type.image",		modifyShipImg(ownShipType,ownShip.getInt("count")),
-					"ownship.owner.name",		Common._title(getContext().createUserObject(ownShip.getInt("owner")).getName()),
+					"ownship.owner.name",		Common._title(oUser.getName()),
 					"ownship.owner.id",			ownShip.getInt("owner"),
 					"ownship.action.hit",		ownShip.getInt("action") & Battle.BS_HIT,
 					"ownship.action.flucht",	ownShip.getInt("action") & Battle.BS_FLUCHT,
@@ -683,7 +689,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 					"enemyship.type",			enemyShip.getInt("type"),
 					"enemyship.type.name",		enemyShipType.getString("nickname"),
 					"enemyship.type.image",		modifyShipImg(enemyShipType,enemyShip.getInt("count")),
-					"enemyship.owner.name",		Common._title(getContext().createUserObject(enemyShip.getInt("owner")).getName()),
+					"enemyship.owner.name",		Common._title(eUser.getName()),
 					"enemyship.owner.id",		enemyShip.getInt("owner"),
 					"enemyship.action.hit",		enemyShip.getInt("action") & Battle.BS_HIT,
 					"enemyship.action.flucht",	enemyShip.getInt("action") & Battle.BS_FLUCHT,
@@ -870,13 +876,15 @@ public class AngriffController extends DSGenerator implements Loggable {
 		
 						
 					}
+					
+					User aUser = (User)getDB().get(User.class, aship.getInt("owner"));
 		
 					t.setVar(	"ship.id",				aship.getInt("id"),
 								"ship.name",			aship.getString("name"),
 								"ship.type",			aship.getInt("type"),
 								"ship.type.name",		aShipType.getString("nickname"),
 								"ship.type.image",		modifyShipImg(aShipType,aship.getInt("count")),
-								"ship.owner.name",		Common._title(getContext().createUserObject(aship.getInt("owner")).getName()),
+								"ship.owner.name",		Common._title(aUser.getName()),
 								"ship.owner.id",		aship.getInt("owner"),
 								"ship.energy",			energy,
 								"ship.active",			(aship.getInt("id") == ownShip.getInt("id")),
@@ -1100,13 +1108,15 @@ public class AngriffController extends DSGenerator implements Loggable {
 							}
 						}						
 					}
+					
+					User aUser = (User)getDB().get(User.class, aship.getInt("owner"));
 		
 					t.setVar(	"ship.id",				aship.getInt("id"),
 								"ship.name",			aship.getString("name"),
 								"ship.type",			aship.getInt("type"),
 								"ship.type.name",		aShipType.getString("nickname"),
 								"ship.type.image",		modifyShipImg(aShipType,aship.getInt("count")),
-								"ship.owner.name",		Common._title(getContext().createUserObject(aship.getInt("owner")).getName()),
+								"ship.owner.name",		Common._title(aUser.getName()),
 								"ship.owner.id",		aship.getInt("owner"),
 								"ship.active",			(aship.getInt("id") == enemyShip.getInt("id")),
 								"ship.action.hit",		aship.getInt("action") & Battle.BS_HIT,
@@ -1239,7 +1249,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 		*/
 		
 		if( !battle.isCommander(user.getId(),battle.getOwnSide()) ) {
-			User auser = getContext().createUserObject(battle.getCommander(battle.getOwnSide()));
+			User auser = (User)getDB().get(User.class, battle.getCommander(battle.getOwnSide()));
 			t.setVar(	"user.commander",		0,
 						"battle.owncom.name",	auser.getProfileLink(),
 						"battle.owncom.ready",	battle.isReady(battle.getOwnSide()) );
@@ -1253,7 +1263,7 @@ public class AngriffController extends DSGenerator implements Loggable {
 		}
 		
 		int enemySide = battle.getOwnSide() == 1 ? 0 : 1;
-		User auser = getContext().createUserObject(battle.getCommander(enemySide));
+		User auser = (User)getDB().get(User.class, battle.getCommander(enemySide));
 		t.setVar(	"battle.enemycom.name",		auser.getProfileLink(),
 					"battle.enemycom.ready",	battle.isReady(battle.getEnemySide()) );
 	}

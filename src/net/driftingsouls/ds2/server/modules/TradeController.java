@@ -22,12 +22,14 @@ import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ships;
 
@@ -37,7 +39,7 @@ import net.driftingsouls.ds2.server.ships.Ships;
  * @urlparam Integer ship die ID des Schiffes, das Waren verkaufen moechte
  * @urlparam Integer tradepost die ID des Handelspostens, an dem die Waren verkauft werden sollen
  */
-public class TradeController extends DSGenerator {
+public class TradeController extends TemplateGenerator {
 	private SQLResultRow ship = null;
 	private Cargo shipCargo = null;
 	private Cargo kurse = null;
@@ -110,6 +112,7 @@ public class TradeController extends DSGenerator {
 	 * @urlparam Integer ${resid}to Verkauft die Resource mit der ID ${resid} in der angegebenen Menge
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void sellAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
@@ -181,7 +184,8 @@ public class TradeController extends DSGenerator {
 	
 			Ships.recalculateShipStatus(this.ship.getInt("id"));
 	
-			getUser().transferMoneyFrom(this.posten.getInt("owner"), totalRE, "Warenverkauf Handelsposten bei "+this.ship.getInt("system")+":"+this.ship.getInt("x")+"/"+this.ship.getInt("y"), false, User.TRANSFER_SEMIAUTO );
+			User user = (User)getUser();
+			user.transferMoneyFrom(this.posten.getInt("owner"), totalRE, "Warenverkauf Handelsposten bei "+this.ship.getInt("system")+":"+this.ship.getInt("x")+"/"+this.ship.getInt("y"), false, User.TRANSFER_SEMIAUTO );
 			
 			if( !db.tCommit() ) {
 				if( !db.getErrorStatus() && (this.sellRetryCount < 3) ) {
@@ -202,6 +206,7 @@ public class TradeController extends DSGenerator {
 	/**
 	 * Zeigt die eigenen Waren sowie die Warenkurse am Handelsposten an
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();

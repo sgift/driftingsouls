@@ -19,14 +19,16 @@
 package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 
 /**
  * Die Logoutfunktion
  * @author Christopher Jung
  *
  */
-public class LogoutController extends DSGenerator {
+public class LogoutController extends TemplateGenerator {
 	/**
 	 * Konstruktor
 	 * @param context Der zu verwendende Kontext
@@ -46,8 +48,10 @@ public class LogoutController extends DSGenerator {
 	 * Loggt den Spieler aus
 	 */
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
-		String ownsess = getDatabase().first("SELECT session FROM sessions WHERE id='",getUser().getId(),"'").getString("session");
-		getDatabase().update("DELETE FROM sessions WHERE id=",getUser().getId()," OR attach='",ownsess,"'");
+		getDB().createQuery("delete from Session where session= :sess or attach= :sess")
+			.setString("sess", getContext().getSession())
+			.executeUpdate();
 	}
 }

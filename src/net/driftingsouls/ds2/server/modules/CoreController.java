@@ -23,13 +23,15 @@ import net.driftingsouls.ds2.server.bases.Core;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
@@ -38,7 +40,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * 
  * @urlparam Integer col Die ID des Asteroiden, dessen Core verwaltet werden soll
  */
-public class CoreController extends DSGenerator {
+public class CoreController extends TemplateGenerator {
 	private Base base = null;
 	
 	/**
@@ -56,7 +58,7 @@ public class CoreController extends DSGenerator {
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		int col = getInteger("col");
@@ -81,9 +83,10 @@ public class CoreController extends DSGenerator {
 	 * @urlparam Integer build Die ID der zu bauenden Core
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void buildAction() {
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		parameterNumber("build");
@@ -181,6 +184,7 @@ public class CoreController extends DSGenerator {
 	/**
 	 * Deaktiviert die Core auf dem Asteroiden, sofern sie noch nicht deaktiviert ist
 	 */
+	@Action(ActionType.DEFAULT)
 	public void deactivateAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -214,6 +218,7 @@ public class CoreController extends DSGenerator {
 	 * Aktiviert die Core auf dem Asteroiden, sofern sie noch nicht aktiviert ist und 
 	 * die Anzahl der freien Arbeiter dazu ausreicht.
 	 */
+	@Action(ActionType.DEFAULT)
 	public void activateAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -284,7 +289,7 @@ public class CoreController extends DSGenerator {
 	private void showCoreBuildList() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		// Keine Core vorhanden
 		Cargo cargo = base.getCargo();
@@ -357,6 +362,7 @@ public class CoreController extends DSGenerator {
 	 * baubaren Cores an (wenn noch keine Core gebaut wurde) oder
 	 * die Daten zur aktuellen Core
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {	
 		TemplateEngine t = getTemplateEngine();

@@ -29,10 +29,10 @@ import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -79,7 +79,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 		SchiffController controller = caller.controller;
 		
 		Database db = controller.getDatabase();
-		User user = controller.getUser();
+		User user = (User)controller.getUser();
 		TemplateEngine t = controller.getTemplateEngine();
 		
 		int ship = data.getInt("id");
@@ -152,7 +152,8 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 					t.setVar("base.ownbase",1);
 				}
 
-				String owner = Common._title(controller.createUserObject(datan.getInt("owner")).getName());
+				User ownerObj = (User)controller.getDB().get(User.class, datan.getInt("owner"));
+				String owner = Common._title(ownerObj.getName());
 				if( owner.equals("") ) owner = "-";
 				if( datan.getInt("owner") == -1) owner = "verlassen";
 				if( !owner.equals("-") && (datan.getInt("owner") != -1) && (datan.getInt("owner") != user.getId()) ) {

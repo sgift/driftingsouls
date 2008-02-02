@@ -21,8 +21,6 @@ package net.driftingsouls.ds2.server.modules;
 import java.util.Arrays;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-
 import net.driftingsouls.ds2.server.Forschung;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
@@ -32,23 +30,27 @@ import net.driftingsouls.ds2.server.config.ModuleSlots;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.NoSuchShipTypeException;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Die Schiffstypen-Infos
  * @author Christopher Jung
  *
  */
-public class SchiffInfoController extends DSGenerator {
+public class SchiffInfoController extends TemplateGenerator {
 	private int shipID = 0;
 	private SQLResultRow ship = null;
 	private SQLResultRow shipBuildData = null;
@@ -71,7 +73,7 @@ public class SchiffInfoController extends DSGenerator {
 	protected boolean validateAndPrepare(String action) {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		int ship = getInteger("ship");
 		
 		if( ship == 0 ) {
@@ -233,10 +235,11 @@ public class SchiffInfoController extends DSGenerator {
 		}
 	}
 	
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		//Kann der User sehen, dass das Schiff baubar ist?

@@ -25,7 +25,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Loggable;
 
 /**
@@ -39,7 +38,6 @@ public class Database implements Loggable {
 	private Connection connection;
 	private int affectedRows = 0;
 	private int insertid = -1;
-	private boolean tStatus = false;
 	private boolean transaction = false;
 	private boolean debugTransaction;
 	private boolean error = false;
@@ -48,17 +46,11 @@ public class Database implements Loggable {
 	private StringBuffer queryLogBuffer = null;
 	
 	/**
-	 * Erstellt eine neue Datenbank-Verbindung aus dem Verbindungspool
-	 *
+	 * Erstellt eine neue Datenbank-Verbindung aus einer JDBC-Verbindung
+	 * @param con Die JDBC-Verbindung
 	 */
-	public Database() {
-		try {
-			connection = DBConnectionPool.getConnection();
-		}
-		catch( Exception e ) {
-			e.printStackTrace();
-			error("Unable to connect to Database via DBConnectionPool\n"+e, null);
-		}
+	public Database(Connection con) {
+		connection = con;
 	}
 	
 	/**
@@ -292,20 +284,7 @@ public class Database implements Loggable {
 	 * @param debugtransact true, falls Fehler gemeldet werden sollen.
 	 */
 	public void tBegin(boolean debugtransact) {
-		if( !transaction ) {
-			transaction = true;
-			tStatus = true;
-			debugTransaction = debugtransact;
-			
-		
-			try {
-				connection.setAutoCommit(false);
-			}
-			catch( SQLException e ) {
-				e.printStackTrace();
-				throw new SQLRuntimeException(e);
-			}
-		}
+		// EMPTY
 	}
 	
 	/**
@@ -320,31 +299,9 @@ public class Database implements Loggable {
 	 * @param query Die SQL-Query. Falls es sich um mehrere Elemente handelt, werden diese zu einem String verbunden
 	 */
 	public void tUpdate( int count, Object ... query ) {
-		if( !transaction || tStatus ) {
-			update(query);
-			if( transaction && (affectedRows() != count) ) {
-				tStatus = false;
-				if( debugTransaction ) {
-					LOG.warn("Transaktion fehlgeschlagen: "+Common.implode("", query));
-				}
-			}
+		if( update(query) != count ) {
+			throw new RuntimeException("Inkonsistenter DB-Status");
 		}
-	}
-	
-	/**
-	 * Fuehrt ein Rollback auf der aktuellen Transaktion aus
-	 *
-	 */
-	public void tRollback() {
-		try {
-			connection.rollback();
-			connection.setAutoCommit(true);
-		}
-		catch( SQLException e ) {
-			e.printStackTrace();
-			throw new SQLRuntimeException(e);
-		}
-		transaction = false;
 	}
 	
 	/**
@@ -354,36 +311,7 @@ public class Database implements Loggable {
 	 * @return true, falls die Transaktion erfolgreich war
 	 */
 	public boolean tCommit() {
-		if( tStatus == true ) {
-			try {
-				connection.commit();
-				connection.setAutoCommit(true);
-			}
-			catch( SQLException e ) {
-				e.printStackTrace();
-				throw new SQLRuntimeException(e);
-			}
-		}
-		else {
-			tRollback();	
-		}
-		
-		transaction = false;
-		
-		return tStatus;
-	}
-	
-	/**
-	 * Liefert die Status der letzten Transaktion zurueck.
-	 * 
-	 * @return true, falls der Status der letzten Transaktion "ok" war/ist
-	 */
-	public boolean tStatus() {
-		return tStatus;
-	}
-	
-	protected void setTStatus(boolean status) {
-		tStatus = status;
+		return true;
 	}
 	
 	protected void incQCount() {
@@ -441,7 +369,6 @@ public class Database implements Loggable {
 	
 	protected void error( String text, Statement stmt ) {
 		error = true;
-		tStatus = false;
 		LOG.error(text);
 		try {
 			if( (stmt != null) && (stmt.getWarnings() != null) ) {

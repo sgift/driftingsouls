@@ -44,11 +44,11 @@ import net.driftingsouls.ds2.server.config.Items;
 import net.driftingsouls.ds2.server.config.ModuleSlots;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DSObject;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
@@ -171,7 +171,7 @@ public abstract class WerftObject extends DSObject {
 		int system = this.getSystem();
 					
 		Cargo cargo = new Cargo();
-		User auser = context.createUserObject(owner);
+		User auser = (User)context.getDB().get(User.class, owner);
 		
 		String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
 		String history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+")\n";
@@ -206,7 +206,7 @@ public abstract class WerftObject extends DSObject {
 			}
 			
 			if( !ok ) {
-				User user = context.createUserObject(this.getOwner());
+				User user = (User)context.getDB().get(User.class, this.getOwner());
 				
 				Cargo allyitems = null;
 				if( user.getAlly() > 0 ) {
@@ -272,7 +272,7 @@ public abstract class WerftObject extends DSObject {
 			Database db = context.getDatabase();
 			
 			Cargo cargo = this.getCargo(true);
-			User user = context.createUserObject(this.getOwner());
+			User user = (User)context.getDB().get(User.class, this.getOwner());
 			
 			if( user.getAlly() > 0 ) {
 				Cargo allyitems = new Cargo( Cargo.Type.ITEMSTRING, db.first("SELECT items FROM ally WHERE id=",user.getAlly()).getString("items"));
@@ -1005,7 +1005,7 @@ public abstract class WerftObject extends DSObject {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 		
-		User user = context.createUserObject(this.getOwner());
+		User user = (User)context.getDB().get(User.class, this.getOwner());
 	
 		boolean flagschiff = user.hasFlagschiffSpace();
 	
@@ -1200,7 +1200,7 @@ public abstract class WerftObject extends DSObject {
 	public SQLResultRow getShipBuildData( int build, int item ) {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
-		User user = context.createUserObject(this.getOwner());
+		User user = (User)context.getDB().get(User.class, this.getOwner());
 		
 		Cargo allyitems = null;
 	   	if( user.getAlly() > 0 ) {
@@ -1280,7 +1280,7 @@ public abstract class WerftObject extends DSObject {
 		
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
-		User user = context.createUserObject(this.getOwner());
+		User user = (User)context.getDB().get(User.class, this.getOwner());
 	
 		Cargo basec = this.getCargo(false);
 	   	Cargo newbasec = (Cargo)basec.clone();

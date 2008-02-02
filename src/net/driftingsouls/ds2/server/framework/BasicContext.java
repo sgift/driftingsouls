@@ -24,13 +24,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.math.RandomUtils;
-
 import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.framework.pipeline.Error;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
+
+import org.apache.commons.lang.math.RandomUtils;
+import org.hibernate.Transaction;
 
 /**
  * Eine einfache Klasse, welche das <code>Context</code>-Interface implementiert.
@@ -41,16 +42,17 @@ import net.driftingsouls.ds2.server.framework.pipeline.Response;
  *
  */
 public class BasicContext implements Context,Loggable {
-	private Map<Integer,User> cachedUsers = new HashMap<Integer,User>();
 	private Database database;
 	private Request request;
 	private Response response;
-	private User activeUser = null;
+	private BasicUser activeUser = null;
 	private List<Error> errorList = new ArrayList<Error>();
 	private Map<Class<?>, Object> contextSingletons = new HashMap<Class<?>,Object>();
 	private Map<Class<?>, Map<String,Object>> variables = new HashMap<Class<?>, Map<String, Object>>();
 	private String currentSession = "";
 	private List<ContextListener> listener = new ArrayList<ContextListener>();
+	private org.hibernate.Session session;
+	private Transaction transaction;
 	
 	private static String[] actionBlockingPhrases = {
 		"Immer mit der Ruhe!\nDer arme Server ist schon total erschl&ouml;pft.\nG&ouml;nn ihm mal ein oder zwei Minuten Pause :)",
@@ -66,7 +68,13 @@ public class BasicContext implements Context,Loggable {
 	 * @param response Die mit dem Kontext zu verbindende <code>Response</code>
 	 */
 	public BasicContext(Request request, Response response) {
-		database = new Database();
+		ContextMap.addContext(this);
+		
+		session = HibernateFacade.openSession();
+		transaction = session.beginTransaction();
+		
+		database = new Database(session.connection());
+		
 		if( Configuration.getIntSetting("LOG_QUERIES") != 0 ) {
 			database.setQueryLogStatus(true);
 		}
@@ -74,13 +82,9 @@ public class BasicContext implements Context,Loggable {
 		this.response = response;
 		
 		revalidate();
-		
-		ContextMap.addContext(this);
 	}
 	
 	private void authenticateUser() {
-		Database db = getDatabase();
-		
 		String sess = request.getParameter("sess");
 		currentSession = sess;
 		
@@ -91,16 +95,15 @@ public class BasicContext implements Context,Loggable {
 		}
 		
 		long time = Common.time();
-		SQLResultRow sessdata = db.prepare("SELECT * FROM sessions WHERE session=?")
-								.first(sess);
+		Session sessdata = (Session)getDB().get(Session.class, sess);
 		
-		if( sessdata.isEmpty() ) {
+		if( sessdata == null ) {
 			addError( "Sie sind offenbar nicht eingeloggt", errorurl );
 
 			return;
 		}
-		
-		if( sessdata.getInt("tick") != 0 ) {
+
+		if( sessdata.getTick() ) {
 			addError( "Im Moment werden einige Tick-Berechnungen f&uuml;r sie durchgef&uuml;hrt. Bitte haben sie daher ein wenig Geduld", 
 					getRequest().getRequestURL() + 
 						(getRequest().getQueryString() != null ? "?" + getRequest().getQueryString() : "") 
@@ -109,57 +112,62 @@ public class BasicContext implements Context,Loggable {
 			return;
 		}
 	
-		User user = new User( this, sessdata.getInt("id"), sessdata );
-		if( !user.hasFlag(User.FLAG_DISABLE_IP_SESSIONS) && !sessdata.getString("ip").contains("<"+getRequest().getRemoteAddress()+">") ) {
+		BasicUser user = sessdata.getUser();
+		user.setSessionData(sessdata);
+		if( !user.hasFlag(BasicUser.FLAG_DISABLE_IP_SESSIONS) && !sessdata.isValidIP(getRequest().getRemoteAddress()) ) {
 			addError( "Diese Session ist einer anderen IP zugeordnet", errorurl );
 
 			return;
 		}
 	
-		if( !user.hasFlag(User.FLAG_DISABLE_AUTO_LOGOUT) && (Common.time() - sessdata.getInt("lastaction") > Configuration.getIntSetting("AUTOLOGOUT_TIME")) ) {
-			db.update("DELETE FROM sessions WHERE id='",sessdata.getInt("id"),"'");
+		if( !user.hasFlag(BasicUser.FLAG_DISABLE_AUTO_LOGOUT) && (Common.time() - sessdata.getLastAction() > Configuration.getIntSetting("AUTOLOGOUT_TIME")) ) {
+			getDB().delete(sessdata);
 			addError( "Diese Session ist bereits abgelaufen", errorurl );
 
 			return;
 		}
 		
-		if( (user.getVacationCount() > 0) && (user.getWait4VacationCount() == 0) ) {
-			addError( "Dieser Account befindet sich noch im Vacationmodus", errorurl );
-
-			return;
-		}
+		final long oldtime = sessdata.getLastAction();
 		
-		db.prepare("UPDATE sessions SET lastaction=? WHERE session=?").update(time, sess);
+		sessdata.setLastAction(time);
+		commit();
 		
-		if( !user.hasFlag(User.FLAG_NO_ACTION_BLOCKING) ) {
+		if( !user.hasFlag(BasicUser.FLAG_NO_ACTION_BLOCKING) ) {
 			// Alle 1.5 Sekunden Counter um 1 reduzieren, sofern mindestens 5 Sekunden Pause vorhanden waren
-			int reduce = (int)((time - sessdata.getInt("lastaction"))/1.5);
-			if( time < sessdata.getInt("lastaction") + 5 ) {
+			int reduce = (int)((time - oldtime)/1.5);
+			if( time < oldtime + 5 ) {
 				reduce = -1;
 			}
-			int actioncounter = sessdata.getInt("actioncounter")-reduce;
+			int actioncounter = sessdata.getActionCounter()-reduce;
 			if( actioncounter < 0 ) {
 				actioncounter = 0;
 			}
 
 			if( reduce > 0 ) {
-				db.prepare("UPDATE sessions SET actioncounter=IF(actioncounter- ? <0,0,actioncounter- ?) WHERE session=?")
-					.update(reduce, reduce, sess);
+				final int value = sessdata.getActionCounter() - reduce;
+				
+				sessdata.setActionCounter(value > 0 ? value : 0);
 			}
 			else if( reduce < 0 ) {
-				db.prepare("UPDATE sessions SET actioncounter=actioncounter+1 WHERE session=?").update(sess);
+				sessdata.setActionCounter(sessdata.getActionCounter()+1);
 			}
 			
+			int sleep = -1;
+			
 			// Bei viel zu hoher Aktivitaet einfach die Ausfuehrung mit einem Fehler beenden
-			if( actioncounter >= 30 ) {
+			if( actioncounter >= 35 ) {
 				addError( actionBlockingPhrases[RandomUtils.nextInt(actionBlockingPhrases.length)],
 						getRequest().getRequestURL() + 
 						(getRequest().getQueryString() != null ? "?" + getRequest().getQueryString() : "") );
-
+				
 				return;
 			}
-			// Bei hoher Aktivitaet stattdessen nur eine Pause von 1 oder 2,5 Sekunden einlegen
-			else if( actioncounter > 20 ) {
+			// Bei hoher Aktivitaet stattdessen nur eine Pause einlegen
+			else if( actioncounter > 10 ) {
+				sleep = 100 * actioncounter;
+			}
+			
+			if( sleep > 0 ) {
 				try {
 					Thread.sleep(2500);
 				}
@@ -167,23 +175,15 @@ public class BasicContext implements Context,Loggable {
 					LOG.error(e,e);
 				}
 			}
-			else if( actioncounter > 10 ) {
-				try {
-					Thread.sleep(1000);
-				}
-				catch( InterruptedException e ) {
-					LOG.error(e,e);
-				}
-			}
 		}
-		
+
 		// Inaktivitaet zuruecksetzen
-		db.update("UPDATE users SET inakt=0 WHERE id='",sessdata.getInt("id"),"'");
+		user.setInactivity(0);
 		
-		if( !"".equals(sessdata.getString("attach")) && !sessdata.getString("attach").equals("-1") ) {
-			SQLResultRow row = db.first("SELECT id FROM sessions WHERE session='",sessdata.getString("attach"),"'");
-			if( !row.isEmpty() ) {
-				user.attachToUser(row.getInt("id"));	
+		if( (sessdata.getAttach() != null) && !sessdata.getAttach().equals("-1") ) {
+			Session attachSession = (Session)getDB().get(Session.class, sessdata.getAttach());
+			if( attachSession != null) {
+				user.attachToUser(attachSession.getUser());	
 			}
 		}
 		
@@ -200,26 +200,25 @@ public class BasicContext implements Context,Loggable {
 		}
 	}
 
-	public User getCachedUser(int id) {
-		return cachedUsers.get(id);
-	}
-
-	public User createUserObject(int id) {
-		if( cachedUsers.containsKey(id) ) {
-			return cachedUsers.get(id);
-		}
-		return new User( this, id );
-	}
-	
 	public Database getDatabase() {
 		return database;
 	}
 
-	public User getActiveUser() {
+	public org.hibernate.Session getDB() {
+		return session;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> List<T> query(String query, Class<T> classType) {
+		return this.session.createQuery(query).list();
+	}
+
+	
+	public BasicUser getActiveUser() {
 		return activeUser;
 	}
 
-	public void setActiveUser(User user) {
+	public void setActiveUser(BasicUser user) {
 		activeUser = user;
 	}
 
@@ -239,16 +238,16 @@ public class BasicContext implements Context,Loggable {
 		return errorList.toArray(new Error[errorList.size()]);
 	}
 
-	public void cacheUser(User userobj) {
-		cachedUsers.put( userobj.getId(), userobj );
-	}
-
 	public Request getRequest() {
 		return request;
 	}
 
 	public Response getResponse() {
 		return response;
+	}
+	
+	public void setResponse(Response response) {
+		this.response = response;
 	}
 
 	/**
@@ -258,12 +257,47 @@ public class BasicContext implements Context,Loggable {
 	 *
 	 */
 	public void free() {
-		for( int i=0; i < this.listener.size(); i++ ) {
-			listener.get(i).onContextDestory();
-		}
+		RuntimeException e = null;
 		
+		for( int i=0; i < this.listener.size(); i++ ) {
+			try {
+				listener.get(i).onContextDestory();
+			}
+			catch( RuntimeException ex ) {
+				e = ex;
+			}
+		}
+
+		if( transaction.isActive() && !transaction.wasRolledBack() ) {
+			try {
+				transaction.commit();
+			}
+			catch( RuntimeException ex ) {
+				transaction.rollback();
+				e = ex;
+			}
+		}
 		database.close();
+		session.close();
 		ContextMap.removeContext();
+		
+		if( e != null ) {
+			throw e;
+		}
+	}
+	
+	public void rollback() {
+		if( transaction.isActive() ) {
+			transaction.rollback();
+		}
+		transaction = session.beginTransaction();
+	}
+	
+	public void commit() {
+		if( transaction.isActive() && !transaction.wasRolledBack() ) {
+			transaction.commit();
+		}
+		transaction = session.beginTransaction();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -289,10 +323,6 @@ public class BasicContext implements Context,Loggable {
 		}
 
 		return (T)contextSingletons.get(cls);
-	}
-
-	public UserIterator createUserIterator(Object ... query) {
-		return new UserIterator(this, getDatabase().query(query));
 	}
 
 	public String getSession() {

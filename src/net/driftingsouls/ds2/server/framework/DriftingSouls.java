@@ -21,8 +21,6 @@ package net.driftingsouls.ds2.server.framework;
 import java.util.Date;
 import java.util.Locale;
 
-import net.driftingsouls.ds2.server.framework.db.DBConnectionPool;
-import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
 import org.apache.commons.logging.Log;
@@ -56,21 +54,10 @@ public class DriftingSouls {
 		LOG.info("Reading "+configdir+"config.xml");		
 		Configuration.init(configdir);
 		
-		LOG.info("Setting up Database Connection Pool...");
-	
-		DBConnectionPool.setupMySQLPool(
-				Configuration.getSetting("db_server"),
-				Configuration.getSetting("db_database"),
-				Configuration.getSetting("db_user"),
-				Configuration.getSetting("db_password"));
-		
 		LOG.info("Setting up Boot Context...");
 		BasicContext context = new BasicContext(new CmdLineRequest(new String[0]), new SimpleResponse());
-		
-		Common.setLocale(Locale.GERMAN);
-		
-		// Hibernate Init (TODO)
-		HibernateFacade.getStatistics();
+
+		Common.setLocale(Locale.GERMAN); 
 		
 		if( boot ) {
 			LOG.info("Booting Classes...");
@@ -94,7 +81,7 @@ public class DriftingSouls {
 				}
 			}
 		}
-		
+
 		context.free();
 	}
 }

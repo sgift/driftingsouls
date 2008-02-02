@@ -18,10 +18,10 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline;
 
-import org.w3c.dom.Node;
-
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.reader.Reader;
+
+import org.w3c.dom.Node;
 
 /**
  * Eine Pipeline basierend auf Reader

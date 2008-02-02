@@ -32,16 +32,18 @@ import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.User;
-import net.driftingsouls.ds2.server.framework.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.scripting.ScriptParser;
 import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
@@ -53,7 +55,7 @@ import net.driftingsouls.ds2.server.ships.Ships;
  * @author Christopher Jung
  *
  */
-public class UeberController extends DSGenerator implements Loggable {
+public class UeberController extends TemplateGenerator implements Loggable {
 	private String box = "";
 	
 	/**
@@ -77,8 +79,9 @@ public class UeberController extends DSGenerator implements Loggable {
 	 * Beendet den Vacation-Modus-Vorlauf
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void stopWait4VacAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		
 		user.setVacationCount(0);
 		user.setWait4VacationCount(0);
@@ -93,8 +96,9 @@ public class UeberController extends DSGenerator implements Loggable {
 	 * Wechselt die Tutorial-Seite bzw beendet das Tutorial 
 	 * @urlparam Integer tutorial 1, falls die naechste Tutorialseite angezeigt werden soll. Zum Beenden -1
 	 */
+	@Action(ActionType.DEFAULT)
 	public void tutorialAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		
 		parameterNumber("tutorial");
 		int tutorial = getInteger("tutorial");
@@ -116,6 +120,7 @@ public class UeberController extends DSGenerator implements Loggable {
 	 * @urlparam String box Der Name des neuen Anzeigemodus
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void boxAction() {
 		parameterString("box");
 		
@@ -134,6 +139,7 @@ public class UeberController extends DSGenerator implements Loggable {
 	 * @urlparam Integer questid Die ID des zu beendenden Quests
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void stopQuestAction() {
 		Database db = getDatabase();
 		
@@ -176,10 +182,11 @@ public class UeberController extends DSGenerator implements Loggable {
 	/**
 	 * Zeigt die Uebersicht an
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		String ticktime = "";
@@ -366,7 +373,8 @@ public class UeberController extends DSGenerator implements Loggable {
 				if( ((user.getAlly() == 0) && (battle.getInt("commander1") != user.getId())) || 
 					((user.getAlly() != 0) && (battle.getInt("ally1") != user.getAlly()) ) ) {
 					if( battle.getInt("ally1") == 0 ) {
-						eparty = Common._title(getContext().createUserObject(battle.getInt("commander1")).getName());
+						User com1 = (User)getDB().get(User.class, battle.getInt("commander1"));
+						eparty = Common._title(com1.getName());
 					} 
 					else {
 						eparty = Common._title(
@@ -374,19 +382,22 @@ public class UeberController extends DSGenerator implements Loggable {
 									.getString("name"));
 					}
 					
-					comm = Common._title(getContext().createUserObject(battle.getInt("commander2")).getName());
+					User com2 = (User)getDB().get(User.class, battle.getInt("commander2"));
+					comm = Common._title(com2.getName());
 				} 
 				else {
 					if( battle.getInt("ally2") == 0 ) {
-						eparty = Common._title(getContext().createUserObject(battle.getInt("commander2")).getName());
+						User com2 = (User)getDB().get(User.class, battle.getInt("commander2"));
+						eparty = Common._title(com2.getName());
 					} 
 					else {
 						eparty = Common._title(
 								db.first("SELECT name FROM ally WHERE id=",battle.getInt("ally2"))
 									.getString("name"));
 					}
-
-					comm = Common._title(getContext().createUserObject(battle.getInt("commander1")).getName());
+					
+					User com1 = (User)getDB().get(User.class, battle.getInt("commander1"));
+					comm = Common._title(com1.getName());
 				}
 				
 				if( user.getAlly() != 0 ) {
@@ -423,24 +434,28 @@ public class UeberController extends DSGenerator implements Loggable {
 			String eparty = "";
 			String eparty2 = "";
 			if( battle.getInt("ally1") == 0 ) {
-				eparty = Common._title(getContext().createUserObject(battle.getInt("commander1")).getName());
+				User com1 = (User)getDB().get(User.class, battle.getInt("commander1"));
+				eparty = Common._title(com1.getName());
 			} 
 			else {
 				eparty = Common._title(
 							db.first("SELECT name FROM ally WHERE id=",battle.getInt("ally1"))
 								.getString("name"));
 			}
-			String comm1 = Common._title(getContext().createUserObject(battle.getInt("commander1")).getName());
+			User com1 = (User)getDB().get(User.class, battle.getInt("commander1"));
+			String comm1 = Common._title(com1.getName());
 
 			if( battle.getInt("ally2") == 0 ) {
-				eparty2 = Common._title(getContext().createUserObject(battle.getInt("commander2")).getName());
+				User com2 = (User)getDB().get(User.class, battle.getInt("commander2"));
+				eparty2 = Common._title(com2.getName());
 			} 
 			else {
 				eparty2 = Common._title(
 						db.first("SELECT name FROM ally WHERE id=",battle.getInt("ally2"))
 							.getString("name"));
 			}
-			String comm2 = Common._title(getContext().createUserObject(battle.getInt("commander2")).getName());
+			User com2 = (User)getDB().get(User.class, battle.getInt("commander2"));
+			String comm2 = Common._title(com2.getName());
 		
 			battlelist.append("<a class=\"error\" href=\"main.php?module=angriff&amp;sess="+getString("sess")+"&amp;battle="+battle.getInt("id")+"\">Schlacht "+eparty+" vs "+eparty2+" bei "+battle.getInt("system")+":"+battle.getInt("x")+"/"+battle.getInt("y")+"</a><br />*&nbsp;["+comm1+" vs "+comm2+"]<br />\n");
 			

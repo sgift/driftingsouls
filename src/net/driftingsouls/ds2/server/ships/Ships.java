@@ -39,19 +39,19 @@ import net.driftingsouls.ds2.server.config.ItemEffect;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
-import net.driftingsouls.ds2.server.framework.CacheMap;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.User;
-import net.driftingsouls.ds2.server.framework.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.framework.deprecated.CacheMap;
 import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.scripting.ScriptParser;
 import net.driftingsouls.ds2.server.tasks.Task;
@@ -587,7 +587,7 @@ public class Ships implements Loggable {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 	
-		User owner = context.createUserObject(ship.getInt("owner"));
+		User owner = (User)context.getDB().get(User.class, ship.getInt("owner"));
 		User.Relations relationlist = owner.getRelations();
 	
 		List<Integer> attackers = new ArrayList<Integer>();
@@ -595,7 +595,7 @@ public class Ships implements Loggable {
 		SQLQuery aowner = db.query("SELECT DISTINCT owner FROM ships WHERE id>0 AND x=",ship.getInt("x")," AND y=",ship.getInt("y")," ",
 							"AND system=",ship.getInt("system")," AND e>0 AND owner!=",ship.getInt("owner")," AND alarm=1 AND `lock` IS NULL AND docked='' AND !LOCATE('nocrew',status) ");
 		while( aowner.next() ) {
-			User auser = context.createUserObject(aowner.getInt("owner"));
+			User auser = (User)context.getDB().get(User.class, aowner.getInt("owner"));
 			if( (auser.getVacationCount() != 0) && (auser.getWait4VacationCount() == 0) ) {
 				continue;	
 			}
@@ -1024,7 +1024,7 @@ public class Ships implements Loggable {
 			return MovementStatus.SHIP_FAILURE;
 		}
 	
-		User user = ContextMap.getContext().createUserObject(ship.getInt("owner"));
+		User user = (User)ContextMap.getContext().getDB().get(User.class, ship.getInt("owner"));
 				
 		SQLResultRow shiptype = ShipTypes.getShipType(ship);
 		Offizier offizier = Offizier.getOffizierByDest('s',ship.getInt("id"));
@@ -1425,7 +1425,7 @@ public class Ships implements Loggable {
 				break;	
 			}
 	
-			User user = context.createUserObject(aship.getInt("owner"));
+			User user = (User)context.getDB().get(User.class, aship.getInt("owner"));
 			
 			if( !knode ) {				
 				// Ist die Jumpnode blockiert?
@@ -1562,7 +1562,7 @@ public class Ships implements Loggable {
 		String nodetypename = "";
 		String nodetarget = "";
 		
-		User user = context.createUserObject(ship.getInt("owner"));
+		User user = (User)context.getDB().get(User.class, ship.getInt("owner"));
 		SQLResultRow datan = null;
 		
 		if( !knode ) {
@@ -1809,7 +1809,8 @@ public class Ships implements Loggable {
 	
 		boolean superdock = false;
 		if( mode == DockMode.DOCK ) {
-			superdock = context.createUserObject(owner).hasFlag(User.FLAG_SUPER_DOCK);
+			User auser = (User)context.getDB().get(User.class, owner);
+			superdock = auser.hasFlag(User.FLAG_SUPER_DOCK);
 		}
 	
 		List<Integer> targetships = null;
@@ -2242,8 +2243,6 @@ public class Ships implements Loggable {
 			MESSAGE.get().append("Die '"+ship.getString("name")+"' ("+ship.getInt("id")+") kann nicht &uuml;bergeben werden");
 			return true;
 		}
-		
-		SQLResultRow shiptype = ShipTypes.getShipType( ship );
 		
 		UserFlagschiffLocation flagschiff = user.getFlagschiff();
 		

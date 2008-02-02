@@ -26,12 +26,12 @@ import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.ItemEffect;
 import net.driftingsouls.ds2.server.config.Items;
 import net.driftingsouls.ds2.server.config.ResourceConfig;
+import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -1180,7 +1180,7 @@ public class Cargo implements Loggable, Cloneable {
 			return context.getActiveUser().getImagePath()+ResourceConfig.getResourceImage(resid.getID());
 		}
 		if( context != null ){
-			return User.getDefaultImagePath()+ResourceConfig.getResourceImage(resid.getID());
+			return BasicUser.getDefaultImagePath()+ResourceConfig.getResourceImage(resid.getID());
 		}
 		return Configuration.getSetting("URL")+ResourceConfig.getResourceImage(resid.getID());
 	}

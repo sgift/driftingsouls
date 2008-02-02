@@ -18,10 +18,13 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
-import net.driftingsouls.ds2.server.framework.db.Database;
+import net.driftingsouls.ds2.server.framework.Session;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 
 /**
@@ -62,18 +65,19 @@ public class MainController extends DSGenerator {
 	/**
 	 * Generiert das Hauptframe
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		StringBuffer out = getContext().getResponse().getContent();
 		
-		if( !user.getUserImagePath().equals(User.getDefaultImagePath()) ) {
+		if( !user.getUserImagePath().equals(BasicUser.getDefaultImagePath()) ) {
 			parameterNumber("gfxpakversion");
 			int gfxpakversion = getInteger("gfxpakversion");
 			
 			if( (gfxpakversion != 0) && (gfxpakversion != Configuration.getIntSetting("GFXPAK_VERSION")) ) {
-				Database db = getDatabase();
-				db.update("UPDATE sessions SET usegfxpak='0' WHERE session='",getString("sess"),"' AND id='",user.getId(),"'");
+				Session sess = (Session)getDB().get(Session.class, getContext().getSession());
+				sess.setUseGfxPak(false);
 				
 				out.append("<script type=\"text/javascript\">\n");
 				out.append("<!--\n");

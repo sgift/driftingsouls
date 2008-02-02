@@ -16,7 +16,7 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.framework;
+package net.driftingsouls.ds2.server.framework.deprecated;
 
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
@@ -34,8 +34,9 @@ import java.util.Set;
  * @author Christopher Jung
  * @param <K> Typ des Parameterschluessels
  * @param <V> Typ des Parameterwerts
- *
+ * @deprecated Bitte auf Hibernate umstellen
  */
+@Deprecated
 public class CacheMap<K,V> implements Map<K,V> {
 	private long maxsize;
 	private Map<K,V> map;

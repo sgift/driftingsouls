@@ -22,22 +22,24 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 import net.driftingsouls.ds2.server.Forschung;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+
+import org.apache.commons.lang.StringEscapeUtils;
 
 /**
  * Zeigt die Liste der erforschten/nicht erforschten/erforschbaren Technologien
@@ -46,7 +48,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  *
  * @urlparam Integer rasse Die Rasse, deren Technologien angezeigt werden sollen
  */
-public class TechListeController extends DSGenerator {
+public class TechListeController extends TemplateGenerator {
 	/**
 	 * Konstruktor
 	 * @param context Der zu verwendende Kontext
@@ -67,11 +69,12 @@ public class TechListeController extends DSGenerator {
 	/**
 	 * Zeigt die Techliste an
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		int rasse = getInteger("rasse");
 		

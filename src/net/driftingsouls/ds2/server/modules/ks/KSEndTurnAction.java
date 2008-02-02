@@ -20,10 +20,10 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
 
 /**
  * Beendet die Kampfrunde des aktuellen Spielers
@@ -39,7 +39,7 @@ public class KSEndTurnAction extends BasicKSAction {
 		}
 		
 		Context context = ContextMap.getContext();
-		User user = context.getActiveUser();
+		User user = (User)context.getActiveUser();
 
 		if( battle.isReady(battle.getEnemySide()) ) {
 			if( !battle.endTurn(true) ) {

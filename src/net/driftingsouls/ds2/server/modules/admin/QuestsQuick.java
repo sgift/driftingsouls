@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -112,7 +113,8 @@ public class QuestsQuick implements AdminPlugin {
 				echo.append("Aktiv bei:<br /><ul>");
 				SQLQuery rquest = db.query("SELECT * FROM quests_running WHERE id="+qquest.getInt("enabled")+" ORDER BY userid");
 				while( rquest.next() ) {
-					echo.append("<li>"+Common._title(context.createUserObject(rquest.getInt("userid")).getName())+" ("+rquest.getInt("userid")+")</li>\n");
+					User user = (User)context.getDB().get(User.class, rquest.getInt("userid"));
+					echo.append("<li>"+Common._title(user.getName())+" ("+rquest.getInt("userid")+")</li>\n");
 				}
 				rquest.free();
 				echo.append("</ul><br />\n");
@@ -123,7 +125,8 @@ public class QuestsQuick implements AdminPlugin {
 					"FROM quests_completed qc JOIN quests q ON qc.questid=q.id " +
 					"WHERE q.qid='"+qquest.getString("qid")+"' ORDER BY qc.userid");
 			while( rquest.next() ) {
-				echo.append("<li>"+Common._title(context.createUserObject(rquest.getInt("userid")).getName())+" ("+rquest.getInt("userid")+")</li>\n");
+				User user = (User)context.getDB().get(User.class, rquest.getInt("userid"));
+				echo.append("<li>"+Common._title(user.getName())+" ("+rquest.getInt("userid")+")</li>\n");
 			}
 			rquest.free();
 			echo.append("</ul><br />\n");

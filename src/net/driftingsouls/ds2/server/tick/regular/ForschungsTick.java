@@ -22,8 +22,8 @@ import java.util.HashSet;
 
 import net.driftingsouls.ds2.server.Forschung;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -54,7 +54,7 @@ public class ForschungsTick extends TickController {
 			try {
 				SQLResultRow base = db.first("SELECT name,owner FROM bases WHERE id="+fzdRow.getInt("col"));
 				
-				User user = getContext().createUserObject(base.getInt("owner"));
+				User user = (User)getContext().getDB().get(User.class, base.getInt("owner"));
 			
 				if( (user.getVacationCount() != 0) && (user.getWait4VacationCount() == 0) ) {
 					log("Ueberspringe Forschungszentrum "+fzdRow.getInt("id")+" [VAC]");

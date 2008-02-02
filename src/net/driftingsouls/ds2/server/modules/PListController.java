@@ -2,6 +2,8 @@ package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.uilibs.PlayerList;
 
@@ -27,6 +29,7 @@ public class PListController extends DSGenerator {
 		return true;
 	}
 	
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		parameterNumber("compopup");

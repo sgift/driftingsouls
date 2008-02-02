@@ -18,12 +18,12 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.sql.Blob;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
@@ -36,15 +36,17 @@ import net.driftingsouls.ds2.server.cargo.modules.ModuleItemModule;
 import net.driftingsouls.ds2.server.cargo.modules.Modules;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.schiffplugins.Parameters;
 import net.driftingsouls.ds2.server.modules.schiffplugins.SchiffPlugin;
@@ -65,7 +67,7 @@ import org.apache.commons.lang.StringUtils;
  * @urlparam Integer ship Die ID des anzuzeigenden Schiffes
  *
  */
-public class SchiffController extends DSGenerator implements Loggable {
+public class SchiffController extends TemplateGenerator implements Loggable {
 	private SQLResultRow ship = null;
 	private SQLResultRow shiptype = null;
 	private Offizier offizier = null;
@@ -116,7 +118,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
@@ -184,6 +186,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 	 * @urlparam Integer alarm Die neue Alarmstufe
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void alarmAction() {
 		if( noob ) {
 			redirect();
@@ -217,15 +220,16 @@ public class SchiffController extends DSGenerator implements Loggable {
 	 * @urlparam Integer conf 1, falls die Sicherheitsabfrage positiv bestaetigt wurde
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void consignAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		parameterNumber("newowner");
 		int newownerID = getInteger("newowner");
 		
-		User newowner = createUserObject(newownerID);
+		User newowner = (User)getDB().get(User.class, newownerID);
 		
 		parameterNumber("conf");
 		int conf = getInteger("conf");
@@ -272,6 +276,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 	 * Zerstoert das Schiff
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void destroyAction() {
 		TemplateEngine t = getTemplateEngine();
 
@@ -304,6 +309,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 	 * @urlparam Integer knode Die ID des Sprungpunkts
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void jumpAction() {
 		TemplateEngine t = getTemplateEngine();
 		
@@ -328,6 +334,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 	 * @urlparam Integer knode Die ID des Schiffes mit dem Sprungpunkt
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void kjumpAction() {
 		TemplateEngine t = getTemplateEngine();
 		
@@ -352,6 +359,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 	 * @urlparam String newname Der neue Name des Schiffes
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void renameAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -372,6 +380,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 	 * @urlparam String plugin Der Name des Plugins 
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void pluginAction() {
 		TemplateEngine t = getTemplateEngine();
 		
@@ -403,9 +412,10 @@ public class SchiffController extends DSGenerator implements Loggable {
 	 * @urlparameter String shiplist Eine mit | separierte Liste an Schiffs-IDs
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void landAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		parameterString("shiplist");
 		String shipIdList = getString("shiplist");
@@ -428,9 +438,10 @@ public class SchiffController extends DSGenerator implements Loggable {
 	 * @urlparam String shiplist Eine mit | separierte Liste von Schiffs-IDs
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void startAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		parameterString("shiplist");
 		String shipIdList = getString("shiplist");
@@ -453,9 +464,10 @@ public class SchiffController extends DSGenerator implements Loggable {
 	 * @urlparam String shiplist Eine mit | separierte Liste von Schiffs-IDs 
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void aufladenAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		parameterString("tar");
 		String shipIdList = getString("tar");
@@ -494,9 +506,10 @@ public class SchiffController extends DSGenerator implements Loggable {
 	 * @urlparam String shiplist Eine mit | separierte Liste von Schiffs-IDs
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void abladenAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		parameterString("tar");
 		String shipIdList = getString("tar");
@@ -519,10 +532,11 @@ public class SchiffController extends DSGenerator implements Loggable {
 	 * @urlparam Integer join Die ID der Flotte, der das Schiff beitreten soll oder <code>0</code>, falls es aus der aktuellen Flotte austreten soll
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void joinAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		parameterNumber("join");
 		int join = getInteger("join");
@@ -573,6 +587,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 	 * @urlparam Integer shup Die Menge an Energie, die zum Aufladen der Schilde verwendet werden soll
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void shupAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -618,6 +633,7 @@ public class SchiffController extends DSGenerator implements Loggable {
 	 * @urlparam Integer reset Wenn der Wert != 0 ist, dann werden die Ausfuehrungsdaten zurueckgesetzt
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void scriptAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -651,10 +667,11 @@ public class SchiffController extends DSGenerator implements Loggable {
 	 * @urlparam String execparameter Weitere Ausfuehrungsdaten
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void communicateAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		parameterNumber("communicate");
 		int communicate = getInteger("communicate");
@@ -703,9 +720,10 @@ public class SchiffController extends DSGenerator implements Loggable {
 	 * @urlparam String execparameter Weitere Ausfuehrungsdaten
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void onmoveAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		String[] lock = StringUtils.split(ship.getString("lock"), ':');
 		
@@ -749,10 +767,11 @@ public class SchiffController extends DSGenerator implements Loggable {
 	 * @urlparam String execparameter Weitere Ausfuehrungsdaten
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void onenterAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		String[] lock = StringUtils.split(ship.getString("lock"), ':');
 		
@@ -978,9 +997,10 @@ public class SchiffController extends DSGenerator implements Loggable {
 	 * @urlparam Integer respawntime Die Zeit in Ticks bis zum Respawn
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void respawnAction() {
 		Database db = getDatabase();
-		User user = getUser(); 
+		User user = (User)getUser(); 
 		TemplateEngine t = getTemplateEngine();
 		
 		if( user.getAccessLevel() < 20 ) {
@@ -1022,10 +1042,11 @@ public class SchiffController extends DSGenerator implements Loggable {
 	 * Transferiert das Schiff ins System 99
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void inselAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser(); 
+		User user = (User)getUser(); 
 		
 		if( !user.hasFlag( User.FLAG_NPC_ISLAND ) ) {
 			redirect();
@@ -1068,9 +1089,10 @@ public class SchiffController extends DSGenerator implements Loggable {
 	/**
 	 * Zeigt die Schiffsansicht an
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		

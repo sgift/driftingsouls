@@ -21,24 +21,26 @@ package net.driftingsouls.ds2.server.modules;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Die Flottenverwaltung
@@ -51,7 +53,7 @@ import net.driftingsouls.ds2.server.ships.Ships;
  * @urlparam Integer count Die Anzahl der maximal zu ermittelnden Schiffe
  *
  */
-public class FleetMgntController extends DSGenerator {
+public class FleetMgntController extends TemplateGenerator {
 	private SQLResultRow fleet = null;
 
 	/**
@@ -75,7 +77,7 @@ public class FleetMgntController extends DSGenerator {
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 		
 		Integer[] shiplist = null;
@@ -144,9 +146,10 @@ public class FleetMgntController extends DSGenerator {
 	 * an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void createFromSRSGroupAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 		
 		int sector = getInteger("sector");
@@ -170,9 +173,10 @@ public class FleetMgntController extends DSGenerator {
 	 * Zeigt den Erstelldialog fuer eine neue Flotte an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void createAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 		
 		Integer[] shiplist = Common.explodeToInteger("|", getString("shiplist"));
@@ -197,9 +201,10 @@ public class FleetMgntController extends DSGenerator {
 	 * @urlparam String fleetname der Name der neuen Flotte
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void create2Action() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 		
 		parameterString("fleetname");
@@ -274,9 +279,10 @@ public class FleetMgntController extends DSGenerator {
 	 * Flotte hinzu
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void addFromSRSGroupAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 		
 		int sector = getInteger("sector");
@@ -317,6 +323,7 @@ public class FleetMgntController extends DSGenerator {
 	 * Zeigt die Seite zum Umbenennen von Flotten an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void renameAction() {
 		TemplateEngine t = getTemplateEngine();
 		
@@ -330,6 +337,7 @@ public class FleetMgntController extends DSGenerator {
 	 * @urlparam String fleetname Der neue Name der Flotte
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void rename2Action() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -359,6 +367,7 @@ public class FleetMgntController extends DSGenerator {
 	 * Zeigt die Abfrage an, ob eine Flotte aufgeloest werden soll
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void killAction() {
 		TemplateEngine t = getTemplateEngine();
 		
@@ -371,6 +380,7 @@ public class FleetMgntController extends DSGenerator {
 	 * Loest eine Flotte auf
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void kill2Action() {	
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
@@ -386,6 +396,7 @@ public class FleetMgntController extends DSGenerator {
 	 * Zeigt das Eingabefeld fuer die Uebergabe von Flotten an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void newownerAction() {
 		TemplateEngine t = getTemplateEngine();
 		
@@ -399,13 +410,14 @@ public class FleetMgntController extends DSGenerator {
 	 * @urlparam Integer ownerid Die ID des Users, an den die Flotte uebergeben werden soll
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void newowner2Action() {
 		TemplateEngine t = getTemplateEngine();
 		
 		parameterNumber("ownerid");
 		int ownerid = getInteger("ownerid");
 		
-		User newowner = getContext().createUserObject(ownerid );
+		User newowner = (User)getDB().get(User.class, ownerid );
 		
 		if( newowner.getId() != 0 ) {
 			t.setVar(	"show.newowner2",	1,
@@ -426,15 +438,16 @@ public class FleetMgntController extends DSGenerator {
 	 * @urlparam Integer ownerid Die ID des neuen Besitzers
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void newowner3Action() {
 		TemplateEngine t = getTemplateEngine();
-		User user = this.getUser();
+		User user = (User)this.getUser();
 		Database db = getDatabase();
 		
 		parameterNumber("ownerid");
 		int ownerid = getInteger("ownerid");
 		
-		User newowner = getContext().createUserObject(ownerid);
+		User newowner = (User)getDB().get(User.class, ownerid);
 		
 		if( newowner.getId() != 0 ) {
 			StringBuilder message = new StringBuilder(100);
@@ -482,6 +495,7 @@ public class FleetMgntController extends DSGenerator {
 	 * Laedt die Schilde aller Schiffe in der Flotte auf
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void shupAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
@@ -522,6 +536,7 @@ public class FleetMgntController extends DSGenerator {
 	 * Entlaedt die Batterien auf den Schiffen der Flotte, um die EPS wieder aufzuladen
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void dischargeBatteriesAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
@@ -568,6 +583,7 @@ public class FleetMgntController extends DSGenerator {
 	 * Exportiert die Schiffsliste der Flotte
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void exportAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
@@ -591,10 +607,11 @@ public class FleetMgntController extends DSGenerator {
 	 * Dockt alle Schiffe der Flotte ab
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void undockAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		SQLQuery s = db.query("SELECT id FROM ships WHERE id>0 AND fleet='",this.fleet.getInt("id"),"' AND battle=0" );
 		while( s.next() ) {
@@ -612,10 +629,11 @@ public class FleetMgntController extends DSGenerator {
 	 * Sammelt alle nicht gedockten eigenen Container im Sektor auf (sofern genug Platz vorhanden ist)
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void redockAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		SQLQuery ship = db.query("SELECT * FROM ships WHERE id>0 AND fleet='",this.fleet.getInt("id"),"' AND battle=0" );
 		while( ship.next() ) {
@@ -662,10 +680,11 @@ public class FleetMgntController extends DSGenerator {
 	 * Startet alle Jaeger der Flotte
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void jstartAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		SQLQuery s = db.query("SELECT id FROM ships WHERE id>0 AND fleet='",this.fleet.getInt("id"),"' AND battle=0" );
 		while( s.next() ) {
@@ -683,10 +702,11 @@ public class FleetMgntController extends DSGenerator {
 	 * Sammelt alle nicht gelandeten eigenen Jaeger im Sektor auf (sofern genug Platz vorhanden ist)
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void jlandAction() {	
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		parameterNumber("jaegertype");
 		int jaegertypeID = getInteger("jaegertype");
@@ -740,10 +760,11 @@ public class FleetMgntController extends DSGenerator {
 	 * @urlparam Integer fleetcombine Die ID der Flotte, deren Schiffe zur aktiven Flotte hinzugefuegt werden sollen
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void fleetcombineAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		parameterNumber("fleetcombine");
 		int fleetID = getInteger("fleetcombine");
@@ -769,10 +790,11 @@ public class FleetMgntController extends DSGenerator {
 		this.redirect();
 	}
 	
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		List<String> sectors = new ArrayList<String>();

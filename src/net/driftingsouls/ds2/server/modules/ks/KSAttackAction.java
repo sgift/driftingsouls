@@ -34,12 +34,12 @@ import net.driftingsouls.ds2.server.config.IEAmmo;
 import net.driftingsouls.ds2.server.config.ItemEffect;
 import net.driftingsouls.ds2.server.config.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
-import net.driftingsouls.ds2.server.framework.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -121,14 +121,14 @@ public class KSAttackAction extends BasicKSAction {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 		
-		User eUser = context.createUserObject(eShip.getInt("owner"));
+		User eUser = (User)context.getDB().get(User.class, eShip.getInt("owner"));
 		UserFlagschiffLocation loc = eUser.getFlagschiff();
 		
 		//
 		// Schiff als zerstoert makieren
 		//
 		SQLResultRow ownShip = battle.getOwnShip();
-		User oUser = context.createUserObject(ownShip.getInt("owner"));
+		User oUser = (User)context.getDB().get(User.class, ownShip.getInt("owner"));
 		
 		int masterid = 0;
 		if( generateStats ) {
@@ -883,7 +883,7 @@ public class KSAttackAction extends BasicKSAction {
 	
 	private void calcADStep( Battle battle, int trefferWS, int navskill, SQLResultRow aeShip, int hit, int schaden, int shieldSchaden, double damagemod ) {
 		Context context = ContextMap.getContext();
-		User user = context.getActiveUser();	
+		User user = (User)context.getActiveUser();	
 		
 		battle.logme("\n"+aeShip.getString("name")+" ("+aeShip.getInt("id")+"):\n");
 		battle.logenemy("\n"+aeShip.getString("name")+" ("+aeShip.getInt("id")+"):\n");
@@ -935,7 +935,7 @@ public class KSAttackAction extends BasicKSAction {
 	public int execute(Battle battle) {
 		Context context = ContextMap.getContext();
 		
-		User user = context.getActiveUser();	
+		User user = (User)context.getActiveUser();	
 		
 		int result = super.execute(battle);
 		if( result != RESULT_OK ) {

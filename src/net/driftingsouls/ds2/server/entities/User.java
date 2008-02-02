@@ -1,0 +1,919 @@
+/*
+ *	Drifting Souls 2
+ *	Copyright (c) 2006 Christopher Jung
+ *
+ *	This library is free software; you can redistribute it and/or
+ *	modify it under the terms of the GNU Lesser General Public
+ *	License as published by the Free Software Foundation; either
+ *	version 2.1 of the License, or (at your option) any later version.
+ *
+ *	This library is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *	Lesser General Public License for more details.
+ *
+ *	You should have received a copy of the GNU Lesser General Public
+ *	License along with this library; if not, write to the Free Software
+ *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+package net.driftingsouls.ds2.server.entities;
+
+import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.Transient;
+
+import net.driftingsouls.ds2.server.framework.BasicUser;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.Loggable;
+import net.driftingsouls.ds2.server.framework.db.Database;
+import net.driftingsouls.ds2.server.framework.db.SQLQuery;
+import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+
+import org.apache.commons.lang.StringUtils;
+
+
+/**
+ * Die Benutzerklasse von DS
+ * @author Christopher Jung
+ *
+ */
+@Entity
+@DiscriminatorValue("default")
+public class User extends BasicUser implements Loggable {
+	/**
+	 * Geldtransfer - Der Transfer ist manuell vom Spieler durchgefuerht worden
+	 */
+	public static final int TRANSFER_NORMAL = 0;
+	/**
+	 * Geldtransfer - Der Transfer ist in direkter Folge einer Spieleraktion ausgefuehrt worden
+	 */
+	public static final int TRANSFER_SEMIAUTO = 1;
+	/**
+	 * Geldtransfer - Der Transfer ist automatisch erfolgt
+	 */
+	public static final int TRANSFER_AUTO = 2;
+	
+	/**
+	 * Der Spieler taucht in der Spielerliste nicht auf
+	 */
+	public static final String FLAG_HIDE = "hide";
+	/**
+	 * Der Spieler kann auch in entmilitarisierte Systeme mit Militaerschiffen springen
+	 */
+	public static final String FLAG_MILITARY_JUMPS = "miljumps";
+	/**
+	 * Der Spieler kann alle Schlachten sehen
+	 */
+	public static final String FLAG_VIEW_BATTLES = "viewbattles";
+	/**
+	 * Der Spieler hat Zugriff auf das NPC-Menue
+	 */
+	public static final String FLAG_ORDER_MENU = "ordermenu";
+	/**
+	 * Der Spieler kann auch NPC-Systeme sehen
+	 */
+	public static final String FLAG_VIEW_SYSTEMS = "viewsystems";
+	/**
+	 * Der Spieler kann sowohl Admin- als auch NPC-Systeme sehen 
+	 */
+	public static final String FLAG_VIEW_ALL_SYSTEMS = "viewallsystems";
+	/**
+	 * Der Spieler kann Schiffsscripte benutzen
+	 */
+	public static final String FLAG_EXEC_NOTES = "execnotes";
+	/**
+	 * Der Spieler kann Questschlachten leiten (und uebernehmen)
+	 */
+	public static final String FLAG_QUEST_BATTLES = "questbattles";
+	/**
+	 * Der Spieler sieht den Debug-Output des Scriptparsers
+	 */
+	public static final String FLAG_SCRIPT_DEBUGGING = "scriptdebug";
+	/**
+	 * Dem Spieler koennen keine Schiffe uebergeben werden
+	 */
+	public static final String FLAG_NO_SHIP_CONSIGN = "noshipconsign";
+	/**
+	 * Der Spieler kann mit Schiffen jederzeit ins System 99 springen
+	 */
+	public static final String FLAG_NPC_ISLAND = "npc_island";
+	/**
+	 * Sprungpunkte sind fuer den Spieler immer passierbar
+	 */
+	public static final String FLAG_NO_JUMPNODE_BLOCK = "nojnblock";
+	/**
+	 * Der Spieler kann jedes Schiff, egal welcher Besitzer und wie Gross andocken
+	 */
+	public static final String FLAG_SUPER_DOCK = "superdock";
+	/**
+	 * Der Spieler hat Moderatorrechte im Handel
+	 */
+	public static final String FLAG_MODERATOR_HANDEL = "moderator_handel";
+	/**
+	 * Der Spieler ist ein Noob
+	 */
+	public static final String FLAG_NOOB = "noob";
+	
+	/**
+	 * Die Arten von Beziehungen zwischen zwei Spielern
+	 * @author Christopher Jung
+	 *
+	 */
+	public static enum Relation {
+		/**
+		 * Neutral
+		 */
+		NEUTRAL,	// 0
+		/**
+		 * Feindlich
+		 */
+		ENEMY,		// 1
+		/**
+		 * Freundlich
+		 */
+		FRIEND;		// 2
+	}
+
+	/**
+	 * Klasse, welche die Beziehungen eines Spielers zu anderen
+	 * Spielern enthaelt
+	 * @author Christopher Jung
+	 *
+	 */
+	public static class Relations {
+		/**
+		 * Die Beziehungen des Spielers zu anderen Spielern.
+		 * Schluessel ist die Spieler-ID
+		 */
+		public Map<Integer,Relation> toOther = new HashMap<Integer,Relation>();
+		/**
+		 * Die Beziehungen von anderen Spielern zum Spieler selbst.
+		 * Schluessel ist die Spieler-ID
+		 */
+		public Map<Integer,Relation> fromOther = new HashMap<Integer,Relation>();
+		
+		protected Relations() {
+			// EMPTY
+		}
+	}
+
+	private int race;
+	private String history;
+	private String medals;
+	private byte rang;
+	private int ally;
+	private BigInteger konto;
+	private String cargo;
+	private String nstat;
+	private int npcpunkte;
+	private int allyposten;
+	private int gtudropzone;
+	private String npcorderloc;
+	private int flagschiff;
+	private short lostBattles;
+	private short wonBattles;
+	private int destroyedShips;
+	private int lostShips;
+	private String knownItems;
+	
+	@Transient
+	private Context context;
+	@Transient
+	private UserFlagschiffLocation flagschiffObj = null;
+	
+	/**
+	 * Konstruktor
+	 *
+	 */
+	public User() {
+		super();
+		context = ContextMap.getContext();
+	}
+	
+	/**
+	 * Macht alle geladenen Benutzereigenschaften dem Templateengine bekannt.
+	 * Die daraus resultierenden Template-Variablen haben die Form Prefix+"."+Datenbankname.
+	 * Die Eigenschaft Wait4Vacation, welche den Datenbanknamen "wait4vac" hat, wuerde sich, beim 
+	 * Prefix "activeuser", somit in der Template-Variablen "activeuser.wait4vac" wiederfinden
+	 * 
+	 * @param templateEngine Das Template-Engine, in dem die Variablen gesetzt werden sollen
+	 * @param prefix Der fuer die Template-Variablen zu verwendende Prefix
+	 */
+	@Override
+	public void setTemplateVars(TemplateEngine templateEngine, String prefix) {
+		super.setTemplateVars(templateEngine, prefix);
+		
+		String pre = prefix+".";
+		templateEngine.setVar( 
+				pre+"race", this.race,
+				pre+"history", this.history,
+				pre+"medals", this.medals,
+				pre+"rang", this.rang,
+				pre+"ally", this.ally,
+				pre+"konto", this.konto,
+				pre+"cargo", this.cargo,
+				pre+"nstat", this.nstat,
+				pre+"npcpunkte", this.npcpunkte,
+				pre+"allyposten", this.allyposten,
+				pre+"gtudropzone", this.gtudropzone,
+				pre+"npcorderloc", this.npcorderloc,
+				pre+"flagschiff", this.flagschiff,
+				pre+"lostBattles", this.lostBattles,
+				pre+"wonBattles", this.wonBattles,
+				pre+"destroyedShips", this.destroyedShips,
+				pre+"lostShips", this.lostShips,
+				pre+"knownItems", this.knownItems);
+	}
+	
+	/**
+	 * Liefert einen Profile-Link zu den Benutzer zurueck (als HTML).
+	 * Als CSS-Klasse fuer den Link wird die angegebene Klasse verwendet
+	 * @param username Der anzuzeigende Spielername
+	 * @return Der Profile-Link
+	 */
+	public String getProfileLink(String username) {
+		if( username == null || username.equals("") ) {
+			username = Common._title(this.getName());
+		}
+		
+		return "<a class=\"profile\" href=\""+Common.buildUrl("default", "module", "userprofile", "user", this.getId())+"\">"+username+"</a>";
+	}
+	
+	/**
+	 * Liefert einen vollstaendigen Profile-Link zu den Benutzer zurueck (als HTML).
+	 * Der Linkt enthaelt einen &lt;a&gt;-Tag sowie den Benutzernamen als HTML
+	 * @return Der Profile-Link
+	 */
+	public String getProfileLink() {
+		return getProfileLink("");
+	}
+	
+	/**
+	 * Setzt den Spieler-Cargo auf den angegebenen Cargo-String in der Datenbank.
+	 * Um inkonsistenzen zu vermeiden wird zudem geprueft, ob der urspruengliche
+	 * Cargo-String noch aktuell ist.
+	 * @param cargo Der neue Cargo-String
+	 * @param oldString Der urspruengliche Cargo-String
+	 */
+	@Deprecated
+	public void setCargo(String cargo, String oldString) {
+		setCargo(cargo);
+	}
+	
+	/**
+	 * Setzt den Spieler-Cargo auf den angegebenen Cargo-String in der Datenbank
+	 * @param cargo Der Cargo-String
+	 */
+	public void setCargo(String cargo) {
+		this.cargo = cargo;
+	}
+	
+	/**
+	 * Stellt fest, ob noch Platz fuer ein Flagschiff vorhanden ist
+	 * 
+	 * @return true, falls noch Platz vorhanden ist
+	 */
+	public boolean hasFlagschiffSpace() {
+		return getFlagschiff() == null;
+	}
+	
+	/**
+	 * Liefert den Aufenthaltsort des Flagschiffs dieses Spielers.
+	 * Der Typ Aufenthaltsort kann entweder ein Schiff (normal), eine Basiswerft
+	 * oder eine Schiffswerft sein (in beiden Faellen wird das Schiff noch gebaut)
+	 * 
+	 * @return Infos zum Aufenthaltsort
+	 */
+	public UserFlagschiffLocation getFlagschiff() {
+		Database db = context.getDatabase();
+
+		if( flagschiffObj != null ) {
+			return (UserFlagschiffLocation)flagschiffObj.clone();	
+		}
+
+		if( this.flagschiff == 0 ) {
+			SQLResultRow bFlagschiff = db.first("SELECT t2.id,t1.flagschiff FROM werften t1,ships t2 WHERE t2.id>0 AND t1.flagschiff=1 AND t1.shipid=t2.id AND t2.owner='",getId(),"'");
+			if( bFlagschiff.isEmpty() ) {
+				bFlagschiff = db.first("SELECT t2.id,t1.flagschiff FROM werften t1,bases t2 WHERE t1.flagschiff=1 AND t1.col=t2.id AND t2.owner='",getId(),"'");
+				if( !bFlagschiff.isEmpty() ) {
+					flagschiffObj = new UserFlagschiffLocation(UserFlagschiffLocation.Type.WERFT_BASE, bFlagschiff.getInt("id"));
+				}
+			}
+			else {
+				flagschiffObj = new UserFlagschiffLocation(UserFlagschiffLocation.Type.WERFT_SHIP, bFlagschiff.getInt("id"));
+			}
+		}
+		else {
+			flagschiffObj = new UserFlagschiffLocation(UserFlagschiffLocation.Type.SHIP, this.flagschiff);
+		}
+	
+		if( flagschiffObj != null ) {
+			return (UserFlagschiffLocation)flagschiffObj.clone();
+		}
+		return null;
+	}
+	
+	/**
+	 * Setzt die Schiffs-ID des Flagschiffs. Falls diese 0 ist, besitzt der Spieler kein Flagschiff mehr
+	 * 
+	 * @param shipid Die Schiffs-ID des Flagschiffs
+	 */
+	public void setFlagschiff(Integer shipid) {
+		this.flagschiff = shipid;
+	}
+	
+	@Transient
+	private Relations relations = null;
+	
+	/**
+	 * Liefert alle Beziehungen vom Spieler selbst zu anderen Spielern und umgekehrt
+	 * 
+	 * @return Gibt ein Array zurueck. 
+	 * 	Position 0 enthaelt alle Beziehungen von einem selbst ($userid => $beziehung).
+	 * 	Position 1 enthaelt alle Beziehungen zu einem selbst ($userid => $beziehung).
+	 * 
+	 * 	Beziehungen zu Spieler 0 betreffen grundsaetzlich alle Spieler ohne eigene Regelung
+	 */
+	public Relations getRelations() {
+		Database db = context.getDatabase();
+		
+		if( this.relations == null ) {
+			Relations relations = new Relations();
+			SQLQuery relation = db.query("SELECT * FROM user_relations WHERE user_id='",this.getId(),"' OR target_id='",this.getId(),"' OR (user_id!='",this.getId(),"' AND target_id='0') ORDER BY ABS(target_id) DESC");
+			while( relation.next() ) {
+				if( relation.getInt("user_id") == this.getId() ) {
+					relations.toOther.put(relation.getInt("target_id"), Relation.values()[relation.getInt("status")]);	
+				}
+				else if( !relations.fromOther.containsKey(relation.getInt("user_id")) ) {
+					relations.fromOther.put(relation.getInt("user_id"), Relation.values()[relation.getInt("status")]);
+				}
+			}
+			relation.free();
+			
+			if( !relations.toOther.containsKey(0) ) {
+				relations.toOther.put(0, Relation.NEUTRAL);	
+			}
+			
+			relations.toOther.put(this.getId(), Relation.FRIEND);
+			relations.fromOther.put(this.getId(), Relation.FRIEND);
+			
+			this.relations = relations;
+		}
+
+		Relations rel = new Relations();
+		rel.fromOther.putAll(relations.fromOther);
+		rel.toOther.putAll(relations.toOther);
+		return rel;
+	}
+	
+	/**
+	 * Gibt den Status der Beziehung des Spielers zu einem anderen Spieler zurueck
+	 * @param userid Die ID des anderen Spielers
+	 * @return Der Status der Beziehungen zu dem anderen Spieler
+	 */
+	public Relation getRelation( int userid ) {
+		Database db = context.getDatabase();
+		
+		if( userid == this.getId() ) {
+			return Relation.FRIEND;
+		}
+		
+		Relation rel = Relation.NEUTRAL;
+		
+		if( relations == null ) {
+			SQLResultRow currelation = db.first("SELECT status FROM user_relations WHERE user_id='",getId(),"' AND target_id='",userid,"'");
+			if( currelation.isEmpty() ) {
+				currelation = db.first("SELECT status FROM user_relations WHERE user_id='",this.getId(),"' AND target_id='0'");
+			}
+		
+			if( !currelation.isEmpty() ) {
+				rel = Relation.values()[currelation.getInt("status")];	
+			}
+		}
+		else {
+			if( relations.toOther.containsKey(userid) ) {
+				rel = relations.toOther.get(userid);	
+			}
+		}
+		return rel;
+	}
+	
+	/**
+	 * Setzt die Beziehungen des Spielers zu einem anderen Spieler auf den angegebenen
+	 * Wert
+	 * @param userid Die ID des anderen Spielers
+	 * @param relation Der neue Status der Beziehungen
+	 */
+	public void setRelation( int userid, Relation relation ) {
+		Database db = context.getDatabase();
+		
+		if( userid == this.getId() ) {
+			return;
+		}
+		
+		SQLResultRow currelation = db.first("SELECT * FROM user_relations WHERE user_id='",this.getId(),"' AND target_id='",userid,"'");
+		if( userid != 0 ) {
+			if( (relation != Relation.FRIEND) && (getAlly() != 0) ) {
+				User targetuser = (User)context.getDB().get(User.class, userid);
+				if( targetuser.getAlly() == getAlly() ) {
+					LOG.warn("Versuch die allyinterne Beziehung von User "+getId()+" zu "+userid+" auf "+relation+" zu aendern", new Throwable());
+					return;
+				}
+			}
+			SQLResultRow defrelation = db.first("SELECT * FROM user_relations WHERE user_id='",this.getId(),"' AND target_id='0'");
+		
+			if( defrelation.isEmpty() ) {
+				defrelation.put("user_id", this.getId());
+				defrelation.put("target_id", 0);
+				defrelation.put("status", Relation.NEUTRAL.ordinal());	
+			}
+		
+			if( relation.ordinal() == defrelation.getInt("status") ) {
+				if( !currelation.isEmpty() && (currelation.getInt("user_id") != 0) ) {
+					if( relations != null ) {
+						relations.toOther.remove(userid);
+					}
+					
+					db.update("DELETE FROM user_relations WHERE user_id='",this.getId(),"' AND target_id='",userid,"'");	
+				}
+			}
+			else {
+				if( relations != null ) {
+					relations.toOther.put(userid, relation);
+				}
+				if( !currelation.isEmpty() ) {
+					db.update("UPDATE user_relations SET status='",relation.ordinal(),"' WHERE user_id='",this.getId(),"' AND target_id='",userid,"'");	
+				}	
+				else {
+					db.update("INSERT INTO user_relations (user_id,target_id,status) VALUES ('",this.getId(),"','",userid,"','",relation.ordinal(),"')");	
+				}
+			}
+		}
+		else {
+			if( relation == Relation.NEUTRAL ) {
+				if( relations != null ) {
+					relations.toOther.put(0, Relation.NEUTRAL);
+				}
+				db.update("DELETE FROM user_relations WHERE user_id='",this.getId(),"' AND target_id='0'");
+			}
+			else {
+				if( relations != null ) {
+					relations.toOther.put(0, relation);
+				}
+				if( !currelation.isEmpty() ) {
+					db.update("UPDATE user_relations SET status='",relation.ordinal(),"' WHERE user_id='",this.getId(),"' AND target_id='0'");	
+				}	
+				else {
+					db.update("INSERT INTO user_relations (user_id,target_id,status) VALUES ('",this.getId(),"','0','",relation.ordinal(),"')");	
+				}
+			}
+			db.update("DELETE FROM user_relations WHERE user_id='",this.getId(),"' AND status='",relation.ordinal(),"' AND target_id!='0'");
+		}
+	}
+	/**
+	 * Transferiert einen bestimmten Geldbetrag (RE) von einem anderen Benutzer zum aktuellen.
+	 * Der Transfer kann entweder ein echter Transfer sein (Geld wird abgebucht) oder ein gefakter
+	 * Transfer (kein Geld wird abgebucht sondern nur hinzugefuegt).
+	 * Zudem faellt jeder Geldtransfer in eine von 3 Kategorien (automatisch, halbautomatisch und manuell).<br>
+	 * Die Berechnung erfolgt intern auf Basis von <code>BigInteger</code>
+	 * 
+	 * @param fromID Die ID des Benutzers, von dem Geld abgebucht werden soll
+	 * @param count Die zu transferierende Geldmenge
+	 * @param text Der Hinweistext, welcher im "Kontoauszug" angezeigt werden soll
+	 * @param faketransfer Handelt es sich um einen "gefakten" Geldtransfer (<code>true</code>)?
+	 * @param transfertype Der Transfertyp (Kategorie)
+	 * @see #TRANSFER_AUTO
+	 * @see #TRANSFER_SEMIAUTO
+	 * @see #TRANSFER_NORMAL
+	 */
+	public void transferMoneyFrom( int fromID, long count, String text, boolean faketransfer, int transfertype) {
+		transferMoneyFrom(fromID,BigInteger.valueOf(count), text, faketransfer, transfertype);
+	}
+
+	/**
+	 * Transferiert einen bestimmten Geldbetrag (RE) von einem anderen Benutzer zum aktuellen.
+	 * Der Transfer kann entweder ein echter Transfer sein (Geld wird abgebucht) oder ein gefakter
+	 * Transfer (kein Geld wird abgebucht sondern nur hinzugefuegt).
+	 * Zudem faellt jeder Geldtransfer in eine von 3 Kategorien (automatisch, halbautomatisch und manuell).
+	 * 
+	 * @param fromID Die ID des Benutzers, von dem Geld abgebucht werden soll
+	 * @param count Die zu transferierende Geldmenge
+	 * @param text Der Hinweistext, welcher im "Kontoauszug" angezeigt werden soll
+	 * @param faketransfer Handelt es sich um einen "gefakten" Geldtransfer (<code>true</code>)?
+	 * @param transfertype Der Transfertyp (Kategorie)
+	 * @see #TRANSFER_AUTO
+	 * @see #TRANSFER_SEMIAUTO
+	 * @see #TRANSFER_NORMAL
+	 */
+	public void transferMoneyFrom( int fromID, BigInteger count, String text, boolean faketransfer, int transfertype) {
+		Database db = context.getDatabase();
+		
+		if( !count.equals(BigInteger.ZERO) ) {
+			User fromUser = (User)context.getDB().get(User.class, fromID);
+			if( (fromID != 0) && !faketransfer ) {
+				fromUser.setKonto(fromUser.getKonto().subtract(count));
+			}
+		
+			konto = konto.add(count);	
+		
+			db.update("INSERT INTO user_moneytransfer (`from`,`to`,`time`,`count`,`text`,`fake`,`type`) ",
+					"VALUES ('",fromID,"','",this.getId(),"','",Common.time(),"','",count,"','",db.prepareString(text),"','",(faketransfer ? 1 : 0),"','",transfertype,"')");
+		}
+	}
+	
+	/**
+	 * Transferiert einen bestimmten Geldbetrag (RE) von einem anderen Spieler zum aktuellen. Beim
+	 * Transfer handelt es sich um einen manuellen Transfer.
+	 * 
+	 * @param fromID Die ID des Benutzers, von dem Geld abgebucht werden soll
+	 * @param count Die zu transferierende Geldmenge
+	 * @param text Der Hinweistext, welcher im "Kontoauszug" angezeigt werden soll
+	 * @param faketransfer Handelt es sich um einen "gefakten" Geldtransfer (<code>true</code>)?
+	 * @see #transferMoneyFrom(int, long, String, boolean, int)
+	 */
+	public void transferMoneyFrom( int fromID, long count, String text, boolean faketransfer) {
+		transferMoneyFrom( fromID, count, text, faketransfer, TRANSFER_NORMAL );
+	}
+	
+	/**
+	 * Transferiert einen bestimmten Geldbetrag (RE) von einem anderen Spieler zum aktuellen. Beim
+	 * Transfer handelt es sich um einen manuellen Transfer. Das Geld wird tatsaechlich dem Ausgangsspieler
+	 * abgezogen (kein "gefakter" Transfer)
+	 * 
+	 * @param fromID Die ID des Benutzers, von dem Geld abgebucht werden soll
+	 * @param count Die zu transferierende Geldmenge
+	 * @param text Der Hinweistext, welcher im "Kontoauszug" angezeigt werden soll
+	 */
+	public void transferMoneyFrom( int fromID, long count, String text ) {
+		transferMoneyFrom( fromID, count, text, false );
+	}
+	
+	@Transient
+	private SQLResultRow research = null;
+	
+	/**
+	 * Gibt den zum Spieler gehoerenden <code>user_f</code>-Eintrag als SQL-Ergebniszeile
+	 * zurueck
+	 * @return Der <code>user_f</code>-Eintrag
+	 */
+	public SQLResultRow getResearchedList() {
+		if( research == null ) {
+			research = context.getDatabase().first("SELECT * FROM user_f WHERE id='",this.getId(),"'");
+			if( research.isEmpty() ) {
+				throw new RuntimeException("Spieler "+this.getId()+" verfuegt ueber keine Forschungstabelle");
+			}
+		}
+		return research;
+	}
+	
+	/**
+	 * Prueft, ob die angegebene Forschung durch den Benutzer erforscht wurde
+	 * 
+	 * @param researchID Die ID der zu pruefenden Forschung
+	 * @return <code>true</code>, falls die Forschung erforscht wurde
+	 */
+	public boolean hasResearched( int researchID ) {
+		// Forschungs-ID -1 ist per Definition nicht erforschbar - also immer false zurueckgeben.
+		if( researchID == -1 ) {
+			return false;
+		}
+		if( research == null ) {
+			research = context.getDatabase().first("SELECT * FROM user_f WHERE id='",this.getId(),"'");
+			if( research.isEmpty() ) {
+				throw new RuntimeException("Spieler "+this.getId()+" verfuegt ueber keine Forschungstabelle");
+			}
+		}
+
+		return research.getBoolean("r"+researchID);
+	}
+	
+	/**
+	 * Fuegt eine Forschung zur Liste der durch den Benutzer erforschten Technologien hinzu
+	 * @param researchID Die ID der erforschten Technologie
+	 */
+	public void addResearch( int researchID ) {
+		if( !hasResearched( researchID ) ) {
+			research.put("r"+researchID, true);
+			
+			context.getDatabase().update("UPDATE user_f SET r",researchID,"='1' WHERE id='",this.getId(),"'");
+		}
+	}
+	
+	/**
+	 * Fuegt eine Zeile zur User-Historie hinzu
+	 * @param text Die hinzuzufuegende Zeile
+	 */
+	public void addHistory( String text ) {
+		String history = getHistory();
+		if( !"".equals(history) ) {
+			this.history = history+"\n"+text;
+		}
+		else {
+			this.history = text;
+		}
+	}
+	
+	/**
+	 * Fuegt ein Item zur Liste der dem Spieler bekannten Items hinzu.
+	 * Die Funktion prueft nicht, ob das Item allgemein bekannt ist,
+	 * sondern geht davon aus, dass das angegebene Item allgemein unbekannt ist.
+	 * 
+	 * @param itemid Die Item-ID
+	 */
+	public void addKnownItem( int itemid ) {		
+		if( !isKnownItem(itemid) ) {
+			String itemlist = this.knownItems.trim();
+			if( !itemlist.equals("") ) {
+				itemlist += ","+itemid;
+			}
+			else {
+				itemlist = ""+itemid;
+			}
+
+			this.knownItems = itemlist;
+		}
+	}
+	
+	/**
+	 * Prueft, ob das Item mit der angegebenen ID dem Benutzer bekannt ist.
+	 * Die Funktion prueft nicht, ob das Item allgemein bekannt ist,
+	 * sondern geht davon aus, dass das angegebene Item allgemein unbekannt ist.
+	 * @param itemid Die ID des Items
+	 * @return <code>true</code>, falls das Item den Spieler bekannt ist
+	 */
+	public boolean isKnownItem( int itemid ) {
+		String[] itemlist = StringUtils.split(this.knownItems,',');
+		
+		return Common.inArray(""+itemid,itemlist);	
+	}
+	
+	/**
+	 * Prueft, ob der Spieler noch unter Noob-Schutz steht
+	 * @return <code>true</code>, falls der Spieler noch ein Noob ist
+	 */
+	public boolean isNoob() {
+		if( Configuration.getIntSetting("NOOB_PROTECTION") > 0 ) {
+			if( this.getId() < 0 ) {
+				return false;
+			}
+			
+			return hasFlag( FLAG_NOOB );
+		}
+		return false;
+	}
+	
+	/**
+	 * Gibt die ID der Rasse des Spielers zurueck
+	 * @return Die ID der Rasse
+	 */
+	public int getRace() {
+		return this.race;
+	}
+
+	/**
+	 * Gibt die Spielerhistorie als BBCode-formatierten String zurueck
+	 * @return Die Spielerhistorie
+	 */
+	public String getHistory() {
+		return this.history;
+	}
+	
+	/**
+	 * Gibt die Liste aller Orden und Auszeichnungen des Spielers zurueck.
+	 * Die einzelnen Orden-IDs sind mittels ; verbunden
+	 * @return Die Liste aller Orden
+	 */
+	public String getMedals() {
+		return this.medals;
+	}
+	
+	/**
+	 * Setzt die Liste der Orden des Spielers
+	 * @param medals Eine mittels ; separierte Liste von Orden
+	 */
+	public void setMedals( String medals ) {
+		this.medals = medals;
+	}
+	
+	/**
+	 * Liefert den Rang des Benutzers zurueck
+	 * @return Der Rang
+	 */
+	public byte getRang() {
+		return this.rang;
+	}
+	
+	/**
+	 * Setzt den Rang des Benutzers
+	 * @param rang Die ID des Rangs
+	 */
+	public void setRang( byte rang ) {
+		this.rang = rang;
+	}
+	
+	/**
+	 * Liefert die Allianz des Benutzers zurueck.
+	 * 
+	 * @return Die Allianz
+	 */
+	public int getAlly() {
+		return this.ally;
+	}
+	
+	/**
+	 * Setzt die Allianz, der der Spieler angehoert
+	 * @param ally die neue Allianz
+	 */
+	public void setAlly( int ally ) {
+		this.ally = ally;
+	}
+	
+	/**
+	 * Liefert den Kontostand des Benutzers zurueck
+	 * @return Der Kontostand
+	 */
+	public BigInteger getKonto() {
+		return konto;
+	}
+	
+	/**
+	 * Setzt den Kontostand des Spielers auf den angegebenen Wert
+	 * @param count der neue Kontostand
+	 */
+	public void setKonto( BigInteger count ) {
+		this.konto = count;
+	}
+	
+	/**
+	 * Gibt den Cargo des Spielers als Cargo-String zurueck
+	 * @return der Cargo des Spielers
+	 */
+	public String getCargo() {
+		return this.cargo;
+	}
+	
+	/**
+	 * Die Nahrungsbilanz des letzten Ticks
+	 * @return Die Nahrungsbilanz des letzten Ticks
+	 */
+	public String getNahrungsStat() {
+		return this.nstat;
+	}
+	
+	/**
+	 * Setzt die Nahrungsbilanz des letzten Ticks
+	 * @param stat Die Nahrungsbilanz des letzten Ticks
+	 */
+	public void setNahrungsStat(String stat) {
+		this.nstat = stat;
+	}
+	
+	/**
+	 * Liefert die Anzahl der NPC-Punkte des Benutzers zurueck.
+	 * @return Die Anzahl der NPC-Punkte
+	 */
+	public int getNpcPunkte() {
+		return this.npcpunkte;
+	}
+	
+	/**
+	 * Setzt die Anzahl der NPC-Punkte des Benutzers
+	 * @param punkte Die neue Anzahl der NPC-Punkte
+	 */
+	public void setNpcPunkte(int punkte) {
+		this.npcpunkte = punkte;
+	}
+	
+	/**
+	 * Gibt den durch den Spieler besetzten Allianz-Posten zurueck.
+	 * zurueckgegeben. 
+	 * @return Der AllyPosten oder <code>0</code>
+	 */
+	public int getAllyPosten() {
+		return this.allyposten;
+	}
+	
+	/**
+	 * Setzt den durch den Spieler besetzten Allianz-Posten
+	 * @param posten Der Allianzposten
+	 */
+	public void setAllyPosten( int posten ) {
+		this.allyposten = posten;
+	}
+	
+	/**
+	 * Gibt die ID des Systems zurueck, in den die durch die GTU versteigerten Dinge erscheinen sollen.
+	 * Das System muss ueber eine Drop-Zone verfuegen.
+	 * 
+	 * @return Die ID des Systems in den die versteigerten Dinge auftauchen sollen
+	 */
+	public int getGtuDropZone() {
+		return this.gtudropzone;
+	}
+	
+	/**
+	 * Setzt die ID des von der GTU verwendeten Dropzone-Systems des Spielers
+	 * @param system Die ID des neuen Systems mit der bevorzugten GTU-Dropzone
+	 */
+	public void setGtuDropZone( int system ) {
+		this.gtudropzone = system;
+	}
+	
+	/**
+	 * Gibt die Koordinate des Ortes zurueck, an dem von NPCs georderte Dinge erscheinen sollen.
+	 * 
+	 * @return Die Koordinaten des Ortes, an dem georderte Dinge erscheinen sollen
+	 */
+	public String getNpcOrderLocation() {
+		return this.npcorderloc;
+	}
+	
+	/**
+	 * Setzt die Koordinaten des Ortes, an dem von NPCs georderte Dinge erscheinen sollen
+	 * @param loc Die Koordinaten des Ortes, an dem georderte Dinge erscheinen sollen
+	 */
+	public void setNpcOrderLocation( String loc ) {
+		this.npcorderloc = loc;
+	}
+	
+	/**
+	 * Gibt die Anzahl der gewonnenen Schlachten zurueck
+	 * @return die Anzahl der gewonnenen Schlachten
+	 */
+	public short getWonBattles() {
+		return this.wonBattles;
+	}
+	
+	/**
+	 * Setzt die Anzahl der gewonnenen Schlachten
+	 * @param battles Die Anzahl
+	 */
+	public void setWonBattles(short battles) {
+		this.wonBattles = battles;
+	}
+	
+	/**
+	 * Gibt die Anzahl der verlorenen Schlachten zurueck
+	 * @return die Anzahl der verlorenen Schlachten
+	 */
+	public short getLostBattles() {
+		return this.lostBattles;
+	}
+	
+	/**
+	 * Setzt die Anzahl der verlorenen Schlachten
+	 * @param battles Die Anzahl
+	 */
+	public void setLostBattles(short battles) {
+		this.lostBattles = battles;
+	}
+	
+	/**
+	 * Gibt die Anzahl der verlorenen Schiffe zurueck
+	 * @return die Anzahl der verlorenen Schiffe
+	 */
+	public int getLostShips() {
+		return this.lostShips;
+	}
+	
+	/**
+	 * Setzt die Anzahl der verlorenen Schiffe
+	 * @param lost Die Anzahl
+	 */
+	public void setLostShips(int lost) {
+		this.lostShips = lost;
+	}
+	
+	/**
+	 * Gibt die Anzahl der zerstoerten Schiffe zurueck
+	 * @return die Anzahl der zerstoerten Schiffe
+	 */
+	public int getDestroyedShips() {
+		return this.destroyedShips;
+	}
+	
+	/**
+	 * Setzt die Anzahl der zerstoerten Schiffe
+	 * @param ships die neue Anzahl
+	 */
+	public void setDestroyedShips(int ships) {
+		this.destroyedShips = ships;
+	}
+	
+	/**
+	 * Gibt die Liste der bekannten Items zurueck, welche per Default
+	 * unbekannt ist.
+	 * @return Die Liste der bekannten Items als Item-String
+	 */
+	public String getKnownItems() {
+		return this.knownItems;
+	}
+}

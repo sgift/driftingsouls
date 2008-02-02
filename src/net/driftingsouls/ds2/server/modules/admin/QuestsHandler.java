@@ -19,10 +19,10 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -83,7 +83,7 @@ public class QuestsHandler implements AdminPlugin {
 			while( ship.next() ) {
 				echo.append("* <a class=\"forschinfo\" href=\""+URLBASE+"&event=oncommunicate&oid="+ship.getInt("id")+"\">");
 				
-				User owner = context.createUserObject(ship.getInt("owner"));
+				User owner = (User)context.getDB().get(User.class, ship.getInt("owner"));
 				
 				echo.append(ship.getString("name")+" ("+ship.getInt("id")+") ["+Common._title(owner.getName())+"]");
 				
@@ -112,7 +112,7 @@ public class QuestsHandler implements AdminPlugin {
 			while( ship.next() ) {
 				echo.append("* <a class=\"forschinfo\" href=\""+URLBASE+"&event=onmove&oid="+ship.getInt("id")+"\">");
 				
-				User owner = context.createUserObject(ship.getInt("owner"));
+				User owner = (User)context.getDB().get(User.class, ship.getInt("owner"));
 				
 				echo.append(ship.getString("name")+" ("+ship.getInt("id")+") ["+Common._title(owner.getName())+"]");
 				
@@ -128,7 +128,7 @@ public class QuestsHandler implements AdminPlugin {
 			while( rquest.next() ) {
 				echo.append("* <a class=\"forschinfo\" href=\""+URLBASE+"&event=ontick_rquest&oid="+rquest.getInt("id")+"\">");
 				
-				User owner = context.createUserObject(rquest.getInt("userid"));
+				User owner = (User)context.getDB().get(User.class, rquest.getInt("userid"));
 				
 				echo.append(rquest.getString("name")+" ("+rquest.getInt("id")+") ["+Common._title(owner.getName())+"]");
 				
@@ -144,8 +144,8 @@ public class QuestsHandler implements AdminPlugin {
 			while( battle.next() ) {
 				echo.append("* <a class=\"forschinfo\" href=\""+URLBASE+"&event=onendbattle&oid="+battle.getInt("id")+"\">");
 				
-				User com1 = context.createUserObject(battle.getInt("commander1"));
-				User com2 = context.createUserObject(battle.getInt("commander2"));
+				User com1 = (User)context.getDB().get(User.class, battle.getInt("commander1"));
+				User com2 = (User)context.getDB().get(User.class, battle.getInt("commander2"));
 				
 				echo.append(battle.getInt("system")+":"+battle.getInt("x")+"/"+battle.getInt("y")+" ("+battle.getInt("id")+") ["+Common._title(com1.getName())+" vs "+Common._title(com2.getName())+"]");
 				

@@ -19,12 +19,14 @@
 package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 import net.driftingsouls.ds2.server.werften.WerftGUI;
@@ -38,7 +40,7 @@ import net.driftingsouls.ds2.server.werften.WerftGUI;
  * @urlparam Integer linkedbase Die ID einer Basis, mit der die Werft gekoppelt werden soll oder -1, falls die Kopplung aufgehoben werden soll
  *
  */
-public class WerftController extends DSGenerator {
+public class WerftController extends TemplateGenerator {
 	private SQLResultRow ship;
 	private SQLResultRow werftdata;
 	private SQLResultRow type;
@@ -57,7 +59,7 @@ public class WerftController extends DSGenerator {
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		int shipID = getInteger("ship");
 		
@@ -83,6 +85,7 @@ public class WerftController extends DSGenerator {
 		return true;	
 	}
 
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		Database db = getDatabase();

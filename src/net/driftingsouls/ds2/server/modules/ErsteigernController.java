@@ -22,12 +22,10 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -39,20 +37,24 @@ import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.FactionPages;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
-import net.driftingsouls.ds2.server.framework.UserIterator;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.JumpNodeRouter;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
+
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Zeigt die Fraktionsseiten an
@@ -61,7 +63,7 @@ import net.driftingsouls.ds2.server.tasks.Taskmanager;
  * @urlparam Integer faction Die ID der anzuzeigenden Fraktion
  *
  */
-public class ErsteigernController extends DSGenerator {
+public class ErsteigernController extends TemplateGenerator {
 	/**
 	 * Ein Eintrag im Shop
 	 * @author Christopher Jung
@@ -379,7 +381,7 @@ public class ErsteigernController extends DSGenerator {
 	protected boolean validateAndPrepare(String action) {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		// Ausgewaehlte Fraktion ueberpruefen und deren Menueeintraege freischalten
 		int faction = this.getInteger("faction");
@@ -433,7 +435,7 @@ public class ErsteigernController extends DSGenerator {
 			if( !factionObj.getPages().isEnabled() ) {
 				continue;
 			}
-			User aFactionUser = getContext().createUserObject(factionObj.getID());
+			User aFactionUser = (User)getDB().get(User.class, factionObj.getID());
 			
 			if( (user.getRelation(factionObj.getID()) == User.Relation.ENEMY) ||
 				(relationlist.fromOther.get(factionObj.getID()) == User.Relation.ENEMY) ) {
@@ -446,7 +448,7 @@ public class ErsteigernController extends DSGenerator {
 		factionmenu.append( StringUtils.replaceChars(Common.tableEnd(), '"', '\'') );
 		String factionmenuStr = StringEscapeUtils.escapeJavaScript(StringUtils.replace(StringUtils.replace(factionmenu.toString(), "<", "&lt;"), ">", "&gt;"));
 		
-		User factionuser = getContext().createUserObject(faction);
+		User factionuser = (User)getDB().get(User.class, faction);
 		
 		t.setVar(	"user.konto",			Common.ln(user.getKonto()),
 					"global.faction",		faction,
@@ -467,13 +469,14 @@ public class ErsteigernController extends DSGenerator {
 	 * @urlparam Integer favsys Die ID des neuen Systems, in dem ersteigerte Dinge gespawnt werden sollen
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void changeDropZoneAction() {
 		if( !Faction.get(faction).getPages().hasPage("versteigerung") ) {
 			redirect();
 			return;	
 		}
 		
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		parameterNumber("favsys");
@@ -494,13 +497,14 @@ public class ErsteigernController extends DSGenerator {
 	 * @urlparam Integer auk Die Auktion auf die geboten werden soll
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void bidEntryAction() {
 		if( !Faction.get(faction).getPages().hasPage("versteigerung") ) {
 			redirect();
 			return;	
 		}
 		
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
@@ -561,7 +565,7 @@ public class ErsteigernController extends DSGenerator {
 
 			String bietername = "";
 
-			User bieter = getContext().createUserObject( entry.getInt("bieter") );
+			User bieter = (User)getDB().get(User.class,  entry.getInt("bieter") );
 			
 			if( bieter.getId() == faction ) {
 				bietername = bieter.getName();	
@@ -624,7 +628,7 @@ public class ErsteigernController extends DSGenerator {
 				db.tBegin();
 				
 				if( entry.getInt("bieter") != faction ) {
-					User bieter = getContext().createUserObject(entry.getInt("bieter"));
+					User bieter = (User)getDB().get(User.class, entry.getInt("bieter"));
 						
 					PM.send(getContext(), faction, entry.getInt("bieter"), "Bei Versteigerung &uuml;berboten", 
 							"Sie wurden bei der Versteigerung um '"+entryname+"' &uuml;berboten. Die von ihnen gebotenen RE in H&ouml;he von "+Common.ln(entry.getLong("preis"))+" wurden auf ihr Konto zur&uuml;ck&uuml;berwiesen.\n\nGaltracorp Unlimited");
@@ -636,7 +640,7 @@ public class ErsteigernController extends DSGenerator {
 						"SET tick=",entry.getInt("tick") <= ticks+3 ? ticks+3 : entry.getInt("tick"),",bieter=",user.getId(),",preis=",bid," " +
 						"WHERE id=",auk," AND tick=",entry.getInt("tick")," AND bieter=",entry.getInt("bieter")," AND preis=",entry.getInt("preis"));
 					
-				User gtu = getContext().createUserObject( faction );
+				User gtu = (User)getDB().get(User.class,  faction );
 				gtu.transferMoneyFrom( user.getId(), bid, "&Uuml;berweisung Gebot #2"+entry.getInt("id")+" '"+entryname+"'", false, User.TRANSFER_SEMIAUTO);
 				
 				if( !db.tCommit() ) {
@@ -664,13 +668,14 @@ public class ErsteigernController extends DSGenerator {
 	 * @urlparam Integer auk Die Auktion auf die geboten werden soll
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void bidPaketAction() {
 		if( !Faction.get(faction).getPages().hasPage("paket") ) {
 			redirect();
 			return;	
 		}
 		
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
@@ -705,7 +710,7 @@ public class ErsteigernController extends DSGenerator {
 				db.tBegin();
 				
 				if( paket.getInt("bieter") != faction ) {
-					User bieter = getContext().createUserObject(paket.getInt("bieter"));
+					User bieter = (User)getDB().get(User.class, paket.getInt("bieter"));
 						
 					PM.send(getContext(), faction, bieter.getId(), "Bei Versteigerung um das GTU-Paket &uuml;berboten", 
 							"Sie wurden bei der Versteigerung um das GTU-Paket &ueberboten. Die von ihnen gebotenen RE in H&ouml;he von "+Common.ln(paket.getLong("preis"))+" wurden auf ihr Konto zur&uuml;ck&uuml;berwiesen.\n\nGaltracorp Unlimited");
@@ -717,7 +722,7 @@ public class ErsteigernController extends DSGenerator {
 						"SET tick=",paket.getInt("tick") <= ticks+3 ? ticks+3 : paket.getInt("tick"),",bieter=",user.getId(),",preis=",bid," " +
 						"WHERE id=",auk," AND preis=",paket.getLong("preis")," AND bieter=",paket.getInt("bieter")," AND tick=",paket.getInt("tick"));
 				
-				User gtu = getContext().createUserObject( faction );
+				User gtu = (User)getDB().get(User.class,  faction );
 				gtu.transferMoneyFrom( user.getId(), bid, "&Uuml;berweisung Gebot #9"+auk+" 'GTU-Paket'", false, User.TRANSFER_SEMIAUTO);
 				
 				if( !db.tCommit() ) {
@@ -747,13 +752,14 @@ public class ErsteigernController extends DSGenerator {
 	 * @urlparam Integer count Die zu ueberweisende Geldmenge
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void ueberweisenAction() {
 		if( !Faction.get(faction).getPages().hasPage("other") ) {
 			redirect();	
 			return;
 		}
 		
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		parameterNumber("to");
@@ -776,7 +782,7 @@ public class ErsteigernController extends DSGenerator {
 		
 		// Falls noch keine Bestaetigung vorliegt: Bestaetigung der Ueberweisung erfragen
 		if( !ack.equals("yes") ) {
-			User tmp = getContext().createUserObject( to );
+			User tmp = (User)getDB().get(User.class,  to );
 			
 			t.setVar(	"show.ueberweisen",			1,
 						"ueberweisen.betrag",		Common.ln(count),
@@ -787,7 +793,7 @@ public class ErsteigernController extends DSGenerator {
 			return;
 		} 
 
-		User tmp = getContext().createUserObject( to );
+		User tmp = (User)getDB().get(User.class,  to );
 			
 		tmp.transferMoneyFrom( user.getId(), count, "&Uuml;berweisung vom "+Common.getIngameTime(this.ticks));
 			
@@ -804,13 +810,14 @@ public class ErsteigernController extends DSGenerator {
 	 * @urlparam Integer type Der neue Anzeigetyp (0-2)
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void showKontoTransactionTypeAction() {
 		if( !Faction.get(faction).getPages().hasPage("other") ) {
 			redirect();	
 			return;
 		}
 		
-		User user = getUser();
+		User user = (User)getUser();
 		
 		parameterNumber("type");
 		int type = getInteger("type");
@@ -825,6 +832,7 @@ public class ErsteigernController extends DSGenerator {
 	 * Zeigt die Seite mit diversen weiteren Infos an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void otherAction() {
 		if( !Faction.get(faction).getPages().hasPage("other") ) {
 			redirect();	
@@ -833,20 +841,22 @@ public class ErsteigernController extends DSGenerator {
 		
 		TemplateEngine t = this.getTemplateEngine();
 		Database db = getDatabase();
-		User user = this.getUser();
+		User user = (User)this.getUser();
 		
 		t.setVar("show.other",1);
 
 		// ueberweisungen
 		t.setBlock("_ERSTEIGERN","ueberweisen.listitem","ueberweisen.list");
 
-		UserIterator iter = getContext().createUserIterator("SELECT * FROM users WHERE !LOCATE('hide',flags) AND id!=",user.getId()," ORDER BY id");
-		for( User usr : iter ) {
+		List list = getContext().getDB().createQuery("from User where locate('hide',flags)=0 and id!= :user order by id")
+			.setInteger("user", user.getId())
+			.list();
+		for( Iterator iter=list.iterator(); iter.hasNext(); ) {
+			User usr = (User)iter.next();
 			t.setVar(	"target.id",	usr.getId(),
 						"target.name",	Common._title(usr.getName()) );
 			t.parse("ueberweisen.list","ueberweisen.listitem",true);
 		}
-		iter.free();
 		
 		// Auwahl max. Transaktionstyp in der Kontoanzeige generieren
 		int transtype = Integer.parseInt(user.getUserValue("TBLORDER/factions/konto_maxtype"));
@@ -877,10 +887,10 @@ public class ErsteigernController extends DSGenerator {
 			User player = null;
 			
 			if( entry.getInt("from") == user.getId() ) {
-				player = getContext().createUserObject(entry.getInt("to"));
+				player = (User)getDB().get(User.class, entry.getInt("to"));
 			}
 			else {
-				player = getContext().createUserObject(entry.getInt("from"));
+				player = (User)getDB().get(User.class, entry.getInt("from"));
 			}
 			
 			t.setVar(	"moneytransfer.time",		Common.date("j.n.Y H:i",entry.getLong("time")),
@@ -922,6 +932,7 @@ public class ErsteigernController extends DSGenerator {
 	 * Zeigt die Angebote der Fraktion an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void angeboteAction() {
 		if( !Faction.get(faction).getPages().hasPage("angebote") ) {
 			redirect();	
@@ -960,6 +971,7 @@ public class ErsteigernController extends DSGenerator {
 	 * Zeigt das zur Versteigerung angebotene Paket an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void paketAction() {
 		if( !Faction.get(faction).getPages().hasPage("paket") ) {
 			redirect();
@@ -968,13 +980,13 @@ public class ErsteigernController extends DSGenerator {
 		
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		SQLResultRow paket = db.first("SELECT * FROM versteigerungen_pakete");
 		t.setVar( "show.pakete", 1 );
 
 		if( !paket.isEmpty() ) {
-			User bieter = getContext().createUserObject(paket.getInt("bieter"));
+			User bieter = (User)getDB().get(User.class, paket.getInt("bieter"));
 
 			String bietername = "";
 			
@@ -1038,10 +1050,11 @@ public class ErsteigernController extends DSGenerator {
 	 * Zeigt die laufenden Versteigerungen an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void versteigerungAction() {
 		TemplateEngine t = this.getTemplateEngine();
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		if( !Faction.get(faction).getPages().hasPage("versteigerung") ) {
 			redirect();	
@@ -1089,7 +1102,7 @@ public class ErsteigernController extends DSGenerator {
 		
 		SQLQuery entry = db.query("SELECT * FROM versteigerungen ORDER BY id DESC");
 		while( entry.next() ) {
-			User bieter = getContext().createUserObject( entry.getInt("bieter") );
+			User bieter = (User)getDB().get(User.class,  entry.getInt("bieter") );
 			
 			String entryname = "";
 			String entryimage = "";
@@ -1155,7 +1168,7 @@ public class ErsteigernController extends DSGenerator {
 			String ownername = "";
 			
 			if( (user.getAccessLevel() >= 20) && (entry.getInt("owner") != faction) && (entry.getInt("owner") != user.getId()) ) {
-				User ownerobject = getContext().createUserObject(entry.getInt("owner"));
+				User ownerobject = (User)getDB().get(User.class, entry.getInt("owner"));
 				ownername = Common._title(ownerobject.getName()); 
 			}
 			
@@ -1195,6 +1208,7 @@ public class ErsteigernController extends DSGenerator {
 	 * Zeigt den Fraktionstext an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void generalAction() {
 		TemplateEngine t = getTemplateEngine();
 		
@@ -1219,9 +1233,10 @@ public class ErsteigernController extends DSGenerator {
 	 * @urlparam Integer transport Sofert der Wert <code>1</code>, wird der Transportauftrag bestaetigt und abgespeichert
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void shopOrderGanymedeSummaryAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 
 		if( !Faction.get(faction).getPages().hasPage("shop") ) {
@@ -1368,7 +1383,7 @@ public class ErsteigernController extends DSGenerator {
 		else {
 			db.tBegin();
 	
-			User faction = getContext().createUserObject( this.faction );
+			User faction = (User)getDB().get(User.class,  this.faction );
 			faction.transferMoneyFrom( user.getId(), totalcost, "&Uuml;berweisung Bestellung #ganytransXX"+gany.getInt("id"));	
 		
 			StringBuilder waypoints = new StringBuilder(300);
@@ -1419,9 +1434,10 @@ public class ErsteigernController extends DSGenerator {
 	 * @urlparam Integer targety Die Ziel-Y-Koordinate
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void shopOrderGanymedeAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 
 		if( !Faction.get(faction).getPages().hasPage("shop") ) {
@@ -1565,10 +1581,11 @@ public class ErsteigernController extends DSGenerator {
 	 * @urlparam Integer ordery Die Y-Komponente der Lieferkoordinate
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void shopOrderAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		if( !Faction.get(faction).getPages().hasPage("shop") ) {
 			redirect();	
@@ -1638,7 +1655,7 @@ public class ErsteigernController extends DSGenerator {
 					"(shopentry_id,user_id,count,price,date,adddata) VALUES " ,
 					"(",entry.getID(),",",user.getId(),",",ordercount,",",(ordercount*entry.getPrice()),",",Common.time(),",'",ordersys+":"+orderx+"/"+ordery+"')");
 			
-			User faction = getContext().createUserObject( this.faction );
+			User faction = (User)getDB().get(User.class,  this.faction );
 			faction.transferMoneyFrom( user.getId(), entry.getPrice()*ordercount, "&Uuml;berweisung Bestellung #"+entry.getType()+entry.getResource()+"XX"+ordercount);	
 			
 			PM.send(getContext(), user.getId(), this.faction, "[auto] Shop-Bestellung", "Besteller: [userprofile="+user.getId()+"]"+user.getName()+" ("+user.getId()+")[/userprofile]\nObjekt: "+entry.getName()+"\nMenge: "+ordercount+"\nLieferkoordinaten: "+ordersys+":"+orderx+"/"+ordery+"\nZeitpunkt: "+Common.date("d.m.Y H:i:s"));
@@ -1660,10 +1677,11 @@ public class ErsteigernController extends DSGenerator {
 	 * @urlparam Integer availability Die neue Verfuegbarkeit
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void shopChangeAvailabilityAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		if( !Faction.get(faction).getPages().hasPage("shop") ) {
 			redirect();	
@@ -1703,10 +1721,11 @@ public class ErsteigernController extends DSGenerator {
 	 * @urlparam Integer orderstatus Der neue Auftragsstatus
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void changeShopOrderStatusAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		if( !Faction.get(faction).getPages().hasPage("shop") ) {
 			redirect();	
@@ -1772,10 +1791,11 @@ public class ErsteigernController extends DSGenerator {
 	 * Zeigt den Shop der Fraktion an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void shopAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		if( !Faction.get(faction).getPages().hasPage("shop") ) {
 			redirect();	
@@ -1860,7 +1880,7 @@ public class ErsteigernController extends DSGenerator {
 					shopEntryObj = new ShopGanyTransportEntry(new SQLResultRow[] {shopentry});
 				}
 				
-				User ownerobj = getContext().createUserObject(orderentry.getInt("user_id"));
+				User ownerobj = (User)getDB().get(User.class, orderentry.getInt("user_id"));
 				
 				t.setVar(	"orderentry.name",		shopEntryObj.getName(),
 							"orderentry.adddata",	entryadddata,
@@ -1937,6 +1957,7 @@ public class ErsteigernController extends DSGenerator {
 	/**
 	 * Leitet zur Default-Seite einer Fraktion weiter
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		this.redirect(Faction.get(faction).getPages().getFirstPage());

@@ -27,7 +27,9 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
@@ -37,7 +39,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * @author Christopher Jung
  *
  */
-public class TechDatabaseController extends DSGenerator {
+public class TechDatabaseController extends TemplateGenerator {
 	/**
 	 * Konstruktor
 	 * @param context Der zu verwendende Kontext
@@ -82,6 +84,7 @@ public class TechDatabaseController extends DSGenerator {
 	/**
 	 * Zeigt das Frameset an
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		getTemplateEngine().setVar( "show.frame", 1 );
@@ -91,6 +94,7 @@ public class TechDatabaseController extends DSGenerator {
 	 * Zeigt eine leere Seite an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void nothingAction() {
 		getTemplateEngine().setVar( "show.none", 1 );
 	}
@@ -99,6 +103,7 @@ public class TechDatabaseController extends DSGenerator {
 	 * Zeigt das Tech-Datenbank Menue an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void menuAction() {
 		setDisableDebugOutput(true);
 		
@@ -109,6 +114,7 @@ public class TechDatabaseController extends DSGenerator {
 	 * Zeigt die Schiffsliste an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void schiffslisteAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -127,6 +133,7 @@ public class TechDatabaseController extends DSGenerator {
 	 * Zeigt das Tutorial an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void tutorialAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
@@ -156,6 +163,7 @@ public class TechDatabaseController extends DSGenerator {
 	 * @urlparam Integer article Die ID des anzuzeigenden Artikels (0 bei keinem) 
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void factsAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();

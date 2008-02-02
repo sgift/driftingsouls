@@ -19,11 +19,12 @@
 package net.driftingsouls.ds2.server.tick.regular;
 
 import java.sql.Blob;
+import java.util.Iterator;
+import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.User;
-import net.driftingsouls.ds2.server.framework.UserIterator;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
@@ -63,8 +64,10 @@ public class NPCScriptTick extends TickController {
 		
 		ScriptParser scriptparser = getContext().get(ContextCommon.class).getScriptParser(ScriptParser.NameSpace.ACTION);
 		
-		UserIterator iter = getContext().createUserIterator("SELECT * FROM users WHERE LOCATE('execnotes',flags)");
-		for( User user : iter ) {
+		List list = getContext().getDB().createQuery("from User where locate('execnotes',flags)!=0")
+			.list();
+		for( Iterator iter=list.iterator(); iter.hasNext(); ) {
+			User user = (User)iter.next();
 			if( !user.hasFlag( User.FLAG_SCRIPT_DEBUGGING ) ) {
 				scriptparser.setLogFunction(ScriptParser.LOGGER_NULL);
 			}
@@ -115,7 +118,6 @@ public class NPCScriptTick extends TickController {
 			
 			scriptExecUpdate.close();
 		}
-		iter.free();
 	}
 	
 	@Override

@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.AdminCommands;
-import net.driftingsouls.ds2.server.framework.User;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 /**

@@ -19,12 +19,14 @@
 package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.Offizier;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
@@ -34,7 +36,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * @author Christopher Jung
  *
  */
-public class ChoffController extends DSGenerator {
+public class ChoffController extends TemplateGenerator {
 	private Offizier offizier;
 	
 	/**
@@ -52,7 +54,7 @@ public class ChoffController extends DSGenerator {
 	@Override
 	protected boolean validateAndPrepare( String action ) {
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		int off = getInteger("off");
 
@@ -81,6 +83,7 @@ public class ChoffController extends DSGenerator {
 	 * @urlparam String name Der neue Name des Offiziers 
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void renameAction() {
 		TemplateEngine t = getTemplateEngine();
 
@@ -100,6 +103,7 @@ public class ChoffController extends DSGenerator {
 		redirect();	
 	}
 	
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();

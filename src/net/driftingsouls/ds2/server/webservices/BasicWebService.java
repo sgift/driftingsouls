@@ -18,9 +18,9 @@
  */
 package net.driftingsouls.ds2.server.webservices;
 
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 
 /**
@@ -61,7 +61,7 @@ public abstract class BasicWebService {
 	 * @return Der aktive Benutzer oder <code>null</code>
 	 */
 	public User getUser() {
-		return context.getActiveUser();
+		return (User)context.getActiveUser();
 	}
 	
 	/**

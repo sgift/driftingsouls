@@ -18,7 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.schiffplugins;
 
-import net.driftingsouls.ds2.server.framework.User;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -35,7 +35,7 @@ public class JumpdriveShivan implements SchiffPlugin {
 
 	public String action(Parameters caller) {
 		SchiffController controller = caller.controller;
-		User user = controller.getUser();
+		User user = (User)controller.getUser();
 		
 		String output = "";
 		

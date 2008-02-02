@@ -16,21 +16,27 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.framework.bbcode;
+package net.driftingsouls.ds2.server.bbcodes;
 
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeFunction;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
-class TagShipType implements BBCodeFunction {
+/**
+ * BBCode fuer Schiffstypen
+ * @author Christopher Jung
+ *
+ */
+public class TagShipType implements BBCodeFunction {
 
 	public String handleMatch(String content, String... values) {
 		Context context = ContextMap.getContext();
 		String url = Configuration.getSetting("URL");
 	
-		url += "php/schiffinfo.php?sess="+context.getSession()+"&ship="+content;
+		url += "ds?module=schiffinfo&sess="+context.getSession()+"&ship="+content;
 	
 		SQLResultRow shiptype = ShipTypes.getShipType(Integer.parseInt(content), false);
 

@@ -19,32 +19,35 @@
 package net.driftingsouls.ds2.server.modules;
 
 import java.io.File;
+import java.util.Iterator;
 import java.util.List;
-
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.lang.StringUtils;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.User;
-import net.driftingsouls.ds2.server.framework.UserIterator;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Aendern der Einstellungen eines Benutzers durch den Benutzer selbst
  * @author Christopher Jung
  *
  */
-public class OptionsController extends DSGenerator implements Loggable {
+public class OptionsController extends TemplateGenerator implements Loggable {
 	/**
 	 * Konstruktor
 	 * @param context Der zu verwendende Kontext
@@ -66,10 +69,11 @@ public class OptionsController extends DSGenerator implements Loggable {
 	 * @urlparam String pw Das neue Passwort
 	 * @urlparam String pw2 Die Wiederholung des neuen Passworts
 	 */
+	@Action(ActionType.DEFAULT)
 	public void changeNamePassAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		parameterString("name");
 		parameterString("pw");
@@ -136,9 +140,10 @@ public class OptionsController extends DSGenerator implements Loggable {
 	 * @urlparam Integer del Der Interaktionsschritt. Bei 0 wird das Eingabeformular angezeigt. Andernfalls wird versucht die Anfrage zu senden
 	 * @urlparam String reason Die schluessige Begruendung. Muss mindestens die Laenge 5 haben
 	 */
+	@Action(ActionType.DEFAULT)
 	public void delAccountAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		parameterNumber("del");
 		parameterString("reason");
@@ -190,8 +195,9 @@ public class OptionsController extends DSGenerator implements Loggable {
 	 * @urlparam Integer mapheight Die Hoehe der Sternenkarte
 	 * @urlparam Integer defrelation Die Default-Beziehung zu anderen Spielern (1 = feindlich, 2 = freundlich, sonst neutral)  
 	 */
+	@Action(ActionType.DEFAULT)
 	public void changeXtraAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		parameterNumber("shipgroupmulti");
@@ -265,12 +271,15 @@ public class OptionsController extends DSGenerator implements Loggable {
 
 			user.setRelation(0,rel);
 			if( user.getAlly() != 0 ) {
-				UserIterator iter = getContext().createUserIterator("SELECT * FROM users WHERE ally=",user.getAlly()," AND id!=",user.getId());
-				for( User auser : iter ) {
+				List list = getContext().getDB().createQuery("from User where ally= :ally and id!= :user")
+					.setInteger("ally", user.getAlly())
+					.setInteger("user", user.getId())
+					.list();
+				for( Iterator iter=list.iterator(); iter.hasNext(); ) {
+					User auser = (User)iter.next();
 					user.setRelation(auser.getId(), User.Relation.FRIEND);
 					auser.setRelation(user.getId(), User.Relation.FRIEND);
 				}
-				iter.free();
 			}
 		}
 		
@@ -283,8 +292,9 @@ public class OptionsController extends DSGenerator implements Loggable {
 	 * Zeigt die erweiterten Einstellungen des Spielers
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void xtraAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 
 		t.setVar(	"options.xtra",			1,
@@ -303,6 +313,7 @@ public class OptionsController extends DSGenerator implements Loggable {
 	 * Aendert das Logo des Spielers
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void logoAction() {
 		TemplateEngine t = getTemplateEngine();
 		
@@ -336,8 +347,9 @@ public class OptionsController extends DSGenerator implements Loggable {
 	 * @urlparam String gfxpak Der neue GfxPak-Pfad. Wenn dieser leer ist, wird der Default-Pfad verwendet
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void gfxPakAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		parameterString("gfxpak");
@@ -345,7 +357,7 @@ public class OptionsController extends DSGenerator implements Loggable {
 		String gfxpak = getString("gfxpak");
 
 		if( gfxpak.length() == 0 ) {
-			user.setImagePath(User.getDefaultImagePath());
+			user.setImagePath(BasicUser.getDefaultImagePath());
 			
 			t.setVar( "options.message", "Pfad zum Grafikpak zur&uuml;ckgesetzt<br />\n" );
 		} 
@@ -374,9 +386,10 @@ public class OptionsController extends DSGenerator implements Loggable {
 	 * Aktiviert den Vac-Mode fuer den Spieler
 	 * @urlparam Integer vacmode die ID des zu benutzenden Vacmodes
 	 */
+	@Action(ActionType.DEFAULT)
 	public void vacModeAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		parameterNumber("vacmode");
 		int vacmodeID = getInteger("vacmode");
@@ -407,8 +420,9 @@ public class OptionsController extends DSGenerator implements Loggable {
 	 * @urlparam Integer showtooltip Falls != 0 werden die Hilfstooltips aktiviert
 	 * @urlparam Integer wrapfactor Der neue Schiffsgruppierungsfaktor (0 = keine Gruppierung)
 	 */
+	@Action(ActionType.DEFAULT)
 	public void saveOptionsAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		parameterNumber("enableipsess");
@@ -423,14 +437,14 @@ public class OptionsController extends DSGenerator implements Loggable {
 	
 		String changemsg = "";
 
-		if( enableipsess == user.hasFlag( User.FLAG_DISABLE_IP_SESSIONS ) ) {
-			user.setFlag( User.FLAG_DISABLE_IP_SESSIONS, !enableipsess );
+		if( enableipsess == user.hasFlag( BasicUser.FLAG_DISABLE_IP_SESSIONS ) ) {
+			user.setFlag( BasicUser.FLAG_DISABLE_IP_SESSIONS, !enableipsess );
 			
 			changemsg += "Session-ID von der IP-Adresse "+(enableipsess ? "ge" : "ent" )+"koppelt<br />\n";
 		} 
 	
-		if( enableautologout == user.hasFlag( User.FLAG_DISABLE_AUTO_LOGOUT ) ) {
-			user.setFlag( User.FLAG_DISABLE_AUTO_LOGOUT, !enableautologout );
+		if( enableautologout == user.hasFlag( BasicUser.FLAG_DISABLE_AUTO_LOGOUT ) ) {
+			user.setFlag( BasicUser.FLAG_DISABLE_AUTO_LOGOUT, !enableautologout );
 		 
 			changemsg += "Das automatische Ausloggen wurde "+(enableautologout ? "" : "de" )+"aktiviert<br />\n";
 		} 
@@ -456,8 +470,9 @@ public class OptionsController extends DSGenerator implements Loggable {
 	 * Deaktiviert den Noob-Schutz des Spielers
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void dropNoobProtectionAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		if( user.isNoob() ) {
@@ -471,22 +486,23 @@ public class OptionsController extends DSGenerator implements Loggable {
 	/**
 	 * Uebersicht ueber die Einstellungen
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		String imagepath = user.getUserImagePath();
 			
-		if( imagepath.equals(User.getDefaultImagePath()) ) {
+		if( imagepath.equals(BasicUser.getDefaultImagePath()) ) {
 			imagepath = "";
 		}
 
 		t.setVar(	"options.general",	1,
 					"user.wrapfactor",	user.getUserValue("TBLORDER/schiff/wrapfactor"),
 					"user.tooltip",		user.getUserValue("TBLORDER/schiff/tooltips"),
-					"user.ipsess",		!user.hasFlag( User.FLAG_DISABLE_IP_SESSIONS ),
-					"user.autologout",	!user.hasFlag( User.FLAG_DISABLE_AUTO_LOGOUT ),
+					"user.ipsess",		!user.hasFlag( BasicUser.FLAG_DISABLE_IP_SESSIONS ),
+					"user.autologout",	!user.hasFlag( BasicUser.FLAG_DISABLE_AUTO_LOGOUT ),
 					"user.imgpath",		imagepath,
 					"user.noob",		user.isNoob() );
 

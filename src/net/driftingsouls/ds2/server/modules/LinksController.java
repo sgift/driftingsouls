@@ -18,17 +18,19 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 
 /**
  * Die Menueleiste
  * @author Christopher Jung
  *
  */
-public class LinksController extends DSGenerator {
+public class LinksController extends TemplateGenerator {
 	private static final String SCRIPT_FORUM = "http://forum.drifting-souls.net/phpbb3/";
 	/**
 	 * Konstruktor
@@ -53,8 +55,9 @@ public class LinksController extends DSGenerator {
 	 * Prueft, ob der Spieler eine neue PM hat, welche noch nicht gelesen wurde
 	 *
 	 */
+	@Action(ActionType.AJAX)
 	public void hasNewPmAjaxAct() {
-		User user = this.getUser();
+		User user = (User)this.getUser();
 		Database db = getDatabase();
 		
 		int pmcount = db.first("SELECT count(*) `count` FROM transmissionen WHERE empfaenger='",user.getId(),"' AND gelesen='0'").getInt("count");
@@ -69,9 +72,10 @@ public class LinksController extends DSGenerator {
 	/**
 	 * Zeigt die Menueleiste an
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		
 		getTemplateEngine().setVar(
 				"user.npc"		, user.hasFlag( User.FLAG_ORDER_MENU ),

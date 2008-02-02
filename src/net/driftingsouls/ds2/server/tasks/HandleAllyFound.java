@@ -20,11 +20,11 @@ package net.driftingsouls.ds2.server.tasks;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 
@@ -63,7 +63,7 @@ class HandleAllyFound implements TaskHandler {
 				for( int i=0; i < allymember.length; i++ ) {
 					PM.send( ContextMap.getContext(), 0, allymember[i], "Allianzgr&uuml;ndung", "Die Allianz "+allyname+" wurde erfolgreich gegr&uuml;ndet.\n\nHerzlichen Gl&uuml;ckwunsch!");
 
-					User auser = context.createUserObject(allymember[i]);
+					User auser = (User)context.getDB().get(User.class, allymember[i]);
 					auser.addHistory(Common.getIngameTime(ticks)+": Gr&uuml;ndung der Allianz "+allyname);	
 					
 					// Beziehungen auf "Freund" setzen
@@ -71,7 +71,7 @@ class HandleAllyFound implements TaskHandler {
 						if( allymember[j] == auser.getId() ) {
 							continue;
 						}
-						User allyuser = context.createUserObject(allymember[j]);
+						User allyuser = (User)context.getDB().get(User.class, allymember[j]);
 				
 						allyuser.setRelation(auser.getId(), User.Relation.FRIEND);
 						auser.setRelation(allyuser.getId(), User.Relation.FRIEND);

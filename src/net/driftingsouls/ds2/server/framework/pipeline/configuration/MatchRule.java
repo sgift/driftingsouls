@@ -1,6 +1,6 @@
 /*
  *	Drifting Souls 2
- *	Copyright (c) 2006 Christopher Jung
+ *	Copyright (c) 2007 Christopher Jung
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -16,24 +16,28 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.framework.pipeline.serializer;
+package net.driftingsouls.ds2.server.framework.pipeline.configuration;
+
+import java.util.regex.Pattern;
 
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
-/**
- * Wandelt die Ausgabe in gueltiges HTML um
- * @author Christopher Jung
- *
- */
-public class HtmlSerializer implements Serializer {
-	public void serialize(Context context) {
-		StringBuffer sb = context.getResponse().getContent();
-		sb.insert(0, "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"de\" lang=\"de\">\n");
-		sb.insert(0,"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n");
-		sb.append("</html>");
-		
-		context.getResponse().setContentType("text/html");
-		context.getResponse().setCharSet("UTF-8");
+import org.w3c.dom.Node;
+
+class MatchRule extends AbstractRule {		
+	private Pattern match = null;
+	
+	MatchRule( Node matchNode ) throws Exception {
+		super(matchNode);
+		match = Pattern.compile( XMLUtils.getStringByXPath(matchNode, "@pattern") );
 	}
-
+	
+	@Override
+	public boolean executeable(Context context) throws Exception {
+		if( !match.matcher(context.getRequest().getPath()).matches() ) {
+			return false;
+		}
+		return super.executeable(context);
+	}
 }

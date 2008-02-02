@@ -27,12 +27,14 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -46,7 +48,7 @@ import org.apache.commons.lang.ArrayUtils;
  * @urlparam Integer order Falls == 1 wird absteigend sortiert
  *
  */
-public class BasenController extends DSGenerator {
+public class BasenController extends TemplateGenerator {
 	@SuppressWarnings("unchecked")
 	private static final Map<String,String> ordmapper = ArrayUtils.toMap( new String[][]
 		{	{"id", "id"}, 
@@ -78,10 +80,11 @@ public class BasenController extends DSGenerator {
 	/**
 	 * Zeigt die Liste aller Basen an
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		String ord = user.getUserValue("TBLORDER/basen/order");

@@ -22,9 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-
 import net.driftingsouls.ds2.server.Forschung;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
@@ -44,23 +41,28 @@ import net.driftingsouls.ds2.server.config.ModuleSlots;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
+
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Zeigt Informationen zu Items an
  * @author Christopher Jung
  *
  */
-public class ItemInfoController extends DSGenerator {
+public class ItemInfoController extends TemplateGenerator {
 
 	/**
 	 * Konstruktor
@@ -223,9 +225,10 @@ public class ItemInfoController extends DSGenerator {
 	 * Zeigt Details zu einem Item an
 	 * @urlparam Integer itemid Die ID des anzuzeigenden Items
 	 */
+	@Action(ActionType.DEFAULT)
 	public void detailsAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 		
 		parameterNumber("item");
@@ -651,9 +654,10 @@ public class ItemInfoController extends DSGenerator {
 	 * Zeigt die Liste aller bekannten Items sowie ihren Aufenthaltsort, sofern man sie besitzt, an
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void knownAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 		
 		SQLResultRow ownCargoRow = db.first("SELECT cargo FROM stats_user_cargo WHERE user_id=",user.getId());
@@ -757,10 +761,11 @@ public class ItemInfoController extends DSGenerator {
 	 * Zeigt eine Itemliste an
 	 * @urlparam String itemlist Die Itemliste
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		TemplateEngine t = this.getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		parameterString("itemlist");	
 		Cargo itemlist = null;

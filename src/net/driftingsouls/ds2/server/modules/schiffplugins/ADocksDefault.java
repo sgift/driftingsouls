@@ -23,6 +23,7 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -44,7 +45,7 @@ public class ADocksDefault implements SchiffPlugin {
 		
 		String output = "";
 		
-		Database db = controller.getDatabase();
+		Database db = ContextMap.getContext().getDatabase();
 		
 		controller.parameterString("act");
 		String act = controller.getString("act");

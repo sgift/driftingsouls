@@ -22,11 +22,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.Offizier;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -41,7 +41,7 @@ public class StatOwnOffiziere implements Statistic, Loggable {
 
 	public void show(StatsController contr, int size) {
 		Context context = ContextMap.getContext();
-		User user = context.getActiveUser();
+		User user = (User)context.getActiveUser();
 		Database db = context.getDatabase();
 
 		StringBuffer echo = context.getResponse().getContent();

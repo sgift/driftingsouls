@@ -20,25 +20,27 @@ package net.driftingsouls.ds2.server.modules;
 
 import java.util.HashMap;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.SerializationUtils;
-import org.apache.commons.lang.StringUtils;
-
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Zeigt Umfragen an und laesst den aktiven Spieler die Umfrage ausfuellen
  * @author Christopher Jung
  *
  */
-public class SurveyController extends DSGenerator {
+public class SurveyController extends TemplateGenerator {
 	private SQLResultRow survey = null;
 	
 	private static final String ETYPE_TEXTBOX = "textbox";
@@ -59,7 +61,7 @@ public class SurveyController extends DSGenerator {
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 		
 		survey = db.first("SELECT * FROM surveys " ,
@@ -85,10 +87,11 @@ public class SurveyController extends DSGenerator {
 	 * @urlparam * surveyentry_* Parameter Abhaengig von Feldtyp
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void submitAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		HashMap<Integer,String> result = new HashMap<Integer,String>();
 		
@@ -149,6 +152,7 @@ public class SurveyController extends DSGenerator {
 	 * Zeigt die Umfrage an
 	 * 
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();

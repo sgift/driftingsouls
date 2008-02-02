@@ -18,17 +18,19 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
-import org.apache.commons.lang.StringUtils;
+import java.util.Iterator;
+import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
-import net.driftingsouls.ds2.server.framework.UserIterator;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * TASK_ALLY_NEW_MEMBER
@@ -44,7 +46,7 @@ class HandleAllyNewMember implements TaskHandler {
 
 	public void handleEvent(Task task, String event) {	
 		Context context = ContextMap.getContext();
-		User user = context.getActiveUser();
+		User user = (User)context.getActiveUser();
 		Database db = context.getDatabase();
 		
 		int playerID = Integer.parseInt(task.getData2());
@@ -52,7 +54,7 @@ class HandleAllyNewMember implements TaskHandler {
 		if( event.equals("pm_yes") ) {
 			SQLResultRow ally = db.first("SELECT id,name,allytag FROM ally WHERE id=",task.getData1());
 			
-			User player = context.createUserObject(playerID);
+			User player = (User)context.getDB().get(User.class, playerID);
 			String newname = ally.getString("allytag");
 			newname = StringUtils.replace(newname, "[name]", player.getNickname());
 			player.setAlly(ally.getInt("id"));
@@ -64,14 +66,17 @@ class HandleAllyNewMember implements TaskHandler {
 			int membercount = 1;
 			
 			// Beziehungen auf "Freund" setzen
-			UserIterator iter = context.createUserIterator("SELECT * FROM users WHERE ally=",ally.getInt("id")," AND id!=",player.getId());
-			for( User allymember : iter ) {
+			List list = context.getDB().createQuery("from User where ally= :ally and id!= :user")
+				.setInteger("ally", ally.getInt("id"))
+				.setInteger("user", player.getId())
+				.list();
+			for( Iterator iter=list.iterator(); iter.hasNext(); ) {
+				User allymember = (User)iter.next();
 				allymember.setRelation(player.getId(), User.Relation.FRIEND);
 				player.setRelation(allymember.getId(), User.Relation.FRIEND);
 				
 				membercount++;
 			}
-			iter.free();
 			
 			PM.send( context, user.getId(), player.getId(), "Aufnahmeantrag", "[Automatische Nachricht]\nDu wurdest in die Allianz >"+ally.getString("name")+"< aufgenommen\n\nHerzlichen Gr&uuml;ckwunsch!");
 			

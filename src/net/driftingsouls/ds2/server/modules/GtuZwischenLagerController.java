@@ -26,13 +26,15 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.Item;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
@@ -55,7 +57,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
  * 
  */
 // TODO: Die ID des Handelspostens sollte per URL spezifiziert werden
-public class GtuZwischenLagerController extends DSGenerator {
+public class GtuZwischenLagerController extends TemplateGenerator {
 	private SQLResultRow ship;
 	private int handel;
 	private int retryCount;
@@ -80,7 +82,7 @@ public class GtuZwischenLagerController extends DSGenerator {
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		Database db = getDatabase();
-		User user = this.getUser();
+		User user = (User)this.getUser();
 		TemplateEngine t = this.getTemplateEngine();
 		
 		int shipId = getInteger("ship");
@@ -112,9 +114,10 @@ public class GtuZwischenLagerController extends DSGenerator {
 	 * @urlparam Integer entry Die ID des Zwischenlager-Eintrags
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void transportOwnAction() {
 		Database db = getDatabase();
-		User user = this.getUser();
+		User user = (User)this.getUser();
 		TemplateEngine t = this.getTemplateEngine();
 		
 		parameterNumber("entry");
@@ -130,7 +133,7 @@ public class GtuZwischenLagerController extends DSGenerator {
 		}
 		
 		// Der Handelspartner
-		User tradepartner = getContext().createUserObject(tradeentry.getInt("user2"));
+		User tradepartner = (User)getDB().get(User.class, tradeentry.getInt("user2"));
 		// Die (zukuenftig) eigenen Waren
 		Cargo tradecargo = new Cargo(Cargo.Type.STRING,tradeentry.getString("cargo1"));
 		Cargo tradecargoneed = new Cargo(Cargo.Type.STRING,tradeentry.getString("cargo1need"));
@@ -139,7 +142,7 @@ public class GtuZwischenLagerController extends DSGenerator {
 		Cargo owncargoneed = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo2need"));
 	
 		if( tradepartner.getId() == user.getId() ) {
-			tradepartner = getContext().createUserObject(tradeentry.getInt("user1"));
+			tradepartner = (User)getDB().get(User.class, tradeentry.getInt("user1"));
 			tradecargo = new Cargo(Cargo.Type.STRING,tradeentry.getString("cargo2"));
 			tradecargoneed = new Cargo(Cargo.Type.STRING,tradeentry.getString("cargo2need"));
 			owncargo = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo1"));
@@ -231,6 +234,7 @@ public class GtuZwischenLagerController extends DSGenerator {
 	 * Transferiert fuer einen Eintrag noch fehlende Resourcen 
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void transportMissingAction() {
 		// TODO
 	}
@@ -240,9 +244,10 @@ public class GtuZwischenLagerController extends DSGenerator {
 	 * @urlparam Integer entry Die ID des Zwischenlager-Eintrags
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void viewEntryAction() {
 		Database db = getDatabase();
-		User user = this.getUser();
+		User user = (User)this.getUser();
 		TemplateEngine t = this.getTemplateEngine();
 		
 		parameterNumber("entry");
@@ -262,7 +267,7 @@ public class GtuZwischenLagerController extends DSGenerator {
 		t.setBlock("_GTUZWISCHENLAGER","res.listitem","res.list");
 	
 		// Der Handelspartner
-		User tradepartner = getContext().createUserObject(tradeentry.getInt("user2"));
+		User tradepartner = (User)getDB().get(User.class, tradeentry.getInt("user2"));
 		// Die (zukuenftig) eigenen Waren
 		Cargo tradecargo = new Cargo(Cargo.Type.STRING,tradeentry.getString("cargo1"));
 		// Die Bezahlung
@@ -270,7 +275,7 @@ public class GtuZwischenLagerController extends DSGenerator {
 		Cargo owncargoneed = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo2need"));
 	
 		if( tradepartner.getId() == user.getId() ) {
-			tradepartner = getContext().createUserObject(tradeentry.getInt("user1"));
+			tradepartner = (User)getDB().get(User.class, tradeentry.getInt("user1"));
 			tradecargo = new Cargo(Cargo.Type.STRING,tradeentry.getString("cargo2"));
 			owncargo = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo1"));
 			owncargoneed = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo1need"));
@@ -297,10 +302,11 @@ public class GtuZwischenLagerController extends DSGenerator {
 	/**
 	 * Zeigt die Liste aller Handelsvereinbarungen auf diesem Handelsposten an, an denen der aktuelle Spieler beteiligt ist
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		Database db = getDatabase();
-		User user = this.getUser();
+		User user = (User)this.getUser();
 		TemplateEngine t = this.getTemplateEngine();
 		
 		t.setVar("global.tradelist",1);
@@ -309,13 +315,13 @@ public class GtuZwischenLagerController extends DSGenerator {
 	
 		SQLQuery tradeentry = db.query("SELECT * FROM gtu_zwischenlager WHERE posten=",this.handel," AND (user1=",user.getId()," OR user2=",user.getId(),")");
 		while( tradeentry.next() ) {
-			User tradepartner = getContext().createUserObject(tradeentry.getInt("user2"));
+			User tradepartner = (User)getDB().get(User.class, tradeentry.getInt("user2"));
 			Cargo tradecargo = new Cargo(Cargo.Type.STRING,tradeentry.getString("cargo1"));
 			Cargo owncargo = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo2"));
 			Cargo owncargoneed = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo2need"));
 		
 			if( tradepartner.getId() == user.getId() ) {
-				tradepartner = getContext().createUserObject(tradeentry.getInt("user1"));
+				tradepartner = (User)getDB().get(User.class, tradeentry.getInt("user1"));
 				tradecargo = new Cargo(Cargo.Type.STRING,tradeentry.getString("cargo2"));
 				owncargo = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo1"));
 				owncargoneed = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo1need"));

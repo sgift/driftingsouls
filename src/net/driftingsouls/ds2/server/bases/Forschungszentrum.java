@@ -27,11 +27,11 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -128,7 +128,7 @@ class Forschungszentrum extends DefaultBuilding {
 		Database db = context.getDatabase();
 		String sess = context.getSession();
 		
-		User user = context.getActiveUser();
+		User user = (User)context.getActiveUser();
 	
 		echo.append("M&ouml;gliche Forschungen: <br />\n");
 		echo.append("<table class=\"noBorderX\" width=\"100%\">\n");
@@ -221,7 +221,7 @@ class Forschungszentrum extends DefaultBuilding {
 		Database db = context.getDatabase();
 		String sess = context.getSession();
 		
-		User user = context.getActiveUser();
+		User user = (User)context.getActiveUser();
 		
 		echo.append("<table class=\"noBorderX\">");
 		echo.append("<tr><td class=\"noBorderX\" align=\"left\">Bereits erforscht:</td></tr>\n");
@@ -280,7 +280,7 @@ class Forschungszentrum extends DefaultBuilding {
 	private void doResearch(Context context, StringBuilder echo, int researchid, Base base, int field, String conf) {
 		Database db = context.getDatabase();
 		String sess = context.getSession();
-		User user = context.getActiveUser();
+		User user = (User)context.getActiveUser();
 	
 		SQLResultRow fz = db.first("SELECT forschung,dauer FROM fz WHERE col="+base.getId());
 	

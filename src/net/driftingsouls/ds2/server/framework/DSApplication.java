@@ -90,6 +90,14 @@ public abstract class DSApplication {
 	}
 	
 	/**
+	 * Gibt die Hibernate-Session des Kontexts zurueck
+	 * @return die Hibernate-Session
+	 */
+	public org.hibernate.Session getDB() {
+		return this.context.getDB();
+	}
+	
+	/**
 	 * Fuegt ein neues Ziel fuer geloggte Daten hinzu
 	 * @param file Das Ziel, zu dem geloggt werden soll. Das Ziel muss schreibbar sein
 	 * @param append Sollen die Daten angehangen werden?

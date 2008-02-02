@@ -25,24 +25,27 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
-
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.bbcodes.TagIntrnlConfTask;
 import net.driftingsouls.ds2.server.comm.Ordner;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
-import net.driftingsouls.ds2.server.framework.bbcode.TagIntrnlConfTask;
+import net.driftingsouls.ds2.server.framework.bbcode.Smilie;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Die PM-Verwaltung
@@ -50,7 +53,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * @author Christian Peltz
  *
  */
-public class CommController extends DSGenerator implements Loggable {
+public class CommController extends TemplateGenerator implements Loggable {
 
 	/**
 	 * Konstruktor
@@ -79,8 +82,9 @@ public class CommController extends DSGenerator implements Loggable {
 	 * @urlparam Integer ordner Die ID des Ordners
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void readAllAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
@@ -98,8 +102,9 @@ public class CommController extends DSGenerator implements Loggable {
 	 * @urlparam Integer ordner Der Ordner, dessen PMs geloescht werden sollen
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void deleteAllAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
@@ -120,8 +125,9 @@ public class CommController extends DSGenerator implements Loggable {
 	 * @urlparam Integer delord Die ID des zu loeschenden Ordners, andernfalls 0.
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void deleteAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		parameterNumber("delete");
@@ -157,6 +163,7 @@ public class CommController extends DSGenerator implements Loggable {
 	 * @urlparam String ordnername Der Name des neuen Ordners
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void newOrdnerAction() {
 		parameterString("ordnername");
 		parameterNumber("ordner");
@@ -174,8 +181,9 @@ public class CommController extends DSGenerator implements Loggable {
 	 * @urlparam Integer moveto Der Zielordner
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void moveAllAction() {
-		User user = getUser();
+		User user = (User)getUser();
 
 		parameterNumber("moveto");
 		parameterNumber("ordner");
@@ -196,8 +204,9 @@ public class CommController extends DSGenerator implements Loggable {
 	 * @urlparam Integer subject Die ID des Ordners
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void renameAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 		
 		parameterString("ordnername");
@@ -220,8 +229,9 @@ public class CommController extends DSGenerator implements Loggable {
 	 * @urlparam Integer ordner Die ID des Ordners
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void deletePlayerAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
@@ -230,7 +240,7 @@ public class CommController extends DSGenerator implements Loggable {
 		int playerid = getInteger("playerid");
 		int ordner = getInteger("ordner");
 		
-		User auser = getContext().createUserObject(playerid);
+		User auser = (User)getDB().get(User.class, playerid);
 		
 		if( auser.getId() != 0 ) {
 			db.update("UPDATE transmissionen SET gelesen=2 WHERE empfaenger=",user.getId()," AND sender=",auser.getId()," AND ordner=",ordner," AND (gelesen=1 OR !(flags & ",PM.FLAGS_IMPORTANT,"))");
@@ -248,8 +258,9 @@ public class CommController extends DSGenerator implements Loggable {
 	 * @urlparam Integer pm_$pmid Die ID einer als gelesen zu markierenden PM ($pmid gibt diese ebenfalls an)
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void readSelectedAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
@@ -284,8 +295,9 @@ public class CommController extends DSGenerator implements Loggable {
 	 * @urlparam Integer pm_$pmid Die ID einer zu verschiebenden PM ($pmid gibt diese ebenfalls an)
 	 *
 	 */
+	@Action(ActionType.AJAX)
 	public void moveAjaxAct() {
-		User user = getUser();
+		User user = (User)getUser();
 		Database db = getDatabase();
 
 		parameterNumber("moveto");
@@ -361,8 +373,9 @@ public class CommController extends DSGenerator implements Loggable {
 	 * @urlparam Integer pm_$pmid Die ID einer zu verschiebenden PM ($pmid gibt diese ebenfalls an)
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void moveSelectedAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 
@@ -437,8 +450,9 @@ public class CommController extends DSGenerator implements Loggable {
 	 * @urlparam Integer pm_$pmid Die ID einer zu loeschenden PM ($pmid gibt diese ebenfalls an)
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void deleteSelectedAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 
@@ -493,8 +507,9 @@ public class CommController extends DSGenerator implements Loggable {
 	 * @urlparam String special Falls es sich nicht um eine Antwort handelt, dann das Spezialflag der Nachricht 
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void sendAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
 		
@@ -576,7 +591,7 @@ public class CommController extends DSGenerator implements Loggable {
 			
 			int iTo = Integer.parseInt(to);
 		
-			User auser = getContext().createUserObject(iTo);
+			User auser = (User)getDB().get(User.class, iTo);
 			t.setVar("show.message", "<span style=\"color:#00ff55\">Nachricht versendet an</span> "+Common._title(auser.getName()));
 
 			PM.send(getContext(), user.getId(), iTo, title, msg, false, flags );
@@ -589,9 +604,10 @@ public class CommController extends DSGenerator implements Loggable {
 	 * @urlparam Integer ordner Die ID des Ordners, in dem sich die Nachricht befindet
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void showPmAction() {
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		BBCodeParser bbcodeparser = BBCodeParser.getNewInstance();
 		
@@ -626,7 +642,7 @@ public class CommController extends DSGenerator implements Loggable {
 				db.update("UPDATE transmissionen SET gelesen=1 WHERE id='",pmid,"'");	
 			}
 	
-			User empfaenger = createUserObject(pm.getInt("empfaenger"));
+			User empfaenger = (User)getDB().get(User.class, pm.getInt("empfaenger"));
 			sender = user;
 			
 			t.setVar(	"pm.empfaenger",		empfaenger.getId(),
@@ -648,7 +664,7 @@ public class CommController extends DSGenerator implements Loggable {
 				db.update("UPDATE transmissionen SET gelesen=1 WHERE id='",pmid,"'");	
 			}
 			
-			sender = createUserObject(pm.getInt("sender"));
+			sender = (User)getDB().get(User.class, pm.getInt("sender"));
 			
 			t.setVar(	"pm.sender",		sender.getId(),
 						"pm.sender.name", 	(sender.getId() != 0? Common._title(sender.getName()) : "Unbekannt"),
@@ -675,8 +691,8 @@ public class CommController extends DSGenerator implements Loggable {
 					"pm.flags.admin", 	(pm.getInt("flags") & PM.FLAGS_ADMIN),
 					"pm.bgimage", 		bgimg,
 					"pm.time", 			Common.date("j.n.Y G:i",pm.getInt("time")),
-					"pm.text", 			Common.smiliesParse(text),
-					"pm.kommentar", 	Common.smiliesParse(Common._text(pm.getString("kommentar"))));
+					"pm.text", 			Smilie.parseSmilies(text),
+					"pm.kommentar", 	Smilie.parseSmilies(Common._text(pm.getString("kommentar"))));
 	}
 	
 	/**
@@ -684,8 +700,9 @@ public class CommController extends DSGenerator implements Loggable {
 	 * @urlparam Integer recover Die wiederherzustellende Nachricht
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void recoverAction() {
-		User user = getUser();
+		User user = (User)getUser();
 
 		parameterNumber("recover");
 		int recover = getInteger("recover");
@@ -699,8 +716,9 @@ public class CommController extends DSGenerator implements Loggable {
 	 * Stellt alle geloeschten Nachrichten aus dem Papierkorb wieder her
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void recoverAllAction() {
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 	
 		PM.recoverAll( user.getId() );
@@ -715,10 +733,11 @@ public class CommController extends DSGenerator implements Loggable {
 	 * @urlparam Integer Der anzuzeigende Ordner (0 ist die oberste Ebene)
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void showInboxAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		parameterNumber("ordner");
 		int current_ordner = getInteger("ordner");
@@ -808,10 +827,11 @@ public class CommController extends DSGenerator implements Loggable {
 	 * Zeigt die Liste aller versendeten und noch nicht geloeschten PMs
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void showOutboxAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		t.setVar("show.outbox", 1);
 		t.setBlock("_COMM", "pms.out.listitem", "pms.out.list");
@@ -842,9 +862,10 @@ public class CommController extends DSGenerator implements Loggable {
 	 * @urlparam String special Spezialflag der Nachricht
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void previewAction() {
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 	
 		parameterString("msg");
 		parameterString("to");
@@ -891,7 +912,7 @@ public class CommController extends DSGenerator implements Loggable {
 			bgimg = "pm_"+Rassen.get().rasse(user.getRace()).getName()+"bg.png";	
 		}
 			
-		t.setVar(	"pm.text",			Common.smiliesParse(Common._text(msg)),
+		t.setVar(	"pm.text",			Smilie.parseSmilies(Common._text(msg)),
 					"pm.title",			title,
 					"pm.sender",		user.getId(),
 					"pm.sender.name",	(user.getId() != 0 ? Common._title(user.getName()) : "Unbekannt"),
@@ -910,10 +931,11 @@ public class CommController extends DSGenerator implements Loggable {
 	 * @urlparam Integer ordner Der Ordner, in dem sich die Nachricht befindet
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void editCommentAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
-		User user = getUser();
+		User user = (User)getUser();
 	
 		parameterNumber("pm");
 		parameterNumber("ordner");
@@ -930,7 +952,7 @@ public class CommController extends DSGenerator implements Loggable {
 		t.setVar("pm.title", pm.getString("title"));
 		t.setVar("pm.empfaenger.name", Common._title(db.first("SELECT name FROM users WHERE id='",pm.getInt("empfaenger"),"'").getString("name")));
 		t.setVar("pm.sender.name", Common._title(db.first("SELECT name FROM users WHERE id='",pm.getInt("sender"),"'").getString("name")));
-		t.setVar("pm.text", Common.smiliesParse(Common._text(pm.getString("inhalt"))));
+		t.setVar("pm.text", Smilie.parseSmilies(Common._text(pm.getString("inhalt"))));
 		t.setVar("system.time", Common.getIngameTime(getContext().get(ContextCommon.class).getTick()));
 		t.setVar("user.signature", user.getUserValue("PMS/signatur") );
 	}
@@ -940,9 +962,10 @@ public class CommController extends DSGenerator implements Loggable {
 	 * @urlparam Integer pmid Die ID der Nachricht
 	 * @urlparam String msg Der Kommentar
 	 */
+	@Action(ActionType.DEFAULT)
 	public void sendCommentAction() {
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 	
 		parameterNumber("pmid");
 		parameterString("msg");
@@ -955,11 +978,12 @@ public class CommController extends DSGenerator implements Loggable {
 		redirect("showInbox");
 	}
 
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		parameterString("to");
 		parameterNumber("reply");

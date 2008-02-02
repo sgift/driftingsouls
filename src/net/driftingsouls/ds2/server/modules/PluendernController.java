@@ -24,12 +24,14 @@ import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Items;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
@@ -42,7 +44,7 @@ import net.driftingsouls.ds2.server.ships.Ships;
  * @urlparam Integer from Die ID des Schiffes, mit dem ein anderes Schiff gepluendert werden soll
  * @urlparam Integer to Die ID des zu pluendernden Schiffes
  */
-public class PluendernController extends DSGenerator {
+public class PluendernController extends TemplateGenerator {
 	private SQLResultRow shipFrom;
 	private SQLResultRow shipTo;
 	private int retryCount;
@@ -63,7 +65,7 @@ public class PluendernController extends DSGenerator {
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		Database db = getDatabase();
-		User user = this.getUser();
+		User user = (User)this.getUser();
 		
 		int from = getInteger("from");
 		int to = getInteger("to");
@@ -97,7 +99,7 @@ public class PluendernController extends DSGenerator {
 			return false;
 		}
 		
-		User taruser = getContext().createUserObject( shipTo.getInt("owner"));
+		User taruser = (User)getDB().get(User.class,  shipTo.getInt("owner"));
 		
 		if( taruser.isNoob() ) {
 			addError("Dieser Kolonist steht unter GCP-Schutz", errorurl);
@@ -208,10 +210,11 @@ public class PluendernController extends DSGenerator {
 	 * @urlparam Integer $resID+"from" Die Menge der Ware $resID, welche vom Zielschiff herunter transferiert werden soll
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void transferAction() {
 		Database db = getDatabase();
 		TemplateEngine t = this.getTemplateEngine();
-		User user = this.getUser();
+		User user = (User)this.getUser();
 		
 		Cargo cargofrom = new Cargo( Cargo.Type.STRING, this.shipFrom.getString("cargo") );
 		Cargo cargoto = new Cargo( Cargo.Type.STRING, this.shipTo.getString("cargo") );
@@ -266,7 +269,7 @@ public class PluendernController extends DSGenerator {
 				if( (transt > 0) && res.getId().isItem() ) {
 					int itemid = res.getId().getItemID();
 					if( Items.get().item(itemid).isUnknownItem() ) {
-						User targetUser = getContext().createUserObject(this.shipTo.getInt("owner"));
+						User targetUser = (User)getDB().get(User.class, this.shipTo.getInt("owner"));
 						targetUser.addKnownItem(itemid);
 					}
 				}
@@ -395,6 +398,7 @@ public class PluendernController extends DSGenerator {
 	/**
 	 * Zeigt die GUI fuer den Warentransfer an
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		TemplateEngine t = this.getTemplateEngine();

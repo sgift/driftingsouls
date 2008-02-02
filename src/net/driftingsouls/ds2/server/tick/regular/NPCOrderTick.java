@@ -34,8 +34,8 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -112,7 +112,7 @@ public class NPCOrderTick extends TickController {
 		while( data.next() ) {
 			try {
 				int owner = data.getInt("user");
-				User user = getContext().createUserObject(owner);
+				User user = (User)getContext().getDB().get(User.class, owner);
 					
 				if( (owner != this.lastowner) && this.pmcache.length() > 0 ) {
 					PM.send(getContext(), -1, this.lastowner, "NPC-Lieferservice", this.pmcache.toString());
@@ -150,7 +150,7 @@ public class NPCOrderTick extends TickController {
 					cargo.addResource( Resources.URAN, shipd.getInt("ru")*10 );
 					cargo.addResource( Resources.ANTIMATERIE, shipd.getInt("ra")*10 );
 				
-					User auser = getContext().createUserObject(owner);	
+					User auser = (User)getContext().getDB().get(User.class, owner);	
 					String history = "Indienststellung am "+this.currentTime+" durch "+auser.getName()+" ("+auser.getId()+") [hide]NPC-Order[/hide]\n";
 								
 					db.prepare("INSERT INTO ships " ,

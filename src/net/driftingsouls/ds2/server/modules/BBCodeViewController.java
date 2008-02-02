@@ -23,7 +23,9 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
@@ -32,7 +34,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * @author Christian Peltz
  *
  */
-public class BBCodeViewController extends DSGenerator {
+public class BBCodeViewController extends TemplateGenerator {
 	private static List<String> codes = new ArrayList<String>();
 	static {
 		codes.add("[url]http://www.dieGew&uuml;nschteSeite.de[/url]<br />");
@@ -75,6 +77,7 @@ public class BBCodeViewController extends DSGenerator {
 	/**
 	 * Anzeigen der BBCode-Liste
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction(){
 		TemplateEngine t = getTemplateEngine();

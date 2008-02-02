@@ -32,9 +32,9 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.Items;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -84,7 +84,7 @@ class Kommandozentrale extends DefaultBuilding {
 	@Override
 	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
 		Database db = context.getDatabase();
-		User user = context.getActiveUser();
+		User user = (User)context.getActiveUser();
 		
 		String show = context.getRequest().getParameter("show");
 		if( show == null ) {
@@ -409,7 +409,7 @@ class Kommandozentrale extends DefaultBuilding {
 								"ship.y",		ship.getInt("y") );
 					
 					if( ship.getInt("owner") != user.getId() ) {
-						User owner = context.createUserObject(ship.getInt("owner"));
+						User owner = (User)context.getDB().get(User.class, ship.getInt("owner"));
 						t.setVar("ship.owner.name", owner.getPlainname());
 					}
 					else {

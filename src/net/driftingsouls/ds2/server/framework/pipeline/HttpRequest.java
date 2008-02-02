@@ -32,11 +32,9 @@ import net.driftingsouls.ds2.server.framework.Loggable;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.fileupload.servlet.ServletRequestContext;
 
 /**
  * Implementiert das Request-Interface fuer HTTP-Requests
@@ -47,7 +45,6 @@ public class HttpRequest implements Request,Loggable {
 	private HttpServletRequest request = null;
 	private Map<String,String> parameters = new HashMap<String,String>();
 	private boolean isMultipart = false;
-	private ServletRequestContext context = null;
 	private List uploadedFiles = null;
 	
 	/**
@@ -63,19 +60,17 @@ public class HttpRequest implements Request,Loggable {
 				request.setCharacterEncoding("UTF-8");
 			}
 			catch( UnsupportedEncodingException e1 ) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}
 		
-		context = new ServletRequestContext(request);
-		isMultipart = FileUploadBase.isMultipartContent(context);
+		isMultipart = ServletFileUpload.isMultipartContent(request);
 		if( isMultipart ) {
 			FileItemFactory factory = new DiskFileItemFactory();
 			ServletFileUpload upload = new ServletFileUpload(factory);
 
 			try {
-				uploadedFiles = upload.parseRequest(context);
+				uploadedFiles = upload.parseRequest(request);
 				for( int i=0; i < uploadedFiles.size(); i++ ) {
 					FileItem item = (FileItem)uploadedFiles.get(i);
 					if( !item.isFormField() ) {
@@ -110,6 +105,9 @@ public class HttpRequest implements Request,Loggable {
 	}
 
 	public String getPath() {
+		if( request.getPathInfo() != null ) {
+			return request.getServletPath()+request.getPathInfo();
+		}
 		return request.getServletPath();
 	}
 

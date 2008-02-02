@@ -28,15 +28,17 @@ import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Items;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
@@ -57,7 +59,7 @@ import org.apache.commons.lang.StringUtils;
  * @urlparam Integer kampf_only Falls != 0 werden nur Kriegsschiffe der Schiffsklasse mit der angegebenen ID angezeigt
  * 
  */
-public class SchiffeController extends DSGenerator implements Loggable {
+public class SchiffeController extends TemplateGenerator implements Loggable {
 	/**
 	 * Konstruktor
 	 * @param context Der zu verwendende Kontext
@@ -84,6 +86,7 @@ public class SchiffeController extends DSGenerator implements Loggable {
 	 * @urlparam String mode Der Anzeigemodus fuer den Cargo (<code>carg</code> oder <code>norm</code>)
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void changeModeAction() {
 		parameterString("mode");
 		
@@ -100,6 +103,7 @@ public class SchiffeController extends DSGenerator implements Loggable {
 	 * @urlparam String order Das neue Sortierkriterium
 	 *
 	 */
+	@Action(ActionType.DEFAULT)
 	public void changeOrderAction() {
 		parameterString("order");
 		
@@ -115,6 +119,7 @@ public class SchiffeController extends DSGenerator implements Loggable {
 	 * Aendert den Anzeigemodus fuer gelandete Jaeger
 	 * @urlparam Integer showLJaegder Falls != 0 werden gelandete Jaeger angezeigt
 	 */
+	@Action(ActionType.DEFAULT)
 	public void changeJDockedAction() {	
 		parameterNumber("showLJaeger");
 		
@@ -123,11 +128,12 @@ public class SchiffeController extends DSGenerator implements Loggable {
 		this.redirect();
 	}
 	
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {		
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		String only = getString("only");
 		int low = getInteger("low");

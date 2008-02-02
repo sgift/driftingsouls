@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
 <!--
 	Drifting Souls 2
  	Copyright (c) 2006 Christopher Jung
@@ -18,7 +17,10 @@
  	License along with this library; if not, write to the Free Software
  	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 -->
-<web-app>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+         version="2.4">
 	<!-- General description of your web application -->
 	
 	<display-name>Drifing Souls</display-name>
@@ -38,18 +40,17 @@
 		<param-value>org.apache.commons.logging.impl.SimpleLog</param-value>
 	</context-param>
 
-	<servlet>
-		<servlet-name>ds</servlet-name>
-		<servlet-class>net.driftingsouls.ds2.server.framework.DriftingSoulsServlet</servlet-class>
-		<description>
-			Main DS Servlet
-		</description>
-		<!-- Load this servlet at server startup time -->
-		<load-on-startup>1</load-on-startup>
-	</servlet>
+	<filter>
+		<filter-name>DSRequestFilter</filter-name>
+		<filter-class>net.driftingsouls.ds2.server.framework.pipeline.DefaultServletRequestFilter</filter-class>
+	</filter>
 	
-	<servlet-mapping>
-		<servlet-name>ds</servlet-name>
-		<url-pattern>/</url-pattern>
-	</servlet-mapping>
+	<filter-mapping>
+		<filter-name>DSRequestFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>  
+	
+	<listener>
+		<listener-class>net.driftingsouls.ds2.server.framework.DefaultServletContextListener</listener-class>
+	</listener>
 </web-app> 

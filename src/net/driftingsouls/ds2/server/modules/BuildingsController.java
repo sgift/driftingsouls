@@ -22,14 +22,16 @@ import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.bases.Core;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
@@ -40,7 +42,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * @urlparam Integer field Die ID des Feldes, dessen Gebaeude der zurueck-Link ansteuern soll
  *
  */
-public class BuildingsController extends DSGenerator {
+public class BuildingsController extends TemplateGenerator {
 	/**
 	 * Konstruktor
 	 * @param context Der zu verwendende Kontext
@@ -57,7 +59,7 @@ public class BuildingsController extends DSGenerator {
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		
 		int col = getInteger("col");
 		
@@ -77,10 +79,11 @@ public class BuildingsController extends DSGenerator {
 	/**
 	 * Zeigt die Liste aller baubaren Gebaeude und Cores an
 	 */
+	@Action(ActionType.DEFAULT)
 	@Override
 	public void defaultAction() {
 		Database db = getDatabase();
-		User user = getUser();
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		t.setBlock("_BUILDINGS", "buildings.listitem", "buildings.list");

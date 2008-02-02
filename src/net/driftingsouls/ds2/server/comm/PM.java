@@ -18,11 +18,11 @@
  */
 package net.driftingsouls.ds2.server.comm;
 
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -108,13 +108,13 @@ public class PM {
 				String msg = db.prepareString(txt);
 				title = db.prepareString(title);
 			
-				User user = context.createUserObject(to);
+				User user = (User)context.getDB().get(User.class, to);
 				if( user.getId() != 0 ) {
 					db.update("INSERT INTO transmissionen (sender,empfaenger,inhalt,time,title,flags) VALUES ('",from,"','",to,"','",msg,"','",Common.time(),"','",title,"','",flags,"')");
 						
 					String forward = user.getUserValue("TBLORDER/pms/forward");
 					if( !"".equals(forward) && (Integer.parseInt(forward) != 0) ) {
-						User sender = context.createUserObject(from);
+						User sender = (User)context.getDB().get(User.class, from);
 						send(context, to, Integer.parseInt(forward), "Fwd: "+title, "[align=center][color=green]- Folgende Nachricht ist soeben eingegangen -[/color][/align]\n[b]Absender:[/b] [userprofile="+sender.getId()+"]"+sender.getName()+"[/userprofile] ("+sender.getId()+")\n\n"+txt, false, flags);
 					}
 				} 
