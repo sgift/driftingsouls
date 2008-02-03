@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.tick.regular;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +28,7 @@ import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.db.Database;
@@ -301,7 +303,8 @@ public class SchiffsTick extends TickController {
 	
 	@Override
 	protected void tick() {
-		Database db = getDatabase();
+		Database database = getDatabase();
+		org.hibernate.Session db = getDB();
 
 		String userlist = "";
 		String battle = "";
@@ -313,7 +316,7 @@ public class SchiffsTick extends TickController {
 			battle = "s.battle="+battleid;
 			
 			List<Integer> userIdList = new ArrayList<Integer>();
-			SQLQuery oid = db.query("SELECT owner FROM ships WHERE battle='",battleid,"' GROUP BY owner");
+			SQLQuery oid = database.query("SELECT owner FROM ships WHERE battle='",battleid,"' GROUP BY owner");
 			while( oid.next() ) {
 				userIdList.add(oid.getInt("owner"));
 			}
@@ -335,114 +338,47 @@ public class SchiffsTick extends TickController {
 		
 		// Ueberhitzung
 		if( !this.calledByBattle ) {
-			db.update("UPDATE ships s JOIN users u ON s.owner=u.id " +
+			database.update("UPDATE ships s JOIN users u ON s.owner=u.id " +
 					"SET s.s=IF(s.s>70,s.s-70,0) " +
 					"WHERE s.s>0 AND (u.vaccount=0 OR u.wait4vac>0) AND s.id>0 AND s.system!=0 AND s.battle=0");
 		}
 		
-		SQLQuery auser = db.query("SELECT id,cargo,nstat " +
-				"FROM users " +
-				"WHERE id!=0 AND (vaccount=0 OR wait4vac) ",userlist," ORDER BY id ASC");
-		while( auser.next() ) {
-			nonvacUserlist.add(auser.getInt("id"));
-					
-			this.usercargo = new Cargo( Cargo.Type.STRING, auser.getString("cargo") );
-			usernstat = Long.parseLong(auser.getString("nstat"));
-					
-			this.block(auser.getInt("id"));
+		Iterator useriter = db.createQuery("select id from User " +
+				"where id!=0 and (vaccount=0 or wait4vac>0) "+userlist+" order by id asc")
+				.list().iterator();
+		for(; useriter.hasNext(); ) {
+			int auserId = (Integer)useriter.next();
+			nonvacUserlist.add(auserId);
 			
-			List<Integer> idlist = new ArrayList<Integer>();
+			User auser = (User)db.get(User.class, auserId);
 			
-			long prevnahrung = this.usercargo.getResourceCount(Resources.NAHRUNG);
-			
-			// Schiffe berechnen
-			SQLQuery shipd = db.query(
-					"SELECT s.id,s.name,s.crew,s.e,s.s,s.type,s.cargo,s.docked,s.engine,s.weapons,s.sensors,s.comm,s.battle,s.autodeut,s.x,s.y,s.system,s.owner,s.status,s.alarm,s.hull,s.heat ",
-					"FROM ships s JOIN ship_types st ON s.type=st.id ",
-					"WHERE s.id>0 AND s.owner='",auser.getInt("id"),"' AND " +
-						"((s.crew > 0) OR (st.crew = 0)) " +
-						"AND system!=0 AND " +
-						"((s.alarm=1) OR (s.engine+s.weapons+s.sensors+s.comm<400) OR (s.e < st.eps) " +
-							"OR LOCATE('tblmodules',s.status) OR (st.hydro>0) OR (st.deutfactor>0)) " +
-						"AND ",battle," ",
-					"ORDER BY s.owner,s.docked,s.type ASC");
-			
-			this.log(auser.getInt("id")+": Es sind "+shipd.numRows()+" Schiffe zu berechnen ("+battle+")");
-			
-			while( shipd.next() ) {
-				idlist.add(shipd.getInt("id"));
+			try {
+				this.tickUser(database, battle, auser);
 				
-				// Anzahl der Wiederholungen, falls ein Commit fehlschlaegt
-				this.retries = 5;
-				try {
-					this.tickShip( db, shipd.getRow() );
-				}
-				catch( Exception e ) {
-					this.log("ship "+shipd.getInt("id")+" failed: "+e);
-					e.printStackTrace();
-					Common.mailThrowable(e, "SchiffsTick Exception", "ship: "+shipd.getInt("id"));
+				if( !calledByBattle ) {
+					getContext().commit();
 				}
 			}
-			shipd.free();
-			
-			// Aufraeumen
-			Ships.clearShipCache();
-			
-			// Nahrung verarbeiten
-			if( Configuration.getIntSetting("DISABLE_FOOD_CONSUMPTION") == 0 ) {
-				int crewcount = 0;
-				String idListStr = "";
-				if( idlist.size() > 0 ) {
-					idListStr = " AND id NOT IN ("+Common.implode(",",idlist)+") ";	
+			catch( RuntimeException e ) {
+				if( calledByBattle ) {
+					throw e;
 				}
-				crewcount = db.first("SELECT sum(s.crew) count " +
-						"FROM ships s " +
-						"WHERE s.id>0 AND s.system!=0 AND s.owner=",auser.getInt("id")," " +
-								"AND ",battle,idListStr).getInt("count");
 				
-				this.log("# base+: "+(prevnahrung-usernstat));
-				this.log("# Verbrauche "+crewcount+" Nahrung");
-				this.log("# "+(prevnahrung-this.usercargo.getResourceCount(Resources.NAHRUNG))+" bereits verbucht");
-				if( crewcount <= this.usercargo.getResourceCount(Resources.NAHRUNG) ) {
-					this.usercargo.substractResource(Resources.NAHRUNG, crewcount);
-				}
-				else {
-					// Nicht genug Nahrung fuer alle -> verhungern
-					crewcount -= this.usercargo.getResourceCount(Resources.NAHRUNG);
-					this.usercargo.setResource(Resources.NAHRUNG, 0);
-					SQLQuery s = db.query("SELECT s.* " +
-							"FROM ships s " +
-							"WHERE s.id>0 AND s.system!=0 AND s.owner=",auser.getInt("id")," " +
-									"AND s.crew>0 AND ",battle);
-					while( s.next() ) {
-						if( s.getInt("crew") < crewcount ) {
-							db.update("UPDATE ships SET crew=0 WHERE id='",s.getInt("id"),"'");
-							Ships.recalculateShipStatus(s.getInt("id"));
-							this.log(s.getInt("id")+" verhungert");
-						}
-						else {
-							db.update("UPDATE ships SET crew=crew-'",crewcount,"' WHERE id='",s.getInt("id"),"'");
-							Ships.recalculateShipStatus(s.getInt("id"));
-							this.log(s.getInt("id")+" "+crewcount+" Crew verhungert");
-							break;
-						}
-					}
-					s.free();
-				}
+				getContext().rollback();
+				db.clear();
+
+				this.log("User "+auser.getId()+" failed: "+e);
+				e.printStackTrace();
+				Common.mailThrowable(e, "ShipTick  Exception", "User: "+auser.getId()+"\nBattle: "+battle);
+
+				auser = (User)db.get(User.class, auser.getId());
 			}
-					
-			// Nahrungspool aktualliseren
-			if( !this.calledByBattle ) {
-				db.update("UPDATE users SET cargo='",this.usercargo.save(),"',nstat='",(this.usercargo.getResourceCount(Resources.NAHRUNG) - usernstat),"' WHERE id='",auser.getInt("id"),"'");
+			finally {
+				this.unblock(auser.getId());
 			}
-			else {
-				db.update("UPDATE users SET cargo='",this.usercargo.save(),"' WHERE id='",auser.getInt("id"),"'");
-			}
-			this.unblock(auser.getInt("id"));
 		}
-		auser.free();
 				
-		db.update("UPDATE ships SET crew=0 WHERE id>0 AND crew<0");
+		database.update("UPDATE ships SET crew=0 WHERE id>0 AND crew<0");
 	
 		if( this.calledByBattle ) {
 			return;
@@ -454,7 +390,7 @@ public class SchiffsTick extends TickController {
 		this.log("");
 		this.log("Zerstoere Schiffe mit 'destroy'-status");
 		
-		SQLQuery sid = db.query("SELECT id FROM ships WHERE id>0 AND LOCATE('destroy',status)");
+		SQLQuery sid = database.query("SELECT id FROM ships WHERE id>0 AND LOCATE('destroy',status)");
 		while( sid.next() ) {
 			this.log("\tEntferne "+sid);
 			Ships.destroy( sid.getInt("id") );
@@ -466,7 +402,7 @@ public class SchiffsTick extends TickController {
 		 */
 		this.log("");
 		this.log("Behandle Schadensnebel");
-		SQLQuery ship = db.query("SELECT t1.id,t1.owner,t1.hull,t1.engine,t1.weapons,t1.comm,t1.sensors FROM ships t1,nebel t2 WHERE t1.system=t2.system AND t1.x=t2.x AND t1.y=t2.y AND t2.type=6");
+		SQLQuery ship = database.query("SELECT t1.id,t1.owner,t1.hull,t1.engine,t1.weapons,t1.comm,t1.sensors FROM ships t1,nebel t2 WHERE t1.system=t2.system AND t1.x=t2.x AND t1.y=t2.y AND t2.type=6");
 		while( ship.next() ) {
 			if( nonvacUserlist.contains(ship.getInt("owner")) ) {
 				continue;
@@ -489,8 +425,105 @@ public class SchiffsTick extends TickController {
 				}
 			}
 			
-			db.update("UPDATE ships SET hull='",ship.getInt("hull"),"',engine=",sub[0],",weapons=",sub[1],",comm=",sub[2],",sensors=",sub[3]," WHERE id='",ship.getInt("id"),"'");
+			database.update("UPDATE ships SET hull='",ship.getInt("hull"),"',engine=",sub[0],",weapons=",sub[1],",comm=",sub[2],",sensors=",sub[3]," WHERE id='",ship.getInt("id"),"'");
 		}
 		ship.free();
+	}
+
+	private void tickUser(Database database, String battle, User auser) {
+		long usernstat;
+		this.usercargo = new Cargo( Cargo.Type.STRING, auser.getCargo() );
+		usernstat = Long.parseLong(auser.getNahrungsStat());
+				
+		this.block(auser.getId());
+		
+		List<Integer> idlist = new ArrayList<Integer>();
+		
+		long prevnahrung = this.usercargo.getResourceCount(Resources.NAHRUNG);
+		
+		// Schiffe berechnen
+		SQLQuery shipd = database.query(
+				"SELECT s.id,s.name,s.crew,s.e,s.s,s.type,s.cargo,s.docked,s.engine,s.weapons,s.sensors,s.comm,s.battle,s.autodeut,s.x,s.y,s.system,s.owner,s.status,s.alarm,s.hull,s.heat ",
+				"FROM ships s JOIN ship_types st ON s.type=st.id ",
+				"WHERE s.id>0 AND s.owner='",auser.getId(),"' AND " +
+					"((s.crew > 0) OR (st.crew = 0)) " +
+					"AND system!=0 AND " +
+					"((s.alarm=1) OR (s.engine+s.weapons+s.sensors+s.comm<400) OR (s.e < st.eps) " +
+						"OR LOCATE('tblmodules',s.status) OR (st.hydro>0) OR (st.deutfactor>0)) " +
+					"AND ",battle," ",
+				"ORDER BY s.owner,s.docked,s.type ASC");
+		
+		this.log(auser.getId()+": Es sind "+shipd.numRows()+" Schiffe zu berechnen ("+battle+")");
+		
+		while( shipd.next() ) {
+			idlist.add(shipd.getInt("id"));
+			
+			// Anzahl der Wiederholungen, falls ein Commit fehlschlaegt
+			this.retries = 5;
+			try {
+				this.tickShip( database, shipd.getRow() );
+			}
+			catch( Exception e ) {
+				this.log("ship "+shipd.getInt("id")+" failed: "+e);
+				e.printStackTrace();
+				Common.mailThrowable(e, "SchiffsTick Exception", "ship: "+shipd.getInt("id"));
+			}
+		}
+		shipd.free();
+		
+		// Aufraeumen
+		Ships.clearShipCache();
+		
+		// Nahrung verarbeiten
+		if( Configuration.getIntSetting("DISABLE_FOOD_CONSUMPTION") == 0 ) {
+			int crewcount = 0;
+			String idListStr = "";
+			if( idlist.size() > 0 ) {
+				idListStr = " AND id NOT IN ("+Common.implode(",",idlist)+") ";	
+			}
+			crewcount = database.first("SELECT sum(s.crew) count " +
+					"FROM ships s " +
+					"WHERE s.id>0 AND s.system!=0 AND s.owner=",auser.getId()," " +
+							"AND ",battle,idListStr).getInt("count");
+			
+			this.log("# base+: "+(prevnahrung-usernstat));
+			this.log("# Verbrauche "+crewcount+" Nahrung");
+			this.log("# "+(prevnahrung-this.usercargo.getResourceCount(Resources.NAHRUNG))+" bereits verbucht");
+			if( crewcount <= this.usercargo.getResourceCount(Resources.NAHRUNG) ) {
+				this.usercargo.substractResource(Resources.NAHRUNG, crewcount);
+			}
+			else {
+				// Nicht genug Nahrung fuer alle -> verhungern
+				crewcount -= this.usercargo.getResourceCount(Resources.NAHRUNG);
+				this.usercargo.setResource(Resources.NAHRUNG, 0);
+				SQLQuery s = database.query("SELECT s.* " +
+						"FROM ships s " +
+						"WHERE s.id>0 AND s.system!=0 AND s.owner=",auser.getId()," " +
+								"AND s.crew>0 AND ",battle);
+				while( s.next() ) {
+					if( s.getInt("crew") < crewcount ) {
+						database.update("UPDATE ships SET crew=0 WHERE id='",s.getInt("id"),"'");
+						Ships.recalculateShipStatus(s.getInt("id"));
+						this.log(s.getInt("id")+" verhungert");
+					}
+					else {
+						database.update("UPDATE ships SET crew=crew-'",crewcount,"' WHERE id='",s.getInt("id"),"'");
+						Ships.recalculateShipStatus(s.getInt("id"));
+						this.log(s.getInt("id")+" "+crewcount+" Crew verhungert");
+						break;
+					}
+				}
+				s.free();
+			}
+		}
+				
+		// Nahrungspool aktualliseren
+		if( !this.calledByBattle ) {
+			auser.setCargo(this.usercargo.save());
+			auser.setNahrungsStat(Long.toString(this.usercargo.getResourceCount(Resources.NAHRUNG) - usernstat));
+		}
+		else {
+			auser.setCargo(this.usercargo.save());
+		}
 	}
 }

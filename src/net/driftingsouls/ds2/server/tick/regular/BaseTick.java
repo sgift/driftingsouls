@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -49,7 +50,7 @@ import net.driftingsouls.ds2.server.tick.TickController;
 public class BaseTick extends TickController {
 	private Cargo curse;
 	private StringBuilder pmcache;
-	private int lastowner;
+	private User lastowner;
 	private Map<Integer,Cargo> gtustatslist; // GTU-Cargostats pro System
 	private Cargo usercargo;
 	private int tick;
@@ -65,7 +66,7 @@ public class BaseTick extends TickController {
 		this.curse = new Cargo( Cargo.Type.STRING, curse );
 		
 		this.pmcache = new StringBuilder();
-		this.lastowner = 0;
+		this.lastowner = null;
 		this.usercargo = null;
 		this.gtustatslist = new HashMap<Integer,Cargo>();
 		this.tick = getContext().get(ContextCommon.class).getTick();
@@ -387,93 +388,108 @@ public class BaseTick extends TickController {
 
 	@Override
 	protected void tick() {
-		Database db = getDatabase();
+		Database database = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		// Da wir als erstes mit dem Usercargo rumspielen -> sichern der alten Nahrungswerte
-		SQLQuery auser = db.query("SELECT id,cargo FROM users WHERE id!=0 AND (vaccount=0 OR wait4vac!=0)");
-		while( auser.next() ) {
-			Cargo cargo = new Cargo( Cargo.Type.STRING, auser.getString("cargo") );
+		List users = db.createQuery("from User where id!=0 and (vaccount=0 or wait4vac!=0)").list();
+		for( Iterator iter = users.iterator(); iter.hasNext(); ) {
+			User auser = (User)iter.next();
 			
-			db.update("UPDATE users SET nstat='",cargo.getResourceCount(Resources.NAHRUNG),"' WHERE id='",auser.getInt("id"),"'");
+			auser.setNahrungsStat(Long.toString(new Cargo(Cargo.Type.STRING, auser.getCargo()).getResourceCount(Resources.NAHRUNG)));
 		}
-		auser.free();
 		
 		// User-Accs sperren
 		block(0);
 		
-		PreparedQuery updateUserCargo = db.prepare("UPDATE users SET cargo= ? WHERE id= ?");
-		updateBaseQuery = db.prepare("UPDATE bases " ,
-				"SET arbeiter= ? ," ,
-					"bewohner= ? ," ,
-					"e= ? ," ,
-					"cargo= ?  " ,
-				"WHERE id= ? AND " ,
-					"arbeiter= ? AND " ,
-					"bewohner= ? AND " ,
-					"e= ? AND " ,
-					"cargo= ? ");
+		List<SQLResultRow> bases = new ArrayList<SQLResultRow>();
 		
 		// Nun holen wir uns mal die Basen...
-		SQLQuery base = db.query("SELECT b.* " +
+		SQLQuery baseQuery = database.query("SELECT b.* " +
 				"FROM bases b JOIN users u ON b.owner=u.id " +
 				"WHERE b.owner!=0 AND (u.vaccount=0 OR u.wait4vac!=0) " +
 				"ORDER BY b.owner");
 		
-		log("Kolonien: "+base.numRows());
+		log("Kolonien: "+baseQuery.numRows());
 		log("");
 		
-		while( base.next() ) {
+		while( baseQuery.next() ) {
+			bases.add(baseQuery.getRow());
+		}
+		baseQuery.free();
+		
+		for( int i=0; i < bases.size(); i++ ) {
+			SQLResultRow base = bases.get(i);
+			
+			updateBaseQuery = database.prepare("UPDATE bases " ,
+					"SET arbeiter= ? ," ,
+						"bewohner= ? ," ,
+						"e= ? ," ,
+						"cargo= ?  " ,
+					"WHERE id= ? AND " ,
+						"arbeiter= ? AND " ,
+						"bewohner= ? AND " ,
+						"e= ? AND " ,
+						"cargo= ? ");
+			
 			// Muessen ggf noch alte Userdaten geschrieben und neue geladen werden?
-			if( base.getInt("owner") != this.lastowner ) {
+			if( this.lastowner != null && base.getInt("owner") != this.lastowner.getId() ) {
 				log(base.getInt("owner")+":");
 				if( this.pmcache.length() != 0 ) {
-					PM.send(getContext(),-1, this.lastowner, "Basis-Tick", this.pmcache.toString(),false);
+					PM.send(getContext(),-1, this.lastowner.getId(), "Basis-Tick", this.pmcache.toString(),false);
 					this.pmcache.setLength(0);
 				}
 				
 				if( this.usercargo != null ) {
-					updateUserCargo.update(this.usercargo.save(), this.lastowner);
+					this.lastowner.setCargo(this.usercargo.save());
 				}
 				
-				this.usercargo = new Cargo( Cargo.Type.STRING, db.first("SELECT cargo FROM users WHERE id='",base.getInt("owner"),"'").getString("cargo"));
+				this.lastowner = (User)db.get(User.class, base.getInt("owner"));
+				this.usercargo = new Cargo(Cargo.Type.STRING, this.lastowner.getCargo());
 			}
-			this.lastowner = base.getInt("owner");
+			else if( this.lastowner == null ) {
+				this.lastowner = (User)db.get(User.class, base.getInt("owner"));
+				this.usercargo = new Cargo(Cargo.Type.STRING, this.lastowner.getCargo());
+			}
+			
 		
 			this.retries = 5; // Max 5 versuche. Wenn die Basis dann noch immer nicht korrekt berechnet wurde: aufgeben
 
 			try {
 				// Nun wollen wir die Basis mal berechnen....
-				this.tickBase(new Base(base.getRow()));
+				this.tickBase(new Base(base));
+				getContext().commit();
 			}
 			catch( Exception e ) {
 				this.log("Base "+base.getInt("id")+" failed: "+e);
 				e.printStackTrace();
 				Common.mailThrowable(e, "BaseTick Exception", "Base: "+base.getInt("id"));
+				
+				getContext().rollback();
+				db.clear();
 			}
 		}
-		base.free();
 		
 		// ggf noch vorhandene Userdaten schreiben
 		if( this.pmcache.length() != 0 ) {
-			PM.send(getContext(),-1, this.lastowner, "Basis-Tick", this.pmcache.toString(), false);
+			PM.send(getContext(),-1, this.lastowner.getId(), "Basis-Tick", this.pmcache.toString(), false);
 			this.pmcache.setLength(0);
 		}
 		if( this.usercargo != null ) {
-			updateUserCargo.update(this.usercargo.save(), this.lastowner);
+			this.lastowner.setCargo(this.usercargo.save());
 		}
 		
-		updateUserCargo.close();
 		updateBaseQuery.close();
 		
 		// Die neuen GTU-Verkaufsstats schreiben
 		for( Integer sys : this.gtustatslist.keySet() ) {
 			Cargo gtustat = this.gtustatslist.get(sys);
-			SQLResultRow statid = db.first("SELECT id FROM stats_verkaeufe WHERE tick='",this.tick,"' AND place='asti' AND system='",sys,"'");
+			SQLResultRow statid = database.first("SELECT id FROM stats_verkaeufe WHERE tick='",this.tick,"' AND place='asti' AND system='",sys,"'");
 			if( statid.isEmpty() ) {
-				db.update("INSERT INTO stats_verkaeufe (tick,place,system,stats) VALUES (",this.tick,",'asti',",sys,",'",gtustat.save(),"')");
+				database.update("INSERT INTO stats_verkaeufe (tick,place,system,stats) VALUES (",this.tick,",'asti',",sys,",'",gtustat.save(),"')");
 			}
 			else {		
-				db.update("UPDATE stats_verkaeufe SET stats='",gtustat.save(),"' WHERE id='",statid,"'");
+				database.update("UPDATE stats_verkaeufe SET stats='",gtustat.save(),"' WHERE id='",statid,"'");
 			}
 		}
 		
