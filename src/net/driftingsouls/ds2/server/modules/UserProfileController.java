@@ -182,7 +182,7 @@ public class UserProfileController extends TemplateGenerator {
 				pstatus = "<span style=\"font-weight:bold; font-style:italic\">"+Common._plaintitle(ally.getString("pname"))+"</span>";
 			}
 			
-			if( this.user.getAllyPosten() != 0 ) {
+			if( this.user.getAllyPosten() != null ) {
 				String postenname = getDatabase().first("SELECT name FROM ally_posten WHERE id='"+this.user.getAllyPosten()+"'").getString("name");
 				t.setVar("user.ally.position", (pstatus.length() != 0 ? pstatus+", " : "")+Common._plaintitle(postenname) );				
 			}
