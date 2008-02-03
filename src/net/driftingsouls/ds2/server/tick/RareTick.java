@@ -87,5 +87,6 @@ public class RareTick extends AbstractTickExecuter {
 		tick.addLogTarget(TickController.STDOUT, false);
 		tick.execute();
 		tick.dispose();
+		free();
 	}
 }

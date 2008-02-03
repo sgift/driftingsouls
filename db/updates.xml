@@ -264,4 +264,15 @@
 	<update type="structure" datum="2007-08-04"><![CDATA[
 		ALTER TABLE `ships_lost` CHANGE `ally` `ally` SMALLINT( 5 ) NOT NULL DEFAULT '0';										 
 	]]></update>
+	<update type="structure" datum="2008-02-03"><![CDATA[
+		ALTER TABLE user_moneytransfer CHANGE `count` `count` bigint(20) unsigned NOT NULL default '0';
+		
+		ALTER TABLE ammo CHANGE replaces replaces int(11) unsigned NULL;
+		UPDATE ammo SET replaces=NULL WHERE replaces=0;
+		ALTER TABLE ammo ADD CONSTRAINT ammo_fk_ammo FOREIGN KEY (replaces) REFERENCES ammo(id);
+		
+		ALTER TABLE users CHANGE allyposten allyposten INT( 11 ) NULL;
+		UPDATE users SET allyposten=NULL WHERE allyposten=0;
+		ALTER TABLE users ADD CONSTRAINT users_fk_ally_posten FOREIGN KEY (allyposten) REFERENCES ally_posten(id);
+	]]></update>
 </updates>

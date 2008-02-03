@@ -28,6 +28,8 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.entities.Ally;
+import net.driftingsouls.ds2.server.entities.AllyPosten;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -96,7 +98,7 @@ public class AllyController extends TemplateGenerator implements Loggable {
 			if( count < 3 ) {
 				Taskmanager.getInstance().addTask(Taskmanager.Types.ALLY_LOW_MEMBER, 21, Integer.toString(this.ally.getInt("id")), "", "" );
 			
-				SQLQuery supermemberid = db.query("SELECT DISTINCT id FROM users WHERE ally=",this.ally.getInt("id")," AND (allyposten!=0 OR id=",this.ally.getInt("president"),")");
+				SQLQuery supermemberid = db.query("SELECT DISTINCT id FROM users WHERE ally=",this.ally.getInt("id")," AND (allyposten is not null OR id=",this.ally.getInt("president"),")");
 				while( supermemberid.next() ) {
 					PM.send(getContext(), 0, supermemberid.getInt("id"), "Drohende Allianzaufl&oum;sung", "[Automatische Nachricht]\nAchtung!\nDurch den j&uuml;ngsten Weggang eines Allianzmitglieds hat deine Allianz zu wenig Mitglieder um weiterhin zu bestehen. Du hast nun 21 Ticks Zeit diesen Zustand zu &auml;ndern. Andernfalls wird die Allianz aufgel&ouml;&szlig;t.");
 				}
@@ -259,7 +261,7 @@ public class AllyController extends TemplateGenerator implements Loggable {
 		
 		String taskid = taskmanager.addTask(Taskmanager.Types.ALLY_NEW_MEMBER, 35, Integer.toString(join), Integer.toString(user.getId()), "");
 		
-		SQLQuery supermemberid = db.query("SELECT DISTINCT u.id FROM users u JOIN ally a ON u.ally=a.id WHERE u.ally=",join," AND (u.allyposten!=0 OR u.id=a.president)");
+		SQLQuery supermemberid = db.query("SELECT DISTINCT u.id FROM users u JOIN ally a ON u.ally=a.id WHERE u.ally=",join," AND (u.allyposten is not null OR u.id=a.president)");
 		while( supermemberid.next() ) {
 			PM.send(getContext(), user.getId(), supermemberid.getInt("id"), "Aufnahmeantrag", "[Automatische Nachricht]\nHiermit beantrage ich die Aufnahme in die Allianz.\n\n[_intrnlConfTask="+taskid+"]Wollen sie dem Aufnahmeantrag zustimmen?[/_intrnlConfTask]", false, PM.FLAGS_IMPORTANT);
 		}
@@ -292,7 +294,7 @@ public class AllyController extends TemplateGenerator implements Loggable {
 		int postenid = getInteger("postenid");
 
 		db.tBegin();
-		db.update("UPDATE users SET allyposten=0 WHERE allyposten=",postenid);
+		db.update("UPDATE users SET allyposten=null WHERE allyposten=",postenid);
 		db.tUpdate(1, "DELETE FROM ally_posten WHERE id=",postenid);
 		db.tCommit();
 	
@@ -333,7 +335,7 @@ public class AllyController extends TemplateGenerator implements Loggable {
 		}
 
 		User formuser = (User)getDB().get(User.class, userid);
-		if( formuser.getAllyPosten() != 0 ) {
+		if( formuser.getAllyPosten() != null ) {
   			t.setVar( "ally.message", "Fehler: Jedem Mitglied darf maximal ein Posten zugewiesen werden" );
   			redirect();
   			
@@ -341,8 +343,8 @@ public class AllyController extends TemplateGenerator implements Loggable {
 		}
 
 		db.tBegin();
-		db.tUpdate(1, "UPDATE users SET allyposten=0 WHERE allyposten=",postenid," AND ally=",this.ally.getInt("id"));
-		db.tUpdate(1, "UPDATE users SET allyposten=",postenid," WHERE id=",userid," AND allyposten=0");
+		db.tUpdate(1, "UPDATE users SET allyposten=null WHERE allyposten=",postenid," AND ally=",this.ally.getInt("id"));
+		db.tUpdate(1, "UPDATE users SET allyposten=",postenid," WHERE id=",userid," AND allyposten is null");
 		db.tCommit();
 
 		t.setVar( "ally.statusmessage", "&Auml;nderungen gespeichert" );
@@ -380,7 +382,7 @@ public class AllyController extends TemplateGenerator implements Loggable {
 		}
 
 		User formuser = (User)getDB().get(User.class, userid);
-		if( formuser.getAllyPosten() != 0 ) {
+		if( formuser.getAllyPosten() != null ) {
   			t.setVar( "ally.message", "Fehler: Jedem Mitglied darf maximal ein Posten zugewiesen werden" );
   			redirect();
 			return;
@@ -400,12 +402,10 @@ public class AllyController extends TemplateGenerator implements Loggable {
 			return;
 		}
 
-		db.tBegin();
-		PreparedQuery insert = db.prepare("INSERT INTO ally_posten (ally,name) VALUES ( ?, ? )");
-		insert.tUpdate(1, this.ally.getInt("id"), name);
-		formuser.setAllyPosten(insert.insertID());
-		insert.close();
-		db.tCommit();
+		Ally ally = (Ally)getDB().get(Ally.class, this.ally.getInt("id"));
+		AllyPosten posten = new AllyPosten(ally, name);
+		getDB().persist(posten);
+		formuser.setAllyPosten(posten);
 
 		t.setVar( "ally.statusmessage", "Der Posten "+Common._plaintitle(name)+" wurde erstellt und zugewiesen" );
 		redirect();
@@ -813,7 +813,7 @@ public class AllyController extends TemplateGenerator implements Loggable {
 		
 		PM.send(getContext(), user.getId(), this.ally.getInt("president"), "Allianz verlassen", "Ich habe die Allianz verlassen");
 		user.setAlly(0);
-		user.setAllyPosten(0);
+		user.setAllyPosten(null);
 		user.setName(user.getNickname());
 		
 		db.update("UPDATE battles SET ally1=0 WHERE commander1=",user.getId()," AND ally1=",this.ally.getInt("id"));
@@ -880,7 +880,7 @@ public class AllyController extends TemplateGenerator implements Loggable {
 				User auser = (User)iter.next();
 				auser.addHistory(Common.getIngameTime(tick)+": Verlassen der Allianz "+this.ally.getString("name")+" im Zuge der Aufl&ouml;sung dieser Allianz");
 				auser.setAlly(0);
-				auser.setAllyPosten(0);
+				auser.setAllyPosten(null);
 				auser.setName(auser.getNickname());
 			}
 			
@@ -967,7 +967,7 @@ public class AllyController extends TemplateGenerator implements Loggable {
 		}
 
 		kickuser.setAlly(0);
-		kickuser.setAllyPosten(0);
+		kickuser.setAllyPosten(null);
 		kickuser.setName(kickuser.getNickname());
 		
 		db.update("UPDATE battles SET ally1=0 WHERE commander1=",kickuser.getId()," AND ally1=",this.ally.getInt("id"));
@@ -1087,7 +1087,7 @@ public class AllyController extends TemplateGenerator implements Loggable {
 			}
 			posten.free();
 			
-			SQLQuery allymember = db.query("SELECT id,name FROM users WHERE ally=",this.ally.getInt("id")," AND id!=",this.ally.getInt("president")," AND allyposten=0");
+			SQLQuery allymember = db.query("SELECT id,name FROM users WHERE ally=",this.ally.getInt("id")," AND id!=",this.ally.getInt("president")," AND allyposten is null");
 			if( allymember.numRows() > 0 ) {
 				t.setVar( "ally.addmembers.list", "" );
 				t.setBlock( "_ALLY", "ally.addmembers.listitem", "ally.addmembers.list" );

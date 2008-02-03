@@ -160,6 +160,10 @@ public class RestTick extends TickController {
 					}
 				}
 				battleid.free();
+				
+				getDB().createQuery("delete from Session where id= :user")
+					.setEntity("user", user)
+					.executeUpdate();
 			}
 			
 			// TODO: Eine bessere Loesung fuer den Fall finden, wenn der Name mehr als 249 Zeichen lang ist

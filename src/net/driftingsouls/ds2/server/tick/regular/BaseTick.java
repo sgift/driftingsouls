@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.tick.regular;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -236,8 +237,8 @@ public class BaseTick extends TickController {
 				long get2 = 0;
 				reslist = basedata.getStatus().getResourceList();
 				reslist.sortByCargo(true);
-				while( reslist.hasNext() ) {
-					ResourceEntry res = reslist.next();
+				for( Iterator<ResourceEntry> iter=reslist.iterator(); iter.hasNext(); ) {
+					ResourceEntry res = iter.next();
 					
 					this.log("\tmass: "+nc.getMass()+" ; max: "+(base.getMaxCargo() - 2000)+" ; pc: "+nc.getResourceCount(res.getId())+" ; stat: "+basedata.getStatus().getResourceCount(res.getId()));
 					if( (nc.getMass() > base.getMaxCargo() - 2000) && ( nc.getResourceCount(res.getId()) > 200) && (Cargo.getResourceMass(res.getId(), nc.getResourceCount(res.getId())) > 0 ) ) {
@@ -257,7 +258,7 @@ public class BaseTick extends TickController {
 						break;
 					}
 					
-					if( !secondpass && !reslist.hasNext() && (nc.getMass() > base.getMaxCargo()) ) {
+					if( !secondpass && !iter.hasNext() && (nc.getMass() > base.getMaxCargo()) ) {
 						this.log("WARNING: Nach verkaeufen auf stat-Basis fehlt immer noch cargo. Verkaufe nun auf Basis vorhandener Resourcen");
 						secondpass = true;
 						reslist = nc.getResourceList();

@@ -21,9 +21,6 @@ package net.driftingsouls.ds2.server.tick;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.LogFactoryImpl;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.framework.BasicContext;
 import net.driftingsouls.ds2.server.framework.CmdLineRequest;
@@ -31,6 +28,9 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.DriftingSouls;
 import net.driftingsouls.ds2.server.framework.SimpleResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.impl.LogFactoryImpl;
 
 /**
  * Klasse zur Ausfuehrung von mehreren Ticks
@@ -41,6 +41,8 @@ public abstract class AbstractTickExecuter extends TickController {
 	private String loxpath = Configuration.getSetting("LOXPATH");
 	private String name = "";
 	private String status = null;
+	
+	private static BasicContext basicContext;
 	
 	/**
 	 * Bootet DS
@@ -65,7 +67,15 @@ public abstract class AbstractTickExecuter extends TickController {
 		}
 		
 		SimpleResponse response = new SimpleResponse();
-		new BasicContext(request, response);
+		basicContext = new BasicContext(request, response);
+	}
+	
+	/**
+	 * Gibt alle noch belegten Resourcen frei
+	 *
+	 */
+	public static final void free() {
+		basicContext.free();
 	}
 	
 	/**
@@ -107,6 +117,10 @@ public abstract class AbstractTickExecuter extends TickController {
 				
 		tick.execute();
 		tick.dispose();
+		
+		// Der Inhalt des Ticks wurde geschrieben (commit) oder zurueckgesetzt (rollback)
+		// Daher ist ein clear nun unproblematisch
+		getDB().clear();
 	}
 	
 	/**
@@ -157,7 +171,7 @@ public abstract class AbstractTickExecuter extends TickController {
 	 * Vor- und Nachbereitung der Tickausfuehrung
 	 */
 	@Override
-	final protected void tick() {
+	protected final void tick() {
 		if( getContext().getRequest().getParameterString("only").length() > 0 ) {
 			
 			try {
@@ -203,7 +217,7 @@ public abstract class AbstractTickExecuter extends TickController {
 	 * Erlaubt das Behandeln von Timeouts
 	 *
 	 */
-	protected static abstract class TimeoutChecker extends Thread {
+	protected abstract static class TimeoutChecker extends Thread {
 		private long timeout;
 		private boolean hasTimedOut;
 		

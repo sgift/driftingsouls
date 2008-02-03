@@ -20,9 +20,9 @@ package net.driftingsouls.ds2.server.cargo;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Comparator;
 
 /**
  * Liste von Resourcen aus einem Cargo
@@ -30,7 +30,7 @@ import java.util.Comparator;
  * @see ResourceEntry
  *
  */
-public class ResourceList implements Iterable<ResourceEntry>, Iterator<ResourceEntry> {
+public class ResourceList implements Iterable<ResourceEntry> {
 	/**
 	 * Vergleichsklasse fuer Resourcen-IDs
 	 * @author Christopher Jung
@@ -71,8 +71,32 @@ public class ResourceList implements Iterable<ResourceEntry>, Iterator<ResourceE
 		}
 	}
 	
+	/**
+	 * Iterator ueber die Resourceneintraege in der Liste
+	 * @author Christopher Jung
+	 *
+	 */
+	private static class ResourceIterator implements Iterator<ResourceEntry> {
+		private Iterator<ResourceEntry> iter = null;
+		
+		protected ResourceIterator(Iterator<ResourceEntry> inner) {
+			this.iter = inner;
+		}
+		
+		public boolean hasNext() {
+			return iter.hasNext();
+		}
+
+		public ResourceEntry next() {
+			return iter.next();
+		}
+
+		public void remove() {
+			throw new UnsupportedOperationException("Das entfernen von Resourcen-Eintraegen ist nicht moeglich");
+		}
+	}
+	
 	private List<ResourceEntry> list = new ArrayList<ResourceEntry>();
-	private Iterator<ResourceEntry> iter = null;
 	
 	protected ResourceList() {
 		// EMPTY
@@ -111,22 +135,6 @@ public class ResourceList implements Iterable<ResourceEntry>, Iterator<ResourceE
 	}
 
 	public Iterator<ResourceEntry> iterator() {
-		iter = list.iterator();
-		return this;
-	}
-
-	public boolean hasNext() {
-		if( iter == null ) {
-			iterator();
-		}
-		return iter.hasNext();
-	}
-
-	public ResourceEntry next() {
-		return iter.next();
-	}
-
-	public void remove() {
-		throw new UnsupportedOperationException("Das entfernen von Resourcen-Eintraegen ist nicht moeglich");
+		return new ResourceIterator(list.iterator());
 	}
 }

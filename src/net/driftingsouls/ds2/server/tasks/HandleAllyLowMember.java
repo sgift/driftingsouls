@@ -76,7 +76,7 @@ class HandleAllyLowMember implements TaskHandler {
 			}
 			chn.free();
 
-			db.update("UPDATE users SET ally=0,allyposten=0,name=nickname WHERE ally=",allyid);
+			db.update("UPDATE users SET ally=0,allyposten=null,name=nickname WHERE ally=",allyid);
 			db.update("DELETE FROM ally_posten WHERE ally=",allyid);
 			db.update("DELETE FROM ally WHERE id=",allyid);
 			

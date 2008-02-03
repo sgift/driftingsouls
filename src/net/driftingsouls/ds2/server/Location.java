@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server;
 
+import java.io.Serializable;
+
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 /**
@@ -25,18 +27,22 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
  * @author Christopher Jung
  *
  */
-public class Location {
-	private int x = 0;
-	private int y = 0;
-	private int system = 0;
-	private int hashCode = 0;
+public final class Location implements Serializable, Locatable {
+	private static final long serialVersionUID = -5144442902462679539L;
+	
+	private final int x;
+	private final int y;
+	private final int system;
+	private transient int hashCode = 0;
 	
 	/**
 	 * Erstellt ein neues Positionsobjekt fuer den Ort 0:0/0
 	 *
 	 */
 	public Location() {
-		// EMPTY
+		this.x = 0;
+		this.y = 0;
+		this.system = 0;
 	}
 
 	/**
@@ -116,20 +122,21 @@ public class Location {
 	 * @return Das zum Positionsstring gehoerende Location-Objekt
 	 */
 	public static Location fromString(String loc) {
-		int separator = loc.indexOf(':');
+		String parseLoc = loc;
+		int separator = parseLoc.indexOf(':');
 		int system = 0;
 		
 		if( separator > -1 ) {
 			system = Integer.parseInt(loc.substring(0, separator));
-			loc = loc.substring(separator+1);
+			parseLoc = parseLoc.substring(separator+1);
 		}
 		
-		separator = loc.indexOf('/');
+		separator = parseLoc.indexOf('/');
 		if( separator == -1 ) {
 			throw new RuntimeException("Illegales Koordinatenformat '"+loc+"'! Separator / fehlt");
 		}
-		int x = Integer.parseInt(loc.substring(0, separator));
-		int y = Integer.parseInt(loc.substring(separator+1));
+		int x = Integer.parseInt(parseLoc.substring(0, separator));
+		int y = Integer.parseInt(parseLoc.substring(separator+1));
 		
 		return new Location(system, x, y);
 	}
@@ -139,25 +146,31 @@ public class Location {
 	 * 'x', 'y' und 'system' enthaelt
 	 * @param result Die SQL-Ergebniszeile
 	 * @return Das zur Ergebniszeile gehoerende Location-Objekt
+	 * @deprecated Bitte Hibernate benutzen
 	 */
+	@Deprecated
 	public static Location fromResult(SQLResultRow result) {
 		return new Location(result.getInt("system"), result.getInt("x"), result.getInt("y"));
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
-		if( !(obj instanceof Location) ) {
-			return false;
+		if( this == obj ) {
+			return true;
 		}
-		Location loc = (Location)obj;
-		if( getSystem() != loc.getSystem() ) {
-			return false;
-		}
-		if( getX() != loc.getX() ) {
+		if( (obj == null) || (obj.getClass() != getClass()) ) {
 			return false;
 		}
 		
-		if( getY() != loc.getY() ) {
+		final Location loc = (Location)obj;
+		if( this.system != loc.system ) {
+			return false;
+		}
+		if( this.x != loc.x ) {
+			return false;
+		}
+		
+		if( this.y != loc.y ) {
 			return false;
 		}
 		return true;
@@ -166,7 +179,7 @@ public class Location {
 	@Override
 	public int hashCode() {
 		if( hashCode == 0 ) {
-			hashCode = system*10000+x*100+y;
+			hashCode = system*100000+x*1000+y;
 		}
 		
 		return hashCode;
@@ -181,15 +194,20 @@ public class Location {
 	 * @param objectRadius Der Radius des Objekts
 	 * @return true, falls ein gemeinsamer Sektor existiert
 	 */
-	public boolean sameSector(int ownRadius, Location object, int objectRadius) {
-		if( getSystem() != object.getSystem() ) {
+	public boolean sameSector(int ownRadius, Locatable object, int objectRadius) {
+		Location loc = object.getLocation();
+		if( this.system != loc.getSystem() ) {
 			return false;
 		}
 		
-		if( Math.floor(Math.sqrt((getX()-object.getX())*(getX()-object.getX())+(getY()-object.getY())*(getY()-object.getY()))) > ownRadius+objectRadius ) {
+		if( Math.floor(Math.sqrt((this.x-loc.getX())*(this.x-loc.getX())+(this.y-loc.getY())*(this.y-loc.getY()))) > ownRadius+objectRadius ) {
 			return false;
 		}
 		
 		return true;
+	}
+
+	public Location getLocation() {
+		return this;
 	}
 }

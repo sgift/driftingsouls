@@ -19,7 +19,7 @@ CREATE TABLE `users` (
   `npcpunkte` int(11) NOT NULL default '10',
   `nickname` varchar(255) NOT NULL default 'Kolonist',
   `plainname` varchar(255) NOT NULL default 'Kolonist',
-  `allyposten` int(11) NOT NULL default '0',
+  `allyposten` int(11) default NULL,
   `gtudropzone` tinyint(3) unsigned NOT NULL default '2',
   `npcorderloc` varchar(12) NOT NULL default '',
   `imgpath` varchar(200) NOT NULL default 'http://localhost/ds2/',
@@ -37,7 +37,9 @@ CREATE TABLE `users` (
   KEY `ally` (`ally`),
   KEY `vaccount` (`vaccount`,`wait4vac`),
   KEY `un` (`un`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE users ADD CONSTRAINT users_fk_ally_posten FOREIGN KEY (allyposten) REFERENCES ally_posten(id);
 
 INSERT INTO `users` (`id`, `un`, `name`, `passwort`, `race`, `inakt`, `signup`, `history`, `medals`, `rang`, `ally`, `konto`, `cargo`, `nstat`, `email`, `log_fail`, `accesslevel`, `npcpunkte`, `nickname`, `plainname`, `allyposten`, `gtudropzone`, `npcorderloc`, `imgpath`, `flagschiff`, `disabled`, `flags`, `vaccount`, `wait4vac`, `lostBattles`, `wonBattles`, `destroyedShips`, `lostShips`, `knownItems`) VALUES (-26, 'niemandundnochnichtniemand', 'Ito Kitami - sales agent', '98f6bcd4621d373cade4e832627b4f6', 2, 44, 0, 'Dabei seit dem 25. Tick in DS1', '', 0, 0, 308442632, '100000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,', '1000', 'ito@localhost', 4, 0, 10, 'Ito Kitami - sales agent', 'Ito Kitami - sales agent', 0, 2, '', 'http://ds.drifting-souls.net/', 0, 0, ' NO_IP_SESS NO_AUTOLOGOUT execnotes superdock miljumps', 0, 0, 0, 2, 2, 0, '');
 INSERT INTO `users` (`id`, `un`, `name`, `passwort`, `race`, `inakt`, `signup`, `history`, `medals`, `rang`, `ally`, `konto`, `cargo`, `nstat`, `email`, `log_fail`, `accesslevel`, `npcpunkte`, `nickname`, `plainname`, `allyposten`, `gtudropzone`, `npcorderloc`, `imgpath`, `flagschiff`, `disabled`, `flags`, `vaccount`, `wait4vac`, `lostBattles`, `wonBattles`, `destroyedShips`, `lostShips`, `knownItems`) VALUES (-19, 'malniemandundmalnicht', 'Demolition Incorporated', '98f6bcd4621d373cade4e832627b4f6', 2, 67, 0, 'Dabei von Anfang an', '', 0, 0, 265353532, '1000000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,', '1000', 'di@localhost', 10, 50, 0, 'Demolition Incorporated', 'Demolition Incorporated', 0, 2, '', 'http://ds.drifting-souls.net/', 124297, 0, 'miljumps superdock \r\n NO_AUTOLOGOUT NO_IP_SESS', 0, 0, 1, 2, 111, 7, '');

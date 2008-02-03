@@ -58,7 +58,7 @@ class HandleAllyFound implements TaskHandler {
 		
 				Common.copyFile(Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/ally/0.gif", Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/ally"+allyid+".gif");
 				
-				db.update("UPDATE users SET ally=",allyid,",allyposten='0' WHERE id IN (",Common.implode(",",allymember),")");
+				db.update("UPDATE users SET ally=",allyid,",allyposten=null WHERE id IN (",Common.implode(",",allymember),")");
 				
 				for( int i=0; i < allymember.length; i++ ) {
 					PM.send( ContextMap.getContext(), 0, allymember[i], "Allianzgr&uuml;ndung", "Die Allianz "+allyname+" wurde erfolgreich gegr&uuml;ndet.\n\nHerzlichen Gl&uuml;ckwunsch!");

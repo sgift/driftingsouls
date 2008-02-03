@@ -269,7 +269,7 @@ public class AllyListController extends TemplateGenerator {
 		posten.free();
 	
 		// Weitere Mitglieder ausgeben
-		SQLQuery allymember = db.query("SELECT id, name FROM users WHERE ally=",ally.getInt("id")," AND id!=",ally.getInt("president")," AND allyposten=0");
+		SQLQuery allymember = db.query("SELECT id, name FROM users WHERE ally=",ally.getInt("id")," AND id!=",ally.getInt("president")," AND allyposten is null");
 		if( allymember.numRows() > 0 ) {
 			t.setBlock( "_ALLYLIST", "ally.addmembers.listitem", "ally.addmembers.list" );
 		

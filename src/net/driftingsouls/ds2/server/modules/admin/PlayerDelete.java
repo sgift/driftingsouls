@@ -132,7 +132,7 @@ public class PlayerDelete implements AdminPlugin, Loggable {
 	
 					SQLQuery supermemberid = db.query("SELECT DISTINCT id FROM users " +
 							"WHERE ally="+ally.getInt("id")+" AND " +
-									"(allyposten!=0 OR id="+ally.getInt("president")+") " +
+									"(allyposten is not null OR id="+ally.getInt("president")+") " +
 									"AND id!="+userid);
 					while( supermemberid.next() ) {
 						PM.send( context, 0, supermemberid.getInt("id"), "Drohende Allianzaufl&oum;sung", 

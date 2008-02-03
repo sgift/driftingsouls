@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.cargo;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.config.Item;
@@ -40,7 +41,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Repraesentiert einen Cargo, also eine Liste von Waren und Items mit jeweils einer bestimmten Menge, in DS
+ * Repraesentiert einen Cargo, also eine Liste von Waren und Items mit jeweils einer bestimmten Menge, in DS.
+ * <p>Hinweis zu {@link #equals(Object)} und {@link #hashCode()}:<br>
+ * Zwei Cargoobjekte sind dann gleich, wenn sie zum Zeitpunkt des Vergleichs den selben Inhalt haben. Es wird nicht
+ * beruecksichtigt ob die Optionen gleich sind oder die Cargos bei der Initalisierung einen unterschiedlichen Inhalt hatten</p>
  * @author Christopher Jung
  *
  */
@@ -140,6 +144,43 @@ public class Cargo implements Loggable, Cloneable {
 	 */
 	public Cargo() {
 		// Type.EMPTY
+	}
+	
+	/**
+	 * <p>Konstruktor</p>
+	 * Erstellt einen neuen Cargo aus dem aktuellen Cargo sowie den Optionen eines anderen Cargo-Objekts.
+	 * @param cargo Der Cargo, dessen Daten genommen werden sollen
+	 */
+	public Cargo(Cargo cargo) {
+		long[] cargoArray = cargo.getCargoArray();
+		for( int i=0; i <= MAX_RES; i++ ) {
+			this.orgcargo[i] = this.cargo[i] = cargoArray[i];
+		}
+		
+		List<Long[]> itemArray = cargo.getItemArray();
+		for( int i=0; i < itemArray.size(); i++ ) {
+			Long[] item = itemArray.get(i);
+		
+			this.items.add(new Long[] {item[0], item[1], item[2], item[3]});
+		}
+		
+		StringBuilder itemString = new StringBuilder(items.size()*8);
+		if( !items.isEmpty() ) {
+			for( Long[] aItem : items ) {
+				if( aItem[1] != 0 ) {
+					if( itemString.length() != 0 ) {
+						itemString.append(';');
+					}
+					itemString.append(Common.implode("|",aItem ));
+				}
+			}
+		}
+		this.orgitems = itemString.toString();
+		
+		this.linkclass = (String)cargo.getOption(Option.LINKCLASS);
+		this.showmass = (Boolean)cargo.getOption(Option.SHOWMASS);
+		this.largeImages = (Boolean)cargo.getOption(Option.LARGEIMAGES);
+		this.nohtml = (Boolean)cargo.getOption(Option.NOHTML);
 	}
 	
 	private Long[] parseItems(String str) {
@@ -261,7 +302,7 @@ public class Cargo implements Loggable, Cloneable {
 	 * @return der String mit dem Cargo
 	 */
 	public String getData(Type type, boolean orginalCargo ) {
-		long[] cargo = null;
+		long[] cargo;
 		List<Long[]> items = this.items;
 		
 		if( orginalCargo ) {
@@ -405,7 +446,7 @@ public class Cargo implements Loggable, Cloneable {
 			}
 			
 			if( !done ) {
-				items.add( new Long[] {new Long(resourceid.getItemID()), count, new Long(resourceid.getUses()), new Long(resourceid.getQuest())} );
+				items.add( new Long[] {Long.valueOf(resourceid.getItemID()), count, new Long(resourceid.getUses()), new Long(resourceid.getQuest())} );
 			}
 		}
 		else {
@@ -440,8 +481,8 @@ public class Cargo implements Loggable, Cloneable {
 				}
 			}
 			
-			// Diese Anweisung wird nur ausgefueht, wenn das Item nicht im Cargo vorhanden ist
-			items.add( new Long[] {new Long(resourceid.getItemID()), -count, new Long(resourceid.getUses()), new Long(resourceid.getQuest())} );
+			// Diese Anweisung wird nur ausgefuerht, wenn das Item nicht im Cargo vorhanden ist
+			items.add( new Long[] {Long.valueOf(resourceid.getItemID()), -count, new Long(resourceid.getUses()), new Long(resourceid.getQuest())} );
 		}
 		else {
 			cargo[resourceid.getID()] -= count;
@@ -633,8 +674,8 @@ public class Cargo implements Loggable, Cloneable {
 						tooltiptext += "&lt;br /&gt;&lt;span class=\\'verysmallfont\\'&gt;Benutzungen: "+item[2]+"&lt;/span&gt;";
 					}
 					
-					name = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./main.php?module=iteminfo&amp;sess="+sess+"&amp;itemlist="+buildItemID(item)+"\">"+name+"</a>";				
-					fcount = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./main.php?module=iteminfo&amp;sess="+sess+"&amp;itemlist="+buildItemID(item)+"\">"+fcount+"</a>";
+					name = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;sess="+sess+"&amp;itemlist="+buildItemID(item)+"\">"+name+"</a>";				
+					fcount = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;sess="+sess+"&amp;itemlist="+buildItemID(item)+"\">"+fcount+"</a>";
 				}
 				else {
 					if( item[3] != 0 ) {
@@ -776,7 +817,7 @@ public class Cargo implements Loggable, Cloneable {
 						tooltiptext += "&lt;br /&gt;&lt;span class=\\'verysmallfont\\'&gt;Benutzungen: "+aitem.getUses()+"&lt;/span&gt;";	
 					}
 					
-					name = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./main.php?module=iteminfo&amp;sess="+sess+"&amp;itemlist="+aitem+"\">"+name+"</a>";
+					name = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;sess="+sess+"&amp;itemlist="+aitem+"\">"+name+"</a>";
 				}
 				else {
 					if( aitem.getQuest() != 0 ) {
@@ -814,8 +855,8 @@ public class Cargo implements Loggable, Cloneable {
 				}
 				
 				if( !nohtml ) {			
-					fcargo1 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./main.php?module=iteminfo&amp;sess="+sess+"&amp;itemlist="+aitem+"\">"+fcargo1+"</a>";
-					fcargo2 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./main.php?module=iteminfo&amp;sess="+sess+"&amp;itemlist="+aitem+"\">"+fcargo2+"</a>";
+					fcargo1 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;sess="+sess+"&amp;itemlist="+aitem+"\">"+fcargo1+"</a>";
+					fcargo2 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;sess="+sess+"&amp;itemlist="+aitem+"\">"+fcargo2+"</a>";
 				}
 				
 				ResourceEntry entry = new ResourceEntry(aitem, name, plainname, image, fcargo1, fcargo2, cargo1, cargo2, diff);
@@ -1044,7 +1085,7 @@ public class Cargo implements Loggable, Cloneable {
 			}
 			
 			if( !done ) {
-				items.add( new Long[] {new Long(resourceid.getItemID()), count, new Long(resourceid.getUses()), new Long(resourceid.getQuest())} );
+				items.add( new Long[] {Long.valueOf(resourceid.getItemID()), count, new Long(resourceid.getUses()), new Long(resourceid.getQuest())} );
 			}
 		}
 		else {
@@ -1061,10 +1102,15 @@ public class Cargo implements Loggable, Cloneable {
 	public ItemCargoEntry getItemWithEffect( ItemEffect.Type itemeffectid ) {
 		for( int i=0; i < items.size(); i++ ) {
 			Long[] aitem = items.get(i);
-			if( Items.get().item(aitem[0].intValue()).getEffect().getType() != itemeffectid ) {
+			
+			final int itemid = aitem[0].intValue();
+			if( Items.get().item(itemid) == null ) {
+				throw new RuntimeException("Unbekanntes Item "+itemid);
+			}
+			if( Items.get().item(itemid).getEffect().getType() != itemeffectid ) {
 				continue;
 			}
-			return new ItemCargoEntry(this, aitem[0].intValue(), aitem[1], aitem[2].intValue(), aitem[3].intValue());
+			return new ItemCargoEntry(this, itemid, aitem[1], aitem[2].intValue(), aitem[3].intValue());
 		}
 		return null;
 	}
@@ -1080,10 +1126,15 @@ public class Cargo implements Loggable, Cloneable {
 		
 		for( int i=0; i < items.size(); i++ ) {
 			Long[] aitem = items.get(i);
-			if( Items.get().item(aitem[0].intValue()).getEffect().getType() != itemeffectid ) {
+			
+			final int itemid = aitem[0].intValue();
+			if( Items.get().item(itemid) == null ) {
+				throw new RuntimeException("Unbekanntes Item "+itemid);
+			}
+			if( Items.get().item(itemid).getEffect().getType() != itemeffectid ) {
 				continue;
 			}
-			itemlist.add( new ItemCargoEntry(this, aitem[0].intValue(), aitem[1], aitem[2].intValue(), aitem[3].intValue()));
+			itemlist.add( new ItemCargoEntry(this, itemid, aitem[1], aitem[2].intValue(), aitem[3].intValue()));
 		}
 					
 		return itemlist;
@@ -1135,6 +1186,28 @@ public class Cargo implements Loggable, Cloneable {
 			nohtml = (Boolean)data;
 			break;
 		}
+	}
+	
+	/**
+	 * Gibt den Wert einer Option zurueck
+	 * @param option Die Option
+	 * @return Der Wert
+	 */
+	public Object getOption( Option option ) {
+		switch( option ) {
+		case LINKCLASS:
+			return linkclass;
+
+		case SHOWMASS:
+			return showmass;
+		
+		case LARGEIMAGES:
+			return largeImages;
+			
+		case NOHTML:
+			return nohtml;
+		}
+		return null;
 	}
 	
 	@Override
@@ -1222,19 +1295,118 @@ public class Cargo implements Loggable, Cloneable {
 		return tmp;
 	}
 	
-	/**
-	 * VERALTET - Nicht benutzen!
-	 * @param rid ?
-	 * @return ?
-	 */
-	@Deprecated
-	public static Object[] getItemDataFromRID( int rid ) {
-		// EMPTY
-		return null;
-	}
-	
 	@Override
 	public String toString() {
 		return save();
+	}
+	
+	/**
+	 * Prueft, ob zwei Cargos im Moment den selben Inhalt haben.
+	 * Es wird nicht geprueft, ob sie auch urspruenglich den selben Inhalt hatten
+	 * oder ob die Optionen gleich sind!
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if( !(obj instanceof Cargo) ) {
+			return false;
+		}
+		Cargo c = (Cargo)obj;
+		for( int i=0; i <= MAX_RES; i++ ) {
+			if( c.cargo[i] != this.cargo[i] ) {
+				return false;
+			}
+		}
+		
+		if( this.items.size() != c.items.size() ) {
+			return false;
+		}
+		
+		// Bei vielen Items etwas ineffizient
+		for( int i=0; i < this.items.size(); i++ ) {
+			Long[] item = this.items.get(i);
+			
+			boolean found = false;
+			
+			for( int j=0; j < c.items.size(); j++ ) {
+				Long[] item2 = c.items.get(j);
+				
+				// ID, Quest und Uses vergleichen
+				if( !item[0].equals(item2[0]) ) {
+					continue;
+				}
+				if( !item[2].equals(item2[2]) ) {
+					continue;
+				}
+				if( !item[3].equals(item2[3]) ) {
+					continue;
+				}
+				
+				// Item erfolgreich lokalisiert
+				found = true;
+				
+				if( item[1] != item2[1] ) {
+					return false;
+				}
+				
+				break;
+			}
+			
+			if( !found ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public int hashCode() {
+		long hash = 37;
+		
+		for( int i=0; i <= MAX_RES; i++ ) {
+			hash *= 17;
+			hash += this.cargo[i];
+		}
+		
+		// Items in eine Sortierung bringen, damit zwei Cargos mit gleichen Items aber
+		// unterschiedlicher Reihenfolge den selben hashCode haben
+		Comparator comp = new Comparator<Long[]>() {
+			public int compare(Long[] o1, Long[] o2) {
+				// IDs vergleichen
+				if( !o1[0].equals(o2[0]) ) {
+					return o1[0] > o2[0] ? 1 : -1;
+				}
+				// Quests vergleichen
+				if( !o1[3].equals(o2[3]) ) {
+					return o1[3] > o2[3] ? 1 : -1;
+				}
+				// Benutzungen vergleichen
+				if( !o1[2].equals(o2[2]) ) {
+					return o1[2] > o2[2] ? 1 : -1;
+				}
+				
+				// Menge vergleichen
+				return o1[1] > o2[1] ? 1 : (o1[1] < o2[1] ? -1 : 0); 
+			}
+		};
+		
+		List<Long[]> items = new ArrayList<Long[]>();
+		items.addAll(this.items);
+		Collections.sort(items, comp);
+		
+		for( int i=0; i < items.size(); i++ ) {
+			Long[] item = items.get(i);
+			hash *= 17;
+			hash += item[0];
+			hash *= 17;
+			hash += item[1];
+			hash *= 17;
+			hash += item[2];
+			hash *= 17;
+			hash += item[3];
+		}
+		
+		return (int)hash;
 	}
 }

@@ -183,4 +183,24 @@ public class UnmodifiableCargo extends Cargo {
 	protected List<Long[]> getItemArray() {
 		return new ArrayList<Long[]>(innerCargo.getItemArray());
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return this == obj;
+	}
+
+	@Override
+	public Object getOption(Option option) {
+		return innerCargo.getOption(option);
+	}
+
+	@Override
+	public int hashCode() {
+		return innerCargo.hashCode();
+	}
+
+	@Override
+	public String toString() {
+		return innerCargo.toString();
+	}
 }

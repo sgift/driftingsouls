@@ -24,6 +24,9 @@ import java.util.Map;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
 import net.driftingsouls.ds2.server.framework.BasicUser;
@@ -174,7 +177,9 @@ public class User extends BasicUser implements Loggable {
 	private String cargo;
 	private String nstat;
 	private int npcpunkte;
-	private int allyposten;
+	@OneToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="allyposten", nullable=true)
+	private AllyPosten allyposten;
 	private int gtudropzone;
 	private String npcorderloc;
 	private int flagschiff;
@@ -795,9 +800,9 @@ public class User extends BasicUser implements Loggable {
 	/**
 	 * Gibt den durch den Spieler besetzten Allianz-Posten zurueck.
 	 * zurueckgegeben. 
-	 * @return Der AllyPosten oder <code>0</code>
+	 * @return Der AllyPosten oder <code>null</code>
 	 */
-	public int getAllyPosten() {
+	public AllyPosten getAllyPosten() {
 		return this.allyposten;
 	}
 	
@@ -805,8 +810,14 @@ public class User extends BasicUser implements Loggable {
 	 * Setzt den durch den Spieler besetzten Allianz-Posten
 	 * @param posten Der Allianzposten
 	 */
-	public void setAllyPosten( int posten ) {
+	public void setAllyPosten( AllyPosten posten ) {
 		this.allyposten = posten;
+	
+		// TODO: Herausfinden warum Hibernate das nicht automatisch macht
+		// wenn User.setAllyPosten(posten) aufgerufen wird
+		if( (posten != null) && (posten.getUser() != this) ) { 
+			posten.setUser(this);
+		}
 	}
 	
 	/**

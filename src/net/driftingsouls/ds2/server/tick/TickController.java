@@ -128,33 +128,42 @@ public abstract class TickController {
 	 * Startet die Tickausfuehrung
 	 */
 	public void execute() {
-		log("-----------------"+Common.date("d.m.Y H:i:s")+"-------------------");
-		
-		prepare();
-		if( getErrorList().length == 0 ) {
-			tick();
-		}
-		
-		if( getErrorList().length > 0 ) {
-			log("");
-			log("Fehlerliste:");
-
-			for( net.driftingsouls.ds2.server.framework.pipeline.Error error : getErrorList() ) {
-				slog("* ");
-				log(error.getDescription());
+		try {
+			log("-----------------"+Common.date("d.m.Y H:i:s")+"-------------------");
+			
+			prepare();
+			if( getErrorList().length == 0 ) {
+				tick();
 			}
+			
+			if( getErrorList().length > 0 ) {
+				log("");
+				log("Fehlerliste:");
+	
+				for( net.driftingsouls.ds2.server.framework.pipeline.Error error : getErrorList() ) {
+					slog("* ");
+					log(error.getDescription());
+				}
+			}
+			
+			if( context.getResponse().getContent().length() > 0 ) {
+				log("\n-------------Weitere Ausgaben---------------\n");
+				log(context.getResponse().getContent().toString());
+			}
+			context.getResponse().setContent("");
+			
+			log("");
+			log("QCount: "+getDatabase().getQCount());
+			
+			log("Execution-Time: "+(System.currentTimeMillis()-exectime)+"s");
 		}
-		
-		if( context.getResponse().getContent().length() > 0 ) {
-			log("\n-------------Weitere Ausgaben---------------\n");
-			log(context.getResponse().getContent().toString());
+		catch( Exception e ) {
+			e.printStackTrace();
+			getDB().getTransaction().rollback();
 		}
-		context.getResponse().setContent("");
-		
-		log("");
-		log("QCount: "+getDatabase().getQCount());
-		
-		log("Execution-Time: "+(System.currentTimeMillis()-exectime)+"s");
+		finally {
+			getContext().commit();
+		}
 	}
 	
 	/**
@@ -247,6 +256,14 @@ public abstract class TickController {
 	 */
 	public Database getDatabase() {
 		return context.getDatabase();
+	}
+	
+	/**
+	 * Gibt die Hibernate DB-Session des Kontexts zurueck
+	 * @return die DB-Session
+	 */
+	public org.hibernate.Session getDB() {
+		return context.getDB();
 	}
 	
 	/**
