@@ -225,7 +225,7 @@ public class User extends BasicUser implements Loggable {
 				pre+"history", this.history,
 				pre+"medals", this.medals,
 				pre+"rang", this.rang,
-				pre+"ally", this.ally,
+				pre+"ally", this.ally != null ? this.ally.getId() : 0,
 				pre+"konto", this.konto,
 				pre+"cargo", this.cargo,
 				pre+"nstat", this.nstat,
