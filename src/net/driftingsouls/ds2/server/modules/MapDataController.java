@@ -502,7 +502,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 			
 			String usersql = "="+this.usedUser.getId();
 			if( this.ally.getInt("showlrs") != 0 ) {				
-				SQLQuery uid = db.query("SELECT id FROM users WHERE ally=",this.usedUser.getAlly());
+				SQLQuery uid = db.query("SELECT id FROM users WHERE ally=",this.usedUser.getAlly().getId());
 				
 				Integer[] allyusers = new Integer[uid.numRows()];
 				int index = 0;
