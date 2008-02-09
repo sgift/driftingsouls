@@ -25,6 +25,7 @@ import java.util.List;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -119,20 +120,20 @@ public class PlayerDelete implements AdminPlugin, Loggable {
 		echo.append("Loesche 'Abgeschlossen'-Status bei Quests<br />\n");
 		db.update("DELETE FROM quests_completed WHERE userid="+userid);
 		
-		if( user.getAlly() != 0 ) {
+		if( user.getAlly() != null ) {
 			echo.append("Stelle fest ob die Ally jetzt zu wenig Member hat\n");
 				
-			SQLResultRow ally = db.first("SELECT * FROM ally WHERE id="+user.getAlly());
+			Ally ally = user.getAlly();
 				
 			// Allianzen mit einem NPC als Praesidenten koennen auch mit 1 oder 2 Membern existieren
-			if( ally.getInt("president") > 0 ) {
-				int count = db.first("SELECT count(*)-1 as count FROM users WHERE ally="+ally.getInt("id")).getInt("count");
+			if( ally.getPresident().getId() > 0 ) {
+				int count = db.first("SELECT count(*)-1 as count FROM users WHERE ally="+ally.getId()).getInt("count");
 				if( count < 3 ) {
-					Taskmanager.getInstance().addTask(Taskmanager.Types.ALLY_LOW_MEMBER, 21, Integer.toString(ally.getInt("id")), "", "" );
+					Taskmanager.getInstance().addTask(Taskmanager.Types.ALLY_LOW_MEMBER, 21, Integer.toString(ally.getId()), "", "" );
 	
 					SQLQuery supermemberid = db.query("SELECT DISTINCT id FROM users " +
-							"WHERE ally="+ally.getInt("id")+" AND " +
-									"(allyposten is not null OR id="+ally.getInt("president")+") " +
+							"WHERE ally="+ally.getId()+" AND " +
+									"(allyposten is not null OR id="+ally.getPresident().getId()+") " +
 									"AND id!="+userid);
 					while( supermemberid.next() ) {
 						PM.send( context, 0, supermemberid.getInt("id"), "Drohende Allianzaufl&oum;sung", 

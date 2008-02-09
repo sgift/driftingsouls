@@ -251,7 +251,7 @@ public class ComNetChannel {
 	 * @param user Der Benutzer
 	 * @return <code>true</code>, falls er lesbar ist
 	 */
-	/*public boolean isReadable( User user ) {
+	public boolean isReadable( User user ) {
 		if( this.readAll || ((user.getId() < 0) && this.readNpc) || 
 			((user.getAlly() != null) && (this.readAlly == user.getAlly().getId())) || 
 			(user.getAccessLevel() >= 100) ) {
@@ -281,14 +281,14 @@ public class ComNetChannel {
 		}
 		
 		return false;
-	}*/
+	}
 	
 	/**
 	 * Prueft, ob der ComNet-Kanal fuer den angegebenen Benutzer schreibbar ist
 	 * @param user Der Benutzer
 	 * @return <code>true</code>, falls er schreibbar ist
 	 */
-	/*public boolean isWriteable( User user ) {
+	public boolean isWriteable( User user ) {
 		if( this.writeAll || ((user.getId() < 0) && this.writeNpc) || 
 				((user.getAlly() != null) && (this.writeAlly == user.getAlly().getId())) || 
 				(user.getAccessLevel() >= 100) ) {
@@ -304,7 +304,7 @@ public class ComNetChannel {
 		}
 		
 		return false;
-	}*/
+	}
 
 	/**
 	 * Gibt die Anzahl an Posts im ComNet-Kanal zurueck

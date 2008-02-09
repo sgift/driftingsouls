@@ -99,7 +99,7 @@ public class AcademyTick extends TickController {
 		SQLQuery acc = db.query("SELECT * FROM academy WHERE remain!=0 ORDER BY id");
 		while( acc.next() ) {
 			try {
-				int id = acc.getInt("id");
+				int id = acc.getInt("col");
 				SQLResultRow base = db.first("SELECT t1.name,t1.owner,t2.vaccount,t2.wait4vac FROM bases t1,users t2 WHERE t1.id=",acc.getInt("col")," AND t1.owner=t2.id");
 			
 				if( (base.getInt("vaccount") == 0) && (base.getInt("wait4vac") != 0) ) {
@@ -175,7 +175,7 @@ public class AcademyTick extends TickController {
 					query.append(dat[0]);
 					db.update(query.toString());
 				}
-				db.update("UPDATE academy SET remain=0,train=0,`upgrade`='' WHERE id=",id);
+				db.update("UPDATE academy SET remain=0,train=0,`upgrade`='' WHERE col=",id);
 				
 				// Nachricht versenden
 				String msg = "Die Flottenakademie auf dem Asteroiden "+base.getString("name")+" hat die Ausbildung abgeschlossen";

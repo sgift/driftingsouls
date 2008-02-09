@@ -49,7 +49,7 @@ public class KSTakeCommandAction extends BasicKSAction {
 		
 		User user = (User)context.getActiveUser();	
 		
-		if( (battle.getAlly(battle.getOwnSide()) == 0) || (battle.getAlly(battle.getOwnSide()) != user.getAlly()) ) {
+		if( (battle.getAlly(battle.getOwnSide()) == 0) || user.getAlly() == null || (battle.getAlly(battle.getOwnSide()) != user.getAlly().getId()) ) {
 			battle.logme( "Sie geh&ouml;ren nicht der kommandierenden Allianz an\n" );
 			return RESULT_ERROR;
 		}

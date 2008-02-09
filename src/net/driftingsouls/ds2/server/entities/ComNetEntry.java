@@ -75,7 +75,7 @@ public class ComNetEntry {
 		this.user = user;
 		this.channel = channel;
 		this.pic = user.getId();
-		this.allyPic = user.getAlly() != 0 ? user.getAlly() : 0;
+		this.allyPic = user.getAlly() != null ? user.getAlly().getId() : 0;
 		this.tick = ContextMap.getContext().get(ContextCommon.class).getTick();
 		this.time = Common.time();
 		this.name = user.getName();

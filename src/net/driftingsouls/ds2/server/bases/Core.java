@@ -22,9 +22,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.caches.CacheManager;
 import net.driftingsouls.ds2.server.framework.caches.ControllableCache;
-import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 //TODO: Warum Verbrauch/Produktion unterscheiden?
@@ -55,14 +55,13 @@ public abstract class Core {
 	/**
 	 * Gibt eine Instanz der Coreklasse des angegebenen Coretyps zurueck.
 	 * Sollte kein passender Coretyp existieren, wird <code>null</code> zurueckgegeben.
-	 * 
-	 * @param db Eine Datenbankverbindung
 	 * @param id Die ID des Coretyps
+	 * 
 	 * @return Eine Instanz der zugehoerigen Coreklasse
 	 */
-	public static synchronized Core getCore(Database db, int id) {
+	public static synchronized Core getCore(int id) {
 		if( !coreCache.containsKey(id) ) {
-			SQLResultRow row = db.first("SELECT * FROM cores WHERE id='",id,"'");
+			SQLResultRow row = ContextMap.getContext().getDatabase().first("SELECT * FROM cores WHERE id='",id,"'");
 			if( row.isEmpty() ) {
 				coreCache.put(id, null);
 			}
@@ -88,7 +87,7 @@ public abstract class Core {
 	/**
 	 * Gibt den Basis-Typ, in den die Core passt, zurueck
 	 * @return der Basistyp
-	 * @see Base#getKlasse()
+	 * @see OldBase#getKlasse()
 	 */
 	public abstract int getAstiType();
 	

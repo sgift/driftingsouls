@@ -28,7 +28,6 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -57,24 +56,21 @@ public class CoreController extends TemplateGenerator {
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		Database db = getDatabase();
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		int col = getInteger("col");
 		
-		SQLResultRow base = db.first("SELECT * FROM bases WHERE owner=",user.getId()," AND id=",col);
-		if( base.isEmpty() ) {
+		base = (Base)getDB().get(Base.class, col);
+		if( (base == null) || (base.getOwner() != user) ) {
 			addError( "Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "basen") );
 			
 			return false;
 		}
 		
-		t.setVar( "base.id", base.getInt("id") );
-							
-		this.base = new Base(base);
+		t.setVar( "base.id", base.getId() );
 		
-		return true;	
+		return true;
 	}
 
 	/**
@@ -85,7 +81,6 @@ public class CoreController extends TemplateGenerator {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void buildAction() {
-		Database db = getDatabase();
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
@@ -99,7 +94,7 @@ public class CoreController extends TemplateGenerator {
 			return;
 		}
 		
-		Core core = Core.getCore(db, build);
+		Core core = Core.getCore(build);
 		if( core == null ) {
 			addError("Der angegebene Core-Typ existiert nicht", Common.buildUrl("default", "module", "base", "col", base.getId()));
 			setTemplate("");
@@ -147,7 +142,7 @@ public class CoreController extends TemplateGenerator {
 		// Genuegend Res vorhanden -> Bauen
 		if( ok ) {
 			base.setCore(build);
-		
+			
 			base.setCoreActive(false);
 		
 			if( core.getArbeiter()+base.getArbeiter() > base.getBewohner() ) {
@@ -160,21 +155,11 @@ public class CoreController extends TemplateGenerator {
 			cargo.substractCargo( costs );
 	
 			base.setCargo(cargo);
-			db.tBegin();
-			db.update("UPDATE bases " +
-					"SET core=",build,",cargo='",cargo.save(),"',coreactive=0 " +
-					"WHERE id=",base.getId()," AND core='0' AND cargo='",cargo.save(true),"'");
+			base.setCore(build);
 			
 			if( base.isCoreActive() ) {
-				db.update("UPDATE bases " +
-						"SET coreactive='1',arbeiter=arbeiter+'",core.getArbeiter(),"',bewohner=bewohner+'",core.getBewohner(),"' " +
-						"WHERE id=",base.getId()," AND arbeiter='",base.getArbeiter(),"' AND coreactive='0' AND bewohner='",base.getBewohner(),"'");
-				
-				base.setArbeiter(base.getArbeiter() + core.getArbeiter());
-				base.setBewohner(base.getBewohner() + core.getBewohner());
-			}
-			if( !db.tCommit() ) {
-				addError("Beim bauen der Core ist ein Fehler aufgetreten. Bitte versuchen sie es sp&auml;ter erneut");
+				base.setArbeiter(base.getArbeiter()+core.getArbeiter());
+				base.setBewohner(base.getBewohner()+core.getBewohner());
 			}
 		}
 		
@@ -186,7 +171,6 @@ public class CoreController extends TemplateGenerator {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void deactivateAction() {
-		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
 		
 		if( !base.isCoreActive() ) {
@@ -194,18 +178,8 @@ public class CoreController extends TemplateGenerator {
 			return;
 		}
 		
-		Core core = Core.getCore(db, base.getCore());
-
-		db.update("UPDATE bases " +
-				"SET coreactive='0',arbeiter=arbeiter-'",core.getArbeiter(),"' " +
-				"WHERE id=",base.getId()," AND arbeiter='",base.getArbeiter(),"' AND bewohner='",base.getBewohner(),"' AND coreactive='1'");
-		
-		if( db.affectedRows() == 0 ) {
-			t.setVar("core.message", "<span class=\"error\">Deaktivierung fehlgeschlagen. Bitte versuchen sie es sp&auml;ter erneut</span>");
-			redirect();
-			return;
-		}
-		
+		Core core = Core.getCore(base.getCore());
+				
 		base.setArbeiter(base.getArbeiter() - core.getArbeiter());
 		base.setCoreActive(false);
 		
@@ -220,7 +194,6 @@ public class CoreController extends TemplateGenerator {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void activateAction() {
-		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
 		
 		if( base.isCoreActive() ) {
@@ -228,21 +201,11 @@ public class CoreController extends TemplateGenerator {
 			return;
 		}
 		
-		Core core = Core.getCore(db, base.getCore());
+		Core core = Core.getCore(base.getCore());
 		if( core.getArbeiter()+base.getArbeiter() > base.getBewohner() ) {
 			t.setVar( "core.message", "<span style=\"color:#ff0000\">Nicht gen&uuml;gend Arbeiter</span>" );
 		} 
 		else {
-			db.update("UPDATE bases " +
-					"SET coreactive='1',arbeiter=arbeiter+'",core.getArbeiter(),"' " +
-					"WHERE id=",base.getId()," AND arbeiter='",base.getArbeiter(),"' AND coreactive='0' AND bewohner='",base.getBewohner(),"'");
-			
-			if( db.affectedRows() == 0 ) {
-				t.setVar("core.message", "<span class=\"error\">Aktivierung fehlgeschlagen. Bitte versuchen sie es sp&auml;ter erneut</span>");
-				redirect();
-				return;
-			}
-			
 			base.setArbeiter(base.getArbeiter() + core.getArbeiter());
 			base.setCoreActive(true);
 		
@@ -253,10 +216,9 @@ public class CoreController extends TemplateGenerator {
 	}
 	
 	private void showCore() {
-		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
 		
-		Core core = Core.getCore(db, base.getCore());
+		Core core = Core.getCore(base.getCore());
 		
 		t.setVar(	"core.astitype",	core.getAstiType(),
 					"core.name",		Common._plaintitle(core.getName()),
@@ -298,7 +260,7 @@ public class CoreController extends TemplateGenerator {
 
 		SQLQuery coreID = db.query("SELECT id FROM cores WHERE astitype='",base.getKlasse(),"'");
 		while( coreID.next() ) {
-			Core core = Core.getCore(db, coreID.getInt("id"));
+			Core core = Core.getCore(coreID.getInt("id"));
 			
 			if( !user.hasResearched(core.getTechRequired()) ) {
 				continue;

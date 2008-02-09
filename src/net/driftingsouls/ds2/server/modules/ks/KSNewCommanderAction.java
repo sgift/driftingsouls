@@ -60,7 +60,7 @@ public class KSNewCommanderAction extends BasicKSAction {
 			return RESULT_ERROR;
 		}
 		
-		if( (battle.getAlly(battle.getOwnSide()) == 0) || (com.getAlly() != battle.getAlly(battle.getOwnSide())) ) {
+		if( (battle.getAlly(battle.getOwnSide()) == 0) || com.getAlly() == null || (com.getAlly().getId() != battle.getAlly(battle.getOwnSide())) ) {
 			boolean found = false;
 			List<SQLResultRow> ownShips = battle.getOwnShips();
 			for( int i=0; i < ownShips.size(); i++ ) {

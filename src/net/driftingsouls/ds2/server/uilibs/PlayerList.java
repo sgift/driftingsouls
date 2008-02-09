@@ -152,12 +152,12 @@ public class PlayerList {
 			} 
 
 			String ally = "&nbsp;";
-			if( aUser.getAlly() != 0 ) {
+			if( aUser.getAlly() != null ) {
 				if( user != null ) {
-					ally = "<a class=\"profile\" href=\""+Common.buildUrl("details", "module", "allylist", "details", aUser.getAlly()) +"\">"+Common._title(allys.get(aUser.getAlly()))+"</a>";
+					ally = "<a class=\"profile\" href=\""+Common.buildUrl("details", "module", "allylist", "details", aUser.getAlly().getId()) +"\">"+Common._title(allys.get(aUser.getAlly().getId()))+"</a>";
 				}
 				else {
-					ally = Common._title(allys.get(aUser.getAlly()));
+					ally = Common._title(allys.get(aUser.getAlly().getId()));
 				}
 			} 
 			

@@ -24,8 +24,6 @@ import net.driftingsouls.ds2.server.bases.Core;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -53,23 +51,24 @@ public class ActivateAllController extends TemplateGenerator {
 		
 		parameterNumber("col");
 		parameterNumber("deaconly");
+		
+		setPageTitle("Alles Aktivieren");
 	}
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		Database db = getDatabase();
 		User user = (User)getUser();
 		
 		int col = getInteger("col");
 		
 		//Existiert die Basis?
-		SQLResultRow base = db.first("SELECT * FROM bases WHERE owner='",user.getId(),"' AND id='",col,"'");
-		if( base.isEmpty() ) {
+		Base base = (Base)getDB().get(Base.class, col);
+		if( (base == null) || (base.getOwner() != user) ) {
 			addError("Die angegebene Kolonie existiert nicht");
 			return false;
 		}
 				
-		this.base = new Base(base);
+		this.base = base;
 
 		return true;	
 	}
@@ -81,7 +80,6 @@ public class ActivateAllController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
 		
 		t.setVar("base.id", base.getId());
 		
@@ -96,26 +94,25 @@ public class ActivateAllController extends TemplateGenerator {
 		/*
 			Alle Gebaeude deaktivieren
 		*/
-		String query = "";
-		Core core = Core.getCore(db, base.getCore());
+		Core core = Core.getCore(base.getCore());
 		
 		if( (base.getCore() != 0) && base.isCoreActive() ) {
 			base.setArbeiter(base.getArbeiter() - core.getArbeiter());
 			base.setCoreActive(false);
-			query = "coreactive=0,";
 
 			if( deakOnly != 0 ) {
 				t.setVar("deak.name", Common._plaintitle(core.getName()) );
 				t.parse("deak.list", "deak.listitem", true);
 			}
-		} 
+		}
 
+		Integer[] ondb = base.getActive();
 		for( int i=0; i < base.getWidth()*base.getHeight(); i++ ) {
-			if( (base.getBebauung()[i] != 0) && (base.getActive()[i] == 1 ) ) {
-				Building building = Building.getBuilding(db, base.getBebauung()[i]);
+			if( (base.getBebauung()[i] != 0) && (ondb[i] == 1 ) ) {
+				Building building = Building.getBuilding(base.getBebauung()[i]);
 				
 				if( building.isDeakAble() ) {
-					base.getActive()[i] = 0;
+					ondb[i] = 0;
 					base.setArbeiter(base.getArbeiter() - building.getArbeiter());
 					
 					if( deakOnly != 0 ) {
@@ -126,23 +123,17 @@ public class ActivateAllController extends TemplateGenerator {
 			}
 		}
 
-		String ondb = Common.implode( "|", base.getActive() );
-		query += "active='"+ondb+"'";
-
-		db.update("UPDATE bases SET ",query,",arbeiter='"+this.base.getArbeiter()+"' WHERE id='"+base.getId()+"'");
+		base.setActive(ondb);
 		
 		/*
 			Falls gewuenscht, nun alle Gebaeude nacheinander aktivieren
 		*/
 		if( deakOnly == 0 ) {
-			query = "";
-
 			if( base.getCore() != 0 ) {
 				if( base.getBewohner() >= base.getArbeiter()+core.getArbeiter() ) {
 					base.setArbeiter(base.getArbeiter() + core.getArbeiter());
 					base.setCoreActive(true);
 					
-					query = "coreactive=1,";
 					t.setVar(	"activate.name",	Common._plaintitle(core.getName()),
 								"activate.success",	1 );
 				} 
@@ -155,10 +146,10 @@ public class ActivateAllController extends TemplateGenerator {
 
 			for( int i=0; i < base.getWidth()*base.getHeight(); i++ ) {
 				if( base.getBebauung()[i] != 0 ) {
-					Building building = Building.getBuilding(db, base.getBebauung()[i]);
+					Building building = Building.getBuilding(base.getBebauung()[i]);
 					
 					if( building.isDeakAble() && (base.getBewohner() >= base.getArbeiter()+building.getArbeiter()) ) {
-						this.base.getActive()[i] = 1;
+						ondb[i] = 1;
 						this.base.setArbeiter(base.getArbeiter() + building.getArbeiter());
 						
 						t.setVar(	"activate.name",	Common._plaintitle(building.getName()),
@@ -171,9 +162,8 @@ public class ActivateAllController extends TemplateGenerator {
 					t.parse("activate.list", "activate.listitem", true);
 				}
 			}
-			ondb = Common.implode("|",base.getActive());
-			query += "active='"+ondb+"'";
-			db.update("UPDATE bases SET ",query,",arbeiter='",base.getArbeiter(),"' WHERE id='",base.getId(),"'");
+			
+			base.setActive(ondb);
 		} 
 	}
 

@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.util.List;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.bases.Base;
@@ -30,8 +31,6 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -80,10 +79,9 @@ public class BasenController extends TemplateGenerator {
 	/**
 	 * Zeigt die Liste aller Basen an
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
-		Database db = getDatabase();
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
@@ -132,9 +130,8 @@ public class BasenController extends TemplateGenerator {
 		t.setBlock("bases.listitem", "bases.mangel.listitem", "bases.mangel.list");
 		t.setBlock("bases.listitem", "bases.cargo.listitem", "bases.cargo.list");
 		
-		SQLQuery baseRow = db.query("SELECT * FROM bases WHERE owner=",user.getId()," ORDER BY ",ow," ",om);
-		while( baseRow.next() ) {
-			Base base = new Base(baseRow.getRow());
+		List<Base> list = getContext().query("from Base where owner="+user.getId()+" order by "+ow+" "+om, Base.class);
+		for( Base base : list ) {
 			BaseStatus basedata = Base.getStatus(getContext(),base);
 			
 			t.setVar( "base.id"		, base.getId(),
@@ -144,7 +141,7 @@ public class BasenController extends TemplateGenerator {
 					"base.x"		, base.getX(),
 					"base.y"		, base.getY(),
 					"base.bewohner"	, base.getBewohner(),
-					"base.e"		, base.getE(),
+					"base.e"		, base.getEnergy(),
 					"base.e.diff"	, basedata.getE(),
 					"bases.mangel.list"	, "",
 					"bases.cargo.list"	, "" );
@@ -153,7 +150,7 @@ public class BasenController extends TemplateGenerator {
 				Mangel + Runden anzeigen
 			*/
 	
-			Cargo cargo = base.getCargo();
+			Cargo cargo = new Cargo(base.getCargo());
 			cargo.addResource( Resources.NAHRUNG, usercargo.getResourceCount( Resources.NAHRUNG ) );
 	
 			ResourceList reslist = basedata.getStatus().getResourceList();
@@ -189,7 +186,7 @@ public class BasenController extends TemplateGenerator {
 			StringBuilder shortcuts = new StringBuilder(10);
 
 			for( Integer bid : basedata.getBuildingLocations().keySet() ) {
-				Building building = Building.getBuilding(db, bid);
+				Building building = Building.getBuilding(bid);
 		
 				shortcuts.append(building.echoShortcut( getContext(), base, basedata.getBuildingLocations().get(bid), bid ));
 				shortcuts.append(" ");
@@ -199,7 +196,6 @@ public class BasenController extends TemplateGenerator {
 									
 			t.parse("bases.list", "bases.listitem", true);
 		}
-		baseRow.free();
 	}
 
 }

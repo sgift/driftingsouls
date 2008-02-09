@@ -351,7 +351,6 @@ class Forschungszentrum extends DefaultBuilding {
 			
 			db.tBegin();
 			db.tUpdate(1,"UPDATE fz SET forschung=",researchid,",dauer=",tech.getTime()," WHERE col="+base.getId()+" AND forschung=0 AND dauer=0");
-			db.tUpdate(1,"UPDATE bases SET cargo='",cargo.save(),"' WHERE id="+base.getId()+" AND cargo='",cargo.save(true),"'");
 			base.setCargo(cargo);
 			
 			if( !db.tCommit() ) {
@@ -361,7 +360,9 @@ class Forschungszentrum extends DefaultBuilding {
 	}
 
 	@Override
-	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
+	public String output(TemplateEngine t, Base base, int field, int building) {
+		Context context = ContextMap.getContext();
+		
 		Database db = context.getDatabase();
 
 		String sess = context.getSession();

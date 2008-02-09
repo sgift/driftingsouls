@@ -463,7 +463,7 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 
 				historyobj.setController(this);
 				
-				if( (battle.getAlly(battle.getOwnSide()) != 0) && (battle.getTakeCommand(battle.getOwnSide()) == 0) && (battle.getAlly(battle.getOwnSide()) == user.getAlly()) ) {
+				if( (user.getAlly() != null) && (battle.getTakeCommand(battle.getOwnSide()) == 0) && (battle.getAlly(battle.getOwnSide()) == user.getAlly().getId()) ) {
 					User auser = (User)getDB().get(User.class, battle.getCommander(battle.getOwnSide()));
 					if( auser.getInactivity() > 0 ) {
 						historyobj.showTakeCommand(true);

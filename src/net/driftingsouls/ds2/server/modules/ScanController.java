@@ -573,7 +573,7 @@ public class ScanController extends TemplateGenerator {
 										own++;
 									}
 								}
-								else if( (myship.getInt("owner") != user.getId()) && (user.getAlly() != 0) && (myship.getInt("ally") == user.getAlly()) ) {
+								else if( (myship.getInt("owner") != user.getId()) && (user.getAlly() != null) && (myship.getInt("ally") == user.getAlly().getId()) ) {
 									if( (myship.getString("docked").length() == 0) || (myship.getString("docked").charAt(0) != 'l') ) {
 										if( ally == 0 ) {
 											fleet[1] = "_fa";
@@ -581,7 +581,7 @@ public class ScanController extends TemplateGenerator {
 										ally++;
 									}
 								}
-								else if( (myship.getInt("owner") != user.getId()) && ( (user.getAlly() == 0) || ((user.getAlly() != 0) && (myship.getInt("ally") != user.getAlly()) ) )  ) {
+								else if( (myship.getInt("owner") != user.getId()) && ( (user.getAlly() == null) || ((user.getAlly() != null) && (myship.getInt("ally") != user.getAlly().getId()) ) )  ) {
 									if( (myship.getString("docked").length() == 0) || (myship.getString("docked").charAt(0) != 'l') ) {
 										if( enemy == 0 ) {
 											fleet[2] = "_fe";
@@ -617,7 +617,7 @@ public class ScanController extends TemplateGenerator {
 								t.setVar(	"map.image",		"asti_own/asti_own",
 											"map.image.name",	"Eigener Asteroid" );
 							}
-							else if( (entry.owner != 0) && (user.getAlly() > 0) && (entry.ally == user.getAlly()) ) {
+							else if( (entry.owner != 0) && (user.getAlly() != null) && (entry.ally == user.getAlly().getId()) ) {
 								t.setVar(	"map.image",		"asti_ally/asti_ally",
 											"map.image.name",	"Ally Asteroid" );
 							}

@@ -18,7 +18,6 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -34,12 +33,10 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
+import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
+import net.driftingsouls.ds2.server.entities.StatVerkaeufe;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 /**
@@ -50,40 +47,34 @@ import net.driftingsouls.ds2.server.tick.TickController;
 public class BaseTick extends TickController {
 	private Cargo curse;
 	private StringBuilder pmcache;
-	private User lastowner;
+	private int lastowner;
 	private Map<Integer,Cargo> gtustatslist; // GTU-Cargostats pro System
 	private Cargo usercargo;
 	private int tick;
-	private int retries;
-	private PreparedQuery updateBaseQuery = null;
 	
 	@Override
 	protected void prepare() {
-		Database db = getDatabase();
+		//getDB().setFlushMode(FlushMode.MANUAL);
 		
 		// Aktuelle Warenkurse fuer die Kommandozentrale laden
-		String curse = db.first("SELECT kurse FROM gtu_warenkurse WHERE place='asti'").getString("kurse");
-		this.curse = new Cargo( Cargo.Type.STRING, curse );
+		GtuWarenKurse kurs = (GtuWarenKurse)getDB().get(GtuWarenKurse.class, "asti");
+		this.curse = kurs.getKurse();
 		
 		this.pmcache = new StringBuilder();
-		this.lastowner = null;
+		this.lastowner = 0;
 		this.usercargo = null;
 		this.gtustatslist = new HashMap<Integer,Cargo>();
 		this.tick = getContext().get(ContextCommon.class).getTick();
-		this.retries = 0;
 	}
 	
 	private void tickBase( Base base ) {
-		Database db = getContext().getDatabase();
+		org.hibernate.Session db = getDB();
 		
-		long usercargostart = this.usercargo.getResourceCount(Resources.NAHRUNG);
 		Map<Integer,Cargo> oldgtustatslist = new HashMap<Integer,Cargo>();
 		for( Integer sysid : this.gtustatslist.keySet() ) {
 			oldgtustatslist.put(sysid, (Cargo)gtustatslist.get(sysid).clone() );
 		}
-		StringBuilder oldpmcache = new StringBuilder(this.pmcache);
-		Base oldbase = (Base)base.clone();
-		
+
 		Cargo cargo = (Cargo)base.getCargo().clone();
 		cargo.setOption( Cargo.Option.NOHTML, true );
 		
@@ -92,7 +83,8 @@ public class BaseTick extends TickController {
 		Integer[] bebon = base.getActive();
 	
 		int bewohner = base.getBewohner();
-		int e = base.getE();
+		int marines = base.getMarines();
+		int e = base.getEnergy();
 		int arbeiter = base.getArbeiter();
 	
 		BaseStatus basedata = Base.getStatus(getContext(), base);
@@ -106,6 +98,9 @@ public class BaseTick extends TickController {
 			this.log("\t+ "+(diff/2+1)+" Bewohner");
 			
 			basedata.getStatus().substractResource( Resources.NAHRUNG, bewohner );
+		}
+		if( marines != 0){
+			basedata.getStatus().substractResource( Resources.NAHRUNG, marines );
 		}
 		
 		if( basedata.getBewohner() < bewohner ) {
@@ -128,7 +123,7 @@ public class BaseTick extends TickController {
 			this.log("\t   * "+res.getName()+" ("+res.getId()+") : cargo "+res.getCount1()+" stat "+res.getCount2());
 			
 			if( !res.getId().equals(Resources.NAHRUNG) ) {
-				if( res.getCount1() + res.getCount2() < 0 ) {
+				if( (res.getCount2() < 0) && (res.getCount1() + res.getCount2() < 0) ) {
 					allok = false;
 					reason = "Sie haben zu wenig "+res.getName();
 				}
@@ -141,10 +136,12 @@ public class BaseTick extends TickController {
 		
 		Cargo nc = (Cargo)cargo.clone();
 		
-		long usercargo = this.usercargo.getResourceCount(Resources.NAHRUNG) + basedata.getStatus().getResourceCount(Resources.NAHRUNG);
-		if( usercargo < 0 ) {
-			basedata.getStatus().setResource(Resources.NAHRUNG, usercargo);
-			usercargo = 0;
+		long userNahrung = this.usercargo.getResourceCount(Resources.NAHRUNG) +
+			basedata.getStatus().getResourceCount(Resources.NAHRUNG);
+		if( userNahrung < 0 ) {
+			// Nahrung auf dem Asti spaeter entsprechen reduzieren...
+			basedata.getStatus().setResource(Resources.NAHRUNG, userNahrung);
+			userNahrung = 0;
 		}
 		else {
 			basedata.getStatus().setResource(Resources.NAHRUNG, 0);
@@ -158,9 +155,9 @@ public class BaseTick extends TickController {
 		int newe = e + basedata.getE();
 		
 		// Mehr als die max-e? Dann versuchen wir mal ein paar Batts zu laden
-		if( newe > base.getMaxE() ) { 
+		if( newe > base.getMaxEnergy() ) { 
 			long emptybatts = nc.getResourceCount( Resources.LBATTERIEN );
-			long load = newe - base.getMaxE();
+			long load = newe - base.getMaxEnergy();
 			if( emptybatts < load ) {
 				load = emptybatts;
 			}
@@ -172,7 +169,7 @@ public class BaseTick extends TickController {
 			nc.addResource( Resources.BATTERIEN, load );
 			nc.substractResource( Resources.LBATTERIEN, load );
 			
-			newe = base.getMaxE();
+			newe = base.getMaxEnergy();
 		}
 		
 		if( newe < 0 ) {
@@ -190,13 +187,17 @@ public class BaseTick extends TickController {
 			this.log("\tAlles ok");
 			
 			if( !this.gtustatslist.containsKey(base.getSystem()) ) {
-				SQLResultRow statsRow = db.first("SELECT stats FROM stats_verkaeufe WHERE tick=",this.tick," AND place='asti' AND system=",base.getSystem());
+				StatVerkaeufe stat = (StatVerkaeufe)db.createQuery("from StatVerkaeufe where tick=? and place='asti' and system=?")
+					.setInteger(0, this.tick)
+					.setInteger(1, base.getSystem())
+					.uniqueResult();
+				
 				Cargo stats = null;
-				if( statsRow.isEmpty() ) {
+				if( stat == null ) {
 					stats = new Cargo();
 				}
 				else {
-					stats = new Cargo( Cargo.Type.STRING, statsRow.getString("stats") );
+					stats = new Cargo(stat.getStats());
 				}
 				this.gtustatslist.put(base.getSystem(), stats);
 			}
@@ -263,6 +264,7 @@ public class BaseTick extends TickController {
 						this.log("WARNING: Nach verkaeufen auf stat-Basis fehlt immer noch cargo. Verkaufe nun auf Basis vorhandener Resourcen");
 						secondpass = true;
 						reslist = nc.getResourceList();
+						iter = reslist.iterator();
 					}
 				}
 				this.pmcache.append("[b]");
@@ -273,39 +275,19 @@ public class BaseTick extends TickController {
 				
 				get += get2;
 			}
-			
-			db.tBegin(true);
-			
+
 			// Haben wir was verkauft? Wenn ja nun das Geld ueberweisen
 			if( get > 0 ) {
-				User user = (User)getContext().getDB().get(User.class, base.getOwner());
+				User user = base.getOwner();
 				user.transferMoneyFrom(Faction.GTU, get, "Automatischer Warenverkauf Asteroid "+base.getId()+" - "+base.getName(), false, User.TRANSFER_AUTO);	
 			}
 			
-			if( (basedata.getArbeiter() != oldbase.getArbeiter()) || (bewohner != oldbase.getBewohner()) ||
-				(e != oldbase.getE()) || !nc.save().equals(oldbase.getCargo().save()) ) {
-					
-				updateBaseQuery.tUpdate(1, basedata.getArbeiter(), bewohner, newe, nc.save(), 
-						base.getId(), oldbase.getArbeiter(), oldbase.getBewohner(), oldbase.getE(), oldbase.getCargo().save() );
-			}
-			if( !db.tCommit() ) {
-				this.log("\t++++++++++++++ COMMIT ERROR - RETRYING ++++++++++++++");
-				this.usercargo.setResource(Resources.NAHRUNG, usercargostart);
-				this.gtustatslist = oldgtustatslist;
-				this.pmcache = oldpmcache;
-				
-				this.retries--;
-				if( this.retries > 0 ) {
-					base = new Base(db.first("SELECT * FROM bases WHERE id=",oldbase.getId()));
-						  				 
-					tickBase( base );
-					return;	
-				}
-				this.log("\t+++++++++++++++ GEBE AUF +++++++++++++++");	
-			}
-			else {
-				this.usercargo.setResource(Resources.NAHRUNG, usercargo);
-			}
+			this.usercargo.setResource(Resources.NAHRUNG, userNahrung);
+			
+			base.setArbeiter(basedata.getArbeiter());
+			base.setBewohner(bewohner);
+			base.setEnergy(newe);
+			base.setCargo(nc);
 		}
 		// Offenbar haben wir es mit chaotischen Zustaenden zu tun....
 		else {
@@ -316,18 +298,12 @@ public class BaseTick extends TickController {
 			if( this.usercargo.getResourceCount(Resources.NAHRUNG) < 0 ) {
 				this.usercargo.setResource(Resources.NAHRUNG, 0);
 			}
-	
-			db.tBegin(true);
-	
-			if( (basedata.getArbeiter() != oldbase.getArbeiter()) || (basedata.getBewohner() != oldbase.getBewohner()) || 
-				(newe != oldbase.getE()) || !cargo.save().equals(oldbase.getCargo().save()) ) {
-				
-				this.log("Schreibe neue Werte...");
 
-				updateBaseQuery.tUpdate(1, basedata.getArbeiter(), basedata.getBewohner(), newe, cargo.save(), 
-						base.getId(), oldbase.getArbeiter(), oldbase.getBewohner(), oldbase.getE(), oldbase.getCargo().save() );
-			}
-	
+			base.setArbeiter(basedata.getArbeiter());
+			base.setBewohner(basedata.getBewohner());
+			base.setEnergy(newe);
+			base.setCargo(cargo);
+			
 			this.pmcache.append("[b]");
 			this.pmcache.append(base.getName());
 			this.pmcache.append("[/b] - Es herschen chaotische Zust&auml;de - s&auml;mtliche Einrichtungen sind ausgefallen.");
@@ -350,46 +326,21 @@ public class BaseTick extends TickController {
 					bebon[i] = 0;
 				}
 				base.setCoreActive(false);
-				
-				if( (arbeiter != oldbase.getArbeiter()) || (arbeiter != oldbase.getBewohner()) ) {	
-					this.log("Schreibe neue Werte [hungersnot]...");
-					
-					db.tUpdate(1,"UPDATE bases " ,
-						"SET arbeiter=",arbeiter,"," ,
-							"bewohner=",arbeiter,"," ,
-							"active='",Common.implode("|",bebon),"'," ,
-							"coreactive='",base.isCoreActive() ? 1 : 0,"' " ,
-						"WHERE id='",base.getId(),"' AND " ,
-							"arbeiter='",basedata.getArbeiter(),"' AND " ,
-							"bewohner='",basedata.getBewohner(),"' AND " ,
-							"active='",Common.implode("|", oldbase.getActive()),"' AND " ,
-							"coreactive='",oldbase.isCoreActive() ? 1 : 0,"'");
-				}
-			}
-			
-			if( !db.tCommit() ) {
-				this.log("\t++++++++++++++ COMMIT ERROR - RETRYING ++++++++++++++");
-				this.usercargo.setResource(Resources.NAHRUNG, usercargostart);
-				this.gtustatslist = oldgtustatslist;
-				this.pmcache = oldpmcache;
-				
-				this.retries--;
-				if( this.retries > 0 ) {
-					base = new Base(db.first("SELECT * FROM bases WHERE id=",oldbase.getId()));
-						  				 
-					tickBase( base );
-					return;	
-				}
-				this.log("\t+++++++++++++++ GEBE AUF +++++++++++++++");	
+				base.setArbeiter(arbeiter);
+				base.setBewohner(arbeiter);
+				base.setActive(bebon);
+				base.setCoreActive(false);
 			}
 		}
+
 		this.log("");
 	}
+	
 
-	@Override
-	protected void tick() {
-		Database database = getDatabase();
+	private void tickBases() {
 		org.hibernate.Session db = getDB();
+		
+		User sourceUser = (User)db.get(User.class, -1);
 		
 		// Da wir als erstes mit dem Usercargo rumspielen -> sichern der alten Nahrungswerte
 		List users = db.createQuery("from User where id!=0 and (vaccount=0 or wait4vac!=0)").list();
@@ -399,102 +350,93 @@ public class BaseTick extends TickController {
 			auser.setNahrungsStat(Long.toString(new Cargo(Cargo.Type.STRING, auser.getCargo()).getResourceCount(Resources.NAHRUNG)));
 		}
 		
-		// User-Accs sperren
-		block(0);
-		
-		List<SQLResultRow> bases = new ArrayList<SQLResultRow>();
-		
 		// Nun holen wir uns mal die Basen...
-		SQLQuery baseQuery = database.query("SELECT b.* " +
-				"FROM bases b JOIN users u ON b.owner=u.id " +
-				"WHERE b.owner!=0 AND (u.vaccount=0 OR u.wait4vac!=0) " +
-				"ORDER BY b.owner");
-		
-		log("Kolonien: "+baseQuery.numRows());
+		List bases = db.createQuery("from Base b join fetch b.owner where b.owner!=0 and (b.owner.vaccount=0 or b.owner.wait4vac!=0) order by b.owner").list();
+			
+		log("Kolonien: "+bases.size());
 		log("");
 		
-		while( baseQuery.next() ) {
-			bases.add(baseQuery.getRow());
-		}
-		baseQuery.free();
-		
-		for( int i=0; i < bases.size(); i++ ) {
-			SQLResultRow base = bases.get(i);
-			
-			updateBaseQuery = database.prepare("UPDATE bases " ,
-					"SET arbeiter= ? ," ,
-						"bewohner= ? ," ,
-						"e= ? ," ,
-						"cargo= ?  " ,
-					"WHERE id= ? AND " ,
-						"arbeiter= ? AND " ,
-						"bewohner= ? AND " ,
-						"e= ? AND " ,
-						"cargo= ? ");
+		for( Iterator iter = bases.iterator(); iter.hasNext(); ) {
+			Base base = (Base)iter.next();
 			
 			// Muessen ggf noch alte Userdaten geschrieben und neue geladen werden?
-			if( this.lastowner != null && base.getInt("owner") != this.lastowner.getId() ) {
-				log(base.getInt("owner")+":");
+			if( base.getOwner().getId() != this.lastowner ) {
+				log(base.getOwner().getId()+":");
 				if( this.pmcache.length() != 0 ) {
-					PM.send(getContext(),-1, this.lastowner.getId(), "Basis-Tick", this.pmcache.toString(),false);
+					PM.send(sourceUser, this.lastowner, "Basis-Tick", this.pmcache.toString());
 					this.pmcache.setLength(0);
 				}
-				
-				if( this.usercargo != null ) {
-					this.lastowner.setCargo(this.usercargo.save());
-				}
-				
-				this.lastowner = (User)db.get(User.class, base.getInt("owner"));
-				this.usercargo = new Cargo(Cargo.Type.STRING, this.lastowner.getCargo());
-			}
-			else if( this.lastowner == null ) {
-				this.lastowner = (User)db.get(User.class, base.getInt("owner"));
-				this.usercargo = new Cargo(Cargo.Type.STRING, this.lastowner.getCargo());
+								
+				this.usercargo = new Cargo( Cargo.Type.STRING, base.getOwner().getCargo());
 			}
 			
-		
-			this.retries = 5; // Max 5 versuche. Wenn die Basis dann noch immer nicht korrekt berechnet wurde: aufgeben
-
-			try {
-				// Nun wollen wir die Basis mal berechnen....
-				this.tickBase(new Base(base));
-				getContext().commit();
-			}
-			catch( Exception e ) {
-				this.log("Base "+base.getInt("id")+" failed: "+e);
-				e.printStackTrace();
-				Common.mailThrowable(e, "BaseTick Exception", "Base: "+base.getInt("id"));
-				
-				getContext().rollback();
-				db.clear();
-			}
+			this.lastowner = base.getOwner().getId();
+			
+			// Nun wollen wir die Basis mal berechnen....
+			this.tickBase(base);
+			base.getOwner().setCargo(this.usercargo.save());
 		}
 		
 		// ggf noch vorhandene Userdaten schreiben
 		if( this.pmcache.length() != 0 ) {
-			PM.send(getContext(),-1, this.lastowner.getId(), "Basis-Tick", this.pmcache.toString(), false);
+			PM.send(sourceUser, this.lastowner, "Basis-Tick", this.pmcache.toString());
 			this.pmcache.setLength(0);
 		}
-		if( this.usercargo != null ) {
-			this.lastowner.setCargo(this.usercargo.save());
-		}
-		
-		updateBaseQuery.close();
 		
 		// Die neuen GTU-Verkaufsstats schreiben
 		for( Integer sys : this.gtustatslist.keySet() ) {
 			Cargo gtustat = this.gtustatslist.get(sys);
-			SQLResultRow statid = database.first("SELECT id FROM stats_verkaeufe WHERE tick='",this.tick,"' AND place='asti' AND system='",sys,"'");
-			if( statid.isEmpty() ) {
-				database.update("INSERT INTO stats_verkaeufe (tick,place,system,stats) VALUES (",this.tick,",'asti',",sys,",'",gtustat.save(),"')");
+			
+			StatVerkaeufe stat = (StatVerkaeufe)db.createQuery("from StatVerkaeufe where tick=? and place='asti' and system=?")
+				.setInteger(0, this.tick)
+				.setInteger(1, sys)
+				.uniqueResult();
+			
+			if( stat == null ) {
+				stat = new StatVerkaeufe(this.tick, sys, "asti");
+				db.persist(stat);
 			}
-			else {		
-				database.update("UPDATE stats_verkaeufe SET stats='",gtustat.save(),"' WHERE id='",statid,"'");
+			stat.setStats(gtustat);
+		}
+	}
+
+	@Override
+	protected void tick() {
+		org.hibernate.Session db = getDB();
+		
+		// User-Accs sperren
+		block(0);
+		
+		try {
+			tickBases();
+			getContext().commit();
+		}
+		catch( Exception e ) {			
+			this.log("Base Tick failed: "+e);
+			e.printStackTrace();
+			Common.mailThrowable(e, "BaseTick Exception", "");
+			
+			try {
+				getContext().rollback();
+				db.clear();
+				this.gtustatslist.clear();
+				this.pmcache.setLength(0);
+				this.lastowner = 0;
+				this.usercargo = null;
+				
+				tickBases();
+				getContext().commit();
+			}
+			catch( Exception e2 ) {
+				getContext().rollback();
+				
+				this.log("Base Tick failed #2: "+e2);
+				e2.printStackTrace();
+				Common.mailThrowable(e2, "BaseTick Exception #2", "");
 			}
 		}
 		
 		// User-Accs wieder entsperren
 		unblock(0);
 	}
-
 }

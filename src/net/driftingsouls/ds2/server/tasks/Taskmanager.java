@@ -19,16 +19,12 @@
 package net.driftingsouls.ds2.server.tasks;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang.math.RandomUtils;
-
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+
+import org.hibernate.Query;
 
 /**
  * Der Taskmanager
@@ -153,17 +149,16 @@ public class Taskmanager {
 	 * @return Die ID der neuen Task
 	 */
 	public String addTask( Types tasktype, int timeout, String data1, String data2, String data3 ) {
-		String taskid = Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE))+Common.time();
+		Task task = new Task(tasktype);
+		task.setTimeout(timeout);
+		task.setData1(data1);
+		task.setData2(data2);
+		task.setData3(data3);
 		
-		Database db = ContextMap.getContext().getDatabase();
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		db.persist(task);
 		
-		db.prepare("INSERT INTO tasks ",
-				"(`taskid`,`type`,`time`,`timeout`,`data1`,`data2`,`data3`) ",
-				"VALUES",
-				"( ?, ?, ?, ?, ?, ?, ?)")
-			.update(taskid, tasktype.getTypeID(), Common.time(), timeout, data1, data2, data3);
-		
-		return taskid;
+		return task.getTaskID();
 	}
 	
 	/**
@@ -174,14 +169,10 @@ public class Taskmanager {
 	 * @param data3 Das dritte Datenfeld
 	 */
 	public void modifyTask( String taskid, String data1, String data2, String data3 ) {
-		Database db = ContextMap.getContext().getDatabase();
-		
-		db.prepare("UPDATE tasks SET ",
-				"`data1`= ?,",
-				"`data2`= ?,",
-				"`data3`= ? ",
-				"WHERE taskid= ? ")
-			.update(data1, data2, data3, taskid);
+		Task task = getTaskByID(taskid);
+		task.setData1(data1);
+		task.setData2(data2);
+		task.setData3(data3);
 	}
 	
 	/**
@@ -190,11 +181,8 @@ public class Taskmanager {
 	 * @param timeout Das Timeout in Ticks
 	 */
 	public void setTimeout( String taskid, int timeout ) {
-		Database db = ContextMap.getContext().getDatabase();
-		db.prepare("UPDATE tasks SET ",
-				"`timeout`= ? ",
-				"WHERE taskid= ?")
-			.update(taskid, timeout);
+		Task task = getTaskByID(taskid);
+		task.setTimeout(timeout);
 	}
 	
 	/**
@@ -202,11 +190,8 @@ public class Taskmanager {
 	 * @param taskid Die ID der Task
 	 */
 	public void incTimeout( String taskid ) {
-		Database db = ContextMap.getContext().getDatabase();
-		db.prepare("UPDATE tasks SET ",
-				"`timeout`= `timeout`+1 ",
-				"WHERE taskid= ?")
-			.update(taskid);
+		Task task = getTaskByID(taskid);
+		task.setTimeout(task.getTimeout()+1);
 	}
 	
 	/**
@@ -216,13 +201,9 @@ public class Taskmanager {
 	 * @return die Task oder <code>null</code>
 	 */
 	public Task getTaskByID( String taskid ) {
-		Database db = ContextMap.getContext().getDatabase();
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
-		SQLResultRow task = db.prepare("SELECT * FROM tasks WHERE taskid= ?").first(taskid);
-		if( !task.isEmpty() ) {
-			return new Task(task);	
-		}
-		return null;
+		return (Task)db.get(Task.class, taskid);
 	}
 	
 	/**
@@ -231,14 +212,15 @@ public class Taskmanager {
 	 * @return Die Liste aller Tasks mit diesem Timeout (oder eine leere Liste)
 	 */
 	public Task[] getTasksByTimeout( int timeout ) {
-		Database db = ContextMap.getContext().getDatabase();
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 		List<Task> resultlist = new ArrayList<Task>();
 		
-		SQLQuery atask = db.prepare("SELECT * FROM tasks WHERE timeout=? ORDER BY `time` ASC").query(timeout);
-		while( atask.next() ) {
-			resultlist.add(new Task(atask.getRow()));
+		List tasks = db.createQuery("from Task where timeout=? order by time asc")
+			.setInteger(0, timeout)
+			.list();
+		for( Iterator iter=tasks.iterator(); iter.hasNext(); ) {
+			resultlist.add((Task)iter.next());
 		}
-		atask.free();
 		
 		return resultlist.toArray(new Task[resultlist.size()]);
 	}
@@ -253,39 +235,37 @@ public class Taskmanager {
 	 * @return die Liste aller Tasks, die diesem Muster genuegen
 	 */
 	public Task[] getTasksByData( Types type, String data1, String data2, String data3 ) {
-		Database db = ContextMap.getContext().getDatabase();
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 		List<Task> resultlist = new ArrayList<Task>();
 		
-		String query = "SELECT * FROM tasks WHERE type=?";
+		String query = "from Task where type=?";
 		if( !data1.equals("*") ) {
-			query += " AND data1=?";	
+			query += " and data1=?";	
 		}
 		if( !data2.equals("*") ) {
-			query += " AND data2=?";	
+			query += " and data2=?";	
 		}
 		if( !data3.equals("*")) {
-			query += " AND data3=?";	
+			query += " and data3=?";	
 		}
-		query += " ORDER BY `time` ASC";
-		PreparedQuery pq = db.prepare(query);
-		int index=1;
-		pq.setInt(index++, type.getTypeID());
+		query += " order by time asc";
+		Query q = db.createQuery(query);
+		int index=0;
+		q.setInteger(index++, type.getTypeID());
 		if( !data1.equals("*") ) {
-			pq.setString(index++, data1);
+			q.setString(index++, data1);
 		}
 		if( !data2.equals("*") ) {
-			pq.setString(index++, data2);	
+			q.setString(index++, data2);	
 		}
 		if( !data3.equals("*")) {
-			query += " AND data3=?";
-			pq.setString(index++, data3);
+			q.setString(index++, data3);
 		}
 		
-		SQLQuery atask = pq.query();
-		while( atask.next() ) {
-			resultlist.add(new Task(atask.getRow()));
+		List tasks = q.list();
+		for( Iterator iter=tasks.iterator(); iter.hasNext(); ) {
+			resultlist.add((Task)iter.next());
 		}
-		atask.free();
 		
 		return resultlist.toArray(new Task[resultlist.size()]);
 	}
@@ -310,9 +290,10 @@ public class Taskmanager {
 	 * @param taskid Die ID der Task
 	 */
 	public void removeTask( String taskid ) {
-		Database db = ContextMap.getContext().getDatabase();
-		db.prepare("DELETE FROM tasks WHERE taskid= ?")
-			.update(taskid);
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		db.createQuery("delete from Task where taskid=?")
+			.setString(0, taskid)
+			.executeUpdate();
 	}
 	
 	/**
@@ -320,12 +301,17 @@ public class Taskmanager {
 	 * @param step Die Menge um die das Timeout reduziert werden soll
 	 */
 	public void reduceTimeout( int step ) {
-		Database db = ContextMap.getContext().getDatabase();
-		db.prepare("UPDATE tasks SET timeout=timeout-? WHERE timeout>?")
-			.update(step, step-1);
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		db.createQuery("update Task set timeout=timeout-? where timeout>?")
+			.setInteger(0, step)
+			.setInteger(1, step-1)
+			.executeUpdate();
 		
 		if( step > 1 ) { 
-			db.prepare("UPDATE tasks SET timeout=0 WHERE timeout<=?").update(step-1);
+			db.createQuery("update Task set timeout=0 where timeout<=?")
+				.setInteger(0, step-1)
+				.executeUpdate();
 		}
 	}
 }

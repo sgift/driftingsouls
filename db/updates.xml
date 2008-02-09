@@ -275,4 +275,20 @@
 		UPDATE users SET allyposten=NULL WHERE allyposten=0;
 		ALTER TABLE users ADD CONSTRAINT users_fk_ally_posten FOREIGN KEY (allyposten) REFERENCES ally_posten(id);
 	]]></update>
+	<update type="structure" datum="2009-02-09"><![CDATA[
+		ALTER TABLE users CHANGE ally ally int DEFAULT NULL;
+		UPDATE users SET ally=NULL WHERE ally=0;
+		ALTER TABLE users ADD CONSTRAINT users_fk_ally FOREIGN KEY (ally) REFERENCES ally(id);
+		
+		ALTER TABLE users CHANGE flagschiff flagschiff INT NULL DEFAULT NULL;
+		UPDATE users SET flagschiff=NULL WHERE flagschiff=0;
+		ALTER TABLE users ADD CONSTRAINT users_fk_ships FOREIGN KEY (flagschiff) REFERENCES ships(id);
+		
+		ALTER TABLE `academy` DROP `id`;
+		ALTER TABLE `academy` ADD PRIMARY KEY ( `col` );
+		ALTER TABLE `academy` DROP INDEX `col`;
+		
+		alter table `bases` add `marines` int unsigned not null default '0';
+		ALTER TABLE bases ADD COLUMN version INT NOT NULL DEFAULT '0';
+	]]></update>
 </updates>

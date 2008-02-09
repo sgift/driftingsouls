@@ -1486,8 +1486,8 @@ public class Ships implements Loggable {
 				}
 				// die alte variante 
 				else if( jmpnodeuser[0].equals("default") || jmpnodeuser[0].equals("ownally") ){
-					if( ( (user.getAlly() > 0) && (node.getInt("ally") != user.getAlly()) ) || 
-						( user.getAlly() == 0 && (node.getInt("owner") != user.getId()) ) ) {
+					if( ( (user.getAlly() != null) && (node.getInt("ally") != user.getAlly().getId()) ) || 
+						( user.getAlly() == null && (node.getInt("owner") != user.getId()) ) ) {
 						outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes "+nodetypename+" benutzen - default</span><br />\n");
 						return true;
 					}
@@ -1501,7 +1501,7 @@ public class Ships implements Loggable {
 				}
 				// ally:$allyid
 				else if ( jmpnodeuser[0].equals("ally") ){
-					if( (user.getAlly() == 0) || (Integer.parseInt(jmpnodeuser[1]) != user.getAlly()) )  {
+					if( (user.getAlly() == null) || (Integer.parseInt(jmpnodeuser[1]) != user.getAlly().getId()) )  {
 						outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes "+nodetypename+" benutzen - ally</span><br />\n");
 						return true;
 					}
@@ -1684,8 +1684,8 @@ public class Ships implements Loggable {
 			}
 			// die alte variante 
 			else if( jmpnodeuser[0].equals("default") || jmpnodeuser[0].equals("ownally") ){
-				if( ( (user.getAlly() > 0) && (datan.getInt("ally") != user.getAlly()) ) || 
-					( user.getAlly() == 0 && (datan.getInt("owner") != user.getId()) ) ) {
+				if( ( (user.getAlly() != null) && (datan.getInt("ally") != user.getAlly().getId()) ) || 
+					( user.getAlly() == null && (datan.getInt("owner") != user.getId()) ) ) {
 					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes "+nodetypename+" benutzen - default</span><br />\n");
 					return true;
 				}
@@ -1699,7 +1699,7 @@ public class Ships implements Loggable {
 			}
 			// ally:$allyid
 			else if ( jmpnodeuser[0].equals("ally") ){
-				if( (user.getAlly() == 0) || (Integer.parseInt(jmpnodeuser[1]) != user.getAlly()) )  {
+				if( (user.getAlly() == null) || (Integer.parseInt(jmpnodeuser[1]) != user.getAlly().getId()) )  {
 					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes "+nodetypename+" benutzen - ally</span><br />\n");
 					return true;
 				}
@@ -2060,7 +2060,7 @@ public class Ships implements Loggable {
 	
 		// Wenn es das Flagschiff ist -> Flagschiff auf 0 setzen
 		if( ship.getInt("id") == user.getInt("flagschiff") ) {
-			db.update("UPDATE users SET flagschiff=0 WHERE id=",ship.getInt("owner"));
+			db.update("UPDATE users SET flagschiff=null WHERE id=",ship.getInt("owner"));
 		}
 		
 		// Evt. gedockte Schiffe abdocken

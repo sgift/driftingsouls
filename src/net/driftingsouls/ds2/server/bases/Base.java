@@ -18,22 +18,41 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.Version;
+
+import net.driftingsouls.ds2.server.Locatable;
+import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.cargo.Transfer;
+import net.driftingsouls.ds2.server.cargo.Transfering;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
+import org.hibernate.CallbackException;
+import org.hibernate.Session;
+import org.hibernate.annotations.Type;
+import org.hibernate.classic.Lifecycle;
 
 /**
  * <p>Repraesentiert eine Basis in DS</p>
@@ -41,77 +60,79 @@ import org.apache.commons.lang.math.RandomUtils;
  * 
  * @author Christopher Jung
  */
-public class Base implements Cloneable {
-	private SQLResultRow base;
-	private List<AutoGTUAction> autogtuacts;
+@Entity
+@Table(name="bases")
+public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
+	@Id @GeneratedValue
+	private int id;
+	private String name;
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="owner", nullable=false)
+	private User owner;
+	private int x;
+	private int y;
+	private int system;
+	private int bewohner;
+	private int marines;
+	private int arbeiter;
+	@Column(name="e")
+	private int energy;
+	@Column(name="maxe")
+	private int maxEnergy;
+	@Type(type="cargo")
 	private Cargo cargo;
-	private Integer[] terrain;
-	private Integer[] bebauung;
-	private Integer[] active;
+	@Column(name="maxcargo")
+	private long maxCargo;
+	private int core;
+	private int klasse;
+	private int width;
+	private int height;
+	@Column(name="maxtiles")
+	private int maxTiles;
+	private int size;
+	private String terrain;
+	private String bebauung;
+	private String active;
+	@Column(name="coreactive")
+	private int coreActive;
+	@Column(name="autogtuacts")
+	private String autoGtuActs;
+	@Version
+	private int version;
+	
+	@Transient
+	private List<AutoGTUAction> autoGtuActsObj;
+	@Transient
+	private Integer[] terrainObj;
+	@Transient
+	private Integer[] bebauungObj;
+	@Transient
+	private Integer[] activeObj;
 	
 	/**
-	 * Erstellt eine neue Instanz einer Basis
-	 * @param base Eine SQL-Ergebniszeile mit den Daten der Basis
+	 * Konstruktor
+	 *
 	 */
-	public Base(SQLResultRow base) {
-		this.base = base;
-		
-		this.terrain = Common.explodeToInteger("|",base.getString("terrain"));
-		this.bebauung = Common.explodeToInteger("|",base.getString("bebauung"));
-		this.active = Common.explodeToInteger("|",base.getString("active"));
-		this.cargo = new Cargo( Cargo.Type.STRING, base.getString("cargo"));
-		
-		String[] autogtuacts = StringUtils.split(base.getString("autogtuacts"),";");
-		List<AutoGTUAction> acts = new ArrayList<AutoGTUAction>();
-		for( int i=0; i < autogtuacts.length; i++ ) {
-			String[] split = StringUtils.split(autogtuacts[i],":");
-			
-			acts.add(new AutoGTUAction(Resources.fromString(split[0]), Integer.parseInt(split[1]), Long.parseLong(split[2])) );
-		}
-		this.autogtuacts = acts;
-		
-		// Ggf die Feldergroessen fixen
-		if( getTerrain().length < getWidth()*getHeight() ) {
-			Database db = ContextMap.getContext().getDatabase();
-			
-			Integer[] terrain = new Integer[getWidth()*getHeight()];
-			System.arraycopy(getTerrain(), 0, terrain, 0, getTerrain().length );
-			for( int i=Math.max(getTerrain().length-1,0); i < getWidth()*getHeight(); i++ ) {
-				int rnd = RandomUtils.nextInt(7);
-				if( rnd > 4 ) {
-					terrain[i] = rnd - 4;	
-				}
-				else {
-					terrain[i] = 0;	
-				}
-			}
-			this.terrain = terrain;
-			db.update("UPDATE bases SET terrain='",Common.implode("|", getTerrain()),"' WHERE id='",getId(),"'");
-		}
-			
-		if( getBebauung().length < getWidth()*getHeight() ) {
-			Database db = ContextMap.getContext().getDatabase();
-			
-			Integer[] bebauung = new Integer[getWidth()*getHeight()];
-			System.arraycopy(getBebauung(), 0, bebauung, 0, getBebauung().length );
-			for( int i=Math.max(getBebauung().length-1,0); i < getWidth()*getHeight(); i++ ) {
-				bebauung[i] = 0;	
-			}
-			this.bebauung = bebauung;
-			db.update("UPDATE bases SET bebauung='",Common.implode("|", getBebauung()),"' WHERE id='",getId(),"'");
-		}
-		
-		if( getActive().length < getWidth()*getHeight() ) {
-			Database db = ContextMap.getContext().getDatabase();
-			
-			Integer[] active = new Integer[getWidth()*getHeight()];
-			System.arraycopy(getActive(), 0, active, 0, getActive().length );
-			for( int i=Math.max(getActive().length-1,0); i < getWidth()*getHeight(); i++ ) {
-				active[i] = 0;	
-			}
-			this.active = active;
-			db.update("UPDATE bases SET active='",Common.implode("|", getActive()),"' WHERE id='",getId(),"'");
-		}
+	public Base() {
+		// EMPTY
+	}
+	
+	/**
+	 * Erstellt eine neue Basis
+	 * @param loc Die Position
+	 * @param owner Der Besitzer
+	 */
+	public Base(Location loc, User owner) {
+		this.x = loc.getX();
+		this.y = loc.getY();
+		this.system = loc.getSystem();
+		this.terrain = "";
+		this.bebauung = "";
+		this.active = "";
+		this.cargo = new Cargo();
+		this.autoGtuActs = "";
+		this.owner = owner;
+		this.name = "Leerer Asteroid";
 	}
 	
 	/**
@@ -119,7 +140,7 @@ public class Base implements Cloneable {
 	 * @return die ID der Basis
 	 */
 	public int getId() {
-		return base.getInt("id");
+		return this.id;
 	}
 	
 	/**
@@ -127,7 +148,15 @@ public class Base implements Cloneable {
 	 * @return Die Breite
 	 */
 	public int getWidth() {
-		return base.getInt("width");
+		return this.width;
+	}
+	
+	/**
+	 * Setzt die Breite der Bauflaeche auf der Basis
+	 * @param width Die Breite
+	 */
+	public void setWidth(int width) {
+		this.width = width;
 	}
 	
 	/**
@@ -135,7 +164,15 @@ public class Base implements Cloneable {
 	 * @return Die Hoehe
 	 */
 	public int getHeight() {
-		return base.getInt("height");
+		return this.height;
+	}
+	
+	/**
+	 * Setzt die Hoehe der Bauflaeche auf der Basis
+	 * @param height Die Hoehe
+	 */
+	public void setHeight(int height) {
+		this.height = height;
 	}
 	
 	/**
@@ -143,7 +180,7 @@ public class Base implements Cloneable {
 	 * @return Der Name
 	 */
 	public String getName() {
-		return base.getString("name");
+		return this.name;
 	}
 	
 	/**
@@ -151,25 +188,24 @@ public class Base implements Cloneable {
 	 * @param name Der neue Name
 	 */
 	public void setName(String name) {
-		base.put("name", name);
+		this.name = name;
 	}
 	
 	/**
-	 * Gibt die ID des Besitzers zurueck.
-	 * Falls die Basis niemandem gehoert, wird 0 zurueckgegegeben.
+	 * Gibt den Besitzer zurueck.
 	 * 
-	 * @return Die ID des Besitzers oder 0
+	 * @return Der Besitzer
 	 */
-	public int getOwner() {
-		return base.getInt("owner");
+	public User getOwner() {
+		return this.owner;
 	}
 	
 	/**
-	 * Setzt einen neuen Besitzer fuer die Basis
-	 * @param owner Die ID des neuen Besitzers
+	 * Setzt den neuen Besitzer fuer die Basis
+	 * @param owner Der neue Besitzer
 	 */
-	public void setOwner(int owner) {
-		base.put("owner", owner);
+	public void setOwner(User owner) {
+		this.owner = owner;
 	}
 	
 	/**
@@ -177,7 +213,16 @@ public class Base implements Cloneable {
 	 * @return Die Terraintypen der Felder
 	 */
 	public Integer[] getTerrain() {
-		return this.terrain;
+		return this.terrainObj.clone();
+	}
+	
+	/**
+	 * Setzt das neue Terrain der Basis
+	 * @param terrain Das neue Terrain
+	 */
+	public void setTerrain(final Integer[] terrain) {
+		this.terrainObj = terrain;
+		this.terrain = Common.implode("|", terrain);
 	}
 	
 	/**
@@ -187,15 +232,16 @@ public class Base implements Cloneable {
 	 * @return Die IDs der Gebaeude
 	 */
 	public Integer[] getBebauung() {
-		return this.bebauung;
+		return this.bebauungObj.clone();
 	}
 	
 	/**
 	 * Setzt die neue Bebauung der Basis
 	 * @param bebauung Die neue Bebauung
 	 */
-	public void setBebauung(Integer[] bebauung) {
-		this.bebauung = bebauung;
+	public void setBebauung(final Integer[] bebauung) {
+		this.bebauungObj = bebauung;
+		this.bebauung = Common.implode("|", bebauung);
 	}
 	
 	/**
@@ -204,7 +250,7 @@ public class Base implements Cloneable {
 	 * @return Aktivierungsgrad der Gebaeude auf den Feldern
 	 */
 	public Integer[] getActive() {
-		return this.active;
+		return this.activeObj.clone();
 	}
 	
 	/**
@@ -212,14 +258,16 @@ public class Base implements Cloneable {
 	 * Gebaeude aktiv ist. <code>0</code>, dass das Gebaeude nicht aktiv ist.
 	 * @param active Der neue Aktivierungszustand aller Gebaeude
 	 */
-	public void setActive(Integer[] active) {
-		this.active = active;
+	public void setActive(final Integer[] active) {
+		this.activeObj = active;
+		this.active = Common.implode("|", active);
 	}
 	
 	/**
 	 * Gibt den Cargo der Basis zurueck
 	 * @return Der Cargo
 	 */
+	// TODO: UnmodifiableCargos zurueckgeben (zuerst alle Verwendungen checken und umbauen) 
 	public Cargo getCargo() {
 		return cargo;
 	}
@@ -239,7 +287,7 @@ public class Base implements Cloneable {
 	 * @return Die ID der Core oder 0
 	 */
 	public int getCore() {
-		return base.getInt("core");
+		return this.core;
 	}
 	
 	/**
@@ -249,7 +297,7 @@ public class Base implements Cloneable {
 	 * @param core der neue Kern oder <code>0</code>
 	 */
 	public void setCore(int core) {
-		base.put("core", core);
+		this.core = core;
 	}
 
 	/**
@@ -257,7 +305,15 @@ public class Base implements Cloneable {
 	 * @return Die X-Koordinate
 	 */
 	public int getX() {
-		return base.getInt("x");
+		return this.x;
+	}
+	
+	/**
+	 * Setzt die X-Koordinate der Basis
+	 * @param x Die X-Koordinate
+	 */
+	public void setX(int x) {
+		this.x = x;
 	}
 
 	/**
@@ -265,7 +321,15 @@ public class Base implements Cloneable {
 	 * @return Die Y-Koordinate
 	 */
 	public int getY() {
-		return base.getInt("y");
+		return this.y;
+	}
+	
+	/**
+	 * Setzt die Y-Koordinate der Basis
+	 * @param y Die Y-Koordinate
+	 */
+	public void setY(int y) {
+		this.y = y;
 	}
 
 	/**
@@ -273,7 +337,15 @@ public class Base implements Cloneable {
 	 * @return Die ID des Systems
 	 */
 	public int getSystem() {
-		return base.getInt("system");
+		return this.system;
+	}
+	
+	/**
+	 * Setzt das System in dem sich die Basis befindet
+	 * @param system Das System
+	 */
+	public void setSystem(int system){
+		this.system = system;
 	}
 
 	/**
@@ -281,7 +353,7 @@ public class Base implements Cloneable {
 	 * @return <code>true</code>, falls die Core aktiv ist
 	 */
 	public boolean isCoreActive() {
-		return base.getInt("coreactive") != 0;
+		return this.coreActive != 0;
 	}
 	
 	/**
@@ -289,7 +361,7 @@ public class Base implements Cloneable {
 	 * @param active <code>true</code>, wenn die Core aktiv ist
 	 */
 	public void setCoreActive(boolean active) {
-		base.put("coreactive", active ? 1 : 0);
+		this.coreActive = active ? 1 : 0;
 	}
 
 	/**
@@ -297,7 +369,7 @@ public class Base implements Cloneable {
 	 * @return Der Max-Cargo
 	 */
 	public long getMaxCargo() {
-		return base.getLong("maxcargo");
+		return this.maxCargo;
 	}
 	
 	/**
@@ -305,7 +377,7 @@ public class Base implements Cloneable {
 	 * @param cargo Der neue maximale Cargo
 	 */
 	public void setMaxCargo(long cargo) {
-		base.put("maxcargo", cargo);
+		this.maxCargo = cargo;
 	}
 
 	/**
@@ -313,7 +385,7 @@ public class Base implements Cloneable {
 	 * @return Die Bewohner
 	 */
 	public int getBewohner() {
-		return base.getInt("bewohner");
+		return this.bewohner;
 	}
 	
 	/**
@@ -321,7 +393,23 @@ public class Base implements Cloneable {
 	 * @param bewohner Die neue Anzahl der Bewohner
 	 */
 	public void setBewohner(int bewohner) {
-		base.put("bewohner", bewohner);
+		this.bewohner = bewohner;
+	}
+	
+	/**
+	 * Gibt die Anzahl der Marines auf der Basis zurueck
+	 * @return Die Anzahl der Marines
+	 */
+	public int getMarines() {
+		return this.marines;
+	}
+	
+	/**
+	 * Setzt die Anzahl der Marines auf der basis
+	 * @param marines Die neue Anzahl der Marines
+	 */
+	public void setMarines(int marines) {
+		this.marines = marines;
 	}
 	
 	/**
@@ -329,7 +417,7 @@ public class Base implements Cloneable {
 	 * @return Die Arbeiter
 	 */
 	public int getArbeiter() {
-		return base.getInt("arbeiter");
+		return this.arbeiter;
 	}
 	
 	/**
@@ -337,39 +425,39 @@ public class Base implements Cloneable {
 	 * @param arbeiter Die Anzahl der Arbeiter
 	 */
 	public void setArbeiter(int arbeiter) {
-		base.put("arbeiter", arbeiter);
+		this.arbeiter = arbeiter;
 	}
 
 	/**
 	 * Gibt die vorhandene Energiemenge auf der Basis zurueck
 	 * @return Die Energiemenge
 	 */
-	public int getE() {
-		return base.getInt("e");
+	public int getEnergy() {
+		return this.energy;
 	}
 	
 	/**
 	 * Setzt die Menge der auf der Basis vorhandenen Energie
 	 * @param e Die auf der Basis vorhandene Energie
 	 */
-	public void setE(int e) {
-		base.put("e", e);
+	public void setEnergy(int e) {
+		this.energy = e;
 	}
 	
 	/**
 	 * Gibt die maximal auf der Basis speicherbare Energiemenge zurueck
 	 * @return die max. Energiemenge
 	 */
-	public int getMaxE() {
-		return base.getInt("maxe");
+	public int getMaxEnergy() {
+		return this.maxEnergy;
 	}
 	
 	/**
 	 * Setzt die maximale Menge an Energie die auf der Basis gespeichert werden kann
 	 * @param maxe Die maximale Menge an Energie
 	 */
-	public void setMaxE(int maxe) {
-		base.put("maxe", maxe);
+	public void setMaxEnergy(int maxe) {
+		this.maxEnergy = maxe;
 	}
 	
 	/**
@@ -377,7 +465,15 @@ public class Base implements Cloneable {
 	 * @return Die Klassennummer
 	 */
 	public int getKlasse() {
-		return base.getInt("klasse");
+		return this.klasse;
+	}
+	
+	/**
+	 * Setzt die Klasse der Basis
+	 * @param klasse Die Klasse
+	 */
+	public void setKlasse(int klasse) {
+		this.klasse = klasse;
 	}
 	
 	/**
@@ -386,7 +482,7 @@ public class Base implements Cloneable {
 	 * @return Die verrechenbare Anzahl an Feldern
 	 */
 	public int getMaxTiles() {
-		return base.getInt("maxtiles");
+		return this.maxTiles;
 	}
 	
 	/**
@@ -394,7 +490,7 @@ public class Base implements Cloneable {
 	 * @param tiles Die Felderanzahl
 	 */
 	public void setMaxTiles(int tiles) {
-		base.put("maxtiles", tiles);
+		this.maxTiles = tiles;
 	}
 	
 	/**
@@ -404,15 +500,26 @@ public class Base implements Cloneable {
 	 * @return Der Radius
 	 */
 	public int getSize() {
-		return base.getInt("size");
+		return this.size;
 	}
 	
 	/**
-	 * Gibt die Liste der automatischen GTU-Verkaufsaktionen zurueck
-	 * @return Die Liste der GTU-Verkaufsaktionen beim Tick
+	 * Setzt den Radius der Basis
+	 * @param size Der Radius
+	 */
+	public void setSize(int size) {
+		this.size = size;
+	}
+	
+	/**
+	 * Gibt eine Kopie der Liste der automatischen GTU-Verkaufsaktionen zurueck
+	 * @return Eine Kopie der Liste der GTU-Verkaufsaktionen beim Tick
 	 */
 	public List<AutoGTUAction> getAutoGTUActs() {
-		return autogtuacts;
+		List<AutoGTUAction> acts = new ArrayList<AutoGTUAction>();
+		acts.addAll(this.autoGtuActsObj);
+		
+		return acts;
 	}
 	
 	/**
@@ -420,7 +527,8 @@ public class Base implements Cloneable {
 	 * @param list Die neue Liste
 	 */
 	public void setAutoGTUActs(List<AutoGTUAction> list) {
-		this.autogtuacts = list;
+		this.autoGtuActsObj = list;
+		this.autoGtuActs = Common.implode(";", list);
 	}
 	
 	/**
@@ -430,11 +538,9 @@ public class Base implements Cloneable {
 	 * @return der aktuelle Verbrauchs/Produktions-Status
 	 */
 	public static BaseStatus getStatus( Context context, int base ) {
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		
-		SQLResultRow baseRow = db.first("SELECT * FROM bases WHERE id='"+base+"'");	
-
-		return getStatus( context, new Base(baseRow) );
+		return getStatus(context, (Base)db.get(Base.class, base));
 	}
 		
 	/**
@@ -451,8 +557,8 @@ public class Base implements Cloneable {
 		Map<Integer,Integer> buildinglocs = new TreeMap<Integer,Integer>(); 
 	
 		if( (base.getCore() > 0) && base.isCoreActive() ) {
-			Core core = Core.getCore(context.getDatabase(), base.getCore() );
-	
+			Core core = Core.getCore(base.getCore());
+
 			stat.substractCargo(core.getConsumes());
 			stat.addCargo(core.getProduces());
 			
@@ -469,7 +575,7 @@ public class Base implements Cloneable {
 				continue;
 			} 
 			
-			Building building = Building.getBuilding(context.getDatabase(), bebauung[o]);
+			Building building = Building.getBuilding(bebauung[o]);
 	
 			if( !buildinglocs.containsKey(building.getId()) ) {
 				buildinglocs.put(building.getId(), o);
@@ -501,16 +607,36 @@ public class Base implements Cloneable {
 		Base base;
 		try {
 			base = (Base)super.clone();
-			base.base = new SQLResultRow();
-			base.base.putAll(this.base);
-			base.terrain = this.getTerrain().clone();
-			base.active = this.getActive().clone();
-			base.bebauung = this.getBebauung().clone();
+			base.id = this.id;
+			base.name = this.name;
+			base.owner = this.owner;
+			base.x = this.x;
+			base.y = this.y;
+			base.system = this.system;
+			base.bewohner = this.bewohner;
+			base.arbeiter = this.arbeiter;
+			base.energy = this.energy;
+			base.maxEnergy = this.maxEnergy;
+			base.maxCargo = this.maxCargo;
+			base.core = this.core;
+			base.klasse = this.klasse;
+			base.width = this.width;
+			base.height = this.height;
+			base.maxTiles = this.maxTiles;
+			base.size = this.size;
+			base.terrain = this.terrain;
+			base.bebauung = this.bebauung;
+			base.active = this.active;
+			base.coreActive = this.coreActive;
+			base.autoGtuActs = this.autoGtuActs;
+			base.terrainObj = this.getTerrain().clone();
+			base.activeObj = this.getActive().clone();
+			base.bebauungObj = this.getBebauung().clone();
 			base.cargo = (Cargo)this.getCargo().clone();
 			
-			base.autogtuacts = new ArrayList<AutoGTUAction>();
-			for( int i=0; i < this.autogtuacts.size(); i++ ) {
-				base.autogtuacts.add((AutoGTUAction)this.autogtuacts.get(i).clone());
+			base.autoGtuActsObj = new ArrayList<AutoGTUAction>();
+			for( int i=0; i < this.autoGtuActsObj.size(); i++ ) {
+				base.autoGtuActsObj.add((AutoGTUAction)this.autoGtuActsObj.get(i).clone());
 			}
 		
 			return base;
@@ -518,5 +644,99 @@ public class Base implements Cloneable {
 			// EMPTY
 		}
 		return null;
+	}
+
+	private boolean update() {
+		this.terrainObj = Common.explodeToInteger("|",this.terrain);
+		this.bebauungObj = Common.explodeToInteger("|",this.bebauung);
+		this.activeObj = Common.explodeToInteger("|",this.active);
+		
+		String[] autogtuacts = StringUtils.split(this.autoGtuActs,";");
+		List<AutoGTUAction> acts = new ArrayList<AutoGTUAction>();
+		for( int i=0; i < autogtuacts.length; i++ ) {
+			String[] split = StringUtils.split(autogtuacts[i],":");
+			
+			acts.add(new AutoGTUAction(Resources.fromString(split[0]), Integer.parseInt(split[1]), Long.parseLong(split[2])) );
+		}
+		this.autoGtuActsObj = acts;
+		
+		boolean update = false;
+		
+		// Ggf die Feldergroessen fixen
+		if( getTerrain().length < getWidth()*getHeight() ) {
+			Integer[] terrain = new Integer[getWidth()*getHeight()];
+			System.arraycopy(getTerrain(), 0, terrain, 0, getTerrain().length );
+			for( int i=Math.max(getTerrain().length-1,0); i < getWidth()*getHeight(); i++ ) {
+				int rnd = RandomUtils.nextInt(7);
+				if( rnd > 4 ) {
+					terrain[i] = rnd - 4;	
+				}
+				else {
+					terrain[i] = 0;	
+				}
+			}
+			
+			setTerrain(terrain);
+			update = true;
+		}
+			
+		if( getBebauung().length < getWidth()*getHeight() ) {
+			Integer[] bebauung = new Integer[getWidth()*getHeight()];
+			System.arraycopy(getBebauung(), 0, bebauung, 0, getBebauung().length );
+			for( int i=Math.max(getBebauung().length-1,0); i < getWidth()*getHeight(); i++ ) {
+				bebauung[i] = 0;	
+			}
+			
+			setBebauung(bebauung);
+			update = true;
+		}
+		
+		if( getActive().length < getWidth()*getHeight() ) {
+			Integer[] active = new Integer[getWidth()*getHeight()];
+			System.arraycopy(getActive(), 0, active, 0, getActive().length );
+			for( int i=Math.max(getActive().length-1,0); i < getWidth()*getHeight(); i++ ) {
+				active[i] = 0;	
+			}
+			
+			setActive(active);
+			update = true;
+		}
+		
+		return update;
+	}
+	
+	public boolean onDelete(Session s) throws CallbackException {
+		// EMPTY
+		return false;
+	}
+
+	public void onLoad(Session s, Serializable id) {
+		update();
+	}
+
+	public boolean onSave(Session s) throws CallbackException {
+		// EMPTY
+		return false;
+	}
+
+	public boolean onUpdate(Session s) throws CallbackException {
+		// EMPTY
+		return false;
+	}
+
+	/**
+	 * Gibt die Versionsnummer des Eintrags zurueck
+	 * @return Die Versionsnummer
+	 */
+	public int getVersion() {
+		return version;
+	}
+
+	public Location getLocation() {
+		return new Location(this.getSystem(), this.getX(), this.getY());
+	}
+	
+	public String transfer(Transfering to, ResourceID resource, long count) {
+		return new Transfer().transfer(this, to, resource, count);
 	}
 }

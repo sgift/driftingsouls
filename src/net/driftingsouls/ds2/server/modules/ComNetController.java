@@ -83,14 +83,14 @@ public class ComNetController extends TemplateGenerator {
 		 */
 		boolean isReadable( User user ) {
 			if( readall || ((user.getId() < 0) && readnpc) || 
-				((user.getAlly() != 0) && (readally == user.getAlly())) || 
+				((user.getAlly() != null) && (readally == user.getAlly().getId())) || 
 				(user.getAccessLevel() >= 100) ) {
 					
 				return true;
 			}
 			
 			if( writeall || ((user.getId() < 0) && writenpc) || 
-				((user.getAlly() != 0) && (writeally == user.getAlly())) || 
+				((user.getAlly() != null) && (writeally == user.getAlly().getId())) || 
 				(user.getAccessLevel() >= 100) ) {
 					
 				return true;
@@ -120,7 +120,7 @@ public class ComNetController extends TemplateGenerator {
 		 */
 		boolean isWriteable( User user ) {
 			if( writeall || ((user.getId() < 0) && writenpc) || 
-				((user.getAlly() != 0) && (writeally == user.getAlly())) || 
+				((user.getAlly() != null) && (writeally == user.getAlly().getId())) || 
 				(user.getAccessLevel() >= 100) ) {
 					
 				return true;
@@ -430,8 +430,8 @@ public class ComNetController extends TemplateGenerator {
 		//Logo ermitteln
 		int pic = user.getId();
 		int allypic = 0;
-		if( user.getAlly() != 0 ) {
-			allypic = user.getAlly();
+		if( user.getAlly() != null ) {
+			allypic = user.getAlly().getId();
 		}
 
 		//Aktuellen Tick ermitteln
@@ -510,7 +510,7 @@ public class ComNetController extends TemplateGenerator {
 					"post.name",		Common._title(user.getName()),
 					"post.id",			user.getId(),
 					"post.pic",			user.getId(),
-					"post.allypic",		user.getAlly(),
+					"post.allypic",		user.getAlly().getId(),
 					"post.time",		Common.date("Y-m-d H:i:s"),
 					"post.ingametime",	Common.getIngameTime(tick) );	
 	}

@@ -18,8 +18,6 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
-import net.driftingsouls.ds2.server.framework.ContextMap;
-
 /**
  * TASK_ALLY_FOUND_CONFIRM
  * 		Ein Unterstuetzungsantrag fuer eine Allianzgruendung
@@ -35,8 +33,6 @@ class HandleAllyFoundConfirm implements TaskHandler {
 		String mastertaskid = task.getData1();
 		Taskmanager tm = Taskmanager.getInstance();
 		if( event.equals("pm_yes") ) {		
-			ContextMap.getContext().getDatabase().update("UPDATE users SET ally='-1' WHERE id=",task.getData2());
-			
 			tm.handleTask( mastertaskid, "__conf_recv" );
 			tm.removeTask( task.getTaskID() );
 		}

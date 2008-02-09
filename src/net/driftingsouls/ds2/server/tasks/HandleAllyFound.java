@@ -20,13 +20,12 @@ package net.driftingsouls.ds2.server.tasks;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 
 /**
  * TASK_ALLY_FOUND
@@ -41,40 +40,43 @@ class HandleAllyFound implements TaskHandler {
 
 	public void handleEvent(Task task, String event) {	
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		
 		if( event.equals("__conf_recv") ) {
 			int confcount = Integer.parseInt(task.getData1());
 			if( confcount == 1 ) {
 				String allyname = task.getData2();
-				Integer[] allymember = Common.explodeToInteger(",", task.getData3());
+				
+				Integer[] allymemberIds = Common.explodeToInteger(",", task.getData3());
+				User[] allymember = new User[allymemberIds.length];
+				for( int i=0; i < allymemberIds.length; i++ ) {
+					allymember[i] = (User)db.get(User.class, allymemberIds[i]);
+				}
 				
 				int ticks = context.get(ContextCommon.class).getTick();
 				
-				PreparedQuery insert = db.prepare("INSERT INTO ally (name,plainname,founded,tick,president) VALUES ( ?, ?, now(), ?, ?)");
-				insert.update(allyname, Common._titleNoFormat(allyname), ticks, allymember[0]);
-				int allyid = insert.insertID();
-				insert.close();
+				Ally ally = new Ally(allyname, allymember[0]);
+				int allyid = (Integer)db.save(ally);
 		
 				Common.copyFile(Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/ally/0.gif", Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/ally"+allyid+".gif");
 				
-				db.update("UPDATE users SET ally=",allyid,",allyposten=null WHERE id IN (",Common.implode(",",allymember),")");
-				
 				for( int i=0; i < allymember.length; i++ ) {
-					PM.send( ContextMap.getContext(), 0, allymember[i], "Allianzgr&uuml;ndung", "Die Allianz "+allyname+" wurde erfolgreich gegr&uuml;ndet.\n\nHerzlichen Gl&uuml;ckwunsch!");
+					User source = (User)ContextMap.getContext().getDB().get(User.class, 0);
+					
+					PM.send( source, allymember[i].getId(), "Allianzgr&uuml;ndung", "Die Allianz "+allyname+" wurde erfolgreich gegr&uuml;ndet.\n\nHerzlichen Gl&uuml;ckwunsch!");
 
-					User auser = (User)context.getDB().get(User.class, allymember[i]);
-					auser.addHistory(Common.getIngameTime(ticks)+": Gr&uuml;ndung der Allianz "+allyname);	
+					allymember[i].setAlly(ally);
+					allymember[i].setAllyPosten(null);
+					allymember[i].addHistory(Common.getIngameTime(ticks)+": Gr&uuml;ndung der Allianz "+allyname);	
 					
 					// Beziehungen auf "Freund" setzen
 					for( int j=0; j < allymember.length; j++ ) {
-						if( allymember[j] == auser.getId() ) {
+						if( allymember[j] == allymember[i] ) {
 							continue;
 						}
-						User allyuser = (User)context.getDB().get(User.class, allymember[j]);
 				
-						allyuser.setRelation(auser.getId(), User.Relation.FRIEND);
-						auser.setRelation(allyuser.getId(), User.Relation.FRIEND);
+						allymember[j].setRelation(allymember[i].getId(), User.Relation.FRIEND);
+						allymember[i].setRelation(allymember[j].getId(), User.Relation.FRIEND);
 					}
 				}
 				
@@ -87,8 +89,9 @@ class HandleAllyFound implements TaskHandler {
 		}
 		else if( event.equals("__conf_dism") ) {
 			Integer[] allymember = Common.explodeToInteger(",", task.getData3());
+			User source = (User)ContextMap.getContext().getDB().get(User.class, 0);
 			
-			PM.send( context, 0, allymember[0], "Allianzgr&uuml;ndung", "Die Allianzgr&uuml;ndung ist fehlgeschlagen, da ein Spieler seine Unterst&uuml;tzung verweigert hat.");
+			PM.send( source, allymember[0], "Allianzgr&uuml;ndung", "Die Allianzgr&uuml;ndung ist fehlgeschlagen, da ein Spieler seine Unterst&uuml;tzung verweigert hat.");
 			Taskmanager.getInstance().removeTask( task.getTaskID() );
 			
 			Task[] tasklist = Taskmanager.getInstance().getTasksByData( Taskmanager.Types.ALLY_FOUND_CONFIRM, task.getTaskID(), "*", "*" );
@@ -96,16 +99,15 @@ class HandleAllyFound implements TaskHandler {
 				Taskmanager.getInstance().removeTask( tasklist[i].getTaskID() );	
 			}
 			
-			db.update("UPDATE users SET ally='0' WHERE id IN ("+Common.implode(",",allymember),") AND ally='-1'");
 		}
 		else if( event.equals("tick_timeout") ) {
 			Integer[] allymember = Common.explodeToInteger(",", task.getData3());
 			
-			db.update("UPDATE users SET ally='0' WHERE id IN ("+Common.implode(",",allymember),")");
 			Taskmanager.getInstance().removeTask( task.getTaskID() );
+			User source = (User)ContextMap.getContext().getDB().get(User.class, 0);
 			
 			for( int i=0; i < allymember.length; i++ ) {
-				PM.send( context, 0, allymember[i], "Allianzgr&uuml;ndung", "Die Allianzgr&uuml;ndung ist fehlgeschlagen, da nicht alle angegebenen Spieler in der notwendigen Zeit ihre Unterst&uuml;tzung signalisiert haben.");
+				PM.send( source, allymember[i], "Allianzgr&uuml;ndung", "Die Allianzgr&uuml;ndung ist fehlgeschlagen, da nicht alle angegebenen Spieler in der notwendigen Zeit ihre Unterst&uuml;tzung signalisiert haben.");
 			}
 		}
 	}

@@ -71,7 +71,6 @@ public class OptionsController extends TemplateGenerator implements Loggable {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void changeNamePassAction() {
-		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 		
@@ -91,8 +90,8 @@ public class OptionsController extends TemplateGenerator implements Loggable {
 			}
 			
 			String newname = name;
-			if( user.getAlly() != 0 ) {
-				String allytag = db.first("SELECT allytag FROM ally WHERE id=",user.getAlly()).getString("allytag");
+			if( user.getAlly() != null ) {
+				String allytag = user.getAlly().getAllyTag();
 				newname = allytag;
 				newname = StringUtils.replace(newname, "[name]", name);
 			}
@@ -270,9 +269,9 @@ public class OptionsController extends TemplateGenerator implements Loggable {
 			changemsg += "Diplomatiehaltung ge&auml;ndert...<br />\n";
 
 			user.setRelation(0,rel);
-			if( user.getAlly() != 0 ) {
+			if( user.getAlly() != null ) {
 				List list = getContext().getDB().createQuery("from User where ally= :ally and id!= :user")
-					.setInteger("ally", user.getAlly())
+					.setEntity("ally", user.getAlly())
 					.setInteger("user", user.getId())
 					.list();
 				for( Iterator iter=list.iterator(); iter.hasNext(); ) {

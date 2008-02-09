@@ -24,10 +24,10 @@ import java.util.Map;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.caches.CacheManager;
 import net.driftingsouls.ds2.server.framework.caches.ControllableCache;
-import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
@@ -65,14 +65,13 @@ public abstract class Building implements Loggable {
 	/**
 	 * Gibt eine Instanz der Gebaudeklasse des angegebenen Gebaeudetyps zurueck.
 	 * Sollte kein passender Gebaeudetyp existieren, wird <code>null</code> zurueckgegeben.
-	 * 
-	 * @param db Eine Datenbankverbindung
 	 * @param id Die ID des Gebaudetyps
+	 * 
 	 * @return Eine Instanz der zugehoerigen Gebaeudeklasse
 	 */
-	public static synchronized Building getBuilding(Database db, int id) {
+	public static synchronized Building getBuilding(int id) {
 		if( !buildingCache.containsKey(id) ) {
-			SQLResultRow row = db.first("SELECT * FROM buildings WHERE id='",id,"'");
+			SQLResultRow row = ContextMap.getContext().getDatabase().first("SELECT * FROM buildings WHERE id='",id,"'");
 			if( row.isEmpty() ) {
 				return null;
 			}
@@ -203,7 +202,7 @@ public abstract class Building implements Loggable {
 	
 	/**
 	 * Wird aufgerufen, wenn das Gebaeude auf einer Basis abgerissen wurde
-	 * @param context Der aktive Kontext
+	 * @param context Der Context
 	 * @param base Die Basis
 	 */
 	public abstract void cleanup( Context context, Base base );
@@ -228,7 +227,7 @@ public abstract class Building implements Loggable {
 	/**
 	 * Generiert einen Shortcut-Link (String) sofern notwendig. Sollte das Gebaeude keinen haben 
 	 * wird ein leerer String zurueckgegeben
-	 * @param context der aktive Kontext
+	 * @param context TODO
 	 * @param base Die Basis
 	 * @param field Das Feld, auf dem das Gebaeude steht
 	 * @param building die ID des Gebaeudetyps
@@ -251,12 +250,11 @@ public abstract class Building implements Loggable {
 	
 	/**
 	 * Gibt die eigendliche UI des Gebaeudes aus
-	 * @param context Der aktive Kontext
 	 * @param t Eine Instanz des zu verwendenden TemplateEngines
 	 * @param base Die ID der Basis
 	 * @param field Das Feld, auf dem das Gebaeude steht
 	 * @param building die ID des Gebaeudetyps
 	 * @return Ein HTML-String, der die Gebaeudeseite einhaelt
 	 */
-	public abstract String output( Context context, TemplateEngine t, Base base, int field, int building );
+	public abstract String output( TemplateEngine t, Base base, int field, int building );
 }

@@ -403,7 +403,7 @@ public class Ally {
 	 * Loescht die Allianz
 	 *
 	 */
-	/*public void destroy() {
+	public void destroy() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
 		List chnList = db.createQuery("from ComNetChannel where allyOwner=?")
@@ -441,13 +441,13 @@ public class Ally {
 			.setEntity(0, this)
 			.executeUpdate();
 		db.delete(this);
-	}*/
+	}
 	
 	/**
 	 * Entfernt einen Spieler aus der Allianz.
 	 * @param user Der Spieler
 	 */
-	/*public void removeUser(User user) {
+	public void removeUser(User user) {
 		final Context context = ContextMap.getContext();
 		final org.hibernate.Session db = context.getDB();
 		
@@ -469,7 +469,7 @@ public class Ally {
 		user.addHistory(Common.getIngameTime(tick)+": Verlassen der Allianz "+this.name);
 
 		checkForLowMemberCount();
-	}*/
+	}
 	
 	/**
 	 * Prueft, ob die Allianz noch genug Mitglieder hat um ihr
@@ -478,7 +478,7 @@ public class Ally {
 	 * in kenntnis gesetzt.
 	 *
 	 */
-	/*public void checkForLowMemberCount() {
+	public void checkForLowMemberCount() {
 		final org.hibernate.Session db = ContextMap.getContext().getDB();
 		
 		// Ist der Praesident kein NPC (negative ID) ?
@@ -496,5 +496,5 @@ public class Ally {
 				}
 			}
 		}
-	}*/
+	}
 }

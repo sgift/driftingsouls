@@ -28,7 +28,6 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -53,24 +52,24 @@ public class BuildingController extends TemplateGenerator {
 		super(context);
 		
 		parameterNumber("col");	
-		parameterNumber("field");	
+		parameterNumber("field");
+		
+		setPageTitle("Geb&auml;ude");
 	}
 		
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		Database db = getDatabase();
 		User user = (User)getUser();
 		
 		int col = getInteger("col");
 		int field = getInteger("field");
 		
-		SQLResultRow baseRow = db.first("SELECT * FROM bases WHERE owner=",user.getId()," AND id=",col);
-		if( baseRow.isEmpty() ) {
+		base = (Base)getDB().get(Base.class, col);
+		if( (base == null) || (base.getOwner() != user) ) {
 			addError("Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "basen"));
 			
 			return false;
 		}
-		base = new Base(baseRow);		
 		
 		if( (field >= base.getBebauung().length) || (base.getBebauung()[field] == 0) ) {
 			addError("Es existiert kein Geb&auml;ude an dieser Stelle");
@@ -78,7 +77,7 @@ public class BuildingController extends TemplateGenerator {
 			return false;
 		}
 
-		building = Building.getBuilding(db, base.getBebauung()[field]);
+		building = Building.getBuilding(base.getBebauung()[field]);
 
 		return true;	
 	}
@@ -89,8 +88,6 @@ public class BuildingController extends TemplateGenerator {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void startAction() {
-		Database db = getDatabase();
-		
 		int field = getInteger("field");
 		StringBuffer echo = getResponse().getContent();
 		
@@ -98,11 +95,12 @@ public class BuildingController extends TemplateGenerator {
 			echo.append("<span style=\"color:#ff0000\">Nicht gen&uuml;gend Arbeiter vorhanden</span><br /><br />\n");
 		} 
 		else {
-			base.getActive()[field] = 1;
+			Integer[] active = base.getActive();
+			active[field] = 1;
+			base.setActive(active);
+
 			base.setArbeiter(base.getArbeiter() + building.getArbeiter());
-			String ondb = Common.implode("|",base.getActive());
 			
-			db.update("UPDATE bases SET active='",ondb,"',arbeiter=arbeiter+",building.getArbeiter()," WHERE id=",base.getId());
 			echo.append("<span style=\"color:#00ff00\">Geb&auml;ude aktiviert</span><br /><br />\n");
 		}
 		
@@ -115,8 +113,6 @@ public class BuildingController extends TemplateGenerator {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void shutdownAction() {
-		Database db = getDatabase();
-		
 		int field = getInteger("field");
 		StringBuffer echo = getResponse().getContent();
 		
@@ -124,11 +120,11 @@ public class BuildingController extends TemplateGenerator {
 			echo.append("<span style=\"color:red\">Sie k&ouml;nnen dieses Geb&auml;ude nicht deaktivieren</span>\n");
 		}
 		else {
-			base.getActive()[field] = 0;
-			base.setArbeiter(base.getArbeiter() - building.getArbeiter());
-			String ondb = Common.implode("|",base.getActive());
+			Integer[] active = base.getActive();
+			active[field] = 0;
+			base.setActive(active);
 			
-			db.update("UPDATE bases SET active='",ondb,"',arbeiter=arbeiter+",building.getArbeiter()," WHERE id=",base.getId());
+			base.setArbeiter(base.getArbeiter() - building.getArbeiter());
 			
 			echo.append("<span style=\"color:#ff0000\">Geb&auml;ude deaktiviert</span><br /><br />\n");
 		}
@@ -143,8 +139,6 @@ public class BuildingController extends TemplateGenerator {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void demoAction() {	
-		Database db = getDatabase();
-		
 		int field = getInteger("field");
 		StringBuffer echo = getResponse().getContent();
 		
@@ -181,17 +175,20 @@ public class BuildingController extends TemplateGenerator {
 			echo.append("<br />\n");
 		}
 		
-		base.getCargo().addCargo( addcargo );
+		Cargo baseCargo = base.getCargo();
+		baseCargo.addCargo( addcargo );
+		base.setCargo(baseCargo);
 		
 		building.cleanup( getContext(), base );
 
-		base.getBebauung()[field] = 0;
-		String bebdb = Common.implode("|", base.getBebauung());
+		Integer[] bebauung = base.getBebauung();
+		bebauung[field] = 0;
+		base.setBebauung(bebauung);
 		
-		base.getActive()[field] = 0;
-		String ondb = Common.implode("|",base.getActive());
-		db.update("UPDATE bases SET active='",ondb,"',bebauung='",bebdb,"',cargo='",base.getCargo().save(),"' WHERE id=",base.getId()," AND cargo='",base.getCargo().save(true),"'");
-			
+		Integer[] active = base.getActive();
+		active[field] = 0;
+		base.setActive(active);
+		
 		echo.append("<br />\n");
 		echo.append("<hr noshade=\"noshade\" size=\"1\" style=\"color:#cccccc\" /><br />\n");
 		echo.append("<div align=\"center\"><span style=\"color:#ff0000\">Das Geb&auml;ude wurde demontiert</span></div>\n");
@@ -238,7 +235,7 @@ public class BuildingController extends TemplateGenerator {
 			}
 		}
 		
-		echo.append(building.output( getContext(), getTemplateEngine(), base, field, building.getId() ));
+		echo.append(building.output( getTemplateEngine(), base, field, building.getId() ));
 		
 		if( !classicDesign ) {
 			echo.append("Aktionen: ");

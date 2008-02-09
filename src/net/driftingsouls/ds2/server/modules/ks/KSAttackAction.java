@@ -134,7 +134,7 @@ public class KSAttackAction extends BasicKSAction {
 		if( generateStats ) {
 			PreparedQuery pq = db.prepare("INSERT INTO ships_lost (type,name,time,owner,ally,destowner,destally,battle,battlelog) ",
 						"VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-			pq.update(eShip.getInt("type"), eShip.getString("name"), Common.time(), eShip.getInt("owner"), eUser.getAlly(), ownShip.getInt("owner"), oUser.getAlly(), battle.getID(), Configuration.getSetting("LOXPATH")+"battles/battle_id"+battle.getID()+".log");
+			pq.update(eShip.getInt("type"), eShip.getString("name"), Common.time(), eShip.getInt("owner"), eUser.getAlly() != null ? eUser.getAlly().getId() : 0, ownShip.getInt("owner"), oUser.getAlly() != null ? oUser.getAlly().getId() : 0, battle.getID(), Configuration.getSetting("LOXPATH")+"battles/battle_id"+battle.getID()+".log");
 	
 			masterid = pq.insertID();
 			pq.close();
@@ -167,8 +167,8 @@ public class KSAttackAction extends BasicKSAction {
 				if( generateStats ) {				
 					db.prepare("INSERT INTO ships_lost (type,name,time,owner,ally,destowner,destally,docked,battle,battlelog) ",
 								"VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-						.update(s.getInt("type"), s.getString("name"), Common.time(), s.getInt("owner"), eUser.getAlly(), 
-								ownShip.getInt("owner"), oUser.getAlly(), Integer.toString(masterid), battle.getID(), 
+						.update(s.getInt("type"), s.getString("name"), Common.time(), s.getInt("owner"), eUser.getAlly() != null ? eUser.getAlly().getId() : 0, 
+								ownShip.getInt("owner"), oUser.getAlly() != null ? oUser.getAlly().getId() : 0, Integer.toString(masterid), battle.getID(), 
 								Configuration.getSetting("LOXPATH")+"battles/battle_id"+battle.getID()+".log");
 				}
 	

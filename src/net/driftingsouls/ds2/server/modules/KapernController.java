@@ -274,9 +274,9 @@ public class KapernController extends TemplateGenerator {
 			
 			if( this.targetShipType.getInt("class") == ShipClasses.STATION.ordinal() ) {
 				List<Integer> ownerlist = new ArrayList<Integer>();
-				if( targetUser.getAlly() > 0 ) {
+				if( targetUser.getAlly() != null ) {
 					List list = getContext().getDB().createQuery("from User where ally= :ally")
-						.setInteger("ally", targetUser.getAlly())
+						.setEntity("ally", targetUser.getAlly())
 						.list();
 					for( Iterator iter=list.iterator(); iter.hasNext(); ) {
 						User uid = (User)iter.next();

@@ -122,8 +122,8 @@ public class RestTick extends TickController {
 				User user = (User)iter.next();
 				
 				SQLResultRow newcommander = null;
-				if( user.getAlly() > 0 ) {
-					newcommander = db.first("SELECT id,name FROM users WHERE ally=",user.getAlly(),"  AND inakt <= 7 AND vaccount=0 AND (wait4vac>6 OR wait4vac=0)");
+				if( user.getAlly() != null ) {
+					newcommander = db.first("SELECT id,name FROM users WHERE ally=",user.getAlly().getId(),"  AND inakt <= 7 AND vaccount=0 AND (wait4vac>6 OR wait4vac=0)");
 				}
 				
 				SQLQuery battleid = db.query("SELECT id FROM battles WHERE commander1=",user.getId()," OR commander2=",user.getId());

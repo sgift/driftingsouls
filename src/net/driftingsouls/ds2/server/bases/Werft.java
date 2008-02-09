@@ -62,7 +62,7 @@ class Werft extends DefaultBuilding {
 	@Override
 	public void cleanup(Context context, Base base) {
 		super.cleanup(context, base);
-		
+
 		context.getDatabase().update("DELETE FROM werften WHERE col="+base.getId());
 	}
 
@@ -77,7 +77,7 @@ class Werft extends DefaultBuilding {
 		
 		SQLResultRow werftRow = db.first("SELECT * FROM werften WHERE col=",base.getId());
 		if( !werftRow.isEmpty() ) {
-			BaseWerft werft = new BaseWerft(werftRow,"pwerft",base.getSystem(),base.getOwner(),base.getId(), field);
+			BaseWerft werft = new BaseWerft(werftRow,"pwerft",base.getSystem(),base.getOwner().getId(),base.getId(), field);
 			
 			if( !werft.isBuilding() ) {
 				result.append("<a class=\"back\" href=\"./main.php?module=building&amp;sess=");
@@ -160,7 +160,7 @@ class Werft extends DefaultBuilding {
 	
 		SQLResultRow werftRow = db.first("SELECT * FROM werften WHERE col=",base.getId());
 		if( !werftRow.isEmpty() ) {
-			WerftObject werft = new BaseWerft(werftRow,"pwerft",base.getSystem(),base.getOwner(),base.getId(), field);
+			WerftObject werft = new BaseWerft(werftRow,"pwerft",base.getSystem(),base.getOwner().getId(),base.getId(), field);
 			return (werft.isBuilding() ? true : false);
 		}
 		
@@ -168,7 +168,9 @@ class Werft extends DefaultBuilding {
 	}
 
 	@Override
-	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
+	public String output(TemplateEngine t, Base base, int field, int building) {
+		Context context = ContextMap.getContext();
+		
 		Database db = context.getDatabase();
 
 		String sess = context.getSession();
@@ -182,7 +184,7 @@ class Werft extends DefaultBuilding {
 		
 		response.append("<div>Werft auf "+base.getName()+"<br /><br /></div>\n");
 		
-		BaseWerft werft = new BaseWerft(werftdata,"pwerft",base.getSystem(),base.getOwner(),base.getId(), field);
+		BaseWerft werft = new BaseWerft(werftdata,"pwerft",base.getSystem(),base.getOwner().getId(),base.getId(), field);
 		WerftGUI werftgui = new WerftGUI( context, t );
 		response.append(werftgui.execute( werft ));
 		

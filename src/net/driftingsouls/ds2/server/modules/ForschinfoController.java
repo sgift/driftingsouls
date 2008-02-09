@@ -211,7 +211,7 @@ public class ForschinfoController extends TemplateGenerator {
 
 		SQLQuery buildingRow = db.query("SELECT id FROM buildings WHERE techreq=",this.research.getID());
 		while( buildingRow.next() ) {
-			Building building = Building.getBuilding(db, buildingRow.getInt("id"));
+			Building building = Building.getBuilding(buildingRow.getInt("id"));
 			
 			t.start_record();
 	
@@ -267,7 +267,7 @@ public class ForschinfoController extends TemplateGenerator {
 		firstentry = true;
 		SQLQuery coreRow = db.query("SELECT id FROM cores WHERE techreq=",this.research.getID());
 		while( coreRow.next() ) {
-			Core core = Core.getCore(db, coreRow.getInt("id"));
+			Core core = Core.getCore(coreRow.getInt("id"));
 			
 			t.start_record();
 		

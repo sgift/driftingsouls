@@ -33,8 +33,6 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -48,9 +46,10 @@ import org.apache.commons.lang.StringEscapeUtils;
  *
  * @urlparam Integer col Die ID der Basis
  */
-public class BaseController extends TemplateGenerator {	
+public class BaseController extends TemplateGenerator {
+	private static final int NAHRUNG_CHECKOUT_FACTOR = 100;
+	
 	private Base base;
-	private int retryCount = 0;
 	
 	/**
 	 * Konstruktor
@@ -61,25 +60,27 @@ public class BaseController extends TemplateGenerator {
 		
 		setTemplate("base.html");
 		
-		parameterNumber("col");	
+		parameterNumber("col");
+		
+		setPageTitle("Basis");
 	}
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		Database db = getDatabase();
 		User user = (User)getUser();
 		
 		int col = getInteger("col");
 		
-		SQLResultRow baseRow = db.first("SELECT * FROM bases WHERE owner='",user.getId(),"' AND id='",col,"'");
-		if( baseRow.isEmpty() ) {
+		base = (Base)getDB().get(Base.class, col);
+		if( (base == null) || (base.getOwner() != user) ) {
 			addError("Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "basen") );
 			
 			return false;
 		}
-		base = new Base(baseRow);		
 		
 		base.getCargo().setOption( Cargo.Option.LINKCLASS, "schiffwaren" );
+		
+		setPageTitle(Common._plaintitle(base.getName()));
 		
 		return true;	
 	}
@@ -93,8 +94,7 @@ public class BaseController extends TemplateGenerator {
 	public void transferNahrungAction() {		
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
-		
+
 		parameterNumber("nahrung");
 		long count = getInteger("nahrung");
 	
@@ -104,8 +104,8 @@ public class BaseController extends TemplateGenerator {
 	
 		Cargo usercargo = new Cargo( Cargo.Type.STRING, user.getCargo());
 
-		if( (count < 0) && (-count*100 > usercargo.getResourceCount(Resources.NAHRUNG)) ) {
-			count = -usercargo.getResourceCount(Resources.NAHRUNG)/100;
+		if( (count < 0) && (-count*NAHRUNG_CHECKOUT_FACTOR > usercargo.getResourceCount(Resources.NAHRUNG)) ) {
+			count = -usercargo.getResourceCount(Resources.NAHRUNG)/NAHRUNG_CHECKOUT_FACTOR;
 		}
 		
 		if( (count < 0) && (-count + base.getCargo().getMass() > base.getMaxCargo()) ) {
@@ -116,30 +116,15 @@ public class BaseController extends TemplateGenerator {
 			redirect();
 			return;	
 		}
-		Cargo cargo = (Cargo)base.getCargo().clone();
+		Cargo cargo = new Cargo(base.getCargo());
 		
 		cargo.substractResource( Resources.NAHRUNG, count );
-		usercargo.addResource( Resources.NAHRUNG, count*100 );
+		usercargo.addResource( Resources.NAHRUNG, count*NAHRUNG_CHECKOUT_FACTOR );
 	
-		db.tBegin(true);
 		user.setCargo(usercargo.save());
-		db.tUpdate(1,"UPDATE bases SET cargo='",cargo.save(),"' WHERE id='",base.getId(),"' AND cargo='",cargo.save(true),"'");
-		
-		if( !db.tCommit() ) {
-			if( retryCount < 3 ) {
-				retryCount++;
-				redirect("transferNahrung");
-					
-				return;
-			}	
-			addError("Konnte Nahrung nicht ordnunggem&auml;&szlig; transferieren");
-				
-			redirect();
-			return;
-		}
 		base.setCargo(cargo);
 	
-		t.setVar("base.message", "<img src=\""+Cargo.getResourceImage(Resources.NAHRUNG)+"\" alt=\"\" />"+Math.abs(count)+" 100er Pakete transferiert" );
+		t.setVar("base.message", "<img src=\""+Cargo.getResourceImage(Resources.NAHRUNG)+"\" alt=\"\" />"+Math.abs(count)+" transferiert" );
 	
 		redirect();
 	}
@@ -151,7 +136,6 @@ public class BaseController extends TemplateGenerator {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void changeNameAction() {
-		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
 		
 		parameterString("newname");
@@ -160,10 +144,9 @@ public class BaseController extends TemplateGenerator {
 			newname = newname.substring(0,50);
 		}
 	
-		db.prepare("UPDATE bases SET name= ? WHERE id= ? ").update(newname, base.getId());
+		base.setName(newname);
 		
 		t.setVar("base.message", "Name zu "+Common._plaintitle(newname)+" ge&auml;ndert");
-		base.setName(newname);
 		
 		redirect();
 	}
@@ -176,7 +159,6 @@ public class BaseController extends TemplateGenerator {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void changeBuildingStatusAction() {
-		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
 		
 		parameterNumber("act");
@@ -190,15 +172,16 @@ public class BaseController extends TemplateGenerator {
 			bebstatus = 1;
 		}
 		
-		Building building = Building.getBuilding(db, buildingonoff);
+		Building building = Building.getBuilding(buildingonoff);
 		if( building.isDeakAble() ) {
 			int count = 0;
+			Integer[] active = base.getActive();
 			
 			for( int i=0; i <= base.getWidth()*base.getHeight()-1 ; i++ ) {
 				
-				if( (base.getBebauung()[i] == buildingonoff) && (base.getActive()[i] != bebstatus) ) {
+				if( (base.getBebauung()[i] == buildingonoff) && (active[i] != bebstatus) ) {
 					if( ((bebstatus != 0) && (base.getBewohner() >= base.getArbeiter() + building.getArbeiter())) || (bebstatus == 0) ) {
-						base.getActive()[i] = bebstatus;
+						active[i] = bebstatus;
 						
 						count++;
 					
@@ -208,10 +191,10 @@ public class BaseController extends TemplateGenerator {
 					}
 				}	
 			}
+			
+			base.setActive(active);
 		
 			if( count != 0 ) {
-				db.update("UPDATE bases SET active='"+Common.implode("|",base.getActive())+"',arbeiter="+base.getArbeiter()+" WHERE id='"+base.getId()+"'");
-				
 				String result = "";
 				
 				if( bebstatus != 0 ) {
@@ -235,10 +218,9 @@ public class BaseController extends TemplateGenerator {
 	/**
 	 * Zeigt die Basis an
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
-		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
 		
 		t.setBlock("_BASE", "header", "none" );
@@ -265,7 +247,7 @@ public class BaseController extends TemplateGenerator {
 		
 		StringBuilder tooltiptext = new StringBuilder(50);
 		tooltiptext.append(Common.tableBegin(300, "center").replace('"', '\''));
-		tooltiptext.append("<form action='./main.php' method='post'>");
+		tooltiptext.append("<form action='./ds' method='post'>");
 		tooltiptext.append("Name: <input name='newname' type='text' size='15' maxlength='50' value='");
 		StringBuilder tooltiptext2 = new StringBuilder(50);
 		tooltiptext2.append("' />");
@@ -304,7 +286,7 @@ public class BaseController extends TemplateGenerator {
 		// Core
 		//------------------
 		if( base.getCore() > 0 ) {
-			Core core = Core.getCore(db, base.getCore());
+			Core core = Core.getCore(base.getCore());
 			t.setVar( "core.name", Common._plaintitle(core.getName()) );
 		}
 		
@@ -328,7 +310,7 @@ public class BaseController extends TemplateGenerator {
 				base.getActive()[i] = 2;
 			} 
 			else {
-				Building building = Building.getBuilding(db, base.getBebauung()[i]);
+				Building building = Building.getBuilding(base.getBebauung()[i]);
 				base.getActive()[i] = basedata.getActiveBuildings()[i];
 				
 				if( building.isDeakAble() ) {
@@ -368,7 +350,6 @@ public class BaseController extends TemplateGenerator {
 		// Waren
 		//----------------
 
-		db.update( "UPDATE bases SET arbeiter='"+basedata.getArbeiter()+"' WHERE id='"+base.getId()+"'");
 		base.setArbeiter(basedata.getArbeiter());
 		
 		int bue = base.getBewohner() - basedata.getArbeiter();
@@ -403,9 +384,9 @@ public class BaseController extends TemplateGenerator {
 			if( res.getId().equals(Resources.NAHRUNG) ) {
 				tooltiptext = new StringBuilder(100);
 				tooltiptext.append(Common.tableBegin(300,"center").replace('"', '\''));
-				tooltiptext.append("<form action='./main.php' method='post'>");
+				tooltiptext.append("<form action='./ds' method='post'>");
 				tooltiptext.append("<div>");
-				tooltiptext.append("Nahrung in 100er Paketen transferieren: <input name='nahrung' type='text' size='6' value='"+res.getCount1()+"' /><br />");
+				tooltiptext.append("Nahrung transferieren: <input name='nahrung' type='text' size='6' value='"+res.getCount1()+"' /><br />");
 				tooltiptext.append("<input name='col' type='hidden' value='"+base.getId()+"' />");
 				tooltiptext.append("<input name='sess' type='hidden' value='"+getString("sess")+"' />");
 				tooltiptext.append("<input name='module' type='hidden' value='base' />");
@@ -426,7 +407,7 @@ public class BaseController extends TemplateGenerator {
 		long cstat = -basedata.getStatus().getMass();
 		
 		t.setVar(	"base.cstat",		Common.ln(cstat),
-					"base.e",			base.getE(),
+					"base.e",			base.getEnergy(),
 					"base.estat",		basedata.getE(),
 					"base.bewohner",	base.getBewohner(),
 					"base.arbeiter.needed",	basedata.getArbeiter(),
@@ -444,7 +425,7 @@ public class BaseController extends TemplateGenerator {
 				continue;
 			}
 
-			Building building = Building.getBuilding(db, bid);
+			Building building = Building.getBuilding(bid);
 			t.setVar(	"building.name",	Common._plaintitle(building.getName()),
 						"building.id",		bid,
 						"building.allowoff",	(bstatus == -1) || (bstatus == 2),

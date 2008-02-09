@@ -21,11 +21,12 @@ package net.driftingsouls.ds2.server.bases;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
 
 /**
- * Repraesentiert eine auf der Basis durchgefuehrte automatische GTU-Aktion
+ * Repraesentiert eine auf der Basis durchgefuehrte automatische GTU-Aktion.
+ * Instanzen dieser Klasse sind nicht veraenderbar (immutable).
  * @author Christopher Jung
  *
  */
-public class AutoGTUAction implements Cloneable {
+public final class AutoGTUAction implements Cloneable {
 	private ResourceID resid;
 	private int actid;
 	private long count;

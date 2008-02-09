@@ -572,16 +572,16 @@ public class CommController extends TemplateGenerator implements Loggable {
 			PM.send(getContext(), user.getId(), PM.TASK, title, msg, false, flags );
 		} 
 		else if( to.equals("ally") ) {
-			if( user.getAlly() <= 0 ) {
+			if( user.getAlly() == null ) {
 				t.setVar("show.message", "<span style=\"color:red; font-weight:bold\">Sie sind in keiner Allianz Mitglied</span>");
 				
 				return;
 			}
 			
-			String nameto = db.first("SELECT name FROM ally WHERE id="+user.getAlly()).getString("name");
+			String nameto = user.getAlly().getName();
 			t.setVar("show.message", "<span style=\"color:#00ff55\">Nachricht versendet an</span> "+Common._title(nameto));
 
-			PM.send(getContext(), user.getId(), user.getAlly(), title, msg, true, flags );
+			PM.send(getContext(), user.getId(), user.getAlly().getId(), title, msg, true, flags );
 		}
 		else {			
 			if( (to.length() == 0) || (Integer.parseInt(to) == 0) ) {

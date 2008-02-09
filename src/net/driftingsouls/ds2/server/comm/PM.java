@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.comm;
 
+import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -61,6 +62,40 @@ public class PM {
 	 */
 	public static final int TASK = Integer.MIN_VALUE;
 
+	/**
+	 * Sendet eine PM von einem Spieler zu einer Allianz
+	 * @param from Die ID des versendenden Spielers
+	 * @param ally Die Allianz
+	 * @param title Der Titel der PM
+	 * @param txt Der Text
+	 */
+	public static void sendToAlly( User from, Ally ally, String title, String txt ) {
+		send( ContextMap.getContext(), from.getId(), ally.getId(), title, txt, true, 0);
+	}
+	
+	/**
+	 * Sendet eine PM von einem Spieler zu einem anderen
+	 * @param from Die ID des versendenden Spielers
+	 * @param to Die ID des Spielers, der die PM erhalten soll
+	 * @param title Der Titel der PM
+	 * @param txt Der Text
+	 */
+	public static void send( User from, int to, String title, String txt ) {
+		send( ContextMap.getContext(), from.getId(), to, title, txt, false, 0);
+	}
+	
+	/**
+	 * Sendet eine PM von einem Spieler zu einem anderen
+	 * @param from Die ID des versendenden Spielers
+	 * @param to Die ID des Spielers, der die PM erhalten soll
+	 * @param title Der Titel der PM
+	 * @param txt Der Text
+	 * @param flags Flags, welche die PM erhalten soll
+	 */
+	public static void send( User from, int to, String title, String txt, int flags ) {
+		send( ContextMap.getContext(), from.getId(), to, title, txt, false, flags );
+	}
+	
 	/**
 	 * Sendet eine PM von einem Spieler zu einem anderen
 	 * @param context Der Kontext

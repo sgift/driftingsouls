@@ -976,24 +976,24 @@ public class Battle implements Loggable {
 		for( Integer auserID : ownUsers ) {
 			User auser = (User)context.getDB().get(User.class, auserID);
 			
-			if( (auser.getAlly() != 0) && calcedallys.contains(auser.getAlly()) ) {		
-				SQLQuery allyuser = db.query("SELECT id FROM users WHERE ally=",auser.getAlly()," AND !(id IN (",Common.implode(",",ownUsers),"))");
+			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly().getId()) ) {		
+				SQLQuery allyuser = db.query("SELECT id FROM users WHERE ally=",auser.getAlly().getId()," AND !(id IN (",Common.implode(",",ownUsers),"))");
 				while( allyuser.next() ) {
 					ownUsers.add(allyuser.getInt("id"));	
 				}
-				calcedallys.add(auser.getAlly());
+				calcedallys.add(auser.getAlly().getId());
 			}
 		}
 
 		for( Integer auserID : enemyUsers ) {
 			User auser = (User)context.getDB().get(User.class, auserID);
 			
-			if( (auser.getAlly() != 0) && calcedallys.contains(auser.getAlly()) ) {		
-				SQLQuery allyuser = db.query("SELECT id FROM users WHERE ally=",auser.getAlly()," AND !(id IN (",Common.implode(",",enemyUsers),"))");
+			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly().getId()) ) {		
+				SQLQuery allyuser = db.query("SELECT id FROM users WHERE ally=",auser.getAlly().getId()," AND !(id IN (",Common.implode(",",enemyUsers),"))");
 				while( allyuser.next() ) {
 					enemyUsers.add(allyuser.getInt("id"));	
 				}
-				calcedallys.add(auser.getAlly());
+				calcedallys.add(auser.getAlly().getId());
 			}
 		}
 		calcedallys = null;
@@ -1093,9 +1093,9 @@ public class Battle implements Loggable {
 		Set<User> enemyUsers = new HashSet<User>();
 		
 		User curuser = userobj;
-		if( curuser.getAlly() != 0 ) {
+		if( curuser.getAlly() != null ) {
 			List userList = context.getDB().createQuery("from User where ally= :ally and id != :user")
-				.setInteger("ally", curuser.getAlly())
+				.setEntity("ally", curuser.getAlly())
 				.setInteger("user", curuser.getId())
 				.list();
 			for( Iterator iter=userList.iterator(); iter.hasNext(); ) {
@@ -1110,16 +1110,16 @@ public class Battle implements Loggable {
 			User euser = (User)context.getDB().get(User.class, query.getInt("id"));
 			enemyUsers.add(euser);
 
-			if( (euser.getAlly() != 0) && calcedallys.contains(euser.getAlly()) ) {
+			if( (euser.getAlly() != null) && !calcedallys.contains(euser.getAlly().getId()) ) {
 				List userList = context.getDB().createQuery("from User where ally= :ally and id != :user")
-					.setInteger("ally", euser.getAlly())
+					.setEntity("ally", euser.getAlly())
 					.setInteger("user", euser.getId())
 					.list();
 				for( Iterator iter=userList.iterator(); iter.hasNext(); ) {
 					enemyUsers.add((User)iter.next());	
 				}
 				
-				calcedallys.add(euser.getAlly());
+				calcedallys.add(euser.getAlly().getId());
 			}
 		}
 		query.free();
@@ -1316,8 +1316,8 @@ public class Battle implements Loggable {
 		int forceSide = -1;
 	
 		if( forcejoin == 0 ) {
-			if( ( (auser.getAlly() > 0) && !Common.inArray(auser.getAlly(),this.ally) && !this.isCommander(id) ) ||
-				( (auser.getAlly() == 0) && !this.isCommander(id) ) ) {
+			if( ( (auser.getAlly() != null) && !Common.inArray(auser.getAlly().getId(),this.ally) && !this.isCommander(id) ) ||
+				( (auser.getAlly() == null) && !this.isCommander(id) ) ) {
 	
 				// Hat der Spieler ein Schiff in der Schlacht
 				SQLResultRow aship = db.first("SELECT id,side ",
@@ -1357,11 +1357,11 @@ public class Battle implements Loggable {
 		// Eigene Seite feststellen
 		//
 	
-		if( (auser.getAlly() != 0 && (auser.getAlly() == this.ally[0])) || this.isCommander(id,0) || this.guest || forceSide == 0 ) {
+		if( (auser.getAlly() != null && (auser.getAlly().getId() == this.ally[0])) || this.isCommander(id,0) || this.guest || forceSide == 0 ) {
 			this.ownSide = 0;
 			this.enemySide = 1;
 		}
-		else if( (auser.getAlly() != 0 && (auser.getAlly() == this.ally[1])) || this.isCommander(id,1) || forceSide == 1 ) {
+		else if( (auser.getAlly() != null && (auser.getAlly().getId() == this.ally[1])) || this.isCommander(id,1) || forceSide == 1 ) {
 			this.ownSide = 1;
 			this.enemySide = 0;
 		}

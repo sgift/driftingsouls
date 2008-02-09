@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
@@ -32,9 +33,11 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.Items;
+import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -52,16 +55,16 @@ class Kommandozentrale extends DefaultBuilding {
 	@Override
 	public void cleanup(Context context, Base base) {
 		super.cleanup(context, base);
-		
-		Database db = context.getDatabase();
-		
-		db.update("UPDATE bases SET owner=0,autogtuacts='' WHERE id="+base.getId());
-		base.getAutoGTUActs().clear();
-		base.setOwner(0);
+
+		Database database = context.getDatabase();
+
+		base.setAutoGTUActs(new ArrayList<AutoGTUAction>());
+		User nullUser = (User)context.getDB().get(User.class, 0);
+		base.setOwner(nullUser);
 		
 		// TODO: Unschoen. Das sollte die Werft selbst machen
-		db.update("UPDATE werften SET building=0,item=-1,remaining=0,flagschiff=0 WHERE col="+base.getId());
-		db.update("UPDATE werften SET linked=0 WHERE linked="+base.getId());
+		database.update("UPDATE werften SET building=0,item=-1,remaining=0,flagschiff=0 WHERE col="+base.getId());
+		database.update("UPDATE werften SET linked=0 WHERE linked="+base.getId());
 	}
 
 	@Override
@@ -82,7 +85,8 @@ class Kommandozentrale extends DefaultBuilding {
 	}
 
 	@Override
-	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
+	public String output(TemplateEngine t, Base base, int field, int building) {
+		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 		User user = (User)context.getActiveUser();
 		
@@ -167,7 +171,7 @@ class Kommandozentrale extends DefaultBuilding {
 					db.tUpdate(1, "UPDATE stats_verkaeufe SET stats='",stats.save(),"' WHERE id='",statid.getInt("id"),"' AND stats='",stats.save(true),"'");
 				}
 				
-				db.tUpdate(1, "UPDATE bases SET cargo='",cargo.save(),"' WHERE id="+base.getId()+" AND cargo='",cargo.save(true),"'");
+				base.setCargo(cargo);
 				
 				user.transferMoneyFrom(Faction.GTU, totalRE, "Warenverkauf Asteroid "+base.getId()+" - "+base.getName(), false, User.TRANSFER_SEMIAUTO );
 				
@@ -189,7 +193,7 @@ class Kommandozentrale extends DefaultBuilding {
 				load *= -1;
 			}
 		
-			int e = base.getE();
+			int e = base.getEnergy();
 			
 			if( load > e ) {
 				load = e;
@@ -205,9 +209,11 @@ class Kommandozentrale extends DefaultBuilding {
 				cargo.addResource( Resources.BATTERIEN, load );
 				e -= load;
 			
-				db.update("UPDATE bases SET e=",e,",cargo='",cargo.save(),"' WHERE id="+base.getId()+" AND cargo='",cargo.save(true),"' AND e='",base.getE(),"'");
+				base.setEnergy(e);
+				base.setCargo(cargo);
+				
 				if( db.affectedRows() != 0 ) {
-					base.setE(e);	
+					base.setEnergy(e);	
 				}
 			}
 		}
@@ -223,7 +229,7 @@ class Kommandozentrale extends DefaultBuilding {
 				unload *= -1;
 			}
 		
-			int e = base.getE();
+			int e = base.getEnergy();
 			
 			if( unload > cargo.getResourceCount( Resources.BATTERIEN ) ) {
 				unload = cargo.getResourceCount( Resources.BATTERIEN );
@@ -235,11 +241,9 @@ class Kommandozentrale extends DefaultBuilding {
 				cargo.substractResource( Resources.BATTERIEN, unload );
 				cargo.addResource( Resources.LBATTERIEN, unload );
 				e += unload;
-			
-				db.update("UPDATE bases SET e=",e,",cargo='",cargo.save(),"' WHERE id="+base.getId()+" AND cargo='",cargo.save(true),"' AND e='",base.getE(),"'");
-				if( db.affectedRows() != 0 ) {
-					base.setE(e);	
-				}
+		
+				base.setEnergy(e);
+				base.setCargo(cargo);
 			}
 		}
 		
@@ -260,7 +264,7 @@ class Kommandozentrale extends DefaultBuilding {
 				cargo.substractResource( Resources.PLATIN, create );
 				cargo.addResource( Resources.LBATTERIEN, create );
 			
-				db.update("UPDATE bases SET cargo='",cargo.save(),"' WHERE id="+base.getId()+" AND cargo='",cargo.save(true),"'");
+				base.setCargo(cargo);
 			}
 		}
 		
@@ -271,9 +275,9 @@ class Kommandozentrale extends DefaultBuilding {
 		if( baction.equals("item") ) {
 			int item = context.getRequest().getParameterInt("item");
 			
-			int ally = user.getAlly();
+			Ally ally = user.getAlly();
 			
-			if( ally == 0 ) {
+			if( ally == null ) {
 				message.append("Sie sind in keiner Allianz<br /><br />\n");
 			}
 			else if( Items.get().item(item) == null || !Items.get().item(item).getEffect().hasAllyEffect() ) {
@@ -283,16 +287,16 @@ class Kommandozentrale extends DefaultBuilding {
 				message.append("Kein passendes Item vorhanden<br /><br />\n");
 			}
 			else {
-				String allyitemsStr = db.first("SELECT items FROM ally WHERE id="+ally).getString("items");
+				String allyitemsStr = ally.getItems();
 				Cargo allyitems = new Cargo( Cargo.Type.ITEMSTRING, allyitemsStr );
 				allyitems.addResource( new ItemID(item), 1 );
 				cargo.substractResource( new ItemID(item), 1 );
 		
-				db.update("UPDATE ally SET items='"+allyitems.getData( Cargo.Type.ITEMSTRING )+"' WHERE id="+ally);
-				db.update("UPDATE bases SET cargo='"+cargo.save()+"' WHERE id="+base.getId());
+				ally.setItems(allyitems.getData( Cargo.Type.ITEMSTRING ));
+				base.setCargo(cargo);
 						
 				String msg = "Ich habe das Item \""+Items.get().item(item).getName()+"\" der Allianz zur Verf&uuml;gung gestellt.";
-				PM.send(context, user.getId(), ally, "Item &uuml;berstellt", msg, true);
+				PM.send(context, user.getId(), ally.getId(), "Item &uuml;berstellt", msg, true);
 		
 				message.append("Das Item wurde an die Allianz &uuml;bergeben<br /><br />\n");
 			}
@@ -313,9 +317,9 @@ class Kommandozentrale extends DefaultBuilding {
 				stat.setResource(Resources.NAHRUNG, 0);
 				
 				if( stat.getResourceCount(resid) != 0 && kurse.getResourceCount(resid) != 0 ) {
-					base.getAutoGTUActs().add(new AutoGTUAction(resid,actid,count));
-					
-					db.update("UPDATE bases SET autogtuacts='"+Common.implode(";", base.getAutoGTUActs())+"' WHERE id='"+base.getId()+"'");
+					List<AutoGTUAction> acts = base.getAutoGTUActs();
+					acts.add(new AutoGTUAction(resid,actid,count));
+					base.setAutoGTUActs(acts);
 					
 					message.append("Automatischer Verkauf von <img style=\"vertical-align:middle\" src=\""+Cargo.getResourceImage(resid)+"\" alt=\"\" />"+Cargo.getResourceName(resid)+" hinzugef&uuml;gt<br /><br />\n");
 				}
@@ -339,8 +343,7 @@ class Kommandozentrale extends DefaultBuilding {
 						break;
 					}
 				}
-				
-				db.update("UPDATE bases SET autogtuacts='"+Common.implode(";", autoactlist)+"' WHERE id='"+base.getId()+"'");
+				base.setAutoGTUActs(autoactlist);
 			}
 		}
 
@@ -360,8 +363,8 @@ class Kommandozentrale extends DefaultBuilding {
 			
 			List<ItemCargoEntry> itemlist = cargo.getItems();
 			if( itemlist.size() != 0 ) {
-				int ally = user.getAlly();
-				if( ally > 0 ) {
+				Ally ally = user.getAlly();
+				if( ally != null ) {
 					for( ItemCargoEntry item : itemlist ) {
 						Item itemobject = item.getItemObject();
 						if( itemobject.getEffect().hasAllyEffect() ) {

@@ -209,8 +209,8 @@ public abstract class WerftObject extends DSObject {
 				User user = (User)context.getDB().get(User.class, this.getOwner());
 				
 				Cargo allyitems = null;
-				if( user.getAlly() > 0 ) {
-					allyitems = new Cargo( Cargo.Type.ITEMSTRING, db.first("SELECT items FROM ally WHERE id=",user.getAlly()).getString("items"));
+				if( user.getAlly() != null ) {
+					allyitems = new Cargo( Cargo.Type.ITEMSTRING, user.getAlly().getItems() );
 					itemlist = allyitems.getItem(this.getRequiredItem());
 					for( int i=0; i < itemlist.size(); i++ ) {
 						if( itemlist.get(i).getMaxUses() == 0 ) {
@@ -223,7 +223,7 @@ public abstract class WerftObject extends DSObject {
 				if( !ok ) {
 					ItemCargoEntry item = null;
 					String source = "";
-					if( (user.getAlly() > 0) && allyitems.hasResource(new ItemID(this.getRequiredItem())) ) {
+					if( (user.getAlly() != null) && allyitems.hasResource(new ItemID(this.getRequiredItem())) ) {
 						item = allyitems.getItem(this.getRequiredItem()).get(0);
 						source = "ally";
 					}
@@ -274,8 +274,8 @@ public abstract class WerftObject extends DSObject {
 			Cargo cargo = this.getCargo(true);
 			User user = (User)context.getDB().get(User.class, this.getOwner());
 			
-			if( user.getAlly() > 0 ) {
-				Cargo allyitems = new Cargo( Cargo.Type.ITEMSTRING, db.first("SELECT items FROM ally WHERE id=",user.getAlly()).getString("items"));
+			if( user.getAlly() != null ) {
+				Cargo allyitems = new Cargo( Cargo.Type.ITEMSTRING, user.getAlly().getItems() );
 				cargo.addCargo( allyitems );
 			}
 			
@@ -1027,8 +1027,8 @@ public abstract class WerftObject extends DSObject {
 		Cargo availablecargo = this.getCargo(false);
 	
 		Cargo allyitems = null;
-		if( user.getAlly() > 0 ) {
-			allyitems = new Cargo(Cargo.Type.ITEMSTRING, db.first("SELECT items FROM ally WHERE id=",user.getAlly()).getString("items"));
+		if( user.getAlly() != null ) {
+			allyitems = new Cargo(Cargo.Type.ITEMSTRING, user.getAlly().getItems());
 		}
 		else {
 			allyitems = new Cargo();
@@ -1203,8 +1203,8 @@ public abstract class WerftObject extends DSObject {
 		User user = (User)context.getDB().get(User.class, this.getOwner());
 		
 		Cargo allyitems = null;
-	   	if( user.getAlly() > 0 ) {
-			allyitems = new Cargo(Cargo.Type.ITEMSTRING,db.first("SELECT items FROM ally WHERE id=",user.getAlly()).getString("items"));
+	   	if( user.getAlly() != null ) {
+			allyitems = new Cargo(Cargo.Type.ITEMSTRING, user.getAlly().getItems());
 			Cargo localcargo = this.getCargo(true);
 			
 			allyitems.addCargo( localcargo );
@@ -1286,8 +1286,8 @@ public abstract class WerftObject extends DSObject {
 	   	Cargo newbasec = (Cargo)basec.clone();
 	
 	   	Cargo allyitems = null;
-	   	if( user.getAlly() > 0 ) {
-			allyitems = new Cargo(Cargo.Type.ITEMSTRING,db.first("SELECT items FROM ally WHERE id=",user.getAlly()).getString("items"));
+	   	if( user.getAlly() != null ) {
+			allyitems = new Cargo(Cargo.Type.ITEMSTRING, user.getAlly().getItems());
 
 			allyitems.addCargo( this.getCargo(true) );
 		}

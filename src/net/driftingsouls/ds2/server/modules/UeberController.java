@@ -23,6 +23,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Blob;
 import java.util.ArrayList;
+import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.bases.Base;
@@ -282,13 +283,13 @@ public class UeberController extends TemplateGenerator implements Loggable {
 		int bw = 0;
 		int bases = 0;
 
-		SQLQuery base = db.prepare("SELECT * FROM bases WHERE owner=? ORDER BY id").query(user.getId());
-		while( base.next() ) {
+		List<Base> basen = getContext().query("from Base where owner="+user.getId()+" order by id", Base.class);
+		for( Base base : basen ) {
 			bases++;
 			
-			BaseStatus basedata = Base.getStatus(getContext(), new Base(base.getRow()));
+			BaseStatus basedata = Base.getStatus(getContext(), base);
 			
-			Cargo cargo = new Cargo( Cargo.Type.STRING, base.getString("cargo") );
+			Cargo cargo = new Cargo(base.getCargo());
 			cargo.addResource( Resources.NAHRUNG, usercargo.getResourceCount(Resources.NAHRUNG) );
 
 			boolean mangel = false;
@@ -305,7 +306,6 @@ public class UeberController extends TemplateGenerator implements Loggable {
 				bw++;
 			}
 		}
-		base.free();
 
 		t.setVar("astis.mangel", bw);
 
@@ -351,15 +351,15 @@ public class UeberController extends TemplateGenerator implements Loggable {
 		// User darf nur die Eigenen oder Ally-Schlachten sehen
 		if( (user.getAccessLevel() < 20) && !user.hasFlag(User.FLAG_VIEW_BATTLES) && !user.hasFlag(User.FLAG_QUEST_BATTLES) ) {
 			SQLQuery battle = null;
-			if( user.getAlly() != 0 ) {
-				battle = db.query("SELECT * FROM battles WHERE commander1=",user.getId()," OR commander2=",user.getId()," OR ally1=",user.getAlly()," OR ally2=",user.getAlly());
+			if( user.getAlly() != null ) {
+				battle = db.query("SELECT * FROM battles WHERE commander1=",user.getId()," OR commander2=",user.getId()," OR ally1=",user.getAlly().getId()," OR ally2=",user.getAlly().getId());
 			}
 			else {
 				battle = db.query("SELECT * FROM battles WHERE commander1=",user.getId()," OR commander2=",user.getId());
 			}
 			
 			while( battle.next() ) {
-				if( (user.getAlly() != 0) && (battle.getString("visibility") != null) && 
+				if( (user.getAlly() != null) && (battle.getString("visibility") != null) && 
 						(battle.getString("visibility").length() > 0) ) {
 					Integer[] visibility = Common.explodeToInteger(",", battle.getString("visibility"));
 					if( !Common.inArray(user.getId(),visibility) ) {
@@ -370,8 +370,8 @@ public class UeberController extends TemplateGenerator implements Loggable {
 
 				String eparty = "";
 				String comm = "";
-				if( ((user.getAlly() == 0) && (battle.getInt("commander1") != user.getId())) || 
-					((user.getAlly() != 0) && (battle.getInt("ally1") != user.getAlly()) ) ) {
+				if( ((user.getAlly() == null) && (battle.getInt("commander1") != user.getId())) || 
+					((user.getAlly() != null) && (battle.getInt("ally1") != user.getAlly().getId()) ) ) {
 					if( battle.getInt("ally1") == 0 ) {
 						User com1 = (User)getDB().get(User.class, battle.getInt("commander1"));
 						eparty = Common._title(com1.getName());
@@ -400,7 +400,7 @@ public class UeberController extends TemplateGenerator implements Loggable {
 					comm = Common._title(com1.getName());
 				}
 				
-				if( user.getAlly() != 0 ) {
+				if( user.getAlly() != null ) {
 					battlelist.append("<a class=\"error\" href=\"main.php?module=angriff&amp;sess="+getString("sess")+"&amp;battle="+battle.getInt("id")+"\">Schlacht mit "+eparty+" bei "+battle.getInt("system")+" : "+battle.getInt("x")+"/"+battle.getInt("y")+"</a> ["+comm+"]<br />\n");
 				}
 				else {
@@ -474,8 +474,8 @@ public class UeberController extends TemplateGenerator implements Loggable {
 		// Logo anzeigen
 		//------------------------------
 
-		if( user.getAlly() != 0 ) {
-			t.setVar("ally.logo", user.getAlly());
+		if( user.getAlly() != null ) {
+			t.setVar("ally.logo", user.getAlly().getId());
 		}
 
 		//------------------------------

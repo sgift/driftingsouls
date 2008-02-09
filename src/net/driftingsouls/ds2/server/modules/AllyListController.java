@@ -18,18 +18,16 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.entities.Ally;
+import net.driftingsouls.ds2.server.entities.AllyPosten;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -49,19 +47,33 @@ public class AllyListController extends TemplateGenerator {
 		super(context);
 		
 		setTemplate("allylist.html");
+		
+		setPageTitle("Allianzliste");
 	}
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
-		
-		if( user.getAlly() != 0 ) {
-			SQLResultRow ally = db.first("SELECT name,president FROM ally WHERE id="+user.getAlly());
-	
-			t.setVar(	"user.ally.name",		Common._title(ally.getString("name")),
-						"user.ally.president",	(user.getId() == ally.getInt("president") ));
+
+		if( user.getAlly() != null ) {
+			t.setVar(	"user.ally.name",		Common._title(user.getAlly().getName()),
+						"user.ally.president",	(user.getId() == user.getAlly().getPresident().getId() ));
+			
+			addPageMenuEntry("Allgemeines", Common.buildUrl("default"));
+			addPageMenuEntry("Mitglieder", Common.buildUrl("showMembers"));
+			if( user.getId() == user.getAlly().getPresident().getId() ) {
+				addPageMenuEntry("Einstellungen", Common.buildUrl("showAllySettings"));
+				addPageMenuEntry("Posten", Common.buildUrl("showPosten"));
+			}
+			addPageMenuEntry("Kaempfe", Common.buildUrl("showBattles"));
+			addPageMenuEntry("Allianzen auflisten", Common.buildUrl("default", "module", "allylist"));
+			addPageMenuEntry("Austreten", Common.buildUrl("part"));
+		}
+		else {
+			addPageMenuEntry("Allianz beitreten", Common.buildUrl("defaultNoAlly"));
+			addPageMenuEntry("Allianz gruenden", Common.buildUrl("showCreateAlly"));
+			addPageMenuEntry("Allianzen auflisten", Common.buildUrl("default", "module", "allylist"));
 		}
 					
 		return true;
@@ -77,19 +89,18 @@ public class AllyListController extends TemplateGenerator {
 	public void changeRelationAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
-		
+
 		this.parameterNumber("details");
 		int details = getInteger("details");
-		SQLResultRow ally = db.first("SELECT * FROM ally WHERE id=",details);
+		Ally ally = (Ally)getContext().getDB().get(Ally.class, details);
 		
-		if( ally.isEmpty() ) {
+		if( ally == null ) {
 			addError("Die angegebene Allianz existiert nicht");
 			redirect();
 			return;
 		}
 		
-		if( ally.getInt("id") == user.getAlly() ) {
+		if( (user.getAlly() != null) && (ally.getId() == user.getAlly().getId()) ) {
 			addError("Sie k&ouml;nnen nicht die Beziehungen zu sich selbst &auml;ndern");
 			redirect("details");
 			return;
@@ -108,11 +119,10 @@ public class AllyListController extends TemplateGenerator {
 			break;
 		}
 		
-		SQLQuery allymember = db.query("SELECT id FROM users WHERE ally=",ally.getInt("id"));
-		while( allymember.next() ) {
-			user.setRelation(allymember.getInt("id"), rel);
+		List<User> allymembers = getContext().query("from User where ally="+ally.getId(), User.class);
+		for( User allymember : allymembers ) {
+			user.setRelation(allymember.getId(), rel);
 		}
-		allymember.free();
 
 		t.setVar("ally.message", "Beziehungsstatus ge&auml;ndert");	 
 		
@@ -128,9 +138,8 @@ public class AllyListController extends TemplateGenerator {
 	public void changeRelationAllyAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
-		
-		if( user.getAlly() == 0 ) {
+
+		if( user.getAlly() == null ) {
 			addError("Sie sind in keiner Allianz");
 			redirect("details");
 			return;
@@ -138,22 +147,21 @@ public class AllyListController extends TemplateGenerator {
 		
 		parameterNumber("details");
 		int details = getInteger("details");
-		SQLResultRow ally = db.first("SELECT * FROM ally WHERE id=",details);
+		Ally ally = (Ally)getContext().getDB().get(Ally.class, details);
 		
-		if( ally.isEmpty() ) {
+		if( ally == null ) {
 			addError("Die angegebene Allianz existiert nicht");
 			redirect();
 			return;
 		}
 		
-		if( ally.getInt("id") == user.getAlly() ) {
+		if( ally.getId() == user.getAlly().getId() ) {
 			addError("Sie k&ouml;nnen nicht die Beziehungen zu sich selbst &auml;ndern");
 			redirect("details");
 			return;
 		}
 		
-		int allypresi = db.first("SELECT president FROM ally WHERE id=",user.getAlly()).getInt("president");
-		if( allypresi != user.getId() ) {
+		if( user.getAlly().getPresident().getId() != user.getId() ) {
 			addError("Sie sind nicht der Pr&auml;sident der Allianz");
 			redirect("details");
 			return;
@@ -171,20 +179,13 @@ public class AllyListController extends TemplateGenerator {
 			break;
 		}
 		
-		db.tBegin();
-		List userList = getContext().getDB().createQuery("from User where ally= :ally")
-			.setInteger("ally", user.getAlly())
-			.list();
-		for( Iterator iter=userList.iterator(); iter.hasNext(); ) {
-			User auser = (User)iter.next();
-			
-			SQLQuery allymember = db.query("SELECT id FROM users WHERE ally=",ally.getInt("id"));
-			while( allymember.next() ) {
-				auser.setRelation(allymember.getInt("id"), rel);
+		List<User> users = getContext().query("from User where ally="+user.getAlly().getId(), User.class);
+		for( User auser : users ) {
+			List<User> allymembers = getContext().query("from User where ally="+ally.getId(), User.class);
+			for( User allymember : allymembers ) {
+				auser.setRelation(allymember.getId(), rel);
 			}
-			allymember.free();
 		}
-		db.tCommit();
 			
 		t.setVar("ally.message", "Beziehungsstatus ge&auml;ndert");
 		
@@ -200,25 +201,22 @@ public class AllyListController extends TemplateGenerator {
 	public void detailsAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
-		
+
 		parameterNumber("details");
 		int details = getInteger("details");
 		
-		SQLResultRow ally = db.first("SELECT * FROM ally WHERE id=",details);
-		if( ally.isEmpty() ) {
+		Ally ally = (Ally)getContext().getDB().get(Ally.class, details);
+		if( ally == null ) {
 			t.setVar( "ally.message", "Die angegebene Allianz existiert nicht" );
 			
 			return;
 		}
 		
-		if( user.getAlly() != ally.getInt("id") ) {
+		if( user.getAlly() != ally ) {
 			t.setVar("user.changerelations", 1);
 			
-			if( (user.getAlly() != 0) && (user.getAlly() != ally.getInt("id")) ) {
-				int allypresi = getDatabase().first("SELECT president FROM ally WHERE id=",user.getAlly()).getInt("president");
-		
-				if( allypresi == user.getId() ) {		
+			if( (user.getAlly() != null) && (user.getAlly() != ally) ) {
+				if( user.getAlly().getPresident() == user ) {		
 					t.setVar("user.allyrelationchange", 1);
 				}
 			}
@@ -226,31 +224,30 @@ public class AllyListController extends TemplateGenerator {
 		
 		t.setVar("allylist.showally", details);	
 
-		User presi = (User)getDB().get(User.class, ally.getInt("president"));
-		int membercount = db.first("SELECT count(*) count FROM users WHERE ally=",ally.getInt("id")).getInt("count");
+		User presi = ally.getPresident();
 	
-		t.setVar(	"ally.id",				ally.getInt("id"), 
-					"ally.name",			Common._title(ally.getString("name")),
-					"ally.description",		Common._text(ally.getString("description")),
-					"ally.founded",			ally.getString("founded"),
-					"ally.wonBattles",		ally.getInt("wonBattles"),
-					"ally.lostBattles",		ally.getInt("lostBattles"),
-					"ally.destroyedShips",	ally.getInt("destroyedShips"),
-					"ally.lostShips",		ally.getInt("lostShips"),
-					"ally.membercount",		membercount,
+		t.setVar(	"ally.id",				ally.getId(), 
+					"ally.name",			Common._title(ally.getName()),
+					"ally.description",		Common._text(ally.getDescription()),
+					"ally.founded",			ally.getFounded(),
+					"ally.wonBattles",		ally.getWonBattles(),
+					"ally.lostBattles",		ally.getLostBattles(),
+					"ally.destroyedShips",	ally.getDestroyedShips(),
+					"ally.lostShips",		ally.getLostShips(),
+					"ally.membercount",		ally.getMemberCount(),
 					"ally.items.list",		"",
-					"ally.pname",			Common._plaintitle(ally.getString("pname")),
-					"ally.president.id",	ally.getInt("president"),
+					"ally.pname",			Common._plaintitle(ally.getPname()),
+					"ally.president.id",	presi.getId(),
 					"ally.president.name",	Common._title(presi.getName()),
 					"ally.minister.list",	"",
 					"ally.addmembers.list",	"" );
 	
 		// Allitems ausgeben
 	
-		if( ally.getString("items").length() > 0 ) {
+		if( ally.getItems().length() > 0 ) {
 			t.setBlock( "_ALLYLIST", "ally.items.listitem", "ally.items.list" );
 	
-			Cargo itemlist = new Cargo( Cargo.Type.ITEMSTRING, ally.getString("items") );
+			Cargo itemlist = new Cargo( Cargo.Type.ITEMSTRING, ally.getItems() );
 			ResourceList reslist = itemlist.getResourceList();
 			Resources.echoResList( t, reslist, "ally.items.list" );
 		}
@@ -258,57 +255,58 @@ public class AllyListController extends TemplateGenerator {
 		// Minister ausgeben
 		t.setBlock( "_ALLYLIST", "ally.minister.listitem", "ally.minister.list" );
 		
-		SQLQuery posten = db.query("SELECT t1.id,t1.name,t2.name username,t2.id as userid FROM ally_posten t1 JOIN users t2 ON t1.id=t2.allyposten WHERE t1.ally=",ally.getInt("id")," AND t2.ally=",ally.getInt("id"));
-		while( posten.next() ) {
-			t.setVar(	"ally.minister.posten",	Common._plaintitle(posten.getString("name")),
-						"ally.minister.id",		posten.getInt("userid"),
-						"ally.minister.name",	Common._title(posten.getString("username")) );
+		List<AllyPosten> posten = getContext().query("from AllyPosten as ap left join fetch ap.user " +
+				"where ap.ally="+ally.getId(), AllyPosten.class);
+		for( AllyPosten aposten : posten ) {
+			if( aposten.getUser() == null ) {
+				continue;
+			}
+			
+			t.setVar(	"ally.minister.posten",	Common._plaintitle(aposten.getName()),
+						"ally.minister.id",		aposten.getUser().getId(),
+						"ally.minister.name",	Common._title(aposten.getUser().getName()) );
 		
 			t.parse( "ally.minister.list", "ally.minister.listitem", true );
 		}
-		posten.free();
 	
 		// Weitere Mitglieder ausgeben
-		SQLQuery allymember = db.query("SELECT id, name FROM users WHERE ally=",ally.getInt("id")," AND id!=",ally.getInt("president")," AND allyposten is null");
-		if( allymember.numRows() > 0 ) {
+		List<User> allymembers = getContext().query("from User where ally="+ally.getId()+" and id!="+ally.getPresident().getId()+" and allyposten is null", User.class);
+		if( allymembers.size() > 0 ) {
 			t.setBlock( "_ALLYLIST", "ally.addmembers.listitem", "ally.addmembers.list" );
 		
-			while( allymember.next() ) {
-				t.setVar(	"ally.addmembers.name",	Common._title(allymember.getString("name")),
-							"ally.addmembers.id",	allymember.getInt("id") );
+			for( User allymember : allymembers ) {
+				t.setVar(	"ally.addmembers.name",	Common._title(allymember.getName()),
+							"ally.addmembers.id",	allymember.getId() );
 			
 				t.parse( "ally.addmembers.list", "ally.addmembers.listitem", true );
 			}
 		}
-		allymember.free();
 	}
 	
 	/**
 	 * Zeigt die Liste der Allianzen in DS an
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
-		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
 		
 		t.setVar("allylist.showlist", 1);	
 		
 		t.setBlock( "_ALLYLIST", "allylist.ally.listitem", "allylist.ally.list" );
 	
-		SQLQuery ally = db.query("SELECT id,name,hp FROM ally ORDER BY founded");
-		while( ally.next() ) {
-			String name = "<a class=\"forschinfo\" href=\""+Common.buildUrl("details", "details", ally.getInt("id"))+"\">"+Common._title(ally.getString("name"))+"</a>";
+		List<Ally> allies = getContext().query("from Ally order by founded", Ally.class);
+		for( Ally ally : allies ) {
+			String name = "<a class=\"forschinfo\" href=\""+Common.buildUrl("details", "details", ally.getId())+"\">"+Common._title(ally.getName())+"</a>";
 
-			if( ally.getString("hp").length() > 0 ) {
-				name += " <a class=\"forschinfo\" target=\"_blank\" href=\""+ally.getString("hp")+"\">[HP]</a>";
+			if( ally.getHp().length() > 0 ) {
+				name += " <a class=\"forschinfo\" target=\"_blank\" href=\""+ally.getHp()+"\">[HP]</a>";
 			}
 		
-			t.setVar(	"allylist.ally.id",		ally.getInt("id"),
+			t.setVar(	"allylist.ally.id",		ally.getId(),
 						"allylist.ally.name",	name );
 								
 			t.parse( "allylist.ally.list", "allylist.ally.listitem", true );
 		}
-		ally.free();
 	}
 }

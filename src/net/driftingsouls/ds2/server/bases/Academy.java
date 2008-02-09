@@ -69,7 +69,7 @@ class Academy extends DefaultBuilding {
 		
 		Context context = ContextMap.getContext();
 		
-		context.getDatabase().update("INSERT INTO academy VALUES(0,"+base.getId()+",0,0,'')");
+		context.getDatabase().update("INSERT INTO academy (col,train,remain,upgrade) VALUES("+base.getId()+",0,0,'')");
 	}
 
 	@Override
@@ -183,7 +183,8 @@ class Academy extends DefaultBuilding {
 	}
 
 	@Override
-	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
+	public String output(TemplateEngine t, Base base, int field, int building) {
+		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 		User user = (User)context.getActiveUser();
 		
@@ -242,7 +243,6 @@ class Academy extends DefaultBuilding {
 					db.tBegin();
 					user.setCargo(usercargo.save());
 					db.tUpdate(1,"UPDATE academy SET train=",newo,",remain=8 WHERE col="+base.getId()+" AND train='0' AND remain='0'");
-					db.tUpdate(1,"UPDATE bases SET cargo='",cargo.save(),"' WHERE id="+base.getId()+" AND cargo='",cargo.save(true),"'");
 					base.setCargo(cargo);
 					
 					if( !db.tCommit() ) {
@@ -336,7 +336,6 @@ class Academy extends DefaultBuilding {
 						user.setCargo( usercargo.save() );
 						db.tUpdate(1,"UPDATE academy SET `upgrade`='",off," ",train,"',remain='",dauer,"' WHERE col="+base.getId()+" AND remain=0 AND `upgrade`=''");
 						db.tUpdate(1,"UPDATE offiziere SET dest='t "+base.getId()+"' WHERE id=",off," AND dest='b "+base.getId()+"'");
-						db.tUpdate(1,"UPDATE bases SET cargo='",cargo.save(),"' WHERE id="+base.getId()+" AND cargo='",cargo.save(true),"'");
 						base.setCargo(cargo);
 						
 						if( !db.tCommit() ) {

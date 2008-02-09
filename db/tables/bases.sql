@@ -22,6 +22,8 @@ CREATE TABLE `bases` (
   `active` text NOT NULL default '',
   `coreactive` tinyint(3) unsigned NOT NULL default '0',
   `autogtuacts` text NOT NULL default '',
+  `version` int(11) NOT NULL default '0',
+  `marines` int unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `owner` (`owner`,`id`),
   KEY `coords` (`x`,`y`,`system`)

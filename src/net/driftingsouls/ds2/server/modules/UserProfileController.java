@@ -18,15 +18,16 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.util.Iterator;
+import java.util.List;
+
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -54,6 +55,8 @@ public class UserProfileController extends TemplateGenerator {
 		setTemplate("userprofile.html");
 		
 		parameterNumber("user");
+		
+		setPageTitle("Profil");
 	}
 	
 	@Override
@@ -62,7 +65,7 @@ public class UserProfileController extends TemplateGenerator {
 		User user = (User)getUser();
 		
 		User auser = (User)getDB().get(User.class, getInteger("user"));
-		if( (auser.getId() == 0) || (auser.hasFlag(User.FLAG_HIDE) && (user.getAccessLevel() < 20)) ) {
+		if( (auser == null) || (auser.hasFlag(User.FLAG_HIDE) && (user.getAccessLevel() < 20)) ) {
 			addError( "Ihnen ist kein Benutzer unter der angegebenen ID bekannt", Common.buildUrl("default", "module", "ueber") );
 			
 			return false;	
@@ -115,9 +118,9 @@ public class UserProfileController extends TemplateGenerator {
 	public void changeRelationAllyAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 	
-		if( user.getAlly() == 0 ) {
+		if( user.getAlly() == null ) {
 			addError("Sie sind in keiner Allianz");
 			redirect();
 			return;
@@ -129,8 +132,8 @@ public class UserProfileController extends TemplateGenerator {
 			return;
 		}
 		
-		int allypresi = db.first("SELECT president FROM ally WHERE id='",user.getAlly(),"'").getInt("president");
-		if( allypresi != user.getId() ) {
+		User allypresi = user.getAlly().getPresident();
+		if( allypresi.getId() != user.getId() ) {
 			addError("Sie sind nicht der Pr&auml;sident der Allianz");
 			redirect();
 			return;
@@ -149,12 +152,13 @@ public class UserProfileController extends TemplateGenerator {
 			break;
 		}
 		
-		SQLQuery allymember = db.query("SELECT id FROM users WHERE ally='",user.getAlly(),"'");
-		while( allymember.next() ) {
-			User auser = (User)getDB().get(User.class, allymember.getInt("id"));
+		List allymemberList = db.createQuery("from User where ally=?")
+			.setEntity(0, user.getAlly())
+			.list();
+		for( Iterator iter=allymemberList.iterator(); iter.hasNext(); ) {
+			User auser = (User)iter.next();
 			auser.setRelation(this.user.getId(), rel);
 		}
-		allymember.free();
 		
 		t.setVar("userprofile.message", "Beziehungsstatus ge&auml;ndert");	
 		
@@ -164,26 +168,26 @@ public class UserProfileController extends TemplateGenerator {
 	/**
 	 * Zeigt die Daten des angegebenen Benutzers an
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {		
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 		
 		this.user.setTemplateVars(t);
 		
-		if( this.user.getAlly() != 0 ) {
-			SQLResultRow ally = getDatabase().first("SELECT name,president,pname FROM ally WHERE id='",this.user.getAlly(),"'");
-			t.setVar(	"user.ally.name",	Common._title(ally.getString("name")),
-						"user.ally.id",		this.user.getAlly() );
+		if( this.user.getAlly() != null ) {
+			Ally ally = this.user.getAlly();
+			t.setVar(	"user.ally.name",	Common._title(ally.getName()),
+						"user.ally.id",		ally.getId() );
 			
 			String pstatus = "";
-			if( ally.getInt("president") == this.user.getId() ) {
-				pstatus = "<span style=\"font-weight:bold; font-style:italic\">"+Common._plaintitle(ally.getString("pname"))+"</span>";
+			if( ally.getPresident() == this.user ) {
+				pstatus = "<span style=\"font-weight:bold; font-style:italic\">"+Common._plaintitle(ally.getPname())+"</span>";
 			}
 			
 			if( this.user.getAllyPosten() != null ) {
-				String postenname = getDatabase().first("SELECT name FROM ally_posten WHERE id='"+this.user.getAllyPosten()+"'").getString("name");
+				String postenname = this.user.getAllyPosten().getName();
 				t.setVar("user.ally.position", (pstatus.length() != 0 ? pstatus+", " : "")+Common._plaintitle(postenname) );				
 			}
 			else {
@@ -191,16 +195,14 @@ public class UserProfileController extends TemplateGenerator {
 			}
 		}
 		
-		if( (user.getAlly() != 0) && (user.getAlly() != this.user.getAlly()) ) {
-			int allypresi = getDatabase().first("SELECT president FROM ally WHERE id='",user.getAlly(),"'").getInt("president");
-		
-			if( allypresi == user.getId() ) {		
+		if( (user.getAlly() != null) && (user.getAlly() != this.user.getAlly()) ) {
+			if( user.getAlly().getPresident() == user ) {		
 				t.setVar("user.allyrelationchange", 1);
 			}
 		}
 		
 		if( user.getId() != this.user.getId() ) {
-			if( (user.getAlly() == 0) || (user.getAlly() !=  this.user.getAlly()) ) {
+			if( (user.getAlly() == null) || (user.getAlly() !=  this.user.getAlly()) ) {
 				User.Relation relation = user.getRelation(this.user.getId());
 			
 				if( relation == User.Relation.ENEMY ) {

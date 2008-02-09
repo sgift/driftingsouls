@@ -93,7 +93,7 @@ public class BuildingsController extends TemplateGenerator {
 		
 		SQLQuery buildingID = db.query("SELECT id FROM buildings ORDER BY name" );
 		while( buildingID.next() ) {
-			Building building = Building.getBuilding(db, buildingID.getInt("id"));
+			Building building = Building.getBuilding(buildingID.getInt("id"));
 			if( !user.hasResearched(building.getTechRequired()) ) {
 				continue;
 			}
@@ -166,7 +166,7 @@ public class BuildingsController extends TemplateGenerator {
 
 		SQLQuery coreID = db.query("SELECT id FROM cores ORDER BY name,astitype");
 		while( coreID.next() ) {
-			Core core = Core.getCore(db, coreID.getInt("id"));
+			Core core = Core.getCore(coreID.getInt("id"));
 			if( !user.hasResearched(core.getTechRequired()) ) {
 				continue;
 			}

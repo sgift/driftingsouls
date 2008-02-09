@@ -93,7 +93,7 @@ class Waffenfabrik extends DefaultBuilding {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 		
-		User user = (User)context.getDB().get(User.class, base.getOwner());
+		User user = base.getOwner();
 		
 		ContextVars vars = (ContextVars)context.getVariable(getClass(), "values");
 		Integer lastUser = (Integer)context.getVariable(getClass(), "last_user");
@@ -116,10 +116,8 @@ class Waffenfabrik extends DefaultBuilding {
 				}
 			}
 			
-			if( user.getAlly() > 0 ) {			
-				SQLResultRow allyitems = db.first("SELECT items FROM ally WHERE id='",user.getAlly(),"'");
-			
-				Cargo itemlist = new Cargo( Cargo.Type.ITEMSTRING, allyitems.getString("items") );	
+			if( user.getAlly() != null ) {			
+				Cargo itemlist = new Cargo( Cargo.Type.ITEMSTRING, user.getAlly().getItems() );	
 				
 				List<ItemCargoEntry> list = itemlist.getItemsWithEffect( ItemEffect.Type.DRAFT_AMMO ) ;
 				for( ItemCargoEntry item : list ) {
@@ -365,7 +363,8 @@ class Waffenfabrik extends DefaultBuilding {
 	}
 
 	@Override
-	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
+	public String output(TemplateEngine t, Base base, int field, int building) {
+		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 		User user = (User)context.getActiveUser();
 		
@@ -423,8 +422,8 @@ class Waffenfabrik extends DefaultBuilding {
 		}
 		
 		// Moegliche Allybauplaene ermitteln
-		if( user.getAlly() > 0 ) {
-			Cargo allyitems = new Cargo( Cargo.Type.ITEMSTRING, db.first("SELECT items FROM ally WHERE id=",user.getAlly()).getString("items") );
+		if( user.getAlly() != null ) {
+			Cargo allyitems = new Cargo( Cargo.Type.ITEMSTRING, user.getAlly().getItems() );
 			
 			itemlist = allyitems.getItemsWithEffect( ItemEffect.Type.DRAFT_AMMO );
 			for( ItemCargoEntry item : itemlist ) {

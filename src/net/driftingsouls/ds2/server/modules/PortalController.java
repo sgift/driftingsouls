@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -26,6 +27,7 @@ import java.util.regex.Pattern;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.SectorTemplateManager;
+import net.driftingsouls.ds2.server.bases.AutoGTUAction;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -528,20 +530,22 @@ class PortalController extends TemplateGenerator {
 		db.tUpdate(1, "INSERT INTO user_f (id) VALUES ('",newid,"')");
 		
 		// Schiffe erstellen
-	 	StartLocations locations = getStartLocation();
+		StartLocations locations = getStartLocation();
 	 	Location[] orderlocs = Systems.get().system(system).getOrderLocations();
 	 	Location orderloc = orderlocs[locations.minSysDistance.get(system).orderLocationID];
 	 	
-	 	String[] baselayout = Configuration.getSetting("REGISTER_BASELAYOUT").split(",");
-	 	Integer[] activebuildings = new Integer[baselayout.length];
-	 	
+	 	String[] baselayoutStr = Configuration.getSetting("REGISTER_BASELAYOUT").split(",");
+	 	Integer[] activebuildings = new Integer[baselayoutStr.length];
+	 	Integer[] baselayout = new Integer[baselayoutStr.length];
 	 	int bewohner = 0;
 	 	int arbeiter = 0;
 	 	
-	 	for( int i=0; i < baselayout.length; i++ ) {
-	 		if( !baselayout[i].equals("0") ) {
+	 	for( int i=0; i < baselayoutStr.length; i++ ) {
+	 		baselayout[i] = Integer.parseInt(baselayoutStr[i]);
+	 		
+	 		if( baselayout[i] != 0 ) {
 	 			activebuildings[i] = 1;
-	 			Building building = Building.getBuilding(db, Integer.parseInt(baselayout[i]));
+	 			Building building = Building.getBuilding(baselayout[i]);
 	 			bewohner += building.getBewohner();
 	 			arbeiter += building.getArbeiter();
 	 		}
@@ -550,77 +554,60 @@ class PortalController extends TemplateGenerator {
 	 		}
 	 	}
 
-	 	SQLResultRow base = db.first("SELECT *,sqrt((",orderloc.getX(),"-x)*(",orderloc.getX(),"-x)+(",orderloc.getY(),"-y)*(",orderloc.getY(),"-y)) distance " ,
-	 			"FROM bases " ,
-	 			"WHERE klasse=1 AND owner=0 AND system='",system,"' ORDER BY distance LIMIT 1");
+	 	Base base = (Base)getDB().createQuery("from Base where klasse=1 and owner=0 and system=? order by sqrt((?-x)*(?-x)+(?-y)*(?-y)) ")
+	 		.setInteger(0, system)
+	 		.setInteger(1, orderloc.getX())
+	 		.setInteger(2, orderloc.getX())
+	 		.setInteger(3, orderloc.getY())
+	 		.setInteger(4, orderloc.getY())
+	 		.setMaxResults(1)
+	 		.uniqueResult();
 	 	
-	 	try {
-		 	Base baseobj = new Base(base);
-		 	Integer[] bebauung = baseobj.getBebauung();
-		 	for( int i=0; i < bebauung.length; i++ ) {
-		 		if( bebauung[i] != 0 ) {
-		 			Building.getBuilding(db, bebauung[i]).cleanup(getContext(), baseobj);
-		 		}
-		 	}
-	 	}
-	 	catch( RuntimeException e ) {
-	 		e.printStackTrace();
-	 		Common.mailThrowable(e, "Register Cleanup failed", "Base "+base.getInt("id"));
-	 	}
+	 	// Alte Gebaeude entfernen
+	 	Integer[] bebauung = base.getBebauung();
+		for( int i=0; i < bebauung.length; i++ ) {
+			if( bebauung[i] == 0 ) {
+				continue;
+			}
+			
+			Building building = Building.getBuilding(bebauung[i]);
+			building.cleanup(getContext(), base);
+		}
 	 	
-	 	base = db.first("SELECT *,sqrt((",orderloc.getX(),"-x)*(",orderloc.getX(),"-x)+(",orderloc.getY(),"-y)*(",orderloc.getY(),"-y)) distance " ,
-	 			"FROM bases " ,
-	 			"WHERE id='",base.getInt("id"),"'");
+	 	User newuser = (User)getDB().get(User.class, newid);
 	 	
-	 	SQLResultRow newbase = (SQLResultRow)base.clone();
-	 	newbase.put("e", base.get("maxe"));;
-	 	newbase.put("owner", newid);
-	 	newbase.put("bebauung", Common.implode("|",baselayout));
-	 	newbase.put("active", Common.implode("|", activebuildings));
-	 	newbase.put("arbeiter", arbeiter);
-	 	newbase.put("bewohner", bewohner);
-	 	newbase.put("cargo", new Cargo(Cargo.Type.STRING, Configuration.getSetting("REGISTER_BASECARGO")).save() );
+	 	base.setEnergy(base.getMaxEnergy());
+	 	base.setOwner(newuser);
+	 	base.setBebauung(baselayout);
+	 	base.setActive(activebuildings);
+	 	base.setArbeiter(arbeiter);
+	 	base.setBewohner(bewohner);
+	 	base.setCargo(new Cargo(Cargo.Type.STRING, Configuration.getSetting("REGISTER_BASECARGO")));
+	 	base.setCore(0);
+	 	base.setCoreActive(false);
+	 	base.setAutoGTUActs(new ArrayList<AutoGTUAction>());
 	 	
-	 	db.tUpdate(1, "UPDATE bases SET " ,
-	 			"e='",newbase.get("e"),"', " ,
-	 			"owner='",newbase.get("owner"),"'," ,
-	 			"bebauung='",newbase.get("bebauung"),"'," ,
-	 			"active='",newbase.get("active"),"'," ,
-	 			"arbeiter='",newbase.get("arbeiter"),"'," ,
-	 			"bewohner='",newbase.get("bewohner"),"'," ,
-	 			"cargo='",newbase.get("cargo"),"'," ,
-	 			"core=0," ,
-	 			"coreactive=0," ,
-	 			"autogtuacts='' " ,
-	 			"WHERE " ,
-	 			"id='",base.get("id"),"' AND " ,
-	 			"owner='0' AND " ,
-	 			"system='",system,"' AND " ,
-	 			"e='",base.get("e"),"' AND " ,
-	 			"bebauung='",base.get("bebauung"),"' AND " ,
-	 			"active='",base.get("active"),"' AND " ,
-	 			"arbeiter='",base.get("arbeiter"),"' AND " ,
-	 			"bewohner='",base.get("bewohner"),"' AND " ,
-	 			"cargo='",base.get("cargo"),"'");
-	 	
-	 	db.update("UPDATE offiziere SET userid='",newbase.get("owner"),"' WHERE dest IN ('b ",base.get("id"),"','t ",base.get("id"),"')");
-	 	
-	 	Base newBaseObj = new Base(newbase);
+	 	getDB().createQuery("update Offizier set userid=? where dest in (?, ?)")
+	 		.setInteger(0, base.getOwner().getId())
+	 		.setString(1, "b "+base.getId())
+	 		.setString(2, "t "+base.getId())
+	 		.executeUpdate();
+	 	 	
 	 	for( int i=0; i < baselayout.length; i++ ) {
-			if( Integer.parseInt(baselayout[i]) > 0 ) {
-				Building building = Building.getBuilding(db, Integer.parseInt(baselayout[i]));
-				building.build(newBaseObj);	 			
+			if( baselayout[i] > 0 ) {
+				Building building = Building.getBuilding(baselayout[i]);
+				building.build(base);	 			
 			}
 		}
 	 	
-	 	SQLResultRow nebel = db.first("SELECT *,sqrt((",base.get("x"),"-x)*(",base.get("x"),"-x)+(",base.get("y"),"-y)*(",base.get("y"),"-y)) distance,sqrt((",base.get("x"),"-x)*(",base.get("x"),"-x)+(",base.get("y"),"-y)*(",base.get("y"),"-y))*(((type+1)%3)+1)*3 moddist FROM nebel WHERE system='",system,"' AND type<3 ORDER BY moddist LIMIT 1");
+	 	SQLResultRow nebel = db.first("SELECT *,sqrt((",base.getX(),"-x)*(",base.getX(),"-x)+(",base.getY(),"-y)*(",base.getY(),"-y)) distance,sqrt((",base.getX(),"-x)*(",base.getX(),"-x)+(",base.getY(),"-y)*(",base.getY(),"-y))*(((type+1)%3)+1)*3 moddist FROM nebel WHERE system='",system,"' AND type<3 ORDER BY moddist LIMIT 1");
 	 	
 	 	if( race == 1 ) {		
-			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_TERRANER", new Location(system, base.getInt("x"), base.getInt("y")), newid);
+			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_TERRANER", new Location(system, base.getX(), base.getY()), newid);
 			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_TERRANER_TANKER", new Location(system, nebel.getInt("x"), nebel.getInt("y")), newid);
 		} 
 		else {			
-			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_VASUDANER", new Location(system, base.getInt("x"), base.getInt("y")), newid);
+			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_VASUDANER", new Location(system, base.getX(), base.getY()), newid);
 			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_VASUDANER_TANKER", new Location(system, nebel.getInt("x"), nebel.getInt("y")), newid);
 		}
 	 	

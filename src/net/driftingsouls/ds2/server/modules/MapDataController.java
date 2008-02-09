@@ -106,8 +106,8 @@ public class MapDataController extends DSGenerator implements Loggable {
 			}	
 		}
 		
-		if( this.usedUser.getAlly() != 0 ) {
-			ally = db.first("SELECT showastis,showlrs FROM ally WHERE id=",usedUser.getAlly());
+		if( this.usedUser.getAlly() != null ) {
+			ally = db.first("SELECT showastis,showlrs FROM ally WHERE id=",usedUser.getAlly().getId());
 		} 
 		else {
 			ally = new SQLResultRow();
@@ -251,7 +251,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 				
 		String usersql = "="+this.usedUser.getId();
 		if( this.ally.getInt("showlrs") != 0 ) {				
-			SQLQuery uid = db.query("SELECT id FROM users WHERE ally=",this.usedUser.getAlly());
+			SQLQuery uid = db.query("SELECT id FROM users WHERE ally=",this.usedUser.getAlly().getId());
 			
 			Integer[] allyusers = new Integer[uid.numRows()];
 			int index = 0;
@@ -326,10 +326,10 @@ public class MapDataController extends DSGenerator implements Loggable {
 						continue;	
 					}
 								
-					if( (this.usedUser.getAlly() != 0) && (s.getInt("ally") == this.usedUser.getAlly()) ) {
+					if( (this.usedUser.getAlly() != null) && (s.getInt("ally") == this.usedUser.getAlly().getId()) ) {
 						echoSectorShipData(s.getRow(), "ally");
 					}
-					else if( this.usedUser.getAlly() == 0 || (this.usedUser.getAlly() != 0 && (s.getInt("ally") != this.usedUser.getAlly())) ) {
+					else if( this.usedUser.getAlly() == null || (this.usedUser.getAlly() != null && (s.getInt("ally") != this.usedUser.getAlly().getId())) ) {
 						echoSectorShipData(s.getRow(), "enemy");
 					}
 				}
@@ -427,7 +427,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 		while( base.next() ) {
 			Location loc = new Location(system, base.getInt("x"), base.getInt("y"));
 			
-			if( this.ally.getBoolean("showastis") && (base.getInt("owner") != this.usedUser.getId()) && (base.getInt("ally") == this.usedUser.getAlly()) ) {	
+			if( this.ally.getBoolean("showastis") && (base.getInt("owner") != this.usedUser.getId()) && (base.getInt("ally") == this.usedUser.getAlly().getId()) ) {	
 				map[loc.getX()][loc.getY()] = OBJECT_ASTI_ALLY;
 				appendStr(maptext, loc.getX(), loc.getY(), base.getString("name")+" - "+base.getString("username")+"\n");
 			} 
@@ -582,13 +582,13 @@ public class MapDataController extends DSGenerator implements Loggable {
 					
 					scannedSectors.add(bLoc);
 					
-					if( this.usedUser.getAlly() != 0 && !this.ally.getBoolean("showastis") && (b.getInt("ally") == this.usedUser.getAlly()) ) {
+					if( this.usedUser.getAlly() != null && !this.ally.getBoolean("showastis") && (b.getInt("ally") == this.usedUser.getAlly().getId()) ) {
 						int mod = map[bLoc.getX()][bLoc.getY()] & 7;
 						map[bLoc.getX()][bLoc.getY()] = OBJECT_ASTI_ALLY + mod;
 						
 						appendStr(maptext, bLoc.getX(), bLoc.getY(), b.getString("name")+" - "+b.getString("username")+"\n");
 					}
-					else if( this.usedUser.getAlly() == 0 || (this.usedUser.getAlly() != 0 && (b.getInt("ally") != this.usedUser.getAlly())) ) {
+					else if( this.usedUser.getAlly() == null || (this.usedUser.getAlly() != null && (b.getInt("ally") != this.usedUser.getAlly().getId())) ) {
 						int mod = map[bLoc.getX()][bLoc.getY()] & 7;
 						map[bLoc.getX()][bLoc.getY()] = OBJECT_ASTI_ENEMY + mod;
 						
@@ -677,13 +677,13 @@ public class MapDataController extends DSGenerator implements Loggable {
 						usercount.put(s.getInt("owner"), usercount.get(s.getInt("owner"))+1);
 					}
 					
-					if( (this.usedUser.getAlly() != 0) && (s.getInt("ally") == this.usedUser.getAlly()) ) {
+					if( (this.usedUser.getAlly() != null) && (s.getInt("ally") == this.usedUser.getAlly().getId()) ) {
 						if( (s.getString("docked").length() == 0 || (s.getString("docked").charAt(0) != 'l')) ) {
 							map[sLoc.getX()][sLoc.getY()] |= OBJECT_FLEET_ALLY;
 							allycount++;
 						}
 					}
-					else if( (this.usedUser.getAlly() == 0) || (this.usedUser.getAlly() != 0 && (s.getInt("ally") != this.usedUser.getAlly())) ) {
+					else if( (this.usedUser.getAlly() == null) || (this.usedUser.getAlly() != null && (s.getInt("ally") != this.usedUser.getAlly().getId())) ) {
 						if( (s.getString("docked").length() == 0 || (s.getString("docked").charAt(0) != 'l')) ) {
 							map[sLoc.getX()][sLoc.getY()] |= OBJECT_FLEET_ENEMY;
 							enemycount++;

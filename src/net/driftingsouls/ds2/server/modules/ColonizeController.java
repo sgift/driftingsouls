@@ -88,20 +88,20 @@ public class ColonizeController extends TemplateGenerator {
 			return false;
 		}
 
-		SQLResultRow base = db.first("SELECT * FROM bases WHERE owner=0 AND id='",col,"'");
-		if( base.isEmpty() ) {
+		Base base = (Base)getDB().get(Base.class, col);
+		if( (base == null) || (base.getOwner().getId() != 0) ) {
 			addError("Fehler: Der angegebene Asteroid existiert nicht oder geh&ouml;rt bereits einem anderen Spieler", Common.buildUrl("default", "module", "schiff" , "ship", shipId) );
 			
 			return false;
 		}
 
-		if( !Location.fromResult(ship).sameSector(0, Location.fromResult(base), base.getInt("size")) ) {
+		if( !Location.fromResult(ship).sameSector(0, base.getLocation(), base.getSize()) ) {
 			addError("Fehler: Der Asteroid befindet sich nicht im selben Sektor wie das Schiff", Common.buildUrl("default", "module", "schiff", "ship", shipId) );
 			
 			return false;
 		}
 		
-		this.base = new Base(base);
+		this.base = base;
 		this.ship = ship;
 		
 		t.setVar( "ship.id", ship.getInt("id") );
@@ -224,10 +224,12 @@ public class ColonizeController extends TemplateGenerator {
 		bebauung[0] = 1;
 		bebon[0] = 1;
 
-		String bebDB = Common.implode("|",bebauung);
-		String onDB = Common.implode("|",bebon);
-
-		db.tUpdate(1, "UPDATE bases SET bebauung='",bebDB,"',active='",onDB,"',cargo='",cargo.save(),"',owner='",user.getId(),"',bewohner='",crew,"',e='",e,"' WHERE id='",base.getId(),"' AND owner=0 AND cargo='",cargo2.save(),"'");
+		base.setBebauung(bebauung);
+		base.setActive(bebon);
+		base.setCargo(cargo);
+		base.setOwner(user);
+		base.setBewohner(crew);
+		base.setEnergy(e);
 
 		db.update("UPDATE offiziere SET userid=",user.getId()," WHERE dest IN ('b ",base.getId(),"','t "+base.getId(),"')");
 		if( !db.tCommit() ) {

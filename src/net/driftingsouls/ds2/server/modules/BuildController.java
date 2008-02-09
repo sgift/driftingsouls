@@ -35,7 +35,6 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -49,7 +48,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * @urlparam Integer field Die ID des Feldes, auf dem das Gebaeude gebaut werden soll
  */
 public class BuildController extends TemplateGenerator {
-	private Base base;
+private Base base;
 	
 	/**
 	 * Konstruktor
@@ -62,25 +61,25 @@ public class BuildController extends TemplateGenerator {
 		
 		parameterNumber("col");
 		parameterNumber("field");
+		
+		setPageTitle("Bauen");
 	}
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		Database db = getDatabase();
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		int col = getInteger("col");
 		int field = getInteger("field");
 		
-		SQLResultRow baseRow = db.first("SELECT * FROM bases WHERE owner=",user.getId()," AND id=",col);
-		if( baseRow.isEmpty() ) {
+		base = (Base)getDB().get(Base.class, col);
+		if( (base == null) || (base.getOwner() != user) ) {
 			addError("Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "basen"));
 			
 			return false;
 		}
-		base = new Base(baseRow);		
-		
+
 		t.setVar(	"base.id",		base.getId(),
 					"base.name",	Common._plaintitle(base.getName()),
 					"global.field",	field );
@@ -104,7 +103,7 @@ public class BuildController extends TemplateGenerator {
 		
 		int field = getInteger("field");
 		
-		Building building = Building.getBuilding(db, build);
+		Building building = Building.getBuilding(build);
 				
 		if( building == null ) {
 			addError("Das angegebene Geb&auml;ude existiert nicht");
@@ -227,29 +226,30 @@ public class BuildController extends TemplateGenerator {
 
 		// Alles OK -> bauen
 		if( ok ) {
-			base.getBebauung()[field] = build;
-			String bebdb = Common.implode("|",base.getBebauung());
+			Integer[] bebauung = base.getBebauung();
+			bebauung[field] = build;
+			base.setBebauung(bebauung);
 
+			Integer[] active = base.getActive();
 			// Muss das Gebaeude aufgrund von Arbeitermangel deaktiviert werden?
 			if( (building.getArbeiter() > 0) && (building.getArbeiter()+base.getArbeiter() > base.getBewohner()) ) {
-				base.getActive()[field] = 0;
+				active[field] = 0;
 
 				t.setVar("build.lowworker", 1);
 			} 
 			else {
-				base.getActive()[field] = 1;
+				active[field] = 1;
 			}
-			
-			String ondb = Common.implode("|",base.getActive());;
-		
+
 			// Resourcen abziehen
 			basecargo.substractCargo( building.getBuildCosts() );
+			
+			base.setCargo(basecargo);
+			base.setArbeiter(base.getArbeiter()+building.getArbeiter());
+			base.setActive(active);
 		
-			db.update("UPDATE bases SET active='"+ondb+"',arbeiter=arbeiter+"+building.getArbeiter()+",bebauung='"+bebdb+"',cargo='"+basecargo.save()+"' WHERE id="+base.getId()+" AND cargo='"+basecargo.save(true)+"'");
-			if( db.affectedRows() != 0 ) {
-				// Evt. muss das Gebaeude selbst noch ein paar Dinge erledigen
-				building.build(base);
-			}
+			// Evt. muss das Gebaeude selbst noch ein paar Dinge erledigen
+			building.build(base);
 		}
 		
 	}

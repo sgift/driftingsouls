@@ -26,6 +26,7 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
@@ -172,7 +173,9 @@ public class User extends BasicUser implements Loggable {
 	private String history;
 	private String medals;
 	private byte rang;
-	private int ally;
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="ally", nullable=true)
+	private Ally ally;
 	private BigInteger konto;
 	private String cargo;
 	private String nstat;
@@ -182,7 +185,7 @@ public class User extends BasicUser implements Loggable {
 	private AllyPosten allyposten;
 	private int gtudropzone;
 	private String npcorderloc;
-	private int flagschiff;
+	private Integer flagschiff;
 	private short lostBattles;
 	private short wonBattles;
 	private int destroyedShips;
@@ -304,7 +307,7 @@ public class User extends BasicUser implements Loggable {
 			return (UserFlagschiffLocation)flagschiffObj.clone();	
 		}
 
-		if( this.flagschiff == 0 ) {
+		if( this.flagschiff == null ) {
 			SQLResultRow bFlagschiff = db.first("SELECT t2.id,t1.flagschiff FROM werften t1,ships t2 WHERE t2.id>0 AND t1.flagschiff=1 AND t1.shipid=t2.id AND t2.owner='",getId(),"'");
 			if( bFlagschiff.isEmpty() ) {
 				bFlagschiff = db.first("SELECT t2.id,t1.flagschiff FROM werften t1,bases t2 WHERE t1.flagschiff=1 AND t1.col=t2.id AND t2.owner='",getId(),"'");
@@ -426,7 +429,7 @@ public class User extends BasicUser implements Loggable {
 		
 		SQLResultRow currelation = db.first("SELECT * FROM user_relations WHERE user_id='",this.getId(),"' AND target_id='",userid,"'");
 		if( userid != 0 ) {
-			if( (relation != Relation.FRIEND) && (getAlly() != 0) ) {
+			if( (relation != Relation.FRIEND) && (getAlly() != null) ) {
 				User targetuser = (User)context.getDB().get(User.class, userid);
 				if( targetuser.getAlly() == getAlly() ) {
 					LOG.warn("Versuch die allyinterne Beziehung von User "+getId()+" zu "+userid+" auf "+relation+" zu aendern", new Throwable());
@@ -729,7 +732,7 @@ public class User extends BasicUser implements Loggable {
 	 * 
 	 * @return Die Allianz
 	 */
-	public int getAlly() {
+	public Ally getAlly() {
 		return this.ally;
 	}
 	
@@ -737,7 +740,7 @@ public class User extends BasicUser implements Loggable {
 	 * Setzt die Allianz, der der Spieler angehoert
 	 * @param ally die neue Allianz
 	 */
-	public void setAlly( int ally ) {
+	public void setAlly( Ally ally ) {
 		this.ally = ally;
 	}
 	

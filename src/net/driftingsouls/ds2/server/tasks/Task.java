@@ -18,33 +18,49 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import org.apache.commons.lang.math.RandomUtils;
+
+import net.driftingsouls.ds2.server.framework.Common;
 
 /**
  * Eine Task im Taskmanager
  * @author Christopher Jung
  *
  */
+@Entity
+@Table(name="tasks")
 public class Task {
+	@Id()
+	@Column(name="taskid")
 	private String taskID;
-	private Taskmanager.Types type;
-	private int time;
+	private int type;
+	private long time;
 	private int timeout;
-	private String data1;
-	private String data2;
-	private String data3;
+	private String data1 = "";
+	private String data2 = "";
+	private String data3 = "";
 	
-	protected Task( SQLResultRow task ) {
-		taskID = task.getString("taskid");
-		time = task.getInt("time");
-		timeout = task.getInt("timeout");
-		data1 = task.getString("data1");
-		data2 = task.getString("data2");
-		data3 = task.getString("data3");
-		type = Taskmanager.Types.getTypeByID(task.getInt("type"));
-		if( type == null ) {
-			throw new RuntimeException("Unbekannter Task-Typ '"+task.getInt("type")+"'");
-		}
+	/**
+	 * Konstruktor
+	 *
+	 */
+	public Task() {
+		// EMPTY
+	}
+	
+	/**
+	 * Erstellt eine neue Task
+	 * @param type Der Typ der Task
+	 */
+	public Task(Taskmanager.Types type) {
+		this.taskID =  Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE))+Common.time();
+		this.type = type.getTypeID();
+		this.time = Common.time();
 	}
 
 	/**
@@ -54,6 +70,14 @@ public class Task {
 	public String getData1() {
 		return data1;
 	}
+	
+	/**
+	 * Setzt den Inhalt des ersten Datenfelds
+	 * @param data Der Inhalt
+	 */
+	public void setData1(String data) {
+		this.data1 = data;
+	}
 
 	/**
 	 * Gibt den Inhalt des zweiten Datenfelds zurueck
@@ -62,6 +86,14 @@ public class Task {
 	public String getData2() {
 		return data2;
 	}
+	
+	/**
+	 * Setzt den Inhalt des zweiten Datenfelds
+	 * @param data Der Inhalt
+	 */
+	public void setData2(String data) {
+		this.data2 = data;
+	}
 
 	/**
 	 * Gibt den Inhalt des dritten Datenfelds zurueck
@@ -69,6 +101,14 @@ public class Task {
 	 */
 	public String getData3() {
 		return data3;
+	}
+	
+	/**
+	 * Setzt den Inhalt des dritten Datenfelds
+	 * @param data Der Inhalt
+	 */
+	public void setData3(String data) {
+		this.data3 = data;
 	}
 
 	/**
@@ -83,7 +123,7 @@ public class Task {
 	 * Gibt den Zeitpunkt zurueck, an dem die Task angelegt wurde
 	 * @return Die Timestamp des Erstellungszeitpunkts
 	 */
-	public int getTime() {
+	public long getTime() {
 		return time;
 	}
 
@@ -94,12 +134,20 @@ public class Task {
 	public int getTimeout() {
 		return timeout;
 	}
+	
+	/**
+	 * Setzt den Timeout der Task in Ticks
+	 * @param timeout der Timeout
+	 */
+	public void setTimeout(int timeout) {
+		this.timeout = timeout;
+	}
 
 	/**
 	 * Gibt den Typ der Task zurueck
 	 * @return der Typ
 	 */
 	public Taskmanager.Types getType() {
-		return type;
+		return Taskmanager.Types.getTypeByID(type);
 	}
 }

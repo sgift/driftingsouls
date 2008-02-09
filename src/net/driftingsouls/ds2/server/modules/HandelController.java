@@ -18,19 +18,20 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.util.Iterator;
+import java.util.List;
+
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Items;
 import net.driftingsouls.ds2.server.config.ResourceConfig;
+import net.driftingsouls.ds2.server.entities.Handel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -51,6 +52,10 @@ public class HandelController extends TemplateGenerator {
 		super(context);
 		
 		setTemplate("handel.html");
+		
+		setPageTitle("Handel");
+		addPageMenuEntry("Angebote", Common.buildUrl("default"));
+		addPageMenuEntry("neues Angebot", Common.buildUrl("add"));
 	}
 	
 	@Override
@@ -67,7 +72,7 @@ public class HandelController extends TemplateGenerator {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void enterAction() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		parameterString("comm");
 		String comm = getString("comm");
@@ -128,21 +133,20 @@ public class HandelController extends TemplateGenerator {
 			if( havecount > 0 ) {
 				have.addResource(res.getId(), havecount);
 			}
-		}	
-		
-		String needStr = "-1";
-		if( !needeverything ) {
-			needStr = need.save();	
 		}
 		
-		String haveStr = "-1";
+		Handel entry = new Handel((User)getUser());
+		entry.setKommentar(comm);
+		
+		if( !needeverything ) {
+			entry.setSucht(need.save());	
+		}
+		
 		if( !haveeverything ) {
-			haveStr = have.save();	
+			entry.setBietet(have.save());	
 		}
 
-		db.prepare("INSERT INTO handel " ,
-				"VALUES (0, ?, ?, ?, ?, ?)")
-			.update(getUser().getId(), Common.time(), needStr, haveStr, comm);
+		db.persist(entry);
 
 		redirect();
 	}
@@ -189,14 +193,14 @@ public class HandelController extends TemplateGenerator {
 	public void deleteAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		parameterNumber("del");
 		int del = getInteger("del");
 		
-		SQLResultRow line = db.first("SELECT who FROM handel WHERE id=",del);
-		if( !line.isEmpty() && ((line.getInt("who") == user.getId()) || (user.getAccessLevel() >= 20) || user.hasFlag(User.FLAG_MODERATOR_HANDEL)) ) {
-			db.update("DELETE FROM handel WHERE id=",del);
+		Handel entry = (Handel)db.get(Handel.class, del);
+		if( (entry != null) && (entry.getWho().equals(user) || (user.getAccessLevel() >= 20) || user.hasFlag(User.FLAG_MODERATOR_HANDEL)) ) {
+			db.delete(entry);
 			t.setVar("handel.message", "Angebot gel&ouml;scht");
 		} 
 		else {
@@ -209,10 +213,10 @@ public class HandelController extends TemplateGenerator {
 	/**
 	 * Zeigt die vorhandenen Handelsangebote an
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {		
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 		
@@ -224,15 +228,17 @@ public class HandelController extends TemplateGenerator {
 		t.setBlock("angebote.listitem", "angebot.want.listitem", "angebot.want.list");
 		t.setBlock("angebote.listitem", "angebot.need.listitem", "angebot.need.list");
 		
-		SQLQuery act = db.query("SELECT handel.* FROM handel JOIN users ON handel.who=users.id WHERE users.vaccount=0 OR users.wait4vac!=0 ORDER BY handel.time DESC");
-		while( act.next() ) {
-			User auser = (User)getDB().get(User.class, act.getInt("who"));
-		
+		List entryList = db.createQuery("from Handel " +
+				"where who.vaccount=0 or who.wait4vac!=0 order by time desc")
+			.list();
+		for( Iterator iter=entryList.iterator(); iter.hasNext(); ) {
+			Handel entry = (Handel)iter.next();
+
 			t.setVar(	"angebot.want.list",	"",
 						"angebot.need.list",	"" );
 			
 			for( int i = 0; i <= 1; i++ ) {
-				String line = (i == 1 ? act.getString("bietet") : act.getString("sucht"));
+				String line = (i == 1 ? entry.getBietet() : entry.getSucht());
 				
 				if( !line.equals("-1") ) {
 					Cargo cargo = new Cargo( Cargo.Type.STRING, line );
@@ -260,21 +266,20 @@ public class HandelController extends TemplateGenerator {
 				}
 			}
 			
-			t.setVar(	"angebot.id",			act.getInt("id"),
-						"angebot.owner",		act.getInt("who"),
-						"angebot.owner.name",	Common._title(auser.getName()),
-						"angebot.date",			Common.date("d.m.Y H:i:s",act.getLong("time")),
-						"angebot.description",	Common._text(act.getString("comm")),
-						"angebot.description.overflow",	Common._text(act.getString("comm")).length() > 220,
+			t.setVar(	"angebot.id",			entry.getId(),
+						"angebot.owner",		entry.getWho().getId(),
+						"angebot.owner.name",	Common._title(entry.getWho().getName()),
+						"angebot.date",			Common.date("d.m.Y H:i:s",entry.getTime()),
+						"angebot.description",	Common._text(entry.getKommentar()),
+						"angebot.description.overflow",	Common._text(entry.getKommentar()).length() > 220,
 						"angebot.newline",		(count % 3 == 0),
 						"angebot.endline",		(count % 3 == 0) && (count > 0),
-						"angebot.showdelete",	(act.getInt("who") == user.getId()) || (user.getAccessLevel() >= 20) || user.hasFlag(User.FLAG_MODERATOR_HANDEL) );
+						"angebot.showdelete",	entry.getWho().equals(user) || (user.getAccessLevel() >= 20) || user.hasFlag(User.FLAG_MODERATOR_HANDEL) );
 
 			count++;
 
 			t.parse("angebote.list","angebote.listitem", true);
 		}
-		act.free();
 		
 		t.setBlock("_HANDEL", "emptyangebote.listitem", "emptyangebote.list");
 		while( count % 3 != 0 ) {

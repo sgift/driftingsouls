@@ -53,8 +53,11 @@ public class BaseStatus {
 	 * 
 	 * @return Liste der (de)aktivierten Gebaeude.
 	 */
-	public Integer[] getActiveBuildings() {
-		return active;
+	public Integer[] getActiveBuildings() 
+	{
+		Integer[] copy = new Integer[active.length];
+		System.arraycopy(active, 0, copy, 0, active.length);
+		return copy;
 	}
 
 	/**

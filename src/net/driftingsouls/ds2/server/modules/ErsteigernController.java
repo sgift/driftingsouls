@@ -576,8 +576,8 @@ public class ErsteigernController extends TemplateGenerator {
 			else if( user.getAccessLevel() > 20 ) {
 				bietername = bieter.getName();	
 			}
-			else if( (bieter.getAlly() != 0) && (bieter.getAlly() == user.getAlly()) ) {
-				boolean showGtuBieter = db.first("SELECT showGtuBieter FROM ally WHERE id=",bieter.getAlly()).getInt("showGtuBieter") != 0;
+			else if( (bieter.getAlly() != null) && (bieter.getAlly() == user.getAlly()) ) {
+				boolean showGtuBieter = bieter.getAlly().getShowGtuBieter();
 
 				if( showGtuBieter ) {
 					bietername = bieter.getName();	
@@ -999,8 +999,8 @@ public class ErsteigernController extends TemplateGenerator {
 			else if( user.getAccessLevel() > 20 ) {
 				bietername = bieter.getName();	
 			}
-			else if( (bieter.getAlly() != 0) && (bieter.getAlly() == user.getAlly()) ) {
-				boolean showGtuBieter = db.first("SELECT showGtuBieter FROM ally WHERE id=",bieter.getAlly()).getInt("showGtuBieter") != 0;
+			else if( (bieter.getAlly() != null) && (bieter.getAlly() == user.getAlly()) ) {
+				boolean showGtuBieter = bieter.getAlly().getShowGtuBieter();
 
 				if( showGtuBieter ) {
 					bietername = bieter.getName();	
@@ -1154,10 +1154,9 @@ public class ErsteigernController extends TemplateGenerator {
 			else if( user.getAccessLevel() > 20 ) {
 				bietername = bieter.getName();	
 			}
-			else if( (bieter.getAlly() != 0) && (bieter.getAlly() == user.getAlly()) ) {
+			else if( (bieter.getAlly() != null) && (bieter.getAlly() == user.getAlly()) ) {
 				if( showGtuBieter == null ) {
-					SQLResultRow ally = db.first("SELECT showGtuBieter FROM ally WHERE id=",bieter.getAlly());
-					showGtuBieter = ally.getInt("showGtuBieter") != 0;
+					showGtuBieter = bieter.getAlly().getShowGtuBieter();
 				}
 				
 				if( showGtuBieter ) {
