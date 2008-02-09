@@ -112,7 +112,7 @@ class Academy extends DefaultBuilding {
 		
 		StringBuilder result = new StringBuilder(200);
 		
-		SQLResultRow acc = db.first("SELECT id,remain,train,`upgrade` FROM academy WHERE col="+base.getId());
+		SQLResultRow acc = db.first("SELECT remain,train,`upgrade` FROM academy WHERE col="+base.getId());
 		if( !acc.isEmpty() ) {
 			if( acc.getInt("remain") == 0 ) {
 				result.append("<a class=\"back\" href=\"./main.php?module=building&amp;sess=");
@@ -198,7 +198,7 @@ class Academy extends DefaultBuilding {
 			return "";
 		}
 
-		SQLResultRow academy = db.first("SELECT id,train,remain,`upgrade` FROM academy WHERE col="+base.getId());
+		SQLResultRow academy = db.first("SELECT train,remain,`upgrade` FROM academy WHERE col="+base.getId());
 		if( academy.isEmpty() ) {
 			context.addError("Diese Akademie verf&uuml;gt &uuml;ber keinen Akademie-Eintrag in der Datenbank");
 			return "";
