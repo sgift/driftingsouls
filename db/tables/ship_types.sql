@@ -10,6 +10,7 @@ CREATE TABLE `ship_types` (
   `cost` int(11) NOT NULL default '0',
   `hull` int(11) NOT NULL default '0',
   `panzerung` tinyint(3) unsigned NOT NULL default '0',
+  `ablativeArmor` int(11) UNSIGNED NOT NULL default '0',
   `cargo` int(11) NOT NULL default '0',
   `heat` int(11) NOT NULL default '0',
   `crew` int(11) NOT NULL default '0',
@@ -34,6 +35,10 @@ CREATE TABLE `ship_types` (
   `modules` text NOT NULL,
   `shipcount` tinyint(3) unsigned NOT NULL default '1',
   `hide` tinyint(1) NOT NULL default '0',
+  `srs` tinyint NOT NULL default '1',
+  `scanCost` INT NOT NULL default '0',
+  `pickingCost` INT NOT NULL default '0',
+  `marines` int unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
 

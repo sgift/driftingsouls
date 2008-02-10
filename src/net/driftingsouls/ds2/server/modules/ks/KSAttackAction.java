@@ -23,8 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.math.RandomUtils;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.battles.Battle;
@@ -34,6 +32,7 @@ import net.driftingsouls.ds2.server.config.IEAmmo;
 import net.driftingsouls.ds2.server.config.ItemEffect;
 import net.driftingsouls.ds2.server.config.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.entities.Ammo;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -45,6 +44,8 @@ import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
+
+import org.apache.commons.lang.math.RandomUtils;
 
 /**
  * Berechnet das Waffenfeuer im KS
@@ -609,7 +610,6 @@ public class KSAttackAction extends BasicKSAction {
 	
 	private SQLResultRow getAmmoBasedWeaponData( Battle battle ) {
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
 		SQLResultRow ownShip = this.ownShip;
 		
 		SQLResultRow enemyShipType = ShipTypes.getShipType(this.enemyShip);
@@ -622,7 +622,7 @@ public class KSAttackAction extends BasicKSAction {
 		
 		weaponCount = (int)(weaponCount/(double)ownShipType.getInt("shipcount")*this.attCountForShip(this.ownShip, ownShipType, this.attcount));
 
-		SQLResultRow ammo = null;
+		Ammo ammo = null;
 		ItemCargoEntry ammoitem = null;
 		
 		// Munition
@@ -631,7 +631,7 @@ public class KSAttackAction extends BasicKSAction {
 		
 		if( this.weapon.hasFlag(Weapon.Flags.AMMO_SELECT) ) {
 			int ammoid = context.getRequest().getParameterInt("ammoid");
-	
+			
 			ItemCargoEntry item = null;
 			itemlist = mycargo.getItemsWithEffect( ItemEffect.Type.AMMO );
 			for( int i=0; i < itemlist.size(); i++ ) {
@@ -646,26 +646,29 @@ public class KSAttackAction extends BasicKSAction {
 				return null;
 			}
 	
-			ammo = db.first("SELECT id,name,damage,shielddamage,trefferws,smalltrefferws,shotspershot,destroyable,subws,subdamage,areadamage,flags FROM ammo WHERE itemid=",ammoid," AND `type`='",this.weapon.getAmmoType(),"'");
+			ammo = (Ammo)context.getDB().createQuery("from Ammo " +
+					"where itemid=? and type in ('"+this.weapon.getAmmoType()+"')")
+				.setInteger(0, ammoid)
+				.iterate().next();
 		} 
 		else {
-			List<Integer> ammoids = new ArrayList<Integer>();
-			
 			itemlist = mycargo.getItemsWithEffect( ItemEffect.Type.AMMO );
 			for( int i=0; i < itemlist.size(); i++ ) {
 				IEAmmo effect = (IEAmmo)itemlist.get(i).getItemEffect();
-				ammoids.add(effect.getAmmoID());
+				
+				if( effect.getAmmo().getType().equals(this.weapon.getAmmoType()) ) {
+					ammo = effect.getAmmo();
+					break;
+				}
 			}
 	
-			if( ammoids.size() == 0 ) {
+			if( ammo == null ) {
 				battle.logme( "Sie verf&uuml;gen &uuml;ber keine Munition\n" );
 				return null;
 			}
-	
-			ammo = db.first("SELECT id,name,damage,shielddamage,trefferws,smalltrefferws,shotspershot,destroyable,torptrefferws,subws,subdamage,areadamage,flags FROM ammo WHERE type='",this.weapon.getAmmoType(),"' AND id IN (",Common.implode(",",ammoids),") LIMIT 1");
 		}
 	
-		if( (ammo == null) || ammo.isEmpty() ) {
+		if( ammo == null ) {
 			battle.logme("Der angegebene Munitionstyp existiert nicht\n" );
 			return null;
 		}
@@ -673,7 +676,7 @@ public class KSAttackAction extends BasicKSAction {
 		ammoitem = null;
 		for( int i=0; i < itemlist.size(); i++ ) {
 			IEAmmo effect = (IEAmmo)itemlist.get(i).getItemEffect();
-			if( effect.getAmmoID() == ammo.getInt("id") ) {
+			if( effect.getAmmo() == ammo ) {
 				ammoitem = itemlist.get(i);
 			}
 		}
@@ -685,26 +688,26 @@ public class KSAttackAction extends BasicKSAction {
 			return null;
 		}
 	
-		battle.logme( "Feuere "+ammo.getString("name")+" ab...\n" );
+		battle.logme( "Feuere "+ammo.getName()+" ab...\n" );
 	
 		SQLResultRow localweapon = new SQLResultRow();
 		if( enemyShipType.getInt("size") < 4 ) {
-			localweapon.put("deftrefferws", ammo.getInt("smalltrefferws"));
+			localweapon.put("deftrefferws", ammo.getSmallTrefferWS());
 		} 
 		else {
-			localweapon.put("deftrefferws", ammo.getInt("trefferws"));
+			localweapon.put("deftrefferws", ammo.getTrefferWS());
 		}
-		localweapon.put("basedamage", ammo.getInt("damage"));
-		localweapon.put("shielddamage", ammo.getInt("shielddamage"));
-		localweapon.put("shotsPerShot", ammo.getInt("shotspershot")*this.weapon.getSingleShots());
-		localweapon.put("name", ammo.getString("name"));
-		localweapon.put("subws", ammo.getInt("subws"));
-		localweapon.put("subdamage", ammo.getInt("subdamage"));
+		localweapon.put("basedamage", ammo.getDamage());
+		localweapon.put("shielddamage", ammo.getShieldDamage());
+		localweapon.put("shotsPerShot", ammo.getShotsPerShot()*this.weapon.getSingleShots());
+		localweapon.put("name", ammo.getName());
+		localweapon.put("subws", ammo.getSubWS());
+		localweapon.put("subdamage", ammo.getSubDamage());
 		localweapon.put("destroyAfter", false);
-		localweapon.put("areadamage", ammo.getInt("areadamage"));
-		localweapon.put("destroyable", ammo.getDouble("destroyable"));
+		localweapon.put("areadamage", ammo.getAreaDamage());
+		localweapon.put("destroyable", ammo.getDestroyable());
 		localweapon.put("ammoitem", ammoitem);
-		localweapon.put("ad_full", (ammo.getInt("flags") & Weapon.AmmoFlags.AD_FULL.getBits()) != 0);
+		localweapon.put("ad_full", ammo.hasFlag(Ammo.Flags.AD_FULL));
 		localweapon.put("long_range", this.weapon.hasFlag(Weapon.Flags.LONG_RANGE));
 			
 		return localweapon;

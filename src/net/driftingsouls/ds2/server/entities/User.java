@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.entities;
 
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.DiscriminatorValue;
@@ -37,7 +38,6 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
@@ -351,21 +351,22 @@ public class User extends BasicUser implements Loggable {
 	 * 	Beziehungen zu Spieler 0 betreffen grundsaetzlich alle Spieler ohne eigene Regelung
 	 */
 	public Relations getRelations() {
-		Database db = context.getDatabase();
-		
 		if( this.relations == null ) {
 			Relations relations = new Relations();
-			SQLQuery relation = db.query("SELECT * FROM user_relations WHERE user_id='",this.getId(),"' OR target_id='",this.getId(),"' OR (user_id!='",this.getId(),"' AND target_id='0') ORDER BY ABS(target_id) DESC");
-			while( relation.next() ) {
-				if( relation.getInt("user_id") == this.getId() ) {
-					relations.toOther.put(relation.getInt("target_id"), Relation.values()[relation.getInt("status")]);	
+			
+			List<UserRelation> relationlist = context.query("from UserRelation " +
+					"where user="+this.getId()+" OR target="+this.getId()+" OR (user!="+this.getId()+" AND target=0) " +
+					"order by abs(target) desc", UserRelation.class);
+			
+			for( UserRelation relation : relationlist ) {
+				if( relation.getUser().getId() == this.getId() ) {
+					relations.toOther.put(relation.getTarget().getId(), Relation.values()[relation.getStatus()]);	
 				}
-				else if( !relations.fromOther.containsKey(relation.getInt("user_id")) ) {
-					relations.fromOther.put(relation.getInt("user_id"), Relation.values()[relation.getInt("status")]);
+				else if( !relations.fromOther.containsKey(relation.getUser().getId()) ) {
+					relations.fromOther.put(relation.getUser().getId(), Relation.values()[relation.getStatus()]);
 				}
 			}
-			relation.free();
-			
+
 			if( !relations.toOther.containsKey(0) ) {
 				relations.toOther.put(0, Relation.NEUTRAL);	
 			}
@@ -388,8 +389,6 @@ public class User extends BasicUser implements Loggable {
 	 * @return Der Status der Beziehungen zu dem anderen Spieler
 	 */
 	public Relation getRelation( int userid ) {
-		Database db = context.getDatabase();
-		
 		if( userid == this.getId() ) {
 			return Relation.FRIEND;
 		}
@@ -397,13 +396,21 @@ public class User extends BasicUser implements Loggable {
 		Relation rel = Relation.NEUTRAL;
 		
 		if( relations == null ) {
-			SQLResultRow currelation = db.first("SELECT status FROM user_relations WHERE user_id='",getId(),"' AND target_id='",userid,"'");
-			if( currelation.isEmpty() ) {
-				currelation = db.first("SELECT status FROM user_relations WHERE user_id='",this.getId(),"' AND target_id='0'");
+			UserRelation currelation = (UserRelation)context.getDB()
+				.createQuery("from UserRelation WHERE user=? AND target_id=?")
+				.setInteger(0, this.getId())
+				.setInteger(1, userid)
+				.uniqueResult();
+			
+			if( currelation == null ) {
+				currelation = (UserRelation)context.getDB()
+					.createQuery("from UserRelation WHERE user=? AND target_id=0")
+					.setInteger(0, this.getId())
+					.uniqueResult();
 			}
 		
-			if( !currelation.isEmpty() ) {
-				rel = Relation.values()[currelation.getInt("status")];	
+			if( currelation != null ) {
+				rel = Relation.values()[currelation.getStatus()];	
 			}
 		}
 		else {
@@ -421,47 +428,56 @@ public class User extends BasicUser implements Loggable {
 	 * @param relation Der neue Status der Beziehungen
 	 */
 	public void setRelation( int userid, Relation relation ) {
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		
 		if( userid == this.getId() ) {
 			return;
 		}
 		
-		SQLResultRow currelation = db.first("SELECT * FROM user_relations WHERE user_id='",this.getId(),"' AND target_id='",userid,"'");
+		UserRelation currelation = (UserRelation)db
+			.createQuery("from UserRelation WHERE user=? AND target_id=?")
+			.setInteger(0, this.getId())
+			.setInteger(1, userid)
+			.uniqueResult();
 		if( userid != 0 ) {
 			if( (relation != Relation.FRIEND) && (getAlly() != null) ) {
 				User targetuser = (User)context.getDB().get(User.class, userid);
 				if( targetuser.getAlly() == getAlly() ) {
-					LOG.warn("Versuch die allyinterne Beziehung von User "+getId()+" zu "+userid+" auf "+relation+" zu aendern", new Throwable());
+					LOG.warn("Versuch die allyinterne Beziehung von User "+this.getId()+" zu "+userid+" auf "+relation+" zu aendern", new Throwable());
 					return;
 				}
 			}
-			SQLResultRow defrelation = db.first("SELECT * FROM user_relations WHERE user_id='",this.getId(),"' AND target_id='0'");
-		
-			if( defrelation.isEmpty() ) {
-				defrelation.put("user_id", this.getId());
-				defrelation.put("target_id", 0);
-				defrelation.put("status", Relation.NEUTRAL.ordinal());	
+			UserRelation defrelation = (UserRelation)db
+				.createQuery("from UserRelation WHERE user=? AND target_id=0")
+				.setInteger(0, this.getId())
+				.uniqueResult();
+
+			if( defrelation == null ) {
+				User nullUser = (User)db.get(User.class, 0);
+				
+				defrelation = new UserRelation(this, nullUser, Relation.NEUTRAL.ordinal());	
 			}
 		
-			if( relation.ordinal() == defrelation.getInt("status") ) {
-				if( !currelation.isEmpty() && (currelation.getInt("user_id") != 0) ) {
+			if( relation.ordinal() == defrelation.getStatus() ) {
+				if( (currelation != null) && (currelation.getTarget().getId() != 0) ) {
 					if( relations != null ) {
 						relations.toOther.remove(userid);
 					}
 					
-					db.update("DELETE FROM user_relations WHERE user_id='",this.getId(),"' AND target_id='",userid,"'");	
+					db.delete(currelation);	
 				}
 			}
 			else {
 				if( relations != null ) {
 					relations.toOther.put(userid, relation);
 				}
-				if( !currelation.isEmpty() ) {
-					db.update("UPDATE user_relations SET status='",relation.ordinal(),"' WHERE user_id='",this.getId(),"' AND target_id='",userid,"'");	
+				if( currelation != null ) {
+					currelation.setStatus(relation.ordinal());	
 				}	
 				else {
-					db.update("INSERT INTO user_relations (user_id,target_id,status) VALUES ('",this.getId(),"','",userid,"','",relation.ordinal(),"')");	
+					User user = (User)db.get(User.class, userid);
+					currelation = new UserRelation(this, user, relation.ordinal());
+					db.persist(currelation);
 				}
 			}
 		}
@@ -470,20 +486,28 @@ public class User extends BasicUser implements Loggable {
 				if( relations != null ) {
 					relations.toOther.put(0, Relation.NEUTRAL);
 				}
-				db.update("DELETE FROM user_relations WHERE user_id='",this.getId(),"' AND target_id='0'");
+				db.createQuery("delete from UserRelation where user=? and target=0")
+					.setInteger(0, this.getId())
+					.executeUpdate();
 			}
 			else {
 				if( relations != null ) {
 					relations.toOther.put(0, relation);
 				}
-				if( !currelation.isEmpty() ) {
-					db.update("UPDATE user_relations SET status='",relation.ordinal(),"' WHERE user_id='",this.getId(),"' AND target_id='0'");	
+				if( currelation != null ) {
+					currelation.setStatus(relation.ordinal());	
 				}	
 				else {
-					db.update("INSERT INTO user_relations (user_id,target_id,status) VALUES ('",this.getId(),"','0','",relation.ordinal(),"')");	
+					User nullUser = (User)db.get(User.class, 0);
+					
+					currelation = new UserRelation(this, nullUser, relation.ordinal());
+					db.persist(currelation);	
 				}
 			}
-			db.update("DELETE FROM user_relations WHERE user_id='",this.getId(),"' AND status='",relation.ordinal(),"' AND target_id!='0'");
+			db.createQuery("delete from UserRelation where user=? and status=? AND target!=0")
+				.setInteger(0, this.getId())
+				.setInteger(1, relation.ordinal())
+				.executeUpdate();
 		}
 	}
 	/**
@@ -522,7 +546,7 @@ public class User extends BasicUser implements Loggable {
 	 * @see #TRANSFER_NORMAL
 	 */
 	public void transferMoneyFrom( int fromID, BigInteger count, String text, boolean faketransfer, int transfertype) {
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		
 		if( !count.equals(BigInteger.ZERO) ) {
 			User fromUser = (User)context.getDB().get(User.class, fromID);
@@ -532,8 +556,10 @@ public class User extends BasicUser implements Loggable {
 		
 			konto = konto.add(count);	
 		
-			db.update("INSERT INTO user_moneytransfer (`from`,`to`,`time`,`count`,`text`,`fake`,`type`) ",
-					"VALUES ('",fromID,"','",this.getId(),"','",Common.time(),"','",count,"','",db.prepareString(text),"','",(faketransfer ? 1 : 0),"','",transfertype,"')");
+			UserMoneyTransfer log = new UserMoneyTransfer(fromUser, this, count, text);
+			log.setFake(faketransfer);
+			log.setType(UserMoneyTransfer.Transfer.values()[transfertype]);
+			db.persist(log);
 		}
 	}
 	

@@ -18,18 +18,25 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
-import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.Map;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.Table;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.caches.CacheManager;
-import net.driftingsouls.ds2.server.framework.caches.ControllableCache;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.DiscriminatorFormula;
+import org.hibernate.annotations.Immutable;
+import org.hibernate.annotations.Type;
 
 // TODO: Warum Verbrauch/Produktion unterscheiden?
 /**
@@ -38,161 +45,206 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * @author Christopher Jung
  *
  */
+@Entity
+@Table(name="buildings")
+@Immutable
+@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
+@DiscriminatorFormula("module")
+@Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
 public abstract class Building implements Loggable {
 	/**
 	 * Die ID des Kommandozentralen-Gebaeudes
 	 */
 	public static final int KOMMANDOZENTRALE = 1;
 	
-	private static Map<Integer,Building> buildingCache = new HashMap<Integer,Building>();
-	
-	static {
-		CacheManager.getInstance().registerCache(
-			new ControllableCache() {
-				public void clear() {
-					Building.clearCache();
-				}
-			}
-		);
-	}
-	
-	static void clearCache() {
-		synchronized(buildingCache) {
-			buildingCache.clear();
-		}
-	}
-	
 	/**
 	 * Gibt eine Instanz der Gebaudeklasse des angegebenen Gebaeudetyps zurueck.
 	 * Sollte kein passender Gebaeudetyp existieren, wird <code>null</code> zurueckgegeben.
-	 * @param id Die ID des Gebaudetyps
 	 * 
+	 * @param id Die ID des Gebaudetyps
 	 * @return Eine Instanz der zugehoerigen Gebaeudeklasse
 	 */
-	public static synchronized Building getBuilding(int id) {
-		if( !buildingCache.containsKey(id) ) {
-			SQLResultRow row = ContextMap.getContext().getDatabase().first("SELECT * FROM buildings WHERE id='",id,"'");
-			if( row.isEmpty() ) {
-				return null;
-			}
-			String module = row.getString("module");
-			try {
-				Class<?> cls = Class.forName(module);
-				Class<? extends Building> buildingCls = cls.asSubclass(Building.class);
-				Constructor<? extends Building> constr = buildingCls.getConstructor(SQLResultRow.class);
-				buildingCache.put(id, constr.newInstance(row));
-			}
-			catch( Exception e ) {
-				LOG.fatal(e, e);
-				return null;
-			}
-		}
-		return buildingCache.get(id);
+	public static Building getBuilding(int id) {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		return (Building)db.get(Building.class, id);
+	}
+	
+	@Id
+	private int id;
+	@SuppressWarnings("unused")
+	private String module;
+	private int bewohner;
+	private int arbeiter;
+	private String name;
+	private String picture;
+	@Type(type="cargo")
+	@Column(name="buildcosts")
+	private Cargo buildCosts;
+	@Type(type="cargo")
+	private Cargo produces;
+	@Type(type="cargo")
+	private Cargo consumes;
+	@Column(name="ever")
+	private int eVerbrauch;
+	@Column(name="eprodu")
+	private int eProduktion;
+	@Column(name="techreq")
+	private int techReq;
+	private int eps;
+	@Column(name="perplanet")
+	private int perPlanet;
+	@Column(name="perowner")
+	private int perOwner;
+	private int category;
+	private int ucomplex;
+	private boolean deakable;
+	
+	/**
+	 * Konstruktor
+	 *
+	 */
+	public Building() {
+		// EMPTY
 	}
 
 	/**
 	 * Gibt die ID des Gebaeudetyps zurueck
 	 * @return Die ID des Gebaeudetyps
 	 */
-	public abstract int getId();
+	public int getId() {
+		return this.id;
+	}
 	
 	/**
 	 * Gibt den Namen des Gebaeudetyps zurueck
 	 * @return Der Name
 	 */
-	public abstract String getName();
+	public String getName() {
+		return name;
+	}
 	
 	/**
 	 * Gibt das zum Gebaeudetyp gehoerende Bild zurueck
 	 * @return Das Bild
 	 */
-	public abstract String getPicture();
+	public String getPicture() {
+		return picture;
+	}
 	
 	/**
 	 * Gibt die fuer das Gebaeude anfallenden Baukosten zurueck
 	 * @return Die Baukosten
 	 */
-	public abstract Cargo getBuildCosts();
+	public Cargo getBuildCosts() {
+		return new UnmodifiableCargo(buildCosts);
+	}
 	
 	/**
 	 * Gibt die Produktion des Gebaeudes pro Tick zurueck
 	 * @return Die Produktion
 	 */
-	public abstract Cargo getProduces();
+	public Cargo getProduces() {
+		return new UnmodifiableCargo(produces);
+	}
 	
 	/**
 	 * Gibt den Verbrauch des Gebaeudes pro Tick zurueck
 	 * @return Der Verbrauch
 	 */
-	public abstract Cargo getConsumes();
+	public Cargo getConsumes() {
+		return new UnmodifiableCargo(consumes);
+	}
 	
 	/**
 	 * Gibt die Anzahl Wohnraum zurueck, die das Gebaeude schafft
 	 * @return Der Wohnraum
 	 */
-	public abstract int getBewohner();
+	public int getBewohner() {
+		return bewohner;
+	}
 	
 	/**
 	 * Gibt die Anzahl der Arbeiter zurueck, die das Gebaeude fuer den Betrieb benoetigt
 	 * @return Die Anzahl der Arbeiter
 	 */
-	public abstract int getArbeiter();
+	public int getArbeiter() {
+		return arbeiter;
+	}
 	
 	/**
 	 * Gibt den Energieverbrauch des Gebaeudes pro Tick zurueck
 	 * @return Der Energieverbrauch
 	 */
-	public abstract int getEVerbrauch();
+	public int getEVerbrauch() {
+		return eVerbrauch;
+	}
 	
 	/**
 	 * Gibt die Energieproduktion des Gebaeudes pro Tick zurueck
 	 * @return die Energieproduktion
 	 */
-	public abstract int getEProduktion();
+	public int getEProduktion() {
+		return eProduktion;
+	}
 	
 	/**
 	 * Gibt die ID der zum Bau benoetigten Forschung zurueck
 	 * @return die benoetigte Forschung
 	 */
-	public abstract int getTechRequired();
+	public int getTechRequired() {
+		return techReq;
+	}
 	
 	/**
 	 * Unbekannt (?????) - Wird aber auch nicht verwendet
 	 * @return ????
 	 */
-	public abstract int getEPS();
+	public int getEPS() {
+		return eps;
+	}
 	
 	/**
 	 * Gibt die maximale Anzahl des Gebaeudes pro Basis zurueck.
 	 * Sollte es keine Beschraenkung geben, so wird 0 zurueckgegeben.
 	 * @return Die max. Anzahl pro Basis
 	 */
-	public abstract int getPerPlanetCount();
+	public int getPerPlanetCount() {
+		return perPlanet;
+	}
 	
 	/**
 	 * Gibt die maximale Anzahl des Gebaeudes pro Benutzer zurueck.
 	 * Sollte es keine Beschraenkung geben, so wird 0 zurueckgegeben.
 	 * @return Die max. Anzahl pro Benutzer
 	 */
-	public abstract int getPerUserCount();
+	public int getPerUserCount() {
+		return perOwner;
+	}
 	
 	/**
 	 * Gibt die ID der Kategorie des Gebaeudes zurueck
 	 * @return die ID der Kategorie
 	 */
-	public abstract int getCategory();
+	public int getCategory() {
+		return category;
+	}
 	
 	/**
 	 * Gibt <code>true</code> zurueck, falls das Gebaeude ein unterirdischer Komplex ist
 	 * @return <code>true</code>, falls es ein unterirdischer Komplex ist
 	 */
-	public abstract boolean isUComplex();
+	public boolean isUComplex() {
+		return ucomplex == 1;
+	}
 	
 	/**
 	 * Gibt <code>true</code> zurueck, falls das Gebaeude deaktivierbar ist
 	 * @return <code>true</code>, falls das Gebaeude deaktivierbar ist
 	 */
-	public abstract boolean isDeakAble();
+	public boolean isDeakAble() {
+		return deakable;
+	}
 
 	/**
 	 * Wird aufgerufen, wenn das Gebaeude auf einer Basis gebaut wurde
@@ -202,7 +254,7 @@ public abstract class Building implements Loggable {
 	
 	/**
 	 * Wird aufgerufen, wenn das Gebaeude auf einer Basis abgerissen wurde
-	 * @param context Der Context
+	 * @param context Der aktive Kontext
 	 * @param base Die Basis
 	 */
 	public abstract void cleanup( Context context, Base base );
@@ -227,7 +279,7 @@ public abstract class Building implements Loggable {
 	/**
 	 * Generiert einen Shortcut-Link (String) sofern notwendig. Sollte das Gebaeude keinen haben 
 	 * wird ein leerer String zurueckgegeben
-	 * @param context TODO
+	 * @param context der aktive Kontext
 	 * @param base Die Basis
 	 * @param field Das Feld, auf dem das Gebaeude steht
 	 * @param building die ID des Gebaeudetyps
@@ -250,11 +302,12 @@ public abstract class Building implements Loggable {
 	
 	/**
 	 * Gibt die eigendliche UI des Gebaeudes aus
+	 * @param context Der aktive Kontext
 	 * @param t Eine Instanz des zu verwendenden TemplateEngines
 	 * @param base Die ID der Basis
 	 * @param field Das Feld, auf dem das Gebaeude steht
 	 * @param building die ID des Gebaeudetyps
 	 * @return Ein HTML-String, der die Gebaeudeseite einhaelt
 	 */
-	public abstract String output( TemplateEngine t, Base base, int field, int building );
+	public abstract String output( Context context, TemplateEngine t, Base base, int field, int building );
 }

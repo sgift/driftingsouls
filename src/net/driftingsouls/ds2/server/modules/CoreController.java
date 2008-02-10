@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.util.Iterator;
+
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Core;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -26,8 +28,6 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -51,7 +51,9 @@ public class CoreController extends TemplateGenerator {
 		
 		setTemplate("core.html");
 		
-		parameterNumber("col");		
+		parameterNumber("col");
+		
+		setPageTitle("Core");
 	}
 	
 	@Override
@@ -70,7 +72,7 @@ public class CoreController extends TemplateGenerator {
 		
 		t.setVar( "base.id", base.getId() );
 		
-		return true;
+		return true;	
 	}
 
 	/**
@@ -142,7 +144,7 @@ public class CoreController extends TemplateGenerator {
 		// Genuegend Res vorhanden -> Bauen
 		if( ok ) {
 			base.setCore(build);
-			
+		
 			base.setCoreActive(false);
 		
 			if( core.getArbeiter()+base.getArbeiter() > base.getBewohner() ) {
@@ -249,7 +251,7 @@ public class CoreController extends TemplateGenerator {
 	}
 	
 	private void showCoreBuildList() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 		
@@ -258,9 +260,11 @@ public class CoreController extends TemplateGenerator {
 
 		t.setBlock("_CORE", "cores.listitem", "cores.list");
 
-		SQLQuery coreID = db.query("SELECT id FROM cores WHERE astitype='",base.getKlasse(),"'");
-		while( coreID.next() ) {
-			Core core = Core.getCore(coreID.getInt("id"));
+		Iterator coreIter = db.createQuery("from Core where astiType=?")
+			.setInteger(0, base.getKlasse())
+			.iterate();
+		for( ; coreIter.hasNext(); ) {
+			Core core = (Core)coreIter.next();
 			
 			if( !user.hasResearched(core.getTechRequired()) ) {
 				continue;
@@ -316,7 +320,6 @@ public class CoreController extends TemplateGenerator {
 			}
 			t.parse("cores.list", "cores.listitem", true);
 		}
-		coreID.free();
 	}
 	
 	/**
@@ -324,8 +327,8 @@ public class CoreController extends TemplateGenerator {
 	 * baubaren Cores an (wenn noch keine Core gebaut wurde) oder
 	 * die Daten zur aktuellen Core
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {	
 		TemplateEngine t = getTemplateEngine();
 		t.setVar( "base.core", base.getCore() );

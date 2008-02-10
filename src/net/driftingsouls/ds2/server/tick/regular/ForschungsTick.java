@@ -18,15 +18,15 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 
-import net.driftingsouls.ds2.server.Forschung;
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.entities.Forschung;
+import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 /**
@@ -37,44 +37,33 @@ import net.driftingsouls.ds2.server.tick.TickController;
  *
  */
 public class ForschungsTick extends TickController {
-	private HashSet<Integer> vaclist;
-	
 	@Override
 	protected void prepare() {
-		vaclist = new HashSet<Integer>();
-		vaclist.add(0);
+		// EMPTY
 	}
 
 	@Override
 	protected void tick() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
+		final User sourceUser = (User)db.get(User.class, -1);
 		
-		SQLQuery fzdRow = db.query("SELECT id,forschung,dauer,col FROM fz WHERE dauer!=0");
-		while( fzdRow.next() ) {
+		List fzList = db.createQuery("from Forschungszentrum where dauer=1 and (base.owner.vaccount=0 or base.owner.wait4vac!=0)").list();
+		for( Iterator iter=fzList.iterator(); iter.hasNext(); ) {
+			Forschungszentrum fz = (Forschungszentrum)iter.next();
+			
 			try {
-				SQLResultRow base = db.first("SELECT name,owner FROM bases WHERE id="+fzdRow.getInt("col"));
-				
-				User user = (User)getContext().getDB().get(User.class, base.getInt("owner"));
-			
-				if( (user.getVacationCount() != 0) && (user.getWait4VacationCount() == 0) ) {
-					log("Ueberspringe Forschungszentrum "+fzdRow.getInt("id")+" [VAC]");
-					vaclist.add(fzdRow.getInt("id"));
-					continue;
-				}
-				
-				if( fzdRow.getInt("dauer") != 1 ) {
-					continue;
-				}
-			
-				log("fz "+fzdRow.getInt("id"));
-				log("\tforschung: "+fzdRow.getInt("forschung"));
-				Forschung forschung = Forschung.getInstance(fzdRow.getInt("forschung"));
+				Base base = fz.getBase();
+				User user = base.getOwner();
+
+				log("fz "+fz.getBaseId());
+				log("\tforschung: "+fz.getForschung());
+				Forschung forschung = Forschung.getInstance(fz.getForschung());
 					
 				log("\t"+forschung.getName()+" ("+forschung.getID()+") erforscht");
 					
 				user.addResearch( forschung.getID() );
 					
-				String msg = "Das Forschungszentrum auf "+base.getString("name")+" hat die Forschungen an "+forschung.getName()+" abgeschlossen";
+				String msg = "Das Forschungszentrum auf "+base.getName()+" hat die Forschungen an "+forschung.getName()+" abgeschlossen";
 					
 				if( forschung.hasFlag( Forschung.FLAG_DROP_NOOB_PROTECTION) && user.isNoob() ) {
 					msg += "\n\n[color=red]Durch die Erforschung dieser Technologie stehen sie nicht l&auml;nger unter GCP-Schutz.\nSie k&ouml;nnen nun sowohl angreifen als auch angegriffen werden![/color]";
@@ -83,20 +72,26 @@ public class ForschungsTick extends TickController {
 					log("\t"+user.getId()+" steht nicht laenger unter gcp-schutz");
 				}
 					
-				PM.send(getContext(), -1, base.getInt("owner"), "Forschung abgeschlossen", msg);
+				PM.send(sourceUser, base.getOwner().getId(), "Forschung abgeschlossen", msg);
 				
-				db.update("UPDATE fz SET forschung=0,dauer=0 WHERE id=",fzdRow.getInt("id"));
+				fz.setForschung(0);
+				fz.setDauer(0);
 			}
-			catch( Exception e ) {
-				this.log("Forschungszentrum "+fzdRow.getInt("id")+" failed: "+e);
+			catch( RuntimeException e ) {
+				this.log("Forschungszentrum "+fz.getBaseId()+" failed: "+e);
 				e.printStackTrace();
-				Common.mailThrowable(e, "ForschungsTick Exception", "Forschungszentrum: "+fzdRow.getInt("id"));
+				Common.mailThrowable(e, "ForschungsTick Exception", "Forschungszentrum: "+fz.getBaseId());
+				
+				throw e;
 			}
 		}
-		fzdRow.free();
+
+		int count = db.createQuery("update Forschungszentrum as f " +
+				"set f.dauer=f.dauer-1 " +
+				"where f.dauer!=0 and f.col in (select id from Base where id=f.col and (owner.vaccount=0 or owner.wait4vac!=0))")
+			.executeUpdate();
 		
-		db.update("UPDATE fz SET dauer=dauer-1 WHERE dauer!=0 AND NOT (id IN (",Common.implode(",",vaclist.toArray()),"))");
-		log("Laufende Forschungen: "+db.affectedRows());
+		log("Laufende Forschungen: "+count);
 	}
 
 }

@@ -1181,19 +1181,15 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 		if( offizier != null ) {
 			t.setBlock("_SCHIFF", "offiziere.listitem", "offiziere.list");
 			
-			SQLQuery offi = db.query("SELECT * FROM offiziere WHERE dest='s ",ship.getInt("id"),"'");
-		
-			while( offi.next() ) {
-				Offizier offiObj = new Offizier( offi.getRow() );
-				
-				t.setVar(	"offizier.id",		offiObj.getID(),
-							"offizier.name",	Common._plaintitle(offiObj.getName()),
-							"offizier.picture",	offiObj.getPicture(),
-							"offizier.rang",	offiObj.getRang() );
+			List<Offizier> offiziere = getContext().query("from Offizier where dest='s "+ship.getInt("id")+"'", Offizier.class);
+			for( Offizier offi : offiziere ) {
+				t.setVar(	"offizier.id",		offi.getID(),
+							"offizier.name",	Common._plaintitle(offi.getName()),
+							"offizier.picture",	offi.getPicture(),
+							"offizier.rang",	offi.getRang() );
 									
 				t.parse("offiziere.list", "offiziere.listitem", true);
 			}
-			offi.free();
 		}
 		
 		shiptype.put("sensorrange", Math.round(shiptype.getInt("sensorrange")*(ship.getInt("sensors")/100f)));

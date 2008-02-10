@@ -19,33 +19,42 @@
 package net.driftingsouls.ds2.server.bases;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import net.driftingsouls.ds2.server.Forschung;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.entities.Forschung;
+import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.hibernate.annotations.Immutable;
 
-class Forschungszentrum extends DefaultBuilding {
+/**
+ * Das Forschungszentrum
+ * @author Christopher Jung
+ *
+ */
+@Entity(name="ForschungszentrumBuilding")
+@Immutable
+@DiscriminatorValue("net.driftingsouls.ds2.server.bases.ForschungszentrumBuilding")
+public class ForschungszentrumBuilding extends DefaultBuilding {
 	/**
 	 * Erstellt eine neue Forschungszentrum-Instanz
-	 * @param row Die SQL-Ergebniszeile mit den Gebaeudedaten des Forschungszentrums
 	 */
-	public Forschungszentrum(SQLResultRow row) {
-		super(row);
+	public ForschungszentrumBuilding() {
+		// EMPTY
 	}
 
 	@Override
@@ -56,15 +65,20 @@ class Forschungszentrum extends DefaultBuilding {
 		if( context == null ) {
 			throw new RuntimeException("No Context available");
 		}
+		org.hibernate.Session db = context.getDB();
 		
-		context.getDatabase().update("INSERT INTO fz VALUES(0,"+base.getId()+",1,0,0)");
+		Forschungszentrum fz = new Forschungszentrum(base);
+		db.persist(fz);
 	}
 
 	@Override
 	public void cleanup(Context context, Base base) {
 		super.cleanup(context, base);
 		
-		context.getDatabase().update("DELETE FROM fz WHERE col="+base.getId());
+		org.hibernate.Session db = context.getDB();
+		db.createQuery("delete from Forschungszentrum where base=?")
+			.setEntity(0, base)
+			.executeUpdate();
 	}
 	
 	@Override
@@ -79,13 +93,13 @@ class Forschungszentrum extends DefaultBuilding {
 
 	@Override
 	public boolean isActive(Base base, int status, int field) {
-		Database db = ContextMap.getContext().getDatabase();
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		SQLResultRow forschungszentrum = db.first( "SELECT dauer FROM fz WHERE col=",base.getId());
-		if( !forschungszentrum.isEmpty() && (forschungszentrum.getInt("dauer") > 0) ) {
+		Forschungszentrum fz = (Forschungszentrum)db.get(Forschungszentrum.class, base.getId());
+		if( (fz != null) && (fz.getDauer() > 0) ) {
 			return true;
 		}
-		else if( forschungszentrum.isEmpty() ) {
+		else if( fz == null ) {
 			LOG.warn("Forschungszentrum ohne fz-Eintrag auf Basis "+base.getId()+" gefunden");
 		}
 		return false;
@@ -93,29 +107,29 @@ class Forschungszentrum extends DefaultBuilding {
 
 	@Override
 	public String echoShortcut(Context context, Base base, int field, int building) {
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		
 		String sess = context.getSession();
 		
 		StringBuilder result = new StringBuilder(100);
-		SQLResultRow fz = db.first("SELECT id,dauer,forschung FROM fz WHERE col="+base.getId());
-		if( !fz.isEmpty() ) {
-			if( fz.getInt("dauer") == 0 ) {
-				result.append("<a class=\"back\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"\">[F]</a>");
+		Forschungszentrum fz = (Forschungszentrum)db.get(Forschungszentrum.class, base.getId());
+		if( fz != null ) {
+			if( fz.getDauer() == 0 ) {
+				result.append("<a class=\"back\" href=\"./ds?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"\">[F]</a>");
 			}
 			else {
 				StringBuilder popup = new StringBuilder(Common.tableBegin( 350, "left" ).replace("\"", "'") );
-				SQLResultRow forschung = db.first("SELECT name FROM forschungen WHERE id="+fz.getInt("forschung"));
-				popup.append("<img align='left' border='0' src='"+Configuration.getSetting("URL")+"data/tech/"+fz.getInt("forschung")+".gif' alt='' />");
-				popup.append(forschung.getString("name")+"<br />");
-				popup.append("Dauer: noch <img src='"+Configuration.getSetting("URL")+"data/interface/time.gif' alt='noch ' />"+fz.getInt("dauer")+"<br />");
+				Forschung forschung = Forschung.getInstance(fz.getForschung());
+				popup.append("<img align='left' border='0' src='"+Configuration.getSetting("URL")+"data/tech/"+fz.getForschung()+".gif' alt='' />");
+				popup.append(forschung.getName()+"<br />");
+				popup.append("Dauer: noch <img src='"+Configuration.getSetting("URL")+"data/interface/time.gif' alt='noch ' />"+fz.getDauer()+"<br />");
 				popup.append( Common.tableEnd().replace("\"", "'") );
 
 				result.append("<a name=\"p"+base.getId()+"_"+field+"\" id=\"p"+base.getId()+"_"+field+"\" " +
 						"class=\"error\" " +
 						"onmouseover=\"return overlib('<span style=\\'font-size:13px\\'>"+StringEscapeUtils.escapeJavaScript(popup.toString())+"</span>',REF,'p"+base.getId()+"_"+field+"',REFY,22,NOJUSTY,TIMEOUT,0,DELAY,150,WIDTH,280,BGCLASS,'gfxtooltip',FGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');\" " +
 						"onmouseout=\"return nd();\" " +
-						"href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"\">[F]<span style=\"font-weight:normal\">"+fz.getInt("dauer")+"</span></a>");
+						"href=\"./ds?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"\">[F]<span style=\"font-weight:normal\">"+fz.getDauer()+"</span></a>");
 			}
 		}
 		else {
@@ -124,8 +138,8 @@ class Forschungszentrum extends DefaultBuilding {
 		return result.toString();
 	}
 	
-	private void possibleResearch(Context context, StringBuilder echo, Base base, int field) {
-		Database db = context.getDatabase();
+	private void possibleResearch(Context context, StringBuilder echo, Forschungszentrum fz, int field) {
+		org.hibernate.Session db = context.getDB();
 		String sess = context.getSession();
 		
 		User user = (User)context.getActiveUser();
@@ -137,21 +151,24 @@ class Forschungszentrum extends DefaultBuilding {
 		echo.append("<td class=\"noBorderX\">Kosten</td>\n");
 		echo.append("</tr>\n");
 	
+		Base base = fz.getBase();
 		Cargo cargo = base.getCargo();
 	
 		List<Integer> researches = new ArrayList<Integer>();
-		SQLQuery research = db.query("SELECT fz.forschung " +
-				"FROM fz JOIN bases AS b ON fz.col=b.id " +
-				"WHERE fz.forschung>0 AND b.owner=",user.getId());
-		while( research.next() ) {
-			researches.add(research.getInt("forschung"));
+		List researchList = db.createQuery("from Forschungszentrum " +
+				"where forschung>0 and base.owner=?")
+				.setEntity(0, user)
+				.list();
+		for( Iterator iter=researchList.iterator(); iter.hasNext(); ) {
+			Forschungszentrum aFz = (Forschungszentrum)iter.next();
+			
+			researches.add(aFz.getForschung());
 		}
-		research.free();
 		
 		boolean first = true;
 	
-		Map<Integer,Forschung> map = Forschung.getSpecial("", "name");
-		for( Forschung tech : map.values() ) {
+		List<Forschung> forschungen = context.query("from Forschung order by name", Forschung.class);
+		for( Forschung tech : forschungen ) {
 			if( !Rassen.get().rasse(user.getRace()).isMemberIn(tech.getRace()) ) {
 				continue;	
 			}
@@ -181,23 +198,23 @@ class Forschungszentrum extends DefaultBuilding {
 				echo.append("<tr>\n");
 				echo.append("<td class=\"noBorderX\" style=\"width:60%\">\n");
 				if( !user.isNoob() || !tech.hasFlag(Forschung.FLAG_DROP_NOOB_PROTECTION) ) {
-					echo.append("<a class=\"forschinfo\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;res="+tech.getID()+"\">"+Common._plaintitle(tech.getName())+"</a>\n");
+					echo.append("<a class=\"forschinfo\" href=\"./ds?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;res="+tech.getID()+"\">"+Common._plaintitle(tech.getName())+"</a>\n");
 				}
 				else {
 					echo.append("<a class=\"forschinfo\" " +
 							"href=\"javascript:ask(" +
 								"'Achtung!\\nWenn Sie diese Technologie erforschen verlieren sie den GCP-Schutz. Dies bedeutet, dass Sie sowohl angreifen als auch angegriffen werden k&ouml;nnen'," +
-								"'./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;res="+tech.getID()+"'" +
+								"'./ds?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;res="+tech.getID()+"'" +
 							")\">"+Common._plaintitle(tech.getName())+"</a>\n");
 				}
-				echo.append("<a class=\"forschinfo\" href=\"./main.php?module=forschinfo&amp;sess="+sess+"&amp;res="+tech.getID()+"\"><img style=\"border:0px;vertical-align:middle\" src=\""+Configuration.getSetting("URL")+"data/interface/forschung/info.gif\" alt=\"?\" /></a>\n");
+				echo.append("<a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;sess="+sess+"&amp;res="+tech.getID()+"\"><img style=\"border:0px;vertical-align:middle\" src=\""+Configuration.getSetting("URL")+"data/interface/forschung/info.gif\" alt=\"?\" /></a>\n");
 				echo.append("&nbsp;&nbsp;");
 				echo.append("</td>\n");
 				
 				echo.append("<td class=\"noBorderX\">");
 				echo.append("<img style=\"vertical-align:middle\" src=\""+Configuration.getSetting("URL")+"data/interface/time.gif\" alt=\"Dauer\" />"+tech.getTime()+" ");
 				
-				Cargo costs = new Cargo( Cargo.Type.STRING, tech.getCosts() );
+				Cargo costs = tech.getCosts();
 				costs.setOption( Cargo.Option.SHOWMASS, false );
 				
 				ResourceList reslist = costs.compare( cargo, false );
@@ -218,7 +235,7 @@ class Forschungszentrum extends DefaultBuilding {
 	}
 	
 	private void alreadyResearched( Context context, StringBuilder echo ) {
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		String sess = context.getSession();
 		
 		User user = (User)context.getActiveUser();
@@ -226,73 +243,69 @@ class Forschungszentrum extends DefaultBuilding {
 		echo.append("<table class=\"noBorderX\">");
 		echo.append("<tr><td class=\"noBorderX\" align=\"left\">Bereits erforscht:</td></tr>\n");
 	
-		for( int i = 1; i < 100; i++ ) {
-			if( user.hasResearched(i) ) {
-				SQLResultRow tech = db.first("SELECT name FROM forschungen WHERE id=",i);
-				if( tech.isEmpty() ) {
-					continue;
-				}
+		final Iterator forschungIter = db.createQuery("from Forschung order by id").iterate();
+		while( forschungIter.hasNext() ) {
+			Forschung tech = (Forschung)forschungIter.next();
+			
+			if( user.hasResearched(tech.getID()) ) {
 				echo.append("<tr><td class=\"noBorderX\">\n");
-				echo.append("<a class=\"forschinfo\" href=\"./main.php?module=forschinfo&amp;sess="+sess+"&amp;res="+i+"\">"+Common._plaintitle(tech.getString("name"))+"</a>");
+				echo.append("<a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;sess="+sess+"&amp;res="+tech.getID()+"\">"+Common._plaintitle(tech.getName())+"</a>");
 				echo.append("</td></tr>\n");
 			}
 		}
 		echo.append("</table><br />");
 	}
 	
-	private boolean currentResearch(Context context, StringBuilder echo, Base base, int field ) {
-		Database db = context.getDatabase();
+	private boolean currentResearch(Context context, StringBuilder echo, Forschungszentrum fz, int field ) {
 		String sess = context.getSession();
 		
-		SQLResultRow fz = db.first("SELECT fz.forschung,fz.dauer,f.name " +
-				"FROM fz JOIN forschungen AS f ON fz.forschung=f.id " +
-				"WHERE fz.col="+base.getId());
-	
-		if( !fz.isEmpty() ) {
-			echo.append("<img style=\"float:left;border:0px\" src=\""+Configuration.getSetting("URL")+"data/tech/"+fz.getInt("forschung")+".gif\" alt=\"\" />");
-			echo.append("Erforscht: <a class=\"forschinfo\" href=\"./main.php?module=forschinfo&amp;sess="+sess+"&amp;res="+fz.getInt("forschung")+"\">"+Common._plaintitle(fz.getString("name"))+"</a>\n");
-			echo.append("[<a class=\"error\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;kill=yes\">x</a>]<br />\n");
-			echo.append("Dauer: noch <img style=\"vertical-align:middle\" src=\""+Configuration.getSetting("URL")+"data/interface/time.gif\" alt=\"\" />"+fz.getInt("dauer")+" Runden\n");
+		Forschung tech = Forschung.getInstance(fz.getForschung());
+		if( tech != null ) {
+			echo.append("<img style=\"float:left;border:0px\" src=\""+Configuration.getSetting("URL")+"data/tech/"+tech.getID()+".gif\" alt=\"\" />");
+			echo.append("Erforscht: <a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;sess="+sess+"&amp;res="+tech.getID()+"\">"+Common._plaintitle(tech.getName())+"</a>\n");
+			echo.append("[<a class=\"error\" href=\"./ds?module=building&amp;sess="+sess+"&amp;col="+fz.getBase().getId()+"&amp;field="+field+"&amp;kill=yes\">x</a>]<br />\n");
+			echo.append("Dauer: noch <img style=\"vertical-align:middle\" src=\""+Configuration.getSetting("URL")+"data/interface/time.gif\" alt=\"\" />"+fz.getDauer()+" Runden\n");
 			echo.append("<br /><br />\n");
 			return true;
 		} 
 		return false;
 	}
 	
-	private void killResearch(Context context, StringBuilder echo, Base base, int field, String conf) {
-		Database db = context.getDatabase();
+	private void killResearch(Context context, StringBuilder echo, Forschungszentrum fz, int field, String conf) {
 		String sess = context.getSession();
 		
 		if( !conf.equals("ok") ) {
 			echo.append("<div style=\"text-align:center\">\n");
 			echo.append("Wollen sie die Forschung wirklich abbrechen?<br />\n");
 			echo.append("Achtung: Es erfolgt keine R&uuml;ckerstattung der Resourcen!<br /><br />\n");
-			echo.append("<a class=\"error\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;kill=yes&amp;conf=ok\">Forschung abbrechen</a><br />\n");
+			echo.append("<a class=\"error\" href=\"./ds?module=building&amp;sess="+sess+"&amp;col="+fz.getBase().getId()+"&amp;field="+field+"&amp;kill=yes&amp;conf=ok\">Forschung abbrechen</a><br />\n");
 			echo.append("</div>\n");
 			return;
 		}
-		db.update("UPDATE fz SET forschung=0,dauer=0 WHERE col=",base.getId());
+		
+		fz.setForschung(0);
+		fz.setDauer(0);
+		
 		echo.append("<div style=\"text-align:center;color:red;font-weight:bold\">\n");
 		echo.append("Forschung abgebrochen<br />\n");
 		echo.append("</div>");
 	}
 	
-	private void doResearch(Context context, StringBuilder echo, int researchid, Base base, int field, String conf) {
-		Database db = context.getDatabase();
+	private void doResearch(Context context, StringBuilder echo, Forschungszentrum fz, int researchid, int field, String conf) {
 		String sess = context.getSession();
 		User user = (User)context.getActiveUser();
-	
-		SQLResultRow fz = db.first("SELECT forschung,dauer FROM fz WHERE col="+base.getId());
-	
+
+		Base base = fz.getBase();
+		
 		Forschung tech = Forschung.getInstance(researchid);
 		boolean ok = true;
 	
 		if( !Rassen.get().rasse(user.getRace()).isMemberIn(tech.getRace()) ) {
-			echo.append("<a class=\"error\" href=\"./main.php?module=base&amp;sess="+sess+"&amp;col="+base.getId()+"\">Fehler: Diese Forschung kann von ihrer Rasse nicht erforscht werden</a>\n");
+			echo.append("<a class=\"error\" href=\"./ds?module=base&amp;sess="+sess+"&amp;col="+base.getId()+"\">Fehler: Diese Forschung kann von ihrer Rasse nicht erforscht werden</a>\n");
 			return;
 		}
 		
-		Cargo techCosts = new Cargo( Cargo.Type.STRING, tech.getCosts() );
+		Cargo techCosts = tech.getCosts();
 		techCosts.setOption( Cargo.Option.SHOWMASS, false );
 	
 		// Muss der User die Forschung noch best?tigen?
@@ -306,14 +319,14 @@ class Forschungszentrum extends DefaultBuilding {
 			}
 			
 			echo.append("<br /><br />\n");
-			echo.append("<a class=\"ok\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;res="+researchid+"&amp;conf=ok\">Erforschen</a></span><br />\n");
+			echo.append("<a class=\"ok\" href=\"./ds?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;res="+researchid+"&amp;conf=ok\">Erforschen</a></span><br />\n");
 			echo.append("</div>\n");
 			
 			return;
 		}
 	
 		// Wird bereits im Forschungszentrum geforscht?
-		if( fz.getInt("forschung") != 0 ) {
+		if( fz.getForschung() != 0 ) {
 			ok = false;
 		}
 	
@@ -326,12 +339,12 @@ class Forschungszentrum extends DefaultBuilding {
 		}
 	
 		if( !ok ) {
-			echo.append("<a class=\"error\" href=\"./main.php?module=base&amp;sess="+sess+"&amp;col="+base.getId()+"\">Fehler: Forschung kann nicht durchgef&uuml;hrt werden</a>\n");
+			echo.append("<a class=\"error\" href=\"./ds?module=base&amp;sess="+sess+"&amp;col="+base.getId()+"\">Fehler: Forschung kann nicht durchgef&uuml;hrt werden</a>\n");
 			return;
 		}
 	
 		// Alles bis hierhin ok -> nun zu den Resourcen!
-		Cargo cargo = base.getCargo();
+		Cargo cargo = new Cargo(base.getCargo());
 		ok = true;
 		
 		ResourceList reslist = techCosts.compare( cargo, false );
@@ -349,21 +362,15 @@ class Forschungszentrum extends DefaultBuilding {
 			echo.append(Common._plaintitle(tech.getName())+" wird erforscht<br />\n");
 			echo.append("</div>\n");
 			
-			db.tBegin();
-			db.tUpdate(1,"UPDATE fz SET forschung=",researchid,",dauer=",tech.getTime()," WHERE col="+base.getId()+" AND forschung=0 AND dauer=0");
+			fz.setForschung(researchid);
+			fz.setDauer(tech.getTime());
 			base.setCargo(cargo);
-			
-			if( !db.tCommit() ) {
-				context.addError("Beim Starten der Forschung ist ein Fehler aufgetreten. Bitte versuchen sie es sp&auml;ter erneut");
-			}
 		}
 	}
 
 	@Override
-	public String output(TemplateEngine t, Base base, int field, int building) {
-		Context context = ContextMap.getContext();
-		
-		Database db = context.getDatabase();
+	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
+		org.hibernate.Session db = context.getDB();
 
 		String sess = context.getSession();
 		
@@ -377,8 +384,8 @@ class Forschungszentrum extends DefaultBuilding {
 		
 		StringBuilder echo = new StringBuilder(2000);
 		
-		SQLResultRow fz = db.first("SELECT id FROM fz WHERE col="+base.getId());
-		if( fz.isEmpty() ) {
+		Forschungszentrum fz = (Forschungszentrum)db.get(Forschungszentrum.class, base.getId());
+		if( fz == null ) {
 			echo.append("<span style=\"color:red\">Fehler: Dieses Forschungszentrum hat keinen Datenbank-Eintrag</span>\n");
 			return echo.toString();
 		}
@@ -391,8 +398,8 @@ class Forschungszentrum extends DefaultBuilding {
 	
 		echo.append(Common.tableBegin( 440, "center" ));
 		
-		echo.append("<a class=\"forschinfo\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;show=newres\">Neue Forschung</a>&nbsp;\n");
-		echo.append("&nbsp;|&nbsp;&nbsp;<a class=\"forschinfo\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;show=oldres\">Bereits erforscht</a>\n");
+		echo.append("<a class=\"forschinfo\" href=\"./ds?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;show=newres\">Neue Forschung</a>&nbsp;\n");
+		echo.append("&nbsp;|&nbsp;&nbsp;<a class=\"forschinfo\" href=\"./ds?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;show=oldres\">Bereits erforscht</a>\n");
 		
 		echo.append(Common.tableEnd());
 
@@ -406,15 +413,15 @@ class Forschungszentrum extends DefaultBuilding {
 		
 		if( (kill.length() != 0) || (research != 0) ) {
 			if( kill.length() != 0 ) {
-				killResearch( context, echo, base, field, confirm);
+				killResearch( context, echo, fz, field, confirm);
 			}
 			if( research != 0 ) {
-				doResearch( context, echo, research, base, field, confirm );
+				doResearch( context, echo, fz, research, field, confirm );
 			}
 		}
 		else if( show.equals("newres") ) {
-			if( !currentResearch( context, echo, base, field ) ) {
-				possibleResearch( context, echo, base, field );
+			if( !currentResearch( context, echo, fz, field ) ) {
+				possibleResearch( context, echo, fz, field );
 			}
 		} 
 		else {

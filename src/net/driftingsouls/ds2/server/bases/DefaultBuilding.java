@@ -18,14 +18,17 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
-import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+
+import org.hibernate.annotations.Immutable;
 
 /**
  * <h1>Das Standardgebaeude in DS</h1>
@@ -34,28 +37,15 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * @author Christopher Jung
  *
  */
-class DefaultBuilding extends Building {
-	private SQLResultRow data;
-	
+@Entity
+@Immutable
+@DiscriminatorValue("net.driftingsouls.ds2.server.bases.DefaultBuilding")
+public class DefaultBuilding extends Building {
 	/**
 	 * Erstellt eine neue Gebaeude-Instanz
-	 * @param row Die SQL-Ergebniszeile mit den Gebaeudedaten
 	 */
-	public DefaultBuilding(SQLResultRow row) {
-		data = row;
-		data.put("consumes", new UnmodifiableCargo(new Cargo(Cargo.Type.STRING, data.getString("consumes"))) );
-		data.put("produces", new UnmodifiableCargo(new Cargo(Cargo.Type.STRING, data.getString("produces"))) );
-		data.put("buildcosts", new UnmodifiableCargo(new Cargo(Cargo.Type.STRING, data.getString("buildcosts"))) );
-	}
-
-	@Override
-	public int getBewohner() {
-		return data.getInt("bewohner");
-	}
-
-	@Override
-	public int getArbeiter() {
-		return data.getInt("arbeiter");
+	public DefaultBuilding() {
+		// EMPTY
 	}
 
 	@Override
@@ -95,7 +85,7 @@ class DefaultBuilding extends Building {
 	}
 
 	@Override
-	public String output(TemplateEngine t, Base base, int field, int building) {
+	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("Verbraucht:<br />\n");
 		buffer.append("<div align=\"center\">\n");
@@ -134,80 +124,4 @@ class DefaultBuilding extends Building {
 		buffer.append("</div><br />\n");
 		return buffer.toString();
 	}
-
-	@Override
-	public int getId() {
-		return data.getInt("id");
-	}
-
-	@Override
-	public String getName() {
-		return data.getString("name");
-	}
-
-	@Override
-	public String getPicture() {
-		return data.getString("picture");
-	}
-
-	@Override
-	public Cargo getBuildCosts() {
-		return (Cargo)data.get("buildcosts");
-	}
-
-	@Override
-	public Cargo getProduces() {
-		return (Cargo)data.get("produces");
-	}
-
-	@Override
-	public Cargo getConsumes() {
-		return (Cargo)data.get("consumes");
-	}
-
-	@Override
-	public int getEVerbrauch() {
-		return data.getInt("ever");
-	}
-
-	@Override
-	public int getEProduktion() {
-		return data.getInt("eprodu");
-	}
-
-	@Override
-	public int getTechRequired() {
-		return data.getInt("techreq");
-	}
-
-	@Override
-	public int getEPS() {
-		return data.getInt("eps");
-	}
-
-	@Override
-	public int getPerPlanetCount() {
-		return data.getInt("perplanet");
-	}
-
-	@Override
-	public int getPerUserCount() {
-		return data.getInt("perowner");
-	}
-
-	@Override
-	public int getCategory() {
-		return data.getInt("category");
-	}
-
-	@Override
-	public boolean isUComplex() {
-		return data.getInt("ucomplex") == 1;
-	}
-
-	@Override
-	public boolean isDeakAble() {
-		return data.getBoolean("deakable");
-	}
-
 }

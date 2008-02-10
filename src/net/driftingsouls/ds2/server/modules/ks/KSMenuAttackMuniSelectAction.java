@@ -273,7 +273,7 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 				IEAmmo effect = (IEAmmo)item.getItemEffect();
 				Item itemobject = item.getItemObject();
 						
-				if( ammoids.contains(effect.getAmmoID()) ) {
+				if( ammoids.contains(effect.getAmmo().getId()) ) {
 					menuEntry(itemobject.getName(),	"ship",		ownShip.getInt("id"),
 													"attack",	enemyShip.getInt("id"),
 													"ksaction",	"attack2",

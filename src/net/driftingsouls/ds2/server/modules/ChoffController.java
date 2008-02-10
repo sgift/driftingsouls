@@ -22,8 +22,6 @@ import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -48,26 +46,25 @@ public class ChoffController extends TemplateGenerator {
 		
 		setTemplate("choff.html");
 		
-		parameterNumber("off");		
+		parameterNumber("off");
+		
+		setPageTitle("Offizier");
 	}
 	
 	@Override
 	protected boolean validateAndPrepare( String action ) {
-		Database db = getDatabase();
 		User user = (User)getUser();
 		
 		int off = getInteger("off");
 
-		SQLResultRow offizierRow = db.first("SELECT * FROM offiziere WHERE id=",off);		
-		if( offizierRow.isEmpty() ) {
+		Offizier offizier = (Offizier)getDB().get(Offizier.class, off);		
+		if( offizier == null ) {
 			addError("Der angegebene Offizier ist ung&uuml;ltig", Common.buildUrl("default", "module", "ueber") );
 			
 			return false;
 		}
 
-		Offizier offizier = new Offizier( offizierRow );
-
-		if( offizier.getOwner() != user.getId() ) {
+		if( offizier.getOwner() != user ) {
 			addError("Dieser Offizier untersteht nicht ihrem Kommando", Common.buildUrl("default", "module", "ueber") );
 			
 			return false;
@@ -92,7 +89,6 @@ public class ChoffController extends TemplateGenerator {
 		String name = getString("name");
 		if( name.length() != 0 ) {
 			offizier.setName(name);
-			offizier.save();
 			
 			t.setVar("choff.message", "Der Name wurde in "+Common._plaintitle(name)+" ge&auml;ndert");
 		}
@@ -103,8 +99,8 @@ public class ChoffController extends TemplateGenerator {
 		redirect();	
 	}
 	
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
 		

@@ -1,6 +1,6 @@
 /*
  *	Drifting Souls 2
- *	Copyright (c) 2006 Christopher Jung
+ *	Copyright (c) 2007 Christopher Jung
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -16,30 +16,48 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.bases;
+package net.driftingsouls.ds2.server.entities;
 
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 import org.hibernate.annotations.Immutable;
 
 /**
- * <h1>Die Standardcore in DS</h1>
- * Alle Cores, welche keine eigene Core-Klasse besitzen, werden von
- * dieser Klasse bearbeitet.
- * 
+ * Repraesentiert einen Hilfeeintrag zu einer Seite in DS
  * @author Christopher Jung
  *
  */
 @Entity
 @Immutable
-@DiscriminatorValue("1")
-public class DefaultCore extends Core {
+@Table(name="gui_help")
+public class GuiHelpText {
+	@Id
+	private String page;
+	private String text;
+	
 	/**
-	 * Erstellt eine neue Core-Instanz
+	 * Konstruktor
+	 *
 	 */
-	public DefaultCore() {
+	public GuiHelpText() {
 		// EMPTY
 	}
 
+	/**
+	 * Gibt den Namen der Seite zurueck
+	 * @return Der Seitenname
+	 */
+	public String getPage() {
+		return page;
+	}
+
+	/**
+	 * Gibt den Hilfetext zurueck
+	 * @return Der Hilfetext
+	 */
+	public String getText() {
+		return text;
+	}
 }

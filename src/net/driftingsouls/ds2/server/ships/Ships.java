@@ -984,10 +984,6 @@ public class Ships implements Loggable {
 				if( fleetship.getInt("dockedcount") > 0 ) {
 					updateDocked.update(fleetship.getInt("x"), fleetship.getInt("y"), fleetship.getInt("system"), "l "+fleetship.getInt("id"), Integer.toString(fleetship.getInt("id")));
 				}
-	
-				if( fleetdata.offiziere.containsKey(fleetship.getInt("id")) ) {
-					fleetdata.offiziere.get(fleetship.getInt("id")).save();	
-				}
 				
 				recalculateShipStatus(fleetship.getInt("id"));
 			}
@@ -1255,10 +1251,6 @@ public class Ships implements Loggable {
 							}
 							recalculateShipStatus(ship.getInt("id"));
 							saveFleetShips();
-			
-							if( offizier != null ) {
-								offizier.save();
-							}
 							
 							ScriptParser scriptparser = ContextMap.getContext().get(ContextCommon.class).getScriptParser(ScriptParser.NameSpace.QUEST);
 							scriptparser.setShip(ship);
@@ -1290,10 +1282,6 @@ public class Ships implements Loggable {
 						}
 						recalculateShipStatus(ship.getInt("id"));
 						saveFleetShips();
-			
-						if( offizier != null ) {
-							offizier.save();
-						}
 						
 						handleRedAlert( ship );	
 					}
@@ -1320,10 +1308,6 @@ public class Ships implements Loggable {
 		}
 		recalculateShipStatus(ship.getInt("id"));
 		saveFleetShips();
-		
-		if( moved && (offizier != null) ) {
-			offizier.save();
-		}
 		
 		return error;
 	}

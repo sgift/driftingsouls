@@ -18,14 +18,22 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.Table;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.caches.CacheManager;
-import net.driftingsouls.ds2.server.framework.caches.ControllableCache;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.DiscriminatorFormula;
+import org.hibernate.annotations.Immutable;
+import org.hibernate.annotations.Type;
 
 //TODO: Warum Verbrauch/Produktion unterscheiden?
 /**
@@ -33,115 +41,149 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
  * @author Christopher Jung
  *
  */
+@Entity
+@Table(name="cores")
+@Immutable
+@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
+@DiscriminatorFormula("1")
+@Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
 public abstract class Core {
-	private static Map<Integer,Core> coreCache = new HashMap<Integer,Core>();
+	@Id
+	private int id;
+	private String name;
+	@Column(name="astitype")
+	private int astiType;
+	@Type(type="cargo")
+	private Cargo buildcosts;
+	@Type(type="cargo")
+	private Cargo produces;
+	@Type(type="cargo")
+	private Cargo consumes;
+	private int arbeiter;
+	@Column(name="ever")
+	private int eVerbrauch;
+	@Column(name="eprodu")
+	private int eProduktion;
+	private int bewohner;
+	@Column(name="techreq")
+	private int techReq;
+	private int eps;	
 	
-	static {
-		CacheManager.getInstance().registerCache(
-			new ControllableCache() {
-				public void clear() {
-					Core.clearCache();
-				}
-			}
-		);
-	}
-	
-	static void clearCache() {
-		synchronized(coreCache) {
-			coreCache.clear();
-		}
+	/**
+	 * Konstruktor
+	 *
+	 */
+	public Core() {
+		// EMPTY
 	}
 	
 	/**
 	 * Gibt eine Instanz der Coreklasse des angegebenen Coretyps zurueck.
 	 * Sollte kein passender Coretyp existieren, wird <code>null</code> zurueckgegeben.
-	 * @param id Die ID des Coretyps
 	 * 
+	 * @param id Die ID des Coretyps
 	 * @return Eine Instanz der zugehoerigen Coreklasse
 	 */
-	public static synchronized Core getCore(int id) {
-		if( !coreCache.containsKey(id) ) {
-			SQLResultRow row = ContextMap.getContext().getDatabase().first("SELECT * FROM cores WHERE id='",id,"'");
-			if( row.isEmpty() ) {
-				coreCache.put(id, null);
-			}
-			else {
-				coreCache.put(id, new DefaultCore(row));
-			}
-		}
-		return coreCache.get(id);
+	public static Core getCore(int id) {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		return (Core)db.get(Core.class, id);
 	}
 	
 	/**
 	 * Die ID des Coretyps
 	 * @return die ID
 	 */
-	public abstract int getId();
+	public int getId() {
+		return id;
+	}
 	
 	/**
 	 * Der Name der Core
 	 * @return der Name
 	 */
-	public abstract String getName();
+	public String getName() {
+		return name;
+	}
 	
 	/**
 	 * Gibt den Basis-Typ, in den die Core passt, zurueck
 	 * @return der Basistyp
-	 * @see OldBase#getKlasse()
+	 * @see Base#getKlasse()
 	 */
-	public abstract int getAstiType();
+	public int getAstiType() {
+		return astiType;
+	}
 	
 	/**
 	 * Gibt die Baukosten, welche zum errichten der Core notwendig sind, zurueck
 	 * @return die Baukosten
 	 */
-	public abstract Cargo getBuildCosts();
+	public Cargo getBuildCosts() {
+		return new UnmodifiableCargo(buildcosts);
+	}
 	
 	/**
 	 * Gibt die Produktion pro Tick der Core zurueck
 	 * @return die Produktion pro Tick
 	 */
-	public abstract Cargo getProduces();
+	public Cargo getProduces() {
+		return new UnmodifiableCargo(produces);
+	}
 	
 	/**
 	 * Gibt den Verbrauch pro Tick der Core zurueck
 	 * @return der Verbrauch pro Tick
 	 */
-	public abstract Cargo getConsumes();
+	public Cargo getConsumes() {
+		return new UnmodifiableCargo(consumes);
+	}
 	
 	/**
 	 * Gibt die Anzahl der zum Betrieb der Core notwendigen Arbeiter zurueck
 	 * @return die benoetigten Arbeiter
 	 */
-	public abstract int getArbeiter();
+	public int getArbeiter() {
+		return arbeiter;
+	}
 	
 	/**
 	 * Gibt den Energieverbrauch der Core pro Tick zurueck
 	 * @return der Energieverbrauch pro Tick
 	 */
-	public abstract int getEVerbrauch();
+	public int getEVerbrauch() {
+		return eVerbrauch;
+	}
 	
 	/**
 	 * Gibt die Energieproduktion der Core pro Tick zurueck
 	 * @return Die Energieproduktion pro Tick
 	 */
-	public abstract int getEProduktion();
+	public int getEProduktion() {
+		return eProduktion;
+	}
 	
 	/**
 	 * Gibt den durch die Core bereitgestellten Wohnraum zurueck
 	 * @return Der Wohnraum
 	 */
-	public abstract int getBewohner();
+	public int getBewohner() {
+		return bewohner;
+	}
 	
 	/**
 	 * Gibt die ID der Forschung zurueck, welche zum errichten der Core benoetigt wird
 	 * @return Die ID der benoetigten Forschung
 	 */
-	public abstract int getTechRequired();
+	public int getTechRequired() {
+		return techReq;
+	}
 	
 	/**
 	 * Unbekannt (?????) - Wird aber auch nicht verwendet
 	 * @return ????
 	 */
-	public abstract int getEPS();
+	public int getEPS() {
+		return eps;
+	}
 }

@@ -291,4 +291,35 @@
 		alter table `bases` add `marines` int unsigned not null default '0';
 		ALTER TABLE bases ADD COLUMN version INT NOT NULL DEFAULT '0';
 	]]></update>
+	<update type="structure" datum="2009-02-10"><![CDATA[
+		ALTER TABLE `transmissionen` CHANGE `title` `title` VARCHAR( 100 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+	
+		ALTER TABLE `weaponfactory` DROP `id`;
+		ALTER TABLE `weaponfactory` ADD PRIMARY KEY ( `col` );
+		ALTER TABLE `weaponfactory` DROP INDEX `col`;
+		
+		ALTER TABLE `fz` DROP `id`;
+		ALTER TABLE `fz` ADD PRIMARY KEY ( `col` );
+		ALTER TABLE `fz` DROP INDEX `col`;
+		
+		UPDATE buildings SET module='net.driftingsouls.ds2.server.bases.AcademyBuilding' WHERE module='net.driftingsouls.ds2.server.bases.Academy';
+		UPDATE buildings SET module='net.driftingsouls.ds2.server.bases.ForschungszentrumBuilding' WHERE module='net.driftingsouls.ds2.server.bases.Forschungszentrum';
+		
+		ALTER TABLE `ship_types` ADD `ablativeArmor` INT UNSIGNED NOT NULL AFTER `panzerung`;
+		ALTER TABLE `ships_modules` ADD `ablativeArmor` INT UNSIGNED NOT NULL AFTER `panzerung`;
+		ALTER TABLE `ship_types` ADD `srs` TINYINT NOT NULL DEFAULT '1';
+		ALTER TABLE `ships_modules` ADD `srs` TINYINT NOT NULL DEFAULT '1';
+		ALTER TABLE `ships_modules` ADD `scanCost` INT NOT NULL DEFAULT '0';
+		ALTER TABLE `ships_modules` ADD `pickingCost` INT NOT NULL DEFAULT '0';
+		ALTER TABLE `ship_types` ADD `scanCost` INT NOT NULL;
+		ALTER TABLE `ship_types` ADD `pickingCost` INT NOT NULL ;
+		alter table `ship_types` add `marines` int unsigned not null default '0';
+		alter table `ships_modules` add `marines` int unsigned not null default '0';
+		
+		CREATE TABLE `gui_help` (
+		  `page` varchar(30) NOT NULL,
+		  `text` text,
+		  PRIMARY KEY  (`page`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+	]]></update>
 </updates>

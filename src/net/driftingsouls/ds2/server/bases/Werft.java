@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+
 import net.driftingsouls.ds2.server.config.Items;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -31,14 +34,22 @@ import net.driftingsouls.ds2.server.werften.WerftGUI;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.hibernate.annotations.Immutable;
 
-class Werft extends DefaultBuilding {
+/**
+ * Die Werft
+ * @author Christopher Jung
+ *
+ */
+@Entity(name="WerftBuilding")
+@Immutable
+@DiscriminatorValue("net.driftingsouls.ds2.server.bases.Werft")
+public class Werft extends DefaultBuilding {
 	/**
 	 * Erstellt eine neue Instanz der Werft
-	 * @param row Die SQL-Ergebniszeile mit den Gebaeudedaten der Werft
 	 */
-	public Werft(SQLResultRow row) {
-		super(row);
+	public Werft() {
+		// EMPTY
 	}
 
 	@Override
@@ -168,9 +179,7 @@ class Werft extends DefaultBuilding {
 	}
 
 	@Override
-	public String output(TemplateEngine t, Base base, int field, int building) {
-		Context context = ContextMap.getContext();
-		
+	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
 		Database db = context.getDatabase();
 
 		String sess = context.getSession();

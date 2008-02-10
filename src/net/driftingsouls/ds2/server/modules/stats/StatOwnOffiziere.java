@@ -19,6 +19,8 @@
 package net.driftingsouls.ds2.server.modules.stats;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.Offizier;
@@ -28,7 +30,6 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.StatsController;
 
@@ -46,12 +47,11 @@ public class StatOwnOffiziere implements Statistic, Loggable {
 
 		StringBuffer echo = context.getResponse().getContent();
 	
-		SQLQuery offi = db.query("SELECT * ",
-					"FROM offiziere ",
-					"WHERE userid=",user.getId()," ",
-					"ORDER BY ing+nav+waf+sec+com DESC");
+		List offiziere = context.getDB().createQuery("from Offizier where userid=? order by ing+nav+waf+sec+com desc")
+			.setInteger(0, user.getId())
+			.list();
 					
-		if( offi.numRows() == 0 ) {
+		if( offiziere.size() == 0 ) {
 			echo.append("<div align=\"center\">Sie verf&uuml;gen &uuml;ber keine Offiziere</div>\n");
 			
 			return;	
@@ -63,8 +63,9 @@ public class StatOwnOffiziere implements Statistic, Loggable {
 		Map<Integer,String> ships = new HashMap<Integer,String>();
 		Map<Integer,String> bases = new HashMap<Integer,String>();
 		
-		while( offi.next() ) {
-			Offizier offizier = new Offizier(offi.getRow());
+		for( Iterator iter=offiziere.iterator(); iter.hasNext(); ) {
+			Offizier offizier = (Offizier)iter.next();
+			
 		   	echo.append("<tr>\n");
 			echo.append("<td class=\"noBorderX\"><img src=\""+offizier.getPicture()+"\" alt=\"Rang "+offizier.getRang()+"\" /> <a class=\"forschinfo\" href=\""+Common.buildUrl("default", "module", "choff", "off", offizier.getID())+"\">"+Common._title(offizier.getName())+"</a> ("+offizier.getID()+")</td>\n");
 			echo.append("<td class=\"noBorderX\">&nbsp;</td>\n");
@@ -107,9 +108,15 @@ public class StatOwnOffiziere implements Statistic, Loggable {
 			echo.append("<td class=\"noBorderX\">"+offizier.getSpecial().getName()+"</td>\n");
 			echo.append("</tr>\n");
 		}
-		offi.free();
 	
 		echo.append("</table><div><br /><br /></div>\n");
 	}
 
+	public boolean generateAllyData() {
+		return false;
+	}
+	
+	public int getRequiredData() {
+		return 0;
+	}
 }

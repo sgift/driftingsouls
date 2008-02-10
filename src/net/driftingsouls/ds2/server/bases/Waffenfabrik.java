@@ -23,8 +23,14 @@ import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
@@ -36,41 +42,30 @@ import net.driftingsouls.ds2.server.config.IEDraftAmmo;
 import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.ItemEffect;
 import net.driftingsouls.ds2.server.config.Items;
+import net.driftingsouls.ds2.server.entities.Ammo;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.WeaponFactory;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.hibernate.annotations.Immutable;
 
-class Waffenfabrik extends DefaultBuilding {
-	private static transient Map<Integer,SQLResultRow> ammolist = null;
-		
-	static void cacheAmmo() {
-		if( Waffenfabrik.ammolist == null ) {
-			Map<Integer,SQLResultRow> ammolist = new HashMap<Integer,SQLResultRow>();
-	
-			Database db = ContextMap.getContext().getDatabase();
-			SQLQuery ammo = db.query("SELECT * FROM ammo");
-			while( ammo.next() ) {
-				SQLResultRow ammorow = ammo.getRow();
-				ammorow.put("buildcosts", new Cargo( Cargo.Type.STRING, ammorow.getString("buildcosts")) );
-				ammolist.put(ammo.getInt("id"), ammorow);
-			}
-			ammo.free();
-	
-			Waffenfabrik.ammolist = ammolist;
-		}
-	}
-	
+/**
+ * Die Waffenfabrik
+ * @author Christopher Jung
+ *
+ */
+@Entity(name="WaffenfabrikBuilding")
+@Immutable
+@DiscriminatorValue("net.driftingsouls.ds2.server.bases.Waffenfabrik")
+public class Waffenfabrik extends DefaultBuilding {
 	private static class ContextVars {
-		Map<Integer,SQLResultRow> ownerammobase = new HashMap<Integer,SQLResultRow>();
+		Set<Ammo> ownerammobase = new HashSet<Ammo>();
 		Map<Integer,Cargo> stats = new HashMap<Integer,Cargo>();
 		Map<Integer,BigDecimal> usedcapacity = new HashMap<Integer,BigDecimal>();
 		
@@ -81,58 +76,61 @@ class Waffenfabrik extends DefaultBuilding {
 	
 	/**
 	 * Erstellt eine neue Instanz der Waffenfabrik
-	 * @param row Die SQL-Ergebniszeile mit den Gebaeudedaten der Waffenfabrik
 	 */
-	public Waffenfabrik(SQLResultRow row) {
-		super(row);
-		
-		cacheAmmo();
+	public Waffenfabrik() {
+		// EMPTY
 	}
 	
 	private String loaddata( Base base ) {
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		
 		User user = base.getOwner();
 		
 		ContextVars vars = (ContextVars)context.getVariable(getClass(), "values");
 		Integer lastUser = (Integer)context.getVariable(getClass(), "last_user");
 		
-		List<Integer> removelist = new ArrayList<Integer>();
+		List<Ammo> removelist = new ArrayList<Ammo>();
 		
 		if( (vars == null) || (user.getId() != lastUser.intValue()) ) {
 			vars = new ContextVars();
 			context.putVariable(getClass(), "values", vars);
 			context.putVariable(getClass(), "last_user", user.getId());
-			
-			for( SQLResultRow ammo : ammolist.values() ) {
-				if( !user.hasResearched(ammo.getInt("res1")) || !user.hasResearched(ammo.getInt("res2")) || !user.hasResearched(ammo.getInt("res3")) ) {
+		
+			// Iterator, da sich die Ammo-Objekte sich mit hoher Wahrscheinlichkeit
+			// bereits im Cache befinden
+			Iterator ammoIter = db.createQuery("from Ammo").list().iterator();
+			for( ; ammoIter.hasNext(); ) {
+				Ammo ammo = (Ammo)ammoIter.next();
+				if( !user.hasResearched(ammo.getRes1()) || !user.hasResearched(ammo.getRes2()) || !user.hasResearched(ammo.getRes3()) ) {
 					continue;
 				}
-				vars.ownerammobase.put(ammo.getInt("id"), ammo);
+				vars.ownerammobase.add(ammo);
 				
-				if( (ammo.getInt("replaces") != 0) && !removelist.contains(ammo.getInt("replaces")) ) {
-					removelist.add(ammo.getInt("replaces"));
+				if( (ammo.getReplaces() != null) && !removelist.contains(ammo.getReplaces()) ) {
+					removelist.add(ammo.getReplaces());
 				}
 			}
 			
-			if( user.getAlly() != null ) {			
+			if( user.getAlly() != null ) {
 				Cargo itemlist = new Cargo( Cargo.Type.ITEMSTRING, user.getAlly().getItems() );	
 				
 				List<ItemCargoEntry> list = itemlist.getItemsWithEffect( ItemEffect.Type.DRAFT_AMMO ) ;
 				for( ItemCargoEntry item : list ) {
 					IEDraftAmmo itemeffect = (IEDraftAmmo)item.getItemEffect();
-					vars.ownerammobase.put(itemeffect.getAmmoID(), ammolist.get(itemeffect.getAmmoID()));
+					Ammo ammo = itemeffect.getAmmo();
 					
-					if( (ammolist.get(itemeffect.getAmmoID()).getInt("replaces") != 0) && removelist.contains(ammolist.get(itemeffect.getAmmoID()).getInt("replaces")) ) {
-						removelist.add(ammolist.get(itemeffect.getAmmoID()).getInt("replaces"));
+					vars.ownerammobase.add(ammo);
+					
+					if( (ammo.getReplaces() != null) && removelist.contains(ammo.getReplaces()) ) {
+						removelist.add(ammo.getReplaces());
 					}
 				}
 			}
 			
 			// Alle Raks entfernen, die durch andere Raks ersetzt wurden (DB-Feld: replaces)
 			if( !removelist.isEmpty() ) {
-				for( Integer removeentry : removelist ) {
+				for( Ammo removeentry : removelist ) {
 					vars.ownerammobase.remove(removeentry);
 				}
 			}
@@ -146,62 +144,62 @@ class Waffenfabrik extends DefaultBuilding {
 			}
 			
 			boolean ok = true;
-			Map<Integer,SQLResultRow> thisammolist = vars.ownerammobase;	
+			Set<Ammo> thisammolist = vars.ownerammobase;	
 			
 			Cargo cargo = base.getCargo();
 			
 			List<ItemCargoEntry> list = cargo.getItemsWithEffect( ItemEffect.Type.DRAFT_AMMO ) ;
 			for( ItemCargoEntry item : list ) {
 				IEDraftAmmo itemeffect = (IEDraftAmmo)item.getItemEffect();
-				thisammolist.put(itemeffect.getAmmoID(), ammolist.get(itemeffect.getAmmoID()));
+				Ammo ammo = itemeffect.getAmmo();
+				
+				thisammolist.add(ammo);
 			}
 			
-			SQLResultRow wf = db.first( "SELECT produces FROM weaponfactory WHERE col=",base.getId());
-			if( wf.isEmpty() ) {
+			WeaponFactory wf = (WeaponFactory)db.get(WeaponFactory.class, base.getId());
+			if( wf == null ) {
 				LOG.warn("Basis "+base.getId()+" verfuegt ueber keinen Waffenfabrik-Eintrag, obwohl es eine Waffenfabrik hat");
+				return "Basis "+base.getId()+" verfuegt ueber keinen Waffenfabrik-Eintrag, obwohl es eine Waffenfabrik hat";
 			}
-			String[] plist = StringUtils.split(wf.getString("produces"), ';');
+			WeaponFactory.Task[] plist = wf.getProduces();
 			for( int i=0; i < plist.length; i++ ) {
-				String[] tmp = StringUtils.split(plist[i],'=');
-				int aid = Integer.parseInt(tmp[0]);
-				int count = Integer.parseInt(tmp[1]);
+				Ammo ammo = plist[i].getAmmo();
+				int count = plist[i].getCount();
 				
-				if( !ammolist.containsKey(aid) ) {
-					plist[i] = "";
+				if( ammo == null ) {
+					plist = (WeaponFactory.Task[])ArrayUtils.remove(plist, i);
+					i--;
 					continue;
 				}
 				
 				// Ammo ohne Plaene melden - veraltete Ammo aber ignorieren!
-				if( (count > 0) && !thisammolist.containsKey(aid) && !removelist.contains(aid) ) {
+				if( (count > 0) && !thisammolist.contains(ammo) && !removelist.contains(ammo) ) {
 					ok = false;
-					wfreason.append("Es existieren nicht die n&ouml;tigen Baupl&auml;ne f&uuml;r "+ammolist.get(aid).getString("name")+"\n");
+					wfreason.append("Es existieren nicht die n&ouml;tigen Baupl&auml;ne f&uuml;r "+ammo.getName()+"\n");
 					break;
 				}
-				else if( (count > 0) && !thisammolist.containsKey(aid) ) {
-					plist[i] = "";	
+				else if( (count > 0) && !thisammolist.contains(ammo) ) {
+					plist = (WeaponFactory.Task[])ArrayUtils.remove(plist, i);
+					i--;
 				}
 			}
 	         	
 			if( ok ) {
 				for( int i=0; i < plist.length; i++  ) {
-					if( plist[i].length() == 0 ) {
-						continue;
-					}
-					String[] tmp = StringUtils.split(plist[i],'=');
-					int aid = Integer.parseInt(tmp[0]);
-					int count = Integer.parseInt(tmp[1]);
+					Ammo ammo = plist[i].getAmmo();
+					int count = plist[i].getCount();
 					
 					if( !vars.usedcapacity.containsKey(base.getId()) ) {
 						vars.usedcapacity.put(base.getId(), new BigDecimal(0, MathContext.DECIMAL32));
 					}
-					vars.usedcapacity.put(base.getId(), vars.usedcapacity.get(base.getId()).add(new BigDecimal(ammolist.get(aid).getString("dauer")).multiply((new BigDecimal(count)))) );
+					vars.usedcapacity.put(base.getId(), vars.usedcapacity.get(base.getId()).add(ammo.getDauer().multiply((new BigDecimal(count)))) );
 					if( count > 0 ) {
-						Cargo tmpcargo = (Cargo)((Cargo)ammolist.get(aid).get("buildcosts")).clone();
+						Cargo tmpcargo = new Cargo(ammo.getBuildCosts());
 						if( count > 1 ) {
 							tmpcargo.multiply( count, Cargo.Round.NONE );
 						}
 						vars.stats.get(base.getId()).substractCargo( tmpcargo );
-						vars.stats.get(base.getId()).addResource( new ItemID(ammolist.get(aid).getInt("itemid")), count );
+						vars.stats.get(base.getId()).addResource( new ItemID(ammo.getItemId()), count );
 					}
 				}
 			}
@@ -222,14 +220,15 @@ class Waffenfabrik extends DefaultBuilding {
 	public void build(Base base) {
 		super.build(base);
 		
-		Database db = ContextMap.getContext().getDatabase();
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		WeaponFactory wf = (WeaponFactory)db.get(WeaponFactory.class, base.getId());
 		
-		SQLResultRow wfentry = db.first("SELECT id FROM weaponfactory WHERE col="+base.getId());
-		if( !wfentry.isEmpty() ) {
-			db.update("UPDATE weaponfactory SET count=count+1 WHERE id=",wfentry.getInt("id"));
+		if( wf != null ) {
+			wf.setCount(wf.getCount()+1);
 		} 
 		else {
-			db.update("INSERT INTO weaponfactory (count,col) VALUES (1,"+base.getId()+")");
+			wf = new WeaponFactory(base);
+			db.persist(wf);
 		}
 	}
 
@@ -245,53 +244,54 @@ class Waffenfabrik extends DefaultBuilding {
 
 	@Override
 	public void cleanup(Context context, Base base) {
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		
-		SQLResultRow wf = db.first("SELECT count,produces FROM weaponfactory WHERE col="+base.getId());
-		if( wf.getInt("count") > 1 ) {	
+		WeaponFactory wf = (WeaponFactory)db.get(WeaponFactory.class, base.getId());
+		if( wf.getCount() > 1 ) {	
 			BigDecimal usedcapacity = new BigDecimal(0, MathContext.DECIMAL32);
 	
-			String[] plist = StringUtils.split(wf.getString("produces"), ';');
+			WeaponFactory.Task[] plist = wf.getProduces();
 			for( int i=0; i < plist.length; i++ ) {
-				String[] tmp = StringUtils.split(plist[i], '=');
-				int aid = Integer.parseInt(tmp[0]);
-				int ammoCount = Integer.parseInt(tmp[1]);
-				usedcapacity = usedcapacity.add(new BigDecimal(ammolist.get(aid).getString("dauer")).multiply(new BigDecimal(ammoCount)));
+				Ammo ammo = plist[i].getAmmo();
+				int ammoCount = plist[i].getCount();
+				
+				usedcapacity = usedcapacity.add(ammo.getDauer().multiply(new BigDecimal(ammoCount)));
 			}
 	
-			if( usedcapacity.compareTo(new BigDecimal(wf.getInt("count")-1)) > 0 ) {
-				BigDecimal targetCapacity = new BigDecimal(wf.getInt("count")-1);
+			if( usedcapacity.compareTo(new BigDecimal(wf.getCount()-1)) > 0 ) {
+				BigDecimal targetCapacity = new BigDecimal(wf.getCount()-1);
 				
 				for( int i=0; i < plist.length; i++ ) {
-					String[] tmp = StringUtils.split(plist[i], '=');
-					int aid = Integer.parseInt(tmp[0]);
-					int ammoCount = Integer.parseInt(tmp[1]);
+					Ammo ammo = plist[i].getAmmo();
+					int ammoCount = plist[i].getCount();
 					
-					BigDecimal capUsedByAmmo = new BigDecimal(ammoCount).multiply(new BigDecimal(ammolist.get(aid).getString("dauer")));
+					BigDecimal capUsedByAmmo = new BigDecimal(ammoCount).multiply(ammo.getDauer());
 					
 					if( usedcapacity.subtract(capUsedByAmmo).compareTo(targetCapacity) < 0 ) {
 						BigDecimal capLeftForAmmo = capUsedByAmmo.subtract(usedcapacity.subtract(targetCapacity));
-						plist[i] = aid+"=" + capLeftForAmmo.divide(new BigDecimal(ammolist.get(aid).getString("dauer")), BigDecimal.ROUND_DOWN).intValue();
+						plist[i] = new WeaponFactory.Task(ammo, capLeftForAmmo.divide(ammo.getDauer(), BigDecimal.ROUND_DOWN).intValue());
 						break;
 					}
-					plist[i] = aid+"=0";
+					plist = (WeaponFactory.Task[])ArrayUtils.remove(plist, i);
+					i--;
+					
 					usedcapacity = usedcapacity.subtract(capUsedByAmmo);
 						
 					if( usedcapacity.compareTo(targetCapacity) <= 0 ) break;
 				}
-				wf.put("produces", Common.implode(";",plist));
+				wf.setProduces(plist);
 			}
-				
-			db.update("UPDATE weaponfactory SET count=count-1,produces='"+wf.getString("produces")+"' WHERE col="+base.getId());
+			
+			wf.setCount(wf.getCount()-1);
 		} 
 		else {
-			db.update("DELETE FROM weaponfactory WHERE col="+base.getId());
+			db.delete(wf);
 		}
 	}
 
 	@Override
 	public String echoShortcut(Context context, Base base, int field, int building) {
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		
 		String sess = context.getSession();
 		
@@ -301,18 +301,17 @@ class Waffenfabrik extends DefaultBuilding {
 		ContextVars vars = (ContextVars)ContextMap.getContext().getVariable(getClass(), "values");
 	
 		if( vars.usedcapacity.get(base.getId()).doubleValue() > 0 ) {
-			SQLResultRow wf = db.first("SELECT produces FROM weaponfactory WHERE col=",base.getId());
-			String[] prodlist = StringUtils.split(wf.getString("produces"), ';');
+			WeaponFactory wf = (WeaponFactory)db.get(WeaponFactory.class, base.getId());
+			WeaponFactory.Task[] prodlist = wf.getProduces();
 			
 			StringBuilder popup = new StringBuilder(200);
 			popup.append(Common.tableBegin(350, "left").replace('"', '\'') );
 				
 			for( int i=0; i < prodlist.length; i++ ) {
-				String[] prod = StringUtils.split(prodlist[i], '=');
-				int aid = Integer.parseInt(prod[0]);
-				int count = Integer.parseInt(prod[1]);
-				if( (count > 0) && vars.ownerammobase.containsKey(aid) ) {
-					popup.append(count+"x <img style='vertical-align:middle' src='"+Items.get().item(ammolist.get(aid).getInt("itemid")).getPicture()+"' alt='' />"+ammolist.get(aid).getString("name")+"<br />");
+				Ammo ammo = prodlist[i].getAmmo();
+				int count = prodlist[i].getCount();
+				if( (count > 0) && vars.ownerammobase.contains(ammo) ) {
+					popup.append(count+"x <img style='vertical-align:middle' src='"+Items.get().item(ammo.getItemId()).getPicture()+"' alt='' />"+ammo.getName()+"<br />");
 				}
 			}
 		
@@ -322,10 +321,10 @@ class Waffenfabrik extends DefaultBuilding {
 					"class=\"error\" " +
 					"onmouseover=\"return overlib('<span style=\\'font-size:13px\\'>"+StringEscapeUtils.escapeJavaScript(popup.toString())+"</span>',REF,'p"+base.getId()+"_"+field+"',REFY,22,NOJUSTY,TIMEOUT,0,DELAY,150,WIDTH,260,BGCLASS,'gfxtooltip',FGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');\" " +
 					"onmouseout=\"return nd();\" " +
-					"href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"\">[WF]</a>");
+					"href=\"./ds?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"\">[WF]</a>");
 		} 
 		else {
-			result.append("<a class=\"back\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"\">[WF]</a>");
+			result.append("<a class=\"back\" href=\"./ds?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"\">[WF]</a>");
 		}
 	
 		return result.toString();
@@ -363,9 +362,8 @@ class Waffenfabrik extends DefaultBuilding {
 	}
 
 	@Override
-	public String output(TemplateEngine t, Base base, int field, int building) {
-		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
+	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
+		org.hibernate.Session db = context.getDB();
 		User user = (User)context.getActiveUser();
 		
 		String sess = context.getSession();
@@ -375,9 +373,9 @@ class Waffenfabrik extends DefaultBuilding {
 		
 		StringBuilder echo = new StringBuilder(2000);
 		
-		SQLResultRow wf = db.first("SELECT * FROM weaponfactory WHERE col="+base.getId());
+		WeaponFactory wf = (WeaponFactory)db.get(WeaponFactory.class, base.getId());
 		
-		if( wf.isEmpty() ) {
+		if( wf == null ) {
 			echo.append("<div style=\"color:red\">FEHLER: Diese Waffenfabrik besitzt keinen Eintrag<br /></div>\n");
 			return echo.toString();
 		}
@@ -385,21 +383,21 @@ class Waffenfabrik extends DefaultBuilding {
 			Liste der baubaren Munition zusammenstellen
 		*/
 		
-		Map<Integer,SQLResultRow> ammolist = new HashMap<Integer,SQLResultRow>();
-		List<Integer> removelist = new ArrayList<Integer>();
+		Set<Ammo> ammolist = new HashSet<Ammo>();
+		Map<Ammo, String> bPlanMap = new HashMap<Ammo, String>();
+		List<Ammo> removelist = new ArrayList<Ammo>();
 		
-		for( SQLResultRow ammoRow : Waffenfabrik.ammolist.values() ) {
-			SQLResultRow ammo = new SQLResultRow();
-			ammo.putAll(ammoRow);
+		Iterator ammoIter = db.createQuery("from Ammo").list().iterator();
+		for( ; ammoIter.hasNext(); ) {
+			Ammo ammo = (Ammo)ammoIter.next();
 
-			if( !user.hasResearched(ammo.getInt("res1")) || !user.hasResearched(ammo.getInt("res2")) || !user.hasResearched(ammo.getInt("res3")) )
+			if( !user.hasResearched(ammo.getRes1()) || !user.hasResearched(ammo.getRes2()) || !user.hasResearched(ammo.getRes3()) )
 				continue;
 			
-			ammo.put("_bauplan", "");
-			ammolist.put(ammo.getInt("id"), ammo );
+			ammolist.add(ammo);
 			
-			if( (ammo.getInt("replaces") != 0) && !removelist.contains(ammo.getInt("replaces")) ) {
-				removelist.add(ammo.getInt("replaces"));	
+			if( (ammo.getReplaces() != null) && !removelist.contains(ammo.getReplaces()) ) {
+				removelist.add(ammo.getReplaces());	
 			}
 		}
 		
@@ -409,14 +407,13 @@ class Waffenfabrik extends DefaultBuilding {
 		List<ItemCargoEntry> itemlist = cargo.getItemsWithEffect( ItemEffect.Type.DRAFT_AMMO );
 		for( ItemCargoEntry item : itemlist ) {
 			Item itemobject = item.getItemObject();
-			final int ammoid = ((IEDraftAmmo)itemobject.getEffect()).getAmmoID();
+			final Ammo ammo = ((IEDraftAmmo)itemobject.getEffect()).getAmmo();
 			
-			if( !ammolist.containsKey(ammoid) ) {
-				SQLResultRow ammo = Waffenfabrik.ammolist.get(ammoid);
-				ammo.put("_bauplan", "<span class=\"smallfont\" style=\"color:#EECC44\">[Item]</span> ");
-				ammolist.put(ammoid, ammo);
-				if( (ammo.getInt("replaces") != 0) && !removelist.contains(ammo.getInt("replaces")) ) {
-					removelist.add(ammo.getInt("replaces"));
+			if( !ammolist.contains(ammo) ) {
+				bPlanMap.put(ammo, "<span class=\"smallfont\" style=\"color:#EECC44\">[Item]</span> ");
+				ammolist.add(ammo);
+				if( (ammo.getReplaces() != null) && !removelist.contains(ammo.getReplaces()) ) {
+					removelist.add(ammo.getReplaces());
 				}
 			}
 		}
@@ -428,14 +425,13 @@ class Waffenfabrik extends DefaultBuilding {
 			itemlist = allyitems.getItemsWithEffect( ItemEffect.Type.DRAFT_AMMO );
 			for( ItemCargoEntry item : itemlist ) {
 				Item itemobject = item.getItemObject();
-				final int ammoid = ((IEDraftAmmo)itemobject.getEffect()).getAmmoID();
+				final Ammo ammo = ((IEDraftAmmo)itemobject.getEffect()).getAmmo();
 				
-				if( !ammolist.containsKey(ammoid) ) {
-					SQLResultRow ammo = Waffenfabrik.ammolist.get(ammoid);
-					ammo.put("_bauplan", "<span class=\"smallfont\" style=\"color:#44EE44\">[Item]</span> ");
-					ammolist.put(ammoid, ammo);
-					if( (ammo.getInt("replaces") != 0) && !removelist.contains(ammo.getInt("replaces")) ) {
-						removelist.add(ammo.getInt("replaces"));
+				if( !ammolist.contains(ammo) ) {
+					bPlanMap.put(ammo, "<span class=\"smallfont\" style=\"color:#44EE44\">[Item]</span> ");
+					ammolist.add(ammo);
+					if( (ammo.getReplaces() != null) && !removelist.contains(ammo.getReplaces()) ) {
+						removelist.add(ammo.getReplaces());
 					}
 				}
 			}
@@ -454,60 +450,56 @@ class Waffenfabrik extends DefaultBuilding {
 		
 		echo.append("<div class=\"smallfont\">");
 		if( (produce != 0) && (count != 0) ) {
-			SQLResultRow ammo = Waffenfabrik.ammolist.get(produce);
+			final Ammo ammo = (Ammo)db.get(Ammo.class, produce);
 			
 			if( ammo == null ) {
 				echo.append("<span style=\"color:red\">Fehler: Der angegebene Munitionstyp existiert nicht</span>\n");
 				return echo.toString();
 			}
-			if( Items.get().item(ammo.getInt("itemid")).getEffect().getType() != ItemEffect.Type.AMMO ) {
+			if( Items.get().item(ammo.getItemId()).getEffect().getType() != ItemEffect.Type.AMMO ) {
 				echo.append("<span style=\"color:red\">Fehler: Das angegebene Item ist keine Munition</span>\n");
 				return echo.toString();
 			}
 		
-			if( ammolist.containsKey(ammo.getInt("id")) ) {
+			if( ammolist.contains(ammo) ) {
 				BigDecimal usedcapacity = new BigDecimal(0, MathContext.DECIMAL32);
-				Map<Integer,Integer> productlist = new HashMap<Integer,Integer>();
 		
-				String[] plist = StringUtils.split(wf.getString("produces"), ';');
+				WeaponFactory.Task[] plist = wf.getProduces();
 				for( int i=0; i < plist.length; i++ ) {
-					String[] tmp = StringUtils.split(plist[i], '=');
-					int aid = Integer.parseInt(tmp[0]);
-					int ammoCount = Integer.parseInt(tmp[1]);
+					final Ammo aAmmo = plist[i].getAmmo();
+					final int ammoCount = plist[i].getCount();
 					
-					usedcapacity = usedcapacity.add(new BigDecimal(ammolist.get(aid).getString("dauer")).multiply(new BigDecimal(ammoCount)));
-					productlist.put(aid, ammoCount);
+					usedcapacity = usedcapacity.add(aAmmo.getDauer().multiply(new BigDecimal(ammoCount)));
 				}
-				if( usedcapacity.add(new BigDecimal(count*ammo.getDouble("dauer"))).doubleValue() > wf.getInt("count") ) {
-					BigDecimal availableCap = usedcapacity.multiply(new BigDecimal(-1)).add(new BigDecimal(wf.getInt("count")));
-					count = availableCap.divide(new BigDecimal(ammo.getString("dauer")), BigDecimal.ROUND_DOWN).intValue();
+				if( usedcapacity.add(new BigDecimal(count).multiply(ammo.getDauer())).doubleValue() > wf.getCount() ) {
+					BigDecimal availableCap = usedcapacity.multiply(new BigDecimal(-1)).add(new BigDecimal(wf.getCount()));
+					count = availableCap.divide(ammo.getDauer(), BigDecimal.ROUND_DOWN).intValue();
 				}
 			
 				if( count != 0 ) {
 					boolean entry = false;
-					List<String> producelist = new ArrayList<String>(
-							Arrays.asList(StringUtils.split(wf.getString("produces"), ';'))
+					List<WeaponFactory.Task> producelist = new ArrayList<WeaponFactory.Task>(
+							Arrays.asList(wf.getProduces())
 					);
 					
 					for( int i=0; i < producelist.size(); i++ ) {
-						String[] tmp = StringUtils.split(producelist.get(i), '=');
-						int aid = Integer.parseInt(tmp[0]);
-						int ammoCount = Integer.parseInt(tmp[1]);
+						Ammo aAmmo = producelist.get(i).getAmmo();
+						int ammoCount = producelist.get(i).getCount();
 						
 						// Veraltete Ammo automatisch entfernen
-						if( removelist.contains(aid) ) {
+						if( removelist.contains(aAmmo) ) {
 							producelist.remove(i);
 							i--;
 							continue;	
 						}
 						
-						if( (aid == 0) || (ammoCount <= 0) ) {
+						if( (aAmmo == null) || (ammoCount <= 0) ) {
 							producelist.remove(i);
 							i--;
 							continue;
 						}
 						
-						if( aid == ammo.getInt("id") ) {
+						if( aAmmo == ammo ) {
 							if( (count < 0) && (ammoCount+count < 0) ) {
 								count = -ammoCount;
 							}
@@ -515,7 +507,7 @@ class Waffenfabrik extends DefaultBuilding {
 							entry = true;
 						}
 						if( ammoCount > 0 ) {
-							producelist.set(i, aid+"="+ammoCount);
+							producelist.set(i, new WeaponFactory.Task(aAmmo, ammoCount));
 						}
 						else {
 							producelist.remove(i);
@@ -523,18 +515,16 @@ class Waffenfabrik extends DefaultBuilding {
 						}
 					}
 					if( !entry && (count > 0) ) {
-						producelist.add(ammo.getInt("id")+"="+count);
+						producelist.add(new WeaponFactory.Task(ammo, count));
 					}
 					
-					wf.put("produces", Common.implode(";",producelist));
-					
-					db.update("UPDATE weaponfactory SET produces='"+wf.getString("produces")+"' WHERE id="+wf.getInt("id"));
+					wf.setProduces(producelist.toArray(new WeaponFactory.Task[producelist.size()]));
 			
-					echo.append(Math.abs(count)+" "+Items.get().item(ammo.getInt("itemid")).getName()+" wurden "+(count>=0 ? "hinzugef&uuml;gt":"abgezogen")+"<br /><br />");
+					echo.append(Math.abs(count)+" "+Items.get().item(ammo.getItemId()).getName()+" wurden "+(count>=0 ? "hinzugef&uuml;gt":"abgezogen")+"<br /><br />");
 				}
 			} 
 			else {
-				echo.append("Sie haben nicht alle ben&ouml;tigten Forschungen f&uuml;r "+ammo.getString("name")+"<br /><br />");
+				echo.append("Sie haben nicht alle ben&ouml;tigten Forschungen f&uuml;r "+ammo.getName()+"<br /><br />");
 			}
 		}
 		
@@ -543,36 +533,35 @@ class Waffenfabrik extends DefaultBuilding {
 		*/
 		// Warum BigDecimal? Weil 0.05 eben nicht 0.05000000074505806 ist (Ungenauigkeit von double/float)....
 		BigDecimal usedcapacity = new BigDecimal(0, MathContext.DECIMAL32);
-		Map<Integer,Integer> productlist = new HashMap<Integer,Integer>();
+		Map<Ammo,Integer> productlist = new HashMap<Ammo,Integer>();
 		Cargo consumes = new Cargo();
 		
-		if( wf.getString("produces").length() != 0 ) {
-			String[] plist = StringUtils.split(wf.getString("produces"), ';');
+		if( wf.getProduces().length > 0 ) {
+			WeaponFactory.Task[] plist = wf.getProduces();
 			for( int i=0; i < plist.length; i++ ) {
-				String[] tmp = StringUtils.split(plist[i], '=');
-				int aid = Integer.parseInt(tmp[0]);
-				int ammoCount = Integer.parseInt(tmp[1]);
+				final Ammo ammo = plist[i].getAmmo();
+				final int ammoCount = plist[i].getCount();
 				
-				if( !ammolist.containsKey(aid) ) {
-					echo.append("WARNUNG: Ungueltige Ammo >"+aid+"< (count: "+ammoCount+") in der Produktionsliste entdeckt<br />\n");
+				if( !ammolist.contains(ammo) ) {
+					echo.append("WARNUNG: Ungueltige Ammo >"+ammo.getId()+"< (count: "+ammoCount+") in der Produktionsliste entdeckt<br />\n");
 					continue;	
 				}
 				
-				usedcapacity = usedcapacity.add(new BigDecimal(ammolist.get(aid).getString("dauer")).multiply(new BigDecimal(ammoCount)));
+				usedcapacity = usedcapacity.add(ammo.getDauer().multiply(new BigDecimal(ammoCount)));
 			
 				// Veraltete Ammo ignorieren
-				if( removelist.contains(aid) ) {
+				if( removelist.contains(ammo) ) {
 					continue;	
 				}
 			
 				if( ammoCount > 0 ) {
-					Cargo tmpcargo = (Cargo)((Cargo)ammolist.get(aid).get("buildcosts")).clone();
+					Cargo tmpcargo = new Cargo(ammo.getBuildCosts());
 					if( ammoCount > 1 ) {
 						tmpcargo.multiply( ammoCount, Cargo.Round.NONE );
 					}
 					consumes.addCargo( tmpcargo );
 				}
-				productlist.put(aid, ammoCount);
+				productlist.put(ammo, ammoCount);
 			}
 		}
 		echo.append("</div>\n");
@@ -582,7 +571,7 @@ class Waffenfabrik extends DefaultBuilding {
 		*/
 		echo.append(Common.tableBegin(760, "left"));
 		
-		echo.append("<img style=\"vertical-align:middle\" src=\""+Configuration.getSetting("URL")+"data/interface/time.gif\" alt=\"Zeiteinheiten\" />"+usedcapacity+"/"+wf.getInt("count")+" ausgelastet<br />\n");
+		echo.append("<img style=\"vertical-align:middle\" src=\""+Configuration.getSetting("URL")+"data/interface/time.gif\" alt=\"Zeiteinheiten\" />"+usedcapacity+"/"+wf.getCount()+" ausgelastet<br />\n");
 		echo.append("Verbrauch: ");
 		ResourceList reslist = consumes.getResourceList();
 		for( ResourceEntry res : reslist ) {
@@ -600,37 +589,41 @@ class Waffenfabrik extends DefaultBuilding {
 		for( Item item : Items.get() ) {
 			if( item.getEffect().getType() != ItemEffect.Type.AMMO ) continue;
 			
-			final int ammoid = ((IEAmmo)item.getEffect()).getAmmoID();
+			final Ammo ammo = ((IEAmmo)item.getEffect()).getAmmo();
 			
-			if( !ammolist.containsKey(ammoid) ) continue;
+			if( !ammolist.contains(ammo) ) {
+				continue;
+			}
 		
 			echo.append("<tr>\n");
-			if( productlist.containsKey(ammoid) ) {
-				echo.append("<td class=\"noBorderX\" valign=\"top\">"+productlist.get(ammoid)+"x</td>\n");
+			if( productlist.containsKey(ammo) ) {
+				echo.append("<td class=\"noBorderX\" valign=\"top\">"+productlist.get(ammo)+"x</td>\n");
 			} 
 			else {
 				echo.append("<td class=\"noBorderX\" valign=\"top\">-</td>\n");
 			}
 			
 			echo.append("<td class=\"noBorderX\" valign=\"top\">\n");
-			echo.append(ammolist.get(ammoid).getString("_bauplan"));
-			echo.append("<img style=\"vertical-align:middle\" src=\""+item.getPicture()+"\" alt=\"\" /><a class=\"forschinfo\" href=\"./main.php?module=iteminfo&amp;sess="+sess+"&amp;action=details&amp;item="+item.getID()+"\">"+item.getName()+"</a>");
+			if( bPlanMap.containsKey(ammo) ) {
+				echo.append(bPlanMap.get(ammo));
+			}
+			echo.append("<img style=\"vertical-align:middle\" src=\""+item.getPicture()+"\" alt=\"\" /><a class=\"forschinfo\" href=\"./ds?module=iteminfo&amp;sess="+sess+"&amp;action=details&amp;item="+item.getID()+"\">"+item.getName()+"</a>");
 			echo.append("</td>\n");
 			
 			echo.append("<td class=\"noBorderX\" valign=\"top\">\n");
-			echo.append("<img style=\"vertical-align:middle\" src=\""+Configuration.getSetting("URL")+"data/interface/time.gif\" alt=\"Dauer\" />"+ammolist.get(ammoid).getString("dauer")+" \n");
+			echo.append("<img style=\"vertical-align:middle\" src=\""+Configuration.getSetting("URL")+"data/interface/time.gif\" alt=\"Dauer\" />"+ammo.getDauer()+" \n");
 			
-			reslist = ((Cargo)ammolist.get(ammoid).get("buildcosts")).getResourceList();
+			reslist = ammo.getBuildCosts().getResourceList();
 			for( ResourceEntry res : reslist ) {
 				echo.append("<span class=\"nobr\"><img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+"</span>\n");
 			}
 		
 			echo.append("</td>\n");
 			echo.append("<td class=\"noBorderX\" style=\"vertical-align:top; width:130px\">\n");
-			echo.append("<form action=\"./main.php\" method=\"post\">\n");
+			echo.append("<form action=\"./ds\" method=\"post\">\n");
 			echo.append("<div>\n");
 			echo.append("<input name=\"count\" type=\"text\" size=\"2\" value=\"0\" />\n");
-			echo.append("<input name=\"produce\" type=\"hidden\" value=\""+ammoid+"\" />\n");
+			echo.append("<input name=\"produce\" type=\"hidden\" value=\""+ammo.getId()+"\" />\n");
 			echo.append("<input name=\"col\" type=\"hidden\" value=\""+base.getId()+"\" />\n");
 			echo.append("<input name=\"sess\" type=\"hidden\" value=\""+sess+"\" />\n");
 			echo.append("<input name=\"field\" type=\"hidden\" value=\""+field+"\" />\n");

@@ -27,7 +27,6 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -201,8 +200,8 @@ public class BuildingController extends TemplateGenerator {
 	/**
 	 * Zeigt die GUI des Gebaeudes an
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {			
 		int field = getInteger("field");
 		StringBuffer echo = getResponse().getContent();
@@ -235,7 +234,7 @@ public class BuildingController extends TemplateGenerator {
 			}
 		}
 		
-		echo.append(building.output( getTemplateEngine(), base, field, building.getId() ));
+		echo.append(building.output( getContext(), getTemplateEngine(), base, field, building.getId() ));
 		
 		if( !classicDesign ) {
 			echo.append("Aktionen: ");

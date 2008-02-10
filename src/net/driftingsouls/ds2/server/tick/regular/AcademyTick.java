@@ -22,23 +22,23 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.RandomUtils;
-
+import net.driftingsouls.ds2.server.Offizier;
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.tick.TickController;
+
+import org.apache.commons.lang.math.RandomUtils;
 
 /**
  * <h1>Berechnung des Ticks fuer Akademien</h1>
@@ -51,11 +51,11 @@ import net.driftingsouls.ds2.server.tick.TickController;
 public class AcademyTick extends TickController {
 	private Map<Integer,List<String>> namecache;
 	private int maxid;
-	private HashSet<Integer> vaclist;
+	private Map<Integer,Offizier.Ability> dTrain;
 	
 	@Override
 	protected void prepare() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		// Namenscache fuellen
 		namecache = new HashMap<Integer,List<String>>();
@@ -84,121 +84,128 @@ public class AcademyTick extends TickController {
 		}
 		
 		// Max-ID berechnen
-		maxid = db.first("SELECT max(id) max FROM offiziere").getInt("max");
+		maxid = ((Number)db.createQuery("select max(id) from Offizier")
+					.iterate().next()
+				).intValue();
 		log("maxid: "+maxid);
 		maxid++;
 		
-		vaclist = new HashSet<Integer>();
-		vaclist.add(0);
+		dTrain = new HashMap<Integer,Offizier.Ability>();
+		dTrain.put(1, Offizier.Ability.ING);
+		dTrain.put(2, Offizier.Ability.WAF);
+		dTrain.put(3, Offizier.Ability.NAV);
+		dTrain.put(4, Offizier.Ability.SEC);
+		dTrain.put(5, Offizier.Ability.COM);
+	}
+	
+	private String getNewOffiName(int race) {
+		String offiname = "Offizier "+maxid;
+		
+		if( namecache.get(race).size() > 0 ) {
+			List<String> names = this.namecache.get(race);
+			offiname = names.get(RandomUtils.nextInt(names.size()));
+			if( offiname.trim().length() == 0 ) {
+				offiname = "Offizier "+maxid;
+			}
+		}
+		
+		return offiname;
 	}
 	
 	@Override
 	protected void tick() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
-		SQLQuery acc = db.query("SELECT * FROM academy WHERE remain!=0 ORDER BY id");
-		while( acc.next() ) {
-			try {
-				int id = acc.getInt("col");
-				SQLResultRow base = db.first("SELECT t1.name,t1.owner,t2.vaccount,t2.wait4vac FROM bases t1,users t2 WHERE t1.id=",acc.getInt("col")," AND t1.owner=t2.id");
+		final User sourceUser = (User)db.get(User.class, -1);
+		
+		List accList = db.createQuery("from Academy " +
+				"where remain=1 and (base.owner.vaccount=0 or base.owner.wait4vac!=0)").list();
+		for( Iterator iter=accList.iterator(); iter.hasNext(); ) {
+			Academy acc = (Academy)iter.next();
 			
-				if( (base.getInt("vaccount") == 0) && (base.getInt("wait4vac") != 0) ) {
-					log("Ueberspringe Akademie "+id+" [VAC]");
-					vaclist.add(id);
-					continue;
-				}
+			try {
+				Base base = acc.getBase();
 				
-				if( acc.getInt("remain") != 1 ) {
-					continue;
-				}
-				
-				log("Akademie "+id+":");
+				log("Akademie "+acc.getBaseId()+":");
 				
 				// Einen neuen Offizier ausbilden?
-				if( acc.getInt("train") != 0 ) {
+				if( acc.getTrain() != 0 ) {
 					log("\tAusbildung abgeschlossen");
-					String offiname = "Offizier "+maxid;
+					String offiname = getNewOffiName(base.getOwner().getRace());
+
+					Offizier offizier = new Offizier(base.getOwner(), offiname);
 					
-					User auser = (User)getContext().getDB().get(User.class, base.getInt("owner"));
-					if( namecache.get(auser.getRace()).size() > 0 ) {
-						List<String> names = this.namecache.get(auser.getRace());
-						offiname = names.get(RandomUtils.nextInt(names.size()));
-						if( offiname.trim().length() == 0 ) {
-							offiname = "Offizier "+maxid;
-						}
-					}
-					int spec = 0;
-					String query = "INSERT INTO offiziere (userid,name,ing,waf,nav,sec,com,dest,spec) " +
-							"VALUES " +
-							"("+base.getInt("owner")+",'"+offiname+"',";
-					if( Offiziere.LIST.containsKey(acc.getInt("train")) ) {
-						SQLResultRow offi = Offiziere.LIST.get(acc.getInt("train"));
-						query += offi.getInt("ing")+","+offi.getInt("waf")+","+offi.getInt("nav")+","+offi.getInt("sec")+","+offi.getInt("com");
-						
-						spec = RandomUtils.nextInt(((int[])offi.get("specials")).length);
-						spec = ((int[])offi.get("specials"))[spec];
-					}
-					else {
-						log("FEHLER: Unbekannter Offizierstyp "+acc.getInt("train"));
-						query += "25,20,10,5,5";
-						
-						spec = RandomUtils.nextInt(6)+1;
+					int train = acc.getTrain();
+					if( !Offiziere.LIST.containsKey(train) ) {
+						train = Offiziere.LIST.keySet().iterator().next();
 					}
 					
-					db.update( query+",'b "+acc.getInt("col")+"',"+spec+")");
+					SQLResultRow offi = Offiziere.LIST.get(train);
+					
+					offizier.setAbility(Offizier.Ability.ING, offi.getInt("ing"));
+					offizier.setAbility(Offizier.Ability.WAF, offi.getInt("waf"));
+					offizier.setAbility(Offizier.Ability.NAV, offi.getInt("nav"));
+					offizier.setAbility(Offizier.Ability.SEC, offi.getInt("sec"));
+					offizier.setAbility(Offizier.Ability.COM, offi.getInt("com"));
+					
+					int spec = RandomUtils.nextInt(((int[])offi.get("specials")).length);
+					spec = ((int[])offi.get("specials"))[spec];
+					
+					offizier.setSpecial(Offizier.Special.values()[spec-1]);
+					
+					offizier.setDest("b", base.getId());
+					
+					int newid = (Integer)db.save(offizier);
+					
+					if( maxid < newid ) {
+						maxid = newid;
+					}
+					
 					maxid++;
 				}
 				// Einen bestehenden Offizier weiterbilden?
-				else if( acc.getString("upgrade").length() > 0 ) {
+				else if( acc.getUpgrade().length() > 0 ) {
 					log("\tWeiterbildung abgeschlossen");
-					String[] dat = StringUtils.split(acc.getString("upgrade"), ' ');
-					StringBuilder query = new StringBuilder(50);
-					query.append("UPDATE offiziere SET ");
-					if( dat[1].equals("1") ) {
-						query.append("ing=ing");
-					}
-					if( dat[1].equals("2") ) {
-						query.append("waf=waf");
-					}
-					if( dat[1].equals("3") ) {
-						query.append("nav=nav");
-					}
-					if( dat[1].equals("4") ) {
-						query.append("sec=sec");
-					}
-					if( dat[1].equals("5") ) {
-						query.append("com=com");
-					}
-					query.append("+2, dest='b ");
-					query.append(acc.getInt("col"));
-					query.append("' WHERE id=");
-					query.append(dat[0]);
-					db.update(query.toString());
+					int[] dat = Common.explodeToInt(" ", acc.getUpgrade());
+					final Offizier.Ability ability = dTrain.get(dat[1]);
+					
+					final Offizier offi = Offizier.getOffizierByID(dat[0]);
+					offi.setAbility(ability, offi.getAbility(ability)+2);
+					offi.setDest("b", base.getId());
 				}
-				db.update("UPDATE academy SET remain=0,train=0,`upgrade`='' WHERE col=",id);
+				acc.setRemain(0);
+				acc.setTrain(0);
+				acc.setUpgrade("");
 				
 				// Nachricht versenden
-				String msg = "Die Flottenakademie auf dem Asteroiden "+base.getString("name")+" hat die Ausbildung abgeschlossen";
-				PM.send(getContext(),-1, base.getInt("owner"), "Ausbildung abgeschlossen", msg);
+				String msg = "Die Flottenakademie auf dem Asteroiden "+base.getName()+" hat die Ausbildung abgeschlossen";
+				PM.send(sourceUser,base.getOwner().getId(), "Ausbildung abgeschlossen", msg);
 			}
-			catch( Exception e ) {
-				this.log("Bearbeitung der Akademie "+acc.getInt("id")+" fehlgeschlagen: "+e);
+			catch( RuntimeException e ) {
+				this.log("Bearbeitung der Akademie "+acc.getBaseId()+" fehlgeschlagen: "+e);
 				e.printStackTrace();
-				Common.mailThrowable(e, "Academy Tick Exception", "Academy: "+acc.getInt("id"));
+				Common.mailThrowable(e, "Academy Tick Exception", "Academy: "+acc.getBaseId());
+				
+				throw e;
 			}
 		}
-		acc.free();
-		
-		db.update("UPDATE academy SET remain=remain-1 WHERE remain!=0 AND NOT(id IN (",Common.implode(",",vaclist.toArray()),"))");
-		log("Offiziere in der Aus/Weiterbildung: "+db.affectedRows());
+
+		int count = db.createQuery("update Academy as a " +
+				"set a.remain=a.remain-1 " +
+				"where a.remain!=0 and a.base in (from Base where id=a.col and (owner.vaccount=0 or owner.wait4vac!=0))")
+			.executeUpdate();
+		log("Offiziere in der Aus/Weiterbildung: "+count);
 		
 		//
 		// Raenge der Offiziere neu berechnen
 		//
-		int count = 0;
+		count = 0;
 		for( int i = Offiziere.MAX_RANG; i > 0; i-- ) {
-			db.update("UPDATE offiziere SET rang=",i," WHERE rang<",i," AND (ing+waf+nav+sec+com)/125>=",i);
-			count += db.affectedRows();
+			count += db.createQuery("update Offizier " +
+					"set rang= :rang " +
+					"where rang < :rang and (ing+waf+nav+sec+com)/125 >= :rang")
+				.setInteger("rang", i)
+				.executeUpdate();
 		}
 		
 		log(count+" Offizier(e) befoerdert");

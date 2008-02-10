@@ -18,13 +18,22 @@
  */
 package net.driftingsouls.ds2.server;
 
+import java.util.Iterator;
+
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
 import net.driftingsouls.ds2.server.config.Offiziere;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DSObject;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -34,6 +43,8 @@ import org.apache.commons.lang.math.RandomUtils;
  * @author Christopher Jung
  *
  */
+@Entity
+@Table(name="offiziere")
 public class Offizier extends DSObject {
 	/**
 	 * Die Attribute eines Offiziers
@@ -114,10 +125,13 @@ public class Offizier extends DSObject {
 		}
 	}
 	
+	@Id @GeneratedValue
 	private int id;
 	private String name;
 	private int rang;
-	private int owner;
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="userid")
+	private User owner;
 	private String dest;
 	private int ing;
 	private int waf;
@@ -127,35 +141,31 @@ public class Offizier extends DSObject {
 	private int spec;
 	private int ingu;
 	private int navu;
+	@SuppressWarnings("unused")
 	private int wafu;
+	@SuppressWarnings("unused")
 	private int secu;
+	@SuppressWarnings("unused")
 	private int comu;
-	private boolean changed = false;;
 	
 	/**
-	 * Erstellt eine neue Instanz aus einer SQL-Ergebniszeile. Die
-	 * Zeile muss alle Daten aus der Offizierstabelle enthalten
-	 * @param data die SQL-Ergebniszeile
+	 * Konstruktor
+	 *
 	 */
-	public Offizier( SQLResultRow data ) {
-		id = data.getInt("id");
-		name = data.getString("name");
-		rang = data.getInt("rang");
-		owner = data.getInt("userid");
-		dest = data.getString("dest");
-		ing = data.getInt("ing");
-		waf = data.getInt("waf");
-		nav = data.getInt("nav");
-		sec = data.getInt("sec");
-		com = data.getInt("com");
-		spec = data.getInt("spec");
-		ingu = data.getInt("ingu");
-		navu = data.getInt("navu");
-		wafu = data.getInt("wafu");
-		secu = data.getInt("secu");
-		comu = data.getInt("comu");	
+	public Offizier() {
+		// EMPTY
 	}
 	
+	/**
+	 * Konstruktor
+	 * @param owner
+	 * @param name
+	 */
+	public Offizier(User owner, String name) {
+		setOwner(owner);
+		setName(name);
+	}
+
 	/**
 	 * Gibt den Namen des Offiziers zurueck
 	 * @return Der Name
@@ -170,8 +180,6 @@ public class Offizier extends DSObject {
 	 */
 	public void setName( String name ) {
 		this.name = name;
-		
-		changed = true;	
 	}
 	
 	/**
@@ -188,6 +196,14 @@ public class Offizier extends DSObject {
 	 */
 	public int getRang() {
 		return rang;	
+	}
+	
+	/**
+	 * Setzt den Rang des Offiziers
+	 * @param rang Der Rang
+	 */
+	public void setRang(int rang) {
+		this.rang = rang;
 	}
 	
 	/**
@@ -218,25 +234,22 @@ public class Offizier extends DSObject {
 	 */
 	public void setDest( String dest, int objectid ) {
 		this.dest = dest+' '+objectid;
-		changed = true;
 	}
 	
 	/**
-	 * Gibt die ID des Besitzers des Offiziers zurueck
-	 * @return die ID des Besitzers
+	 * Gibt den Besitzers des Offiziers zurueck
+	 * @return der Besitzer
 	 */
-	public int getOwner() {
+	public User getOwner() {
 		return owner;	
 	}
 	
 	/**
-	 * Setzt den Besitzer des Offiziers auf die angegebene ID
+	 * Setzt den Besitzer des Offiziers
 	 * @param owner der neue Besitzer
 	 */
-	public void setOwner( int owner ) {
+	public void setOwner( User owner ) {
 		this.owner = owner; 
-		
-		changed = true;	
 	}
 	
 	/**
@@ -258,6 +271,31 @@ public class Offizier extends DSObject {
 				return com;
 		}
 		return 0;
+	}
+	
+	/**
+	 * Setzt den Skillwert einer Faehigkeit des offiziers
+	 * @param ability Die Faehigkeit
+	 * @param value Der Skill
+	 */
+	public void setAbility(Ability ability, int value) {
+		switch( ability ) {
+		case ING:
+			ing = value;
+			break;
+		case WAF:
+			waf = value;
+			break;
+		case NAV:
+			nav = value;
+			break;
+		case SEC:
+			sec = value;
+			break;
+		case COM:
+			com = value;
+			break;
+	}
 	}
 	
 	/**
@@ -293,7 +331,6 @@ public class Offizier extends DSObject {
 							this.ing++;
 							this.ingu = 0;
 						}
-						this.changed = true;
 					}
 				}
 				break;
@@ -320,7 +357,6 @@ public class Offizier extends DSObject {
 							this.nav++;
 							this.navu = 0;
 						}
-						this.changed = true;
 					}
 				}
 				break;
@@ -333,7 +369,7 @@ public class Offizier extends DSObject {
 		}
 		
 		if( count != 0 ) {
-			double rangf = (this.ing+this.waf+this.nav+this.sec+this.com)/5;
+			double rangf = (this.ing+this.waf+this.nav+this.sec+this.com)/5.0;
 			int rang = (int)(rangf/125);
 			if( rang > Offiziere.MAX_RANG ) {
 				rang = Offiziere.MAX_RANG;
@@ -342,7 +378,6 @@ public class Offizier extends DSObject {
 			if( rang > this.rang ) {
 				MESSAGE.get().append(this.name+" wurde bef&ouml;rdert\n");
 				this.rang = rang;
-				this.changed = true;
 			}
 		}
 
@@ -358,6 +393,14 @@ public class Offizier extends DSObject {
 	}
 	
 	/**
+	 * Setzt die Spezialeigenschaft des Offiziers
+	 * @param special Die Spezialeigenschaft
+	 */
+	public void setSpecial(Special special) {
+		this.spec = special.ordinal();
+	}
+	
+	/**
 	 * Prueft, ob der Offizier die angegebene Spezialfaehigkeit hat
 	 * @param special Die Spezialfaehigkeit
 	 * @return <code>true</code>, falls der Offizier die Faehigkeit hat
@@ -365,26 +408,7 @@ public class Offizier extends DSObject {
 	public boolean hasSpecial( Special special ) {
 		return spec == special.ordinal();	
 	}
-	
-	/**
-	 * Speichert die Offiziersdaten in der Datenbank
-	 *
-	 */
-	public void save() {
-		if( changed ) {
-			Database db = ContextMap.getContext().getDatabase();
-			db.prepare("UPDATE offiziere ",
-						"SET name=?, nav=?, navu=?, ing=?, ingu=?, ",
-							"waf=?, wafu=?, sec=?, secu=?, com=?, comu=?," ,
-							"rang=?,userid=?, dest=?,spec=? ",
-						"WHERE id=?")
-				.update(name, nav, navu, ing, ingu, 
-						waf, wafu, sec, secu, com, comu, 
-						rang, owner, dest, spec, 
-						id);
-		}			
-	}
-	
+		
 	/**
 	 * Gibt einen Offizier am angegebenen Aufenthaltsort zurueck. Sollten mehrere
 	 * Offiziere sich an diesem Ort aufhalten, so wird der beste von ihnen zurueckgegeben.
@@ -396,11 +420,14 @@ public class Offizier extends DSObject {
 	 * @see #getDest()
 	 */
 	public static Offizier getOffizierByDest(char dest, int objid) {
-		Database db = ContextMap.getContext().getDatabase();
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
-		SQLResultRow offizier = db.first("SELECT * FROM offiziere WHERE dest='",dest," ",objid,"' ORDER BY rang DESC,id ASC");
-		if( !offizier.isEmpty() ) {
-			return new Offizier(offizier);
+		Iterator iter = db.createQuery("from Offizier where dest=? order by rang desc")
+			.setString(0, dest+" "+objid)
+			.iterate();
+		
+		if( iter.hasNext() ) {
+			return (Offizier)iter.next();
 		}
 		return null;
 	}
@@ -412,12 +439,8 @@ public class Offizier extends DSObject {
 	 * @return Der Offizier oder <code>null</code>
 	 */
 	public static Offizier getOffizierByID(int id) {
-		Database db = ContextMap.getContext().getDatabase();
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
-		SQLResultRow offizier = db.first("SELECT * FROM offiziere WHERE id='",id,"'");
-		if( !offizier.isEmpty() ) {
-			return new Offizier(offizier);
-		}
-		return null;
+		return (Offizier)db.get(Offizier.class, id);
 	}
 }

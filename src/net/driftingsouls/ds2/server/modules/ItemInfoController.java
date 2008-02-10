@@ -41,6 +41,7 @@ import net.driftingsouls.ds2.server.config.ModuleSlots;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.entities.Ammo;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -229,7 +230,6 @@ public class ItemInfoController extends TemplateGenerator {
 	public void detailsAction() {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		Database db = getDatabase();
 		
 		parameterNumber("item");
 		int itemid = getInteger("item");
@@ -494,11 +494,11 @@ public class ItemInfoController extends TemplateGenerator {
 			
 		*/
 		case AMMO: {
-			IEAmmo effect = (IEAmmo)Items.get().item(itemid).getEffect();
+IEAmmo effect = (IEAmmo)Items.get().item(itemid).getEffect();
 			
-			SQLResultRow ammo = db.first("SELECT * FROM ammo WHERE id=",effect.getAmmoID());
+			Ammo ammo = effect.getAmmo();
 		
-			if( ammo.isEmpty() ) {
+			if( ammo == null ) {
 				t.setVar(	"entry.name",	"Munition",
 							"entry.data",	"Es liegen keine genaueren Daten zur Munition vor" );
 			
@@ -508,25 +508,25 @@ public class ItemInfoController extends TemplateGenerator {
 				StringBuilder data = new StringBuilder(100);
 				boolean entry = false;
 				for( int i = 1; i < 4; i++ ) {
-					if( ammo.getInt("res"+i) != 0 ) {
+					if( ammo.getRes(i) != 0 ) {
 						if( entry ) {
 							data.append(",<br />\n");
 						}
 						
-						Forschung dat = Forschung.getInstance(ammo.getInt("res"+i));
-						if( (ammo.getInt("res"+i) == -1) || 
+						Forschung dat = Forschung.getInstance(ammo.getRes(i));
+						if( (ammo.getRes(i) == -1) || 
 							(!dat.isVisibile() && (!user.hasResearched(dat.getRequiredResearch(1)) || !user.hasResearched(dat.getRequiredResearch(2)) || !user.hasResearched(dat.getRequiredResearch(3)))) ) {
 							
 							data.append("Unbekannte Technologie");
 							if( user.getAccessLevel() > 20 ) {
-								data.append(" [ID:"+ammo.getInt("res"+i)+"]");
+								data.append(" [ID:"+ammo.getRes(i)+"]");
 							}
 							entry = true;
 							continue;
 						}
 						
-						data.append("<a class=\"nonbold\" href=\""+Common.buildUrl("default", "module", "forschinfo", "res", ammo.getInt("res"+i))+"\">");
-		 				if( user.hasResearched(ammo.getInt("res"+i)) ) {
+						data.append("<a class=\"nonbold\" href=\""+Common.buildUrl("default", "module", "forschinfo", "res", ammo.getRes(i))+"\">");
+		 				if( user.hasResearched(ammo.getRes(i)) ) {
 		 					data.append("<span style=\"color:green; font-size:14px\">");
 		 				}
 			 			else {
@@ -546,7 +546,7 @@ public class ItemInfoController extends TemplateGenerator {
 			
 				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 				
-				Cargo buildcosts = new Cargo( Cargo.Type.STRING, ammo.getString("buildcosts") );
+				Cargo buildcosts = ammo.getBuildCosts();
 			
 				data.setLength(0);
 
@@ -561,33 +561,35 @@ public class ItemInfoController extends TemplateGenerator {
 				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 				
 				data.setLength(0);
-				if( ammo.getInt("shotspershot") > 1 ) {
-					data.append(ammo.getInt("shotspershot")+" Salven<br />\n");
+				if( ammo.getShotsPerShot() > 1 ) {
+					data.append(ammo.getShotsPerShot()+" Salven<br />\n");
 				}
-				if( ammo.getInt("damage") != 0 ) {
-					data.append(ammo.getInt("damage")+" Schaden<br />\n");
+				if( ammo.getDamage() != 0 ) {
+					data.append(ammo.getDamage()+" Schaden<br />\n");
 				}
-				if( ammo.getInt("damage") != ammo.getInt("shielddamage") ) {
-					data.append(ammo.getInt("shielddamage")+" Schildschaden<br />\n");
+				if( ammo.getDamage() != ammo.getShieldDamage() ) {
+					data.append(ammo.getShieldDamage()+" Schildschaden<br />\n");
 				}
-				if( ammo.getInt("subdamage") != 0 ) {
-					data.append(ammo.getInt("subdamage")+" Subsystemschaden<br />\n");
-					data.append(ammo.getInt("subws")+"% Subsystem-Trefferws<br />\n");
+				if( ammo.getSubDamage() != 0 ) {
+					data.append(ammo.getSubDamage()+" Subsystemschaden<br />\n");
+					data.append(ammo.getSubWS()+"% Subsystem-Trefferws<br />\n");
 				}
-				data.append(ammo.getInt("smalltrefferws")+"% Trefferws (J&auml;ger)<br />\n");
-				data.append(ammo.getInt("trefferws")+"% Trefferws (Capitals)\n");
-				if( ammo.getInt("torptrefferws") != 0 ) {
-					data.append("<br />"+ammo.getInt("torptrefferws")+"% Trefferws (Torpedos)\n");
+				data.append(ammo.getSmallTrefferWS()+"% Trefferws (J&auml;ger)<br />\n");
+				data.append(ammo.getTrefferWS()+"% Trefferws (Capitals)\n");
+				if( ammo.getTorpTrefferWS() != 0 ) {
+					data.append("<br />"+ammo.getTorpTrefferWS()+"% Trefferws (Torpedos)\n");
 				}
-				if( ammo.getInt("areadamage") != 0 ) {
-					data.append("<br />Umgebungsschaden ("+ammo.getInt("areadamage")+")\n");
+				if( ammo.getAreaDamage() != 0 ) {
+					data.append("<br />Umgebungsschaden ("+ammo.getAreaDamage()+")\n");
 				}
-				if( ammo.getInt("destroyable") > 0 ) {
+				if( ammo.getDestroyable() > 0 ) {
 					data.append("<br />Durch Abwehrfeuer zerst&ouml;rbar\n");
 				}
-				if( ammo.getInt("replaces") != 0 ) {
-					SQLResultRow replammo = db.first("SELECT itemid,name FROM ammo WHERE id=",ammo.getInt("replaces"));
-					data.append("<br />Ersetzt <a style=\"font-size:14px\" class=\"forschinfo\" href=\""+Common.buildUrl("details", "module", "iteminfo", "item", replammo.getInt("itemid"))+"\">"+replammo.getString("name")+"</a>\n");
+				if( ammo.getReplaces() != null ) {
+					Ammo replammo = ammo.getReplaces();
+					data.append("<br />Ersetzt <a style=\"font-size:14px\" class=\"forschinfo\" href=\""+
+							Common.buildUrl("details", "module", "iteminfo", "item", replammo.getItemId())+"\">"+
+							replammo.getName()+"</a>\n");
 				}
 					
 				t.setVar(	"entry.name",	"Daten",
@@ -597,7 +599,7 @@ public class ItemInfoController extends TemplateGenerator {
 				
 				StringBuilder weapons = new StringBuilder(50);
 				for( Weapon weapon : Weapons.get() ) {
-					if( weapon.getAmmoType() != ammo.get("type") ) continue;
+					if( !ammo.getType().equals(weapon.getAmmoType()) ) continue;
 			
 					if( weapons.length() == 0 ) {
 						weapons.append(weapon.getName());

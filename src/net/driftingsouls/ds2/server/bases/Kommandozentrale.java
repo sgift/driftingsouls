@@ -19,7 +19,11 @@
 package net.driftingsouls.ds2.server.bases;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -34,44 +38,52 @@ import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.Items;
 import net.driftingsouls.ds2.server.entities.Ally;
+import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
+import net.driftingsouls.ds2.server.entities.StatVerkaeufe;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
-class Kommandozentrale extends DefaultBuilding {
+import org.hibernate.annotations.Immutable;
+
+/**
+ * Die Kommandozentrale
+ * @author Christopher Jung
+ *
+ */
+@Entity(name="KommandozentraleBuilding")
+@Immutable
+@DiscriminatorValue("net.driftingsouls.ds2.server.bases.Kommandozentrale")
+public class Kommandozentrale extends DefaultBuilding {
 	/**
 	 * Erstellt eine neue Instanz der Kommandozentrale
-	 * @param row Die SQL-Ergebniszeile mit den Gebaeudedaten der Kommandozentrale
 	 */
-	public Kommandozentrale(SQLResultRow row) {
-		super(row);
+	public Kommandozentrale() {
+		// EMPTY
 	}
 
 	@Override
 	public void cleanup(Context context, Base base) {
 		super.cleanup(context, base);
-
-		Database database = context.getDatabase();
-
+		
+		org.hibernate.Session db = context.getDB();
+		
 		base.setAutoGTUActs(new ArrayList<AutoGTUAction>());
 		User nullUser = (User)context.getDB().get(User.class, 0);
 		base.setOwner(nullUser);
-		
-		// TODO: Unschoen. Das sollte die Werft selbst machen
-		database.update("UPDATE werften SET building=0,item=-1,remaining=0,flagschiff=0 WHERE col="+base.getId());
-		database.update("UPDATE werften SET linked=0 WHERE linked="+base.getId());
+				
+		db.createQuery("update ShipWerft set linked=null where linked=?")
+			.setEntity(0, base)
+			.executeUpdate();
 	}
 
 	@Override
 	public String echoShortcut(Context context, Base base, int field, int building) {
 		String sess = context.getSession();
 		
-		return "<a class=\"back\" href=\"./main.php?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"\">[K]</a>";
+		return "<a class=\"back\" href=\"./ds?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"\">[K]</a>";
 	}
 
 	@Override
@@ -85,9 +97,8 @@ class Kommandozentrale extends DefaultBuilding {
 	}
 
 	@Override
-	public String output(TemplateEngine t, Base base, int field, int building) {
-		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
+	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
+		org.hibernate.Session db = context.getDB();
 		User user = (User)context.getActiveUser();
 		
 		String show = context.getRequest().getParameter("show");
@@ -111,11 +122,11 @@ class Kommandozentrale extends DefaultBuilding {
 					"base.system",	base.getSystem(),
 					"base.size",	base.getSize());
 		
-		SQLResultRow kurseRow = db.first("SELECT kurse FROM gtu_warenkurse WHERE place='asti'");
-		Cargo kurse = new Cargo( Cargo.Type.STRING, kurseRow.getString("kurse") );
+		GtuWarenKurse kurseRow = (GtuWarenKurse)db.get(GtuWarenKurse.class, "asti");
+		Cargo kurse = new Cargo(kurseRow.getKurse());
 		kurse.setOption( Cargo.Option.SHOWMASS, false );
 		
-		Cargo cargo = base.getCargo();
+		Cargo cargo = new Cargo(base.getCargo());
 		
 		StringBuilder message = new StringBuilder();
 		
@@ -129,10 +140,14 @@ class Kommandozentrale extends DefaultBuilding {
 			int tick = context.get(ContextCommon.class).getTick();
 			int system = base.getSystem();
 			
-			SQLResultRow statsRow = db.first("SELECT stats FROM stats_verkaeufe WHERE tick=",tick," AND place='asti' AND system=",system);
+			StatVerkaeufe statsRow = (StatVerkaeufe)db.createQuery("from StatVerkaeufe where tick=? and place=? AND system=?")
+				.setInteger(0, tick)
+				.setString(1, "asti")
+				.setInteger(2, system)
+				.uniqueResult();
 			Cargo stats = new Cargo();
-			if( !statsRow.isEmpty() ) {
-				stats = new Cargo( Cargo.Type.STRING, statsRow.getString("stats") );
+			if( statsRow != null ) {
+				stats = new Cargo(statsRow.getStats());
 			}
 			
 			boolean changed = false;
@@ -161,23 +176,18 @@ class Kommandozentrale extends DefaultBuilding {
 				}
 			}
 			if( changed ) {
-				db.tBegin();
-				
-				SQLResultRow statid = db.first("SELECT id FROM stats_verkaeufe WHERE tick='",tick,"' AND place='asti' AND system='",system,"'");
-				if( statid.isEmpty() ) {
-					db.update("INSERT INTO stats_verkaeufe (tick,place,system,stats) VALUES (",tick,",'asti',",system,",'",stats.save(),"')");
+				if( statsRow == null ) {
+					statsRow = new StatVerkaeufe(tick, system, "asti");
+					statsRow.setStats(stats);
+					db.persist(statsRow);
 				}
-				else {		
-					db.tUpdate(1, "UPDATE stats_verkaeufe SET stats='",stats.save(),"' WHERE id='",statid.getInt("id"),"' AND stats='",stats.save(true),"'");
+				else {
+					statsRow.setStats(stats);
 				}
 				
 				base.setCargo(cargo);
-				
 				user.transferMoneyFrom(Faction.GTU, totalRE, "Warenverkauf Asteroid "+base.getId()+" - "+base.getName(), false, User.TRANSFER_SEMIAUTO );
 				
-				if( !db.tCommit() ) {
-					context.addError("Fehler: Die Transaktion der Waren war nicht erfolgreich");
-				}
 				message.append("<br />");
 			}
 		}
@@ -209,12 +219,8 @@ class Kommandozentrale extends DefaultBuilding {
 				cargo.addResource( Resources.BATTERIEN, load );
 				e -= load;
 			
-				base.setEnergy(e);
 				base.setCargo(cargo);
-				
-				if( db.affectedRows() != 0 ) {
-					base.setEnergy(e);	
-				}
+				base.setEnergy(e);	
 			}
 		}
 		
@@ -241,9 +247,9 @@ class Kommandozentrale extends DefaultBuilding {
 				cargo.substractResource( Resources.BATTERIEN, unload );
 				cargo.addResource( Resources.LBATTERIEN, unload );
 				e += unload;
-		
-				base.setEnergy(e);
+			
 				base.setCargo(cargo);
+				base.setEnergy(e);	
 			}
 		}
 		
@@ -287,8 +293,7 @@ class Kommandozentrale extends DefaultBuilding {
 				message.append("Kein passendes Item vorhanden<br /><br />\n");
 			}
 			else {
-				String allyitemsStr = ally.getItems();
-				Cargo allyitems = new Cargo( Cargo.Type.ITEMSTRING, allyitemsStr );
+				Cargo allyitems = new Cargo( Cargo.Type.ITEMSTRING, ally.getItems() );
 				allyitems.addResource( new ItemID(item), 1 );
 				cargo.substractResource( new ItemID(item), 1 );
 		
@@ -296,7 +301,7 @@ class Kommandozentrale extends DefaultBuilding {
 				base.setCargo(cargo);
 						
 				String msg = "Ich habe das Item \""+Items.get().item(item).getName()+"\" der Allianz zur Verf&uuml;gung gestellt.";
-				PM.send(context, user.getId(), ally.getId(), "Item &uuml;berstellt", msg, true);
+				PM.sendToAlly(user, ally, "Item &uuml;berstellt", msg);
 		
 				message.append("Das Item wurde an die Allianz &uuml;bergeben<br /><br />\n");
 			}
@@ -380,33 +385,38 @@ class Kommandozentrale extends DefaultBuilding {
 				Waren zu Schiffen/Basen im Orbit transferieren
 			*/
 			
-			SQLQuery ship = db.query("SELECT id,name,x,y,owner FROM ships " +
+			SQLQuery ship = context.getDatabase().query("SELECT id,name,x,y,owner FROM ships " +
 					"WHERE id>0 AND x BETWEEN "+(base.getX()-base.getSize())+" AND "+(base.getX()+base.getSize())+" AND " +
-							"y BETWEEN "+(base.getY()-base.getSize())+" AND "+(base.getY()+base.getSize())+" AND " +
-							"system="+base.getSystem()+" AND !LOCATE('l ',docked) AND battle=0 " +
+					"y BETWEEN "+(base.getY()-base.getSize())+" AND "+(base.getY()+base.getSize())+" AND " +
+					"system="+base.getSystem()+" AND !LOCATE('l ',docked) AND battle=0 " +
 					"ORDER BY x,y,owner,id");
 			if( !ship.isEmpty() ) {
 				int oldx = 0;
 				int oldy = 0;
-
 				while( ship.next() ) {
 					if( (oldx == 0) && (oldy == 0) ) {
 						oldx = ship.getInt("x");
-						oldy = ship.getInt("y");	
+						oldy = ship.getInt("y");
+
 						if( base.getSize() != 0 ) {
 							t.setVar("ship.begingroup", 1);
 						}
 					}
 					else if( (oldx != ship.getInt("x")) || (oldy != ship.getInt("y")) ) {
 						oldx = ship.getInt("x");
-						oldy = ship.getInt("y");	
+						oldy = ship.getInt("y");
+						
 						if( base.getSize() != 0 ) {
 							t.setVar(	"ship.begingroup",	1,
 										"ship.endgroup",	1 );
 						}
 					}
+					else {
+						t.setVar(	"ship.begingroup",	0,
+									"ship.endgroup",	0);
+					}
 					
-					t.setVar(	"ship.id",		ship.getInt("id"),
+					t.setVar(	"ship.id",	ship.getInt("id"),
 								"ship.name",	Common._plaintitle(ship.getString("name")),
 								"ship.x",		ship.getInt("x"),
 								"ship.y",		ship.getInt("y") );
@@ -423,15 +433,21 @@ class Kommandozentrale extends DefaultBuilding {
 				}
 			}
 			ship.free();
-			
-			
-			SQLQuery targetbase = db.query("SELECT id,name FROM bases WHERE x="+base.getX()+" AND y="+base.getY()+" AND system="+base.getSystem()+" AND id!="+base.getId()+" AND owner='"+user.getId()+"'");
-			while( targetbase.next() ) {
-				t.setVar(	"targetbase.id", 	targetbase.get("id"),
-							"targetbase.name",	Common._plaintitle(targetbase.getString("name")) );
+
+			List targetbases = db.createQuery("from Base where x= :x and y= :y and system= :sys and id!= :id and owner= :owner")
+				.setInteger("x", base.getX())
+				.setInteger("y", base.getY())
+				.setInteger("sys", base.getSystem())
+				.setInteger("id", base.getId())
+				.setEntity("owner", base.getOwner())
+				.list();
+			for( Iterator iter=targetbases.iterator(); iter.hasNext(); ) {
+				Base targetbase = (Base)iter.next();
+				
+				t.setVar(	"targetbase.id", 	targetbase.getId(),
+							"targetbase.name",	Common._plaintitle(targetbase.getName()) );
 				t.parse("general.basetransfer.list", "general.basetransfer.listitem", true);
 			}
-			targetbase.free();
 			
 			
 			/*

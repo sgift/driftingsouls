@@ -18,9 +18,8 @@
  */
 package net.driftingsouls.ds2.server.config;
 
+import net.driftingsouls.ds2.server.entities.Ammo;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
 import org.w3c.dom.Node;
@@ -48,19 +47,20 @@ public class IEDraftAmmo extends ItemEffect {
 	}
 	
 	/**
-	 * Gibt die ID des zugehoerigen Ammo-Datenbankeintrags zurueck
-	 * @return Die Ammo-ID
+	 * Gibt die zugehoerigen Ammodaten zurueck
+	 * @return Die Ammodaten
 	 */
-	public int getAmmoID() {
-		return ammoId;
+	public Ammo getAmmo() {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		return (Ammo)db.get(Ammo.class, this.ammoId);
 	}
 	
 	protected static ItemEffect fromXML(Node effectNode) throws Exception {
 		int ammo = (int)XMLUtils.getLongAttribute(effectNode, "ammo");
 		
-		Database db = ContextMap.getContext().getDatabase();
-		SQLResultRow ammoEntry = db.first("SELECT id FROM ammo WHERE id="+ammo);
-		if( ammoEntry.isEmpty() ) {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		Ammo ammoEntry = (Ammo)db.get(Ammo.class, ammo);
+		if( ammoEntry == null ) {
 			throw new Exception("Illegaler Ammo-Typ '"+ammo+"' im Item-Effekt 'Munitionsbauplan'");
 		}
 		

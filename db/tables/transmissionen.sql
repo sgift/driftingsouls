@@ -3,7 +3,7 @@ CREATE TABLE `transmissionen` (
   `gelesen` int(11) NOT NULL default '0',
   `sender` int(11) NOT NULL default '0',
   `empfaenger` int(11) NOT NULL default '0',
-  `title` varchar(50) NOT NULL default '',
+  `title` varchar(100) NOT NULL default '',
   `time` int(11) NOT NULL default '0',
   `ordner` int(10) unsigned NOT NULL default '0',
   `flags` int(11) NOT NULL default '0',

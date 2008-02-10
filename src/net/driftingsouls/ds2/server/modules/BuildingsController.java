@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.util.Iterator;
+
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.bases.Core;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -26,9 +29,6 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -53,20 +53,22 @@ public class BuildingsController extends TemplateGenerator {
 		setTemplate("buildings.html");
 		
 		parameterNumber("col");	
-		parameterNumber("field");	
+		parameterNumber("field");
+		
+		setPageTitle("Geb&auml;ude");
 	}
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		
 		int col = getInteger("col");
 		
 		if( col != 0 ) {
-			SQLResultRow chk = db.first("SELECT id FROM bases WHERE owner="+user.getId()+" AND id="+col);
+			Base chk = (Base)db.get(Base.class, col);
 
-			if( chk.isEmpty() ) {
+			if( (chk == null) || (chk.getOwner() != user) ) {
 				addError("Die angegebene Kolonie existiert nicht");
 				
 				return false;
@@ -79,21 +81,21 @@ public class BuildingsController extends TemplateGenerator {
 	/**
 	 * Zeigt die Liste aller baubaren Gebaeude und Cores an
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
-		Database db = getDatabase();
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
+		org.hibernate.Session db = getDB();
 		
 		t.setBlock("_BUILDINGS", "buildings.listitem", "buildings.list");
 		t.setBlock("buildings.listitem", "building.buildcosts.listitem", "building.buildcosts.list");
 		t.setBlock("buildings.listitem", "building.produces.listitem", "building.produces.list");
 		t.setBlock("buildings.listitem", "building.consumes.listitem", "building.consumes.list");
 		
-		SQLQuery buildingID = db.query("SELECT id FROM buildings ORDER BY name" );
-		while( buildingID.next() ) {
-			Building building = Building.getBuilding(buildingID.getInt("id"));
+		Iterator buildingIter = db.createQuery("from Building order by name").iterate();
+		for( ; buildingIter.hasNext(); ) {
+			Building building = (Building)buildingIter.next();
 			if( !user.hasResearched(building.getTechRequired()) ) {
 				continue;
 			}
@@ -152,7 +154,6 @@ public class BuildingsController extends TemplateGenerator {
 			
 			t.parse("buildings.list", "buildings.listitem", true);
 		}
-		buildingID.free();
 		
 		//
 		// Cores
@@ -164,9 +165,9 @@ public class BuildingsController extends TemplateGenerator {
 		t.setBlock("cores.listitem", "core.consumes.listitem", "core.consumes.list");
 		
 
-		SQLQuery coreID = db.query("SELECT id FROM cores ORDER BY name,astitype");
-		while( coreID.next() ) {
-			Core core = Core.getCore(coreID.getInt("id"));
+		Iterator coreIter = db.createQuery("from Core order by name,astiType").iterate();
+		for( ; coreIter.hasNext(); ) {
+			Core core = (Core)coreIter.next();
 			if( !user.hasResearched(core.getTechRequired()) ) {
 				continue;
 			}
@@ -203,7 +204,6 @@ public class BuildingsController extends TemplateGenerator {
 	
 			t.parse("cores.list","cores.listitem",true);
 		}
-		coreID.free();
 		
 		t.setVar(	"base.id",		getInteger("col"),
 					"base.field",	getInteger("field") );

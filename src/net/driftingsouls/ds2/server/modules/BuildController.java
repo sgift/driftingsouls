@@ -18,12 +18,10 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
@@ -33,8 +31,6 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -48,7 +44,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * @urlparam Integer field Die ID des Feldes, auf dem das Gebaeude gebaut werden soll
  */
 public class BuildController extends TemplateGenerator {
-private Base base;
+	private Base base;
 	
 	/**
 	 * Konstruktor
@@ -94,9 +90,9 @@ private Base base;
 	 */
 	@Action(ActionType.DEFAULT)
 	public void buildAction() {
-		Database db = getDatabase();
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
+		org.hibernate.Session db = getDB();
 		
 		parameterNumber("build");
 		int build = getInteger("build");
@@ -142,16 +138,17 @@ private Base base;
 		if( building.getPerUserCount() != 0 ) {
 			int ownerbuildingcount = 0;
 		
-			SQLQuery abeb = db.query("SELECT bebauung FROM bases WHERE owner="+user.getId());
-			while( abeb.next() ) {
-				int[] aBebList = Common.explodeToInt("|",abeb.getString("bebauung"));
-				for( int bid : aBebList ) {
+			List bases = db.createQuery("from Base where owner=?")
+				.setEntity(0, user)
+				.list();
+			for( Iterator iter=bases.iterator(); iter.hasNext(); ) {
+				Base abase = (Base)iter.next();
+				for( int bid : abase.getBebauung() ) {
 					if( bid == building.getId() ) {
 						ownerbuildingcount++;
 					}
 				}
 			}
-			abeb.free();
 			
 			if( building.getPerUserCount() <= ownerbuildingcount ) {
 				addError("Sie k&ouml;nnen dieses Geb&auml;de maximal "+building.getPerUserCount()+" Mal insgesamt bauen");
@@ -170,16 +167,12 @@ private Base base;
 		}
 
 		if( building.isUComplex() ) {
-			List<Integer> ucbuildings = new ArrayList<Integer>();
-			SQLQuery ucbid = db.query("SELECT id FROM buildings WHERE ucomplex='1'");
-			while( ucbid.next() ) {
-				ucbuildings.add(ucbid.getInt("id"));
-			}
-			ucbid.free();
-	
 			int c = 0;
-			for( int i =0; i <= base.getWidth() * base.getHeight() -1 ; i++ ) {
-				if( ucbuildings.contains(base.getBebauung()[i]) ) {
+			for( int i =0; i <= base.getWidth() * base.getHeight() -1 ; i++ ) 
+			{
+				Building currentBuilding = Building.getBuilding(base.getBebauung()[i]);
+				if(currentBuilding != null && currentBuilding.isUComplex()) 
+				{
 					c++;
 				}
 			}
@@ -258,12 +251,12 @@ private Base base;
 	 * Zeigt die Liste der baubaren Gebaeude, sortiert nach Kategorien, an
 	 * @urlparam Integer cat Die anzuzeigende Kategorie
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		parameterNumber("cat");
 		
@@ -283,32 +276,28 @@ private Base base;
 		//Anzahl der Gebaeude pro Spieler berechnen
 		Map<Integer,Integer> ownerbuildingcount = new HashMap<Integer,Integer>(buildingcount);
 		
-		SQLQuery aBeb = db.query("SELECT bebauung FROM bases WHERE owner="+user.getId()+" AND id!="+base.getId());
-		while( aBeb.next() ) {
-			int[] aBebList = Common.explodeToInt("|",aBeb.getString("bebauung"));
-			for( int bid : aBebList ) {
+		List bases = db.createQuery("from Base where owner=? and id!=?")
+			.setEntity(0, user)
+			.setInteger(1, base.getId())
+			.list();
+		for( Iterator iter=bases.iterator(); iter.hasNext(); ) {
+			Base abase = (Base)iter.next();
+			for( int bid : abase.getBebauung() ) {
 				Common.safeIntInc(ownerbuildingcount, bid);
 			}
 		}
-		aBeb.free();
 
 		Cargo basecargo = base.getCargo();
 	
 		//Max UComplex-Gebaeude-Check
 		int grenze = (base.getWidth() * base.getHeight())/8;
-		
-		Set<Integer> ucbuildings = new HashSet<Integer>();
-		SQLQuery ucbid = db.query("SELECT id FROM buildings WHERE ucomplex='1'");
-		while( ucbid.next() ) {
-			ucbuildings.add(ucbid.getInt("id"));
-		}
-		ucbid.free();
-	
 		int c = 0;
-		for( int bid : buildingcount.keySet() ) {
-			int count = buildingcount.get(bid);
-			if( ucbuildings.contains(bid) ) {
-				c += count;
+		
+		Iterator ucBuildingIter = db.createQuery("from Building where ucomplex=1").iterate();
+		for( ; ucBuildingIter.hasNext(); ) {
+			Building building = (Building)ucBuildingIter.next();
+			if( buildingcount.containsKey(building.getId()) ) {
+				c += buildingcount.get(building.getId());
 			}
 		}
 
@@ -318,28 +307,31 @@ private Base base;
 		t.setBlock("buildings.listitem", "buildings.res.listitem", "buildings.res.list");
 		
 		//Alle Gebaeude ausgeben
-		SQLQuery building = db.query("SELECT * FROM buildings WHERE category='"+cat+"' ORDER BY name");
-		while( building.next() ) {
+		Iterator buildingIter = db.createQuery("from Building where category=? order by name")
+			.setInteger(0, cat)
+			.iterate();
+		for( ; buildingIter.hasNext(); ) {
+			Building building = (Building)buildingIter.next();
 			//Existiert bereits die max. Anzahl dieses Geb. Typs auf dem Asti?
-			if( (building.getInt("perplanet") != 0) && buildingcount.containsKey(building.getInt("id")) && 
-				(building.getInt("perplanet") <= buildingcount.get(building.getInt("id"))) ) {
+			if( (building.getPerPlanetCount() != 0) && buildingcount.containsKey(building.getId()) && 
+				(building.getPerPlanetCount() <= buildingcount.get(building.getId())) ) {
 				continue;
 			}
 		
-			if( (building.getInt("perowner") != 0) && ownerbuildingcount.containsKey(building.getInt("id")) && 
-				(building.getInt("perowner") <= ownerbuildingcount.get(building.getInt("id"))) ) {
+			if( (building.getPerUserCount() != 0) && ownerbuildingcount.containsKey(building.getId()) && 
+				(building.getPerUserCount() <= ownerbuildingcount.get(building.getId())) ) {
 				continue;
 			}
 		
-			if( !ucomplex && (building.getInt("ucomplex") != 0) ) {
+			if( !ucomplex && building.isUComplex() ) {
 				continue;
 			}
 
-			if( !user.hasResearched(building.getInt("techreq")) ) {
+			if( !user.hasResearched(building.getTechRequired()) ) {
 				continue;
 			}
 			
-			Cargo buildcosts = new Cargo(Cargo.Type.STRING, building.getString("buildcosts"));
+			Cargo buildcosts = building.getBuildCosts();
 			
 			boolean ok = true;
 			
@@ -350,9 +342,9 @@ private Base base;
 				}
 			}
 
-			t.setVar(	"building.picture",		building.getString("picture"),
-						"building.name",		Common._plaintitle(building.getString("name")),
-						"building.id",			building.getInt("id"),
+			t.setVar(	"building.picture",		building.getPicture(),
+						"building.name",		Common._plaintitle(building.getName()),
+						"building.id",			building.getId(),
 						"building.buildable", 	ok,
 						"buildings.res.list", 	"" );
 
@@ -368,6 +360,5 @@ private Base base;
 
 			t.parse("buildings.list", "buildings.listitem", true);
 		}
-		building.free();
 	}
 }

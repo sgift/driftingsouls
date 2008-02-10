@@ -12,6 +12,7 @@ CREATE TABLE `ships_modules` (
   `cost` int(11) NOT NULL default '0',
   `hull` int(11) NOT NULL default '0',
   `panzerung` tinyint(3) unsigned NOT NULL default '0',
+  `ablativeArmor` int(11) unsigned NOT NULL default '0',
   `cargo` mediumint(8) unsigned NOT NULL default '0',
   `heat` int(11) NOT NULL default '0',
   `crew` int(11) NOT NULL default '0',
@@ -29,6 +30,10 @@ CREATE TABLE `ships_modules` (
   `flags` text NOT NULL,
   `werft` varchar(16) NOT NULL default '',
   `ow_werft` smallint(6) NOT NULL default '0',
+  `srs` tinyint NOT NULL default '1',
+  `scanCost` INT NOT NULL DEFAULT '0',
+  `pickingCost` INT NOT NULL DEFAULT '0',
+  `marines` int unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='modifizierte Schiffstypenwerte fuer "jedes" Schiff'; 
 

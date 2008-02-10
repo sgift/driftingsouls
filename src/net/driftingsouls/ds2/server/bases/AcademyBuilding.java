@@ -19,26 +19,38 @@
 package net.driftingsouls.ds2.server.bases;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
 
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Offiziere;
+import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
-class Academy extends DefaultBuilding {
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.hibernate.annotations.Immutable;
+
+/**
+ * Die Akademie
+ * @author Christopher Jung
+ *
+ */
+@Entity(name="AcademyBuilding")
+@Immutable
+@DiscriminatorValue("net.driftingsouls.ds2.server.bases.AcademyBuilding")
+public class AcademyBuilding extends DefaultBuilding {
 	private static final Map<Integer,String> offis = new HashMap<Integer,String>();
 	private static final Map<Integer,String> attributes = new HashMap<Integer,String>();
 	
@@ -57,19 +69,20 @@ class Academy extends DefaultBuilding {
 	
 	/**
 	 * Erstellt eine neue Academy-Instanz
-	 * @param row Die SQL-Ergebniszeile mit den Gebaeudedaten der Akademie
 	 */
-	public Academy(SQLResultRow row) {
-		super(row);
+	public AcademyBuilding() {
+		// EMPTY
 	}
 
 	@Override
 	public void build(Base base) {
 		super.build(base);
 		
-		Context context = ContextMap.getContext();
+		Academy academy = new Academy(base);
 		
-		context.getDatabase().update("INSERT INTO academy (col,train,remain,upgrade) VALUES("+base.getId()+",0,0,'')");
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		db.persist(academy);
 	}
 
 	@Override
@@ -86,19 +99,26 @@ class Academy extends DefaultBuilding {
 	public void cleanup(Context context, Base base) {
 		super.cleanup(context, base);
 		
-		context.getDatabase().update("DELETE FROM academy WHERE col="+base.getId());
-		context.getDatabase().update("UPDATE offiziere SET dest='b "+base.getId()+"' WHERE dest='t "+base.getId()+"'");	
+		org.hibernate.Session db = context.getDB();
+		db.createQuery("delete from Academy where base=?")
+			.setEntity(0, base)
+			.executeUpdate();
+		
+		db.createQuery("update Offizier set dest=? where dest=?")
+			.setString(0, "b "+base.getId())
+			.setString(1, "t "+base.getId())
+			.executeUpdate();	
 	}
 
 	@Override
 	public boolean isActive(Base base, int status, int field) {
-		Database db = ContextMap.getContext().getDatabase();
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		SQLResultRow academy = db.first( "SELECT remain FROM academy WHERE col="+base.getId());
-		if( !academy.isEmpty() && (academy.getInt("remain") > 0) ) {
+		Academy academy = (Academy)db.get(Academy.class, base.getId());
+		if( (academy != null) && (academy.getRemain() > 0) ) {
 			return true;
 		}
-		else if( academy.isEmpty() ) {
+		else if( academy == null ) {
 			LOG.warn("Die Akademie auf Basis "+base.getId()+" verfuegt ueber keinen DB-Eintrag");
 		}
 		return false;
@@ -106,16 +126,16 @@ class Academy extends DefaultBuilding {
 	
 	@Override
 	public String echoShortcut(Context context, Base base, int field, int building) {
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		
 		String sess = context.getSession();
 		
 		StringBuilder result = new StringBuilder(200);
 		
-		SQLResultRow acc = db.first("SELECT remain,train,`upgrade` FROM academy WHERE col="+base.getId());
-		if( !acc.isEmpty() ) {
-			if( acc.getInt("remain") == 0 ) {
-				result.append("<a class=\"back\" href=\"./main.php?module=building&amp;sess=");
+		Academy acc = (Academy)db.get(Academy.class, base.getId());
+		if( acc != null ) {
+			if( acc.getRemain() == 0 ) {
+				result.append("<a class=\"back\" href=\"./ds?module=building&amp;sess=");
 				result.append(sess);
 				result.append("&amp;col=");
 				result.append(base.getId());
@@ -126,17 +146,17 @@ class Academy extends DefaultBuilding {
 			else {	
 				StringBuilder popup = new StringBuilder(200);
 				popup.append(Common.tableBegin(300, "left").replace('"', '\''));
-				if( acc.getInt("train") != 0 ) {
+				if( acc.getTrain() != 0 ) {
 					popup.append("Bildet aus: ");
-					popup.append(offis.get(acc.getInt("train")));
+					popup.append(offis.get(acc.getTrain()));
 					popup.append("<br />");
 				}
-				else if( acc.getString("upgrade").length() != 0 ) {											 
-					String[] upgrade = StringUtils.split(acc.getString("upgrade"), ' ');
-					SQLResultRow offi = db.first("SELECT name FROM offiziere WHERE id='",upgrade[0],"'");
+				else if( acc.getUpgrade().length() != 0 ) {											 
+					String[] upgrade = StringUtils.split(acc.getUpgrade(), ' ');
+					Offizier offi = Offizier.getOffizierByID(Integer.parseInt(upgrade[0]));
 					
 					popup.append("Bildet aus: ");
-					popup.append(offi.getString("name"));
+					popup.append(offi.getName());
 					popup.append(" (");
 					popup.append(attributes.get(Integer.parseInt(upgrade[1])));
 					popup.append(")<br />");
@@ -144,7 +164,7 @@ class Academy extends DefaultBuilding {
 				popup.append("Dauer: <img style='vertical-align:middle' src='");
 				popup.append(Configuration.getSetting("URL"));
 				popup.append("data/interface/time.gif' alt='noch ' />");
-				popup.append(acc.getInt("remain"));
+				popup.append(acc.getRemain());
 				popup.append("<br />");
 				popup.append(Common.tableEnd().replace('"', '\''));
 				
@@ -164,14 +184,14 @@ class Academy extends DefaultBuilding {
 				result.append(base.getId());
 				result.append("_");
 				result.append(field);
-				result.append("',REFY,22,NOJUSTY,TIMEOUT,0,DELAY,150,WIDTH,300,BGCLASS,'gfxtooltip',FGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');\" onmouseout=\"return nd();\" href=\"./main.php?module=building&amp;sess=");
+				result.append("',REFY,22,NOJUSTY,TIMEOUT,0,DELAY,150,WIDTH,300,BGCLASS,'gfxtooltip',FGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');\" onmouseout=\"return nd();\" href=\"./ds?module=building&amp;sess=");
 				result.append(sess);
 				result.append("&amp;col=");
 				result.append(base.getId());
 				result.append("&amp;field=");
 				result.append(field);
 				result.append("\">[A]<span style=\"font-weight:normal\">");
-				result.append(acc.getInt("remain"));
+				result.append(acc.getRemain());
 				result.append("</span></a>");
 			}
 		}
@@ -183,9 +203,8 @@ class Academy extends DefaultBuilding {
 	}
 
 	@Override
-	public String output(TemplateEngine t, Base base, int field, int building) {
-		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
+	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
+		org.hibernate.Session db = context.getDB();
 		User user = (User)context.getActiveUser();
 		
 		int newo = context.getRequest().getParameterInt("newo");
@@ -198,8 +217,8 @@ class Academy extends DefaultBuilding {
 			return "";
 		}
 
-		SQLResultRow academy = db.first("SELECT train,remain,`upgrade` FROM academy WHERE col="+base.getId());
-		if( academy.isEmpty() ) {
+		Academy academy = (Academy)db.get(Academy.class, base.getId());
+		if( academy == null ) {
 			context.addError("Diese Akademie verf&uuml;gt &uuml;ber keinen Akademie-Eintrag in der Datenbank");
 			return "";
 		}
@@ -214,10 +233,10 @@ class Academy extends DefaultBuilding {
 		//---------------------------------
 		
 		if( newo != 0 ) {
-			if( (academy.getInt("train") == 0) && (academy.getString("upgrade").length() == 0)) {
+			if( (academy.getTrain() == 0) && (academy.getUpgrade().length() == 0)) {
 				t.setVar("academy.show.trainnewoffi", 1);
 				
-				Cargo cargo = base.getCargo();
+				Cargo cargo = new Cargo(base.getCargo());
 			
 				boolean ok = true;
 				if( cargo.getResourceCount( Resources.SILIZIUM ) < 25 ) {
@@ -240,19 +259,10 @@ class Academy extends DefaultBuilding {
 						usercargo.setResource( Resources.NAHRUNG, 0 );	
 					}
 		
-					db.tBegin();
 					user.setCargo(usercargo.save());
-					db.tUpdate(1,"UPDATE academy SET train=",newo,",remain=8 WHERE col="+base.getId()+" AND train='0' AND remain='0'");
+					academy.setTrain(newo);
+					academy.setRemain(8);
 					base.setCargo(cargo);
-					
-					if( !db.tCommit() ) {
-						context.addError("Beginn der Ausbildung fehlgeschlagen. Bitte versuchen sie es erneut");
-					}
-					else {
-						academy.put("train", newo);
-						academy.put("remain", 8);
-					}
-		
 				} 
 			}
 		}
@@ -262,25 +272,25 @@ class Academy extends DefaultBuilding {
 		//--------------------------------------
 		
 		if( (train != 0) && (off != 0) ) {
-			if( (academy.getInt("train") == 0) && (academy.getString("upgrade").length() == 0) ) {				
-				SQLResultRow offizier = db.first("SELECT * FROM offiziere WHERE id='",off,"'");
-				if( offizier.getString("dest").equals("b "+base.getId()) ) {					
-					Map<Integer,String> dTrain = new HashMap<Integer,String>();
-					dTrain.put(1, "ing");
-					dTrain.put(2, "waf");
-					dTrain.put(3, "nav");
-					dTrain.put(4, "sec");
-					dTrain.put(5, "com");
+			if( (academy.getTrain() == 0) && (academy.getUpgrade().length() == 0) ) {				
+				Offizier offizier = Offizier.getOffizierByID(off);
+				if( offizier.getDest()[0].equals("b") && offizier.getDest()[1].equals(Integer.toString(base.getId())) ) {					
+					Map<Integer,Offizier.Ability> dTrain = new HashMap<Integer,Offizier.Ability>();
+					dTrain.put(1, Offizier.Ability.ING);
+					dTrain.put(2, Offizier.Ability.WAF);
+					dTrain.put(3, Offizier.Ability.NAV);
+					dTrain.put(4, Offizier.Ability.SEC);
+					dTrain.put(5, Offizier.Ability.COM);
 									 
-					int sk = offizier.getInt(dTrain.get(train))+1;
-					int nk = (int)(offizier.getInt(dTrain.get(train))*1.5d)+1;
-					int dauer = (int)(offizier.getInt(dTrain.get(train))/4d)+1;
+					int sk = offizier.getAbility(dTrain.get(train))+1;
+					int nk = (int)(offizier.getAbility(dTrain.get(train))*1.5d)+1;
+					int dauer = (int)(offizier.getAbility(dTrain.get(train))/4d)+1;
 					
 					t.setVar(
 							"academy.show.trainoffi", 1,
-							"trainoffi.id",			off,
+							"trainoffi.id",			offizier.getID(),
 							"trainoffi.trainid",	train,
-							"offizier.name",		Common._plaintext(offizier.getString("name")),
+							"offizier.name",		Common._plaintext(offizier.getName()),
 							"offizier.train.dauer",		dauer,
 							"offizier.train.nahrung", 	nk,
 							"offizier.train.silizium",	sk,
@@ -303,7 +313,7 @@ class Academy extends DefaultBuilding {
 						t.setVar("offizier.train.ability", "Kommandoeffizienz");
 					}
 					
-					Cargo cargo = base.getCargo();
+					Cargo cargo = new Cargo(base.getCargo());
 
 					boolean ok = true;
 					if( cargo.getResourceCount( Resources.SILIZIUM ) < sk) {
@@ -332,20 +342,13 @@ class Academy extends DefaultBuilding {
 							usercargo.setResource( Resources.NAHRUNG, 0 );	
 						}
 		
-						db.tBegin();
 						user.setCargo( usercargo.save() );
-						db.tUpdate(1,"UPDATE academy SET `upgrade`='",off," ",train,"',remain='",dauer,"' WHERE col="+base.getId()+" AND remain=0 AND `upgrade`=''");
-						db.tUpdate(1,"UPDATE offiziere SET dest='t "+base.getId()+"' WHERE id=",off," AND dest='b "+base.getId()+"'");
+						academy.setUpgrade(offizier.getID()+" "+train);
+						academy.setRemain(dauer);
+						
+						offizier.setDest("t", base.getId());
 						base.setCargo(cargo);
 						
-						if( !db.tCommit() ) {
-							context.addError("Beginn der Ausbildung fehlgeschlagen. Bitte versuchen sie es erneut");
-						}
-						else {					
-							academy.put("upgrade", off+" "+train);
-							academy.put("remain", dauer);
-						}					
-
 						t.parse( "OUT", "_BUILDING" );	
 						return t.getVar("OUT");
 					}
@@ -358,17 +361,17 @@ class Academy extends DefaultBuilding {
 		// werden gerade Offiziere ausgebildet? Welche?
 		//-----------------------------------------------
 		
-		if( (academy.getInt("train") != 0) || (academy.getString("upgrade").length() != 0) ) {
+		if( (academy.getTrain() != 0) || (academy.getUpgrade().length() != 0) ) {
 			t.setVar(	
 					"academy.show.training", 1,
-					"training.remain",	academy.getInt("remain"));
+					"training.remain",	academy.getRemain());
 			
 					
-			if( academy.getInt("train") != 0 ) {
-				t.setVar("trainoffizier.name", Common._plaintitle(Offiziere.LIST.get(academy.getInt("train")).getString("name")));
+			if( academy.getTrain() != 0 ) {
+				t.setVar("trainoffizier.name", Common._plaintitle(Offiziere.LIST.get(academy.getTrain()).getString("name")));
 			}
 			else {
-				String[] upgradeData = StringUtils.split(academy.getString("upgrade"), ' ' );
+				String[] upgradeData = StringUtils.split(academy.getUpgrade(), ' ' );
 				Offizier offizier = Offizier.getOffizierByID(Integer.parseInt(upgradeData[0]));
 				
 				t.setVar(
@@ -415,9 +418,8 @@ class Academy extends DefaultBuilding {
 		
 		t.setBlock("_BUILDING", "academy.offilist.listitem", "academy.offilist.list");
 		
-		SQLQuery offizier = db.query("SELECT * FROM offiziere WHERE dest='b "+base.getId()+"'");
-		while( offizier.next() ) {			
-			Offizier offi = new Offizier( offizier.getRow() );
+		List<Offizier> offiziere = context.query("from Offizier where dest='b "+base.getId()+"'", Offizier.class);
+		for( Offizier offi : offiziere ) {
 			
 			t.setVar(
 					"offizier.picture",	offi.getPicture(),
@@ -432,7 +434,6 @@ class Academy extends DefaultBuilding {
 			
 			t.parse("academy.offilist.list", "academy.offilist.listitem", true);
 		}
-		offizier.free();
 		
 		t.parse( "OUT", "_BUILDING" );	
 		return t.getVar("OUT");
