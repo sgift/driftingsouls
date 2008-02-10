@@ -67,16 +67,12 @@ public class Kommandozentrale extends DefaultBuilding {
 	@Override
 	public void cleanup(Context context, Base base) {
 		super.cleanup(context, base);
-		
-		org.hibernate.Session db = context.getDB();
-		
+
 		base.setAutoGTUActs(new ArrayList<AutoGTUAction>());
 		User nullUser = (User)context.getDB().get(User.class, 0);
 		base.setOwner(nullUser);
-				
-		db.createQuery("update ShipWerft set linked=null where linked=?")
-			.setEntity(0, base)
-			.executeUpdate();
+		
+		context.getDatabase().update("UPDATE werften set linked=null where linked="+base.getId());
 	}
 
 	@Override
