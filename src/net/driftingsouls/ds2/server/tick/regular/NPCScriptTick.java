@@ -117,6 +117,8 @@ public class NPCScriptTick extends TickController {
 			ship.free();
 			
 			scriptExecUpdate.close();
+			
+			getContext().commit();
 		}
 	}
 	

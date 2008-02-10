@@ -373,8 +373,20 @@ public class BaseTick extends TickController {
 			this.lastowner = base.getOwner().getId();
 			
 			// Nun wollen wir die Basis mal berechnen....
-			this.tickBase(base);
+			try {
+				this.tickBase(base);
+			}
+			catch( Exception e ) {
+				getContext().rollback();
+				db.clear();
+				
+				this.log("Base Tick - Base #"+base.getId()+" failed: "+e);
+				e.printStackTrace();
+				Common.mailThrowable(e, "BaseTick - Base #"+base.getId()+" Exception", "");
+			}
 			base.getOwner().setCargo(this.usercargo.save());
+			
+			getContext().commit();
 		}
 		
 		// ggf noch vorhandene Userdaten schreiben
@@ -406,6 +418,7 @@ public class BaseTick extends TickController {
 		
 		// User-Accs sperren
 		block(0);
+		getContext().commit();
 		
 		try {
 			tickBases();
@@ -435,8 +448,10 @@ public class BaseTick extends TickController {
 				Common.mailThrowable(e2, "BaseTick Exception #2", "");
 			}
 		}
-		
-		// User-Accs wieder entsperren
-		unblock(0);
+		finally {
+			// User-Accs wieder entsperren
+			unblock(0);
+			getContext().commit();
+		}
 	}
 }

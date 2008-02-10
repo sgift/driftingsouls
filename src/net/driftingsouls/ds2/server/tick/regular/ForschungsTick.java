@@ -76,6 +76,8 @@ public class ForschungsTick extends TickController {
 				
 				fz.setForschung(0);
 				fz.setDauer(0);
+				
+				getContext().commit();
 			}
 			catch( RuntimeException e ) {
 				this.log("Forschungszentrum "+fz.getBaseId()+" failed: "+e);

@@ -77,6 +77,9 @@ public class RestTick extends TickController {
 			this.log("Fehler beim Verarbeiten der Sprungantriebe: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doJumps failed");
+			
+			getContext().rollback();
+			getDB().clear();
 		}
 	}
 	
@@ -100,6 +103,9 @@ public class RestTick extends TickController {
 			this.log("Fehler beim Anlegen der Statistiken: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doStatistics failed");
+			
+			getContext().rollback();
+			getDB().clear();
 		}
 	}
 
@@ -178,6 +184,9 @@ public class RestTick extends TickController {
 			this.log("Fehler beim Verarbeiten der Vacationdaten: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doVacation failed");
+			
+			getContext().rollback();
+			getDB().clear();
 		}
 	}
 	
@@ -263,6 +272,9 @@ public class RestTick extends TickController {
 			this.log("Fehler beim Erstellen der Felsbrocken: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doFelsbrocken failed");
+			
+			getContext().rollback();
+			getDB().clear();
 		}
 	}
 	
@@ -321,6 +333,9 @@ public class RestTick extends TickController {
 			this.log("Fehler beim Verarbeiten der Quests: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doQuests failed");
+			
+			getContext().rollback();
+			getDB().clear();
 		}
 	}
 	
@@ -346,6 +361,9 @@ public class RestTick extends TickController {
 			this.log("Fehler beim Bearbeiten der Tasks: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doTasks failed");
+			
+			getContext().rollback();
+			getDB().clear();
 		}
 	}
 	
@@ -364,14 +382,25 @@ public class RestTick extends TickController {
 		
 		this.log("Erhoehe Tickzahl");
 		db.update("UPDATE config SET ticks=ticks+1");
-		
+		getContext().commit();
 		
 		this.doJumps();
+		getContext().commit();
+		
 		this.doStatistics();
+		getContext().commit();
+		
 		this.doVacation();
+		getContext().commit();
+		
 		this.doFelsbrocken();
+		getContext().commit();
+		
 		this.doQuests();
+		getContext().commit();
+		
 		this.doTasks();
+		getContext().commit();
 		
 		this.log("Zaehle Timeout bei Umfragen runter");
 		db.update("UPDATE surveys SET timeout=timeout-1 WHERE timeout>0");

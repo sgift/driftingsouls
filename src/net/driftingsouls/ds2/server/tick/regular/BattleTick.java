@@ -18,11 +18,15 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
+import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 /**
@@ -50,8 +54,15 @@ public class BattleTick extends TickController {
 		
 		db.update("UPDATE battles SET blockcount=blockcount-1 WHERE blockcount > 0 AND lastturn<=",lastacttime);
 		
-		SQLQuery battledata = db.query("SELECT id,commander1 FROM battles WHERE blockcount<=0 OR lastaction<=",lastacttime);
-		while( battledata.next() ) {
+		List<SQLResultRow> battleList = new ArrayList<SQLResultRow>();
+		SQLQuery battleQuery = db.query("SELECT id,commander1 FROM battles WHERE blockcount<=0 OR lastaction<=",lastacttime);
+		while( battleQuery.next() ) {
+			battleList.add(battleQuery.getRow());
+		}
+		battleQuery.free();
+		
+		for( int i=0; i < battleList.size(); i++ ) {
+			SQLResultRow battledata = battleList.get(i);
 			try {
 				this.log("+ Naechste Runde bei Schlacht "+battledata.getInt("id"));
 			
@@ -78,7 +89,6 @@ public class BattleTick extends TickController {
 				Common.mailThrowable(e, "BattleTick Exception", "battle: "+battledata.getInt("id"));
 			}
 		}
-		battledata.free();
 	}
 
 }

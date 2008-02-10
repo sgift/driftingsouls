@@ -214,6 +214,8 @@ public class NPCOrderTick extends TickController {
 				Ships.recalculateShipStatus(this.maxid);
 			
 				db.update("DELETE FROM orders WHERE id=",data.getInt("id"));
+				
+				getContext().commit();
 			}
 			catch( Exception e ) {
 				this.log("Order "+data.getInt("id")+" failed: "+e);

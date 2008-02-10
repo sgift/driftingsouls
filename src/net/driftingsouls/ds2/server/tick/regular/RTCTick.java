@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -74,9 +77,16 @@ public class RTCTick extends TickController {
 		/*
 			Einzelversteigerungen
 		*/
+		List<SQLResultRow> entryList = new ArrayList<SQLResultRow>();
 		
-		SQLQuery entry = db.query("SELECT * FROM versteigerungen WHERE tick<=",this.ticks," ORDER BY id");
-		while( entry.next() ) {
+		SQLQuery entryQuery = db.query("SELECT * FROM versteigerungen WHERE tick<=",this.ticks," ORDER BY id");
+		while( entryQuery.next() ) {
+			entryList.add(entryQuery.getRow());
+		}
+		entryQuery.free();
+		
+		for( int i=0; i < entryList.size(); i++ ) {
+			SQLResultRow entry = entryList.get(i);
 			try {
 				User winner = (User)getContext().getDB().get(User.class, entry.getInt("bieter"));
 				long price = entry.getLong("preis");
@@ -206,6 +216,8 @@ public class RTCTick extends TickController {
 					this.log("Die Versteigerung um "+entryname+" (id: "+entry.getInt("id")+(entry.getInt("owner") != Faction.GTU ? " - User: "+entry.getInt("owner") : "")+") wurde um 5 Runden verlaengert. Der Preis wurde um "+(long)(price*1/10d)+" RE reduziert");
 					db.update("UPDATE versteigerungen SET tick=tick+5,preis=preis-",(long)(price*1/10d)," WHERE id=",entry.getInt("id"));
 				}
+				
+				getContext().commit();
 			}
 			catch( Exception e ) {
 				this.log("Versteigerung "+entry.getInt("id")+" failed: "+e);
@@ -213,8 +225,7 @@ public class RTCTick extends TickController {
 				Common.mailThrowable(e, "RTCTick Exception", "versteigerung: "+entry.getInt("id"));
 			}
 		}
-		entry.free();
-		
+
 		/*
 			GTU-Pakete
 		*/

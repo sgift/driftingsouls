@@ -180,6 +180,8 @@ public class AcademyTick extends TickController {
 				// Nachricht versenden
 				String msg = "Die Flottenakademie auf dem Asteroiden "+base.getName()+" hat die Ausbildung abgeschlossen";
 				PM.send(sourceUser,base.getOwner().getId(), "Ausbildung abgeschlossen", msg);
+				
+				getContext().commit();
 			}
 			catch( RuntimeException e ) {
 				this.log("Bearbeitung der Akademie "+acc.getBaseId()+" fehlgeschlagen: "+e);

@@ -341,6 +341,8 @@ public class SchiffsTick extends TickController {
 			database.update("UPDATE ships s JOIN users u ON s.owner=u.id " +
 					"SET s.s=IF(s.s>70,s.s-70,0) " +
 					"WHERE s.s>0 AND (u.vaccount=0 OR u.wait4vac>0) AND s.id>0 AND s.system!=0 AND s.battle=0");
+			
+			getContext().commit();
 		}
 		
 		Iterator useriter = db.createQuery("select id from User " +
@@ -380,6 +382,8 @@ public class SchiffsTick extends TickController {
 				
 		database.update("UPDATE ships SET crew=0 WHERE id>0 AND crew<0");
 	
+		getContext().commit();
+		
 		if( this.calledByBattle ) {
 			return;
 		}			
@@ -396,6 +400,8 @@ public class SchiffsTick extends TickController {
 			Ships.destroy( sid.getInt("id") );
 		}
 		sid.free();
+		
+		getContext().commit();
 		
 		/*
 		 * Schadensnebel
@@ -428,6 +434,8 @@ public class SchiffsTick extends TickController {
 			database.update("UPDATE ships SET hull='",ship.getInt("hull"),"',engine=",sub[0],",weapons=",sub[1],",comm=",sub[2],",sensors=",sub[3]," WHERE id='",ship.getInt("id"),"'");
 		}
 		ship.free();
+		
+		getContext().commit();
 	}
 
 	private void tickUser(Database database, String battle, User auser) {
@@ -441,8 +449,10 @@ public class SchiffsTick extends TickController {
 		
 		long prevnahrung = this.usercargo.getResourceCount(Resources.NAHRUNG);
 		
+		List<SQLResultRow> shipList = new ArrayList<SQLResultRow>();
+		
 		// Schiffe berechnen
-		SQLQuery shipd = database.query(
+		SQLQuery shipQuery = database.query(
 				"SELECT s.id,s.name,s.crew,s.e,s.s,s.type,s.cargo,s.docked,s.engine,s.weapons,s.sensors,s.comm,s.battle,s.autodeut,s.x,s.y,s.system,s.owner,s.status,s.alarm,s.hull,s.heat ",
 				"FROM ships s JOIN ship_types st ON s.type=st.id ",
 				"WHERE s.id>0 AND s.owner='",auser.getId(),"' AND " +
@@ -453,15 +463,22 @@ public class SchiffsTick extends TickController {
 					"AND ",battle," ",
 				"ORDER BY s.owner,s.docked,s.type ASC");
 		
-		this.log(auser.getId()+": Es sind "+shipd.numRows()+" Schiffe zu berechnen ("+battle+")");
+		while( shipQuery.next() ) {
+			shipList.add(shipQuery.getRow());
+		}
+		shipQuery.free();
 		
-		while( shipd.next() ) {
+		this.log(auser.getId()+": Es sind "+shipList.size()+" Schiffe zu berechnen ("+battle+")");
+		
+		for( int i=0; i < shipList.size(); i++ ) {
+			SQLResultRow shipd = shipList.get(i);
 			idlist.add(shipd.getInt("id"));
 			
 			// Anzahl der Wiederholungen, falls ein Commit fehlschlaegt
 			this.retries = 5;
 			try {
-				this.tickShip( database, shipd.getRow() );
+				this.tickShip( database, shipd );
+				getContext().commit();
 			}
 			catch( Exception e ) {
 				this.log("ship "+shipd.getInt("id")+" failed: "+e);
@@ -469,7 +486,6 @@ public class SchiffsTick extends TickController {
 				Common.mailThrowable(e, "SchiffsTick Exception", "ship: "+shipd.getInt("id"));
 			}
 		}
-		shipd.free();
 		
 		// Aufraeumen
 		Ships.clearShipCache();
@@ -516,6 +532,8 @@ public class SchiffsTick extends TickController {
 				s.free();
 			}
 		}
+		
+		getContext().commit();
 				
 		// Nahrungspool aktualliseren
 		if( !this.calledByBattle ) {

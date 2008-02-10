@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Items;
 import net.driftingsouls.ds2.server.entities.User;
@@ -47,8 +50,16 @@ public class WerftTick extends TickController {
 	protected void tick() {
 		Database db = getDatabase();
 		
-		SQLQuery werftRow = db.query("SELECT * FROM werften WHERE building!=0 ORDER BY id");
-		while( werftRow.next() ) {
+		List<SQLResultRow> werftList = new ArrayList<SQLResultRow>();
+		
+		SQLQuery werftQuery = db.query("SELECT * FROM werften WHERE building!=0 ORDER BY id");
+		while( werftQuery.next() ) {
+			werftList.add(werftQuery.getRow());
+		}
+		werftQuery.free();
+		
+		for( int i=0; i < werftList.size(); i++ ) {
+			SQLResultRow werftRow = werftList.get(i);
 			try {
 				int id = werftRow.getInt("id");
 				WerftObject werftd = null;
@@ -64,7 +75,7 @@ public class WerftTick extends TickController {
 					}
 					
 					this.log("+++ Planetare Werft "+id+" (Basis "+werftRow.getInt("col")+"):");
-					werftd = new BaseWerft(werftRow.getRow(),"pwerft",base.getInt("system"),base.getInt("owner"),base.getInt("id"),-1);
+					werftd = new BaseWerft(werftRow,"pwerft",base.getInt("system"),base.getInt("owner"),base.getInt("id"),-1);
 				}
 				// Werft auf einem Schiff
 				else if( werftRow.getInt("shipid") > 0 ) {
@@ -79,7 +90,7 @@ public class WerftTick extends TickController {
 					
 					SQLResultRow shiptype = ShipTypes.getShipType(ship);
 					
-					werftd = new ShipWerft(werftRow.getRow(),shiptype.getString("werft"),ship.getInt("system"),ship.getInt("owner"),ship.getInt("id"));
+					werftd = new ShipWerft(werftRow,shiptype.getString("werft"),ship.getInt("system"),ship.getInt("owner"),ship.getInt("id"));
 					werftd.setOneWayFlag(shiptype.getInt("ow_werft"));
 				}
 				// Werft auf einem spawnbaren Schiff
@@ -119,6 +130,8 @@ public class WerftTick extends TickController {
 						}
 					}
 				}
+				
+				getContext().commit();
 			}
 			catch( Exception e ) {
 				this.log("Werft "+werftRow.getInt("id")+" failed: "+e);
@@ -126,7 +139,6 @@ public class WerftTick extends TickController {
 				Common.mailThrowable(e, "WerftTick Exception", "werft: "+werftRow.getInt("id"));
 			}
 		}
-		werftRow.free();
 	}
 
 }
