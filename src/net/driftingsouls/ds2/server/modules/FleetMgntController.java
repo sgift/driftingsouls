@@ -419,7 +419,7 @@ public class FleetMgntController extends TemplateGenerator {
 		
 		User newowner = (User)getDB().get(User.class, ownerid );
 		
-		if( newowner.getId() != 0 ) {
+		if( newowner != null ) {
 			t.setVar(	"show.newowner2",	1,
 						"newowner.name",	Common._title(newowner.getName()),
 						"newowner.id",		newowner.getId(),
