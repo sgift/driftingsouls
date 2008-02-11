@@ -971,9 +971,9 @@ public class Battle implements Loggable {
 		
 		// Zuerst schauen wir mal ob wir es mit Allys zu tun haben und 
 		// berechnen ggf die Userlisten neu 
-		Set<Integer> calcedallys = new HashSet<Integer>();
-		
-		for( Integer auserID : ownUsers ) {
+		Set<Integer> calcedallys = new HashSet<Integer>();	
+	
+		for( Integer auserID : new ArrayList<Integer>(ownUsers) ) {
 			User auser = (User)context.getDB().get(User.class, auserID);
 			
 			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly().getId()) ) {		
@@ -985,7 +985,7 @@ public class Battle implements Loggable {
 			}
 		}
 
-		for( Integer auserID : enemyUsers ) {
+		for( Integer auserID : new ArrayList<Integer>(enemyUsers) ) {
 			User auser = (User)context.getDB().get(User.class, auserID);
 			
 			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly().getId()) ) {		
