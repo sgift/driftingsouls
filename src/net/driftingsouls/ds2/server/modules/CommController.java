@@ -592,6 +592,10 @@ public class CommController extends TemplateGenerator implements Loggable {
 			int iTo = Integer.parseInt(to);
 		
 			User auser = (User)getDB().get(User.class, iTo);
+			if( auser == null ) {
+				t.setVar("show.message", "<span style=\"color:#ff0000\">Der angegebene Empf&auml;ger ist ung&uuml;ltig</span>");
+				return;
+			}
 			t.setVar("show.message", "<span style=\"color:#00ff55\">Nachricht versendet an</span> "+Common._title(auser.getName()));
 
 			PM.send(getContext(), user.getId(), iTo, title, msg, false, flags );
