@@ -108,8 +108,16 @@ public class NPCOrderTick extends TickController {
 	protected void tick() {
 		Database db = getDatabase();
 		
-		SQLQuery data = db.query("SELECT * FROM orders WHERE tick=1 ORDER BY user");
-		while( data.next() ) {
+		List<SQLResultRow> orderList = new ArrayList<SQLResultRow>();
+
+		SQLQuery dataQuery = db.query("SELECT * FROM orders WHERE tick=1 ORDER BY user");
+		while( dataQuery.next() ) {
+			orderList.add(dataQuery.getRow());
+		}
+		dataQuery.free();
+
+		for( int i=0; i < orderList.size(); i++ ) {
+			SQLResultRow data = orderList.get(i);
 			try {
 				int owner = data.getInt("user");
 				User user = (User)getContext().getDB().get(User.class, owner);
@@ -223,7 +231,6 @@ public class NPCOrderTick extends TickController {
 				Common.mailThrowable(e, "NPCOrderTick Exception", "order: "+data.getInt("id"));
 			}
 		}
-		data.free();
 		
 		if( pmcache.length() > 0 ) {
 			PM.send(getContext(), -1, lastowner, "NPC-Lieferservice", pmcache.toString());
