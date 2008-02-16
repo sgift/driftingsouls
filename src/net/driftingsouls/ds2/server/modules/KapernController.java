@@ -408,8 +408,8 @@ public class KapernController extends TemplateGenerator {
 			// Schiff uebereignen
 			this.targetShip.put("history", this.targetShip.getString("history")+"Gekapert am "+currentTime+" durch "+user.getName()+" ("+user.getId()+")\n");
 			
-			db.prepare("UPDATE ships SET owner= ?,fleet= ?,history= ? WHERE id= ? OR docked IN ( ?, ?)")
-				.update(user.getId(), 0, this.targetShip.getString("history"), this.targetShip.getInt("id"), "l "+this.targetShip.getInt("id"), Integer.toString(this.targetShip.getInt("id")));
+			db.prepare("UPDATE ships SET owner= ?,fleet= null,history= ? WHERE id= ? OR docked IN ( ?, ?)")
+				.update(user.getId(), this.targetShip.getString("history"), this.targetShip.getInt("id"), "l "+this.targetShip.getInt("id"), Integer.toString(this.targetShip.getInt("id")));
 			db.update("UPDATE offiziere SET userid="+user.getId()+" WHERE dest='s "+this.targetShip.getInt("id")+"'");
 			
 			if( this.targetShipType.getInt("werft") > 0 ) {

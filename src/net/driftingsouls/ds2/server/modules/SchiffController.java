@@ -267,7 +267,7 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 				int fleetcount = db.first("SELECT count(*) count FROM ships WHERE id>0 AND fleet="+fleet).getInt("count");
 			
 				if( fleetcount < 3 ) {
-					db.update("UPDATE ships SET fleet=0 WHERE id>0 AND fleet="+fleet);
+					db.update("UPDATE ships SET fleet=null WHERE id>0 AND fleet="+fleet);
 					db.update("DELETE FROM ship_fleets WHERE id>0 AND id="+fleet);
 				}
 			}	
@@ -1211,7 +1211,7 @@ private static final Map<String,String> moduleOutputList = new HashMap<String,St
 			} 
 			else {
 				t.setVar("ship.fleet", 0);
-				db.update("UPDATE ships SET fleet=0 WHERE id>0 AND id=",ship.getInt("id"));
+				db.update("UPDATE ships SET fleet=null WHERE id>0 AND id=",ship.getInt("id"));
 			}
 		}
 		
