@@ -51,11 +51,15 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.scripting.ScriptParser;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
+import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
 /**
  * Fueht spezielle Admin-Kommandos aus
@@ -123,94 +127,128 @@ public class AdminCommands implements Loggable {
 	
 	private static String cmdEditShip( Context context, String[] command ) {
 		String output = "";
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
+		
+		if( !NumberUtils.isNumber(command[1]) ) {
+			return "Ungueltige Schiffs-ID";
+		}
 		
 		int sid = Integer.parseInt(command[1]);
 		
-		SQLResultRow ship = db.first("SELECT * FROM ships WHERE id > 0 AND id="+sid);
-		if( ship.isEmpty() ) {
+		Ship ship = (Ship)db.get(Ship.class, sid);
+		if( ship == null ) {
 			return "Schiff '"+sid+"' nicht gefunden";
 		}
 		
 		if( command[2].equals("heat") ) {
-			db.update("UPDATE ships SET s="+Integer.parseInt(command[3])+" WHERE id>0 AND id="+sid);
+			if( !NumberUtils.isNumber(command[3]) ) {
+				return "Ueberhitzung ungueltig";
+			}
+			ship.setHeat(Integer.parseInt(command[3]));
 		}	
 		else if( command[2].equals("e") ) {
-			db.update("UPDATE ships SET e="+Integer.parseInt(command[3])+" WHERE id>0 AND id="+sid);
+			if( !NumberUtils.isNumber(command[3]) ) {
+				return "Energie ungueltig";
+			}
+			ship.setEnergy(Integer.parseInt(command[3]));
 		}
 		else if( command[2].equals("pos") ) {
 			Location loc = Location.fromString(command[3]);
 			
-			db.update("UPDATE ships SET system="+loc.getSystem()+",x="+loc.getX()+",y="+loc.getY()+" WHERE id>0 AND id="+sid);
-			db.update("UPDATE ships SET system="+loc.getSystem()+",x="+loc.getX()+",y="+loc.getY()+" WHERE id>0 AND docked IN ('"+sid+"','l "+sid+"')");	
+			ship.setSystem(loc.getSystem());
+			ship.setX(loc.getX());
+			ship.setY(loc.getY());
+			
+			db.createQuery("update Ship set system=?,x=?,y=? where id>0 and docked in (?,?)")
+				.setInteger(0, loc.getSystem())
+				.setInteger(1, loc.getX())
+				.setInteger(2, loc.getY())
+				.setString(3, Integer.toString(ship.getId()))
+				.setString(4, "l "+ship.getId())
+				.executeUpdate();	
 		}
 		else if( command[2].equals("hull") ) {
-			db.update("UPDATE ships SET hull="+Integer.parseInt(command[3])+" WHERE id>0 AND id="+sid);
+			if( !NumberUtils.isNumber(command[3]) ) {
+				return "Huelle ungueltig";
+			}
+			ship.setHull(Integer.parseInt(command[3]));
 		}
 		else if( command[2].equals("shields") ) {
-			db.update("UPDATE ships SET shields="+Integer.parseInt(command[3])+" WHERE id>0 AND id="+sid);
+			if( !NumberUtils.isNumber(command[3]) ) {
+				return "Schilde ungueltig";
+			}
+			ship.setShields(Integer.parseInt(command[3]));
 		}
 		else if( command[2].equals("crew") ) {
-			db.update("UPDATE ships SET crew="+Integer.parseInt(command[3])+" WHERE id>0 AND id="+sid);
+			if( !NumberUtils.isNumber(command[3]) ) {
+				return "Crew ungueltig";
+			}
+			ship.setCrew(Integer.parseInt(command[3]));
 		}
 		else if( command[2].equals("lock") ) {
-			db.prepare("UPDATE ships SET lock= ? WHERE id>0 AND id= ?")
-				.update(command[3], sid);
+			ship.setLock(command[3].equals("null") ? null : command[3]);
 		}
 		else if( command[2].equals("info") ) {
-			SQLResultRow shiptype = ShipTypes.getShipType(ship);
+			ShipTypeData shiptype = ship.getTypeData();
 			
 			output += "Schiff: "+sid+"\n";
-			output += "Typ: "+shiptype.getString("nickname")+" ("+ship.getInt("type")+")\n";
-			output += "Besitzer: "+ship.getInt("owner")+"\n";
-			output += "Position: "+Location.fromResult(ship)+"\n";
-			output += "Energie: "+ship.getInt("e")+"\n";
-			output += "Heat: "+ship.getInt("s")+"\n";
-			output += "Huelle: "+ship.getInt("hull")+"\n";
-			if( shiptype.getInt("shields") > 0 ) {
-				output += "Schilde: "+ship.getInt("shields")+"\n";
+			output += "Typ: "+shiptype.getNickname()+" ("+ship.getType()+")\n";
+			output += "Besitzer: "+ship.getOwner().getId()+"\n";
+			output += "Position: "+ship.getLocation()+"\n";
+			output += "Energie: "+ship.getEnergy()+"\n";
+			output += "Heat: "+ship.getHeat()+"\n";
+			output += "Huelle: "+ship.getHull()+"\n";
+			if( shiptype.getShields() > 0 ) {
+				output += "Schilde: "+ship.getShields()+"\n";
 			}	
-			output += "Crew: "+ship.getInt("crew")+"\n";
-			output += "Lock: "+ship.getString("lock")+"\n";
-			output += "Status: "+ship.getString("status")+"\n";
-			output += "Battle: "+ship.getInt("battle")+"\n";
+			output += "Crew: "+ship.getCrew()+"\n";
+			output += "Lock: "+ship.getLock()+"\n";
+			output += "Status: "+ship.getStatus()+"\n";
+			output += "Battle: "+ship.getBattle()+"\n";
 		}
 		else if( command[2].equals("additemmodule") ) {
+			if( !NumberUtils.isNumber(command[3]) ) {
+				return "Slot ungueltig";
+			}
 			int slot = Integer.parseInt(command[3]);
+			
+			if( !NumberUtils.isNumber(command[4]) ) {
+				return "Item-ID ungueltig";
+			}
 			int item = Integer.parseInt(command[4]);
 			
 			if( (Items.get().item(item) == null) || (Items.get().item(item).getEffect().getType() != ItemEffect.Type.MODULE) ) {
 				return "Das Item passt nicht";	
 			}
 				
-			Ships.addModule( ship, slot, Modules.MODULE_ITEMMODULE, Integer.toString(item) );
+			ship.addModule( slot, Modules.MODULE_ITEMMODULE, Integer.toString(item) );
 									
-			SQLResultRow shiptype = ShipTypes.getShipType( ship );
+			ShipTypeData shiptype = ship.getTypeData();
 				
-			if( ship.getInt("hull") > shiptype.getInt("hull") ) {
-				ship.put("hull", shiptype.getInt("hull"));	
+			if( ship.getHull() > shiptype.getHull() ) {
+				ship.setHull(shiptype.getHull());	
 			}
 				
-			if( ship.getInt("shields") > shiptype.getInt("shields") ) {
-				ship.put("shields", shiptype.getInt("shields"));	
+			if( ship.getShields() > shiptype.getShields() ) {
+				ship.setShields(shiptype.getShields());	
 			}
 				
-			if( ship.getInt("e") > shiptype.getInt("eps") ) {
-				ship.put("e", shiptype.getInt("eps"));	
+			if( ship.getEnergy() > shiptype.getEps() ) {
+				ship.setEnergy(shiptype.getEps());	
 			}
 				
-			if( ship.getInt("crew") > shiptype.getInt("crew") ) {
-				ship.put("crew", shiptype.getInt("crew"));	
+			if( ship.getCrew() > shiptype.getCrew() ) {
+				ship.setCrew(shiptype.getCrew());	
 			}
+			
+			if( shiptype.getWerft() != 0 ) {
+				ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where shipid=?")
+					.setInteger(0, ship.getId())
+					.uniqueResult();
 				
-			db.update("UPDATE ships SET hull="+ship.getInt("hull")+",shields="+ship.getInt("shields")+"," +
-						"e="+ship.getInt("e")+",crew="+ship.getInt("crew")+" " +
-						"WHERE id>0 AND id="+ship.getInt("id"));
-					
-			if( shiptype.getString("werft").length() > 0 ) {
-				SQLResultRow wid = db.first("SELECT id FROM werften WHERE shipid="+ship.getInt("id"));
-				if( wid.isEmpty() ) {
-					db.update("INSERT INTO werften (shipid) VALUES ("+ship.getInt("id")+")");	
+				if( werft == null ) {
+					werft = new ShipWerft(ship);
+					db.persist(werft);	
 				}	
 			}
 					
@@ -219,7 +257,7 @@ public class AdminCommands implements Loggable {
 		else {
 			output = "Unknown editship sub-command >"+command[2]+"<";	
 		}
-		Ships.recalculateShipStatus( sid );
+		ship.recalculateShipStatus();
 		
 		return output;
 	}

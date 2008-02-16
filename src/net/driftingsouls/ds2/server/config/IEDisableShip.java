@@ -18,7 +18,9 @@
  */
 package net.driftingsouls.ds2.server.config;
 
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
+import net.driftingsouls.ds2.server.ships.ShipType;
 
 import org.w3c.dom.Node;
 
@@ -55,6 +57,12 @@ public class IEDisableShip extends ItemEffect {
 	
 	protected static ItemEffect fromXML(Node effectNode) throws Exception {
 		int shiptype = XMLUtils.getNumberByXPath(effectNode, "@shiptype").intValue();
+		
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		ShipType shipType = (ShipType)db.get(ShipType.class, shiptype);
+		if( shipType == null ) {
+			throw new Exception("Illegaler Schiffstyp '"+shiptype+"' im Item-Effekt 'Schiffsbauplan deaktivieren'");
+		}
 		
 		Boolean allyEffect = XMLUtils.getBooleanByXPath(effectNode, "@ally-effect");
 		if( allyEffect != null ) {

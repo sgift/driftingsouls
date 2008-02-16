@@ -19,16 +19,32 @@
 package net.driftingsouls.ds2.server.werften;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
-import org.apache.commons.lang.StringUtils;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.Locatable;
+import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
-import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -50,99 +66,145 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DSObject;
 import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
-import net.driftingsouls.ds2.server.ships.Ships;
-import net.driftingsouls.ds2.server.ships.Ships.ModuleEntry;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipBaubar;
+import net.driftingsouls.ds2.server.ships.ShipType;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
+
+import org.apache.commons.lang.StringUtils;
+import org.hibernate.annotations.DiscriminatorFormula;
 
 /**
  * Basisklasse fuer alle Werfttypen in DS
  * @author Christopher Jung
  *
  */
-public abstract class WerftObject extends DSObject {
-	protected static final int BUILDING = 0;
-	protected static final int SHIP = 1;
-	
-	protected int werftid = 0;
-	protected String werfttag = "";
-	protected int system = 0;
-	protected int owner = 0;
-	protected int oneway = 0;
-	private int building = 0;
-	private int buildItem = -1;
-	private int remaining = 0;
+@Entity
+@Table(name="werften")
+@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
+@DiscriminatorFormula("case when komplex!=0 then 'komplex' when col is not null then 'base' else 'ship' end")
+public abstract class WerftObject extends DSObject implements Locatable {
+	@Id @GeneratedValue
+	private int id;
+	@Column(name="flagschiff")
 	private boolean buildFlagschiff = false;
 	private int type = 0;
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name="linkedWerft", nullable=true)
+	private WerftKomplex linkedWerft = null;
+
+	/**
+	 * Konstruktor
+	 *
+	 */
+	public WerftObject() {
+		// EMPTY
+	}
 	
-	protected WerftObject( SQLResultRow werftdata, String werfttag, int system, int owner) {
-		this.werftid = werftdata.getInt("id");
-		this.werfttag = werfttag;
-		this.system = system;
-		this.owner = owner;
-		this.type = werftdata.getInt("type");
-		this.building = werftdata.getInt("building");
-		this.buildItem = werftdata.getInt("item");
-		this.remaining = werftdata.getInt("remaining");
-		this.buildFlagschiff = werftdata.getBoolean("flagschiff");
+	/**
+	 * Erstellt eine neue Werft
+	 * @param type Der Typ der Werft
+	 */
+	public WerftObject(int type) {
+		this.type = type;
+	}
+	
+	/**
+	 * Gibt die aktuell zum Bau vorgesehenen Bauschlangeneintraege zurueck
+	 * @return Die Liste der zum Bauvorgesehenen Bauschlangeneintraege
+	 */
+	public WerftQueueEntry[] getScheduledQueueEntries() {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		List list = db.createQuery("from WerftQueueEntry where werft=? and scheduled=1 order by position")
+			.setInteger(0, this.getWerftID())
+			.list();
+		WerftQueueEntry[] entries = new WerftQueueEntry[list.size()];
+		int index = 0;
+		for( Iterator iter=list.iterator(); iter.hasNext(); ) {
+			entries[index++] = (WerftQueueEntry)iter.next();
+		}
+		
+		return entries;
 	}
 	
 	/**
 	 * Gibt zurueck, ob in der Werft im Moment gebaut wird
 	 * @return <code>true</code>, falls gebaut wird
 	 */
-	public boolean isBuilding() {
-		return building != 0;
+	public final boolean isBuilding() {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		return db.createQuery("from WerftQueueEntry where werft=?")
+			.setInteger(0, this.getWerftID())
+			.iterate().hasNext();
 	}
 	
 	/**
-	 * Gibt den im Moment gebauten Schiffstyp zurueck
-	 * @return Array mit Schiffstypdaten oder <code>null</code>
+	 * Gibt zurueck, ob sich in der Bauschlange ein Flagschiff befindet
+	 * @return <code>true</code>, falls ein Flagschiff gebaut werden soll
 	 */
-	public SQLResultRow getBuildShipType() {
-		if( building > 0 ) {
-			return ShipTypes.getShipType(building, false);
+	public boolean isBuildFlagschiff() {
+		return this.buildFlagschiff;
+	}
+	
+	/**
+	 * Gibt die Anzahl der aktuell belegten Slots zurueck
+	 * @return Die Anzahl der belegten Slots
+	 */
+	public final int getUsedSlots() {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		return ((Number)db.createQuery("select sum(slots) from WerftQueueEntry where werft=? and scheduled=1")
+			.setInteger(0, this.getWerftID())
+			.iterate().next()).intValue();
+	}
+	
+	/**
+	 * Gibt den Zeitpunkt zurueck, an dem ein Bauauftrag voraussichtlich fertig sein wird
+	 * @param searched Der Bauauftrag
+	 * @return Die Zeit in Ticks bis zur Fertigstellung
+	 */
+	public final int getTicksTillFinished(WerftQueueEntry searched) {
+		List<WerftQueueEntry> entries = new ArrayList<WerftQueueEntry>();
+		entries.addAll(Arrays.asList(getBuildQueue()));
+		
+		int slots = this.getWerftSlots();
+		int time = 0;
+		boolean first = true;
+		
+		SortedMap<Integer,List<WerftQueueEntry>> scheduled = new TreeMap<Integer,List<WerftQueueEntry>>();
+		
+		while( !entries.isEmpty() ) {
+			for( int i=0; i < entries.size(); i++ ) {
+				WerftQueueEntry entry = entries.get(i);
+				
+				if( (first && entry.isScheduled()) || (!first && entry.getSlots() <= slots) ) {
+					if( entry == searched ) {
+						return time+entry.getRemainingTime();
+					}
+					
+					slots -= entries.get(i).getSlots();
+					
+					if( !scheduled.containsKey(time+entry.getRemainingTime()) ) {
+						scheduled.put(time+entry.getRemainingTime(), new ArrayList<WerftQueueEntry>());
+					}
+					scheduled.get(time+entry.getRemainingTime()).add(entry);
+					entries.remove(i--);
+				}
+			}
+			
+			first = false;
+			
+			time = scheduled.firstKey();
+			List<WerftQueueEntry> remove = scheduled.remove(time);
+			for( WerftQueueEntry entry : remove ) {
+				slots += entry.getSlots();
+			}
 		}
 		
-		return null;
-	}
-	
-	/**
-	 * Dekrementiert die verbliebene Bauzeit um 1
-	 */
-	public void decRemainingTime() {
-		if( remaining <= 0 ) {
-			return;
-		}
-		remaining--;
-		ContextMap.getContext().getDatabase().update("UPDATE werften SET remaining=remaining-1 WHERE id=",getWerftID());
-	}
-	
-	/**
-	 * Inkrementiert die verbliebene Bauzeit um 1
-	 */
-	public void incRemainingTime() {
-		remaining++;
-		ContextMap.getContext().getDatabase().update("UPDATE werften SET remaining=remaining+1 WHERE id=",getWerftID());
-	}
-	
-	/**
-	 * Liefert die noch verbleibende Bauzeit
-	 * @return verbleibende Bauzeit
-	 */
-	public int getRemainingTime() {
-		return remaining;
-	}
-	
-	/**
-	 * Gibt das fuer den Bau benoetigte Item zurueck.
-	 * Falls kein Item benoetigt wird, wird -1 zurueckgegeben.
-	 * @return Item-ID oder -1
-	 */
-	public int getRequiredItem() {
-		return buildItem;
+		return -1;
 	}
 	
 	/**
@@ -154,161 +216,69 @@ public abstract class WerftObject extends DSObject {
 	}
 	
 	/**
-	 * Beendet den Bauprozess des aktuell gebauten Schiffes erfolgreich.
-	 * Sollte dies nicht moeglich sein, wird 0 zurueckgegeben.
-	 * 
-	 * @return die ID des gebauten Schiffes oder 0
+	 * Wird von Bauschlangeneintraegen aufgerufen, nachdem sie erfolgreich abgeschlossen wurden.
+	 * Der Bauschlangeneintrag ist zu diesem Zeitpunkt bereits entfernt.
+	 * @param shipid Die ID des neugebauten Schiffes
 	 */
-	public int finishBuildProcess() {
-		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
+	protected void onFinishedBuildProcess(int shipid) {
+		this.entries = null;
+		rescheduleQueue();
+	}
+
+	/**
+	 * Berechnet, welche Eintraege der Bauschlange im Moment gebaut werden und welche nicht
+	 *
+	 */
+	protected void rescheduleQueue() {
+		int freeSlots = this.getWerftSlots();
 		
-		SQLResultRow shipd = this.getBuildShipType();
-
-		int owner = this.getOwner();
-		int x = this.getX();
-		int y = this.getY();
-		int system = this.getSystem();
-					
-		Cargo cargo = new Cargo();
-		User auser = (User)context.getDB().get(User.class, owner);
+		final Cargo cargo = new Cargo(this.getCargo(true));
+		final User user = this.getOwner();
 		
-		String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
-		String history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+")\n";
-			
-		PreparedQuery shipCreate = db.prepare("INSERT INTO ships " ,
-				"(id,owner,type,x,y,system,crew,hull,cargo,e,history) " ,
-				"VALUES " ,
-				"(null, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-		shipCreate.update(owner,shipd.getInt("id"), x, y, system, shipd.getInt("crew"), shipd.getInt("hull"), cargo.save(), shipd.getInt("eps"), history);
-
-		int id = shipCreate.insertID();
-
-		if( shipd.getString("werft").length() > 0 ) {
-			db.update("INSERT INTO werften (shipid) VALUES (",id,")");
-			this.MESSAGE.get().append("\tWerft '"+shipd.getString("werft")+"' in Liste der Werften eingetragen\n");
-		}
-		if( this.buildFlagschiff ) {
-			db.update("UPDATE users SET flagschiff=",id," WHERE id=",owner);
-			this.MESSAGE.get().append("\tFlagschiff eingetragen\n");
+		if( user.getAlly() != null ) {
+			Cargo allyitems = new Cargo( Cargo.Type.ITEMSTRING, user.getAlly().getItems() );
+			cargo.addCargo( allyitems );
 		}
 		
-		// Item benutzen
-		if( this.getRequiredItem() > -1 ) {
-			cargo = this.getCargo(true);
-			List<ItemCargoEntry> itemlist = cargo.getItem(this.getRequiredItem());
-			boolean ok = false;
-			for( int i=0; i < itemlist.size(); i++ ) {
-				if( itemlist.get(i).getMaxUses() == 0 ) {
-					ok = true;
-					break;
-				}
-			}
+		final WerftQueueEntry[] entries = getBuildQueue();
+		for( int i=0; i < entries.length; i++ ) {
+			final WerftQueueEntry entry = entries[i];
 			
-			if( !ok ) {
-				User user = (User)context.getDB().get(User.class, this.getOwner());
-				
-				Cargo allyitems = null;
-				if( user.getAlly() != null ) {
-					allyitems = new Cargo( Cargo.Type.ITEMSTRING, user.getAlly().getItems() );
-					itemlist = allyitems.getItem(this.getRequiredItem());
-					for( int i=0; i < itemlist.size(); i++ ) {
-						if( itemlist.get(i).getMaxUses() == 0 ) {
-							ok = true;
-							break;
-						}
-					}
+			// Falls ein Item benoetigt wird pruefen, ob es vorhanden ist
+			if( entry.getRequiredItem() != -1 ) {
+				List<ItemCargoEntry> itemlist = cargo.getItem(entry.getRequiredItem());
+				if( itemlist.size() == 0 ) {
+					entry.setScheduled(false);
+					continue;
 				}
 				
-				if( !ok ) {
-					ItemCargoEntry item = null;
-					String source = "";
-					if( (user.getAlly() != null) && allyitems.hasResource(new ItemID(this.getRequiredItem())) ) {
-						item = allyitems.getItem(this.getRequiredItem()).get(0);
-						source = "ally";
-					}
-					else {
-						item = cargo.getItem(this.getRequiredItem()).get(0);
-						source = "local";
-					}
-					
-					item.useItem();
-					
-					if( source.equals("local") ) {
-						this.setCargo(cargo, true);
-					}
-					else {
-						db.update("UPDATE users t1 JOIN ally t2 ON t1.ally=t2.id SET t2.items='",allyitems.getData(Cargo.Type.ITEMSTRING),"' WHERE t1.id=",this.getOwner());
-					}
-				}
+				// Item entfernen, damit ein Bauplan nicht mehrfach benutzt wird
+				cargo.substractResource(itemlist.get(0).getResourceID(), 1);
 			}
+			
+			if( entry.getSlots() > freeSlots ) {
+				entry.setScheduled(false);
+				continue;
+			}
+			
+			entry.setScheduled(true);
+			
+			freeSlots -= entry.getSlots();
 		}
+	}
+	
+	/**
+	 * Entfernt alle Eintraege aus der Bauschlange
+	 *
+	 */
+	public void clearQueue() {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		db.createQuery("delete from WerftQueueEntry where werft=?")
+			.setInteger(0, this.getWerftID())
+			.executeUpdate();
 		
-		Ships.recalculateShipStatus(id);
-		
-		db.update("UPDATE werften SET building=0,remaining=0,item=-1,flagschiff=0 WHERE id=",this.getWerftID());
-		this.building = 0;
-		this.remaining = 0;
 		this.buildFlagschiff = false;
-		this.buildItem = -1;
-		
-		return id;
-	}
-	
-	/**
-	 * Gibt zurueck, ob alle Voraussetzungen fuer eine Weiterfuehrung
-	 * des Bauprozesses erfuellt sind. Wenn nichts gebaut wird,
-	 * wird ebenfalls true zurueckgegeben.
-	 * 
-	 * @return <code>true</code>, falls alle Voraussetzungen erfuellt sind
-	 */
-	public boolean isBuildContPossible() {
-		if( !this.isBuilding() ) {
-			return true;
-		}
-		
-		if( this.getRequiredItem() > -1 ) {
-			Context context = ContextMap.getContext();
-			Database db = context.getDatabase();
-			
-			Cargo cargo = this.getCargo(true);
-			User user = (User)context.getDB().get(User.class, this.getOwner());
-			
-			if( user.getAlly() != null ) {
-				Cargo allyitems = new Cargo( Cargo.Type.ITEMSTRING, user.getAlly().getItems() );
-				cargo.addCargo( allyitems );
-			}
-			
-			List<ItemCargoEntry> itemlist = cargo.getItem(this.getRequiredItem());
-			if( itemlist.size() == 0 ) {
-				return false;
-			}
-		}
-	
-		return true;
-	}
-	
-	/**
-	 * Bricht das aktuelle Bauvorhaben ab
-	 */
-	public void cancelBuild() {
-		Database db = ContextMap.getContext().getDatabase();
-		
-		db.update("UPDATE werften SET building='0',remaining='0',item='-1',flagschiff='0' WHERE id='",getWerftID(),"'");
-		building = 0;
-		remaining = 0;
-		buildItem = 0;
-		buildFlagschiff = false;
-	}
-	
-	/**
-	 * Setzt das Einwegflag der Werft auf die angegebene Typen-ID.<br>
-	 * Wenn das Einweg-Flag gesetzt ist, wird beim Bau die Werft in den angegebenen Typ fuer die
-	 * Dauer des Baus umgewandelt
-	 * @param flag Das Einweg-Flag
-	 */
-	public void setOneWayFlag(int flag) {
-		oneway = flag;
+		this.entries = null;
 	}
 
 	/**
@@ -316,7 +286,7 @@ public abstract class WerftObject extends DSObject {
 	 * @return Das Einweg-Flag
 	 */
 	public int getOneWayFlag() {
-		return oneway;
+		return 0;
 	}
 
 	/**
@@ -324,39 +294,33 @@ public abstract class WerftObject extends DSObject {
 	 * @return Die ID des Werfteintrags
 	 */
 	public int getWerftID() {
-		return werftid;
-	}
-
-	/**
-	 * Gibt den Werfttag zurueck. Der Werfttag identifiziert, welche Schiffe die Werft bauen kann
-	 * @return Der Werfttag
-	 */
-	public String getWerftTag() {
-		return werfttag;
-	}
-
-	/**
-	 * Gibt den Besitzer der Werft zurueck
-	 * @return Die ID des Besitzers
-	 */
-	public int getOwner() {
-		return owner;
-	}
-
-	/**
-	 * Gibt das System zurueck, in dem die Werft steht
-	 * @return Die ID des Systems
-	 */
-	public int getSystem() {
-		return system;
+		return id;
 	}
 	
 	/**
-	 * Gibt den Werfttyp (Basis,Schiff) zurueck
-	 * @return Der Werfttyp
+	 * Gibt den Namen der Werft zurueck
+	 * @return Der Name
 	 */
-	public abstract int getWerftType();
+	public abstract String getWerftName();
+	
+	/**
+	 * Gibt das Bild der Werft zurueck
+	 * @return Das Bild
+	 */
+	public abstract String getWerftPicture();
 
+	/**
+	 * Gibt die Anzahl an Werftslots zurueck, die der Werft zur Verfuegung stehen
+	 * @return Die Werftslots
+	 */
+	public abstract int getWerftSlots();
+
+	/**
+	 * Gibt den Besitzer der Werft zurueck
+	 * @return Der Besitzer
+	 */
+	public abstract User getOwner();
+	
 	/**
 	 * Gibt den Cargo der Werft zurueck
 	 * @param localonly Soll nur der eigene (<code>true</code>) oder auch der Cargo von gekoppelten Objekten (<code>false</code>) genommen werden?
@@ -446,10 +410,22 @@ public abstract class WerftObject extends DSObject {
 	public abstract int getY();
 	
 	/**
+	 * Gibt das System zurueck, in dem die Werft steht
+	 * @return Die ID des Systems
+	 */
+	public abstract int getSystem();
+	
+	/**
 	 * Gibt den Namen der Werft zurueck
 	 * @return Der Name
 	 */
 	public abstract String getName();
+	
+	/**
+	 * Gibt die URL zum Objekt zurueck, auf dem sich die Werft befindet
+	 * @return Die Url
+	 */
+	public abstract String getObjectUrl();
 	
 	/**
 	 * Gibt den Radius der Werft zurueck
@@ -464,15 +440,13 @@ public abstract class WerftObject extends DSObject {
 	 * befindet sich anschiessend auf der Werft.
 	 * {@link DSObject#MESSAGE} enthaelt die Hinweistexte
 	 * 
-	 * @param ship Array mit Schiffsdaten
+	 * @param ship Das Schiff
 	 * @param slot Modulslot, aus dem das Modul ausgebaut werden soll
 	 * 
 	 */
-	public void removeModule( SQLResultRow ship, int slot ) {
-		Database db = ContextMap.getContext().getDatabase();
-		
+	public void removeModule( Ship ship, int slot ) {
 		Map<Integer,Integer> usedslots = new HashMap<Integer,Integer>();
-		ModuleEntry[] modules = Ships.getModules(ship);
+		Ship.ModuleEntry[] modules = ship.getModules();
 		for( int i=0; i < modules.length; i++ ) {
 			usedslots.put(modules[i].slot, i);
 		}
@@ -482,11 +456,11 @@ public abstract class WerftObject extends DSObject {
 			return;
 		}
 		
-		SQLResultRow shiptype = ShipTypes.getShipType( ship.getInt("type"), false );
+		ShipTypeData shiptype = ship.getBaseType();
 		
 		String[] aslot = null;
 		
-		String[] moduleslots = StringUtils.split(shiptype.getString("modules"), ';');
+		String[] moduleslots = StringUtils.split(shiptype.getTypeModules(), ';');
 		for( int i=0; i < moduleslots.length; i++ ) {
 			String[] data = StringUtils.split(moduleslots[i], ':');
 		
@@ -501,9 +475,15 @@ public abstract class WerftObject extends DSObject {
 			return;
 		}
 		
-		SQLResultRow oldshiptype = (SQLResultRow)shiptype.clone();
+		ShipTypeData oldshiptype = null;
+		try {
+			oldshiptype = (ShipTypeData)shiptype.clone();
+		}
+		catch( CloneNotSupportedException e ) {
+			oldshiptype = shiptype;
+		}
 		
-		ModuleEntry module = modules[usedslots.get(slot)];
+		Ship.ModuleEntry module = modules[usedslots.get(slot)];
 		Module moduleobj = Modules.getShipModule( module );
 		if( aslot.length > 2 ) {
 			moduleobj.setSlotData(aslot[2]);
@@ -515,97 +495,120 @@ public abstract class WerftObject extends DSObject {
 			ResourceID itemid = ((ModuleItemModule)moduleobj).getItemID();
 			cargo.addResource( itemid, 1 );
 		}
-		Ships.removeModule( ship, module.slot, module.moduleType, module.data );
+		ship.removeModule( module.slot, module.moduleType, module.data );
 		
-		moduleUpdateShipData(db, ship.getInt("id"), oldshiptype, cargo);
+		moduleUpdateShipData(ship, oldshiptype, cargo);
 									
 		MESSAGE.get().append("Modul ausgebaut\n");
 		return;
 	}
 
-	private void moduleUpdateShipData(Database db, int shipID, SQLResultRow oldshiptype, Cargo cargo) {
-		SQLResultRow ship = db.first("SELECT id,x,y,system,owner,battle,type,status,hull,shields,e,cargo,crew FROM ships WHERE id>0 AND id=",shipID);
-		SQLResultRow shiptype = ShipTypes.getShipType( ship );
+	private void moduleUpdateShipData(Ship ship, ShipTypeData oldshiptype, Cargo cargo) {
+		ShipTypeData shiptype = ship.getTypeData();
 		
-		if( ship.getInt("hull") != shiptype.getInt("hull") ) {
-			double factor = ship.getInt("hull") / (double)oldshiptype.getInt("hull");
-			ship.put("hull", (int)(shiptype.getInt("hull") * factor));	
+		if( ship.getHull() != shiptype.getHull() ) {
+			double factor = ship.getHull() / (double)oldshiptype.getHull();
+			ship.setHull((int)(shiptype.getHull() * factor));	
 		}
 				
-		if( ship.getInt("hull") > shiptype.getInt("hull") ) {
-			ship.put("hull", shiptype.getInt("hull"));	
+		if( ship.getHull() > shiptype.getHull() ) {
+			ship.setHull(shiptype.getHull());	
 		}
 		
-		if( ship.getInt("shields") > shiptype.getInt("shields") ) {
-			ship.put("shields", shiptype.getInt("shields"));	
+		if( ship.getShields() > shiptype.getShields() ) {
+			ship.setShields(shiptype.getShields());	
 		}
 		
-		if( ship.getInt("e") > shiptype.getInt("eps") ) {
-			ship.put("e", shiptype.getInt("eps"));	
+		if( ship.getAblativeArmor() != shiptype.getAblativeArmor() ) {
+			double factor = ship.getAblativeArmor() / (double)oldshiptype.getAblativeArmor();
+			ship.setAblativeArmor((int)(shiptype.getAblativeArmor() * factor));	
 		}
 		
-		if( ship.getInt("crew") > shiptype.getInt("crew") ) {
-			ship.put("crew", shiptype.getInt("crew"));	
+		if( ship.getAblativeArmor() > shiptype.getAblativeArmor() ) {
+			ship.setAblativeArmor(shiptype.getAblativeArmor());
 		}
 		
-		Cargo shipcargo = new Cargo( Cargo.Type.STRING, ship.getString("cargo") );
-		if( shipcargo.getMass() > shiptype.getLong("cargo") ) {
-			Cargo newshipcargo = shipcargo.cutCargo( shiptype.getLong("cargo") );
+		if( ship.getEnergy() > shiptype.getEps() ) {
+			ship.setEnergy(shiptype.getEps());	
+		}
+		
+		if( ship.getCrew() > shiptype.getCrew() ) {
+			ship.setCrew(shiptype.getCrew());	
+		}
+		
+		Cargo shipcargo = ship.getCargo();
+		if( shipcargo.getMass() > shiptype.getCargo() ) {
+			Cargo newshipcargo = shipcargo.cutCargo( shiptype.getCargo() );
 			if( this.getMaxCargo(false) - cargo.getMass() > 0 ) {
 				Cargo addwerftcargo = shipcargo.cutCargo( this.getMaxCargo(false) - cargo.getMass() );
 				cargo.addCargo( addwerftcargo );
 			}
 			shipcargo = newshipcargo;
+			ship.setCargo(shipcargo);
 		}
 		
 		this.setCargo( cargo, false );
 		
 		StringBuilder output = MESSAGE.get();
 		
-		int jdockcount = db.first("SELECT count(*) count FROM ships WHERE docked='l ",ship.getInt("id"),"' AND id>0").getInt("count");
-		if( jdockcount > shiptype.getInt("jdocks") ) {
-			SQLQuery sid = db.query("SELECT id FROM ships WHERE docked='l ",ship.getInt("id"),"' AND id>0 LIMIT ",(jdockcount-shiptype.getInt("jdocks")));
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		long jdockcount = (Long)db.createQuery("select count(*) from Ship where docked=? and id>0")
+			.setString(0, "l "+ship.getId())
+			.iterate().next();
+		if( jdockcount > shiptype.getJDocks() ) {
+			List ships = db.createQuery("from Ship where docked=? and id>0")
+				.setString(0, "l "+ship.getId())
+				.setMaxResults((int)(jdockcount-shiptype.getJDocks()))
+				.list();
 			
-			int[] undockarray = new int[sid.numRows()];
 			int count = 0;
-			while( sid.next() ) {
-				undockarray[count++] = sid.getInt("id");
-			}
-			sid.free();
 			
-			output.append((jdockcount-shiptype.getInt("jdocks"))+" gelandete Schiffe wurden gestartet\n");
-					
-			Ships.dock(Ships.DockMode.START, ship.getInt("owner"), ship.getInt("id"), undockarray);
+			// toArray(T[]) fuehrt hier leider zu Warnungen...
+			Ship[] undockarray = new Ship[ships.size()];
+			for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+				undockarray[count++] = (Ship)ships.iterator();
+			}
+						
+			output.append((jdockcount-shiptype.getJDocks())+" gelandete Schiffe wurden gestartet\n");
+			
+			ship.dock(Ship.DockMode.START, undockarray);
 		}
 				
-		int adockcount = db.first("SELECT count(*) count FROM ships WHERE docked='",ship.getInt("id"),"' AND id>0").getInt("count");
-		if( adockcount > shiptype.getInt("adocks") ) {
-			SQLQuery sid = db.query("SELECT id FROM ships WHERE docked='",ship.getInt("id"),"' AND id>0 LIMIT ",(adockcount-shiptype.getInt("adocks")));
-
-			int[] undockarray = new int[sid.numRows()];
+		long adockcount = (Long)db.createQuery("select count(*) from Ship where docked=? and id>0")
+			.setString(0, Integer.toString(ship.getId()))
+			.iterate().next();
+		if( adockcount > shiptype.getADocks() ) {
+			List ships = db.createQuery("from Ship where docked=? and id>0")
+				.setString(0, Integer.toString(ship.getId()))
+				.setMaxResults((int)(adockcount-shiptype.getADocks()))
+				.list();
+			
 			int count = 0;
-			while( sid.next() ) {
-				undockarray[count++] = sid.getInt("id");
+			
+			// toArray(T[]) fuehrt hier leider zu Warnungen...
+			Ship[] undockarray = new Ship[ships.size()];
+			for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+				undockarray[count++] = (Ship)ships.iterator();
 			}
-			sid.free();
 			
-			output.append((adockcount-shiptype.getInt("adocks"))+" extern gedockte Schiffe wurden abgedockt\n");
+			output.append((adockcount-shiptype.getADocks())+" extern gedockte Schiffe wurden abgedockt\n");
 			
-			Ships.dock(Ships.DockMode.UNDOCK, ship.getInt("owner"), ship.getInt("id"), undockarray);
+			ship.dock(Ship.DockMode.UNDOCK, undockarray);
 		}
 		
-		
-		db.update("UPDATE ships SET hull=",ship.getInt("hull"),",shields=",ship.getInt("shields"),"," ,
-				"e=",ship.getInt("e"),",crew=",ship.getInt("crew"),",cargo='",shipcargo.save(),"' " ,
-				"WHERE id>0 AND id=",ship.getInt("id"));
-						
-		if( shiptype.getString("werft").length() == 0 ) {
-			db.update("DELETE FROM werften WHERE shipid=",ship.getInt("id"));	
+		if( shiptype.getWerft() == 0 ) {
+			db.createQuery("delete from ShipWerft where shipid=?")
+				.setEntity(0, ship)
+				.executeUpdate();	
 		}
 		else {
-			SQLResultRow wid = db.first("SELECT id FROM werften WHERE shipid=",ship.getInt("id"));
-			if( wid.isEmpty() ) {
-				db.update("INSERT INTO werften (shipid) VALUES ('",ship.getInt("id"),"')");	
+			ShipWerft w = (ShipWerft)db.createQuery("from ShipWerft where ship=?")
+				.setEntity(0, ship)
+				.uniqueResult();
+			if( w == null ) {
+				w = new ShipWerft(ship);
+				db.persist(w);	
 			}	
 		}
 	} 
@@ -617,16 +620,14 @@ public abstract class WerftObject extends DSObject {
 	 * muss auf der Werft vorhanden sein.
 	 * {@link DSObject#MESSAGE} enthaelt die Hinweistexte
 	 * 
-	 * @param ship Array mit den Daten des Schiffes
+	 * @param ship Das Schiff
 	 * @param slot Der Slot, in den das Modul eingebaut werden soll
 	 * @param item Die ID des einzubauenden Item-Moduls
 	 * 
 	 */
-	public void addModule( SQLResultRow ship, int slot, int item ) {
-		Database db = ContextMap.getContext().getDatabase();
-		
+	public void addModule( Ship ship, int slot, int item ) {
 		Map<Integer,Integer> usedslots = new HashMap<Integer,Integer>();
-		ModuleEntry[] modules = Ships.getModules(ship);
+		Ship.ModuleEntry[] modules = ship.getModules();
 		for( int i=0; i < modules.length; i++ ) {
 			usedslots.put(modules[i].slot, i);
 		}
@@ -639,11 +640,11 @@ public abstract class WerftObject extends DSObject {
 		Cargo cargo = this.getCargo(false);
 		List<ItemCargoEntry> itemlist = cargo.getItemsWithEffect( ItemEffect.Type.MODULE );
 		
-		SQLResultRow shiptype = ShipTypes.getShipType( ship.getInt("type"), false );
+		ShipTypeData shiptype = ship.getBaseType();
 		
 		String[] aslot = null;
 		
-		String[] moduleslots = StringUtils.split(shiptype.getString("modules"), ';');
+		String[] moduleslots = StringUtils.split(shiptype.getTypeModules(), ';');
 		for( int i=0; i < moduleslots.length; i++ ) {
 			String[] data = StringUtils.split(moduleslots[i], ':');
 		
@@ -682,12 +683,18 @@ public abstract class WerftObject extends DSObject {
 			return;
 		}
 		
-		SQLResultRow oldshiptype = (SQLResultRow)shiptype.clone();
+		ShipTypeData oldshiptype = null;
+		try {
+			oldshiptype = (ShipTypeData)shiptype.clone();
+		}
+		catch( CloneNotSupportedException e ) {
+			oldshiptype = shiptype;
+		}
 	
-		Ships.addModule( ship, slot, Modules.MODULE_ITEMMODULE, Integer.toString(item) );
+		ship.addModule( slot, Modules.MODULE_ITEMMODULE, Integer.toString(item) );
 		cargo.substractResource( myitem.getResourceID(), 1 );
 	
-		moduleUpdateShipData(db, ship.getInt("id"), oldshiptype, cargo);
+		moduleUpdateShipData(ship, oldshiptype, cargo);
 			
 		MESSAGE.get().append("Modul eingebaut\n");
 		
@@ -698,38 +705,41 @@ public abstract class WerftObject extends DSObject {
 	 * Berechnet den Cargo, den man beim Demontieren eines Schiffes zurueckbekommt. Er entspricht somit
 	 * dem reinen Schrottwert des Schiffes :)
 	 * Die aktuell geladenen Waren des Schiffes sind nicht teil des Cargos!
-	 * @param ship Array mit Daten des Schiffes
+	 * @param ship Das Schiff
 	 * 
 	 * @return Cargo mit den Resourcen
 	 */
-	public Cargo getDismantleCargo( SQLResultRow ship ) {
-		Database db = ContextMap.getContext().getDatabase();
+	public Cargo getDismantleCargo( Ship ship ) {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
-		SQLResultRow shiptype = ShipTypes.getShipType( ship );
+		ShipTypeData shiptype = ship.getTypeData();
 		
-		SQLResultRow baubar = db.first("SELECT costs FROM ships_baubar WHERE type=",ship.getInt("type"));
+		ShipBaubar baubar = (ShipBaubar)db.createQuery("from ShipBaubar where type=?")
+			.setInteger(0, ship.getType())
+			.setMaxResults(1)
+			.uniqueResult();
 			
 		//Kosten berechnen
 		Cargo cost = new Cargo();
 		
-		if( baubar.isEmpty() ) {
-			double htr = ship.getInt("hull")*0.0090;
+		if( baubar == null ) {
+			double htr = ship.getHull()*0.0090;
 			cost.addResource( Resources.KUNSTSTOFFE, (long)(htr/15) );
 			cost.addResource( Resources.TITAN, (long)(htr/5) );
 			cost.addResource( Resources.ADAMATIUM, (long)(htr/10) );
 			cost.addResource( Resources.PLATIN, 
 					(long)(htr*( 
-							Math.floor((100-ship.getInt("engine"))/2d) + 
-							Math.floor((100-ship.getInt("sensors"))/4d) + 
-							Math.floor((100-ship.getInt("comm"))/4d) + 
-							Math.floor((100-ship.getInt("weapons"))/2d)
+							Math.floor((100-ship.getEngine())/2d) + 
+							Math.floor((100-ship.getSensors())/4d) + 
+							Math.floor((100-ship.getComm())/4d) + 
+							Math.floor((100-ship.getWeapons())/2d)
 					)/900d) );
 			cost.addResource( Resources.SILIZIUM, 
 					(long)(htr*(
-							Math.floor((100-ship.getInt("engine"))/6d) + 
-							Math.floor((100-ship.getInt("sensors"))/2d) + 
-							Math.floor((100-ship.getInt("comm"))/2d) + 
-							Math.floor((100-ship.getInt("weapons"))/5d)
+							Math.floor((100-ship.getEngine())/6d) + 
+							Math.floor((100-ship.getSensors())/2d) + 
+							Math.floor((100-ship.getComm())/2d) + 
+							Math.floor((100-ship.getWeapons())/5d)
 					)/1200d) );
 			cost.addResource( Resources.KUNSTSTOFFE, 
 					(long)(
@@ -739,39 +749,39 @@ public abstract class WerftObject extends DSObject {
 					)*3);
 		} 
 		else {
-			Cargo buildcosts = new Cargo(Cargo.Type.STRING, baubar.getString("costs"));
+			Cargo buildcosts = baubar.getCosts();
 			
-			double factor = (ship.getInt("hull")/shiptype.getInt("hull"))*0.90d;
+			double factor = (ship.getHull()/shiptype.getHull())*0.90d;
 			cost.addResource( Resources.KUNSTSTOFFE, (long)(factor*buildcosts.getResourceCount(Resources.KUNSTSTOFFE)) );
 			cost.addResource( Resources.TITAN, (long)(factor*buildcosts.getResourceCount(Resources.TITAN)) );
 			cost.addResource( Resources.ADAMATIUM, (long)(factor*buildcosts.getResourceCount(Resources.ADAMATIUM)) );
 			cost.addResource( Resources.PLATIN, 
 					(long)(( factor-
-							((100-ship.getInt("engine"))/200d)-
-							((100-ship.getInt("sensors"))/400d)-
-							((100-ship.getInt("comm"))/400d)-
-							((100-ship.getInt("weapons"))/200d) 
+							((100-ship.getEngine())/200d)-
+							((100-ship.getSensors())/400d)-
+							((100-ship.getComm())/400d)-
+							((100-ship.getWeapons())/200d) 
 						)*buildcosts.getResourceCount(Resources.PLATIN)) );
 			cost.addResource( Resources.SILIZIUM, 
 					(long)(( factor-
-							((100-ship.getInt("engine"))/600d)-
-							((100-ship.getInt("sensors"))/200d)-
-							((100-ship.getInt("comm"))/200d)-
-							((100-ship.getInt("weapons"))/500d) 
+							((100-ship.getEngine())/600d)-
+							((100-ship.getSensors())/200d)-
+							((100-ship.getComm())/200d)-
+							((100-ship.getWeapons())/500d) 
 						)*buildcosts.getResourceCount(Resources.SILIZIUM)) );
 			cost.addResource( Resources.XENTRONIUM, 
 					(long)(( factor-
-							((100-ship.getInt("engine"))/200d)-
-							((100-ship.getInt("sensors"))/400d)-
-							((100-ship.getInt("comm"))/400d)-
-							((100-ship.getInt("weapons"))/200d) 
+							((100-ship.getEngine())/200d)-
+							((100-ship.getSensors())/400d)-
+							((100-ship.getComm())/400d)-
+							((100-ship.getWeapons())/200d) 
 						)*buildcosts.getResourceCount(Resources.XENTRONIUM)) );
 			cost.addResource( Resources.ISOCHIPS, 
 					(long)(( factor-
-							((ship.getInt("engine")-100)/600d)-
-							((100-ship.getInt("sensors"))/100d)-
-							((100-ship.getInt("comm"))/100d)-
-							((100-ship.getInt("weapons"))/300d) 
+							((ship.getEngine()-100)/600d)-
+							((100-ship.getSensors())/100d)-
+							((100-ship.getComm())/100d)-
+							((100-ship.getWeapons())/300d) 
 						)*buildcosts.getResourceCount(Resources.ISOCHIPS)) );
 		}
 		
@@ -796,24 +806,27 @@ public abstract class WerftObject extends DSObject {
 	 * und Werft im selben Sektor befinden, ob das Schiff in einem Kampf ist usw sondern
 	 * nur das demontieren selbst.{@link DSObject#MESSAGE} enthaelt die Hinweistexte
 	 * 
-	 * @param dismantle Die ID des zu demontierenden Schiffes
+	 * @param ship Das zu demontierende Schiff
 	 * @param testonly Soll nur geprueft (true) oder wirklich demontiert werden (false)?
 	 * @return true, wenn kein Fehler aufgetreten ist
 	 */
-	public boolean dismantleShip(int dismantle, boolean testonly) {	
-		Database db = ContextMap.getContext().getDatabase();
+	public boolean dismantleShip(Ship ship, boolean testonly) {	
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
 		StringBuilder output = MESSAGE.get();
 	
-		SQLResultRow sd = db.first("SELECT id,hull,cargo,engine,sensors,comm,weapons,type,name,crew,status FROM ships WHERE id>0 AND id=",dismantle);
+		if( ship.getId() < 0 ) {
+			ContextMap.getContext().addError("Das angegebene Schiff existiert nicht");
+			return false;
+		}
 		
-		Cargo scargo = new Cargo( Cargo.Type.STRING, sd.getString("cargo") );
+		Cargo scargo = ship.getCargo();
 		
 		Cargo cargo = this.getCargo(false);
 	
 	 	long maxcargo = this.getMaxCargo(false);
 	
-		Cargo cost = this.getDismantleCargo( sd );
+		Cargo cost = this.getDismantleCargo( ship );
 		
 		Cargo newcargo = (Cargo)cargo.clone();
 		long totalcargo = cargo.getMass();
@@ -828,34 +841,36 @@ public abstract class WerftObject extends DSObject {
 			ok = false;
 		}
 	
-		if( this.getCrew() + sd.getInt("crew") > this.getMaxCrew() ) {
+		if( this.getCrew() + ship.getCrew() > this.getMaxCrew() ) {
 			output.append("Nicht gengend Platz f&uuml;r die Crew\n");
 			ok = false;
 		}
 		
 		int maxoffis = this.canTransferOffis();
 		
-		SQLQuery offizierRow = db.query("SELECT id FROM offiziere WHERE dest='s ",dismantle,"' AND userid=",this.getOwner());
-		if( offizierRow.numRows() > maxoffis ) {
+		List offiziere = db.createQuery("from Offizier where dest=?")
+			.setString(0, "s "+ship.getId())
+			.list();
+		
+		if( offiziere.size() > maxoffis ) {
 			output.append("Nicht genug Platz f&uuml;r alle Offiziere");
 			ok = false;
 		}
 		if( !ok ) {
-			offizierRow.free();
 			return false;
 		}
 			
 		if( ok && !testonly ) {
 			this.setCargo(newcargo, false);
 	
-			this.setCrew(this.getCrew()+sd.getInt("crew"));
-			while( offizierRow.next() ) {
-				this.transferOffi(offizierRow.getInt("id"));
+			this.setCrew(this.getCrew()+ship.getCrew());
+			for( Iterator iter=offiziere.iterator(); iter.hasNext(); ) {
+				Offizier offi = (Offizier)iter.next();
+				this.transferOffi(offi.getID());
 			}
 	
-			Ships.destroy( dismantle );
+			ship.destroy();
 		}
-		offizierRow.free();
 		
 		return ok;
 	}
@@ -881,16 +896,17 @@ public abstract class WerftObject extends DSObject {
 	
 	/**
 	 * Berechnet die Reparaturkosten fuer ein Schiff
-	 * @param ship Array mit Schiffsdaten
+	 * @param ship Das Schiff
 	 * 
 	 * @return Die Reparaturkosten
 	 */
-	public RepairCosts getRepairCosts( SQLResultRow ship ) {
-		SQLResultRow shiptype = ShipTypes.getShipType( ship );
+	public RepairCosts getRepairCosts( Ship ship ) {
+		ShipTypeData shiptype = ship.getTypeData();
 		
 		//Kosten berechnen
-		int htr = shiptype.getInt("hull")-ship.getInt("hull");
-		int htrsub = (int)Math.round(shiptype.getInt("hull")*0.5d);
+		int htr = shiptype.getHull()-ship.getHull();
+		int htrsub = (int)Math.round(shiptype.getHull()*0.5d);
+		int ablativeArmorToRepair = shiptype.getAblativeArmor() - ship.getAblativeArmor();
 		
 		if( htr > htrsub ) {
 			htrsub = htr;
@@ -902,17 +918,17 @@ public abstract class WerftObject extends DSObject {
 		cost.addResource( Resources.ADAMATIUM, (long)(htr/40d) );
 		cost.addResource( Resources.PLATIN, 
 				(long)(htrsub/100d*(
-						Math.floor(100-ship.getInt("engine")) + 
-						Math.floor((100-ship.getInt("sensors"))/4d) + 
-						Math.floor((100-ship.getInt("comm"))/4d) + 
-						Math.floor(100-ship.getInt("weapons"))/2d
+						Math.floor(100-ship.getEngine()) + 
+						Math.floor((100-ship.getSensors())/4d) + 
+						Math.floor((100-ship.getComm())/4d) + 
+						Math.floor(100-ship.getWeapons())/2d
 					)/106d) );
 		cost.addResource( Resources.SILIZIUM, 
 				(long)(htrsub/100d*(
-						Math.floor((100-ship.getInt("engine"))/3) + 
-						Math.floor((100-ship.getInt("sensors"))/2) + 
-						Math.floor((100-ship.getInt("comm"))/2) + 
-						Math.floor((100-ship.getInt("weapons"))/5)
+						(100-ship.getEngine())/3 + 
+						(100-ship.getSensors())/2 + 
+						(100-ship.getComm())/2 + 
+						(100-ship.getWeapons())/5
 					)/72d) );
 		cost.addResource( Resources.KUNSTSTOFFE, 
 				(long)((
@@ -931,6 +947,10 @@ public abstract class WerftObject extends DSObject {
 			energie = 900;
 		}
 		
+		cost.addResource(Resources.URAN, ablativeArmorToRepair/5);
+		cost.addResource(Resources.TITAN, ablativeArmorToRepair/5);
+		cost.addResource(Resources.ADAMATIUM, ablativeArmorToRepair/10);
+		
 		RepairCosts rc = new RepairCosts();
 		rc.e = energie;
 		rc.cost = cost;
@@ -944,21 +964,19 @@ public abstract class WerftObject extends DSObject {
 	 * etwas zu tun haben. Die Positionen von Schiff und Werft usw werden jedoch nicht gecheckt.
 	 * {@link DSObject#MESSAGE} enthaelt die Hinweistexte
 	 *
-	 * @param ship Array mit Schiffsdaten
+	 * @param ship Das Schiff
 	 * @param testonly Soll nur getestet (true) oder auch wirklich repariert (false) werden?
 	 * 
 	 * @return true, wenn kein Fehler aufgetreten ist
 	 */
-	public boolean repairShip(SQLResultRow ship, boolean testonly) {
-		Database db = ContextMap.getContext().getDatabase();
-		
-		SQLResultRow shiptype = ShipTypes.getShipType( ship );
+	public boolean repairShip(Ship ship, boolean testonly) {
+		ShipTypeData shiptype = ship.getTypeData();
 		
 		Cargo cargo = this.getCargo(false);
 	
 		RepairCosts rc = this.getRepairCosts(ship);
 		
-		Cargo newcargo = cargo;
+		Cargo newcargo = (Cargo) cargo.clone();
 		boolean ok = true;
 		int newe = this.getEnergy();
 	
@@ -987,7 +1005,12 @@ public abstract class WerftObject extends DSObject {
 			this.setCargo( newcargo, false );
 			
 			this.setEnergy(newe);
-			db.update("UPDATE ships SET hull=",shiptype.getInt("hull"),",engine=100,sensors=100,comm=100,weapons=100 WHERE id>0 AND id=",ship.getInt("id"));
+			ship.setAblativeArmor(shiptype.getAblativeArmor());
+			ship.setHull(shiptype.getHull());
+			ship.setEngine(100);
+			ship.setSensors(100);
+			ship.setComm(100);
+			ship.setWeapons(100);
 		}
 		return true;
 	}
@@ -1005,12 +1028,10 @@ public abstract class WerftObject extends DSObject {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 		
-		User user = (User)context.getDB().get(User.class, this.getOwner());
-	
-		boolean flagschiff = user.hasFlagschiffSpace();
+		User user = this.getOwner();
 	
 		String fsquery = "";
-		if( !flagschiff ) {
+		if( !user.hasFlagschiffSpace() ) {
 			fsquery = "AND t1.flagschiff=0";
 		}
 	
@@ -1018,9 +1039,9 @@ public abstract class WerftObject extends DSObject {
 		if( !Systems.get().system(this.getSystem()).isMilitaryAllowed() ) {
 			sysreqquery = "t1.systemreq=0 AND ";
 		}
-		String query = "SELECT t1.id,t1.race,t1.type,t1.dauer,t1.costs,t1.ekosten,t1.crew,t1.tr1,t1.tr2,t1.tr3,t1.flagschiff,t1.linfactor " +
+		String query = "SELECT t1.id,t1.race,t1.type,t1.dauer,t1.costs,t1.ekosten,t1.crew,t1.tr1,t1.tr2,t1.tr3,t1.flagschiff " +
 			"FROM ships_baubar t1 JOIN ship_types t2 ON t1.type=t2.id " +
-			"WHERE "+sysreqquery+" LOCATE('"+this.getWerftTag()+"',t1.werftreq) "+fsquery+" " +
+			"WHERE "+sysreqquery+" t1.werftslots<="+this.getWerftSlots()+" "+fsquery+" " +
 			"ORDER BY t2.nickname";
 			
 	
@@ -1068,17 +1089,6 @@ public abstract class WerftObject extends DSObject {
 
 			Cargo costs = new Cargo( Cargo.Type.STRING, shipdata.getString("costs") );
 	
-			// Kosten anpassen
-			if( shipdata.getDouble("linfactor") > 0 ) {
-				int count = db.first("SELECT count(*) count FROM ships WHERE id>0 AND type=",shipdata.getInt("type")," AND owner=",user.getId()).getInt("count");
-				int count2 = db.first("SELECT count(t1.id) count FROM werften t1 JOIN bases t2 ON t1.col=t2.id WHERE t1.building=",shipdata.getInt("type")," AND t2.owner=",user.getId()).getInt("count");
-				int count3 = db.first("SELECT count(t1.id) count FROM werften t1 JOIN ships t2 ON t1.shipid=t2.id WHERE t2.id>0 AND t1.building=",shipdata.getInt("type")," AND t2.owner=",user.getId()).getInt("count");
-	
-				count = count + count2 + count3;
-				
-				costs.multiply( count*shipdata.getDouble("linfactor")+1, Cargo.Round.NONE );
-			}
-	
 			shipdata.put("costs", costs);
 			shipdata.put("_item", false);
 			result.add(shipdata);
@@ -1092,18 +1102,11 @@ public abstract class WerftObject extends DSObject {
 			ItemCargoEntry item = itemlist.get(i);
 			IEDraftShip effect = (IEDraftShip)item.getItemEffect();
 	
-			boolean found = false;
-			for( int j=0; j < effect.getWerftReqs().length; j++ ) {
-				if( this.getWerftTag().indexOf(effect.getWerftReqs()[j])  > -1 ) {
-					found = true;
-					break;
-				}
-			}
-			if( !found ) {
+			if( effect.getWerftSlots() > this.getWerftSlots() ) {
 				continue;
 			}
 
-			if( !flagschiff && effect.isFlagschiff() ) {
+			if( !user.hasFlagschiffSpace() && effect.isFlagschiff() ) {
 				continue;
 			}
 	
@@ -1119,7 +1122,6 @@ public abstract class WerftObject extends DSObject {
 			shipdata.put("id", -1);
 			shipdata.put("type", effect.getShipType());
 			shipdata.put("costs", cost);
-			shipdata.put("linfactor", 0);
 			shipdata.put("crew", effect.getCrew());
 			shipdata.put("dauer", effect.getDauer());
 			shipdata.put("ekosten", effect.getE());
@@ -1128,7 +1130,7 @@ public abstract class WerftObject extends DSObject {
 			shipdata.put("tr1", effect.getTechReq(1));
 			shipdata.put("tr2", effect.getTechReq(2));
 			shipdata.put("tr3", effect.getTechReq(3));
-			shipdata.put("werftreq", effect.getWerftReqs());
+			shipdata.put("werftslots", effect.getWerftSlots());
 			shipdata.put("flagschiff", effect.isFlagschiff());
 			shipdata.put("_item", new Object[] {"local", item.getResourceID()});
 			
@@ -1140,18 +1142,11 @@ public abstract class WerftObject extends DSObject {
 			ItemCargoEntry item = itemlist.get(i);
 			IEDraftShip effect = (IEDraftShip)item.getItemEffect();
 	
-			boolean found = false;
-			for( int j=0; j < effect.getWerftReqs().length; j++ ) {
-				if( this.getWerftTag().indexOf(effect.getWerftReqs()[j])  > -1 ) {
-					found = true;
-					break;
-				}
-			}
-			if( !found ) {
+			if( effect.getWerftSlots() > this.getWerftSlots() ) {
 				continue;
 			}
 
-			if( !flagschiff && effect.isFlagschiff() ) {
+			if( !user.hasFlagschiffSpace() && effect.isFlagschiff() ) {
 				continue;
 			}
 	
@@ -1167,7 +1162,6 @@ public abstract class WerftObject extends DSObject {
 			shipdata.put("id", -1);
 			shipdata.put("type", effect.getShipType());
 			shipdata.put("costs", cost);
-			shipdata.put("linfactor", 0);
 			shipdata.put("crew", effect.getCrew());
 			shipdata.put("dauer", effect.getDauer());
 			shipdata.put("ekosten", effect.getE());
@@ -1176,7 +1170,7 @@ public abstract class WerftObject extends DSObject {
 			shipdata.put("tr1", effect.getTechReq(1));
 			shipdata.put("tr2", effect.getTechReq(2));
 			shipdata.put("tr3", effect.getTechReq(3));
-			shipdata.put("werftreq", effect.getWerftReqs());
+			shipdata.put("werftslots", effect.getWerftSlots());
 			shipdata.put("flagschiff", effect.isFlagschiff());
 			shipdata.put("_item", new Object[] {"ally", item.getResourceID()});
 			
@@ -1200,11 +1194,11 @@ public abstract class WerftObject extends DSObject {
 	public SQLResultRow getShipBuildData( int build, int item ) {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
-		User user = (User)context.getDB().get(User.class, this.getOwner());
+		User user = this.getOwner();
 		
 		Cargo allyitems = null;
 	   	if( user.getAlly() != null ) {
-			allyitems = new Cargo(Cargo.Type.ITEMSTRING, user.getAlly().getItems());
+			allyitems = new Cargo(Cargo.Type.ITEMSTRING,user.getAlly().getItems());
 			Cargo localcargo = this.getCargo(true);
 			
 			allyitems.addCargo( localcargo );
@@ -1216,23 +1210,13 @@ public abstract class WerftObject extends DSObject {
 	
 	   	SQLResultRow shipdata = null;
 		if( build > 0 ) {
-			shipdata = db.first("SELECT type,costs,ekosten,crew,dauer,race,systemreq,tr1,tr2,tr3,werftreq,flagschiff,linfactor FROM ships_baubar WHERE id=",build);
+			shipdata = db.first("SELECT type,costs,ekosten,crew,dauer,race,systemreq,tr1,tr2,tr3,werftslots,flagschiff FROM ships_baubar WHERE id=",build);
 			if( shipdata.isEmpty() ) {
 				MESSAGE.get().append("Es wurde kein passender Schiffsbauplan gefunden");
 				return null;
 			}
 			
 			shipdata.put("costs", new Cargo(Cargo.Type.STRING, shipdata.getString("costs")));
-			
-			// Kosten anpassen
-			if( shipdata.getDouble("linfactor") > 0 ) {
-				int count = db.first("SELECT count(*) count FROM ships WHERE id>0 AND type=",shipdata.getInt("type")," AND owner=",user.getId()).getInt("count");
-				int count2 = db.first("SELECT count(t1.id) count FROM werften t1 JOIN bases t2 ON t1.col=t2.id WHERE t1.building=",shipdata.getInt("type")," AND t2.owner=",user.getId()).getInt("count");
-				int count3 = db.first("SELECT count(t1.id) count FROM werften t1 JOIN ships t2 ON t1.shipid=t2.id WHERE t2.id>0 AND t1.building=",shipdata.getInt("type")," AND t2.owner=",user.getId()).getInt("count");
-		
-				count = count + count2 + count3;
-				((Cargo)shipdata.get("costs")).multiply( shipdata.getDouble("linfactor")*count+1, Cargo.Round.NONE );
-			}
 		}
 		else {
 			int itemcount = allyitems.getItem( item ).size();
@@ -1250,7 +1234,6 @@ public abstract class WerftObject extends DSObject {
 			shipdata = new SQLResultRow();
 			shipdata.put("type", effect.getShipType());
 			shipdata.put("costs", effect.getBuildCosts());
-			shipdata.put("linfactor", 0);
 			shipdata.put("crew", effect.getCrew());
 			shipdata.put("dauer", effect.getDauer());
 			shipdata.put("ekosten", effect.getE());
@@ -1259,7 +1242,7 @@ public abstract class WerftObject extends DSObject {
 			shipdata.put("tr1", effect.getTechReq(1));
 			shipdata.put("tr2", effect.getTechReq(2));
 			shipdata.put("tr3", effect.getTechReq(3));
-			shipdata.put("werftreq", effect.getWerftReqs());
+			shipdata.put("werftslots", effect.getWerftSlots());
 			shipdata.put("flagschiff", effect.isFlagschiff());
 		}
 		
@@ -1272,22 +1255,22 @@ public abstract class WerftObject extends DSObject {
 	 * 
 	 * @param build Schiffbau-ID
 	 * @param item Item-ID
+	 * @param costsPerTick Sollen die Baukosten pro Tick (<code>true</code>) oder der Gesamtbetrag jetzt (<code>false</code>) abgezogen werden 
 	 * @param testonly Soll nur getestet (true) oder wirklich gebaut (false) werden?
 	 * @return true, wenn kein Fehler aufgetreten ist
 	 */
-	public boolean buildShip( int build, int item, boolean testonly ) {
+	public boolean buildShip( int build, int item, boolean costsPerTick, boolean testonly ) {
 		StringBuilder output = MESSAGE.get();
 		
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
-		User user = (User)context.getDB().get(User.class, this.getOwner());
+		org.hibernate.Session db = context.getDB();
+		User user = this.getOwner();
 	
-		Cargo basec = this.getCargo(false);
-	   	Cargo newbasec = (Cargo)basec.clone();
+		Cargo cargo = new Cargo(this.getCargo(false));
 	
 	   	Cargo allyitems = null;
 	   	if( user.getAlly() != null ) {
-			allyitems = new Cargo(Cargo.Type.ITEMSTRING, user.getAlly().getItems());
+			allyitems = new Cargo(Cargo.Type.ITEMSTRING,user.getAlly().getItems());
 
 			allyitems.addCargo( this.getCargo(true) );
 		}
@@ -1335,22 +1318,7 @@ public abstract class WerftObject extends DSObject {
 		}
 	
 		//Kann das Schiff in dieser Werft gebaut werden?
-		String[] werftreq = null;
-		if( shipdata.get("werftreq") instanceof String ) {
-			werftreq = new String[] {shipdata.getString("werftreq")};
-		}
-		else {
-			werftreq = (String[])shipdata.get("werftreq");
-		}
-		
-		boolean found = false;
-		for( int j=0; j < werftreq.length; j++ ) {
-			if( werftreq[j].indexOf(this.getWerftTag()) > -1 ) {
-				found = true;
-				break;
-			}
-		}
-		if( !found ) {
+		if( shipdata.getInt("werftslots") > this.getWerftSlots() ) {
 			output.append("Dieses Werft ist nicht gro&szlig; genug f&uuml;r das Schiff");
 			return false;
 		}
@@ -1366,34 +1334,33 @@ public abstract class WerftObject extends DSObject {
 		//Resourcenbedraft angeben
 		boolean ok = true;
 		
-		Cargo shipdataCosts = (Cargo)shipdata.get("costs");
-	
-	   	//Standardresourcen
-		ResourceList reslist = shipdataCosts.compare( basec, false );
-		for( ResourceEntry res : reslist ) {
-			if( res.getDiff() > 0 ) {
-				ok = false;
-				break;
-			}
-		}
+		int e = this.getEnergy();
 		
-		newbasec.substractCargo( shipdataCosts );
+		Cargo shipdataCosts = new Cargo((Cargo)shipdata.get("costs"));
+		
+		if( !costsPerTick ) {
+			// Abzug der sofort anfallenden Baukosten
+			ResourceList reslist = shipdataCosts.compare( cargo, false );
+			for( ResourceEntry res : reslist ) {
+				if( res.getDiff() > 0 ) {
+					ok = false;
+					break;
+				}
+			}
+
+			// E-Kosten
+			if( shipdata.getInt("ekosten") > this.getEnergy()) {
+				ok = false;
+			}		
+		}
 	
 		int frei = this.getCrew();
-	
-		//E-Kosten
-		if( shipdata.getInt("ekosten") > this.getEnergy()) {
-			ok = false;
-		}
-		int e = this.getEnergy() - shipdata.getInt("ekosten");
 	
 		//Crew
 		if (shipdata.getInt("crew") > frei) {
 			ok = false;
 		}
 
-		frei -= shipdata.getInt("crew");
-	
 		if( !ok ) {
 			output.append("Nicht genug Material verf&uuml;gbar");
 			
@@ -1405,35 +1372,41 @@ public abstract class WerftObject extends DSObject {
 			return true;
 		} 
 		else {
-			if( this.getOneWayFlag() == 0 ) {
-				this.setCargo(newbasec, false);
+			frei -= shipdata.getInt("crew");
+			
+			if( !costsPerTick ) {
+				cargo.substractCargo( shipdataCosts );
+				e -= shipdata.getInt("ekosten");
+				
+				this.setCargo(cargo, false);
 				this.setEnergy(e);
-				this.setCrew(frei);
-	
-			} 
+			}
+			this.setCrew(frei);
+			
 			// TODO: Ab nach ShipWerft...
-			else if( this.getWerftType() == SHIP ) {
+			if( this.getOneWayFlag() != 0 && this instanceof ShipWerft ) {
 				// Einweg-Werft-Code
 				
 				ShipWerft werft = (ShipWerft)this;
 				
-				SQLResultRow newtype = ShipTypes.getShipType( this.getOneWayFlag(), false );
-				int crew = db.first("SELECT crew FROM ships WHERE id>0 AND id=", werft.getShipID()).getInt("crew");
-	
-				db.update("DELETE FROM ships WHERE id>0 AND id=",werft.getShipID());
-				
+				ShipType newtype = (ShipType)db.get(ShipType.class, this.getOneWayFlag());
+
 				String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
 				String history = "Baubeginn am "+currentTime+" durch "+user.getName()+" ("+user.getId()+"\n";
 				
-				db.update("INSERT INTO ships (id,name,type,hull,e,crew,x,y,system,owner,history) VALUES ",
-							"(",werft.getShipID(),",\"Baustelle\",",this.getOneWayFlag(),",",newtype.getInt("hull"),",",newtype.getInt("eps"),",",crew,",",
-							this.getX(),",",this.getY(),",",this.getSystem(),",",user.getId(),",'",db.prepareString(history),"')");
-	
-				db.update("UPDATE werften SET type=2 WHERE id=",this.getWerftID());
+				Ship ship = werft.getShip();
+				ship.setName("Baustelle");
+				ship.setBaseType(newtype);
+				ship.setHull(newtype.getHull());
+				ship.setEnergy(newtype.getEps());
+				ship.setOwner(user);
+				ship.setHistory(history);
+
+				this.type = 2;
 	
 			} 
-			else {
-				output.append("WARNING: UNKNOWN OW_WERFT (possible: building) in buildShip@WerftObject.php");
+			else if( this.getOneWayFlag() != 0 ) {
+				output.append("WARNING: UNKNOWN OW_WERFT (possible: building) in buildShip@WerftObject");
 				
 				return false;
 			}
@@ -1441,23 +1414,290 @@ public abstract class WerftObject extends DSObject {
 			/*
 				Werftauftrag einstellen
 			*/
-	
-			this.building = shipdata.getInt("type");
-			this.remaining = shipdata.getInt("dauer");
+			ShipType type = (ShipType)db.get(ShipType.class, shipdata.getInt("type"));
 			
-			String werftquery = "building="+shipdata.getInt("type")+",remaining="+shipdata.getInt("dauer");
-			if( shipdata.getBoolean("flagschiff") ) {
-				werftquery += ",flagschiff=1";
+			WerftQueueEntry entry = new WerftQueueEntry(this, type, (build > 0 ? -1 : item), shipdata.getInt("dauer"), shipdata.getInt("werftslots"));
+			entry.setBuildFlagschiff(shipdata.getBoolean("flagschiff"));
+			if( entry.isBuildFlagschiff() ) {
 				this.buildFlagschiff = true;
 			}
-			if( build == -1 ) {
-				werftquery += ",item="+item;
-				this.buildItem = item;
+			if( costsPerTick ) {
+				shipdataCosts.multiply(1/(double)shipdata.getInt("dauer"), Cargo.Round.CEIL);
+				entry.setCostsPerTick(shipdataCosts);
+				entry.setEnergyPerTick((int)Math.ceil(shipdata.getInt("ekosten")/(double)shipdata.getInt("dauer")));
 			}
-	
-			db.update("UPDATE werften SET ",werftquery," WHERE id=",this.getWerftID());
-	
+			db.persist(entry);
+			
+			this.entries = null;
+			
+			rescheduleQueue();
+			
 			return true;
 		}
 	}
+	
+	@Transient
+	private WerftQueueEntry[] entries = null;
+	
+	/**
+	 * Gibt die Bauschlange der Werft zurueck (inkl gerade im Bau befindlicher Schiffe)
+	 * @return Die Bauschlange
+	 */
+	public WerftQueueEntry[] getBuildQueue() {
+		if( entries != null ) {
+			return entries.clone();
+		}
+		
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		List queue = db.createQuery("from WerftQueueEntry where werft=? order by position asc")
+			.setInteger(0, this.getWerftID())
+			.list();
+		
+		WerftQueueEntry[] list = new WerftQueueEntry[queue.size()];
+		int index = 0;
+		for( Iterator iter=queue.iterator(); iter.hasNext(); ) {
+			list[index++] = (WerftQueueEntry)iter.next();
+		}
+
+		this.entries = list;
+		
+		return list;
+	}
+	
+	
+	/**
+	 * Bricht das Bauvorhaben ab
+	 * @param entry Das Bauvorhaben
+	 */
+	public void cancelBuild(WerftQueueEntry entry) {
+		if( entry.getWerft().getWerftID() != this.getWerftID() ) {
+			throw new IllegalArgumentException("Das WerftQueue-Objekt gehoert nicht zu dieser Werft");
+		}
+		
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+
+		if( entry.isBuildFlagschiff() ) {
+			this.buildFlagschiff = false;
+		}
+		db.delete(entry);
+		
+		final Iterator entryIter = db.createQuery("from WerftQueueEntry where werft=? and position>? order by position")
+			.setEntity(0, entry.getWerft())
+			.setInteger(1, entry.getPosition())
+			.iterate();
+		while( entryIter.hasNext() ) {
+			WerftQueueEntry aEntry = (WerftQueueEntry)entryIter.next();
+			aEntry.setPosition(aEntry.getPosition()-1);
+		}
+		
+		this.entries = null;
+		this.rescheduleQueue();
+	}
+	
+	/**
+	 * Tauscht die Baudaten der beiden Bauschlangeneintraege. Die Eintraege selbst aendern ihre
+	 * Position innerhalb der Schlange nicht.
+	 * @param entry1 Der erste Eintrag
+	 * @param entry2 Der zweite Eintrag
+	 */
+	public void swapQueueEntries(WerftQueueEntry entry1, WerftQueueEntry entry2) {
+		ShipType type = entry1.getBuildShipType();
+		entry1.setBuildShipType(entry2.getBuildShipType());
+		entry2.setBuildShipType(type);
+		
+		int buildItem = entry1.getRequiredItem();
+		entry1.setRequiredItem(entry2.getRequiredItem());
+		entry2.setRequiredItem(buildItem);
+		
+		int remaining = entry1.getRemainingTime();
+		entry1.setRemainingTime(entry2.getRemainingTime());
+		entry2.setRemainingTime(remaining);
+		
+		boolean fs = entry1.isBuildFlagschiff();
+		entry1.setBuildFlagschiff(entry2.isBuildFlagschiff());
+		entry2.setBuildFlagschiff(fs);
+		
+		Cargo cargo = entry1.getCostsPerTick();
+		entry1.setCostsPerTick(entry2.getCostsPerTick());
+		entry2.setCostsPerTick(cargo);
+		
+		int e = entry1.getEnergyPerTick();
+		entry1.setEnergyPerTick(entry2.getEnergyPerTick());
+		entry2.setEnergyPerTick(e);
+		
+		int slots = entry1.getSlots();
+		entry1.setSlots(entry2.getSlots());
+		entry2.setSlots(slots);
+		
+		boolean scheduled = entry1.isScheduled();
+		entry1.setScheduled(entry2.isScheduled());
+		entry2.setScheduled(scheduled);
+		
+		rescheduleQueue();
+	}
+	
+	/**
+	 * Gibt den Bauschlangeneintrag mit der angegebenen Position zurueck
+	 * @param position Die Position
+	 * @return Der Bauschlangeneintrag
+	 */
+	public WerftQueueEntry getBuildQueueEntry(int position) {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		return (WerftQueueEntry)db.createQuery("from WerftQueueEntry where werft=? and position=?")
+			.setInteger(0, this.getWerftID())
+			.setInteger(1, position)
+			.uniqueResult();
+	}
+	
+	public Location getLocation() {
+		return new Location(getSystem(), getX(), getY());
+	}
+
+	/**
+	 * Setzt, ob sich in der Bauschlange ein Flagschiff befindet
+	 * @param buildFlagschiff <code>true</code>, falls in der Bauschlange ein Flagschiff ist
+	 */
+	public void setBuildFlagschiff(boolean buildFlagschiff) {
+		this.buildFlagschiff = buildFlagschiff;
+	}
+
+	/**
+	 * Gibt die Werft zurueck, an die diese Werft gekoppelt ist
+	 * @return Die Werft
+	 */
+	public WerftKomplex getKomplex() {
+		return linkedWerft;
+	}
+	
+	/**
+	 * Entfernt die Werft aus dem Werftkomplex.
+	 * Wenn sich die Werft in keinem Komplex befindet wird
+	 * keinerlei Aktion durchgefuehrt.
+	 *
+	 */
+	public void removeFromKomplex() {
+		if( this.linkedWerft == null ) {
+			return;
+		}
+		
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		WerftObject[] werften = this.linkedWerft.getMembers();
+		
+		if( werften.length < 3 ) {
+			final WerftKomplex komplex = this.linkedWerft;
+			
+			for( int i=0; i < werften.length; i++ ) {
+				werften[i].linkedWerft = null;
+			}
+			
+			// Die Werftauftraege der groessten Werft zuordnen oder 
+			// (falls notwendig) loeschen
+			final WerftObject largest = werften[0].getWerftSlots() > werften[1].getWerftSlots() ? werften[0] : werften[1];
+			
+			WerftQueueEntry[] entries = komplex.getBuildQueue();
+			for( int i=0; i < entries.length; i++ ) {
+				if( entries[i].getSlots() <= largest.getWerftSlots() ) {
+					entries[i].copyToWerft(largest);
+				}
+				db.delete(entries[i]);
+			}
+			
+			this.entries = null;
+			
+			db.delete(komplex);
+		}
+		else {
+			WerftKomplex komplex = this.linkedWerft;
+			this.linkedWerft = null;
+			
+			komplex.refresh();
+		}
+	}
+
+	/**
+	 * Setzt den Werftkomplex, an die diese Werft gekoppelt werden soll.
+	 * @param linkedWerft Der Werftkomplex
+	 * @throws IllegalStateException Falls sich die Werft bereits in einem Komplex befindet
+	 */
+	public void addToKomplex(WerftKomplex linkedWerft) {
+		if( !this.isLinkableWerft() ) {
+			throw new RuntimeException("Diese Werft kann sich mit keiner anderen Werft zusammenschliessen");
+		}
+		
+		if( this.linkedWerft != null ) {
+			throw new IllegalStateException("Diese Werft befindet sich bereits in einem Komplex");
+		}
+		
+		this.linkedWerft = linkedWerft;
+		
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		WerftQueueEntry[] entries = this.getBuildQueue();
+		for( int i=0; i < entries.length; i++ ) {
+			entries[i].copyToWerft(this.linkedWerft);
+			db.delete(entries[i]);
+		}
+		
+		this.entries = null;
+		
+		linkedWerft.refresh();
+		this.linkedWerft.rescheduleQueue();
+	}
+	
+	/**
+	 * Erstellt einen neuen Werftkomplex zwischen dieser Werft und der angegebenen Werft
+	 * @param werft Die Werft mit der ein Komplex gebildet werden soll
+	 */
+	public void createKomplexWithWerft(WerftObject werft) {
+		if( !werft.isLinkableWerft() ) {
+			throw new IllegalArgumentException("Die Zielwerft kann sich mit keiner anderen Werft zusammenschliessen");
+		}
+		
+		if( !this.isLinkableWerft() ) {
+			throw new RuntimeException("Diese Werft kann sich mit keiner anderen Werft zusammenschliessen");
+		}
+		
+		if( this.linkedWerft != null ) {
+			throw new IllegalStateException("Diese Werft befindet sich bereits in einem Komplex");
+		}
+		
+		if( werft.linkedWerft != null ) {
+			throw new IllegalStateException("Die Zielwerft befindet sich bereits in einem Komplex");
+		}
+		
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		WerftKomplex komplex = new WerftKomplex();
+		db.save(komplex);
+		
+		this.linkedWerft = komplex;
+		werft.linkedWerft = komplex;
+		
+		WerftQueueEntry[] entries = this.getBuildQueue();
+		for( int i=0; i < entries.length; i++ ) {
+			entries[i].copyToWerft(this.linkedWerft);
+			db.delete(entries[i]);
+		}
+		
+		this.entries = null;
+		
+		entries = werft.getBuildQueue();
+		for( int i=0; i < entries.length; i++ ) {
+			entries[i].copyToWerft(werft.linkedWerft);
+			db.delete(entries[i]);
+		}
+		
+		werft.entries = null;
+		
+		this.linkedWerft.rescheduleQueue();
+	}
+	
+	/**
+	 * Gibt zurueck, ob sich diese Werft mit einer anderen Werft zusammenschliessen kann
+	 * @return <code>true</code>, falls ein Zusammenschluss moeglich ist
+	 */
+	public abstract boolean isLinkableWerft(); 
 }

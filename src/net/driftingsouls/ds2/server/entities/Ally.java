@@ -455,16 +455,9 @@ public class Ally {
 		user.setAllyPosten(null);
 		user.setName(user.getNickname());
 		
-		db.createQuery("update Battle set ally1=0 where commander1= :user and ally1= :ally")
-			.setEntity("user", user)
-			.setInteger("ally", this.id)
-			.executeUpdate();
-	
-		db.createQuery("update Battle set ally2=0 where commander2= :user and ally2= :ally")
-			.setEntity("user", user)
-			.setInteger("ally", this.id)
-			.executeUpdate();
-		
+		context.getDatabase().update("UPDATE battles SET ally1=0 WHERE commander1="+user.getId()+" AND ally1="+this.id);
+		context.getDatabase().update("UPDATE battles SET ally2=0 WHERE commander2="+user.getId()+" AND ally2="+this.id);
+			
 		int tick = context.get(ContextCommon.class).getTick();
 		user.addHistory(Common.getIngameTime(tick)+": Verlassen der Allianz "+this.name);
 

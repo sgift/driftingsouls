@@ -20,9 +20,10 @@ package net.driftingsouls.ds2.server.cargo.modules;
 
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import net.driftingsouls.ds2.server.ships.AbstractShipTypeDataWrapper;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Repraesentiert einen gedockten Frachtcontainer in DS
@@ -63,10 +64,8 @@ public class ModuleContainerShip extends Module {
 	}
 	
 	@Override
-	public SQLResultRow modifyStats(SQLResultRow stats, SQLResultRow typestats,
-			List<Module> moduleobjlist) {
-		stats.put("cargo", stats.getLong("cargo")+this.cargo);	
-		return stats;
+	public ShipTypeData modifyStats(ShipTypeData stats, List<Module> moduleobjlist) {
+		return new ShipTypeDataCargoWrapper(stats, this.cargo);
 	}
 
 	@Override
@@ -74,4 +73,22 @@ public class ModuleContainerShip extends Module {
 		// EMPTY
 	}
 
+	private static class ShipTypeDataCargoWrapper extends AbstractShipTypeDataWrapper {
+		private long cargo;
+		
+		ShipTypeDataCargoWrapper(ShipTypeData inner, long cargo) {
+			super(inner);
+			this.cargo = cargo;
+		}
+
+		@Override
+		public long getCargo() {
+			return this.getInner().getCargo()+this.cargo;
+		}
+
+		@Override
+		public Object clone() throws CloneNotSupportedException {
+			return super.clone();
+		}
+	}
 }

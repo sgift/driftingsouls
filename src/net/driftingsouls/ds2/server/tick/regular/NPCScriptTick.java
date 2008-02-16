@@ -79,7 +79,7 @@ public class NPCScriptTick extends TickController {
 			PreparedQuery scriptExecUpdate = db.prepare("UPDATE ships SET scriptexedata=? WHERE id=? AND script IS NOT NULL");
 			
 			this.log("+++++++++ User: "+user.getId()+" +++++++++");
-			SQLQuery ship = db.query("SELECT * FROM ships WHERE id>0 AND owner='",user.getId(),"' AND battle=0 AND script IS NOT NULL");
+			SQLQuery ship = db.query("SELECT * FROM ships WHERE id>0 AND owner='",user.getId(),"' AND battle is null AND script IS NOT NULL");
 			while( ship.next() ) {			
 				try {
 					this.log("+++ Ship "+ship.getInt("id")+" +++");

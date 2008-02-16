@@ -21,15 +21,17 @@ package net.driftingsouls.ds2.server.modules;
 import java.util.Arrays;
 import java.util.Map;
 
-import net.driftingsouls.ds2.server.Forschung;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.ModuleSlots;
+import net.driftingsouls.ds2.server.config.NoSuchSlotException;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.entities.Forschung;
+import net.driftingsouls.ds2.server.entities.OrderShip;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -40,7 +42,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.NoSuchShipTypeException;
-import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipBaubar;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 import org.apache.commons.lang.StringUtils;
@@ -52,8 +56,8 @@ import org.apache.commons.lang.StringUtils;
  */
 public class SchiffInfoController extends TemplateGenerator {
 	private int shipID = 0;
-	private SQLResultRow ship = null;
-	private SQLResultRow shipBuildData = null;
+	private ShipTypeData ship = null;
+	private ShipBaubar shipBuildData = null;
 	
 	/**
 	 * Konstruktor
@@ -67,12 +71,14 @@ public class SchiffInfoController extends TemplateGenerator {
 		requireValidSession(false);
 		
 		setTemplate("schiffinfo.html");
+		
+		setPageTitle("Schiffstyp");
 	}
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		int ship = getInteger("ship");
 		
@@ -84,9 +90,9 @@ public class SchiffInfoController extends TemplateGenerator {
 		
 		t.setVar( "global.login", (getUser() != null) );
 					
-		SQLResultRow data = null;
+		ShipTypeData data = null;
 		try {
-			data = ShipTypes.getShipType(ship, false);
+			data = Ship.getShipType(ship);
 		}
 		catch(NoSuchShipTypeException e) {
 			// EMPTY
@@ -94,61 +100,24 @@ public class SchiffInfoController extends TemplateGenerator {
 
 		//Dummydata, falls eine ungueltige Schiffs-ID eingegeben wurde
 		if( (data == null) || 
-			(data.getBoolean("hide") && (user != null) && (user.getAccessLevel() < 10) ) || 
-			(data.getBoolean("hide") && user == null) ) {
+			(data.isHide() && ((user == null) || (user.getAccessLevel() < 10)) ) ) {
 			
-			if( data != null ) {
-				data.clear();
-			}
-			else {
-				data = new SQLResultRow();
-			}
-			data.put( "id",ship );
-			data.put( "nickname","Unbekanntes Schiff" );
-			data.put( "ru", 0 );
-			data.put( "rd", 0 );
-			data.put( "ra", 0 );
-			data.put( "rm", 0 );
-			data.put( "eps", 0 );
-			data.put( "cost", 0 );
-			data.put( "hull", 0 );
-			data.put( "cargo", 0 );
-			data.put( "heat", 0 );
-			data.put( "crew", 0 );
-			data.put( "weapons","" );
-			data.put( "maxheat","" );
-			data.put( "torpedodef" , 0 );
-			data.put( "shields", 0 );
-			data.put( "size", 0 );
-			data.put( "jdocks", 0 );
-			data.put( "flags" , "" );
-			data.put( "adocks", 0 );
-			data.put( "sensorrage", 0 );
-			data.put( "hydro", 0 );
-			data.put( "recost" , 0 );
-			data.put( "deutfactor", 0 );
-			data.put( "class",ShipClasses.UNBEKANNT.ordinal() );
-			data.put( "descrip", "&uuml;ber diesen Schiffstyp liegen leider keine Daten vor");
-			data.put( "panzerung", 0 );
-			data.put( "sensorrange", 0 );
-			data.put( "picture", "" );
-			data.put( "modules", "" );
+			addError("&Uuml;ber diesen Schiffstyp liegen leider keine Daten vor");
 			
-			ship = 0;
+			return false;
 		}
-		else if( data.getBoolean("hide") && (user != null) && (user.getAccessLevel() >= 10) ) {
+		else if( data.isHide() && (user != null) && (user.getAccessLevel() >= 10) ) {
 			t.setVar("shiptype.showinvisible",1);
 		}
 		
-		SQLResultRow sw = null;
+		ShipBaubar sw = null;
 		
-		if( ship != 0 ) {	
+		if( ship != 0 ) {
 			//Daten fuer baubare Schiffe laden
-			sw = db.first("SELECT * FROM ships_baubar WHERE type=",ship);
-		}
-		
-		if( sw == null) {
-			sw = new SQLResultRow();	
+			sw = (ShipBaubar)db.createQuery("from ShipBaubar where type=?")
+				.setInteger(0, ship)
+				.setMaxResults(1)
+				.uniqueResult();
 		}
 		
 		this.shipID = ship;
@@ -164,16 +133,16 @@ public class SchiffInfoController extends TemplateGenerator {
 
 		if( getUser() != null ) {
 			for( int i=1; i <= 3; i++ ) {
-				if( shipBuildData.getInt("tr"+i) != 0 ) {
-					SQLResultRow dat = db.first("SELECT f.name, uf.r",shipBuildData.getInt("tr"+i)," AS research " +
+				if( shipBuildData.getRes(i) != 0 ) {
+					SQLResultRow dat = db.first("SELECT f.name, uf.r",shipBuildData.getRes(i)," AS research " +
 							"FROM forschungen f JOIN user_f uf " +
-							"WHERE f.id=",shipBuildData.get("tr"+i)," AND uf.id=",getUser().getId());
+							"WHERE f.id=",shipBuildData.getRes(i)," AND uf.id=",getUser().getId());
 					String cssClass = "error";
 					if( !dat.isEmpty() && dat.getBoolean("research") ) {
 						cssClass = "ok";
 					} 	
 
-					t.setVar(	"shiptype.tr"+i, shipBuildData.getInt("tr"+i),
+					t.setVar(	"shiptype.tr"+i, shipBuildData.getRes(i),
 								"shiptype.tr"+i+".name"	, Common._title(dat.getString("name")),
 								"shiptype.tr"+i+".status", cssClass );
 				}
@@ -181,20 +150,20 @@ public class SchiffInfoController extends TemplateGenerator {
    		} 
 		else {
 			for( int i=1; i <= 3; i++ ) {
-				if( shipBuildData.getInt("tr"+i) != 0 ) {
-					Forschung f = Forschung.getInstance(shipBuildData.getInt("tr"+i));
+				if( shipBuildData.getRes(i) != 0 ) {
+					Forschung f = Forschung.getInstance(shipBuildData.getRes(i));
 
-					t.setVar(	"shiptype.tr"+i, shipBuildData.getInt("tr"+i),
+					t.setVar(	"shiptype.tr"+i, shipBuildData.getRes(i),
 								"shiptype.tr"+i+".name", Common._title(f.getName()) );
 				}
 			}
 		}
 		String race = "???";
-		if( shipBuildData.getInt("race") == -1 ) {
+		if( shipBuildData.getRace() == -1 ) {
 			race = "Alle";
 		} 
 		else {
-			race = Rassen.get().rasse(shipBuildData.getInt("race")).getName();
+			race = Rassen.get().rasse(shipBuildData.getRace()).getName();
 		}
 
 		t.setVar("shiptype.race",race);
@@ -203,29 +172,14 @@ public class SchiffInfoController extends TemplateGenerator {
 	private void outShipCost() {
 		TemplateEngine t = getTemplateEngine();
 
-		t.setVar(	"shiptype.cost.energie",		shipBuildData.getInt("ekosten"),
-					"shiptype.cost.crew",			shipBuildData.getInt("crew"),
-					"shiptype.cost.dauer",			shipBuildData.getInt("dauer"),
-					"shiptype.cost.linfactor",		shipBuildData.getInt("linfactor")*100 );
-
-		t.setBlock("_SCHIFFINFO", "shiptype.werften.listitem", "shiptype.werften.list" );
-		String[] werftlist = StringUtils.split(shipBuildData.getString("werftreq"), " ");
-		
-		for( int i=0; i < werftlist.length; i++ ) {
-			String name = "";
-			if( werftlist[i].equals("ganymed") ) {
-				name = "Ganymed";	
-			}
-			else if( werftlist[i].equals("pwerft") ) {
-				name = "Werft";	
-			}
-			t.setVar("werft.name", name);
-			t.parse("shiptype.werften.list", "shiptype.werften.listitem", true);
-		}
+		t.setVar(	"shiptype.cost.energie",		shipBuildData.getEKosten(),
+					"shiptype.cost.crew",			shipBuildData.getCrew(),
+					"shiptype.cost.dauer",			shipBuildData.getDauer(),
+					"shiptype.cost.werftslots",		shipBuildData.getWerftSlots());
 
 		t.setBlock("_SCHIFFINFO","res.listitem","res.list");
 	
-		Cargo costs = new Cargo( Cargo.Type.STRING, shipBuildData.getString("costs") );
+		Cargo costs = shipBuildData.getCosts();
 		ResourceList reslist = costs.getResourceList();
 		for( ResourceEntry res  : reslist ) {
 			t.setVar(	"res.name", res.getName(),
@@ -235,33 +189,34 @@ public class SchiffInfoController extends TemplateGenerator {
 		}
 	}
 	
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		//Kann der User sehen, dass das Schiff baubar ist?
 		int visible = -1;
 
-		if( !shipBuildData.isEmpty() ) {
+		if( shipBuildData != null ) {
 			for( int i=1; i <= 3; i++ ) {
-				if( shipBuildData.getInt("tr"+i) != 0 ) {
-					SQLResultRow research = db.first("SELECT visibility,req1,req2,req3 FROM forschungen WHERE id=",shipBuildData.get("tr"+i));
+				if( shipBuildData.getRes(i) != 0 ) {
+					Forschung research = Forschung.getInstance(shipBuildData.getRes(i));
 					
-					if( (research.getInt("visibility") != 1) && 
-						(user == null || !user.hasResearched(research.getInt("req1")) || 
-						 !user.hasResearched(research.getInt("req2")) || !user.hasResearched(research.getInt("req3")) ) ) {
+					if( !research.isVisibile() && 
+						(user == null || !user.hasResearched(research.getRequiredResearch(1)) || 
+						 !user.hasResearched(research.getRequiredResearch(2)) || 
+						 !user.hasResearched(research.getRequiredResearch(3)) ) ) {
 						 	
-						visible = shipBuildData.getInt("tr"+i);
+						visible = shipBuildData.getRes(i);
 					}
 				}
 			}
 		}
 
 		if( visible > 0 ) {
-			shipBuildData.clear();
+			shipBuildData = null;
 			
 			if( (user != null) && user.getAccessLevel() >= 10 ) {
 				t.setVar(	"shiptype.showbuildable",	1,
@@ -270,21 +225,26 @@ public class SchiffInfoController extends TemplateGenerator {
 		}
 
 		if( (user != null) && (user.getAccessLevel() >= 10) ) {
-			SQLResultRow order = db.first("SELECT cost FROM orders_ships WHERE type=",shipID);
+			OrderShip order = (OrderShip)db.get(OrderShip.class, shipID);
 			
-			if( !order.isEmpty() ) {
+			if( order != null ) {
 				t.setVar(	"shiptype.showorderable",	1,
-							"shiptype.ordercost",		order.getInt("cost") );
+							"shiptype.ordercost",		order.getCost() );
 			}
 		}
 
-		Map<String,String> weapons = Weapons.parseWeaponList(ship.getString("weapons"));
-		Map<String,String> maxheat = Weapons.parseWeaponList(ship.getString("maxheat"));
+		Map<String,String> weapons = Weapons.parseWeaponList(ship.getWeapons());
+		Map<String,String> maxheat = Weapons.parseWeaponList(ship.getMaxHeat());
 		
 		t.setBlock("_SCHIFFINFO","shiptype.weapons.listitem","shiptype.weapons.list");
-		for( String weapon : weapons.keySet() ) {
-			int count = Integer.parseInt(weapons.get(weapon));
-			if( Weapons.get().weapon(weapon) == null ) {
+		for( Map.Entry<String, String> entry: weapons.entrySet() ) {
+			int count = Integer.parseInt(entry.getValue());
+			String weaponname = entry.getKey();
+			
+			Weapon weapon = null;
+			weapon = Weapons.get().weapon(weaponname);
+			
+			if( weapon == null ) {
 				t.setVar(	"shiptype.weapon.name",			"<span style=\"color:red\">UNKNOWN: weapon</span>",
 							"shiptype.weapon.count",		count,
 							"shiptype.weapon.description",	"" );
@@ -298,66 +258,69 @@ public class SchiffInfoController extends TemplateGenerator {
 			descrip.append("<span style=\\'font-size:12px\\'>");
 
 			descrip.append("AP-Kosten: ");
-			descrip.append(Weapons.get().weapon(weapon).getAPCost());
+			descrip.append(weapon.getAPCost());
 			descrip.append("<br />");
 			descrip.append("Energie-Kosten: ");
-			descrip.append(Common.ln(Weapons.get().weapon(weapon).getECost()));
+			descrip.append(Common.ln(weapon.getECost()));
 			descrip.append("<br />");
 
-			if( Weapons.get().weapon(weapon).getSingleShots() > 1 ) {
+			if( weapon.getSingleShots() > 1 ) {
 				descrip.append("Sch&uuml;sse: ");
-				descrip.append(Weapons.get().weapon(weapon).getSingleShots());
+				descrip.append(weapon.getSingleShots());
 				descrip.append("<br />");
 			}
 
 			descrip.append("Max. &Uuml;berhitzung: ");
-			descrip.append(maxheat.get(weapon));
+			descrip.append(maxheat.get(weaponname));
 			descrip.append("<br />");
 
 			descrip.append("Schaden (H/S/Sub): ");
-			if( !Weapons.get().weapon(weapon).getAmmoType().equals("none") ) {
+			if( !"none".equals(weapon.getAmmoType()) ) {
 				descrip.append("Munition<br />");
 			}
 			else {
-				descrip.append(Common.ln(Weapons.get().weapon(weapon).getBaseDamage(ship)));
+				descrip.append(Common.ln(weapon.getBaseDamage(ship)));
 				descrip.append("/");
-				descrip.append(Common.ln(Weapons.get().weapon(weapon).getShieldDamage(ship)));
+				descrip.append(Common.ln(weapon.getShieldDamage(ship)));
 				descrip.append("/");
-				descrip.append(Common.ln(Weapons.get().weapon(weapon).getSubDamage(ship)));
+				descrip.append(Common.ln(weapon.getSubDamage(ship)));
 				descrip.append("<br />");
 			}
 
 			descrip.append("Trefferws (C/J/Torp): ");
-			if( !Weapons.get().weapon(weapon).getAmmoType().equals("none") ) {
+			if( !"none".equals(weapon.getAmmoType()) ) {
 				descrip.append("Munition<br />");
 			}
 			else {
-				descrip.append(Weapons.get().weapon(weapon).getDefTrefferWS());
+				descrip.append(weapon.getDefTrefferWS());
 				descrip.append("/");
-				descrip.append(Weapons.get().weapon(weapon).getDefSmallTrefferWS());
+				descrip.append(weapon.getDefSmallTrefferWS());
 				descrip.append("/");
-				descrip.append(Weapons.get().weapon(weapon).getTorpTrefferWS());
+				descrip.append(weapon.getTorpTrefferWS());
 				descrip.append("<br />");
 			}
 			
-			if( Weapons.get().weapon(weapon).getAreaDamage() != 0 ) {
+			if( weapon.getAreaDamage() != 0 ) {
 				descrip.append("Areadamage: ");
-				descrip.append(Weapons.get().weapon(weapon).getAreaDamage());
+				descrip.append(weapon.getAreaDamage());
 				descrip.append("<br />");	
 			}
-			if( Weapons.get().weapon(weapon).getDestroyable() ) {
+			if( weapon.getDestroyable() ) {
 				descrip.append("Durch Abwehrfeuer zerst&ouml;rbar<br />");	
 			}
-			if( Weapons.get().weapon(weapon).hasFlag(Weapon.Flags.DESTROY_AFTER) ) {
+			if( weapon.hasFlag(Weapon.Flags.DESTROY_AFTER) ) {
 				descrip.append("Beim Angriff zerst&ouml;rt<br />");	
 			}
-			if( Weapons.get().weapon(weapon).hasFlag(Weapon.Flags.LONG_RANGE) ) {
+			if( weapon.hasFlag(Weapon.Flags.LONG_RANGE) ) {
 				descrip.append("Gro&szlig;e Reichweite<br />");	
+			}
+			if( weapon.hasFlag(Weapon.Flags.VERY_LONG_RANGE) ) {
+				descrip.append("Sehr gro&szlig;e Reichweite<br />");	
 			}
 	
 			descrip.append("</span>");
 
-			t.setVar(	"shiptype.weapon.name",			Weapons.get().weapon(weapon).getName(),
+			t.setVar(	"shiptype.weapon.name",			weapon.getName(),
 						"shiptype.weapon.count",		count,
 						"shiptype.weapon.description",	descrip );
 
@@ -372,7 +335,7 @@ public class SchiffInfoController extends TemplateGenerator {
 		t.setBlock("_SCHIFFINFO", "shiptypeflags.listitem", "shiptypeflags.list");
 		t.setVar("shiptypeflags.list","");
 
-		String[] flaglist = ShipTypes.getShipTypeFlagList(this.ship);
+		String[] flaglist = Ship.getShipTypeFlagList(this.ship);
 		Arrays.sort(flaglist);
 		for( int i=0; i < flaglist.length; i++ ) {
 			if( flaglist[i].length() == 0 ) {
@@ -383,24 +346,20 @@ public class SchiffInfoController extends TemplateGenerator {
 								
 			t.parse("shiptypeflags.list","shiptypeflags.listitem",true);
 		}
-
-		if( ship.getString("descrip").length() == 0 ) {
-			ship.put( "descrip", "Keine Beschreibung verf&uuml;gbar");
-		}
-		
+	
 		// Module
 		StringBuilder moduletooltip = new StringBuilder();
 		String[] modulelist = new String[0];
-		if( ship.getString("modules").length() != 0 ) {
-			modulelist = StringUtils.split( ship.getString("modules"), ';' );
+		if( ship.getTypeModules().length() != 0 ) {
+			modulelist = StringUtils.split( ship.getTypeModules(), ';' );
 			
 			for( int i=0; i < modulelist.length; i++ ) {
 				String[] amodule = StringUtils.split(modulelist[i],':');
-				if( ModuleSlots.get().slot(amodule[1]) != null ) {
+				try {
 					moduletooltip.append(ModuleSlots.get().slot(amodule[1]).getName());
 					moduletooltip.append("<br />");
 				}
-				else {
+				catch( NoSuchSlotException e ) {
 					moduletooltip.append("<span style='color:red'>UNGUELTIGER SLOTTYP ");
 					moduletooltip.append(amodule[1]);
 					moduletooltip.append("</span><br />");
@@ -408,47 +367,55 @@ public class SchiffInfoController extends TemplateGenerator {
 			}
 		}
 
-		t.setVar(	"shiptype.nickname",	ship.getString("nickname"),
-					"shiptype.id",			ship.getInt("id"),
-					"shiptype.class",		ShipTypes.getShipClass(ship.getInt("class")).getSingular(),
-					"shiptype.image",		ship.getString("picture"),
-					"shiptype.ru",			ship.getInt("ru"),
-					"shiptype.rd",			ship.getInt("rd"),
-					"shiptype.ra",			ship.getInt("ra"),
-					"shiptype.rm",			ship.getInt("rm"),
+		t.setVar(	"shiptype.nickname",	ship.getNickname(),
+					"shiptype.id",			ship.getTypeId(),
+					"shiptype.class",		ShipTypes.getShipClass(ship.getShipClass()).getSingular(),
+					"shiptype.image",		ship.getPicture(),
+					"shiptype.ru",			ship.getRu(),
+					"shiptype.rd",			ship.getRd(),
+					"shiptype.ra",			ship.getRa(),
+					"shiptype.rm",			ship.getRm(),
 					"nahrung.image",		Cargo.getResourceImage(Resources.NAHRUNG),
 					"uran.image",			Cargo.getResourceImage(Resources.URAN),
 					"deuterium.image",		Cargo.getResourceImage(Resources.DEUTERIUM),
 					"antimaterie.image",	Cargo.getResourceImage(Resources.ANTIMATERIE),
-					"shiptype.buildable",	shipBuildData.isEmpty() ? 0:1,
-					"shiptype.description",	Common._text(ship.getString("descrip")),
-					"shiptype.cost",		ship.getInt("cost"),
-					"shiptype.heat",		ship.getInt("heat"),
-					"shiptype.size",		ship.getInt("size"),
-					"shiptype.sensorrange",	ship.getInt("sensorrange") + 1,
-					"shiptype.eps",			ship.getInt("eps"),
-					"shiptype.cargo",		ship.getInt("cargo"),
-					"shiptype.crew",		ship.getInt("crew"),
-					"shiptype.jdocks",		ship.getInt("jdocks"),
-					"shiptype.adocks",		ship.getInt("adocks"),
-					"shiptype.hull",		Common.ln(ship.getInt("hull")),
-					"shiptype.panzerung",	ship.getInt("panzerung"),
-					"shiptype.shields",		Common.ln(ship.getInt("shields")),
-					"shiptype.deutfactor",	ship.getInt("deutfactor"),
-					"shiptype.hydro",		ship.getInt("hydro"),
-					"shiptype.flagschiff",	!shipBuildData.isEmpty() && shipBuildData.getBoolean("flagschiff"),
-					"shiptype.recost",		ship.getInt("recost"),
-					"shiptype.torpedodef",	ship.getInt("torpedodef"),
+					"shiptype.buildable",	shipBuildData != null,
+					"shiptype.cost",		ship.getCost(),
+					"shiptype.heat",		ship.getHeat(),
+					"shiptype.size",		ship.getSize(),
+					"shiptype.sensorrange",	ship.getSensorRange() + 1,
+					"shiptype.eps",			ship.getEps(),
+					"shiptype.cargo",		ship.getCargo(),
+					"shiptype.crew",		ship.getCrew(),
+					"shiptype.jdocks",		ship.getJDocks(),
+					"shiptype.adocks",		ship.getADocks(),
+					"shiptype.hull",		Common.ln(ship.getHull()),
+					"shiptype.panzerung",	ship.getPanzerung(),
+					"shiptype.ablativearmor",	ship.getAblativeArmor(),
+					"shiptype.shields",		Common.ln(ship.getShields()),
+					"shiptype.deutfactor",	ship.getDeutFactor(),
+					"shiptype.hydro",		ship.getHydro(),
+					"shiptype.flagschiff",	shipBuildData != null && shipBuildData.isFlagschiff(),
+					"shiptype.recost",		ship.getReCost(),
+					"shiptype.torpedodef",	ship.getTorpedoDef(),
 					"shiptype.moduleslots",	modulelist.length,
 					"shiptype.moduleslots.desc",	moduletooltip,
-					"shiptype.count",		ship.get("shipcount") );
+					"shiptype.count",		ship.getShipCount(),
+					"shiptype.werftslots",	ship.getWerft() );
 
-		if( !shipBuildData.isEmpty() ) {
+		if( ship.getDescrip().length() == 0 ) {
+			t.setVar("shiptype.description", Common._text("Keine Beschreibung verf&uuml;gbar"));
+		}
+		else {
+			t.setVar("shiptype.description", Common._text(ship.getDescrip()));
+		}
+		
+		if( shipBuildData != null ) {
 			outPrerequisites();
 		}
 
 		//Produktionskosten anzeigen, sofern das Schiff baubar ist
-		if( !shipBuildData.isEmpty() ) {
+		if( shipBuildData != null ) {
 			outShipCost();
 		}
 		

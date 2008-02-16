@@ -9,9 +9,9 @@
 		Deuterium sammeln (Faktor: <img align="middle" src="{deuterium.image}" alt="" />{ship.type.deutfactor} pro <img align="middle" src="{URL}data/interface/energie.gif" alt="Energie" />1)<br /><br />
 	</div>
 
-	<form action="./main.php" method="post">
+	<form action="./ds" method="post">
 		Aufzuwendende Energie: <input name="e" type="text" size="3" value="{ship.e}" />
-		{!form_create_hidden sammeln, ship:$ship.id, nebel:$nebel.id}
+		{!form_create_hidden sammeln, ship:$ship.id}
 		<input type="submit" value="Sammeln" />
 	</form><br />
 {!table_end}

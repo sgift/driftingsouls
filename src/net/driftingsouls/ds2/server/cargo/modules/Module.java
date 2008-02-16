@@ -20,7 +20,7 @@ package net.driftingsouls.ds2.server.cargo.modules;
 
 import java.util.List;
 
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
  * Basisklasse fuer (Schiffs)module
@@ -30,13 +30,11 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 public abstract class Module {
 	/**
 	 * Wendet den Effekt des Moduls auf Schiffstypen-Daten an. Die modifizierten Schiffsdaten werden zurueckgegeben.
-	 * @param stats Die aktuellen Schiffstypen-Daten - Diese Variable wird in der Funktion veraendert und ist identisch
-	 * zum Rueckgabewert
-	 * @param typestats Die Referenzdaten fuer den Schiffstyp ohne Module
+	 * @param stats Die aktuellen Schiffstypen-Daten
 	 * @param moduleobjlist Liste aller Module in diesem Schiff
 	 * @return die modifizierten Schiffstypen-Daten
 	 */
-	public abstract SQLResultRow modifyStats( SQLResultRow stats, SQLResultRow typestats, List<Module> moduleobjlist );	
+	public abstract ShipTypeData modifyStats( ShipTypeData stats, List<Module> moduleobjlist );	
 	
 	/**
 	 * Prueft, ob die angegebenen Daten das selbe Modul kennzeichnen die das aktuelle

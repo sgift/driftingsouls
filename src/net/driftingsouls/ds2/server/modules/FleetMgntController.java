@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.Location;
@@ -28,17 +29,16 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipFleet;
+import net.driftingsouls.ds2.server.ships.ShipType;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
-import net.driftingsouls.ds2.server.ships.Ships;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -54,7 +54,7 @@ import org.apache.commons.lang.StringUtils;
  *
  */
 public class FleetMgntController extends TemplateGenerator {
-	private SQLResultRow fleet = null;
+	private ShipFleet fleet = null;
 
 	/**
 	 * Konstruktor
@@ -78,7 +78,7 @@ public class FleetMgntController extends TemplateGenerator {
 	protected boolean validateAndPrepare(String action) {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		Integer[] shiplist = null;
 		
@@ -92,33 +92,48 @@ public class FleetMgntController extends TemplateGenerator {
 			int sector = Integer.parseInt(tmp[1]);
 			int type = Integer.parseInt(tmp[2]);
 			
-			SQLResultRow sectorRow = db.first("SELECT x,y,system FROM ships WHERE id=",sector," AND owner=",user.getId());
-			shiplist = new Integer[] { 
-					db.first("SELECT id FROM ships " +
-							"WHERE owner=",user.getId()," AND system=",sectorRow.getInt("system")," AND " +
-									"x=",sectorRow.getInt("x")," AND y=",sectorRow.getInt("y")," AND " +
-									"type=",type," AND docked=''")
-						.getInt("id")};	
+			Ship sectorShip = (Ship)db.get(Ship.class, sector);
+			Ship matchingShip = (Ship)db.createQuery("from Ship " +
+					"where owner= :user and system= :sys and " +
+							"x= :x and y= :y and shiptype= :type and docked=''")
+				.setEntity("user", user)
+				.setInteger("sys", sectorShip.getSystem())
+				.setInteger("x", sectorShip.getX())
+				.setInteger("y", sectorShip.getY())
+				.setInteger("type", type)
+				.iterate().next();
+			
+			shiplist = new Integer[] {matchingShip.getId()};	
 		}
 		
 		// Evt haben wir bereits eine Flotten-ID uebergeben bekommen -> checken
 		int fleetID = getInteger("fleet");
 		if( fleetID != 0 ) {
-			fleet = db.first("SELECT * FROM ship_fleets WHERE id=",fleetID);
-			SQLResultRow owner = db.first("SELECT owner FROM ships WHERE id>0 AND fleet=",fleetID);
+			this.fleet = (ShipFleet)db.get(ShipFleet.class, fleetID);
+			if( this.fleet == null ) {
+				addError("Die angegebene Flotte existiert nicht");
+				
+				return false;
+			}
+			User owner = (User)db.createQuery("select owner from Ship where id>0 and fleet=?")
+				.setEntity(0, fleet)
+				.iterate().next();
 
-			if( fleet.isEmpty() || owner.isEmpty() || (user.getId() != owner.getInt("owner")) ) {
-				fleet = null;
+			if( user.getId() != owner.getId() ) {
+				this.fleet = null;
 				addError("Diese Flotte geh&ouml;rt einem anderen Spieler");
 			
 				return false;
 			}
 			
 			// Falls sich doch ein Schiff eines anderen Spielers eingeschlichen hat
-			db.update("UPDATE ships SET fleet='0' WHERE fleet=",fleetID," AND owner!=",user.getId());
+			db.createQuery("update Ship set fleet=null where fleet= :fleet and owner!= :user")
+				.setEntity("fleet", this.fleet)
+				.setEntity("user", user)
+				.executeUpdate();
 		}
 		
-		if( ((fleet == null) || fleet.isEmpty()) && !action.equals("createFromSRSGroup") && 
+		if( (this.fleet == null) && !action.equals("createFromSRSGroup") && 
 			!action.equals("create") && !action.equals("create2") ) {
 			addError("Die angegebene Flotte existiert nicht");
 			
@@ -128,14 +143,20 @@ public class FleetMgntController extends TemplateGenerator {
 		int shipid = 0;
 		// Nun brauchen wir die ID eines der Schiffe aus der Flotte fuer den javascript-code....
 		if( (shiplist == null || shiplist.length == 0) && (fleetID != 0) ) {
-			shipid = db.first("SELECT id FROM ships WHERE id>0 AND owner=",this.getUser().getId()," AND fleet=",fleetID).getInt("id");
+			Ship aship = (Ship)db.createQuery("from Ship where id>0 and owner= :user and fleet= :fleet")
+				.setEntity("user", user)
+				.setEntity("fleet", this.fleet)
+				.setMaxResults(1)
+				.uniqueResult();
+			
+			shipid = aship.getId();
 		} 
 		else if( (shiplist != null) && (shiplist.length > 0) ){
 			shipid = shiplist[0];
 		}
 		
 		t.setVar(	"jscript.reloadmain.ship",	shipid,
-					"fleet.id",					(fleet != null ? fleet.getInt("id") : 0) );
+					"fleet.id",					(fleet != null ? fleet.getId() : 0) );
 		
 		return true;	
 	}
@@ -150,15 +171,23 @@ public class FleetMgntController extends TemplateGenerator {
 	public void createFromSRSGroupAction() {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		int sector = getInteger("sector");
 		int type = getInteger("type");
 		int count = getInteger("count");
 		
-		SQLResultRow sectorcoord = db.first("SELECT x,y,system FROM ships WHERE id='",sector,"' AND owner='",user.getId(),"'");
-		
-		int shipcount = db.first("SELECT count(*) count FROM ships WHERE owner='",user.getId(),"' AND system='",sectorcoord.getInt("system"),"' AND x='",sectorcoord.getInt("x"),"' AND y='",sectorcoord.getInt("y"),"' AND type='",type,"' AND docked=''").getInt("count");
+		Ship sectorShip = (Ship)db.get(Ship.class, sector);
+
+		long shipcount = (Long)db.createQuery("select count(*) from Ship " +
+				"where owner= :user and system= :sys and " +
+						"x= :x and y= :y and shiptype= :type and docked=''")
+			.setEntity("user", user)
+			.setInteger("sys", sectorShip.getSystem())
+			.setInteger("x", sectorShip.getX())
+			.setInteger("y", sectorShip.getY())
+			.setInteger("type", type)
+			.iterate().next();
 		
 		if( (count < 1) || (shipcount < count) ) {
 			t.setVar("fleetmgnt.message", "Es gibt nicht genug Schiffe im Sektor" );
@@ -177,7 +206,7 @@ public class FleetMgntController extends TemplateGenerator {
 	public void createAction() {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		Integer[] shiplist = Common.explodeToInteger("|", getString("shiplist"));
 		
@@ -186,8 +215,11 @@ public class FleetMgntController extends TemplateGenerator {
 			return;
 		}
 		
-		SQLResultRow id = db.first("SELECT id FROM ships WHERE id IN (",Common.implode(",",shiplist),") AND owner!=",user.getId());
-		if( !id.isEmpty() ) {
+		boolean nonEmpty = db.createQuery("from Ship where id in ("+Common.implode(",",shiplist)+") and owner!=?")
+			.setEntity(0, user)
+			.iterate().hasNext();
+		
+		if( nonEmpty ) {
 			t.setVar("fleetmgnt.message", "Alle Schiffe m&uuml;ssen ihrem Kommando unterstehen" );
 		}
 		else {		
@@ -205,7 +237,7 @@ public class FleetMgntController extends TemplateGenerator {
 	public void create2Action() {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		parameterString("fleetname");
 		String fleetname = getString("fleetname");
@@ -225,8 +257,10 @@ public class FleetMgntController extends TemplateGenerator {
 				return;
 			}
 		
-			SQLResultRow id = db.first("SELECT id FROM ships WHERE id IN (",Common.implode(",",shiplistInt),") AND owner!='",user.getId(),"'");
-			if( !id.isEmpty() ) {
+			boolean nonEmpty = db.createQuery("from Ship where id in ("+Common.implode(",",shiplistInt)+") and (owner!=? or id < 0)")
+				.setEntity(0, user)
+				.iterate().hasNext();
+			if( nonEmpty ) {
 				t.setVar("fleetmgnt.message", "Alle Schiffe m&uuml;ssen ihrem Kommando unterstehen" );
 				return;
 			}
@@ -236,35 +270,46 @@ public class FleetMgntController extends TemplateGenerator {
 			int sector = Integer.parseInt(tmp[1]);
 			int type = Integer.parseInt(tmp[2]);
 			int count = Integer.parseInt(tmp[3]);
-			SQLResultRow sectorRow = db.first("SELECT x,y,system FROM ships WHERE id='",sector,"' AND owner='",user.getId(),"'");
-			
-			SQLQuery s = db.query("SELECT id,fleet FROM ships WHERE owner='",user.getId(),"' AND system='",sectorRow.getInt("system"),"' AND x='",sectorRow.getInt("x"),"' AND y='",sectorRow.getInt("y"),"' AND type='",type,"' AND docked='' ORDER BY fleet,id ASC LIMIT ",count);
-			shiplistInt = new Integer[s.numRows()];
-			int i=0;
-			while( s.next() ) {
-				if( s.getInt("fleet") != 0 ) {
-					Ships.removeFromFleet(s.getRow());	
-				}
-				shiplistInt[i++] = s.getInt("id");
+			Ship sectorShip = (Ship)db.get(Ship.class, sector);
+			if( (sectorShip == null) || (sectorShip.getOwner() != user) || (sectorShip.getId() < 0) ) {
+				t.setVar("fleetmgnt.message", "Das Schiff untersteht nicht ihrem Kommando" );
+				return;
 			}
-			s.free();
+			
+			List ships = db.createQuery("from Ship where id>0 and owner=? and system=? and x=? and y=? and type=? and docked='' order by fleet,id asc")
+				.setEntity(0, user)
+				.setInteger(1, sectorShip.getSystem())
+				.setInteger(2, sectorShip.getX())
+				.setInteger(3, sectorShip.getY())
+				.setInteger(4, type)
+				.setMaxResults(count)
+				.list();
+			shiplistInt = new Integer[ships.size()];
+			int i=0;
+			for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+				Ship s = (Ship)iter.next();
+				
+				if( s.getFleet() != null ) {
+					s.removeFromFleet();	
+				}
+				shiplistInt[i++] = s.getId();
+			}
 		}
 		
 		if( fleetname.length() > 0 ) {
-			PreparedQuery pq = db.prepare("INSERT INTO ship_fleets (name) VALUES ( ? )");
-			pq.update(fleetname);
-
-			int fleetID = pq.insertID();
+			ShipFleet fleet = new ShipFleet(fleetname);
+			db.persist(fleet);
 			
-			pq.close();
+			for( int i=0; i < shiplistInt.length; i++ ) {
+				Ship s = (Ship)db.get(Ship.class, shiplistInt[i]);
+				s.setFleet(fleet);
+			}
 			
-			db.update("UPDATE ships SET fleet=",fleetID," WHERE id>0 AND id IN (",Common.implode(",",shiplistInt)+")");
-
 			t.setVar(	"fleetmgnt.message",	"Flotte "+Common._plaintitle(fleetname)+" erstellt",
 						"jscript.reloadmain",	1,
-						"fleet.id",				fleetID );
+						"fleet.id",				fleet.getId() );
 			
-			fleet = db.first("SELECT * FROM ship_fleets WHERE id='",fleetID,"'");
+			this.fleet = fleet;
 			
 			this.redirect();
 		} 
@@ -283,38 +328,59 @@ public class FleetMgntController extends TemplateGenerator {
 	public void addFromSRSGroupAction() {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		int sector = getInteger("sector");
 		int type = getInteger("type");
 		int count = getInteger("count");
 		
-		SQLResultRow sectorRow = db.first("SELECT x,y,system FROM ships WHERE id='",sector,"' AND owner='",user.getId(),"'");
+		Ship sectorShip = (Ship)db.get(Ship.class, sector);
+		if( (sectorShip == null) || (sectorShip.getId() < 0) || (sectorShip.getOwner() != user) ) {
+			t.setVar("fleetmgnt.message", "Das angegebene Schiff existiert oder gehoert ihnen nicht");
+			return;
+		}
 		
-		int shipcount = db.first("SELECT count(*) count FROM ships WHERE owner='",user.getId(),"' AND system='",sectorRow.getInt("system"),"' AND x='",sectorRow.getInt("x"),"' AND y='",sectorRow.getInt("y"),"' AND type='",type,"' AND docked=''").getInt("count");
+		long shipcount = (Long)db.createQuery("select count(*) from Ship where owner=? and system=? and x=? and y=? and type=? and docked=''")
+			.setEntity(0, user)
+			.setInteger(1, sectorShip.getSystem())
+			.setInteger(2, sectorShip.getX())
+			.setInteger(3, sectorShip.getY())
+			.setInteger(4, type)
+			.iterate().next();
 		
 		if( (count < 1) || (shipcount < count) ) {
 			t.setVar("fleetmgnt.message", "Es gibt nicht genug Schiffe im Sektor" );
 			return;
 		}
 		
-		List<Integer> shiplist = new ArrayList<Integer>();
-		SQLQuery s = db.query("SELECT id,fleet FROM ships WHERE owner='",user.getId(),"' AND system='",sectorRow.getInt("system"),"' AND x='",sectorRow.getInt("x"),"' AND y='",sectorRow.getInt("y"),"' AND type='",type,"' AND docked='' AND fleet!='",fleet.getInt("id"),"' ORDER BY fleet,id ASC LIMIT ",count);
-		while( s.next() ) {
-			if( s.getInt("fleet") != 0 ) {
-				Ships.removeFromFleet(s.getRow());	
+		List<Ship> shiplist = new ArrayList<Ship>();
+		List slist = db.createQuery("from Ship where owner=? and system=? and x=? and y=? and type=? and " +
+				"docked='' and fleet!=? order by fleet,id asc")
+				.setEntity(0, user)
+				.setInteger(1, sectorShip.getSystem())
+				.setInteger(2, sectorShip.getX())
+				.setInteger(3, sectorShip.getY())
+				.setInteger(4, type)
+				.setEntity(5, this.fleet)
+			.setMaxResults(count)
+			.list();
+		for( Iterator iter=slist.iterator(); iter.hasNext(); ) {
+			Ship s = (Ship)iter.next();
+			if( s.getFleet() != null ) {
+				s.removeFromFleet();	
 			}
-			shiplist.add(s.getInt("id"));
+			shiplist.add(s);
 		}
-		s.free();
 		
 		if( shiplist.isEmpty() ) {
 			t.setVar("fleetmgnt.message", "Es gibt nicht genug Schiffe im Sektor" );
 			return;
 		}
 		
-		db.update("UPDATE ships SET fleet='",fleet.getInt("id"),"' WHERE id IN (",Common.implode(",",shiplist),")");
-		
+		for( Ship s : shiplist ) {
+			s.setFleet(this.fleet);
+		}
+				
 		t.setVar(	"fleetmgnt.message",	count+" Schiffe der Flotte hinzugef&uuml;gt",
 					"jscript.reloadmain",	1 );
 	}
@@ -328,8 +394,8 @@ public class FleetMgntController extends TemplateGenerator {
 		TemplateEngine t = getTemplateEngine();
 		
 		t.setVar(	"show.rename",	1,
-					"fleet.id",		fleet.getInt("id"),
-					"fleet.name",	Common._plaintitle(fleet.getString("name")) );
+					"fleet.id",		fleet.getId(),
+					"fleet.name",	Common._plaintitle(fleet.getName()) );
 	}
 	
 	/**
@@ -339,21 +405,17 @@ public class FleetMgntController extends TemplateGenerator {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void rename2Action() {
-		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
 		
 		parameterString("fleetname");
 		String fleetname = getString("fleetname");
 		
 		if( fleetname.length() > 0 ) {
-			db.prepare("UPDATE ship_fleets SET name= ? WHERE id= ?")
-				.update(fleetname, fleet.getInt("id"));
+			this.fleet.setName(fleetname);
 
 			t.setVar(	"fleetmgnt.message",	"Flotte "+Common._plaintitle(fleetname)+" umbenannt",
 						"jscript.reloadmain",	1 );
-		
-			fleet.put("name", fleetname);
-		
+
 			redirect();
 		}
 		else {
@@ -371,8 +433,8 @@ public class FleetMgntController extends TemplateGenerator {
 	public void killAction() {
 		TemplateEngine t = getTemplateEngine();
 		
-		t.setVar(	"fleet.name",	Common._plaintitle(fleet.getString("name")),
-					"fleet.id",		fleet.getInt("id"),
+		t.setVar(	"fleet.name",	Common._plaintitle(fleet.getName()),
+					"fleet.id",		fleet.getId(),
 					"show.kill",	1 );
 	}
 	
@@ -383,12 +445,14 @@ public class FleetMgntController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void kill2Action() {	
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
-			
-		db.update("UPDATE ships SET fleet=0 WHERE fleet='",fleet.getInt("id"),"'");
-		db.update("DELETE FROM ship_fleets WHERE id='",fleet.getInt("id"),"'");
+		org.hibernate.Session db = getDB();
+		
+		db.createQuery("update Ship set fleet=null where fleet=?")
+			.setEntity(0, this.fleet)
+			.executeUpdate();
+		db.delete(this.fleet);
 
-		t.setVar(	"fleetmgnt.message",	"Die Flotte '"+fleet.getString("name")+"' wurde aufgel&ouml;st",
+		t.setVar(	"fleetmgnt.message",	"Die Flotte '"+fleet.getName()+"' wurde aufgel&ouml;st",
 					"jscript.reloadmain",	1 );
 	}
 
@@ -401,8 +465,8 @@ public class FleetMgntController extends TemplateGenerator {
 		TemplateEngine t = getTemplateEngine();
 		
 		t.setVar(	"show.newowner",	1,
-					"fleet.id",			this.fleet.getInt("id"),
-					"fleet.name",		Common._plaintitle(this.fleet.getString("name")) );
+					"fleet.id",			this.fleet.getId(),
+					"fleet.name",		Common._plaintitle(this.fleet.getName()) );
 	}
 	
 	/**
@@ -423,8 +487,8 @@ public class FleetMgntController extends TemplateGenerator {
 			t.setVar(	"show.newowner2",	1,
 						"newowner.name",	Common._title(newowner.getName()),
 						"newowner.id",		newowner.getId(),
-						"fleet.id",			this.fleet.getInt("id"),
-						"fleet.name",		Common._plaintitle(this.fleet.getString("name")) );
+						"fleet.id",			this.fleet.getId(),
+						"fleet.name",		Common._plaintitle(this.fleet.getName()) );
 		}
 		else {
 			t.setVar( "fleetmgnt.message", "Der angegebene Spieler existiert nicht");
@@ -442,41 +506,45 @@ public class FleetMgntController extends TemplateGenerator {
 	public void newowner3Action() {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)this.getUser();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		parameterNumber("ownerid");
 		int ownerid = getInteger("ownerid");
 		
 		User newowner = (User)getDB().get(User.class, ownerid);
 		
-		if( newowner.getId() != 0 ) {
+		if( newowner != null ) {
 			StringBuilder message = new StringBuilder(100);
 			int count = 0;
 			
 			List<Integer> idlist = new ArrayList<Integer>();
 			
-			SQLQuery s = db.query("SELECT * FROM ships WHERE fleet='",this.fleet.getInt("id"),"' AND battle=0" );
-			while( s.next() ) {
-				boolean tmp = Ships.consign(user, s.getRow(), newowner, false );
+			List shiplist = db.createQuery("from Ship where fleet=? and battle is null" )
+				.setInteger(0, this.fleet.getId())
+				.list();
+			for( Iterator iter=shiplist.iterator(); iter.hasNext(); ) {
+				Ship aship = (Ship)iter.next();
+				boolean tmp = aship.consign(newowner, false );
 			
-				String msg = Ships.MESSAGE.getMessage();
+				String msg = Ship.MESSAGE.getMessage();
 				if( msg.length() > 0 ) {
 					message.append(msg+"<br />");	
 				}
 				if( !tmp ) {
 					count++;
-					idlist.add(s.getInt("id"));
+					idlist.add(aship.getId());
+					aship.setFleet(this.fleet);
 				}
 			}
-			s.free();
 
 			if( count != 0 ) {
 				// Da die Schiffe beim uebergeben aus der Flotte geschmissen werden, muessen wir sie nun wieder hinein tun
-				db.update("UPDATE ships SET fleet='",this.fleet.getInt("id"),"' WHERE id IN ("+Common.implode(",",idlist),")");
+				Ship coords = (Ship)db.createQuery("from Ship where owner=? and fleet=?")
+					.setEntity(0, newowner)
+					.setEntity(1, this.fleet)
+					.iterate().next();
 				
-				SQLResultRow coords = db.first("SELECT x,y,system FROM ships WHERE owner='",newowner.getId(),"' AND fleet='",this.fleet.getInt("id"),"'");
-				
-				PM.send(getContext(), user.getId(), newowner.getId(), "Flotte &uuml;bergeben", "Ich habe dir die Flotte "+Common._plaintitle(this.fleet.getString("name"))+" &uuml;bergeben. Sie steht bei "+coords.getInt("system")+":"+coords.getInt("x")+"/"+coords.getInt("y"));
+				PM.send(user, newowner.getId(), "Flotte &uuml;bergeben", "Ich habe dir die Flotte "+Common._plaintitle(this.fleet.getName())+" &uuml;bergeben. Sie steht bei "+coords.getLocation());
 		
 				t.setVar("fleetmgnt.message", message+"Die Flotte wurde &uuml;bergeben");
 			}
@@ -498,34 +566,33 @@ public class FleetMgntController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void shupAction() {
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		StringBuilder message = new StringBuilder(100);
+		List ships = db.createQuery("from Ship as s left join fetch s.modules where s.fleet=? and (s.shields < s.shiptype.shields or s.shields < s.modules.shields) and s.battle is null")
+			.setEntity(0, this.fleet)
+			.list();
+		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+			Ship s = (Ship)iter.next();
+			ShipTypeData stype = s.getTypeData();
 		
-		db.tBegin();
-		SQLQuery s = db.query("SELECT t1.id,t1.name,t1.shields,t1.e,t1.status,t1.type FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id WHERE t1.fleet='",this.fleet.getInt("id"),"' AND (t1.shields < t2.shields OR LOCATE('tblmodules',t1.status)) AND t1.battle=0");
-		while( s.next() ) {
-			SQLResultRow sRow = s.getRow();
-			SQLResultRow stype = ShipTypes.getShipType( sRow );
-			
 			int shieldfactor = 100;
-			if( stype.getInt("shields") < 1000 ) {
+			if( stype.getShields() < 1000 ) {
 				shieldfactor = 10;
 			}
 
-			int shup = (int)Math.ceil((stype.getInt("shields") - sRow.getInt("shields"))/(double)shieldfactor);
-			if( shup > sRow.getInt("e") ) {
-				shup = sRow.getInt("e");
-				message.append(sRow.getString("name")+" ("+sRow.getInt("id")+") - <span style=\"color:orange\">Schilde bei "+Math.round((sRow.getInt("shields")+shup*shieldfactor)/(double)stype.getInt("shields")*100)+"%</span><br />");
+			int shup = (int)Math.ceil((stype.getShields() - s.getShields())/(double)shieldfactor);
+			if( shup > s.getEnergy() ) {
+				shup = s.getEnergy();
+				message.append(s.getName()+" ("+s.getId()+") - " +
+						"<span style=\"color:orange\">Schilde bei "+Math.round((s.getShields()+shup*shieldfactor)/(double)stype.getShields()*100)+"%</span><br />");
 			}
-			sRow.put("shields", sRow.getInt("shields") + shup*shieldfactor);
-			if( sRow.getInt("shields") > stype.getInt("shields") ) {
-				sRow.put("shields", stype.getInt("shields"));
+			s.setShields(s.getShields() + shup*shieldfactor);
+			if( s.getShields() > stype.getShields() ) {
+				s.setShields(stype.getShields());
 			}
-			db.tUpdate(1,"UPDATE ships SET shields='",sRow.getInt("shields"),"',e='",(sRow.getInt("e")-shup)+"' WHERE id>0 AND id='"+sRow.getInt("id")+"' AND e=",s.getInt("e")," AND shields=",s.getInt("shields"));
+			s.setEnergy(s.getEnergy()-shup);
 		}
-		s.free();
-		db.tCommit();
 
 		t.setVar( "fleetmgnt.message", message+" Die Schilde wurden aufgeladen" );
 		
@@ -539,42 +606,78 @@ public class FleetMgntController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void dischargeBatteriesAction() {
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		StringBuilder message = new StringBuilder(100);
 		
-		db.tBegin();
-		
-		SQLQuery sRow = db.query("SELECT t1.* FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id WHERE t1.fleet='",this.fleet.getInt("id"),"' AND (t1.e < t2.eps OR LOCATE('tblmodules',t1.status)) AND t1.battle=0 AND t1.type=t2.id");
-		while( sRow.next() ) {
-			SQLResultRow s = sRow.getRow();
-			SQLResultRow stype = ShipTypes.getShipType( s );
-			int olde = s.getInt("e");			
-			
-			if( s.getInt("e") >= stype.getInt("eps") ) {
+		List ships = db.createQuery("from Ship as s left join fetch s.modules " +
+				"where s.fleet=? and (s.e < s.shiptype.eps or s.e < s.modules.eps) and s.battle is null")
+			.setEntity(0, this.fleet)
+			.list();
+		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+			Ship s = (Ship)iter.next();
+			ShipTypeData stype = s.getTypeData();
+
+			if( s.getEnergy() >= stype.getEps() ) {
 				continue;
 			}
 			
-			Cargo cargo = new Cargo( Cargo.Type.STRING, s.getString("cargo") );
+			Cargo cargo = s.getCargo();
 		
-			long unload = stype.getInt("eps") - s.getInt("e");
+			long unload = stype.getEps() - s.getEnergy();
 			if( unload > cargo.getResourceCount( Resources.BATTERIEN ) ) {
 				unload = cargo.getResourceCount( Resources.BATTERIEN ) ;
 				
-				message.append(s.getString("name")+" ("+s.getInt("id")+") - <span style=\"color:orange\">Energie bei "+Math.round((s.getInt("e")+unload)/(double)stype.getInt("eps")*100)+"%</span><br />");
+				message.append(s.getName()+" ("+s.getId()+") - <span style=\"color:orange\">Energie bei "+Math.round((s.getEnergy()+unload)/(double)stype.getEps()*100)+"%</span><br />");
 			}
 			cargo.substractResource( Resources.BATTERIEN, unload );
 			cargo.addResource( Resources.LBATTERIEN, unload );
 		
-			s.put("e", s.getInt("e")+unload);
-			
-			db.tUpdate(1, "UPDATE ships SET e='",s.getInt("e"),"',cargo='",cargo.save(),"' WHERE id>0 AND id='",s.getInt("id"),"' AND cargo='",cargo.save(true),"' AND e='",olde,"'");
+			s.setEnergy((int)(s.getEnergy()+unload));
+			s.setCargo(cargo);
 		}
-		sRow.free();
-		
-		db.tCommit();
 
 		t.setVar( "fleetmgnt.message", message+"Batterien wurden entladen" );
+		
+		redirect();			
+	}
+	
+	/**
+	 * Laedt die Batterien auf den Schiffen der Flotte auf
+	 *
+	 */
+	@Action(ActionType.DEFAULT)
+	public void chargeBatteriesAction() {
+		TemplateEngine t = getTemplateEngine();
+		org.hibernate.Session db = getDB();
+		
+		StringBuilder message = new StringBuilder(100);
+		
+		List ships = db.createQuery("from Ship as s WHERE s.fleet=? and s.battle is null")
+			.setEntity(0, this.fleet)
+			.list();
+		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+			Ship s = (Ship)iter.next();
+
+			Cargo cargo = new Cargo(s.getCargo());
+			if( !cargo.hasResource(Resources.LBATTERIEN) ) {
+				continue;
+			}
+				
+			long load = cargo.getResourceCount(Resources.LBATTERIEN);
+			if( load > s.getEnergy() ) {
+				load = s.getEnergy();
+				
+				message.append(s.getName()+" ("+s.getId()+") - <span style=\"color:orange\">"+load+"/"+cargo.getResourceCount(Resources.LBATTERIEN)+" Batterien aufgeladen</span><br />");
+			}
+			cargo.substractResource( Resources.LBATTERIEN, load );
+			cargo.addResource( Resources.BATTERIEN, load );
+		
+			s.setEnergy((int)(s.getEnergy()-load));
+			s.setCargo(cargo);
+		}
+
+		t.setVar( "fleetmgnt.message", message+"Batterien wurden aufgeladen" );
 		
 		redirect();			
 	}
@@ -586,21 +689,24 @@ public class FleetMgntController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void exportAction() {
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
-		t.setVar(	"fleet.name",	Common._plaintitle(this.fleet.getString("name")),
+		t.setVar(	"fleet.name",	Common._plaintitle(this.fleet.getName()),
 					"show.export",	1 );
 							
 		t.setBlock("_FLEETMGNT", "exportships.listitem", "exportships.list" );
 		
-		SQLQuery s = db.query("SELECT id,name FROM ships WHERE id>0 AND fleet=",this.fleet.getInt("id") );
-		while( s.next() ) {
-			t.setVar(	"ship.id",		s.getInt("id"),
-						"ship.name",	Common._plaintitle(s.getString("name")) );
+		List ships = db.createQuery("from Ship where id>0 and fleet=?")
+			.setEntity(0, this.fleet)
+			.list();
+		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+			Ship aship = (Ship)iter.next();
+			
+			t.setVar(	"ship.id",		aship.getId(),
+						"ship.name",	Common._plaintitle(aship.getName()) );
 				
 			t.parse("exportships.list", "exportships.listitem", true);
 		}
-		s.free();
 	}
 	
 	/**
@@ -610,14 +716,15 @@ public class FleetMgntController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void undockAction() {
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
-		User user = (User)getUser();
+		org.hibernate.Session db = getDB();
 		
-		SQLQuery s = db.query("SELECT id FROM ships WHERE id>0 AND fleet='",this.fleet.getInt("id"),"' AND battle=0" );
-		while( s.next() ) {
-			Ships.dock(Ships.DockMode.UNDOCK, user.getId(), s.getInt("id"), null);
+		List ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null")
+			.setEntity(0, this.fleet)
+			.list();
+		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+			Ship aship = (Ship)iter.next();
+			aship.dock(Ship.DockMode.UNDOCK, (Ship[])null);
 		}
-		s.free();
 		
 		t.setVar(	"fleetmgnt.message",	"Alle gedockten Schiffe wurden gestartet",
 					"jscript.reloadmain",	1 );
@@ -632,43 +739,52 @@ public class FleetMgntController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void redockAction() {
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		
-		SQLQuery ship = db.query("SELECT * FROM ships WHERE id>0 AND fleet='",this.fleet.getInt("id"),"' AND battle=0" );
-		while( ship.next() ) {
-			SQLResultRow shiptype = ShipTypes.getShipType(ship.getRow());
+		List ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null" )
+			.setEntity(0, this.fleet)
+			.list();
+		
+		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+			Ship ship = (Ship)iter.next();
+			ShipTypeData shiptype = ship.getTypeData();
 			
-			if( shiptype.getInt("adocks") == 0 ) {
+			if( shiptype.getADocks() == 0 ) {
 				continue;
 			}
 
-			int free = shiptype.getInt("adocks");
-			free -= db.first("SELECT count(*) count FROM ships WHERE id>0 AND docked='",ship.getInt("id"),"'").getInt("count");
-			List<Integer> containerlist = new ArrayList<Integer>();
+			int free = shiptype.getADocks();
+			free -= (Long)db.createQuery("select count(*) from Ship where id>0 and docked=?")
+				.setString(0, Integer.toString(ship.getId()))
+				.iterate().next();
+			List<Ship> containerlist = new ArrayList<Ship>();
 			
-			SQLQuery container = db.query("SELECT s.id FROM ships s JOIN ship_types st ON s.type=st.id " +
-					"WHERE s.owner='",user.getId(),"' AND s.system='",ship.getInt("system"),"' AND" +
-							" s.x='",ship.getInt("x"),"' AND s.y='",ship.getInt("y"),"' AND s.docked='' AND " +
-							"st.class='",ShipClasses.CONTAINER.ordinal(),"' AND s.battle=0 " +
-					"ORDER BY fleet,type ");
-			while( container.next() ) {
-				containerlist.add(container.getInt("id"));
+			List containers = db.createQuery("from Ship as s " +
+					"where s.owner=? and s.system=? and s.x=? and s.y=? and s.docked='' and " +
+							"s.shiptype.shipClass=? and s.battle is null " +
+					"order by s.fleet,s.shiptype ")
+				.setEntity(0, user)
+				.setInteger(1, ship.getSystem())
+				.setInteger(2, ship.getX())
+				.setInteger(3, ship.getY())
+				.setInteger(4, ShipClasses.CONTAINER.ordinal())
+				.list();
+			for( Iterator iter2=containers.iterator(); iter2.hasNext(); ) {
+				containerlist.add((Ship)iter2.next());
 				free--;
 				if( free == 0 ) {
 					break;
 				}
 			}
-			container.free();
 			
-			int[] list = new int[containerlist.size()];
+			Ship[] list = new Ship[containerlist.size()];
 			for( int i=0; i < containerlist.size(); i++ ) {
 				list[i] = containerlist.get(i);
 			}
 			
-			Ships.dock(Ships.DockMode.DOCK, user.getId(), ship.getInt("id"), list);
+			ship.dock(Ship.DockMode.DOCK, list);
 		}
-		ship.free();
 
 		t.setVar(	"fleetmgnt.message",	"Container wurden aufgesammelt",
 					"jscript.reloadmain",	1 );
@@ -683,14 +799,15 @@ public class FleetMgntController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void jstartAction() {
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
-		User user = (User)getUser();
+		org.hibernate.Session db = getDB();
 		
-		SQLQuery s = db.query("SELECT id FROM ships WHERE id>0 AND fleet='",this.fleet.getInt("id"),"' AND battle=0" );
-		while( s.next() ) {
-			Ships.dock(Ships.DockMode.START, user.getId(), s.getInt("id"), null);
+		List ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null")
+			.setEntity(0, this.fleet)
+			.list();
+		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+			Ship aship = (Ship)iter.next();
+			aship.dock(Ship.DockMode.START, (Ship[])null);
 		}
-		s.free();
 		
 		t.setVar(	"fleetmgnt.message",	"Alle J&auml;ger sind gestartet",
 					"jscript.reloadmain",	1 );
@@ -705,49 +822,60 @@ public class FleetMgntController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void jlandAction() {	
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		
 		parameterNumber("jaegertype");
 		int jaegertypeID = getInteger("jaegertype");
 		
-		SQLQuery ship = db.query("SELECT * FROM ships WHERE id>0 AND fleet='",this.fleet.getInt("id"),"' AND battle=0" );
-		while( ship.next() ) {
-			SQLResultRow shiptype = ShipTypes.getShipType(ship.getRow());
+		List ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null" )
+			.setEntity(0, this.fleet)
+			.list();
+		
+		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+			Ship ship = (Ship)iter.next();
+			ShipTypeData shiptype = ship.getTypeData();
 			
-			if( shiptype.getInt("jdocks") == 0 ) {
+			if( shiptype.getJDocks() == 0 ) {
 				continue;
 			}
-			int free = shiptype.getInt("jdocks");
-			free -= db.first("SELECT count(*) count FROM ships WHERE id>0 AND docked='l ",ship.getInt("id"),"'").getInt("count");
-
-			List<Integer >jaegerlist = new ArrayList<Integer>();
+			int free = shiptype.getJDocks();
+			free -= (Long)db.createQuery("select count(*) from Ship where id>0 and docked=?")
+				.setString(0, "l "+ship.getId())
+				.iterate().next();
+			List<Ship>jaegerlist = new ArrayList<Ship>();
 			
-			SQLQuery jaeger = db.query("SELECT s.* FROM ships s JOIN ship_types st ON s.type=st.id " +
-					"WHERE "+(jaegertypeID > 0 ? "s.type="+jaegertypeID+" AND " : "")+"s.owner='",user.getId(),"' AND " +
-							"s.system='",ship.getInt("system"),"' AND s.x='",ship.getInt("x"),"' AND s.y='",ship.getInt("y"),"' AND " +
-							"s.docked='' AND (LOCATE('tblmodules',s.status) OR LOCATE('",ShipTypes.SF_JAEGER,"',st.flags)) AND s.battle=0 " +
-					"ORDER BY fleet,type");
-			while( jaeger.next() ) {
-				SQLResultRow jaegertype = ShipTypes.getShipType(jaeger.getRow());
-				if( ShipTypes.hasShipTypeFlag(jaegertype, ShipTypes.SF_JAEGER) ) {
-					jaegerlist.add(jaeger.getInt("id"));
+			List jaegerliste = db.createQuery("from Ship as s left join fetch s.modules " +
+					"where "+(jaegertypeID > 0 ? "s.type="+jaegertypeID+" and " : "")+"s.owner=? and s.system=? and " +
+							"s.x=? and s.y=? and s.docked='' and (locate(?,s.shiptype.flags)!=0 or locate(?,s.modules.flags)!=0) and s.battle is null " +
+					"order by s.fleet,s.shiptype ")
+				.setEntity(0, user)
+				.setInteger(1, ship.getSystem())
+				.setInteger(2, ship.getX())
+				.setInteger(3, ship.getY())
+				.setString(4, ShipTypes.SF_JAEGER)
+				.setString(5, ShipTypes.SF_JAEGER)
+				.list();
+			for( Iterator iter2=jaegerliste.iterator(); iter2.hasNext(); ) {
+				Ship jaeger = (Ship)iter2.next();
+				
+				ShipTypeData jaegertype = jaeger.getTypeData();
+				if( jaegertype.hasFlag(ShipTypes.SF_JAEGER) ) {
+					jaegerlist.add(jaeger);
 					free--;
 					if( free == 0 ) {
 						break;
 					}
 				}
 			}
-			jaeger.free();
 			
-			int[] list = new int[jaegerlist.size()];
+			Ship[] list = new Ship[jaegerlist.size()];
 			for( int i=0; i < jaegerlist.size(); i++ ) {
 				list[i] = jaegerlist.get(i);
 			}
 			
-			Ships.dock(Ships.DockMode.LAND, user.getId(), ship.getInt("id"), list);
+			ship.dock(Ship.DockMode.LAND, list);
 		}
-		ship.free();
 
 		t.setVar(	"fleetmgnt.message",	"J&auml;ger wurden aufgesammelt",
 					"jscript.reloadmain",	1 );
@@ -763,105 +891,345 @@ public class FleetMgntController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void fleetcombineAction() {
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		
 		parameterNumber("fleetcombine");
 		int fleetID = getInteger("fleetcombine");
 		
-		SQLResultRow aowner = db.first("SELECT owner FROM ships WHERE id>0 AND fleet='",fleetID,"'");
-		if( aowner.isEmpty() || (aowner.getInt("owner") != user.getId()) ) {
+		ShipFleet targetFleet = (ShipFleet)db.get(ShipFleet.class, fleetID);
+		if( targetFleet == null ) {
+			addError("Die angegebene Flotte existiert nicht!");
+			this.redirect();
+			return;
+		}
+		
+		User aowner = (User)db.createQuery("select s.owner from Ship as s where s.id>0 and s.fleet=?")
+			.setEntity(0, targetFleet)
+			.setMaxResults(1)
+			.uniqueResult();
+		if( aowner == null || (aowner != user) ) {
 			addError("Die angegebene Flotte geh&ouml;rt nicht ihnen!");
 			this.redirect();
 			return;
 		}
 		
-		SQLResultRow fleetname = db.first("SELECT name FROM ship_fleets WHERE id='",fleetID,"'");
+		db.createQuery("update Ship set fleet=? where id>0 and fleet=?")
+			.setEntity(0, this.fleet)
+			.setEntity(1, targetFleet)
+			.executeUpdate();
 		
-		db.update("UPDATE ships SET fleet='",fleet.getInt("id"),"' WHERE id>0 AND fleet='",fleetID,"'");
-		int count = db.first("SELECT count(*) count FROM ships WHERE fleet='",fleetID,"'").getInt("count");
+		// Problem i<0 beruecksichtigen - daher nur loeschen, wenn die Flotte auch wirklich leer ist
+		long count = (Long)db.createQuery("select count(*) from Ship where fleet=?")
+			.setEntity(0, targetFleet)
+			.iterate().next();
 		if( count == 0 ) {
-			db.update("DELETE FROM ship_fleets WHERE id='",fleetID,"'");
+			db.delete(targetFleet);
 		}
 		
-		t.setVar(	"fleetmgnt.message",	"Alle Schiffe der Flotte '"+Common._plaintitle(fleetname.getString("name"))+"' sind beigetreten",
+		t.setVar(	"fleetmgnt.message",	"Alle Schiffe der Flotte '"+Common._plaintitle(targetFleet.getName())+"' sind beigetreten",
 					"jscript.reloadmain",	1 );
 							
 		this.redirect();
 	}
 	
+	/**
+	 * Aendert die Alarmstufe der Schiffe
+	 * @urlparam Integer alarm Die neue Alarmstufe
+	 *
+	 */
 	@Action(ActionType.DEFAULT)
-	@Override
-	public void defaultAction() {
-		Database db = getDatabase();
-		User user = (User)getUser();
+	public void alarmAction() {
+		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		
+		parameterNumber("alarm");
+		final int alarm = getInteger("alarm");
+		
+		List ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null" )
+			.setEntity(0, this.fleet)
+			.list();
+		
+		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+			Ship ship = (Ship)iter.next();
+		
+			if( (ship.getTypeData().getShipClass() == ShipClasses.GESCHUETZ.ordinal()) || !ship.getTypeData().isMilitary() ) {
+				continue;
+			}
+			
+			ship.setAlarm(alarm);
+		}
+		
+		t.setVar(	"fleetmgnt.message",	"Die Alarmstufe wurde ge&auml;ndert",
+					"jscript.reloadmain",	1 );
+		
+		this.redirect();
+	}
+	
+	/**
+	 * Zeigt das Eingabefeld fuer das Umbenennen der Schiffe der Flotte
+	 *
+	 */
+	@Action(ActionType.DEFAULT)
+	public void renameShipsAction() {
+		TemplateEngine t = getTemplateEngine();
+		
+		t.setVar(	"show.renameShips",	1,
+					"fleet.id",			this.fleet.getId(),
+					"fleet.name",		Common._plaintitle(this.fleet.getName()) );
+	}
+	
+	/**
+	 * Teil eines Formatierungsstrings fuer Schiffsnamen
+	 */
+	private static interface NamePatternElement {
+		/**
+		 * Gibt den Text fuer das naechste Schiff zurueck
+		 * @return Der Text
+		 */
+		public String next();
+	}
+	
+	private static class StringNamePatternElement implements NamePatternElement {
+		private String text;
+		
+		StringNamePatternElement(String text) {
+			this.text = text;
+		}
+		
+		public String next() {
+			return text;
+		}
+	}
+	
+	private static class NumberNamePatternElement implements NamePatternElement {
+		private int counter = 1;
+		
+		NumberNamePatternElement() {
+			// EMPTY
+		}
+		
+		public String next() {
+			return Integer.toString(counter++);
+		}
+	}
+	
+	private static class RomanNumberNamePatternElement implements NamePatternElement {
+		private static final String[] base = { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX" };
+		private static final String[] tens = { "", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC" };
+		private static final String[] hundreds =  { "", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM" };
+		private static final String[] thousands = { "", "M", "MM", "MMM" };
+		
+		private int counter = 1;
+	  
+		RomanNumberNamePatternElement() {
+			// EMPTY
+		}
+		
+		public String next() {
+			int number = counter++;
+			
+			if( counter == 4000 ) {
+				counter = 1;
+			}
+			
+		    return thousands[ (number / 1000) ] +
+		    	hundreds[ (number / 100) % 10 ] +
+				tens[ (number / 10) % 10 ] +
+				base[ number % 10 ];
+		}
+	}
+	
+	/**
+	 * Konvertiert das angegebene Formatierungsmuster fuer Schiffsnamen in eine Liste
+	 * von <code>NamePatternElements</code>. 
+	 * Die Sortierung entspricht ihrem vorkommen im String.
+	 * @param name Der Formatierungsstring
+	 * @return Die Liste
+	 */
+	private List<NamePatternElement> parseNamePattern(String name) {
+		List<NamePatternElement> nameParts = new ArrayList<NamePatternElement>();
+		do {
+			if( name.startsWith("$(") ) {
+				int end = name.indexOf(')');
+				if( end == -1 ) {
+					nameParts.add(new StringNamePatternElement(name));
+					break;
+				}
+				
+				String partName = name.substring(2, end);
+				
+				if( "number".equalsIgnoreCase(partName) ) {
+					nameParts.add(new NumberNamePatternElement());
+				}
+				else if( "roman".equalsIgnoreCase(partName) ) {
+					nameParts.add(new RomanNumberNamePatternElement());
+				}
+				else {
+					nameParts.add(new StringNamePatternElement("$("+partName+")"));
+				}
+				
+				if( end == name.length()+1 ) {
+					break;
+				}
+				
+				name = name.substring(end+1);
+			}
+			else {
+				int index = name.indexOf("$(");
+				if( index != -1 ) {
+					nameParts.add(new StringNamePatternElement(name.substring(0,index)));
+					name = name.substring(index);
+				}
+				else {
+					nameParts.add(new StringNamePatternElement(name));
+					break;
+				}
+			}
+		}
+		while( name.contains("$(") );
+		
+		return nameParts;
+	}
+	
+	/**
+	 * Generiert aus einer Liste von Namensteilen den Gesamtnamen fuer das naechste Schiff
+	 * @param nameParts Die Namensteile
+	 * @return Der Gesamtname
+	 */
+	private String generateNextShipName(List<NamePatternElement> nameParts) {
+		StringBuilder builder = new StringBuilder();
+		
+		for( int i=0; i < nameParts.size(); i++ ) {
+			builder.append(nameParts.get(i).next());
+		}
+		
+		return builder.toString();
+	}
+	
+	/**
+	 * Benennt die Schiffe der Flotte um
+	 * @urlparam String name Das Namensmuster
+	 *
+	 */
+	@Action(ActionType.DEFAULT)
+	public void renameShips2Action() {
+		org.hibernate.Session db = getDB();
+		TemplateEngine t = getTemplateEngine();
+		
+		parameterString("name");
+		final String name = getString("name");
+		
+		List<NamePatternElement> nameParts = parseNamePattern(name);
+		
+		List ships = db.createQuery("from Ship where id>0 and fleet=?" )
+			.setEntity(0, this.fleet)
+			.list();
+		
+		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+			Ship ship = (Ship)iter.next();
+			
+			ship.setName(generateNextShipName(nameParts));
+		}
+		
+		t.setVar(	"fleetmgnt.message",	"Die Namen wurden ge&auml;ndert",
+					"jscript.reloadmain",	1 );
+		
+		this.redirect();
+	}
+	
+	@Override
+	@Action(ActionType.DEFAULT)
+	public void defaultAction() {
+		org.hibernate.Session db = getDB();
+		User user = (User)getUser();
+		TemplateEngine t = getTemplateEngine();
+
 		List<String> sectors = new ArrayList<String>();
 	
-		SQLResultRow aship = db.first("SELECT x,y,system FROM ships WHERE id>0 AND fleet=",this.fleet.getInt("id"));
+		Ship aship = (Ship)db.createQuery("from Ship where id>0 and fleet=?")
+			.setEntity(0, this.fleet)
+			.setMaxResults(1)
+			.uniqueResult();
 		
-		sectors.add("(x='"+aship.getInt("x")+"' AND y='"+aship.getInt("y")+"' AND system='"+aship.getInt("system")+"')");
+		sectors.add("(s.x="+aship.getX()+" and s.y="+aship.getY()+" and s.system="+aship.getSystem()+")");
 
 		t.setVar(	"show.view",	1,
-					"fleet.name",	Common._plaintitle(this.fleet.getString("name")),
-					"fleet.id",		this.fleet.getInt("id") );
+					"fleet.name",	Common._plaintitle(this.fleet.getName()),
+					"fleet.id",		this.fleet.getId() );
 								
 		t.setBlock("_FLEETMGNT", "ships.listitem", "ships.list");
 	
-		Location aloc = Location.fromResult(aship);
+		Location aloc = aship.getLocation();
 		
-		SQLQuery ship = db.query("SELECT name,id,battle,system,x,y,type,status FROM ships WHERE id>0 AND owner=",user.getId()," AND fleet=",this.fleet.getInt("id")," ORDER BY id");
-		while( ship.next() ) {
-			SQLResultRow shipRow = ship.getRow();
-			SQLResultRow shiptype = ShipTypes.getShipType( shipRow );
-			Location loc = Location.fromResult(shipRow);
+		List ships = db.createQuery("from Ship where id>0 and owner=? and fleet=? order by id")
+			.setEntity(0, user)
+			.setEntity(1, this.fleet)
+			.list();
+		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+			Ship ship = (Ship)iter.next();
 			
-			t.setVar(	"ship.id",			ship.getInt("id"),
-						"ship.name",		Common._plaintitle(ship.getString("name")),
-						"ship.type.name",	shiptype.getString("nickname"),
-						"ship.showbattle",	ship.getInt("battle"),
+			ShipTypeData shiptype = ship.getTypeData();
+			Location loc = ship.getLocation();
+			
+			t.setVar(	"ship.id",			ship.getId(),
+						"ship.name",		Common._plaintitle(ship.getName()),
+						"ship.type.name",	shiptype.getNickname(),
+						"ship.showbattle",	ship.getBattle() != null ? ship.getBattle() : 0,
 						"ship.showwarning",	!aloc.sameSector(0, loc, 0) );
 			
-			if( !aloc.sameSector(0, loc, 0) ) {
-				sectors.add("(x='"+ship.getInt("x")+"' AND y='"+ship.getInt("y")+"' AND system='"+ship.getInt("system")+"')");
+			String sectorStr = "(s.x="+ship.getX()+" and s.y="+ship.getY()+" and s.system="+ship.getSystem()+")";
+			if( !sectors.contains(sectorStr) ) {
+				sectors.add(sectorStr);
 			}
 			
 			t.parse("ships.list", "ships.listitem", true);
 		}	
-		ship.free();
-		
+	
 		// Jaegerliste bauen
-		String sectorstring = Common.implode(" OR ", sectors);
+		String sectorstring = Common.implode(" or ", sectors);
 		
 		t.setBlock("_FLEETMGNT", "jaegertypes.listitem", "jaegertypes.list");
 		
-		SQLQuery shiptype = db.query("SELECT nickname,id FROM ship_types WHERE LOCATE('"+ShipTypes.SF_JAEGER+"',flags) "+(user.getAccessLevel() < 10 ? "AND hide=0" : ""));
-		while( shiptype.next() ) {
-			int count = db.first("SELECT count(*) count FROM ships WHERE owner=",user.getId()," AND type=",shiptype.getInt("id")," AND docked='' AND (",sectorstring,")").getInt("count");
-			if( count == 0 ) {
-				continue;
-			}
+		List shiptypes = db.createQuery("select s.shiptype,count(*) " +
+				"from Ship as s " +
+				"where s.owner=? and locate(?,s.shiptype.flags)!=0 and s.docked='' and ("+sectorstring+") " +
+				"group by s.shiptype")
+			.setEntity(0, user)
+			.setString(1, ShipTypes.SF_JAEGER)
+			.list();
+		for( Iterator iter=shiptypes.iterator(); iter.hasNext(); ) {
+			ShipType shiptype = (ShipType)((Object[])iter.next())[0];
 			
-			t.setVar(	"jaegertype.id",	shiptype.getInt("id"),
-						"jaegertype.name",	shiptype.getString("nickname") );
+			t.setVar(	"jaegertype.id",	shiptype.getId(),
+						"jaegertype.name",	shiptype.getNickname() );
 								
 			t.parse("jaegertypes.list", "jaegertypes.listitem", true);
 		}
-		shiptype.free();
-		
+	
 		// Flottenliste bauen
 		t.setBlock("_FLEETMGNT", "fleetcombine.listitem", "fleetcombine.list");
-		SQLQuery afleet = db.query("SELECT t2.id,t2.name FROM ships t1 JOIN ship_fleets t2 ON t1.fleet=t2.id WHERE t1.system='",aship.getInt("system"),"' AND t1.x='",aship.getInt("x"),"' AND t1.y='",aship.getInt("y"),"' AND docked='' AND owner='",user.getId(),"' AND t1.fleet!='",this.fleet.getInt("id"),"' GROUP BY t2.id");
-		while( afleet.next() ) {
-			int count = db.first("SELECT count(*) count FROM ships WHERE fleet=",afleet.getInt("id")).getInt("count");
+		List fleetList = db.createQuery("select distinct s.fleet from Ship as s " +
+				"where s.system=? and s.x=? and s.y=? AND docked='' AND owner=? AND s.fleet!=?")
+				.setInteger(0, aship.getSystem())
+				.setInteger(1, aship.getX())
+				.setInteger(2, aship.getY())
+				.setEntity(3, user)
+				.setEntity(4, this.fleet)
+				.list();
+		
+		for( Iterator iter=fleetList.iterator(); iter.hasNext(); ) {
+			ShipFleet afleet = (ShipFleet)iter.next();
 			
-			t.setVar(	"fleetcombine.id",			afleet.getInt("id"),
-						"fleetcombine.name",		Common._plaintitle(afleet.getString("name")),
+			long count = (Long)db.createQuery("select count(*) from Ship where fleet=?")
+				.setEntity(0, this.fleet)
+				.iterate().next();
+			
+			t.setVar(	"fleetcombine.id",			afleet.getId(),
+						"fleetcombine.name",		Common._plaintitle(afleet.getName()),
 						"fleetcombine.shipcount",	count );
 								
 			t.parse("fleetcombine.list", "fleetcombine.listitem", true);
 		}
-		afleet.free();
 	}
 }

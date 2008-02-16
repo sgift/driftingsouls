@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,7 +55,9 @@ import net.driftingsouls.ds2.server.modules.schiffplugins.SchiffPlugin;
 import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.scripting.ScriptParser;
 import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
+import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 
@@ -155,7 +159,7 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 		pluginMapper.put("navigation", getPluginByName("NavigationDefault"));
 		pluginMapper.put("cargo", getPluginByName("CargoDefault"));
 		
-		if( !shiptype.getString("werft").equals("") ) {
+		if( shiptype.getInt("werft") > 0 ) {
 			pluginMapper.put("werft", getPluginByName("WerftDefault"));
 		}
 		
@@ -427,7 +431,7 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 		
 		int[] shiplist = Common.explodeToInt("|",shipIdList);
 		
-		Ships.dock(Ships.DockMode.LAND, user.getId(), ship.getInt("id"), shiplist);
+		Ships.dock(Ship.DockMode.LAND, user.getId(), ship.getInt("id"), shiplist);
 		t.setVar("ship.message", Ships.MESSAGE.getMessage());
 
 		redirect();
@@ -453,7 +457,7 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 		
 		int[] shiplist = Common.explodeToInt("|",shipIdList);
 		
-		Ships.dock(Ships.DockMode.START, user.getId(), ship.getInt("id"), shiplist);
+		Ships.dock(Ship.DockMode.START, user.getId(), ship.getInt("id"), shiplist);
 		t.setVar("ship.message", Ships.MESSAGE.getMessage());
 
 		redirect();
@@ -492,10 +496,10 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 				targetID = Integer.parseInt(target);
 			}
 			
-			Ships.dock(Ships.DockMode.UNDOCK, user.getId(), targetID, new int[] {docked.getInt("id")});
+			Ships.dock(Ship.DockMode.UNDOCK, user.getId(), targetID, new int[] {docked.getInt("id")});
 		}
 		
-		Ships.dock(Ships.DockMode.DOCK, user.getId(), ship.getInt("id"), shiplist);
+		Ships.dock(Ship.DockMode.DOCK, user.getId(), ship.getInt("id"), shiplist);
 		t.setVar("ship.message", Ships.MESSAGE.getMessage());
 
 		redirect();
@@ -521,7 +525,7 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 		
 		int[] shiplist = Common.explodeToInt("|",shipIdList);
 		
-		Ships.dock(Ships.DockMode.UNDOCK, user.getId(), ship.getInt("id"), shiplist);
+		Ships.dock(Ship.DockMode.UNDOCK, user.getId(), ship.getInt("id"), shiplist);
 		t.setVar("ship.message", Ships.MESSAGE.getMessage());
 
 		redirect();
@@ -1164,7 +1168,7 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 					"ship.s",				ship.getInt("s"),
 					"ship.fleet",			ship.getInt("fleet"),
 					"ship.lock",			ship.getString("lock"),
-					"shiptype.werft",		shiptype.getString("werft"),
+					"shiptype.werft",		shiptype.getInt("werft"),
 					"tooltip.systeminfo",	tooltiptextStr,
 					"ship.showalarm",		!noob && (shiptype.getInt("class") != ShipClasses.GESCHUETZ.ordinal()) && shiptype.getInt("military") != 0 );
 		
@@ -1262,18 +1266,19 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 		}
 		
 		// Tooltip: Module
-		if( (ship.getString("status").indexOf("tblmodules") > -1) && !shiptype.getString("modules").equals("") ) {
+		{
+		Ship ship = Ships.getAsObject(this.ship);
+		ShipTypeData shiptype = ship.getTypeData();
+		final Ship.ModuleEntry[] modulelist = ship.getModules();
+		if( (modulelist.length > 0) && shiptype.getTypeModules().length() > 0 ) {
 			List<String> tooltiplines = new ArrayList<String>();
 			tooltiplines.add("<span style='text-decoration:underline'>Module:</span><br />");
 			
-			Ships.ModuleEntry[] modulelist = Ships.getModules(ship);
-			
-			SQLResultRow type = ShipTypes.getShipType( ship.getInt("type"), false );
-			SQLResultRow basetype = new SQLResultRow();
-			basetype.putAll(type);
+			ShipTypeData type = Ship.getShipType( ship.getType() );
+			ShipTypeData basetype = type;
 			
 			Map<Integer,String[]> slotlist = new HashMap<Integer,String[]>();
-			String[] tmpslotlist = StringUtils.split(type.getString("modules"),';');
+			String[] tmpslotlist = StringUtils.split(type.getTypeModules(),';');
 			for( int i=0; i < tmpslotlist.length; i++ ) {
 				String[] aslot = StringUtils.split(tmpslotlist[i], ':');
 				slotlist.put(new Integer(aslot[0]), aslot);
@@ -1283,7 +1288,7 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 			boolean itemmodules = false;
 			
 			for( int i=0; i < modulelist.length; i++ ) {
-				Ships.ModuleEntry module = modulelist[i];
+				Ship.ModuleEntry module = modulelist[i];
 				if( module.moduleType != 0 ) {
 					Module moduleobj = Modules.getShipModule( module );
 					if( (module.slot > 0) && (slotlist.get(module.slot).length > 2) ) {
@@ -1306,78 +1311,105 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 			}
 			
 			for( int i=0; i < moduleObjList.size(); i++ ) {
-				type = moduleObjList.get(i).modifyStats( type, basetype, moduleObjList );
+				type = moduleObjList.get(i).modifyStats( type, moduleObjList );
 			}
 			
-			for( String propname : type.keySet() ) {
-				// Alles was in moduleOutputList sitzt, muss in der DB durch einen von Number abgeleiteten Typ definiert sein!
-				if( moduleOutputList.containsKey(propname) && !basetype.get(propname).equals(type.get(propname)) ) {
-					double value = type.getDouble(propname);
-					double baseValue = basetype.getDouble(propname);
-					String text = null;
-					if( baseValue < value ) {
-						text = moduleOutputList.get(propname)+Common.ln(value)+" (<span class='nobr' style='color:green'>+";	
-					}
-					else {
-						text = moduleOutputList.get(propname)+Common.ln(value)+" (<span class='nobr' style='color:red'>";	
-					}
-					text += Common.ln(value - baseValue)+"</span>)<br />";
-					tooltiplines.add(text);
-				}
-				else if( propname.equals("weapons") ) {
-					Map<String,String> weaponlist = Weapons.parseWeaponList( type.getString(propname) );
-					Map<String,String> defweaponlist = Weapons.parseWeaponList( basetype.getString("weapons") );
+			for( String method : moduleOutputList.keySet() ) {
+				try {
+					Method m = type.getClass().getMethod(method);
+					m.setAccessible(true);
+					Number value = (Number)m.invoke(type);
 					
-					for( String aweapon : weaponlist.keySet() ) {
-						int aweaponcount = Integer.parseInt(weaponlist.get(aweapon));
-						if( !defweaponlist.containsKey(aweapon) ) {
-							tooltiplines.add("<span class='nobr' style='color:green'>+"+aweaponcount+" "+Weapons.get().weapon(aweapon).getName()+"</span><br />");
-						}
-						else if( Integer.parseInt(defweaponlist.get(aweapon)) < aweaponcount ) {
-							tooltiplines.add("<span class='nobr' style='color:green'>+"+(aweaponcount - Integer.parseInt(defweaponlist.get(aweapon)))+" "+Weapons.get().weapon(aweapon).getName()+"</span><br />");
-						}	
-						else if( Integer.parseInt(defweaponlist.get(aweapon)) > aweaponcount ) {
-							tooltiplines.add("<span class='nobr' style='color:red'>"+(aweaponcount - Integer.parseInt(defweaponlist.get(aweapon)))+" "+Weapons.get().weapon(aweapon).getName()+"</span><br />");
-						}
-					}
+					m = basetype.getClass().getMethod(method);
+					m.setAccessible(true);
+					Number baseValue = (Number)m.invoke(basetype);
 					
-					for( String aweapon : defweaponlist.keySet() ) {
-						if( !weaponlist.containsKey(aweapon) ) {
-							tooltiplines.add("<span class='nobr' style='color:red'>-"+Integer.parseInt(defweaponlist.get(aweapon))+" "+Weapons.get().weapon(aweapon).getName()+"</span><br />");
+					// Alles was in moduleOutputList sitzt, muss in der DB durch einen von Number abgeleiteten Typ definiert sein!
+					if( !value.equals(baseValue) ) {
+						String text = null;
+						if( baseValue.doubleValue() < value.doubleValue() ) {
+							text = moduleOutputList.get(method)+Common.ln(value)+" (<span class='nobr' style='color:green'>+";	
 						}
+						else {
+							text = moduleOutputList.get(method)+Common.ln(value)+" (<span class='nobr' style='color:red'>";	
+						}
+						text += Common.ln(value.doubleValue() - baseValue.doubleValue())+"</span>)<br />";
+						tooltiplines.add(text);
 					}
 				}
-				else if( propname.equals("maxheat") ) {
-					Map<String,String> heatlist = Weapons.parseWeaponList( type.getString(propname) );
-					Map<String,String> defheatlist = Weapons.parseWeaponList( basetype.getString("maxheat") );
-					
-					for( String aweapon : heatlist.keySet() ) {
-						int aweaponheat = Integer.parseInt(heatlist.get(aweapon));
-						if( !defheatlist.containsKey(aweapon) ) {
-							tooltiplines.add("<span class='nobr' style='color:green'>+"+aweaponheat+" "+Weapons.get().weapon(aweapon).getName()+" Max-Hitze</span><br />");
-						}
-						else if( Integer.parseInt(defheatlist.get(aweapon)) < aweaponheat ) {
-							tooltiplines.add("<span class='nobr' style='color:green'>+"+(aweaponheat - Integer.parseInt(defheatlist.get(aweapon)))+" "+Weapons.get().weapon(aweapon).getName()+" Max-Hitze</span><br />");
-						}	
-						else if( Integer.parseInt(defheatlist.get(aweapon)) > aweaponheat ) {
-							tooltiplines.add("<span class='nobr' style='color:red'>"+(aweaponheat - Integer.parseInt(defheatlist.get(aweapon)))+" "+Weapons.get().weapon(aweapon).getName()+" Max-Hitze</span><br />");
-						}
-					}
+				catch( InvocationTargetException e ) {
+					LOG.error("Fehler beim Aufruf der Property "+method,e);
 				}
-				else if( propname.equals("flags") ) {
-					String[] newflaglist = StringUtils.split(type.getString(propname),' ');
-					for( int i=0; i < newflaglist.length; i++ ) {
-						if( newflaglist[i].equals("") ) {
-							continue;	
-						}	
-						
-						if( !ShipTypes.hasShipTypeFlag(basetype, newflaglist[i]) ) {
-							tooltiplines.add("<span class='nobr' style='color:green'>"+ShipTypes.getShipTypeFlagName(newflaglist[i])+"</span><br />");
-						}
-					}
+				catch( NoSuchMethodException e ) {
+					LOG.error("Ungueltige Property "+method,e);
+				}
+				catch( IllegalAccessException e ) {
+					LOG.error("Ungueltige Property "+method,e);
 				}
 			}
 			
+			// Weapons
+			Map<String,String> weaponlist = Weapons.parseWeaponList( type.getWeapons() );
+			Map<String,String> defweaponlist = Weapons.parseWeaponList( basetype.getWeapons() );
+			
+			for( Map.Entry<String, String> entry: weaponlist.entrySet() ) {
+				String aweapon = entry.getKey();
+				int aweaponcount = Integer.parseInt(entry.getValue());
+				if( !defweaponlist.containsKey(aweapon) ) {
+					tooltiplines.add("<span class='nobr' style='color:green'>+"+aweaponcount+" "+Weapons.get().weapon(aweapon).getName()+"</span><br />");
+				} else {
+					String defweapon = defweaponlist.get(aweapon);
+					if( Integer.parseInt(defweapon) < aweaponcount ) {
+						tooltiplines.add("<span class='nobr' style='color:green'>+"+(aweaponcount - Integer.parseInt(defweapon))+" "+Weapons.get().weapon(aweapon).getName()+"</span><br />");
+					}	
+					else if( Integer.parseInt(defweapon) > aweaponcount ) {
+						tooltiplines.add("<span class='nobr' style='color:red'>"+(aweaponcount - Integer.parseInt(defweapon))+" "+Weapons.get().weapon(aweapon).getName()+"</span><br />");
+					}
+				}
+			}
+				
+			for( Map.Entry<String, String> entry: defweaponlist.entrySet() ) {
+				String aweapon = entry.getKey();
+				if( !weaponlist.containsKey(aweapon) ) {
+					int weaponint = Integer.parseInt(aweapon);
+					tooltiplines.add("<span class='nobr' style='color:red'>-"+weaponint+" "+Weapons.get().weapon(aweapon).getName()+"</span><br />");
+				}
+			}
+				
+			// MaxHeat
+			Map<String,String> heatlist = Weapons.parseWeaponList( type.getMaxHeat() );
+			Map<String,String> defheatlist = Weapons.parseWeaponList( basetype.getMaxHeat() );
+			
+			for( Map.Entry<String, String> entry: heatlist.entrySet() ) {
+				int aweaponheat = Integer.parseInt(entry.getValue());
+				String aweapon = entry.getKey();
+				
+				if( !defheatlist.containsKey(aweapon) ) {
+					tooltiplines.add("<span class='nobr' style='color:green'>+"+aweaponheat+" "+Weapons.get().weapon(aweapon).getName()+" Max-Hitze</span><br />");
+				}
+				else {
+					int defweaponheat = Integer.parseInt(defheatlist.get(aweapon));
+					if( defweaponheat < aweaponheat ) {
+						tooltiplines.add("<span class='nobr' style='color:green'>+"+(aweaponheat - defweaponheat)+" "+Weapons.get().weapon(aweapon).getName()+" Max-Hitze</span><br />");
+					}	
+					else if( defweaponheat > aweaponheat ) {
+						tooltiplines.add("<span class='nobr' style='color:red'>"+(aweaponheat - defweaponheat)+" "+Weapons.get().weapon(aweapon).getName()+" Max-Hitze</span><br />");
+					}
+				}
+			}
+		
+			// Flags
+			String[] newflaglist = StringUtils.split(type.getFlags(),' ');
+			for( int i=0; i < newflaglist.length; i++ ) {
+				if( newflaglist[i].equals("") ) {
+					continue;	
+				}	
+				
+				if( !basetype.hasFlag(newflaglist[i]) ) {
+					tooltiplines.add("<span class='nobr' style='color:green'>"+ShipTypes.getShipTypeFlagName(newflaglist[i])+"</span><br />");
+				}
+			}
+
 			tooltiptext = new StringBuilder(100);
 			tooltiptext.append(Common.tableBegin(400,"left").replace('"', '\''));
 			if( tooltiplines.size() > 15 ) {
@@ -1396,6 +1428,7 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 			else {
 				t.setVar("tooltip.module", tooltipStr);
 			}
+		}
 		}
 		
 		// Schilde aufladen

@@ -133,9 +133,9 @@ public class RTCTick extends TickController {
 								"( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 							.update(maxid, owner, "Verkauft", spawntype, loc.getX(), loc.getY(), loc.getSystem(), shiptype.getInt("crew"), shiptype.getInt("eps"), shiptype.getInt("hull"), cargo.save(), history);
 						
-						if( shiptype.getString("werft").length() > 0 ) {
+						if( shiptype.getInt("werft") > 0 ) {
 							db.update("INSERT INTO werften (shipid) VALUES (",this.maxid,")");
-							this.log("\tWerft '"+shiptype.getString("werft")+"' in Liste der Werften eingetragen");
+							this.log("\tWerft '"+shiptype.getString("nickname")+"' in Liste der Werften eingetragen");
 						}
 						
 						Ships.recalculateShipStatus(this.maxid);
@@ -312,9 +312,9 @@ public class RTCTick extends TickController {
 								"( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 							.update(this.maxid, owner, "Verkauft", type, loc.getX(), loc.getY(), loc.getSystem(), shipd.getInt("crew"), shipd.getInt("eps"), shipd.getInt("hull"), cargo.save(), history);
 						
-						if( shipd.getString("werft").length() > 0 ) {
+						if( shipd.getInt("werft") > 0 ) {
 							db.update("INSERT INTO werften (shipid) VALUES (",this.maxid,")");
-							this.log("\tWerft '"+shipd.getString("werft")+"' in Liste der Werften eingetragen");
+							this.log("\tWerft '"+shipd.getString("nickname")+"' in Liste der Werften eingetragen");
 						}
 						
 						Ships.recalculateShipStatus(this.maxid);

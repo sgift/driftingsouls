@@ -761,8 +761,10 @@ public class Battle implements Loggable {
 		SQLQuery aShipRow = db.query("SELECT s.*,u.name AS username,u.ally "+
 									"FROM ships s JOIN users u ON s.owner=u.id "+
 									"WHERE s.id>0 AND s.x="+tmpOwnShip.getInt("x")+" AND s.y="+tmpOwnShip.getInt("y")+" AND " +
-							   			"s.system="+tmpOwnShip.getInt("system")+" AND s.battle=0 AND " +
-							   			"u.ally IN ("+tmpOwnShip.getInt("ally")+","+tmpEnemyShip.getInt("ally")+") AND " +
+							   			"s.system="+tmpOwnShip.getInt("system")+" AND s.battle is null AND " +
+							   			(tmpOwnShip.getInt("ally") != 0 ? "u.ally="+tmpOwnShip.getInt("ally") : "u.ally is null")+
+							   			" OR " +
+							   			(tmpEnemyShip.getInt("ally") != 0 ? "u.ally="+tmpEnemyShip.getInt("ally") : "u.ally is null")+ " AND " +
 							   			"!LOCATE('disable_iff',s.status) AND `lock` IS NULL AND (u.vaccount=0 OR u.wait4vac > 0)");
 							   		
 		while( aShipRow.next() ) {
@@ -1143,10 +1145,10 @@ public class Battle implements Loggable {
 		
 		// Handelt es sich um eine Flotte?
 		if( shipd.getInt("fleet") > 0 ) {
-			sid = db.query("SELECT * FROM ships WHERE id>0 AND fleet=",shipd.getInt("fleet")," AND battle=0 AND x=",shipd.getInt("x")," AND y=",shipd.getInt("y")," AND system=",shipd.getInt("system")," AND `lock` IS NULL");
+			sid = db.query("SELECT * FROM ships WHERE id>0 AND fleet=",shipd.getInt("fleet")," AND battle is null AND x=",shipd.getInt("x")," AND y=",shipd.getInt("y")," AND system=",shipd.getInt("system")," AND `lock` IS NULL");
 		}
 		else {
-			sid = db.query("SELECT * FROM ships WHERE id>0 AND id=",shipd.getInt("id")," AND battle=0 AND x=",shipd.getInt("x")," AND y=",shipd.getInt("y")," AND system=",shipd.getInt("system")," AND `lock` IS NULL");
+			sid = db.query("SELECT * FROM ships WHERE id>0 AND id=",shipd.getInt("id")," AND battle is null AND x=",shipd.getInt("x")," AND y=",shipd.getInt("y")," AND system=",shipd.getInt("system")," AND `lock` IS NULL");
 		}
 		
 		while( sid.next() ) {
@@ -1160,7 +1162,7 @@ public class Battle implements Loggable {
 			shiplist.add(sid.getInt("id"));
 				
 			// ggf. gedockte Schiffe auch beruecksichtigen
-			db.update("UPDATE ships SET battle=",this.id," WHERE id>0 AND battle=0 AND docked IN ('",sid.getInt("id"),"','l ",sid.getInt("id"),"')");
+			db.update("UPDATE ships SET battle=",this.id," WHERE id>0 AND battle is null AND docked IN ('",sid.getInt("id"),"','l ",sid.getInt("id"),"')");
 			if( db.affectedRows() > 0 ) {
 				SQLQuery sid2 = db.query("SELECT * FROM ships WHERE id>0 AND docked IN ('",sid.getInt("id"),"','l ",sid.getInt("id"),"')");
 				while( sid2.next() ) {
@@ -1168,7 +1170,7 @@ public class Battle implements Loggable {
 					
 					SQLResultRow stype = ShipTypes.getShipType(sid2Row);
 					if( stype.getInt("class") == ShipClasses.GESCHUETZ.ordinal() ) {
-						db.update("UPDATE ships SET docked='',battle=0 WHERE id=",sid2.getInt("id"));
+						db.update("UPDATE ships SET docked='',battle is null WHERE id=",sid2.getInt("id"));
 						continue;
 					}
 					
@@ -1220,7 +1222,7 @@ public class Battle implements Loggable {
 		int tick = context.get(ContextCommon.class).getTick();
 		
 		if( shiplist.size() > 1 ) {
-			db.update("UPDATE ships SET battle=",this.id," WHERE id>0 AND id IN (",Common.implode(",",shiplist),") AND battle=0 AND x=",shipd.getInt("x")," AND y=",shipd.getInt("y")," AND system=",shipd.getInt("system"));
+			db.update("UPDATE ships SET battle=",this.id," WHERE id>0 AND id IN (",Common.implode(",",shiplist),") AND battle is null AND x=",shipd.getInt("x")," AND y=",shipd.getInt("y")," AND system=",shipd.getInt("system"));
 		
 			int addedShips = shiplist.size();
 			this.logenemy("<action side=\""+this.ownSide+"\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\nDie "+log_shiplink(shipd)+" ist zusammen mit "+addedShips+" weiteren Schiffen der Schlacht beigetreten\n]]></action>\n");
@@ -1230,7 +1232,7 @@ public class Battle implements Loggable {
 			this.logenemy("<action side=\""+this.ownSide+"\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\nDie "+log_shiplink(shipd)+" ist der Schlacht beigetreten\n]]></action>\n");
 			this.logme("Die "+log_shiplink(shipd)+" ist der Schlacht beigetreten\n\n");
 		
-			db.update("UPDATE ships SET battle=",this.id," WHERE id>0 AND battle=0 AND id=",shipid);
+			db.update("UPDATE ships SET battle=",this.id," WHERE id>0 AND battle is null AND id=",shipid);
 		}
 		
 		return true;
@@ -1258,7 +1260,7 @@ public class Battle implements Loggable {
 		SQLResultRow battledata = db.first( "SELECT * FROM battles WHERE id=",battleID);
 	
 		if( battledata.isEmpty() ) {
-			db.update("UPDATE ships SET battle=0 WHERE id>0 AND battle=",battleID);
+			db.update("UPDATE ships SET battle is null WHERE id>0 AND battle=",battleID);
 			context.addError("Die Schlacht ist bereits zuende!");
 			return false;
 		}
@@ -1337,7 +1339,7 @@ public class Battle implements Loggable {
 					else {
 						SQLResultRow shipcount = db.first("SELECT count(*) count FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id ",
 												 "WHERE t1.id>0 AND t1.owner=",id," AND t1.x=",this.x," AND t1.y=",this.y," AND ",
-												 "t1.system=",this.system," AND t1.battle=0 AND t2.class IN (11,13)");
+												 "t1.system=",this.system," AND t1.battle is null AND t2.class IN (11,13)");
 						if( shipcount.getInt("count") > 0 ) {
 							this.guest = true;
 						}
@@ -1847,7 +1849,7 @@ public class Battle implements Loggable {
 		}
 
 		db.update("DELETE FROM battles_ships WHERE battleid=",this.id);
-		db.update("UPDATE ships SET battle=0,battleAction=0 WHERE id>0 AND battle=",this.id);
+		db.update("UPDATE ships SET battle=null,battleAction=0 WHERE id>0 AND battle=",this.id);
 		db.update("DELETE FROM battles WHERE id=",this.id);
 
 		Common.writeLog("battles/battle_id"+this.id+".log", "</battle>");
@@ -2018,7 +2020,7 @@ public class Battle implements Loggable {
 		
 		int dockcount = db.first("SELECT count(*) count FROM ships WHERE docked IN ('l ",ship.getInt("id"),"','",ship.getInt("id"),"')").getInt("count");
 		
-		db.update("UPDATE ships SET battle=0,battleAction=0,x=",loc.getX(),",y=",loc.getY()," WHERE id>0 AND id=",ship.getInt("id"));
+		db.update("UPDATE ships SET battle=null,battleAction=0,x=",loc.getX(),",y=",loc.getY()," WHERE id>0 AND id=",ship.getInt("id"));
 		db.update("DELETE FROM battles_ships WHERE shipid=",ship.getInt("id"));
 
 		Ships.recalculateShipStatus(ship.getInt("id"));
@@ -2052,7 +2054,7 @@ public class Battle implements Loggable {
 				
 				dockcount--;
 				
-				db.update("UPDATE ships SET battle=0,battleAction=0,x=",loc.getX(),",y=",loc.getY()," WHERE id>0 AND id=",aship.getInt("id"));
+				db.update("UPDATE ships SET battle=null,battleAction=0,x=",loc.getX(),",y=",loc.getY()," WHERE id>0 AND id=",aship.getInt("id"));
 				db.update("DELETE FROM battles_ships WHERE shipid=",aship.getInt("id"));
 				
 				Ships.recalculateShipStatus(aship.getInt("id"));

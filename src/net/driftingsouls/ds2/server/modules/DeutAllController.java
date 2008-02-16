@@ -18,20 +18,23 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.util.Iterator;
+import java.util.List;
+
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
@@ -50,6 +53,8 @@ public class DeutAllController extends TemplateGenerator {
 		super(context);
 		
 		setTemplate("deutall.html");
+		
+		setPageTitle("Deut. sammeln");
 	}
 	
 	@Override
@@ -60,67 +65,69 @@ public class DeutAllController extends TemplateGenerator {
 	/**
 	 * Sammelt das Deuterium auf den Tankern
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		Location lastcoords = null;
 		
 		t.setBlock("_DEUTALL", "ships.listitem", "ships.list");
 
-		SQLQuery shipRow = db.query("SELECT t1.id,t1.x,t1.y,t1.system,t1.e,t1.name,t1.crew,t1.cargo,t1.type,t1.status " ,
-								"FROM ships AS t1,ship_types AS t2 " ,
-								"WHERE t1.id>0 AND t1.owner=",user.getId()," AND t1.type=t2.id AND (t2.deutfactor>0 OR LOCATE('tblmodules',t1.status)) ORDER BY t1.system,t1.x,t1.y");
+		List ships = db.createQuery("from Ship as s left join fetch s.modules " +
+				"where s.id>0 and s.owner=? and (s.shiptype.deutFactor>0 or s.modules.deutFactor>0) " +
+				"order by s.system,s.x,s.y")
+				.setEntity(0, user)
+				.list();
 		
-		while( shipRow.next() ) {
+		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
 			t.start_record();
-			SQLResultRow ship = shipRow.getRow();
+			Ship ship = (Ship)iter.next();
 			
-			SQLResultRow shiptype = ShipTypes.getShipType( ship );
-			if( shiptype.getInt("deutfactor") == 0 ) {
+			ShipTypeData shiptype = ship.getTypeData();
+			if( shiptype.getDeutFactor() == 0 ) {
 				continue;	
 			}
 	
-			if( (lastcoords == null) || !lastcoords.sameSector(0, Location.fromResult(ship), 0) ) {
+			if( (lastcoords == null) || !lastcoords.sameSector(0, ship.getLocation(), 0) ) {
 				t.setVar(	"ship.newcoords",		1,
-							"ship.location",		Ships.getLocationText(ship, false),
+							"ship.location",		Ships.getLocationText(ship.getLocation(), false),
 							"ship.newcoords.break",	lastcoords != null );
 
-				lastcoords = Location.fromResult(ship);
+				lastcoords = ship.getLocation();
 			}
 			
-			t.setVar(	"ship.id",		ship.getInt("id"),
-						"ship.name",	Common._plaintitle(ship.getString("name")) );
+			t.setVar(	"ship.id",		ship.getId(),
+						"ship.name",	Common._plaintitle(ship.getName()) );
 			
-			long e = ship.getInt("e");
+			long e = ship.getEnergy();
 			if( e <= 0 ) {
 				t.setVar(	"ship.message",			"Keine Energie",
 							"ship.message.color",	"red" );
 			}
-			else if( ship.getInt("crew") < (shiptype.getInt("crew")/2) ) {
+			else if( ship.getCrew() < (shiptype.getCrew()/2) ) {
 				t.setVar(	"ship.message",			"Nicht genug Crew",
 							"ship.message.color",	"red" );
 			}
 			else {
-				SQLResultRow nebel = db.first("SELECT id,type FROM nebel WHERE x=",ship.getInt("x")," AND y=",ship.getInt("y")," AND system=",ship.getInt("system")," AND type<3" );
-	
-				if( !nebel.isEmpty() ) {
-					Cargo shipCargo = new Cargo( Cargo.Type.STRING, ship.getString("cargo") );
+				Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(ship));
+
+				if( (nebel != null) && (nebel.getType() < 3) ) {
+					Cargo shipCargo = ship.getCargo();
 					long cargo = shipCargo.getMass();
 					
-					int deutfactor = shiptype.getInt("deutfactor");
-					if( nebel.getInt("type") == 1 ) {
+					int deutfactor = shiptype.getDeutFactor();
+					if( nebel.getType() == 1 ) {
 						deutfactor--;
 					}
-					else if( nebel.getInt("type") == 2 ) {
+					else if( nebel.getType() == 2 ) {
 						deutfactor++;
 					}
 	
-					if( (e * deutfactor)*Cargo.getResourceMass( Resources.DEUTERIUM, 1 ) > (shiptype.getLong("cargo") - cargo) ) {
-						e = (shiptype.getLong("cargo")-cargo)/(deutfactor*Cargo.getResourceMass( Resources.DEUTERIUM, 1 ));
+					if( (e * deutfactor)*Cargo.getResourceMass( Resources.DEUTERIUM, 1 ) > (shiptype.getCargo() - cargo) ) {
+						e = (shiptype.getCargo()-cargo)/(deutfactor*Cargo.getResourceMass( Resources.DEUTERIUM, 1 ));
 							
 						t.setVar(	"ship.message",			"Kein Platz mehr im Frachtraum",
 									"ship.message.color",	"#FF4444" );
@@ -131,10 +138,11 @@ public class DeutAllController extends TemplateGenerator {
 					t.setVar(	"ship.saugdeut",	saugdeut,
 								"deuterium.image",	Cargo.getResourceImage(Resources.DEUTERIUM) );
 					shipCargo.addResource( Resources.DEUTERIUM, saugdeut );
-						
-					db.update("UPDATE ships SET e=",ship.getInt("e")-e,",cargo='",shipCargo.save(),"' WHERE id>0 AND id=",ship.getInt("id")," AND cargo='",shipCargo.save(true),"' AND e=",ship.getInt("e"));
 					
-					Ships.recalculateShipStatus(ship.getInt("id"));
+					ship.setEnergy((int)(ship.getEnergy()-e));
+					ship.setCargo(shipCargo);
+					
+					ship.recalculateShipStatus();
 				} 
 				else {
 					t.setVar(	"ship.message",			"Kein Nebel",
@@ -146,6 +154,5 @@ public class DeutAllController extends TemplateGenerator {
 			t.stop_record();
 			t.clear_record();
 		}
-		shipRow.free();
 	}
 }

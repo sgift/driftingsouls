@@ -331,7 +331,7 @@ public class CreateObjects implements AdminPlugin {
 	private void createNebula( Database db, int system, int x, int y, int type ) {
 		SQLResultRow nebel = db.first("SELECT * FROM nebel WHERE x="+x+" AND y="+y+" AND system="+system);
 		if( !nebel.isEmpty() ) {
-			db.update("DELETE FROM nebel WHERE id="+nebel.getInt("id"));
+			db.update("DELETE FROM nebel WHERE x="+x+" AND y="+y+" AND system="+system);
 		}
 		db.update("INSERT INTO nebel (x,y,system,type) " +
 				"VALUES " +

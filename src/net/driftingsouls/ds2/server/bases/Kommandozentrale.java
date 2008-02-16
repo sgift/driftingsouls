@@ -384,7 +384,7 @@ public class Kommandozentrale extends DefaultBuilding {
 			SQLQuery ship = context.getDatabase().query("SELECT id,name,x,y,owner FROM ships " +
 					"WHERE id>0 AND x BETWEEN "+(base.getX()-base.getSize())+" AND "+(base.getX()+base.getSize())+" AND " +
 					"y BETWEEN "+(base.getY()-base.getSize())+" AND "+(base.getY()+base.getSize())+" AND " +
-					"system="+base.getSystem()+" AND !LOCATE('l ',docked) AND battle=0 " +
+					"system="+base.getSystem()+" AND !LOCATE('l ',docked) AND battle is null " +
 					"ORDER BY x,y,owner,id");
 			if( !ship.isEmpty() ) {
 				int oldx = 0;

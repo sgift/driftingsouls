@@ -18,11 +18,12 @@
  */
 package net.driftingsouls.ds2.server.config;
 
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Eine einfache Waffe in DS. Basisklasse fuer alle Waffen
@@ -53,7 +54,12 @@ public class Weapon {
 		/**
 		 * Weitreichende Waffen koennen aus der zweiten Reihe heraus abgefeuert werden
 		 */
-		LONG_RANGE(16);	
+		LONG_RANGE(16),
+		/**
+		 * Sehr weitreichende Waffen koennen aus der zweiten Reihe heraus abgefeuert und auch in die
+		 * zweite Reihe des Gegners feuern.
+		 */
+		VERY_LONG_RANGE(32);
 		
 		private int bit;
 		private Flags(int bit) {
@@ -277,6 +283,42 @@ public class Weapon {
 	}
 	
 	/**
+	 * Gibt den Schaden der Waffe gegenueber der Schiffshuelle zurueck
+	 * @param ownShipType Der Schiffstyp des feuernden Schiffes
+	 * @return Der Schaden an der Huelle
+	 */
+	public int getBaseDamage(ShipTypeData ownShipType) {
+		return this.baseDamage;
+	}
+	
+	/**
+	 * Gibt den Multiplikationsfaktor fuer den Schaden in Abhaengigkeit vom getroffenen Schiffstyp zurueck
+	 * @param enemyShipType Der Typ des Schiffes, auf welches gefeuert werden soll
+	 * @return Der Multiplikationsfaktor
+	 */
+	public int getBaseDamageModifier(ShipTypeData enemyShipType) {
+		return 1;
+	}
+	
+	/**
+	 * Gibt den Schaden der Waffe gegenueber den Schilden zurueck
+	 * @param ownShipType Der Schiffstyp des feuernden Schiffes
+	 * @return Der Schaden an den Schilden
+	 */
+	public int getShieldDamage(ShipTypeData ownShipType) {
+		return this.shieldDamage;
+	}
+	
+	/**
+	 * Gibt den Schaden der Waffe gegenueber den Subsystemen zurueck
+	 * @param ownShipType Der Schiffstyp des feuernden Schiffes
+	 * @return Der Schaden an den Subsystemen
+	 */
+	public int getSubDamage(ShipTypeData ownShipType) {
+		return this.subDamage;
+	}
+	
+	/**
 	 * Gibt die Trefferwahrscheinlichkeit gegenueber normalen Schiffen zurueck
 	 * @return Die Trefferwahrscheinlichkeit gegenueber normalen Schiffen
 	 */
@@ -316,6 +358,26 @@ public class Weapon {
 	 */
 	public boolean calcShipTypes(SQLResultRow ownShipType, SQLResultRow enemyShipType) {
 		return false;
+	}
+	
+	/**
+	 * Berechnet Aenderungen am Schiffstyp des feuernden Schiffes
+	 * @param ownShipType Der Typ des feuernden Schiffes
+	 * @param enemyShipType Der Typ des getroffenen Schiffes
+	 * @return Wurden Aenderungen vorgenommen (<code>true</code>)
+	 */
+	public ShipTypeData calcOwnShipType(ShipTypeData ownShipType, ShipTypeData enemyShipType) {
+		return ownShipType;
+	}
+	
+	/**
+	 * Berechnet Aenderungen am Schiffstyp des getroffenen Schiffes
+	 * @param ownShipType Der Typ des feuernden Schiffes
+	 * @param enemyShipType Der Typ des getroffenen Schiffes
+	 * @return Wurden Aenderungen vorgenommen (<code>true</code>)
+	 */
+	public ShipTypeData calcEnemyShipType(ShipTypeData ownShipType, ShipTypeData enemyShipType) {
+		return enemyShipType;
 	}
 	
 	/**

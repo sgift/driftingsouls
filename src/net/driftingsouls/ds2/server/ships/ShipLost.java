@@ -64,6 +64,33 @@ public class ShipLost {
 	}
 	
 	/**
+	 * Erstellt einen Eintrag fuer das angegebene Schiff. Alle Felder mit Ausnahme von 
+	 * <code>battleLog</code>, <code>destOwner</code> und <code>destAlly</code> werden gesetzt
+	 * @param ship Das Schiff, fuer das der Eintrag angelegt werden soll
+	 */
+	public ShipLost(Ship ship) {
+		this.type = ship.getType();
+		this.name = ship.getName();
+		this.time = Common.time();
+		this.owner = ship.getOwner().getId();
+		if( ship.getOwner().getAlly() != null ) {
+			this.ally = ship.getOwner().getAlly().getId();
+		}
+		if( ship.getDocked().length() > 0 ) {
+			String docked = ship.getDocked();
+			if( docked.charAt(0) == 'l' ) {
+				setDocked(Integer.parseInt(docked.substring(2)));
+			}
+			else {
+				setDocked(Integer.parseInt(docked));
+			}
+		}
+		if( ship.getBattle() != null ) {
+			setBattle(ship.getBattle());
+		}
+	}
+
+	/**
 	 * Gibt die Allianz zurueck, der das Schiff gehoert hat
 	 * @return Die Allianz
 	 */

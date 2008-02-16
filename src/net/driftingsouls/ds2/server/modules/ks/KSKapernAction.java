@@ -263,8 +263,8 @@ public class KSKapernAction extends BasicKSAction {
 			db.update("UPDATE ships SET owner=",user.getId(),",fleet=0,battleAction=1 WHERE id>0 AND docked IN ('",enemyShip.getInt("id"),"','l ",enemyShip.getInt("id"),"')");
 				
 			db.update("UPDATE offiziere SET userid=",user.getId()," WHERE dest='s ",enemyShip.getInt("id"),"'");
-			if( enemyShipType.getString("werft").length() > 0 ) {
-				db.update("UPDATE werften SET linked=0 WHERE shipid=",enemyShip.getInt("id"));
+			if( enemyShipType.getInt("werft") > 0 ) {
+				db.update("UPDATE werften SET linked=null,linkedWerft=null WHERE shipid=",enemyShip.getInt("id"));
 			}
 				
 			// Flagschiffeintraege aktuallisieren?

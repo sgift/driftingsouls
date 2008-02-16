@@ -167,7 +167,7 @@ public class NPCOrderTick extends TickController {
 							"( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 						.update(maxid, owner, "noname", type, loc.getX(), loc.getY(), loc.getSystem(), shipd.getInt("crew"), shipd.getInt("hull"), shipd.getInt("eps"), cargo.save(), history);
 					
-					if( shipd.getString("werft").length() > 0 ) {
+					if( shipd.getInt("werft") > 0 ) {
 						db.update("INSERT INTO werften (shipid) VALUES ('",this.maxid,"')");
 					}
 				}

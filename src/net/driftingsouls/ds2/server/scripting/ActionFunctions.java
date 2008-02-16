@@ -32,6 +32,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.ships.RouteFactory;
+import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.ships.Waypoint;
@@ -49,10 +50,10 @@ public class ActionFunctions {
 		parser.registerCommand( "NJUMP", new NJump(), ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "KJUMP", new KJump(), ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "MSG", new Msg(), ScriptParser.Args.PLAIN_REG,ScriptParser.Args.REG,ScriptParser.Args.REG );
-		parser.registerCommand( "START", new Dock(Ships.DockMode.START, true), ScriptParser.Args.PLAIN_VARIABLE );
-		parser.registerCommand( "UNDOCK", new Dock(Ships.DockMode.UNDOCK, true), ScriptParser.Args.PLAIN_VARIABLE );
-		parser.registerCommand( "LAND", new Dock(Ships.DockMode.LAND, false), ScriptParser.Args.PLAIN_VARIABLE );
-		parser.registerCommand( "DOCK", new Dock(Ships.DockMode.DOCK, false), ScriptParser.Args.PLAIN_VARIABLE );
+		parser.registerCommand( "START", new Dock(Ship.DockMode.START, true), ScriptParser.Args.PLAIN_VARIABLE );
+		parser.registerCommand( "UNDOCK", new Dock(Ship.DockMode.UNDOCK, true), ScriptParser.Args.PLAIN_VARIABLE );
+		parser.registerCommand( "LAND", new Dock(Ship.DockMode.LAND, false), ScriptParser.Args.PLAIN_VARIABLE );
+		parser.registerCommand( "DOCK", new Dock(Ship.DockMode.DOCK, false), ScriptParser.Args.PLAIN_VARIABLE );
 		parser.registerCommand( "GETRESOURCE", new GetResource(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "TRANSFERCARGO", new TransferCargo(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "ATTACK", new Attack(), ScriptParser.Args.PLAIN_REG );
@@ -250,14 +251,14 @@ public class ActionFunctions {
 	
 	class Dock implements SPFunction {
 		private boolean allowAll = false;
-		private Ships.DockMode mode = Ships.DockMode.DOCK;
+		private Ship.DockMode mode = Ship.DockMode.DOCK;
 		
 		/**
 		 * Erstellt eine Scriptfunktion als Wrapper um {@link net.driftingsouls.ds2.server.ships.Ships#dock(net.driftingsouls.ds2.server.ships.Ships.DockMode, int, int, int[])}
 		 * @param mode Der Dock-Modus
 		 * @param allowAll Soll <code>all</code> (alle gedockten Schiffe) zugelassen werden?
 		 */
-		public Dock(Ships.DockMode mode, boolean allowAll) {
+		public Dock(Ship.DockMode mode, boolean allowAll) {
 			this.allowAll = allowAll;
 			this.mode = mode;
 		}
@@ -403,7 +404,7 @@ public class ActionFunctions {
 			scriptparser.log("playerid: "+playerid+"\n");
 			
 			SQLResultRow ship = scriptparser.getShip();
-			SQLResultRow aship = db.first("SELECT id FROM ships WHERE owner=",playerid," AND system=",ship.getInt("system")," AND x=",ship.getInt("x")," AND y=",ship.getInt("y")," AND battle=0");
+			SQLResultRow aship = db.first("SELECT id FROM ships WHERE owner=",playerid," AND system=",ship.getInt("system")," AND x=",ship.getInt("x")," AND y=",ship.getInt("y")," AND battle is null");
 			
 			if( aship.isEmpty() ) {
 				scriptparser.log("Kein passendes Schiff gefunden. Ausfuehrung bis zum naechsten Tick angehalten\n");

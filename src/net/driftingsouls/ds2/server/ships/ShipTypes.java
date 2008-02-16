@@ -44,7 +44,6 @@ import org.w3c.dom.NodeList;
  *
  */
 public class ShipTypes implements Loggable {
-
 	/**
 	 * Kennzeichnet das Schiff als Jaeger
 	 */
@@ -137,6 +136,11 @@ public class ShipTypes implements Loggable {
 	 */
 	public static final String SF_OFFITRANSPORT = "offitransport";
 	
+	/**
+	 * Das Schiff kann sich mit anderen Werften zu Werftkomplexen zusammenschliessen
+	 */
+	public static final String SF_WERFTKOMPLEX = "werftkomplex";
+	
 	private static final Map<String,String> shipTypeFlagNames = new HashMap<String,String>();
 	private static final Map<String,String> shipTypeFlagDescs = new HashMap<String,String>();
 	
@@ -159,6 +163,7 @@ public class ShipTypes implements Loggable {
 		shipTypeFlagNames.put(SF_DROHNE, "Drohne");
 		shipTypeFlagNames.put(SF_SECONDROW, "Zweite Reihe");
 		shipTypeFlagNames.put(SF_OFFITRANSPORT, "Offizierstransporter");
+		shipTypeFlagNames.put(SF_WERFTKOMPLEX, "Werftkomplex");
 		
 		shipTypeFlagDescs.put(SF_COLONIZER, "Die Eigenschaft Colonzier erm&ouml;glicht es umbewohnte Asteroiden zu kolonisieren");
 		shipTypeFlagDescs.put(SF_ZERSTOERERPANZERUNG, "Die Zerst&ouml;rerpanzerung sorgt daf&uuml;r, dass pro Kampfrunde maximal 33% Schaden gemessen an an der maximalen H&uuml;llenst&auml;rke dem Schiff zugef&uuml;gt werden kann");
@@ -178,6 +183,7 @@ public class ShipTypes implements Loggable {
 		shipTypeFlagDescs.put(SF_DROHNE, "Dieses Schiff ist eine Drohne. Es ben&ouml;tigt ein Drohnen-Kontrollschiff um funktionieren zu k&ouml;nnen");
 		shipTypeFlagDescs.put(SF_SECONDROW, "Dieses Schiff kann in einem Kampf in die zweite Reihe wechseln, wo es vor Angriffen des Gegners sicherer ist");
 		shipTypeFlagDescs.put(SF_OFFITRANSPORT, "Dieses Schiff kann Offiziere in der H&ouml;he seiner max. Crew transportieren");
+		shipTypeFlagDescs.put(SF_WERFTKOMPLEX, "Diese Werft kann sich mit anderen Werften, welche die Eigenschaft Werftkomplex besitzen, zusammenschliessen. Die Ressourcen der Einzelwerften werden dabei gemeinsam genutzt");
 	}
 	
 	/**

@@ -109,8 +109,9 @@
 		{if ship.werft}
 			{if ship.werft.building}
 				<br />
-				<a style="color:#CCAA33" class="nonbold" onmouseover="return overlib('&lt;span style=\'font-size:13px\'&gt;{ship.werft.popup}&lt;/span&gt;',TIMEOUT,0,DELAY,150,WIDTH,420,FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');" onmouseout="return nd();" href="./main.php?module=werft&amp;sess={global.sess}&amp;ship={ship.id}">
-					[<img style="vertical-align:middle; border:0px" src="{URL}data/interface/time.gif" alt="Dauer" />{ship.werft.dauer}]
+				<img src="{URL}data/interface/schiffinfo/werftslots.png" alt="Werft" title="Werft" />
+				<a style="color:#CCAA33" class="nonbold" onmouseover="return overlib('&lt;span style=\'font-size:13px\'&gt;{ship.werft.popup}&lt;/span&gt;',TIMEOUT,0,DELAY,150,WIDTH,420,FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');" onmouseout="return nd();" href="./ds?module=werft&amp;sess={global.sess}&amp;ship={ship.id}">
+					[{ship.werft.entries}]
 				</a>
 			{else}
 				<br />{!link_to [frei], default, module:werft, css_class:nonbold, css_style:color:#CCAA33, ship:$ship.id}

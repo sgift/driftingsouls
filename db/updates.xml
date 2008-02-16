@@ -291,7 +291,7 @@
 		alter table `bases` add `marines` int unsigned not null default '0';
 		ALTER TABLE bases ADD COLUMN version INT NOT NULL DEFAULT '0';
 	]]></update>
-	<update type="structure" datum="2009-02-10"><![CDATA[
+	<update type="structure" datum="2008-02-10"><![CDATA[
 		ALTER TABLE `transmissionen` CHANGE `title` `title` VARCHAR( 100 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
 	
 		ALTER TABLE `weaponfactory` DROP `id`;
@@ -321,5 +321,89 @@
 		  `text` text,
 		  PRIMARY KEY  (`page`)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+	]]></update>
+	<update type="structure" datum="2008-02-16"><![CDATA[
+		ALTER TABLE `ships` ADD `modules` INT AFTER `type`;
+		UPDATE ships SET modules=(SELECT id FROM ships_modules WHERE ships_modules.id=ships.id);
+		
+		ALTER TABLE `ships` CHANGE `battle` `battle` SMALLINT UNSIGNED NULL DEFAULT NULL;
+		UPDATE ships SET battle=NULL WHERE battle=0;
+		ALTER TABLE ships ADD CONSTRAINT ships_fk_battles FOREIGN KEY (battle) REFERENCES battles(id);
+		
+		alter table `ships` add `marines` int unsigned not null default '0',
+			ADD `startFighters` TINYINT( 3 ) UNSIGNED NOT NULL DEFAULT '1',
+			ADD `ablativeArmor` INT UNSIGNED NOT NULL AFTER `shields`,
+			CHANGE fleet fleet int DEFAULT NULL;
+			
+		UPDATE ships SET fleet=NULL WHERE fleet=0;
+		ALTER TABLE ships ADD CONSTRAINT ships_fk_ship_fleets FOREIGN KEY (fleet) REFERENCES ship_fleets(id);
+		
+		ALTER TABLE `battles_ships` ADD `ablativeArmor` INT UNSIGNED NOT NULL AFTER `shields`;
+		
+		ALTER TABLE `nebel` DROP `id`;
+		ALTER TABLE `nebel` ADD PRIMARY KEY ( `system` , `x` , `y` );
+		ALTER TABLE `nebel` DROP INDEX `coords`;
+		
+		ALTER TABLE werften CHANGE linked linked int DEFAULT NULL;
+		UPDATE werften SET linked=NULL WHERE linked=0;
+		ALTER TABLE werften ADD CONSTRAINT werften_fk_bases FOREIGN KEY (linked) REFERENCES bases(id);
+		
+		ALTER TABLE werften CHANGE col col int DEFAULT NULL;
+		UPDATE werften SET col=NULL WHERE col=0;
+		ALTER TABLE werften ADD CONSTRAINT werften_fk_bases2 FOREIGN KEY (col) REFERENCES bases(id);
+		
+		ALTER TABLE werften CHANGE shipid shipid int DEFAULT NULL;
+		UPDATE werften SET shipid=NULL WHERE shipid=0;
+		ALTER TABLE werften ADD CONSTRAINT werften_fk_ships FOREIGN KEY (shipid) REFERENCES ships(id);
+		
+		CREATE TABLE `werft_queues` (
+		  werft int NOT NULL,
+		  `position` int NOT NULL,
+		  `building` int(11) default NULL,
+		  `item` smallint(6) NOT NULL default '-1',
+		  `remaining` tinyint(4) NOT NULL default '0',
+		  `flagschiff` tinyint(1) unsigned NOT NULL default '0',
+		  PRIMARY KEY  (`werft`,`position`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+		
+		ALTER TABLE werft_queues ADD CONSTRAINT werft_queues_fk_werften FOREIGN KEY (werft) REFERENCES werften(id);
+		ALTER TABLE werft_queues ADD CONSTRAINT werft_queues_fk_ship_types FOREIGN KEY (building) REFERENCES ship_types(id);
+		
+		ALTER TABLE `werft_queues` ADD COLUMN costsPerTick varchar(300) NOT NULL default '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,';
+		ALTER TABLE `werft_queues` ADD COLUMN energyPerTick int NOT NULL default '0';
+		
+		ALTER TABLE `werft_queues` ADD `slots` INT NOT NULL DEFAULT '1',
+			ADD `scheduled` TINYINT( 1 ) NOT NULL DEFAULT '0';
+			
+		ALTER TABLE `werften` ADD `linkedWerft` INT NULL;
+		ALTER TABLE werften ADD CONSTRAINT werften_fk_werften FOREIGN KEY (linkedWerft) REFERENCES werften(id) ON DELETE SET NULL;
+		ALTER TABLE `werften` ADD `komplex` TINYINT( 1 ) NOT NULL DEFAULT '0';
+		
+		ALTER TABLE `werft_queues` ADD INDEX ( `werft` );
+		ALTER TABLE `werft_queues` DROP PRIMARY KEY;
+		ALTER TABLE `werft_queues` ADD `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+		
+		ALTER TABLE `ships_baubar` DROP `linfactor`;
+		ALTER TABLE `ships_baubar` ADD `werftslots` INT NOT NULL DEFAULT '1' AFTER `tr3` ;
+		UPDATE ships_baubar SET werftslots=case when LOCATE('pwerft',werftreq) then 6 else 7 end;
+		ALTER TABLE `ships_baubar` DROP `werftreq`;
+		
+		ALTER TABLE `ship_types` ADD COLUMN werftint INT NOT NULL DEFAULT '0';
+		UPDATE ship_types SET werftint=case when LOCATE('pwerft',werft) then 6 when LOCATE('ganymed',werft) then 7 else 0 end;
+		ALTER TABLE ship_types DROP werft;
+		ALTER TABLE `ship_types` CHANGE `werftint` `werft` INT NOT NULL DEFAULT '0';
+		
+		ALTER TABLE `ships_modules` ADD COLUMN werftint INT NOT NULL DEFAULT '0';
+		UPDATE ships_modules SET werftint=case when LOCATE('pwerft',werft) then 6 when LOCATE('ganymed',werft) then 7 else 0 end;
+		ALTER TABLE ships_modules DROP werft;
+		ALTER TABLE `ships_modules` CHANGE `werftint` `werft` INT NOT NULL DEFAULT '0';
+		
+		INSERT INTO werft_queues (werft,position,building,item,remaining,flagschiff,slots,scheduled)
+			SELECT id,0,building,item,remaining,flagschiff,CASE WHEN col is not null THEN 6 ELSE 7 END, 1 FROM werften WHERE building!=0;
+		
+		ALTER TABLE `werften`
+  			DROP `building`,
+  			DROP `item`,
+			DROP `remaining`;
 	]]></update>
 </updates>

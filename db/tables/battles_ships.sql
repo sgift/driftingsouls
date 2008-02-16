@@ -4,6 +4,7 @@ CREATE TABLE `battles_ships` (
   `side` tinyint(3) unsigned NOT NULL default '0',
   `hull` mediumint(8) unsigned NOT NULL default '0',
   `shields` mediumint(8) unsigned NOT NULL default '0',
+  `ablativeArmor` int(11) unsigned NOT NULL default '0',
   `engine` tinyint(3) unsigned NOT NULL default '0',
   `weapons` tinyint(3) unsigned NOT NULL default '0',
   `comm` tinyint(3) unsigned NOT NULL default '0',

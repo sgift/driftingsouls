@@ -328,7 +328,7 @@ public class SchiffsTick extends TickController {
 		}
 		else {
 			this.calledByBattle = false;
-			battle = "s.battle=0";
+			battle = "s.battle is null";
 		}
 		
 		this.usercargo = null;
@@ -340,7 +340,7 @@ public class SchiffsTick extends TickController {
 		if( !this.calledByBattle ) {
 			database.update("UPDATE ships s JOIN users u ON s.owner=u.id " +
 					"SET s.s=IF(s.s>70,s.s-70,0) " +
-					"WHERE s.s>0 AND (u.vaccount=0 OR u.wait4vac>0) AND s.id>0 AND s.system!=0 AND s.battle=0");
+					"WHERE s.s>0 AND (u.vaccount=0 OR u.wait4vac>0) AND s.id>0 AND s.system!=0 AND s.battle is null");
 			
 			getContext().commit();
 		}

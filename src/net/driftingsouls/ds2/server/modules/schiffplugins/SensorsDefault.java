@@ -220,10 +220,10 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 				Nebel
 			*/
 
-			SQLResultRow nebel = database.first("SELECT id,type FROM nebel WHERE x=",data.getInt("x")," AND y=",data.getInt("y")," AND system=",data.getInt("system"));
+			SQLResultRow nebel = database.first("SELECT * FROM nebel WHERE x=",data.getInt("x")," AND y=",data.getInt("y")," AND system=",data.getInt("system"));
 
 			if( !nebel.isEmpty() ) {
-				t.setVar(	"nebel.id",		nebel.getInt("id"),
+				t.setVar(	"nebel.id",		"Nebel",
 							"nebel.type",	nebel.getInt("type"),
 							"global.ship.deutfactor", (datatype.getInt("deutfactor") != 0 && (nebel.getInt("type") < 3) ));
 			}
@@ -367,7 +367,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 			if( this.showOnly != 0 ) { 
 				datas = database.query("SELECT t1.id,t1.owner,t1.name,t1.type,t1.crew,t1.e,t1.s,t1.hull,t1.shields,t1.docked,t1.fleet,t1.jumptarget,t1.status,t1.oncommunicate,t3.name AS username,t3.ally,t1.battle,IF(t1.docked!='',t1.docked+0.1,t1.id) as myorder ",
 									"FROM ships AS t1,users AS t3 ",
-								   	"WHERE t1.id!=",ship," AND t1.id>0 AND t1.x=",data.getInt("x")," AND t1.y=",data.getInt("y")," AND t1.system=",data.getInt("system")," AND t1.battle=0 AND (t1.visibility IS NULL OR t1.visibility='",user.getId(),"') AND !LOCATE('l ',t1.docked) AND t1.owner=t3.id AND t1.type=",this.showOnly," AND t1.owner=",this.showId," AND !LOCATE('disable_iff',t1.status) ",
+								   	"WHERE t1.id!=",ship," AND t1.id>0 AND t1.x=",data.getInt("x")," AND t1.y=",data.getInt("y")," AND t1.system=",data.getInt("system")," AND t1.battle is null AND (t1.visibility IS NULL OR t1.visibility='",user.getId(),"') AND !LOCATE('l ',t1.docked) AND t1.owner=t3.id AND t1.type=",this.showOnly," AND t1.owner=",this.showId," AND !LOCATE('disable_iff',t1.status) ",
 									"ORDER BY ",thisorder,",myorder,fleet");	
 				firstentry = true;								
 			} 
@@ -378,7 +378,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 					// herausfinden wieviele Schiffe welches Typs im Sektor sind		
 					SQLQuery typesQuery = database.query("SELECT count(*) as menge,type,owner ",
 										"FROM ships ",
-										"WHERE id!=",ship," AND id>0 AND x=",data.getInt("x")," AND y=",data.getInt("y")," AND system=",data.getInt("system")," AND battle=0 AND (visibility IS NULL OR visibility='",user.getId(),"') AND !LOCATE('disable_iff',status) AND !LOCATE('l ',docked) ",
+										"WHERE id!=",ship," AND id>0 AND x=",data.getInt("x")," AND y=",data.getInt("y")," AND system=",data.getInt("system")," AND battle is null AND (visibility IS NULL OR visibility='",user.getId(),"') AND !LOCATE('disable_iff',status) AND !LOCATE('l ',docked) ",
 										"GROUP BY type,owner");
 					while( typesQuery.next() ) {
 						types.put(typesQuery.getInt("type")+"_"+typesQuery.getInt("owner"), typesQuery.getInt("menge"));
@@ -387,7 +387,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 				}
 				datas = database.query("SELECT t1.id,t1.owner,t1.name,t1.type,t1.crew,t1.e,t1.s,t1.hull,t1.shields,t1.docked,t1.fleet,t1.jumptarget,t1.status,t1.oncommunicate,t3.name AS username,t3.ally,t1.battle,IF(t1.docked!='',t1.docked+0.1,t1.id) as myorder ",
 									"FROM ships AS t1,users AS t3 ",
-									"WHERE t1.id!=",ship," AND t1.id>0 AND t1.x=",data.getInt("x")," AND t1.y=",data.getInt("y")," AND t1.system=",data.getInt("system")," AND t1.battle=0 AND (t1.visibility IS NULL OR t1.visibility='",user.getId(),"') AND !LOCATE('l ',t1.docked) AND t1.owner=t3.id ",
+									"WHERE t1.id!=",ship," AND t1.id>0 AND t1.x=",data.getInt("x")," AND t1.y=",data.getInt("y")," AND t1.system=",data.getInt("system")," AND t1.battle is null AND (t1.visibility IS NULL OR t1.visibility='",user.getId(),"') AND !LOCATE('l ',t1.docked) AND t1.owner=t3.id ",
 									"ORDER BY ",thisorder,",myorder,fleet");
 			}
 			
@@ -671,7 +671,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 					}
 
 					//Schiff in die Werft fliegen
-					if( (datas.getInt("owner") == user.getId()) && !ashiptype.getString("werft").equals("") ) {
+					if( (datas.getInt("owner") == user.getId()) && (ashiptype.getInt("werft") > 0) ) {
 						t.setVar("sships.action.repair",1);
 					}
 

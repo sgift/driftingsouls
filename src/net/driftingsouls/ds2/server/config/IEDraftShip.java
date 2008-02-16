@@ -20,7 +20,9 @@ package net.driftingsouls.ds2.server.config;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
+import net.driftingsouls.ds2.server.ships.ShipType;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -40,7 +42,7 @@ public class IEDraftShip extends ItemEffect {
 	private int e = 0;
 	private int dauer = 0;
 	private int[] techs = null;
-	private String[] werftreq = null;
+	private int werftslots = 1;
 	
 	protected IEDraftShip(boolean allyEffect) {
 		super(ItemEffect.Type.DRAFT_SHIP, allyEffect);
@@ -124,23 +126,24 @@ public class IEDraftShip extends ItemEffect {
 	}
 	
 	/**
-	 * Gibt die Werfttags zurueck, die jeweils den Bau des Schiffes ermoeglichen
-	 * @return Die Werfttags
+	 * Gibt die Werftslots zurueck, die zum Bau des Schiffes erforderlich sind
+	 * @return Die Werftslots
 	 */
-	public String[] getWerftReqs() {
-		return werftreq;
+	public int getWerftSlots() {
+		return werftslots;
 	}
 	
 	protected static ItemEffect fromXML(Node effectNode) throws Exception {
-		IEDraftShip draft = null;
-		
-		Boolean allyEffect = XMLUtils.getBooleanByXPath(effectNode, "@ally-effect");
-		if( allyEffect != null ) {
-			draft = new IEDraftShip(allyEffect);
-		}
-		draft = new IEDraftShip(false);
+		IEDraftShip draft = new IEDraftShip(false);
 		
 		draft.shiptype = (int)XMLUtils.getLongAttribute(effectNode, "shiptype");
+		
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		ShipType shipType = (ShipType)db.get(ShipType.class, draft.shiptype);
+		if( shipType == null ) {
+			throw new Exception("Illegaler Schiffstyp '"+draft.shiptype+"' im Item-Effekt 'Schiffsbauplan'");
+		}
+		
 		draft.race = (int)XMLUtils.getLongAttribute(effectNode, "race");
 		draft.systemReq = XMLUtils.getBooleanByXPath(effectNode, "system-req");
 		draft.flagschiff = XMLUtils.getBooleanByXPath(effectNode, "flagschiff");
@@ -154,11 +157,7 @@ public class IEDraftShip extends ItemEffect {
 			draft.techs[i] = (int)XMLUtils.getLongAttribute(technodes.item(i), "id");
 		}
 	
-		NodeList werftnodes = XMLUtils.getNodesByXPath(effectNode, "werft-req");
-		draft.werftreq = new String[werftnodes.getLength()];
-		for( int i=0; i < werftnodes.getLength(); i++ ) {
-			draft.werftreq[i] = XMLUtils.getStringAttribute(werftnodes.item(i), "type");
-		}	
+		draft.werftslots = XMLUtils.getNumberByXPath(effectNode, "werft-slots/@count").intValue();
 		
 		draft.buildcosts = new UnmodifiableCargo(new Cargo(XMLUtils.getNodeByXPath(effectNode, "buildcosts")));
 		

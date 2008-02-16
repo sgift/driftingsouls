@@ -10,7 +10,7 @@
 		<tr>
 			<td colspan="2" class="noBorderX">
 				Werkstatt: {ship.name} ({ship.id})
-				{if ! ship.own}von <a class="profile" href="./main.php?module=userprofile&amp;sess={global.sess}&amp;user={ship.owner.id}">{ship.owner.name}</a>{/endif}
+				{if ! ship.own}von <a class="profile" href="./ds?module=userprofile&amp;sess={global.sess}&amp;user={ship.owner.id}">{ship.owner.name}</a>{/endif}
 				<br />
 				<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
 			</td>
@@ -18,7 +18,7 @@
 		<tr>
 			<td class="noBorderX" valign="top">
 			{if werftgui.ws.showinfo}
-				<a target="_blank" class="noborder" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={ship.type.id}">
+				<a target="_blank" class="noborder" href="./ds?module=schiffinfo&amp;sess={global.sess}&amp;ship={ship.type.id}">
 					<img src="{ship.type.picture}" alt="{ship.type.name}" title="{ship.type.name}" style="border:0px; float:right; margin-right:5px; margin-left:15px;margin-bottom:10px" />
 				</a>
 				Zustand: <span style="color:{ship.hull.color}">{ship.hull}/{ship.type.hull}</span><br />
@@ -120,7 +120,7 @@
 					{if slot.empty}
 						Leer
 						{if slot.items.list}
-							<form action="./main.php" method="post">
+							<form action="./ds" method="post">
 							{werftgui.formhidden}
 							<input type="hidden" name="sess" value="{global.sess}" />
 							<input type="hidden" name="werftact" value="module" />
@@ -173,12 +173,14 @@
 			
 			<table class="noBorderX" cellpadding="2" cellspacing="1" style="margin-left:auto;margin-right:auto">
 			<tr>
-				<th style="text-align:center" colspan="3"><h3>Baukosten</h3></th>
+				<th style="text-align:center" colspan="5"><h3>Baukosten</h3></th>
 			</tr>
 			<tr>
 				<td class="noBorderX" style="width:32px"></td>
 				<td class="noBorderX" style="width:100px;text-align:right">Vorhanden</td>
-				<td class="noBorderX" style="width:100px;text-align:right">Sofort</td>
+				<td class="noBorderX" style="width:50px;text-align:right">Sofort</td>
+				<td class="noBorderX" style="width:40px;text-align:center">oder</td>
+				<td class="noBorderX" style="width:40px;text-align:right">Pro Tick</td>
 			</tr>
 			<!-- BEGIN build.res.listitem -->
 				<tr>
@@ -186,7 +188,7 @@
 						<img src="{res.image}" alt="" title="{res.plainname}" />
 					</td>
 					<td class="noBorderX" style="width:100px;text-align:right">{res.cargo.available}</td>
-					<td class="noBorderX" style="width:100px;text-align:right">
+					<td class="noBorderX" style="width:50px;text-align:right">
 						{if res.cargo.mangel}
 					 		<a class="error" onmouseover="return overlib('&lt;span style=\'font-size:13px\'&gt;Mehrbedarf:<br />{res.cargo.mangel} Einheiten&lt;/span&gt;',TIMEOUT,0,DELAY,300,WIDTH,100);" onmouseout="return nd();" href="#">
 						{/endif}
@@ -195,11 +197,17 @@
 							</a>
 						{/endif}
 					</td>
+					{if res.cargo.pertick}
+						<td class="noBorderX"></td>
+						<td class="noBorderX" style="width:40px;text-align:right">{res.cargo.pertick}</td>
+					{else}
+						<td class="noBorderX" colspan="2"></td>
+					{/endif}
 				</tr>
 			<!-- END build.res.listitem -->
 			<tr><td class="noBorderX" colspan="3"></td></tr>
 			<tr>
-				<th style="text-align:center" colspan="3"><h3>Werftkapazit&auml;t</h3></th>
+				<th style="text-align:center" colspan="5"><h3>Werftkapazit&auml;t</h3></th>
 			</tr>
 			
 			{build.othercosts.list}
@@ -210,13 +218,17 @@
 			<hr noshade="noshade" size="1" style="color:#cccccc;width:80%" />
 			<h3>Aktionen</h3>
 			<div style="margin-top:3px; margin-bottom:3px">
-				{if build.error}
-					<span class="error">{build.error}</span>
-				{else}
-					{if build.conf}
-						<a class="ok" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;build={build.id}&amp;item={build.item.id}&amp;conf=ok">{build.type.name} bauen</a>
+				{if build.conf}
+					{if build.instant.error}
+						<span class="error">{build.instant.error}</span><br />
 					{else}
-						<span class="ok">gen&uuml;gend Material vorhanden - beginne Bau</span>
+						<a class="ok" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;build={build.id}&amp;item={build.item.id}&amp;conf=ok&amp;pertick=0">Bauen und sofort bezahlen</a><br />
+					{/endif}
+				{else}
+					{if build.error}
+						<span class="error">{build.error}</span>
+					{else}
+						<span class="ok">alles ok - beginne mit Bau</span>
 					{/endif}
 				{/endif}
 			</div>
@@ -225,8 +237,27 @@
 		</div>
 	{!table_end}
 {/endif}
-{if werftgui.reslist}
+{if werftgui.main}
 	{!table_begin 810}
+		<h3>Werft: {werftgui.name}</h3>
+		<div style="text-align:left">
+			<table class="noBorderX" cellpadding="2" cellspacing="1">
+			<tr>
+				<td class="noBorderX" style="vertical-align:top">
+					<img style="width:64px" src="{werftgui.picture}" alt="" />
+				</td>
+				<td class="noBorderX" width="50"></td>
+				<td class="noBorderX" style="vertical-align:top">
+					Freies Personal: <img style="vertical-align:middle" src="{URL}data/interface/arbeitslos.gif" alt="" /> {werftgui.crew}<br />
+					Werftkapazit&auml;t: <img style="vertical-align:middle" src="{URL}data/interface/schiffinfo/werftslots.png" alt="" /> {werftgui.werftslots}
+				</td>
+			    <td class="noBorderX" width="50"></td>
+				<td class="noBorderX" style="vertical-align:top">
+					Auslastung: {werftgui.totalqueueentries} Schiffe</a>
+				</td>
+			</table>
+		</div>
+		<br />
 		<h3>Vorhandene Rohstoffe</h3>
 		<table class="noBorderX" style="width:90%; margin-left:auto; margin-right:auto">
 		<tr>
@@ -238,126 +269,265 @@
 		<!-- END reslist.res.listitem -->
 		</tr>
 		</table>
-	{!table_end}
-	<br />
-{/endif}
-{if werftgui.buildshiplist}
-	{!table_begin 810,left}
-	<div style="height:400px; overflow:auto;">
-		<table class="noBorderX" style="width:95%">
-		<tr>
-			<td class="noBorderX"></td>
-			<td class="noBorderX" style="text-align:center" colspan="2">Typ</td>
-			<td class="noBorderX" style="text-align:center">Kosten pro Schiff</td>
-			<td class="noBorderX"></td>
-		</tr>
-		<!-- BEGIN buildshiplist.listitem -->
-			<tr>
-				<td class="noBorderX">
-					{if buildship.item.id}
-						<span style="color:{buildship.item.color}">[Item]</span>
-						{if buildship.item.uses}
-							<span style="font-style:italic">[{buildship.item.uses}]</span>
-						{/endif}
-					{/endif}
-					{if buildship.flagschiff}
-						<span class="smallfont" style="color:#EECC44" title="Flagschiff">[FS]</span>
-					{/endif}
-				</td>
-				<td class="noBorderX">
-					<img style="vertical-align:middle;width:64px" src="{buildship.type.image}" alt="" />
-				</td>
-				<td class="noBorderX">
-					<a class="forschinfo" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={buildship.type.id}">{buildship.type.name}</a>
-				</td>
-				<td class="noBorderX">
-					<!-- BEGIN buildship.res.listitem -->
-						<span class="nobr"><img src="{res.image}" alt="" title="{res.plainname}" />{if res.mangel}<span style="color:red">{/endif}{res.count}{if res.mangel}</span>{/endif}</span>
-					<!-- END buildship.res.listitem -->
-				</td>
-				<td class="noBorderX">
-					<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;build={buildship.id}{if buildship.item.id}&amp;item={buildship.item.id}{/endif}">bauen</a>
-				</td>
-			</tr>		
-		<!-- END buildshiplist.listitem -->
-		</table>
-	</div>
-	{!table_end}
-{/endif}
-{if werftgui.wsshiplist}
-	<br /><span style="font-weight:bold">Schiff in die Werkstatt:</span><br />
-	<form action="./main.php" method="post">
-	{werftgui.formhidden}
-	<div>
-		<select name="ws">
-			<option selected="selected">Ziel</option>
-			<!-- BEGIN wsshiplist.listitem -->
-				<option value="{ship.id}">{if ship.needsrepair}* {/endif}{ship.name} ({ship.id}){if ship.owner.name} {ship.owner.name}{/endif}</option>
-			<!-- END wsshiplist.listitem -->
-		</select>&nbsp;
-		
-		<input name="sess" type="hidden" value="{global.sess}" />
-		<input type="submit" value="zur Werkstatt" />
-	</div>
-	</form>
-{/endif}
-{if werftgui.building.cancel}
-	{!table_begin 500,left}
-		<div align="center">
-			<a class="error" href="{werftgui.urlbase}&amp;sess={global.sess}">Bau abgebrochen</a>
-		</div>
-	{!table_end}
-{/endif}
-{if werftgui.building}
-	{!table_begin 500,left}
-		<img style="float:left" src="{ship.type.image}" alt="" />
-		Baut: <a class="forschinfo" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={ship.type.id}">{ship.type.name}</a>
-		[<a class="error" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;werftact=canclebuild">x</a>]
+	
 		<br />
-		Dauer: <img vertical-align="middle" src="{URL}data/interface/time.gif" alt="Dauer" title="Dauer" />{ship.build.remaining}
-		{if ship.build.item}
-			<br />
-			Ben&ouml;tigt:
-			<img style="vertical-align:middle" src="{ship.build.item.picture}" alt="{ship.build.item.name}" title="{ship.build.item.name}" />
-			<a class="forschinfo" href="./main.php?module=iteminfo&amp;sess={global.sess}&amp;action=details&amp;item={ship.build.item}">
-				{if ship.build.item.available}
-					<span style="color:green">
-				{else}
-					<span style="color:green">
-				{/endif}
-					{ship.build.item.name}
-				</span>
-			</a>
+		<h3>Aktionen</h3>
+		<table class="noBorderX" style="width:90%; margin-left:auto; margin-right:auto">
+		<tr>
+			<td class="noBorderX" style="text-align:center">
+				<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;show=build">Bau</a>
+			</td>
+			<td class="noBorderX" style="text-align:center">
+				<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;show=repair">Wartung</a>
+			</td>
+			<td class="noBorderX" style="text-align:center">
+				<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;show=queue">Bauschlange</a>
+			</td>
+			<td class="noBorderX" style="text-align:center">
+				<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;show=options">Optionen</a>
+			</td>
+		</tr>
+		</table>
+		<br />
+		<hr noshade="noshade" size="1" style="color:#cccccc" />
+		<br />
+		<script type="text/javascript">
+		<!--
+		//<![CDATA[
+			function highlightRow(row, highlight) {
+				if( highlight ) {
+					row.style.backgroundColor = '#36413A';
+				}
+				else {
+					row.style.backgroundColor = 'transparent';
+				}
+			}
+		//]]>
+		-->
+		</script>
+		{if werftgui.main.build}
+			{if werftgui.buildshiplist}
+				<div style="height:400px; overflow:auto;">
+					<table class="noBorderX" style="width:95%">
+					<tr>
+						<td class="noBorderX"></td>
+						<td class="noBorderX" style="text-align:center" colspan="2">Typ</td>
+						<td class="noBorderX" style="text-align:center">Kosten pro Schiff</td>
+						<td class="noBorderX"></td>
+					</tr>
+					<!-- BEGIN buildshiplist.listitem -->
+						<tr onmouseover="highlightRow(this, true)" onmouseout="highlightRow(this, false)">
+							<td class="noBorderX">
+								{if buildship.item.id}
+									<span style="color:{buildship.item.color}">[Item]</span>
+									{if buildship.item.uses}
+										<span style="font-style:italic">[{buildship.item.uses}]</span>
+									{/endif}
+								{/endif}
+								{if buildship.flagschiff}
+									<span class="smallfont" style="color:#EECC44" title="Flagschiff">[FS]</span>
+								{/endif}
+							</td>
+							<td class="noBorderX">
+								<img style="vertical-align:middle;width:64px" src="{buildship.type.image}" alt="" />
+							</td>
+							<td class="noBorderX">
+								<a class="forschinfo" href="./ds?module=schiffinfo&amp;sess={global.sess}&amp;ship={buildship.type.id}">{buildship.type.name}</a>
+							</td>
+							<td class="noBorderX">
+								<!-- BEGIN buildship.res.listitem -->
+									<span class="nobr"><img src="{res.image}" alt="" title="{res.plainname}" />{if res.mangel}<span style="color:red">{/endif}{res.count}{if res.mangel}</span>{/endif}</span>
+								<!-- END buildship.res.listitem -->
+							</td>
+							<td class="noBorderX">
+								<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;build={buildship.id}{if buildship.item.id}&amp;item={buildship.item.id}{/endif}">bauen</a>
+							</td>
+						</tr>		
+					<!-- END buildshiplist.listitem -->
+					</table>
+				</div>
+			{else}
+				Keine baubaren Schiffstypen vorhanden
+			{/endif}
 		{/endif}
-		{if werftgui.building.cancel.conf}
-			<br />
-			<br />
-			<br />
-			Wollen sie den Bau des Schiffes wirklich abbrechen?<br />
-			Achtung: Die Resourcen werden nicht zur&uuml;ckerstattet<br />
-			
-			<div align="center">
-				<a class="error" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;werftact=canclebuild&amp;conf=ok">ja</a>
-				 - <a class="ok" href="{werftgui.urlbase}&amp;sess={global.sess}">nein</a>
-			</div>
+		{if werftgui.main.repair}
+			{if werftgui.wsshiplist}
+				<span style="font-weight:bold">Schiff in die Werkstatt:</span><br />
+				<form action="./ds" method="post">
+				{werftgui.formhidden}
+				<div>
+					<select name="ws">
+						<option selected="selected">Ziel</option>
+						<!-- BEGIN wsshiplist.listitem -->
+							<option value="{ship.id}">{if ship.needsrepair}* {/endif}{ship.name} ({ship.id}){if ship.owner.name} {ship.owner.name}{/endif}</option>
+						<!-- END wsshiplist.listitem -->
+					</select>&nbsp;
+				
+					<input name="sess" type="hidden" value="{global.sess}" />
+					<input type="submit" value="zur Werkstatt" />
+				</div>
+				</form>
+			{else}
+				Es befinden sich keine Schiffe im Sektor
+			{/endif}
+		{/endif}
+		{if werftgui.main.queue}
+			{if werftgui.building.cancel}
+				<div style="text-align:center">
+					<span class="error">Bau abgebrochen</span>
+				</div>
+				<br />
+			{/endif}
+			{if queueshiplist.list}
+				<div style="height:400px; overflow:auto;">
+					<table class="noBorderX" style="width:95%" cellpadding="5">
+					<tr>
+						<td class="noBorderX" style="text-align:center;width:30%" colspan="2">Typ</td>
+						<td class="noBorderX" style="width:50%">Status</td>
+						<td class="noBorderX" style="width:10%"></td>
+						<td class="noBorderX" style="width:10%">Aktionen</td>
+					</tr>
+					<!-- BEGIN queueshiplist.listitem -->
+						<tr onmouseover="highlightRow(this, true)" onmouseout="highlightRow(this, false)">
+							<td class="noBorderX">
+								<img style="vertical-align:middle;width:64px" src="{queueship.type.image}" alt="" />
+							</td>
+							<td class="noBorderX">
+								<a class="forschinfo" href="./ds?module=schiffinfo&amp;sess={global.sess}&amp;ship={queueship.type.id}">{queueship.type.name}</a>
+							</td>
+							<td class="noBorderX">
+								Fertigstellung in: <img vertical-align="middle" src="{URL}data/interface/time.gif" alt="Dauer" title="Dauer" />{queueship.remainingtotal}<br />
+								Ben&ouml;tigte Slots: <img vertical-align="middle" src="{URL}data/interface/schiffinfo/werftslots.png" alt="Werftslots" title="Werftslots" />{queueship.slots}
+								{if queueship.reqitem}
+									<br />Ben&ouml;tigt: <img style="vertical-align:middle" src="{URL}data/items/{queueship.item.picture}" alt="{queueship.item.name}" />{queueship.item.name}
+								{/endif}
+								{if queueship.buildcosts.list}
+									<br />Pro Tick: 
+									<!-- BEGIN queueship.buildcosts.listitem -->
+										<img style="vertical-align:middle" src="{res.image}" alt="{res.plainname}" title="{res.plainname}" />{res.cargo}
+									<!-- END queueship.buildcosts.listitem -->
+								{/endif}
+							</td>
+							<td class="noBorderX">
+								{if queueship.building}
+									<img vertical-align="middle" src="{URL}data/interface/werft/active.png" alt="wird gebaut" title="wird gebaut" />
+								{/endif}
+							</td>
+							<td class="noBorderX">
+								{if queueship.uppossible}
+									<a href="{werftgui.urlbase}&amp;sess={global.sess}&amp;werftact=queueup&entry={queueship.position}&amp;show=queue">
+										<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/up.png" alt="Runter" title="Runter" />
+									</a>
+								{else}
+									<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/spacer.png" alt="" />
+								{/endif}
+								{if queueship.downpossible}
+									<a href="{werftgui.urlbase}&amp;sess={global.sess}&amp;werftact=queuedown&entry={queueship.position}&amp;show=queue">
+										<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/down.png" alt="Hoch" title="Hoch" />
+									</a>
+								{else}
+									<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/spacer.png" alt="" />
+								{/endif}
+								<a href="javascript:ask('Soll der Bau wirklich abgebrochen werden?','{werftgui.urlbase}&amp;sess={global.sess}&amp;werftact=canclebuild&entry={queueship.position}&amp;show=queue')">
+									<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/delete.gif" alt="Abbrechen" title="Abbrechen" />
+								</a>
+							</td>
+							
+						</tr>		
+					<!-- END queueshiplist.listitem -->
+					</table>
+				</div>
+			{else}
+				Keine im Bau befindlichen Schiffe vorhanden
+			{/endif}
+		{/endif}
+		{if werftgui.main.options}
+			{if werftgui.komplexparts.list}
+				<div style="height:400px; overflow:auto;">
+					<table class="noBorderX" style="width:95%" cellpadding="5">
+					<tr>
+						<td class="noBorderX" style="text-align:center;width:30%" colspan="2">Werft</td>
+						<td class="noBorderX" style="width:30%"></td>
+						<td class="noBorderX" style="width:10%">Aktionen</td>
+					</tr>
+					<!-- BEGIN werftgui.komplexparts.listitem -->
+						<tr onmouseover="highlightRow(this, true)" onmouseout="highlightRow(this, false)">
+							<td class="noBorderX">
+								<img style="vertical-align:middle;width:64px" src="{komplexpart.type.image}" alt="" />
+							</td>
+							<td class="noBorderX">
+								<a class="forschinfo" href="{komplexpart.url}">{komplexpart.name}</a>
+							</td>
+							<td class="noBorderX">
+								{if komplexpart.linkedbase.list}
+									<form action="./ds" method="post">
+									<div>
+										<span style="font-weight:bold">An:&nbsp;&nbsp;</span>
+										<select name="linkedbase" size="1">
+										<!-- BEGIN komplexpart.linkedbase.listitem -->
+											<option {if komplexpart.linkedbase.selected}selected="selected"{/endif} value="{komplexpart.linkedbase.value}">{komplexpart.linkedbase.name}</option>
+										<!-- END komplexpart.linkedbase.listitem -->
+										</select>
+										{komplexpart.werftgui.formhidden}
+										<input name="show" type="hidden" value="options" />
+										<input name="sess" type="hidden" value="{global.sess}" />
+										<input type="submit" value="ok" /><br />
+									</div>
+									</form>
+								{/endif}
+							</td>
+							<td class="noBorderX">
+								<a href="{werftgui.urlbase}&amp;sess={global.sess}&amp;werftact=removefromkomplex&entry={komplexpart.id}&amp;show=options">
+									<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/delete.gif" alt="Entfernen" title="Entfernen" />
+								</a>
+							</td>
+							
+						</tr>		
+					<!-- END werftgui.komplexparts.listitem -->
+					</table>
+				</div>
+			{/endif}
+			{if werftgui.linkedwerft.list}
+				<form action="./ds" method="post">
+				<div>
+					<span style="font-weight:bold">An Werft koppeln:</span><br />
+					<select name="linkedwerft" size="1">
+					<!-- BEGIN werftgui.linkedwerft.listitem -->
+						<option {if linkedwerft.selected}selected="selected"{/endif} value="{linkedwerft.value}">{linkedwerft.name}</option>
+					<!-- END werftgui.linkedwerft.listitem -->
+					</select>
+					{werftgui.formhidden}
+					<input name="show" type="hidden" value="options" />
+					<input name="sess" type="hidden" value="{global.sess}" />
+					<input type="submit" value="ok" /><br />
+				</div>
+				</form>
+				<br />
+				<br />
+			{/endif}
+			{if werftgui.linkedbase.list}
+				<form action="./ds" method="post">
+				<div>
+					<span style="font-weight:bold">An Asteroid koppeln:</span><br />
+					<select name="linkedbase" size="1">
+					<!-- BEGIN werftgui.linkedbase.listitem -->
+						<option {if linkedbase.selected}selected="selected"{/endif} value="{linkedbase.value}">{linkedbase.name}</option>
+					<!-- END werftgui.linkedbase.listitem -->
+					</select>
+					{werftgui.formhidden}
+					<input name="show" type="hidden" value="options" />
+					<input name="sess" type="hidden" value="{global.sess}" />
+					<input type="submit" value="ok" /><br />
+				</div>
+				</form>
+			{else}
+				{if ! werftgui.linkedwerft.list}
+					{if ! werftgui.komplexparts.list}
+						Keine Optionen verf&uuml;gbar
+					{/endif}
+				{/endif}
+			{/endif}
 		{/endif}
 	{!table_end}
-	<br />
-{/endif}
-{if werftgui.linkedbase.list}
-	<br />
-	<form action="./main.php" method="post">
-	<div>
-		<span style="font-weight:bold">An Asteroid koppeln:</span><br />
-		<select name="linkedbase" size="1">
-		<!-- BEGIN werftgui.linkedbase.listitem -->
-			<option {if linkedbase.selected}selected="selected"{/endif} value="{linkedbase.value}">{linkedbase.name}</option>
-		<!-- END werftgui.linkedbase.listitem -->
-		</select>
-		{werftgui.formhidden}
-		<input name="sess" type="hidden" value="{global.sess}" />
-		<input type="submit" value="ok" /><br />
-	</div>
-	</form>
 {/endif}
 </div>

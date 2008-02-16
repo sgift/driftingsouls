@@ -22,13 +22,13 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Repraesentiert die Liste aller in DS bekannten Modul-Slots.
@@ -69,8 +69,12 @@ public class ModuleSlots implements Loggable,Iterable<ModuleSlot> {
 	 * 
 	 * @param id Die ID des gewuenschten Modul-Slots
 	 * @return Der Modul-Slot oder <code>null</code>
+	 * @throws NoSuchSlotException Falls der angeforderte Slottyp nicht existiert
 	 */
-	public ModuleSlot slot( String id ) {
+	public ModuleSlot slot( String id ) throws NoSuchSlotException {
+		if( !list.containsKey(id) ) {
+			throw new NoSuchSlotException(id);
+		}
 		return list.get(id);
 	}
 	

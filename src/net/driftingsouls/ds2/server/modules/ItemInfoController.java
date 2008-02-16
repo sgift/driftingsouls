@@ -19,10 +19,12 @@
 package net.driftingsouls.ds2.server.modules;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import net.driftingsouls.ds2.server.Forschung;
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.ItemID;
@@ -38,21 +40,25 @@ import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.ItemEffect;
 import net.driftingsouls.ds2.server.config.Items;
 import net.driftingsouls.ds2.server.config.ModuleSlots;
+import net.driftingsouls.ds2.server.config.NoSuchSlotException;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.Ammo;
+import net.driftingsouls.ds2.server.entities.Forschung;
+import net.driftingsouls.ds2.server.entities.StatItemLocations;
+import net.driftingsouls.ds2.server.entities.StatUserCargo;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeChangeset;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -73,152 +79,209 @@ public class ItemInfoController extends TemplateGenerator {
 		super(context);
 		
 		setTemplate("iteminfo.html");
+		
+		setPageTitle("Item");
 	}
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		return true;
 	}
+	
+	private void colorize(StringBuilder effecttext, Object mod) {
+		long value = ((Number)mod).longValue();
+		if( value < 0 ) {
+			effecttext.append("<span style=\"color:red\">");	
+		}
+		else {
+			effecttext.append("<span style=\"color:green\">");
+		}
+	}
 
-	private String parseModuleModifiers( SQLResultRow mods ) {
+	private String parseModuleModifiers( ShipTypeChangeset mods ) {
 		StringBuilder effecttext = new StringBuilder(300);
 		
-		for( String key : mods.keySet() ) {
-			Object mod = mods.get(key);
-			
-			boolean closeSpan = false;
-			if( mod instanceof Number ) {
-				int value = ((Number)mod).intValue();
-				if( value < 0 ) {
-					effecttext.append("<span style=\"color:red\">");	
+		if( mods.getRu() != 0 ) {
+			colorize(effecttext, mods.getRu());
+			effecttext.append("Reaktor <img src=\""+Cargo.getResourceImage(Resources.URAN)+"\" alt=\"\" /> "+mods.getRu());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getRd() != 0 ) {
+			colorize(effecttext, mods.getRd());
+			effecttext.append("Reaktor <img src=\""+Cargo.getResourceImage(Resources.DEUTERIUM)+"\" alt=\"\" /> "+mods.getRd());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getRa() != 0 ) {
+			colorize(effecttext, mods.getRa());
+			effecttext.append("Reaktor <img src=\""+Cargo.getResourceImage(Resources.ANTIMATERIE)+"\" alt=\"\" /> "+mods.getRa());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getRm() != 0 ) {
+			colorize(effecttext, mods.getRm());
+			effecttext.append("Reaktor <img src=\""+Configuration.getSetting("URL")+"data/interface/energie.gif\" alt=\"\" /> "+mods.getRm());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getEps() != 0 ) {
+			colorize(effecttext, mods.getEps());
+			effecttext.append("Energiespeicher "+mods.getEps());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getCost() != 0 ) {
+			colorize(effecttext, mods.getCost());
+			effecttext.append("Flugkosten "+mods.getCost());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getHeat() != 0 ) {
+			colorize(effecttext, mods.getHeat());
+			effecttext.append("&Uuml;berhitzung "+mods.getHeat());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getHull() != 0 ) {
+			colorize(effecttext, mods.getHull());
+			effecttext.append("H&uuml;lle "+mods.getHull());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getPanzerung() != 0 ) {
+			colorize(effecttext, mods.getPanzerung());
+			effecttext.append("Panzerung "+mods.getPanzerung());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getAblativeArmor() != 0 ) {
+			colorize(effecttext, mods.getAblativeArmor());
+			effecttext.append("Ablative Panzerung "+mods.getAblativeArmor());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getCargo() != 0 ) {
+			colorize(effecttext, mods.getCargo());
+			effecttext.append("Cargo "+mods.getCargo());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getCrew() != 0 ) {
+			colorize(effecttext, mods.getCrew());
+			effecttext.append("Crew "+mods.getCrew());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getShields() != 0 ) {
+			colorize(effecttext, mods.getShields());
+			effecttext.append("Schilde "+mods.getShields());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getSize() != 0 ) {
+			colorize(effecttext, mods.getSize());
+			effecttext.append("Gr&ouml;&szlig;e "+mods.getSize());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getJDocks() != 0 ) {
+			colorize(effecttext, mods.getJDocks());
+			effecttext.append("J&auml;gerdocks "+mods.getJDocks());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getADocks() != 0 ) {
+			colorize(effecttext, mods.getADocks());
+			effecttext.append("Externe Docks "+mods.getADocks());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getSensorRange() != 0 ) {
+			colorize(effecttext, mods.getSensorRange());
+			effecttext.append("Sensorreichweite "+mods.getSensorRange());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getHydro() != 0 ) {
+			colorize(effecttext, mods.getHydro());
+			effecttext.append("Produziert <img src=\""+Cargo.getResourceImage(Resources.NAHRUNG)+"\" alt=\"\" />"+mods.getHydro());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getDeutFactor() != 0 ) {
+			colorize(effecttext, mods.getDeutFactor());
+			effecttext.append("Sammelt <img src=\""+Cargo.getResourceImage(Resources.DEUTERIUM)+"\" alt=\"\" />"+mods.getDeutFactor());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getReCost() != 0 ) {
+			colorize(effecttext, mods.getReCost());
+			effecttext.append("Wartungskosten "+mods.getReCost());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getWerft() != 0 ) {
+			colorize(effecttext, mods.getWerft());
+			effecttext.append("Werftslots "+mods.getWerft());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getFlags() != null ) {
+			String[] flags = StringUtils.split(mods.getFlags(), ' ');
+			for( int i=0; i < flags.length; i++ ) {
+				if( i > 0 ) {
+					effecttext.append("<br />\n");	
 				}
-				else {
-					effecttext.append("<span style=\"color:green\">");
-					mod = "+"+mod;	
-				}
-				closeSpan = true;
-			}	
-				
-			if( key.equals("ru") ) {
-				effecttext.append("Reaktor <img src=\""+Cargo.getResourceImage(Resources.URAN)+"\" alt=\"\" /> "+mod);
+				effecttext.append(ShipTypes.getShipTypeFlagName(flags[i]));
 			}
-			else if( key.equals("rd") ) {
-				effecttext.append("Reaktor <img src=\""+Cargo.getResourceImage(Resources.DEUTERIUM)+"\" alt=\"\" /> "+mod);
-			}
-			else if( key.equals("ra") ) {
-				effecttext.append("Reaktor <img src=\""+Cargo.getResourceImage(Resources.ANTIMATERIE)+"\" alt=\"\" /> "+mod);
-			}
-			else if( key.equals("rm") ) {
-				effecttext.append("Reaktor <img src=\""+Configuration.getSetting("URL")+"data/interface/energie.gif\" alt=\"\" /> "+mod);
-			}	
-			else if( key.equals("eps") ) {
-				effecttext.append("Energiespeicher "+mod);
-			}
-			else if( key.equals("cost") ) {
-				effecttext.append("Flugkosten "+mod);
-			}
-			else if( key.equals("heat") ) {
-				effecttext.append("&Uuml;berhitzung "+mod);
-			}
-			else if( key.equals("hull") ) {
-				effecttext.append("H&uuml;lle "+mod);
-			}
-			else if( key.equals("panzerung") ) {
-				effecttext.append("Panzerung "+mod);
-			}
-			else if( key.equals("cargo") ) {
-				effecttext.append("Cargo "+mod);
-			}
-			else if( key.equals("crew") ) {
-				effecttext.append("Crew "+mod);
-			}
-			else if( key.equals("shields") ) {
-				effecttext.append("Schilde "+mod);
-			}
-			else if( key.equals("size") ) {
-				effecttext.append("Gr&ouml;&szlig;e "+mod);
-			}
-			else if( key.equals("jdocks") ) {
-				effecttext.append("J&auml;gerdocks "+mod);
-			}	
-			else if( key.equals("adocks") ) {
-				effecttext.append("Externe Docks "+mod);
-			}
-			else if( key.equals("sensorrange") ) {
-				effecttext.append("Sensorreichweite "+mod);
-			}
-			else if( key.equals("hydro") ) {
-				effecttext.append("Produziert <img src=\""+Cargo.getResourceImage(Resources.NAHRUNG)+"\" alt=\"\" />"+mod);
-			}	
-			else if( key.equals("deutfactor") ) {
-				effecttext.append("Sammelt <img src=\""+Cargo.getResourceImage(Resources.DEUTERIUM)+"\" alt=\"\" />"+mod);
-			}
-			else if( key.equals("recost") ) {
-				effecttext.append("Wartungskosten "+mod);
-			}
-			else if( key.equals("werft") ) {
-				if( mod.equals("ganymed") ) {
-					effecttext.append("Ganymed-Werft");	
-				}
-				else if( mod.equals("pwerft") ) {
-					effecttext.append("Planetare Werft");	
-				}
-				else {
-					effecttext.append("Werft: "+mod);	
-				}
-			}
-			else if( key.equals("flags") ) {
-				String[] flags = StringUtils.split(mod.toString(), ' ');
-				for( int i=0; i < flags.length; i++ ) {
-					if( i > 0 ) {
-						effecttext.append("<br />\n");	
-					}
-					effecttext.append(ShipTypes.getShipTypeFlagName(flags[i]));
-				}
-			}
-			else if( key.equals("weapons") ) {
-				Map<String,Integer[]> weaponlist = (Map<String,Integer[]>)mod;
-				
-				StringBuilder wpntext = new StringBuilder(50);
-				for( String weaponclassname : weaponlist.keySet() ) {
-					Integer[] weaponmods = weaponlist.get(weaponclassname);
-					
-					int weaponcount = weaponmods[0];
-					int weaponheat = weaponmods[1];	
-					
-					if( wpntext.length() > 0 ) {
-						wpntext.append("<br />");	
-					}
-					wpntext.append("<span class=\"nobr\">");
-					if( Math.abs(weaponcount) > 1 ) {
-						wpntext.append(weaponcount+"x ");	
-					}
-					wpntext.append(Weapons.get().weapon(weaponclassname).getName());
-					wpntext.append("</span><br />[Max. Hitze: "+weaponheat+"]");
-				}
-				effecttext.append(wpntext);
-			}
-			else if( key.equals("maxheat") ) {
-				Map<String,Integer> weaponlist = (Map<String,Integer>)mod;
-				
-				StringBuilder wpntext = new StringBuilder(50);
-				for( String weaponclassname : weaponlist.keySet() ) {
-					int weaponheat = weaponlist.get(weaponclassname);
-					
-					if( wpntext.length() > 0 ) {
-						wpntext.append("<br />");	
-					}
-					wpntext.append(Weapons.get().weapon(weaponclassname).getName()+":<br />+"+weaponheat+" Max-Hitze");
-				}
-				effecttext.append(wpntext);
-			}
-			
-			if( closeSpan ) {
-				effecttext.append("</span>");
-			}	
 			effecttext.append("<br />\n");
 		}
 		
+		if( mods.getWeapons() != null ) {
+			Map<String,Integer[]> weaponlist = mods.getWeapons();
+					
+			StringBuilder wpntext = new StringBuilder(50);
+			for( Object entry : weaponlist.entrySet() ) {
+				Entry weaponclass = (Entry)entry;
+				String weaponclassname = (String)weaponclass.getKey();
+				Integer[] weaponmods = (Integer[])weaponclass.getValue();
+					
+				int weaponcount = weaponmods[0];
+				int weaponheat = weaponmods[1];	
+						
+				if( wpntext.length() > 0 ) {
+					wpntext.append("<br />");	
+				}
+				wpntext.append("<span class=\"nobr\">");
+				if( Math.abs(weaponcount) > 1 ) {
+					wpntext.append(weaponcount+"x ");	
+				}
+				wpntext.append(Weapons.get().weapon(weaponclassname).getName());
+				wpntext.append("</span><br />[Max. Hitze: "+weaponheat+"]");
+			}
+			effecttext.append(wpntext);
+			effecttext.append("<br />\n");
+		}
+		
+		if( mods.getMaxHeat() != null ) {
+			Map<String,Integer> weaponlist = mods.getMaxHeat();
+					
+			StringBuilder wpntext = new StringBuilder(50);
+			for( Object entry : weaponlist.entrySet() ) {
+				Entry weaponclass = (Entry)entry;
+				String weaponclassname = (String)weaponclass.getKey();
+				int weaponheat = (Integer)weaponclass.getValue();
+				
+				if( wpntext.length() > 0 ) {
+					wpntext.append("<br />");	
+				}
+				wpntext.append(Weapons.get().weapon(weaponclassname).getName()+":<br />+"+weaponheat+" Max-Hitze");
+			}
+			effecttext.append(wpntext);
+			effecttext.append("<br />\n");
+		}
+				
 		return effecttext.toString();	
 	}
 	
@@ -277,22 +340,22 @@ public class ItemInfoController extends TemplateGenerator {
 		case DRAFT_SHIP: {
 			IEDraftShip effect = (IEDraftShip)Items.get().item(itemid).getEffect();
 			
-			SQLResultRow shiptype = ShipTypes.getShipType( effect.getShipType(), false );
+			ShipTypeData shiptype = Ship.getShipType( effect.getShipType() );
 	
 			StringBuilder data = new StringBuilder(100);
-			if( shiptype.getBoolean("hide") ) {
+			if( shiptype == null ) {
+				data.append("<span style=\"color:red\">Unbekannter Schiffstyp</span>");
+			}
+			else if( shiptype.isHide() ) {
         		if( user.getAccessLevel() > 20 ) {
-        			data.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getString("nickname")+"</a><br /><span style=\"font-style:italic;color:red\" class=\"verysmallfont\">[unsichtbar]</span>\n");
+        			data.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getNickname()+"</a><br /><span style=\"font-style:italic;color:red\" class=\"verysmallfont\">[unsichtbar]</span>\n");
 	        	} 
 	        	else {
     	    		data.append("Unbekannt");
         		}
 			}	
-			else if( !shiptype.isEmpty() ) {
-				data.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getString("nickname")+"</a>\n");
-			}	
 			else {
-				data.append("<span style=\"color:red\">Unbekannter Schiffstyp</span>");
+				data.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getNickname()+"</a>\n");
 			}
 			
 			t.setVar(	"entry.name",	"Schiffstyp",
@@ -362,26 +425,8 @@ public class ItemInfoController extends TemplateGenerator {
 			
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 	
-			data.setLength(0);
-			
-			boolean first = true;
-			if( Common.inArray("pwerft", effect.getWerftReqs()) ) {
-				if( !first ) {
-					data.append("<br />\n");
-				}
-				data.append("Planetare Werft");
-        		first = false;
-			}
-			if( Common.inArray("ganymed", effect.getWerftReqs()) ) {
-				if( !first ) {
-					data.append("<br />\n");
-				}
-				data.append("Ganymed");
-        		first = false;
-			}
-			
-			t.setVar(	"entry.name",	"Baubar in",
-						"entry.data",	data );
+			t.setVar(	"entry.name",	"Werftslots",
+						"entry.data",	"<img valign=\"middle\" src=\""+Configuration.getSetting("URL")+"data/interface/schiffinfo/werftslots.png\" alt=\"\" />"+effect.getWerftSlots() );
 			
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 	
@@ -401,9 +446,9 @@ public class ItemInfoController extends TemplateGenerator {
 			IEDisableShip effect = (IEDisableShip)Items.get().item(itemid).getEffect();
 			t.setVar( "entry.name", "Schiffstyp" );
 			
-			SQLResultRow shiptype = ShipTypes.getShipType( effect.getShipType(), false );
-			if( !shiptype.isEmpty() ) {
-				t.setVar("entry.data", "<a class=\"forschinfo\" href=\""+Common.buildUrl("default","module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getString("nickname")+"</a>" );
+			ShipTypeData shiptype = Ship.getShipType( effect.getShipType() );
+			if( shiptype != null ) {
+				t.setVar("entry.data", "<a class=\"forschinfo\" href=\""+Common.buildUrl("default","module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getNickname()+"</a>" );
 			}
 			else {
 				t.setVar("entry.data", "<span style=\"color:red\">Unbekannter Schiffstyp</span>");
@@ -429,8 +474,11 @@ public class ItemInfoController extends TemplateGenerator {
 				if( targetslots.length() > 0 ) {
 					targetslots.append(", ");	
 				}
-				if( ModuleSlots.get().slot(aslot) != null ) {
+				try {
 					targetslots.append(ModuleSlots.get().slot(aslot).getName());
+				}
+				catch( NoSuchSlotException e ) {
+					targetslots.append("Ungueltiger Slot '"+aslot+"'");
 				}
 			}
 			
@@ -471,10 +519,11 @@ public class ItemInfoController extends TemplateGenerator {
 								
 			if( effect.getSetID() != 0 ) {
 				IEModuleSetMeta meta = ((IEModuleSetMeta)Items.get().item(effect.getSetID()).getEffect());
-				Map<Integer,SQLResultRow> modlist = meta.getCombos();
+				Map<Integer,ShipTypeChangeset> modlist = meta.getCombos();
 				
-				for( Integer modulecount : modlist.keySet() ) {
-					SQLResultRow mods = modlist.get(modulecount);
+				for( Map.Entry<Integer, ShipTypeChangeset> entry: modlist.entrySet() ) {
+					Integer modulecount = entry.getKey();
+					ShipTypeChangeset mods = entry.getValue();
 			
 					if( modulecount <= setknowncount ) {
 						effecttext = this.parseModuleModifiers( mods );
@@ -494,7 +543,7 @@ public class ItemInfoController extends TemplateGenerator {
 			
 		*/
 		case AMMO: {
-IEAmmo effect = (IEAmmo)Items.get().item(itemid).getEffect();
+			IEAmmo effect = (IEAmmo)Items.get().item(itemid).getEffect();
 			
 			Ammo ammo = effect.getAmmo();
 		
@@ -660,12 +709,12 @@ IEAmmo effect = (IEAmmo)Items.get().item(itemid).getEffect();
 	public void knownAction() {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
-		SQLResultRow ownCargoRow = db.first("SELECT cargo FROM stats_user_cargo WHERE user_id=",user.getId());
+		StatUserCargo ownCargoRow = (StatUserCargo)db.get(StatUserCargo.class, user.getId());
 		Cargo owncargo = null;
-		if( !ownCargoRow.isEmpty() ) {
-			owncargo = new Cargo( Cargo.Type.STRING, ownCargoRow.getString("cargo"));
+		if( ownCargoRow != null ) {
+			owncargo = new Cargo(ownCargoRow.getCargo());
 		}
 		else {
 			owncargo = new Cargo();
@@ -676,18 +725,17 @@ IEAmmo effect = (IEAmmo)Items.get().item(itemid).getEffect();
 		t.setBlock("_ITEMINFO", "knownlist.listitem", "knownlist.list");
 		
 		Map<Integer,String[]> reslocations = new HashMap<Integer,String[]>();
-		SQLQuery amodule = db.query("SELECT item_id,locations FROM stats_module_locations WHERE user_id=",user.getId());
-		while( amodule.next() ) {
-				reslocations.put(amodule.getInt("item_id"), StringUtils.split(amodule.getString("locations"),';'));
+		List modules = db.createQuery("from StatItemLocations where user=?")
+			.setEntity(0, user)
+			.list();
+		for( Iterator iter=modules.iterator(); iter.hasNext(); ) {
+			StatItemLocations amodule = (StatItemLocations)iter.next();
+			reslocations.put(amodule.getItemId(), StringUtils.split(amodule.getLocations(),';'));
 		}
-		amodule.free();
 		
 		final String shipimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle' src='"+Configuration.getSetting("URL")+"data/interface/schiffe/"+user.getRace()+"/icon_schiff.gif' alt='' title='Schiff' /></td>";
 		final String baseimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle;width:15px;height:15px' src='"+Configuration.getSetting("URL")+"data/starmap/asti/asti.png' alt='' title='Asteroid' /></td>";
-		
-		Map<Integer,SQLResultRow> basecache = new HashMap<Integer,SQLResultRow>();
-		Map<Integer,String> shipnamecache = new HashMap<Integer,String>();
-		
+
 		for( Item aitem : Items.get() ) {
 			int itemid = aitem.getID();
 			
@@ -717,25 +765,21 @@ IEAmmo effect = (IEAmmo)Items.get().item(itemid).getEffect();
 					
 					tooltiptext.append("<tr>");
 					switch( alocation.charAt(0) ) {
-					case 's':
-						if( !shipnamecache.containsKey(objectid) ) {
-							shipnamecache.put(objectid, Common._plaintitle(db.first("SELECT name FROM ships WHERE id=",objectid).getString("name")));
-						}
-						tooltiptext.append(shipimage+"<td class='noBorderX'><a style='font-size:14px' class='forschinfo' href='"+Common.buildUrl("default", "module", "schiff", "ship", objectid)+"'>"+shipnamecache.get(objectid)+" ("+objectid+")</a></td>");
+					case 's': {
+						Ship ship = (Ship)db.get(Ship.class, objectid);
+						tooltiptext.append(shipimage+"<td class='noBorderX'><a style='font-size:14px' class='forschinfo' href='"+Common.buildUrl("default", "module", "schiff", "ship", objectid)+"'>"+ship.getName()+" ("+ship.getId()+")</a></td>");
 						break;
-					case 'b':
-						if( !basecache.containsKey(objectid) ) {
-							basecache.put(objectid, db.first("SELECT name,x,y,system FROM bases WHERE id=",objectid));
-							basecache.get(objectid).put("name", Common._plaintitle(basecache.get(objectid).getString("name")));
-						}
-						tooltiptext.append(baseimage+"<td class='noBorderX'><a style='font-size:14px' class='forschinfo' href='"+Common.buildUrl("default", "module", "base", "col", objectid)+"'>"+basecache.get(objectid).getString("name")+" - "+basecache.get(objectid).getInt("system")+":"+basecache.get(objectid).getInt("x")+"/"+basecache.get(objectid).getInt("y")+"</a></td>");
+					}
+					case 'b': {
+						Base base = (Base)db.get(Base.class, objectid);
+						tooltiptext.append(baseimage+"<td class='noBorderX'><a style='font-size:14px' class='forschinfo' href='"+Common.buildUrl("default", "module", "base", "col", objectid)+"'>"+base.getName()+" - "+base.getLocation()+"</a></td>");
 						break;
-					case 'g':
-						if( !shipnamecache.containsKey(objectid) ) {
-							shipnamecache.put(objectid, Common._plaintitle(db.first("SELECT name FROM ships WHERE id=",objectid).getString("name")));
-						}
-						tooltiptext.append("<td colspan='2' class='noBorderX' style='font-size:14px'>"+shipnamecache.get(objectid)+"</td>");
+					}
+					case 'g': {
+						Ship ship = (Ship)db.get(Ship.class, objectid);
+						tooltiptext.append("<td colspan='2' class='noBorderX' style='font-size:14px'>"+ship.getName()+"</td>");
 						break;
+					}
 					default:
 						tooltiptext.append("<td colspan='2' class='noBorderX' style='font-size:14px'>Unbekanntes Objekt "+alocation+"</td>");
 					}	
@@ -763,8 +807,8 @@ IEAmmo effect = (IEAmmo)Items.get().item(itemid).getEffect();
 	 * Zeigt eine Itemliste an
 	 * @urlparam String itemlist Die Itemliste
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		TemplateEngine t = this.getTemplateEngine();
 		User user = (User)getUser();
@@ -777,9 +821,15 @@ IEAmmo effect = (IEAmmo)Items.get().item(itemid).getEffect();
 			itemlist.addResource(Resources.fromString(getString("itemlist")),1);
 		}
 		catch( Exception e ) {
-			// Offenbar keine Item-ID
-			// Jetzt versuchen, die Liste als Itemliste zu parsen
-			itemlist = new Cargo(Cargo.Type.ITEMSTRING,getString("itemlist"));
+			try {
+				// Offenbar keine Item-ID
+				// Jetzt versuchen, die Liste als Itemliste zu parsen
+				itemlist = new Cargo(Cargo.Type.ITEMSTRING,getString("itemlist"));
+			}
+			catch( Exception f ) {
+				addError("Kein gueltiges Item angegeben");
+				return;
+			}
 		}
 
 		t.setVar("iteminfo.itemlist", 1);
@@ -791,7 +841,6 @@ IEAmmo effect = (IEAmmo)Items.get().item(itemid).getEffect();
 			ItemCargoEntry item = myitemlist.get(i);
 			
 			Item itemobject = item.getItemObject();
-			ItemEffect itemeffect = item.getItemEffect();
 		
 			if( itemobject == null ) {
 				continue;
@@ -804,6 +853,8 @@ IEAmmo effect = (IEAmmo)Items.get().item(itemid).getEffect();
 			if( itemobject.isUnknownItem() && !user.isKnownItem(item.getItemID()) && (user.getAccessLevel() < 15) ) {
 				continue;
 			}
+			
+			ItemEffect itemeffect = item.getItemEffect();
 			
 			String name = Common._plaintitle(itemobject.getName());
 			if( itemobject.getQuality().color().length() > 0 ) {

@@ -16,7 +16,7 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-body 	{background-color: #000000; color: white; font-family: arial, helvetica; }
+body 	{background-color: #000000; color: white; font-family: arial, helvetica; margin-left:5px; }
 
 hr 		{color: white;}
 
@@ -93,7 +93,7 @@ td.BorderX		{ border-style: solid; border-color: #808080; border-width: 1px; bac
 td.BorderXnBG		{ border-style: solid; border-color: #808080; border-width: 1px; background-color:transparent; color: #C7C7C7; font-family: arial, helvetica; font-size:14px}
 
 table.noBorderX 	{background-color:transparent; color: #000000; font-family: arial, helvetica; border-style: none; border-width: 0px; font-size:14px}
-td.noBorderX		{background-color:transparent; color: #C7C7C7; font-family: arial, helvetica; border-style: none; border-width: 0px; font-size:14px; background-image: url('./data/interface/border/border_background.gif')}
+td.noBorderX		{background-color:transparent; color: #C7C7C7; font-family: arial, helvetica; border-style: none; border-width: 0px; font-size:14px}
 td.noBorderXnBG		{background-color:transparent; color: #C7C7C7; font-family: arial, helvetica; border-style: none; border-width: 0px; font-size:14px}
 
 td.noBorderX h2		{font-size:16px; font-weight:bold; text-decoration:none; color:#FFFFFF; margin-top:1px; margin-left:0px; margin-right:0px; margin-bottom:2px}
@@ -134,10 +134,10 @@ a.back:visited		{color: green; text-decoration: none;}
 a.back:hover		{color: #F0A000; text-decoration: none;}
 a.back:active		{color: green; text-decoration: none;}
 
-a.ok:link			{color: green; text-decoration: normal; font-weight:bold; }
-a.ok:visited		{color: green; text-decoration: normal; font-weight:bold; }
-a.ok:hover			{color: #F0A000; text-decoration: normal; font-weight:bold; }
-a.ok:active			{color: green; text-decoration: normal; font-weight:bold; }
+a.ok:link			{color: green; text-decoration: none; font-weight:bold; }
+a.ok:visited		{color: green; text-decoration: none; font-weight:bold; }
+a.ok:hover			{color: #F0A000; text-decoration: none; font-weight:bold; }
+a.ok:active			{color: green; text-decoration: none; font-weight:bold; }
 
 a.error:link		{color: #E00000; text-decoration: none; font-weight:bold;}
 a.error:visited		{color: #E00000; text-decoration: none; font-weight:bold;}
@@ -213,4 +213,4 @@ tooltip1		{color: #FFFFFF; background-color: #cccccc}
 /*
 	Inbox Ordner Hover
 */
-td.inboxOrdnerHover	{background-color:#888800; background-image:none}
+td.inboxOrdnerHover	{background-color:#36413A; background-image:none}

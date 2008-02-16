@@ -291,7 +291,7 @@ public class KapernController extends TemplateGenerator {
 				SQLQuery aship = db.query("SELECT t1.id,t1.status,t1.type ", 
 								"FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id ", 
 							 	"WHERE t1.x="+this.targetShip.getInt("x")+" AND t1.y="+this.targetShip.getInt("y")+" AND t1.system="+this.targetShip.getInt("system")+" AND ", 
-							 		"t1.owner IN ("+Common.implode(",",ownerlist)+") AND t1.id>0 AND t1.battle=0 AND (LOCATE('=',t2.weapons) OR LOCATE('tblmodules',t1.status)) AND  ",
+							 		"t1.owner IN ("+Common.implode(",",ownerlist)+") AND t1.id>0 AND t1.battle is null AND (LOCATE('=',t2.weapons) OR LOCATE('tblmodules',t1.status)) AND  ",
 									"!LOCATE('nocrew',t1.status) AND t1.type=t2.id");
 								
 				while( aship.next() ) {
@@ -412,8 +412,8 @@ public class KapernController extends TemplateGenerator {
 				.update(user.getId(), 0, this.targetShip.getString("history"), this.targetShip.getInt("id"), "l "+this.targetShip.getInt("id"), Integer.toString(this.targetShip.getInt("id")));
 			db.update("UPDATE offiziere SET userid="+user.getId()+" WHERE dest='s "+this.targetShip.getInt("id")+"'");
 			
-			if( this.targetShipType.getString("werft").length() > 0 ) {
-				db.update("UPDATE werften SET linked=0 WHERE shipid="+this.targetShip.getInt("id"));
+			if( this.targetShipType.getInt("werft") > 0 ) {
+				db.update("UPDATE werften SET linked=null,linkedWerft=null WHERE shipid="+this.targetShip.getInt("id"));
 			}
 			
 			// Flagschiffeintraege aktuallisieren

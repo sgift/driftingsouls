@@ -18,12 +18,13 @@
  */
 package net.driftingsouls.ds2.server.modules.schiffplugins;
 
-import net.driftingsouls.ds2.server.config.Items;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
-import net.driftingsouls.ds2.server.werften.ShipWerft;
+import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.werften.WerftObject;
+import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
 /**
  * Schiffsmodul fuer die Anzeige des Werftstatus
@@ -42,34 +43,42 @@ public class WerftDefault implements SchiffPlugin {
 		SQLResultRow ship = caller.ship;
 		SQLResultRow shiptype = caller.shiptype;
 		
-		Database db = controller.getDatabase();
+		Database database = controller.getDatabase();
+		org.hibernate.Session db = controller.getDB();
 
-		SQLResultRow werftRow = db.first("SELECT * FROM werften WHERE shipid=",ship.getInt("id"));
-		ShipWerft werft = new ShipWerft(werftRow,shiptype.getString("werft"),ship.getInt("system"),ship.getInt("owner"),ship.getInt("id"));
-		werft.setOneWayFlag(shiptype.getInt("ow_werft"));
-
-		TemplateEngine t = controller.getTemplateEngine();
-		t.setFile("_PLUGIN_"+pluginid, "schiff.werft.default.html");
-
-		if( werft.isBuilding() ) {
-			SQLResultRow type = werft.getBuildShipType();
+		WerftObject werft = (WerftObject)db.createQuery("from ShipWerft where ship=?")
+			.setEntity(0, Ships.getAsObject(ship))
+			.uniqueResult();
+				
+		if( werft != null ) {
+			TemplateEngine t = controller.getTemplateEngine();
+			t.setFile("_PLUGIN_"+pluginid, "schiff.werft.default.html");
+	
+			if( werft.getKomplex() != null ) {
+				werft = werft.getKomplex();
+			}
+			
+			final WerftQueueEntry[] entries = werft.getBuildQueue();
+			final int totalSlots = werft.getWerftSlots();
+			int usedSlots = 0;
+			int buildingCount = 0;
+			for( int i=0; i < entries.length; i++ ) {
+				if( entries[i].isScheduled() ) {
+					usedSlots += entries[i].getSlots();
+					buildingCount++;
+				}
+			}
 			
 			t.setVar(	"global.pluginid",			pluginid,
 						"ship.id",					ship.getInt("id"),
-						"schiff.werft.prod.dauer",	werft.getRemainingTime(),
-						"schiff.werft.prod.type",	type.getInt("id"),
-						"schiff.werft.prod.name",	type.getString("nickname"),
-						"schiff.werft.prod.picture",	type.getString("picture") );
+						"schiff.werft.usedslots",	usedSlots,
+						"schiff.werft.totalslots",	totalSlots,
+						"schiff.werft.scheduled",	buildingCount,
+						"schiff.werft.waiting",		entries.length-buildingCount
+						);
 			
-			if( werft.getRequiredItem() != -1 ) {
-				t.setVar(	"schiff.werft.prod.item",			werft.getRequiredItem(),
-							"schiff.werft.prod.item.name",		Items.get().item(werft.getRequiredItem()).getName(),
-							"schiff.werft.prod.item.picture",	Items.get().item(werft.getRequiredItem()).getPicture(),
-							"schiff.werft.prod.item.available",	werft.isBuildContPossible() );
-			}
+			t.parse(caller.target,"_PLUGIN_"+pluginid);
 		}
-		
-		t.parse(caller.target,"_PLUGIN_"+pluginid);
 	}
 
 }

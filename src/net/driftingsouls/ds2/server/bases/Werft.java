@@ -21,17 +21,15 @@ package net.driftingsouls.ds2.server.bases;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
-import net.driftingsouls.ds2.server.config.Items;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
 import net.driftingsouls.ds2.server.werften.WerftGUI;
 import net.driftingsouls.ds2.server.werften.WerftObject;
+import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.hibernate.annotations.Immutable;
@@ -66,32 +64,35 @@ public class Werft extends DefaultBuilding {
 	public void build(Base base) {
 		super.build(base);
 		
-		ContextMap.getContext().getDatabase().update("INSERT INTO werften (type,col) VALUES(1,"+base.getId()+")");
+		BaseWerft werft = new BaseWerft(base);
+		ContextMap.getContext().getDB().persist(werft);
 	}
 
 
 	@Override
 	public void cleanup(Context context, Base base) {
 		super.cleanup(context, base);
-
-		context.getDatabase().update("DELETE FROM werften WHERE col="+base.getId());
+		
+		context.getDB().createQuery("delete from BaseWerft where col=?")
+			.setEntity(0, base)
+			.executeUpdate();
 	}
-
 
 	@Override
 	public String echoShortcut(Context context, Base base, int field, int building) {
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		
 		String sess = context.getSession();
 				
 		StringBuilder result = new StringBuilder(200);
 		
-		SQLResultRow werftRow = db.first("SELECT * FROM werften WHERE col=",base.getId());
-		if( !werftRow.isEmpty() ) {
-			BaseWerft werft = new BaseWerft(werftRow,"pwerft",base.getSystem(),base.getOwner().getId(),base.getId(), field);
-			
+		BaseWerft werft = (BaseWerft)db.createQuery("from BaseWerft where col=?")
+			.setEntity(0, base)
+			.uniqueResult();
+		if( werft != null ) {
+			werft.setBaseField(field);
 			if( !werft.isBuilding() ) {
-				result.append("<a class=\"back\" href=\"./main.php?module=building&amp;sess=");
+				result.append("<a class=\"back\" href=\"./ds?module=building&amp;sess=");
 				result.append(sess);
 				result.append("&amp;col=");
 				result.append(base.getId());
@@ -100,41 +101,28 @@ public class Werft extends DefaultBuilding {
 				result.append("\">[W]</a>");
 			} 
 			else {
-				SQLResultRow type = werft.getBuildShipType();
-	
-				StringBuilder popup = new StringBuilder(200);
-				popup.append(Common.tableBegin(420, "left").replace('"', '\''));
-				popup.append("<img align='left' border='0' src='");
-				popup.append(type.getString("picture"));
-				popup.append("' alt='");
-				popup.append(type.getString("nickname"));
-				popup.append("' />");
-				popup.append("&nbsp;Baut: ");
-				popup.append(type.getString("nickname"));
-				popup.append("<br />");
-				popup.append("&nbsp;Dauer: <img style='vertical-align:middle' src='");
-				popup.append(Configuration.getSetting("URL"));
-				popup.append("data/interface/time.gif' alt='noch ' />");
-				popup.append(werft.getRemainingTime());
-				popup.append("<br />");
-				if( werft.getRequiredItem() != -1 ) {
-					
-					popup.append("&nbsp;Ben&ouml;tigt: ");
-					popup.append("<img style='vertical-align:middle' src='");
-					popup.append("../data/items/");
-					popup.append(Items.get().item(werft.getRequiredItem()).getPicture());
-					popup.append("' alt='' />");
-					if( werft.isBuildContPossible() ) {
-						popup.append("<span style='color:green'>");
-					}
-					else {
-						popup.append("<span style='color:red'>");
-					}
-					popup.append(Items.get().item(werft.getRequiredItem()).getName());
-					popup.append("</span>");
+				WerftObject werftObj = werft;
+				if( werftObj.getKomplex() != null ) {
+					werftObj = werftObj.getKomplex();
 				}
-				popup.append(Common.tableEnd().replace('"', '\''));
-				String popupStr = StringEscapeUtils.escapeJavaScript(popup.toString());
+				final WerftQueueEntry[] entries = werftObj.getBuildQueue();
+				final int totalSlots = werftObj.getWerftSlots();
+				int usedSlots = 0;
+				int buildingCount = 0;
+				for( int i=0; i < entries.length; i++ ) {
+					if( entries[i].isScheduled() ) {
+						usedSlots += entries[i].getSlots();
+						buildingCount++;
+					}
+				}
+				
+				StringBuilder popup = new StringBuilder(100);
+				popup.append(Common.tableBegin(420, "left").replace( '"', '\'') );
+				popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='"+Configuration.getSetting("URL")+"data/interface/schiffinfo/werftslots.png' alt='' />"+usedSlots+"/"+totalSlots+"<br />");
+				popup.append("Im Bau: "+buildingCount+" Schiffe<br />");
+				popup.append("In der Warteschlange: "+(entries.length - buildingCount));
+				popup.append(Common.tableEnd().replace( '"', '\'' ));
+				String popupStr = StringEscapeUtils.escapeJavaScript(popup.toString().replace(">", "&gt;").replace("<", "&lt;"));
 				
 				result.append("<a name=\"p");
 				result.append(base.getId());
@@ -150,14 +138,14 @@ public class Werft extends DefaultBuilding {
 				result.append(base.getId());
 				result.append("_");
 				result.append(field);
-				result.append("',REFY,22,NOJUSTY,FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip',TIMEOUT,0,DELAY,150,WIDTH,430);\" onmouseout=\"return nd();\" href=\"./main.php?module=building&amp;sess=");
+				result.append("',REFY,22,NOJUSTY,FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip',TIMEOUT,0,DELAY,150,WIDTH,430);\" onmouseout=\"return nd();\" href=\"./ds?module=building&amp;sess=");
 				result.append(sess);
 				result.append("&amp;col=");
 				result.append(base.getId());
 				result.append("&amp;field=");
 				result.append(field);
 				result.append("\">[W]<span style=\"font-weight:normal\">");
-				result.append(werft.getRemainingTime());
+				result.append(entries.length);
 				result.append("</span></a>");
 			}
 		}
@@ -167,11 +155,13 @@ public class Werft extends DefaultBuilding {
 
 	@Override
 	public boolean isActive(Base base, int status, int field) {
-		Database db = ContextMap.getContext().getDatabase();
-	
-		SQLResultRow werftRow = db.first("SELECT * FROM werften WHERE col=",base.getId());
-		if( !werftRow.isEmpty() ) {
-			WerftObject werft = new BaseWerft(werftRow,"pwerft",base.getSystem(),base.getOwner().getId(),base.getId(), field);
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		BaseWerft werft = (BaseWerft)db.createQuery("from BaseWerft where col=?")
+			.setEntity(0, base)
+			.uniqueResult();
+		if( werft != null ) {
+			werft.setBaseField(field);
 			return (werft.isBuilding() ? true : false);
 		}
 		
@@ -180,24 +170,25 @@ public class Werft extends DefaultBuilding {
 
 	@Override
 	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 
 		String sess = context.getSession();
 		StringBuilder response = new StringBuilder(500);
 				
-		SQLResultRow werftdata = db.first("SELECT * FROM werften WHERE col=",base.getId());
-		if( werftdata.isEmpty() ) {
-	   		response.append("<a href=\"./main.php?module=basen&amp;sess="+sess+"\"><span style=\"color:#ff0000; font-weight:bold\">Fehler: Die angegebene Kolonie hat keine Werft</span></a>\n");
+		BaseWerft werft = (BaseWerft)db.createQuery("from BaseWerft where col=?")
+			.setEntity(0, base)
+			.uniqueResult();
+		if( werft == null ) {
+	   		response.append("<a href=\"./ds?module=basen&amp;sess="+sess+"\"><span style=\"color:#ff0000; font-weight:bold\">Fehler: Die angegebene Kolonie hat keine Werft</span></a>\n");
 			return response.toString();
 		}
 		
-		response.append("<div>Werft auf "+base.getName()+"<br /><br /></div>\n");
-		
-		BaseWerft werft = new BaseWerft(werftdata,"pwerft",base.getSystem(),base.getOwner().getId(),base.getId(), field);
+		werft.setBaseField(field);
+				
 		WerftGUI werftgui = new WerftGUI( context, t );
 		response.append(werftgui.execute( werft ));
 		
-		response.append("<div><br /></div>\n");
+		response.append("<br /></div>\n");
 		return response.toString();
 	}
 }

@@ -40,7 +40,7 @@ public class ShipType implements ShipTypeData {
 	/**
 	 * Kennzeichnet die maximale Groesse, die ein kleines Schiff (z.B. ein Jaeger) haben kann 
 	 */
-	public static final int SMALL_SHIP_MAXSIZE = 3;
+	public static final int SMALL_SHIP_MAXSIZE = 6;
 	
 	@Id
 	private int id;
@@ -81,7 +81,7 @@ public class ShipType implements ShipTypeData {
 	private int shipClass;
 	private String flags;
 	private int groupwrap;
-	private String werft;
+	private int werft;
 	@Column(name="ow_werft")
 	private int oneWayWerft;
 	private int chance4Loot;
@@ -257,7 +257,7 @@ public class ShipType implements ShipTypeData {
 		return weapons;
 	}
 
-	public String getWerft() {
+	public int getWerft() {
 		return werft;
 	}
 	

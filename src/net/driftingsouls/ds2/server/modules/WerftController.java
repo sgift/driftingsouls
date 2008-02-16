@@ -18,16 +18,15 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 import net.driftingsouls.ds2.server.werften.WerftGUI;
 
@@ -41,9 +40,9 @@ import net.driftingsouls.ds2.server.werften.WerftGUI;
  *
  */
 public class WerftController extends TemplateGenerator {
-	private SQLResultRow ship;
-	private SQLResultRow werftdata;
-	private SQLResultRow type;
+	private Ship ship;
+	private ShipWerft werft;
+	private ShipTypeData type;
 	
 	/**
 	 * Konstruktor
@@ -54,29 +53,34 @@ public class WerftController extends TemplateGenerator {
 		
 		parameterNumber("ship");
 		parameterNumber("linkedbase");
+		
+		setPageTitle("Werft");
 	}
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		
 		int shipID = getInteger("ship");
 		
-		ship = db.first("SELECT id,owner,name,type,x,y,system,e,status FROM ships WHERE id>0 AND id=",shipID," AND owner='",user.getId(),"'");
-		
-		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", ship.getInt("id"));
+		ship = (Ship)db.get(Ship.class, shipID);
 	
-		if( ship.isEmpty() ) {
-			addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen", errorurl);
+		if( (ship == null) || (ship.getId() < 0) || (ship.getOwner() != user) ) {
+			addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen");
 			
 			return false;
 		}
+		
+		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", ship.getId());
 
-		type = ShipTypes.getShipType( ship );
+		type = ship.getTypeData();
 
-		werftdata = db.first("SELECT * FROM werften WHERE shipid=",ship.getInt("id"));
-		if( werftdata.isEmpty() ) {
+		werft = (ShipWerft)db.createQuery("from ShipWerft where shipid=?")
+			.setInteger(0, ship.getId())
+			.uniqueResult();
+		
+		if( werft == null ) {
 			addError("Dieses Schiff besitzt keinen Eintrag als Werft!", errorurl);
 			
 			return false;
@@ -85,20 +89,17 @@ public class WerftController extends TemplateGenerator {
 		return true;	
 	}
 
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 
 		int linkedbase = getInteger("linkedbase");
 	
-		ShipWerft werft = new ShipWerft(werftdata,type.getString("werft"),ship.getInt("system"),ship.getInt("owner"),ship.getInt("id"));
-		werft.setOneWayFlag(type.getInt("ow_werft"));
-	
 		// Ueberpruefen, ob die Werft inzwischen verschoben wurde (und ggf. der link aufgeloesst werden muss)
 		if( werft.isLinked() ) {
-			SQLResultRow base = db.first("SELECT x,y,system,size FROM bases WHERE id='",werft.getLinkedBase(),"'");
-			if( !Location.fromResult(base).sameSector(base.getInt("size"), Location.fromResult(ship), 0) ) {
+			Base base = werft.getLinkedBase();
+			if( !base.getLocation().sameSector(base.getSize(), ship.getLocation(), 0) ) {
 				werft.resetLink();
 			}
 		}
@@ -113,27 +114,24 @@ public class WerftController extends TemplateGenerator {
 				werft.resetLink();
 			}
 			else {
-   				if( type.getInt("cost") == 0 ) {
-					SQLResultRow base = db.first("SELECT id,name FROM bases "+
-										"WHERE id='"+linkedbase+"' AND x="+ship.getInt("x")+" AND y="+ship.getInt("y")+" "+
-												"AND system="+ship.getInt("system")+" AND owner="+ship.getInt("owner") );
-					if( base.isEmpty() ) {
+   				if( type.getCost() == 0 ) {
+   					Base base = (Base)db.get(Base.class, linkedbase);
+					if( (base == null) || (base.getOwner() != ship.getOwner()) || 
+							!base.getLocation().sameSector(base.getSize(), ship.getLocation(), 0) ) {
 						echo.append("<span style=\"color:red\">Sie k&ouml;nnen die Werft nicht an diese Basis koppeln!</span><br />\n");
 					} 
 					else {
-						werft.setLink(base.getInt("id"));
-						echo.append("<span style=\"color:green\">Werft an den Asteroiden "+Common._plaintitle(base.getString("name"))+" gekoppelt</span><br />\n");
+						werft.setLink(base);
+						echo.append("<span style=\"color:green\">Werft an den Asteroiden "+Common._plaintitle(base.getName())+" gekoppelt</span><br />\n");
 					}
 				}
 			}
 			echo.append("</span><br />\n");
 		}
 
-		echo.append("Werft "+Common._plaintitle(ship.getString("name"))+"<br /><br />\n");
-
 		WerftGUI werftgui = new WerftGUI( getContext(), getTemplateEngine() );
 		echo.append(werftgui.execute( werft ));
 		
-		echo.append("<br /><a class=\"back\" href=\""+Common.buildUrl("default", "module", "schiff", "ship", ship.getInt("id"))+"\">Zur&uuml;ck zum Schiff</a><br />\n");
+		echo.append("<br /><a class=\"back\" href=\""+Common.buildUrl("default", "module", "schiff", "ship", ship.getId())+"\">Zur&uuml;ck zum Schiff</a><br />\n");
 	}
 }

@@ -16,174 +16,174 @@
  	License along with this library; if not, write to the Free Software
  	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 -->
-<table cellspacing="3" cellpadding="6" class="noBorder">
+{!table_begin 700}
+<table cellspacing="3" cellpadding="6" class="noBorderX" style="width:100%">
 <tr>
-	<td valign="top" class="noBorderS">
-		<span style="color:#FFFFFF;font-weight:bold;">
-			{shiptype.nickname}
-			{if shiptype.showinvisible}
-				<br />
-				<span class="verysmallfont" style="color:red;font-style:italic;font-weight:normal">unsichtbar</span>
-			{/endif}
-			{if shiptype.showbuildable}
-				<br />
-				<span class="verysmallfont" style="color:red;font-style:italic;font-weight:normal">baubar mit {shiptype.visibletech}</span>
-			{/endif}
-			{if shiptype.showorderable}
-				<br />
-				<span class="verysmallfont" style="color:red;font-style:italic;font-weight:normal">orderbar f&uuml;r {shiptype.ordercost}</span>
-			{/endif}
-		</span>
-		<br />
+	<td valign="top" class="noBorderX">
+		<span style="color:#FFFFFF;font-weight:bold;">{shiptype.nickname}</span><br />
+		{if shiptype.showinvisible}
+			<span class="verysmallfont" style="color:red;font-style:italic;font-weight:normal">unsichtbar</span>
+			<br />
+		{/endif}
+		{if shiptype.showbuildable}
+			<span class="verysmallfont" style="color:red;font-style:italic;font-weight:normal">baubar mit {shiptype.visibletech}</span>
+			<br />
+		{/endif}
+		{if shiptype.showorderable}
+			<span class="verysmallfont" style="color:red;font-style:italic;font-weight:normal">orderbar f&uuml;r {shiptype.ordercost}</span>
+			<br />
+		{/endif}
 		<span class="verysmallfont" style="font-style:italic">{shiptype.class}</span><br />
 		<img src="{shiptype.image}" alt="" />
 	</td>
 
-	<td valign="top" class="noBorderS"><span style="color:white">Reaktorwerte</span><br />
-	<table class="noBorder">
-	<tr><td class="noBorderS">{shiptype.ru}</td><td class="noBorderS"><img src="{uran.image}" alt="" /></td><td class="noBorderS">Uran</td></tr>
-	<tr><td class="noBorderS">{shiptype.rd}</td><td class="noBorderS"><img src="{deuterium.image}" alt="" /></td><td class="noBorderS">Deuterium</td></tr>
-	<tr><td class="noBorderS">{shiptype.ra}</td><td class="noBorderS"><img src="{antimaterie.image}" alt="" /></td><td class="noBorderS">Antimaterie</td></tr>
-	<tr><td class="noBorderS">{shiptype.rm}</td><td class="noBorderS"><img src="{URL}data/interface/energie.gif" alt="" /></td><td class="noBorderS">maximal</td></tr>
-	<tr><td class="noBorderS">&nbsp;</td></tr>
-	</table>
+	<td valign="top" class="noBorderX">
+		<h3>Reaktorwerte</h3>
+		<table class="noBorderX">
+		<tr><td class="noBorderX">{shiptype.ru}</td><td class="noBorderX"><img src="{uran.image}" alt="" /></td><td class="noBorderX">Uran</td></tr>
+		<tr><td class="noBorderX">{shiptype.rd}</td><td class="noBorderX"><img src="{deuterium.image}" alt="" /></td><td class="noBorderX">Deuterium</td></tr>
+		<tr><td class="noBorderX">{shiptype.ra}</td><td class="noBorderX"><img src="{antimaterie.image}" alt="" /></td><td class="noBorderX">Antimaterie</td></tr>
+		<tr><td class="noBorderX">{shiptype.rm}</td><td class="noBorderX"><img src="{URL}data/interface/energie.gif" alt="" /></td><td class="noBorderX">maximal</td></tr>
+		</table>
 	</td>
 
 	{if shiptype.buildable}
-		<td valign="top" class="noBorderS">
-		<span style="color:white">Vorrausetzungen</span><br />
-		{if global.login}
-			{if shiptype.tr1}
-				{!link_to $shiptype.tr1.name, default, module:forschinfo, css_class:$shiptype.tr1.status, res:$shiptype.tr1}<br />
+		<td valign="top" class="noBorderX">
+			<h3>Vorrausetzungen</h3>
+			{if global.login}
+				{if shiptype.tr1}
+					{!link_to $shiptype.tr1.name, default, module:forschinfo, css_class:$shiptype.tr1.status, res:$shiptype.tr1}<br />
+				{/endif}
+				{if shiptype.tr2}
+					{!link_to $shiptype.tr2.name, default, module:forschinfo, css_class:$shiptype.tr2.status, res:$shiptype.tr2}<br />
+				{/endif}
+				{if shiptype.tr2}
+					{!link_to $shiptype.tr3.name, default, module:forschinfo, css_class:$shiptype.tr3.status, res:$shiptype.tr3}<br />
+				{/endif}
+	
+			{else}
+				{if shiptype.tr1}
+					<span style="color:#ff4444">{shiptype.tr1.name}</span><br />
+				{/endif}
+				{if shiptype.tr2}
+					<span style="color:#ff4444">{shiptype.tr2.name}</span><br />
+				{/endif}
+				{if shiptype.tr3}
+					<span style="color:#ff4444">{shiptype.tr3.name}</span><br />
+				{/endif}
 			{/endif}
-			{if shiptype.tr2}
-				{!link_to $shiptype.tr2.name, default, module:forschinfo, css_class:$shiptype.tr2.status, res:$shiptype.tr2}<br />
-			{/endif}
-			{if shiptype.tr2}
-				{!link_to $shiptype.tr3.name, default, module:forschinfo, css_class:$shiptype.tr3.status, res:$shiptype.tr3}<br />
-			{/endif}
-
-		{else}
-			{if shiptype.tr1}
-				<span style="color:#ff4444">{shiptype.tr1.name}</span><br />
-			{/endif}
-			{if shiptype.tr2}
-				<span style="color:#ff4444">{shiptype.tr2.name}</span><br />
-			{/endif}
-			{if shiptype.tr3}
-				<span style="color:#ff4444">{shiptype.tr3.name}</span><br />
-			{/endif}
-		{/endif}
-
-		<br /><span style="color:white">Rasse</span>: {shiptype.race}<br />
+	
+			<br />
+			Rasse: {shiptype.race}<br />
 		</td>
 	{/endif}
 </tr>
 <tr>
-	<td colspan="3" class="noBorderS">
+	<td colspan="3" class="noBorderX">
 		<hr noshade="noshade" size="1" style="color:#cccccc" />
 	</td>
 </tr>
 <tr>
 	{if shiptype.buildable}
-		<td valign="top" class="noBorderS"><span style="color:white">Produktionskosten</span><br />
-		<table cellpadding="2" cellspacing="1" class="noBorder">
-		<!-- BEGIN res.listitem -->
+		<td valign="top" class="noBorderX">
+			<h3>Produktionskosten</h3>
+			<table cellpadding="2" cellspacing="1" class="noBorderX">
+			<!-- BEGIN res.listitem -->
+				<tr>
+					<td class="noBorderX">{res.name}</td>
+					<td align="left" class="noBorderX"><img src="{res.image}" alt="" />{res.count}</td>
+					<td class="noBorderX"></td>
+				</tr>
+			<!-- END res.listitem -->
+			<tr><td class="noBorderX">Energie</td><td align="left" class="noBorderX"><img src="{URL}data/interface/energie.gif" alt="" />{shiptype.cost.energie}</td></tr>
+			<tr><td class="noBorderX">Besatzung</td><td align="left" class="noBorderX"><img src="{URL}data/interface/besatzung.gif" alt="" />{shiptype.cost.crew}</td></tr>
+			<tr><td class="noBorderX">Dauer</td><td align="left" class="noBorderX"><img src="{URL}data/interface/time.gif" alt="" />{shiptype.cost.dauer}</td></tr>
+			<tr><td class="noBorderX">Werftslots</td><td align="left" class="noBorderX"><img src="{URL}data/interface/schiffinfo/werftslots.png" alt="" />{shiptype.cost.werftslots}</td></tr>
+			</table>
+		</td>
+	{/endif}
+
+	<td valign="top" class="noBorderX">
+		<h3>Bewaffnung</h3>
+		<table cellpadding="2" cellspacing="1" class="noBorderX">
+		<!-- BEGIN shiptype.weapons.listitem -->
 			<tr>
-				<td class="noBorderS">{res.name}</td>
-				<td align="left" class="noBorderS"><img src="{res.image}" alt="" />{res.count}</td>
-				<td class="noBorderS"></td>
+				<td class="noBorderX" width="150">
+					<a class="forschinfo" href="#" onmouseover="return overlib('{shiptype.weapon.description}',TIMEOUT,0,DELAY,400,WIDTH,200);" onmouseout="return nd();">{shiptype.weapon.name}</a>
+				</td>
+				<td class="noBorderX">{shiptype.weapon.count}</td>
 			</tr>
-		<!-- END res.listitem -->
-		<tr><td class="noBorderS">Energie</td><td align="left" class="noBorderS"><img src="{URL}data/interface/energie.gif" alt="" />{shiptype.cost.energie}</td></tr>
-		<tr><td class="noBorderS">Besatzung</td><td align="left" class="noBorderS"><img src="{URL}data/interface/besatzung.gif" alt="" />{shiptype.cost.crew}</td></tr>
-		<tr><td class="noBorderS">Dauer</td><td align="left" class="noBorderS"><img src="{URL}data/interface/time.gif" alt="" />{shiptype.cost.dauer}</td></tr>
-		{if shiptype.cost.linfactor}
-			<tr><td colspan="3" class="noBorderS">Ansteigende Kosten (Faktor {shiptype.cost.linfactor}%)</td></tr>
+		<!-- END shiptype.weapons.listitem -->
+		{if shiptype.noweapons}<tr><td class="noBorderX">-keine-</td></tr>{/endif}
+		</table>
+	</td>
+
+	<td valign="top" class="noBorderX">
+		<h3>Antrieb</h3>
+		{shiptype.cost} Flugkosten<br />{shiptype.heat} &Uuml;berhitzung<br /><br />
+		Gr&ouml;&szlig;e/Beweglichkeit: {shiptype.size}<br />
+		Sensorreichweite: {shiptype.sensorrange}<br /><br />
+		
+		<h3>Ausstattung</h3>
+		{shiptype.eps} Energiespeicher<br />{shiptype.cargo} Cargo<br />{shiptype.crew} Kabinen<br />
+		{if shiptype.jdocks}
+			{shiptype.jdocks} J&auml;gerdocks<br />
 		{/endif}
-		</table></td>
-	{/endif}
-
-	<td valign="top" class="noBorderS">
-	{if shiptype.count > 1}<span style="color:white">Anzahl</span>: {shiptype.count}<br /><br />{/endif}
-	<span style="color:white">Bewaffnung</span>
-	<table cellpadding="2" cellspacing="1" class="noBorder">
-	<!-- BEGIN shiptype.weapons.listitem -->
-		<tr>
-			<td class="noBorderS" width="150">
-				<a class="forschinfo" href="#" onmouseover="return overlib('{shiptype.weapon.description}',TIMEOUT,0,DELAY,400,WIDTH,200);" onmouseout="return nd();">{shiptype.weapon.name}</a>
-			</td>
-			<td class="noBorderS">{shiptype.weapon.count}</td>
-		</tr>
-	<!-- END shiptype.weapons.listitem -->
-	{if shiptype.noweapons}<tr><td class="noBorderS">-keine-</td></tr>{/endif}
-	{if shiptype.buildable}
-		<tr><td colspan="2" class="noBorderS"><br />Baubar in</td></tr>
-		<tr><td colspan="2" class="noBorderS">
-		<!-- BEGIN shiptype.werften.listitem -->{if shiptype.werften.list}, {/endif}{werft.name}<!-- END shiptype.werften.listitem -->
-		</td></tr>
-	{/endif}
-	</table></td>
-
-	<td valign="top" class="noBorderS">
-	<span style="color:white">Antrieb</span><br />
-	{shiptype.cost} Flugkosten<br />{shiptype.heat} &Uuml;berhitzung<br /><br />
-	<span style="color:white">Gr&ouml;&szlig;e/Beweglichkeit</span>: {shiptype.size}<br />
-	<span style="color:white">Sensorreichweite</span>: {shiptype.sensorrange}<br /><br />
-	<span style="color:white">Ausstattung</span><br />
-	{shiptype.eps} Energiespeicher<br />{shiptype.cargo} Cargo<br />{shiptype.crew} Kabinen<br />
-	{if shiptype.jdocks}
-		{shiptype.jdocks} J&auml;gerdocks<br />
-	{/endif}
-	{if shiptype.adocks}
-        Externe Dockinganlage (Kapazit&auml;t: {shiptype.adocks})<br />
-	{/endif}
-	{if shiptype.moduleslots}
-		{shiptype.moduleslots} Modulsteckpl&auml;tze <a href="#" class="forschinfo" onmouseover="return overlib('&lt;div align=\'center\' style=\'font-size:13px; text-decoration:underline\'&gt;Modulsteckpl&auml;tze&lt;/div&gt;&lt;span style=\'font-size:13px\'&gt;{shiptype.moduleslots.desc}&lt;/span&gt;',TIMEOUT,0,DELAY,300,WIDTH,150);" onmouseout="return nd();"><img border="0" src="{URL}data/interface/schiffinfo/info.gif" alt="i" style="vertical-align:middle" /></a><br />
-	{/endif}
-
-	<br /><span style="color:white">H&uuml;llenst&auml;rke</span>: {shiptype.hull}<br  />
-	{if shiptype.panzerung}<span style="color:white">Panzerung</span>: {shiptype.panzerung}<br />{/endif}
-	{if shiptype.shields}
-   		<span style="color:white">Schildst&auml;rke</span>: {shiptype.shields}<br />
-	{/endif}
-	{if shiptype.deutfactor}
-		<span style="color:white">Tanker</span>: <img src="{deuterium.image}" alt="Deuterium" />{shiptype.deutfactor} f&uuml;r <img src="{URL}data/interface/energie.gif" alt="Energie" />1<br />
-	{/endif}
-	{if shiptype.hydro}
-		<span style="color:white">Produziert</span>: <img src="{nahrung.image}" alt="Nahrung" />{shiptype.hydro}<br />
-	{/endif}
-	{if shiptype.torpedodef}
-		<span style="color:white">Torpedoabwehr</span>: {shiptype.torpedodef}%<br />
-	{/endif}
-	{if shiptype.recost}
-		<span style="color:white">Wartungskosten</span>: {shiptype.recost} RE<br />
-	{/endif}
-	<!-- BEGIN shiptypeflags.listitem -->
-		<span style="color:white">{shiptypeflag.name}</span> {if shiptypeflag.description}<a href="#" class="forschinfo" onmouseover="return overlib('&lt;span style=\'font-size:13px\'&gt;{shiptypeflag.description}&lt;/span&gt;',TIMEOUT,0,DELAY,300,WIDTH,330);" onmouseout="return nd();"><img border="0" src="{URL}data/interface/schiffinfo/info.gif" alt="i" style="vertical-align:middle" /></a>{/endif}<br />
-	<!-- END shiptypeflags.listitem -->
-	{if shiptype.flagschiff}
-		<span style="color:#EECC44">Flagschiff</span>
-		<a href="#" class="forschinfo" onmouseover="return overlib('&lt;span style=\'font-size:13px\'&gt;Ein Flagschiff ist das Zentrum einer gesamten Flotte.&lt;br /&gt;Es ist deutlich St&auml;rker als andere Schiffe. Daher darf&lt;br /&gt;jeder Spieler &lt;span style=\'text-decoration:underline\'&gt;nur ein einziges Flagschiff&lt;/span&gt; besitzen.&lt;/span&gt;',TIMEOUT,0,DELAY,300,WIDTH,330);" onmouseout="return nd();"><img border="0" src="{URL}data/interface/schiffinfo/info.gif" alt="i" style="vertical-align:middle" /></a></a>
-		<br />
-	{/endif}
-
+		{if shiptype.adocks}
+	        Externe Dockinganlage (Kapazit&auml;t: {shiptype.adocks})<br />
+		{/endif}
+		{if shiptype.moduleslots}
+			{shiptype.moduleslots} Modulsteckpl&auml;tze <a href="#" class="forschinfo" onmouseover="return overlib('&lt;div align=\'center\' style=\'font-size:13px; text-decoration:underline\'&gt;Modulsteckpl&auml;tze&lt;/div&gt;&lt;span style=\'font-size:13px\'&gt;{shiptype.moduleslots.desc}&lt;/span&gt;',TIMEOUT,0,DELAY,300,WIDTH,150);" onmouseout="return nd();"><img border="0" src="{URL}data/interface/schiffinfo/info.gif" alt="i" style="vertical-align:middle" /></a><br />
+		{/endif}
+		{if shiptype.werftslots}
+			{shiptype.werftslots} Werftslots<br />
+		{/endif}
+		{if shiptype.count > 1}
+			Anzahl: {shiptype.count}<br /><br />
+		{/endif}
+	
+		<br />H&uuml;llenst&auml;rke: {shiptype.hull}<br  />
+		Ablative Panzerung: {shiptype.ablativearmor}<br />
+		{if shiptype.panzerung}Panzerung: {shiptype.panzerung}<br />{/endif}
+		{if shiptype.shields}
+	   		Schildst&auml;rke: {shiptype.shields}<br />
+		{/endif}
+		{if shiptype.deutfactor}
+			Tanker: <img src="{deuterium.image}" alt="Deuterium" />{shiptype.deutfactor} f&uuml;r <img src="{URL}data/interface/energie.gif" alt="Energie" />1<br />
+		{/endif}
+		{if shiptype.hydro}
+			Produziert: <img src="{nahrung.image}" alt="Nahrung" />{shiptype.hydro}<br />
+		{/endif}
+		{if shiptype.torpedodef}
+			Torpedoabwehr: {shiptype.torpedodef}%<br />
+		{/endif}
+		{if shiptype.recost}
+			Wartungskosten: {shiptype.recost} RE<br />
+		{/endif}
+		<!-- BEGIN shiptypeflags.listitem -->
+			{shiptypeflag.name} {if shiptypeflag.description}<a href="#" class="forschinfo" onmouseover="return overlib('&lt;span style=\'font-size:13px\'&gt;{shiptypeflag.description}&lt;/span&gt;',TIMEOUT,0,DELAY,300,WIDTH,330);" onmouseout="return nd();"><img border="0" src="{URL}data/interface/schiffinfo/info.gif" alt="i" style="vertical-align:middle" /></a>{/endif}<br />
+		<!-- END shiptypeflags.listitem -->
+		{if shiptype.flagschiff}
+			<span style="color:#EECC44">Flagschiff</span>
+			<a href="#" class="forschinfo" onmouseover="return overlib('&lt;span style=\'font-size:13px\'&gt;Ein Flagschiff ist das Zentrum einer gesamten Flotte.&lt;br /&gt;Es ist deutlich St&auml;rker als andere Schiffe. Daher darf&lt;br /&gt;jeder Spieler &lt;span style=\'text-decoration:underline\'&gt;nur ein einziges Flagschiff&lt;/span&gt; besitzen.&lt;/span&gt;',TIMEOUT,0,DELAY,300,WIDTH,330);" onmouseout="return nd();"><img border="0" src="{URL}data/interface/schiffinfo/info.gif" alt="i" style="vertical-align:middle" /></a></a>
+			<br />
+		{/endif}
 	</td>
 </tr>
 <tr>
-	<td colspan="3" class="noBorderS">
+	<td colspan="3" class="noBorderX">
 		<hr noshade="noshade" size="1" style="color:#cccccc" />
 	</td>
 </tr>
 <tr>
 	{if shiptype.buildable}
-		<td colspan="3" valign="top" class="noBorderS">
+		<td colspan="3" valign="top" class="noBorderX">
 	{else}
-		<td colspan="2" valign="top" class="noBorderS">
+		<td colspan="2" valign="top" class="noBorderX">
 	{/endif}
-	<table width="650" cellspacing="1" cellpadding="1" class="noBorder">
-	<tr><td class="noBorderS"><span style="color:white">Beschreibung</span></td></tr>
-	<tr><td class="noBorderS">{shiptype.description}</td></tr>
-	</table>
+		<h3>Beschreibung</h3>
+		{shiptype.description}
 	</td>
-</tr></table>
+</tr>
+</table>
+{!table_end}

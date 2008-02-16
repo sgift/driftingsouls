@@ -37,9 +37,10 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.werften.BaseWerft;
+import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -301,22 +302,31 @@ public class User extends BasicUser implements Loggable {
 	 * @return Infos zum Aufenthaltsort
 	 */
 	public UserFlagschiffLocation getFlagschiff() {
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 
-		if( flagschiffObj != null ) {
-			return (UserFlagschiffLocation)flagschiffObj.clone();	
+		if( this.flagschiffObj != null ) {
+			return (UserFlagschiffLocation)this.flagschiffObj.clone();	
 		}
 
 		if( this.flagschiff == null ) {
-			SQLResultRow bFlagschiff = db.first("SELECT t2.id,t1.flagschiff FROM werften t1,ships t2 WHERE t2.id>0 AND t1.flagschiff=1 AND t1.shipid=t2.id AND t2.owner='",getId(),"'");
-			if( bFlagschiff.isEmpty() ) {
-				bFlagschiff = db.first("SELECT t2.id,t1.flagschiff FROM werften t1,bases t2 WHERE t1.flagschiff=1 AND t1.col=t2.id AND t2.owner='",getId(),"'");
-				if( !bFlagschiff.isEmpty() ) {
-					flagschiffObj = new UserFlagschiffLocation(UserFlagschiffLocation.Type.WERFT_BASE, bFlagschiff.getInt("id"));
+			ShipWerft swerft = (ShipWerft)db.createQuery("from ShipWerft as sw " +
+					"where (sw.buildFlagschiff=1 or sw.linkedWerft.buildFlagschiff=1) and sw.ship.owner=?")
+				.setEntity(0, this)
+				.setMaxResults(1)
+				.uniqueResult();
+			
+			if( swerft == null ) {
+				BaseWerft bwerft = (BaseWerft)db.createQuery("from BaseWerft as bw " +
+						"where (bw.buildFlagschiff=1 or bw.linkedWerft.buildFlagschiff=1) and bw.base.owner=?")
+					.setEntity(0, this)
+					.setMaxResults(1)
+					.uniqueResult();
+				if( bwerft != null ) {
+					flagschiffObj = new UserFlagschiffLocation(UserFlagschiffLocation.Type.WERFT_BASE, bwerft.getBaseID());
 				}
 			}
 			else {
-				flagschiffObj = new UserFlagschiffLocation(UserFlagschiffLocation.Type.WERFT_SHIP, bFlagschiff.getInt("id"));
+				flagschiffObj = new UserFlagschiffLocation(UserFlagschiffLocation.Type.WERFT_SHIP, swerft.getShipID());
 			}
 		}
 		else {

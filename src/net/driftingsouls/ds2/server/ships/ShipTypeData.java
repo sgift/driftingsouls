@@ -248,10 +248,10 @@ public interface ShipTypeData extends Cloneable {
 	public String getWeapons();
 
 	/**
-	 * Gibt den Werttyp zurueck
-	 * @return Der Werfttyp
+	 * Gibt die Anzahl der verfuegbaren Werftslots zurueck
+	 * @return Die Werftslots
 	 */
-	public String getWerft();
+	public int getWerft();
 	
 	/**
 	 * Gibt zurueck, ob es sich um ein bewaffnetes Schiff handelt

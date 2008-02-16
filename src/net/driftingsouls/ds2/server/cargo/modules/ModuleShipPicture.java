@@ -20,7 +20,8 @@ package net.driftingsouls.ds2.server.cargo.modules;
 
 import java.util.List;
 
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.AbstractShipTypeDataWrapper;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
  * Repraesentiert ein Modul, welches das Bild eines Schiffes veraendert
@@ -57,11 +58,8 @@ public class ModuleShipPicture extends Module {
 	}
 	
 	@Override
-	public SQLResultRow modifyStats(SQLResultRow stats, SQLResultRow typestats,
-			List<Module> moduleobjlist) {
-		stats.put("picture", picture);	
-		
-		return stats;
+	public ShipTypeData modifyStats(ShipTypeData stats, List<Module> moduleobjlist) {
+		return new ShipTypeDataPictureWrapper(stats, this.picture);
 	}
 
 	@Override
@@ -69,4 +67,22 @@ public class ModuleShipPicture extends Module {
 		// EMPTY
 	}
 
+	private static class ShipTypeDataPictureWrapper extends AbstractShipTypeDataWrapper {
+		private String picture;
+		
+		ShipTypeDataPictureWrapper(ShipTypeData inner, String picture) {
+			super(inner);
+			this.picture = picture;
+		}
+
+		@Override
+		public String getPicture() {
+			return this.picture;
+		}
+
+		@Override
+		public Object clone() throws CloneNotSupportedException {
+			return super.clone();
+		}
+	}
 }

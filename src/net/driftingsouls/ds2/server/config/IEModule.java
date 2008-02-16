@@ -22,9 +22,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeChangeset;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -37,9 +36,9 @@ import org.w3c.dom.NodeList;
 public class IEModule extends ItemEffect {
 	private List<String> slots;
 	private int set;
-	private SQLResultRow mods;
+	private ShipTypeChangeset mods;
 	
-	protected IEModule(List<String> slots, SQLResultRow mods, int set) {
+	protected IEModule(List<String> slots, ShipTypeChangeset mods, int set) {
 		super(ItemEffect.Type.MODULE);
 		
 		this.slots = Collections.unmodifiableList(slots);
@@ -68,7 +67,7 @@ public class IEModule extends ItemEffect {
 	 * Gibt das Aenderungsobjekt mit den durch das Modul geaenderten Schiffstypendaten zurueck
 	 * @return Das Aenderungsobjekt
 	 */
-	public SQLResultRow getMods() {
+	public ShipTypeChangeset getMods() {
 		return mods;
 	}
 	
@@ -76,12 +75,18 @@ public class IEModule extends ItemEffect {
 		List<String> slots = new ArrayList<String>();
 		NodeList nodes = XMLUtils.getNodesByXPath(effectNode, "slot");
 		for( int i=0, length=nodes.getLength(); i < length; i++ ) {
-			slots.add(XMLUtils.getStringAttribute(nodes.item(i), "id"));
+			final String slot = XMLUtils.getStringAttribute(nodes.item(i), "id");
+			
+			// Sicherstellen, dass der Slot existiert
+			// sonst -> NoSuchSlotException
+			ModuleSlots.get().slot(slot);
+			
+			slots.add(slot);
 		}
 		
 		Number setId = XMLUtils.getNumberAttribute(effectNode, "set");
 		
-		SQLResultRow mods = ShipTypes.getTypeChangeSetFromXML(XMLUtils.getNodeByXPath(effectNode, "shipdata"));
+		ShipTypeChangeset mods = new ShipTypeChangeset(XMLUtils.firstNodeByTagName(effectNode, "shipdata"));
 		
 		return new IEModule(slots, mods, setId != null ? setId.intValue() : -1);
 	}

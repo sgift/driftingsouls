@@ -16,31 +16,17 @@
  	License along with this library; if not, write to the Free Software
  	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 -->
-{if schiff.werft.prod.dauer}
-	{!table_begin 95%,left}
-	<table width="100%" class="noBorderX">
-	<tr>
-		<td class="noBorderX">Orbitale Werft</td>
-	</tr>
-	<tr>
-		<td class="noBorderX">
-			<a class="forschinfo" target="_blank" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={schiff.werft.prod.type}">
-				<img align="left" border="0" src="{schiff.werft.prod.picture}" alt="{schiff.werft.prod.name}" />
-			</a>
-			Baut: {schiff.werft.prod.name}<br />
-			Dauer: <img src="{URL}data/interface/time.gif" alt="noch " />{schiff.werft.prod.dauer}<br />
-			{if schiff.werft.prod.item}
-				Ben&ouml;tigt: <img style="vertical-align:middle" src="{schiff.werft.prod.item.picture}" alt="" />
-				{if schiff.werft.prod.item.available}
-					<span style="color:green">
-				{else}
-					<span style="color:red">
-				{/endif}
-					{schiff.werft.prod.item.name}
-				</span><br />
-			{/endif}
-		</td>
-	</tr>
-	</table>
-	{!table_end}
-{/endif}
+{!table_begin 95%,left}
+<table width="100%" class="noBorderX">
+<tr>
+	<td class="noBorderX">Orbitale Werft</td>
+</tr>
+<tr>
+	<td class="noBorderX">
+		Belegte Werftslots: <img src="{URL}data/interface/schiffinfo/werftslots.png" alt="" />{schiff.werft.usedslots}/{schiff.werft.totalslots}<br />
+		Im Bau: {schiff.werft.scheduled}<br />
+		In der Warteschlange: {schiff.werft.waiting}
+	</td>
+</tr>
+</table>
+{!table_end}

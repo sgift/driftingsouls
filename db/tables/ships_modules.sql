@@ -28,7 +28,7 @@ CREATE TABLE `ships_modules` (
   `deutfactor` tinyint(4) NOT NULL default '0',
   `recost` smallint(5) unsigned NOT NULL default '0',
   `flags` text NOT NULL,
-  `werft` varchar(16) NOT NULL default '',
+  `werft` int(11) NOT NULL default '0',
   `ow_werft` smallint(6) NOT NULL default '0',
   `srs` tinyint NOT NULL default '1',
   `scanCost` INT NOT NULL DEFAULT '0',

@@ -18,7 +18,7 @@
  */
 package net.driftingsouls.ds2.server.cargo.modules;
 
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.Ship;
 
 /**
  * Allgmeine (Schiffs)Modulfunktionen und Konstanten
@@ -48,7 +48,7 @@ public class Modules {
 	 * @param moduledata Die Moduldaten fuer einen Slot
 	 * @return eine Modul-Instanz oder <code>null</code>, falls keine passende Instanz erzeugt werden konnte
 	 */
-	public static Module getShipModule( Ships.ModuleEntry moduledata ){
+	public static Module getShipModule( Ship.ModuleEntry moduledata ){
 		switch( moduledata.moduleType ) {
 		case MODULE_CONTAINER_SHIP:
 			return new ModuleContainerShip( moduledata.slot, moduledata.data );

@@ -18,34 +18,31 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
- * Sammelt mit einem Tanker in einem angegebenen Nebel Deuterium.
+ * Sammelt mit einem Tanker in einem Nebel Deuterium.
  * 
  * @author Christopher Jung
  * @urlparam Integer ship Die ID des Tankers
- * @urlparam Integer nebel Die ID des Nebels
  */
 public class DeutSammelnController extends TemplateGenerator {
-	private SQLResultRow ship = null;
-	private SQLResultRow nebel = null;
-	private SQLResultRow shiptype = null;
-	private int retryCount = 0;
+	private Ship ship = null;
+	private Nebel nebel = null;
+	private ShipTypeData shiptype = null;
 	
 	/**
 	 * Konstruktor
@@ -57,49 +54,49 @@ public class DeutSammelnController extends TemplateGenerator {
 		setTemplate("deutsammeln.html");
 		
 		parameterNumber("ship");
-		parameterNumber("nebel");
+		
+		setPageTitle("Deut. sammeln");
 	}
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 
 		int shipID = getInteger("ship");
-		int nebelID = getInteger("nebel");
 		
-		SQLResultRow ship = db.first("SELECT * FROM ships WHERE owner=",user.getId()," AND id>0 AND id='",shipID,"'");
-		if( ship.isEmpty() ) {
+		Ship ship = (Ship)db.get(Ship.class, shipID);
+		if( (ship == null) || (ship.getOwner() != user) ) {
 			addError("Das angegebene Schiff existiert nicht", Common.buildUrl("default", "module", "schiffe") );
 			
 			return false;
 		}
 
-		SQLResultRow shiptype = ShipTypes.getShipType( ship );
+		ShipTypeData shiptype = ship.getTypeData();
 
-		SQLResultRow nebel = db.first("SELECT id,x,y,system,type FROM nebel WHERE id=",nebelID);
+		Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(ship));
 
 		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", shipID);
 
-		if( !Location.fromResult(nebel).sameSector(0, Location.fromResult(ship), 0) ) {
+		if( !nebel.getLocation().sameSector(0, ship, 0) ) {
 			addError("Der Nebel befindet sich nicht im selben Sektor wie das Schiff", errorurl );
 			
 			return false;
 		}
 		
-		if( nebel.getInt("type") > 2 )  {
+		if( nebel.getType() > 2 )  {
 			addError("In diesem Nebel k&ouml;nnen sie kein Deuterium sammeln", errorurl );
 			
 			return false;
 		}
 
-		if( shiptype.getInt("deutfactor") <= 0 )  {
+		if( shiptype.getDeutFactor() <= 0 )  {
 			addError("Dieser Schiffstyp kann kein Deuterium sammeln", errorurl );
 			
 			return false;
 		}
 
-		if( ship.getInt("crew") < (shiptype.getInt("crew")/2) ) {
+		if( ship.getCrew() < (shiptype.getCrew()/2) ) {
 			addError("Sie haben nicht genug Crew um Deuterium zu sammeln", errorurl );
 			
 			return false;
@@ -119,30 +116,29 @@ public class DeutSammelnController extends TemplateGenerator {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void sammelnAction() {	
-		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
 	
 		parameterNumber("e");
 		long e = getInteger("e");
 	
-		if( e > ship.getInt("e") ) {
-			e = ship.getInt("e");
+		if( e > ship.getEnergy() ) {
+			e = ship.getEnergy();
 		}
-		Cargo shipCargo = new Cargo( Cargo.Type.STRING, ship.getString("cargo") );
+		Cargo shipCargo = ship.getCargo();
 		long cargo = shipCargo.getMass();
 		
-		long deutfactor = shiptype.getLong("deutfactor");
-		if( nebel.getInt("type") == 1 ) {
+		long deutfactor = shiptype.getDeutFactor();
+		if( nebel.getType() == 1 ) {
 			deutfactor--;
 		}
-		else if( nebel.getInt("type") == 2 ) {
+		else if( nebel.getType() == 2 ) {
 			deutfactor++;
 		}
 		
 		String message = "";
 
-		if( (e * deutfactor)*Cargo.getResourceMass(Resources.DEUTERIUM, 1) > (shiptype.getLong("cargo") - cargo) ) {
-			e = (shiptype.getLong("cargo")-cargo)/(deutfactor*Cargo.getResourceMass( Resources.DEUTERIUM, 1 ));
+		if( (e * deutfactor)*Cargo.getResourceMass(Resources.DEUTERIUM, 1) > (shiptype.getCargo() - cargo) ) {
+			e = (shiptype.getCargo()-cargo)/(deutfactor*Cargo.getResourceMass( Resources.DEUTERIUM, 1 ));
 			message += "Kein Platz mehr im Frachtraum<br />";
 		}
 		
@@ -153,22 +149,9 @@ public class DeutSammelnController extends TemplateGenerator {
 		if( saugdeut > 0 ) {
 			shipCargo.addResource( Resources.DEUTERIUM, saugdeut );
 		
-			db.tBegin();
-			db.tUpdate(1, "UPDATE ships SET e=",ship.getInt("e")-e,",cargo='",shipCargo.save(),"' WHERE id>0 AND id=",ship.getInt("id")," AND cargo='",shipCargo.save(true),"' AND e=",ship.getInt("e"));
-			if( !db.tCommit() ) {
-				if( retryCount < 3 ) {
-					retryCount++;
-					redirect("sammeln");	
-				}	
-				else {
-					addError("Das Deuterium konnte nicht erfolgreich gesammelt werden");	
-					redirect();
-				
-					return;
-				}
-			}
-			ship.put("e", ship.getInt("e")-e);
-			Ships.recalculateShipStatus(ship.getInt("id"));
+			ship.setEnergy((int)(ship.getEnergy()-e));
+			ship.setCargo(shipCargo);
+			ship.recalculateShipStatus();
 		}
 		
 		t.setVar("deutsammeln.message", message);
@@ -180,23 +163,22 @@ public class DeutSammelnController extends TemplateGenerator {
 	 * Zeigt eine Eingabemaske an, in der angegeben werden kann,
 	 * fuer wieviel Energie Deuterium gesammelt werden soll
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {		
 		TemplateEngine t = getTemplateEngine();
 		
-		int deutfactor = shiptype.getInt("deutfactor");
-		if( nebel.getInt("type") == 1 ) {
+		int deutfactor = shiptype.getDeutFactor();
+		if( nebel.getType() == 1 ) {
 			deutfactor--;
 		}
-		else if( nebel.getInt("type") == 2 ) {
+		else if( nebel.getType() == 2 ) {
 			deutfactor++;
 		}
 		
 		t.setVar(	"deuterium.image",		Cargo.getResourceImage(Resources.DEUTERIUM),
-					"nebel.id",				nebel.getInt("id"),
 					"ship.type.deutfactor",	deutfactor,
-					"ship.id",				ship.getInt("id"),
-					"ship.e",				ship.getInt("e") );
+					"ship.id",				ship.getId(),
+					"ship.e",				ship.getEnergy() );
 	}
 }

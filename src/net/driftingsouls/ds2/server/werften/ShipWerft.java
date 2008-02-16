@@ -18,41 +18,61 @@
  */
 package net.driftingsouls.ds2.server.werften;
 
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+
+import net.driftingsouls.ds2.server.Offizier;
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
-import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
  * Repraesentiert eine Werft auf einem Schiff in DS
  * @author Christopher Jung
  *
  */
+@Entity
+@DiscriminatorValue("ship")
 public class ShipWerft extends WerftObject {
-	private int shipid;
-	private int maxcrew;
-	private int linkedbase;
-	private int x = -1;
-	private int y = -1;
-	private String name = null;
+	@OneToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="shipid", nullable=false)
+	private Ship ship;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="linked", nullable=true)
+	private Base linked;
 
 	/**
 	 * Konstruktor
-	 * @param werftdata Die Werftdaten
-	 * @param werfttag Der Werfttag
-	 * @param system Das System, in dem sich die Werft befindet
-	 * @param owner Der Besitzer der Werft
-	 * @param shipid Die ID des Schiffes, auf dem sich die Werft befindet
+	 *
 	 */
-	public ShipWerft(SQLResultRow werftdata, String werfttag, int system, int owner, int shipid) {
-		super( werftdata, werfttag, system, owner );
-		this.shipid = shipid;
-		maxcrew = -1;
-		linkedbase = werftdata.getInt("linked");
+	public ShipWerft() {
+		// EMPTY
+	}
+	
+	/**
+	 * Erstellt eine neue Schiffswerft
+	 * @param ship Das Schiff auf dem sich die Werft befinden soll
+	 */
+	public ShipWerft(Ship ship) {
+		this.ship = ship;
+		this.linked = null;
+	}
+	
+	@Override
+	public int getOneWayFlag() {
+		return this.ship.getTypeData().getOneWayWerft();
 	}
 	
 	/**
@@ -60,15 +80,15 @@ public class ShipWerft extends WerftObject {
 	 * @return true, falls eine Verbindung existiert
 	 */
 	public boolean isLinked() {
-		return linkedbase != 0;
+		return linked != null;
 	}
 	
 	/**
-	 * Gibt die ID der verbundenen Basis oder 0 zurueck
-	 * @return ID oder 0 
+	 * Gibt die verbundenen Basis zurueck
+	 * @return Die Basis
 	 */
-	public int getLinkedBase() {
-		return linkedbase;
+	public Base getLinkedBase() {
+		return linked;
 	}
 
 	/**
@@ -76,17 +96,33 @@ public class ShipWerft extends WerftObject {
 	 * existiert folglich danach nicht mehr
 	 */
 	public void resetLink() {
-		setLink(0);
+		setLink(null);
 	}
 	
 	/**
 	 * Erstellt eine Verbindung mit einer angegebenen Basis
-	 * @param baseid ID der Basis
+	 * @param base Die Basis
 	 */
-	public void setLink( int baseid ) {
-		linkedbase  = baseid;
-		ContextMap.getContext().getDatabase().update("UPDATE werften SET linked='",baseid,"' WHERE id='",getWerftID(),"'");
-						
+	public void setLink( Base base ) {
+		// In einem Komplex darf eine Basis nur einmal vorkommen
+		if( (base != null) && (getKomplex() != null) ) {
+			WerftObject[] members = getKomplex().getMembers();
+			for( int i=0; i < members.length; i++ ) {
+				if( !(members[i] instanceof ShipWerft) ) {
+					continue;
+				}
+				if( members[i].getWerftID() == this.getWerftID() ) {
+					continue;
+				}
+				
+				ShipWerft member = (ShipWerft)members[i];
+				if( member.getLinkedBase() == base ) {
+					return;
+				}
+			}
+		}
+		
+		linked = base;
 	}
 
 	/**
@@ -94,22 +130,23 @@ public class ShipWerft extends WerftObject {
 	 * @return Die ID des Schiffs, auf dem sich die Werft befindet
 	 */
 	public int getShipID() {
-		return shipid;
+		return ship.getId();
 	}
 	
-	@Override
-	public int getWerftType() {
-		return WerftObject.SHIP;
+	/**
+	 * Gibt das Schiff zurueck, auf dem sich die Werft befindet
+	 * @return Das Schiff
+	 */
+	public Ship getShip() {
+		return this.ship;
 	}
-	
+
 	@Override
 	public Cargo getCargo(boolean localonly) {
-		Database db = ContextMap.getContext().getDatabase();
+		Cargo cargo = ship.getCargo();
 		
-		Cargo cargo = new Cargo( Cargo.Type.STRING, db.first("SELECT cargo FROM ships WHERE id>0 AND id=",shipid).getString("cargo"));
-		
-		if( linkedbase != 0 && !localonly ) {
-			Cargo basecargo = new Cargo( Cargo.Type.STRING, db.first("SELECT cargo FROM bases WHERE id=",linkedbase).getString("cargo"));
+		if( linked != null && !localonly ) {
+			Cargo basecargo = linked.getCargo();
 
 			cargo.addCargo( basecargo );
 
@@ -119,12 +156,10 @@ public class ShipWerft extends WerftObject {
 	
 	@Override
 	public void setCargo(Cargo cargo, boolean localonly) {
-		Database db = ContextMap.getContext().getDatabase();
-		
-		if( (this.linkedbase != 0) && !localonly ) {
-			SQLResultRow shiptype = ShipTypes.getShipType( this.shipid, true );
+		if( (this.linked != null) && !localonly ) {
+			ShipTypeData shiptype = this.ship.getTypeData();
 
-			Cargo basecargo = new Cargo(Cargo.Type.STRING, db.first("SELECT cargo FROM bases WHERE id=",this.linkedbase).getString("cargo"));
+			Cargo basecargo = this.linked.getCargo();
 
 			cargo.substractCargo( basecargo );
 			
@@ -139,53 +174,43 @@ public class ShipWerft extends WerftObject {
 			// Ueberpruefen, ob wir nun zu viel Cargo auf dem Schiff haben
 			long cargocount = cargo.getMass();
 			
-			if( cargocount > shiptype.getLong("cargo") ) {			
-				Cargo shipcargo = cargo.cutCargo(shiptype.getLong("cargo"));
+			if( cargocount > shiptype.getCargo() ) {			
+				Cargo shipcargo = cargo.cutCargo(shiptype.getCargo());
 				basecargo.addCargo(cargo);
 				cargo = shipcargo;
 			}
-			db.update("UPDATE bases SET cargo='",basecargo.save(),"' WHERE id=",this.linkedbase);
+			this.linked.setCargo(basecargo);
 		}
 
-		db.update("UPDATE ships SET cargo='",cargo.save(),"' WHERE id>0 AND id=",this.shipid);
+		this.ship.setCargo(cargo);
 	}
 	
 	@Override
 	public long getMaxCargo( boolean localonly ) {
-		Database db = ContextMap.getContext().getDatabase();
-		
-		SQLResultRow shiptype = ShipTypes.getShipType( shipid, true );
-		long cargo = shiptype.getLong("cargo");
-		if( linkedbase != 0 && !localonly ) {
-			cargo += db.first("SELECT maxcargo FROM bases WHERE id=",linkedbase).getLong("maxcargo");
+		ShipTypeData shiptype = this.ship.getTypeData();
+		long cargo = shiptype.getCargo();
+		if( this.linked != null && !localonly ) {
+			cargo += this.linked.getMaxCargo();
 		}
 		return cargo;
 	}
 	
 	@Override
 	public int getCrew() {
-		Database db = ContextMap.getContext().getDatabase();
-		
-		int crew = db.first("SELECT crew FROM ships WHERE id>0 AND id=",this.shipid).getInt("crew");
-		if( this.linkedbase != 0 ) {
-			SQLResultRow base = db.first("SELECT bewohner,arbeiter FROM bases WHERE id=",this.linkedbase);
-			crew += (base.getInt("bewohner")-base.getInt("arbeiter"));
+		int crew = this.ship.getCrew();
+		if( this.linked != null ) {
+			crew += (this.linked.getBewohner()-this.linked.getArbeiter());
 		}
 		return crew;
 	}
 	
 	@Override
 	public int getMaxCrew() {
-		if( this.maxcrew == -1 ) {
-			if( this.linkedbase == 0 ) {
-				SQLResultRow shiptype = ShipTypes.getShipType( this.shipid, true );
-				this.maxcrew = shiptype.getInt("crew");
-			} else {
-				this.maxcrew = 99999;
-			}
+		if( this.linked == null ) {
+			ShipTypeData shiptype = this.ship.getTypeData();
+			return shiptype.getCrew();
 		}
-
-		return this.maxcrew;
+		return 99999;
 	}
 	
 	@Override
@@ -193,15 +218,11 @@ public class ShipWerft extends WerftObject {
 		if( crew > this.getMaxCrew() ) {
 			throw new RuntimeException("ERROR: ShipWerft.setCrew(): crew ("+crew+") gr&ouml;&szlig;er als maxcrew ("+this.getMaxCrew()+")");
 		}
-
-		Database db = ContextMap.getContext().getDatabase();		
-
 		int shipcrew = 0;
-		if( this.linkedbase != 0 ) {
-			SQLResultRow shiptype = ShipTypes.getShipType( this.shipid, true );
-			SQLResultRow base = db.first("SELECT bewohner,arbeiter FROM bases WHERE id=",this.linkedbase);
-			int basecrew = base.getInt("bewohner")-base.getInt("arbeiter");
-			shipcrew = db.first("SELECT crew FROM ships WHERE id>0 AND id=",this.shipid).getInt("crew");
+		if( this.linked != null ) {
+			ShipTypeData shiptype = this.ship.getTypeData();
+			int basecrew = this.linked.getBewohner()-this.linked.getArbeiter();
+			shipcrew = this.ship.getCrew();
 
 			if( crew < shipcrew+basecrew ) {
 				crew -= shipcrew;
@@ -218,29 +239,27 @@ public class ShipWerft extends WerftObject {
 					crew = 0;
 				}
 				
-				if( crew > shiptype.getInt("crew") ) {
-					basecrew += crew-shiptype.getInt("crew");
-					crew = shiptype.getInt("crew");
+				if( crew > shiptype.getCrew() ) {
+					basecrew += crew-shiptype.getCrew();
+					crew = shiptype.getCrew();
 				}
 				shipcrew = crew;
 			}
 
-			int bewohner = basecrew + base.getInt("arbeiter");
-			db.update("UPDATE bases SET bewohner='",bewohner,"' WHERE id=",this.linkedbase);
+			int bewohner = basecrew + this.linked.getArbeiter();
+			this.linked.setBewohner(bewohner);
 		} else {
 			shipcrew = crew;
 		}
-		db.update("UPDATE ships SET crew='",shipcrew,"' WHERE id>0 AND id=",this.shipid);
+		this.ship.setCrew(shipcrew);
 	}
 	
 	@Override
 	public int getEnergy() {
-		Database db = ContextMap.getContext().getDatabase();
-		
-		int e = db.first("SELECT e FROM ships WHERE id>0 AND id=",this.shipid).getInt("e");
+		int e = this.ship.getEnergy();
 
-		if( this.linkedbase != 0 ) {
-			e += db.first("SELECT e FROM bases WHERE id=",this.linkedbase).getInt("e");
+		if( this.linked != null ) {
+			e += this.linked.getEnergy();
 		}
 
 		return e;
@@ -252,10 +271,8 @@ public class ShipWerft extends WerftObject {
 			throw new RuntimeException("ERROR: ShipWerft.setEnergy(): e ("+e+") kleiner 0");
 		}
 
-		Database db = ContextMap.getContext().getDatabase();
-
-		if( this.linkedbase != 0 ) {
-			int basee = db.first("SELECT e FROM bases WHERE id=",this.linkedbase).getInt("e");
+		if( this.linked != null ) {
+			int basee = this.linked.getEnergy();
 
 			e -= basee;
 
@@ -263,22 +280,25 @@ public class ShipWerft extends WerftObject {
 				basee += e;
 				e = 0;
 			}
-			db.update("UPDATE bases SET e='",basee,"' WHERE id=",this.linkedbase);
+			
+			this.linked.setEnergy(basee);
 		}
 
-		db.update("UPDATE ships SET e='",e,"' WHERE id>0 AND id=",this.shipid);
+		this.ship.setEnergy(e);
 	}
 	
 	@Override
 	public int canTransferOffis() {
-		if( this.linkedbase != 0 ) {
-			Database db = ContextMap.getContext().getDatabase();
+		if( this.linked != null ) {
+			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
-			int officount = db.first("SELECT count(*) count FROM offiziere WHERE dest='s ",this.shipid,"'").getInt("count");
+			int officount = ((Number)db.createQuery("select count(*) from Offizier where dest=?")
+				.setString(0, "s "+this.ship.getId())
+				.iterate().next()).intValue();
 			int maxoffis = 1;
-			SQLResultRow shiptype = ShipTypes.getShipType(this.getShipID(), true);
-			if( ShipTypes.hasShipTypeFlag(shiptype, ShipTypes.SF_OFFITRANSPORT) ) {
-				maxoffis = shiptype.getInt("crew");
+			ShipTypeData shiptype = this.ship.getTypeData();
+			if( shiptype.hasFlag(ShipTypes.SF_OFFITRANSPORT) ) {
+				maxoffis = shiptype.getCrew();
 			}
 			if( officount >= maxoffis ) {
 				return 0;
@@ -293,101 +313,178 @@ public class ShipWerft extends WerftObject {
 		if( this.canTransferOffis() == 0 ) {
 			throw new RuntimeException("ERROR: ShipWerft.transferOffi(): Kein Platz f&uuml;r weitere Offiziere");
 		}
-		Database db = ContextMap.getContext().getDatabase();
+
+		Offizier offizier = Offizier.getOffizierByID(offi);
 		
-		if( this.linkedbase == 0 ) {
-			db.update("UPDATE offiziere SET dest='s ",this.shipid,"' WHERE id=",offi);
+		if( this.linked == null ) {
+			offizier.setDest("s", this.ship.getId());
 		}
 		else {
-			SQLResultRow myoffi = db.first("SELECT id FROM offiziere WHERE dest='s ",this.shipid,"'");
-			if( !myoffi.isEmpty() ) {
-				db.update("UPDATE offiziere SET dest='b ",this.linkedbase,"' WHERE id=",offi);
+			Offizier myoffi = Offizier.getOffizierByDest('s', this.ship.getId());
+			if( myoffi != null ) {
+				offizier.setDest("b", this.linked.getId());
 			} else {
-				db.update("UPDATE offiziere SET dest='s ",this.shipid,"' WHERE id=",offi);
+				offizier.setDest("s", this.ship.getId());
 			}
 		}
 	}
 	
 	@Override
 	public String getUrlBase() {
-		return "./main.php?module=werft&amp;ship="+shipid;
+		return "./ds?module=werft&amp;ship="+this.ship.getId();
 	}
 
 	@Override
 	public String getFormHidden() {
-		return "<input type=\"hidden\" name=\"ship\" value=\""+shipid+"\" />\n"+
+		return "<input type=\"hidden\" name=\"ship\" value=\""+this.ship.getId()+"\" />\n"+
 			"<input type=\"hidden\" name=\"module\" value=\"werft\" />\n";
 	}
 
 	@Override
+	public int getWerftSlots() {
+		return this.ship.getTypeData().getWerft();
+	}
+	
+	@Override
 	public int getX() {
-		if( x == -1 ) {
-			x = ContextMap.getContext().getDatabase().first("SELECT x FROM ships WHERE id>0 AND id=",shipid).getInt("x");
-		}
-		return x;
+		return this.ship.getX();
 	}
 
 	@Override
 	public int getY() {
-		if( y == -1 ) {
-			y = ContextMap.getContext().getDatabase().first("SELECT y FROM ships WHERE id>0 AND id=",shipid).getInt("y");
-		}
-		return y;
+		return this.ship.getY();
+	}
+	
+	@Override
+	public int getSystem() {
+		return this.ship.getSystem();
 	}
 	
 	@Override
 	public String getName() {
-		if( name == null ) {
-			name = ContextMap.getContext().getDatabase().first("SELECT name FROM ships WHERE id>0 AND id=",shipid).getString("name");
-		}
-		return name;
+		return this.ship.getName();
 	}
 	
 	@Override
-	public int finishBuildProcess() {
-		int id = super.finishBuildProcess();
-		if( (id != 0) && (getType() == 2) ) {
-			Ships.destroy(shipid);
-		}
+	public User getOwner() {
+		return this.ship.getOwner();
+	}
+	
+	@Override
+	public void onFinishedBuildProcess(int shipid) {
+		super.onFinishedBuildProcess(shipid);
 		
-		return id;
+		// Falls es sich um eine Einwegwerft handelt, dann diese zerstoeren
+		if( getType() == 2 ) {
+			getShip().destroy();
+		}
 	}
 	
 	@Override
-	public boolean repairShip(SQLResultRow ship, boolean testonly) {
+	public boolean repairShip(Ship ship, boolean testonly) {
 		boolean result = super.repairShip(ship, testonly);
 		
-		Ships.recalculateShipStatus(getShipID());
+		this.ship.recalculateShipStatus();
 		return result;
 	}
 	
 	@Override
-	public void removeModule( SQLResultRow ship, int slot ) {
+	public void removeModule( Ship ship, int slot ) {
 		super.removeModule( ship, slot );
 		
-		Ships.recalculateShipStatus(getShipID());
+		this.ship.recalculateShipStatus();
 	}
 	
 	@Override
-	public void addModule( SQLResultRow ship, int slot, int item ) {
+	public void addModule( Ship ship, int slot, int item ) {
 		super.addModule( ship, slot, item );
 		
-		Ships.recalculateShipStatus(getShipID());
+		this.ship.recalculateShipStatus();
 	}
 	
 	@Override
-	public boolean dismantleShip(int dismantle, boolean testonly) {	
-		boolean result = super.dismantleShip(dismantle, testonly);
+	public boolean dismantleShip(Ship ship, boolean testonly) {	
+		boolean result = super.dismantleShip(ship, testonly);
 		
-		Ships.recalculateShipStatus(getShipID());
+		this.ship.recalculateShipStatus();
 		return result;
 	}
 	
 	@Override
-	public boolean buildShip( int build, int item, boolean testonly ) {
-		boolean result = super.buildShip(build, item, testonly);
+	public boolean buildShip( int build, int item, boolean costsPerTick, boolean testonly ) {
+		boolean result = super.buildShip(build, item, costsPerTick, testonly);
 		
-		Ships.recalculateShipStatus(getShipID());
+		this.ship.recalculateShipStatus();
 		return result;
+	}
+
+	@Override
+	public String getWerftPicture() {
+		return this.ship.getTypeData().getPicture();
+	}
+
+	@Override
+	public String getWerftName() {
+		return this.ship.getName();
+	}
+
+	@Override
+	public boolean isLinkableWerft() {
+		return this.ship.getTypeData().hasFlag(ShipTypes.SF_WERFTKOMPLEX);
+	}
+
+	@Override
+	public String getObjectUrl() {
+		return Common.buildUrl("default", "module", "schiff", "ship", ship.getId());
+	}
+
+	@Override
+	public void addToKomplex(WerftKomplex linkedWerft) {
+		super.addToKomplex(linkedWerft);
+		
+		// Falls notwendig den Link auf die Basis entfernen - in einem Komplex darf eine Basis
+		// nur einmal vorkommen
+		if( this.linked != null ) {
+			WerftObject[] members = linkedWerft.getMembers();
+			for( int i=0; i < members.length; i++ ) {
+				if( !(members[i] instanceof ShipWerft) ) {
+					continue;
+				}
+				if( members[i].getWerftID() == this.getWerftID() ) {
+					continue;
+				}
+				
+				ShipWerft member = (ShipWerft)members[i];
+				if( member.getLinkedBase() == this.getLinkedBase() ) {
+					this.setLink(null);
+					return;
+				}
+			}
+		}
+	}
+
+	@Override
+	public void createKomplexWithWerft(WerftObject werft) {
+		super.createKomplexWithWerft(werft);
+		
+		// Falls notwendig den Link auf die Basis entfernen - in einem Komplex darf eine Basis
+		// nur einmal vorkommen
+		if( this.linked != null ) {
+			WerftObject[] members = this.getKomplex().getMembers();
+			for( int i=0; i < members.length; i++ ) {
+				if( !(members[i] instanceof ShipWerft) ) {
+					continue;
+				}
+				if( members[i].getWerftID() == this.getWerftID() ) {
+					continue;
+				}
+				
+				ShipWerft member = (ShipWerft)members[i];
+				if( member.getLinkedBase() == this.getLinkedBase() ) {
+					this.setLink(null);
+					return;
+				}
+			}
+		}
 	}
 }

@@ -24,9 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeChangeset;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -38,7 +37,7 @@ import org.w3c.dom.NodeList;
  */
 public class IEModuleSetMeta extends ItemEffect {
 	private String name;
-	private Map<Integer,SQLResultRow> combos = new HashMap<Integer,SQLResultRow>();
+	private Map<Integer,ShipTypeChangeset> combos = new HashMap<Integer,ShipTypeChangeset>();
 	
 	protected IEModuleSetMeta(String name) {
 		super(ItemEffect.Type.MODULE_SET_META);
@@ -46,7 +45,7 @@ public class IEModuleSetMeta extends ItemEffect {
 		this.name = name;
 	}
 	
-	protected void addCombo(int itemCount, SQLResultRow combo) {
+	protected void addCombo(int itemCount, ShipTypeChangeset combo) {
 		if( itemCount < 1 ) {
 			throw new IndexOutOfBoundsException("Die Anzahl der Items muss groesser oder gleich 1 sein!");
 		}
@@ -68,16 +67,16 @@ public class IEModuleSetMeta extends ItemEffect {
 	 * @param itemCount Die Anzahl an Items des Sets
 	 * @return Die Aenderungseffekte fuer die Anzahl
 	 */
-	public SQLResultRow[] getCombo(int itemCount) {
-		List<SQLResultRow> combos = new ArrayList<SQLResultRow>();
+	public ShipTypeChangeset[] getCombo(int itemCount) {
+		List<ShipTypeChangeset> combos = new ArrayList<ShipTypeChangeset>();
 		for( int i=1; i <= itemCount; i++ ) {
-			SQLResultRow currentCombo = this.combos.get(i);
+			ShipTypeChangeset currentCombo = this.combos.get(i);
 			if( currentCombo == null ) {
 				continue;
 			}
 			combos.add(currentCombo);
 		}
-		return combos.toArray(new SQLResultRow[combos.size()]);
+		return combos.toArray(new ShipTypeChangeset[combos.size()]);
 	}
 	
 	/**
@@ -87,7 +86,7 @@ public class IEModuleSetMeta extends ItemEffect {
 	 * Stufen sowie des Effekts der Stufe selbst.
 	 * @return Die Combos
 	 */
-	public Map<Integer,SQLResultRow> getCombos() {
+	public Map<Integer,ShipTypeChangeset> getCombos() {
 		return Collections.unmodifiableMap(combos);
 	}
 	
@@ -98,7 +97,7 @@ public class IEModuleSetMeta extends ItemEffect {
 		NodeList nodes = XMLUtils.getNodesByXPath(effectNode, "combo");
 		for( int i=0, length=nodes.getLength(); i < length; i++ ) {
 			int count = XMLUtils.getNumberByXPath(nodes.item(i), "@item-count").intValue();
-			SQLResultRow combo = ShipTypes.getTypeChangeSetFromXML(nodes.item(i));
+			ShipTypeChangeset combo = new ShipTypeChangeset(nodes.item(i));
 			effect.addCombo(count, combo);
 		}
 		

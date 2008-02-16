@@ -20,28 +20,30 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.cargo.modules.Modules;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.entities.Ammo;
+import net.driftingsouls.ds2.server.entities.OrderOffizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.AdminController;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipFleet;
+import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 import org.apache.commons.lang.math.RandomUtils;
 
@@ -56,14 +58,14 @@ public class AddShips implements AdminPlugin {
 	public void output(AdminController controller, String page, int action) {
 		Context context = ContextMap.getContext();
 		StringBuffer echo = context.getResponse().getContent();
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		User user = (User)context.getActiveUser();
 		
-		int ship = context.getRequest().getParameterInt("ship");
+		int shipTypeId = context.getRequest().getParameterInt("ship");
 		int count = context.getRequest().getParameterInt("count");
 
-		if( ship == 0 ) {
-			List<SQLResultRow> stlist = new ArrayList<SQLResultRow>();
+		if( shipTypeId == 0 ) {
+			List<ShipType> stlist = new ArrayList<ShipType>();
 			
 			echo.append("<script type=\"text/javascript\">\n");
 			echo.append("<!--\n");
@@ -71,33 +73,35 @@ public class AddShips implements AdminPlugin {
 			
 			Set<String> knownwpntypes = new HashSet<String>();
 			
-			SQLQuery st = db.query("SELECT nickname,id,jdocks,weapons FROM ship_types");
-			while( st.next() ) {
-				stlist.add(st.getRow());
-				echo.append("shipdata["+st.getInt("id")+"] = Array();\n");
-				echo.append("shipdata["+st.getInt("id")+"][0] = "+st.getInt("jdocks")+";\n");
-				echo.append("shipdata["+st.getInt("id")+"][1] = Array();\n");
+			final Iterator shipTypeIter = db.createQuery("from ShipType").iterate(); 
+			while( shipTypeIter.hasNext() ) {
+				ShipType st = (ShipType)shipTypeIter.next();
+				
+				stlist.add(st);
+				echo.append("shipdata["+st.getId()+"] = Array();\n");
+				echo.append("shipdata["+st.getId()+"][0] = "+st.getJDocks()+";\n");
+				echo.append("shipdata["+st.getId()+"][1] = Array();\n");
 				
 				Set<String> thisammolist = new HashSet<String>();
 				int i = 0;
-				Map<String,String> weapons = Weapons.parseWeaponList(st.getString("weapons"));
+				Map<String,String> weapons = Weapons.parseWeaponList(st.getWeapons());
 				for( String weapon : weapons.keySet() ) {
 					if( Weapons.get().weapon(weapon) == null ) {
-						continue;	
+						continue;
 					}
 					
-					if( Weapons.get().weapon(weapon).getAmmoType().equals("none") ) {
+					if( "none".equals(Weapons.get().weapon(weapon).getAmmoType()) ) {
 						continue;	
 					}
-					
-					knownwpntypes.add(Weapons.get().weapon(weapon).getAmmoType());
-					if( !thisammolist.contains(Weapons.get().weapon(weapon).getAmmoType()) ) {
-						thisammolist.add(Weapons.get().weapon(weapon).getAmmoType());
-						echo.append("shipdata["+st.getInt("id")+"][1]["+(i++)+"] = \""+Weapons.get().weapon(weapon).getAmmoType()+"\";\n");
+					String ammotype = Weapons.get().weapon(weapon).getAmmoType();
+					knownwpntypes.add(ammotype);
+					if( !thisammolist.contains(ammotype) ) {
+						thisammolist.add(ammotype);
+						echo.append("shipdata["+st.getId()+"][1]["+(i++)+"] = \""+ammotype+"\";\n");
 					}
 				}
 			}
-			st.free();
+
 			echo.append("var ammodata = Array();\n");
 			int i = 0;
 			for( String ammo : knownwpntypes ) {
@@ -109,14 +113,14 @@ public class AddShips implements AdminPlugin {
 			echo.append("<script src=\""+Configuration.getSetting("URL")+"data/javascript/admin.addships.js\" type=\"text/javascript\"></script>\n");
 			
 			echo.append(Common.tableBegin(520,"left"));
-			echo.append("<form action=\"./main.php\" method=\"post\">\n");
+			echo.append("<form action=\"./ds\" method=\"post\">\n");
 			echo.append("<table class=\"noBorderX\" width=\"100%\">\n");
 			echo.append("<tr>\n");
 			echo.append("<td class=\"noBorderX\" style=\"width:80px\">Schifftyp:</td>");
 			echo.append("<td class=\"noBorderX\">");
 			echo.append("<select name=\"ship\" size=\"1\" onchange=\"shipSelectChange(this.options[this.options.selectedIndex].value)\">");
 			for( i=0; i < stlist.size(); i++ ) {
-				echo.append("<option value=\""+stlist.get(i).getInt("id")+"\">"+Common._plaintitle(stlist.get(i).getString("nickname"))+" ("+stlist.get(i).getInt("id")+")</option>\n");
+				echo.append("<option value=\""+stlist.get(i).getId()+"\">"+Common._plaintitle(stlist.get(i).getNickname())+" ("+stlist.get(i).getId()+")</option>\n");
 			}
 			echo.append("</select>\n");
 			echo.append("</td>\n");
@@ -147,11 +151,13 @@ public class AddShips implements AdminPlugin {
 				echo.append("<div style=\"margin:0px;border:0px;padding:0px;display:inline;position:absolute;top:0px;left:0px\" id=\"select_ammo_"+ammo+"\">\n");
 				echo.append("<select id=\"select_ammo_"+ammo+"_element\" name=\"ammo_"+ammo+"\" size=\"1\">\n");
 				echo.append("<option id=\"0\">[Nichts]</option>\n");
-				SQLQuery ammoRow = db.query("SELECT name,itemid FROM ammo WHERE type='"+ammo+"'");
-				while( ammoRow.next() ) {
-					echo.append("<option value=\""+ammoRow.getInt("itemid")+"\">"+Common._plaintitle(ammoRow.getString("name"))+"</option>\n");
+				final Iterator ammoIter = db.createQuery("from Ammo where type= :ammo")
+					.setString("ammo", ammo)
+					.iterate();
+				while( ammoIter.hasNext() ) {
+					Ammo ammoObj = (Ammo)ammoIter.next();
+					echo.append("<option value=\""+ammoObj.getItemId()+"\">"+Common._plaintitle(ammoObj.getName())+"</option>\n");
 				}
-				ammoRow.free();
 				echo.append("</select>\n");
 				echo.append("</div>\n");
 			}
@@ -163,11 +169,11 @@ public class AddShips implements AdminPlugin {
 			echo.append("<td class=\"noBorderX\">\n");
 			echo.append("<select name=\"offitype\" size=\"1\">\n");
 			echo.append("<option value=\"-1\" selected=\"selected\">keiner</option>\n");
-			SQLQuery offi = db.query("SELECT id,name FROM orders_offiziere");
-			while( offi.next() ) {
-				echo.append("<option value=\""+offi.getInt("id")+"\">"+offi.getString("name")+"</option>\n");
+			List orderOffiList = db.createQuery("from OrderOffizier").list();
+			for( Iterator iter=orderOffiList.iterator(); iter.hasNext(); ) {
+				OrderOffizier offi = (OrderOffizier)iter.next();
+				echo.append("<option value=\""+offi.getId()+"\">"+offi.getName()+"</option>\n");
 			}
-			offi.free();
 			echo.append("</select>\n");
 			echo.append("<input type=\"text\" name=\"offiname\" value=\"Captain\" />\n");
 			echo.append("</td>\n");
@@ -177,11 +183,13 @@ public class AddShips implements AdminPlugin {
 			echo.append("<td class=\"noBorderX\">\n");
 			echo.append("<select name=\"jaeger\" size=\"1\" onchange=\"jaegerSelectChange(this.options[this.options.selectedIndex].value)\">\n");
 			echo.append("<option id=\"0\">[Nichts]</option>\n");
-			st = db.query("SELECT nickname,id FROM ship_types WHERE LOCATE('"+ShipTypes.SF_JAEGER+"',flags)");
-			while( st.next() ) {
-				echo.append("<option value=\""+st.getInt("id")+"\">"+Common._plaintitle(st.getString("nickname"))+" ("+st.getInt("id")+")</option>\n");
+			final Iterator jaegerIter = db.createQuery("from ShipType where locate(:jaeger, flags)!=0")
+				.setString("jaeger", ShipTypes.SF_JAEGER)
+				.iterate();
+			while( jaegerIter.hasNext() ) {
+				ShipType st = (ShipType)jaegerIter.next();
+				echo.append("<option value=\""+st.getId()+"\">"+Common._plaintitle(st.getNickname())+" ("+st.getId()+")</option>\n");
 			}
-			st.free();
 			echo.append("</select>\n");
 			echo.append("</td>\n");
 			echo.append("</tr>\n");
@@ -193,11 +201,13 @@ public class AddShips implements AdminPlugin {
 				echo.append("<div style=\"margin:0px;border:0px;padding:0px;display:inline;position:absolute;top:0px;left:0px\" id=\"select_jaeger_ammo_"+ammo+"\">\n");
 				echo.append("<select name=\"jaeger_ammo_"+ammo+"\" size=\"1\">\n");
 				echo.append("<option id=\"0\">[Nichts]</option>\n");
-				SQLQuery ammoRow = db.query("SELECT name,itemid FROM ammo WHERE type='"+ammo+"'");
-				while( ammoRow.next() ) {
-					echo.append("<option value=\""+ammoRow.getInt("itemid")+"\">"+Common._plaintitle(ammoRow.getString("name"))+"</option>\n");
+				final Iterator ammoIter = db.createQuery("from Ammo where type= :ammo")
+					.setString("ammo", ammo)
+					.iterate();
+				while( ammoIter.hasNext() ) {
+					Ammo ammoObj = (Ammo)ammoIter.next();
+					echo.append("<option value=\""+ammoObj.getItemId()+"\">"+Common._plaintitle(ammoObj.getName())+"</option>\n");
 				}
-				ammoRow.free();
 				echo.append("</select>\n");
 				echo.append("</div>\n");
 			}
@@ -219,11 +229,6 @@ public class AddShips implements AdminPlugin {
 			echo.append("<input type=\"checkbox\" name=\"jlowid\" id=\"form_jlowid\" value=\"1\" /><label for=\"form_jlowid\">Low ID f&uuml;r J&auml;ger (&lt;10000 - s.o.)</label>\n");
 			echo.append("</td>\n");
 			echo.append("</tr>\n");
-			echo.append("<tr>\n");
-			echo.append("<td class=\"noBorderX\" colspan=\"2\">\n");
-			echo.append("<input type=\"checkbox\" name=\"replikator\" id=\"form_replikator\" value=\"1\" /><label for=\"form_replikator\">Replikator (Nicht f&uuml;r J&auml;ger)</label>\n");
-			echo.append("</td>\n");
-			echo.append("</tr>\n");
 			echo.append("<tr><td class=\"noBorderX\" colspan=\"2\" align=\"center\">\n");
 			echo.append("<input type=\"hidden\" name=\"sess\" value=\""+context.getSession()+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
@@ -242,32 +247,29 @@ public class AddShips implements AdminPlugin {
 			echo.append(Common.tableEnd());
 		}
 		else if( count > 0 ) {
-			int owner = context.getRequest().getParameterInt("owner");
+			final int ownerId = context.getRequest().getParameterInt("owner");
 			int system = context.getRequest().getParameterInt("system");
 			int x = context.getRequest().getParameterInt("x");
 			int y = context.getRequest().getParameterInt("y");
 			String name = context.getRequest().getParameterString("name");
 			int offitype = context.getRequest().getParameterInt("offitype");
 			String offiname = context.getRequest().getParameterString("offiname");
-			int jaeger = context.getRequest().getParameterInt("jaeger");
+			final int jaegerTypeId = context.getRequest().getParameterInt("jaeger");
 			int inteliid = context.getRequest().getParameterInt("inteliid");
 			int lowid = context.getRequest().getParameterInt("lowid");
 			int jlowid = context.getRequest().getParameterInt("jlowid");
-			int replikator = context.getRequest().getParameterInt("replikator");
-			
-			db.tBegin();
 			
 			String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
 			
-			SQLResultRow shiptype = ShipTypes.getShipType(ship, false);
+			ShipType shiptype = (ShipType)db.get(ShipType.class, shipTypeId);
 			Cargo cargo = new Cargo();
-			cargo.addResource( Resources.DEUTERIUM, shiptype.getInt("rd")*10 );
-			cargo.addResource( Resources.URAN, shiptype.getInt("ru")*10 );
-			cargo.addResource( Resources.ANTIMATERIE, shiptype.getInt("ra")*10 );
+			cargo.addResource( Resources.DEUTERIUM, shiptype.getRd()*10 );
+			cargo.addResource( Resources.URAN, shiptype.getRu()*10 );
+			cargo.addResource( Resources.ANTIMATERIE, shiptype.getRa()*10 );
 			
-			Map<String,String> weapons = Weapons.parseWeaponList(shiptype.getString("weapons"));
+			Map<String,String> weapons = Weapons.parseWeaponList(shiptype.getWeapons());
 			for( String weapon : weapons.keySet() ) {
-				if( Weapons.get().weapon(weapon) != null && !Weapons.get().weapon(weapon).getAmmoType().equals("none") ) {
+				if( !"none".equals(Weapons.get().weapon(weapon).getAmmoType()) ) {
 					String ammotype = Weapons.get().weapon(weapon).getAmmoType();
 					if( context.getRequest().getParameterInt("ammo_"+ammotype) > 0 )	{
 						cargo.addResource( 
@@ -277,74 +279,87 @@ public class AddShips implements AdminPlugin {
 				}
 			}
 			for( int i=0; i < count; i++ ) {
-				User auser = (User)context.getDB().get(User.class, owner);	
+				User auser = (User)context.getDB().get(User.class, ownerId);	
 				String history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+") [hide]Admin: "+user.getId()+"[/hide]\n";
 				
+				Ship ship = new Ship(auser);
+				ship.setName(name);
+				ship.setBaseType(shiptype);
+				ship.setX(x);
+				ship.setY(y);
+				ship.setSystem(system);
+				ship.setHull(shiptype.getHull());
+				ship.setEnergy(shiptype.getEps());
+				ship.setCrew(shiptype.getCrew());
+				ship.setShields(shiptype.getShields());
+				ship.setCargo(cargo);
+				ship.setHistory(history);
+				ship.setAblativeArmor(shiptype.getAblativeArmor());
+				ship.setMarines(shiptype.getMarines());
+				ship.setEngine(100);
+				ship.setWeapons(100);
+				ship.setComm(100);
+				ship.setSensors(100);
+				
 				// Schiff erstellen
-				PreparedQuery query = null;
 				if( inteliid != 0 ) {
 					int shouldId = 10000;
 					if( lowid != 0 ) {
-						shouldId = 0;
+						shouldId = 1;
 					}
 					
-					query = db.prepare("INSERT INTO ships (id,name,type,owner,x,y,system,hull,e,crew,shields,cargo,history) "+ 
-								"VALUES (newIntelliShipID( ? ), ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? )");
-					query.update(shouldId, name, ship, owner, x, y, system, shiptype.getInt("hull"), shiptype.getInt("eps"), shiptype.getInt("crew"), shiptype.getInt("shields"), cargo.save(), history);
+					int shipid = (Integer)db.createSQLQuery("select newIntelliShipId( ? )")
+						.setInteger(0, shouldId)
+						.uniqueResult();
+					
+					ship.setId(shipid);
 				}
-				else {
-					query = db.prepare("INSERT INTO ships (name,type,owner,x,y,system,hull,e,crew,shields,cargo,history) "+ 
-								"VALUES (? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? )");
-					query.update(name, ship, owner, x, y, system, shiptype.getInt("hull"), shiptype.getInt("eps"), shiptype.getInt("crew"), shiptype.getInt("shields"), cargo.save(), history);
-				}
-				int shipid = query.insertID();
-				query.close();
-				
-				if( shiptype.getString("werft").length() > 0 ) {
-					db.update("INSERT INTO werften (shipid) VALUES ("+shipid+")");
-				}
+				db.save(ship);
 
-				echo.append("Schiff ("+shipid+") hinzugef&uuml;gt<br />");
+				if( shiptype.getWerft() != 0 ) {
+					ShipWerft werft = new ShipWerft(ship);
+					db.persist(werft);
+				}
+				
+				echo.append("Schiff ("+ship.getId()+") hinzugef&uuml;gt<br />");
 				
 				// Offizier einfuegen
 				if( (offitype > 0) && (offiname.length() > 0) ) {
-					SQLResultRow offi = db.first("SELECT * FROM orders_offiziere WHERE id="+offitype);
-					if( !offi.isEmpty() ) {
-						db.prepare("INSERT INTO offiziere (name,rang,ing,waf,nav,sec,com,dest,userid,spec) "+
-									"VALUES ( ? , ? , ? , ? , ? , ? , ? , ? , ? , ? )")
-							.update(offiname, offi.getInt("rang"), offi.getInt("ing"), offi.getInt("waf"), 
-									offi.getInt("nav"), offi.getInt("sec"), offi.getInt("com"), "s "+shipid, 
-									owner, RandomUtils.nextInt(6));
+					OrderOffizier offi = (OrderOffizier)db.get(OrderOffizier.class, offitype);
+					if( offi != null ) {
+						Offizier offizier = new Offizier(auser, offiname);
+						offizier.setRang(offi.getRang());
+						offizier.setAbility(Offizier.Ability.ING, offi.getIng());
+						offizier.setAbility(Offizier.Ability.WAF, offi.getWaf());
+						offizier.setAbility(Offizier.Ability.NAV, offi.getNav());
+						offizier.setAbility(Offizier.Ability.SEC, offi.getSec());
+						offizier.setAbility(Offizier.Ability.COM, offi.getCom());
+						offizier.setDest("s", ship.getId());
+						offizier.setSpecial(Offizier.Special.values()[RandomUtils.nextInt(Offizier.Special.values().length)]);
+						db.persist(offizier);
 						
 						echo.append("Offizier '"+offiname+"' hinzugef&uuml;gt<br />\n");
 					}
 				}
 				
-				Ships.recalculateShipStatus(shipid);
-				
-				if( replikator != 0 ) {
-					SQLResultRow shipRow = db.first("SELECT * FROM ships WHERE id="+shipid);
-					Ships.addModule(shipRow, 1, Modules.MODULE_ITEMMODULE, "304");
-				}
+				ship.recalculateShipStatus();
 				
 				// Jaeger einfuegen
-				if( (jaeger > 0) && (shiptype.getInt("jdocks")>0) ) {
+				if( (jaegerTypeId > 0) && (shiptype.getJDocks()>0) ) {
 					echo.append("F&uuml;ge J&auml;ger ein:<br />\n");
-					SQLResultRow jshiptype = ShipTypes.getShipType(jaeger, false);
+					ShipType jshiptype = (ShipType)db.get(ShipType.class, jaegerTypeId);
 
-					query = db.prepare("INSERT INTO ship_fleets (name) VALUES ( ? )");
-					query.update(name+"-Staffel");
-					int fleetid = query.insertID();
-					query.close();
-				
-					Cargo jcargo = new Cargo();
-					jcargo.addResource( Resources.DEUTERIUM, jshiptype.getInt("rd")*10 );
-					jcargo.addResource( Resources.URAN, jshiptype.getInt("ru")*10 );
-					jcargo.addResource( Resources.ANTIMATERIE, jshiptype.getInt("ra")*10 );
+					ShipFleet fleet = new ShipFleet(name+"-Staffel");
+					db.persist(fleet);
 					
-					weapons = Weapons.parseWeaponList(jshiptype.getString("weapons"));
+					Cargo jcargo = new Cargo();
+					jcargo.addResource( Resources.DEUTERIUM, jshiptype.getRd()*10 );
+					jcargo.addResource( Resources.URAN, jshiptype.getRu()*10 );
+					jcargo.addResource( Resources.ANTIMATERIE, jshiptype.getRa()*10 );
+					
+					weapons = Weapons.parseWeaponList(jshiptype.getWeapons());
 					for( String weapon : weapons.keySet() ) {
-						if( Weapons.get().weapon(weapon) != null && !Weapons.get().weapon(weapon).getAmmoType().equals("none") ) {
+						if( !"none".equals(Weapons.get().weapon(weapon).getAmmoType()) ) {
 							String ammotype = Weapons.get().weapon(weapon).getAmmoType();
 							if( context.getRequest().getParameterInt("jaeger_ammo_"+ammotype) > 0 )	{
 								jcargo.addResource( 
@@ -354,38 +369,48 @@ public class AddShips implements AdminPlugin {
 						}
 					}
 
-					for( int j=1; j <= shiptype.getInt("jdocks"); j++ ) {
+					for( int j=1; j <= shiptype.getJDocks(); j++ ) {
 						history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+") [hide]Admin: "+user.getId()+"[/hide]\n";
 						
+						Ship jaeger = new Ship(auser);
+						jaeger.setName(name+" "+j);
+						jaeger.setBaseType(jshiptype);
+						jaeger.setX(x);
+						jaeger.setY(y);
+						jaeger.setSystem(system);
+						jaeger.setHull(jshiptype.getHull());
+						jaeger.setEnergy(jshiptype.getEps());
+						jaeger.setCrew(jshiptype.getCrew());
+						jaeger.setShields(jshiptype.getShields());
+						jaeger.setDocked("l "+ship.getId());
+						jaeger.setFleet(fleet);
+						jaeger.setCargo(jcargo);
+						jaeger.setHistory(history);
+						jaeger.setAblativeArmor(jshiptype.getAblativeArmor());
+						jaeger.setMarines(jshiptype.getMarines());
+						jaeger.setEngine(100);
+						jaeger.setWeapons(100);
+						jaeger.setComm(100);
+						jaeger.setSensors(100);
+						
 						// Jaeger erstellen
-						query = null;
 						if( inteliid != 0 ) {
 							int shouldId = 10000;
 							if( jlowid != 0 ) {
-								shouldId = 0;
+								shouldId = 1;
 							}
 							
-							query = db.prepare("INSERT INTO ships (id,name,type,owner,x,y,system,hull,e,crew,shields,docked,fleet,cargo,history) "+ 
-										"VALUES (newIntelliShipID( ? ), ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ?, ?, ? )");
-							query.update(shouldId, name+" "+j, jaeger, owner, x, y, system, jshiptype.getInt("hull"), jshiptype.getInt("eps"), jshiptype.getInt("crew"), jshiptype.getInt("shields"), "l "+shipid, fleetid, jcargo.save(), history);
+							jaeger.setId(shouldId);
 						}
-						else {
-							query = db.prepare("INSERT INTO ships (name,type,owner,x,y,system,hull,e,crew,shields,docked,fleet,cargo,history) "+ 
-										"VALUES (? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ?, ?, ? )");
-							query.update(name+" "+j, jaeger, owner, x, y, system, jshiptype.getInt("hull"), jshiptype.getInt("eps"), jshiptype.getInt("crew"), jshiptype.getInt("shields"), "l "+shipid, fleetid, jcargo.save(), history);
-						}
-						int insid = query.insertID();
-						query.close();
+						db.save(jaeger);
 						
-						Ships.recalculateShipStatus(insid);
+						jaeger.recalculateShipStatus();
 					
-						echo.append("J&auml;ger ("+insid+") hinzugef&uuml;gt<br />");
+						echo.append("J&auml;ger ("+jaeger.getId()+") hinzugef&uuml;gt<br />");
 					} // For jdocks
 				} // if Jaeger
 				
 			} // For Schiffe
-			
-			db.tCommit();			
 		} // if Schiffe erstellen
 	}
 }

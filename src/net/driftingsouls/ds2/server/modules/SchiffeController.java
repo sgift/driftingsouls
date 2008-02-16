@@ -27,7 +27,6 @@ import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.config.Items;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -43,7 +42,8 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
-import net.driftingsouls.ds2.server.werften.ShipWerft;
+import net.driftingsouls.ds2.server.werften.WerftObject;
+import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -132,7 +132,8 @@ public class SchiffeController extends TemplateGenerator implements Loggable {
 	@Override
 	public void defaultAction() {		
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		Database database = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		
 		String only = getString("only");
@@ -182,7 +183,7 @@ public class SchiffeController extends TemplateGenerator implements Loggable {
 			query += "t2.class=10 ORDER BY "+ow;
 		}
 		else if( only.equals("werften") )	{
-			query += "t2.werft!='' ORDER BY "+ow;
+			query += "t2.werft>0 ORDER BY "+ow;
 		}
 		else if( only.equals("sensor") ) {
 			query += "(t2.class=13 OR t2.class=11) ORDER BY "+ow;
@@ -240,7 +241,7 @@ public class SchiffeController extends TemplateGenerator implements Loggable {
 
 		t.setBlock("_SCHIFFE","schiffe.listitem","schiffe.list");
 		t.setBlock("schiffe.listitem","schiffe.resitem","schiffe.reslist");
-		SQLQuery ship = db.query(query);
+		SQLQuery ship = database.query(query);
 		while( ship.next() ) {
 			t.start_record();
 			
@@ -307,39 +308,40 @@ public class SchiffeController extends TemplateGenerator implements Loggable {
 					hullcolor = "#ffcc00";
 				}
 
-				if( shiptype.getString("werft").length() > 0 ) {
-					SQLResultRow werftRow = db.first("SELECT * FROM werften WHERE shipid=",ship.getInt("id"));
-					if( werftRow.isEmpty() ) {
+				if( shiptype.getInt("werft") > 0 ) {
+					WerftObject werft = (WerftObject)db.createQuery("from ShipWerft where shipid=?")
+						.setEntity(0, Ships.getAsObject(ship.getRow()))
+						.uniqueResult();
+					if( werft == null ) {
 						LOG.warn("Schiff "+ship.getInt("id")+" hat keinen Werfteintrag");
 					}
 					else {
-						ShipWerft werft = new ShipWerft(werftRow,shiptype.getString("werft"),ship.getInt("system"),ship.getInt("owner"),ship.getInt("id"));
-						werft.setOneWayFlag(shiptype.getInt("ow_werft"));
-						SQLResultRow type = werft.getBuildShipType();
-						if( type != null ) {
-							StringBuilder popup = new StringBuilder(100);
-							popup.append(Common.tableBegin(420, "left").replace( '"', '\'') );
-							popup.append("<img align='left' border='0' src='"+type.getString("picture")+"' alt='"+type.getString("nickname")+"' />");
-							popup.append("&nbsp;Baut: "+type.getString("nickname")+"<br />");
-							popup.append("&nbsp;Dauer: <img style='vertical-align:middle' src='"+Configuration.getSetting("URL")+"data/interface/time.gif' alt='noch ' />"+werft.getRemainingTime()+"<br />");
-							if( werft.getRequiredItem() != -1 ) {					
-								popup.append("&nbsp;Ben&ouml;tigt: ");
-								popup.append("<img style='vertical-align:middle' src='../data/items/"+Items.get().item(werft.getRequiredItem()).getPicture()+"' alt='' />");
-								if( werft.isBuildContPossible() ) {
-									popup.append("<span style='color:green'>");
-								}
-								else {
-									popup.append("<span style='color:red'>");
-								}
-								popup.append(Items.get().item(werft.getRequiredItem()).getName()+"</span>");
-							}
-							popup.append(Common.tableEnd().replace( '"', '\'' ));
-							String popupStr = StringEscapeUtils.escapeJavaScript(popup.toString().replace(">", "&gt;").replace("<", "&lt;"));
-	
-							t.setVar(	"ship.werft.popup",		popupStr,
-										"ship.werft.dauer",		werft.getRemainingTime(),
-										"ship.werft.building",	1 );
+						if( werft.getKomplex() != null ) {
+							werft = werft.getKomplex();
 						}
+						
+						final WerftQueueEntry[] entries = werft.getBuildQueue();
+						final int totalSlots = werft.getWerftSlots();
+						int usedSlots = 0;
+						int buildingCount = 0;
+						for( int i=0; i < entries.length; i++ ) {
+							if( entries[i].isScheduled() ) {
+								usedSlots += entries[i].getSlots();
+								buildingCount++;
+							}
+						}
+						
+						StringBuilder popup = new StringBuilder(100);
+						popup.append(Common.tableBegin(420, "left").replace( '"', '\'') );
+						popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='"+Configuration.getSetting("URL")+"data/interface/schiffinfo/werftslots.png' alt='' />"+usedSlots+"/"+totalSlots+"<br />");
+						popup.append("Im Bau: "+buildingCount+" Schiffe<br />");
+						popup.append("In der Warteschlange: "+(entries.length - buildingCount));
+						popup.append(Common.tableEnd().replace( '"', '\'' ));
+						String popupStr = StringEscapeUtils.escapeJavaScript(popup.toString().replace(">", "&gt;").replace("<", "&lt;"));
+	
+						t.setVar(	"ship.werft.popup",		popupStr,
+									"ship.werft.entries",	entries.length,
+									"ship.werft.building",	1 );
 					}
 				}
 
@@ -359,7 +361,7 @@ public class SchiffeController extends TemplateGenerator implements Loggable {
 							"ship.crewcolor",	crewcolor,
 							"ship.fleet",	ship.getInt("fleet"),
 							"ship.shields",	Common.ln(ship.getInt("shields")),
-							"ship.werft",	shiptype.getString("werft"),
+							"ship.werft",	shiptype.getInt("werft"),
 							"ship.adocks",	shiptype.getInt("adocks"),
 							"ship.jdocks",	shiptype.getInt("jdocks"),
 							"ship.docks",	shiptype.getInt("adocks") + shiptype.getInt("jdocks"),
@@ -367,32 +369,32 @@ public class SchiffeController extends TemplateGenerator implements Loggable {
 				
 				if( ship.getInt("fleet") > 0 ) {
 					if( !fleetcache.containsKey(ship.getInt("fleet")) ) {
-						fleetcache.put(ship.getInt("fleet"), db.first("SELECT name FROM ship_fleets WHERE id=",ship.getInt("fleet")).getString("name"));
+						fleetcache.put(ship.getInt("fleet"), database.first("SELECT name FROM ship_fleets WHERE id=",ship.getInt("fleet")).getString("name"));
 					}
 					t.setVar("ship.fleet.name",Common._plaintitle(fleetcache.get(ship.getInt("fleet"))) );
 				}
 				
 				if( !ship.getString("docked").equals("") ) {
 					if( ship.getString("docked").charAt(0) != 'l' ) {
-						String shipname = db.first("SELECT name FROM ships WHERE id>0 AND id=",ship.getString("docked")).getString("name");
+						String shipname = database.first("SELECT name FROM ships WHERE id>0 AND id=",ship.getString("docked")).getString("name");
 						t.setVar(	"ship.docked.name",	shipname,
 									"ship.docked.id",	ship.getString("docked") );
 					}
 					else {
 					 	String[] dockid = StringUtils.split(ship.getString("docked"), ' ');
-			 			String shipname = db.first("SELECT name FROM ships WHERE id>0 AND id=",dockid[1]).getString("name");
+			 			String shipname = database.first("SELECT name FROM ships WHERE id>0 AND id=",dockid[1]).getString("name");
 						t.setVar(	"ship.landed.name",	shipname,
 									"ship.landed.id",	dockid[1] );
 					}
 				}
 				
  				if( shiptype.getInt("adocks") > 0 ) {
- 					int docked = db.first("SELECT count(*) count FROM ships WHERE id>0 AND docked='",ship.getInt("id"),"'").getInt("count");
+ 					int docked = database.first("SELECT count(*) count FROM ships WHERE id>0 AND docked='",ship.getInt("id"),"'").getInt("count");
 					t.setVar("ship.adocks.docked",docked);
  				}
 				
 				if( shiptype.getInt("jdocks") > 0 ) {
-					int docked = db.first("SELECT count(*) count FROM ships WHERE id>0 AND docked='l ",ship.getInt("id"),"'").getInt("count");
+					int docked = database.first("SELECT count(*) count FROM ships WHERE id>0 AND docked='l ",ship.getInt("id"),"'").getInt("count");
 					t.setVar("ship.jdocks.docked",docked);
  				}
 				

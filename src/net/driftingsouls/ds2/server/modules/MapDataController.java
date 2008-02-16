@@ -241,7 +241,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 			return;		
 		}
 		
-		SQLResultRow nebel = db.first("SELECT id,type FROM nebel WHERE system=",this.system," AND x=",x," AND y=",y);
+		SQLResultRow nebel = db.first("SELECT * FROM nebel WHERE system=",this.system," AND x=",x," AND y=",y);
 		
 		// EMP-Nebel?
 		if( !nebel.isEmpty() && (nebel.getInt("type") >= 3) && (nebel.getInt("type") <= 5) ) {
@@ -304,7 +304,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 				int range = scannertype.getInt("sensorrange");
 					
 				// Nebel?
-				nebel = db.first("SELECT id FROM nebel WHERE system=",this.system," AND x=",scanner.getInt("x")," AND y=",scanner.getInt("y"));
+				nebel = db.first("SELECT * FROM nebel WHERE system=",this.system," AND x=",scanner.getInt("x")," AND y=",scanner.getInt("y"));
 				if( !nebel.isEmpty() ) {
 					range = (int)Math.round(range/2d);	
 				}
@@ -446,8 +446,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 		//--------------------------------------
 		SQLQuery nebel = db.query("SELECT x,y,type " +
 				"FROM nebel " +
-				"WHERE system=",this.system," AND (x BETWEEN 1 AND ",sys.getWidth(),") AND (y BETWEEN 1 AND ",sys.getHeight(),") " +
-				"ORDER BY id");
+				"WHERE system=",this.system," AND (x BETWEEN 1 AND ",sys.getWidth(),") AND (y BETWEEN 1 AND ",sys.getHeight(),") ");
 		while( nebel.next() ) {
 			int neb = 0;
 			switch( nebel.getInt("type") ) {

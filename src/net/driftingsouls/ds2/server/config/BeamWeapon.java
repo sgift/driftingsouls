@@ -21,6 +21,9 @@ package net.driftingsouls.ds2.server.config;
 import org.w3c.dom.Node;
 
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.AbstractShipTypeDataWrapper;
+import net.driftingsouls.ds2.server.ships.ShipType;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
  * Ein Strahlengeschuetz in DS
@@ -46,5 +49,34 @@ public class BeamWeapon extends Weapon {
 			return true;
 		}
 		return false;
+	}
+	
+	@Override
+	public ShipTypeData calcEnemyShipType(ShipTypeData ownShipType, ShipTypeData enemyShipType) {
+		ShipTypeData enemy = super.calcEnemyShipType(ownShipType, enemyShipType);
+		
+		if( (enemyShipType.getSize() > ShipType.SMALL_SHIP_MAXSIZE) && (enemyShipType.getSize() < ownShipType.getSize() - 6 ) ) {
+			enemy = new ShipTypeWrapper(enemy, ownShipType.getSize() - 6);
+		}
+		return enemy;
+	}
+	
+	private static class ShipTypeWrapper extends AbstractShipTypeDataWrapper {
+		private int size;
+
+		ShipTypeWrapper(ShipTypeData inner, int size) {
+			super(inner);
+			this.size = size;
+		}
+
+		@Override
+		public int getSize() {
+			return this.size;
+		}
+		
+		@Override
+		public Object clone() throws CloneNotSupportedException {
+			return super.clone();
+		}
 	}
 }

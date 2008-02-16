@@ -89,7 +89,7 @@ public class ScanController extends TemplateGenerator {
 			int range = shiptype.getInt("sensorrange");
 	
 			// Sollte das Schiff in einem Nebel stehen -> halbe Scannerreichweite
-			SQLResultRow nebel = db.first("SELECT id,type FROM nebel WHERE x=",ship.getInt("x")," AND y=",ship.getInt("y")," AND system=",ship.getInt("system"));
+			SQLResultRow nebel = db.first("SELECT * FROM nebel WHERE x=",ship.getInt("x")," AND y=",ship.getInt("y")," AND system=",ship.getInt("system"));
 			if( !nebel.isEmpty() ) {
 				switch( nebel.getInt("type") ) {
 				// Norm. Deut, DMG
@@ -186,7 +186,7 @@ public class ScanController extends TemplateGenerator {
 		
 		boolean scanableNebel = false;
 	
-		SQLResultRow nebel = db.first("SELECT id,type FROM nebel WHERE x=",scanx," AND y=",scany," AND system="+system);
+		SQLResultRow nebel = db.first("SELECT * FROM nebel WHERE x=",scanx," AND y=",scany," AND system="+system);
 		if( !this.admin && !nebel.isEmpty() && ((nebel.getInt("type") < 3) || (nebel.getInt("type") > 5)) ) {
 			SQLQuery nebelship = db.query("SELECT id,status,type,sensors,crew FROM ships WHERE id>0 AND x=",scanx," AND y=",scany," AND system=",system," AND owner=",user.getId()," AND sensors > 30");
 			while( nebelship.next() ) {
@@ -209,13 +209,13 @@ public class ScanController extends TemplateGenerator {
 
 		if( !nebel.isEmpty() && !scanableNebel ) {
 			t.setVar(	"sector.nebel",			1,
-						"sector.nebel.id",		nebel.getInt("id"),
+						"sector.nebel.id",		"Nebel",
 						"sector.nebel.type",	nebel.getInt("type") );
 		}
 		else {
 			if( !nebel.isEmpty() ) {
 				t.setVar(	"sector.nebel",			1,
-							"sector.nebel.id",		nebel.getInt("id"),
+							"sector.nebel.id",		"Nebel",
 							"sector.nebel.type",	nebel.getInt("type") );
 			}
 			/*
@@ -339,7 +339,7 @@ public class ScanController extends TemplateGenerator {
 			
 			SQLQuery datas = db.query("SELECT s.id,s.owner,s.name,s.type,s.docked,s.status,u.name username,s.battle " ,
 					"FROM ships s JOIN users u ON s.owner=u.id " ,
-					"WHERE s.id>0 AND s.x=",scanx," AND s.y=",scany," AND s.system=",system," AND s.battle=0 AND " ,
+					"WHERE s.id>0 AND s.x=",scanx," AND s.y=",scany," AND s.system=",system," AND s.battle is null AND " ,
 						"(!(s.type IN (",Common.implode(",",verysmallshiptypes),")) OR LOCATE('tblmodules',s.status)) AND " ,
 						"(s.visibility IS NULL OR s.visibility='",user.getId(),"') AND !LOCATE('l ',s.docked) " ,
 						"ORDER BY s.id");
@@ -408,7 +408,7 @@ public class ScanController extends TemplateGenerator {
 		// Nebel
 		Map<Location,Integer> nebelmap = new HashMap<Location,Integer>();
 
-		SQLQuery nebelRow = db.query("SELECT id,x,y,type FROM nebel WHERE ",rangesql);
+		SQLQuery nebelRow = db.query("SELECT * FROM nebel WHERE ",rangesql);
 		while( nebelRow.next() ) {
 			nebelmap.put(new Location(ship.getInt("system"), nebelRow.getInt("x"), nebelRow.getInt("y")), nebelRow.getInt("type"));
 		}

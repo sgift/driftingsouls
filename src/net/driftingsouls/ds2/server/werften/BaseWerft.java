@@ -18,37 +18,52 @@
  */
 package net.driftingsouls.ds2.server.werften;
 
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Transient;
+
+import net.driftingsouls.ds2.server.Offizier;
+import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.bases.Building;
+import net.driftingsouls.ds2.server.bases.Werft;
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 /**
  * Repraesentiert eine Werft auf einer Basis in DS
  * @author Christopher Jung
  *
  */
+@Entity
+@DiscriminatorValue("base")
 public class BaseWerft extends WerftObject {
-	private int baseid;
+	@OneToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="col", nullable=false)
+	private Base base;
+	
+	@Transient
 	private int fieldid;
-	private int x = -1;
-	private int y = -1;
-	private String name = null;
-	private Integer size = null;
 
 	/**
 	 * Konstruktor
-	 * @param werftdata Die Werftdaten
-	 * @param werfttag Der Werfttag
-	 * @param system Das System in dem sich die Werft befindet
-	 * @param owner Der Besitzer der Werft
-	 * @param baseid Die ID der Basis, auf dem die Werft steht
-	 * @param fieldid Die Feld-ID auf der Basis oder -1, falls das Feld unbekannt ist
+	 *
 	 */
-	public BaseWerft(SQLResultRow werftdata, String werfttag, int system, int owner, int baseid, int fieldid) {
-		super( werftdata, werfttag, system, owner );
-		this.baseid = baseid;
-		this.fieldid = fieldid;
+	public BaseWerft() {
+		// EMPTY
+	}
+	
+	/**
+	 * Erstellt eine neue Werft
+	 * @param base Die Basis auf der die Werft stehen soll
+	 */
+	public BaseWerft(Base base) {
+		super(1);
+		this.base = base;
 	}
 	
 	/**
@@ -56,7 +71,7 @@ public class BaseWerft extends WerftObject {
 	 * @return Die ID der Basis
 	 */
 	public int getBaseID() {
-		return this.baseid;
+		return this.base.getId();
 	}
 	
 	/**
@@ -67,59 +82,49 @@ public class BaseWerft extends WerftObject {
 	public int getBaseField() {
 		return this.fieldid;
 	}
-
-	@Override
-	public int getWerftType() {
-		return WerftObject.BUILDING;
+	
+	/**
+	 * Setzt die Feld-ID, auf dem die Werft steht.
+	 * @param field Die Feld-ID oder -1
+	 */
+	public void setBaseField(int field) {
+		this.fieldid = field;
 	}
 	
 	@Override
 	public Cargo getCargo(boolean localonly) {
-		Database db = ContextMap.getContext().getDatabase();
-		
-		Cargo cargo = new Cargo( Cargo.Type.STRING, db.first("SELECT cargo FROM bases WHERE id>0 AND id=",baseid).getString("cargo"));
-	
-		return cargo;
+		return base.getCargo();
 	}
 	
 	@Override
 	public void setCargo(Cargo cargo, boolean localonly) {
-		Database db = ContextMap.getContext().getDatabase();
-		db.update("UPDATE bases SET cargo='",cargo.save(),"' WHERE id=",this.baseid);
+		base.setCargo(cargo);
 	}
 	
 	@Override
 	public long getMaxCargo( boolean localonly ) {
-		Database db = ContextMap.getContext().getDatabase();
-		return db.first("SELECT maxcargo FROM bases WHERE id=",this.baseid).getLong("maxcargo");
+		return base.getMaxCargo();
 	}
 	
 	@Override
 	public int getCrew() {
-		Database db = ContextMap.getContext().getDatabase();
-		SQLResultRow base = db.first("SELECT bewohner,arbeiter FROM bases WHERE id=",this.baseid);
-		return (base.getInt("bewohner")-base.getInt("arbeiter"));
+		return base.getBewohner()-base.getArbeiter();
 	}
 	
 	@Override
 	public int getMaxCrew() {
-		return 9999;
+		return Integer.MAX_VALUE;
 	}
 	
 	@Override
-	public void setCrew(int crew) {
-		Database db = ContextMap.getContext().getDatabase();
-		
-		int arbeiter = db.first("SELECT arbeiter FROM bases WHERE id=",this.baseid).getInt("arbeiter");
-
-		int bewohner = crew + arbeiter;
-		db.update("UPDATE bases SET bewohner='",bewohner,"' WHERE id=",this.baseid);
+	public void setCrew(int crew) {	
+		int bewohner = crew + base.getArbeiter();
+		base.setBewohner(bewohner);
 	}
 	
 	@Override
 	public int getEnergy() {
-		Database db = ContextMap.getContext().getDatabase();
-		return db.first("SELECT e FROM bases WHERE id=",this.baseid).getInt("e");
+		return base.getEnergy();
 	}
 	
 	@Override
@@ -128,68 +133,100 @@ public class BaseWerft extends WerftObject {
 			throw new RuntimeException("ERROR: BaseWerft.setEnergy(): e ("+e+") kleiner 0");
 		}
 
-		Database db = ContextMap.getContext().getDatabase();
-		db.update("UPDATE bases SET e='",e,"' WHERE id=",this.baseid);
+		base.setEnergy(e);
 	}
 	
 	@Override
 	public int canTransferOffis() {
-		return 9999;
+		return Integer.MAX_VALUE;
 	}
 	
 	@Override
 	public void transferOffi(int offi) {
-		Database db = ContextMap.getContext().getDatabase();
-		db.update("UPDATE offiziere SET dest='b ",this.baseid,"' WHERE id=",offi);
+		Offizier offizier = Offizier.getOffizierByID(offi);
+		offizier.setDest("b", this.base.getId());
 	}
 	
 	@Override
 	public String getUrlBase() {
-		if( fieldid == -1 ) {
+		if( this.fieldid == -1 ) {
 			throw new RuntimeException("BaseWerft: Werftfeld nicht gesetzt");
 		}
-		return "./main.php?module=building&amp;col="+baseid+"&amp;field="+fieldid;
+		return "./ds?module=building&amp;col="+this.base.getId()+"&amp;field="+fieldid;
 	}
 
 	@Override
 	public String getFormHidden() {
-		if( fieldid == -1 ) {
+		if( this.fieldid == -1 ) {
 			throw new RuntimeException("BaseWerft: Werftfeld nicht gesetzt");
 		}
-		return "<input type=\"hidden\" name=\"col\" value=\""+baseid+"\" />\n"+
+		return "<input type=\"hidden\" name=\"col\" value=\""+this.base.getId()+"\" />\n"+
 			"<input type=\"hidden\" name=\"field\" value=\""+fieldid+"\" />\n"+
 			"<input type=\"hidden\" name=\"module\" value=\"building\" />\n";
+	}
+	
+	@Override
+	public int getWerftSlots() {
+		return 6;
 	}
 
 	@Override
 	public int getX() {
-		if( x == -1 ) {
-			x = ContextMap.getContext().getDatabase().first("SELECT x FROM bases WHERE id>0 AND id=",baseid).getInt("x");
-		}
-		return x;
+		return base.getX();
 	}
 
 	@Override
 	public int getY() {
-		if( y == -1 ) {
-			y = ContextMap.getContext().getDatabase().first("SELECT y FROM bases WHERE id>0 AND id=",baseid).getInt("y");
-		}
-		return y;
+		return base.getY();
+	}
+	
+	@Override
+	public int getSystem() {
+		return this.base.getSystem();
+	}
+	
+	@Override
+	public User getOwner() {
+		return this.base.getOwner();
 	}
 	
 	@Override
 	public String getName() {
-		if( name == null ) {
-			name = ContextMap.getContext().getDatabase().first("SELECT name FROM bases WHERE id>0 AND id=",baseid).getString("name");
-		}
-		return name;
+		return base.getName();
 	}
 	
 	@Override
 	public int getSize() {
-		if( size == null ) {
-			size = ContextMap.getContext().getDatabase().first("SELECT size FROM bases WHERE id>0 AND id=",baseid).getInt("size");
+		return base.getSize();
+	}
+
+	@Override
+	public String getWerftPicture() {
+		if( fieldid != -1 ) {
+			Building building = Building.getBuilding(base.getBebauung()[fieldid]);
+			return building.getPicture();
 		}
-		return size;
+		
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		Werft building = (Werft)db.createQuery("from WerftBuilding")
+			.setMaxResults(1)
+			.uniqueResult();
+		
+		return building.getPicture();
+	}
+
+	@Override
+	public String getWerftName() {
+		return base.getName();
+	}
+
+	@Override
+	public boolean isLinkableWerft() {
+		return false;
+	}
+
+	@Override
+	public String getObjectUrl() {
+		return Common.buildUrl("default", "module", "base", "col", base.getId());
 	}
 }

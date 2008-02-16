@@ -195,7 +195,7 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 		return inner.getWeapons();
 	}
 
-	public String getWerft() {
+	public int getWerft() {
 		return inner.getWerft();
 	}
 

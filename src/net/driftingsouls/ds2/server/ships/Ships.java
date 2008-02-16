@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.ships;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -30,19 +29,13 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.cargo.modules.Module;
-import net.driftingsouls.ds2.server.cargo.modules.Modules;
-import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.ItemEffect;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -54,8 +47,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.deprecated.CacheMap;
 import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.scripting.ScriptParser;
-import net.driftingsouls.ds2.server.tasks.Task;
-import net.driftingsouls.ds2.server.tasks.Taskmanager;
+import net.driftingsouls.ds2.server.ships.Ship.DockMode;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -222,320 +214,6 @@ public class Ships implements Loggable {
 		return statusString;
 	}
 	
-	/**
-	 * Gibt die Moduleintraege eines Schiffes zurueck
-	 * @param ship Eine SQL-Ergebniszeile mit den Daten des Schiffes
-	 * @return Eine Liste von Moduleintraegen
-	 */
-	public static ModuleEntry[] getModules( SQLResultRow ship ) {
-		Database db = ContextMap.getContext().getDatabase();
-		
-		List<ModuleEntry> result = new ArrayList<ModuleEntry>();
-		
-		if( ship.getString("status").indexOf("tblmodules") == -1 ) {
-			return new ModuleEntry[0];
-		}
-		SQLResultRow moduletbl = db.first("SELECT * FROM ships_modules WHERE id='",ship.getInt("id"),"'");	
-		if( moduletbl.isEmpty() ) {
-			LOG.warn("Keine Modultabelle fuer Schiff "+ship.getInt("id")+" vorhanden");
-			return new ModuleEntry[0];
-		}
-		
-		if( moduletbl.getString("modules").length() != 0 ) {
-			String[] modulelist = StringUtils.split(moduletbl.getString("modules"), ';');
-			if( modulelist.length != 0 ) {
-				for( int i=0; i < modulelist.length; i++ ) {
-					String[] module = StringUtils.split(modulelist[i], ':');
-					result.add(new ModuleEntry(Integer.parseInt(module[0]), Integer.parseInt(module[1]), module[2]));	
-				}
-			}
-		}
-		
-		return result.toArray(new ModuleEntry[result.size()]);
-	}
-	
-	/**
-	 * Fuegt ein Modul in ein Schiff ein
-	 * @param ship Das Schiff
-	 * @param slot Der Slot, in den das Modul eingebaut werden soll
-	 * @param moduleid Die Typen-ID des Modultyps
-	 * @param data Weitere Daten, welche das Modul identifizieren
-	 */
-	public static void addModule( SQLResultRow ship, int slot, int moduleid, String data ) {
-		Database db = ContextMap.getContext().getDatabase();
-
-		if( ship.getString("status").indexOf("tblmodules") == -1 ) {
-			db.update("INSERT INTO ships_modules (id) VALUES ('",ship.getInt("id"),"')");
-			if( ship.getString("status").length() != 0 ) {
-				ship.put("status", ship.getString("status")+" tblmodules");	
-			}	
-			else {
-				ship.put("status", "tblmodules");	
-			}
-			db.update("UPDATE ships SET status='",ship.getString("status"),"' WHERE id>0 AND id='",ship.getInt("id"),"'");
-		}
-		String oldModuleTbl = db.first("SELECT modules FROM ships_modules WHERE id='",ship.getInt("id"),"'").getString("modules");	
-		List<ModuleEntry> moduletbl = new ArrayList<ModuleEntry>();
-		moduletbl.addAll(Arrays.asList(getModules(ship)));
-				
-		//check modules
-		
-		//rebuild
-		moduletbl.add(new ModuleEntry(slot, moduleid, data ));
-		
-		SQLResultRow type = ShipTypes.getShipType( ship.getInt("type"), false, true );
-		SQLResultRow basetype = new SQLResultRow();
-		basetype.putAll(type);
-		
-		Map<Integer,String[]>slotlist = new HashMap<Integer,String[]>();
-		String[] tmpslotlist = StringUtils.splitPreserveAllTokens(type.getString("modules"), ';');
-		for( int i=0; i < tmpslotlist.length; i++ ) {
-			String[] aslot = StringUtils.splitPreserveAllTokens(tmpslotlist[i], ':');
-			slotlist.put(Integer.parseInt(aslot[0]), aslot);
-		}
-		
-		List<Module> moduleobjlist = new ArrayList<Module>();
-		List<String> moduleSlotData = new ArrayList<String>(); 
-		
-		for( int i=0; i < moduletbl.size(); i++ ) {
-			ModuleEntry module = moduletbl.get(i);
-			if( module.moduleType != 0 ) {
-				Module moduleobj = Modules.getShipModule( module );
-				if( (module.slot > 0) && (slotlist.get(module.slot).length > 2) ) {
-					moduleobj.setSlotData(slotlist.get(module.slot)[2]);
-				}
-				moduleobjlist.add(moduleobj);
-			
-				moduleSlotData.add(module.slot+":"+module.moduleType+":"+module.data);
-			}
-		}
-		
-		for( int i=0; i < moduleobjlist.size(); i++ ) {
-			type = moduleobjlist.get(i).modifyStats( type, basetype, moduleobjlist );		
-		}
-		
-		String modulelist = Common.implode(";",moduleSlotData);
-	
-		db.tUpdate(1,"UPDATE ships_modules ",
-				"SET modules='",modulelist,"'," ,
-				"nickname='",type.getString("nickname"),"'," ,
-				"picture='",type.getString("picture"),"',",
-				"ru='",type.getInt("ru"),"'," ,
-				"rd='",type.getInt("rd"),"'," ,
-				"ra='",type.getInt("ra"),"'," ,
-				"rm='",type.getInt("rm"),"'," ,
-				"eps='",type.getInt("eps"),"'," ,
-				"cost='",type.getInt("cost"),"'," ,
-				"hull='",type.getInt("hull"),"'," ,
-				"panzerung='",type.getInt("panzerung"),"'," ,
-				"cargo='",type.getLong("cargo"),"'," ,
-				"heat='",type.getInt("heat"),"'," ,
-				"crew='",type.getInt("crew"),"'," ,
-				"weapons='",type.getString("weapons"),"'," ,
-				"maxheat='",type.getString("maxheat"),"'," ,
-				"torpedodef='",type.getInt("torpedodef"),"'," ,
-				"shields='",type.getInt("shields"),"'," ,
-				"size='",type.getInt("size"),"'," ,
-				"jdocks='",type.getInt("jdocks"),"'," ,
-				"adocks='",type.getInt("adocks"),"'," ,
-				"sensorrange='",type.getInt("sensorrange"),"'," ,
-				"hydro='",type.getInt("hydro"),"'," ,
-				"deutfactor='",type.getInt("deutfactor"),"'," ,
-				"recost='",type.getInt("recost"),"',",
-				"flags='",type.getString("flags"),"'," ,
-				"werft='",type.getString("werft"),"'," ,
-				"ow_werft='",type.getInt("ow_werft"),"'" ,
-				" WHERE id='",ship.getInt("id"),"' AND modules='",oldModuleTbl,"'");					
-	}
-	
-	/**
-	 * Entfernt ein Modul aus einem Schiff
-	 * @param ship Das Schiff
-	 * @param slot Der Slot, aus dem das Modul entfernt werden soll
-	 * @param moduleid Die Typen-ID des Modultyps
-	 * @param data Weitere Daten, welche das Modul identifizieren
-	 */
-	public static void removeModule( SQLResultRow ship, int slot, int moduleid, String data ) {	
-		Database db = ContextMap.getContext().getDatabase();
-		
-		if( ship.getString("status").indexOf("tblmodules") == -1 ) {
-			return;
-		}
-		String oldModuleTbl = db.first("SELECT modules FROM ships_modules WHERE id='",ship.getInt("id"),"'").getString("modules");
-		List<ModuleEntry> moduletbl = new ArrayList<ModuleEntry>();
-		moduletbl.addAll(Arrays.asList(getModules(ship)));
-		
-		//check modules
-		
-		//rebuild	
-		SQLResultRow type = ShipTypes.getShipType( ship.getInt("type"), false, true );
-		SQLResultRow basetype = new SQLResultRow();
-		basetype.putAll(type);
-		
-		Map<Integer,String[]>slotlist = new HashMap<Integer,String[]>();
-		String[] tmpslotlist = StringUtils.split(type.getString("modules"), ';');
-		for( int i=0; i < tmpslotlist.length; i++ ) {
-			String[] aslot = StringUtils.split(tmpslotlist[i], ':');
-			slotlist.put(Integer.parseInt(aslot[0]), aslot);
-		}
-		
-		List<Module> moduleobjlist = new ArrayList<Module>();
-		List<String> moduleSlotData = new ArrayList<String>(); 
-		
-		for( int i=0; i < moduletbl.size(); i++ ) {
-			ModuleEntry module = moduletbl.get(i);
-			if( module.moduleType != 0 ) {
-				Module moduleobj = Modules.getShipModule( module );
-				
-				if( moduleobj.isSame(slot, moduleid, data) ) {
-					continue;
-				}
-				
-				if( (module.slot > 0) && (slotlist.get(module.slot).length > 2) ) {
-					moduleobj.setSlotData(slotlist.get(module.slot)[2]);
-				}
-				moduleobjlist.add(moduleobj);
-			
-				moduleSlotData.add(module.slot+":"+module.moduleType+":"+module.data);
-			}
-		}
-
-		for( int i=0; i < moduleobjlist.size(); i++ ) {
-			type = moduleobjlist.get(i).modifyStats( type, basetype, moduleobjlist );		
-		}
-		
-		if( moduleSlotData.size() > 0 ) {
-			String modulelist = Common.implode(";",moduleSlotData);
-			
-			db.tUpdate(1,"UPDATE ships_modules ",
-					"SET modules='",modulelist,"'," ,
-					"nickname='",type.getString("nickname"),"'," ,
-					"picture='",type.getString("picture"),"',",
-					"ru='",type.getInt("ru"),"'," ,
-					"rd='",type.getInt("rd"),"'," ,
-					"ra='",type.getInt("ra"),"'," ,
-					"rm='",type.getInt("rm"),"'," ,
-					"eps='",type.getInt("eps"),"'," ,
-					"cost='",type.getInt("cost"),"'," ,
-					"hull='",type.getInt("hull"),"'," ,
-					"panzerung='",type.getInt("panzerung"),"'," ,
-					"cargo='",type.getLong("cargo"),"'," ,
-					"heat='",type.getInt("heat"),"'," ,
-					"crew='",type.getInt("crew"),"'," ,
-					"weapons='",type.getString("weapons"),"'," ,
-					"maxheat='",type.getString("maxheat"),"'," ,
-					"torpedodef='",type.getInt("torpedodef"),"'," ,
-					"shields='",type.getInt("shields"),"'," ,
-					"size='",type.getInt("size"),"'," ,
-					"jdocks='",type.getInt("jdocks"),"'," ,
-					"adocks='",type.getInt("adocks"),"'," ,
-					"sensorrange='",type.getInt("sensorrange"),"'," ,
-					"hydro='",type.getInt("hydro"),"'," ,
-					"deutfactor='",type.getInt("deutfactor"),"'," ,
-					"recost='",type.getInt("recost"),"',",
-					"flags='",type.getString("flags"),"'," ,
-					"werft='",type.getString("werft"),"'," ,
-					"ow_werft='",type.getInt("ow_werft"),"'" ,
-					" WHERE id='",ship.getInt("id"),"' AND modules='",oldModuleTbl,"'");	
-		}
-		else {
-			db.update("DELETE FROM ships_modules WHERE id=",ship.getInt("id"));
-			String[] status = StringUtils.split(ship.getString("status"), ' ');
-			String[] newstatus = new String[status.length-1];
-			
-			for( int i=0,j=0; i < status.length; i++ ) {
-				if( !status[i].equals("tblmodules") ) {
-					newstatus[j++] = status[i];	
-				}	
-			}
-	
-			db.update("UPDATE ships SET status='",Common.implode(" ",newstatus),"' WHERE id>0 AND id=",ship.getInt("id"));
-		}
-	}
-	
-	/**
-	 * Berechnet die durch Module verursachten Effekte eines Schiffes neu
-	 * @param ship Das Schiff, dessen Moduleffekte neuberechnet werden sollen
-	 */
-	public static void recalculateModules( SQLResultRow ship ) {
-		Database db = ContextMap.getContext().getDatabase();
-		
-		if( ship.getString("status").indexOf("tblmodules") == -1 ) {
-			return;
-		}
-		String oldModuleTbl = db.first("SELECT modules FROM ships_modules WHERE id='",ship.getInt("id"),"'").getString("modules");
-		List<ModuleEntry> moduletbl = new ArrayList<ModuleEntry>();
-		moduletbl.addAll(Arrays.asList(getModules(ship)));
-		
-		//check modules
-		
-		//rebuild	
-		SQLResultRow type = ShipTypes.getShipType( ship.getInt("type"), false, true );
-		SQLResultRow basetype = new SQLResultRow();
-		basetype.putAll(type);
-		
-		Map<Integer,String[]>slotlist = new HashMap<Integer,String[]>();
-		String[] tmpslotlist = StringUtils.split(type.getString("modules"), ';');
-		for( int i=0; i < tmpslotlist.length; i++ ) {
-			String[] aslot = StringUtils.split(tmpslotlist[i], ':');
-			slotlist.put(Integer.parseInt(aslot[0]), aslot);
-		}
-		
-		List<Module> moduleobjlist = new ArrayList<Module>();
-		List<String> moduleSlotData = new ArrayList<String>(); 
-		
-		for( int i=0; i < moduletbl.size(); i++ ) {
-			ModuleEntry module = moduletbl.get(i);
-			if( module.moduleType != 0 ) {
-				Module moduleobj = Modules.getShipModule( module );
-				
-				if( (module.slot > 0) && (slotlist.get(module.slot).length > 2) ) {
-					moduleobj.setSlotData(slotlist.get(module.slot)[2]);
-				}
-				moduleobjlist.add(moduleobj);
-			
-				moduleSlotData.add(module.slot+":"+module.moduleType+":"+module.data);
-			}
-		}
-
-		for( int i=0; i < moduleobjlist.size(); i++ ) {
-			type = moduleobjlist.get(i).modifyStats( type, basetype, moduleobjlist );		
-		}
-		
-		String modulelist = Common.implode(";",moduleSlotData);
-		
-		db.tUpdate(1,"UPDATE ships_modules ",
-				"SET modules='",modulelist,"'," ,
-				"nickname='",type.getString("nickname"),"'," ,
-				"picture='",type.getString("picture"),"',",
-				"ru='",type.getInt("ru"),"'," ,
-				"rd='",type.getInt("rd"),"'," ,
-				"ra='",type.getInt("ra"),"'," ,
-				"rm='",type.getInt("rm"),"'," ,
-				"eps='",type.getInt("eps"),"'," ,
-				"cost='",type.getInt("cost"),"'," ,
-				"hull='",type.getInt("hull"),"'," ,
-				"panzerung='",type.getInt("panzerung"),"'," ,
-				"cargo='",type.getLong("cargo"),"'," ,
-				"heat='",type.getInt("heat"),"'," ,
-				"crew='",type.getInt("crew"),"'," ,
-				"weapons='",type.getString("weapons"),"'," ,
-				"maxheat='",type.getString("maxheat"),"'," ,
-				"torpedodef='",type.getInt("torpedodef"),"'," ,
-				"shields='",type.getInt("shields"),"'," ,
-				"size='",type.getInt("size"),"'," ,
-				"jdocks='",type.getInt("jdocks"),"'," ,
-				"adocks='",type.getInt("adocks"),"'," ,
-				"sensorrange='",type.getInt("sensorrange"),"'," ,
-				"hydro='",type.getInt("hydro"),"'," ,
-				"deutfactor='",type.getInt("deutfactor"),"'," ,
-				"recost='",type.getInt("recost"),"',",
-				"flags='",type.getString("flags"),"'," ,
-				"werft='",type.getString("werft"),"'," ,
-				"ow_werft='",type.getInt("ow_werft"),"'" ,
-				" WHERE id='",ship.getInt("id"),"' AND modules='",oldModuleTbl,"'");	
-	}
-	
 	private static void handleRedAlert( SQLResultRow ship ) {
 		Integer[] attackers = redAlertCheck( ship, false );
 		
@@ -544,7 +222,7 @@ public class Ships implements Loggable {
 		if( attackers.length > 0 ) {
 			// Schauen wir mal ob wir noch ein Schiff mit rotem Alarm ohne Schlacht finden (sortiert nach Besitzer-ID)
 			SQLResultRow eship = db.first("SELECT id,owner FROM ships WHERE id>0 AND x=",ship.getInt("x")," AND y=",ship.getInt("y")," ",
-									"AND system=",ship.getInt("system")," AND `lock` IS NULL AND docked='' AND e>0 AND owner IN (",Common.implode(",",attackers),") AND alarm=1 AND !LOCATE('nocrew',status) AND battle=0 ORDER BY owner");
+									"AND system=",ship.getInt("system")," AND `lock` IS NULL AND docked='' AND e>0 AND owner IN (",Common.implode(",",attackers),") AND alarm=1 AND !LOCATE('nocrew',status) AND battle is null ORDER BY owner");
 				
 			if( !eship.isEmpty() ) {
 				Battle battle = new Battle();
@@ -873,7 +551,7 @@ public class Ships implements Loggable {
 			SQLQuery fleetshipRow = db.query("SELECT id,name,type,x,y,crew,e,s,engine,system,status,`lock` FROM ships ", 
 									"WHERE id>0 AND fleet=",ship.getInt("fleet")," AND x='",ship.getInt("x"),"' AND y='",ship.getInt("y"),"' ", 
 									"AND system='",ship.getInt("system"),"' AND owner='",ship.getInt("owner"),"' AND docked='' AND ",
-									"id!='",ship.getInt("id"),"' AND e>0 AND battle=0");
+									"id!='",ship.getInt("id"),"' AND e>0 AND battle is null");
 			while( fleetshipRow.next() ) {
 				if( verbose && firstEntry ) {
 					firstEntry = false;
@@ -1727,357 +1405,22 @@ public class Ships implements Loggable {
 	}
 	
 	/**
-	 * Die verschiedenen Dock-Aktionen
-	 */
-	public enum DockMode {
-		/**
-		 * Schiff extern docken
-		 */
-		DOCK,
-		/**
-		 * Schiff abdocken
-		 */
-		UNDOCK,
-		/**
-		 * Schiff landen
-		 */
-		LAND,
-		/**
-		 * Schiff starten
-		 */
-		START;
-	}
-	
-	/**
-	 * Schiffe an/abdocken sowie Jaeger landen/starten
-	 * @param mode Der Dock-Modus (Andocken, Abdocken usw)
-	 * @param owner der Besitzer (der Schiffe oder ein Spieler mit superdock-flag)
-	 * @param shipID das Ausgangs/Zielschiff
-	 * @param dockids ein Array mit Schiffsids, welche (ab)docken oder landen/starten sollen. <code>null</code>, falls alle Schiffe abgedockt/gestartet werden sollen
-	 * @return <code>true</code>, falls ein Fehler aufgetreten ist
-	 */
-	public static boolean dock(DockMode mode, int owner, int shipID, int[] dockids) {
-		StringBuilder outputbuffer = MESSAGE.get();
-		
-		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
-	
-		// Existiert das Schiff?
-		SQLResultRow ship = db.first("SELECT * FROM ships WHERE id>0 AND owner='",owner,"' AND id=",shipID);
-		if( ship.isEmpty() ) {
-			outputbuffer.append("<span style=\"color:red\">Fehler: Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen</span>\n");
-			return true;
-		}
-	
-		SQLResultRow shiptype = ShipTypes.getShipType(ship);
-	
-		//Alle bereits angedockten Schiffe laden
-		List<Integer> docked = new ArrayList<Integer>();
-		if( (mode == DockMode.UNDOCK || mode == DockMode.DOCK) && (shiptype.getInt("adocks") > 0) ) {
-			SQLQuery line = db.query("SELECT id FROM ships WHERE id>0 AND docked='",ship.getInt("id"),"'");
-			while( line.next() ){
-				docked.add(line.getInt("id"));
-			}
-			line.free();
-		}
-		
-		List<Integer> jdocked = new ArrayList<Integer>();
-		if( (mode == DockMode.LAND || mode == DockMode.START) && (shiptype.getInt("jdocks") > 0) ) {
-			SQLQuery line = db.query("SELECT id FROM ships WHERE id>0 AND docked='l ",ship.getInt("id"),"'");
-			while( line.next() ){
-				jdocked.add(line.getInt("id"));
-			}
-			line.free();
-		}
-	
-	
-		boolean superdock = false;
-		if( mode == DockMode.DOCK ) {
-			User auser = (User)context.getDB().get(User.class, owner);
-			superdock = auser.hasFlag(User.FLAG_SUPER_DOCK);
-		}
-	
-		List<Integer> targetships = null;
-		
-		if( (dockids != null) && (dockids.length > 0) ) {
-			targetships = new ArrayList<Integer>();
-			for( int i=0; i < dockids.length; i++ ) {
-				targetships.add(dockids[i]);
-			}
-		} 
-		else {
-			if( mode == DockMode.LAND || mode == DockMode.START ) { 
-				targetships = jdocked;
-			} else {
-				targetships = docked;
-			}
-		}
-		
-		if(targetships.size() == 0 ) {
-			outputbuffer.append("<span style=\"color:red\">Fehler: Es wurden keine passenden Schiffe gefunden</span><br />\n");
-			return false;
-		}
-	
-		List<SQLResultRow> tarShipList = new ArrayList<SQLResultRow>();
-		
-		SQLQuery tarShip = null;
-		if( mode != DockMode.START ) {
-			tarShip = db.query("SELECT * FROM ships WHERE id>0 AND id IN (",Common.implode(",", targetships),")");
-		} else {
-			tarShip = db.query("SELECT id,name FROM ships WHERE id>0 AND id IN (",Common.implode(",", targetships),")");
-		}
-		
-		Location shipLoc = Location.fromResult(ship);
-		
-		while( tarShip.next() ) {
-			SQLResultRow tarShipRow = tarShip.getRow();
-			tarShipList.add(tarShip.getRow());
-		
-			if( (mode == DockMode.DOCK) || (mode == DockMode.LAND) ) {
-				if( !shipLoc.sameSector(0, Location.fromResult(tarShipRow), 0) ) {
-					outputbuffer.append("<span style=\"color:red\">Fehler: Die Schiffe befinden sich nicht im selben Sektor</span><br />\n");
-					return true;
-				}
-				
-				if( (tarShip.getString("lock") != null) && tarShip.getString("lock").length() > 0 ) {
-					outputbuffer.append("<span style=\"color:red\">Fehler: Das Schiff ist an ein Quest gebunden</span><br />\n");
-					return true;
-				}
-		
-				if( (mode == DockMode.DOCK) && !superdock && (tarShip.getInt("owner") != owner) ) {
-					outputbuffer.append("<span style=\"color:red\">Fehler: Eines der aufzuladendenden Schiffe geh&ouml;rt nicht ihnen</span><br />\n");
-					return true;
-				}
-				
-				if( (mode == DockMode.DOCK) && (tarShip.getString("docked").length() != 0) ) {
-					outputbuffer.append("<span style=\"color:red\">Fehler: Eines der aufzuladendenden Schiffe ist bereits gedockt</span><br />\n");
-					return true;
-				}
-				
-				if( (mode == DockMode.LAND) && (tarShip.getInt("owner") != owner) ) {
-					outputbuffer.append("<span style=\"color:red\">Fehler: Eines der zu landenden Schiffe geh&ouml;rt nicht ihnen</span><br />\n");
-					return true;
-				}
-					
-				SQLResultRow tarShipType = ShipTypes.getShipType(tarShipRow);
-		
-				if( (mode == DockMode.DOCK) && !superdock && (tarShipType.getInt("size") > 2 ) ) {
-					outputbuffer.append("<span style=\"color:red\">Fehler: Eines der aufzuladendenden Schiffe ist zu gro&szlig;</span><br />\n");
-					return true;
-				}
-				
-				if( (mode == DockMode.LAND) && !ShipTypes.hasShipTypeFlag(tarShipType, ShipTypes.SF_JAEGER) ) {
-					outputbuffer.append("<span style=\"color:red\">Fehler: Eines der zu landenden Schiffe ist kein J&auml;ger</span><br />\n");
-					return true;
-				}
-			}
-		}
-		tarShip.free();
-		
-		if( tarShipList.isEmpty() ) {
-			outputbuffer.append("<span style=\"color:red\">Fehler: Keine passenden Schiffe gefunden</span><br />\n");
-			return true;
-		}
-	
-		if( (mode == DockMode.DOCK) && (shiptype.getInt("adocks") < docked.size()+tarShipList.size())  ) {
-			outputbuffer.append("<span style=\"color:red\">Fehler: Nicht gen&uuml;gend freier Andockplatz vorhanden</span><br />\n");
-			return true;
-		}
-		else if( (mode == DockMode.LAND) && (shiptype.getInt("jdocks") < jdocked.size()+tarShipList.size())  ) {
-			outputbuffer.append("<span style=\"color:red\">Fehler: Nicht gen&uuml;gend freier Landepl&auml;tze vorhanden</span><br />\n");
-			return true;
-		}
-		
-		//Namensliste bauen
-		StringBuilder tarNameList = new StringBuilder(tarShipList.size()*10);
-		for( int i=0; i < tarShipList.size(); i++ ) {
-			if( tarNameList.length() > 0 ) {
-				tarNameList.append(" ");
-			}
-			tarNameList.append("<a class=\"forschinfo\" style=\"font-size:12pt\" href=\"./main.php?module=schiff&sess="+context.getSession()+"&ship="+tarShipList.get(i).getInt("id")+"\">"+tarShipList.get(i).getString("name")+"</a> ("+tarShipList.get(i).getInt("id")+"),");
-		}
-		tarNameList.setLength(tarNameList.length()-1);
-	
-		//Schiff aufladen
-		if( mode == DockMode.DOCK ) {
-			db.tBegin();
-			outputbuffer.append(ship.getString("name")+" ("+ship.getInt("id")+") l&auml;dt "+tarNameList+" auf<br />\n");
-			db.update("UPDATE ships SET docked='",ship.getInt("id"),"' WHERE id>0 AND id IN ('",Common.implode("','",targetships),"')");
-			
-			Cargo cargo = new Cargo( Cargo.Type.STRING, ship.getString("cargo"));
-			
-			final String emptycargo = new Cargo().save();
-	
-			boolean gotmodule = false;
-	
-			for( int i=0; i < tarShipList.size(); i++ ) {
-				SQLResultRow aship = tarShipList.get(i);
-				SQLResultRow type = ShipTypes.getShipType( aship );
-				
-				if( type.getInt("class") != ShipClasses.CONTAINER.ordinal() ) {
-					continue;
-				}
-				gotmodule = true;
-				
-				Cargo dockcargo =  new Cargo( Cargo.Type.STRING, db.first("SELECT cargo FROM ships WHERE id>0 AND id=",aship.getInt("id")).getString("cargo"));
-				cargo.addCargo( dockcargo );
-				
-				if( !dockcargo.isEmpty() ) {
-					db.tUpdate(1,"UPDATE ships SET cargo='",emptycargo,"' WHERE id>0 AND id=",aship.getInt("id")," AND cargo='",dockcargo.save(true),"'");
-				}
-				
-				addModule( aship, 0, Modules.MODULE_CONTAINER_SHIP, aship.getInt("id")+"_"+(-type.getLong("cargo")) );
-				addModule( ship, 0, Modules.MODULE_CONTAINER_SHIP, aship.getInt("id")+"_"+type.getLong("cargo") );
-			}
-			
-			if( gotmodule && !cargo.save(true).equals(cargo.save()) ) {
-				db.tUpdate(1,"UPDATE ships SET cargo='",cargo.save(),"' WHERE id>0 AND id='",ship.getInt("id"),"' AND cargo='",cargo.save(true),"'");
-			}
-			if( !db.tCommit() ) {
-				outputbuffer.append("<span style=\"color:red\">Dockvorgang wegen Fehlfunktion der Dockklammern abgebrochen.<br />Bitte versuchen sie es erneut</span>");
-				return true;
-			}
-		}
-		//Schiff abladen
-		else if( mode == DockMode.UNDOCK ) {
-			db.tBegin();
-			outputbuffer.append(ship.getString("name")+" ("+ship.getInt("id")+") l&auml;dt "+tarNameList+" ab<br />\n");
-			db.update("UPDATE ships SET docked='' WHERE id>0 AND id IN ('",Common.implode("','", targetships),"')");
-			
-			boolean gotmodule = false;
-			
-			for( int i=0; i < tarShipList.size(); i++ ) {
-				SQLResultRow aship = tarShipList.get(i);
-				SQLResultRow type = ShipTypes.getShipType( aship );
-
-				if( type.getInt("class") != ShipClasses.CONTAINER.ordinal() ) {
-					continue;
-				}
-				gotmodule = true;
-				
-				removeModule( aship, 0, Modules.MODULE_CONTAINER_SHIP, Integer.toString(aship.getInt("id")) );		
-				removeModule( ship, 0, Modules.MODULE_CONTAINER_SHIP, Integer.toString(aship.getInt("id")) );
-			}
-			
-			if( gotmodule ) {
-				Cargo cargo = new Cargo(Cargo.Type.STRING, ship.getString("cargo"));
-				Cargo oldcargo = (Cargo)cargo.clone();
-			
-				// Schiffstyp neu abholen, da sich der Maxcargo geaendert hat
-				shiptype = ShipTypes.getShipType(ship);
-				
-				Cargo newcargo = cargo;
-				if( cargo.getMass() > shiptype.getLong("cargo") ) {
-					newcargo = cargo.cutCargo( shiptype.getLong("cargo") );	
-				}
-				else {
-					cargo = new Cargo();	
-				}
-				final String emptycargo = new Cargo().save();
-			
-				for( int i=0; i < tarShipList.size() && cargo.getMass() > 0; i++ ) {
-					SQLResultRow aship = tarShipList.get(i);
-					SQLResultRow ashiptype = ShipTypes.getShipType( aship );
-											
-					if( (ashiptype.getInt("class") == ShipClasses.CONTAINER.ordinal()) && (cargo.getMass() > 0) ) {
-						Cargo acargo = cargo.cutCargo( ashiptype.getLong("cargo") );
-						if( !acargo.isEmpty() ) {
-							db.tUpdate(1,"UPDATE ships SET cargo='",acargo.save(),"' WHERE id>0 AND id=",aship.getInt("id")," AND cargo='",emptycargo,"'");
-						}	
-					}
-				}
-				
-				if( !oldcargo.save().equals(newcargo.save()) ) {
-					db.tUpdate(1,"UPDATE ships SET cargo='",newcargo.save(),"' WHERE id>0 AND id=",ship.getInt("id")," AND cargo='",oldcargo.save(),"'");
-				}
-			}
-			if( !db.tCommit() ) {
-				outputbuffer.append("<span style=\"color:red\">Abdockvorgang wegen Fehlfunktion der Dockklammern abgebrochen.<br />Bitte versuchen sie es erneut</span>");
-				return true;
-			}
-		}
-		//Schiff landen
-		else if( mode == DockMode.LAND ) {
-			outputbuffer.append(tarNameList+" lande"+(tarShipList.size()>1?"n":"t")+" auf "+ship.getString("name")+" ("+ship.getInt("id")+")<br />\n");
-			db.update("UPDATE ships SET docked='l ",ship.getInt("id"),"' WHERE id>0 AND id IN (",Common.implode(",",targetships),")");
-		}
-		
-		//Schiff abladen
-		else if( mode == DockMode.START ) {
-			outputbuffer.append(tarNameList+" starte"+(tarShipList.size()>1?"n":"t")+" von "+ship.getString("name")+" ("+ship.getInt("id")+")<br />\n");
-			db.update("UPDATE ships SET docked='' WHERE id>0 AND id IN ("+Common.implode(",", targetships)+")");
-		}
-	
-		recalculateShipStatus(shipID);
-	
-		return false;
-	}
-	
-	/**
 	 * Entfernt das angegebene Schiff aus der Datenbank
 	 * @param shipid Die ID des Schiffes
 	 */
 	public static void destroy(int shipid) {
-		Database db = ContextMap.getContext().getDatabase();
-		
-		SQLResultRow ship = db.first("SELECT id,fleet,owner,docked,type,status,respawn FROM ships WHERE id='",shipid,"'");
-		
-		if( ship.isEmpty() ) {
-			return;	
-		}
-		
-		SQLResultRow user = db.first("SELECT id,flagschiff FROM users WHERE id='",ship.getInt("owner"),"'");	
+		Ship ship = (Ship)ContextMap.getContext().getDB().get(Ship.class, shipid);
+		ship.destroy();
+		MESSAGE.get().append(Ship.MESSAGE.getMessage());
+	}
 	
-		// Checken wir mal ob die Flotte danach noch bestehen darf....
-		if( ship.getInt("fleet") != 0 ) {
-			int fleetcount = db.first("SELECT count(*) count FROM ships WHERE fleet=",ship.getInt("fleet")).getInt("count");
-			if( fleetcount <= 2 ) {
-				db.update("DELETE FROM ship_fleets WHERE id=",ship.getInt("fleet"));
-				db.update("UPDATE ships SET fleet=0 WHERE fleet=",ship.getInt("fleet"));
-			}
-		}
-		
-		// Ist das Schiff selbst gedockt? -> Abdocken
-		if( !ship.getString("docked").equals("") && (ship.getString("docked").charAt(0) != 'l') ) {
-			dock( DockMode.UNDOCK, ship.getInt("owner"), Integer.parseInt(ship.getString("docked")), new int[] {ship.getInt("id")} );
-		}
-	
-		// Wenn es das Flagschiff ist -> Flagschiff auf 0 setzen
-		if( ship.getInt("id") == user.getInt("flagschiff") ) {
-			db.update("UPDATE users SET flagschiff=null WHERE id=",ship.getInt("owner"));
-		}
-		
-		// Evt. gedockte Schiffe abdocken
-		SQLResultRow type = ShipTypes.getShipType( ship );
-		if( type.getInt("adocks") != 0 ) {
-			dock( DockMode.UNDOCK, ship.getInt("owner"), ship.getInt("id"), null );	
-		}
-		if( type.getInt("jdocks") != 0 ) {
-			dock( DockMode.START, ship.getInt("owner"), ship.getInt("id"), null );	
-		}
-		
-		// Gibts bereits eine Loesch-Task? Wenn ja, dann diese entfernen
-		Taskmanager taskmanager = Taskmanager.getInstance();
-		Task[] tasks = taskmanager.getTasksByData( Taskmanager.Types.SHIP_DESTROY_COUNTDOWN, Integer.toString(ship.getInt("id")), "*", "*");
-		for( int i=0; i < tasks.length; i++ ) {
-			taskmanager.removeTask(tasks[i].getTaskID());	
-		}
-		
-		// Falls eine respawn-Zeit gesetzt ist und ein Respawn-Image existiert -> respawn-Task setzen
-		if( ship.getInt("respawn") != 0 ) {
-			int negid = db.first("SELECT id FROM ships WHERE id='",(-shipid),"'").getInt("id");
-			if( negid < 0 ) {
-				taskmanager.addTask(Taskmanager.Types.SHIP_RESPAWN_COUNTDOWN, ship.getInt("respawn"), Integer.toString(negid), "", "");	
-			}
-		}
-	
-		// Und nun loeschen wir es...
-		db.update("DELETE FROM offiziere WHERE dest='s ",ship.getInt("id"),"'");
-		db.update("DELETE FROM jumps WHERE shipid=",ship.getInt("id"));
-		
-		db.update("DELETE FROM werften WHERE shipid=",ship.getInt("id"));
-		db.update("DELETE FROM ships_modules WHERE id=",ship.getInt("id"));
-		db.update("DELETE FROM ships WHERE id=",ship.getInt("id"));
+	/**
+	 * Gibt die SQLResultRow als Schiffsobjekt zurueck
+	 * @param row Die SQLResultRow
+	 * @return Das Objekt
+	 */
+	public static Ship getAsObject(SQLResultRow row) {
+		return (Ship)ContextMap.getContext().getDB().get(Ship.class, row.getInt("id"));
 	}
 	
 	/**
@@ -2088,110 +1431,9 @@ public class Ships implements Loggable {
 	 * @param destroyer Die ID des Spielers, der es zerstoert hat
 	 */
 	public static void generateLoot( int shipid, int destroyer ) {
-		Database db = ContextMap.getContext().getDatabase();
-		
-		SQLResultRow ship = db.first("SELECT id,owner,x,y,system,history,type,status FROM ships WHERE id>0 AND id="+shipid);
-		
-		SQLResultRow shiptype = ShipTypes.getShipType( ship );
-	
-		int rnd = RandomUtils.nextInt(101);
-		
-		// Gibts was zu looten?
-		if( rnd > shiptype.getInt("chance4Loot") ) {
-			return;
-		}
-		
-		// History analysieren (Alle Schiffe die erst kuerzlich uebergeben wurden, haben kein Loot)
-		// TODO: Das funktioniert im Moment nur, weil im Log nur Uebergaben stehen...
-		String[] history = StringUtils.split(ship.getString("history").trim(), '\n');
-		if( history.length > 0 ) {
-			String lastHistory = history[history.length-1].trim();
-			
-			final int length = "&Uuml;bergeben am [tick=".length();
-			
-			if( lastHistory.startsWith("&Uuml;bergeben am [tick=") ) {
-				int endIndex = lastHistory.indexOf("] an ",length);
-				if( endIndex > -1 ) {				
-					try {
-						int date = Integer.parseInt(
-								lastHistory.substring(
-										length,
-										endIndex
-								)
-						);
-						
-						if( ContextMap.getContext().get(ContextCommon.class).getTick() - date < 49 ) {
-							return;
-						}
-					}
-					catch( StringIndexOutOfBoundsException e ) {
-						LOG.warn("[Ships.generateLoot] Fehler beim Parsen des Schiffshistoryeintrags '"+lastHistory+"' - "+length+", "+endIndex);
-					}
-				}
-				else {
-					LOG.warn("[Ships.generateLoot] Fehler beim Parsen des Schiffshistoryeintrags '"+lastHistory+"'");
-				}
-			}
-		}	
-		
-		// Moeglichen Loot zusammensuchen
-		List<SQLResultRow> loot = new ArrayList<SQLResultRow>();
-		int maxchance = 0;
-		
-		SQLQuery lootHandle = db.query("SELECT id,chance,resource,count,totalmax " ,
-				"FROM ship_loot " ,
-				"WHERE owner='",ship.getInt("owner"),"' AND shiptype IN ('",ship.getInt("type"),"','-",ship.getInt("id"),"') AND targetuser IN ('0','",destroyer,"') AND totalmax!=0");
-				
-		while( lootHandle.next() ) {
-			maxchance += lootHandle.getInt("chance");
-			loot.add(lootHandle.getRow());
-		}
-		lootHandle.free();
-	
-		if( loot.size() == 0 ) {
-			return;	
-		}
-		
-		// Und nun den Loot generieren
-		Cargo cargo = new Cargo();
-		
-		for( int i=0; i <= Configuration.getIntSetting("CONFIG_TRUEMER_MAXITEMS"); i++ ) {
-			rnd = RandomUtils.nextInt(maxchance+1);
-			int currentchance = 0;
-			for( int j=0; j < loot.size(); j++ ) {
-				SQLResultRow aloot = loot.get(j);
-				if( aloot.getInt("chance") + currentchance > rnd ) {
-					if( aloot.getInt("totalmax") > 0 ) {
-						aloot.put("totalmax", aloot.getInt("totalmax")-1);
-											
-						db.update("UPDATE ship_loot SET totalmax='",aloot.getInt("totalmax"),"' WHERE id='",aloot.getInt("id"),"'");	
-					}
-					cargo.addResource( Resources.fromString(aloot.getString("resource")), aloot.getLong("count") );
-					break;	
-				}	
-				
-				currentchance += aloot.getInt("chance");
-			}
-			
-			rnd = RandomUtils.nextInt(101);
-		
-			// Gibts nichts mehr zu looten?
-			if( rnd > shiptype.getInt("chance4Loot") ) {
-				break;
-			}
-		}
-		
-		// Truemmer-Schiff hinzufuegen und entfernen-Task setzen
-		db.update("INSERT INTO ships ",
-				"(owner,name,type,cargo,x,y,system,hull,visibility) ",
-				"VALUES ",
-				"('-1','Tr&uuml;mmerteile',",Configuration.getIntSetting("CONFIG_TRUEMMER"),",'",cargo.save(),"','",
-				ship.getInt("x"),"','",ship.getInt("y"),"','",ship.getInt("system"),"','",
-				Configuration.getIntSetting("CONFIG_TRUEMMER_HUELLE"),"','",destroyer,"')");
-				
-		Taskmanager.getInstance().addTask(Taskmanager.Types.SHIP_DESTROY_COUNTDOWN, 21, Integer.toString(db.insertID()), "", "" );
-				
-		return;
+		Ship ship = (Ship)ContextMap.getContext().getDB().get(Ship.class, shipid);
+		ship.generateLoot(destroyer);
+		MESSAGE.get().append(Ship.MESSAGE.getMessage());
 	}
 	
 	/**
@@ -2204,87 +1446,10 @@ public class Ships implements Loggable {
 	 * @return <code>true</code>, falls ein Fehler bei der Uebergabe aufgetaucht ist (Uebergabe nicht erfolgreich)
 	 */
 	public static boolean consign( User user, SQLResultRow ship, User newowner, boolean testonly ) {
-		if( newowner.getId() == 0 ) {
-			MESSAGE.get().append("Der angegebene Spieler existiert nicht");
-			return true;
-		}
+		boolean result = getAsObject(ship).consign(newowner, testonly);
+		MESSAGE.get().append(Ship.MESSAGE.getMessage());
 		
-		if( (newowner.getVacationCount() != 0) && (newowner.getWait4VacationCount() == 0) ) {
-			MESSAGE.get().append("Sie k&ouml;nnen keine Schiffe an Spieler &uuml;bergeben, welche sich im Vacation-Modus befinden");
-			return true;
-		}
-			
-		if( newowner.hasFlag( User.FLAG_NO_SHIP_CONSIGN ) ) {
-			MESSAGE.get().append("Sie k&ouml;nnen diesem Spieler keine Schiffe &uuml;bergeben");
-		}
-		
-		if( ship.getString("lock").length() != 0 ) {
-			MESSAGE.get().append("Die '"+ship.getString("name")+"'("+ship.getInt("id")+") kann nicht &uuml;bergeben werden, da diese in ein Quest eingebunden ist");
-			return true;
-		}
-		
-		if( ship.getString("status").indexOf("noconsign") != -1 ) {
-			MESSAGE.get().append("Die '"+ship.getString("name")+"' ("+ship.getInt("id")+") kann nicht &uuml;bergeben werden");
-			return true;
-		}
-		
-		UserFlagschiffLocation flagschiff = user.getFlagschiff();
-		
-		boolean result = true;		
-		if( (flagschiff != null) && (flagschiff.getID() == ship.getInt("id")) ) {
-			result = newowner.hasFlagschiffSpace();
-		}
-	
-		if( !result  ) {
-			MESSAGE.get().append("Die "+ship.getString("name")+" ("+ship.getInt("id")+") kann nicht &uuml;bergeben werden, da der Spieler bereits &uuml;ber ein Flagschiff verf&uuml;gt");
-			return true;
-		}
-		
-		Database db = ContextMap.getContext().getDatabase();
-			
-		if( !testonly ) {	
-			ship.put("history", ship.getString("history")+"&Uuml;bergeben am [tick="+ContextMap.getContext().get(ContextCommon.class).getTick()+"] an "+newowner.getName()+" ("+newowner.getId()+")\n");
-				
-			db.prepare("UPDATE ships SET owner= ?,fleet=0,history= ? ,alarm='0' WHERE id= ? AND owner= ?")
-					.update(newowner.getId(), ship.getString("history"), ship.getInt("id"), ship.getInt("owner"));
-			db.update("UPDATE offiziere SET userid='",newowner.getId(),"' WHERE dest='s ",ship.getInt("id"),"'");
-	
-			Common.dblog( "consign", Integer.toString(ship.getInt("id")), Integer.toString(newowner.getId()),	
-					"pos", Location.fromResult(ship).toString(),
-					"shiptype", Integer.toString(ship.getInt("type")) );
-			
-			if( (flagschiff != null) && (flagschiff.getType() == UserFlagschiffLocation.Type.SHIP) && 
-				(flagschiff.getID() == ship.getInt("id")) ) {
-				user.setFlagschiff(0);
-				newowner.setFlagschiff(ship.getInt("id"));
-			}
-		}
-		
-		StringBuilder message = MESSAGE.get();
-		SQLQuery s = db.query("SELECT * FROM ships WHERE id>0 AND docked IN ('",ship.getInt("id")+"','l "+ship.getInt("id")+"')");
-		while( s.next() ) {
-			int oldlength = message.length();
-			boolean tmp = consign( user, s.getRow(), newowner, testonly );
-			if( tmp && !testonly ) {
-				dock( (s.getString("docked").charAt(0) == 'l' ? DockMode.START : DockMode.UNDOCK), newowner.getId(), ship.getInt("id"), new int[] {s.getInt("id")});			
-			}
-			
-			if( oldlength != message.length() ) {
-				message.insert(oldlength-1, "<br />");
-			}
-		}
-		s.free();
-		
-		Cargo cargo = new Cargo( Cargo.Type.STRING, ship.getString("cargo") );
-		List<ItemCargoEntry> itemlist = cargo.getItems();
-		for( ItemCargoEntry item : itemlist ) {
-			Item itemobject = item.getItemObject();
-			if( itemobject.isUnknownItem() ) {
-				newowner.addKnownItem(item.getItemID());
-			}
-		}
-	
-		return false;
+		return result;
 	}
 	
 	/**
@@ -2334,6 +1499,18 @@ public class Ships implements Loggable {
 	public static String getLocationText(SQLResultRow ship, boolean noSystem) {
 		return getLocationText(ship.getInt("system"), ship.getInt("x"), ship.getInt("y"), noSystem);
 	}
+	
+	/**
+	 * Gibt den Positionstext fuer die Position zurueck.
+	 * Beruecksichtigt werden Nebeleffekten.
+	 * Dadurch kann der Positionstext teilweise unleserlich werden (gewuenschter Effekt) 
+	 * @param loc Die Position
+	 * @param noSystem Soll die System-ID angezeigt werden?
+	 * @return Der Positionstext
+	 */
+	public static String getLocationText(Location loc, boolean noSystem) {
+		return getLocationText(loc.getSystem(), loc.getX(), loc.getY(), noSystem);
+	}
 
 	/**
 	 * Cachet den angegebenen Nebel
@@ -2362,7 +1539,7 @@ public class Ships implements Loggable {
 		if( !nebel.containsKey(loc) ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
-			SQLResultRow neb = db.prepare("SELECT id,type FROM nebel WHERE system= ? AND x= ? AND y= ? ").
+			SQLResultRow neb = db.prepare("SELECT * FROM nebel WHERE system= ? AND x= ? AND y= ? ").
 				first(loc.getSystem(), loc.getX(), loc.getY());
 			if( neb.isEmpty() ) {
 				nebel.put(loc, -1);	
@@ -2381,30 +1558,20 @@ public class Ships implements Loggable {
 	 * @param ship Die SQL-Ergebniszeile des Schiffs
 	 */
 	public static void removeFromFleet( SQLResultRow ship ) {
-		Database db = ContextMap.getContext().getDatabase();
-		
-		if( ship.getInt("fleet") == 0 ) {
-			return;
-		}
+		getAsObject(ship).removeFromFleet();
+		MESSAGE.get().append(Ship.MESSAGE.getMessage());
+	}
 
-		if( !fleetCountList.containsKey(ship.getInt("fleet")) ) {
-			// Kein Check auf id > 0, da auch (Spawn)Schiffe mit einer id < 0 der Flotte angehoeren koennen!
-			fleetCountList.put(ship.getInt("fleet"), db.first("SELECT count(*) count FROM ships WHERE fleet="+ship.getInt("fleet")).getInt("count"));
+	public static boolean dock(DockMode mode, int user, int shipid, int[] shiplist) {
+		Ship ship = (Ship)ContextMap.getContext().getDB().get(Ship.class, shipid);
+		
+		Ship[] dockships = new Ship[shiplist.length];
+		for( int i=0; i < shiplist.length; i++ ) {
+			dockships[i] = (Ship)ContextMap.getContext().getDB().get(Ship.class, shiplist[i]);
 		}
-		int fleetcount = fleetCountList.get(ship.getInt("fleet"));
-				
-		if( fleetcount > 2 ) {
-			db.tUpdate(1, "UPDATE ships SET fleet=0 WHERE id>0 AND id=",ship.getInt("id"));
-			MESSAGE.get().append("aus der Flotte ausgetreten");
-			
-			fleetCountList.put(ship.getInt("fleet"), --fleetcount);
-		} 
-		else {
-			db.tUpdate(1, "UPDATE ships SET fleet=0 WHERE fleet="+ship.getInt("fleet"));
-			db.tUpdate(1, "DELETE FROM ship_fleets WHERE id="+ship.getInt("fleet"));
-			MESSAGE.get().append("Flotte aufgel&ouml;&szlig;t");
-			
-			fleetCountList.remove(ship.getInt("fleet"));
-		}
+		
+		boolean result = ship.dock(mode, dockships);
+		MESSAGE.get().append(Ship.MESSAGE.getMessage());
+		return result;
 	}
 }

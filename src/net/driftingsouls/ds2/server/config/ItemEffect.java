@@ -118,7 +118,7 @@ public abstract class ItemEffect {
 		if( effectNode == null ) {
 			return new IENone();
 		}
-		String type = XMLUtils.getStringByXPath(effectNode, "@type");
+		String type = XMLUtils.getStringAttribute(effectNode, "type");
 		if( type == null || "".equals(type) ) {
 			return new IENone();
 		}

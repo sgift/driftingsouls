@@ -1984,9 +1984,9 @@ public class QuestFunctions {
 			
 			String locSQL = "system="+sector.getSystem()+" AND x="+sector.getX()+" AND y="+sector.getY();
 			if( property.equals("nebel") ) {
-				SQLResultRow nebel = db.first("SELECT id FROM nebel WHERE "+locSQL);
+				SQLResultRow nebel = db.first("SELECT * FROM nebel WHERE "+locSQL);
 				if( !nebel.isEmpty() ) {
-					result.add(Integer.toString(nebel.getInt("id")));
+					result.add("Nebel");
 				}
 			} 
 			else if( property.equals("bases") ) {
