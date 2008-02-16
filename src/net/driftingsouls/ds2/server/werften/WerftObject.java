@@ -197,6 +197,10 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			
 			first = false;
 			
+			if( scheduled.isEmpty() ) {
+				continue;
+			}
+			
 			time = scheduled.firstKey();
 			List<WerftQueueEntry> remove = scheduled.remove(time);
 			for( WerftQueueEntry entry : remove ) {
