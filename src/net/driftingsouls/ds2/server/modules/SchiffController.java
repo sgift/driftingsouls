@@ -1063,31 +1063,32 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 		redirect();
 	}
 	
-	private static final Map<String,String> moduleOutputList = new HashMap<String,String>();
+private static final Map<String,String> moduleOutputList = new HashMap<String,String>();
 	
 	static {
 		final String url = Configuration.getSetting("URL");
 		
 		// Nur Number-Spalten!
-		moduleOutputList.put("ru", "<img align='middle' src='"+Cargo.getResourceImage(Resources.URAN)+"' alt='' />Reaktor ");
-		moduleOutputList.put("rd", "<img align='middle' src='"+Cargo.getResourceImage(Resources.DEUTERIUM)+"' alt='' />Reaktor ");
-		moduleOutputList.put("ra", "<img align='middle' src='"+Cargo.getResourceImage(Resources.ANTIMATERIE)+"' alt='' />Reaktor ");
-		moduleOutputList.put("rm", "<img align='middle' src='"+url+"data/interface/energie.gif' alt='' />Reaktor ");
-		moduleOutputList.put("cargo", "<img align='middle' src='"+url+"data/interface/leer.gif' alt='' />Cargo ");
-		moduleOutputList.put("eps", "<img align='middle' src='"+url+"data/interface/energie.gif' alt='' />Energiespeicher ");
-		moduleOutputList.put("hull", "<img align='middle' src='"+url+"data/interface/schiffe/panzerplatte.png' alt='' />H&uuml;lle ");
-		moduleOutputList.put("shields", "Shields ");
-		moduleOutputList.put("cost", "Flugkosten ");
-		moduleOutputList.put("heat", "&Uuml;berhitzung ");
-		moduleOutputList.put("panzerung", "<img align='middle' src='"+url+"data/interface/schiffe/panzerplatte.png' alt='' />Panzerung ");
-		moduleOutputList.put("torpedodef", "Torpedoabwehr ");
-		moduleOutputList.put("crew", "<img align='middle' src='"+url+"data/interface/besatzung.gif' alt='' />Crew ");
-		moduleOutputList.put("hydro", "<img align='middle' src='"+Cargo.getResourceImage(Resources.NAHRUNG)+"' alt='' />Produktion ");
-		moduleOutputList.put("sensorrange", "<img align='middle' src='"+url+"data/interface/schiffe/sensorrange.png' alt='' />Sensorreichweite ");
-		moduleOutputList.put("deutfactor", "Tanker: <img align='middle' src='"+Cargo.getResourceImage(Resources.DEUTERIUM)+"' alt='' />");
-		moduleOutputList.put("recost", "Wartungskosten ");
-		moduleOutputList.put("adocks", "Externe Docks ");
-		moduleOutputList.put("jdocks", "J&auml;gerdocks ");
+		moduleOutputList.put("getRu", "<img align='middle' src='"+Cargo.getResourceImage(Resources.URAN)+"' alt='' />Reaktor ");
+		moduleOutputList.put("getRd", "<img align='middle' src='"+Cargo.getResourceImage(Resources.DEUTERIUM)+"' alt='' />Reaktor ");
+		moduleOutputList.put("getRa", "<img align='middle' src='"+Cargo.getResourceImage(Resources.ANTIMATERIE)+"' alt='' />Reaktor ");
+		moduleOutputList.put("getRm", "<img align='middle' src='"+url+"data/interface/energie.gif' alt='' />Reaktor ");
+		moduleOutputList.put("getCargo", "<img align='middle' src='"+url+"data/interface/leer.gif' alt='' />Cargo ");
+		moduleOutputList.put("getEps", "<img align='middle' src='"+url+"data/interface/energie.gif' alt='' />Energiespeicher ");
+		moduleOutputList.put("getHull", "<img align='middle' src='"+url+"data/interface/schiffe/panzerplatte.png' alt='' />H&uuml;lle ");
+		moduleOutputList.put("getShields", "Shields ");
+		moduleOutputList.put("getCost", "Flugkosten ");
+		moduleOutputList.put("getHeat", "&Uuml;berhitzung ");
+		moduleOutputList.put("getPanzerung", "<img align='middle' src='"+url+"data/interface/schiffe/panzerplatte.png' alt='' />Panzerung ");
+		moduleOutputList.put("getTorpedoDef", "Torpedoabwehr ");
+		moduleOutputList.put("getCrew", "<img align='middle' src='"+url+"data/interface/besatzung.gif' alt='' />Crew ");
+		moduleOutputList.put("getHydro", "<img align='middle' src='"+Cargo.getResourceImage(Resources.NAHRUNG)+"' alt='' />Produktion ");
+		moduleOutputList.put("getSensorRange", "<img align='middle' src='"+url+"data/interface/schiffe/sensorrange.png' alt='' />Sensorreichweite ");
+		moduleOutputList.put("getDeutFactor", "Tanker: <img align='middle' src='"+Cargo.getResourceImage(Resources.DEUTERIUM)+"' alt='' />");
+		moduleOutputList.put("getReCost", "Wartungskosten ");
+		moduleOutputList.put("getADocks", "Externe Docks ");
+		moduleOutputList.put("getJDocks", "J&auml;gerdocks ");
+		moduleOutputList.put("getAblativeArmor", "Ablative Panzerung ");
 	}
 	
 	/**
