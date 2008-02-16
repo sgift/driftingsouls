@@ -405,5 +405,8 @@
   			DROP `building`,
   			DROP `item`,
 			DROP `remaining`;
+			
+		alter table ships change ablativeArmor ablativeArmor int(10) unsigned not null default '0';
+		alter table ships_modules change ablativeArmor ablativeArmor int(10) unsigned not null default '0';
 	]]></update>
 </updates>
