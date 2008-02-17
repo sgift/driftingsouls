@@ -1372,7 +1372,7 @@ private static final Map<String,String> moduleOutputList = new HashMap<String,St
 			for( Map.Entry<String, String> entry: defweaponlist.entrySet() ) {
 				String aweapon = entry.getKey();
 				if( !weaponlist.containsKey(aweapon) ) {
-					int weaponint = Integer.parseInt(aweapon);
+					int weaponint = Integer.parseInt(entry.getValue());
 					tooltiplines.add("<span class='nobr' style='color:red'>-"+weaponint+" "+Weapons.get().weapon(aweapon).getName()+"</span><br />");
 				}
 			}
