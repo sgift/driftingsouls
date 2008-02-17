@@ -33,11 +33,17 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
+import net.driftingsouls.ds2.server.entities.Academy;
+import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.StatVerkaeufe;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.WeaponFactory;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.tick.TickController;
+import net.driftingsouls.ds2.server.werften.WerftObject;
+import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
 /**
  * <h1>Berechnung des Ticks fuer Basen</h1>
@@ -361,6 +367,13 @@ public class BaseTick extends TickController {
 			
 			// Muessen ggf noch alte Userdaten geschrieben und neue geladen werden?
 			if( base.getOwner().getId() != this.lastowner ) {
+				HibernateFacade.evictAll(db, 
+						WerftObject.class, 
+						WerftQueueEntry.class, 
+						Forschungszentrum.class,
+						Academy.class,
+						WeaponFactory.class);
+				
 				log(base.getOwner().getId()+":");
 				if( this.pmcache.length() != 0 ) {
 					PM.send(sourceUser, this.lastowner, "Basis-Tick", this.pmcache.toString());
@@ -387,6 +400,7 @@ public class BaseTick extends TickController {
 			base.getOwner().setCargo(this.usercargo.save());
 			
 			getContext().commit();
+			db.evict(base);
 		}
 		
 		// ggf noch vorhandene Userdaten schreiben

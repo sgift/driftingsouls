@@ -21,12 +21,13 @@ package net.driftingsouls.ds2.server.tick.regular;
 import java.util.Iterator;
 import java.util.List;
 
-import org.hibernate.FlushMode;
-
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Items;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
+import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
@@ -50,68 +51,85 @@ public class WerftTick extends TickController {
 		org.hibernate.Session db = getDB();
 		final User sourceUser = (User)db.get(User.class, -1);
 		
-		// Temporaer bis ein Bug ("Batch update returned unexpected row count...") gefixt ist
-		db.setFlushMode(FlushMode.ALWAYS);
-		
-		List werften = db.createQuery("from WerftObject order by id").list();
+		List werften = db.createQuery("from ShipWerft s inner join fetch s.ship")
+			.list();
 		for( Iterator iter=werften.iterator(); iter.hasNext(); ) {
-			WerftObject werft = (WerftObject)iter.next();
-			try {
-				if( (werft instanceof ShipWerft) && (((ShipWerft)werft).getShipID() < 0) ) {
-					continue;
-				}
-				
-				User owner = werft.getOwner();
-				if( (owner.getVacationCount() > 0) && (owner.getWait4VacationCount() == 0) ) {
-					this.log("xxx Ignoriere Werft "+werft.getWerftID()+" [VAC]");
-					continue;
-				}
-				this.log("+++ Werft "+werft.getWerftID()+":");
-				
-				if( werft.isBuilding() ){
-					WerftQueueEntry[] entries = werft.getScheduledQueueEntries();
-					for( int i=0; i < entries.length; i++ ) {
-						WerftQueueEntry entry = entries[i];
-						
-						ShipTypeData shipd = entry.getBuildShipType();
-						
-						this.log("\tAktueller Auftrag: "+shipd.getTypeId()+"; dauer: "+entry.getRemainingTime());
-						
-						if( entry.getRequiredItem() > -1 ) {
-							this.log("\tItem benoetigt: "+Items.get().item(entry.getRequiredItem()).getName()+" ("+entry.getRequiredItem()+")");
-						}
-						if( entry.isBuildContPossible() ) {
-							entry.continueBuild();
-							this.log("\tVoraussetzungen erfuellt - bau geht weiter");
-						}
-						
-						if( entry.getRemainingTime() <= 0 ) {
-							this.log("\tSchiff "+shipd.getTypeId()+" gebaut");
+			processWerft(sourceUser, (WerftObject)iter.next());
+		}
 		
-							int shipid = entry.finishBuildProcess();
-							this.slog(entry.MESSAGE.getMessage());
-							
-							if( shipid > 0 ) {
-								// MSG
-								String msg = "Auf "+werft.getName()+" wurde eine "+shipd.getNickname()+" gebaut. Sie steht bei "+werft.getSystem()+" : "+werft.getX()+"/"+werft.getY()+".";
-							
-								PM.send(sourceUser, werft.getOwner().getId(), "Schiff gebaut", msg);
-							}
-						}
+		werften = db.createQuery("from BaseWerft b inner join fetch b.base")
+			.list();
+		for( Iterator iter=werften.iterator(); iter.hasNext(); ) {
+			processWerft(sourceUser, (WerftObject)iter.next());
+		}
+		
+		werften = db.createQuery("from WerftKomplex")
+			.list();
+		for( Iterator iter=werften.iterator(); iter.hasNext(); ) {
+			processWerft(sourceUser, (WerftObject)iter.next());
+		}
+	}
+
+	private void processWerft(final User sourceUser, WerftObject werft) {
+		try {
+			org.hibernate.Session db = getDB();
+			
+			if( (werft instanceof ShipWerft) && (((ShipWerft)werft).getShipID() < 0) ) {
+				return;
+			}
+			
+			User owner = werft.getOwner();
+			if( (owner.getVacationCount() > 0) && (owner.getWait4VacationCount() == 0) ) {
+				this.log("xxx Ignoriere Werft "+werft.getWerftID()+" [VAC]");
+				return;
+			}
+			this.log("+++ Werft "+werft.getWerftID()+":");
+			
+			if( !werft.isBuilding() ) {
+				return;
+			}
+			WerftQueueEntry[] entries = werft.getScheduledQueueEntries();
+			for( int i=0; i < entries.length; i++ ) {
+				WerftQueueEntry entry = entries[i];
+				
+				ShipTypeData shipd = entry.getBuildShipType();
+				
+				this.log("\tAktueller Auftrag: "+shipd.getTypeId()+"; dauer: "+entry.getRemainingTime());
+				
+				if( entry.getRequiredItem() > -1 ) {
+					this.log("\tItem benoetigt: "+Items.get().item(entry.getRequiredItem()).getName()+" ("+entry.getRequiredItem()+")");
+				}
+				if( entry.isBuildContPossible() ) {
+					entry.continueBuild();
+					this.log("\tVoraussetzungen erfuellt - bau geht weiter");
+				}
+				
+				if( entry.getRemainingTime() <= 0 ) {
+					this.log("\tSchiff "+shipd.getTypeId()+" gebaut");
+
+					int shipid = entry.finishBuildProcess();
+					this.slog(entry.MESSAGE.getMessage());
+					
+					if( shipid > 0 ) {
+						// MSG
+						String msg = "Auf "+werft.getName()+" wurde eine "+shipd.getNickname()+" gebaut. Sie steht bei "+werft.getSystem()+" : "+werft.getX()+"/"+werft.getY()+".";
+					
+						PM.send(sourceUser, werft.getOwner().getId(), "Schiff gebaut", msg);
 					}
 				}
-				
-				getContext().commit();
 			}
-			catch( RuntimeException e ) {
-				this.log("Werft "+werft.getWerftID()+" failed: "+e);
-				e.printStackTrace();
-				Common.mailThrowable(e, "WerftTick Exception", "werft: "+werft.getWerftID());
-				
-				throw e;
-			}
+			
+			getContext().commit();
+			db.evict(werft);
+			HibernateFacade.evictAll(db, WerftQueueEntry.class, Ship.class, Base.class, User.class, PM.class);
 		}
-		db.setFlushMode(FlushMode.AUTO);
+		catch( RuntimeException e ) {
+			this.log("Werft "+werft.getWerftID()+" failed: "+e);
+			e.printStackTrace();
+			Common.mailThrowable(e, "WerftTick Exception", "werft: "+werft.getWerftID());
+			
+			throw e;
+		}
 	}
 
 }

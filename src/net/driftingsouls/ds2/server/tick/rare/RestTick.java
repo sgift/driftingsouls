@@ -41,8 +41,15 @@ import net.driftingsouls.ds2.server.entities.StatUserCargo;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipModules;
 import net.driftingsouls.ds2.server.tick.TickController;
+
+import org.hibernate.CacheMode;
+import org.hibernate.FlushMode;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
 
 /**
  * Berechnet sonstige Tick-Aktionen, welche keinen eigenen TickController haben
@@ -60,6 +67,7 @@ public class RestTick extends TickController {
 	@Override
 	protected void tick() {
 		org.hibernate.Session db = getContext().getDB();
+		db.setFlushMode(FlushMode.MANUAL);
 		
 		this.log("Berechne Gesamtcargo:");
 		Cargo cargo = new Cargo();
@@ -97,12 +105,16 @@ public class RestTick extends TickController {
 					itemlocs.get(aitem.getItemID()).add("b"+base.getId());
 				}	
 			}
+			
+			db.evict(base);
 		}
 		
 		this.log("\tLese Ships ein");
-		List ships = db.createQuery("from Ship as s left join fetch s.modules where s.id>0").list();
-		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
-			Ship ship = (Ship)iter.next();
+		ScrollableResults ships = db.createQuery("from Ship as s left join fetch s.modules where s.id>0")
+			.setCacheMode(CacheMode.IGNORE)
+			.scroll(ScrollMode.FORWARD_ONLY);
+		while( ships.next() ) {
+			Ship ship = (Ship)ships.get(0);
 			
 			Cargo scargo = ship.getCargo();
 			if( ship.getOwner().getId() > 0 ) {
@@ -153,12 +165,17 @@ public class RestTick extends TickController {
 					itemlocs.get(itemmodule.getItemID().getItemID()).add("s"+ship.getId());
 				}
 			}
+			db.evict(ship);
 		}
 		
+		HibernateFacade.evictAll(db, ShipModules.class);
+
 		this.log("\tLese Zwischenlager ein");
-		List entrylist = db.createQuery("from GtuZwischenlager").list();
-		for( Iterator iter=entrylist.iterator(); iter.hasNext(); ) {
-			GtuZwischenlager entry = (GtuZwischenlager)iter.next();
+		ScrollableResults entrylist = db.createQuery("from GtuZwischenlager")
+			.setCacheMode(CacheMode.GET)
+			.scroll(ScrollMode.FORWARD_ONLY);
+		while( entrylist.next() ) {
+			GtuZwischenlager entry = (GtuZwischenlager)entrylist.get(0);
 			
 			Cargo acargo = entry.getCargo1();
 			if( entry.getUser1().getId() > 0 ) {
@@ -217,6 +234,10 @@ public class RestTick extends TickController {
 		StatCargo stat = new StatCargo(this.tick, cargo);
 		db.persist(stat);
 		
+		db.flush();
+		getContext().commit();
+		db.evict(stat);
+
 		this.log("\t"+cargo.save());
 		this.log("");
 		
@@ -229,6 +250,10 @@ public class RestTick extends TickController {
 			StatUserCargo userstat = new StatUserCargo(owner, userCargo);
 			db.persist(userstat);
 		}
+		
+		db.flush();
+		getContext().commit();
+		HibernateFacade.evictAll(db, StatUserCargo.class);
 		
 		this.log("Speichere Module-Location-Stats");
 		db.createQuery("delete from StatItemLocations").executeUpdate();
@@ -251,14 +276,20 @@ public class RestTick extends TickController {
 				
 				StatItemLocations itemstat = new StatItemLocations(owner, itemid, Common.implode(";",locationlist));
 				db.persist(itemstat);
-			}	
+			}
 		}
+		
+		db.flush();
+		getContext().commit();
+		db.clear();
 		
 		final int rows = getContext().getDB()
 			.createQuery("delete from Session where attach is not null")
 			.executeUpdate();
 		
 		this.log("Entferne Admin-Login-Session-IDs..."+rows+" entfernt");
+		
+		db.setFlushMode(FlushMode.AUTO);
 	}
 
 }

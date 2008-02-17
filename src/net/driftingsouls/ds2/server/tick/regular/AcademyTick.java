@@ -35,6 +35,7 @@ import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.tick.TickController;
 
@@ -182,6 +183,8 @@ public class AcademyTick extends TickController {
 				PM.send(sourceUser,base.getOwner().getId(), "Ausbildung abgeschlossen", msg);
 				
 				getContext().commit();
+				db.evict(acc);
+				HibernateFacade.evictAll(db, Offizier.class);
 			}
 			catch( RuntimeException e ) {
 				this.log("Bearbeitung der Akademie "+acc.getBaseId()+" fehlgeschlagen: "+e);
