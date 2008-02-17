@@ -289,7 +289,7 @@ public class ShipWerft extends WerftObject {
 	
 	@Override
 	public int canTransferOffis() {
-		if( this.linked != null ) {
+		if( this.linked == null ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
 			int officount = ((Number)db.createQuery("select count(*) from Offizier where dest=?")
