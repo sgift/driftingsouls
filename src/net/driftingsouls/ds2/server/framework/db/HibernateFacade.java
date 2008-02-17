@@ -19,6 +19,9 @@
 package net.driftingsouls.ds2.server.framework.db;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Loggable;
@@ -30,6 +33,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.dialect.function.SQLFunctionTemplate;
 import org.hibernate.dialect.function.StandardSQLFunction;
+import org.hibernate.engine.EntityKey;
 import org.hibernate.stat.Statistics;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -121,6 +125,27 @@ public class HibernateFacade implements Loggable {
 		synchronized(LOCK) {
 			sessionFactory.close();
 			sessionFactory = null;
+		}
+	}
+	
+	/**
+	 * Entfernt alle Objekte der Klasse(n) oder einer Unterklasse dieser Klasse(n)
+	 * aus der angegebenen Session
+	 * @param db Die Hibernate Session
+	 * @param cls Die Klasse(n)
+	 */
+	@SuppressWarnings("unchecked")
+	public static void evictAll(Session db, Class ... cls) {
+		Set entityKeys = new HashSet(db.getStatistics().getEntityKeys());
+		for( Iterator iter=entityKeys.iterator(); iter.hasNext(); ) {
+			EntityKey key = (EntityKey)iter.next();
+			
+			Object obj = db.get(key.getEntityName(), key.getIdentifier());
+			for( Class aCls : cls ) {
+				if( aCls.isInstance(obj) ) {
+					db.evict(obj);
+				}
+			}
 		}
 	}
 }
