@@ -291,7 +291,7 @@ public class KapernController extends TemplateGenerator {
 				SQLQuery aship = db.query("SELECT t1.id,t1.status,t1.type ", 
 								"FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id ", 
 							 	"WHERE t1.x="+this.targetShip.getInt("x")+" AND t1.y="+this.targetShip.getInt("y")+" AND t1.system="+this.targetShip.getInt("system")+" AND ", 
-							 		"t1.owner IN ("+Common.implode(",",ownerlist)+") AND t1.id>0 AND t1.battle is null AND (LOCATE('=',t2.weapons) OR LOCATE('tblmodules',t1.status)) AND  ",
+							 		"t1.owner IN ("+Common.implode(",",ownerlist)+") AND t1.id>0 AND t1.battle is null AND (LOCATE('=',t2.weapons) OR (t1.modules is not null) AND  ",
 									"!LOCATE('nocrew',t1.status) AND t1.type=t2.id");
 								
 				while( aship.next() ) {

@@ -396,12 +396,16 @@ public class ShipTypes implements Loggable {
 		
 		int shiptype = shipdata.getInt("type");
 		
-		if( shipdata.getString("status").indexOf("tblmodules") != -1 ) {
+		if( !shipdata.containsKey("modules") || (shipdata.getInt("modules") != 0) ) {
 			Database db = ContextMap.getContext().getDatabase();
 			shipdata = db.prepare("SELECT nickname,picture,ru,rd,ra,rm,eps,cost,hull,panzerung,cargo,heat,crew,weapons,maxheat,torpedodef,shields,size,jdocks,adocks,sensorrange,hydro,deutfactor,recost,flags,werft,ow_werft " +
 					"FROM ships_modules " +
 					"WHERE id>0 AND id= ? ")
 				.first(shipdata.getInt("id"));
+			
+			if( shipdata.isEmpty() ) {
+				shipdata = null;
+			}
 		}
 		else {
 			shipdata = null;
@@ -429,11 +433,15 @@ public class ShipTypes implements Loggable {
 			
 			shiptype = shipdata.getInt("type");
 			
-			if( shipdata.getString("status").indexOf("tblmodules") != -1 ) {
+			if( !shipdata.containsKey("modules") || (shipdata.getInt("modules") != 0) ) {
 				shipdata = db.prepare("SELECT nickname,picture,ru,rd,ra,rm,eps,cost,hull,panzerung,cargo,heat,crew,weapons,maxheat,torpedodef,shields,size,jdocks,adocks,sensorrange,hydro,deutfactor,recost,flags,werft,ow_werft " +
 						"FROM ships_modules " +
 						"WHERE id>0 AND id= ? ")
 					.first(shipid);
+			
+				if( shipdata.isEmpty() ) {
+					shipdata = null;
+				}
 			}
 			else {
 				shipdata = null;

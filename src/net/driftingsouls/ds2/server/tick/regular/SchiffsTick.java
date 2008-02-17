@@ -359,6 +359,7 @@ public class SchiffsTick extends TickController {
 				
 				if( !calledByBattle ) {
 					getContext().commit();
+					getDB().clear();
 				}
 			}
 			catch( RuntimeException e ) {
@@ -382,7 +383,10 @@ public class SchiffsTick extends TickController {
 				
 		database.update("UPDATE ships SET crew=0 WHERE id>0 AND crew<0");
 	
-		getContext().commit();
+		if( !this.calledByBattle ) {
+			getContext().commit();
+			getDB().clear();
+		}
 		
 		if( this.calledByBattle ) {
 			return;
@@ -401,7 +405,10 @@ public class SchiffsTick extends TickController {
 		}
 		sid.free();
 		
-		getContext().commit();
+		if( !this.calledByBattle ) {
+			getContext().commit();
+			db.clear();
+		}
 		
 		/*
 		 * Schadensnebel
@@ -435,7 +442,10 @@ public class SchiffsTick extends TickController {
 		}
 		ship.free();
 		
-		getContext().commit();
+		if( !this.calledByBattle ) {
+			getContext().commit();
+			db.clear();
+		}
 	}
 
 	private void tickUser(Database database, String battle, User auser) {
@@ -459,7 +469,7 @@ public class SchiffsTick extends TickController {
 					"((s.crew > 0) OR (st.crew = 0)) " +
 					"AND system!=0 AND " +
 					"((s.alarm=1) OR (s.engine+s.weapons+s.sensors+s.comm<400) OR (s.e < st.eps) " +
-						"OR LOCATE('tblmodules',s.status) OR (st.hydro>0) OR (st.deutfactor>0)) " +
+						"OR (s.modules is not null) OR (st.hydro>0) OR (st.deutfactor>0)) " +
 					"AND ",battle," ",
 				"ORDER BY s.owner,s.docked,s.type ASC");
 		
@@ -478,7 +488,9 @@ public class SchiffsTick extends TickController {
 			this.retries = 5;
 			try {
 				this.tickShip( database, shipd );
-				getContext().commit();
+				if( !this.calledByBattle ) {
+					getContext().commit();
+				}
 			}
 			catch( Exception e ) {
 				this.log("ship "+shipd.getInt("id")+" failed: "+e);
@@ -533,7 +545,9 @@ public class SchiffsTick extends TickController {
 			}
 		}
 		
-		getContext().commit();
+		if( !this.calledByBattle ) {
+			getContext().commit();
+		}
 				
 		// Nahrungspool aktualliseren
 		if( !this.calledByBattle ) {

@@ -195,10 +195,10 @@ public class Ships implements Loggable {
 			status.add("offizier");
 		}
 		
-		SQLResultRow modules = db.first("SELECT id FROM ships_modules WHERE id="+shipID);
+		/*SQLResultRow modules = db.first("SELECT id FROM ships_modules WHERE id="+shipID);
 		if( !modules.isEmpty() ) {
 			status.add("tblmodules");
-		}
+		}*/
 		
 		boolean savestatus = true;
 		
@@ -1111,7 +1111,7 @@ public class Ships implements Loggable {
 					//Angedockte Schiffe ueberprfen
 					if( shiptype.getInt("adocks")>0 || shiptype.getInt("jdocks")>0 ) {
 						boolean wpnfound = false;
-						SQLQuery wpncheckhandle = db.query("SELECT t1.id,t1.type,t1.status FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id WHERE id>0 AND t1.docked IN ('l ",aship.getInt("id"),"','",aship.getInt("id"),"') AND (LOCATE('=',t2.weapons) OR LOCATE('tblmodules',t1.status))");
+						SQLQuery wpncheckhandle = db.query("SELECT t1.id,t1.type,t1.status FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id WHERE id>0 AND t1.docked IN ('l ",aship.getInt("id"),"','",aship.getInt("id"),"') AND (LOCATE('=',t2.weapons) OR (t1.modules is not null))");
 						while( wpncheckhandle.next() ) {
 							SQLResultRow checktype = ShipTypes.getShipType(wpncheckhandle.getRow());
 							if( checktype.getInt("military") > 0 ) {
@@ -1253,7 +1253,7 @@ public class Ships implements Loggable {
 				//Angedockte Schiffe ueberprfen
 				if( shiptype.getInt("adocks")>0 || shiptype.getInt("jdocks")>0 ) {
 					boolean wpnfound = false;
-					SQLQuery wpncheckhandle = db.query("SELECT t1.id,t1.type,t1.status FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id WHERE id>0 AND t1.docked IN ('l ",ship.getInt("id"),"','",ship.getInt("id"),"') AND (LOCATE('=',t2.weapons) OR LOCATE('tblmodules',t1.status))");
+					SQLQuery wpncheckhandle = db.query("SELECT t1.id,t1.type,t1.status FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id WHERE id>0 AND t1.docked IN ('l ",ship.getInt("id"),"','",ship.getInt("id"),"') AND (LOCATE('=',t2.weapons) OR (t1.modules is not null))");
 					while( wpncheckhandle.next() ) {
 						SQLResultRow checktype = ShipTypes.getShipType(wpncheckhandle.getRow());
 						if( checktype.getInt("military") > 0 ) {
@@ -1410,6 +1410,9 @@ public class Ships implements Loggable {
 	 */
 	public static void destroy(int shipid) {
 		Ship ship = (Ship)ContextMap.getContext().getDB().get(Ship.class, shipid);
+		if( ship == null ) {
+			return;
+		}
 		ship.destroy();
 		MESSAGE.get().append(Ship.MESSAGE.getMessage());
 	}

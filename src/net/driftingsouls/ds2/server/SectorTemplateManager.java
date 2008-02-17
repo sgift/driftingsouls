@@ -149,7 +149,7 @@ public class SectorTemplateManager {
 			
 			shipids.add(shipid);
 			
-			if( ship.getString("status").indexOf("tblmodules") != -1 ) {
+			if( ship.getInt("modules") != 0 ) {
 				/* TODO: das geht auch schoener...ggf via Ships.recalculateShipModules */
 				SQLResultRow modules = db.first("SELECT * FROM ships_modules WHERE id='",ship.getInt("id"),"'");
 				db.update("INSERT INTO ships_modules " ,
