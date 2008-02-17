@@ -927,7 +927,7 @@ public class AllyController extends TemplateGenerator implements Loggable {
 		}
 	
 		User kickuser = (User)getContext().getDB().get(User.class, kick);
-		if( kickuser.getAlly().getId() != this.ally.getId() ) {
+		if( !this.ally.equals(kickuser.getAlly()) ) {
 			t.setVar( "ally.message", "Dieser Spieler ist nicht Mitglied ihrer Allianz" );
 			redirect("showMembers");
 			return;
