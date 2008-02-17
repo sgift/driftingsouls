@@ -34,7 +34,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -716,15 +715,8 @@ public class FleetMgntController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void undockAction() {
 		TemplateEngine t = getTemplateEngine();
-		org.hibernate.Session db = getDB();
-		
-		List ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null")
-			.setEntity(0, this.fleet)
-			.list();
-		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
-			Ship aship = (Ship)iter.next();
-			aship.dock(Ship.DockMode.UNDOCK, (Ship[])null);
-		}
+
+		this.fleet.undockContainers();
 		
 		t.setVar(	"fleetmgnt.message",	"Alle gedockten Schiffe wurden gestartet",
 					"jscript.reloadmain",	1 );
@@ -739,52 +731,9 @@ public class FleetMgntController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void redockAction() {
 		TemplateEngine t = getTemplateEngine();
-		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		
-		List ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null" )
-			.setEntity(0, this.fleet)
-			.list();
-		
-		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
-			Ship ship = (Ship)iter.next();
-			ShipTypeData shiptype = ship.getTypeData();
-			
-			if( shiptype.getADocks() == 0 ) {
-				continue;
-			}
-
-			int free = shiptype.getADocks();
-			free -= (Long)db.createQuery("select count(*) from Ship where id>0 and docked=?")
-				.setString(0, Integer.toString(ship.getId()))
-				.iterate().next();
-			List<Ship> containerlist = new ArrayList<Ship>();
-			
-			List containers = db.createQuery("from Ship as s " +
-					"where s.owner=? and s.system=? and s.x=? and s.y=? and s.docked='' and " +
-							"s.shiptype.shipClass=? and s.battle is null " +
-					"order by s.fleet,s.shiptype ")
-				.setEntity(0, user)
-				.setInteger(1, ship.getSystem())
-				.setInteger(2, ship.getX())
-				.setInteger(3, ship.getY())
-				.setInteger(4, ShipClasses.CONTAINER.ordinal())
-				.list();
-			for( Iterator iter2=containers.iterator(); iter2.hasNext(); ) {
-				containerlist.add((Ship)iter2.next());
-				free--;
-				if( free == 0 ) {
-					break;
-				}
-			}
-			
-			Ship[] list = new Ship[containerlist.size()];
-			for( int i=0; i < containerlist.size(); i++ ) {
-				list[i] = containerlist.get(i);
-			}
-			
-			ship.dock(Ship.DockMode.DOCK, list);
-		}
+		this.fleet.collectContainers(user);
 
 		t.setVar(	"fleetmgnt.message",	"Container wurden aufgesammelt",
 					"jscript.reloadmain",	1 );
@@ -799,15 +748,8 @@ public class FleetMgntController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void jstartAction() {
 		TemplateEngine t = getTemplateEngine();
-		org.hibernate.Session db = getDB();
-		
-		List ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null")
-			.setEntity(0, this.fleet)
-			.list();
-		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
-			Ship aship = (Ship)iter.next();
-			aship.dock(Ship.DockMode.START, (Ship[])null);
-		}
+
+		this.fleet.startFighters();
 		
 		t.setVar(	"fleetmgnt.message",	"Alle J&auml;ger sind gestartet",
 					"jscript.reloadmain",	1 );
@@ -822,60 +764,12 @@ public class FleetMgntController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void jlandAction() {	
 		TemplateEngine t = getTemplateEngine();
-		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		
 		parameterNumber("jaegertype");
 		int jaegertypeID = getInteger("jaegertype");
 		
-		List ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null" )
-			.setEntity(0, this.fleet)
-			.list();
-		
-		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
-			Ship ship = (Ship)iter.next();
-			ShipTypeData shiptype = ship.getTypeData();
-			
-			if( shiptype.getJDocks() == 0 ) {
-				continue;
-			}
-			int free = shiptype.getJDocks();
-			free -= (Long)db.createQuery("select count(*) from Ship where id>0 and docked=?")
-				.setString(0, "l "+ship.getId())
-				.iterate().next();
-			List<Ship>jaegerlist = new ArrayList<Ship>();
-			
-			List jaegerliste = db.createQuery("from Ship as s left join fetch s.modules " +
-					"where "+(jaegertypeID > 0 ? "s.type="+jaegertypeID+" and " : "")+"s.owner=? and s.system=? and " +
-							"s.x=? and s.y=? and s.docked='' and (locate(?,s.shiptype.flags)!=0 or locate(?,s.modules.flags)!=0) and s.battle is null " +
-					"order by s.fleet,s.shiptype ")
-				.setEntity(0, user)
-				.setInteger(1, ship.getSystem())
-				.setInteger(2, ship.getX())
-				.setInteger(3, ship.getY())
-				.setString(4, ShipTypes.SF_JAEGER)
-				.setString(5, ShipTypes.SF_JAEGER)
-				.list();
-			for( Iterator iter2=jaegerliste.iterator(); iter2.hasNext(); ) {
-				Ship jaeger = (Ship)iter2.next();
-				
-				ShipTypeData jaegertype = jaeger.getTypeData();
-				if( jaegertype.hasFlag(ShipTypes.SF_JAEGER) ) {
-					jaegerlist.add(jaeger);
-					free--;
-					if( free == 0 ) {
-						break;
-					}
-				}
-			}
-			
-			Ship[] list = new Ship[jaegerlist.size()];
-			for( int i=0; i < jaegerlist.size(); i++ ) {
-				list[i] = jaegerlist.get(i);
-			}
-			
-			ship.dock(Ship.DockMode.LAND, list);
-		}
+		this.fleet.collectFightersByType(user, jaegertypeID);
 
 		t.setVar(	"fleetmgnt.message",	"J&auml;ger wurden aufgesammelt",
 					"jscript.reloadmain",	1 );
@@ -904,28 +798,14 @@ public class FleetMgntController extends TemplateGenerator {
 			return;
 		}
 		
-		User aowner = (User)db.createQuery("select s.owner from Ship as s where s.id>0 and s.fleet=?")
-			.setEntity(0, targetFleet)
-			.setMaxResults(1)
-			.uniqueResult();
+		User aowner = targetFleet.getOwner();
 		if( aowner == null || (aowner != user) ) {
 			addError("Die angegebene Flotte geh&ouml;rt nicht ihnen!");
 			this.redirect();
 			return;
 		}
 		
-		db.createQuery("update Ship set fleet=? where id>0 and fleet=?")
-			.setEntity(0, this.fleet)
-			.setEntity(1, targetFleet)
-			.executeUpdate();
-		
-		// Problem i<0 beruecksichtigen - daher nur loeschen, wenn die Flotte auch wirklich leer ist
-		long count = (Long)db.createQuery("select count(*) from Ship where fleet=?")
-			.setEntity(0, targetFleet)
-			.iterate().next();
-		if( count == 0 ) {
-			db.delete(targetFleet);
-		}
+		this.fleet.joinFleet(targetFleet);
 		
 		t.setVar(	"fleetmgnt.message",	"Alle Schiffe der Flotte '"+Common._plaintitle(targetFleet.getName())+"' sind beigetreten",
 					"jscript.reloadmain",	1 );
@@ -940,25 +820,12 @@ public class FleetMgntController extends TemplateGenerator {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void alarmAction() {
-		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		
 		parameterNumber("alarm");
 		final int alarm = getInteger("alarm");
 		
-		List ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null" )
-			.setEntity(0, this.fleet)
-			.list();
-		
-		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
-			Ship ship = (Ship)iter.next();
-		
-			if( (ship.getTypeData().getShipClass() == ShipClasses.GESCHUETZ.ordinal()) || !ship.getTypeData().isMilitary() ) {
-				continue;
-			}
-			
-			ship.setAlarm(alarm);
-		}
+		this.fleet.setAlarm(alarm);
 		
 		t.setVar(	"fleetmgnt.message",	"Die Alarmstufe wurde ge&auml;ndert",
 					"jscript.reloadmain",	1 );
