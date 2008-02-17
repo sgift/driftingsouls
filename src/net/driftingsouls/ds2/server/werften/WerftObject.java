@@ -195,11 +195,15 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				}
 			}
 			
-			first = false;
-			
-			if( scheduled.isEmpty() ) {
+			if( first && scheduled.isEmpty() ) {
+				first = false;
 				continue;
 			}
+			else if( scheduled.isEmpty() ) {
+				break;
+			}
+			
+			first = false;
 			
 			time = scheduled.firstKey();
 			List<WerftQueueEntry> remove = scheduled.remove(time);
