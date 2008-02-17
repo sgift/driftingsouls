@@ -761,10 +761,10 @@ public class Battle implements Loggable {
 		SQLQuery aShipRow = db.query("SELECT s.*,u.name AS username,u.ally "+
 									"FROM ships s JOIN users u ON s.owner=u.id "+
 									"WHERE s.id>0 AND s.x="+tmpOwnShip.getInt("x")+" AND s.y="+tmpOwnShip.getInt("y")+" AND " +
-							   			"s.system="+tmpOwnShip.getInt("system")+" AND s.battle is null AND " +
+							   			"s.system="+tmpOwnShip.getInt("system")+" AND s.battle is null AND (" +
 							   			(tmpOwnShip.getInt("ally") != 0 ? "u.ally="+tmpOwnShip.getInt("ally") : "u.ally is null")+
 							   			" OR " +
-							   			(tmpEnemyShip.getInt("ally") != 0 ? "u.ally="+tmpEnemyShip.getInt("ally") : "u.ally is null")+ " AND " +
+							   			(tmpEnemyShip.getInt("ally") != 0 ? "u.ally="+tmpEnemyShip.getInt("ally") : "u.ally is null")+ ") AND " +
 							   			"!LOCATE('disable_iff',s.status) AND `lock` IS NULL AND (u.vaccount=0 OR u.wait4vac > 0)");
 							   		
 		while( aShipRow.next() ) {
@@ -1260,7 +1260,7 @@ public class Battle implements Loggable {
 		SQLResultRow battledata = db.first( "SELECT * FROM battles WHERE id=",battleID);
 	
 		if( battledata.isEmpty() ) {
-			db.update("UPDATE ships SET battle is null WHERE id>0 AND battle=",battleID);
+			db.update("UPDATE ships SET battle=null WHERE id>0 AND battle=",battleID);
 			context.addError("Die Schlacht ist bereits zuende!");
 			return false;
 		}
