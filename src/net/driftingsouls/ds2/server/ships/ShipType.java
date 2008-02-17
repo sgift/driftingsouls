@@ -40,7 +40,7 @@ public class ShipType implements ShipTypeData {
 	/**
 	 * Kennzeichnet die maximale Groesse, die ein kleines Schiff (z.B. ein Jaeger) haben kann 
 	 */
-	public static final int SMALL_SHIP_MAXSIZE = 6;
+	public static final int SMALL_SHIP_MAXSIZE = 3;
 	
 	@Id
 	private int id;
