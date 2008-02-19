@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -257,7 +258,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 						questbattle = true;
 					}
 				}
-				int ownAlly = user.getAlly().getId();
+				Ally ownAlly = user.getAlly();
 				String party1 = null;
 				String party2 = null;
 				
@@ -277,8 +278,8 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 				boolean fixedjoin = false;
 				if( (battle.getInt("commander1") == user.getId()) || 
 					(battle.getInt("commander2") == user.getId()) || 
-					( (ownAlly > 0) && (battle.getInt("ally1") == ownAlly) ) || 
-					( (ownAlly > 0) && (battle.getInt("ally2") == ownAlly) ) ) {
+					( (ownAlly != null) && (battle.getInt("ally1") == ownAlly.getId()) ) || 
+					( (ownAlly != null) && (battle.getInt("ally2") == ownAlly.getId()) ) ) {
 					fixedjoin = true;
 				}
 				boolean viewable = false;
