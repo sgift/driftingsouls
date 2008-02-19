@@ -234,6 +234,11 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 		int newownerID = getInteger("newowner");
 		
 		User newowner = (User)getDB().get(User.class, newownerID);
+		if( newowner == null ) {
+			t.setVar("ship.message", "Der angegebene Benutzer existiert nicht");
+			redirect();
+			return;
+		}
 		
 		parameterNumber("conf");
 		int conf = getInteger("conf");
