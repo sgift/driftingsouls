@@ -3020,7 +3020,7 @@ public class Ship implements Loggable,Locatable,Transfering {
 				this.dock( aship.getDocked().charAt(0) == 'l' ? DockMode.START : DockMode.UNDOCK, aship);			
 			}
 
-			if( oldlength != message.length() ) {
+			if( (oldlength > 0) && (oldlength != message.length()) ) {
 				message.insert(oldlength-1, "<br />");
 			}
 		}
