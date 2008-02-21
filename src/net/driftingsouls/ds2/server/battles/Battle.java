@@ -670,6 +670,24 @@ public class Battle implements Loggable {
 		}
 		pq.tUpdate(1);
 		pq.close();
+		
+		this.tableBuffer.put("ally1", ally[0]);
+		this.tableBuffer.put("ally2", this.ally[1]);
+		this.tableBuffer.put("commander1", this.commander[0]);
+		this.tableBuffer.put("commander2", this.commander[1]);
+		this.tableBuffer.put("com1Points", this.points[0]);
+		this.tableBuffer.put("com2Points", this.points[1]);
+		this.tableBuffer.put("ready1", this.ready[0]);
+		this.tableBuffer.put("ready2", this.ready[1]);
+		this.tableBuffer.put("com1BETAK", this.betak[0]);
+		this.tableBuffer.put("com2BETAK", this.betak[1]);
+		this.tableBuffer.put("takeCommand1", this.takeCommand[0]);
+		this.tableBuffer.put("takeCommand2", this.takeCommand[1]);
+		this.tableBuffer.put("blockcount", this.blockcount);
+		this.tableBuffer.put("lastturn", this.lastturn);
+		this.tableBuffer.put("flags", this.flags);
+		this.tableBuffer.put("quest", this.quest);
+		this.tableBuffer.put("visibility", this.visibility);
 	}
 
 	/**
@@ -1897,16 +1915,17 @@ public class Battle implements Loggable {
 	 * Zerstoert ein Schiff und alle an ihm gedockten Schiff
 	 * @param ship Das zu zerstoerende Schiff
 	 */
-	private void destroyShip( SQLResultRow ship ) {
+	private void destroyShip( BattleShip ship ) {
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		
-		int side = db.first("SELECT side FROM battles_ships WHERE shipid=",ship.getInt("id")).getInt("side");
-		int dockcount = db.first("SELECT count(*) count FROM ships WHERE docked IN ('l ",ship.getInt("id"),"','",ship.getInt("id"),"')").getInt("count");
+		long dockcount = (Long)db.createQuery("select count(*) from Ship where docked in (?,?)")
+			.setString(0, Integer.toString(ship.getId()))
+			.setString(1, "l "+ship.getId())
+			.iterate().next();
 		
-		db.update("DELETE FROM battles_ships WHERE shipid=",ship.getInt("id"));
-		
-		Ships.destroy( ship.getInt("id") );
+		db.delete(ship);
+		ship.getShip().destroy();
 
 		//
 		// Feststellen in welcher der beiden Listen sich das Schiff befindet und dieses daraus entfernen
@@ -1915,14 +1934,14 @@ public class Battle implements Loggable {
 		boolean found = false;
 		List<SQLResultRow> shiplist = this.ownShips;
 		
-		if( side != this.ownSide ) {
+		if( ship.getSide() != this.ownSide ) {
 			shiplist = this.enemyShips;
 		}
 	
 		for( int i=0; i < shiplist.size(); i++ ) {
 			SQLResultRow aship = shiplist.get(i);
 			
-			if( aship.getInt("id") == ship.getInt("id") ) {
+			if( aship.getInt("id") == ship.getId() ) {
 				shiplist.remove(i);
 				i--; // Arraypositionen haben sich nach dem Entfernen veraendert. Daher Index aktuallisieren
 				
@@ -1931,15 +1950,16 @@ public class Battle implements Loggable {
 			// Evt ist das Schiff an das gerade zerstoerte gedockt
 			// In diesem Fall muss es ebenfalls entfernt werden
 			else if( (dockcount > 0) && (aship.getString("docked").length() > 0) &&
-					(aship.getString("docked").equals("l "+ship.getInt("id")) || aship.getString("docked").equals(Integer.toString(ship.getInt("id")))) ) {
+					(aship.getString("docked").equals("l "+ship.getId()) || aship.getString("docked").equals(Integer.toString(ship.getId()))) ) {
 				shiplist.remove(i);
 				i--; // Arraypositionen haben sich nach dem Entfernen veraendert. Daher Index aktuallisieren
 				
 				dockcount--;
 				
-				db.update("DELETE FROM battles_ships WHERE shipid=",aship.getInt("id"));
+				BattleShip aBattleShip = (BattleShip)db.get(BattleShip.class, aship.getInt("id"));
 				
-				Ships.destroy( aship.getInt("id") );
+				db.delete(aBattleShip);
+				aBattleShip.getShip().destroy();
 			}
 			
 			if( found && (dockcount == 0) ) {
@@ -1947,11 +1967,23 @@ public class Battle implements Loggable {
 			}
 		}
 		
-		if( (side == this.enemySide) && ((this.activeSEnemy >= shiplist.size()) || shiplist.get(this.activeSEnemy).isEmpty()) ) {
+		if( (ship.getSide() == this.enemySide) && (this.activeSEnemy >= shiplist.size()) ) {
 			this.activeSEnemy = 0;
 		}
-		else if( (side == this.ownSide) && ((this.activeSOwn >= shiplist.size()) || shiplist.get(this.activeSOwn).isEmpty()) ) {
+		else if( (ship.getSide() == this.ownSide) && (this.activeSOwn >= shiplist.size()) ) {
 			this.activeSOwn = 0;
+		}
+	}
+	
+	/**
+	 * Zerstoert ein Schiff und alle an ihm gedockten Schiff
+	 * @param ship Das zu zerstoerende Schiff
+	 */
+	private void destroyShip( SQLResultRow ship ) {
+		Context context = ContextMap.getContext();
+		BattleShip bs = (BattleShip)context.getDB().get(BattleShip.class, ship.getInt("id"));
+		if( bs != null ) {
+			destroyShip(bs);
 		}
 	}
 	
