@@ -54,6 +54,8 @@ public class BattleTick extends TickController {
 		
 		db.update("UPDATE battles SET blockcount=blockcount-1 WHERE blockcount > 0 AND lastturn<=",lastacttime);
 		
+		getContext().commit();
+		
 		List<SQLResultRow> battleList = new ArrayList<SQLResultRow>();
 		SQLQuery battleQuery = db.query("SELECT id,commander1 FROM battles WHERE blockcount<=0 OR lastaction<=",lastacttime);
 		while( battleQuery.next() ) {
@@ -82,12 +84,15 @@ public class BattleTick extends TickController {
 					battle.addComMessage(battle.getOwnSide(), "++++ Das Tickscript hat die Runde beendet ++++\n\n");
 					battle.addComMessage(battle.getEnemySide(), "++++ Das Tickscript hat die Runde beendet ++++\n\n");
 				}
+				getContext().commit();
 			}
 			catch( Exception e ) {
 				this.log("Battle "+battledata.getInt("id")+" failed: "+e);
 				e.printStackTrace();
 				Common.mailThrowable(e, "BattleTick Exception", "battle: "+battledata.getInt("id"));
 			}
+			
+			getDB().clear();
 		}
 	}
 
