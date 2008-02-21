@@ -18,11 +18,10 @@
  */
 package net.driftingsouls.ds2.server.battles;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
@@ -47,6 +46,7 @@ public class BattleShip {
 	private Ship ship;
 	/*@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="battleid", nullable=false)*/
+	@Column(name="battleid")
 	private int battle;
 	private int side;
 	private int hull;
