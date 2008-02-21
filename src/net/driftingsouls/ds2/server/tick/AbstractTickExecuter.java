@@ -103,24 +103,30 @@ public abstract class AbstractTickExecuter extends TickController {
 	 * Fuehrt ein Tickscript aus
 	 * @param tickname Eine Instanz des Tickscripts
 	 * @param useSTDOUT Soll STDOUT oder eine Logdatei mit dem Namen des Ticks verwendet werden?
-	 * @throws Exception 
 	 */
-	protected void execTick( Class<? extends TickController> tickname, boolean useSTDOUT ) throws Exception {
-		TickController tick = tickname.newInstance();
-			
-		if( !useSTDOUT ) {
-			tick.addLogTarget(loxpath+tickname.getSimpleName().toLowerCase()+".log", false);
-		}
-		else {
-			tick.addLogTarget(STDOUT, false);
-		}
+	protected void execTick( Class<? extends TickController> tickname, boolean useSTDOUT ) {
+		try {
+			TickController tick = tickname.newInstance();
 				
-		tick.execute();
-		tick.dispose();
-		
-		// Der Inhalt des Ticks wurde geschrieben (commit) oder zurueckgesetzt (rollback)
-		// Daher ist ein clear nun unproblematisch
-		getDB().clear();
+			if( !useSTDOUT ) {
+				tick.addLogTarget(loxpath+tickname.getSimpleName().toLowerCase()+".log", false);
+			}
+			else {
+				tick.addLogTarget(STDOUT, false);
+			}
+					
+			tick.execute();
+			tick.dispose();
+		}
+		catch( Exception e ) {
+			// Alle Exceptions hier fangen und lediglich ausgeben
+			e.printStackTrace();
+		}
+		finally {
+			// Der Inhalt des Ticks wurde geschrieben (commit) oder zurueckgesetzt (rollback)
+			// Daher ist ein clear nun unproblematisch
+			getDB().clear();
+		}
 	}
 	
 	/**
