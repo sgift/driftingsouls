@@ -1708,4 +1708,17 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @return <code>true</code>, falls ein Zusammenschluss moeglich ist
 	 */
 	public abstract boolean isLinkableWerft(); 
+	
+	/**
+	 * Loescht die Werft und alle mit ihr verbundenen Auftraege
+	 *
+	 */
+	public void destroy() {
+		if( getKomplex() != null ) {
+			removeFromKomplex();
+		}
+		clearQueue();
+		
+		ContextMap.getContext().getDB().delete(this);
+	}
 }
