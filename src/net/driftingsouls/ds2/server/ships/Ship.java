@@ -2909,11 +2909,7 @@ public class Ship implements Loggable,Locatable,Transfering {
 			.uniqueResult();
 
 		if( werft != null ) {
-			if( werft.getKomplex() != null ) {
-				werft.removeFromKomplex();
-			}
-			werft.clearQueue();
-			db.delete(werft);
+			werft.destroy();
 		}
 
 		db.createQuery("delete from ShipModules where id=?")
