@@ -73,9 +73,14 @@ public class Werft extends DefaultBuilding {
 	public void cleanup(Context context, Base base) {
 		super.cleanup(context, base);
 		
-		context.getDB().createQuery("delete from BaseWerft where col=?")
+		org.hibernate.Session db = context.getDB();
+		BaseWerft werft = (BaseWerft)db.createQuery("from BaseWerft where col=?")
 			.setEntity(0, base)
-			.executeUpdate();
+			.uniqueResult();
+	
+		if( werft != null ) {
+			werft.destroy();
+		}
 	}
 
 	@Override
