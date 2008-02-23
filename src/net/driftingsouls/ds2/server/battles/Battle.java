@@ -1666,6 +1666,8 @@ public class Battle implements Loggable {
 			this.points[i] = points;
 		}
 		
+		context.getDB().flush();
+		
 		// Ist die Schlacht zuende (weil keine Schiffe mehr vorhanden sind?)
 		int owncount = db.first("SELECT count(*) count FROM battles_ships WHERE battleid=",this.id," AND side=",this.ownSide).getInt("count");
 		int enemycount = db.first("SELECT count(*) count FROM battles_ships WHERE battleid=",this.id," AND side=",this.enemySide).getInt("count");
