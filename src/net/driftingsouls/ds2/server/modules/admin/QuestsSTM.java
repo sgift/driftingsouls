@@ -25,8 +25,6 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.AdminController;
-import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
-import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 
 /**
  * Ermoeglicht das Verwalten von Sectortemplates 
@@ -67,7 +65,7 @@ public class QuestsSTM implements AdminPlugin {
 				
 				echo.append(Common.tableBegin(550,"left"));
 				echo.append("<div align=\"center\">STM-ID bearbeiten:</div><br />\n");
-				echo.append("<form action=\"./main.php\" method=\"post\">\n");
+				echo.append("<form action=\"./ds\" method=\"post\">\n");
 				echo.append("id: <input type=\"text\" name=\"newstmid\" value=\""+st.getString("id")+"\" /><br />\n");
 				echo.append("Pos: <input type=\"text\" name=\"x\" value=\""+st.getInt("x")+"\" size=\"4\" />/\n");
 				echo.append("<input type=\"text\" name=\"y\" value=\""+st.getInt("y")+"\" size=\"4\"  /><br />\n");
@@ -98,8 +96,8 @@ public class QuestsSTM implements AdminPlugin {
 			else if( stmaction.equals("delete1") ) {
 				echo.append(Common.tableBegin(550,"left"));
 				echo.append("Wollen sie das Sectortemplate '"+stmid+"' wirklich l&ouml;schen?<br />\n");
-				echo.append("<a class=\"error\" href=\"./main.php?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"&stmid="+stmid+"&stmaction=delete2\">Ja</a>");
-				echo.append(" - <a class=\"forschinfo\" href=\"./main.php?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"\">Nein</a>");
+				echo.append("<a class=\"error\" href=\"./ds?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"&stmid="+stmid+"&stmaction=delete2\">Ja</a>");
+				echo.append(" - <a class=\"forschinfo\" href=\"./ds?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"\">Nein</a>");
 				echo.append(Common.tableEnd());
 				echo.append("<br />\n");	
 			}
@@ -116,7 +114,7 @@ public class QuestsSTM implements AdminPlugin {
 		else if( newstm > 0 ) {
 			echo.append(Common.tableBegin(550,"left"));
 			echo.append("<div align=\"center\">Neue STM-ID erstellen:</div><br />\n");
-			echo.append("<form action=\"./main.php\" method=\"post\">\n");
+			echo.append("<form action=\"./ds\" method=\"post\">\n");
 			echo.append("id: <input type=\"text\" name=\"stmid\" value=\"meineid\" /><br />\n");
 			echo.append("Pos: <input type=\"text\" name=\"x\" value=\"x\" size=\"4\" />/\n");
 			echo.append("<input type=\"text\" name=\"y\" value=\"y\" size=\"4\"  /><br />\n");
@@ -136,7 +134,7 @@ public class QuestsSTM implements AdminPlugin {
 		echo.append(Common.tableBegin(550,"left"));
 		SQLQuery st = db.query("SELECT * FROM global_sectortemplates");
 		while( st.next() ) {
-			echo.append("* <a class=\"forschinfo\" href=\"./main.php?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"&stmid="+st.getString("id")+"&stmaction=edit1\">");
+			echo.append("* <a class=\"forschinfo\" href=\"./ds?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"&stmid="+st.getString("id")+"&stmaction=edit1\">");
 			echo.append(st.getString("id")+"</a> - "+st.getInt("x")+"/"+st.getInt("y"));
 			if( (st.getInt("w") != 0) || (st.getInt("h") != 0) ) {
 				echo.append(" (Groesse: "+st.getInt("w")+"x"+st.getInt("h")+")");	
@@ -144,12 +142,12 @@ public class QuestsSTM implements AdminPlugin {
 			if( st.getInt("scriptid") != 0 ) {
 				echo.append(" - Scriptid: "+st.getInt("scriptid"));	
 			} 
-			echo.append(" <a class=\"error\" href=\"./main.php?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"&stmid="+st.getString("id")+"&stmaction=delete1\">X</a>");
+			echo.append(" <a class=\"error\" href=\"./ds?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"&stmid="+st.getString("id")+"&stmaction=delete1\">X</a>");
 			echo.append("<br />\n");
 		}
 		st.free();
 		echo.append("<br />\n");
-		echo.append("<div align=\"center\"><a class=\"forschinfo\" href=\"./main.php?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"&newstm=1\">&gt; neu &lt;</div>\n");
+		echo.append("<div align=\"center\"><a class=\"forschinfo\" href=\"./ds?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"&newstm=1\">&gt; neu &lt;</div>\n");
 		echo.append(Common.tableEnd());
 	}
 }

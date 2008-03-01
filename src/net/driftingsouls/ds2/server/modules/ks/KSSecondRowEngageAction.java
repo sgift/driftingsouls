@@ -22,11 +22,10 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 /**
  * Ermoeglicht das Vorruecken gegen eine instabile zweite Reihe des Gegners
@@ -39,18 +38,13 @@ public class KSSecondRowEngageAction extends BasicKSAction {
 	 *
 	 */
 	public KSSecondRowEngageAction() {
-		this.requireAP(100);
 	}
 	
 	@Override
 	public int validate(Battle battle) {
-		if( battle.isSecondRowStable(battle.getEnemySide(), null) ) {
+		if( battle.isSecondRowStable(battle.getEnemySide()) ) {
 			return RESULT_ERROR;
 		}  
-		
-		if( battle.getPoints(battle.getOwnSide()) < 100 ) {
-			return RESULT_ERROR;
-		}
 		
 		return RESULT_OK;
 	}
@@ -68,17 +62,13 @@ public class KSSecondRowEngageAction extends BasicKSAction {
 		}
 		
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
 		
-		battle.setPoints(battle.getOwnSide(), battle.getPoints(battle.getOwnSide())-100);
-		
-		List<SQLResultRow> enemyShips = battle.getEnemyShips();
+		List<BattleShip> enemyShips = battle.getEnemyShips();
 		for( int i=0; i < enemyShips.size(); i++ ) {
-			SQLResultRow eShip = enemyShips.get(i);
+			BattleShip eShip = enemyShips.get(i);
 			
-			if( (eShip.getInt("action") & Battle.BS_SECONDROW) != 0 ) {
-				eShip.put( "action", eShip.getInt("action") ^ Battle.BS_SECONDROW);
-				db.update("UPDATE battles_ships SET action=",eShip.getInt("action")," WHERE shipid=",eShip.getInt("id"));
+			if( (eShip.getAction() & Battle.BS_SECONDROW) != 0 ) {
+				eShip.setAction(eShip.getAction() ^ Battle.BS_SECONDROW);
 			}
 		}
 		
@@ -94,7 +84,7 @@ public class KSSecondRowEngageAction extends BasicKSAction {
 			battle.setFlag(Battle.FLAG_BLOCK_SECONDROW_0, true);
 		}
 		
-		battle.save(false);
+		battle.resetInactivity();
 		
 		return RESULT_OK;
 	}

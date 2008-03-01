@@ -19,12 +19,13 @@
 package net.driftingsouls.ds2.server.modules.ks;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
-import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.comm.PM;
@@ -34,12 +35,11 @@ import net.driftingsouls.ds2.server.entities.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 /**
  * Laesst das aktuell ausgewaehlte Schiff versuchen das aktuell ausgewaehlte Zielschiff zu kapern 
@@ -52,56 +52,55 @@ public class KSKapernAction extends BasicKSAction {
 	 *
 	 */
 	public KSKapernAction() {
-		this.requireAP(5);
 		this.requireOwnShipReady(true);
 	}
 	
 	@Override
 	public int validate(Battle battle) {
-		SQLResultRow ownShip = battle.getOwnShip();
-		SQLResultRow enemyShip = battle.getEnemyShip();
+		BattleShip ownShip = battle.getOwnShip();
+		BattleShip enemyShip = battle.getEnemyShip();
 		
-		if( (ownShip.getInt("action") & Battle.BS_SECONDROW) != 0 ||
-			(enemyShip.getInt("action") & Battle.BS_SECONDROW) != 0 ) {
+		if( (ownShip.getAction() & Battle.BS_SECONDROW) != 0 ||
+			(enemyShip.getAction() & Battle.BS_SECONDROW) != 0 ) {
 			return RESULT_ERROR;
 		}
 		
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		
-		if( (ownShip.getInt("weapons") == 0) || (ownShip.getInt("engine") == 0) || 
-			(ownShip.getInt("crew") <= 0) || (ownShip.getInt("action") & Battle.BS_FLUCHT) != 0 ||
-			(ownShip.getInt("action") & Battle.BS_JOIN) != 0 || (enemyShip.getInt("action") & Battle.BS_FLUCHT) != 0 ||
-			(enemyShip.getInt("action") & Battle.BS_JOIN) != 0 || (enemyShip.getInt("action") & Battle.BS_DESTROYED) != 0 ) {
+		if( (ownShip.getShip().getWeapons() == 0) || (ownShip.getShip().getEngine() == 0) || 
+			(ownShip.getCrew() <= 0) || (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ||
+			(ownShip.getAction() & Battle.BS_JOIN) != 0 || (enemyShip.getAction() & Battle.BS_FLUCHT) != 0 ||
+			(enemyShip.getAction() & Battle.BS_JOIN) != 0 || (enemyShip.getAction() & Battle.BS_DESTROYED) != 0 ) {
 			return RESULT_ERROR;
 		}
 		
-		SQLResultRow enemyShipType = ShipTypes.getShipType( enemyShip );
+		ShipTypeData enemyShipType = enemyShip.getTypeData();
 	
-		// Geschuetze sind nicht kaperbar
-		if( (enemyShipType.getInt("class") == ShipClasses.GESCHUETZ.ordinal() ) || 
-			((enemyShipType.getInt("cost") != 0) && (enemyShip.getInt("engine") != 0) && (enemyShip.getInt("crew") != 0)) ||
-			(ownShip.getInt("crew") == 0) || ShipTypes.hasShipTypeFlag(enemyShipType, ShipTypes.SF_NICHT_KAPERBAR) ) {
+//		 Geschuetze sind nicht kaperbar
+		if( (enemyShipType.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) || 
+			((enemyShipType.getCost() != 0) && (enemyShip.getShip().getEngine() != 0) && (enemyShip.getCrew() != 0)) ||
+			(ownShip.getCrew() == 0) || enemyShipType.hasFlag(ShipTypes.SF_NICHT_KAPERBAR) ) {
 			return RESULT_ERROR;
 		}
 		
-		if( enemyShipType.getInt("crew") == 0 ) {
+		if( enemyShipType.getCrew() == 0 ) {
 			return RESULT_ERROR;
 		}
 	
-		if( enemyShip.getString("docked").length() > 0 ) {
-			if( enemyShip.getString("docked").charAt(0) == 'l' ) {
+		if( enemyShip.getDocked().length() > 0 ) {
+			if( enemyShip.getDocked().charAt(0) == 'l' ) {
 				return RESULT_ERROR;
 			} 
 
-			SQLResultRow mastership = db.first("SELECT engine,crew FROM ships WHERE id>0 AND id=",enemyShip.getString("docked"));
-			if( (mastership.getInt("engine") != 0) && (mastership.getInt("crew") != 0) ) {
+			Ship mastership = (Ship)db.get(Ship.class, Integer.parseInt(enemyShip.getDocked()));
+			if( (mastership.getEngine() != 0) && (mastership.getCrew() != 0) ) {
 				return RESULT_ERROR;
 			}
 		}
 	
 		// IFF-Stoersender
-		boolean disableIFF = enemyShip.getString("status").indexOf("disable_iff") > -1;	
+		boolean disableIFF = enemyShip.getShip().getStatus().indexOf("disable_iff") > -1;	
 		
 		if( disableIFF ) {
 			return RESULT_ERROR;
@@ -109,12 +108,12 @@ public class KSKapernAction extends BasicKSAction {
 	
 		//Flagschiff?
 		User ownuser = (User)context.getActiveUser();
-		User enemyuser = (User)context.getDB().get(User.class, enemyShip.getInt("owner"));
+		User enemyuser = enemyShip.getOwner();
 	
 		UserFlagschiffLocation flagschiffstatus = enemyuser.getFlagschiff();
 		
 		if( !ownuser.hasFlagschiffSpace() && (flagschiffstatus != null) && 
-			(flagschiffstatus.getID() == enemyShip.getInt("id")) ) {
+			(flagschiffstatus.getID() == enemyShip.getId()) ) {
 			return RESULT_ERROR;
 		}
 		
@@ -131,37 +130,36 @@ public class KSKapernAction extends BasicKSAction {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
 		
-		Database db = context.getDatabase();
-		SQLResultRow ownShip = battle.getOwnShip();
-		SQLResultRow enemyShip = battle.getEnemyShip();
+		org.hibernate.Session db = context.getDB();
+		BattleShip ownShip = battle.getOwnShip();
+		BattleShip enemyShip = battle.getEnemyShip();
 
 		if( this.validate(battle) != RESULT_OK ) {
 			battle.logme( "Sie k&ouml;nnen dieses Schiff nicht kapern" );
 			return RESULT_ERROR;
 		}
 	
-		SQLResultRow enemyShipType = ShipTypes.getShipType( enemyShip );
+		ShipTypeData enemyShipType = enemyShip.getTypeData();
 		
-		User euser = (User)context.getDB().get(User.class, enemyShip.getInt("owner"));
+		User euser = enemyShip.getOwner();
 			
-		int savecrew = (int)Math.round(ownShip.getInt("crew")/10d);
+		int savecrew = (int)Math.round(ownShip.getCrew()/10d);
 		if( savecrew <= 0 ) {
 			savecrew = 1;
 		}
-		int acrew = ownShip.getInt("crew") - savecrew;
-		int dcrew = enemyShip.getInt("crew");
+		int acrew = ownShip.getCrew() - savecrew;
+		int dcrew = enemyShip.getCrew();
 	
 		boolean ok = false;
-		int keepcrew = 0;
-	
+
 		String msg = "";
 		if( (acrew != 0) && (dcrew != 0) ) {
 			battle.logme("Die Crew st&uuml;rmt das Schiff\n");
-			msg = "Die Crew der "+Battle.log_shiplink(ownShip)+" st&uuml;rmt die "+Battle.log_shiplink(enemyShip)+"\n";
+			msg = "Die Crew der "+Battle.log_shiplink(ownShip.getShip())+" st&uuml;rmt die "+Battle.log_shiplink(enemyShip.getShip())+"\n";
 			
 			int defmulti = 1;
 			
-			Offizier offizier = Offizier.getOffizierByDest('s', enemyShip.getInt("id"));
+			Offizier offizier = Offizier.getOffizierByDest('s', enemyShip.getId());
 			if( offizier != null ) {
 				defmulti = (int)Math.round(offizier.getAbility(Offizier.Ability.SEC)/25d)+1;
 			}
@@ -170,7 +168,6 @@ public class KSKapernAction extends BasicKSAction {
 				ok = true;
 				battle.logme("Die Crew gibt das Schiff kampflos auf und l&auml;uft &uuml;ber\n");
 				msg += "Die Crew gibt das Schiff kampflos auf l&auml;uft &uuml;ber.\n";
-				keepcrew = dcrew;
 			}
 			else {
 				//$dcrew = round(($dcrew*$defmulti - $acrew)/$defmulti);
@@ -200,27 +197,24 @@ public class KSKapernAction extends BasicKSAction {
 		else if( acrew != 0 ) {
 			ok = true;
 			battle.logme("Schiff wird widerstandslos &uuml;bernommen\n");
-			msg += "Das Schiff "+Battle.log_shiplink(enemyShip)+" wird an die "+Battle.log_shiplink(ownShip)+" &uuml;bergeben\n";
+			msg += "Das Schiff "+Battle.log_shiplink(enemyShip.getShip())+" wird an die "+Battle.log_shiplink(ownShip.getShip())+" &uuml;bergeben\n";
 		}
 			
 		if( acrew != 0 ) {
-			battle.setPoints(battle.getOwnSide(), battle.getPoints(battle.getOwnSide()) - 5);
-			
 			battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
 			battle.logenemy(msg);
 			battle.logenemy("]]></action>\n");
 			
-			db.update("UPDATE ships SET crew='"+(acrew+savecrew)+"',battleAction='1' WHERE id>0 AND id=",ownShip.getInt("id"));
-			db.update("UPDATE ships SET crew='",dcrew,"' WHERE id>0 AND id=",enemyShip.getInt("id"));
-			
-			ownShip.put("crew", acrew+savecrew);
-			enemyShip.put("crew", dcrew);
+			ownShip.getShip().setCrew(acrew+savecrew);
+			ownShip.getShip().setBattleAction(true);
+		
+			enemyShip.getShip().setCrew(dcrew);
 		}
 			
 		// Wurde das Schiff gekapert?
 		if( ok ) {
 			// Unbekannte Items bekannt machen
-			Cargo cargo = new Cargo( Cargo.Type.STRING, enemyShip.getString("cargo") );
+			Cargo cargo = enemyShip.getCargo();
 			
 			List<ItemCargoEntry> itemlist = cargo.getItems();
 			for( int i=0; i < itemlist.size(); i++ ) {
@@ -233,64 +227,103 @@ public class KSKapernAction extends BasicKSAction {
 			}
 			
 			// Schiff leicht reparieren
-			if( enemyShip.getInt("engine") <= 20 ) {
-				enemyShip.put("engine", 20);
+			if( enemyShip.getShip().getEngine() <= 20 ) {
+				enemyShip.getShip().setEngine(20);
+				enemyShip.setEngine(20);
 			}
-			if( enemyShip.getInt("weapons") <= 20 ) {
-				enemyShip.put("weapons", 20);
+			if( enemyShip.getShip().getWeapons() <= 20 ) {
+				enemyShip.getShip().setWeapons(20);
+				enemyShip.setWeapons(20);
 			}
 				
 			// Angreifer (falls ueberlebende vorhanden) auf dem Schiff stationieren
 			int newshipcrew = 0;
 			if( (acrew != 0) && (dcrew == 0) ) {
-				newshipcrew = acrew;
-				if( newshipcrew > enemyShipType.getInt("crew") ) {
-					newshipcrew = enemyShipType.getInt("crew");
+				newshipcrew = acrew/2;
+				if( newshipcrew > enemyShipType.getCrew() ) {
+					newshipcrew = enemyShipType.getCrew();
 				}
-				acrew -= newshipcrew;		
-				db.update("UPDATE ships SET crew=",(acrew+savecrew),",battleAction=1 WHERE id>0 AND id=",ownShip.getInt("id"));				
-				battle.logme( (newshipcrew+keepcrew)+" Crewmitglieder werden auf dem gekaperten Schiff stationiert\n" );
+				acrew = acrew -newshipcrew;		
+				
+				ownShip.getShip().setCrew(acrew);
+				
+				battle.logme( (newshipcrew)+" Crewmitglieder werden auf dem gekaperten Schiff stationiert\n" );
 			}
-			newshipcrew += keepcrew;
 			
 			String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
 			
-			enemyShip.put("history", enemyShip.getString("history") + "Im Kampf gekapert am "+currentTime+" durch "+user.getName()+" ("+user.getId()+")\n");
+			enemyShip.getShip().setHistory(enemyShip.getShip().getHistory()+"Im Kampf gekapert am "+currentTime+" durch "+user.getName()+" ("+user.getId()+")\n");
 			
-			db.update("UPDATE ships SET owner=",user.getId(),",fleet=null,battleAction=1,engine=",enemyShip.getInt("engine"),",weapons=",enemyShip.getInt("weapons"),",crew=",newshipcrew," WHERE id>0 AND id=",enemyShip.getInt("id"));
-			db.update("UPDATE battles_ships SET side=",battle.getOwnSide(),",engine=",enemyShip.getInt("engine"),",weapons=",enemyShip.getInt("weapons")," WHERE shipid=",enemyShip.getInt("id"));
+			enemyShip.getShip().removeFromFleet();
+			enemyShip.getShip().setOwner(user);
+			enemyShip.getShip().setBattleAction(true);
+			enemyShip.getShip().setCrew(newshipcrew);
+			enemyShip.setSide(battle.getOwnSide());
+			
+			List<Integer> kaperlist = new ArrayList<Integer>();
+			kaperlist.add(enemyShip.getId());
+			
+			List docked = db.createQuery("from Ship where id>0 and docked in (?,?)")
+				.setString(0, Integer.toString(enemyShip.getId()))
+				.setString(1, "l "+enemyShip.getId())
+				.list();
+			for( Iterator iter=docked.iterator(); iter.hasNext(); ) {
+				Ship dockShip = (Ship)iter.next();
+				dockShip.removeFromFleet();
+				dockShip.setOwner(user);
+				dockShip.setBattleAction(true);
 				
-			db.update("UPDATE ships SET owner=",user.getId(),",fleet=null,battleAction=1 WHERE id>0 AND docked IN ('",enemyShip.getInt("id"),"','l ",enemyShip.getInt("id"),"')");
+				BattleShip bDockShip = (BattleShip)db.get(BattleShip.class, dockShip.getId());
+				bDockShip.setSide(battle.getOwnSide());
 				
-			db.update("UPDATE offiziere SET userid=",user.getId()," WHERE dest='s ",enemyShip.getInt("id"),"'");
-			if( enemyShipType.getInt("werft") > 0 ) {
-				db.update("UPDATE werften SET linked=null,linkedWerft=null WHERE shipid=",enemyShip.getInt("id"));
+				db.createQuery("update Offizier set userid=? where dest=?")
+					.setEntity(0, user)
+					.setString(1, "s "+dockShip.getId())
+					.executeUpdate();
+				if( dockShip.getTypeData().getWerft() != 0 ) {
+					ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=?")
+						.setEntity(0, dockShip)
+						.uniqueResult();
+							
+					if( werft.getKomplex() != null ) {
+						werft.removeFromKomplex();
+					}
+					werft.setLink(null);
+				}
+				
+				kaperlist.add(bDockShip.getId());
 			}
-				
+			
+			db.createQuery("update Offizier set userid=? where dest=?")
+				.setEntity(0, user)
+				.setString(1, "s "+enemyShip.getId())
+				.executeUpdate();
+			if( enemyShipType.getWerft() != 0 ) {
+				ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=?")
+					.setEntity(0, enemyShip)
+					.uniqueResult();
+					
+				if( werft.getKomplex() != null ) {
+					werft.removeFromKomplex();
+				}
+				werft.setLink(null);
+			}
+			
 			// Flagschiffeintraege aktuallisieren?
 			UserFlagschiffLocation flagschiffstatus = euser.getFlagschiff();
 	
 			if( (flagschiffstatus != null) && (flagschiffstatus.getType() == UserFlagschiffLocation.Type.SHIP) && 
-				(enemyShip.getInt("id") == flagschiffstatus.getID()) ) {
-				euser.setFlagschiff(0);
-				user.setFlagschiff(enemyShip.getInt("id"));
+				(enemyShip.getId() == flagschiffstatus.getID()) ) {
+				euser.setFlagschiff(null);
+				user.setFlagschiff(enemyShip.getId());
 			}
 			
-			Common.dblog("kapern", Integer.toString(ownShip.getInt("id")), Integer.toString(enemyShip.getInt("id")), 
-					"battle",	Integer.toString(battle.getID()),
-					"owner",	Integer.toString(enemyShip.getInt("owner")),
-					"pos",		Location.fromResult(enemyShip).toString(),
-					"shiptype",	Integer.toString(enemyShip.getInt("type")) );
+			Common.dblog("kapern", Integer.toString(ownShip.getId()), Integer.toString(enemyShip.getId()), 
+					"battle",	Integer.toString(battle.getId()),
+					"owner",	Integer.toString(enemyShip.getOwner().getId()),
+					"pos",		enemyShip.getShip().getLocation().toString(),
+					"shiptype",	Integer.toString(enemyShip.getShip().getType()) );
 				
-			List<Integer> kaperlist = new ArrayList<Integer>();
-			kaperlist.add(enemyShip.getInt("id"));
-			SQLQuery sid = db.query("SELECT id FROM ships WHERE id>0 AND docked IN ('",enemyShip.getInt("id"),"','l ",enemyShip.getInt("id"),"')");
-			while( sid.next() ) {
-				kaperlist.add(sid.getInt("id"));
-				db.update("UPDATE battles_ships SET side=",battle.getOwnSide()," WHERE shipid=",sid.getInt("id"));
-			}
-			sid.free();
-	
 			// TODO: Das Entfernen eines Schiffes aus der Liste sollte in Battle 
 			// durchgefuehrt werden und den Zielindex automatisch anpassen
 			// (durch das Entfernen von Schiffen kann der Zielindex ungueltig geworden sein)
@@ -298,11 +331,11 @@ public class KSKapernAction extends BasicKSAction {
 			// Ein neues Ziel auswaehlen
 			//battle.setEnemyShipIndex(battle.getNewTargetIndex());
 			
-			List<SQLResultRow> enemyShips = battle.getEnemyShips();
+			List<BattleShip> enemyShips = battle.getEnemyShips();
 			for( int i=0; i < enemyShips.size(); i++ ) {
-				SQLResultRow eship = enemyShips.get(i);
+				BattleShip eship = enemyShips.get(i);
 				
-				if( kaperlist.contains(eship.getInt("id")) ) {
+				if( kaperlist.contains(eship.getId()) ) {
 					enemyShips.remove(i);
 					i--;
 					battle.getOwnShips().add(eship);
@@ -311,8 +344,11 @@ public class KSKapernAction extends BasicKSAction {
 	
 			if( enemyShips.size() < 1 ) {		
 				battle.endBattle(1, 0, true);
+				
+				User commander = battle.getCommander(battle.getOwnSide());
+				
 				context.getResponse().getContent().append("Du hast das letzte gegnerische Schiff gekapert und somit die Schlacht gewonnen!");
-				PM.send(context, battle.getCommander(battle.getOwnSide()), battle.getCommander(battle.getEnemySide()), "Schlacht verloren", "Du hast die Schlacht bei "+battle.getSystem()+" : "+battle.getX()+"/"+battle.getY()+" gegen "+user.getName()+" verloren, da dein letztes Schiff gekapert wurde!");
+				PM.send(commander, battle.getCommander(battle.getEnemySide()).getId(), "Schlacht verloren", "Du hast die Schlacht bei "+battle.getLocation()+" gegen "+user.getName()+" verloren, da dein letztes Schiff gekapert wurde!");
 				
 				return RESULT_HALT;
 			}
@@ -321,18 +357,18 @@ public class KSKapernAction extends BasicKSAction {
 				battle.setEnemyShipIndex(battle.getNewTargetIndex());
 			}
 			
-			Ships.recalculateShipStatus(enemyShip.getInt("id"));
+			enemyShip.getShip().recalculateShipStatus();
 			
 			enemyShip = battle.getEnemyShip();
 		} 
 		// Das Schiff konnte offenbar nicht gekapert werden....
 		else {
-			enemyShip.put("status", Ships.recalculateShipStatus(enemyShip.getInt("id")));
+			enemyShip.getShip().recalculateShipStatus();
 		}
 			
-		ownShip.put("status", Ships.recalculateShipStatus(ownShip.getInt("id")));
+		ownShip.getShip().recalculateShipStatus();
 		
-		battle.save(false);
+		battle.resetInactivity();
 		
 		return RESULT_OK;
 	}

@@ -18,8 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -37,9 +37,6 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.bbcode.Smilie;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -63,6 +60,11 @@ public class CommController extends TemplateGenerator implements Loggable {
 		super(context);
 		
 		setTemplate("comm.html");
+		
+		setPageTitle("PMs");
+		addPageMenuEntry("Neue Nachricht", Common.buildUrl("default", "to", 0));
+		addPageMenuEntry("Posteingang", Common.buildUrl("showInbox"));
+		addPageMenuEntry("Postausgang", Common.buildUrl("showOutbox"));
 	}
 	
 	@Override
@@ -84,14 +86,13 @@ public class CommController extends TemplateGenerator implements Loggable {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void readAllAction() {
-		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
-		
-		parameterNumber("ordner");
-		int ordner = getInteger("ordner");
 
-		db.update("UPDATE transmissionen SET gelesen=1 WHERE empfaenger='",user.getId(),"' AND ordner='",ordner,"' AND (gelesen=0 AND !(flags & ",PM.FLAGS_IMPORTANT,"))");
+		parameterNumber("ordner");
+		Ordner ordner = Ordner.getOrdnerByID(getInteger("ordner"), (User)getUser());
+		
+		ordner.markAllAsRead();
+		
 		t.setVar("show.message", "<span style=\"color:red\">Alle Nachrichten als gelesen markiert</span>");
 	
 		redirect("showInbox");
@@ -104,16 +105,12 @@ public class CommController extends TemplateGenerator implements Loggable {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void deleteAllAction() {
-		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
 		
 		parameterNumber("ordner");
-		int ordner = getInteger("ordner");
-
-		int trash = Ordner.getTrash( user.getId() ).getID();
-
-		db.update("UPDATE transmissionen SET gelesen=2, ordner='",trash,"' WHERE empfaenger='",user.getId(),"' AND ordner='",ordner,"' AND (gelesen=1 OR !(flags & ",PM.FLAGS_IMPORTANT,"))");
+		Ordner ordner = Ordner.getOrdnerByID(getInteger("ordner"), (User)getUser());
+		ordner.deleteAllPms();
+		
 		t.setVar("show.message", "<span style=\"color:red\">Alle Nachrichten gel&ouml;scht</span>");
 	
 		redirect("showInbox");
@@ -127,19 +124,24 @@ public class CommController extends TemplateGenerator implements Loggable {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void deleteAction() {
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		parameterNumber("delete");
 		parameterNumber("delord");
 		int delete = getInteger("delete");
-		int ordner = getInteger("delord");
+		Ordner ordner = Ordner.getOrdnerByID(getInteger("delord"), user);
 
 		int result = 0;
-		if( (ordner != 0) && (delete == 0) ) {
-			result = Ordner.deleteOrdnerByID( ordner, user.getId() );
-		} else {
-			result = PM.deleteByID( delete, user.getId() );
+		if( (ordner != null) && (delete == 0) ) {
+			result = ordner.deleteOrdner();
+		}
+		else {
+			PM pm = (PM)db.get(PM.class, delete);
+			if( pm.getEmpfaenger() == user ) {
+				result = pm.delete();
+			}
 		}
 
 		switch ( result ){
@@ -165,12 +167,18 @@ public class CommController extends TemplateGenerator implements Loggable {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void newOrdnerAction() {
+		User user = (User)getUser();
 		parameterString("ordnername");
 		parameterNumber("ordner");
 		String name = getString("ordnername");
-		int parent = getInteger("ordner");
+		Ordner parent = Ordner.getOrdnerByID(getInteger("ordner"), user);
+		
+		if( parent == null ) {
+			redirect("showInbox");
+			return;
+		}
 
-		Ordner.createNewOrdner(name, parent, getUser().getId());
+		Ordner.createNewOrdner(name, parent, user);
 
 		redirect("showInbox");
 	}
@@ -188,11 +196,11 @@ public class CommController extends TemplateGenerator implements Loggable {
 		parameterNumber("moveto");
 		parameterNumber("ordner");
 
-		int moveto = getInteger("moveto");
-		int ordner = getInteger("ordner");
+		Ordner moveto = Ordner.getOrdnerByID(getInteger("moveto"), user);
+		Ordner ordner = Ordner.getOrdnerByID(getInteger("ordner"), user);
 
-		if( Ordner.existsOrdnerWithID( moveto, user.getId() ) ){
-			PM.moveAllToOrdner( ordner, moveto, user.getId() );
+		if( (moveto != null) && (ordner != null) ) {
+			PM.moveAllToOrdner( ordner, moveto, user );
 		}
 
 		redirect("showInbox");
@@ -207,17 +215,13 @@ public class CommController extends TemplateGenerator implements Loggable {
 	@Action(ActionType.DEFAULT)
 	public void renameAction() {
 		User user = (User)getUser();
-		Database db = getDatabase();
 		
 		parameterString("ordnername");
 		parameterNumber("subject");
 		String newname = getString("ordnername");
 		int subject = getInteger("subject");
 
-		newname = db.prepareString(newname);
-
-		Ordner ordner = Ordner.getOrdnerByID( subject, user.getId() );
-
+		Ordner ordner = Ordner.getOrdnerByID( subject, user );
 		ordner.setName( newname );
 
 		redirect("showInbox");
@@ -231,19 +235,17 @@ public class CommController extends TemplateGenerator implements Loggable {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void deletePlayerAction() {
-		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
 		
 		parameterNumber("playerid");
 		parameterNumber("ordner");
-		int playerid = getInteger("playerid");
-		int ordner = getInteger("ordner");
+		Ordner ordner = Ordner.getOrdnerByID(getInteger("ordner"), (User)getUser());
 		
-		User auser = (User)getDB().get(User.class, playerid);
+		User auser = (User)getContext().getDB().get(User.class, getInteger("playerid"));
 		
-		if( auser.getId() != 0 ) {
-			db.update("UPDATE transmissionen SET gelesen=2 WHERE empfaenger=",user.getId()," AND sender=",auser.getId()," AND ordner=",ordner," AND (gelesen=1 OR !(flags & ",PM.FLAGS_IMPORTANT,"))");
+		if( auser != null ) {
+			ordner.deletePmsByUser(auser);
+			
 			t.setVar("show.message", "<span style=\"color:red\">Alle Nachrichten von "+Common._title(auser.getName())+" gel&ouml;scht</span>");
 		}
 		else {
@@ -262,23 +264,19 @@ public class CommController extends TemplateGenerator implements Loggable {
 	public void readSelectedAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
-		List<Integer> pms = new ArrayList<Integer>();
-		SQLQuery all_pm = db.query("SELECT id FROM transmissionen WHERE empfaenger='",user.getId(),"' AND gelesen < 2");
-		while( all_pm.next() ){
-			pms.add(all_pm.getInt("id"));
-		}
-		all_pm.free();
+		List pmList = db.createQuery("from PM where empfaenger=:user and gelesen < 1")
+			.setEntity("user", user)
+			.list();
+		for( Iterator iter=pmList.iterator(); iter.hasNext(); ) {
+			PM pm = (PM)iter.next();
+			
+			parameterNumber("pm_"+pm.getId());
+			int pmParam = getInteger("pm_"+pm.getId());
 
-		long count_pm = pms.size();
-
-		for( int i = 0; i < count_pm; i++ ){
-			parameterNumber("pm_"+pms.get(i));
-			int pm = getInteger("pm_"+pms.get(i));
-
-			if( pm == pms.get(i)){
-				db.update("UPDATE transmissionen SET gelesen=1 WHERE id='",pms.get(i),"' AND empfaenger='",user.getId(),"' AND (gelesen=0 AND !(flags & ",PM.FLAGS_IMPORTANT,"))");
+			if( (pmParam == pm.getId()) && !pm.hasFlag(PM.FLAGS_IMPORTANT) ) {
+				pm.setGelesen(1);
 			}
 		}
 
@@ -295,69 +293,64 @@ public class CommController extends TemplateGenerator implements Loggable {
 	 * @urlparam Integer pm_$pmid Die ID einer zu verschiebenden PM ($pmid gibt diese ebenfalls an)
 	 *
 	 */
-	@Action(ActionType.AJAX)
+	@Action(ActionType.DEFAULT)
 	public void moveAjaxAct() {
 		User user = (User)getUser();
-		Database db = getDatabase();
-
 		parameterNumber("moveto");
 		parameterNumber("ordner");
-		int movetoID = getInteger("moveto");
-		int ordner = getInteger("ordner");
 		
-		Ordner moveto = Ordner.getOrdnerByID( movetoID, user.getId() );
-		Ordner trash = Ordner.getTrash( user.getId() );
+		Ordner moveto = Ordner.getOrdnerByID( getInteger("moveto"), user );
+		Ordner trash = Ordner.getTrash( user );
+		Ordner source = Ordner.getOrdnerByID(getInteger("ordner"), user);
 
-		if( moveto == null ) {
+		if( moveto == null || source == null ) {
 			getContext().getResponse().getContent().append("Der angegebene Ordner existiert nicht");
 			return;
 		}
 
-		if( trash.getID() == moveto.getID()){
+		if( trash == moveto ) {
 			getContext().getResponse().getContent().append("ERROR: Es duerfen keine Nachrichten/Ordner in den Papierkorb verschoben werden");
 			return;
 		}
+		
+		List<PM> pms = source.getPms();
+		List<Ordner> ordners = source.getChildren();
 
-		SQLQuery all_pm = db.query("SELECT id FROM transmissionen WHERE empfaenger='",user.getId(),"' AND gelesen < 2 AND ordner='",ordner,"'");
-		SQLQuery all_ordner = db.query("SELECT id FROM ordner WHERE playerid='",user.getId(),"' AND !(flags=",Ordner.FLAG_TRASH,") AND parent='",ordner,"'");
-
-		List<Integer> pms = new ArrayList<Integer>();
-		while( all_pm.next() ){
-			pms.add(all_pm.getInt("id"));
-		}
-		all_pm.free();
-
-		List<Integer> ordners = new ArrayList<Integer>();
-		while( all_ordner.next() ){
-			ordners.add(all_ordner.getInt("id"));
-		}
-		all_ordner.free();
-
-		int count_pm = pms.size();
-		int count_ordner = ordners.size();
 		int counter = 0;
-		
-		for(int i = 0; i < count_ordner; i++ ) {
-			parameterNumber("ordner_"+ordners.get(i));
-			int tomove = getInteger("ordner_"+ordners.get(i));
-			if( (tomove != 0) && Ordner.getAllChildIDs(tomove, user.getId()).contains(moveto.getID())) {
+		for(int i = 0; i < ordners.size(); i++ ) {
+			if( ordners.get(i).hasFlag(Ordner.FLAG_TRASH) ) {
+				continue;
+			}
+			
+			parameterNumber("ordner_"+ordners.get(i).getId());
+			final int ordnerId = getInteger("ordner_"+ordners.get(i).getId());
+			if( ordnerId == 0 ) {
+				continue;
+			}
+			
+			Ordner tomove = Ordner.getOrdnerByID(ordnerId, user);
+			if( tomove == null ) {
+				continue;
+			}
+			
+			if( tomove.getAllChildren().contains(moveto)) {
 				getContext().getResponse().getContent().append("ERROR: Es duerfen keine Ordner in ihre eignen Unterordner verschoben werden");
-				return ;
+				return;
 			}
 
 
-			if( tomove == ordners.get(i) ){
+			if( tomove.getId() == ordners.get(i).getId() ){
 				counter++;
-				db.update("UPDATE ordner SET parent='",moveto.getID(),"' WHERE id='",tomove,"'");
+				tomove.setParent(moveto);
 			}
 		}
 		
-		for( int i = 0; i < count_pm; i++ ) {
-			parameterNumber("pm_"+pms.get(i));
-			int pm = getInteger("pm_"+pms.get(i));
-			if( pm == pms.get(i) ) {
+		for( int i = 0; i < pms.size(); i++ ) {
+			parameterNumber("pm_"+pms.get(i).getId());
+			int pm = getInteger("pm_"+pms.get(i).getId());
+			if( pm == pms.get(i).getId() ) {
 				counter++;
-				db.update("UPDATE transmissionen SET ordner='",moveto.getID(),"' WHERE id='",pm,"'");
+				pms.get(i).setOrdner(moveto.getId());
 			}
 		}
 	
@@ -377,66 +370,65 @@ public class CommController extends TemplateGenerator implements Loggable {
 	public void moveSelectedAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
 
 		parameterNumber("moveto");
 		parameterNumber("ordner");
-		int movetoID = getInteger("moveto");
-		int ordner = getInteger("ordner");
 		
-		Ordner moveto = Ordner.getOrdnerByID( movetoID, user.getId() );
-		Ordner trash = Ordner.getTrash( user.getId() );
+		Ordner moveto = Ordner.getOrdnerByID( getInteger("moveto"), user );
+		Ordner trash = Ordner.getTrash( user );
+		Ordner source = Ordner.getOrdnerByID(getInteger("ordner"), user);
 
-		if( moveto == null ) {
+		if( moveto == null || source == null ) {
 			t.setVar("show.message", "<span style=\"color:red\">Der angegebene Ordner existiert nicht</span>");
 			redirect("showInbox");
 			return;
 		}
 		
-		if( trash.getID() == moveto.getID()){
+		if( trash.getId() == moveto.getId()){
 			t.setVar("show.message", "<span style=\"color:red\">Es d&uuml;rfen keine Nachrichten/Ordner in den Papierkorb verschoben werden.</span>");
 			redirect("showInbox");
 			return;
 		}
 
-		SQLQuery all_pm = db.query("SELECT id FROM transmissionen WHERE empfaenger='",user.getId(),"' AND gelesen < 2 AND ordner='",ordner,"'");
-		SQLQuery all_ordner = db.query("SELECT id FROM ordner WHERE playerid='",user.getId(),"' AND !(flags=",Ordner.FLAG_TRASH,") AND parent='",ordner,"'");
+		List<PM> pms = source.getPms();
+		List<Ordner> ordners = source.getChildren();
 
-		List<Integer> pms = new ArrayList<Integer>();
-		while( all_pm.next() ){
-			pms.add(all_pm.getInt("id"));
-		}
-		all_pm.free();
-
-		List<Integer> ordners = new ArrayList<Integer>();
-		while( all_ordner.next() ){
-			ordners.add(all_ordner.getInt("id"));
-		}
-		all_ordner.free();
-
-		int count_pm = pms.size();
-		int count_ordner = ordners.size();
-		
-		for(int i = 0; i < count_ordner; i++ ) {
-			parameterNumber("ordner_"+ordners.get(i));
-			int tomove = getInteger("ordner_"+ordners.get(i));
-			if( (tomove != 0) && Ordner.getAllChildIDs(tomove, user.getId()).contains(moveto.getID())) {
+		int counter = 0;
+		for(int i = 0; i < ordners.size(); i++ ) {
+			if( ordners.get(i).hasFlag(Ordner.FLAG_TRASH) ) {
+				continue;
+			}
+			
+			parameterNumber("ordner_"+ordners.get(i).getId());
+			final int ordnerId = getInteger("ordner_"+ordners.get(i).getId());
+			if( ordnerId == 0 ) {
+				continue;
+			}
+			
+			Ordner tomove = Ordner.getOrdnerByID(ordnerId, user);
+			if( tomove == null ) {
+				continue;
+			}
+			
+			if( tomove.getAllChildren().contains(moveto)) {
 				t.setVar("show.message", "<span style=\"color:red\">Es d&uuml;rfen keine Ordner in ihre eignen Unterordner verschoben werden.</span>");
 				redirect("showInbox");
 				return ;
 			}
 
 
-			if( tomove == ordners.get(i) ){
-				db.update("UPDATE ordner SET parent='",moveto.getID(),"' WHERE id='",tomove,"'");
+			if( tomove.getId() == ordners.get(i).getId() ){
+				counter++;
+				tomove.setParent(moveto);
 			}
 		}
-
-		for( int i = 0; i < count_pm; i++ ) {
-			parameterNumber("pm_"+pms.get(i));
-			int pm = getInteger("pm_"+pms.get(i));
-			if( pm == pms.get(i) ) {
-				db.update("UPDATE transmissionen SET ordner='",moveto.getID(),"' WHERE id='",pm,"'");
+		
+		for( int i = 0; i < pms.size(); i++ ) {
+			parameterNumber("pm_"+pms.get(i).getId());
+			int pm = getInteger("pm_"+pms.get(i).getId());
+			if( pm == pms.get(i).getId() ) {
+				counter++;
+				pms.get(i).setOrdner(moveto.getId());
 			}
 		}
 	
@@ -454,42 +446,40 @@ public class CommController extends TemplateGenerator implements Loggable {
 	public void deleteSelectedAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
 
 		parameterNumber("ordner");
-		int ordner = getInteger("ordner");
+		Ordner ordner = Ordner.getOrdnerByID(getInteger("ordner"), user);
 
-		SQLQuery all_pm = db.query("SELECT id FROM transmissionen WHERE empfaenger='",user.getId(),"' AND gelesen < 2");
-		SQLQuery all_ordner = db.query("SELECT id FROM ordner WHERE playerid='",user.getId(),"' AND !flags=",Ordner.FLAG_TRASH," AND parent='",ordner,"'");
-
-		List<Integer> pms = new ArrayList<Integer>();
-		while( all_pm.next() ){
-			pms.add(all_pm.getInt("id"));
-		}
-
-		List<Integer> ordners = new ArrayList<Integer>();
-		while( all_ordner.next() ) {
-			ordners.add(all_ordner.getInt("id"));
-		}
-
-		int count_pm = pms.size();
-		int count_ordner = ordners.size();
+		List<PM> pms = ordner.getPms();
+		List<Ordner> ordners = ordner.getChildren();
 		
-		for( int i = 0; i < count_ordner; i++ ) {
-			parameterNumber("ordner_"+ordners.get(i));
-			int delordner = getInteger("ordner_"+ordners.get(i));
+		for( int i = 0; i < ordners.size(); i++ ) {
+			if( ordners.get(i).hasFlag(Ordner.FLAG_TRASH) ) {
+				continue;
+			}
+			
+			parameterNumber("ordner_"+ordners.get(i).getId());
+			final int ordnerId = getInteger("ordner_"+ordners.get(i).getId());
+			if( ordnerId == 0 ) {
+				continue;
+			}
+			
+			Ordner delordner = Ordner.getOrdnerByID(ordnerId, user);
 
-			if( delordner == ordners.get(i) ) {
-				Ordner.deleteOrdnerByID( delordner, user.getId() );
+			if( delordner.getId() == ordners.get(i).getId() ) {
+				delordner.deleteOrdner();
 			}
 		}
 
-		for( int i = 0; i < count_pm; i++ ) {
-			parameterNumber("pm_"+pms.get(i) );
-			int pm_id = getInteger("pm_"+pms.get(i));
+		for( int i = 0; i < pms.size(); i++ ) {
+			parameterNumber("pm_"+pms.get(i).getId() );
+			int pm_id = getInteger("pm_"+pms.get(i).getId());
 
-			if( pm_id == pms.get(i) ) {
-				PM.deleteByID( pm_id, user.getId() );
+			if( pm_id == pms.get(i).getId() ) {
+				if( pms.get(i).getEmpfaenger() != user ) {
+					continue;
+				}
+				pms.get(i).delete();
 			}
 		}
 		
@@ -511,7 +501,7 @@ public class CommController extends TemplateGenerator implements Loggable {
 	public void sendAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		parameterString("to");
 		parameterNumber("reply");
@@ -525,17 +515,16 @@ public class CommController extends TemplateGenerator implements Loggable {
 		String special = null;
 		
 		if( reply > 0 ) {
-			SQLResultRow pm = db.first("SELECT * FROM transmissionen " +
-					"WHERE id="+reply+" AND " +
-						"(empfaenger="+user.getId()+" OR sender="+user.getId()+") " +
-						"AND gelesen < 2");
-			int iTo = pm.getInt("sender");
-			if( iTo == user.getId() ) {
-				iTo = pm.getInt("empfaenger");	
+			PM pm = (PM)db.get(PM.class, reply);
+			if( (pm.getEmpfaenger().equals(user) || pm.getSender().equals(user)) && (pm.getGelesen() < 2) ) {
+				User iTo = pm.getSender();
+				if( iTo.equals(user) ) {
+					iTo = pm.getEmpfaenger();	
+				}
+				to = Integer.toString(iTo.getId());
+				title = "RE: "+Common._plaintitle(pm.getTitle());
+				special = "";
 			}
-			to = Integer.toString(iTo);
-			title = "RE: "+Common._plaintitle(pm.getString("title"));
-			special = "";
 		}
 		else {
 			parameterString("title");
@@ -569,7 +558,7 @@ public class CommController extends TemplateGenerator implements Loggable {
 		if( to.equals("task") ) {
 			t.setVar("show.message", "<span style=\"color:#00ff55\">Antwort verarbeitet</span>");
 			
-			PM.send(getContext(), user.getId(), PM.TASK, title, msg, false, flags );
+			PM.send(user, PM.TASK, title, msg, flags );
 		} 
 		else if( to.equals("ally") ) {
 			if( user.getAlly() == null ) {
@@ -578,10 +567,10 @@ public class CommController extends TemplateGenerator implements Loggable {
 				return;
 			}
 			
-			String nameto = user.getAlly().getName();
-			t.setVar("show.message", "<span style=\"color:#00ff55\">Nachricht versendet an</span> "+Common._title(nameto));
+			t.setVar("show.message", 
+					"<span style=\"color:#00ff55\">Nachricht versendet an</span> "+Common._title(user.getAlly().getName()));
 
-			PM.send(getContext(), user.getId(), user.getAlly().getId(), title, msg, true, flags );
+			PM.sendToAlly(user, user.getAlly(), title, msg, flags );
 		}
 		else {			
 			if( (to.length() == 0) || (Integer.parseInt(to) == 0) ) {
@@ -591,14 +580,14 @@ public class CommController extends TemplateGenerator implements Loggable {
 			
 			int iTo = Integer.parseInt(to);
 		
-			User auser = (User)getDB().get(User.class, iTo);
+			User auser = (User)getContext().getDB().get(User.class, iTo);
 			if( auser == null ) {
 				t.setVar("show.message", "<span style=\"color:#ff0000\">Der angegebene Empf&auml;ger ist ung&uuml;ltig</span>");
 				return;
 			}
 			t.setVar("show.message", "<span style=\"color:#00ff55\">Nachricht versendet an</span> "+Common._title(auser.getName()));
 
-			PM.send(getContext(), user.getId(), iTo, title, msg, false, flags );
+			PM.send(user, iTo, title, msg, flags );
 		}
 	}
 	
@@ -610,7 +599,7 @@ public class CommController extends TemplateGenerator implements Loggable {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void showPmAction() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		BBCodeParser bbcodeparser = BBCodeParser.getNewInstance();
@@ -626,14 +615,14 @@ public class CommController extends TemplateGenerator implements Loggable {
 			return;	
 		}
 	
-		SQLResultRow pm = db.first("SELECT * FROM transmissionen WHERE id='",pmid,"' AND (empfaenger='",user.getId(),"' OR sender='",user.getId(),"')");
-		if( pm.isEmpty() ) {			
-			return;	
+		PM pm = (PM)db.get(PM.class, pmid);
+		if( (pm == null) || (!user.equals(pm.getEmpfaenger()) && !user.equals(pm.getSender())) ) {
+			return;
 		}
 		
 		User sender = null;
 		
-		if( pm.getInt("sender") == user.getId() ) {
+		if( user.equals(pm.getSender()) ) {
 			try {
 				bbcodeparser.registerHandler( "_intrnlConfTask", 2, "<div style=\"text-align:center\"><table class=\"noBorderX\" width=\"500\"><tr><td class=\"BorderX\" align=\"center\">Entscheidungsm&ouml;glichkeit in der Orginal-PM</td></tr></table></div>");
 			}
@@ -642,20 +631,22 @@ public class CommController extends TemplateGenerator implements Loggable {
 				addError("Fehler beim Darstellen der PM");
 			}
 			
-			if( (pm.getInt("empfaenger") == user.getId()) && (pm.getInt("gelesen") == 0) ) {
-				db.update("UPDATE transmissionen SET gelesen=1 WHERE id='",pmid,"'");	
+			if( user.equals(pm.getEmpfaenger()) && (pm.getGelesen() == 0) ) {
+				pm.setGelesen(1);	
 			}
 	
-			User empfaenger = (User)getDB().get(User.class, pm.getInt("empfaenger"));
+			User empfaenger = pm.getEmpfaenger();
 			sender = user;
-			
-			t.setVar(	"pm.empfaenger",		empfaenger.getId(),
-						"pm.empfaenger.name",	(empfaenger.getId() != 0 ? Common._title(empfaenger.getName()) : "Unbekannt" ));
+			if(empfaenger != null) {
+				t.setVar(	"pm.empfaenger",		empfaenger.getId(),
+							"pm.empfaenger.name",	Common._title(empfaenger.getName()));
+			}
+			else {
+				t.setVar(	"pm.empfaenger",		"-",
+						"pm.empfaenger.name", 		"Unbekannt");
+			}
 		}
 		else {
-			if( pm.getInt("gelesen") >= 2 ) {
-				return;	
-			}
 			try {
 				bbcodeparser.registerHandler( "_intrnlConfTask", 2, new TagIntrnlConfTask());
 			}
@@ -664,39 +655,48 @@ public class CommController extends TemplateGenerator implements Loggable {
 				addError("Fehler beim Darstellen der PM");
 			}
 			
-			if( pm.getInt("gelesen") == 0 ) {
-				db.update("UPDATE transmissionen SET gelesen=1 WHERE id='",pmid,"'");	
+			if( pm.getGelesen() == 0 ) {
+				pm.setGelesen(1);	
 			}
 			
-			sender = (User)getDB().get(User.class, pm.getInt("sender"));
+			sender = pm.getSender();
 			
-			t.setVar(	"pm.sender",		sender.getId(),
-						"pm.sender.name", 	(sender.getId() != 0? Common._title(sender.getName()) : "Unbekannt"),
-						"ordner.parent",	parent_id);
+			if(sender != null)
+			{
+				t.setVar(	"pm.sender",		sender.getId(),
+							"pm.sender.name", 	Common._title(sender.getName()),
+							"ordner.parent",	parent_id);
+			}
+			else
+			{
+				t.setVar(	"pm.sender",	"-",
+							"pm.sender.name", 	"Unbekannt",
+							"ordner.parent",	parent_id);
+			}
 		}
 	
 		String bgimg = "";
 
-		if( (pm.getInt("flags") & PM.FLAGS_ADMIN) != 0 ) {
+		if( pm.hasFlag(PM.FLAGS_ADMIN) ) {
 			bgimg = "pm_adminbg.png";	
 		}
-		else if( (pm.getInt("flags") & PM.FLAGS_OFFICIAL) != 0 ) {
+		else if( pm.hasFlag(PM.FLAGS_OFFICIAL) ) {
 			bgimg = "pm_"+Rassen.get().rasse(sender.getRace()).getName().toLowerCase()+"bg.png";	
 		}
 		
-		String text = pm.getString("inhalt");
+		String text = pm.getInhalt();
 		text = bbcodeparser.parse(text);
 
 		text = StringUtils.replace(text, "\r\n", "<br />");
 		text = StringUtils.replace(text, "\n", "<br />");
 		
-		t.setVar(	"pm.id",			pm.getInt("id"),
-					"pm.title",			Common._plaintitle(pm.getString("title")),
-					"pm.flags.admin", 	(pm.getInt("flags") & PM.FLAGS_ADMIN),
+		t.setVar(	"pm.id",			pm.getId(),
+					"pm.title",			Common._plaintitle(pm.getTitle()),
+					"pm.flags.admin", 	pm.hasFlag(PM.FLAGS_ADMIN),
 					"pm.bgimage", 		bgimg,
-					"pm.time", 			Common.date("j.n.Y G:i",pm.getInt("time")),
+					"pm.time", 			Common.date("j.n.Y G:i",pm.getTime()),
 					"pm.text", 			Smilie.parseSmilies(text),
-					"pm.kommentar", 	Smilie.parseSmilies(Common._text(pm.getString("kommentar"))));
+					"pm.kommentar", 	Smilie.parseSmilies(Common._text(pm.getKommentar())) );
 	}
 	
 	/**
@@ -709,9 +709,11 @@ public class CommController extends TemplateGenerator implements Loggable {
 		User user = (User)getUser();
 
 		parameterNumber("recover");
-		int recover = getInteger("recover");
+		PM pm = (PM)getDB().get(PM.class, getInteger("recover"));
 	
-		PM.recoverByID( recover, user.getId() );
+		if( pm.getEmpfaenger() == user ) {
+			pm.recover();
+		}
 		
 		redirect("showInbox");
 	}
@@ -725,7 +727,7 @@ public class CommController extends TemplateGenerator implements Loggable {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 	
-		PM.recoverAll( user.getId() );
+		PM.recoverAll( user );
 		
 		t.setVar("show.message", "<span style=\"color:red\">Nachrichten wiederhergestellt</span>");
 
@@ -739,92 +741,85 @@ public class CommController extends TemplateGenerator implements Loggable {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void showInboxAction() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 		
 		parameterNumber("ordner");
-		int current_ordner = getInteger("ordner");
+		final Ordner ordner = Ordner.getOrdnerByID(getInteger("ordner"), user);
 
-		int gelesen = 2;
+		t.setVar(
+				"show.inbox", 1,
+				"currentordner.id", ordner.getId());
 		
-		t.setVar("show.inbox", 1);
 		t.setBlock("_COMM", "pms.listitem", "pms.list");
 		t.setBlock("_COMM", "ordner.listitem", "ordner.list");
 		t.setBlock("_COMM", "availordner.listitem", "availordner.list");
 		
 		// Liste aller vorhandenen Ordner generieren
-		SQLQuery ordner = db.query("SELECT * FROM ordner WHERE playerid=",user.getId()," ORDER BY name ASC");
 
 		t.setVar(	"availordner.id",	0,
 					"availordner.name",	"Hauptverzeichnis" );
 			
 		t.parse("availordner.list", "availordner.listitem", true);
 
-		while( ordner.next() ){
-			t.setVar(	"availordner.id",	ordner.getInt("id"),
-						"availordner.name",	ordner.getString("name") );
+		List ordnerList = db.createQuery("from Ordner where owner= :user order by name asc")
+			.setEntity("user", user)
+			.list();
+		for( Iterator iter=ordnerList.iterator(); iter.hasNext(); ) {
+			Ordner aOrdner = (Ordner)iter.next();
+			
+			t.setVar(	"availordner.id",	aOrdner.getId(),
+						"availordner.name",	aOrdner.getName() );
 			
 			t.parse("availordner.list", "availordner.listitem", true);
 		}
-		ordner.free();
-
+		
 		// Link zum uebergeordneten Ordner erstellen
-		Map<Integer,Integer> ordners = Ordner.countPMInAllOrdner( current_ordner, user.getId() );
-
-		if( current_ordner != 0 ) {
-			SQLResultRow ordnerRow = db.first("SELECT * FROM ordner WHERE playerid=",user.getId()," AND id=",current_ordner,"");
-			t.setVar(	"ordner.id",			ordnerRow.getInt("parent"),
+		if( ordner.getId() != 0 ) {
+			t.setVar(	"ordner.id",			ordner.getParent().getId(),
 						"ordner.name",			"..",
-						"ordner.parent",		ordnerRow.getInt("id"),
-						"ordner.pms",			Ordner.countPMInOrdner(ordnerRow.getInt("parent"), user.getId()),
+						"ordner.parent",		ordner.getId(),
+						"ordner.pms",			ordner.getParent().getPmCount(),
 						"ordner.flags.up",		1,
-						"ordner.flags.trash",	(ordnerRow.getInt("flags") & Ordner.FLAG_TRASH),
-						"ordner.name.real",		ordnerRow.getString("name"));
+						"ordner.flags.trash",	(ordner.getFlags() & Ordner.FLAG_TRASH),
+						"ordner.name.real",		ordner.getName());
 			
 			t.parse("ordner.list", "ordner.listitem", true);
-			if( (ordnerRow.getInt("flags") & Ordner.FLAG_TRASH) != 0){
-				gelesen = 10;
-			}
 		}
 
+		Map<Ordner,Integer> ordners = ordner.getPmCountPerSubOrdner();
+		
 		// Ordnerliste im aktuellen Ordner ausgeben
-		ordner = db.query("SELECT * FROM ordner WHERE playerid=",user.getId()," AND parent=",current_ordner," ORDER BY name ASC");
-
-		while( ordner.next() ){
-			Integer count = ordners.get(ordner.getInt("id"));
+		List<Ordner> children = ordner.getChildren();
+		for( Ordner aOrdner : children ) {
+			Integer count = ordners.get(aOrdner);
 			
-			t.setVar(	"ordner.id",			ordner.getInt("id"),
-						"ordner.name",			ordner.getString("name"),
-						"ordner.parent",		ordner.getInt("parent"),
+			t.setVar(	"ordner.id",			aOrdner.getId(),
+						"ordner.name",			aOrdner.getName(),
+						"ordner.parent",		aOrdner.getParent().getId(),
 						"ordner.pms",			count != null ? count.intValue() : 0,
 						"ordner.flags.up",		0,
-						"ordner.flags.trash",	(ordner.getInt("flags") & Ordner.FLAG_TRASH) != 0 );
+						"ordner.flags.trash",	aOrdner.hasFlag(Ordner.FLAG_TRASH) );
 			
 			t.parse("ordner.list", "ordner.listitem", true);
 		}
-		ordner.free();
 
 		// PMs im aktuellen Ordner ausgeben
-		SQLQuery pm = db.query("SELECT t1.id,t1.sender,t1.gelesen,t1.time,t1.title,t1.flags,t1.kommentar,t2.name AS sender_name " +
-				"FROM transmissionen AS t1,users AS t2 " +
-				"WHERE t1.empfaenger=",user.getId()," AND t1.gelesen<",gelesen," AND t1.sender=t2.id AND ordner=",current_ordner," "+
-				"ORDER BY t1.id DESC");
-
-		while( pm.next() ) {	
-			t.setVar(	"pm.id",			pm.getInt("id"),
-						"pm.new",			pm.getInt("gelesen") == 0,
-						"pm.flags.admin",	(pm.getInt("flags") & PM.FLAGS_ADMIN) != 0,
-						"pm.title",			Common._plaintitle(pm.getString("title")),
-						"pm.sender.name",	Common._title(pm.getString("sender_name")),
-						"pm.sender.id",		pm.getInt("sender"),
-						"pm.time",			Common.date("j.n.Y G:i",pm.getInt("time")),
-						"pm.trash",			(pm.getInt("gelesen") > 1) ? 1 : 0,
-						"pm.kommentar",		pm.getString("kommentar"));
+		List<PM> pms = ordner.getPms();
+		for( PM pm : pms ) {
+			t.setVar(	"pm.id",			pm.getId(),
+						"pm.new",			pm.getGelesen() == 0,
+						"pm.flags.admin",	pm.hasFlag(PM.FLAGS_ADMIN),
+						"pm.title",			Common._plaintitle(pm.getTitle()),
+						"pm.sender.name",	Common._title(pm.getSender().getName()),
+						"pm.sender.id",		pm.getSender().getId(),
+						"pm.time",			Common.date("j.n.Y G:i",pm.getTime()),
+						"pm.trash",			(pm.getGelesen() > 1) ? 1 : 0,
+						"pm.kommentar",		pm.getKommentar());
 			
 			t.parse("pms.list", "pms.listitem", true);
 		}
-		pm.free();
 	}
 	
 	/**
@@ -833,29 +828,29 @@ public class CommController extends TemplateGenerator implements Loggable {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void showOutboxAction() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 		
 		t.setVar("show.outbox", 1);
 		t.setBlock("_COMM", "pms.out.listitem", "pms.out.list");
 		
-		SQLQuery pm = db.query("SELECT t1.id,t1.empfaenger,t1.time,t1.title,t1.flags,t2.name AS empfaenger_name " ,
-				"FROM transmissionen AS t1,users AS t2 " ,
-				"WHERE t1.sender='",user.getId(),"' AND t1.empfaenger=t2.id " ,
-				"ORDER BY t1.id DESC");
-				
-		while( pm.next() ) {	
-			t.setVar(	"pm.id",				pm.getInt("id"),
-						"pm.flags.admin",		(pm.getInt("flags") & PM.FLAGS_ADMIN),
-						"pm.title",				Common._plaintitle(pm.getString("title")),
-						"pm.empfaenger.name",	Common._title(pm.getString("empfaenger_name")),
-						"pm.time",				Common.date("j.n.Y G:i",pm.getInt("time")),
-						"pm.empfaenger",		pm.getInt("empfaenger") );
+		List pms = db.createQuery("from PM as pm inner join fetch pm.empfaenger " +
+				"where pm.sender= :user order by pm.id desc")
+			.setEntity("user", user)
+			.list();
+		for( Iterator iter=pms.iterator(); iter.hasNext(); ) {
+			PM pm = (PM)iter.next();
+			
+			t.setVar(	"pm.id",				pm.getId(),
+						"pm.flags.admin",		pm.hasFlag(PM.FLAGS_ADMIN),
+						"pm.title",				Common._plaintitle(pm.getTitle()),
+						"pm.empfaenger.name",	Common._title(pm.getEmpfaenger().getName()),
+						"pm.time",				Common.date("j.n.Y G:i",pm.getTime()),
+						"pm.empfaenger",		pm.getEmpfaenger().getId() );
 			
 			t.parse("pms.out.list", "pms.out.listitem", true);
 		}
-		pm.free();
 	}
 
 	/**
@@ -899,10 +894,11 @@ public class CommController extends TemplateGenerator implements Loggable {
 		specialuilist.put(special_key, special);
 			
 		t.setBlock("_COMM", "write.specialui.listitem", "write.specialui.list");
-		for( String uiname : specialuilist.keySet() ) {
-			t.setVar(	"specialui.name",	uiname,
-						"specialui.value",	specialuilist.get(uiname),
-						"specialui.selected",	special.equals(specialuilist.get(uiname)) ? true : false);
+		for( Map.Entry<String, String> entry: specialuilist.entrySet() ) {
+			String currentspecial = entry.getValue();
+			t.setVar(	"specialui.name",	entry.getKey(),
+						"specialui.value",	currentspecial,
+						"specialui.selected",	special.equals(currentspecial) ? true : false);
 								
 			t.parse("write.specialui.list", "write.specialui.listitem", true);
 		}
@@ -919,7 +915,7 @@ public class CommController extends TemplateGenerator implements Loggable {
 		t.setVar(	"pm.text",			Smilie.parseSmilies(Common._text(msg)),
 					"pm.title",			title,
 					"pm.sender",		user.getId(),
-					"pm.sender.name",	(user.getId() != 0 ? Common._title(user.getName()) : "Unbekannt"),
+					"pm.sender.name",	user.getName(),
 					"pm.time",			Common.date("j.n.Y G:i", Common.time()),
 					"pm.bgimage",		bgimg,
 					"write.to",			to,
@@ -937,7 +933,7 @@ public class CommController extends TemplateGenerator implements Loggable {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void editCommentAction() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 	
@@ -946,19 +942,21 @@ public class CommController extends TemplateGenerator implements Loggable {
 		int pmid = getInteger("pm");
 		int ordner = getInteger("ordner");
 
-		SQLResultRow pm = db.first("SELECT * FROM transmissionen WHERE id='",pmid,"' AND empfaenger='",user.getId(),"'");
-		db.update("UPDATE transmissionen SET gelesen=1 WHERE id=",pmid," AND gelesen=0 AND empfaenger=",user.getId());
-
-		t.setVar("show.comment", 1);
-		t.setVar("comment.text", pm.getString("kommentar"));
-		t.setVar("pm.id", pmid);
-		t.setVar("ordner.id", ordner);
-		t.setVar("pm.title", pm.getString("title"));
-		t.setVar("pm.empfaenger.name", Common._title(db.first("SELECT name FROM users WHERE id='",pm.getInt("empfaenger"),"'").getString("name")));
-		t.setVar("pm.sender.name", Common._title(db.first("SELECT name FROM users WHERE id='",pm.getInt("sender"),"'").getString("name")));
-		t.setVar("pm.text", Smilie.parseSmilies(Common._text(pm.getString("inhalt"))));
-		t.setVar("system.time", Common.getIngameTime(getContext().get(ContextCommon.class).getTick()));
-		t.setVar("user.signature", user.getUserValue("PMS/signatur") );
+		PM pm = (PM)db.get(PM.class, pmid);
+		if( (pm != null) && pm.getEmpfaenger().equals(user) ) {
+			pm.setGelesen(1);
+			
+			t.setVar("show.comment", 1);
+			t.setVar("comment.text", pm.getKommentar());
+			t.setVar("pm.id", pmid);
+			t.setVar("ordner.id", ordner);
+			t.setVar("pm.title", pm.getTitle());
+			t.setVar("pm.empfaenger.name", Common._title(pm.getEmpfaenger().getName()));
+			t.setVar("pm.sender.name", Common._title(pm.getSender().getName()));
+			t.setVar("pm.text", Smilie.parseSmilies(Common._text(pm.getInhalt())));
+			t.setVar("system.time", Common.getIngameTime(getContext().get(ContextCommon.class).getTick()));
+			t.setVar("user.signature", user.getUserValue("PMS/signatur") );
+		}
 	}
 	
 	/**
@@ -968,7 +966,7 @@ public class CommController extends TemplateGenerator implements Loggable {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void sendCommentAction() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 	
 		parameterNumber("pmid");
@@ -976,17 +974,19 @@ public class CommController extends TemplateGenerator implements Loggable {
 		int pmid = getInteger("pmid");
 		String msg = getString("msg");
 
-		db.prepare("UPDATE transmissionen SET kommentar= ? WHERE id= ? AND empfaenger= ?")
-			.update(msg, pmid, user.getId());
+		PM pm = (PM)db.get(PM.class, pmid);
+		if( (pm != null) && pm.getEmpfaenger().equals(user) ) {
+			pm.setKommentar(msg);
+		}
 
 		redirect("showInbox");
 	}
 
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		
 		parameterString("to");
@@ -1001,38 +1001,46 @@ public class CommController extends TemplateGenerator implements Loggable {
 		String special = "";
 		
 		if( reply != 0) {
-			SQLResultRow pm = db.first("SELECT * FROM transmissionen WHERE id='",reply,"' AND (empfaenger='",user.getId(),"' OR sender='",user.getId(),"') AND gelesen < 10");
-			int to = pm.getInt("sender");
-			if( to == user.getId() ) {
-				to = pm.getInt("empfaenger");
-			}
-			title = "RE: "+Common._plaintitle(pm.getString("title"));
-			special = "";
+			PM pm = (PM)db.get(PM.class, reply);
 			
-			msg = "(Nachricht am "+Common.date("j.n.Y G:i",pm.getInt("time"))+" empfangen.)\n"+Pattern.compile("/\n>*/").matcher(pm.getString("inhalt")).replaceAll("\n"); //Fuehrende > entfernen
-			msg = msg.replaceAll("\t\r\n", " "); //Wegen der Einrueckung eingefuegte Umbrueche entfernen
-			
-			// Reply-Verschachtelungstiefe ermitteln
-			int depth = 0;
-			Matcher match = Pattern.compile("/\\(Nachricht am \\d{1,2}\\.\\d{1,2}\\.\\d{4,4} \\d{1,2}:\\d{2,2} empfangen\\.\\)/").matcher(msg);
-			while(match.find()) {
-				depth++;
-			}
-
-			String[] msg_lines = StringUtils.split(msg, '\n'); //Text Zeilenweise auftrennen
-			for( int i=0; i < msg_lines.length; i++ ){
-				msg_lines[i] = Common.wordwrap(msg_lines[i], 65 - depth, "\t\n");	//Zeilen umbrechen
+			if( (pm != null) && (pm.getEmpfaenger().equals(user) || pm.getSender().equals(user)) ) {
+				User to = pm.getSender();
+				if( to.equals(user) ) {
+					to = pm.getEmpfaenger();
+				}
+				title = "RE: "+Common._plaintitle(pm.getTitle());
+				special = "";
 				
-				if(Pattern.compile("/\\(Nachricht am \\d{1,2}\\.\\d{1,2}\\.\\d{4,4} \\d{1,2}:\\d{2,2} empfangen\\.\\)/").matcher(msg_lines[i]).find() ){ //beginn einer neuen Verschachtelung
-					for( int j = i + 1; j < msg_lines.length; j++){	//in Jede zeile ein ">" am Anfang einfuegen
-						msg_lines[j] = ">"+msg_lines[j];
+				msg = "(Nachricht am "+Common.date("j.n.Y G:i",pm.getTime())+" empfangen.)\n";
+				
+				// Fuehrende > entfernen
+				msg += Pattern.compile("/\n>*/").matcher(pm.getInhalt()).replaceAll("\n");
+				
+				// Wegen der Einrueckung eingefuegte Umbrueche entfernen
+				msg = msg.replaceAll("\t\r\n", " "); 
+				
+				// Reply-Verschachtelungstiefe ermitteln
+				int depth = 0;
+				Matcher match = Pattern.compile("/\\(Nachricht am \\d{1,2}\\.\\d{1,2}\\.\\d{4,4} \\d{1,2}:\\d{2,2} empfangen\\.\\)/").matcher(msg);
+				while(match.find()) {
+					depth++;
+				}
+
+				String[] msg_lines = StringUtils.split(msg, '\n'); //Text Zeilenweise auftrennen
+				for( int i=0; i < msg_lines.length; i++ ){
+					msg_lines[i] = Common.wordwrap(msg_lines[i], 65 - depth, "\t\n");	//Zeilen umbrechen
+					
+					if(Pattern.compile("/\\(Nachricht am \\d{1,2}\\.\\d{1,2}\\.\\d{4,4} \\d{1,2}:\\d{2,2} empfangen\\.\\)/").matcher(msg_lines[i]).find() ){ //beginn einer neuen Verschachtelung
+						for( int j = i + 1; j < msg_lines.length; j++){	//in Jede zeile ein ">" am Anfang einfuegen
+							msg_lines[j] = ">"+msg_lines[j];
+						}
 					}
 				}
+				msg = Common.implode("\n", msg_lines); //Text wieder zusammenfuegen
+				msg += "\n\n"; // Zwei Leerzeilen koennen am Ende nicht schaden...
+				
+				toStr = Integer.toString(to.getId());
 			}
-			msg = Common.implode("\n", msg_lines); //Text wieder zusammenfuegen
-			msg += "\n\n"; // Zwei Leerzeilen koennen am Ende nicht schaden...
-			
-			toStr = Integer.toString(to);
 		}
 		else {
 			parameterString("title");
@@ -1070,9 +1078,9 @@ public class CommController extends TemplateGenerator implements Loggable {
 					"user.signature", user.getUserValue("PMS/signature") );
 		
 		t.setBlock("_COMM", "write.specialui.listitem", "write.specialui.list");
-		for( String uiname : specialuilist.keySet() ) {
-			t.setVar(	"specialui.name", uiname,
-						"specialui.value", specialuilist.get(uiname) );
+		for( Map.Entry<String, String> entry: specialuilist.entrySet() ) {
+			t.setVar(	"specialui.name", entry.getKey(),
+						"specialui.value", entry.getKey() );
 								
 			t.parse("write.specialui.list", "write.specialui.listitem", true);
 		}

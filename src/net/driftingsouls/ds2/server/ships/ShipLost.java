@@ -86,7 +86,7 @@ public class ShipLost {
 			}
 		}
 		if( ship.getBattle() != null ) {
-			setBattle(ship.getBattle());
+			setBattle(ship.getBattle().getId());
 		}
 	}
 

@@ -18,8 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
  * Laesst alle Schiffe einer bestimmten Klasse auf der eigenen Seite fliehen
@@ -33,15 +34,14 @@ public class KSFluchtClassAction extends KSFluchtAllAction {
 	 * Konstruktor
 	 *
 	 */
-	public KSFluchtClassAction() {
-		this.requireAP(1);
-		
+	public KSFluchtClassAction() 
+	{
 		this.fluchtclass  = ContextMap.getContext().getRequest().getParameterInt("fluchtclass");
 	}
 	
 	@Override
-	protected boolean validateShipExt(String fluchtmode, SQLResultRow ship, SQLResultRow shiptype) {
-		if( shiptype.getInt("class") != this.fluchtclass ) {
+	protected boolean validateShipExt(String fluchtmode, BattleShip ship, ShipTypeData shiptype) {
+		if( shiptype.getShipClass() != this.fluchtclass ) {
 			return false;
 		}
 		return true;

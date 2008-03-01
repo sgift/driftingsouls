@@ -18,12 +18,15 @@
  */
 package net.driftingsouls.ds2.server.modules.schiffplugins;
 
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import java.util.Iterator;
+import java.util.List;
+
+import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.entities.Jump;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
@@ -35,16 +38,16 @@ public class JumpdriveShivan implements SchiffPlugin {
 
 	public String action(Parameters caller) {
 		SchiffController controller = caller.controller;
-		User user = (User)controller.getUser();
+		Ship ship = caller.ship;
 		
 		String output = "";
 		
-		Database db = controller.getDatabase();
+		org.hibernate.Session db = controller.getDB();
 		
 		controller.parameterNumber("system");
 		int system = controller.getInteger("system");
 		
-		if( caller.ship.getInt("owner") < 0 ) {
+		if( ship.getOwner().getId() < 0 ) {
 			controller.parameterNumber("x");
 			controller.parameterNumber("y");
 			int x = controller.getInteger("x");
@@ -54,75 +57,127 @@ public class JumpdriveShivan implements SchiffPlugin {
 			
 			
 			if( subaction.equals("set") && (system != 0) && (system < 99) ) {
-				output += caller.ship.getString("name")+" aktiviert den Sprungantrieb<br />\n";
-				db.update("INSERT INTO jumps (shipid,system,x,y) VALUES ("+caller.ship.getInt("id")+","+system+","+x+","+y+")");
-				if( caller.ship.getInt("fleet") != 0 ) {
+				final Location targetLoc = new Location(system,x,y);
+				
+				output += ship.getName()+" aktiviert den Sprungantrieb<br />\n";
+				
+				Jump target = new Jump(ship, targetLoc);
+				db.persist(target);
+				
+				if( ship.getFleet() != null ) {
 					output += "<table class=\"noBorder\">\n";
 	  	
-					SQLQuery s = db.query("SELECT id,name,type,status FROM ships WHERE id>0 AND fleet='"+caller.ship.getInt("fleet")+"' AND owner='"+user.getId()+"' AND docked='' AND id!='"+caller.ship.getInt("id")+"'");
-					while( s.next() ) {
-						SQLResultRow st = ShipTypes.getShipType(s.getRow());
-						if( !ShipTypes.hasShipTypeFlag(st, ShipTypes.SF_JUMPDRIVE_SHIVAN) ) {
+					List sList = db.createQuery("from Ship where id>0 and fleet=? and owner=? and docked='' and id!=?")
+						.setEntity(0, ship.getFleet())
+						.setEntity(1, ship.getOwner())
+						.setInteger(2, ship.getId())
+						.list();
+					
+					for( Iterator iter=sList.iterator(); iter.hasNext(); ) {
+						Ship aship = (Ship)iter.next();
+						
+						ShipTypeData st = aship.getTypeData();
+						if( !st.hasFlag(ShipTypes.SF_JUMPDRIVE_SHIVAN) ) {
 							continue;	
 						}
 						
 						output += "<tr>";
-						output += "<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange;font-size:12px\"> "+s.getString("name")+" ("+s.getInt("id")+"):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n";
+						output += "<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange;font-size:12px\"> "+aship.getName()+" ("+aship.getId()+"):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n";
 						output += "Das Schiff aktiviert den Sprungantrieb";
 	  	
-						db.update("INSERT INTO jumps (shipid,system,x,y) VALUES ("+s.getInt("id")+","+system+","+x+","+y+")");
+						target = new Jump(aship, targetLoc);
+						db.persist(target);
 	  	
 						output += "</span></td></tr>\n";
 					}
-					s.free();
 				}
 			}
 			else if ( subaction.equals("newtarget") && (system != 0) && (system < 99) ) {
-				output += caller.ship.getString("name")+" &auml;ndert das Sprungziel.<br />\n";
-				db.update("UPDATE jumps SET system = "+system+", x = "+x+", y = "+y+" WHERE shipid = "+caller.ship.getInt("id")+"");
-				if( caller.ship.getInt("fleet") != 0 ) {
+				Jump jump = (Jump)db.createQuery("from Jump where shipid=?")
+					.setEntity(0, ship)
+					.uniqueResult();
+				
+				if( jump == null ) {
+					return output;
+				}
+				
+				jump.setSystem(system);
+				jump.setX(x);
+				jump.setY(y);
+				
+				output += ship.getName()+" &auml;ndert das Sprungziel.<br />\n";
+				
+				if( ship.getFleet() != null ) {
 					output += "<table class=\"noBorder\">\n";
 	  	
-					SQLQuery s = db.query("SELECT id,name,type,status FROM ships WHERE id>0 AND fleet='"+caller.ship.getInt("fleet")+"' AND owner='"+user.getId()+"' AND docked='' AND id!='"+caller.ship.getInt("id")+"'");
-					while( s.next() ) {
-						SQLResultRow st = ShipTypes.getShipType(s.getRow());
-						if( !ShipTypes.hasShipTypeFlag(st, ShipTypes.SF_JUMPDRIVE_SHIVAN) ) {
+					List sList = db.createQuery("from Ship where id>0 and fleet=? and owner=? and docked='' and id!=?")
+						.setEntity(0, ship.getFleet())
+						.setEntity(1, ship.getOwner())
+						.setInteger(2, ship.getId())
+						.list();
+					
+					for( Iterator iter=sList.iterator(); iter.hasNext(); ) {
+						Ship aship = (Ship)iter.next();
+					
+						ShipTypeData st = aship.getTypeData();
+						if( !st.hasFlag(ShipTypes.SF_JUMPDRIVE_SHIVAN) ) {
 							continue;	
 						}
 						
 						output += "<tr>";
-						output += "<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange;font-size:12px\"> "+s.getString("name")+" ("+s.getInt("id")+"):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n";
+						output += "<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange;font-size:12px\"> "+aship.getName()+" ("+aship.getId()+"):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n";
 						output += "Das Schiff &auml;ndert das Sprungziel";
 	  	
-						db.update("UPDATE jumps SET sytem = "+system+", x = "+x+", y = "+y+" WHERE shipid = "+s.getInt("id")+"");
+						jump = (Jump)db.createQuery("from Jump where shipid=?")
+							.setEntity(0, ship)
+							.uniqueResult();
+						jump.setSystem(system);
+						jump.setX(x);
+						jump.setY(y);
 	  	
 						output += "</span></td></tr>\n";
 					}
-					s.free();
 				}
 			}	
 			else if ( subaction.equals("cancel") ) {
-				output += caller.ship.getString("name")+" stoppt den Sprungantrieb<br />\n";
-				db.update("DELETE FROM jumps WHERE shipid = "+caller.ship.getInt("id")+"");
-				if( caller.ship.getInt("fleet") != 0 ) {
+				Jump jump = (Jump)db.createQuery("from Jump where shipid=?")
+					.setEntity(0, ship)
+					.uniqueResult();
+				
+				if( jump == null ) {
+					return output;
+				}
+				
+				output += ship.getName()+" stoppt den Sprungantrieb<br />\n";
+				
+				db.delete(jump);
+				
+				if( ship.getFleet() != null ) {
 					output += "<table class=\"noBorder\">\n";
 	  	
-					SQLQuery s = db.query("SELECT id,name,type,status FROM ships WHERE id>0 AND fleet='"+caller.ship.getInt("fleet")+"' AND owner='"+user.getId()+"' AND docked='' AND id!='"+caller.ship.getInt("id")+"'");
-					while( s.next() ) {
-						SQLResultRow st = ShipTypes.getShipType(s.getRow());
-						if( !ShipTypes.hasShipTypeFlag(st, ShipTypes.SF_JUMPDRIVE_SHIVAN) ) {
+					List sList = db.createQuery("from Ship where id>0 and fleet=? and owner=? and docked='' and id!=?")
+						.setEntity(0, ship.getFleet())
+						.setEntity(1, ship.getOwner())
+						.setInteger(2, ship.getId())
+						.list();
+					
+					for( Iterator iter=sList.iterator(); iter.hasNext(); ) {
+						Ship aship = (Ship)iter.next();
+						ShipTypeData st = aship.getTypeData();
+						if( !st.hasFlag(ShipTypes.SF_JUMPDRIVE_SHIVAN) ) {
 							continue;	
 						}
 						
 						output += "<tr>";
-						output += "<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange;font-size:12px\"> "+s.getString("name")+" ("+s.getInt("id")+"):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n";
+						output += "<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange;font-size:12px\"> "+aship.getName()+" ("+aship.getId()+"):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n";
 						output += "Das Schiff stoppt den Sprungantrieb";
 	  	
-						db.update("DELETE FROM jumps WHERE shipid = "+s.getInt("id")+"");
+						db.createQuery("delete from Jump where shipid=?")
+							.setEntity(0, aship)
+							.executeUpdate();
 	  	
 						output += "</span></td></tr>\n";
 					}
-					s.free();
 				}
 			}
 		}
@@ -133,20 +188,22 @@ public class JumpdriveShivan implements SchiffPlugin {
 	public void output(Parameters caller) {
 		SchiffController controller = caller.controller;
 		String pluginid = caller.pluginId;
-		SQLResultRow ship = caller.ship;
+		Ship ship = caller.ship;
 		
-		Database db = controller.getDatabase();
+		org.hibernate.Session db = controller.getDB();
 
 		TemplateEngine t = controller.getTemplateEngine();
 		t.setFile("_PLUGIN_"+pluginid, "schiff.jumpdrive.shivan.html");
 
-		SQLResultRow jump = db.first("SELECT x,y,system FROM jumps WHERE shipid=",ship.getInt("id"));
+		Jump jump = (Jump)db.createQuery("from Jump where shipid=?")
+			.setEntity(0, ship)
+			.uniqueResult();
 
 		t.setVar(	"global.pluginid",				pluginid,
-					"ship.id",						ship.getInt("id"),
-					"schiff.jumpdrive.jumping",		jump.isEmpty() ? 0 : jump.getInt("system"),
-					"schiff.jumpdrive.jumpingx",	jump.isEmpty() ? 0 : jump.getInt("x"),
-					"schiff.jumpdrive.jumpingy",	jump.isEmpty() ? 0 : jump.getInt("y"),
+					"ship.id",						ship.getId(),
+					"schiff.jumpdrive.jumping",		jump == null ? 0 : jump.getSystem(),
+					"schiff.jumpdrive.jumpingx",	jump == null ? 0 : jump.getX(),
+					"schiff.jumpdrive.jumpingy",	jump == null ? 0 : jump.getY(),
 					"schiff.jumpdrive.subaction",	"set" );
 		
 		t.parse(caller.target,"_PLUGIN_"+pluginid);

@@ -18,18 +18,15 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.Ship;
 
 /**
  * Transfer von Crew von Schiffen zu Schiffen/Basen (und umgekehrt)
@@ -41,10 +38,171 @@ import net.driftingsouls.ds2.server.ships.Ships;
  *
  */
 public class CrewtauschController extends TemplateGenerator {
-	private SQLResultRow ship = null;
-	private SQLResultRow datat = null;
+	/**
+	 * Das Ziel fuer einen Crewtransfer
+	 *
+	 */
+	private static interface Target {
+		/**
+		 * Gibt die verfuegbare Crew zurueck
+		 * @return Die Crew
+		 */
+		public int getCrew();
+		/**
+		 * * Gibt die verfuegbaren Marines zurueck
+		 * @return Die Marines
+		 */
+		public int getMarines();
+		/**
+		 * Setzt die Crew auf dem Objekt
+		 * @param crew Die Crew
+		 */
+		public void setCrew(int crew);
+		/**
+		 * * Setzt die Marines auf dem Objekt
+		 * @param marines Die Marines
+		 */
+		public void setMarines(int marines);
+		/**
+		 * Wird am Ende des Transfervorgangs aufgerufen
+		 *
+		 */
+		public void finishTransfer();
+		/**
+		 * Gibt den Namen des Objekts zurueck
+		 * @return Der Name
+		 */
+		public String getName();
+		/**
+		 * Gibt die ID des Objekts zurueck
+		 * @return Die ID
+		 */
+		public int getId();
+		/**
+		 * Gibt den Besitzer des Objekts zurueck
+		 * @return Der Besitzer
+		 */
+		public User getOwner();
+		/**
+		 * Gibt die maximale Anzahl an Crew auf dem Objekt zurueck
+		 * @return Die maximale Crewmenge (<code>-1</code> = unbegrenzt)
+		 */
+		public int getMaxCrew();
+		/**
+		 * Gibt die maximale Anzahl an Marines auf dem Objekt zurueck
+		 * @return Die maximale Menge Marines (<code>-1</code> = unbegrenzt)
+		 */
+		public int getMaxMarines();
+	}
+	
+	/**
+	 * Crewtransfer-Ziel "Schiff"
+	 *
+	 */
+	private static class ShipTarget implements Target {
+		private Ship ship;
+		
+		ShipTarget(Ship ship) {
+			this.ship = ship;
+		}
+
+		public void finishTransfer() {
+			ship.recalculateShipStatus();
+		}
+
+		public int getCrew() {
+			return ship.getCrew();
+		}
+				
+		public int getMarines() {
+			return ship.getMarines();
+		}
+
+		public int getId() {
+			return ship.getId();
+		}
+
+		public String getName() {
+			return ship.getName();
+		}
+
+		public void setCrew(int crew) {
+			ship.setCrew(crew);
+		}
+		
+		public void setMarines(int marines) {
+			ship.setMarines(marines);
+		}
+
+		public int getMaxCrew() {
+			return ship.getTypeData().getCrew();
+		}
+		
+		public int getMaxMarines() {
+			return ship.getTypeData().getMarines();
+		}
+		
+		public User getOwner() {
+			return ship.getOwner();
+		}
+	}
+	
+	/**
+	 * Crewtransfer-Ziel "Basis"
+	 *
+	 */
+	private static class BaseTarget implements Target {
+		private Base base;
+		
+		BaseTarget(Base base) {
+			this.base = base;
+		}
+
+		public void finishTransfer() {
+			// EMPTY
+		}
+
+		public int getCrew() {
+			return base.getBewohner()-base.getArbeiter();
+		}
+
+		public int getId() {
+			return base.getId();
+		}
+
+		public String getName() {
+			return base.getName();
+		}
+
+		public void setCrew(int crew) {
+			base.setBewohner(base.getArbeiter()+crew);
+		}
+
+		public int getMaxCrew() {
+			return -1;
+		}
+
+		public User getOwner() {
+			return base.getOwner();
+		}
+
+		public int getMarines() {
+			return base.getMarines();
+		}
+
+		public int getMaxMarines() {
+			return -1;
+		}
+
+		public void setMarines(int marines) {
+			base.setMarines(marines);
+		}
+	}
+	
+	private Ship ship = null;
+	private Target datat = null;
 	private int maxcrewf;
-	private int maxcrewt;
+	private int maxmarines;
 	
 	/**
 	 * Konstruktor
@@ -58,55 +216,62 @@ public class CrewtauschController extends TemplateGenerator {
 		parameterNumber("ship");
 		parameterNumber("tar");
 		parameterString("mode");
+		
+		setPageTitle("Crewtransfer");
 	}
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		
 		int shipID = getInteger("ship");
 		String mode = getString("mode");
 		int tar = getInteger("tar");
 		
-		SQLResultRow ship = db.first("SELECT id,name,crew,type,owner,status,x,y,system FROM ships WHERE owner=",user.getId()," AND id>0 AND id=",shipID);
-		if( ship.isEmpty() ) {
+		Ship ship = (Ship)db.get(Ship.class, shipID);
+		if( (ship == null) || (ship.getOwner() != user) || (ship.getId() < 0)) {
 			addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht", Common.buildUrl("default", "module", "schiffe") );
 			
 			return false;
 		}	
 		
-		SQLResultRow datat = null;
+		Target datat = null;
 		int maxcrewf = 0;
-		int maxcrewt = 0;
+		int maxmarines = 0;
 		
 		if( mode.equals("ss") ) {
-			datat = db.first("SELECT id,name,crew,type,owner,x,y,system,status FROM ships WHERE id>0 AND id=",tar);
+			Ship aship = (Ship)db.get(Ship.class, tar);
 
-			if( !Location.fromResult(ship).sameSector(0, Location.fromResult(datat), 0) ) {
+			if( (aship == null) || (aship.getId() < 0) || !ship.getLocation().sameSector(0, aship, 0) ) {
 				addError("Die beiden Schiffe befinden sich nicht im selben Sektor", Common.buildUrl("default", "module", "schiff", "ship", shipID) );
 				
 				return false;
 			}
 
-			maxcrewf = ShipTypes.getShipType( ship ).getInt("crew");
-			
-			maxcrewt = ShipTypes.getShipType( datat ).getInt("crew");
+			maxcrewf = ship.getTypeData().getCrew();
+			maxmarines = ship.getTypeData().getMarines();
+			datat = new ShipTarget(aship);
 		}
 		else if( mode.equals("sb") ) {
-			datat = db.first("SELECT id,name,bewohner-arbeiter crew,bewohner,arbeiter,owner,x,y,system,size FROM bases WHERE id=",tar);
+			Base abase = (Base)db.get(Base.class, tar);
 
-			if( !Location.fromResult(ship).sameSector(0, Location.fromResult(datat), datat.getInt("size")) ) {
+			if( (abase == null) || !ship.getLocation().sameSector(0, abase, abase.getSize()) ) {
 				addError("Schiff und Basis befinden sich nicht im selben Sektor", Common.buildUrl("default", "module", "schiff", "ship", shipID) );
 				
 				return false;
 			}
 
-			maxcrewf = ShipTypes.getShipType( ship ).getInt("crew");
-			maxcrewt = -1;
+			maxcrewf = ship.getTypeData().getCrew();
+			maxmarines = ship.getTypeData().getMarines();
+			datat = new BaseTarget(abase);
+		}
+		else
+		{
+			addError("Dieser Transportweg ist unbekannt (hoer mit dem scheiss URL-Hacking auf) - Versuch geloggt", Common.buildUrl("default", "module", "schiff", "ship", shipID) );
 		}
 		
-		if( ship.getInt("owner") != datat.getInt("owner") ) {
+		if( ship.getOwner() != datat.getOwner() ) {
 			addError("Eines der Schiffe geh&ouml;rt ihnene nicht", Common.buildUrl("default", "module", "schiff", "ship", shipID) );
 				
 			return false;
@@ -115,22 +280,21 @@ public class CrewtauschController extends TemplateGenerator {
 		this.ship = ship;
 		this.datat = datat;
 		this.maxcrewf = maxcrewf;
-		this.maxcrewt = maxcrewt;
+		this.maxmarines = maxmarines;
 		
 		return true;	
 	}
 	
 	/**
 	 * Transferiert Crew vom Ausgangsschiff zum Zielschiff/Basis
+	 * Transferiert Crew/Marines vom Ausgangsschiff zum Zielschiff/Basis
 	 * @urlparam int send Die Anzahl der zu transferierenden Crew
+	 * @urlparam int sendm Die Anzahl der zu transferierenden Marines
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void sendAction() {
-		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
-		
-		String mode = getString("mode");
 		
 		parameterNumber("send");
 		int send = getInteger("send");
@@ -138,11 +302,11 @@ public class CrewtauschController extends TemplateGenerator {
 		if( send < 0 ) {
 			send = 0;
 		}
-		if( (maxcrewt > -1) && (send > maxcrewt - datat.getInt("crew")) ) {
-			send = maxcrewt - datat.getInt("crew");
+		if( (datat.getMaxCrew() > -1) && (send > datat.getMaxCrew() - datat.getCrew()) ) {
+			send = datat.getMaxCrew() - datat.getCrew();
 		}
-		if( send > ship.getInt("crew") ) {
-			send = ship.getInt("crew");
+		if( send > ship.getCrew() ) {
+			send = ship.getCrew();
 		}
 		
 		if( send > 0 ) {
@@ -150,56 +314,60 @@ public class CrewtauschController extends TemplateGenerator {
 						"transfer.way.to",		1,
 						"transfer.count",		send );
 			
-			db.tBegin();
-
-			db.tUpdate(1, "UPDATE ships SET crew=crew-",send," WHERE id>0 AND id=",ship.getInt("id")," AND crew=",ship.getInt("crew"));
-			if( mode.equals("ss") ) {
-				db.tUpdate(1, "UPDATE ships SET crew=crew+",send," WHERE id>0 AND id=",datat.getInt("id")," AND crew=",datat.getInt("crew"));
-
-				datat.put("crew", datat.getInt("crew")+send);
-		
-				Ships.recalculateShipStatus(datat.getInt("id"));
-			}
-			else if( mode.equals("sb") ) {
-				db.tUpdate(1, "UPDATE bases SET bewohner=bewohner+",send," WHERE id>0 AND id=",datat.getInt("id")," AND bewohner=",datat.getInt("bewohner")," AND arbeiter=",datat.getInt("arbeiter"));
-
-				datat.put("crew", datat.getInt("crew")+send);
-				datat.put("bewohner", datat.getInt("bewohner")+send);
-			}
-			ship.put("crew", ship.getInt("crew")-send);
-			Ships.recalculateShipStatus(ship.getInt("id"));
-			
-			if( !db.tCommit() ) {
-				addError("Beim Transfer der Crew ist ein Fehler aufgetreten. Bitte versuchen sie es sp&auml;ter nocheinmal");
-			}
+			ship.setCrew(ship.getCrew()-send);
+			datat.setCrew(datat.getCrew()+send);
+			datat.finishTransfer();
+			ship.recalculateShipStatus();
 		}	
+		parameterNumber("sendm");
+		int sendm = getInteger("sendm");
+		if( sendm < 0 ) {
+			sendm = 0;
+		}
+		if( (datat.getMaxMarines() > -1) && (sendm > datat.getMaxMarines() - datat.getMarines()) ) {
+			sendm = datat.getMaxMarines() - datat.getMarines();
+		}
+		if( sendm > ship.getMarines() ) {
+			sendm = ship.getMarines();
+		}
+			
+		if( sendm > 0 ) {
+			t.setVar(	"marinestausch.transfer",	1,
+						"transfer.way.to",		1,
+						"transfer.mcount",		sendm );
+				
+			ship.setMarines(ship.getMarines()-sendm);
+			datat.setMarines(datat.getMarines()+sendm);
+			datat.finishTransfer();
+			ship.recalculateShipStatus();
+		}
 		redirect();
 	}
 	
 	/**
 	 * Transfer in umgekehrter Richtung.<br>
-	 * Transferiert Crew vom Zielschiff/Basis zum Ausgangsschiff
+	 * Transferiert Crew/Marines vom Zielschiff/Basis zum Ausgangsschiff
 	 * @urlparam int rec Die Anzahl der zu transferierenden Crew
+	 * @urlparam int recm Die Anzahl der zu transferierenden Marines
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void recAction() {
-		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
-		
-		String mode = getString("mode");
 		
 		parameterNumber("rec");
 		int rec = getInteger("rec");
+		parameterNumber("recm");
+		int recm = getInteger("recm");
 		
 		if( rec < 0 ) {
 			rec = 0;
 		}
-		if( rec > maxcrewf - ship.getInt("crew") ) {
-			rec = maxcrewf - ship.getInt("crew");
+		if( rec > maxcrewf - ship.getCrew() ) {
+			rec = maxcrewf - ship.getCrew();
 		}
-		if( rec > datat.getInt("crew") ) {
-			rec = datat.getInt("crew");
+		if( rec > datat.getCrew() ) {
+			rec = datat.getCrew();
 		}
 		
 		if( rec > 0 ) {
@@ -207,28 +375,29 @@ public class CrewtauschController extends TemplateGenerator {
 						"transfer.way.to",		0,
 						"transfer.count",		rec );
 		
-			db.tBegin();
-
-			db.tUpdate(1, "UPDATE ships SET crew=crew+",rec," WHERE id>0 AND id=",ship.getInt("id")," AND crew=",ship.getInt("crew"));
-			if( mode.equals("ss") ) {
-				db.tUpdate(1, "UPDATE ships SET crew=crew-",rec," WHERE id>0 AND id=",datat.getInt("id")," AND crew=",datat.getInt("crew"));
-
-				datat.put("crew", datat.getInt("crew")-rec);
-		
-				Ships.recalculateShipStatus(datat.getInt("id"));
-			}
-			else if( mode.equals("sb") ) {
-				db.tUpdate(1, "UPDATE bases SET bewohner=bewohner-",rec," WHERE id>0 AND id=",datat.getInt("id")," AND bewohner=",datat.getInt("bewohner")," AND arbeiter=",datat.getInt("arbeiter"));
-
-				datat.put("crew", datat.getInt("crew")-rec);
-				datat.put("bewohner", datat.getInt("bewohner")-rec);
-			}
-			ship.put("crew", ship.getInt("crew")+rec);
-			Ships.recalculateShipStatus(ship.getInt("id"));
-			
-			if( !db.tCommit() ) {
-				addError("Beim Transfer der Crew ist ein Fehler aufgetreten. Bitte versuchen sie es sp&auml;ter nocheinmal");
-			}
+			ship.setCrew(ship.getCrew()+rec);
+			datat.setCrew(datat.getCrew()-rec);
+			datat.finishTransfer();
+			ship.recalculateShipStatus();
+		}
+		if( recm < 0 ) {
+			recm = 0;
+		}
+		if( recm > maxmarines - ship.getMarines() ) {
+			recm = maxmarines - ship.getMarines();
+		}
+		if( recm > datat.getMarines() ) {
+			recm = datat.getMarines();
+		}
+		if( recm > 0 ) {
+			t.setVar(	"marinestausch.transfer",	1,
+						"transfer.way.to",		0,
+						"transfer.mcount",		recm );
+				
+			ship.setMarines(ship.getMarines()+recm);
+			datat.setMarines(datat.getMarines()-recm);
+			datat.finishTransfer();
+			ship.recalculateShipStatus();
 		}
 			
 		redirect();
@@ -237,21 +406,25 @@ public class CrewtauschController extends TemplateGenerator {
 	/**
 	 * Anzeige von Infos sowie Eingabe der zu transferierenden Crew
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
 		
 		String mode = getString("mode");
 		
-		t.setVar(	"ship.id",			ship.getInt("id"),
-					"ship.name",		Common._plaintitle(ship.getString("name")),
-					"ship.crew",		ship.getInt("crew"),
+		t.setVar(	"ship.id",			ship.getId(),
+					"ship.name",		Common._plaintitle(ship.getName()),
+					"ship.crew",		ship.getCrew(),
 					"ship.maxcrew",		maxcrewf,
-					"target.id",		datat.getInt("id"),
-					"target.name",		datat.getString("name"),
-					"target.crew",		datat.getString("crew"),
-					"target.maxcrew",	(maxcrewt > -1 ? maxcrewt : "&#x221E;"),
+					"ship.marines",		ship.getMarines(),
+					"ship.maxmarines",	maxmarines,
+					"target.id",		datat.getId(),
+					"target.name",		datat.getName(),
+					"target.crew",		datat.getCrew(),
+					"target.maxcrew",	(datat.getMaxCrew() > -1 ? datat.getMaxCrew() : "&#x221E;"),
+					"target.marines",	datat.getMarines(),
+					"target.maxmarines",	(datat.getMaxMarines() > -1 ? datat.getMaxMarines() : "&#x221E;"),
 					"global.mode",		mode,
 					"global.mode.ss",	mode.equals("ss"),
 					"global.mode.sb",	mode.equals("sb") );

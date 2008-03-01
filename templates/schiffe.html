@@ -20,7 +20,7 @@
 <!--
 	function FleetWnd(params)
 	{
-		fenster1=window.open("./main.php?module=fleetmgnt&sess={global.sess}"+params,
+		fenster1=window.open("./ds?module=fleetmgnt&sess={global.sess}"+params,
 							 "Flotten",
 							"width=370,height=400,locationbar=0,menubar=0,scrollbars=1,statusbar=0,toolbar=0,resizeable=yes,directories=0");
 	}
@@ -43,7 +43,7 @@
 	{/endif}
 	{if only.kampf}
 		<td class="noBorderS" align="right">
-		<form action="./main.php" method="post" style="margin:0px">
+		<form action="./ds" method="post" style="margin:0px">
 			<div>
 				<select size="1" name="kampf_only">
 					<option value="0" {only.kampf.selected-1}>alle</option>
@@ -84,7 +84,7 @@
 		<tr>
 		<td class="schiffData">{!link_to $ship.id, default, module:schiff, ship:$ship.id}</td>
 		{if ship.battle}
-			<td class="schiffData"><a href="./main.php?module=angriff&amp;sess={global.sess}&amp;battle={ship.battle}&amp;ship={ship.id}"><img style="vertical-align:middle" src="{URL}battle_small.gif" alt="Schlacht" /></a> {ship.name}
+			<td class="schiffData"><a href="./ds?module=angriff&amp;sess={global.sess}&amp;battle={ship.battle}&amp;ship={ship.id}"><img style="vertical-align:middle" src="{URL}battle_small.gif" alt="Schlacht" /></a> {ship.name}
 		{else}
 			<td class="schiffData">{ship.name}
 		{/endif}
@@ -100,10 +100,10 @@
 		{if ship.docks}
 			<br />
 			{if ship.adocks}
-				<img src="{URL}data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./main.php?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.adocks.docked}/{ship.adocks}]</a>
+				<img src="{URL}data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.adocks.docked}/{ship.adocks}]</a>
 			{/endif}
 			{if ship.jdocks}
-				<img src="{URL}data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./main.php?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.jdocks.docked}/{ship.jdocks}]</a>
+				<img src="{URL}data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.jdocks.docked}/{ship.jdocks}]</a>
 			{/endif}
 		{/endif}
 		{if ship.werft}
@@ -121,7 +121,7 @@
 			<br />{!link_to [scan], default, module:scan, css_class:nonbold, css_style:color:#CCAA33, ship:$ship.id}	
 		{/endif}
 		</td>
-		<td class="schiffData"><a onmouseover="return overlib('{ship.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" class="noborder" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={ship.type}"><img src="{ship.image}" alt="" /></a></td>
+		<td class="schiffData"><a onmouseover="return overlib('{ship.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" class="noborder" href="./ds?module=schiffinfo&amp;sess={global.sess}&amp;ship={ship.type}"><img src="{ship.image}" alt="" /></a></td>
 		<td class="schiffData">{ship.location}</td>
 		<td class="schiffData"><span style="color:{ship.hullcolor}">{ship.hull}</span>
 		{if ship.shields}

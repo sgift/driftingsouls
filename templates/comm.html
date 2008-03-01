@@ -20,13 +20,13 @@
 <!--
 //<![CDATA[
 	function PlayerList() {
-		fenster1=window.open("./main.php?module=plist&sess={global.sess}&compopup=1",
+		fenster1=window.open("./ds?module=plist&sess={global.sess}&compopup=1",
 							 "Spielerliste",
 							 "width=350,height=400,locationbar=0,menubar=0,scrollbars=1,statusbar=0,toolbar=0,resizeable=yes,directories=0");
 	}
 
 	function BBCodeInfo() {
-		fenster2=window.open("./main.php?module=bbcodeview&sess={global.sess}",
+		fenster2=window.open("./ds?module=bbcodeview&sess={global.sess}",
 							 "BBCodes",
 							 "width=550,height=400,locationbar=0,menubar=0,scrollbars=1,statusbar=0,toolbar=0,resizeable=yes,directories=0");
 	}
@@ -120,7 +120,7 @@
 {/endif}
 {if show.write}
 	{!table_begin 710,left}
-		<form action="./main.php" method="post">
+		<form action="./ds" method="post">
 		<table class="noBorderX" cellspacing="2" cellpadding="4">
 		<tr>
 			<td class="noBorderX">An</td>
@@ -176,7 +176,7 @@
 	<script type="text/javascript">
 	<!--
 		function showpm(pmid) {
-			pmviewer.location.href = "./main.php?module=comm&sess={global.sess}&action=showPm&pmid="+pmid;
+			pmviewer.location.href = "./ds?module=comm&sess={global.sess}&action=showPm&pmid="+pmid;
 			
 			if( $('pm'+pmid) != null ) {	
 				$('pm'+pmid).firstChild.nodeValue = "";
@@ -225,7 +225,7 @@
 			
 			$("inbox_waiter").style.display = "block";
 			
-			var url = './ajax.php';
+			var url = './ajax';
 			// Oh ich liebe das toooolle caching vom *piep* ie
 			var params = 'module={global.module}&sess={global.sess}&action=move&ordner={ordner.parent}&moveto='+ordnerid+"&pm_"+pmid+"="+pmid+"&antiiecachingtimestamp="+(new Date().getTime());
 
@@ -268,7 +268,7 @@
 	// -->
 	</script>
 
-	<form action="./main.php" method="post">
+	<form action="./ds" method="post">
 	{!table_begin 710,left}
 		<div style="position:relative; width:100%; height:240px">
 			<!--  Waiter Div -->
@@ -293,14 +293,14 @@
 					<tr id="inbox_ordner{ordner.id}">
 						<td class="noBorderX">
 							<script type="text/javascript" language="javascript">
-								 Droppables.add('inbox_ordner{ordner.id}', {
-								   accept: 'inbox_pm',
-								   hoverclass: 'inboxOrdnerHover',
-								   onDrop: function(element) 
-								     {  movePM(element.id,{ordner.id}); },
-								   onHover: ordnerHover,
-								   onExit: ordnerExit
-								  });
+								Droppables.add('inbox_ordner{ordner.id}', {
+										accept: 'inbox_pm',
+										hoverclass: 'inboxOrdnerHover',
+										onDrop: function(element) 
+										{  movePM(element.id,{ordner.id}); },
+										onHover: ordnerHover,
+										onExit: ordnerExit
+								});
 							</script>
 							
 							{if ! ordner.flags.trash}
@@ -313,8 +313,8 @@
 								<img style="border:0px" src="{URL}data/interface/pms/{if ! ordner.flags.trash}ordner{/endif}{if ordner.flags.trash}trash{if ordner.pms}-full{/endif}{/endif}.png" />
 							
 						</td>
-						<td style="background-color:red" class="noBorderX">
-							<a class="profile" href="./main.php?module=comm&amp;sess={global.sess}&amp;action=showInbox&amp;ordner={ordner.id}">
+						<td class="noBorderX">
+							<a class="profile" href="./ds?module=comm&amp;sess={global.sess}&amp;action=showInbox&amp;ordner={ordner.id}">
 								{ordner.name}
 							</a>&nbsp;
 						</td>
@@ -327,11 +327,11 @@
 							{/endif}
 						</td>
 						<td class="noBorderX">
-							<a href="./main.php?module=comm&amp;sess={global.sess}&amp;action=showInbox&amp;ordner={ordner.id}" >
+							<a href="./ds?module=comm&amp;sess={global.sess}&amp;action=showInbox&amp;ordner={ordner.id}" >
 								<img style="border:0px" src="{URL}data/interface/text.png" alt="&ouml;ffnen" title="&ouml;ffnen" />
 							</a>
 							{if ordner.flags.trash}
-									<a href="javascript:ask('Wollen sie wirklich alle gel&ouml;schten PMs wiederherstellen?','./main.php?module=comm&amp;sess={global.sess}&amp;action=recoverAll&amp;ordner={ordner.parent}')">
+									<a href="javascript:ask('Wollen sie wirklich alle gel&ouml;schten PMs wiederherstellen?','./ds?module=comm&amp;sess={global.sess}&amp;action=recoverAll&amp;ordner={ordner.parent}')">
 									<img style="border:0px" src="{URL}data/interface/pms/recover.png" alt="wiederherstellen" title="wiederherstellen" />
 								</a>
 							{/endif}
@@ -340,7 +340,7 @@
 									<a href="javascript:setRenameAction({ordner.id});" >
 										<img style="border:0px" src="{URL}data/interface/pen.gif" alt="umbenennen" title="umbenennen" />
 									</a>
-									<a href="javascript:ask('Wollen sie wirklich diesen Ordner samt enthaltener PMs und Unterordner löschen?','./main.php?module=comm&amp;sess={global.sess}&amp;action=delete&amp;ordner={ordner.parent}&amp;delord={ordner.id}')">
+									<a href="javascript:ask('Wollen sie wirklich diesen Ordner samt enthaltener PMs und Unterordner löschen?','./ds?module=comm&amp;sess={global.sess}&amp;action=delete&amp;ordner={ordner.parent}&amp;delord={ordner.id}')">
 										<img style="border:0px" src="{URL}data/interface/delete.gif" alt="umbenennen" title="L&ouml;schen" /></a>
 								{/endif}
 							{/endif}
@@ -450,34 +450,35 @@
 					</select>
 					<input style="display:none; width:0px" type="text" name="ordner" value="{ordner.parent}"/>
 				</div>
-				{!form_create_hidden -}
+				{!form_create_hidden -, ordner:$currentordner.id}
 				<div style="display:inline; margin:0px; padding:0px; border:0px" id="form_submit">
 					<input style="" type="submit" value="ok" />
 				</div>
 			</div>
 		</form>
 		<br />
-		<script type="text/javascript">
-		<!--
-			for( var i=0; i < draggablePms.length; i++ ) {
-				new Draggable('inbox_pm'+draggablePms[i],{ revert:true });
-			}
-			draggablePms = null;
-		//-->
-		</script>
 	{!table_end}
 	<br />
 	{!table_begin 710,left}
-		<iframe src="./main.php?module=comm&amp;sess={global.sess}&amp;action=showPm" name="pmviewer" width="630" height="240" scrolling="auto" marginheight="0" marginwidth="0" frameborder="0">
+		<iframe src="./ds?module=comm&amp;sess={global.sess}&amp;action=showPm" name="pmviewer" width="630" height="240" scrolling="auto" marginheight="0" marginwidth="0" frameborder="0">
 			Dein Browser unterst&uuml;tzt leider keine iframes. Am besten installierst du einen Browser neueren Datums wie z.B. den <a class="forschinfo" href="http://www.mozilla.org">Mozilla Firefox</a>
 		</iframe>
 	{!table_end}
+	
+	<script type="text/javascript">
+	<!--		
+		for( var i=0; i < draggablePms.length; i++ ) {
+			new Draggable('inbox_pm'+draggablePms[i],{ revert:true });
+		}
+		draggablePms = null;
+	//-->
+	</script>
 {/endif}
 {if show.outbox}
 	<script type="text/javascript">
 	<!--
 		function showpm(pmid) {			
-			pmviewer.location.href = "./main.php?module=comm&sess={global.sess}&action=showPm&pmid="+pmid;
+			pmviewer.location.href = "./ds?module=comm&sess={global.sess}&action=showPm&pmid="+pmid;
 		}
 	-->
 	</script>
@@ -518,7 +519,7 @@
 	{!table_end}
 	<br />
 	{!table_begin 710,left}
-		<iframe src="./main.php?module=comm&amp;sess={global.sess}&amp;action=showPm" name="pmviewer" width="630" height="240" scrolling="auto" marginheight="0" marginwidth="0" frameborder="0">
+		<iframe src="./ds?module=comm&amp;sess={global.sess}&amp;action=showPm" name="pmviewer" width="630" height="240" scrolling="auto" marginheight="0" marginwidth="0" frameborder="0">
 			Dein Browser unterst&uuml;tzt leider keine iframes. Am besten installierst du einen Browser neueren Datums wie z.B. den <a class="forschinfo" href="http://www.mozilla.org">Mozilla Firefox</a>
 		</iframe>
 	{!table_end}
@@ -573,7 +574,7 @@
 {/endif}
 {if show.comment}
 	{!table_begin 710,left}
-		<form action="./main.php" method="post">
+		<form action="./ds" method="post">
 		<table class="noBorderX" cellspacing="2" cellpadding="4">
 		<tr>
 			<td class="noBorderX" valign="top">Von:</td>

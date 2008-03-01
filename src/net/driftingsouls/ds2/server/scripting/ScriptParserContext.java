@@ -18,14 +18,20 @@
  */
 package net.driftingsouls.ds2.server.scripting;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
+
+import javax.script.ScriptContext;
+import javax.script.SimpleScriptContext;
+
+import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
  * Der Kontext eines ausgefuehrten Scripts. Enthaelt Register,
@@ -34,79 +40,25 @@ import java.util.Set;
  * @author Christopher Jung
  *
  */
-public class ScriptParserContext {
-	private Map<String,Object> register;
-	private int lastcommand;
-	private StringBuffer out = new StringBuffer();
-	
+public class ScriptParserContext extends SimpleScriptContext {
 	/**
 	 * Konstruktor
 	 *
 	 */
 	public ScriptParserContext() {
-		this.register = new HashMap<String,Object>();
-		this.lastcommand = 0;
-	}
-	
-	/**
-	 * Gibt das angegebene Register zurueck
-	 * @param reg Das Register
-	 * @return der Inhalt des Registers
-	 */
-	public String getRegister( String reg ) {
-		return getRegisterObject(reg).toString();
-	}
-	
-	/**
-	 * Gibt das angegebene Register zurueck
-	 * @param reg Das Register
-	 * @return der Inhalt des Registers
-	 */
-	public Object getRegisterObject( String reg ) {
-		if( reg.charAt(0) == '#' ) {
-			reg = reg.substring(1);	
+		super();
+		
+		// TODO: Nicht schoen. Bitte besser machen
+		if( (ContextMap.getContext() != null) && 
+			(ContextMap.getContext().getRequest().getClass().getName().toUpperCase().contains("HTTP")) ) {
+			setErrorWriter(new HtmlLogger());
 		}
-		Object val = this.register.get(reg);
-		if( val == null ) {
-			return "";
+		else {
+			setErrorWriter(new TextLogger());
 		}
-		return val;
-	}
-	
-	/**
-	 * Setzt das angegebene Register auf den angegebenen Wert
-	 * @param reg Der Name des Registers
-	 * @param data Der Wert
-	 */
-	public void setRegister( String reg, Object data ) {
-		if( reg.charAt(0) == '#' ) {
-			reg = reg.substring(1);	
-		}
-		this.register.put(reg, data);
-	}
-	
-	/**
-	 * Gibt die Liste aller Registernamen zurueck
-	 * @return Die Liste aller Registernamen
-	 */
-	public Set<String> getRegisterList() {
-		return this.register.keySet();
-	}
-	
-	/**
-	 * Gibt den Index des zuletzt ausgefuehrten Komamndos zurueck
-	 * @return Der Indes des zuletzt ausgefuehrten Kommandos
-	 */
-	public int getLastCommand() {
-		return this.lastcommand;
-	}
-	
-	/**
-	 * Setzt den Index des zuletzt ausgefuehrten Kommandos
-	 * @param cmd Der Index des zuletzt ausgefuehrten Kommandos
-	 */
-	public void setLastCommand(int cmd) {
-		this.lastcommand = cmd;
+		
+		setWriter(new StringWriter());
+		engineScope.put("__INSTRUCTIONPOINTER", 0);
 	}
 	
 	/**
@@ -114,7 +66,7 @@ public class ScriptParserContext {
 	 * @return Die Scriptausgabe
 	 */
 	public String getOutput() {
-		return out.toString();
+		return ((StringWriter)getWriter()).getBuffer().toString();
 	}
 	
 	/**
@@ -122,18 +74,16 @@ public class ScriptParserContext {
 	 * @param text der auszugebende Text
 	 */
 	public void out( String text ) {
-		out.append(text);
-	}
-	
-	/**
-	 * Leert die Scriptausgabe
-	 *
-	 */
-	public void clearOutput() {
-		out.setLength(0);
+		try {
+			this.writer.append(text);
+		}
+		catch( IOException e ) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	private static class ExecData implements Serializable {
+		// Achtung! Jede Veraenderung kann zu inkompatibilitaeten der serialisierten Daten fuehren!
 		private static final long serialVersionUID = 1L;
 		
 		ExecData() {
@@ -141,17 +91,6 @@ public class ScriptParserContext {
 		}
 		Map<String,Object> register;
 		int lastcommand;
-	}
-	
-	/**
-	 * Fuegt Ausfuehrungsdaten (Register) aus dem angegebenen Kontext in den aktuellen Kontext ein
-	 * @param data Der Kontext
-	 * @throws Exception
-	 */
-	public void addContextData( ScriptParserContext data ) throws Exception {
-		if( (data != null) && (data.register != null) && (data.register.size() > 0) ) {
-			this.register.putAll(data.register);
-		}
 	}
 	
 	/**
@@ -168,10 +107,10 @@ public class ScriptParserContext {
 		ExecData entry = (ExecData)oinput.readObject();
 		
 		ScriptParserContext context = new ScriptParserContext();
-		context.lastcommand = entry.lastcommand;
+		context.engineScope.put("__INSTRUCTIONPOINTER", entry.lastcommand);
 		
 		if( (entry.register != null) && (entry.register.size() > 0) ) {
-			context.register.putAll(entry.register);
+			context.engineScope.putAll(entry.register);
 		}
 		
 		return context;
@@ -179,23 +118,27 @@ public class ScriptParserContext {
 	
 	/**
 	 * Schreibt die Ausfuehrungsdaten des ScriptParsers in den angegebenen Stream
+	 * @param context Die zu schreibenden Ausfuehrungsdaten
 	 * @param out Der OutputStream
 	 * @throws Exception
 	 */
-	public void toStream(OutputStream out) throws Exception {
+	public static void toStream(ScriptContext context, OutputStream out) throws Exception {
 		if( out == null ) {
 			return;
 		}
 		// Schiffsdaten nicht speichern
-		Object ship = this.register.remove("_SHIP");
+		Object ship = context.getBindings(ScriptContext.ENGINE_SCOPE).remove("_SHIP");
 		
 		ObjectOutputStream oout = new ObjectOutputStream(out);
 		ExecData entry = new ExecData();
-		entry.register = this.register;
-		entry.lastcommand = lastcommand;
+		entry.register = new HashMap<String,Object>(context.getBindings(ScriptContext.ENGINE_SCOPE));
+		Integer ip = (Integer)context.getBindings(ScriptContext.ENGINE_SCOPE).get("__INSTRUCTIONPOINTER");
+		if( ip != null ) {
+			entry.lastcommand = ip;
+		}
 		oout.writeObject(entry);
 		oout.close();
 		
-		this.register.put("_SHIP", ship);
+		context.getBindings(ScriptContext.ENGINE_SCOPE).put("_SHIP", ship);
 	}
 }

@@ -410,4 +410,24 @@
 		alter table ships_modules change ablativeArmor ablativeArmor int(10) unsigned not null default '0';
 		ALTER TABLE `battles_ships` change `ablativeArmor` ablativeArmor INT UNSIGNED NOT NULL default '0';
 	]]></update>
+	<update type="structure" datum="2008-02-16"><![CDATA[
+		CREATE TABLE `tradepost_sell` (
+		  `shipid` int(11) NOT NULL,
+		  `resourceid` int(11) NOT NULL,
+		  `price` int(11) NOT NULL,
+		  `limit` int(11) NOT NULL,
+		  PRIMARY KEY  (`shipid`,`resourceid`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+		
+		ALTER TABLE tradepost_sell ADD CONSTRAINT tradepost_sell_fk_ships FOREIGN KEY (shipid) REFERENCES ships(id);
+		
+		CREATE TABLE `tradepost_buy_limit` (
+		  `shipid` int(11) NOT NULL,
+		  `resourceid` int(11) NOT NULL,
+		  `limit` int(11) NOT NULL,
+		  PRIMARY KEY  (`shipid`,`resourceid`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+		
+		ALTER TABLE tradepost_buy_limit ADD CONSTRAINT tradepost_buy_limit_fk_ships FOREIGN KEY (shipid) REFERENCES ships(id);
+	]]></update>
 </updates>

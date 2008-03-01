@@ -114,30 +114,43 @@
 			</javac>
 	</target>
 	
-	<target name="compile-ds" depends="prepare" description="Compile template sources">
+	<!-- ==================== Antlr Target ================================== -->
+				
+	<target name="antlr" depends="prepare">
+		<echo>Compiliere Grammatik Role.g</echo>
+		<java classname="org.antlr.Tool" fork="true">
+			<arg value="-o ${src.home}/net/driftingsouls/ds2/server/scripting/roles/parser" />
+			<arg value="${src.home}/net/driftingsouls/ds2/server/scripting/roles/parser/Role.g" />
+			<classpath refid="compile.classpath" />
+		</java>
+	</target>
+	
+	<!-- ==================== compile-ds Target ================================== -->
+		
+	<target name="compile-ds" depends="prepare,antlr" description="Compile template sources">
 		<javac srcdir="${src.home}"
 			   destdir="${build.home}/WEB-INF/classes"
 			   debug="${compile.debug}"
 			   deprecation="${compile.deprecation}"
 			   optimize="${compile.optimize}"
-			   source="1.5"
-			   target="1.5"
+			   source="1.6"
+			   target="1.6"
 				excludes="**/server/templates/**,**/server/framework/**">
 			<classpath refid="compile.classpath"/>
 		</javac>
 	</target>
 	
 	<target name="compile-jstarmap" depends="prepare" description="Compile client jstarmap sources">
-		<mkdir  dir="${build.home}/java/jstarmap"/>
-		<mkdir  dir="${build.home}/java/jstarmap/classes"/>
-		
+		<mkdir dir="${build.home}/java/jstarmap"/>
+		<mkdir dir="${build.home}/java/jstarmap/classes"/>
+			
 		<javac srcdir="${src.jstarmap}"
 			   destdir="${build.home}/java/jstarmap/classes"
 			   debug="${compile.debug}"
 			   deprecation="${compile.deprecation}"
+			   optimize="${compile.optimize}"
 			   source="1.5"
-			   target="1.5"
-			   optimize="${compile.optimize}">
+			   target="1.5">
 			<classpath refid="compile.classpath"/>
 		</javac>
 		<jar jarfile="${build.home}/java/JStarmap.jar" manifest="${src.jstarmap}/jstarmap.manifest" basedir="${build.home}/java/jstarmap/classes" includes="**/ds2/jstarmap/**" />
@@ -146,7 +159,7 @@
 	
 	<target name="compile-clients" depends="compile-jstarmap" description="Compile client meta target">
 	</target>
-	
+		
 	<target name="compile" depends="compile-framework,compile-templates,compile-ds,compile-clients" description="Compile meta target">
 	</target>
 	

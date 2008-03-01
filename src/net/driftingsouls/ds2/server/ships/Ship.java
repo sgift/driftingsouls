@@ -35,6 +35,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Locatable;
@@ -67,10 +70,8 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.Quests;
-import net.driftingsouls.ds2.server.scripting.ScriptParser;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
@@ -136,10 +137,9 @@ public class Ship implements Loggable,Locatable,Transfering {
 	private int desty;
 	private String destcom;
 	private boolean bookmark;
-	//@ManyToOne(fetch=FetchType.LAZY)
-	//@JoinColumn(name="battle", nullable=true)
-	//private Battle battle;
-	private Integer battle;
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="battle", nullable=true)
+	private Battle battle;
 	private boolean battleAction;
 	private String jumptarget;
 	private byte autodeut;
@@ -350,7 +350,7 @@ public class Ship implements Loggable,Locatable,Transfering {
 	 * Gibt die Schlacht zurueck, in der dich das Schiff befindet.
 	 * @return Die Schlacht oder <code>null</code>
 	 */
-	public Integer getBattle() {
+	public Battle getBattle() {
 		return battle;
 	}
 
@@ -358,7 +358,7 @@ public class Ship implements Loggable,Locatable,Transfering {
 	 * Setzt die Schlacht in der sich das Schiff befindet
 	 * @param battle Die Schlacht
 	 */
-	public void setBattle(Integer battle) {
+	public void setBattle(Battle battle) {
 		this.battle = battle;
 	}
 
@@ -1331,9 +1331,7 @@ public class Ship implements Loggable,Locatable,Transfering {
 			.uniqueResult();
 
 			if( eship != null ) {
-				Battle battle = new Battle();
-				battle.setStartOwn(true);
-				battle.create(eship.getOwner().getId(), eship.getId(), this.id);
+				Battle.create(eship.getOwner().getId(), eship.getId(), this.id, true);
 
 				MESSAGE.get().append("<span style=\"color:red\">Feindliche Schiffe feuern beim Einflug</span><br />\n");
 			}
@@ -1352,8 +1350,8 @@ public class Ship implements Loggable,Locatable,Transfering {
 				if( eship != null ) {
 					BattleShip bship = (BattleShip)db.get(BattleShip.class, eship.getId());
 					int oside = (bship.getSide() + 1) % 2 + 1;
-					Battle battle = new Battle();
-					battle.load(eship.getBattle(), this.owner.getId(), 0, 0, oside);
+					Battle battle = eship.getBattle();
+					battle.load(this.owner, null, null, oside);
 
 					int docked = ((Number)db.createQuery("select count(*) from Ship where docked=?")
 							.setString(0, Integer.toString(this.id))
@@ -2101,14 +2099,16 @@ public class Ship implements Loggable,Locatable,Transfering {
 							this.recalculateShipStatus();
 							saveFleetShips();
 
-							ScriptParser scriptparser = ContextMap.getContext().get(ContextCommon.class).getScriptParser(ScriptParser.NameSpace.QUEST);
-							scriptparser.setShip(this.getAsRow());
+							ScriptEngine scriptparser = ContextMap.getContext().get(ContextCommon.class).getScriptParser("DSQuestScript");
+							final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
+							
+							engineBindings.put("_SHIP", this);
 							if( !user.hasFlag(User.FLAG_SCRIPT_DEBUGGING) ) {
-								scriptparser.setLogFunction(ScriptParser.LOGGER_NULL);
+								scriptparser.getContext().setErrorWriter(new NullLogger());
 							}
-								
-							scriptparser.setRegister("SECTOR", loc.toString() );
-										
+
+							engineBindings.put("SECTOR", loc.toString() );
+
 							Quests.currentEventURL.set("&action=onenter");
 
 							db.refresh(this);
@@ -2123,8 +2123,8 @@ public class Ship implements Loggable,Locatable,Transfering {
 									.executeUpdate();
 							}
 
-							if( Quests.executeEvent(scriptparser, sector.getOnEnter(), this.owner.getId(), "" ) ) {
-								if( scriptparser.getContext().getOutput().length()!= 0 ) {							
+							if( Quests.executeEvent(scriptparser, sector.getOnEnter(), this.owner, "", false ) ) {
+								if( scriptparser.getContext().getWriter().toString().length()!= 0 ) {							
 									waypoint.distance = 0;
 								}
 							}
@@ -3037,8 +3037,6 @@ public class Ship implements Loggable,Locatable,Transfering {
 	 * Entfernt das Schiff aus der Flotte. 
 	 */
 	public void removeFromFleet() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
 		if( this.id < 0 ) {
 			throw new UnsupportedOperationException("removeFromFleet kann nur bei Schiffen mit positiver ID ausgefuhert werden!");
 		}
@@ -3047,28 +3045,9 @@ public class Ship implements Loggable,Locatable,Transfering {
 			return;
 		}
 
-		int fleetcount = ((Number)db.createQuery("select count(*) from Ship where fleet=? and id>0")
-				.setInteger(0, fleet.getId())
-				.iterate().next()).intValue();
-
-		if( fleetcount > 2 ) {
-			this.fleet = null;
-			MESSAGE.get().append("aus der Flotte ausgetreten");
-		} 
-		else {
-			final ShipFleet fleet = this.fleet;
-			
-			final Iterator shipIter = db.createQuery("from Ship where fleet=?")
-				.setEntity(0, this.fleet)
-				.iterate();
-			while( shipIter.hasNext() ) {
-				Ship aship = (Ship)shipIter.next();
-				aship.setFleet(null);
-			}
-			
-			db.delete(fleet);
-			MESSAGE.get().append("Flotte aufgel&ouml;&szlig;t");
-		}
+		this.fleet.removeShip(this);
+		
+		MESSAGE.get().append(ShipFleet.MESSAGE.getMessage());
 	}
 
 	public Location getLocation() {
@@ -3160,14 +3139,12 @@ public class Ship implements Loggable,Locatable,Transfering {
 	 * @return <code>true</code> if the ship can be feed from the pool, <code>false</code> if not
 	 */
 	public boolean isUserCargoUsable() {
-		/*org.hibernate.Session db = ContextMap.getContext().getDB();
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
 		return ((Number)db.createQuery("select count(*) from Base where owner=? and system=?")
 			.setEntity(0, this.owner)
 			.setInteger(1, this.system)
-			.iterate().next()).intValue() != 0;*/
-		
-		return true;
+			.iterate().next()).intValue() != 0;
 	}
 
 	public String transfer(Transfering to, ResourceID resource, long count) {
@@ -3219,26 +3196,19 @@ public class Ship implements Loggable,Locatable,Transfering {
 	 * 
 	 * @return <code>False</code>, wenn das Schiff kein SRS hat oder gelandet ist. <code>True</code> ansonsten.
 	 */
-	public boolean canUseSrs() {
-		if(!getTypeData().hasSrs()) {
+	public boolean canUseSrs()
+	{
+		if(!getTypeData().hasSrs())
+		{
 			return false;
 		}
 		
 		String motherShip = getDocked();
-		if(motherShip != null && motherShip.startsWith("l")) {
+		if(motherShip != null && motherShip.startsWith("l"))
+		{
 			return false;
 		}
 		
 		return true;
-	}
-	
-	/**
-	 * Gibt das Objekt als SQLResultRow zurueck. Aenderungen, welche nicht in die DB
-	 * geschrieben wurden, werden nicht beruecksichtigt.
-	 * @return Die SQLResultRow
-	 */
-	public SQLResultRow getAsRow() {
-		Database database = ContextMap.getContext().getDatabase();
-		return database.first("SELECT * FROM ships where id="+this.id);
-	}
+	}	
 }

@@ -20,14 +20,12 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
  * Cheat Gegner regenerieren
@@ -49,30 +47,38 @@ public class KSCheatRegenerateEnemyAction extends BasicKSAction {
 			return RESULT_HALT;
 		}
 		
-		Database db = context.getDatabase();
-		SQLResultRow enemyShip = battle.getEnemyShip();
+		BattleShip enemyShip = battle.getEnemyShip();
 
 		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
 
-		SQLResultRow enemyShipType = ShipTypes.getShipType( enemyShip );
-		enemyShip.put("crew", enemyShipType.getInt("crew"));
-		enemyShip.put("hull", enemyShipType.getInt("hull"));
-		enemyShip.put("e", enemyShipType.getInt("eps"));
-		enemyShip.put("shields", enemyShipType.getInt("shields"));
-		enemyShip.put("engine", 100);
-		enemyShip.put("weapons", 100);
-		enemyShip.put("sensors", 100);
-		enemyShip.put("comm", 100);
-		enemyShip.put("s", 0);
-		enemyShip.put("heat", "");
-		db.update("UPDATE ships SET crew=",enemyShip.getInt("crew"),",hull=",enemyShip.getInt("hull"),",e=",enemyShip.getInt("e"),",shields=",enemyShip.getInt("shields"),",engine=",enemyShip.getInt("engine"),",weapons=",enemyShip.getInt("weapons"),",sensors=",enemyShip.getInt("sensors"),",comm=",enemyShip.getInt("comm"),",s=",enemyShip.getInt("s"),",heat='",enemyShip.getString("heat"),"' WHERE id>0 AND id=",enemyShip.getInt("id"));
-		db.update("UPDATE battles_ships SET hull=",enemyShip.getInt("hull"),",shields=",enemyShip.getInt("shields"),",engine=",enemyShip.getInt("engine"),",weapons=",enemyShip.getInt("weapons"),",sensors=",enemyShip.getInt("sensors"),",comm=",enemyShip.getInt("comm"),",count=",enemyShipType.getInt("shipcount"),",newcount=",enemyShipType.getInt("shipcount")," WHERE shipid=",enemyShip.getInt("id"));
+		ShipTypeData enemyShipType = enemyShip.getTypeData();
+		enemyShip.getShip().setCrew(enemyShipType.getCrew());
+		enemyShip.getShip().setHull(enemyShipType.getHull());
+		enemyShip.getShip().setEnergy(enemyShipType.getEps());
+		enemyShip.getShip().setShields(enemyShipType.getShields());
+		enemyShip.getShip().setEngine(100);
+		enemyShip.getShip().setWeapons(100);
+		enemyShip.getShip().setSensors(100);
+		enemyShip.getShip().setComm(100);
+		enemyShip.getShip().setHeat(0);
+		enemyShip.getShip().setWeaponHeat("");
+		
+		enemyShip.setHull(enemyShip.getShip().getHull());
+		enemyShip.setShields(enemyShip.getShip().getShields());
+		enemyShip.setEngine(100);
+		enemyShip.setWeapons(100);
+		enemyShip.setSensors(100);
+		enemyShip.setComm(100);
+		enemyShip.setCount(enemyShipType.getShipCount());
+		enemyShip.setNewCount(0);
+		enemyShip.setAction(0);
+		
 		battle.logme( "CHEAT: Gegnerisches Schiff regeneriert\n" );
-		battle.logenemy( "CHEAT: [color=green]"+enemyShip.getString("name")+"[/color] regeneriert\n" );
+		battle.logenemy( "CHEAT: [color=green]"+enemyShip.getName()+"[/color] regeneriert\n" );
 
 		battle.logenemy("]]></action>\n");
 		
-		enemyShip.put("status", Ships.recalculateShipStatus(enemyShip.getInt("id")));
+		enemyShip.getShip().recalculateShipStatus();
 
 		return RESULT_OK;
 	}

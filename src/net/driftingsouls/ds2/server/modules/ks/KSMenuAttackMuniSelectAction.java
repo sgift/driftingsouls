@@ -20,11 +20,13 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.config.IEAmmo;
@@ -32,12 +34,12 @@ import net.driftingsouls.ds2.server.config.Item;
 import net.driftingsouls.ds2.server.config.ItemEffect;
 import net.driftingsouls.ds2.server.config.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.entities.Ammo;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
@@ -66,45 +68,42 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 	
 	@Override
 	public int validate(Battle battle) {
-		SQLResultRow ownShip = battle.getOwnShip();
-		SQLResultRow enemyShip = battle.getEnemyShip();
+		BattleShip ownShip = battle.getOwnShip();
+		BattleShip enemyShip = battle.getEnemyShip();
 	
-		if( (ownShip.getInt("action") & Battle.BS_JOIN) != 0 ) {
+		if( (ownShip.getAction() & Battle.BS_JOIN) != 0 ) {
 			return RESULT_ERROR;
 		}
 		
-		if( (enemyShip.getInt("action") & Battle.BS_JOIN) != 0 ) {
+		if( (enemyShip.getAction() & Battle.BS_JOIN) != 0 ) {
 			return RESULT_ERROR;
 		}
 		
-		if( (enemyShip.getInt("action") & Battle.BS_DESTROYED) != 0 ) {
+		if( (enemyShip.getAction() & Battle.BS_DESTROYED) != 0 ) {
 			return RESULT_ERROR;
 		}
-		if( (ownShip.getString("docked").length() > 0) && ownShip.getString("docked").charAt(0) == 'l' ) {
-			return RESULT_ERROR;
-		}
-		
-		if( (ownShip.getInt("action") & Battle.BS_FLUCHT) != 0 ) {
-			return RESULT_ERROR;
-		}
-		if( (enemyShip.getInt("action") & Battle.BS_SECONDROW) != 0 ) {
+		if( (ownShip.getDocked().length() > 0) && ownShip.getDocked().charAt(0) == 'l' ) {
 			return RESULT_ERROR;
 		}
 		
-		SQLResultRow ownShipType = ShipTypes.getShipType(ownShip);
+		if( (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ) {
+			return RESULT_ERROR;
+		}
 		
-		if( (enemyShip.getInt("action") & Battle.BS_FLUCHT) != 0 &&	!ShipTypes.hasShipTypeFlag(ownShipType, ShipTypes.SF_ABFANGEN) ) {
+		ShipTypeData ownShipType = ownShip.getTypeData();
+		
+		if( (enemyShip.getAction() & Battle.BS_FLUCHT) != 0 &&	!ownShipType.hasFlag(ShipTypes.SF_ABFANGEN) ) {
 			return RESULT_ERROR;
 		}
 		
 		boolean gotone = true;			
-		if( ShipTypes.hasShipTypeFlag(ownShipType, ShipTypes.SF_DROHNE) ) {
+		if( ownShipType.hasFlag(ShipTypes.SF_DROHNE) ) {
 			gotone = false;
-			List<SQLResultRow> ownShips = battle.getOwnShips();
+			List<BattleShip> ownShips = battle.getOwnShips();
 			for( int i=0; i < ownShips.size(); i++ ) {
-				SQLResultRow aship = ownShips.get(i);
-				SQLResultRow ashiptype = ShipTypes.getShipType(aship);
-				if( ShipTypes.hasShipTypeFlag(ashiptype, ShipTypes.SF_DROHNEN_CONTROLLER) ) {
+				BattleShip aship = ownShips.get(i);
+				ShipTypeData ashiptype = aship.getTypeData();
+				if( ashiptype.hasFlag(ShipTypes.SF_DROHNEN_CONTROLLER) ) {
 					gotone = true;
 					break;	
 				}
@@ -165,19 +164,19 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 		return attcount;	
 	}
 	
-	private int attCountForShip( SQLResultRow ownShip, SQLResultRow ownShipType, int attcount ) {
+	private int attCountForShip( BattleShip ownShip, ShipTypeData ownShipType, int attcount ) {
 		int count = 0;
 		if( attcount == 3 ) {
-			count = ownShipType.getInt("shipcount");
+			count = ownShipType.getShipCount();
 		}
 		else if( attcount == 2 ) {
-			count = (int)Math.ceil( ownShipType.getInt("shipcount")*0.5d );
+			count = (int)Math.ceil( ownShipType.getShipCount()*0.5d );
 		}
 		else {
 			count = 1;
 		}
-		if( count > ownShip.getInt("count") ) {
-			count = ownShip.getInt("count");
+		if( count > ownShip.getCount() ) {
+			count = ownShip.getCount();
 		}
 		return count;
 	}
@@ -200,28 +199,35 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 		}
 		
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		
-		SQLResultRow ownShip = battle.getOwnShip();
-		SQLResultRow ownShipType = ShipTypes.getShipType(ownShip);
-		SQLResultRow enemyShip = battle.getEnemyShip();
+		BattleShip ownShip = battle.getOwnShip();
+		ShipTypeData ownShipType = ownShip.getTypeData();
+		BattleShip enemyShip = battle.getEnemyShip();
 		
 		final String weapon = context.getRequest().getParameterString("weapon");
 		
 		String attmode = this.getAttMode();
 		
-		if( (ownShip.getInt("action") & Battle.BS_SECONDROW) != 0 &&
-			!Weapons.get().weapon(weapon).hasFlag(Weapon.Flags.LONG_RANGE) ) {
+		if( (ownShip.getAction() & Battle.BS_SECONDROW) != 0 &&
+			!Weapons.get().weapon(weapon).hasFlag(Weapon.Flags.LONG_RANGE) &&
+			!Weapons.get().weapon(weapon).hasFlag(Weapon.Flags.VERY_LONG_RANGE) ) {
 			battle.logme("Diese Waffe hat nicht die notwendige Reichweite um aus der zweiten Reihe heraus abgefeuert zu werden\n");
 			return RESULT_ERROR;	
 		}
 		
-		if( (ownShip.getInt("action") & Battle.BS_BLOCK_WEAPONS) != 0 ) {
+		if( (enemyShip.getAction() & Battle.BS_SECONDROW) != 0 && 
+			!Weapons.get().weapon(weapon).hasFlag(Weapon.Flags.VERY_LONG_RANGE)	) {
+			battle.logme("Diese Waffe hat nicht die notwendige Reichweite um in die zweiten Reihe des Gegners abgefeuert zu werden\n");
+			return RESULT_ERROR;
+		}
+		
+		if( (ownShip.getAction() & Battle.BS_BLOCK_WEAPONS) != 0 ) {
 			battle.logme( "Sie k&ouml;nnen in dieser Runde keine Waffen mehr abfeuern\n" );
 			return RESULT_ERROR;
 		}
 		
-		if( (ownShip.getInt("action") & Battle.BS_DISABLE_WEAPONS) != 0 ) {
+		if( (ownShip.getAction() & Battle.BS_DISABLE_WEAPONS) != 0 ) {
 			battle.logme( "Das Schiff kann seine Waffen in diesem Kampf nicht mehr abfeuern\n" );
 			return RESULT_ERROR;
 		}
@@ -234,17 +240,17 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 									
 		menuEntry( "<span style=\"font-size:3px\">&nbsp;<br /></span>Feuermodus: "+ATTMODES.get(attmode)+"<br /> "+
 				"<span style=\"font-size:12px\">&lt; Klicken um Feuermodus zu wechseln &gt;</span><span style=\"font-size:4px\"><br />&nbsp;</span>",
-				"ship",		ownShip.getInt("id"),
-			 	"attack",	enemyShip.getInt("id"),
+				"ship",		ownShip.getId(),
+			 	"attack",	enemyShip.getId(),
 			 	"ksaction",	"attack",
 			 	"attmode",	NEXTATTMODES.get(attmode),
 			 	"attcount",	attcount );
 
-		if( ownShip.getInt("count") > 1 ) {
+		if( ownShip.getCount() > 1 ) {
 			this.menuEntry( "<span style=\"font-size:3px\">&nbsp;<br /></span>Schiffsanzahl: "+this.attCountForShip(ownShip, ownShipType, attcount)+"<br /> "+
 							"<span style=\"font-size:12px\">&lt; Klicken um Anzahl zu wechseln &gt;</span><span style=\"font-size:4px\"><br />&nbsp;</span>",
-							"ship",		ownShip.getInt("id"),
-						 	"attack",	enemyShip.getInt("id"),
+							"ship",		ownShip.getId(),
+						 	"attack",	enemyShip.getId(),
 						 	"ksaction",	"attack",
 						 	"attmode",	attmode,
 						 	"attcount",	nextAttCount(attcount) );
@@ -257,14 +263,17 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 		if( Weapons.get().weapon(weapon).hasFlag(Weapon.Flags.AMMO_SELECT) ) {
 			Set<Integer> ammoids = new HashSet<Integer>();
 
-			SQLQuery ammoid = db.query("SELECT id FROM ammo WHERE type='",Weapons.get().weapon(weapon).getAmmoType()+"'");
-			while( ammoid.next() ) {
-				ammoids.add(ammoid.getInt("id"));
+			Iterator ammoIter = db.createQuery("from Ammo " +
+					"where type in ('"+Common.implode("','", Weapons.get().weapon(weapon).getAmmoType())+"')")
+				.iterate();
+
+			while( ammoIter.hasNext() ) {
+				Ammo ammo = (Ammo)ammoIter.next();
+				ammoids.add(ammo.getId());
 			}
-			ammoid.free();
 
 			// Munition
-			Cargo mycargo = new Cargo( Cargo.Type.STRING, ownShip.getString("cargo") );
+			Cargo mycargo = ownShip.getCargo();
 
 			List<ItemCargoEntry> items = mycargo.getItemsWithEffect( ItemEffect.Type.AMMO );
 			for( int i=0; i < items.size(); i++ ) {
@@ -274,8 +283,8 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 				Item itemobject = item.getItemObject();
 						
 				if( ammoids.contains(effect.getAmmo().getId()) ) {
-					menuEntry(itemobject.getName(),	"ship",		ownShip.getInt("id"),
-													"attack",	enemyShip.getInt("id"),
+					menuEntry(itemobject.getName(),	"ship",		ownShip.getId(),
+													"attack",	enemyShip.getId(),
 													"ksaction",	"attack2",
 													"weapon",	weapon,
 													"ammoid",	item.getItemID(),
@@ -285,8 +294,8 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 			}
 		}
 		
-		menuEntry("zur&uuml;ck",	"ship",		ownShip.getInt("id"),
-									"attack",	enemyShip.getInt("id"),
+		menuEntry("zur&uuml;ck",	"ship",		ownShip.getId(),
+									"attack",	enemyShip.getId(),
 									"ksaction",	"attack",
 									"attmode",	attmode,
 									"attcount",	attcount );

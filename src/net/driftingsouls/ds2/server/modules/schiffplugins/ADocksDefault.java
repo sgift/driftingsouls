@@ -19,17 +19,15 @@
 package net.driftingsouls.ds2.server.modules.schiffplugins;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
  * Schiffsmodul fuer die Anzeige von externen Docks
@@ -39,32 +37,34 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
 public class ADocksDefault implements SchiffPlugin {
 
 	public String action(Parameters caller) {
-		SQLResultRow ship = caller.ship;
-		SQLResultRow shiptype = caller.shiptype;
+		Ship ship = caller.ship;
+		ShipTypeData shiptype = caller.shiptype;
 		SchiffController controller = caller.controller;
 		
 		String output = "";
 		
-		Database db = ContextMap.getContext().getDatabase();
+		org.hibernate.Session db = controller.getDB();
 		
 		controller.parameterString("act");
 		String act = controller.getString("act");
 
 		if( !act.equals("") ) {
-			db.tBegin();
-			
 			output += "Entlade gedockte Schiffe<br />\n";
-			Cargo cargo = new Cargo( Cargo.Type.STRING, ship.getString("cargo") );
+			Cargo cargo = ship.getCargo();
 
 			long cargocount = cargo.getMass();
 
-			SQLQuery dship = db.query("SELECT id,cargo FROM ships WHERE id>0 AND docked='",ship.getInt("id"),"' ORDER BY id");
-			while( dship.next() ) {
-				int did = dship.getInt("id");
-				Cargo dcargo = new Cargo( Cargo.Type.STRING, dship.getString("cargo") );
+			List dships = db.createQuery("from Ship where id>0 and docked=?")
+				.setString(0, Integer.toString(ship.getId()))
+				.list();
+			
+			for( Iterator iter=dships.iterator(); iter.hasNext(); ) {
+				Ship dship = (Ship)iter.next();
+				
+				Cargo dcargo = dship.getCargo();
 				long dcargocount = dcargo.getMass();
 
-				if( cargocount + dcargocount > shiptype.getInt("cargo") ) {
+				if( cargocount + dcargocount > shiptype.getCargo() ) {
 					output += "Kann einige Schiffe nicht entladen - nicht genug Frachtraum<br />\n";
 					break;
 				}
@@ -73,18 +73,10 @@ public class ADocksDefault implements SchiffPlugin {
 
 				cargocount += dcargocount;
 
-				db.tUpdate(1,"UPDATE ships SET cargo='",new Cargo().save(),"' WHERE id>0 AND id=",did," AND cargo='",dcargo.save(),"'");
+				dship.setCargo(new Cargo());
 			}
-			dship.free();
 
-			db.tUpdate(1,"UPDATE ships SET cargo='",cargo.save(),"' WHERE id>0 AND id=",ship.getInt("id")," AND cargo='",cargo.save(true),"'");
-			
-			if( !db.tCommit() ) {
-				output = "Entladen der gedockten Schiffe nicht erfolgreich - Bitte versuchen sie es sp&auml;ter nocheinmal<br />\n";
-			}
-			else {
-				ship.put("cargo", cargo.save());
-			}
+			ship.setCargo(cargo);
 		}
 		
 		return output;
@@ -92,52 +84,51 @@ public class ADocksDefault implements SchiffPlugin {
 
 	public void output(Parameters caller) {
 		String pluginid = caller.pluginId;
-		SQLResultRow data = caller.ship;
-		SQLResultRow datatype = caller.shiptype;
+		Ship ship = caller.ship;
+		ShipTypeData shiptype = caller.shiptype;
 		SchiffController controller = caller.controller;
 
-		Database db = controller.getDatabase();
+		org.hibernate.Session db = controller.getDB();
 
 		TemplateEngine t = controller.getTemplateEngine();
 		t.setFile("_PLUGIN_"+pluginid, "schiff.adocks.default.html");
 
-		List<Integer> dockedid = new ArrayList<Integer>();
-		List<Integer> dockedtype = new ArrayList<Integer>();
-		List<String> dockedname = new ArrayList<String>();
-		List<String> dockedpicture = new ArrayList<String>();
+		List<Ship> dockedShips = new ArrayList<Ship>();
+		List<Integer> dockedids = new ArrayList<Integer>();
 		
-		SQLQuery line = db.query("SELECT name,type,id,status FROM ships WHERE id>0 AND docked=",data.getInt("id")," ORDER BY id");
-		while( line.next() ) {
-			dockedid.add(line.getInt("id"));
-			dockedtype.add(line.getInt("type"));
-			dockedname.add(line.getString("name"));
-			SQLResultRow dockedshiptype = ShipTypes.getShipType( line.getRow() );
-			dockedpicture.add(dockedshiptype.getString("picture"));
+		List dlist = db.createQuery("from Ship where id>0 and docked=? order by id")
+			.setString(0, Integer.toString(ship.getId()))
+			.list();
+		
+		for( Iterator iter=dlist.iterator(); iter.hasNext(); ) {
+			Ship aship = (Ship)iter.next();
+			dockedShips.add(aship);
+			dockedids.add(aship.getId());
 		}
-		line.free();
 
 		String idlist = "";
-		if( dockedid.size() > 0 ) {
-			idlist = Common.implode("|",dockedid);
+		if( dockedShips.size() > 0 ) {
+			idlist = Common.implode("|",dockedids);
 		}
 
 		t.setVar(	"global.pluginid",		pluginid,
-					"ship.id",				data.getInt("id"),
+					"ship.id",				ship.getId(),
 					"ship.docklist",		idlist,
-					"ship.adocks",			datatype.getInt("adocks"),
-					"docks.width",			100/(datatype.getInt("adocks")>4 ? 4 : datatype.getInt("adocks")) );
+					"ship.adocks",			shiptype.getADocks(),
+					"docks.width",			100/(shiptype.getADocks()>4 ? 4 : shiptype.getADocks()) );
 
 		t.setBlock("_PLUGIN_"+pluginid,"adocks.listitem","adocks.list");
-		for( int j = 0; j < datatype.getInt("adocks"); j++ ) {
+		for( int j = 0; j < shiptype.getADocks(); j++ ) {
 			t.start_record();
 			if( (j > 0) && (j % 4 == 0) )
 				t.setVar("docks.endrow",1);
 
-			if( dockedid.size() > j ) {
-				t.setVar(	"docks.entry.id",		dockedid.get(j),
-							"docks.entry.name",		dockedname.get(j),
-							"docks.entry.type",		dockedtype.get(j),
-							"docks.entry.image",	dockedpicture.get(j) );
+			if( dockedShips.size() > j ) {
+				Ship aship = dockedShips.get(j);
+				t.setVar(	"docks.entry.id",		aship.getId(),
+							"docks.entry.name",		aship.getName(),
+							"docks.entry.type",		aship.getType(),
+							"docks.entry.image",	aship.getTypeData().getPicture() );
 			}
 
 			t.parse("adocks.list","adocks.listitem",true);

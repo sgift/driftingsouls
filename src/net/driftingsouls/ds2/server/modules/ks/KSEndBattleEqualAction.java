@@ -21,11 +21,12 @@ package net.driftingsouls.ds2.server.modules.ks;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
@@ -45,46 +46,46 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 		int ownpower = 0;
 		int enemypower = 0;
 		
-		List<SQLResultRow> ownShips = battle.getOwnShips();
+		List<BattleShip> ownShips = battle.getOwnShips();
 		for( int i=0; i < ownShips.size(); i++ ) {
-			SQLResultRow aship = ownShips.get(i);
+			BattleShip aship = ownShips.get(i);
 			
-			if( (aship.getInt("action") & Battle.BS_JOIN) != 0 ) {
+			if( (aship.getAction() & Battle.BS_JOIN) != 0 ) {
 				continue;
 			}
 			
-			SQLResultRow aShipType = ShipTypes.getShipType( aship );
+			ShipTypeData aShipType = aship.getTypeData();
 				
-			if( aShipType.getInt("military") == 0 ) {
+			if( !aShipType.isMilitary() ) {
 				continue;
 			}
-			if( (aship.getInt("crew") == 0) && (aShipType.getInt("crew") != 0) ) {
+			if( (aship.getCrew() == 0) && (aShipType.getCrew() != 0) ) {
 				continue;
 			}
-			if( ShipTypes.hasShipTypeFlag(aShipType, ShipTypes.SF_JAEGER) ) {
+			if( aShipType.hasFlag(ShipTypes.SF_JAEGER) ) {
 				ownpower++;
 			} else { 
 				ownpower += 10;
 			}
 		}	
 					
-		List<SQLResultRow> enemyShips = battle.getEnemyShips();
+		List<BattleShip> enemyShips = battle.getEnemyShips();
 		for( int i=0; i < enemyShips.size(); i++ ) {
-			SQLResultRow aship = enemyShips.get(i);
+			BattleShip aship = enemyShips.get(i);
 			
-			if( (aship.getInt("action") & Battle.BS_JOIN) != 0 ) {
+			if( (aship.getAction() & Battle.BS_JOIN) != 0 ) {
 				continue;
 			}
 			
-			SQLResultRow aShipType = ShipTypes.getShipType( aship );
+			ShipTypeData aShipType = aship.getTypeData();
 				
-			if( aShipType.getInt("military") == 0 ) {
+			if( !aShipType.isMilitary() ) {
 				continue;
 			}
-			if( (aship.getInt("crew") == 0) && (aShipType.getInt("crew") != 0) ) {
+			if( (aship.getCrew() == 0) && (aShipType.getCrew() != 0) ) {
 				continue;
 			}
-			if( ShipTypes.hasShipTypeFlag(aShipType, ShipTypes.SF_JAEGER) ) {
+			if( aShipType.hasFlag(ShipTypes.SF_JAEGER) ) {
 				enemypower++;
 			} else { 
 				enemypower += 10;
@@ -115,7 +116,7 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 		
 		context.getResponse().getContent().append("Sie haben die Schlacht mit einem unentschieden beendet");
 		
-		PM.send(context, user.getId(), battle.getCommander(battle.getEnemySide()), "Schlacht beendet", "Der Gegner hat die Schlacht mit einem unentschieden beendet. Somit ist die Schlacht bei "+battle.getSystem()+" : "+battle.getX()+"/"+battle.getY()+" gegen [userprofile="+user.getId()+"]"+user.getName()+"[/userprofile] zuende!");
+		PM.send(user, battle.getCommander(battle.getEnemySide()).getId(), "Schlacht beendet", "Der Gegner hat die Schlacht mit einem unentschieden beendet. Somit ist die Schlacht bei "+battle.getLocation()+" gegen [userprofile="+user.getId()+"]"+user.getName()+"[/userprofile] zuende!");
 	
 		// Schlacht beenden -> 0 Siege fuer mich; 0 Niederlagen fuer den Gegner
 		battle.endTurn(true);

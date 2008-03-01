@@ -50,7 +50,7 @@ public class KSEndTurnAction extends BasicKSAction {
 			battle.logme( "++++ Runde beendet ++++" );
 			battle.addComMessage(battle.getEnemySide(), "++++ "+Common._titleNoFormat(user.getName())+" hat die Runde beendet ++++\n\n");
 			
-			battle.save(false);
+			battle.resetInactivity();
 		}
 		else {
 			battle.logenemy("<endturn type=\"own\" side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\" />\n");
@@ -59,7 +59,7 @@ public class KSEndTurnAction extends BasicKSAction {
 			battle.addComMessage(battle.getEnemySide(), Common._titleNoFormat(user.getName())+" hat seinen Zug beendet\n\n");
 			
 			battle.setReady(battle.getOwnSide(), true);
-			battle.save(false);
+			battle.resetInactivity();
 		}
 		
 		return RESULT_OK;

@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.modules;
 
 import java.io.File;
-import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
@@ -31,7 +30,6 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
-import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -175,7 +173,7 @@ public class OptionsController extends TemplateGenerator implements Loggable {
 	 		msg.append("\n");
 	 		msg.append("MY REASONS:\n");
 	 		msg.append(reason);
-	 		PM.sendToAdmins(getContext(), user.getId(), "Account l&ouml;schen", msg.toString(), 0);
+	 		PM.sendToAdmins(user, "Account l&ouml;schen", msg.toString(), 0);
 	 		
 			t.setVar(	"options.delaccountresp",		1,
 						"delaccountresp.admins",		Configuration.getSetting("ADMIN_PMS_ACCOUNT") );
@@ -270,12 +268,9 @@ public class OptionsController extends TemplateGenerator implements Loggable {
 
 			user.setRelation(0,rel);
 			if( user.getAlly() != null ) {
-				List list = getContext().getDB().createQuery("from User where ally= :ally and id!= :user")
-					.setEntity("ally", user.getAlly())
-					.setInteger("user", user.getId())
-					.list();
-				for( Iterator iter=list.iterator(); iter.hasNext(); ) {
-					User auser = (User)iter.next();
+				List<User> users = getContext().query(
+						"from User where ally="+user.getAlly()+" AND id!="+user.getId(), User.class);
+				for( User auser : users ) {
 					user.setRelation(auser.getId(), User.Relation.FRIEND);
 					auser.setRelation(user.getId(), User.Relation.FRIEND);
 				}
@@ -485,8 +480,8 @@ public class OptionsController extends TemplateGenerator implements Loggable {
 	/**
 	 * Uebersicht ueber die Einstellungen
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();

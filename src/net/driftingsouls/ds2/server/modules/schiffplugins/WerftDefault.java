@@ -18,11 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules.schiffplugins;
 
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
@@ -40,16 +38,14 @@ public class WerftDefault implements SchiffPlugin {
 	public void output(Parameters caller) {
 		String pluginid = caller.pluginId;
 		SchiffController controller = caller.controller;
-		SQLResultRow ship = caller.ship;
-		SQLResultRow shiptype = caller.shiptype;
-		
-		Database database = controller.getDatabase();
+		Ship ship = caller.ship;
+
 		org.hibernate.Session db = controller.getDB();
 
 		WerftObject werft = (WerftObject)db.createQuery("from ShipWerft where ship=?")
-			.setEntity(0, Ships.getAsObject(ship))
+			.setEntity(0, ship)
 			.uniqueResult();
-				
+
 		if( werft != null ) {
 			TemplateEngine t = controller.getTemplateEngine();
 			t.setFile("_PLUGIN_"+pluginid, "schiff.werft.default.html");
@@ -68,14 +64,14 @@ public class WerftDefault implements SchiffPlugin {
 					buildingCount++;
 				}
 			}
-			
-			t.setVar(	"global.pluginid",			pluginid,
-						"ship.id",					ship.getInt("id"),
-						"schiff.werft.usedslots",	usedSlots,
-						"schiff.werft.totalslots",	totalSlots,
-						"schiff.werft.scheduled",	buildingCount,
-						"schiff.werft.waiting",		entries.length-buildingCount
-						);
+			t.setVar(
+					"global.pluginid",			pluginid,
+					"ship.id",					ship.getId(),
+					"schiff.werft.usedslots",	usedSlots,
+					"schiff.werft.totalslots",	totalSlots,
+					"schiff.werft.scheduled",	buildingCount,
+					"schiff.werft.waiting",		entries.length-buildingCount
+					);
 			
 			t.parse(caller.target,"_PLUGIN_"+pluginid);
 		}

@@ -18,7 +18,7 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
@@ -26,17 +26,22 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
+import net.driftingsouls.ds2.server.entities.PaketVersteigerung;
+import net.driftingsouls.ds2.server.entities.StatGtu;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.Versteigerung;
+import net.driftingsouls.ds2.server.entities.VersteigerungResource;
+import net.driftingsouls.ds2.server.entities.VersteigerungSchiff;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.tick.TickController;
+import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 /**
  * Berechnung des Ticks fuer GTU-Versteigerungen
@@ -44,56 +49,55 @@ import net.driftingsouls.ds2.server.tick.TickController;
  *
  */
 public class RTCTick extends TickController {
-	// TODO: Umstellung auf GtuZwischenlager
+	// TODO: Umstellung Pakete auf GtuZwischenlager
 
 	private static final int CARGO_TRANSPORTER = 9; //ID des Transportertyps
 	private static final int CARGO_TRANSPORTER_LARGE = 50;
 	
 	private int ticks;
-	private int maxid;
 	private String currentTime;
 	private User gtuuser;
 	
 	@Override
 	protected void prepare() {
-		Database db = getDatabase();
-		
 		this.ticks = getContext().get(ContextCommon.class).getTick();
 		this.ticks++;
 		
-		this.maxid = db.first("SELECT max(id) max FROM ships").getInt("max");
-		
 		this.currentTime = Common.getIngameTime(ticks);
 		
-		this.gtuuser = (User)getContext().getDB().get(User.class, Faction.GTU);
+		this.gtuuser = (User)getDB().get(User.class, Faction.GTU);
 		
 		this.log("tick: "+this.ticks);
 	}
 
 	@Override
 	protected void tick() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
+
+		final User sourceUser = (User)db.get(User.class, -1);
 		
 		/*
 			Einzelversteigerungen
 		*/
-		List<SQLResultRow> entryList = new ArrayList<SQLResultRow>();
 		
-		SQLQuery entryQuery = db.query("SELECT * FROM versteigerungen WHERE tick<=",this.ticks," ORDER BY id");
-		while( entryQuery.next() ) {
-			entryList.add(entryQuery.getRow());
-		}
-		entryQuery.free();
-		
-		for( int i=0; i < entryList.size(); i++ ) {
-			SQLResultRow entry = entryList.get(i);
+		List entries = db.createQuery("from Versteigerung where tick<= :tick order by id")
+			.setInteger("tick", this.ticks)
+			.list();
+		for( Iterator iter=entries.iterator(); iter.hasNext(); ) {
+			Versteigerung entry = (Versteigerung)iter.next();
+			
 			try {
-				User winner = (User)getContext().getDB().get(User.class, entry.getInt("bieter"));
-				long price = entry.getLong("preis");
-				String type = entry.getString("type");
+				if( entry.getBieter() == this.gtuuser ) {
+					this.log("Die Versteigerung um "+entry.getObjectName()+" (id: "+entry.getId()+(entry.getOwner() != this.gtuuser ? " - User: "+entry.getOwner().getId() : "")+") wurde um 5 Runden verlaengert. Der Preis wurde um "+(long)(entry.getPreis()*1/10d)+" RE reduziert");
+					entry.setTick(this.ticks+5);
+					entry.setPreis((long)(entry.getPreis()*1/10d));
+					
+					continue;
+				}
+				
+				User winner = entry.getBieter();
+				long price = entry.getPreis();
 				int dropzone = winner.getGtuDropZone();
-				 
-				Cargo cargo = new Cargo();
 			
 				Location loc = Systems.get().system(dropzone).getDropZone();
 			
@@ -103,143 +107,174 @@ public class RTCTick extends TickController {
 					loc = Systems.get().system(dropzone).getDropZone();
 				}
 				
-				int owner = winner.getId();
-				
 				int gtucost = 100;
 				User targetuser = null;
 				
-				if( entry.getInt("owner") != Faction.GTU ) {
-					targetuser = (User)getContext().getDB().get(User.class, entry.getInt("owner"));
+				if( entry.getOwner() != this.gtuuser ) {
+					targetuser = entry.getOwner();
 					
 					gtucost = Integer.parseInt(targetuser.getUserValue("GTU_AUCTION_USER_COST"));
 				}
 				
 				String entryname = "";
 				
-				if( entry.getInt("mtype") == 1 ) {
-					SQLResultRow shiptype = ShipTypes.getShipType(Integer.parseInt(type), false);
-					entryname = "eine "+shiptype.getString("nickname");
-					int spawntype = Integer.parseInt(type);
+				if( entry instanceof VersteigerungSchiff ) {
+					VersteigerungSchiff shipEntry = (VersteigerungSchiff)entry;
 					
-					if( (owner != 0) && (owner != Faction.GTU) ) {
-						this.log("Es wurde "+entryname+" (shipid: "+spawntype+") von ID "+winner+" fuer "+price+" RE ersteigert");
-					
-						String history = "Indienststellung am "+this.currentTime+" durch "+this.gtuuser.getName()+" (Versteigerung) f&uuml;r "+winner.getName()+" ("+winner.getId()+")\n";
-					
-						this.maxid++;			
-						db.prepare("INSERT INTO ships " ,
-								"(id,owner,name,type,x,y,system,crew,e,hull,cargo,history) " ,
-								"VALUES " ,
-								"( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-							.update(maxid, owner, "Verkauft", spawntype, loc.getX(), loc.getY(), loc.getSystem(), shiptype.getInt("crew"), shiptype.getInt("eps"), shiptype.getInt("hull"), cargo.save(), history);
+					ShipType shiptype = shipEntry.getShipType();
+					entryname = "eine "+shiptype.getNickname();
 						
-						if( shiptype.getInt("werft") > 0 ) {
-							db.update("INSERT INTO werften (shipid) VALUES (",this.maxid,")");
-							this.log("\tWerft '"+shiptype.getString("nickname")+"' in Liste der Werften eingetragen");
-						}
+					this.log("Es wurde "+entryname+" (shipid: "+shiptype.getTypeId()+") von ID "+winner+" fuer "+price+" RE ersteigert");
+					
+					String history = "Indienststellung am "+this.currentTime+" durch "+this.gtuuser.getName()+" (Versteigerung) f&uuml;r "+winner.getName()+" ("+winner.getId()+")\n";
+					
+					Cargo cargo = new Cargo();
+					cargo.addResource(Resources.NAHRUNG, shiptype.getCrew()*5);
+					cargo = cargo.cutCargo(shiptype.getCargo());
+					
+					Ship ship = new Ship(winner);
+					ship.setName("Verkauft");
+					ship.setBaseType(shiptype);
+					ship.setSystem(loc.getSystem());
+					ship.setY(loc.getY());
+					ship.setX(loc.getX());
+					ship.setCrew(shiptype.getCrew());
+					ship.setEnergy(shiptype.getEps());
+					ship.setHull(shiptype.getHull());
+					ship.setCargo(cargo);
+					ship.setHistory(history);
+					ship.setEngine(100);
+					ship.setWeapons(100);
+					ship.setComm(100);
+					ship.setSensors(100);
+					
+					db.save(ship);
+					
+					if( shiptype.getWerft() != 0 ) {
+						ShipWerft werft = new ShipWerft(ship);
+						db.persist(werft);
 						
-						Ships.recalculateShipStatus(this.maxid);
-			
-						String msg = "Sie haben "+entryname+" ersteigert.\nDas Objekt wurde ihnen bei "+loc+" &uuml;bergeben.\n\nJack Miller\nHan Ronalds";
-						PM.send(getContext(), Faction.GTU, winner.getId(), entryname+" ersteigert", msg);
-			
-						if( entry.getInt("owner") != Faction.GTU ) {				
-							msg = "Es wurde ihre "+entryname+" versteigert.\nDas Objekt wurde dem Gewinner "+winner.getName()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben. Die GTU berechnet ihnen "+gtucost+"% des Gewinnes als Preis. Dies entspricht "+Common.ln(Math.ceil(price*gtucost/100d))+" RE. Ihnen bleiben somit noch "+Common.ln(price-Math.ceil(price*gtucost/100d))+" RE\n\nJack Miller\nHan Ronalds";
-							PM.send(getContext(), Faction.GTU, entry.getInt("owner"), entryname+" versteigert", msg);
-							
-							msg = "Es wurde "+entryname+" im Auftrag von "+entry.getInt("owner")+" versteigert.\nDas Objekt wurde bei "+loc+" dem Gewinner "+winner.getId()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben. Einnahme: "+Common.ln(Math.ceil(price*gtucost/100d))+" RE ("+gtucost+"%)";
-							PM.send(getContext(), -1, Faction.GTU, entryname+" ersteigert", msg);
-						}
-						else {
-							msg = "Es wurde "+entryname+" versteigert.\nDas Objekt wurde bei "+loc+" dem Gewinner "+winner.getId()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben.";
-							PM.send(getContext(), winner.getId(), Faction.GTU, entryname+" versteigert", msg);
-						}
+						this.log("\tWerft '"+shiptype.getWerft()+"' in Liste der Werften eingetragen");
+					}
+					
+					ship.recalculateShipStatus();
+		
+					String msg = "Sie haben "+entryname+" ersteigert.\nDas Objekt wurde ihnen bei "+loc+" &uuml;bergeben.\n\nJack Miller\nHan Ronalds";
+					PM.send(gtuuser, winner.getId(), entryname+" ersteigert", msg);
+		
+					if( entry.getOwner() != this.gtuuser ) {				
+						msg = "Es wurde ihre "+entryname+" versteigert.\nDas Objekt wurde dem Gewinner "+winner.getName()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben. Die GTU berechnet ihnen "+gtucost+"% des Gewinnes als Preis. Dies entspricht "+Common.ln(Math.ceil(price*gtucost/100d))+" RE. Ihnen bleiben somit noch "+Common.ln(price-Math.ceil(price*gtucost/100d))+" RE\n\nJack Miller\nHan Ronalds";
+						PM.send(gtuuser, entry.getOwner().getId(), entryname+" versteigert", msg);
+						
+						msg = "Es wurde "+entryname+" im Auftrag von "+entry.getOwner().getId()+" versteigert.\nDas Objekt wurde bei "+loc+" dem Gewinner "+winner.getId()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben. Einnahme: "+Common.ln(Math.ceil(price*gtucost/100d))+" RE ("+gtucost+"%)";
+						PM.send(sourceUser, Faction.GTU, entryname+" ersteigert", msg);
+					}
+					else {
+						msg = "Es wurde "+entryname+" versteigert.\nDas Objekt wurde bei "+loc+" dem Gewinner "+winner.getId()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben.";
+						PM.send(winner, Faction.GTU, entryname+" versteigert", msg);
 					}
 				}
-				else if( entry.getInt("mtype") == 2 ) {
-					Cargo mycargo = new Cargo( Cargo.Type.STRING, type );
+				else if( entry instanceof VersteigerungResource ) {
+					VersteigerungResource resEntry = (VersteigerungResource)entry;
+					
+					Cargo mycargo = resEntry.getCargo();
 					ResourceEntry resource = mycargo.getResourceList().iterator().next();
 							
 					entryname = Cargo.getResourceName( resource.getId() );
 					
-					SQLResultRow posten = db.first("SELECT id,x,y,system FROM ships WHERE id>0 AND owner=",Faction.GTU," AND LOCATE('tradepost',status) AND system=",loc.getSystem()," AND x=",loc.getX()," AND y=",loc.getY());
-					if( posten.isEmpty() ) {
-						posten = db.first("SELECT id,x,y,system FROM ships WHERE id>0 AND owner=",Faction.GTU," AND LOCATE('tradepost',status) AND system="+loc.getSystem());
+					Ship posten = (Ship)db.createQuery("from Ship where id>0 and locate('tradepost',status)!=0 and owner=? and system=? and x=? and y=?")
+						.setEntity(0, this.gtuuser)
+						.setInteger(1, loc.getSystem())
+						.setInteger(2, loc.getX())
+						.setInteger(3, loc.getY())
+						.setMaxResults(1)
+						.uniqueResult();
+					
+					if( posten == null ) {
+						posten = (Ship)db.createQuery("from Ship where id>0 and locate('tradepost',status)!=0 and owner=? and system=?")
+							.setEntity(0, this.gtuuser)
+							.setInteger(1, loc.getSystem())
+							.setMaxResults(1)
+							.uniqueResult();
 					}
-					if( posten.isEmpty() ) {
-						posten = db.first("SELECT id,x,y,system FROM ships WHERE id>0 AND owner=",Faction.GTU," AND LOCATE('tradepost',status)");
+					if( posten == null ) {
+						posten = (Ship)db.createQuery("from Ship where id>0 and locate('tradepost',status)!=0 and owner=?")
+							.setEntity(0, this.gtuuser)
+							.setMaxResults(1)
+							.uniqueResult();
 					}
 					
-					if( owner != 0 && (owner != Faction.GTU) ) {
-						this.log("Es wurde "+entryname+" von ID "+winner.getId()+" fuer "+price+" RE ersteigert");
-			
-						loc = Location.fromResult(posten);
+					this.log("Es wurde "+entryname+" von ID "+winner.getId()+" fuer "+price+" RE ersteigert");
+		
+					loc = posten.getLocation();
+					
+					String msg = "Sie haben "+entryname+" ersteigert.\nDas Objekt wurde ihnen bei "+loc+" auf dem Handelsposten hinterlegt.\n\nGaltracorp Unlimited";
+					PM.send(gtuuser, winner.getId(), entryname+" ersteigert", msg);
+		
+					if( entry.getOwner() != this.gtuuser ) {				
+						msg = "Es wurde ihr "+entryname+" versteigert.\nDas Objekt wurde dem Gewinner "+winner.getName()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben. Die GTU berechnet ihnen "+gtucost+"% des Gewinnes als Preis. Dies entspricht "+Common.ln(Math.ceil(price*gtucost/100d))+" RE. Ihnen bleiben somit noch "+Common.ln((price-Math.ceil(price*gtucost/100d)))+" RE\n\nJack Miller\nHan Ronalds";
+						PM.send(gtuuser, entry.getOwner().getId(), entryname+" versteigert", msg);
 						
-						String msg = "Sie haben "+entryname+" ersteigert.\nDas Objekt wurde ihnen bei "+loc+" auf dem Handelsposten hinterlegt.\n\nGaltracorp Unlimited";
-						PM.send(getContext(), Faction.GTU, winner.getId(), entryname+" ersteigert", msg);
-			
-						if( entry.getInt("owner") != Faction.GTU ) {				
-							msg = "Es wurde ihr "+entryname+" versteigert.\nDas Objekt wurde dem Gewinner "+winner.getName()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben. Die GTU berechnet ihnen "+gtucost+"% des Gewinnes als Preis. Dies entspricht "+Common.ln(Math.ceil(price*gtucost/100d))+" RE. Ihnen bleiben somit noch "+Common.ln((price-Math.ceil(price*gtucost/100d)))+" RE\n\nJack Miller\nHan Ronalds";
-							PM.send(getContext(), Faction.GTU, entry.getInt("owner"), entryname+" versteigert", msg);
-							
-							msg = "Es wurde "+entryname+" im Auftrag von "+entry.getInt("owner")+" versteigert.\nDas Objekt wurde bei "+loc+" dem Gewinner "+winner.getId()+" f&uuml;r den Preis von "+Common.ln(price)+" RE hinterlegt. Einnahme: "+Common.ln(Math.ceil(price*gtucost/100d))+" RE ("+gtucost+"%)";
-							PM.send(getContext(), -1, Faction.GTU, entryname+" ersteigert", msg);
-						}
-						else {
-							msg = "Es wurde "+entryname+" versteigert.\nDas Objekt wurde bei "+loc+" dem Gewinner "+winner.getName()+" f&uuml;r den Preis von "+Common.ln(price)+" RE hinterlegt.";
-							PM.send(getContext(), -1, Faction.GTU, entryname+" ersteigert", msg);
-						}
-						
-						db.update("INSERT INTO gtu_zwischenlager (posten,user1,user2,cargo1,cargo1need,cargo2,cargo2need) VALUES (",posten.getInt("id"),",",owner,",",Faction.GTU,",'",mycargo.save(),"','",mycargo.save(),"','",new Cargo().save(),"','",new Cargo().save(),"')");
+						msg = "Es wurde "+entryname+" im Auftrag von "+entry.getOwner().getId()+" versteigert.\nDas Objekt wurde bei "+loc+" dem Gewinner "+winner.getId()+" f&uuml;r den Preis von "+Common.ln(price)+" RE hinterlegt. Einnahme: "+Common.ln(Math.ceil(price*gtucost/100d))+" RE ("+gtucost+"%)";
+						PM.send(sourceUser, Faction.GTU, entryname+" ersteigert", msg);
 					}
-				}
-				else {
-					entryname = "Unbekannter mtype <"+entry.getInt("mtype")+">";	
-				}
-			
-				if( owner != 0 && (owner != Faction.GTU) ) {
-					if( entry.getInt("owner") != Faction.GTU ) {
-						targetuser.transferMoneyFrom( Faction.GTU, price-(long)Math.ceil(price*gtucost/100d), "Gewinn Versteigerung #2"+entry.getInt("id")+" abzgl. "+gtucost+"% Auktionskosten", false, User.TRANSFER_AUTO );
+					else {
+						msg = "Es wurde "+entryname+" versteigert.\nDas Objekt wurde bei "+loc+" dem Gewinner "+winner.getName()+" f&uuml;r den Preis von "+Common.ln(price)+" RE hinterlegt.";
+						PM.send(sourceUser, Faction.GTU, entryname+" ersteigert", msg);
 					}
 					
-					User entryOwner = (User)getContext().getDB().get(User.class, entry.getInt("owner"));
-			
-					db.prepare("INSERT INTO stats_gtu " +
-							"(username,userid,mtype,type,preis,owner,ownername,gtugew) " +
-							"VALUES " +
-							"( ?, ?, ?, ?, ?, ?, ?, ?)")
-						.update(winner.getName(), winner.getId(), entry.getString("mtype"), type, price, entry.getInt("owner"), entryOwner.getName(), gtucost);
-			
-					db.update("DELETE FROM versteigerungen WHERE id=",entry.getInt("id"));
-				} 
-				else {
-					this.log("Die Versteigerung um "+entryname+" (id: "+entry.getInt("id")+(entry.getInt("owner") != Faction.GTU ? " - User: "+entry.getInt("owner") : "")+") wurde um 5 Runden verlaengert. Der Preis wurde um "+(long)(price*1/10d)+" RE reduziert");
-					db.update("UPDATE versteigerungen SET tick=tick+5,preis=preis-",(long)(price*1/10d)," WHERE id=",entry.getInt("id"));
+					GtuZwischenlager lager = new GtuZwischenlager(posten, winner, entry.getOwner());
+					lager.setCargo1(mycargo);
+					lager.setCargo1Need(mycargo);
+					
+					db.persist(lager);
 				}
+				else {
+					entryname = "Unbekannter Typ <"+entry.getClass().getName()+">";	
+				}
+			
+				if( entry.getOwner() != this.gtuuser ) {
+					targetuser.transferMoneyFrom( Faction.GTU, price-(long)Math.ceil(price*gtucost/100d), "Gewinn Versteigerung #2"+entry.getId()+" abzgl. "+gtucost+"% Auktionskosten", false, User.TRANSFER_AUTO );
+				}
+				
+				StatGtu stat = new StatGtu(entry, gtucost);
+				db.persist(stat);
+				
+				db.delete(entry); 
 				
 				getContext().commit();
 			}
-			catch( Exception e ) {
-				this.log("Versteigerung "+entry.getInt("id")+" failed: "+e);
+			catch( RuntimeException e ) {
+				this.log("Versteigerung "+entry.getId()+" failed: "+e);
 				e.printStackTrace();
-				Common.mailThrowable(e, "RTCTick Exception", "versteigerung: "+entry.getInt("id"));
+				Common.mailThrowable(e, "RTCTick Exception", "versteigerung: "+entry.getId());
+				
+				throw e;
 			}
 		}
-
+		
 		/*
 			GTU-Pakete
 		*/
 		
-		SQLQuery line = db.query("SELECT * FROM versteigerungen_pakete WHERE tick<=",this.ticks," ORDER BY id");
-		while( line.next() ) {
-			try {
-				User winner = (User)getContext().getDB().get(User.class, line.getInt("bieter"));
-				long price = line.getLong("preis");
-				String ships = line.getString("ships");
-				Cargo cargo = new Cargo( Cargo.Type.STRING, line.getString("cargo"));
-	
-				int[] shiplist = Common.explodeToInt("|", ships);
+		entries = db.createQuery("from PaketVersteigerung where tick<= :tick order by id")
+			.setInteger("tick", this.ticks)
+			.list();
+		for( Iterator iter=entries.iterator(); iter.hasNext(); ) {
+			PaketVersteigerung paket = (PaketVersteigerung)iter.next();
 			
+			try {
+				if( paket.getBieter() == this.gtuuser ) {
+					this.log("Die Versteigerung eines GTU-Paketes (id: "+paket.getId()+") wurde um 5 Runden verlaengert");
+					paket.setTick(this.ticks+5);
+					
+					continue;
+				}
+				
+				User winner = paket.getBieter();
+				ShipType[] ships = paket.getShipTypes();
+				Cargo cargo = paket.getCargo();
+
 				int dropzone = winner.getGtuDropZone();
 			
 				Location loc = Systems.get().system(dropzone).getDropZone();
@@ -250,105 +285,113 @@ public class RTCTick extends TickController {
 					loc = Systems.get().system(dropzone).getDropZone();
 				}
 				
-				int owner = winner.getId();
-			
-				if( (owner != 0) && (owner != Faction.GTU) ) {
-					this.log("[GTU-Paket] BEGIN");
-			
-					SQLResultRow shipd = ShipTypes.getShipType( CARGO_TRANSPORTER, false );
-					
-					int transporter = CARGO_TRANSPORTER;
-					
-					if( cargo.getMass() > shipd.getLong("cargo") ) {		
-						shipd = ShipTypes.getShipType( CARGO_TRANSPORTER_LARGE, false );
-						
-						this.log("\t% Es wird der grosse Transporter verwendet");
-						
-						transporter = CARGO_TRANSPORTER_LARGE;
-					}
+				this.log("[GTU-Paket] BEGIN");
+		
+				ShipType shipd = (ShipType)db.get(ShipType.class, CARGO_TRANSPORTER);
 				
-					String history = "Indienststellung am "+this.currentTime+" durch "+this.gtuuser.getName()+" (Versteigerung) f&uuml;r "+winner.getName()+" ("+winner.getId()+")\n";
+				if( cargo.getMass() > shipd.getCargo() ) {		
+					shipd = (ShipType)db.get(ShipType.class, CARGO_TRANSPORTER_LARGE);
 					
-					this.maxid++;
-					db.prepare("INSERT INTO ships " ,
-							"(id,owner,name,type,x,y,system,crew,e,hull,cargo,history) " ,
-							"VALUES " ,
-							"( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-						.update(this.maxid, owner, "noname", transporter, loc.getX(), loc.getY(), loc.getSystem(), shipd.getInt("crew"), shipd.getInt("eps"), shipd.getInt("hull"), cargo.save(), history);
-			
-					this.slog("\t* Es wurden ");
-					ResourceList reslist = cargo.getResourceList();
-					int index = 1;
-					
-					for( ResourceEntry res : reslist ) {
-						this.slog(res.getCount1()+" "+Cargo.getResourceName( res.getId() ));
-						if( index < reslist.size() ) {
-							this.slog(", ");
-						}
-						
-						index++;
-					}
-					this.log(" von ID "+winner.getId()+" ersteigert");
-							
-					Ships.recalculateShipStatus(this.maxid);
-			
-					for( int i=0; i < shiplist.length; i++ ) {
-						int type = shiplist[i];
-						
-						if( type == 0 ) continue;
-						
-						shipd = ShipTypes.getShipType(type, false);
-			
-						this.log("\t* Es wurde eine "+shipd.getString("nickname")+" von ID "+winner+" ersteigert");
-						this.maxid++;
-						
-						cargo = new Cargo();
-						
-						history = "Indienststellung am "+this.currentTime+" durch "+this.gtuuser.getName()+" (Versteigerung) f&uuml;r "+winner.getName()+" ("+winner.getId()+")\n";
-						
-						db.prepare("INSERT INTO ships " ,
-								"(id,owner,name,type,x,y,system,crew,e,hull,cargo,history) " ,
-								"VALUES " ,
-								"( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-							.update(this.maxid, owner, "Verkauft", type, loc.getX(), loc.getY(), loc.getSystem(), shipd.getInt("crew"), shipd.getInt("eps"), shipd.getInt("hull"), cargo.save(), history);
-						
-						if( shipd.getInt("werft") > 0 ) {
-							db.update("INSERT INTO werften (shipid) VALUES (",this.maxid,")");
-							this.log("\tWerft '"+shipd.getString("nickname")+"' in Liste der Werften eingetragen");
-						}
-						
-						Ships.recalculateShipStatus(this.maxid);
-					}
-			
-					this.log("[GTU-Paket] END");
-			
-					String msg = "Sie haben ein GTU-Paket ersteigert.\nEs steht bei "+loc+" f&uuml;r sie bereit.\nJack Miller\nHan Ronalds";
-					PM.send(getContext(), Faction.GTU, winner.getId(), "GTU-Paket ersteigert", msg);
-			
-					msg = "Ein GTU-Paket wurde versteigert.\nEs steht bei "+loc+" f&uuml;r "+winner.getId()+" zum Preis von "+Common.ln(price)+" RE bereit.";
-					PM.send(getContext(), -1, Faction.GTU, "GTU-Paket versteigert", msg);
-			
-					String type = line.getString("cargo")+"/"+ships;
-			
-					db.prepare("INSERT INTO stats_gtu (username,userid,mtype,type,preis) " +
-							"VALUES " +
-							"( ?, ?, ?, ?, ?)")
-						.update(winner.getName(), winner.getId(), 3, type, price);
-			
-					db.update("DELETE FROM versteigerungen_pakete WHERE id=",line.getInt("id"));
-				} 
-				else {
-					this.log("Die Versteigerung eines GTU-Paketes (id: "+line.getInt("id")+") wurde um 5 Runden verlaengert");
-					db.update("UPDATE versteigerungen_pakete SET tick=tick+5 WHERE id=",line.getInt("id"));
+					this.log("\t% Es wird der grosse Transporter verwendet");
 				}
+			
+				String history = "Indienststellung am "+this.currentTime+" durch "+this.gtuuser.getName()+" (Versteigerung) f&uuml;r "+winner.getName()+" ("+winner.getId()+")\n";
+
+				cargo.addResource(Resources.NAHRUNG, shipd.getCrew()*5);
+				// Kein cutCargo, da sonst ersteigerte Waren entfernt werden koennten
+				
+				Ship ship = new Ship(winner);
+				ship.setName("Verkauft");
+				ship.setBaseType(shipd);
+				ship.setSystem(loc.getSystem());
+				ship.setX(loc.getX());
+				ship.setY(loc.getY());
+				ship.setCrew(shipd.getCrew());
+				ship.setEnergy(shipd.getEps());
+				ship.setHull(shipd.getHull());
+				ship.setCargo(cargo);
+				ship.setHistory(history);
+				ship.setEngine(100);
+				ship.setWeapons(100);
+				ship.setComm(100);
+				ship.setSensors(100);
+				
+				db.save(ship);
+		
+				this.slog("\t* Es wurden ");
+				ResourceList reslist = cargo.getResourceList();
+				int index = 1;
+				
+				for( ResourceEntry res : reslist ) {
+					this.slog(res.getCount1()+" "+Cargo.getResourceName( res.getId() ));
+					if( index < reslist.size() ) {
+						this.slog(", ");
+					}
+					
+					index++;
+				}
+				this.log(" von ID "+winner.getId()+" ersteigert");
+						
+				ship.recalculateShipStatus();
+		
+				for( int i=0; i < ships.length; i++ ) {
+					ShipType type = ships[i];
+					
+					this.log("\t* Es wurde eine "+type.getNickname()+" von ID "+winner+" ersteigert");
+					
+					cargo = new Cargo();
+					
+					history = "Indienststellung am "+this.currentTime+" durch "+this.gtuuser.getName()+" (Versteigerung) f&uuml;r "+winner.getName()+" ("+winner.getId()+")\n";
+					
+					ship = new Ship(winner);
+					ship.setName("Verkauft");
+					ship.setBaseType(shipd);
+					ship.setSystem(loc.getSystem());
+					ship.setX(loc.getX());
+					ship.setY(loc.getY());
+					ship.setCrew(type.getCrew());
+					ship.setEnergy(type.getEps());
+					ship.setHull(type.getHull());
+					ship.setCargo(cargo);
+					ship.setHistory(history);
+					ship.setEngine(100);
+					ship.setWeapons(100);
+					ship.setComm(100);
+					ship.setSensors(100);
+					
+					db.save(ship);
+					
+					if( shipd.getWerft() != 0 ) {
+						ShipWerft werft = new ShipWerft(ship);
+						db.persist(werft);
+						
+						this.log("\tWerft '"+shipd.getWerft()+"' in Liste der Werften eingetragen");
+					}
+					
+					ship.recalculateShipStatus();
+				}
+		
+				this.log("[GTU-Paket] END");
+		
+				String msg = "Sie haben ein GTU-Paket ersteigert.\nEs steht bei "+loc+" f&uuml;r sie bereit.\nJack Miller\nHan Ronalds";
+				PM.send(gtuuser, winner.getId(), "GTU-Paket ersteigert", msg);
+		
+				msg = "Ein GTU-Paket wurde versteigert.\nEs steht bei "+loc+" f&uuml;r "+winner.getId()+" zum Preis von "+Common.ln(paket.getPreis())+" RE bereit.";
+				PM.send(sourceUser, Faction.GTU, "GTU-Paket versteigert", msg);
+		
+				StatGtu stat = new StatGtu(paket);
+				db.persist(stat);
+				
+				db.delete(paket);
 			}
-			catch( Exception e ) {
-				this.log("Paket "+line.getInt("id")+" failed: "+e);
+			catch( RuntimeException e ) {
+				this.log("Paket "+paket.getId()+" failed: "+e);
 				e.printStackTrace();
-				Common.mailThrowable(e, "RTCTick Exception", "paket: "+line.getInt("id"));
+				Common.mailThrowable(e, "RTCTick Exception", "paket: "+paket.getId());
+				
+				throw e;
 			}
 		}
-		line.free();
 	}
 
 }

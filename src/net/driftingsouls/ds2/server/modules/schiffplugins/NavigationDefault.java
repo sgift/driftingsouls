@@ -18,23 +18,30 @@
  */
 package net.driftingsouls.ds2.server.modules.schiffplugins;
 
+import java.util.Iterator;
 import java.util.List;
+
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.entities.JumpNode;
+import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
+import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.Quests;
-import net.driftingsouls.ds2.server.scripting.ScriptParser;
 import net.driftingsouls.ds2.server.ships.RouteFactory;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.ships.Waypoint;
 
@@ -46,15 +53,14 @@ import net.driftingsouls.ds2.server.ships.Waypoint;
 public class NavigationDefault implements SchiffPlugin, Loggable {
 
 	public String action(Parameters caller) {
-		SQLResultRow ship = caller.ship;
+		Ship ship = caller.ship;
 		SchiffController controller = caller.controller;
 		
-		Database db = controller.getDatabase();
 		User user = (User)controller.getUser();
 		
 		String output = "";
 
-		if( !ship.getString("lock").equals("") ) {
+		if( (ship.getLock() != null) && !ship.getLock().equals("") ) {
 			return output;	
 		}
 		
@@ -75,9 +81,11 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 			String com = controller.getString("com");
 			int bookmark = controller.getInteger("bookmark");
 		
-			db.update(	"UPDATE ships ",
-						"SET destsystem=",system,", destx=",x,", desty=",y,", destcom='",db.prepareString(com),"',bookmark=",bookmark," " ,
-						"WHERE id='",ship.getInt("id"),"'");
+			ship.setDestSystem(system);
+			ship.setDestX(x);
+			ship.setDestY(y);
+			ship.setDestCom(com);
+			ship.setBookmark(bookmark != 0 ? true : false);
 						
 			output += "Neues Ziel: "+system+":"+x+"/"+y+"<br />Beschreibung: "+Common._plaintitle(com);
 			if( bookmark != 0 ) {
@@ -99,25 +107,28 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 			return "Ung&uuml;ltige Flugparameter<br />\n";
 		}
 		
-		if( (ship.getString("onmove").length() > 0) && 
+		if( (ship.getOnMove() != null) && (ship.getOnMove().length() > 0) && 
 			((targetx != 0) && (targety != 0)) || ((act != 5) && (act >= 1) && (act <= 9)) ) {	
-			ScriptParser scriptparser = ContextMap.getContext().get(ContextCommon.class).getScriptParser( ScriptParser.NameSpace.QUEST );
-			scriptparser.setShip(ship);
-			scriptparser.setLogFunction(ScriptParser.LOGGER_NULL);
-			scriptparser.setRegister("DIRECTION",Integer.toString(act));
-			scriptparser.setRegister("MOVEMENTCOUNT",Integer.toString(count));
-			scriptparser.setRegister("TARGETX",Integer.toString(targetx));
-			scriptparser.setRegister("TARGETY",Integer.toString(targety));
-			scriptparser.setRegister("SECTOR", Location.fromResult(ship).toString());
+			ScriptEngine scriptparser = ContextMap.getContext().get(ContextCommon.class).getScriptParser( "DSQuestScript" );
+			
+			final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
+			
+			engineBindings.put("_SHIP", ship);
+			scriptparser.getContext().setErrorWriter(new NullLogger());
+			engineBindings.put("DIRECTION",Integer.toString(act));
+			engineBindings.put("MOVEMENTCOUNT",Integer.toString(count));
+			engineBindings.put("TARGETX",Integer.toString(targetx));
+			engineBindings.put("TARGETY",Integer.toString(targety));
+			engineBindings.put("SECTOR", ship.getLocation().toString());
 		
 			Quests.currentEventURL.set("&action=onmove");
 
-			Quests.executeEvent( scriptparser, ship.getString("onmove"), user.getId(), "0" );
+			Quests.executeEvent( scriptparser, ship.getOnMove(), user, "0", false );
 			try {
-				act = Integer.parseInt(scriptparser.getRegister("DIRECTION"));
-				count = Integer.parseInt(scriptparser.getRegister("MOVEMENTCOUNT"));
-				targetx = Integer.parseInt(scriptparser.getRegister("TARGETX"));
-				targety = Integer.parseInt(scriptparser.getRegister("TARGETY"));
+				act = Integer.parseInt((String)engineBindings.get("DIRECTION"));
+				count = Integer.parseInt((String)engineBindings.get("MOVEMENTCOUNT"));
+				targetx = Integer.parseInt((String)engineBindings.get("TARGETX"));
+				targety = Integer.parseInt((String)engineBindings.get("TARGETY"));
 			}
 			catch( NumberFormatException e ) {
 				LOG.warn("Illegales Zahlenformat nach Ausfuehrung von 'onmove'", e);
@@ -138,108 +149,123 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 		}
 		else {
 			forceLowHeat = true;
-			Location from = Location.fromResult(ship);
+			Location from = ship.getLocation();
 			route = router.findRoute(from, new Location(from.getSystem(), targetx, targety));
 		}
 		
 		//Das Schiff soll sich offenbar bewegen
-		Ships.move(ship.getInt("id"), route, forceLowHeat, false);
-		output += Ships.MESSAGE.getMessage();
+		ship.move(route, forceLowHeat, false);
+		output += Ship.MESSAGE.getMessage();
 		
 		return output;
 	}
 
 	public void output(Parameters caller) {
 		String pluginid = caller.pluginId;
-		SQLResultRow data = caller.ship;
-		SQLResultRow datatype = caller.shiptype;
+		Ship data = caller.ship;
+		ShipTypeData datatype = caller.shiptype;
 		SchiffController controller = caller.controller;
-		
 		User user = (User)controller.getUser();
-		Database db = controller.getDatabase();
+		org.hibernate.Session db = controller.getDB();
 		
 		TemplateEngine t = controller.getTemplateEngine();
 		t.setFile("_PLUGIN_"+pluginid, "schiff.navigation.default.html");
 		
 		t.setVar(	"global.pluginid",					pluginid,
-					"ship.id",							data.getInt("id"),
-					"schiff.navigation.docked",			data.getString("docked"),
-					"schiff.navigation.docked.extern",	data.getString("docked").equals("") || (data.getString("docked").charAt(0) != 'l'),
-					"schiff.navigation.bookmarked",		data.getBoolean("bookmark"),
-					"schiff.navigation.dest.x",			data.getInt("destx"),
-					"schiff.navigation.dest.y",			data.getInt("desty"),
-					"schiff.navigation.dest.system",	data.getInt("destsystem"),
-					"schiff.navigation.dest.text",		data.getString("destcom") );
+					"ship.id",							data.getId(),
+					"schiff.navigation.docked",			data.getDocked(),
+					"schiff.navigation.docked.extern",	data.getDocked().equals("") || (data.getDocked().charAt(0) != 'l'),
+					"schiff.navigation.bookmarked",		data.isBookmark(),
+					"schiff.navigation.dest.x",			data.getDestX(),
+					"schiff.navigation.dest.y",			data.getDestY(),
+					"schiff.navigation.dest.system",	data.getDestSystem(),
+					"schiff.navigation.dest.text",		data.getDestCom() );
 		
-		if( !data.getString("docked").equals("") ) {
+		if( !data.getDocked().equals("") ) {
 			String mastershipid = null;
 			
-			if( data.getString("docked").charAt(0) == 'l' ) {
-				String[] docked = data.getString("docked").split(" ");
+			if( data.getDocked().charAt(0) == 'l' ) {
+				String[] docked = data.getDocked().split(" ");
 				mastershipid = docked[1];
 			} else {
-				mastershipid = data.getString("docked");
+				mastershipid = data.getDocked();
 			}
-			SQLResultRow mastership = db.first("SELECT name FROM ships WHERE id>0 AND id=",mastershipid);
+			Ship mastership = (Ship)db.get(Ship.class, Integer.parseInt(mastershipid));
 			
-			t.setVar(	"schiff.navigation.docked.master.name",	mastership.getString("name"),
+			t.setVar(	"schiff.navigation.docked.master.name",	mastership.getName(),
 						"schiff.navigation.docked.master.id",	mastershipid );
 		} 
-		else if( datatype.getInt("cost") == 0 ) {
+		else if( datatype.getCost() == 0 ) {
 			t.setVar("schiff.navigation.showmessage","Dieses Objekt hat keinen Antrieb");
 		} 
-		else if( !data.getString("lock").equals("") ) {
+		else if( (data.getLock() != null) && !data.getLock().equals("") ) {
 			t.setVar("schiff.navigation.showmessage","Fahren sie im Quest fort<br />um das Schiff wieder bewegen<br />zu k&ouml;nnen");	
 		}
 		else {
-			int x = data.getInt("x");
-			int y = data.getInt("y");
-			int sys = data.getInt("system");
+			int x = data.getX();
+			int y = data.getY();
+			int sys = data.getSystem();
 			
 			String[][] sectorimgs = new String[3][3];
-			SQLQuery aJN = db.query("SELECT x,y FROM jumpnodes WHERE system='",sys,"' AND (x BETWEEN ",(x-1)," AND ",(x+1),") AND (y BETWEEN ",(y-1)," AND ",(y+1),")");
-			while( aJN.next() ) {
-				sectorimgs[aJN.getInt("x")-x+1][aJN.getInt("y")-y+1] = "data/starmap/jumpnode/jumpnode.png";
+			List jnlist = db.createQuery("from JumpNode where system=? and (x between ? and ?) and (y between ? and ?)")
+				.setInteger(0, sys)
+				.setInteger(1, x-1)
+				.setInteger(2, x+1)
+				.setInteger(3, y-1)
+				.setInteger(4, y+1)
+				.list();
+			
+			for( Iterator iter=jnlist.iterator(); iter.hasNext(); ) {
+				JumpNode jn = (JumpNode)iter.next();
+				sectorimgs[jn.getX()-x+1][jn.getY()-y+1] = "data/starmap/jumpnode/jumpnode.png";
 			}
-			aJN.free();
 			
-			
-			SQLQuery aBase = db.query("SELECT DISTINCT x,y,owner,klasse,system,size FROM bases WHERE system=",sys," AND FLOOR(SQRT(POW(",x,"-x,2)+POW(",y,"-y,2)))-CAST(size AS SIGNED) <= 1");
-			while( aBase.next() ) {
-				if( (aBase.getInt("size") == 0) && (sectorimgs[aBase.getInt("x")-x+1][aBase.getInt("y")-y+1] == null) ) {
-					if( aBase.getInt("owner") == user.getId() ) {
-						sectorimgs[aBase.getInt("x")-x+1][aBase.getInt("y")-y+1] = "data/starmap/asti_own/asti_own.png";
+			List baselist = db.createQuery("select distinct b from Base b where b.system=? and floor(sqrt(pow(?-b.x,2)+pow(?-b.y,2))) <= b.size+1")
+				.setInteger(0, sys)
+				.setInteger(1, x)
+				.setInteger(2, y)
+				.list();
+			for( Iterator iter=baselist.iterator(); iter.hasNext(); ) {
+				Base aBase = (Base)iter.next();
+				
+				if( (aBase.getSize() == 0) && (sectorimgs[aBase.getX()-x+1][aBase.getY()-y+1] == null) ) {
+					if( aBase.getOwner() == user ) {
+						sectorimgs[aBase.getX()-x+1][aBase.getY()-y+1] = "data/starmap/asti_own/asti_own.png";
 					}
 					else {
-						sectorimgs[aBase.getInt("x")-x+1][aBase.getInt("y")-y+1] = "data/starmap/kolonie"+aBase.getString("klasse")+"_lrs/kolonie"+aBase.getInt("klasse")+"_lrs.png";
+						sectorimgs[aBase.getX()-x+1][aBase.getY()-y+1] = "data/starmap/kolonie"+aBase.getKlasse()+"_lrs/kolonie"+aBase.getKlasse()+"_lrs.png";
 					}
 				}
-				else if( aBase.getInt("size") > 0 ) {
-					Location loc = new Location(aBase.getInt("system"), aBase.getInt("x"), aBase.getInt("y"));
+				else if( aBase.getSize() > 0 ) {
+					Location loc = aBase.getLocation();
 					int imgcount = 0;
-					for( int by=aBase.getInt("y")-aBase.getInt("size"); by <= aBase.getInt("y")+aBase.getInt("size"); by++ ) {
-						for( int bx=aBase.getInt("x")-aBase.getInt("size"); bx <= aBase.getInt("x")+aBase.getInt("size"); bx++ ) {
-							if( !loc.sameSector( aBase.getInt("size"), new Location(aBase.getInt("system"), bx, by), 0 ) ) {
+					for( int by=aBase.getY()-aBase.getSize(); by <= aBase.getY()+aBase.getSize(); by++ ) {
+						for( int bx=aBase.getX()-aBase.getSize(); bx <= aBase.getX()+aBase.getSize(); bx++ ) {
+							if( !loc.sameSector( aBase.getSize(), new Location(aBase.getSystem(), bx, by), 0 ) ) {
 								continue;	
 							}
 							if( Math.abs(x - bx) > 1 || Math.abs(y - by) > 1 ) {
 								imgcount++;
 								continue;
 							}
-							sectorimgs[bx-x+1][by-y+1] = "data/starmap/kolonie"+aBase.getInt("klasse")+"_lrs/kolonie"+aBase.getInt("klasse")+"_lrs"+imgcount+".png";
+							sectorimgs[bx-x+1][by-y+1] = "data/starmap/kolonie"+aBase.getKlasse()+"_lrs/kolonie"+aBase.getKlasse()+"_lrs"+imgcount+".png";
 							imgcount++;
 						}
 					}
 				}
 			}
-			aBase.free();
 			
-			SQLQuery aNebel = db.query("SELECT system,x,y,type FROM nebel WHERE system='",sys,"' AND (x BETWEEN ",(x-1)," AND ",(x+1),") AND (y BETWEEN ",(y-1)," AND ",(y+1),")");
-			while( aNebel.next() ) {
-				Ships.cacheNebula(aNebel.getRow());
-				sectorimgs[aNebel.getInt("x")-x+1][aNebel.getInt("y")-y+1] = "data/starmap/fog"+aNebel.getInt("type")+"/fog"+aNebel.getInt("type")+".png";
+			List nebellist = db.createQuery("from Nebel where loc.system=? and (loc.x between ? and ?) and (loc.y between ? and ?)")
+				.setInteger(0, sys)
+				.setInteger(1, x-1)
+				.setInteger(2, x+1)
+				.setInteger(3, y-1)
+				.setInteger(4, y+1)
+				.list();
+			for( Iterator iter=nebellist.iterator(); iter.hasNext(); ) {
+				Nebel nebel = (Nebel)iter.next();
+				sectorimgs[nebel.getX()-x+1][nebel.getY()-y+1] = "data/starmap/fog"+nebel.getType()+"/fog"+nebel.getType()+".png";
 			}
-			aNebel.free();
 			
 			int tmp = 0;
 			boolean newrow = false;
@@ -257,7 +283,7 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 								"schiff.navigation.nav.location",		Ships.getLocationText(sys, x+nx-1, y+ny-1, true),
 								"schiff.navigation.nav.sectorimage",	url + (sectorimgs[nx][ny] != null ? sectorimgs[nx][ny] : "data/starmap/space/space.png"),
 								"schiff.navigation.nav.newrow",			newrow,
-								"schiff.navigation.nav.warn",			(1 != nx || 1 != ny ? Ships.getRedAlertStatus(user.getId(),sys,x+nx-1,y+ny-1) : false) );
+								"schiff.navigation.nav.warn",			(1 != nx || 1 != ny ? Ship.getRedAlertStatus(user.getId(),sys,x+nx-1,y+ny-1) : false) );
 					
 					t.parse( "schiff.navigation.nav.list", "schiff.navigation.nav.listitem", true );
 					newrow = false;

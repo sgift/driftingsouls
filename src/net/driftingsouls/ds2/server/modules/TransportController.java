@@ -20,10 +20,12 @@ package net.driftingsouls.ds2.server.modules;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -33,15 +35,14 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipFleet;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
-import net.driftingsouls.ds2.server.ships.Ships;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.mutable.MutableLong;
@@ -100,8 +101,8 @@ public class TransportController extends TemplateGenerator {
 				TransportTarget handler = new BaseTransportTarget();
 				handler.create( role, fromlist[i] );
 				if( list.size() > 0 ) {
-					Location loc = Location.fromResult(list.get(0).getData());
-					Location thisLoc = Location.fromResult(handler.getData());
+					Location loc = list.get(0).getLocation();
+					Location thisLoc = handler.getLocation();
 					if( !loc.sameSector(list.get(0).getSize(), thisLoc, handler.getSize()) ) {
 						continue;
 					}
@@ -128,28 +129,34 @@ public class TransportController extends TemplateGenerator {
 					if( list.size() == 0 ) {
 						throw new Exception("Es wurde kein Schiff angegeben, zu dem die Flotte ausgewaehlt werden soll");
 					}
-					TransportTarget handler  = list.remove(list.size()-1);
+					ShipTransportTarget handler  = (ShipTransportTarget)list.remove(list.size()-1);
+					if( handler.getFleet() == null ) {
+						throw new Exception("Das angegebene Schiff befindet sich in keiner Flotte");
+					}
 					
-					Database db = ContextMap.getContext().getDatabase();
+					org.hibernate.Session db = ContextMap.getContext().getDB();
 					
-					SQLResultRow data = handler.getData();
+					Location loc = handler.getLocation();
 					
-					SQLQuery fleetdata = db.query("SELECT owner,name,type,cargo,status,id,x,y,system,battle,status,fleet " +
-							"FROM ships " +
-							"WHERE id>0 AND fleet='",data.getInt("fleet"),"' AND x="+data.getInt("x")+" AND y="+data.getInt("y")+" AND system="+data.getInt("system"));
-					while( fleetdata.next() ) {
+					List fleetlist = db.createQuery("from Ship " +
+							"where id>0 and fleet=? AND x=? AND y=? AND system=?")
+							.setEntity(0, handler.getFleet())
+							.setInteger(1, loc.getX())
+							.setInteger(2, loc.getY())
+							.setInteger(3, loc.getSystem())
+							.list();
+					for( Iterator iter=fleetlist.iterator(); iter.hasNext(); ) {
 						ShipTransportTarget shiphandler = new ShipTransportTarget();
-						shiphandler.create(role, fleetdata.getRow());
+						shiphandler.create(role, (Ship)iter.next());
 						list.add(shiphandler);
 					}
-					fleetdata.free();
 				}
 				else {
-					TransportTarget handler = new ShipTransportTarget();
+					ShipTransportTarget handler = new ShipTransportTarget();
 					handler.create( role, Integer.parseInt(fromlist[i]) );
 					if( list.size() > 0 ) {
-						Location loc = Location.fromResult(list.get(0).getData());
-						Location thisLoc = Location.fromResult(handler.getData());
+						Location loc = list.get(0).getLocation();
+						Location thisLoc = handler.getLocation();
 						if( !loc.sameSector(list.get(0).getSize(), thisLoc, handler.getSize()) ) {
 							continue;
 						}
@@ -163,7 +170,6 @@ public class TransportController extends TemplateGenerator {
 	}
 	
 	private abstract static class TransportTarget {
-		protected SQLResultRow data;
 		protected int role;
 		protected int id;
 		protected int owner;
@@ -193,12 +199,18 @@ public class TransportController extends TemplateGenerator {
 		}
 		
 		/**
+		 * Gibt die ID des Objekts zurueck
+		 * @return Die ID
+		 */
+		int getId() {
+			return this.id;
+		}
+		
+		/**
 		 * Gibt den Radius des Objekts zurueck
 		 * @return Der Radius
 		 */
-		int getSize() {
-			return data.getInt("size");
-		}
+		abstract int getSize();
 		
 		/**
 		 * Gibt die ID des Besitzers zurueck
@@ -215,23 +227,7 @@ public class TransportController extends TemplateGenerator {
 		void setOwner(int owner) {
 			this.owner = owner;
 		}
-		
-		/**
-		 * Gibt die SQL-Ergebniszeile zurueck
-		 * @return Die SQL-Ergebniszeile
-		 */
-		SQLResultRow getData() {
-			return data;
-		}
-		
-		/**
-		 * Setzt die SQL-Ergebniszeile auf den angegebenen Wert
-		 * @param row die neue SQL-Ergebniszeile
-		 */
-		void setData(SQLResultRow row) {
-			this.data = row;
-		}
-		
+			
 		/**
 		 * Gibt den maximalen Cargo zurueck
 		 * @return Der maximale Cargo
@@ -265,13 +261,15 @@ public class TransportController extends TemplateGenerator {
 		}
 		
 		/**
+		 * Gibt die Position des Objekts zurueck
+		 * @return Die Position
+		 */
+		abstract Location getLocation();
+		
+		/**
 		 * Schreibt die Daten in die Datenbank
 		 */
 		abstract void write();
-		/**
-		 * Laedt die Daten aus der Datenbank nach
-		 */
-		abstract void reload();
 		/**
 		 * Gibt die MultiTarget-Variante zurueck.
 		 * Wenn keine MultiTarget-Variante verfuegbar ist, so wird <code>null</code> zurueckgegeben
@@ -284,9 +282,17 @@ public class TransportController extends TemplateGenerator {
 		 * @return Der Name
 		 */
 		abstract String getTargetName();
+		
+		/**
+		 * Gibt den Namen des konkreten Objekts zurueck (z.B. der Name des Schiffes/der Basis)
+		 * @return Der Name
+		 */
+		abstract String getObjectName();
 	}
 	
 	private static class ShipTransportTarget extends TransportTarget {
+		private Ship ship;
+		
 		/**
 		 * Konstruktor
 		 */
@@ -294,55 +300,53 @@ public class TransportController extends TemplateGenerator {
 			// EMPTY
 		}
 		
-		void create(int role, SQLResultRow data) throws Exception {
-			super.create(role, data.getInt("id"));
-			
-			if( data.isEmpty() ) {
-				throw new Exception("Das angegebene Schiff (id:"+data.getInt("id")+") existiert nicht");
+		void create(int role, Ship ship) throws Exception {
+			if( (ship == null) || (ship.getId() < 0) ) {
+				throw new Exception("Eines der angegebenen Schiffe existiert nicht");
 			}
-			data.put("size", 0);
 			
-			if( data.getInt("battle") != 0 ) {
-				throw new Exception("Das Schiff (id:"+data.getInt("id")+") ist in einen Kampf verwickelt");
+			super.create(role, ship.getId());
+			
+			if( ship.getBattle() != null ) {
+				throw new Exception("Das Schiff (id:"+ship.getId()+") ist in einen Kampf verwickelt");
 			}
 
 			if( role == ROLE_TARGET ) {
 				User user = (User)ContextMap.getContext().getActiveUser();
-				if( (data.getString("status").indexOf("disable_iff") > -1) && (data.getInt("owner") != user.getId()) ) {
-					throw new Exception("Zu dem angegebenen Schiff (id:"+data.getInt("id")+") k&ouml;nnen sie keine Waren transportieren");
+				if( (ship.getStatus().indexOf("disable_iff") > -1) && (ship.getOwner() != user) ) {
+					throw new Exception("Zu dem angegebenen Schiff (id:"+ship.getId()+") k&ouml;nnen sie keine Waren transportieren");
 				}
 			}
 			
-			SQLResultRow tmptype = ShipTypes.getShipType( data );
+			ShipTypeData tmptype = ship.getTypeData();
 			
-			if( ShipTypes.hasShipTypeFlag(tmptype, ShipTypes.SF_KEIN_TRANSFER) ) {
-				throw new Exception("Sie k&ouml;nnen keine Waren zu oder von diesem Schiff (id:"+data.getInt("id")+") transferieren");
+			if( tmptype.hasFlag(ShipTypes.SF_KEIN_TRANSFER) ) {
+				throw new Exception("Sie k&ouml;nnen keine Waren zu oder von diesem Schiff (id:"+ship.getId()+") transferieren");
 			}
 			
-			setOwner(data.getInt("owner"));
-			setMaxCargo(tmptype.getLong("cargo"));
-
-			setCargo(new Cargo( Cargo.Type.STRING, data.getString("cargo") ));	
-			setData(data);
+			setOwner(ship.getOwner().getId());
+			setMaxCargo(tmptype.getCargo());
+			this.ship = ship;
+			setCargo(ship.getCargo());	
 		}
 		
 		@Override
 		void create(int role, int shipid) throws Exception {
-			Database db = ContextMap.getContext().getDatabase();
+			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
-			SQLResultRow data = db.first("SELECT owner,name,type,cargo,status,id,x,y,system,battle,status,fleet FROM ships WHERE id>0 AND id=",shipid);
+			Ship ship = (Ship)db.get(Ship.class, shipid);
 			
-			create(role, data);
+			create(role, ship);
 		}
 		
 		@Override
 		MultiTarget getMultiTarget() {
-			int fleet = getData().getInt("fleet");
-			if( fleet == 0 ) {
+			ShipFleet fleet = ship.getFleet();
+			if( fleet == null ) {
 				return null;
 			}
 			
-			return new MultiTarget("Flotte", getData().getInt("id")+"|fleet");
+			return new MultiTarget("Flotte", ship.getId()+"|fleet");
 		}
 
 		@Override
@@ -351,32 +355,38 @@ public class TransportController extends TemplateGenerator {
 		}
 
 		@Override
-		void reload() {
-			Database db = ContextMap.getContext().getDatabase();
-			
-			SQLResultRow data = db.first("SELECT owner,name,type,cargo,status,id,x,y,system,battle,status,fleet FROM ships WHERE id>0 AND id=",getData().getInt("id"));
-			data.put("size", 0);
-			
-			SQLResultRow tmptype = ShipTypes.getShipType( data );
-			
-			setData( data );
-			setOwner( data.getInt("owner") );
-			setMaxCargo( tmptype.getLong("cargo") );
-			setCargo( new Cargo( Cargo.Type.STRING, data.getString("cargo") ) );
-		}
-
-		@Override
 		void write() {
-			Database db = ContextMap.getContext().getDatabase();
-			
-			db.tUpdate(1,"UPDATE ships SET cargo='",getCargo().save(),"' WHERE id='",getData().getInt("id"),"' AND cargo='",getCargo().save(true),"'");
-			
-			Ships.recalculateShipStatus(getData().getInt("id"));
+			this.ship.setCargo(getCargo());
+			this.ship.recalculateShipStatus();
 		}
 		
+		@Override
+		Location getLocation() {
+			return this.ship.getLocation();
+		}
+		
+		@Override
+		String getObjectName() {
+			return this.ship.getName();
+		}
+		
+		@Override
+		int getSize() {
+			return 0;
+		}
+		
+		/**
+		 * Gibt die Flotte zurueck, zu der das Schiff gehoert
+		 * @return Die Flotte
+		 */
+		ShipFleet getFleet() {
+			return this.ship.getFleet();
+		}
 	}
 	
 	private static class BaseTransportTarget extends TransportTarget {
+		private Base base;
+		
 		/**
 		 * Konstruktor
 		 */
@@ -387,19 +397,19 @@ public class TransportController extends TemplateGenerator {
 		@Override
 		void create(int role, int baseid) throws Exception {
 			super.create(role, baseid);
-			Database db = ContextMap.getContext().getDatabase();
+			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
-			SQLResultRow data = db.first("SELECT id,x,y,system,size,owner,name,maxcargo,cargo FROM bases WHERE id=",baseid);
+			Base base = (Base)db.get(Base.class, baseid);
 
-			if( data.isEmpty() ) {
+			if( base == null ) {
 				throw new Exception("Die angegebene Basis (id:"+baseid+") existiert nicht");
 			}
 
-			setOwner(data.getInt("owner"));
-			setMaxCargo(data.getLong("maxcargo"));
+			setOwner(base.getOwner().getId());
+			setMaxCargo(base.getMaxCargo());
 
-			setCargo(new Cargo( Cargo.Type.STRING, data.getString("cargo") ));
-			setData(data);
+			setCargo(base.getCargo());
+			this.base = base;
 		}
 
 		@Override
@@ -413,29 +423,29 @@ public class TransportController extends TemplateGenerator {
 		}
 
 		@Override
-		void reload() {
-			Database db = ContextMap.getContext().getDatabase();
-			
-			SQLResultRow data = db.first("SELECT id,x,y,system,size,owner,name,maxcargo,cargo FROM bases WHERE id=",getData().getInt("id"));
-			setData( data );
-			setOwner( data.getInt("owner") );
-			setMaxCargo( data.getLong("maxcargo") );
-			setCargo( new Cargo( Cargo.Type.STRING, data.getString("cargo") ) );
-		}
-
-		@Override
 		void write() {
-			Database db = ContextMap.getContext().getDatabase();
-			
-			db.tUpdate(1,"UPDATE bases SET cargo='",getCargo().save(),"' WHERE id='",getData().getInt("id"),"' AND cargo='",getCargo().save(true),"'");
+			base.setCargo(getCargo());
+		}
+		
+		@Override
+		Location getLocation() {
+			return base.getLocation();
+		}
+		
+		@Override
+		String getObjectName() {
+			return base.getName();
+		}
+		
+		@Override
+		int getSize() {
+			return base.getSize();
 		}
 	}
 	private String[] way;
 	
 	private List<TransportTarget> from;
 	private List<TransportTarget> to;
-	
-	private int retryCount = 0;
 	
 	/**
 	 * Konstruktor
@@ -452,6 +462,8 @@ public class TransportController extends TemplateGenerator {
 		parameterString("from");
 		parameterString("to");
 		parameterString("way");
+		
+		setPageTitle("Warentransfer");
 	}
 	
 	@Override
@@ -482,7 +494,7 @@ public class TransportController extends TemplateGenerator {
 			}
 		}
 		else {
-			addError("Ung&uuml;ltige Transportquelle", "./main.php?sess="+sess+"&module=ueber" );
+			addError("Ung&uuml;ltige Transportquelle", "./ds?sess="+sess+"&module=ueber" );
 
 			return false;
 		}
@@ -501,7 +513,7 @@ public class TransportController extends TemplateGenerator {
 			}
 		}
 		else {
-			addError( "Ung&uuml;ltiges Transportziel", "./main.php?sess="+sess+"&module=ueber" );
+			addError( "Ung&uuml;ltiges Transportziel", "./ds?sess="+sess+"&module=ueber" );
 			
 			return false;
 		}
@@ -519,8 +531,8 @@ public class TransportController extends TemplateGenerator {
 			for( int i=0; i < this.from.size(); i++ ) {
 				TransportTarget afrom = this.from.get(i);
 				for( int j=0; j < this.to.size(); j++ ) {
-					if( this.to.get(j).getData().getInt("id") == afrom.getData().getInt("id") ) {
-						addError("Sie k&ouml;nnen keine Waren zu sich selbst transportieren",(way[0]=="b"?"./main.php?module=base&":"./main.php?module=schiff&")+"sess="+sess+"&"+(way[0]=="b"?"col":"ship")+"="+afrom);
+					if( this.to.get(j).getId() == afrom.getId() ) {
+						addError("Sie k&ouml;nnen keine Waren zu sich selbst transportieren",(way[0]=="b"?"./ds?module=base&":"./ds?module=schiff&")+"sess="+sess+"&"+(way[0]=="b"?"col":"ship")+"="+afrom);
 						return false;
 					}
 				}
@@ -530,8 +542,8 @@ public class TransportController extends TemplateGenerator {
 		/*
 			Sind die beiden Objekte auch im selben Sektor?
 		*/
-		Location fromLoc = Location.fromResult(this.from.get(0).getData());
-		Location toLoc = Location.fromResult(this.to.get(0).getData());
+		Location fromLoc = this.from.get(0).getLocation();
+		Location toLoc = this.to.get(0).getLocation();
 		if( !fromLoc.sameSector( this.from.get(0).getSize(), toLoc, this.to.get(0).getSize()) ) {
 			addError("Die angegebenen Objekte befinden sich nicht im selben Sektor" );
 			
@@ -539,7 +551,7 @@ public class TransportController extends TemplateGenerator {
 		}
 		
 		for( int i=1; i < this.from.size(); i++ ) {
-			if( !fromLoc.sameSector( this.from.get(0).getSize(), Location.fromResult(this.from.get(i).getData()), this.from.get(i).getSize()) ) {
+			if( !fromLoc.sameSector( this.from.get(0).getSize(), this.from.get(i).getLocation(), this.from.get(i).getSize()) ) {
 				addError("Die angegebenen Objekte befinden sich nicht im selben Sektor" );
 				
 				return false;
@@ -547,7 +559,7 @@ public class TransportController extends TemplateGenerator {
 		}
 		
 		for( int i=1; i < this.to.size(); i++ ) {
-			if( !toLoc.sameSector( this.to.get(0).getSize(), Location.fromResult(this.to.get(i).getData()), this.to.get(i).getSize()) ) {
+			if( !toLoc.sameSector( this.to.get(0).getSize(), this.to.get(i).getLocation(), this.to.get(i).getSize()) ) {
 				addError("Die angegebenen Objekte befinden sich nicht im selben Sektor" );
 				
 				return false;
@@ -630,7 +642,6 @@ public class TransportController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void transferAction() {
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
 		t.setBlock( "_TRANSPORT", "transfer.listitem", "transfer.list" );
 
 		boolean transfer = false;
@@ -684,7 +695,7 @@ public class TransportController extends TemplateGenerator {
 				
 				for( int k=0; k < from.size(); k++ ) {
 					TransportTarget from = this.from.get(k);
-					t.setVar("transfer.source.name", Common._plaintitle(from.getData().getString("name")));
+					t.setVar("transfer.source.name", Common._plaintitle(from.getObjectName()));
 					
 					for( int j=0; j < tolist.size(); j++ ) {
 						TransportTarget to = tolist.get(j);
@@ -692,7 +703,7 @@ public class TransportController extends TemplateGenerator {
 							t.start_record();
 						}
 						
-						t.setVar("transfer.target.name", Common._plaintitle(to.getData().getString("name")) );
+						t.setVar("transfer.target.name", Common._plaintitle(to.getObjectName()) );
 				
 						if( !msg.containsKey(to.getOwner()) ) {
 							msg.put(to.getOwner(), new StringBuilder());
@@ -706,7 +717,7 @@ public class TransportController extends TemplateGenerator {
 							// Evt unbekannte Items bekannt machen
 							if( res.getId().isItem() && (getUser().getId() != to.getOwner()) ) {
 								if( Items.get().item(res.getId().getItemID()).isUnknownItem() ) {
-									User auser = (User)getDB().get(User.class,  to.getOwner() );
+									User auser = (User)getDB().get(User.class, to.getOwner());
 									auser.addKnownItem(res.getId().getItemID());
 								}
 							}
@@ -730,7 +741,7 @@ public class TransportController extends TemplateGenerator {
 							"transfer.mode.to",		0 );
 				for( int k=0; k < from.size(); k++ ) {
 					TransportTarget from = this.from.get(k);				
-					t.setVar("transfer.source.name", Common._plaintitle(from.getData().getString("name")));
+					t.setVar("transfer.source.name", Common._plaintitle(from.getObjectName()));
 					
 					for( int j=0; j < tolist.size(); j++ ) {
 						TransportTarget to = tolist.get(j);
@@ -745,7 +756,7 @@ public class TransportController extends TemplateGenerator {
 							return;
 						} 
 						
-						t.setVar("transfer.target.name", Common._plaintitle(to.getData().getString("name")) );
+						t.setVar("transfer.target.name", Common._plaintitle(to.getObjectName()) );
 				
 						if( !msg.containsKey(to.getOwner()) ) {
 							msg.put(to.getOwner(), new StringBuilder());
@@ -774,7 +785,7 @@ public class TransportController extends TemplateGenerator {
 		
 		List<String> sourceshiplist = new ArrayList<String>();;
 		for( int i=0; i < this.from.size(); i++ ) {
-			sourceshiplist.add(from.get(i).getData().getString("name")+" ("+from.get(i).getData().getInt("id")+")");	
+			sourceshiplist.add(from.get(i).getObjectName()+" ("+from.get(i).getId()+")");	
 		}
 		
 		for( int j=0; j < tolist.size(); j++  ) {
@@ -789,12 +800,12 @@ public class TransportController extends TemplateGenerator {
 					
 					for( int k=j; k < tolist.size(); k++ ) {
 						if( this.to.get(j).getOwner() == tolist.get(k).getOwner() ) {
-							shiplist.add(tolist.get(k).getData().getString("name")+" ("+tolist.get(k).getData().getInt("id")+")");	
+							shiplist.add(tolist.get(k).getObjectName()+" ("+tolist.get(k).getId()+")");	
 						}
 					}
 					
 					String tmpmsg = Common.implode(",",sourceshiplist)+" l&auml;dt Waren auf "+Common.implode(",",shiplist)+"\n"+msg.get(to.getOwner());
-					PM.send(getContext(), getUser().getId(), to.getOwner(), "Waren transferiert", tmpmsg);
+					PM.send((User)getUser(), to.getOwner(), "Waren transferiert", tmpmsg);
 					
 					ownerpmlist.put(to.getOwner(), msg.get(to.getOwner()).toString());
 				}
@@ -806,9 +817,7 @@ public class TransportController extends TemplateGenerator {
 			
 			return;
 		}
-		
-		db.tBegin();
-		
+
 		/*
 			"from" bearbeiten
 		*/
@@ -833,33 +842,11 @@ public class TransportController extends TemplateGenerator {
 			to.get(k).write();
 		}
 		
-		if( !db.tCommit() ) {
-			t.setVar(	"transfer.list",				"",
-						"transfer.multitarget.list",	"" );
-								
-			if( retryCount < 3 ) {									
-				retryCount++;
-				
-				for( TransportTarget from : this.from ) {
-					from.reload();
-				}
-				for( TransportTarget to : this.to ) {
-					to.reload();
-				}
-									
-				redirect("transfer");
-				
-				return;
-			}
-			
-			addError("Transfer der Waren nicht konnte nicht erfolgreich durchgeführt werden. Bitte versuchen sie es erneut");	
-		}
-		
 		redirect();	
 	}
 
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
 		t.setBlock("_TRANSPORT", "target.targets.listitem", "target.targets.list" );
@@ -873,24 +860,24 @@ public class TransportController extends TemplateGenerator {
 		if( from.size() == 1 ) {
 			TransportTarget first = from.get(0);
 			
-			t.setVar(	"sourceobj.name",	first.getData().getString("name"),
-						"sourceobj.id",		first.getData().getInt("id"),
+			t.setVar(	"sourceobj.name",	first.getObjectName(),
+						"sourceobj.id",		first.getId(),
 						"source.cargo",		Common.ln(first.getMaxCargo() - first.getCargo().getMass()) );
 			
-			t.setVar("source.id", first.getData().getInt("id"));
+			t.setVar("source.id", first.getId());
 		}
 		else if( from.size() < 10 ){			
 			long cargo = 0;
 			for( TransportTarget afromd : from ) {
 				cargo = Math.max(afromd.getMaxCargo() - afromd.getCargo().getMass(), cargo);
-				t.setVar(	"sourceobj.name",	afromd.getData().getString("name"),
-							"sourceobj.id",		afromd.getData().getInt("id") );
+				t.setVar(	"sourceobj.name",	afromd.getObjectName(),
+							"sourceobj.id",		afromd.getId() );
 				
 				t.parse( "source.sources.list", "source.sources.listitem", true );
 			}
 			
 			t.setVar(	"source.id",	getString("from"),
-						"sourceobj.id",	from.get(0).getData().getInt("id"),
+						"sourceobj.id",	from.get(0).getId(),
 						"source.cargo",	"max "+Common.ln(cargo) );
 		}
 		else {
@@ -900,8 +887,8 @@ public class TransportController extends TemplateGenerator {
 			}
 			TransportTarget first = from.get(0);
 			
-			t.setVar(	"sourceobj.name",		first.getData().getString("name"),
-						"sourceobj.id",			first.getData().getInt("id"),
+			t.setVar(	"sourceobj.name",		first.getObjectName(),
+						"sourceobj.id",			first.getId(),
 						"sourceobj.addinfo",	"und "+(from.size()-1)+" weiteren Schiffen",
 						"source.cargo",			"max "+Common.ln(cargo) );
 								
@@ -910,24 +897,24 @@ public class TransportController extends TemplateGenerator {
 		
 		// Das Ziel / die Ziele ausgeben
 		if( to.size() == 1 ) {
-			t.setVar(	"targetobj.name",	to.get(0).getData().getString("name"),
-						"targetobj.id",		to.get(0).getData().getInt("id"),
+			t.setVar(	"targetobj.name",	to.get(0).getObjectName(),
+						"targetobj.id",		to.get(0).getId(),
 						"target.cargo",		Common.ln(to.get(0).getMaxCargo() - to.get(0).getCargo().getMass()) );
 			
-			t.setVar("target.id", to.get(0).getData().getInt("id"));
+			t.setVar("target.id", to.get(0).getId());
 		} 
 		else if( to.size() < 10 ){		
 			long cargo = 0;
 			for( TransportTarget atod : to ) {
 				cargo = Math.max(atod.getMaxCargo() - atod.getCargo().getMass(), cargo);
-				t.setVar(	"targetobj.name",	atod.getData().getString("name"),
-							"targetobj.id",		atod.getData().getInt("id") );
+				t.setVar(	"targetobj.name",	atod.getObjectName(),
+							"targetobj.id",		atod.getId() );
 				
 				t.parse( "target.targets.list", "target.targets.listitem", true );
 			}
 			
 			t.setVar(	"target.id",	getString("to"),
-						"targetobj.id",	to.get(0).getData().getInt("id"),
+						"targetobj.id",	to.get(0).getId(),
 						"target.cargo",	"max "+Common.ln(cargo) );
 		}
 		else {
@@ -937,8 +924,8 @@ public class TransportController extends TemplateGenerator {
 			}
 			TransportTarget first = to.get(0);
 			
-			t.setVar(	"targetobj.name",	first.getData().getString("name"),
-						"targetobj.id",		first.getData().getInt("id"),
+			t.setVar(	"targetobj.name",	first.getObjectName(),
+						"targetobj.id",		first.getId(),
 						"targetobj.addinfo",	"und "+(to.size()-1)+" weiteren Schiffen",
 						"target.cargo",			"max "+Common.ln(cargo) );
 								
@@ -976,9 +963,9 @@ public class TransportController extends TemplateGenerator {
 			
 			// Single to Single
 			t.setVar(	"transfermode.from.name",	second.getTargetName(),
-						"transfermode.from",		second.getData().getInt("id"),
+						"transfermode.from",		second.getId(),
 						"transfermode.to.name",		first.getTargetName(),
-						"transfermode.to",			first.getData().getInt("id"),
+						"transfermode.to",			first.getId(),
 						"transfermode.selected",	to.size() == 1 && (from.size() <= 1) );
 			t.parse("transfermode.list", "transfermode.listitem", true);
 								
@@ -986,7 +973,7 @@ public class TransportController extends TemplateGenerator {
 			// Single to Multi
 			if( multiTo != null ) {
 				t.setVar(	"transfermode.from.name",	second.getTargetName(),
-							"transfermode.from",		second.getData().getInt("id"),
+							"transfermode.from",		second.getId(),
 							"transfermode.to.name",		multiTo.getName(),
 							"transfermode.to",			multiTo.getTargetList(),
 							"transfermode.selected",	to.size() > 1 && (from.size() <= 1) );
@@ -996,7 +983,7 @@ public class TransportController extends TemplateGenerator {
 			// Multi to Single
 			if( multiFrom != null ) {
 				t.setVar(	"transfermode.to.name",		first.getTargetName(),
-							"transfermode.to",			first.getData().getInt("id"),
+							"transfermode.to",			first.getId(),
 							"transfermode.from.name",	multiFrom.getName(),
 							"transfermode.from",		multiFrom.getTargetList(),
 							"transfermode.selected",	(from.size() > 1) && to.size() == 1 );

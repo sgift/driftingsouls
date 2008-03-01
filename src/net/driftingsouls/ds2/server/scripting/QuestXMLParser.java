@@ -254,11 +254,11 @@ public class QuestXMLParser extends DSObject {
 		}
 		
 		Map<String,Integer> newresult = new HashMap<String,Integer>();		
-		for( String key : result.keySet() ) {
+		for( Map.Entry<String, Integer> entry: result.entrySet()) {
 			// Nur die Attribut-ID verwenden (der Teil hinter dem :). Den Dateinamen verwerfen.
-			String[] tmp = StringUtils.splitPreserveAllTokens(key, ':');
+			String[] tmp = StringUtils.splitPreserveAllTokens(entry.getKey(), ':');
 			
-			newresult.put(tmp[1], result.get(key));		
+			newresult.put(tmp[1], entry.getValue());		
 		}
 
 		return newresult;

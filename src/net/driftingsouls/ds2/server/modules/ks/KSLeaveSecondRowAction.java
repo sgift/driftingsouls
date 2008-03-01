@@ -22,11 +22,11 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
@@ -41,48 +41,43 @@ public class KSLeaveSecondRowAction extends BasicKSAction {
 	 */
 	public KSLeaveSecondRowAction() {
 		this.requireOwnShipReady(true);
-		this.requireAP(1);
 	}
 	
 	@Override
 	public int validate(Battle battle) {
-		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
-		SQLResultRow ownShip = battle.getOwnShip();
+		BattleShip ownShip = battle.getOwnShip();
 		
-		if( (ownShip.getInt("action") & Battle.BS_SECONDROW) == 0 || (ownShip.getInt("action") & Battle.BS_DESTROYED) != 0 ||
-			( ownShip.getInt("action") == 0 ) || ownShip.getString("docked").length() > 0 || (ownShip.getInt("action") & Battle.BS_FLUCHT) != 0 ||
-			( ownShip.getInt("action") & Battle.BS_JOIN ) != 0 ) {
+		if( (ownShip.getAction() & Battle.BS_SECONDROW) == 0 || (ownShip.getAction() & Battle.BS_DESTROYED) != 0 ||
+			( ownShip.getAction() == 0 ) || ownShip.getDocked().length() > 0 || (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ||
+			( ownShip.getAction() & Battle.BS_JOIN ) != 0 ) {
 			return RESULT_ERROR;
 		}
 		
-		if( (ownShip.getInt("action") & Battle.BS_SECONDROW_BLOCKED) != 0 ) {
+		if( (ownShip.getAction() & Battle.BS_SECONDROW_BLOCKED) != 0 ) {
 			return RESULT_ERROR;
 		}
-	
-		int curr_engines = db.first("SELECT engine FROM battles_ships WHERE shipid=",ownShip.getInt("id")).getInt("engine");
-		
-		if( curr_engines <= 0 ) {
+
+		if( ownShip.getEngine() <= 0 ) {
 			return RESULT_ERROR;
 		}
 		
-		SQLResultRow ownShipType = ShipTypes.getShipType( ownShip );
+		ShipTypeData ownShipType = ownShip.getTypeData();
 		
-		if( ownShipType.getInt("cost") == 0 ) {
+		if( ownShipType.getCost() == 0 ) {
 			return RESULT_ERROR;
 		}
 		 
-		if( (ownShipType.getInt("crew") > 0) && (ownShip.getInt("crew") == 0) ) {
+		if( (ownShipType.getCrew() > 0) && (ownShip.getCrew() == 0) ) {
 			return RESULT_ERROR;
 		}
 		
 		boolean gotone = false;
-		if( ShipTypes.hasShipTypeFlag(ownShipType, ShipTypes.SF_DROHNE) ) {
-			List<SQLResultRow> ownShips = battle.getOwnShips();
+		if( ownShipType.hasFlag(ShipTypes.SF_DROHNE) ) {
+			List<BattleShip> ownShips = battle.getOwnShips();
 			for( int i=0; i < ownShips.size(); i++ ) {
-				SQLResultRow aship = ownShips.get(i);
-				SQLResultRow ashiptype = ShipTypes.getShipType(aship);
-				if( ShipTypes.hasShipTypeFlag(ashiptype, ShipTypes.SF_DROHNEN_CONTROLLER) ) {
+				BattleShip aship = ownShips.get(i);
+				ShipTypeData ashiptype = aship.getTypeData();
+				if( ashiptype.hasFlag(ShipTypes.SF_DROHNEN_CONTROLLER) ) {
 					gotone = true;
 					break;	
 				}
@@ -112,40 +107,35 @@ public class KSLeaveSecondRowAction extends BasicKSAction {
 		}
 		
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
-		SQLResultRow ownShip = battle.getOwnShip();
+		BattleShip ownShip = battle.getOwnShip();
 		 
 		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
-		battle.setPoints(battle.getOwnSide(), battle.getPoints(battle.getOwnSide())-1);
-		battle.save(false);
+		battle.resetInactivity();
 		
-		battle.logme( ownShip.getString("name")+" fliegt zur Front\n" );
-		battle.logenemy( Battle.log_shiplink(ownShip)+" fliegt zur Front\n" );
+		battle.logme( ownShip.getName()+" fliegt zur Front\n" );
+		battle.logenemy( Battle.log_shiplink(ownShip.getShip())+" fliegt zur Front\n" );
 		
-		int action = ownShip.getInt("action");
+		int action = ownShip.getAction();
 		
 		action ^= Battle.BS_SECONDROW;
 		action |= Battle.BS_SECONDROW_BLOCKED;
 		
-		db.update("UPDATE battles_ships SET action=",action," WHERE shipid=",ownShip.getInt("id"));
-		ownShip.put("action", action);
+		ownShip.setAction(action);
 		
 		int remove = 1;
-		List<SQLResultRow> ownShips = battle.getOwnShips();
+		List<BattleShip> ownShips = battle.getOwnShips();
 		for( int i=0; i < ownShips.size(); i++ ) {
-			SQLResultRow s = ownShips.get(i);
+			BattleShip s = ownShips.get(i);
 			
-			if( s.getString("docked").equals(Integer.toString(ownShip.getInt("id"))) ) {
-				s.put("action", (s.getInt("action") ^ Battle.BS_SECONDROW) | Battle.BS_SECONDROW_BLOCKED);
+			if( s.getDocked().equals(Integer.toString(ownShip.getId())) ) {
+				s.setAction((s.getAction() ^ Battle.BS_SECONDROW) | Battle.BS_SECONDROW_BLOCKED);
 				
-				db.update("UPDATE battles_ships SET action="+s.getInt("action")," WHERE shipid=",s.getInt("id"));
-							
 				remove++;
 			}
 		}
 		
 		if( remove > 1 ) {
-			battle.logme( (remove-1)+" an "+ownShip.getString("name")+" gedockte Schiffe fliegen zur Front\n" );
+			battle.logme( (remove-1)+" an "+ownShip.getName()+" gedockte Schiffe fliegen zur Front\n" );
 		}
 		
 		battle.logenemy("]]></action>\n");

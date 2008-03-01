@@ -28,10 +28,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
 
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
@@ -47,14 +53,10 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.caches.CacheManager;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.scripting.ScriptParser;
+import net.driftingsouls.ds2.server.scripting.NullLogger;
+import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
-import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 
@@ -266,28 +268,51 @@ public class AdminCommands implements Loggable {
 		String output = "";
 		
 		String oid = command[1];
-		ResourceID resid = Resources.fromString(command[2]);
-		long count = Long.parseLong(command[3]);
-		
-		String table = "ships";
-		if( oid.charAt(0) == 'b' ) {
-			table = "bases";	
-		}	
-		
-		Database db = context.getDatabase();
-		SQLResultRow obj = db.first("SELECT id,cargo FROM "+table+" WHERE id>0 AND id="+Integer.parseInt(oid.substring(1)));
-		
-		if( obj.isEmpty() ) {
-			return "Objekt existiert nicht";
+		ResourceID resid = null;
+		try {
+			resid = Resources.fromString(command[2]);
+		}
+		catch( RuntimeException e ) {
+			return "Die angegebene Resource ist ungueltig";
 		}
 		
-		Cargo cargo = new Cargo( Cargo.Type.STRING, obj.getString("cargo") );
+		if( !NumberUtils.isNumber(command[3]) ) {
+			return "Menge ungueltig";
+		}
+		long count = Long.parseLong(command[3]);
+		
+		org.hibernate.Session db = context.getDB();
+		
+		if( !NumberUtils.isNumber(oid.substring(1)) ) {
+			return "ID ungueltig";
+		}
+		
+		Cargo cargo = null;
+		if( oid.startsWith("b") ) {
+			Base base = (Base)db.get(Base.class, Integer.parseInt(oid.substring(1)));
+			if( base == null ) {
+				return "Objekt existiert nicht";
+			}
+			cargo = new Cargo(base.getCargo());
+		}
+		else {
+			Ship ship = (Ship)db.get(Ship.class, Integer.parseInt(oid.substring(1)));
+			if( ship == null ) {
+				return "Objekt existiert nicht";
+			}
+			cargo = new Cargo(ship.getCargo());
+		}
+		
 		cargo.addResource( resid, count );
-		
-		db.update("UPDATE "+table+" SET cargo='"+cargo.save()+"' WHERE id="+Integer.parseInt(oid.substring(1)));
-		
-		if( table.equals("ships") ) {
-			Ships.recalculateShipStatus( Integer.parseInt(oid.substring(1)) );	
+
+		if( oid.startsWith("s") ) {
+			Ship ship = (Ship)db.get(Ship.class, Integer.parseInt(oid.substring(1)));
+			ship.setCargo(cargo);
+			ship.recalculateShipStatus();
+		}
+		else {
+			Base base = (Base)db.get(Base.class, Integer.parseInt(oid.substring(1)));
+			base.setCargo(cargo);
 		}
 		
 		return output;
@@ -295,34 +320,42 @@ public class AdminCommands implements Loggable {
 	
 	private static String cmdQuest(Context context, String[] command) {
 		String output = "";
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		
 		String cmd = command[1];
 		if( cmd.equals("end") ) {
 			int rqid = Integer.parseInt(command[2]);
 			
-			ScriptParser scriptparser = context.get(ContextCommon.class).getScriptParser(ScriptParser.NameSpace.QUEST);
-			scriptparser.setLogFunction(ScriptParser.LOGGER_NULL);
+			ScriptEngine scriptparser = context.get(ContextCommon.class).getScriptParser("DSQuestScript");
+			final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
 			
-			SQLResultRow runningquest = db.first("SELECT * FROM quests_running WHERE id="+rqid);
+			scriptparser.getContext().setErrorWriter(new NullLogger());
 			
-			if( runningquest.getString("uninstall").length() > 0 ) {
-				scriptparser.setRegister("USER", runningquest.getInt("user"));
-				scriptparser.setRegister("QUEST", "r"+rqid);
+			RunningQuest runningquest = (RunningQuest)db.get(RunningQuest.class, rqid);
+			
+			if( !runningquest.getUninstall().isEmpty() ) {
+				engineBindings.put("USER", runningquest.getUser().getId());
+				engineBindings.put("QUEST", "r"+rqid);
+				engineBindings.put("_PARAMETERS", "0");
 				
-				scriptparser.executeScript( db, runningquest.getString("uninstall"), "0" );
-			}	
+				try {
+					scriptparser.eval( runningquest.getUninstall() );
+				}
+				catch( ScriptException e ) {
+					throw new RuntimeException(e);
+				}
+			}
 			
-			db.update("DELETE FROM quests_running WHERE id="+rqid);
+			db.delete(runningquest);
 		}
 		else if( cmd.equals("list") ) {
 			output = "Laufende Quests:\n";
-			SQLQuery rquest = db.query("SELECT qr.id,qr.questid,qr.userid,q.name " +
-					"FROM quests_running qr JOIN quests q ON qr.questid=q.id");
-			while( rquest.next() ) {
-				output += "* "+rquest.getInt("id")+" - "+rquest.getString("name")+" ("+rquest.getInt("questid")+") - userid "+rquest.getInt("userid")+"\n";
+			List rquestList = db.createQuery("from RunningQuest rq inner join fetch rq.quest").list();
+			for( Iterator iter=rquestList.iterator(); iter.hasNext(); ) {
+				RunningQuest rquest = (RunningQuest)iter.next();
+				
+				output += "* "+rquest.getId()+" - "+rquest.getQuest().getName()+" ("+rquest.getQuest().getId()+") - userid "+rquest.getUser().getId()+"\n";
 			}
-			rquest.free();
 		}
 		else {
 			output = "Unknown quest sub-command >"+cmd+"<";	
@@ -336,21 +369,20 @@ public class AdminCommands implements Loggable {
 		String cmd = command[1];
 		if( cmd.equals("end") ) {
 			int battleid = Integer.parseInt( command[2] );	
-			Database db = context.getDatabase();
+			org.hibernate.Session db = context.getDB();
 			
-			SQLResultRow battledata = db.first("SELECT commander1,commander2,x,y,system FROM battles WHERE id="+battleid);
+			Battle battle = (Battle)db.get(Battle.class, battleid);
 		
-			if( battledata.isEmpty() ) {
+			if( battle == null ) {
 				return "Die angegebene Schlacht existiert nicht\n";
 			}
 
-			PM.send(context, -1, battledata.getInt("commander1"), "Schlacht beendet", "Die Schlacht bei "+Location.fromResult(battledata)+" wurde durch die Administratoren beendet");
-			PM.send(context, -1, battledata.getInt("commander2"), "Schlacht beendet", "Die Schlacht bei "+Location.fromResult(battledata)+" wurde durch die Administratoren beendet");
+			User sourceUser = (User)context.getDB().get(User.class, -1);
+			
+			PM.send(sourceUser, battle.getCommander(0).getId(), "Schlacht beendet", "Die Schlacht bei "+battle.getLocation()+" wurde durch die Administratoren beendet");
+			PM.send(sourceUser, battle.getCommander(1).getId(), "Schlacht beendet", "Die Schlacht bei "+battle.getLocation()+" wurde durch die Administratoren beendet");
 		
-			int comid = battledata.getInt("commander1");
-
-			Battle battle = new Battle();
-			battle.load(battleid, comid, 0, 0, 0);
+			battle.load(battle.getCommander(0), null, null, 0);
 			battle.endBattle(0, 0, false);
 		}
 		else {
@@ -367,7 +399,7 @@ public class AdminCommands implements Loggable {
 			if( command[i].equals("sector") ) {
 				i++;
 				Location sector = Location.fromString(command[i]);
-				sql.add("system="+sector.getSystem()+" AND x="+sector.getX()+" AND y="+sector.getY());	
+				sql.add("system="+sector.getSystem()+" and x="+sector.getX()+" and y="+sector.getY());	
 			}
 			else if( command[i].equals("owner") ) {
 				i++;
@@ -386,14 +418,14 @@ public class AdminCommands implements Loggable {
 			}
 		}
 		if( sql.size() > 0 ) {
-			Database db = context.getDatabase();
+			org.hibernate.Session db = context.getDB();
 			
-			SQLQuery sid = db.query("SELECT id FROM ships WHERE "+Common.implode(" AND ",sql));
-			int num = sid.numRows();
-			while( sid.next() ) {
-				Ships.destroy(sid.getInt("id"));
+			List ships = db.createQuery("from Ship where "+Common.implode(" and ",sql)).list();
+			int num = ships.size();
+			for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+				Ship aship = (Ship)iter.next();
+				aship.destroy();
 			}
-			sid.free();
 			
 			output = num+" Schiffe entfernt";
 		}

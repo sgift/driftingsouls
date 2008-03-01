@@ -20,13 +20,11 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
  * Laedt die Schilde des gerade ausgewaehlten Schiffes wieder auf
@@ -39,7 +37,6 @@ public class KSRegenerateShieldsSingleAction extends BasicKSAction {
 	 *
 	 */
 	public KSRegenerateShieldsSingleAction() {
-		this.requireAP(1);
 	}
 
 	@Override
@@ -50,66 +47,63 @@ public class KSRegenerateShieldsSingleAction extends BasicKSAction {
 		}
 		
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
-		SQLResultRow ownShip = battle.getOwnShip();
-		SQLResultRow ownShipType = ShipTypes.getShipType(ownShip);
+		BattleShip ownShip = battle.getOwnShip();
+		ShipTypeData ownShipType = ownShip.getTypeData();
 		
-		if( ownShip.getInt("id") < 1 ) {
+		if( ownShip.getShip().getEnergy() < 1 ) {
 			battle.logme( "Keine Energie um die Schilde zu laden\n" );
 			return RESULT_ERROR;
 		}
 		
-		if( ownShipType.getInt("shields") < 1 ) {
+		if( ownShipType.getShields() < 1 ) {
 			battle.logme( "Das Schiff besitzt keine Schilde\n" );
 			return RESULT_ERROR;
 		}
 		
-		if( ownShip.getInt("shields") >= ownShipType.getInt("shields") ) {
+		if( ownShip.getShip().getShields() >= ownShipType.getShields() ) {
 			battle.logme( "Die Schilde sind bereits vollst&auml;ndig aufgeladen\n" );
 			return RESULT_ERROR;
 		}
 
 		int shieldfactor = 10;
-		if( ownShipType.getInt("shields") > 1000 ) {
+		if( ownShipType.getShields() > 1000 ) {
 			shieldfactor = 100;
 		}
 
 		int load = 0;
-		if( ownShip.getInt("e") < Math.ceil((ownShipType.getInt("shields")-ownShip.getInt("shields"))/(double)shieldfactor) ) {
+		if( ownShip.getShip().getEnergy() < Math.ceil((ownShipType.getShields()-ownShip.getShip().getShields())/(double)shieldfactor) ) {
 			battle.logme( "Nicht genug Energie um die Schilde vollst&auml;ndig aufzuladen\n\n" );
-			load = ownShip.getInt("e");
+			load = ownShip.getShip().getEnergy();
 		}
 		else {
-			load = (int)Math.ceil((ownShipType.getInt("shields")-ownShip.getInt("shields"))/(double)shieldfactor);
+			load = (int)Math.ceil((ownShipType.getShields()-ownShip.getShip().getShields())/(double)shieldfactor);
 		}
 
 		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
 
-		ownShip.put("e", ownShip.getInt("e") - load);
-		ownShip.put("shields", ownShip.getInt("shields") + load*shieldfactor);
-		if( ownShip.getInt("shields") > ownShipType.getInt("shields") ) {
-			ownShip.put("shields", ownShipType.getInt("shields"));
+		ownShip.getShip().setEnergy(ownShip.getShip().getEnergy() - load);
+		ownShip.getShip().setShields(ownShip.getShip().getShields() + load*shieldfactor);
+		if( ownShip.getShip().getShields() > ownShipType.getShields() ) {
+			ownShip.getShip().setShields(ownShipType.getShields());
 		}
 
-		battle.logme( "Schilde nun bei "+ownShip.getInt("shields")+"/"+ownShipType.getInt("shields")+"\n" );
-		battle.logenemy("Die "+Battle.log_shiplink(ownShip)+" hat ihre Schilde aufgeladen\n");
+		battle.logme( "Schilde nun bei "+ownShip.getShip().getShields()+"/"+ownShipType.getShields()+"\n" );
+		battle.logenemy("Die "+Battle.log_shiplink(ownShip.getShip())+" hat ihre Schilde aufgeladen\n");
 
-		db.update("UPDATE ships SET e=",ownShip.getInt("e"),", shields=",ownShip.getInt("shields"),",battleAction=1 WHERE id>0 AND id=",ownShip.getInt("id"));
+		ownShip.getShip().setBattleAction(true);
 
-		int curShields = db.first("SELECT shields FROM battles_ships WHERE shipid=",ownShip.getInt("id")).getInt("shields");
+		int curShields = ownShip.getShields();
 		curShields += load*shieldfactor;
-		if( curShields > ownShipType.getInt("shields") ) {
-			curShields = ownShipType.getInt("shields");
+		if( curShields > ownShipType.getShields() ) {
+			curShields = ownShipType.getShields();
 		}
-		db.update("UPDATE battles_ships SET shields=",curShields," WHERE shipid=",ownShip.getInt("id"));
-
-		battle.setPoints(battle.getOwnSide(), battle.getPoints(battle.getOwnSide())-1);
+		ownShip.setShields(curShields);
 
 		battle.logenemy("]]></action>\n");
 
-		battle.save(false);
+		battle.resetInactivity();
 		
-		ownShip.put("status", Ships.recalculateShipStatus(ownShip.getInt("id")));
+		ownShip.getShip().recalculateShipStatus();
 			
 		return RESULT_OK;
 	}

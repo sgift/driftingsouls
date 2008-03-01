@@ -18,15 +18,12 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 /**
@@ -43,7 +40,7 @@ public class BattleTick extends TickController {
 
 	@Override
 	protected void tick() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		/*
 			Schlachten
@@ -52,48 +49,51 @@ public class BattleTick extends TickController {
 		this.log("Schlachten: Aendere aktiven Kommandanten");
 		long lastacttime = Common.time()-1800;
 		
-		db.update("UPDATE battles SET blockcount=blockcount-1 WHERE blockcount > 0 AND lastturn<=",lastacttime);
+		db.createQuery("update Battle set blockcount=blockcount-1 where blockcount > 0 and lastturn<= ?")
+			.setLong(0, lastacttime)
+			.executeUpdate();
 		
-		getContext().commit();
+		List battles = db.createQuery("from Battle where blockcount<=0 or lastaction<= ?")
+			.setLong(0, lastacttime)
+			.list();
 		
-		List<SQLResultRow> battleList = new ArrayList<SQLResultRow>();
-		SQLQuery battleQuery = db.query("SELECT id,commander1 FROM battles WHERE blockcount<=0 OR lastaction<=",lastacttime);
-		while( battleQuery.next() ) {
-			battleList.add(battleQuery.getRow());
-		}
-		battleQuery.free();
-		
-		for( int i=0; i < battleList.size(); i++ ) {
-			SQLResultRow battledata = battleList.get(i);
+		for( Iterator iter=battles.iterator(); iter.hasNext(); ) {
+			Battle battle = (Battle)iter.next();
+			
 			try {
-				this.log("+ Naechste Runde bei Schlacht "+battledata.getInt("id"));
+				this.log("+ Naechste Runde bei Schlacht "+battle.getId());
 			
-				int comid = battledata.getInt("commander1");
-			
-				Battle battle = new Battle();
-				battle.load( battledata.getInt("id"), comid, 0, 0, 0 );
+				battle.load( battle.getCommander(0), null, null, 0 );
+				
+				//In der ersten Runde verzoegern wir grundsaetzlich
+				//maximal jedoch einmal, damit Schlachten nicht unendlich lange im System
+				//vorhanden sind
+				if( battle.hasFlag(Battle.FLAG_FIRSTROUND) ) {
+					battle.setFlag(Battle.FLAG_FIRSTROUND, false);
+					continue;
+				}
 			
 				if( battle.endTurn(false) ) {
 					// Daten nur aktuallisieren, wenn die Schlacht auch weiterhin existiert
 					battle.logenemy("<endturn type=\"all\" side=\"-1\" time=\""+Common.time()+"\" tick=\""+getContext().get(ContextCommon.class).getTick()+"\" />\n");
-				
-					battle.save(true);
 				
 					battle.writeLog();
 					
 					battle.addComMessage(battle.getOwnSide(), "++++ Das Tickscript hat die Runde beendet ++++\n\n");
 					battle.addComMessage(battle.getEnemySide(), "++++ Das Tickscript hat die Runde beendet ++++\n\n");
 				}
-				getContext().commit();
 			}
-			catch( Exception e ) {
-				this.log("Battle "+battledata.getInt("id")+" failed: "+e);
+			catch( RuntimeException e ) {
+				this.log("Battle "+battle.getId()+" failed: "+e);
 				e.printStackTrace();
-				Common.mailThrowable(e, "BattleTick Exception", "battle: "+battledata.getInt("id"));
+				Common.mailThrowable(e, "BattleTick Exception", "battle: "+battle.getId());
+				
+				throw e;
 			}
-			
-			getDB().clear();
 		}
+
+		getDB().flush();
+		getDB().clear();
 	}
 
 }

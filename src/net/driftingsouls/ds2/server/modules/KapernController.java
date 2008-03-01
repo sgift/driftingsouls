@@ -315,14 +315,14 @@ public class KapernController extends TemplateGenerator {
 						break;
 					}	
 					if( found ) {
-						PM.send( getContext(), -1, this.targetShip.getInt("owner"), "Kaperversuch entdeckt", "Ihre Schiffe haben einen Kaperversuch bei "+this.targetShip.getInt("system")+":"+this.targetShip.getInt("x")+"/"+this.targetShip.getInt("y")+" vereitelt und den Gegner angegriffen" );
+						User source = (User)getDB().get(User.class, -1);
+						PM.send( source, this.targetShip.getInt("owner"), "Kaperversuch entdeckt", "Ihre Schiffe haben einen Kaperversuch bei "+this.targetShip.getInt("system")+":"+this.targetShip.getInt("x")+"/"+this.targetShip.getInt("y")+" vereitelt und den Gegner angegriffen" );
 						
-						Battle battle = new Battle();
-						battle.create(user.getId(), this.ownShip.getInt("id"), this.targetShip.getInt("id"));
+						Battle battle = Battle.create(user.getId(), this.ownShip.getInt("id"), this.targetShip.getInt("id"));
 												
 						t.setVar(
 							"kapern.message",	"Ihr Kaperversuch wurde entdeckt und einige gegnerischen Schiffe haben das Feuer er&ouml;ffnet",
-							"kapern.battle",	battle.getID() );
+							"kapern.battle",	battle.getId() );
 			
 						return;
 					}
@@ -384,7 +384,7 @@ public class KapernController extends TemplateGenerator {
 		db.tBegin();
 		
 		// Transmisson
-		PM.send( getContext(), user.getId(), this.targetShip.getInt("owner"), "Kaperversuch", msg.toString() );
+		PM.send( user, this.targetShip.getInt("owner"), "Kaperversuch", msg.toString() );
 		
 		db.update("UPDATE ships SET crew=",acrew," WHERE id=",this.ownShip.getInt("id"));
 		db.update("UPDATE ships SET crew=",dcrew," WHERE id=",this.targetShip.getInt("id"));

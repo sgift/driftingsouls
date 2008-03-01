@@ -18,8 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
  * Entlaedt alle Battieren auf eigenen Schiffen einer bestimmten Klasse
@@ -34,14 +35,13 @@ public class KSDischargeBatteriesClassAction extends KSDischargeBatteriesAllActi
 	 *
 	 */
 	public KSDischargeBatteriesClassAction() {
-		this.requireAP(1);
 		
 		this.battsclass = ContextMap.getContext().getRequest().getParameterInt("battsclass");
 	}
 
 	@Override
-	protected boolean validateShipExt(SQLResultRow ship, SQLResultRow shiptype) {
-		if( shiptype.getInt("class") != this.battsclass ) {
+	protected boolean validateShipExt(BattleShip ship, ShipTypeData shiptype) {
+		if( shiptype.getShipClass() != this.battsclass ) {
 			return false;
 		}
 		return true;

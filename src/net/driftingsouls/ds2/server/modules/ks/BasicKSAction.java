@@ -19,9 +19,9 @@
 package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.AngriffController;
 
 /**
@@ -45,7 +45,6 @@ public abstract class BasicKSAction {
 	
 	private boolean requireCommander;
 	private boolean requireActive;
-	private int requireAP;
 	private boolean requireOwnShipReady;
 	private AngriffController controller;
 	
@@ -58,7 +57,6 @@ public abstract class BasicKSAction {
 		
 		this.requireCommander(true);
 		this.requireActive(true);
-		this.requireAP(0);
 		this.requireOwnShipReady(false);
 	}
 	
@@ -86,10 +84,6 @@ public abstract class BasicKSAction {
 		this.requireActive = value;
 	}
 	
-	protected void requireAP( int value ) {
-		this.requireAP = value;
-	}
-	
 	protected void requireOwnShipReady( boolean value ) {
 		this.requireOwnShipReady = value;
 	}
@@ -113,7 +107,7 @@ public abstract class BasicKSAction {
 		User user = (User)ContextMap.getContext().getActiveUser();
 		
 		if( this.requireCommander ) {
-			if( !battle.isCommander(user.getId(), battle.getOwnSide()) ) {
+			if( !battle.isCommander(user, battle.getOwnSide()) ) {
 				battle.logme( "Sie k&ouml;nnen diese Aktion nicht durchf&uuml;hren, da sie ihre Seite nicht kommandieren\n" );
 				return RESULT_ERROR;
 			}
@@ -125,23 +119,16 @@ public abstract class BasicKSAction {
 				return RESULT_ERROR;
 			}
 		}
-	
-		if( this.requireAP > 0 ) {
-			if( battle.getPoints(battle.getOwnSide()) < this.requireAP ) {
-				battle.logme( "Nicht genug Aktionspunkte um die Aktion auszuf&uuml;hren" );
-				return RESULT_ERROR;
-			}
-		}
 		
 		if( this.requireOwnShipReady ) {
-			SQLResultRow ownShip = battle.getOwnShip();
+			BattleShip ownShip = battle.getOwnShip();
 	
-			if( (ownShip.getInt("action") & Battle.BS_FLUCHT) != 0 ) {
+			if( (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ) {
 				battle.logme( "Das Schiff flieht gerade\n" );
 				return RESULT_ERROR;
 			}
 	
-			if( (ownShip.getInt("action") & Battle.BS_JOIN) != 0 ) {
+			if( (ownShip.getAction() & Battle.BS_JOIN) != 0 ) {
 				battle.logme( "Das Schiff tritt erst gerade der Schlacht bei\n" );
 				return RESULT_ERROR;
 			}	

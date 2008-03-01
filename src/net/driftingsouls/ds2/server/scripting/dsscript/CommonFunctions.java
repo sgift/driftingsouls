@@ -16,11 +16,10 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.scripting;
+package net.driftingsouls.ds2.server.scripting.dsscript;
+
 
 import org.apache.commons.lang.StringUtils;
-
-import net.driftingsouls.ds2.server.framework.db.Database;
 
 /**
  * Allgemeine Script-Funktionen
@@ -46,7 +45,7 @@ class CommonFunctions {
 	}
 	
 	class Compare implements SPFunction {
-		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+		public boolean[] execute(ScriptParser scriptparser, String[] command ) {
 			double val1 = Value.Double(command[1]);
 			double val2 = Value.Double(command[2]);
 		
@@ -64,7 +63,7 @@ class CommonFunctions {
 	}
 	
 	class Copy implements SPFunction {
-		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			String reg = command[1];
 			String val = command[2];	
 		
@@ -78,7 +77,7 @@ class CommonFunctions {
 	}
 	
 	class Add implements SPFunction {
-		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			double val1 = Double.parseDouble(command[1]);
 			double val2 = Double.parseDouble(command[2]);
 		
@@ -92,7 +91,7 @@ class CommonFunctions {
 	}
 	
 	class Substract implements SPFunction {
-		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			double val1 = Double.parseDouble(command[1]);
 			double val2 = Double.parseDouble(command[2]);
 		
@@ -106,7 +105,7 @@ class CommonFunctions {
 	}
 	
 	class Multiply implements SPFunction {
-		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			double val1 = Double.parseDouble(command[1]);
 			double val2 = Double.parseDouble(command[2]);
 		
@@ -120,7 +119,7 @@ class CommonFunctions {
 	}
 	
 	class Divide implements SPFunction {
-		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			double val1 = Double.parseDouble(command[1]);
 			double val2 = Double.parseDouble(command[2]);
 		
@@ -134,7 +133,7 @@ class CommonFunctions {
 	}
 	
 	class Random implements SPFunction {
-		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			int min = Integer.parseInt(command[1]);
 			int max = Integer.parseInt(command[2]);
 		
@@ -149,7 +148,7 @@ class CommonFunctions {
 	}
 	
 	class StrAppend implements SPFunction {
-		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			String mystring = "";
 			if( command[1].charAt(0) == '#' ) {
 				mystring = scriptparser.getRegister(command[1]);
@@ -168,7 +167,7 @@ class CommonFunctions {
 	}
 	
 	class CopyString implements SPFunction {
-		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			String targetstring = "";
 			if( command[1].charAt(0) == '#' ) {
 				targetstring = scriptparser.getRegister(command[1]);
@@ -187,7 +186,7 @@ class CommonFunctions {
 	}
 	
 	class StrReplace implements SPFunction {
-		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			String strdata = "";
 			if( command[1].charAt(0) == '#' ) {
 				strdata = scriptparser.getRegister(command[1]);
@@ -211,7 +210,7 @@ class CommonFunctions {
 	}
 	
 	class GetScriptParameter implements SPFunction {
-		public boolean[] execute( Database db, ScriptParser scriptparser, String[] command ) {
+		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			int paramNum = Integer.parseInt(command[1]);
 			scriptparser.log("Parameter: "+paramNum+"\n");
 		

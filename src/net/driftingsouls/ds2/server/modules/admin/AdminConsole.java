@@ -40,7 +40,13 @@ public class AdminConsole implements AdminPlugin {
 		
 		String cmd = context.getRequest().getParameterString("cmd");
 		int cleanpage = context.getRequest().getParameterInt("cleanpage");
+		int responseOnly = context.getRequest().getParameterInt("responseOnly");
 
+		if( responseOnly == 1 ) {
+			echo.append(StringUtils.replace( AdminCommands.executeCommand(cmd), "\n", "<br />" ));
+			return;
+		}
+		
 		if( (cmd.length() > 0) && (cleanpage == 0) ) {
 			echo.append(Common.tableBegin(400,"left"));
 			echo.append("<table class=\"noBorderX\">\n");
@@ -59,7 +65,7 @@ public class AdminConsole implements AdminPlugin {
 			echo.append("<td class=\"noBorderS\">\n");
 		}
 		
-		echo.append("<form action=\"./main.php\" method=\"post\">\n");
+		echo.append("<form action=\"./ds\" method=\"post\">\n");
 		echo.append("Command: <input type=\"text\" name=\"cmd\" value=\""+cmd+"\" size=\"60\" />\n");
 		echo.append("<input type=\"hidden\" name=\"sess\" value=\""+context.getSession()+"\" />\n");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");

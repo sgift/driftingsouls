@@ -38,11 +38,13 @@ import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.Session;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -59,9 +61,7 @@ import org.apache.commons.lang.math.RandomUtils;
  * @author Christopher Jung
  *
  */
-class PortalController extends TemplateGenerator {
-	private int retries = 5;
-
+public class PortalController extends TemplateGenerator {
 	/**
 	 * Konstruktor
 	 * @param context Der zu verwendende Kontext
@@ -455,7 +455,7 @@ class PortalController extends TemplateGenerator {
 						"show.register.choosesystem", 1 );
 		
 			for( StarSystem sys : Systems.get() ) {
-				if( sys.getOrderLocations().length > 0 ) {
+				if( (sys.getOrderLocations().length > 0) && locations.minSysDistance.containsKey(sys.getID()) ) {
 					t.setVar(	"system.id", sys.getID(),
 								"system.name", sys.getName(),
 								"system.selected", (sys.getID() == locations.systemID),
@@ -500,11 +500,7 @@ class PortalController extends TemplateGenerator {
 	 			java.lang.System.arraycopy(keylist,pos+1, newKeyList, pos, keylist.length-pos-1);
 	 		}
 	 		
-	 		db.tBegin();
 	 		db.tUpdate(1,"UPDATE config SET `keys`='",Common.implode("\n",newKeyList),"' WHERE `keys`='",settings.getString("keys"),"'");
-	 	}
-	 	else {
-	 		db.tBegin();
 	 	}
 		
 		String password = Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE));
@@ -530,7 +526,7 @@ class PortalController extends TemplateGenerator {
 		db.tUpdate(1, "INSERT INTO user_f (id) VALUES ('",newid,"')");
 		
 		// Schiffe erstellen
-		StartLocations locations = getStartLocation();
+	 	StartLocations locations = getStartLocation();
 	 	Location[] orderlocs = Systems.get().system(system).getOrderLocations();
 	 	Location orderloc = orderlocs[locations.minSysDistance.get(system).orderLocationID];
 	 	
@@ -600,46 +596,41 @@ class PortalController extends TemplateGenerator {
 			}
 		}
 	 	
-	 	SQLResultRow nebel = db.first("SELECT *,sqrt((",base.getX(),"-x)*(",base.getX(),"-x)+(",base.getY(),"-y)*(",base.getY(),"-y)) distance,sqrt((",base.getX(),"-x)*(",base.getX(),"-x)+(",base.getY(),"-y)*(",base.getY(),"-y))*(((type+1)%3)+1)*3 moddist FROM nebel WHERE system='",system,"' AND type<3 ORDER BY moddist LIMIT 1");
-	 	
+	 	Nebel nebel = (Nebel)getDB().createQuery("from Nebel where loc.system=? and type<3 order by sqrt((?-loc.x)*(?-loc.x)+(?-loc.y)*(?-loc.y))*(mod(type+1,3)+1)*3")
+	 		.setInteger(0, system)
+	 		.setInteger(1, orderloc.getX())
+	 		.setInteger(2, orderloc.getX())
+	 		.setInteger(3, orderloc.getY())
+	 		.setInteger(4, orderloc.getY())
+	 		.setMaxResults(1)
+	 		.uniqueResult();
+
 	 	if( race == 1 ) {		
-			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_TERRANER", new Location(system, base.getX(), base.getY()), newid);
-			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_TERRANER_TANKER", new Location(system, nebel.getInt("x"), nebel.getInt("y")), newid);
+			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_TERRANER", base.getLocation(), newid);
+			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_TERRANER_TANKER", nebel.getLocation(), newid);
 		} 
 		else {			
-			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_VASUDANER", new Location(system, base.getX(), base.getY()), newid);
-			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_VASUDANER_TANKER", new Location(system, nebel.getInt("x"), nebel.getInt("y")), newid);
+			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_VASUDANER", base.getLocation(), newid);
+			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_VASUDANER_TANKER", nebel.getLocation(), newid);
 		}
 	 	
-
-		if( db.tCommit() ) {
-			//Willkommens-PM versenden
-			PM.send( getContext(),Configuration.getIntSetting("REGISTER_PM_SENDER"), newid, 
-					"Willkommen bei Drifting Souls 2", Configuration.getSetting("REGISTER_PM"));
+		//Willkommens-PM versenden
+	 	User source = (User)getDB().get(User.class, Configuration.getIntSetting("REGISTER_PM_SENDER"));
+		PM.send( source, newid, "Willkommen bei Drifting Souls 2", 
+				Configuration.getSetting("REGISTER_PM"));
 		
-			t.setVar( "show.register.msg.ok", 1,
-						"register.newid", newid );
+		t.setVar( "show.register.msg.ok", 1,
+					"register.newid", newid );
 							
-			Common.copyFile(Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/user/0.gif",
-					Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/user/"+newid+".gif");
+		Common.copyFile(Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/user/0.gif",
+				Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/user/"+newid+".gif");
 
-			String message = Configuration.getSetting("REGISTER_EMAIL");
-			message = message.replace("{username}", username);
-			message = message.replace("{password}", password);
-			message = message.replace("{date}", Common.date("H:i j.m.Y"));
+		String message = Configuration.getSetting("REGISTER_EMAIL");
+		message = message.replace("{username}", username);
+		message = message.replace("{password}", password);
+		message = message.replace("{date}", Common.date("H:i j.m.Y"));
 			
-			Common.mail(email, "Anmeldung bei Drifting Souls 2", message);
-		}
-		else {
-			if( retries  > 0 ) {
-				retries--;
-				return register( username, email, race, system, key, settings );
-			}
-			t.setVar("show.message", "Leider konnte die Registrierung nicht erfolgreich durchgef&uuml;hrt werden. Bitte versuchen sie es ein wenig sp&auml;ter erneut.<br />Die Administratoren wurden vorsorglich informiert und werden, falls ein Fehler vorliegt, diesen schnellstm&ouml;glich beheben");
-			PM.sendToAdmins(getContext(), -1, "Registrierungsfehler", 
-							"[color=orange]WARNUNG[/color]\nEs konnte auch nach 5 Versuchen keine erfolgreiche Registrierung eines Spielers durchgef&uuml;hrt werden.\n\nUsername: "+username+"\nEmail: "+email+"\nRace: "+race+"\nSystem: "+system+"\nKey: "+key+"\nSettings: "+settings.getString("keys"),PM.FLAGS_IMPORTANT);
-			return false;
-		}
+		Common.mail(email, "Anmeldung bei Drifting Souls 2", message);
 
 		return true;
 	}
@@ -783,34 +774,41 @@ class PortalController extends TemplateGenerator {
 					t.setVar("show.login.msg.accdisabled",1);
 					Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+username+"> Password <"+password+"> ***ACCOUNT GESPERRT*** von Browser <"+getRequest().getUserAgent()+">\n");
 	
-					db.update("DELETE FROM sessions WHERE id='",user.getId(),"'");
+					getDB().createQuery("delete from Session where id=?")
+						.setInteger(0, user.getId())
+						.executeUpdate();
+					
 					clear = false;
 				} 
 				else {
-					SQLResultRow session = db.first("SELECT * FROM sessions WHERE id='",user.getId(),"'");
-					if( !session.isEmpty() && (session.getInt("tick") != 0) ) {
+					Session session = (Session)getDB().createQuery("from Session where id=? and tick!=0")
+						.setInteger(0, user.getId())
+						.uniqueResult();
+		
+					if( session != null ) {
 						t.setVar("show.login.msg.tick",1);
 						clear = false;
 					}
 					else{
 						Common.writeLog("login.log",Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+username+"> Login von Browser <"+getRequest().getUserAgent()+">\n");
 	
-	  					int id = user.getId();
-	
-	  					String sess = Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE));
-	
-	  					db.update("DELETE FROM sessions WHERE id='",id,"' AND attach IS NULL");
-	  					db.update("INSERT INTO sessions (id,session,ip,lastaction,usegfxpak) ",
-									" VALUES('",id,"','",sess,"','<",getRequest().getRemoteAddress(),">','",Common.time(),"','",usegfxpak,"')");
+	  					getDB().createQuery("delete from Session where id=? and attach is null")
+	  						.setInteger(0, user.getId())
+	  						.executeUpdate();
+	  					
+	  					session = new Session(user);
+	  					session.setIP("<"+getRequest().getRemoteAddress()+">");
+	  					session.setUseGfxPak(usegfxpak != 0);
+	  					getDB().persist(session);
 	
 						if( (user.getVacationCount() == 0) || (user.getWait4VacationCount() != 0) ) {
 							t.setVar(	"show.login.msg.ok", 1,
-										"login.sess", sess );
+										"login.sess", session.getSession() );
 						}	
 						else {
 							t.setVar(	"show.login.vacmode", 1,
 										"login.vacmode.dauer", Common.ticks2Days(user.getVacationCount()),
-										"login.vacmode.sess", sess );
+										"login.vacmode.sess", session.getSession() );
 						}
 						
 						// Ueberpruefen ob das gfxpak noch aktuell ist
@@ -892,27 +890,26 @@ class PortalController extends TemplateGenerator {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void loginVacmodeDeakAction() {
-		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
 		
 		parameterString("asess");
 		String sess = getString("asess");
 	
-		SQLResultRow sessdata = db.first("SELECT id,ip,lastaction,usegfxpak FROM sessions WHERE session='",sess,"'");
+		Session session = (Session)getDB().get(Session.class, sess);
 
-		if( sessdata.isEmpty() ) {
+		if( session == null ) {
 			t.setVar("show.login.vacmode.msg.accerror",1);
 			return;
 		}
 		
-		User auser = (User)getDB().get(User.class, sessdata.getInt("id"));
-		if( !auser.hasFlag(BasicUser.FLAG_DISABLE_IP_SESSIONS) && (sessdata.getString("ip").indexOf("<"+getRequest().getRemoteAddress()+">") > -1) ) {
+		User auser = (User)session.getUser();
+		if( !auser.hasFlag(BasicUser.FLAG_DISABLE_IP_SESSIONS) && !session.isValidIP(getRequest().getRemoteAddress()) ) {
 			t.setVar("show.login.vacmode.msg.accerror",1);
 			return;
 		}
 		
-		if( !auser.hasFlag(BasicUser.FLAG_DISABLE_AUTO_LOGOUT) && (Common.time() - sessdata.getInt("lastaction") > Configuration.getIntSetting("AUTOLOGOUT_TIME")) ) {
-			db.update("DELETE FROM sessions WHERE id='",sessdata.getInt("id"),"'");
+		if( !auser.hasFlag(BasicUser.FLAG_DISABLE_AUTO_LOGOUT) && (Common.time() - session.getLastAction() > Configuration.getIntSetting("AUTOLOGOUT_TIME")) ) {
+			getDB().delete(session);
 			t.setVar("show.login.vacmode.msg.accerror",1);
 			return;
 		}
@@ -920,7 +917,8 @@ class PortalController extends TemplateGenerator {
 		parameterString("reason");
 		String reason = getString("reason");
 		
-		PM.sendToAdmins(getContext(), sessdata.getInt("id"), "VACMODE-DEAK", "[VACMODE-DEAK]\nMY ID: "+sessdata.getInt("id")+"\nREASON:\n"+reason, 0);
+		PM.sendToAdmins((User)session.getUser(), "VACMODE-DEAK", 
+				"[VACMODE-DEAK]\nMY ID: "+session.getUser().getId()+"\nREASON:\n"+reason, 0);
 		
 		t.setVar("show.login.vacmode.msg.send",1);
 	}
@@ -929,8 +927,8 @@ class PortalController extends TemplateGenerator {
 	 * Zeigt die News an
 	 * @urlparam Integer archiv != 0, falls alte News angezeigt werden sollen
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();

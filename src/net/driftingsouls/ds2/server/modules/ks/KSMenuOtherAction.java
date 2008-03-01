@@ -19,8 +19,8 @@
 package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 /**
  * Zeigt das Menue fuer sonstige Aktionen an, welche unter keine andere Kategorie fallen
@@ -35,51 +35,51 @@ public class KSMenuOtherAction extends BasicKSMenuAction {
 			return result;
 		}
 		
-		SQLResultRow ownShip = battle.getOwnShip();
-		SQLResultRow enemyShip = battle.getEnemyShip();
+		BattleShip ownShip = battle.getOwnShip();
+		BattleShip enemyShip = battle.getEnemyShip();
 		
 		//Cheat-Menue
 		if( Configuration.getIntSetting("ENABLE_CHEATS") != 0 ) {
-			menuEntry("Cheats",	"ship",		ownShip.getInt("id"),
-								"attack",	enemyShip.getInt("id"),
+			menuEntry("Cheats",	"ship",		ownShip.getId(),
+								"attack",	enemyShip.getId(),
 								"ksaction",	"cheats" );
 		}
 
 		//Alle Abdocken
 		if( this.isPossible(battle, new KSUndockAllAction()) == RESULT_OK ) {
-			menuEntry("Alle Abdocken<br /><span style=\"font-weight:normal; font-size:14px\">Kosten: 1 AP</span>", 
-						"ship",		ownShip.getInt("id"),
-						"attack",	enemyShip.getInt("id"),
+			menuEntry("Alle Abdocken", 
+						"ship",		ownShip.getId(),
+						"attack",	enemyShip.getId(),
 						"ksaction",	"alleabdocken" );
 		}
 
 		//Schilde aufladen
 		if( this.isPossible(battle, new KSMenuShieldsAction()) == RESULT_OK ) {
 			menuEntry("Schilde aufladen",
-						"ship",			ownShip.getInt("id"),
-						"attack",		enemyShip.getInt("id"),
+						"ship",			ownShip.getId(),
+						"attack",		enemyShip.getId(),
 						"ksaction",		"shields" );
 		}
 
 		if( this.isPossible(battle, new KSMenuBatteriesAction()) == RESULT_OK ) {
 			menuEntry("Batterien entladen",
-						"ship",			ownShip.getInt("id"),
-						"attack",		enemyShip.getInt("id"),
+						"ship",			ownShip.getId(),
+						"attack",		enemyShip.getId(),
 						"ksaction",		"batterien" );
 		}
 
 		//Kampf uebergeben
-		menuEntry("Kampf &uuml;bergeben",	"ship",		ownShip.getInt("id"),
-											"attack",	enemyShip.getInt("id"),
+		menuEntry("Kampf &uuml;bergeben",	"ship",		ownShip.getId(),
+											"attack",	enemyShip.getId(),
 											"ksaction",	"new_commander" );
 
 		//History
-		menuEntry("Logbuch",	"ship",		ownShip.getInt("id"),
-								"attack",	enemyShip.getInt("id"),
+		menuEntry("Logbuch",	"ship",		ownShip.getId(),
+								"attack",	enemyShip.getId(),
 								"ksaction",	"history" );
 
-		menuEntry("zur&uuml;ck",	"ship",		ownShip.getInt("id"),
-									"attack",	enemyShip.getInt("id") );
+		menuEntry("zur&uuml;ck",	"ship",		ownShip.getId(),
+									"attack",	enemyShip.getId() );
 		
 		return RESULT_OK;
 	}

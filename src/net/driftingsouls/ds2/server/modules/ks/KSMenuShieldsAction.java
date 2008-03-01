@@ -23,8 +23,9 @@ import java.util.List;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
@@ -36,12 +37,12 @@ public class KSMenuShieldsAction extends BasicKSMenuAction {
 	@Override
 	public int validate(Battle battle) {
 		boolean showshields = false;
-		List<SQLResultRow> ownShips = battle.getOwnShips();
+		List<BattleShip> ownShips = battle.getOwnShips();
 		for( int i=0; i < ownShips.size(); i++ ) {
-			SQLResultRow aship = ownShips.get(i);
-			SQLResultRow ashiptype = ShipTypes.getShipType(aship);
+			BattleShip aship = ownShips.get(i);
+			ShipTypeData ashiptype = aship.getTypeData();
 			
-			if( (ashiptype.getInt("shields") > 0) && (aship.getInt("shields") < ashiptype.getInt("shields")) ) {
+			if( (ashiptype.getShields() > 0) && (aship.getShip().getShields() < ashiptype.getShields()) ) {
 				showshields = true;
 				break;
 			}	
@@ -66,58 +67,59 @@ public class KSMenuShieldsAction extends BasicKSMenuAction {
 			return RESULT_ERROR;
 		}
 		
-		SQLResultRow ownShip = battle.getOwnShip();
-		SQLResultRow enemyShip = battle.getEnemyShip();
-		SQLResultRow ownShipType = ShipTypes.getShipType(ownShip);
+		BattleShip ownShip = battle.getOwnShip();
+		BattleShip enemyShip = battle.getEnemyShip();
+		ShipTypeData ownShipType = ownShip.getTypeData();
 	
-		if( (ownShipType.getInt("shields") > 0) && (ownShip.getInt("shields") < ownShipType.getInt("shields")) ) {
-			this.menuEntry("Schilde aufladen<br /><span style=\"font-weight:normal; font-size:14px\">Kosten: 1 AP</span>", 
-					"ship",		ownShip.getInt("id"),
-					"attack",	enemyShip.getInt("id"),
+		if( (ownShipType.getShields() > 0) && (ownShip.getShip().getShields() < ownShipType.getShields()) ) {
+			this.menuEntry("Schilde aufladen", 
+					"ship",		ownShip.getId(),
+					"attack",	enemyShip.getId(),
 					"ksaction",	"shields_single" );
 		}
 				
 		int shieldidlist = 0;
 		Map<Integer,Integer> shieldclasslist = new HashMap<Integer,Integer>();
 		
-		List<SQLResultRow> ownShips = battle.getOwnShips();
+		List<BattleShip> ownShips = battle.getOwnShips();
 		for( int i=0; i < ownShips.size(); i++ ) {
-			SQLResultRow aship = ownShips.get(i);
+			BattleShip aship = ownShips.get(i);
 			
-			SQLResultRow ashiptype = ShipTypes.getShipType(aship);
-			if( (aship.getInt("shields") > 0) && (aship.getInt("shields") < ashiptype.getInt("shields")) ) {
+			ShipTypeData ashiptype = aship.getTypeData();
+			if( aship.getShip().getShields() < ashiptype.getShields() ) {
 				shieldidlist++;
-				Common.safeIntInc(shieldclasslist, ashiptype.getInt("class"));
+				Common.safeIntInc(shieldclasslist, ashiptype.getShipClass());
 			}
 		}
 								
 		if( shieldidlist > 0 ) {
-			this.menuEntryAsk( "Alle Schilde aufladen<br /><span style=\"font-weight:normal; font-size:14px\">Kosten: "+shieldidlist+" AP</span>",
+			this.menuEntryAsk( "Alle Schilde aufladen",
 					new Object[] {
-						"ship",		ownShip.getInt("id"),
-						"attack",	enemyShip.getInt("id"),
+						"ship",		ownShip.getId(),
+						"attack",	enemyShip.getId(),
 						"ksaction",	"shields_all" },
 					"Wollen sie wirklich alle Schilde aufladen?" );
 		}
 		
-		for( Integer classID : shieldclasslist.keySet() ) {
-			int idlist = shieldclasslist.get(classID);
+		for( Map.Entry<Integer, Integer> entry: shieldclasslist.entrySet()) {
+			int classID = entry.getKey();
+			int idlist = entry.getValue();
 			
 			if( idlist == 0 ) {
 				continue;
 			} 
-			this.menuEntryAsk( "Alle "+ShipTypes.getShipClass(classID).getPlural()+"-Schilde aufladen<br /><span style=\"font-weight:normal; font-size:14px\">Kosten: "+idlist+" AP</span>",
+			this.menuEntryAsk( "Alle "+ShipTypes.getShipClass(classID).getPlural()+"-Schilde aufladen",
 					new Object[] {
-						"ship",		ownShip.getInt("id"),
-						"attack",	enemyShip.getInt("id"),
+						"ship",		ownShip.getId(),
+						"attack",	enemyShip.getId(),
 						"ksaction",	"shields_class",
 						"shieldclass",	classID },
 					"Wollen sie wirklich bei allen Schiffen der Klasse '"+ShipTypes.getShipClass(classID).getSingular()+"' die Schilde aufladen?" );
 		}
 				
 		this.menuEntry("zur&uuml;ck",
-				"ship",		ownShip.getInt("id"),
-				"attack",	enemyShip.getInt("id"),
+				"ship",		ownShip.getId(),
+				"attack",	enemyShip.getId(),
 				"ksaction",	"other" );
 												
 		return RESULT_OK;

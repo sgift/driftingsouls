@@ -27,7 +27,7 @@
 		var script;
 		var title;
 		if( popupnr == 1 ) {
-			script = "./main.php?module=fleetmgnt";
+			script = "./ds?module=fleetmgnt";
 			title = "Flotten";
 		}
 
@@ -65,13 +65,20 @@
 	</tr>
 	<tr>
 		<td class="schiffData" style="width:360px" valign="top">
-			<a class="noborder" target="_blank" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={ship.type}">
+			<a class="noborder" target="_blank" href="./ds?module=schiffinfo&amp;sess={global.sess}&amp;ship={ship.type}">
 				<img src="{shiptype.picture}" alt="{shiptype.name}" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:5px" />
 			</a>
 			Zustand: 
 			<span style="color:{ship.hull.color}">
 				{ship.hull}/{shiptype.hull}
 			</span>
+			{if shiptype.ablativearmor}
+				<br />
+				Ablative Panzerung:
+				<span style="color:{ship.ablativearmor.color}">
+					{ship.ablativearmor}/{shiptype.ablativearmor}
+				</span>
+			{/endif}
 			{if shiptype.shields}
 				<br />
 				Schilde:
@@ -106,6 +113,12 @@
 					{ship.crew}/{shiptype.crew}
 				</span><br />
 			{/endif}
+			{if shiptype.marines}
+				Marines:
+				<span style="color:{ship.marines.color}">
+					{ship.marines}/{shiptype.marines}
+				</span><br />
+			{/endif}
 			Energie:
 			<span style="color:{ship.e.color}">
 				{ship.e}/{shiptype.eps}
@@ -125,22 +138,22 @@
 				<br />
 			{/endif}
 			{if ship.fleet}
-				Flotte: <a class="forschinfo" href="javascript:PopupWnd(1,'&amp;fleet={ship.fleet}&amp;act=show')">{fleet.name}</a> 
+				Flotte: <a class="forschinfo" href="javascript:PopupWnd(1,'&amp;fleet={fleet.id}&amp;act=show')">{fleet.name}</a> 
 				{if ! ship.lock}
 					{!link_to (X), join, css_class:error, ship:$ship.id}
 				{/endif}
 				<br />
 			{/endif}
-			<a class="noborder" href="./main.php?module=schiff&amp;action=destroy&amp;sess={global.sess}&amp;ship={ship.id}">
+			<a class="noborder" href="./ds?module=schiff&amp;action=destroy&amp;sess={global.sess}&amp;ship={ship.id}">
 				<img src="{URL}data/interface/schiffe/schiff_selfdest.gif" alt="Selbstzerst&amp;ouml;rung" />
 			</a>
 			{if shiptype.werft}
-				<a class="forschinfo" href="./main.php?module=werft&amp;sess={global.sess}&amp;ship={ship.id}">
+				<a class="forschinfo" href="./ds?module=werft&amp;sess={global.sess}&amp;ship={ship.id}">
 					<img src="{URL}data/interface/schiffe/werft.gif" alt="Werftfunktionen" />
 				</a>
 			{/endif}
 			{if sector.handel}
-				<a class="noborder" onmouseover="return helpme('mit {sector.handel.name} handeln');" onmouseout="return nd();" href="./main.php?module=trade&amp;sess={global.sess}&amp;ship={ship.id}&amp;tradepost={sector.handel}">
+				<a class="noborder" onmouseover="return helpme('mit {sector.handel.name} handeln');" onmouseout="return nd();" href="./ds?module=trade&amp;sess={global.sess}&amp;ship={ship.id}&amp;tradepost={sector.handel}">
 					<img src="{URL}data/interface/schiffe/schiff_handel.gif" alt="Handeln" />
 				</a>
 			{/endif}
@@ -151,7 +164,7 @@
 						var tooltiptext = "";
 						tooltiptext += "{tooltip.execnotes.begin}";
 						tooltiptext += "<span style='text-decoration:underline'>Scripteingabe</span> (<a class='error' onclick='return nd();' href='javascript:void(0)'>X</a>)<br />";
-						tooltiptext += "<form action='./main.php' method='post'><div>";
+						tooltiptext += "<form action='./ds' method='post'><div>";
 						tooltiptext += "<input type='hidden' name='sess' value='{global.sess}' />";
 						tooltiptext += "<input type='hidden' name='module' value='schiff' />";
 						tooltiptext += "<input type='hidden' name='ship' value='{ship.id}' />";
@@ -177,7 +190,7 @@
 			{/endif}
 			{if ship.show.respawn}
 				{if ship.hasrespawn}
-					<a id="shiprespawntip" name="shiprespawntip" class="noborder" onmouseover="javascript:overlib('Respawn-Dauer: {ship.respawn}',REF,'shiprespawntip', REFC,'LR',REFP,'UL',TIMEOUT,0);" onmouseout="return nd();" href="./main.php?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=respawn">
+					<a id="shiprespawntip" name="shiprespawntip" class="noborder" onmouseover="javascript:overlib('Respawn-Dauer: {ship.respawn}',REF,'shiprespawntip', REFC,'LR',REFP,'UL',TIMEOUT,0);" onmouseout="return nd();" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=respawn">
 						<img src="{URL}data/interface/respawn_yes.png" alt="" />
 					</a>
 				{else}
@@ -187,7 +200,7 @@
 							var tooltiptext = "";
 							tooltiptext += "{tooltip.respawn.begin}";
 							tooltiptext += "<span style='text-decoration:underline'>Respawn-Daten</span> (<a class='error' onclick='return nd();' href='javascript:void(0)'>X</a>)<br />";
-							tooltiptext += "<form action='./main.php' method='post'><div>";
+							tooltiptext += "<form action='./ds' method='post'><div>";
 							tooltiptext += "<input type='hidden' name='sess' value='{global.sess}' />";
 							tooltiptext += "<input type='hidden' name='module' value='schiff' />";
 							tooltiptext += "<input type='hidden' name='ship' value='{ship.id}' />";
@@ -207,7 +220,7 @@
 				{/endif}
 			{/endif}
 			{if ship.npcislandlink}
-				<a class="noborder" onmouseover="return helpme('zur Insel');" onmouseout="return nd();" href="./main.php?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=insel">
+				<a class="noborder" onmouseover="return helpme('zur Insel');" onmouseout="return nd();" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=insel">
 					<img src="{URL}data/interface/schiffe/tunnel.png" alt="Insel der Gl&uuml;cksehligkeit" />
 				</a>
 			{/endif}
@@ -224,7 +237,7 @@
 			<br />
 			<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
 			{if ship.shields.reloade}
-				<form action="./main.php" method="post">
+				<form action="./ds" method="post">
 					<div>
 						<label for="shup">Schilde:</label>
 						<input id="shup" name="shup" type="text" size="5" value="{ship.shields.reloade}" />
@@ -234,7 +247,7 @@
 				</form>
 			{/endif}
 			{if ship.showalarm}
-				<form action="./main.php" method="post">
+				<form action="./ds" method="post">
 					<div>
 						<label for="alarm">Befehle:</label>
 						<select id="alarm" name="alarm">
@@ -248,7 +261,7 @@
 				</form>
 			{/endif}
 			
-			<form action="./main.php" method="post">
+			<form action="./ds" method="post">
 				<div>
 					<label for="newname">Name:</label>
 					<input id="newname" name="newname" type="text" size="15" value="{ship.name}" />
@@ -258,7 +271,7 @@
 			</form>
 					
 			{if ship.consignable}
-				<form action="./main.php" method="post">
+				<form action="./ds" method="post">
 					<div>
 						<label for="newowner">An User</label>
 						<input id="newowner" name="newowner" type="text" size="5" value="0" />

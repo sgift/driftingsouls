@@ -21,12 +21,12 @@ package net.driftingsouls.ds2.server.modules.ks;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
  * Ermoeglicht es eine Schlacht zu beenden, wenn der Gegner nur noch zivile Schiffe hat
@@ -39,12 +39,12 @@ public class KSEndBattleCivilAction extends BasicKSAction {
 		if( battle.getBetakStatus(battle.getOwnSide()) ) {
 			boolean onlyCivil = true;
 			
-			List<SQLResultRow> enemyShips = battle.getEnemyShips();
+			List<BattleShip> enemyShips = battle.getEnemyShips();
 			for( int i=0; i < enemyShips.size(); i++ ) {
-				SQLResultRow eship = enemyShips.get(i);
+				BattleShip eship = enemyShips.get(i);
 				
-				SQLResultRow eshiptype = ShipTypes.getShipType( eship );
-				if( eshiptype.getInt("military") != 0 ) {
+				ShipTypeData eshiptype = eship.getTypeData();
+				if( eshiptype.isMilitary() ) {
 					onlyCivil = false;
 					break;
 				}
@@ -73,7 +73,7 @@ public class KSEndBattleCivilAction extends BasicKSAction {
 		
 		context.getResponse().getContent().append("Sie haben die Schlacht gewonnen.");
 
-		PM.send(context, user.getId(), battle.getCommander(battle.getEnemySide()), "Schlacht verloren", "Der Gegner hat die Schlacht beendet, da du nur noch zivile Schiffe hattest. Du hast die Schlacht bei "+battle.getSystem()+" : "+battle.getX()+"/"+battle.getY()+" gegen [userprofile="+user.getId()+"]"+user.getName()+"[/userprofile] somit verloren!");
+		PM.send(user, battle.getCommander(battle.getEnemySide()).getId(), "Schlacht verloren", "Der Gegner hat die Schlacht beendet, da du nur noch zivile Schiffe hattest. Du hast die Schlacht bei "+battle.getLocation()+" gegen [userprofile="+user.getId()+"]"+user.getName()+"[/userprofile] somit verloren!");
 
 		// Schlacht beenden -> +1 Siege fuer mich; +1 Niederlagen fuer den Gegner
 		battle.endTurn(true);

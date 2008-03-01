@@ -18,14 +18,15 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
+import java.util.Iterator;
+
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.Ship;
 
 /**
  * Dockt alle Schiffe vom gerade ausgewaehlten Schiff ab
@@ -38,16 +39,19 @@ public class KSUndockAllAction extends BasicKSAction {
 	 *
 	 */
 	public KSUndockAllAction() {
-		this.requireAP(1);
 	}
 	
 	@Override
 	public int validate(Battle battle) {
-		SQLResultRow ownShip = battle.getOwnShip();
-		Database db = ContextMap.getContext().getDatabase();
+		BattleShip ownShip = battle.getOwnShip();
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
-		SQLResultRow dock = db.first("SELECT id FROM ships WHERE docked IN ('l ",ownShip.getInt("id"),"','",ownShip.getInt("id"),"')");
-		if( !dock.isEmpty() ) {
+		boolean dock = db.createQuery("from Ship where docked in (?,?)")
+			.setString(0, "l "+ownShip.getId())
+			.setString(1, Integer.toString(ownShip.getId()))
+			.iterate().hasNext();
+		
+		if( dock ) {
 			return RESULT_OK;
 		}
 		return RESULT_ERROR;	
@@ -66,25 +70,41 @@ public class KSUndockAllAction extends BasicKSAction {
 		}
 		
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
-		SQLResultRow ownShip = battle.getOwnShip();
+		org.hibernate.Session db = context.getDB();
+		BattleShip ownShip = battle.getOwnShip();
 		
 		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
 
-		db.update("UPDATE ships SET battleAction=1 WHERE id=",ownShip.getInt("id"));
+		ownShip.getShip().setBattleAction(true);
+		
+		int counter = 0;
+		
+		final Iterator shipIter = db.createQuery("from Ship where docked in (?,?)")
+			.setString(0, "l "+ownShip.getId())
+			.setString(1, Integer.toString(ownShip.getId()))
+			.iterate();
+		while( shipIter.hasNext() ) {
+			Ship aship = (Ship)shipIter.next();
+			
+			if( aship.getDocked().charAt(0) == 'l' ) {
+				ownShip.getShip().dock(Ship.DockMode.START, aship);
+			}
+			else {
+				ownShip.getShip().dock(Ship.DockMode.UNDOCK, aship);
+			}
+			aship.setBattleAction(true);
+			
+			counter++;
+		}
 
-		db.update("UPDATE ships SET docked='',battleAction=1 WHERE docked IN ('l ",ownShip.getInt("id"),"','",ownShip.getInt("id"),"')");
-
-		battle.logme(db.affectedRows()+" Schiffe wurden abgedockt");
-		battle.logenemy(db.affectedRows()+" Schiffe wurden von der "+Battle.log_shiplink(ownShip)+" abgedockt\n");
-
-		battle.setPoints(battle.getOwnSide(), battle.getPoints(battle.getOwnSide()) - 1);
+		battle.logme(counter+" Schiffe wurden abgedockt");
+		battle.logenemy(counter+" Schiffe wurden von der "+Battle.log_shiplink(ownShip.getShip())+" abgedockt\n");
 
 		battle.logenemy("]]></action>\n");
 
-		battle.save(false);
+		battle.resetInactivity();
 		
-		ownShip.put("status", Ships.recalculateShipStatus(ownShip.getInt("id")));
+		ownShip.getShip().recalculateShipStatus();
 		
 		return RESULT_OK;
 	}

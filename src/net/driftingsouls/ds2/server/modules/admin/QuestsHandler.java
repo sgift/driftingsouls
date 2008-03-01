@@ -27,8 +27,6 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.AdminController;
-import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
-import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 
 /**
  * Ermoeglicht das Bearbeiten von Quest-Handlern
@@ -49,11 +47,11 @@ public class QuestsHandler implements AdminPlugin {
 		
 		Database db = context.getDatabase();
 		
-		final String URLBASE = "./main.php?module=admin&sess="+context.getSession()+"&page="+page+"&act="+action;
+		final String URLBASE = "./ds?module=admin&sess="+context.getSession()+"&page="+page+"&act="+action;
 		
 		if( event.length() == 0 ) {
 			echo.append(Common.tableBegin(700, "center"));
-			echo.append("<form action=\"./main.php\" method=\"post\">\n");
+			echo.append("<form action=\"./ds\" method=\"post\">\n");
 			echo.append("<select size=\"1\" name=\"event\">\n");
 			echo.append("<option value=\"oncommunicate\">oncommunicate</option>\n");
 			echo.append("<option value=\"onenter\">onenter</option>\n");
@@ -182,7 +180,7 @@ public class QuestsHandler implements AdminPlugin {
 		
 			echo.append(Common.tableBegin(700,"left"));
 		
-			echo.append("<form action=\"./main.php\" method=\"post\">\n");
+			echo.append("<form action=\"./ds\" method=\"post\">\n");
 			echo.append("<input type=\"text\" name=\"handler\" size=\"50\" value=\""+handler+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"event\" value=\""+event+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"oid\" value=\""+oid+"\" />\n");

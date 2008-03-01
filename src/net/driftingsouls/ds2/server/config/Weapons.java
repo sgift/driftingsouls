@@ -63,11 +63,15 @@ public class Weapons implements Iterable<Weapon>,Loggable {
 	
 	/**
 	 * Gibt die Instanz einer Waffe mit der angegebenen Waffen-ID zurueck.
-	 * Sollte keine passende Waffe bekannt sein, so wird <code>null</code> zurueckgegeben.
+	 * Sollte keine passende Waffe bekannt sein, so wird eine {@link NoSuchWeaponException} geworfen.
 	 * @param wpn Die Waffen-ID
-	 * @return Die Instanz der Waffe oder <code>null</code>
+	 * @return Die Instanz der Waffe
+	 * @throws NoSuchWeaponException Falls die angeforderte Waffe nicht existiert
 	 */
-	public Weapon weapon(String wpn) {
+	public Weapon weapon(String wpn) throws NoSuchWeaponException {
+		if( !list.containsKey(wpn) ) {
+			throw new NoSuchWeaponException(wpn);
+		}
 		return list.get(wpn);
 	}
 	
@@ -123,6 +127,10 @@ public class Weapons implements Iterable<Weapon>,Loggable {
 				String version = XMLUtils.getStringAttribute(node, "version");
 				if( (version != null) && !version.equalsIgnoreCase(Configuration.getSetting("VERSION_TYPE")) ) {
 					continue;
+				}
+				
+				if( instance.list.containsKey(id) ) {
+					throw new RuntimeException("Waffen-ID '"+id+"' bereits vergeben");
 				}
 				
 				String cls = XMLUtils.getStringAttribute(node, "handler");

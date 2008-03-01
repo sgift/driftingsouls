@@ -20,13 +20,11 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import java.util.List;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
@@ -51,62 +49,44 @@ public class KSFluchtSingleAction extends BasicKSAction {
 		}
 		
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
-		SQLResultRow ownShip = battle.getOwnShip();
+		BattleShip ownShip = battle.getOwnShip();
 		
 		String fluchtmode = context.getRequest().getParameterString("fluchtmode");
 	
-		if( fluchtmode.equals("current") && (battle.getOwnSide() == 0) && battle.hasFlag(Battle.FLAG_DROP_SECONDROW_1) ) {
-			battle.logme( "Die Flucht nach einem Sturmangriff ist nicht m&ouml;glich\n" );
-			return RESULT_ERROR;
-		}
-		
-		if( fluchtmode.equals("current") && (battle.getOwnSide() == 1) && battle.hasFlag(Battle.FLAG_DROP_SECONDROW_0) ) {
-			battle.logme( "Die Flucht nach einem Sturmangriff ist nicht m&ouml;glich\n" );
-			return RESULT_ERROR;
-		}
-	
-		if( (ownShip.getInt("action") & Battle.BS_DESTROYED) != 0 ) {
+		if( (ownShip.getAction() & Battle.BS_DESTROYED) != 0 ) {
 			battle.logme( "Dieses Schiff explodiert am Ende der Runde\n" );
 			return RESULT_ERROR;
 		}
 	
-		if( ownShip.getInt("engine") == 0 ) {
+		if( ownShip.getShip().getEngine() == 0 ) {
 			battle.logme( "Das Schiff kann nicht fliehen, da der Antrieb zerst&ouml;rt ist\n" );
 			return RESULT_ERROR;
 		}
 		
-		if( ownShip.getString("docked").length() > 0 ) {
+		if( ownShip.getDocked().length() > 0 ) {
 			battle.logme( "Sie k&ouml;nnen nicht mit gedockten/gelandeten Schiffen fliehen\n" );
 			return RESULT_ERROR;
 		}
 	
-		int curr_engines = db.first("SELECT engine FROM battles_ships WHERE shipid=",ownShip.getInt("id")).getInt("engine");
-		
-		if( curr_engines <= 0 ) {
+		if( ownShip.getEngine() <= 0 ) {
 			battle.logme( "Das Schiff kann nicht fliehen, da der Antrieb zerst&ouml;rt ist\n" );
 			return RESULT_ERROR;
 		}
 		
-		SQLResultRow ownShipType = ShipTypes.getShipType( ownShip );
+		ShipTypeData ownShipType = ownShip.getTypeData();
 		 
-		if( (ownShipType.getInt("crew") > 0) && (ownShip.getInt("crew") < (int)(ownShipType.getInt("crew")/4d)) ) {
+		if( (ownShipType.getCrew() > 0) && (ownShip.getCrew() < (int)(ownShipType.getCrew()/4d)) ) {
 			battle.logme( "Nicht genug Crew um zu fliehen\n" );
 			return RESULT_ERROR;
 		}		
 		
-		if( fluchtmode.equals("current") && ownShip.getBoolean("battleAction") ) {
-			battle.logme( "Das Schiff kann nicht fliehen, da es bereits diese Runde eingesetzt wurde\n" );
-			return RESULT_ERROR;
-		}
-		
 		boolean gotone = false;
-		if( ShipTypes.hasShipTypeFlag(ownShipType, ShipTypes.SF_DROHNE) ) {
-			List<SQLResultRow> ownShips = battle.getOwnShips();
+		if( ownShipType.hasFlag(ShipTypes.SF_DROHNE) ) {
+			List<BattleShip> ownShips = battle.getOwnShips();
 			for( int i=0; i < ownShips.size(); i++ ) {
-				SQLResultRow aship = ownShips.get(i);
-				SQLResultRow ashiptype = ShipTypes.getShipType(aship);
-				if( ShipTypes.hasShipTypeFlag(ashiptype, ShipTypes.SF_DROHNEN_CONTROLLER) ) {
+				BattleShip aship = ownShips.get(i);
+				ShipTypeData ashiptype = aship.getTypeData();
+				if( ashiptype.hasFlag(ShipTypes.SF_DROHNEN_CONTROLLER) ) {
 					gotone = true;
 					break;	
 				}
@@ -121,47 +101,26 @@ public class KSFluchtSingleAction extends BasicKSAction {
 			return RESULT_ERROR;
 		}
 		
+		
 		int fluchtflag = 0;
-		if( fluchtmode.equals("current") ) {
-			battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
-		
-			battle.logme( ownShip.getString("name")+" fl&uuml;chtet\n" );
-			battle.logenemy( Battle.log_shiplink(ownShip)+" flieht\n" );
+		battle.logme( ownShip.getName()+" wird n&auml;chste Runde fl&uuml;chten\n" );
 			
-			ownShip.put("action", ownShip.getInt("action") | Battle.BS_FLUCHT);
-			fluchtflag = Battle.BS_FLUCHT;
-		}
-		else {
-			battle.logme( ownShip.getString("name")+" wird n&auml;chste Runde fl&uuml;chten\n" );
-			
-			ownShip.put("action", ownShip.getInt("action") | Battle.BS_FLUCHTNEXT);
-			fluchtflag = Battle.BS_FLUCHTNEXT;
-		}
-		
-		db.update("UPDATE battles_ships SET action=",ownShip.getInt("action")," WHERE shipid=",ownShip.getInt("id"));
+		ownShip.setAction(ownShip.getAction() | Battle.BS_FLUCHTNEXT);
+		fluchtflag = Battle.BS_FLUCHTNEXT;
 
 		int remove = 1;
-		List<SQLResultRow> ownShips = battle.getOwnShips();
+		List<BattleShip> ownShips = battle.getOwnShips();
 		for( int j=0; j < ownShips.size(); j++ ) {
-			SQLResultRow s = ownShips.get(j);
-			if( (s.getString("docked").length() > 0) && (s.getString("docked").equals(""+ownShip.getInt("id")) || s.getString("docked").equals("l "+ownShip.getInt("id")) ) ) {
-				s.put("action", s.getInt("action") | fluchtflag);
-				db.update("UPDATE battles_ships SET action=",s.getInt("action")," WHERE shipid=",s.getInt("id"));
-				
+			BattleShip s = ownShips.get(j);
+			if( (s.getDocked().length() > 0) && (s.getDocked().equals(""+ownShip.getId()) || s.getDocked().equals("l "+ownShip.getId()) ) ) {
+				s.setAction(s.getAction() | fluchtflag);
+
 				remove++;
 			}
 		}
 		
-		if( fluchtmode.equals("current") && (remove > 1) ) {
-			battle.logme( (remove-1)+" an "+ownShip.getString("name")+" gedockte Schiffe fliehen\n" );
-			battle.logenemy( (remove-1)+" an "+ownShip.getString("name")+" gedockte Schiffe fliehen\n" );
-		}
-		else if( fluchtmode.equals("next") && (remove > 1) ) {
-			battle.logme( (remove-1)+" an "+ownShip.getString("name")+" gedockte Schiffe werden n&auml;chste Runde fliehen\n" );
-		}
-		
-		if( fluchtmode.equals("current") ) {
-			battle.logenemy("]]></action>\n");
+		if( fluchtmode.equals("next") && (remove > 1) ) {
+			battle.logme( (remove-1)+" an "+ownShip.getName()+" gedockte Schiffe werden n&auml;chste Runde fliehen\n" );
 		}
 	
 		return RESULT_OK;

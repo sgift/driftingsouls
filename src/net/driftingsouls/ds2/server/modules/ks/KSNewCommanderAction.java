@@ -22,12 +22,12 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 /**
  * Uebergibt das Kommando ueber die Schlacht an einen anderen Spieler
@@ -60,11 +60,13 @@ public class KSNewCommanderAction extends BasicKSAction {
 			return RESULT_ERROR;
 		}
 		
-		if( (battle.getAlly(battle.getOwnSide()) == 0) || com.getAlly() == null || (com.getAlly().getId() != battle.getAlly(battle.getOwnSide())) ) {
+		if( (battle.getAlly(battle.getOwnSide()) == 0) || 
+			((com.getAlly() != null) && (com.getAlly().getId() != battle.getAlly(battle.getOwnSide()))) ) {
+			
 			boolean found = false;
-			List<SQLResultRow> ownShips = battle.getOwnShips();
+			List<BattleShip> ownShips = battle.getOwnShips();
 			for( int i=0; i < ownShips.size(); i++ ) {
-				if( ownShips.get(i).getInt("owner") == com.getId() ) {
+				if( ownShips.get(i).getOwner() == com ) {
 					found = true;
 					break;
 				}
@@ -82,19 +84,19 @@ public class KSNewCommanderAction extends BasicKSAction {
 
 		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
 
-		PM.send(context, user.getId(), com.getId(), "Schlacht &uuml;bergeben", "Ich habe dir die Leitung der Schlacht bei "+battle.getSystem()+" : "+battle.getX()+"/"+battle.getY()+" &uuml;bergeben.");
+		PM.send(user, com.getId(), "Schlacht &uuml;bergeben", "Ich habe dir die Leitung der Schlacht bei "+battle.getLocation()+" &uuml;bergeben.");
 
 		battle.logenemy("[userprofile="+com.getId()+",profile_alog]"+Common._titleNoFormat(com.getName())+"[/userprofile] kommandiert nun die gegnerischen Truppen\n\n");
 
-		battle.setCommander(battle.getOwnSide(), com.getId());
+		battle.setCommander(battle.getOwnSide(), com);
 
 		battle.logenemy("]]></action>\n");
 
-		battle.logenemy("<side"+(battle.getOwnSide()+1)+" commander=\""+battle.getCommander(battle.getOwnSide())+"\" ally=\""+battle.getAlly(battle.getOwnSide())+"\" />\n");
+		battle.logenemy("<side"+(battle.getOwnSide()+1)+" commander=\""+battle.getCommander(battle.getOwnSide()).getId()+"\" ally=\""+battle.getAlly(battle.getOwnSide())+"\" />\n");
 
 		battle.setTakeCommand(battle.getOwnSide(), 0);
 
-		battle.save(false);
+		battle.resetInactivity();
 		
 		return RESULT_OK;
 	}

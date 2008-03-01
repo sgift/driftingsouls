@@ -25,7 +25,10 @@ import java.util.List;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
+import org.hibernate.annotations.Immutable;
+
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.ItemID;
@@ -43,10 +46,8 @@ import net.driftingsouls.ds2.server.entities.StatVerkaeufe;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-
-import org.hibernate.annotations.Immutable;
+import net.driftingsouls.ds2.server.ships.Ship;
 
 /**
  * Die Kommandozentrale
@@ -67,12 +68,16 @@ public class Kommandozentrale extends DefaultBuilding {
 	@Override
 	public void cleanup(Context context, Base base) {
 		super.cleanup(context, base);
-
+		
+		org.hibernate.Session db = context.getDB();
+		
 		base.setAutoGTUActs(new ArrayList<AutoGTUAction>());
 		User nullUser = (User)context.getDB().get(User.class, 0);
 		base.setOwner(nullUser);
-		
-		context.getDatabase().update("UPDATE werften set linked=null where linked="+base.getId());
+				
+		db.createQuery("update ShipWerft set linked=null where linked=?")
+			.setEntity(0, base)
+			.executeUpdate();
 	}
 
 	@Override
@@ -381,26 +386,32 @@ public class Kommandozentrale extends DefaultBuilding {
 				Waren zu Schiffen/Basen im Orbit transferieren
 			*/
 			
-			SQLQuery ship = context.getDatabase().query("SELECT id,name,x,y,owner FROM ships " +
-					"WHERE id>0 AND x BETWEEN "+(base.getX()-base.getSize())+" AND "+(base.getX()+base.getSize())+" AND " +
-					"y BETWEEN "+(base.getY()-base.getSize())+" AND "+(base.getY()+base.getSize())+" AND " +
-					"system="+base.getSystem()+" AND !LOCATE('l ',docked) AND battle is null " +
-					"ORDER BY x,y,owner,id");
-			if( !ship.isEmpty() ) {
-				int oldx = 0;
-				int oldy = 0;
-				while( ship.next() ) {
-					if( (oldx == 0) && (oldy == 0) ) {
-						oldx = ship.getInt("x");
-						oldy = ship.getInt("y");
+			List ships = db.createQuery("from Ship " +
+					"where id>0 and (x between :minx and :maxx) and " +
+							"(y between :miny and :maxy) and " +
+							"system= :sys and locate('l ',docked)=0 and battle is null " +
+					"order by x,y,owner,id")
+				.setInteger("minx", base.getX()-base.getSize())
+				.setInteger("maxx", base.getX()+base.getSize())
+				.setInteger("miny", base.getY()-base.getSize())
+				.setInteger("maxy", base.getY()+base.getSize())
+				.setInteger("sys", base.getSystem())
+				.list();
+			if( !ships.isEmpty() ) {
+				Location oldLoc = null;
+
+				for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+					Ship ship = (Ship)iter.next();
+					
+					if( oldLoc == null ) {
+						oldLoc = ship.getLocation();
 
 						if( base.getSize() != 0 ) {
 							t.setVar("ship.begingroup", 1);
 						}
 					}
-					else if( (oldx != ship.getInt("x")) || (oldy != ship.getInt("y")) ) {
-						oldx = ship.getInt("x");
-						oldy = ship.getInt("y");
+					else if( !oldLoc.equals(ship.getLocation()) ) {
+						oldLoc = ship.getLocation();
 						
 						if( base.getSize() != 0 ) {
 							t.setVar(	"ship.begingroup",	1,
@@ -412,14 +423,13 @@ public class Kommandozentrale extends DefaultBuilding {
 									"ship.endgroup",	0);
 					}
 					
-					t.setVar(	"ship.id",	ship.getInt("id"),
-								"ship.name",	Common._plaintitle(ship.getString("name")),
-								"ship.x",		ship.getInt("x"),
-								"ship.y",		ship.getInt("y") );
+					t.setVar(	"ship.id",		ship.getId(),
+								"ship.name",	Common._plaintitle(ship.getName()),
+								"ship.x",		ship.getX(),
+								"ship.y",		ship.getY() );
 					
-					if( ship.getInt("owner") != user.getId() ) {
-						User owner = (User)context.getDB().get(User.class, ship.getInt("owner"));
-						t.setVar("ship.owner.name", owner.getPlainname());
+					if( ship.getOwner().getId() != user.getId() ) {
+						t.setVar("ship.owner.name", ship.getOwner().getPlainname());
 					}
 					else {
 						t.setVar("ship.owner.name", "");
@@ -428,7 +438,6 @@ public class Kommandozentrale extends DefaultBuilding {
 					t.parse("general.shiptransfer.list", "general.shiptransfer.listitem", true);
 				}
 			}
-			ship.free();
 
 			List targetbases = db.createQuery("from Base where x= :x and y= :y and system= :sys and id!= :id and owner= :owner")
 				.setInteger("x", base.getX())

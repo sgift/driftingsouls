@@ -18,12 +18,11 @@
  */
 package net.driftingsouls.ds2.server.config;
 
-import org.w3c.dom.Node;
-
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.ships.AbstractShipTypeDataWrapper;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+
+import org.w3c.dom.Node;
 
 /**
  * Ein Strahlengeschuetz in DS
@@ -40,17 +39,6 @@ public class BeamWeapon extends Weapon {
 		super(node);
 	}
 
-	@Override
-	public boolean calcShipTypes(SQLResultRow ownShipType, SQLResultRow enemyShipType) {
-		super.calcShipTypes(ownShipType, enemyShipType);
-		
-		if( (enemyShipType.getInt("size") > 3) && (enemyShipType.getInt("size") < ownShipType.getInt("size") - 6 ) ) {
-			enemyShipType.put("size", ownShipType.getInt("size") - 6);
-			return true;
-		}
-		return false;
-	}
-	
 	@Override
 	public ShipTypeData calcEnemyShipType(ShipTypeData ownShipType, ShipTypeData enemyShipType) {
 		ShipTypeData enemy = super.calcEnemyShipType(ownShipType, enemyShipType);

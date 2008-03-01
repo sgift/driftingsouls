@@ -49,7 +49,9 @@ public class KSTakeCommandAction extends BasicKSAction {
 		
 		User user = (User)context.getActiveUser();	
 		
-		if( (battle.getAlly(battle.getOwnSide()) == 0) || user.getAlly() == null || (battle.getAlly(battle.getOwnSide()) != user.getAlly().getId()) ) {
+		if( (battle.getAlly(battle.getOwnSide()) == 0) || 
+			((user.getAlly() != null) && (battle.getAlly(battle.getOwnSide()) != user.getAlly().getId())) ) {
+			
 			battle.logme( "Sie geh&ouml;ren nicht der kommandierenden Allianz an\n" );
 			return RESULT_ERROR;
 		}
@@ -59,7 +61,7 @@ public class KSTakeCommandAction extends BasicKSAction {
 			return RESULT_ERROR;
 		}
 		
-		User oldCommander = (User)context.getDB().get(User.class, battle.getCommander(battle.getOwnSide()));
+		User oldCommander = battle.getCommander(battle.getOwnSide());
 		if( oldCommander.getInactivity() <= 0 ) {
 			battle.logme( "Der kommandierende Spieler ist noch anwesend\n" );
 			return RESULT_ERROR;
@@ -67,7 +69,7 @@ public class KSTakeCommandAction extends BasicKSAction {
 		
 		battle.setTakeCommand(battle.getOwnSide(), user.getId());
 
-		battle.save(false);
+		battle.resetInactivity();
 
 		battle.logme("Versuche das Kommando zu &uuml;bernehmen...\n\nBitte Warten sie bis zum n&auml;chsten automatischen Rundenwechsel!");
 				

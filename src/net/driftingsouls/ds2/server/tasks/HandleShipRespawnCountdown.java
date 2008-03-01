@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -54,9 +55,11 @@ class HandleShipRespawnCountdown implements TaskHandler {
 			
 			// Ueberpruefen wir ersteinmal ob die ID noch frei ist....
 			SQLResultRow sid = db.first("SELECT id FROM ships WHERE id=",(-shipid));
-			if( sid.getInt("id") > 0 ) {
+			if( !sid.isEmpty() ) {
+				User sourceUser = (User)context.getDB().get(User.class, -1);
+				
 				String msg = "[color=orange]WARNUNG[/color]\nDer Taskmanager kann das Schiff mit der ID "+(-shipid)+" nicht respawnen, da die ID durch ein anderes Schiff blockiert wurde. Der Respawn-Vorgang wurde bis zum n&auml;chsten Tick angehalten. Bitte korregieren sie das Problem umgehend.";
-				PM.sendToAdmins(context, -1, "Taskmanager-Warnung", msg, 0);
+				PM.sendToAdmins(sourceUser, "Taskmanager-Warnung", msg, 0);
 				
 		 		Taskmanager.getInstance().incTimeout( task.getTaskID() );
 		 		return;
@@ -64,6 +67,15 @@ class HandleShipRespawnCountdown implements TaskHandler {
 			
 			// Schiff einfuegen
 			SQLResultRow ship = db.first("SELECT * FROM ships WHERE id=",shipid);
+			if( ship.isEmpty() ) {
+				User sourceUser = (User)context.getDB().get(User.class, -1);
+				
+				String msg = "[color=orange]WARNUNG[/color]\nDer Taskmanager kann das Schiff mit der ID "+(-shipid)+" nicht respawnen, da die Respawn-Vorlage nicht existiert. Der Respawn-Vorgang wurde bis zum n&auml;chsten Tick angehalten. Bitte korregieren sie das Problem umgehend.";
+				PM.sendToAdmins(sourceUser, "Taskmanager-Warnung", msg, 0);
+				
+		 		Taskmanager.getInstance().incTimeout( task.getTaskID() );
+		 		return;
+			}
 			
 			List<String> queryfp = new ArrayList<String>();
 			List<String> querylp = new ArrayList<String>();

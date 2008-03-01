@@ -22,12 +22,13 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipType;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
  * Ermoeglicht den Angriff auf die zweite Reihe des Gegners
@@ -40,16 +41,11 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 	 *
 	 */
 	public KSSecondRowAttackAction() {
-		this.requireAP(300);
 	}
 	
 	@Override
 	public int validate(Battle battle) {
 		if( battle.hasFlag(Battle.FLAG_FIRSTROUND) ) {
-			return RESULT_ERROR;
-		}
-		
-		if( battle.getPoints(battle.getOwnSide()) < 300 ) {
 			return RESULT_ERROR;
 		}
 		
@@ -61,7 +57,7 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 			return RESULT_ERROR;
 		}
 		
-		if( !battle.isSecondRowStable(battle.getEnemySide(), null) ) {
+		if( !battle.isSecondRowStable(battle.getEnemySide()) ) {
 			return RESULT_ERROR;
 		}  
 		
@@ -69,22 +65,22 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 		int rowcount = 0;
 		boolean gotone = false;
 		
-		List<SQLResultRow> ownShips = battle.getOwnShips();
+		List<BattleShip> ownShips = battle.getOwnShips();
 		for( int i=0; i < ownShips.size(); i++ ) {
-			SQLResultRow aship = ownShips.get(i);
+			BattleShip aship = ownShips.get(i);
 			
-			if( (aship.getInt("action") & Battle.BS_FLUCHT) != 0 || (aship.getInt("action") & Battle.BS_JOIN) != 0 ||
-				(aship.getInt("action") & Battle.BS_SECONDROW) != 0 ) {
+			if( (aship.getAction() & Battle.BS_FLUCHT) != 0 || (aship.getAction() & Battle.BS_JOIN) != 0 ||
+				(aship.getAction() & Battle.BS_SECONDROW) != 0 ) {
 				continue;
 			}
-			SQLResultRow shiptype = ShipTypes.getShipType(aship);
+			ShipTypeData shiptype = aship.getTypeData();
 			
-			if( shiptype.getInt("class") == ShipClasses.ZERSTOERER.ordinal() ) {
+			if( shiptype.getShipClass() == ShipClasses.ZERSTOERER.ordinal() ) {
 				gotone = true;
 			}
 			
-			if( shiptype.getInt("size") > 3 ) {
-				size += shiptype.getInt("size");
+			if( shiptype.getSize() > ShipType.SMALL_SHIP_MAXSIZE ) {
+				size += shiptype.getSize();
 			}
 		}
 		
@@ -92,21 +88,21 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 			return RESULT_ERROR;
 		}
 		
-		List<SQLResultRow> enemyShips = battle.getOwnShips();
+		List<BattleShip> enemyShips = battle.getOwnShips();
 		for( int i=0; i < enemyShips.size(); i++ ) {
-			SQLResultRow aship = enemyShips.get(i);
+			BattleShip aship = enemyShips.get(i);
 			
-			if( (aship.getInt("action") & Battle.BS_FLUCHT) != 0 || (aship.getInt("action") & Battle.BS_JOIN) != 0  ) {
+			if( (aship.getAction() & Battle.BS_FLUCHT) != 0 || (aship.getAction() & Battle.BS_JOIN) != 0  ) {
 				continue;
 			}
-			if( (aship.getInt("action") & Battle.BS_SECONDROW) != 0 ) {
+			if( (aship.getAction() & Battle.BS_SECONDROW) != 0 ) {
 				rowcount++;
 				continue;
 			}
-			SQLResultRow shiptype = ShipTypes.getShipType(aship);
+			ShipTypeData shiptype = aship.getTypeData();
 			
-			if( shiptype.getInt("size") > 3 ) {
-				size += shiptype.getInt("size");
+			if( shiptype.getSize() > ShipType.SMALL_SHIP_MAXSIZE ) {
+				size += shiptype.getSize();
 			}
 		}
 		
@@ -131,7 +127,6 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 		
 		Context context = ContextMap.getContext();
 		
-		battle.setPoints(battle.getOwnSide(), battle.getPoints(battle.getOwnSide())-300);
 		if( battle.getOwnSide() == 0 ) {
 			battle.setFlag(Battle.FLAG_DROP_SECONDROW_1, true);
 		}
@@ -144,7 +139,7 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 		battle.logenemy("Die feindlichen Schiffe r&uuml;cken unter schwerem Feuer langsam vor und dr&auml;ngen trotz heftigsten Widerstands die Linien zur&uuml;ck\n");
 		battle.logenemy("]]></action>\n");	
 		
-		battle.save(false);
+		battle.resetInactivity();
 		
 		return RESULT_OK;
 	}

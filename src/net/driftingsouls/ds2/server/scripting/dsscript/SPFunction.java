@@ -16,9 +16,8 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.scripting;
+package net.driftingsouls.ds2.server.scripting.dsscript;
 
-import net.driftingsouls.ds2.server.framework.db.Database;
 
 /**
  * Interface fuer ScriptParser-Funktionen
@@ -41,10 +40,9 @@ public interface SPFunction {
 	
 	/**
 	 * Fuehrt die ScriptParser-Funktion aus
-	 * @param db Die DB-Verbindung
 	 * @param scriptparser Der ScriptParser
 	 * @param command Die Parameter
 	 * @return Array der Laenge 2. Element 1 besagt, ob der ScriptParser weiterlaufen soll. Element 2, ob der Funktionszeiger inkrementiert werden soll
 	 */
-	public boolean[] execute(Database db, ScriptParser scriptparser, String[] command);
+	public boolean[] execute(ScriptParser scriptparser, String[] command);
 }

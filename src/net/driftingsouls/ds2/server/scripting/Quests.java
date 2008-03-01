@@ -18,17 +18,24 @@
  */
 package net.driftingsouls.ds2.server.scripting;
 
+import java.io.ByteArrayOutputStream;
 import java.sql.Blob;
 import java.util.Random;
+
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
 
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.scripting.entities.Quest;
+import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
+import net.driftingsouls.ds2.server.scripting.entities.Script;
 
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.Hibernate;
 
 /**
  * Hilfsfunktionen zur Questverarbeitung
@@ -79,11 +86,15 @@ public class Quests implements Loggable {
 	
 	/**
 	 * Fuehrt einen Lock-String aus (bzw das dem Lock-String zugeordnete Script, sofern vorhanden)
-	 * @param scriptparser Der ScriptParser, mit dem der Lock ausgefuehrt werden soll
+	 * @param scriptparser Die ScriptEngine, mit dem der Lock ausgefuehrt werden soll
 	 * @param lock Der Lock-String
 	 * @param user Der User unter dem der Lock ausgefuehrt werden soll
 	 */
-	public static void executeLock( ScriptParser scriptparser, String lock, User user ) {
+	public static void executeLock( ScriptEngine scriptparser, String lock, User user ) {
+		if( lock == null ) {
+			return;
+		}
+		
 		String[] lockArray = StringUtils.split(lock, ':');
 		if( lockArray[0].length() == 0 || Integer.parseInt(lockArray[0]) <= 0 ) {
 			return;
@@ -96,61 +107,73 @@ public class Quests implements Loggable {
 			return;
 		}
 
-		Database db = ContextMap.getContext().getDatabase();
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 	
 		String execparameter = "-1";	
 	
-		SQLQuery runningdata = null;
+		RunningQuest runningdata = null;
 		if( usequest.charAt(0) != 'r' ) {
-			runningdata = db.query("SELECT id,execdata FROM quests_running WHERE questid='",usequest,"' AND userid='",user.getId(),"'");
+			runningdata = (RunningQuest)db.createQuery("from RunningQuest where quest= :quest and user = :user")
+				.setInteger("quest", Integer.parseInt(usequest))
+				.setEntity("user", user)
+				.uniqueResult();
 		}
 		else {
-			String rquestid = usequest.substring(1);
-			runningdata = db.query("SELECT id,execdata FROM quests_running WHERE id='",rquestid,"'");	
+			int rquestid = Integer.parseInt(usequest.substring(1));
+			runningdata = (RunningQuest)db.get(RunningQuest.class, rquestid);
 		}
 		
-		if( !runningdata.next() ) {
+		if( runningdata == null ) {
 			return;
 		}
 		
 		try {
-			Blob execdata = runningdata.getBlob("execdata");
+			Blob execdata = runningdata.getExecData();
 			if( (execdata != null) && (execdata.length() > 0) ) { 
 				scriptparser.setContext(ScriptParserContext.fromStream(execdata.getBinaryStream()));
 			}
 		}
 		catch( Exception e ) {
-			runningdata.free();
 			LOG.warn("Setting Script-ExecData failed: ",e);
 			return;
 		}
 
-		SQLResultRow script = db.first("SELECT script FROM scripts WHERE id='",usescript,"'");
-		if( script.isEmpty() ) {
+		Script script = (Script)db.get(Script.class, usescript);
+		if( script == null ) {
 			LOG.error("Konnte Script '"+usescript+"' nicht finden");
 			return;
 		}
 		
-		scriptparser.setRegister("USER", Integer.toString(user.getId()));
-		if( usequest.length() > 0 ) {
-			scriptparser.setRegister("QUEST", "r"+runningdata.getInt("id"));
-		}
-		scriptparser.setRegister("SCRIPT", Integer.toString(usescript));	
-		scriptparser.setRegister("LOCKEXEC", "1");	
-		scriptparser.executeScript(db, script.getString("script"), execparameter);
+		final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
 		
-		runningdata.free();
+		engineBindings.put("USER", Integer.toString(user.getId()));
+		if( usequest.length() > 0 ) {
+			engineBindings.put("QUEST", "r"+runningdata.getId());
+		}
+		engineBindings.put("SCRIPT", Integer.toString(usescript));	
+		engineBindings.put("LOCKEXEC", "1");
+		engineBindings.put("_PARAMETERS", execparameter);
+		try {
+			scriptparser.eval(script.getScript());
+		}
+		catch( ScriptException e ) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	/**
 	 * Fuehrt einen Ereignis-String aus (bzw das zugehoerige Script)
-	 * @param scriptparser Der ScriptParser, mit dem das Ereignis ausgefuhert werden soll
+	 * @param scriptparser Die ScriptEngine, mit dem das Ereignis ausgefuhert werden soll
 	 * @param handler Der Ereignis-String
-	 * @param userid Die Benutzer-ID unter der das Ereignis ausgefuehrt werden soll
+	 * @param user Der Benutzer unter dem das Ereignis ausgefuehrt werden soll
 	 * @param execparameter Weitere Parameter zur Ausfuehrung
+	 * @param locked <code>true</code>, falls das Schiff gelockt ist
 	 * @return <code>true</code>, falls das Ereignis ausgefuert werden konnte
 	 */
-	public static boolean executeEvent( ScriptParser scriptparser, String handler, int userid, String execparameter ) {
+	public static boolean executeEvent( ScriptEngine scriptparser, String handler, User user, String execparameter, boolean locked ) {
+		if( handler == null ) {
+			return false;
+		}
 		String[] handlerArray = StringUtils.split( handler, ';' );
 		
 		String usequest = "0";
@@ -162,7 +185,7 @@ public class Quests implements Loggable {
 		for( int i=0; i < handlerArray.length; i++ ) {
 			String[] hentry = StringUtils.split(handlerArray[i], ':');
 
-			if( hentry[0].equals(Integer.toString(userid)) ) {
+			if( hentry[0].equals(Integer.toString(user.getId())) ) {
 				usechance = -1;
 				forcenew = false;
 				
@@ -214,83 +237,103 @@ public class Quests implements Loggable {
 	
 		int runningID = 0;
 		
-		Database db = ContextMap.getContext().getDatabase();
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
 		if( !usequest.equals("0") ) {
-			SQLQuery runningdata = null;
+			RunningQuest runningdata = null;
 			
 			if( !forcenew && (usequest.charAt(0) != 'r') ) {
-				runningdata = db.query("SELECT id,execdata FROM quests_running WHERE questid='",usequest,"' AND userid='",userid,"'");
+				runningdata = (RunningQuest)db.createQuery("from RunningQuest where quest= :quest and user = :user")
+					.setInteger("quest", Integer.parseInt(usequest))
+					.setEntity("user", user)
+					.uniqueResult();
 			}
 			else if( !forcenew ) {
-				String rquestid = usequest.substring(1);
-				runningdata = db.query("SELECT id,execdata FROM quests_running WHERE id='",rquestid,"'");	
+				int rquestid = Integer.parseInt(usequest.substring(1));
+				runningdata = (RunningQuest)db.get(RunningQuest.class, rquestid);
 			}
 								
-			if( (runningdata != null) && runningdata.next() ) {
-				runningID = runningdata.getInt("id");
+			if( runningdata != null ) {
+				runningID = runningdata.getId();
 				try {
-					Blob execdata = runningdata.getBlob("execdata");
+					Blob execdata = runningdata.getExecData();
 					if( (execdata != null) && (execdata.length() > 0) ) { 
 						scriptparser.setContext(ScriptParserContext.fromStream(execdata.getBinaryStream()));
 					}
 				}
 				catch( Exception e ) {
-					runningdata.free();
 					LOG.warn("Setting Script-ExecData failed: ",e);
 					return false;
 				}
-				
-				runningdata.free();
 			}
 			else {
-				db.update("INSERT INTO quests_running (questid,userid) VALUES ('",usequest,"','",userid,"')");
+				Quest quest = null;
+				if( usequest.charAt(0) == 'r' ) {
+					quest = (Quest)db.get(Quest.class, Integer.parseInt(usequest.substring(1)));
+				}
+				else {
+					quest = (Quest)db.get(Quest.class, Integer.parseInt(usequest));
+				}
+				runningdata = new RunningQuest(quest, user);
+				db.save(runningdata);
 				
-				runningID = db.insertID();
+				runningID = runningdata.getId();
 			}
 		}
 		
-		SQLResultRow script = db.first("SELECT script FROM scripts WHERE id='",usescript,"'");
-		if( script.isEmpty() ) {
+		final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
+		
+		Script script = (Script)db.get(Script.class, usescript);
+		if( script == null ) {
 			LOG.error("Konnte Script '"+usescript+"' nicht finden");
 			return false;
 		}
-		scriptparser.setRegister("USER", Integer.toString(userid));
-		if( !usequest.equals("0") ) {
-			scriptparser.setRegister("QUEST", "r"+runningID);
-		}
-		scriptparser.setRegister("SCRIPT", Integer.toString(usescript));	
-		scriptparser.executeScript(db, script.getString("script"), execparameter);
 		
-		usequest = scriptparser.getRegister("QUEST");
+		if( locked ) {
+			engineBindings.put("LOCKEXEC", "1");
+		}
+		
+		engineBindings.put("USER", Integer.toString(user.getId()));
+		if( !usequest.equals("0") ) {
+			engineBindings.put("QUEST", "r"+runningID);
+		}
+		engineBindings.put("SCRIPT", Integer.toString(usescript));	
+		engineBindings.put("_PARAMETERS", execparameter);
+		try {
+			scriptparser.eval(script.getScript());
+		}
+		catch( ScriptException e ) {
+			throw new RuntimeException(e);
+		}
+		
+		usequest = (String)engineBindings.get("QUEST");
 
-		if( (usequest.length() > 0) && !usequest.equals("0") ) {
-			SQLQuery runningdata = null;
+		if( (usequest != null) && !usequest.isEmpty() && !usequest.equals("0") ) {
+			RunningQuest runningdata = null;
 			if( usequest.charAt(0) != 'r' ) {
-				runningdata = db.query("SELECT id,execdata FROM quests_running WHERE questid='",usequest,"' AND userid='",userid,"'");
+				runningdata = (RunningQuest)db.createQuery("from RunningQuest where quest= :quest and user = :user")
+					.setInteger("quest", Integer.parseInt(usequest))
+					.setInteger("user", user.getId())
+					.uniqueResult();
 			}
 			else {
-				String rquestid = usequest.substring(1);
-				runningdata = db.query("SELECT id,execdata FROM quests_running WHERE id='",rquestid,"'");	
+				int rquestid = Integer.parseInt(usequest.substring(1));
+				runningdata = (RunningQuest)db.get(RunningQuest.class, rquestid);
 			}
-			if( !runningdata.next() ) {
+			if( runningdata == null ) {
 				LOG.error("Das Quest "+usequest+" hat keine Daten");
 			}
 			else {
 				try {
-					Blob execdata = runningdata.getBlob("execdata");
-					scriptparser.getContext().toStream( execdata.setBinaryStream(1) );
-					db.prepare("UPDATE quests_running SET execdata=? WHERE id=? ")
-						.update(execdata, runningdata.getInt("id"));
+					ByteArrayOutputStream out = new ByteArrayOutputStream();
+					ScriptParserContext.toStream(scriptparser.getContext(), out);
+					runningdata.setExecData(Hibernate.createBlob(out.toByteArray()));
 				}
 				catch( Exception e ) {
-					runningdata.free();
 					LOG.warn("Writing back Script-ExecData failed: ",e);
 					return false;
 				}
 			}
-			
-			runningdata.free();
 		}
 		return true;
 	}

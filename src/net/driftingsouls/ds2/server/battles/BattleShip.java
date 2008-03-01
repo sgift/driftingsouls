@@ -18,10 +18,11 @@
  */
 package net.driftingsouls.ds2.server.battles;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
@@ -44,10 +45,9 @@ public class BattleShip {
 	@OneToOne(fetch=FetchType.LAZY)
 	@PrimaryKeyJoinColumn
 	private Ship ship;
-	/*@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="battleid", nullable=false)*/
-	@Column(name="battleid")
-	private int battle;
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="battleid", nullable=false)
+	private Battle battle;
 	private int side;
 	private int hull;
 	private int shields;
@@ -72,7 +72,7 @@ public class BattleShip {
 	 * @param battle Die Schlacht
 	 * @param ship Das Schiff
 	 */
-	public BattleShip(int battle, Ship ship) {
+	public BattleShip(Battle battle, Ship ship) {
 		this.battle = battle;
 		this.ship = ship;
 		this.shipid = ship.getId();
@@ -107,7 +107,7 @@ public class BattleShip {
 	 * Gibt dieSchlacht zurueck
 	 * @return Die Schlacht
 	 */
-	public int getBattle() {
+	public Battle getBattle() {
 		return battle;
 	}
 
@@ -115,7 +115,7 @@ public class BattleShip {
 	 * Setzt die Schlacht
 	 * @param battle Die neue Schlacht
 	 */
-	public void setBattle(int battle) {
+	public void setBattle(Battle battle) {
 		this.battle = battle;
 	}
 

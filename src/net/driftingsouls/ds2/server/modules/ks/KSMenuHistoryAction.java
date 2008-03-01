@@ -60,14 +60,14 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 	private StringBuilder history_text = new StringBuilder();
 	private String history_tag = "";
 	private final Set<String >history_validTags = new HashSet<String>();
-	private boolean history_trim = false;
-	private int history_page = -1;
-	private int history_currentpage = 0;
-	private int history_maxpage = 0;
-	private Map<Integer,String> history_sides = new HashMap<Integer,String>();
-	private boolean history_showtag = true;
+	private boolean trimHistory = false;
+	private int historyPage = -1;
+	private int historyCurrentpage = 0;
+	private int historyMaxpage = 0;
+	private Map<Integer,String> historySides = new HashMap<Integer,String>();
+	private boolean historyShowtag = true;
 	
-	private Map<Integer,Boolean> filter = new HashMap<Integer,Boolean>();
+	private final Map<Integer,Boolean> filter = new HashMap<Integer,Boolean>();
 	
 	
 	/**
@@ -84,11 +84,11 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 		this.history_validTags.add("action");
 		this.history_validTags.add("endturn");
 		
-		this.history_sides.put( -1, "Das Tickscript" );
+		this.historySides.put( -1, "Das Tickscript" );
 		
-		this.setText("");
-		this.showOK(true);
-		this.showTakeCommand(false);
+		this.text = "";
+		this.showOK = true;
+		this.showTakeCommand = false;
 	}
 	
 	/**
@@ -116,28 +116,28 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 	}
 	
 	/**
-	 * Prueft, ob die aktuelle Seite ({@link #history_currentpage}) angezeigt werden soll
+	 * Prueft, ob die aktuelle Seite ({@link #historyCurrentpage}) angezeigt werden soll
 	 * oder nicht
 	 * 
 	 * @return <code>true</code>, falls die aktuelle Seite angezeigt werden soll
 	 */
 	private boolean showCurrentPage() {
 		// Wenn eine Seite des Logs ausgewaehlt ist, dann pruefen, ob die aktuelle Seite diese Seite ist
-		if( this.history_page != -1 ) {
-			return this.history_page == this.history_currentpage;
+		if( this.historyPage != -1 ) {
+			return this.historyPage == this.historyCurrentpage;
 		}
 		
 		// Wenn keine Seite des Logs ausgewaehlt, dann die letzte Seite anzeigen
-		return this.history_currentpage == this.history_maxpage;
+		return this.historyCurrentpage == this.historyMaxpage;
 	}
 
 	public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
 		Context context = ContextMap.getContext();
-		this.history_showtag = true;
+		this.historyShowtag = true;
 
 		if( this.history_validTags.contains(localName.toLowerCase()) ) {
 			this.history_tag = localName.toLowerCase();
-			this.history_trim = true;
+			this.trimHistory = true;
 			
 			int side = 0;
 			if( atts.getValue("side") != null ) {
@@ -149,32 +149,32 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 					if( showCurrentPage() ) {
 						if( (side == -1) || this.filter.get(side) ) {
 							this.history_text.append("[tooltip="+Common.date("d.m.Y H:i:s",Long.parseLong(atts.getValue("time")))+"][img]"+Configuration.getSetting("URL")+"data/interface/ks/icon_side"+side+".png[/img][/tooltip] ");
-							this.history_text.append(this.history_sides.get(side)+" hat die Runde beendet\n");
+							this.history_text.append(this.historySides.get(side)+" hat die Runde beendet\n");
 						}
 						else {
-							this.history_showtag = false;
+							this.historyShowtag = false;
 						}
 					}
-					this.history_currentpage++;
-					this.history_maxpage++;
-					if( this.history_page == -1 ) {
+					this.historyCurrentpage++;
+					this.historyMaxpage++;
+					if( this.historyPage == -1 ) {
 						this.history_text.setLength(0);
 					}
 				} else {
 					if( showCurrentPage() ) {
 						if( (side > -1) && !this.filter.get(side) ) {
-							this.history_showtag = false;
+							this.historyShowtag = false;
 							return;	
 						}
 						this.history_text.append("[tooltip="+Common.date("d.m.Y H:i:s",Long.parseLong(atts.getValue("time")))+"][img]"+Configuration.getSetting("URL")+"data/interface/ks/icon_side"+side+".png[/img][/tooltip] ");
-						this.history_text.append(this.history_sides.get(side)+" hat die Runde beendet\n");
+						this.history_text.append(this.historySides.get(side)+" hat die Runde beendet\n");
 					}
 				}
 			} 
 			else if( this.history_tag.equals("action") && showCurrentPage() ) {
 				
 				if( (side > -1) && !this.filter.get(side) ) {
-					this.history_showtag = false;
+					this.historyShowtag = false;
 					return;	
 				}
 						
@@ -186,11 +186,11 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 					thisSide = 1;
 				}
 				User auser = (User)context.getDB().get(User.class, Integer.parseInt(atts.getValue("commander")));
-				if( auser.getId() == 0 ) {
-					this.history_sides.put(thisSide, "Unbekannter Spieler ("+atts.getValue("commander")+")");
+				if( auser == null ) {
+					this.historySides.put(thisSide, "Unbekannter Spieler ("+atts.getValue("commander")+")");
 				}
 				else {
-					this.history_sides.put(thisSide, "<a class=\"profile\" style=\"color:#000050\" href=\""+Common.buildUrl("default", "module", "userprofile", "user", auser.getId())+"\">"+Common._titleNoFormat(auser.getName())+"</a>");
+					this.historySides.put(thisSide, "<a class=\"profile\" style=\"color:#000050\" href=\""+Common.buildUrl("default", "module", "userprofile", "user", auser.getId())+"\">"+Common._titleNoFormat(auser.getName())+"</a>");
 				}
 			} 
 		}
@@ -208,7 +208,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 	}
 	
 	public void characters(char[] ch, int start, int length) throws SAXException {
-		if( !this.history_showtag ) {
+		if( !this.historyShowtag ) {
 			return;
 		}
 		if( !this.history_tag.equals("action") ) {
@@ -216,8 +216,8 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 		}
 	
 		String data = new String(ch, start, length);
-		if( this.history_trim ) {
-			this.history_trim = false;
+		if( this.trimHistory ) {
+			this.trimHistory = false;
 			data = data.trim();
 		}
 	
@@ -227,7 +227,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 	}
 
 	public void endElement(String uri, String localName, String qName) throws SAXException {
-		if( !this.history_showtag ) {
+		if( !this.historyShowtag ) {
 			return;
 		}
 		if( !this.history_validTags.contains(localName.toLowerCase()) ) {
@@ -313,9 +313,9 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 					"global.showlog.side1.show",	filter.get(1));
 
 		
-		this.history_page = -1;
+		this.historyPage = -1;
 		if( context.getRequest().getParameter("logpage") != null ) {
-			this.history_page = context.getRequest().getParameterInt("logpage");
+			this.historyPage = context.getRequest().getParameterInt("logpage");
 		}
 
 		t.setBlock("_ANGRIFF","global.showlog.turnlist.item","global.showlog.turnlist.list");
@@ -334,7 +334,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 		try {
 			XMLReader parser = XMLReaderFactory.createXMLReader();
 			
-			File ksLog = new File(Configuration.getSetting("LOXPATH")+"battles/battle_id"+battle.getID()+".log");
+			File ksLog = new File(Configuration.getSetting("LOXPATH")+"battles/battle_id"+battle.getId()+".log");
 			if( !ksLog.isFile() ) {
 				t.setVar( "global.showlog.log", "Fehler: Konnte Kampflog nicht &ouml;ffnen");
 				return RESULT_ERROR;
@@ -346,7 +346,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 			BBCodeParser bbcodeparser = BBCodeParser.getNewInstance();
 			bbcodeparser.registerHandler( "tooltip", 2, "<a onmouseover=\"return overlib('$2',TIMEOUT,0,DELAY,400,WIDTH,100,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\"aloglink\" href=\"#\">$1</a>" );
 		
-			for( int i=0; i <= this.history_maxpage; i++ ) {
+			for( int i=0; i <= this.historyMaxpage; i++ ) {
 				t.setVar(	"global.showlog.turnlist.pageid",	i,
 							"global.showlog.turnlist.page",		i+1 );
 				t.parse("global.showlog.turnlist.list", "global.showlog.turnlist.item", true);

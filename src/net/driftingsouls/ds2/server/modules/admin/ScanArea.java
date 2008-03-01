@@ -35,7 +35,7 @@ public class ScanArea implements AdminPlugin {
 		Context context = ContextMap.getContext();
 		StringBuffer echo = context.getResponse().getContent();
 		
-		echo.append("<form action=\"./main.php\" method=\"post\">\n");
+		echo.append("<form action=\"./ds\" method=\"post\">\n");
 		echo.append("<table class=\"noBorder\">\n");
 		echo.append("<tr><td class=\"noBorderS\" width=\"60\">Pos:</td><td class=\"noBorderS\">\n");
 		echo.append("<input type=\"text\" name=\"baseloc\" value=\"1:100/100\" size=\"13\" />:\n");

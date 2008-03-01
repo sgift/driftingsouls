@@ -23,16 +23,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.ships.JumpNodeRouter;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * TASK_GANY_TRANSPORT
@@ -90,8 +91,10 @@ class HandleGanyTransport implements TaskHandler {
 						.locateShortestJNPath(source.getSystem(),source.getX(),source.getY(),
 								target.getSystem(),target.getX(),target.getY());
 					if( shortestpath == null ) {
+						User sourceUser = (User)context.getDB().get(User.class, -1);
+						
 						String msg = "[color=orange]WARNUNG[/color]\nDer Taskmanager kann keinen Weg f&uuml;r die Gany-Transport-Order mit der ID "+orderid+" finden.";
-						PM.sendToAdmins(context, -1, "Taskmanager-Warnung", msg, 0);
+						PM.sendToAdmins(sourceUser, "Taskmanager-Warnung", msg, 0);
 						
 						tm.incTimeout( task.getTaskID() );
 						return;
@@ -101,10 +104,12 @@ class HandleGanyTransport implements TaskHandler {
 						.locateShortestJNPath(shiptrans.getInt("system"),shiptrans.getInt("x"),shiptrans.getInt("y"),
 								source.getSystem(),source.getX(),source.getY());
 					if( pathtogany == null ) {
+						User sourceUser = (User)context.getDB().get(User.class, -1);
+						
 						// Eigenartig....es gibt kein Weg zur Gany. Pausieren wir besser mal
 						String msg = "[color=orange]WARNUNG[/color]\nDer Taskmanager kann keinen Weg zur Ganymede f&uuml;r die Gany-Transport-Order mit der ID "+orderid+" finden.";
 						
-						PM.sendToAdmins(context, -1, "Taskmanager-Warnung", msg, 0);
+						PM.sendToAdmins(sourceUser, "Taskmanager-Warnung", msg, 0);
 						
 						tm.incTimeout( task.getTaskID() );
 						return;
@@ -188,8 +193,10 @@ class HandleGanyTransport implements TaskHandler {
 				}
 			}
 			else {
+				User sourceUser = (User)context.getDB().get(User.class, -1);
+				
 				String msg = "[color=orange]WARNUNG[/color]\nDer Taskmanager kann die Gany-Transport-Order mit der ID "+orderid+" nicht finden.";
-				PM.sendToAdmins(context, -1, "Taskmanager-Warnung", msg, 0);
+				PM.sendToAdmins(sourceUser, "Taskmanager-Warnung", msg, 0);
 				tm.removeTask( task.getTaskID() );
 			}
 		}

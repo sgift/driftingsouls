@@ -24,6 +24,7 @@ import java.util.Map;
 
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.config.Item;
@@ -35,8 +36,6 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -44,7 +43,6 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.ks.BasicKSAction;
 import net.driftingsouls.ds2.server.modules.ks.BasicKSMenuAction;
 import net.driftingsouls.ds2.server.modules.ks.KSAttackAction;
-import net.driftingsouls.ds2.server.modules.ks.KSCheatAPAction;
 import net.driftingsouls.ds2.server.modules.ks.KSCheatRegenerateEnemyAction;
 import net.driftingsouls.ds2.server.modules.ks.KSCheatRegenerateOwnAction;
 import net.driftingsouls.ds2.server.modules.ks.KSDischargeBatteriesAllAction;
@@ -78,7 +76,8 @@ import net.driftingsouls.ds2.server.modules.ks.KSSecondRowEngageAction;
 import net.driftingsouls.ds2.server.modules.ks.KSStopTakeCommandAction;
 import net.driftingsouls.ds2.server.modules.ks.KSTakeCommandAction;
 import net.driftingsouls.ds2.server.modules.ks.KSUndockAllAction;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -123,7 +122,6 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 		ACTIONS.put("batterien_all", KSDischargeBatteriesAllAction.class);
 		ACTIONS.put("batterien_class", KSDischargeBatteriesClassAction.class);
 		if( Configuration.getIntSetting("ENABLE_CHEATS") != 0 ) {
-			ACTIONS.put("cheat_ap", KSCheatAPAction.class);
 			ACTIONS.put("cheat_regenerate", KSCheatRegenerateOwnAction.class);
 			ACTIONS.put("cheat_regenerateenemy", KSCheatRegenerateEnemyAction.class);
 		}
@@ -161,6 +159,8 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 		parameterString("scan");
 		
 		setTemplate("angriff.html");
+		
+		setPageTitle("Schlacht");
 	}
 	
 	@Override
@@ -168,63 +168,79 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 		return true;
 	}
 	
-	private void showInfo(String tag, SQLResultRow ship, boolean enemy, String jscriptid, boolean show) {
-		Database db = getDatabase();
+	private void showInfo(String tag, BattleShip ship, boolean enemy, String jscriptid, boolean show) {
 		TemplateEngine t = getTemplateEngine();
 		
-		if( ship.isEmpty() ) {
+		if( ship == null ) {
 			addError("FATAL ERROR: Kein gueltiges Schiff vorhanden");
 			return;	
 		}
 
-		SQLResultRow shipType = ShipTypes.getShipType(ship);
-		SQLResultRow battle_ship = db.first("SELECT hull,shields,engine,weapons,comm,sensors,count,newcount FROM battles_ships WHERE shipid=",ship.getInt("id"));
+		ShipTypeData shipType = ship.getTypeData();
 
 		t.start_record();
 		t.setVar(	"shipinfo.jscriptid",		jscriptid,
 					"shipinfo.show",			show,
 					"shipinfo.enemy",			enemy,
-					"shipinfo.type",			ship.getInt("type"),
-					"shipinfo.type.name",		shipType.getString("nickname"),
-					"shipinfo.type.image",		shipType.getString("picture"),
-					"shipinfo.type.hull",		Common.ln(shipType.getInt("hull")),
-					"shipinfo.type.shields",	Common.ln(shipType.getInt("shields")),
-					"shipinfo.type.cost",		shipType.getInt("cost"),
-					"shipinfo.type.maxenergy",	shipType.getInt("eps"),
-					"shipinfo.type.maxcrew",	shipType.getInt("crew"),
-					"shipinfo.type.weapons",	shipType.getInt("military"),
-					"shipinfo.hull",			Common.ln(ship.getInt("hull")),
-					"shipinfo.panzerung",		(int)Math.round(shipType.getInt("panzerung")*ship.getInt("hull")/(double)shipType.getInt("hull")),
-					"shipinfo.shields",			Common.ln(ship.getInt("shields")),
-					"shipinfo.nocrew",			(ship.getInt("crew") == 0) && (shipType.getInt("crew")>0),
-					"shipinfo.crew",			(ship.getInt("crew") > 0) && (shipType.getInt("crew")>0),
-					"shipinfo.heat",			ship.getInt("s"),
-					"shipinfo.energy",			ship.getInt("e"),
-					"shipinfo.crew",			ship.getInt("crew"),
-					"shipinfo.engine",			ship.getInt("engine"),
-					"shipinfo.weapons",			ship.getInt("weapons"),
-					"shipinfo.comm",			ship.getInt("comm"),
-					"shipinfo.sensors",			ship.getInt("sensors"),
-					"shipinfo.showtmp",			(ship.getInt("action") & Battle.BS_HIT) != 0 || (ship.getInt("action") & Battle.BS_DESTROYED) != 0,
-					"shipinfo.tmp.hull",		((ship.getInt("action") & Battle.BS_DESTROYED) != 0 ? 0 : Common.ln(battle_ship.getInt("hull")) ),
-					"shipinfo.tmp.shields",		((ship.getInt("action") & Battle.BS_DESTROYED) != 0 ? 0 : Common.ln(battle_ship.getInt("shields"))),
-					"shipinfo.tmp.engine",		battle_ship.getInt("engine"),
-					"shipinfo.tmp.weapons",		battle_ship.getInt("weapons"),
-					"shipinfo.tmp.comm",		battle_ship.getInt("comm"),
-					"shipinfo.tmp.sensors",		battle_ship.getInt("sensors"),
-					"shipinfo.tmp.panzerung",	(int)Math.round(shipType.getInt("panzerung")*battle_ship.getInt("hull")/(double)shipType.getInt("hull")) );
+					"shipinfo.type",			ship.getShip().getType(),
+					"shipinfo.type.name",		shipType.getNickname(),
+					"shipinfo.type.image",		shipType.getPicture(),
+					"shipinfo.type.hull",		Common.ln(shipType.getHull()),
+					"shipinfo.type.ablativeArmor", Common.ln(shipType.getAblativeArmor()),
+					"shipinfo.type.shields",	Common.ln(shipType.getShields()),
+					"shipinfo.type.cost",		shipType.getCost(),
+					"shipinfo.type.maxenergy",	shipType.getEps(),
+					"shipinfo.type.maxcrew",	shipType.getCrew(),
+					"shipinfo.type.maxmarines",	shipType.getMarines(),
+					"shipinfo.type.weapons",	shipType.isMilitary(),
+					"shipinfo.hull",			Common.ln(ship.getShip().getHull()),
+					"shipinfo.ablativeArmor", 	Common.ln(ship.getShip().getAblativeArmor()),
+					"shipinfo.panzerung",		(int)Math.round(shipType.getPanzerung()*ship.getShip().getHull()/(double)shipType.getHull()),
+					"shipinfo.shields",			Common.ln(ship.getShip().getShields()),
+					"shipinfo.nocrew",			(ship.getShip().getCrew() == 0) && (shipType.getCrew()>0),
+					"shipinfo.heat",			ship.getShip().getHeat(),
+					"shipinfo.energy",			ship.getShip().getEnergy(),
+					"shipinfo.crew",			ship.getShip().getCrew(),
+					"shipinfo.marines",			ship.getShip().getMarines(),
+					"shipinfo.engine",			ship.getShip().getEngine(),
+					"shipinfo.weapons",			ship.getShip().getWeapons(),
+					"shipinfo.comm",			ship.getShip().getComm(),
+					"shipinfo.sensors",			ship.getShip().getSensors(),
+					"shipinfo.showtmp",			(ship.getAction() & Battle.BS_HIT) != 0 || (ship.getAction() & Battle.BS_DESTROYED) != 0,
+					"shipinfo.tmp.hull",		((ship.getAction() & Battle.BS_DESTROYED) != 0 ? 0 : Common.ln(ship.getHull()) ),
+					"shipinfo.tmp.shields",		((ship.getAction() & Battle.BS_DESTROYED) != 0 ? 0 : Common.ln(ship.getHull())),
+					"shipinfo.tmp.engine",		ship.getEngine(),
+					"shipinfo.tmp.weapons",		ship.getWeapons(),
+					"shipinfo.tmp.comm",		ship.getComm(),
+					"shipinfo.tmp.sensors",		ship.getSensors(),
+					"shipinfo.tmp.panzerung",	(int)Math.round(shipType.getPanzerung()*ship.getHull()/(double)shipType.getHull()), 
+					"shipinfo.tmp.ablativeArmor", ((ship.getAction() & Battle.BS_DESTROYED) != 0 ? 0 : Common.ln(ship.getAblativeArmor())));
 
 		// Anzahl
-		if( shipType.getInt("shipcount") > 1 ) {
-			t.setVar(	"shipinfo.count",		battle_ship.getInt("count"),
-						"shipinfo.tmp.count",	battle_ship.getInt("newcount") );
+		if( shipType.getShipCount() > 1 ) {
+			t.setVar(	"shipinfo.count",		ship.getCount(),
+						"shipinfo.tmp.count",	ship.getNewCount() );
+		}
+		
+		// Ablative Panzerung
+		if(ship.getShip().getAblativeArmor() < shipType.getAblativeArmor()/2)
+		{
+			t.setVar("shipinfo.ablativeArmor.bad", 1);
+		}
+		else if(ship.getShip().getAblativeArmor() < shipType.getAblativeArmor()) 
+		{
+			t.setVar("shipinfo.ablativeArmor.normal",1);
+		}
+		else 
+		{
+			t.setVar("shipinfo.ablativeArmor.good",1);
 		}
 
 		// Huelle
-		if( ship.getInt("hull") < shipType.getInt("hull")/2 ) {
+		if( ship.getShip().getHull() < shipType.getHull()/2 ) {
 			t.setVar("shipinfo.hull.bad",1);
 		}
-		else if( ship.getInt("hull") < shipType.getInt("hull") ) {
+		else if( ship.getShip().getHull() < shipType.getHull() ) {
 			t.setVar("shipinfo.hull.normal",1);
 		}
 		else {
@@ -232,11 +248,11 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 		}
 
 		// Schilde
-		if( shipType.getInt("shields") > 0 ) {
-			if( ship.getInt("shields") < shipType.getInt("shields")/2 ) {
+		if( shipType.getShields() > 0 ) {
+			if( ship.getShip().getShields() < shipType.getShields()/2 ) {
 				t.setVar("shipinfo.shields.bad",1);
 			}
-			else if( ship.getInt("shields") < shipType.getInt("shields") ) {
+			else if( ship.getShip().getShields() < shipType.getShields() ) {
 				t.setVar("shipinfo.shields.normal",1);
 			}
 			else {
@@ -245,11 +261,11 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 		}
 
 		// Antrieb
-		if( shipType.getInt("cost") > 0 ) {
-			if( ship.getInt("engine") < 50 ) {
+		if( shipType.getCost() > 0 ) {
+			if( ship.getShip().getEngine() < 50 ) {
 				t.setVar("shipinfo.engine.bad",1);
 			}
-			else if( ship.getInt("engine") < 100 ) {
+			else if( ship.getShip().getEngine() < 100 ) {
 				t.setVar("shipinfo.engine.normal",1);
 			}
 			else {
@@ -258,11 +274,11 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 		}
 
 		// Waffen
-		if( shipType.getInt("military") > 0 ) {
-			if( ship.getInt("weapons") < 50 ) {
+		if( shipType.isMilitary() ) {
+			if( ship.getShip().getWeapons() < 50 ) {
 				t.setVar("shipinfo.weapons.bad",1);
 			}
-			else if( ship.getInt("weapons") < 100 ) {
+			else if( ship.getShip().getWeapons() < 100 ) {
 				t.setVar("shipinfo.weapons.normal",1);
 			}
 			else {
@@ -271,10 +287,10 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 		}
 
 		// Kommunikation
-		if( ship.getInt("comm") < 50 ) {
+		if( ship.getShip().getComm() < 50 ) {
 			t.setVar("shipinfo.comm.bad",1);
 		}
-		else if( ship.getInt("comm") < 100 ) {
+		else if( ship.getShip().getComm() < 100 ) {
 			t.setVar("shipinfo.comm.normal",1);
 		}
 		else {
@@ -282,10 +298,10 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 		}
 
 		// Sensoren
-		if( ship.getInt("sensors") < 50 ) {
+		if( ship.getShip().getSensors() < 50 ) {
 			t.setVar("shipinfo.sensors.bad",1);
 		}
-		else if( ship.getInt("sensors") < 100 ) {
+		else if( ship.getShip().getSensors() < 100 ) {
 			t.setVar("shipinfo.sensors.normal",1);
 		}
 		else {
@@ -294,11 +310,11 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 
 		if( !enemy ) {
 			// Eigene Crew
-			if( (ship.getInt("crew") > 0) && (shipType.getInt("crew")>0) ) {
-				if( ship.getInt("crew") < shipType.getInt("crew")/2 ) {
+			if( (ship.getShip().getCrew() > 0) && (shipType.getCrew()>0) ) {
+				if( ship.getShip().getCrew() < shipType.getCrew()/2 ) {
 					t.setVar("shipinfo.crew.bad",1);
 				}
-				else if( ship.getInt("crew") < shipType.getInt("crew") ) {
+				else if( ship.getShip().getCrew() < shipType.getCrew() ) {
 					t.setVar("shipinfo.crew.normal",1);
 				}
 				else {
@@ -307,10 +323,10 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 			}
 
 			// Energie
-			if( ship.getInt("e") < shipType.getInt("eps") / 4 ) {
+			if( ship.getShip().getEnergy() < shipType.getEps() / 4 ) {
 				t.setVar("shipinfo.energy.bad",1);
 			}
-			else if( ship.getInt("e") < shipType.getInt("eps") ) {
+			else if( ship.getShip().getEnergy() < shipType.getEps() ) {
 				t.setVar("shipinfo.energy.normal",1);
 			}
 			else {
@@ -319,7 +335,7 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 		}
 
 		// Offiziere
-		Offizier offizier = Offizier.getOffizierByDest('s', ship.getInt("id"));
+		Offizier offizier = Offizier.getOffizierByDest('s', ship.getId());
 		if( offizier != null ) {
 			t.setVar(	"offizier.rang",	offizier.getRang(),
 						"offizier.id",		offizier.getID(),
@@ -328,14 +344,14 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 
 		if( !enemy ) {
 			// Waffen
-			Map<String,String> weapons = Weapons.parseWeaponList(shipType.getString("weapons"));
-			Map<String,String> heat = Weapons.parseWeaponList(ship.getString("heat"));
-			Map<String,String> maxheat = Weapons.parseWeaponList(shipType.getString("maxheat"));
+			Map<String,String> weapons = Weapons.parseWeaponList(shipType.getWeapons());
+			Map<String,String> heat = Weapons.parseWeaponList(ship.getWeaponHeat());
+			Map<String,String> maxheat = Weapons.parseWeaponList(shipType.getMaxHeat());
 
 			for( String weaponName : weapons.keySet() ) {
-				if( shipType.getInt("shipcount") > ship.getInt("count") ) {
+				if( shipType.getShipCount() > ship.getCount() ) {
 					maxheat.put(weaponName, Integer.toString(
-							(int)(Integer.parseInt(maxheat.get(weaponName))*ship.getInt("count")/(double)shipType.getInt("shipcount"))
+							(int)(Integer.parseInt(maxheat.get(weaponName))*ship.getCount()/(double)shipType.getShipCount())
 							));
 				}
 
@@ -347,7 +363,7 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 			}
 
 			// Munition
-			Cargo mycargo = new Cargo( Cargo.Type.STRING, ship.getString("cargo") );
+			Cargo mycargo = ship.getCargo();
 			
 			t.setVar("shipinfo.ammo.list","");
 			List<ItemCargoEntry> itemlist = mycargo.getItemsWithEffect( ItemEffect.Type.AMMO );
@@ -374,11 +390,11 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 		User user = (User)this.getUser();
 		TemplateEngine t = this.getTemplateEngine();		
 		
-		SQLResultRow ownShip = battle.getOwnShip();
-		SQLResultRow enemyShip = battle.getEnemyShip();
+		BattleShip ownShip = battle.getOwnShip();
+		BattleShip enemyShip = battle.getEnemyShip();
 		
 		// TODO: evt sollte das hier in ne eigene Action ausgelagert werden?
-		if( action.toString().equals("showbattlelog") && (battle.getComMessageBuffer(battle.getOwnSide()).length() > 0) && battle.isCommander(user.getId(),battle.getOwnSide()) ) {
+		if( action.toString().equals("showbattlelog") && (battle.getComMessageBuffer(battle.getOwnSide()).length() > 0) && battle.isCommander(user,battle.getOwnSide()) ) {
 			BBCodeParser bbcodeparser = BBCodeParser.getNewInstance();
 			try {
 				bbcodeparser.registerHandler( "tooltip", 2, "<a onmouseover=\"return overlib('$2',TIMEOUT,0,DELAY,400,WIDTH,100,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\"aloglink\" href=\"#\">$1</a>" );
@@ -402,9 +418,9 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 			action.setLength(0);
 		}
 		else if( battle.getOwnLog(true).length() == 0 ) {
-			if( battle.isCommander(user.getId(),battle.getOwnSide()) ) {
+			if( battle.isCommander(user,battle.getOwnSide()) ) {
 				if( battle.getTakeCommand(battle.getOwnSide()) != 0 ) {
-					User auser = (User)getDB().get(User.class, battle.getTakeCommand(battle.getOwnSide()));
+					User auser = (User)getContext().getDB().get(User.class, battle.getTakeCommand(battle.getOwnSide()));
 		
 					t.setVar(	"battle.takecommand.ask",	1,
 								"battle.takecommand.id",	battle.getTakeCommand(battle.getOwnSide()),
@@ -427,8 +443,8 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 					t.setVar("global.showmenu", 1);
 		
 					// Ist das gegnerische Schiff zerstoert? Falls ja, dass Angriffsmenue deaktivieren
-					if( ( action.equals("attack") ) &&
-						((enemyShip.getInt("action") & Battle.BS_DESTROYED) != 0 || (ownShip.getInt("action") & Battle.BS_FLUCHT) != 0 || (ownShip.getString("docked").length() > 0 && ownShip.getString("docked").charAt(0) == 'l')) ) {
+					if( ( action.toString().equals("attack") ) &&
+						((enemyShip.getAction() & Battle.BS_DESTROYED) != 0 || (ownShip.getAction() & Battle.BS_FLUCHT) != 0 || (ownShip.getDocked().length() > 0 && ownShip.getDocked().charAt(0) == 'l')) ) {
 						action.setLength(0);
 					}
 					
@@ -453,7 +469,7 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 							addError("Kann Menue nicht aufrufen: "+e);
 							LOG.error("Darstellung des KS-Menues "+action+" fehlgeschlagen", e);
 							
-							Common.mailThrowable(e, "KS-Menu-Error Schlacht "+battle.getID(), "Action: "+action+"\nownShip: "+ownShip.getInt("id")+"\nenemyShip: "+enemyShip.getInt("id"));
+							Common.mailThrowable(e, "KS-Menu-Error Schlacht "+battle.getId(), "Action: "+action+"\nownShip: "+ownShip.getId()+"\nenemyShip: "+enemyShip.getId());
 						}
 					}
 				}
@@ -463,8 +479,9 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 
 				historyobj.setController(this);
 				
-				if( (user.getAlly() != null) && (battle.getTakeCommand(battle.getOwnSide()) == 0) && (battle.getAlly(battle.getOwnSide()) == user.getAlly().getId()) ) {
-					User auser = (User)getDB().get(User.class, battle.getCommander(battle.getOwnSide()));
+				if( (battle.getAlly(battle.getOwnSide()) != 0) && (battle.getTakeCommand(battle.getOwnSide()) == 0) && 
+					(user.getAlly() != null) && (battle.getAlly(battle.getOwnSide()) == user.getAlly().getId()) ) {
+					User auser = battle.getCommander(battle.getOwnSide());
 					if( auser.getInactivity() > 0 ) {
 						historyobj.showTakeCommand(true);
 					}
@@ -494,11 +511,11 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 		return true;
 	}
 	
-	private String modifyShipImg( SQLResultRow shiptype, int count ) {
-		if( shiptype.getInt("shipcount") > 1 ) {
-			return StringUtils.replace(shiptype.getString("picture"), ".png","$"+count+".png");
+	private String modifyShipImg( ShipTypeData shiptype, int count ) {
+		if( shiptype.getShipCount() > 1 ) {
+			return StringUtils.replace(shiptype.getPicture(), ".png","$"+count+".png");
 		}
-		return shiptype.getString("picture");
+		return shiptype.getPicture();
 	}
 
 	private static class GroupEntry {
@@ -524,12 +541,12 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 	 * @urlparam String enemyshipgroup Die gegnerische ausgewaehlte Schiffsgruppe
 	 * @urlparam String weapon Die ID der gerade ausgewaehlten Waffe
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 
 		int ownShipID = getInteger("ship");
 		if( ownShipID < 0 ) {
@@ -563,23 +580,29 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 		
 		boolean battleCreated = false;
 		
-		Battle battle = new Battle();
+		Battle battle = null;
 		if( battleID == 0 ) {
-			if( !battle.create( user.getId(), ownShipID, enemyShipID) ) {
+			battle = Battle.create(user.getId(), ownShipID, enemyShipID);
+			if( battle == null ) {
 				this.setTemplate("");
 				
 				return;
 			}
-			battleID = battle.getID();
+			battleID = battle.getId();
 			battleCreated = true;
+		}
+		else {
+			battle = (Battle)db.get(Battle.class, battleID);
 		}
 		
 		if( forcejoin != 0 ) {
-			SQLResultRow jship = db.first("SELECT id FROM ships WHERE id>0 AND owner=",user.getId()," AND id=",addShipID);
-			if( jship.isEmpty() ) forcejoin = 0;
+			Ship jship = (Ship)db.get(Ship.class, addShipID);
+			if( (jship == null) || (jship.getId() < 0) || (jship.getOwner() != user) ) {
+				forcejoin = 0;
+			}
 		}
 		
-		if( !battle.load(battleID, user.getId(), ownShipID, enemyShipID, forcejoin) ) {
+		if( (battle == null) || !battle.load(user, (Ship)db.get(Ship.class, ownShipID), (Ship)db.get(Ship.class, enemyShipID), forcejoin) ) {
 			this.setTemplate("");
 			return;
 		}
@@ -631,71 +654,71 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 				int curOwnShipID = -1;
 				int curEnemyShipID = -1;
 				try {
-					curOwnShipID = battle.getOwnShip().getInt("id");
+					curOwnShipID = battle.getOwnShip().getId();
 				}
 				catch( IndexOutOfBoundsException e2 ) {
 					// EMPTY
 				}
 				
 				try {
-					curEnemyShipID = battle.getEnemyShip().getInt("id");
+					curEnemyShipID = battle.getEnemyShip().getId();
 				}
 				catch( IndexOutOfBoundsException e2 ) {
 					// EMPTY
 				}
 				
-				Common.mailThrowable(e, "KS-Action-Error Schlacht "+battle.getID(), "Action: "+action+"\nownShip: "+curOwnShipID+"\nenemyShip: "+curEnemyShipID);
+				Common.mailThrowable(e, "KS-Action-Error Schlacht "+battle.getId(), "Action: "+action+"\nownShip: "+curOwnShipID+"\nenemyShip: "+curEnemyShipID);
 			}
 		}
 		
-		SQLResultRow enemyShip = battle.getEnemyShip();
-		SQLResultRow enemyShipType = ShipTypes.getShipType( enemyShip );
-		SQLResultRow ownShip = battle.getOwnShip();
-		SQLResultRow ownShipType = ShipTypes.getShipType( ownShip );
+		BattleShip enemyShip = battle.getEnemyShip();
+		ShipTypeData enemyShipType = enemyShip.getTypeData();
+		BattleShip ownShip = battle.getOwnShip();
+		ShipTypeData ownShipType = ownShip.getTypeData();
 		
-		User oUser = (User)getDB().get(User.class, ownShip.getInt("owner"));
-		User eUser = (User)getDB().get(User.class, enemyShip.getInt("owner"));
+		User oUser = ownShip.getOwner();
+		User eUser = enemyShip.getOwner();
 		
 		t.setVar(	"global.ksaction",			action,
 					"global.scan",				scan,
 					"global.ownshipgroup",		battle.getOwnShipGroup(),
 					"global.enemyshipgroup",	battle.getEnemyShipGroup(),
 					"global.weapon",			getString("weapon"),
-					"battle.msginfo",			(battle.getComMessageBuffer(battle.getOwnSide()).length() > 0 && battle.isCommander(user.getId(),battle.getOwnSide())),
-					"battle.id",				battle.getID(),
-					"ownside.secondrow.stable",	battle.isSecondRowStable(battle.getOwnSide(), null),
-					"enemyside.secondrow.stable",	battle.isSecondRowStable(battle.getEnemySide(), null),
-					"ownship.id",				ownShip.getInt("id"),
-					"ownship.name",				ownShip.getString("name"),
-					"ownship.type",				ownShip.getInt("type"),
-					"ownship.system",			ownShip.getInt("system"),
-					"ownship.x",				ownShip.getInt("x"),
-					"ownship.y",				ownShip.getInt("y"),
-					"ownship.type.name",		ownShipType.getString("nickname"),
-					"ownship.type.image",		modifyShipImg(ownShipType,ownShip.getInt("count")),
+					"battle.msginfo",			(battle.getComMessageBuffer(battle.getOwnSide()).length() > 0 && battle.isCommander(user,battle.getOwnSide())),
+					"battle.id",				battle.getId(),
+					"ownside.secondrow.stable",	battle.isSecondRowStable(battle.getOwnSide()),
+					"enemyside.secondrow.stable",	battle.isSecondRowStable(battle.getEnemySide()),
+					"ownship.id",				ownShip.getId(),
+					"ownship.name",				ownShip.getName(),
+					"ownship.type",				ownShip.getShip().getType(),
+					"ownship.system",			ownShip.getShip().getSystem(),
+					"ownship.x",				ownShip.getShip().getX(),
+					"ownship.y",				ownShip.getShip().getY(),
+					"ownship.type.name",		ownShipType.getNickname(),
+					"ownship.type.image",		modifyShipImg(ownShipType,ownShip.getCount()),
 					"ownship.owner.name",		Common._title(oUser.getName()),
-					"ownship.owner.id",			ownShip.getInt("owner"),
-					"ownship.action.hit",		ownShip.getInt("action") & Battle.BS_HIT,
-					"ownship.action.flucht",	ownShip.getInt("action") & Battle.BS_FLUCHT,
-					"ownship.action.destroyed",	ownShip.getInt("action") & Battle.BS_DESTROYED,
-					"ownship.action.shot",		(!battle.isGuest() ? ownShip.getInt("action") & Battle.BS_SHOT : 0),
-					"ownship.action.join",		(ownShip.getInt("action") & Battle.BS_JOIN) != 0,
-					"ownship.action.secondrow",	(ownShip.getInt("action") & Battle.BS_SECONDROW) != 0,
-					"ownship.action.fluchtnext",	(!battle.isGuest() ? ownShip.getInt("action") & Battle.BS_FLUCHTNEXT : 0),
-					"ownship.mangelnahrung",		(!battle.isGuest() ? ownShip.getString("status").indexOf("mangel_nahrung") > -1 : 0),
-					"ownship.mangelreaktor",	(!battle.isGuest() ? ownShip.getString("status").indexOf("mangel_reaktor") > -1 : 0),
-					"enemyship.id",				enemyShip.getInt("id"),
-					"enemyship.name",			enemyShip.getString("name"),
-					"enemyship.type",			enemyShip.getInt("type"),
-					"enemyship.type.name",		enemyShipType.getString("nickname"),
-					"enemyship.type.image",		modifyShipImg(enemyShipType,enemyShip.getInt("count")),
+					"ownship.owner.id",			ownShip.getOwner().getId(),
+					"ownship.action.hit",		ownShip.getAction() & Battle.BS_HIT,
+					"ownship.action.flucht",	ownShip.getAction() & Battle.BS_FLUCHT,
+					"ownship.action.destroyed",	ownShip.getAction() & Battle.BS_DESTROYED,
+					"ownship.action.shot",		(!battle.isGuest() ? ownShip.getAction() & Battle.BS_SHOT : 0),
+					"ownship.action.join",		(ownShip.getAction() & Battle.BS_JOIN) != 0,
+					"ownship.action.secondrow",	(ownShip.getAction() & Battle.BS_SECONDROW) != 0,
+					"ownship.action.fluchtnext",	(!battle.isGuest() ? ownShip.getAction() & Battle.BS_FLUCHTNEXT : 0),
+					"ownship.mangelnahrung",		(!battle.isGuest() ? ownShip.getShip().getStatus().indexOf("mangel_nahrung") > -1 : 0),
+					"ownship.mangelreaktor",	(!battle.isGuest() ? ownShip.getShip().getStatus().indexOf("mangel_reaktor") > -1 : 0),
+					"enemyship.id",				enemyShip.getId(),
+					"enemyship.name",			enemyShip.getName(),
+					"enemyship.type",			enemyShip.getShip().getType(),
+					"enemyship.type.name",		enemyShipType.getNickname(),
+					"enemyship.type.image",		modifyShipImg(enemyShipType,enemyShip.getCount()),
 					"enemyship.owner.name",		Common._title(eUser.getName()),
-					"enemyship.owner.id",		enemyShip.getInt("owner"),
-					"enemyship.action.hit",		enemyShip.getInt("action") & Battle.BS_HIT,
-					"enemyship.action.flucht",	enemyShip.getInt("action") & Battle.BS_FLUCHT,
-					"enemyship.action.destroyed",	enemyShip.getInt("action") & Battle.BS_DESTROYED,
-					"enemyship.action.join",		enemyShip.getInt("action") & Battle.BS_JOIN,
-					"enemyship.action.secondrow",	enemyShip.getInt("action") & Battle.BS_SECONDROW );
+					"enemyship.owner.id",		enemyShip.getOwner().getId(),
+					"enemyship.action.hit",		enemyShip.getAction() & Battle.BS_HIT,
+					"enemyship.action.flucht",	enemyShip.getAction() & Battle.BS_FLUCHT,
+					"enemyship.action.destroyed",	enemyShip.getAction() & Battle.BS_DESTROYED,
+					"enemyship.action.join",		enemyShip.getAction() & Battle.BS_JOIN,
+					"enemyship.action.secondrow",	enemyShip.getAction() & Battle.BS_SECONDROW );
 		
 		if( (battle.getOwnSide() == 0) && battle.hasFlag( Battle.FLAG_BLOCK_SECONDROW_0) ) {
 			t.setVar("ownside.secondrow.blocked", 1);
@@ -717,17 +740,17 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 		String energy = "";
 		if( !battle.isGuest() ) {
 			//Energieanzeige im ersten eigenene Schiff
-			if( ownShip.getInt("e") < ownShipType.getInt("eps")/4 ) {
+			if( ownShip.getShip().getEnergy() < ownShipType.getEps()/4 ) {
 				energy = "<br />E: <span style=\'color:#ff0000\'>";
 			} 
-			else if( ownShip.getInt("e") < ownShipType.getInt("eps") ) {
+			else if( ownShip.getShip().getEnergy() < ownShipType.getEps() ) {
 		  		energy = "<br />E: <span style=\'color:#ffff00\'>";
 			} 
 			else {
 				energy = "<br />E: <span style=\'color:#00ff00\'>";
 			}
 		
-			energy += ownShip.getInt("e")+"/"+ownShipType.getInt("eps")+"</span>";
+			energy += ownShip.getShip().getEnergy()+"/"+ownShipType.getEps()+"</span>";
 		}
 		t.setVar("ownship.energy",energy);
 		
@@ -808,19 +831,19 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 			energy = "";
 			boolean firstEntry = true;
 		
-			List<SQLResultRow> ownShips = battle.getOwnShips();
+			List<BattleShip> ownShips = battle.getOwnShips();
 			for( int i=0; i < ownShips.size(); i++ ) {
-				SQLResultRow aship = ownShips.get(i);
+				BattleShip aship = ownShips.get(i);
 				
 				t.start_record();
 		
-				if( !showgroups && (aship.getInt("id") == ownShip.getInt("id")) ) {
+				if( !showgroups && (aship == ownShip) ) {
 					continue;
 				}
-				if( showgroups && (aship.getInt("type") != grouptype) ) {
+				if( showgroups && (aship.getShip().getType() != grouptype) ) {
 					continue;
 				}
-				if( (aship.getString("docked").length() > 0)  && battle.isGuest() && (aship.getString("docked").charAt(0) == 'l') ) {
+				if( (aship.getDocked().length() > 0)  && battle.isGuest() && (aship.getDocked().charAt(0) == 'l') ) {
 					continue;
 				}
 				
@@ -834,83 +857,81 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 					}
 				}
 		
-				if( !aship.isEmpty() ) {
-					SQLResultRow aShipType = ShipTypes.getShipType( aship );
-					pos++;
-		
-					// Energiestatus anzeigen, wenn der User kein Gast ist
-					if( !battle.isGuest() ) {
-						if( aship.getInt("e") < aShipType.getInt("eps")/4 ) {
-							energy = "<br />E: <span style=\'color:#ff0000\'>";
-						}
-						else if( aship.getInt("e") < aShipType.getInt("eps") ) {
-							energy =  "<br />E: <span style=\'color:#ffff00\'>";
-						}
-						else {
-							energy =  "<br />E: <span style=\'color:#00ff00\'>";
-						}
-		
-						energy += aship.getInt("e")+"/"+aShipType.getInt("eps")+"</span>";
+				ShipTypeData aShipType = aship.getTypeData();
+				pos++;
+	
+				// Energiestatus anzeigen, wenn der User kein Gast ist
+				if( !battle.isGuest() ) {
+					if( aship.getShip().getEnergy() < aShipType.getEps()/4 ) {
+						energy = "<br />E: <span style=\'color:#ff0000\'>";
 					}
-		
-					// Ist das Schiff gedockt?
-					if( aship.getString("docked").length() > 0  && (!battle.isGuest() || (aship.getString("docked").charAt(0) != 'l') ) ) {
-						String[] docked = StringUtils.split(aship.getString("docked"), ' ');
-						
-						int shipid = 0;
-						if( docked.length > 1 ) {
-							shipid = Integer.parseInt(docked[1]);
-						}
-						else {
-							shipid = Integer.parseInt(docked[0]);
-						}
-		
-						for( int j=0; j < ownShips.size(); j++) {
-							if( ownShips.get(j).getInt("id") == shipid ) {
-								t.setVar(	"ship.docked.name",	ownShips.get(j).getString("name"),
-											"ship.docked.id",	shipid );
-								
-								break;
-							}
-						}
-		
-						
-					}
-					
-					User aUser = (User)getDB().get(User.class, aship.getInt("owner"));
-		
-					t.setVar(	"ship.id",				aship.getInt("id"),
-								"ship.name",			aship.getString("name"),
-								"ship.type",			aship.getInt("type"),
-								"ship.type.name",		aShipType.getString("nickname"),
-								"ship.type.image",		modifyShipImg(aShipType,aship.getInt("count")),
-								"ship.owner.name",		Common._title(aUser.getName()),
-								"ship.owner.id",		aship.getInt("owner"),
-								"ship.energy",			energy,
-								"ship.active",			(aship.getInt("id") == ownShip.getInt("id")),
-								"ship.action.hit",		aship.getInt("action") & Battle.BS_HIT,
-								"ship.action.flucht",	aship.getInt("action") & Battle.BS_FLUCHT,
-								"ship.action.destroyed",	aship.getInt("action") & Battle.BS_DESTROYED,
-								"ship.action.join",			aship.getInt("action") & Battle.BS_JOIN,
-								"ship.action.secondrow",	aship.getInt("action") & Battle.BS_SECONDROW,
-								"ship.action.fluchtnext",	(!battle.isGuest() ? aship.getInt("action") & Battle.BS_FLUCHTNEXT : 0),
-								"ship.action.shot",			(!battle.isGuest() ? aship.getInt("action") & Battle.BS_SHOT : 0),
-								"ship.mangelnahrung",		(!battle.isGuest() ? aship.getString("status").indexOf("mangel_nahrung") > -1 : false),
-								"ship.mangelreaktor",		(!battle.isGuest() ? aship.getString("status").indexOf("mangel_reaktor") > -1 : false) );
-		
-					if( firstEntry ) {
-						firstEntry = false;
+					else if( aship.getShip().getEnergy() < aShipType.getEps() ) {
+						energy =  "<br />E: <span style=\'color:#ffff00\'>";
 					}
 					else {
-						t.setVar("ship.addline",1);
+						energy =  "<br />E: <span style=\'color:#00ff00\'>";
 					}
-		
-					if( showgroups && ((pos >= battle.getOwnShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
-						t.setVar("ship.showback",1);
-					}
-		
-					t.parse("ownShips.list","ownShips.listitem",true);
+	
+					energy += aship.getShip().getEnergy()+"/"+aShipType.getEps()+"</span>";
 				}
+	
+				// Ist das Schiff gedockt?
+				if( aship.getDocked().length() > 0  && (!battle.isGuest() || (aship.getDocked().charAt(0) != 'l') ) ) {
+					String[] docked = StringUtils.split(aship.getDocked(), ' ');
+					
+					int shipid = 0;
+					if( docked.length > 1 ) {
+						shipid = Integer.parseInt(docked[1]);
+					}
+					else {
+						shipid = Integer.parseInt(docked[0]);
+					}
+	
+					for( int j=0; j < ownShips.size(); j++) {
+						if( ownShips.get(j).getId() == shipid ) {
+							t.setVar(	"ship.docked.name",	ownShips.get(j).getName(),
+										"ship.docked.id",	shipid );
+							
+							break;
+						}
+					}
+	
+					
+				}
+	
+				User aUser = aship.getOwner();
+				
+				t.setVar(	"ship.id",				aship.getId(),
+							"ship.name",			aship.getName(),
+							"ship.type",			aship.getShip().getType(),
+							"ship.type.name",		aShipType.getNickname(),
+							"ship.type.image",		modifyShipImg(aShipType,aship.getCount()),
+							"ship.owner.name",		Common._title(aUser.getName()),
+							"ship.owner.id",		aship.getOwner().getId(),
+							"ship.energy",			energy,
+							"ship.active",			(aship == ownShip),
+							"ship.action.hit",		aship.getAction() & Battle.BS_HIT,
+							"ship.action.flucht",	aship.getAction() & Battle.BS_FLUCHT,
+							"ship.action.destroyed",	aship.getAction() & Battle.BS_DESTROYED,
+							"ship.action.join",			aship.getAction() & Battle.BS_JOIN,
+							"ship.action.secondrow",	aship.getAction() & Battle.BS_SECONDROW,
+							"ship.action.fluchtnext",	(!battle.isGuest() ? aship.getAction() & Battle.BS_FLUCHTNEXT : 0),
+							"ship.action.shot",			(!battle.isGuest() ? aship.getAction() & Battle.BS_SHOT : 0),
+							"ship.mangelnahrung",		(!battle.isGuest() ? aship.getShip().getStatus().indexOf("mangel_nahrung") > -1 : false),
+							"ship.mangelreaktor",		(!battle.isGuest() ? aship.getShip().getStatus().indexOf("mangel_reaktor") > -1 : false) );
+	
+				if( firstEntry ) {
+					firstEntry = false;
+				}
+				else {
+					t.setVar("ship.addline",1);
+				}
+	
+				if( showgroups && ((pos >= battle.getOwnShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
+					t.setVar("ship.showback",1);
+				}
+	
+				t.parse("ownShips.list","ownShips.listitem",true);
 		
 				t.stop_record();
 				t.clear_record();
@@ -925,16 +946,16 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 			Map<String,GroupEntry> groupdata = new HashMap<String,GroupEntry>();
 			Map<Integer,Integer> shiptypegroupcount = new HashMap<Integer,Integer>();
 			
-			List<SQLResultRow> ownShips = battle.getOwnShips();
+			List<BattleShip> ownShips = battle.getOwnShips();
 			for( int i=0; i < ownShips.size(); i++ ) {
-				SQLResultRow aship = ownShips.get(i);
+				BattleShip aship = ownShips.get(i);
 				
-				Common.safeIntInc(shiptypegroupcount, aship.getInt("type"));
+				Common.safeIntInc(shiptypegroupcount, aship.getShip().getType());
 				
-				groupoffset = (shiptypegroupcount.get(aship.getInt("type"))-1) / SHIPGROUPSIZE;
+				groupoffset = (shiptypegroupcount.get(aship.getShip().getType())-1) / SHIPGROUPSIZE;
 				
-				final String key = aship.getInt("type")+":"+groupoffset;
-				int shipAction = aship.getInt("action");
+				final String key = aship.getShip().getType()+":"+groupoffset;
+				int shipAction = aship.getAction();
 				
 				GroupEntry data = null;
 				if( !groupdata.containsKey(key) ) {
@@ -967,18 +988,20 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 					if( (shipAction & Battle.BS_FLUCHTNEXT) != 0 )  {
 						data.fluchtnextcount++;
 					}
-					if( aship.getString("status").indexOf("mangel_nahrung") > -1 )  {
+					if( aship.getShip().getStatus().indexOf("mangel_nahrung") > -1 )  {
 						data.mangelnahrungcount++;
 					}
-					if( aship.getString("status").indexOf("mangel_reaktor") > -1 )  {
+					if( aship.getShip().getStatus().indexOf("mangel_reaktor") > -1 )  {
 						data.mangelreaktorcount++;
 					}
 				}
 			}
 			
 			Map<Integer,Integer> shipTypes = battle.getShipTypeCount(battle.getOwnSide());
-			for( Integer stid : shipTypes.keySet() ) {
-				if( shipTypes.get(stid) <= 0 ) { 
+			for( Map.Entry<Integer, Integer> entry : shipTypes.entrySet() ) {
+				int stid = entry.getKey();
+				
+				if( entry.getValue() <= 0 ) { 
 					continue;
 				}
 				if( !shiptypegroupcount.containsKey(stid) ) {
@@ -995,14 +1018,14 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 					
 					final String key = stid+":"+i;
 					
-					SQLResultRow shiptype = ShipTypes.getShipType(stid, false);
+					ShipTypeData shiptype = Ship.getShipType(stid);
 					GroupEntry data = groupdata.get(key);
 					
 					t.setVar(	"shiptypelist.count",		count,
-								"shiptypelist.name",		shiptype.getString("nickname"),
+								"shiptypelist.name",		shiptype.getNickname(),
 								"shiptypelist.groupid",		key,
 								"shiptypelist.id",			stid,
-								"shiptypelist.image",		shiptype.getString("picture"),
+								"shiptypelist.image",		shiptype.getPicture(),
 								"shiptypelist.side",		"own",
 								"shiptypelist.otherside",	"enemy",
 								"shiptypelist.otherside.id",	battle.getEnemyShipGroup(),
@@ -1063,21 +1086,21 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 			int pos = groupoffset;
 			boolean firstEntry = true;
 		
-			List<SQLResultRow> enemyShips = battle.getEnemyShips();
+			List<BattleShip> enemyShips = battle.getEnemyShips();
 			for( int i=0; i < enemyShips.size(); i++ ) {
-				SQLResultRow aship = enemyShips.get(i);
+				BattleShip aship = enemyShips.get(i);
 				
 				t.start_record();
 		
-				if( !showgroups && (aship.getInt("id") == enemyShip.getInt("id")) ) {
+				if( !showgroups && (aship == enemyShip) ) {
 					continue;
 				}
-				if( showgroups && (aship.getInt("type") != grouptype) ) {
+				if( showgroups && (aship.getShip().getType() != grouptype) ) {
 					continue;
 				}
 				
 				// Gelandete Schiffe nicht anzeigen
-				if( aship.getString("docked").length() > 0 && (aship.getString("docked").charAt(0) == 'l') ) {
+				if( aship.getDocked().length() > 0 && (aship.getDocked().charAt(0) == 'l') ) {
 					continue;
 				}
 				
@@ -1091,54 +1114,52 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 					}
 				}
 		
-				if( !aship.isEmpty() ) {
-					SQLResultRow aShipType = ShipTypes.getShipType( aship );
-					
-					pos++;
-		
-					// Ist das Schiff gedockt?
-					if( (aship.getString("docked").length() > 0) && (aship.getString("docked").charAt(0) != 'l') ) {
-						int shipid = Integer.parseInt(aship.getString("docked"));
-		
-						for( int j=0; j < enemyShips.size(); j++ ) {
-							if( enemyShips.get(j).getInt("id") == shipid ) {
-								t.setVar("ship.docked.name", enemyShips.get(j).getString("name"));
-								
-								break;
-							}
-						}						
-					}
-					
-					User aUser = (User)getDB().get(User.class, aship.getInt("owner"));
-		
-					t.setVar(	"ship.id",				aship.getInt("id"),
-								"ship.name",			aship.getString("name"),
-								"ship.type",			aship.getInt("type"),
-								"ship.type.name",		aShipType.getString("nickname"),
-								"ship.type.image",		modifyShipImg(aShipType,aship.getInt("count")),
-								"ship.owner.name",		Common._title(aUser.getName()),
-								"ship.owner.id",		aship.getInt("owner"),
-								"ship.active",			(aship.getInt("id") == enemyShip.getInt("id")),
-								"ship.action.hit",		aship.getInt("action") & Battle.BS_HIT,
-								"ship.action.flucht",	aship.getInt("action") & Battle.BS_FLUCHT,
-								"ship.action.join",		aship.getInt("action") & Battle.BS_JOIN,
-								"ship.action.secondrow",	aship.getInt("action") & Battle.BS_SECONDROW,
-								"ship.action.destroyed",	aship.getInt("action") & Battle.BS_DESTROYED );
-		
-					if( firstEntry ) {
-						firstEntry = false;
-					}
-					else {
-						t.setVar("ship.addline",1);
-					}
-		
-					if( showgroups && ((pos >= battle.getEnemyShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
-						t.setVar("ship.showback",1);
-					}
-					
-					t.parse("enemyShips.list", "enemyShips.listitem", true);
+				ShipTypeData aShipType = aship.getTypeData();
+				
+				pos++;
+	
+				// Ist das Schiff gedockt?
+				if( (aship.getDocked().length() > 0) && (aship.getDocked().charAt(0) != 'l') ) {
+					int shipid = Integer.parseInt(aship.getDocked());
+	
+					for( int j=0; j < enemyShips.size(); j++ ) {
+						if( enemyShips.get(j).getId() == shipid ) {
+							t.setVar("ship.docked.name", enemyShips.get(j).getName());
+							
+							break;
+						}
+					}						
 				}
 				
+				User aUser = aship.getOwner();
+	
+				t.setVar(	"ship.id",				aship.getId(),
+							"ship.name",			aship.getName(),
+							"ship.type",			aship.getShip().getType(),
+							"ship.type.name",		aShipType.getNickname(),
+							"ship.type.image",		modifyShipImg(aShipType,aship.getCount()),
+							"ship.owner.name",		Common._title(aUser.getName()),
+							"ship.owner.id",		aship.getOwner().getId(),
+							"ship.active",			(aship == enemyShip),
+							"ship.action.hit",		aship.getAction() & Battle.BS_HIT,
+							"ship.action.flucht",	aship.getAction() & Battle.BS_FLUCHT,
+							"ship.action.join",		aship.getAction() & Battle.BS_JOIN,
+							"ship.action.secondrow",	aship.getAction() & Battle.BS_SECONDROW,
+							"ship.action.destroyed",	aship.getAction() & Battle.BS_DESTROYED );
+	
+				if( firstEntry ) {
+					firstEntry = false;
+				}
+				else {
+					t.setVar("ship.addline",1);
+				}
+	
+				if( showgroups && ((pos >= battle.getEnemyShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
+					t.setVar("ship.showback",1);
+				}
+				
+				t.parse("enemyShips.list", "enemyShips.listitem", true);
+
 				t.stop_record();
 				t.clear_record();
 			}
@@ -1153,20 +1174,20 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 		
 			Map<Integer,Integer> shiptypegroupcount = new HashMap<Integer,Integer>();
 		
-			List<SQLResultRow> enemyShips = battle.getEnemyShips();
+			List<BattleShip> enemyShips = battle.getEnemyShips();
 			for( int i=0; i < enemyShips.size(); i++ ) {
-				SQLResultRow aship = enemyShips.get(i);
+				BattleShip aship = enemyShips.get(i);
 				
-				if( (aship.getString("docked").length() > 0) && (aship.getString("docked").charAt(0) == 'l') ) {
+				if( (aship.getDocked().length() > 0) && (aship.getDocked().charAt(0) == 'l') ) {
 					continue;
 				}
 				
-				Common.safeIntInc(shiptypegroupcount, aship.getInt("type"));
+				Common.safeIntInc(shiptypegroupcount, aship.getShip().getType());
 				
-				groupoffset = (shiptypegroupcount.get(aship.getInt("type"))-1) / SHIPGROUPSIZE;
+				groupoffset = (shiptypegroupcount.get(aship.getShip().getType())-1) / SHIPGROUPSIZE;
 			
-				final String key = aship.getInt("type")+":"+groupoffset;
-				int shipAction = aship.getInt("action");
+				final String key = aship.getShip().getType()+":"+groupoffset;
+				int shipAction = aship.getAction();
 				
 				GroupEntry data = null;
 				if( !groupdata.containsKey(key) ) {
@@ -1195,8 +1216,9 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 			}
 		
 			Map<Integer,Integer> shipTypes = battle.getShipTypeCount(battle.getEnemySide());
-			for( Integer stid : shipTypes.keySet() ) {
-				if( shipTypes.get(stid) <= 0 ) { 
+			for( Map.Entry<Integer, Integer> entry: shipTypes.entrySet() ) {
+				int stid = entry.getKey();
+				if( entry.getValue() <= 0 ) { 
 					continue;
 				}
 				if( !shiptypegroupcount.containsKey(stid) ) {
@@ -1213,15 +1235,15 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 					}
 			
 					final String key = stid+":"+i;
-					SQLResultRow shiptype = ShipTypes.getShipType(stid, false);
+					ShipTypeData shiptype = Ship.getShipType(stid);
 					
 					GroupEntry data = groupdata.get(key);
 					
 					t.setVar(	"shiptypelist.count",		count,
-								"shiptypelist.name",		shiptype.getString("nickname"),
+								"shiptypelist.name",		shiptype.getNickname(),
 								"shiptypelist.id",			stid,
 								"shiptypelist.groupid",		stid+":"+i,
-								"shiptypelist.image",		ShipTypes.getShipType(stid, false).getString("picture"),
+								"shiptypelist.image",		Ship.getShipType(stid).getPicture(),
 								"shiptypelist.side",		"enemy",
 								"shiptypelist.otherside",	"own",
 								"shiptypelist.otherside.id",	battle.getOwnShipGroup(),
@@ -1248,22 +1270,21 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 			Infos (APs, Runde, Gegnerischer Kommandant)
 		*/
 		
-		if( !battle.isCommander(user.getId(),battle.getOwnSide()) ) {
-			User auser = (User)getDB().get(User.class, battle.getCommander(battle.getOwnSide()));
+		if( !battle.isCommander(user,battle.getOwnSide()) ) {
+			User auser = battle.getCommander(battle.getOwnSide());
 			t.setVar(	"user.commander",		0,
 						"battle.owncom.name",	auser.getProfileLink(),
 						"battle.owncom.ready",	battle.isReady(battle.getOwnSide()) );
 		} 
 		else {
-			t.setVar(	"user.commander",		1,
-						"battle.points.own",	battle.getPoints(battle.getOwnSide()) );
+			t.setVar(	"user.commander",		1 );
 		}
 		if( !battle.isReady(battle.getOwnSide()) ) {
 			t.setVar("battle.turn.own",1);
 		}
 		
 		int enemySide = battle.getOwnSide() == 1 ? 0 : 1;
-		User auser = (User)getDB().get(User.class, battle.getCommander(enemySide));
+		User auser = battle.getCommander(enemySide);
 		t.setVar(	"battle.enemycom.name",		auser.getProfileLink(),
 					"battle.enemycom.ready",	battle.isReady(battle.getEnemySide()) );
 	}

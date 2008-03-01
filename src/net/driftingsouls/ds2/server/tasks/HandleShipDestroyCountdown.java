@@ -18,7 +18,8 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.ships.Ship;
 
 /**
  * TASK_SHIP_DESTROY_COUNTDOWN
@@ -33,10 +34,11 @@ import net.driftingsouls.ds2.server.ships.Ships;
 class HandleShipDestroyCountdown implements TaskHandler {
 
 	public void handleEvent(Task task, String event) {	
-		if( event.equals("tick_timeout") ) {		
-			int shipid = Integer.parseInt(task.getData1());
+		if( event.equals("tick_timeout") ) {
+			org.hibernate.Session db = ContextMap.getContext().getDB();
+			Ship ship = (Ship)db.get(Ship.class, Integer.parseInt(task.getData1()));
 			
-			Ships.destroy( shipid );
+			ship.destroy();
 			
 			Taskmanager.getInstance().removeTask( task.getTaskID() );
 		}

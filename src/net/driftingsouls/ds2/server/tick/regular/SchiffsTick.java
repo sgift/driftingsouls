@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
@@ -34,9 +35,10 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
-import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 /**
@@ -173,7 +175,7 @@ public class SchiffsTick extends TickController {
 		// Schiff bei Bedarf und falls moeglich reparieren
 		if( (shipd.getInt("battle") == 0) && (shipd.getString("status").indexOf("lowmoney") == -1) &&
 			( (shipd.getInt("engine") < 100) || (shipd.getInt("weapons") < 100) || (shipd.getInt("comm") < 100) || (shipd.getInt("sensors") < 100) ) &&
-			(Ships.getNebula(shipd) != 6)  ) {
+			(Ships.getNebula(Location.fromResult(shipd)) != 6)  ) {
 			
 			Offizier offizier = Offizier.getOffizierByDest('s', shipd.getInt("id"));
 	
@@ -217,7 +219,7 @@ public class SchiffsTick extends TickController {
 		if( (shipd.getInt("autodeut") != 0) && (shiptd.getInt("deutfactor") != 0) && (shipd.getInt("crew") >= shiptd.getInt("crew")/2) && (e > 0) && (shipc.getMass() < shiptd.getLong("cargo")) ) {
 			this.slog("\tS. Deut: ");
 	
-			int nebel = Ships.getNebula(shipd);
+			int nebel = Ships.getNebula(Location.fromResult(shipd));
 				
 			if( (nebel >= 0) && (nebel <= 2) ) {
 				int tmpe = e;
@@ -394,58 +396,55 @@ public class SchiffsTick extends TickController {
 	
 		/*
 			Schiffe mit destroy-tag im status-Feld entfernen
-		*/
+		 */
 		this.log("");
 		this.log("Zerstoere Schiffe mit 'destroy'-status");
-		
-		SQLQuery sid = database.query("SELECT id FROM ships WHERE id>0 AND LOCATE('destroy',status)");
-		while( sid.next() ) {
-			this.log("\tEntferne "+sid);
-			Ships.destroy( sid.getInt("id") );
+	
+		List ships = db.createQuery("from Ship where id>0 and locate('destroy',status)!=0").list();
+		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+			Ship aship = (Ship)iter.next();
+	
+			this.log("\tEntferne "+aship.getId());
+			aship.destroy();
 		}
-		sid.free();
-		
-		if( !this.calledByBattle ) {
-			getContext().commit();
-			db.clear();
-		}
-		
+	
 		/*
 		 * Schadensnebel
 		 */
 		this.log("");
 		this.log("Behandle Schadensnebel");
-		SQLQuery ship = database.query("SELECT t1.id,t1.owner,t1.hull,t1.engine,t1.weapons,t1.comm,t1.sensors FROM ships t1,nebel t2 WHERE t1.system=t2.system AND t1.x=t2.x AND t1.y=t2.y AND t2.type=6");
-		while( ship.next() ) {
-			if( nonvacUserlist.contains(ship.getInt("owner")) ) {
-				continue;
-			}
-			this.log("* "+ship.getInt("id"));
-			int[] sub = new int[] {ship.getInt("engine"),ship.getInt("weapons"),ship.getInt("comm"),ship.getInt("sensors")};
-			
+		ships = db.createQuery("select s from Ship as s, Nebel as n " +
+		"where s.system=n.loc.system and s.x=n.loc.x and s.y=n.loc.y and n.type=6 and (s.owner.vaccount=0 or s.owner.wait4vac>0)").list();
+		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+			Ship ship = (Ship)iter.next();
+	
+			this.log("* "+ship.getId());
+			int[] sub = new int[] {ship.getEngine(),ship.getWeapons(),ship.getComm(),ship.getSensors()};
+	
 			for( int i=0; i < sub.length; i++ ) {
 				sub[i] -= 10;
 				if( sub[i] < 0 ) {
 					sub[i] = 0;
 				}
 			}
-			
-			int hull = ship.getInt("hull");
+	
+			int hull = ship.getHull();
 			if( hull > 1 ) {
 				hull -= (int)(hull*0.05d);
 				if( hull < 1 ) {
 					hull = 1;
 				}
 			}
-			
-			database.update("UPDATE ships SET hull='",ship.getInt("hull"),"',engine=",sub[0],",weapons=",sub[1],",comm=",sub[2],",sensors=",sub[3]," WHERE id='",ship.getInt("id"),"'");
+	
+			ship.setEngine(sub[0]);
+			ship.setWeapons(sub[1]);
+			ship.setComm(sub[2]);
+			ship.setSensors(sub[3]);
+			ship.setHull(hull);
 		}
-		ship.free();
 		
-		if( !this.calledByBattle ) {
-			getContext().commit();
-			db.clear();
-		}
+		getContext().commit();
+		db.clear();
 	}
 
 	private void tickUser(Database database, String battle, User auser) {

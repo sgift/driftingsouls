@@ -30,6 +30,7 @@ import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.config.NoSuchWeaponException;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.Ammo;
 import net.driftingsouls.ds2.server.entities.OrderOffizier;
@@ -86,18 +87,23 @@ public class AddShips implements AdminPlugin {
 				int i = 0;
 				Map<String,String> weapons = Weapons.parseWeaponList(st.getWeapons());
 				for( String weapon : weapons.keySet() ) {
-					if( Weapons.get().weapon(weapon) == null ) {
+					try {
+						Weapons.get().weapon(weapon);
+					}
+					catch( NoSuchWeaponException e ) {
 						continue;
 					}
 					
-					if( "none".equals(Weapons.get().weapon(weapon).getAmmoType()) ) {
+					if( Weapons.get().weapon(weapon).getAmmoType().length == 0 ) {
 						continue;	
 					}
-					String ammotype = Weapons.get().weapon(weapon).getAmmoType();
-					knownwpntypes.add(ammotype);
-					if( !thisammolist.contains(ammotype) ) {
-						thisammolist.add(ammotype);
-						echo.append("shipdata["+st.getId()+"][1]["+(i++)+"] = \""+ammotype+"\";\n");
+					String[] ammotypes = Weapons.get().weapon(weapon).getAmmoType();
+					for( int j=0; i < ammotypes.length; i++ ) {
+						knownwpntypes.add(ammotypes[j]);
+						if( !thisammolist.contains(ammotypes[j]) ) {
+							thisammolist.add(ammotypes[j]);
+							echo.append("shipdata["+st.getId()+"][1]["+(i++)+"] = \""+ammotypes[j]+"\";\n");
+						}
 					}
 				}
 			}
@@ -269,12 +275,14 @@ public class AddShips implements AdminPlugin {
 			
 			Map<String,String> weapons = Weapons.parseWeaponList(shiptype.getWeapons());
 			for( String weapon : weapons.keySet() ) {
-				if( !"none".equals(Weapons.get().weapon(weapon).getAmmoType()) ) {
-					String ammotype = Weapons.get().weapon(weapon).getAmmoType();
-					if( context.getRequest().getParameterInt("ammo_"+ammotype) > 0 )	{
-						cargo.addResource( 
-								new ItemID(context.getRequest().getParameterInt("ammo_"+ammotype)), 
-								Integer.parseInt(weapons.get(weapon))*10 );
+				if( Weapons.get().weapon(weapon).getAmmoType().length > 0 ) {
+					String[] ammotypes = Weapons.get().weapon(weapon).getAmmoType();
+					for( int i=0; i < ammotypes.length; i++ ) {
+						if( context.getRequest().getParameterInt("ammo_"+ammotypes[i]) > 0 )	{
+							cargo.addResource( 
+									new ItemID(context.getRequest().getParameterInt("ammo_"+ammotypes[i])), 
+									Integer.parseInt(weapons.get(weapon))*10 );
+						}
 					}
 				}
 			}
@@ -359,12 +367,14 @@ public class AddShips implements AdminPlugin {
 					
 					weapons = Weapons.parseWeaponList(jshiptype.getWeapons());
 					for( String weapon : weapons.keySet() ) {
-						if( !"none".equals(Weapons.get().weapon(weapon).getAmmoType()) ) {
-							String ammotype = Weapons.get().weapon(weapon).getAmmoType();
-							if( context.getRequest().getParameterInt("jaeger_ammo_"+ammotype) > 0 )	{
-								jcargo.addResource( 
-										new ItemID(context.getRequest().getParameterInt("jaeger_ammo_"+ammotype)), 
-										Integer.parseInt(weapons.get(weapon))*10 );
+						if( Weapons.get().weapon(weapon).getAmmoType().length > 0 ) {
+							String[] ammotypes = Weapons.get().weapon(weapon).getAmmoType();
+							for( int j=0; j < ammotypes.length; j++ ) {
+								if( context.getRequest().getParameterInt("jaeger_ammo_"+ammotypes[j]) > 0 )	{
+									jcargo.addResource( 
+											new ItemID(context.getRequest().getParameterInt("jaeger_ammo_"+ammotypes[j])), 
+											Integer.parseInt(weapons.get(weapon))*10 );
+								}
 							}
 						}
 					}

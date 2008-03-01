@@ -22,17 +22,26 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Blob;
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseStatus;
+import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.entities.Ally;
+import net.driftingsouls.ds2.server.entities.IntTutorial;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -40,16 +49,22 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.scripting.ScriptParser;
+import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipFleet;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.werften.WerftObject;
+import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
+
+import org.hibernate.Query;
 
 /**
  * Die Uebersicht
@@ -72,7 +87,7 @@ public class UeberController extends TemplateGenerator implements Loggable {
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		box = getUser().getUserValue("TBLORDER/uebersicht/box");
-		
+
 		return true;
 	}
 	
@@ -142,26 +157,25 @@ public class UeberController extends TemplateGenerator implements Loggable {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void stopQuestAction() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		parameterNumber("questid");
 		int questid = getInteger("questid");
 		
-		SQLQuery questdata = db.query("SELECT * FROM quests_running WHERE id='",questid,"'");
-		if( !questdata.next() || (questdata.getInt("userid") != getUser().getId()) ) {
-			questdata.free();
+		RunningQuest questdata = (RunningQuest)db.get(RunningQuest.class, questid);
+		if( (questdata == null) || (questdata.getUser().getId() != getUser().getId()) ) {
 			addError("Sie k&ouml;nnen dieses Quest nicht abbrechen");
 			redirect();
 			return;
 		}
 		
-		ScriptParser scriptparser = new ScriptParser( ScriptParser.NameSpace.QUEST );
+		ScriptEngine scriptparser = new ScriptEngineManager().getEngineByName("DSQuestScript");
 		if( !getUser().hasFlag( User.FLAG_SCRIPT_DEBUGGING ) ) {
-			scriptparser.setLogFunction(ScriptParser.LOGGER_NULL);
+			scriptparser.getContext().setErrorWriter(new NullLogger());
 		}
 
 		try {
-			Blob execdata = questdata.getBlob("execdata");
+			Blob execdata = questdata.getExecData();
 			if( (execdata != null) && (execdata.length() > 0) ) {
 				scriptparser.setContext(ScriptParserContext.fromStream(execdata.getBinaryStream()));
 			}
@@ -171,11 +185,17 @@ public class UeberController extends TemplateGenerator implements Loggable {
 			redirect();
 			return;
 		}
-		scriptparser.setRegister("USER", Integer.toString(getUser().getId()));
-		scriptparser.setRegister("QUEST", "r"+questid);
-		scriptparser.executeScript(db, ":0\n!ENDQUEST\n!QUIT","0");
+		final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
 		
-		questdata.free();
+		engineBindings.put("USER", Integer.toString(getUser().getId()));
+		engineBindings.put("QUEST", "r"+questid);
+		engineBindings.put("_PARAMETERS", "0");
+		try {
+			scriptparser.eval(":0\n!ENDQUEST\n!QUIT");
+		}
+		catch( ScriptException e ) {
+			throw new RuntimeException(e);
+		}
 		
 		redirect();	
 	}
@@ -183,15 +203,15 @@ public class UeberController extends TemplateGenerator implements Loggable {
 	/**
 	 * Zeigt die Uebersicht an
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
-		Database db = getDatabase();
+		Database database = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		
 		String ticktime = "";
-				
+		
 		// Letzten Tick ermitteln (Zeitpunkt)
 		try {
 			BufferedReader bf = new BufferedReader(new FileReader(Configuration.getSetting("LOXPATH")+"ticktime.log"));
@@ -211,21 +231,22 @@ public class UeberController extends TemplateGenerator implements Loggable {
 		int ticks = getContext().get(ContextCommon.class).getTick();
 		
 		Cargo usercargo = new Cargo( Cargo.Type.STRING, user.getCargo() );
-		
+				
 		t.setVar(	"user.name",		Common._title(user.getName()),
 				  	"user.race",		race,
 				  	"res.nahrung.image",	Cargo.getResourceImage(Resources.NAHRUNG),
 				  	"user.nahrung",		Common.ln(usercargo.getResourceCount(Resources.NAHRUNG)),
+				  	"user.konto",		Common.ln(user.getKonto()),
 				  	"global.ticks",		ticks,
 				  	"global.ticktime",	ticktime );
 				  		  
 		// Gibt es eine Umfrage an der wir teilnehmen koennen
-		SQLResultRow survey = db.prepare("SELECT * FROM surveys WHERE enabled='1' AND minid<=? AND maxid>=? AND ",
+		SQLResultRow survey = database.prepare("SELECT * FROM surveys WHERE enabled='1' AND minid<=? AND maxid>=? AND ",
 				" mintime<=? AND maxtime>=? AND timeout>0")
 				.first(user.getId(), user.getId(), user.getSignup(), user.getSignup());
 				
 		if( !survey.isEmpty() ) {
-			SQLResultRow voted = db.prepare("SELECT * FROM survey_voted WHERE survey_id=? AND user_id=?")
+			SQLResultRow voted = database.prepare("SELECT * FROM survey_voted WHERE survey_id=? AND user_id=?")
 				.first(survey.getInt("id"), user.getId());
 			
 			if( !voted.isEmpty() ) {
@@ -237,25 +258,53 @@ public class UeberController extends TemplateGenerator implements Loggable {
 		if( flagschiff != null ) {
 			switch( flagschiff.getType() ) {
 			case SHIP:
-				SQLResultRow ship = db.prepare("SELECT id,name FROM ships WHERE id>0 AND id=?").first(flagschiff.getID());
-				if( ship.isEmpty() ) {
-					user.setFlagschiff(0);
+				Ship ship = (Ship)db.get(Ship.class, flagschiff.getID());
+				if( ship == null ) {
+					user.setFlagschiff(null);
 				} 
 				else {
 					t.setVar(	"flagschiff.id",	flagschiff.getID(),
-								"flagschiff.name",	ship.getString("name") ) ;
+								"flagschiff.name",	ship.getName() ) ;
 				}
 				break;
 			
-			case WERFT_SHIP:
-				int dauer = db.first("SELECT remaining FROM werften WHERE shipid=",flagschiff.getID()).getInt("remaining");
-				t.setVar("flagschiff.dauer",dauer);
+			case WERFT_SHIP: {
+				WerftObject werft = (WerftObject)db.createQuery("from ShipWerft where ship=?")
+					.setInteger(0, flagschiff.getID())
+					.uniqueResult();
+				
+				if( werft.getKomplex() != null ) {
+					werft = werft.getKomplex();
+				}
+				
+				WerftQueueEntry[] entries = werft.getBuildQueue();
+				for( int i=0; i < entries.length; i++ ) {
+					if( entries[i].isBuildFlagschiff() ) {
+						t.setVar("flagschiff.dauer", werft.getTicksTillFinished(entries[i]));
+						break;
+					}
+				}
+				
 				break;
-			
-			case WERFT_BASE:
-				dauer = db.first("SELECT remaining FROM werften WHERE col=",flagschiff.getID()).getInt("remaining");
-				t.setVar("flagschiff.dauer",dauer);
+			}
+			case WERFT_BASE: {
+				WerftObject werft = (WerftObject)db.createQuery("from BaseWerft where base=?")
+					.setInteger(0, flagschiff.getID())
+					.uniqueResult();
+				
+				if( werft.getKomplex() != null ) {
+					werft = werft.getKomplex();
+				}
+				
+				WerftQueueEntry[] entries = werft.getBuildQueue();
+				for( int i=0; i < entries.length; i++ ) {
+					if( entries[i].isBuildFlagschiff() ) {
+						t.setVar("flagschiff.dauer", werft.getTicksTillFinished(entries[i]));
+						break;
+					}
+				}
 				break;
+			}
 			}
 		}
 
@@ -271,7 +320,9 @@ public class UeberController extends TemplateGenerator implements Loggable {
 		// auf neue Nachrichten checken
 		//------------------------------
 
-		int newCount = db.first("SELECT count(*) newmsgs FROM transmissionen WHERE empfaenger=",user.getId()," AND gelesen=0").getInt("newmsgs");
+		long newCount = (Long)db.createQuery("select count(*) from PM where empfaenger= :user and gelesen=0")
+			.setEntity("user", user)
+			.iterate().next();
 		t.setVar("user.newmsgs", Common.ln(newCount));
 
 		//------------------------------
@@ -313,19 +364,19 @@ public class UeberController extends TemplateGenerator implements Loggable {
 		// Mangel auf Schiffen checken
 		//------------------------------
 
-		int sw = 0;
-		int shipNoCrew = 0;
+		long sw = 0;
+		long shipNoCrew = 0;
 
-		sw = db.prepare("SELECT count(*) `count` ",
-					"FROM ships ",
-					"WHERE id>0 AND owner=? AND (LOCATE('mangel_nahrung',status) OR LOCATE('mangel_reaktor',status)) ORDER BY id")
-					.first(user.getId())
-					.getInt("count");
+		sw = (Long)db.createQuery("select count(*) " +
+					"from Ship " +
+					"where id>0 and owner= :user and (locate('mangel_nahrung',status)!=0 or locate('mangel_reaktor',status)!=0) and locate('nocrew',status)=0")
+				.setEntity("user", user)
+				.iterate().next();
 
-		shipNoCrew = db.prepare("SELECT count(id) `count` FROM ships ",
-							"WHERE id>0 AND owner=? AND LOCATE('nocrew',status)" )
-					.first(user.getId())
-					.getInt("count");
+		shipNoCrew = (Long)db.createQuery("select count(*) from Ship " +
+							"where id>0 and owner= :user and locate('nocrew',status)!=0" )
+				.setEntity("user", user)
+				.iterate().next();
 						  
 		String nstat = "0";			  
 		if( ticktime.indexOf("Bitte warten") > -1 ) {
@@ -346,128 +397,69 @@ public class UeberController extends TemplateGenerator implements Loggable {
 		
 		StringBuilder battlelist = new StringBuilder();
 
-		ArrayList<Integer> battleidlist = new ArrayList<Integer>();
+		// Ab hier beginnt das erste Bier
+		Query battleQuery = null;
 
-		// User darf nur die Eigenen oder Ally-Schlachten sehen
-		if( (user.getAccessLevel() < 20) && !user.hasFlag(User.FLAG_VIEW_BATTLES) && !user.hasFlag(User.FLAG_QUEST_BATTLES) ) {
-			SQLQuery battle = null;
-			if( user.getAlly() != null ) {
-				battle = db.query("SELECT * FROM battles WHERE commander1=",user.getId()," OR commander2=",user.getId()," OR ally1=",user.getAlly().getId()," OR ally2=",user.getAlly().getId());
+		if(user.getAccessLevel() < 20 && !user.hasFlag(User.FLAG_VIEW_BATTLES)){
+			String query = "select distinct s.battle from Ship as s inner join s.battle " +
+					"where s.battle.commander1= :user or s.battle.commander2= :user or s.owner= :user";
+			
+			//hat der Benutzer eine ally, dann haeng das hier an
+			if(user.getAlly() != null) {
+				query += " or s.battle.ally1 = :ally or s.battle.ally2 = :ally";
 			}
-			else {
-				battle = db.query("SELECT * FROM battles WHERE commander1=",user.getId()," OR commander2=",user.getId());
+			// ach haengen wir mal den quest kram dran
+			if(user.hasFlag(User.FLAG_QUEST_BATTLES)){
+				query += " or s.battle.quest is not null";	
 			}
 			
-			while( battle.next() ) {
-				if( (user.getAlly() != null) && (battle.getString("visibility") != null) && 
-						(battle.getString("visibility").length() > 0) ) {
-					Integer[] visibility = Common.explodeToInteger(",", battle.getString("visibility"));
-					if( !Common.inArray(user.getId(),visibility) ) {
-						continue;	
-					}
-				}
-				battleidlist.add(battle.getInt("id"));
-
-				String eparty = "";
-				String comm = "";
-				if( ((user.getAlly() == null) && (battle.getInt("commander1") != user.getId())) || 
-					((user.getAlly() != null) && (battle.getInt("ally1") != user.getAlly().getId()) ) ) {
-					if( battle.getInt("ally1") == 0 ) {
-						User com1 = (User)getDB().get(User.class, battle.getInt("commander1"));
-						eparty = Common._title(com1.getName());
-					} 
-					else {
-						eparty = Common._title(
-								db.first("SELECT name FROM ally WHERE id=",battle.getInt("ally1"))
-									.getString("name"));
-					}
-					
-					User com2 = (User)getDB().get(User.class, battle.getInt("commander2"));
-					comm = Common._title(com2.getName());
-				} 
-				else {
-					if( battle.getInt("ally2") == 0 ) {
-						User com2 = (User)getDB().get(User.class, battle.getInt("commander2"));
-						eparty = Common._title(com2.getName());
-					} 
-					else {
-						eparty = Common._title(
-								db.first("SELECT name FROM ally WHERE id=",battle.getInt("ally2"))
-									.getString("name"));
-					}
-					
-					User com1 = (User)getDB().get(User.class, battle.getInt("commander1"));
-					comm = Common._title(com1.getName());
-				}
-				
-				if( user.getAlly() != null ) {
-					battlelist.append("<a class=\"error\" href=\"main.php?module=angriff&amp;sess="+getString("sess")+"&amp;battle="+battle.getInt("id")+"\">Schlacht mit "+eparty+" bei "+battle.getInt("system")+" : "+battle.getInt("x")+"/"+battle.getInt("y")+"</a> ["+comm+"]<br />\n");
-				}
-				else {
-					battlelist.append("<a class=\"error\" href=\"main.php?module=angriff&amp;sess="+getString("sess")+"&amp;battle="+battle.getInt("id")+"\">Es ist eine Schlacht mit "+eparty+" bei "+battle.getInt("system")+" : "+battle.getInt("x")+"/"+battle.getInt("y")+" im Gange</a><br />\n");
-				}
+			battleQuery = db.createQuery(query)
+				.setEntity("user", user);
+			
+			if( user.getAlly() != null ) {
+				battleQuery = battleQuery.setInteger("ally", user.getAlly().getId());
 			}
-			battle.free();
 		}
-
-		SQLQuery battle = null;
+		// Bei entsprechendem AccessLevel/Flag alle Schlachten anzeigen
+		else {
+			battleQuery = db.createQuery("from Battle");
+		}
+			
+		// Ab hier beginnt das zweite Bier
 		
-		//Nun alle Schlachten auflisten, wo der Spieler Schiffe drin hat (die aber noch nicht aufgelistet wurden) - oder zeige alle Schlachten an, wenn es jemand mit entsprechenden Rechten ist
-		if( (user.getAccessLevel() < 20) && user.hasFlag(User.FLAG_QUEST_BATTLES) ) {
-			battle = db.query("SELECT * FROM battles WHERE (quest IS NOT NULL AND (commander1<0 XOR commander2<0)) OR (commander1=",user.getId(),") OR (commander2=",user.getId(),")");
-		}
-		else if( (user.getAccessLevel() >= 20) || user.hasFlag(User.FLAG_VIEW_BATTLES) ) {
-			battle = db.query("SELECT * FROM battles");
-		}
-		else {			
-			battlelist.append("<br />\n");
-			battle = db.query("SELECT t1.* ",
-							"FROM battles t1,ships t2 ",
-							"WHERE t2.id>0 AND t2.owner=",user.getId()," AND t2.battle=t1.id ",(!battleidlist.isEmpty() ? "AND !(t2.battle IN ("+Common.implode(",",battleidlist)+"))":"")," ",
-							"GROUP BY t1.id" );
-		}
-		
-		while( battle.next() ) {
-			if( !user.hasFlag(User.FLAG_QUEST_BATTLES) && (battle.getInt("quest") != 0) ) {
-				continue;
-			}
+		for( Iterator iter=battleQuery.list().iterator(); iter.hasNext(); ) {
+			Battle battle = (Battle)iter.next();
+			
 			String eparty = "";
 			String eparty2 = "";
-			if( battle.getInt("ally1") == 0 ) {
-				User com1 = (User)getDB().get(User.class, battle.getInt("commander1"));
-				eparty = Common._title(com1.getName());
+			if( battle.getAlly(0) == 0 ) {
+				final User commander1 = battle.getCommander(0);
+				eparty = Common._title(commander1.getName());
 			} 
 			else {
-				eparty = Common._title(
-							db.first("SELECT name FROM ally WHERE id=",battle.getInt("ally1"))
-								.getString("name"));
+				final Ally ally = (Ally)db.get(Ally.class, battle.getAlly(0));
+				eparty = Common._title(ally.getName());
 			}
-			User com1 = (User)getDB().get(User.class, battle.getInt("commander1"));
-			String comm1 = Common._title(com1.getName());
-
-			if( battle.getInt("ally2") == 0 ) {
-				User com2 = (User)getDB().get(User.class, battle.getInt("commander2"));
-				eparty2 = Common._title(com2.getName());
+			
+			if( battle.getAlly(1) == 0 ) {
+				final User commander2 = battle.getCommander(1);
+				eparty2 = Common._title(commander2.getName());
 			} 
 			else {
-				eparty2 = Common._title(
-						db.first("SELECT name FROM ally WHERE id=",battle.getInt("ally2"))
-							.getString("name"));
+				final Ally ally = (Ally)db.get(Ally.class, battle.getAlly(1));
+				eparty2 = Common._title(ally.getName());
 			}
-			User com2 = (User)getDB().get(User.class, battle.getInt("commander2"));
-			String comm2 = Common._title(com2.getName());
-		
-			battlelist.append("<a class=\"error\" href=\"main.php?module=angriff&amp;sess="+getString("sess")+"&amp;battle="+battle.getInt("id")+"\">Schlacht "+eparty+" vs "+eparty2+" bei "+battle.getInt("system")+":"+battle.getInt("x")+"/"+battle.getInt("y")+"</a><br />*&nbsp;["+comm1+" vs "+comm2+"]<br />\n");
+					
+			battlelist.append("<a class=\"error\" href=\"ds?module=angriff&amp;sess="+getString("sess")+"&amp;battle="+battle.getId()+"\">Schlacht "+eparty+" vs "+eparty2+" bei "+battle.getLocation()+"</a><br />\n");
 			
 			if( ( (user.getAccessLevel() >= 20) || user.hasFlag(User.FLAG_QUEST_BATTLES) ) 
-				&& (battle.getInt("quest") != 0) ) {
-				String questname = db.first("SELECT t2.name FROM quests_running t1, quests t2 WHERE t1.id='",battle.getInt("quest"),"' AND t1.questid=t2.id").getString("name");
-				battlelist.append("*&nbsp;[Quest: "+questname+"]<br />\n");
+				&& (battle.getQuest() != null) ) {
+				RunningQuest quest = (RunningQuest)db.get(RunningQuest.class, battle.getQuest());
+				battlelist.append("*&nbsp;[Quest: "+quest.getQuest().getName()+"]<br />\n");
 			}
 			
 			battlelist.append("<br />\n");
 		}
-		battle.free();
 
 		t.setVar("global.battlelist", battlelist);
 		//------------------------------
@@ -482,60 +474,15 @@ public class UeberController extends TemplateGenerator implements Loggable {
 		// Interaktives Tutorial
 		//------------------------------
 
-		int shipcount = db.first("SELECT count(*) `count` FROM ships WHERE id>0 AND owner='",user.getId(),"'").getInt("count");
+		long shipcount = (Long)db.createQuery("select count(*) from Ship " +
+				"where id>0 and owner= :user")
+			.setEntity("user", user)
+			.iterate().next();
+		
 		int inttutorial = Integer.parseInt(user.getUserValue("TBLORDER/uebersicht/inttutorial"));
 
 		if( inttutorial != 0 ) {
-			boolean reqname = false;
-			boolean reqship = false;
-			boolean reqbase = false;
-	
-			if( !user.getName().equals("Kolonist") ) {
-				reqname = true;
-			}
-		
-			if( shipcount > 0 ) {
-				reqship = true;
-			}
-	
-			if( bases > 0 ) {
-				reqbase = true;
-			}
-			
-			if( !reqship ) {
-				reqbase = true;
-			}
-			
-			if( !reqname ) {
-				reqship = true;
-				reqbase = true;
-			}
-
-			SQLResultRow sheet = db.first("SELECT id,headimg,text FROM inttutorial WHERE id='",inttutorial,"' AND reqname='",(reqname ? 1 : 0),"' AND reqbase='",(reqbase ? 1 : 0),"' AND reqship='",(reqship ? 1 : 0),"'");
-	
-			// Ist die aktuelle Tutorialseite veraltet?
-			if( sheet.isEmpty() || (sheet.getInt("id") != inttutorial) ) {		
-				sheet = db.first("SELECT id,headimg,text FROM inttutorial WHERE reqname='",(reqname ? 1 : 0),"' AND reqbase='",(reqbase ? 1 : 0),"' AND reqship='",(reqship ? 1 : 0),"' ORDER BY id");
-		
-				// Neue Tutorialseite speichern
-				inttutorial = sheet.getInt("id");
-				user.setUserValue("TBLORDER/uebersicht/inttutorial", Integer.toString(inttutorial));
-			}
-	
-			// Existiert eine Nachfolgerseite?
-			SQLResultRow nextsheet = db.first("SELECT id,headimg,text FROM inttutorial WHERE reqsheet='",inttutorial,"' AND reqname='",(reqname ? 1 : 0),"' AND reqbase='",(reqbase ? 1 : 0),"' AND reqship='",(reqship ? 1 : 0),"'");
-	
-			// Kann das Tutorial jetzt beendet werden?
-			if( nextsheet.isEmpty() && reqname && reqship && reqbase ) {
-				t.setVar("sheet.endtutorial",1);
-			}
-			else if( !nextsheet.isEmpty() ) {
-				t.setVar("sheet.nextsheet",1);
-			}
-	
-			t.setVar(	"interactivetutorial.show",	1,
-						"sheet.headpic",			sheet.getString("headimg"),
-						"sheet.text",				Common._text(sheet.getString("text")) );
+			showTutorialPages(bases, shipcount, inttutorial);
 		}
 
 		//------------------------------------
@@ -550,25 +497,40 @@ public class UeberController extends TemplateGenerator implements Loggable {
 		if( box.equals("bookmarks") ) {
 			t.setVar("show.bookmarks",1);
 	
-			SQLQuery bookmark = db.query("SELECT id,name,x,y,system,destx,desty,destsystem,destcom,status,type FROM ships WHERE id>0 AND bookmark=1 AND owner=",user.getId()," ORDER BY id DESC");
-			while( bookmark.next() ) {
-				SQLResultRow shiptype = ShipTypes.getShipType( bookmark.getRow() );
-				t.setVar(	"bookmark.shipid",		bookmark.getInt("id"),
-							"bookmark.shipname",	bookmark.getString("name"),
-							"bookmark.location",	Ships.getLocationText(bookmark.getRow(), false),
-							"bookmark.shiptype",	shiptype.getString("nickname"),
-							"bookmark.description",	bookmark.getInt("destsystem")+":"+bookmark.getInt("destx")+"/"+bookmark.getInt("desty")+"<br />"+bookmark.getString("destcom").replace("\r\n","<br />") );
+			List bookmarks = db.createQuery("from Ship where id>0 and bookmark=1 and owner=? order by id desc")
+				.setEntity(0, user)
+				.list();
+			for( Iterator iter=bookmarks.iterator(); iter.hasNext(); ) {
+				Ship bookmark = (Ship)iter.next();
+				ShipTypeData shiptype = bookmark.getTypeData();
+				t.setVar(	"bookmark.shipid",		bookmark.getId(),
+							"bookmark.shipname",	bookmark.getName(),
+							"bookmark.location",	Ships.getLocationText(bookmark.getLocation(), false),
+							"bookmark.shiptype",	shiptype.getNickname(),
+							"bookmark.description",	bookmark.getDestSystem()+":"+bookmark.getDestX()+"/"+bookmark.getDestY()+"<br />"+bookmark.getDestCom().replace("\r\n","<br />") );
 				t.parse("bookmarks.list","bookmarks.listitem",true);
 			}
-			bookmark.free();
 		}
 		else if( box.equals("fleets") ) {
 			t.setVar("show.fleets",1);
 			boolean jdocked = false;
 			
-			SQLQuery fleet = db.query("SELECT count(*) as shipcount,t1.x,t1.y,t1.system,t1.id,t1.docked,t2.name FROM ships t1,ship_fleets t2 WHERE t1.id>0 AND t1.owner=",user.getId()," AND t1.fleet=t2.id GROUP BY t2.id ORDER BY t1.docked,t1.system,t1.x,t1.y");
-			while( fleet.next() ) {
-				if( !jdocked && (fleet.getString("docked").indexOf('l') == 0) ) {
+			List fleets = db.createQuery("select count(*),s.fleet from Ship s " +
+					"where s.id>0 and s.owner= :user and s.fleet!=0 " +
+					"group by s.fleet " +
+					"order by s.docked,s.system,s.x,s.y")
+				.setEntity("user", user)
+				.list();
+			for( Iterator iter=fleets.iterator(); iter.hasNext(); ) {
+				Object[] data = (Object[])iter.next();
+				long count = (Long)data[0];
+				ShipFleet fleet = (ShipFleet)data[1];
+				
+				Ship aship = (Ship)db.createQuery("from Ship where fleet=?")
+					.setEntity(0, fleet)
+					.iterate().next();;
+				
+				if( !jdocked && (aship.getDocked().indexOf('l') == 0) ) {
 					jdocked = true;
 					t.setVar( "fleet.jaegerfleet", 1 );
 				}
@@ -576,13 +538,12 @@ public class UeberController extends TemplateGenerator implements Loggable {
 					t.setVar( "fleet.jaegerfleet", 0 );
 				}
 
-				t.setVar(	"fleet.shipid",		fleet.getInt("id"),
-							"fleet.name",		fleet.getString("name"),
-							"fleet.location",	Ships.getLocationText(fleet.getRow(), false),
-							"fleet.shipcount",	fleet.getInt("shipcount") );
+				t.setVar(	"fleet.shipid",		aship.getId(),
+							"fleet.name",		fleet.getName(),
+							"fleet.location",	Ships.getLocationText(aship.getLocation(), false),
+							"fleet.shipcount",	count );
 				t.parse("fleets.list","fleets.listitem",true);
 			}
-			fleet.free();
 		}
 
 		//------------------------------------
@@ -591,15 +552,97 @@ public class UeberController extends TemplateGenerator implements Loggable {
 		t.setBlock("_UEBER","quests.listitem","quests.list");
 		t.setVar("quests.list","");
 		
-		SQLQuery quest = db.query("SELECT t1.statustext,t1.id,t2.name FROM quests_running t1,quests t2 WHERE t1.userid='",user.getId(),"' AND t1.publish='1' AND t1.questid=t2.id");
-		while( quest.next() ) {
-			t.setVar(	"quest.name",		quest.getString("name"),
-						"quest.statustext",	quest.getString("statustext"),
-						"quest.id",			quest.getInt("id"));
+		List quests = db.createQuery("from RunningQuest rq inner join fetch rq.quest " +
+				"where rq.user= :user and rq.publish=1")
+			.setEntity("user", user)
+			.list();
+		for( Iterator iter=quests.iterator(); iter.hasNext(); ) {
+			RunningQuest quest = (RunningQuest)iter.next();
+			
+			t.setVar(	"quest.name",		quest.getQuest().getName(),
+						"quest.statustext",	quest.getStatusText(),
+						"quest.id",			quest.getId());
 								
 			t.parse("quests.list", "quests.listitem", true);
 		}
-		quest.free();
+	}
+
+	private void showTutorialPages(int bases, long shipcount, int inttutorial) {
+		org.hibernate.Session db = getDB();
+		User user = (User)getUser();
+		TemplateEngine t = getTemplateEngine();
+		
+		boolean reqname = false;
+		boolean reqship = false;
+		boolean reqbase = false;
+
+		if( !user.getName().equals("Kolonist") ) {
+			reqname = true;
+		}
+
+		if( shipcount > 0 ) {
+			reqship = true;
+		}
+
+		if( bases > 0 ) {
+			reqbase = true;
+		}
+		
+		if( !reqship ) {
+			reqbase = true;
+		}
+		
+		if( !reqname ) {
+			reqship = true;
+			reqbase = true;
+		}
+
+		IntTutorial sheet = (IntTutorial)db.createQuery("from IntTutorial where id= :id and reqName= :reqname and reqBase= :reqbase and reqShip= :reqship")
+			.setInteger("id", inttutorial)
+			.setInteger("reqname", reqname ? 1 : 0)
+			.setInteger("reqbase", reqbase ? 1 : 0)
+			.setInteger("reqship", reqship ? 1 : 0)
+			.uniqueResult();
+
+		// Ist die aktuelle Tutorialseite veraltet?
+		if( (sheet == null) || (sheet.getId() != inttutorial) ) {
+			sheet = (IntTutorial)db.createQuery("from IntTutorial where reqName= :reqname and reqBase= :reqbase and reqShip= :reqship order by id")
+				.setInteger("reqname", reqname ? 1 : 0)
+				.setInteger("reqbase", reqbase ? 1 : 0)
+				.setInteger("reqship", reqship ? 1 : 0)
+				.setMaxResults(1)
+				.uniqueResult();
+			
+			if( sheet == null ) {
+				user.setUserValue("TBLORDER/uebersicht/inttutorial", "0");
+				return;
+			}
+			
+			// Neue Tutorialseite speichern
+			inttutorial = sheet.getId();
+			user.setUserValue("TBLORDER/uebersicht/inttutorial", Integer.toString(inttutorial));
+		}
+
+		// Existiert eine Nachfolgerseite?
+		IntTutorial nextsheet = (IntTutorial)db.createQuery("from IntTutorial where reqSheet= :reqsheet and reqName= :reqname and reqBase= :reqbase and reqShip= :reqship")
+			.setInteger("reqsheet", sheet.getId())
+			.setInteger("reqname", reqname ? 1 : 0)
+			.setInteger("reqbase", reqbase ? 1 : 0)
+			.setInteger("reqship", reqship ? 1 : 0)
+			.setMaxResults(1)
+			.uniqueResult();
+
+		// Kann das Tutorial jetzt beendet werden?
+		if( (nextsheet == null) && reqname && reqship && reqbase ) {
+			t.setVar("sheet.endtutorial",1);
+		}
+		else if( nextsheet != null ) {
+			t.setVar("sheet.nextsheet",1);
+		}
+
+		t.setVar(	"interactivetutorial.show",	1,
+					"sheet.headpic",			sheet.getHeadImg(),
+					"sheet.text",				Common._text(sheet.getText()) );
 	}
 
 }

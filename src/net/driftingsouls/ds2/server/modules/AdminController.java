@@ -18,14 +18,10 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -48,10 +44,7 @@ import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
  * @urlparam String namedplugin Der Name des Plugins, welches angezeigt werden soll (Alternative zu Seiten- und Aktions-ID)
  */
 public class AdminController extends DSGenerator {
-	/**
-	 * Der Name der Resource, welche die Liste der Admin-Plugins enthaelt (ein Klassenname pro Zeile)
-	 */
-	public static final String PLUGIN_LIST = "META-INF/driftingsouls/"+AdminController.class.getName();
+	private static ServiceLoader<AdminPlugin> pluginLoader = ServiceLoader.load(AdminPlugin.class);
 	
 	private static class MenuEntry implements Comparable<MenuEntry> {
 		String name;
@@ -64,6 +57,23 @@ public class AdminController extends DSGenerator {
 
 		public int compareTo(MenuEntry o) {
 			return name.compareTo(o.name);
+		}
+		
+		@Override
+		public boolean equals(Object object)
+		{
+			if(object == null)
+			{
+				return false;
+			}
+			
+			if(object.getClass() != this.getClass())
+			{
+				return false;
+			}
+			
+			MenuEntry other = (MenuEntry) object;
+			return this.name.equals(other.name);
 		}
 	}
 	
@@ -102,45 +112,51 @@ public class AdminController extends DSGenerator {
 			return false;
 		}
 		
-		try {
-			Enumeration<URL> e = getClass().getClassLoader().getResources(PLUGIN_LIST);
-			while( e.hasMoreElements() ) {
-				URL elem = e.nextElement();
-				BufferedReader reader = new BufferedReader(new InputStreamReader(elem.openStream()));
-				String line = null;
-				while( (line = reader.readLine()) != null ) {
-					if( validPlugins.contains(line) ) {
-						continue;
-					}
-					Class<? extends AdminPlugin> aClass = Class.forName(line).asSubclass(AdminPlugin.class);
-					validPlugins.add(line);
+		for( AdminPlugin plugin : pluginLoader ) {
+			Class<? extends AdminPlugin> cls = plugin.getClass();
+			
+			if( validPlugins.contains(cls.getName()) ) {
+				continue;
+			}
+			validPlugins.add(cls.getName());
 					
-					AdminMenuEntry adminMenuEntry = aClass.getAnnotation(AdminMenuEntry.class);
-					
-					addMenuEntry(aClass, adminMenuEntry.category(), adminMenuEntry.name());
-				}
-				reader.close();
-			}	
-		}
-		catch( IOException e ) {
-			addError("Konnte Admin-Plugins nicht verarbeiten: "+e);
-		}
-		catch( ClassNotFoundException e ) {
-			addError("Konnte Admin-Plugins nicht verarbeiten: "+e);
-		}
+			AdminMenuEntry adminMenuEntry = cls.getAnnotation(AdminMenuEntry.class);
+				
+			addMenuEntry(cls, adminMenuEntry.category(), adminMenuEntry.name());
+		}	
 		
 		if( this.getInteger("cleanpage") > 0 ) {
-			this.setDisableDebugOutput(true);	
+			this.setDisableDebugOutput(true);
+			this.setDisablePageMenu(true);
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * Fuehrt ein Admin-Plugin aus
+	 */
+	@Action(ActionType.AJAX)
+	public void ajaxAction() {
+		int act = getInteger("act");
+		String page = getString("page");
+		String namedplugin = getString("namedplugin");
+		
+		if( page.length() > 0 || namedplugin.length() > 0 ) {
+			if( act > 0 ) {
+				callPlugin(page, act);
+			}
+			else if( (namedplugin.length() > 0) && (validPlugins.contains(namedplugin)) ) {
+				callNamedPlugin(namedplugin);
+			}
+		}
 	}
 
 	/**
 	 * Zeigt die Gui an und fuehrt ein Admin-Plugin (sofern ausgewaehlt) aus
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {	
 		int cleanpage = getInteger("cleanpage");
 		int act = getInteger("act");
@@ -156,11 +172,11 @@ public class AdminController extends DSGenerator {
 			boolean first = true;
 			for( MenuEntry entry : this.menu.values() ) {
 				if( first ) {
-					echo.append("<a class=\"forschinfo\" href=\"./main.php?module=admin&sess="+sess+"&page="+entry.name+"\">"+entry.name+"</a>\n");
+					echo.append("<a class=\"forschinfo\" href=\"./ds?module=admin&sess="+sess+"&page="+entry.name+"\">"+entry.name+"</a>\n");
 					first = false;
 				}
 				else
-					echo.append(" | <a class=\"forschinfo\" href=\"./main.php?module=admin&sess="+sess+"&page="+entry.name+"\">"+entry.name+"</a>\n");
+					echo.append(" | <a class=\"forschinfo\" href=\"./ds?module=admin&sess="+sess+"&page="+entry.name+"\">"+entry.name+"</a>\n");
 			}
 			echo.append("</td></tr></table>\n");
 			echo.append(Common.tableEnd());
@@ -177,7 +193,7 @@ public class AdminController extends DSGenerator {
 				if( this.menu.containsKey(page) && (this.menu.get(page).actions.size() > 0) ) {
 					List<MenuEntry> actions = this.menu.get(page).actions;
 					for( int i=0; i < actions.size(); i++ ) {
-						echo.append("<tr><td align=\"left\" class=\"noBorderX\"><a class=\"forschinfo\" href=\"./main.php?module=admin&sess="+sess+"&page="+page+"&act="+(i+1)+"\">"+actions.get(i).name+"</a></td></tr>\n");
+						echo.append("<tr><td align=\"left\" class=\"noBorderX\"><a class=\"forschinfo\" href=\"./ds?module=admin&sess="+sess+"&page="+page+"&act="+(i+1)+"\">"+actions.get(i).name+"</a></td></tr>\n");
 					}
 				}
 				echo.append("</table>\n");
@@ -187,50 +203,61 @@ public class AdminController extends DSGenerator {
 				echo.append("<td class=\"noBorder\" valign=\"top\">\n");
 			}
 			if( act > 0 ) {
-				if( this.menu.containsKey(page) && (this.menu.get(page).actions.size() > 0) ) {
-					List<MenuEntry> actions = this.menu.get(page).actions;
-					if( act <= actions.size() ) {
-						Class<? extends AdminPlugin> cls = actions.get(act-1).cls;
-						try {
-							AdminPlugin plugin;
-							plugin = cls.newInstance();
-							plugin.output(this, page, act);
-						}
-						catch( InstantiationException e ) {
-							addError("Fehler beim Aufruf des Admin-Plugins: "+e);
-						}
-						catch( IllegalAccessException e ) {
-							addError("Fehler beim Aufruf des Admin-Plugins: "+e);
-						}
-					}
-				}
+				callPlugin(page, act);
 			}
 			else if( (namedplugin.length() > 0) && (validPlugins.contains(namedplugin)) ) {
-				try {
-					Class<? extends AdminPlugin> aClass = null;
-					for( String aPage : this.menu.keySet() ) {
-						List<MenuEntry> actions = this.menu.get(aPage).actions;
-						for( int aAction=0; aAction < actions.size(); aAction++ ) {
-							if( actions.get(aAction).cls.getName().equals(namedplugin) ) {
-								aClass = actions.get(aAction).cls;
-								page = aPage;
-								act = aAction+1;
-								break;
-							}
-						}
-					}
-
-					AdminPlugin plugin = aClass.newInstance();
-					plugin.output(this, page, act);
-				}
-				catch( Exception e ) {
-					addError("Fehler beim Aufruf des Admin-Plugins: "+e);
-					e.printStackTrace();
-				}
+				callNamedPlugin(namedplugin);
 			}
 
 			if( cleanpage == 0 ) {
 				echo.append("</td></tr></table>");
+			}
+		}
+	}
+
+	private void callNamedPlugin(String namedplugin) {
+		try {
+			int act = 0;
+			String page = "";
+			
+			Class<? extends AdminPlugin> aClass = null;
+			for( String aPage : this.menu.keySet() ) {
+				List<MenuEntry> actions = this.menu.get(aPage).actions;
+				for( int aAction=0; aAction < actions.size(); aAction++ ) {
+					if( actions.get(aAction).cls.getName().equals(namedplugin) ) {
+						aClass = actions.get(aAction).cls;
+						page = aPage;
+						act = aAction+1;
+						break;
+					}
+				}
+			}
+
+			AdminPlugin plugin = aClass.newInstance();
+			plugin.output(this, page, act);
+		}
+		catch( Exception e ) {
+			addError("Fehler beim Aufruf des Admin-Plugins: "+e);
+			e.printStackTrace();
+		}
+	}
+
+	private void callPlugin(String page, int act) {
+		if( this.menu.containsKey(page) && (this.menu.get(page).actions.size() > 0) ) {
+			List<MenuEntry> actions = this.menu.get(page).actions;
+			if( act <= actions.size() ) {
+				Class<? extends AdminPlugin> cls = actions.get(act-1).cls;
+				try {
+					AdminPlugin plugin;
+					plugin = cls.newInstance();
+					plugin.output(this, page, act);
+				}
+				catch( InstantiationException e ) {
+					addError("Fehler beim Aufruf des Admin-Plugins: "+e);
+				}
+				catch( IllegalAccessException e ) {
+					addError("Fehler beim Aufruf des Admin-Plugins: "+e);
+				}
 			}
 		}
 	}

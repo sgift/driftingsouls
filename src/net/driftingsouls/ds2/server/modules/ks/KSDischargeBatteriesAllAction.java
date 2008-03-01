@@ -22,15 +22,13 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
-import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
  * Entlaedt alle Batterien auf Schiffen der eigenen Seite
@@ -43,7 +41,6 @@ public class KSDischargeBatteriesAllAction extends BasicKSAction {
 	 *
 	 */
 	public KSDischargeBatteriesAllAction() {
-		this.requireAP(1);
 	}
 	
 	/**
@@ -52,31 +49,30 @@ public class KSDischargeBatteriesAllAction extends BasicKSAction {
 	 * @param shiptype Der Schiffstyp
 	 * @return <code>true</code>, wenn das Schiff seine Batterien entladen soll
 	 */
-	protected boolean validateShipExt( SQLResultRow ship, SQLResultRow shiptype ) {
+	protected boolean validateShipExt( BattleShip ship, ShipTypeData shiptype ) {
 		// Extension Point
 		return true;
 	}
 
 	@Override
-	final public int execute(Battle battle) {
+	public final int execute(Battle battle) {
 		int result = super.execute(battle);
 		if( result != RESULT_OK ) {
 			return result;
 		}
 		
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
-		
+
 		int shipcount = 0;
 		StringBuilder ebattslog = new StringBuilder();
 		
-		List<SQLResultRow> ownShips = battle.getOwnShips();
+		List<BattleShip> ownShips = battle.getOwnShips();
 		for( int i=0; i < ownShips.size(); i++ ) {
-			SQLResultRow aship = ownShips.get(i);
+			BattleShip aship = ownShips.get(i);
 			
-			SQLResultRow ownShipType = ShipTypes.getShipType(aship);
+			ShipTypeData ownShipType = aship.getTypeData();
 			
-			if( aship.getInt("e") >= ownShipType.getInt("eps") ) {
+			if( aship.getShip().getEnergy() >= ownShipType.getEps() ) {
 				continue;
 			}
 			
@@ -84,47 +80,28 @@ public class KSDischargeBatteriesAllAction extends BasicKSAction {
 				continue;
 			}
 			
-			Cargo mycargo = new Cargo( Cargo.Type.STRING, aship.getString("cargo") );
+			Cargo mycargo = aship.getCargo();
 			if( !mycargo.hasResource( Resources.BATTERIEN ) ) {
 				continue;
 			}
-			
-			if( battle.getPoints(battle.getOwnSide()) < 3 ) {
-				battle.logme("Nicht genug Aktionspunkte um weitere Batterien zu entladen");
-				break;
-			}
-	
-			int oldE = aship.getInt("e");
+
 			long batterien = mycargo.getResourceCount( Resources.BATTERIEN );
 
-			if( batterien > ownShipType.getInt("eps")-aship.getInt("e") ) {
-				batterien = ownShipType.getInt("eps")-aship.getInt("e");
+			if( batterien > ownShipType.getEps()-aship.getShip().getEnergy() ) {
+				batterien = ownShipType.getEps()-aship.getShip().getEnergy();
 			}	
 
-			aship.put("e", aship.getInt("e")+batterien);
+			aship.getShip().setEnergy((int)(aship.getShip().getEnergy()+batterien));
+			aship.getShip().setBattleAction(true);
 		
 			mycargo.substractResource( Resources.BATTERIEN, batterien );
 			mycargo.addResource( Resources.LBATTERIEN, batterien );
-
-			db.update("UPDATE ships SET e="+aship.getInt("e")+",battleAction=1,cargo='"+mycargo.save()+"' " +
-					"WHERE id="+aship.getInt("id")+" AND cargo='"+mycargo.save(true)+"' AND e="+oldE);
 			
-			if( db.affectedRows() > 0 ) {
-				aship.put("cargo", mycargo.save());
-				aship.put("battleAction", true);
-				
-				battle.logme( aship.getString("name")+": "+batterien+" Reservebatterien entladen\n" );
-				ebattslog.append(Battle.log_shiplink(aship)+": Reservebatterien entladen\n");
-				
-				battle.setPoints(battle.getOwnSide(), battle.getPoints(battle.getOwnSide())-3);
+			battle.logme( aship.getName()+": "+batterien+" Reservebatterien entladen\n" );
+			ebattslog.append(Battle.log_shiplink(aship.getShip())+": Reservebatterien entladen\n");
 			
-				aship.put("status", Ships.recalculateShipStatus(aship.getInt("id")));
-				shipcount++;
-			}
-			else {
-				battle.logme( aship.getString("name")+": Konnte Reservebatterien nicht entladen\n" );
-				aship.put("e", oldE);
-			}
+			aship.getShip().recalculateShipStatus();
+			shipcount++;
 		}
 
 		if( shipcount > 0 ) {	
@@ -132,7 +109,7 @@ public class KSDischargeBatteriesAllAction extends BasicKSAction {
 			battle.logenemy(ebattslog.toString());
 			battle.logenemy("]]></action>\n");
 			
-			battle.save(false);
+			battle.resetInactivity();
 		}
 
 		return RESULT_OK;

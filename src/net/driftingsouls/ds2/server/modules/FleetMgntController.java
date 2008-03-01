@@ -513,31 +513,7 @@ public class FleetMgntController extends TemplateGenerator {
 		User newowner = (User)getDB().get(User.class, ownerid);
 		
 		if( newowner != null ) {
-			StringBuilder message = new StringBuilder(100);
-			int count = 0;
-			
-			List<Integer> idlist = new ArrayList<Integer>();
-			
-			List shiplist = db.createQuery("from Ship where fleet=? and battle is null" )
-				.setInteger(0, this.fleet.getId())
-				.list();
-			for( Iterator iter=shiplist.iterator(); iter.hasNext(); ) {
-				Ship aship = (Ship)iter.next();
-				boolean tmp = aship.consign(newowner, false );
-			
-				String msg = Ship.MESSAGE.getMessage();
-				if( msg.length() > 0 ) {
-					message.append(msg+"<br />");	
-				}
-				if( !tmp ) {
-					count++;
-					idlist.add(aship.getId());
-					aship.setFleet(this.fleet);
-				}
-			}
-
-			if( count != 0 ) {
-				// Da die Schiffe beim uebergeben aus der Flotte geschmissen werden, muessen wir sie nun wieder hinein tun
+			if( this.fleet.consign(newowner) ) {
 				Ship coords = (Ship)db.createQuery("from Ship where owner=? and fleet=?")
 					.setEntity(0, newowner)
 					.setEntity(1, this.fleet)
@@ -545,10 +521,10 @@ public class FleetMgntController extends TemplateGenerator {
 				
 				PM.send(user, newowner.getId(), "Flotte &uuml;bergeben", "Ich habe dir die Flotte "+Common._plaintitle(this.fleet.getName())+" &uuml;bergeben. Sie steht bei "+coords.getLocation());
 		
-				t.setVar("fleetmgnt.message", message+"Die Flotte wurde &uuml;bergeben");
+				t.setVar("fleetmgnt.message", ShipFleet.MESSAGE.getMessage()+"Die Flotte wurde &uuml;bergeben");
 			}
 			else {
-				t.setVar("fleetmgnt.message", message+"Flotten&uuml;bergabe gescheitert");
+				t.setVar("fleetmgnt.message", ShipFleet.MESSAGE.getMessage()+"Flotten&uuml;bergabe gescheitert");
 			}
 		}
 		else {

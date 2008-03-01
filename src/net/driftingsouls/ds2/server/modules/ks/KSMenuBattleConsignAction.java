@@ -18,13 +18,14 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
+import java.util.List;
+
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 /**
  * Zeigt das Menue zur Uebergabe der Schlacht an einen anderen an der Schlacht
@@ -43,33 +44,36 @@ public class KSMenuBattleConsignAction extends BasicKSMenuAction {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();	
 		
-		SQLResultRow ownShip = battle.getOwnShip();
-		SQLResultRow enemyShip = battle.getEnemyShip();
+		BattleShip ownShip = battle.getOwnShip();
+		BattleShip enemyShip = battle.getEnemyShip();
 		
-		String query =  "SELECT DISTINCT u.id FROM users u WHERE id IN (SELECT s.owner FROM ships s JOIN battles_ships bs ON s.id=bs.shipid WHERE s.battle="+battle.getID()+" AND bs.side="+battle.getOwnSide()+")";
+		String query =  "select distinct u " +
+				"from BattleShip as bs " +
+					"join bs.ship.owner as u " +
+				"where bs.battle="+battle.getId()+" and bs.side="+battle.getOwnSide()+")";
+		
 		if( battle.getAlly(battle.getOwnSide()) > 0 ) {
-			query += " OR ally="+battle.getAlly(battle.getOwnSide());
+			query += " or u.ally="+battle.getAlly(battle.getOwnSide());
 		}
-		query += " ORDER BY u.id";
 		
-		SQLQuery userQuery = context.getDatabase().query(query);
-		while( userQuery.next() ) {
-			User member = (User)context.getDB().get(User.class, userQuery.getInt("id"));
+		query += " order by u.id";
+		
+		List<User> users = context.query(query, User.class);
+		for( User member : users ) {
 			if( member.getId() == user.getId() ) {
 				continue;
 			}
 			this.menuEntryAsk( Common._titleNoFormat(member.getName()),
-								new Object[] {	"ship",		ownShip.getInt("id"),
-												"attack",	enemyShip.getInt("id"),
+								new Object[] {	"ship",		ownShip.getId(),
+												"attack",	enemyShip.getId(),
 												"ksaction",	"new_commander2",
 												"newcom",	member.getId() },
 								"Wollen sie das Kommando wirklich an "+Common._titleNoFormat(member.getName())+" &uuml;bergeben?" );
 		}
-		userQuery.free();
 		
 		this.menuEntry("zur&uuml;ck",
-				"ship",		ownShip.getInt("id"),
-				"attack",	enemyShip.getInt("id"),
+				"ship",		ownShip.getId(),
+				"attack",	enemyShip.getId(),
 				"ksaction",	"other" );
 		
 		return RESULT_OK;

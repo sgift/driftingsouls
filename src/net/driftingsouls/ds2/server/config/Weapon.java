@@ -18,7 +18,9 @@
  */
 package net.driftingsouls.ds2.server.config;
 
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import java.util.ArrayList;
+import java.util.List;
+
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
@@ -59,7 +61,7 @@ public class Weapon {
 		 * Sehr weitreichende Waffen koennen aus der zweiten Reihe heraus abgefeuert und auch in die
 		 * zweite Reihe des Gegners feuern.
 		 */
-		VERY_LONG_RANGE(32);
+		VERY_LONG_RANGE(32);	
 		
 		private int bit;
 		private Flags(int bit) {
@@ -75,30 +77,7 @@ public class Weapon {
 		}
 		
 	}
-	
-	/**
-	 * Waffenflags
-	 */
-	public enum AmmoFlags {
-		/**
-		 * Area-Damage ueber die Distanz nicht reduzieren
-		 */
-		AD_FULL(1);
-		
-		private int bit;
-		private AmmoFlags(int bit) {
-			this.bit = bit;
-		}
-		
-		/**
-		 * Gibt das zum Flag gehoerende Bitmuster zurueck
-		 * @return Das Bitmuster
-		 */
-		public int getBits() {
-			return this.bit;
-		}
-		
-	}
+
 	
 	private String name = "";
 	
@@ -115,7 +94,7 @@ public class Weapon {
 	private int areaDamage = 0;
 	private int subDamage = 0;
 	
-	private String munition = "none";
+	private String[] munition = new String[0];
 	private int singleshots = 1;
 	private boolean destroyable = false;
 	
@@ -195,9 +174,31 @@ public class Weapon {
 				this.singleshots = Integer.parseInt(single);
 			}
 			
-			String munition = XMLUtils.getStringAttribute(shots, "ammo");
-			if( munition != null ) {
-				this.munition = munition;
+			if( XMLUtils.firstNodeByTagName(shots, "ammo") == null ) {
+				String munition = XMLUtils.getStringAttribute(shots, "ammo");
+				if( munition != null ) {
+					this.munition = new String[] {munition};
+				}
+			}
+			else {
+				List<String> ammo = new ArrayList<String>();
+				
+				NodeList nodes = shots.getChildNodes();
+				for( int i=0; i < nodes.getLength(); i++ ) {
+					if( nodes.item(i).getNodeType() != Node.ELEMENT_NODE ) {
+						continue;
+					}
+					if( !"ammo".equals(nodes.item(i).getNodeName()) ) {
+						continue;
+					}
+					
+					String munition = XMLUtils.getStringAttribute(nodes.item(i), "type");
+					if( munition != null ) {
+						ammo.add(munition);
+					}
+				}
+				
+				this.munition = ammo.toArray(new String[ammo.size()]);
 			}
 			
 			String destroyable = XMLUtils.getStringAttribute(shots, "destroyable");
@@ -244,42 +245,6 @@ public class Weapon {
 	 */
 	public int getECost() {
 		return this.eCost;
-	}
-	
-	/**
-	 * Gibt den Schaden der Waffe gegenueber der Schiffshuelle zurueck
-	 * @param ownShipType Der Schiffstyp des feuernden Schiffes
-	 * @return Der Schaden an der Huelle
-	 */
-	public int getBaseDamage(SQLResultRow ownShipType) {
-		return this.baseDamage;
-	}
-	
-	/**
-	 * Gibt den Multiplikationsfaktor fuer den Schaden in Abhaengigkeit vom getroffenen Schiffstyp zurueck
-	 * @param enemyShipType Der Typ des Schiffes, auf welches gefeuert werden soll
-	 * @return Der Multiplikationsfaktor
-	 */
-	public int getBaseDamageModifier(SQLResultRow enemyShipType) {
-		return 1;
-	}
-	
-	/**
-	 * Gibt den Schaden der Waffe gegenueber den Schilden zurueck
-	 * @param ownShipType Der Schiffstyp des feuernden Schiffes
-	 * @return Der Schaden an den Schilden
-	 */
-	public int getShieldDamage(SQLResultRow ownShipType) {
-		return this.shieldDamage;
-	}
-	
-	/**
-	 * Gibt den Schaden der Waffe gegenueber den Subsystemen zurueck
-	 * @param ownShipType Der Schiffstyp des feuernden Schiffes
-	 * @return Der Schaden an den Subsystemen
-	 */
-	public int getSubDamage(SQLResultRow ownShipType) {
-		return this.subDamage;
 	}
 	
 	/**
@@ -351,16 +316,6 @@ public class Weapon {
 	}
 	
 	/**
-	 * Berechnet Aenderungen an den Schiffstypen
-	 * @param ownShipType Der Typ des feuernden Schiffes
-	 * @param enemyShipType Der Typ des getroffenen Schiffes
-	 * @return Wurden Aenderungen vorgenommen (<code>true</code>)
-	 */
-	public boolean calcShipTypes(SQLResultRow ownShipType, SQLResultRow enemyShipType) {
-		return false;
-	}
-	
-	/**
 	 * Berechnet Aenderungen am Schiffstyp des feuernden Schiffes
 	 * @param ownShipType Der Typ des feuernden Schiffes
 	 * @param enemyShipType Der Typ des getroffenen Schiffes
@@ -381,12 +336,12 @@ public class Weapon {
 	}
 	
 	/**
-	 * Gibt den benoetigten Munitionstyp zurueck. Falls keine Munition verwendet wird, so wird <code>none</code>
-	 * zurueckgegeben.
-	 * @return Der benoetigte Munitionstyp oder <code>none</code>
+	 * Gibt die benoetigten Munitionstypen zurueck. Falls keine Munition verwendet wird, so wird ein Array mit
+	 * der Laenge 0 zurueckgegeben.
+	 * @return Die benoetigten Munitionstypen
 	 */
-	public String getAmmoType() {
-		return this.munition;
+	public String[] getAmmoType() {
+		return this.munition.clone();
 	}
 	
 	/**

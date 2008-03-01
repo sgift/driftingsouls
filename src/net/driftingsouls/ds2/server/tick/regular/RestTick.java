@@ -23,6 +23,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -30,14 +34,17 @@ import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.entities.Jump;
+import net.driftingsouls.ds2.server.entities.StatShips;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.scripting.ScriptParser;
+import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.tick.TickController;
@@ -61,19 +68,31 @@ public class RestTick extends TickController {
 	*/
 	private void doJumps() {
 		try {
-			Database db = getContext().getDatabase();
+			org.hibernate.Session db = getContext().getDB();
 			
 			this.log("Sprungantrieb");
-			SQLQuery jump = db.query("SELECT id,x,y,system,shipid FROM jumps");
-			while( jump.next() ) {
-				this.log( jump.getInt("shipid")+" springt nach "+jump.getInt("system")+":"+jump.getInt("x")+"/"+jump.getInt("y"));
+			List jumps = db.createQuery("from Jump as j inner join fetch j.ship").list();
+			for( Iterator iter=jumps.iterator(); iter.hasNext(); ) {
+				Jump jump = (Jump)iter.next();
 				
-				db.update("UPDATE ships SET x=",jump.getInt("x"),",y=",jump.getInt("y"),",system=",jump.getInt("system")," WHERE id>0 AND id=",jump.getInt("shipid")," OR docked='",jump.getInt("shipid"),"' OR docked='l ",jump.getInt("shipid"),"'");
-				db.update("DELETE FROM jumps WHERE id=",jump.getInt("id"));
+				this.log( jump.getShip().getId()+" springt nach "+jump.getLocation());
+				
+				jump.getShip().setSystem(jump.getSystem());
+				jump.getShip().setX(jump.getX());
+				jump.getShip().setY(jump.getY());
+				
+				db.createQuery("update Ship set x= :x, y= :y, system= :system where docked in (:dock,:land)")
+					.setInteger("x", jump.getX())
+					.setInteger("y", jump.getY())
+					.setInteger("system", jump.getSystem())
+					.setString("dock", Integer.toString(jump.getShip().getId()))
+					.setString("land", "l "+jump.getShip().getId())
+					.executeUpdate();
+				
+				db.delete(jump);
 			}
-			jump.free();
 		}
-		catch( Exception e ) {
+		catch( RuntimeException e ) {
 			this.log("Fehler beim Verarbeiten der Sprungantriebe: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doJumps failed");
@@ -88,18 +107,18 @@ public class RestTick extends TickController {
 	*/
 	private void doStatistics() {
 		try {
-			Database db = getContext().getDatabase();
+			org.hibernate.Session db = getDB();
 		
 			this.log("");
 			this.log("Erstelle Statistiken");
 		
-			int shipcount = db.first("SELECT count(*) count FROM ships WHERE id>0 AND owner>1").getInt("count");
-			long crewcount = db.first("SELECT sum(crew) totalcrew FROM ships WHERE id>0 AND owner > 0").getLong("totalcrew");
-			int tick = getContext().get(ContextCommon.class).getTick();
+			long shipcount = (Long)db.createQuery("select count(*) from Ship where id>0 and owner>0").iterate().next();
+			long crewcount = (Long)db.createQuery("select sum(crew) from Ship where id>0 and owner>0").iterate().next();
 			
-			db.update("INSERT INTO stats_ships (tick,shipcount,crewcount) VALUES (",tick,",",shipcount,",",crewcount,")");
+			StatShips stat = new StatShips(shipcount, crewcount);
+			db.persist(stat);
 		}
-		catch( Exception e ) {
+		catch( RuntimeException e ) {
 			this.log("Fehler beim Anlegen der Statistiken: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doStatistics failed");
@@ -114,73 +133,93 @@ public class RestTick extends TickController {
 	*/
 	private void doVacation() {
 		try {
-			Database db = getDatabase();
+			org.hibernate.Session db = getDB();
 			
 			this.log("");
 			this.log("Bearbeite Vacation-Modus");
-			db.update("UPDATE users SET name=REPLACE(name,' [VAC]',''),nickname=REPLACE(nickname,' [VAC]','') WHERE vaccount=1");
-			this.log("\t"+db.affectedRows()+" Spieler haben den VAC-Modus verlassen");
-			db.update("UPDATE users SET vaccount=vaccount-1 WHERE vaccount>0 AND wait4vac=0");
 			
-			List list = getContext().getDB().createQuery("from User where wait4vac=1")
-				.list();
-			for( Iterator iter=list.iterator(); iter.hasNext(); ) {
+			List vacLeaveUsers = db.createQuery("from User where vaccount=1").list();
+			for( Iterator iter=vacLeaveUsers.iterator(); iter.hasNext(); ) {
 				User user = (User)iter.next();
+				user.setName(user.getName().replace(" [VAC]", ""));
+				user.setNickname(user.getNickname().replace(" [VAC]", ""));
 				
-				SQLResultRow newcommander = null;
+				this.log("\t"+user.getPlainname()+" ("+user.getId()+") verlaesst den VAC-Modus");
+			}
+			
+			db.createQuery("update User set vaccount=vaccount-1 where vaccount>0 and wait4vac=0")
+				.executeUpdate();
+
+			List<User> users = getContext().query("from User where wait4vac=1", User.class);
+			for( User user : users ) {
+				User newcommander = null;
 				if( user.getAlly() != null ) {
-					newcommander = db.first("SELECT id,name FROM users WHERE ally=",user.getAlly().getId(),"  AND inakt <= 7 AND vaccount=0 AND (wait4vac>6 OR wait4vac=0)");
+					newcommander = (User)db.createQuery("from User where ally= :ally  and inakt <= 7 and vaccount=0 and (wait4vac>6 or wait4vac=0)")
+						.setEntity("ally", user.getAlly())
+						.setMaxResults(1)
+						.uniqueResult();
 				}
 				
-				SQLQuery battleid = db.query("SELECT id FROM battles WHERE commander1=",user.getId()," OR commander2=",user.getId());
-				while( battleid.next() ) {
-					Battle battle = new Battle();
-					battle.load(battleid.getInt("id"), user.getId(), 0, 0, 0 );
+				List battles = db.createQuery("from Battle where commander1= :user or commander2= :user")
+					.setEntity("user", user)
+					.list();
+				for( Iterator iter=battles.iterator(); iter.hasNext(); ) {
+					Battle battle = (Battle)iter.next();
+					battle.load(user, null, null, 0 );
 					
 					if( newcommander != null ) {
-						this.log("\t\tUser"+user.getId()+": Die Leitung der Schlacht "+battleid.getInt("id")+" wurde an "+newcommander.getString("name")+" ("+newcommander.getInt("id")+") uebergeben");
+						this.log("\t\tUser"+user.getId()+": Die Leitung der Schlacht "+battle.getId()+" wurde an "+newcommander.getName()+" ("+newcommander.getId()+") uebergeben");
 						
 						battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+getContext().get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
 			
-						PM.send(getContext(), user.getId(), newcommander.getInt("id"), "Schlacht &uuml;bernommen", "Die Leitung der Schlacht bei "+battle.getSystem()+" : "+battle.getX()+"/"+battle.getY()+" wurde dir automatisch &uuml;bergeben, da der bisherige Kommandant in den Vacationmodus gewechselt ist");
+						PM.send(user, newcommander.getId(), "Schlacht &uuml;bernommen", "Die Leitung der Schlacht bei "+battle.getLocation()+" wurde dir automatisch &uuml;bergeben, da der bisherige Kommandant in den Vacationmodus gewechselt ist");
 				
-						battle.logenemy(Common._titleNoFormat(newcommander.getString("name"))+" kommandiert nun die gegnerischen Truppen\n\n");
+						battle.logenemy(Common._titleNoFormat(newcommander.getName())+" kommandiert nun die gegnerischen Truppen\n\n");
 				
-						battle.setCommander(battle.getOwnSide(), newcommander.getInt("id"));
+						battle.setCommander(battle.getOwnSide(), newcommander);
 				
 						battle.logenemy("]]></action>\n");
 				
-						battle.logenemy("<side"+(battle.getOwnSide()+1)+" commander=\""+battle.getCommander(battle.getOwnSide())+"\" ally=\""+battle.getAlly(battle.getOwnSide())+"\" />\n");
+						battle.logenemy("<side"+(battle.getOwnSide()+1)+" commander=\""+battle.getCommander(battle.getOwnSide()).getId()+"\" ally=\""+battle.getAlly(battle.getOwnSide())+"\" />\n");
 				
 						battle.setTakeCommand(battle.getOwnSide(), 0);
-				
-						battle.save(true);
-						
+
 						battle.writeLog();
 					}
 					else {
-						this.log("\t\tUser"+user.getId()+": Die Schlacht "+battleid+" wurde beendet");
+						this.log("\t\tUser"+user.getId()+": Die Schlacht "+battle.getId()+" wurde beendet");
 					
 						battle.endBattle(0, 0, true);
-						PM.send(getContext(), battle.getCommander(battle.getOwnSide()), battle.getCommander(battle.getEnemySide()), "Schlacht beendet", "Die Schlacht bei "+battle.getSystem()+" : "+battle.getX()+"/"+battle.getY()+" wurde automatisch beim wechseln in den Vacation-Modus beendet, da kein Ersatzkommandant ermittelt werden konnte!");
+						PM.send(battle.getCommander(battle.getOwnSide()), battle.getCommander(battle.getEnemySide()).getId(), "Schlacht beendet", "Die Schlacht bei "+battle.getLocation()+" wurde automatisch beim wechseln in den Vacation-Modus beendet, da kein Ersatzkommandant ermittelt werden konnte!");
 					}
 				}
-				battleid.free();
 				
-				getDB().createQuery("delete from Session where id= :user")
+				db.createQuery("delete from Session where id= :user")
 					.setEntity("user", user)
 					.executeUpdate();
+				
+				// TODO: Eine bessere Loesung fuer den Fall finden, wenn der Name mehr als 249 Zeichen lang ist
+				String name = user.getName();
+				String nickname = user.getNickname();
+				
+				if( name.length() > 249 ) {
+					name = name.substring(0, 249);
+				}
+				if( nickname.length() > 249 ) {
+					nickname = nickname.substring(0, 249);
+				}
+				
+				user.setName(name+" [VAC]");
+				user.setNickname(nickname+" [VAC]");
+				
+				this.log("\t"+user.getPlainname()+" ("+user.getId()+") ist in den VAC-Modus gewechselt");
 			}
 			
-			// TODO: Eine bessere Loesung fuer den Fall finden, wenn der Name mehr als 249 Zeichen lang ist
-			db.update("UPDATE users " +
-					"SET name=CONCAT(CASE WHEN CHAR_LENGTH(name) > 249 THEN SUBSTR(name,1,249) ELSE name END,' [VAC]')," +
-						"nickname=CONCAT(CASE WHEN CHAR_LENGTH(nickname) > 249 THEN SUBSTR(nickname,1,249) ELSE nickname END,' [VAC]') " +
-					"WHERE wait4vac=1");
-			this.log("\t"+db.affectedRows()+" Spieler sind in den VAC-Modus gewechselt");
-			db.update("UPDATE users SET wait4vac=wait4vac-1 WHERE wait4vac>0");
+			
+			db.createQuery("update User set wait4vac=wait4vac-1 where wait4vac>0")
+				.executeUpdate();
 		}
-		catch( Exception e ) {
+		catch( RuntimeException e ) {
 			this.log("Fehler beim Verarbeiten der Vacationdaten: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doVacation failed");
@@ -254,11 +293,11 @@ public class RestTick extends TickController {
 							this.log("\t   *"+res.getName()+" => "+res.getCount1());
 						}
 						
-						SQLResultRow shiptype = ShipTypes.getShipType(aloadout.getInt("shiptype"), false);
+						ShipTypeData shiptype = Ship.getShipType(aloadout.getInt("shiptype"));
 						
 						// Schiffseintrag einfuegen
-						db.update("INSERT INTO ships (id,name,type,owner,x,y,system,hull,crew,cargo) ",
-									"VALUES (",shouldId,",'Felsbrocken',",aloadout.getInt("shiptype"),",-1,",x,",",y,",",system.getInt("system"),",",shiptype.getInt("hull"),",",shiptype.getInt("crew"),",'",cargo.save(),"')");
+						db.update("INSERT INTO ships (id,name,type,owner,x,y,system,hull,crew,cargo,heat,docked,destcom,jumptarget,history,status) ",
+									"VALUES (",shouldId,",'Felsbrocken',",aloadout.getInt("shiptype"),",-1,",x,",",y,",",system.getInt("system"),",",shiptype.getHull(),",",shiptype.getCrew(),",'",cargo.save(),"','','','','','','')");
 						this.log("");
 						
 						shipcount++;
@@ -268,7 +307,7 @@ public class RestTick extends TickController {
 				}
 			}
 		}
-		catch( Exception e ) {
+		catch( RuntimeException e ) {
 			this.log("Fehler beim Erstellen der Felsbrocken: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doFelsbrocken failed");
@@ -291,11 +330,10 @@ public class RestTick extends TickController {
 				rquest.free();
 				return;
 			}
-			ScriptParser scriptparser = getContext().get(ContextCommon.class).getScriptParser(ScriptParser.NameSpace.QUEST);
-			scriptparser.setLogFunction(ScriptParser.LOGGER_NULL);	
+			ScriptEngine scriptparser = getContext().get(ContextCommon.class).getScriptParser("DSQuestScript");
+			scriptparser.getContext().setErrorWriter(new NullLogger());	
 			
 			while( rquest.next() ) {
-				scriptparser.cleanup();
 				try {
 					Blob execdata = rquest.getBlob("execdata");
 					if( (execdata != null) && (execdata.length() > 0) ) { 
@@ -308,15 +346,19 @@ public class RestTick extends TickController {
 					this.log("* quest: "+rquest.getInt("questid")+" - user:"+rquest.getInt("userid")+" - script: "+rquest.getInt("ontick"));
 						
 					String script = db.first("SELECT script FROM scripts WHERE id='"+rquest.getInt("ontick")+"'").getString("script");
-					scriptparser.setRegister("USER", Integer.toString(rquest.getInt("userid")) );
-					scriptparser.setRegister("QUEST", "r"+rquest.getInt("id"));
-					scriptparser.setRegister("SCRIPT", Integer.toString(rquest.getInt("ontick")) );		
-					scriptparser.executeScript(db, script, "0");
+					
+					final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
+					
+					engineBindings.put("USER", Integer.toString(rquest.getInt("userid")) );
+					engineBindings.put("QUEST", "r"+rquest.getInt("id"));
+					engineBindings.put("SCRIPT", Integer.toString(rquest.getInt("ontick")) );
+					engineBindings.put("_PARAMETERS", "0");
+					scriptparser.eval(script);
 						
-					int usequest = Integer.parseInt(scriptparser.getRegister("QUEST"));
+					int usequest = Integer.parseInt((String)engineBindings.get("QUEST"));
 						
 					if( usequest != 0 ) {
-						scriptparser.getContext().toStream(execdata.setBinaryStream(1));	
+						ScriptParserContext.toStream(scriptparser.getContext(), execdata.setBinaryStream(1));
 						db.prepare("UPDATE quests_running SET execdata=? WHERE id=? ")
 							.update(execdata, rquest.getInt("id"));
 					}
@@ -329,7 +371,7 @@ public class RestTick extends TickController {
 			}
 			rquest.free();
 		}
-		catch( Exception e ) {
+		catch( RuntimeException e ) {
 			this.log("Fehler beim Verarbeiten der Quests: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doQuests failed");
@@ -357,7 +399,7 @@ public class RestTick extends TickController {
 			
 			taskmanager.reduceTimeout(1);
 		}
-		catch( Exception e ) {
+		catch( RuntimeException e ) {
 			this.log("Fehler beim Bearbeiten der Tasks: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doTasks failed");
@@ -369,20 +411,23 @@ public class RestTick extends TickController {
 	
 	@Override
 	protected void tick() {
-		Database db = getContext().getDatabase();
+		Database database = getContext().getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		this.log("Transmissionen - gelesen+1");
-		db.update("UPDATE transmissionen SET gelesen=gelesen+1 WHERE gelesen>=2");
+		database.update("UPDATE transmissionen SET gelesen=gelesen+1 WHERE gelesen>=2");
 		
 		this.log("Loesche alte Transmissionen");
-		db.update("DELETE FROM transmissionen WHERE gelesen>=10");
+		database.update("DELETE FROM transmissionen WHERE gelesen>=10");
 		
 		this.log("Erhoehe Inaktivitaet der Spieler");
-		db.update("UPDATE users SET inakt=inakt+1 WHERE vaccount=0");
+		db.createQuery("update User set inakt=inakt+1 where vaccount=0")
+			.executeUpdate();
 		
 		this.log("Erhoehe Tickzahl");
-		db.update("UPDATE config SET ticks=ticks+1");
+		database.update("UPDATE config SET ticks=ticks+1");
 		getContext().commit();
+		
 		
 		this.doJumps();
 		getContext().commit();
@@ -403,7 +448,7 @@ public class RestTick extends TickController {
 		getContext().commit();
 		
 		this.log("Zaehle Timeout bei Umfragen runter");
-		db.update("UPDATE surveys SET timeout=timeout-1 WHERE timeout>0");
+		database.update("UPDATE surveys SET timeout=timeout-1 WHERE timeout>0");
 		
 		this.log("Entsperre alle evt noch durch den Tick gesperrten Accounts");
 		this.unblock(0);

@@ -19,10 +19,12 @@
 package net.driftingsouls.ds2.server.modules;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
-import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -30,15 +32,13 @@ import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
-import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
  * Kolonisieren eines Asteroiden mittels eines Colonizers (Schiff)
@@ -49,7 +49,7 @@ import net.driftingsouls.ds2.server.ships.Ships;
  *
  */
 public class ColonizeController extends TemplateGenerator {
-	private SQLResultRow ship;
+	private Ship ship;
 	private Base base;
 	
 	/**
@@ -63,26 +63,28 @@ public class ColonizeController extends TemplateGenerator {
 		
 		parameterNumber("ship");
 		parameterNumber("col");
+		
+		setPageTitle("Kolonisieren");
 	}
 	
 	@Override
 	protected boolean validateAndPrepare( String action ) {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
 		int shipId = getInteger("ship");
 		int col = getInteger("col");
 		
-		SQLResultRow ship = db.first("SELECT * FROM ships WHERE id>0 AND owner='",user.getId(),"' AND id='",shipId,"'");
-		if( ship.isEmpty() ) {
+		Ship ship = (Ship)db.get(Ship.class, shipId);
+		if( (ship == null) || (ship.getOwner() != user) ) {
 			addError("Fehler: Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht", Common.buildUrl("default", "module", "schiffe") );
 			
 			return false;
 		}
 		
-		SQLResultRow shiptype = ShipTypes.getShipType( ship );
-		if( !ShipTypes.hasShipTypeFlag(shiptype, ShipTypes.SF_COLONIZER) ) {
+		ShipTypeData shiptype = ship.getTypeData();
+		if( !shiptype.hasFlag(ShipTypes.SF_COLONIZER) ) {
 			addError("Fehler: Das angegebene Schiff kann keine Planeten kolonisieren", Common.buildUrl("default", "module", "schiff" , "ship", shipId) );
 			
 			return false;
@@ -95,7 +97,7 @@ public class ColonizeController extends TemplateGenerator {
 			return false;
 		}
 
-		if( !Location.fromResult(ship).sameSector(0, base.getLocation(), base.getSize()) ) {
+		if( !ship.getLocation().sameSector(0, base.getLocation(), base.getSize()) ) {
 			addError("Fehler: Der Asteroid befindet sich nicht im selben Sektor wie das Schiff", Common.buildUrl("default", "module", "schiff", "ship", shipId) );
 			
 			return false;
@@ -104,7 +106,7 @@ public class ColonizeController extends TemplateGenerator {
 		this.base = base;
 		this.ship = ship;
 		
-		t.setVar( "ship.id", ship.getInt("id") );
+		t.setVar( "ship.id", ship.getId() );
 		
 		return true;	
 	}
@@ -112,10 +114,10 @@ public class ColonizeController extends TemplateGenerator {
 	/**
 	 * Der Kolonisiervorgang
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
@@ -126,13 +128,16 @@ public class ColonizeController extends TemplateGenerator {
 		bases.put(base.getSystem(), 0);
 		int basecount = 0;
 		
-		SQLQuery tmp = db.query("SELECT system,width,height,maxtiles,cargo FROM bases WHERE owner='",user.getId(),"'");
-		while( tmp.next() ){
-			final int system = tmp.getInt("system");
+		final List baseList = db.createQuery("from Base where owner=?")
+			.setEntity(0, user)
+			.list();
+		for( Iterator iter=baseList.iterator(); iter.hasNext(); ) {
+			Base aBase = (Base)iter.next();
+			
+			final int system = aBase.getSystem();
 			Common.safeIntInc(bases, system);
-			basecount += tmp.getInt("maxtiles");
+			basecount += aBase.getMaxTiles();
 		}
-		tmp.free();
 		basecount += this.base.getMaxTiles();
 		
 		if( basecount > Integer.parseInt(user.getUserValue("GAMEPLAY/bases/maxtiles")) ) {
@@ -148,8 +153,8 @@ public class ColonizeController extends TemplateGenerator {
 			return;
 		}
 		
-		int crew = ship.getInt("crew");
-		int e = ship.getInt("e");
+		int crew = ship.getCrew();
+		int e = ship.getEnergy();
 		
 		/* 
 		 * 
@@ -159,9 +164,9 @@ public class ColonizeController extends TemplateGenerator {
 		//Anzahl der Gebaeude pro Spieler berechnen
 		Map<Integer,Integer> ownerBuildingCount = new HashMap<Integer,Integer>();
 		
-		SQLQuery abebQuery = db.query("SELECT bebauung FROM bases WHERE owner="+user.getId()+" AND id!="+base.getId());
-		while( abebQuery.next() ) {
-			Integer[] abeb = Common.explodeToInteger("|", abebQuery.getString("bebauung"));
+		for( Iterator iter=baseList.iterator(); iter.hasNext(); ) {
+			Base aBase = (Base)iter.next();
+			Integer[] abeb = aBase.getBebauung();
 			for( int i=0; i < abeb.length; i++ ) {
 				if( ownerBuildingCount.containsKey(abeb[i]) ) {
 					ownerBuildingCount.put( abeb[i], ownerBuildingCount.get(abeb[i])+1 );
@@ -171,15 +176,14 @@ public class ColonizeController extends TemplateGenerator {
 				}
 			}
 		}
-		abebQuery.free();
 		
 		// Problematische Gebaeude ermitteln
 		Map<Integer,Integer> problematicBuildings = new HashMap<Integer,Integer>();
-		SQLQuery aBuilding = db.query("SELECT id,perowner FROM buildings WHERE perowner>0");
-		while( aBuilding.next() ) {
-			problematicBuildings.put(aBuilding.getInt("id"), aBuilding.getInt("perowner"));
+		Iterator buildingIter = db.createQuery("from Building where perOwner>0").iterate();
+		for( ; buildingIter.hasNext(); ) {
+			Building aBuilding = (Building)buildingIter.next();
+			problematicBuildings.put(aBuilding.getId(), aBuilding.getPerUserCount());
 		}
-		aBuilding.free();
 		
 		// Nun die Gebaeude auf dem Asti durchlaufen und bei Bedarf einige entfernen
 		for( int index=0; index < bebauung.length; index++ ) {
@@ -201,7 +205,7 @@ public class ColonizeController extends TemplateGenerator {
 		 * 
 		 */
 
-		Cargo cargo = new Cargo( Cargo.Type.STRING, ship.getString("cargo") );
+		Cargo cargo = ship.getCargo();
 		
 		t.setBlock("_COLONIZE", "res.listitem", "res.list");
 		
@@ -216,9 +220,12 @@ public class ColonizeController extends TemplateGenerator {
 		Cargo cargo2 = base.getCargo();
 		cargo.addCargo( cargo2 );
 
-		db.tBegin();
-		db.update("UPDATE offiziere SET dest='b ",base.getId(),"' WHERE dest='s ",ship.getInt("id"),"'");
-		Ships.destroy( ship.getInt("id") );
+		db.createQuery("update Offizier set dest=? where dest=?")
+			.setString(0, "b "+base.getId())
+			.setString(1, "s "+ship.getId())
+			.executeUpdate();
+		
+		ship.destroy();
 
 		// Die Kommandozentrale setzen
 		bebauung[0] = 1;
@@ -230,11 +237,13 @@ public class ColonizeController extends TemplateGenerator {
 		base.setOwner(user);
 		base.setBewohner(crew);
 		base.setEnergy(e);
-
-		db.update("UPDATE offiziere SET userid=",user.getId()," WHERE dest IN ('b ",base.getId(),"','t "+base.getId(),"')");
-		if( !db.tCommit() ) {
-			addError("Beim kolonisieren ist ein Fehler aufgetreten. Bitte versuchen sie es sp&auml;ter erneut");
-		}
+		
+		db.createQuery("update Offizier set userid=? where dest in (?,?)")
+			.setEntity(0, user)
+			.setString(1, "b "+base.getId())
+			.setString(2, "t "+base.getId())
+			.executeUpdate();
+		
 		t.setVar("base.id", base.getId());		
 	}
 

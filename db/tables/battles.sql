@@ -1,5 +1,5 @@
 CREATE TABLE `battles` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` smallint(5) unsigned NOT NULL auto_increment,
   `x` smallint(6) NOT NULL default '1',
   `y` smallint(6) NOT NULL default '1',
   `system` smallint(6) NOT NULL default '1',

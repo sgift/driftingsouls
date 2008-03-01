@@ -21,14 +21,12 @@ package net.driftingsouls.ds2.server.modules.admin;
 import java.io.File;
 import java.util.Map;
 
-import net.driftingsouls.ds2.server.scripting.QuestXMLParser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
-import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
-import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
+import net.driftingsouls.ds2.server.scripting.QuestXMLParser;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
@@ -69,7 +67,7 @@ public class QuestsFiles implements AdminPlugin {
 		String info = context.getRequest().getParameterString("info");
 
 		echo.append(Common.tableBegin(550,"left"));
-		echo.append("<form action=\"./main.php\" method=\"post\">\n");
+		echo.append("<form action=\"./ds\" method=\"post\">\n");
 		echo.append("<input type=\"text\" name=\"installfile\" value=\""+(installfile.length() == 0 ? "Datei" : installfile)+"\" size=\"50\" />\n");
 		echo.append("<input type=\"hidden\" name=\"sess\" value=\""+context.getSession()+"\" />\n");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
@@ -97,8 +95,8 @@ public class QuestsFiles implements AdminPlugin {
 			if( conf == 0 ) {
 				echo.append(Common.tableBegin(550,"center"));
 				echo.append("Wollen sie die Quest-XML "+unlinkName+" wirklich l&ouml;schen?<br />\n");
-				echo.append("<a class=\"error\" href=\"./main.php?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"&unlink="+unlink+"&conf=1\">ja</a> - \n");
-				echo.append("<a class=\"ok\" href=\"./main.php?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"\">nein</a>\n");
+				echo.append("<a class=\"error\" href=\"./ds?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"&unlink="+unlink+"&conf=1\">ja</a> - \n");
+				echo.append("<a class=\"ok\" href=\"./ds?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"\">nein</a>\n");
 				
 				echo.append(Common.tableEnd());
 				echo.append("<br />\n");
@@ -158,24 +156,27 @@ public class QuestsFiles implements AdminPlugin {
 				Map<String,Integer> questids = questXML.getInstallData("questids");
 				if( questids.size() > 0 ) {
 					echo.append("Quests:<br />");
-					for( String xid : questids.keySet() ) {
-						echo.append("* "+xid+" [DB: "+questids.get(xid)+"]<br />");	
+					for( Map.Entry<String, Integer> entry: questids.entrySet()) {
+						String xid = entry.getKey();
+						echo.append("* "+xid+" [DB: "+entry.getValue()+"]<br />");	
 					}
 				}
 				
 				Map<String,Integer> answerids = questXML.getInstallData("answerids");
 				if( answerids.size() > 0 ) {
 					echo.append("<br />Antworten:<br />");
-					for( String xid : answerids.keySet() ) {
-						echo.append("* "+xid+" [DB: "+answerids.get(xid)+"]<br />");
+					for( Map.Entry<String, Integer> entry: answerids.entrySet() ) {
+						String xid = entry.getKey();
+						echo.append("* "+xid+" [DB: "+entry.getValue()+"]<br />");
 					}
 				}
 				
 				Map<String,Integer> dialogids = questXML.getInstallData("dialogids");
 				if( dialogids.size() > 0 ) {
 					echo.append("<br />Dialoge:<br />");
-					for( String xid : dialogids.keySet() ) {
-						echo.append("* "+xid+" [DB: "+dialogids.get(xid)+"]<br />");
+					for( Map.Entry<String, Integer> entry: dialogids.entrySet() ) {
+						String xid = entry.getKey();
+						echo.append("* "+xid+" [DB: "+entry.getValue()+"]<br />");
 					}
 				}
 				
@@ -207,12 +208,12 @@ public class QuestsFiles implements AdminPlugin {
 			
 			if( childlist[i].getName().indexOf(".xml") > -1 ) {
 				echo.append(basename(childlist[i].getName(),".xml")+"\n");
-				echo.append(" - <a class=\"error\" href=\"./main.php?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"&unlink="+basename(childlist[i].getName(),".xml")+"\">X</a>\n");
-				echo.append("<a class=\"forschinfo\" href=\"./main.php?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"&info="+basename(childlist[i].getName(),".xml")+"\">info</a><br />\n");
+				echo.append(" - <a class=\"error\" href=\"./ds?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"&unlink="+basename(childlist[i].getName(),".xml")+"\">X</a>\n");
+				echo.append("<a class=\"forschinfo\" href=\"./ds?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"&info="+basename(childlist[i].getName(),".xml")+"\">info</a><br />\n");
 			}	
 		}
 		echo.append("<br />\n");
-		echo.append("<form action=\"./admin.php\" method=\"post\" enctype=\"multipart/form-data\">\n");
+		echo.append("<form action=\"./ds\" method=\"post\" enctype=\"multipart/form-data\">\n");
 		echo.append("<input type=\"file\" name=\"questfile\" size=\"40\" />\n");
 		echo.append("<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"307200\" />\n");
 		echo.append("<input type=\"hidden\" name=\"sess\" value=\""+context.getSession()+"\" />\n");

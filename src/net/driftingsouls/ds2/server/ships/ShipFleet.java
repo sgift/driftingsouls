@@ -26,8 +26,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
@@ -38,9 +40,17 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 @Entity
 @Table(name="ship_fleets")
 public class ShipFleet {
+	/**
+	 * Objekt mit Funktionsmeldungen
+	 */
+	public static final ContextLocalMessage MESSAGE = new ContextLocalMessage();
+	
 	@Id @GeneratedValue
 	private int id;
 	private String name;
+	
+	@Transient
+	private boolean consignMode = false;
 	
 	/**
 	 * Konstruktor
@@ -280,6 +290,77 @@ public class ShipFleet {
 		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
 			Ship aship = (Ship)iter.next();
 			aship.dock(Ship.DockMode.UNDOCK, (Ship[])null);
+		}
+	}
+	
+	/**
+	 * Uebergibt alle Schiffe der Flotte an den angegebenen Spieler. Meldungen
+	 * werden dabei nach {@link #MESSAGE} geschrieben.
+	 * @param newowner Der neue Besitzer.
+	 * @return <code>true</code>, falls mindestens ein Schiff der Flotte uebergeben werden konnte
+	 */
+	public boolean consign(User newowner) {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		int count = 0;
+		
+		this.consignMode = true;
+		try {
+			List shiplist = db.createQuery("from Ship where fleet=? and battle is null" )
+				.setInteger(0, this.id)
+				.list();
+			for( Iterator iter=shiplist.iterator(); iter.hasNext(); ) {
+				Ship aship = (Ship)iter.next();
+				boolean tmp = aship.consign(newowner, false );
+			
+				String msg = Ship.MESSAGE.getMessage();
+				if( msg.length() > 0 ) {
+					MESSAGE.get().append(msg+"<br />");	
+				}
+				if( !tmp ) {
+					count++;
+					aship.setFleet(this);
+				}
+			}
+		}
+		finally {
+			this.consignMode = false;
+		}
+		
+		return count > 0;
+	}
+	
+	/**
+	 * Entfernt ein Schiff aus der Flotte. Slotte die Flotte anschliessend zu wenige Schiffe haben
+	 * wird sie aufgeloesst.
+	 * @param ship Das Schiff
+	 */
+	public void removeShip(Ship ship) {
+		if( !this.equals(ship.getFleet()) ) {
+			throw new IllegalArgumentException("Das Schiff gehoert nicht zu dieser Flotte");
+		}
+		
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		int fleetcount = ((Number)db.createQuery("select count(*) from Ship where fleet=? and id>0")
+				.setInteger(0, this.id)
+				.iterate().next()).intValue();
+
+		if( fleetcount > 2 || this.consignMode ) {
+			ship.setFleet(null);
+			MESSAGE.get().append("aus der Flotte ausgetreten");
+		} 
+		else {
+			final Iterator shipIter = db.createQuery("from Ship where fleet=?")
+				.setEntity(0, this)
+				.iterate();
+			while( shipIter.hasNext() ) {
+				Ship aship = (Ship)shipIter.next();
+				aship.setFleet(null);
+			}
+			
+			db.delete(this);
+			MESSAGE.get().append("Flotte aufgel&ouml;&szlig;t");
 		}
 	}
 }

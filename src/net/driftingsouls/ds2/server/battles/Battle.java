@@ -29,29 +29,39 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
+
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.script.ScriptEngine;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.Quests;
-import net.driftingsouls.ds2.server.scripting.ScriptParser;
+import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipType;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
-import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.tick.regular.SchiffsTick;
 
@@ -64,7 +74,9 @@ import org.apache.commons.lang.math.RandomUtils;
  * @author Christopher Jung
  *
  */
-public class Battle implements Loggable {
+@Entity
+@Table(name="battles")
+public class Battle implements Loggable, Locatable {
 	private static final int LOGFORMAT = 2;
 	
 	//
@@ -133,46 +145,75 @@ public class Battle implements Loggable {
 	 */
 	public static final int FLAG_BLOCK_SECONDROW_1 = 16;
 	
-	private int id = 0;
-	private int x = 0;
-	private int y = 0;
-	private int system = 0;
-	private int flags = 0;
+	@Id @GeneratedValue
+	private int id;
+	private int x;
+	private int y;
+	private int system;
+	private int ally1;
+	private int ally2;
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="commander1", nullable=false)
+	private User commander1;
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="commander2", nullable=false)
+	private User commander2;
+	private boolean ready1;
+	private boolean ready2;
+	private String com1Msg = "";
+	private String com2Msg = "";
+	@SuppressWarnings("unused")
+	private int com1Points;
+	@SuppressWarnings("unused")
+	private int com2Points;
+	private boolean com1BETAK = true;
+	private boolean com2BETAK = true;
+	private int takeCommand1;
+	private int takeCommand2;
+	private int blockcount = 2;
+	@SuppressWarnings("unused")
+	private long lastaction;
+	private long lastturn;
+	private int flags;
+	private int inakt;
+	private String onend;
+	private String visibility;
+	private Integer quest;
+	
+	@Transient
 	private String ownShipGroup = "0";
+	@Transient
 	private String enemyShipGroup = "0";
 	
-	private int ownSide = 0;
-	private int enemySide = 0;
+	@Transient
+	private int ownSide;
+	@Transient
+	private int enemySide;
 	
-	private List<SQLResultRow> ownShips = new ArrayList<SQLResultRow>();
-	private List<SQLResultRow> enemyShips = new ArrayList<SQLResultRow>();
+	@Transient
+	private List<BattleShip> ownShips = new ArrayList<BattleShip>();
+	@Transient
+	private List<BattleShip> enemyShips = new ArrayList<BattleShip>();
 	
-	private boolean startOwn = false;
-
-	private int[] points = new int[2];
-	private int[] ally = new int[2];
-	private int[] commander = new int[2];
-	private boolean[] ready = new boolean[2];
-	private String[] comMsg = new String[2];
-	private boolean[] betak = new boolean[2];
-	private int[] takeCommand = new int[2];
+	@Transient
 	private List<List<Integer>> addCommanders = new ArrayList<List<Integer>>();
-	
-	private int blockcount = 0;
-	private long lastturn = 0;
-	private String visibility = "";
-	private int quest = 0;
+
+	@Transient
 	private boolean guest = false;
 	
-	private SQLResultRow tableBuffer = null;
-	
+	@Transient
 	private Map<Integer,Integer> ownShipTypeCount = new HashMap<Integer,Integer>();
+	@Transient
 	private Map<Integer,Integer> enemyShipTypeCount = new HashMap<Integer,Integer>();
 	
+	@Transient
 	private int activeSOwn = 0;
+	@Transient
 	private int activeSEnemy = 0;
 	
+	@Transient
 	private StringBuilder logoutputbuffer = new StringBuilder();
+	@Transient
 	private StringBuilder logenemybuffer = new StringBuilder();
 	
 	/**
@@ -181,17 +222,26 @@ public class Battle implements Loggable {
 	 * @param ship Das Schiff
 	 * @return Die Stringrepraesentation
 	 */
-	public static String log_shiplink( SQLResultRow ship ) {
-		SQLResultRow shiptype = ShipTypes.getShipType(ship);
+	public static String log_shiplink( Ship ship ) {
+		ShipTypeData shiptype = ship.getTypeData();
 
-		return "[tooltip="+shiptype.getString("nickname")+"]"+ship.getString("name")+"[/tooltip] ("+ship.getInt("id")+")";
+		return "[tooltip="+shiptype.getNickname()+"]"+ship.getName()+"[/tooltip] ("+ship.getId()+")";
+	}
+	
+	/**
+	 * Konstruktor
+	 *
+	 */
+	public Battle() {
+		this.addCommanders.add(0, new ArrayList<Integer>());
+		this.addCommanders.add(1, new ArrayList<Integer>());
 	}
 	
 	/**
 	 * Gibt die ID der Schlacht zurueck
 	 * @return die ID
 	 */
-	public int getID() {
+	public int getId() {
 		return this.id;
 	}
 	
@@ -228,8 +278,8 @@ public class Battle implements Loggable {
 	 * @param added Eine Liste zusaetzlicher Schiffe, welche sich noch nicht in der Schlacht befinden oder <code>null</code>
 	 * @return <code>true</code>, falls die zweite Reihe unter den Bedingungen stabil ist
 	 */
-	public boolean isSecondRowStable( int side, SQLResultRow[] added ) {
-		List<SQLResultRow> shiplist = null;
+	public boolean isSecondRowStable( int side, BattleShip ... added ) {
+		List<BattleShip> shiplist = null;
 		if( side == this.ownSide ) {
 			shiplist = this.ownShips;
 		}
@@ -239,36 +289,44 @@ public class Battle implements Loggable {
 		
 		int owncaps = 0;
 		int secondrowcaps = 0;
-		for( int i=0; i < shiplist.size(); i++ ) {
-			SQLResultRow aship = shiplist.get(i);
+		for( int i=0; i < shiplist.size(); i++ ) 
+		{
+			BattleShip aship = shiplist.get(i);
 			
-			if( (aship.getInt("action") & BS_JOIN) != 0 || (aship.getInt("action") & BS_FLUCHT) != 0 ) {
+			if( (aship.getAction() & BS_JOIN) != 0 || (aship.getAction() & BS_FLUCHT) != 0 ) {
 				continue;	
 			}
-			SQLResultRow type = ShipTypes.getShipType(aship);
+			ShipTypeData type = aship.getTypeData();
 			
-			if( (aship.getInt("action") & BS_SECONDROW) != 0 ) {
-				if( aship.getString("docked").length() == 0 ) {
-					secondrowcaps += type.getInt("size");
+			int size = type.getSize();
+			if( (aship.getAction() & BS_SECONDROW) != 0 ) {
+				if( aship.getShip().getDocked().length() == 0 ) {
+					secondrowcaps += size;
 				}
 			}
-			else if( type.getInt("size") > 3 ) {
-				owncaps += type.getInt("size");	
-			}	
+			else {
+				if( size > ShipType.SMALL_SHIP_MAXSIZE ) {
+					int countedSize = size;
+					if( type.getCrew() > 0 ) {
+						countedSize *= (aship.getCrew()/type.getCrew());
+					}
+					owncaps += countedSize;
+				}
+			}
 		}
 		
 		if( added != null ) {
 			for( int i=0; i < added.length; i++ ) {
-				SQLResultRow aship = added[i];
+				BattleShip aship = added[i];
 				
-				SQLResultRow type = ShipTypes.getShipType(aship);
+				ShipTypeData type = aship.getTypeData();
 				
-				if( !ShipTypes.hasShipTypeFlag(type, ShipTypes.SF_SECONDROW) ) {
+				if( !type.hasFlag(ShipTypes.SF_SECONDROW) ) {
 					continue;
 				}
 				
-				if( aship.getString("docked").length() == 0 ) {
-					secondrowcaps += type.getInt("size");
+				if( aship.getShip().getDocked().length() == 0 ) {
+					secondrowcaps += type.getSize();
 				}	
 			}
 		}
@@ -320,10 +378,12 @@ public class Battle implements Loggable {
 	 * @param text Der hinzuzufuegende Text
 	 */
 	public void addComMessage( int side, String text ) {
-		Database db = ContextMap.getContext().getDatabase();
-		
-		db.prepare("UPDATE battles SET com"+(side+1)+"Msg=CONCAT(com"+(side+1)+"Msg, ?) WHERE id= ?")
-			.update(text, this.id);
+		if( side == 0 ) {
+			this.com1Msg += text;
+		}
+		else {
+			this.com2Msg += text;
+		}
 	}
 	
 	/**
@@ -334,10 +394,13 @@ public class Battle implements Loggable {
 		if( side == -1 ) {
 			side = this.ownSide;
 		}
-		Database db = ContextMap.getContext().getDatabase();
-		
-		db.update("UPDATE battles SET com",(side+1),"Msg='' WHERE id=",this.id);
-		comMsg[side] = "";
+
+		if( side == 0 ) {
+			this.com1Msg = "";
+		}
+		else {
+			this.com2Msg = "";
+		}
 	}
 	
 	/**
@@ -346,12 +409,12 @@ public class Battle implements Loggable {
 	 * @return Der Nachrichtenpuffer
 	 */
 	public String getComMessageBuffer( int side ) {
-		return this.comMsg[side];
+		return side == 0 ? this.com1Msg : this.com2Msg;
 	}
 	
 	private int getActionPoints( int side ) {
-		List<SQLResultRow> olist = this.ownShips;
-		List<SQLResultRow> elist = this.enemyShips;
+		List<BattleShip> olist = this.ownShips;
+		List<BattleShip> elist = this.enemyShips;
 		
 		if( side != this.ownSide ) {
 			elist = this.ownShips;
@@ -366,23 +429,23 @@ public class Battle implements Loggable {
 		int enemycount = 0;
 		
 		for( int i=0; i < olist.size(); i++ ) {
-			SQLResultRow aShip = olist.get(i);
+			BattleShip aShip = olist.get(i);
 			
-			SQLResultRow aShipType = ShipTypes.getShipType(aShip);
-			if( (aShipType.getInt("size") > 3) && (aShipType.getInt("military") != 0) && (aShipType.getInt("crew") > 0) ) {
-				double factor = aShip.getInt("crew") / (double)aShipType.getInt("crew");
-				ownsize += factor*aShipType.getInt("size");
+			ShipTypeData aShipType = aShip.getTypeData();
+			if( (aShipType.getSize() > ShipType.SMALL_SHIP_MAXSIZE) && aShipType.isMilitary() && (aShipType.getCrew() > 0) ) {
+				double factor = aShip.getShip().getCrew() / (double)aShipType.getCrew();
+				ownsize += factor*aShipType.getSize();
 				owncount++;
 			}
 		}	
 		
 		for( int i=0; i < elist.size(); i++ ) {
-			SQLResultRow aShip = elist.get(i);
+			BattleShip aShip = elist.get(i);
 			
-			SQLResultRow aShipType = ShipTypes.getShipType(aShip);
-			if( (aShipType.getInt("size") > 3) && (aShipType.getInt("military") != 0) && (aShipType.getInt("crew") > 0) ) {
-				double factor = aShip.getInt("crew") / (double)aShipType.getInt("crew");
-				enemysize += factor*aShipType.getInt("size");
+			ShipTypeData aShipType = aShip.getTypeData();
+			if( (aShipType.getSize() > ShipType.SMALL_SHIP_MAXSIZE) && aShipType.isMilitary() && (aShipType.getCrew() > 0) ) {
+				double factor = aShip.getCrew() / (double)aShipType.getCrew();
+				enemysize += factor*aShipType.getSize();
 				enemycount++;
 			}
 		}	
@@ -405,22 +468,14 @@ public class Battle implements Loggable {
 		
 		return (int)Math.round(points);
 	}
-	
-	/**
-	 * Bestimmt, ob eigene gelandete Schiffe beim Start der Schlacht starten sollen
-	 * @param value <code>true</code>, falls eigene gelandete Schiffe starten sollen
-	 */
-	public void setStartOwn( boolean value ) {
-		this.startOwn = value;	
-	}
-	
+
 	/**
 	 * Gibt den Betak-Status einer Seite zurueck
 	 * @param side Die Seite
 	 * @return <code>true</code>, falls die Seite noch nicht gegen die Betak verstossen hat
 	 */
 	public boolean getBetakStatus( int side ) {
-		return this.betak[side];	
+		return side == 0 ? this.com1BETAK : this.com2BETAK;	
 	}
 	
 	/**
@@ -429,7 +484,12 @@ public class Battle implements Loggable {
 	 * @param status Der neue Betak-Status
 	 */
 	public void setBetakStatus( int side, boolean status ) {
-		this.betak[side] = status;
+		if( side == 0 ) {
+			this.com1BETAK = status;
+		}
+		else {
+			this.com2BETAK = status;
+		}
 	}
 	
 	/**
@@ -444,7 +504,7 @@ public class Battle implements Loggable {
 	 * Gibt das aktuell ausgewaehlte eigene Schiff zurueck
 	 * @return Das aktuell ausgewaehlte eigene Schiff
 	 */
-	public SQLResultRow getOwnShip() {
+	public BattleShip getOwnShip() {
 		return this.ownShips.get(this.activeSOwn);
 	}
 
@@ -452,7 +512,7 @@ public class Battle implements Loggable {
 	 * Gibt das aktuell ausgewaehlte gegnerische Schiff zurueck
 	 * @return Das aktuell ausgewaehlte gegnerische Schiff
 	 */
-	public SQLResultRow getEnemyShip() {
+	public BattleShip getEnemyShip() {
 		return this.enemyShips.get(this.activeSEnemy);
 	}
 	
@@ -481,9 +541,10 @@ public class Battle implements Loggable {
 		// Falls das aktuelle Schiff ungueltig, dann das erstbeste in der Liste zurueckgeben
 		if( !this.isValidTarget() ) {
 			for( int i=0; i < enemyShips.size(); i++ ) {
-				SQLResultRow aship = enemyShips.get(i);
+				BattleShip aship = enemyShips.get(i);
 				
-				if( ((aship.getString("docked").length() == 0) || (aship.getString("docked").charAt(0) != 'l')) && (aship.getInt("action") & Battle.BS_DESTROYED) == 0 && (aship.getInt("action") & Battle.BS_SECONDROW) == 0 ) {
+				if( ((aship.getShip().getDocked().length() == 0) || (aship.getShip().getDocked().charAt(0) != 'l')) && 
+						(aship.getAction() & Battle.BS_DESTROYED) == 0 && (aship.getAction() & Battle.BS_SECONDROW) == 0 ) {
 					return i;
 				}
 			}
@@ -493,39 +554,44 @@ public class Battle implements Loggable {
 		
 		boolean foundOld = false;
 			
-		SQLResultRow enemyShip = this.enemyShips.get(this.activeSEnemy);
+		BattleShip enemyShip = this.enemyShips.get(this.activeSEnemy);
 		
 		// Schiff gleichen Typs hinter dem aktuellen Schiff suchen
-		List<SQLResultRow> enemyShips = getEnemyShips();
+		List<BattleShip> enemyShips = getEnemyShips();
 		for( int i=0; i < enemyShips.size(); i++ ) {
-			SQLResultRow aship = enemyShips.get(i);
-			if( !foundOld && (aship.getInt("id") == enemyShip.getInt("id")) ) {
+			BattleShip aship = enemyShips.get(i);
+			if( !foundOld && (aship.getId() == enemyShip.getId()) ) {
 				foundOld = true;	
 			}
-			else if( foundOld && (aship.getInt("type") == enemyShip.getInt("type")) && ((aship.getString("docked").length() == 0) || (aship.getString("docked").charAt(0) != 'l')) && (aship.getInt("action") & Battle.BS_DESTROYED) == 0 && (aship.getInt("action") & Battle.BS_SECONDROW) == 0 ) {
+			else if( foundOld && (aship.getShip().getType() == enemyShip.getShip().getType()) && 
+					((aship.getShip().getDocked().length() == 0) || (aship.getShip().getDocked().charAt(0) != 'l')) && 
+					(aship.getAction() & Battle.BS_DESTROYED) == 0 && (aship.getAction() & Battle.BS_SECONDROW) == 0 ) {
 				return i;
 			}
 		}
 	
 		// Schiff gleichen Typs vor dem aktuellen Schiff suchen
 		for( int i=0; i < enemyShips.size(); i++ ) {
-			SQLResultRow aship = enemyShips.get(i);
-			if( aship.getInt("id") == enemyShip.getInt("id") ) {
+			BattleShip aship = enemyShips.get(i);
+			if( aship.getId() == enemyShip.getId() ) {
 				break;
 			}
-			if( (aship.getInt("type") == enemyShip.getInt("type")) && ((aship.getString("docked").length() == 0) || (aship.getString("docked").charAt(0) != 'l')) && (aship.getInt("action") & Battle.BS_DESTROYED) == 0 && (aship.getInt("action") & Battle.BS_SECONDROW) == 0 ) {
+			if( (aship.getShip().getType() == enemyShip.getShip().getType()) && 
+					((aship.getShip().getDocked().length() == 0) || (aship.getShip().getDocked().charAt(0) != 'l')) && 
+					(aship.getAction() & Battle.BS_DESTROYED) == 0 && (aship.getAction() & Battle.BS_SECONDROW) == 0 ) {
 				return i;
 			}
 		}
 	
 		// Irgendein nicht gelandetes Schiff suchen
 		for( int i=0; i < enemyShips.size(); i++ ) {
-			SQLResultRow aship = enemyShips.get(i);
-			if( aship.getInt("id") == enemyShip.getInt("id") ) {
+			BattleShip aship = enemyShips.get(i);
+			if( aship.getId() == enemyShip.getId() ) {
 				continue;
 			}
 			
-			if( ((aship.getString("docked").length() == 0) || (aship.getString("docked").charAt(0) != 'l')) && (aship.getInt("action") & Battle.BS_DESTROYED) == 0 && (aship.getInt("action") & Battle.BS_SECONDROW) == 0 ) {
+			if( ((aship.getShip().getDocked().length() == 0) || (aship.getShip().getDocked().charAt(0) != 'l')) && 
+					(aship.getAction() & Battle.BS_DESTROYED) == 0 && (aship.getAction() & Battle.BS_SECONDROW) == 0 ) {
 				return i;
 			}
 		}
@@ -572,122 +638,22 @@ public class Battle implements Loggable {
 	}
 
 	/**
-	 * Speichert die aktuellen Aenderungen in der Schlacht in der Datenbank
-	 * @param ignoreinakt Soll das Inaktivitaetsfeld nicht zurueckgesetzt werden (<code>true</code>)?
+	 * Setzt den Inaktivitaetszaehler der Schlacht zurueck
 	 */
-	public void save( boolean ignoreinakt  ) {
-		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
-		
-		List<String> update = new ArrayList<String>();
-		List<Object> updateData = new ArrayList<Object>();
-		List<String> where = new ArrayList<String>();
-		List<Object> whereData = new ArrayList<Object>();
-		SQLResultRow data = new SQLResultRow();
-
-		data.put("ally1", ally[0]);
-		data.put("ally2", this.ally[1]);
-		data.put("commander1", this.commander[0]);
-		data.put("commander2", this.commander[1]);
-		data.put("com1Points", this.points[0]);
-		data.put("com2Points", this.points[1]);
-		data.put("ready1", this.ready[0]);
-		data.put("ready2", this.ready[1]);
-		data.put("com1BETAK", this.betak[0]);
-		data.put("com2BETAK", this.betak[1]);
-		data.put("takeCommand1", this.takeCommand[0]);
-		data.put("takeCommand2", this.takeCommand[1]);
-		data.put("blockcount", this.blockcount);
-		data.put("lastturn", this.lastturn);
-		data.put("flags", this.flags);
-		
-		for( Entry<String,Object> entry : data.entrySet() ) {
-			Object element = entry.getValue();
-			String key = entry.getKey();
-			if( ((element != null) && !element.equals(this.tableBuffer.get(key))) || (this.tableBuffer.get(key) != null) ) {
-				update.add(key+"= ? ");
-				updateData.add(element);
-				where.add(key+"= ? ");
-				whereData.add(this.tableBuffer.get(key));
-			}
-		}
-				
-		if( this.tableBuffer.getInt("quest") != this.quest ) {
-			if( this.quest != 0 ) {
-				update.add("quest= ? ");
-				updateData.add(this.quest);
-			}
-			else {
-				update.add("quest=NULL");
-			}
-			if( this.tableBuffer.getInt("quest") != 0 ) {
-				where.add("quest= ? ");
-				whereData.add(this.tableBuffer.getInt("quest"));
-			}
-			else {
-				where.add("quest=NULL");
-			}
-		}
-		
-		if( (this.visibility != null && !this.visibility.equals(this.tableBuffer.get("visibility"))) ||
-			(this.tableBuffer.get("visibility") != null) ) {
-			if( this.visibility != null ) {
-				update.add("visibility= ? ");
-				updateData.add(this.visibility);
-			}
-			else {
-				update.add("visibility=NULL");
-			}
-			if( this.tableBuffer.get("vsibility") != null ) {
-				where.add("visibility= ? ");
-				whereData.add(this.tableBuffer.get("visibility"));
-			}
-			else {
-				where.add("visibility=NULL");
-			}
-		}
-		
-		if( !ignoreinakt ) {
-			update.add("inakt= ? ");
-			updateData.add(0);
-		}
-		update.add("lastaction= ? ");
-		updateData.add(Common.time());
-		
-		where.add("id= ? ");
-		whereData.add(this.id);
+	public void resetInactivity(  ) {	
+		this.inakt = 0;
+	}
 	
-		PreparedQuery pq = db.prepare("UPDATE battles ",
-					"SET ",Common.implode(",",update)+" ",
-					"WHERE "+Common.implode(" AND ",where));
-		
-		int index=1;
-		for( int i=0; i < updateData.size(); i++ ) {
-			pq.setObject(index++, updateData.get(i));
-		}
-		for( int i=0; i < whereData.size(); i++ ) {
-			pq.setObject(index++, whereData.get(i));
-		}
-		pq.tUpdate(1);
-		pq.close();
-		
-		this.tableBuffer.put("ally1", ally[0]);
-		this.tableBuffer.put("ally2", this.ally[1]);
-		this.tableBuffer.put("commander1", this.commander[0]);
-		this.tableBuffer.put("commander2", this.commander[1]);
-		this.tableBuffer.put("com1Points", this.points[0]);
-		this.tableBuffer.put("com2Points", this.points[1]);
-		this.tableBuffer.put("ready1", this.ready[0]);
-		this.tableBuffer.put("ready2", this.ready[1]);
-		this.tableBuffer.put("com1BETAK", this.betak[0]);
-		this.tableBuffer.put("com2BETAK", this.betak[1]);
-		this.tableBuffer.put("takeCommand1", this.takeCommand[0]);
-		this.tableBuffer.put("takeCommand2", this.takeCommand[1]);
-		this.tableBuffer.put("blockcount", this.blockcount);
-		this.tableBuffer.put("lastturn", this.lastturn);
-		this.tableBuffer.put("flags", this.flags);
-		this.tableBuffer.put("quest", this.quest);
-		this.tableBuffer.put("visibility", this.visibility);
+	
+	/**
+	 * Erstellt eine neue Schlacht
+	 * @param id Die ID des Spielers, der die Schlacht beginnt
+	 * @param ownShipID Die ID des Schiffes des Spielers, der angreift
+	 * @param enemyShipID Die ID des angegriffenen Schiffes
+	 * @return Die Schlacht, falls sie erfolgreich erstellt werden konnte. Andernfalls <code>null</code>
+	 */
+	public static Battle create( int id, int ownShipID, int enemyShipID ) {
+		return create(id, ownShipID, enemyShipID, false);
 	}
 
 	/**
@@ -695,178 +661,190 @@ public class Battle implements Loggable {
 	 * @param id Die ID des Spielers, der die Schlacht beginnt
 	 * @param ownShipID Die ID des Schiffes des Spielers, der angreift
 	 * @param enemyShipID Die ID des angegriffenen Schiffes
-	 * @return <code>true</code>, falls die Schlacht erfolgreich erstellt wurde
+	 * @param startOwn <code>true</code>, falls eigene gelandete Schiffe starten sollen
+	 * @return Die Schlacht, falls sie erfolgreich erstellt werden konnte. Andernfalls <code>null</code>
 	 */
-	public boolean create( int id, int ownShipID, int enemyShipID ) {
+	public static Battle create( int id, int ownShipID, int enemyShipID, final boolean startOwn ) {
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
-		
+		org.hibernate.Session db = context.getDB();
+
+		System.err.println("battle: "+id+" :: "+ownShipID+" :: "+enemyShipID);
 		// Kann der Spieler ueberhaupt angreifen (Noob-Schutz?)
 		User user = (User)context.getDB().get(User.class, id);
 		if( user.isNoob() ) {
 			context.addError("Sie stehen unter GCP-Schutz und k&ouml;nnen daher keinen Gegner angreifen!<br />Hinweis: der GCP-Schutz kann unter Optionen vorzeitig beendet werden");
-			return false;
+			return null;
 		}
 		
-		SQLResultRow tmpOwnShip = db.first("SELECT t1.id,t1.x,t1.y,t1.system,t2.ally,t1.lock FROM ships t1 JOIN users t2 ON t1.owner=t2.id WHERE t1.id>0 AND t1.owner=",id," AND t1.id=",ownShipID);
-		SQLResultRow tmpEnemyShip = db.first("SELECT t1.id,t1.x,t1.y,t1.system,t1.owner,t1.status,t2.ally,t1.lock FROM ships t1 JOIN users t2 ON t1.owner=t2.id WHERE t1.id>0 AND t1.id=",enemyShipID);
+		Ship tmpOwnShip = (Ship)db.get(Ship.class, ownShipID);
+		Ship tmpEnemyShip = (Ship)db.get(Ship.class, enemyShipID);
 
-		if( tmpOwnShip.isEmpty() ) {
+		if( (tmpOwnShip == null) || (tmpOwnShip.getId() < 0) || (tmpOwnShip.getOwner() != user) ) {
 			context.addError("Das angreifende Schiff existiert nicht oder untersteht nicht ihrem Kommando!");
-			return false;
+			return null;
 		}
 		
-		if( tmpEnemyShip.isEmpty() ) {
+		if( (tmpEnemyShip == null) || (tmpEnemyShip.getId() < 0) ) {
 			context.addError("Das angegebene Zielschiff existiert nicht!");
-			return false;
+			return null;
 		}
 		
-		if( !Location.fromResult(tmpOwnShip).sameSector(0,Location.fromResult(tmpEnemyShip),0) ) {
+		if( !tmpOwnShip.getLocation().sameSector(0,tmpEnemyShip.getLocation(),0) ) {
 			context.addError("Die beiden Schiffe befinden sich nicht im selben Sektor");
-			return false;
+			return null;
 		}
 
 		//
 		// Kann der Spieler angegriffen werden (NOOB-Schutz?/Vac-Mode?)
 		//
 
-		User enemyUser = (User)context.getDB().get(User.class, tmpEnemyShip.getInt("owner"));
+		User enemyUser = tmpEnemyShip.getOwner();
 		if( enemyUser.isNoob() ) {
 			context.addError("Der Gegner steht unter GCP-Schutz und kann daher nicht angegriffen werden!");
-			return false;
+			return null;
 		}
 		
 		if( enemyUser.getVacationCount() != 0 && enemyUser.getWait4VacationCount() == 0 ) {
 			context.addError("Der Gegner befindet sich im Vacation-Modus und kann daher nicht angegriffen werden!");
-			return false;
+			return null;
 		}
 		
 		//
 		// IFF-Stoersender?
 		// 
-		boolean disable_iff = tmpEnemyShip.getString("status").indexOf("disable_iff") > -1;
+		boolean disable_iff = tmpEnemyShip.getStatus().indexOf("disable_iff") > -1;
 		if( disable_iff ) {
 			context.addError("Dieses Schiff kann nicht angegriffen werden (egal wieviel du mit der URL rumspielt!)");
-			return false;	
+			return null;	
 		}
 		
 		//
 		// Questlock?
 		// 
-		if( tmpOwnShip.getString("lock").length() > 0 ) {
+		if( tmpOwnShip.getLock() != null && tmpOwnShip.getLock().length() > 0 ) {
 			context.addError("Ihr Schiff ist an ein Quest gebunden");
-			return false;
+			return null;
 		}
 		
-		if( tmpEnemyShip.getString("lock").length() > 0 ) {
+		if( tmpEnemyShip.getLock() != null && tmpEnemyShip.getLock().length() > 0 ) {
 			context.addError("Das gegnerische Schiff ist an ein Quest gebunden");
-			return false;
+			return null;
 		}
 
 		//
 		// Schiffsliste zusammenstellen
 		//
+		Battle battle = new Battle();
 		
-		this.ownSide = 0;
-		this.enemySide = 1;
+		battle.ownSide = 0;
+		battle.enemySide = 1;
 		
-		SQLResultRow enemyShip = new SQLResultRow();
-		SQLResultRow ownShip = new SQLResultRow();
+		BattleShip enemyShip = null;
+		BattleShip ownShip = null;
 		
-		Set<Integer> ownUsers = new HashSet<Integer>();
-		Set<Integer> enemyUsers = new HashSet<Integer>();		
-
-		SQLQuery aShipRow = db.query("SELECT s.*,u.name AS username,u.ally "+
-									"FROM ships s JOIN users u ON s.owner=u.id "+
-									"WHERE s.id>0 AND s.x="+tmpOwnShip.getInt("x")+" AND s.y="+tmpOwnShip.getInt("y")+" AND " +
-							   			"s.system="+tmpOwnShip.getInt("system")+" AND s.battle is null AND (" +
-							   			(tmpOwnShip.getInt("ally") != 0 ? "u.ally="+tmpOwnShip.getInt("ally") : "u.ally is null")+
-							   			" OR " +
-							   			(tmpEnemyShip.getInt("ally") != 0 ? "u.ally="+tmpEnemyShip.getInt("ally") : "u.ally is null")+ ") AND " +
-							   			"!LOCATE('disable_iff',s.status) AND `lock` IS NULL AND (u.vaccount=0 OR u.wait4vac > 0)");
+		Set<User> ownUsers = new HashSet<User>();
+		Set<User> enemyUsers = new HashSet<User>();
+		List shiplist = db.createQuery("from Ship as s inner join fetch s.owner as u "+
+				"where s.id>0 and s.x=? and s.y=? and " +
+				"s.system=? and s.battle is null and " +
+				"(ncp(u.ally,:ally1)=1 or " + 
+				"ncp(u.ally,:ally2)=1) and " +
+				"locate('disable_iff',s.status)=0 and s.lock is null and (u.vaccount=0 or u.wait4vac > 0)")
+			.setInteger(0, tmpOwnShip.getX())
+			.setInteger(1, tmpOwnShip.getY())
+			.setInteger(2, tmpOwnShip.getSystem())
+			.setParameter("ally1", tmpOwnShip.getOwner().getAlly())
+			.setParameter("ally2", tmpEnemyShip.getOwner().getAlly())
+			.list();
 							   		
-		while( aShipRow.next() ) {
+		for( Iterator iter=shiplist.iterator(); iter.hasNext(); ) {
+			Ship aShip = (Ship)iter.next();
+			System.err.println(aShip.getId());
 			// Loot-Truemmer sollten in keine Schlacht wandern... (nicht schoen, gar nicht schoen geloest)
-			if( (aShipRow.getInt("owner") == -1) && (aShipRow.getInt("type") == Configuration.getIntSetting("CONFIG_TRUEMMER")) ) {
+			if( (aShip.getOwner().getId() == -1) && (aShip.getType() == Configuration.getIntSetting("CONFIG_TRUEMMER")) ) {
 				continue;
 			}
-			User tmpUser = (User)context.getDB().get(User.class, aShipRow.getInt("owner"));
+			User tmpUser = aShip.getOwner();
 					
 			if( tmpUser.isNoob() ) {
 				continue;
 			}
 			
-			SQLResultRow aShip = aShipRow.getRow();
+			BattleShip battleShip = new BattleShip(null, aShip);
 			
-			SQLResultRow shiptype = ShipTypes.getShipType(aShip);
-			if( (aShip.getString("docked").length() == 0) && ShipTypes.hasShipTypeFlag(shiptype, ShipTypes.SF_SECONDROW) ) {
-				aShip.put("action", BS_SECONDROW);
-			}
-			else {
-				aShip.put("action", 0);
+			ShipTypeData shiptype = aShip.getBaseType();
+			if( (aShip.getDocked().length() == 0) && shiptype.hasFlag(ShipTypes.SF_SECONDROW) ) {
+				battleShip.setAction(BS_SECONDROW);
 			}
 			
-			if( (shiptype.getInt("class") == ShipClasses.GESCHUETZ.ordinal()) && aShip.getString("docked").length() > 0 ) {
-				aShip.put("action", aShip.getInt("action") | BS_DISABLE_WEAPONS);
+			if( (shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal()) && aShip.getDocked().length() > 0 ) {
+				battleShip.setAction(battleShip.getAction() | BS_DISABLE_WEAPONS);
 			}
 			
-			if( ( (tmpOwnShip.getInt("ally") > 0) && (aShip.getInt("ally") == tmpOwnShip.getInt("ally")) ) || (id == aShip.getInt("owner")) ) {
-				ownUsers.add(aShip.getInt("owner"));
-				if( (ownShipID != 0) && (aShip.getInt("id") == ownShipID) ) {
-					ownShip = aShip;
+			if( ( (tmpOwnShip.getOwner().getAlly() != null) && (tmpUser.getAlly() == tmpOwnShip.getOwner().getAlly()) ) || (id == tmpUser.getId()) ) {
+				ownUsers.add(tmpUser);
+				battleShip.setSide(0);
+				
+				if( (ownShipID != 0) && (aShip.getId() == ownShipID) ) {
+					ownShip = battleShip;
 				} 
 				else {
-					this.ownShips.add(aShip);
+					battle.ownShips.add(battleShip);
 				}
 			} 
-			else if( ( (tmpEnemyShip.getInt("ally") > 0) && (aShip.getInt("ally") == tmpEnemyShip.getInt("ally")) ) || (tmpEnemyShip.getInt("owner") == aShip.getInt("owner")) ) {
-				enemyUsers.add(aShip.getInt("owner"));
-				if( (enemyShipID != 0) && (aShip.getInt("id") == enemyShipID) ) {
-					enemyShip = aShip;
+			else if( ( (tmpEnemyShip.getOwner().getAlly() != null) && (tmpUser.getAlly() == tmpEnemyShip.getOwner().getAlly()) ) || (tmpEnemyShip.getOwner().getId() == tmpUser.getId()) ) {
+				enemyUsers.add(tmpUser);
+				battleShip.setSide(1);
+				
+				if( (enemyShipID != 0) && (aShip.getId() == enemyShipID) ) {
+					enemyShip = battleShip;
 				} 
 				else {
-					this.enemyShips.add(aShip);
+					battle.enemyShips.add(battleShip);
 				}
 			}
 
 		}
-		aShipRow.free();
 		
-		tmpOwnShip.clear();
-		tmpEnemyShip.clear();
+		tmpOwnShip = null;
+		tmpEnemyShip = null;
 
 		//
 		// Schauen wir mal ob wir was sinnvolles aus der DB gelesen haben
 		// - Wenn nicht: Abbrechen
 		//
 		
-		if( ownShip.isEmpty() ) {
+		if( ownShip == null ) {
 			context.addError("Offenbar liegt ein Problem mit dem von ihnen angegebenen Schiff oder ihrem eigenen Schiff vor (wird es evt. bereits angegriffen?)");
-			return false;
+			return null;
 		}
 		
-		if( enemyShip.isEmpty() && (enemyShips.size() == 0) ) {
+		if( enemyShip == null && (battle.enemyShips.size() == 0) ) {
 			context.addError("Offenbar liegt ein Problem mit den feindlichen Schiffen vor (es gibt n&aumlmlich keine die sie angreifen k&ouml;nnten)");
-			return false;
+			return null;
 		}
-		else if( enemyShip.isEmpty() ) {
+		else if( enemyShip == null ) {
 			context.addError("Offenbar liegt ein Problem mit den feindlichen Schiffen vor (es gibt zwar welche, jedoch fehlt das Zielschiff)");
-			return false;
+			return null;
 		}
 		
 		//
 		// Schlacht in die DB einfuegen
 		//
 
-		db.update("INSERT INTO battles (x,y,system,ally1,ally2,commander1,com1Points,commander2,com2Points,lastaction,lastturn,flags) ",
-						 	"VALUES (",ownShip.getInt("x"),",",ownShip.getInt("y"),",",ownShip.getInt("system"),",",ownShip.getInt("ally"),",",enemyShip.getInt("ally"),", ",
-							ownShip.getInt("owner"),",0,",enemyShip.getInt("owner"),",0,",Common.time(),",",Common.time(),",'",FLAG_FIRSTROUND,"')");
-		this.id = db.insertID();
-
-		if( db.affectedRows() == 0 ) {
-			context.addError("<span style=\"color:red\">Die Schlacht konnte nicht erfolgreich erstellt werden</span>");
-			return false;
-		}
+		battle.x = ownShip.getShip().getX();
+		battle.y = ownShip.getShip().getY();
+		battle.system = ownShip.getShip().getSystem();
+		battle.ally1 = ownShip.getOwner().getAlly() != null ? ownShip.getOwner().getAlly().getId() : 0;
+		battle.ally2 = enemyShip.getOwner().getAlly() != null ? enemyShip.getOwner().getAlly().getId() : 0;
+		battle.commander1 = ownShip.getOwner();
+		battle.commander2 = enemyShip.getOwner();
+		battle.lastaction = Common.time();
+		battle.lastturn = Common.time();
+		battle.flags = FLAG_FIRSTROUND;
+		battle.com1Msg = "";
+		battle.com2Msg = "";
+		db.save(battle);
 
 		//
 		// Schiffe in die Schlacht einfuegen
@@ -878,74 +856,74 @@ public class Battle implements Loggable {
 		List<Integer> idlist = new ArrayList<Integer>();
 		List<Integer> startlist = new ArrayList<Integer>();
 
-		if( (enemyShip.getString("docked").length() > 0) && (enemyShip.getString("docked").charAt(0) == 'l') ) {
-			startlist.add(enemyShip.getInt("id"));
+		if( (enemyShip.getDocked().length() > 0) && (enemyShip.getDocked().charAt(0) == 'l') ) {
+			enemyShip.getShip().setDocked("");
+			startlist.add(enemyShip.getId());
 		}
-		idlist.add(enemyShip.getInt("id"));
+		idlist.add(enemyShip.getId());
 		
-		SQLResultRow enemyShipType = ShipTypes.getShipType(enemyShip);
+		enemyShip.setBattle(battle);
+		db.persist(enemyShip);
+		
+		enemyShip.getShip().setBattle(battle);
 
-		db.update("INSERT INTO battles_ships ",
-					"(shipid,battleid,side,hull,shields,engine,weapons,comm,sensors,action,count) ",
-					"VALUES (",enemyShip.getInt("id"),",",this.id,",1,",enemyShip.getInt("hull"),",",enemyShip.getInt("shields"),",",enemyShip.getInt("engine"),",",enemyShip.getInt("weapons"),",",enemyShip.getInt("comm"),",",enemyShip.getInt("sensors"),",",enemyShip.getInt("action"),",",enemyShipType.getInt("shipcount"),")");
-
-
-		for( int i=0; i < enemyShips.size(); i++ ) {
-			SQLResultRow ship = enemyShips.get(i);
+		for( int i=0; i < battle.enemyShips.size(); i++ ) {
+			BattleShip ship = battle.enemyShips.get(i);
 			
-			if( (ship.getString("docked").length() > 0) && 
-				(ship.getString("docked").charAt(0) == 'l') ) {
-				startlist.add(ship.getInt("id"));
+			Ship baseShip = ship.getShip().getBaseShip();
+			if( (baseShip != null) && 
+				(ship.getDocked().charAt(0) == 'l') && (baseShip.startFighters())) 
+			{
+				ship.getShip().setDocked("");
+				startlist.add(ship.getId());
 			}
-			idlist.add(ship.getInt("id"));
+			idlist.add(ship.getId());
 			
-			SQLResultRow shiptype = ShipTypes.getShipType(ship);
-
-			db.update("INSERT INTO battles_ships ",
-					"(shipid,battleid,side,hull,shields,engine,weapons,comm,sensors,action,count) ",
-					"VALUES (",ship.getInt("id"),",",this.id,",1,",ship.getInt("hull"),",",ship.getInt("shields"),",",ship.getInt("engine"),",",ship.getInt("weapons"),",",ship.getInt("comm"),",",ship.getInt("sensors"),",",ship.getInt("action"),",",shiptype.getInt("shipcount"),")");
+			ship.setBattle(battle);
+			db.persist(ship);
+			
+			ship.getShip().setBattle(battle);
 		}
 		if( startlist.size() > 0 ) {
-			this.logme(startlist.size()+" J&auml;ger sind automatisch gestartet\n");
-			this.logenemy("<action side=\"1\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\n"+startlist.size()+" J&auml;ger sind automatisch gestartet\n]]></action>\n");
+			battle.logme(startlist.size()+" J&auml;ger sind automatisch gestartet\n");
+			battle.logenemy("<action side=\"1\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\n"+startlist.size()+" J&auml;ger sind automatisch gestartet\n]]></action>\n");
 
-			db.update("UPDATE ships SET docked='' WHERE id>0 AND id IN ("+Common.implode(",",startlist),")");
 			startlist.clear();
 		}
 
-		// * Eigene Schiffe in die Schlacht einfuegen
-		idlist.add(ownShip.getInt("id"));
+		startlist = new ArrayList<Integer>();
 		
-		SQLResultRow ownShipType = ShipTypes.getShipType(ownShip);
+		// * Eigene Schiffe in die Schlacht einfuegen
+		idlist.add(ownShip.getId());
+		
+		ownShip.setBattle(battle);
+		db.persist(ownShip);
+		
+		ownShip.getShip().setBattle(battle);
+		ownShip.getShip().setDocked("");
 
-		db.update("INSERT INTO battles_ships ",
-				"(shipid,battleid,side,hull,shields,engine,weapons,comm,sensors,action,count) ",
-				"VALUES (",ownShip.getInt("id"),",",this.id,",0,",ownShip.getInt("hull"),",",ownShip.getInt("shields"),",",ownShip.getInt("engine"),",",ownShip.getInt("weapons"),",",ownShip.getInt("comm"),",",ownShip.getInt("sensors"),",",ownShip.getInt("action"),",",ownShipType.getInt("shipcount"),")");
+		for( int i=0; i < battle.ownShips.size(); i++ ) {
+			BattleShip ship = battle.ownShips.get(i);
+			Ship baseShip = ship.getShip().getBaseShip();
 
-		for( int i=0; i < ownShips.size(); i++ ) {
-			SQLResultRow ship = ownShips.get(i);
-			
-			if( this.startOwn && (ship.getString("docked").length() > 0) && 
-				(ship.getString("docked").charAt(0) == 'l') ) {
-				startlist.add(ship.getInt("id"));
+			if( (baseShip != null) && 
+					(ship.getDocked().charAt(0) == 'l') && baseShip.startFighters()) {
+				startlist.add(ship.getId());
+				ship.getShip().setDocked("");
 			}
-			idlist.add(ship.getInt("id"));
+			idlist.add(ship.getId());
 			
-			SQLResultRow shiptype = ShipTypes.getShipType(ship);
-
-			db.update("INSERT INTO battles_ships ",
-					"(shipid,battleid,side,hull,shields,engine,weapons,comm,sensors,action,count) ",
-					"VALUES (",ship.getInt("id"),",",this.id,",0,",ship.getInt("hull"),",",ship.getInt("shields"),",",ship.getInt("engine"),",",ship.getInt("weapons"),",",ship.getInt("comm"),",",ship.getInt("sensors"),",",ship.getInt("action"),",",shiptype.getInt("shipcount"),")");
+			ship.setBattle(battle);
+			db.persist(ship);
+			
+			ship.getShip().setBattle(battle);
 		}
-		if( this.startOwn && startlist.size() > 0 ) {
-			this.logme(startlist.size()+" J&auml;ger sind automatisch gestartet\n");
-			this.logenemy("<action side=\"0\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\n"+startlist.size()+" J&auml;ger sind automatisch gestartet\n]]></action>\n");
-
-			db.update("UPDATE ships SET docked='' WHERE id>0 AND id IN ("+Common.implode(",",startlist),")");
+		if( startOwn && startlist.size() > 0 ) {
+			battle.logme(startlist.size()+" J&auml;ger sind automatisch gestartet\n");
+			battle.logenemy("<action side=\"0\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\n"+startlist.size()+" J&auml;ger sind automatisch gestartet\n]]></action>\n");
 		}
 		startlist = null;
 
-		db.update("UPDATE ships SET battle=",this.id," WHERE id>0 AND id IN (",Common.implode(",",idlist),")");
 		idlist = null;
 
 		//
@@ -953,35 +931,35 @@ public class Battle implements Loggable {
 		//
 
 		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(Configuration.getSetting("LOXPATH")+"battles/battle_id"+this.id+".log"));
+			BufferedWriter writer = new BufferedWriter(new FileWriter(Configuration.getSetting("LOXPATH")+"battles/battle_id"+battle.id+".log"));
 			writer.append("<?xml version='1.0' encoding='UTF-8'?>\n");
 			writer.append("<battle>\n");
 			writer.append("<fileinfo format=\""+LOGFORMAT+"\" />\n");
-			writer.append("<coords x=\""+ownShip.getInt("x")+"\" y=\""+ownShip.getInt("y")+"\" system=\""+ownShip.getInt("system")+"\" />\n");
+			writer.append("<coords x=\""+ownShip.getShip().getX()+"\" y=\""+ownShip.getShip().getY()+"\" system=\""+ownShip.getShip().getSystem()+"\" />\n");
 	
-			if( ownShip.getInt("ally") > 0 ) {
-				writer.append("<side1 commander=\""+ownShip.getInt("owner")+"\" ally=\""+ownShip.getInt("ally")+"\" />\n");
+			if( ownShip.getOwner().getAlly() != null ) {
+				writer.append("<side1 commander=\""+ownShip.getOwner().getId()+"\" ally=\""+ownShip.getOwner().getAlly().getId()+"\" />\n");
 			}
 			else {
-				writer.append("<side1 commander=\""+ownShip.getInt("owner")+"\" />\n");
+				writer.append("<side1 commander=\""+ownShip.getOwner().getId()+"\" />\n");
 			}
 	
-			if( enemyShip.getInt("ally") > 0 ) {
-				writer.append("<side2 commander=\""+enemyShip.getInt("owner")+"\" ally=\""+enemyShip.getInt("ally")+"\" />\n");
+			if( enemyShip.getOwner().getAlly() != null ) {
+				writer.append("<side2 commander=\""+enemyShip.getOwner().getId()+"\" ally=\""+enemyShip.getOwner().getAlly().getId()+"\" />\n");
 			}
 			else {
-				writer.append("<side2 commander=\""+enemyShip.getInt("owner")+"\" />\n");
+				writer.append("<side2 commander=\""+enemyShip.getOwner().getId()+"\" />\n");
 			}
 	
 			writer.append("<startdate tick=\""+tick+"\" time=\""+Common.time()+"\" />\n");
 			writer.close();
 			
 			if( SystemUtils.IS_OS_UNIX ) {
-				Runtime.getRuntime().exec("chmod 0666 "+Configuration.getSetting("LOXPATH")+"battles/battle_id"+this.id+".log");
+				Runtime.getRuntime().exec("chmod 0666 "+Configuration.getSetting("LOXPATH")+"battles/battle_id"+battle.id+".log");
 			}
 		}
 		catch( IOException e ) {
-			LOG.error("Konnte KS-Log fuer Schlacht "+this.id+" nicht erstellen", e);
+			LOG.error("Konnte KS-Log fuer Schlacht "+battle.id+" nicht erstellen", e);
 		}
 		
 		
@@ -991,39 +969,39 @@ public class Battle implements Loggable {
 		
 		// Zuerst schauen wir mal ob wir es mit Allys zu tun haben und 
 		// berechnen ggf die Userlisten neu 
-		Set<Integer> calcedallys = new HashSet<Integer>();	
-	
-		for( Integer auserID : new ArrayList<Integer>(ownUsers) ) {
-			User auser = (User)context.getDB().get(User.class, auserID);
-			
-			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly().getId()) ) {		
-				SQLQuery allyuser = db.query("SELECT id FROM users WHERE ally=",auser.getAlly().getId()," AND !(id IN (",Common.implode(",",ownUsers),"))");
-				while( allyuser.next() ) {
-					ownUsers.add(allyuser.getInt("id"));	
+		Set<Integer> calcedallys = new HashSet<Integer>();
+		
+		for( User auser : new ArrayList<User>(ownUsers) ) {
+			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly()) ) {		
+				List allyusers = db.createQuery("from User where ally=? and !(id in ("+Common.implode(",",ownUsers)+"))")
+					.setEntity(0, auser.getAlly())
+					.list();
+				for( Iterator iter=allyusers.iterator(); iter.hasNext(); ) {
+					User allyuser = (User)iter.next();
+					
+					ownUsers.add(allyuser);	
 				}
 				calcedallys.add(auser.getAlly().getId());
 			}
 		}
 
-		for( Integer auserID : new ArrayList<Integer>(enemyUsers) ) {
-			User auser = (User)context.getDB().get(User.class, auserID);
-			
-			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly().getId()) ) {		
-				SQLQuery allyuser = db.query("SELECT id FROM users WHERE ally=",auser.getAlly().getId()," AND !(id IN (",Common.implode(",",enemyUsers),"))");
-				while( allyuser.next() ) {
-					enemyUsers.add(allyuser.getInt("id"));	
+		for( User auser : new ArrayList<User>(enemyUsers) ) {
+			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly()) ) {		
+				List allyusers = db.createQuery("from User where ally=? and !(id in ("+Common.implode(",",enemyUsers)+"))")
+					.setEntity(0, auser.getAlly())
+					.list();
+				for( Iterator iter=allyusers.iterator(); iter.hasNext(); ) {
+					User allyuser = (User)iter.next();
+					
+					enemyUsers.add(allyuser);	
 				}
 				calcedallys.add(auser.getAlly().getId());
 			}
 		}
 		calcedallys = null;
 		
-		for( Integer auserID : ownUsers ) {
-			User auser = (User)context.getDB().get(User.class, auserID);
-			
-			for( Integer euserID : enemyUsers ) {
-				User euser = (User)context.getDB().get(User.class, euserID);
-								
+		for( User auser : ownUsers ) {
+			for( User euser : enemyUsers ) {
 				auser.setRelation(euser.getId(), User.Relation.ENEMY);
 				euser.setRelation(auser.getId(), User.Relation.ENEMY);
 			}
@@ -1035,14 +1013,12 @@ public class Battle implements Loggable {
 
 		
 		// Zuerst berechnen wir die eigenen AP
-		int ownPoints = this.getActionPoints(this.ownSide);
+		battle.com1Points = battle.getActionPoints(battle.ownSide);
 
 		// Nun berechnen wir die gegnerischen AP 
-		int enemyPoints = this.getActionPoints(this.enemySide);
-		
-		db.update("UPDATE battles SET com1Points=",ownPoints,",com2Points=",enemyPoints," WHERE id=",this.id);
-		
-		return true;
+		battle.com2Points = battle.getActionPoints(battle.enemySide);
+
+		return battle;
 	}
 
 	/**
@@ -1054,29 +1030,27 @@ public class Battle implements Loggable {
 	 */
 	public boolean addShip( int id, int shipid ) {
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		
-		SQLResultRow shipd = db.first("SELECT * ",
-				 "FROM ships ",
-				 "WHERE id>0 AND id=",shipid);
+		Ship shipd = (Ship)db.get(Ship.class, shipid);
 	
-		if( shipd.isEmpty() ) {
+		if( (shipd == null) || (shipd.getId() < 0) ) {
 			context.addError("Das angegebene Schiff existiert nicht!");
 			return false;
 		}
-		if( shipd.getInt("owner") != id ) {
+		if( shipd.getOwner().getId() != id ) {
 			context.addError("Das angegebene Schiff geh&ouml;rt nicht ihnen!");
 			return false;
 		}
-		if( shipd.getString("lock").length() > 0 ) {
+		if( shipd.getLock() != null && shipd.getLock().length() > 0 ) {
 			context.addError("Das Schiff ist an ein Quest gebunden");
 			return false;
 		}
-		if( !new Location(this.system,this.x,this.y).sameSector(0, Location.fromResult(shipd), 0) ) {
+		if( !new Location(this.system,this.x,this.y).sameSector(0, shipd.getLocation(), 0) ) {
 			context.addError("Das angegebene Schiff befindet sich nicht im selben Sektor wie die Schlacht!");
 			return false;
 		}
-		if( shipd.getInt("battle") != 0 ) {
+		if( shipd.getBattle() != null ) {
 			context.addError("Das angegebene Schiff befindet sich bereits in einer Schlacht!");
 			return false;
 		}
@@ -1095,8 +1069,8 @@ public class Battle implements Loggable {
 			return false;
 		}
 		
-		SQLResultRow shiptype = ShipTypes.getShipType(shipd);
-		if( shiptype.getInt("class") == ShipClasses.GESCHUETZ.ordinal() ) {
+		ShipTypeData shiptype = shipd.getTypeData();
+		if( shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) {
 			context.addError("<span style=\"color:red\">Gesch&uuml;tze k&ouml;nnen einer Schlacht nicht beitreten!</span>");
 			return false;
 		}
@@ -1114,35 +1088,29 @@ public class Battle implements Loggable {
 		
 		User curuser = userobj;
 		if( curuser.getAlly() != null ) {
-			List userList = context.getDB().createQuery("from User where ally= :ally and id != :user")
-				.setEntity("ally", curuser.getAlly())
-				.setInteger("user", curuser.getId())
-				.list();
-			for( Iterator iter=userList.iterator(); iter.hasNext(); ) {
-				ownUsers.add((User)iter.next());	
+			List<User> users = context.query("from User where ally="+curuser.getAlly().getId()+" and id!="+curuser.getId(), User.class);
+			for( User auser : users ) {
+				ownUsers.add(auser);	
 			}
 		}
 		
-		SQLQuery query = db.query("SELECT DISTINCT u.id " +
-				"FROM (users u JOIN ships s ON u.id=s.owner) JOIN battles_ships bs ON s.id=bs.shipid " +
-				"WHERE bs.battleid="+this.id+" AND bs.side=",this.enemySide);
-		while( query.next() ) {
-			User euser = (User)context.getDB().get(User.class, query.getInt("id"));
+		List<User> users = context.query("select distinct bs.ship.owner " +
+					"from BattleShip bs " +
+					"where bs.battle="+this.id+" and bs.side="+this.enemySide, User.class);
+
+		for( User euser : users ) {
 			enemyUsers.add(euser);
 
-			if( (euser.getAlly() != null) && !calcedallys.contains(euser.getAlly().getId()) ) {
-				List userList = context.getDB().createQuery("from User where ally= :ally and id != :user")
-					.setEntity("ally", euser.getAlly())
-					.setInteger("user", euser.getId())
-					.list();
-				for( Iterator iter=userList.iterator(); iter.hasNext(); ) {
-					enemyUsers.add((User)iter.next());	
+			if( (euser.getAlly() != null) && !calcedallys.contains(euser.getAlly()) ) {
+				List<User> allyusers = context.query(
+						"from User where ally="+euser.getAlly().getId()+" and id!="+euser.getId(), User.class);
+				for( User auser : allyusers ) {
+					enemyUsers.add(auser);	
 				}
 				
 				calcedallys.add(euser.getAlly().getId());
 			}
 		}
-		query.free();
 		
 		for( int i=0; i < ownUsers.size(); i++ ) {
 			User auser = ownUsers.get(i);
@@ -1154,94 +1122,100 @@ public class Battle implements Loggable {
 		}
 		
 		calcedallys = null;
-		
-		shipd.put("action", BS_JOIN);
-		
+
 		List<Integer> shiplist = new ArrayList<Integer>();
 		
-		SQLQuery sid = null;
+		List sid = null;
 		
 		// Handelt es sich um eine Flotte?
-		if( shipd.getInt("fleet") > 0 ) {
-			sid = db.query("SELECT * FROM ships WHERE id>0 AND fleet=",shipd.getInt("fleet")," AND battle is null AND x=",shipd.getInt("x")," AND y=",shipd.getInt("y")," AND system=",shipd.getInt("system")," AND `lock` IS NULL");
+		if( shipd.getFleet() != null ) {
+			sid = db.createQuery("from Ship as s where s.id>0 and s.fleet=? and s.battle is null and s.x=? and s.y=? and s.system=? and s.lock is null")
+					.setEntity(0, shipd.getFleet())
+					.setInteger(1, shipd.getX())
+					.setInteger(2, shipd.getY())
+					.setInteger(3, shipd.getSystem())
+					.list();
 		}
 		else {
-			sid = db.query("SELECT * FROM ships WHERE id>0 AND id=",shipd.getInt("id")," AND battle is null AND x=",shipd.getInt("x")," AND y=",shipd.getInt("y")," AND system=",shipd.getInt("system")," AND `lock` IS NULL");
+			sid = db.createQuery("from Ship as s where s.id>0 and s.id=? and s.battle is null and s.x=? and s.y=? and s.system=? and s.lock is null")
+					.setInteger(0, shipd.getId())
+					.setInteger(1, shipd.getX())
+					.setInteger(2, shipd.getY())
+					.setInteger(3, shipd.getSystem())
+					.list();;
 		}
 		
-		while( sid.next() ) {
-			SQLResultRow sidRow = sid.getRow();
+		for( Iterator iter=sid.iterator(); iter.hasNext(); ) {
+			Ship aship = (Ship)iter.next();
 			
-			shiptype = ShipTypes.getShipType(sidRow);
-			if( shiptype.getInt("class") == ShipClasses.GESCHUETZ.ordinal() ) {
+			shiptype = aship.getTypeData();
+			if( shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) {
 				continue;
 			}
 			
-			shiplist.add(sid.getInt("id"));
+			shiplist.add(aship.getId());
 				
 			// ggf. gedockte Schiffe auch beruecksichtigen
-			db.update("UPDATE ships SET battle=",this.id," WHERE id>0 AND battle is null AND docked IN ('",sid.getInt("id"),"','l ",sid.getInt("id"),"')");
-			if( db.affectedRows() > 0 ) {
-				SQLQuery sid2 = db.query("SELECT * FROM ships WHERE id>0 AND docked IN ('",sid.getInt("id"),"','l ",sid.getInt("id"),"')");
-				while( sid2.next() ) {
-					SQLResultRow sid2Row = sid2.getRow();
-					
-					SQLResultRow stype = ShipTypes.getShipType(sid2Row);
-					if( stype.getInt("class") == ShipClasses.GESCHUETZ.ordinal() ) {
-						db.update("UPDATE ships SET docked='',battle is null WHERE id=",sid2.getInt("id"));
-						continue;
-					}
-					
-					shiplist.add(sid2.getInt("id"));
-						
-					int sid2Action = 0;
-					
-					// Das neue Schiff in die Liste der eigenen Schiffe eintragen
-					if( !ShipTypes.hasShipTypeFlag(shiptype, ShipTypes.SF_INSTANT_BATTLE_ENTER) && 
-						!ShipTypes.hasShipTypeFlag(stype, ShipTypes.SF_INSTANT_BATTLE_ENTER) ) {
-						sid2Action = BS_JOIN;
-					}
-					
-					sid2Row.put("action", sid2Action);
-					sid2Row.put("side", this.ownSide);
-					sid2Row.put("count", stype.getInt("shipcount"));
-					this.ownShips.add(sid2Row);
-		
-					Common.safeIntInc(shipcounts, sid2.getInt("type"));
-		
-					db.update("INSERT INTO battles_ships ",
-								"(shipid,battleid,side,hull,shields,engine,weapons,comm,sensors,action,count) ",
-								"VALUES (",sid2.getInt("id"),",",this.id,",",side,",",sid2.getInt("hull"),",",sid2.getInt("shields"),",",sid2.getInt("engine"),",",sid2.getInt("weapons"),",",sid2.getInt("comm"),",",sid2.getInt("sensors"),",",sid2Action,",'",stype.getInt("shipcount"),"')");
+			List docked = db.createQuery("from Ship where id>0 and battle is null and docked in (?,?)")
+				.setString(0, Integer.toString(aship.getId()))
+				.setString(1, "l "+aship.getId())
+				.list();
+			
+			for( Iterator iter2=docked.iterator(); iter2.hasNext(); ) {
+				Ship sid2 = (Ship)iter2.next();
+				
+				ShipTypeData stype = sid2.getTypeData();
+				if( stype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) {
+					sid2.setDocked("");
+					continue;
 				}
-				sid2.free();
+				
+				shiplist.add(sid2.getId());
+					
+				int sid2Action = 0;
+				
+				// Das neue Schiff in die Liste der eigenen Schiffe eintragen
+				if( !shiptype.hasFlag(ShipTypes.SF_INSTANT_BATTLE_ENTER) && 
+					!stype.hasFlag(ShipTypes.SF_INSTANT_BATTLE_ENTER) ) {
+					sid2Action = BS_JOIN;
+				}
+				
+				BattleShip sid2bs = new BattleShip(this, sid2);
+				sid2bs.setAction(sid2Action);
+				sid2bs.setSide(this.ownSide);
+				
+				this.ownShips.add(sid2bs);
+	
+				Common.safeIntInc(shipcounts, sid2.getType());
+				
+				db.persist(sid2bs);
+				
+				sid2.setBattle(this);
 			}
 		
 			int sidAction = 0; 
 			
 			// Das neue Schiff in die Liste der eigenen Schiffe eintragen
-			if( !ShipTypes.hasShipTypeFlag(shiptype, ShipTypes.SF_INSTANT_BATTLE_ENTER) ) {
+			if( !shiptype.hasFlag(ShipTypes.SF_INSTANT_BATTLE_ENTER) ) {
 				sidAction = BS_JOIN;
 			}
 
-			sidRow.put("action", sidAction);
-			sidRow.put("side", this.ownSide);
-			sidRow.put("count", shiptype.getInt("shipcount"));
-			this.ownShips.add(sid.getRow());
+			BattleShip aBattleShip = new BattleShip(this, aship);
+			aBattleShip.setAction(sidAction);
+			aBattleShip.setSide(side);
+			
+			this.ownShips.add(aBattleShip);
 		
-			Common.safeIntInc(shipcounts, sid.getInt("type"));
-		
-			//Battles_ships Eintrag einfuegen
-			db.update("INSERT INTO battles_ships ",
-						"(shipid,battleid,side,hull,shields,engine,weapons,comm,sensors,action,count) ",
-						"VALUES (",sid.getInt("id"),",",this.id,",",side,",",sid.getInt("hull"),",",sid.getInt("shields"),",",sid.getInt("engine"),",",sid.getInt("weapons"),",",sid.getInt("comm"),",",sid.getInt("sensors"),",",sidAction,",'",shiptype.getInt("shipcount"),"')");
+			Common.safeIntInc(shipcounts, aship.getType());
+			
+			db.persist(aBattleShip);
+			
+			aship.setBattle(this);
 		}
-		sid.free();
 		
 		int tick = context.get(ContextCommon.class).getTick();
 		
 		if( shiplist.size() > 1 ) {
-			db.update("UPDATE ships SET battle=",this.id," WHERE id>0 AND id IN (",Common.implode(",",shiplist),") AND battle is null AND x=",shipd.getInt("x")," AND y=",shipd.getInt("y")," AND system=",shipd.getInt("system"));
-		
 			int addedShips = shiplist.size();
 			this.logenemy("<action side=\""+this.ownSide+"\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\nDie "+log_shiplink(shipd)+" ist zusammen mit "+addedShips+" weiteren Schiffen der Schlacht beigetreten\n]]></action>\n");
 			this.logme( "Die "+log_shiplink(shipd)+" ist zusammen mit "+addedShips+" weiteren Schiffen der Schlacht beigetreten\n\n" );
@@ -1250,7 +1224,7 @@ public class Battle implements Loggable {
 			this.logenemy("<action side=\""+this.ownSide+"\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\nDie "+log_shiplink(shipd)+" ist der Schlacht beigetreten\n]]></action>\n");
 			this.logme("Die "+log_shiplink(shipd)+" ist der Schlacht beigetreten\n\n");
 		
-			db.update("UPDATE ships SET battle=",this.id," WHERE id>0 AND battle is null AND id=",shipid);
+			shipd.setBattle(this);
 		}
 		
 		return true;
@@ -1258,73 +1232,62 @@ public class Battle implements Loggable {
 	
 	/**
 	 * Laedt eine Schlacht aus der Datenbank
-	 * @param battleID die ID der Schlacht
-	 * @param id Die ID des aktiven Spielers
-	 * @param ownShipID die ID eines auszuwaehlenden eigenen Schiffes (oder 0)
-	 * @param enemyShipID die ID eines auszuwaehlenden gegnerischen Schiffes (oder 0)
+	 * @param battleId die ID der Schlacht
+	 * @param user Der aktive Spieler
+	 * @param ownShip Das auszuwaehlende eigene Schiff (oder <code>null</code>)
+	 * @param enemyShip Das auszuwaehlende gegnerische Schiff (oder <code>null</code>)
+	 * @param forcejoin Die ID einer Seite (1 oder 2), welche als die eigene zu waehlen ist. Falls 0 wird automatisch eine gewaehlt
+	 * 
+	 * @return Die Schlacht oder <code>null</code>
+	 */
+	public static Battle loadBattle(int battleId, User user, Ship ownShip, Ship enemyShip, int forcejoin) {
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		
+		Battle battle = (Battle)db.get(Battle.class, battleId);
+		if( battle == null ) {
+			db.createQuery("update Ship set battle=null where id>0 and battle=?")
+				.setInteger(0, battleId)
+				.executeUpdate();
+		
+			context.addError("Die Schlacht ist bereits zuende!");
+			return null;
+		}
+		
+		battle.load(user, ownShip, enemyShip, forcejoin);
+		
+		return battle;
+	}
+	
+	/**
+	 * Laedt weitere Schlachtdaten aus der Datenbank
+	 * @param user Der aktive Spieler
+	 * @param ownShip Das auszuwaehlende eigene Schiff (oder <code>null</code>)
+	 * @param enemyShip Das auszuwaehlende gegnerische Schiff (oder <code>null</code>)
 	 * @param forcejoin Die ID einer Seite (1 oder 2), welche als die eigene zu waehlen ist. Falls 0 wird automatisch eine gewaehlt
 	 * 
 	 * @return <code>true</code>, falls die Schlacht erfolgreich geladen wurde
 	 */
-	public boolean load(int battleID, int id, int ownShipID, int enemyShipID, int forcejoin ) {
+	public boolean load(User user, Ship ownShip, Ship enemyShip, int forcejoin ) {
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		
 		/*
 			TODO:
 				- Update der Allys falls der Commander einer Seite einer Ally beitritt (und vorher in keiner war)
 				- Update der Schiffe, falls ein Spieler nicht mehr einer der beiden Seiten angehoert (und ggf auch update der Kommandanten)
 		*/
-		SQLResultRow battledata = db.first( "SELECT * FROM battles WHERE id=",battleID);
-	
-		if( battledata.isEmpty() ) {
-			db.update("UPDATE ships SET battle=null WHERE id>0 AND battle=",battleID);
-			context.addError("Die Schlacht ist bereits zuende!");
-			return false;
-		}
-	
-		this.id = battleID;
-		this.points[0] = battledata.getInt("com1Points");
-		this.points[1] = battledata.getInt("com2Points");
-		this.ally[0] = battledata.getInt("ally1");
-		this.ally[1] = battledata.getInt("ally2");
-		this.commander[0] = battledata.getInt("commander1");
-		this.commander[1] = battledata.getInt("commander2");
-		this.x = battledata.getInt("x");
-		this.y = battledata.getInt("y");
-		this.system = battledata.getInt("system");
-		this.ready[0] = battledata.getBoolean("ready1");
-		this.ready[1] = battledata.getBoolean("ready2");
-		this.comMsg[0] = battledata.getString("com1Msg");
-		this.comMsg[1] = battledata.getString("com2Msg");
-		this.betak[0] = battledata.getBoolean("com1BETAK");
-		this.betak[1] = battledata.getBoolean("com2BETAK");
-		this.takeCommand[0] = battledata.getInt("takeCommand1");
-		this.takeCommand[1] = battledata.getInt("takeCommand2");
-		this.blockcount = battledata.getInt("blockcount");
-		this.lastturn = battledata.getInt("lastturn");
-		this.visibility = battledata.getString("visibility").length() == 0 ? null : battledata.getString("visibility");
-		this.quest = battledata.getInt("quest");
-		this.guest = false;
-		this.flags = battledata.getInt("flags");
-		
-		this.addCommanders.add(0, new ArrayList<Integer>());
-		this.addCommanders.add(1, new ArrayList<Integer>());
-	
-		this.tableBuffer = battledata;
-	
-		User auser = (User)context.getDB().get(User.class, id);
-		
+
 		//
 		// Weitere Commander in Folge von Questschlachten feststellen
 		//
-		if( (this.quest != 0) && !Common.inArray(id,this.commander) && ((this.commander[0] < 0) ^ (this.commander[1] < 0) ) ) {
-			if( auser.hasFlag(User.FLAG_QUEST_BATTLES) || auser.getAccessLevel() > 20 ) {
-				if( this.commander[0] < 0 )  {
-					this.addCommanders.get(0).add(id);
+		if( (this.quest != null) && !Common.inArray(user.getId(),this.getCommanders()) && ((this.commander1.getId() < 0) ^ (this.commander2.getId() < 0) ) ) {
+			if( user.hasFlag(User.FLAG_QUEST_BATTLES) || user.getAccessLevel() > 20 ) {
+				if( this.commander1.getId() < 0 )  {
+					this.addCommanders.get(0).add(user.getId());
 				}
 				else {
-					this.addCommanders.get(1).add(id);
+					this.addCommanders.get(1).add(user.getId());
 				}	
 			}
 		}
@@ -1336,29 +1299,37 @@ public class Battle implements Loggable {
 		int forceSide = -1;
 	
 		if( forcejoin == 0 ) {
-			if( ( (auser.getAlly() != null) && !Common.inArray(auser.getAlly().getId(),this.ally) && !this.isCommander(id) ) ||
-				( (auser.getAlly() == null) && !this.isCommander(id) ) ) {
+			if( ( (user.getAlly() != null) && !Common.inArray(user.getAlly().getId(),this.getAllys()) && !this.isCommander(user) ) ||
+				( (user.getAlly() == null) && !this.isCommander(user) ) ) {
 	
 				// Hat der Spieler ein Schiff in der Schlacht
-				SQLResultRow aship = db.first("SELECT id,side ",
-									 "FROM ships t1 JOIN battles_ships t2 ON t1.id=t2.shipid ",
-									 "WHERE t1.id>0 AND t1.owner=",id," AND t2.battleid=",this.id);
-				if( !aship.isEmpty() ) {
-					forceSide = aship.getInt("side");
+				BattleShip aship = (BattleShip)db.createQuery("from BattleShip where id>0 and ship.owner=? and battle=?")
+					.setEntity(0, user)
+					.setEntity(1, this)
+					.setMaxResults(1)
+					.uniqueResult();
+				
+				if( aship != null ) {
+					forceSide = aship.getSide();
 				}
 				else {
 					//Mehr ueber den Spieler herausfinden
-					if( auser.getAccessLevel() > 20 ) {
+					if( user.getAccessLevel() > 20 ) {
 						this.guest = true;
 					}
-					else if( auser.hasFlag(User.FLAG_VIEW_BATTLES) ) {
+					else if( user.hasFlag(User.FLAG_VIEW_BATTLES) ) {
 						this.guest = true;
 					}
 					else {
-						SQLResultRow shipcount = db.first("SELECT count(*) count FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id ",
-												 "WHERE t1.id>0 AND t1.owner=",id," AND t1.x=",this.x," AND t1.y=",this.y," AND ",
-												 "t1.system=",this.system," AND t1.battle is null AND t2.class IN (11,13)");
-						if( shipcount.getInt("count") > 0 ) {
+						long shipcount = ((Number)db.createQuery("select count(*) from Ship " +
+								"where owner= :user and x= :x and y= :y and system= :sys and " +
+									"battle is null and shiptype.shipClass in (11,13)")
+								.setEntity("user", user)
+								.setInteger("x", this.x)
+								.setInteger("y", this.y)
+								.setInteger("sys", this.system)
+								.iterate().next()).longValue();
+						if( shipcount > 0 ) {
 							this.guest = true;
 						}
 						else {
@@ -1377,11 +1348,12 @@ public class Battle implements Loggable {
 		// Eigene Seite feststellen
 		//
 	
-		if( (auser.getAlly() != null && (auser.getAlly().getId() == this.ally[0])) || this.isCommander(id,0) || this.guest || forceSide == 0 ) {
+		if( (user.getAlly() != null && (user.getAlly().getId() == this.ally1)) || this.isCommander(user,0) || this.guest || forceSide == 0 ) {
 			this.ownSide = 0;
 			this.enemySide = 1;
 		}
-		else if( (auser.getAlly() != null && (auser.getAlly().getId() == this.ally[1])) || this.isCommander(id,1) || forceSide == 1 ) {
+
+		else if( (user.getAlly() != null && (user.getAlly().getId() == this.ally2)) || this.isCommander(user,1) || forceSide == 1 ) {
 			this.ownSide = 1;
 			this.enemySide = 0;
 		}
@@ -1396,37 +1368,38 @@ public class Battle implements Loggable {
 		this.ownShipTypeCount.clear();
 		this.enemyShipTypeCount.clear();
 
-		SQLQuery aship = db.query( "SELECT t1.*,t2.action,t2.side,t2.count ",
-				    			"FROM ships t1 JOIN battles_ships t2 ON t1.id=t2.shipid ",
-				    			"WHERE t1.id>0 AND t1.battle=",this.id," AND t2.battleid=",this.id," AND t1.x=",this.x," AND t1.y=",this.y," AND t1.system=",this.system," ",
-								"ORDER BY type,id");
+		List ships = db.createQuery("from BattleShip bs inner join fetch bs.ship as s " +
+				    			"where s.id>0 and bs.battle=? " +
+								"order by s.shiptype,s.id")
+						.setEntity(0, this)
+						.list();
 	
-		while( aship.next() ) {
-			if( aship.getInt("side") == this.ownSide ) {
-				this.ownShips.add(aship.getRow());
-				if( !this.guest || (aship.getString("docked").length() == 0) || (aship.getString("docked").charAt(0) != 'l') ) {
-					if( ownShipTypeCount.containsKey(aship.getInt("type")) ) {
-						ownShipTypeCount.put(aship.getInt("type"), ownShipTypeCount.get(aship.getInt("type"))+1);
+		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+			BattleShip aship = (BattleShip)iter.next();
+			
+			if( aship.getSide() == this.ownSide ) {
+				this.ownShips.add(aship);
+				if( !this.guest || (aship.getDocked().length() == 0) || (aship.getDocked().charAt(0) != 'l') ) {
+					if( ownShipTypeCount.containsKey(aship.getShip().getType()) ) {
+						ownShipTypeCount.put(aship.getShip().getType(), ownShipTypeCount.get(aship.getShip().getType())+1);
 					}
 					else {
-						ownShipTypeCount.put(aship.getInt("type"), 1);
+						ownShipTypeCount.put(aship.getShip().getType(), 1);
 					}
 				}
 			}
-			else if( aship.getInt("side") == this.enemySide ) {
-				this.enemyShips.add(aship.getRow());
-				if( (aship.getString("docked").length() == 0) || (aship.getString("docked").charAt(0) != 'l') ) {
-					if( enemyShipTypeCount.containsKey(aship.getInt("type")) ) {
-						enemyShipTypeCount.put(aship.getInt("type"), enemyShipTypeCount.get(aship.getInt("type"))+1);
+			else if( aship.getSide() == this.enemySide ) {
+				this.enemyShips.add(aship);
+				if( (aship.getDocked().length() == 0) || (aship.getDocked().charAt(0) != 'l') ) {
+					if( enemyShipTypeCount.containsKey(aship.getShip().getType()) ) {
+						enemyShipTypeCount.put(aship.getShip().getType(), enemyShipTypeCount.get(aship.getShip().getType())+1);
 					}
 					else {
-						enemyShipTypeCount.put(aship.getInt("type"), 1);
+						enemyShipTypeCount.put(aship.getShip().getType(), 1);
 					}
 				}
 			}
 		}
-		aship.free();
-
 	
 		//
 		// aktive Schiffe heraussuchen
@@ -1435,18 +1408,18 @@ public class Battle implements Loggable {
 		this.activeSEnemy = 0;
 		this.activeSOwn = 0;
 	
-		if( enemyShipID != 0 ) {
+		if( enemyShip != null ) {
 			for( int i=0; i < enemyShips.size(); i++ ) {
-				if( enemyShips.get(i).getInt("id") == enemyShipID ) {
+				if( enemyShips.get(i).getId() == enemyShip.getId() ) {
 					this.activeSEnemy = i;
 					break;
 				}
 			}
 		}
 	
-		if( ownShipID != 0 ) {
+		if( ownShip != null ) {
 			for( int i=0; i < ownShips.size(); i++ ) {
-				if( ownShips.get(i).getInt("id") == ownShipID ) {
+				if( ownShips.get(i).getId() == ownShip.getId() ) {
 					this.activeSOwn = i;
 					break;
 				}
@@ -1455,10 +1428,9 @@ public class Battle implements Loggable {
 	
 		// Falls die gewaehlten Schiffe gelandet (oder zerstoert) sind -> neue Schiffe suchen
 		while( activeSEnemy < enemyShips.size() &&
-				enemyShips.get(activeSEnemy).isEmpty() &&
-			  ( (this.enemyShips.get(activeSEnemy).getInt("action") & BS_DESTROYED) != 0 ||
-			 	((this.enemyShips.get(activeSEnemy).getString("docked").length() > 0) &&
-			 	(this.enemyShips.get(activeSEnemy).getString("docked").charAt(0) == 'l')) ) ) {
+			  ( (this.enemyShips.get(activeSEnemy).getAction() & BS_DESTROYED) != 0 ||
+			 	((this.enemyShips.get(activeSEnemy).getDocked().length() > 0) &&
+			 	(this.enemyShips.get(activeSEnemy).getDocked().charAt(0) == 'l')) ) ) {
 			this.activeSEnemy++;
 		}
 	
@@ -1466,9 +1438,8 @@ public class Battle implements Loggable {
 
 		if( this.guest ) {
 			while( activeSOwn < ownShips.size() &&
-					ownShips.get(activeSOwn).isEmpty() &&
-				  ( (this.ownShips.get(activeSOwn).getString("docked").length() > 0) &&
-				 	(this.ownShips.get(activeSOwn).getString("docked").charAt(0) == 'l') ) ) {
+				  ( (this.ownShips.get(activeSOwn).getDocked().length() > 0) &&
+				 	(this.ownShips.get(activeSOwn).getDocked().charAt(0) == 'l') ) ) {
 				this.activeSOwn++;
 			}
 		
@@ -1535,9 +1506,8 @@ public class Battle implements Loggable {
 	 */
 	public boolean endTurn( boolean calledByUser ) {
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
 			
-		List<List<SQLResultRow>> sides = new ArrayList<List<SQLResultRow>>();
+		List<List<BattleShip>> sides = new ArrayList<List<BattleShip>>();
 		if( this.ownSide == 0 ) {
 			sides.add(this.ownShips);
 			sides.add(this.enemyShips);
@@ -1552,48 +1522,43 @@ public class Battle implements Loggable {
 		//
 
 		for( int i=0; i < 2; i++ ) {
-			List<SQLResultRow> destroyList = new ArrayList<SQLResultRow>();
-			List<SQLResultRow> fluchtList = new ArrayList<SQLResultRow>();
-			List<SQLResultRow> fluchtReposList = new ArrayList<SQLResultRow>();
+			List<BattleShip> destroyList = new ArrayList<BattleShip>();
+			List<BattleShip> fluchtList = new ArrayList<BattleShip>();
+			List<BattleShip> fluchtReposList = new ArrayList<BattleShip>();
 			
-			List<SQLResultRow> shiplist = sides.get(i);
+			List<BattleShip> shiplist = sides.get(i);
 			for( int key=0; key < shiplist.size(); key++ ) {
-				SQLResultRow aship = shiplist.get(key);
-				
-				int oldAction = aship.getInt("action");
-				SQLResultRow battle_ship = db.first("SELECT hull,shields,engine,weapons,comm,sensors,newcount FROM battles_ships WHERE shipid=",aship.getInt("id"));
-				
-				if( (battle_ship.getInt("newcount") > 0) && (battle_ship.getInt("newcount") != aship.getInt("count")) ) {
-					aship.put("count", battle_ship.getInt("newcount"));
-					db.update("UPDATE battles_ships SET count=",battle_ship.getInt("newcount"),",newcount=0 WHERE shipid=",aship.getInt("id"));
+				BattleShip aship = shiplist.get(key);
+
+				if( (aship.getNewCount() > 0) && (aship.getNewCount() != aship.getCount()) ) {
+					aship.setCount(aship.getNewCount());
+					aship.setNewCount((byte)0);
 				}
 				
-				if( (aship.getInt("action") & BS_HIT) != 0 ) {	
-					db.update("UPDATE ships ",
-								"SET hull=",battle_ship.getInt("hull"),", ",
-									"shields=",battle_ship.getInt("shields"),", ",
-									"engine=",battle_ship.getInt("engine"),", ",
-									"weapons=",battle_ship.getInt("weapons"),", ",
-									"comm=",battle_ship.getInt("comm"),", ",
-									"sensors=",battle_ship.getInt("sensors")," ",
-								"WHERE id>0 AND id=",aship.getInt("id") );
-	
-					aship.put("action", aship.getInt("action") ^ BS_HIT);
+				if( (aship.getAction() & BS_HIT) != 0 ) {
+					aship.getShip().setAblativeArmor(aship.getAblativeArmor());
+					aship.getShip().setHull(aship.getHull());
+					aship.getShip().setShields(aship.getShields());
+					aship.getShip().setEngine(aship.getEngine());
+					aship.getShip().setWeapons(aship.getWeapons());
+					aship.getShip().setComm(aship.getComm());
+					aship.getShip().setSensors(aship.getSensors());
+					aship.setAction(aship.getAction() ^ BS_HIT);
 				}
-				else if( (aship.getInt("action") & BS_DESTROYED) != 0 ) {	
+				else if( (aship.getAction() & BS_DESTROYED) != 0 ) {	
 					if( Configuration.getIntSetting("DESTROYABLE_SHIPS") != 0 ) {
 						destroyList.add(aship);
 	
 						continue;
 					}
 					
-					aship.put("action", aship.getInt("action") ^ BS_DESTROYED);
+					aship.setAction(aship.getAction() ^ BS_DESTROYED);
 				}
 				
-				SQLResultRow ashipType = ShipTypes.getShipType( aship );
+				ShipTypeData ashipType = aship.getTypeData();
 				
-				if( (aship.getInt("action") & BS_FLUCHT) != 0 ) {
-					if( ashipType.getInt("cost") > 0 ) {
+				if( (aship.getAction() & BS_FLUCHT) != 0 ) {
+					if( ashipType.getCost() > 0 ) {
 						fluchtReposList.add(aship);
 					}
 					else {
@@ -1603,50 +1568,47 @@ public class Battle implements Loggable {
 					continue;
 				}
 				
-				if( (aship.getInt("action") & BS_SHOT) != 0 ) {
-					aship.put("action", aship.getInt("action") ^ BS_SHOT);
+				if( (aship.getAction() & BS_SHOT) != 0 ) {
+					aship.setAction(aship.getAction() ^ BS_SHOT);
 				}
 				
-				if( (aship.getInt("action") & BS_SECONDROW_BLOCKED) != 0 ) {
-					aship.put("action", aship.getInt("action") ^ BS_SECONDROW_BLOCKED);
+				if( (aship.getAction() & BS_SECONDROW_BLOCKED) != 0 ) {
+					aship.setAction(aship.getAction() ^ BS_SECONDROW_BLOCKED);
 				}
 				
-				if( (aship.getInt("action") & BS_BLOCK_WEAPONS) != 0 ) {
-					aship.put("action", aship.getInt("action") ^ BS_BLOCK_WEAPONS);
+				if( (aship.getAction() & BS_BLOCK_WEAPONS) != 0 ) {
+					aship.setAction(aship.getAction() ^ BS_BLOCK_WEAPONS);
 				}
 				
 				if( (i == 0) && this.hasFlag(FLAG_DROP_SECONDROW_0) && 
-						(aship.getInt("action") & BS_SECONDROW) != 0 ) {
-					aship.put("action", aship.getInt("action") ^ BS_SECONDROW);	
+						(aship.getAction() & BS_SECONDROW) != 0 ) {
+					aship.setAction(aship.getAction() ^ BS_SECONDROW);	
 				}
 				else if( (i == 1) && this.hasFlag(FLAG_DROP_SECONDROW_1) && 
-						(aship.getInt("action") & BS_SECONDROW) != 0 ) {
-					aship.put("action", aship.getInt("action") ^ BS_SECONDROW);	
+						(aship.getAction() & BS_SECONDROW) != 0 ) {
+					aship.setAction(aship.getAction() ^ BS_SECONDROW);	
 				}
 				
-				if( (aship.getInt("action") & BS_JOIN) != 0 ) {
-					if( ShipTypes.hasShipTypeFlag(ashipType, ShipTypes.SF_SECONDROW) && 
-						this.isSecondRowStable(i, new SQLResultRow[] {aship}) ) {
-						aship.put("action", aship.getInt("action") ^ BS_SECONDROW);
+				if( (aship.getAction() & BS_JOIN) != 0 ) {
+					if( ashipType.hasFlag(ShipTypes.SF_SECONDROW) && 
+						this.isSecondRowStable(i, aship) ) {
+						aship.setAction(aship.getAction() ^ BS_SECONDROW);
 					}
-					aship.put("action", aship.getInt("action") ^ BS_JOIN);
+					aship.setAction(aship.getAction() ^ BS_JOIN);
 				}
 	
-				Map<String,String> heat = Weapons.parseWeaponList(aship.getString("heat"));
+				Map<String,String> heat = Weapons.parseWeaponList(aship.getWeaponHeat());
 	
 				for( String weaponName : heat.keySet() ) {
 					heat.put(weaponName, "0");
 				}
 				
-				if( (aship.getInt("action") & BS_FLUCHTNEXT) != 0 ) {
-					aship.put("action", (aship.getInt("action") ^ BS_FLUCHTNEXT) | BS_FLUCHT);
+				if( (aship.getAction() & BS_FLUCHTNEXT) != 0 ) {
+					aship.setAction((aship.getAction() ^ BS_FLUCHTNEXT) | BS_FLUCHT);
 				}
 				
-				if( aship.getInt("action") != oldAction ) {
-					db.update("UPDATE battles_ships SET action=",aship.getInt("action")," WHERE shipid=",aship.getInt("id"));
-				}
-	
-				db.update("UPDATE ships SET heat='",Weapons.packWeaponList(heat),"',battleAction=0 WHERE id>0 AND id=",aship.getInt("id"));
+				aship.getShip().setWeaponHeat(Weapons.packWeaponList(heat));
+				aship.getShip().setBattleAction(false);
 			}
 			
 			// Zerstoerte Schiffe aus der Schlacht entfernen
@@ -1661,23 +1623,15 @@ public class Battle implements Loggable {
 			for( int key=0; key < fluchtReposList.size(); key++ ) {
 				this.removeShip(fluchtReposList.get(key), true);
 			}
-			
-			int points = this.getActionPoints(i);
-			this.points[i] = points;
 		}
 		
-		context.getDB().flush();
-		
 		// Ist die Schlacht zuende (weil keine Schiffe mehr vorhanden sind?)
-		int owncount = db.first("SELECT count(*) count FROM battles_ships WHERE battleid=",this.id," AND side=",this.ownSide).getInt("count");
-		int enemycount = db.first("SELECT count(*) count FROM battles_ships WHERE battleid=",this.id," AND side=",this.enemySide).getInt("count");
-
+		int owncount = this.ownShips.size();
+		int enemycount = this.enemyShips.size();
+		
 		if( (owncount == 0) && (enemycount == 0) ) {
-			User user1 = (User)context.getDB().get(User.class, this.commander[this.enemySide]);
-			User user2 = (User)context.getDB().get(User.class, this.commander[this.ownSide]);
-
-			PM.send(context, this.commander[this.enemySide], this.commander[this.ownSide], "Schlacht unentschieden", "Die Schlacht bei "+this.system+" : "+this.x+"/"+this.y+" gegen "+user1.getName()+" wurde mit einem Unendschieden beendet!");
-			PM.send(context, this.commander[this.ownSide], this.commander[this.enemySide], "Schlacht unentschieden", "Die Schlacht bei "+this.system+" : "+this.x+"/"+this.y+" gegen "+user2.getName()+" wurde mit einem Unendschieden beendet!");
+			PM.send(this.getCommanders()[this.enemySide], this.getCommanders()[this.ownSide].getId(), "Schlacht unentschieden", "Die Schlacht bei "+this.getLocation()+" gegen "+this.getCommanders()[this.enemySide].getName()+" wurde mit einem Unendschieden beendet!");
+			PM.send(this.getCommanders()[this.ownSide], this.getCommanders()[this.enemySide].getId(), "Schlacht unentschieden", "Die Schlacht bei "+this.getLocation()+" gegen "+this.getCommanders()[this.ownSide].getName()+" wurde mit einem Unendschieden beendet!");
 
 			// Schlacht beenden - unendschieden
 			this.endBattle(0,0, true);
@@ -1686,16 +1640,13 @@ public class Battle implements Loggable {
 			this.enemyShips.clear();
 
 			if( calledByUser ) {
-				context.getResponse().getContent().append("Du hast die Schlacht gegen "+Common._title(user1.getName())+" mit einem Unendschieden beendet!");
+				context.getResponse().getContent().append("Du hast die Schlacht gegen "+Common._title( this.getCommanders()[this.enemySide].getName())+" mit einem Unendschieden beendet!");
 			}
 			return false;
 		}
 		else if( owncount == 0 ) {
-			User user1 = (User)context.getDB().get(User.class, this.commander[this.enemySide]);
-			User user2 = (User)context.getDB().get(User.class, this.commander[this.ownSide]);
-
-			PM.send(context, this.commander[this.enemySide], this.commander[this.ownSide], "Schlacht verloren", "Du hast die Schlacht bei "+this.system+" : "+this.x+"/"+this.y+" gegen "+user1.getName()+" verloren!");
-			PM.send(context, this.commander[this.ownSide], this.commander[this.enemySide], "Schlacht gewonnen", "Du hast die Schlacht bei "+this.system+" : "+this.x+"/"+this.y+" gegen "+user2.getName()+" gewonnen!");
+			PM.send(this.getCommanders()[this.enemySide], this.getCommanders()[this.ownSide].getId(), "Schlacht verloren", "Du hast die Schlacht bei "+this.getLocation()+" gegen "+this.getCommanders()[this.enemySide].getName()+" verloren!");
+			PM.send(this.getCommanders()[this.ownSide], this.getCommanders()[this.enemySide].getId(), "Schlacht gewonnen", "Du hast die Schlacht bei "+this.getLocation()+" gegen "+this.getCommanders()[this.ownSide].getName()+" gewonnen!");
 					
 			// Schlacht beenden - eine siegreiche Schlacht fuer den aktive Seite verbuchen sowie eine verlorene fuer den Gegner
 			if( this.ownSide == 0 ) {
@@ -1710,16 +1661,13 @@ public class Battle implements Loggable {
 
 
 			if( calledByUser ) {
-				context.getResponse().getContent().append("Du hast die Schlacht gegen "+Common._title(user1.getName())+" verloren!");
+				context.getResponse().getContent().append("Du hast die Schlacht gegen "+Common._title(this.getCommanders()[this.enemySide].getName())+" verloren!");
 			}
 			return false;
 		}
 		else if( enemycount == 0 ) {
-			User user1 = (User)context.getDB().get(User.class, this.commander[this.enemySide]);
-			User user2 = (User)context.getDB().get(User.class, this.commander[this.ownSide]);
-
-			PM.send(context, this.commander[this.enemySide], this.commander[this.ownSide], "Schlacht gewonnen", "Du hast die Schlacht bei "+this.system+" : "+this.x+"/"+this.y+" gegen "+user1.getName()+" gewonnen!");
-			PM.send(context, this.commander[this.ownSide], this.commander[this.enemySide], "Schlacht verloren", "Du hast die Schlacht bei "+this.system+" : "+this.x+"/"+this.y+" gegen "+user2.getName()+" verloren!");
+			PM.send(this.getCommanders()[this.enemySide], this.getCommanders()[this.ownSide].getId(), "Schlacht gewonnen", "Du hast die Schlacht bei "+this.getLocation()+" gegen "+this.getCommanders()[this.enemySide].getName()+" gewonnen!");
+			PM.send(this.getCommanders()[this.ownSide], this.getCommanders()[this.enemySide].getId(), "Schlacht verloren", "Du hast die Schlacht bei "+this.getLocation()+" gegen "+this.getCommanders()[this.ownSide].getName()+" verloren!");
 
 			// Schlacht beenden - eine siegreiche Schlacht fuer den aktive Seite verbuchen sowie eine verlorene fuer den Gegner
 			if( this.ownSide == 0 ) {
@@ -1733,13 +1681,13 @@ public class Battle implements Loggable {
 			this.enemyShips.clear();
 
 			if( calledByUser ) {
-				context.getResponse().getContent().append("Du hast die Schlacht gegen "+Common._title(user1.getName())+" gewonnen!");
+				context.getResponse().getContent().append("Du hast die Schlacht gegen "+Common._title(this.getCommanders()[this.enemySide].getName())+" gewonnen!");
 			} 
 			return false;
 		}
 		
-		this.ready[0] = false;
-		this.ready[1] = false;
+		this.ready1 = false;
+		this.ready2 = false;
 		this.blockcount = 2;
 
 		this.lastturn = Common.time();
@@ -1747,27 +1695,25 @@ public class Battle implements Loggable {
 		int tick = context.get(ContextCommon.class).getTick();
 
 		for( int i=0; i < 2; i++ ) {
-			if( !calledByUser && this.takeCommand[i] != 0 ) {
+			if( !calledByUser && this.getTakeCommands()[i] != 0 ) {
 				this.logenemy("<action side=\""+i+"\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\n");
 	
-				User com = (User)context.getDB().get(User.class, this.takeCommand[i]);
+				User com = (User)context.getDB().get(User.class, this.getTakeCommands()[i]);
 	
-				PM.send(context, this.takeCommand[i], this.commander[i], "Schlacht &uuml;bernommen", "Ich habe die Leitung der Schlacht bei "+this.system+" : "+this.x+"/"+this.y+" &uuml;bernommen.");
+				PM.send(com, this.getCommanders()[i].getId(), "Schlacht &uuml;bernommen", "Ich habe die Leitung der Schlacht bei "+this.getLocation()+" &uuml;bernommen.");
 	
 				this.logenemy("[Automatisch] "+Common._titleNoFormat(com.getName())+" kommandiert nun die gegnerischen Truppen\n\n");
 	
-				this.commander[i] = this.takeCommand[i];
+				this.setCommander(i, com);
 	
 				this.logenemy("]]></action>\n");
 	
-				this.logenemy("<side"+(i+1)+" commander=\""+this.commander[i]+"\" ally=\""+this.ally[i]+"\" />\n");
+				this.logenemy("<side"+(i+1)+" commander=\""+this.getCommanders()[i]+"\" ally=\""+this.getAllys()[i]+"\" />\n");
 	
-				this.takeCommand[i] = 0;
+				this.setTakeCommand(i, 0);
 			}
 		}
 		
-		int inakt = db.first("SELECT inakt FROM battles WHERE id=",this.id).getInt("inakt");
-
 		if( this.hasFlag(FLAG_FIRSTROUND) ) {
 			this.setFlag(FLAG_FIRSTROUND, false);
 		}
@@ -1776,8 +1722,6 @@ public class Battle implements Loggable {
 		this.setFlag(FLAG_DROP_SECONDROW_1, false);
 		this.setFlag(FLAG_BLOCK_SECONDROW_0, false);
 		this.setFlag(FLAG_BLOCK_SECONDROW_1, false);
-
-		this.save(true);
 		
 		// Schiffstick ausfuehren
 		context.getRequest().setParameter("battle", Integer.toString(this.id));
@@ -1786,9 +1730,11 @@ public class Battle implements Loggable {
 		schiffstick.execute();
 		schiffstick.dispose();
 
-		if( inakt > 6 ) {
-			PM.send(context, -1, this.commander[0], "Schlacht beendet", "Die Schlacht bei "+this.system+" : "+this.x+"/"+this.y+" wurde wegen Inaktivit&auml;t automatisch beendet");
-			PM.send(context, -1, this.commander[1], "Schlacht beendet", "Die Schlacht bei "+this.system+" : "+this.x+"/"+this.y+" wurde wegen Inaktivit&auml;t automatisch beendet");
+		if( this.inakt > 6 ) {
+			final User sourceUser = (User)context.getDB().get(User.class, -1);
+			
+			PM.send(sourceUser, this.commander1.getId(), "Schlacht beendet", "Die Schlacht bei "+this.getLocation()+" wurde wegen Inaktivit&auml;t automatisch beendet");
+			PM.send(sourceUser, this.commander2.getId(), "Schlacht beendet", "Die Schlacht bei "+this.getLocation()+" wurde wegen Inaktivit&auml;t automatisch beendet");
 			this.endBattle(0, 0, true);
 			 
 			if( !calledByUser ) {
@@ -1798,12 +1744,12 @@ public class Battle implements Loggable {
 			return false;
 		} 
 
-		db.update("UPDATE battles SET inakt="+(inakt+1)+" WHERE id=",this.id);
+		this.inakt++;
 		
 		return true;
 	}
 	
-	private static Object LOG_WRITE_LOCK = new Object();
+	private static final Object LOG_WRITE_LOCK = new Object();
 	
 	/**
 	 * Schreibt das aktuelle Kampflog in die Logdatei
@@ -1815,22 +1761,18 @@ public class Battle implements Loggable {
 			}
 		}
 		
-		Database db = ContextMap.getContext().getDatabase();
 		String log = this.getEnemyLog(false);
 		
 		if( this.ownSide == 0 ) {
-			PreparedQuery pq = db.prepare("UPDATE battles SET com2Msg=CONCAT(com2Msg, ?) WHERE id= ?");
-			pq.update(log, this.id);
-			pq.close();
-			this.comMsg[1] += log;
+			this.com1Msg += log;
 		}
 		else {
-			PreparedQuery pq = db.prepare("UPDATE battles SET com1Msg=CONCAT(com1Msg, ?) WHERE id= ?");
-			pq.update(log, this.id);
-			pq.close();
-			this.comMsg[1] += log;
+			this.com2Msg += log;
 		}
 	}
+	
+	@Transient
+	private boolean deleted = false;
 	
 	/**
 	 * Beendet die Schlacht
@@ -1842,75 +1784,78 @@ public class Battle implements Loggable {
 		this.writeLog();
 		
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
-		
-		SQLResultRow row = db.first("SELECT id FROM battles WHERE id="+this.id);
-		if( row.isEmpty() ) {
+		org.hibernate.Session db = context.getDB();
+
+		if( deleted ) {
 			LOG.warn("Mehrfacher Aufruf von Battle.endBattle festgestellt", new Throwable());
 			return;
 		}
 		
+		deleted = true;
+		
 		if( executeScripts ) {
-			String onendhandler = db.first("SELECT onend FROM battles WHERE id=",this.id).getString("onend");
-			if( onendhandler.length() > 0 ) {			
-				ScriptParser scriptparser = context.get(ContextCommon.class).getScriptParser(ScriptParser.NameSpace.QUEST);
+			String onendhandler = this.onend;
+			if( (onendhandler != null) && (onendhandler.length() > 0) ) {			
+				ScriptEngine scriptparser = context.get(ContextCommon.class).getScriptParser("DSQuestScript");
 				if( context.getActiveUser() != null ) {
-					User activeuser = (User)context.getActiveUser();
+					BasicUser activeuser = context.getActiveUser();
 					if( !activeuser.hasFlag(User.FLAG_SCRIPT_DEBUGGING) ) {
-						scriptparser.setLogFunction(ScriptParser.LOGGER_NULL);
+						scriptparser.getContext().setErrorWriter(new NullLogger());
 					}
 				}
 				else {
-					scriptparser.setLogFunction(ScriptParser.LOGGER_NULL);
+					scriptparser.getContext().setErrorWriter(new NullLogger());
 				}
 				
-				Quests.executeEvent( scriptparser, onendhandler, (context.getActiveUser() != null ? context.getActiveUser().getId() : 0), "" );
+				User questUser = (User)context.getActiveUser();
+				if( questUser == null ) {
+					questUser = (User)db.get(User.class, 0);
+				}
+				Quests.executeEvent( scriptparser, onendhandler, questUser, "", false );
 			}
 		}
 
-		db.update("DELETE FROM battles_ships WHERE battleid=",this.id);
-		db.update("UPDATE ships SET battle=null,battleAction=0 WHERE id>0 AND battle=",this.id);
-		db.update("DELETE FROM battles WHERE id=",this.id);
+		db.createQuery("delete from BattleShip where battle=?")
+			.setEntity(0, this)
+			.executeUpdate();
+		db.createQuery("update Ship set battle=null,battleAction=0 where id>0 and battle=?")
+			.setEntity(0, this)
+			.executeUpdate();
 
 		Common.writeLog("battles/battle_id"+this.id+".log", "</battle>");
 
 		final String newlog = Configuration.getSetting("LOXPATH")+"battles/ended/"+Common.time()+"_id"+this.id+".log";
 		new File(Configuration.getSetting("LOXPATH")+"battles/battle_id"+this.id+".log").renameTo(new File(newlog));
 		
-		db.update("UPDATE ships_lost SET battle=0,battlelog='",newlog,"' WHERE battle=",this.id);
+		db.createQuery("update ShipLost set battle=0,battleLog=? where battle=?")
+			.setString(0, newlog)
+			.setEntity(1, this)
+			.executeUpdate();
 
-		if( this.ally[0] != 0 ) {
-			if( side1points > 0 ) {
-				db.update("UPDATE ally SET wonBattles=wonBattles + "+side1points+" WHERE id=",this.ally[0]);
+		int[] points = new int[] {side1points, side2points};
+		
+		for( int i=0; i < points.length; i++ ) {
+			if( this.getAllys()[i] != 0 ) {
+				Ally ally = (Ally)db.get(Ally.class, this.getAllys()[i]);
+				if( points[i] > 0 ) {
+					ally.setWonBattles((short)(ally.getWonBattles()+points[i]));
+				} 
+				else {
+					ally.setLostBattles((short)(ally.getLostBattles()-points[i]));
+				}
+			}
+			if( points[i] > 0 ) {
+				 this.getCommanders()[i].setWonBattles((short)( this.getCommanders()[i].getWonBattles()+points[i]));
 			} 
 			else {
-				db.update("UPDATE ally SET lostBattles=lostBattles + ",-side1points," WHERE id=",this.ally[0]);
+				 this.getCommanders()[i].setLostBattles((short)( this.getCommanders()[i].getLostBattles()-points[i]));
 			}
-		}
-		if( side1points > 0 ) {
-			db.update("UPDATE users SET wonBattles=wonBattles + "+side1points+" WHERE id=",this.commander[0]);
-		} 
-		else {
-			db.update("UPDATE users SET lostBattles=lostBattles + ",-side1points," WHERE id=",this.commander[0]);
-		}
-
-		if( this.ally[1] != 0 ) {
-			if( side2points > 0 ) {
-				db.update("UPDATE ally SET wonBattles=wonBattles + "+side2points+" WHERE id=",this.ally[1]);
-			} 
-			else {
-				db.update("UPDATE ally SET lostBattles=lostBattles + ",-side2points," WHERE id=",this.ally[1]);
-			}
-		}
-		if( side2points > 0 ) {
-			db.update("UPDATE ally SET wonBattles=wonBattles + "+side2points+" WHERE id=",this.commander[1]);
-		} 
-		else {
-			db.update("UPDATE ally SET lostBattles=lostBattles + ",-side2points," WHERE id=",this.commander[1]);
 		}
 
 		this.enemyShips.clear();
 		this.ownShips.clear();
+		
+		db.delete(this);
 	}
 
 	/**
@@ -1934,16 +1879,16 @@ public class Battle implements Loggable {
 		//
 
 		boolean found = false;
-		List<SQLResultRow> shiplist = this.ownShips;
+		List<BattleShip> shiplist = this.ownShips;
 		
 		if( ship.getSide() != this.ownSide ) {
 			shiplist = this.enemyShips;
 		}
 	
 		for( int i=0; i < shiplist.size(); i++ ) {
-			SQLResultRow aship = shiplist.get(i);
+			BattleShip aship = shiplist.get(i);
 			
-			if( aship.getInt("id") == ship.getId() ) {
+			if( aship == ship ) {
 				shiplist.remove(i);
 				i--; // Arraypositionen haben sich nach dem Entfernen veraendert. Daher Index aktuallisieren
 				
@@ -1951,17 +1896,15 @@ public class Battle implements Loggable {
 			}
 			// Evt ist das Schiff an das gerade zerstoerte gedockt
 			// In diesem Fall muss es ebenfalls entfernt werden
-			else if( (dockcount > 0) && (aship.getString("docked").length() > 0) &&
-					(aship.getString("docked").equals("l "+ship.getId()) || aship.getString("docked").equals(Integer.toString(ship.getId()))) ) {
+			else if( (dockcount > 0) && (aship.getDocked().length() > 0) &&
+					(aship.getDocked().equals("l "+ship.getId()) || aship.getDocked().equals(Integer.toString(ship.getId()))) ) {
 				shiplist.remove(i);
 				i--; // Arraypositionen haben sich nach dem Entfernen veraendert. Daher Index aktuallisieren
 				
 				dockcount--;
 				
-				BattleShip aBattleShip = (BattleShip)db.get(BattleShip.class, aship.getInt("id"));
-				
-				db.delete(aBattleShip);
-				aBattleShip.getShip().destroy();
+				db.delete(aship);
+				aship.getShip().destroy();
 			}
 			
 			if( found && (dockcount == 0) ) {
@@ -1978,30 +1921,18 @@ public class Battle implements Loggable {
 	}
 	
 	/**
-	 * Zerstoert ein Schiff und alle an ihm gedockten Schiff
-	 * @param ship Das zu zerstoerende Schiff
-	 */
-	private void destroyShip( SQLResultRow ship ) {
-		Context context = ContextMap.getContext();
-		BattleShip bs = (BattleShip)context.getDB().get(BattleShip.class, ship.getInt("id"));
-		if( bs != null ) {
-			destroyShip(bs);
-		}
-	}
-	
-	/**
 	 * Entfernt ein Schiff aus einer Schlacht und platziert es falls gewuenscht in einem zufaelligen Sektor
 	 * um die Schlacht herum. Evt gedockte Schiffe werden mitentfernt und im selben Sektor platziert
 	 * @param ship Das fliehende Schiff
 	 * @param relocate Soll ein zufaelliger Sektor um die Schlacht herum gewaehlt werden? (<code>true</code>)
 	 */
-	private void removeShip( SQLResultRow ship, boolean relocate ) {
+	private void removeShip( BattleShip ship, boolean relocate ) {
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		
-		Location loc = Location.fromResult(ship);
+		Location loc = ship.getShip().getLocation();
 		
-		if( relocate && (ship.getString("docked").length() == 0) ) {
+		if( relocate && (ship.getDocked().length() == 0) ) {
 			StarSystem sys = Systems.get().system(this.system);
 			int maxRetries = 100;
 
@@ -2019,8 +1950,7 @@ public class Battle implements Loggable {
 			}
 		}
 
-		SQLResultRow side = db.first("SELECT side FROM battles_ships WHERE shipid=",ship.getInt("id"));
-		if( side.isEmpty() ) {
+		if( ship.getShip().getBattle() == null ) {
 			// Es kann vorkommen, dass das Schiff bereits entfernt wurde (wegen einer dock-Beziehung)
 			return;
 		}
@@ -2028,52 +1958,57 @@ public class Battle implements Loggable {
 		// Falls das Schiff an einem anderen Schiff gedockt ist, dann das 
 		// Elternschiff fliehen lassen. Dieses kuemmert sich dann um die
 		// gedockten Schiffe
-		if( ship.getString("docked").length() > 0 ) {
+		if( ship.getDocked().length() > 0 ) {
 			int masterid = 0;
-			if( ship.getString("docked").charAt(0) == 'l' ) {
-				masterid = Integer.parseInt(ship.getString("docked").substring(2));
+			if( ship.getDocked().charAt(0) == 'l' ) {
+				masterid = Integer.parseInt(ship.getDocked().substring(2));
 			}
 			else {
-				masterid = Integer.parseInt(ship.getString("docked"));
+				masterid = Integer.parseInt(ship.getDocked());
 			}
 			
-			List<SQLResultRow> shiplist = this.ownShips;
-			if( side.getInt("side") != this.ownSide ) {
+			List<BattleShip> shiplist = this.ownShips;
+			if( ship.getSide() != this.ownSide ) {
 				shiplist = this.enemyShips;
 			}
 			
 			for( int i=0; i < shiplist.size(); i++ ) {
-				SQLResultRow aship = shiplist.get(i);
+				BattleShip aship = shiplist.get(i);
 				
-				if( aship.getInt("id") == masterid ) {
+				if( aship.getId() == masterid ) {
 					removeShip(aship, relocate);
 					return;
 				}
 			}
 		}
 		
-		int dockcount = db.first("SELECT count(*) count FROM ships WHERE docked IN ('l ",ship.getInt("id"),"','",ship.getInt("id"),"')").getInt("count");
+		long dockcount = (Long)db.createQuery("select count(*) from Ship where docked IN (?,?)")
+			.setString(0, Integer.toString(ship.getId()))
+			.setString(1, "l "+ship.getId())
+			.iterate().next();
 		
-		db.update("UPDATE ships SET battle=null,battleAction=0,x=",loc.getX(),",y=",loc.getY()," WHERE id>0 AND id=",ship.getInt("id"));
-		db.update("DELETE FROM battles_ships WHERE shipid=",ship.getInt("id"));
-
-		Ships.recalculateShipStatus(ship.getInt("id"));
+		ship.getShip().setBattle(null);
+		ship.getShip().setX(loc.getX());
+		ship.getShip().setY(loc.getY());
+		
+		db.delete(ship);
+		ship.getShip().recalculateShipStatus();
 
 		//
 		// Feststellen in welcher der beiden Listen sich das Schiff befindet und dieses daraus entfernen
 		//
 
 		boolean found = false;
-		List<SQLResultRow> shiplist = this.ownShips;
+		List<BattleShip> shiplist = this.ownShips;
 		
-		if( side.getInt("side") != this.ownSide ) {
+		if( ship.getSide() != this.ownSide ) {
 			shiplist = this.enemyShips;
 		}
 		
 		for( int i=0; i < shiplist.size(); i++ ) {
-			SQLResultRow aship = shiplist.get(i);
+			BattleShip aship = shiplist.get(i);
 			
-			if( aship.getInt("id") == ship.getInt("id") ) {
+			if( aship == ship ) {
 				shiplist.remove(i);
 				i--; // Arraypositionen haben sich nach dem Entfernen veraendert. Daher Index aktuallisieren
 				
@@ -2081,17 +2016,20 @@ public class Battle implements Loggable {
 			}
 			// Evt ist das Schiff an das gerade fliehende gedockt
 			// In diesem Fall muss es ebenfalls entfernt werden
-			else if( (dockcount > 0) && (aship.getString("docked").length() > 0) &&
-					(aship.getString("docked").equals("l "+ship.getInt("id")) || aship.getString("docked").equals(Integer.toString(ship.getInt("id")))) ) {
+			else if( (dockcount > 0) && (aship.getDocked().length() > 0) &&
+					(aship.getDocked().equals("l "+ship.getId()) || aship.getDocked().equals(Integer.toString(ship.getId()))) ) {
 				shiplist.remove(i);
 				i--; // Arraypositionen haben sich nach dem Entfernen veraendert. Daher Index aktuallisieren
 				
 				dockcount--;
 				
-				db.update("UPDATE ships SET battle=null,battleAction=0,x=",loc.getX(),",y=",loc.getY()," WHERE id>0 AND id=",aship.getInt("id"));
-				db.update("DELETE FROM battles_ships WHERE shipid=",aship.getInt("id"));
+				aship.getShip().setBattle(null);
+				aship.getShip().setBattleAction(false);
+				aship.getShip().setX(loc.getX());
+				aship.getShip().setY(loc.getY());
 				
-				Ships.recalculateShipStatus(aship.getInt("id"));
+				db.delete(aship);
+				aship.getShip().recalculateShipStatus();
 			}
 			
 			if( found && (dockcount == 0) ) {
@@ -2099,10 +2037,10 @@ public class Battle implements Loggable {
 			}
 		}
 		
-		if( (side.getInt("side") == this.enemySide) && ((this.activeSEnemy >= shiplist.size()) || shiplist.get(this.activeSEnemy).isEmpty()) ) {
+		if( (ship.getSide() == this.enemySide) && (this.activeSEnemy >= shiplist.size()) ) {
 			this.activeSEnemy = 0;
 		}
-		else if( (side.getInt("side") == this.ownSide) && ((this.activeSOwn >= shiplist.size()) || shiplist.get(this.activeSOwn).isEmpty()) ) {
+		else if( (ship.getSide() == this.ownSide) && (this.activeSOwn >= shiplist.size()) ) {
 			this.activeSOwn = 0;
 		}
 	}
@@ -2122,35 +2060,83 @@ public class Battle implements Loggable {
 	}
 	
 	/**
-	 * Setzt die ID des mit der Schlacht verknuepften Quests
-	 * @param quest Die ID des mit der Schlacht verknuepften Quests
+	 * Prueft, ob die Schlacht fuer einen Benutzer sichtbar ist
+	 * @param user Der Benutzer
+	 * @return <code>true</code>, falls sie sichtbar ist
 	 */
-	public void setQuest( int quest ) {
+	public boolean isVisibleToUser(User user) {
+		if( isCommander(user) ) {
+			return true;
+		}
+		
+		if( (this.visibility != null) && (this.visibility.length() > 0) ) {
+			Integer[] visibility = Common.explodeToInteger(",", this.visibility);
+			if( !Common.inArray(user.getId(),visibility) ) {
+				return false;	
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * Gibt die ID des mit der Schlacht verknuepften laufenden Quests zurueck.
+	 * Wenn kein Quest mit der Schlacht verknuepft ist, so wird <code>null</code>
+	 * zurueckgegeben.
+	 * @return Die ID des laufenden Quests oder <code>null</code>
+	 */
+	public Integer getQuest() {
+		return this.quest;
+	}
+	
+	/**
+	 * Setzt die ID des mit der Schlacht verknuepften laufenden Quests.
+	 * <code>null</code> bedeutet, dass kein Quest mit der Schlacht verknuepft ist.
+	 * @param quest Die ID des mit der Schlacht verknuepften laufenden Quests oder <code>null</code>
+	 */
+	public void setQuest( Integer quest ) {
 		this.quest = quest;
 	}
 	
 	/**
+	 * Gibt den Blockcount der Schlacht zurueck. Der Blockcount
+	 * bestimmt, wieviele Ticks eine Schlacht ueberspringen darf bevor
+	 * ein Rundenwechsel erzwungen wird.
+	 * @return Der Blockcount
+	 */
+	public int getBlockCount() {
+		return this.blockcount;
+	}
+	
+	/**
+	 * Gibt den Zeitpunkt des letzten Rundenwechsels zurueck
+	 * @return Der Zeitpunkt
+	 */
+	public long getLastTurn() {
+		return this.lastturn;
+	}
+	
+	/**
 	 * Prueft, ob ein Spieler Kommandant der Schlacht ist
-	 * @param id Die ID des Spielers
+	 * @param user Der Spieler
 	 * @return <code>true</code>, falls er Kommandant ist
 	 */
-	public boolean isCommander( int id ) {
-		return isCommander(id, -1);
+	public boolean isCommander( User user ) {
+		return isCommander(user, -1);
 	}
 	
 	/**
 	 * Prueft, ob ein Spieler auf einer Seite Kommandant ist
-	 * @param id Die ID des Spielers
+	 * @param user Der Spieler
 	 * @param side Die Seite oder <code>-1</code>, falls die Seite egal ist
 	 * @return <code>true</code>, falls er Kommandant ist
 	 */
-	public boolean isCommander( int id, int side ) {
+	public boolean isCommander( User user, int side ) {
 		int myside = -1;
 		
-		if( (this.commander[0] == id) || this.addCommanders.get(0).contains(id) ) {
+		if( (this.commander1.getId() == user.getId()) || this.addCommanders.get(0).contains(user.getId()) ) {
 			myside = 0;
 		}
-		else if( (this.commander[1] == id) || this.addCommanders.get(1).contains(id) ) {
+		else if( (this.commander2.getId() == user.getId()) || this.addCommanders.get(1).contains(user.getId()) ) {
 			myside = 1;	
 		}
 		
@@ -2213,7 +2199,7 @@ public class Battle implements Loggable {
 	 * Gibt die Liste der gegnerischen Schiffe zurueck
 	 * @return Die Liste der gegnerischen Schiffe
 	 */
-	public List<SQLResultRow> getEnemyShips() {
+	public List<BattleShip> getEnemyShips() {
 		return enemyShips;
 	}
 	
@@ -2222,7 +2208,7 @@ public class Battle implements Loggable {
 	 * @param index Der Index
 	 * @return Das Schiff
 	 */
-	public SQLResultRow getEnemyShip( int index ) {
+	public BattleShip getEnemyShip( int index ) {
 		return enemyShips.get(index);
 	}
 
@@ -2230,7 +2216,7 @@ public class Battle implements Loggable {
 	 * Gibt die Liste der eigenen Schiffe zurueck
 	 * @return Die Liste der eigenen Schiffe
 	 */
-	public List<SQLResultRow> getOwnShips() {
+	public List<BattleShip> getOwnShips() {
 		return ownShips;
 	}
 	
@@ -2239,26 +2225,8 @@ public class Battle implements Loggable {
 	 * @param index Der Index
 	 * @return Das Schiff
 	 */
-	public SQLResultRow getOwnShip( int index ) {
+	public BattleShip getOwnShip( int index ) {
 		return ownShips.get(index);
-	}
-	
-	/**
-	 * Gibt die Aktionspunkte einer Seite zurueck
-	 * @param side Die Seite
-	 * @return Die Anzahl der Aktionspunkte der Seite
-	 */
-	public int getPoints(int side) {
-		return this.points[side];
-	}
-	
-	/**
-	 * Setzt die Aktionspunkte einer Seite auf einen neuen Wert
-	 * @param side Die Seite
-	 * @param points Die neue Anzahl an Aktionspunkten
-	 */
-	public void setPoints(int side, int points) {
-		this.points[side] = points;
 	}
 	
 	/**
@@ -2267,25 +2235,38 @@ public class Battle implements Loggable {
 	 * @return Die ID der Allianz oder 0
 	 */
 	public int getAlly(int side) {
-		return this.ally[side];
+		return side == 0 ? ally1 : ally2;
+	}
+	
+	private int[] getAllys() {
+		return new int[] {this.ally1,this.ally2};
 	}
 	
 	/**
-	 * Gibt die Spieler-ID des Kommandanten einer Seite zurueck
+	 * Gibt den Kommandanten einer Seite zurueck
 	 * @param side Die Seite
-	 * @return Die Spieler-ID
+	 * @return Der Spieler
 	 */
-	public int getCommander(int side) {
-		return this.commander[side];
+	public User getCommander(int side) {
+		return side == 0 ? this.commander1 : this.commander2;
 	}
 	
 	/**
 	 * Setzt den Kommandaten einer Seite
 	 * @param side Die Seite
-	 * @param id Der neue Kommandant
+	 * @param user Der neue Kommandant
 	 */
-	public void setCommander(int side, int id) {
-		this.commander[side] = id;
+	public void setCommander(int side, User user) {
+		if( side == 0 ) {
+			this.commander1 = user;
+		}
+		else {
+			this.commander2 = user;
+		}
+	}
+	
+	private User[] getCommanders() {
+		return new User[] {this.commander1, this.commander2};
 	}
 	
 	/**
@@ -2294,7 +2275,7 @@ public class Battle implements Loggable {
 	 * @return <code>true</code>, falls sie mit ihren Aktionen in der Runde fertig ist
 	 */
 	public boolean isReady(int side) {
-		return this.ready[side];
+		return side == 0 ? this.ready1 : this.ready2;
 	}
 	
 	/**
@@ -2303,7 +2284,12 @@ public class Battle implements Loggable {
 	 * @param ready Der Status
 	 */
 	public void setReady(int side, boolean ready) {
-		this.ready[side] = ready;
+		if( side == 0 ) {
+			this.ready1 = ready;
+		}
+		else {
+			this.ready2 = ready;
+		}
 	}
 	
 	/**
@@ -2313,7 +2299,7 @@ public class Battle implements Loggable {
 	 * @return Die ID des Spielers oder 0
 	 */
 	public int getTakeCommand(int side) {
-		return this.takeCommand[side];
+		return side == 0 ? this.takeCommand1 : this.takeCommand2;
 	}
 	
 	/**
@@ -2322,7 +2308,16 @@ public class Battle implements Loggable {
 	 * @param id Die ID des Spielers
 	 */
 	public void setTakeCommand(int side, int id) {
-		this.takeCommand[side] = id;
+		if( side == 0 ) {
+			this.takeCommand1 = id;
+		}
+		else {
+			this.takeCommand2 = id;
+		}
+	}
+	
+	private int[] getTakeCommands() {
+		return new int[] {this.takeCommand1, this.takeCommand2};
 	}
 	
 	/**
@@ -2368,5 +2363,9 @@ public class Battle implements Loggable {
 	 */
 	public int getEnemyShipTypeCount(int shiptype) {
 		return getShipTypeCount(this.enemySide, shiptype);
+	}
+
+	public Location getLocation() {
+		return new Location(this.system, this.x, this.y);
 	}
 }

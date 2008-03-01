@@ -18,10 +18,10 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+
+import org.apache.commons.lang.StringEscapeUtils;
 
 /**
  * Basisklasse fuer KS-Menues

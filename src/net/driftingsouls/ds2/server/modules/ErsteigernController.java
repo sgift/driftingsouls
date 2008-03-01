@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,7 +38,15 @@ import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.FactionPages;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.entities.FactionOffer;
+import net.driftingsouls.ds2.server.entities.FactionShopEntry;
+import net.driftingsouls.ds2.server.entities.FactionShopOrder;
+import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
+import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
+import net.driftingsouls.ds2.server.entities.PaketVersteigerung;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
+import net.driftingsouls.ds2.server.entities.Versteigerung;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -50,7 +59,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.JumpNodeRouter;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipType;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -69,7 +80,7 @@ public class ErsteigernController extends TemplateGenerator {
 	 * @author Christopher Jung
 	 *
 	 */
-	private static abstract class ShopEntry {
+	private abstract static class ShopEntry {
 		private int id;
 		private int factionID;
 		private int type;
@@ -81,13 +92,13 @@ public class ErsteigernController extends TemplateGenerator {
 		 * Konstruktor
 		 * @param data Die SQL-Ergebniszeile zum Eintrag
 		 */
-		public ShopEntry(SQLResultRow data) {
-			this.id = data.getInt("id");
-			this.factionID = data.getInt("faction_id");
-			this.type = data.getInt("type");
-			this.resource = data.getString("resource");
-			this.price = data.getLong("price");
-			this.availability = data.getInt("availability");
+		public ShopEntry(FactionShopEntry data) {
+			this.id = data.getId();
+			this.factionID = data.getFaction();
+			this.type = data.getType();
+			this.resource = data.getResource();
+			this.price = data.getPrice();
+			this.availability = data.getAvailability();
 		}
 		
 		/**
@@ -210,31 +221,31 @@ public class ErsteigernController extends TemplateGenerator {
 	 *
 	 */
 	private static class ShopShipEntry extends ShopEntry {
-		private SQLResultRow shiptype;
+		private ShipTypeData shiptype;
 		
 		/**
 		 * Konstruktor
 		 * @param data Die SQL-Ergebniszeile des Shopeintrags
 		 */
-		public ShopShipEntry( SQLResultRow data ) {
+		public ShopShipEntry( FactionShopEntry data ) {
 			super(data);
 			
-			this.shiptype = ShipTypes.getShipType(Integer.parseInt(this.getResource()), false);
+			this.shiptype = Ship.getShipType(Integer.parseInt(this.getResource()));
 		}
 		
 		@Override
 		public String getName() {
-			return this.shiptype.getString("nickname");	
+			return this.shiptype.getNickname();	
 		}
 		
 		@Override
 		public String getImage() {
-			return this.shiptype.getString("picture");	
+			return this.shiptype.getPicture();	
 		}
 		
 		@Override
 		public String getLink() {
-			return Common.buildUrl("default", "module", "schiffinfo", "ship", shiptype.getInt("id") );
+			return Common.buildUrl("default", "module", "schiffinfo", "ship", shiptype.getTypeId() );
 		}
 	}
 	
@@ -250,7 +261,7 @@ public class ErsteigernController extends TemplateGenerator {
 		 * Konstruktor
 		 * @param data Die SQL-Ergebniszeile des Shopeintrags
 		 */
-		public ShopResourceEntry( SQLResultRow data ) {
+		public ShopResourceEntry( FactionShopEntry data ) {
 			super(data);
 			
 			Cargo cargo = new Cargo();
@@ -307,17 +318,17 @@ public class ErsteigernController extends TemplateGenerator {
 		 * Konstruktor
 		 * @param data Die SQL-Ergebniszeile des Shopeintrags
 		 */
-		public ShopGanyTransportEntry( SQLResultRow[] data ) {
+		public ShopGanyTransportEntry( FactionShopEntry[] data ) {
 			super(data[0]);
 			
 			for( int i=0; i < data.length; i++ ) {
-				if( data[i].getLong("price") < this.minprice ) {
-					this.minprice = data[i].getLong("price");
+				if( data[i].getPrice() < this.minprice ) {
+					this.minprice = data[i].getPrice();
 				}
-				if( data[i].getLong("price") > this.maxprice ) {
-					this.maxprice = data[i].getLong("price");
+				if( data[i].getPrice() > this.maxprice ) {
+					this.maxprice = data[i].getPrice();
 				} 	
-				this.ganytransid = data[0].getInt("id");
+				this.ganytransid = data[0].getId();
 			}
 		}
 		
@@ -375,12 +386,14 @@ public class ErsteigernController extends TemplateGenerator {
 		setTemplate("ersteigern.html");
 		
 		parameterNumber("faction");
+		
+		setPageTitle("Fraktionen");
 	}
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		
 		// Ausgewaehlte Fraktion ueberpruefen und deren Menueeintraege freischalten
@@ -435,7 +448,7 @@ public class ErsteigernController extends TemplateGenerator {
 			if( !factionObj.getPages().isEnabled() ) {
 				continue;
 			}
-			User aFactionUser = (User)getDB().get(User.class, factionObj.getID());
+			User aFactionUser = (User)db.get(User.class, factionObj.getID());
 			
 			if( (user.getRelation(factionObj.getID()) == User.Relation.ENEMY) ||
 				(relationlist.fromOther.get(factionObj.getID()) == User.Relation.ENEMY) ) {
@@ -448,7 +461,7 @@ public class ErsteigernController extends TemplateGenerator {
 		factionmenu.append( StringUtils.replaceChars(Common.tableEnd(), '"', '\'') );
 		String factionmenuStr = StringEscapeUtils.escapeJavaScript(StringUtils.replace(StringUtils.replace(factionmenu.toString(), "<", "&lt;"), ">", "&gt;"));
 		
-		User factionuser = (User)getDB().get(User.class, faction);
+		User factionuser = (User)db.get(User.class, faction);
 		
 		t.setVar(	"user.konto",			Common.ln(user.getKonto()),
 					"global.faction",		faction,
@@ -458,8 +471,8 @@ public class ErsteigernController extends TemplateGenerator {
 		
 		this.ticks = getContext().get(ContextCommon.class).getTick();
 		
-		SQLResultRow paket = db.first("SELECT id FROM versteigerungen_pakete");
-		t.setVar("gtu.paket", !paket.isEmpty());
+		boolean hasPaket = db.createQuery("from PaketVersteigerung").iterate().hasNext();
+		t.setVar("gtu.paket", hasPaket);
 					
 		return true;
 	}
@@ -506,7 +519,7 @@ public class ErsteigernController extends TemplateGenerator {
 		
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		parameterNumber("bid");
 		int bid = getInteger("bid");
@@ -514,9 +527,9 @@ public class ErsteigernController extends TemplateGenerator {
 		parameterNumber("auk");
 		int auk = getInteger("auk");
 		
-		SQLResultRow entry = db.first("SELECT * FROM versteigerungen WHERE id=",auk);
+		Versteigerung entry = (Versteigerung)db.get(Versteigerung.class, auk);
 		
-		if( entry.isEmpty() || (entry.getInt("owner") == user.getId()) ) {
+		if( entry == null || (entry.getOwner().getId() == user.getId()) ) {
 			addError("Sie k&ouml;nnen nicht bei eigenen Versteigerungen mitbieten");
 			redirect();
 			return;
@@ -524,48 +537,15 @@ public class ErsteigernController extends TemplateGenerator {
 		
 		// Wenn noch kein Gebot abgegeben wurde -> Versteigerung anzeigen
 		if( bid == 0 ) {
-			int entrywidth = 0;
-			int entryheight = 0;
-			long entrycount = 0;
-			String entryname = "";
-			String entryimage = "";
-			String entrylink = "#";
+			int entrywidth = entry.isObjectFixedImageSize() ? 50 : 0;
+			long entrycount = entry.getObjectCount();
+			String entryname = entry.getObjectName();
+			String entryimage = entry.getObjectPicture();
+			String entrylink = entry.getObjectUrl();
 		
-			if( entry.getInt("mtype") == 1 ) {	//Schiff
-				SQLResultRow shiptype = ShipTypes.getShipType(entry.getInt("type"), false);
-				entryname = shiptype.getString("nickname");
-				entryimage = shiptype.getString("picture");
-				entrylink = Common.buildUrl("default", "module", "schiffinfo", "ship", entry.getInt("type") );
-			}
-			else if( entry.getInt("mtype") == 2 ) {	// Artefakt
-				Cargo cargo = new Cargo( Cargo.Type.STRING, entry.getString("type"));
-				cargo.setOption( Cargo.Option.SHOWMASS, false );
-				cargo.setOption( Cargo.Option.LARGEIMAGES, true );
-				ResourceEntry resource = cargo.getResourceList().iterator().next();
-							
-				entryname = Cargo.getResourceName( resource.getId() );
-				entryimage = resource.getImage();
-			
-				if( resource.getId().isItem() ) {
-					entrylink = Common.buildUrl("details", "module", "iteminfo", "item", resource.getId().getItemID() );
-				}
-				else {
-					entrylink = "#";	
-				}
-			
-				if( !resource.showLargeImages() ) {
-					entrywidth = 50;
-					entryheight = 50;
-				}
-			
-				if( resource.getCount1() > 1 ) { 
-					entrycount = resource.getCount1();
-				}
-			}
-
 			String bietername = "";
 
-			User bieter = (User)getDB().get(User.class,  entry.getInt("bieter") );
+			User bieter = entry.getBieter();
 			
 			if( bieter.getId() == faction ) {
 				bietername = bieter.getName();	
@@ -577,15 +557,13 @@ public class ErsteigernController extends TemplateGenerator {
 				bietername = bieter.getName();	
 			}
 			else if( (bieter.getAlly() != null) && (bieter.getAlly() == user.getAlly()) ) {
-				boolean showGtuBieter = bieter.getAlly().getShowGtuBieter();
-
-				if( showGtuBieter ) {
+				if( bieter.getAlly().getShowGtuBieter() ) {
 					bietername = bieter.getName();	
 				}	
 			}
 			
-			long cost = entry.getLong("preis")+(long)(entry.getLong("preis")/20d);
-			if( cost == entry.getLong("preis") ) {
+			long cost = entry.getPreis()+(long)(entry.getPreis()/20d);
+			if( cost == entry.getPreis() ) {
 				cost++;
 			}
 
@@ -594,7 +572,7 @@ public class ErsteigernController extends TemplateGenerator {
 						"entry.type.image",	entryimage,
 						"entry.link",		entrylink,
 						"entry.width",		entrywidth,
-						"entry.height",		entryheight,
+						"entry.height",		entrywidth,
 						"entry.count",		entrycount,
 						"bid.player",		Common._title(bietername),
 						"bid.player.id",	bieter.getId(),
@@ -604,50 +582,31 @@ public class ErsteigernController extends TemplateGenerator {
 		} 
 		// Gebot bestaetigt -> Versteigerung aktuallisieren
 		else if( bid > 0 ) {
-			long cost = entry.getLong("preis")+(long)(entry.getLong("preis")/20d);
-			if( cost == entry.getLong("preis") ) {
+			long cost = entry.getPreis()+(long)(entry.getPreis()/20d);
+			if( cost == entry.getPreis() ) {
 				cost++;
 			}
 		
-			String entryname = "";
+			final String entryname = entry.getObjectName();
 			
-			if( entry.getInt("mtype") == 1 ) {
-				SQLResultRow shiptype = ShipTypes.getShipType(entry.getInt("type"), false);
-				entryname = shiptype.getString("nickname");
-			}
-			else if( entry.getInt("mtype") == 2 ) { 
-				Cargo cargo = new Cargo( Cargo.Type.STRING, entry.getString("type"));
-				cargo.setOption( Cargo.Option.SHOWMASS, false );
-				cargo.setOption( Cargo.Option.LARGEIMAGES, true );
-				ResourceEntry resource = cargo.getResourceList().iterator().next();
-							
-				entryname = Cargo.getResourceName( resource.getId() );
-			}
-
 			if( (bid >= cost) && (user.getKonto().compareTo(new BigDecimal(bid).toBigInteger()) >= 0 ) ) {
-				db.tBegin();
-				
-				if( entry.getInt("bieter") != faction ) {
-					User bieter = (User)getDB().get(User.class, entry.getInt("bieter"));
-						
-					PM.send(getContext(), faction, entry.getInt("bieter"), "Bei Versteigerung &uuml;berboten", 
-							"Sie wurden bei der Versteigerung um '"+entryname+"' &uuml;berboten. Die von ihnen gebotenen RE in H&ouml;he von "+Common.ln(entry.getLong("preis"))+" wurden auf ihr Konto zur&uuml;ck&uuml;berwiesen.\n\nGaltracorp Unlimited");
+				if( entry.getBieter().getId() != faction ) {
+					User bieter = entry.getBieter();
+					User factionUser = (User)db.get(User.class, faction);
+					
+					PM.send(factionUser, entry.getBieter().getId(), "Bei Versteigerung &uuml;berboten", "Sie wurden bei der Versteigerung um '"+entryname+"' &uuml;berboten. Die von ihnen gebotenen RE in H&ouml;he von "+Common.ln(entry.getPreis())+" wurden auf ihr Konto zur&uuml;ck&uuml;berwiesen.\n\nGaltracorp Unlimited");
 					 
-				 	bieter.transferMoneyFrom( faction, entry.getLong("preis"), "R&uuml;ck&uuml;berweisung Gebot #2"+entry.getInt("id")+" '"+entryname+"'", false, User.TRANSFER_SEMIAUTO);
+				 	bieter.transferMoneyFrom( faction, entry.getPreis(), "R&uuml;ck&uuml;berweisung Gebot #2"+entry.getId()+" '"+entryname+"'", false, User.TRANSFER_SEMIAUTO);
 				}
-					
-				db.tUpdate(1, "UPDATE versteigerungen " +
-						"SET tick=",entry.getInt("tick") <= ticks+3 ? ticks+3 : entry.getInt("tick"),",bieter=",user.getId(),",preis=",bid," " +
-						"WHERE id=",auk," AND tick=",entry.getInt("tick")," AND bieter=",entry.getInt("bieter")," AND preis=",entry.getInt("preis"));
-					
-				User gtu = (User)getDB().get(User.class,  faction );
-				gtu.transferMoneyFrom( user.getId(), bid, "&Uuml;berweisung Gebot #2"+entry.getInt("id")+" '"+entryname+"'", false, User.TRANSFER_SEMIAUTO);
 				
-				if( !db.tCommit() ) {
-					addError("W&auml;hrend des Bietvorgangs ist ein Fehler aufgetreten. Bitte versuchen sie es sp&auml;ter erneut");
-					redirect("versteigerung");
-					return;
+				if( entry.getTick() < ticks+3 ) {
+					entry.setTick(ticks+3);
 				}
+				entry.setBieter(user);
+				entry.setPreis(bid);
+					
+				User gtu = (User)db.get(User.class, this.faction);
+				gtu.transferMoneyFrom( user.getId(), bid, "&Uuml;berweisung Gebot #2"+entry.getId()+" '"+entryname+"'", false, User.TRANSFER_SEMIAUTO);
 				
 				user.setTemplateVars(t);
 				t.setVar( 	"user.konto", 		Common.ln(user.getKonto()),
@@ -677,7 +636,7 @@ public class ErsteigernController extends TemplateGenerator {
 		
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		parameterNumber("bid");
 		long bid = getInteger("bid");
@@ -685,14 +644,14 @@ public class ErsteigernController extends TemplateGenerator {
 		parameterNumber("auk");
 		int auk = getInteger("auk");
 		
-		SQLResultRow paket = db.first("SELECT * FROM versteigerungen_pakete WHERE id=",auk);
-		if( paket.isEmpty() ) {
+		PaketVersteigerung paket = (PaketVersteigerung)db.get(PaketVersteigerung.class, auk);
+		if( paket == null ) {
 			redirect("paket");
 			return;
 		}
 		
-		long cost = paket.getLong("preis")+(long)(paket.getLong("preis")/20d);
-		if( cost == paket.getLong("preis") ) {
+		long cost = paket.getPreis()+(long)(paket.getPreis()/20d);
+		if( cost == paket.getPreis() ) {
 			cost++;
 		}
 		
@@ -707,29 +666,23 @@ public class ErsteigernController extends TemplateGenerator {
 		// Gebot bestaetigt -> Versteigerung aktuallisieren
 		else if( bid > 0 ) {		
 			if( (bid >= cost) && (user.getKonto().compareTo(new BigDecimal(bid).toBigInteger()) >= 0 ) ) {
-				db.tBegin();
-				
-				if( paket.getInt("bieter") != faction ) {
-					User bieter = (User)getDB().get(User.class, paket.getInt("bieter"));
-						
-					PM.send(getContext(), faction, bieter.getId(), "Bei Versteigerung um das GTU-Paket &uuml;berboten", 
-							"Sie wurden bei der Versteigerung um das GTU-Paket &ueberboten. Die von ihnen gebotenen RE in H&ouml;he von "+Common.ln(paket.getLong("preis"))+" wurden auf ihr Konto zur&uuml;ck&uuml;berwiesen.\n\nGaltracorp Unlimited");
+				if( paket.getBieter().getId() != faction ) {
+					User bieter = paket.getBieter();
+					User factionUser = (User)db.get(User.class, faction);
+					
+					PM.send(factionUser, bieter.getId(), "Bei Versteigerung um das GTU-Paket &uuml;berboten", "Sie wurden bei der Versteigerung um das GTU-Paket &ueberboten. Die von ihnen gebotenen RE in H&ouml;he von "+Common.ln(paket.getPreis())+" wurden auf ihr Konto zur&uuml;ck&uuml;berwiesen.\n\nGaltracorp Unlimited");
 					 
-				 	bieter.transferMoneyFrom( faction, paket.getLong("preis"), "R&uuml;ck&uuml;berweisung Gebot #9"+paket.getInt("id")+" 'GTU-Paket'", false, User.TRANSFER_SEMIAUTO);
+				 	bieter.transferMoneyFrom( faction, paket.getPreis(), "R&uuml;ck&uuml;berweisung Gebot #9"+paket.getId()+" 'GTU-Paket'", false, User.TRANSFER_SEMIAUTO);
 				}
 				
-				db.tUpdate(1, "UPDATE versteigerungen_pakete " +
-						"SET tick=",paket.getInt("tick") <= ticks+3 ? ticks+3 : paket.getInt("tick"),",bieter=",user.getId(),",preis=",bid," " +
-						"WHERE id=",auk," AND preis=",paket.getLong("preis")," AND bieter=",paket.getInt("bieter")," AND tick=",paket.getInt("tick"));
+				if( paket.getTick() < ticks+3 ) {
+					paket.setTick(ticks+3);
+				}
+				paket.setBieter(user);
+				paket.setPreis(bid);
 				
-				User gtu = (User)getDB().get(User.class,  faction );
+				User gtu = (User)db.get(User.class, faction);
 				gtu.transferMoneyFrom( user.getId(), bid, "&Uuml;berweisung Gebot #9"+auk+" 'GTU-Paket'", false, User.TRANSFER_SEMIAUTO);
-				
-				if( !db.tCommit() ) {
-					addError("W&auml;hrend des Bietvorgangs ist ein Fehler aufgetreten. Bitte versuchen sie es sp&auml;ter erneut");
-					redirect("versteigerung");
-					return;
-				}
 							
 				user.setTemplateVars(t);
 				t.setVar( 	"user.konto", 		Common.ln(user.getKonto()),
@@ -761,6 +714,7 @@ public class ErsteigernController extends TemplateGenerator {
 		
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
+		org.hibernate.Session db = getDB();
 		
 		parameterNumber("to");
 		int to = getInteger("to");
@@ -782,7 +736,7 @@ public class ErsteigernController extends TemplateGenerator {
 		
 		// Falls noch keine Bestaetigung vorliegt: Bestaetigung der Ueberweisung erfragen
 		if( !ack.equals("yes") ) {
-			User tmp = (User)getDB().get(User.class,  to );
+			User tmp = (User)db.get(User.class, to);
 			
 			t.setVar(	"show.ueberweisen",			1,
 						"ueberweisen.betrag",		Common.ln(count),
@@ -793,12 +747,14 @@ public class ErsteigernController extends TemplateGenerator {
 			return;
 		} 
 
-		User tmp = (User)getDB().get(User.class,  to );
+		User tmp = (User)db.get(User.class, to);
 			
 		tmp.transferMoneyFrom( user.getId(), count, "&Uuml;berweisung vom "+Common.getIngameTime(this.ticks));
-			
-		PM.send(getContext(), user.getId(), tmp.getId(), "RE &uuml;berwiesen", "Ich habe dir soeben "+Common.ln(count)+" RE &uuml;berwiesen");
-			
+		User factionUser = (User)db.get(User.class, Faction.GTU);
+		
+		PM.send(factionUser, tmp.getId(), "RE &uuml;berwiesen", user.getNickname()+" hat dir soeben "+Common.ln(count)+" RE &uuml;berwiesen");
+		PM.send(factionUser, user.getId(), "RE &uuml;berwiesen  an " + tmp.getNickname(), "Du hast "+ tmp.getNickname() +" soeben "+Common.ln(count)+" RE &uuml;berwiesen");
+		
 		user.setTemplateVars(t);
 		t.setVar( "user.konto", Common.ln(user.getKonto()) );
 	
@@ -840,7 +796,7 @@ public class ErsteigernController extends TemplateGenerator {
 		}
 		
 		TemplateEngine t = this.getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)this.getUser();
 		
 		t.setVar("show.other",1);
@@ -848,11 +804,9 @@ public class ErsteigernController extends TemplateGenerator {
 		// ueberweisungen
 		t.setBlock("_ERSTEIGERN","ueberweisen.listitem","ueberweisen.list");
 
-		List list = getContext().getDB().createQuery("from User where locate('hide',flags)=0 and id!= :user order by id")
-			.setInteger("user", user.getId())
-			.list();
-		for( Iterator iter=list.iterator(); iter.hasNext(); ) {
-			User usr = (User)iter.next();
+		List<User> users = getContext().query(
+				"from User where locate('hide',flags)=0 and id!="+user.getId()+" order by id", User.class);
+		for( User usr : users ) {
 			t.setVar(	"target.id",	usr.getId(),
 						"target.name",	Common._title(usr.getName()) );
 			t.parse("ueberweisen.list","ueberweisen.listitem",true);
@@ -882,38 +836,63 @@ public class ErsteigernController extends TemplateGenerator {
 		// Kontobewegungen anzeigen
 		t.setBlock("_UEBER", "moneytransfer.listitem", "moneytransfer.list");
 		
-		SQLQuery entry = db.query("SELECT * FROM user_moneytransfer WHERE `type`<=",transtype," AND ((`from`=",user.getId(),") OR (`to`=",user.getId(),")) ORDER BY `time` DESC LIMIT 40");
-		while( entry.next() ) {
+		List transferList = db.createQuery("from UserMoneyTransfer umt " +
+				"where umt.type<= :transtype and (umt.from= :user or umt.to= :user) order by umt.time desc")
+			.setInteger("transtype", transtype)
+			.setEntity("user", user)
+			.setMaxResults(40)
+			.list();
+		for( Iterator iter=transferList.iterator(); iter.hasNext(); ) {
+			UserMoneyTransfer entry = (UserMoneyTransfer)iter.next();
+			
 			User player = null;
 			
-			if( entry.getInt("from") == user.getId() ) {
-				player = (User)getDB().get(User.class, entry.getInt("to"));
+			if( user.equals(entry.getFrom()) ) {
+				player = entry.getTo();
 			}
 			else {
-				player = (User)getDB().get(User.class, entry.getInt("from"));
+				player = entry.getFrom();
 			}
 			
-			t.setVar(	"moneytransfer.time",		Common.date("j.n.Y H:i",entry.getLong("time")),
-						"moneytransfer.from",		(entry.getInt("from") == user.getId() ? 1 : 0),
+			// Negative Ueberweiszungen (die GTU wollte z.B. Geld von uns) beruecksichtigen
+			int from = 0;
+			BigInteger count = entry.getCount();
+			if( user.equals(entry.getFrom()) || (count.compareTo(BigInteger.ZERO) < 0 && !user.equals(entry.getFrom()))) {
+				from = 1;
+			}
+			
+			//Ueberweiszungen an andere durch - kennzeichnen
+			if(from == 1) {
+				if(count.compareTo(BigInteger.ZERO) > 0) {
+					count = count.negate();
+				}
+			}
+			else {
+				count = count.abs();
+			}
+			
+			t.setVar(	"moneytransfer.time",		Common.date("j.n.Y H:i",entry.getTime()),
+						"moneytransfer.from",		from,
 						"moneytransfer.player",		Common._title(player.getName()),
 						"moneytransfer.player.id",	player.getId(),
-						"moneytransfer.count",		Common.ln(entry.getLong("count")),
-						"moneytransfer.reason",		entry.getString("text") );
+						"moneytransfer.count",		Common.ln(count),
+						"moneytransfer.reason",		entry.getText() );
 								
 			t.parse("moneytransfer.list", "moneytransfer.listitem", true);
 		}
-		entry.free();
 
 		// GTU-Preise
 		t.setBlock("_ERSTEIGERN","kurse.listitem","kurse.list");
 		t.setBlock("kurse.listitem","kurse.waren.listitem","kurse.waren.list");
 
-		SQLQuery kurse = db.query("SELECT * FROM gtu_warenkurse");
-		while( kurse.next() ) {
-			Cargo kurseCargo = new Cargo( Cargo.Type.STRING, kurse.getString("kurse") );
+		List kurseList = db.createQuery("from GtuWarenKurse").list();
+		for( Iterator iter=kurseList.iterator(); iter.hasNext(); ) {
+			GtuWarenKurse kurse = (GtuWarenKurse)iter.next();
+			
+			Cargo kurseCargo = new Cargo(kurse.getKurse());
 			kurseCargo.setOption( Cargo.Option.SHOWMASS, false );
 			
-			t.setVar(	"posten.name",		kurse.getString("name"),
+			t.setVar(	"posten.name",		kurse.getName(),
 						"kurse.waren.list",	"" );
 								
 			ResourceList reslist = kurseCargo.getResourceList();
@@ -925,7 +904,6 @@ public class ErsteigernController extends TemplateGenerator {
 			}
 			t.parse("kurse.list","kurse.listitem",true);
 		}
-		kurse.free();
 	}
 	
 	/**
@@ -940,7 +918,7 @@ public class ErsteigernController extends TemplateGenerator {
 		}
 		
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		t.setVar("show.angebote",1);
 	
@@ -950,12 +928,16 @@ public class ErsteigernController extends TemplateGenerator {
 		t.setVar( "none", "" );
 						
 		int count = 0;
-		SQLQuery angebot = db.query("SELECT title,image,description FROM factions_angebote WHERE faction=",this.faction);
-		while( angebot.next() ) {
+		List angebote = db.createQuery("from FactionOffer where faction=?")
+			.setInteger(0, this.faction)
+			.list();
+		for( Iterator iter=angebote.iterator(); iter.hasNext(); ) {
+			FactionOffer offer = (FactionOffer)iter.next();
+			
 			count++;
-			t.setVar(	"angebot.title",		Common._title(angebot.getString("title")),
-						"angebot.image",		angebot.getString("image"),
-						"angebot.description",	Common._text(angebot.getString("description")), 
+			t.setVar(	"angebot.title",		Common._title(offer.getTitle()),
+						"angebot.image",		offer.getImage(),
+						"angebot.description",	Common._text(offer.getDescription()), 
 						"angebot.linebreak",	(count % 3 == 0 ? "1" : "") );
 								
 			t.parse("angebote.list","angebote.item",true);
@@ -964,7 +946,6 @@ public class ErsteigernController extends TemplateGenerator {
 			count++;
 			t.parse("angebote.list","angebote.emptyitem",true);
 		}
-		angebot.free();
 	}
 	
 	/**
@@ -979,14 +960,16 @@ public class ErsteigernController extends TemplateGenerator {
 		}
 		
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		
-		SQLResultRow paket = db.first("SELECT * FROM versteigerungen_pakete");
+		PaketVersteigerung paket = (PaketVersteigerung)db.createQuery("from PaketVersteigerung")
+			.setMaxResults(1)
+			.uniqueResult();
 		t.setVar( "show.pakete", 1 );
 
-		if( !paket.isEmpty() ) {
-			User bieter = (User)getDB().get(User.class, paket.getInt("bieter"));
+		if( paket != null ) {
+			User bieter = paket.getBieter();
 
 			String bietername = "";
 			
@@ -1000,24 +983,22 @@ public class ErsteigernController extends TemplateGenerator {
 				bietername = bieter.getName();	
 			}
 			else if( (bieter.getAlly() != null) && (bieter.getAlly() == user.getAlly()) ) {
-				boolean showGtuBieter = bieter.getAlly().getShowGtuBieter();
-
-				if( showGtuBieter ) {
+				if( bieter.getAlly().getShowGtuBieter() ) {
 					bietername = bieter.getName();	
 				}	
 			}
 
-			t.setVar(	"paket.id",			paket.getInt("id"),
-						"paket.dauer",		paket.getInt("tick")-this.ticks,
+			t.setVar(	"paket.id",			paket.getId(),
+						"paket.dauer",		paket.getTick()-this.ticks,
 						"paket.bieter",		Common._title(bietername),
 						"paket.bieter.id",	bieter.getId(),
-						"paket.preis",		Common.ln(paket.getLong("preis")) );
+						"paket.preis",		Common.ln(paket.getPreis()) );
 
 			t.setBlock("_ERSTEIGERN","paket.reslistitem","paket.reslist");
 			t.setBlock("_ERSTEIGERN","paket.shiplistitem","paket.shiplist");
 
-			if( paket.getString("cargo").length() > 0 ) {
-				Cargo cargo = new Cargo( Cargo.Type.STRING, paket.getString("cargo"));
+			if( !paket.getCargo().isEmpty() ) {
+				Cargo cargo = new Cargo(paket.getCargo());
 				cargo.setOption( Cargo.Option.SHOWMASS, false );
 				cargo.setOption( Cargo.Option.LARGEIMAGES, true );			
 
@@ -1032,13 +1013,14 @@ public class ErsteigernController extends TemplateGenerator {
 				}
 			}
 
-			if( paket.getString("ships").length() > 0 ) {
-				int[] shiplist = Common.explodeToInt("|", paket.getString("ships"));
+			if( paket.getShipTypes().length > 0 ) {
+				ShipType[] shiplist = paket.getShipTypes();
 				for( int i=0; i < shiplist.length; i++ ) {
-					SQLResultRow shiptype = ShipTypes.getShipType( shiplist[i], false );
-					t.setVar(	"ship.type.image",	shiptype.getString("picture"),
-								"ship.type.name",	shiptype.getString("nickname"),
-								"ship.type",		shiplist[i] );
+					ShipType shiptype = shiplist[i];
+					
+					t.setVar(	"ship.type.image",	shiptype.getPicture(),
+								"ship.type.name",	shiptype.getNickname(),
+								"ship.type",		shiptype.getId() );
 									
 					t.parse("paket.shiplist","paket.shiplistitem",true);
 				}
@@ -1053,7 +1035,7 @@ public class ErsteigernController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void versteigerungAction() {
 		TemplateEngine t = this.getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		
 		if( !Faction.get(faction).getPages().hasPage("versteigerung") ) {
@@ -1069,27 +1051,30 @@ public class ErsteigernController extends TemplateGenerator {
 			Laufende Handelsvereinbarungen anzeigen 
 			(nur solche, die man schon selbst erfuellt hat im Moment)
 		*/
-		Set<Integer> gzlliste = new HashSet<Integer>();
+		Set<Ship> gzlliste = new HashSet<Ship>();
 		
-		SQLQuery aentry = db.query("SELECT * FROM gtu_zwischenlager WHERE user1=",user.getId()," OR user2=",user.getId());
-		while( aentry.next() ) {
-			String owncargoneed = aentry.getString("cargo1need");
-			if( aentry.getInt("user2") == user.getId() ) {
-				owncargoneed = aentry.getString("cargo2need");
+		List entries = db.createQuery("from GtuZwischenlager where user1= :user or user2= :user")
+			.setEntity("user", user)
+			.list();
+		
+		for( Iterator iter=entries.iterator(); iter.hasNext(); ) {
+			GtuZwischenlager aentry = (GtuZwischenlager)iter.next();
+			
+			Cargo owncargoneed = aentry.getCargo1Need();
+			if( aentry.getUser2() == user ) {
+				owncargoneed = aentry.getCargo2Need();
 			}
 			
-			if( new Cargo(Cargo.Type.STRING, owncargoneed).isEmpty() ) {
-				gzlliste.add(aentry.getInt("posten"));	
+			if( owncargoneed.isEmpty() ) {
+				gzlliste.add(aentry.getPosten());	
 			}
 		}
-		aentry.free();
 		
-		for( Integer postenid : gzlliste ) {
-			SQLResultRow aposten = db.first("SELECT name,x,y,system FROM ships WHERE id=",postenid);
-			t.setVar(	"gtuzwischenlager.name",	Common._plaintitle(aposten.getString("name")),
-						"gtuzwischenlager.x",		aposten.getInt("x"),
-						"gtuzwischenlager.y",		aposten.getInt("y"),
-						"gtuzwischenlager.system",	aposten.getInt("system") );
+		for( Ship aposten : gzlliste ) {
+			t.setVar(	"gtuzwischenlager.name",	Common._plaintitle(aposten.getName()),
+						"gtuzwischenlager.x",		aposten.getX(),
+						"gtuzwischenlager.y",		aposten.getY(),
+						"gtuzwischenlager.system",	aposten.getSystem() );
 								
 			t.parse("gtuzwischenlager.list", "gtuzwischenlager.listitem", true);
 		}
@@ -1097,99 +1082,56 @@ public class ErsteigernController extends TemplateGenerator {
 		/*
 			Einzelversteigerungen
 		*/
-		
-		Boolean showGtuBieter = null;
-		
-		SQLQuery entry = db.query("SELECT * FROM versteigerungen ORDER BY id DESC");
-		while( entry.next() ) {
-			User bieter = (User)getDB().get(User.class,  entry.getInt("bieter") );
-			
-			String entryname = "";
-			String entryimage = "";
-			String entrylink = "";
-			int entrywidth = 0;
-			int entryheight = 0;
-			long entrycount = 1;
-		
-			if( entry.getInt("mtype") == 1 ) {	//Schiff
-				SQLResultRow shiptype = ShipTypes.getShipType(entry.getInt("type"), false);
-				entryname = shiptype.getString("nickname");
-				entryimage = shiptype.getString("picture");
-				entrylink = Common.buildUrl("default", "module", "schiffinfo", "ship", entry.getInt("type") );
-			}
-			else if( entry.getInt("mtype") == 2 ) {	// Cargo	
-				Cargo cargo = new Cargo( Cargo.Type.STRING, entry.getString("type") );
-				cargo.setOption( Cargo.Option.SHOWMASS, false );
-				cargo.setOption( Cargo.Option.LARGEIMAGES, true );
-				ResourceList reslist = cargo.getResourceList();
-				ResourceEntry resource = reslist.iterator().next();
 
-				entryname = Cargo.getResourceName( resource.getId() );
-				entryimage = resource.getImage();
+		List versteigerungen = db.createQuery("from Versteigerung order by id desc").list();
+		for( Iterator iter=versteigerungen.iterator(); iter.hasNext(); ) {
+			Versteigerung entry = (Versteigerung)iter.next();
+			User bieter = entry.getBieter();
 			
-				if( resource.getId().isItem() ) {
-					entrylink = Common.buildUrl("details", "module", "iteminfo", "item", resource.getId().getItemID() );
-				}
-				else {
-					entrylink = "#";	
-				}
-			
-				if( !resource.showLargeImages() ) {
-					entrywidth = 50;
-					entryheight = 50;
-				}
-			
-				if( resource.getCount1() > 1 ) { 
-					entrycount = resource.getCount1();
-				}
-			}
+			String entryname = StringEscapeUtils.escapeJavaScript(StringUtils.replaceChars(entry.getObjectName(), '"', '\''));
+			int entrywidth = entry.isObjectFixedImageSize() ? 50 : 0;
+		
 			String bietername = "";
 
 			if( bieter.getId() == faction ) {
 				bietername = bieter.getName();	
 			}
-			else if( bieter.getId() == user.getId() ) {
+			else if( bieter == user ) {
 				bietername = bieter.getName();
 			}
 			else if( user.getAccessLevel() > 20 ) {
 				bietername = bieter.getName();	
 			}
-			else if( (bieter.getAlly() != null) && (bieter.getAlly() == user.getAlly()) ) {
-				if( showGtuBieter == null ) {
-					showGtuBieter = bieter.getAlly().getShowGtuBieter();
-				}
-				
-				if( showGtuBieter ) {
+			else if( (bieter.getAlly() != null) && (bieter.getAlly() == user.getAlly()) ) {				
+				if( bieter.getAlly().getShowGtuBieter() ) {
 					bietername = bieter.getName();	
 				}	
 			}
 			
 			String ownername = "";
 			
-			if( (user.getAccessLevel() >= 20) && (entry.getInt("owner") != faction) && (entry.getInt("owner") != user.getId()) ) {
-				User ownerobject = (User)getDB().get(User.class, entry.getInt("owner"));
-				ownername = Common._title(ownerobject.getName()); 
+			if( (user.getAccessLevel() >= 20) && (entry.getOwner().getId() != faction) && (entry.getOwner() != user) ) {
+				ownername = Common._title(entry.getOwner().getName()); 
 			}
 			
-			t.setVar(	"entry.link",		entrylink,
-						"entry.type.name",	StringEscapeUtils.escapeJavaScript(StringUtils.replaceChars(entryname, '"', '\'')),
-						"entry.type.image",	entryimage,
-						"entry.preis",		Common.ln(entry.getLong("preis")),
+			t.setVar(	"entry.link",		entry.getObjectUrl(),
+						"entry.type.name",	entryname,
+						"entry.type.image",	entry.getObjectPicture(),
+						"entry.preis",		Common.ln(entry.getPreis()),
 						"entry.bieter",		Common._title(bietername),
-						"entry.bieter.id",	entry.getInt("bieter"),
-						"entry.dauer",		entry.getInt("tick") - this.ticks,
-						"entry.aukid",		entry.getInt("id"),
+						"entry.bieter.id",	entry.getBieter().getId(),
+						"entry.dauer",		entry.getTick() - this.ticks,
+						"entry.aukid",		entry.getId(),
 						"entry.width",		entrywidth,
-						"entry.height",		entryheight, 
-						"entry.count",		entrycount,
+						"entry.height",		entrywidth, 
+						"entry.count",		entry.getObjectCount(),
 						"entry.user.name",	ownername,
-						"entry.user.id",	entry.getInt("owner"),
-						"entry.user",		(entry.getInt("owner") != faction),
-						"entry.ownauction",	(entry.getInt("owner") == user.getId()) );
+						"entry.user.id",	entry.getOwner().getId(),
+						"entry.user",		(entry.getOwner().getId() != faction),
+						"entry.ownauction",	(entry.getOwner() == user) );
 	
 			t.parse("entry.list","entry.listitem",true);
 		}
-		entry.free();
 
 		t.setBlock("_ERSTEIGERN","gtu.dropzones.listitem","gtu.dropzones.list");
 		for( StarSystem system : Systems.get() ) {
@@ -1382,7 +1324,7 @@ public class ErsteigernController extends TemplateGenerator {
 		else {
 			db.tBegin();
 	
-			User faction = (User)getDB().get(User.class,  this.faction );
+			User faction = (User)getDB().get(User.class, this.faction);
 			faction.transferMoneyFrom( user.getId(), totalcost, "&Uuml;berweisung Bestellung #ganytransXX"+gany.getInt("id"));	
 		
 			StringBuilder waypoints = new StringBuilder(300);
@@ -1396,7 +1338,7 @@ public class ErsteigernController extends TemplateGenerator {
 			}		
 			waypoints.append("Ziel: "+targetsystem+":"+targetx+"/"+targety+"\n");
 		
-			PM.send(getContext(), user.getId(), this.faction, "[auto] Shop-Bestellung [Ganymede]", "Besteller: [userprofile="+user.getId()+"]"+user.getName()+" ("+user.getId()+")[/userprofile]\nObjekt: "+gany.getString("name")+" ("+gany.getInt("id")+")\nPreis: "+Common.ln(totalcost)+"\nZeitpunkt: "+Common.date("d.m.Y H:i:s")+"\n\n[b][u]Pfad[/u][/b]:\n"+waypoints);
+			PM.send(user, this.faction, "[auto] Shop-Bestellung [Ganymede]", "Besteller: [userprofile="+user.getId()+"]"+user.getName()+" ("+user.getId()+")[/userprofile]\nObjekt: "+gany.getString("name")+" ("+gany.getInt("id")+")\nPreis: "+Common.ln(totalcost)+"\nZeitpunkt: "+Common.date("d.m.Y H:i:s")+"\n\n[b][u]Pfad[/u][/b]:\n"+waypoints);
 		
 			String adddataStr = gany.getInt("id")+"@"+sourcesystem+":"+gany.getInt("x")+"/"+gany.getInt("y")+"->"+targetsystem+":"+targetx+"/"+targety;
 			
@@ -1583,7 +1525,7 @@ public class ErsteigernController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void shopOrderAction() {
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		
 		if( !Faction.get(faction).getPages().hasPage("shop") ) {
@@ -1597,15 +1539,15 @@ public class ErsteigernController extends TemplateGenerator {
 		int shopentryID = getInteger("shopentry");
 		int ordercount = getInteger("ordercount");
 		
-		SQLResultRow shopentry = db.first("SELECT * FROM factions_shop_entries WHERE id=",shopentryID);
-		if( shopentry.isEmpty() ) {
+		FactionShopEntry shopentry = (FactionShopEntry)db.get(FactionShopEntry.class, shopentryID);
+		if( shopentry == null ) {
 			t.setVar("show.message", "<span style=\"color:red\">Es existiert kein passendes Angebot</span>");
 			redirect("shop");
 			return;	
 		}
 		
 		// Ganymed-Transporte verarbeiten
-		if( shopentry.getInt("type") == 2 ) {
+		if( shopentry.getType() == 2 ) {
 			redirect("shopOrderGanymede");
 			
 			return;	
@@ -1626,14 +1568,14 @@ public class ErsteigernController extends TemplateGenerator {
 		
 		ShopEntry entry = null;
 		
-		if( shopentry.getInt("type") == 1 ) {	//Schiff
+		if( shopentry.getType() == 1 ) {	//Schiff
 			entry = new ShopShipEntry(shopentry);
 		}
-		else if( shopentry.getInt("type") == 0 ) {	// Cargo	
+		else if( shopentry.getType() == 0 ) {	// Cargo	
 			entry = new ShopResourceEntry(shopentry);
 		}
 		else {
-			throw new RuntimeException("Unbekannter Versteigerungstyp '"+shopentry.getInt("type")+"'");
+			throw new RuntimeException("Unbekannter Versteigerungstyp '"+shopentry.getType()+"'");
 		}
 		
 		if( user.getKonto().compareTo(new BigDecimal(entry.getPrice()*ordercount).toBigInteger()) < 0 ) {
@@ -1648,21 +1590,18 @@ public class ErsteigernController extends TemplateGenerator {
 						"order.name",				entry.getName(),
 						"order.entry",				entry.getID() );
 		}
-		else {		
-			db.tBegin();
-			db.update("INSERT INTO factions_shop_orders " ,
-					"(shopentry_id,user_id,count,price,date,adddata) VALUES " ,
-					"(",entry.getID(),",",user.getId(),",",ordercount,",",(ordercount*entry.getPrice()),",",Common.time(),",'",ordersys+":"+orderx+"/"+ordery+"')");
+		else {
+			FactionShopOrder order = new FactionShopOrder(shopentry, user);
+			order.setCount(ordercount);
+			order.setPrice(ordercount*entry.getPrice());
+			order.setAddData(ordersys+":"+orderx+"/"+ordery);
 			
-			User faction = (User)getDB().get(User.class,  this.faction );
+			db.persist(order);
+			
+			User faction = (User)getDB().get(User.class, this.faction);
 			faction.transferMoneyFrom( user.getId(), entry.getPrice()*ordercount, "&Uuml;berweisung Bestellung #"+entry.getType()+entry.getResource()+"XX"+ordercount);	
 			
-			PM.send(getContext(), user.getId(), this.faction, "[auto] Shop-Bestellung", "Besteller: [userprofile="+user.getId()+"]"+user.getName()+" ("+user.getId()+")[/userprofile]\nObjekt: "+entry.getName()+"\nMenge: "+ordercount+"\nLieferkoordinaten: "+ordersys+":"+orderx+"/"+ordery+"\nZeitpunkt: "+Common.date("d.m.Y H:i:s"));
-			if( !db.tCommit() ) {
-				addError("Die Bestellung konnte nicht korrekt verarbeitet werden. Bitte versuchen sie es erneut.");
-				redirect("shop");
-				return;	
-			}
+			PM.send(user, this.faction, "[auto] Shop-Bestellung", "Besteller: [userprofile="+user.getId()+"]"+user.getName()+" ("+user.getId()+")[/userprofile]\nObjekt: "+entry.getName()+"\nMenge: "+ordercount+"\nLieferkoordinaten: "+ordersys+":"+orderx+"/"+ordery+"\nZeitpunkt: "+Common.date("d.m.Y H:i:s"));
 			
 			t.setVar("show.message", "Bestellung &uuml;ber "+ordercount+"x "+entry.getName()+" f&uuml;r "+Common.ln(entry.getPrice()*ordercount)+" erhalten und vom System best&auml;tigt.<br />Sollten noch R&uuml;ckfragen bestehend so wird sich ein Sachbearbeiter bei ihnen melden.<br />Einen angenehmen Tag noch!");
 			
@@ -1679,7 +1618,7 @@ public class ErsteigernController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void shopChangeAvailabilityAction() {
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		
 		if( !Faction.get(faction).getPages().hasPage("shop") ) {
@@ -1694,8 +1633,8 @@ public class ErsteigernController extends TemplateGenerator {
 			int shopentryID = getInteger("shopentry");
 			int availability = getInteger("availability");
 			
-			SQLResultRow shopentry = db.first("SELECT * FROM factions_shop_entries WHERE faction_id=",this.faction," AND id=",shopentryID);
-			if( shopentry.isEmpty() ) {
+			FactionShopEntry entry = (FactionShopEntry)db.get(FactionShopEntry.class, shopentryID);
+			if( (entry == null) || (entry.getFaction() != this.faction) ) {
 				addError("Es konnte kein passender Shopeintrag gefunden werden");
 				redirect("shop");
 				return;	
@@ -1707,7 +1646,7 @@ public class ErsteigernController extends TemplateGenerator {
 				return;
 			}
 			
-			db.update("UPDATE factions_shop_entries SET availability=",availability," WHERE id=",shopentry.getInt("id"));
+			entry.setAvailability(availability);
 			
 			t.setVar("show.message", "Neuer Status erfolgreich zugewiesen");
 		}
@@ -1723,7 +1662,7 @@ public class ErsteigernController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void changeShopOrderStatusAction() {
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		
 		if( !Faction.get(faction).getPages().hasPage("shop") ) {
@@ -1738,8 +1677,9 @@ public class ErsteigernController extends TemplateGenerator {
 			int orderstatus = getInteger("orderstatus");
 			int orderentryID = getInteger("orderentry");
 			
-			SQLResultRow orderentry = db.first("SELECT t1.* FROM factions_shop_orders t1 JOIN factions_shop_entries t2 ON t1.shopentry_id=t2.id WHERE t2.faction_id=",this.faction," AND t1.status<4 AND t1.id=",orderentryID);
-			if( orderentry.isEmpty() ) {
+			FactionShopOrder order = (FactionShopOrder)db.get(FactionShopOrder.class, orderentryID);
+			
+			if( (order == null) || (order.getStatus() > 3) || (order.getShopEntry().getFaction() != this.faction) ) {
 				addError("Es konnte kein passender Ordereintrag gefunden werden");
 				redirect("shop");
 				return;	
@@ -1751,7 +1691,7 @@ public class ErsteigernController extends TemplateGenerator {
 				return;
 			}
 			
-			db.update("UPDATE factions_shop_orders SET status=",orderstatus," WHERE id=",orderentry.getInt("id"));
+			order.setStatus(orderstatus);
 			
 			t.setVar("show.message", "Neuer Status erfolgreich zugewiesen");
 		}
@@ -1793,7 +1733,7 @@ public class ErsteigernController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void shopAction() {
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		
 		if( !Faction.get(faction).getPages().hasPage("shop") ) {
@@ -1808,107 +1748,118 @@ public class ErsteigernController extends TemplateGenerator {
 		t.setBlock("_ERSTEIGERN", "shop.shopownerlist.listitem", "shop.shopownerlist.list");
 	
 		if( this.faction != user.getId() ) {									
-			SQLQuery orderentry = db.query("SELECT t1.* FROM factions_shop_orders t1 JOIN factions_shop_entries t2 ON t1.shopentry_id=t2.id WHERE t2.faction_id=",this.faction," AND t1.user_id=",user.getId()," AND t1.status<4");
-			while( orderentry.next() ) {
-				// Keine so geschickte loesung, es reicht aber fuer den moment:
-				SQLResultRow shopentry = db.first("SELECT * FROM factions_shop_entries WHERE id=",orderentry.getInt("shopentry_id"));
+			List orderentryList = db.createQuery("from FactionShopOrder as fso " +
+					"where fso.shopEntry.faction= :faction and fso.user= :user and fso.status<4")
+				.setInteger("faction", faction)
+				.setEntity("user", user)
+				.list();
+			for( Iterator iter=orderentryList.iterator(); iter.hasNext(); ) {
+				FactionShopOrder order = (FactionShopOrder)iter.next();
+				
+				FactionShopEntry shopentry = order.getShopEntry();
 				ShopEntry shopEntryObj = null;
 				
 				String entryadddata = "";
-				if( shopentry.getInt("type") == 1 ) {	//Schiff
+				if( shopentry.getType() == 1 ) {	//Schiff
 					shopEntryObj = new ShopShipEntry(shopentry);
 				}
-				else if( shopentry.getInt("type") == 0 ) {	// Cargo	
+				else if( shopentry.getType() == 0 ) {	// Cargo	
 					shopEntryObj = new ShopResourceEntry(shopentry);
 				}
-				else if( shopentry.getInt("type") == 2 ) {	//Ganytransport
-					shopEntryObj = new ShopGanyTransportEntry(new SQLResultRow[] {shopentry});
+				else if( shopentry.getType() == 2 ) {	//Ganytransport
+					shopEntryObj = new ShopGanyTransportEntry(new FactionShopEntry[] {shopentry});
 					
-					String[] tmp = StringUtils.split(orderentry.getString("adddata"), "@");
-					int ganyid = Integer.parseInt(tmp[0]);
-						
-					String ganyname = Common._plaintitle(db.first("SELECT name FROM ships WHERE id=",ganyid).getString("name"));
+					String[] tmp = StringUtils.split(order.getAddData(), "@");
 
-					String[] coords = StringUtils.split(tmp[1], "->");
-					entryadddata = ganyname+" ("+ganyid+")<br />nach "+coords[1];
+					Ship gany = (Ship)db.get(Ship.class, Integer.parseInt(tmp[0]));
+					if( gany != null ) {
+						String ganyname = Common._plaintitle(gany.getName());
+	
+						String[] coords = StringUtils.split(tmp[1], "->");
+						entryadddata = ganyname+" ("+gany.getId()+")<br />nach "+coords[1];
+					}
 				}
 				else {
-					throw new RuntimeException("Unbekannter Shopeintrag-Typ '"+shopentry.getInt("type")+"'");
+					throw new RuntimeException("Unbekannter Shopeintrag-Typ '"+shopentry.getType()+"'");
 				}
 			
 				t.setVar(	"orderentry.name",			shopEntryObj.getName(),
 							"orderentry.adddata",		entryadddata,
 							"orderentry.type.image",	shopEntryObj.getImage(),
 							"orderentry.link",			shopEntryObj.getLink(),
-							"orderentry.id",			orderentry.getInt("id"),
-							"orderentry.price",			Common.ln(orderentry.getLong("price")),
-							"orderentry.count",			Common.ln(orderentry.getInt("count")),
-							"orderentry.status",		getStatusName(orderentry.getInt("status")),
-							"orderentry.bgcolor",		getStatusColor(orderentry.getInt("status")) );
+							"orderentry.id",			order.getId(),
+							"orderentry.price",			Common.ln(order.getPrice()),
+							"orderentry.count",			Common.ln(order.getCount()),
+							"orderentry.status",		getStatusName(order.getStatus()),
+							"orderentry.bgcolor",		getStatusColor(order.getStatus()) );
 			
 				t.parse("shop.orderlist.list", "shop.orderlist.listitem", true);
 			}
-			orderentry.free();
 		}
 		else {						
 			t.setVar("shop.owner", 1);
 			
-			SQLQuery orderentry = db.query("SELECT t1.*,IF(!t1.status,t1.status,t1.date) as orderprio FROM factions_shop_orders t1 JOIN factions_shop_entries t2 ON t1.shopentry_id=t2.id WHERE t2.faction_id=",this.faction," AND t1.status<4 ORDER BY orderprio ASC");
-			while( orderentry.next() ) {
-				// Keine so geschickte loesung, es reicht aber fuer den moment:
-				SQLResultRow shopentry = db.first("SELECT * FROM factions_shop_entries WHERE id=",orderentry.getInt("shopentry_id"));
+			List orderentryList = db.createQuery("from FactionShopOrder as fso " +
+					"where fso.shopEntry.faction = :faction and fso.status < 4 " +
+					"order by case when fso.status=0 then fso.status else fso.date end asc")
+				.setInteger("faction", faction)
+				.list();
+			for( Iterator iter=orderentryList.iterator(); iter.hasNext(); ) {
+				FactionShopOrder order = (FactionShopOrder)iter.next();
+				
+				FactionShopEntry shopentry = order.getShopEntry();
 				ShopEntry shopEntryObj = null;
 			
 				String entryadddata = "";
-				if( shopentry.getInt("type") == 1 ) {	//Schiff
+				if( shopentry.getType() == 1 ) {	//Schiff
 					shopEntryObj = new ShopShipEntry(shopentry);
 
-					entryadddata = "LK: "+orderentry.getString("adddata");
+					entryadddata = "LK: "+order.getAddData();
 				}
-				else if( shopentry.getInt("type") == 0 ) {	// Cargo	
+				else if( shopentry.getType() == 0 ) {	// Cargo	
 					shopEntryObj = new ShopResourceEntry(shopentry);
-					entryadddata = "LK: "+orderentry.getString("adddata");
+					entryadddata = "LK: "+order.getAddData();
 				}
-				else if( shopentry.getInt("type") == 2 ) {	//Ganytransport
-					String[] tmp = StringUtils.split(orderentry.getString("adddata"), "@");
+				else if( shopentry.getType() == 2 ) {	//Ganytransport
+					String[] tmp = StringUtils.split(order.getAddData(), "@");
 					int ganyid = Integer.parseInt(tmp[0]);
 					
 					String[] coords = StringUtils.split(tmp[1], "->");
 					
 					entryadddata = ganyid+"<br />"+coords[0]+" - "+coords[1];
-					shopEntryObj = new ShopGanyTransportEntry(new SQLResultRow[] {shopentry});
+					shopEntryObj = new ShopGanyTransportEntry(new FactionShopEntry[] {shopentry});
 				}
 				
-				User ownerobj = (User)getDB().get(User.class, orderentry.getInt("user_id"));
+				User ownerobj = order.getUser();
 				
 				t.setVar(	"orderentry.name",		shopEntryObj.getName(),
 							"orderentry.adddata",	entryadddata,
-							"orderentry.owner",		orderentry.getInt("user_id"),
+							"orderentry.owner",		order.getUser().getId(),
 							"orderentry.owner.name",	Common._title(ownerobj.getName()),
 							"orderentry.link",		shopEntryObj.getLink(),
-							"orderentry.id",		orderentry.getInt("id"),
-							"orderentry.price",		Common.ln(orderentry.getLong("price")),
-							"orderentry.count",		Common.ln(orderentry.getInt("count")),
-							"orderentry.status",	orderentry.getInt("status"),
-							"orderentry.status.name",	getStatusName(orderentry.getInt("status")),
-							"orderentry.bgcolor",		getStatusColor(orderentry.getInt("status")) );
+							"orderentry.id",		order.getId(),
+							"orderentry.price",		Common.ln(order.getPrice()),
+							"orderentry.count",		Common.ln(order.getCount()),
+							"orderentry.status",	order.getStatus(),
+							"orderentry.status.name",	getStatusName(order.getStatus()),
+							"orderentry.bgcolor",		getStatusColor(order.getStatus()) );
 			
 				t.parse("shop.shopownerlist.list", "shop.shopownerlist.listitem", true);
 			}
-			orderentry.free();
 		}
 		
 		// Zuerst alle Ganymed-Transportdaten auslesen
 		
-		SQLQuery shopentry = db.query("SELECT * FROM factions_shop_entries WHERE faction_id=",this.faction," AND type=2");
+		List ganyEntryList = db.createQuery("from FactionShopEntry where faction= :faction and type=2")
+			.setInteger("faction", faction)
+			.list();
 		
-		SQLResultRow[] ganytransport = new SQLResultRow[shopentry.numRows()];
+		FactionShopEntry[] ganytransport = new FactionShopEntry[ganyEntryList.size()];
 		int i=0;
 		
-		while( shopentry.next() ) {
-			ganytransport[i++] = shopentry.getRow();
+		for( Iterator iter=ganyEntryList.iterator(); iter.hasNext(); ) {
+			ganytransport[i++] = (FactionShopEntry)iter.next();
 		}
-		shopentry.free();
 		
 		// Falls vorhanden jetzt eine Ganymed-Infozeile ausgeben
 		if( ganytransport.length > 0 ) {
@@ -1928,14 +1879,18 @@ public class ErsteigernController extends TemplateGenerator {
 		}
 		
 		// Nun den normalen Shop ausgeben
-		shopentry = db.query("SELECT * FROM factions_shop_entries WHERE faction_id=",this.faction," AND type!=2");
-		while( shopentry.next() ) {		
+		List shopentryList = db.createQuery("from FactionShopEntry where faction = :faction and type!=2")
+			.setInteger("faction", faction)
+			.list();
+		for( Iterator iter=shopentryList.iterator(); iter.hasNext(); ) {
+			FactionShopEntry shopentry = (FactionShopEntry)iter.next();
+			
 			ShopEntry shopEntryObj = null;
-			if( shopentry.getInt("type") == 1 ) {
-				shopEntryObj = new ShopShipEntry(shopentry.getRow());
+			if( shopentry.getType() == 1 ) {
+				shopEntryObj = new ShopShipEntry(shopentry);
 			}
-			else if( shopentry.getInt("type") == 0 ) {
-				shopEntryObj = new ShopResourceEntry(shopentry.getRow());
+			else if( shopentry.getType() == 0 ) {
+				shopEntryObj = new ShopResourceEntry(shopentry);
 			}
 			
 			t.setVar(	"entry.type.image",			shopEntryObj.getImage(),
@@ -1950,14 +1905,13 @@ public class ErsteigernController extends TemplateGenerator {
 			
 			t.parse("shop.list", "shop.listitem", true);
 		}
-		shopentry.free();
 	}
 	
 	/**
 	 * Leitet zur Default-Seite einer Fraktion weiter
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		this.redirect(Faction.get(faction).getPages().getFirstPage());
 		

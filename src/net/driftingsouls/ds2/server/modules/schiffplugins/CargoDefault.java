@@ -22,10 +22,10 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
  * Schiffsmodul fuer die Anzeige des Schiffscargos
@@ -35,10 +35,8 @@ import net.driftingsouls.ds2.server.modules.SchiffController;
 public class CargoDefault implements SchiffPlugin {
 
 	public String action(Parameters caller) {
-		SQLResultRow ship = caller.ship;
+		Ship ship = caller.ship;
 		SchiffController controller = caller.controller;
-		
-		Database db = controller.getDatabase();
 		
 		String output = "";
 
@@ -47,21 +45,23 @@ public class CargoDefault implements SchiffPlugin {
 		controller.parameterNumber("unload");
 		controller.parameterNumber("load");
 		controller.parameterNumber("setautodeut");
+		controller.parameterNumber("setstartfighter");
 		
 		String act = controller.getString("act");
 		String max = controller.getString("max");
 		long load = controller.getInteger("load");
 		long unload = controller.getInteger("unload");
 		int setautodeut = controller.getInteger("setautodeut");
+		int setstartfighter = controller.getInteger("setstartfighter");
 		
 		if( act.equals("load") ) {
 			if( !max.equals("") ) {
 				load = 10000;
 			}
 			
-			Cargo cargo = new Cargo( Cargo.Type.STRING, ship.getString("cargo") );
+			Cargo cargo = ship.getCargo();
 
-			int e = ship.getInt("e");
+			int e = ship.getEnergy();
 			if( load > e ) {
 				load = e;
 			}
@@ -72,24 +72,23 @@ public class CargoDefault implements SchiffPlugin {
 				load = 0;
 			}
 
-			output += Common._plaintitle(ship.getString("name"))+" l&auml;dt "+load+" "+Cargo.getResourceName(Resources.BATTERIEN)+" auf<br /><br />\n";
+			output += Common._plaintitle(ship.getName())+" l&auml;dt "+load+" "+Cargo.getResourceName(Resources.BATTERIEN)+" auf<br /><br />\n";
 			cargo.addResource( Resources.BATTERIEN, load );
 			cargo.substractResource( Resources.LBATTERIEN, load );
-			ship.put("e", ship.getInt("e") - load);
-			ship.put("cargo", cargo.save());
 			
-			db.update("UPDATE ships SET e=",ship.getInt("e"),",cargo='",cargo.save(),"' WHERE id=",ship.getInt("id")," AND cargo='",cargo.save(true),"' AND e='",e,"'");
+			ship.setEnergy((int)(ship.getEnergy() - load));
+			ship.setCargo(cargo);
 		}
 		else if( act.equals("unload") ) {
 			if( !max.equals("") ) {
 				unload = 10000;
 			}
 
-			int maxeps = caller.shiptype.getInt("eps");
+			int maxeps = caller.shiptype.getEps();
 			
-			Cargo cargo = new Cargo( Cargo.Type.STRING, ship.getString("cargo") );
+			Cargo cargo = ship.getCargo();
 			
-			int e = ship.getInt("e");
+			int e = ship.getEnergy();
 			if( (unload + e) > maxeps ) {
 				unload = maxeps - e;
 			}
@@ -100,26 +99,33 @@ public class CargoDefault implements SchiffPlugin {
 				unload = 0;
 			}
 
-			output += ship.getString("name")+" entl&auml;dt "+unload+" "+Cargo.getResourceName(Resources.BATTERIEN)+"<br /><br />\n";
+			output += ship.getName()+" entl&auml;dt "+unload+" "+Cargo.getResourceName(Resources.BATTERIEN)+"<br /><br />\n";
 			cargo.substractResource( Resources.BATTERIEN, unload );
 			cargo.addResource( Resources.LBATTERIEN, unload );
 			
-			ship.put("e", ship.getInt("e") + unload);
-			ship.put("cargo", cargo.save());
-
-			db.update("UPDATE ships SET e=",ship.getInt("e"),",cargo='",cargo.save(),"' WHERE id=",ship.getInt("id")," AND cargo='",cargo.save(true),"' AND e='",e,"'");
+			ship.setEnergy((int)(ship.getEnergy() + unload));
+			ship.setCargo(cargo);
 		}
 		else if( setautodeut != 0 ) {
-			if( caller.shiptype.getInt("deutfactor") <= 0 ) {
+			if( caller.shiptype.getDeutFactor() <= 0 ) {
 				output += "<span style=\"color:red\">Nur Tanker k&ouml;nnen automatisch Deuterium sammeln</span><br />\n";
 				return output;
 			}
 			controller.parameterNumber("autodeut");
 			int autodeut = controller.getInteger("autodeut");
 			
-			db.update("UPDATE ships SET autodeut='",autodeut,"' WHERE id=",ship.getInt("id"));
+			ship.setAutoDeut(autodeut != 0 ? true : false);
 			
 			output += "Automatisches Deuteriumsammeln "+(autodeut != 0 ? "":"de")+"aktiviert<br />\n";
+		}
+		else if(setstartfighter != 0)
+		{
+			controller.parameterNumber("startfighter");
+			int startfighter = controller.getInteger("startfighter");
+			
+			ship.setStartFighters(startfighter != 0 ? true : false);
+			
+			output += "Automatisches Starten von Jägern "+(startfighter != 0 ? "":"de")+"aktiviert<br />\n";
 		}
 		
 		return output;
@@ -127,27 +133,29 @@ public class CargoDefault implements SchiffPlugin {
 
 	public void output(Parameters caller) {
 		String pluginid = caller.pluginId;
-		SQLResultRow ship = caller.ship;
-		SQLResultRow shiptype = caller.shiptype;
+		Ship ship = caller.ship;
+		ShipTypeData shiptype = caller.shiptype;
 
 		TemplateEngine t = caller.controller.getTemplateEngine();
 		t.setFile("_PLUGIN_"+pluginid, "schiff.cargo.default.html");
 
-		Cargo cargo = new Cargo( Cargo.Type.STRING, ship.getString("cargo") );
+		Cargo cargo = ship.getCargo();
 		cargo.setOption(Cargo.Option.LINKCLASS,"schiffwaren");
 
 		t.setBlock("_CARGO","schiff.cargo.reslist.listitem","schiff.cargo.reslist.list");
 		ResourceList reslist = cargo.getResourceList();
 		Resources.echoResList( t, reslist, "schiff.cargo.reslist.list" );
 		
-		t.setVar(	"schiff.cargo.empty",			Common.ln(shiptype.getLong("cargo")-cargo.getMass()),
-					"global.pluginid",				pluginid,
-					"ship.id",						ship.getInt("id"),
-					"schiff.cargo.batterien",		cargo.hasResource( Resources.BATTERIEN ),
-					"schiff.cargo.lbatterien",		cargo.hasResource( Resources.LBATTERIEN ),
-					"schiff.cargo.tanker",			shiptype.getInt("deutfactor"),
-					"schiff.cargo.tanker.autodeut",	ship.getInt("autodeut"),
-					"resource.RES_DEUTERIUM.image",	Cargo.getResourceImage(Resources.DEUTERIUM) );
+		t.setVar(	"schiff.cargo.empty",					Common.ln(shiptype.getCargo()-cargo.getMass()),
+					"global.pluginid",						pluginid,
+					"ship.id",								ship.getId(),
+					"schiff.cargo.batterien",				cargo.hasResource( Resources.BATTERIEN ),
+					"schiff.cargo.lbatterien",				cargo.hasResource( Resources.LBATTERIEN ),
+					"schiff.cargo.tanker",					shiptype.getDeutFactor(),
+					"schiff.cargo.tanker.autodeut",			ship.getAutoDeut(),
+					"schiff.cargo.traeger",					shiptype.getJDocks() > 0 ? 1 : 0,
+					"schiff.cargo.traeger.startfighter",	ship.startFighters(),
+					"resource.RES_DEUTERIUM.image",			Cargo.getResourceImage(Resources.DEUTERIUM) );
 		
 		t.parse(caller.target,"_PLUGIN_"+pluginid);
 	}
