@@ -20,9 +20,9 @@
 <tr>
 	<td class="schiff" colspan="{ship.jdocks}">J&auml;gerdocks
 		{if ship.docklist}
-			- <a class="forschinfo" href="./main.php?sess={global.sess}&amp;module=transport&amp;from={ship.id}&amp;to={ship.docklist}&amp;way=stos">Alle Auftanken</a>
-		 	- <a class="forschinfo" href="./main.php?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;jdocks_ops[act]=unload">Alle Entladen</a>
-			- <a class="forschinfo" href="./main.php?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=start&amp;shiplist={ship.docklist}">Alle J&auml;ger starten</a>
+			- <a class="forschinfo" href="./ds?sess={global.sess}&amp;module=transport&amp;from={ship.id}&amp;to={ship.docklist}&amp;way=stos">Alle Auftanken</a>
+		 	- <a class="forschinfo" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;jdocks_ops[act]=unload">Alle Entladen</a>
+			- <a class="forschinfo" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=start&amp;shiplist={ship.docklist}">Alle J&auml;ger starten</a>
 			{if ship.docklist.nofleet}
 				- <a class="forschinfo" href="javascript:PopupWnd(1,'&shiplist={ship.docklist}&action=create')">Flotte bilden</a>
 			{/endif}
@@ -36,10 +36,10 @@
 	{/endif}
 	{if docks.entry.id}
 		<td class="schiffData" valign="top" width="{docks.width}%" align="center">
-			<a class="forschinfo" href="./main.php?module=schiff&amp;sess={global.sess}&amp;ship={docks.entry.id}">{docks.entry.name} ({docks.entry.id})</a><br />
-			<a class="noborder" target="_blank" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={docks.entry.type}"><img src="{docks.entry.image}" alt="" /></a><br />
-			<a class="forschinfo" href="./main.php?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=start&amp;shiplist={docks.entry.id}">abladen</a><br>
-			<a class="forschinfo" href="./main.php?sess={global.sess}&amp;module=transport&amp;to={docks.entry.id}&amp;from={ship.id}&amp;way=stos">Auftanken</a>
+			<a class="forschinfo" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={docks.entry.id}">{docks.entry.name} ({docks.entry.id})</a><br />
+			<a class="noborder" target="_blank" href="./ds?module=schiffinfo&amp;sess={global.sess}&amp;ship={docks.entry.type}"><img src="{docks.entry.image}" alt="" /></a><br />
+			<a class="forschinfo" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=start&amp;shiplist={docks.entry.id}">abladen</a><br>
+			<a class="forschinfo" href="./ds?sess={global.sess}&amp;module=transport&amp;to={docks.entry.id}&amp;from={ship.id}&amp;way=stos">Auftanken</a>
 		</td>
 	{else}
 		<td align="center" valign="middle" class="BorderS">Leer</td>

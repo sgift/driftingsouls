@@ -25,7 +25,7 @@
 	<td class="noBorderX">
 		{if schiff.jumpdrive.jumping}
 			Das Schiff springt gerade - Ziel: {schiff.jumpdrive.jumping}:{schiff.jumpdrive.jumpingx}/{schiff.jumpdrive.jumpingy} {!image_link_to interface/delete.gif, plugin, css_style:vertical-align:middle, plugin:$global.pluginid, ship:$ship.id, jumpdrive_ops[subaction]:cancel}<br /><br />
-			<form action="./main.php" method="post">
+			<form action="./ds" method="post">
 				Ziel: <input name="jumpdrive_ops[system]" type="text" size="2" value="{schiff.jumpdrive.jumping}" />
 				<input name="jumpdrive_ops[x]" type="text" size="3" value="{schiff.jumpdrive.jumpingx}" />/<input name="jumpdrive_ops[y]" type="text" size="3" value="{schiff.jumpdrive.jumpingy}" />
 				
@@ -34,7 +34,7 @@
 				{!form_create_hidden plugin, plugin:$global.pluginid, ship:$ship.id }
 			</form>
 		{else}
-			<form action="./main.php" method="post">
+			<form action="./ds" method="post">
 				Ziel: <input name="jumpdrive_ops[system]" type="text" size="2" value="0" />:
 				<input name="jumpdrive_ops[x]" type="text" size="3" value="0" />/
 				<input name="jumpdrive_ops[y]" type="text" size="3" value="0" />

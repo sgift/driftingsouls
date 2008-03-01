@@ -23,7 +23,7 @@
 <img src="{URL}data/interface/leer.gif" alt="Leer" />Leer {schiff.cargo.empty}
 <hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
 {if schiff.cargo.batterien}
-	<form action="./main.php" method="post">
+	<form action="./ds" method="post">
 		<div>
 			Batterien entladen:<br />
 			<input name="cargo_ops[unload]" type="text" size="2" value="0" />
@@ -35,7 +35,7 @@
 	</form><br />
 {/endif}
 {if schiff.cargo.lbatterien}
-	<form action="./main.php" method="post">
+	<form action="./ds" method="post">
 		<div>
 			Batterien aufladen:<br />
 			<input name="cargo_ops[load]" type="text" size="2" value="0" />
@@ -47,13 +47,25 @@
 	</form><br />
 {/endif}
 {if schiff.cargo.tanker}
-	<form action="./main.php" method="post">
+	<form action="./ds" method="post">
 		<div>
 			Automatisch <img style="vertical-align:middle" src="{resource.RES_DEUTERIUM.image}" alt="Deuterium" /> sammeln:<br />
 			<input id="cargo_ops_autodeut" name="cargo_ops[autodeut]" type="checkbox" value="1" {if schiff.cargo.tanker.autodeut}checked="checked"{/endif} />
 			<label for="cargo_ops_autodeut">aktivieren</label>&nbsp;
 			{!form_create_hidden plugin, ship:$ship.id, plugin:$global.pluginid}
 			<input type="hidden" name="cargo_ops[setautodeut]" value="1" />
+			<input type="submit" value="ok" />
+		</div>
+	</form>
+{/endif}
+{if schiff.cargo.traeger}
+	<form action="./ds" method="post">
+		<div>
+			Automatisch starten:<br />
+			<input id="cargo_ops_startfighter" name="cargo_ops[startfighter]" type="checkbox" value="1" {if schiff.cargo.traeger.startfighter}checked="checked"{/endif} />
+			<label for="cargo_ops_startfighter">aktivieren</label>&nbsp;
+			{!form_create_hidden plugin, ship:$ship.id, plugin:$global.pluginid}
+			<input type="hidden" name="cargo_ops[setstartfighter]" value="1" />
 			<input type="submit" value="ok" />
 		</div>
 	</form>
