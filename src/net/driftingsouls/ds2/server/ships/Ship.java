@@ -3139,12 +3139,16 @@ public class Ship implements Loggable,Locatable,Transfering {
 	 * @return <code>true</code> if the ship can be feed from the pool, <code>false</code> if not
 	 */
 	public boolean isUserCargoUsable() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		if( Configuration.getIntSetting("USE_NEW_FOOD_SYSTEM") == 1 ) {
+			org.hibernate.Session db = ContextMap.getContext().getDB();
+			
+			return ((Number)db.createQuery("select count(*) from Base where owner=? and system=?")
+				.setEntity(0, this.owner)
+				.setInteger(1, this.system)
+				.iterate().next()).intValue() != 0;
+		}
 		
-		return ((Number)db.createQuery("select count(*) from Base where owner=? and system=?")
-			.setEntity(0, this.owner)
-			.setInteger(1, this.system)
-			.iterate().next()).intValue() != 0;
+		return true;
 	}
 
 	public String transfer(Transfering to, ResourceID resource, long count) {
