@@ -363,4 +363,25 @@ public class ShipFleet {
 			MESSAGE.get().append("Flotte aufgel&ouml;&szlig;t");
 		}
 	}
+
+	@Override
+	public int hashCode() {
+		return id;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if( this == obj ) {
+			return true;
+		}
+		if( obj == null || !(obj instanceof ShipFleet) ) {
+			return false;
+		}
+
+		final ShipFleet other = (ShipFleet)obj;
+		if( id != other.id ) {
+			return false;
+		}
+		return true;
+	}
 }
