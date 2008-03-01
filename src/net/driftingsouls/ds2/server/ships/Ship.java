@@ -2393,9 +2393,9 @@ public class Ship implements Loggable,Locatable,Transfering {
 			List<Ship> docked = new ArrayList<Ship>();
 			if( (shiptype.getADocks() > 0) || (shiptype.getJDocks() > 0) ) { 
 				List line = db.createQuery("from Ship where id>0 and docked in (?,?)")
-				.setString(0, Integer.toString(ship.getId()))
-				.setString(0, "l "+ship.getId())
-				.list();
+					.setString(0, Integer.toString(ship.getId()))
+					.setString(1, "l "+ship.getId())
+					.list();
 				for( Iterator iter=line.iterator(); iter.hasNext(); ) {
 					Ship aship = (Ship)iter.next();
 					docked.add(aship);
@@ -3196,16 +3196,13 @@ public class Ship implements Loggable,Locatable,Transfering {
 	 * 
 	 * @return <code>False</code>, wenn das Schiff kein SRS hat oder gelandet ist. <code>True</code> ansonsten.
 	 */
-	public boolean canUseSrs()
-	{
-		if(!getTypeData().hasSrs())
-		{
+	public boolean canUseSrs() {
+		if(!getTypeData().hasSrs()) {
 			return false;
 		}
 		
 		String motherShip = getDocked();
-		if(motherShip != null && motherShip.startsWith("l"))
-		{
+		if(motherShip != null && motherShip.startsWith("l")) {
 			return false;
 		}
 		
