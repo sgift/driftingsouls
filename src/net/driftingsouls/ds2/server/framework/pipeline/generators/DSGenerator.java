@@ -35,6 +35,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Error;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
 
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.exception.LockAcquisitionException;
 
 /**
  * Basisklasse fuer alle DS-spezifischen Generatoren
@@ -480,8 +481,13 @@ public abstract class DSGenerator extends Generator {
 			for( StackTraceElement s : st ) {
 				stacktrace += s.toString()+"\n";
 			}
-				
-			addError("Es ist ein Fehler in der Action '"+action+"' aufgetreten:\n"+t.toString()+"\n\n"+stacktrace);
+			
+			if( t instanceof LockAcquisitionException ) {
+				addError("Die gew&uuml;nschte Aktion konnte nicht erfolgreich durchgef&uuml;hrt werden. Bitte versuchen sie es erneut.");
+			}
+			else {
+				addError("Es ist ein Fehler in der Action '"+action+"' aufgetreten:\n"+t.toString()+"\n\n"+stacktrace);
+			}
 			
 			Common.mailThrowable(e, "DSGenerator Invocation Target Exception", 
 					"Action: "+action+"\n" +
