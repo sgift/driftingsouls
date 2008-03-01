@@ -397,7 +397,7 @@ public class Ordner {
 		db.createQuery("update PM set gelesen=2, ordner= :trash " +
 				"where empfaenger= :user and sender=:sender and ordner= :ordner and (gelesen=1 or bit_and(flags,:important)=0)")
 			.setInteger("trash", trash)
-			.setEntity("user", user)
+			.setEntity("user", this.owner)
 			.setEntity("sender", user)
 			.setInteger("ordner", this.id)
 			.setInteger("important", PM.FLAGS_IMPORTANT)
