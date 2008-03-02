@@ -790,85 +790,7 @@ public class PortalController extends TemplateGenerator {
 						clear = false;
 					}
 					else{
-						Common.writeLog("login.log",Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+username+"> Login von Browser <"+getRequest().getUserAgent()+">\n");
-	
-	  					getDB().createQuery("delete from Session where id=? and attach is null")
-	  						.setInteger(0, user.getId())
-	  						.executeUpdate();
-	  					
-	  					session = new Session(user);
-	  					session.setIP("<"+getRequest().getRemoteAddress()+">");
-	  					session.setUseGfxPak(usegfxpak != 0);
-	  					getDB().persist(session);
-	
-						if( (user.getVacationCount() == 0) || (user.getWait4VacationCount() != 0) ) {
-							t.setVar(	"show.login.msg.ok", 1,
-										"login.sess", session.getSession() );
-						}	
-						else {
-							t.setVar(	"show.login.vacmode", 1,
-										"login.vacmode.dauer", Common.ticks2Days(user.getVacationCount()),
-										"login.vacmode.sess", session.getSession() );
-						}
-						
-						// Ueberpruefen ob das gfxpak noch aktuell ist
-						if( (usegfxpak != 0) && !user.getUserImagePath().equals(BasicUser.getDefaultImagePath()) ) {
-							t.setVar(	"login.checkgfxpak", 1,
-										"login.checkgfxpak.path", user.getUserImagePath() );
-						}
-						
-						/*
-						 * HACK (? - das ganze sollte vieleicht besser ins Framework)
-						 * 
-						 * Browser erkennen und ggf eine Warnung ausgeben
-						 * 
-						 */
-						
-						String browser = getRequest().getUserAgent().toLowerCase();
-						String browsername = null;
-						if( browser.indexOf("opera") != -1 ) {
-							browsername = "opera";
-						}
-						else if( browser.indexOf("msie") != -1 ) {
-							browsername = "msie";
-						}
-						else if( (browser.indexOf("firefox") != -1) || (browser.indexOf("gecko") != -1) ) {
-							browsername = "mozilla";
-						}
-						else {
-							browsername = "unknown";	
-						}
-						
-						try {
-							if( browsername.equals("opera") ) {
-								Matcher browserpattern = Pattern.compile("opera ([0-9\\.,]+)").matcher(browser);
-								if( browserpattern.find() ) {
-									String tmp = browserpattern.group(0);
-									
-									double version = Double.parseDouble(tmp);
-									if( (version > 0) && (version < 9.0) ) {
-										t.setVar(	"show.login.browserwarning", 1,
-													"browser.name", "Opera",
-													"browser.version", version );
-									}
-								}
-							}
-							else if( browsername.equals("msie") ) {
-								Matcher browserpattern = Pattern.compile("msie ([0-9\\.,]+)").matcher(browser);
-								browserpattern.find();
-								String tmp = browserpattern.group(1);
-	
-								double version = Double.parseDouble(tmp);
-								
-								t.setVar(	"show.login.browserwarning", 1,
-											"browser.name", "Microsoft Internet Explorer",
-											"browser.version", version );
-							}
-						}
-						catch( Exception e ) {
-							java.lang.System.err.println(e);
-							e.printStackTrace();
-						}
+						doLogin(user, usegfxpak);
 	
 	  					clear = true;
 					}
@@ -879,6 +801,92 @@ public class PortalController extends TemplateGenerator {
 		if( !clear ) {
 			t.setVar(	"show.login", 1,
 						"login.username", username );
+		}
+	}
+
+	private void doLogin(User user, int usegfxpak) {
+		TemplateEngine t = getTemplateEngine();
+		
+		Common.writeLog("login.log",Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+user.getUN()+"> Login von Browser <"+getRequest().getUserAgent()+">\n");
+
+		getDB().createQuery("delete from Session where id=? and attach is null")
+			.setInteger(0, user.getId())
+			.executeUpdate();
+		
+		Session session = new Session(user);
+		session.setIP("<"+getRequest().getRemoteAddress()+">");
+		session.setUseGfxPak(usegfxpak != 0);
+		getDB().persist(session);
+		
+		getContext().commit();
+
+		if( (user.getVacationCount() == 0) || (user.getWait4VacationCount() != 0) ) {
+			t.setVar(	"show.login.msg.ok", 1,
+						"login.sess", session.getSession() );
+		}	
+		else {
+			t.setVar(	"show.login.vacmode", 1,
+						"login.vacmode.dauer", Common.ticks2Days(user.getVacationCount()),
+						"login.vacmode.sess", session.getSession() );
+		}
+		
+		// Ueberpruefen ob das gfxpak noch aktuell ist
+		if( (usegfxpak != 0) && !user.getUserImagePath().equals(BasicUser.getDefaultImagePath()) ) {
+			t.setVar(	"login.checkgfxpak", 1,
+						"login.checkgfxpak.path", user.getUserImagePath() );
+		}
+		
+		/*
+		 * HACK (? - das ganze sollte vieleicht besser ins Framework)
+		 * 
+		 * Browser erkennen und ggf eine Warnung ausgeben
+		 * 
+		 */
+		
+		String browser = getRequest().getUserAgent().toLowerCase();
+		String browsername = null;
+		if( browser.indexOf("opera") != -1 ) {
+			browsername = "opera";
+		}
+		else if( browser.indexOf("msie") != -1 ) {
+			browsername = "msie";
+		}
+		else if( (browser.indexOf("firefox") != -1) || (browser.indexOf("gecko") != -1) ) {
+			browsername = "mozilla";
+		}
+		else {
+			browsername = "unknown";	
+		}
+		
+		try {
+			if( browsername.equals("opera") ) {
+				Matcher browserpattern = Pattern.compile("opera ([0-9\\.,]+)").matcher(browser);
+				if( browserpattern.find() ) {
+					String tmp = browserpattern.group(0);
+					
+					double version = Double.parseDouble(tmp);
+					if( (version > 0) && (version < 9.0) ) {
+						t.setVar(	"show.login.browserwarning", 1,
+									"browser.name", "Opera",
+									"browser.version", version );
+					}
+				}
+			}
+			else if( browsername.equals("msie") ) {
+				Matcher browserpattern = Pattern.compile("msie ([0-9\\.,]+)").matcher(browser);
+				browserpattern.find();
+				String tmp = browserpattern.group(1);
+
+				double version = Double.parseDouble(tmp);
+				
+				t.setVar(	"show.login.browserwarning", 1,
+							"browser.name", "Microsoft Internet Explorer",
+							"browser.version", version );
+			}
+		}
+		catch( NumberFormatException e ) {
+			java.lang.System.err.println(e);
+			e.printStackTrace();
 		}
 	}
 	
