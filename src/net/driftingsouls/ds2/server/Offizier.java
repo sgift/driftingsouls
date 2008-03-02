@@ -18,8 +18,6 @@
  */
 package net.driftingsouls.ds2.server;
 
-import java.util.Iterator;
-
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -422,14 +420,10 @@ public class Offizier extends DSObject {
 	public static Offizier getOffizierByDest(char dest, int objid) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
-		Iterator iter = db.createQuery("from Offizier where dest=? order by rang desc")
+		return (Offizier)db.createQuery("from Offizier where dest=? order by rang desc")
 			.setString(0, dest+" "+objid)
-			.iterate();
-		
-		if( iter.hasNext() ) {
-			return (Offizier)iter.next();
-		}
-		return null;
+			.setMaxResults(1)
+			.uniqueResult();
 	}
 	
 	/**
