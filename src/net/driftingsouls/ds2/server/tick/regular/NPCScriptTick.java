@@ -96,8 +96,14 @@ public class NPCScriptTick extends TickController {
 				try {
 					this.log("+++ Ship "+ship.getId()+" +++");
 					
+					final String engineName = EngineIdentifier.identifyEngine(ship.getScript());
+					if( engineName == null ) {
+						this.log("Unbekannte ScriptEngine");
+						continue;
+					}
+					
 					final ScriptEngine scriptparser = getContext().get(ContextCommon.class)
-						.getScriptParser(EngineIdentifier.identifyEngine(ship.getScript()));
+						.getScriptParser(engineName);
 					
 					Blob scriptExecData = ship.getScriptExeData();
 					if( (scriptExecData != null) && (scriptExecData.length() > 0) ) {
@@ -134,11 +140,9 @@ public class NPCScriptTick extends TickController {
 					this.log("[FEHLER] Kann Script auf Schiff "+ship.getId()+" nicht ausfuehren: "+e);
 					e.printStackTrace();
 					Common.mailThrowable(e, "[DS2J] NPCScriptTick Exception", "Schiff: "+ship.getId()+"\nUser: "+ship.getOwner().getId());
-					
-					if( e instanceof RuntimeException ) {
-						throw (RuntimeException)e;
-					}
-					throw new RuntimeException(e);
+				}
+				finally {
+					db.clear();
 				}
 			}
 		}
