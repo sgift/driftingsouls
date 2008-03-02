@@ -127,10 +127,7 @@ public class ShipFleet {
 			if( shiptype.getJDocks() == 0 ) {
 				continue;
 			}
-			int free = shiptype.getJDocks();
-			free -= (Long)db.createQuery("select count(*) from Ship where id>0 and docked=?")
-				.setString(0, "l "+ship.getId())
-				.iterate().next();
+			int free = shiptype.getJDocks() - (int)ship.getLandedCount();
 			List<Ship>jaegerlist = new ArrayList<Ship>();
 			
 			List jaegerliste = db.createQuery("from Ship as s left join fetch s.modules " +
@@ -244,10 +241,7 @@ public class ShipFleet {
 				continue;
 			}
 	
-			int free = shiptype.getADocks();
-			free -= (Long)db.createQuery("select count(*) from Ship where id>0 and docked=?")
-				.setString(0, Integer.toString(ship.getId()))
-				.iterate().next();
+			int free = shiptype.getADocks() - (int)ship.getDockedCount();
 			List<Ship> containerlist = new ArrayList<Ship>();
 			
 			List containers = db.createQuery("from Ship as s " +
