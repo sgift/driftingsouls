@@ -379,7 +379,7 @@ public class ShipFleet {
 		}
 
 		final ShipFleet other = (ShipFleet)obj;
-		if( id != other.id ) {
+		if( id != other.getId() ) {
 			return false;
 		}
 		return true;
