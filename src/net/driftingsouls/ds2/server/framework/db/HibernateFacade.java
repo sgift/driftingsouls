@@ -19,9 +19,14 @@
 package net.driftingsouls.ds2.server.framework.db;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+import javax.management.ObjectName;
 
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Loggable;
@@ -34,6 +39,7 @@ import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.dialect.function.SQLFunctionTemplate;
 import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.engine.EntityKey;
+import org.hibernate.jmx.StatisticsService;
 import org.hibernate.stat.Statistics;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -47,7 +53,8 @@ public class HibernateFacade implements Loggable {
 	private static final Object LOCK = new Object();
 	
 	private static SessionFactory sessionFactory;
-	private static org.hibernate.cfg.AnnotationConfiguration conf; 
+	private static org.hibernate.cfg.AnnotationConfiguration conf;
+	private static StatisticsService statisticsService = null;
 	
 	static {
 		conf = new AnnotationConfiguration();
@@ -84,7 +91,33 @@ public class HibernateFacade implements Loggable {
 			LOG.fatal("HibernateFacade init fehlgeschlagen", e);
 			throw new ExceptionInInitializerError(e);
 		}
+		
+		createStatisticsMBean();
 	}
+
+	private static void createStatisticsMBean() {
+		statisticsService = new StatisticsService();
+		statisticsService.setSessionFactory(getSessionFactory());
+		
+		MBeanServer server = getServer();
+		try {
+			ObjectName name = new ObjectName("org.hibernate:Type=Statistics");
+			server.registerMBean(statisticsService, name);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static MBeanServer getServer() {
+		ArrayList<MBeanServer> mbservers = MBeanServerFactory.findMBeanServer(null);
+
+		if( mbservers.size() > 0 ) {
+			System.out.println("Found MBean server");
+			return mbservers.get(0);
+		}
+		return MBeanServerFactory.createMBeanServer();
+	}
+
 	
 	/**
 	 * Gibt die Instanz der SessionFactory zurueck
