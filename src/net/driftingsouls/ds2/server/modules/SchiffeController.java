@@ -387,17 +387,11 @@ public class SchiffeController extends TemplateGenerator implements Loggable {
 				}
 				
  				if( shiptype.getADocks() > 0 ) {
- 					long docked = (Long)db.createQuery("select count(*) from Ship where id>0 and docked=?")
- 						.setString(0, Integer.toString(ship.getId()))
- 						.iterate().next();
-					t.setVar("ship.adocks.docked",docked);
+					t.setVar("ship.adocks.docked",ship.getDockedCount());
  				}
 				
 				if( shiptype.getJDocks() > 0 ) {
-					long docked = (Long)db.createQuery("select count(*) from Ship where id>0 and docked=?")
-						.setString(0, "l "+ship.getId())
-						.iterate().next();
-					t.setVar("ship.jdocks.docked",docked);
+					t.setVar("ship.jdocks.docked",ship.getLandedCount());
  				}
 				
 				if( (shiptype.getShipClass() == ShipClasses.AWACS.ordinal()) || (shiptype.getShipClass() == ShipClasses.FORSCHUNGSKREUZER.ordinal()) ) {

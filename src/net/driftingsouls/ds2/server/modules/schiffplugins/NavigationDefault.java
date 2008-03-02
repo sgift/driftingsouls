@@ -273,8 +273,21 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 			
 			t.setVar("schiff.navigation.size",37);
 			
+			Location[] locs = new Location[8];
+			for( int ny = 0, index=0; ny <= 2; ny++ ) {
+				newrow = true;
+				for( int nx = 0; nx <= 2; nx++ ) {
+					if( nx == 1 && ny == 1 ) {
+						continue;
+					}
+					locs[index++] = new Location(sys,x+nx-1,y+ny-1);
+				}
+			}
+			
+			boolean[] redAlertStatus = Ship.getRedAlertStatus(user.getId(), locs);
+			
 			t.setBlock("_NAVIGATION","schiff.navigation.nav.listitem","schiff.navigation.nav.list");
-			for( int ny = 0; ny <= 2; ny++ ) {
+			for( int ny = 0, index=0; ny <= 2; ny++ ) {
 				newrow = true;
 				for( int nx = 0; nx <= 2; nx++ ) {
 					tmp++;
@@ -283,7 +296,7 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 								"schiff.navigation.nav.location",		Ships.getLocationText(sys, x+nx-1, y+ny-1, true),
 								"schiff.navigation.nav.sectorimage",	url + (sectorimgs[nx][ny] != null ? sectorimgs[nx][ny] : "data/starmap/space/space.png"),
 								"schiff.navigation.nav.newrow",			newrow,
-								"schiff.navigation.nav.warn",			(1 != nx || 1 != ny ? Ship.getRedAlertStatus(user.getId(),sys,x+nx-1,y+ny-1) : false) );
+								"schiff.navigation.nav.warn",			(1 != nx || 1 != ny ? redAlertStatus[index++] : false) );
 					
 					t.parse( "schiff.navigation.nav.list", "schiff.navigation.nav.listitem", true );
 					newrow = false;

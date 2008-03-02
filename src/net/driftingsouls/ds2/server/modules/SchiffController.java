@@ -156,7 +156,7 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 
 		shiptype = ship.getTypeData();
 
-		offizier = Offizier.getOffizierByDest('s', ship.getId());
+		offizier = ship.getOffizier();
 		
 		if( !action.equals("communicate") && !action.equals("onmove") && !action.equals("onenter") && (ship.getLock() != null) && !ship.getLock().equals("") ) {
 			ScriptEngine scriptparser = getContext().get(ContextCommon.class).getScriptParser("DSQuestScript");
@@ -1216,7 +1216,7 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 			return;
 		}
 		
-		offizier = Offizier.getOffizierByDest('s', ship.getId());
+		offizier = ship.getOffizier();
 		
 		StringBuilder tooltiptext = new StringBuilder(100);
 		tooltiptext.append(Common.tableBegin(340, "center").replace('"', '\'') );

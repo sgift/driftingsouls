@@ -367,9 +367,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 			int user_wrapfactor = Integer.parseInt(user.getUserValue("TBLORDER/schiff/wrapfactor"));
 			
 			// dockCount - die Anzahl der aktuell angedockten Schiffe
-			final long dockCount = (Long)db.createQuery("select count(*) from Ship where id>0 AND docked=?")
-				.setString(0, Integer.toString(ship.getId()))
-				.iterate().next();
+			final long dockCount = ship.getDockedCount();
 			
 			// superdock - Kann der aktuelle Benutzer alles andocken?
 			boolean superdock = false;
@@ -378,14 +376,10 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 			}
 			
 			// fullcount - Die Anzahl der freien Landeplaetze auf dem aktuell ausgewaehlten Traeger
+			final long fullcount = ship.getLandedCount();
+			
 			// spaceToLand - Ist ueberhaupt noch Platz auf dem aktuell ausgewaehlten Traeger?
-			boolean spaceToLand = false;
-			final long fullcount = (Long)db.createQuery("select count(*) from Ship where id>0 and docked=?")
-				.setString(0, "l "+ship.getId())
-				.iterate().next();
-			if( fullcount + 1 <= shiptype.getJDocks() ) {
-				spaceToLand = true;
-			}
+			final boolean spaceToLand = fullcount < shiptype.getJDocks();
 			
 			String thisorder = "s."+order;
 			if( order.equals("id") ) {
@@ -754,9 +748,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 					//Jaegerfunktionen: laden, Flotte landen
 					if( shiptype.hasFlag(ShipTypes.SF_JAEGER) && (currentDockID != aship.getId()) ) {
 						if( ( ashiptype.getJDocks() > 0 ) && ( aship.getOwner().getId() == user.getId() ) ) {
-							long carrierFullCount = (Long)db.createQuery("select count(*) from Ship where id>0 and docked=?")
-								.setString(0, "l "+aship.getId())
-								.iterate().next();
+							long carrierFullCount = aship.getLandedCount();
 
 							if( carrierFullCount + 1 <= ashiptype.getJDocks() ) {
 								t.setVar("sships.action.land",1);
