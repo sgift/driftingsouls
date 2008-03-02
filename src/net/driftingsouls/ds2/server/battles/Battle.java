@@ -972,8 +972,12 @@ public class Battle implements Loggable, Locatable {
 		Set<Integer> calcedallys = new HashSet<Integer>();
 		
 		for( User auser : new ArrayList<User>(ownUsers) ) {
-			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly()) ) {		
-				List allyusers = db.createQuery("from User where ally=? and !(id in ("+Common.implode(",",ownUsers)+"))")
+			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly()) ) {
+				List<Integer> userIdList = new ArrayList<Integer>();
+				for( User oUser : ownUsers ) {
+					userIdList.add(oUser.getId());
+				}
+				List allyusers = db.createQuery("from User where ally=? and !(id in ("+Common.implode(",",userIdList)+"))")
 					.setEntity(0, auser.getAlly())
 					.list();
 				for( Iterator iter=allyusers.iterator(); iter.hasNext(); ) {
@@ -986,8 +990,12 @@ public class Battle implements Loggable, Locatable {
 		}
 
 		for( User auser : new ArrayList<User>(enemyUsers) ) {
-			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly()) ) {		
-				List allyusers = db.createQuery("from User where ally=? and !(id in ("+Common.implode(",",enemyUsers)+"))")
+			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly()) ) {
+				List<Integer> userIdList = new ArrayList<Integer>();
+				for( User oUser : enemyUsers ) {
+					userIdList.add(oUser.getId());
+				}
+				List allyusers = db.createQuery("from User where ally=? and !(id in ("+Common.implode(",",userIdList)+"))")
 					.setEntity(0, auser.getAlly())
 					.list();
 				for( Iterator iter=allyusers.iterator(); iter.hasNext(); ) {
