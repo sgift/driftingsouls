@@ -995,7 +995,7 @@ public class Battle implements Loggable, Locatable {
 				for( User oUser : enemyUsers ) {
 					userIdList.add(oUser.getId());
 				}
-				List allyusers = db.createQuery("from User where ally=? and !(id in ("+Common.implode(",",userIdList)+"))")
+				List allyusers = db.createQuery("from User where ally=? and (id not in ("+Common.implode(",",userIdList)+"))")
 					.setEntity(0, auser.getAlly())
 					.list();
 				for( Iterator iter=allyusers.iterator(); iter.hasNext(); ) {
