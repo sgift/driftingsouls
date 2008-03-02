@@ -35,6 +35,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
@@ -911,7 +912,7 @@ public class Ship implements Loggable,Locatable,Transfering {
 		}
 
 		// Ist ein Offizier an Bord?
-		Offizier offi = Offizier.getOffizierByDest('s', this.id);
+		Offizier offi = getOffizier();
 		if( offi != null ) {
 			status.add("offizier");
 		}
@@ -1004,14 +1005,17 @@ public class Ship implements Loggable,Locatable,Transfering {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		int foodConsumption = getFoodConsumption();
 		
-		//Angehaengte Schiffe beruecksichtigen
-		List dockedShips = db.createQuery("from Ship as ship where ship.docked=?")
-			.setEntity(0, this)
-			.list();
-		for( Iterator iter=dockedShips.iterator(); iter.hasNext(); ) {
-			Ship dockedShip = (Ship)iter.next();
-				
-			foodConsumption += dockedShip.getNettoFoodConsumption();
+		if( getTypeData().getADocks() > 0 || getTypeData().getJDocks() > 0 ) {
+			//Angehaengte Schiffe beruecksichtigen
+			List dockedShips = db.createQuery("from Ship as ship where ship.docked in (?,?)")
+				.setString(0, Integer.toString(this.id))
+				.setString(1, "l "+this.id)
+				.list();
+			for( Iterator iter=dockedShips.iterator(); iter.hasNext(); ) {
+				Ship dockedShip = (Ship)iter.next();
+					
+				foodConsumption += dockedShip.getNettoFoodConsumption();
+			}
 		}
 		return foodConsumption;
 	}
@@ -1314,11 +1318,12 @@ public class Ship implements Loggable,Locatable,Transfering {
 
 	private void handleRedAlert() {
 		User owner = this.owner;
-		Integer[] attackers = redAlertCheck( owner, this.getLocation(), false );
+		List<Integer> attackers = redAlertCheck( owner, false, this.getLocation() )
+			.values().iterator().next();
 
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		if( attackers.length > 0 ) {
+		if( !attackers.isEmpty() ) {
 			// Schauen wir mal ob wir noch ein Schiff mit rotem Alarm ohne Schlacht finden (sortiert nach Besitzer-ID)
 			Ship eship = (Ship)db.createQuery("from Ship where id>0 and x=? and y=? and " +
 					"system=? and lock is null and docked='' and e>0 and " +
@@ -1380,59 +1385,70 @@ public class Ship implements Loggable,Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt <code>true</code> zurueck, wenn der angegebene Sektor fuer den angegebenen Spieler
-	 * unter rotem Alarm steht, d.h. bei einem Einflug eine Schlacht gestartet wird
+	 * Gibt eine Liste von booleans zurueck, welche angeben ob ein angegebener Sektor fuer den angegebenen Spieler
+	 * unter rotem Alarm steht, d.h. bei einem Einflug eine Schlacht gestartet wird.
+	 * Die Reihenfolge der Liste entspricht der der uebergebenen Koordinaten. <code>true</code> kennzeichnet,
+	 * dass der Sektor unter rotem Alarm steht.
 	 * @param userid Die Spieler-ID
-	 * @param system Das System
-	 * @param x Die X-Koordinate
-	 * @param y Die Y-Koordinate
-	 * @return <code>true</code>, falls der Sektor fuer den Spieler unter rotem Alarm steht
+	 * @param locs Die Positionen, die ueberprueft werden sollen
+	 * @return Liste von Booleans in der Reihenfolge der Koordinaten.
 	 */
-	public static boolean getRedAlertStatus( int userid, int system, int x, int y ) {
+	public static boolean[] getRedAlertStatus( int userid, Location ... locs ) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
+		boolean[] results = new boolean[locs.length];
+		
 		User user = (User)db.get(User.class, userid);
 
-		Integer[] attackers = redAlertCheck(user, 
-				new Location(system, x, y), true);
-
-		if( attackers.length > 0 ) {
-			return true;
+		Map<Location,List<Integer>> result = redAlertCheck(user, true, locs);
+		
+		for( int i=0; i < locs.length; i++ ) {
+			results[i] = !result.get(locs[i]).isEmpty();
 		}
-		return false;
+		return results;
 	}
 
-	private static Integer[] redAlertCheck( User user, Location loc, boolean checkonly ) {
+	private static Map<Location,List<Integer>> redAlertCheck( User user, boolean checkonly, Location ... locs ) {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 
 		User.Relations relationlist = user.getRelations();
 
-		List<Integer> attackers = new ArrayList<Integer>();
+		Map<Location,List<Integer>> results = new HashMap<Location,List<Integer>>();
+		
+		StringBuilder builder = new StringBuilder("(");
+		for( int i=0; i < locs.length; i++ ) {
+			results.put(locs[i], new ArrayList<Integer>());
+			
+			if( builder.length() > 1 ) {
+				builder.append(" or ");
+			}
+			builder.append("(s.system="+locs[i].getSystem()+" and s.x="+locs[i].getX()+" and s.y="+locs[i].getY()+")");
+		}
+		builder.append(")");
 
-		List ownerList = db.createQuery("select distinct s.owner from Ship as s where s.id>0 and s.x=? and s.y=? and " +
-		"s.system=? and s.e>0 and s.owner!=? and s.alarm=1 and s.lock is null and s.docked='' and locate('nocrew',s.status)=0")
-		.setInteger(0, loc.getX())
-		.setInteger(1, loc.getY())
-		.setInteger(2, loc.getSystem())
-		.setEntity(3, user)
-		.list();
+		List ownerList = db.createQuery("select distinct s.owner,s.x,s.y,s.system from Ship as s where s.id>0 and "+builder +
+			" and s.e>0 and s.owner!=? and s.alarm=1 and s.lock is null and s.docked='' and locate('nocrew',s.status)=0")
+			.setEntity(0, user)
+			.list();
 		for( Iterator iter=ownerList.iterator(); iter.hasNext(); ) {
-			User auser = (User)iter.next();
+			Object[] data = (Object[])iter.next();
+			User auser = (User)data[0];
 
 			if( (auser.getVacationCount() != 0) && (auser.getWait4VacationCount() == 0) ) {
 				continue;	
 			}
 
 			if( relationlist.fromOther.get(auser.getId()) == User.Relation.ENEMY ) {
-				attackers.add(auser.getId());
+				Location loc = new Location((Integer)data[3], (Integer)data[1], (Integer)data[2]);
+				results.get(loc).add(auser.getId());
 				if( checkonly ) {
 					break;
 				}
 			} 
 		}
 
-		return attackers.toArray(new Integer[attackers.size()]);
+		return results;
 	}
 	
 	/**
@@ -1730,16 +1746,12 @@ public class Ship implements Loggable,Locatable,Transfering {
 
 					dockedcount = docks;
 					if( shiptype.getADocks() > 0 ) {
-						int adocks = ((Number)db.createQuery("select count(*) from Ship where id>0 and docked=?")
-								.setString(0, Integer.toString(fleetship.getId()))
-								.iterate().next()).intValue();
-
-						adockedcount = adocks;	
+						adockedcount = (int)fleetship.getDockedCount();	
 					} 
 				}
 
 				if( fleetship.getStatus().indexOf("offizier") > -1 ) {
-					fleetdata.offiziere.put(fleetship.getId(), Offizier.getOffizierByDest('s', fleetship.getId()));
+					fleetdata.offiziere.put(fleetship.getId(), fleetship.getOffizier());
 				}
 
 				fleetdata.dockedCount.put(fleetship.getId(), dockedcount);
@@ -1845,7 +1857,7 @@ public class Ship implements Loggable,Locatable,Transfering {
 		User user = this.owner;
 
 		ShipTypeData shiptype = this.getTypeData();
-		Offizier offizier = Offizier.getOffizierByDest('s',this.id);
+		Offizier offizier = getOffizier();
 
 		//Das Schiff soll sich offenbar bewegen
 		if( this.docked.length() != 0 ) {
@@ -1879,9 +1891,7 @@ public class Ship implements Loggable,Locatable,Transfering {
 					.iterate().next()).intValue();
 
 			if( shiptype.getADocks() > 0 ) {
-				adocked = ((Number)db.createQuery("select count(*) from Ship where id>0 and docked=?")
-						.setString(0, Integer.toString(this.id))
-						.iterate().next()).intValue();
+				adocked = (int)getDockedCount();
 			}
 		}
 
@@ -1977,8 +1987,9 @@ public class Ship implements Loggable,Locatable,Transfering {
 
 				// Schauen wir mal ob wir vor rotem Alarm warnen muessen
 				if( (startdistance > 1) && redalertlist.containsKey(nextLocation) ) {
-					Integer[] attackers = redAlertCheck(user, nextLocation, false);
-					if( attackers.length != 0 ) {
+					List<Integer> attackers = redAlertCheck(user, false, nextLocation)
+						.values().iterator().next();
+					if( !attackers.isEmpty() ) {
 						out.append("<span style=\"color:#ff0000\">Feindliche Schiffe in Alarmbereitschaft im n&auml;chsten Sektor geortet</span><br />\n");
 						out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
 						status = MovementStatus.BLOCKED_BY_RED_ALERT;
@@ -3211,5 +3222,55 @@ public class Ship implements Loggable,Locatable,Transfering {
 		}
 		
 		return true;
-	}	
+	}
+
+	/**
+	 * Gibt die Anzahl der an externen Docks gedockten Schiffe zurueck
+	 * @return Die Anzahl
+	 */
+	public long getDockedCount() {
+		if( getTypeData().getADocks() == 0 ) {
+			return 0;
+		}
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		return (Long)db.createQuery("select count(*) from Ship where id>0 AND docked=?")
+			.setString(0, Integer.toString(this.id))
+			.iterate().next();
+	}
+	
+	/**
+	 * Gibt die Anzahl der gelandeten Schiffe zurueck
+	 * @return Die Anzahl
+	 */
+	public long getLandedCount() {
+		if( getTypeData().getJDocks() == 0 ) {
+			return 0;
+		}
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		return (Long)db.createQuery("select count(*) from Ship where id>0 AND docked=?")
+			.setString(0, "l "+this.id)
+			.iterate().next();
+	}
+	
+	@Transient
+	private Offizier offizier;
+	
+	/**
+	 * Gibt den Offizier des Schiffes zurueck
+	 * @return Der Offizier
+	 */
+	public Offizier getOffizier() {
+		if( this.offizier == null ) {
+			this.offizier = Offizier.getOffizierByDest('s', this.id);
+		}
+		if( this.offizier != null ) {
+			String[] dest =  this.offizier.getDest();
+			if( !dest[0].equals("s") || Integer.parseInt(dest[1]) != this.id ) {
+				this.offizier = null;
+			}
+		}
+		return this.offizier;
+	}
 }
