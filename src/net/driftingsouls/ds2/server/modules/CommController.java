@@ -293,7 +293,7 @@ public class CommController extends TemplateGenerator implements Loggable {
 	 * @urlparam Integer pm_$pmid Die ID einer zu verschiebenden PM ($pmid gibt diese ebenfalls an)
 	 *
 	 */
-	@Action(ActionType.DEFAULT)
+	@Action(ActionType.AJAX)
 	public void moveAjaxAct() {
 		User user = (User)getUser();
 		parameterNumber("moveto");
