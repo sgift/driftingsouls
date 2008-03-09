@@ -375,14 +375,26 @@ public class SchiffeController extends TemplateGenerator implements Loggable {
 				if( ship.getDocked().length() > 0 ) {
 					if( ship.getDocked().charAt(0) != 'l' ) {
 						Ship master = (Ship)db.get(Ship.class, Integer.valueOf(ship.getDocked()));
-						t.setVar(	"ship.docked.name",	master.getName(),
-									"ship.docked.id",	master.getId() );
+						if( master == null ) {
+					 		// Notwendig bis ein Foreign Key fuer Docked exisitert (Ship.dock funktioniert hier nicht mehr)
+					 		ship.setDocked("");
+					 	}
+					 	else {
+							t.setVar(	"ship.docked.name",	master.getName(),
+										"ship.docked.id",	master.getId() );
+					 	}
 					}
 					else {
 					 	Integer dockid = Integer.valueOf(ship.getDocked().substring(2));
 					 	Ship master = (Ship)db.get(Ship.class, dockid);
-						t.setVar(	"ship.landed.name",	master.getName(),
-									"ship.landed.id",	master.getId() );
+					 	if( master == null ) {
+					 		// Notwendig bis ein Foreign Key fuer Docked exisitert (Ship.dock funktioniert hier nicht mehr)
+					 		ship.setDocked("");
+					 	}
+					 	else {
+					 		t.setVar(	"ship.landed.name",	master.getName(),
+					 					"ship.landed.id",	master.getId() );
+					 	}
 					}
 				}
 				
