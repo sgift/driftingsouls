@@ -210,18 +210,7 @@ public class UeberController extends TemplateGenerator implements Loggable {
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		String ticktime = "";
-		
-		// Letzten Tick ermitteln (Zeitpunkt)
-		try {
-			BufferedReader bf = new BufferedReader(new FileReader(Configuration.getSetting("LOXPATH")+"ticktime.log"));
-			ticktime = bf.readLine();
-			bf.close();
-		}
-		catch(IOException e ) {
-			System.err.println(e);
-			e.printStackTrace();
-		}
+		String ticktime = getTickTime();
 
 		String race = "???";
 		if( Rassen.get().rasse(user.getRace()) != null ) {
@@ -565,6 +554,26 @@ public class UeberController extends TemplateGenerator implements Loggable {
 								
 			t.parse("quests.list", "quests.listitem", true);
 		}
+	}
+
+	private String getTickTime() {
+		String ticktime = "";
+		
+		// Letzten Tick ermitteln (Zeitpunkt)
+		try {
+			BufferedReader bf = new BufferedReader(new FileReader(Configuration.getSetting("LOXPATH")+"ticktime.log"));
+			ticktime = bf.readLine();
+			bf.close();
+		}
+		catch(IOException e ) {
+			System.err.println(e);
+			e.printStackTrace();
+		}
+		
+		if( ticktime == null ) {
+			ticktime = "";
+		}
+		return ticktime;
 	}
 
 	private void showTutorialPages(int bases, long shipcount, int inttutorial) {
