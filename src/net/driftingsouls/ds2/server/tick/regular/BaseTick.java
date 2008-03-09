@@ -356,6 +356,8 @@ public class BaseTick extends TickController {
 			auser.setNahrungsStat(Long.toString(new Cargo(Cargo.Type.STRING, auser.getCargo()).getResourceCount(Resources.NAHRUNG)));
 		}
 		
+		getContext().commit();
+		
 		// Nun holen wir uns mal die Basen...
 		List bases = db.createQuery("from Base b join fetch b.owner where b.owner!=0 and (b.owner.vaccount=0 or b.owner.wait4vac!=0) order by b.owner").list();
 			
@@ -379,6 +381,18 @@ public class BaseTick extends TickController {
 					PM.send(sourceUser, this.lastowner, "Basis-Tick", this.pmcache.toString());
 					this.pmcache.setLength(0);
 				}
+				
+				try {
+					getContext().commit();
+				}
+				catch( Exception e ) {
+					getContext().rollback();
+					db.clear();
+					
+					this.log("Base Tick - User #"+this.lastowner+" failed: "+e);
+					e.printStackTrace();
+					Common.mailThrowable(e, "BaseTick - User #"+this.lastowner+" failed: "+e, "");
+				}
 								
 				this.usercargo = new Cargo( Cargo.Type.STRING, base.getOwner().getCargo());
 			}
@@ -388,6 +402,10 @@ public class BaseTick extends TickController {
 			// Nun wollen wir die Basis mal berechnen....
 			try {
 				this.tickBase(base);
+				
+				base.getOwner().setCargo(this.usercargo.save());
+				
+				getContext().commit();
 			}
 			catch( Exception e ) {
 				getContext().rollback();
@@ -397,16 +415,27 @@ public class BaseTick extends TickController {
 				e.printStackTrace();
 				Common.mailThrowable(e, "BaseTick - Base #"+base.getId()+" Exception", "");
 			}
-			base.getOwner().setCargo(this.usercargo.save());
-			
-			getContext().commit();
-			db.evict(base);
+			finally {
+				db.evict(base);
+			}
 		}
 		
 		// ggf noch vorhandene Userdaten schreiben
 		if( this.pmcache.length() != 0 ) {
 			PM.send(sourceUser, this.lastowner, "Basis-Tick", this.pmcache.toString());
 			this.pmcache.setLength(0);
+		}
+		
+		try {
+			getContext().commit();
+		}
+		catch( Exception e ) {
+			getContext().rollback();
+			db.clear();
+			
+			this.log("Base Tick - User #"+this.lastowner+" failed: "+e);
+			e.printStackTrace();
+			Common.mailThrowable(e, "BaseTick - User #"+this.lastowner+" failed: "+e, "");
 		}
 		
 		// Die neuen GTU-Verkaufsstats schreiben
@@ -442,25 +471,6 @@ public class BaseTick extends TickController {
 			this.log("Base Tick failed: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "BaseTick Exception", "");
-			
-			try {
-				getContext().rollback();
-				db.clear();
-				this.gtustatslist.clear();
-				this.pmcache.setLength(0);
-				this.lastowner = 0;
-				this.usercargo = null;
-				
-				tickBases();
-				getContext().commit();
-			}
-			catch( Exception e2 ) {
-				getContext().rollback();
-				
-				this.log("Base Tick failed #2: "+e2);
-				e2.printStackTrace();
-				Common.mailThrowable(e2, "BaseTick Exception #2", "");
-			}
 		}
 		finally {
 			// User-Accs wieder entsperren
