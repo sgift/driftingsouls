@@ -309,15 +309,15 @@ public class User extends BasicUser implements Loggable {
 		}
 
 		if( this.flagschiff == null ) {
-			ShipWerft swerft = (ShipWerft)db.createQuery("from ShipWerft as sw " +
-					"where (sw.buildFlagschiff=1 or sw.linkedWerft.buildFlagschiff=1) and sw.ship.owner=?")
+			ShipWerft swerft = (ShipWerft)db.createQuery("from ShipWerft as sw left join fetch sw.linkedWerft " +
+					"where (sw.buildFlagschiff=1 or (sw.linkedWerft is not null and sw.linkedWerft.buildFlagschiff=1)) and sw.ship.owner=?")
 				.setEntity(0, this)
 				.setMaxResults(1)
 				.uniqueResult();
 			
 			if( swerft == null ) {
-				BaseWerft bwerft = (BaseWerft)db.createQuery("from BaseWerft as bw " +
-						"where (bw.buildFlagschiff=1 or bw.linkedWerft.buildFlagschiff=1) and bw.base.owner=?")
+				BaseWerft bwerft = (BaseWerft)db.createQuery("from BaseWerft as bw left join fetch bw.linkedWerft " +
+						"where (bw.buildFlagschiff=1 or (bw.linkedWerft is not null and bw.linkedWerft.buildFlagschiff=1)) and bw.base.owner=?")
 					.setEntity(0, this)
 					.setMaxResults(1)
 					.uniqueResult();
