@@ -168,15 +168,16 @@ public class Ship implements Loggable,Locatable,Transfering {
 	 * @param owner Der Besitzer
 	 */
 	public Ship(User owner) {
-		setOwner(owner);
-		setCargo(new Cargo());
-		setDestCom("");
-		setName("");
-		setStatus("");
-		setJumpTarget("");
-		setHistory("");
-		setDocked("");
-		setWeaponHeat("");
+		this.owner = owner;
+		this.cargo = new Cargo();
+		this.destcom = "";
+		this.name = "";
+		this.status = "";
+		this.jumptarget = "";
+		this.history = "";
+		this.docked = "";
+		this.weaponHeat = "";
+		this.autodeut = 1;
 	}
 
 	/**
