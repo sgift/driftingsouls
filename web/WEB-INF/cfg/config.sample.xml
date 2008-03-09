@@ -58,6 +58,8 @@
 	<setting type="number" name="NOOB_PROTECTION" value="1" />
 	<setting type="number" name="DESTROYABLE_SHIPS" value="1" />
 	<setting type="number" name="ENABLE_CHEATS" value="1" />
+	<setting type="number" name="USE_NEW_FOOD_SYSTEM" value="0" />
+	<setting type="number" name="NAHRUNG_CHECKOUT_FACTOR" value="100" />
 	
 	<!-- Register -->
 	<setting type="string" name="REGISTER_BASELAYOUT" value="1,0,2,6,17,0,0,2,0,0,0,0,0,0,0,7,0,0,0,0,7,0,0,0,0,4,0,0,0,3,4,0,0,0,5,4,0,0,0,5" />

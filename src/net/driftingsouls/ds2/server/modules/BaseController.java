@@ -47,7 +47,7 @@ import org.apache.commons.lang.StringEscapeUtils;
  * @urlparam Integer col Die ID der Basis
  */
 public class BaseController extends TemplateGenerator {
-	private static final int NAHRUNG_CHECKOUT_FACTOR = 100;
+	private static final int NAHRUNG_CHECKOUT_FACTOR = Configuration.getIntSetting("NAHRUNG_CHECKOUT_FACTOR");
 	
 	private Base base;
 	
