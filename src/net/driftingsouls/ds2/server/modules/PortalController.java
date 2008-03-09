@@ -843,7 +843,11 @@ public class PortalController extends TemplateGenerator {
 		 * 
 		 */
 		
-		String browser = getRequest().getUserAgent().toLowerCase();
+		String browser = getRequest().getUserAgent();
+		if( browser == null ) {
+			browser = "";
+		}
+		browser = browser.toLowerCase();
 		String browsername = null;
 		if( browser.indexOf("opera") != -1 ) {
 			browsername = "opera";
