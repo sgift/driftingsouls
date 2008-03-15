@@ -387,7 +387,8 @@ public class BaseTick extends TickController {
 				}
 				catch( Exception e ) {
 					getContext().rollback();
-					db.clear();
+					HibernateFacade.evictAll(db, PM.class);
+					db.evict(db.get(User.class, this.lastowner));
 					
 					this.log("Base Tick - User #"+this.lastowner+" failed: "+e);
 					e.printStackTrace();
@@ -409,7 +410,6 @@ public class BaseTick extends TickController {
 			}
 			catch( Exception e ) {
 				getContext().rollback();
-				db.clear();
 				
 				this.log("Base Tick - Base #"+base.getId()+" failed: "+e);
 				e.printStackTrace();
