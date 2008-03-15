@@ -575,7 +575,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			// toArray(T[]) fuehrt hier leider zu Warnungen...
 			Ship[] undockarray = new Ship[ships.size()];
 			for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
-				undockarray[count++] = (Ship)ships.iterator();
+				undockarray[count++] = (Ship)iter.next();
 			}
 						
 			output.append((jdockcount-shiptype.getJDocks())+" gelandete Schiffe wurden gestartet\n");
@@ -597,7 +597,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			// toArray(T[]) fuehrt hier leider zu Warnungen...
 			Ship[] undockarray = new Ship[ships.size()];
 			for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
-				undockarray[count++] = (Ship)ships.iterator();
+				undockarray[count++] = (Ship)iter.next();
 			}
 			
 			output.append((adockcount-shiptype.getADocks())+" extern gedockte Schiffe wurden abgedockt\n");
