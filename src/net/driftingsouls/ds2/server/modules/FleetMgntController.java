@@ -1065,7 +1065,7 @@ public class FleetMgntController extends TemplateGenerator {
 			ShipFleet afleet = (ShipFleet)iter.next();
 			
 			long count = (Long)db.createQuery("select count(*) from Ship where fleet=?")
-				.setEntity(0, this.fleet)
+				.setEntity(0, afleet)
 				.iterate().next();
 			
 			t.setVar(	"fleetcombine.id",			afleet.getId(),
