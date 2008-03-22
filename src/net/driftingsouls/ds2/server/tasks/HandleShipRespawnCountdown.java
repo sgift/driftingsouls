@@ -148,7 +148,7 @@ class HandleShipRespawnCountdown implements TaskHandler {
 						querylp.add("'s "+(-shipid)+"'");
 					}
 					else if( afield.getString("Field").equals("id") ) {
-						querylp.add("''");
+						querylp.add("NULL");
 					}
 					else {
 						if( (offizier.get(afield.getString("Field")) == null) && afield.getString("Null").equals("YES") ) {
@@ -183,7 +183,7 @@ class HandleShipRespawnCountdown implements TaskHandler {
 						querylp.add("'"+(-shipid)+"'");
 					}
 					else if( afield.getString("Field").equals("id") ) {
-						querylp.add("''");
+						querylp.add("NULL");
 					}
 					else {
 						if( (werftentry.get(afield.getString("Field")) == null) && afield.getString("Null").equals("YES") ) {
