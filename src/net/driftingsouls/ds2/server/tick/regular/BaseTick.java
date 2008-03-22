@@ -457,8 +457,6 @@ public class BaseTick extends TickController {
 
 	@Override
 	protected void tick() {
-		org.hibernate.Session db = getDB();
-		
 		// User-Accs sperren
 		block(0);
 		getContext().commit();
