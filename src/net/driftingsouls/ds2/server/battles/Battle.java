@@ -1716,7 +1716,7 @@ public class Battle implements Loggable, Locatable {
 	
 				this.logenemy("]]></action>\n");
 	
-				this.logenemy("<side"+(i+1)+" commander=\""+this.getCommanders()[i]+"\" ally=\""+this.getAllys()[i]+"\" />\n");
+				this.logenemy("<side"+(i+1)+" commander=\""+this.getCommanders()[i].getId()+"\" ally=\""+this.getAllys()[i]+"\" />\n");
 	
 				this.setTakeCommand(i, 0);
 			}
