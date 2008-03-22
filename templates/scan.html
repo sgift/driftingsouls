@@ -12,7 +12,7 @@
 		
 		{if sector.nebel}
 			<tr>
-				<td class="show2"><span class="smallfont">{sector.nebel.id}</span></td>
+				<td class="show2"></td>
 				<td class="show2">&nbsp;</td>
 				<td class="show2">&nbsp;</td>
 				<td class="show2"><img src="{URL}data/objects/nebel{sector.nebel.type}.png"></td>
@@ -118,7 +118,7 @@
 						</span>
 					</td>
 					<td class="show2">
-						<a target="main" class="noborder" onmouseover="return overlib('{ship.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" target="_blank" href="./main.php?module=schiffinfo&sess={global.sess}&ship={ship.type}">
+						<a target="main" class="noborder" onmouseover="return overlib('{ship.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" target="_blank" href="./ds?module=schiffinfo&sess={global.sess}&ship={ship.type}">
 							<img src="{global.user.imagepath}{ship.type.picture}" alt="">
 						</a>
 					</td>
@@ -135,7 +135,7 @@
 		function scanSector(xcoord,ycoord) {
 			document.getElementById('coords').firstChild.nodeValue = "Scan von "+xcoord+"/"+ycoord;
 
-			sector.location.href = "main.php?module=scan&sess={global.sess}&action=scan&ship={global.ship.id}&admin={global.admin}&baseloc={global.baseloc}&range={global.baserange}&scanx="+xcoord+"&scany="+ycoord;
+			sector.location.href = "ds?module=scan&sess={global.sess}&action=scan&ship={global.ship.id}&admin={global.admin}&baseloc={global.baseloc}&range={global.baserange}&scanx="+xcoord+"&scany="+ycoord;
 		}
 	-->
 	</script>
@@ -194,7 +194,7 @@
 		</td>
 		<td class="noBorderS">&nbsp;&nbsp;&nbsp;&nbsp;</td>
 		<td class="noBorderS" valign="top">
-			<iframe src="main.php?module=scan&amp;sess={global.sess}&amp;action=scan&amp;ship={global.ship.id}&amp;admin={global.admin}&amp;baseloc={global.baseloc}&amp;range={global.baserange}&amp;scanx={global.scan.x}&amp;scany={global.scan.y}" name="sector" width="550" height="700" scrolling="auto" marginheight="0" marginwidth="0" frameborder="0">
+			<iframe src="ds?module=scan&amp;sess={global.sess}&amp;action=scan&amp;ship={global.ship.id}&amp;admin={global.admin}&amp;baseloc={global.baseloc}&amp;range={global.baserange}&amp;scanx={global.scan.x}&amp;scany={global.scan.y}" name="sector" width="550" height="700" scrolling="auto" marginheight="0" marginwidth="0" frameborder="0">
 				Dein Browser kann leider keine iframes anzeigen. Am besten installierst du einen Browser neueren Datums wie z.B. <a class="forschinfo" href="http://www.mozilla.org">Mozilla Firefox</a>
 			</iframe>
 		</td>

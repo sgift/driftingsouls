@@ -20,22 +20,29 @@ package net.driftingsouls.ds2.server.modules;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.MutableLocation;
+import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.entities.Ally;
+import net.driftingsouls.ds2.server.entities.JumpNode;
+import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipType;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
@@ -49,7 +56,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
  *
  */
 public class ScanController extends TemplateGenerator {
-	private SQLResultRow ship = null;
+	private Ship ship = null;
 	private int range = 0;
 	private boolean admin = false;
 	
@@ -66,32 +73,40 @@ public class ScanController extends TemplateGenerator {
 		parameterString("baseloc");
 		
 		setTemplate("scan.html");
+		
+		setPageTitle("LRS");
 	}
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		admin = getInteger("admin") != 0 && getUser().getAccessLevel() >= 30;
 		int shipID = -1;
 		
 		if( !admin ) {
 			shipID = getInteger("ship");
 			
-			SQLResultRow ship = db.first("SELECT id,x,y,system,sensors,crew,type,status FROM ships WHERE owner='",getUser().getId(),"' AND id>0 AND id=",shipID);
+			Ship ship = (Ship)db.get(Ship.class, shipID);
 	
-			if( ship.isEmpty() ) {
+			if( (ship == null) || (ship.getOwner().getId() != getUser().getId()) || (ship.getId() < 0) ) {
 				addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht", Common.buildUrl("default", "module", "schiffe") );
 				
 				return false;
 			}
 			
-			SQLResultRow shiptype = ShipTypes.getShipType( ship );
-			int range = shiptype.getInt("sensorrange");
+			ShipTypeData shiptype = ship.getTypeData();
+			
+			if( shiptype.getScanCost() > ship.getEnergy()) {
+				addError("Nicht genug Energie vorhanden zum Scannen.");
+				return false;
+			}
+			
+			int range = shiptype.getSensorRange();
 	
 			// Sollte das Schiff in einem Nebel stehen -> halbe Scannerreichweite
-			SQLResultRow nebel = db.first("SELECT * FROM nebel WHERE x=",ship.getInt("x")," AND y=",ship.getInt("y")," AND system=",ship.getInt("system"));
-			if( !nebel.isEmpty() ) {
-				switch( nebel.getInt("type") ) {
+			Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(ship));
+			if( nebel != null ) {
+				switch( nebel.getType() ) {
 				// Norm. Deut, DMG
 				case 0:
 				case 6: 
@@ -115,13 +130,13 @@ public class ScanController extends TemplateGenerator {
 				}
 			}
 	
-			if( ship.getInt("crew") < shiptype.getInt("crew")/3 ) {
-				addError("Es werden mindestens "+shiptype.getInt("crew")/3+" Crewmitglieder ben&ouml;tigt", Common.buildUrl("default", "module", "schiff", "ship", shipID));
+			if( ship.getCrew() < shiptype.getCrew()/3 ) {
+				addError("Es werden mindestens "+shiptype.getCrew()/3+" Crewmitglieder ben&ouml;tigt", Common.buildUrl("default", "module", "schiff", "ship", shipID));
 				
 				return false;
 			}
 			
-			range = (int)Math.round(range*(ship.getInt("sensors")/100d));
+			range = (int)Math.round(range*(ship.getSensors()/100d));
 			
 			this.range = range;
 			this.ship = ship;
@@ -129,10 +144,10 @@ public class ScanController extends TemplateGenerator {
 		else {
 			this.range = getInteger("range");
 			Location loc = Location.fromString(getString("baseloc"));
-			this.ship = new SQLResultRow();
-			this.ship.put("x", loc.getX());
-			this.ship.put("y", loc.getY());
-			this.ship.put("system", loc.getSystem());
+			this.ship = new Ship();
+			this.ship.setX(loc.getX());
+			this.ship.setY(loc.getY());
+			this.ship.setSystem(loc.getSystem());
 			
 			this.getTemplateEngine().setVar(	
 					"global.admin",	1,
@@ -142,8 +157,8 @@ public class ScanController extends TemplateGenerator {
 		
 		this.getTemplateEngine().setVar(	"global.ship.id",	shipID,
 											"global.range",		this.range+1,
-											"global.scan.x",	ship.getInt("x"),
-											"global.scan.y",	ship.getInt("y") );
+											"global.scan.x",	ship.getX(),
+											"global.scan.y",	ship.getY() );
 		
 		return true;	
 	}
@@ -157,8 +172,15 @@ public class ScanController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void scanAction() {
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
+		
+		if(ship.getTypeData().getPickingCost() > ship.getEnergy())
+		{
+			return;
+		}
+		
+		ship.setEnergy(ship.getEnergy() - ship.getTypeData().getPickingCost());
 		
 		parameterNumber("scanx");
 		parameterNumber("scany");
@@ -166,7 +188,7 @@ public class ScanController extends TemplateGenerator {
 		int scanx = getInteger("scanx");
 		int scany = getInteger("scany");
 		
-		final int system = this.ship.getInt("system");
+		final int system = this.ship.getSystem();
 		
 		t.setVar("global.scansector",1);
 		
@@ -178,25 +200,34 @@ public class ScanController extends TemplateGenerator {
 			return;
 		}
 		
-		if( Math.round(Math.sqrt(Math.pow(scany-this.ship.getInt("y"),2)+Math.pow(scanx-this.ship.getInt("x"),2))) > this.range ) {
+		if( Math.round(Math.sqrt(Math.pow(scany-this.ship.getY(),2)+Math.pow(scanx-this.ship.getX(),2))) > this.range ) {
 			return;
 		}
+		
+		final Location scanLoc = new Location(system, scanx, scany);
 		
 		t.setVar("sector.isscanable",1);
 		
 		boolean scanableNebel = false;
 	
-		SQLResultRow nebel = db.first("SELECT * FROM nebel WHERE x=",scanx," AND y=",scany," AND system="+system);
-		if( !this.admin && !nebel.isEmpty() && ((nebel.getInt("type") < 3) || (nebel.getInt("type") > 5)) ) {
-			SQLQuery nebelship = db.query("SELECT id,status,type,sensors,crew FROM ships WHERE id>0 AND x=",scanx," AND y=",scany," AND system=",system," AND owner=",user.getId()," AND sensors > 30");
-			while( nebelship.next() ) {
-				SQLResultRow ownshiptype = ShipTypes.getShipType( nebelship.getRow() );	
-				if( nebelship.getInt("crew") >= ownshiptype.getInt("crew")/4 ) {
+		Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(scanLoc));
+		if( !this.admin && (nebel != null) && ((nebel.getType() < 3) || (nebel.getType() > 5)) ) {
+			List nebelships = db.createQuery("from Ship where id>0 and x= :x and y= :y and system= :sys and owner= :owner and sensors>30)")
+				.setInteger("x", scanLoc.getX())
+				.setInteger("y", scanLoc.getY())
+				.setInteger("sys", scanLoc.getSystem())
+				.setEntity("owner", user)
+				.list();
+			
+			for( Iterator iter=nebelships.iterator(); iter.hasNext(); ) {
+				Ship nebelship = (Ship)iter.next();
+				
+				ShipTypeData ownshiptype = nebelship.getTypeData();	
+				if( nebelship.getCrew() >= ownshiptype.getCrew()/4 ) {
 					scanableNebel = true;
 					break;
 				}
 			}
-			nebelship.free();
 		}
 		// Im Admin-Modus sind alle Nebel scanbar
 		else if( this.admin ) {
@@ -207,38 +238,41 @@ public class ScanController extends TemplateGenerator {
 			Nebel
 		*/
 
-		if( !nebel.isEmpty() && !scanableNebel ) {
+		if( (nebel != null) && !scanableNebel ) {
 			t.setVar(	"sector.nebel",			1,
-						"sector.nebel.id",		"Nebel",
-						"sector.nebel.type",	nebel.getInt("type") );
+						"sector.nebel.type",	nebel.getType() );
 		}
 		else {
-			if( !nebel.isEmpty() ) {
+			if( nebel != null ) {
 				t.setVar(	"sector.nebel",			1,
-							"sector.nebel.id",		"Nebel",
-							"sector.nebel.type",	nebel.getInt("type") );
+							"sector.nebel.type",	nebel.getType() );
 			}
 			/*
 				Basen
 			*/
 			t.setBlock("_SCAN", "bases.listitem", "bases.list");
 			
-			SQLQuery datan = db.query("SELECT b.id,b.owner,b.klasse,b.name,b.size,u.name username " +
-					"FROM bases b JOIN users u ON b.owner=u.id " +
-					"WHERE b.system=",system," AND FLOOR(SQRT(POW(",scanx,"-b.x,2)+POW(",scany,"-b.y,2))) <= b.size " +
-					"ORDER BY b.id");
-			while( datan.next() ) {
+			List bases = db.createQuery("from Base b inner join fetch b.owner " +
+					"where b.system= :sys and floor(sqrt(pow( :x - b.x,2)+pow( :y - b.y,2))) <= b.size " +
+					"order by b.id")
+				.setInteger("x", scanLoc.getX())
+				.setInteger("y", scanLoc.getY())
+				.setInteger("sys", scanLoc.getSystem())
+				.list();
+			for( Iterator iter=bases.iterator(); iter.hasNext(); ) {
+				Base base = (Base)iter.next();
+				
 				t.start_record();
 				
-				t.setVar(	"base.id",			datan.getInt("id"),
-							"base.isown",		(datan.getInt("owner") == user.getId()),
-							"base.owner.id",	datan.getInt("owner"),
-							"base.owner.name",	Common._title(datan.getString("username")),
-							"base.name",		Common._plaintitle(datan.getString("name")),
-							"base.size",		datan.getInt("size"),
-							"base.klasse",		datan.getInt("klasse") );
+				t.setVar(	"base.id",			base.getId(),
+							"base.isown",		(base.getOwner().getId() == user.getId()),
+							"base.owner.id",	base.getOwner().getId(),
+							"base.owner.name",	Common._title(base.getOwner().getName()),
+							"base.name",		Common._plaintitle(base.getName()),
+							"base.size",		base.getSize(),
+							"base.klasse",		base.getKlasse() );
 				
-				if( (datan.getInt("owner") != 0) && (datan.getInt("owner") != user.getId()) ) {
+				if( (base.getOwner().getId() != 0) && (base.getOwner().getId() != user.getId()) ) {
 					t.setVar("base.owner.link", 1);
 				}
 				
@@ -246,21 +280,25 @@ public class ScanController extends TemplateGenerator {
 				t.stop_record();
 				t.clear_record();
 			}
-			datan.free();
 	
 			/*
 				Jumpnodes
 			*/	
-			SQLResultRow node = db.first("SELECT * FROM jumpnodes WHERE x=",scanx," AND y=",scany," AND system=",system);
-			if( !node.isEmpty() ) {
+			JumpNode node = (JumpNode)db.createQuery("from JumpNode where x= :x and y= :y and system= :sys")
+				.setInteger("x", scanLoc.getX())
+				.setInteger("y", scanLoc.getY())
+				.setInteger("sys", scanLoc.getSystem())
+				.setMaxResults(1)
+				.uniqueResult();
+			if( node != null ) {
 				String blocked = "";
-				if( node.getBoolean("gcpcolonistblock") && Rassen.get().rasse(user.getRace()).isMemberIn( 0 ) ) {
+				if( node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn( 0 ) ) {
 					blocked = "<br />-Blockiert-";
 				}
 				
 				t.setVar(	"sector.jumpnode",	1,
-							"jumpnode.id",		node.getInt("id"),
-							"jumpnode.name",	node.getString("name"),
+							"jumpnode.id",		node.getId(),
+							"jumpnode.name",	node.getName(),
 							"jumpnode.blocked",	blocked );
 			}
 	
@@ -268,39 +306,45 @@ public class ScanController extends TemplateGenerator {
 				Schlachten
 			*/
 			t.setBlock("_SCAN", "battles.listitem", "battles.list");
-			
-			SQLQuery battle = db.query("SELECT * FROM battles WHERE x=",scanx," AND y=",scany," AND system=",system);
-			while( battle.next() ) {
+			List battleList = db.createQuery("from Battle where x= :x and y= :y and system= :sys")
+				.setInteger("x", scanLoc.getX())
+				.setInteger("y", scanLoc.getY())
+				.setInteger("sys", scanLoc.getSystem())
+				.list();
+			for( Iterator iter=battleList.iterator(); iter.hasNext(); ) {
+				Battle battle = (Battle)iter.next();
+				
 				boolean questbattle = false;
 				
-				if( (battle.getString("visibility") != null) && (battle.getString("visibility").length() != 0) ) {
-					Integer[] visibility = Common.explodeToInteger(",",battle.getString("visibility"));
-					if( !Common.inArray(user.getId(),visibility) ) {
-						questbattle = true;
-					}
+				if( !battle.isVisibleToUser(user) ) {
+					questbattle = true;
 				}
 
 				String party1 = "";
-				if( battle.getInt("ally1") == 0 ) {
-					User com1 = (User)getDB().get(User.class, battle.getInt("commander1"));
-					party1 = Common._title(com1.getName());
+				if( battle.getAlly(0) == 0 ) {
+					final User commander1 = battle.getCommander(0);
+					party1 = Common._title(commander1.getName());
 				} 
 				else {
-					party1 = Common._title(db.first("SELECT name FROM ally WHERE id=",battle.getInt("ally1")).getString("name"));
+					Ally ally = (Ally)db.get(Ally.class, battle.getAlly(0));
+					party1 = Common._title(ally.getName());
 				}
 	
 				String party2 = "";
-				if( battle.getInt("ally2") == 0 ) {
-					User com2 = (User)getDB().get(User.class, battle.getInt("commander2"));
-					party2 = Common._title(com2.getName());
+				if( battle.getAlly(1) == 0 ) {
+					final User commander2 = battle.getCommander(1);
+					party2 = Common._title(commander2.getName());
 				} 
 				else {
-					party2 = Common._title(db.first("SELECT name FROM ally WHERE id=",battle.getInt("ally2")).getString("name"));
+					Ally ally = (Ally)db.get(Ally.class, battle.getAlly(1));
+					party2 = Common._title(ally.getName());
 				}
 					
-				int shipcount = db.first("SELECT count(*) count FROM ships WHERE id>0 AND battle=",battle.getInt("id")).getInt("count");
+				long shipcount = (Long)db.createQuery("select count(*) from Ship where id>0 and battle= :battle")
+					.setEntity("battle", battle)
+					.iterate().next();
 				
-				t.setVar(	"battle.id",			battle.getInt("id"),
+				t.setVar(	"battle.id",			battle.getId(),
 							"battle.isquestbattle",	questbattle,
 							"battle.party1",		party1,
 							"battle.party2",		party2,
@@ -308,15 +352,18 @@ public class ScanController extends TemplateGenerator {
 				
 				t.parse("battles.list", "battles.listitem", true);
 			}
-			battle.free();
 
 			/*
 				Subraumspalten (durch Sprungantriebe)
 			*/
 
-			SQLResultRow jumps = db.first("SELECT count(*) count FROM jumps WHERE x=",scanx," AND y=",scany," AND system=",system);
-			if( !jumps.isEmpty() ) {
-				t.setVar("sector.subraumspalten", jumps.getInt("count"));
+			long jumps = (Long)db.createQuery("select count(*) from Jump where x= :x and y= :y and system= :sys")
+				.setInteger("x", scanLoc.getX())
+				.setInteger("y", scanLoc.getY())
+				.setInteger("sys", scanLoc.getSystem())
+				.iterate().next();
+			if( jumps > 0 ) {
+				t.setVar("sector.subraumspalten", jumps);
 			}
 
 			/*
@@ -329,41 +376,49 @@ public class ScanController extends TemplateGenerator {
 			verysmallshiptypes.add(0); // Ein dummy-Wert, damit es keine SQL-Fehler gibt
 			
 			// Falls nicht im Admin-Modus und nicht das aktuelle Feld gescannt wird: Liste der kleinen Schiffe generieren
-			if( !this.admin && (scanx != this.ship.getInt("x")) || (scany != this.ship.getInt("y")) ) {
-				SQLQuery stid = db.query("SELECT id FROM ship_types WHERE LOCATE('",ShipTypes.SF_SEHR_KLEIN,"',flags)");
-				while( stid.next() ) {
-					verysmallshiptypes.add(stid.getInt("id"));
+			if( !this.admin && (scanx != this.ship.getX()) || (scany != this.ship.getY()) ) {
+				final Iterator typeIter = db.createQuery("from ShipType where locate(:flag,flags)!=0")
+					.setString("flag", ShipTypes.SF_SEHR_KLEIN)
+					.iterate();
+				while( typeIter.hasNext() ) {
+					ShipType type = (ShipType)typeIter.next();
+					verysmallshiptypes.add(type.getId());
 				}
-				stid.free();
 			}
 			
-			SQLQuery datas = db.query("SELECT s.id,s.owner,s.name,s.type,s.docked,s.status,u.name username,s.battle " ,
-					"FROM ships s JOIN users u ON s.owner=u.id " ,
-					"WHERE s.id>0 AND s.x=",scanx," AND s.y=",scany," AND s.system=",system," AND s.battle is null AND " ,
-						"(!(s.type IN (",Common.implode(",",verysmallshiptypes),")) OR LOCATE('tblmodules',s.status)) AND " ,
-						"(s.visibility IS NULL OR s.visibility='",user.getId(),"') AND !LOCATE('l ',s.docked) " ,
-						"ORDER BY s.id");
+			List shiplist = db.createQuery("from Ship s inner join fetch s.owner " +
+					"where s.id>0 and s.x= :x and s.y= :y and s.system= :sys and s.battle is null and " +
+						"((s.shiptype not in ("+Common.implode(",",verysmallshiptypes)+")) or s.modules is not null) and " +
+						"(s.visibility is null or s.visibility= :user) and locate('l ',s.docked)=0 " +
+						"order by s.id")
+					.setInteger("x", scanLoc.getX())
+					.setInteger("y", scanLoc.getY())
+					.setInteger("sys", scanLoc.getSystem())
+					.setInteger("user", user.getId())
+					.list();
 						
-			while( datas.next() ) {
-				boolean disableIFF = (datas.getString("status").indexOf("disable_iff") > -1);
-				SQLResultRow shiptype = ShipTypes.getShipType( datas.getRow() );
+			for( Iterator iter=shiplist.iterator(); iter.hasNext(); ) {
+				Ship ship = (Ship)iter.next();
+				
+				boolean disableIFF = ship.getStatus().contains("disable_iff");
+				ShipTypeData shiptype = ship.getTypeData();
 				
 				// Falls nicht im Admin-Modus: Nur sehr kleine Schiffe im Feld des scannenden Schiffes anzeigen
-				if( !this.admin && ((scanx != this.ship.getInt("x")) || (scany != this.ship.getInt("y"))) &&
-					ShipTypes.hasShipTypeFlag(shiptype, ShipTypes.SF_SEHR_KLEIN) ) {
+				if( !this.admin && ((scanx != this.ship.getX()) || (scany != this.ship.getY())) &&
+					shiptype.hasFlag(ShipTypes.SF_SEHR_KLEIN) ) {
 					continue;	
 				}
 				
-				t.setVar(	"ship.id",				datas.getInt("id"),
-							"ship.isown",			(datas.getInt("owner") == user.getId()),
-							"ship.owner.id",		datas.getInt("owner"),
-							"ship.name",			Common._plaintitle(datas.getString("name")),
-							"ship.owner.name",		Common._title(datas.getString("username")),
-							"ship.ownerlink",		(datas.getInt("owner") != user.getId()),
-							"ship.battle",			datas.getInt("battle"),
-							"ship.type.name",		shiptype.getString("nickname"),
-							"ship.type",			datas.getInt("type"),
-							"ship.type.picture",	shiptype.getString("picture") );
+				t.setVar(	"ship.id",				ship.getId(),
+							"ship.isown",			(ship.getOwner().getId() == user.getId()),
+							"ship.owner.id",		ship.getOwner().getId(),
+							"ship.name",			Common._plaintitle(ship.getName()),
+							"ship.owner.name",		Common._title(ship.getOwner().getName()),
+							"ship.ownerlink",		(ship.getOwner().getId() != user.getId()),
+							"ship.battle",			ship.getBattle() != null ? ship.getBattle().getId() : 0,
+							"ship.type.name",		shiptype.getNickname(),
+							"ship.type",			ship.getType(),
+							"ship.type.picture",	shiptype.getPicture() );
 	
 				if( disableIFF ) {
 					t.setVar(	"ship.owner.name",	"Unbekannt",
@@ -371,7 +426,6 @@ public class ScanController extends TemplateGenerator {
 				}
 				t.parse("ships.list", "ships.listitem", true);
 			}
-			datas.free();
 		}
 	}
 
@@ -379,49 +433,47 @@ public class ScanController extends TemplateGenerator {
 		BaseEntry() {
 			// EMPTY
 		}
-		int id;
-		int owner;
-		int ally;
-		int klasse;
-		int size;
+		Base base;
 		int imgcount;
 	}
 
 	/**
 	 * Zeigt die LRS-Karte an
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
+		
+		ship.setEnergy(ship.getEnergy() - ship.getTypeData().getScanCost());
 		
 		/*
 			Alle Objekte zusammensuchen, die fuer uns in Frage kommen
 		*/
 		
-		String rangesql = "system="+this.ship.getInt("system")+" AND " +
-					"(x BETWEEN "+(this.ship.getInt("x")-this.range)+" AND "+(this.ship.getInt("x")+this.range)+") AND " +
-					"(y BETWEEN "+(this.ship.getInt("y")-this.range)+" AND "+(this.ship.getInt("y")+this.range)+")";
+		String rangesql = "system="+this.ship.getSystem()+" and " +
+					"(x between "+(this.ship.getX()-this.range)+" and "+(this.ship.getX()+this.range)+") and " +
+					"(y between "+(this.ship.getY()-this.range)+" and "+(this.ship.getY()+this.range)+")";
 
 		// Nebel
 		Map<Location,Integer> nebelmap = new HashMap<Location,Integer>();
 
-		SQLQuery nebelRow = db.query("SELECT * FROM nebel WHERE ",rangesql);
-		while( nebelRow.next() ) {
-			nebelmap.put(new Location(ship.getInt("system"), nebelRow.getInt("x"), nebelRow.getInt("y")), nebelRow.getInt("type"));
+		List nebelList = db.createQuery("from Nebel where "+rangesql).list();
+		for( Iterator iter=nebelList.iterator(); iter.hasNext(); ) {
+			Nebel nebel = (Nebel)iter.next();
+			nebelmap.put(nebel.getLocation(), nebel.getType());
 		}
-		nebelRow.free();
 		
 		// Jumpnodes
 		Map<Location,Boolean> nodemap = new HashMap<Location,Boolean>();
 
-		SQLQuery nodeRow = db.query("SELECT id,x,y FROM jumpnodes WHERE ",rangesql);
-		while( nodeRow.next() ) {
-			nodemap.put(new Location(ship.getInt("system"), nodeRow.getInt("x"), nodeRow.getInt("y")), true);
+		List nodeList = db.createQuery("from JumpNode where "+rangesql).list();
+		for( Iterator iter=nodeList.iterator(); iter.hasNext(); ) {
+			JumpNode node = (JumpNode)iter.next();
+			nodemap.put(node.getLocation(), true);
 		}
-		nodeRow.free();
 
 		// Schiffe
 		List<Integer> verysmallshiptypes = new ArrayList<Integer>();
@@ -429,68 +481,74 @@ public class ScanController extends TemplateGenerator {
 		
 		// Im Admin-Modus sind alle Schiffe sichtbar
 		if( !this.admin ) {
-			SQLQuery stid = db.query("SELECT id FROM ship_types WHERE LOCATE('",ShipTypes.SF_SEHR_KLEIN,"',flags)");
-			while( stid.next() ) {
-				verysmallshiptypes.add(stid.getInt("id"));
+			final Iterator typeIter = db.createQuery("from ShipType where locate(:flag,flags)!=0")
+				.setString("flag", ShipTypes.SF_SEHR_KLEIN)
+				.iterate();
+			while( typeIter.hasNext() ) {
+				ShipType type = (ShipType)typeIter.next();
+				verysmallshiptypes.add(type.getId());
 			}
-			stid.free();
 		}
 		
-		Map<Location,List<SQLResultRow>> shipmap = new HashMap<Location,List<SQLResultRow>>();
+		Map<Location,List<Ship>> shipmap = new HashMap<Location,List<Ship>>();
 		Map<Location,Boolean> ownshipmap = new HashMap<Location,Boolean>();
 
-		SQLQuery sRow = db.query("SELECT t1.id,t1.x,t1.y,t2.ally,t1.owner,t1.docked,t1.crew,t1.sensors,t1.type,t1.status " ,
-								"FROM ships t1 JOIN users t2 ON t1.owner=t2.id " ,
-								"WHERE t1.id>0 AND ",rangesql," AND (t1.visibility IS NULL OR t1.visibility='",user.getId(),"') AND " ,
-										"(!(t1.type IN (",Common.implode(",",verysmallshiptypes),")) OR LOCATE('tblmodules',t1.status))");
-		while( sRow.next() ) {
-			SQLResultRow st = ShipTypes.getShipType(sRow.getRow());
+		List shipList = db.createQuery("from Ship s inner join fetch s.owner " +
+				"where s.id>0 and "+rangesql+" and (s.visibility is null or s.visibility= :user ) and " +
+					"((s.shiptype not in ("+Common.implode(",",verysmallshiptypes)+")) or s.modules is not null)")
+			.setInteger("user", user.getId())
+			.list();
+		for( Iterator iter=shipList.iterator(); iter.hasNext(); ) {
+			Ship ship = (Ship)iter.next();
+			
+			ShipTypeData st = ship.getTypeData();
 			
 			// Im Admin-Modus sind alle Schiffe sichtbar
-			if( !this.admin && ShipTypes.hasShipTypeFlag(st, ShipTypes.SF_SEHR_KLEIN) ) {
+			if( !this.admin && st.hasFlag(ShipTypes.SF_SEHR_KLEIN) ) {
 				continue;	
 			}
 			
-			Location loc = new Location(ship.getInt("system"), sRow.getInt("x"), sRow.getInt("y"));
+			Location loc = ship.getLocation();
 			if( !shipmap.containsKey(loc) ) {
-				shipmap.put(loc, new ArrayList<SQLResultRow>());
+				shipmap.put(loc, new ArrayList<Ship>());
 			}
-			shipmap.get(loc).add(sRow.getRow());
+			shipmap.get(loc).add(ship);
 
-			if( (sRow.getInt("owner") == user.getId()) && (sRow.getInt("sensors")>30) && !ownshipmap.containsKey(loc) ) {			
-				if( sRow.getInt("crew") >= st.getInt("crew")/4 ) {
+			if( (ship.getOwner().getId() == user.getId()) && (ship.getSensors()>30) && !ownshipmap.containsKey(loc) ) {			
+				if( ship.getCrew() >= st.getCrew()/4 ) {
 					ownshipmap.put(loc, true);
 				}
 			}
 		}
-		sRow.free();
 		
 		// Basen
 		Map<Location,BaseEntry> basemap = new HashMap<Location,BaseEntry>();
 
-		SQLQuery bRow = db.query("SELECT t1.id,t1.owner,t1.x,t1.y,t1.klasse,t1.size,t2.ally " ,
-								"FROM bases t1 JOIN users t2 ON t1.owner=t2.id " ,
-								"WHERE t1.system=",this.ship.getInt("system")," AND " ,
-									"(FLOOR(SQRT(POW(t1.x-",this.ship.getInt("x"),",2)+POW(t1.y-",this.ship.getInt("y"),",2)))-CAST(t1.size AS SIGNED) <= ",this.range,") AND t1.owner=t2.id " ,
-								"ORDER BY size");
+		List baseList = db.createQuery("from Base b inner join fetch b.owner " +
+				"where b.system= :sys and " +
+					"(floor(sqrt(pow(b.x - :x,2)+pow(b.y - :y,2))) <= :range+b.size) " +
+				"order by b.size")
+			.setInteger("sys", this.ship.getSystem())
+			.setInteger("x", this.ship.getX())
+			.setInteger("y", this.ship.getY())
+			.setInteger("range", this.range)
+			.list();
 						
-		while( bRow.next() ) {
+		for( Iterator iter=baseList.iterator(); iter.hasNext(); ) {
+			Base base = (Base)iter.next();
+			
 			int imgcount = 0;
-			Location centerLoc = new Location(this.ship.getInt("system"), bRow.getInt("x"), bRow.getInt("y"));
-			for( int by=bRow.getInt("y")-bRow.getInt("size"); by <= bRow.getInt("y")+bRow.getInt("size"); by++ ) {
-				for( int bx=bRow.getInt("x")-bRow.getInt("size"); bx <= bRow.getInt("x")+bRow.getInt("size"); bx++ ) {
-					Location loc = new Location(this.ship.getInt("system"), bx, by);
+			Location centerLoc = base.getLocation();
+			for( int by=base.getY()-base.getSize(); by <= base.getY()+base.getSize(); by++ ) {
+				for( int bx=base.getX()-base.getSize(); bx <= base.getX()+base.getSize(); bx++ ) {
+					Location loc = new Location(this.ship.getSystem(), bx, by);
 					
-					if( !centerLoc.sameSector( 0, loc, bRow.getInt("size") ) ) {
+					if( !centerLoc.sameSector( 0, loc, base.getSize() ) ) {
 						continue;	
 					}
 					BaseEntry entry = new BaseEntry();
-					entry.id = bRow.getInt("id");
-					entry.owner = bRow.getInt("owner");
-					entry.ally = bRow.getInt("ally");
-					entry.klasse = bRow.getInt("klasse");
-					entry.size = bRow.getInt("size");
-					if( bRow.getInt("size") > 0 ) {
+					entry.base = base;
+					if( base.getSize() > 0 ) {
 						entry.imgcount = imgcount;
 						imgcount++;
 					}
@@ -498,14 +556,13 @@ public class ScanController extends TemplateGenerator {
 				}
 			}
 		}
-		bRow.free();
 		
 		// Obere/Untere Koordinatenreihe
 		
 		t.setBlock("_SCAN", "mapborder.listitem", "mapborder.list");
 		
-		for( int x = this.ship.getInt("x")-this.range; x <= this.ship.getInt("x")+this.range; x++ ) {
-			if( (x > 0) && (x <= Systems.get().system(this.ship.getInt("system")).getWidth()) ) {
+		for( int x = this.ship.getX()-this.range; x <= this.ship.getX()+this.range; x++ ) {
+			if( (x > 0) && (x <= Systems.get().system(this.ship.getSystem()).getWidth()) ) {
 				t.setVar("mapborder.x", x);
 				t.parse("mapborder.list", "mapborder.listitem", true);
 			}
@@ -518,8 +575,8 @@ public class ScanController extends TemplateGenerator {
 		t.setBlock("_SCAN", "map.rowitem", "map.rowlist");
 		t.setBlock("map.rowitem", "map.listitem", "map.list");
 		
-		for( int y = this.ship.getInt("y")-this.range; y <= this.ship.getInt("y")+this.range; y++ ) {
-			if( (y < 1) || (y > Systems.get().system(this.ship.getInt("system")).getHeight()) ) {
+		for( int y = this.ship.getY()-this.range; y <= this.ship.getY()+this.range; y++ ) {
+			if( (y < 1) || (y > Systems.get().system(this.ship.getSystem()).getHeight()) ) {
 				continue;
 			}
 			
@@ -527,21 +584,21 @@ public class ScanController extends TemplateGenerator {
 						"map.list",		"" );
 	
 			// Einen einzelnen Sektor ausgeben
-			for( int x = this.ship.getInt("x")-this.range; x <= this.ship.getInt("x")+this.range; x++ ) {
-				if( (x < 1) || (x > Systems.get().system(this.ship.getInt("system")).getWidth()) ) {
+			for( int x = this.ship.getX()-this.range; x <= this.ship.getX()+this.range; x++ ) {
+				if( (x < 1) || (x > Systems.get().system(this.ship.getSystem()).getWidth()) ) {
 					continue;
 				}
-				Location loc = new Location(this.ship.getInt("system"), x, y);
+				Location loc = new Location(this.ship.getSystem(), x, y);
 				
 				t.start_record();
 	
 				String cssClass = "";
 				
-				if( (x != this.ship.getInt("x")) || (y != this.ship.getInt("y")) ) {
+				if( (x != this.ship.getX()) || (y != this.ship.getY()) ) {
 					cssClass = "class=\"starmap\"";
 				}
 				
-				if( Math.round(Math.sqrt(Math.pow(y-this.ship.getInt("y"),2)+Math.pow(x-this.ship.getInt("x"),2))) <= this.range ) {				
+				if( Math.round(Math.sqrt(Math.pow(y-this.ship.getY(),2)+Math.pow(x-this.ship.getX(),2))) <= this.range ) {				
 					t.setVar(	"map.x",			x,
 								"map.y",			y,
 								"map.linkclass",	cssClass,
@@ -561,28 +618,28 @@ public class ScanController extends TemplateGenerator {
 						// Schiffe
 						String[] fleet = new String[] {"", "", ""};
 						if( shipmap.containsKey(loc) ) {
-							List<SQLResultRow> myships = shipmap.get(loc);
+							List<Ship> myships = shipmap.get(loc);
 							for( int i=0; i < myships.size(); i++ ) {
-								SQLResultRow myship = myships.get(i);
+								Ship myship = myships.get(i);
 								
-								if( myship.getInt("owner") == user.getId() ) {
-									if( (myship.getString("docked").length() == 0) || (myship.getString("docked").charAt(0) != 'l') ) {
+								if( myship.getOwner().getId() == user.getId() ) {
+									if( (myship.getDocked().length() == 0) || (myship.getDocked().charAt(0) != 'l') ) {
 										if( own == 0 ) {
 											fleet[0] = "_fo";
 										}	
 										own++;
 									}
 								}
-								else if( (myship.getInt("owner") != user.getId()) && (user.getAlly() != null) && (myship.getInt("ally") == user.getAlly().getId()) ) {
-									if( (myship.getString("docked").length() == 0) || (myship.getString("docked").charAt(0) != 'l') ) {
+								else if( (myship.getOwner().getId() != user.getId()) && (user.getAlly() != null) && (myship.getOwner().getAlly() == user.getAlly()) ) {
+									if( (myship.getDocked().length() == 0) || (myship.getDocked().charAt(0) != 'l') ) {
 										if( ally == 0 ) {
 											fleet[1] = "_fa";
 										}	
 										ally++;
 									}
 								}
-								else if( (myship.getInt("owner") != user.getId()) && ( (user.getAlly() == null) || ((user.getAlly() != null) && (myship.getInt("ally") != user.getAlly().getId()) ) )  ) {
-									if( (myship.getString("docked").length() == 0) || (myship.getString("docked").charAt(0) != 'l') ) {
+								else if( (myship.getOwner().getId() != user.getId()) && ( (user.getAlly() == null) || ((user.getAlly() != null) && (myship.getOwner().getAlly() != user.getAlly()) ) )  ) {
+									if( (myship.getDocked().length() == 0) || (myship.getDocked().charAt(0) != 'l') ) {
 										if( enemy == 0 ) {
 											fleet[2] = "_fe";
 										}	
@@ -609,24 +666,24 @@ public class ScanController extends TemplateGenerator {
 						}
 						else if( basemap.containsKey(loc) ) {
 							BaseEntry entry = basemap.get(loc);
-							if( entry.size > 0 ) {
-								t.setVar(	"map.image",		"kolonie"+entry.klasse+"_lrs/kolonie"+entry.klasse+"_lrs"+entry.imgcount,
+							if( entry.base.getSize() > 0 ) {
+								t.setVar(	"map.image",		"kolonie"+entry.base.getKlasse()+"_lrs/kolonie"+entry.base.getKlasse()+"_lrs"+entry.imgcount,
 											"map.image.name",	"Asteroid" );
 							}
-							else if( entry.owner == user.getId() ) {
+							else if( entry.base.getOwner().getId() == user.getId() ) {
 								t.setVar(	"map.image",		"asti_own/asti_own",
 											"map.image.name",	"Eigener Asteroid" );
 							}
-							else if( (entry.owner != 0) && (user.getAlly() != null) && (entry.ally == user.getAlly().getId()) ) {
+							else if( (entry.base.getOwner().getId() != 0) && (user.getAlly() != null) && (entry.base.getOwner().getAlly() == user.getAlly()) ) {
 								t.setVar(	"map.image",		"asti_ally/asti_ally",
 											"map.image.name",	"Ally Asteroid" );
 							}
-							else if( (entry.owner != 0) ) {
+							else if( (entry.base.getOwner().getId() != 0) ) {
 								t.setVar(	"map.image",		"asti_enemy/asti_enemy",
 											"map.image.name",	"Feindlicher Asteroid" );
 							}
 							else {
-								String astiimg = "kolonie"+entry.klasse+"_lrs";
+								String astiimg = "kolonie"+entry.base.getKlasse()+"_lrs";
 								
 								t.setVar(	"map.image",		astiimg+"/"+astiimg,
 											"map.image.name",	"Asteroid" );
