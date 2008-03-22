@@ -239,7 +239,7 @@ public class KSAttackAction extends BasicKSAction {
 		}
 	
 		// Nun die TrefferWS anteilig senken, wenn Crew/Sensoren nicht auf 100 sind
-		trefferWS *= (this.ownShip.getShip().getSensors()/100);
+		trefferWS *= (this.ownShip.getShip().getSensors()/100d);
 		if( (ownShipType.getCrew() > 0) && (this.ownShip.getCrew() < ownShipType.getCrew()) ) {
 			trefferWS *= this.ownShip.getCrew()/(double)ownShipType.getCrew();
 		}
@@ -287,7 +287,7 @@ public class KSAttackAction extends BasicKSAction {
 		}
 	
 		// Nun die TrefferWS anteilig senken, wenn Crew/Sensoren nicht auf 100 sind
-		trefferWS *= (this.ownShip.getShip().getSensors()/100);
+		trefferWS *= (this.ownShip.getShip().getSensors()/100d);
 		if( (ownShipType.getCrew() > 0) && (this.ownShip.getCrew() < ownShipType.getCrew()) ) {
 			trefferWS *= this.ownShip.getCrew()/(double)ownShipType.getCrew();
 		}
