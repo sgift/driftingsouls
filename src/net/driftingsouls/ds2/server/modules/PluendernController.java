@@ -366,7 +366,7 @@ public class PluendernController extends TemplateGenerator {
 					statust += "destroy";
 				}	
 			
-				this.shipTo.setStatus(status);
+				this.shipTo.setStatus(statust);
 			}
 		}
 		
