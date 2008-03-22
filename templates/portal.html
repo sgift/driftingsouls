@@ -83,28 +83,28 @@
 			<table class="noBorderX" width="100%" cellspacing="1" cellpadding="0">
 			<tr>
 				<td class="noBorderXMenu" colspan="2">
-					&nbsp;<a class="menu" href="./main.php?module=portal">News</a>
+					&nbsp;<a class="menu" href="./ds?module=portal">News</a>
 				</td>
 			</tr>
 			<tr>
 				<td class="noBorderXMenu" colspan="2">
-					&nbsp;<a class="menu" href="./main.php?module=portal&amp;action=login">Login</a>
+					&nbsp;<a class="menu" href="./ds?module=portal&amp;action=login">Login</a>
 				</td>
 			</tr>
 			<tr>
 				<td class="noBorderXMenu" colspan="2">
-					&nbsp;<a class="menu" href="./main.php?module=portal&amp;action=register">Registrieren</a>
+					&nbsp;<a class="menu" href="./ds?module=portal&amp;action=register">Registrieren</a>
 				</td>
 			</tr>
 			<tr>
 				<td class="noBorderXMenu" colspan="2">
-					&nbsp;<a class="menu" href="./main.php?module=portal&amp;action=infos">Infos</a>
+					&nbsp;<a class="menu" href="./ds?module=portal&amp;action=infos">Infos</a>
 				</td>
 			</tr>
 			<tr>
 				<td class="noBorderXMenu" style="width:10px">&nbsp;</td>
 				<td class="noBorderXMenu">
-					&nbsp;<a class="submenu" href="./main.php?module=portal&amp;action=infosArtikel&amp;artikel={FAQ_ID}">FAQ</a>
+					&nbsp;<a class="submenu" href="./ds?module=portal&amp;action=infosArtikel&amp;artikel={FAQ_ID}">FAQ</a>
 				</td>
 			</tr>
 			<tr>
@@ -116,19 +116,19 @@
 			<tr>
 				<td class="noBorderXMenu" style="width:10px">&nbsp;</td>
 				<td class="noBorderXMenu">
-					&nbsp;<a class="submenu" href="./main.php?module=portal&amp;action=infosDf">Daten &amp; Fakten</a>
+					&nbsp;<a class="submenu" href="./ds?module=portal&amp;action=infosDf">Daten &amp; Fakten</a>
 				</td>
 			</tr>
 			<tr>
 				<td class="noBorderXMenu" style="width:10px">&nbsp;</td>
 				<td class="noBorderXMenu">
-					&nbsp;<a class="submenu" href="./main.php?module=portal&amp;action=infosAgb">AGB</a>
+					&nbsp;<a class="submenu" href="./ds?module=portal&amp;action=infosAgb">AGB</a>
 				</td>
 			</tr>
 			<tr>
 				<td class="noBorderXMenu" style="width:10px">&nbsp;</td>
 				<td class="noBorderXMenu">
-					&nbsp;<a class="submenu" href="./main.php?module=portal&amp;action=infosPlayerlist">Spielerliste</a>
+					&nbsp;<a class="submenu" href="./ds?module=portal&amp;action=infosPlayerlist">Spielerliste</a>
 				</td>
 			</tr>
 			<tr>
@@ -150,7 +150,7 @@
 			</tr>
 			<tr>
 				<td class="noBorderXMenu" colspan="2">
-					&nbsp;<a class="menu" href="./main.php?module=portal&amp;action=javachat">Chat</a>
+					&nbsp;<a class="menu" href="./ds?module=portal&amp;action=javachat">Chat</a>
 				</td>
 			</tr>
 			<tr>
@@ -160,17 +160,17 @@
 			</tr>
 			<tr>
 				<td class="noBorderXMenu" colspan="2">
-					&nbsp;<a class="menu" href="./main.php?module=portal&amp;action=download">Downloads</a>
+					&nbsp;<a class="menu" href="./ds?module=portal&amp;action=download">Downloads</a>
 				</td>
 			</tr>
 			<tr>
 				<td class="noBorderXMenu" colspan="2">
-					&nbsp;<a class="menu" href="./main.php?module=portal&amp;action=links">Links</a>
+					&nbsp;<a class="menu" href="./ds?module=portal&amp;action=links">Links</a>
 				</td>
 			</tr>
 			<tr>
 				<td class="noBorderXMenu" colspan="2">
-					&nbsp;<a class="menu" href="./main.php?module=portal&amp;action=impressum">Impressum</a>
+					&nbsp;<a class="menu" href="./ds?module=portal&amp;action=impressum">Impressum</a>
 				</td>
 			</tr>
 			<tr>
@@ -259,7 +259,7 @@
 	<br />
 {/endif}
 {if show.login.msg.ok}
-	<a class="ok" id="login_redirect" href="./main.php?module=main&amp;sess={login.sess}">Zum Spiel</a><br /><br />
+	<a class="ok" id="login_redirect" href="./ds?module=main&amp;sess={login.sess}">Zum Spiel</a><br /><br />
 	{if login.checkgfxpak}
 		<script src="{login.checkgfxpak.path}data/javascript/gfxpakversion.js" type="text/javascript"></script>
 		<script type="text/javascript">
@@ -292,17 +292,18 @@
 		<span style="color:red">Ihr Account befindet sich noch f&uuml;r {login.vacmode.dauer} im Vacationmodus</span><br />
 		<hr noshade="noshade" size="1" style="color:#cccccc" />
 		Abschaltung beantragen:<br />
-		<form action="./main.php" method="post">
-			<input type="hidden" name="asess" value="{login.vacmode.sess}" />
+		<form action="./ds" method="post">
+			<input type="hidden" name="username" value="{login.vacmode.username}" />
+			<input type="hidden" name="pw" value="{login.vacmode.password}" />
 			<input type="hidden" name="action" value="loginVacmodeDeak" />
 			<input type="hidden" name="module" value="portal" />
-			<textarea name="reason" rows="5" cols="40">Sch&uuml;ssige Begr&uuml;ndung</textarea><br />
+			<textarea name="reason" rows="5" cols="40">Schl&uuml;ssige Begr&uuml;ndung</textarea><br />
 			<input type="submit" value="absenden" />
 		</form>
 	{!table_end}	
 {/endif}
 {if show.login}
-	<form action="./main.php" method="post">
+	<form action="./ds" method="post">
 	
 	{!table_begin 420,center}
 		Einloggen bitte mit Loginnamen und Passwort<br /><br />
@@ -326,26 +327,26 @@
 		</tr>
 		</table>
 		<br />
-		<a class="error" href="./main.php?module=portal&amp;action=passwordLost">Passwort vergessen?</a>
+		<a class="error" href="./ds?module=portal&amp;action=passwordLost">Passwort vergessen?</a>
 	{!table_end}
 	</form>
 {/endif}
 
 
 {if show.register.msg.wrongname}
-	<a href="./main.php?module=portal&amp;action=register"><span style="color:red;font-weight:bold">Der von Ihnen gew&uuml;nschte Name ist bereits belegt.</span></a><br /><br />
+	<a href="./ds?module=portal&amp;action=register"><span style="color:red;font-weight:bold">Der von Ihnen gew&uuml;nschte Name ist bereits belegt.</span></a><br /><br />
 {/endif}
 {if show.register.msg.wrongemail}
-	<a href="./main.php?module=portal&amp;action=register"><span style="color:red;font-weight:bold">Die E-Mail Adresse wird bereits von einem anderen Account verwendet</span></a><br /><br />
+	<a href="./ds?module=portal&amp;action=register"><span style="color:red;font-weight:bold">Die E-Mail Adresse wird bereits von einem anderen Account verwendet</span></a><br /><br />
 {/endif}
 {if show.register.msg.wrongrace}
-	<a href="./main.php?module=portal&amp;action=register"><span style="color:red;font-weight:bold">Die von Ihnen gew&uuml;nschte Rasse ist leider nicht spielbar. Bitte w&auml;hlen sie eine andere Rasse aus!</span></a><br /><br />
+	<a href="./ds?module=portal&amp;action=register"><span style="color:red;font-weight:bold">Die von Ihnen gew&uuml;nschte Rasse ist leider nicht spielbar. Bitte w&auml;hlen sie eine andere Rasse aus!</span></a><br /><br />
 {/endif}
 {if show.register.msg.wrongpassword}
-	<a href="./main.php?module=portal&amp;action=register"><span style="color:red;font-weight:bold">Die von Ihnen angegebenen Passw&ouml;rter sind leider nicht identisch</span></a><br /><br />
+	<a href="./ds?module=portal&amp;action=register"><span style="color:red;font-weight:bold">Die von Ihnen angegebenen Passw&ouml;rter sind leider nicht identisch</span></a><br /><br />
 {/endif}
 {if show.register.msg.wrongkey}
-	<a href="./main.php?module=portal&amp;action=register"><span style="color:red">Der von Ihnen angegebene Registrierungsschl&uuml;ssel ist ung&uuml;ltig</span></a><br /><br />
+	<a href="./ds?module=portal&amp;action=register"><span style="color:red">Der von Ihnen angegebene Registrierungsschl&uuml;ssel ist ung&uuml;ltig</span></a><br /><br />
 {/endif}
 {if show.register.msg.ok}
 	{!table_begin 500,center}
@@ -387,7 +388,7 @@
 				Es wurde automatisch das Sternensystem {register.system.name} als g&uuml;nstigster Startpunkt f&uuml;r sie festgestellt.<br />
 				Sollten sie einen anderen Startpunkt bevorzugen k&ouml;nnen sie diesen nun ausw&auml;hlen:<br /><br />
 				<div style="text-align:center">
-					<form action="./main.php" method="post">
+					<form action="./ds" method="post">
 					<select name="system" size="1" style="width:300px" onchange="actionSystemSelectChange(this.options[this.options.selectedIndex].value)">
 					<!-- BEGIN register.systems.listitem -->
 						<option value="{system.id}" {if system.selected}selected="selected"{/endif}>{system.name}{if system.selected} (empfohlen){/endif}</option>
@@ -424,7 +425,7 @@
 	</table>
 {/endif}
 {if show.register}
-	<form action="./main.php" method="post">
+	<form action="./ds" method="post">
 	<table class="noBorder">
 	<tr>
 		<td class="noBorder" style="vertical-align:top">
@@ -524,7 +525,7 @@
 {/endif}
 {if show.passwordlost}
 	{!table_begin 450,center}
-		<form action="./main.php" method="post">
+		<form action="./ds" method="post">
 		<span style="font-weight:bold; color:red">Passwort vergessen?</span><br /><br />
 		Bitte geben Sie Ihren Usernamen ein!<br />Ein neues Passwort wird dann erstellt und Ihnen an die gespeicherte E-Mail-Adresse gesandt.<br />
 		<br/>
@@ -554,7 +555,7 @@
 {if show.articlelist}
 	<span style="color:#808080">
 	<!-- BEGIN articles.listitem -->
-		<a class="forschinfo" href="./main.php?module=portal&amp;action=infosArtikel&amp;artikel={article.id}">{article.title}</a> von {article.author}<br />
+		<a class="forschinfo" href="./ds?module=portal&amp;action=infosArtikel&amp;artikel={article.id}">{article.title}</a> von {article.author}<br />
 	<!-- END articles.listitem -->
 	</span>
 {/endif}
@@ -569,11 +570,11 @@
 	{if article.nextprev}
 		<tr><td class="noBorderS" align="center"><br />
 		{if article.prevpage}
-			<a class="forschinfo" href="./main.php?module=portal&amp;action=infosArtikel&amp;artikel={article.id}&amp;page={article.prevpage}">vorherige Seite</a>
+			<a class="forschinfo" href="./ds?module=portal&amp;action=infosArtikel&amp;artikel={article.id}&amp;page={article.prevpage}">vorherige Seite</a>
 		{/endif}
 		{if article.nextprevpage} - {/endif}
 		{if article.nextpage}
-			<a class="forschinfo" href="./main.php?module=portal&amp;action=infosArtikel&amp;artikel={article.id}&amp;page={article.nextpage}">n&auml;chste Seite</a></td></tr>
+			<a class="forschinfo" href="./ds?module=portal&amp;action=infosArtikel&amp;artikel={article.id}&amp;page={article.nextpage}">n&auml;chste Seite</a></td></tr>
 		{/endif}
 	{/endif}
 	</span></td></tr>
@@ -611,7 +612,7 @@
 				<table class="show">
 					<tr><td align="center" width="150">{articlegroup.name}:</td></tr>
 					<!-- BEGIN facts.articles.listitem -->
-						<tr><td align="left" width="150"><a class="forschinfo" href="./main.php?module=portal&amp;action=infosDf&amp;article={article.id}">{article.title}</a></td></tr>
+						<tr><td align="left" width="150"><a class="forschinfo" href="./ds?module=portal&amp;action=infosDf&amp;article={article.id}">{article.title}</a></td></tr>
 					<!-- END facts.articles.listitem -->
 				</table>
 				<br />

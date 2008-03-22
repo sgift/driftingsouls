@@ -729,7 +729,8 @@ public class PortalController extends TemplateGenerator {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void loginAction() {
-		Database db = getDatabase();
+		Database database = getDatabase();
+		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		
 		parameterString("username");
@@ -741,7 +742,7 @@ public class PortalController extends TemplateGenerator {
 		int usegfxpak = getInteger("usegfxpak") != 0 ? 1 : 0;
 		boolean clear = false;
 		
-		String disablelogin = db.first("SELECT disablelogin FROM config").getString("disablelogin");
+		String disablelogin = database.first("SELECT disablelogin FROM config").getString("disablelogin");
 		if( !"".equals(disablelogin) ) {
 			username = "";
 			password = "";
@@ -753,33 +754,46 @@ public class PortalController extends TemplateGenerator {
 
 		if( !"".equals(username) && !"".equals(password) ) {
 			String enc_pw = Common.md5(password);
-			username = db.prepareString(username);
 
-			SQLResultRow uid = db.first("SELECT id FROM users WHERE un='",username,"'");
-			if( uid.isEmpty() ) {
+			User user = (User)db.createQuery("from User where un=:username")
+				.setString("username", username)
+				.uniqueResult();
+			
+			if( user == null ) {
 				t.setVar( "show.msg.login.wrongpassword",1 );
 				Common.writeLog("login.log", Common.date("j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+username+") <"+username+"> Password <"+password+"> ***UNGUELTIGER ACCOUNT*** von Browser <"+getRequest().getUserAgent()+">\n");
 				clear = false;
 			}
 			else {
-				User user = (User)getDB().get(User.class, uid.getInt("id"));
-				
 	    		if( !user.getPassword().equals(enc_pw) ) {
 					t.setVar( "show.msg.login.wrongpassword",1 );
 					user.setLoginFailedCount(user.getLoginFailedCount()+1);
 	  				Common.writeLog("login.log", Common.date("j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+username+"> Password <"+password+"> ***LOGIN GESCHEITERT*** von Browser <"+getRequest().getUserAgent()+">\n");
 					clear = false;
-				} 
+				}
 				else if( user.getDisabled() ) {
 					t.setVar("show.login.msg.accdisabled",1);
-					Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+username+"> Password <"+password+"> ***ACCOUNT GESPERRT*** von Browser <"+getRequest().getUserAgent()+">\n");
+					Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+username+"> Password <"+password+"> ***VAC LOGIN*** von Browser <"+getRequest().getUserAgent()+">\n");
 	
-					getDB().createQuery("delete from Session where id=?")
+					db.createQuery("delete from Session where id=?")
 						.setInteger(0, user.getId())
 						.executeUpdate();
 					
 					clear = false;
-				} 
+				}
+				else if( (user.getVacationCount() > 0) && (user.getWait4VacationCount() == 0) ) {
+					db.createQuery("delete from Session where id=?")
+						.setInteger(0, user.getId())
+						.executeUpdate();
+					
+					t.setVar(	
+							"show.login.vacmode", 1,
+							"login.vacmode.dauer", Common.ticks2Days(user.getVacationCount()),
+							"login.vacmode.username", username,
+							"login.vacmode.password", password);
+					
+					clear = true;
+				}
 				else {
 					Session session = (Session)getDB().createQuery("from Session where id=? and tick!=0")
 						.setInteger(0, user.getId())
@@ -820,15 +834,8 @@ public class PortalController extends TemplateGenerator {
 		
 		getContext().commit();
 
-		if( (user.getVacationCount() == 0) || (user.getWait4VacationCount() != 0) ) {
-			t.setVar(	"show.login.msg.ok", 1,
-						"login.sess", session.getSession() );
-		}	
-		else {
-			t.setVar(	"show.login.vacmode", 1,
-						"login.vacmode.dauer", Common.ticks2Days(user.getVacationCount()),
-						"login.vacmode.sess", session.getSession() );
-		}
+		t.setVar(	"show.login.msg.ok", 1,
+					"login.sess", session.getSession() );
 		
 		// Ueberpruefen ob das gfxpak noch aktuell ist
 		if( (usegfxpak != 0) && !user.getUserImagePath().equals(BasicUser.getDefaultImagePath()) ) {
@@ -903,25 +910,20 @@ public class PortalController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void loginVacmodeDeakAction() {
 		TemplateEngine t = getTemplateEngine();
+		org.hibernate.Session db = getDB();
 		
-		parameterString("asess");
-		String sess = getString("asess");
+		parameterString("username");
+		parameterString("pw");
+		String username = getString("username");
+		String password = getString("pw");
+		
+		User user = (User)db.createQuery("from User where un=:username")
+			.setString("username", username)
+			.uniqueResult();
 	
-		Session session = (Session)getDB().get(Session.class, sess);
-
-		if( session == null ) {
-			t.setVar("show.login.vacmode.msg.accerror",1);
-			return;
-		}
+		String encPw = Common.md5(password);
 		
-		User auser = (User)session.getUser();
-		if( !auser.hasFlag(BasicUser.FLAG_DISABLE_IP_SESSIONS) && !session.isValidIP(getRequest().getRemoteAddress()) ) {
-			t.setVar("show.login.vacmode.msg.accerror",1);
-			return;
-		}
-		
-		if( !auser.hasFlag(BasicUser.FLAG_DISABLE_AUTO_LOGOUT) && (Common.time() - session.getLastAction() > Configuration.getIntSetting("AUTOLOGOUT_TIME")) ) {
-			getDB().delete(session);
+		if( user == null || !encPw.equals(user.getPassword()) ) {
 			t.setVar("show.login.vacmode.msg.accerror",1);
 			return;
 		}
@@ -929,8 +931,8 @@ public class PortalController extends TemplateGenerator {
 		parameterString("reason");
 		String reason = getString("reason");
 		
-		PM.sendToAdmins((User)session.getUser(), "VACMODE-DEAK", 
-				"[VACMODE-DEAK]\nMY ID: "+session.getUser().getId()+"\nREASON:\n"+reason, 0);
+		PM.sendToAdmins(user, "VACMODE-DEAK", 
+				"[VACMODE-DEAK]\nMY ID: "+user.getId()+"\nREASON:\n"+reason, 0);
 		
 		t.setVar("show.login.vacmode.msg.send",1);
 	}
