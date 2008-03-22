@@ -300,8 +300,8 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 				boolean fixedjoin = false;
 				if( (battle.getInt("commander1") == user.getId()) || 
 					(battle.getInt("commander2") == user.getId()) || 
-					( (battle.getInt("ally1") > 0) && (battle.getInt("ally1") == ownAlly.getId()) ) || 
-					( (battle.getInt("ally2") > 0) && (battle.getInt("ally2") == ownAlly.getId()) ) ) {
+					( (ownAlly != null) && (battle.getInt("ally1") == ownAlly.getId()) ) || 
+					( (ownAlly != null) && (battle.getInt("ally2") == ownAlly.getId()) ) ) {
 					fixedjoin = true;
 				}
 				boolean viewable = false;
