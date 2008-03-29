@@ -148,7 +148,13 @@ public class FleetMgntController extends TemplateGenerator {
 				.setMaxResults(1)
 				.uniqueResult();
 			
-			shipid = aship.getId();
+			if( aship != null ) {
+				shipid = aship.getId();
+			}
+			else {
+				addError("Die angegebene Flotte ist ungueltig");
+				return false;
+			}
 		} 
 		else if( (shiplist != null) && (shiplist.length > 0) ){
 			shipid = shiplist[0];
