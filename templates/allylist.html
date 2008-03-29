@@ -8,21 +8,21 @@
 			<td class="noBorder">&nbsp;</td>
 			<td class="noBorder">
 				{!table_begin 650,center}
-					{!link_to Allgemeines, default, show:allgemein}
+					{!link_to Allgemeines, default, module:ally, show:allgemein}
 					|
-					{!link_to Mitglieder, showMembers, show:members}
+					{!link_to Mitglieder, showMembers, module:ally, show:members}
 					|
 					{if user.president}
-						{!link_to Einstellungen, showAllySettings, show:config}
+						{!link_to Einstellungen, showAllySettings, module:ally, show:config}
 						|
-						{!link_to Posten, showPosten, show:posten}
+						{!link_to Posten, showPosten, module:ally, show:posten}
 						|
 					{/endif}
-					{!link_to K&auml;mpfe, showBattles, show:battles}
+					{!link_to K&auml;mpfe, showBattles, module:ally, show:battles}
 					|
 					{!link_to Allianzen auflisten, default, module:allylist}
 					|
-					{!link_to Austreten, part, css_class:error, show:$show}
+					{!link_to Austreten, part, css_class:error, module:ally, show:$show}
 				{!table_end}
 			</td>
 		</tr>
