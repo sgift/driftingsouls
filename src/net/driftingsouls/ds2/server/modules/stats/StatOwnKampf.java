@@ -24,9 +24,9 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.StatsController;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
  * Zeigt in Schlachten zerstoerte und verlorene Schiffe an
@@ -69,14 +69,20 @@ public class StatOwnKampf implements Statistic {
 				}
 				counter++;
 				
-				SQLResultRow shiptype = ShipTypes.getShipType( s.getInt("type"), false );
+				ShipTypeData shiptype = Ship.getShipType( s.getInt("type") );
 				
 				echo.append("<td class=\"noBorderX\" style=\"width:100px; vertical-align:top; text-align:center\">");
 				echo.append(Common._plaintitle(s.getString("name"))+"<br />");
-				echo.append("<a onmouseover=\"return overlib('"+Common._plaintitle(shiptype.getString("nickname"))+"',TIMEOUT,0,DELAY,400,WIDTH,100);\" onmouseout=\"return nd();\" target=\"_blank\" href=\"./main.php?module=schiffinfo&sess="+context.getSession()+"&ship="+s.getInt("type")+"\"><img border=\"0\" src=\""+shiptype.getString("picture")+"\"></a><br />");
+				
+				if( shiptype == null ) {
+					echo.append("<a onmouseover=\"return overlib('"+Common._plaintitle(shiptype.getNickname())+"',TIMEOUT,0,DELAY,400,WIDTH,100);\" " +
+							"onmouseout=\"return nd();\" target=\"_blank\" " +
+							"href=\"./ds?module=schiffinfo&sess="+context.getSession()+"&ship="+s.getInt("type")+"\">" +
+							"<img border=\"0\" src=\""+shiptype.getPicture()+"\"></a><br />");
+				}
 				
 				User auser = (User)context.getDB().get(User.class, s.getInt("owner"));
-				if( auser.getId() != 0 ) {
+				if( auser != null ) {
 					echo.append(auser.getProfileLink()+"<br />");
 				}
 				else {
@@ -147,15 +153,18 @@ public class StatOwnKampf implements Statistic {
 				}
 				counter++;
 				
-				SQLResultRow shiptype = ShipTypes.getShipType( s.getInt("type"), false );
-				
-				echo.append("<td class=\"noBorderX\" style=\"width:100px; text-align:center; vertical-align:top\">");
-				echo.append(Common._plaintitle(s.getString("name"))+"<br />");
-				echo.append("<a onmouseover=\"return overlib('"+Common._plaintitle(shiptype.getString("nickname"))+"',TIMEOUT,0,DELAY,400,WIDTH,100);\" onmouseout=\"return nd();\" target=\"_blank\" href=\"./main.php?module=schiffinfo&sess="+context.getSession()+"&ship="+s.getInt("type")+"\"><img border=\"0\" src=\""+shiptype.getString("picture")+"\"></a><br />");
-				
+				ShipTypeData shiptype = Ship.getShipType( s.getInt("type") );
+				if( shiptype == null ) {
+					echo.append("<td class=\"noBorderX\" style=\"width:100px; text-align:center; vertical-align:top\">");
+					echo.append(Common._plaintitle(s.getString("name"))+"<br />");
+					echo.append("<a onmouseover=\"return overlib('"+Common._plaintitle(shiptype.getNickname())+"',TIMEOUT,0,DELAY,400,WIDTH,100);\" " +
+							"onmouseout=\"return nd();\" target=\"_blank\" " +
+							"href=\"./ds?module=schiffinfo&sess="+context.getSession()+"&ship="+s.getInt("type")+"\">" +
+							"<img border=\"0\" src=\""+shiptype.getPicture()+"\"></a><br />");
+				}
 				User auser = (User)context.getDB().get(User.class, s.getInt("destowner"));
 
-				if( auser.getId() != 0 ) {
+				if( auser != null ) {
 					echo.append(auser.getProfileLink()+"<br />");
 				}
 				else {
@@ -199,4 +208,11 @@ public class StatOwnKampf implements Statistic {
 		}
 	}
 
+	public boolean generateAllyData() {
+		return false;
+	}
+	
+	public int getRequiredData() {
+		return 0;
+	}
 }
