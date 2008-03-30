@@ -1985,7 +1985,18 @@ public class Ship implements Loggable,Locatable,Transfering {
 			// Und nun fliegen wir mal ne Runde....
 			while( waypoint.distance > 0 ) {
 				final Location nextLocation = new Location(this.system,this.x+xoffset, this.y+yoffset);
-
+												
+				if(redalertlist.containsKey(nextLocation) && user.isNoob()){
+					List<Integer> attackers = redAlertCheck(user, false, nextLocation)
+						.values().iterator().next();
+					if( !attackers.isEmpty() ) {
+						out.append("<span style=\"color:#ff0000\">Sie stehen unter dem Schutz des Commonwealth.</span><br />Ihnen ist der Einflug in gesicherte Gebiete untersagt<br />\n");
+						status = MovementStatus.BLOCKED_BY_RED_ALERT;
+						waypoint.distance = 0;
+						break;
+					}
+				}
+				
 				// Schauen wir mal ob wir vor rotem Alarm warnen muessen
 				if( (startdistance > 1) && redalertlist.containsKey(nextLocation) ) {
 					List<Integer> attackers = redAlertCheck(user, false, nextLocation)
@@ -1998,7 +2009,7 @@ public class Ship implements Loggable,Locatable,Transfering {
 						break;
 					}
 				}
-
+				
 				if( (startdistance > 1) && nebulaemplist.containsKey(nextLocation) ) {
 					out.append("<span style=\"color:#ff0000\">EMP-Nebel im n&auml;chsten Sektor geortet</span><br />\n");
 					out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
