@@ -20,8 +20,6 @@
 <pipeline>
 	<modules>
 		<generator class="net.driftingsouls.ds2.server.modules.PortalController" />
-		<transformer class="net.driftingsouls.ds2.server.framework.pipeline.transformer.PlainTransformer" />
-		<serializer class="net.driftingsouls.ds2.server.framework.pipeline.serializer.HtmlSerializer" />
 		
 		<module name="activateall">
 			<generator class="net.driftingsouls.ds2.server.modules.ActivateAllController" />
@@ -118,7 +116,6 @@
 		</module>
 		<module name="mapdata">
 			<generator class="net.driftingsouls.ds2.server.modules.MapDataController" />
-			<serializer class="net.driftingsouls.ds2.server.framework.pipeline.serializer.PlainSerializer" />
 		</module>
 		<module name="npcorder">
 			<generator class="net.driftingsouls.ds2.server.modules.NPCOrderController" />
@@ -158,7 +155,6 @@
 		</module>
 		<module name="techdatabase">
 			<generator class="net.driftingsouls.ds2.server.modules.TechDatabaseController" />
-			<serializer class="net.driftingsouls.ds2.server.framework.pipeline.serializer.PlainSerializer" />
 		</module>
 		<module name="techliste">
 			<generator class="net.driftingsouls.ds2.server.modules.TechListeController" />
@@ -257,10 +253,9 @@
 				<urlparameter name="module" />
 			</execute-module>
 		</match>
-		<match pattern="(/ajax.php|ajax)">
-			<execute-module exec-mode="ajax">
+		<match pattern="(/ajax\.php|/ajax)">
+			<execute-module>
 				<urlparameter name="module" />
-				<serializer class="net.driftingsouls.ds2.server.framework.pipeline.serializer.PlainSerializer" />
 			</execute-module>
 		</match>
 		<match pattern="/soap/[0-9a-f]*/.*">
