@@ -23,7 +23,10 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
+import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 /**
@@ -82,17 +85,20 @@ public class BattleTick extends TickController {
 					battle.addComMessage(battle.getOwnSide(), "++++ Das Tickscript hat die Runde beendet ++++\n\n");
 					battle.addComMessage(battle.getEnemySide(), "++++ Das Tickscript hat die Runde beendet ++++\n\n");
 				}
+				getContext().commit();
 			}
 			catch( RuntimeException e ) {
+				getContext().rollback();
+				
 				this.log("Battle "+battle.getId()+" failed: "+e);
 				e.printStackTrace();
 				Common.mailThrowable(e, "BattleTick Exception", "battle: "+battle.getId());
-				
-				throw e;
 			}
+			
+			db.evict(battle);
+			HibernateFacade.evictAll(db, Ship.class, BattleShip.class);
 		}
 
-		getDB().flush();
 		getDB().clear();
 	}
 
