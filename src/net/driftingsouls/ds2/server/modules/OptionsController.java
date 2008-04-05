@@ -268,9 +268,10 @@ public class OptionsController extends TemplateGenerator implements Loggable {
 
 			user.setRelation(0,rel);
 			if( user.getAlly() != null ) {
-				List<User> users = getContext().query(
-						"from User where ally="+user.getAlly()+" AND id!="+user.getId(), User.class);
-				for( User auser : users ) {
+				for( User auser : user.getAlly().getMembers() ) {
+					if( auser.getId() == user.getId() ) {
+						continue;
+					}
 					user.setRelation(auser.getId(), User.Relation.FRIEND);
 					auser.setRelation(user.getId(), User.Relation.FRIEND);
 				}
