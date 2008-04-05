@@ -28,12 +28,18 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.Offizier;
+import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.scripting.EngineIdentifier;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 import org.hibernate.Hibernate;
@@ -142,9 +148,11 @@ public class NPCScriptTick extends TickController {
 					Common.mailThrowable(e, "[DS2J] NPCScriptTick Exception", "Schiff: "+ship.getId()+"\nUser: "+ship.getOwner().getId());
 				}
 				finally {
-					db.clear();
+					db.evict(ship);
 				}
 			}
+			db.evict(user);
+			HibernateFacade.evictAll(db, Ship.class, Offizier.class, ShipFleet.class, Battle.class, BattleShip.class, Base.class);
 		}
 	}
 	
