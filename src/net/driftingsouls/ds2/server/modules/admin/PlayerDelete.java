@@ -28,7 +28,9 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.bases.AutoGTUAction;
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.Ally;
@@ -71,7 +73,6 @@ public class PlayerDelete implements AdminPlugin, Loggable {
 			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Userid:</td><td class=\"noBorderX\">");
 			echo.append("<input type=\"text\" name=\"userid\" size=\"6\" />");
 			echo.append("</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\" colspan=\"2\"><input type=\"checkbox\" name=\"preset\" id=\"form_preset\" value=\"1\" checked=\"checked\" /><label for=\"form_preset\">Planeten reset?</label></td></tr>");
 			echo.append("<tr><td class=\"noBorderX\" colspan=\"2\" align=\"center\"><input type=\"hidden\" name=\"sess\" value=\""+sess+"\" />");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />");
@@ -194,55 +195,43 @@ public class PlayerDelete implements AdminPlugin, Loggable {
 		echo.append(count+" Schiffe entfernt<br />\n");
 
 		//Basen
-		List<Integer> baselist = new ArrayList<Integer>();
+		List<Base> baselist = new ArrayList<Base>();
 		
 		List baseList = db.createQuery("from Base where owner=?")
 			.setInteger(0, userid)
 			.list();
 		for( Iterator iter=baseList.iterator(); iter.hasNext(); ) {
 			Base base = (Base)iter.next();
-			baselist.add(base.getId());
+			baselist.add(base);
 		}
 		
-		if( context.getRequest().getParameterInt("preset") == 0 ) {
-			echo.append("&Uuml;bereigne Bases an Spieler 0...\n");
+		echo.append("&Uuml;bereigne Basen an Spieler 0 (+ reset)...\n");
 
-			db.createQuery("update Base " +
-					"set owner=0,name='Verlassener Asteroid',e=0,bewohner=0,arbeiter=0,autoGtuActs='' " +
-					"where owner=?")
-					.setInteger(0, userid)
-					.executeUpdate();
-
-			if( baselist.size() > 0 ) {
-				db.createQuery("update Forschungszentrum set forschung=0,dauer=0 where col in ("+Common.implode(",",baselist)+")")
-					.executeUpdate();
-				db.createQuery("update Academy set train=0,remain=0,upgrade='' where col in ("+Common.implode(",",baselist)+")")
-					.executeUpdate();
-				db.createQuery("update BaseWerft set remaining=0,building=0 where col in ("+Common.implode(",",baselist)+")")
-					.executeUpdate();
-				db.createQuery("update WeaponFactory set produces='' where col in ("+Common.implode(",",baselist)+")")
-					.executeUpdate();
+		User nullUser = (User)db.get(User.class, 0);
+		
+		for( Base base : baselist ) {
+			Integer[] bebauung = base.getBebauung();
+			for( int i=0; i < bebauung.length; i++ ) {
+				if( bebauung[i] == 0 ) {
+					continue;
+				}
+				
+				Building building = Building.getBuilding(bebauung[i]);
+				building.cleanup(context, base);
 			}
-		} 
-		else {
-			echo.append("&Uuml;bereigne Basen an Spieler 0 (+ reset)...\n");
-
-			Cargo emptycargo = new Cargo();
-
-			db.createQuery("update Base " +
-					"set owner=0,name='Verlassener Asteroid',active=0,core=0,coreActive=0,e=0,bewohner=0,arbeiter=0,cargo=?,autoGtuActs='' " +
-					"where owner=?")
-					.setParameter(0, emptycargo)
-					.setInteger(1, userid)
-					.executeUpdate();
 			
-			if( baselist.size() > 0 ) {
-				db.createQuery("delete from Forschungszentrum where col in ("+Common.implode(",",baselist)+")").executeUpdate();
-				db.createQuery("delete from Academy where col in ("+Common.implode(",",baselist)+")").executeUpdate();
-				db.createQuery("delete from BaseWerft where col in ("+Common.implode(",",baselist)+")").executeUpdate();
-				db.createQuery("delete from WeaponFactory where col in ("+Common.implode(",",baselist)+")").executeUpdate();
-			}
+			base.setOwner(nullUser);
+			base.setName("Verlassener Asteroid");
+			base.setActive(new Integer[] {0});
+			base.setCore(0);
+			base.setCoreActive(false);
+			base.setEnergy(0);
+			base.setBewohner(0);
+			base.setArbeiter(0);
+			base.setCargo(new Cargo());
+			base.setAutoGTUActs(new ArrayList<AutoGTUAction>());
 		}
+
 		echo.append(baselist.size()+" Basen bearbeitet<br />\n");
 
 		echo.append("Entferne Handelseintr&auml;ge...<br />\n");
@@ -273,10 +262,12 @@ public class PlayerDelete implements AdminPlugin, Loggable {
 			.setEntity("user", user)
 			.executeUpdate();
 		
-		echo.append("L&ouml;sche PM-Ordner...<br />\n");
-		db.createQuery("delete from Ordner where owner=?")
+		echo.append("L&ouml;sche PM-Ordner...\n");
+		count = db.createQuery("delete from Ordner where owner=?")
 			.setInteger(0, userid)
 			.executeUpdate();
+		echo.append(count+" entfernt<br />");
+		
 
 		echo.append("L&ouml;sche Diplomatieeintr&auml;ge...<br />\n");
 		db.createQuery("delete from UserRelation where user=? or target=?")
@@ -292,10 +283,11 @@ public class PlayerDelete implements AdminPlugin, Loggable {
 		echo.append("L&ouml;sche Userlogo...<br />\n");
 		new File(Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/user/"+userid+".gif").delete();
 		
-		echo.append("L&ouml;sche Offiziere...<br />\n");
-		db.createQuery("delete from Offizier where owner=?")
+		echo.append("L&ouml;sche Offiziere...\n");
+		count = db.createQuery("delete from Offizier where owner=?")
 			.setInteger(0, userid)
 			.executeUpdate();
+		echo.append(count+" entfernt<br />");
 		
 		echo.append("L&ouml;sche Shop-Auftraege...<br />\n");
 		db.createQuery("delete from FactionShopOrder where user=?")
