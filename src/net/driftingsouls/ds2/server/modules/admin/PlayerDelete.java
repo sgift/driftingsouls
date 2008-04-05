@@ -285,7 +285,7 @@ public class PlayerDelete implements AdminPlugin, Loggable {
 			.executeUpdate();
 
 		echo.append("L&ouml;sche Kontobewegungen...<br />\n");
-		db.createQuery("delete from UserMoneyTransfer where from= :user or to = :user")
+		db.createQuery("delete from UserMoneyTransfer umt where umt.from= :user or umt.to = :user")
 			.setEntity("user", user)
 			.executeUpdate();
 
@@ -308,7 +308,7 @@ public class PlayerDelete implements AdminPlugin, Loggable {
 			.executeUpdate();
 		
 		echo.append("L&ouml;sche Statistik 'Item-Locations'...<br />\n");
-		db.createQuery("delete from StatModuleLocation where user=?")
+		db.createQuery("delete from StatItemLocations where user=?")
 			.setInteger(0, userid)
 			.executeUpdate();
 		
