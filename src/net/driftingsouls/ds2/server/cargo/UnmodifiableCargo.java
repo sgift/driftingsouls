@@ -21,7 +21,7 @@ package net.driftingsouls.ds2.server.cargo;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.driftingsouls.ds2.server.config.ItemEffect;
+import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 
 /**
  * <h1>Wrapper-Klasse fuer <code>Cargo</code>-Objekte</h1>

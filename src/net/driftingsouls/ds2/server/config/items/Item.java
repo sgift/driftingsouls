@@ -16,7 +16,9 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.config;
+package net.driftingsouls.ds2.server.config.items;
+
+import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 
 /**
  * Repraesentiert einen Item-Typ in DS

@@ -21,7 +21,7 @@
 	<boot class="net.driftingsouls.ds2.server.config.Rassen" type="static" />
 	<boot class="net.driftingsouls.ds2.server.config.Systems" type="static" />
 	<boot class="net.driftingsouls.ds2.server.config.ResourceConfig" type="static" />
-	<boot class="net.driftingsouls.ds2.server.config.Items" type="static" />
+	<boot class="net.driftingsouls.ds2.server.config.items.Items" type="static" />
 	<boot class="net.driftingsouls.ds2.server.config.Weapons" type="static" />
 	<boot class="net.driftingsouls.ds2.server.config.ModuleSlots" type="static" />
 	<boot class="net.driftingsouls.ds2.server.config.Medals" type="static" />

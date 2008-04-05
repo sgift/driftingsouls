@@ -16,11 +16,8 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.config;
+package net.driftingsouls.ds2.server.config.items.effects;
 
-import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-
-import org.w3c.dom.Node;
 
 /**
  * Basisklasse fuer Item-Effekte in DS
@@ -112,39 +109,5 @@ public abstract class ItemEffect {
 	 */
 	public boolean hasAllyEffect() {
 		return allyEffect;
-	}
-	
-	protected static ItemEffect fromXML(Node effectNode) throws Exception {
-		if( effectNode == null ) {
-			return new IENone();
-		}
-		String type = XMLUtils.getStringAttribute(effectNode, "type");
-		if( type == null || "".equals(type) ) {
-			return new IENone();
-		}
-		
-		if( type.equals("draft-ship") ) {
-			return IEDraftShip.fromXML(effectNode);
-		}
-		if( type.equals("draft-ammo") ) {
-			return IEDraftAmmo.fromXML(effectNode);
-		}
-		if( type.equals("module") ) {
-			return IEModule.fromXML(effectNode);
-		}
-		if( type.equals("ammo") ) {
-			return IEAmmo.fromXML(effectNode);
-		}
-		if( type.equals("disable-ship") ) {
-			return IEDisableShip.fromXML(effectNode);
-		}
-		if( type.equals("disable-iff") ) {
-			return IEDisableIFF.fromXML(effectNode);
-		}
-		if( type.equals("module-set-meta") ) {
-			return IEModuleSetMeta.fromXML(effectNode);
-		}
-		
-		throw new Exception("Unbekannter Item-Effekttyp: '"+type+"'");
 	}
 }

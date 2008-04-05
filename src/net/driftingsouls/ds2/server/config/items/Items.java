@@ -16,12 +16,13 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.config;
+package net.driftingsouls.ds2.server.config.items;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import net.driftingsouls.ds2.server.config.items.effects.ItemEffectFactory;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -89,42 +90,50 @@ public class Items implements Loggable,Iterable<Item> {
 				Node node = nodes.item(i);
 				int id = (int)XMLUtils.getLongAttribute(node, "id");
 				
+				if( itemList.item(id) != null ) {
+					throw new Exception("Item-ID "+id+" mehrfach vergeben");
+				}
+				
 				String version = XMLUtils.getStringAttribute(node, "version");
 				if( (version != null) && !version.equalsIgnoreCase(Configuration.getSetting("VERSION_TYPE")) ) {
 					continue;
 				}
 				
-				String name = XMLUtils.getStringByXPath(node, "name/text()");
-				String picture = XMLUtils.getStringByXPath(node, "picture/text()");
-				if( picture == null || picture.equals("") ) {
-					picture = "open.gif";
+				String name = XMLUtils.firstNodeByTagName(node, "name").getTextContent();
+				
+				String picture = "open.gif";
+				Node pictureNode = XMLUtils.firstNodeByTagName(node, "picture");
+				if( pictureNode != null ) {
+					picture = pictureNode.getTextContent();
 				}
 				
 				Item item = new Item(id, name, imagepath+picture);
 				item.cargo = (int)XMLUtils.getLongAttribute(node, "cargo");
 				
-				String largePicture = XMLUtils.getStringByXPath(node, "large-picture/text()");
-				if( largePicture != null && !"".equals(largePicture) ) {
-					item.largepicture = imagepath+largePicture;
+				Node largePicture = XMLUtils.firstNodeByTagName(node, "large-picture");
+				if( largePicture != null ) {
+					item.largepicture = imagepath+largePicture.getTextContent();
 				}
 				
-				String description = XMLUtils.getStringByXPath(node, "description/text()");
-				if( description != null && !"".equals(description) ) {
-					item.description = Common.trimLines(description);
+				Node description = XMLUtils.firstNodeByTagName(node, "description");
+				if( description != null ) {
+					item.description = Common.trimLines(description.getTextContent());
 				}
 				
-				item.effect = ItemEffect.fromXML(XMLUtils.getNodeByXPath(node, "effect"));
+				item.effect = ItemEffectFactory.fromXML(XMLUtils.firstNodeByTagName(node, "effect"));
 				
-				Boolean handel = XMLUtils.getBooleanByXPath(node, "@handel");
+				Boolean handel = XMLUtils.getBooleanAttribute(node, "handel");
 				if( handel != null ) {
 					item.handel = handel;
 				}
 				
 				item.accesslevel = (int)XMLUtils.getLongAttribute(node, "accesslevel");
 				
-				item.quality = Item.Quality.fromString(XMLUtils.getStringByXPath(node, "quality/text()"));
+				if( XMLUtils.firstNodeByTagName(node, "quality") != null ) {
+					item.quality = Item.Quality.fromString(XMLUtils.firstNodeByTagName(node, "quality").getTextContent());
+				}
 				
-				Boolean unknownItem = XMLUtils.getBooleanByXPath(node, "@unknownItem");
+				Boolean unknownItem = XMLUtils.getBooleanAttribute(node, "unknownItem");
 				if( unknownItem != null ) {
 					item.unknownItem = unknownItem;
 				}
@@ -134,6 +143,7 @@ public class Items implements Loggable,Iterable<Item> {
 		}
 		catch( Exception e ) {
 			LOG.fatal("FAILED: Kann Items nicht laden",e);
+			throw new ExceptionInInitializerError(e);
 		}
 	}
 }

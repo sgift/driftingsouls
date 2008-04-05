@@ -18,9 +18,9 @@
  */
 package net.driftingsouls.ds2.server.cargo;
 
-import net.driftingsouls.ds2.server.config.Item;
-import net.driftingsouls.ds2.server.config.ItemEffect;
-import net.driftingsouls.ds2.server.config.Items;
+import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.config.items.Items;
+import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 
 // TODO: Readonly-Version anfertigen
 /**

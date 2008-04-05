@@ -23,10 +23,10 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
-import net.driftingsouls.ds2.server.config.IEModule;
-import net.driftingsouls.ds2.server.config.IEModuleSetMeta;
-import net.driftingsouls.ds2.server.config.ItemEffect;
-import net.driftingsouls.ds2.server.config.Items;
+import net.driftingsouls.ds2.server.config.items.Items;
+import net.driftingsouls.ds2.server.config.items.effects.IEModule;
+import net.driftingsouls.ds2.server.config.items.effects.IEModuleSetMeta;
+import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.ships.ShipTypeChangeset;

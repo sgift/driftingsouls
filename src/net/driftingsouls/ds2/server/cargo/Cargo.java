@@ -23,10 +23,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import net.driftingsouls.ds2.server.config.Item;
-import net.driftingsouls.ds2.server.config.ItemEffect;
-import net.driftingsouls.ds2.server.config.Items;
 import net.driftingsouls.ds2.server.config.ResourceConfig;
+import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.config.items.Items;
+import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
