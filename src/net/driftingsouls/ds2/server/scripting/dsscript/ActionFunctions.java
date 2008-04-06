@@ -384,7 +384,7 @@ public class ActionFunctions {
 			scriptparser.log("shipid: "+shipid+"\n");
 			
 			Ship ship = scriptparser.getShip();
-			User ashipowner = (User)db.createQuery("select owner from Ship where id=? and system=? and x=? and y=?")
+			User ashipowner = (User)db.createQuery("select s.owner from Ship s where s.id=? and s.system=? and s.x=? and s.y=?")
 				.setInteger(0, shipid)
 				.setInteger(1, ship.getSystem())
 				.setInteger(2, ship.getX())
