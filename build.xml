@@ -95,6 +95,7 @@
 			   optimize="${compile.optimize}"
 			   source="1.5"
 			   target="1.5"
+				encoding="UTF-8"
 				includes="**/server/framework/**">
 			<classpath refid="compile.classpath"/>
 		</javac>		
@@ -135,6 +136,7 @@
 			   optimize="${compile.optimize}"
 			   source="1.6"
 			   target="1.6"
+			   encoding="UTF-8"
 				excludes="**/server/templates/**,**/server/framework/**">
 			<classpath refid="compile.classpath"/>
 		</javac>
@@ -149,6 +151,7 @@
 			   debug="${compile.debug}"
 			   deprecation="${compile.deprecation}"
 			   optimize="${compile.optimize}"
+			   encoding="UTF-8"
 			   source="1.5"
 			   target="1.5">
 			<classpath refid="compile.classpath"/>
