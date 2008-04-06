@@ -94,12 +94,11 @@ public class BattleTick extends TickController {
 				e.printStackTrace();
 				Common.mailThrowable(e, "BattleTick Exception", "battle: "+battle.getId());
 			}
-			
-			db.evict(battle);
-			HibernateFacade.evictAll(db, Ship.class, BattleShip.class);
+			finally {
+				db.evict(battle);
+				HibernateFacade.evictAll(db, Ship.class, BattleShip.class);
+			}
 		}
-
-		getDB().clear();
 	}
 
 }
