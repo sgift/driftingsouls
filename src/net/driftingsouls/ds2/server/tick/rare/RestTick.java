@@ -21,7 +21,6 @@ package net.driftingsouls.ds2.server.tick.rare;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -75,9 +74,12 @@ public class RestTick extends TickController {
 		Map<User,Map<Integer,Set<String>>> useritemlocations = new HashMap<User, Map<Integer, Set<String>>>();
 		
 		this.log("\tLese Basen ein");
-		List baselist = db.createQuery("from Base as b inner join fetch b.owner where b.owner!=0").list();
-		for( Iterator iter=baselist.iterator(); iter.hasNext(); ) {
-			Base base = (Base)iter.next();
+		ScrollableResults bases = db.createQuery("from Base as b inner join fetch b.owner where b.owner!=0")
+			.setCacheMode(CacheMode.IGNORE)
+			.setFetchSize(50)
+			.scroll(ScrollMode.FORWARD_ONLY);
+		while( bases.next() ) {
+			Base base = (Base)bases.get(0);
 			
 			Cargo bcargo = base.getCargo();
 			if( base.getOwner().getId() > 0 ) {
@@ -109,12 +111,20 @@ public class RestTick extends TickController {
 			db.evict(base);
 		}
 		
+		int counter = 0;
+		
 		this.log("\tLese Ships ein");
 		ScrollableResults ships = db.createQuery("from Ship as s left join fetch s.modules where s.id>0")
 			.setCacheMode(CacheMode.IGNORE)
+			.setFetchSize(50)
 			.scroll(ScrollMode.FORWARD_ONLY);
 		while( ships.next() ) {
 			Ship ship = (Ship)ships.get(0);
+			
+			if( ship.getId() / 10000 != counter ) {
+				this.log("\t\t* "+ship.getId());
+				counter = ship.getId() / 10000;
+			}
 			
 			Cargo scargo = ship.getCargo();
 			if( ship.getOwner().getId() > 0 ) {
@@ -166,9 +176,8 @@ public class RestTick extends TickController {
 				}
 			}
 			db.evict(ship);
+			HibernateFacade.evictAll(db, ShipModules.class);
 		}
-		
-		HibernateFacade.evictAll(db, ShipModules.class);
 
 		this.log("\tLese Zwischenlager ein");
 		ScrollableResults entrylist = db.createQuery("from GtuZwischenlager")
