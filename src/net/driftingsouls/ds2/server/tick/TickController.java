@@ -156,13 +156,12 @@ public abstract class TickController {
 			log("QCount: "+getDatabase().getQCount());
 			
 			log("Execution-Time: "+(System.currentTimeMillis()-exectime)+"s");
+			
+			getContext().commit();
 		}
 		catch( Exception e ) {
 			e.printStackTrace();
 			getDB().getTransaction().rollback();
-		}
-		finally {
-			getContext().commit();
 		}
 	}
 	
