@@ -823,8 +823,8 @@ public class PortalController extends TemplateGenerator {
 		
 		Common.writeLog("login.log",Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+user.getUN()+"> Login von Browser <"+getRequest().getUserAgent()+">\n");
 
-		getDB().createQuery("delete from Session where id=? and attach is null")
-			.setInteger(0, user.getId())
+		getDB().createQuery("delete from Session where user=? and attach is null")
+			.setEntity(0, user)
 			.executeUpdate();
 		
 		Session session = new Session(user);
