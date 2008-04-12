@@ -73,6 +73,8 @@ public class BattleTick extends TickController {
 				//vorhanden sind
 				if( battle.hasFlag(Battle.FLAG_FIRSTROUND) ) {
 					battle.setFlag(Battle.FLAG_FIRSTROUND, false);
+					getContext().commit();
+					
 					continue;
 				}
 			
