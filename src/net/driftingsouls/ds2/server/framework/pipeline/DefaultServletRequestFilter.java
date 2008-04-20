@@ -21,7 +21,7 @@ package net.driftingsouls.ds2.server.framework.pipeline;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
-import java.util.Iterator;
+import java.util.Enumeration;
 import java.util.Map;
 
 import javax.servlet.Filter;
@@ -127,14 +127,14 @@ public class DefaultServletRequestFilter implements Filter, Loggable {
 		}
 	}
 
-	private void mailThrowable(HttpServletRequest httpRequest, BasicContext context, Throwable e) {
+	private void mailThrowable(HttpServletRequest httpRequest, BasicContext context, Throwable t) {
 		StringBuilder msg = new StringBuilder(100);
 		msg.append("Time: "+new Date()+"\n");
 		msg.append("URI: "+httpRequest.getRequestURI()+"\n");
 		msg.append("PARAMS:\n");
-		for( Iterator iter=httpRequest.getParameterMap().entrySet().iterator(); iter.hasNext(); ) {
-			Map.Entry entry = (Map.Entry)iter.next();
-			msg.append("\t* "+entry.getKey()+" = "+entry.getValue()+"\n");
+		for( Enumeration e=httpRequest.getParameterNames(); e.hasMoreElements(); ) {
+			String key = (String)e.nextElement();
+			msg.append("\t* "+key+" = "+httpRequest.getParameter(key)+"\n");
 		}
 		
 		msg.append("QUERY_STRING: "+httpRequest.getQueryString()+"\n");
@@ -144,7 +144,7 @@ public class DefaultServletRequestFilter implements Filter, Loggable {
 			msg.append("User: "+(context.getActiveUser() != null ? context.getActiveUser().getId() : "none")+"\n");
 		}
 		
-		Common.mailThrowable(e, (context == null ? "Fatal " : "")+"Framework Exception", msg.toString());
+		Common.mailThrowable(t, (context == null ? "Fatal " : "")+"Framework Exception", msg.toString());
 	}
 
 	public void init(FilterConfig filterConfig) throws ServletException {
