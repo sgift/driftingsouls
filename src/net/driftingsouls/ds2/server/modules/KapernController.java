@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.modules;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
@@ -275,11 +274,7 @@ public class KapernController extends TemplateGenerator {
 			if( this.targetShipType.getInt("class") == ShipClasses.STATION.ordinal() ) {
 				List<Integer> ownerlist = new ArrayList<Integer>();
 				if( targetUser.getAlly() != null ) {
-					List list = getContext().getDB().createQuery("from User where ally= :ally")
-						.setEntity("ally", targetUser.getAlly())
-						.list();
-					for( Iterator iter=list.iterator(); iter.hasNext(); ) {
-						User uid = (User)iter.next();
+					for( User uid : targetUser.getAlly().getMembers() ) {
 						ownerlist.add(uid.getId());
 					}
 				}		
