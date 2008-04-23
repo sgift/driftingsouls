@@ -393,7 +393,7 @@ public class UeberController extends TemplateGenerator implements Loggable {
 		Query battleQuery = null;
 
 		if(user.getAccessLevel() < 20 && !user.hasFlag(User.FLAG_VIEW_BATTLES)){
-			String query = "select distinct s.battle from Ship as s inner join fetch s.battle " +
+			String query = "select distinct s.battle from Ship as s inner join s.battle " +
 					"where s.battle.commander1= :user or s.battle.commander2= :user or s.owner= :user";
 			
 			//hat der Benutzer eine ally, dann haeng das hier an
