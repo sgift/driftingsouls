@@ -129,7 +129,7 @@ public class SchiffsTick extends TickController {
 				ResourceID resid = this.esources.get(resshort);
 				String reactres = "r"+resshort;
 				
-				if( (e < shiptd.getInt("eps")) && (shiptd.getInt(reactres) > 0) ) {
+				if( shiptd.getInt(reactres) > 0 ) {
 					this.slog("\t * "+Cargo.getResourceName(resid)+": ");
 					if( shipc.getResourceCount( resid ) > 0 ) {
 						this.log(shipc.getResourceCount( resid )+" vorhanden");
@@ -197,10 +197,8 @@ public class SchiffsTick extends TickController {
 				if( offizier != null ) {
 					sub[a] += (int)(offizier.getAbility(Offizier.Ability.ING) / 3d );
 				
-					if( offizier.getAbility(Offizier.Ability.ING) > 20 ) {
-						if( sub[a] > 40 + (int)(offizier.getAbility(Offizier.Ability.ING)/4d) ) {
-							sub[a] = 40 + (int)(offizier.getAbility(Offizier.Ability.ING)/4d);
-						}
+					if( sub[a] > 40 + (int)(offizier.getAbility(Offizier.Ability.ING)/4d) ) {
+						sub[a] = 40 + (int)(offizier.getAbility(Offizier.Ability.ING)/4d);
 					}
 				} 
 				else if( sub[a] > 40 ) {
@@ -548,7 +546,7 @@ public class SchiffsTick extends TickController {
 			getContext().commit();
 		}
 				
-		// Nahrungspool aktualliseren
+		// Nahrungspool aktualiseren
 		if( !this.calledByBattle ) {
 			auser.setCargo(this.usercargo.save());
 			auser.setNahrungsStat(Long.toString(this.usercargo.getResourceCount(Resources.NAHRUNG) - usernstat));

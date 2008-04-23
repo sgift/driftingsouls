@@ -1509,7 +1509,7 @@ public class Battle implements Loggable, Locatable {
 	 * Beendet die laufende Runde und berechnet einen Rundenwechsel
 	 * @param calledByUser Wurde das Rundenende (in)direkt durch einen Spieler ausgeloesst? (<code>true</code>)
 	 * 
-	 * @return <code>true</code>, falls die Schlacht weiterhin existiert. <code>false</code>, falls sie zu beendet wurde.
+	 * @return <code>true</code>, falls die Schlacht weiterhin existiert. <code>false</code>, falls sie beendet wurde.
 	 * 
 	 */
 	public boolean endTurn( boolean calledByUser ) {
@@ -1556,11 +1556,14 @@ public class Battle implements Loggable, Locatable {
 				else if( (aship.getAction() & BS_DESTROYED) != 0 ) {	
 					if( Configuration.getIntSetting("DESTROYABLE_SHIPS") != 0 ) {
 						destroyList.add(aship);
-	
-						continue;
+					}
+					else
+					{
+						continue; //Das Schiff kann nicht zerstoert werden
 					}
 					
 					aship.setAction(aship.getAction() ^ BS_DESTROYED);
+					//continue;
 				}
 				
 				ShipTypeData ashipType = aship.getTypeData();
@@ -1573,7 +1576,7 @@ public class Battle implements Loggable, Locatable {
 						fluchtList.add(aship);
 					}
 	
-					continue;
+					//continue;
 				}
 				
 				if( (aship.getAction() & BS_SHOT) != 0 ) {
@@ -1638,8 +1641,8 @@ public class Battle implements Loggable, Locatable {
 		int enemycount = this.enemyShips.size();
 		
 		if( (owncount == 0) && (enemycount == 0) ) {
-			PM.send(this.getCommanders()[this.enemySide], this.getCommanders()[this.ownSide].getId(), "Schlacht unentschieden", "Die Schlacht bei "+this.getLocation()+" gegen "+this.getCommanders()[this.enemySide].getName()+" wurde mit einem Unendschieden beendet!");
-			PM.send(this.getCommanders()[this.ownSide], this.getCommanders()[this.enemySide].getId(), "Schlacht unentschieden", "Die Schlacht bei "+this.getLocation()+" gegen "+this.getCommanders()[this.ownSide].getName()+" wurde mit einem Unendschieden beendet!");
+			PM.send(this.getCommanders()[this.enemySide], this.getCommanders()[this.ownSide].getId(), "Schlacht unentschieden", "Die Schlacht bei "+this.getLocation()+" gegen "+this.getCommanders()[this.enemySide].getName()+" wurde mit einem Unentschieden beendet!");
+			PM.send(this.getCommanders()[this.ownSide], this.getCommanders()[this.enemySide].getId(), "Schlacht unentschieden", "Die Schlacht bei "+this.getLocation()+" gegen "+this.getCommanders()[this.ownSide].getName()+" wurde mit einem Unentschieden beendet!");
 
 			// Schlacht beenden - unendschieden
 			this.endBattle(0,0, true);

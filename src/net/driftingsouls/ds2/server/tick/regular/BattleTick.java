@@ -68,18 +68,20 @@ public class BattleTick extends TickController {
 			
 				battle.load( battle.getCommander(0), null, null, 0 );
 				
-				//In der ersten Runde verzoegern wir grundsaetzlich
+				//In der ersten Runde verzoegern wir grundsaetzlich - aufgehoben
 				//maximal jedoch einmal, damit Schlachten nicht unendlich lange im System
 				//vorhanden sind
+				/*
 				if( battle.hasFlag(Battle.FLAG_FIRSTROUND) ) {
 					battle.setFlag(Battle.FLAG_FIRSTROUND, false);
 					getContext().commit();
 					
 					continue;
 				}
+				*/
 			
 				if( battle.endTurn(false) ) {
-					// Daten nur aktuallisieren, wenn die Schlacht auch weiterhin existiert
+					// Daten nur aktualisieren, wenn die Schlacht auch weiterhin existiert
 					battle.logenemy("<endturn type=\"all\" side=\"-1\" time=\""+Common.time()+"\" tick=\""+getContext().get(ContextCommon.class).getTick()+"\" />\n");
 				
 					battle.writeLog();
