@@ -8,3 +8,6 @@ net.driftingsouls.ds2.server.modules.admin.QuestsQuick
 net.driftingsouls.ds2.server.modules.admin.QuestsFiles
 net.driftingsouls.ds2.server.modules.admin.QuestsHandler
 net.driftingsouls.ds2.server.modules.admin.QuestsSTM
+net.driftingsouls.ds2.server.modules.admin.AddGtu
+net.driftingsouls.ds2.server.modules.admin.GtuVerkaeufe
+net.driftingsouls.ds2.server.modules.admin.GtuPrices
