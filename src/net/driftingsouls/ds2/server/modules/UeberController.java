@@ -297,13 +297,16 @@ public class UeberController extends TemplateGenerator implements Loggable {
 			}
 		}
 
-		//
-		// Ingame-Zeit setzen
-		//
-
-		String curtime = Common.getIngameTime(ticks);
-
-		t.setVar("time.current", curtime);
+    
+		if(user.getAccessLevel() > 30) {
+			//
+			// Ingame-Zeit setzen
+			//
+  
+			String curtime = Common.getIngameTime(ticks);
+  
+			t.setVar("time.current", curtime);
+		}
 
 		//------------------------------
 		// auf neue Nachrichten checken
@@ -315,7 +318,7 @@ public class UeberController extends TemplateGenerator implements Loggable {
 		t.setVar("user.newmsgs", Common.ln(newCount));
 
 		//------------------------------
-		// Mangel auf Asterodien checken
+		// Mangel auf Asteroiden checken
 		//------------------------------
 
 		usercargo = new Cargo( Cargo.Type.STRING, user.getCargo() );
@@ -390,7 +393,7 @@ public class UeberController extends TemplateGenerator implements Loggable {
 		Query battleQuery = null;
 
 		if(user.getAccessLevel() < 20 && !user.hasFlag(User.FLAG_VIEW_BATTLES)){
-			String query = "select distinct s.battle from Ship as s inner join s.battle " +
+			String query = "select distinct s.battle from Ship as s inner join fetch s.battle " +
 					"where s.battle.commander1= :user or s.battle.commander2= :user or s.owner= :user";
 			
 			//hat der Benutzer eine ally, dann haeng das hier an
