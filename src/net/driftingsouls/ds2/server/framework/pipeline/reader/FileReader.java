@@ -128,5 +128,8 @@ public class FileReader implements Reader, Loggable {
 			// Ignorieren, da es sich in den meisten Faellen um einen Browser handelt,
 			// der die Verbindung zu frueh dicht gemacht hat
 		}
+		finally {
+			fin.close();
+		}
 	}
 }
