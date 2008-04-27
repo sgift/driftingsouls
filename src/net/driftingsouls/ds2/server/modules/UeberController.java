@@ -298,15 +298,13 @@ public class UeberController extends TemplateGenerator implements Loggable {
 		}
 
     
-		if(user.getAccessLevel() > 30) {
-			//
-			// Ingame-Zeit setzen
-			//
+		//
+		// Ingame-Zeit setzen
+		//
   
-			String curtime = Common.getIngameTime(ticks);
+		String curtime = Common.getIngameTime(ticks);
   
-			t.setVar("time.current", curtime);
-		}
+		t.setVar("time.current", curtime);
 
 		//------------------------------
 		// auf neue Nachrichten checken
