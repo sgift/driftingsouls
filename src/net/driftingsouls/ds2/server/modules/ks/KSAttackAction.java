@@ -373,7 +373,7 @@ public class KSAttackAction extends BasicKSAction {
 	
 	private int getDefensivSkill( ShipTypeData enemyShipType, Offizier eOffizier ) {
 		if( eOffizier != null ) {
-			double value = (eOffizier.getAbility(Offizier.Ability.NAV)+eOffizier.getAbility(Offizier.Ability.COM))/2d;
+			double value = ((eOffizier.getAbility(Offizier.Ability.NAV)+eOffizier.getAbility(Offizier.Ability.COM))/2d)/ Double.valueOf(enemyShipType.getSize());
 			return Math.max(1, (int)Math.round(value));
 		} 
 
