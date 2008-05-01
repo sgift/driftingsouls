@@ -160,6 +160,8 @@ public abstract class TickController {
 			getContext().commit();
 		}
 		catch( Exception e ) {
+			Common.mailThrowable(e, "Tickabbruch "+this.getClass().getSimpleName(), "");
+			
 			e.printStackTrace();
 			getDB().getTransaction().rollback();
 		}
