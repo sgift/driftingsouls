@@ -35,13 +35,13 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipLost;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
@@ -1113,7 +1113,7 @@ public class AllyController extends TemplateGenerator implements Loggable {
 			.list();
 		for( Iterator iter=sList.iterator(); iter.hasNext(); ) {
 			ShipLost s = (ShipLost)iter.next();
-			SQLResultRow shiptype = ShipTypes.getShipType( s.getType(), false );
+			ShipTypeData shiptype = Ship.getShipType( s.getType() );
 			
 			counter++;
 
@@ -1127,9 +1127,9 @@ public class AllyController extends TemplateGenerator implements Loggable {
 			}
 
 			t.setVar(	"show.destships.name",			s.getName(),
-						"show.destships.type.name",		shiptype.getString("nickname"),
+						"show.destships.type.name",		shiptype.getNickname(),
 						"show.destships.type",			s.getType(),
-						"show.destships.type.picture",	shiptype.getString("picture"),
+						"show.destships.type.picture",	shiptype.getPicture(),
 						"show.destships.owner",			Common._title(ownername),
 						"show.destships.time",			Common.date("d.m.Y H:i:s",s.getTime()),
 						"show.destships.newrow",		(counter % 5) == 0 );
@@ -1172,7 +1172,7 @@ public class AllyController extends TemplateGenerator implements Loggable {
 			.list();
 		for( Iterator iter=sList.iterator(); iter.hasNext(); ) {
 			ShipLost s = (ShipLost)iter.next();
-			SQLResultRow shiptype = ShipTypes.getShipType( s.getType(), false );
+			ShipTypeData shiptype = Ship.getShipType( s.getType() );
 			
 			counter++;
 			
@@ -1196,9 +1196,9 @@ public class AllyController extends TemplateGenerator implements Loggable {
 			}
 						
 			t.setVar(	"show.lostships.name",			s.getName(),
-						"show.lostships.type.name",		shiptype.getString("nickname"),
+						"show.lostships.type.name",		shiptype.getNickname(),
 						"show.lostships.type",			s.getType(),
-						"show.lostships.type.picture",	shiptype.getString("picture"),
+						"show.lostships.type.picture",	shiptype.getPicture(),
 						"show.lostships.owner",			Common._title(destownername),
 						"show.lostships.destroyer",		Common._title(ownername),
 						"show.lostships.time",			Common.date("d.m.Y H:i:s",s.getTime()),
@@ -1406,7 +1406,7 @@ public class AllyController extends TemplateGenerator implements Loggable {
 			
 			t.setVar(	"ally.posten.name",			Common._title(aposten.getName()),
 						"ally.posten.user.name",	Common._title(aposten.getUser().getName()),
-						"ally.posten.user.id",		aposten.getId());
+						"ally.posten.user.id",		aposten.getUser().getId());
 			
 			t.parse( "ally.posten.list", "ally.posten.listitem", true );
 		}
