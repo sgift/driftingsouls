@@ -237,7 +237,7 @@ public class KSKapernAction extends BasicKSAction {
 			}
 				
 			// Angreifer (falls ueberlebende vorhanden) auf dem Schiff stationieren
-			int newshipcrew = 0;
+			int newshipcrew = enemyShip.getShip().getCrew();
 			if( (acrew != 0) && (dcrew == 0) ) {
 				newshipcrew = acrew/2;
 				if( newshipcrew > enemyShipType.getCrew() ) {
