@@ -25,7 +25,6 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Immutable;
 
 /**
  * Ein Schiffstyp
@@ -34,8 +33,7 @@ import org.hibernate.annotations.Immutable;
  */
 @Entity
 @Table(name="ship_types")
-@Immutable
-@Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
+@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class ShipType implements ShipTypeData {
 	/**
 	 * Kennzeichnet die maximale Groesse, die ein kleines Schiff (z.B. ein Jaeger) haben kann 
@@ -295,5 +293,318 @@ public class ShipType implements ShipTypeData {
 
 	public int getPickingCost() {
 		return pickingCost;
+	}
+
+	/**
+	 * Setzt die ablative Panzerung
+	 * @param ablativeArmor Die Panzerung
+	 */
+	public void setAblativeArmor(int ablativeArmor) {
+		this.ablativeArmor = ablativeArmor;
+	}
+
+	/**
+	 * Setzt die Anzahl der externen Docks
+	 * @param docks Die Docks
+	 */
+	public void setADocks(int docks) {
+		aDocks = docks;
+	}
+
+	/**
+	 * Setzt den vorhandenen Cargo
+	 * @param cargo Der Cargo
+	 */
+	public void setCargo(long cargo) {
+		this.cargo = cargo;
+	}
+
+	/**
+	 * Setzt die Wahrscheinlichkeit fuer einen Drop
+	 * @param chance4Loot Die Wahrscheinlichkeit
+	 */
+	public void setChance4Loot(int chance4Loot) {
+		this.chance4Loot = chance4Loot;
+	}
+
+	/**
+	 * Setzt die Flugkosten in Energie
+	 * @param cost Die Kosten
+	 */
+	public void setCost(int cost) {
+		this.cost = cost;
+	}
+
+	/**
+	 * Setzt die maximale Crewmenge
+	 * @param crew Die Crewmenge
+	 */
+	public void setCrew(int crew) {
+		this.crew = crew;
+	}
+
+	/**
+	 * Setzt die Beschreibung des Schiffstyps
+	 * @param descrip Die Beschreibung
+	 */
+	public void setDescrip(String descrip) {
+		this.descrip = descrip;
+	}
+
+	/**
+	 * Setzt den Faktor mit dem das Schiff Deuterium extrahieren kann
+	 * @param deutFactor Der Faktor
+	 */
+	public void setDeutFactor(int deutFactor) {
+		this.deutFactor = deutFactor;
+	}
+
+	/**
+	 * Setzt die maximale Energiemenge des Schiffs
+	 * @param eps Die Energiemenge
+	 */
+	public void setEps(int eps) {
+		this.eps = eps;
+	}
+
+	/**
+	 * Setzt die Flags des Schiffs
+	 * @param flags Die Flags
+	 */
+	public void setFlags(String flags) {
+		this.flags = flags;
+	}
+
+	/**
+	 * Setzt den Schwellenwert fuer die Gruppierung von Schiffen dieses Typs
+	 * @param groupwrap Der Schwellenwert
+	 */
+	public void setGroupwrap(int groupwrap) {
+		this.groupwrap = groupwrap;
+	}
+
+	/**
+	 * Setzt die Ueberhitzung pro geflogenen Feld
+	 * @param heat Die Ueberhitzung
+	 */
+	public void setHeat(int heat) {
+		this.heat = heat;
+	}
+
+	/**
+	 * Setzt, ob der Schiffstyp versteckt, d.h. nicht fuer alle sichtbar ist
+	 * @param hide <code>true</code>, falls er versteckt ist
+	 */
+	public void setHide(boolean hide) {
+		this.hide = hide;
+	}
+
+	/**
+	 * Setzt den maximalen Huellenwert des Typs
+	 * @param hull Der Huellenwert
+	 */
+	public void setHull(int hull) {
+		this.hull = hull;
+	}
+
+	/**
+	 * Setzt die Menge der produzierten Nahrung pro Tick
+	 * @param hydro Die Menge
+	 */
+	public void setHydro(int hydro) {
+		this.hydro = hydro;
+	}
+
+	/**
+	 * Setzt die Anzahl der Jaegerdocks
+	 * @param docks Die Anzahl
+	 */
+	public void setJDocks(int docks) {
+		jDocks = docks;
+	}
+
+	/**
+	 * Setzt die Anzahl der Marines, die auf dem Schiff platz haben
+	 * @param marines Die Marines
+	 */
+	public void setMarines(int marines) {
+		this.marines = marines;
+	}
+
+	/**
+	 * Setzt die maximale Ueberhitzung der Waffen
+	 * @param maxHeat Die max. Hitze
+	 */
+	public void setMaxHeat(String maxHeat) {
+		this.maxHeat = maxHeat;
+	}
+
+	/**
+	 * Setzt die Modulslots des Schiffes
+	 * @param modules Die Slots
+	 */
+	public void setModules(String modules) {
+		this.modules = modules;
+	}
+
+	/**
+	 * Setzt den Namen des Typs
+	 * @param nickname Der Name
+	 */
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
+	}
+
+	/**
+	 * Setzt das Gegenstueck beim Bau, falls es sich um eine Einwegwerft handelt.
+	 * Falls der Wert 0 ist handelt es sich nicht um eine Einwegwerft
+	 * @param oneWayWerft Der Schiffstyp
+	 */
+	public void setOneWayWerft(int oneWayWerft) {
+		this.oneWayWerft = oneWayWerft;
+	}
+
+	/**
+	 * Setzt die Panzerung des Schiffes
+	 * @param panzerung Die Panzerung
+	 */
+	public void setPanzerung(int panzerung) {
+		this.panzerung = panzerung;
+	}
+
+	/**
+	 * Setzt die Energiekosten pro LRS-Sektorscan
+	 * @param pickingCost Die Kosten
+	 */
+	public void setPickingCost(int pickingCost) {
+		this.pickingCost = pickingCost;
+	}
+
+	/**
+	 * Setzt das Bild des Schiffstyps
+	 * @param picture Das Bild
+	 */
+	public void setPicture(String picture) {
+		this.picture = picture;
+	}
+
+	/**
+	 * Setzt die Reaktoreffizienz bei Antimaterie
+	 * @param ra Die Effizienz
+	 */
+	public void setRa(int ra) {
+		this.ra = ra;
+	}
+
+	/**
+	 * Setzt die Reaktoreffizienz bei Deuterium
+	 * @param rd Die Effizienz
+	 */
+	public void setRd(int rd) {
+		this.rd = rd;
+	}
+
+	/**
+	 * Setzt die Wartungskosten in RE
+	 * @param reCost Die Kosten
+	 */
+	public void setReCost(int reCost) {
+		this.reCost = reCost;
+	}
+
+	/**
+	 * Setzt die Gesamtenergieproduktion pro Tick
+	 * @param rm Die Energie
+	 */
+	public void setRm(int rm) {
+		this.rm = rm;
+	}
+
+	/**
+	 * Setzt die Reaktoreffizienz bei Uran
+	 * @param ru Die Effizienz
+	 */
+	public void setRu(int ru) {
+		this.ru = ru;
+	}
+
+	/**
+	 * Setzt die Energiekosten pro LRS-Scan
+	 * @param scanCost Die Kosten
+	 */
+	public void setScanCost(int scanCost) {
+		this.scanCost = scanCost;
+	}
+
+	/**
+	 * Setzt die Sensorreichweite
+	 * @param sensorRange Die Reichweite
+	 */
+	public void setSensorRange(int sensorRange) {
+		this.sensorRange = sensorRange;
+	}
+
+	/**
+	 * Setzt die Schildpunkte
+	 * @param shields Die Schildpunkte
+	 */
+	public void setShields(int shields) {
+		this.shields = shields;
+	}
+
+	/**
+	 * Setzt die Schiffsklasse, zu der der Typ zugehoert
+	 * @param shipClass Die Schiffsklasse
+	 */
+	public void setShipClass(int shipClass) {
+		this.shipClass = shipClass;
+	}
+
+	/**
+	 * Setzt die Anzahl der Schiffe, die von einem Schiff repraesentiert werden
+	 * @param shipCount Die Anzahl
+	 */
+	public void setShipCount(int shipCount) {
+		this.shipCount = shipCount;
+	}
+
+	/**
+	 * Setzt die Groesse des Schiffstyps
+	 * @param size Die Groesse
+	 */
+	public void setSize(int size) {
+		this.size = size;
+	}
+
+	/**
+	 * Setzt, ob das Schiff einen SRS-Scanner besitzt
+	 * @param srs <code>true</code>, falls es einen solchen Scanner besitzt
+	 */
+	public void setSrs(boolean srs) {
+		this.srs = srs;
+	}
+
+	/**
+	 * Setzt den Verteidigungsfaktor gegenueber Torpedos
+	 * @param torpedoDef Der Faktor
+	 */
+	public void setTorpedoDef(int torpedoDef) {
+		this.torpedoDef = torpedoDef;
+	}
+
+	/**
+	 * Setzt die Waffen des Schiffes
+	 * @param weapons Die Waffen
+	 */
+	public void setWeapons(String weapons) {
+		this.weapons = weapons;
+	}
+
+	/**
+	 * Setzt die Anzahl der Werftslots
+	 * @param werft Die Anzahl
+	 */
+	public void setWerft(int werft)	{
+		this.werft = werft;
 	}
 }
