@@ -377,7 +377,23 @@ public class SchiffsTick extends TickController {
 				auser = (User)db.get(User.class, auser.getId());
 			}
 			finally {
-				this.unblock(auser.getId());
+				try {
+					this.unblock(auser.getId());
+				}
+				catch( RuntimeException e ) {
+					if( calledByBattle ) {
+						throw e;
+					}
+					
+					getContext().rollback();
+					db.clear();
+					
+					this.log("User "+auser.getId()+" failed: "+e);
+					e.printStackTrace();
+					Common.mailThrowable(e, "ShipTick  Exception", "Unblock fehlgeschlagen\nUser: "+auser.getId()+"\nBattle: "+battle);
+					
+					auser = (User)db.get(User.class, auser.getId());
+				}
 			}
 		}
 				
