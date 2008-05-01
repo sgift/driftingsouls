@@ -36,6 +36,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.script.ScriptEngine;
@@ -152,10 +153,10 @@ public class Battle implements Loggable, Locatable {
 	private int system;
 	private int ally1;
 	private int ally2;
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="commander1", nullable=false)
 	private User commander1;
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="commander2", nullable=false)
 	private User commander2;
 	private boolean ready1;
@@ -1557,8 +1558,7 @@ public class Battle implements Loggable, Locatable {
 					if( Configuration.getIntSetting("DESTROYABLE_SHIPS") != 0 ) {
 						destroyList.add(aship);
 					}
-					else
-					{
+					else {
 						continue; //Das Schiff kann nicht zerstoert werden
 					}
 					
