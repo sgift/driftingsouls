@@ -11,3 +11,9 @@ net.driftingsouls.ds2.server.modules.admin.QuestsSTM
 net.driftingsouls.ds2.server.modules.admin.AddGtu
 net.driftingsouls.ds2.server.modules.admin.GtuVerkaeufe
 net.driftingsouls.ds2.server.modules.admin.GtuPrices
+net.driftingsouls.ds2.server.modules.admin.BasesMap
+net.driftingsouls.ds2.server.modules.admin.BattleEnd
+net.driftingsouls.ds2.server.modules.admin.PortalDownloads
+net.driftingsouls.ds2.server.modules.admin.PortalNews
+net.driftingsouls.ds2.server.modules.admin.SurveyResults
+net.driftingsouls.ds2.server.modules.admin.ResearchEdit
