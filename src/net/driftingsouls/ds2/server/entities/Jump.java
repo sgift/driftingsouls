@@ -25,6 +25,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
@@ -46,6 +47,9 @@ public class Jump implements Locatable {
 	private int x;
 	private int y;
 	private int system;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -141,5 +145,13 @@ public class Jump implements Locatable {
 
 	public Location getLocation() {
 		return new Location(this.system, this.x, this.y);
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

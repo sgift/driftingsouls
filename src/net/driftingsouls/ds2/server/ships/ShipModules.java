@@ -25,6 +25,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 /**
  * Die Moduldaten eines Schiffes
@@ -80,6 +81,9 @@ public class ShipModules implements ShipTypeData {
 	private boolean srs;
 	private int scanCost;
 	private int pickingCost;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -572,5 +576,13 @@ public class ShipModules implements ShipTypeData {
 	 */
 	public void setPickingCost(int pickingCost) {
 		this.pickingCost = pickingCost;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

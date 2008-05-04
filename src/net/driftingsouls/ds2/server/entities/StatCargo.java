@@ -21,10 +21,11 @@ package net.driftingsouls.ds2.server.entities;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.Type;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
+
+import org.hibernate.annotations.Type;
 
 /**
  * Ein Stats-Eintrag, der den Gesamtcargo im Spiel zu einem Zeitpunkt (Tick) 
@@ -39,6 +40,9 @@ public class StatCargo {
 	private int tick;
 	@Type(type="cargo")
 	private Cargo cargo;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -88,5 +92,13 @@ public class StatCargo {
 	 */
 	public void setTick(int tick) {
 		this.tick = tick;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

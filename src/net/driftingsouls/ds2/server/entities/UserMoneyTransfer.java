@@ -27,6 +27,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.framework.Common;
 
@@ -75,6 +76,9 @@ public class UserMoneyTransfer {
 	private String text;
 	private int fake;
 	private int type;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -221,5 +225,13 @@ public class UserMoneyTransfer {
 	 */
 	public int getId() {
 		return id;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

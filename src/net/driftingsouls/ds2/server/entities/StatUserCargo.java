@@ -24,6 +24,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 
@@ -47,6 +48,9 @@ public class StatUserCargo {
 	
 	@Type(type="cargo")
 	private Cargo cargo;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -97,5 +101,13 @@ public class StatUserCargo {
 	public final void setUser(final User user) {
 		this.user = user;
 		this.user_id = user.getId();
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

@@ -22,6 +22,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import org.apache.commons.lang.math.RandomUtils;
 
@@ -44,6 +45,9 @@ public class Task {
 	private String data1 = "";
 	private String data2 = "";
 	private String data3 = "";
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -149,5 +153,13 @@ public class Task {
 	 */
 	public Taskmanager.Types getType() {
 		return Taskmanager.Types.getTypeByID(type);
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

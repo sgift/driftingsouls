@@ -36,9 +36,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.Version;
 import javax.script.ScriptEngine;
 
 import net.driftingsouls.ds2.server.ContextCommon;
@@ -180,6 +180,9 @@ public class Battle implements Loggable, Locatable {
 	private String onend;
 	private String visibility;
 	private Integer quest;
+	
+	@Version
+	private int version;
 	
 	@Transient
 	private String ownShipGroup = "0";
@@ -2378,5 +2381,13 @@ public class Battle implements Loggable, Locatable {
 
 	public Location getLocation() {
 		return new Location(this.system, this.x, this.y);
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

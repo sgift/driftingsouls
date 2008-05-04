@@ -23,6 +23,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -59,6 +60,9 @@ public class ComNetChannel {
 	private String readPlayer;
 	@Column(name="writeplayer")
 	private String writePlayer;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -316,5 +320,13 @@ public class ComNetChannel {
 		return ((Number)db.createQuery("select count(*) from ComNetEntry where channel= :channel")
 			.setEntity("channel", this)
 			.iterate().next()).intValue();
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

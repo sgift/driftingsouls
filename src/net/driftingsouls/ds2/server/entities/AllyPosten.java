@@ -26,6 +26,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 /**
  * Ein Allianzposten
@@ -44,6 +45,9 @@ public class AllyPosten {
 	
 	@OneToOne(mappedBy="allyposten",optional=true,fetch=FetchType.LAZY)
 	private User user;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -119,5 +123,13 @@ public class AllyPosten {
 	 */
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

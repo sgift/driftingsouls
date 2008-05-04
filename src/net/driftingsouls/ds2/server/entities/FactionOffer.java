@@ -22,6 +22,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 /**
  * Ein Angebot einer Fraktion
@@ -37,6 +38,9 @@ public class FactionOffer {
 	private String title;
 	private String image;
 	private String description;
+
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -127,6 +131,12 @@ public class FactionOffer {
 	public int getId() {
 		return id;
 	}
-	
-	
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
+	}
 }

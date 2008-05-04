@@ -27,6 +27,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -63,6 +64,9 @@ public class GtuZwischenlager {
 	private Cargo cargo2;
 	@Type(type="cargo") @Column(name="cargo2need")
 	private Cargo cargo2Need;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -206,5 +210,13 @@ public class GtuZwischenlager {
 	 */
 	public int getId() {
 		return id;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

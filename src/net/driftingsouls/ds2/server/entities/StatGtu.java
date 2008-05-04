@@ -23,6 +23,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -49,6 +50,9 @@ public class StatGtu {
 	private String ownername;
 	@Column(name="gtugew")
 	private double gtuGew;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -245,5 +249,13 @@ public class StatGtu {
 	 */
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

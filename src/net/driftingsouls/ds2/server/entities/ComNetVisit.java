@@ -25,6 +25,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.framework.Common;
 
@@ -45,6 +46,9 @@ public class ComNetVisit {
 	@JoinColumn(name="channel", nullable=false)
 	private ComNetChannel channel;
 	private long time;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -119,5 +123,13 @@ public class ComNetVisit {
 	 */
 	public int getId() {
 		return id;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

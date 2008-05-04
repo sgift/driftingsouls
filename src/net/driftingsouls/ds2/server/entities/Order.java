@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 /**
  * Eine NPC-Bestellung
@@ -18,6 +19,9 @@ public class Order {
 	private int type;
 	private int tick;
 	private int user;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -91,5 +95,13 @@ public class Order {
 	 */
 	public int getId() {
 		return id;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

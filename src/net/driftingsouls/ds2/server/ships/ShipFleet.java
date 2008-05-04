@@ -27,6 +27,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
@@ -48,6 +49,9 @@ public class ShipFleet {
 	@Id @GeneratedValue
 	private int id;
 	private String name;
+	
+	@Version
+	private int version;
 	
 	@Transient
 	private boolean consignMode = false;
@@ -377,5 +381,13 @@ public class ShipFleet {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

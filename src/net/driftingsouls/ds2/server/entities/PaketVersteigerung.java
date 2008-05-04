@@ -25,6 +25,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Type;
@@ -54,6 +55,9 @@ public class PaketVersteigerung {
 	@Type(type="cargo")
 	private Cargo cargo;
 	private String ships = "";
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -176,5 +180,13 @@ public class PaketVersteigerung {
 		else {
 			ships = Integer.toString(type.getTypeId());
 		}
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

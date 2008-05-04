@@ -22,6 +22,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 
@@ -43,6 +44,9 @@ public class StatVerkaeufe {
 	private int system;
 	@Type(type="cargo")
 	private Cargo stats;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -135,5 +139,13 @@ public class StatVerkaeufe {
 	 */
 	public int getId() {
 		return id;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

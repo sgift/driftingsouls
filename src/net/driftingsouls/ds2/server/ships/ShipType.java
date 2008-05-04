@@ -22,6 +22,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -90,6 +91,9 @@ public class ShipType implements ShipTypeData {
 	private boolean srs;
 	private int scanCost;
 	private int pickingCost;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -606,5 +610,13 @@ public class ShipType implements ShipTypeData {
 	 */
 	public void setWerft(int werft)	{
 		this.werft = werft;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

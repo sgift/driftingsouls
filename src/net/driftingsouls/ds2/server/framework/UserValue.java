@@ -25,6 +25,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 /**
  * <h1>Ein UserValue</h1>
@@ -46,6 +47,9 @@ public class UserValue {
 	
 	private String name;
 	private String value;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -121,5 +125,13 @@ public class UserValue {
 	 */
 	public int getId() {
 		return id;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

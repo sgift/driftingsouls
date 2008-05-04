@@ -24,6 +24,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -95,6 +96,9 @@ public class WeaponFactory {
 	private Base base;
 	private int count;
 	private String produces;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -177,5 +181,13 @@ public class WeaponFactory {
 	 */
 	public int getId() {
 		return col;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

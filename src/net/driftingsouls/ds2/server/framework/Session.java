@@ -24,6 +24,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import org.apache.commons.lang.math.RandomUtils;
 
@@ -47,6 +48,9 @@ public class Session {
 	private int usegfxpak;
 	private int tick;
 	private String attach;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -196,5 +200,13 @@ public class Session {
 	 */
 	public void setUser(BasicUser user) {
 		this.user = user;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

@@ -24,6 +24,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.bases.Base;
 
@@ -43,6 +44,9 @@ public class Forschungszentrum {
 	private int type;
 	private int forschung;
 	private int dauer;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -132,5 +136,13 @@ public class Forschungszentrum {
 	 */
 	public int getBaseId() {
 		return col;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

@@ -23,6 +23,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.User;
@@ -54,6 +55,9 @@ public class ShipLost {
 	private int battle;
 	@Column(name="battlelog")
 	private String battleLog;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -257,5 +261,13 @@ public class ShipLost {
 	 */
 	public int getId() {
 		return id;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}	
 }

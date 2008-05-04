@@ -25,6 +25,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 /**
  * Eine (einseitige) Beziehung zwischen zwei Usern. 
@@ -46,6 +47,9 @@ public class UserRelation {
 	private User target;
 	
 	private int status;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -121,5 +125,13 @@ public class UserRelation {
 	 */
 	public int getId() {
 		return id;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

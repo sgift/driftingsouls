@@ -26,6 +26,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 /**
  * Statistik fuer die Aufenthaltsorte eines Items bei einem Spieler
@@ -43,6 +44,9 @@ public class StatItemLocations {
 	@Column(name="item_id")
 	private int itemId;
 	private String locations;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -118,5 +122,13 @@ public class StatItemLocations {
 	 */
 	public int getId() {
 		return id;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

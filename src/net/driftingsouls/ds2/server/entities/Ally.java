@@ -29,6 +29,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.comm.PM;
@@ -68,6 +69,9 @@ public class Ally {
 	private short wonBattles;
 	private int destroyedShips;
 	private int lostShips;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -496,5 +500,13 @@ public class Ally {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

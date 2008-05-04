@@ -26,6 +26,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.framework.Common;
 
@@ -49,6 +50,9 @@ public class Handel {
 	private String bietet;
 	@Column(name="comm")
 	private String kommentar;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -158,6 +162,12 @@ public class Handel {
 	public int getId() {
 		return id;
 	}
-	
-	
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
+	}
 }

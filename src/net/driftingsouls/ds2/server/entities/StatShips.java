@@ -22,6 +22,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -41,6 +42,9 @@ public class StatShips {
 	private long shipCount;
 	@Column(name="crewcount")
 	private long crewCount;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -107,5 +111,13 @@ public class StatShips {
 	 */
 	public void setTick(int tick) {
 		this.tick = tick;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

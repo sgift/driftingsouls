@@ -6,6 +6,7 @@ import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -66,6 +67,9 @@ public class ResourceLimit {
 	private ResourceLimitKey resourceLimitKey;
 	private long limit;
 	
+	@Version
+	private int version;
+	
 	/**
 	 * Konstruktor
 	 */
@@ -87,5 +91,13 @@ public class ResourceLimit {
 	 */
 	public long getLimit() {
 		return limit;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

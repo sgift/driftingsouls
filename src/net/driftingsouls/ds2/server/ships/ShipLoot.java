@@ -26,6 +26,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.entities.User;
 
@@ -52,6 +53,9 @@ public class ShipLoot {
 	private int count;
 	@Column(name="totalmax")
 	private int totalMax;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -181,5 +185,13 @@ public class ShipLoot {
 	 */
 	public int getId() {
 		return id;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

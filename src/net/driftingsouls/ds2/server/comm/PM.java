@@ -28,6 +28,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.User;
@@ -79,6 +80,9 @@ public class PM {
 	 * Der PM-Empfaenger des Taskmanagers
 	 */
 	public static final int TASK = Integer.MIN_VALUE;
+	
+	@Version
+	private int version;
 
 	/**
 	 * Sendet eine PM von einem Spieler zu einem anderen
@@ -507,5 +511,13 @@ public class PM {
 		this.ordner = trash;
 		
 		return 0;	//geloescht
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

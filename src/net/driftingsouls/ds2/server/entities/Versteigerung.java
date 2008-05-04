@@ -27,6 +27,7 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.DiscriminatorFormula;
 
@@ -52,6 +53,9 @@ public abstract class Versteigerung {
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="owner")
 	private User owner;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -176,4 +180,12 @@ public abstract class Versteigerung {
 	 * @return <code>true</code>, falls das Bild als 50x50 Pixel gossses Bild verwendet werden soll
 	 */
 	public abstract boolean isObjectFixedImageSize();
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
+	}
 }

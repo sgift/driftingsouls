@@ -31,6 +31,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -67,6 +68,8 @@ public class Ordner {
 	private User owner;
 	private int flags;
 	private int parent;
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -511,5 +514,13 @@ public class Ordner {
 		}
 		
 		return true;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

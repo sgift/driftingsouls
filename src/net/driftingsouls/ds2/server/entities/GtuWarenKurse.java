@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.entities;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
@@ -42,6 +43,9 @@ public class GtuWarenKurse {
 	private String name;
 	@Type(type="cargo")
 	private Cargo kurse;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -75,6 +79,12 @@ public class GtuWarenKurse {
 	public String getPlace() {
 		return place;
 	}
-	
-	
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
+	}
 }

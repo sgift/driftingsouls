@@ -22,6 +22,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
@@ -44,6 +45,9 @@ public class Sector implements Locatable {
 	private int objects;
 	@Column(name="onenter")
 	private String onEnter;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -101,6 +105,12 @@ public class Sector implements Locatable {
 	public void setOnEnter(String onEnter) {
 		this.onEnter = onEnter;
 	}
-	
-	
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
+	}
 }

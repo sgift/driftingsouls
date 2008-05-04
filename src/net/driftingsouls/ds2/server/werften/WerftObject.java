@@ -38,6 +38,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Locatable;
@@ -94,6 +95,9 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="linkedWerft", nullable=true)
 	private WerftKomplex linkedWerft = null;
+	
+	@Version
+	private int version;
 
 	/**
 	 * Konstruktor
@@ -1720,5 +1724,13 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		clearQueue();
 		
 		ContextMap.getContext().getDB().delete(this);
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

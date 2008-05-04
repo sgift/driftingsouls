@@ -26,6 +26,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.User;
@@ -59,6 +60,8 @@ public class BattleShip {
 	private int count;
 	private int newcount;
 	private int ablativeArmor;
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -365,5 +368,13 @@ public class BattleShip {
 	 */
 	public void setAblativeArmor(int ablativeArmour) {
 		this.ablativeArmor = ablativeArmour;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

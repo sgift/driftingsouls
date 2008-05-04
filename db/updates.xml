@@ -430,4 +430,52 @@
 		
 		ALTER TABLE tradepost_buy_limit ADD CONSTRAINT tradepost_buy_limit_fk_ships FOREIGN KEY (shipid) REFERENCES ships(id);
 	]]></update>
+	<update type="structure" datum="2008-04-29"><![CDATA[
+		alter table battles add version int(10) unsigned not null default '0';
+		alter table battles_ships add version int(10) unsigned not null default '0';
+		alter table ordner add version int(10) unsigned not null default '0';
+		alter table transmissionen add version int(10) unsigned not null default '0';
+		alter table academy add version int(10) unsigned not null default '0';
+		alter table ally add version int(10) unsigned not null default '0';
+		alter table ally_posten add version int(10) unsigned not null default '0';
+		alter table skn_channels add version int(10) unsigned not null default '0';
+		alter table skn add version int(10) unsigned not null default '0';
+		alter table skn_visits add version int(10) unsigned not null default '0';
+		alter table factions_angebote add version int(10) unsigned not null default '0';
+		alter table factions_shop_entries add version int(10) unsigned not null default '0';
+		alter table factions_shop_orders add version int(10) unsigned not null default '0';
+		alter table fz add version int(10) unsigned not null default '0';
+		alter table gtu_warenkurse add version int(10) unsigned not null default '0';
+		alter table gtu_zwischenlager add version int(10) unsigned not null default '0';
+		alter table handel add version int(10) unsigned not null default '0';
+		alter table jumps add version int(10) unsigned not null default '0';
+		alter table logging add version int(10) unsigned not null default '0';
+		alter table orders add version int(10) unsigned not null default '0';
+		alter table versteigerungen_pakete add version int(10) unsigned not null default '0';
+		alter table tradepost_buy_limit add version int(10) unsigned not null default '0';
+		alter table sectors add version int(10) unsigned not null default '0';
+		alter table tradepost_sell add version int(10) unsigned not null default '0';
+		alter table stats_cargo add version int(10) unsigned not null default '0';
+		alter table stats_gtu add version int(10) unsigned not null default '0';
+		alter table stats_module_locations add version int(10) unsigned not null default '0';
+		alter table stats_ships add version int(10) unsigned not null default '0';
+		alter table stats_user_cargo add version int(10) unsigned not null default '0';
+		alter table stats_verkaeufe add version int(10) unsigned not null default '0';
+		alter table user_moneytransfer add version int(10) unsigned not null default '0';
+		alter table user_relations add version int(10) unsigned not null default '0';
+		alter table versteigerungen add version int(10) unsigned not null default '0';
+		alter table weaponfactory add version int(10) unsigned not null default '0';
+		alter table users add version int(10) unsigned not null default '0';
+		alter table user_values add version int(10) unsigned not null default '0';
+		alter table smilies add version int(10) unsigned not null default '0';
+		alter table ships add version int(10) unsigned not null default '0';
+		alter table ship_fleets add version int(10) unsigned not null default '0';
+		alter table ship_loot add version int(10) unsigned not null default '0';
+		alter table ships_lost add version int(10) unsigned not null default '0';
+		alter table ships_modules add version int(10) unsigned not null default '0';
+		alter table ship_types add version int(10) unsigned not null default '0';
+		alter table tasks add version int(10) unsigned not null default '0';
+		alter table werften add version int(10) unsigned not null default '0';
+		alter table sessions add version int(10) unsigned not null default '0';
+	]]></update>
 </updates>

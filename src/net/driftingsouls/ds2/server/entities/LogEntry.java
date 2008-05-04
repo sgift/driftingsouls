@@ -22,6 +22,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.framework.Common;
 
@@ -41,6 +42,9 @@ public class LogEntry {
 	private String source; 
 	private String target; 
 	private String data;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -168,5 +172,13 @@ public class LogEntry {
 	 */
 	public long getId() {
 		return id;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -41,6 +42,9 @@ public class Smilie {
 	private int id;
 	private String tag;
 	private String image;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -104,5 +108,13 @@ public class Smilie {
 
 
 		return text;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

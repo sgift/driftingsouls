@@ -25,6 +25,7 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -77,6 +78,9 @@ public abstract class BasicUser implements Loggable {
 	private String flags;
 	private int vaccount;
 	private int wait4vac;
+	
+	@Version
+	private int version;
 	
 	@Transient
 	private boolean forceDefaultImgPath = false;
@@ -492,5 +496,13 @@ public abstract class BasicUser implements Loggable {
 	 */
 	public void setWait4VacationCount(int value) {
 		this.wait4vac = value;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

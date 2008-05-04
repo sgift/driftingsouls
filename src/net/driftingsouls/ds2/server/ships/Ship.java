@@ -36,6 +36,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.Version;
 import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
@@ -155,6 +156,9 @@ public class Ship implements Loggable,Locatable,Transfering {
 	private Byte respawn;
 	private int ablativeArmor;
 	private boolean startFighters;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Konstruktor
@@ -3284,5 +3288,13 @@ public class Ship implements Loggable,Locatable,Transfering {
 			}
 		}
 		return this.offizier;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }

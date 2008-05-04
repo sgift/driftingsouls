@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.entities;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.entities.ResourceLimit.ResourceLimitKey;
 
@@ -36,6 +37,9 @@ public class SellLimit {
 	private ResourceLimitKey resourceLimitKey;
 	private long limit;
 	private long price;
+	
+	@Version
+	private int version;
 	
 	/**
 	 * Gibt die ID des Resourcenlimits zurueck
@@ -59,5 +63,13 @@ public class SellLimit {
 	 */
 	public long getPrice() {
 		return price;
+	}
+
+	/**
+	 * Gibt die Versionsnummer zurueck
+	 * @return Die Nummer
+	 */
+	public int getVersion() {
+		return this.version;
 	}
 }
