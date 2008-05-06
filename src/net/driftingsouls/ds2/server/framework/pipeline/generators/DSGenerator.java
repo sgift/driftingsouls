@@ -35,6 +35,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Error;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
 
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.StaleObjectStateException;
 import org.hibernate.exception.GenericJDBCException;
 import org.hibernate.exception.LockAcquisitionException;
 
@@ -484,6 +485,9 @@ public abstract class DSGenerator extends Generator {
 			}
 			
 			if( t instanceof LockAcquisitionException ) {
+				addError("Die gew&uuml;nschte Aktion konnte nicht erfolgreich durchgef&uuml;hrt werden. Bitte versuchen sie es erneut.");
+			}
+			else if( t instanceof StaleObjectStateException ) {
 				addError("Die gew&uuml;nschte Aktion konnte nicht erfolgreich durchgef&uuml;hrt werden. Bitte versuchen sie es erneut.");
 			}
 			else if( (t instanceof GenericJDBCException) && 
