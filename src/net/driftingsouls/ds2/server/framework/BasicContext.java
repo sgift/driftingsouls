@@ -80,8 +80,6 @@ public class BasicContext implements Context,Loggable {
 		}
 		this.request = request;
 		this.response = response;
-		
-		revalidate();
 	}
 	
 	private void authenticateUser() {
