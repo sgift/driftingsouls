@@ -35,7 +35,6 @@ import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
@@ -55,8 +54,7 @@ import org.hibernate.annotations.TypeDefs;
 )
 @Entity
 @Table(name="ammo")
-@Immutable
-@Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
+@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Ammo {
 	/**
 	 * Ammoflags
@@ -342,6 +340,174 @@ public class Ammo {
 	public String getType() {
 		return type;
 	}
-	
-	
+
+	/**
+	 * Setzt die Ausdehnung des Flaechenschadens
+	 * @param areaDamage Die Areadamage
+	 */
+	public void setAreaDamage(int areaDamage) {
+		this.areaDamage = areaDamage;
+	}
+
+	/**
+	 * Setzt die Baukosten pro Einheit
+	 * @param buildCosts Die Kosten
+	 */
+	public void setBuildCosts(Cargo buildCosts) {
+		this.buildCosts = buildCosts;
+	}
+
+	/**
+	 * Setzt den Schaden
+	 * @param damage Der Schaden
+	 */
+	public void setDamage(int damage) {
+		this.damage = damage;
+	}
+
+	/**
+	 * Setzt die beim Bau belegte Produktionskapazitaet
+	 * @param dauer Die notwendige Kapazitaet
+	 */
+	public void setDauer(BigDecimal dauer) {
+		this.dauer = dauer;
+	}
+
+	/**
+	 * Setzt die Beschreibung
+	 * @param description Die Beschreibung
+	 */
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	/**
+	 * Setzt den Faktor fuer die Zerstoerbarkeit vor dem Aufschlagen
+	 * @param destroyable Die Zerstoerbarkeit
+	 */
+	public void setDestroyable(double destroyable)
+	{
+		this.destroyable = destroyable;
+	}
+
+	/**
+	 * Setzt die Flags der Munition
+	 * @param flags Die Flags
+	 */
+	public void setFlags(int flags) {
+		this.flags = flags;
+	}
+
+	/**
+	 * Setzt den Namen der Munition
+	 * @param name Der Name
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * Setzt den Pfad zum Bild der Munition
+	 * @param picture Der Pfad
+	 */
+	public void setPicture(String picture) {
+		this.picture = picture;
+	}
+
+	/**
+	 * Setzt die Munition, die durch diese Munition ersetzt wird.
+	 * Falls diese Munition keine andere ersetzt ist der Wert <code>null</code>
+	 * @param replaces Die Munition oder <code>null</code>
+	 */
+	public void setReplaces(Ammo replaces) {
+		this.replaces = replaces;
+	}
+
+	/**
+	 * Setzt die erste benoetigte Forschung
+	 * @param res1 Die Forschung
+	 */
+	public void setRes1(int res1) {
+		this.res1 = res1;
+	}
+
+	/**
+	 * Setzt die zweite benoetigte Forschung
+	 * @param res2 Die Forschung
+	 */
+	public void setRes2(int res2) {
+		this.res2 = res2;
+	}
+
+	/**
+	 * Setzt die dritte benoetigte Forschung
+	 * @param res3 Die Forschung
+	 */
+	public void setRes3(int res3) {
+		this.res3 = res3;
+	}
+
+	/**
+	 * Setzt den Schaden bei Schilden
+	 * @param shieldDamage Der Schaden
+	 */
+	public void setShieldDamage(int shieldDamage) {
+		this.shieldDamage = shieldDamage;
+	}
+
+	/**
+	 * Setzt die Anzahl an Geschossen pro abgefeuertem Schuss
+	 * @param shotsPerShot Die Anzahl
+	 */
+	public void setShotsPerShot(int shotsPerShot) {
+		this.shotsPerShot = shotsPerShot;
+	}
+
+	/**
+	 * Setzt die Treffer-WS gegen kleine Schiffe
+	 * @param smallTrefferWS Die Treffer-WS
+	 */
+	public void setSmallTrefferWS(int smallTrefferWS) {
+		this.smallTrefferWS = smallTrefferWS;
+	}
+
+	/**
+	 * Setzt den Schaden an Subsystemen
+	 * @param subDamage Der Schaden
+	 */
+	public void setSubDamage(int subDamage) {
+		this.subDamage = subDamage;
+	}
+
+	/**
+	 * Setzt die Treffer-WS auf Subsystemee
+	 * @param subWS Die Treffer-WS
+	 */
+	public void setSubWS(int subWS) {
+		this.subWS = subWS;
+	}
+
+	/**
+	 * Setzt die Treffer-WS gegen anfliegende Torpedos
+	 * @param torpTrefferWS Die Treffer-WS
+	 */
+	public void setTorpTrefferWS(int torpTrefferWS) {
+		this.torpTrefferWS = torpTrefferWS;
+	}
+
+	/**
+	 * Setzt die Treffer-WS gegen normale Schiffe
+	 * @param trefferWS Die Treffer-WS
+	 */
+	public void setTrefferWS(int trefferWS) {
+		this.trefferWS = trefferWS;
+	}
+
+	/**
+	 * Setzt den Slot mit dem diese Munition verschossen werden kann
+	 * @param type Der Slot
+	 */
+	public void setType(String type) {
+		this.type = type;
+	}
 }
