@@ -4,5 +4,6 @@ CREATE TABLE `factions_angebote` (
   `title` varchar(40) NOT NULL default '',
   `image` varchar(100) NOT NULL default '',
   `description` text NOT NULL,
+  `version` int(10) unsigned not null default '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='GTU-Festpreisangebote'; 

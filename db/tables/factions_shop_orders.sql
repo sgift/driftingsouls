@@ -7,6 +7,7 @@ CREATE TABLE `factions_shop_orders` (
   `status` tinyint(3) unsigned NOT NULL default '0',
   `date` int(10) unsigned NOT NULL default '0',
   `adddata` text,
+  `version` int(10) unsigned not null default '0',
   PRIMARY KEY  (`id`),
   KEY `shopentry_id` (`shopentry_id`),
   KEY `user_id` (`user_id`)

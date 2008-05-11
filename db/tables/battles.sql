@@ -25,6 +25,7 @@ CREATE TABLE `battles` (
   `onend` text character set latin1,
   `visibility` text character set latin1,
   `quest` int(10) unsigned default NULL,
+  `version` int(10) unsigned not null default '0',
   PRIMARY KEY  (`id`),
   KEY `coords` (`x`,`y`,`system`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Aktuelle Schlachten'; 

@@ -17,6 +17,7 @@ CREATE TABLE `ally` (
   `wonBattles` smallint(5) unsigned NOT NULL default '0',
   `destroyedShips` int(10) unsigned NOT NULL default '0',
   `lostShips` int(10) unsigned NOT NULL default '0',
+  `version` int(10) unsigned not null default '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
 

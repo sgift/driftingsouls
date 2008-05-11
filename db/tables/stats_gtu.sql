@@ -8,6 +8,7 @@ CREATE TABLE `stats_gtu` (
   `owner` int(11) NOT NULL default '-2',
   `ownername` varchar(255) NOT NULL default 'Galtracorp Unlimited',
   `gtugew` double NOT NULL default '100',
+  `version` int(10) unsigned not null default '0',
   PRIMARY KEY  (`id`),
   KEY `preis` (`preis`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='GTU Top10 Gebote'; 

@@ -6,6 +6,7 @@ CREATE TABLE `tasks` (
   `data1` varchar(60) NOT NULL default '',
   `data2` varchar(60) NOT NULL default '',
   `data3` varchar(60) NOT NULL default '',
+  `version` int(10) unsigned not null default '0',
   PRIMARY KEY  (`taskid`),
   KEY `type` (`type`,`time`,`data1`,`data2`,`data3`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='DS2-Tasks'; 

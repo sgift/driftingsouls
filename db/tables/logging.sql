@@ -6,5 +6,6 @@ CREATE TABLE `logging` (
   `source` varchar(12) NOT NULL default '',
   `target` varchar(12) NOT NULL default '',
   `data` text,
+  `version` int(10) unsigned not null default '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='Alg. Logging'; 

@@ -7,6 +7,7 @@ CREATE TABLE `user_moneytransfer` (
   `text` text NOT NULL,
   `fake` tinyint(3) unsigned NOT NULL default '0',
   `type` tinyint(3) unsigned NOT NULL default '0',
+  `version` int(10) unsigned not null default '0',
   PRIMARY KEY  (`id`),
   KEY `from` (`from`,`to`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='RE-Ueberweisungen'; 

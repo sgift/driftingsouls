@@ -7,6 +7,7 @@ CREATE TABLE `gtu_zwischenlager` (
   `cargo1need` text NOT NULL,
   `cargo2` text NOT NULL,
   `cargo2need` text NOT NULL,
+  `version` int(10) unsigned not null default '0',
   PRIMARY KEY  (`id`),
   KEY `posten` (`posten`,`user1`,`user2`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 

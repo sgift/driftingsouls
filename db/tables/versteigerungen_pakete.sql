@@ -5,6 +5,7 @@ CREATE TABLE `versteigerungen_pakete` (
   `tick` mediumint(5) unsigned NOT NULL default '0',
   `ships` text NOT NULL,
   `cargo` text NOT NULL,
+  `version` int(10) unsigned not null default '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='gtu - pakete';
  

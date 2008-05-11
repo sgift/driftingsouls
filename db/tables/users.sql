@@ -33,6 +33,7 @@ CREATE TABLE `users` (
   `destroyedShips` int(10) unsigned NOT NULL default '0',
   `lostShips` int(10) unsigned NOT NULL default '0',
   `knownItems` text NOT NULL default '',
+  `version` int(10) unsigned not null default '0',
   PRIMARY KEY  (`id`),
   KEY `ally` (`ally`),
   KEY `vaccount` (`vaccount`,`wait4vac`),

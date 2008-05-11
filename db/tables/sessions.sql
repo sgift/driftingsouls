@@ -7,6 +7,7 @@ CREATE TABLE `sessions` (
   `usegfxpak` tinyint(3) unsigned NOT NULL default '1',
   `tick` tinyint(3) unsigned NOT NULL default '0',
   `attach` varchar(36) default NULL,
+  `version` int(10) unsigned not null default '0',
   PRIMARY KEY (`session`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
 

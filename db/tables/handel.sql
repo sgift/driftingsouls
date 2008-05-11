@@ -5,6 +5,7 @@ CREATE TABLE `handel` (
   `sucht` text NOT NULL,
   `bietet` text NOT NULL,
   `comm` text NOT NULL,
+  `version` int(10) unsigned not null default '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
 
