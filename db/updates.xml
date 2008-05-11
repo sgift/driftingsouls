@@ -478,4 +478,7 @@
 		alter table werften add version int(10) unsigned not null default '0';
 		alter table sessions add version int(10) unsigned not null default '0';
 	]]></update>
+	<update type="structure" datum="2008-05-11"><![CDATA[
+		alter table logging modify type varchar(15) not null;
+	]]></update>
 </updates>

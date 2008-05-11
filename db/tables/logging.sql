@@ -1,6 +1,6 @@
 CREATE TABLE `logging` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
-  `type` varchar(10) NOT NULL default '',
+  `type` varchar(15) NOT NULL default '',
   `user_id` mediumint(9) NOT NULL default '0',
   `time` int(10) unsigned NOT NULL default '0',
   `source` varchar(12) NOT NULL default '',
