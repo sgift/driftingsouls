@@ -19,6 +19,8 @@
 package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.authentication.AuthenticationManager;
+import net.driftingsouls.ds2.server.framework.authentication.DefaultAuthenticationManager;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -50,8 +52,7 @@ public class LogoutController extends TemplateGenerator {
 	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
-		getDB().createQuery("delete from Session where session= :sess or attach= :sess")
-			.setString("sess", getContext().getSession())
-			.executeUpdate();
+		AuthenticationManager manager = new DefaultAuthenticationManager();
+		manager.logout();
 	}
 }

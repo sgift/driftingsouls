@@ -22,6 +22,9 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Session;
+import net.driftingsouls.ds2.server.framework.authentication.AuthenticationException;
+import net.driftingsouls.ds2.server.framework.authentication.AuthenticationManager;
+import net.driftingsouls.ds2.server.framework.authentication.DefaultAuthenticationManager;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
@@ -61,15 +64,16 @@ public class PlayerLoginSuper implements AdminPlugin {
 				return;
 			}
 			
-			Session session = new Session(userObj);
-			session.setIP("<"+context.getRequest().getRemoteAddress()+">");
-			session.setUseGfxPak(false);
-			if( usesessid != 0 ) {
-				session.setAttach(context.getSession());
+			try {
+				AuthenticationManager manager = new DefaultAuthenticationManager();
+				Session session = manager.adminLogin(userObj, usesessid != 0);
+				
+				echo.append("<a class=\"ok\" target=\"_blank\" href=\"./ds?sess="+session.getSession()+"&module=main\">Zum Account</a>\n");
 			}
-			context.getDB().save(session);
-			
-			echo.append("<a class=\"ok\" target=\"_blank\" href=\"./ds?sess="+session.getSession()+"&module=main\">Zum Account</a>\n");
+			catch( AuthenticationException e ) {
+				echo.append("<span style=\"color:red\">"+e.getMessage()+"</span>");
+				return;
+			}
 		}
 	}
 

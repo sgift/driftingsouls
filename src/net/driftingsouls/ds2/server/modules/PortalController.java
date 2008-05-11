@@ -45,6 +45,13 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Session;
+import net.driftingsouls.ds2.server.framework.authentication.AccountDisabledException;
+import net.driftingsouls.ds2.server.framework.authentication.AuthenticationException;
+import net.driftingsouls.ds2.server.framework.authentication.AuthenticationManager;
+import net.driftingsouls.ds2.server.framework.authentication.DefaultAuthenticationManager;
+import net.driftingsouls.ds2.server.framework.authentication.LoginDisabledException;
+import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
+import net.driftingsouls.ds2.server.framework.authentication.WrongPasswordException;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -53,6 +60,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.uilibs.PlayerList;
+import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
 
 import org.apache.commons.lang.math.RandomUtils;
 
@@ -729,9 +737,9 @@ public class PortalController extends TemplateGenerator {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void loginAction() {
-		Database database = getDatabase();
-		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
+		
+		AuthenticationManager manager = new DefaultAuthenticationManager();
 		
 		parameterString("username");
 		parameterString("password");
@@ -740,105 +748,58 @@ public class PortalController extends TemplateGenerator {
 		String username = getString("username");
 		String password = getString("password");
 		int usegfxpak = getInteger("usegfxpak") != 0 ? 1 : 0;
-		boolean clear = false;
 		
-		String disablelogin = database.first("SELECT disablelogin FROM config").getString("disablelogin");
-		if( !"".equals(disablelogin) ) {
-			username = "";
-			password = "";
-			clear = true;
-		
-			t.setVar(	"show.login.logindisabled", 1,
-						"login.logindisabled.msg", Common._text(disablelogin) );
-		}
-
-		if( !"".equals(username) && !"".equals(password) ) {
-			String enc_pw = Common.md5(password);
-
-			User user = (User)db.createQuery("from User where un=:username")
-				.setString("username", username)
-				.uniqueResult();
-			
-			if( user == null ) {
+		if( !username.isEmpty() && !password.isEmpty() ) {
+			try {
+				Session session = manager.login(username, password, usegfxpak != 0);
+				
+				doLogin(session);
+				
+				return;
+			}
+			catch( LoginDisabledException e ) {
+				t.setVar(	"show.login.logindisabled", 1,
+							"login.logindisabled.msg", Common._text(e.getMessage()) );
+				
+				return;
+			}
+			catch( AccountInVacationModeException e ) {
+				t.setVar(	
+						"show.login.vacmode", 1,
+						"login.vacmode.dauer", Common.ticks2Days(e.getDauer()),
+						"login.vacmode.username", username,
+						"login.vacmode.password", password);
+				
+				return;
+			}
+			catch( WrongPasswordException e ) {
 				t.setVar( "show.msg.login.wrongpassword",1 );
-				Common.writeLog("login.log", Common.date("j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+username+") <"+username+"> Password <"+password+"> ***UNGUELTIGER ACCOUNT*** von Browser <"+getRequest().getUserAgent()+">\n");
-				clear = false;
 			}
-			else {
-	    		if( !user.getPassword().equals(enc_pw) ) {
-					t.setVar( "show.msg.login.wrongpassword",1 );
-					user.setLoginFailedCount(user.getLoginFailedCount()+1);
-	  				Common.writeLog("login.log", Common.date("j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+username+"> Password <"+password+"> ***LOGIN GESCHEITERT*** von Browser <"+getRequest().getUserAgent()+">\n");
-					clear = false;
-				}
-				else if( user.getDisabled() ) {
-					t.setVar("show.login.msg.accdisabled",1);
-					Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+username+"> Password <"+password+"> ***VAC LOGIN*** von Browser <"+getRequest().getUserAgent()+">\n");
-	
-					db.createQuery("delete from Session where id=?")
-						.setInteger(0, user.getId())
-						.executeUpdate();
-					
-					clear = false;
-				}
-				else if( (user.getVacationCount() > 0) && (user.getWait4VacationCount() == 0) ) {
-					db.createQuery("delete from Session where id=?")
-						.setInteger(0, user.getId())
-						.executeUpdate();
-					
-					t.setVar(	
-							"show.login.vacmode", 1,
-							"login.vacmode.dauer", Common.ticks2Days(user.getVacationCount()),
-							"login.vacmode.username", username,
-							"login.vacmode.password", password);
-					
-					clear = true;
-				}
-				else {
-					Session session = (Session)getDB().createQuery("from Session where id=? and tick!=0")
-						.setInteger(0, user.getId())
-						.uniqueResult();
-		
-					if( session != null ) {
-						t.setVar("show.login.msg.tick",1);
-						clear = false;
-					}
-					else{
-						doLogin(user, usegfxpak);
-	
-	  					clear = true;
-					}
-				}
+			catch( AccountDisabledException e ) {
+				t.setVar("show.login.msg.accdisabled",1);
+			}
+			catch( TickInProgressException e ) {
+				t.setVar("show.login.msg.tick",1);
+			}
+			catch( AuthenticationException e ) {
+				// EMPTY
 			}
 		}
 
-		if( !clear ) {
-			t.setVar(	"show.login", 1,
-						"login.username", username );
-		}
+		t.setVar(	"show.login", 1,
+					"login.username", username );
 	}
 
-	private void doLogin(User user, int usegfxpak) {
+	private void doLogin(Session session) {
 		TemplateEngine t = getTemplateEngine();
-		
-		Common.writeLog("login.log",Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+user.getUN()+"> Login von Browser <"+getRequest().getUserAgent()+">\n");
-
-		getDB().createQuery("delete from Session where user=? and attach is null")
-			.setEntity(0, user)
-			.executeUpdate();
-		
-		Session session = new Session(user);
-		session.setIP("<"+getRequest().getRemoteAddress()+">");
-		session.setUseGfxPak(usegfxpak != 0);
-		getDB().persist(session);
-		
-		getContext().commit();
 
 		t.setVar(	"show.login.msg.ok", 1,
 					"login.sess", session.getSession() );
 		
+		User user = (User)session.getUser();
+		
 		// Ueberpruefen ob das gfxpak noch aktuell ist
-		if( (usegfxpak != 0) && !user.getUserImagePath().equals(BasicUser.getDefaultImagePath()) ) {
+		if( session.getUseGfxPak() && !user.getUserImagePath().equals(BasicUser.getDefaultImagePath()) ) {
 			t.setVar(	"login.checkgfxpak", 1,
 						"login.checkgfxpak.path", user.getUserImagePath() );
 		}
