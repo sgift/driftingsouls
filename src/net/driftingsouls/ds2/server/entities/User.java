@@ -239,7 +239,9 @@ public class User extends BasicUser implements Loggable {
 				pre+"wonBattles", this.wonBattles,
 				pre+"destroyedShips", this.destroyedShips,
 				pre+"lostShips", this.lostShips,
-				pre+"knownItems", this.knownItems);
+				pre+"knownItems", this.knownItems,
+				pre+"vaccount", this.vaccount,
+				pre+"wait4vac", this.wait4vac);
 	}
 	
 	/**
@@ -602,6 +604,8 @@ public class User extends BasicUser implements Loggable {
 	
 	@Transient
 	private SQLResultRow research = null;
+	private int vaccount;
+	private int wait4vac;
 	
 	/**
 	 * Gibt den zum Spieler gehoerenden <code>user_f</code>-Eintrag als SQL-Ergebniszeile
@@ -965,5 +969,40 @@ public class User extends BasicUser implements Loggable {
 	 */
 	public String getKnownItems() {
 		return this.knownItems;
+	}
+
+	/**
+	 * Gibt die Anzahl der Ticks zurueck, die der Account noch im 
+	 * Vacation-Modus ist. Der Account kann sich auch noch im Vorlauf befinden!
+	 * @return Die Anzahl der verbleibenden Vac-Ticks
+	 */
+	public int getVacationCount() {
+		return this.vaccount;
+	}
+
+	/**
+	 * Setzt die Anzahl der Ticks, die der Account im Vacation-Modus verbringen soll
+	 * @param value Die Anzahl der Ticks im Vacation-Modus
+	 */
+	public void setVacationCount(int value) {
+		this.vaccount = value;
+	}
+
+	/**
+	 * Gibt zurueck, wieviele Ticks sich der Account noch im Vorlauf fuer den
+	 * Vacation-Modus befindet
+	 * @return Die Anzahl der verbleibenden Ticks im Vacation-Vorlauf 
+	 */
+	public int getWait4VacationCount() {
+		return this.wait4vac;
+	}
+
+	/**
+	 * Setzt die Anzahl der Ticks des Vacation-Modus-Vorlaufs auf den angegebenen
+	 * Wert
+	 * @param value Die Anzahl der Ticks im Vacation-Modus-Vorlauf
+	 */
+	public void setWait4VacationCount(int value) {
+		this.wait4vac = value;
 	}
 }

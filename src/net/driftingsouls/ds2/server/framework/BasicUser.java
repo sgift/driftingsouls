@@ -76,9 +76,6 @@ public abstract class BasicUser implements Loggable {
 	private String imgpath;
 	private byte disabled;
 	private String flags;
-	private int vaccount;
-	private int wait4vac;
-	
 	@Version
 	private int version;
 	
@@ -161,9 +158,7 @@ public abstract class BasicUser implements Loggable {
 				pre+"plainname", this.plainname,
 				pre+"imgpath", this.imgpath,
 				pre+"disabled", this.disabled,
-				pre+"flags", this.flags,
-				pre+"vaccount", this.vaccount,
-				pre+"wait4vac", this.wait4vac);
+				pre+"flags", this.flags);
 	}
 	
 	/**
@@ -463,41 +458,6 @@ public abstract class BasicUser implements Loggable {
 		this.disabled = value ? (byte)1 : (byte)0;
 	}
 	
-	/**
-	 * Gibt die Anzahl der Ticks zurueck, die der Account noch im 
-	 * Vacation-Modus ist. Der Account kann sich auch noch im Vorlauf befinden!
-	 * @return Die Anzahl der verbleibenden Vac-Ticks
-	 */
-	public int getVacationCount() {
-		return this.vaccount;
-	}
-	
-	/**
-	 * Setzt die Anzahl der Ticks, die der Account im Vacation-Modus verbringen soll
-	 * @param value Die Anzahl der Ticks im Vacation-Modus
-	 */
-	public void setVacationCount(int value) {
-		this.vaccount = value;
-	}
-
-	/**
-	 * Gibt zurueck, wieviele Ticks sich der Account noch im Vorlauf fuer den
-	 * Vacation-Modus befindet
-	 * @return Die Anzahl der verbleibenden Ticks im Vacation-Vorlauf 
-	 */
-	public int getWait4VacationCount() {
-		return this.wait4vac;
-	}
-	
-	/**
-	 * Setzt die Anzahl der Ticks des Vacation-Modus-Vorlaufs auf den angegebenen
-	 * Wert
-	 * @param value Die Anzahl der Ticks im Vacation-Modus-Vorlauf
-	 */
-	public void setWait4VacationCount(int value) {
-		this.wait4vac = value;
-	}
-
 	/**
 	 * Gibt die Versionsnummer zurueck
 	 * @return Die Nummer
