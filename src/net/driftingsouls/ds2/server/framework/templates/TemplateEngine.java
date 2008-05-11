@@ -18,7 +18,12 @@
  */
 package net.driftingsouls.ds2.server.framework.templates;
 
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -375,6 +380,44 @@ public class TemplateEngine implements Loggable {
 		}
 		return false;
 	}
+	
+	private Object getVarObject(String varname) {
+		if( varvals.containsKey(varname) ) {
+			return varvals.get(varname);
+		}
+		
+		if( varname.contains(".") ) {
+			String attrib = varname.substring(varname.indexOf('.')+1);
+
+			Object obj = getVarObject(varname.substring(0, varname.indexOf('.')));
+			if( obj == null ) {
+				return null;
+			}
+			
+			try {
+				BeanInfo info = Introspector.getBeanInfo(obj.getClass());
+				PropertyDescriptor[] descriptors = info.getPropertyDescriptors();
+				for( int i=0; i < descriptors.length; i++ ) {
+					if( descriptors[i].getName().equalsIgnoreCase(attrib) ) {
+						return descriptors[i].getReadMethod().invoke(obj);
+					}
+				}
+			}
+			catch( IntrospectionException e ) {
+				e.printStackTrace();
+			}
+			catch( InvocationTargetException e ) {
+				e.printStackTrace();
+			}
+			catch( IllegalArgumentException e ) {
+				e.printStackTrace();
+			}
+			catch( IllegalAccessException e ) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
 
 	/**
 	 * Liefert eine Variable zurueck.
@@ -385,6 +428,14 @@ public class TemplateEngine implements Loggable {
 		if( varvals.get(varname) != null ) {						
       		return varvals.get(varname).toString();
 		}
+		
+		if( varname.contains(".") ) {
+			Object value = getVarObject(varname);
+			if( value != null ) {
+				return value.toString();
+			}
+		}
+		
 		return "";
 	}
 	
