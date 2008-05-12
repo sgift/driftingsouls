@@ -387,6 +387,15 @@ public class KSAttackAction extends BasicKSAction {
 			battle.logme("\n"+prefix+":\n");	
 			battle.logenemy("\n"+prefix+":\n");	
 		}
+		
+		if(this.weapon.getAmmoType().length != 0){
+			if ( this.localweapon.get("armor_redux") != null){
+				schaden = (int)Math.round(schaden/this.getPanzerung(eShip, eShipType));
+				
+			}
+		}
+
+		
 	
 		if( (hit != 0) && (eShip.getShields() > 0) ) {
 			if( eShip.getShields() >= absSchaden*hit ) {
@@ -594,6 +603,11 @@ public class KSAttackAction extends BasicKSAction {
 		return ship_intact;
 	}
 	
+	private int getPanzerung(BattleShip ship, ShipTypeData shipType) {
+		return (int)Math.round(shipType.getPanzerung()*ship.getShip().getHull()/(double)shipType.getHull());
+	}
+	
+	
 	private SQLResultRow getWeaponData( Battle battle ) {	
 		ShipTypeData ownShipType = this.ownShip.getTypeData();
 		ShipTypeData enemyShipType = this.enemyShip.getTypeData();
@@ -722,6 +736,7 @@ public class KSAttackAction extends BasicKSAction {
 		localweapon.put("destroyable", ammo.getDestroyable());
 		localweapon.put("ammoitem", ammoitem);
 		localweapon.put("ad_full", ammo.hasFlag(Ammo.Flags.AD_FULL));
+		localweapon.put("armor_redux", ammo.hasFlag(Ammo.Flags.ARMOR_REDUX));
 		localweapon.put("long_range", this.weapon.hasFlag(Weapon.Flags.LONG_RANGE));
 		localweapon.put("very_long_range", this.weapon.hasFlag(Weapon.Flags.VERY_LONG_RANGE));
 			
@@ -910,8 +925,8 @@ public class KSAttackAction extends BasicKSAction {
 		int[] tmpsubdmgs = null;
 					
 		if( this.localweapon.getInt("subdamage") > 0 ) {
-			int tmppanzerung = (int)Math.round(aeShipType.getPanzerung()*aeShip.getShip().getHull()/(double)aeShipType.getHull());
-						
+			int tmppanzerung = this.getPanzerung(aeShip, aeShipType);
+			
 			Offizier eOffizier = Offizier.getOffizierByDest('s', aeShip.getId());
 			int defensivskill = this.getDefensivSkill( aeShipType, eOffizier );
 
@@ -1218,7 +1233,7 @@ public class KSAttackAction extends BasicKSAction {
 				int absSchaden = this.getDamage(this.localweapon.getInt("basedamage"), offensivskill, enemyShipType);
 				int shieldSchaden = this.getDamage(this.localweapon.getInt("shielddamage"), offensivskill, enemyShipType);
 				
-				int panzerung = (int)Math.round(enemyShipType.getPanzerung()*this.enemyShip.getShip().getHull()/(double)enemyShipType.getHull());
+				int panzerung = this.getPanzerung(enemyShip, enemyShipType);
 				int schaden = absSchaden;
 			
 				int trefferWS = 0;

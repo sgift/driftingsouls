@@ -63,7 +63,12 @@ public class Ammo {
 		/**
 		 * Area-Damage ueber die Distanz nicht reduzieren
 		 */
-		AD_FULL(1);
+		AD_FULL(1),
+		
+		/**
+		 * Schaden der Munition wird durch Panzerung dividiert
+		 */
+		ARMOR_REDUX(2);
 		
 		private int bit;
 		private Flags(int bit) {
