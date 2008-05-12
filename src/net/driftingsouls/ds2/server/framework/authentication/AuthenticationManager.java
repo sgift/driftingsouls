@@ -53,4 +53,11 @@ public interface AuthenticationManager {
 	 * @throws AuthenticationException Falls der Loginvorgang nicht moeglich ist
 	 */
 	public Session adminLogin(BasicUser user, boolean attach) throws AuthenticationException;
+
+	/**
+	 * Authentifiziert die genutzte Session. Falls die Session ungueltig ist,
+	 * oder ein sonstiger Fehler auftritt wird ein entsprechender Fehlertext dem 
+	 * Context hinzugefuegt.
+	 */
+	public void authenticateCurrentSession();
 }
