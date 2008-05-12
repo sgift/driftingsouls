@@ -60,20 +60,22 @@ public class AdminController extends DSGenerator {
 		}
 		
 		@Override
-		public boolean equals(Object object)
-		{
-			if(object == null)
-			{
+		public boolean equals(Object object) {
+			if(object == null) {
 				return false;
 			}
 			
-			if(object.getClass() != this.getClass())
-			{
+			if(object.getClass() != this.getClass()) {
 				return false;
 			}
 			
 			MenuEntry other = (MenuEntry) object;
 			return this.name.equals(other.name);
+		}
+		
+		@Override
+		public int hashCode() {
+			return this.name.hashCode();
 		}
 	}
 	
@@ -236,7 +238,16 @@ public class AdminController extends DSGenerator {
 			AdminPlugin plugin = aClass.newInstance();
 			plugin.output(this, page, act);
 		}
-		catch( Exception e ) {
+		catch( RuntimeException e ) {
+			addError("Fehler beim Aufruf des Admin-Plugins: "+e);
+			
+			throw e;
+		}
+		catch( InstantiationException e ) {
+			addError("Fehler beim Aufruf des Admin-Plugins: "+e);
+			e.printStackTrace();
+		}
+		catch( IllegalAccessException e ) {
 			addError("Fehler beim Aufruf des Admin-Plugins: "+e);
 			e.printStackTrace();
 		}
