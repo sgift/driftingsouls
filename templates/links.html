@@ -74,7 +74,7 @@
 
 
 	function checkPMStatus() {
-		var url = './ajax.php';
+		var url = location.href;
 		var params = 'module={global.module}&sess={global.sess}&action=hasNewPm';
 		
 		var myAjax = new Ajax.Request( url, 

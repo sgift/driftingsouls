@@ -21,6 +21,8 @@ package net.driftingsouls.ds2.server.framework.pipeline;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -117,7 +119,7 @@ public class HttpResponse implements Response {
 				try {
 					OutputStreamWriter writer = new OutputStreamWriter(response.getOutputStream(), charSet);
 					if( content.length() > 0 ) {
-						writer.append(content.toString());
+						writer.append(prepareContentForSend());
 					}
 					writer.flush();
 					
@@ -134,6 +136,43 @@ public class HttpResponse implements Response {
 				throw new IOException("Response already sent");
 			}
 		}
+	}
+	
+	private static final Pattern[] URL_PATTERNS = new Pattern[] {
+		Pattern.compile("href\\=\"([^\"]*)\""),
+		Pattern.compile("src\\=\"([^\"]*)\""),
+		Pattern.compile("action\\=\"([^\"]*)\"")
+	};
+	
+	private String prepareContentForSend() {
+		String str = this.content.toString();
+		
+		for( int i=0; i < URL_PATTERNS.length; i++ ) {
+			str = encodeUrlsWithPattern(str, URL_PATTERNS[i]);
+		}
+		
+		return str;
+	}
+
+	private String encodeUrlsWithPattern(String str, Pattern pattern) {
+		Matcher matcher = pattern.matcher(str);
+		
+		int offset = 0;
+		while( matcher.find() ) {
+			String group = matcher.group(1);
+			
+			if( !group.equals("#") && !group.startsWith("http://") && 
+					!group.startsWith("javascript") && !group.contains("(") && 
+					!group.contains(")") ) {
+				int oldlength = str.length();
+				str = str.substring(0,matcher.start(1)+offset)+
+					this.response.encodeURL(group)+
+					str.substring(matcher.end(1)+offset);
+				
+				offset += str.length() - oldlength;
+			}
+		}
+		return str;
 	}
 
 	public void setContent(String content) {

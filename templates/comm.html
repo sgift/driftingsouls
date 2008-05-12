@@ -225,7 +225,7 @@
 			
 			$("inbox_waiter").style.display = "block";
 			
-			var url = './ajax';
+			var url = location.href;
 			// Oh ich liebe das toooolle caching vom *piep* ie
 			var params = 'module={global.module}&sess={global.sess}&action=move&ordner={ordner.parent}&moveto='+ordnerid+"&pm_"+pmid+"="+pmid+"&antiiecachingtimestamp="+(new Date().getTime());
 

@@ -54,6 +54,10 @@ public class HttpRequest implements Request,Loggable {
 	public HttpRequest(HttpServletRequest request) {
 		this.request = request;
 		
+		if( request.getSession(false) == null ) {
+			request.getSession(true);
+		}
+		
 		// Standard-Encoding ist UTF-8
 		if( request.getCharacterEncoding() == null ) {
 			try {
