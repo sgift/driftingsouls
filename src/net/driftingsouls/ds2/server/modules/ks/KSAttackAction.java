@@ -45,6 +45,7 @@ import net.driftingsouls.ds2.server.ships.ShipLost;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 
 import org.apache.commons.lang.math.RandomUtils;
 
@@ -777,26 +778,62 @@ public class KSAttackAction extends BasicKSAction {
 	}
 	
 	private int getFighterDefense( Battle battle ) {
-		int defcount = 0;
-		int fightercount = 0;
+		int defcount = 0;		// Anzahl zu verteidigender Schiffe
+		int fighterdefcount = 0;// Gesamtpunktzahl an Bombenabwehr durch Jaeger
+		int gksdefcount = 0;	// Gesamtpunktzahl an Bombenabwehr durch GKS
+		int fighter = 0;		// Gesamtanzahl Jaeger
+		int gks = 0;			// Gesamtanzahl GKS die Tropabwehr liefern
+		int docks = 0;			// Gesamtanzahl Docks
+		int docksuse = 0;		// Gesamtanzahl an Schiffen, welche Docks brauchen
 		
 		List<BattleShip> enemyShips = battle.getEnemyShips();
 		for( int i=0; i < enemyShips.size(); i++ ) {
 			BattleShip selectedShip = enemyShips.get(i);
-			
 			ShipTypeData type = selectedShip.getTypeData();
-			if( (type.getTorpedoDef() == 0) && (type.getSize() > ShipType.SMALL_SHIP_MAXSIZE) ) {
-				defcount++;
-			}
-			if( (selectedShip.getDocked().length() == 0) && (selectedShip.getAction() & Battle.BS_FLUCHT) == 0 && 
-				(selectedShip.getAction() & Battle.BS_JOIN) == 0 ) {
-				fightercount += type.getTorpedoDef();
+			
+			double crewfactor = docks = docks + (int)(type.getJDocks() * selectedShip.getCrew()) / type.getCrew();
+
+			 if((selectedShip.getAction() & Battle.BS_JOIN) == 0){
+				// Beitretende Schiffe werden grundsaetzlich ausgenommen, hier wird gar nichts berechnet
+			}else if(type.getJDocks() > 0 && (selectedShip.getAction() & Battle.BS_FLUCHT) != 0 && type.getSize() > ShipType.SMALL_SHIP_MAXSIZE){
+				// Alle Schiffe mit Jaegerdocks die nicht auf der Flucht sind zaehlen a) als zu verteidigend und b) liefern Docks
+				// Wenn wir allerdings nicht genug Crew haben koennen wir auch nicht alle Docks bedienen
+				docks = docks + (int)Math.floor(type.getJDocks() * crewfactor);
+				defcount = defcount + 1;
+				// Wenn Schiffe mit Docks Torpabwehr stellen, dann hinzufuegen
+				if(type.getTorpedoDef() > 0){
+					gks = gks + 1;
+					gksdefcount = gksdefcount + (int)Math.floor(type.getTorpedoDef() * crewfactor);
+				}
+			}else if(type.getShipClass() == ShipClasses.JAEGER.ordinal() && (selectedShip.getAction() & Battle.BS_FLUCHT) != 0){
+				// Alle Jaeger zaehlen als docknutzend und liefern ihre Torpabwehr
+				// Allerdings nur, wenn sie nicht fluechten.
+				fighter = fighter + 1;
+				fighterdefcount += (int)Math.floor(type.getTorpedoDef() * crewfactor);
+				docksuse = docksuse + 1;
+			}else if(type.getShipClass() == ShipClasses.BOMBER.ordinal()&& (selectedShip.getAction() & Battle.BS_FLUCHT) != 0 ){
+				// Bomber zaehlen als docknutzend, ausser sie fluechten
+				docksuse = docksuse + 1;
+			}else if(type.getSize() > ShipType.SMALL_SHIP_MAXSIZE){
+				// GKS ohne Docks muessen auch verteidigt werden
+				defcount = defcount + 1;
+				// Wenn Schiffe Torpabwehr stellen, dann hinzufuegen
+				if(type.getTorpedoDef() > 0){
+					gks = gks + 1;
+					gksdefcount = gksdefcount + (int)Math.floor(type.getTorpedoDef() * crewfactor);
+				}				
+			}else{
+				// TODO: Hier die Faelle einfuegen, die ich vergessen habe 
 			}
 		}
 		if( defcount == 0 ) {
 			defcount = 1;	
 		}
-		int fighterdef = (int)Math.round((fightercount/(double)defcount)/localweapon.getDouble("destroyable"));
+		// Rechnen wir mal die endgueltige Verteidigung aus
+		if (docksuse > docks){
+			fighterdefcount = (int)Math.floor((fighterdefcount/(double)fighter)*docks);
+		}
+		int fighterdef = (int)Math.round(((fighterdefcount + gksdefcount)/(double)defcount)/localweapon.getDouble("destroyable"));
 		if( fighterdef > 100 ) {
 			fighterdef = 100;	
 		}
