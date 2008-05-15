@@ -35,11 +35,11 @@ abstract class AbstractStatistic implements Statistic {
 	}
 	
 	final protected String getUserURL() {
-		return "./main.php?module=userprofile&amp;sess="+context.getSession()+"&amp;user=";
+		return "./ds?module=userprofile&amp;sess="+context.getSession()+"&amp;user=";
 	}
 	
 	final protected String getAllyURL() {
-		return "./main.php?module=allylist&amp;sess="+context.getSession()+"&amp;action=details&amp;details=";
+		return "./ds?module=allylist&amp;sess="+context.getSession()+"&amp;action=details&amp;details=";
 	}
 	
 	/**

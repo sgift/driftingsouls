@@ -13,7 +13,7 @@
 	{!table_end}
 	<br />
 	{if transferlist.backlink}
-		<a class="back" href="./main.php?module=gtuzwischenlager&sess={global.sess}&ship={global.shipid}">zur&uuml;ck</a>
+		<a class="back" href="./ds?module=gtuzwischenlager&sess={global.sess}&ship={global.shipid}">zur&uuml;ck</a>
 	{/endif}
 {/endif}
 {if global.tradelist}
@@ -35,12 +35,12 @@
 		<!-- BEGIN tradelist.listitem -->
 		<tr>
 			<td class="noBorderX">
-				<a href="./main.php?module=gtuzwischenlager&sess={global.sess}&action=viewEntry&ship={global.shipid}&entry={list.entryid}">
+				<a href="./ds?module=gtuzwischenlager&sess={global.sess}&action=viewEntry&ship={global.shipid}&entry={list.entryid}">
 					<span style="color:#C7C7C7;font-weight:normal">{list.user}</span>
 				</a>
 			</td>
 			<td class="noBorderX">
-				<a href="./main.php?module=gtuzwischenlager&sess={global.sess}&action=viewEntry&ship={global.shipid}&entry={list.entryid}">
+				<a href="./ds?module=gtuzwischenlager&sess={global.sess}&action=viewEntry&ship={global.shipid}&entry={list.entryid}">
 					<span style="color:#C7C7C7;font-weight:normal">ansehen: 
 					<!-- BEGIN res.listitem -->
 						{if res.red}<span style="color:red">{/endif}
@@ -51,7 +51,7 @@
 				</a>
 			</td>
 			<td class="noBorderX">
-				<a href="./main.php?module=gtuzwischenlager&sess={global.sess}&action=viewEntry&ship={global.shipid}&entry={list.entryid}">
+				<a href="./ds?module=gtuzwischenlager&sess={global.sess}&action=viewEntry&ship={global.shipid}&entry={list.entryid}">
 					<span style="color:#C7C7C7;font-weight:normal">
 					{if list.cargoreq.list}
 						{list.cargoreq.list}
@@ -93,7 +93,7 @@
 			<tr>
 				<td class="noBorderX" colspan="2" align="center">
 					<br />
-					<form action="./main.php" method="post">
+					<form action="./ds" method="post">
 						{!form_create_hidden transportMissing, ship:$global.shipid, entry:$tradeentry.id}
 						<input type="submit" value="Fehlende Bezahlung transferieren" />
 					</form>
@@ -103,7 +103,7 @@
 			<tr>
 				<td class="noBorderX" colspan="2" align="center">
 					<br />
-					<form action="./main.php" method="post">
+					<form action="./ds" method="post">
 						{!form_create_hidden transportOwn, ship:$global.shipid, entry:$tradeentry.id}
 						<input type="submit" value="Waren abholen" />
 					</form>
@@ -113,5 +113,5 @@
 		</table>
 	{!table_end}
 	<br />
-	<a style="font-size:16px" class="back" href="./main.php?module=gtuzwischenlager&sess={global.sess}&ship={global.shipid}">zur&uuml;ck</a>
+	<a style="font-size:16px" class="back" href="./ds?module=gtuzwischenlager&sess={global.sess}&ship={global.shipid}">zur&uuml;ck</a>
 {/endif}

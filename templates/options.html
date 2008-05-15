@@ -26,7 +26,7 @@
 			Nach der Password-&Auml;nderung wird Ihnen eine Best&auml;tigungsmail geschickt - das Password wird verschl&uuml;sselt gespeichert.<br />
 			Wenn sie nur den Benutzernamen bearbeiten wollen, lassen sie bitte die Passwort-Felder leer.<br /><br />
 		</div>
-		<form action="./main.php" method="post">
+		<form action="./ds" method="post">
 		<div style="text-align:center">
 			<table class="noBorderX">
 			<tr>
@@ -63,7 +63,7 @@
 			L&ouml;schen des Accounts beantragen
 			<br />
 		</div>
-		<form action="main.php" method="post">
+		<form action="ds" method="post">
 			<div class="smallfont">
 				Bitte geben sie ein paar Gr&uuml;nde f&uuml;r das L&ouml;schen des Accounts an.
 				Wir w&uuml;rden uns dar&uuml;ber sehr freuen, da wir somit Drifting Souls verbessern k&ouml;nnen<br />
@@ -86,7 +86,7 @@
 	{!table_end}
 {/endif}
 {if options.xtra}
-	<form action="main.php" method="post">
+	<form action="ds" method="post">
 
 	{!table_begin 520,center}
 		<table class="noBorderX">
@@ -145,7 +145,7 @@
 		{!table_begin 470,left}
 			Sie stehen noch unter GCP-Schutz. Klicken sie hier um diesen vorzeitig zu beenden.<br /><br />
 			<div style="text-align:center">
-				<input type="button" value="GCP-Schutz verlassen" style="width:300px" onclick="javascript:ask('Haben sie es sich auch genau &uuml;berlegt?\nEs gibt kein Zur&uuml;ck mehr!','./main.php?module=options&action=dropNoobProtection&sess={global.sess}')" />
+				<input type="button" value="GCP-Schutz verlassen" style="width:300px" onclick="javascript:ask('Haben sie es sich auch genau &uuml;berlegt?\nEs gibt kein Zur&uuml;ck mehr!','./ds?module=options&action=dropNoobProtection&sess={global.sess}')" />
 				<br />
 			</div>
 			<br />
@@ -170,7 +170,7 @@
 		</tr>
 		</table>			
 		<br />
-		<form action="./main.php" method="post" enctype="multipart/form-data">
+		<form action="./ds" method="post" enctype="multipart/form-data">
 			<div>
 				Neues Logo hochladen:<br />
 				<input type="file" name="logofile" />
@@ -184,7 +184,7 @@
 		<br />
 	</div>
 	{!table_begin 470,left}
-		<form action="./main.php" method="post">
+		<form action="./ds" method="post">
 			<div>
 				<span style="font-weight:bold">Anzeige</span><br />
 				{!checkbox Schiffe gruppieren, wrapfactor, user.wrapfactor}<br /><br />
@@ -202,13 +202,13 @@
 		<br />
 	</div>
 	{!table_begin 470,left}
-		<form action="./main.php" method="post">
+		<form action="./ds" method="post">
 			<div>
 				<span style="font-weight:bold">Grafikpak (Pfad):</span><br />
 				<input name="gfxpak" type="text" size="30" value="{user.imgpath}" />
 				{!form_create_hidden gfxPak}
 				<input type="submit" value="Speichern" /><br />
-				<span style="font-size:10px">Download: <a target="_none" class="forschinfo" style="font-size:8pt" href="./main.php?module=portal&action=download">Hier zu finden</a><br /><br />
+				<span style="font-size:10px">Download: <a target="_none" class="forschinfo" style="font-size:8pt" href="./ds?module=portal&action=download">Hier zu finden</a><br /><br />
 					Hinweis:<br />Um die Grafiken wieder vom Server zu laden bitte das Feld leer lassen<br />
 				</span>
 			</div>
@@ -218,7 +218,7 @@
 		<br />
 	</div>
 	{!table_begin 470,left}
-		<form action="./main.php" method="post">
+		<form action="./ds" method="post">
 			<div>
 				<span style="font-weight:bold">Vacation-Modus:</span><br />
 				{!form_create_hidden vacMode}

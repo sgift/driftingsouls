@@ -27,7 +27,7 @@
 		{if trainoffi.conf}
 			<br />
 			<div style="text-align:center">
-				<a class="back" href="./main.php?module=building&amp;sess={global.sess}&amp;col={base.id}&amp;field={base.field}&amp;train={trainoffi.trainid}&amp;off={trainoffi.id}&amp;conf=ok">Training durchf&uuml;hren</a>
+				<a class="back" href="./ds?module=building&amp;sess={global.sess}&amp;col={base.id}&amp;field={base.field}&amp;train={trainoffi.trainid}&amp;off={trainoffi.id}&amp;conf=ok">Training durchf&uuml;hren</a>
 			</div>
 		{/endif}
 		{if trainoffi.train}
@@ -41,7 +41,7 @@
 	 	<span style="font-weight:bold">Bildet aus:</span>
 	 	{if trainoffizier.id}
 	 		<img style="vertical-align:middle" src="trainoffizier" alt="" />
-	 		<a class="academy" href="./main.php?module=choff&amp;sess={global.sess}&amp;off={trainoffizier.id}">{trainoffizier.name}</a><br />
+	 		<a class="academy" href="./ds?module=choff&amp;sess={global.sess}&amp;off={trainoffizier.id}">{trainoffizier.name}</a><br />
 	 	{else}
 		 	{trainoffizier.name}<br />
 		{/endif}
@@ -65,7 +65,7 @@
 	</tr>
 	<!-- BEGIN academy.trainnew.listitem -->
 		<tr>
-			<td class="noBorderX"><a class="academy" href="./main.php?module=building&amp;sess={global.sess}&amp;col={base.id}&amp;field={base.field}&amp;newo={offizier.id}">{offizier.name}</a></td>
+			<td class="noBorderX"><a class="academy" href="./ds?module=building&amp;sess={global.sess}&amp;col={base.id}&amp;field={base.field}&amp;newo={offizier.id}">{offizier.name}</a></td>
 			<td class="noBorderX" style="text-align:center">{offizier.ing}</td>
 			<td class="noBorderX" style="text-align:center">{offizier.waf}</td>
 			<td class="noBorderX" style="text-align:center">{offizier.nav}</td>
@@ -97,12 +97,12 @@
 			<tr>
 			<td class="noBorderX" style="white-space:nowrap">
 			<img style="vertical-align:middle" src="{offizier.picture}" alt="" />
-			<a class="academy" href="./main.php?module=choff&amp;sess={global.sess}&amp;off={offizier.id}">{offizier.name}</a>
+			<a class="academy" href="./ds?module=choff&amp;sess={global.sess}&amp;off={offizier.id}">{offizier.name}</a>
 			</td>
 			
 			<td class="noBorderX" align="center">
 			{if offilist.allowactions}
-				<a class="academy" href="./main.php?module=building&amp;sess={global.sess}&amp;col={base.id}&amp;field={base.field}&amp;train=1&amp;off={offizier.id}">{offizier.ing}</a>
+				<a class="academy" href="./ds?module=building&amp;sess={global.sess}&amp;col={base.id}&amp;field={base.field}&amp;train=1&amp;off={offizier.id}">{offizier.ing}</a>
 			{else}
 				{offizier.ing}
 			{/endif}
@@ -110,7 +110,7 @@
 			
 			<td class="noBorderX" align="center">
 			{if offilist.allowactions}
-				<a class="academy" href="./main.php?module=building&amp;sess={global.sess}&amp;col={base.id}&amp;field={base.field}&amp;train=2&amp;off={offizier.id}">{offizier.waf}</a>
+				<a class="academy" href="./ds?module=building&amp;sess={global.sess}&amp;col={base.id}&amp;field={base.field}&amp;train=2&amp;off={offizier.id}">{offizier.waf}</a>
 			{else}
 				{offizier.waf}
 			{/endif}
@@ -118,7 +118,7 @@
 			
 			<td class="noBorderX" align="center">
 			{if offilist.allowactions}
-				<a class="academy" href="./main.php?module=building&amp;sess={global.sess}&amp;col={base.id}&amp;field={base.field}&amp;train=3&amp;off={offizier.id}">{offizier.nav}</a>
+				<a class="academy" href="./ds?module=building&amp;sess={global.sess}&amp;col={base.id}&amp;field={base.field}&amp;train=3&amp;off={offizier.id}">{offizier.nav}</a>
 			{else}
 				{offizier.nav}
 			{/endif}
@@ -126,7 +126,7 @@
 			
 			<td class="noBorderX" align="center">
 			{if offilist.allowactions}
-				<a class="academy" href="./main.php?module=building&amp;sess={global.sess}&amp;col={base.id}&amp;field={base.field}&amp;train=4&amp;off={offizier.id}">{offizier.sec}</a>
+				<a class="academy" href="./ds?module=building&amp;sess={global.sess}&amp;col={base.id}&amp;field={base.field}&amp;train=4&amp;off={offizier.id}">{offizier.sec}</a>
 			{else}
 				{offizier.sec}
 			{/endif}
@@ -134,7 +134,7 @@
 			
 			<td class="noBorderX" align="center">
 			{if offilist.allowactions}
-				<a class="academy" href="./main.php?module=building&amp;sess={global.sess}&amp;col={base.id}&amp;field={base.field}&amp;train=5&amp;off={offizier.id}">{offizier.com}</a>
+				<a class="academy" href="./ds?module=building&amp;sess={global.sess}&amp;col={base.id}&amp;field={base.field}&amp;train=5&amp;off={offizier.id}">{offizier.com}</a>
 			{else}
 				{offizier.com}
 			{/endif}

@@ -8,7 +8,7 @@
 	</div>
 	<img src="{URL}data/interface/besatzung.gif" alt="Crew" />{ship.crew}/{ship.maxcrew}<br />
 
-	<form action="./main.php" method="post">
+	<form action="./ds" method="post">
 		<input name="send" type="text" size="3" value="0" />
 		{!form_create_hidden send, ship:$ship.id, tar:$target.id, mode:$global.mode}
 		&nbsp;&nbsp;
@@ -17,7 +17,7 @@
 
 	<img src="{URL}data/interface/besatzung.gif" alt="Crew" />{target.crew}/{target.maxcrew}<br />
 
-	<form action="./main.php" method="post">
+	<form action="./ds" method="post">
 		<input name="rec" type="text" size="3" value="0" />
 		{!form_create_hidden rec, ship:$ship.id, tar:$target.id, mode:$global.mode}
 		&nbsp;&nbsp;

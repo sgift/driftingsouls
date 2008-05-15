@@ -89,17 +89,17 @@ public class MainController extends DSGenerator {
 	
 		if( Integer.parseInt(user.getUserValue("TBLORDER/admin/show_cmdline")) != 0 ) {
 			out.append("<frameset cols=\"182,*\" framespacing=\"0\" border=\"0\" frameborder=\"0\">\n");
-			out.append("<frame src=\"./main.php?sess="+getString("sess")+"&amp;module=links\" id=\"_framenavi\" name=\"navi\" frameborder=\"0\" />\n");
+			out.append("<frame src=\"./ds?sess="+getString("sess")+"&amp;module=links\" id=\"_framenavi\" name=\"navi\" frameborder=\"0\" />\n");
 			out.append("<frameset rows=\"*,75\" framespacing=\"0\" border=\"0\" frameborder=\"0\">\n");
-			out.append("<frame src=\"./main.php?sess="+getString("sess")+"&amp;module=ueber\" id=\"_framemain\" name=\"main\" scrolling=\"auto\" frameborder=\"0\" />\n");
-			out.append("<frame src=\"./main.php?sess="+getString("sess")+"&amp;module=admin&amp;namedplugin=net.driftingsouls.ds2.server.modules.admin.AdminConsole&amp;cleanpage=1\" id=\"_frameconsole\" name=\"console\" scrolling=\"auto\" frameborder=\"0\" />\n");
+			out.append("<frame src=\"./ds?sess="+getString("sess")+"&amp;module=ueber\" id=\"_framemain\" name=\"main\" scrolling=\"auto\" frameborder=\"0\" />\n");
+			out.append("<frame src=\"./ds?sess="+getString("sess")+"&amp;module=admin&amp;namedplugin=net.driftingsouls.ds2.server.modules.admin.AdminConsole&amp;cleanpage=1\" id=\"_frameconsole\" name=\"console\" scrolling=\"auto\" frameborder=\"0\" />\n");
 			out.append("</frameset>\n");
 			out.append("</frameset>\n");
 		}
 		else {
 			out.append("<frameset cols=\"182,*\" framespacing=\"0\" border=\"0\" frameborder=\"0\">\n");
-			out.append("<frame src=\"./main.php?sess="+getString("sess")+"&amp;module=links\" id=\"_framenavi\" name=\"navi\" frameborder=\"0\" />\n");
-			out.append("<frame src=\"./main.php?sess="+getString("sess")+"&amp;module=ueber\" id=\"_framemain\" name=\"main\" scrolling=\"auto\" frameborder=\"0\" />\n");
+			out.append("<frame src=\"./ds?sess="+getString("sess")+"&amp;module=links\" id=\"_framenavi\" name=\"navi\" frameborder=\"0\" />\n");
+			out.append("<frame src=\"./ds?sess="+getString("sess")+"&amp;module=ueber\" id=\"_framemain\" name=\"main\" scrolling=\"auto\" frameborder=\"0\" />\n");
 			out.append("</frameset>\n");
 		}
 	}

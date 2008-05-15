@@ -71,7 +71,7 @@
 
 {if show.bid.entry}
 	{!table_begin 630,left}
-		<form action="./main.php" method="post">
+		<form action="./ds" method="post">
 		<table class="noBorderX" cellspacing="3" cellpadding="3">
 		<tr>
 			<td class="noBorderX" align="center">Typ</td><td class="noBorderX">H&ouml;chstbietender</td><td class="noBorderX"></td>
@@ -103,7 +103,7 @@
 
 {if show.bid.paket}
 	{!table_begin 350,center}
-		<form action="./main.php" method="post">
+		<form action="./ds" method="post">
 			<div>
 				<div style="text-align:center;font-weight:bold; font-size:14px">&gt;&gt;Paket&lt;&lt;</div><br /><br />
 				Bieten: <input name="bid" type"text" size="15" value="{bid.price}" />
@@ -179,7 +179,7 @@
 		<br />
 		<br />
 	</div>
-	<form action="./main.php" method="post">
+	<form action="./ds" method="post">
 		<div class="smallfont">
 			Schiffe ordern in <select name="favsys" size="1">
 			<!-- BEGIN gtu.dropzones.listitem -->
@@ -222,7 +222,7 @@
 				</tr>
 			<!-- END paket.reslistitem -->
 			<!-- BEGIN paket.shiplistitem -->
-				<tr><td class="noBorderX"><a class="noborder" href="./main.php?module=schiffinfo&amp;sess={global.sess}&amp;ship={ship.type}"><img style="border:0px" src="{ship.type.image}" alt="" /></a></td>
+				<tr><td class="noBorderX"><a class="noborder" href="./ds?module=schiffinfo&amp;sess={global.sess}&amp;ship={ship.type}"><img style="border:0px" src="{ship.type.image}" alt="" /></a></td>
 				<td class="noBorderX">{ship.type.name}</td></tr>
 			<!-- END paket.shiplistitem -->
 			</table>
@@ -263,7 +263,7 @@
 	</table>
 {/endif}
 {if show.other}
-	<form action="./main.php" method="post">
+	<form action="./ds" method="post">
 		<div class="smallfont">
 			<input name="count" type="text" value="0">
 			<select name="to">
@@ -285,7 +285,7 @@
 			Die letzten 40 Kontobewegungen:
 		</td>
 		<td class="noBorderS" style="text-align:right">
-			<form action="main.php" method="post">
+			<form action="ds" method="post">
 			<div class="smallfont">
 				{!form_create_hidden showKontoTransactionType,faction:$global.faction,type:$konto.newtranstype}
 				<input type="submit" value="{konto.newtranstype.name}" />
@@ -410,7 +410,7 @@
 		{if transport.enableOrder}
 			<tr>
 				<td class="noBorderX" colspan="3" style="text-align:center">
-					<form action="./main.php" method="post">
+					<form action="./ds" method="post">
 						{!form_create_hidden shopOrderGanymedeSummary,faction:$global.faction,sourcesystem:$source.system,ganymedeid:$ganymede.id,targetsystem:$target.system,targetx:$target.x,targety:$target.y,transport:1}
 						<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
 						<input type="submit" style="width:110px" value="bestellen" />
@@ -429,7 +429,7 @@
 			<br />
 		</div>
 		{if ganytrans.sourcesystem.list}
-			<form name="form_ganytrans" action="./main.php" method="post">
+			<form name="form_ganytrans" action="./ds" method="post">
 				<div style="text-align:center">
 					{!form_create_hidden shopOrderGanymede, faction:$global.faction}
 		
@@ -518,7 +518,7 @@
 		<div style="text-algin:center">
 			{if order.count > 1}{order.count}x {/endif}{order.name}<br /><br />
 		</div>
-		<form name="form_ganytrans" action="./main.php" method="post">
+		<form name="form_ganytrans" action="./ds" method="post">
 			<div style="text-align:center">
 				{!form_create_hidden shopOrder, faction:$global.faction, shopentry:$order.entry, ordercount:$order.count}
 				<input type="text" name="ordersys" size="4" value="0" /> :
@@ -608,7 +608,7 @@
 					{orderentry.price}
 				</td>
 				<td class="noBorderX" style="text-align:center">
-					<form action="./main.php" method="post">
+					<form action="./ds" method="post">
 						<select name="orderstatus" size="1">
 							<option value="0" {if orderentry.status == 0}selected="selected"{/endif}>Neu</option>
 							<option value="1" {if orderentry.status == 1}selected="selected"{/endif}>In Bearbeitung</option>
@@ -657,7 +657,7 @@
 					{entry.price}
 				</td>
 				<td class="noBorderX">
-					<form action="./main.php" method="post">
+					<form action="./ds" method="post">
 						{if shop.owner}
 							<select name="availability" size="1">
 								<option value="0" {if entry.availability == 0}selected="selected"{/endif}>normal</option>

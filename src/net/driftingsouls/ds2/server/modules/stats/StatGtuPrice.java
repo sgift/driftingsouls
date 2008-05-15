@@ -68,7 +68,7 @@ public class StatGtuPrice extends AbstractStatistic implements Statistic {
 			
 			if( gebot.getInt("mtype") == 1 ) {
 				SQLResultRow shiptype = ShipTypes.getShipType(gebot.getInt("type"), false);
-				name = "<a class=\"forschinfo\" href=\"./main.php?module=schiffinfo&sess="+context.getSession()+"&ship="+gebot.getInt("type")+"\">"+shiptype.getString("nickname")+"</a>";
+				name = "<a class=\"forschinfo\" href=\"./ds?module=schiffinfo&sess="+context.getSession()+"&ship="+gebot.getInt("type")+"\">"+shiptype.getString("nickname")+"</a>";
 			}
 			else if( gebot.getInt("mtype") == 2 ) {
 				Cargo mycargo = new Cargo( Cargo.Type.STRING, gebot.getString("type") );
