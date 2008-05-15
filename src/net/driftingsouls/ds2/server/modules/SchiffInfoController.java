@@ -275,7 +275,7 @@ public class SchiffInfoController extends TemplateGenerator {
 			descrip.append("<br />");
 
 			descrip.append("Schaden (H/S/Sub): ");
-			if( !"none".equals(weapon.getAmmoType()) ) {
+			if( weapon.getAmmoType().length > 0 ) {
 				descrip.append("Munition<br />");
 			}
 			else {
@@ -288,7 +288,7 @@ public class SchiffInfoController extends TemplateGenerator {
 			}
 
 			descrip.append("Trefferws (C/J/Torp): ");
-			if( !"none".equals(weapon.getAmmoType()) ) {
+			if( weapon.getAmmoType().length > 0 ) {
 				descrip.append("Munition<br />");
 			}
 			else {
