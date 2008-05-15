@@ -69,7 +69,7 @@ public class EditShiptypes implements AdminPlugin
 		{
 			ShipType shiptype = (ShipType) iter.next();
 
-			echo.append("<option value=\"" + shiptype.getId() + "\" " + (shiptype.getId() == shiptypeId ? "checked=\"checked\"" : "") + ">" + shiptype.getNickname() + "</option>");
+			echo.append("<option value=\"" + shiptype.getId() + "\" " + (shiptype.getId() == shiptypeId ? "selected=\"selected\"" : "") + ">" + shiptype.getNickname() + "</option>");
 		}
 		echo.append("</select>");
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\"");
@@ -124,13 +124,13 @@ public class EditShiptypes implements AdminPlugin
 			ShipType shiptype = (ShipType) db.createQuery("from ShipType where id=?").setInteger(0, shiptypeId).uniqueResult();
 
 			// Weight the difference between the old and the new value
-			Map<String, Integer> factor = new HashMap<String, Integer>();
-			factor.put("eps", (int) (eps / (double) shiptype.getEps()));
-			factor.put("hull", (int) (hull / (double) shiptype.getHull()));
-			factor.put("crew", (int) (crew / (double) shiptype.getCrew()));
-			factor.put("shields", (int) (shields / (double) shiptype.getShields()));
-			factor.put("ablativearmor", (int) (ablativeArmor / (double) shiptype.getAblativeArmor()));
-			factor.put("marines", (int) (marines / (double) shiptype.getMarines()));
+			Map<String, Double> factor = new HashMap<String, Double>();
+			factor.put("eps", eps / (double) shiptype.getEps());
+			factor.put("hull", hull / (double) shiptype.getHull());
+			factor.put("crew", crew / (double) shiptype.getCrew());
+			factor.put("shields", shields / (double) shiptype.getShields());
+			factor.put("ablativearmor", ablativeArmor / (double) shiptype.getAblativeArmor());
+			factor.put("marines", marines / (double) shiptype.getMarines());
 
 			shiptype.setRu(ru);
 			shiptype.setRd(rd);
@@ -180,12 +180,12 @@ public class EditShiptypes implements AdminPlugin
 			{
 				Ship ship = (Ship) ships.get(0);
 
-				ship.setEnergy(ship.getEnergy() * factor.get("eps"));
-				ship.setHull(ship.getHull() * factor.get("hull"));
-				ship.setCrew(ship.getCrew() * factor.get("crew"));
-				ship.setShields(ship.getShields() * factor.get("shields"));
-				ship.setAblativeArmor(ship.getAblativeArmor() * factor.get("ablativearmor"));
-				ship.setMarines(ship.getMarines() * factor.get("marines"));
+				ship.setEnergy((int)Math.floor(ship.getEnergy() * factor.get("eps")));
+				ship.setHull((int)Math.floor(ship.getHull() * factor.get("hull")));
+				ship.setCrew((int)Math.floor(ship.getCrew() * factor.get("crew")));
+				ship.setShields((int)Math.floor(ship.getShields() * factor.get("shields")));
+				ship.setAblativeArmor((int)Math.floor(ship.getAblativeArmor() * factor.get("ablativearmor")));
+				ship.setMarines((int)Math.floor(ship.getMarines() * factor.get("marines")));
 
 				ship.recalculateModules();
 
@@ -242,9 +242,9 @@ public class EditShiptypes implements AdminPlugin
 			while (battleShips.next())
 			{
 				BattleShip battleShip = (BattleShip) battleShips.get(0);
-				battleShip.setShields(battleShip.getShields() * factor.get("shields"));
-				battleShip.setHull(battleShip.getHull() * factor.get("hull"));
-				battleShip.setAblativeArmor(battleShip.getAblativeArmor() * factor.get("ablativearmor"));
+				battleShip.setShields((int)Math.floor(battleShip.getShields() * factor.get("shields")));
+				battleShip.setHull((int)Math.floor(battleShip.getHull() * factor.get("hull")));
+				battleShip.setAblativeArmor((int)Math.floor(battleShip.getAblativeArmor() * factor.get("ablativearmor")));
 				count++;
 				//All unflushed changes are part of the sessioncache, so we need to clean it regularly
 				if (count % 20 == 0)
@@ -273,7 +273,7 @@ public class EditShiptypes implements AdminPlugin
 			echo.append("<input type=\"hidden\" name=\"shiptype\" value=\"" + shiptypeId + "\" />\n");
 			echo.append("<tr><td class=\"noBorderS\">Name: </td><td><input type=\"text\" name=\"nickname\" value=\"" + ship.getNickname() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Bild: </td><td><input type=\"text\" name=\"picture\" value=\"" + ship.getPicture() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Uranreaktor: </td><td><input type=\"text\" name=\"reactorruran\" value=\"" + ship.getRu() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Uranreaktor: </td><td><input type=\"text\" name=\"reactoruran\" value=\"" + ship.getRu() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Deuteriumreaktor: </td><td><input type=\"text\" name=\"reactordeut\" value=\"" + ship.getRd() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Antimateriereaktor: </td><td><input type=\"text\" name=\"reactoram\" value=\"" + ship.getRa() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Reaktor Maximal: </td><td><input type=\"text\" name=\"reactormaximum\" value=\"" + ship.getRm() + "\"></td></tr>\n");
