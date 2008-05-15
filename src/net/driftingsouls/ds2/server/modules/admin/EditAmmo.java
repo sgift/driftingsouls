@@ -54,10 +54,10 @@ public class EditAmmo implements AdminPlugin
 			Ammo ammo = (Ammo) db.get(Ammo.class, ammoId);
 			ammo.setAreaDamage(request.getParameterInt("area"));
 			ammo.setBuildCosts(new Cargo(Cargo.Type.STRING, request.getParameterString("buildcosts")));
-			ammo.setDauer(new BigDecimal(request.getParameterInt("buildtime")));
+			ammo.setDauer(new BigDecimal(request.getParameterString("buildtime")));
 			ammo.setShotsPerShot(request.getParameterInt("shotspershot"));
 			ammo.setFlags(request.getParameterInt("flags"));
-			ammo.setDestroyable(request.getParameterInt("destroyable"));
+			ammo.setDestroyable(Double.valueOf(request.getParameterString("destroyable")));
 			ammo.setSubDamage(request.getParameterInt("subdamage"));
 			ammo.setShieldDamage(request.getParameterInt("sdamage"));
 			ammo.setDamage(request.getParameterInt("damage"));
