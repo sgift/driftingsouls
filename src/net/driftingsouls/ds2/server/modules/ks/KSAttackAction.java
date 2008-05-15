@@ -390,14 +390,17 @@ public class KSAttackAction extends BasicKSAction {
 		}
 		
 		if(this.weapon.getAmmoType().length != 0){
-			if ( this.localweapon.get("armor_redux") != null){
-				schaden = (int)Math.round(schaden/this.getPanzerung(eShip, eShipType));
+			if ( this.localweapon.getBoolean("armor_redux")){
+				int tmppanzerung = this.getPanzerung(eShip, eShipType);
+				if (tmppanzerung <= 0){
+					tmppanzerung = 1;
+				}
+				schaden = (int)Math.round(schaden/tmppanzerung);
 				
 			}
 		}
 
 		
-	
 		if( (hit != 0) && (eShip.getShields() > 0) ) {
 			if( eShip.getShields() >= absSchaden*hit ) {
 				eShip.setShields(eShip.getShields() - absSchaden*hit);
