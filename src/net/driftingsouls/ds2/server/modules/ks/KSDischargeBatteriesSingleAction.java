@@ -79,10 +79,11 @@ public class KSDischargeBatteriesSingleAction extends BasicKSAction {
 
 		ownShip.getShip().setEnergy((int)(ownShip.getShip().getEnergy()+batterien));
 		ownShip.getShip().setBattleAction(true);
-		ownShip.getShip().setCargo(mycargo);
 	
 		mycargo.substractResource( Resources.BATTERIEN, batterien );
 		mycargo.addResource( Resources.LBATTERIEN, batterien );
+		
+		ownShip.getShip().setCargo(mycargo);
 
 		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
 

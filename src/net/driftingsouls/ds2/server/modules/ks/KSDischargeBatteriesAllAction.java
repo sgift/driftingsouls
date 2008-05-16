@@ -97,6 +97,8 @@ public class KSDischargeBatteriesAllAction extends BasicKSAction {
 			mycargo.substractResource( Resources.BATTERIEN, batterien );
 			mycargo.addResource( Resources.LBATTERIEN, batterien );
 			
+			aship.getShip().setCargo(mycargo);
+			
 			battle.logme( aship.getName()+": "+batterien+" Reservebatterien entladen\n" );
 			ebattslog.append(Battle.log_shiplink(aship.getShip())+": Reservebatterien entladen\n");
 			
