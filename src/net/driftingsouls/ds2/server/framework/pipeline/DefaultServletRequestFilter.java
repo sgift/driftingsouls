@@ -93,6 +93,8 @@ public class DefaultServletRequestFilter implements Filter, Loggable {
 					context.getResponse().send();
 				}
 				catch( Throwable e ) {
+					LOG.error("Fatal Framework Exception", e);
+					
 					context.rollback();
 					
 					mailThrowable(httpRequest, context, e);
@@ -122,6 +124,8 @@ public class DefaultServletRequestFilter implements Filter, Loggable {
 			}
 		}
 		catch( Throwable e ) {
+			LOG.error("Fatal Framework Exception", e);
+			
 			mailThrowable(httpRequest, null, e);
 		}
 	}
