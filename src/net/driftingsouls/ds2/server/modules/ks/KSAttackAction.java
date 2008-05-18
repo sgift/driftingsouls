@@ -802,7 +802,10 @@ public class KSAttackAction extends BasicKSAction {
 				// Alle Schiffe mit Jaegerdocks die nicht auf der Flucht sind zaehlen a) als zu verteidigend und b) liefern Docks
 				// Wenn wir allerdings nicht genug Crew haben koennen wir auch nicht alle Docks bedienen
 				docks = docks + (int)Math.floor(type.getJDocks() * crewfactor);
-				defcount = defcount + 1;
+				// Einschraenkung, nur Schiffe in Reihe 1 muessen verteidigt werden
+				if ((selectedShip.getAction() & Battle.BS_SECONDROW) != 0){
+					defcount = defcount + 1;
+				}
 				// Wenn Schiffe mit Docks Torpabwehr stellen, dann hinzufuegen
 				if(type.getTorpedoDef() > 0){
 					gks = gks + 1;
@@ -818,8 +821,10 @@ public class KSAttackAction extends BasicKSAction {
 				// Bomber zaehlen als docknutzend, ausser sie fluechten
 				docksuse = docksuse + 1;
 			}else if(type.getSize() > ShipType.SMALL_SHIP_MAXSIZE){
-				// GKS ohne Docks muessen auch verteidigt werden
-				defcount = defcount + 1;
+				// GKS in Reihe 1 ohne Docks muessen auch verteidigt werden
+				if ((selectedShip.getAction() & Battle.BS_SECONDROW) != 0){
+					defcount = defcount + 1;
+				}
 				// Wenn Schiffe Torpabwehr stellen, dann hinzufuegen
 				if(type.getTorpedoDef() > 0){
 					gks = gks + 1;
