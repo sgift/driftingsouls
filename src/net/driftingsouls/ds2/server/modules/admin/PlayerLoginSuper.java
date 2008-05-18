@@ -21,7 +21,6 @@ package net.driftingsouls.ds2.server.modules.admin;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.Session;
 import net.driftingsouls.ds2.server.framework.authentication.AuthenticationException;
 import net.driftingsouls.ds2.server.framework.authentication.AuthenticationManager;
 import net.driftingsouls.ds2.server.framework.authentication.DefaultAuthenticationManager;
@@ -66,9 +65,9 @@ public class PlayerLoginSuper implements AdminPlugin {
 			
 			try {
 				AuthenticationManager manager = new DefaultAuthenticationManager();
-				Session session = manager.adminLogin(userObj, usesessid != 0);
+				manager.adminLogin(userObj, usesessid != 0);
 				
-				echo.append("<a class=\"ok\" target=\"_blank\" href=\"./ds?sess="+session.getSession()+"&module=main\">Zum Account</a>\n");
+				echo.append("<a class=\"ok\" target=\"_blank\" href=\"./ds?module=main\">Zum Account</a>\n");
 			}
 			catch( AuthenticationException e ) {
 				echo.append("<span style=\"color:red\">"+e.getMessage()+"</span>");

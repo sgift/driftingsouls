@@ -97,10 +97,10 @@ public abstract class BasicUser implements Loggable {
 	
 	/**
 	 * Fuegt dem Benutzer weitere Sessiondaten hinzu
-	 * @param sessiondata Die Sessiondaten
+	 * @param useGfxPak <code>true</code>, falls ein Grafikpak genutzt werden soll
 	 */
-	public void setSessionData(Session sessiondata) {
-		if( (sessiondata != null) && !sessiondata.getUseGfxPak() ) {
+	public void setSessionData(boolean useGfxPak) {
+		if( !useGfxPak ) {
 			forceDefaultImgPath = true;
 		}
 	}

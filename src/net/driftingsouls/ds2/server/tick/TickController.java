@@ -93,13 +93,13 @@ public abstract class TickController {
 	protected void block(int userid) {
 		if( userid != 0 ) {
 			getContext().getDB()
-				.createQuery("update Session set tick=1 where id=?")
+				.createQuery("update User set blocked=1 where id=?")
 				.setInteger(0, userid)
 				.executeUpdate();
 		}
 		else {
 			getContext().getDB()
-				.createQuery("update Session set tick=1")
+				.createQuery("update User set blocked=1")
 				.executeUpdate();
 		}
 	}
@@ -113,13 +113,13 @@ public abstract class TickController {
 	protected void unblock( int userid ) {
 		if( userid != 0 ) {
 			getContext().getDB()
-				.createQuery("update Session set tick=0 where id=?")
+				.createQuery("update User set blocked=0 where id=?")
 				.setInteger(0, userid)
 				.executeUpdate();
 		}
 		else {
 			getContext().getDB()
-				.createQuery("update Session set tick=0")
+				.createQuery("update User set blocked=0")
 				.executeUpdate();
 		}
 	}

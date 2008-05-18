@@ -34,20 +34,26 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface ContextInstance {
 	/**
-	 * Der Typ der kontextgebundenen Klasse
+	 * Der Scope der kontextgebundenen Klasse
 	 * @author Christopher Jung
 	 *
 	 */
-	enum Type {
+	enum Scope {
 		/**
-		 * Die Klasse darf lediglich einmal pro Kontext vorkommen
+		 * Die Klasse darf lediglich pro Request einmal vorkommen.
+		 * Verschiedene Requests muessen unterschiedliche Instanzen haben
 		 */
-		SINGLETON
+		REQUEST,
+		/**
+		 * Die Klasse darf lediglich einmal pro Session vorkommen.
+		 * Verschiedene Sessions muessen unterschiedliche Instanzen haben
+		 */
+		SESSION
 	};
 	
 	/**
-	 * Gibt den Typ der kontextgebundenen Klasse zurueck
-	 * @return der Typ
+	 * Gibt den Scope der kontextgebundenen Klasse zurueck
+	 * @return der Scope
 	 */
-	Type value();
+	Scope value();
 }

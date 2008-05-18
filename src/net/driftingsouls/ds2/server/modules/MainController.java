@@ -22,7 +22,6 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.Session;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
@@ -75,10 +74,7 @@ public class MainController extends DSGenerator {
 			parameterNumber("gfxpakversion");
 			int gfxpakversion = getInteger("gfxpakversion");
 			
-			if( (gfxpakversion != 0) && (gfxpakversion != Configuration.getIntSetting("GFXPAK_VERSION")) ) {
-				Session sess = (Session)getDB().get(Session.class, getContext().getSession());
-				sess.setUseGfxPak(false);
-				
+			if( (gfxpakversion != 0) && (gfxpakversion != Configuration.getIntSetting("GFXPAK_VERSION")) ) {	
 				out.append("<script type=\"text/javascript\">\n");
 				out.append("<!--\n");
 				out.append("alert('Die von ihnen verwendete Version des Grafikpaks ist veraltet. Die Benutzung des Grafikpaks wurde daher deaktiviert.\nBitte laden sie sich die neuste Version des Grafikpaks herunter!')\n");

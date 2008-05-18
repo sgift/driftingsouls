@@ -18,7 +18,6 @@
  */
 package net.driftingsouls.ds2.server.framework;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -184,27 +183,29 @@ public class BasicContext implements Context,Loggable {
 
 	@SuppressWarnings("unchecked")
 	public <T> T get(Class<T> cls) {
-		/* TODO: Exceptions? */
-		if( !contextSingletons.containsKey(cls) )  {
-			if( !cls.isAnnotationPresent(ContextInstance.class) ) {
-				LOG.fatal("ContextInstance Annotation not present: "+cls.getName());
-				return null;
-			}
-			if( cls.getAnnotation(ContextInstance.class).value() != ContextInstance.Type.SINGLETON ) {
-				LOG.fatal("Context-Class is not a singleton: "+cls.getName());
-				return null;
-			}
-			try {
-				Constructor<T> cons = cls.getConstructor(Context.class);
-				contextSingletons.put(cls, cons.newInstance(this));
-			}
-			catch( Exception e ) {
-				LOG.error(e,e);
-				return null;
-			}
+		if( !cls.isAnnotationPresent(ContextInstance.class) ) {
+			LOG.fatal("ContextInstance Annotation not present: "+cls.getName());
+			return null;
 		}
-
-		return (T)contextSingletons.get(cls);
+		
+		ContextInstance.Scope scope = cls.getAnnotation(ContextInstance.class).value();
+		
+		/* TODO: Exceptions? */
+		if( scope == ContextInstance.Scope.REQUEST ) {
+			if( !contextSingletons.containsKey(cls) )  {
+				try {
+					contextSingletons.put(cls, cls.newInstance());
+				}
+				catch( Exception e ) {
+					LOG.error(e,e);
+					return null;
+				}
+			}
+			
+			return (T)contextSingletons.get(cls);
+		}
+		
+		return this.request.getFromSession(cls);
 	}
 
 	public String getSession() {
@@ -239,5 +240,20 @@ public class BasicContext implements Context,Loggable {
 
 	public void registerListener(ContextListener listener) {
 		this.listener.add(listener);
+	}
+
+	public void remove(Class<?> cls) {
+		if( !cls.isAnnotationPresent(ContextInstance.class) ) {
+			LOG.fatal("ContextInstance Annotation not present: "+cls.getName());
+			return;
+		}
+		
+		ContextInstance.Scope scope = cls.getAnnotation(ContextInstance.class).value();
+		if( scope == ContextInstance.Scope.REQUEST ) {
+			this.contextSingletons.remove(cls);
+		}
+		else {
+			this.request.removeFromSession(cls);
+		}
 	}
 }

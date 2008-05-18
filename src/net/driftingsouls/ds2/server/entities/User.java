@@ -192,6 +192,7 @@ public class User extends BasicUser implements Loggable {
 	private int destroyedShips;
 	private int lostShips;
 	private String knownItems;
+	private boolean blocked = false;
 	
 	@Transient
 	private Context context;
@@ -1004,5 +1005,21 @@ public class User extends BasicUser implements Loggable {
 	 */
 	public void setWait4VacationCount(int value) {
 		this.wait4vac = value;
+	}
+	
+	/**
+	 * Gibt zurueck, ob der User wegen einer Tickberechnung kurzzeitig blockiert wird
+	 * @return <code>true</code>, falls er geblockt wird
+	 */
+	public boolean isBlocked() {
+		return this.blocked;
+	}
+	
+	/**
+	 * Setzt, ob der User wegen einer Tickberechnung kurzzeitig geblockt wird
+	 * @param blocked <code>true</code>, falls er geblockt wird
+	 */
+	public void setBlocked(boolean blocked) {
+		this.blocked = blocked;
 	}
 }

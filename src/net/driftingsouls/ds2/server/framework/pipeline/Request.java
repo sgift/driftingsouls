@@ -130,4 +130,21 @@ public interface Request {
 	 * @return Die Liste der hochgeladenen Dateien
 	 */
 	public List<FileItem> getUploadedFiles();
+	
+	/**
+	 * Liefert eine pro Session einmalige Instanz einer Klasse.
+	 * Sollte keine Instanz dieser Klasse in der Session vorhanden sein,
+	 * wird dieses erstellt.
+	 * 
+	 * @param <T> Eine Klasse, welche Session arbeiten kann
+	 * @param cls Die gewuenschte Klasse
+	 * @return Eine Instanz der Klase
+	 */
+	public <T> T getFromSession(Class<T> cls);
+	
+	/**
+	 * Entfernt die Instanz dieser Klasse aus der Session
+	 * @param cls Die Klasse
+	 */
+	public void removeFromSession(Class<?> cls);
 }

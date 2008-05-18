@@ -481,4 +481,7 @@
 	<update type="structure" datum="2008-05-11"><![CDATA[
 		alter table logging modify type varchar(15) not null;
 	]]></update>
+	<update type="structure" datum="2008-05-17"><![CDATA[
+		alter table users add blocked tinyint(1) unsigned not null default '0';
+	]]></update>
 </updates>

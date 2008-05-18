@@ -21,12 +21,15 @@ package net.driftingsouls.ds2.server.framework.pipeline;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import net.driftingsouls.ds2.server.framework.Loggable;
 
@@ -182,5 +185,54 @@ public class HttpRequest implements Request,Loggable {
 		}
 			
 		return result;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> T getFromSession(Class<T> cls) {
+		HttpSession session = this.request.getSession(false);
+		
+		if( session == null ) {
+			return null;
+		}
+		Object obj = session.getAttribute(getClass().getName()+"#"+cls.getName());
+		if( obj == null ) {
+			try {
+				Constructor constr = cls.getConstructor();
+				constr.setAccessible(true);
+				obj = constr.newInstance();
+			}
+			catch( InstantiationException e ) {
+				LOG.error("getFromSession for "+cls.getName()+" failed", e);
+				return null;
+			}
+			catch( IllegalAccessException e ) {
+				LOG.error("getFromSession for "+cls.getName()+" failed", e);
+				return null;
+			}
+			catch( InvocationTargetException e ) {
+				LOG.error("getFromSession for "+cls.getName()+" failed", e);
+				return null;
+			}
+			catch( NoSuchMethodException e ) {
+				LOG.error("getFromSession for "+cls.getName()+" failed", e);
+				return null;
+			}
+			session.setAttribute(getClass().getName()+"#"+cls.getName(), obj);
+		}
+		if( cls.isInstance(obj) ) {
+			return (T)obj;
+		}
+		LOG.error("getFromSession for "+cls.getName()+" failed - invalid type");
+		
+		return null;
+	}
+	
+	public void removeFromSession(Class<?> cls) {
+		HttpSession session = this.request.getSession(false);
+		
+		if( session == null ) {
+			return;
+		}
+		session.removeAttribute(getClass().getName()+"#"+cls.getName());
 	}
 }

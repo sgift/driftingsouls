@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.framework.authentication;
 
 import net.driftingsouls.ds2.server.framework.BasicUser;
-import net.driftingsouls.ds2.server.framework.Session;
 
 /**
  * Interface fuer Authentifizierungsdienste
@@ -33,10 +32,10 @@ public interface AuthenticationManager {
 	 * @param username Der Benutzername
 	 * @param password Das Passwort im Klartext
 	 * @param useGfxPak <code>true</code>, falls ein evt angegebenes Grafikpak genutzt werden soll
-	 * @return Session Die neu erstellte Session
+	 * @return Der Account des eingeloggten Benutzers
 	 * @throws AuthenticationException Falls der Loginvorgang nicht erfolgreich ist
 	 */
-	public Session login(String username, String password, boolean useGfxPak)
+	public BasicUser login(String username, String password, boolean useGfxPak)
 			throws AuthenticationException;
 
 	/**
@@ -49,10 +48,10 @@ public interface AuthenticationManager {
 	 * des Accesslevels statt.
 	 * @param user Der Account, in den der Admin eingeloggt werden soll
 	 * @param attach <code>true</code>, falls die Adminrechte an die neue Session "angeklebt" werden sollen
-	 * @return Die neu erstellte Session
+	 * @return Der Account des eingeloggten Benutzers
 	 * @throws AuthenticationException Falls der Loginvorgang nicht moeglich ist
 	 */
-	public Session adminLogin(BasicUser user, boolean attach) throws AuthenticationException;
+	public BasicUser adminLogin(BasicUser user, boolean attach) throws AuthenticationException;
 
 	/**
 	 * Authentifiziert die genutzte Session. Falls die Session ungueltig ist,

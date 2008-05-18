@@ -28,6 +28,8 @@ import java.util.Map;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Repraesentiert eine Request auf Basis von Kommandozeilenparametern
@@ -35,6 +37,8 @@ import org.apache.commons.fileupload.FileItem;
  *
  */
 public class CmdLineRequest implements Request {
+	private Log log = LogFactory.getLog(CmdLineRequest.class);
+	
 	private Map<String,String> params = new HashMap<String,String>();
 	
 	/**
@@ -128,6 +132,16 @@ public class CmdLineRequest implements Request {
 
 	public List<FileItem> getUploadedFiles() {
 		return new ArrayList<FileItem>();
+	}
+
+	public <T> T getFromSession(Class<T> cls) {
+		log.error("getFromSession not supported");
+		
+		return null;
+	}
+
+	public void removeFromSession(Class<?> cls) {
+		log.error("removeFromSession not supported");
 	}
 
 }

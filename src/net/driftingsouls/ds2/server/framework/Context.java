@@ -41,13 +41,13 @@ public interface Context {
 	 * 
 	 * @return Eine Database-Instanz
 	 */
-	public abstract Database getDatabase();
+	public Database getDatabase();
 	
 	/**
 	 * Liefert eine Instanz der berwendeten DB-Session zurueck
 	 * @return Die DB-Session
 	 */
-	public abstract org.hibernate.Session getDB();
+	public org.hibernate.Session getDB();
 	
 	/**
 	 * Fuehrt ein Rollback auf der aktuellen Transaktion durch.
@@ -71,28 +71,28 @@ public interface Context {
 	 * @param classType Die Klasse des Rueckgabetyps
 	 * @return Eine Liste mit dem Ergebnis
 	 */
-	public abstract <T> List<T> query(String query, Class<T> classType);
+	public <T> List<T> query(String query, Class<T> classType);
 
 	/**
 	 * Liefert den gerade aktiven User
 	 * 
 	 * @return Das zum gerade aktiven User gehoerende User-Objekt
 	 */
-	public abstract BasicUser getActiveUser();
+	public BasicUser getActiveUser();
 
 	/**
 	 * Setzt den gerade aktiven User auf das angebene User-Objekt
 	 * 
 	 * @param user Der neue aktive User
 	 */
-	public abstract void setActiveUser(BasicUser user);
+	public void setActiveUser(BasicUser user);
 
 	/**
 	 * Fuegt einen Fehler zur Fehlerliste hinzu
 	 * 
 	 * @param error Die Beschreibung des Fehlers
 	 */
-	public abstract void addError(String error);
+	public void addError(String error);
 
 	/**
 	 * Fuegt einen Fehler zur Fehlerliste hinzu und bietet zudem eine Ausweich-URL an.
@@ -100,7 +100,7 @@ public interface Context {
 	 * @param error Die Beschreibung des Fehlers
 	 * @param link Die Ausweich-URL
 	 */
-	public abstract void addError(String error, String link);
+	public void addError(String error, String link);
 
 	/**
 	 * Liefert den letzten Fehler zurueck
@@ -110,45 +110,49 @@ public interface Context {
 	 * @see #addError(String, String)
 	 * @see #addError(String)
 	 */
-	public abstract Error getLastError();
+	public Error getLastError();
 
 	/**
 	 * Liefert eine Liste aller Fehler zurueck
 	 * 
 	 * @return Eine Liste aller Fehlerbeschreibungen 
 	 */
-	public abstract Error[] getErrorList();
+	public Error[] getErrorList();
 	
 	/**
 	 * Liefert die Request fuer diesen Aufruf
 	 * @return Die Request des Aufrufs
 	 */
-	public abstract Request getRequest();
+	public Request getRequest();
 	
 	/**
 	 * Liefert die zum Aufruf gehoerende Response
 	 * @return Die Response des Aufrufs
 	 */
-	public abstract Response getResponse();
+	public Response getResponse();
 	
 	/**
 	 * Setzt das zum Aufruf gehoerende Response-Objekt
 	 * @param response Das Response-Objekt
 	 */
-	public abstract void setResponse(Response response);
+	public void setResponse(Response response);
 	
 	/**
-	 * Liefert eine pro Kontext einmalige Instanz einer Klasse.
-	 * Sollte keine Instanz dieser Klasse im Kontext vorhanden sein,
+	 * Liefert eine unter einem bestimmten Scope einmalige Instanz einer Klasse.
+	 * Sollte keine Instanz dieser Klasse im Scope vorhanden sein,
 	 * wird dieses erstellt.
-	 * Hinweis: Die Klasse muss die Annotation ContextInstance besitzen
-	 * und auf den Wert SINGLETON gesetzt haben
 	 * 
-	 * @param <T> Eine Klasse, welche Kontextbezogen arbeiten kann
+	 * @param <T> Eine Klasse
 	 * @param cls Die gewuenschte Klasse
 	 * @return Eine Instanz der Klase
 	 */
-	public abstract <T> T get(Class<T> cls);
+	public <T> T get(Class<T> cls);
+	
+	/**
+	 * Entfernt die unter einem bestimmten Scope gueltige Instanz dieser Klasse
+	 * @param cls Die Klasse
+	 */
+	public void remove(Class<?> cls);
 	
 	/**
 	 * Gibt die zum Kontext gehoerende Session-ID zurueck.
@@ -157,7 +161,7 @@ public interface Context {
 	 * 
 	 * @return Die Session-ID oder ein leerer String
 	 */
-	public abstract String getSession();
+	public String getSession();
 	
 	/**
 	 * Setzt eine Kontext-lokale Variable auf einen angegebenen Wert.
@@ -165,7 +169,7 @@ public interface Context {
 	 * @param varname Der Name der Variablen
 	 * @param value Der neue Wert der Variablen
 	 */
-	public abstract void putVariable(Class<?> cls, String varname, Object value);
+	public void putVariable(Class<?> cls, String varname, Object value);
 	
 	/**
 	 * Liefert eine Kontext-lokale Variable zurueck
@@ -173,19 +177,19 @@ public interface Context {
 	 * @param varname Der Name der Variablen
 	 * @return Die Variable oder <code>null</code>, falls die Variable nicht existiert
 	 */
-	public abstract Object getVariable(Class<?> cls, String varname);
+	public Object getVariable(Class<?> cls, String varname);
 	
 	/**
 	 * Ueberprueft, ob eine neue Session gesetzt wurde und authentifiziert ggf den Benutzer.
 	 * Die Liste der Fehler wird in dem Fall zurueckgesetzt. 
 	 *
 	 */
-	public abstract void revalidate();
+	public void revalidate();
 	
 	/**
 	 * Registriert einen Kontext-Observer im Kontextobjekt. Der Observer wird
 	 * fortan ueber Ereignisse des Kontexts informiert
 	 * @param listener Der Listener
 	 */
-	public abstract void registerListener(ContextListener listener);
+	public void registerListener(ContextListener listener);
 }

@@ -44,7 +44,6 @@ import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.Session;
 import net.driftingsouls.ds2.server.framework.authentication.AccountDisabledException;
 import net.driftingsouls.ds2.server.framework.authentication.AuthenticationException;
 import net.driftingsouls.ds2.server.framework.authentication.AuthenticationManager;
@@ -751,9 +750,9 @@ public class PortalController extends TemplateGenerator {
 		
 		if( !username.isEmpty() && !password.isEmpty() ) {
 			try {
-				Session session = manager.login(username, password, usegfxpak != 0);
+				User user = (User)manager.login(username, password, usegfxpak != 0);
 				
-				doLogin(session);
+				doLogin(user);
 				
 				return;
 			}
@@ -790,16 +789,13 @@ public class PortalController extends TemplateGenerator {
 					"login.username", username );
 	}
 
-	private void doLogin(Session session) {
+	private void doLogin(User user) {
 		TemplateEngine t = getTemplateEngine();
 
-		t.setVar(	"show.login.msg.ok", 1,
-					"login.sess", session.getSession() );
-		
-		User user = (User)session.getUser();
+		t.setVar( "show.login.msg.ok", 1 );
 		
 		// Ueberpruefen ob das gfxpak noch aktuell ist
-		if( session.getUseGfxPak() && !user.getUserImagePath().equals(BasicUser.getDefaultImagePath()) ) {
+		if( !user.getImagePath().equals(BasicUser.getDefaultImagePath()) ) {
 			t.setVar(	"login.checkgfxpak", 1,
 						"login.checkgfxpak.path", user.getUserImagePath() );
 		}
