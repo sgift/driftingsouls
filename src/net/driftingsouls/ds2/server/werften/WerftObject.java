@@ -959,9 +959,9 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			energie = 900;
 		}
 		
-		cost.addResource(Resources.URAN, ablativeArmorToRepair/5);
-		cost.addResource(Resources.TITAN, ablativeArmorToRepair/5);
-		cost.addResource(Resources.ADAMATIUM, ablativeArmorToRepair/10);
+		cost.addResource(Resources.URAN, ablativeArmorToRepair/100);
+		cost.addResource(Resources.TITAN, ablativeArmorToRepair/100);
+		cost.addResource(Resources.ADAMATIUM, ablativeArmorToRepair/200);
 		
 		RepairCosts rc = new RepairCosts();
 		rc.e = energie;
