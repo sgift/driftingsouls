@@ -33,4 +33,11 @@ public class StatPlayerList implements Statistic {
 		PlayerList.draw(ContextMap.getContext());
 	}
 
+	public boolean generateAllyData() {
+		return false;
+	}
+	
+	public int getRequiredData() {
+		return 0;
+	}
 }

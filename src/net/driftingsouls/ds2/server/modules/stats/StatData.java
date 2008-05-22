@@ -85,21 +85,25 @@ public class StatData implements Statistic, Loggable {
 		if( new File("/proc/uptime").canRead() ) {
 			try {
 				BufferedReader f = new BufferedReader(new FileReader("/proc/uptime"));
-				String[] uptime = f.readLine().split(" ");
-				f.close();
-				
-				double uptime_sec = Double.parseDouble(uptime[0]);
-				long uptime_days = (long)(uptime_sec / 86400);
-				uptime_sec -= uptime_days*86400;
-				
-				long uptime_hours = (long)(uptime_sec / 3600);
-				uptime_sec -= uptime_hours*3600;
-				
-				long uptime_min = (long)(uptime_sec / 60);
-				uptime_sec -= uptime_min*60;
-				
-				echo.append("<tr><td class=\"noBorderX\" align=\"left\">Uptime des Servers:</td>\n");
-				echo.append("<td class=\"noBorderX\" align=\"left\">"+uptime_days+" Tage "+uptime_hours+" Stunden "+uptime_min+" Minuten</td></tr>\n");
+				String line = f.readLine();
+				if(line != null && !line.equals(""))
+				{
+					String[] uptime = line.split(" ");
+					f.close();
+					
+					double uptime_sec = Double.parseDouble(uptime[0]);
+					long uptime_days = (long)(uptime_sec / 86400);
+					uptime_sec -= uptime_days*86400;
+					
+					long uptime_hours = (long)(uptime_sec / 3600);
+					uptime_sec -= uptime_hours*3600;
+					
+					long uptime_min = (long)(uptime_sec / 60);
+					uptime_sec -= uptime_min*60;
+					
+					echo.append("<tr><td class=\"noBorderX\" align=\"left\">Uptime des Servers:</td>\n");
+					echo.append("<td class=\"noBorderX\" align=\"left\">"+uptime_days+" Tage "+uptime_hours+" Stunden "+uptime_min+" Minuten</td></tr>\n");
+				}
 			}
 			catch( IOException e ) {
 				LOG.warn(e,e);
@@ -109,11 +113,15 @@ public class StatData implements Statistic, Loggable {
 		if( new File("/proc/loadavg").canRead() ) {
 			try {
 				BufferedReader f = new BufferedReader(new FileReader("/proc/loadavg"));
-				String[] load = f.readLine().split(" ");
-				f.close();
-			
-				echo.append("<tr><td class=\"noBorderX\" align=\"left\">Auslastung:</td>\n");
-				echo.append("<td class=\"noBorderX\" align=\"left\">"+load[0]+" "+load[1]+" "+load[2]+"</td></tr>\n");
+				String line = f.readLine();
+				if(line != null && !line.equals(""))
+				{
+					String[] load = line.split(" ");
+					f.close();
+				
+					echo.append("<tr><td class=\"noBorderX\" align=\"left\">Auslastung:</td>\n");
+					echo.append("<td class=\"noBorderX\" align=\"left\">"+load[0]+" "+load[1]+" "+load[2]+"</td></tr>\n");
+				}
 			}
 			catch( IOException e ) {
 				LOG.warn(e,e);
@@ -124,4 +132,11 @@ public class StatData implements Statistic, Loggable {
 
 	}
 
+	public boolean generateAllyData() {
+		return false;
+	}
+	
+	public int getRequiredData() {
+		return 0;
+	}
 }

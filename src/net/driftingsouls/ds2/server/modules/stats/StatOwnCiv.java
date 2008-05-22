@@ -63,4 +63,11 @@ public class StatOwnCiv implements Statistic {
 		echo.append("</table><br /><br />\n");
 	}
 
+	public boolean generateAllyData() {
+		return false;
+	}
+	
+	public int getRequiredData() {
+		return 0;
+	}
 }

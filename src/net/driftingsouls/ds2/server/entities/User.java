@@ -31,13 +31,14 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.comm.Ordner;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
@@ -206,6 +207,59 @@ public class User extends BasicUser implements Loggable {
 	public User() {
 		super();
 		context = ContextMap.getContext();
+	}
+	
+	/**
+	 * Legt einen neuen Spieler an.
+	 * 
+	 * @param name Loginname des Spielers.
+	 * @param password Passwort - md5-verschluesselt.
+	 * @param race Rasse des Spielers.
+	 * @param history Bisherige Geschichte des Spielers.
+	 * @param cargo Ressourcen im Spielercargo.
+	 * @param email E-Mailadresse des Spielers.
+	 */
+	public User(String name, String password, int race, String history, Cargo cargo, String email) {
+		super();
+		context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		setPassword(password);
+		setName("Kolonist");
+		this.race = race;
+		this.history = history;
+		setCargo(cargo.save());
+		setEmail(email);
+		setUn(name);
+		setFlag(User.FLAG_NOOB);
+		setNahrungsStat("0");
+		setSignup((int)Common.time());
+		setImagePath(BasicUser.getDefaultImagePath());
+		setInactivity(0);
+		setMedals("");
+		setRang(Byte.valueOf("0"));
+		setKonto(BigInteger.valueOf(0));
+		setLoginFailedCount(0);
+		setAccesslevel(0);
+		setNpcPunkte(0);
+		setNickname("Kolonist");
+		setPlainname("Kolonist");
+		setGtuDropZone(2);
+		setNpcOrderLocation("");
+		setDisabled(false);
+		setVacationCount(0);
+		setWait4VacationCount(0);
+		setLostBattles(Short.valueOf("0"));
+		setLostShips(0);
+		setWonBattles(Short.valueOf("0"));
+		setDestroyedShips(0);
+		int newUserId = (Integer)db.createQuery("SELECT max(id) from User").uniqueResult();
+		newUserId++;
+		setId(newUserId);
+		this.knownItems = "";
+		db.persist(this);
+		Ordner trash = Ordner.createNewOrdner("Papierkorb", Ordner.getOrdnerByID(0, this), this);
+		trash.setFlags(Ordner.FLAG_TRASH);
+		addResearch(0);
 	}
 	
 	/**
@@ -603,25 +657,8 @@ public class User extends BasicUser implements Loggable {
 		transferMoneyFrom( fromID, count, text, false );
 	}
 	
-	@Transient
-	private SQLResultRow research = null;
 	private int vaccount;
 	private int wait4vac;
-	
-	/**
-	 * Gibt den zum Spieler gehoerenden <code>user_f</code>-Eintrag als SQL-Ergebniszeile
-	 * zurueck
-	 * @return Der <code>user_f</code>-Eintrag
-	 */
-	public SQLResultRow getResearchedList() {
-		if( research == null ) {
-			research = context.getDatabase().first("SELECT * FROM user_f WHERE id='",this.getId(),"'");
-			if( research.isEmpty() ) {
-				throw new RuntimeException("Spieler "+this.getId()+" verfuegt ueber keine Forschungstabelle");
-			}
-		}
-		return research;
-	}
 	
 	/**
 	 * Prueft, ob die angegebene Forschung durch den Benutzer erforscht wurde
@@ -630,18 +667,7 @@ public class User extends BasicUser implements Loggable {
 	 * @return <code>true</code>, falls die Forschung erforscht wurde
 	 */
 	public boolean hasResearched( int researchID ) {
-		// Forschungs-ID -1 ist per Definition nicht erforschbar - also immer false zurueckgeben.
-		if( researchID == -1 ) {
-			return false;
-		}
-		if( research == null ) {
-			research = context.getDatabase().first("SELECT * FROM user_f WHERE id='",this.getId(),"'");
-			if( research.isEmpty() ) {
-				throw new RuntimeException("Spieler "+this.getId()+" verfuegt ueber keine Forschungstabelle");
-			}
-		}
-
-		return research.getBoolean("r"+researchID);
+		return getUserResearch(Forschung.getInstance(researchID)) != null;
 	}
 	
 	/**
@@ -649,11 +675,8 @@ public class User extends BasicUser implements Loggable {
 	 * @param researchID Die ID der erforschten Technologie
 	 */
 	public void addResearch( int researchID ) {
-		if( !hasResearched( researchID ) ) {
-			research.put("r"+researchID, true);
-			
-			context.getDatabase().update("UPDATE user_f SET r",researchID,"='1' WHERE id='",this.getId(),"'");
-		}
+		org.hibernate.Session db = context.getDB();
+		db.persist(new UserResearch(this, Forschung.getInstance(researchID)));
 	}
 	
 	/**
@@ -1021,5 +1044,19 @@ public class User extends BasicUser implements Loggable {
 	 */
 	public void setBlocked(boolean blocked) {
 		this.blocked = blocked;
+	}
+	
+	/**
+	 * Gibt zur angegebenen Forschung die Forschungsdaten des Benutzers zurueck.
+	 * Falls der Benutzer die Forschung noch nicht hat wird <code>null</code> zurueckgegeben.
+	 * @param research Die Forschung
+	 * @return Die Forschungsdaten oder <code>null</code>
+	 */
+	public UserResearch getUserResearch(Forschung research) {
+		if(research == null) {
+			return null;
+		}
+		org.hibernate.Session db = context.getDB();
+		return (UserResearch) db.createQuery("from UserResearch where owner=? AND research=?").setInteger(0, this.getId()).setInteger(1, research.getID()).uniqueResult();
 	}
 }

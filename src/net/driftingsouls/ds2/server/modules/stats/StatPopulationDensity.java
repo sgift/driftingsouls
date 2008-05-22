@@ -146,4 +146,11 @@ public class StatPopulationDensity implements Statistic, Loggable {
 		echo.append("</table><br /><br />");
 	}
 
+	public boolean generateAllyData() {
+		return false;
+	}
+	
+	public int getRequiredData() {
+		return 0;
+	}
 }

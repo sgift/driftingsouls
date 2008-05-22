@@ -71,5 +71,4 @@ public class StatBiggestAsteroid extends AbstractStatistic implements Statistic 
 		
 		tmp.free();
 	}
-
 }

@@ -67,4 +67,13 @@ public class StatMostResearch extends AbstractStatistic implements Statistic {
 		tmp.free();
 	}
 
+	@Override
+	public boolean generateAllyData() {
+		return allys;
+	}
+	
+	@Override
+	public int getRequiredData() {
+		return Statistic.DATA_RESEARCH;
+	}
 }

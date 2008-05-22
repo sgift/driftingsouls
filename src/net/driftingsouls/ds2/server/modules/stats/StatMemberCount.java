@@ -47,4 +47,8 @@ public class StatMemberCount extends AbstractStatistic implements Statistic {
 		tmp.free();
 	}
 
+	@Override
+	public boolean generateAllyData() {
+		return true;
+	}
 }

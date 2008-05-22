@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.StatsController;
 
 /**
- * Zeigt die Liste der groessten Handelsflotten an
+ * Zeigt die Liste der goessten Handelsflotten an
  * @author Simon Dietsch
  *
  */
@@ -71,4 +71,8 @@ public class StatBiggestTrader extends AbstractStatistic implements Statistic {
 		tmp.free();
 	}
 
+	@Override
+	public boolean generateAllyData() {
+		return allys;
+	}
 }

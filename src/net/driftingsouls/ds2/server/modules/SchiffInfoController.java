@@ -34,10 +34,9 @@ import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.OrderShip;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserResearch;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -129,22 +128,23 @@ public class SchiffInfoController extends TemplateGenerator {
 	}
 
 	private void outPrerequisites() {
-		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
 
 		if( getUser() != null ) {
 			for( int i=1; i <= 3; i++ ) {
 				if( shipBuildData.getRes(i) != 0 ) {
-					SQLResultRow dat = db.first("SELECT f.name, uf.r",shipBuildData.getRes(i)," AS research " +
-							"FROM forschungen f JOIN user_f uf " +
-							"WHERE f.id=",shipBuildData.getRes(i)," AND uf.id=",getUser().getId());
-					String cssClass = "error";
-					if( !dat.isEmpty() && dat.getBoolean("research") ) {
+					User user = (User)getUser();
+					Forschung research = Forschung.getInstance(shipBuildData.getRes(i));
+					UserResearch userResearch = user.getUserResearch(research);
+					String cssClass = "error";				
+					//Has the user this research?
+					if(userResearch != null)
+					{
 						cssClass = "ok";
-					} 	
+					}
 
 					t.setVar(	"shiptype.tr"+i, shipBuildData.getRes(i),
-								"shiptype.tr"+i+".name"	, Common._title(dat.getString("name")),
+								"shiptype.tr"+i+".name"	, Common._title(research.getName()),
 								"shiptype.tr"+i+".status", cssClass );
 				}
 			}	

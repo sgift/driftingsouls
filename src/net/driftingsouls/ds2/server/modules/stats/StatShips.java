@@ -40,7 +40,11 @@ public class StatShips implements Statistic {
 	
 		echo.append("<table class=\"noBorderX\" cellspacing=\"1\" cellpadding=\"1\" width=\"100%\">\n");
 		echo.append("<tr><td class=\"noBorderX\" align=\"left\">Schiffe:</td></tr>\n");
-		SQLQuery tmp = db.query("SELECT st.id,st.nickname,count(*) count FROM ship_types st JOIN ships s ON s.type=st.id WHERE s.owner>",StatsController.MIN_USER_ID," GROUP BY st.id,st.nickname ORDER BY st.nickname");
+		SQLQuery tmp = db.query("SELECT st.id,st.nickname,count(*) count " +
+				"FROM ship_types st JOIN ships s ON s.type=st.id " +
+				"WHERE s.owner>",StatsController.MIN_USER_ID," " +
+				"GROUP BY st.id,st.nickname " +
+				"ORDER BY st.nickname");
 		while( tmp.next() ) {
       		echo.append("<tr><td class=\"noBorderX\">"+Common.ln(tmp.getInt("count"))+" "+tmp.getString("nickname")+" <a class=\"forschinfo\" href=\"./ds?module=schiffinfo&sess="+context.getSession()+"&ship="+tmp.getInt("id")+"\">(?)</a></td></tr>\n");
 		}
@@ -48,4 +52,11 @@ public class StatShips implements Statistic {
 		echo.append("</table><br /><br />");
 	}
 
+	public boolean generateAllyData() {
+		return false;
+	}
+	
+	public int getRequiredData() {
+		return 0;
+	}
 }

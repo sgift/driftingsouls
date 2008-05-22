@@ -18,8 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
-import org.apache.commons.lang.StringUtils;
-
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -28,9 +26,11 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.StatsController;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Zeigt die Liste hoechsten Gebote (welche zur Ersteigerung fuehrten) in der GTU
@@ -67,8 +67,8 @@ public class StatGtuPrice extends AbstractStatistic implements Statistic {
 			String name = null;
 			
 			if( gebot.getInt("mtype") == 1 ) {
-				SQLResultRow shiptype = ShipTypes.getShipType(gebot.getInt("type"), false);
-				name = "<a class=\"forschinfo\" href=\"./ds?module=schiffinfo&sess="+context.getSession()+"&ship="+gebot.getInt("type")+"\">"+shiptype.getString("nickname")+"</a>";
+				ShipTypeData shiptype = Ship.getShipType(gebot.getInt("type"));
+				name = "<a class=\"forschinfo\" href=\"./ds?module=schiffinfo&sess="+context.getSession()+"&ship="+gebot.getInt("type")+"\">"+shiptype.getNickname()+"</a>";
 			}
 			else if( gebot.getInt("mtype") == 2 ) {
 				Cargo mycargo = new Cargo( Cargo.Type.STRING, gebot.getString("type") );
@@ -93,8 +93,8 @@ public class StatGtuPrice extends AbstractStatistic implements Statistic {
 				}
 	
 				for( int i=0; i < ships.length; i++ ) {
-					SQLResultRow shiptype = ShipTypes.getShipType(ships[i], false);
-					text.append(shiptype.getString("nickname")+"<br />");
+					ShipTypeData shiptype = Ship.getShipType(ships[i]);
+					text.append(shiptype.getNickname()+"<br />");
 				}
 	
 				name = "<a class=\"forschinfo\" href=\"#\" onmouseover=\"return overlib('"+text+"');\" onmouseout=\"return nd();\">GTU-Paket</a>";
@@ -113,5 +113,4 @@ public class StatGtuPrice extends AbstractStatistic implements Statistic {
 		
 		echo.append("</table><br /><br />\n");
 	}
-
 }

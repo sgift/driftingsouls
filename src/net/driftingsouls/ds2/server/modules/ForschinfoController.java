@@ -80,9 +80,7 @@ public class ForschinfoController extends TemplateGenerator {
 			return false;
 		}
 		
-		if( !data.isVisibile(user) && 
-			!((user.hasResearched(data.getRequiredResearch(1)) && user.hasResearched(data.getRequiredResearch(2)) && user.hasResearched(data.getRequiredResearch(3))) || 
-			user.hasResearched(researchid) ) && (user.getAccessLevel() < 20) ) {
+		if( !data.isVisibile(user) && (user.getAccessLevel() < 20) ) {
 			addError("&Uuml;ber diese Forschung liegen aktuell keine Informationen vor");
 			
 			return false;

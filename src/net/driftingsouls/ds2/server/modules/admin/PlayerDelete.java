@@ -177,7 +177,7 @@ public class PlayerDelete implements AdminPlugin, Loggable {
 			.executeUpdate();
 
 		echo.append("Entferne user-forschungen...<br />\n");
-		database.update("DELETE FROM user_f WHERE id="+userid);
+		db.createQuery("delete from UserResearch where owner=?").setInteger(0, userid).executeUpdate();
 
 		//Schiffe
 		echo.append("Entferne Schiffe...\n");

@@ -58,7 +58,7 @@ public class StatBiggestFleet extends AbstractStatistic implements Statistic {
 		else {
 			tmp = db.query("SELECT SUM( (CASE WHEN sm.size IS NULL THEN st.size*st.size ELSE sm.size*sm.size END) * (s.crew/CASE WHEN sm.crew IS NULL THEN st.crew ELSE sm.crew END) * (s.hull/CASE WHEN sm.hull IS NULL THEN st.hull ELSE sm.hull END) * s.hull ) count,a.name,u.ally id ",
 					    "FROM (((ships s JOIN users u ON s.owner=u.id) JOIN ship_types st ON s.type=st.id) JOIN ally a ON u.ally=a.id) LEFT OUTER JOIN ships_modules sm ON s.id=sm.id ",
-						"WHERE s.id>0 AND s.owner>",StatsController.MIN_USER_ID," AND u.ally>0 AND (((sm.id IS NULL) AND st.cost>0) OR ((sm.id IS NOT NULL) AND sm.cost>0)) AND st.class not in (0,1,3,12,14,18,19,20) ",
+						"WHERE s.id>0 AND s.owner>",StatsController.MIN_USER_ID," AND u.ally IS NOT NULL AND (((sm.id IS NULL) AND st.cost>0) OR ((sm.id IS NOT NULL) AND sm.cost>0)) AND st.class not in (0,1,3,12,14,18,19,20) ",
 						"GROUP BY u.ally ",
 						"ORDER BY count DESC,u.id ASC LIMIT ",size);
 		
@@ -70,4 +70,8 @@ public class StatBiggestFleet extends AbstractStatistic implements Statistic {
 		tmp.free();
 	}
 
+	@Override
+	public boolean generateAllyData() {
+		return allys;
+	}
 }

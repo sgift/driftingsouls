@@ -30,15 +30,15 @@ abstract class AbstractStatistic implements Statistic {
 		context = ContextMap.getContext();
 	}
 	
-	final protected Context getContext() {
+	protected final Context getContext() {
 		return context;
 	}
 	
-	final protected String getUserURL() {
+	protected final String getUserURL() {
 		return "./ds?module=userprofile&amp;sess="+context.getSession()+"&amp;user=";
 	}
 	
-	final protected String getAllyURL() {
+	protected final String getAllyURL() {
 		return "./ds?module=allylist&amp;sess="+context.getSession()+"&amp;action=details&amp;details=";
 	}
 	
@@ -48,7 +48,7 @@ abstract class AbstractStatistic implements Statistic {
 	 * @param tmp Ein SQL-Ergebnis mit den Feldern (Spieler/Ally) "id", (Spieler/Ally) "name" und "count", welches den Plaetzen nach sortiert ist (1. Platz zuerst)
 	 * @param url Die fuer Links
 	 */
-	final protected void generateStatistic(String name, SQLQuery tmp, String url) {
+	protected final void generateStatistic(String name, SQLQuery tmp, String url) {
 		generateStatistic(name, tmp, url, true);
 	}
 	
@@ -59,7 +59,7 @@ abstract class AbstractStatistic implements Statistic {
 	 * @param url Die fuer Links
 	 * @param showCount Soll die Spalte "count" angezeigt werden?
 	 */
-	final protected void generateStatistic(String name, SQLQuery tmp, String url, boolean showCount) {
+	protected final void generateStatistic(String name, SQLQuery tmp, String url, boolean showCount) {
 		StringBuffer echo = getContext().getResponse().getContent();
 		
 		echo.append("<table class=\"noBorderX\" cellspacing=\"1\" cellpadding=\"1\" width=\"100%\">\n");
@@ -78,5 +78,13 @@ abstract class AbstractStatistic implements Statistic {
 		}
 		
 		echo.append("</table><br /><br />\n");
+	}
+	
+	public boolean generateAllyData() {
+		return false;
+	}
+	
+	public int getRequiredData() {
+		return 0;
 	}
 }

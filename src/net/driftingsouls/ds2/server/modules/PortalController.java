@@ -32,7 +32,6 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.comm.Ordner;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
@@ -523,14 +522,7 @@ public class PortalController extends TemplateGenerator {
 		Cargo cargo = new Cargo();
 		cargo.addResource( Resources.NAHRUNG, 100000 );
 		
-		db.tUpdate(1,"INSERT INTO users (id,un,passwort,race,signup,history,email,cargo,flags,nstat) " ,
-				"VALUES " ,
-				"('",newid,"','",username,"','",enc_pw,"','",race,"','",Common.time(),"','",history,"','",email,"','",cargo.save(),"','",User.FLAG_NOOB,"','0')");
-		
-		// Standard-Ordner erstellen
-		db.tUpdate(1, "INSERT INTO ordner SET name='Papierkorb',playerid='",newid,"',flags='",Ordner.FLAG_TRASH,"',parent=0");
-
-		db.tUpdate(1, "INSERT INTO user_f (id) VALUES ('",newid,"')");
+		User newuser = new User(username, enc_pw, race, history, cargo, email);
 		
 		// Schiffe erstellen
 	 	StartLocations locations = getStartLocation();
@@ -577,7 +569,7 @@ public class PortalController extends TemplateGenerator {
 			building.cleanup(getContext(), base);
 		}
 	 	
-	 	User newuser = (User)getDB().get(User.class, newid);
+	 	//User newuser = (User)getDB().get(User.class, newid);
 	 	
 	 	base.setEnergy(base.getMaxEnergy());
 	 	base.setOwner(newuser);

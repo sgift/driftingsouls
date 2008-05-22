@@ -13,6 +13,10 @@ CREATE TABLE `forschungen` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
 
+set sql_mode = NO_AUTO_VALUE_ON_ZERO;
+		
+INSERT INTO `forschungen` (`id`, `name`, `req1`, `req2`, `req3`, `time`, `costs`, `descrip`, `race`, `visibility`, `flags`) VALUES (-1, '(nicht erfuellbar)', -1, -1, -1, 0, '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,', '', 0, 2, '');
+INSERT INTO `forschungen` (`id`, `name`, `req1`, `req2`, `req3`, `time`, `costs`, `descrip`, `race`, `visibility`, `flags`) VALUES (0, '(immer erfuellt)', -1, -1, -1, 0, '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,', '', 0, 2, '');
 INSERT INTO `forschungen` (`id`, `name`, `req1`, `req2`, `req3`, `time`, `costs`, `descrip`, `race`, `visibility`, `flags`) VALUES (1, 'Fusionsreaktor-Konstruktion', 2, 0, 0, 3, '0,0,0,0,0,0,0,0,80,0,0,0,0,0,0,0,0,0,', '', 0, 1, '');
 INSERT INTO `forschungen` (`id`, `name`, `req1`, `req2`, `req3`, `time`, `costs`, `descrip`, `race`, `visibility`, `flags`) VALUES (2, 'Werftsysteme', 3, 6, 0, 3, '0,0,0,0,0,0,0,0,100,0,0,0,0,0,0,0,0,0,', '', 0, 1, '');
 INSERT INTO `forschungen` (`id`, `name`, `req1`, `req2`, `req3`, `time`, `costs`, `descrip`, `race`, `visibility`, `flags`) VALUES (3, 'Titanveredelung', 0, 0, 0, 2, '0,0,0,0,0,0,0,0,80,0,0,0,0,0,0,0,0,0,', 'Mit der Erforschung von Titanveredelung kann ein Titanveredler gebaut werden, in dem Platin und Titan zu einer sehr harten, grÃ¼nlichen Legierung namens Adamatium verschmolzen werden.\r\nIm groÃŸen Krieg wurden die Panzerungen aller Raumschiffe aus Xentronium bedampftem Adamatium gefertigt. Heute benutzt man fÃ¼r die Panzerungen zwar nur noch das wesentlich hÃ¤rtere Xentronium, aber Adamatium wird weiterhin im Schiffs- und GebÃ¤udebau dort verwendet, wo Titan zu instabil, aber Xentronium wiederum zu aufwendig ist. AuÃŸerdem ist es ein beliebter Werkstoff fÃ¼r LuxusmÃ¶bel geworden.\r\n', 0, 1, '');

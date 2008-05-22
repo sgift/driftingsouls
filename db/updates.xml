@@ -484,4 +484,60 @@
 	<update type="structure" datum="2008-05-17"><![CDATA[
 		alter table users add blocked tinyint(1) unsigned not null default '0';
 	]]></update>
+	<update type="data" datum="2008-05-22"><![CDATA[
+		set sql_mode = NO_AUTO_VALUE_ON_ZERO;
+		
+		INSERT INTO `forschungen` (`id`, `name`, `req1`, `req2`, `req3`, `time`, `costs`, `descrip`, `race`, `visibility`, `flags`) VALUES (-1, '(nicht erfuellbar)', -1, -1, -1, 0, '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,', '', 0, 2, '');
+		INSERT INTO `forschungen` (`id`, `name`, `req1`, `req2`, `req3`, `time`, `costs`, `descrip`, `race`, `visibility`, `flags`) VALUES (0, '(immer erfuellt)', -1, -1, -1, 0, '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,', '', 0, 2, '');
+		
+		DELIMITER //
+		DROP PROCEDURE IF EXISTS `convert_f`//
+		DROP PROCEDURE IF EXISTS `convert_f_user`//
+		CREATE PROCEDURE convert_f_user(uid INT)
+		BEGIN
+			DECLARE rid INT DEFAULT 0;
+			DECLARE selectQuery CHAR(255);
+			DECLARE rValue INT DEFAULT 0;
+			DECLARE rCount INT DEFAULT 0;
+		
+			SET rid=0;
+			WHILE rid <= 100 DO
+				SELECT count(*) INTO rCount FROM forschungen WHERE id=rid;
+				IF rCount > 0 THEN 
+					SET selectQuery = CONCAT("SELECT r",rid," into @rValue from user_f where id=",uid);
+					SET @qry = selectQuery;
+		
+					PREPARE stmt FROM @qry;
+					EXECUTE stmt;
+					DEALLOCATE PREPARE stmt;
+		
+					IF @rValue > 0 THEN
+						INSERT INTO userresearch (owner,research) VALUES (uid,rid);
+					END IF;
+		
+				END IF;
+				SET rid=rid+1;
+			END WHILE;
+		END;
+		
+		CREATE PROCEDURE convert_f()
+		BEGIN
+			DECLARE done,uid INT DEFAULT 0;
+			DECLARE cur1 CURSOR FOR SELECT id FROM users;
+			DECLARE CONTINUE HANDLER FOR SQLSTATE '02000' SET done = 1;
+		
+			OPEN cur1;
+			REPEAT
+				FETCH cur1 INTO uid;
+				CALL convert_f_user(uid);
+			UNTIL done END REPEAT;
+			CLOSE cur1;
+		END;
+		// 
+		DELIMITER ;
+		
+		CALL convert_f();
+		DROP PROCEDURE `convert_f`;
+		DROP PROCEDURE `convert_f_user`;
+	]]></update>
 </updates>

@@ -450,6 +450,11 @@ public abstract class BasicUser implements Loggable {
 		return this.disabled != 0;
 	}
 	
+	protected void setId(int id)
+	{
+		this.id = id;
+	}
+
 	/**
 	 * (De)aktiviert den Account. 
 	 * @param value <code>true</code>, wenn der Account deaktiviert sein soll. Andernfalls <code>false</code>
@@ -464,5 +469,46 @@ public abstract class BasicUser implements Loggable {
 	 */
 	public int getVersion() {
 		return this.version;
+	}
+
+	/**
+	 * Setzt die Email-Adresse des Spielers
+	 * @param email Die Email
+	 */
+	protected void setEmail(String email) {
+		this.email = email;
+	}
+
+	/**
+	 * Setzt den Plaintext-Namen des Spielers
+	 * @param plainname Der Name
+	 */
+	protected void setPlainname(String plainname) {
+		this.plainname = plainname;
+	}
+
+	/**
+	 * Setzt den Zeitpunkt, zu dem sich der User registriert hat
+	 * in Sekunden seit dem 1.1.1970
+	 * @param signup Die Timestamp
+	 */
+	protected void setSignup(int signup) {
+		this.signup = signup;
+	}
+
+	/**
+	 * Setzt den Loginnamen des Users
+	 * @param un Der Loginname
+	 */
+	protected void setUn(String un) {
+		this.un = un;
+	}
+
+	/**
+	 * Setzt den Zugriffslevel den Users auf Adminfunktionen
+	 * @param accesslevel Der Level
+	 */
+	protected void setAccesslevel(int accesslevel) {
+		this.accesslevel = accesslevel;
 	}
 }
