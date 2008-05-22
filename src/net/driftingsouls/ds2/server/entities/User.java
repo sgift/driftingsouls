@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.entities;
 
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -199,6 +200,8 @@ public class User extends BasicUser implements Loggable {
 	private Context context;
 	@Transient
 	private UserFlagschiffLocation flagschiffObj = null;
+	@Transient
+	private Map<Integer,UserResearch> researched;
 	
 	/**
 	 * Konstruktor
@@ -676,7 +679,12 @@ public class User extends BasicUser implements Loggable {
 	 */
 	public void addResearch( int researchID ) {
 		org.hibernate.Session db = context.getDB();
-		db.persist(new UserResearch(this, Forschung.getInstance(researchID)));
+		UserResearch userres = new UserResearch(this, Forschung.getInstance(researchID));
+		db.persist(userres);
+		
+		if( this.researched != null ) {
+			this.researched.put(researchID, userres);
+		}
 	}
 	
 	/**
@@ -1056,7 +1064,22 @@ public class User extends BasicUser implements Loggable {
 		if(research == null) {
 			return null;
 		}
-		org.hibernate.Session db = context.getDB();
-		return (UserResearch) db.createQuery("from UserResearch where owner=? AND research=?").setInteger(0, this.getId()).setInteger(1, research.getID()).uniqueResult();
+		
+		if( this.researched == null ) {
+			this.researched = new HashMap<Integer,UserResearch>();
+			
+			org.hibernate.Session db = context.getDB();
+			
+			List userresList = db.createQuery("from UserResearch where owner= :user")
+				.setEntity("user", this)
+				.list();
+			
+			for( Iterator iter=userresList.iterator(); iter.hasNext(); ) {
+				UserResearch userres = (UserResearch)iter.next();
+				
+				this.researched.put(userres.getResearch().getID(), userres);
+			}
+		}
+		return this.researched.get(research.getID());
 	}
 }
