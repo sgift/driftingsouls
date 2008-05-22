@@ -794,7 +794,11 @@ public class KSAttackAction extends BasicKSAction {
 			BattleShip selectedShip = enemyShips.get(i);
 			ShipTypeData type = selectedShip.getTypeData();
 			
-			double crewfactor = docks = docks + (int)(type.getJDocks() * selectedShip.getCrew()) / type.getCrew();
+			int typeCrew = type.getCrew();
+			if(typeCrew <= 0){
+				typeCrew = 1;
+			}
+			double crewfactor = (int)(type.getJDocks() * selectedShip.getCrew()) / typeCrew;
 
 			 if((selectedShip.getAction() & Battle.BS_JOIN) == 0){
 				// Beitretende Schiffe werden grundsaetzlich ausgenommen, hier wird gar nichts berechnet
