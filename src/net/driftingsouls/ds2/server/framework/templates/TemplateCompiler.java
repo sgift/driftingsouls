@@ -149,16 +149,14 @@ public class TemplateCompiler {
 			}
 			
 			if( paramlist.containsKey("module") ) {
-				text.append(paramlist.get("module")+"&amp;sess=");
+				text.append(paramlist.get("module")+"&amp;");
 				paramlist.remove("module");	
 			}
 			else {
-				text.append("\"); str.append(templateEngine.getVar(\"global.module\")); str.append(\"&amp;sess=");
+				text.append("\"); str.append(templateEngine.getVar(\"global.module\")); str.append(\"&amp;");
 			}
 			
-			text.append("\"); str.append(templateEngine.getVar(\"global.sess\")); str.append(\"");
-			
-			text.append("&amp;action="+action);
+			text.append("action="+action);
 			
 			if( paramlist.size() > 0 ) {
 				for( Map.Entry<String, String> entry : paramlist.entrySet() ) {
@@ -308,8 +306,6 @@ public class TemplateCompiler {
 			else {
 				text.append("<input type=\\\"hidden\\\" name=\\\"module\\\" value=\\\"\"); str.append(templateEngine.getVar(\"global.module\")); str.append(\"\\\" />\n");
 			}
-			
-			text.append("<input type=\\\"hidden\\\" name=\\\"sess\\\" value=\\\"\"); str.append(templateEngine.getVar(\"global.sess\")); str.append(\"\\\" />\n");
 			
 			for( Map.Entry<String, String> entry : paramlist.entrySet() ) {
 				text.append("<input type=\\\"hidden\\\" name=\\\""+entry.getKey()+"\\\" value=\\\""+entry.getValue()+"\\\" />\n");
