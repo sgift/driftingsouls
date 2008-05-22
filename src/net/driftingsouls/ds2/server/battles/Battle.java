@@ -312,7 +312,7 @@ public class Battle implements Loggable, Locatable {
 				if( size > ShipType.SMALL_SHIP_MAXSIZE ) {
 					double countedSize = size;
 					if( type.getCrew() > 0 ) {
-						countedSize *= (aship.getCrew()/type.getCrew());
+						countedSize *= (aship.getCrew()/((double)type.getCrew()));
 					}
 					owncaps += countedSize;
 				}
