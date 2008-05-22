@@ -19,21 +19,22 @@
 package net.driftingsouls.ds2.server.modules;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-import net.driftingsouls.ds2.server.Forschung;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.entities.Forschung;
+import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -57,7 +58,9 @@ public class TechListeController extends TemplateGenerator {
 		super(context);
 		parameterNumber("rasse");
 		
-		setTemplate("techliste.html");	
+		setTemplate("techliste.html");
+		
+		setPageTitle("Forschungen");
 	}
 	
 	@Override
@@ -69,10 +72,10 @@ public class TechListeController extends TemplateGenerator {
 	/**
 	 * Zeigt die Techliste an
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 		
@@ -108,9 +111,10 @@ public class TechListeController extends TemplateGenerator {
 		Map<Integer,Forschung>  invisible = new LinkedHashMap<Integer,Forschung>();
 
 		//Alle Forschungen durchgehen
-		SQLQuery forschung = db.query("SELECT id FROM forschungen ORDER BY name");
-		while( forschung.next() ) {
-			Forschung f = Forschung.getInstance(forschung.getInt("id"));
+		final Iterator forschungIter = db.createQuery("from Forschung order by name")
+			.iterate();
+		while( forschungIter.hasNext() ) {
+			Forschung f = (Forschung)forschungIter.next();
 			
 			if( !Rassen.get().rasse(rasse).isMemberIn(f.getRace()) ) {
 				continue;	
@@ -124,7 +128,7 @@ public class TechListeController extends TemplateGenerator {
 					user.hasResearched(f.getRequiredResearch(3)) ) {
 				researchable.put(f.getID(), f);
 			} 
-			else if( !f.isVisibile() ) {
+			else if( !f.isVisibile(user) ) {
 				if( user.getAccessLevel() >= 20 ) {
 					invisible.put(f.getID(), f);
 				}
@@ -133,7 +137,6 @@ public class TechListeController extends TemplateGenerator {
 				notResearchable.put(f.getID(), f);
 			}
 		}
-		forschung.free();
 
 		t.setBlock("_TECHLISTE","tech.listitem","none");
 
@@ -147,14 +150,17 @@ public class TechListeController extends TemplateGenerator {
 		keys.put("invisible", invisible);
 
 		Map<Integer,Integer> currentResearches = new HashMap<Integer,Integer>();
-		SQLQuery resRow = db.query("SELECT t1.forschung,t1.dauer FROM fz AS t1,bases AS t2 WHERE t1.forschung>0 AND t1.col=t2.id AND t2.owner=",user.getId());
-		while( resRow.next() ) {
-			currentResearches.put(resRow.getInt("forschung"), resRow.getInt("dauer"));
+		List resList = db.createQuery("from Forschungszentrum where forschung>0 and base.owner=?")
+			.setEntity(0, user)
+			.list();
+		for( Iterator iter=resList.iterator(); iter.hasNext(); ) {
+			Forschungszentrum fz = (Forschungszentrum)iter.next();
+			currentResearches.put(fz.getForschung(), fz.getDauer());
 		}
-		resRow.free();
 
-		for( String mykey : keys.keySet() ) {
-			Map<Integer,Forschung> var = keys.get(mykey);
+		for( Map.Entry<String, Map<Integer, Forschung>> entry: keys.entrySet() ) {
+			String mykey = entry.getKey();
+			Map<Integer,Forschung> var = entry.getValue();
 			
 			int count = 0;
 	
@@ -175,7 +181,7 @@ public class TechListeController extends TemplateGenerator {
 						  	"tech.remaining",	currentResearches.get(result.getID()) );
 
 				// Kosten der Forschung ausgeben
-				Cargo costs = new Cargo(Cargo.Type.STRING, result.getCosts());
+				Cargo costs = result.getCosts();
 				costs.setOption(Cargo.Option.SHOWMASS, false);
 
 				ResourceList reslist = costs.getResourceList();

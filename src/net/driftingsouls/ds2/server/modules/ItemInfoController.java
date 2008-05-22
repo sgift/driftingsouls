@@ -373,7 +373,7 @@ public class ItemInfoController extends TemplateGenerator {
 			for( int i = 0; i < 3; i++ ) {
 				if( effect.getTechReq(i) != 0 ) {
 					Forschung dat = Forschung.getInstance(effect.getTechReq(i));
-					if( !dat.isVisibile() && (!user.hasResearched(dat.getRequiredResearch(1)) || !user.hasResearched(dat.getRequiredResearch(2)) || !user.hasResearched(dat.getRequiredResearch(3))) ) {
+					if( !dat.isVisibile(user) && (!user.hasResearched(dat.getRequiredResearch(1)) || !user.hasResearched(dat.getRequiredResearch(2)) || !user.hasResearched(dat.getRequiredResearch(3))) ) {
 						data.append("Unbekannt");
 						if( user.getAccessLevel() > 20 ) {
 							data.append(" [ID:"+effect.getTechReq(i)+"]");
@@ -564,7 +564,7 @@ public class ItemInfoController extends TemplateGenerator {
 						
 						Forschung dat = Forschung.getInstance(ammo.getRes(i));
 						if( (ammo.getRes(i) == -1) || 
-							(!dat.isVisibile() && (!user.hasResearched(dat.getRequiredResearch(1)) || !user.hasResearched(dat.getRequiredResearch(2)) || !user.hasResearched(dat.getRequiredResearch(3)))) ) {
+							(!dat.isVisibile(user) && (!user.hasResearched(dat.getRequiredResearch(1)) || !user.hasResearched(dat.getRequiredResearch(2)) || !user.hasResearched(dat.getRequiredResearch(3)))) ) {
 							
 							data.append("Unbekannte Technologie");
 							if( user.getAccessLevel() > 20 ) {
@@ -648,7 +648,7 @@ public class ItemInfoController extends TemplateGenerator {
 				
 				StringBuilder weapons = new StringBuilder(50);
 				for( Weapon weapon : Weapons.get() ) {
-					if( !ammo.getType().equals(weapon.getAmmoType()) ) continue;
+					if( !Common.inArray(ammo.getType(), weapon.getAmmoType()) ) continue;
 			
 					if( weapons.length() == 0 ) {
 						weapons.append(weapon.getName());

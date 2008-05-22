@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.ModuleSlots;
 import net.driftingsouls.ds2.server.config.NoSuchSlotException;
+import net.driftingsouls.ds2.server.config.NoSuchWeaponException;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
@@ -204,7 +205,7 @@ public class SchiffInfoController extends TemplateGenerator {
 				if( shipBuildData.getRes(i) != 0 ) {
 					Forschung research = Forschung.getInstance(shipBuildData.getRes(i));
 					
-					if( !research.isVisibile() && 
+					if( !research.isVisibile(user) && 
 						(user == null || !user.hasResearched(research.getRequiredResearch(1)) || 
 						 !user.hasResearched(research.getRequiredResearch(2)) || 
 						 !user.hasResearched(research.getRequiredResearch(3)) ) ) {
@@ -242,9 +243,10 @@ public class SchiffInfoController extends TemplateGenerator {
 			String weaponname = entry.getKey();
 			
 			Weapon weapon = null;
-			weapon = Weapons.get().weapon(weaponname);
-			
-			if( weapon == null ) {
+			try {
+				weapon = Weapons.get().weapon(weaponname);
+			}
+			catch( NoSuchWeaponException e ) {
 				t.setVar(	"shiptype.weapon.name",			"<span style=\"color:red\">UNKNOWN: weapon</span>",
 							"shiptype.weapon.count",		count,
 							"shiptype.weapon.description",	"" );

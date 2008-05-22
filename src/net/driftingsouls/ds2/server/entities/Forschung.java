@@ -32,7 +32,8 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.caches.CacheManager;
 import net.driftingsouls.ds2.server.framework.caches.ControllableCache;
 
-import org.hibernate.annotations.Immutable;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 
 /**
@@ -46,7 +47,7 @@ import org.hibernate.annotations.Type;
  */
 @Entity
 @Table(name="forschungen")
-@Immutable
+@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Forschung {
 	/**
 	 * Beim Erforschen einer Forschung mit dieser Technologie, verliert
@@ -64,6 +65,46 @@ public class Forschung {
 				}
 			}
 		);
+	}
+	
+	/**
+	 * Sichtbarkeiten von einzelnen Forschungen
+	 */
+	public enum Visibility {
+		/**
+		 * Erst sichtbar, wenn die Forschung auch erforschbar ist
+		 */
+		IF_RESEARCHABLE(0, "Sichtbar, wenn erforschbar"),
+		/**
+		 * Immer sichtbar
+		 */
+		ALWAYS(1, "Sichtbar"),
+		/**
+		 * Niemals sichtbar
+		 */
+		NEVER(2, "Unsichtbar");
+		
+		
+		private int bit;
+		private String description;
+		
+		private Visibility(int bit, String description) {
+			this.bit = bit;
+			this.description = description;
+		}
+		
+		/**
+		 * Gibt das zum Flag gehoerende Bitmuster zurueck
+		 * @return Das Bitmuster
+		 */
+		public int getBits() {
+			return this.bit;
+		}
+		
+		@Override
+		public String toString() {
+			return description;
+		}
 	}
 	
 	/**
@@ -190,14 +231,108 @@ public class Forschung {
 	}
 	
 	/**
-	 * Prueft, ob die Forschung allgemein sichtbar ist oder erst sichtbar wird,
-	 * wenn alle benoetigten Forschungen erforscht sind
-	 * @return <code>true</code>, falls die Forschung allgemein sichtbar ist
+	 * Gibt zurueck, ob die Forschung die angegebene Sichtbarkeit hat
+	 * @param visibility Die Sichtbarkeit
+	 * @return <code>true</code>, falls die Sichtbarkeit gegeben ist
 	 */
-	public boolean isVisibile() {
-		return ( this.visibility > 0 ? true : false );
+	public boolean hasVisibility(Forschung.Visibility visibility) {
+		return (this.visibility & visibility.getBits()) != 0;
 	}
 	
+	/**
+	 * Prueft, ob die Forschung fuer den Spieler sichtbar ist.
+	 * Es werden nur die Werte von Forschung.Visibility beruecksichtigt.
+	 * @param user Der Spieler
+	 * 
+	 * @return <code>true</code>, falls die Forschung sichtbar ist
+	 */
+	public boolean isVisibile(User user) {
+		if(hasVisibility(Forschung.Visibility.ALWAYS)) {
+			return true;
+		}
+		
+		if(hasVisibility(Forschung.Visibility.NEVER)) {
+			return false;
+		}
+		
+		for(int i = 1; i <= 3; i++) {
+			if(!user.hasResearched(getRequiredResearch(i))) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+
+	/**
+	 * Setzte die Beschreibung der Forschung.
+	 * 
+	 * @param description Die neue Beschreibung.
+	 */
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	/**
+	 * Setzt den Namen der Forschung.
+	 * 
+	 * @param name Der neue Name.
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * Setzt die Rasse der Forschung.
+	 * 
+	 * @param race vergleiche <code>Rassen</code>
+	 */
+	public void setRace(int race) {
+		this.race = race;
+	}
+
+	/**
+	 * Setzt die erste benoetigte Forschung 
+	 * @param req1 Die ID der Forschung.
+	 */
+	public void setReq1(int req1) {
+		this.req1 = req1;
+	}
+
+	/** 
+	 * Setzt die zweite benoetigte Forschung 
+	 * @param req2 Die ID der Forschung.
+	 */
+	public void setReq2(int req2) {
+		this.req2 = req2;
+	}
+
+	/** 
+	 * Setzt die zweite benoetigte Forschung 
+	 * @param req3 Die ID der Forschung.
+	 */
+	public void setReq3(int req3) {
+		this.req3 = req3;
+	}
+
+	/**
+	 * Setzt die Dauer in Ticks die notwendig ist um die Forschung
+	 * zu erforschen
+	 * @param time Die Dauer
+	 */
+	public void setTime(int time) {
+		this.time = time;
+	}
+
+	/**
+	 * Setzt die Sichtbarkeit auf den angegebenen Wert.
+	 * 
+	 * @param visibility Die neue Sichtbarkeitsstufe.
+	 */
+	public void setVisibility(int visibility) {
+		this.visibility = visibility;
+	}
+
 	/**
 	 * Prueft, ob die Forschung ein bestimmtes Flag hat
 	 * @param flag Das Flag

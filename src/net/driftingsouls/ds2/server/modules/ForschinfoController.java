@@ -18,7 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import net.driftingsouls.ds2.server.Forschung;
+import java.util.Iterator;
+import java.util.List;
+
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.bases.Core;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -28,18 +30,18 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.entities.Ammo;
+import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipBaubar;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
  * Zeigt Details zu einer Forschung an 
@@ -60,6 +62,8 @@ public class ForschinfoController extends TemplateGenerator {
 		setTemplate("forschinfo.html");
 		
 		parameterNumber("res");
+		
+		setPageTitle("Forschung");
 	}
 	
 	@Override
@@ -76,7 +80,7 @@ public class ForschinfoController extends TemplateGenerator {
 			return false;
 		}
 		
-		if( !data.isVisibile() && 
+		if( !data.isVisibile(user) && 
 			!((user.hasResearched(data.getRequiredResearch(1)) && user.hasResearched(data.getRequiredResearch(2)) && user.hasResearched(data.getRequiredResearch(3))) || 
 			user.hasResearched(researchid) ) && (user.getAccessLevel() < 20) ) {
 			addError("&Uuml;ber diese Forschung liegen aktuell keine Informationen vor");
@@ -89,12 +93,12 @@ public class ForschinfoController extends TemplateGenerator {
 		return true;
 	}
 
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		// Name und Bild
 		t.setVar(	"tech.name",			Common._plaintitle(research.getName()),
@@ -145,7 +149,7 @@ public class ForschinfoController extends TemplateGenerator {
 		}
 		
 		// Kosten
-		Cargo costs = new Cargo( Cargo.Type.STRING, this.research.getCosts() );
+		Cargo costs = this.research.getCosts();
 		costs.setOption( Cargo.Option.SHOWMASS, false );
 
 		t.setBlock("_FORSCHINFO","tech.res.listitem","tech.res.list");
@@ -162,12 +166,14 @@ public class ForschinfoController extends TemplateGenerator {
 		t.setBlock("_FORSCHINFO","tech.allows.listitem","tech.allows.list");
 
 		boolean entry = false;
-		SQLQuery result = db.query( "SELECT id FROM forschungen WHERE req1=",this.research.getID()," OR req2=",this.research.getID()," OR req3=",this.research.getID());
-		while( result.next() ) {
-			Forschung res = Forschung.getInstance(result.getInt("id"));
+		List results = db.createQuery("from Forschung where req1= :fid or req2= :fid or req3= :fid")
+			.setInteger("fid", this.research.getID())
+			.list();
+		for( Iterator iter=results.iterator(); iter.hasNext(); ) {
+			Forschung res = (Forschung)iter.next();
 			
-			if( res.isVisibile() || 
-				(!res.isVisibile() && user.hasResearched(res.getRequiredResearch(1)) && user.hasResearched(res.getRequiredResearch(2)) && user.hasResearched(res.getRequiredResearch(3))) ) {
+			if( res.isVisibile(user) || 
+				(!res.isVisibile(user) && user.hasResearched(res.getRequiredResearch(1)) && user.hasResearched(res.getRequiredResearch(2)) && user.hasResearched(res.getRequiredResearch(3))) ) {
 				t.setVar(	"tech.allows.item.break",	entry,
 							"tech.allows.item.id",		res.getID(),
 							"tech.allows.item.name",	Common._plaintitle(res.getName()),
@@ -176,7 +182,7 @@ public class ForschinfoController extends TemplateGenerator {
 				
 				t.parse("tech.allows.list","tech.allows.listitem",true);
 			}	
-			else if( (user.getAccessLevel() > 20) && !res.isVisibile() ) {
+			else if( (user.getAccessLevel() > 20) && !res.isVisibile(user) ) {
 				t.setVar(	"tech.allows.item.break",	entry,
 							"tech.allows.item.id",		res.getID(),
 							"tech.allows.item.name",	Common._plaintitle(res.getName()),
@@ -186,7 +192,6 @@ public class ForschinfoController extends TemplateGenerator {
 				t.parse("tech.allows.list","tech.allows.listitem",true);
 			}	
 		}
-		result.free();
 
 		// Beschreibung
 		if( this.research.getDescription().length() > 0 ) {
@@ -209,9 +214,11 @@ public class ForschinfoController extends TemplateGenerator {
 
 		boolean firstentry = true;
 
-		SQLQuery buildingRow = db.query("SELECT id FROM buildings WHERE techreq=",this.research.getID());
-		while( buildingRow.next() ) {
-			Building building = Building.getBuilding(buildingRow.getInt("id"));
+		Iterator buildingIter = db.createQuery("from Building where techReq=?")
+			.setInteger(0, this.research.getID())
+			.iterate();
+		for( ; buildingIter.hasNext(); ) {
+			Building building = (Building)buildingIter.next();
 			
 			t.start_record();
 	
@@ -253,7 +260,6 @@ public class ForschinfoController extends TemplateGenerator {
 			t.stop_record();
 			t.clear_record();
 		}
-		buildingRow.free();
 
 		//
 		// Cores
@@ -265,9 +271,11 @@ public class ForschinfoController extends TemplateGenerator {
 		t.setVar("tech.cores.list","");
 
 		firstentry = true;
-		SQLQuery coreRow = db.query("SELECT id FROM cores WHERE techreq=",this.research.getID());
-		while( coreRow.next() ) {
-			Core core = Core.getCore(coreRow.getInt("id"));
+		Iterator coreIter = db.createQuery("from Core where techReq=?")
+			.setInteger(0, this.research.getID())
+			.iterate();
+		for( ; coreIter.hasNext(); ) {
+			Core core = (Core)coreIter.next();
 			
 			t.start_record();
 		
@@ -309,7 +317,6 @@ public class ForschinfoController extends TemplateGenerator {
 			t.stop_record();
 			t.clear_record();
 		}
-		coreRow.free();
 				
 				
 		//
@@ -321,18 +328,21 @@ public class ForschinfoController extends TemplateGenerator {
 		t.setVar("tech.ships.list","");
 
 		firstentry = true;
-		SQLQuery ship = db.query("SELECT t1.*,t2.nickname,t2.picture " +
-				"FROM ships_baubar t1 JOIN ship_types t2 ON t1.type=t2.id " +
-				"WHERE t1.type=t2.id AND (t1.tr1=",this.research.getID()," OR t1.tr2=",this.research.getID()," OR t1.tr3=",this.research.getID(),")");
-		while( ship.next() ) {
+		List ships = db.createQuery("from ShipBaubar " +
+				"where tr1= :fid or tr2= :fid or tr3= :fid")
+				.setInteger("fid", this.research.getID())
+				.list();
+		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+			ShipBaubar ship = (ShipBaubar)iter.next();
+			
 			boolean show = true;
 
 			//Schiff sichtbar???
-			for( int i=0; i < 3; i++ ) {
-				if( ship.getInt("tr"+(i+1)) > 0 ) {
-					Forschung tmpres = Forschung.getInstance(ship.getInt("tr"+(i+1)));
-					if( !tmpres.isVisibile() && 
-						(!user.hasResearched(ship.getInt("tr"+(i+1))) || !user.hasResearched(tmpres.getRequiredResearch(1)) || 
+			for( int i=1; i <= 3; i++ ) {
+				if( ship.getRes(i) > 0 ) {
+					Forschung tmpres = Forschung.getInstance(ship.getRes(i));
+					if( !tmpres.isVisibile(user) && 
+						(!user.hasResearched(ship.getRes(i)) || !user.hasResearched(tmpres.getRequiredResearch(1)) || 
 								!user.hasResearched(tmpres.getRequiredResearch(2)) || !user.hasResearched(tmpres.getRequiredResearch(3)) 
 						) ) {
 						show = false;
@@ -347,38 +357,38 @@ public class ForschinfoController extends TemplateGenerator {
 	
 			t.start_record();
 
-			SQLResultRow shiptype = ShipTypes.getShipType(ship.getInt("type"), false);
+			ShipTypeData shiptype = ship.getType();
 			
-			t.setVar(	"tech.ship.id",			ship.getInt("type"),
-						"tech.ship.name",		Common._plaintitle(ship.getString("nickname")),
-						"tech.ship.picture",	shiptype.getString("picture"),
+			t.setVar(	"tech.ship.id",			shiptype.getTypeId(),
+						"tech.ship.name",		Common._plaintitle(shiptype.getNickname()),
+						"tech.ship.picture",	shiptype.getPicture(),
 						"tech.ship.hr",			!firstentry,
-						"tech.ship.dauer",		ship.getInt("dauer"),
-						"tech.ship.ekosten",	ship.get("ekosten"),
-						"tech.ship.crew",		ship.get("crew") );
+						"tech.ship.dauer",		ship.getDauer(),
+						"tech.ship.ekosten",	ship.getEKosten(),
+						"tech.ship.crew",		ship.getCrew() );
 		
 			if( firstentry ) {
 				firstentry = false;
 			}
 		
-			costs = new Cargo(Cargo.Type.STRING, ship.getString("costs"));
+			costs = ship.getCosts();
 		
 			reslist = costs.getResourceList();
 			Resources.echoResList( t, reslist, "tech.ship.costs.list" );
 		
 			//Benoetigt dieses Schiff noch weitere Forschungen???
-			if( ((ship.getInt("tr1") != 0) && (ship.getInt("tr1") != this.research.getID())) || 
-				((ship.getInt("tr2") != 0) && (ship.getInt("tr2") != this.research.getID())) || 
-				((ship.getInt("tr3") != 0) && (ship.getInt("tr3") != this.research.getID())) ) {
+			if( ((ship.getRes(1) != 0) && (ship.getRes(1) != this.research.getID())) || 
+				((ship.getRes(2) != 0) && (ship.getRes(2) != this.research.getID())) || 
+				((ship.getRes(3) != 0) && (ship.getRes(3) != this.research.getID())) ) {
 				firstentry = true;
 				
 				//Es benoetigt weitere!
 				t.setVar("tech.ship.techs.list","");
 		      	for( int b = 1; b <= 3; b++ ) {
-         			if( (ship.getInt("tr"+b) != 0) && (ship.getInt("tr"+b) != this.research.getID()) ) {
+         			if( (ship.getRes(b) != 0) && (ship.getRes(b) != this.research.getID()) ) {
          				t.setVar(	"tech.ship.tech.break",	!firstentry,
-         							"tech.ship.tech.id",	ship.getInt("tr"+b),
-         							"tech.ship.tech.name",	Forschung.getInstance(ship.getInt("tr"+b)).getName() );
+         							"tech.ship.tech.id",	ship.getRes(b),
+         							"tech.ship.tech.name",	Forschung.getInstance(ship.getRes(b)).getName() );
          							
 						if( firstentry ) {
 							firstentry = false;
@@ -394,8 +404,6 @@ public class ForschinfoController extends TemplateGenerator {
 			t.stop_record();
 			t.clear_record();
 		}
-		ship.free();
-
 
 		//
 		// Munition
@@ -406,22 +414,27 @@ public class ForschinfoController extends TemplateGenerator {
 
 		firstentry = true;
 
-		SQLQuery ammo = db.query("SELECT * FROM ammo WHERE res1=",this.research.getID()," OR res2=",this.research.getID()," OR res3=",this.research.getID());
-		while( ammo.next() ) {
+		List ammoList = db.createQuery("from Ammo " +
+				"where res1= :fid or res2= :fid or res3= :fid")
+				.setInteger("fid", this.research.getID())
+				.list();
+		
+		for( Iterator iter=ammoList.iterator(); iter.hasNext(); ) {
+			Ammo ammo = (Ammo)iter.next();
 			t.start_record();
 	
 			t.setVar(	"tech.ammo.hr",			!firstentry,
-						"tech.ammo.name",		Common._plaintitle(ammo.getString("name")),
-						"tech.ammo.picture",	ammo.getString("picture"),
-						"tech.ammo.description",	Common._text(ammo.getString("description")),
-						"tech.ammo.itemid",		ammo.getInt("itemid"),
-						"tech.ammo.dauer",		ammo.getString("dauer") );
+						"tech.ammo.name",		Common._plaintitle(ammo.getName()),
+						"tech.ammo.picture",	ammo.getPicture(),
+						"tech.ammo.description",	Common._text(ammo.getDescription()),
+						"tech.ammo.itemid",		ammo.getItemId(),
+						"tech.ammo.dauer",		ammo.getDauer() );
 	
 			if( firstentry ) {
 				firstentry = false;
 			}
 			
-			Cargo buildcosts = new Cargo( Cargo.Type.STRING, ammo.getString("buildcosts") );
+			Cargo buildcosts = ammo.getBuildCosts();
 
 			// Produktionskosten	
 			reslist = buildcosts.getResourceList();
@@ -430,33 +443,35 @@ public class ForschinfoController extends TemplateGenerator {
 			// Diverse Daten
 			StringBuilder data = new StringBuilder(50);
 	
-			if( ammo.getInt("shotspershot") > 1 ) {
-				data.append(ammo.getInt("shotspershot")+" Salven<br />\n");
+			if( ammo.getShotsPerShot() > 1 ) {
+				data.append(ammo.getShotsPerShot()+" Salven<br />\n");
 			}
-			if( ammo.getInt("damage") != 0 ) {
-				data.append(ammo.getInt("damage")+" Schaden<br />\n");
+			if( ammo.getDamage() != 0 ) {
+				data.append(ammo.getDamage()+" Schaden<br />\n");
 			}
-			if( ammo.getInt("damage") != ammo.getInt("shielddamage") ) {
-				data.append(ammo.getInt("shielddamage")+" Schildschaden<br />\n");
+			if( ammo.getDamage() != ammo.getShieldDamage() ) {
+				data.append(ammo.getShieldDamage()+" Schildschaden<br />\n");
 			}
-			if( ammo.getInt("subdamage") != 0 ) {
-				data.append(ammo.getInt("subdamage")+" Subsystemschaden<br />\n");
-				data.append(ammo.getInt("subws")+"% Subsystem-Trefferws<br />\n");
+			if( ammo.getSubDamage() != 0 ) {
+				data.append(ammo.getSubDamage()+" Subsystemschaden<br />\n");
+				data.append(ammo.getSubWS()+"% Subsystem-Trefferws<br />\n");
 			}
-			data.append(ammo.getInt("smalltrefferws")+"% Trefferws (J&auml;ger)<br />\n");
-			data.append(ammo.getInt("trefferws")+"% Trefferws (Capitals)\n");
-			if( ammo.getInt("torptrefferws") != 0 ) {
-				data.append("<br />"+ammo.getInt("torptrefferws")+"% Trefferws (Torpedos)\n");
+			data.append(ammo.getSmallTrefferWS()+"% Trefferws (J&auml;ger)<br />\n");
+			data.append(ammo.getTrefferWS()+"% Trefferws (Capitals)\n");
+			if( ammo.getTorpTrefferWS() != 0 ) {
+				data.append("<br />"+ammo.getTorpTrefferWS()+"% Trefferws (Torpedos)\n");
 			}
-			if( ammo.getInt("areadamage") != 0 ) {
-				data.append("<br />Umgebungsschaden ("+ammo.getInt("areadamage")+")\n");
+			if( ammo.getAreaDamage() != 0 ) {
+				data.append("<br />Umgebungsschaden ("+ammo.getAreaDamage()+")\n");
 			}
-			if( ammo.getInt("destroyable") > 0 ) {
+			if( ammo.getDestroyable() > 0 ) {
 				data.append("<br />Durch Abwehrfeuer zerst&ouml;rbar\n");
 			}
-			if( ammo.getInt("replaces") != 0 ) {
-				SQLResultRow replammo = db.first("SELECT itemid,name FROM ammo WHERE id=",ammo.getInt("replaces"));
-				data.append("<br />Ersetzt <a style=\"font-size:14px\" class=\"forschinfo\" href=\""+Common.buildUrl("details", "module", "iteminfo", "item", replammo.getInt("itemid"))+"\">"+replammo.getString("name")+"</a>\n");
+			if( ammo.getReplaces() != null ) {
+				Ammo replammo = ammo.getReplaces();
+				data.append("<br />Ersetzt <a style=\"font-size:14px\" class=\"forschinfo\" " +
+						"href=\""+Common.buildUrl("details", "module", "iteminfo", "item", replammo.getItemId())+"\">"+
+						replammo.getName()+"</a>\n");
 			}
 		
 			/*
@@ -464,7 +479,7 @@ public class ForschinfoController extends TemplateGenerator {
 			*/
 			StringBuilder weapons = new StringBuilder(50);
 			for( Weapon weapon : Weapons.get() ) {
-				if( !weapon.getAmmoType().equals(ammo.get("type")) ) {
+				if( !Common.inArray(ammo.getType(), weapon.getAmmoType()) ) {
 					continue;
 				}
 		
@@ -484,6 +499,5 @@ public class ForschinfoController extends TemplateGenerator {
 			t.stop_record();
 			t.clear_record();
 		}
-		ammo.free();
 	}
 }
