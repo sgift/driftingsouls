@@ -291,8 +291,8 @@ public class Battle implements Loggable, Locatable {
 			shiplist = this.enemyShips;
 		}
 		
-		int owncaps = 0;
-		int secondrowcaps = 0;
+		double owncaps = 0;
+		double secondrowcaps = 0;
 		for( int i=0; i < shiplist.size(); i++ ) 
 		{
 			BattleShip aship = shiplist.get(i);
@@ -302,7 +302,7 @@ public class Battle implements Loggable, Locatable {
 			}
 			ShipTypeData type = aship.getTypeData();
 			
-			int size = type.getSize();
+			double size = type.getSize();
 			if( (aship.getAction() & BS_SECONDROW) != 0 ) {
 				if( aship.getShip().getDocked().length() == 0 ) {
 					secondrowcaps += size;
@@ -310,7 +310,7 @@ public class Battle implements Loggable, Locatable {
 			}
 			else {
 				if( size > ShipType.SMALL_SHIP_MAXSIZE ) {
-					int countedSize = size;
+					double countedSize = size;
 					if( type.getCrew() > 0 ) {
 						countedSize *= (aship.getCrew()/type.getCrew());
 					}
@@ -335,11 +335,11 @@ public class Battle implements Loggable, Locatable {
 			}
 		}
 
-		if( secondrowcaps == 0 ) {
+		if( Double.valueOf(secondrowcaps).intValue() == 0 ) {
 			return true;	
 		}
 				
-		if( owncaps <= secondrowcaps*2 ) {
+		if( Double.valueOf(owncaps).intValue() <= Double.valueOf(secondrowcaps).intValue()*2 ) {
 			return false;
 		}
 		return true;
