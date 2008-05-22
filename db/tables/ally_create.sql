@@ -1,0 +1,22 @@
+CREATE TABLE `ally` (
+  `id` int(11) NOT NULL auto_increment,
+  `name` text NOT NULL,
+  `plainname` varchar(255) NOT NULL default '',
+  `founded` datetime NOT NULL default '0000-00-00 00:00:00',
+  `tick` int(11) NOT NULL default '0',
+  `president` int(11) NOT NULL default '0',
+  `description` text NOT NULL,
+  `hp` text NOT NULL,
+  `allytag` varchar(120) NOT NULL default '[name]',
+  `showastis` tinyint(1) unsigned NOT NULL default '1',
+  `showGtuBieter` tinyint(3) unsigned NOT NULL default '0',
+  `showlrs` tinyint(3) unsigned NOT NULL default '1',
+  `pname` varchar(100) NOT NULL default 'Pr&auml;sident',
+  `items` text NOT NULL,
+  `lostBattles` smallint(5) unsigned NOT NULL default '0',
+  `wonBattles` smallint(5) unsigned NOT NULL default '0',
+  `destroyedShips` int(10) unsigned NOT NULL default '0',
+  `lostShips` int(10) unsigned NOT NULL default '0',
+  `version` int(10) unsigned not null default '0',
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8; 

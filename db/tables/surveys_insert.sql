@@ -1,0 +1,1 @@
+INSERT INTO `surveys` (`id`, `name`, `timeout`, `minid`, `maxid`, `mintime`, `maxtime`, `enabled`) VALUES (1, 'Umfrage Startressourcen und Forschung Xentroniumherstellung', 0, -99, 9999, 0, 3333333333, 1);

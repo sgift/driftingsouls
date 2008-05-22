@@ -1,0 +1,1 @@
+INSERT INTO `portal_news` (`id`, `title`, `author`, `date`, `txt`) VALUES (1, 'Willkommen bei DS2', 'bKtHeG', 1162242585, 'Willkommen bei DS2\r\nDu hasst offenbar den Demodatensatz erfolgreich installiert.\r\nViel Spass beim Testen und Patchen!');

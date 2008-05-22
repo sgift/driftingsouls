@@ -1,0 +1,1 @@
+ALTER TABLE userresearch ADD CONSTRAINT userresearch_fk_forschungen FOREIGN KEY (research) REFERENCES forschungen(id);
