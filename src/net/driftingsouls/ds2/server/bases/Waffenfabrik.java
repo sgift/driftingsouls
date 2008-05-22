@@ -48,6 +48,7 @@ import net.driftingsouls.ds2.server.entities.WeaponFactory;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextInstance;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
@@ -64,12 +65,17 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.Waffenfabrik")
 public class Waffenfabrik extends DefaultBuilding {
-	private static class ContextVars {
+	/**
+	 * Daten von einer oder mehreren Waffenfabriken
+	 */
+	@ContextInstance(ContextInstance.Scope.REQUEST)
+	public static class ContextVars {
 		Set<Ammo> ownerammobase = new HashSet<Ammo>();
 		Map<Integer,Cargo> stats = new HashMap<Integer,Cargo>();
 		Map<Integer,BigDecimal> usedcapacity = new HashMap<Integer,BigDecimal>();
+		boolean init = false;
 		
-		protected ContextVars() {
+		public ContextVars() {
 			// EMPTY
 		}
 	}
@@ -87,14 +93,13 @@ public class Waffenfabrik extends DefaultBuilding {
 		
 		User user = base.getOwner();
 		
-		ContextVars vars = (ContextVars)context.getVariable(getClass(), "values");
+		ContextVars vars = context.get(ContextVars.class);
 		Integer lastUser = (Integer)context.getVariable(getClass(), "last_user");
 		
 		List<Ammo> removelist = new ArrayList<Ammo>();
 		
-		if( (vars == null) || (user.getId() != lastUser.intValue()) ) {
-			vars = new ContextVars();
-			context.putVariable(getClass(), "values", vars);
+		if( (vars.init == false) || (user.getId() != lastUser.intValue()) ) {
+			vars.init = true;
 			context.putVariable(getClass(), "last_user", user.getId());
 		
 			// Iterator, da sich die Ammo-Objekte sich mit hoher Wahrscheinlichkeit
@@ -292,13 +297,11 @@ public class Waffenfabrik extends DefaultBuilding {
 	@Override
 	public String echoShortcut(Context context, Base base, int field, int building) {
 		org.hibernate.Session db = context.getDB();
-		
-		String sess = context.getSession();
-		
+
 		StringBuilder result = new StringBuilder(200);
 		
 		loaddata( base );
-		ContextVars vars = (ContextVars)ContextMap.getContext().getVariable(getClass(), "values");
+		ContextVars vars = ContextMap.getContext().get(ContextVars.class);
 	
 		if( vars.usedcapacity.get(base.getId()).doubleValue() > 0 ) {
 			WeaponFactory wf = (WeaponFactory)db.get(WeaponFactory.class, base.getId());
@@ -321,10 +324,10 @@ public class Waffenfabrik extends DefaultBuilding {
 					"class=\"error\" " +
 					"onmouseover=\"return overlib('<span style=\\'font-size:13px\\'>"+StringEscapeUtils.escapeJavaScript(popup.toString())+"</span>',REF,'p"+base.getId()+"_"+field+"',REFY,22,NOJUSTY,TIMEOUT,0,DELAY,150,WIDTH,260,BGCLASS,'gfxtooltip',FGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');\" " +
 					"onmouseout=\"return nd();\" " +
-					"href=\"./ds?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"\">[WF]</a>");
+					"href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">[WF]</a>");
 		} 
 		else {
-			result.append("<a class=\"back\" href=\"./ds?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"\">[WF]</a>");
+			result.append("<a class=\"back\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">[WF]</a>");
 		}
 	
 		return result.toString();
@@ -333,7 +336,7 @@ public class Waffenfabrik extends DefaultBuilding {
 	@Override
 	public boolean isActive(Base base, int status, int field) {
 		loaddata( base );
-		ContextVars vars = (ContextVars)ContextMap.getContext().getVariable(getClass(), "values");
+		ContextVars vars = ContextMap.getContext().get(ContextVars.class);
 		if( vars.usedcapacity.get(base.getId()).doubleValue() > 0 ) {
 			return true;
 		}
@@ -346,7 +349,7 @@ public class Waffenfabrik extends DefaultBuilding {
 		String msg = loaddata( base );
 		
 		Context context = ContextMap.getContext();
-		ContextVars vars = (ContextVars)context.getVariable(getClass(), "values");
+		ContextVars vars = context.get(ContextVars.class);
 		Map<Integer,Boolean> colcomplete = (Map<Integer,Boolean>)context.getVariable(getClass(), "colcomplete");
 		if( colcomplete == null ) {
 			colcomplete = new HashMap<Integer,Boolean>();
@@ -365,9 +368,7 @@ public class Waffenfabrik extends DefaultBuilding {
 	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
 		org.hibernate.Session db = context.getDB();
 		User user = (User)context.getActiveUser();
-		
-		String sess = context.getSession();
-		
+
 		int produce = context.getRequest().getParameterInt("produce");
 		int count = context.getRequest().getParameterInt("count");
 		
@@ -607,7 +608,7 @@ public class Waffenfabrik extends DefaultBuilding {
 			if( bPlanMap.containsKey(ammo) ) {
 				echo.append(bPlanMap.get(ammo));
 			}
-			echo.append("<img style=\"vertical-align:middle\" src=\""+item.getPicture()+"\" alt=\"\" /><a class=\"forschinfo\" href=\"./ds?module=iteminfo&amp;sess="+sess+"&amp;action=details&amp;item="+item.getID()+"\">"+item.getName()+"</a>");
+			echo.append("<img style=\"vertical-align:middle\" src=\""+item.getPicture()+"\" alt=\"\" /><a class=\"forschinfo\" href=\"./ds?module=iteminfo&amp;action=details&amp;item="+item.getID()+"\">"+item.getName()+"</a>");
 			echo.append("</td>\n");
 			
 			echo.append("<td class=\"noBorderX\" valign=\"top\">\n");
@@ -625,7 +626,6 @@ public class Waffenfabrik extends DefaultBuilding {
 			echo.append("<input name=\"count\" type=\"text\" size=\"2\" value=\"0\" />\n");
 			echo.append("<input name=\"produce\" type=\"hidden\" value=\""+ammo.getId()+"\" />\n");
 			echo.append("<input name=\"col\" type=\"hidden\" value=\""+base.getId()+"\" />\n");
-			echo.append("<input name=\"sess\" type=\"hidden\" value=\""+sess+"\" />\n");
 			echo.append("<input name=\"field\" type=\"hidden\" value=\""+field+"\" />\n");
 			echo.append("<input name=\"module\" type=\"hidden\" value=\"building\" />\n");
 			echo.append("<input type=\"submit\" value=\"herstellen\" />\n");
