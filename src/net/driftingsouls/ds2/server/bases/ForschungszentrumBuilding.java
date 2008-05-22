@@ -108,14 +108,12 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	@Override
 	public String echoShortcut(Context context, Base base, int field, int building) {
 		org.hibernate.Session db = context.getDB();
-		
-		String sess = context.getSession();
-		
+
 		StringBuilder result = new StringBuilder(100);
 		Forschungszentrum fz = (Forschungszentrum)db.get(Forschungszentrum.class, base.getId());
 		if( fz != null ) {
 			if( fz.getDauer() == 0 ) {
-				result.append("<a class=\"back\" href=\"./ds?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"\">[F]</a>");
+				result.append("<a class=\"back\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">[F]</a>");
 			}
 			else {
 				StringBuilder popup = new StringBuilder(Common.tableBegin( 350, "left" ).replace("\"", "'") );
@@ -129,7 +127,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 						"class=\"error\" " +
 						"onmouseover=\"return overlib('<span style=\\'font-size:13px\\'>"+StringEscapeUtils.escapeJavaScript(popup.toString())+"</span>',REF,'p"+base.getId()+"_"+field+"',REFY,22,NOJUSTY,TIMEOUT,0,DELAY,150,WIDTH,280,BGCLASS,'gfxtooltip',FGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');\" " +
 						"onmouseout=\"return nd();\" " +
-						"href=\"./ds?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"\">[F]<span style=\"font-weight:normal\">"+fz.getDauer()+"</span></a>");
+						"href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">[F]<span style=\"font-weight:normal\">"+fz.getDauer()+"</span></a>");
 			}
 		}
 		else {
@@ -140,8 +138,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	
 	private void possibleResearch(Context context, StringBuilder echo, Forschungszentrum fz, int field) {
 		org.hibernate.Session db = context.getDB();
-		String sess = context.getSession();
-		
+
 		User user = (User)context.getActiveUser();
 	
 		echo.append("M&ouml;gliche Forschungen: <br />\n");
@@ -198,16 +195,16 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 				echo.append("<tr>\n");
 				echo.append("<td class=\"noBorderX\" style=\"width:60%\">\n");
 				if( !user.isNoob() || !tech.hasFlag(Forschung.FLAG_DROP_NOOB_PROTECTION) ) {
-					echo.append("<a class=\"forschinfo\" href=\"./ds?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;res="+tech.getID()+"\">"+Common._plaintitle(tech.getName())+"</a>\n");
+					echo.append("<a class=\"forschinfo\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"&amp;res="+tech.getID()+"\">"+Common._plaintitle(tech.getName())+"</a>\n");
 				}
 				else {
 					echo.append("<a class=\"forschinfo\" " +
 							"href=\"javascript:ask(" +
 								"'Achtung!\\nWenn Sie diese Technologie erforschen verlieren sie den GCP-Schutz. Dies bedeutet, dass Sie sowohl angreifen als auch angegriffen werden k&ouml;nnen'," +
-								"'./ds?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;res="+tech.getID()+"'" +
+								"'./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"&amp;res="+tech.getID()+"'" +
 							")\">"+Common._plaintitle(tech.getName())+"</a>\n");
 				}
-				echo.append("<a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;sess="+sess+"&amp;res="+tech.getID()+"\"><img style=\"border:0px;vertical-align:middle\" src=\""+Configuration.getSetting("URL")+"data/interface/forschung/info.gif\" alt=\"?\" /></a>\n");
+				echo.append("<a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;res="+tech.getID()+"\"><img style=\"border:0px;vertical-align:middle\" src=\""+Configuration.getSetting("URL")+"data/interface/forschung/info.gif\" alt=\"?\" /></a>\n");
 				echo.append("&nbsp;&nbsp;");
 				echo.append("</td>\n");
 				
@@ -236,8 +233,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	
 	private void alreadyResearched( Context context, StringBuilder echo ) {
 		org.hibernate.Session db = context.getDB();
-		String sess = context.getSession();
-		
+
 		User user = (User)context.getActiveUser();
 		
 		echo.append("<table class=\"noBorderX\">");
@@ -249,7 +245,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 			
 			if( user.hasResearched(tech.getID()) ) {
 				echo.append("<tr><td class=\"noBorderX\">\n");
-				echo.append("<a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;sess="+sess+"&amp;res="+tech.getID()+"\">"+Common._plaintitle(tech.getName())+"</a>");
+				echo.append("<a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;res="+tech.getID()+"\">"+Common._plaintitle(tech.getName())+"</a>");
 				echo.append("</td></tr>\n");
 			}
 		}
@@ -257,13 +253,11 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	}
 	
 	private boolean currentResearch(Context context, StringBuilder echo, Forschungszentrum fz, int field ) {
-		String sess = context.getSession();
-		
 		Forschung tech = Forschung.getInstance(fz.getForschung());
 		if( tech != null ) {
 			echo.append("<img style=\"float:left;border:0px\" src=\""+Configuration.getSetting("URL")+"data/tech/"+tech.getID()+".gif\" alt=\"\" />");
-			echo.append("Erforscht: <a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;sess="+sess+"&amp;res="+tech.getID()+"\">"+Common._plaintitle(tech.getName())+"</a>\n");
-			echo.append("[<a class=\"error\" href=\"./ds?module=building&amp;sess="+sess+"&amp;col="+fz.getBase().getId()+"&amp;field="+field+"&amp;kill=yes\">x</a>]<br />\n");
+			echo.append("Erforscht: <a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;res="+tech.getID()+"\">"+Common._plaintitle(tech.getName())+"</a>\n");
+			echo.append("[<a class=\"error\" href=\"./ds?module=building&amp;col="+fz.getBase().getId()+"&amp;field="+field+"&amp;kill=yes\">x</a>]<br />\n");
 			echo.append("Dauer: noch <img style=\"vertical-align:middle\" src=\""+Configuration.getSetting("URL")+"data/interface/time.gif\" alt=\"\" />"+fz.getDauer()+" Runden\n");
 			echo.append("<br /><br />\n");
 			return true;
@@ -272,13 +266,11 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	}
 	
 	private void killResearch(Context context, StringBuilder echo, Forschungszentrum fz, int field, String conf) {
-		String sess = context.getSession();
-		
 		if( !conf.equals("ok") ) {
 			echo.append("<div style=\"text-align:center\">\n");
 			echo.append("Wollen sie die Forschung wirklich abbrechen?<br />\n");
 			echo.append("Achtung: Es erfolgt keine R&uuml;ckerstattung der Resourcen!<br /><br />\n");
-			echo.append("<a class=\"error\" href=\"./ds?module=building&amp;sess="+sess+"&amp;col="+fz.getBase().getId()+"&amp;field="+field+"&amp;kill=yes&amp;conf=ok\">Forschung abbrechen</a><br />\n");
+			echo.append("<a class=\"error\" href=\"./ds?module=building&amp;col="+fz.getBase().getId()+"&amp;field="+field+"&amp;kill=yes&amp;conf=ok\">Forschung abbrechen</a><br />\n");
 			echo.append("</div>\n");
 			return;
 		}
@@ -292,7 +284,6 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	}
 	
 	private void doResearch(Context context, StringBuilder echo, Forschungszentrum fz, int researchid, int field, String conf) {
-		String sess = context.getSession();
 		User user = (User)context.getActiveUser();
 
 		Base base = fz.getBase();
@@ -301,7 +292,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		boolean ok = true;
 	
 		if( !Rassen.get().rasse(user.getRace()).isMemberIn(tech.getRace()) ) {
-			echo.append("<a class=\"error\" href=\"./ds?module=base&amp;sess="+sess+"&amp;col="+base.getId()+"\">Fehler: Diese Forschung kann von ihrer Rasse nicht erforscht werden</a>\n");
+			echo.append("<a class=\"error\" href=\"./ds?module=base&amp;col="+base.getId()+"\">Fehler: Diese Forschung kann von ihrer Rasse nicht erforscht werden</a>\n");
 			return;
 		}
 		
@@ -319,7 +310,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 			}
 			
 			echo.append("<br /><br />\n");
-			echo.append("<a class=\"ok\" href=\"./ds?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;res="+researchid+"&amp;conf=ok\">Erforschen</a></span><br />\n");
+			echo.append("<a class=\"ok\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"&amp;res="+researchid+"&amp;conf=ok\">Erforschen</a></span><br />\n");
 			echo.append("</div>\n");
 			
 			return;
@@ -339,7 +330,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		}
 	
 		if( !ok ) {
-			echo.append("<a class=\"error\" href=\"./ds?module=base&amp;sess="+sess+"&amp;col="+base.getId()+"\">Fehler: Forschung kann nicht durchgef&uuml;hrt werden</a>\n");
+			echo.append("<a class=\"error\" href=\"./ds?module=base&amp;col="+base.getId()+"\">Fehler: Forschung kann nicht durchgef&uuml;hrt werden</a>\n");
 			return;
 		}
 	
@@ -372,8 +363,6 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
 		org.hibernate.Session db = context.getDB();
 
-		String sess = context.getSession();
-		
 		int research 	= context.getRequest().getParameterInt("res");
 		String confirm 	= context.getRequest().getParameterString("conf");
 		String kill 		= context.getRequest().getParameterString("kill");
@@ -398,8 +387,8 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	
 		echo.append(Common.tableBegin( 440, "center" ));
 		
-		echo.append("<a class=\"forschinfo\" href=\"./ds?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;show=newres\">Neue Forschung</a>&nbsp;\n");
-		echo.append("&nbsp;|&nbsp;&nbsp;<a class=\"forschinfo\" href=\"./ds?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"&amp;show=oldres\">Bereits erforscht</a>\n");
+		echo.append("<a class=\"forschinfo\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"&amp;show=newres\">Neue Forschung</a>&nbsp;\n");
+		echo.append("&nbsp;|&nbsp;&nbsp;<a class=\"forschinfo\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"&amp;show=oldres\">Bereits erforscht</a>\n");
 		
 		echo.append(Common.tableEnd());
 
