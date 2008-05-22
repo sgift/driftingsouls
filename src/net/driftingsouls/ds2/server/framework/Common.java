@@ -132,9 +132,7 @@ public class Common implements Loggable {
 		else if( request.getParameter("module") != null ) {
 			buffer.append(request.getParameter("module"));
 		}
-		buffer.append("&amp;sess=");
-		buffer.append(context.getSession());
-	
+
 		if( request.getParameter("_style") != null ) {
 			buffer.append("&amp;_style="+request.getParameter("_style"));	
 		}
