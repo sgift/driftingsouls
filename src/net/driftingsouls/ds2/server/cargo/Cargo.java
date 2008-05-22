@@ -758,13 +758,7 @@ public class Cargo implements Loggable, Cloneable {
 			}
 		}
 		
-		if( itemlist.size() > 0 ) {
-			String sess = "";
-			if( !nohtml ) {
-				Context context = ContextMap.getContext();
-				sess = context.getSession();
-			}
-			
+		if( itemlist.size() > 0 ) {		
 			Collections.sort(itemlist, new ResourceIDComparator(false) );
 			
 			for( ItemID aitem : itemlist ) {
@@ -817,7 +811,7 @@ public class Cargo implements Loggable, Cloneable {
 						tooltiptext += "&lt;br /&gt;&lt;span class=\\'verysmallfont\\'&gt;Benutzungen: "+aitem.getUses()+"&lt;/span&gt;";	
 					}
 					
-					name = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;sess="+sess+"&amp;itemlist="+aitem+"\">"+name+"</a>";
+					name = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+name+"</a>";
 				}
 				else {
 					if( aitem.getQuest() != 0 ) {
@@ -855,8 +849,8 @@ public class Cargo implements Loggable, Cloneable {
 				}
 				
 				if( !nohtml ) {			
-					fcargo1 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;sess="+sess+"&amp;itemlist="+aitem+"\">"+fcargo1+"</a>";
-					fcargo2 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;sess="+sess+"&amp;itemlist="+aitem+"\">"+fcargo2+"</a>";
+					fcargo1 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo1+"</a>";
+					fcargo2 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo2+"</a>";
 				}
 				
 				ResourceEntry entry = new ResourceEntry(aitem, name, plainname, image, fcargo1, fcargo2, cargo1, cargo2, diff);
