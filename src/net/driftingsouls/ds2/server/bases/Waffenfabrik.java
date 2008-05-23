@@ -75,6 +75,9 @@ public class Waffenfabrik extends DefaultBuilding {
 		Map<Integer,BigDecimal> usedcapacity = new HashMap<Integer,BigDecimal>();
 		boolean init = false;
 		
+		/**
+		 * Konstruktor
+		 */
 		public ContextVars() {
 			// EMPTY
 		}
@@ -89,7 +92,6 @@ public class Waffenfabrik extends DefaultBuilding {
 	
 	private String loaddata( Base base ) {
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 		
 		User user = base.getOwner();
 		
@@ -102,123 +104,145 @@ public class Waffenfabrik extends DefaultBuilding {
 			vars.init = true;
 			context.putVariable(getClass(), "last_user", user.getId());
 		
-			// Iterator, da sich die Ammo-Objekte sich mit hoher Wahrscheinlichkeit
-			// bereits im Cache befinden
-			Iterator ammoIter = db.createQuery("from Ammo").list().iterator();
-			for( ; ammoIter.hasNext(); ) {
-				Ammo ammo = (Ammo)ammoIter.next();
-				if( !user.hasResearched(ammo.getRes1()) || !user.hasResearched(ammo.getRes2()) || !user.hasResearched(ammo.getRes3()) ) {
-					continue;
-				}
-				vars.ownerammobase.add(ammo);
-				
-				if( (ammo.getReplaces() != null) && !removelist.contains(ammo.getReplaces()) ) {
-					removelist.add(ammo.getReplaces());
-				}
-			}
-			
-			if( user.getAlly() != null ) {
-				Cargo itemlist = new Cargo( Cargo.Type.ITEMSTRING, user.getAlly().getItems() );	
-				
-				List<ItemCargoEntry> list = itemlist.getItemsWithEffect( ItemEffect.Type.DRAFT_AMMO ) ;
-				for( ItemCargoEntry item : list ) {
-					IEDraftAmmo itemeffect = (IEDraftAmmo)item.getItemEffect();
-					Ammo ammo = itemeffect.getAmmo();
-					
-					vars.ownerammobase.add(ammo);
-					
-					if( (ammo.getReplaces() != null) && removelist.contains(ammo.getReplaces()) ) {
-						removelist.add(ammo.getReplaces());
-					}
-				}
-			}
-			
-			// Alle Raks entfernen, die durch andere Raks ersetzt wurden (DB-Feld: replaces)
-			if( !removelist.isEmpty() ) {
-				for( Ammo removeentry : removelist ) {
-					vars.ownerammobase.remove(removeentry);
-				}
-			}
+			removelist = loadOwnerAmmoBase(user, vars);
 		}
+		
+		if( !vars.usedcapacity.containsKey(base.getId()) ) {
+			return loadAmmoTasks(base, vars, removelist);
+		}
+		
+		return "";
+	}
+
+	private String loadAmmoTasks(Base base, ContextVars vars, List<Ammo> removelist) {
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
 		
 		StringBuilder wfreason = new StringBuilder(100);
 		
-		if( !vars.usedcapacity.containsKey(base.getId()) ) {
-			if( !vars.stats.containsKey(base.getId()) ) {
-				vars.stats.put(base.getId(), new Cargo());
+		if( !vars.stats.containsKey(base.getId()) ) {
+			vars.stats.put(base.getId(), new Cargo());
+		}
+		
+		boolean ok = true;
+		Set<Ammo> thisammolist = vars.ownerammobase;	
+		
+		Cargo cargo = base.getCargo();
+		
+		List<ItemCargoEntry> list = cargo.getItemsWithEffect( ItemEffect.Type.DRAFT_AMMO ) ;
+		for( ItemCargoEntry item : list ) {
+			IEDraftAmmo itemeffect = (IEDraftAmmo)item.getItemEffect();
+			Ammo ammo = itemeffect.getAmmo();
+			
+			thisammolist.add(ammo);
+		}
+		
+		WeaponFactory wf = (WeaponFactory)db.get(WeaponFactory.class, base.getId());
+		if( wf == null ) {
+			vars.usedcapacity.put(base.getId(), BigDecimal.valueOf(-1));
+			
+			LOG.warn("Basis "+base.getId()+" verfuegt ueber keinen Waffenfabrik-Eintrag, obwohl es eine Waffenfabrik hat");
+			return "Basis "+base.getId()+" verfuegt ueber keinen Waffenfabrik-Eintrag, obwohl es eine Waffenfabrik hat";
+		}
+		WeaponFactory.Task[] plist = wf.getProduces();
+		for( int i=0; i < plist.length; i++ ) {
+			Ammo ammo = plist[i].getAmmo();
+			int count = plist[i].getCount();
+			
+			if( ammo == null ) {
+				plist = (WeaponFactory.Task[])ArrayUtils.remove(plist, i);
+				i--;
+				continue;
 			}
 			
-			boolean ok = true;
-			Set<Ammo> thisammolist = vars.ownerammobase;	
+			// Ammo ohne Plaene melden - veraltete Ammo aber ignorieren!
+			if( (count > 0) && !thisammolist.contains(ammo) && !removelist.contains(ammo) ) {
+				ok = false;
+				wfreason.append("Es existieren nicht die n&ouml;tigen Baupl&auml;ne f&uuml;r "+ammo.getName()+"\n");
+				break;
+			}
+			else if( (count > 0) && !thisammolist.contains(ammo) ) {
+				plist = (WeaponFactory.Task[])ArrayUtils.remove(plist, i);
+				i--;
+			}
+		}
+		 	
+		if( ok ) {
+			for( int i=0; i < plist.length; i++  ) {
+				Ammo ammo = plist[i].getAmmo();
+				int count = plist[i].getCount();
+				
+				if( !vars.usedcapacity.containsKey(base.getId()) ) {
+					vars.usedcapacity.put(base.getId(), new BigDecimal(0, MathContext.DECIMAL32));
+				}
+				vars.usedcapacity.put(base.getId(), vars.usedcapacity.get(base.getId()).add(ammo.getDauer().multiply((new BigDecimal(count)))) );
+				if( count > 0 ) {
+					Cargo tmpcargo = new Cargo(ammo.getBuildCosts());
+					if( count > 1 ) {
+						tmpcargo.multiply( count, Cargo.Round.NONE );
+					}
+					vars.stats.get(base.getId()).substractCargo( tmpcargo );
+					vars.stats.get(base.getId()).addResource( new ItemID(ammo.getItemId()), count );
+				}
+			}
+		}
+		else {
+			String basename = base.getName();
+			wfreason.insert(0, "[b]"+basename+"[/b] - Die Arbeiten in der Waffenfabrik zeitweise eingestellt.\nGrund:\n");
+		}
+		
+		if( !vars.usedcapacity.containsKey(base.getId()) || (vars.usedcapacity.get(base.getId()).doubleValue() <= 0) ) {
+			vars.usedcapacity.put(base.getId(), new BigDecimal(-1));
+		}
+		
+		return wfreason.toString();
+	}
+
+	private List<Ammo> loadOwnerAmmoBase(User user, ContextVars vars) {
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		
+		List<Ammo> removelist = new ArrayList<Ammo>();
+		
+		// Iterator, da sich die Ammo-Objekte sich mit hoher Wahrscheinlichkeit
+		// bereits im Cache befinden
+		Iterator ammoIter = db.createQuery("from Ammo").list().iterator();
+		for( ; ammoIter.hasNext(); ) {
+			Ammo ammo = (Ammo)ammoIter.next();
+			if( !user.hasResearched(ammo.getRes1()) || !user.hasResearched(ammo.getRes2()) || !user.hasResearched(ammo.getRes3()) ) {
+				continue;
+			}
+			vars.ownerammobase.add(ammo);
 			
-			Cargo cargo = base.getCargo();
+			if( (ammo.getReplaces() != null) && !removelist.contains(ammo.getReplaces()) ) {
+				removelist.add(ammo.getReplaces());
+			}
+		}
+		
+		if( user.getAlly() != null ) {
+			Cargo itemlist = new Cargo( Cargo.Type.ITEMSTRING, user.getAlly().getItems() );	
 			
-			List<ItemCargoEntry> list = cargo.getItemsWithEffect( ItemEffect.Type.DRAFT_AMMO ) ;
+			List<ItemCargoEntry> list = itemlist.getItemsWithEffect( ItemEffect.Type.DRAFT_AMMO ) ;
 			for( ItemCargoEntry item : list ) {
 				IEDraftAmmo itemeffect = (IEDraftAmmo)item.getItemEffect();
 				Ammo ammo = itemeffect.getAmmo();
 				
-				thisammolist.add(ammo);
-			}
-			
-			WeaponFactory wf = (WeaponFactory)db.get(WeaponFactory.class, base.getId());
-			if( wf == null ) {
-				LOG.warn("Basis "+base.getId()+" verfuegt ueber keinen Waffenfabrik-Eintrag, obwohl es eine Waffenfabrik hat");
-				return "Basis "+base.getId()+" verfuegt ueber keinen Waffenfabrik-Eintrag, obwohl es eine Waffenfabrik hat";
-			}
-			WeaponFactory.Task[] plist = wf.getProduces();
-			for( int i=0; i < plist.length; i++ ) {
-				Ammo ammo = plist[i].getAmmo();
-				int count = plist[i].getCount();
+				vars.ownerammobase.add(ammo);
 				
-				if( ammo == null ) {
-					plist = (WeaponFactory.Task[])ArrayUtils.remove(plist, i);
-					i--;
-					continue;
+				if( (ammo.getReplaces() != null) && removelist.contains(ammo.getReplaces()) ) {
+					removelist.add(ammo.getReplaces());
 				}
-				
-				// Ammo ohne Plaene melden - veraltete Ammo aber ignorieren!
-				if( (count > 0) && !thisammolist.contains(ammo) && !removelist.contains(ammo) ) {
-					ok = false;
-					wfreason.append("Es existieren nicht die n&ouml;tigen Baupl&auml;ne f&uuml;r "+ammo.getName()+"\n");
-					break;
-				}
-				else if( (count > 0) && !thisammolist.contains(ammo) ) {
-					plist = (WeaponFactory.Task[])ArrayUtils.remove(plist, i);
-					i--;
-				}
-			}
-	         	
-			if( ok ) {
-				for( int i=0; i < plist.length; i++  ) {
-					Ammo ammo = plist[i].getAmmo();
-					int count = plist[i].getCount();
-					
-					if( !vars.usedcapacity.containsKey(base.getId()) ) {
-						vars.usedcapacity.put(base.getId(), new BigDecimal(0, MathContext.DECIMAL32));
-					}
-					vars.usedcapacity.put(base.getId(), vars.usedcapacity.get(base.getId()).add(ammo.getDauer().multiply((new BigDecimal(count)))) );
-					if( count > 0 ) {
-						Cargo tmpcargo = new Cargo(ammo.getBuildCosts());
-						if( count > 1 ) {
-							tmpcargo.multiply( count, Cargo.Round.NONE );
-						}
-						vars.stats.get(base.getId()).substractCargo( tmpcargo );
-						vars.stats.get(base.getId()).addResource( new ItemID(ammo.getItemId()), count );
-					}
-				}
-			}
-			else {
-				String basename = base.getName();
-				wfreason.insert(0, "[b]"+basename+"[/b] - Die Arbeiten in der Waffenfabrik zeitweise eingestellt.\nGrund:\n");
-			}
-			
-			if( !vars.usedcapacity.containsKey(base.getId()) || (vars.usedcapacity.get(base.getId()).doubleValue() <= 0) ) {
-				vars.usedcapacity.put(base.getId(), new BigDecimal(-1));
 			}
 		}
 		
-		return wfreason.toString();
+		// Alle Raks entfernen, die durch andere Raks ersetzt wurden (DB-Feld: replaces)
+		if( !removelist.isEmpty() ) {
+			for( Ammo removeentry : removelist ) {
+				vars.ownerammobase.remove(removeentry);
+			}
+		}
+		
+		return removelist;
 	}
 
 	@Override
