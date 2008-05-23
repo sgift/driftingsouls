@@ -82,9 +82,7 @@ public class Kommandozentrale extends DefaultBuilding {
 
 	@Override
 	public String echoShortcut(Context context, Base base, int field, int building) {
-		String sess = context.getSession();
-		
-		return "<a class=\"back\" href=\"./ds?module=building&amp;sess="+sess+"&amp;col="+base.getId()+"&amp;field="+field+"\">[K]</a>";
+		return "<a class=\"back\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">[K]</a>";
 	}
 
 	@Override
