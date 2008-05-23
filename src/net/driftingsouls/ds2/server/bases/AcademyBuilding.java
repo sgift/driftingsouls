@@ -127,16 +127,13 @@ public class AcademyBuilding extends DefaultBuilding {
 	@Override
 	public String echoShortcut(Context context, Base base, int field, int building) {
 		org.hibernate.Session db = context.getDB();
-		
-		String sess = context.getSession();
-		
+
 		StringBuilder result = new StringBuilder(200);
 		
 		Academy acc = (Academy)db.get(Academy.class, base.getId());
 		if( acc != null ) {
 			if( acc.getRemain() == 0 ) {
-				result.append("<a class=\"back\" href=\"./ds?module=building&amp;sess=");
-				result.append(sess);
+				result.append("<a class=\"back\" href=\"./ds?module=building");
 				result.append("&amp;col=");
 				result.append(base.getId());
 				result.append("&amp;field=");
@@ -184,8 +181,7 @@ public class AcademyBuilding extends DefaultBuilding {
 				result.append(base.getId());
 				result.append("_");
 				result.append(field);
-				result.append("',REFY,22,NOJUSTY,TIMEOUT,0,DELAY,150,WIDTH,300,BGCLASS,'gfxtooltip',FGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');\" onmouseout=\"return nd();\" href=\"./ds?module=building&amp;sess=");
-				result.append(sess);
+				result.append("',REFY,22,NOJUSTY,TIMEOUT,0,DELAY,150,WIDTH,300,BGCLASS,'gfxtooltip',FGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');\" onmouseout=\"return nd();\" href=\"./ds?module=building");
 				result.append("&amp;col=");
 				result.append(base.getId());
 				result.append("&amp;field=");
