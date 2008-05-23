@@ -245,7 +245,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		while( forschungIter.hasNext() ) {
 			Forschung tech = (Forschung)forschungIter.next();
 			
-			if( user.hasResearched(tech.getID()) ) {
+			if( tech.isVisibile(user) && user.hasResearched(tech.getID()) ) {
 				echo.append("<tr><td class=\"noBorderX\">\n");
 				echo.append("<a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;res="+tech.getID()+"\">"+Common._plaintitle(tech.getName())+"</a>");
 				echo.append("</td></tr>\n");
