@@ -540,4 +540,9 @@
 		DROP PROCEDURE `convert_f`;
 		DROP PROCEDURE `convert_f_user`;
 	]]></update>
+	<update type="structure" datum="2008-05-23"><![CDATA[
+		ALTER TABLE fz MODIFY forschung int(11);
+		UPDATE fz SET forschung=NULL WHERE forschung=0;
+		ALTER TABLE fz ADD CONSTRAINT fz_fk_forschungen FOREIGN KEY (forschung) REFERENCES forschungen(id);
+	]]></update>
 </updates>

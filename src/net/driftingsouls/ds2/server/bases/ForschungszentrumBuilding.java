@@ -117,7 +117,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 			}
 			else {
 				StringBuilder popup = new StringBuilder(Common.tableBegin( 350, "left" ).replace("\"", "'") );
-				Forschung forschung = Forschung.getInstance(fz.getForschung());
+				Forschung forschung = fz.getForschung();
 				popup.append("<img align='left' border='0' src='"+Configuration.getSetting("URL")+"data/tech/"+fz.getForschung()+".gif' alt='' />");
 				popup.append(forschung.getName()+"<br />");
 				popup.append("Dauer: noch <img src='"+Configuration.getSetting("URL")+"data/interface/time.gif' alt='noch ' />"+fz.getDauer()+"<br />");
@@ -153,13 +153,15 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	
 		List<Integer> researches = new ArrayList<Integer>();
 		List researchList = db.createQuery("from Forschungszentrum " +
-				"where forschung>0 and base.owner=?")
+				"where forschung is not null and base.owner=?")
 				.setEntity(0, user)
 				.list();
 		for( Iterator iter=researchList.iterator(); iter.hasNext(); ) {
 			Forschungszentrum aFz = (Forschungszentrum)iter.next();
 			
-			researches.add(aFz.getForschung());
+			if( aFz.getForschung() != null ) {
+				researches.add(aFz.getForschung().getID());
+			}
 		}
 		
 		boolean first = true;
@@ -253,7 +255,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	}
 	
 	private boolean currentResearch(Context context, StringBuilder echo, Forschungszentrum fz, int field ) {
-		Forschung tech = Forschung.getInstance(fz.getForschung());
+		Forschung tech = fz.getForschung();
 		if( tech != null ) {
 			echo.append("<img style=\"float:left;border:0px\" src=\""+Configuration.getSetting("URL")+"data/tech/"+tech.getID()+".gif\" alt=\"\" />");
 			echo.append("Erforscht: <a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;res="+tech.getID()+"\">"+Common._plaintitle(tech.getName())+"</a>\n");
@@ -275,7 +277,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 			return;
 		}
 		
-		fz.setForschung(0);
+		fz.setForschung(null);
 		fz.setDauer(0);
 		
 		echo.append("<div style=\"text-align:center;color:red;font-weight:bold\">\n");
@@ -317,11 +319,11 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		}
 	
 		// Wird bereits im Forschungszentrum geforscht?
-		if( fz.getForschung() != 0 ) {
+		if( fz.getForschung() != null ) {
 			ok = false;
 		}
 	
-		// Besitzt der Spieler alle fuer die Forschung n?tigen Forschungen?
+		// Besitzt der Spieler alle fuer die Forschung noetigen Forschungen?
 		for( int i=1; i <= 3; i++ ) {
 			if( !user.hasResearched(tech.getRequiredResearch(i)) ) {
 				ok = false;
@@ -353,7 +355,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 			echo.append(Common._plaintitle(tech.getName())+" wird erforscht<br />\n");
 			echo.append("</div>\n");
 			
-			fz.setForschung(researchid);
+			fz.setForschung(tech);
 			fz.setDauer(tech.getTime());
 			base.setCargo(cargo);
 		}

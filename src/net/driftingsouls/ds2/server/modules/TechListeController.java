@@ -150,12 +150,12 @@ public class TechListeController extends TemplateGenerator {
 		keys.put("invisible", invisible);
 
 		Map<Integer,Integer> currentResearches = new HashMap<Integer,Integer>();
-		List resList = db.createQuery("from Forschungszentrum where forschung>0 and base.owner=?")
+		List resList = db.createQuery("from Forschungszentrum where forschung is not null and base.owner=?")
 			.setEntity(0, user)
 			.list();
 		for( Iterator iter=resList.iterator(); iter.hasNext(); ) {
 			Forschungszentrum fz = (Forschungszentrum)iter.next();
-			currentResearches.put(fz.getForschung(), fz.getDauer());
+			currentResearches.put(fz.getForschung().getID(), fz.getDauer());
 		}
 
 		for( Map.Entry<String, Map<Integer, Forschung>> entry: keys.entrySet() ) {

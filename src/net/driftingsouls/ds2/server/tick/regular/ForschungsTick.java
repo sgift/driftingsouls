@@ -57,7 +57,7 @@ public class ForschungsTick extends TickController {
 
 				log("fz "+fz.getBaseId());
 				log("\tforschung: "+fz.getForschung());
-				Forschung forschung = Forschung.getInstance(fz.getForschung());
+				Forschung forschung = fz.getForschung();
 					
 				log("\t"+forschung.getName()+" ("+forschung.getID()+") erforscht");
 					
@@ -74,11 +74,11 @@ public class ForschungsTick extends TickController {
 					
 				PM.send(sourceUser, base.getOwner().getId(), "Forschung abgeschlossen", msg);
 				
-				fz.setForschung(0);
+				fz.setForschung(null);
 				fz.setDauer(0);
 				
 				getContext().commit();
-				db.evict(fz);
+				db.clear();
 			}
 			catch( RuntimeException e ) {
 				this.log("Forschungszentrum "+fz.getBaseId()+" failed: "+e);

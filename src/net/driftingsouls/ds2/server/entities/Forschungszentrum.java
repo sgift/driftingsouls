@@ -21,6 +21,8 @@ package net.driftingsouls.ds2.server.entities;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
@@ -42,7 +44,9 @@ public class Forschungszentrum {
 	@PrimaryKeyJoinColumn
 	private Base base;
 	private int type;
-	private int forschung;
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="forschung", nullable=true)
+	private Forschung forschung;
 	private int dauer;
 	
 	@Version
@@ -102,7 +106,7 @@ public class Forschungszentrum {
 	 * Gibt die aktuelle Forschung zurueck
 	 * @return Die Forschung
 	 */
-	public int getForschung() {
+	public Forschung getForschung() {
 		return forschung;
 	}
 
@@ -110,7 +114,7 @@ public class Forschungszentrum {
 	 * Setzt die aktuelle Forshcung
 	 * @param forschung Die Forschung
 	 */
-	public void setForschung(int forschung) {
+	public void setForschung(Forschung forschung) {
 		this.forschung = forschung;
 	}
 

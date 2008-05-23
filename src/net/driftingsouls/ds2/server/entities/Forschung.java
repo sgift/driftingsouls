@@ -18,9 +18,6 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -29,8 +26,6 @@ import javax.persistence.Table;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.caches.CacheManager;
-import net.driftingsouls.ds2.server.framework.caches.ControllableCache;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -54,18 +49,6 @@ public class Forschung {
 	 * der Spieler den Noob-Status
 	 */
 	public static final String FLAG_DROP_NOOB_PROTECTION = "drop_noob";
-	
-	private static final Map<Integer,Forschung> cache = new HashMap<Integer,Forschung>();
-	
-	static {
-		CacheManager.getInstance().registerCache(
-			new ControllableCache() {
-				public void clear() {
-					Forschung.clearCache();
-				}
-			}
-		);
-	}
 	
 	/**
 	 * Sichtbarkeiten von einzelnen Forschungen
@@ -114,32 +97,8 @@ public class Forschung {
 	 * @return Das zur ID gehoerende Forschungsobjekt oder <code>null</code>
 	 */
 	public static Forschung getInstance( int fid ) {
-		synchronized(cache) {
-			if( !cache.containsKey(fid) ) {
-				org.hibernate.Session db = ContextMap.getContext().getDB();
-				
-				Forschung res = (Forschung)db.get(Forschung.class, fid);
-				if( res == null ) {
-					return null;
-				}	
-				
-				cache.put(fid, res);
-				
-				return res;
-			}
-		}
-		
-		return cache.get(fid);
-	}
-	
-	/**
-	 * Leert den Forschungscache
-	 *
-	 */
-	public static void clearCache() {
-		synchronized(cache) {
-			cache.clear();
-		}
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		return (Forschung)db.get(Forschung.class, fid);
 	}
 	
 	@Id @GeneratedValue
