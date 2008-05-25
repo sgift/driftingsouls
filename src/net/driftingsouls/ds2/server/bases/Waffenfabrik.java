@@ -276,6 +276,10 @@ public class Waffenfabrik extends DefaultBuilding {
 		org.hibernate.Session db = context.getDB();
 		
 		WeaponFactory wf = (WeaponFactory)db.get(WeaponFactory.class, base.getId());
+		if( wf == null ) {
+			return;
+		}
+		
 		if( wf.getCount() > 1 ) {	
 			BigDecimal usedcapacity = new BigDecimal(0, MathContext.DECIMAL32);
 	
