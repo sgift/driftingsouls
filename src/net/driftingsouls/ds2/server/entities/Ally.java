@@ -437,7 +437,11 @@ public class Ally {
 			
 			auser.addHistory(Common.getIngameTime(tick)+": Verlassen der Allianz "+this.name+" im Zuge der Aufl&ouml;sung dieser Allianz");
 			auser.setAlly(null);
-			auser.setAllyPosten(null);
+			if( auser.getAllyPosten() != null ) {
+				AllyPosten posten = auser.getAllyPosten();
+				auser.setAllyPosten(null);
+				db.delete(posten);
+			}
 			auser.setName(auser.getNickname());
 		}
 		
