@@ -248,7 +248,7 @@ public class RestTick extends TickController {
 				continue;
 			}
 			
-			if (user.getSignup() <= System.currentTimeMillis() - noobTime){
+			if (user.getSignup() <= Common.time() - noobTime){
 				user.setFlag(User.FLAG_NOOB, false);
 				this.log("Entferne Noob-Schutz bei "+user.getId());
 				
