@@ -166,6 +166,13 @@ public abstract class DSGenerator extends Generator {
 			sb.append("window.location.href = url;\n");
 			sb.append("}\n");
 			sb.append("}\n");
+			sb.append("function getDsUrl() {\n");
+			sb.append("var url = location.href;\n");
+			sb.append("if( url.indexOf('?') > -1 ) {\n");
+			sb.append("url = url.substring(0,url.indexOf('?'));\n");
+			sb.append("}\n");
+			sb.append("return url;\n");
+			sb.append("}\n");
 			
 			if( this.getAttribute("module") != null ) {
 				sb.append("if( parent && parent.setCurrentPage ) {\n");
