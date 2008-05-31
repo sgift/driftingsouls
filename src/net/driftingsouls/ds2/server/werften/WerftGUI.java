@@ -365,10 +365,7 @@ public class WerftGUI {
 				continue;	
 			}
 			
-			ShipTypeData shiptype = ship.getTypeData();
-			
-			if( (ship.getHull() < shiptype.getHull()) || (ship.getEngine() < 100) ||
-				(ship.getSensors() < 100) || (ship.getComm() < 100) || (ship.getWeapons() < 100) ) {
+			if(ship.isDamaged()) {
 				t.setVar("ship.needsrepair", 1);
 			}
 			else {

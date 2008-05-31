@@ -3297,4 +3297,37 @@ public class Ship implements Loggable,Locatable,Transfering {
 	public int getVersion() {
 		return this.version;
 	}
+	
+	/**
+	 * Gibt zurueck, ob das Schiff beschaedigt ist.
+	 * 
+	 * @return <code>true</code>, wenn das Schiff beschaedigt ist, ansonsten <code>false</code>
+	 */
+	public boolean isDamaged() {
+		if(this.getAblativeArmor() < shiptype.getAblativeArmor()) {
+			return true;
+		}
+		
+		if(this.getHull() < shiptype.getHull()) {
+			return true;
+		}
+		
+		if(this.getEngine() < 100) {
+			return true;
+		}
+		
+		if(this.getSensors() < 100) {
+			return true;
+		}
+		
+		if(this.getComm() < 100) {
+			return true;
+		}
+		
+		if(this.getWeapons() < 100) {
+			return true;
+		}
+		
+		return false;
+	}
 }
