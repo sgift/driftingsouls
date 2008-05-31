@@ -20,13 +20,13 @@
 <!--
 //<![CDATA[
 	function PlayerList() {
-		fenster1=window.open("./ds?module=plist&sess={global.sess}&compopup=1",
+		fenster1=window.open(getDsUrl()+"?module=plist&sess={global.sess}&compopup=1",
 							 "Spielerliste",
 							 "width=350,height=400,locationbar=0,menubar=0,scrollbars=1,statusbar=0,toolbar=0,resizeable=yes,directories=0");
 	}
 
 	function BBCodeInfo() {
-		fenster2=window.open("./ds?module=bbcodeview&sess={global.sess}",
+		fenster2=window.open(getDsUrl()+"?module=bbcodeview&sess={global.sess}",
 							 "BBCodes",
 							 "width=550,height=400,locationbar=0,menubar=0,scrollbars=1,statusbar=0,toolbar=0,resizeable=yes,directories=0");
 	}
@@ -176,7 +176,7 @@
 	<script type="text/javascript">
 	<!--
 		function showpm(pmid) {
-			pmviewer.location.href = "./ds?module=comm&sess={global.sess}&action=showPm&pmid="+pmid;
+			pmviewer.location.href = getDsUrl()+"?module=comm&sess={global.sess}&action=showPm&pmid="+pmid;
 			
 			if( $('pm'+pmid) != null ) {	
 				$('pm'+pmid).firstChild.nodeValue = "";
@@ -225,7 +225,7 @@
 			
 			$("inbox_waiter").style.display = "block";
 			
-			var url = location.href;
+			var url = getDsUrl();
 			// Oh ich liebe das toooolle caching vom *piep* ie
 			var params = 'module={global.module}&sess={global.sess}&action=move&ordner={ordner.parent}&moveto='+ordnerid+"&pm_"+pmid+"="+pmid+"&antiiecachingtimestamp="+(new Date().getTime());
 
@@ -478,7 +478,7 @@
 	<script type="text/javascript">
 	<!--
 		function showpm(pmid) {			
-			pmviewer.location.href = "./ds?module=comm&sess={global.sess}&action=showPm&pmid="+pmid;
+			pmviewer.location.href = getDsUrl()"?module=comm&sess={global.sess}&action=showPm&pmid="+pmid;
 		}
 	-->
 	</script>
