@@ -179,58 +179,68 @@ public class EditShiptypes implements AdminPlugin
 			while (ships.next())
 			{
 				Ship ship = (Ship) ships.get(0);
-
-				ship.setEnergy((int)Math.floor(ship.getEnergy() * factor.get("eps")));
-				ship.setHull((int)Math.floor(ship.getHull() * factor.get("hull")));
-				ship.setCrew((int)Math.floor(ship.getCrew() * factor.get("crew")));
-				ship.setShields((int)Math.floor(ship.getShields() * factor.get("shields")));
-				ship.setAblativeArmor((int)Math.floor(ship.getAblativeArmor() * factor.get("ablativearmor")));
-				ship.setMarines((int)Math.floor(ship.getMarines() * factor.get("marines")));
-
-				ship.recalculateModules();
-
-				String id = "l " + ship.getId();
-				int fighterDocks = ship.getTypeData().getJDocks();
-				if (ship.getLandedCount() > fighterDocks)
+				try
 				{
-					List fighters = db.createQuery("from Ship where docked = ?").setString(0, id).list();
-					long toStart = ship.getLandedCount() - fighterDocks;
-					int fighterCount = 0;
-
-					for (Iterator iter2 = fighters.iterator(); iter2.hasNext() && fighterCount < toStart;)
+					ship.setEnergy((int)Math.floor(ship.getEnergy() * factor.get("eps")));
+					ship.setHull((int)Math.floor(ship.getHull() * factor.get("hull")));
+					ship.setCrew((int)Math.floor(ship.getCrew() * factor.get("crew")));
+					ship.setShields((int)Math.floor(ship.getShields() * factor.get("shields")));
+					ship.setAblativeArmor((int)Math.floor(ship.getAblativeArmor() * factor.get("ablativearmor")));
+					ship.setMarines((int)Math.floor(ship.getMarines() * factor.get("marines")));
+					
+					ship.recalculateModules();
+	
+					String id = "l " + ship.getId();
+					int fighterDocks = ship.getTypeData().getJDocks();
+					if (ship.getLandedCount() > fighterDocks)
 					{
-						Ship fighter = (Ship) iter2.next();
-
-						fighter.setDocked("");
-						fighterCount++;
+						List fighters = db.createQuery("from Ship where docked = ?").setString(0, id).list();
+						long toStart = ship.getLandedCount() - fighterDocks;
+						int fighterCount = 0;
+	
+						for (Iterator iter2 = fighters.iterator(); iter2.hasNext() && fighterCount < toStart;)
+						{
+							Ship fighter = (Ship) iter2.next();
+	
+							fighter.setDocked("");
+							fighterCount++;
+						}
+					}
+	
+					//Docked
+					id = Integer.toString(ship.getId());
+					int outerDocks = ship.getTypeData().getADocks();
+					if (ship.getDockedCount() > outerDocks)
+					{
+						List outerDocked = db.createQuery("from Ship where docked = ?").setString(0, id).list();
+						long toStart = ship.getDockedCount() - outerDocks;
+						int dockedCount = 0;
+	
+						for (Iterator iter2 = outerDocked.iterator(); iter2.hasNext() && dockedCount < toStart;)
+						{
+							Ship outer = (Ship) iter2.next();
+							outer.setDocked("");
+	
+							dockedCount++;
+						}
+					}
+					
+					if(ship.getId() >= 0)
+					{
+						ship.recalculateShipStatus();
+					}
+	
+					count++;
+					if (count % 20 == 0)
+					{
+						db.flush();
+						HibernateFacade.evictAll(db, Ship.class, ShipModules.class, Offizier.class);
 					}
 				}
-
-				//Docked
-				id = Integer.toString(ship.getId());
-				int outerDocks = ship.getTypeData().getADocks();
-				if (ship.getDockedCount() > outerDocks)
+				catch(Exception e)
 				{
-					List outerDocked = db.createQuery("from Ship where docked = ?").setString(0, id).list();
-					long toStart = ship.getDockedCount() - outerDocks;
-					int dockedCount = 0;
-
-					for (Iterator iter2 = outerDocked.iterator(); iter2.hasNext() && dockedCount < toStart;)
-					{
-						Ship outer = (Ship) iter2.next();
-						outer.setDocked("");
-
-						dockedCount++;
-					}
-				}
-
-				ship.recalculateShipStatus();
-
-				count++;
-				if (count % 20 == 0)
-				{
-					db.flush();
-					HibernateFacade.evictAll(db, Ship.class, ShipModules.class, Offizier.class);
+					//Riskant, aber, dass nach einem Fehler alle anderen Schiffe nicht aktualisiert werden muss verhindert werden
+					Common.LOG.error("Das Schiff mit der ID " + ship.getId() + " konnte nicht aktualisiert werden. Fehler: " + e.getMessage());
 				}
 			}
 			db.flush();
@@ -242,15 +252,22 @@ public class EditShiptypes implements AdminPlugin
 			while (battleShips.next())
 			{
 				BattleShip battleShip = (BattleShip) battleShips.get(0);
-				battleShip.setShields((int)Math.floor(battleShip.getShields() * factor.get("shields")));
-				battleShip.setHull((int)Math.floor(battleShip.getHull() * factor.get("hull")));
-				battleShip.setAblativeArmor((int)Math.floor(battleShip.getAblativeArmor() * factor.get("ablativearmor")));
-				count++;
-				//All unflushed changes are part of the sessioncache, so we need to clean it regularly
-				if (count % 20 == 0)
+				try
+				{		
+					battleShip.setShields((int)Math.floor(battleShip.getShields() * factor.get("shields")));
+					battleShip.setHull((int)Math.floor(battleShip.getHull() * factor.get("hull")));
+					battleShip.setAblativeArmor((int)Math.floor(battleShip.getAblativeArmor() * factor.get("ablativearmor")));
+					count++;
+					//All unflushed changes are part of the sessioncache, so we need to clean it regularly
+					if (count % 20 == 0)
+					{
+						db.flush();
+						HibernateFacade.evictAll(db, BattleShip.class, Ship.class);
+					}
+				}
+				catch(Exception e)
 				{
-					db.flush();
-					HibernateFacade.evictAll(db, BattleShip.class, Ship.class);
+					Common.LOG.error("Der Kampfeintrag zum Schiff mit der ID " + battleShip.getId() + " konnte nicht aktualisiert werden. Fehler: " + e.getMessage());
 				}
 			}
 			db.flush();
