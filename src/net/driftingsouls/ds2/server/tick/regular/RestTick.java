@@ -230,6 +230,39 @@ public class RestTick extends TickController {
 	}
 	
 	/*
+	 * Unset Noob Protection for experienced players
+	 */
+	private void doNoobProtection(){
+		org.hibernate.Session db = getDB();
+		
+		this.log("");
+		this.log("Bearbeite Noob-Protection");
+		
+		List noobUsers = db.createQuery("from User where id>0 and flags LIKE '%" + User.FLAG_NOOB+"%'").list();
+		int noobDays = 30;
+		int noobTime = 24*60*60*1000*noobDays;
+		for( Iterator iter=noobUsers.iterator(); iter.hasNext(); ) {
+			User user = (User)iter.next();
+			
+			if( !user.hasFlag(User.FLAG_NOOB) ) {
+				continue;
+			}
+			
+			if (user.getSignup() <= System.currentTimeMillis() - noobTime){
+				user.setFlag(User.FLAG_NOOB, false);
+				this.log("Entferne Noob-Schutz bei "+user.getId());
+				
+				User nullUser = (User)db.get(User.class, 0);
+				PM.send(nullUser, user.getId(), "GCP-Schutz aufgehoben", 
+						"Ihr GCP-Schutz wurde durch das System aufgehoben. " +
+						"Dies passiert automatisch "+noobDays+" Tage nach der Registrierung. " +
+						"Sie sind nun angreifbar, koennen aber auch selbst angreifen.", 
+						PM.FLAGS_AUTOMATIC | PM.FLAGS_IMPORTANT);
+			}
+		}
+	}
+	
+	/*
 	
 		Neue Felsbrocken spawnen lassen
 			
@@ -428,7 +461,7 @@ public class RestTick extends TickController {
 		database.update("UPDATE config SET ticks=ticks+1");
 		getContext().commit();
 		
-		
+				
 		this.doJumps();
 		getContext().commit();
 		
@@ -436,6 +469,9 @@ public class RestTick extends TickController {
 		getContext().commit();
 		
 		this.doVacation();
+		getContext().commit();
+		
+		this.doNoobProtection();
 		getContext().commit();
 		
 		this.doFelsbrocken();
