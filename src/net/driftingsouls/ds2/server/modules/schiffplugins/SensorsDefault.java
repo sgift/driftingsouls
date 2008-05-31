@@ -540,6 +540,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 								"sships.name",			Common._plaintitle(aship.getName()),
 								"sships.type.id",		aship.getType(),
 								"sships.hull",			Common.ln(aship.getHull()),
+								"sships.ablativearmor",	Common.ln(aship.getAblativeArmor()),
 								"sships.shields",		Common.ln(aship.getShields()),
 								"sships.fleet.id",		aship.getFleet() != null ? aship.getFleet().getId() : 0,
 								"sships.type.name",		ashiptype.getNickname(),
