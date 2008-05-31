@@ -240,7 +240,7 @@ public class RestTick extends TickController {
 		
 		List noobUsers = db.createQuery("from User where id>0 and flags LIKE '%" + User.FLAG_NOOB+"%'").list();
 		int noobDays = 30;
-		int noobTime = 24*60*60*1000*noobDays;
+		int noobTime = 24*60*60*noobDays;
 		for( Iterator iter=noobUsers.iterator(); iter.hasNext(); ) {
 			User user = (User)iter.next();
 			
