@@ -459,7 +459,7 @@ public abstract class DSGenerator extends Generator {
 		// Ungueltige Sessions brauchen nicht extra abgefangen zu werden,
 		// da fuer diese Bereits ein Fehler eingetragen wurde
 		if( requireValidSession && (getContext().getActiveUser() == null) ) {
-			addError( "Es wurde keine session-id &uuml;bergeben" );
+			addError( "Sie muessen sich einloggen um die Aktion durchfuehren zu koennen" );
 		}
 		
 		if( getErrorList().length != 0 ) {
