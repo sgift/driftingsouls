@@ -800,9 +800,9 @@ public class KSAttackAction extends BasicKSAction {
 			}
 			double crewfactor = (int)(type.getJDocks() * selectedShip.getCrew()) / typeCrew;
 
-			 if((selectedShip.getAction() & Battle.BS_JOIN) == 0){
+			 if((selectedShip.getAction() & Battle.BS_JOIN) != 0){
 				// Beitretende Schiffe werden grundsaetzlich ausgenommen, hier wird gar nichts berechnet
-			}else if(type.getJDocks() > 0 && (selectedShip.getAction() & Battle.BS_FLUCHT) != 0 && type.getSize() > ShipType.SMALL_SHIP_MAXSIZE){
+			}else if(type.getJDocks() > 0 && (selectedShip.getAction() & Battle.BS_FLUCHT) == 0 && type.getSize() > ShipType.SMALL_SHIP_MAXSIZE){
 				// Alle Schiffe mit Jaegerdocks die nicht auf der Flucht sind zaehlen a) als zu verteidigend und b) liefern Docks
 				// Wenn wir allerdings nicht genug Crew haben koennen wir auch nicht alle Docks bedienen
 				docks = docks + (int)Math.floor(type.getJDocks() * crewfactor);
@@ -815,13 +815,13 @@ public class KSAttackAction extends BasicKSAction {
 					gks = gks + 1;
 					gksdefcount = gksdefcount + (int)Math.floor(type.getTorpedoDef() * crewfactor);
 				}
-			}else if(type.getShipClass() == ShipClasses.JAEGER.ordinal() && (selectedShip.getAction() & Battle.BS_FLUCHT) != 0){
+			}else if(type.getShipClass() == ShipClasses.JAEGER.ordinal() && (selectedShip.getAction() & Battle.BS_FLUCHT) == 0){
 				// Alle Jaeger zaehlen als docknutzend und liefern ihre Torpabwehr
 				// Allerdings nur, wenn sie nicht fluechten.
 				fighter = fighter + 1;
 				fighterdefcount += (int)Math.floor(type.getTorpedoDef() * crewfactor);
 				docksuse = docksuse + 1;
-			}else if(type.getShipClass() == ShipClasses.BOMBER.ordinal()&& (selectedShip.getAction() & Battle.BS_FLUCHT) != 0 ){
+			}else if(type.getShipClass() == ShipClasses.BOMBER.ordinal()&& (selectedShip.getAction() & Battle.BS_FLUCHT) == 0 ){
 				// Bomber zaehlen als docknutzend, ausser sie fluechten
 				docksuse = docksuse + 1;
 			}else if(type.getSize() > ShipType.SMALL_SHIP_MAXSIZE){
