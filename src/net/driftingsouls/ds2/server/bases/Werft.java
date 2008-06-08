@@ -86,9 +86,7 @@ public class Werft extends DefaultBuilding {
 	@Override
 	public String echoShortcut(Context context, Base base, int field, int building) {
 		org.hibernate.Session db = context.getDB();
-		
-		String sess = context.getSession();
-				
+
 		StringBuilder result = new StringBuilder(200);
 		
 		BaseWerft werft = (BaseWerft)db.createQuery("from BaseWerft where col=?")
@@ -97,8 +95,7 @@ public class Werft extends DefaultBuilding {
 		if( werft != null ) {
 			werft.setBaseField(field);
 			if( !werft.isBuilding() ) {
-				result.append("<a class=\"back\" href=\"./ds?module=building&amp;sess=");
-				result.append(sess);
+				result.append("<a class=\"back\" href=\"./ds?module=building");
 				result.append("&amp;col=");
 				result.append(base.getId());
 				result.append("&amp;field=");
@@ -143,8 +140,7 @@ public class Werft extends DefaultBuilding {
 				result.append(base.getId());
 				result.append("_");
 				result.append(field);
-				result.append("',REFY,22,NOJUSTY,FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip',TIMEOUT,0,DELAY,150,WIDTH,430);\" onmouseout=\"return nd();\" href=\"./ds?module=building&amp;sess=");
-				result.append(sess);
+				result.append("',REFY,22,NOJUSTY,FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip',TIMEOUT,0,DELAY,150,WIDTH,430);\" onmouseout=\"return nd();\" href=\"./ds?module=building");
 				result.append("&amp;col=");
 				result.append(base.getId());
 				result.append("&amp;field=");
@@ -177,14 +173,13 @@ public class Werft extends DefaultBuilding {
 	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
 		org.hibernate.Session db = context.getDB();
 
-		String sess = context.getSession();
 		StringBuilder response = new StringBuilder(500);
 				
 		BaseWerft werft = (BaseWerft)db.createQuery("from BaseWerft where col=?")
 			.setEntity(0, base)
 			.uniqueResult();
 		if( werft == null ) {
-	   		response.append("<a href=\"./ds?module=basen&amp;sess="+sess+"\"><span style=\"color:#ff0000; font-weight:bold\">Fehler: Die angegebene Kolonie hat keine Werft</span></a>\n");
+	   		response.append("<a href=\"./ds?module=basen\"><span style=\"color:#ff0000; font-weight:bold\">Fehler: Die angegebene Kolonie hat keine Werft</span></a>\n");
 			return response.toString();
 		}
 		
