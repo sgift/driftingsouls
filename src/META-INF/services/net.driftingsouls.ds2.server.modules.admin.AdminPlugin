@@ -19,3 +19,4 @@ net.driftingsouls.ds2.server.modules.admin.SurveyResults
 net.driftingsouls.ds2.server.modules.admin.ResearchEdit
 net.driftingsouls.ds2.server.modules.admin.EditShiptypes
 net.driftingsouls.ds2.server.modules.admin.EditAmmo
+net.driftingsouls.ds2.server.modules.admin.EditShip

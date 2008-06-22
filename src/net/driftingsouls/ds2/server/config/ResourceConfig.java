@@ -19,6 +19,8 @@
 package net.driftingsouls.ds2.server.config;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,13 +42,56 @@ import org.w3c.dom.NodeList;
  *
  */
 public class ResourceConfig implements Loggable {
-	private static class Entry {
-		int id;
-		String name;
-		String image;
-		boolean hidden;
-		String tag;
+	/**
+	 * Die Konfigurationsdaten einer einzelnen Resource (Ware)
+	 */
+	public static class Entry {
+		private int id;
+		private String name;
+		private String image;
+		private boolean hidden;
+		private String tag;
 		
+		/**
+		 * Gibt zurueck, ob die Resource versteckt (d.h. fuer Spieler nicht sichtbar) ist.
+		 * @return <code>true</code>, falls sie nicht sichtbar ist
+		 */
+		public boolean isHidden() {
+			return hidden;
+		}
+
+		/**
+		 * Gibt die ID der Resource zurueck
+		 * @return Die ID
+		 */
+		public int getId() {
+			return id;
+		}
+
+		/**
+		 * Gibt den Pfad zum Bild der Resource zurueck
+		 * @return Der Pfad
+		 */
+		public String getImage() {
+			return image;
+		}
+
+		/**
+		 * Gibt den Namen der Resource zurueck
+		 * @return Der Name
+		 */
+		public String getName() {
+			return name;
+		}
+
+		/**
+		 * Gibt den Tag zurueck, der der Resource in XML-Dokumenten zugeordnet ist
+		 * @return Der Tag
+		 */
+		public String getTag() {
+			return tag;
+		}
+
 		Entry() {
 			// EMPTY
 		}
@@ -57,12 +102,19 @@ public class ResourceConfig implements Loggable {
 	private static List<Entry> resources = new ArrayList<Entry>();
 	
 	/**
+	 * @return In DS bekannte Resourcen
+	 */
+	public static Collection<ResourceConfig.Entry> getResources() {
+		return Collections.unmodifiableCollection(resources);
+	}
+	
+	/**
 	 * Liefert den Namen einer Resource zurueck
 	 * @param id Die ID der Resource
 	 * @return Der Name
 	 */
 	public static String getResourceName(int id) {
-		return resources.get(id).name;
+		return resources.get(id).getName();
 	}
 	
 	/**
@@ -71,7 +123,7 @@ public class ResourceConfig implements Loggable {
 	 * @return Der Pfad zum Bild
 	 */
 	public static String getResourceImage(int id) {
-		return resources.get(id).image;
+		return resources.get(id).getImage();
 	}
 	
 	/**
@@ -81,7 +133,7 @@ public class ResourceConfig implements Loggable {
 	 * @return true, falls sie versteckt ist
 	 */
 	public static boolean getResourceHidden(int id) {
-		return resources.get(id).hidden;
+		return resources.get(id).isHidden();
 	}
 	
 	/**
@@ -90,7 +142,7 @@ public class ResourceConfig implements Loggable {
 	 * @return Der Name des XML-Tags oder <code>null</code>
 	 */
 	public static String getResourceTag(int id) {
-		return resources.get(id).tag;
+		return resources.get(id).getTag();
 	}
 	
 	/**
