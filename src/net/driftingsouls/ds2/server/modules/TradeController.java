@@ -165,13 +165,12 @@ public class TradeController extends TemplateGenerator {
 				price = amountToBuy * limit.getPrice();
 			}
 			totalRE += price;
-			moneyOfBuyer.subtract(BigInteger.valueOf(price));
 			
-			assert amountToBuy >= 0: "AmountToBuy darf keine negative Zahl sein";
-			
-			if(amountToBuy == 0) {
+			if(amountToBuy <= 0) {
 				continue;
 			}
+			
+			moneyOfBuyer.subtract(BigInteger.valueOf(price));
 			
 			this.posten.transfer(this.ship, resource.getId(), amountToBuy);
 			this.shipCargo = this.ship.getCargo();
@@ -341,14 +340,21 @@ public class TradeController extends TemplateGenerator {
 			ResourceLimitKey resourceLimitKey = new ResourceLimitKey(posten, resource.getId());
 			SellLimit limit = (SellLimit)db.get(SellLimit.class, resourceLimitKey);
 			
+			//Nicht kaeuflich
 			if(limit == null) {
 				continue;
 			}
 			
+			long buyable = this.posten.getCargo().getResourceCount(resource.getId()) - limit.getMinimum();
+			if(buyable <= 0) {
+				continue;
+			}
+			
+			
 			t.setVar(	"resbuy.img",		resource.getImage(),
 						"resbuy.id",		resource.getId(),
 						"resbuy.name",		resource.getName(),
-						"resbuy.cargo",	this.posten.getCargo().getResourceCount(resource.getId()),
+						"resbuy.cargo",		buyable,
 						"resbuy.re",		limit.getPrice() );
 			t.parse("resbuy.list","resbuy.listitem",true);
 		}
