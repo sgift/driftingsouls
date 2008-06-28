@@ -31,12 +31,17 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Basisklasse fuer Ticks
  * @author Christopher Jung
  *
  */
 public abstract class TickController {
+	private static final Log log = LogFactory.getLog(TickController.class);
+	
 	/**
 	 * Log-Ziel: Standardausgabe
 	 */
@@ -211,9 +216,17 @@ public abstract class TickController {
 			w = new OutputStreamWriter(System.out);
 		}
 		else {
+			log.info("Fuege Log-Ziel '"+file+"' hinzu");
+			
 			File f = new File(file);
 			if( !f.exists() ) {
-				f.createNewFile();
+				try {
+					f.createNewFile();
+				}
+				catch( IOException e ) {
+					log.error("Kann Log-Ziel '"+file+"' nicht erstellen", e);
+					throw e;
+				}
 			}
 			w = new FileWriter(f, append);
 		}

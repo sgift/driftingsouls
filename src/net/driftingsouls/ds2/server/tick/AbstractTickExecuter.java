@@ -30,6 +30,7 @@ import net.driftingsouls.ds2.server.framework.DriftingSouls;
 import net.driftingsouls.ds2.server.framework.SimpleResponse;
 
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.LogFactoryImpl;
 
 /**
@@ -38,6 +39,8 @@ import org.apache.commons.logging.impl.LogFactoryImpl;
  *
  */
 public abstract class AbstractTickExecuter extends TickController {
+	private static final Log log = LogFactory.getLog(AbstractTickExecuter.class);
+	
 	private String loxpath = Configuration.getSetting("LOXPATH");
 	private String name = "";
 	private String status = null;
@@ -53,16 +56,16 @@ public abstract class AbstractTickExecuter extends TickController {
 	public static final void boot(String[] args) throws Exception {
 		System.getProperties().setProperty("org.apache.commons.logging.Log","org.apache.commons.logging.impl.SimpleLog");
 		
-		Log LOG = new LogFactoryImpl().getInstance("DS2");
-		LOG.info("Booting DS...");
+		Log log = LogFactory.getLog("DS2");
+		log.info("Booting DS...");
 		
 		CmdLineRequest request = new CmdLineRequest(args);
 		
 		try {
-			new DriftingSouls(LOG, request.getParameterString("config"), false);
+			new DriftingSouls(log, request.getParameterString("config"), false);
 		}
 		catch( Exception e ) {
-			LOG.fatal(e, e);
+			log.fatal(e, e);
 			throw new Exception(e);
 		}
 		
@@ -96,6 +99,9 @@ public abstract class AbstractTickExecuter extends TickController {
 		this.loxpath = path;
 		if( loxpath.charAt(loxpath.length()-1) != '/' ) {
 			loxpath += '/';
+		}
+		if( !new File(loxpath).isDirectory() ) {
+			log.error("Der Log-Pfad '"+loxpath+"' existiert nicht");
 		}
 	}
 	
@@ -192,7 +198,10 @@ public abstract class AbstractTickExecuter extends TickController {
 		int ticknr = getContext().get(ContextCommon.class).getTick()+1;
 		
 		if( !new File(loxpath+"/"+ticknr).isDirectory() ) {
-			new File(loxpath+"/"+ticknr).mkdir();
+			boolean result = new File(loxpath+"/"+ticknr).mkdir();
+			if( !result ) {
+				log.error("Kann Verzeichnis '"+loxpath+"/"+ticknr+"' nicht anlegen");
+			}
 		}
 		
 		executeTicks();
