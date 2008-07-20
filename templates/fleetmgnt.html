@@ -201,6 +201,15 @@
 					else {
 						document.getElementById("alarm").style.display = 'none';
 					}
+					
+					if( action == "build" ) {
+						document.getElementById("buildcount").style.display = 'inline';
+						document.getElementById("buildid").style.display = 'inline';
+					}
+					else {
+						document.getElementById("buildcount").style.display = 'none';
+						document.getElementById("buildid").style.display = 'none';
+					}
 				}
 			-->
 			</script>
@@ -225,6 +234,9 @@
 					<option value="show">---------</option>
 					{if fleetcombine.list}
 						<option value="fleetcombine">Flotten zusammenlegen</option>
+					{/endif}
+					{if buildableships.list}
+						<option value="build">Schiffe bauen</option>
 					{/endif}
 					<option value="rename">Flotte umbenennen</option>
 					<option value="kill">aufl&ouml;sen</option>
@@ -252,6 +264,14 @@
 					<option value="0">gelb</option>
 					<option value="1">rot</option>
 				</select>
+				{if buildableships.list}
+				<input type="text" id="buildcount" name="buildcount" style="display:none" size="3" maxlength="3" />
+				<select id="buildid" name="buildid" size="1" style="display:none">
+						<!-- BEGIN buildableships.listitem -->
+							<option value="{buildableships.id}">{buildableships.name}</option>
+						<!-- END buildableships.listitem -->
+				</select>
+				{/endif}
 				<input type="submit" value="ok" />
 			</form>
 		</div>

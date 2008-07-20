@@ -19,8 +19,12 @@
 package net.driftingsouls.ds2.server.modules;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Set;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -38,6 +42,7 @@ import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.werften.WerftObject;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -829,6 +834,70 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
+	 * Baut ein Schiffstyp n-mal in allen Werften der Flotte, die dazu in der Lage sind
+	 */
+	@Action(ActionType.DEFAULT)
+	@SuppressWarnings("unchecked")
+	public void buildAction() {
+		TemplateEngine t = getTemplateEngine();
+		parameterNumber("buildcount");
+		parameterNumber("buildid");
+		
+		int buildCount = getInteger("buildcount");
+		final int buildid = getInteger("buildid");
+		
+		if(buildCount <= 0) {
+			return;
+		}
+		
+		org.hibernate.Session db = getDB();
+		User user = (User)getUser();
+		List<Ship> shipyards = db.createQuery("from Ship where id>0 and owner=? and fleet=? and shiptype.werft > 0 order by id")
+		.setEntity(0, user)
+		.setEntity(1, this.fleet)
+		.list();
+		
+		for(Iterator<Ship> it = shipyards.iterator(); it.hasNext();) {
+			Ship ship = it.next();
+			if(ship.getTypeData().getWerft() == 0) {
+				it.remove();
+			}
+		}
+		
+		if(shipyards.isEmpty()) {
+			return;
+		}
+		
+		//Build
+		while(buildCount > 0) {
+			int couldNotBuild = 0;
+			for(Ship ship: shipyards) {
+				WerftObject shipyard = (WerftObject)db.createQuery("from WerftObject where shipid=?").setInteger(0, ship.getId()).uniqueResult();
+				if(shipyard.buildShip(buildid, false, false)) {
+					buildCount--;
+				}
+				else {
+					couldNotBuild++;
+				}
+				
+				if(buildCount == 0) {
+					break;
+				}
+			}
+			
+			//No shipyard could build -> stop
+			if(couldNotBuild == shipyards.size()) {
+				buildCount = 0;
+			}
+		}
+		
+		//Reload main page
+		t.setVar("jscript.reloadmain",	1);
+		
+		this.redirect();
+	}
+	
+	/**
 	 * Teil eines Formatierungsstrings fuer Schiffsnamen
 	 */
 	private static interface NamePatternElement {
@@ -1015,11 +1084,18 @@ public class FleetMgntController extends TemplateGenerator {
 			.setEntity(0, user)
 			.setEntity(1, this.fleet)
 			.list();
+		
+		Set<ShipType> buildableShips = new HashSet<ShipType>();
 		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
 			Ship ship = (Ship)iter.next();
 			
 			ShipTypeData shiptype = ship.getTypeData();
 			Location loc = ship.getLocation();
+			
+			if(shiptype.getWerft() > 0) {
+				WerftObject werft = (WerftObject)db.createQuery("from WerftObject where shipid=?").setInteger(0, ship.getId()).uniqueResult();
+				buildableShips.addAll(werft.getBuildableShips());
+			}
 			
 			t.setVar(	"ship.id",			ship.getId(),
 						"ship.name",		Common._plaintitle(ship.getName()),
@@ -1033,7 +1109,34 @@ public class FleetMgntController extends TemplateGenerator {
 			}
 			
 			t.parse("ships.list", "ships.listitem", true);
-		}	
+		}
+		
+		//List of buildable ships
+		if(!buildableShips.isEmpty()) {
+			t.setBlock("_FLEETMGNT", "buildableships.listitem", "buildableships.list");
+			PriorityQueue<ShipType> sortedBuildableShips = new PriorityQueue<ShipType>(11, new Comparator<ShipType>() {
+					public int compare(ShipType o1, ShipType o2) {
+						if(o1.getId() == o2.getId()) {
+							return 0;
+						}
+						
+						if(o1.getId() > o2.getId()) {
+							return 1;
+						}
+						return -1;
+					}
+				});
+			
+			sortedBuildableShips.addAll(buildableShips);
+			
+			ShipType ship;
+			while((ship = sortedBuildableShips.poll()) != null) {
+				t.setVar(	"buildableships.id", 	ship.getId(),
+					 		"buildableships.name", 	ship.getNickname());
+			
+				t.parse("buildableships.list", "buildableships.listitem", true);
+			}
+		}
 	
 		// Jaegerliste bauen
 		String sectorstring = Common.implode(" or ", sectors);

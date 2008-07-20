@@ -21,9 +21,11 @@ package net.driftingsouls.ds2.server.werften;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -1028,12 +1030,155 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 	
 	/**
+	 * Gibt die Schiffstypen zurueck, die auf dieser Werft gebaut werden koennen.
+	 * 
+	 * @return Schiffstypen, die auf dieser Werft gebaut werden koennen.
+	 */
+	@SuppressWarnings("unchecked")
+	public Set<ShipType> getBuildableShips() {
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		User owner = this.getOwner();
+		
+		Set<ShipType> shipTypes = new HashSet<ShipType>();
+		boolean militaryAllowed = Systems.get().system(this.getSystem()).isMilitaryAllowed();
+		boolean flagshipAllowed = owner.hasFlagschiffSpace();
+		
+		String query = "from ShipBaubar where werftslots <= ?";
+		if(!flagshipAllowed) {
+			query += "!flagschiff ";
+		}
+		if(!militaryAllowed) {
+			query += "systemReq = 0 ";
+		}
+		query = query.trim();
+		List<ShipBaubar> buildableShips = (List<ShipBaubar>)db.createQuery(query).setInteger(0, this.getWerftSlots()).list();
+		
+		//Allowed by draft
+		Set<IEDraftShip> drafts = getUsableShipDrafts();
+		for(IEDraftShip draft: drafts) {
+			shipTypes.add((ShipType)db.get(ShipType.class, draft.getShipType()));
+		}
+		
+		
+		//Filter parts which are not database checkable
+		for(ShipBaubar buildableShip: buildableShips) {
+			if(!Rassen.get().rasse(owner.getRace()).isMemberIn(buildableShip.getRace())) {
+				continue;
+			}
+			
+			if( !owner.hasResearched(buildableShip.getRes(1)) || !owner.hasResearched(buildableShip.getRes(2)) || !owner.hasResearched(buildableShip.getRes(3))) {
+				continue;
+			}
+			
+			shipTypes.add(buildableShip.getType());
+		}
+		
+		//Filter disallowed shiptypes
+		Set<ShipType> disabledShips = getDisabledShips();
+		for (Iterator<ShipType> it = shipTypes.iterator(); it.hasNext(); ) {
+			ShipType shipType = it.next();
+			if(disabledShips.contains(shipType)) {
+				it.remove();
+				continue;
+			}
+		}
+		
+		return shipTypes;
+	}
+	
+	/**
+	 * Gibt alle Schiffstypen zurueck, die diese Werft derzeit nicht bauen kann.
+	 * 
+	 * @return Schiffstypen, die nicht baubar sind.
+	 */
+	private Set<ShipType> getDisabledShips() {
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		
+		Cargo availablecargo = this.getCargo(false);
+		Cargo allyitems = getAllyItems();
+		Set<ShipType> disabledShips = new HashSet<ShipType>();
+		
+		Cargo allitems = new Cargo();
+		allitems.addCargo(allyitems);
+		allitems.addCargo(availablecargo);
+		
+		for(ItemCargoEntry item: allitems.getItemsWithEffect( ItemEffect.Type.DISABLE_SHIP ))
+		{
+			IEDisableShip disableShip = (IEDisableShip)item.getItemEffect();
+			disabledShips.add((ShipType)db.load(ShipType.class, disableShip.getShipType()));
+		}
+		
+		return disabledShips;
+	}
+	
+	private Set<ItemCargoEntry> getAllItems() {
+		Cargo allyitems = getAllyItems();
+		Cargo shipyardCargo = this.getCargo(false);
+		
+		Set<ItemCargoEntry> items = new HashSet<ItemCargoEntry>();
+		items.addAll(allyitems.getItemsWithEffect(ItemEffect.Type.DRAFT_SHIP));
+		items.addAll(shipyardCargo.getItemsWithEffect(ItemEffect.Type.DRAFT_SHIP));
+		
+		return items;
+	}
+	
+	/**
+	 * Gibt alle Bauplaene auf der Werft zurueck, die derzeit benutzt werden koennen.
+	 * 
+	 * @return Nutzbare Bauplaene.
+	 */
+	private Set<IEDraftShip> getUsableShipDrafts() {
+		User owner = this.getOwner();
+		Set<IEDraftShip> shipDrafts = new HashSet<IEDraftShip>();
+
+		
+		//All Drafts - ally and local
+		Set<ItemCargoEntry> items = getAllItems();
+		
+		for(ItemCargoEntry item: items) {
+			if(item.getItemEffect().getType() != ItemEffect.Type.DRAFT_SHIP) {
+				continue;
+			}
+			
+			IEDraftShip draft = (IEDraftShip)item.getItemEffect();
+			
+			if( draft.getWerftSlots() > this.getWerftSlots() ) {
+				continue;
+			}
+
+			if( !owner.hasFlagschiffSpace() && draft.isFlagschiff() ) {
+				continue;
+			}
+	
+			if(!owner.hasResearched(draft.getTechReq(1)) || !owner.hasResearched(draft.getTechReq(2)) || !owner.hasResearched(draft.getTechReq(3))) {
+				continue;
+			}
+			
+			shipDrafts.add(draft);
+		}
+		
+		return shipDrafts;
+	}
+	
+	private Cargo getAllyItems() {
+		User owner = this.getOwner();
+		if( owner.getAlly() != null ) {
+			return new Cargo(Cargo.Type.ITEMSTRING, owner.getAlly().getItems());
+		}
+		
+		return new Cargo();
+	}
+	
+	/**
 	 * Liefert die Liste aller theoretisch baubaren Schiffe auf dieser Werft.
 	 * Das vorhanden sein von Resourcen wird hierbei nicht beruecksichtigt.
 	 * @return array mit Schiffsbaudaten (ships_baubar) sowie 
 	 * 			'_item' => array( ('local' | 'ally'), $resourceid) oder '_item' => false
 	 * 			zur Bestimmung ob und wenn ja welcher Bauplan benoetigt wird zum bauen
 	 */
+	@Deprecated
 	public SQLResultRow[] getBuildShipList() {
 		List<SQLResultRow> result = new ArrayList<SQLResultRow>();
 		
@@ -1259,6 +1404,48 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 		
 		return shipdata;
+	}
+	
+	/**
+	 * Findet heraus welches Item zum Bau benoetigt wird und baut danach das Schiff.
+	 * @param typeid Die ID des zu bauenden Schifftyps
+	 * @param costsPerTick Sollen die Baukosten pro Tick (<code>true</code>) oder der Gesamtbetrag jetzt (<code>false</code>) abgezogen werden
+	 * @param testOnly Soll nur getestet (true) oder wirklich gebaut (false) werden?
+	 * @see WerftObject#buildShip
+	 * 
+	 * @return true, wenn kein Fehler aufgetreten ist.
+	 */
+	public boolean buildShip(int typeid, boolean costsPerTick, boolean testOnly) {
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		int item = -1;
+		ShipType type = (ShipType)db.load(ShipType.class, typeid);
+		ShipBaubar ship = (ShipBaubar)db.createQuery("from ShipBaubar where type=?").setEntity(0, type).uniqueResult();
+		
+		if(ship == null) {
+			for(ItemCargoEntry entry: getAllItems()) {
+				if(entry.getItemEffect().getType() == ItemEffect.Type.DRAFT_SHIP) {
+					IEDraftShip draft = (IEDraftShip)entry.getItemEffect();
+					if(draft.getShipType() == typeid) {
+						item = entry.getItemID();
+						break;
+					}
+				}
+			}
+		}
+		else {
+			item = 0;
+		}
+		
+		//Cannot build without item, correct item not found
+		if(item == -1) {
+			return false;
+		}
+		
+		if(item > 0) {
+			return buildShip(0, item, costsPerTick, testOnly);
+		}
+		return buildShip(ship.getId(), item, costsPerTick, testOnly);
 	}
 	
 	/**
