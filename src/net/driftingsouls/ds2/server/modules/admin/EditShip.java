@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -33,6 +34,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
@@ -43,6 +45,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 @AdminMenuEntry(category = "Schiffe", name = "Schiff editieren")
 public class EditShip implements AdminPlugin
 {
+	@SuppressWarnings("unchecked")
 	public void output(AdminController controller, String page, int action)
 	{
 		Context context = ContextMap.getContext();
@@ -73,6 +76,14 @@ public class EditShip implements AdminPlugin
 			{
 				ship.setOwner(owner);
 			}
+			ShipType type = (ShipType)db.get(ShipType.class, context.getRequest().getParameterInt("type"));
+			if(type != null)
+			{
+				ship.setBaseType(type);
+			}
+			ship.setSystem(context.getRequest().getParameterInt("system"));
+			ship.setX(context.getRequest().getParameterInt("x"));
+			ship.setY(context.getRequest().getParameterInt("y"));
 			ship.setHull(context.getRequest().getParameterInt("hull"));
 			ship.setAblativeArmor(context.getRequest().getParameterInt("ablativearmor"));
 			ship.setShields(context.getRequest().getParameterInt("shields"));
@@ -120,6 +131,14 @@ public class EditShip implements AdminPlugin
 			alarms.put(1, "Rot");
 			
 			
+			Map<Integer, String> shiptypes = new HashMap<Integer, String>();
+			List<ShipType> types = (List<ShipType>)db.createQuery("from ShipType").list();
+			for(ShipType shiptype: types)
+			{
+				shiptypes.put(shiptype.getId(), shiptype.getNickname());
+			}
+			
+			
 			echo.append("<form action=\"./ds\" method=\"post\">");
 			echo.append("<table class=\"noBorder\" width=\"100%\">");
 			echo.append("<input type=\"hidden\" name=\"sess\" value=\"" + context.getSession() + "\" />\n");
@@ -129,6 +148,15 @@ public class EditShip implements AdminPlugin
 			echo.append("<input type=\"hidden\" name=\"shipid\" value=\"" + shipid + "\" />\n");
 			echo.append("<tr><td class=\"noBorderS\">Name: </td><td><input type=\"text\" name=\"name\" value=\"" + ship.getName() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Besitzer: </td><td><input type=\"text\" name=\"owner\" value=\"" + ship.getOwner().getId() + "\"></td><td class=\"noBorderS\">"+ Common._title(ship.getOwner().getNickname()) +"</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">System: </td><td><input type=\"text\" name=\"system\" value=\"" + ship.getSystem() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">x: </td><td><input type=\"text\" name=\"x\" value=\"" + ship.getX() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">y: </td><td><input type=\"text\" name=\"y\" value=\"" + ship.getY() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Schiffstyp: </td><td><select size=\"1\" name=\"type\" \">");
+			for(Map.Entry<Integer, String> shiptype: shiptypes.entrySet())
+			{
+				echo.append("<option value=\""+ shiptype.getKey() +"\" " + (shiptype.getKey().equals(ship.getBaseType().getId()) ? "selected=\"selected\"" : "") + " />"+shiptype.getValue()+"</option>");
+			}
+			echo.append("</select></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Huelle: </td><td><input type=\"text\" name=\"hull\" value=\"" + ship.getHull() + "\"></td><td class=\"noBorderS\">/ "+type.getHull()+"</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Ablative Panzerung: </td><td><input type=\"text\" name=\"ablativearmor\" value=\"" + ship.getAblativeArmor() + "\"></td><td class=\"noBorderS\">/ "+type.getAblativeArmor()+"</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Schilde: </td><td><input type=\"text\" name=\"shields\" value=\"" + ship.getShields() + "\"></td><td class=\"noBorderS\">/ "+type.getShields()+"</td></tr>\n");
