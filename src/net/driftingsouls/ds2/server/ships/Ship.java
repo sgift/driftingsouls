@@ -3330,4 +3330,23 @@ public class Ship implements Loggable,Locatable,Transfering {
 		
 		return false;
 	}
+	
+	/**
+	 * Transfers crew from the ship to an asteroid.
+	 * 
+	 * @param base Base that sends the crew.
+	 * @param amount People that should be transfered.
+	 * @return People that where transfered.
+	 */
+	public int transferCrew(Base base, int amount) {
+		//Check ship position
+		if(base.getSystem() != getSystem() || base.getX() != getX() || base.getY() != getY()) {
+			return 0;
+		}
+		
+		setCrew(getCrew() - amount);
+		base.setBewohner(base.getBewohner() + amount);
+		
+		return amount;
+	}
 }

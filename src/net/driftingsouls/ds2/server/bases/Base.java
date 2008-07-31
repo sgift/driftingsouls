@@ -46,6 +46,7 @@ import net.driftingsouls.ds2.server.cargo.Transfering;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.ships.Ship;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -738,5 +739,30 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	
 	public String transfer(Transfering to, ResourceID resource, long count) {
 		return new Transfer().transfer(this, to, resource, count);
+	}
+	
+	/**
+	 * Transfers crew from the asteroid to a ship.
+	 * 
+	 * @param ship Ship that gets the crew.
+	 * @param amount People that should be transfered.
+	 * @return People that where transfered.
+	 */
+	public int transferCrew(Ship ship, int amount) {
+		//Check ship position
+		if(ship.getSystem() != getSystem() || ship.getX() != getX() || ship.getY() != getY()) {
+			return 0;
+		}
+		
+		//Only workless people can be transfered, when there is enough space on the ship
+		int maxAmount = ship.getTypeData().getCrew() - ship.getCrew();
+		int workless = getBewohner() - getArbeiter();
+		amount = Math.min(amount, maxAmount);
+		amount = Math.min(amount, workless);
+		
+		ship.setCrew(ship.getCrew() + amount);
+		setBewohner(getBewohner() - amount);
+		
+		return amount;
 	}
 }

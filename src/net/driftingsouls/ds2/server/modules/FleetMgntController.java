@@ -27,6 +27,7 @@ import java.util.PriorityQueue;
 import java.util.Set;
 
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
@@ -1056,6 +1057,46 @@ public class FleetMgntController extends TemplateGenerator {
 		this.redirect();
 	}
 	
+	/**
+	 * Transferiert eine bestimmte Menge (in Prozent) an Crew zwischen der Flotte
+	 * und einer den Basen des Spielers
+	 * @urlparam crewinpercent Anzahl der Crew in Prozent (der Maxcrew des Zielschiffes)
+	 */
+	@Action(ActionType.DEFAULT)
+	@SuppressWarnings("unchecked")
+	public void getCrewAction() {
+		org.hibernate.Session db = getDB();
+		User user = (User)getUser();
+		
+		parameterString("crewinpercent");
+		double crewInPercent = getInteger("crewinpercent")/100.0;
+		crewInPercent = Math.min(crewInPercent, 100.0);
+		crewInPercent = Math.max(crewInPercent, 0.0);
+		
+		List<Ship> ships = (List<Ship>)db.createQuery("from Ship where id>0 and owner=? and fleet=? order by id")
+										 .setEntity(0, user)
+										 .setEntity(1, this.fleet)
+										 .list();
+		
+		List<Base> bases = (List<Base>)db.createQuery("from Base where owner=:owner")
+										 .setParameter("owner", user)
+										 .list();
+		
+		for(Ship ship: ships) {
+			int amount = (int)(Math.round((ship.getTypeData().getCrew()*crewInPercent)) - ship.getCrew());
+			for (Base base : bases) {
+				if(amount < 0) {
+					amount -= base.transferCrew(ship, amount);
+				}
+				else {
+					amount += ship.transferCrew(base, Math.abs(amount));
+				}
+			}
+		}
+		
+		this.redirect();
+	}
+	
 	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
@@ -1092,6 +1133,7 @@ public class FleetMgntController extends TemplateGenerator {
 			ShipTypeData shiptype = ship.getTypeData();
 			Location loc = ship.getLocation();
 			
+			//Find shipyards
 			if(shiptype.getWerft() > 0) {
 				WerftObject werft = (WerftObject)db.createQuery("from WerftObject where shipid=?").setInteger(0, ship.getId()).uniqueResult();
 				buildableShips.addAll(werft.getBuildableShips());
@@ -1136,6 +1178,18 @@ public class FleetMgntController extends TemplateGenerator {
 			
 				t.parse("buildableships.list", "buildableships.listitem", true);
 			}
+		}
+		
+		//Find asteroids in sector
+		long asteroidcount = (Long)db.createQuery("select count(id) from Base where system=:system and x=:x and y=:y and owner=:owner")
+									   .setParameter("system", aship.getSystem())
+									   .setParameter("x", aship.getX())
+									   .setParameter("y", aship.getY())
+									   .setParameter("owner", user)
+									   .uniqueResult();
+		
+		if(asteroidcount > 0) {
+			t.setVar("astiinsector", 1);
 		}
 	
 		// Jaegerliste bauen
