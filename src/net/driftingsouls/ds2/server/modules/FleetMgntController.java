@@ -1068,7 +1068,7 @@ public class FleetMgntController extends TemplateGenerator {
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		
-		parameterString("crewinpercent");
+		parameterNumber("crewinpercent");
 		double crewInPercent = getInteger("crewinpercent")/100.0;
 		crewInPercent = Math.min(crewInPercent, 100.0);
 		crewInPercent = Math.max(crewInPercent, 0.0);
