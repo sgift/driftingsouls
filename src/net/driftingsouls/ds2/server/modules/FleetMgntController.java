@@ -1085,7 +1085,7 @@ public class FleetMgntController extends TemplateGenerator {
 		for(Ship ship: ships) {
 			int amount = (int)(Math.round((ship.getTypeData().getCrew()*crewInPercent)) - ship.getCrew());
 			for (Base base : bases) {
-				if(amount < 0) {
+				if(amount > 0) {
 					amount -= base.transferCrew(ship, amount);
 				}
 				else {
