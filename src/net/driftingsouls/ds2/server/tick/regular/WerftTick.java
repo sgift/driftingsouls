@@ -99,9 +99,14 @@ public class WerftTick extends TickController {
 				if( entry.getRequiredItem() > -1 ) {
 					this.log("\tItem benoetigt: "+Items.get().item(entry.getRequiredItem()).getName()+" ("+entry.getRequiredItem()+")");
 				}
-				if( entry.isBuildContPossible() ) {
-					entry.continueBuild();
-					this.log("\tVoraussetzungen erfuellt - bau geht weiter");
+				
+				// Wenn keine volle Crew vorhanden ist, besteht hier die Moeglichkeit, dass nicht weitergebaut wird.
+				double crew_percent = Math.floor(werft.getCrew() / werft.getMaxCrew());
+				if (Math.random() <= crew_percent) {
+					if( entry.isBuildContPossible() ) {
+						entry.continueBuild();
+						this.log("\tVoraussetzungen erfuellt - bau geht weiter");
+					}
 				}
 				
 				if( entry.getRemainingTime() <= 0 ) {
