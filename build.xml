@@ -36,7 +36,10 @@
 	<property name="src.jstarmap"  value="${basedir}/clients/jstarmap"/>
 	<property name="web.home"      value="${basedir}/web"/>
 	<property name="ds2.configdir" value="${basedir}/web/WEB-INF/cfg/"/>
-	<property name="templates.compiledir" value="${src.home}/net/driftingsouls/ds2/server/templates" />
+	<property name="templates.srchome" value="${build.home}/templates"/>
+	<property name="templates.compiledir" value="${templates.srchome}/net/driftingsouls/ds2/server/templates" />
+	<property name="jcsc.home"		value="build-utils/jcsc/"/>
+	<property name="jcsc.report"	value="${build.home}/jcsc-report"/>
 	<property name="jetty.contextpath" value="/driftingsouls"/>
 
 	<!--  ==================== Compilation Control Options ==================== -->
@@ -47,11 +50,9 @@
 
 	<!-- ==================== External Dependencies =========================== -->
 
-
 	<!-- ==================== Compilation Classpath =========================== -->
 
 	<path id="compile.classpath">
-
 		<fileset dir="web/WEB-INF/lib">
 			<include name="*.jar"/>
 		</fileset>
@@ -66,6 +67,8 @@
 			<include name="*.jar"/>
 		</fileset>
 	</path>
+
+	<!-- ================== Custom Ant Task Definitions ======================= -->
 	
 	<!-- ==================== All Target ====================================== -->
 
@@ -93,30 +96,30 @@
 			   debug="${compile.debug}"
 			   deprecation="${compile.deprecation}"
 			   optimize="${compile.optimize}"
-			   source="1.5"
-			   target="1.5"
-				encoding="UTF-8"
-				includes="**/server/framework/**">
+			   source="1.6"
+			   target="1.6"
+			   encoding="UTF-8"
+			   includes="**/server/framework/**">
 			<classpath refid="compile.classpath"/>
 		</javac>		
 	</target>
 	
 	<target name="compile-templates" depends="prepare" description="Compile template sources">
-			<javac srcdir="${src.home}"
+			<javac srcdir="${templates.srchome}"
 				   destdir="${build.home}/WEB-INF/classes"
 				   debug="${compile.debug}"
 				   deprecation="${compile.deprecation}"
 				   optimize="${compile.optimize}"
-				   source="1.5"
-				   target="1.5"
-					encoding="UTF-8"
+				   source="1.6"
+				   target="1.6"
+				   encoding="UTF-8"
 					includes="**/server/templates/**">
 				<classpath refid="compile.classpath"/>
 			</javac>
 	</target>
 	
 	<!-- ==================== Antlr Target ================================== -->
-				
+			
 	<target name="antlr" depends="prepare">
 		<echo>Compiliere Grammatik Role.g</echo>
 		<java classname="org.antlr.Tool" fork="true">
@@ -127,7 +130,7 @@
 	</target>
 	
 	<!-- ==================== compile-ds Target ================================== -->
-		
+	
 	<target name="compile-ds" depends="prepare,antlr" description="Compile template sources">
 		<javac srcdir="${src.home}"
 			   destdir="${build.home}/WEB-INF/classes"
@@ -145,7 +148,7 @@
 	<target name="compile-jstarmap" depends="prepare" description="Compile client jstarmap sources">
 		<mkdir dir="${build.home}/java/jstarmap"/>
 		<mkdir dir="${build.home}/java/jstarmap/classes"/>
-			
+		
 		<javac srcdir="${src.jstarmap}"
 			   destdir="${build.home}/java/jstarmap/classes"
 			   debug="${compile.debug}"
@@ -162,7 +165,7 @@
 	
 	<target name="compile-clients" depends="compile-jstarmap" description="Compile client meta target">
 	</target>
-		
+	
 	<target name="compile" depends="compile-framework,compile-templates,compile-ds,compile-clients" description="Compile meta target">
 	</target>
 	
@@ -227,6 +230,17 @@
 			<arg value="${ds2.configdir}" />
 			<arg value="${basedir}/templates" />
 			<arg value="${templates.compiledir}" />
+			<classpath>
+				<pathelement path="${build.home}/WEB-INF/classes" />
+			</classpath>
+			<classpath refid="compile.classpath" />
+		</java>
+	</target>
+
+	<!-- ==================== Check-Install Target ================================== -->
+		
+	<target name="check-install" depends="prepare,compile">
+		<java classname="net.driftingsouls.ds2.server.install.CheckInstallation" fork="true" dir="${build.home}">
 			<classpath>
 				<pathelement path="${build.home}/WEB-INF/classes" />
 			</classpath>
