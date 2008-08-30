@@ -212,7 +212,7 @@ public class ScanController extends TemplateGenerator {
 	
 		Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(scanLoc));
 		if( !this.admin && (nebel != null) && ((nebel.getType() < 3) || (nebel.getType() > 5)) ) {
-			List nebelships = db.createQuery("from Ship where id>0 and x= :x and y= :y and system= :sys and owner= :owner and sensors>30)")
+			/*List nebelships = db.createQuery("from Ship where id>0 and x= :x and y= :y and system= :sys and owner= :owner and sensors>30)")
 				.setInteger("x", scanLoc.getX())
 				.setInteger("y", scanLoc.getY())
 				.setInteger("sys", scanLoc.getSystem())
@@ -227,7 +227,9 @@ public class ScanController extends TemplateGenerator {
 					scanableNebel = true;
 					break;
 				}
-			}
+			}*/
+			// Wenn kein EMP-Nebel, dann kann man ihn scannen
+			scanableNebel = true;
 		}
 		// Im Admin-Modus sind alle Nebel scanbar
 		else if( this.admin ) {
@@ -409,16 +411,44 @@ public class ScanController extends TemplateGenerator {
 					continue;	
 				}
 				
-				t.setVar(	"ship.id",				ship.getId(),
-							"ship.isown",			(ship.getOwner().getId() == user.getId()),
-							"ship.owner.id",		ship.getOwner().getId(),
-							"ship.name",			Common._plaintitle(ship.getName()),
-							"ship.owner.name",		Common._title(ship.getOwner().getName()),
-							"ship.ownerlink",		(ship.getOwner().getId() != user.getId()),
-							"ship.battle",			ship.getBattle() != null ? ship.getBattle().getId() : 0,
-							"ship.type.name",		shiptype.getNickname(),
-							"ship.type",			ship.getType(),
-							"ship.type.picture",	shiptype.getPicture() );
+				boolean scanable = false;
+				if(nebel != null){
+					int nebeltype = nebel.getType();
+					if( nebeltype == 1 && shiptype.getSize() > 4 ) // leichter Deutnebel
+					{
+						scanable = true;
+					}
+					else if( nebeltype == 0 && shiptype.getSize() > 6 ) // mittlerer Deutnebel
+					{
+						scanable = true;
+					}
+					else if( nebeltype == 2 && shiptype.getSize() > 10 ) // schwerer Deutnebel
+					{
+						scanable = true;
+					}
+					else if( nebeltype == 6 && shiptype.getSize() > 8 ) // Schadensnebel
+					{
+						scanable = true;
+					}
+				}
+				else
+				// kein nebel
+				{
+					scanable = true;
+				}
+				
+				if (scanable){
+					t.setVar(	"ship.id",				ship.getId(),
+								"ship.isown",			(ship.getOwner().getId() == user.getId()),
+								"ship.owner.id",		ship.getOwner().getId(),
+								"ship.name",			Common._plaintitle(ship.getName()),
+								"ship.owner.name",		Common._title(ship.getOwner().getName()),
+								"ship.ownerlink",		(ship.getOwner().getId() != user.getId()),
+								"ship.battle",			ship.getBattle() != null ? ship.getBattle().getId() : 0,
+								"ship.type.name",		shiptype.getNickname(),
+								"ship.type",			ship.getType(),
+								"ship.type.picture",	shiptype.getPicture() );
+				}
 	
 				if( disableIFF ) {
 					t.setVar(	"ship.owner.name",	"Unbekannt",
@@ -513,7 +543,7 @@ public class ScanController extends TemplateGenerator {
 				shipmap.put(loc, new ArrayList<Ship>());
 			}
 			shipmap.get(loc).add(ship);
-
+				
 			if( (ship.getOwner().getId() == user.getId()) && (ship.getSensors()>30) && !ownshipmap.containsKey(loc) ) {			
 				if( ship.getCrew() >= st.getCrew()/4 ) {
 					ownshipmap.put(loc, true);
@@ -605,11 +635,16 @@ public class ScanController extends TemplateGenerator {
 								"map.showsector",	1 );
 	
 					// Nebel
-					if( nebelmap.containsKey(loc) && 
+					/*if( nebelmap.containsKey(loc) && 
 							(!ownshipmap.containsKey(loc) || ((nebelmap.get(loc) >= 3) && (nebelmap.get(loc) <= 5)) ) ) {
 						t.setVar(	"map.image",		"fog"+nebelmap.get(loc)+"/fog"+nebelmap.get(loc),
 									"map.image.name",	"Nebel" );
-					} 
+					} */
+					if (nebelmap.containsKey(loc) && ((nebelmap.get(loc) >=3) && (nebelmap.get(loc) <= 5)))
+					{
+						t.setVar(	"map.image",		"fog"+nebelmap.get(loc)+"/fog"+nebelmap.get(loc),
+								"map.image.name",	"Nebel" );
+					}
 					else {
 						int own = 0;
 						int enemy = 0;
@@ -639,7 +674,28 @@ public class ScanController extends TemplateGenerator {
 									}
 								}
 								else if( (myship.getOwner().getId() != user.getId()) && ( (user.getAlly() == null) || ((user.getAlly() != null) && (myship.getOwner().getAlly() != user.getAlly()) ) )  ) {
-									if( (myship.getDocked().length() == 0) || (myship.getDocked().charAt(0) != 'l') ) {
+									boolean scan = false;
+									if (nebelmap.containsKey(loc))
+									{
+										if (nebelmap.get(loc) == 1 && myship.getTypeData().getSize() > 4) // leichter Deutnebel
+										{
+											scan = true;
+										}else if (nebelmap.get(loc) == 0 && myship.getTypeData().getSize() > 6) // mittlerer Deutnebel
+										{
+											scan = true;
+										}else if (nebelmap.get(loc) == 2 && myship.getTypeData().getSize() > 10) // schwerer Deutnebel
+										{
+											scan = true;
+										}else if (nebelmap.get(loc) == 6 && myship.getTypeData().getSize() > 8) // Schadensnebel
+										{
+											scan = true;
+										}
+									}else
+									{
+										scan = true;
+									}
+									
+									if( ((myship.getDocked().length() == 0) || (myship.getDocked().charAt(0) != 'l')) && scan == true ) {
 										if( enemy == 0 ) {
 											fleet[2] = "_fe";
 										}	
