@@ -78,14 +78,14 @@
 	<!-- ==================== Clean Target ==================================== -->
 
 	<target name="clean" description="Delete old build and dist directories">
-		<delete>
+		<delete failonerror="false">
 			<fileset dir="${build.home}">
 				<exclude name="**/data/**" />
 			</fileset>
 		</delete>
-		<delete dir="${build.home}/WEB-INF" />
-		<delete dir="${dist.home}"/>
-		<delete dir="${templates.compiledir}" />
+		<delete failonerror="false" dir="${build.home}/WEB-INF" />
+		<delete failonerror="false" dir="${dist.home}"/>
+		<delete failonerror="false" dir="${templates.compiledir}" />
 	</target>
 	
 	<!-- ==================== Compile Targets ================================== -->
@@ -236,7 +236,7 @@
 			<classpath refid="compile.classpath" />
 		</java>
 	</target>
-
+	
 	<!-- ==================== Check-Install Target ================================== -->
 		
 	<target name="check-install" depends="prepare,compile">
