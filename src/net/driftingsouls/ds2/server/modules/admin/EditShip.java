@@ -92,6 +92,7 @@ public class EditShip implements AdminPlugin
 			ship.setSensors(context.getRequest().getParameterInt("sensors"));
 			ship.setEngine(context.getRequest().getParameterInt("engine"));
 			ship.setComm(context.getRequest().getParameterInt("comm"));
+			ship.setWeapons(context.getRequest().getParameterInt("weapons"));
 			ship.setHeat(context.getRequest().getParameterInt("heat"));
 			ship.setAlarm(context.getRequest().getParameterInt("alarm"));
 			
@@ -166,6 +167,7 @@ public class EditShip implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">Sensoren: </td><td><input type=\"text\" name=\"sensors\" value=\"" + ship.getSensors() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Antrieb: </td><td><input type=\"text\" name=\"engine\" value=\"" + ship.getEngine() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Kommunikation: </td><td><input type=\"text\" name=\"comm\" value=\"" + ship.getComm() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Waffen: </td><td><input type=\"text\" name=\"weapons\" value=\"" + ship.getWeapons() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Hitze: </td><td><input type=\"text\" name=\"heat\" value=\"" + ship.getHeat() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Alarm: </td><td><select size=\"1\" name=\"alarm\" \">");
 			for(Map.Entry<Integer, String> alarm: alarms.entrySet())
