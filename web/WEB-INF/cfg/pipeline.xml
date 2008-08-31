@@ -102,9 +102,6 @@
 		<module name="kapern">
 			<generator class="net.driftingsouls.ds2.server.modules.KapernController" />
 		</module>
-		<module name="links">
-			<generator class="net.driftingsouls.ds2.server.modules.LinksController" />
-		</module>
 		<module name="logout">
 			<generator class="net.driftingsouls.ds2.server.modules.LogoutController" />
 		</module>
