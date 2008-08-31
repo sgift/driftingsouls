@@ -18,8 +18,6 @@
  */
 package net.driftingsouls.ds2.server.bbcodes;
 
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeFunction;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
@@ -28,26 +26,28 @@ import net.driftingsouls.ds2.server.tasks.Taskmanager;
  * @author Christopher Jung
  *
  */
-public class TagIntrnlConfTask implements BBCodeFunction {
-
-	public String handleMatch(String content, String... values) {
-		Context context = ContextMap.getContext();
-		String sess = context.getSession();
-		
+public class TagIntrnlConfTask implements BBCodeFunction
+{
+	public String handleMatch(String content, String... values)
+	{
 		String taskid = values[0];
 		StringBuilder str = new StringBuilder(100);
-		
-		if( Taskmanager.getInstance().getTaskByID( taskid ) != null ) {	
+
+		if( Taskmanager.getInstance().getTaskByID(taskid) != null )
+		{
 			str.append("<div align=\"center\">");
 			str.append("<table class=\"noBorderX\" width=\"500\"><tr><td class=\"BorderX\" align=\"center\">");
 			str.append(content);
 			str.append("<br />");
-			str.append("<a class=\"ok\" target=\"main\" href=\"./ds?module=comm&sess="+sess+"&action=send&to=task&title="+taskid+"&msg=handletm\">ja</a> - ");
-			str.append("<a class=\"error\" target=\"main\" href=\"./ds?module=comm&sess="+sess+"&action=send&to=task&title="+taskid+"&msg=dismiss\">nein</a>");
+			str.append("<a class=\"ok\" target=\"main\" href=\"./ds?module=comm&action=send&to=task&title="
+					+ taskid + "&msg=handletm\">ja</a> - ");
+			str.append("<a class=\"error\" target=\"main\" href=\"./ds?module=comm&action=send&to=task&title="
+					+ taskid + "&msg=dismiss\">nein</a>");
 			str.append("</td></tr></table>");
 			str.append("</div>");
 		}
-		else {
+		else
+		{
 			str.append("<div align=\"center\">");
 			str.append("<table class=\"noBorderX\" width=\"500\"><tr><td class=\"BorderX\" align=\"center\">");
 			str.append(content);

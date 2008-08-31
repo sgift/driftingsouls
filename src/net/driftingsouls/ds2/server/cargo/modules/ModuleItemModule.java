@@ -27,7 +27,6 @@ import net.driftingsouls.ds2.server.config.items.Items;
 import net.driftingsouls.ds2.server.config.items.effects.IEModule;
 import net.driftingsouls.ds2.server.config.items.effects.IEModuleSetMeta;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.ships.ShipTypeChangeset;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -121,7 +120,7 @@ public class ModuleItemModule extends Module implements Loggable {
 	
 	@Override
 	public String getName() {
-		return "<a class=\"forschinfo\" href=\"./ds?module=iteminfo&amp;sess="+ContextMap.getContext().getSession()+"&amp;action=details&amp;item="+this.itemid+"\">"+Items.get().item(this.itemid).getName()+"</a>";
+		return "<a class=\"forschinfo\" href=\"./ds?module=iteminfo&amp;action=details&amp;item="+this.itemid+"\">"+Items.get().item(this.itemid).getName()+"</a>";
 	}
 	
 	/**

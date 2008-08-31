@@ -598,11 +598,6 @@ public class Cargo implements Loggable, Cloneable {
 	 */
 	public ResourceList getResourceList() {
 		ResourceList reslist = new ResourceList();
-		String sess = "";
-		if( !nohtml ) {
-			Context context = ContextMap.getContext();
-			sess = context.getSession();
-		}
 		
 		for( int i=0; i <= MAX_RES; i++ ) {
 			if( i == Resources.ITEMS.getID() ) continue;
@@ -674,8 +669,8 @@ public class Cargo implements Loggable, Cloneable {
 						tooltiptext += "&lt;br /&gt;&lt;span class=\\'verysmallfont\\'&gt;Benutzungen: "+item[2]+"&lt;/span&gt;";
 					}
 					
-					name = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;sess="+sess+"&amp;itemlist="+buildItemID(item)+"\">"+name+"</a>";				
-					fcount = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;sess="+sess+"&amp;itemlist="+buildItemID(item)+"\">"+fcount+"</a>";
+					name = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+buildItemID(item)+"\">"+name+"</a>";				
+					fcount = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+buildItemID(item)+"\">"+fcount+"</a>";
 				}
 				else {
 					if( item[3] != 0 ) {

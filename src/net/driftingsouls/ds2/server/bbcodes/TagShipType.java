@@ -19,28 +19,32 @@
 package net.driftingsouls.ds2.server.bbcodes;
 
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeFunction;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
  * BBCode fuer Schiffstypen
+ * 
  * @author Christopher Jung
- *
+ * 
  */
-public class TagShipType implements BBCodeFunction {
+public class TagShipType implements BBCodeFunction
+{
 
-	public String handleMatch(String content, String... values) {
-		Context context = ContextMap.getContext();
+	public String handleMatch(String content, String... values)
+	{
 		String url = Configuration.getSetting("URL");
-	
-		url += "ds?module=schiffinfo&sess="+context.getSession()+"&ship="+content;
-	
-		SQLResultRow shiptype = ShipTypes.getShipType(Integer.parseInt(content), false);
 
-	 	return "<a target=\"main\" onmouseover=\"return overlib('"+shiptype.getString("nickname")+"',TIMEOUT,0,DELAY,400,WIDTH,150);\" onmouseout=\"return nd();\" class=\"noborder\" href=\""+url+"\"><img align=\"middle\" border=\"0\" src=\""+shiptype.getString("picture")+"\" alt=\"\" /></a>";
+		url += "ds?module=schiffinfo&ship=" + content;
+
+		ShipTypeData shiptype = Ship.getShipType(Integer.parseInt(content));
+
+		return "<a target=\"main\" onmouseover=\"return overlib('"
+				+ shiptype.getNickname()
+				+ "',TIMEOUT,0,DELAY,400,WIDTH,150);\" onmouseout=\"return nd();\" class=\"noborder\" href=\""
+				+ url + "\"><img align=\"middle\" border=\"0\" src=\"" + shiptype.getPicture()
+				+ "\" alt=\"\" /></a>";
 	}
 
 }
