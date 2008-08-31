@@ -144,6 +144,9 @@
 		<module name="schiffinfo">
 			<generator class="net.driftingsouls.ds2.server.modules.SchiffInfoController" />
 		</module>
+		<module name="search">
+			<generator class="net.driftingsouls.ds2.server.modules.SearchController" />
+		</module>
 		<module name="stats">
 			<generator class="net.driftingsouls.ds2.server.modules.StatsController" />
 		</module>

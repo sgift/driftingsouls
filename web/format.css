@@ -16,7 +16,7 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-body 	{background-color: #000000; color: white; font-family: arial, helvetica; margin-left:5px; }
+body 	{background-color: #000000; color: white; font-family: arial, helvetica; }
 
 hr 		{color: white;}
 
@@ -134,10 +134,10 @@ a.back:visited		{color: green; text-decoration: none;}
 a.back:hover		{color: #F0A000; text-decoration: none;}
 a.back:active		{color: green; text-decoration: none;}
 
-a.ok:link			{color: green; text-decoration: none; font-weight:bold; }
-a.ok:visited		{color: green; text-decoration: none; font-weight:bold; }
-a.ok:hover			{color: #F0A000; text-decoration: none; font-weight:bold; }
-a.ok:active			{color: green; text-decoration: none; font-weight:bold; }
+a.ok:link			{color: green; text-decoration: normal; font-weight:bold; }
+a.ok:visited		{color: green; text-decoration: normal; font-weight:bold; }
+a.ok:hover			{color: #F0A000; text-decoration: normal; font-weight:bold; }
+a.ok:active			{color: green; text-decoration: normal; font-weight:bold; }
 
 a.error:link		{color: #E00000; text-decoration: none; font-weight:bold;}
 a.error:visited		{color: #E00000; text-decoration: none; font-weight:bold;}

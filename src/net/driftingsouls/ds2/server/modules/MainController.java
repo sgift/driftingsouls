@@ -18,20 +18,28 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.util.Iterator;
+import java.util.List;
+
+import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.entities.GuiHelpText;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.BasicUser;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
  * Das Hauptframe von DS
  * @author Christopher Jung
  *
  */
-public class MainController extends DSGenerator {
+public class MainController extends TemplateGenerator {
+	private static final String SCRIPT_FORUM = "http://forum.drifting-souls.net/phpbb3/";
 
 	/**
 	 * Konstruktor
@@ -39,64 +47,95 @@ public class MainController extends DSGenerator {
 	 */
 	public MainController(Context context) {
 		super(context);
+		
+		this.setTemplate("main.html");
+		setDisableDefaultCSS(true);
+		setDisableDebugOutput(true);
 	}
 
 	@Override
 	protected boolean validateAndPrepare(String action) {
+		getTemplateEngine().setVar("SCRIPT_FORUM", SCRIPT_FORUM);
+		
 		return true;
 	}
-
-	@Override
-	protected void printHeader( String action ) {	
-		StringBuffer out = getContext().getResponse().getContent();
-		out.append("<head>\n");
-		out.append("<title>Drifting Souls 2</title>\n");
-		out.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
-		out.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+Configuration.getSetting("URL")+"format.css\" />\n");
-		out.append("</head>\n");
+	
+	/**
+	 * Prueft, ob der Spieler eine neue PM hat, welche noch nicht gelesen wurde
+	 *
+	 */
+	@Action(ActionType.AJAX)
+	public void hasNewPmAjaxAct() {
+		User user = (User)this.getUser();
+		org.hibernate.Session db = getDB();
+		
+		int pmcount = ((Number)db.createQuery("select count(*) from PM where empfaenger= :user and gelesen=0")
+			.setEntity("user", user)
+			.iterate().next()).intValue();
+		if( pmcount > 0 ) {
+			getResponse().getContent().append("1");
+		}
+		else {
+			getResponse().getContent().append("0");
+		}
 	}
-
-
-	@Override
-	protected void printFooter(String action) {
+	
+	/**
+	 * Gibt zu einer Seite den Hilfetext zurueck
+	 *
+	 */
+	@Action(ActionType.AJAX)
+	public void getHelpText() {
+		org.hibernate.Session db = getDB();
+		parameterString("page");
+		
+		final String page = getString("page");
+		
+		GuiHelpText text = (GuiHelpText)db.get(GuiHelpText.class, page);
+		
+		if( text != null ) {
+			getResponse().getContent().append(Common._text(text.getText()));
+		}
 	}
 	
 	/**
 	 * Generiert das Hauptframe
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		User user = (User)getUser();
-		StringBuffer out = getContext().getResponse().getContent();
+		TemplateEngine t = getTemplateEngine();
+		org.hibernate.Session db = getDB();
 		
 		if( !user.getUserImagePath().equals(BasicUser.getDefaultImagePath()) ) {
 			parameterNumber("gfxpakversion");
 			int gfxpakversion = getInteger("gfxpakversion");
-			
-			if( (gfxpakversion != 0) && (gfxpakversion != Configuration.getIntSetting("GFXPAK_VERSION")) ) {	
-				out.append("<script type=\"text/javascript\">\n");
-				out.append("<!--\n");
-				out.append("alert('Die von ihnen verwendete Version des Grafikpaks ist veraltet. Die Benutzung des Grafikpaks wurde daher deaktiviert.\nBitte laden sie sich die neuste Version des Grafikpaks herunter!')\n");
-				out.append("// -->\n");
-				out.append("</script>\n");
+			if( (gfxpakversion != 0) && (gfxpakversion != Configuration.getIntSetting("GFXPAK_VERSION")) ) {
+				t.setVar("show.gfxpakwarning", true);
 			}
 		}
-	
-		if( Integer.parseInt(user.getUserValue("TBLORDER/admin/show_cmdline")) != 0 ) {
-			out.append("<frameset cols=\"182,*\" framespacing=\"0\" border=\"0\" frameborder=\"0\">\n");
-			out.append("<frame src=\"./ds?sess="+getString("sess")+"&amp;module=links\" id=\"_framenavi\" name=\"navi\" frameborder=\"0\" />\n");
-			out.append("<frameset rows=\"*,75\" framespacing=\"0\" border=\"0\" frameborder=\"0\">\n");
-			out.append("<frame src=\"./ds?sess="+getString("sess")+"&amp;module=ueber\" id=\"_framemain\" name=\"main\" scrolling=\"auto\" frameborder=\"0\" />\n");
-			out.append("<frame src=\"./ds?sess="+getString("sess")+"&amp;module=admin&amp;namedplugin=net.driftingsouls.ds2.server.modules.admin.AdminConsole&amp;cleanpage=1\" id=\"_frameconsole\" name=\"console\" scrolling=\"auto\" frameborder=\"0\" />\n");
-			out.append("</frameset>\n");
-			out.append("</frameset>\n");
-		}
-		else {
-			out.append("<frameset cols=\"182,*\" framespacing=\"0\" border=\"0\" frameborder=\"0\">\n");
-			out.append("<frame src=\"./ds?sess="+getString("sess")+"&amp;module=links\" id=\"_framenavi\" name=\"navi\" frameborder=\"0\" />\n");
-			out.append("<frame src=\"./ds?sess="+getString("sess")+"&amp;module=ueber\" id=\"_framemain\" name=\"main\" scrolling=\"auto\" frameborder=\"0\" />\n");
-			out.append("</frameset>\n");
+		
+		t.setVar(
+				"user.npc"		, user.hasFlag( User.FLAG_ORDER_MENU ),
+				"user.admin"	, (user.getAccessLevel() >= 30),
+				"admin.showconsole",	user.getUserValue("TBLORDER/admin/show_cmdline"));
+		
+		t.setBlock("_MAIN", "bases.listitem", "bases.list");
+		
+		List baseList = db.createQuery("from Base where owner= :user order by system,x,y")
+			.setEntity("user", user)
+			.list();
+		for( Iterator iter=baseList.iterator(); iter.hasNext(); ) {
+			Base base = (Base)iter.next();
+			
+			t.setVar(
+					"base.id",	base.getId(),
+					"base.name",	base.getName(),
+					"base.klasse",	base.getKlasse(),
+					"base.location",	base.getLocation());
+			
+			t.parse("bases.list", "bases.listitem", true);
 		}
 	}
 }
