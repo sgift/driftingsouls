@@ -127,14 +127,14 @@ public class SectorTemplateManager {
 			int newy = location.getY() + ship.getInt("y") - res.getInt("y");
 			
 			db.update("INSERT INTO ships ", 
-					" (owner,x,y,system,name,type,cargo,status,crew,e,s,hull,shields,heat,engine,weapons,comm,sensors,docked,alarm,destx,desty,destsystem,destcom,bookmark,jumptarget,autodeut,history) ",
+					" (owner,x,y,system,name,type,cargo,status,crew,e,s,hull,shields,heat,engine,weapons,comm,sensors,docked,alarm,destx,desty,destsystem,destcom,bookmark,jumptarget,autodeut,history, ablativeArmor) ",
 					" VALUES ",
 					" ('",owner,"','",newx,"','",newy,"','",location.getSystem(),"','",ship.get("name"),"','",ship.getInt("type"),"','",ship.getString("cargo"),"','",ship.get("status"),"', ",
 					 " '",ship.getInt("crew"),"','",ship.getInt("e"),"','",ship.getInt("s"),"','",ship.getInt("hull"),"','",ship.getInt("shields"),"', ",
 					 " '",ship.getString("heat"),"','",ship.getInt("engine"),"','",ship.getInt("weapons"),"','",ship.getInt("comm"),"', ",
 					 " '",ship.getInt("sensors"),"','','",ship.getInt("alarm"),"', ",
 					 " '",ship.getInt("destx"),"','",ship.getInt("desty"),"','",ship.getInt("destsystem"),"','",ship.getString("destcom"),"', ",
-					 " '",ship.getInt("bookmark"),"','",ship.get("jumptarget"),"','",ship.getInt("autodeut"),"','",ship.getString("history"),"')");
+					 " '",ship.getInt("bookmark"),"','",ship.get("jumptarget"),"','",ship.getInt("autodeut"),"','",ship.getString("history"),"','",ship.getString("ablativeArmor"),"')");
 			int shipid = db.insertID();
 			
 			idtable.put(ship.getInt("id"), shipid);
@@ -155,10 +155,10 @@ public class SectorTemplateManager {
 				db.update("INSERT INTO ships_modules " ,
 						"(id,modules,nickname,picture,ru,rd,ra,rm," ,
 						"eps,cost,hull,panzerung,cargo,heat,crew,weapons,maxheat,torpedodef," ,
-						"shields,size,jdocks,adocks,sensorrange,hydro,deutfactor,recost,flags,werft,ow_werft) VALUES " ,
+						"shields,size,jdocks,adocks,sensorrange,hydro,deutfactor,recost,flags,werft,ow_werft,ablativeArmor) VALUES " ,
 						"('",shipid,",'",modules.get("modules"),"','",modules.get("nickname"),"','",modules.get("picture"),"','",modules.get("ru"),"','",modules.get("rd"),"','",modules.get("ra"),"','",modules.get("rm"),"'," ,
 						"'",modules.get("eps"),"','",modules.get("cost"),"','",modules.get("hull"),"','",modules.get("panzerung"),"','",modules.get("cargo"),"','",modules.get("heat"),"','",modules.get("crew"),"','",modules.get("weapons"),"','",modules.get("maxheat"),"','",modules.get("torpedodef"),"'," ,
-						"'",modules.get("shields"),"','",modules.get("size"),"','",modules.get("jdocks"),"','",modules.get("adocks"),"','",modules.get("sensorrange"),"','",modules.get("hydro"),"','",modules.get("deutfactor"),"','",modules.get("recost"),"','",modules.get("flags"),"','",modules.get("werft"),"','",modules.get("ow_werft"),"')");
+						"'",modules.get("shields"),"','",modules.get("size"),"','",modules.get("jdocks"),"','",modules.get("adocks"),"','",modules.get("sensorrange"),"','",modules.get("hydro"),"','",modules.get("deutfactor"),"','",modules.get("recost"),"','",modules.get("flags"),"','",modules.get("werft"),"','",modules.get("ow_werft"),"','",modules.get("ablativeArmor"),"')");
 			}
 		}
 		ship.free();
@@ -168,7 +168,7 @@ public class SectorTemplateManager {
 		for( DockEntry dock : docked ) {
 			int masterid = -1;
 			if( dock.docked.charAt(0) == 'l' ) {
-				String split[] = dock.docked.split(" ");
+				String[] split = dock.docked.split(" ");
 				masterid = Integer.parseInt(split[1]);
 				landed = true;	
 			}	
