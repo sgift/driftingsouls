@@ -19,14 +19,14 @@
 package net.driftingsouls.ds2.server.uilibs;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 
 /**
  * Die Spielerliste
@@ -46,7 +46,7 @@ public class PlayerList {
 				0;
 				
 		User user = (User)context.getActiveUser();
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		
 		String show = "";
 		if( context.getRequest().getParameter("show") != null ) {
@@ -90,52 +90,49 @@ public class PlayerList {
 			echo.append("<td class=\"noBorderX\" align=\"center\">Schiffe</td>\n");
 		}
 		echo.append("</tr>\n");
-		
-		HashMap<Integer,String> allys = new HashMap<Integer,String>();
-		SQLQuery allyQuery = db.query( "SELECT id,name FROM ally" );
-		while( allyQuery.next() ) {
-			allys.put(allyQuery.getInt("id"), allyQuery.getString("name"));
-		}
-		allyQuery.free();
-		
+			
 		HashMap<Integer,Integer> asticount = null;
 		HashMap<Integer,Integer> shipcount = null;
 		
 		String query = "";
 		if( (user == null) || user.getAccessLevel() <= 20 ) {
-			query = "SELECT t1.id FROM users t1 WHERE !LOCATE('hide',t1.flags) ORDER BY ";
+			query = "select u from User u left join fetch u.ally a where locate('hide',u.flags)=0 order by ";
 		}
 		else {
 			// Asteroiden/Schiffe zaehlen
 			asticount = new HashMap<Integer,Integer>();
 			shipcount = new HashMap<Integer,Integer>();
 			
-			SQLQuery basecount = db.query("SELECT owner,count(*) basecount FROM bases GROUP BY owner");
-			while( basecount.next() ) {
-				asticount.put(basecount.getInt("owner"), basecount.getInt("basecount"));
+			List basecounts = db.createQuery("select owner,count(*) from Base group by owner").list();
+			for( Iterator iter=basecounts.iterator(); iter.hasNext(); ) {
+				final Object[] data = (Object[])iter.next();
+				final User owner = (User)data[0];
+				final Number count = (Number)data[1];
+				asticount.put(owner.getId(), count.intValue());
 			}
-			basecount.free();
 			
-			SQLQuery scount = db.query("SELECT owner,count(*) basecount FROM ships GROUP BY owner");
-			while( scount.next() ) {
-				shipcount.put(scount.getInt("owner"), scount.getInt("basecount"));
+			List shipcounts = db.createQuery("select owner,count(*) from Ship group by owner").list();
+			for( Iterator iter=shipcounts.iterator(); iter.hasNext(); ) {
+				final Object[] data = (Object[])iter.next();
+				final User owner = (User)data[0];
+				final Number count = (Number)data[1];
+				shipcount.put(owner.getId(), count.intValue());
 			}
-			scount.free();
 			
-			query = "SELECT t1.id FROM users t1 ORDER BY ";
+			query = "select u from User u left join fetch u.ally a order by ";
 		}
 		
 		if( (ord == null) || "".equals(ord) ) {
-			query += "t1.id";
+			query += "u.id";
 		} 
 		else if( "id".equals(ord) || "name".equals("ord") || "race".equals(ord) || "signup".equals(ord) || "ally".equals(ord) ) {
-			query += "t1."+ord;
+			query += "u."+ord;
 		} 
 		else if( "inakt".equals(ord) && (user != null) && (user.getAccessLevel() > 20) ) {
-			query += "t1.inakt";
+			query += "u.inakt";
 		} 
 		else {
-			query += "t1.id";
+			query += "u.id";
 		}
 		
 		User.Relations relationlist = null;
@@ -143,9 +140,8 @@ public class PlayerList {
 			relationlist = user.getRelations();
 		}
 		
-		SQLQuery userQuery = db.query(query);
-		while( userQuery.next() ) {
-			User aUser = (User)context.getDB().get(User.class, userQuery.getInt("id"));
+		List<User> userlist = context.query(query, User.class);
+		for( User aUser : userlist ) {
 			String race = "???";
 			if( Rassen.get().rasse(aUser.getRace()) != null ) {
 				race = Rassen.get().rasse(aUser.getRace()).getName();
@@ -154,10 +150,10 @@ public class PlayerList {
 			String ally = "&nbsp;";
 			if( aUser.getAlly() != null ) {
 				if( user != null ) {
-					ally = "<a class=\"profile\" href=\""+Common.buildUrl("details", "module", "allylist", "details", aUser.getAlly().getId()) +"\">"+Common._title(allys.get(aUser.getAlly().getId()))+"</a>";
+					ally = "<a class=\"profile\" href=\""+Common.buildUrl("details", "module", "allylist", "details", aUser.getAlly().getId()) +"\">"+Common._title(aUser.getAlly().getName())+"</a>";
 				}
 				else {
-					ally = Common._title(allys.get(aUser.getAlly().getId()));
+					ally = Common._title(aUser.getAlly().getName());
 				}
 			} 
 			
@@ -253,7 +249,6 @@ public class PlayerList {
 			
 			echo.append("</tr>\n");
 		}
-		userQuery.free();
 		
 		echo.append("</table>\n");
 	}
