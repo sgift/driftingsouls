@@ -131,6 +131,10 @@ public class Systems implements Iterable<StarSystem>,Loggable {
 				systemList.addSystem(system);
 			}
 		}
+		catch(RuntimeException e)
+		{
+			throw e;
+		}
 		catch( Exception e ) {
 			LOG.fatal("FAILED: Kann Rassen nicht laden",e);
 		}

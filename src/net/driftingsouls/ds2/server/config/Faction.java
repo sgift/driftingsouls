@@ -22,12 +22,12 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 
 /**
  * Klasse mit Konfigurationsdaten zu den einzelnen Fraktionen
