@@ -38,8 +38,6 @@
 	<property name="ds2.configdir" value="${basedir}/web/WEB-INF/cfg/"/>
 	<property name="templates.srchome" value="${build.home}/templates"/>
 	<property name="templates.compiledir" value="${templates.srchome}/net/driftingsouls/ds2/server/templates" />
-	<property name="jcsc.home"		value="build-utils/jcsc/"/>
-	<property name="jcsc.report"	value="${build.home}/jcsc-report"/>
 	<property name="jetty.contextpath" value="/driftingsouls"/>
 
 	<!--  ==================== Compilation Control Options ==================== -->
