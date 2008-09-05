@@ -226,18 +226,11 @@ public class AllyListController extends TemplateGenerator {
 
 		User presi = ally.getPresident();
 	
-		t.setVar(	"ally.id",				ally.getId(), 
+		t.setVar(	"ally",					ally,
 					"ally.name",			Common._title(ally.getName()),
 					"ally.description",		Common._text(ally.getDescription()),
-					"ally.founded",			ally.getFounded(),
-					"ally.wonBattles",		ally.getWonBattles(),
-					"ally.lostBattles",		ally.getLostBattles(),
-					"ally.destroyedShips",	ally.getDestroyedShips(),
-					"ally.lostShips",		ally.getLostShips(),
-					"ally.membercount",		ally.getMemberCount(),
 					"ally.items.list",		"",
 					"ally.pname",			Common._plaintitle(ally.getPname()),
-					"ally.president.id",	presi.getId(),
 					"ally.president.name",	Common._title(presi.getName()),
 					"ally.minister.list",	"",
 					"ally.addmembers.list",	"" );
@@ -303,7 +296,7 @@ public class AllyListController extends TemplateGenerator {
 				name += " <a class=\"forschinfo\" target=\"_blank\" href=\""+ally.getHp()+"\">[HP]</a>";
 			}
 		
-			t.setVar(	"allylist.ally.id",		ally.getId(),
+			t.setVar(	"allylist.ally",		ally,
 						"allylist.ally.name",	name );
 								
 			t.parse( "allylist.ally.list", "allylist.ally.listitem", true );
