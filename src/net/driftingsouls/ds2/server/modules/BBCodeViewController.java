@@ -77,8 +77,8 @@ public class BBCodeViewController extends TemplateGenerator {
 	/**
 	 * Anzeigen der BBCode-Liste
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction(){
 		TemplateEngine t = getTemplateEngine();
 

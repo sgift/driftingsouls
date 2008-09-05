@@ -57,6 +57,8 @@ public class SurveyController extends TemplateGenerator {
 		super(context);
 		
 		setTemplate("survey.html");	
+		
+		setPageTitle("Umfrage");
 	}
 	
 	@Override
@@ -152,8 +154,8 @@ public class SurveyController extends TemplateGenerator {
 	 * Zeigt die Umfrage an
 	 * 
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
 		Database db = getDatabase();

@@ -29,8 +29,8 @@ public class PListController extends DSGenerator {
 		return true;
 	}
 	
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		parameterNumber("compopup");
 		

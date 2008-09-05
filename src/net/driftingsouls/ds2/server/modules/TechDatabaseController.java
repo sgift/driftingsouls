@@ -84,8 +84,8 @@ public class TechDatabaseController extends TemplateGenerator {
 	/**
 	 * Zeigt das Frameset an
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		getTemplateEngine().setVar( "show.frame", 1 );
 	}
