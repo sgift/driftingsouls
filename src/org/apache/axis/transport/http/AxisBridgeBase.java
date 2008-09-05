@@ -19,7 +19,6 @@ package org.apache.axis.transport.http;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +33,6 @@ import org.apache.axis.AxisFault;
 import org.apache.axis.AxisProperties;
 import org.apache.axis.EngineConfiguration;
 import org.apache.axis.components.logger.LogFactory;
-import org.apache.axis.configuration.EngineConfigurationFactoryFinder;
 import org.apache.axis.configuration.FileProvider;
 import org.apache.axis.server.AxisServer;
 import org.apache.axis.utils.JavaUtils;
