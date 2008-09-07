@@ -1818,14 +1818,14 @@ public class ErsteigernController extends TemplateGenerator {
 			boolean wantsUpgrade = false;
 			for(UpgradeInfo info: infos)
 			{
-				if(base.getMaxTiles() + info.getMod() > maxvalues.getMaxTiles())
+				if( !info.getCargo() && (base.getMaxTiles() + info.getMod() > maxvalues.getMaxTiles()) )
 				{
 					addError("Der Asteroid hat zuviele Felder nach diesem Ausbau");
 					redirect();
 					return;
 				}
 
-				if(base.getMaxCargo() + info.getMod() > maxvalues.getMaxCargo())
+				if( info.getCargo() && (base.getMaxCargo() + info.getMod() > maxvalues.getMaxCargo()) )
 				{
 					addError("Der Asteroid hat zuviel Lagerraum nach diesem Ausbau.");
 					redirect();
