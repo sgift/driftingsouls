@@ -18,24 +18,15 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.framework.BasicUser;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-
-import org.apache.commons.lang.StringUtils;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * Diverse Funktionen rund um Schiffstypen
@@ -212,28 +203,6 @@ public class ShipTypes implements Loggable {
 	}
 	
 	/**
-	 * Gibt die Liste aller Flags zurueck, ueber die der angegebene
-	 * Schiffstyp verfuegt
-	 * @param shiptypeID Die ID des Schiffstyps
-	 * @return Die Liste der Flags
-	 */
-	public static String[] getShipTypeFlagList(int shiptypeID) {
-		SQLResultRow shiptype = ShipTypes.getShipType(shiptypeID, false);
-		
-		return getShipTypeFlagList(shiptype);
-	}
-	
-	/**
-	 * Gibt die Liste aller Flags zurueck, ueber die der angegebene
-	 * Schiffstyp verfuegt
-	 * @param shiptype Die Daten des Schiffstyps
-	 * @return Die Liste der Flags
-	 */
-	public static String[] getShipTypeFlagList(SQLResultRow shiptype) {
-		return StringUtils.split( shiptype.getString("flags"), ' ');
-	}
-	
-	/**
 	 * Testet, ob ein Schiffstyp ein bestimmtes Schiffstypen-Flag (SF_*) hat
 	 * @param shiptype Schiffstypenarray
 	 * @param flag Das Schiffstypen-Flag (SF_*)
@@ -246,95 +215,7 @@ public class ShipTypes implements Loggable {
 		}
 		return false;
 	}
-
-	/**
-	 * Liesst ein Aenderungsset fuer Schiffstypen aus einem XML-Knoten aus
-	 * @param node Der XML-Knoten
-	 * @return Die Schiffstypen-Aenderungen
-	 */
-	public static SQLResultRow getTypeChangeSetFromXML(Node node) {
-		final String NAMESPACE = "http://www.drifting-souls.net/ds2/shipdata/2006";
 	
-		SQLResultRow row = new SQLResultRow();
-		NodeList nodes = node.getChildNodes();
-		for( int i=0; i < nodes.getLength(); i++ ) {
-			if( nodes.item(i).getNodeType() != Node.ELEMENT_NODE ) {
-				continue;
-			}
-			Element item = (Element)nodes.item(i);
-	
-			if( !item.getNamespaceURI().equals(NAMESPACE) ) {
-				LOG.warn("Ungueltige XML-Namespace im ShipType-Changeset");
-				continue;
-			}
-			
-			String name = item.getLocalName();
-			if( name.equals("weapons") ) {
-				Map<String,Integer[]> wpnList = new HashMap<String,Integer[]>();
-				NodeList weapons = item.getChildNodes();
-				for( int j=0; j < weapons.getLength(); j++ ) {
-					if( (weapons.item(j).getNodeType() != Node.ELEMENT_NODE) ||
-							!("weapon").equals(weapons.item(j).getLocalName())) {
-						continue;
-					}
-					String wpnName = weapons.item(j).getAttributes().getNamedItem("name").getNodeValue();
-					Integer wpnMaxHeat = new Integer(weapons.item(j).getAttributes().getNamedItem("maxheat").getNodeValue());
-					Integer wpnCount = new Integer(weapons.item(j).getAttributes().getNamedItem("count").getNodeValue());
-					wpnList.put(wpnName, new Integer[] {wpnCount, wpnMaxHeat});
-				}
-				row.put("weapons", wpnList);
-			}
-			else if( name.equals("maxheat") ) {
-				Map<String,Integer> heatList = new HashMap<String,Integer>();
-				NodeList heats = item.getChildNodes();
-				for( int j=0; j < heats.getLength(); j++ ) {
-					if( (heats.item(j).getNodeType() != Node.ELEMENT_NODE) ||
-						!("weapon").equals(heats.item(j).getLocalName())) {
-						continue;
-					}
-					String wpnName = heats.item(j).getAttributes().getNamedItem("name").getNodeValue();
-					Integer wpnMaxHeat = new Integer(heats.item(j).getAttributes().getNamedItem("maxheat").getNodeValue());
-					heatList.put(wpnName, wpnMaxHeat);
-				}
-				row.put("maxheat", heatList);
-			}
-			else if( name.equals("flags") ) {
-				List<String> flagList = new ArrayList<String>();
-				NodeList flags = item.getChildNodes();
-				for( int j=0; j < flags.getLength(); j++ ) {
-					if( (flags.item(j).getNodeType() != Node.ELEMENT_NODE) ||
-						!("set").equals(flags.item(j).getLocalName())) {
-						continue;
-					}
-					flagList.add(flags.item(j).getAttributes().getNamedItem("name").getNodeValue());
-				}
-				row.put("flags", Common.implode(" ", flagList));
-			}
-			else {
-				String value = item.getAttribute("value");
-				if( value == null ) {
-					continue;
-				}
-				try {
-					row.put(name, Long.parseLong(value));
-				}
-				catch(NumberFormatException e) {
-					// EMPTY
-				}
-				
-				try {
-					row.put(name, Double.parseDouble(value));
-				}
-				catch(NumberFormatException e) {
-					// EMPTY
-				}
-				
-				row.put(name, value);
-			}
-		}
-		return row;
-	}
-
 	/**
 	 * Gibt die zu einer Schiffsklassen-ID gehoerende Schiffsklasse
 	 * zurueck
@@ -359,16 +240,6 @@ public class ShipTypes implements Loggable {
 		}
 		
 		return picture;
-	}
-
-	/**
-	 * Gibt die Typen-Daten des angegebenen Schiffs bzw Schifftyps zurueck 
-	 * @param shiptype Die ID des Schiffs bzw des Schifftyps
-	 * @param isShip Handelt es sich um ein Schiff (<code>true</code>)?
-	 * @return die Typen-Daten
-	 */
-	public static SQLResultRow getShipType( int shiptype, boolean isShip ) {
-		return getShipType(shiptype, isShip, false);
 	}
 
 	/**
@@ -490,30 +361,4 @@ public class ShipTypes implements Loggable {
 		
 		return type;
 	}
-
-	/**
-	 * Liesst die Schiffstypen mit der angegebenen ID aus der Datenbank aus und legt sie im Cache ab
-	 * @param shiptypelist Die Liste der zu cachenden Schiffstypen
-	 */
-	public static void cacheShipTypes(int[] shiptypelist) {
-		List<Integer> tmptypelist = new ArrayList<Integer>();
-		
-		synchronized(shiptypes) {
-			for( int i=0; i < shiptypelist.length; i++ ) {
-				if( !shiptypes.containsKey(shiptypelist[i]) ) {
-					tmptypelist.add(shiptypelist[i]);
-				}
-			}
-		
-			if( tmptypelist.size() > 0 ) {
-				Database db = ContextMap.getContext().getDatabase();
-				SQLQuery shiptype = db.query("SELECT *,LOCATE('=',weapons) AS military FROM ship_types WHERE id IN (",Common.implode(",",tmptypelist),")");
-				while( shiptype.next() ) {
-					shiptypes.put(shiptype.getInt("id"), shiptype.getRow());
-				}
-				shiptype.free();
-			}
-		}
-	}
-
 }

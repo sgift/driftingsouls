@@ -32,7 +32,6 @@ import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.db.Database;
@@ -48,43 +47,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public class Ships implements Loggable {
 	private static final int MANGEL_TICKS = 9;
-	
-	/**
-	 * Repraesentiert ein in ein Schiff eingebautes Modul (oder vielmehr die Daten, 
-	 * die hinterher verwendet werden um daraus ein Modul zu rekonstruieren)
-	 */
-	public static class ModuleEntry {
-		/**
-		 * Der Slot in den das Modul eingebaut ist
-		 */
-		public final int slot;
-		/**
-		 * Der Modultyp
-		 * @see net.driftingsouls.ds2.server.cargo.modules.Module
-		 */
-		public final int moduleType;
-		/**
-		 * Weitere Modultyp-spezifische Daten
-		 */
-		public final String data;
-		
-		protected ModuleEntry(int slot, int moduleType, String data) {
-			this.slot = slot;
-			this.moduleType = moduleType;
-			this.data = data;
-		}
-		
-		@Override
-		public String toString() {
-			return "ModuleEntry: "+slot+":"+moduleType+":"+data;
-		}
-	}
-	
-	/**
-	 * Objekt mit Funktionsmeldungen
-	 */
-	public static final ContextLocalMessage MESSAGE = new ContextLocalMessage();
-	
+
 	/**
 	 * Leert den Cache fuer Schiffsdaten
 	 *
@@ -199,16 +162,6 @@ public class Ships implements Loggable {
 		
 		return statusString;
 	}
-
-	/**
-	 * Gibt die SQLResultRow als Schiffsobjekt zurueck
-	 * @param row Die SQLResultRow
-	 * @return Das Objekt
-	 */
-	public static Ship getAsObject(SQLResultRow row) {
-		return (Ship)ContextMap.getContext().getDB().get(Ship.class, row.getInt("id"));
-	}
-	
 
 	/**
 	 * Gibt den Positionstext unter Beruecksichtigung von Nebeleffekten zurueck.
