@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.entities.Jump;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
@@ -34,9 +35,11 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
  * @author Christopher Jung
  *
  */
-public class JumpdriveShivan implements SchiffPlugin {
+public class JumpdriveShivan implements SchiffPlugin
+{
 
-	public String action(Parameters caller) {
+	public String action(Parameters caller)
+	{
 		SchiffController controller = caller.controller;
 		Ship ship = caller.ship;
 		
@@ -47,7 +50,8 @@ public class JumpdriveShivan implements SchiffPlugin {
 		controller.parameterNumber("system");
 		int system = controller.getInteger("system");
 		
-		if( ship.getOwner().getId() < 0 ) {
+		if( ship.getOwner().getId() < 0 )
+		{
 			controller.parameterNumber("x");
 			controller.parameterNumber("y");
 			int x = controller.getInteger("x");
@@ -56,7 +60,8 @@ public class JumpdriveShivan implements SchiffPlugin {
 			String subaction = controller.getString("subaction");
 			
 			
-			if( subaction.equals("set") && (system != 0) && (system < 99) ) {
+			if( subaction.equals("set") && (system != 0) && (system < 99) && (Systems.get().system(system) != null) )
+			{
 				final Location targetLoc = new Location(system,x,y);
 				
 				output += ship.getName()+" aktiviert den Sprungantrieb<br />\n";
@@ -73,11 +78,13 @@ public class JumpdriveShivan implements SchiffPlugin {
 						.setInteger(2, ship.getId())
 						.list();
 					
-					for( Iterator iter=sList.iterator(); iter.hasNext(); ) {
+					for( Iterator iter=sList.iterator(); iter.hasNext(); )
+					{
 						Ship aship = (Ship)iter.next();
 						
 						ShipTypeData st = aship.getTypeData();
-						if( !st.hasFlag(ShipTypes.SF_JUMPDRIVE_SHIVAN) ) {
+						if( !st.hasFlag(ShipTypes.SF_JUMPDRIVE_SHIVAN) )
+						{
 							continue;	
 						}
 						
@@ -92,12 +99,14 @@ public class JumpdriveShivan implements SchiffPlugin {
 					}
 				}
 			}
-			else if ( subaction.equals("newtarget") && (system != 0) && (system < 99) ) {
+			else if ( subaction.equals("newtarget") && (system != 0) && (system < 99) && (Systems.get().system(system) != null) )
+			{
 				Jump jump = (Jump)db.createQuery("from Jump where shipid=?")
 					.setEntity(0, ship)
 					.uniqueResult();
 				
-				if( jump == null ) {
+				if( jump == null )
+				{
 					return output;
 				}
 				
@@ -107,7 +116,8 @@ public class JumpdriveShivan implements SchiffPlugin {
 				
 				output += ship.getName()+" &auml;ndert das Sprungziel.<br />\n";
 				
-				if( ship.getFleet() != null ) {
+				if( ship.getFleet() != null )
+				{
 					output += "<table class=\"noBorder\">\n";
 	  	
 					List sList = db.createQuery("from Ship where id>0 and fleet=? and owner=? and docked='' and id!=?")
@@ -116,11 +126,13 @@ public class JumpdriveShivan implements SchiffPlugin {
 						.setInteger(2, ship.getId())
 						.list();
 					
-					for( Iterator iter=sList.iterator(); iter.hasNext(); ) {
+					for( Iterator iter=sList.iterator(); iter.hasNext(); )
+					{
 						Ship aship = (Ship)iter.next();
 					
 						ShipTypeData st = aship.getTypeData();
-						if( !st.hasFlag(ShipTypes.SF_JUMPDRIVE_SHIVAN) ) {
+						if( !st.hasFlag(ShipTypes.SF_JUMPDRIVE_SHIVAN) )
+						{
 							continue;	
 						}
 						
@@ -139,12 +151,14 @@ public class JumpdriveShivan implements SchiffPlugin {
 					}
 				}
 			}	
-			else if ( subaction.equals("cancel") ) {
+			else if ( subaction.equals("cancel") )
+			{
 				Jump jump = (Jump)db.createQuery("from Jump where shipid=?")
 					.setEntity(0, ship)
 					.uniqueResult();
 				
-				if( jump == null ) {
+				if( jump == null )
+				{
 					return output;
 				}
 				
@@ -152,7 +166,8 @@ public class JumpdriveShivan implements SchiffPlugin {
 				
 				db.delete(jump);
 				
-				if( ship.getFleet() != null ) {
+				if( ship.getFleet() != null )
+				{
 					output += "<table class=\"noBorder\">\n";
 	  	
 					List sList = db.createQuery("from Ship where id>0 and fleet=? and owner=? and docked='' and id!=?")
@@ -161,10 +176,12 @@ public class JumpdriveShivan implements SchiffPlugin {
 						.setInteger(2, ship.getId())
 						.list();
 					
-					for( Iterator iter=sList.iterator(); iter.hasNext(); ) {
+					for( Iterator iter=sList.iterator(); iter.hasNext(); )
+					{
 						Ship aship = (Ship)iter.next();
 						ShipTypeData st = aship.getTypeData();
-						if( !st.hasFlag(ShipTypes.SF_JUMPDRIVE_SHIVAN) ) {
+						if( !st.hasFlag(ShipTypes.SF_JUMPDRIVE_SHIVAN) )
+						{
 							continue;	
 						}
 						
@@ -185,7 +202,8 @@ public class JumpdriveShivan implements SchiffPlugin {
 		return output;
 	}
 
-	public void output(Parameters caller) {
+	public void output(Parameters caller)
+	{
 		SchiffController controller = caller.controller;
 		String pluginid = caller.pluginId;
 		Ship ship = caller.ship;
