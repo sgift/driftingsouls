@@ -40,8 +40,6 @@ import org.apache.commons.io.IOUtils;
  *
  */
 public class FileReader implements Reader, Loggable {
-	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z");
-	
 	private String guessMimeType( String extension ) {
 		if( extension == null ) {
 			return null;
@@ -113,6 +111,8 @@ public class FileReader implements Reader, Loggable {
 				}
 			}
 		}
+		
+		final SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z");
 		
 		context.getResponse().setHeader("Content-Length", ""+file.length() );
 		context.getResponse().setContentLength((int)file.length());
