@@ -18,18 +18,22 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.util.Iterator;
+import java.util.List;
+
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.Ship;
 
 /**
  * Zeigt alle wichtigen Objekte in einem System an wie z.B.
@@ -83,11 +87,11 @@ public class ImpObjectsController extends TemplateGenerator {
 		return true;	
 	}
 
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {		
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		t.setVar(	"global.sysname",	Systems.get().system(system).getName(),
 				 	"global.sysid",		system );
@@ -100,31 +104,38 @@ public class ImpObjectsController extends TemplateGenerator {
 				Sprungpunkte
 			*/
 		
-			SQLQuery jn = db.query("SELECT x,y,systemout,name FROM jumpnodes WHERE system=",system," AND hidden=0");
-			while( jn.next() ) {
-				t.setVar(	"jn.x",			jn.getInt("x"),
-						  	"jn.y",			jn.getInt("y"),
-						  	"jn.name",		jn.getString("name"),
-						 	"jn.target",	jn.getInt("systemout"),
-							"jn.targetname",	Systems.get().system(jn.getInt("systemout")).getName() );
+			List jnList = db.createQuery("from JumpNode where system=?  and hidden=0")
+				.setInteger(0, system)
+				.list();
+			for( Iterator iter=jnList.iterator(); iter.hasNext(); ) {
+				JumpNode node = (JumpNode)iter.next();
+				
+				t.setVar(	"jn.x",			node.getX(),
+						  	"jn.y",			node.getY(),
+						  	"jn.name",		node.getName(),
+						 	"jn.target",	node.getSystemOut(),
+							"jn.targetname",	Systems.get().system(node.getSystemOut()).getName() );
 
 				t.parse("jn.list", "jn.listitem", true);
 			}
-			jn.free();
 		
 			/*
 				Handelsposten
 			*/
 		
-			SQLQuery posten = db.query("SELECT x,y,name FROM ships WHERE id>0 AND owner=",Faction.GTU," AND system=",system," AND LOCATE('tradepost',status)");
-			while( posten.next() ) {
-				t.setVar(	"gtuposten.x",		posten.getInt("x"),
-							"gtuposten.y",		posten.getInt("y"),
-							"gtuposten.name",	posten.getString("name") );
+			List postenList = db.createQuery("from Ship where id>0 and owner=? and system=? and locate('tradepost',status)!=0")
+				.setInteger(0, Faction.GTU)
+				.setInteger(1, system)
+				.list();
+			for( Iterator iter=postenList.iterator(); iter.hasNext(); ) {
+				Ship posten = (Ship)iter.next();
+				
+				t.setVar(	"gtuposten.x",		posten.getX(),
+							"gtuposten.y",		posten.getY(),
+							"gtuposten.name",	posten.getName() );
 
 				t.parse("gtuposten.list", "gtuposten.listitem", true);
 			}
-			posten.free();
 		}
 		
 		/*
@@ -132,14 +143,18 @@ public class ImpObjectsController extends TemplateGenerator {
 		*/
 		t.setBlock("_IMPOBJECTS", "base.listitem", "base.list");
 		
-		SQLQuery base = db.query("SELECT x,y,name FROM bases WHERE owner=",getUser().getId()," AND system=",system);
-		while( base.next() ) {
-			t.setVar(	"base.x",		base.getInt("x"),
-						"base.y",		base.getInt("y"),
-						"base.name",	base.getString("name") );
+		List baseList = db.createQuery("from Base where owner=? and system=?")
+			.setEntity(0, getUser())
+			.setInteger(1, system)
+			.list();
+		for( Iterator iter=baseList.iterator(); iter.hasNext(); ) {
+			Base base = (Base)iter.next();
+			
+			t.setVar(	"base.x",		base.getX(),
+						"base.y",		base.getY(),
+						"base.name",	base.getName() );
 
 			t.parse("base.list", "base.listitem", true);
 		}
-		base.free();
 	}
 }

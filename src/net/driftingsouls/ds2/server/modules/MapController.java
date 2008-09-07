@@ -22,16 +22,17 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
 
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -59,6 +60,8 @@ public class MapController extends TemplateGenerator implements Loggable {
 		parameterNumber("loadmap");
 		
 		setTemplate("map.html");
+		
+		setPageTitle("Sternenkarte");
 	}
 	
 	@Override
@@ -107,12 +110,12 @@ public class MapController extends TemplateGenerator implements Loggable {
 	/**
 	 * Zeigt die Sternenkarte an
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		t.setBlock("_MAP", "systems.listitem", "systems.list");
 
@@ -143,22 +146,25 @@ public class MapController extends TemplateGenerator implements Loggable {
 			return;
 		}
 						
-		SQLQuery node = db.query("SELECT x,y,name,systemout,gcpcolonistblock FROM jumpnodes WHERE system=",this.system," AND hidden=0 ORDER BY id");
-		while( node.next() ) {
+		List nodeList = db.createQuery("from JumpNode where system= :sys and hidden=0 order by id")
+			.setInteger("sys", system)
+			.list();
+		for( Iterator iter=nodeList.iterator(); iter.hasNext(); ) {
+			JumpNode node = (JumpNode)iter.next();
+			
 			String blocked = "";
-			if( node.getBoolean("gcpcolonistblock") && Rassen.get().rasse(user.getRace()).isMemberIn(0) ) {
+			if( node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn(0) ) {
 				blocked = " - blockiert";
 			}
 			
-			t.setVar(	"jumpnode.x",			node.getInt("x"),
-						"jumpnode.y",			node.getInt("y"),
-						"jumpnode.name",		node.getString("name"),
-						"jumpnode.systemout",	node.getInt("systemout"),
+			t.setVar(	"jumpnode.x",			node.getX(),
+						"jumpnode.y",			node.getY(),
+						"jumpnode.name",		node.getName(),
+						"jumpnode.systemout",	node.getSystemOut(),
 						"jumpnode.blocked",		blocked );
 			
 			t.parse("jumpnodes.list", "jumpnodes.listitem", true);
 		}
-		node.free();
 		
 		String index = "";
 		String findex = "";

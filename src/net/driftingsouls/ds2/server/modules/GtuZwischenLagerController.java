@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -26,17 +27,16 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
  * Die UI zum GTU-Zwischenlager
@@ -58,9 +58,8 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
  */
 // TODO: Die ID des Handelspostens sollte per URL spezifiziert werden
 public class GtuZwischenLagerController extends TemplateGenerator {
-	private SQLResultRow ship;
+	private Ship ship;
 	private int handel;
-	private int retryCount;
 		
 	/**
 	 * Konstruktor
@@ -74,34 +73,41 @@ public class GtuZwischenLagerController extends TemplateGenerator {
 		this.ship = null;
 		this.handel = 0;
 		
-		this.retryCount = 0;
-		
 		parameterNumber("ship");
+		
+		setPageTitle("GTU-Lager");
 	}
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)this.getUser();
 		TemplateEngine t = this.getTemplateEngine();
 		
 		int shipId = getInteger("ship");
 		
-		ship = db.first("SELECT * FROM ships WHERE id>0 AND owner=",user.getId()," AND id=",shipId);
-		if( ship.isEmpty() ) {
+		ship = (Ship)db.get(Ship.class, shipId);
+		if( (ship == null) || (ship.getId() < 0) || (ship.getOwner() != user) ) {
 			addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen", Common.buildUrl("default", "module", "schiffe") );
 			
 			return false;
 		}
 
-		SQLResultRow handel = db.first("SELECT id FROM ships WHERE id>0 AND owner=",Faction.GTU," AND LOCATE('tradepost',status) AND system=",ship.getInt("system")," AND x=",ship.getInt("x")," AND y=",ship.getInt("y"));
-		if( handel.isEmpty() ) {
+		Ship handel = (Ship)db.createQuery("from Ship where id>0 and owner=? and locate('tradepost',status)!=0 and " +
+				"system=? and x=? and y=?")
+			.setInteger(0, Faction.GTU)
+			.setInteger(1, ship.getSystem())
+			.setInteger(2, ship.getX())
+			.setInteger(3, ship.getY())
+			.setMaxResults(1)
+			.uniqueResult();
+		if( handel == null ) {
 			addError("Es existiert kein Handelsposten in diesem Sektor", Common.buildUrl("default", "module", "schiff", "ship", shipId) );
 			
 			return false;
 		}
 		
-		this.handel = handel.getInt("id");
+		this.handel = handel.getId();
 		
 		t.setVar( "global.shipid", shipId );
 		
@@ -116,53 +122,53 @@ public class GtuZwischenLagerController extends TemplateGenerator {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void transportOwnAction() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)this.getUser();
 		TemplateEngine t = this.getTemplateEngine();
 		
 		parameterNumber("entry");
 		int entry = getInteger("entry");
 		
-		SQLResultRow tradeentry = db.first("SELECT * FROM gtu_zwischenlager WHERE posten=",this.handel," AND id=",entry);
-	
-		if( tradeentry.isEmpty() || ((tradeentry.getInt("user1") != user.getId()) && (tradeentry.getInt("user2") != user.getId())) ) {
-			addError("Es wurde kein passender Handelseintrag gefunden", Common.buildUrl("default", "module", "schiff", "ship", this.ship.getInt("id")) );
+		GtuZwischenlager tradeentry = (GtuZwischenlager)db.get(GtuZwischenlager.class, entry);
+		
+		if( (tradeentry == null) || (tradeentry.getPosten().getId() != this.handel) || ((tradeentry.getUser1() != user) && (tradeentry.getUser2() != user)) ) {
+			addError("Es wurde kein passender Handelseintrag gefunden", Common.buildUrl("default", "module", "schiff", "ship", this.ship.getId()) );
 			this.setTemplate("");
 			
 			return;	
 		}
 		
-		// Der Handelspartner
-		User tradepartner = (User)getDB().get(User.class, tradeentry.getInt("user2"));
+		//  Der Handelspartner
+		User tradepartner = tradeentry.getUser2();
 		// Die (zukuenftig) eigenen Waren
-		Cargo tradecargo = new Cargo(Cargo.Type.STRING,tradeentry.getString("cargo1"));
-		Cargo tradecargoneed = new Cargo(Cargo.Type.STRING,tradeentry.getString("cargo1need"));
+		Cargo tradecargo = tradeentry.getCargo1();
+		Cargo tradecargoneed = tradeentry.getCargo1Need();
 		// Die Bezahlung
-		Cargo owncargo = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo2"));
-		Cargo owncargoneed = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo2need"));
+		Cargo owncargo = tradeentry.getCargo2();
+		Cargo owncargoneed = tradeentry.getCargo2Need();
 	
 		if( tradepartner.getId() == user.getId() ) {
-			tradepartner = (User)getDB().get(User.class, tradeentry.getInt("user1"));
-			tradecargo = new Cargo(Cargo.Type.STRING,tradeentry.getString("cargo2"));
-			tradecargoneed = new Cargo(Cargo.Type.STRING,tradeentry.getString("cargo2need"));
-			owncargo = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo1"));
-			owncargoneed = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo1need"));
+			tradepartner = tradeentry.getUser1();
+			tradecargo = tradeentry.getCargo2();
+			tradecargoneed = tradeentry.getCargo2Need();
+			owncargo = tradeentry.getCargo1();
+			owncargoneed = tradeentry.getCargo1Need();
 		}
 	
-		Cargo tmpowncargoneed = (Cargo)owncargoneed.clone();
+		Cargo tmpowncargoneed = new Cargo(owncargoneed);
 		
 		tmpowncargoneed.substractCargo( owncargo );
 		if( !tmpowncargoneed.isEmpty() ) {
-			addError("Sie m&uuml;ssen die Waren erst komplett bezahlen", Common.buildUrl("default", "module", "schiff", "ship", this.ship.getInt("id")) );
+			addError("Sie m&uuml;ssen die Waren erst komplett bezahlen", Common.buildUrl("default", "module", "schiff", "ship", this.ship.getId()) );
 			this.setTemplate("");
 			
 			return;	
 		}
 			
-		SQLResultRow shiptype = ShipTypes.getShipType(this.ship);
+		ShipTypeData shiptype = this.ship.getTypeData();
 		
-		Cargo shipCargo = new Cargo(Cargo.Type.STRING, ship.getString("cargo"));
-		long freecargo = shiptype.getLong("cargo") - shipCargo.getMass();
+		Cargo shipCargo = new Cargo(this.ship.getCargo());
+		long freecargo = shiptype.getCargo() - shipCargo.getMass();
 
 		Cargo transportcargo = null;
 		if( freecargo <= 0 ) {
@@ -172,10 +178,10 @@ public class GtuZwischenLagerController extends TemplateGenerator {
 			return;	
 		}	
 		else if( freecargo < tradecargo.getMass() ) {
-			transportcargo = ((Cargo)tradecargo.clone()).cutCargo( freecargo );	
+			transportcargo = new Cargo(tradecargo).cutCargo( freecargo );	
 		}
 		else {
-			transportcargo = (Cargo)tradecargo.clone();	
+			transportcargo = new Cargo(tradecargo);	
 		}		
 
 		t.setBlock("_GTUZWISCHENLAGER","transferlist.res.listitem","transferlist.res.list");
@@ -188,45 +194,25 @@ public class GtuZwischenLagerController extends TemplateGenerator {
 		shipCargo.addCargo( transportcargo );
 		tradecargoneed.substractCargo( transportcargo );
 		
-		db.tBegin();
-		db.tUpdate(1, "UPDATE ships SET cargo='",shipCargo.save(),"' WHERE id>0 AND id=",this.ship.getInt("id")," AND cargo='",shipCargo.save(true),"'");
+		ship.setCargo(shipCargo);
 
 		if( tradecargoneed.isEmpty() && owncargo.isEmpty() ) {
-			db.tUpdate(1, "DELETE FROM gtu_zwischenlager WHERE id=",entry);
-			if( !db.tCommit() ) {
-				if( this.retryCount < 3 ) {
-					this.retryCount++;
-					this.redirect("transportOwn");
-				
-					return;
-				}
-				addError("Die Waren konnten nicht erfolgreich zum Schiff transferiert werden");	
-			}
+			db.delete(tradeentry);
 			
 			t.setVar( "transferlist.backlink", 1 );
 			
 			return;
 		}
 		
-		if( tradeentry.getInt("user1") == user.getId() ) {
-			db.tUpdate(1, "UPDATE gtu_zwischenlager SET cargo1='",tradecargo.save(),"',cargo1need='",tradecargoneed.save(),"' " ,
-					"WHERE id='",entry,"' AND cargo1='",tradecargo.save(true),"' AND cargo1need='",tradecargoneed.save(true),"'");
+		if( tradeentry.getUser1() == user ) {
+			tradeentry.setCargo1(tradecargo);
+			tradeentry.setCargo1Need(tradecargoneed);
 		}
 		else {
-			db.tUpdate(1, "UPDATE gtu_zwischenlager SET cargo2='",tradecargo.save(),"',cargo2need='",tradecargoneed.save(),"' " ,
-					"WHERE id='",entry,"' AND cargo2='",tradecargo.save(true),"' AND cargo2need='",tradecargoneed.save(true),"'");		
+			tradeentry.setCargo2(tradecargo);
+			tradeentry.setCargo2Need(tradecargoneed);		
 		}
 
-		if( !db.tCommit() ) {
-			if( this.retryCount < 3 ) {
-				this.retryCount++;
-				this.redirect("transportOwn");
-				
-				return;
-			}
-			addError("Die Waren konnten nicht erfolgreich zum Schiff transferiert werden");	
-		}
-		
 		this.redirect("viewEntry");
 	}
 
@@ -246,17 +232,17 @@ public class GtuZwischenLagerController extends TemplateGenerator {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void viewEntryAction() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)this.getUser();
 		TemplateEngine t = this.getTemplateEngine();
 		
 		parameterNumber("entry");
 		int entry = getInteger("entry");
 		
-		SQLResultRow tradeentry = db.first("SELECT * FROM gtu_zwischenlager WHERE posten=",this.handel," AND id=",entry);
+		GtuZwischenlager tradeentry = (GtuZwischenlager)db.get(GtuZwischenlager.class, entry);
 	
-		if( tradeentry.isEmpty() || ((tradeentry.getInt("user1") != user.getId()) && (tradeentry.getInt("user2") != user.getId())) ) {
-			addError("Es wurde kein passender Handelseintrag gefunden", Common.buildUrl("default", "module", "schiff", "ship", this.ship.getInt("id")) );
+		if( (tradeentry == null) || (tradeentry.getPosten().getId() != this.handel) || ((tradeentry.getUser1() != user) && (tradeentry.getUser2() != user)) ) {
+			addError("Es wurde kein passender Handelseintrag gefunden", Common.buildUrl("default", "module", "schiff", "ship", this.ship.getId()) );
 			this.setTemplate("");
 			
 			return;	
@@ -267,21 +253,21 @@ public class GtuZwischenLagerController extends TemplateGenerator {
 		t.setBlock("_GTUZWISCHENLAGER","res.listitem","res.list");
 	
 		// Der Handelspartner
-		User tradepartner = (User)getDB().get(User.class, tradeentry.getInt("user2"));
+		User tradepartner = tradeentry.getUser2();
 		// Die (zukuenftig) eigenen Waren
-		Cargo tradecargo = new Cargo(Cargo.Type.STRING,tradeentry.getString("cargo1"));
+		Cargo tradecargo = tradeentry.getCargo1();
 		// Die Bezahlung
-		Cargo owncargo = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo2"));
-		Cargo owncargoneed = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo2need"));
+		Cargo owncargo = tradeentry.getCargo2();
+		Cargo owncargoneed = tradeentry.getCargo2Need();;
 	
 		if( tradepartner.getId() == user.getId() ) {
-			tradepartner = (User)getDB().get(User.class, tradeentry.getInt("user1"));
-			tradecargo = new Cargo(Cargo.Type.STRING,tradeentry.getString("cargo2"));
-			owncargo = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo1"));
-			owncargoneed = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo1need"));
+			tradepartner = tradeentry.getUser1();
+			tradecargo = tradeentry.getCargo2();
+			owncargo = tradeentry.getCargo1();
+			owncargoneed = tradeentry.getCargo1Need();
 		}
 		
-		t.setVar(	"tradeentry.id",			tradeentry.getInt("id"),
+		t.setVar(	"tradeentry.id",			tradeentry.getId(),
 					"tradeentry.partner",		Common._title(tradepartner.getName()),
 					"tradeentry.missingcargo",	"",
 					"tradeentry.waren",			"" );
@@ -302,10 +288,10 @@ public class GtuZwischenLagerController extends TemplateGenerator {
 	/**
 	 * Zeigt die Liste aller Handelsvereinbarungen auf diesem Handelsposten an, an denen der aktuelle Spieler beteiligt ist
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)this.getUser();
 		TemplateEngine t = this.getTemplateEngine();
 		
@@ -313,21 +299,26 @@ public class GtuZwischenLagerController extends TemplateGenerator {
 		t.setBlock("_GTUZWISCHENLAGER","tradelist.listitem","tradelist.list");
 		t.setBlock("tradelist.listitem","res.listitem","res.list");
 	
-		SQLQuery tradeentry = db.query("SELECT * FROM gtu_zwischenlager WHERE posten=",this.handel," AND (user1=",user.getId()," OR user2=",user.getId(),")");
-		while( tradeentry.next() ) {
-			User tradepartner = (User)getDB().get(User.class, tradeentry.getInt("user2"));
-			Cargo tradecargo = new Cargo(Cargo.Type.STRING,tradeentry.getString("cargo1"));
-			Cargo owncargo = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo2"));
-			Cargo owncargoneed = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo2need"));
+		List tradelist = db.createQuery("from GtuZwischenlager where posten=? and (user1= :user or user2= :user)")
+			.setInteger(0, this.handel)
+			.setEntity("user", user)
+			.list();
+		for( Iterator iter=tradelist.iterator(); iter.hasNext(); ) {
+			GtuZwischenlager tradeentry = (GtuZwischenlager)iter.next();
+			
+			User tradepartner = tradeentry.getUser2();
+			Cargo tradecargo = tradeentry.getCargo1();
+			Cargo owncargo = tradeentry.getCargo2();
+			Cargo owncargoneed = tradeentry.getCargo2Need();
 		
-			if( tradepartner.getId() == user.getId() ) {
-				tradepartner = (User)getDB().get(User.class, tradeentry.getInt("user1"));
-				tradecargo = new Cargo(Cargo.Type.STRING,tradeentry.getString("cargo2"));
-				owncargo = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo1"));
-				owncargoneed = new Cargo(Cargo.Type.STRING, tradeentry.getString("cargo1need"));
+			if( tradepartner == user ) {
+				tradepartner = tradeentry.getUser1();
+				tradecargo = tradeentry.getCargo2();
+				owncargo = tradeentry.getCargo1();
+				owncargoneed = tradeentry.getCargo1Need();
 			}
 		
-			t.setVar(	"list.entryid",			tradeentry.getInt("id"),
+			t.setVar(	"list.entryid",			tradeentry.getId(),
 						"list.user",			Common._title(tradepartner.getName()),
 						"res.list",				"",
 						"list.cargoreq.list",	"",
@@ -356,6 +347,5 @@ public class GtuZwischenLagerController extends TemplateGenerator {
 		
 			t.parse("tradelist.list","tradelist.listitem",true);
 		}
-		tradeentry.free();
 	}
 }

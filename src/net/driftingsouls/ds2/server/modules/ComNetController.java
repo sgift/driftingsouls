@@ -19,16 +19,20 @@
 package net.driftingsouls.ds2.server.modules;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.entities.ComNetChannel;
+import net.driftingsouls.ds2.server.entities.ComNetEntry;
+import net.driftingsouls.ds2.server.entities.ComNetVisit;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.bbcode.Smilie;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -43,99 +47,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  */
 public class ComNetController extends TemplateGenerator {
 	private int activeChannel = 1;
-	private Channel activeChannelObj = null;
-	
-	/**
-	 * Repraesentiert einen ComNet-Kanal
-	 *
-	 */
-	private static class Channel {
-		final int id;
-		final int allyOwner;
-		final String name;
-		final boolean writeall;
-		final boolean readall;
-		final boolean writenpc;
-		final boolean readnpc;
-		final int writeally;
-		final int readally;
-		final String readplayer;
-		final String writeplayer;
-		
-		Channel( SQLResultRow row ) {
-			this.id = row.getInt("id");
-			this.allyOwner = row.getInt("allyowner");
-			this.name = row.getString("name");
-			this.writeall = row.getBoolean("writeall");
-			this.readall = row.getBoolean("readall");
-			this.writenpc = row.getBoolean("writenpc");
-			this.readnpc = row.getBoolean("readnpc");
-			this.writeally = row.getInt("writeally");
-			this.readally = row.getInt("readally");
-			this.writeplayer = row.getString("writeplayer");
-			this.readplayer = row.getString("readplayer");
-		}
-		
-		/**
-		 * Prueft, ob der ComNet-Kanal fuer den angegebenen Benutzer lesbar ist
-		 * @param user Der Benutzer
-		 * @return <code>true</code>, falls er lesbar ist
-		 */
-		boolean isReadable( User user ) {
-			if( readall || ((user.getId() < 0) && readnpc) || 
-				((user.getAlly() != null) && (readally == user.getAlly().getId())) || 
-				(user.getAccessLevel() >= 100) ) {
-					
-				return true;
-			}
-			
-			if( writeall || ((user.getId() < 0) && writenpc) || 
-				((user.getAlly() != null) && (writeally == user.getAlly().getId())) || 
-				(user.getAccessLevel() >= 100) ) {
-					
-				return true;
-			}
-			
-			if( readplayer.length() != 0 ) {
-				Integer[] playerlist = Common.explodeToInteger(",",readplayer);
-				if( Common.inArray(user.getId(), playerlist) ) {
-					return true;
-				}
-			}
-			
-			if( writeplayer.length() != 0 ) {
-				Integer[] playerlist = Common.explodeToInteger(",",writeplayer);
-				if( Common.inArray(user.getId(), playerlist) ) {
-					return true;
-				}
-			}
-			
-			return false;
-		}
-		
-		/**
-		 * Prueft, ob der ComNet-Kanal fuer den angegebenen Benutzer schreibbar ist
-		 * @param user Der Benutzer
-		 * @return <code>true</code>, falls er schreibbar ist
-		 */
-		boolean isWriteable( User user ) {
-			if( writeall || ((user.getId() < 0) && writenpc) || 
-				((user.getAlly() != null) && (writeally == user.getAlly().getId())) || 
-				(user.getAccessLevel() >= 100) ) {
-					
-				return true;
-			}
-
-			if( writeplayer.length() != 0 ) {
-				Integer[] playerlist = Common.explodeToInteger(",",writeplayer);
-				if( Common.inArray(user.getId(), playerlist) ) {
-					return true;
-				}
-			}
-			
-			return false;
-		}
-	}
+	private ComNetChannel activeChannelObj = null;
 	
 	/**
 	 * Konstruktor
@@ -146,33 +58,32 @@ public class ComNetController extends TemplateGenerator {
 		
 		setTemplate("comnet.html");
 		
-		parameterNumber("channel");		
+		parameterNumber("channel");
+		
+		setPageTitle("Com-Net");
 	}
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		
 		if( getInteger("channel") > activeChannel ) {
 			activeChannel = getInteger("channel");
 		}
 		
-		SQLResultRow tmp = db.first("SELECT * FROM skn_channels WHERE id=",activeChannel);
-		if( tmp.isEmpty() ) {
+		ComNetChannel tmp = (ComNetChannel)db.get(ComNetChannel.class, activeChannel);
+		if( tmp == null ) {
 			addError("Die angegebene Frequenz existiert nicht - es wird die Standardfrequenz benutzt");
 			
-			tmp = db.first("SELECT * FROM skn_channels WHERE id=1");
+			tmp = (ComNetChannel)db.get(ComNetChannel.class, 1);
 			activeChannel = 1;
 		}
 		
-		Channel channel = new Channel(tmp);
-		
-		
-		activeChannelObj = channel;
+		activeChannelObj = tmp;
 		
 		t.setVar(	"channel.id",	activeChannel,
-					"channel.name",	Common._title(channel.name) );
+					"channel.name",	Common._title(activeChannelObj.getName()) );
 		
 		return true;
 	}
@@ -321,7 +232,7 @@ public class ComNetController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void readAction() {
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		
 		parameterNumber("back");
@@ -339,13 +250,17 @@ public class ComNetController extends TemplateGenerator {
 			t.setVar("channel.writeable",1);
 		}
 	
-		db.update("UPDATE skn_visits SET time='",Common.time(),"' WHERE user=",user.getId()," AND channel=",activeChannel);
-
+		db.createQuery("update ComNetVisit set time= :time where user= :user and channel= :channel")
+			.setLong("time", Common.time())
+			.setEntity("user", user)
+			.setEntity("channel", this.activeChannelObj)
+			.executeUpdate();
+		
 		if( back < 0 ) {
 			back = 0;
 		}
 		
-		int channelPostCount = db.first("SELECT count(*) count FROM skn WHERE channel=",activeChannel).getInt("count");
+		int channelPostCount = this.activeChannelObj.getPostCount();
 		
 		int b = back + 10;
 		int v = back - 10;
@@ -367,12 +282,18 @@ public class ComNetController extends TemplateGenerator {
 
 		int i = 0;
 		
-		SQLQuery ref = db.query("SELECT * FROM skn WHERE channel=",activeChannel," ORDER BY post DESC LIMIT ",back,", 10");
-		while( ref.next() ) {
+		List postList = db.createQuery("from ComNetEntry where channel= :channel order by post desc")
+			.setEntity("channel", this.activeChannelObj)
+			.setFirstResult(back)
+			.setMaxResults(10)
+			.list();
+		for( Iterator iter=postList.iterator(); iter.hasNext(); ) {
+			ComNetEntry post = (ComNetEntry)iter.next();
+			
 			t.start_record();
-			int post = channelPostCount - back - i;
-			String head = ref.getString("head");
-			String text = ref.getString("text");
+			int postNumber = channelPostCount - back - i;
+			String head = post.getHead();
+			String text = post.getText();
 
 			text = Smilie.parseSmilies(Common._text(text));
 
@@ -383,15 +304,15 @@ public class ComNetController extends TemplateGenerator {
 				head = Common._title(head);
 			}
 
-			t.setVar(	"post.pic",			ref.getInt("pic"),
-						"post.postid",		post,
-						"post.id",			ref.getInt("userid"),
-						"post.name",		Common._title(ref.getString("name")),
-						"post.time",		Common.date("d.m.Y H:i:s",ref.getLong("time")),
+			t.setVar(	"post.pic",			post.getPic(),
+						"post.postid",		postNumber,
+						"post.id",			post.getUser().getId(),
+						"post.name",		Common._title(post.getName()),
+						"post.time",		Common.date("d.m.Y H:i:s",post.getTime()),
 						"post.title",		head,
 						"post.text",		text,
-						"post.allypic",		ref.getInt("allypic"),
-						"post.ingametime",	Common.getIngameTime(ref.getInt("tick")) );
+						"post.allypic",		post.getAllyPic(),
+						"post.ingametime",	Common.getIngameTime(post.getTick()) );
 
 			i++;
 
@@ -399,7 +320,6 @@ public class ComNetController extends TemplateGenerator {
 			t.stop_record();
 			t.clear_record();
 		}
-		ref.free();
 	}
 	
 	/**
@@ -412,7 +332,7 @@ public class ComNetController extends TemplateGenerator {
 	public void sendenAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		if( !activeChannelObj.isWriteable(user) ) {
 			addError( "Sie sind nicht berechtigt auf dieser Frequenz zu senden", Common.buildUrl("default", "channel", activeChannel) );
@@ -426,23 +346,12 @@ public class ComNetController extends TemplateGenerator {
 
 		String text = getString("text");
 		String head = getString("head");
-	
-		//Logo ermitteln
-		int pic = user.getId();
-		int allypic = 0;
-		if( user.getAlly() != null ) {
-			allypic = user.getAlly().getId();
-		}
-
-		//Aktuellen Tick ermitteln
-		int tick = getContext().get(ContextCommon.class).getTick();
 
 		//In die DB eintragen
-		db.prepare("INSERT INTO skn " +
-				"(userid,name,head,text,time,pic,allypic,channel,tick) " +
-				"VALUES " +
-				"( ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-			.update(user.getId(), user.getName(), head, text, Common.time(), pic, allypic, activeChannel, tick);
+		ComNetEntry entry = new ComNetEntry(user, activeChannelObj);
+		entry.setHead(head);
+		entry.setText(text);
+		db.persist(entry);
 		
 		t.setVar("show.submit",1);
 	}
@@ -510,7 +419,7 @@ public class ComNetController extends TemplateGenerator {
 					"post.name",		Common._title(user.getName()),
 					"post.id",			user.getId(),
 					"post.pic",			user.getId(),
-					"post.allypic",		user.getAlly() != null ? user.getAlly().getId() : 0,
+					"post.allypic",		user.getAlly(),
 					"post.time",		Common.date("Y-m-d H:i:s"),
 					"post.ingametime",	Common.getIngameTime(tick) );	
 	}
@@ -518,14 +427,14 @@ public class ComNetController extends TemplateGenerator {
 	/**
 	 * Zeigt die Liste aller lesbaren ComNet-Kanaele an
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		
-		Channel channel = activeChannelObj;
+		ComNetChannel channel = activeChannelObj;
 		
 		t.setVar("show.channellist",1);
 
@@ -538,22 +447,23 @@ public class ComNetController extends TemplateGenerator {
 		}
 
 		// Letzte "Besuche" auslesen
-		Map<Integer,SQLResultRow> visits = new HashMap<Integer,SQLResultRow>();
+		Map<ComNetChannel,ComNetVisit> visits = new HashMap<ComNetChannel,ComNetVisit>();
 
-		SQLQuery avisit = db.query("SELECT id,time,channel FROM skn_visits WHERE user='",user.getId(),"'");
-		while( avisit.next() ) {
-			visits.put(avisit.getInt("channel"), avisit.getRow());
+		List visitList = db.createQuery("from ComNetVisit where user= :user")
+			.setEntity("user", user)
+			.list();
+		for( Iterator iter = visitList.iterator(); iter.hasNext(); ) {
+			ComNetVisit avisit = (ComNetVisit)iter.next();
+			visits.put(avisit.getChannel(), avisit);
 		}
-		avisit.free();
-
 
 		t.setBlock("_COMNET","channels.listitem","channels.list");
 
 		int lastowner = 0;
 		
-		SQLQuery chnl = db.query( "SELECT * FROM skn_channels ORDER BY allyowner" );
-		while( chnl.next() ) {
-			Channel achannel = new Channel(chnl.getRow());
+		Iterator chnlIter = db.createQuery( "from ComNetChannel order by allyOwner" ).iterate();
+		while( chnlIter.hasNext() ) {
+			ComNetChannel achannel = (ComNetChannel)chnlIter.next();
 			
 			if( !achannel.isReadable(user) ) {
 				continue;
@@ -561,31 +471,35 @@ public class ComNetController extends TemplateGenerator {
 			
 			t.start_record();
 			
-			if( (lastowner == 0) && (lastowner != achannel.allyOwner) ) {
+			if( (lastowner == 0) && (lastowner != achannel.getAllyOwner()) ) {
 				t.setVar("thischannel.showprivateinfo",1);
-				lastowner = achannel.allyOwner;
+				lastowner = achannel.getAllyOwner();
 			} 
 		
-			SQLResultRow visit = visits.get(achannel.id);
+			ComNetVisit visit = visits.get(achannel);
 		
 			if( visit == null ) {
-				db.update("INSERT INTO skn_visits (user,channel,time) VALUES (",user.getId(),",",achannel.id,",0)");
-				visit = new SQLResultRow();
-				visit.put("id", db.insertID());
-				visit.put("time", 0);
+				visit = new ComNetVisit(user, achannel);
+				visit.setTime(0);
+				db.persist(visit);
 			}	
 
-			t.setVar(	"thischannel.id",	achannel.id,
-						"thischannel.name",	Common._title(achannel.name) );
+			t.setVar(	"thischannel.id",	achannel.getId(),
+						"thischannel.name",	Common._title(achannel.getName()) );
 
-			long lastpost = db.first("SELECT max(time) maxtime FROM skn WHERE channel=",achannel.id).getLong("maxtime");
+			Long lastpost = (Long)db.createQuery("select max(time) from ComNetEntry where channel= :channel")
+				.setEntity("channel", achannel)
+				.iterate().next();
 
-
-			if( achannel.id == channel.id ) {
+			if( lastpost == null ) {
+				lastpost = 0L;
+			}
+			
+			if( achannel.getId() == channel.getId() ) {
 				t.setVar("thischannel.isactive",1);
 			}
 
-			if( lastpost > visit.getInt("time") ) {
+			if( lastpost > visit.getTime() ) {
 				t.setVar("thischannel.newposts",1);
 			}
 
@@ -593,6 +507,5 @@ public class ComNetController extends TemplateGenerator {
 			t.stop_record();
 			t.clear_record();
 		}
-		chnl.free();
 	}
 }

@@ -19,27 +19,30 @@
 package net.driftingsouls.ds2.server.modules;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.MutableLocation;
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.entities.Ally;
+import net.driftingsouls.ds2.server.entities.JumpNode;
+import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
@@ -74,7 +77,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 	private static final int OBJECT_JUMPNODE = 96;
 	
 	private User usedUser;
-	private SQLResultRow ally;
+	private Ally ally;
 	private int system;
 	
 	/**
@@ -86,15 +89,12 @@ public class MapDataController extends DSGenerator implements Loggable {
 		
 		parameterNumber("sys");
 		parameterNumber("debugme");
-		
-		requireValidSession(false);
 	}
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		User user = (User)getUser();
-		Database db = getDatabase();
-		
+	
 		this.usedUser = user;
 		
 		if( user.getAccessLevel() >= 20 ) {
@@ -102,18 +102,11 @@ public class MapDataController extends DSGenerator implements Loggable {
 			int forceuser = getInteger("forceuser");
 	
 			if( forceuser != 0 ) {
-				this.usedUser = (User)getDB().get(User.class, forceuser);	
+				this.usedUser = (User)getContext().getDB().get(User.class, forceuser);	
 			}	
 		}
 		
-		if( this.usedUser.getAlly() != null ) {
-			ally = db.first("SELECT showastis,showlrs FROM ally WHERE id=",usedUser.getAlly().getId());
-		} 
-		else {
-			ally = new SQLResultRow();
-			ally.put("showastis", false);
-			ally.put("showlrs", 0);
-		}
+		ally = this.usedUser.getAlly();
 		
 		int sys = getInteger("sys");
 		
@@ -178,38 +171,36 @@ public class MapDataController extends DSGenerator implements Loggable {
 		return new String(returnstr, "ISO-8859-1");
 	}
 	
-	private void echoSectorShipData( SQLResultRow aship, String relation ) throws UnsupportedEncodingException {
-		SQLResultRow stype = ShipTypes.getShipType(aship);
+	private void echoSectorShipData( Ship ship, String relation ) throws UnsupportedEncodingException {
+		ShipTypeData stype = ship.getTypeData();
 		
 		StringBuffer echo = getContext().getResponse().getContent();
 		
-		echo.append("<ship id=\""+aship.getInt("id")+"\" relation=\""+relation+"\">\n");
-		echo.append("<owner>"+aship.getInt("owner")+"</owner>\n");
+		echo.append("<ship id=\""+ship.getId()+"\" relation=\""+relation+"\">\n");
+		echo.append("<owner>"+ship.getOwner().getId()+"</owner>\n");
 		
-		User auser = (User)getDB().get(User.class, aship.getInt("owner"));
-		echo.append("<ownername><![CDATA["+auser.getName()+"]]></ownername>\n");
-		echo.append("<picture><![CDATA["+stype.getString("picture")+"]]></picture>\n");
+		echo.append("<ownername><![CDATA["+ship.getOwner().getName()+"]]></ownername>\n");
+		echo.append("<picture><![CDATA["+stype.getPicture()+"]]></picture>\n");
 		
-		echo.append("<type id=\""+stype.getInt("id")+"\">\n");
-		echo.append("<name><![CDATA["+stype.getString("nickname")+"]]></name>\n");
-		echo.append("<hull>"+stype.getInt("hull")+"</hull>\n");
-		echo.append("<shields>"+stype.getInt("shields")+"</shields>\n");
-		echo.append("<crew>"+stype.getInt("crew")+"</crew>\n");
-		echo.append("<eps>"+stype.getInt("eps")+"</eps>\n");
-		echo.append("<cargo>"+stype.getInt("cargo")+"</cargo>\n");
+		echo.append("<type id=\""+stype.getTypeId()+"\">\n");
+		echo.append("<name><![CDATA["+stype.getNickname()+"]]></name>\n");
+		echo.append("<hull>"+stype.getHull()+"</hull>\n");
+		echo.append("<shields>"+stype.getShields()+"</shields>\n");
+		echo.append("<crew>"+stype.getCrew()+"</crew>\n");
+		echo.append("<eps>"+stype.getEps()+"</eps>\n");
+		echo.append("<cargo>"+stype.getCargo()+"</cargo>\n");
 		echo.append("</type>\n");
 			
-		echo.append("<name><![CDATA["+aship.getString("name")+"]]></name>\n");
-		echo.append("<hull>"+aship.getInt("hull")+"</hull>\n");
-		echo.append("<shields>"+aship.getInt("shields")+"</shields>\n");
-		echo.append("<fleet>"+aship.getInt("fleet")+"</fleet>\n");
-		echo.append("<battle>"+aship.getInt("battle")+"</battle>\n");
+		echo.append("<name><![CDATA["+ship.getName()+"]]></name>\n");
+		echo.append("<hull>"+ship.getHull()+"</hull>\n");
+		echo.append("<shields>"+ship.getShields()+"</shields>\n");
+		echo.append("<fleet>"+(ship.getFleet() != null ? ship.getFleet().getId() : null)+"</fleet>\n");
+		echo.append("<battle>"+(ship.getBattle() != null ? ship.getBattle().getId() : null)+"</battle>\n");
 		if( relation.equals("owner") ) {
-			echo.append("<crew>"+aship.getInt("crew")+"</crew>\n");		
-			echo.append("<e>"+aship.getInt("e")+"</e>\n");
-			echo.append("<s>"+aship.getInt("s")+"</s>\n");
-			Cargo cargo = new Cargo( Cargo.Type.STRING, aship.getString("cargo") );
-			echo.append("<usedcargo>"+cargo.getMass()+"</usedcargo>\n");
+			echo.append("<crew>"+ship.getCrew()+"</crew>\n");		
+			echo.append("<e>"+ship.getEnergy()+"</e>\n");
+			echo.append("<s>"+ship.getHeat()+"</s>\n");
+			echo.append("<usedcargo>"+ship.getCargo().getMass()+"</usedcargo>\n");
 		}
 		
 		echo.append("</ship>\n");
@@ -223,7 +214,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void showSectorAction() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		
 		parameterNumber("x");
 		parameterNumber("y");
@@ -234,110 +225,111 @@ public class MapDataController extends DSGenerator implements Loggable {
 		StringBuffer echo = getContext().getResponse().getContent();
 		echo.append("<?xml version='1.0' encoding='UTF-16'?>\n");
 		echo.append("<sector x=\""+x+"\" y=\""+y+"\" system=\""+this.system+"\">\n");
-	
-		if( usedUser == null ) {
-			echo.append("</sector>\n");
-	
-			return;		
-		}
 		
-		SQLResultRow nebel = db.first("SELECT * FROM nebel WHERE system=",this.system," AND x=",x," AND y=",y);
+		Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(this.system, x, y));
 		
 		// EMP-Nebel?
-		if( !nebel.isEmpty() && (nebel.getInt("type") >= 3) && (nebel.getInt("type") <= 5) ) {
+		if( (nebel != null) && (nebel.getType() >= 3) && (nebel.getType() <= 5) ) {
 			echo.append("</sector>");
 			return;	
 		}
 				
 		String usersql = "="+this.usedUser.getId();
-		if( this.ally.getInt("showlrs") != 0 ) {				
-			SQLQuery uid = db.query("SELECT id FROM users WHERE ally=",this.usedUser.getAlly().getId());
+		if( (this.ally != null) && this.ally.getShowLrs() ) {				
+
+			List<User> members = this.usedUser.getAlly().getMembers();
 			
-			Integer[] allyusers = new Integer[uid.numRows()];
+			int[] allyusers = new int[members.size()];
 			int index = 0;
-			
-			while( uid.next() ) {
-				allyusers[index++] = uid.getInt("id");
+			for( User member : members ) {
+				allyusers[index++] = member.getId();
 			}
-			uid.free();
 			
-			usersql = " IN ("+Common.implode(",",allyusers)+")";
+			usersql = " in ("+Common.implode(",",allyusers)+")";
 		}
 		
 		try {
-			SQLQuery aship = db.query("SELECT * FROM ships WHERE id>0 AND owner ",usersql," AND system=",this.system," AND x=",x," AND y=",y," AND !LOCATE('l ',docked)");
-			while( aship.next() ) {
-				if( !nebel.isEmpty() ) {
-					nebel.clear();
+			List shipList = db.createQuery("from Ship " +
+					"where id>0 and owner "+usersql+" and system= :sys and x= :x and y=:y and locate('l ',docked)=0")
+				.setInteger("sys", this.system)
+				.setInteger("x", x)
+				.setInteger("y", y)
+				.list();
+			
+			for( Iterator iter=shipList.iterator(); iter.hasNext(); ) {
+				Ship ship = (Ship)iter.next();
+				
+				if( nebel != null ) {
+					nebel = null;
 				}
-				if( aship.getInt("owner") == this.usedUser.getId() ) {
-					this.echoSectorShipData(aship.getRow(), "owner");
+				if( this.usedUser.equals(ship.getOwner()) ) {
+					this.echoSectorShipData(ship, "owner");
 				}
 			}
-			aship.free();
 		
-			if( !nebel.isEmpty() ) {
+			if( nebel != null ) {
 				echo.append("</sector>\n");
 				return;
 			}
+							
+			List scannerList = db.createQuery("from Ship as s " +
+					"where s.id>0 and s.system= :sys and s.owner "+usersql+" and " +
+							"s.shiptype.shipClass in (11,13)")
+				.setInteger("sys", this.system)
+				.list();
+			for( Iterator iter=scannerList.iterator(); iter.hasNext(); ) {
+				Ship scanner = (Ship)iter.next();
 				
-			List<Integer> verysmallshiptypes = new ArrayList<Integer>();
-			verysmallshiptypes.add(0); // Ein dummy-Wert, damit es keine SQL-Fehler gibt
-			
-			SQLQuery stid = db.query("SELECT id FROM ship_types WHERE LOCATE('",ShipTypes.SF_SEHR_KLEIN,"',flags)");
-			while( stid.next() ) {
-				verysmallshiptypes.add(stid.getInt("id"));
-			}
-			stid.free();
+				ShipTypeData scannertype = scanner.getTypeData();
 					
-			SQLQuery scanner = db.query("SELECT t1.x,t1.y,t1.crew,t1.sensors,t1.type,t1.id,t1.status " ,
-					"FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id ",
-					"WHERE t1.id>0 AND t1.system=",this.system," AND t1.owner",usersql," AND " ,
-							"t2.class IN (11,13)");
-			while( scanner.next() ) {
-				SQLResultRow scannertype = ShipTypes.getShipType( scanner.getRow() );
-					
-				if( scanner.getInt("crew") < scannertype.getInt("crew")/3 ) {
+				if( scanner.getCrew() < scannertype.getCrew()/3 ) {
 					continue;
 				}
 					
-				int range = scannertype.getInt("sensorrange");
+				int range = scannertype.getSensorRange();
 					
 				// Nebel?
-				nebel = db.first("SELECT * FROM nebel WHERE system=",this.system," AND x=",scanner.getInt("x")," AND y=",scanner.getInt("y"));
-				if( !nebel.isEmpty() ) {
+				nebel = (Nebel)db.get(Nebel.class, new MutableLocation(scanner.getLocation()));
+				if( nebel != null ) {
 					range = (int)Math.round(range/2d);	
 				}
 					
-				range = (int)Math.round(range*(scanner.getInt("sensors")/100d));
-				if( Math.round(Math.sqrt(Math.pow(scanner.getInt("y")-y,2)+Math.pow(scanner.getInt("x")-x,2))) > range ) {
+				range = (int)Math.round(range*(scanner.getSensors()/100d));
+				if( Math.round(Math.sqrt(Math.pow(scanner.getY()-y,2)+Math.pow(scanner.getX()-x,2))) > range ) {
 					continue;
 				}
 						
 				// Schiffe
-				SQLQuery s = db.query("SELECT t1.*,t2.ally " ,
-						"FROM ships t1 JOIN users t2 ON t1.owner=t2.id " ,
-						"WHERE t1.id>0 AND !LOCATE('l ',docked) AND t1.system=",this.system," AND t1.owner!=",this.usedUser.getId()," AND t1.x=",x," AND t1.y=",y," AND " ,
-							"(t1.visibility IS NULL OR t1.visibility='",this.usedUser.getId(),"') AND (!(t1.type IN (",Common.implode(",",verysmallshiptypes),")) OR LOCATE('tblmodules',t1.status)) " ,
-							"ORDER BY t1.x,t1.y");
-				while( s.next() ) {			
-					SQLResultRow st = ShipTypes.getShipType( s.getRow() );
-					if( ShipTypes.hasShipTypeFlag(st, ShipTypes.SF_SEHR_KLEIN) ) {
+				List sList = db.createQuery("from Ship as s inner join fetch s.owner left join fetch s.modules " +
+						"where s.id>0 and locate('l ',s.docked)=0 and s.system= :sys and s.owner!= :user and s.x= :x and s.y= :y and " +
+							"(s.visibility is null or s.visibility= :userid) and (locate(:smallflag, s.shiptype.flags)=0 and (s.modules is null or locate(:smallflag,s.modules.flags)=0)) " +
+							"order by s.x,s.y")
+					.setInteger("sys", this.system)
+					.setInteger("x", x)
+					.setInteger("y", y)
+					.setEntity("user", this.usedUser)
+					.setInteger("userid", this.usedUser.getId())
+					.setString("smallflag", ShipTypes.SF_SEHR_KLEIN)
+					.list();
+				for( Iterator iter2=sList.iterator(); iter2.hasNext(); ) {
+					Ship s = (Ship)iter2.next();
+					
+					ShipTypeData st = s.getTypeData();
+					
+					if( st.hasFlag(ShipTypes.SF_SEHR_KLEIN) ) {
 						continue;	
 					}
 								
-					if( (this.usedUser.getAlly() != null) && (s.getInt("ally") == this.usedUser.getAlly().getId()) ) {
-						echoSectorShipData(s.getRow(), "ally");
+					if( (this.usedUser.getAlly() != null) && this.usedUser.getAlly().equals(s.getOwner().getAlly()) ) {
+						echoSectorShipData(s, "ally");
 					}
-					else if( this.usedUser.getAlly() == null || (this.usedUser.getAlly() != null && (s.getInt("ally") != this.usedUser.getAlly().getId())) ) {
-						echoSectorShipData(s.getRow(), "enemy");
+					else {
+						echoSectorShipData(s, "enemy");
 					}
 				}
-				s.free();
-				
+
 				break;
 			}
-			scanner.free();
 		}
 		catch( UnsupportedEncodingException e ) {
 			LOG.error("Kann Sektor "+system+":"+x+"/"+y+" fuer die Sternenkarte nicht aufbereiten", e);
@@ -393,12 +385,12 @@ public class MapDataController extends DSGenerator implements Loggable {
 	/**
 	 * Generiert die Sternenkarte
 	 */
-	@Action(ActionType.DEFAULT)
 	@Override
+	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		boolean debug = getInteger("debugme") != 0;
 		
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		StarSystem sys = Systems.get().system(system);
 		
 		int[][] map = new int[sys.getWidth()+1][sys.getHeight()+1];
@@ -407,49 +399,64 @@ public class MapDataController extends DSGenerator implements Loggable {
 		//--------------------------------------
 		//Jumpgates in die Karte eintragen
 		//--------------------------------------
-		SQLQuery node = db.query("SELECT x,y,name,systemout,xout,yout " +
-				"FROM jumpnodes " +
-				"WHERE system=",this.system," AND hidden=0 AND (x BETWEEN 1 AND ",sys.getWidth(),") AND (y BETWEEN 1 AND ",sys.getHeight(),") " +
-				"ORDER BY id");
-		while( node.next() ) {
-			map[node.getInt("x")][node.getInt("y")] = OBJECT_JUMPNODE;
-			maptext[node.getInt("x")][node.getInt("y")] = "Ziel: "+node.getString("name")+" ("+node.getInt("systemout")+":"+node.getInt("xout")+"/"+node.getInt("yout")+")\n";
+		List nodeList = db.createQuery("from JumpNode " +
+				"where system= :sys and hidden=0 and (x between 1 and :width) and (y between 1 and :height) " +
+				"order by id")
+			.setInteger("sys", this.system)
+			.setInteger("width", sys.getWidth())
+			.setInteger("height", sys.getHeight())
+			.list();
+		for( Iterator iter=nodeList.iterator(); iter.hasNext(); ) {
+			JumpNode node = (JumpNode)iter.next();
+			
+			map[node.getX()][node.getY()] = OBJECT_JUMPNODE;
+			maptext[node.getX()][node.getY()] = "Ziel: "+node.getName()+" ("+node.getSystemOut()+":"+node.getXOut()+"/"+node.getYOut()+")\n";
 		}
-		node.free();
 		
 		//--------------------------------------
 		//Asteroiden in die Karte eintragen
 		//--------------------------------------
-		SQLQuery base = db.query("SELECT b.x,b.y,b.owner,b.klasse,u.ally,b.name,u.name username " +
-				"FROM bases b JOIN users u ON b.owner=u.id " +
-				"WHERE b.system=",this.system," AND b.size=0 AND (b.x BETWEEN 1 AND ",sys.getWidth(),") AND (b.y BETWEEN 1 AND ",sys.getHeight(),") " +
-				"ORDER BY "+(this.usedUser != null ? "IF(b.owner="+this.usedUser.getId()+",0,1)," : "")+"b.id");
-		while( base.next() ) {
-			Location loc = new Location(system, base.getInt("x"), base.getInt("y"));
+		List baseList = db.createQuery("from Base as b inner join fetch b.owner " +
+				"where b.system= :sys and b.size=0 and (b.x between 1 and :width) and (b.y between 1 and :height) " +
+				"order by case when b.owner= :user then 0 else 1 end, b.id")
+			.setInteger("sys", this.system)
+			.setInteger("width", sys.getWidth())
+			.setInteger("height", sys.getHeight())
+			.setEntity("user", this.usedUser)
+			.list();
+		for( Iterator iter=baseList.iterator(); iter.hasNext(); ) {
+			Base base = (Base)iter.next();
 			
-			if( this.ally.getBoolean("showastis") && (base.getInt("owner") != this.usedUser.getId()) && (base.getInt("ally") == this.usedUser.getAlly().getId()) ) {	
+			Location loc = base.getLocation();
+			
+			if( (this.ally != null) && this.ally.getShowAstis() && !this.usedUser.equals(base.getOwner()) && this.ally.equals(base.getOwner().getAlly()) ) {	
 				map[loc.getX()][loc.getY()] = OBJECT_ASTI_ALLY;
-				appendStr(maptext, loc.getX(), loc.getY(), base.getString("name")+" - "+base.getString("username")+"\n");
+				appendStr(maptext, loc.getX(), loc.getY(), base.getName()+" - "+base.getOwner().getName()+"\n");
 			} 
-			else  if( (this.usedUser != null) && (base.getInt("owner") == this.usedUser.getId()) ) {
+			else  if( this.usedUser.equals(base.getOwner()) ) {
 				map[loc.getX()][loc.getY()] = OBJECT_ASTI_OWN;
-				appendStr(maptext, loc.getX(), loc.getY(), base.getString("name")+" - "+base.getString("username")+"\n");
+				appendStr(maptext, loc.getX(), loc.getY(), base.getName()+" - "+base.getOwner().getName()+"\n");
 			}
 			else if( map[loc.getX()][loc.getY()] != OBJECT_ASTI_OWN ) {
 				map[loc.getX()][loc.getY()] = OBJECT_ASTI;
 			} 
 		}
-		base.free();
 		
 		//--------------------------------------
 		//Nebel in die Karte eintragen
 		//--------------------------------------
-		SQLQuery nebel = db.query("SELECT x,y,type " +
-				"FROM nebel " +
-				"WHERE system=",this.system," AND (x BETWEEN 1 AND ",sys.getWidth(),") AND (y BETWEEN 1 AND ",sys.getHeight(),") ");
-		while( nebel.next() ) {
+		List nebelList = db.createQuery("from Nebel " +
+				"where system= :sys and (x between 1 and :width) and (y between 1 and :height) " +
+				"order by system,x,y")
+			.setInteger("sys", this.system)
+			.setInteger("width", sys.getWidth())
+			.setInteger("height", sys.getHeight())
+			.list();
+		for( Iterator iter=nebelList.iterator(); iter.hasNext(); ) {
+			Nebel nebel = (Nebel)iter.next();
+			
 			int neb = 0;
-			switch( nebel.getInt("type") ) {
+			switch( nebel.getType() ) {
 			case 0: neb = OBJECT_NEBEL_DEUT_NORMAL; break;
 			case 1: neb = OBJECT_NEBEL_DEUT_LOW; break;
 			case 2: neb = OBJECT_NEBEL_DEUT_HIGH; break;
@@ -458,240 +465,204 @@ public class MapDataController extends DSGenerator implements Loggable {
 			case 5: neb = OBJECT_NEBEL_EMP_HIGH; break;
 			case 6: neb = OBJECT_NEBEL_DAMAGE; break;	
 			}
-			map[nebel.getInt("x")][nebel.getInt("y")] = neb;
+			map[nebel.getX()][nebel.getY()] = neb;
 		}
-		nebel.free();
 		
 		//--------------------------------------
 		//Eigene Schiffe in die Karte eintragen
 		//--------------------------------------
-		if( usedUser != null ) {
-			SQLQuery schiff = db.query("SELECT x,y,count(*) shipcount FROM ships WHERE id>0 AND owner=",this.usedUser.getId()," AND system=",this.system," GROUP BY x,y");
-		
-			while( schiff.next() ) {
-				Location loc = new Location(system, schiff.getInt("x"), schiff.getInt("y"));
-				if( checkMapObjectsOR(map[loc.getX()][loc.getY()], OBJECT_NEBEL_EMP_LOW, OBJECT_NEBEL_EMP_NORMAL, OBJECT_NEBEL_EMP_HIGH) ) {
-					continue;
+		List shipList = db.createQuery("select x,y,count(*) from Ship " +
+				"where id>0 and owner= :user and system= :sys group by x,y")
+			.setInteger("sys", this.system)
+			.setEntity("user", this.usedUser)
+			.list();
+		for( Iterator iter=shipList.iterator(); iter.hasNext(); ) {
+			Object[] data = (Object[])iter.next();
+			
+			final long count = (Long)data[2];
+			
+			Location loc = new Location(system, (Integer)data[0], (Integer)data[1]);
+			if( checkMapObjectsOR(map[loc.getX()][loc.getY()], OBJECT_NEBEL_EMP_LOW, OBJECT_NEBEL_EMP_NORMAL, OBJECT_NEBEL_EMP_HIGH) ) {
+				continue;
+			}
+			if( (map[loc.getX()][loc.getY()] & OBJECT_FLEET_OWN) == 0 ) {
+				map[loc.getX()][loc.getY()] |= OBJECT_FLEET_OWN;
+				if( count > 1 ) {
+					appendStr(maptext, loc.getX(), loc.getY(), count+" eigene Schiffe\n");
 				}
-				if( (map[loc.getX()][loc.getY()] & OBJECT_FLEET_OWN) == 0 ) {
-					map[loc.getX()][loc.getY()] |= OBJECT_FLEET_OWN;
-					if( schiff.getInt("shipcount") > 1 ) {
-						appendStr(maptext, loc.getX(), loc.getY(), schiff.getInt("shipcount")+" eigene Schiffe\n");
-					}
-					else {
-						appendStr(maptext, loc.getX(), loc.getY(), schiff.getInt("shipcount")+" eigenes Schiffe\n");
-					}
+				else {
+					appendStr(maptext, loc.getX(), loc.getY(), count+" eigenes Schiffe\n");
 				}
 			}
-			schiff.free();
-		
-		
-			//--------------------------------------------------------
-			//	Alle Scanner-Schiffe durchlaufen und Kontakte eintragen
-			//--------------------------------------------------------
-		
-			List<Integer> verysmallshiptypes = new ArrayList<Integer>();
-			verysmallshiptypes.add(0); // Ein dummy-Wert, damit es keine SQL-Fehler gibt
+		}
+	
+		//--------------------------------------------------------
+		//	Alle Scanner-Schiffe durchlaufen und Kontakte eintragen
+		//--------------------------------------------------------
+	
+		String usersql = "="+this.usedUser.getId();
+		if( (this.ally != null) && this.ally.getShowLrs() ) {				
+
+			List<User> members = this.usedUser.getAlly().getMembers();
 			
-			SQLQuery stid = db.query("SELECT id FROM ship_types WHERE LOCATE('",ShipTypes.SF_SEHR_KLEIN,"',flags)");
-			while( stid.next() ) {
-				verysmallshiptypes.add(stid.getInt("id"));
-			}
-			stid.free();
-			
-			String usersql = "="+this.usedUser.getId();
-			if( this.ally.getInt("showlrs") != 0 ) {				
-				SQLQuery uid = db.query("SELECT id FROM users WHERE ally=",this.usedUser.getAlly().getId());
-				
-				Integer[] allyusers = new Integer[uid.numRows()];
-				int index = 0;
-				
-				while( uid.next() ) {
-					allyusers[index++] = uid.getInt("id");
-				}
-				uid.free();
-				
-				usersql = " IN ("+Common.implode(",",allyusers)+")";
+			int[] allyusers = new int[members.size()];
+			int index = 0;
+			for( User member : members ) {
+				allyusers[index++] = member.getId();
 			}
 			
-			Set<Location> lrsScanSectors = new HashSet<Location>();
-			Set<Location> scannedSectors = new HashSet<Location>();
+			usersql = " in ("+Common.implode(",",allyusers)+")";
+		}
+		
+		Set<Location> lrsScanSectors = new HashSet<Location>();
+		Set<Location> scannedSectors = new HashSet<Location>();
+		
+		List scannerList = db.createQuery("from Ship as s " +
+				"where s.id>0 and s.system= :sys and s.owner "+usersql+" and s.shiptype.shipClass in (11,13)")
+			.setInteger("sys", this.system)
+			.list();
+		for( Iterator iter=scannerList.iterator(); iter.hasNext(); ) {
+			Ship scanner = (Ship)iter.next();
 			
-			SQLQuery scanner = db.query("SELECT t1.x,t1.y,t1.crew,t1.sensors,t1.type,t1.id,t1.status " +
-					"FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id " +
-					"WHERE t1.id>0 AND t1.system=",this.system," AND t1.owner",usersql," AND t2.class IN (11,13)");
-			while( scanner.next() ) {
-				Location loc = new Location(system, scanner.getInt("x"), scanner.getInt("y"));
+			Location loc = scanner.getLocation();
+			
+			ShipTypeData scannertype = scanner.getTypeData();
+			
+			if( scanner.getCrew() < scannertype.getCrew()/3 ) {
+				continue;
+			}
+			
+			int range = scannertype.getSensorRange();
+			
+			// Nebel?
+			if( checkMapObjectsOR(map[loc.getX()][loc.getY()], OBJECT_NEBEL_DEUT_NORMAL, OBJECT_NEBEL_DAMAGE ) ) {
+				range = (int)Math.round(range/2d);
+			}
+			else if( checkMapObjectsOR(map[loc.getX()][loc.getY()], OBJECT_NEBEL_DEUT_LOW)) {
+				range = (int)Math.round(range/0.75d);
+			}
+			else if( checkMapObjectsOR(map[loc.getX()][loc.getY()], OBJECT_NEBEL_DEUT_HIGH) ) {
+				range = (int)Math.round(range/3d);
+			}
+			else if( checkMapObjectsOR(map[loc.getX()][loc.getY()], OBJECT_NEBEL_EMP_LOW, OBJECT_NEBEL_EMP_NORMAL, OBJECT_NEBEL_EMP_HIGH) ) {
+				continue;
+			}
+			
+			range = (int)Math.round(range*(scanner.getSensors()/100d));
+			
+			scannedSectors.clear();
+			
+			// Basen
+			List bList = db.createQuery("from Base as b inner join fetch b.owner " +
+					"where b.system= :sys and b.owner!= :user and b.owner!=0 and " +
+							"(b.x between :minx and :maxx) and " +
+							"(b.y between :miny and :maxy)")
+				.setInteger("sys", this.system)
+				.setEntity("user", this.usedUser)
+				.setInteger("minx", loc.getX()-range)
+				.setInteger("maxx", loc.getX()+range)
+				.setInteger("miny", loc.getY()-range)
+				.setInteger("maxy", loc.getY()+range)
+				.list();
+			for( Iterator iter2=bList.iterator(); iter2.hasNext(); ) {
+				Base base = (Base)iter2.next();
 				
-				SQLResultRow scannertype = ShipTypes.getShipType( scanner.getRow() );
-				
-				if( scanner.getInt("crew") < scannertype.getInt("crew")/3 ) {
-					continue;
-				}
-				
-				int range = scannertype.getInt("sensorrange");
+				Location bLoc = base.getLocation();
 				
 				// Nebel?
-				if( checkMapObjectsOR(map[loc.getX()][loc.getY()], OBJECT_NEBEL_DEUT_NORMAL, OBJECT_NEBEL_DAMAGE ) ) {
-					range = (int)Math.round(range/2d);
-				}
-				else if( checkMapObjectsOR(map[loc.getX()][loc.getY()], OBJECT_NEBEL_DEUT_LOW)) {
-					range = (int)Math.round(range/0.75d);
-				}
-				else if( checkMapObjectsOR(map[loc.getX()][loc.getY()], OBJECT_NEBEL_DEUT_HIGH) ) {
-					range = (int)Math.round(range/3d);
-				}
-				else if( checkMapObjectsOR(map[loc.getX()][loc.getY()], OBJECT_NEBEL_EMP_LOW, OBJECT_NEBEL_EMP_NORMAL, OBJECT_NEBEL_EMP_HIGH) ) {
+				if( checkMapObjectsOR( map[bLoc.getX()][bLoc.getY()],
+					OBJECT_NEBEL_DEUT_LOW,
+					OBJECT_NEBEL_DEUT_NORMAL,
+					OBJECT_NEBEL_DEUT_HIGH,
+					OBJECT_NEBEL_EMP_LOW,
+					OBJECT_NEBEL_EMP_NORMAL,
+					OBJECT_NEBEL_EMP_HIGH,
+					OBJECT_NEBEL_DAMAGE) ) {
 					continue;
 				}
 				
-				range = (int)Math.round(range*(scanner.getInt("sensors")/100d));
-				
-				scannedSectors.clear();
-				
-				// Basen
-				SQLQuery b = db.query("SELECT t1.x,t1.y,t2.ally,t1.owner,t1.name,t2.name username " +
-						"FROM bases t1 JOIN users t2 ON t1.owner=t2.id " +
-						"WHERE t1.system=",this.system," AND t1.owner!=",this.usedUser.getId()," AND t1.owner!=0 AND " +
-								"(t1.x BETWEEN ",(loc.getX()-range)," AND ",(loc.getX()+range),") AND " +
-								"(t1.y BETWEEN ",(loc.getY()-range)," AND ",(loc.getY()+range)+")");
-				while( b.next() ) {
-					Location bLoc = new Location(system, b.getInt("x"), b.getInt("y"));
-					
-					// Nebel?
-					if( checkMapObjectsOR( map[bLoc.getX()][bLoc.getY()],
-						OBJECT_NEBEL_DEUT_LOW,
-						OBJECT_NEBEL_DEUT_NORMAL,
-						OBJECT_NEBEL_DEUT_HIGH,
-						OBJECT_NEBEL_EMP_LOW,
-						OBJECT_NEBEL_EMP_NORMAL,
-						OBJECT_NEBEL_EMP_HIGH,
-						OBJECT_NEBEL_DAMAGE) ) {
-						continue;
-					}
-					
-					if( Math.round(Math.sqrt(Math.pow(loc.getY()-bLoc.getY(),2)+Math.pow(loc.getX()-bLoc.getX(),2))) > range )  {
-						continue;
-					}
-					
-					if( !scannedSectors.contains(bLoc) && (
-						checkMapObjectsOR(map[bLoc.getX()][bLoc.getY()], OBJECT_ASTI_ALLY, OBJECT_ASTI_ENEMY) ) ) {
-						continue;
-					}
-					
-					scannedSectors.add(bLoc);
-					
-					if( this.usedUser.getAlly() != null && !this.ally.getBoolean("showastis") && (b.getInt("ally") == this.usedUser.getAlly().getId()) ) {
-						int mod = map[bLoc.getX()][bLoc.getY()] & 7;
-						map[bLoc.getX()][bLoc.getY()] = OBJECT_ASTI_ALLY + mod;
-						
-						appendStr(maptext, bLoc.getX(), bLoc.getY(), b.getString("name")+" - "+b.getString("username")+"\n");
-					}
-					else if( this.usedUser.getAlly() == null || (this.usedUser.getAlly() != null && (b.getInt("ally") != this.usedUser.getAlly().getId())) ) {
-						int mod = map[bLoc.getX()][bLoc.getY()] & 7;
-						map[bLoc.getX()][bLoc.getY()] = OBJECT_ASTI_ENEMY + mod;
-						
-						appendStr(maptext, bLoc.getX(), bLoc.getY(), b.getString("name")+" - "+b.getString("username")+"\n");
-					}
+				if( Math.round(Math.sqrt(Math.pow(loc.getY()-bLoc.getY(),2)+Math.pow(loc.getX()-bLoc.getX(),2))) > range )  {
+					continue;
 				}
-				b.free();
 				
-				int enemycount = 0;
-				int allycount = 0;
-				Map<Integer,Integer> usercount = new HashMap<Integer,Integer>();
-				int lastX = 0;
-				int lastY = 0;
+				if( !scannedSectors.contains(bLoc) && (
+					checkMapObjectsOR(map[bLoc.getX()][bLoc.getY()], OBJECT_ASTI_ALLY, OBJECT_ASTI_ENEMY) ) ) {
+					continue;
+				}
 				
-				// Schiffe
-				SQLQuery s = db.query("SELECT t1.x,t1.y,t2.ally,t1.owner,t1.docked,t1.status,t1.type,t1.id " ,
-						"FROM ships t1 JOIN users t2 ON t1.owner=t2.id " ,
-						"WHERE t1.id>0 AND t1.system=",system," AND !LOCATE('l ',docked) AND t1.owner!=",this.usedUser.getId()," AND (t1.x BETWEEN ",(loc.getX()-range)," AND ",(loc.getX()+range),") AND (t1.y BETWEEN ",(loc.getY()-range)," AND ",(loc.getY()+range),") AND " ,
-							"(t1.visibility IS NULL OR t1.visibility=",this.usedUser.getId(),") AND (!(t1.type IN (",Common.implode(",",verysmallshiptypes),")) OR LOCATE('tblmodules',t1.status)) " ,
-						"ORDER BY t1.x,t1.y");
-				while( s.next() ) {
-					Location sLoc = new Location(system, s.getInt("x"), s.getInt("y"));
+				scannedSectors.add(bLoc);
+				
+				if( (this.ally != null) && !this.ally.getShowAstis() && this.ally.equals(base.getOwner().getAlly()) ) {
+					int mod = map[bLoc.getX()][bLoc.getY()] & 7;
+					map[bLoc.getX()][bLoc.getY()] = OBJECT_ASTI_ALLY + mod;
 					
-					if( lrsScanSectors.contains(sLoc) ) {
-						continue;
-					}
+					appendStr(maptext, bLoc.getX(), bLoc.getY(), base.getName()+" - "+base.getOwner().getName()+"\n");
+				}
+				else if( this.ally == null || (this.ally != null && this.ally.equals(base.getOwner().getAlly())) ) {
+					int mod = map[bLoc.getX()][bLoc.getY()] & 7;
+					map[bLoc.getX()][bLoc.getY()] = OBJECT_ASTI_ENEMY + mod;
 					
-					// EMP-Nebel?
-					if( checkMapObjectsOR( map[sLoc.getX()][sLoc.getY()],
-						OBJECT_NEBEL_EMP_LOW,
-						OBJECT_NEBEL_EMP_NORMAL,
-						OBJECT_NEBEL_EMP_HIGH) ) {
-						continue;
-					}
+					appendStr(maptext, bLoc.getX(), bLoc.getY(), base.getName()+" - "+base.getOwner().getName()+"\n");
+				}
+			}
+			
+			int enemycount = 0;
+			int allycount = 0;
+			Map<User,Integer> usercount = new HashMap<User,Integer>();
+			int lastX = 0;
+			int lastY = 0;
+			
+			// Schiffe
+			List sList = db.createQuery("from Ship as s inner join fetch s.owner left join fetch s.modules " +
+					"where s.id>0 and s.system= :sys and locate('l ',s.docked)=0 and s.owner!= :user and (s.x between :minx and :maxx) and (s.y between :miny and :maxy) and " +
+						"(s.visibility is null or s.visibility= :userid) and (locate(:smallflag, s.shiptype.flags)=0 and (s.modules is null or locate(:smallflag, s.modules.flags)=0)) " +
+					"order by s.x,s.y")
+				.setInteger("sys", this.system)
+				.setEntity("user", this.usedUser)
+				.setInteger("userid", this.usedUser.getId())
+				.setInteger("minx", loc.getX()-range)
+				.setInteger("maxx", loc.getX()+range)
+				.setInteger("miny", loc.getY()-range)
+				.setInteger("maxy", loc.getY()+range)
+				.setString("smallflag", ShipTypes.SF_SEHR_KLEIN)
+				.list();
+			for( Iterator iter2=sList.iterator(); iter2.hasNext(); ) {
+				Ship s = (Ship)iter2.next();
+				
+				Location sLoc = s.getLocation();
+				
+				if( lrsScanSectors.contains(sLoc) ) {
+					continue;
+				}
+				
+				// EMP-Nebel?
+				if( checkMapObjectsOR( map[sLoc.getX()][sLoc.getY()],
+					OBJECT_NEBEL_EMP_LOW,
+					OBJECT_NEBEL_EMP_NORMAL,
+					OBJECT_NEBEL_EMP_HIGH) ) {
+					continue;
+				}
 
-					// Nebel (und kein eigenes Schiff anwesend)?
-					if( checkMapObjectsOR( map[sLoc.getX()][sLoc.getY()],
-						OBJECT_NEBEL_DEUT_LOW,
-						OBJECT_NEBEL_DEUT_NORMAL,
-						OBJECT_NEBEL_DEUT_HIGH,
-						OBJECT_NEBEL_DAMAGE) && 
-						(map[sLoc.getX()][sLoc.getY()] & OBJECT_FLEET_OWN) == 0 ) {
-						continue;
-					}
-					
-					if( Math.round(Math.sqrt(Math.pow(loc.getY()-sLoc.getY(),2)+Math.pow(loc.getX()-sLoc.getX(),2))) > range )  {
-						continue;
-					}
-					
-					SQLResultRow st = ShipTypes.getShipType( s.getRow() );
-					if( ShipTypes.hasShipTypeFlag(st, ShipTypes.SF_SEHR_KLEIN) ) {
-						continue;	
-					}
-					
-					if( (lastX != sLoc.getX()) || (lastY != sLoc.getY()) ) {
-						lrsScanSectors.add(new Location(system, lastX, lastY));
-						if( usercount.size() > 9 ) {
-							if( allycount != 0 && ((maptext[lastX][lastY] == null) || (maptext[lastX][lastY].indexOf("verb&uuml;ndete") == -1)) ) {
-								appendStr(maptext, lastX, lastY, allycount+" verb&uuml;ndete"+(allycount==1?"s":"")+" Schiff"+(allycount==1?"":"e")+"\n");
-							}
-							if( enemycount != 0 && ((maptext[lastX][lastY] == null) || (maptext[lastX][lastY].indexOf("feindliche") == -1)) ) {
-								appendStr(maptext, lastX, lastY, enemycount+" feindliche"+(enemycount==1?"s":"")+" Schiff"+(enemycount==1?"":"e")+"\n"); 
-							}
-						}
-						else if( !usercount.isEmpty() ) {
-							for( Integer userid : usercount.keySet() ) {
-								User userobj = (User)getDB().get(User.class, userid);
-								appendStr(maptext, lastX, lastY, usercount.get(userid)+" Schiff"+(usercount.get(userid)==1?"":"e")+" "+userobj.getName()+"\n");
-							}
-						}
-						lastX = sLoc.getX();
-						lastY = sLoc.getY(); 	
-						enemycount = 0;
-						allycount = 0;
-						usercount.clear();
-					}
-					
-					if( s.getInt("owner") == this.usedUser.getId() ) {
-						continue;	
-					}
-					
-					if( !usercount.containsKey(s.getInt("owner")) ) {
-						usercount.put(s.getInt("owner"), 1);
-					}
-					else {
-						usercount.put(s.getInt("owner"), usercount.get(s.getInt("owner"))+1);
-					}
-					
-					if( (this.usedUser.getAlly() != null) && (s.getInt("ally") == this.usedUser.getAlly().getId()) ) {
-						if( (s.getString("docked").length() == 0 || (s.getString("docked").charAt(0) != 'l')) ) {
-							map[sLoc.getX()][sLoc.getY()] |= OBJECT_FLEET_ALLY;
-							allycount++;
-						}
-					}
-					else if( (this.usedUser.getAlly() == null) || (this.usedUser.getAlly() != null && (s.getInt("ally") != this.usedUser.getAlly().getId())) ) {
-						if( (s.getString("docked").length() == 0 || (s.getString("docked").charAt(0) != 'l')) ) {
-							map[sLoc.getX()][sLoc.getY()] |= OBJECT_FLEET_ENEMY;
-							enemycount++;
-						}
-					}
+				// Nebel (und kein eigenes Schiff anwesend)?
+				if( checkMapObjectsOR( map[sLoc.getX()][sLoc.getY()],
+					OBJECT_NEBEL_DEUT_LOW,
+					OBJECT_NEBEL_DEUT_NORMAL,
+					OBJECT_NEBEL_DEUT_HIGH,
+					OBJECT_NEBEL_DAMAGE) && 
+					(map[sLoc.getX()][sLoc.getY()] & OBJECT_FLEET_OWN) == 0 ) {
+					continue;
 				}
-				s.free();
 				
-				if( lastX != 0 && lastY != 0 ) {
+				if( Math.round(Math.sqrt(Math.pow(loc.getY()-sLoc.getY(),2)+Math.pow(loc.getX()-sLoc.getX(),2))) > range )  {
+					continue;
+				}
+				
+				ShipTypeData st = s.getTypeData();
+				if( st.hasFlag(ShipTypes.SF_SEHR_KLEIN) ) {
+					continue;	
+				}
+				
+				if( (lastX != sLoc.getX()) || (lastY != sLoc.getY()) ) {
 					lrsScanSectors.add(new Location(system, lastX, lastY));
 					if( usercount.size() > 9 ) {
 						if( allycount != 0 && ((maptext[lastX][lastY] == null) || (maptext[lastX][lastY].indexOf("verb&uuml;ndete") == -1)) ) {
@@ -702,18 +673,66 @@ public class MapDataController extends DSGenerator implements Loggable {
 						}
 					}
 					else if( !usercount.isEmpty() ) {
-						for( Integer userid : usercount.keySet() ) {
-							User userobj = (User)getDB().get(User.class, userid);
-							appendStr(maptext, lastX, lastY, usercount.get(userid)+" Schiff"+(usercount.get(userid)==1?"":"e")+" "+userobj.getName()+"\n");
+						for( Map.Entry<User, Integer> entry: usercount.entrySet() ) {
+							User userobj = entry.getKey();
+							Integer count = entry.getValue();
+							appendStr(maptext, lastX, lastY, count+" Schiff"+(count==1?"":"e")+" "+userobj.getName()+"\n");
 						}
+					}
+					lastX = sLoc.getX();
+					lastY = sLoc.getY(); 	
+					enemycount = 0;
+					allycount = 0;
+					usercount.clear();
+				}
+				
+				if( this.usedUser.equals(s.getOwner()) ) {
+					continue;	
+				}
+				
+				if( !usercount.containsKey(s.getOwner()) ) {
+					usercount.put(s.getOwner(), 1);
+				}
+				else {
+					usercount.put(s.getOwner(), usercount.get(s.getOwner())+1);
+				}
+				
+				if( (this.ally != null) && this.ally.equals(s.getOwner().getAlly()) ) {
+					if( (s.getDocked().length() == 0 || (s.getDocked().charAt(0) != 'l')) ) {
+						map[sLoc.getX()][sLoc.getY()] |= OBJECT_FLEET_ALLY;
+						allycount++;
+					}
+				}
+				else {
+					if( (s.getDocked().length() == 0 || (s.getDocked().charAt(0) != 'l')) ) {
+						map[sLoc.getX()][sLoc.getY()] |= OBJECT_FLEET_ENEMY;
+						enemycount++;
 					}
 				}
 			}
-			scanner.free();
 			
-			lrsScanSectors = null;
-			scannedSectors = null;
+			if( lastX != 0 && lastY != 0 ) {
+				lrsScanSectors.add(new Location(system, lastX, lastY));
+				if( usercount.size() > 9 ) {
+					if( allycount != 0 && ((maptext[lastX][lastY] == null) || (maptext[lastX][lastY].indexOf("verb&uuml;ndete") == -1)) ) {
+						appendStr(maptext, lastX, lastY, allycount+" verb&uuml;ndete"+(allycount==1?"s":"")+" Schiff"+(allycount==1?"":"e")+"\n");
+					}
+					if( enemycount != 0 && ((maptext[lastX][lastY] == null) || (maptext[lastX][lastY].indexOf("feindliche") == -1)) ) {
+						appendStr(maptext, lastX, lastY, enemycount+" feindliche"+(enemycount==1?"s":"")+" Schiff"+(enemycount==1?"":"e")+"\n"); 
+					}
+				}
+				else if( !usercount.isEmpty() ) {
+					for( Map.Entry<User, Integer> entry: usercount.entrySet() ) {
+						User userobj = entry.getKey();
+						Integer count = entry.getValue();
+						appendStr(maptext, lastX, lastY, count+" Schiff"+(count==1?"":"e")+" "+userobj.getName()+"\n");
+					}
+				}
+			}
 		}
+		
+		lrsScanSectors = null;
+		scannedSectors = null;
 		
 		//--------------------------------------
 		// Karte ausgeben
@@ -725,13 +744,13 @@ public class MapDataController extends DSGenerator implements Loggable {
 			echo.append((char)PROTOCOL_VERSION);
 			echo.append((char)PROTOCOL_MINOR_VERSION);
 	
-			if( (this.usedUser != null) && this.usedUser.getId() < 0 ) {
+			if( this.usedUser.getId() < 0 ) {
 				echo.append((char)1);
 			}
 			else {
 				echo.append((char)0);
 			}
-			echo.append(getStarmapValue(Math.abs(usedUser != null ? this.usedUser.getId() : 0)));
+			echo.append(getStarmapValue(Math.abs(this.usedUser.getId())));
 			
 			// Nun die Kartengroesse senden (erst x dann y - jeweils zwei stellen pro char)
 			int width = sys.getWidth();
@@ -811,17 +830,24 @@ public class MapDataController extends DSGenerator implements Loggable {
 			}
 			
 			// Planeten (grosse Objekte) ausgeben
-			SQLQuery lobject = db.query("SELECT x,y,size,klasse FROM bases WHERE system=",this.system," AND size>0  AND (x BETWEEN 1 AND ",sys.getWidth(),") AND (y BETWEEN 1 AND ",sys.getHeight(),")");
-			while( lobject.next() ) {
+			List lobjectList = db.createQuery("from Base " +
+					"where system= :sys and size>0 and (x between 1 and :width) and (y between 1 and :height)")
+				.setInteger("sys", this.system)
+				.setInteger("width", sys.getWidth())
+				.setInteger("height", sys.getHeight())
+				.list();
+			for( Iterator iter=lobjectList.iterator(); iter.hasNext(); ) {
+				Base lobject = (Base)iter.next();
+				
 				echo.append((char)ADDDATA_LARGE_OBJECT);
 						
-				echo.append(getStarmapValue(lobject.getInt("x")-1));
+				echo.append(getStarmapValue(lobject.getX()-1));
 			
-				echo.append(getStarmapValue(lobject.getInt("y")-1));
+				echo.append(getStarmapValue(lobject.getY()-1));
 				
-				echo.append(getStarmapValue(lobject.getInt("size")));
+				echo.append(getStarmapValue(lobject.getSize()));
 				
-				String image = "kolonie"+lobject.getInt("klasse")+"_lrs";
+				String image = "kolonie"+lobject.getKlasse()+"_lrs";
 				image = new String(image.getBytes("ISO-8859-1"), "ISO-8859-1");
 							
 				int length = image.length();
@@ -830,7 +856,6 @@ public class MapDataController extends DSGenerator implements Loggable {
 						
 				echo.append(image);
 			}
-			lobject.free();
 		}
 		catch( UnsupportedEncodingException e ) {
 			LOG.error("Kann Sternenkarte nicht kodieren", e);
