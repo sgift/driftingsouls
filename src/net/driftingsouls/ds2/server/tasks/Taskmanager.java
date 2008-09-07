@@ -81,7 +81,14 @@ public class Taskmanager {
 		 * data2 - Schiffs-ID [Wird von der Task selbst gesetzt!]
 		 * data3 - Status [autom. gesetzt: Nichts = Warte auf Schiff od. flug zur Ganymede; 1 = Gany-Transport; 2 = Rueckweg]
 		 */
-		GANY_TRANSPORT(7, new HandleGanyTransport());
+		GANY_TRANSPORT(7, new HandleGanyTransport()),
+		/**
+		 * Ein Ausbau-Auftrag
+		 *
+		 * data1 - Die Auftrags-ID
+		 * data2 - Die Anzahl der bisherigen Versuche den Task durchzuführen
+		 */
+		UPGRADE_JOB(8, new HandleUpgradeJob());
 		
 		private int typeID;
 		private TaskHandler cls;

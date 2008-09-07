@@ -6,7 +6,7 @@ CREATE TABLE `upgrade_job` (
   `cargo` int(11) NOT NULL default '0',
   `bar` bool NOT NULL default FALSE,
   `payed` bool NOT NULL default FALSE,
-  `colonizerid` int(11) NOT NULL default '0',
-  `started` int(11) NOT NULL default '0',
+  `colonizerid` int(11),
+  `end` int(11) NOT NULL default '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

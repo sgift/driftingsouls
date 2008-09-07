@@ -616,4 +616,24 @@
 		ALTER TABLE upgrade_job ADD CONSTRAINT upgrade_job_fk_mod_tiles FOREIGN KEY (tiles) REFERENCES upgrade_info(id);
 		ALTER TABLE upgrade_job ADD CONSTRAINT upgrade_job_fk_mod_cargo FOREIGN KEY (cargo) REFERENCES upgrade_info(id);
 	]]></update>
+	<update type="structure" datum="2008-09-07"><![CDATA[
+		update upgrade_info set type=4 where type=3;
+		update upgrade_info set type=3 where type=2;
+		update upgrade_info set type=3 where id=15;
+		
+		CREATE TABLE `upgrade_maxvalues` (
+		  `type` int(11) NOT NULL,
+		  `maxtiles` int(11) NOT NULL default '1',
+		  `maxcargo` int(11) NOT NULL default '1',
+		  PRIMARY KEY  (`type`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+		
+		INSERT INTO `upgrade_maxvalues` (`type`, `maxcargo`, `maxtiles`) VALUES ( 1, 750000,  80);
+		INSERT INTO `upgrade_maxvalues` (`type`, `maxcargo`, `maxtiles`) VALUES ( 3, 1120000,  120);
+		INSERT INTO `upgrade_maxvalues` (`type`, `maxcargo`, `maxtiles`) VALUES ( 4, 360000,  40);
+		
+		ALTER TABLE upgrade_job ADD `end` int(11) NOT NULL default '0';
+		ALTER TABLE upgrade_job DROP `started`;
+		ALTER TABLE upgrade_job MODIFY `colonizerid` int(11);
+	]]></update>
 </updates>

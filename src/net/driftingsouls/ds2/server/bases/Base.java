@@ -273,6 +273,30 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 		return cargo;
 	}
 	
+	@Override
+	public boolean equals(Object object)
+	{
+		if(object.getClass() != this.getClass())
+		{
+			return false;
+		}
+		
+		Base other = (Base)object;
+		
+		if(other.getId() != this.getId())
+		{
+			return false;
+		}
+		
+		return true;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return this.getId();
+	}
+	
 	/**
 	 * Setzt den Cargo des Basisobjekts
 	 * @param cargo Der neue Cargo

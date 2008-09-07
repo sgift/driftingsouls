@@ -27,6 +27,7 @@
 	<faction id="-19" menusize="380">
 		<page id="general" />
 		<page id="angebote" />
+		<page id="ausbau" />
 		<text>
 			Demolition Incorporated ist das führende Unternehmen auf dem Gebiet des modernen Bergbaus. Dank hochmoderner patentierter Technik aus eigenen Entwicklungslabors
 			kann Demolition Incorporated selbst in den unwirklichsten Umgebungen noch mit überdurchschnittlicher Rendite Mineralien und Erze fördern. Und dank einer engen

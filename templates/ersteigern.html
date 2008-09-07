@@ -34,6 +34,9 @@
 		{if faction.shop}
 			&nbsp;&nbsp;|&nbsp;&nbsp;{!link_to Shop, shop, faction:$global.faction}
 		{/endif}
+		{if faction.ausbau}
+			&nbsp;&nbsp;|&nbsp;&nbsp;{!link_to Ausbau, ausbau, faction:$global.faction}
+		{/endif}
 		{if faction.other}
 			&nbsp;&nbsp;|&nbsp;&nbsp;{!link_to Sonstiges, other, faction:$global.faction}
 		{/endif}
@@ -261,6 +264,156 @@
 		<!-- END angebote.emptyitem -->
 	</tr>
 	</table>
+{/endif}
+{if show.ausbau}
+	<form name="form_ausbau" action="./ds" method="post">
+		<div style="text-align:center">
+			{!form_create_hidden ausbau, faction:$global.faction}
+			<script type="text/javascript">
+				var felderPreis = 0;
+				var cargoPreis = 0;
+				var felderBBS = 0;
+				var cargoBBS = 0;
+				var felderErz = 0;
+				var cargoErz = 0;
+
+				function updateFelder(preis, bbs, erz) {
+					felderPreis = parseInt(preis);
+					felderBBS = parseInt(bbs);
+					felderErz = parseInt(erz);
+					updateCosts();
+				}
+
+				function updateCargo(preis, bbs, erz) {
+					cargoPreis = parseInt(preis);
+					cargoBBS = parseInt(bbs);
+					cargoErz = parseInt(erz);
+					updateCosts();
+				}
+
+				function updateCosts() {
+					document.getElementById("RE_Display").firstChild.nodeValue = felderPreis + cargoPreis;
+					document.getElementById("BBS_Display").firstChild.nodeValue = felderBBS + cargoBBS;
+					document.getElementById("Erz_Display").firstChild.nodeValue = felderErz + cargoErz;
+				}
+			</script>
+			{!table_begin 650,center}
+			<table class="noBorderX" width="100%">
+				<tr>
+					<td class="noBorderX" style="width=150px; text-align:right">
+						Asteroid:
+					</td>
+					<td class="noBorderX" style="width:20px">
+						&nbsp;
+					</td>
+					<td class="noBorderX" style="text-align:left">
+						<select name="astiid" size="1" style="width:220px" onchange="document.getElementsByName('form_ausbau')[0].value = 0; document.getElementsByName('form_ausbau')[0].submit()">
+						<!-- BEGIN ausbau.asti.listitem -->
+							<option value="{asti.id}" {if asti.selected}selected="selected"{/endif}>{asti.name} ({asti.id})</option>
+						<!-- END ausbau.asti.listitem -->
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td class="noBorderX" style="width:150px; text-align:right">
+						Colonizer:
+					</td>
+					<td class="noBorderX" style="width:20px">
+						&nbsp;
+					</td>
+					<td class="noBorderX" style="text-align:left">
+						<select name="colonizerid" size="1" style="width:220px">
+						<!-- BEGIN ausbau.colonizer.listitem -->
+							<option value="{colonizer.id}">{colonizer.name} ({colonizer.id})</option>
+						<!-- END ausbau.colonizer.listitem -->
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td class="noBorderX" style="width:150px; text-align:right">
+						Felder-Erweiterung:
+					</td>
+					<td class="noBorderX" style="width:20px">
+						&nbsp;
+					</td>
+					<td class="noBorderX" style="text-align:left">
+						<select name="felder" size="1" style="width:220px">
+						<!-- BEGIN ausbau.felder.listitem -->
+							<option value="{felder.id}" onclick="updateFelder({felder.preis}, {felder.bbs}, {felder.erz})">+ {felder.mod} Felder</option>
+						<!-- END ausbau.felder.listitem -->
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td class="noBorderX" style="width:150px; text-align:right">
+						Cargo-Erweiterung:
+					</td>
+					<td class="noBorderX" style="width:20px">
+						&nbsp;
+					</td>
+					<td class="noBorderX" style="text-align:left">
+						<select name="cargo" size="1" style="width:220px">
+						<!-- BEGIN ausbau.cargo.listitem -->
+							<option value="{cargo.id}" onclick="updateCargo({cargo.preis}, {cargo.bbs}, {cargo.erz})">+ {cargo.mod} Lagerraum</option>
+						<!-- END ausbau.cargo.listitem -->
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td class="noBorderX" style="width:150px; text-align:right">
+						Zahlungsmethode:
+					</td>
+					<td class="noBorderX" style="width:20px">
+						&nbsp;
+					</td>
+					<td class="noBorderX" style="text-align:left">
+						<input type="radio" name="bar" value="0" checked="checked">Konto
+						<input type="radio" name="bar" value="1"> BAR <br />
+					</td>
+				</tr>
+				<tr>
+					<td class="noBorderX" style="width:150px; text-align:right">
+						RE:
+					</td>
+					<td class="noBorderX" style="width:20px">
+						&nbsp;
+					</td>
+					<td class="noBorderX" style="text-align:left" id="RE_Display">
+					0
+					</td>
+				</tr>
+				<tr>
+					<td class="noBorderX" style="width:150px; text-align:right;white-space:nowrap">
+						<img style="text-align:middle" src="{bbs.image}" alt="{bbs.name}" />{bbs.name}:
+					</td>
+					<td class="noBorderX" style="width:20px">
+						&nbsp;
+					</td>
+					<td class="noBorderX" style="text-align:left" id="BBS_Display">
+					0
+					</td>
+				</tr>
+				<tr>
+					<td class="noBorderX" style="width:150px; text-align:right;white-space:nowrap">
+						<img style="text-align:middle" src="{erz.image}" alt="{erz.name}" />{erz.name}:
+					</td>
+					<td class="noBorderX" style="width:20px">
+						&nbsp;
+					</td>
+					<td class="noBorderX" style="text-align:left" id="Erz_Display">
+					0
+					</td>
+				</tr>
+				<tr>
+					<td class="noBorderX" colspan="3" style="text-align:center">
+						<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+						<input type="submit" style="width:110px" value="bestellen" />
+					</td>
+				</tr>
+			</table>
+			{!table_end}
+		</div>
+	</form>
 {/endif}
 {if show.other}
 	<form action="./ds" method="post">

@@ -84,6 +84,9 @@
 	<mapping class="net.driftingsouls.ds2.server.entities.ResourceLimit" /> 
 	<mapping class="net.driftingsouls.ds2.server.entities.SellLimit" />
 	<mapping class="net.driftingsouls.ds2.server.comm.PM" />
+	<mapping class="net.driftingsouls.ds2.server.entities.UpgradeInfo" />
+	<mapping class="net.driftingsouls.ds2.server.entities.UpgradeJob" />
+	<mapping class="net.driftingsouls.ds2.server.entities.UpgradeMaxValues" />
 	<mapping class="net.driftingsouls.ds2.server.entities.User" />
 	<mapping class="net.driftingsouls.ds2.server.entities.UserResearch" />
 	<mapping class="net.driftingsouls.ds2.server.entities.UserMoneyTransfer" />

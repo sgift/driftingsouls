@@ -29,7 +29,9 @@ import java.util.Map;
 import java.util.Set;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
@@ -44,6 +46,9 @@ import net.driftingsouls.ds2.server.entities.FactionShopOrder;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
 import net.driftingsouls.ds2.server.entities.PaketVersteigerung;
+import net.driftingsouls.ds2.server.entities.UpgradeInfo;
+import net.driftingsouls.ds2.server.entities.UpgradeJob;
+import net.driftingsouls.ds2.server.entities.UpgradeMaxValues;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.entities.Versteigerung;
@@ -62,6 +67,7 @@ import net.driftingsouls.ds2.server.ships.JumpNodeRouter;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -1725,7 +1731,240 @@ public class ErsteigernController extends TemplateGenerator {
 		}
 		return "";
 	}
+
+	private static final int ITEM_BBS = 182;
 	
+	/**
+	 * Zeigt die GUI für den Asti-Asubau an
+	 * @urlparam Integer astiid Die ID des auszubauenden Asteroiden
+	 * @urlparam Integer colonizerid Die ID des auszubauenden Asteroiden
+	 * @urlparam Integer felder Die ID des auszubauenden Asteroiden
+	 * @urlparam Integer cargo Die ID des auszubauenden Asteroiden
+	 * @urlparam Integer bar Gibt die Zahlungsmethode an
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@Action(ActionType.DEFAULT)
+	public void ausbauAction() {
+		TemplateEngine t = getTemplateEngine();
+		org.hibernate.Session db = getDB();
+		User user = (User) getUser();
+
+		if( !Faction.get(faction).getPages().hasPage("ausbau") ) {
+			redirect();
+			return;
+		}
+
+		parameterNumber("astiid");
+		parameterNumber("colonizerid");
+		parameterNumber("felder");
+		parameterNumber("cargo");
+		parameterNumber("bar");
+
+		int astiid = getInteger("astiid");
+		int colonizerid = getInteger("colonizerid");
+		int felder = getInteger("felder");
+		int cargo = getInteger("cargo");
+		boolean bar = getInteger("bar") == 1;
+
+		if( astiid != 0 && colonizerid != 0 && felder != 0 && cargo != 0 ) {
+			Base base =  (Base)db.get(Base.class, astiid);
+			if(base == null)
+			{
+				addError("Der angew&auml;hlte Asteroid existiert nicht");
+				redirect();
+				return;
+			}
+
+			if(!base.getOwner().equals(getUser()))
+			{
+				addError("Dieser Asteroid geh&ouml;rt Ihnen nicht");
+				redirect();
+				return;
+			}
+
+			// Alle Werte wurden übergeben, nur noch testen ob sie akzeptabel sind
+			// Für jeden Asti darf maximal ein Auftrag in der DB sein
+			UpgradeJob auftrag = (UpgradeJob) db.createQuery("from UpgradeJob where base=:base")
+				.setParameter("base", base)
+				.uniqueResult();
+
+			if(auftrag != null) {
+				addError("F&uuml;r diesen Asteroid besteht bereits ein Auftrag");
+				redirect();
+				return;
+			}
+			
+			final UpgradeMaxValues maxvalues = (UpgradeMaxValues)db.get(UpgradeMaxValues.class, base.getKlasse());
+			if( maxvalues == null ) {
+				addError("Dieser Asteroid kann leider nicht ausgebaut werden");
+				redirect();
+				return;
+			}
+
+			// Teste ob die übergebenen felder und cargo Parameter korrekt sind
+			List<UpgradeInfo> infos = db.createQuery("from UpgradeInfo where (id=:felder and cargo=false) " +
+				"or (id=:cargo and cargo=true)")
+				.setParameter("felder", felder)
+				.setParameter("cargo", cargo)
+				.list();
+
+			if( infos.size() < 2 ) { // Da es selbst für den leeren Ausbau Einträge gibt, funktioniert das hier
+				addError("Es wurden illegale Ausbauten ausgew&auml;hlt");
+				redirect();
+				return;
+			}
+
+			boolean wantsUpgrade = false;
+			for(UpgradeInfo info: infos)
+			{
+				if(base.getMaxTiles() + info.getMod() > maxvalues.getMaxTiles())
+				{
+					addError("Der Asteroid hat zuviele Felder nach diesem Ausbau");
+					redirect();
+					return;
+				}
+
+				if(base.getMaxCargo() + info.getMod() > maxvalues.getMaxCargo())
+				{
+					addError("Der Asteroid hat zuviel Lagerraum nach diesem Ausbau.");
+					redirect();
+					return;
+				}
+
+				if(info.getMod() > 0)
+				{
+					wantsUpgrade = true;
+				}
+			}
+
+			if(!wantsUpgrade)
+			{
+				redirect();
+				return;
+			}
+
+
+			// Erstelle einen neuen Auftrag
+			UpgradeInfo felderInfo = (UpgradeInfo) db.get(UpgradeInfo.class, felder);
+			UpgradeInfo cargoInfo = (UpgradeInfo) db.get(UpgradeInfo.class, cargo);
+			Ship colonizer = (Ship) db.get(Ship.class, colonizerid);
+			auftrag = new UpgradeJob( base, user, felderInfo, cargoInfo, bar, colonizer );
+
+			User faction = (User) db.get(User.class, this.faction);
+			if(!bar)
+			{
+				// Testen ob genuegend Geld vorhanden ist um es uns untern Nagel zu reiszen
+				if(user.getKonto().compareTo(new BigDecimal(felderInfo.getPrice() + cargoInfo.getPrice()).toBigInteger()) < 0 ) {
+					addError("Sie verf&uuml;gen nicht &uuml;ber genug Geld</span>");
+					redirect();
+					return;
+				}
+				faction.transferMoneyFrom( user.getId(), felderInfo.getPrice() + cargoInfo.getPrice(), "Ausbau von " + base.getName());
+			}
+
+			// Den Besitzer des Colonizers ändern
+			colonizer.setOwner( faction );
+
+			// Auftrag speichern
+			db.persist( auftrag );
+
+			// Erstelle einen neuen Task für den Auftrag
+			Taskmanager taskmanager = Taskmanager.getInstance();
+			taskmanager.addTask( Taskmanager.Types.UPGRADE_JOB, 1, Integer.toString(auftrag.getId()), "0", Integer.toString(this.faction) );
+
+			t.setVar("show.message", "Ihr Auftrag wurde an den zust&auml;ndigen Sachbearbeiter weitergeleitet. Die Bauma&szlig;nahmen werden in k&uuml;rze beginnen.");
+			
+			redirect();
+			return;
+		}
+
+		t.setVar( "show.ausbau", 1 );
+
+		t.setBlock("_ERSTEIGERN", "ausbau.asti.listitem", 		"ausbau.asti.list");
+		t.setBlock("_ERSTEIGERN", "ausbau.colonizer.listitem", 	"ausbau.colonizer.list");
+		t.setBlock("_ERSTEIGERN", "ausbau.cargo.listitem", 		"ausbau.cargo.list");
+		t.setBlock("_ERSTEIGERN", "ausbau.felder.listitem", 	"ausbau.felder.list");
+
+		// Hole alle Astis des Spielers und markiere gewaehlten Asti
+		List<Base> astis = db.createQuery("from Base where owner=:user order by id")
+			.setParameter("user", user)
+			.list();
+		Base selectedBase = null;
+		for(Base asti: astis) {
+			final UpgradeMaxValues maxvalues = (UpgradeMaxValues)db.get(UpgradeMaxValues.class, asti.getKlasse());
+			if( maxvalues == null ) {
+				continue;
+			}
+			
+			t.setVar("asti.id", asti.getId(),
+					 "asti.name", asti.getName(),
+					 "asti.selected", astiid == asti.getId());
+			t.parse("ausbau.asti.list", "ausbau.asti.listitem", true);
+			if( astiid == asti.getId() ) {
+				selectedBase = asti;
+			}
+		}
+
+		if( selectedBase == null && !astis.isEmpty() ) {
+			selectedBase = astis.get(0);
+		}
+		
+		if( selectedBase == null ) {
+			return;
+		}
+		
+		t.setVar(
+				"erz.name",		Cargo.getResourceName(Resources.ERZ),
+				"erz.image",	Cargo.getResourceImage(Resources.ERZ),
+				"bbs.name",		Cargo.getResourceName(new ItemID(ITEM_BBS)),
+				"bbs.image",	Cargo.getResourceImage(new ItemID(ITEM_BBS)));
+
+		// Hole die Colos des ausgewaehlten Astis
+		List<Ship> colonizers = db.createQuery("from Ship where shiptype.flags like :colonizer and " +
+			"owner=:user and system=:baseSystem and x=:baseX AND y=:baseY order by id")
+			.setString("colonizer", ShipTypes.SF_COLONIZER)
+			.setParameter("user", user)
+			.setInteger("baseSystem", selectedBase.getSystem())
+			.setInteger("baseX", selectedBase.getX())
+			.setInteger("baseY", selectedBase.getY())
+			.list();
+
+		for(Ship colonizer: colonizers ) {
+			t.setVar("colonizer.id", colonizer.getId(),
+				 "colonizer.name", colonizer.getName());
+			t.parse("ausbau.colonizer.list", "ausbau.colonizer.listitem", true);
+		}
+
+		final UpgradeMaxValues maxvalues = (UpgradeMaxValues)db.get(UpgradeMaxValues.class, selectedBase.getKlasse());
+		
+		// Setze die ausbau-mods, finde heraus welche bereits angewendet wurden und Typ des Astis
+		List<UpgradeInfo> possibleMods = db.createQuery("from UpgradeInfo where type=:asteroidClass order by id")
+			.setParameter("asteroidClass", selectedBase.getKlasse())
+			.list();
+		for(UpgradeInfo info: possibleMods ) {
+			if( info.getCargo() ) { // Testen ob info den Cargo modifiziert
+				if( selectedBase.getMaxCargo() + info.getMod() <= maxvalues.getMaxCargo() ) {
+					t.setVar("cargo.mod", info.getMod(),
+						 "cargo.id", info.getId(),
+						 "cargo.preis", info.getPrice(),
+						 "cargo.bbs", info.getMiningExplosive(),
+						 "cargo.erz", info.getOre());
+					t.parse("ausbau.cargo.list", "ausbau.cargo.listitem", true);
+				} 
+			} else { // Es handelt sich um ein Felder Ausbau
+				if( selectedBase.getMaxTiles() + info.getMod() <= maxvalues.getMaxTiles() ) {
+					t.setVar("felder.mod", info.getMod(),
+						 "felder.id", info.getId(),
+						 "felder.preis", info.getPrice(),
+						 "felder.bbs", info.getMiningExplosive(),
+						 "felder.erz", info.getOre());
+					t.parse("ausbau.felder.list", "ausbau.felder.listitem", true);
+				}
+			}
+		}
+	}
+
 	/**
 	 * Zeigt den Shop der Fraktion an
 	 *
@@ -1739,7 +1978,7 @@ public class ErsteigernController extends TemplateGenerator {
 		if( !Faction.get(faction).getPages().hasPage("shop") ) {
 			redirect();	
 			return;
-		}			
+		}
 		
 		t.setVar( "show.shop", 1 );
 		
