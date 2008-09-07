@@ -487,4 +487,10 @@ public class ShipWerft extends WerftObject {
 			}
 		}
 	}
+
+	@Override
+	public double getWorkerPercentageAvailable()
+	{
+		return this.ship.getCrew() / (double)this.ship.getTypeData().getCrew();
+	}
 }

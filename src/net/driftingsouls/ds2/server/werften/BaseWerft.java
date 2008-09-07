@@ -229,4 +229,10 @@ public class BaseWerft extends WerftObject {
 	public String getObjectUrl() {
 		return Common.buildUrl("default", "module", "base", "col", base.getId());
 	}
+
+	@Override
+	public double getWorkerPercentageAvailable()
+	{
+		return 1d;
+	}
 }

@@ -470,4 +470,17 @@ public class WerftKomplex extends WerftObject {
 		
 		return werften[0].getObjectUrl();
 	}
+
+	@Override
+	public double getWorkerPercentageAvailable()
+	{
+		loadData();
+		
+		double value = 0;
+		
+		for( int i=0; i < werften.length; i++ ) {
+			value += werften[i].getWorkerPercentageAvailable();
+		}
+		return value / werften.length;
+	}
 }

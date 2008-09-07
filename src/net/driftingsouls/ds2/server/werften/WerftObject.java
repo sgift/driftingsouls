@@ -442,6 +442,14 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	public abstract String getObjectUrl();
 	
 	/**
+	 * Gibt den Anteil an verfuegbaren Arbeitern an der Menge
+	 * der (eigendlich) notwendigen Arbeiter zurueck. Der Wert
+	 * liegt zwischen 0 und 1.
+	 * @return Der Anteil
+	 */
+	public abstract double getWorkerPercentageAvailable();
+	
+	/**
 	 * Gibt den Radius der Werft zurueck
 	 * @return Der Radius
 	 */
