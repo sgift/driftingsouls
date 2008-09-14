@@ -1,60 +1,3 @@
-<script type="text/javascript">
-<!--
-	function showShip( ship ) {
-		opener.parent.frames['main'].location.href = './ds?module=schiff&sess={global.sess}&ship='+ship;
-	}
-
-	function refreshOwn() {
-		window.location.href = './ds?module=fleetmgnt&sess={global.sess}&fleet={fleet.id}';
-	}
-
-	function removeShip( ship ) {
-		opener.parent.frames['main'].location.href = './ds?module=schiff&sess={global.sess}&ship='+ship+'&action=join&join=0';
-		window.setTimeout("refreshOwn()", 1000);
-	}
-
-	function showBattle( battle, ship ) {
-		opener.parent.frames['main'].location.href = './ds?module=angriff&sess={global.sess}&battle='+battle+'&ship='+ship;
-		window.close();
-	}
-	
-	var sessid;
-	
-	function reloadMainpage(sess) {
-		sessid = sess;
-		window.setTimeout("reloadMainpage2()", 1000);
-	}
-	
-	{if jscript.reloadmain}
-		var shipid = {jscript.reloadmain.ship};
-		
-		function reloadMainpage2() {
-			var szUrl = opener.parent.frames['main'].location.href;
-			if( (szUrl.search(/\?/) == -1) && (szUrl.search(/ship=/) == -1) && (shipid > 0) ) {
-				szUrl = szUrl + '?sess='+sessid+'&ship='+shipid;
-			}
-			szUrl = szUrl + "&tmp=1";
-
-			var szUrl2 = szUrl.replace(/plugin=(.*)\&/,"&");
-			szUrl2 = szUrl2.replace(/join=(.*)\&/,"&");
-			szUrl2 = szUrl2.replace(/node=(.*)\&/,"&");
-			szUrl2 = szUrl2.replace(/newname=(.*)\&/,"&");
-			szUrl2 = szUrl2.replace(/shup=(.*)\&/,"&");
-			szUrl2 = szUrl2.replace(/land=(.*)\&/,"&");
-			szUrl2 = szUrl2.replace(/newowner=(.*)\&/,"&");
-			szUrl2 = szUrl2.replace(/land=(.*)\&/,"&");
-			szUrl2 = szUrl2.replace(/shiplist=(.*)\&/,"&");
-			szUrl2 = szUrl2.replace(/\&tmp=(.*)1/,"");
-			szUrl2 = szUrl2.replace(/\&action=(.*)\&/,"&action=default&");
-
-			opener.parent.frames['main'].location = szUrl2;
-		}
-	{else}
-		function reloadMainpage2() {	
-		}
-	{/endif}
--->
-</script>
 <span class="smallfont">
 {if fleetmgnt.message}
 	{fleetmgnt.message}<br /><br />
@@ -295,3 +238,61 @@
 	{!table_end}
 {/endif}
 </span>
+
+<script type="text/javascript">
+<!--
+	function showShip( ship ) {
+		opener.parent.frames['main'].location.href = './ds?module=schiff&sess={global.sess}&ship='+ship;
+	}
+
+	function refreshOwn() {
+		window.location.href = './ds?module=fleetmgnt&sess={global.sess}&fleet={fleet.id}';
+	}
+
+	function removeShip( ship ) {
+		opener.parent.frames['main'].location.href = './ds?module=schiff&sess={global.sess}&ship='+ship+'&action=join&join=0';
+		window.setTimeout("refreshOwn()", 1000);
+	}
+
+	function showBattle( battle, ship ) {
+		opener.parent.frames['main'].location.href = './ds?module=angriff&sess={global.sess}&battle='+battle+'&ship='+ship;
+		window.close();
+	}
+	
+	var sessid;
+	
+	function reloadMainpage(sess) {
+		sessid = sess;
+		window.setTimeout("reloadMainpage2()", 1000);
+	}
+	
+	{if jscript.reloadmain}
+		var shipid = {jscript.reloadmain.ship};
+		
+		function reloadMainpage2() {
+			var szUrl = opener.parent.frames['main'].location.href;
+			if( (szUrl.search(/\?/) == -1) && (szUrl.search(/ship=/) == -1) && (shipid > 0) ) {
+				szUrl = szUrl + '?sess='+sessid+'&ship='+shipid;
+			}
+			szUrl = szUrl + "&tmp=1";
+
+			var szUrl2 = szUrl.replace(/plugin=(.*)\&/,"&");
+			szUrl2 = szUrl2.replace(/join=(.*)\&/,"&");
+			szUrl2 = szUrl2.replace(/node=(.*)\&/,"&");
+			szUrl2 = szUrl2.replace(/newname=(.*)\&/,"&");
+			szUrl2 = szUrl2.replace(/shup=(.*)\&/,"&");
+			szUrl2 = szUrl2.replace(/land=(.*)\&/,"&");
+			szUrl2 = szUrl2.replace(/newowner=(.*)\&/,"&");
+			szUrl2 = szUrl2.replace(/land=(.*)\&/,"&");
+			szUrl2 = szUrl2.replace(/shiplist=(.*)\&/,"&");
+			szUrl2 = szUrl2.replace(/\&tmp=(.*)1/,"");
+			szUrl2 = szUrl2.replace(/\&action=(.*)\&/,"&action=default&");
+
+			opener.parent.frames['main'].location = szUrl2;
+		}
+	{else}
+		function reloadMainpage2() {	
+		}
+	{/endif}
+-->
+</script>
