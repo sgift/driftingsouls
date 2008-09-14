@@ -454,7 +454,9 @@ public class ScanController extends TemplateGenerator {
 					t.setVar(	"ship.owner.name",	"Unbekannt",
 								"ship.ownerlink",	0 );
 				}
+				if (scanable){
 				t.parse("ships.list", "ships.listitem", true);
+				}
 			}
 		}
 	}
