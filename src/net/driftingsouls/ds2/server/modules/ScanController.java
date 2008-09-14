@@ -429,6 +429,8 @@ public class ScanController extends TemplateGenerator {
 					else if( nebeltype == 6 && shiptype.getSize() > 8 ) // Schadensnebel
 					{
 						scanable = true;
+					}else if (ship.getOwner().getId() == user.getId()){
+						scanable = true;
 					}
 				}
 				else
