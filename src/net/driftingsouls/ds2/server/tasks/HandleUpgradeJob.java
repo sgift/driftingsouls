@@ -118,6 +118,8 @@ class HandleUpgradeJob implements TaskHandler
 				// Loesche den Auftrag und den Task
 				db.delete(order);
 				tm.removeTask( task.getTaskID() );
+				
+				return;
 			}
 		}
 		// Ausbau noch nicht begonnen
@@ -172,6 +174,8 @@ class HandleUpgradeJob implements TaskHandler
 		{
 			sendWarningMessage(db, order, faction);
 		}
+		
+		tm.incTimeout(task.getTaskID());
 	}
 
 	private void cancelJob(Taskmanager tm, Task task, UpgradeJob order, final int faction)
