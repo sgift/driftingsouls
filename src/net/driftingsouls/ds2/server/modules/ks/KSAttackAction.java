@@ -1248,12 +1248,12 @@ public class KSAttackAction extends BasicKSAction {
 					
 				if( this.localweapon.getDouble("destroyable") > 0 ) {
 					antitorptrefferws = this.getAntiTorpTrefferWS( enemyShipType );
-					battle.logme("AntiTorp-TrefferWS: "+antitorptrefferws+"%\n");
+					battle.logme("AntiTorp-TrefferWS: "+ this.getTWSText(antitorptrefferws) +"%\n");
 					
 					if( enemyShipType.getSize() > ShipType.SMALL_SHIP_MAXSIZE ) {
 						fighterdef = this.getFighterDefense(battle);
 						if( fighterdef > 0 ) {
-							battle.logme("Verteidigung durch Schiffe: "+fighterdef+"%\n");	
+							battle.logme("Verteidigung durch Schiffe: "+ this.getTWSText(fighterdef) +"%\n");	
 						}	
 					}
 				}
@@ -1274,7 +1274,7 @@ public class KSAttackAction extends BasicKSAction {
 				int navskill = this.getNavSkill( battle, ownShipType, offizier );
 				int defensivskill = this.getDefensivSkill( enemyShipType, eOffizier );
 			
-				battle.logme( "Offensivskill: "+offensivskill+"\n" );
+				//battle.logme( "Offensivskill: "+offensivskill+"\n" );
 				
 				/*
 				 * 	Schadenswerte, Panzerung & TrefferWS ermitteln
@@ -1293,7 +1293,7 @@ public class KSAttackAction extends BasicKSAction {
 					trefferWS = this.getTrefferWS( battle, this.localweapon.getInt("deftrefferws"), this.enemyShip, enemyShipType, defensivskill, navskill );
 				}
 				
-				battle.logme( "Basis-TrefferWS: "+trefferWS+"%\n");
+				battle.logme( "Basis-TrefferWS: "+ this.getTWSText(trefferWS) +"%\n");
 				
 				trefferWS -= antitorptrefferws;
 				// Minimum bei 5% bei zerstoerbaren Waffen
@@ -1303,7 +1303,7 @@ public class KSAttackAction extends BasicKSAction {
 				else {
 					trefferWS -= fighterdef;
 				}
-				battle.logme( "TrefferWS: "+trefferWS+"%\n" );
+				battle.logme( "TrefferWS: "+ this.getTWSText(trefferWS) +"%\n" );
 			
 				int[] subdmgs = null;
 				
@@ -1312,7 +1312,7 @@ public class KSAttackAction extends BasicKSAction {
 				 */
 				if( this.localweapon.getInt("subdamage") > 0 ) {
 					int subWS = this.getTrefferWS( battle, this.localweapon.getInt("subws"), this.enemyShip, enemyShipType, defensivskill, navskill );
-					battle.logme( "SubsystemTWS: "+subWS+"%\n" );
+					battle.logme( "SubsystemTWS: "+ this.getTWSText(subWS) +"%\n" );
 			
 					int subPanzerung = panzerung;
 					if( subPanzerung > 10 ) {
@@ -1472,5 +1472,23 @@ public class KSAttackAction extends BasicKSAction {
 		this.ownShip.getShip().recalculateShipStatus();
 
 		return RESULT_OK;
+	}
+
+	private String getTWSText(int chance) {
+		String answer = "";
+		if (chance == 0){
+			answer = "nicht vorhanden";
+		}else if (chance <=  25){
+			answer = "gering";
+		}else if ( chance <= 50){
+			answer = "ausreichend";
+		}else if ( chance <= 75){
+			answer = "gut";
+		}else if ( chance <= 99){
+			answer = "hervorragend";
+		}else {
+			answer = "unfehlbar";
+		}
+		return answer;
 	}
 }
