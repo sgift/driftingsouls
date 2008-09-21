@@ -145,15 +145,6 @@
 						document.getElementById("alarm").style.display = 'none';
 					}
 					
-					if( action == "build" ) {
-						document.getElementById("buildcount").style.display = 'inline';
-						document.getElementById("buildid").style.display = 'inline';
-					}
-					else {
-						document.getElementById("buildcount").style.display = 'none';
-						document.getElementById("buildid").style.display = 'none';
-					}
-
 					if(action == "getCrew")
 					{
 						document.getElementById("crewinpercent").style.display = 'inline';
@@ -164,6 +155,16 @@
 						document.getElementById("crewinpercent").style.display = 'none';
 						document.getElementById("percent").style.display = 'none';
 					}
+					
+					if( action == "build" ) {
+						document.getElementById("buildcount").style.display = 'inline';
+						document.getElementById("buildid").style.display = 'inline';
+					}
+					else {
+						document.getElementById("buildcount").style.display = 'none';
+						document.getElementById("buildid").style.display = 'none';
+					}
+
 				}
 			-->
 			</script>
@@ -221,9 +222,7 @@
 					<option value="0">gelb</option>
 					<option value="1">rot</option>
 				</select>
-				{if astiinsector}
-					<input type="text" id="crewinpercent" name="crewinpercent" style="display:none" size="3" maxlength="3" /><span id="percent" name="percent" style="display:none">%</span>
-				{/endif}
+				<input type="text" id="crewinpercent" name="crewinpercent" style="display:none" size="3" maxlength="3" /><span id="percent" name="percent" style="display:none">%</span>
 				{if buildableships.list}
 					<input type="text" id="buildcount" name="buildcount" style="display:none" size="3" maxlength="3" />
 					<select id="buildid" name="buildid" size="1" style="display:none">
