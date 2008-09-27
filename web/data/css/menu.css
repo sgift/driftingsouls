@@ -1,0 +1,342 @@
+html {
+	overflow: hidden;
+	width:100%;
+	height:100%;
+}
+
+body {
+	overflow: hidden;
+	padding:0px;
+	margin:0px;
+	background-color: #000000;
+	width:100%;
+	height:100%;
+	color: #C7C7C7;
+	font-family: arial, helvetica;
+	font-size: 14px;
+}
+
+img {
+	border:0px;
+	vertical-align:middle;
+}
+
+button {
+	border: 1px #A7A7A7 solid;
+	margin: 0px;
+	color: #FEB626;
+	font-size:13px;
+	background-color: #202020;
+	padding:1px;
+}
+
+input {
+	border: 1px #A7A7A7 solid;
+	margin: 0px;
+	color: #C7C7C7;
+	font-size:13px;
+	background-color: #202020;
+	padding:1px;
+}
+
+input.submit {
+	border: 1px #A7A7A7 solid;
+	margin: 0px;
+	color: #FEB626;
+	font-size:13px;
+	background-color: #202020;
+	padding:1px;
+}
+
+textarea {
+	border: 1px #A7A7A7 solid;
+	margin: 0px;
+	color: #C7C7C7;
+	font-size:13px;
+	background-color: #202020;
+	padding:0px;
+}
+
+table.tooltip {
+	color: white;
+	font-family: arial;
+	font-size: 16px;
+	border-style: none;
+	border-width: 0px;
+}
+
+td.tooltip {
+	background-color: transparent;
+	color: white;
+	font-family: arial;
+	font-size: 16px;
+	border-style: none;
+	border-width: 0px;
+}
+
+font.tooltip {
+	color: white;
+	font-family: arial;
+	font-size: 16px;
+}
+
+h2 {font-size:16px; font-weight:bold; text-decoration:none; color:#FFFFFF; margin-top:1px; margin-left:0px; margin-right:0px; margin-bottom:2px}
+h3 {font-size:14px; font-weight:bold; text-decoration:none; color:#FEB626; margin-top:1px; margin-left:0px; margin-right:0px; margin-bottom:2px}
+
+/* Grafische Box */
+div.gfxbox {
+	position:absolute;
+	z-index:90;
+	top:80px;
+	left:0px;
+	right:0px;
+	display:none;
+	margin: 0px auto 0px auto;
+	background: url('./data/interface/border/topleft.gif') top left no-repeat;
+	padding:0px;
+}
+
+div.gfxbox > div {
+	background: url('./data/interface/border/topright.gif') top right no-repeat;
+	position:relative;
+	right:-20px;
+	padding:0px;
+	margin:0px;
+}
+
+div.gfxbox > div > div {
+	background: url('./data/interface/border/bottomright.gif') bottom right no-repeat;
+	position:relative;
+	bottom: -18px;
+	margin:0px;
+}
+
+div.gfxbox > div > div > div {
+	background: url('./data/interface/border/bottomleft.gif') bottom left no-repeat;
+	position:relative;
+	left: -20px;
+	padding: 0px 0px 20px 20px;
+}
+
+/* Menueleiste */
+
+#menu { 
+	list-style-type:none;
+	padding:0px 5px 0px 5px;
+	margin:0px;
+	height:30px;
+	background: url('./data/interface/border/centerbottom.gif') bottom right repeat-x;text-align:center;
+	width:100%;
+	position:absolute;
+	top:0px;
+	left:0px;
+}
+#menu li.statusfield {
+	float:left;
+	padding:6px 3px 3px 0px;
+	margin:0 1px 0 0;
+	position:relative;
+	width:20px;
+	height:15px;
+	z-index:100;
+}
+#menu li.actionfield {
+	float:right; 
+	padding:6px 10px 3px 0px;
+	margin:0 1px 0 0;
+	position:relative;
+	height:15px;
+	z-index:100;
+	text-align:right;
+	white-space: nowrap;
+}
+#menu li {
+	float:left;
+	padding:0;
+	margin:0px 1px 0px 0px;
+	position:relative;
+	width:110px;
+	height:15px;
+	z-index:100;
+}
+#menu li dl {
+	position:absolute;
+	top:0px;
+	left:0px;
+	padding-bottom:0px;
+	padding-top:5px;
+}
+#menu li a, #menu li a:visited {
+	text-decoration:none;
+}
+#menu li dd {
+	display:none;
+}
+#menu li a:hover {
+	border:0px;
+}
+#menu li:hover dd, #menu li a:hover dd {
+	display:block;
+}
+#menu li:hover dl, #menu li a:hover dl {
+	padding-bottom:10px;
+}
+#menu dl {
+	width: 110px; margin:0px; padding:0px; background: transparent;
+}
+#menu dt {
+	margin:0px;
+	padding: 0px 0px 5px 0px;
+	font-size:13px;
+	white-space: nowrap;
+}
+#menu dd {
+	margin:0px;
+	padding:0px;
+	padding-right:5px;
+	background: url('./data/interface/border/centerright.gif') top right no-repeat;
+}
+
+#menu dd.lastelement {
+	margin:0px;
+	padding:0px 18px 0px 0px;
+	background: url('./data/interface/border/border_bottomright.gif') bottom right no-repeat;
+}
+
+#menu dd span, #menu dd > a {
+	display:block;
+	background:url("./data/interface/border/centerleft.gif") no-repeat left top;
+	padding:5px 0px 0px 5px;
+	margin:0px;
+	text-align:center;
+}
+
+#menu dd.lastelement span {
+	display:block;
+	background:url("./data/interface/border/bottomleft.gif") no-repeat left bottom;
+	padding:18px 0px 0px 18px;
+	margin:0px;
+	text-align:center;
+}
+
+#menu li dt a:link		{color: #c7c7c7; font-size:13px; font-weight: normal; text-decoration: none;}
+#menu li dt a:visited	{color: #c7c7c7; font-size:13px; font-weight: normal; text-decoration: none;}
+#menu li dt a:hover		{color: #719bef; font-size:13px; font-weight: normal; text-decoration: none;}
+#menu li dt a:active	{color: #719bef; font-size:13px; font-weight: normal; text-decoration: none;}
+
+#menu li dt a.currentPage:link {
+	color: #47e767;
+	font-size:13px;
+	font-weight: bold;
+	text-decoration: none;
+}
+#menu li dt a.currentPage:visited {
+	color: #47e767;
+	font-size:13px;
+	font-weight: bold;
+	text-decoration: none;
+}
+#menu li dt a.currentPage:hover {
+	color: #719bef;
+	font-size:13px;
+	font-weight: bold;
+	text-decoration: none;
+}
+#menu li dt a.currentPage:active {
+	color: #719bef;
+	font-size:13px;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+#menu li dt span.currentPage {
+	color: #47e767;
+	font-size:13px;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+#menu li dt a.low:link		{color: #c72121; font-family: verdana, helvetica; font-size:13px; font-weight: bold; text-decoration: none;}
+#menu li dt a.low:visited	{color: #c72121; font-family: verdana, helvetica; font-size:13px; font-weight: bold; text-decoration: none;}
+#menu li dt a.low:hover		{color: #ff0000; font-family: verdana, helvetica; font-size:13px; font-weight: bold; text-decoration: none;}
+#menu li dt a.low:active	{color: #ff0000; font-family: verdana, helvetica; font-size:13px; font-weight: bold; text-decoration: none;}
+
+#menu li dd a:link		{color: #c7c7c7; font-size:11px; font-weight: normal; text-decoration: none;}
+#menu li dd a:visited	{color: #c7c7c7; font-size:11px; font-weight: normal; text-decoration: none;}
+#menu li dd a:hover		{color: #719bef; font-size:11px; font-weight: normal; text-decoration: none;}
+#menu li dd a:active	{color: #719bef; font-size:11px; font-weight: normal; text-decoration: none;}
+
+#menu li dd a.low:link		{color: #c72121; font-family: verdana, helvetica; font-size:11px; font-weight: bold; text-decoration: none; margin-bottom:2px}
+#menu li dd a.low:visited	{color: #c72121; font-family: verdana, helvetica; font-size:11px; font-weight: bold; text-decoration: none; margin-bottom:2px}
+#menu li dd a.low:hover		{color: #ff0000; font-family: verdana, helvetica; font-size:11px; font-weight: bold; text-decoration: none; margin-bottom:2px}
+#menu li dd a.low:active	{color: #ff0000; font-family: verdana, helvetica; font-size:11px; font-weight: bold; text-decoration: none; margin-bottom:2px}
+
+#mailicon { display:none }
+
+#page_currentpage {display:none}
+#page_currentpage_dropdown {vertical-align:middle; display:none}
+
+#mainframe { position:absolute; top:30px; margin:0px; padding:0px 0px 0px 0px; width:100%; height:95% }
+
+/* Notizbox */
+#noticebox {
+	width:300px;
+}
+
+#noticebox div {
+	text-align:center;
+}
+
+#noticebox button, #noticebox textarea {
+	width:250px;
+}
+
+/* Adminconsole */
+#adminconsolebox {
+	width:450px;
+}
+
+#adminconsolebox div {
+	text-align:center;
+}
+
+#adminconsoleframe {
+	width:400px;
+	margin:0px;
+	padding:0px 0px 0px 0px;
+	height:200px;
+}
+
+#adminConsoleResponse {
+	height:200px;
+	overflow:auto;	
+}
+
+/* Hilfebox */
+#helpbox {
+	width:350px;
+}
+
+#helpbox div {
+	text-align:center;
+}
+#helpboxtext {
+	height: 300px;
+	overflow:auto;
+}
+
+/* Suchen */
+#searchbox {
+	width:450px;
+}
+
+#searchbox div {
+	text-align:center;
+}
+
+#searchframe {
+	width:400px;
+	margin:0px auto 0px auto;
+	padding:0px 0px 0px 0px;
+	height:400px;
+}
