@@ -34,6 +34,7 @@
 	<property name="manager.url"   value="http://localhost:8080/manager"/>
 	<property name="src.home"      value="${basedir}/src"/>
 	<property name="src.jstarmap"  value="${basedir}/clients/jstarmap"/>
+	<property name="src.tests"      value="${basedir}/test/java"/>
 	<property name="web.home"      value="${basedir}/web"/>
 	<property name="ds2.configdir" value="${basedir}/web/WEB-INF/cfg/"/>
 	<property name="templates.srchome" value="${build.home}/templates"/>
@@ -56,6 +57,24 @@
 		</fileset>
 		
 		<fileset dir="web/java">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+	
+	<path id="test.classpath">
+		<fileset dir="web/WEB-INF/lib">
+			<include name="*.jar"/>
+		</fileset>
+			
+		<fileset dir="web/java">
+			<include name="*.jar"/>
+		</fileset>
+		
+		<fileset dir="test/lib">
+			<include name="*.jar"/>
+		</fileset>
+		
+		<fileset dir="${build.home}/WEB-INF/lib">
 			<include name="*.jar"/>
 		</fileset>
 	</path>
@@ -258,6 +277,66 @@
 			</webapp>
 		</jetty>
 		<delete dir="jetty-temp" />
+	</target>
+	
+	<!-- ==================== CI-Prepare Target ================================== -->
+	
+	<target name="ci-prepare" description="Vorbereitende Massnahmen fuer einen Lauf in einem Continuous Integration System">
+		<exec executable="/usr/local/bin/ci-prepare.sh" failonerror="true" />
+	</target>
+	
+	<!-- ==================== Test Target ================================== -->
+	
+	<target name="test" depends="compile">
+		<mkdir dir="${build.home}/test" />
+		<mkdir dir="${build.home}/test-output" />
+		<mkdir dir="${build.home}/test/classes" />
+		<copy todir="${build.home}/test">
+			<fileset dir="test" excludes="java/**"/>
+		</copy>
+		
+		<javac srcdir="${src.tests}"
+			destdir="${build.home}/test/classes"
+			debug="${compile.debug}"
+			deprecation="${compile.deprecation}"
+			optimize="${compile.optimize}"
+			source="1.6"
+			target="1.6"
+			encoding="UTF-8"
+			verbose="true">
+			<classpath refid="test.classpath"/>
+		</javac>
+		
+		<copy todir="${build.home}/test/classes">
+			<fileset dir="test/java" excludes="**/*.java"/>
+		</copy>
+		
+		<junit fork="yes" haltonfailure="false">
+			<classpath>
+				<fileset dir="web/WEB-INF/lib">
+					<include name="*.jar"/>
+				</fileset>
+							
+				<fileset dir="web/java">
+					<include name="*.jar"/>
+				</fileset>
+						
+				<fileset dir="test/lib">
+					<include name="*.jar"/>
+				</fileset>
+				
+			    <pathelement location="${build.home}/test/classes"/>
+				<pathelement location="${build.home}/WEB-INF/classes"/>
+			</classpath>
+			
+			<batchtest todir="${build.home}/test-output">
+				<fileset dir="${build.home}/test/classes">
+					<include name="**/*Test.class"/>
+				</fileset>	
+			</batchtest>
+			<formatter type="xml"/>
+			<formatter type="plain" usefile="false" />
+		</junit>
 	</target>
 </project>
  

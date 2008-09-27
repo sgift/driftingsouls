@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+	<users id="-1" name="Niemand" cargo="10000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0," history="" flags="" />
+	<users id="0" name="Nulluser" cargo="10000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0," history="" flags="" />
+	<users id="1" name="Testuser" cargo="10000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0," history="" flags="" />
+
+	<ship_types id="1" nickname="GTS Zephyrus" picture="" ru="2" rd="5" ra="0" rm="110" eps="150"
+		cost="3" hull="30000" cargo="1500" heat="2" crew="30" weapons="" maxheat="" 
+		size="14" descrip="" deutfactor="3" class="3" flags="" modules="" werft="8" />
+
+	<bases id="1" name="Testasti" owner="1" x="5" y="1" system="1" bewohner="1" arbeiter="0" e="1000"
+		maxe="10000" cargo="" maxcargo="10000" klasse="1" width="5" height="5" maxtiles="0"
+		terrain="" bebauung="" active="" autogtuacts="" />
+		
+	<!-- Basiswerft -->
+		
+	<werften id="1" type="0" flagschiff="0" col="1" />
+	<werft_queues id="1" werft="1" position="0" building="1" item="-1" remaining="1" flagschiff="0" 
+		costsPerTick="" energyPerTick="0" slots="1" scheduled="1" />
+		
+	<!-- Werftkomplex -->
+	
+	<ships id="1" owner="1" name="Werft" type="1" cargo=""
+		x="1" y="1" system="1" crew="30" e="150" hull="30000" heat="" history="" />
+	<ships id="2" owner="1" name="Werft" type="1" cargo=""
+		x="1" y="1" system="1" crew="30" e="150" hull="30000" heat="" history="" />
+	<ships id="3" owner="1" name="Werft" type="1" cargo=""
+		x="1" y="1" system="1" crew="30" e="150" hull="30000" heat="" history="" />
+		
+	<werften id="2" type="0" flagschiff="0" komplex="1" />
+	<werft_queues id="2" werft="2" position="0" building="1" item="-1" remaining="1" flagschiff="0" 
+		costsPerTick="" energyPerTick="0" slots="1" scheduled="1" />
+	<werft_queues id="3" werft="2" position="1" building="1" item="-1" remaining="1" flagschiff="0" 
+		costsPerTick="" energyPerTick="0" slots="1" scheduled="1" />
+		
+	<werften id="3" type="0" flagschiff="0" shipid="1" linkedWerft="2" />
+	<werften id="4" type="0" flagschiff="0" shipid="2" linkedWerft="2" />
+	<werften id="5" type="0" flagschiff="0" shipid="2" linkedWerft="2" />
+	
+	<!-- Schiffswerft -->
+	<ships id="4" owner="1" name="Werft" type="1" cargo=""
+		x="1" y="1" system="1" crew="30" e="150" hull="30000" heat="" history="" />
+	
+	<werften id="6" type="0" flagschiff="0" shipid="4" />
+	
+	<werft_queues id="4" werft="6" position="1" building="1" item="-1" remaining="1" flagschiff="0" 
+		costsPerTick="" energyPerTick="0" slots="1" scheduled="1" />
+</dataset>
