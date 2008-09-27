@@ -162,6 +162,30 @@
 		</javac>
 	</target>
 	
+	<!-- ==================== generate markov chains ================================== -->
+			
+	<target name="generate-markov-chains" depends="prepare,compile-ds">
+		<java classname="net.driftingsouls.ds2.server.namegenerator.markov.MarkovTrainer" fork="true">
+			<arg value="${build.home}/WEB-INF/classes/net/driftingsouls/ds2/server/namegenerator/british.jmk" />
+			<arg value="${src.home}/net/driftingsouls/ds2/server/namegenerator/british.txt" />
+			<classpath>
+				<pathelement path="${build.home}/WEB-INF/classes" />
+			</classpath>
+			<classpath refid="compile.classpath" />
+		</java>
+		
+		<java classname="net.driftingsouls.ds2.server.namegenerator.markov.MarkovTrainer" fork="true">
+			<arg value="${build.home}/WEB-INF/classes/net/driftingsouls/ds2/server/namegenerator/vasudan.jmk" />
+			<arg value="${src.home}/net/driftingsouls/ds2/server/namegenerator/vasudan.txt" />
+			<classpath>
+				<pathelement path="${build.home}/WEB-INF/classes" />
+			</classpath>
+			<classpath refid="compile.classpath" />
+		</java>
+	</target>
+	
+	<!-- ==================== compile-jstarmap Target ================================== -->
+	
 	<target name="compile-jstarmap" depends="prepare" description="Compile client jstarmap sources">
 		<mkdir dir="${build.home}/java/jstarmap"/>
 		<mkdir dir="${build.home}/java/jstarmap/classes"/>
@@ -183,7 +207,7 @@
 	<target name="compile-clients" depends="compile-jstarmap" description="Compile client meta target">
 	</target>
 	
-	<target name="compile" depends="compile-framework,compile-templates,compile-ds,compile-clients" description="Compile meta target">
+	<target name="compile" depends="compile-framework,compile-templates,compile-ds,generate-markov-chains,compile-clients" description="Compile meta target">
 	</target>
 	
 	<!-- ==================== jar Target ===================================== -->

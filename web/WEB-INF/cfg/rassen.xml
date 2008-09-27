@@ -24,7 +24,7 @@
 	</rasse>
 	<rasse id="1" playable="true" member-of="0">
 		<name>Terraner</name>
-		<generator type="person">php /home/bktheg/Projects/markov/terran.php</generator>
+		<generator type="person">net.driftingsouls.ds2.server.namegenerator.TerranGenerator</generator>
 		<description>
 			[align=left]
 			Terraner sind Menschen.
@@ -37,8 +37,8 @@
 	</rasse>
 	<rasse id="2" playable="true" member-of="0">
 		<name>Vasudaner</name>
-		<generator type="person">php /home/bktheg/Projects/markov/vasudan.php</generator>
-		<generator type="ship">php /home/bktheg/Projects/markov/vasudan.php</generator>
+		<generator type="person">net.driftingsouls.ds2.server.namegenerator.VasudanGenerator</generator>
+		<generator type="ship">net.driftingsouls.ds2.server.namegenerator.VasudanGenerator</generator>
 		<description>
 			[align=left]
 			Hochentwickelte Spezies.

@@ -37,6 +37,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.namegenerator.NameGenerator;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 import org.apache.commons.lang.math.RandomUtils;
@@ -50,39 +51,12 @@ import org.apache.commons.lang.math.RandomUtils;
  *
  */
 public class AcademyTick extends TickController {
-	private Map<Integer,List<String>> namecache;
 	private int maxid;
 	private Map<Integer,Offizier.Ability> dTrain;
 	
 	@Override
 	protected void prepare() {
 		org.hibernate.Session db = getDB();
-		
-		// Namenscache fuellen
-		namecache = new HashMap<Integer,List<String>>();
-		for( Rasse race : Rassen.get() ) {
-			namecache.put(race.getID(), new ArrayList<String>());
-			if( race.getNameGenerator(Rasse.GENERATOR_PERSON) != null ) {
-				try {
-					Process p = Runtime.getRuntime().exec(race.getNameGenerator(Rasse.GENERATOR_PERSON)+" 50 \\n");
-					BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-					String tmp = null;
-					while( (tmp = in.readLine()) != null ) {
-						if( tmp.length() == 0 ) {
-							continue;
-						}
-						if( tmp.length() > 60 ) {
-							tmp = tmp.substring(0, 61);
-						}
-						namecache.get(race.getID()).add(tmp);
-					}
-					in.close();
-				}
-				catch( Exception e ) {
-					log("FEHLER: Laden der Offiziersnamen nicht moeglich");
-				}
-			}
-		}
 		
 		// Max-ID berechnen
 		maxid = ((Number)db.createQuery("select max(id) from Offizier")
@@ -102,12 +76,9 @@ public class AcademyTick extends TickController {
 	private String getNewOffiName(int race) {
 		String offiname = "Offizier "+maxid;
 		
-		if( namecache.get(race).size() > 0 ) {
-			List<String> names = this.namecache.get(race);
-			offiname = names.get(RandomUtils.nextInt(names.size()));
-			if( offiname.trim().length() == 0 ) {
-				offiname = "Offizier "+maxid;
-			}
+		NameGenerator generator = Rassen.get().rasse(race).getNameGenerator(Rasse.GeneratorType.PERSON);
+		if( generator != null ) {
+			offiname = generator.generate(1)[0];
 		}
 		
 		return offiname;

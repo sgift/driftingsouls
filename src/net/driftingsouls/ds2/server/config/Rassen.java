@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
+import net.driftingsouls.ds2.server.namegenerator.NameGenerator;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -107,15 +108,19 @@ public class Rassen implements Iterable<Rasse>, Loggable {
 				NodeList generators = XMLUtils.getNodesByXPath(node, "generator");
 				for( int j=0; j < generators.getLength(); j++ ) {
 					String type = XMLUtils.getStringByXPath(generators.item(j), "@type");
-					int typeNo = Rasse.GENERATOR_PERSON;
+					Rasse.GeneratorType typeNo = Rasse.GeneratorType.PERSON;
 					if( "ship".equals(type) ) {
-						typeNo = Rasse.GENERATOR_SHIP;
+						typeNo = Rasse.GeneratorType.SHIP;
 					}
 					else if( !"person".equals(type) ) {
 						throw new Exception("Ungueltiger Generator-Typ '"+type+"'");
 					}
 					
-					rasse.setNameGenerator(typeNo, XMLUtils.getStringByXPath(generators.item(j),"text()"));
+					Class<? extends NameGenerator> clazz = Class
+						.forName(XMLUtils.getStringByXPath(generators.item(j),"text()"))
+						.asSubclass(NameGenerator.class);
+						
+					rasse.setNameGenerator(typeNo, clazz.newInstance());
 				}
 				rassenList.addRace(rasse);
 			}

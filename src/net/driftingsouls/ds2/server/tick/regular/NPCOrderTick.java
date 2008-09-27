@@ -40,6 +40,7 @@ import net.driftingsouls.ds2.server.entities.OrderOffizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.Database;
+import net.driftingsouls.ds2.server.namegenerator.NameGenerator;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -68,36 +69,14 @@ public class NPCOrderTick extends TickController {
 		this.lastowner = 0;
 
 		this.currentTime = Common.getIngameTime(getContext().get(ContextCommon.class).getTick());
-
-		this.offinamelist = new HashMap<Integer,List<String>>();
-		for( Rasse race : Rassen.get() ) {
-			offinamelist.put(race.getID(), new ArrayList<String>());
-			if( race.getNameGenerator(Rasse.GENERATOR_PERSON) != null ) {
-				try {
-					Process p = Runtime.getRuntime().exec(race.getNameGenerator(Rasse.GENERATOR_PERSON)+" 100 \\n");
-					BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-					String tmp = null;
-					while( (tmp = in.readLine()) != null ) {
-						offinamelist.get(race.getID()).add(tmp);
-					}
-					in.close();
-				}
-				catch( Exception e ) {
-					log("FEHLER: Laden der Offiziersnamen nicht moeglich");
-				}
-			}
-		}		
 	}
 	
 	private String getOffiName(User user) {
-		if( this.offinamelist.get(user.getRace()).size() > 0 ) {
-			List<String> names = this.offinamelist.get(user.getRace());
-			String name = names.get(RandomUtils.nextInt(names.size()));
-			if( name.trim().length() == 0 ) {
-				return "NPC-Lieferservice";
-			}
-			return name;
+		NameGenerator generator = Rassen.get().rasse(user.getRace()).getNameGenerator(Rasse.GeneratorType.PERSON);
+		if( generator != null ) {
+			return generator.generate(1)[0];
 		}
+
 		return "NPC-Lieferservice";
 	}
 
