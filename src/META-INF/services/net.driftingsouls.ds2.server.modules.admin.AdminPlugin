@@ -21,3 +21,4 @@ net.driftingsouls.ds2.server.modules.admin.EditShiptypes
 net.driftingsouls.ds2.server.modules.admin.EditAmmo
 net.driftingsouls.ds2.server.modules.admin.EditShip
 net.driftingsouls.ds2.server.modules.admin.EditGroup
+net.driftingsouls.ds2.server.modules.admin.EditConfigValues
