@@ -19,10 +19,13 @@
 package net.driftingsouls.ds2.server.framework.db;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
@@ -30,7 +33,6 @@ import javax.management.ObjectName;
 
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Loggable;
-import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
@@ -41,8 +43,8 @@ import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.engine.EntityKey;
 import org.hibernate.jmx.StatisticsService;
 import org.hibernate.stat.Statistics;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
+import org.scannotation.AnnotationDB;
+import org.scannotation.ClasspathUrlFinder;
 
 /**
  * Hilfsklasse zur Initalisierung von Hibernate
@@ -74,12 +76,13 @@ public class HibernateFacade implements Loggable {
 		
 		// Mappings lesen
 		try {
-			Document doc = XMLUtils.readFile(Configuration.getSetting("configdir")+"hibernatemappings.xml");
-			NodeList nodes = XMLUtils.getNodesByXPath(doc, "mappings/mapping");
-			for( int i=0; i < nodes.getLength(); i++ ) {
-				String cls = nodes.item(i).getAttributes().getNamedItem("class").getNodeValue();
+			URL[] urls = ClasspathUrlFinder.findResourceBases("META-INF/ds.marker");
+			AnnotationDB db = new AnnotationDB();
+			db.scanArchives(urls);
+			SortedSet<String> entityClasses = new TreeSet<String>(db.getAnnotationIndex().get(javax.persistence.Entity.class.getName()));
+			for( String cls : entityClasses ) {
 				try {
-					Class clsObject = Class.forName(cls);
+					Class<?> clsObject = Class.forName(cls);
 					conf.addAnnotatedClass(clsObject);
 				}
 				catch( ClassNotFoundException e ) {

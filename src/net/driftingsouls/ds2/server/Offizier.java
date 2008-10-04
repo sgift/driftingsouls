@@ -26,6 +26,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import net.driftingsouls.ds2.server.cargo.HibernateCargoType;
 import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -35,12 +36,22 @@ import net.driftingsouls.ds2.server.framework.DSObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
 
 /**
  * Repraesentiert einen Offizier in DS
  * @author Christopher Jung
  *
  */
+@TypeDefs(
+	{
+		@TypeDef(
+				name="cargo",
+				typeClass = HibernateCargoType.class
+		)
+	}
+)
 @Entity
 @Table(name="offiziere")
 public class Offizier extends DSObject {

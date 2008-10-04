@@ -30,28 +30,17 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.HibernateCargoType;
 import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
 
 /**
  * Die Munition
  * @author Christopher Jung
  *
  */
-@TypeDefs(
-	{
-		@TypeDef(
-				name="cargo",
-				typeClass = HibernateCargoType.class
-		)
-	}
-)
 @Entity
 @Table(name="ammo")
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
