@@ -181,6 +181,7 @@ public class User extends BasicUser implements Loggable {
 	private Ally ally;
 	private BigInteger konto;
 	private String cargo;
+	private double foodpooldegeneration;
 	private String nstat;
 	private int npcpunkte;
 	@OneToOne(fetch=FetchType.LAZY)
@@ -1081,5 +1082,23 @@ public class User extends BasicUser implements Loggable {
 			}
 		}
 		return this.researched.get(research.getID());
+	}
+	
+	/**
+	 * @return Prozent des Pools, die jeden Tick mehr/weniger verfaulen als der Grundwert angibt.
+	 */
+	public double getFoodpooldegeneration()
+	{
+		return foodpooldegeneration;
+	}
+
+	/**
+	 * Setzt wieviel/mehr weniger Nahrung bei diesem Nutzer pro Tick verfault.
+	 * 
+	 * @param foodpooldegeneration Der Offset.
+	 */
+	public void setFoodpooldegeneration(double foodpooldegeneration)
+	{
+		this.foodpooldegeneration = foodpooldegeneration;
 	}
 }

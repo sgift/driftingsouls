@@ -37,12 +37,7 @@ public class UserTick extends TickController
 	@Override
 	protected void tick()
 	{
-		ConfigValue foodpooldegeneration = (ConfigValue)db.get(ConfigValue.class, "foodpooldegeneration");
-		if( "0".equals(foodpooldegeneration.getValue()) )
-		{
-			log("Nahrung verrottet nicht - abbruch");
-			return;
-		}
+		final double foodPoolDegeneration = getGlobalFoodPoolDegeneration();
 		
 		List<User> users = getActiveUserList();
 		for(User user: users)
@@ -50,14 +45,21 @@ public class UserTick extends TickController
 			Cargo usercargo = new Cargo( Cargo.Type.STRING, user.getCargo());
 			
 			//Rot food
+			double rottenFoodPercentage = foodPoolDegeneration + user.getFoodpooldegeneration();
 			long food = usercargo.getResourceCount(Resources.NAHRUNG);
-			long rottenFood = (long)(food*(Double.valueOf(foodpooldegeneration.getValue())/100.0));
+			long rottenFood = (long)(food*(rottenFoodPercentage/100.0));
 			
 			log(user.getId()+": "+rottenFood);
 			
-			usercargo.setResource(Resources.NAHRUNG, food-rottenFood);
+			usercargo.setResource(Resources.NAHRUNG, food - rottenFood);
 			
 			user.setCargo(usercargo.save());
 		}
+	}
+
+	private double getGlobalFoodPoolDegeneration()
+	{
+		ConfigValue foodpooldegenerationConfig = (ConfigValue)db.get(ConfigValue.class, "foodpooldegeneration");
+		return Double.valueOf(foodpooldegenerationConfig.getValue());
 	}
 }
