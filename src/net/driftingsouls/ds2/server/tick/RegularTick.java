@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.tick.regular.NPCScriptTick;
 import net.driftingsouls.ds2.server.tick.regular.RTCTick;
 import net.driftingsouls.ds2.server.tick.regular.RestTick;
 import net.driftingsouls.ds2.server.tick.regular.SchiffsTick;
+import net.driftingsouls.ds2.server.tick.regular.UserTick;
 import net.driftingsouls.ds2.server.tick.regular.WerftTick;
 
 /**
@@ -63,6 +64,9 @@ public class RegularTick extends AbstractTickExecuter {
 			};
 			
 			timeout.start();
+			
+			publishStatus("berechne Nutzer");
+			execTick(UserTick.class, false);
 			
 			publishStatus("berechne Basen");
 			execTick(BaseTick.class,false);

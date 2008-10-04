@@ -12,4 +12,6 @@ VALUES (
 	'disableregister', '', 'Begruendung, weshalb man sich nicht registrieren kann (Leeres Feld == registrieren moeglich)', '0'
 ), (
 	'keys', '*', 'Schluessel mit denen man sich registrieren kann, wenn der Wert * ist braucht man keinen Schluessel zum registrieren', '0'
+), (
+	'foodpooldegeneration', '0', 'Prozent des Pools, die pro Tick verfaulen.', '0'
 );

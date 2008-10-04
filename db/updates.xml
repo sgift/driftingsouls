@@ -671,4 +671,9 @@
 		
 		DROP TABLE config_old;
 	]]></update>
+
+	<update type="data" datum="2008-07-26"><![CDATA[	
+		INSERT INTO `config` (`name`,`value`,`description`,`version`)
+		VALUES ('foodpooldegeneration', '0', 'Prozent des Pools, die pro Tick verfaulen.', '0');
+	]]></update>
 </updates>
