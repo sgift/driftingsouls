@@ -1101,4 +1101,24 @@ public class User extends BasicUser implements Loggable {
 	{
 		this.foodpooldegeneration = foodpooldegeneration;
 	}
+	
+	/**
+	 * Setzt die Rasse eines Users.
+	 * 
+	 * @param race Rassenid
+	 */
+	public void setRace(int race)
+	{
+		this.race = race;
+	}
+	
+	/**
+	 * Setzt die Geschichte des Users.
+	 * 
+	 * @param history Die neue Geschichte.
+	 */
+	public void setHistory(String history)
+	{
+		this.history = history;
+	}
 }

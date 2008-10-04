@@ -76,6 +76,7 @@ public abstract class BasicUser implements Loggable {
 	private String imgpath;
 	private byte disabled;
 	private String flags;
+
 	@Version
 	private int version;
 	
@@ -510,5 +511,23 @@ public abstract class BasicUser implements Loggable {
 	 */
 	protected void setAccesslevel(int accesslevel) {
 		this.accesslevel = accesslevel;
+	}
+	
+	/**
+	 * Gibt die Flags des Benutzers zurueck
+	 * @return Die Flags
+	 */
+	public String getFlags()
+	{
+		return flags;
+	}
+	
+	/**
+	 * Setzt die Flags des Benutzers
+	 * @param flags Die Flags
+	 */
+	public void setFlags(String flags)
+	{
+		this.flags = flags;
 	}
 }
