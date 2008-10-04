@@ -1,6 +1,7 @@
-CREATE TABLE `config` (
-  `ticks` int(11) NOT NULL default '0',
-  `disablelogin` text NOT NULL,
-  `disableregister` text NOT NULL,
-  `keys` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+CREATE TABLE config (
+	`name` VARCHAR( 25 ) NOT NULL ,
+	`value` TEXT NOT NULL ,
+	`description` TEXT NOT NULL ,
+	`version` INT NOT NULL DEFAULT 0,
+	PRIMARY KEY (name)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;

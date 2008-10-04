@@ -24,6 +24,7 @@ import java.util.Map;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
+import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextInstance;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -31,42 +32,45 @@ import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
 
 /**
  * Kontextlokale Operationen
+ * 
  * @author Christopher Jung
  */
 @ContextInstance(ContextInstance.Scope.REQUEST)
-public class ContextCommon {
+public final class ContextCommon
+{
 	private Context context = null;
-	
+
 	/**
 	 * Konstruktur - Wird vom Kontext aufgerufen
 	 */
-	public ContextCommon() {
+	public ContextCommon()
+	{
 		this.context = ContextMap.getContext();
 	}
 
-	private int tick = -1;
-	
 	/**
 	 * Liefert den aktuellen Tick zurueck
 	 * 
-	 * @return Der aktuelle Tick 
+	 * @return Der aktuelle Tick
 	 */
-	public int getTick() {
-		if( tick == -1 ) {
-			tick = context.getDatabase().first("SELECT ticks FROM config").getInt("ticks");
-		}	
-		return tick;
+	public int getTick()
+	{
+		ConfigValue value = (ConfigValue)context.getDB().get(ConfigValue.class, "ticks");
+		return Integer.valueOf(value.getValue());
 	}
-	
-	private Map<String,ScriptEngine> scriptParsers = new HashMap<String,ScriptEngine>();
-	
+
+	private Map<String, ScriptEngine> scriptParsers = new HashMap<String, ScriptEngine>();
+
 	/**
 	 * Gibt eine Instanz einer ScriptEngine zurueck
+	 * 
 	 * @param name Der Name der ScriptEngine
 	 * @return die ScriptEngine
 	 */
-	public ScriptEngine getScriptParser( String name ) {
-		if( !scriptParsers.containsKey(name) ) {
+	public ScriptEngine getScriptParser(String name)
+	{
+		if( !scriptParsers.containsKey(name) )
+		{
 			ScriptEngine parser = new ScriptEngineManager().getEngineByName(name);
 			parser.setContext(new ScriptParserContext());
 			scriptParsers.put(name, parser);

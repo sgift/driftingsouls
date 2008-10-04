@@ -38,6 +38,7 @@ import net.driftingsouls.ds2.server.entities.Jump;
 import net.driftingsouls.ds2.server.entities.StatShips;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -458,9 +459,10 @@ public class RestTick extends TickController {
 			.executeUpdate();
 		
 		this.log("Erhoehe Tickzahl");
-		database.update("UPDATE config SET ticks=ticks+1");
+		ConfigValue value = (ConfigValue)getDB().get(ConfigValue.class, "ticks");
+		int ticks = Integer.valueOf(value.getValue()) + 1;
+		value.setValue(Integer.toString(ticks));
 		getContext().commit();
-		
 				
 		this.doJumps();
 		getContext().commit();

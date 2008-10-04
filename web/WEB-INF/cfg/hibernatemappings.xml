@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mappings>
 	<!-- framework -->
+	<mapping class="net.driftingsouls.ds2.server.framework.ConfigValue" />
 	<mapping class="net.driftingsouls.ds2.server.framework.Session" />
 	<mapping class="net.driftingsouls.ds2.server.framework.bbcode.Smilie" />
 	<mapping class="net.driftingsouls.ds2.server.framework.BasicUser" />
@@ -21,7 +22,6 @@
 	<mapping class="net.driftingsouls.ds2.server.bases.Kommandozentrale" />
 	<mapping class="net.driftingsouls.ds2.server.bases.Waffenfabrik" />
 	<mapping class="net.driftingsouls.ds2.server.bases.Werft" />
-	<!-- config -->
 	<!-- config_felsbrocken -->
 	<!-- config_felsbrocken_systems -->
 	<!-- config_vacmodes -->

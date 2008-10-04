@@ -22,10 +22,10 @@ import java.util.ServiceLoader;
 
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 
 import org.apache.commons.logging.Log;
@@ -92,9 +92,8 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	}
 
 	private void checkLoginDisabled(Context context) throws LoginDisabledException {
-		Database database = context.getDatabase();
-		
-		String disablelogin = database.first("SELECT disablelogin FROM config").getString("disablelogin");
+		ConfigValue value = (ConfigValue)context.getDB().get(ConfigValue.class, "disablelogin");
+		String disablelogin = value.getValue();
 		if( !disablelogin.isEmpty() ) {
 			throw new LoginDisabledException(disablelogin);
 		}

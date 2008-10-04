@@ -636,4 +636,39 @@
 		ALTER TABLE upgrade_job DROP `started`;
 		ALTER TABLE upgrade_job MODIFY `colonizerid` int(11);
 	]]></update>
+	
+	<update type="structure" datum="2008-10-04"><![CDATA[
+		RENAME TABLE config TO config_old;
+		
+		CREATE TABLE config (
+			`name` VARCHAR( 25 ) NOT NULL ,
+			`value` TEXT NOT NULL ,
+			`description` TEXT NOT NULL ,
+			`version` INT NOT NULL DEFAULT 0,
+			PRIMARY KEY (`name`)
+		) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+				
+		INSERT INTO config (
+			`name` ,
+			`value` ,
+			`description` ,
+			`version` 
+			)
+			VALUES (
+			'ticks', '2774', 'Der aktuelle Tick', '0'
+			), (
+			'disablelogin', '', 'Begruendung, weshalb der Login abgeschalten ist (Leeres Feld == Login moeglich)', '0'
+			), (
+			'disableregister', '', 'Begruendung, weshalb man sich nicht registrieren kann (Leeres Feld == registrieren moeglich)', '0'
+			), (
+			'keys', '*', 'Schluessel mit denen man sich registrieren kann, wenn der Wert * ist braucht man keinen Schluessel zum registrieren', '0'
+		);
+			
+		UPDATE config SET value=(SELECT ticks FROM config_old) WHERE name='ticks';
+		UPDATE config SET value=(SELECT disablelogin FROM config_old) WHERE name='disablelogin';
+		UPDATE config SET value=(SELECT disableregister FROM config_old) WHERE name='disableregister';
+		UPDATE config SET value=(SELECT `keys` FROM config_old) WHERE name='keys';
+		
+		DROP TABLE config_old;
+	]]></update>
 </updates>

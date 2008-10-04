@@ -41,6 +41,7 @@ import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.authentication.AccountDisabledException;
@@ -61,6 +62,7 @@ import net.driftingsouls.ds2.server.uilibs.PlayerList;
 import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
 
 import org.apache.commons.lang.math.RandomUtils;
+import org.hibernate.Session;
 
 /**
  * Das Portal
@@ -356,9 +358,9 @@ public class PortalController extends TemplateGenerator {
 	}
 	
 	private static class StartLocations {
-		int systemID;
-		int orderLocationID;
-		HashMap<Integer,StartLocation> minSysDistance;
+		final int systemID;
+		final int orderLocationID;
+		final HashMap<Integer,StartLocation> minSysDistance;
 
 		StartLocations(int systemID, int orderLocationID, HashMap<Integer,StartLocation> minSysDistance) {
 			this.systemID = systemID;
@@ -416,7 +418,7 @@ public class PortalController extends TemplateGenerator {
 		return new StartLocations(systemID, orderLocationID, minsysdistance);
 	}
 	
-	private boolean register( String username, String email, int race, int system, String key, SQLResultRow settings ) {
+	private boolean register( String username, String email, int race, int system, String key, ConfigValue keys) {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
 		
@@ -442,11 +444,11 @@ public class PortalController extends TemplateGenerator {
 		}
 		
 		boolean needkey = false;
-		if( settings.getString("keys").indexOf('*') == -1 ) {
+		if( keys.getValue().indexOf('*') == -1 ) {
 			needkey = true;
 		}
 		
-		if( needkey && (settings.getString("keys").indexOf("<"+key+">") == -1) ) {
+		if( needkey && (keys.getValue().indexOf("<"+key+">") == -1) ) {
 			t.setVar("show.register.msg.wrongkey", 1);
 			return false;	
 		}
@@ -476,7 +478,7 @@ public class PortalController extends TemplateGenerator {
 		}
 		
 		if( needkey ) {
-	 		String[] keylist = settings.getString("keys").replace("\r\n", "\n").split("\n");
+	 		String[] keylist = keys.getValue().replace("\r\n", "\n").split("\n");
 		 	HashMap<String,String> parameters = new HashMap<String,String>();
 		 	int pos = 0;
 		 	for( pos=0; pos < keylist.length; pos++ ) {
@@ -506,7 +508,7 @@ public class PortalController extends TemplateGenerator {
 	 			java.lang.System.arraycopy(keylist,pos+1, newKeyList, pos, keylist.length-pos-1);
 	 		}
 	 		
-	 		db.tUpdate(1,"UPDATE config SET `keys`='",Common.implode("\n",newKeyList),"' WHERE `keys`='",settings.getString("keys"),"'");
+	 		keys.setValue(Common.implode("\n",newKeyList));
 	 	}
 		
 		String password = Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE));
@@ -646,7 +648,8 @@ public class PortalController extends TemplateGenerator {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void registerAction() {
-		Database db = getDatabase();
+		//Database db = getDatabase();
+		Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		
 		boolean showform = true;
@@ -663,21 +666,22 @@ public class PortalController extends TemplateGenerator {
 		String key = getString("key");
 		int system = getInteger("system");
 	
-		SQLResultRow settings = db.first("SELECT disableregister,`keys` FROM config");
-		if( !"".equals(settings.getString("disableregister")) ) {
+		ConfigValue disableregister = (ConfigValue)db.get(ConfigValue.class, "disableregister");
+		if( !"".equals(disableregister.getValue()) ) {
 			username = null;
 			race = 0;
 			email = null;
 			showform = false;
 		
 			t.setVar(	"show.register.registerdisabled" , 1,
-						"register.registerdisabled.msg" , Common._text(settings.getString("disableregister")) );
+						"register.registerdisabled.msg" , Common._text(disableregister.getValue()) );
 								
 			return;
 		}
 		
+		ConfigValue keys = (ConfigValue)db.get(ConfigValue.class, "keys");
 		boolean needkey = false;
-		if( settings.getString("keys").indexOf('*') == -1  ) {
+		if( keys.getValue().indexOf('*') == -1  ) {
 			needkey = true;
 		}		
 		
@@ -689,7 +693,7 @@ public class PortalController extends TemplateGenerator {
 					"register.system.id"	, system,
 					"register.system.name" 	, (Systems.get().system(system) != null  ? Systems.get().system(system).getName() : "") );
 		
-		showform = !register(username, email, race, system, key, settings);
+		showform = !register(username, email, race, system, key, keys);
 		
 		if( showform ) {
 			t.setBlock("_PORTAL","register.rassen.listitem","register.rassen.list");
