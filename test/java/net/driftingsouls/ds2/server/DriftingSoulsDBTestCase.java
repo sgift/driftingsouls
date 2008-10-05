@@ -58,7 +58,7 @@ public abstract class DriftingSoulsDBTestCase implements DBTestable {
 		
 		Connection con = this.dbTester.getConnection().getConnection();
 		Statement stmt = con.createStatement();
-		stmt.executeUpdate("INSERT INTO config VALUES ('1', '', '', '')");
+		stmt.executeUpdate("INSERT INTO config VALUES ('ticks', '1', 'Der aktuelle Tick', 0)");
 		stmt.close();
 		
 		this.dbTester.setUp();
