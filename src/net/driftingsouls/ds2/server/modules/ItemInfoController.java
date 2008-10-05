@@ -767,16 +767,25 @@ public class ItemInfoController extends TemplateGenerator {
 					switch( alocation.charAt(0) ) {
 					case 's': {
 						Ship ship = (Ship)db.get(Ship.class, objectid);
+						if( ship == null ) {
+							continue;
+						}
 						tooltiptext.append(shipimage+"<td class='noBorderX'><a style='font-size:14px' class='forschinfo' href='"+Common.buildUrl("default", "module", "schiff", "ship", objectid)+"'>"+ship.getName()+" ("+ship.getId()+")</a></td>");
 						break;
 					}
 					case 'b': {
 						Base base = (Base)db.get(Base.class, objectid);
+						if( base == null ) {
+							continue;
+						}
 						tooltiptext.append(baseimage+"<td class='noBorderX'><a style='font-size:14px' class='forschinfo' href='"+Common.buildUrl("default", "module", "base", "col", objectid)+"'>"+base.getName()+" - "+base.getLocation()+"</a></td>");
 						break;
 					}
 					case 'g': {
 						Ship ship = (Ship)db.get(Ship.class, objectid);
+						if( ship == null ) {
+							continue;
+						}
 						tooltiptext.append("<td colspan='2' class='noBorderX' style='font-size:14px'>"+ship.getName()+"</td>");
 						break;
 					}
