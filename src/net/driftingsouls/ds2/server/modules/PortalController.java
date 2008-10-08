@@ -847,6 +847,10 @@ public class PortalController extends TemplateGenerator {
 							"browser.name", "Microsoft Internet Explorer",
 							"browser.version", version );
 			}
+			else {
+				getResponse().redirectTo(Common.buildUrl("default", "module", "main"));
+				return;
+			}
 		}
 		catch( NumberFormatException e ) {
 			java.lang.System.err.println(e);
@@ -903,8 +907,10 @@ public class PortalController extends TemplateGenerator {
 		parameterNumber("archiv");
 		int archiv = getInteger("archiv");
 		
-		t.setVar( new Object[] {	"show.news",	1,
-									"show.news.archiv", archiv } );
+		t.setVar(
+				"show.news",	1,
+				"show.overview",	archiv == 0,
+				"show.news.archiv", archiv );
 		t.setBlock("_PORTAL","news.listitem","news.list");
 
 		SQLQuery qhandle = db.query("SELECT * FROM portal_news ORDER BY date DESC LIMIT ",( archiv != 0 ? "5,100" : "5"));
