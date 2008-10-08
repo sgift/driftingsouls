@@ -109,4 +109,11 @@ public interface Response {
 	 *
 	 */
 	public void setManualSendStatus();
+	
+	/**
+	 * Antwortet dem Client mit einer Weiterleitung auf die angegebene
+	 * URL.
+	 * @param url Die Ziel-URL
+	 */
+	public void redirectTo(String url);
 }

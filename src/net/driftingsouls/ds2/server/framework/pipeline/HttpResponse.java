@@ -186,4 +186,11 @@ public class HttpResponse implements Response {
 	public void setManualSendStatus() {
 		this.manualSend = true;
 	}
+	
+	public void redirectTo(String url) {
+		this.response.setStatus(HttpServletResponse.SC_FOUND);
+		this.response.setHeader("Location", url);
+		
+		this.manualSend = true;
+	}
 }
