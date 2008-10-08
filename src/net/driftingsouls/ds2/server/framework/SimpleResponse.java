@@ -24,65 +24,85 @@ import java.io.OutputStream;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
 
 /**
- * Eine einfache Response auf Basis von StringBuffer. Streams werden
- * nicht unterstuetzt.
+ * Eine einfache Response auf Basis von StringBuffer. Streams werden nicht unterstuetzt.
+ * 
  * @author Christopher Jung
- *
+ * 
  */
-public class SimpleResponse implements Response {
+public class SimpleResponse implements Response
+{
 	private StringBuffer buffer = new StringBuffer();
 	private String charset = "UTF-8";
 	private String contentType = "text";
-	
-	public String getCharSet() {
+
+	public String getCharSet()
+	{
 		return charset;
 	}
 
-	public StringBuffer getContent() {
+	public StringBuffer getContent()
+	{
 		return buffer;
 	}
 
-	public String getContentType() {
+	public String getContentType()
+	{
 		return contentType;
 	}
 
-	public OutputStream getOutputStream() throws IOException {
+	public OutputStream getOutputStream() throws IOException
+	{
 		throw new IOException("Kein Stream unterstuetzt");
 	}
 
-	public void resetContent() {
+	public void resetContent()
+	{
 		buffer = new StringBuffer();
 	}
 
-	public void send() throws IOException {
+	public void send() throws IOException
+	{
 		new IOException("Send not possible");
 	}
 
-	public void setCharSet(String charSet) {
+	public void setCharSet(String charSet)
+	{
 		this.charset = charSet;
 	}
 
-	public void setContent(String content) {
+	public void setContent(String content)
+	{
 		buffer = new StringBuffer(content);
 	}
 
-	public void setContentLength(int length) {
+	public void setContentLength(int length)
+	{
 		// EMPTY
 	}
 
-	public void setContentType(String contentType) {
+	public void setContentType(String contentType)
+	{
 		this.contentType = contentType;
 	}
 
-	public void setHeader(String name, String value) {
+	public void setHeader(String name, String value)
+	{
 		// EMPTY
 	}
 
-	public void setStatus(int status) {
+	public void setStatus(int status)
+	{
 		// EMPTY
 	}
 
-	public void setManualSendStatus() {
+	public void setManualSendStatus()
+	{
+		// EMPTY
+	}
+
+	@Override
+	public void redirectTo(String url)
+	{
 		// EMPTY
 	}
 }
