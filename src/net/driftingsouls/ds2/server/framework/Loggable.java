@@ -27,8 +27,9 @@ import org.apache.commons.logging.impl.LogFactoryImpl;
  * oder System.err fuer Log-Ausgaben.
  * 
  * @author Christopher Jung
- *
+ * @deprecated Bitte fuer jede Klasse einen eigenen Logger benutzen
  */
+@Deprecated
 public interface Loggable {
 	/**
 	 * Das Default-Log-Objekt. Hierueber sollten alle normalen Log-Ausgaben geschehen
