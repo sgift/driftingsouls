@@ -296,6 +296,11 @@
 					document.getElementById("BBS_Display").firstChild.nodeValue = felderBBS + cargoBBS;
 					document.getElementById("Erz_Display").firstChild.nodeValue = felderErz + cargoErz;
 				}
+
+				function astiChanged() {
+					document.getElementsByName('form_ausbau')[0].value = 0;
+					document.getElementsByName('form_ausbau')[0].submit();
+				}
 			</script>
 			{!table_begin 650,center}
 			<table class="noBorderX" width="100%">
@@ -307,7 +312,7 @@
 						&nbsp;
 					</td>
 					<td class="noBorderX" style="text-align:left">
-						<select name="astiid" size="1" style="width:220px" onchange="document.getElementsByName('form_ausbau')[0].value = 0; document.getElementsByName('form_ausbau')[0].submit()">
+						<select name="astiid" size="1" style="width:220px" onchange="astiChanged()">
 						<!-- BEGIN ausbau.asti.listitem -->
 							<option value="{asti.id}" {if asti.selected}selected="selected"{/endif}>{asti.name} ({asti.id})</option>
 						<!-- END ausbau.asti.listitem -->
@@ -407,7 +412,7 @@
 				<tr>
 					<td class="noBorderX" colspan="3" style="text-align:center">
 						<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
-						<input type="submit" style="width:110px" value="bestellen" />
+						<input type="submit" name="order" style="width:110px" value="bestellen" />
 					</td>
 				</tr>
 			</table>
