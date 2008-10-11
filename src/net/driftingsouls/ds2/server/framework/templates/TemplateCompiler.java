@@ -34,12 +34,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.DriftingSouls;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.LogFactoryImpl;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * <h1>Der Template-Compiler</h1>
@@ -49,6 +48,8 @@ import org.apache.commons.logging.impl.LogFactoryImpl;
  *
  */
 public class TemplateCompiler {
+	private static final Log log = LogFactory.getLog(TemplateCompiler.class);
+	
 	private interface TemplateCompileFunction {
 		/**
 		 * Fuehrt die Compilezeit-Funktion aus
@@ -582,19 +583,24 @@ public class TemplateCompiler {
 	public void compile() throws IOException {
 		String baseFileName = new File(file).getName();
 		baseFileName = baseFileName.substring(0, baseFileName.lastIndexOf(".html"));
-		BufferedReader reader = new BufferedReader(new FileReader(new File(file)));
 		
-		String str = "";
-		String curLine = "";
-		while( (curLine = reader.readLine()) != null ) {
-			if( str.length() != 0 ) {
-				str += "\n";
+		StringBuilder strBuilder = new StringBuilder();
+		
+		BufferedReader reader = new BufferedReader(new FileReader(new File(file)));
+		try {
+			String curLine = "";
+			while( (curLine = reader.readLine()) != null ) {
+				if( strBuilder.length() != 0 ) {
+					strBuilder.append("\n");
+				}
+				strBuilder.append(curLine);
 			}
-			str += curLine;
+		}
+		finally {
+			reader.close();
 		}
 		
-		reader.close();
-		
+		String str = strBuilder.toString();
 		str = StringUtils.replace(str, "\\", "\\\\");
 		str = StringUtils.replace(str, "\"", "\\\"");
 		//str = StringUtils.replace(str, "\\'","\\\\'");
@@ -621,7 +627,7 @@ public class TemplateCompiler {
 		}
 		
 		// Bloecke ersetzen
-		StringBuilder strBuilder = new StringBuilder(str);
+		strBuilder = new StringBuilder(str);
 		List<CompiledBlock> result = parse_blocks(strBuilder, "MAIN");
 		str = strBuilder.toString();
 		
@@ -771,8 +777,12 @@ public class TemplateCompiler {
 		newfile.append("}");
 		
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(outputPath+"/"+bfname+".java")));
-		writer.write(newfile.toString());
-		writer.close();
+		try {
+			writer.write(newfile.toString());
+		}
+		finally {
+			writer.close();
+		}
 	}
 	
 	private static void compileDirectory( File dir, String outputPath, String subPackage ) throws IOException {
@@ -784,7 +794,7 @@ public class TemplateCompiler {
 				String bfname = StringUtils.replace(baseFileName, ".", "");
 				File compiledFile = new File(outputPath+"/"+bfname+".java");
 				if( !compiledFile.exists() || (compiledFile.lastModified() < files[i].lastModified()) ) {
-					System.out.println("compiling "+file);
+					log.info("compiling "+file);
 					TemplateCompiler compiler = new TemplateCompiler(file, outputPath, subPackage);
 					compiler.compile();
 				}
@@ -792,7 +802,9 @@ public class TemplateCompiler {
 			else if( files[i].isDirectory() && !files[i].isHidden() ) {
 				String subOutputPath = outputPath+"/"+files[i].getName();
 				if( !new File(subOutputPath).exists() ) {
-					new File(subOutputPath).mkdir();
+					if( !new File(subOutputPath).mkdir() ) {
+						throw new IOException("Konnte Verzeichnis "+subOutputPath+" nicht erstellen");
+					}
 				}
 				compileDirectory(files[i], subOutputPath, subPackage != null ? subPackage+"."+files[i].getName() : files[i].getName());
 			}
@@ -809,18 +821,7 @@ public class TemplateCompiler {
 			System.out.println("java net.driftingsouls.ds2.server.framework.templates.TemplateCompiler [Configdir] [TemplateFile] [outputpath]");
 			return;
 		}
-		System.getProperties().setProperty("org.apache.commons.logging.Log","org.apache.commons.logging.impl.SimpleLog");
-		
-		Log LOG = new LogFactoryImpl().getInstance("DS2");
-		LOG.info("Booting DS...");
-		
-		try {
-			new DriftingSouls(LOG, args[0], false);
-		}
-		catch( Exception e ) {
-			LOG.fatal(e, e);
-			throw new Exception(e);
-		}
+
 		String file = args[1];
 		String outputPath = args[2];
 		
@@ -831,7 +832,7 @@ public class TemplateCompiler {
 		}
 		// Wenn direkt eine Datei angegeben wurde, dann diese auf jeden Fall kompilieren
 		else {
-			System.out.println("compiling "+file);
+			log.info("compiling "+file);
 			TemplateCompiler compiler = new TemplateCompiler(file, outputPath);
 			compiler.compile();
 		}
