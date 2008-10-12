@@ -31,7 +31,10 @@ import java.util.Map;
 import java.util.Set;
 
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.Loggable;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 // TODO: Runtime-functions
 
@@ -40,12 +43,11 @@ import net.driftingsouls.ds2.server.framework.Loggable;
  * @author Christopher Jung
  * 
  */
-public class TemplateEngine implements Loggable {
+public class TemplateEngine {
 	private static final String PACKAGE = "net.driftingsouls.ds2.server.templates";
+	private static final Log log = LogFactory.getLog(TemplateEngine.class);
 
-	private Map<String,Template> m_file = new HashMap<String,Template>();
-	
-	private Context m_controller = null;
+	private Map<String,Template> file = new HashMap<String,Template>();
 
 	/* 
 	 * relative filenames are relative to this pathname 
@@ -64,28 +66,19 @@ public class TemplateEngine implements Loggable {
 	// the list of all recorded values
 	private Set<String> recordvars = new HashSet<String>();
 	
-	private Map<String,String> m_blocks = new HashMap<String,String>();
-	private Map<String,String[]> m_registeredBlocks = new HashMap<String,String[]>();
+	private Map<String,String> blocks = new HashMap<String,String>();
+	private Map<String,String[]> registeredBlocks = new HashMap<String,String[]>();
 	private Map<String,TemplateBlock> registeredBlockObj = new HashMap<String,TemplateBlock>();
 	
-	private Map<String,String> m_varNameMap = new HashMap<String,String>();
+	private Map<String,String> varNameMap = new HashMap<String,String>();
 	
 	/**
 	 * Konstruktor
-	 * @param controller Der mit dem Engine assoziierte Controller
 	 */
-	public TemplateEngine(Context controller) {
-		m_controller = controller;
+	public TemplateEngine() {
+		// EMPTY
 	}
 	
-	/**
-	 * Gibt den mit dem Engine assiziierten Controller zurueck
-	 * @return Der Controller
-	 */
-	public Context getController() {
-		return m_controller;
-	}
-
 	/**
 	 * Setzt das Overlay-Verzeichnis fest. Das Overlay-Verzeichnis
 	 * muss ein direktes Unterverzeichnis des angegeben Template-Verzeichnisses sein.
@@ -147,7 +140,7 @@ public class TemplateEngine implements Loggable {
 					templateMap.put(overlay+'.'+filename, t);
 				}
 				catch( Exception e ) {
-					LOG.fatal("FAILED: Loading class "+PACKAGE+"."+fname+" as "+handle, e);
+					log.fatal("FAILED: Loading class "+PACKAGE+"."+fname+" as "+handle, e);
 					return false;
 				}
 			}
@@ -156,10 +149,10 @@ public class TemplateEngine implements Loggable {
 		Template t = templateMap.get(overlay+'.'+filename);
 		t.prepare(this, handle);
 	
-		m_file.put(handle, t);
+		this.file.put(handle, t);
 		
-		if( LOG.isDebugEnabled() ) {
-			LOG.debug("Loaded class "+PACKAGE+"."+filename+" as "+handle);
+		if( log.isDebugEnabled() ) {
+			log.debug("Loaded class "+PACKAGE+"."+filename+" as "+handle);
 		}
 		
 		return true;
@@ -175,7 +168,7 @@ public class TemplateEngine implements Loggable {
 	 * @param replace Der Name der Ersetzungsvariablen fuer den Block im Template.
 	 */
 	public void setBlock( String parent, String handle, String replace ) {	
-		if( !m_registeredBlocks.containsKey(handle) ) {
+		if( !registeredBlocks.containsKey(handle) ) {
 			error("set_block: '"+handle+"' entspricht keinem registrierten Block");	
 		}
 		String name = replace;
@@ -183,11 +176,11 @@ public class TemplateEngine implements Loggable {
 			name = handle;
 		}
 
-		m_varNameMap.put(handle, name);
+		varNameMap.put(handle, name);
 
-		m_blocks.put(handle, handle); 
+		blocks.put(handle, handle); 
 		
-		TemplateBlock block = m_file.get(m_registeredBlocks.get(handle)[0]).getBlock(handle);
+		TemplateBlock block = this.file.get(registeredBlocks.get(handle)[0]).getBlock(handle);
 							
 		if( block == null ) {
 			error("set_block: Der Block '"+handle+"' konnte nicht im compilierten Template gefunden werden");
@@ -196,8 +189,8 @@ public class TemplateEngine implements Loggable {
 		}
 		registeredBlockObj.put(handle,block);
 		
-		if( LOG.isDebugEnabled() ) {
-			LOG.debug("Defined block "+handle+" in "+parent+". Replacement: "+name);
+		if( log.isDebugEnabled() ) {
+			log.debug("Defined block "+handle+" in "+parent+". Replacement: "+name);
 		}
 		
 		return;
@@ -224,8 +217,8 @@ public class TemplateEngine implements Loggable {
 	 *
 	 */
 	public void setVar(String varname, Object value) {
-		if( LOG.isTraceEnabled() ) {
-			LOG.trace("set_var [single]: setting >"+varname+"< to >"+value+"<\n");
+		if( log.isTraceEnabled() ) {
+			log.trace("set_var [single]: setting >"+varname+"< to >"+value+"<\n");
 		}
 		varvals.put(varname, value);
 		if( record ) {
@@ -258,7 +251,7 @@ public class TemplateEngine implements Loggable {
 	 * @return Der neue Inhalt der Template-Variablen 
 	 */
 	public String parse(String target, String handle, boolean append) {
-		if( (m_file.get(handle) == null) && (m_blocks.get(handle) == null) ) {
+		if( (this.file.get(handle) == null) && (blocks.get(handle) == null) ) {
 			error("parse: '"+handle+"' ist kein gueltiges Datei- oder Blockhandle");
 			return "";	
 		}
@@ -270,7 +263,7 @@ public class TemplateEngine implements Loggable {
 			str = block.output(this);
 		}
 		else {
-			Template file = m_file.get(handle);
+			Template file = this.file.get(handle);
 			str = file.main(this);
 		}
 		
@@ -294,8 +287,8 @@ public class TemplateEngine implements Loggable {
 			setVar(target, str);
 		}
 		
-		if( LOG.isDebugEnabled() ) {
-			LOG.debug("parsed "+handle+" -> "+target+" (append: "+(append ? "true" : "false")+")");
+		if( log.isDebugEnabled() ) {
+			log.debug("parsed "+handle+" -> "+target+" (append: "+(append ? "true" : "false")+")");
 		}
 		
 		record = rec;
@@ -330,8 +323,8 @@ public class TemplateEngine implements Loggable {
 	 * @return Der Inhalt der Variablen
 	 */
 	public String getBlockReplacementVar( String varname ) {
-		if( m_varNameMap.get(varname) != null ) {
-			return getVar(m_varNameMap.get(varname));
+		if( varNameMap.get(varname) != null ) {
+			return getVar(varNameMap.get(varname));
 		}
 		return "";	
 	}
@@ -467,10 +460,11 @@ public class TemplateEngine implements Loggable {
 	 * @param varname Der Name der auszugebenden Variablen
  	 */
 	public void p( String varname ) {
-		LOG.debug("out: "+varname);
+		log.debug("out: "+varname);
 
 		Object value = varvals.get(varname);
-		m_controller.getResponse().getContent().append(value);
+		Context context = ContextMap.getContext();
+		context.getResponse().getContent().append(value);
 	}
 	
 	/**
@@ -480,8 +474,8 @@ public class TemplateEngine implements Loggable {
 	 * @param parent Der Elternblock
 	 */
 	public void registerBlockItrnl( String name, String filehandle, String parent ) {
-		LOG.debug("registered block: >"+name+"< >"+filehandle+"< >"+parent+"<");
-		m_registeredBlocks.put(name, new String[] {filehandle, name, parent});
+		log.debug("registered block: >"+name+"< >"+filehandle+"< >"+parent+"<");
+		registeredBlocks.put(name, new String[] {filehandle, name, parent});
 	}
 
 	/**
@@ -490,8 +484,8 @@ public class TemplateEngine implements Loggable {
 	 */
 	public void start_record() {
 		record = true;
-		if( LOG.isTraceEnabled() ) {
-			LOG.trace("** start record\n");
+		if( log.isTraceEnabled() ) {
+			log.trace("** start record\n");
 		}
   	}
 
@@ -501,8 +495,8 @@ public class TemplateEngine implements Loggable {
 	 */
 	public void stop_record() {
 		record = false;
-		if( LOG.isTraceEnabled() ) {
-			LOG.trace("** stop record\n");
+		if( log.isTraceEnabled() ) {
+			log.trace("** stop record\n");
 		}
 	}
 
@@ -513,8 +507,8 @@ public class TemplateEngine implements Loggable {
 	 */
 	public void clear_record() {
 		for( String key : recordvars ) {
-			if( LOG.isTraceEnabled() ) {
-				LOG.trace("clear_record: "+key);
+			if( log.isTraceEnabled() ) {
+				log.trace("clear_record: "+key);
 			}
 			varvals.remove(key);
 		}
@@ -527,8 +521,9 @@ public class TemplateEngine implements Loggable {
 	 * @param msg send an error message to the controller
 	 */
 	private void error(String msg) {
-		m_controller.addError("Template: "+msg);
-		LOG.error(msg);
+		Context context = ContextMap.getContext();
+		context.addError("Template: "+msg);
+		log.error(msg);
  	}
  	
  	/*	

@@ -23,14 +23,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.driftingsouls.ds2.server.framework.authentication.DefaultAuthenticationManager;
+import net.driftingsouls.ds2.server.framework.authentication.AuthenticationManager;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.framework.pipeline.Error;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Transaction;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Eine einfache Klasse, welche das <code>Context</code>-Interface implementiert.
@@ -40,7 +45,10 @@ import org.hibernate.Transaction;
  * @author Christopher Jung
  *
  */
-public class BasicContext implements Context,Loggable {
+@Configurable
+public class BasicContext implements Context {
+	private static final Log log = LogFactory.getLog(BasicContext.class);
+	
 	private Database database;
 	private Request request;
 	private Response response;
@@ -52,13 +60,16 @@ public class BasicContext implements Context,Loggable {
 	private org.hibernate.Session session;
 	private Transaction transaction;
 	
+	private AuthenticationManager authManager;
+
 	/**
 	 * Erstellt eine neue Instanz der Klasse unter Verwendung eines
 	 * <code>Request</code> und einer <code>Response</code>-Objekts
+	 * @param config Die DS-Konfiguration
 	 * @param request Die mit dem Kontext zu verbindende <code>Request</code>
 	 * @param response Die mit dem Kontext zu verbindende <code>Response</code>
 	 */
-	public BasicContext(Request request, Response response) {
+	public BasicContext(Configuration config, Request request, Response response) {
 		ContextMap.addContext(this);
 		
 		session = HibernateFacade.openSession();
@@ -66,18 +77,27 @@ public class BasicContext implements Context,Loggable {
 		
 		database = new Database(session.connection());
 		
-		if( Configuration.getIntSetting("LOG_QUERIES") != 0 ) {
+		if( config.getInt("LOG_QUERIES") != 0 ) {
 			database.setQueryLogStatus(true);
 		}
 		this.request = request;
 		this.response = response;
 	}
 	
+	/**
+	 * Injiziert den AuthenticationManager zum Validieren von Sessions 
+	 * @param authManager Der AuthenticationManager
+	 */
+	@Autowired
+	@Required
+	public void setAuthenticationManager(AuthenticationManager authManager) {
+		this.authManager = authManager;
+	}
+	
 	public void revalidate() {
 		if( this.activeUser == null ) {
 			errorList.clear();
-			new DefaultAuthenticationManager()
-				.authenticateCurrentSession();
+			this.authManager.authenticateCurrentSession();
 		}
 	}
 
@@ -184,7 +204,7 @@ public class BasicContext implements Context,Loggable {
 	@SuppressWarnings("unchecked")
 	public <T> T get(Class<T> cls) {
 		if( !cls.isAnnotationPresent(ContextInstance.class) ) {
-			LOG.fatal("ContextInstance Annotation not present: "+cls.getName());
+			log.fatal("ContextInstance Annotation not present: "+cls.getName());
 			return null;
 		}
 		
@@ -197,7 +217,7 @@ public class BasicContext implements Context,Loggable {
 					contextSingletons.put(cls, cls.newInstance());
 				}
 				catch( Exception e ) {
-					LOG.error(e,e);
+					log.error(e,e);
 					return null;
 				}
 			}
@@ -244,7 +264,7 @@ public class BasicContext implements Context,Loggable {
 
 	public void remove(Class<?> cls) {
 		if( !cls.isAnnotationPresent(ContextInstance.class) ) {
-			LOG.fatal("ContextInstance Annotation not present: "+cls.getName());
+			log.fatal("ContextInstance Annotation not present: "+cls.getName());
 			return;
 		}
 		

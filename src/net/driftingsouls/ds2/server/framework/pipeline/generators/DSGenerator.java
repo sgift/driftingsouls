@@ -38,6 +38,8 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.exception.GenericJDBCException;
 import org.hibernate.exception.LockAcquisitionException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Basisklasse fuer alle DS-spezifischen Generatoren
@@ -111,7 +113,19 @@ public abstract class DSGenerator extends Generator {
 	 * </ul>
 	 *
 	 */
+	@Configurable
 	protected class HtmlOutputHelper extends OutputHelper {
+		private Configuration config;
+		
+		/**
+		 * Injiziert die DS-Konfiguration
+		 * @param config Die DS-Konfiguration
+		 */
+		@Autowired
+		public void setConfiguration(Configuration config) {
+			this.config = config;
+		}
+		
 		@Override
 		public void printHeader() {
 			Response response = getContext().getResponse();
@@ -123,7 +137,7 @@ public abstract class DSGenerator extends Generator {
 				return;
 			}
 			StringBuffer sb = response.getContent();
-			String url = Configuration.getSetting("URL")+"/";
+			String url = config.get("URL")+"/";
 			boolean usegfxpak = false;
 			final BasicUser user = getContext().getActiveUser();
 			if( user != null ) {
@@ -138,10 +152,10 @@ public abstract class DSGenerator extends Generator {
 			sb.append("<title>Drifting Souls 2</title>\n");
 			sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
 			if( !getDisableDefaultCSS() ) { 
-				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+Configuration.getSetting("URL")+"format.css\" />\n");
+				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"format.css\" />\n");
 			}
 			sb.append("<!--[if IE]>\n");
-			sb.append("<style type=\"text/css\">@import url("+Configuration.getSetting("URL")+"format_fuer_den_dummen_ie.css);</style>\n");
+			sb.append("<style type=\"text/css\">@import url("+config.get("URL")+"format_fuer_den_dummen_ie.css);</style>\n");
 			sb.append("<![endif]-->\n");
 
 			if( this.getAttribute("header") != null ) {

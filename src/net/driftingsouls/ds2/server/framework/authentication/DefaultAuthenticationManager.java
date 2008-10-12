@@ -40,6 +40,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	private static final Log log = LogFactory.getLog(DefaultAuthenticationManager.class);
 	private static final ServiceLoader<LoginEventListener> loginListenerList = ServiceLoader.load(LoginEventListener.class);
 	private static final ServiceLoader<AuthenticateEventListener> authListenerList = ServiceLoader.load(AuthenticateEventListener.class);
+	private Configuration config;
 	
 	public BasicUser login(String username, String password, boolean useGfxPak) throws AuthenticationException {
 		Context context = ContextMap.getContext();
@@ -120,10 +121,18 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		return user;
 	}
 	
+	/**
+	 * Injiziert die DS-Konfiguration
+	 * @param config Die DS-Konfiguration
+	 */
+	public void setConfiguration(Configuration config) {
+		this.config = config;
+	}
+	
 	public void authenticateCurrentSession() {
 		Context context = ContextMap.getContext();
 
-		String errorurl = Configuration.getSetting("URL")+"ds?module=portal&action=login";
+		String errorurl = config.get("URL")+"ds?module=portal&action=login";
 		
 		JavaSession jsession = context.get(JavaSession.class);
 		

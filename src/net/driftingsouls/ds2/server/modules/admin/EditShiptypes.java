@@ -35,6 +35,8 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipModules;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.CacheMode;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
@@ -47,6 +49,8 @@ import org.hibernate.ScrollableResults;
 @AdminMenuEntry(category = "Schiffe", name = "Typen editieren")
 public class EditShiptypes implements AdminPlugin
 {
+	private static final Log log = LogFactory.getLog(EditShiptypes.class);
+	
 	public void output(AdminController controller, String page, int action)
 	{
 		Context context = ContextMap.getContext();
@@ -240,7 +244,7 @@ public class EditShiptypes implements AdminPlugin
 				catch(Exception e)
 				{
 					//Riskant, aber, dass nach einem Fehler alle anderen Schiffe nicht aktualisiert werden muss verhindert werden
-					Common.LOG.error("Das Schiff mit der ID " + ship.getId() + " konnte nicht aktualisiert werden. Fehler: " + e.getMessage());
+					log.error("Das Schiff mit der ID " + ship.getId() + " konnte nicht aktualisiert werden. Fehler: " + e.getMessage());
 				}
 			}
 			db.flush();
@@ -267,7 +271,7 @@ public class EditShiptypes implements AdminPlugin
 				}
 				catch(Exception e)
 				{
-					Common.LOG.error("Der Kampfeintrag zum Schiff mit der ID " + battleShip.getId() + " konnte nicht aktualisiert werden. Fehler: " + e.getMessage());
+					log.error("Der Kampfeintrag zum Schiff mit der ID " + battleShip.getId() + " konnte nicht aktualisiert werden. Fehler: " + e.getMessage());
 				}
 			}
 			db.flush();

@@ -70,7 +70,11 @@ abstract class AbstractRule implements Rule {
 	
 	private ParameterMap parameterMap = null;
 	
-	AbstractRule( Node matchNode ) throws Exception {
+	private final PipelineConfig pipelineConfig;
+	
+	AbstractRule( PipelineConfig pipelineConfig, Node matchNode ) throws Exception {
+		this.pipelineConfig = pipelineConfig;
+		
 		NodeList nodes = XMLUtils.getNodesByXPath(matchNode, "actions/*");
 		if( nodes != null ) {
 			setupActions(nodes);
@@ -218,7 +222,7 @@ abstract class AbstractRule implements Rule {
 	private Pipeline executeModule(Context context) throws Exception {
 		String module = parameter.getValue(context);
 		
-		return new GeneratorPipeline( PipelineConfig.getModuleSettingByName(module).generator );
+		return new GeneratorPipeline( this.pipelineConfig.getModuleSettingByName(module).generator );
 	}
 	
 	private Pipeline executeServlet(Context context) throws Exception {

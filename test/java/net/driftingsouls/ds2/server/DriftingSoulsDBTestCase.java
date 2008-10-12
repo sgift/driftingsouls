@@ -25,10 +25,12 @@ import java.sql.Statement;
 
 import net.driftingsouls.ds2.server.framework.BasicContext;
 import net.driftingsouls.ds2.server.framework.CmdLineRequest;
+import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.SimpleResponse;
 
 import org.junit.After;
 import org.junit.Before;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
  * Basisklasse fuer Datenbankbasierte Tests von DS
@@ -54,12 +56,18 @@ public abstract class DriftingSoulsDBTestCase implements DBTestable {
 	public void setUp() throws Exception {
 		SimpleResponse response = new SimpleResponse();
 		CmdLineRequest request = new CmdLineRequest(new String[0]);
-		this.context = new BasicContext(request, response);
+		this.context = new BasicContext(new Configuration(), request, response);
+		
+		new FileSystemXmlApplicationContext("test/cfg/spring.xml");
 		
 		Connection con = this.dbTester.getConnection().getConnection();
 		Statement stmt = con.createStatement();
-		stmt.executeUpdate("INSERT INTO config VALUES ('ticks', '1', 'Der aktuelle Tick', 0)");
-		stmt.close();
+		try {
+			stmt.executeUpdate("INSERT INTO config VALUES ('ticks', '1', 'Der aktuelle Tick', 0)");
+		}
+		finally {
+			stmt.close();
+		}
 		
 		this.dbTester.setUp();
 	}
@@ -75,17 +83,25 @@ public abstract class DriftingSoulsDBTestCase implements DBTestable {
 		try {
 			Connection con = this.dbTester.getConnection().getConnection();
 			Statement stmt = con.createStatement();
-			stmt.executeUpdate("SET FOREIGN_KEY_CHECKS=0");
-			ResultSet result = stmt.executeQuery("SHOW TABLES");
-			while( result.next() ) {
-				String table = result.getString(1);
-				Statement stmt2 = con.createStatement();
-				stmt2.executeUpdate("DELETE FROM "+table);
-				stmt2.close();
+			try {
+				stmt.executeUpdate("SET FOREIGN_KEY_CHECKS=0");
+				ResultSet result = stmt.executeQuery("SHOW TABLES");
+				try {
+					while( result.next() ) {
+						String table = result.getString(1);
+						Statement stmt2 = con.createStatement();
+						stmt2.executeUpdate("DELETE FROM "+table);
+						stmt2.close();
+					}
+				}
+				finally {
+					result.close();
+				}
+				stmt.executeUpdate("SET FOREIGN_KEY_CHECKS=1");
 			}
-			result.close();
-			stmt.executeUpdate("SET FOREIGN_KEY_CHECKS=1");
-			stmt.close();
+			finally {
+				stmt.close();
+			}
 		}
 		catch( SQLException e ) {
 			e.printStackTrace();

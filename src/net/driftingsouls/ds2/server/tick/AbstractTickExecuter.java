@@ -31,7 +31,8 @@ import net.driftingsouls.ds2.server.framework.SimpleResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.impl.LogFactoryImpl;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
  * Klasse zur Ausfuehrung von mehreren Ticks
@@ -62,15 +63,17 @@ public abstract class AbstractTickExecuter extends TickController {
 		CmdLineRequest request = new CmdLineRequest(args);
 		
 		try {
-			new DriftingSouls(log, request.getParameterString("config"), false);
+			new DriftingSouls(log, request.getParameterString("config"), true);
 		}
 		catch( Exception e ) {
 			log.fatal(e, e);
 			throw new Exception(e);
 		}
 		
+		ApplicationContext context = new FileSystemXmlApplicationContext("/"+request.getParameterString("config")+"/spring.xml");
+		
 		SimpleResponse response = new SimpleResponse();
-		basicContext = new BasicContext(request, response);
+		basicContext = new BasicContext((Configuration)context.getBean("configuration"), request, response);
 	}
 	
 	/**

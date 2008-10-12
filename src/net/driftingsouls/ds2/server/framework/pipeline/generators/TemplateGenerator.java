@@ -51,7 +51,7 @@ public abstract class TemplateGenerator extends DSGenerator {
 			return;
 		}
 				
-		templateEngine = new TemplateEngine(getContext());
+		templateEngine = new TemplateEngine();
 
 		String style = getString("_style");
 		if( !style.equals("") ) {
@@ -124,11 +124,9 @@ public abstract class TemplateGenerator extends DSGenerator {
 				masterTemplateID = "";
 			}
 			
-			if( templateEngine != null ) {
-				if( getContext().getActiveUser() != null ) {
-					getContext().getActiveUser().setTemplateVars( templateEngine );	
-				}	
-			}
+			if( getContext().getActiveUser() != null ) {
+				getContext().getActiveUser().setTemplateVars( templateEngine );	
+			}	
 		}
 		else {
 			masterTemplateID = "";	

@@ -23,11 +23,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Pipeline;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -40,16 +44,19 @@ import org.w3c.dom.NodeList;
  *
  */
 public class PipelineConfig {
-	private static Map<String,ModuleSetting> modules = new HashMap<String,ModuleSetting>();
-	private static ModuleSetting defaultModule = null;
-	private static List<Rule> rules = new ArrayList<Rule>();
+	private static final Log log = LogFactory.getLog(PipelineConfig.class);
 	
-	private static ModuleSetting readModuleSetting( Node moduleNode ) throws Exception {
+	private Map<String,ModuleSetting> modules = new HashMap<String,ModuleSetting>();
+	private ModuleSetting defaultModule = null;
+	private List<Rule> rules = new ArrayList<Rule>();
+	private Configuration configuration;
+	
+	private ModuleSetting readModuleSetting( Node moduleNode ) throws Exception {
 		return new ModuleSetting( 
 				XMLUtils.getStringByXPath(moduleNode, "generator/@class"));
 	}
 	
-	static ModuleSetting getModuleSettingByName(String name) throws Exception {
+	ModuleSetting getModuleSettingByName(String name) throws Exception {
 		ModuleSetting moduleSetting = (ModuleSetting)defaultModule.clone();
 		if( modules.get(name) != null ) {
 			moduleSetting.use(modules.get(name));
@@ -59,11 +66,22 @@ public class PipelineConfig {
 	}
 	
 	/**
+	 * Injiziert die DS-Konfiguration
+	 * @param config Die DS-Konfiguration
+	 */
+	public void setConfiguration(Configuration config) {
+		this.configuration = config;
+	}
+	
+	/**
 	 * Liesst die Konfiguration aus der Pipeline-Konfigurationsdatei ein
 	 * @throws Exception
 	 */
-	public static void readConfiguration() throws Exception {
-		Document doc = XMLUtils.readFile(Configuration.getSetting("configdir")+"pipeline.xml");
+	@PostConstruct
+	public void readConfiguration() throws Exception {
+		log.info("Reading "+this.configuration.get("configdir")+"pipeline.xml");
+		
+		Document doc = XMLUtils.readFile(this.configuration.get("configdir")+"pipeline.xml");
 		// Module
 		Node moduleNode = XMLUtils.getNodeByXPath(doc, "/pipeline/modules");
 		defaultModule = readModuleSetting(moduleNode);
@@ -78,7 +96,7 @@ public class PipelineConfig {
 		nodes = XMLUtils.getNodesByXPath(doc, "/pipeline/rules/*");
 		for( int i=0; i < nodes.getLength(); i++ ) {
 			if( nodes.item(i).getNodeName() == "match" ) {
-				rules.add(new MatchRule(nodes.item(i)));
+				rules.add(new MatchRule(this, nodes.item(i)));
 			}
 			else {
 				throw new Exception("Unhandled pipeline rule '"+nodes.item(i).getNodeName()+"'");
@@ -93,7 +111,7 @@ public class PipelineConfig {
 	 * @return Die Pipeline oder <code>null</code>
 	 * @throws Exception
 	 */
-	public static Pipeline getPipelineForContext(Context context) throws Exception {
+	public Pipeline getPipelineForContext(Context context) throws Exception {
 		Pipeline pipeline = null;
 		for( Rule rule : rules ) {
 			if( (pipeline = rule.execute(context)) != null ) {

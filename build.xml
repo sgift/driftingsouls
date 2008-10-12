@@ -291,7 +291,7 @@
 	
 	<!-- ==================== Run Target ================================== -->
 	
-	<taskdef classpathref="ant.classpath" resource="tasks.properties" loaderref="jetty.loader" />
+	<!--<taskdef classpathref="ant.classpath" resource="tasks.properties" loaderref="jetty.loader" />
 	
 	<target name="run">
 		<mkdir dir="jetty-temp" />
@@ -300,6 +300,15 @@
 				<lib dir="${build.home}/WEB-INF/lib" includes="*.jar" />
 			</webapp>
 		</jetty>
+		<delete dir="jetty-temp" />
+	</target>-->
+
+	<target name="run">
+		<mkdir dir="jetty-temp" />
+		<java classname="org.mortbay.start.Main" classpathref="ant.classpath" fork="true">
+			<arg value="build-utils/jetty/jetty.xml"/>
+			<jvmarg value="-javaagent:web/WEB-INF/lib/spring-agent.jar" />
+		</java>
 		<delete dir="jetty-temp" />
 	</target>
 	
@@ -336,6 +345,7 @@
 		</copy>
 		
 		<junit fork="yes" haltonfailure="false">
+			<jvmarg value="-javaagent:web/WEB-INF/lib/spring-agent.jar" />
 			<classpath>
 				<fileset dir="web/WEB-INF/lib">
 					<include name="*.jar"/>

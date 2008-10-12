@@ -21,12 +21,9 @@ package net.driftingsouls.ds2.server.tick.regular;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import net.driftingsouls.ds2.server.DriftingSoulsDBTestCase;
-import net.driftingsouls.ds2.server.werften.WerftObject;
-import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
-import org.junit.Before;
 import org.junit.Test;
 
 /**

@@ -25,8 +25,6 @@ import java.util.Enumeration;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -37,25 +35,26 @@ import javax.servlet.http.HttpServletResponse;
 import net.driftingsouls.ds2.server.framework.BasicContext;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.pipeline.configuration.PipelineConfig;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.web.filter.GenericFilterBean;
 
 /**
  * Der Standard-Listener fuer Servlet-Requests. Initalisiert die DS-Umgebung soweit wie moeglich.
  * @author Christopher Jung
  *
  */
-public class DefaultServletRequestFilter implements Filter, Loggable {
-	private ServletContext context;
+public class DefaultServletRequestFilter extends GenericFilterBean implements Filter {
+	private static final Log log = LogFactory.getLog(DefaultServletRequestFilter.class);
 	
-	public void destroy() {
-		// EMPTY
-	}
-
 	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
 		if( !(req instanceof HttpServletRequest) ) {
 			chain.doFilter(req, resp);
-			LOG.error(this.getClass().getName()+" konnte Request nicht verarbeiten");
+			log.error(this.getClass().getName()+" konnte Request nicht verarbeiten");
 			return;
 		}
 		
@@ -72,16 +71,19 @@ public class DefaultServletRequestFilter implements Filter, Loggable {
 			BasicContext context = null;
 			
 			try {
-				context = new BasicContext(request, response);
+				WebApplicationContext springContext = WebApplicationContextUtils.getRequiredWebApplicationContext(this.getServletContext());
+				
+				context = new BasicContext((Configuration)springContext.getBean("configuration"), request, response);
 				context.putVariable(HttpServlet.class, "response", httpResponse);
 				context.putVariable(HttpServlet.class, "request", httpRequest);
-				context.putVariable(HttpServlet.class, "context", this.context);
+				context.putVariable(HttpServlet.class, "context", this.getServletContext());
 				context.putVariable(HttpServlet.class, "chain", chain);
 				
 				context.revalidate();
 				
 				try {
-					Pipeline pipeline = PipelineConfig.getPipelineForContext(context);
+					PipelineConfig config = (PipelineConfig)springContext.getBean("pipelineConfig", PipelineConfig.class);
+					Pipeline pipeline = config.getPipelineForContext(context);
 					
 					if( pipeline != null ) {
 						pipeline.execute(context);
@@ -93,7 +95,7 @@ public class DefaultServletRequestFilter implements Filter, Loggable {
 					context.getResponse().send();
 				}
 				catch( Throwable e ) {
-					LOG.error("Fatal Framework Exception", e);
+					log.error("Fatal Framework Exception", e);
 					
 					context.rollback();
 					
@@ -124,7 +126,7 @@ public class DefaultServletRequestFilter implements Filter, Loggable {
 			}
 		}
 		catch( Throwable e ) {
-			LOG.error("Fatal Framework Exception", e);
+			log.error("Fatal Framework Exception", e);
 			
 			mailThrowable(httpRequest, null, e);
 		}
@@ -135,7 +137,7 @@ public class DefaultServletRequestFilter implements Filter, Loggable {
 		msg.append("Time: "+new Date()+"\n");
 		msg.append("URI: "+httpRequest.getRequestURI()+"\n");
 		msg.append("PARAMS:\n");
-		for( Enumeration e=httpRequest.getParameterNames(); e.hasMoreElements(); ) {
+		for( Enumeration<?> e=httpRequest.getParameterNames(); e.hasMoreElements(); ) {
 			String key = (String)e.nextElement();
 			msg.append("\t* "+key+" = "+httpRequest.getParameter(key)+"\n");
 		}
@@ -148,19 +150,5 @@ public class DefaultServletRequestFilter implements Filter, Loggable {
 		}
 		
 		Common.mailThrowable(t, (context == null ? "Fatal " : "")+"Framework Exception", msg.toString());
-	}
-
-	public void init(FilterConfig filterConfig) throws ServletException {
-		context = filterConfig.getServletContext();
-		
-		// Pipeline lesen
-		LOG.info("Reading "+Configuration.getSetting("configdir")+"pipeline.xml");
-		try {
-			PipelineConfig.readConfiguration();
-		}
-		catch( Exception e ) {
-			LOG.fatal(e, e);
-			throw new ServletException(e);
-		}
 	}
 }

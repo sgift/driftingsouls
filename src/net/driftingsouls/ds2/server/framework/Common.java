@@ -53,13 +53,17 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Allgemeine Hilfsfunktionen des Frameworks
  * @author Christopher Jung
  *
  */
-public class Common implements Loggable {
+public class Common {
+	private static final Log log = LogFactory.getLog(Common.class);
+	
 	private static NumberFormat numberFormat;
 	private static Locale locale;
 	
@@ -83,7 +87,7 @@ public class Common implements Loggable {
 		StackTraceElement[] elements = new Throwable().getStackTrace();
 		if( !stubWarnList.contains(elements[1]) ) {
 			stubWarnList.add(elements[1]);
-			LOG.warn("STUB: "+elements[1].toString());
+			log.warn("STUB: "+elements[1].toString());
 		}
 	}
 	
@@ -443,7 +447,7 @@ public class Common implements Loggable {
 	 * 
 	 * @param pattern Der Formatierungsstring
 	 * @return Das formatierte Datum
-	 * @see #date(String, int)
+	 * @see #date(String, long)
 	 */
 	public static String date(String pattern) {
 		return date(pattern, time());
@@ -903,7 +907,7 @@ public class Common implements Loggable {
 			return hexString.toString();
 		}
 		catch( Exception e ) {
-			LOG.error(e,e);
+			log.error(e,e);
 		}
 		
 		return null;
@@ -913,19 +917,23 @@ public class Common implements Loggable {
 	 * Schreibt einen Eintrag in eine Logdatei. Wenn die Logdatei
 	 * nicht existiert wird nichts gemacht.
 	 * 
-	 * @param log Name der Logdatei (relativ zum Logpfad
+	 * @param logFile Name der Logdatei (relativ zum Logpfad
 	 * @param text Der zu schreibende Text.
 	 */
-	public static void writeLog( String log, String text ) {
-		File file = new File(Configuration.getSetting("LOXPATH")+log);
+	public static void writeLog( String logFile, String text ) {
+		File file = new File(Configuration.getSetting("LOXPATH")+logFile);
 		if( file.isFile() ) {
 			try {
 				BufferedWriter bf = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, true)));
-				bf.write(text);
-				bf.close();
+				try {
+					bf.write(text);
+				}
+				finally {
+					bf.close();
+				}
 			}
 			catch( Exception e ) {
-				LOG.error(e,e);
+				log.error("",e);
 			}
 		}
 	}
@@ -1032,7 +1040,7 @@ public class Common implements Loggable {
 			Transport.send(message);
 		}
 		catch( Exception e ) {
-			LOG.error("Konnte Email '"+subject+"' an Addresse "+address+" nicht senden: "+e);
+			log.error("Konnte Email '"+subject+"' an Addresse "+address+" nicht senden: "+e);
 		}
 	}
 	
@@ -1091,13 +1099,21 @@ public class Common implements Loggable {
 		/* TODO: Exceptions? */
 		try {
 			FileChannel sourceChannel = new FileInputStream(new File(source)).getChannel();
-			FileChannel destinationChannel = new FileOutputStream(new File(destination)).getChannel();
-			sourceChannel.transferTo(0, sourceChannel.size(), destinationChannel);
-			sourceChannel.close();
-			destinationChannel.close();
+			try {
+				FileChannel destinationChannel = new FileOutputStream(new File(destination)).getChannel();
+				try {
+					sourceChannel.transferTo(0, sourceChannel.size(), destinationChannel);
+				}
+				finally {
+					destinationChannel.close();
+				}
+			}
+			finally {
+				sourceChannel.close();
+			}
 		}
 		catch(IOException e) {
-			LOG.error(e,e);
+			log.error(e,e);
 		}
 	}
 	

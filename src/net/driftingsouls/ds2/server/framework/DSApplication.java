@@ -30,6 +30,8 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.LogFactoryImpl;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
  * Basisklasse fuer Applikationen von DS
@@ -64,8 +66,10 @@ public abstract class DSApplication {
 			throw new Exception(e);
 		}
 		
+		ApplicationContext context = new FileSystemXmlApplicationContext("/"+request.getParameterString("config")+"/spring.xml");
+		
 		SimpleResponse response = new SimpleResponse();
-		this.context = new BasicContext(request, response);
+		this.context = new BasicContext((Configuration)context.getBean("configuration"), request, response);
 		
 		logTargets = new HashMap<Integer,Writer>();
 		handleCounter = 0;

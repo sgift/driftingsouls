@@ -25,122 +25,165 @@ import java.util.Map;
 
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 /**
  * Configuration kann Konfigurationsdateien parsen und die darin enthaltenen Einstellungen in die
- * Einstellungsliste laden. Bereits vorhandene Einstellungen gehen dabei jedoch verloren.
- * Es koennen aber auch nachtraeglich Konfigurationseinstellungen gesetzt werden. Diese werden jedoch
- * nicht in der Konfigurationsdatei, aus der die Einstellungen geladen wurden, geschrieben.
+ * Einstellungsliste laden. Bereits vorhandene Einstellungen gehen dabei jedoch verloren. Es koennen
+ * aber auch nachtraeglich Konfigurationseinstellungen gesetzt werden. Diese werden jedoch nicht in
+ * der Konfigurationsdatei, aus der die Einstellungen geladen wurden, geschrieben.
  * 
  * @author Christopher Jung
- *
+ * 
  */
-public class Configuration implements Loggable {
-	private static Map<String,String> config = new HashMap<String,String>();
-	private static Map<String,Integer> configInt = new HashMap<String,Integer>();
-	
+public class Configuration
+{
+	private static final Log log = LogFactory.getLog(Configuration.class);
+
+	private static Map<String, String> config = new HashMap<String, String>();
+	private static Map<String, Integer> configInt = new HashMap<String, Integer>();
+
 	/**
-	 * Laedt alle Konfigurationseinstellungen aus der config.xml im angegebenen Verzeichnis.
-	 * Alle bereits geladenen Konfigurationseinstellungen werden vorher geloescht.
-	 * Das Konfigurationsverzeichnis wird unter "configdir" in der Konfiguration abgelegt
+	 * Laedt alle Konfigurationseinstellungen aus der config.xml im angegebenen Verzeichnis. Alle
+	 * bereits geladenen Konfigurationseinstellungen werden vorher geloescht. Das
+	 * Konfigurationsverzeichnis wird unter "configdir" in der Konfiguration abgelegt
 	 * 
 	 * @param configdir Hauptkonfigurationsverzeichnis von DS
 	 * @throws Exception
 	 */
-	public static synchronized void init(String configdir) throws Exception {
-		if( !new File(configdir+"config.xml").isFile() ) {
-			throw new FileNotFoundException("Configuraton konnte config.xml nicht im Verzeichnis "+configdir+" finden");
+	public static synchronized void init(String configdir) throws Exception
+	{
+		if( !new File(configdir + "config.xml").isFile() )
+		{
+			throw new FileNotFoundException("Configuraton konnte config.xml nicht im Verzeichnis "
+					+ configdir + " finden");
 		}
 		config.clear();
 		configInt.clear();
-		
+
 		putSetting("configdir", configdir);
-		
-		Document doc = XMLUtils.readFile(configdir+"config.xml");
+
+		Document doc = XMLUtils.readFile(configdir + "config.xml");
 		NodeList nodes = XMLUtils.getNodesByXPath(doc, "/config/setting");
-		for( int i=0; i < nodes.getLength(); i++ ) {
+		for( int i = 0; i < nodes.getLength(); i++ )
+		{
 			String type = nodes.item(i).getAttributes().getNamedItem("type").getNodeValue();
 			String name;
 			String value;
-			
-			if( nodes.item(i).getAttributes().getNamedItem("name") != null ) {
+
+			if( nodes.item(i).getAttributes().getNamedItem("name") != null )
+			{
 				name = nodes.item(i).getAttributes().getNamedItem("name").getNodeValue();
 				value = nodes.item(i).getAttributes().getNamedItem("value").getNodeValue();
 			}
-			else {
+			else
+			{
 				name = XMLUtils.getStringByXPath(nodes.item(i), "name/text()");
 				value = XMLUtils.getStringByXPath(nodes.item(i), "value/text()");
 			}
-			
-			if( "string".equalsIgnoreCase(type) ) {
+
+			if( "string".equalsIgnoreCase(type) )
+			{
 				Configuration.putSetting(name, value);
 			}
-			else if( "number".equalsIgnoreCase(type) ) {
+			else if( "number".equalsIgnoreCase(type) )
+			{
 				Configuration.putIntSetting(name, Integer.parseInt(value));
 			}
-			else {
-				throw new Exception("Illegal configuration setting type '"+type+"'");
+			else
+			{
+				throw new Exception("Illegal configuration setting type '" + type + "'");
 			}
 		}
 	}
-	
+
 	/**
 	 * Liefert eine Konfigurationseinstellung als String zurueck
 	 * 
 	 * @param setting Name der Konfigurationseinstellung
 	 * @return Wert der Konfigurationseinstellung
 	 */
-	public static String getSetting( String setting ) {
-		if( config.containsKey(setting) ) {
+	public static String getSetting(String setting)
+	{
+		if( config.containsKey(setting) )
+		{
 			return config.get(setting);
 		}
 		Integer value = configInt.get(setting);
-		if( value != null ) {
+		if( value != null )
+		{
 			return value.toString();
 		}
-		LOG.error("couldn't read "+setting+" from Configuration");
+		log.error("couldn't read " + setting + " from Configuration");
 		return null;
 	}
-	
+
 	/**
-	 * Liefert eine Konfigurationseinstellung als Integer zurueck, sofern
-	 * diese bereits als Integer vorliegt. Es wird keine Umwandlung String nach
-	 * Integer durchgefuehrt!
+	 * Liefert eine Konfigurationseinstellung als Integer zurueck, sofern diese bereits als Integer
+	 * vorliegt. Es wird keine Umwandlung String nach Integer durchgefuehrt!
 	 * 
 	 * @param setting Name der Konfigurationseinstellung
 	 * @return Wert der Konfigurationseinstellung
 	 */
-	public static int getIntSetting( String setting ) {
+	public static int getIntSetting(String setting)
+	{
 		Integer val = configInt.get(setting);
-		if( val == null ) {
-			LOG.error("couldn't read integer "+setting+" from Configuration");
-			throw new RuntimeException("couldn't read integer "+setting+" from Configuration");
+		if( val == null )
+		{
+			log.error("couldn't read integer " + setting + " from Configuration");
+			throw new RuntimeException("couldn't read integer " + setting + " from Configuration");
 		}
-		
+
 		return val;
 	}
-	
+
 	/**
 	 * Setzt eine Konfigurationseinstellung auf einen String-Wert
 	 * 
 	 * @param setting Name der Konfigurationseinstellung
 	 * @param value Wert der Konfigurationseinstellung
 	 */
-	public static synchronized void putSetting( String setting, String value ) {
-		config.put(setting,value);
+	private static synchronized void putSetting(String setting, String value)
+	{
+		config.put(setting, value);
 		configInt.remove(setting);
 	}
-	
+
 	/**
 	 * Setzt eine Konfigurationseinstellung auf einen Integer-Wert
 	 * 
 	 * @param setting Name der Konfigurationseinstellung
 	 * @param value Wert der Konfigurationseinstellung
 	 */
-	public static synchronized void putIntSetting( String setting, int value ) {
-		configInt.put(setting,value);
+	private static synchronized void putIntSetting(String setting, int value)
+	{
+		configInt.put(setting, value);
 		config.remove(setting);
+	}
+
+	/**
+	 * Liefert eine Konfigurationseinstellung als String zurueck
+	 * 
+	 * @param setting Name der Konfigurationseinstellung
+	 * @return Wert der Konfigurationseinstellung
+	 */
+	public String get(String setting)
+	{
+		return getSetting(setting);
+	}
+
+	/**
+	 * Liefert eine Konfigurationseinstellung als Integer zurueck, sofern diese bereits als Integer
+	 * vorliegt. Es wird keine Umwandlung String nach Integer durchgefuehrt!
+	 * 
+	 * @param setting Name der Konfigurationseinstellung
+	 * @return Wert der Konfigurationseinstellung
+	 */
+	public int getInt(String setting)
+	{
+		return getIntSetting(setting);
 	}
 }
