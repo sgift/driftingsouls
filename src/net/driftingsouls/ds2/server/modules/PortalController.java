@@ -47,7 +47,6 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.authentication.AccountDisabledException;
 import net.driftingsouls.ds2.server.framework.authentication.AuthenticationException;
 import net.driftingsouls.ds2.server.framework.authentication.AuthenticationManager;
-import net.driftingsouls.ds2.server.framework.authentication.DefaultAuthenticationManager;
 import net.driftingsouls.ds2.server.framework.authentication.LoginDisabledException;
 import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
 import net.driftingsouls.ds2.server.framework.authentication.WrongPasswordException;
@@ -63,13 +62,19 @@ import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeExc
 
 import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Das Portal
  * @author Christopher Jung
  *
  */
+@Configurable
 public class PortalController extends TemplateGenerator {
+	private AuthenticationManager authManager;
+	
 	/**
 	 * Konstruktor
 	 * @param context Der zu verwendende Kontext
@@ -80,6 +85,16 @@ public class PortalController extends TemplateGenerator {
 		requireValidSession(false);
 		
 		setTemplate("portal.html");
+	}
+	
+	/**
+	 * Injiziert den DS-AuthenticationManager zum einloggen von Benutzern
+	 * @param authManager Der AuthenticationManager
+	 */
+	@Required
+	@Autowired
+	public void setAuthenticationManager(AuthenticationManager authManager) {
+		this.authManager = authManager;
 	}
 	
 	@Override
@@ -734,8 +749,6 @@ public class PortalController extends TemplateGenerator {
 	public void loginAction() {
 		TemplateEngine t = getTemplateEngine();
 		
-		AuthenticationManager manager = new DefaultAuthenticationManager();
-		
 		parameterString("username");
 		parameterString("password");
 		parameterNumber("usegfxpak");
@@ -746,7 +759,7 @@ public class PortalController extends TemplateGenerator {
 		
 		if( !username.isEmpty() && !password.isEmpty() ) {
 			try {
-				User user = (User)manager.login(username, password, usegfxpak != 0);
+				User user = (User)this.authManager.login(username, password, usegfxpak != 0);
 				
 				doLogin(user);
 				

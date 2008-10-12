@@ -20,17 +20,23 @@ package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.authentication.AuthenticationManager;
-import net.driftingsouls.ds2.server.framework.authentication.DefaultAuthenticationManager;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Die Logoutfunktion
  * @author Christopher Jung
  *
  */
+@Configurable
 public class LogoutController extends TemplateGenerator {
+	private AuthenticationManager authManager;
+	
 	/**
 	 * Konstruktor
 	 * @param context Der zu verwendende Kontext
@@ -39,6 +45,16 @@ public class LogoutController extends TemplateGenerator {
 		super(context);
 		
 		setTemplate("logout.html");
+	}
+	
+	/**
+	 * Injiziert den DS-AuthenticationManager zum einloggen von Benutzern
+	 * @param authManager Der AuthenticationManager
+	 */
+	@Autowired
+	@Required
+	public void setAuthenticationManager(AuthenticationManager authManager) {
+		this.authManager = authManager;
 	}
 
 	@Override
@@ -52,7 +68,6 @@ public class LogoutController extends TemplateGenerator {
 	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
-		AuthenticationManager manager = new DefaultAuthenticationManager();
-		manager.logout();
+		this.authManager.logout();
 	}
 }

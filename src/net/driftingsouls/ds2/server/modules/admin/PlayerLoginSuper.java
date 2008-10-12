@@ -23,8 +23,11 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.authentication.AuthenticationException;
 import net.driftingsouls.ds2.server.framework.authentication.AuthenticationManager;
-import net.driftingsouls.ds2.server.framework.authentication.DefaultAuthenticationManager;
 import net.driftingsouls.ds2.server.modules.AdminController;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Ermoeglicht das Einloggen in einen anderen Account ohne Passwort
@@ -32,8 +35,20 @@ import net.driftingsouls.ds2.server.modules.AdminController;
  *
  */
 @AdminMenuEntry(category="Spieler", name="Masterlogin")
+@Configurable
 public class PlayerLoginSuper implements AdminPlugin {
-
+	private AuthenticationManager authManager;
+	
+	/**
+	 * Injiziert den DS-AuthenticationManager zum einloggen von Benutzern
+	 * @param authManager Der AuthenticationManager
+	 */
+	@Autowired
+	@Required
+	public void setAuthenticationManager(AuthenticationManager authManager) {
+		this.authManager = authManager;
+	}
+	
 	public void output(AdminController controller, String page, int action) {
 		Context context = ContextMap.getContext();
 		StringBuffer echo = context.getResponse().getContent();
@@ -64,8 +79,7 @@ public class PlayerLoginSuper implements AdminPlugin {
 			}
 			
 			try {
-				AuthenticationManager manager = new DefaultAuthenticationManager();
-				manager.adminLogin(userObj, usesessid != 0);
+				this.authManager.adminLogin(userObj, usesessid != 0);
 				
 				echo.append("<a class=\"ok\" target=\"_blank\" href=\"./ds?module=main\">Zum Account</a>\n");
 			}
