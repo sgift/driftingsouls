@@ -48,7 +48,6 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -72,6 +71,8 @@ import net.driftingsouls.ds2.server.ships.Ships;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 
 /**
@@ -81,7 +82,9 @@ import org.hibernate.Hibernate;
  * @urlparam Integer ship Die ID des anzuzeigenden Schiffes
  *
  */
-public class SchiffController extends TemplateGenerator implements Loggable {
+public class SchiffController extends TemplateGenerator {
+	private Log log = LogFactory.getLog(SchiffController.class);
+	
 	private Ship ship = null;
 	private ShipTypeData shiptype = null;
 	private Offizier offizier = null;
@@ -127,7 +130,7 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 			return sp;
 		}
 		catch( Exception e ) {
-			LOG.error(e,e);
+			log.error(e,e);
 			return null;
 		}
 	}
@@ -524,9 +527,9 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 		
 		org.hibernate.Session db = getDB();
 		
-		List dockedList = db.createQuery("from Ship where id>0 and id in ("+Common.implode(",", shipidlist)+") and docked!=''")
+		List<?> dockedList = db.createQuery("from Ship where id>0 and id in ("+Common.implode(",", shipidlist)+") and docked!=''")
 			.list();
-		for( Iterator iter=dockedList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=dockedList.iterator(); iter.hasNext(); ) {
 			Ship docked = (Ship)iter.next();
 			
 			if( docked.getOwner() != user ) {
@@ -895,7 +898,7 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 			}
 		}
 		catch( Exception e ) {
-			LOG.warn("Setting Script-ExecData failed (Ship: "+ship.getId()+": ",e);
+			log.warn("Setting Script-ExecData failed (Ship: "+ship.getId()+": ",e);
 			return;
 		}
 
@@ -929,7 +932,7 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 				runningdata.setExecData(Hibernate.createBlob(out.toByteArray()));
 			}
 			catch( Exception e ) {
-				LOG.warn("Writing back Script-ExecData failed (Ship: "+ship.getId()+": ",e);
+				log.warn("Writing back Script-ExecData failed (Ship: "+ship.getId()+": ",e);
 				return;
 			}
 		}
@@ -1279,7 +1282,7 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 		if( offizier != null ) {
 			t.setBlock("_SCHIFF", "offiziere.listitem", "offiziere.list");
 			
-			List<Offizier> offiziere = getContext().query("from Offizier where dest='s "+ship.getId()+"'", Offizier.class);
+			List<Offizier> offiziere = Offizier.getOffiziereByDest('s', ship.getId());
 			for( Offizier offi : offiziere ) {
 				t.setVar(	"offizier.id",		offi.getID(),
 							"offizier.name",	Common._plaintitle(offi.getName()),
@@ -1298,7 +1301,7 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 		}
 		
 		// Aktion: Schnelllink GTU-Handelsdepot
-		Iterator handel = db.createQuery("from Ship where id>0 and system=? and x=? and y=? and locate('tradepost',status)!=0")
+		Iterator<?> handel = db.createQuery("from Ship where id>0 and system=? and x=? and y=? and locate('tradepost',status)!=0")
 			.setInteger(0, ship.getSystem())
 			.setInteger(1, ship.getX())
 			.setInteger(2, ship.getY())
@@ -1424,13 +1427,13 @@ public class SchiffController extends TemplateGenerator implements Loggable {
 					}
 				}
 				catch( InvocationTargetException e ) {
-					LOG.error("Fehler beim Aufruf der Property "+method,e);
+					log.error("Fehler beim Aufruf der Property "+method,e);
 				}
 				catch( NoSuchMethodException e ) {
-					LOG.error("Ungueltige Property "+method,e);
+					log.error("Ungueltige Property "+method,e);
 				}
 				catch( IllegalAccessException e ) {
-					LOG.error("Ungueltige Property "+method,e);
+					log.error("Ungueltige Property "+method,e);
 				}
 			}
 			

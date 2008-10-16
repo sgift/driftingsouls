@@ -123,12 +123,12 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 */
 	public WerftQueueEntry[] getScheduledQueueEntries() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List list = db.createQuery("from WerftQueueEntry where werft=? and scheduled=1 order by position")
+		List<?> list = db.createQuery("from WerftQueueEntry where werft=? and scheduled=1 order by position")
 			.setInteger(0, this.getWerftID())
 			.list();
 		WerftQueueEntry[] entries = new WerftQueueEntry[list.size()];
 		int index = 0;
-		for( Iterator iter=list.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=list.iterator(); iter.hasNext(); ) {
 			entries[index++] = (WerftQueueEntry)iter.next();
 		}
 		
@@ -579,7 +579,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			.setString(0, "l "+ship.getId())
 			.iterate().next();
 		if( jdockcount > shiptype.getJDocks() ) {
-			List ships = db.createQuery("from Ship where docked=? and id>0")
+			List<?> ships = db.createQuery("from Ship where docked=? and id>0")
 				.setString(0, "l "+ship.getId())
 				.setMaxResults((int)(jdockcount-shiptype.getJDocks()))
 				.list();
@@ -588,7 +588,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			
 			// toArray(T[]) fuehrt hier leider zu Warnungen...
 			Ship[] undockarray = new Ship[ships.size()];
-			for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 				undockarray[count++] = (Ship)iter.next();
 			}
 						
@@ -601,7 +601,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			.setString(0, Integer.toString(ship.getId()))
 			.iterate().next();
 		if( adockcount > shiptype.getADocks() ) {
-			List ships = db.createQuery("from Ship where docked=? and id>0")
+			List<?> ships = db.createQuery("from Ship where docked=? and id>0")
 				.setString(0, Integer.toString(ship.getId()))
 				.setMaxResults((int)(adockcount-shiptype.getADocks()))
 				.list();
@@ -610,7 +610,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			
 			// toArray(T[]) fuehrt hier leider zu Warnungen...
 			Ship[] undockarray = new Ship[ships.size()];
-			for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 				undockarray[count++] = (Ship)iter.next();
 			}
 			
@@ -773,7 +773,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		else {
 			Cargo buildcosts = baubar.getCosts();
 			
-			double factor = (ship.getHull()/shiptype.getHull())*0.90d;
+			double factor = (ship.getHull()/(double)shiptype.getHull())*0.90d;
 			cost.addResource( Resources.KUNSTSTOFFE, (long)(factor*buildcosts.getResourceCount(Resources.KUNSTSTOFFE)) );
 			cost.addResource( Resources.TITAN, (long)(factor*buildcosts.getResourceCount(Resources.TITAN)) );
 			cost.addResource( Resources.ADAMATIUM, (long)(factor*buildcosts.getResourceCount(Resources.ADAMATIUM)) );
@@ -833,8 +833,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @return true, wenn kein Fehler aufgetreten ist
 	 */
 	public boolean dismantleShip(Ship ship, boolean testonly) {	
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
 		StringBuilder output = MESSAGE.get();
 	
 		if( ship.getId() < 0 ) {
@@ -870,9 +868,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		
 		int maxoffis = this.canTransferOffis();
 		
-		List offiziere = db.createQuery("from Offizier where dest=?")
-			.setString(0, "s "+ship.getId())
-			.list();
+		List<Offizier> offiziere = Offizier.getOffiziereByDest('s', ship.getId());
 		
 		if( offiziere.size() > maxoffis ) {
 			output.append("Nicht genug Platz f&uuml;r alle Offiziere");
@@ -886,8 +882,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			this.setCargo(newcargo, false);
 	
 			this.setCrew(this.getCrew()+ship.getCrew());
-			for( Iterator iter=offiziere.iterator(); iter.hasNext(); ) {
-				Offizier offi = (Offizier)iter.next();
+			for( Offizier offi : offiziere ) {
 				this.transferOffi(offi.getID());
 			}
 	
@@ -901,7 +896,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * Die Reparaturkosten eines Schiffes
 	 *
 	 */
-	public class RepairCosts {
+	public static class RepairCosts {
 		/**
 		 * Die Energiekosten
 		 */
@@ -1060,7 +1055,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			query += "systemReq = 0 ";
 		}
 		query = query.trim();
-		List<ShipBaubar> buildableShips = (List<ShipBaubar>)db.createQuery(query).setInteger(0, this.getWerftSlots()).list();
+		List<ShipBaubar> buildableShips = db.createQuery(query).setInteger(0, this.getWerftSlots()).list();
 		
 		//Allowed by draft
 		Set<IEDraftShip> drafts = getUsableShipDrafts();
@@ -1657,13 +1652,13 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
-		List queue = db.createQuery("from WerftQueueEntry where werft=? order by position asc")
+		List<?> queue = db.createQuery("from WerftQueueEntry where werft=? order by position asc")
 			.setInteger(0, this.getWerftID())
 			.list();
 		
 		WerftQueueEntry[] list = new WerftQueueEntry[queue.size()];
 		int index = 0;
-		for( Iterator iter=queue.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=queue.iterator(); iter.hasNext(); ) {
 			list[index++] = (WerftQueueEntry)iter.next();
 		}
 
@@ -1689,7 +1684,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 		db.delete(entry);
 		
-		final Iterator entryIter = db.createQuery("from WerftQueueEntry where werft=? and position>? order by position")
+		final Iterator<?> entryIter = db.createQuery("from WerftQueueEntry where werft=? and position>? order by position")
 			.setEntity(0, entry.getWerft())
 			.setInteger(1, entry.getPosition())
 			.iterate();

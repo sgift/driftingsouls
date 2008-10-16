@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server;
 
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -447,5 +449,21 @@ public class Offizier extends DSObject {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
 		return (Offizier)db.get(Offizier.class, id);
+	}
+	
+	/**
+	 * Gibt alle Offiziere am angegebenen Aufenthaltsort zurueck.
+	 * @param dest Der Typ des Aufenthaltsortes (s, t, b)
+	 * @param objid Die ID des Aufenthaltsortes
+	 * @return Die Liste aller Offiziere
+	 * @see #getDest()
+	 */
+	@SuppressWarnings("unchecked")
+	public static List<Offizier> getOffiziereByDest(char dest, int objid) {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		return db.createQuery("from Offizier where dest= :dest")
+			.setString("dest", dest+" "+objid)
+			.list();
 	}
 }

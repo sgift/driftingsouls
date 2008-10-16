@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -84,6 +85,7 @@ public class BasenController extends TemplateGenerator {
 	public void defaultAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
+		org.hibernate.Session db = getDB();
 		
 		String ord = user.getUserValue("TBLORDER/basen/order");
 		int order = Integer.parseInt(user.getUserValue("TBLORDER/basen/order_mode"));
@@ -130,8 +132,11 @@ public class BasenController extends TemplateGenerator {
 		t.setBlock("bases.listitem", "bases.mangel.listitem", "bases.mangel.list");
 		t.setBlock("bases.listitem", "bases.cargo.listitem", "bases.cargo.list");
 		
-		List<Base> list = getContext().query("from Base where owner="+user.getId()+" order by "+ow+" "+om, Base.class);
-		for( Base base : list ) {
+		List<?> list = db.createQuery("from Base where owner= :user order by "+ow+" "+om)
+			.setEntity("user", user)
+			.list();
+		for( Iterator<?> iter = list.iterator(); iter.hasNext(); ) {
+			Base base = (Base)iter.next();
 			BaseStatus basedata = Base.getStatus(getContext(),base);
 			
 			t.setVar( "base.id"		, base.getId(),

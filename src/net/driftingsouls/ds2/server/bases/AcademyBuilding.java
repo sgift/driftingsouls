@@ -40,6 +40,8 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Immutable;
 
 /**
@@ -51,6 +53,7 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.AcademyBuilding")
 public class AcademyBuilding extends DefaultBuilding {
+	private static final Log log = LogFactory.getLog(AcademyBuilding.class);
 	private static final Map<Integer,String> offis = new HashMap<Integer,String>();
 	private static final Map<Integer,String> attributes = new HashMap<Integer,String>();
 	
@@ -119,7 +122,7 @@ public class AcademyBuilding extends DefaultBuilding {
 			return true;
 		}
 		else if( academy == null ) {
-			LOG.warn("Die Akademie auf Basis "+base.getId()+" verfuegt ueber keinen DB-Eintrag");
+			log.warn("Die Akademie auf Basis "+base.getId()+" verfuegt ueber keinen DB-Eintrag");
 		}
 		return false;
 	}
@@ -414,7 +417,7 @@ public class AcademyBuilding extends DefaultBuilding {
 		
 		t.setBlock("_BUILDING", "academy.offilist.listitem", "academy.offilist.list");
 		
-		List<Offizier> offiziere = context.query("from Offizier where dest='b "+base.getId()+"'", Offizier.class);
+		List<Offizier> offiziere = Offizier.getOffiziereByDest('b', base.getId());
 		for( Offizier offi : offiziere ) {
 			
 			t.setVar(

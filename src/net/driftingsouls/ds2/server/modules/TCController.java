@@ -99,7 +99,7 @@ public class TCController extends TemplateGenerator {
 	 * @param dest	Typ des Aufenthaltsort der Offiziere (s,b usw)
 	 * @param destid ID des Aufenthaltsortes
 	 */
-	private void echoOffiList( String mode, String  dest, int destid ) {
+	private void echoOffiList( String mode, char dest, int destid ) {
 		TemplateEngine t = getTemplateEngine();
 
 		t.setVar(	"tc.selectoffizier",	1,
@@ -107,7 +107,7 @@ public class TCController extends TemplateGenerator {
 				
 		t.setBlock( "_TC", "tc.offiziere.listitem", "tc.offiziere.list" );
 		
-		List<Offizier> offiList = getContext().query("from Offizier where dest='"+dest+" "+destid+"'", Offizier.class);
+		List<Offizier> offiList = Offizier.getOffiziereByDest(dest, destid);
 		for( Offizier offi : offiList ) {
 			t.setVar(	"tc.offizier.picture",		offi.getPicture(),
 						"tc.offizier.id",			offi.getID(),
@@ -218,7 +218,7 @@ public class TCController extends TemplateGenerator {
 	
 		// Offiziersliste bei bedarf ausgeben
 		if( (officount > 1) && (off == 0) ) {
-			echoOffiList("shipToShip", "s", ship.getId());
+			echoOffiList("shipToShip", 's', ship.getId());
 			return;
 		}
 		
@@ -310,7 +310,7 @@ public class TCController extends TemplateGenerator {
 		
 		// bei bedarf offiliste ausgeben
 		if( (officount > 1) && (off == 0) ) {
-			echoOffiList("shipToBase", "s", ship.getId());
+			echoOffiList("shipToBase", 's', ship.getId());
 			return;
 		}
 		
@@ -397,11 +397,11 @@ public class TCController extends TemplateGenerator {
 					"tc.ship",				ship.getId(),
 					"tc.target",			upBase.getId() );
 							
-		List<Offizier> offilist = getContext().query("from Offizier where dest='b "+upBase.getId()+"'", Offizier.class);
+		List<Offizier> offilist = Offizier.getOffiziereByDest('b', upBase.getId());
 
 		int shipcount = 0;
 	
-		List shiplist = db.createQuery("from Ship where fleet=? and owner=? and system=? and x=? and y=? and " +
+		List<?> shiplist = db.createQuery("from Ship where fleet=? and owner=? and system=? and x=? and y=? and " +
 				"locate('offizier',status)=0")
 			.setEntity(0, this.ship.getFleet())
 			.setEntity(1, user)
@@ -410,7 +410,7 @@ public class TCController extends TemplateGenerator {
 			.setInteger(4, this.ship.getY())
 			.setMaxResults(offilist.size())
 			.list();
-		for( Iterator iter=shiplist.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=shiplist.iterator(); iter.hasNext(); ) {
 			Ship aship = (Ship)iter.next();
 			ShipTypeData shipType = aship.getTypeData();
 			if( shipType.getSize() <= ShipType.SMALL_SHIP_MAXSIZE ) {
@@ -474,7 +474,7 @@ public class TCController extends TemplateGenerator {
 
 		// Wenn noch kein Offizier ausgewaehlt wurde -> Liste der Offiziere in der Basis anzeigen
 		if( off == 0 ) {
-			echoOffiList("baseToShip", "b", upBase.getId());
+			echoOffiList("baseToShip", 'b', upBase.getId());
 			
 			if( ship.getFleet() != null ) {
 				long count = ((Number)db.createQuery("select count(*) from Ship where fleet=? and owner=? and system=? and x=? and " +

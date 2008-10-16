@@ -36,7 +36,6 @@ import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -50,6 +49,8 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
 
 /**
@@ -57,7 +58,9 @@ import org.hibernate.Query;
  * @author Christopher Jung
  *
  */
-public class SensorsDefault implements SchiffPlugin, Loggable {
+public class SensorsDefault implements SchiffPlugin {
+	private static final Log log = LogFactory.getLog(SensorsDefault.class);
+	
 	private int showOnly = 0;
 	private int showId = 0;
 	
@@ -152,13 +155,13 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 			else {
 				baseQuery = db.createQuery("from Base where system=? and floor(sqrt(pow(?-x,2)+pow(?-y,2))) <= size order by id");
 			}
-			List bases = baseQuery
+			List<?> bases = baseQuery
 				.setInteger(0, ship.getSystem())
 				.setInteger(1, ship.getX())
 				.setInteger(2, ship.getY())
 				.list();
 			
-			for( Iterator iter=bases.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=bases.iterator(); iter.hasNext(); ) {
 				Base base = (Base)iter.next();
 				
 				t.start_record();
@@ -389,7 +392,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 				thisorder = "s.shiptype";
 			}
 			
-			List ships = null;
+			List<?> ships = null;
 			boolean firstentry = false;
 			Map<String,Long> types = new HashMap<String,Long>();
 			
@@ -418,7 +421,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 				
 				if( user_wrapfactor != 0 ) {
 					// herausfinden wieviele Schiffe welches Typs im Sektor sind		
-					List typeList = db.createQuery("select count(*),s.shiptype,s.owner.id " +
+					List<?> typeList = db.createQuery("select count(*),s.shiptype,s.owner.id " +
 							"from Ship s " +
 							"where s.id!= :id and s.id>0 and s.x= :x and s.y= :y and s.system= :sys and s.battle is null and " +
 								"(s.visibility is null or s.visibility= :user ) and locate('disable_iff',s.status)=0 and " +
@@ -431,7 +434,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 						.setInteger("user", user.getId())
 						.list();
 					
-					for( Iterator iter=typeList.iterator(); iter.hasNext(); ) {
+					for( Iterator<?> iter=typeList.iterator(); iter.hasNext(); ) {
 						Object[] data = (Object[])iter.next();
 						
 						Long count = (Long)data[0];
@@ -452,7 +455,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 					.list();
 			}
 			
-			for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 				Ship aship = (Ship)iter.next();
 				ShipTypeData ashiptype = aship.getTypeData();
 				ShipTypeData mastertype = aship.getBaseType();
@@ -565,7 +568,7 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 					if( !aship.getDocked().isEmpty() ) {
 						Ship master = (Ship)db.get(Ship.class, Integer.valueOf(aship.getDocked()));
 						if( master == null ) {
-							LOG.warn("Schiff "+aship.getId()+" hat ungueltigen Dockeintrag '"+aship.getDocked()+"'");
+							log.warn("Schiff "+aship.getId()+" hat ungueltigen Dockeintrag '"+aship.getDocked()+"'");
 						}
 						else {
 							t.setVar("sships.docked.name",master.getName());
@@ -759,10 +762,10 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 									if( fleetlist == null ) {
 										fleetlist = new ArrayList<Integer>();
 										
-										List tmpList = db.createQuery("from Ship where id>0 and fleet=?")
+										List<?> tmpList = db.createQuery("from Ship where id>0 and fleet=?")
 											.setEntity(0, ship.getFleet())
 											.list();
-										for( Iterator iter2=tmpList.iterator(); iter2.hasNext(); ) {
+										for( Iterator<?> iter2=tmpList.iterator(); iter2.hasNext(); ) {
 											Ship s = (Ship)iter2.next();
 											ShipTypeData tmptype = s.getTypeData();
 											if( !tmptype.hasFlag(ShipTypes.SF_JAEGER) ) {
@@ -796,10 +799,10 @@ public class SensorsDefault implements SchiffPlugin, Loggable {
 								List<Integer> thisFleetList = new ArrayList<Integer>();
 								
 								boolean ok = true;
-								List tmpList = db.createQuery("from Ship where id>0 and fleet=?")
+								List<?> tmpList = db.createQuery("from Ship where id>0 and fleet=?")
 									.setEntity(0, aship.getFleet())
 									.list();
-								for( Iterator iter2=tmpList.iterator(); iter2.hasNext(); ) {
+								for( Iterator<?> iter2=tmpList.iterator(); iter2.hasNext(); ) {
 									Ship s = (Ship)iter2.next();
 									ShipTypeData tmptype = s.getTypeData();
 									
