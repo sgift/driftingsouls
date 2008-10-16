@@ -44,8 +44,7 @@ class DBTestCaseAdapter extends DBTestCase {
 			Configuration.init("./test/cfg/");
 			
 			System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_DRIVER_CLASS, "com.mysql.jdbc.Driver" );
-			System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_CONNECTION_URL, 
-					"jdbc:mysql://"+Configuration.getSetting("db_server")+"/"+Configuration.getSetting("db_database") );
+			System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_CONNECTION_URL, Configuration.getSetting("db_url") );
 			System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_USERNAME, Configuration.getSetting("db_user") );
 			System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_PASSWORD, Configuration.getSetting("db_password") );
 		}

@@ -19,8 +19,7 @@
 -->
 <config>
 	<!-- DATABASE -->
-	<setting type="string" name="db_server" value="localhost" />
-	<setting type="string" name="db_database" value="ds2_test" />
+	<setting type="string" name="db_url" value="jdbc:mysql://localhost/ds2_test" />
 	<setting type="string" name="db_user" value="root" />
 	<setting type="string" name="db_password" value="" />
 	
