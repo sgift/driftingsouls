@@ -63,7 +63,7 @@ public class HibernateFacade implements Loggable {
 		conf.configure(new File(Configuration.getSetting("configdir")+"hibernate.xml"));
 		
 		// Datenbankverbindung eintragen
-		conf.setProperty("hibernate.connection.url", "jdbc:mysql://"+Configuration.getSetting("db_server")+"/"+Configuration.getSetting("db_database"));
+		conf.setProperty("hibernate.connection.url", Configuration.getSetting("db_url"));
 		conf.setProperty("hibernate.connection.username", Configuration.getSetting("db_user"));
 		conf.setProperty("hibernate.connection.password", Configuration.getSetting("db_password"));
 		
