@@ -31,7 +31,6 @@ import net.driftingsouls.ds2.server.framework.SimpleResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
@@ -55,9 +54,6 @@ public abstract class AbstractTickExecuter extends TickController {
 	 * @throws Exception
 	 */
 	public static final void boot(String[] args) throws Exception {
-		System.getProperties().setProperty("org.apache.commons.logging.Log","org.apache.commons.logging.impl.SimpleLog");
-		
-		Log log = LogFactory.getLog("DS2");
 		log.info("Booting DS...");
 		
 		CmdLineRequest request = new CmdLineRequest(args);
@@ -70,7 +66,7 @@ public abstract class AbstractTickExecuter extends TickController {
 			throw new Exception(e);
 		}
 		
-		ApplicationContext context = new FileSystemXmlApplicationContext("/"+request.getParameterString("config")+"/spring.xml");
+		new FileSystemXmlApplicationContext("/"+request.getParameterString("config")+"/spring.xml");
 		
 		SimpleResponse response = new SimpleResponse();
 		basicContext = new BasicContext(request, response);
@@ -143,10 +139,13 @@ public abstract class AbstractTickExecuter extends TickController {
 	 * @param ticknr Nummer des Ticks
 	 */
 	protected void copyLogs( int ticknr ) {
+		log.info("Kopiere alle Logs von "+loxpath+" nach "+loxpath+ticknr+"/");
 		File[] files = new File(loxpath).listFiles();
 		for( int i=0; i < files.length; i++ ) {
 			if( files[i].getName().endsWith(".log") ) {
 				String filename = files[i].getName();
+				log.info("Kopiere "+filename);
+				
 				if( filename.lastIndexOf('/') > -1 ) {
 					filename = filename.substring(filename.lastIndexOf('/')+1);
 				}

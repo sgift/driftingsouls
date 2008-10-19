@@ -111,8 +111,8 @@ public class AdminCommands {
 		else if( command[0].equals("clearcaches") ) {
 			output = cmdClearCaches(context, command);
 		}
-		else if( command[0].equals("regulartick") ) {
-			output = cmdRegularTick(context, command);
+		else if( command[0].equals("tick") ) {
+			output = cmdTick(context, command);
 		}
 		else {
 			output = "Unbekannter Befehl "+command[0];
@@ -125,14 +125,22 @@ public class AdminCommands {
 		return output;
 	}
 	
-	private static String cmdRegularTick(Context context, String[] command)
+	private static String cmdTick(Context context, String[] command)
 	{
-		if( command.length < 1 ) {
+		if( command.length < 2 ) {
 			return "";
 		}
-		if( "run".equals(command[1]) ) {
-			new TickAdminCommand().runRegularTick();
-			return "Tick wird ausgefuehrt";
+		if( "regular".equals(command[1]) ) {
+			if( "run".equals(command[2]) ) {
+				new TickAdminCommand().runRegularTick();
+				return "Tick wird ausgefuehrt";
+			}
+		}
+		else if( "rare".equals(command[1]) ) {
+			if( "run".equals(command[2]) ) {
+				new TickAdminCommand().runRareTick();
+				return "Raretick wird ausgefuehrt";
+			}
 		}
 		return "Unbekannter befehl";
 	}

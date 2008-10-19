@@ -28,4 +28,42 @@
 	</bean>
 	
 	<!-- Server -->
+	
+	<bean id="regularTickJob" class="org.springframework.scheduling.quartz.JobDetailBean">
+		<property name="jobClass" value="net.driftingsouls.ds2.server.tick.ScheduledTick" />
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="tickExecuter" value="net.driftingsouls.ds2.server.tick.RegularTick" />
+			</map>
+		</property>
+	</bean>
+	<bean id="rareTickJob" class="org.springframework.scheduling.quartz.JobDetailBean">
+		<property name="jobClass" value="net.driftingsouls.ds2.server.tick.ScheduledTick" />
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="tickExecuter" value="net.driftingsouls.ds2.server.tick.RareTick" />
+			</map>
+		</property>
+	</bean>
+	<bean id="regularTickCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="regularTickJob" />
+		<property name="cronExpression" value="0 0 0,4,12,16,18,20,22 * * ?" />
+	</bean>
+	<bean id="rareTickCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="rareTickJob" />
+		<property name="cronExpression" value="0 0 3 * * ?" />
+	</bean>
+	<bean name="quartzSchedulerFactory" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="regularTickCronTrigger" />
+				<ref bean="rareTickCronTrigger" />
+			</list>
+		</property>
+	</bean>
+	<bean class="net.driftingsouls.ds2.server.TickAdminCommand">
+		<property name="regularTickCronTrigger" ref="regularTickCronTrigger" />
+		<property name="rareTickCronTrigger" ref="rareTickCronTrigger" />
+		<property name="scheduler" ref="quartzSchedulerFactory" />
+	</bean>
 </beans>
