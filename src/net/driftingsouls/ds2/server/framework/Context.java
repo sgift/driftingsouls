@@ -70,7 +70,9 @@ public interface Context {
 	 * @param query Die Query
 	 * @param classType Die Klasse des Rueckgabetyps
 	 * @return Eine Liste mit dem Ergebnis
+	 * @deprecated Bitte Hibernate direkt aufrufen
 	 */
+	@Deprecated
 	public <T> List<T> query(String query, Class<T> classType);
 
 	/**

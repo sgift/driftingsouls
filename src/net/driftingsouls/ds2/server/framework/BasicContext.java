@@ -143,6 +143,7 @@ public class BasicContext implements Context
 		return session;
 	}
 
+	@Deprecated
 	@SuppressWarnings("unchecked")
 	public <T> List<T> query(String query, Class<T> classType)
 	{
