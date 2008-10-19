@@ -308,6 +308,10 @@
 		<java classname="org.mortbay.start.Main" classpathref="ant.classpath" fork="true">
 			<arg value="build-utils/jetty/jetty.xml"/>
 			<jvmarg value="-javaagent:web/WEB-INF/lib/spring-agent.jar" />
+			<jvmarg value="-Dcom.sun.management.jmxremote" />
+			<jvmarg value="-Dcom.sun.management.jmxremote.authenticate=false" />
+			<jvmarg value="-Dcom.sun.management.jmxremote.port=8008" />
+			<jvmarg value="-server" />
 		</java>
 		<delete dir="jetty-temp" />
 	</target>
