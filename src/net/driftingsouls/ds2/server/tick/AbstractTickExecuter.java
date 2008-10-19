@@ -73,7 +73,7 @@ public abstract class AbstractTickExecuter extends TickController {
 		ApplicationContext context = new FileSystemXmlApplicationContext("/"+request.getParameterString("config")+"/spring.xml");
 		
 		SimpleResponse response = new SimpleResponse();
-		basicContext = new BasicContext((Configuration)context.getBean("configuration"), request, response);
+		basicContext = new BasicContext(request, response);
 	}
 	
 	/**

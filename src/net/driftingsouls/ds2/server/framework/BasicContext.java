@@ -38,241 +38,340 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Eine einfache Klasse, welche das <code>Context</code>-Interface implementiert.
- * Die Klasse verwendet ein <code>Request</code> und <code>Response</code>-Objekt
- * fuer Ein- und Ausgabe.
+ * Eine einfache Klasse, welche das <code>Context</code>-Interface implementiert. Die Klasse
+ * verwendet ein <code>Request</code> und <code>Response</code>-Objekt fuer Ein- und Ausgabe.
  * 
  * @author Christopher Jung
- *
+ * 
  */
 @Configurable
-public class BasicContext implements Context {
+public class BasicContext implements Context
+{
 	private static final Log log = LogFactory.getLog(BasicContext.class);
-	
+
 	private Database database;
 	private Request request;
 	private Response response;
 	private BasicUser activeUser = null;
 	private List<Error> errorList = new ArrayList<Error>();
-	private Map<Class<?>, Object> contextSingletons = new HashMap<Class<?>,Object>();
-	private Map<Class<?>, Map<String,Object>> variables = new HashMap<Class<?>, Map<String, Object>>();
+	private Map<Class<?>, Object> contextSingletons = new HashMap<Class<?>, Object>();
+	private Map<Class<?>, Map<String, Object>> variables = new HashMap<Class<?>, Map<String, Object>>();
 	private List<ContextListener> listener = new ArrayList<ContextListener>();
 	private org.hibernate.Session session;
 	private Transaction transaction;
-	
+
+	private Configuration config;
 	private AuthenticationManager authManager;
 
 	/**
-	 * Erstellt eine neue Instanz der Klasse unter Verwendung eines
-	 * <code>Request</code> und einer <code>Response</code>-Objekts
-	 * @param config Die DS-Konfiguration
+	 * Erstellt eine neue Instanz der Klasse unter Verwendung eines <code>Request</code> und einer
+	 * <code>Response</code>-Objekts
+	 * 
 	 * @param request Die mit dem Kontext zu verbindende <code>Request</code>
 	 * @param response Die mit dem Kontext zu verbindende <code>Response</code>
 	 */
-	public BasicContext(Configuration config, Request request, Response response) {
+	public BasicContext(Request request, Response response)
+	{
 		ContextMap.addContext(this);
-		
-		session = HibernateFacade.openSession();
-		transaction = session.beginTransaction();
-		
-		database = new Database(session.connection());
-		
-		if( config.getInt("LOG_QUERIES") != 0 ) {
-			database.setQueryLogStatus(true);
-		}
+
 		this.request = request;
 		this.response = response;
 	}
+
+	private void initDbConnection(Configuration config)
+	{
+		log.debug("Oeffne DB-Verbindung");
+		
+		session = HibernateFacade.openSession();
+		transaction = session.beginTransaction();
+
+		database = new Database(session.connection());
+
+		if( config.getInt("LOG_QUERIES") != 0 )
+		{
+			database.setQueryLogStatus(true);
+		}
+	}
+
+	/**
+	 * Injiziert die DS-Konfiguration
+	 * @param config Die DS-Konfiguration
+	 */
+	@Autowired
+	@Required
+	public void setConfiguration(Configuration config)
+	{
+		this.config = config;
+	}
 	
 	/**
-	 * Injiziert den AuthenticationManager zum Validieren von Sessions 
+	 * Injiziert den AuthenticationManager zum Validieren von Sessions
+	 * 
 	 * @param authManager Der AuthenticationManager
 	 */
 	@Autowired
 	@Required
-	public void setAuthenticationManager(AuthenticationManager authManager) {
+	public void setAuthenticationManager(AuthenticationManager authManager)
+	{
 		this.authManager = authManager;
 	}
-	
-	public void revalidate() {
-		if( this.activeUser == null ) {
+
+	public void revalidate()
+	{
+		if( this.activeUser == null )
+		{
 			errorList.clear();
 			this.authManager.authenticateCurrentSession();
 		}
 	}
 
-	public Database getDatabase() {
+	public Database getDatabase()
+	{
+		if( database == null )
+		{
+			initDbConnection(config);
+		}
 		return database;
 	}
 
-	public org.hibernate.Session getDB() {
+	public org.hibernate.Session getDB()
+	{
+		if( session == null )
+		{
+			initDbConnection(config);
+		}
 		return session;
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public <T> List<T> query(String query, Class<T> classType) {
-		return this.session.createQuery(query).list();
+	public <T> List<T> query(String query, Class<T> classType)
+	{
+		return this.getDB().createQuery(query).list();
 	}
 
-	
-	public BasicUser getActiveUser() {
+	public BasicUser getActiveUser()
+	{
 		return activeUser;
 	}
 
-	public void setActiveUser(BasicUser user) {
+	public void setActiveUser(BasicUser user)
+	{
 		activeUser = user;
 	}
 
-	public void addError(String error) {
+	public void addError(String error)
+	{
 		errorList.add(new Error(error));
 	}
 
-	public void addError(String error, String link) {
-		errorList.add(new Error(error,link));
+	public void addError(String error, String link)
+	{
+		errorList.add(new Error(error, link));
 	}
 
-	public Error getLastError() {
-		return errorList.get(errorList.size()-1);
+	public Error getLastError()
+	{
+		return errorList.get(errorList.size() - 1);
 	}
 
-	public Error[] getErrorList() {
+	public Error[] getErrorList()
+	{
 		return errorList.toArray(new Error[errorList.size()]);
 	}
 
-	public Request getRequest() {
+	public Request getRequest()
+	{
 		return request;
 	}
 
-	public Response getResponse() {
+	public Response getResponse()
+	{
 		return response;
 	}
-	
-	public void setResponse(Response response) {
+
+	public void setResponse(Response response)
+	{
 		this.response = response;
 	}
 
 	/**
-	 * Gibt alle allokierten Resourcen wieder frei.
-	 * Dieser Schritt sollte immer dann getaetigt werden, 
-	 * wenn das Objekt nicht mehr benoetigt wird.
-	 *
+	 * Gibt alle allokierten Resourcen wieder frei. Dieser Schritt sollte immer dann getaetigt
+	 * werden, wenn das Objekt nicht mehr benoetigt wird.
+	 * 
 	 */
-	public void free() {
+	public void free()
+	{
 		RuntimeException e = null;
-		
-		for( int i=0; i < this.listener.size(); i++ ) {
-			try {
-				listener.get(i).onContextDestory();
+
+		try
+		{
+			// Allen Listenern signalisieren, dass der Context geschlossen wird
+			for( int i = 0; i < this.listener.size(); i++ )
+			{
+				try
+				{
+					listener.get(i).onContextDestory();
+				}
+				catch( RuntimeException ex )
+				{
+					e = ex;
+				}
 			}
-			catch( RuntimeException ex ) {
-				e = ex;
+
+			// Falls eine DB-Verbindung geoeffnet wurde, muss diese nun auch
+			// wieder geschlossen werden
+			if( this.session != null )
+			{
+				if( transaction.isActive() && !transaction.wasRolledBack() )
+				{
+					try
+					{
+						transaction.commit();
+					}
+					catch( RuntimeException ex )
+					{
+						transaction.rollback();
+						e = ex;
+					}
+				}
+				database.close();
+				session.close();
 			}
+		}
+		finally
+		{
+			// Context aus der Contextliste entfernen
+			ContextMap.removeContext();
 		}
 
-		if( transaction.isActive() && !transaction.wasRolledBack() ) {
-			try {
-				transaction.commit();
-			}
-			catch( RuntimeException ex ) {
-				transaction.rollback();
-				e = ex;
-			}
-		}
-		database.close();
-		session.close();
-		ContextMap.removeContext();
-		
-		if( e != null ) {
+		if( e != null )
+		{
 			throw e;
 		}
 	}
-	
-	public void rollback() {
-		if( transaction.isActive() ) {
+
+	public void rollback()
+	{
+		// Keine Session == nichts zum zurueckrollen
+		if( this.session == null )
+		{
+			return;
+		}
+
+		if( transaction.isActive() )
+		{
 			transaction.rollback();
 		}
 		transaction = session.beginTransaction();
 	}
-	
-	public void commit() {
-		if( transaction.isActive() && !transaction.wasRolledBack() ) {
+
+	public void commit()
+	{
+		// Keine Session == nichts zum committen
+		if( this.session == null )
+		{
+			return;
+		}
+
+		if( transaction.isActive() && !transaction.wasRolledBack() )
+		{
 			transaction.commit();
 		}
 		transaction = session.beginTransaction();
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> T get(Class<T> cls) {
-		if( !cls.isAnnotationPresent(ContextInstance.class) ) {
-			log.fatal("ContextInstance Annotation not present: "+cls.getName());
+	public <T> T get(Class<T> cls)
+	{
+		if( !cls.isAnnotationPresent(ContextInstance.class) )
+		{
+			log.fatal("ContextInstance Annotation not present: " + cls.getName());
 			return null;
 		}
-		
+
 		ContextInstance.Scope scope = cls.getAnnotation(ContextInstance.class).value();
-		
+
 		/* TODO: Exceptions? */
-		if( scope == ContextInstance.Scope.REQUEST ) {
-			if( !contextSingletons.containsKey(cls) )  {
-				try {
+		if( scope == ContextInstance.Scope.REQUEST )
+		{
+			if( !contextSingletons.containsKey(cls) )
+			{
+				try
+				{
 					contextSingletons.put(cls, cls.newInstance());
 				}
-				catch( Exception e ) {
-					log.error(e,e);
+				catch( Exception e )
+				{
+					log.error(e, e);
 					return null;
 				}
 			}
-			
+
 			return (T)contextSingletons.get(cls);
 		}
-		
+
 		return this.request.getFromSession(cls);
 	}
 
-	public String getSession() {
+	public String getSession()
+	{
 		String session = getRequest().getParameter("sess");
-		if( session == null ) {
+		if( session == null )
+		{
 			session = "";
 		}
 		return session;
 	}
 
-	public Object getVariable(Class<?> cls, String varname) {
-		if( variables.containsKey(cls) ) {
-			Map<String,Object> map = variables.get(cls);
-			if( map.containsKey(varname) ) {
+	public Object getVariable(Class<?> cls, String varname)
+	{
+		if( variables.containsKey(cls) )
+		{
+			Map<String, Object> map = variables.get(cls);
+			if( map.containsKey(varname) )
+			{
 				return map.get(varname);
 			}
 		}
 		return null;
 	}
 
-	public void putVariable(Class<?> cls, String varname, Object value) {
-		synchronized(variables) {
-			if( !variables.containsKey(cls) ) {
-				variables.put(cls, new HashMap<String,Object>());
+	public void putVariable(Class<?> cls, String varname, Object value)
+	{
+		synchronized( variables )
+		{
+			if( !variables.containsKey(cls) )
+			{
+				variables.put(cls, new HashMap<String, Object>());
 			}
 		}
-		Map<String,Object> map = variables.get(cls);
-		synchronized(map) {
+		Map<String, Object> map = variables.get(cls);
+		synchronized( map )
+		{
 			map.put(varname, value);
 		}
 	}
 
-	public void registerListener(ContextListener listener) {
+	public void registerListener(ContextListener listener)
+	{
 		this.listener.add(listener);
 	}
 
-	public void remove(Class<?> cls) {
-		if( !cls.isAnnotationPresent(ContextInstance.class) ) {
-			log.fatal("ContextInstance Annotation not present: "+cls.getName());
+	public void remove(Class<?> cls)
+	{
+		if( !cls.isAnnotationPresent(ContextInstance.class) )
+		{
+			log.fatal("ContextInstance Annotation not present: " + cls.getName());
 			return;
 		}
-		
+
 		ContextInstance.Scope scope = cls.getAnnotation(ContextInstance.class).value();
-		if( scope == ContextInstance.Scope.REQUEST ) {
+		if( scope == ContextInstance.Scope.REQUEST )
+		{
 			this.contextSingletons.remove(cls);
 		}
-		else {
+		else
+		{
 			this.request.removeFromSession(cls);
 		}
 	}

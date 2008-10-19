@@ -73,7 +73,7 @@ public class DefaultServletRequestFilter extends GenericFilterBean implements Fi
 			try {
 				WebApplicationContext springContext = WebApplicationContextUtils.getRequiredWebApplicationContext(this.getServletContext());
 				
-				context = new BasicContext((Configuration)springContext.getBean("configuration"), request, response);
+				context = new BasicContext(request, response);
 				context.putVariable(HttpServlet.class, "response", httpResponse);
 				context.putVariable(HttpServlet.class, "request", httpRequest);
 				context.putVariable(HttpServlet.class, "context", this.getServletContext());

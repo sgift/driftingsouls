@@ -66,10 +66,10 @@ public abstract class DSApplication {
 			throw new Exception(e);
 		}
 		
-		ApplicationContext context = new FileSystemXmlApplicationContext("/"+request.getParameterString("config")+"/spring.xml");
+		new FileSystemXmlApplicationContext("/"+request.getParameterString("config")+"/spring.xml");
 		
 		SimpleResponse response = new SimpleResponse();
-		this.context = new BasicContext((Configuration)context.getBean("configuration"), request, response);
+		this.context = new BasicContext(request, response);
 		
 		logTargets = new HashMap<Integer,Writer>();
 		handleCounter = 0;

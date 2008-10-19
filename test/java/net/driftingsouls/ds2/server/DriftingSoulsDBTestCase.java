@@ -54,11 +54,11 @@ public abstract class DriftingSoulsDBTestCase implements DBTestable {
 	 */
 	@Before
 	public void setUp() throws Exception {
+		new FileSystemXmlApplicationContext("test/cfg/spring.xml");
+		
 		SimpleResponse response = new SimpleResponse();
 		CmdLineRequest request = new CmdLineRequest(new String[0]);
-		this.context = new BasicContext(new Configuration(), request, response);
-		
-		new FileSystemXmlApplicationContext("test/cfg/spring.xml");
+		this.context = new BasicContext(request, response);
 		
 		Connection con = this.dbTester.getConnection().getConnection();
 		Statement stmt = con.createStatement();

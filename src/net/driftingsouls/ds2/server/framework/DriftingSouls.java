@@ -55,7 +55,7 @@ public class DriftingSouls {
 		Configuration.init(configdir);
 		
 		LOG.info("Setting up Boot Context...");
-		BasicContext context = new BasicContext(new Configuration(), new CmdLineRequest(new String[0]), new SimpleResponse());
+		BasicContext context = new BasicContext(new CmdLineRequest(new String[0]), new SimpleResponse());
 
 		Common.setLocale(Locale.GERMAN); 
 		
