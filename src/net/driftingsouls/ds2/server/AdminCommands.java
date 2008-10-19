@@ -51,7 +51,6 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.caches.CacheManager;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
@@ -62,13 +61,17 @@ import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Fueht spezielle Admin-Kommandos aus
  * @author Christopher Jung
  *
  */
-public class AdminCommands implements Loggable {
+public class AdminCommands {
+	private static final Log log = LogFactory.getLog(AdminCommands.class);
+	
 	/**
 	 * Fueht das angegebene Admin-Kommando aus
 	 * @param cmd Das Kommando
@@ -108,6 +111,9 @@ public class AdminCommands implements Loggable {
 		else if( command[0].equals("clearcaches") ) {
 			output = cmdClearCaches(context, command);
 		}
+		else if( command[0].equals("regulartick") ) {
+			output = cmdRegularTick(context, command);
+		}
 		else {
 			output = "Unbekannter Befehl "+command[0];
 		}
@@ -119,6 +125,18 @@ public class AdminCommands implements Loggable {
 		return output;
 	}
 	
+	private static String cmdRegularTick(Context context, String[] command)
+	{
+		if( command.length < 1 ) {
+			return "";
+		}
+		if( "run".equals(command[1]) ) {
+			new TickAdminCommand().runRegularTick();
+			return "Tick wird ausgefuehrt";
+		}
+		return "Unbekannter befehl";
+	}
+
 	private static String cmdClearCaches( Context context, String[] command ) {
 		String output = "Caches geleert";
 		
@@ -350,8 +368,8 @@ public class AdminCommands implements Loggable {
 		}
 		else if( cmd.equals("list") ) {
 			output = "Laufende Quests:\n";
-			List rquestList = db.createQuery("from RunningQuest rq inner join fetch rq.quest").list();
-			for( Iterator iter=rquestList.iterator(); iter.hasNext(); ) {
+			List<?> rquestList = db.createQuery("from RunningQuest rq inner join fetch rq.quest").list();
+			for( Iterator<?> iter=rquestList.iterator(); iter.hasNext(); ) {
 				RunningQuest rquest = (RunningQuest)iter.next();
 				
 				output += "* "+rquest.getId()+" - "+rquest.getQuest().getName()+" ("+rquest.getQuest().getId()+") - userid "+rquest.getUser().getId()+"\n";
@@ -420,9 +438,9 @@ public class AdminCommands implements Loggable {
 		if( sql.size() > 0 ) {
 			org.hibernate.Session db = context.getDB();
 			
-			List ships = db.createQuery("from Ship where "+Common.implode(" and ",sql)).list();
+			List<?> ships = db.createQuery("from Ship where "+Common.implode(" and ",sql)).list();
 			int num = ships.size();
-			for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 				Ship aship = (Ship)iter.next();
 				aship.destroy();
 			}
@@ -444,7 +462,7 @@ public class AdminCommands implements Loggable {
 		try {
 			Font font = null;
 			if( !new File(Configuration.getSetting("ABSOLUTE_PATH")+"data/bnkgothm.ttf").isFile() ) {
-				LOG.warn("bnkgothm.ttf nicht auffindbar");
+				log.warn("bnkgothm.ttf nicht auffindbar");
 				font = Font.getFont("bankgothic md bt");
 				if( font == null ) {
 					font = Font.getFont("courier");
@@ -512,10 +530,10 @@ public class AdminCommands implements Loggable {
 		
 		}
 		catch( FontFormatException e ) {
-			LOG.error(e, e);
+			log.error(e, e);
 		}
 		catch( IOException e ) {
-			LOG.error(e, e);
+			log.error(e, e);
 		}
 	}
 	
