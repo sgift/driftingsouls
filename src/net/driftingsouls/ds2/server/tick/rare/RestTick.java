@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.tick.rare;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -111,72 +112,80 @@ public class RestTick extends TickController {
 			db.evict(base);
 		}
 		
+		long shipCount = (Long)db.createQuery("select count(*) from Ship where id>0")
+			.iterate()
+			.next();
+		
 		int counter = 0;
 		
-		this.log("\tLese Ships ein");
-		ScrollableResults ships = db.createQuery("from Ship as s left join fetch s.modules where s.id>0")
-			.setCacheMode(CacheMode.IGNORE)
-			.setFetchSize(50)
-			.scroll(ScrollMode.FORWARD_ONLY);
-		while( ships.next() ) {
-			Ship ship = (Ship)ships.get(0);
-			
-			if( ship.getId() / 10000 != counter ) {
-				this.log("\t\t* "+ship.getId());
-				counter = ship.getId() / 10000;
-			}
-			
-			Cargo scargo = ship.getCargo();
-			if( ship.getOwner().getId() > 0 ) {
-				cargo.addCargo( scargo );
-			}
-			
-			if( !usercargos.containsKey(ship.getOwner()) ) {
-				usercargos.put(ship.getOwner(), new Cargo(scargo));
-			}
-			else {
-				usercargos.get(ship.getOwner()).addCargo( scargo );
-			}
-			
-			List<ItemCargoEntry> itemlist = scargo.getItems();
-			for( int i=0; i < itemlist.size(); i++ ) {
-				ItemCargoEntry aitem = itemlist.get(i);
-				if( aitem.getItemEffect().getType() != ItemEffect.Type.AMMO ) {
-					if( !useritemlocations.containsKey(ship.getOwner()) ) {
-						useritemlocations.put(ship.getOwner(), new HashMap<Integer,Set<String>>());
-					}
-					Map<Integer,Set<String>> itemlocs = useritemlocations.get(ship.getOwner());
-					if( !itemlocs.containsKey(aitem.getItemID()) ) {
-						itemlocs.put(aitem.getItemID(), new HashSet<String>());
-					}
-					itemlocs.get(aitem.getItemID()).add("s"+ship.getId());
-				}	
-			}
-			
-			Ship.ModuleEntry[] modulelist = ship.getModules();
-			
-			for( int i=0; i < modulelist.length; i++ ) {
-				Ship.ModuleEntry amodule = modulelist[i];
+		this.log("\tLese "+shipCount+" Schiffe ein");
+		while( counter < shipCount ) {
+			List<?> ships = db.createQuery("from Ship as s left join fetch s.modules where s.id>0")
+				.setCacheMode(CacheMode.IGNORE)
+				.setFirstResult(counter)
+				.setMaxResults(50)
+				.list();
+			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
+				Ship ship = (Ship)iter.next();
 				
-				Module shipmodule = Modules.getShipModule(amodule);
-				if( shipmodule instanceof ModuleItemModule ) {
-					ModuleItemModule itemmodule = (ModuleItemModule)shipmodule;
-					if( ship.getOwner().getId() > 0 ) {
-						cargo.addResource(itemmodule.getItemID(), 1);
-					}
-					usercargos.get(ship.getOwner()).addResource(itemmodule.getItemID(), 1);
-					if( !useritemlocations.containsKey(ship.getOwner()) ) {
-						useritemlocations.put(ship.getOwner(), new HashMap<Integer,Set<String>>());
-					}
-					Map<Integer,Set<String>> itemlocs = useritemlocations.get(ship.getOwner());
-					if( !itemlocs.containsKey(itemmodule.getItemID().getItemID()) ) {
-						itemlocs.put(itemmodule.getItemID().getItemID(), new HashSet<String>());
-					}
-					itemlocs.get(itemmodule.getItemID().getItemID()).add("s"+ship.getId());
+				counter++;
+				
+				if( counter % 10000 == 0 ) {
+					this.log("\t\t* "+ship.getId());
 				}
+				
+				Cargo scargo = ship.getCargo();
+				if( ship.getOwner().getId() > 0 ) {
+					cargo.addCargo( scargo );
+				}
+				
+				if( !usercargos.containsKey(ship.getOwner()) ) {
+					usercargos.put(ship.getOwner(), new Cargo(scargo));
+				}
+				else {
+					usercargos.get(ship.getOwner()).addCargo( scargo );
+				}
+				
+				List<ItemCargoEntry> itemlist = scargo.getItems();
+				for( int i=0; i < itemlist.size(); i++ ) {
+					ItemCargoEntry aitem = itemlist.get(i);
+					if( aitem.getItemEffect().getType() != ItemEffect.Type.AMMO ) {
+						if( !useritemlocations.containsKey(ship.getOwner()) ) {
+							useritemlocations.put(ship.getOwner(), new HashMap<Integer,Set<String>>());
+						}
+						Map<Integer,Set<String>> itemlocs = useritemlocations.get(ship.getOwner());
+						if( !itemlocs.containsKey(aitem.getItemID()) ) {
+							itemlocs.put(aitem.getItemID(), new HashSet<String>());
+						}
+						itemlocs.get(aitem.getItemID()).add("s"+ship.getId());
+					}	
+				}
+				
+				Ship.ModuleEntry[] modulelist = ship.getModules();
+				
+				for( int i=0; i < modulelist.length; i++ ) {
+					Ship.ModuleEntry amodule = modulelist[i];
+					
+					Module shipmodule = Modules.getShipModule(amodule);
+					if( shipmodule instanceof ModuleItemModule ) {
+						ModuleItemModule itemmodule = (ModuleItemModule)shipmodule;
+						if( ship.getOwner().getId() > 0 ) {
+							cargo.addResource(itemmodule.getItemID(), 1);
+						}
+						usercargos.get(ship.getOwner()).addResource(itemmodule.getItemID(), 1);
+						if( !useritemlocations.containsKey(ship.getOwner()) ) {
+							useritemlocations.put(ship.getOwner(), new HashMap<Integer,Set<String>>());
+						}
+						Map<Integer,Set<String>> itemlocs = useritemlocations.get(ship.getOwner());
+						if( !itemlocs.containsKey(itemmodule.getItemID().getItemID()) ) {
+							itemlocs.put(itemmodule.getItemID().getItemID(), new HashSet<String>());
+						}
+						itemlocs.get(itemmodule.getItemID().getItemID()).add("s"+ship.getId());
+					}
+				}
+				db.evict(ship);
+				HibernateFacade.evictAll(db, ShipModules.class);
 			}
-			db.evict(ship);
-			HibernateFacade.evictAll(db, ShipModules.class);
 		}
 
 		this.log("\tLese Zwischenlager ein");
