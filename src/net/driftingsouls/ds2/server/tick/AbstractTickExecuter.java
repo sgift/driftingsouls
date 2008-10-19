@@ -161,9 +161,9 @@ public abstract class AbstractTickExecuter extends TickController {
 	 */
 	protected void publishStatus( String status ) {
 		try {
-			int handle = addLogTarget(Configuration.getSetting("LOXPATH")+"ticktime.log", false);
+			addLogTarget(Configuration.getSetting("LOXPATH")+"ticktime.log", false);
 			log("Bitte warten - "+status);
-			removeLogTarget(handle);
+			removeLogTarget(Configuration.getSetting("LOXPATH")+"ticktime.log");
 			
 			this.status = status;
 		}
@@ -211,14 +211,14 @@ public abstract class AbstractTickExecuter extends TickController {
 		copyLogs(ticknr);
 		
 		try {
-			int handle = addLogTarget(Configuration.getSetting("LOXPATH")+"tix.log", true);
+			addLogTarget(Configuration.getSetting("LOXPATH")+"tix.log", true);
 			if( name.length() != 0 ) {
 				slog(name+": ");
 			}
-			int handle2 = addLogTarget(Configuration.getSetting("LOXPATH")+"ticktime.log", false);
+			addLogTarget(Configuration.getSetting("LOXPATH")+"ticktime.log", false);
 			log(Common.date("d.m.Y H:i:s"));
-			removeLogTarget(handle2);
-			removeLogTarget(handle);
+			removeLogTarget(Configuration.getSetting("LOXPATH")+"ticktime.log");
+			removeLogTarget(Configuration.getSetting("LOXPATH")+"tix.log");
 		}
 		catch( Exception e ) {
 			System.err.println("Fehler bei der Ticknachbereitung: "+e);

@@ -48,16 +48,14 @@ public abstract class TickController {
 	public static final String STDOUT = "java://STDOUT";
 			
 	private long exectime;
-	private Map<Integer,Writer> logTargets;
-	private int handleCounter;
+	private Map<String,Writer> logTargets;
 	private Context context;
 	
 	/**
 	 * Erstellt eine neue Instanz
 	 */
 	public TickController() {
-		logTargets = new HashMap<Integer,Writer>();
-		handleCounter = 0;
+		logTargets = new HashMap<String,Writer>();
 		this.context = ContextMap.getContext();
 	
 		exectime = System.currentTimeMillis();
@@ -67,7 +65,7 @@ public abstract class TickController {
 	 * Beendet den Tick und gibt alle Resourcen wieder frei
 	 */
 	public void dispose() {
-		for( int handle : logTargets.keySet() ) {
+		for( String handle : logTargets.keySet() ) {
 			try {
 				removeLogTarget(handle);
 			}
@@ -177,7 +175,7 @@ public abstract class TickController {
 	 * @param string Der zu loggende String
 	 */
 	protected void slog(String string) {
-		for( int i : logTargets.keySet() ) {
+		for( String i : logTargets.keySet() ) {
 			try {
 				logTargets.get(i).write(string);
 				logTargets.get(i).flush();
@@ -207,10 +205,9 @@ public abstract class TickController {
 	 * @param file Das Ziel, zu dem geloggt werden soll. Das Ziel muss schreibbar sein
 	 * @param append Sollen die Daten angehangen werden?
 	 * 
-	 * @return Handle des Log-Ziels oder -1 (gescheitert)
 	 * @throws IOException 
 	 */
-	public int addLogTarget( String file, boolean append ) throws IOException {
+	public void addLogTarget( String file, boolean append ) throws IOException {
 		Writer w = null;
 		if( file.equals(STDOUT) ) {
 			w = new OutputStreamWriter(System.out);
@@ -232,25 +229,24 @@ public abstract class TickController {
 		}
 	
 		if( w == null ) {
-			return -1;
+			return;
 		}
 		
-		logTargets.put(handleCounter, w);
-		
-		handleCounter++;
-		
-		return (handleCounter-1);
+		logTargets.put(file, w);
 	}
 	
 	/**
 	 * Entfernt ein Ziel fuer geloggte Daten
-	 * @param handle Das Handle des Log-Ziels
+	 * @param handle Die Datei/Das Logziel, zu dem bisher geloggt wurde
 	 * 
 	 * @return true bei erfolgreichem entfernen
 	 * @throws IOException 
 	 */
-	public boolean removeLogTarget( int handle ) throws IOException {		
-		logTargets.get(handle).close();
+	public boolean removeLogTarget( String handle ) throws IOException {
+		// Auf keinen Fall System.out schiessen!
+		if( !STDOUT.equals(handle) ) {
+			logTargets.get(handle).close();
+		}
 		logTargets.remove(handle);
 
 		return true;
