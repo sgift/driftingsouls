@@ -29,8 +29,7 @@ import java.util.Map;
 import net.driftingsouls.ds2.server.framework.db.Database;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.LogFactoryImpl;
-import org.springframework.context.ApplicationContext;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
@@ -39,7 +38,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
  *
  */
 public abstract class DSApplication {
-	protected final Log LOG;
+	private static final Log log = LogFactory.getLog(DSApplication.class) ;
 	private Context context;
 	
 	private Map<Integer,Writer> logTargets;
@@ -51,18 +50,15 @@ public abstract class DSApplication {
 	 * @throws Exception
 	 */
 	public DSApplication(String[] args) throws Exception {
-		System.getProperties().setProperty("org.apache.commons.logging.Log","org.apache.commons.logging.impl.SimpleLog");
-		
-		LOG = new LogFactoryImpl().getInstance("DS2");
-		LOG.info("Booting DS...");
+		log.info("Booting DS...");
 		
 		CmdLineRequest request = new CmdLineRequest(args);
 		
 		try {
-			new DriftingSouls(LOG, request.getParameterString("config"), false);
+			new DriftingSouls(log, request.getParameterString("config"), false);
 		}
 		catch( Exception e ) {
-			LOG.fatal(e, e);
+			log.fatal("", e);
 			throw new Exception(e);
 		}
 		

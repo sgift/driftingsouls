@@ -25,7 +25,7 @@ import javax.servlet.ServletContextListener;
 import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.LogFactoryImpl;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Der Default-Listener fuer ServletContext-Events. Laedt alle fuer DS notwendigen Daten und
@@ -34,7 +34,7 @@ import org.apache.commons.logging.impl.LogFactoryImpl;
  *
  */
 public class DefaultServletContextListener implements ServletContextListener {
-	private Log LOG = null;
+	private static final Log log = LogFactory.getLog(DefaultServletContextListener.class);
 	
 	public void contextDestroyed(ServletContextEvent event) {
 		HibernateFacade.free();
@@ -43,24 +43,16 @@ public class DefaultServletContextListener implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent event) {
 		ServletContext context = event.getServletContext();
 
-		if( context.getInitParameter("logger") == null ) {
-			System.getProperties().setProperty("org.apache.commons.logging.Log","org.apache.commons.logging.impl.SimpleLog");
-		}
-		else {
-			System.getProperties().setProperty("org.apache.commons.logging.Log",context.getInitParameter("logger"));
-		}
-		
-		LOG = new LogFactoryImpl().getInstance("DS2");
-		LOG.info("Booting DS...");
+		log.info("Booting DS...");
 		
 		try {
-			new DriftingSouls(LOG, context.getInitParameter("configdir"), true);
+			new DriftingSouls(log, context.getInitParameter("configdir"), true);
 		}
 		catch( Throwable e ) {
-			LOG.fatal(e, e);
+			log.fatal(e, e);
 			throw new RuntimeException(e);
 		}
 		
-		LOG.info("DS is now ready for service");
+		log.info("DS is now ready for service");
 	}
 }
