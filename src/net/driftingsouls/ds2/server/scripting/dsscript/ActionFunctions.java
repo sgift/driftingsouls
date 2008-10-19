@@ -326,7 +326,7 @@ public class ActionFunctions {
 			scriptparser.log("playerid: "+playerid+"\n");
 			
 			Ship ship = scriptparser.getShip();
-			Ship aship = (Ship)db.createQuery("from Ship where owner=? and system=? and x=? and y=? amd battle is null")
+			Ship aship = (Ship)db.createQuery("from Ship where owner=? and system=? and x=? and y=? and battle is null")
 				.setInteger(0, playerid)
 				.setInteger(1, ship.getSystem())
 				.setInteger(2, ship.getX())
