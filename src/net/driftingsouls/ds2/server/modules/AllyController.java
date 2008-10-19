@@ -34,7 +34,6 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -47,12 +46,15 @@ import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Zeigt die Allianzseite an
  * @author Christopher Jung
  */
-public class AllyController extends TemplateGenerator implements Loggable {
+public class AllyController extends TemplateGenerator {
+	private static final Log log = LogFactory.getLog(AllyController.class);
 	private static final double MAX_POSTENCOUNT = 0.3;
 	
 	private Ally ally = null;
@@ -702,7 +704,7 @@ public class AllyController extends TemplateGenerator implements Loggable {
 		}
 		catch( Exception e ) {
 			t.setVar("options.message","Offenbar ging beim Upload etwas schief (Ist die Datei evt. zu gro&szlig;?)<br />");
-			LOG.warn(e);
+			log.warn("",e);
 		}
 		
 		redirect("showAllySettings");
@@ -993,13 +995,7 @@ public class AllyController extends TemplateGenerator implements Loggable {
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		
-		List<User> allymember = new ArrayList<User>();
-		List memberList = db.createQuery("from User where ally=?")
-			.setEntity(0, this.ally)
-			.list();
-		for( Iterator iter=memberList.iterator(); iter.hasNext(); ) {
-			allymember.add((User)iter.next());
-		}
+		List<User> allymember = this.ally.getMembers();
 
 		long postencount = (Long)db.createQuery("select count(*) from AllyPosten where ally="+this.ally.getId()).iterate().next();
 
@@ -1018,8 +1014,12 @@ public class AllyController extends TemplateGenerator implements Loggable {
 		t.setBlock( "_ALLY", "show.posten.modify.listitem", "show.posten.modify.list" );
 		t.setBlock( "show.posten.modify.listitem", "show.posten.modify.userlist.listitem", "show.posten.modify.userlist.list" );
 		
-		List<AllyPosten> posten = getContext().query("from AllyPosten as ap left join fetch ap.user where ap.ally="+this.ally.getId(), AllyPosten.class);
-		for( AllyPosten aposten : posten ) {
+		List<?> posten = db.createQuery("from AllyPosten as ap left join fetch ap.user where ap.ally= :ally")
+			.setEntity("ally", this.ally)
+			.list();
+		for( Iterator<?> iter=posten.iterator(); iter.hasNext(); ) {
+			AllyPosten aposten = (AllyPosten)iter.next();
+			
 			t.setVar(	"show.posten.modify.name",			Common._plaintitle(aposten.getName()),
 						"show.posten.modify.id",			aposten.getId(),
 						"show.posten.modify.userlist.list",	"" );
@@ -1106,12 +1106,12 @@ public class AllyController extends TemplateGenerator implements Loggable {
 					"show.destpos.back",				destpos-10,
 					"show.destpos.forward",				destpos+10 );
 
-		List sList = db.createQuery("from ShipLost where destAlly=? order by time desc")
+		List<?> sList = db.createQuery("from ShipLost where destAlly=? order by time desc")
 			.setInteger(0, this.ally.getId())
 			.setMaxResults(10)
 			.setFirstResult((int)destpos)
 			.list();
-		for( Iterator iter=sList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=sList.iterator(); iter.hasNext(); ) {
 			ShipLost s = (ShipLost)iter.next();
 			ShipTypeData shiptype = Ship.getShipType( s.getType() );
 			
@@ -1170,7 +1170,7 @@ public class AllyController extends TemplateGenerator implements Loggable {
 			.setMaxResults(10)
 			.setFirstResult((int)lostpos)
 			.list();
-		for( Iterator iter=sList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=sList.iterator(); iter.hasNext(); ) {
 			ShipLost s = (ShipLost)iter.next();
 			ShipTypeData shiptype = Ship.getShipType( s.getType() );
 			
@@ -1247,11 +1247,11 @@ public class AllyController extends TemplateGenerator implements Loggable {
 		
 		// Zuerst alle vorhandenen Channels dieser Allianz auslesen (max 2)
 		List<ComNetChannel> channels = new ArrayList<ComNetChannel>();
-		List channelList = db.createQuery("from ComNetChannel where allyOwner=?")
+		List<?> channelList = db.createQuery("from ComNetChannel where allyOwner=?")
 			.setInteger(0, this.ally.getId())
 			.setMaxResults(2)
 			.list();
-		for( Iterator iter=channelList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=channelList.iterator(); iter.hasNext(); ) {
 			channels.add((ComNetChannel)iter.next());
 		}
 		channels.add(null);
@@ -1312,10 +1312,10 @@ public class AllyController extends TemplateGenerator implements Loggable {
 		t.setBlock( "_ALLY", "show.members.listitem", "show.members.list" );
 		
 		//Mitglieder auflisten
-		List memberList = db.createQuery("from User where ally=? order by name")
+		List<?> memberList = db.createQuery("from User where ally=? order by name")
 			.setEntity(0, this.ally)
 			.list();
-		for( Iterator iter=memberList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=memberList.iterator(); iter.hasNext(); ) {
 			User member = (User)iter.next();
 			
 			t.setVar(	"show.members.name",	Common._title( member.getName() ),

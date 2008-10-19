@@ -38,8 +38,6 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
-import org.hibernate.Query;
-
 /**
  * Repraesentiert eine Allianz in DS
  * @author Christopher Jung
@@ -380,18 +378,26 @@ public class Ally {
 	 * Gibt die Liste aller Mitglieder zurueck, welche Minister und/oder Praesident sind
 	 * @return Die Liste aller Spieler mit Minister-/Praesidentenposten
 	 */
+	@SuppressWarnings("unchecked")
 	public List<User> getSuperMembers() {
 		return ContextMap.getContext()
-			.query("select distinct u from User u join u.ally a " +
-					"where a.id="+getId()+" and (u.allyposten is not null or a.president=u.id)", User.class);
+			.getDB()
+			.createQuery("select distinct u from User u join u.ally a " +
+					"where a.id= :allyId and (u.allyposten is not null or a.president=u.id)")
+			.setInteger("allyId", this.getId())
+			.list();
 	}
 	
 	/**
 	 * Gibt die Liste aller Mitglieder zurueck
 	 * @return Die Liste aller Spieler der Allianz
 	 */
+	@SuppressWarnings("unchecked")
 	public List<User> getMembers() {
-		return ContextMap.getContext().query("from User where ally="+this.id, User.class);
+		return ContextMap.getContext().getDB()
+			.createQuery("from User where ally= :ally")
+			.setEntity("ally", this)
+			.list();
 	}
 	
 	/**
@@ -399,8 +405,11 @@ public class Ally {
 	 * @return Die Anzahl der Allymitglieder
 	 */
 	public long getMemberCount() {
-		Query query = ContextMap.getContext().getDB().createQuery("select count(*) from User where ally="+getId());
-		return (Long)query.iterate().next();
+		return (Long)ContextMap.getContext().getDB()
+			.createQuery("select count(*) from User where ally= :ally")
+			.setEntity("ally", this)
+			.iterate()
+			.next();
 	}
 	
 	/**
@@ -410,10 +419,10 @@ public class Ally {
 	public void destroy() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
-		List chnList = db.createQuery("from ComNetChannel where allyOwner=?")
+		List<?> chnList = db.createQuery("from ComNetChannel where allyOwner=?")
 			.setInteger(0, this.id)
 			.list();
-		for( Iterator iter=chnList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=chnList.iterator(); iter.hasNext(); ) {
 			ComNetChannel channel = (ComNetChannel)iter.next();
 			
 			db.createQuery("delete from ComNetVisit where channel=?")
@@ -429,10 +438,10 @@ public class Ally {
 		
 		int tick = ContextMap.getContext().get(ContextCommon.class).getTick();
 		
-		List uids = db.createQuery("from User where ally=?")
+		List<?> uids = db.createQuery("from User where ally=?")
 			.setEntity(0, this)
 			.list();
-		for( Iterator iter=uids.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=uids.iterator(); iter.hasNext(); ) {
 			User auser = (User)iter.next();
 			
 			auser.addHistory(Common.getIngameTime(tick)+": Verlassen der Allianz "+this.name+" im Zuge der Aufl&ouml;sung dieser Allianz");
