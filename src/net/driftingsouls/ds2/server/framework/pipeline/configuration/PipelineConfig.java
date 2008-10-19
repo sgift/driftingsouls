@@ -18,10 +18,10 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline.configuration;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.PostConstruct;
 
@@ -46,9 +46,9 @@ import org.w3c.dom.NodeList;
 public class PipelineConfig {
 	private static final Log log = LogFactory.getLog(PipelineConfig.class);
 	
-	private Map<String,ModuleSetting> modules = new HashMap<String,ModuleSetting>();
+	private Map<String,ModuleSetting> modules = new ConcurrentHashMap<String,ModuleSetting>();
 	private ModuleSetting defaultModule = null;
-	private List<Rule> rules = new ArrayList<Rule>();
+	private List<Rule> rules = new CopyOnWriteArrayList<Rule>();
 	private Configuration configuration;
 	
 	private ModuleSetting readModuleSetting( Node moduleNode ) throws Exception {
@@ -58,7 +58,7 @@ public class PipelineConfig {
 	
 	ModuleSetting getModuleSettingByName(String name) throws Exception {
 		ModuleSetting moduleSetting = (ModuleSetting)defaultModule.clone();
-		if( modules.get(name) != null ) {
+		if( name != null && modules.containsKey(name) ) {
 			moduleSetting.use(modules.get(name));
 		}
 		
@@ -79,12 +79,16 @@ public class PipelineConfig {
 	 */
 	@PostConstruct
 	public void readConfiguration() throws Exception {
+		if( !this.rules.isEmpty() ) {
+			throw new IllegalStateException("Die Pipeline wurde bereits geladen");
+		}
 		log.info("Reading "+this.configuration.get("configdir")+"pipeline.xml");
 		
 		Document doc = XMLUtils.readFile(this.configuration.get("configdir")+"pipeline.xml");
 		// Module
 		Node moduleNode = XMLUtils.getNodeByXPath(doc, "/pipeline/modules");
 		defaultModule = readModuleSetting(moduleNode);
+		
 		
 		NodeList nodes = XMLUtils.getNodesByXPath(moduleNode, "module");
 		for( int i=0; i < nodes.getLength(); i++ ) {

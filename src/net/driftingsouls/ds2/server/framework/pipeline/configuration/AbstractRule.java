@@ -21,54 +21,30 @@ package net.driftingsouls.ds2.server.framework.pipeline.configuration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Pattern;
+import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.pipeline.GeneratorPipeline;
 import net.driftingsouls.ds2.server.framework.pipeline.Pipeline;
-import net.driftingsouls.ds2.server.framework.pipeline.ReaderPipeline;
-import net.driftingsouls.ds2.server.framework.pipeline.ServletPipeline;
 import net.driftingsouls.ds2.server.framework.pipeline.actions.Action;
-import net.driftingsouls.ds2.server.framework.pipeline.reader.Reader;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 // TODO: Behandlung Module, Reader und Servlet in eigene Klassen auslagern
 abstract class AbstractRule implements Rule {
-	private enum ExecMode {
-		/**
-		 * Ausfuehrungsmodus Modul
-		 */
-		MODULE,
-		/**
-		 * Ausfuehrungsmodus Reader
-		 */
-		READER,
-		/**
-		 * Ausfuehrungsmodus Servlet/Filterchain
-		 */
-		SERVLET
-	}
-	
-	private Node config = null;
+	private final Node config;
 	
 	// actions
-	private List<Action> actions = new ArrayList<Action>();
-	private List<HashMap<String,Parameter>> actionParams = new ArrayList<HashMap<String,Parameter>>();
+	private final List<Action> actions = new ArrayList<Action>();
+	private final List<Map<String,Parameter>> actionParams = new ArrayList<Map<String,Parameter>>();
 	
-	// execute-module
-	private Parameter parameter = null;
-	
-	// execute-reader
-	private String file = "";
-	private Pattern pattern = null;
-	private Class<? extends Reader> readerClass = null;
-	
-	private ExecMode executionType = null;
-	
-	private ParameterMap parameterMap = null;
+	private final Executer executer;
+
+	private final ParameterMap parameterMap;
 	
 	private final PipelineConfig pipelineConfig;
 	
@@ -82,29 +58,37 @@ abstract class AbstractRule implements Rule {
 		
 		Node config = XMLUtils.getNodeByXPath(matchNode, "config");
 		if( config != null )  {
-			this.config = config;
+			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+			doc.appendChild(doc.importNode(config, true));
+			this.config = doc.getFirstChild();
+		}
+		else {
+			this.config = null;
 		}
 		
 		Node paramMap = XMLUtils.getNodeByXPath(matchNode, "parameter-map");
 		if( paramMap != null )  {
 			this.parameterMap = new ParameterMap(paramMap);
 		}
+		else {
+			this.parameterMap = null;
+		}
 		
 		Node node = XMLUtils.getNodeByXPath(matchNode, "execute-module");
 		if( node != null ) {
-			setupModuleExecuter(node);
+			this.executer = new ModuleExecuter(this.pipelineConfig, node);
 			return;
 		}
 
 		node = XMLUtils.getNodeByXPath(matchNode, "execute-reader");
 		if( node != null ) {
-			setupReaderExecuter(node);
+			this.executer = new ReaderExecuter(node);
 			return;
 		}
 		
 		node = XMLUtils.getNodeByXPath(matchNode, "execute-servlet");
 		if( node != null ) {
-			setupServletExecuter(node);
+			this.executer = new ServletExecuter();
 			return;
 		}
 		
@@ -137,29 +121,6 @@ abstract class AbstractRule implements Rule {
 		}
 	}
 	
-	private void setupReaderExecuter(Node node) throws Exception {
-		executionType = ExecMode.READER;
-
-		readerClass = Class.forName(XMLUtils.getStringByXPath(node, "reader/@class"))
-			.asSubclass(Reader.class);
-		file = XMLUtils.getStringByXPath(node, "file/@file");
-		String pattern = XMLUtils.getStringByXPath(node, "file/@pattern");
-
-		if( (pattern != null) && !"".equals(pattern.trim()) ) {
-			this.pattern = Pattern.compile(pattern);
-		}
-	}
-	
-	private void setupModuleExecuter(Node node) throws Exception {
-		executionType = ExecMode.MODULE;
-
-		parameter = new Parameter(node);
-	}
-	
-	private void setupServletExecuter(Node node) throws Exception {
-		executionType = ExecMode.SERVLET;
-	}
-	
 	public boolean executeable(Context context) throws Exception {
 		if( actions.size() == 0 ) {
 			return true;
@@ -187,45 +148,12 @@ abstract class AbstractRule implements Rule {
 			context.revalidate();
 		}
 		
-		Pipeline pipe = null;
-		
-		switch( executionType ) {
-		case MODULE:
-			pipe = executeModule(context);
-			break;
-			
-		case READER:
-			pipe = executeReader(context);
-			break;
-			
-		case SERVLET:
-			pipe = executeServlet(context);
-			break;
-		}
+		Pipeline pipe = this.executer.execute(context);
 		
 		if( pipe != null ) {
 			pipe.setConfiguration(config);
 		}
 		
 		return pipe;
-	}
-	
-	private Pipeline executeReader(Context context) throws Exception {
-		String file = this.file;
-		if( pattern != null ) {
-			file = pattern.matcher(context.getRequest().getPath()).replaceFirst(file);
-		}
-
-		return new ReaderPipeline(readerClass, file);
-	}
-	
-	private Pipeline executeModule(Context context) throws Exception {
-		String module = parameter.getValue(context);
-		
-		return new GeneratorPipeline( this.pipelineConfig.getModuleSettingByName(module).generator );
-	}
-	
-	private Pipeline executeServlet(Context context) throws Exception {
-		return new ServletPipeline();
 	}
 }
