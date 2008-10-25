@@ -57,6 +57,8 @@ public class RareTick extends AbstractTickExecuter {
 			
 			publishStatus("berechne Sonstiges");
 			execTick(RestTick.class, false);
+			
+			this.mailTickStatistics();
 		}
 		catch( Throwable e ) {
 			System.err.println("Fehler beim Ausfuehren der Ticks: "+e);

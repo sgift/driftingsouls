@@ -97,6 +97,8 @@ public class RegularTick extends AbstractTickExecuter {
 			execTick(RestTick.class, false);
 			
 			timeout.interrupt();
+			
+			this.mailTickStatistics();
 		}
 		catch( Throwable e ) {
 			System.err.println("Fehler beim Ausfuehren der Ticks: "+e);
