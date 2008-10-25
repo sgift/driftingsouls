@@ -235,8 +235,8 @@ public abstract class AbstractTickExecuter extends TickController {
 	 *
 	 */
 	protected abstract static class TimeoutChecker extends Thread {
-		private long timeout;
-		private boolean hasTimedOut;
+		private final long timeout;
+		private volatile boolean hasTimedOut;
 		
 		/**
 		 * Konstruktor
@@ -249,15 +249,15 @@ public abstract class AbstractTickExecuter extends TickController {
 		
 		@Override
 		public void run() {
-			long start = Common.time();
+			long start = System.currentTimeMillis();
 			
 			try {
-				while( start+timeout > Common.time() ) {
+				while( start+timeout > System.currentTimeMillis() ) {
 					synchronized(this) {
-						wait(100);
+						wait(1000);
 					}
 				}
-				if( start+timeout <= Common.time() ) {
+				if( start+timeout <= System.currentTimeMillis() ) {
 					this.hasTimedOut = true;
 					timeout();
 				}
