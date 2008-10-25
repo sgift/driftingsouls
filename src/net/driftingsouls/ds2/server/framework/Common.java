@@ -1082,6 +1082,16 @@ public class Common {
 			msg.append("\n");
 		}
 		
+		sendMailToAdmins(title, msg.toString());
+	}
+
+	/**
+	 * Sendet eine Email an alle eingetragenen Administratoren
+	 * @param title Der Titel der Email
+	 * @param msg Der Emailtext
+	 */
+	public static void sendMailToAdmins(String title, String msg)
+	{
 		String prefix = Configuration.getSetting("EXCEPTION_MAIL_PREFIX");
 		
 		String[] mailAddrs = StringUtils.split(Configuration.getSetting("EXCEPTION_MAIL"), ';');
