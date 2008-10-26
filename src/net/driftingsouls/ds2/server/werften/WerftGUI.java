@@ -254,14 +254,14 @@ public class WerftGUI {
 							
 						t.parse("komplexpart.linkedbase.list", "komplexpart.linkedbase.listitem", true);
 
-						List bases = db.createQuery("from Base " +
+						List<?> bases = db.createQuery("from Base " +
 									"where x=? and y=? and system=? and owner=? order by id")
 									.setInteger(0, member.getX())
 									.setInteger(1, member.getY())
 									.setInteger(2, member.getSystem())
 									.setEntity(3, member.getOwner())
 									.list();
-						for( Iterator iter=bases.iterator(); iter.hasNext(); ) {
+						for( Iterator<?> iter=bases.iterator(); iter.hasNext(); ) {
 							Base base = (Base)iter.next();
 							
 							t.setVar(	"komplexpart.linkedbase.selected",	linkedbase == base,
@@ -282,14 +282,14 @@ public class WerftGUI {
 			t.setBlock("_WERFT.WERFTGUI", "werftgui.linkedwerft.listitem", "werftgui.linkedwerft.list");
 					
 			// Hier wird davon ausgegangen, dass nur Schiffswerften Werftkomplexe bilden
-			List werften = db.createQuery("from ShipWerft " +
+			List<?> werften = db.createQuery("from ShipWerft " +
 				"where ship.x=? and ship.y=? and ship.system=? and ship.owner=? order by ship.id")
 				.setInteger(0, werft.getX())
 				.setInteger(1, werft.getY())
 				.setInteger(2, werft.getSystem())
 				.setEntity(3, werft.getOwner())
 				.list();
-			for( Iterator iter=werften.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=werften.iterator(); iter.hasNext(); ) {
 				ShipWerft shipwerft = (ShipWerft)iter.next();
 				
 				if( shipwerft == werft ) {
@@ -323,14 +323,14 @@ public class WerftGUI {
 					t.parse("werftgui.linkedbase.list", "werftgui.linkedbase.listitem", true);
 				}
 
-				List bases = db.createQuery("from Base " +
+				List<?> bases = db.createQuery("from Base " +
 							"where x=? and y=? and system=? and owner=? order by id")
 							.setInteger(0, werft.getX())
 							.setInteger(1, werft.getY())
 							.setInteger(2, werft.getSystem())
 							.setEntity(3, werft.getOwner())
 							.list();
-				for( Iterator iter=bases.iterator(); iter.hasNext(); ) {
+				for( Iterator<?> iter=bases.iterator(); iter.hasNext(); ) {
 					Base base = (Base)iter.next();
 					
 					t.setVar(	"linkedbase.selected",	(linkedbase == base),
@@ -348,7 +348,7 @@ public class WerftGUI {
 		t.setVar("werftgui.wsshiplist", 1);
 		t.setBlock("_WERFT.WERFTGUI", "wsshiplist.listitem", "wsshiplist.list");
 		
-		List ships = db.createQuery("from Ship s inner join fetch s.owner as u left join fetch s.modules " +
+		List<?> ships = db.createQuery("from Ship s inner join fetch s.owner as u left join fetch s.modules " +
 								"where s.id>0 and (s.x between ? and ?) and (s.y between ? and ?) and s.system=? and " +
 								"locate('l ',s.docked)=0 and s.battle is null order by u.id,s.id")
 								.setInteger(0, werft.getX()-werft.getSize())
@@ -358,7 +358,7 @@ public class WerftGUI {
 								.setInteger(4, werft.getSystem())
 								.list();
 	
-		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship ship = (Ship)iter.next();
 			
 			if( (werft instanceof ShipWerft) && (((ShipWerft)werft).getShip() == ship) ) {

@@ -299,11 +299,11 @@ public class GtuZwischenLagerController extends TemplateGenerator {
 		t.setBlock("_GTUZWISCHENLAGER","tradelist.listitem","tradelist.list");
 		t.setBlock("tradelist.listitem","res.listitem","res.list");
 	
-		List tradelist = db.createQuery("from GtuZwischenlager where posten=? and (user1= :user or user2= :user)")
+		List<?> tradelist = db.createQuery("from GtuZwischenlager where posten=? and (user1= :user or user2= :user)")
 			.setInteger(0, this.handel)
 			.setEntity("user", user)
 			.list();
-		for( Iterator iter=tradelist.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=tradelist.iterator(); iter.hasNext(); ) {
 			GtuZwischenlager tradeentry = (GtuZwischenlager)iter.next();
 			
 			User tradepartner = tradeentry.getUser2();

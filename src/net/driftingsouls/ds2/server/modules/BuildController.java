@@ -138,10 +138,10 @@ public class BuildController extends TemplateGenerator {
 		if( building.getPerUserCount() != 0 ) {
 			int ownerbuildingcount = 0;
 		
-			List bases = db.createQuery("from Base where owner=?")
+			List<?> bases = db.createQuery("from Base where owner=?")
 				.setEntity(0, user)
 				.list();
-			for( Iterator iter=bases.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=bases.iterator(); iter.hasNext(); ) {
 				Base abase = (Base)iter.next();
 				for( int bid : abase.getBebauung() ) {
 					if( bid == building.getId() ) {
@@ -276,11 +276,11 @@ public class BuildController extends TemplateGenerator {
 		//Anzahl der Gebaeude pro Spieler berechnen
 		Map<Integer,Integer> ownerbuildingcount = new HashMap<Integer,Integer>(buildingcount);
 		
-		List bases = db.createQuery("from Base where owner=? and id!=?")
+		List<?> bases = db.createQuery("from Base where owner=? and id!=?")
 			.setEntity(0, user)
 			.setInteger(1, base.getId())
 			.list();
-		for( Iterator iter=bases.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=bases.iterator(); iter.hasNext(); ) {
 			Base abase = (Base)iter.next();
 			for( int bid : abase.getBebauung() ) {
 				Common.safeIntInc(ownerbuildingcount, bid);
@@ -293,7 +293,7 @@ public class BuildController extends TemplateGenerator {
 		int grenze = (base.getWidth() * base.getHeight())/8;
 		int c = 0;
 		
-		Iterator ucBuildingIter = db.createQuery("from Building where ucomplex=1").iterate();
+		Iterator<?> ucBuildingIter = db.createQuery("from Building where ucomplex=1").iterate();
 		for( ; ucBuildingIter.hasNext(); ) {
 			Building building = (Building)ucBuildingIter.next();
 			if( buildingcount.containsKey(building.getId()) ) {
@@ -307,7 +307,7 @@ public class BuildController extends TemplateGenerator {
 		t.setBlock("buildings.listitem", "buildings.res.listitem", "buildings.res.list");
 		
 		//Alle Gebaeude ausgeben
-		Iterator buildingIter = db.createQuery("from Building where category=? order by name")
+		Iterator<?> buildingIter = db.createQuery("from Building where category=? order by name")
 			.setInteger(0, cat)
 			.iterate();
 		for( ; buildingIter.hasNext(); ) {

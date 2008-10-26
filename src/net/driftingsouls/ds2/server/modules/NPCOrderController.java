@@ -94,10 +94,10 @@ public class NPCOrderController extends TemplateGenerator {
 		t.setVar("npcorder.transports", 1);
 		t.setBlock("_NPCORDER", "transports.listitem", "transports.list");
 		
-		List ships = db.createQuery("from Ship where owner=? and locate('#!/tm gany_transport',destcom)!=0")
+		List<?> ships = db.createQuery("from Ship where owner=? and locate('#!/tm gany_transport',destcom)!=0")
 			.setEntity(0, user)
 			.list();
-		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship aship = (Ship)iter.next();
 			ShipTypeData ashiptype = aship.getTypeData();
 			
@@ -488,10 +488,10 @@ public class NPCOrderController extends TemplateGenerator {
 		
 		t.setVar( "npcorder.ordermenu", 1 );
 
-		List orderList = db.createQuery("from Order where user= :user")
+		List<?> orderList = db.createQuery("from Order where user= :user")
 			.setInteger("user", user.getId())
 			.list();
-		for( Iterator iter=orderList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=orderList.iterator(); iter.hasNext(); ) {
 			Order order = (Order)iter.next();
 			Common.safeIntInc(orders, order.getType());
 		}
@@ -504,8 +504,8 @@ public class NPCOrderController extends TemplateGenerator {
 
 		t.setBlock("_NPCORDER", "ships.listitem", "ships.list");
 
-		List shipOrders = db.createQuery("from OrderShip order by shipType.shipClass,shipType").list();
-		for( Iterator iter=shipOrders.iterator(); iter.hasNext(); ) {
+		List<?> shipOrders = db.createQuery("from OrderShip order by shipType.shipClass,shipType").list();
+		for( Iterator<?> iter=shipOrders.iterator(); iter.hasNext(); ) {
 			OrderShip ship = (OrderShip)iter.next();
 			
 			t.start_record();
@@ -538,8 +538,8 @@ public class NPCOrderController extends TemplateGenerator {
 		
 		t.setBlock("_NPCORDER", "offiziere.listitem", "offiziere.list");
 		
-		List offizierOrders = db.createQuery("from OrderOffizier where cost > 0 order by id").list();
-		for( Iterator iter=offizierOrders.iterator(); iter.hasNext(); ) {
+		List<?> offizierOrders = db.createQuery("from OrderOffizier where cost > 0 order by id").list();
+		for( Iterator<?> iter=offizierOrders.iterator(); iter.hasNext(); ) {
 			OrderOffizier offizier = (OrderOffizier)iter.next();
 			
 			if( !orders.containsKey(-offizier.getId()) ) {

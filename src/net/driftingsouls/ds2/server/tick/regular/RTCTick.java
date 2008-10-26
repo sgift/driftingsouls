@@ -80,10 +80,10 @@ public class RTCTick extends TickController {
 			Einzelversteigerungen
 		*/
 		
-		List entries = db.createQuery("from Versteigerung where tick<= :tick order by id")
+		List<?> entries = db.createQuery("from Versteigerung where tick<= :tick order by id")
 			.setInteger("tick", this.ticks)
 			.list();
-		for( Iterator iter=entries.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=entries.iterator(); iter.hasNext(); ) {
 			Versteigerung entry = (Versteigerung)iter.next();
 			
 			try {
@@ -260,7 +260,7 @@ public class RTCTick extends TickController {
 		entries = db.createQuery("from PaketVersteigerung where tick<= :tick order by id")
 			.setInteger("tick", this.ticks)
 			.list();
-		for( Iterator iter=entries.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=entries.iterator(); iter.hasNext(); ) {
 			PaketVersteigerung paket = (PaketVersteigerung)iter.next();
 			
 			try {

@@ -104,10 +104,10 @@ public class ImpObjectsController extends TemplateGenerator {
 				Sprungpunkte
 			*/
 		
-			List jnList = db.createQuery("from JumpNode where system=?  and hidden=0")
+			List<?> jnList = db.createQuery("from JumpNode where system=?  and hidden=0")
 				.setInteger(0, system)
 				.list();
-			for( Iterator iter=jnList.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=jnList.iterator(); iter.hasNext(); ) {
 				JumpNode node = (JumpNode)iter.next();
 				
 				t.setVar(	"jn.x",			node.getX(),
@@ -123,11 +123,11 @@ public class ImpObjectsController extends TemplateGenerator {
 				Handelsposten
 			*/
 		
-			List postenList = db.createQuery("from Ship where id>0 and owner=? and system=? and locate('tradepost',status)!=0")
+			List<?> postenList = db.createQuery("from Ship where id>0 and owner=? and system=? and locate('tradepost',status)!=0")
 				.setInteger(0, Faction.GTU)
 				.setInteger(1, system)
 				.list();
-			for( Iterator iter=postenList.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=postenList.iterator(); iter.hasNext(); ) {
 				Ship posten = (Ship)iter.next();
 				
 				t.setVar(	"gtuposten.x",		posten.getX(),
@@ -143,11 +143,11 @@ public class ImpObjectsController extends TemplateGenerator {
 		*/
 		t.setBlock("_IMPOBJECTS", "base.listitem", "base.list");
 		
-		List baseList = db.createQuery("from Base where owner=? and system=?")
+		List<?> baseList = db.createQuery("from Base where owner=? and system=?")
 			.setEntity(0, getUser())
 			.setInteger(1, system)
 			.list();
-		for( Iterator iter=baseList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=baseList.iterator(); iter.hasNext(); ) {
 			Base base = (Base)iter.next();
 			
 			t.setVar(	"base.x",		base.getX(),

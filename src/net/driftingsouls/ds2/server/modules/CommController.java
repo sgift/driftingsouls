@@ -34,7 +34,6 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.bbcode.Smilie;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -43,6 +42,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Die PM-Verwaltung
@@ -50,7 +51,8 @@ import org.apache.commons.lang.StringUtils;
  * @author Christian Peltz
  *
  */
-public class CommController extends TemplateGenerator implements Loggable {
+public class CommController extends TemplateGenerator {
+	private static final Log log = LogFactory.getLog(CommController.class);
 
 	/**
 	 * Konstruktor
@@ -266,10 +268,10 @@ public class CommController extends TemplateGenerator implements Loggable {
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		
-		List pmList = db.createQuery("from PM where empfaenger=:user and gelesen < 1")
+		List<?> pmList = db.createQuery("from PM where empfaenger=:user and gelesen < 1")
 			.setEntity("user", user)
 			.list();
-		for( Iterator iter=pmList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=pmList.iterator(); iter.hasNext(); ) {
 			PM pm = (PM)iter.next();
 			
 			parameterNumber("pm_"+pm.getId());
@@ -627,7 +629,7 @@ public class CommController extends TemplateGenerator implements Loggable {
 				bbcodeparser.registerHandler( "_intrnlConfTask", 2, "<div style=\"text-align:center\"><table class=\"noBorderX\" width=\"500\"><tr><td class=\"BorderX\" align=\"center\">Entscheidungsm&ouml;glichkeit in der Orginal-PM</td></tr></table></div>");
 			}
 			catch( Exception e ) {
-				LOG.error("Register _intrnlConfTask failed", e);
+				log.error("Register _intrnlConfTask failed", e);
 				addError("Fehler beim Darstellen der PM");
 			}
 			
@@ -651,7 +653,7 @@ public class CommController extends TemplateGenerator implements Loggable {
 				bbcodeparser.registerHandler( "_intrnlConfTask", 2, new TagIntrnlConfTask());
 			}
 			catch( Exception e ) {
-				LOG.error("Register _intrnlConfTask failed", e);
+				log.error("Register _intrnlConfTask failed", e);
 				addError("Fehler beim Darstellen der PM");
 			}
 			
@@ -763,10 +765,10 @@ public class CommController extends TemplateGenerator implements Loggable {
 			
 		t.parse("availordner.list", "availordner.listitem", true);
 
-		List ordnerList = db.createQuery("from Ordner where owner= :user order by name asc")
+		List<?> ordnerList = db.createQuery("from Ordner where owner= :user order by name asc")
 			.setEntity("user", user)
 			.list();
-		for( Iterator iter=ordnerList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=ordnerList.iterator(); iter.hasNext(); ) {
 			Ordner aOrdner = (Ordner)iter.next();
 			
 			t.setVar(	"availordner.id",	aOrdner.getId(),
@@ -835,11 +837,11 @@ public class CommController extends TemplateGenerator implements Loggable {
 		t.setVar("show.outbox", 1);
 		t.setBlock("_COMM", "pms.out.listitem", "pms.out.list");
 		
-		List pms = db.createQuery("from PM as pm inner join fetch pm.empfaenger " +
+		List<?> pms = db.createQuery("from PM as pm inner join fetch pm.empfaenger " +
 				"where pm.sender= :user order by pm.id desc")
 			.setEntity("user", user)
 			.list();
-		for( Iterator iter=pms.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=pms.iterator(); iter.hasNext(); ) {
 			PM pm = (PM)iter.next();
 			
 			t.setVar(	"pm.id",				pm.getId(),

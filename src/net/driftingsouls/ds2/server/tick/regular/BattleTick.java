@@ -56,11 +56,11 @@ public class BattleTick extends TickController {
 			.setLong(0, lastacttime)
 			.executeUpdate();
 		
-		List battles = db.createQuery("from Battle where blockcount<=0 or lastaction<= ?")
+		List<?> battles = db.createQuery("from Battle where blockcount<=0 or lastaction<= ?")
 			.setLong(0, lastacttime)
 			.list();
 		
-		for( Iterator iter=battles.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=battles.iterator(); iter.hasNext(); ) {
 			Battle battle = (Battle)iter.next();
 			
 			try {

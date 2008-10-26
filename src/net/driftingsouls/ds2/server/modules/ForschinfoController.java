@@ -164,10 +164,10 @@ public class ForschinfoController extends TemplateGenerator {
 		t.setBlock("_FORSCHINFO","tech.allows.listitem","tech.allows.list");
 
 		boolean entry = false;
-		List results = db.createQuery("from Forschung where req1= :fid or req2= :fid or req3= :fid")
+		List<?> results = db.createQuery("from Forschung where req1= :fid or req2= :fid or req3= :fid")
 			.setInteger("fid", this.research.getID())
 			.list();
-		for( Iterator iter=results.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=results.iterator(); iter.hasNext(); ) {
 			Forschung res = (Forschung)iter.next();
 			
 			if( res.isVisibile(user) || 
@@ -212,7 +212,7 @@ public class ForschinfoController extends TemplateGenerator {
 
 		boolean firstentry = true;
 
-		Iterator buildingIter = db.createQuery("from Building where techReq=?")
+		Iterator<?> buildingIter = db.createQuery("from Building where techReq=?")
 			.setInteger(0, this.research.getID())
 			.iterate();
 		for( ; buildingIter.hasNext(); ) {
@@ -269,7 +269,7 @@ public class ForschinfoController extends TemplateGenerator {
 		t.setVar("tech.cores.list","");
 
 		firstentry = true;
-		Iterator coreIter = db.createQuery("from Core where techReq=?")
+		Iterator<?> coreIter = db.createQuery("from Core where techReq=?")
 			.setInteger(0, this.research.getID())
 			.iterate();
 		for( ; coreIter.hasNext(); ) {
@@ -326,11 +326,11 @@ public class ForschinfoController extends TemplateGenerator {
 		t.setVar("tech.ships.list","");
 
 		firstentry = true;
-		List ships = db.createQuery("from ShipBaubar " +
+		List<?> ships = db.createQuery("from ShipBaubar " +
 				"where tr1= :fid or tr2= :fid or tr3= :fid")
 				.setInteger("fid", this.research.getID())
 				.list();
-		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			ShipBaubar ship = (ShipBaubar)iter.next();
 			
 			boolean show = true;
@@ -412,12 +412,12 @@ public class ForschinfoController extends TemplateGenerator {
 
 		firstentry = true;
 
-		List ammoList = db.createQuery("from Ammo " +
+		List<?> ammoList = db.createQuery("from Ammo " +
 				"where res1= :fid or res2= :fid or res3= :fid")
 				.setInteger("fid", this.research.getID())
 				.list();
 		
-		for( Iterator iter=ammoList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=ammoList.iterator(); iter.hasNext(); ) {
 			Ammo ammo = (Ammo)iter.next();
 			t.start_record();
 	

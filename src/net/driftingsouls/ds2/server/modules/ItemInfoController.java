@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -242,10 +241,9 @@ public class ItemInfoController extends TemplateGenerator {
 			Map<String,Integer[]> weaponlist = mods.getWeapons();
 					
 			StringBuilder wpntext = new StringBuilder(50);
-			for( Object entry : weaponlist.entrySet() ) {
-				Entry weaponclass = (Entry)entry;
-				String weaponclassname = (String)weaponclass.getKey();
-				Integer[] weaponmods = (Integer[])weaponclass.getValue();
+			for( Map.Entry<String,Integer[]> weaponclass : weaponlist.entrySet() ) {
+				String weaponclassname = weaponclass.getKey();
+				Integer[] weaponmods = weaponclass.getValue();
 					
 				int weaponcount = weaponmods[0];
 				int weaponheat = weaponmods[1];	
@@ -268,10 +266,9 @@ public class ItemInfoController extends TemplateGenerator {
 			Map<String,Integer> weaponlist = mods.getMaxHeat();
 					
 			StringBuilder wpntext = new StringBuilder(50);
-			for( Object entry : weaponlist.entrySet() ) {
-				Entry weaponclass = (Entry)entry;
-				String weaponclassname = (String)weaponclass.getKey();
-				int weaponheat = (Integer)weaponclass.getValue();
+			for( Map.Entry<String,Integer> weaponclass : weaponlist.entrySet() ) {
+				String weaponclassname = weaponclass.getKey();
+				int weaponheat = weaponclass.getValue();
 				
 				if( wpntext.length() > 0 ) {
 					wpntext.append("<br />");	
@@ -725,10 +722,10 @@ public class ItemInfoController extends TemplateGenerator {
 		t.setBlock("_ITEMINFO", "knownlist.listitem", "knownlist.list");
 		
 		Map<Integer,String[]> reslocations = new HashMap<Integer,String[]>();
-		List modules = db.createQuery("from StatItemLocations where user=?")
+		List<?> modules = db.createQuery("from StatItemLocations where user=?")
 			.setEntity(0, user)
 			.list();
-		for( Iterator iter=modules.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=modules.iterator(); iter.hasNext(); ) {
 			StatItemLocations amodule = (StatItemLocations)iter.next();
 			reslocations.put(amodule.getItemId(), StringUtils.split(amodule.getLocations(),';'));
 		}

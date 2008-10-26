@@ -146,7 +146,7 @@ public class QuestFunctions {
 	 *
 	 ----------------------------------------------*/
 	
-	class QuestAnswer {
+	static class QuestAnswer {
 		String url;
 		String text;
 		
@@ -212,7 +212,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class CopyVar implements SPFunction {
+	static class CopyVar implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			Database database = ContextMap.getContext().getDatabase();
@@ -513,7 +513,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class SaveVar implements SPFunction {
+	static class SaveVar implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			Database database = ContextMap.getContext().getDatabase();
@@ -636,7 +636,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class InitQuest implements SPFunction {
+	static class InitQuest implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -676,7 +676,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class EndQuest implements SPFunction {
+	static class EndQuest implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -716,7 +716,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class GetQuestID implements SPFunction {
+	static class GetQuestID implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -739,7 +739,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class InstallHandler implements SPFunction {
+	static class InstallHandler implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -881,7 +881,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class RemoveHandler implements SPFunction {
+	static class RemoveHandler implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1012,7 +1012,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class AddUninstallCmd implements SPFunction {
+	static class AddUninstallCmd implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1065,7 +1065,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class CompleteQuest implements SPFunction {
+	static class CompleteQuest implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1092,7 +1092,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class HasQuestCompleted implements SPFunction {
+	static class HasQuestCompleted implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1123,7 +1123,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class SetQuestUIStatus implements SPFunction {
+	static class SetQuestUIStatus implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1154,7 +1154,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class SaveOutput implements SPFunction {
+	static class SaveOutput implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			// Funktioniert nur mit StringWriter und co.
 			scriptparser.setRegister("_OUTPUT",scriptparser.getContext().getWriter().toString());
@@ -1263,7 +1263,7 @@ public class QuestFunctions {
 	 *
 	 ----------------------------------------------*/
 	
-	class AddQuestItem implements SPFunction {
+	static class AddQuestItem implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1311,7 +1311,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class HasQuestItem implements SPFunction {
+	static class HasQuestItem implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1355,7 +1355,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class AddItem implements SPFunction {
+	static class AddItem implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			scriptparser.log("cargo: "+command[1]+"\n");
 			Object cargoObj = scriptparser.getRegisterObject(command[1]);
@@ -1385,7 +1385,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class HasResource implements SPFunction {
+	static class HasResource implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			scriptparser.log("cargo: "+command[1]+"\n");
 			Object cargoObj = scriptparser.getRegisterObject(command[1]);
@@ -1410,7 +1410,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class GetResource implements SPFunction {
+	static class GetResource implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			scriptparser.log("cargo: "+command[1]+"\n");
 			Object cargoObj = scriptparser.getRegisterObject(command[1]);
@@ -1432,7 +1432,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class AddResource implements SPFunction {
+	static class AddResource implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			scriptparser.log("cargo: "+command[1]+"\n");
 			Object cargoObj = scriptparser.getRegisterObject(command[1]);
@@ -1461,7 +1461,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class TransferWholeCargo implements SPFunction {
+	static class TransferWholeCargo implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			scriptparser.log("cargo(target): "+command[1]+"\n");
 			Object cargotarObj = scriptparser.getRegisterObject(command[1]);
@@ -1487,7 +1487,7 @@ public class QuestFunctions {
 	 *
 	 ----------------------------------------------*/
 	
-	class LockShip implements SPFunction {
+	static class LockShip implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1568,7 +1568,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class UnlockShip implements SPFunction {
+	static class UnlockShip implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1630,7 +1630,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class AddQuestShips implements SPFunction {
+	static class AddQuestShips implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1697,7 +1697,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class AddShips implements SPFunction {
+	static class AddShips implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1724,7 +1724,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class RemoveShip implements SPFunction {
+	static class RemoveShip implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -1735,7 +1735,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class MoveShip implements SPFunction {
+	static class MoveShip implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			int shipid = Value.Int(command[1]);
@@ -1761,7 +1761,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class IsShipDestroyed implements SPFunction {
+	static class IsShipDestroyed implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1792,7 +1792,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class AddLootTable implements SPFunction {
+	static class AddLootTable implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1866,7 +1866,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class DeleteLootTable implements SPFunction {
+	static class DeleteLootTable implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1887,7 +1887,7 @@ public class QuestFunctions {
 	 *
 	 ----------------------------------------------*/
 	
-	class Msg implements SPFunction {
+	static class Msg implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			int from = Integer.parseInt(command[1]);
 			int to = Integer.parseInt(command[2]);
@@ -1908,7 +1908,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class AddMoney implements SPFunction {
+	static class AddMoney implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			int userid = Value.Int(command[1]);
 			scriptparser.log("userid: "+userid+"\n");
@@ -1938,7 +1938,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class GetMoney implements SPFunction {
+	static class GetMoney implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			int userid = Value.Int(command[1]);
 			scriptparser.log("userid: "+userid+"\n");
@@ -1950,7 +1950,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class CloneOffizier implements SPFunction {
+	static class CloneOffizier implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -1999,7 +1999,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class RemoveOffizier implements SPFunction {
+	static class RemoveOffizier implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -2023,7 +2023,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class StartBattle implements SPFunction {
+	static class StartBattle implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			Database database = ContextMap.getContext().getDatabase();
@@ -2074,7 +2074,7 @@ public class QuestFunctions {
 	}
 	
 	
-	class AddBattleVisibility implements SPFunction {
+	static class AddBattleVisibility implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -2092,7 +2092,7 @@ public class QuestFunctions {
 	}
 	
 	
-	class EndBattle implements SPFunction {
+	static class EndBattle implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -2117,7 +2117,7 @@ public class QuestFunctions {
 	}
 	
 	
-	class GetNoobStatus implements SPFunction {
+	static class GetNoobStatus implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			int userid = Integer.parseInt(command[1]);
 			scriptparser.log("userid: "+userid+"\n");
@@ -2136,7 +2136,7 @@ public class QuestFunctions {
 	
 	
 	
-	class GetUserValue implements SPFunction {
+	static class GetUserValue implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			int userid = Integer.parseInt(command[1]);
 			scriptparser.log("userid: "+userid+"\n");
@@ -2162,7 +2162,7 @@ public class QuestFunctions {
 	}
 	
 	
-	class SetUserValue implements SPFunction {
+	static class SetUserValue implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			int userid = Integer.parseInt(command[1]);
 			scriptparser.log("userid: "+userid+"\n");
@@ -2202,12 +2202,12 @@ public class QuestFunctions {
 				}
 			} 
 			else if( property.equals("bases") ) {
-				List baseIds = db.createQuery("select id from Base where system= :sys and x= :x and y= :y")
+				List<?> baseIds = db.createQuery("select id from Base where system= :sys and x= :x and y= :y")
 					.setInteger("sys", sector.getSystem())
 					.setInteger("x", sector.getX())
 					.setInteger("y", sector.getY())
 					.list();
-				for( Iterator iter=baseIds.iterator(); iter.hasNext(); ) {
+				for( Iterator<?> iter=baseIds.iterator(); iter.hasNext(); ) {
 					Integer id = (Integer)iter.next();
 					result.add(id.toString());	
 				}
@@ -2255,7 +2255,7 @@ public class QuestFunctions {
 	}
 	
 	
-	class GetSystemProperty implements SPFunction {
+	static class GetSystemProperty implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -2284,7 +2284,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class GtuAuctionShip implements SPFunction {
+	static class GtuAuctionShip implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -2313,7 +2313,7 @@ public class QuestFunctions {
 		}
 	}
 	
-	class GtuAuctionCargo implements SPFunction {
+	static class GtuAuctionCargo implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -2375,7 +2375,7 @@ public class QuestFunctions {
 			int shipid = Integer.parseInt(command[2]);
 			scriptparser.log("ShipID: "+shipid+"\n");
 		
-			List qquestList = db.createQuery("from QuickQuest " +
+			List<?> qquestList = db.createQuery("from QuickQuest " +
 					"where enabled>0 and " +
 					"(source= :shipid or source like :expshipid1 or source like :expshipid2 or source like :expshipid3) and " + 
 					"sourcetype= :type")
@@ -2385,7 +2385,7 @@ public class QuestFunctions {
 				.setString("expshipid3", shipid+"%")
 				.setString("type", typeid)
 				.list();
-			for( Iterator iter=qquestList.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=qquestList.iterator(); iter.hasNext(); ) {
 				QuickQuest qquest = (QuickQuest)iter.next();
 				
 				if( !qquest.getMoreThanOnce() ) {
@@ -2457,7 +2457,7 @@ public class QuestFunctions {
 			int shipid = Integer.parseInt(command[2]);
 			scriptparser.log("ShipID: "+shipid+"\n");
 			
-			List qquestList = db.createQuery("from QuickQuest " +
+			List<?> qquestList = db.createQuery("from QuickQuest " +
 					"where enabled>0 and " +
 					"(target= :shipid or target like :expshipid1 or target like :expshipid2 or target like :expshipid3) and " + 
 					"targettype= :type")
@@ -2467,7 +2467,7 @@ public class QuestFunctions {
 				.setString("expshipid3", shipid+"%")
 				.setString("type", typeid)
 				.list();
-			for( Iterator iter=qquestList.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=qquestList.iterator(); iter.hasNext(); ) {
 				QuickQuest qquest = (QuickQuest)iter.next();
 				
 				call(new LoadQuestContext(), scriptparser, qquest.getEnabled());

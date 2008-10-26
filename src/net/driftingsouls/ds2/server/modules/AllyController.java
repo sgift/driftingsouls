@@ -774,7 +774,7 @@ public class AllyController extends TemplateGenerator {
 		this.ally.setShowLrs(this.getInteger("showlrs") != 0);
 		
 		//Benutzernamen aktualisieren
-		List<User> allyusers = getContext().query("from User where ally="+this.ally.getId(), User.class);
+		List<User> allyusers = this.ally.getMembers();
 		for( User auser : allyusers ) {
 			String newname = StringUtils.replace(allytag, "[name]", auser.getNickname());
 
@@ -954,8 +954,10 @@ public class AllyController extends TemplateGenerator {
 		t.setVar( "show.join", 1 );
 		t.setBlock( "_ALLY", "show.join.allylist.listitem", "show.join.allylist.list" );
 		
-		List<Ally> al = getContext().query("from Ally order by founded", Ally.class);
-		for( Ally aAlly : al ) {
+		List<?> al = getDB().createQuery("from Ally order by founded").list();
+		for( Iterator<?> iter=al.iterator(); iter.hasNext(); ) {
+			Ally aAlly = (Ally)iter.next();
+			
 			t.setVar(	"show.join.allylist.allyid",	aAlly.getId(),
 						"show.join.allylist.name",		Common._title(aAlly.getName()) );
 								
@@ -1397,9 +1399,12 @@ public class AllyController extends TemplateGenerator {
 	
 		t.setBlock( "_ALLY", "ally.posten.listitem", "ally.posten.list" );
 		
-		List<AllyPosten> posten = getContext().query("from AllyPosten as ap left join fetch ap.user " +
-				"where ap.ally="+this.ally.getId(), AllyPosten.class);
-		for( AllyPosten aposten : posten ) {
+		List<?> posten = getDB().createQuery("from AllyPosten as ap left join fetch ap.user " +
+				"where ap.ally= :ally")
+			.setEntity("ally", this.ally)
+			.list();
+		for( Iterator<?> iter=posten.iterator(); iter.hasNext(); ) {
+			AllyPosten aposten = (AllyPosten)iter.next();
 			if( aposten.getUser() == null ) {
 				continue;
 			}
@@ -1411,12 +1416,19 @@ public class AllyController extends TemplateGenerator {
 			t.parse( "ally.posten.list", "ally.posten.listitem", true );
 		}
 		
-		List<User> allymembers = getContext().query("from User where ally="+this.ally.getId()+" and id!="+this.ally.getPresident().getId()+" and allyposten is null", User.class);
+		List<?> allymembers = getDB().createQuery("from User " +
+				"where ally= :ally and " +
+						"id!= :presidentId and " +
+						"allyposten is null")
+			.setEntity("ally", this.ally)
+			.setInteger("presidentId", this.ally.getPresident().getId())
+			.list();
 		if( allymembers.size() > 0 ) {
 			t.setVar( "ally.addmembers.list", "" );
 			t.setBlock( "_ALLY", "ally.addmembers.listitem", "ally.addmembers.list" );
 			
-			for( User allymember : allymembers ) {
+			for( Iterator<?> iter=allymembers.iterator(); iter.hasNext(); ) {
+				User allymember = (User)iter.next();
 				t.setVar(	"ally.addmembers.name",	Common._title(allymember.getName()),
 							"ally.addmembers.id",	allymember.getId() );
 				

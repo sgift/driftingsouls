@@ -78,7 +78,7 @@ public class EditAmmo implements AdminPlugin
 		// Waffenauswahl
 		// Wuerg, keine Typsicherheit, aber keine Warnung. Evtl Warnung
 		// unterdruecken?
-		List ammos = db.createQuery("FROM Ammo").list();
+		List<?> ammos = db.createQuery("FROM Ammo").list();
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<input type=\"hidden\" name=\"sess\" value=\"" + context.getSession() + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
@@ -131,7 +131,7 @@ public class EditAmmo implements AdminPlugin
 			}
 			echo.append("</select>");
 			echo.append("</td></tr>");
-			List researches = db.createQuery("FROM Forschung").list();
+			List<?> researches = db.createQuery("FROM Forschung").list();
 			for (int i = 1; i <= MAX_DEPENDENCIES; i++)
 			{
 				echo.append("<tr><td class=\"noBorderS\">");

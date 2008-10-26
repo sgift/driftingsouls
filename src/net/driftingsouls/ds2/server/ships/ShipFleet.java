@@ -120,11 +120,11 @@ public class ShipFleet {
 	public void collectFightersByType(User user, int jaegertypeID) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
-		List ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null" )
+		List<?> ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null" )
 			.setEntity(0, this)
 			.list();
 		
-		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship ship = (Ship)iter.next();
 			ShipTypeData shiptype = ship.getTypeData();
 			
@@ -134,7 +134,7 @@ public class ShipFleet {
 			int free = shiptype.getJDocks() - (int)ship.getLandedCount();
 			List<Ship>jaegerlist = new ArrayList<Ship>();
 			
-			List jaegerliste = db.createQuery("from Ship as s left join fetch s.modules " +
+			List<?> jaegerliste = db.createQuery("from Ship as s left join fetch s.modules " +
 					"where "+(jaegertypeID > 0 ? "s.shiptype=:shiptype and " : "")+"s.owner=? and s.system=? and " +
 							"s.x=? and s.y=? and s.docked='' and (locate(?,s.shiptype.flags)!=0 or locate(?,s.modules.flags)!=0) and s.battle is null " +
 					"order by s.fleet,s.shiptype ")
@@ -146,7 +146,7 @@ public class ShipFleet {
 				.setString(5, ShipTypes.SF_JAEGER)
 				.setInteger("shiptype", jaegertypeID)
 				.list();
-			for( Iterator iter2=jaegerliste.iterator(); iter2.hasNext(); ) {
+			for( Iterator<?> iter2=jaegerliste.iterator(); iter2.hasNext(); ) {
 				Ship jaeger = (Ship)iter2.next();
 				
 				ShipTypeData jaegertype = jaeger.getTypeData();
@@ -175,11 +175,11 @@ public class ShipFleet {
 	public void setAlarm(int alarm) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
-		List ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null" )
+		List<?> ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null" )
 			.setEntity(0, this)
 			.list();
 		
-		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship ship = (Ship)iter.next();
 		
 			if( (ship.getTypeData().getShipClass() == ShipClasses.GESCHUETZ.ordinal()) || !ship.getTypeData().isMilitary() ) {
@@ -218,10 +218,10 @@ public class ShipFleet {
 	public void startFighters() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
-		List ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null")
+		List<?> ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null")
 			.setEntity(0, this)
 			.list();
-		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship aship = (Ship)iter.next();
 			aship.dock(Ship.DockMode.START, (Ship[])null);
 		}
@@ -234,11 +234,11 @@ public class ShipFleet {
 	public void collectContainers(User user) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
-		List ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null" )
+		List<?> ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null" )
 			.setEntity(0, this)
 			.list();
 		
-		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship ship = (Ship)iter.next();
 			ShipTypeData shiptype = ship.getTypeData();
 			
@@ -249,7 +249,7 @@ public class ShipFleet {
 			int free = shiptype.getADocks() - (int)ship.getDockedCount();
 			List<Ship> containerlist = new ArrayList<Ship>();
 			
-			List containers = db.createQuery("from Ship as s " +
+			List<?> containers = db.createQuery("from Ship as s " +
 					"where s.owner=? and s.system=? and s.x=? and s.y=? and s.docked='' and " +
 							"s.shiptype.shipClass=? and s.battle is null " +
 					"order by s.fleet,s.shiptype ")
@@ -259,7 +259,7 @@ public class ShipFleet {
 				.setInteger(3, ship.getY())
 				.setInteger(4, ShipClasses.CONTAINER.ordinal())
 				.list();
-			for( Iterator iter2=containers.iterator(); iter2.hasNext(); ) {
+			for( Iterator<?> iter2=containers.iterator(); iter2.hasNext(); ) {
 				containerlist.add((Ship)iter2.next());
 				free--;
 				if( free == 0 ) {
@@ -283,10 +283,10 @@ public class ShipFleet {
 	public void undockContainers() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
-		List ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null")
+		List<?> ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null")
 			.setEntity(0, this)
 			.list();
-		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship aship = (Ship)iter.next();
 			aship.dock(Ship.DockMode.UNDOCK, (Ship[])null);
 		}
@@ -305,10 +305,10 @@ public class ShipFleet {
 		
 		this.consignMode = true;
 		try {
-			List shiplist = db.createQuery("from Ship where fleet=? and battle is null" )
+			List<?> shiplist = db.createQuery("from Ship where fleet=? and battle is null" )
 				.setInteger(0, this.id)
 				.list();
-			for( Iterator iter=shiplist.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=shiplist.iterator(); iter.hasNext(); ) {
 				Ship aship = (Ship)iter.next();
 				boolean tmp = aship.consign(newowner, false );
 			
@@ -350,7 +350,7 @@ public class ShipFleet {
 			MESSAGE.get().append("aus der Flotte ausgetreten");
 		} 
 		else {
-			final Iterator shipIter = db.createQuery("from Ship where fleet=?")
+			final Iterator<?> shipIter = db.createQuery("from Ship where fleet=?")
 				.setEntity(0, this)
 				.iterate();
 			while( shipIter.hasNext() ) {

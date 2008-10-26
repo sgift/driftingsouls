@@ -94,10 +94,10 @@ public class NPCScriptTick extends TickController {
 			}
 
 			this.log("+++++++++ User: "+user.getId()+" +++++++++");
-			List ships = db.createQuery("from Ship where id>0 and owner=? and battle is null and script is not null")
+			List<?> ships = db.createQuery("from Ship where id>0 and owner=? and battle is null and script is not null")
 				.setEntity(0, user)
 				.list();
-			for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 				final Ship ship = (Ship)iter.next();
 				try {
 					this.log("+++ Ship "+ship.getId()+" +++");

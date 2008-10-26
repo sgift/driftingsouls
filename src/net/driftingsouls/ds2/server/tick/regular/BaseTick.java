@@ -349,8 +349,8 @@ public class BaseTick extends TickController {
 		User sourceUser = (User)db.get(User.class, -1);
 		
 		// Da wir als erstes mit dem Usercargo rumspielen -> sichern der alten Nahrungswerte
-		List users = db.createQuery("from User where id!=0 and (vaccount=0 or wait4vac!=0)").list();
-		for( Iterator iter = users.iterator(); iter.hasNext(); ) {
+		List<?> users = db.createQuery("from User where id!=0 and (vaccount=0 or wait4vac!=0)").list();
+		for( Iterator<?> iter = users.iterator(); iter.hasNext(); ) {
 			User auser = (User)iter.next();
 			
 			auser.setNahrungsStat(Long.toString(new Cargo(Cargo.Type.STRING, auser.getCargo()).getResourceCount(Resources.NAHRUNG)));
@@ -359,12 +359,12 @@ public class BaseTick extends TickController {
 		getContext().commit();
 		
 		// Nun holen wir uns mal die Basen...
-		List bases = db.createQuery("from Base b join fetch b.owner where b.owner!=0 and (b.owner.vaccount=0 or b.owner.wait4vac!=0) order by b.owner").list();
+		List<?> bases = db.createQuery("from Base b join fetch b.owner where b.owner!=0 and (b.owner.vaccount=0 or b.owner.wait4vac!=0) order by b.owner").list();
 			
 		log("Kolonien: "+bases.size());
 		log("");
 		
-		for( Iterator iter = bases.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter = bases.iterator(); iter.hasNext(); ) {
 			Base base = (Base)iter.next();
 			
 			// Muessen ggf noch alte Userdaten geschrieben und neue geladen werden?

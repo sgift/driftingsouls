@@ -74,7 +74,7 @@ public class AddShips implements AdminPlugin {
 			
 			Set<String> knownwpntypes = new HashSet<String>();
 			
-			final Iterator shipTypeIter = db.createQuery("from ShipType").iterate(); 
+			final Iterator<?> shipTypeIter = db.createQuery("from ShipType").iterate(); 
 			while( shipTypeIter.hasNext() ) {
 				ShipType st = (ShipType)shipTypeIter.next();
 				
@@ -157,7 +157,7 @@ public class AddShips implements AdminPlugin {
 				echo.append("<div style=\"margin:0px;border:0px;padding:0px;display:inline;position:absolute;top:0px;left:0px\" id=\"select_ammo_"+ammo+"\">\n");
 				echo.append("<select id=\"select_ammo_"+ammo+"_element\" name=\"ammo_"+ammo+"\" size=\"1\">\n");
 				echo.append("<option id=\"0\">[Nichts]</option>\n");
-				final Iterator ammoIter = db.createQuery("from Ammo where type= :ammo")
+				final Iterator<?> ammoIter = db.createQuery("from Ammo where type= :ammo")
 					.setString("ammo", ammo)
 					.iterate();
 				while( ammoIter.hasNext() ) {
@@ -175,8 +175,8 @@ public class AddShips implements AdminPlugin {
 			echo.append("<td class=\"noBorderX\">\n");
 			echo.append("<select name=\"offitype\" size=\"1\">\n");
 			echo.append("<option value=\"-1\" selected=\"selected\">keiner</option>\n");
-			List orderOffiList = db.createQuery("from OrderOffizier").list();
-			for( Iterator iter=orderOffiList.iterator(); iter.hasNext(); ) {
+			List<?> orderOffiList = db.createQuery("from OrderOffizier").list();
+			for( Iterator<?> iter=orderOffiList.iterator(); iter.hasNext(); ) {
 				OrderOffizier offi = (OrderOffizier)iter.next();
 				echo.append("<option value=\""+offi.getId()+"\">"+offi.getName()+"</option>\n");
 			}
@@ -189,7 +189,7 @@ public class AddShips implements AdminPlugin {
 			echo.append("<td class=\"noBorderX\">\n");
 			echo.append("<select name=\"jaeger\" size=\"1\" onchange=\"jaegerSelectChange(this.options[this.options.selectedIndex].value)\">\n");
 			echo.append("<option id=\"0\">[Nichts]</option>\n");
-			final Iterator jaegerIter = db.createQuery("from ShipType where locate(:jaeger, flags)!=0")
+			final Iterator<?> jaegerIter = db.createQuery("from ShipType where locate(:jaeger, flags)!=0")
 				.setString("jaeger", ShipTypes.SF_JAEGER)
 				.iterate();
 			while( jaegerIter.hasNext() ) {
@@ -207,7 +207,7 @@ public class AddShips implements AdminPlugin {
 				echo.append("<div style=\"margin:0px;border:0px;padding:0px;display:inline;position:absolute;top:0px;left:0px\" id=\"select_jaeger_ammo_"+ammo+"\">\n");
 				echo.append("<select name=\"jaeger_ammo_"+ammo+"\" size=\"1\">\n");
 				echo.append("<option id=\"0\">[Nichts]</option>\n");
-				final Iterator ammoIter = db.createQuery("from Ammo where type= :ammo")
+				final Iterator<?> ammoIter = db.createQuery("from Ammo where type= :ammo")
 					.setString("ammo", ammo)
 					.iterate();
 				while( ammoIter.hasNext() ) {

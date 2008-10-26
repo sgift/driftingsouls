@@ -39,6 +39,8 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Immutable;
 
 /**
@@ -50,6 +52,8 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.ForschungszentrumBuilding")
 public class ForschungszentrumBuilding extends DefaultBuilding {
+	private static final Log log = LogFactory.getLog(ForschungszentrumBuilding.class);
+	
 	/**
 	 * Erstellt eine neue Forschungszentrum-Instanz
 	 */
@@ -100,7 +104,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 			return true;
 		}
 		else if( fz == null ) {
-			LOG.warn("Forschungszentrum ohne fz-Eintrag auf Basis "+base.getId()+" gefunden");
+			log.warn("Forschungszentrum ohne fz-Eintrag auf Basis "+base.getId()+" gefunden");
 		}
 		return false;
 	}
@@ -152,11 +156,11 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		Cargo cargo = base.getCargo();
 	
 		List<Integer> researches = new ArrayList<Integer>();
-		List researchList = db.createQuery("from Forschungszentrum " +
+		List<?> researchList = db.createQuery("from Forschungszentrum " +
 				"where forschung is not null and base.owner=?")
 				.setEntity(0, user)
 				.list();
-		for( Iterator iter=researchList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=researchList.iterator(); iter.hasNext(); ) {
 			Forschungszentrum aFz = (Forschungszentrum)iter.next();
 			
 			if( aFz.getForschung() != null ) {
@@ -166,8 +170,10 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		
 		boolean first = true;
 	
-		List<Forschung> forschungen = context.query("from Forschung order by name", Forschung.class);
-		for( Forschung tech : forschungen ) {
+		List<?> forschungen = db.createQuery("from Forschung order by name").list();
+		for( Iterator<?> iter=forschungen.iterator(); iter.hasNext(); ) {
+			Forschung tech = (Forschung)iter.next();
+			
 			if( !Rassen.get().rasse(user.getRace()).isMemberIn(tech.getRace()) ) {
 				continue;	
 			}
@@ -241,7 +247,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		echo.append("<table class=\"noBorderX\">");
 		echo.append("<tr><td class=\"noBorderX\" align=\"left\">Bereits erforscht:</td></tr>\n");
 	
-		final Iterator forschungIter = db.createQuery("from Forschung order by id").iterate();
+		final Iterator<?> forschungIter = db.createQuery("from Forschung order by id").iterate();
 		while( forschungIter.hasNext() ) {
 			Forschung tech = (Forschung)forschungIter.next();
 			

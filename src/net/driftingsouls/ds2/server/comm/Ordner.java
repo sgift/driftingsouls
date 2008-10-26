@@ -165,12 +165,12 @@ public class Ordner {
 		if( (result = PM.deleteAllInOrdner( this, this.owner )) != 0 ){
 			return result;
 		}
-		List ordnerlist = db.createQuery("from Ordner where parent=? and owner=?")
+		List<?> ordnerlist = db.createQuery("from Ordner where parent=? and owner=?")
 			.setInteger(0, this.id)
 			.setEntity(1, this.owner)
 			.list();
 		
-		for( Iterator iter=ordnerlist.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=ordnerlist.iterator(); iter.hasNext(); ) {
 			Ordner subordner = (Ordner)iter.next();
 			
 			if( (result = subordner.deleteOrdner()) != 0 ){
@@ -226,11 +226,11 @@ public class Ordner {
 		
 		List<Ordner> children = new ArrayList<Ordner>();
 		
-		List ordnerlist = db.createQuery("from Ordner where parent=? and owner=?")
+		List<?> ordnerlist = db.createQuery("from Ordner where parent=? and owner=?")
 			.setInteger(0, this.id)
 			.setEntity(1, this.owner)
 			.list();
-		for( Iterator iter=ordnerlist.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=ordnerlist.iterator(); iter.hasNext(); ) {
 			children.add((Ordner)iter.next());
 		}
 
@@ -246,13 +246,13 @@ public class Ordner {
 		
 		List<PM> pms = new ArrayList<PM>();
 		
-		List pmList = db.createQuery("from PM where empfaenger=:user and gelesen < :gelesen and ordner= :ordner order by time desc")
+		List<?> pmList = db.createQuery("from PM where empfaenger=:user and gelesen < :gelesen and ordner= :ordner order by time desc")
 			.setEntity("user", this.owner)
 			.setInteger("ordner", this.id)
 			.setInteger("gelesen", this.hasFlag(FLAG_TRASH) ? 10 : 2)
 			.list();
 		
-		for( Iterator iter=pmList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=pmList.iterator(); iter.hasNext(); ) {
 			pms.add((PM)iter.next());
 		}
 		
@@ -309,14 +309,14 @@ public class Ordner {
 		// Map mit der Anzahl der PMs fuellen, die sich direkt im Ordner befinden
 		int trash = getTrash( this.owner ).getId();
 		
-		List pmcounts = db.createQuery("select ordner, count(*) from PM " +
+		List<?> pmcounts = db.createQuery("select ordner, count(*) from PM " +
 				"where empfaenger=? and ordner in ("+Common.implode(",",ordnerIDs)+") " +
 						"and gelesen < case when ordner=? then 10 else 2 end " +
 				"group by ordner")
 			.setEntity(0, this.owner)
 			.setInteger(1, trash)
 			.list();
-		for( Iterator iter=pmcounts.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=pmcounts.iterator(); iter.hasNext(); ) {
 			Object[] pmcount = (Object[])iter.next();
 			result.put(Ordner.getOrdnerByID(((Number)pmcount[0]).intValue()), ((Number)pmcount[1]).intValue());
 		}

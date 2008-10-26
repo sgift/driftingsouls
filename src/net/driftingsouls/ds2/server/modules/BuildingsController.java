@@ -93,7 +93,7 @@ public class BuildingsController extends TemplateGenerator {
 		t.setBlock("buildings.listitem", "building.produces.listitem", "building.produces.list");
 		t.setBlock("buildings.listitem", "building.consumes.listitem", "building.consumes.list");
 		
-		Iterator buildingIter = db.createQuery("from Building order by name").iterate();
+		Iterator<?> buildingIter = db.createQuery("from Building order by name").iterate();
 		for( ; buildingIter.hasNext(); ) {
 			Building building = (Building)buildingIter.next();
 			if( !user.hasResearched(building.getTechRequired()) ) {
@@ -165,7 +165,7 @@ public class BuildingsController extends TemplateGenerator {
 		t.setBlock("cores.listitem", "core.consumes.listitem", "core.consumes.list");
 		
 
-		Iterator coreIter = db.createQuery("from Core order by name,astiType").iterate();
+		Iterator<?> coreIter = db.createQuery("from Core order by name,astiType").iterate();
 		for( ; coreIter.hasNext(); ) {
 			Core core = (Core)coreIter.next();
 			if( !user.hasResearched(core.getTechRequired()) ) {

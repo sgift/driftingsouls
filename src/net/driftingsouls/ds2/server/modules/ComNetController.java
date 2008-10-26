@@ -282,12 +282,12 @@ public class ComNetController extends TemplateGenerator {
 
 		int i = 0;
 		
-		List postList = db.createQuery("from ComNetEntry where channel= :channel order by post desc")
+		List<?> postList = db.createQuery("from ComNetEntry where channel= :channel order by post desc")
 			.setEntity("channel", this.activeChannelObj)
 			.setFirstResult(back)
 			.setMaxResults(10)
 			.list();
-		for( Iterator iter=postList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=postList.iterator(); iter.hasNext(); ) {
 			ComNetEntry post = (ComNetEntry)iter.next();
 			
 			t.start_record();
@@ -449,10 +449,10 @@ public class ComNetController extends TemplateGenerator {
 		// Letzte "Besuche" auslesen
 		Map<ComNetChannel,ComNetVisit> visits = new HashMap<ComNetChannel,ComNetVisit>();
 
-		List visitList = db.createQuery("from ComNetVisit where user= :user")
+		List<?> visitList = db.createQuery("from ComNetVisit where user= :user")
 			.setEntity("user", user)
 			.list();
-		for( Iterator iter = visitList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter = visitList.iterator(); iter.hasNext(); ) {
 			ComNetVisit avisit = (ComNetVisit)iter.next();
 			visits.put(avisit.getChannel(), avisit);
 		}
@@ -461,7 +461,7 @@ public class ComNetController extends TemplateGenerator {
 
 		int lastowner = 0;
 		
-		Iterator chnlIter = db.createQuery( "from ComNetChannel order by allyOwner" ).iterate();
+		Iterator<?> chnlIter = db.createQuery( "from ComNetChannel order by allyOwner" ).iterate();
 		while( chnlIter.hasNext() ) {
 			ComNetChannel achannel = (ComNetChannel)chnlIter.next();
 			

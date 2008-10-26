@@ -85,10 +85,10 @@ public class QuestsQuick implements AdminPlugin {
 			
 			ScriptEngine scriptparser = context.get(ContextCommon.class).getScriptParser("DSQuestScript");
 			
-			List rquestList = db.createQuery("from RunningQuest where quest= :qid")
+			List<?> rquestList = db.createQuery("from RunningQuest where quest= :qid")
 				.setInteger("qid", qquest.getEnabled())
 				.list();
-			for( Iterator iter=rquestList.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=rquestList.iterator(); iter.hasNext(); ) {
 				RunningQuest rquest = (RunningQuest)iter.next();
 				
 				try {
@@ -127,10 +127,10 @@ public class QuestsQuick implements AdminPlugin {
 			echo.append(Common.tableBegin(550,"left"));
 			if( qquest.getEnabled() != 0 ) {
 				echo.append("Aktiv bei:<br /><ul>");
-				List rquestList = db.createQuery("from RunningQuest rq inner join fetch rq.user where rq.quest= :qid order by rq.user")
+				List<?> rquestList = db.createQuery("from RunningQuest rq inner join fetch rq.user where rq.quest= :qid order by rq.user")
 					.setInteger("qid", qquest.getEnabled())
 					.list();
-				for( Iterator iter=rquestList.iterator(); iter.hasNext(); ) {
+				for( Iterator<?> iter=rquestList.iterator(); iter.hasNext(); ) {
 					RunningQuest rquest = (RunningQuest)iter.next();
 					
 					echo.append("<li>"+Common._title(rquest.getUser().getName())+" ("+rquest.getUser().getId()+")</li>\n");
@@ -139,11 +139,11 @@ public class QuestsQuick implements AdminPlugin {
 			}
 			
 			echo.append("Abgeschlossen von:<br /><ul>");
-			List cquestList = db.createQuery("from CompletedQuest cq inner join fetch cq.quest q inner join fetch cq.user " +
+			List<?> cquestList = db.createQuery("from CompletedQuest cq inner join fetch cq.quest q inner join fetch cq.user " +
 					"where q.qid = :qid order by cq.user")
 				.setString("qid", qquest.getQid())
 				.list();
-			for( Iterator iter=cquestList.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=cquestList.iterator(); iter.hasNext(); ) {
 				CompletedQuest cq = (CompletedQuest)iter.next();
 
 				echo.append("<li>"+Common._title(cq.getUser().getName())+" ("+cq.getUser().getId()+")</li>\n");
@@ -157,8 +157,8 @@ public class QuestsQuick implements AdminPlugin {
 			echo.append(Common.tableBegin(550,"center"));
 			echo.append("<table class=\"noBorderX\">\n");
 			
-			List qquestList = db.createQuery("from QuickQuest order by qid").list();
-			for( Iterator iter=qquestList.iterator(); iter.hasNext(); ) {
+			List<?> qquestList = db.createQuery("from QuickQuest order by qid").list();
+			for( Iterator<?> iter=qquestList.iterator(); iter.hasNext(); ) {
 				QuickQuest qquest = (QuickQuest)iter.next();
 				
 				echo.append("<tr><td class=\"noBorderX\">"+qquest.getQid()+"</td>\n");

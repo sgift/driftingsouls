@@ -63,7 +63,8 @@ import org.hibernate.classic.Lifecycle;
  */
 @Entity
 @Table(name="bases")
-public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
+public class Base implements Cloneable, Lifecycle, Locatable, Transfering
+{
 	@Id @GeneratedValue
 	private int id;
 	private String name;
@@ -114,7 +115,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Konstruktor
 	 *
 	 */
-	public Base() {
+	public Base()
+	{
 		// EMPTY
 	}
 	
@@ -123,7 +125,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * @param loc Die Position
 	 * @param owner Der Besitzer
 	 */
-	public Base(Location loc, User owner) {
+	public Base(Location loc, User owner)
+	{
 		this.x = loc.getX();
 		this.y = loc.getY();
 		this.system = loc.getSystem();
@@ -140,7 +143,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Gibt die ID der Basis zurueck
 	 * @return die ID der Basis
 	 */
-	public int getId() {
+	public int getId()
+	{
 		return this.id;
 	}
 	
@@ -148,7 +152,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Gibt die Breite der Bauflaeche auf der Basis in Feldern zurueck
 	 * @return Die Breite
 	 */
-	public int getWidth() {
+	public int getWidth()
+	{
 		return this.width;
 	}
 	
@@ -156,7 +161,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Setzt die Breite der Bauflaeche auf der Basis
 	 * @param width Die Breite
 	 */
-	public void setWidth(int width) {
+	public void setWidth(int width)
+	{
 		this.width = width;
 	}
 	
@@ -164,7 +170,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Gibt die Hoehe der Bauflaeche auf der Basis in Feldern zurueck
 	 * @return Die Hoehe
 	 */
-	public int getHeight() {
+	public int getHeight()
+	{
 		return this.height;
 	}
 	
@@ -172,7 +179,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Setzt die Hoehe der Bauflaeche auf der Basis
 	 * @param height Die Hoehe
 	 */
-	public void setHeight(int height) {
+	public void setHeight(int height)
+	{
 		this.height = height;
 	}
 	
@@ -180,7 +188,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Gibt den Namen der Basis zurueck
 	 * @return Der Name
 	 */
-	public String getName() {
+	public String getName()
+	{
 		return this.name;
 	}
 	
@@ -188,7 +197,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Gibt der Basis einen neuen Namen
 	 * @param name Der neue Name
 	 */
-	public void setName(String name) {
+	public void setName(String name)
+	{
 		this.name = name;
 	}
 	
@@ -197,7 +207,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * 
 	 * @return Der Besitzer
 	 */
-	public User getOwner() {
+	public User getOwner()
+	{
 		return this.owner;
 	}
 	
@@ -205,7 +216,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Setzt den neuen Besitzer fuer die Basis
 	 * @param owner Der neue Besitzer
 	 */
-	public void setOwner(User owner) {
+	public void setOwner(User owner)
+	{
 		this.owner = owner;
 	}
 	
@@ -213,7 +225,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Gibt die Terrain-Typen der einzelnen Basisfelder zurueck.
 	 * @return Die Terraintypen der Felder
 	 */
-	public Integer[] getTerrain() {
+	public Integer[] getTerrain()
+	{
 		return this.terrainObj.clone();
 	}
 	
@@ -221,8 +234,9 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Setzt das neue Terrain der Basis
 	 * @param terrain Das neue Terrain
 	 */
-	public void setTerrain(final Integer[] terrain) {
-		this.terrainObj = terrain;
+	public void setTerrain(final Integer[] terrain)
+	{
+		this.terrainObj = terrain.clone();
 		this.terrain = Common.implode("|", terrain);
 	}
 	
@@ -232,7 +246,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * 
 	 * @return Die IDs der Gebaeude
 	 */
-	public Integer[] getBebauung() {
+	public Integer[] getBebauung()
+	{
 		return this.bebauungObj.clone();
 	}
 	
@@ -240,8 +255,9 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Setzt die neue Bebauung der Basis
 	 * @param bebauung Die neue Bebauung
 	 */
-	public void setBebauung(final Integer[] bebauung) {
-		this.bebauungObj = bebauung;
+	public void setBebauung(final Integer[] bebauung)
+	{
+		this.bebauungObj = bebauung.clone();
 		this.bebauung = Common.implode("|", bebauung);
 	}
 	
@@ -250,7 +266,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * nicht (0)
 	 * @return Aktivierungsgrad der Gebaeude auf den Feldern
 	 */
-	public Integer[] getActive() {
+	public Integer[] getActive()
+	{
 		return this.activeObj.clone();
 	}
 	
@@ -259,8 +276,9 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Gebaeude aktiv ist. <code>0</code>, dass das Gebaeude nicht aktiv ist.
 	 * @param active Der neue Aktivierungszustand aller Gebaeude
 	 */
-	public void setActive(final Integer[] active) {
-		this.activeObj = active;
+	public void setActive(final Integer[] active)
+	{
+		this.activeObj = active.clone();
 		this.active = Common.implode("|", active);
 	}
 	
@@ -269,13 +287,19 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * @return Der Cargo
 	 */
 	// TODO: UnmodifiableCargos zurueckgeben (zuerst alle Verwendungen checken und umbauen) 
-	public Cargo getCargo() {
+	public Cargo getCargo()
+	{
 		return cargo;
 	}
 	
 	@Override
 	public boolean equals(Object object)
 	{
+		if( object == null ) 
+		{
+			return false;
+		}
+		
 		if(object.getClass() != this.getClass())
 		{
 			return false;
@@ -301,7 +325,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Setzt den Cargo des Basisobjekts
 	 * @param cargo Der neue Cargo
 	 */
-	public void setCargo(Cargo cargo) {
+	public void setCargo(Cargo cargo) 
+	{
 		this.cargo = cargo;
 	}
 
@@ -311,7 +336,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * 
 	 * @return Die ID der Core oder 0
 	 */
-	public int getCore() {
+	public int getCore()
+	{
 		return this.core;
 	}
 	
@@ -321,7 +347,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * 
 	 * @param core der neue Kern oder <code>0</code>
 	 */
-	public void setCore(int core) {
+	public void setCore(int core)
+	{
 		this.core = core;
 	}
 
@@ -329,7 +356,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Gibt die X-Koordinate der Basis zurueck
 	 * @return Die X-Koordinate
 	 */
-	public int getX() {
+	public int getX()
+	{
 		return this.x;
 	}
 	
@@ -337,7 +365,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Setzt die X-Koordinate der Basis
 	 * @param x Die X-Koordinate
 	 */
-	public void setX(int x) {
+	public void setX(int x)
+	{
 		this.x = x;
 	}
 
@@ -345,7 +374,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Gibt die Y-Koordinate der Basis zurueck
 	 * @return Die Y-Koordinate
 	 */
-	public int getY() {
+	public int getY()
+	{
 		return this.y;
 	}
 	
@@ -353,7 +383,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Setzt die Y-Koordinate der Basis
 	 * @param y Die Y-Koordinate
 	 */
-	public void setY(int y) {
+	public void setY(int y)
+	{
 		this.y = y;
 	}
 
@@ -361,7 +392,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Gibt die ID des Systems zurueck, in dem sich die Basis befindet
 	 * @return Die ID des Systems
 	 */
-	public int getSystem() {
+	public int getSystem()
+	{
 		return this.system;
 	}
 	
@@ -369,7 +401,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Setzt das System in dem sich die Basis befindet
 	 * @param system Das System
 	 */
-	public void setSystem(int system){
+	public void setSystem(int system)
+	{
 		this.system = system;
 	}
 
@@ -377,7 +410,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Gibt zurueck, ob die Core aktiv ist.
 	 * @return <code>true</code>, falls die Core aktiv ist
 	 */
-	public boolean isCoreActive() {
+	public boolean isCoreActive()
+	{
 		return this.coreActive != 0;
 	}
 	
@@ -385,7 +419,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Setzt den Aktivierungszustand der Core
 	 * @param active <code>true</code>, wenn die Core aktiv ist
 	 */
-	public void setCoreActive(boolean active) {
+	public void setCoreActive(boolean active)
+	{
 		this.coreActive = active ? 1 : 0;
 	}
 
@@ -393,7 +428,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Gibt die maximale Masse an Cargo zurueck, die auf der Basis gelagert werden kann
 	 * @return Der Max-Cargo
 	 */
-	public long getMaxCargo() {
+	public long getMaxCargo()
+	{
 		return this.maxCargo;
 	}
 	
@@ -401,7 +437,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Setzt den neuen maximalen Cargo der Basis
 	 * @param cargo Der neue maximale Cargo
 	 */
-	public void setMaxCargo(long cargo) {
+	public void setMaxCargo(long cargo)
+	{
 		this.maxCargo = cargo;
 	}
 
@@ -409,7 +446,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Gibt die Anzahl der Bewohner auf der Basis zurueck
 	 * @return Die Bewohner
 	 */
-	public int getBewohner() {
+	public int getBewohner()
+	{
 		return this.bewohner;
 	}
 	
@@ -417,7 +455,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Setzt die Anzahl der Bewohner auf der Basis
 	 * @param bewohner Die neue Anzahl der Bewohner
 	 */
-	public void setBewohner(int bewohner) {
+	public void setBewohner(int bewohner)
+	{
 		this.bewohner = bewohner;
 	}
 	
@@ -425,7 +464,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Gibt die Anzahl der Marines auf der Basis zurueck
 	 * @return Die Anzahl der Marines
 	 */
-	public int getMarines() {
+	public int getMarines()
+	{
 		return this.marines;
 	}
 	
@@ -433,7 +473,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Setzt die Anzahl der Marines auf der basis
 	 * @param marines Die neue Anzahl der Marines
 	 */
-	public void setMarines(int marines) {
+	public void setMarines(int marines)
+	{
 		this.marines = marines;
 	}
 	
@@ -441,7 +482,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Gibt die Anzahl der Arbeiter auf der Basis zurueck
 	 * @return Die Arbeiter
 	 */
-	public int getArbeiter() {
+	public int getArbeiter()
+	{
 		return this.arbeiter;
 	}
 	
@@ -449,7 +491,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Setzt die neue Menge der Arbeiter auf der Basis. 
 	 * @param arbeiter Die Anzahl der Arbeiter
 	 */
-	public void setArbeiter(int arbeiter) {
+	public void setArbeiter(int arbeiter)
+	{
 		this.arbeiter = arbeiter;
 	}
 
@@ -457,7 +500,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Gibt die vorhandene Energiemenge auf der Basis zurueck
 	 * @return Die Energiemenge
 	 */
-	public int getEnergy() {
+	public int getEnergy()
+	{
 		return this.energy;
 	}
 	
@@ -465,7 +509,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Setzt die Menge der auf der Basis vorhandenen Energie
 	 * @param e Die auf der Basis vorhandene Energie
 	 */
-	public void setEnergy(int e) {
+	public void setEnergy(int e)
+	{
 		this.energy = e;
 	}
 	
@@ -473,7 +518,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Gibt die maximal auf der Basis speicherbare Energiemenge zurueck
 	 * @return die max. Energiemenge
 	 */
-	public int getMaxEnergy() {
+	public int getMaxEnergy()
+	{
 		return this.maxEnergy;
 	}
 	
@@ -481,7 +527,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Setzt die maximale Menge an Energie die auf der Basis gespeichert werden kann
 	 * @param maxe Die maximale Menge an Energie
 	 */
-	public void setMaxEnergy(int maxe) {
+	public void setMaxEnergy(int maxe)
+	{
 		this.maxEnergy = maxe;
 	}
 	
@@ -489,7 +536,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Gibt die Klassennummer der Basis zurueck (= Der Astityp)
 	 * @return Die Klassennummer
 	 */
-	public int getKlasse() {
+	public int getKlasse()
+	{
 		return this.klasse;
 	}
 	
@@ -497,7 +545,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Setzt die Klasse der Basis
 	 * @param klasse Die Klasse
 	 */
-	public void setKlasse(int klasse) {
+	public void setKlasse(int klasse)
+	{
 		this.klasse = klasse;
 	}
 	
@@ -506,7 +555,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * duerfen. Entspricht nicht immer der tatsaechlichen Anzahl an Feldern
 	 * @return Die verrechenbare Anzahl an Feldern
 	 */
-	public int getMaxTiles() {
+	public int getMaxTiles()
+	{
 		return this.maxTiles;
 	}
 	
@@ -514,7 +564,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Setzt die Anzahl an Feldern, die in die Gesamtflaechenanzahl eingerechnet werden sollen
 	 * @param tiles Die Felderanzahl
 	 */
-	public void setMaxTiles(int tiles) {
+	public void setMaxTiles(int tiles)
+	{
 		this.maxTiles = tiles;
 	}
 	
@@ -524,7 +575,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * in benachbarte Felder hat (Normalfall)
 	 * @return Der Radius
 	 */
-	public int getSize() {
+	public int getSize()
+	{
 		return this.size;
 	}
 	
@@ -532,7 +584,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Setzt den Radius der Basis
 	 * @param size Der Radius
 	 */
-	public void setSize(int size) {
+	public void setSize(int size)
+	{
 		this.size = size;
 	}
 	
@@ -540,7 +593,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Gibt eine Kopie der Liste der automatischen GTU-Verkaufsaktionen zurueck
 	 * @return Eine Kopie der Liste der GTU-Verkaufsaktionen beim Tick
 	 */
-	public List<AutoGTUAction> getAutoGTUActs() {
+	public List<AutoGTUAction> getAutoGTUActs()
+	{
 		List<AutoGTUAction> acts = new ArrayList<AutoGTUAction>();
 		acts.addAll(this.autoGtuActsObj);
 		
@@ -551,7 +605,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Setzt die Liste der automatischen GTU-Verkaufsaktionen
 	 * @param list Die neue Liste
 	 */
-	public void setAutoGTUActs(List<AutoGTUAction> list) {
+	public void setAutoGTUActs(List<AutoGTUAction> list)
+	{
 		this.autoGtuActsObj = list;
 		this.autoGtuActs = Common.implode(";", list);
 	}
@@ -562,7 +617,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * @param base die ID der Basis
 	 * @return der aktuelle Verbrauchs/Produktions-Status
 	 */
-	public static BaseStatus getStatus( Context context, int base ) {
+	public static BaseStatus getStatus( Context context, int base )
+	{
 		org.hibernate.Session db = context.getDB();
 		
 		return getStatus(context, (Base)db.get(Base.class, base));
@@ -574,7 +630,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * @param base die Basis
 	 * @return der aktuelle Verbrauchs/Produktions-Status
 	 */
-	public static BaseStatus getStatus( Context context, Base base ) {
+	public static BaseStatus getStatus( Context context, Base base )
+	{
 		Cargo stat = new Cargo();
 		int e = 0;
 		int arbeiter = 0;
@@ -595,8 +652,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 		Integer[] bebauung = base.getBebauung();
 		Integer[] bebon = base.getActive();
 			
-		for( int o=0; o < base.getWidth() * base.getHeight(); o++ ) {
-			if( bebauung[o] == 0 ) {
+		for( int o=0; o < base.getWidth() * base.getHeight(); o++ )
+		{
+			if( bebauung[o] == 0 )
+			{
 				continue;
 			} 
 			
@@ -608,7 +667,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 				
 			bebon[o] = building.isActive( base, bebon[o], o ) ? 1 : 0;
 		
-			if( bebon[o] == 0 ) {
+			if( bebon[o] == 0 )
+			{
 				continue;
 			}
 			
@@ -628,7 +688,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	}
 
 	@Override
-	public Object clone() {
+	public Object clone()
+	{
 		Base base;
 		try {
 			base = (Base)super.clone();
@@ -660,12 +721,14 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 			base.cargo = (Cargo)this.getCargo().clone();
 			
 			base.autoGtuActsObj = new ArrayList<AutoGTUAction>();
-			for( int i=0; i < this.autoGtuActsObj.size(); i++ ) {
+			for( int i=0; i < this.autoGtuActsObj.size(); i++ )
+			{
 				base.autoGtuActsObj.add((AutoGTUAction)this.autoGtuActsObj.get(i).clone());
 			}
 		
 			return base;
-		} catch (CloneNotSupportedException e) {
+		}
+		catch (CloneNotSupportedException e) {
 			// EMPTY
 		}
 		return null;
@@ -678,7 +741,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 		
 		String[] autogtuacts = StringUtils.split(this.autoGtuActs,";");
 		List<AutoGTUAction> acts = new ArrayList<AutoGTUAction>();
-		for( int i=0; i < autogtuacts.length; i++ ) {
+		for( int i=0; i < autogtuacts.length; i++ )
+		{
 			String[] split = StringUtils.split(autogtuacts[i],":");
 			
 			acts.add(new AutoGTUAction(Resources.fromString(split[0]), Integer.parseInt(split[1]), Long.parseLong(split[2])) );
@@ -688,15 +752,19 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 		boolean update = false;
 		
 		// Ggf die Feldergroessen fixen
-		if( getTerrain().length < getWidth()*getHeight() ) {
+		if( getTerrain().length < getWidth()*getHeight() )
+		{
 			Integer[] terrain = new Integer[getWidth()*getHeight()];
 			System.arraycopy(getTerrain(), 0, terrain, 0, getTerrain().length );
-			for( int i=Math.max(getTerrain().length-1,0); i < getWidth()*getHeight(); i++ ) {
+			for( int i=Math.max(getTerrain().length-1,0); i < getWidth()*getHeight(); i++ )
+			{
 				int rnd = RandomUtils.nextInt(7);
-				if( rnd > 4 ) {
+				if( rnd > 4 )
+				{
 					terrain[i] = rnd - 4;	
 				}
-				else {
+				else
+				{
 					terrain[i] = 0;	
 				}
 			}
@@ -705,10 +773,12 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 			update = true;
 		}
 			
-		if( getBebauung().length < getWidth()*getHeight() ) {
+		if( getBebauung().length < getWidth()*getHeight() )
+		{
 			Integer[] bebauung = new Integer[getWidth()*getHeight()];
 			System.arraycopy(getBebauung(), 0, bebauung, 0, getBebauung().length );
-			for( int i=Math.max(getBebauung().length-1,0); i < getWidth()*getHeight(); i++ ) {
+			for( int i=Math.max(getBebauung().length-1,0); i < getWidth()*getHeight(); i++ )
+			{
 				bebauung[i] = 0;	
 			}
 			
@@ -716,10 +786,12 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 			update = true;
 		}
 		
-		if( getActive().length < getWidth()*getHeight() ) {
+		if( getActive().length < getWidth()*getHeight() )
+		{
 			Integer[] active = new Integer[getWidth()*getHeight()];
 			System.arraycopy(getActive(), 0, active, 0, getActive().length );
-			for( int i=Math.max(getActive().length-1,0); i < getWidth()*getHeight(); i++ ) {
+			for( int i=Math.max(getActive().length-1,0); i < getWidth()*getHeight(); i++ )
+			{
 				active[i] = 0;	
 			}
 			
@@ -730,21 +802,25 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 		return update;
 	}
 	
-	public boolean onDelete(Session s) throws CallbackException {
+	public boolean onDelete(Session s) throws CallbackException
+	{
 		// EMPTY
 		return false;
 	}
 
-	public void onLoad(Session s, Serializable id) {
+	public void onLoad(Session s, Serializable id)
+	{
 		update();
 	}
 
-	public boolean onSave(Session s) throws CallbackException {
+	public boolean onSave(Session s) throws CallbackException
+	{
 		// EMPTY
 		return false;
 	}
 
-	public boolean onUpdate(Session s) throws CallbackException {
+	public boolean onUpdate(Session s) throws CallbackException
+	{
 		// EMPTY
 		return false;
 	}
@@ -753,15 +829,18 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * Gibt die Versionsnummer des Eintrags zurueck
 	 * @return Die Versionsnummer
 	 */
-	public int getVersion() {
+	public int getVersion()
+	{
 		return version;
 	}
 
-	public Location getLocation() {
+	public Location getLocation()
+	{
 		return new Location(this.getSystem(), this.getX(), this.getY());
 	}
 	
-	public String transfer(Transfering to, ResourceID resource, long count) {
+	public String transfer(Transfering to, ResourceID resource, long count)
+	{
 		return new Transfer().transfer(this, to, resource, count);
 	}
 	
@@ -772,9 +851,11 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering {
 	 * @param amount People that should be transfered.
 	 * @return People that where transfered.
 	 */
-	public int transferCrew(Ship ship, int amount) {
+	public int transferCrew(Ship ship, int amount)
+	{
 		//Check ship position
-		if(ship.getSystem() != getSystem() || ship.getX() != getX() || ship.getY() != getY()) {
+		if(ship.getSystem() != getSystem() || ship.getX() != getX() || ship.getY() != getY())
+		{
 			return 0;
 		}
 		

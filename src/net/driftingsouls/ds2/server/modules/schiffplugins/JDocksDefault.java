@@ -54,10 +54,10 @@ public class JDocksDefault implements SchiffPlugin {
 
 			long cargocount = cargo.getMass();
 
-			List lships = db.createQuery("from Ship where id>0 and docked=?")
+			List<?> lships = db.createQuery("from Ship where id>0 and docked=?")
 				.setString(0, "l "+ship.getId())
 				.list();
-			for( Iterator iter=lships.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=lships.iterator(); iter.hasNext(); ) {
 				Ship lship = (Ship)iter.next();
 				
 				Cargo dcargo = lship.getCargo();
@@ -96,11 +96,11 @@ public class JDocksDefault implements SchiffPlugin {
 		List<Integer> jdockedid = new ArrayList<Integer>();
 		List<Ship> jdockedShip = new ArrayList<Ship>();
 
-		List lships = db.createQuery("from Ship where id>0 and docked=? order by id")
+		List<?> lships = db.createQuery("from Ship where id>0 and docked=? order by id")
 			.setString(0, "l "+data.getId())
 			.list();
 		
-		for( Iterator iter=lships.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=lships.iterator(); iter.hasNext(); ) {
 			Ship aship = (Ship)iter.next();
 			
 			jdockedid.add(aship.getId());

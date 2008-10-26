@@ -34,6 +34,7 @@ import org.hibernate.usertype.UserType;
  *
  */
 public class HibernateCargoType implements UserType {
+	@Override
 	public Object assemble(Serializable cached, Object owner) throws HibernateException {
 		if( cached == null ) {
 			return null;
@@ -41,6 +42,7 @@ public class HibernateCargoType implements UserType {
 		return new Cargo(Cargo.Type.STRING, (String)cached);
 	}
 
+	@Override
 	public Object deepCopy(Object value) throws HibernateException {
 		if( value == null ) {
 			return null;
@@ -49,6 +51,7 @@ public class HibernateCargoType implements UserType {
 		return ((Cargo)value).clone();
 	}
 
+	@Override
 	public Serializable disassemble(Object value) throws HibernateException {
 		if( value == null ) {
 			return null;
@@ -57,18 +60,22 @@ public class HibernateCargoType implements UserType {
 		return cargo.save();
 	}
 
+	@Override
 	public boolean equals(Object x, Object y) throws HibernateException {
 		return x.equals(y);
 	}
 
+	@Override
 	public int hashCode(Object x) throws HibernateException {
 		return x.hashCode();
 	}
 
+	@Override
 	public boolean isMutable() {
 		return true;
 	}
 
+	@Override
 	public Object nullSafeGet(ResultSet rs, String[] names, Object owner) throws HibernateException, SQLException {
 		String value = (String)Hibernate.STRING.nullSafeGet(rs, names[0]);
 		
@@ -78,6 +85,7 @@ public class HibernateCargoType implements UserType {
 		return new Cargo(Cargo.Type.STRING, value);
 	}
 
+	@Override
 	public void nullSafeSet(PreparedStatement st, Object value, int index) throws HibernateException, SQLException {
 		if( value == null ) {
 			value = new Cargo();
@@ -85,14 +93,17 @@ public class HibernateCargoType implements UserType {
 		Hibernate.STRING.nullSafeSet(st, ((Cargo)value).save(), index);
 	}
 
+	@Override
 	public Object replace(Object original, Object target, Object owner) throws HibernateException {
 		return ((Cargo)original).clone();
 	}
-
-	public Class returnedClass() {
+	
+	@Override
+	public Class<?> returnedClass() {
 		return Cargo.class;
 	}
 
+	@Override
 	public int[] sqlTypes() {
 		return new int[] {java.sql.Types.VARCHAR};
 	}

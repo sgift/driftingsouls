@@ -76,13 +76,13 @@ public class DeutAllController extends TemplateGenerator {
 		
 		t.setBlock("_DEUTALL", "ships.listitem", "ships.list");
 
-		List ships = db.createQuery("from Ship as s left join fetch s.modules " +
+		List<?> ships = db.createQuery("from Ship as s left join fetch s.modules " +
 				"where s.id>0 and s.owner=? and (s.shiptype.deutFactor>0 or s.modules.deutFactor>0) " +
 				"order by s.system,s.x,s.y")
 				.setEntity(0, user)
 				.list();
 		
-		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			t.start_record();
 			Ship ship = (Ship)iter.next();
 			

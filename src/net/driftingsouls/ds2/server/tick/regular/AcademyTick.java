@@ -18,9 +18,6 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -90,9 +87,9 @@ public class AcademyTick extends TickController {
 		
 		final User sourceUser = (User)db.get(User.class, -1);
 		
-		List accList = db.createQuery("from Academy " +
+		List<?> accList = db.createQuery("from Academy " +
 				"where remain=1 and (base.owner.vaccount=0 or base.owner.wait4vac!=0)").list();
-		for( Iterator iter=accList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=accList.iterator(); iter.hasNext(); ) {
 			Academy acc = (Academy)iter.next();
 			
 			try {

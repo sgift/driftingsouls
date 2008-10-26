@@ -385,7 +385,7 @@ public class Kommandozentrale extends DefaultBuilding {
 				Waren zu Schiffen/Basen im Orbit transferieren
 			*/
 			
-			List ships = db.createQuery("from Ship " +
+			List<?> ships = db.createQuery("from Ship " +
 					"where id>:minid and (x between :minx and :maxx) and " +
 							"(y between :miny and :maxy) and " +
 							"system= :sys and locate('l ',docked)=0 and battle is null " +
@@ -400,7 +400,7 @@ public class Kommandozentrale extends DefaultBuilding {
 			if( !ships.isEmpty() ) {
 				Location oldLoc = null;
 
-				for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+				for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 					Ship ship = (Ship)iter.next();
 					
 					if( oldLoc == null ) {
@@ -439,14 +439,14 @@ public class Kommandozentrale extends DefaultBuilding {
 				}
 			}
 
-			List targetbases = db.createQuery("from Base where x= :x and y= :y and system= :sys and id!= :id and owner= :owner")
+			List<?> targetbases = db.createQuery("from Base where x= :x and y= :y and system= :sys and id!= :id and owner= :owner")
 				.setInteger("x", base.getX())
 				.setInteger("y", base.getY())
 				.setInteger("sys", base.getSystem())
 				.setInteger("id", base.getId())
 				.setEntity("owner", base.getOwner())
 				.list();
-			for( Iterator iter=targetbases.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=targetbases.iterator(); iter.hasNext(); ) {
 				Base targetbase = (Base)iter.next();
 				
 				t.setVar(	"targetbase.id", 	targetbase.getId(),

@@ -28,7 +28,6 @@ import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -39,13 +38,17 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Aendern der Einstellungen eines Benutzers durch den Benutzer selbst
  * @author Christopher Jung
  *
  */
-public class OptionsController extends TemplateGenerator implements Loggable {
+public class OptionsController extends TemplateGenerator {
+	private static final Log log = LogFactory.getLog(OptionsController.class);
+	
 	/**
 	 * Konstruktor
 	 * @param context Der zu verwendende Kontext
@@ -332,7 +335,7 @@ public class OptionsController extends TemplateGenerator implements Loggable {
 		}
 		catch( Exception e ) {
 			t.setVar("options.message","Offenbar ging beim Upload etwas schief (Ist die Datei evt. zu gro&szlig;?)<br />");
-			LOG.warn(e);
+			log.warn(e);
 		}
 		redirect();
 	}

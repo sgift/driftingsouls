@@ -27,17 +27,20 @@ import java.math.BigInteger;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.StatsController;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Zeigt allgemeine Daten zu DS und zum Server an
  * @author Christopher Jung
  *
  */
-public class StatData implements Statistic, Loggable {
+public class StatData implements Statistic {
+	private static final Log log = LogFactory.getLog(StatData.class);
 
 	public void show(StatsController contr, int size) {
 		Context context = ContextMap.getContext();
@@ -106,7 +109,7 @@ public class StatData implements Statistic, Loggable {
 				}
 			}
 			catch( IOException e ) {
-				LOG.warn(e,e);
+				log.warn(e,e);
 			}
 		}
 		
@@ -124,7 +127,7 @@ public class StatData implements Statistic, Loggable {
 				}
 			}
 			catch( IOException e ) {
-				LOG.warn(e,e);
+				log.warn(e,e);
 			}
 		}
 		

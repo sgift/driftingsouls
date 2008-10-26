@@ -61,14 +61,14 @@ public class WarenID implements ResourceID {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if( !(obj instanceof ResourceID) ) {
+		if( obj == null ) {
 			return false;
 		}
-		ResourceID id = (ResourceID)obj;
+		if( this.getClass() != obj.getClass() ) {
+			return false;
+		}
+		WarenID id = (WarenID)obj;
 		
-		if( id.isItem() ) {
-			return false;
-		}
 		return id.getID() == getID();
 	}
 	

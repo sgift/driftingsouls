@@ -54,6 +54,8 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Immutable;
 
 /**
@@ -65,6 +67,8 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.Waffenfabrik")
 public class Waffenfabrik extends DefaultBuilding {
+	private static final Log log = LogFactory.getLog(Waffenfabrik.class);
+	
 	/**
 	 * Daten von einer oder mehreren Waffenfabriken
 	 */
@@ -141,7 +145,7 @@ public class Waffenfabrik extends DefaultBuilding {
 		if( wf == null ) {
 			vars.usedcapacity.put(base.getId(), BigDecimal.valueOf(-1));
 			
-			LOG.warn("Basis "+base.getId()+" verfuegt ueber keinen Waffenfabrik-Eintrag, obwohl es eine Waffenfabrik hat");
+			log.warn("Basis "+base.getId()+" verfuegt ueber keinen Waffenfabrik-Eintrag, obwohl es eine Waffenfabrik hat");
 			return "Basis "+base.getId()+" verfuegt ueber keinen Waffenfabrik-Eintrag, obwohl es eine Waffenfabrik hat";
 		}
 		WeaponFactory.Task[] plist = wf.getProduces();
@@ -206,7 +210,7 @@ public class Waffenfabrik extends DefaultBuilding {
 		
 		// Iterator, da sich die Ammo-Objekte sich mit hoher Wahrscheinlichkeit
 		// bereits im Cache befinden
-		Iterator ammoIter = db.createQuery("from Ammo").list().iterator();
+		Iterator<?> ammoIter = db.createQuery("from Ammo").list().iterator();
 		for( ; ammoIter.hasNext(); ) {
 			Ammo ammo = (Ammo)ammoIter.next();
 			if( !user.hasResearched(ammo.getRes1()) || !user.hasResearched(ammo.getRes2()) || !user.hasResearched(ammo.getRes3()) ) {
@@ -416,7 +420,7 @@ public class Waffenfabrik extends DefaultBuilding {
 		Map<Ammo, String> bPlanMap = new HashMap<Ammo, String>();
 		List<Ammo> removelist = new ArrayList<Ammo>();
 		
-		Iterator ammoIter = db.createQuery("from Ammo").list().iterator();
+		Iterator<?> ammoIter = db.createQuery("from Ammo").list().iterator();
 		for( ; ammoIter.hasNext(); ) {
 			Ammo ammo = (Ammo)ammoIter.next();
 

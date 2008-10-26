@@ -27,18 +27,21 @@ import net.driftingsouls.ds2.server.config.items.Items;
 import net.driftingsouls.ds2.server.config.items.effects.IEModule;
 import net.driftingsouls.ds2.server.config.items.effects.IEModuleSetMeta;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.ships.ShipTypeChangeset;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Repraesentiert ein Modul auf Item-Basis
  * @author Christopher Jung
  *
  */
-public class ModuleItemModule extends Module implements Loggable {
+public class ModuleItemModule extends Module {
+	private static final Log log = LogFactory.getLog(ModuleItemModule.class);
+	
 	private int slot;
 	private int itemid;
 	private String[] weaponrepl;
@@ -56,7 +59,7 @@ public class ModuleItemModule extends Module implements Loggable {
 	public ShipTypeData modifyStats(ShipTypeData stats, List<Module> moduleobjlist) {
 		ItemEffect itemEffect = Items.get().item(this.itemid).getEffect();
 		if( itemEffect.getType() != ItemEffect.Type.MODULE ) {
-			LOG.warn("WARNUNG: Ungueltiger Itemeffect in CModuleItemModule ("+this.itemid+")<br />\n");
+			log.warn("WARNUNG: Ungueltiger Itemeffect in CModuleItemModule ("+this.itemid+")<br />\n");
 			return stats;
 		}
 		IEModule effect = (IEModule)itemEffect;

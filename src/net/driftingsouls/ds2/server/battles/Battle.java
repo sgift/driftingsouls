@@ -55,7 +55,6 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -69,6 +68,8 @@ import net.driftingsouls.ds2.server.tick.regular.SchiffsTick;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Repraesentiert eine Schlacht in DS
@@ -77,7 +78,9 @@ import org.apache.commons.lang.math.RandomUtils;
  */
 @Entity
 @Table(name="battles")
-public class Battle implements Loggable, Locatable {
+public class Battle implements Locatable {
+	private static final Log log = LogFactory.getLog(Battle.class);
+	
 	private static final int LOGFORMAT = 2;
 	
 	//
@@ -748,7 +751,7 @@ public class Battle implements Loggable, Locatable {
 		
 		Set<User> ownUsers = new HashSet<User>();
 		Set<User> enemyUsers = new HashSet<User>();
-		List shiplist = db.createQuery("from Ship as s inner join fetch s.owner as u "+
+		List<?> shiplist = db.createQuery("from Ship as s inner join fetch s.owner as u "+
 				"where s.id>:minid and s.x=? and s.y=? and " +
 				"s.system=? and s.battle is null and " +
 				"(ncp(u.ally,:ally1)=1 or " + 
@@ -762,7 +765,7 @@ public class Battle implements Loggable, Locatable {
 			.setParameter("ally2", tmpEnemyShip.getOwner().getAlly())
 			.list();
 							   		
-		for( Iterator iter=shiplist.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=shiplist.iterator(); iter.hasNext(); ) {
 			Ship aShip = (Ship)iter.next();
 			System.err.println(aShip.getId());
 			// Loot-Truemmer sollten in keine Schlacht wandern... (nicht schoen, gar nicht schoen geloest)
@@ -964,7 +967,7 @@ public class Battle implements Loggable, Locatable {
 			}
 		}
 		catch( IOException e ) {
-			LOG.error("Konnte KS-Log fuer Schlacht "+battle.id+" nicht erstellen", e);
+			log.error("Konnte KS-Log fuer Schlacht "+battle.id+" nicht erstellen", e);
 		}
 		
 		
@@ -982,10 +985,10 @@ public class Battle implements Loggable, Locatable {
 				for( User oUser : ownUsers ) {
 					userIdList.add(oUser.getId());
 				}
-				List allyusers = db.createQuery("from User where ally=? and (id not in ("+Common.implode(",",userIdList)+"))")
+				List<?> allyusers = db.createQuery("from User where ally=? and (id not in ("+Common.implode(",",userIdList)+"))")
 					.setEntity(0, auser.getAlly())
 					.list();
-				for( Iterator iter=allyusers.iterator(); iter.hasNext(); ) {
+				for( Iterator<?> iter=allyusers.iterator(); iter.hasNext(); ) {
 					User allyuser = (User)iter.next();
 					
 					ownUsers.add(allyuser);	
@@ -1000,10 +1003,10 @@ public class Battle implements Loggable, Locatable {
 				for( User oUser : enemyUsers ) {
 					userIdList.add(oUser.getId());
 				}
-				List allyusers = db.createQuery("from User where ally=? and (id not in ("+Common.implode(",",userIdList)+"))")
+				List<?> allyusers = db.createQuery("from User where ally=? and (id not in ("+Common.implode(",",userIdList)+"))")
 					.setEntity(0, auser.getAlly())
 					.list();
-				for( Iterator iter=allyusers.iterator(); iter.hasNext(); ) {
+				for( Iterator<?> iter=allyusers.iterator(); iter.hasNext(); ) {
 					User allyuser = (User)iter.next();
 					
 					enemyUsers.add(allyuser);	
@@ -1101,23 +1104,33 @@ public class Battle implements Loggable, Locatable {
 		
 		User curuser = userobj;
 		if( curuser.getAlly() != null ) {
-			List<User> users = context.query("from User where ally="+curuser.getAlly().getId()+" and id!="+curuser.getId(), User.class);
+			List<User> users = curuser.getAlly().getMembers();
 			for( User auser : users ) {
+				if( auser.getId() == curuser.getId() ) {
+					continue;
+				}
 				ownUsers.add(auser);	
 			}
 		}
 		
-		List<User> users = context.query("select distinct bs.ship.owner " +
-					"from BattleShip bs " +
-					"where bs.battle="+this.id+" and bs.side="+this.enemySide, User.class);
+		List<?> users = db.createQuery("select distinct bs.ship.owner " +
+				"from BattleShip bs " +
+				"where bs.battle= :battleId "+this.id+" and bs.side= :sideId"+this.enemySide)
+			.setInteger("battleId", this.id)
+			.setInteger("sideId", this.enemySide)
+			.list();
 
-		for( User euser : users ) {
+		for( Iterator<?> iter=users.iterator(); iter.hasNext(); ) {
+			User euser = (User)iter.next();
+			
 			enemyUsers.add(euser);
 
 			if( (euser.getAlly() != null) && !calcedallys.contains(euser.getAlly()) ) {
-				List<User> allyusers = context.query(
-						"from User where ally="+euser.getAlly().getId()+" and id!="+euser.getId(), User.class);
+				List<User> allyusers = euser.getAlly().getMembers();
 				for( User auser : allyusers ) {
+					if( auser.getId() == euser.getId() ) {
+						continue;
+					}
 					enemyUsers.add(auser);	
 				}
 				
@@ -1138,7 +1151,7 @@ public class Battle implements Loggable, Locatable {
 
 		List<Integer> shiplist = new ArrayList<Integer>();
 		
-		List sid = null;
+		List<?> sid = null;
 		
 		// Handelt es sich um eine Flotte?
 		if( shipd.getFleet() != null ) {
@@ -1158,7 +1171,7 @@ public class Battle implements Loggable, Locatable {
 					.list();;
 		}
 		
-		for( Iterator iter=sid.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=sid.iterator(); iter.hasNext(); ) {
 			Ship aship = (Ship)iter.next();
 			
 			shiptype = aship.getTypeData();
@@ -1169,12 +1182,12 @@ public class Battle implements Loggable, Locatable {
 			shiplist.add(aship.getId());
 				
 			// ggf. gedockte Schiffe auch beruecksichtigen
-			List docked = db.createQuery("from Ship where id>0 and battle is null and docked in (?,?)")
+			List<?> docked = db.createQuery("from Ship where id>0 and battle is null and docked in (?,?)")
 				.setString(0, Integer.toString(aship.getId()))
 				.setString(1, "l "+aship.getId())
 				.list();
 			
-			for( Iterator iter2=docked.iterator(); iter2.hasNext(); ) {
+			for( Iterator<?> iter2=docked.iterator(); iter2.hasNext(); ) {
 				Ship sid2 = (Ship)iter2.next();
 				
 				ShipTypeData stype = sid2.getTypeData();
@@ -1381,13 +1394,13 @@ public class Battle implements Loggable, Locatable {
 		this.ownShipTypeCount.clear();
 		this.enemyShipTypeCount.clear();
 
-		List ships = db.createQuery("from BattleShip bs inner join fetch bs.ship as s " +
+		List<?> ships = db.createQuery("from BattleShip bs inner join fetch bs.ship as s " +
 				    			"where s.id>0 and bs.battle=? " +
 								"order by s.shiptype,s.id")
 						.setEntity(0, this)
 						.list();
 	
-		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			BattleShip aship = (BattleShip)iter.next();
 			
 			if( aship.getSide() == this.ownSide ) {
@@ -1802,7 +1815,7 @@ public class Battle implements Loggable, Locatable {
 		org.hibernate.Session db = context.getDB();
 
 		if( deleted ) {
-			LOG.warn("Mehrfacher Aufruf von Battle.endBattle festgestellt", new Throwable());
+			log.warn("Mehrfacher Aufruf von Battle.endBattle festgestellt", new Throwable());
 			return;
 		}
 		
@@ -1840,7 +1853,8 @@ public class Battle implements Loggable, Locatable {
 		Common.writeLog("battles/battle_id"+this.id+".log", "</battle>");
 
 		final String newlog = Configuration.getSetting("LOXPATH")+"battles/ended/"+Common.time()+"_id"+this.id+".log";
-		new File(Configuration.getSetting("LOXPATH")+"battles/battle_id"+this.id+".log").renameTo(new File(newlog));
+		new File(Configuration.getSetting("LOXPATH")+"battles/battle_id"+this.id+".log")
+			.renameTo(new File(newlog));
 		
 		db.createQuery("update ShipLost set battle=0,battleLog=? where battle=?")
 			.setString(0, newlog)

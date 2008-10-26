@@ -74,7 +74,7 @@ public class StatOwnKampf implements Statistic {
 				echo.append("<td class=\"noBorderX\" style=\"width:100px; vertical-align:top; text-align:center\">");
 				echo.append(Common._plaintitle(s.getString("name"))+"<br />");
 				
-				if( shiptype == null ) {
+				if( shiptype != null ) {
 					echo.append("<a onmouseover=\"return overlib('"+Common._plaintitle(shiptype.getNickname())+"',TIMEOUT,0,DELAY,400,WIDTH,100);\" " +
 							"onmouseout=\"return nd();\" target=\"_blank\" " +
 							"href=\"./ds?module=schiffinfo&sess="+context.getSession()+"&ship="+s.getInt("type")+"\">" +
@@ -154,7 +154,7 @@ public class StatOwnKampf implements Statistic {
 				counter++;
 				
 				ShipTypeData shiptype = Ship.getShipType( s.getInt("type") );
-				if( shiptype == null ) {
+				if( shiptype != null ) {
 					echo.append("<td class=\"noBorderX\" style=\"width:100px; text-align:center; vertical-align:top\">");
 					echo.append(Common._plaintitle(s.getString("name"))+"<br />");
 					echo.append("<a onmouseover=\"return overlib('"+Common._plaintitle(shiptype.getNickname())+"',TIMEOUT,0,DELAY,400,WIDTH,100);\" " +

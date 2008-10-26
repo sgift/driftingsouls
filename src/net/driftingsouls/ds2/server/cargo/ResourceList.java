@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.cargo;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -53,7 +54,9 @@ public class ResourceList implements Iterable<ResourceEntry> {
 	 * @author Christopher Jung
 	 *
 	 */
-	private static class CargoComparator implements Comparator<ResourceEntry> {
+	private static class CargoComparator implements Comparator<ResourceEntry>, Serializable {
+		private static final long serialVersionUID = -2109193189213155880L;
+		
 		private boolean descending;
 		
 		CargoComparator(boolean descending) {

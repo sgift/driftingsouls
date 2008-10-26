@@ -228,10 +228,10 @@ public class HandelController extends TemplateGenerator {
 		t.setBlock("angebote.listitem", "angebot.want.listitem", "angebot.want.list");
 		t.setBlock("angebote.listitem", "angebot.need.listitem", "angebot.need.list");
 		
-		List entryList = db.createQuery("from Handel " +
+		List<?> entryList = db.createQuery("from Handel " +
 				"where who.vaccount=0 or who.wait4vac!=0 order by time desc")
 			.list();
-		for( Iterator iter=entryList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=entryList.iterator(); iter.hasNext(); ) {
 			Handel entry = (Handel)iter.next();
 
 			t.setVar(	"angebot.want.list",	"",

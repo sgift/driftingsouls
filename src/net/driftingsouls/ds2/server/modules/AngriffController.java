@@ -34,7 +34,6 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -80,6 +79,8 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Das UI fuer Schlachten
@@ -94,7 +95,9 @@ import org.apache.commons.lang.StringUtils;
  * @urlparam String scan Die im Scan anzuzeigende Seite (<code>own</code> oder <code>enemy</code>)
  *
  */
-public class AngriffController extends TemplateGenerator implements Loggable {
+public class AngriffController extends TemplateGenerator {
+	private static final Log log = LogFactory.getLog(AngriffController.class);
+	
 	private static final int SHIPGROUPSIZE = 50;
 	
 	private static final Map<String,Class<? extends BasicKSAction>> ACTIONS = new HashMap<String,Class<? extends BasicKSAction>>();
@@ -400,7 +403,7 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 				bbcodeparser.registerHandler( "tooltip", 2, "<a onmouseover=\"return overlib('$2',TIMEOUT,0,DELAY,400,WIDTH,100,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\"aloglink\" href=\"#\">$1</a>" );
 			}
 			catch( Exception e ) {
-				LOG.warn("Registrierung des BBCode-Handlers tooltip gescheitert", e);
+				log.warn("Registrierung des BBCode-Handlers tooltip gescheitert", e);
 			}
 		
 			String msgbuffer = battle.getComMessageBuffer(battle.getOwnSide());
@@ -467,7 +470,7 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 						}
 						catch( Exception e ) {
 							addError("Kann Menue nicht aufrufen: "+e);
-							LOG.error("Darstellung des KS-Menues "+action+" fehlgeschlagen", e);
+							log.error("Darstellung des KS-Menues "+action+" fehlgeschlagen", e);
 							
 							Common.mailThrowable(e, "KS-Menu-Error Schlacht "+battle.getId(), "Action: "+action+"\nownShip: "+ownShip.getId()+"\nenemyShip: "+enemyShip.getId());
 						}
@@ -502,7 +505,7 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 				bbcodeparser.registerHandler( "tooltip", 2, "<a onmouseover=\"return overlib('$2',TIMEOUT,0,DELAY,400,WIDTH,100,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\"aloglink\" href=\"#\">$1</a>" );
 			}
 			catch( Exception e ) {
-				LOG.warn("Registrierung des BBCode-Handlers tooltip gescheitert", e);
+				log.warn("Registrierung des BBCode-Handlers tooltip gescheitert", e);
 			}
 			
 			t.setVar("battle.logoutput", bbcodeparser.parse(battle.getOwnLog(false)));
@@ -650,7 +653,7 @@ public class AngriffController extends TemplateGenerator implements Loggable {
 			}
 			catch( Exception e ) {
 				addError("Kann Aktion nicht ausfuehren: "+e);
-				LOG.error("Ausfuehrung der KS-Aktion "+action+" fehlgeschlagen", e);
+				log.error("Ausfuehrung der KS-Aktion "+action+" fehlgeschlagen", e);
 				int curOwnShipID = -1;
 				int curEnemyShipID = -1;
 				try {

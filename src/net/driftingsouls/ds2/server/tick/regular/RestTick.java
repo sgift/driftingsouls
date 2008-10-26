@@ -72,8 +72,8 @@ public class RestTick extends TickController {
 			org.hibernate.Session db = getContext().getDB();
 			
 			this.log("Sprungantrieb");
-			List jumps = db.createQuery("from Jump as j inner join fetch j.ship").list();
-			for( Iterator iter=jumps.iterator(); iter.hasNext(); ) {
+			List<?> jumps = db.createQuery("from Jump as j inner join fetch j.ship").list();
+			for( Iterator<?> iter=jumps.iterator(); iter.hasNext(); ) {
 				Jump jump = (Jump)iter.next();
 				
 				this.log( jump.getShip().getId()+" springt nach "+jump.getLocation());
@@ -139,8 +139,8 @@ public class RestTick extends TickController {
 			this.log("");
 			this.log("Bearbeite Vacation-Modus");
 			
-			List vacLeaveUsers = db.createQuery("from User where vaccount=1").list();
-			for( Iterator iter=vacLeaveUsers.iterator(); iter.hasNext(); ) {
+			List<?> vacLeaveUsers = db.createQuery("from User where vaccount=1").list();
+			for( Iterator<?> iter=vacLeaveUsers.iterator(); iter.hasNext(); ) {
 				User user = (User)iter.next();
 				user.setName(user.getName().replace(" [VAC]", ""));
 				user.setNickname(user.getNickname().replace(" [VAC]", ""));
@@ -161,10 +161,10 @@ public class RestTick extends TickController {
 						.uniqueResult();
 				}
 				
-				List battles = db.createQuery("from Battle where commander1= :user or commander2= :user")
+				List<?> battles = db.createQuery("from Battle where commander1= :user or commander2= :user")
 					.setEntity("user", user)
 					.list();
-				for( Iterator iter=battles.iterator(); iter.hasNext(); ) {
+				for( Iterator<?> iter=battles.iterator(); iter.hasNext(); ) {
 					Battle battle = (Battle)iter.next();
 					battle.load(user, null, null, 0 );
 					
@@ -239,10 +239,10 @@ public class RestTick extends TickController {
 		this.log("");
 		this.log("Bearbeite Noob-Protection");
 		
-		List noobUsers = db.createQuery("from User where id>0 and flags LIKE '%" + User.FLAG_NOOB+"%'").list();
+		List<?> noobUsers = db.createQuery("from User where id>0 and flags LIKE '%" + User.FLAG_NOOB+"%'").list();
 		int noobDays = 30;
 		int noobTime = 24*60*60*noobDays;
-		for( Iterator iter=noobUsers.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=noobUsers.iterator(); iter.hasNext(); ) {
 			User user = (User)iter.next();
 			
 			if( !user.hasFlag(User.FLAG_NOOB) ) {

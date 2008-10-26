@@ -170,7 +170,7 @@ public class TradeController extends TemplateGenerator {
 				continue;
 			}
 			
-			moneyOfBuyer.subtract(BigInteger.valueOf(price));
+			moneyOfBuyer = moneyOfBuyer.subtract(BigInteger.valueOf(price));
 			
 			this.posten.transfer(this.ship, resource.getId(), amountToBuy);
 			this.shipCargo = this.ship.getCargo();

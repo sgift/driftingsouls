@@ -79,7 +79,7 @@ public class KSUndockAllAction extends BasicKSAction {
 		
 		int counter = 0;
 		
-		final Iterator shipIter = db.createQuery("from Ship where docked in (?,?)")
+		final Iterator<?> shipIter = db.createQuery("from Ship where docked in (?,?)")
 			.setString(0, "l "+ownShip.getId())
 			.setString(1, Integer.toString(ownShip.getId()))
 			.iterate();

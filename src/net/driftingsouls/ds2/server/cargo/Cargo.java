@@ -32,11 +32,12 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -48,7 +49,9 @@ import org.w3c.dom.NodeList;
  * @author Christopher Jung
  *
  */
-public class Cargo implements Loggable, Cloneable {
+public class Cargo implements Cloneable {
+	private static final Log log = LogFactory.getLog(Cargo.class);
+	
 	protected static final int MAX_RES = 18;
 	
 	/**
@@ -208,7 +211,7 @@ public class Cargo implements Loggable, Cloneable {
 			String name = item.getLocalName();
 			Integer id = ResourceConfig.getResourceIDByTag(name);
 			if( id == null ) {
-				LOG.warn("Unbekannte Resource "+name+" - ignoriere Eintrag");
+				log.warn("Unbekannte Resource "+name+" - ignoriere Eintrag");
 				continue;
 			}
 			long count = XMLUtils.getLongAttribute(item, "count");
@@ -280,7 +283,7 @@ public class Cargo implements Loggable, Cloneable {
 			System.arraycopy(cargo, 0, orgcargo, 0, cargo.length);
 		}
 		catch( RuntimeException e ) {
-			LOG.error("Kann Cargo-String '"+source+"' im Format "+type+"' nicht laden", e);
+			log.error("Kann Cargo-String '"+source+"' im Format "+type+"' nicht laden", e);
 			throw e;
 		}
 	}
@@ -446,7 +449,7 @@ public class Cargo implements Loggable, Cloneable {
 			}
 			
 			if( !done ) {
-				items.add( new Long[] {Long.valueOf(resourceid.getItemID()), count, new Long(resourceid.getUses()), new Long(resourceid.getQuest())} );
+				items.add( new Long[] {Long.valueOf(resourceid.getItemID()), count, Long.valueOf(resourceid.getUses()), Long.valueOf(resourceid.getQuest())} );
 			}
 		}
 		else {
@@ -482,7 +485,7 @@ public class Cargo implements Loggable, Cloneable {
 			}
 			
 			// Diese Anweisung wird nur ausgefuerht, wenn das Item nicht im Cargo vorhanden ist
-			items.add( new Long[] {Long.valueOf(resourceid.getItemID()), -count, new Long(resourceid.getUses()), new Long(resourceid.getQuest())} );
+			items.add( new Long[] {Long.valueOf(resourceid.getItemID()), -count, Long.valueOf(resourceid.getUses()), Long.valueOf(resourceid.getQuest())} );
 		}
 		else {
 			cargo[resourceid.getID()] -= count;
@@ -580,7 +583,7 @@ public class Cargo implements Loggable, Cloneable {
 			else {
 				for( int j=0; j < items.size(); j++ ) {
 					if( Items.get().item(items.get(j)[0].intValue()) == null ) {
-						LOG.warn("Unbekanntes Item "+items.get(j)[0]+" geortet");
+						log.warn("Unbekanntes Item "+items.get(j)[0]+" geortet");
 						continue;
 					}
 					tmp += items.get(j)[1]*Items.get().item(items.get(j)[0].intValue()).getCargo();
@@ -618,7 +621,7 @@ public class Cargo implements Loggable, Cloneable {
 			for( Long[] item : items  ) {
 				Item itemType = Items.get().item(item[0].intValue());
 				if( itemType == null ) {
-					LOG.warn("Unbekanntes Item "+item[0]+" geortet");
+					log.warn("Unbekanntes Item "+item[0]+" geortet");
 					continue;
 				}
 				
@@ -758,7 +761,7 @@ public class Cargo implements Loggable, Cloneable {
 			
 			for( ItemID aitem : itemlist ) {
 				if( Items.get().item(aitem.getItemID()) == null ) {
-					LOG.warn("Ungueliges Item (Data: "+aitem+") entdeckt");
+					log.warn("Ungueliges Item (Data: "+aitem+") entdeckt");
 					continue;	
 				}
 				
@@ -1074,7 +1077,7 @@ public class Cargo implements Loggable, Cloneable {
 			}
 			
 			if( !done ) {
-				items.add( new Long[] {Long.valueOf(resourceid.getItemID()), count, new Long(resourceid.getUses()), new Long(resourceid.getQuest())} );
+				items.add( new Long[] {Long.valueOf(resourceid.getItemID()), count, Long.valueOf(resourceid.getUses()), Long.valueOf(resourceid.getQuest())} );
 			}
 		}
 		else {

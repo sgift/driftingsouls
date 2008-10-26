@@ -260,7 +260,7 @@ public class CoreController extends TemplateGenerator {
 
 		t.setBlock("_CORE", "cores.listitem", "cores.list");
 
-		Iterator coreIter = db.createQuery("from Core where astiType=?")
+		Iterator<?> coreIter = db.createQuery("from Core where astiType=?")
 			.setInteger(0, base.getKlasse())
 			.iterate();
 		for( ; coreIter.hasNext(); ) {

@@ -26,7 +26,8 @@ import net.driftingsouls.ds2.server.framework.Common;
  * @author Christopher Jung
  *
  */
-public class ItemID extends WarenID {
+public class ItemID extends WarenID
+{
 	private int itemid;
 	private int uses;
 	private int quest;
@@ -36,7 +37,8 @@ public class ItemID extends WarenID {
 	 * Erstellt eine neue Item-ID
 	 * @param itemid Die Item-Typen-ID
 	 */
-	public ItemID(int itemid) {
+	public ItemID(int itemid)
+	{
 		super(Resources.ITEMS.getID());
 		this.itemid = itemid;
 	}
@@ -48,29 +50,34 @@ public class ItemID extends WarenID {
 	 * @param uses Die noch verbleibende Anzahl an Benutzungen
 	 * @param quest Das zugeordnete Quest
 	 */
-	public ItemID(int itemid, int uses, int quest) {
+	public ItemID(int itemid, int uses, int quest)
+	{
 		this(itemid);
 		this.uses = uses;
 		this.quest = quest;
 	}
 	
 	@Override
-	public boolean isItem() {
+	public boolean isItem()
+	{
 		return true;
 	}
 	
 	@Override
-	public int getItemID() {
+	public int getItemID()
+	{
 		return itemid;
 	}
 	
 	@Override
-	public int getUses() {
+	public int getUses()
+	{
 		return uses;
 	}
 	
 	@Override
-	public int getQuest() {
+	public int getQuest()
+	{
 		return quest;
 	}
 	
@@ -79,11 +86,14 @@ public class ItemID extends WarenID {
 	 * @param rid Der String
 	 * @return <code>true</code>, falls es eine Item-ResourceID ist
 	 */
-	public static boolean isItemRID(String rid) {
-		if( rid == null || rid.equals("") ) {
+	public static boolean isItemRID(String rid)
+	{
+		if( rid == null || rid.equals("") )
+		{
 			return false;
 		}
-		if( rid.charAt(0) == 'i' ) {
+		if( rid.charAt(0) == 'i' )
+		{
 			return true;
 		}
 		return false;
@@ -97,43 +107,53 @@ public class ItemID extends WarenID {
 	 * @param rid Der String
 	 * @return die Item-ResourcenID oder <code>null</code>
 	 */
-	public static ItemID fromString(String rid) {
-		if( !isItemRID(rid) ) {
+	public static ItemID fromString(String rid)
+	{
+		if( !isItemRID(rid) )
+		{
 			return null;
 		}
 		rid = rid.substring(1);
 		int[] elements = Common.explodeToInt("|", rid);
-		if( elements.length != 3 ) {
+		if( elements.length != 3 )
+		{
 			return null;
 		}
-		try {
+		try
+		{
 			return new ItemID(elements[0], elements[1], elements[2]);
 		}
-		catch(NumberFormatException e) {
+		catch(NumberFormatException e)
+		{
 			return null;
 		}
 	}
 	
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		return "i"+itemid+'|'+uses+'|'+quest;
 	}
 	
 	@Override
-	public boolean equals(Object obj) {
-		if( !(obj instanceof ResourceID) ) {
+	public boolean equals(Object obj)
+	{
+		if( obj == null )
+		{
 			return false;
 		}
-		ResourceID id = (ResourceID)obj;
+		if( this.getClass() != obj.getClass() )
+		{
+			return false;
+		}
+		ItemID id = (ItemID)obj;
 		
-		if( !id.isItem() ) {
-			return false;
-		}
 		return (id.getID() == getID()) && (id.getItemID() == getItemID()) && (id.getUses() == getUses()) && (id.getQuest() == getQuest());
 	}
 	
 	@Override
-	public int hashCode() {
+	public int hashCode()
+	{
 		if( hashCode == 0 ) {
 			hashCode = itemid*100+quest*10+uses;
 		}

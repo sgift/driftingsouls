@@ -90,12 +90,12 @@ public class SearchController extends TemplateGenerator {
 		/*
 			Basen
 		*/
-		List baseList = db.createQuery("from Base where owner= :user and name like :search")
+		List<?> baseList = db.createQuery("from Base where owner= :user and name like :search")
 			.setEntity("user", getUser())
 			.setString("search", "%"+search+"%")
 			.setMaxResults(MAX_OBJECTS-count)
 			.list();
-		for( Iterator iter=baseList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=baseList.iterator(); iter.hasNext(); ) {
 			Base base = (Base)iter.next();
 			
 			t.setVar(	"base.id",		base.getId(),
@@ -111,12 +111,12 @@ public class SearchController extends TemplateGenerator {
 			/*
 				Schiffe
 			*/
-			List shipList = db.createQuery("from Ship as s left join fetch s.modules where s.owner= :user and s.name like :search")
+			List<?> shipList = db.createQuery("from Ship as s left join fetch s.modules where s.owner= :user and s.name like :search")
 				.setEntity("user", getUser())
 				.setString("search", "%"+search+"%")
 				.setMaxResults(MAX_OBJECTS-count)
 				.list();
-			for( Iterator iter=shipList.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=shipList.iterator(); iter.hasNext(); ) {
 				Ship ship = (Ship)iter.next();
 				
 				t.setVar(	"ship.id",		ship.getId(),
@@ -135,11 +135,11 @@ public class SearchController extends TemplateGenerator {
 			/*
 				User
 			*/
-			List userList = db.createQuery("from User where plainname like :search")
+			List<?> userList = db.createQuery("from User where plainname like :search")
 				.setString("search", "%"+search+"%")
 				.setMaxResults(MAX_OBJECTS-count)
 				.list();
-			for( Iterator iter=userList.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=userList.iterator(); iter.hasNext(); ) {
 				User user = (User)iter.next();
 				
 				t.setVar(	"user.id",		user.getId(),

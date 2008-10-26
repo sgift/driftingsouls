@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -119,7 +120,7 @@ public class AllyListController extends TemplateGenerator {
 			break;
 		}
 		
-		List<User> allymembers = getContext().query("from User where ally="+ally.getId(), User.class);
+		List<User> allymembers = ally.getMembers();
 		for( User allymember : allymembers ) {
 			user.setRelation(allymember.getId(), rel);
 		}
@@ -179,9 +180,9 @@ public class AllyListController extends TemplateGenerator {
 			break;
 		}
 		
-		List<User> users = getContext().query("from User where ally="+user.getAlly().getId(), User.class);
+		List<User> users = user.getAlly().getMembers();
 		for( User auser : users ) {
-			List<User> allymembers = getContext().query("from User where ally="+ally.getId(), User.class);
+			List<User> allymembers = ally.getMembers();
 			for( User allymember : allymembers ) {
 				auser.setRelation(allymember.getId(), rel);
 			}
@@ -248,9 +249,13 @@ public class AllyListController extends TemplateGenerator {
 		// Minister ausgeben
 		t.setBlock( "_ALLYLIST", "ally.minister.listitem", "ally.minister.list" );
 		
-		List<AllyPosten> posten = getContext().query("from AllyPosten as ap left join fetch ap.user " +
-				"where ap.ally="+ally.getId(), AllyPosten.class);
-		for( AllyPosten aposten : posten ) {
+		List<?> posten = getDB().createQuery("from AllyPosten as ap left join fetch ap.user " +
+				"where ap.ally= :ally")
+			.setEntity("ally", ally)
+			.list();
+		for( Iterator<?> iter=posten.iterator(); iter.hasNext(); ) {
+			AllyPosten aposten = (AllyPosten)iter.next();
+			
 			if( aposten.getUser() == null ) {
 				continue;
 			}
@@ -263,11 +268,19 @@ public class AllyListController extends TemplateGenerator {
 		}
 	
 		// Weitere Mitglieder ausgeben
-		List<User> allymembers = getContext().query("from User where ally="+ally.getId()+" and id!="+ally.getPresident().getId()+" and allyposten is null", User.class);
+		List<?> allymembers = getDB().createQuery("from User " +
+				"where ally= :ally and " +
+						"id!= :presidentId and " +
+						"allyposten is null")
+			.setEntity("ally", ally)
+			.setInteger("presidentId", ally.getPresident().getId())
+			.list();
 		if( allymembers.size() > 0 ) {
 			t.setBlock( "_ALLYLIST", "ally.addmembers.listitem", "ally.addmembers.list" );
 		
-			for( User allymember : allymembers ) {
+			for( Iterator<?> iter=allymembers.iterator(); iter.hasNext(); ) {
+				User allymember = (User)iter.next();
+				
 				t.setVar(	"ally.addmembers.name",	Common._title(allymember.getName()),
 							"ally.addmembers.id",	allymember.getId() );
 			
@@ -288,8 +301,10 @@ public class AllyListController extends TemplateGenerator {
 		
 		t.setBlock( "_ALLYLIST", "allylist.ally.listitem", "allylist.ally.list" );
 	
-		List<Ally> allies = getContext().query("from Ally order by founded", Ally.class);
-		for( Ally ally : allies ) {
+		List<?> allies = getDB().createQuery("from Ally order by founded").list();
+		for( Iterator<?> iter=allies.iterator(); iter.hasNext(); ) {
+			Ally ally = (Ally)iter.next();
+			
 			String name = "<a class=\"forschinfo\" href=\""+Common.buildUrl("details", "details", ally.getId())+"\">"+Common._title(ally.getName())+"</a>";
 
 			if( ally.getHp().length() > 0 ) {

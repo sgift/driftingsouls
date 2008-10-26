@@ -28,17 +28,20 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.StatsController;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Zeigt die eigenen Offiziere und deren Aufenthaltsort
  * @author Christopher Jung
  *
  */
-public class StatOwnOffiziere implements Statistic, Loggable {
+public class StatOwnOffiziere implements Statistic {
+	private static final Log log = LogFactory.getLog(StatOwnOffiziere.class);
 
 	public void show(StatsController contr, int size) {
 		Context context = ContextMap.getContext();
@@ -47,7 +50,7 @@ public class StatOwnOffiziere implements Statistic, Loggable {
 
 		StringBuffer echo = context.getResponse().getContent();
 	
-		List offiziere = context.getDB().createQuery("from Offizier where userid=? order by ing+nav+waf+sec+com desc")
+		List<?> offiziere = context.getDB().createQuery("from Offizier where userid=? order by ing+nav+waf+sec+com desc")
 			.setInteger(0, user.getId())
 			.list();
 					
@@ -63,7 +66,7 @@ public class StatOwnOffiziere implements Statistic, Loggable {
 		Map<Integer,String> ships = new HashMap<Integer,String>();
 		Map<Integer,String> bases = new HashMap<Integer,String>();
 		
-		for( Iterator iter=offiziere.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=offiziere.iterator(); iter.hasNext(); ) {
 			Offizier offizier = (Offizier)iter.next();
 			
 		   	echo.append("<tr>\n");
@@ -78,7 +81,7 @@ public class StatOwnOffiziere implements Statistic, Loggable {
 					if( destid > 0 ) {
 						SQLResultRow ship = db.first("SELECT name FROM ships WHERE id>0 AND id=",destid);
 						if( ship.isEmpty() ) {
-							LOG.warn("Offizier '"+offizier.getID()+"' befindet sich auf einem ungueltigen Schiff: "+destid);
+							log.warn("Offizier '"+offizier.getID()+"' befindet sich auf einem ungueltigen Schiff: "+destid);
 							ships.put(destid, "");
 						}
 						else {

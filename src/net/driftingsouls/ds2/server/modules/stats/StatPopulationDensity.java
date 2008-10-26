@@ -24,17 +24,20 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.StatsController;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Zeigt die Bevoelkerungsdichte in einzelnen Systemen sowie insgesamt an
  * @author Christopher Jung
  *
  */
-public class StatPopulationDensity implements Statistic, Loggable {
+public class StatPopulationDensity implements Statistic {
+	private static final Log log = LogFactory.getLog(StatPopulationDensity.class);
 
 	public void show(StatsController contr, int size) {
 		Context context = ContextMap.getContext();
@@ -60,7 +63,7 @@ public class StatPopulationDensity implements Statistic, Loggable {
 			String systemAddInfo = "";
 			StarSystem system = Systems.get().system(systemStats.getInt("system"));
 			if( system == null ) {
-				LOG.warn("Asteroiden im ungueltigen System "+systemStats.getInt("system")+" vorhanden");
+				log.warn("Asteroiden im ungueltigen System "+systemStats.getInt("system")+" vorhanden");
 				continue;
 			}
 			if( (system.getAccess() == StarSystem.AC_ADMIN) && user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS) ) {

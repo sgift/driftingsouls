@@ -128,10 +128,10 @@ public class ColonizeController extends TemplateGenerator {
 		bases.put(base.getSystem(), 0);
 		int basecount = 0;
 		
-		final List baseList = db.createQuery("from Base where owner=?")
+		final List<?> baseList = db.createQuery("from Base where owner=?")
 			.setEntity(0, user)
 			.list();
-		for( Iterator iter=baseList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=baseList.iterator(); iter.hasNext(); ) {
 			Base aBase = (Base)iter.next();
 			
 			final int system = aBase.getSystem();
@@ -164,7 +164,7 @@ public class ColonizeController extends TemplateGenerator {
 		//Anzahl der Gebaeude pro Spieler berechnen
 		Map<Integer,Integer> ownerBuildingCount = new HashMap<Integer,Integer>();
 		
-		for( Iterator iter=baseList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=baseList.iterator(); iter.hasNext(); ) {
 			Base aBase = (Base)iter.next();
 			Integer[] abeb = aBase.getBebauung();
 			for( int i=0; i < abeb.length; i++ ) {
@@ -179,7 +179,7 @@ public class ColonizeController extends TemplateGenerator {
 		
 		// Problematische Gebaeude ermitteln
 		Map<Integer,Integer> problematicBuildings = new HashMap<Integer,Integer>();
-		Iterator buildingIter = db.createQuery("from Building where perOwner>0").iterate();
+		Iterator<?> buildingIter = db.createQuery("from Building where perOwner>0").iterate();
 		for( ; buildingIter.hasNext(); ) {
 			Building aBuilding = (Building)buildingIter.next();
 			problematicBuildings.put(aBuilding.getId(), aBuilding.getPerUserCount());

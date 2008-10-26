@@ -32,11 +32,13 @@ import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Zeigt die Sternenkarte an
@@ -45,7 +47,9 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * @urlparam Integer sys Die ID des anzuzeigenden Systems
  * @urlparam Integer loadmap Falls != 0 wird die Sternenkarte geladen
  */
-public class MapController extends TemplateGenerator implements Loggable {
+public class MapController extends TemplateGenerator {
+	private static final Log log = LogFactory.getLog(MapController.class);
+	
 	private int system = 1;
 	private boolean showSystem = true;
 	
@@ -146,14 +150,16 @@ public class MapController extends TemplateGenerator implements Loggable {
 			return;
 		}
 						
-		List nodeList = db.createQuery("from JumpNode where system= :sys and hidden=0 order by id")
+		List<?> nodeList = db.createQuery("from JumpNode where system= :sys and hidden=0 order by id")
 			.setInteger("sys", system)
 			.list();
-		for( Iterator iter=nodeList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=nodeList.iterator(); iter.hasNext(); )
+		{
 			JumpNode node = (JumpNode)iter.next();
 			
 			String blocked = "";
-			if( node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn(0) ) {
+			if( node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn(0) )
+			{
 				blocked = " - blockiert";
 			}
 			
@@ -170,26 +176,44 @@ public class MapController extends TemplateGenerator implements Loggable {
 		String findex = "";
 
 		File starmapIndex = new File(Configuration.getSetting("ABSOLUTE_PATH")+"java/jstarmap.index");
-		if( starmapIndex.exists() ) {
-			try {
+		if( starmapIndex.exists() )
+		{
+			try
+			{
 				BufferedReader b = new BufferedReader(new FileReader(starmapIndex));
-				index = b.readLine();
-				b.close();
+				try
+				{
+					index = b.readLine();
+				}
+				finally
+				{
+					b.close();
+				}
 			}
-			catch( IOException e ) {
-				LOG.warn(e, e);
+			catch( IOException e )
+			{
+				log.warn(e, e);
 			}
 		}
 		
 		File frameworkIndex = new File(Configuration.getSetting("ABSOLUTE_PATH")+"java/jframework.index");
-		if( frameworkIndex.exists() ) {
-			try {
+		if( frameworkIndex.exists() )
+		{
+			try
+			{
 				BufferedReader b = new BufferedReader(new FileReader(frameworkIndex));
-				findex = b.readLine();
-				b.close();
+				try
+				{
+					findex = b.readLine();
+				}
+				finally
+				{
+					b.close();
+				}
 			}
-			catch( IOException e ) {
-				LOG.warn(e, e);
+			catch( IOException e )
+			{
+				log.warn(e, e);
 			}
 		}
 		

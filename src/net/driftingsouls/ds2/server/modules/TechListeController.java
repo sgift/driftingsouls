@@ -111,7 +111,7 @@ public class TechListeController extends TemplateGenerator {
 		Map<Integer,Forschung>  invisible = new LinkedHashMap<Integer,Forschung>();
 
 		//Alle Forschungen durchgehen
-		final Iterator forschungIter = db.createQuery("from Forschung order by name")
+		final Iterator<?> forschungIter = db.createQuery("from Forschung order by name")
 			.iterate();
 		while( forschungIter.hasNext() ) {
 			Forschung f = (Forschung)forschungIter.next();
@@ -150,10 +150,10 @@ public class TechListeController extends TemplateGenerator {
 		keys.put("invisible", invisible);
 
 		Map<Integer,Integer> currentResearches = new HashMap<Integer,Integer>();
-		List resList = db.createQuery("from Forschungszentrum where forschung is not null and base.owner=?")
+		List<?> resList = db.createQuery("from Forschungszentrum where forschung is not null and base.owner=?")
 			.setEntity(0, user)
 			.list();
-		for( Iterator iter=resList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=resList.iterator(); iter.hasNext(); ) {
 			Forschungszentrum fz = (Forschungszentrum)iter.next();
 			currentResearches.put(fz.getForschung().getID(), fz.getDauer());
 		}

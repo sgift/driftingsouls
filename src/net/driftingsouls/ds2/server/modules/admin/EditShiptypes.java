@@ -61,7 +61,7 @@ public class EditShiptypes implements AdminPlugin
 
 		// Update values?
 		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");
-		List shiptypes = db.createQuery("from ShipType").list();
+		List<?> shiptypes = db.createQuery("from ShipType").list();
 
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<input type=\"hidden\" name=\"sess\" value=\"" + context.getSession() + "\" />\n");
@@ -69,7 +69,7 @@ public class EditShiptypes implements AdminPlugin
 		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("<select size=\"1\" name=\"shiptype\">");
-		for (Iterator iter = shiptypes.iterator(); iter.hasNext();)
+		for (Iterator<?> iter = shiptypes.iterator(); iter.hasNext();)
 		{
 			ShipType shiptype = (ShipType) iter.next();
 
@@ -198,11 +198,11 @@ public class EditShiptypes implements AdminPlugin
 					int fighterDocks = ship.getTypeData().getJDocks();
 					if (ship.getLandedCount() > fighterDocks)
 					{
-						List fighters = db.createQuery("from Ship where docked = ?").setString(0, id).list();
+						List<?> fighters = db.createQuery("from Ship where docked = ?").setString(0, id).list();
 						long toStart = ship.getLandedCount() - fighterDocks;
 						int fighterCount = 0;
 	
-						for (Iterator iter2 = fighters.iterator(); iter2.hasNext() && fighterCount < toStart;)
+						for (Iterator<?> iter2 = fighters.iterator(); iter2.hasNext() && fighterCount < toStart;)
 						{
 							Ship fighter = (Ship) iter2.next();
 	
@@ -216,11 +216,11 @@ public class EditShiptypes implements AdminPlugin
 					int outerDocks = ship.getTypeData().getADocks();
 					if (ship.getDockedCount() > outerDocks)
 					{
-						List outerDocked = db.createQuery("from Ship where docked = ?").setString(0, id).list();
+						List<?> outerDocked = db.createQuery("from Ship where docked = ?").setString(0, id).list();
 						long toStart = ship.getDockedCount() - outerDocks;
 						int dockedCount = 0;
 	
-						for (Iterator iter2 = outerDocked.iterator(); iter2.hasNext() && dockedCount < toStart;)
+						for (Iterator<?> iter2 = outerDocked.iterator(); iter2.hasNext() && dockedCount < toStart;)
 						{
 							Ship outer = (Ship) iter2.next();
 							outer.setDocked("");

@@ -47,7 +47,6 @@ import net.driftingsouls.ds2.server.entities.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -64,6 +63,8 @@ import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
 
 /**
@@ -71,7 +72,9 @@ import org.hibernate.Query;
  * @author Christopher Jung
  *
  */
-public class UeberController extends TemplateGenerator implements Loggable {
+public class UeberController extends TemplateGenerator {
+	private static final Log log = LogFactory.getLog(UeberController.class);
+	
 	private String box = "";
 	
 	/**
@@ -181,7 +184,7 @@ public class UeberController extends TemplateGenerator implements Loggable {
 			}
 		}
 		catch( Exception e ) {
-			LOG.warn("Loading Script-ExecData failed (Quest: "+questid+": ",e);
+			log.warn("Loading Script-ExecData failed (Quest: "+questid+": ",e);
 			redirect();
 			return;
 		}
@@ -324,8 +327,11 @@ public class UeberController extends TemplateGenerator implements Loggable {
 		int bw = 0;
 		int bases = 0;
 
-		List<Base> basen = getContext().query("from Base where owner="+user.getId()+" order by id", Base.class);
-		for( Base base : basen ) {
+		List<?> basen = db.createQuery("from Base where owner= :user order by id")
+			.setEntity("user", user)
+			.list();
+		for( Iterator<?> iter=basen.iterator(); iter.hasNext(); ) {
+			Base base = (Base)iter.next();
 			bases++;
 			
 			BaseStatus basedata = Base.getStatus(getContext(), base);
@@ -417,7 +423,7 @@ public class UeberController extends TemplateGenerator implements Loggable {
 			
 		// Ab hier beginnt das zweite Bier
 		
-		for( Iterator iter=battleQuery.list().iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=battleQuery.list().iterator(); iter.hasNext(); ) {
 			Battle battle = (Battle)iter.next();
 			
 			String eparty = "";
@@ -487,10 +493,10 @@ public class UeberController extends TemplateGenerator implements Loggable {
 		if( box.equals("bookmarks") ) {
 			t.setVar("show.bookmarks",1);
 	
-			List bookmarks = db.createQuery("from Ship where id>0 and bookmark=1 and owner=? order by id desc")
+			List<?> bookmarks = db.createQuery("from Ship where id>0 and bookmark=1 and owner=? order by id desc")
 				.setEntity(0, user)
 				.list();
-			for( Iterator iter=bookmarks.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=bookmarks.iterator(); iter.hasNext(); ) {
 				Ship bookmark = (Ship)iter.next();
 				ShipTypeData shiptype = bookmark.getTypeData();
 				t.setVar(	"bookmark.shipid",		bookmark.getId(),
@@ -505,13 +511,13 @@ public class UeberController extends TemplateGenerator implements Loggable {
 			t.setVar("show.fleets",1);
 			boolean jdocked = false;
 			
-			List fleets = db.createQuery("select count(*),s.fleet from Ship s " +
+			List<?> fleets = db.createQuery("select count(*),s.fleet from Ship s " +
 					"where s.id>0 and s.owner= :user and s.fleet!=0 " +
 					"group by s.fleet " +
 					"order by s.docked,s.system,s.x,s.y")
 				.setEntity("user", user)
 				.list();
-			for( Iterator iter=fleets.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=fleets.iterator(); iter.hasNext(); ) {
 				Object[] data = (Object[])iter.next();
 				long count = (Long)data[0];
 				ShipFleet fleet = (ShipFleet)data[1];
@@ -542,11 +548,11 @@ public class UeberController extends TemplateGenerator implements Loggable {
 		t.setBlock("_UEBER","quests.listitem","quests.list");
 		t.setVar("quests.list","");
 		
-		List quests = db.createQuery("from RunningQuest rq inner join fetch rq.quest " +
+		List<?> quests = db.createQuery("from RunningQuest rq inner join fetch rq.quest " +
 				"where rq.user= :user and rq.publish=1")
 			.setEntity("user", user)
 			.list();
-		for( Iterator iter=quests.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=quests.iterator(); iter.hasNext(); ) {
 			RunningQuest quest = (RunningQuest)iter.next();
 			
 			t.setVar(	"quest.name",		quest.getQuest().getName(),
@@ -561,17 +567,26 @@ public class UeberController extends TemplateGenerator implements Loggable {
 		String ticktime = "";
 		
 		// Letzten Tick ermitteln (Zeitpunkt)
-		try {
+		try
+		{
 			BufferedReader bf = new BufferedReader(new FileReader(Configuration.getSetting("LOXPATH")+"ticktime.log"));
-			ticktime = bf.readLine();
-			bf.close();
+			try
+			{
+				ticktime = bf.readLine();
+			}
+			finally
+			{
+				bf.close();
+			}
 		}
-		catch(IOException e ) {
+		catch(IOException e )
+		{
 			System.err.println(e);
 			e.printStackTrace();
 		}
 		
-		if( ticktime == null ) {
+		if( ticktime == null )
+		{
 			ticktime = "";
 		}
 		return ticktime;

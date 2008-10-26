@@ -124,10 +124,10 @@ public class PM {
 			title = title.substring(0,100);
 		}
 		
-		List members = db.createQuery("from User where ally=?")
+		List<?> members = db.createQuery("from User where ally=?")
 			.setEntity(0, to)
 			.list();
-		for( Iterator iter=members.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=members.iterator(); iter.hasNext(); ) {
 			User member = (User)iter.next();
 			
 			PM pm = new PM(from, member, title, msg);
@@ -220,10 +220,10 @@ public class PM {
 	public static int deleteAllInOrdner( Ordner ordner, User user ) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
-		List pms = db.createQuery("from PM where ordner=?")
+		List<?> pms = db.createQuery("from PM where ordner=?")
 			.setInteger(0, ordner.getId())
 			.list();
-		for( Iterator iter=pms.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=pms.iterator(); iter.hasNext(); ) {
 			PM pm = (PM)iter.next();
 			
 			if( pm.getEmpfaenger().getId() != user.getId() ) {
@@ -248,11 +248,11 @@ public class PM {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		Ordner trash = Ordner.getTrash( user );
 		
-		List pms = db.createQuery("from PM where ordner=? and empfaenger=?")
+		List<?> pms = db.createQuery("from PM where ordner=? and empfaenger=?")
 			.setInteger(0, source.getId())
 			.setEntity(1, user)
 			.list();
-		for( Iterator iter=pms.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=pms.iterator(); iter.hasNext(); ) {
 			PM pm = (PM)iter.next();
 			int gelesen = (trash == source) ? 1 : pm.getGelesen();
 			

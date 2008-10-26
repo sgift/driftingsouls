@@ -103,16 +103,16 @@ public class PlayerList {
 			asticount = new HashMap<Integer,Integer>();
 			shipcount = new HashMap<Integer,Integer>();
 			
-			List basecounts = db.createQuery("select owner,count(*) from Base group by owner").list();
-			for( Iterator iter=basecounts.iterator(); iter.hasNext(); ) {
+			List<?> basecounts = db.createQuery("select owner,count(*) from Base group by owner").list();
+			for( Iterator<?> iter=basecounts.iterator(); iter.hasNext(); ) {
 				final Object[] data = (Object[])iter.next();
 				final User owner = (User)data[0];
 				final Number count = (Number)data[1];
 				asticount.put(owner.getId(), count.intValue());
 			}
 			
-			List shipcounts = db.createQuery("select owner,count(*) from Ship group by owner").list();
-			for( Iterator iter=shipcounts.iterator(); iter.hasNext(); ) {
+			List<?> shipcounts = db.createQuery("select owner,count(*) from Ship group by owner").list();
+			for( Iterator<?> iter=shipcounts.iterator(); iter.hasNext(); ) {
 				final Object[] data = (Object[])iter.next();
 				final User owner = (User)data[0];
 				final Number count = (Number)data[1];

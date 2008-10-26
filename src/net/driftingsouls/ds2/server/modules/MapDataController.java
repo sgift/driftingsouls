@@ -37,13 +37,15 @@ import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Generiert die Sternenkarte, die Sternensystem-Liste sowie die Liste der Schiffe in einem Sektor
@@ -53,7 +55,9 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
  * @urlparam Integer debugme Falls != 0 wird eine Sternenkarte mit Debugausgaben generiert
  *
  */
-public class MapDataController extends DSGenerator implements Loggable {
+public class MapDataController extends DSGenerator {
+	private static final Log log = LogFactory.getLog(MapDataController.class);
+	
 	private static final int PROTOCOL_VERSION = 8;
 	private static final int PROTOCOL_MINOR_VERSION = 0;
 	
@@ -249,14 +253,14 @@ public class MapDataController extends DSGenerator implements Loggable {
 		}
 		
 		try {
-			List shipList = db.createQuery("from Ship " +
+			List<?> shipList = db.createQuery("from Ship " +
 					"where id>0 and owner "+usersql+" and system= :sys and x= :x and y=:y and locate('l ',docked)=0")
 				.setInteger("sys", this.system)
 				.setInteger("x", x)
 				.setInteger("y", y)
 				.list();
 			
-			for( Iterator iter=shipList.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=shipList.iterator(); iter.hasNext(); ) {
 				Ship ship = (Ship)iter.next();
 				
 				if( nebel != null ) {
@@ -272,12 +276,12 @@ public class MapDataController extends DSGenerator implements Loggable {
 				return;
 			}
 							
-			List scannerList = db.createQuery("from Ship as s " +
+			List<?> scannerList = db.createQuery("from Ship as s " +
 					"where s.id>0 and s.system= :sys and s.owner "+usersql+" and " +
 							"s.shiptype.shipClass in (11,13)")
 				.setInteger("sys", this.system)
 				.list();
-			for( Iterator iter=scannerList.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=scannerList.iterator(); iter.hasNext(); ) {
 				Ship scanner = (Ship)iter.next();
 				
 				ShipTypeData scannertype = scanner.getTypeData();
@@ -300,7 +304,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 				}
 						
 				// Schiffe
-				List sList = db.createQuery("from Ship as s inner join fetch s.owner left join fetch s.modules " +
+				List<?> sList = db.createQuery("from Ship as s inner join fetch s.owner left join fetch s.modules " +
 						"where s.id>0 and locate('l ',s.docked)=0 and s.system= :sys and s.owner!= :user and s.x= :x and s.y= :y and " +
 							"(s.visibility is null or s.visibility= :userid) and (locate(:smallflag, s.shiptype.flags)=0 and (s.modules is null or locate(:smallflag,s.modules.flags)=0)) " +
 							"order by s.x,s.y")
@@ -311,7 +315,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 					.setInteger("userid", this.usedUser.getId())
 					.setString("smallflag", ShipTypes.SF_SEHR_KLEIN)
 					.list();
-				for( Iterator iter2=sList.iterator(); iter2.hasNext(); ) {
+				for( Iterator<?> iter2=sList.iterator(); iter2.hasNext(); ) {
 					Ship s = (Ship)iter2.next();
 					
 					ShipTypeData st = s.getTypeData();
@@ -332,7 +336,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 			}
 		}
 		catch( UnsupportedEncodingException e ) {
-			LOG.error("Kann Sektor "+system+":"+x+"/"+y+" fuer die Sternenkarte nicht aufbereiten", e);
+			log.error("Kann Sektor "+system+":"+x+"/"+y+" fuer die Sternenkarte nicht aufbereiten", e);
 		}
 		
 		echo.append("</sector>");
@@ -399,14 +403,14 @@ public class MapDataController extends DSGenerator implements Loggable {
 		//--------------------------------------
 		//Jumpgates in die Karte eintragen
 		//--------------------------------------
-		List nodeList = db.createQuery("from JumpNode " +
+		List<?> nodeList = db.createQuery("from JumpNode " +
 				"where system= :sys and hidden=0 and (x between 1 and :width) and (y between 1 and :height) " +
 				"order by id")
 			.setInteger("sys", this.system)
 			.setInteger("width", sys.getWidth())
 			.setInteger("height", sys.getHeight())
 			.list();
-		for( Iterator iter=nodeList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=nodeList.iterator(); iter.hasNext(); ) {
 			JumpNode node = (JumpNode)iter.next();
 			
 			map[node.getX()][node.getY()] = OBJECT_JUMPNODE;
@@ -416,7 +420,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 		//--------------------------------------
 		//Asteroiden in die Karte eintragen
 		//--------------------------------------
-		List baseList = db.createQuery("from Base as b inner join fetch b.owner " +
+		List<?> baseList = db.createQuery("from Base as b inner join fetch b.owner " +
 				"where b.system= :sys and b.size=0 and (b.x between 1 and :width) and (b.y between 1 and :height) " +
 				"order by case when b.owner= :user then 0 else 1 end, b.id")
 			.setInteger("sys", this.system)
@@ -424,7 +428,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 			.setInteger("height", sys.getHeight())
 			.setEntity("user", this.usedUser)
 			.list();
-		for( Iterator iter=baseList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=baseList.iterator(); iter.hasNext(); ) {
 			Base base = (Base)iter.next();
 			
 			Location loc = base.getLocation();
@@ -445,14 +449,14 @@ public class MapDataController extends DSGenerator implements Loggable {
 		//--------------------------------------
 		//Nebel in die Karte eintragen
 		//--------------------------------------
-		List nebelList = db.createQuery("from Nebel " +
+		List<?> nebelList = db.createQuery("from Nebel " +
 				"where system= :sys and (x between 1 and :width) and (y between 1 and :height) " +
 				"order by system,x,y")
 			.setInteger("sys", this.system)
 			.setInteger("width", sys.getWidth())
 			.setInteger("height", sys.getHeight())
 			.list();
-		for( Iterator iter=nebelList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=nebelList.iterator(); iter.hasNext(); ) {
 			Nebel nebel = (Nebel)iter.next();
 			
 			int neb = 0;
@@ -471,12 +475,12 @@ public class MapDataController extends DSGenerator implements Loggable {
 		//--------------------------------------
 		//Eigene Schiffe in die Karte eintragen
 		//--------------------------------------
-		List shipList = db.createQuery("select x,y,count(*) from Ship " +
+		List<?> shipList = db.createQuery("select x,y,count(*) from Ship " +
 				"where id>0 and owner= :user and system= :sys group by x,y")
 			.setInteger("sys", this.system)
 			.setEntity("user", this.usedUser)
 			.list();
-		for( Iterator iter=shipList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=shipList.iterator(); iter.hasNext(); ) {
 			Object[] data = (Object[])iter.next();
 			
 			final long count = (Long)data[2];
@@ -517,11 +521,11 @@ public class MapDataController extends DSGenerator implements Loggable {
 		Set<Location> lrsScanSectors = new HashSet<Location>();
 		Set<Location> scannedSectors = new HashSet<Location>();
 		
-		List scannerList = db.createQuery("from Ship as s " +
+		List<?> scannerList = db.createQuery("from Ship as s " +
 				"where s.id>0 and s.system= :sys and s.owner "+usersql+" and s.shiptype.shipClass in (11,13)")
 			.setInteger("sys", this.system)
 			.list();
-		for( Iterator iter=scannerList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=scannerList.iterator(); iter.hasNext(); ) {
 			Ship scanner = (Ship)iter.next();
 			
 			Location loc = scanner.getLocation();
@@ -553,7 +557,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 			scannedSectors.clear();
 			
 			// Basen
-			List bList = db.createQuery("from Base as b inner join fetch b.owner " +
+			List<?> bList = db.createQuery("from Base as b inner join fetch b.owner " +
 					"where b.system= :sys and b.owner!= :user and b.owner!=0 and " +
 							"(b.x between :minx and :maxx) and " +
 							"(b.y between :miny and :maxy)")
@@ -564,7 +568,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 				.setInteger("miny", loc.getY()-range)
 				.setInteger("maxy", loc.getY()+range)
 				.list();
-			for( Iterator iter2=bList.iterator(); iter2.hasNext(); ) {
+			for( Iterator<?> iter2=bList.iterator(); iter2.hasNext(); ) {
 				Base base = (Base)iter2.next();
 				
 				Location bLoc = base.getLocation();
@@ -613,7 +617,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 			int lastY = 0;
 			
 			// Schiffe
-			List sList = db.createQuery("from Ship as s inner join fetch s.owner left join fetch s.modules " +
+			List<?> sList = db.createQuery("from Ship as s inner join fetch s.owner left join fetch s.modules " +
 					"where s.id>0 and s.system= :sys and locate('l ',s.docked)=0 and s.owner!= :user and (s.x between :minx and :maxx) and (s.y between :miny and :maxy) and " +
 						"(s.visibility is null or s.visibility= :userid) and (locate(:smallflag, s.shiptype.flags)=0 and (s.modules is null or locate(:smallflag, s.modules.flags)=0)) " +
 					"order by s.x,s.y")
@@ -626,7 +630,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 				.setInteger("maxy", loc.getY()+range)
 				.setString("smallflag", ShipTypes.SF_SEHR_KLEIN)
 				.list();
-			for( Iterator iter2=sList.iterator(); iter2.hasNext(); ) {
+			for( Iterator<?> iter2=sList.iterator(); iter2.hasNext(); ) {
 				Ship s = (Ship)iter2.next();
 				
 				Location sLoc = s.getLocation();
@@ -830,13 +834,13 @@ public class MapDataController extends DSGenerator implements Loggable {
 			}
 			
 			// Planeten (grosse Objekte) ausgeben
-			List lobjectList = db.createQuery("from Base " +
+			List<?> lobjectList = db.createQuery("from Base " +
 					"where system= :sys and size>0 and (x between 1 and :width) and (y between 1 and :height)")
 				.setInteger("sys", this.system)
 				.setInteger("width", sys.getWidth())
 				.setInteger("height", sys.getHeight())
 				.list();
-			for( Iterator iter=lobjectList.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=lobjectList.iterator(); iter.hasNext(); ) {
 				Base lobject = (Base)iter.next();
 				
 				echo.append((char)ADDDATA_LARGE_OBJECT);
@@ -858,7 +862,7 @@ public class MapDataController extends DSGenerator implements Loggable {
 			}
 		}
 		catch( UnsupportedEncodingException e ) {
-			LOG.error("Kann Sternenkarte nicht kodieren", e);
+			log.error("Kann Sternenkarte nicht kodieren", e);
 		}
 	}
 }

@@ -187,11 +187,11 @@ public class ItemManipulator extends DSApplication {
 			shipQuery.free();
 	
 			log("* Processing Ship-Modules:");
-			List ships = db.createQuery("from ShipModules inner join fetch ship where modules like ?")
+			List<?> ships = db.createQuery("from ShipModules inner join fetch ship where modules like ?")
 				.setString(0, "%:"+itemid+"%")
 				.list();
 			
-			for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 				ShipModules shipModules = (ShipModules)iter.next();
 				Ship ship = shipModules.getShip();
 				

@@ -29,7 +29,6 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.hibernate.annotations.Cache;
@@ -51,7 +50,7 @@ import org.hibernate.annotations.Type;
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorFormula("module")
 @Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
-public abstract class Building implements Loggable {
+public abstract class Building {
 	/**
 	 * Die ID des Kommandozentralen-Gebaeudes
 	 */

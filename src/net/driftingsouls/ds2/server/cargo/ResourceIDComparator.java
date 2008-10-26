@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.cargo;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 /**
@@ -25,34 +26,46 @@ import java.util.Comparator;
  * @author Christopher Jung 
  *
  */
-class ResourceIDComparator implements Comparator<ResourceID> {
+class ResourceIDComparator implements Comparator<ResourceID>, Serializable
+{
+	private static final long serialVersionUID = 3588397636540631609L;
+	
 	private boolean descending;
-	ResourceIDComparator(boolean descending) {
+	
+	ResourceIDComparator(boolean descending)
+	{
 		this.descending = descending;
 	}
 	
-	public int compare(ResourceID o1, ResourceID o2) {
+	public int compare(ResourceID o1, ResourceID o2)
+	{
 		int val = compareEntries(o1, o2);
-		if( descending ) {
+		if( descending )
+		{
 			val = -val;
 		}
 		return val;
 	}
 	
-	private int compareEntries(ResourceID id1, ResourceID id2) {
+	private int compareEntries(ResourceID id1, ResourceID id2)
+	{
 		// Falls es Waren sind...
-		if( !id1.isItem() && !id2.isItem() ) {
+		if( !id1.isItem() && !id2.isItem() )
+		{
 			return id1.getID() > id2.getID() ? 1 : (id1.getID() == id2.getID() ? 0 : -1);
 		}
 		
 		// Items...
-		if( id1.isItem() && id2.isItem() ) {
+		if( id1.isItem() && id2.isItem() )
+		{
 			// IDs vergleichen
-			if( id1.getItemID() != id2.getItemID() ) {
+			if( id1.getItemID() != id2.getItemID() )
+			{
 				return id1.getItemID() > id2.getItemID() ? 1 : -1;
 			}
 			// Quests vergleichen
-			if( id1.getQuest() != id2.getQuest() ) {
+			if( id1.getQuest() != id2.getQuest() )
+			{
 				return id1.getQuest() > id2.getQuest() ? 1 : -1;
 			}
 			// Benutzungen vergleichen

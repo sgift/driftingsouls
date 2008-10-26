@@ -18,13 +18,8 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
@@ -61,7 +56,6 @@ public class NPCOrderTick extends TickController {
 	private StringBuilder pmcache;
 	private int lastowner;
 	private String currentTime;
-	private Map<Integer,List<String>> offinamelist;	
 	
 	@Override
 	protected void prepare() {
@@ -87,8 +81,8 @@ public class NPCOrderTick extends TickController {
 		
 		final User sourceUser = (User)db.get(User.class, -1);
 		
-		List orders = db.createQuery("from Order where tick=1 order by user").list();
-		for( Iterator iter=orders.iterator(); iter.hasNext(); ) {
+		List<?> orders = db.createQuery("from Order where tick=1 order by user").list();
+		for( Iterator<?> iter=orders.iterator(); iter.hasNext(); ) {
 			Order order = (Order)iter.next();
 			try {
 				int owner = order.getUser();

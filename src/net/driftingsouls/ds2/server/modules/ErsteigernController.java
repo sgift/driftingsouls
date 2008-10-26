@@ -994,13 +994,13 @@ public class ErsteigernController extends TemplateGenerator
 		// Kontobewegungen anzeigen
 		t.setBlock("_UEBER", "moneytransfer.listitem", "moneytransfer.list");
 
-		List transferList = db
+		List<?> transferList = db
 				.createQuery(
 						"from UserMoneyTransfer umt "
 								+ "where umt.type<= :transtype and (umt.from= :user or umt.to= :user) order by umt.time desc")
 				.setInteger("transtype", transtype).setEntity("user", user).setMaxResults(40)
 				.list();
-		for( Iterator iter = transferList.iterator(); iter.hasNext(); )
+		for( Iterator<?> iter = transferList.iterator(); iter.hasNext(); )
 		{
 			UserMoneyTransfer entry = (UserMoneyTransfer)iter.next();
 
@@ -1050,8 +1050,8 @@ public class ErsteigernController extends TemplateGenerator
 		t.setBlock("_ERSTEIGERN", "kurse.listitem", "kurse.list");
 		t.setBlock("kurse.listitem", "kurse.waren.listitem", "kurse.waren.list");
 
-		List kurseList = db.createQuery("from GtuWarenKurse").list();
-		for( Iterator iter = kurseList.iterator(); iter.hasNext(); )
+		List<?> kurseList = db.createQuery("from GtuWarenKurse").list();
+		for( Iterator<?> iter = kurseList.iterator(); iter.hasNext(); )
 		{
 			GtuWarenKurse kurse = (GtuWarenKurse)iter.next();
 
@@ -1096,9 +1096,9 @@ public class ErsteigernController extends TemplateGenerator
 		t.setVar("none", "");
 
 		int count = 0;
-		List angebote = db.createQuery("from FactionOffer where faction=?").setInteger(0,
+		List<?> angebote = db.createQuery("from FactionOffer where faction=?").setInteger(0,
 				this.faction).list();
-		for( Iterator iter = angebote.iterator(); iter.hasNext(); )
+		for( Iterator<?> iter = angebote.iterator(); iter.hasNext(); )
 		{
 			FactionOffer offer = (FactionOffer)iter.next();
 
@@ -1230,10 +1230,10 @@ public class ErsteigernController extends TemplateGenerator
 		 */
 		Set<Ship> gzlliste = new HashSet<Ship>();
 
-		List entries = db.createQuery("from GtuZwischenlager where user1= :user or user2= :user")
+		List<?> entries = db.createQuery("from GtuZwischenlager where user1= :user or user2= :user")
 				.setEntity("user", user).list();
 
-		for( Iterator iter = entries.iterator(); iter.hasNext(); )
+		for( Iterator<?> iter = entries.iterator(); iter.hasNext(); )
 		{
 			GtuZwischenlager aentry = (GtuZwischenlager)iter.next();
 
@@ -1262,8 +1262,8 @@ public class ErsteigernController extends TemplateGenerator
 		 * Einzelversteigerungen
 		 */
 
-		List versteigerungen = db.createQuery("from Versteigerung order by id desc").list();
-		for( Iterator iter = versteigerungen.iterator(); iter.hasNext(); )
+		List<?> versteigerungen = db.createQuery("from Versteigerung order by id desc").list();
+		for( Iterator<?> iter = versteigerungen.iterator(); iter.hasNext(); )
 		{
 			Versteigerung entry = (Versteigerung)iter.next();
 			User bieter = entry.getBieter();
@@ -1728,8 +1728,8 @@ public class ErsteigernController extends TemplateGenerator
 			{
 				t.setVar("ganymede.selected", 0);
 			}
-			t.setVar("ganymede.id", agany.getInt("id"), "ganymede.name", Common._plaintitle(agany
-					.getString("name")));
+			t.setVar("ganymede.id", agany.getInt("id"), 
+					"ganymede.name", Common._plaintitle(agany.getString("name")));
 
 			t.parse("ganytrans.ganymedes.list", "ganytrans.ganymedes.listitem", true);
 		}
@@ -1855,8 +1855,10 @@ public class ErsteigernController extends TemplateGenerator
 
 		if( ordersys == 0 || orderx == 0 || ordery == 0 )
 		{
-			t.setVar("show.shopOrderLocation", 1, "order.count", ordercount, "order.name", entry
-					.getName(), "order.entry", entry.getID());
+			t.setVar("show.shopOrderLocation", 1, 
+					"order.count", ordercount, 
+					"order.name", entry.getName(), 
+					"order.entry", entry.getID());
 		}
 		else
 		{
@@ -2257,7 +2259,8 @@ public class ErsteigernController extends TemplateGenerator
 
 		for( Ship colonizer : colonizers )
 		{
-			t.setVar("colonizer.id", colonizer.getId(), "colonizer.name", colonizer.getName());
+			t.setVar("colonizer.id", colonizer.getId(), 
+					"colonizer.name", colonizer.getName());
 			t.parse("ausbau.colonizer.list", "ausbau.colonizer.listitem", true);
 		}
 
@@ -2274,9 +2277,11 @@ public class ErsteigernController extends TemplateGenerator
 			{ // Testen ob info den Cargo modifiziert
 				if( selectedBase.getMaxCargo() + info.getMod() <= maxvalues.getMaxCargo() )
 				{
-					t.setVar("cargo.mod", info.getMod(), "cargo.id", info.getId(), "cargo.preis",
-							info.getPrice(), "cargo.bbs", info.getMiningExplosive(), "cargo.erz",
-							info.getOre());
+					t.setVar("cargo.mod", info.getMod(),
+							"cargo.id", info.getId(), 
+							"cargo.preis", info.getPrice(), 
+							"cargo.bbs", info.getMiningExplosive(), 
+							"cargo.erz", info.getOre());
 					t.parse("ausbau.cargo.list", "ausbau.cargo.listitem", true);
 				}
 			}
@@ -2284,9 +2289,11 @@ public class ErsteigernController extends TemplateGenerator
 			{ // Es handelt sich um ein Felder Ausbau
 				if( selectedBase.getMaxTiles() + info.getMod() <= maxvalues.getMaxTiles() )
 				{
-					t.setVar("felder.mod", info.getMod(), "felder.id", info.getId(),
-							"felder.preis", info.getPrice(), "felder.bbs", info
-									.getMiningExplosive(), "felder.erz", info.getOre());
+					t.setVar("felder.mod", info.getMod(), 
+							"felder.id", info.getId(),
+							"felder.preis", info.getPrice(), 
+							"felder.bbs", info.getMiningExplosive(), 
+							"felder.erz", info.getOre());
 					t.parse("ausbau.felder.list", "ausbau.felder.listitem", true);
 				}
 			}
@@ -2318,12 +2325,12 @@ public class ErsteigernController extends TemplateGenerator
 
 		if( this.faction != user.getId() )
 		{
-			List orderentryList = db
+			List<?> orderentryList = db
 					.createQuery(
 							"from FactionShopOrder as fso "
 									+ "where fso.shopEntry.faction= :faction and fso.user= :user and fso.status<4")
 					.setInteger("faction", faction).setEntity("user", user).list();
-			for( Iterator iter = orderentryList.iterator(); iter.hasNext(); )
+			for( Iterator<?> iter = orderentryList.iterator(); iter.hasNext(); )
 			{
 				FactionShopOrder order = (FactionShopOrder)iter.next();
 
@@ -2375,13 +2382,13 @@ public class ErsteigernController extends TemplateGenerator
 		{
 			t.setVar("shop.owner", 1);
 
-			List orderentryList = db
+			List<?> orderentryList = db
 					.createQuery(
 							"from FactionShopOrder as fso "
 									+ "where fso.shopEntry.faction = :faction and fso.status < 4 "
 									+ "order by case when fso.status=0 then fso.status else fso.date end asc")
 					.setInteger("faction", faction).list();
-			for( Iterator iter = orderentryList.iterator(); iter.hasNext(); )
+			for( Iterator<?> iter = orderentryList.iterator(); iter.hasNext(); )
 			{
 				FactionShopOrder order = (FactionShopOrder)iter.next();
 
@@ -2413,12 +2420,15 @@ public class ErsteigernController extends TemplateGenerator
 
 				User ownerobj = order.getUser();
 
-				t.setVar("orderentry.name", shopEntryObj.getName(), "orderentry.adddata",
-						entryadddata, "orderentry.owner", order.getUser().getId(),
+				t.setVar("orderentry.name", shopEntryObj.getName(), 
+						"orderentry.adddata", entryadddata, 
+						"orderentry.owner", order.getUser().getId(),
 						"orderentry.owner.name", Common._title(ownerobj.getName()),
-						"orderentry.link", shopEntryObj.getLink(), "orderentry.id", order.getId(),
-						"orderentry.price", Common.ln(order.getPrice()), "orderentry.count", Common
-								.ln(order.getCount()), "orderentry.status", order.getStatus(),
+						"orderentry.link", shopEntryObj.getLink(), 
+						"orderentry.id", order.getId(),
+						"orderentry.price", Common.ln(order.getPrice()), 
+						"orderentry.count", Common.ln(order.getCount()), 
+						"orderentry.status", order.getStatus(),
 						"orderentry.status.name", getStatusName(order.getStatus()),
 						"orderentry.bgcolor", getStatusColor(order.getStatus()));
 
@@ -2428,14 +2438,14 @@ public class ErsteigernController extends TemplateGenerator
 
 		// Zuerst alle Ganymed-Transportdaten auslesen
 
-		List ganyEntryList = db.createQuery(
+		List<?> ganyEntryList = db.createQuery(
 				"from FactionShopEntry where faction= :faction and type=2").setInteger("faction",
 				faction).list();
 
 		FactionShopEntry[] ganytransport = new FactionShopEntry[ganyEntryList.size()];
 		int i = 0;
 
-		for( Iterator iter = ganyEntryList.iterator(); iter.hasNext(); )
+		for( Iterator<?> iter = ganyEntryList.iterator(); iter.hasNext(); )
 		{
 			ganytransport[i++] = (FactionShopEntry)iter.next();
 		}
@@ -2445,22 +2455,24 @@ public class ErsteigernController extends TemplateGenerator
 		{
 			ShopEntry shopEntryObj = new ShopGanyTransportEntry(ganytransport);
 
-			t.setVar("entry.type.image", shopEntryObj.getImage(), "entry.name", shopEntryObj
-					.getName(), "entry.link", shopEntryObj.getLink(), "entry.id", shopEntryObj
-					.getID(), "entry.availability.name", shopEntryObj.getAvailabilityName(),
+			t.setVar("entry.type.image", shopEntryObj.getImage(), 
+					"entry.name", shopEntryObj.getName(), 
+					"entry.link", shopEntryObj.getLink(), 
+					"entry.id", shopEntryObj.getID(), 
+					"entry.availability.name", shopEntryObj.getAvailabilityName(),
 					"entry.availability.color", shopEntryObj.getAvailabilityColor(),
-					"entry.availability", shopEntryObj.getAvailability(), "entry.price",
-					shopEntryObj.getPriceAsText(), "entry.showamountinput", shopEntryObj
-							.showAmountInput());
+					"entry.availability", shopEntryObj.getAvailability(), 
+					"entry.price", shopEntryObj.getPriceAsText(),
+					"entry.showamountinput", shopEntryObj.showAmountInput());
 
 			t.parse("shop.list", "shop.listitem", true);
 		}
 
 		// Nun den normalen Shop ausgeben
-		List shopentryList = db.createQuery(
+		List<?> shopentryList = db.createQuery(
 				"from FactionShopEntry where faction = :faction and type!=2").setInteger("faction",
 				faction).list();
-		for( Iterator iter = shopentryList.iterator(); iter.hasNext(); )
+		for( Iterator<?> iter = shopentryList.iterator(); iter.hasNext(); )
 		{
 			FactionShopEntry shopentry = (FactionShopEntry)iter.next();
 
@@ -2474,13 +2486,15 @@ public class ErsteigernController extends TemplateGenerator
 				shopEntryObj = new ShopResourceEntry(shopentry);
 			}
 
-			t.setVar("entry.type.image", shopEntryObj.getImage(), "entry.name", shopEntryObj
-					.getName(), "entry.link", shopEntryObj.getLink(), "entry.id", shopEntryObj
-					.getID(), "entry.availability.name", shopEntryObj.getAvailabilityName(),
+			t.setVar("entry.type.image", shopEntryObj.getImage(), 
+					"entry.name", shopEntryObj.getName(), 
+					"entry.link", shopEntryObj.getLink(), 
+					"entry.id", shopEntryObj.getID(), 
+					"entry.availability.name", shopEntryObj.getAvailabilityName(),
 					"entry.availability.color", shopEntryObj.getAvailabilityColor(),
-					"entry.availability", shopEntryObj.getAvailability(), "entry.price",
-					shopEntryObj.getPriceAsText(), "entry.showamountinput", shopEntryObj
-							.showAmountInput());
+					"entry.availability", shopEntryObj.getAvailability(), 
+					"entry.price", shopEntryObj.getPriceAsText(), 
+					"entry.showamountinput", shopEntryObj.showAmountInput());
 
 			t.parse("shop.list", "shop.listitem", true);
 		}

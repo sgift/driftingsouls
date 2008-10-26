@@ -72,13 +72,13 @@ public class JumpdriveShivan implements SchiffPlugin
 				if( ship.getFleet() != null ) {
 					output += "<table class=\"noBorder\">\n";
 	  	
-					List sList = db.createQuery("from Ship where id>0 and fleet=? and owner=? and docked='' and id!=?")
+					List<?> sList = db.createQuery("from Ship where id>0 and fleet=? and owner=? and docked='' and id!=?")
 						.setEntity(0, ship.getFleet())
 						.setEntity(1, ship.getOwner())
 						.setInteger(2, ship.getId())
 						.list();
 					
-					for( Iterator iter=sList.iterator(); iter.hasNext(); )
+					for( Iterator<?> iter=sList.iterator(); iter.hasNext(); )
 					{
 						Ship aship = (Ship)iter.next();
 						
@@ -120,13 +120,13 @@ public class JumpdriveShivan implements SchiffPlugin
 				{
 					output += "<table class=\"noBorder\">\n";
 	  	
-					List sList = db.createQuery("from Ship where id>0 and fleet=? and owner=? and docked='' and id!=?")
+					List<?> sList = db.createQuery("from Ship where id>0 and fleet=? and owner=? and docked='' and id!=?")
 						.setEntity(0, ship.getFleet())
 						.setEntity(1, ship.getOwner())
 						.setInteger(2, ship.getId())
 						.list();
 					
-					for( Iterator iter=sList.iterator(); iter.hasNext(); )
+					for( Iterator<?> iter=sList.iterator(); iter.hasNext(); )
 					{
 						Ship aship = (Ship)iter.next();
 					
@@ -170,13 +170,13 @@ public class JumpdriveShivan implements SchiffPlugin
 				{
 					output += "<table class=\"noBorder\">\n";
 	  	
-					List sList = db.createQuery("from Ship where id>0 and fleet=? and owner=? and docked='' and id!=?")
+					List<?> sList = db.createQuery("from Ship where id>0 and fleet=? and owner=? and docked='' and id!=?")
 						.setEntity(0, ship.getFleet())
 						.setEntity(1, ship.getOwner())
 						.setInteger(2, ship.getId())
 						.list();
 					
-					for( Iterator iter=sList.iterator(); iter.hasNext(); )
+					for( Iterator<?> iter=sList.iterator(); iter.hasNext(); )
 					{
 						Ship aship = (Ship)iter.next();
 						ShipTypeData st = aship.getTypeData();

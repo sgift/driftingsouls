@@ -33,7 +33,6 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -46,6 +45,8 @@ import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Die Schiffsliste
@@ -58,7 +59,9 @@ import org.apache.commons.lang.StringEscapeUtils;
  * @urlparam Integer kampf_only Falls != 0 werden nur Kriegsschiffe der Schiffsklasse mit der angegebenen ID angezeigt
  * 
  */
-public class SchiffeController extends TemplateGenerator implements Loggable {
+public class SchiffeController extends TemplateGenerator {
+	private static final Log log = LogFactory.getLog(SchiffeController.class);
+	
 	/**
 	 * Konstruktor
 	 * @param context Der zu verwendende Kontext
@@ -236,12 +239,12 @@ public class SchiffeController extends TemplateGenerator implements Loggable {
 
 		t.setBlock("_SCHIFFE","schiffe.listitem","schiffe.list");
 		t.setBlock("schiffe.listitem","schiffe.resitem","schiffe.reslist");
-		List ships = db.createQuery(query)
+		List<?> ships = db.createQuery(query)
 			.setEntity(0, user)
 			.setMaxResults(MAX_SHIPS_PER_PAGE+1)
 			.setFirstResult(listoffset)
 			.list();
-		for( Iterator iter=ships.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship ship = (Ship)iter.next();
 			
 			t.start_record();
@@ -314,7 +317,7 @@ public class SchiffeController extends TemplateGenerator implements Loggable {
 						.setEntity(0, ship)
 						.uniqueResult();
 					if( werft == null ) {
-						LOG.warn("Schiff "+ship.getId()+" hat keinen Werfteintrag");
+						log.warn("Schiff "+ship.getId()+" hat keinen Werfteintrag");
 					}
 					else {
 						if( werft.getKomplex() != null ) {

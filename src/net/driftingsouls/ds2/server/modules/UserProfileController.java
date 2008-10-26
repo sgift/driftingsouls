@@ -18,7 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.config.Medal;
@@ -118,8 +117,7 @@ public class UserProfileController extends TemplateGenerator {
 	public void changeRelationAllyAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		org.hibernate.Session db = getDB();
-	
+
 		if( user.getAlly() == null ) {
 			addError("Sie sind in keiner Allianz");
 			redirect();
@@ -152,11 +150,8 @@ public class UserProfileController extends TemplateGenerator {
 			break;
 		}
 		
-		List allymemberList = db.createQuery("from User where ally=?")
-			.setEntity(0, user.getAlly())
-			.list();
-		for( Iterator iter=allymemberList.iterator(); iter.hasNext(); ) {
-			User auser = (User)iter.next();
+		List<User> allymemberList = user.getAlly().getMembers();
+		for( User auser : allymemberList ) {
 			auser.setRelation(this.user.getId(), rel);
 		}
 		

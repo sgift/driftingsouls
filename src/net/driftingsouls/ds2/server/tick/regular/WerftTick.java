@@ -51,21 +51,21 @@ public class WerftTick extends TickController {
 		org.hibernate.Session db = getDB();
 		final User sourceUser = (User)db.get(User.class, -1);
 		
-		List werften = db.createQuery("from ShipWerft s inner join fetch s.ship")
+		List<?> werften = db.createQuery("from ShipWerft s inner join fetch s.ship")
 			.list();
-		for( Iterator iter=werften.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=werften.iterator(); iter.hasNext(); ) {
 			processWerft(sourceUser, (WerftObject)iter.next());
 		}
 		
 		werften = db.createQuery("from BaseWerft b inner join fetch b.base")
 			.list();
-		for( Iterator iter=werften.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=werften.iterator(); iter.hasNext(); ) {
 			processWerft(sourceUser, (WerftObject)iter.next());
 		}
 		
 		werften = db.createQuery("from WerftKomplex")
 			.list();
-		for( Iterator iter=werften.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=werften.iterator(); iter.hasNext(); ) {
 			processWerft(sourceUser, (WerftObject)iter.next());
 		}
 	}

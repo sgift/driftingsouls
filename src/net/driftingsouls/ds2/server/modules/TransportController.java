@@ -138,14 +138,14 @@ public class TransportController extends TemplateGenerator {
 					
 					Location loc = handler.getLocation();
 					
-					List fleetlist = db.createQuery("from Ship " +
+					List<?> fleetlist = db.createQuery("from Ship " +
 							"where id>0 and fleet=? and x=? and y=? and system=?")
 							.setEntity(0, handler.getFleet())
 							.setInteger(1, loc.getX())
 							.setInteger(2, loc.getY())
 							.setInteger(3, loc.getSystem())
 							.list();
-					for( Iterator iter=fleetlist.iterator(); iter.hasNext(); ) {
+					for( Iterator<?> iter=fleetlist.iterator(); iter.hasNext(); ) {
 						ShipTransportTarget shiphandler = new ShipTransportTarget();
 						shiphandler.create(role, (Ship)iter.next());
 						list.add(shiphandler);

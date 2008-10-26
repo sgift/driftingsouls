@@ -108,7 +108,7 @@ public class DeutTransporter implements Role {
 	private void fetchDeuterium(org.hibernate.Session db, Ship ship) {
 		Cargo shipCargo = ship.getCargo();
 		
-		List tankerList = db.createQuery("from Ship where x= :x and y= :y and system= :system " +
+		List<?> tankerList = db.createQuery("from Ship where x= :x and y= :y and system= :system " +
 				"and owner= :owner and shiptype.deutFactor > 0 and id!= :transporter")
 			.setInteger("x", nebel.getX())
 			.setInteger("y", nebel.getY())
@@ -116,7 +116,7 @@ public class DeutTransporter implements Role {
 			.setInteger("owner", ship.getOwner().getId())
 			.setInteger("transporter", ship.getId())
 			.list();
-		for( Iterator iter=tankerList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=tankerList.iterator(); iter.hasNext(); ) {
 			Ship tanker = (Ship)iter.next();
 			Cargo tankerCargo = tanker.getCargo();
 			

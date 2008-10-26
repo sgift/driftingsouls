@@ -74,8 +74,8 @@ public class ResearchEdit implements AdminPlugin {
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("Tech: <select name=\"techid\" size=\"1\" style=\"width:250px\">\n");
 			
-			List researches = db.createQuery("from Forschung").list();
-			for( Iterator iter=researches.iterator(); iter.hasNext(); ) {
+			List<?> researches = db.createQuery("from Forschung").list();
+			for( Iterator<?> iter=researches.iterator(); iter.hasNext(); ) {
 				Forschung research = (Forschung)iter.next();
 				echo.append("<option value=\""+research.getID()+"\""+(research.getID() == techid ? " selected=\"selected\"" : "")+">"+research.getName()+"</option>\n");
 			}
@@ -122,8 +122,8 @@ public class ResearchEdit implements AdminPlugin {
 				if( i > 1 ) echo.append("<br />");
 				
 				echo.append("<select name=\"req"+i+"\" size=\"1\" style=\"width:200px\">\n");
-				List researches = db.createQuery("from Forschung").list();
-				for( Iterator iter=researches.iterator(); iter.hasNext(); ) {
+				List<?> researches = db.createQuery("from Forschung").list();
+				for( Iterator<?> iter=researches.iterator(); iter.hasNext(); ) {
 					Forschung requirement = (Forschung)iter.next();
 					echo.append("<option value=\""+research.getID()+" "+(requirement.getID() == techid ? "selected=\"selected\"" : "")+" \">"+requirement.getName()+"</option>\n");
 				}
@@ -150,12 +150,12 @@ public class ResearchEdit implements AdminPlugin {
 			echo.append("</td><td class=\"noBorderX\" valign=\"top\">");
 				
 			boolean entry = false;
-			List requirements = db.createQuery("from Forschung where id=? or id=? or id=?")
+			List<?> requirements = db.createQuery("from Forschung where id=? or id=? or id=?")
 				.setInteger(0, research.getRequiredResearch(1))
 				.setInteger(1, research.getRequiredResearch(2))
 				.setInteger(2, research.getRequiredResearch(3))
 				.list();
-			for( Iterator iter=requirements.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=requirements.iterator(); iter.hasNext(); ) {
 				Forschung requirement = (Forschung)iter.next();
 				
 				if(entry) {

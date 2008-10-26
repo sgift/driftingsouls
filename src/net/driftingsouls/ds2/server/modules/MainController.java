@@ -123,10 +123,10 @@ public class MainController extends TemplateGenerator {
 		
 		t.setBlock("_MAIN", "bases.listitem", "bases.list");
 		
-		List baseList = db.createQuery("from Base where owner= :user order by system,x,y")
+		List<?> baseList = db.createQuery("from Base where owner= :user order by system,x,y")
 			.setEntity("user", user)
 			.list();
-		for( Iterator iter=baseList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=baseList.iterator(); iter.hasNext(); ) {
 			Base base = (Base)iter.next();
 			
 			t.setVar(

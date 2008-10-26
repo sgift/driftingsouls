@@ -34,7 +34,6 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
@@ -45,12 +44,16 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.ships.Waypoint;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Schiffsmodul fuer die Anzeige der Navigation
  * @author Christopher Jung
  *
  */
-public class NavigationDefault implements SchiffPlugin, Loggable {
+public class NavigationDefault implements SchiffPlugin {
+	private static final Log log = LogFactory.getLog(NavigationDefault.class);
 
 	public String action(Parameters caller) {
 		Ship ship = caller.ship;
@@ -131,7 +134,7 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 				targety = Integer.parseInt((String)engineBindings.get("TARGETY"));
 			}
 			catch( NumberFormatException e ) {
-				LOG.warn("Illegales Zahlenformat nach Ausfuehrung von 'onmove'", e);
+				log.warn("Illegales Zahlenformat nach Ausfuehrung von 'onmove'", e);
 			}
 			
 
@@ -207,7 +210,7 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 			int sys = data.getSystem();
 			
 			String[][] sectorimgs = new String[3][3];
-			List jnlist = db.createQuery("from JumpNode where system=? and (x between ? and ?) and (y between ? and ?)")
+			List<?> jnlist = db.createQuery("from JumpNode where system=? and (x between ? and ?) and (y between ? and ?)")
 				.setInteger(0, sys)
 				.setInteger(1, x-1)
 				.setInteger(2, x+1)
@@ -215,17 +218,17 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 				.setInteger(4, y+1)
 				.list();
 			
-			for( Iterator iter=jnlist.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=jnlist.iterator(); iter.hasNext(); ) {
 				JumpNode jn = (JumpNode)iter.next();
 				sectorimgs[jn.getX()-x+1][jn.getY()-y+1] = "data/starmap/jumpnode/jumpnode.png";
 			}
 			
-			List baselist = db.createQuery("select distinct b from Base b where b.system=? and floor(sqrt(pow(?-b.x,2)+pow(?-b.y,2))) <= b.size+1")
+			List<?> baselist = db.createQuery("select distinct b from Base b where b.system=? and floor(sqrt(pow(?-b.x,2)+pow(?-b.y,2))) <= b.size+1")
 				.setInteger(0, sys)
 				.setInteger(1, x)
 				.setInteger(2, y)
 				.list();
-			for( Iterator iter=baselist.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=baselist.iterator(); iter.hasNext(); ) {
 				Base aBase = (Base)iter.next();
 				
 				if( (aBase.getSize() == 0) && (sectorimgs[aBase.getX()-x+1][aBase.getY()-y+1] == null) ) {
@@ -255,14 +258,14 @@ public class NavigationDefault implements SchiffPlugin, Loggable {
 				}
 			}
 			
-			List nebellist = db.createQuery("from Nebel where loc.system=? and (loc.x between ? and ?) and (loc.y between ? and ?)")
+			List<?> nebellist = db.createQuery("from Nebel where loc.system=? and (loc.x between ? and ?) and (loc.y between ? and ?)")
 				.setInteger(0, sys)
 				.setInteger(1, x-1)
 				.setInteger(2, x+1)
 				.setInteger(3, y-1)
 				.setInteger(4, y+1)
 				.list();
-			for( Iterator iter=nebellist.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=nebellist.iterator(); iter.hasNext(); ) {
 				Nebel nebel = (Nebel)iter.next();
 				sectorimgs[nebel.getX()-x+1][nebel.getY()-y+1] = "data/starmap/fog"+nebel.getType()+"/fog"+nebel.getType()+".png";
 			}
