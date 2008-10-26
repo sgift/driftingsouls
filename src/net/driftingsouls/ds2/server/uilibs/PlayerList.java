@@ -103,20 +103,20 @@ public class PlayerList {
 			asticount = new HashMap<Integer,Integer>();
 			shipcount = new HashMap<Integer,Integer>();
 			
-			List<?> basecounts = db.createQuery("select owner,count(*) from Base group by owner").list();
+			List<?> basecounts = db.createQuery("select owner.id,count(*) from Base group by owner.id").list();
 			for( Iterator<?> iter=basecounts.iterator(); iter.hasNext(); ) {
 				final Object[] data = (Object[])iter.next();
-				final User owner = (User)data[0];
+				final Integer owner = (Integer)data[0];
 				final Number count = (Number)data[1];
-				asticount.put(owner.getId(), count.intValue());
+				asticount.put(owner, count.intValue());
 			}
 			
-			List<?> shipcounts = db.createQuery("select owner,count(*) from Ship group by owner").list();
+			List<?> shipcounts = db.createQuery("select owner.id,count(*) from Ship group by owner.id").list();
 			for( Iterator<?> iter=shipcounts.iterator(); iter.hasNext(); ) {
 				final Object[] data = (Object[])iter.next();
-				final User owner = (User)data[0];
+				final Integer owner = (Integer)data[0];
 				final Number count = (Number)data[1];
-				shipcount.put(owner.getId(), count.intValue());
+				shipcount.put(owner, count.intValue());
 			}
 			
 			query = "select u from User u left join fetch u.ally a order by ";
