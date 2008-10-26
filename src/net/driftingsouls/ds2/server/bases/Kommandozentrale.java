@@ -75,9 +75,8 @@ public class Kommandozentrale extends DefaultBuilding {
 		User nullUser = (User)context.getDB().get(User.class, 0);
 		base.setOwner(nullUser);
 				
-		db.createQuery("update ShipWerft set linked=? where linked=?")
-			.setEntity(0, null)
-			.setEntity(1, base)
+		db.createQuery("update ShipWerft set linked=null where linked=:base")
+			.setEntity("base", base)
 			.executeUpdate();
 	}
 
