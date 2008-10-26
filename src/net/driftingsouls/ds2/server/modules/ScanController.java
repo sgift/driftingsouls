@@ -254,14 +254,14 @@ public class ScanController extends TemplateGenerator {
 			*/
 			t.setBlock("_SCAN", "bases.listitem", "bases.list");
 			
-			List bases = db.createQuery("from Base b inner join fetch b.owner " +
+			List<?> bases = db.createQuery("from Base b inner join fetch b.owner " +
 					"where b.system= :sys and floor(sqrt(pow( :x - b.x,2)+pow( :y - b.y,2))) <= b.size " +
 					"order by b.id")
 				.setInteger("x", scanLoc.getX())
 				.setInteger("y", scanLoc.getY())
 				.setInteger("sys", scanLoc.getSystem())
 				.list();
-			for( Iterator iter=bases.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=bases.iterator(); iter.hasNext(); ) {
 				Base base = (Base)iter.next();
 				
 				t.start_record();
@@ -308,12 +308,12 @@ public class ScanController extends TemplateGenerator {
 				Schlachten
 			*/
 			t.setBlock("_SCAN", "battles.listitem", "battles.list");
-			List battleList = db.createQuery("from Battle where x= :x and y= :y and system= :sys")
+			List<?> battleList = db.createQuery("from Battle where x= :x and y= :y and system= :sys")
 				.setInteger("x", scanLoc.getX())
 				.setInteger("y", scanLoc.getY())
 				.setInteger("sys", scanLoc.getSystem())
 				.list();
-			for( Iterator iter=battleList.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=battleList.iterator(); iter.hasNext(); ) {
 				Battle battle = (Battle)iter.next();
 				
 				boolean questbattle = false;
@@ -379,7 +379,7 @@ public class ScanController extends TemplateGenerator {
 			
 			// Falls nicht im Admin-Modus und nicht das aktuelle Feld gescannt wird: Liste der kleinen Schiffe generieren
 			if( !this.admin && (scanx != this.ship.getX()) || (scany != this.ship.getY()) ) {
-				final Iterator typeIter = db.createQuery("from ShipType where locate(:flag,flags)!=0")
+				final Iterator<?> typeIter = db.createQuery("from ShipType where locate(:flag,flags)!=0")
 					.setString("flag", ShipTypes.SF_SEHR_KLEIN)
 					.iterate();
 				while( typeIter.hasNext() ) {
@@ -388,7 +388,7 @@ public class ScanController extends TemplateGenerator {
 				}
 			}
 			
-			List shiplist = db.createQuery("from Ship s inner join fetch s.owner " +
+			List<?> shiplist = db.createQuery("from Ship s inner join fetch s.owner " +
 					"where s.id>0 and s.x= :x and s.y= :y and s.system= :sys and s.battle is null and " +
 						"((s.shiptype not in ("+Common.implode(",",verysmallshiptypes)+")) or s.modules is not null) and " +
 						"(s.visibility is null or s.visibility= :user) and locate('l ',s.docked)=0 " +
@@ -399,7 +399,7 @@ public class ScanController extends TemplateGenerator {
 					.setInteger("user", user.getId())
 					.list();
 						
-			for( Iterator iter=shiplist.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=shiplist.iterator(); iter.hasNext(); ) {
 				Ship ship = (Ship)iter.next();
 				
 				boolean disableIFF = ship.getStatus().contains("disable_iff");
@@ -487,15 +487,19 @@ public class ScanController extends TemplateGenerator {
 			Alle Objekte zusammensuchen, die fuer uns in Frage kommen
 		*/
 		
-		String rangesql = "system="+this.ship.getSystem()+" and " +
-					"(x between "+(this.ship.getX()-this.range)+" and "+(this.ship.getX()+this.range)+") and " +
-					"(y between "+(this.ship.getY()-this.range)+" and "+(this.ship.getY()+this.range)+")";
-
 		// Nebel
 		Map<Location,Integer> nebelmap = new HashMap<Location,Integer>();
 
-		List nebelList = db.createQuery("from Nebel where "+rangesql).list();
-		for( Iterator iter=nebelList.iterator(); iter.hasNext(); ) {
+		List<?> nebelList = db.createQuery("from Nebel where system=:system and " +
+				"x between :xmin and :xmax and " +
+				"y between :ymin and :ymax")
+			.setInteger("system", this.ship.getSystem())
+			.setInteger("xmin", this.ship.getX()-this.range)
+			.setInteger("xmax", this.ship.getX()+this.range)
+			.setInteger("ymin", this.ship.getY()-this.range)
+			.setInteger("ymax", this.ship.getY()+this.range)
+			.list();
+		for( Iterator<?> iter=nebelList.iterator(); iter.hasNext(); ) {
 			Nebel nebel = (Nebel)iter.next();
 			nebelmap.put(nebel.getLocation(), nebel.getType());
 		}
@@ -503,8 +507,16 @@ public class ScanController extends TemplateGenerator {
 		// Jumpnodes
 		Map<Location,Boolean> nodemap = new HashMap<Location,Boolean>();
 
-		List nodeList = db.createQuery("from JumpNode where "+rangesql).list();
-		for( Iterator iter=nodeList.iterator(); iter.hasNext(); ) {
+		List<?> nodeList = db.createQuery("from JumpNode where  system=:system and " +
+				"x between :xmin and :xmax and " +
+				"y between :ymin and :ymax")
+			.setInteger("system", this.ship.getSystem())
+			.setInteger("xmin", this.ship.getX()-this.range)
+			.setInteger("xmax", this.ship.getX()+this.range)
+			.setInteger("ymin", this.ship.getY()-this.range)
+			.setInteger("ymax", this.ship.getY()+this.range)
+			.list();
+		for( Iterator<?> iter=nodeList.iterator(); iter.hasNext(); ) {
 			JumpNode node = (JumpNode)iter.next();
 			nodemap.put(node.getLocation(), true);
 		}
@@ -515,7 +527,7 @@ public class ScanController extends TemplateGenerator {
 		
 		// Im Admin-Modus sind alle Schiffe sichtbar
 		if( !this.admin ) {
-			final Iterator typeIter = db.createQuery("from ShipType where locate(:flag,flags)!=0")
+			final Iterator<?> typeIter = db.createQuery("from ShipType where locate(:flag,flags)!=0")
 				.setString("flag", ShipTypes.SF_SEHR_KLEIN)
 				.iterate();
 			while( typeIter.hasNext() ) {
@@ -527,12 +539,19 @@ public class ScanController extends TemplateGenerator {
 		Map<Location,List<Ship>> shipmap = new HashMap<Location,List<Ship>>();
 		Map<Location,Boolean> ownshipmap = new HashMap<Location,Boolean>();
 
-		List shipList = db.createQuery("from Ship s inner join fetch s.owner " +
-				"where s.id>0 and "+rangesql+" and (s.visibility is null or s.visibility= :user ) and " +
-					"((s.shiptype not in ("+Common.implode(",",verysmallshiptypes)+")) or s.modules is not null)")
+		List<?> shipList = db.createQuery("from Ship s inner join fetch s.owner " +
+				"where s.id>0 and system=:system and " +
+				"x between :xmin and :xmax and " +
+				"y between :ymin and :ymax and (s.visibility is null or s.visibility= :user ) and " +
+				"((s.shiptype not in ("+Common.implode(",",verysmallshiptypes)+")) or s.modules is not null)")
 			.setInteger("user", user.getId())
+			.setInteger("system", this.ship.getSystem())
+			.setInteger("xmin", this.ship.getX()-this.range)
+			.setInteger("xmax", this.ship.getX()+this.range)
+			.setInteger("ymin", this.ship.getY()-this.range)
+			.setInteger("ymax", this.ship.getY()+this.range)
 			.list();
-		for( Iterator iter=shipList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=shipList.iterator(); iter.hasNext(); ) {
 			Ship ship = (Ship)iter.next();
 			
 			ShipTypeData st = ship.getTypeData();
@@ -558,7 +577,7 @@ public class ScanController extends TemplateGenerator {
 		// Basen
 		Map<Location,BaseEntry> basemap = new HashMap<Location,BaseEntry>();
 
-		List baseList = db.createQuery("from Base b inner join fetch b.owner " +
+		List<?> baseList = db.createQuery("from Base b inner join fetch b.owner " +
 				"where b.system= :sys and " +
 					"(floor(sqrt(pow(b.x - :x,2)+pow(b.y - :y,2))) <= :range+b.size) " +
 				"order by b.size")
@@ -568,7 +587,7 @@ public class ScanController extends TemplateGenerator {
 			.setInteger("range", this.range)
 			.list();
 						
-		for( Iterator iter=baseList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=baseList.iterator(); iter.hasNext(); ) {
 			Base base = (Base)iter.next();
 			
 			int imgcount = 0;

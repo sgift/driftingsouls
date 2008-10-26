@@ -194,7 +194,7 @@ public class TradeController extends TemplateGenerator {
 		
 		int tick = getContext().get(ContextCommon.class).getTick();
 		
-		StatVerkaeufe stats = (StatVerkaeufe)db.createQuery("from StatVerkaeufe where tick=? AND place=? AND system=?")
+		StatVerkaeufe stats = (StatVerkaeufe)db.createQuery("from StatVerkaeufe where tick=? and place=? and system=?")
 			.setInteger(0, tick)
 			.setString(1, this.place)
 			.setInteger(2, this.posten.getSystem())

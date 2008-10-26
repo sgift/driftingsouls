@@ -139,7 +139,7 @@ public class TransportController extends TemplateGenerator {
 					Location loc = handler.getLocation();
 					
 					List fleetlist = db.createQuery("from Ship " +
-							"where id>0 and fleet=? AND x=? AND y=? AND system=?")
+							"where id>0 and fleet=? and x=? and y=? and system=?")
 							.setEntity(0, handler.getFleet())
 							.setInteger(1, loc.getX())
 							.setInteger(2, loc.getY())

@@ -749,11 +749,12 @@ public class Battle implements Loggable, Locatable {
 		Set<User> ownUsers = new HashSet<User>();
 		Set<User> enemyUsers = new HashSet<User>();
 		List shiplist = db.createQuery("from Ship as s inner join fetch s.owner as u "+
-				"where s.id>0 and s.x=? and s.y=? and " +
+				"where s.id>:minid and s.x=? and s.y=? and " +
 				"s.system=? and s.battle is null and " +
 				"(ncp(u.ally,:ally1)=1 or " + 
 				"ncp(u.ally,:ally2)=1) and " +
 				"locate('disable_iff',s.status)=0 and s.lock is null and (u.vaccount=0 or u.wait4vac > 0)")
+			.setInteger("minid", 0)
 			.setInteger(0, tmpOwnShip.getX())
 			.setInteger(1, tmpOwnShip.getY())
 			.setInteger(2, tmpOwnShip.getSystem())

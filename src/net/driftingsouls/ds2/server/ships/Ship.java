@@ -71,7 +71,6 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.tasks.Task;
@@ -80,6 +79,8 @@ import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
@@ -91,7 +92,9 @@ import org.hibernate.annotations.Type;
  */
 @Entity
 @Table(name="ships")
-public class Ship implements Loggable,Locatable,Transfering {
+public class Ship implements Locatable,Transfering {
+	private static final Log log = LogFactory.getLog(Ship.class);
+	
 	/**
 	 * Objekt mit Funktionsmeldungen
 	 */
@@ -948,7 +951,7 @@ public class Ship implements Loggable,Locatable,Transfering {
 				werft.getKomplex().checkWerftLocations();
 			}
 			else if( werft == null ) {
-				LOG.error("Das Schiff "+this.id+" besitzt keinen Werfteintrag");
+				log.error("Das Schiff "+this.id+" besitzt keinen Werfteintrag");
 			}
 		}
 		
@@ -1012,11 +1015,11 @@ public class Ship implements Loggable,Locatable,Transfering {
 		
 		if( getTypeData().getADocks() > 0 || getTypeData().getJDocks() > 0 ) {
 			//Angehaengte Schiffe beruecksichtigen
-			List dockedShips = db.createQuery("from Ship as ship where ship.docked in (?,?)")
+			List<?> dockedShips = db.createQuery("from Ship as ship where ship.docked in (?,?)")
 				.setString(0, Integer.toString(this.id))
 				.setString(1, "l "+this.id)
 				.list();
-			for( Iterator iter=dockedShips.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=dockedShips.iterator(); iter.hasNext(); ) {
 				Ship dockedShip = (Ship)iter.next();
 					
 				foodConsumption += dockedShip.getNettoFoodConsumption();
@@ -1084,12 +1087,7 @@ public class Ship implements Loggable,Locatable,Transfering {
 			return new ModuleEntry[0];
 		}
 
-		ShipModules moduletbl = this.modules;	
-		if( moduletbl == null ) {
-			LOG.warn("Keine Modultabelle fuer Schiff "+this.id+" vorhanden");
-			return new ModuleEntry[0];
-		}
-
+		ShipModules moduletbl = this.modules;
 		if( moduletbl.getModules().length() != 0 ) {
 			String[] modulelist = StringUtils.split(moduletbl.getModules(), ';');
 			if( modulelist.length != 0 ) {
@@ -1368,10 +1366,10 @@ public class Ship implements Loggable,Locatable,Transfering {
 							.iterate().next()).intValue();
 
 					if( docked != 0 ) {
-						List dlist = db.createQuery("from Ship where docked=?")
+						List<?> dlist = db.createQuery("from Ship where docked=?")
 						.setString(0, Integer.toString(this.id))
 						.list();
-						for( Iterator iter=dlist.iterator(); iter.hasNext(); ) {
+						for( Iterator<?> iter=dlist.iterator(); iter.hasNext(); ) {
 							Ship aship = (Ship)iter.next();
 
 							battle.addShip( this.owner.getId(), aship.getId() );
@@ -1432,11 +1430,11 @@ public class Ship implements Loggable,Locatable,Transfering {
 		}
 		builder.append(")");
 
-		List ownerList = db.createQuery("select distinct s.owner,s.x,s.y,s.system from Ship as s where s.id>0 and "+builder +
+		List<?> ownerList = db.createQuery("select distinct s.owner,s.x,s.y,s.system from Ship as s where s.id>0 and "+builder +
 			" and s.e>0 and s.owner!=? and s.alarm=1 and s.lock is null and s.docked='' and locate('nocrew',s.status)=0")
 			.setEntity(0, user)
 			.list();
-		for( Iterator iter=ownerList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=ownerList.iterator(); iter.hasNext(); ) {
 			Object[] data = (Object[])iter.next();
 			User auser = (User)data[0];
 
@@ -1697,18 +1695,18 @@ public class Ship implements Loggable,Locatable,Transfering {
 
 		org.hibernate.Session db = context.getDB();
 
-		List fleetships = db.createQuery("from Ship " +
-				"where id>0 and fleet=? AND x=? AND y=? and system=? and owner=? and " +
-		"docked='' and id!=? and e>0 and battle is null")
-		.setEntity(0, this.fleet)
-		.setInteger(1, this.x)
-		.setInteger(2, this.y)
-		.setInteger(3, this.system)
-		.setEntity(4, this.owner)
-		.setInteger(5, this.id)
-		.list();
+		List<?> fleetships = db.createQuery("from Ship " +
+				"where id>0 and fleet=? and x=? and y=? and system=? and owner=? and " +
+				"docked='' and id!=? and e>0 and battle is null")
+			.setEntity(0, this.fleet)
+			.setInteger(1, this.x)
+			.setInteger(2, this.y)
+			.setInteger(3, this.system)
+			.setEntity(4, this.owner)
+			.setInteger(5, this.id)
+			.list();
 
-		for( Iterator iter=fleetships.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=fleetships.iterator(); iter.hasNext(); ) {
 			if( verbose && firstEntry ) {
 				firstEntry = false;
 				out.append("<table class=\"noBorder\">\n");
@@ -1818,11 +1816,11 @@ public class Ship implements Loggable,Locatable,Transfering {
 
 			for( Ship fleetship : fleetdata.ships.values() ) {
 				if( fleetdata.dockedCount.get(fleetship.getId()) > 0 ) {
-					List dockedList = db.createQuery("from Ship where id>0 and docked in (?,?)")
+					List<?> dockedList = db.createQuery("from Ship where id>0 and docked in (?,?)")
 						.setString(0, "l "+fleetship.getId())
 						.setString(1, Integer.toString(fleetship.getId()))
 						.list();
-					for( Iterator iter=dockedList.iterator(); iter.hasNext(); ) {
+					for( Iterator<?> iter=dockedList.iterator(); iter.hasNext(); ) {
 						Ship dockedShip = (Ship)iter.next();
 						dockedShip.setSystem(fleetship.getSystem());
 						dockedShip.setX(fleetship.x);
@@ -1938,25 +1936,25 @@ public class Ship implements Loggable,Locatable,Transfering {
 
 			// Alle potentiell relevanten Sektoren (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
 			Map<Location,Sector> sectorlist = new HashMap<Location,Sector>();
-			List sectors = db.createQuery("from Sector " +
+			List<?> sectors = db.createQuery("from Sector " +
 					"where system in (?,-1) and (x=-1 or "+xbetween+") AND (y=-1 or "+ybetween+") order by system desc")
 					.setInteger(0, this.system)
 					.list();
 
-			for( Iterator iter=sectors.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=sectors.iterator(); iter.hasNext(); ) {
 				Sector sector = (Sector)iter.next();
 				sectorlist.put(sector.getLocation(), sector);
 			}
 
 			// Alle potentiell relevanten Sektoren mit Schiffen auf rotem Alarm (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
 			Map<Location,Boolean> redalertlist = new HashMap<Location,Boolean>();
-			List sectorList = db.createQuery("from Ship " +
+			List<?> sectorList = db.createQuery("from Ship " +
 					"where owner!=? and alarm=1 and system=? and "+xbetween+" and "+ybetween)
 					.setEntity(0, this.owner)
 					.setInteger(1, this.system)
 					.list();
 
-			for( Iterator iter=sectorList.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=sectorList.iterator(); iter.hasNext(); ) {
 				Ship aship = (Ship)iter.next();
 				redalertlist.put(aship.getLocation(), Boolean.TRUE);
 			}
@@ -1968,7 +1966,7 @@ public class Ship implements Loggable,Locatable,Transfering {
 					.setInteger(0, this.system)
 					.list();
 
-			for( Iterator iter=sectorList.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=sectorList.iterator(); iter.hasNext(); ) {
 				Nebel nebel = (Nebel)iter.next();
 				nebulaemplist.put(nebel.getLocation(), Boolean.TRUE);
 			}
@@ -2059,12 +2057,12 @@ public class Ship implements Loggable,Locatable,Transfering {
 									.setInteger(1, this.x+tmpxoff)
 									.setInteger(2, this.y+tmpyoff)
 									.list();
-							for( Iterator iter=sectors.iterator(); iter.hasNext(); ) {
+							for( Iterator<?> iter=sectors.iterator(); iter.hasNext(); ) {
 								Sector sector = (Sector)iter.next();
 								sectorlist.put(sector.getLocation(), sector);
 							}
 
-							Iterator rasectListIter = db.createQuery("from Ship " +
+							Iterator<?> rasectListIter = db.createQuery("from Ship " +
 							"where owner!=? AND alarm='1' AND system=? AND x=? AND y=?")
 								.setEntity(0, this.owner)
 								.setInteger(1, this.system)
@@ -2193,11 +2191,11 @@ public class Ship implements Loggable,Locatable,Transfering {
 
 			this.docked = "";
 			if( docked != 0 ) {
-				List dockedList = db.createQuery("from Ship where id>0 and docked in (?,?)")
+				List<?> dockedList = db.createQuery("from Ship where id>0 and docked in (?,?)")
 					.setString(0, "l "+this.id)
 					.setString(1, Integer.toString(this.id))
 					.list();
-				for( Iterator iter=dockedList.iterator(); iter.hasNext(); ) {
+				for( Iterator<?> iter=dockedList.iterator(); iter.hasNext(); ) {
 					Ship dockedShip = (Ship)iter.next();
 					dockedShip.setSystem(this.system);
 					dockedShip.setX(this.x);
@@ -2382,14 +2380,14 @@ public class Ship implements Loggable,Locatable,Transfering {
 		List<Ship> shiplist = new ArrayList<Ship>();
 		// Falls vorhanden die Schiffe der Flotte einfuegen
 		if( this.fleet != null ) {
-			List fleetships = db.createQuery("from Ship where id>0 and fleet=? AND x=? AND y=? AND system=? and docked=''")
+			List<?> fleetships = db.createQuery("from Ship where id>0 and fleet=? AND x=? AND y=? AND system=? and docked=''")
 			.setEntity(0, this.fleet)
 			.setInteger(1, this.x)
 			.setInteger(2, this.y)
 			.setInteger(3, this.system)
 			.list();
 
-			for( Iterator iter=fleetships.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=fleetships.iterator(); iter.hasNext(); ) {
 				Ship fleetship = (Ship)iter.next();
 
 				// Bei Knossossprungpunkten darauf achten, dass das Portal nicht selbst mitspringt
@@ -2419,11 +2417,11 @@ public class Ship implements Loggable,Locatable,Transfering {
 			// Liste der gedockten Schiffe laden
 			List<Ship> docked = new ArrayList<Ship>();
 			if( (shiptype.getADocks() > 0) || (shiptype.getJDocks() > 0) ) { 
-				List line = db.createQuery("from Ship where id>0 and docked in (?,?)")
+				List<?> line = db.createQuery("from Ship where id>0 and docked in (?,?)")
 					.setString(0, Integer.toString(ship.getId()))
 					.setString(1, "l "+ship.getId())
 					.list();
-				for( Iterator iter=line.iterator(); iter.hasNext(); ) {
+				for( Iterator<?> iter=line.iterator(); iter.hasNext(); ) {
 					Ship aship = (Ship)iter.next();
 					docked.add(aship);
 				}
@@ -2525,10 +2523,10 @@ public class Ship implements Loggable,Locatable,Transfering {
 		// Alle bereits angedockten Schiffe laden
 		List<Ship> docked = new ArrayList<Ship>();
 		if( (mode == DockMode.UNDOCK || mode == DockMode.DOCK) && (shiptype.getADocks() > 0) ) {
-			List line = db.createQuery("from Ship where id>0 and docked=?")
+			List<?> line = db.createQuery("from Ship where id>0 and docked=?")
 			.setString(0, Integer.toString(this.id))
 			.list();
-			for( Iterator iter=line.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=line.iterator(); iter.hasNext(); ) {
 				Ship aship = (Ship)iter.next();
 				docked.add(aship);
 			}
@@ -2536,10 +2534,10 @@ public class Ship implements Loggable,Locatable,Transfering {
 
 		List<Ship> jdocked = new ArrayList<Ship>();
 		if( (mode == DockMode.LAND || mode == DockMode.START) && (shiptype.getJDocks() > 0) ) {
-			List line = db.createQuery("from Ship where id>0 and docked=?")
+			List<?> line = db.createQuery("from Ship where id>0 and docked=?")
 			.setString(0, "l "+this.id)
 			.list();
-			for( Iterator iter=line.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=line.iterator(); iter.hasNext(); ) {
 				Ship aship = (Ship)iter.next();
 				jdocked.add(aship);
 			}
@@ -2786,11 +2784,11 @@ public class Ship implements Loggable,Locatable,Transfering {
 						}
 					}
 					catch( StringIndexOutOfBoundsException e ) {
-						LOG.warn("[Ships.generateLoot] Fehler beim Parsen des Schiffshistoryeintrags '"+lastHistory+"' - "+length+", "+endIndex);
+						log.warn("[Ships.generateLoot] Fehler beim Parsen des Schiffshistoryeintrags '"+lastHistory+"' - "+length+", "+endIndex);
 					}
 				}
 				else {
-					LOG.warn("[Ships.generateLoot] Fehler beim Parsen des Schiffshistoryeintrags '"+lastHistory+"'");
+					log.warn("[Ships.generateLoot] Fehler beim Parsen des Schiffshistoryeintrags '"+lastHistory+"'");
 				}
 			}
 		}	
@@ -2799,14 +2797,14 @@ public class Ship implements Loggable,Locatable,Transfering {
 		List<ShipLoot> loot = new ArrayList<ShipLoot>();
 		int maxchance = 0;
 
-		List lootList = db.createQuery("from ShipLoot where owner=? and shiptype in (?,?) and targetuser in (0,?) and totalmax!=0")
+		List<?> lootList = db.createQuery("from ShipLoot where owner=? and shiptype in (?,?) and targetuser in (0,?) and totalmax!=0")
 		.setInteger(0, this.owner.getId())
 		.setInteger(1, this.shiptype.getId())
 		.setInteger(2, -this.id)
 		.setInteger(3, destroyer)
 		.list();
 
-		for( Iterator iter=lootList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=lootList.iterator(); iter.hasNext(); ) {
 			ShipLoot lootEntry = (ShipLoot)iter.next();
 
 			maxchance += lootEntry.getChance();
@@ -2875,7 +2873,7 @@ public class Ship implements Loggable,Locatable,Transfering {
 			if( fleetcount <= 2 ) {
 				final ShipFleet fleet = this.fleet;
 				
-				final Iterator shipIter = db.createQuery("from Ship where fleet=?")
+				final Iterator<?> shipIter = db.createQuery("from Ship where fleet=?")
 					.setEntity(0, this.fleet)
 					.iterate();
 				while( shipIter.hasNext() ) {
@@ -3031,11 +3029,11 @@ public class Ship implements Loggable,Locatable,Transfering {
 		}
 
 		StringBuilder message = MESSAGE.get();
-		List s = db.createQuery("from Ship where id>0 and docked in (?,?)")
+		List<?> s = db.createQuery("from Ship where id>0 and docked in (?,?)")
 			.setString(0, Integer.toString(this.id))
 			.setString(1, "l "+this.id)
 			.list();
-		for( Iterator iter=s.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=s.iterator(); iter.hasNext(); ) {
 			Ship aship = (Ship)iter.next();
 			int oldlength = message.length();
 			boolean tmp = aship.consign(newowner, testonly );

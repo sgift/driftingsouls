@@ -75,8 +75,9 @@ public class Kommandozentrale extends DefaultBuilding {
 		User nullUser = (User)context.getDB().get(User.class, 0);
 		base.setOwner(nullUser);
 				
-		db.createQuery("update ShipWerft set linked=null where linked=?")
-			.setEntity(0, base)
+		db.createQuery("update ShipWerft set linked=? where linked=?")
+			.setEntity(0, null)
+			.setEntity(1, base)
 			.executeUpdate();
 	}
 
@@ -139,7 +140,7 @@ public class Kommandozentrale extends DefaultBuilding {
 			int tick = context.get(ContextCommon.class).getTick();
 			int system = base.getSystem();
 			
-			StatVerkaeufe statsRow = (StatVerkaeufe)db.createQuery("from StatVerkaeufe where tick=? and place=? AND system=?")
+			StatVerkaeufe statsRow = (StatVerkaeufe)db.createQuery("from StatVerkaeufe where tick=? and place=? and system=?")
 				.setInteger(0, tick)
 				.setString(1, "asti")
 				.setInteger(2, system)
@@ -385,10 +386,11 @@ public class Kommandozentrale extends DefaultBuilding {
 			*/
 			
 			List ships = db.createQuery("from Ship " +
-					"where id>0 and (x between :minx and :maxx) and " +
+					"where id>:minid and (x between :minx and :maxx) and " +
 							"(y between :miny and :maxy) and " +
 							"system= :sys and locate('l ',docked)=0 and battle is null " +
 					"order by x,y,owner,id")
+				.setInteger("minid", 0)
 				.setInteger("minx", base.getX()-base.getSize())
 				.setInteger("maxx", base.getX()+base.getSize())
 				.setInteger("miny", base.getY()-base.getSize())

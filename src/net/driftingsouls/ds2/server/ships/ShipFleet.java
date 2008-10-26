@@ -135,7 +135,7 @@ public class ShipFleet {
 			List<Ship>jaegerlist = new ArrayList<Ship>();
 			
 			List jaegerliste = db.createQuery("from Ship as s left join fetch s.modules " +
-					"where "+(jaegertypeID > 0 ? "s.shiptype="+jaegertypeID+" and " : "")+"s.owner=? and s.system=? and " +
+					"where "+(jaegertypeID > 0 ? "s.shiptype=:shiptype and " : "")+"s.owner=? and s.system=? and " +
 							"s.x=? and s.y=? and s.docked='' and (locate(?,s.shiptype.flags)!=0 or locate(?,s.modules.flags)!=0) and s.battle is null " +
 					"order by s.fleet,s.shiptype ")
 				.setEntity(0, user)
@@ -144,6 +144,7 @@ public class ShipFleet {
 				.setInteger(3, ship.getY())
 				.setString(4, ShipTypes.SF_JAEGER)
 				.setString(5, ShipTypes.SF_JAEGER)
+				.setInteger("shiptype", jaegertypeID)
 				.list();
 			for( Iterator iter2=jaegerliste.iterator(); iter2.hasNext(); ) {
 				Ship jaeger = (Ship)iter2.next();
