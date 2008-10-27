@@ -752,15 +752,15 @@ public class Battle implements Locatable {
 		Set<User> ownUsers = new HashSet<User>();
 		Set<User> enemyUsers = new HashSet<User>();
 		List<?> shiplist = db.createQuery("from Ship as s inner join fetch s.owner as u "+
-				"where s.id>:minid and s.x=? and s.y=? and " +
-				"s.system=? and s.battle is null and " +
+				"where s.id>:minid and s.x=:x and s.y=:y and " +
+				"s.system=:system and s.battle is null and " +
 				"(ncp(u.ally,:ally1)=1 or " + 
 				"ncp(u.ally,:ally2)=1) and " +
 				"locate('disable_iff',s.status)=0 and s.lock is null and (u.vaccount=0 or u.wait4vac > 0)")
 			.setInteger("minid", 0)
-			.setInteger(0, tmpOwnShip.getX())
-			.setInteger(1, tmpOwnShip.getY())
-			.setInteger(2, tmpOwnShip.getSystem())
+			.setInteger("x", tmpOwnShip.getX())
+			.setInteger("y", tmpOwnShip.getY())
+			.setInteger("system", tmpOwnShip.getSystem())
 			.setParameter("ally1", tmpOwnShip.getOwner().getAlly())
 			.setParameter("ally2", tmpEnemyShip.getOwner().getAlly())
 			.list();
