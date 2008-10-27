@@ -100,7 +100,7 @@
 				<tr>
 					<td style="background-color:#CC3333" align="center"
 						onmouseover="this.style.cursor='pointer';this.style.backgroundColor='#33CC33'"
-						onclick="window.location.href='./ds?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;scan='+getShowUrlPart()+'{menu.entry.params}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}'"
+						onclick="window.location.href=getDsUrl()+'?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;scan='+getShowUrlPart()+'{menu.entry.params}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}'"
 						onmouseout="this.style.backgroundColor='#CC3333'">
 						<span class="smallfont" style="font-weight:bold">{menu.entry.title}</span>
 					</td>
@@ -110,7 +110,7 @@
 				<tr>
 					<td style="background-color:#CC3333" align="center"
 						onmouseover="this.style.cursor='pointer';this.style.backgroundColor='#33CC33'"
-						onclick="javascript:ask('{ask.text}','./ds?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;scan='+getShowUrlPart()+'{menu.entry.params}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}')"
+						onclick="javascript:ask('{ask.text}',getDsUrl()+'?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;scan='+getShowUrlPart()+'{menu.entry.params}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}')"
 						onmouseout="this.style.backgroundColor='#CC3333'">
 						<span class="smallfont" style="font-weight:bold">{menu.entry.title}</span>
 					</td>
@@ -390,7 +390,7 @@
 	{if user.commander}
 		<td class="BorderS" style="width:30%">&nbsp;</td>
 		{if battle.turn.own}
-			<td style="text-align:center;width:30%" class="BorderS"><a class="forschinfo" href="javascript:ask('Wollen sie ihren Zug wirklich beenden?','./ds?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ksaction=endturn&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}')">Zug beenden</a></td>
+			<td style="text-align:center;width:30%" class="BorderS"><a class="forschinfo" href="javascript:ask('Wollen sie ihren Zug wirklich beenden?',getDsUrl()+'?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ksaction=endturn&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}')">Zug beenden</a></td>
 		{else}
 			<td style="text-align:center;width:30%" class="BorderS">Warte auf Gegner</td>
 		{/endif}

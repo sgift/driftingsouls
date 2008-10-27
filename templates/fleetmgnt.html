@@ -241,20 +241,20 @@
 <script type="text/javascript">
 <!--
 	function showShip( ship ) {
-		opener.parent.frames['main'].location.href = './ds?module=schiff&sess={global.sess}&ship='+ship;
+		opener.parent.frames['main'].location.href = getDsUrl()+'?module=schiff&sess={global.sess}&ship='+ship;
 	}
 
 	function refreshOwn() {
-		window.location.href = './ds?module=fleetmgnt&sess={global.sess}&fleet={fleet.id}';
+		window.location.href = getDsUrl()+'?module=fleetmgnt&sess={global.sess}&fleet={fleet.id}';
 	}
 
 	function removeShip( ship ) {
-		opener.parent.frames['main'].location.href = './ds?module=schiff&sess={global.sess}&ship='+ship+'&action=join&join=0';
+		opener.parent.frames['main'].location.href = getDsUrl()+'?module=schiff&sess={global.sess}&ship='+ship+'&action=join&join=0';
 		window.setTimeout("refreshOwn()", 1000);
 	}
 
 	function showBattle( battle, ship ) {
-		opener.parent.frames['main'].location.href = './ds?module=angriff&sess={global.sess}&battle='+battle+'&ship='+ship;
+		opener.parent.frames['main'].location.href = getDsUrl()+'?module=angriff&sess={global.sess}&battle='+battle+'&ship='+ship;
 		window.close();
 	}
 	

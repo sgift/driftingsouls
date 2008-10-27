@@ -137,7 +137,7 @@
 			<div style="text-align:center; font-weight:bold">
 				{if show.bookmarks}Bookmarks{/endif}
 				{if show.fleets}Flotten{/endif}
-				<a onclick="javascript:overlib('&lt;div style=\'font-size:13px; text-align:center\'&gt;&lt;a style=\'font-size:13px\' class=\'forschinfo\' href=\'./ds?sess={global.sess}&amp;module=ueber&amp;action=box&amp;box=bookmarks\'&gt;Bookmarks&lt;/a&gt;&lt;br /&gt;&lt;a style=\'font-size:13px\' class=\'forschinfo\' href=\'./ds?sess={global.sess}&amp;module=ueber&amp;action=box&amp;box=fleets\'&gt;Flotten&lt;/a&gt;&lt;/div&gt;',REF,'box_popup', REFC,'LR',REFP,'UR',NOCLOSE,STICKY,WIDTH,150);" id="box_popup" name="box_popup" class="error" onmouseover="" onmouseout="return nd();" href="#">
+				<a onclick="javascript:overlib('&lt;div style=\'font-size:13px; text-align:center\'&gt;&lt;a style=\'font-size:13px\' class=\'forschinfo\' href=\''+getDsUrl()+'?sess={global.sess}&amp;module=ueber&amp;action=box&amp;box=bookmarks\'&gt;Bookmarks&lt;/a&gt;&lt;br /&gt;&lt;a style=\'font-size:13px\' class=\'forschinfo\' href=\''+getDsUrl()+'?sess={global.sess}&amp;module=ueber&amp;action=box&amp;box=fleets\'&gt;Flotten&lt;/a&gt;&lt;/div&gt;',REF,'box_popup', REFC,'LR',REFP,'UR',NOCLOSE,STICKY,WIDTH,150);" id="box_popup" name="box_popup" class="error" onmouseover="" onmouseout="return nd();" href="#">
 					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_dropdown.gif" alt="" />
 				</a>
 			</div>

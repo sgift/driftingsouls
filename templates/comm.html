@@ -331,7 +331,7 @@
 								<img style="border:0px" src="{URL}data/interface/text.png" alt="&ouml;ffnen" title="&ouml;ffnen" />
 							</a>
 							{if ordner.flags.trash}
-									<a href="javascript:ask('Wollen sie wirklich alle gel&ouml;schten PMs wiederherstellen?','./ds?module=comm&amp;sess={global.sess}&amp;action=recoverAll&amp;ordner={ordner.parent}')">
+									<a href="javascript:ask('Wollen sie wirklich alle gel&ouml;schten PMs wiederherstellen?',getDsUrl()+'?module=comm&amp;sess={global.sess}&amp;action=recoverAll&amp;ordner={ordner.parent}')">
 									<img style="border:0px" src="{URL}data/interface/pms/recover.png" alt="wiederherstellen" title="wiederherstellen" />
 								</a>
 							{/endif}
@@ -340,7 +340,7 @@
 									<a href="javascript:setRenameAction({ordner.id});" >
 										<img style="border:0px" src="{URL}data/interface/pen.gif" alt="umbenennen" title="umbenennen" />
 									</a>
-									<a href="javascript:ask('Wollen sie wirklich diesen Ordner samt enthaltener PMs und Unterordner löschen?','./ds?module=comm&amp;sess={global.sess}&amp;action=delete&amp;ordner={ordner.parent}&amp;delord={ordner.id}')">
+									<a href="javascript:ask('Wollen sie wirklich diesen Ordner samt enthaltener PMs und Unterordner löschen?',getDsUrl()+'?module=comm&amp;sess={global.sess}&amp;action=delete&amp;ordner={ordner.parent}&amp;delord={ordner.id}')">
 										<img style="border:0px" src="{URL}data/interface/delete.gif" alt="umbenennen" title="L&ouml;schen" /></a>
 								{/endif}
 							{/endif}

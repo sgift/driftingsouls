@@ -164,7 +164,7 @@
 						var tooltiptext = "";
 						tooltiptext += "{tooltip.execnotes.begin}";
 						tooltiptext += "<span style='text-decoration:underline'>Scripteingabe</span> (<a class='error' onclick='return nd();' href='javascript:void(0)'>X</a>)<br />";
-						tooltiptext += "<form action='./ds' method='post'><div>";
+						tooltiptext += "<form action='"+getDsUrl()+"' method='post'><div>";
 						tooltiptext += "<input type='hidden' name='sess' value='{global.sess}' />";
 						tooltiptext += "<input type='hidden' name='module' value='schiff' />";
 						tooltiptext += "<input type='hidden' name='ship' value='{ship.id}' />";
@@ -200,7 +200,7 @@
 							var tooltiptext = "";
 							tooltiptext += "{tooltip.respawn.begin}";
 							tooltiptext += "<span style='text-decoration:underline'>Respawn-Daten</span> (<a class='error' onclick='return nd();' href='javascript:void(0)'>X</a>)<br />";
-							tooltiptext += "<form action='./ds' method='post'><div>";
+							tooltiptext += "<form action='"+getDsUrl()+"' method='post'><div>";
 							tooltiptext += "<input type='hidden' name='sess' value='{global.sess}' />";
 							tooltiptext += "<input type='hidden' name='module' value='schiff' />";
 							tooltiptext += "<input type='hidden' name='ship' value='{ship.id}' />";
