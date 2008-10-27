@@ -38,6 +38,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Verkauft Waren an einem Handelsposten
  * @author Christopher Jung
@@ -45,6 +48,8 @@ import net.driftingsouls.ds2.server.ships.Ship;
  * @urlparam Integer tradepost die ID des Handelspostens, an dem die Waren verkauft werden sollen
  */
 public class TradeController extends TemplateGenerator {
+	private static final Log log = LogFactory.getLog(TradeController.class);
+	
 	private Ship ship = null;
 	private Cargo shipCargo = null;
 	private Cargo kurse = null;
@@ -132,6 +137,9 @@ public class TradeController extends TemplateGenerator {
 		BigInteger moneyOfBuyer = user.getKonto();
 		long totalRE = 0;
 		
+		log.info("Warenkauf an HP "+posten.getId()+" durch Schiff "+ship.getId()+" [User: "+user.getId()+"]");
+		log.info("Konto vorher: "+moneyOfBuyer);
+		
 		for(ResourceEntry resource: resourceList) {
 			parameterNumber(resource.getId()+"from");
 			long amountToBuy = getInteger(resource.getId()+"from");
@@ -153,6 +161,7 @@ public class TradeController extends TemplateGenerator {
 			long resourceMass = Cargo.getResourceMass(resource.getId(), 1);
 			long neededSpace = amountToBuy * resourceMass;
 			long freeSpaceOnShip = ship.getMaxCargo() - shipCargo.getMass();
+			log.info("Platz auf dem Schiff: "+freeSpaceOnShip);
 			
 			if(neededSpace > freeSpaceOnShip) {
 				amountToBuy = freeSpaceOnShip / resourceMass;
@@ -164,6 +173,7 @@ public class TradeController extends TemplateGenerator {
 				amountToBuy = moneyOfBuyer.divide(BigInteger.valueOf(price)).longValue();
 				price = amountToBuy * limit.getPrice();
 			}
+			log.info("Verkaufe "+amountToBuy+"x "+resource.getId()+" fuer gesamt "+price);
 			totalRE += price;
 			
 			if(amountToBuy <= 0) {
@@ -178,6 +188,7 @@ public class TradeController extends TemplateGenerator {
 		
 		this.ship.recalculateShipStatus();
 		this.posten.recalculateShipStatus();
+		log.info("Total: "+totalRE);
 		this.posten.getOwner().transferMoneyFrom(user.getId(), totalRE, "Warenkauf Handelsposten bei "+this.posten.getLocation(), false, User.TRANSFER_SEMIAUTO);
 		redirect();
 	}
