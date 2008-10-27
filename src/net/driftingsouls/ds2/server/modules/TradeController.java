@@ -138,11 +138,14 @@ public class TradeController extends TemplateGenerator {
 		long totalRE = 0;
 		
 		log.info("Warenkauf an HP "+posten.getId()+" durch Schiff "+ship.getId()+" [User: "+user.getId()+"]");
-		log.info("Konto vorher: "+moneyOfBuyer);
 		
 		for(ResourceEntry resource: resourceList) {
 			parameterNumber(resource.getId()+"from");
 			long amountToBuy = getInteger(resource.getId()+"from");
+			
+			if( amountToBuy <= 0 ) {
+				continue;
+			}
 			
 			//Preis und Minimum holen
 			ResourceLimitKey resourceLimitKey = new ResourceLimitKey(posten, resource.getId());
@@ -154,6 +157,10 @@ public class TradeController extends TemplateGenerator {
 			}
 			
 			long amountOnPost = tradepostCargo.getResourceCount(resource.getId()) - limit.getMinimum();
+			if( amountOnPost <= 0 ) {
+				continue;
+			}
+			
 			if(amountToBuy > amountOnPost) {
 				amountToBuy = amountOnPost;
 			}
@@ -161,8 +168,7 @@ public class TradeController extends TemplateGenerator {
 			long resourceMass = Cargo.getResourceMass(resource.getId(), 1);
 			long neededSpace = amountToBuy * resourceMass;
 			long freeSpaceOnShip = ship.getMaxCargo() - shipCargo.getMass();
-			log.info("Platz auf dem Schiff: "+freeSpaceOnShip);
-			
+
 			if(neededSpace > freeSpaceOnShip) {
 				amountToBuy = freeSpaceOnShip / resourceMass;
 			}
@@ -188,8 +194,13 @@ public class TradeController extends TemplateGenerator {
 		
 		this.ship.recalculateShipStatus();
 		this.posten.recalculateShipStatus();
-		log.info("Total: "+totalRE);
-		this.posten.getOwner().transferMoneyFrom(user.getId(), totalRE, "Warenkauf Handelsposten bei "+this.posten.getLocation(), false, User.TRANSFER_SEMIAUTO);
+
+		if( totalRE > 0 ) {
+			this.posten.getOwner()
+				.transferMoneyFrom(user.getId(), totalRE, 
+						"Warenkauf Handelsposten bei "+this.posten.getLocation(), 
+						false, User.TRANSFER_SEMIAUTO);
+		}
 		redirect();
 	}
 
