@@ -30,6 +30,7 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
@@ -54,15 +55,15 @@ public abstract class DSApplication {
 		
 		CmdLineRequest request = new CmdLineRequest(args);
 		
+		new FileSystemXmlApplicationContext("/"+request.getParameterString("config")+"/spring.xml");
+		
 		try {
-			new DriftingSouls(log, request.getParameterString("config"), false);
+			new DriftingSouls(log, request.getParameterString("config"), true);
 		}
 		catch( Exception e ) {
 			log.fatal("", e);
 			throw new Exception(e);
 		}
-		
-		new FileSystemXmlApplicationContext("/"+request.getParameterString("config")+"/spring.xml");
 		
 		SimpleResponse response = new SimpleResponse();
 		this.context = new BasicContext(request, response);
@@ -157,6 +158,7 @@ public abstract class DSApplication {
 				// EMPTY
 			}
 		}
+		System.exit(0);
 	}
 	
 	/**
