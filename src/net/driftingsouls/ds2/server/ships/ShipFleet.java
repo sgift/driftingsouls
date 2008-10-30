@@ -33,6 +33,8 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
+import org.hibernate.Query;
+
 /**
  * Eine Flotte aus Schiffen
  * @author Christopher Jung
@@ -134,18 +136,22 @@ public class ShipFleet {
 			int free = shiptype.getJDocks() - (int)ship.getLandedCount();
 			List<Ship>jaegerlist = new ArrayList<Ship>();
 			
-			List<?> jaegerliste = db.createQuery("from Ship as s left join fetch s.modules " +
-					"where "+(jaegertypeID > 0 ? "s.shiptype=:shiptype and " : "")+"s.owner=? and s.system=? and " +
-							"s.x=? and s.y=? and s.docked='' and (locate(?,s.shiptype.flags)!=0 or locate(?,s.modules.flags)!=0) and s.battle is null " +
+			Query jaegerListeQuery = db.createQuery("from Ship as s left join fetch s.modules " +
+					"where "+(jaegertypeID > 0 ? "s.shiptype=:shiptype and " : "")+"s.owner=:user and s.system=:system and " +
+							"s.x=:x and s.y=:y and s.docked='' and " +
+							"(locate(:jaegerFlag,s.shiptype.flags)!=0 or locate(:jaegerFlag,s.modules.flags)!=0) and " +
+							"s.battle is null " +
 					"order by s.fleet,s.shiptype ")
-				.setEntity(0, user)
-				.setInteger(1, ship.getSystem())
-				.setInteger(2, ship.getX())
-				.setInteger(3, ship.getY())
-				.setString(4, ShipTypes.SF_JAEGER)
-				.setString(5, ShipTypes.SF_JAEGER)
-				.setInteger("shiptype", jaegertypeID)
-				.list();
+				.setEntity("user", user)
+				.setInteger("system", ship.getSystem())
+				.setInteger("x", ship.getX())
+				.setInteger("y", ship.getY())
+				.setString("jaegerFlag", ShipTypes.SF_JAEGER);
+			
+			if( jaegertypeID > 0 ) {
+				jaegerListeQuery.setInteger("shiptype", jaegertypeID);
+			}
+			List<?> jaegerliste = jaegerListeQuery.list();
 			for( Iterator<?> iter2=jaegerliste.iterator(); iter2.hasNext(); ) {
 				Ship jaeger = (Ship)iter2.next();
 				
