@@ -1047,13 +1047,14 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		boolean militaryAllowed = Systems.get().system(this.getSystem()).isMilitaryAllowed();
 		boolean flagshipAllowed = owner.hasFlagschiffSpace();
 		
-		String query = "from ShipBaubar where werftslots <= ?";
+		String query = "from ShipBaubar where werftslots <= ? and ";
 		if(!flagshipAllowed) {
-			query += "!flagschiff ";
+			query += "flagschiff=false and ";
 		}
 		if(!militaryAllowed) {
-			query += "systemReq = 0 ";
+			query += "systemReq = 0 and ";
 		}
+		query += "1=1";
 		query = query.trim();
 		List<ShipBaubar> buildableShips = db.createQuery(query).setInteger(0, this.getWerftSlots()).list();
 		
