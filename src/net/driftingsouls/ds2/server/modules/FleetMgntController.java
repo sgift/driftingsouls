@@ -366,7 +366,7 @@ public class FleetMgntController extends TemplateGenerator {
 		
 		List<Ship> shiplist = new ArrayList<Ship>();
 		List<?> slist = db.createQuery("from Ship where owner=? and system=? and x=? and y=? and type=? and " +
-				"docked='' and fleet!=? order by fleet,id asc")
+				"docked='' and (fleet is null or fleet!=?) order by fleet,id asc")
 				.setEntity(0, user)
 				.setInteger(1, sectorShip.getSystem())
 				.setInteger(2, sectorShip.getX())
