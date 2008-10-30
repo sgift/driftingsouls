@@ -1115,7 +1115,7 @@ public class Battle implements Locatable {
 		
 		List<?> users = db.createQuery("select distinct bs.ship.owner " +
 				"from BattleShip bs " +
-				"where bs.battle= :battleId "+this.id+" and bs.side= :sideId"+this.enemySide)
+				"where bs.battle= :battleId and bs.side= :sideId")
 			.setInteger("battleId", this.id)
 			.setInteger("sideId", this.enemySide)
 			.list();
