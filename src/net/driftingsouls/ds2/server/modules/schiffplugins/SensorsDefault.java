@@ -101,6 +101,7 @@ public class SensorsDefault implements SchiffPlugin {
 		//Kein SRS oder nicht nutzbar? Ende Gelaende.
 		if(!ship.canUseSrs()) {
 			t.setVar("has.srs", false);
+			t.parse(caller.target,"_PLUGIN_"+pluginid);
 			return;
 		}
 		t.setVar("has.srs", true);
