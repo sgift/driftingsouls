@@ -675,7 +675,7 @@ public class Battle implements Locatable {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 
-		System.err.println("battle: "+id+" :: "+ownShipID+" :: "+enemyShipID);
+		log.info("battle: "+id+" :: "+ownShipID+" :: "+enemyShipID);
 		// Kann der Spieler ueberhaupt angreifen (Noob-Schutz?)
 		User user = (User)context.getDB().get(User.class, id);
 		if( user.isNoob() ) {
@@ -767,7 +767,6 @@ public class Battle implements Locatable {
 							   		
 		for( Iterator<?> iter=shiplist.iterator(); iter.hasNext(); ) {
 			Ship aShip = (Ship)iter.next();
-			System.err.println(aShip.getId());
 			// Loot-Truemmer sollten in keine Schlacht wandern... (nicht schoen, gar nicht schoen geloest)
 			if( (aShip.getOwner().getId() == -1) && (aShip.getType() == Configuration.getIntSetting("CONFIG_TRUEMMER")) ) {
 				continue;

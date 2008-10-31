@@ -117,7 +117,7 @@ public class HibernateFacade {
 		ArrayList<MBeanServer> mbservers = MBeanServerFactory.findMBeanServer(null);
 
 		if( mbservers.size() > 0 ) {
-			System.out.println("Found MBean server");
+			log.info("Found MBean server");
 			return mbservers.get(0);
 		}
 		return MBeanServerFactory.createMBeanServer();
