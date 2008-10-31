@@ -29,9 +29,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -51,7 +52,8 @@ import org.w3c.dom.NodeList;
  * @author Christopher Jung
  *
  */
-public class BBCodeParser implements Loggable {
+public class BBCodeParser {
+	private static final Log log = LogFactory.getLog(BBCodeParser.class);
 	private static BBCodeParser instance = null;
 	
 	private Map<String,BBCodeFunction> replaceFunctions = new HashMap<String,BBCodeFunction>();
@@ -112,7 +114,7 @@ public class BBCodeParser implements Loggable {
 							registerHandler(tag, params, bbcodeCls.newInstance());
 						}
 						catch( ClassNotFoundException e ) {
-							LOG.warn("Konnte BBCode "+tag+"("+params+") nicht laden. Handler-Klasse '"+cls+"' nicht vorhanden");
+							log.warn("Konnte BBCode "+tag+"("+params+") nicht laden. Handler-Klasse '"+cls+"' nicht vorhanden");
 						}
 					}
 				}

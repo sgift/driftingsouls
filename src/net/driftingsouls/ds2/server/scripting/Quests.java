@@ -29,12 +29,13 @@ import javax.script.ScriptException;
 
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.scripting.entities.Quest;
 import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
 import net.driftingsouls.ds2.server.scripting.entities.Script;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 
 /**
@@ -42,7 +43,9 @@ import org.hibernate.Hibernate;
  * @author Christopher Jung
  *
  */
-public class Quests implements Loggable {
+public class Quests {
+	private static final Log log = LogFactory.getLog(Quests.class);
+	
 	/**
 	 * Ereignis fuer einen Kommunikationsversuch zwischen zwei Schiffen
 	 */
@@ -134,13 +137,13 @@ public class Quests implements Loggable {
 			}
 		}
 		catch( Exception e ) {
-			LOG.warn("Setting Script-ExecData failed: ",e);
+			log.warn("Setting Script-ExecData failed: ",e);
 			return;
 		}
 
 		Script script = (Script)db.get(Script.class, usescript);
 		if( script == null ) {
-			LOG.error("Konnte Script '"+usescript+"' nicht finden");
+			log.error("Konnte Script '"+usescript+"' nicht finden");
 			return;
 		}
 		
@@ -262,7 +265,7 @@ public class Quests implements Loggable {
 					}
 				}
 				catch( Exception e ) {
-					LOG.warn("Setting Script-ExecData failed: ",e);
+					log.warn("Setting Script-ExecData failed: ",e);
 					return false;
 				}
 			}
@@ -285,7 +288,7 @@ public class Quests implements Loggable {
 		
 		Script script = (Script)db.get(Script.class, usescript);
 		if( script == null ) {
-			LOG.error("Konnte Script '"+usescript+"' nicht finden");
+			log.error("Konnte Script '"+usescript+"' nicht finden");
 			return false;
 		}
 		
@@ -321,7 +324,7 @@ public class Quests implements Loggable {
 				runningdata = (RunningQuest)db.get(RunningQuest.class, rquestid);
 			}
 			if( runningdata == null ) {
-				LOG.error("Das Quest "+usequest+" hat keine Daten");
+				log.error("Das Quest "+usequest+" hat keine Daten");
 			}
 			else {
 				try {
@@ -330,7 +333,7 @@ public class Quests implements Loggable {
 					runningdata.setExecData(Hibernate.createBlob(out.toByteArray()));
 				}
 				catch( Exception e ) {
-					LOG.warn("Writing back Script-ExecData failed: ",e);
+					log.warn("Writing back Script-ExecData failed: ",e);
 					return false;
 				}
 			}

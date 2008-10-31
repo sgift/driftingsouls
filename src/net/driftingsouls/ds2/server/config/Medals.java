@@ -23,9 +23,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -38,7 +39,8 @@ import org.w3c.dom.NodeList;
  * @author Christopher Jung
  *
  */
-public class Medals implements Loggable {
+public class Medals {
+	private static final Log log = LogFactory.getLog(Medals.class);
 	private static Medals medalList = new Medals();
 	private Map<Integer, Medal> list = new LinkedHashMap<Integer, Medal>();
 	private Map<Integer, Rang> raenge = new LinkedHashMap<Integer, Rang>();
@@ -141,7 +143,7 @@ public class Medals implements Loggable {
 			}
 		}
 		catch( Exception e ) {
-			LOG.fatal("FAILED: Kann Orden/Raenge nicht laden",e);
+			log.fatal("FAILED: Kann Orden/Raenge nicht laden",e);
 		}
 	}
 }

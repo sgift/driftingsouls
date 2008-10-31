@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.framework.pipeline.reader;
 
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.pipeline.ReaderPipeline;
 
 /**
@@ -27,7 +26,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.ReaderPipeline;
  * @author Christopher Jung
  *
  */
-public class ErrorReader extends FileReader implements Reader, Loggable {
+public class ErrorReader extends FileReader implements Reader {
 	
 	@Override
 	public void read(Context context, ReaderPipeline pipeline) throws Exception {

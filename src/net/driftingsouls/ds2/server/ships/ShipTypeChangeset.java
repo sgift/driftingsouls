@@ -27,10 +27,11 @@ import java.util.Map.Entry;
 
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Loggable;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -41,7 +42,9 @@ import org.w3c.dom.NodeList;
  * @author Christopher Jung
  *
  */
-public class ShipTypeChangeset implements Loggable {
+public class ShipTypeChangeset {
+	private static final Log log = LogFactory.getLog(ShipTypeChangeset.class);
+	
 	private String nickname;
 	private String picture;
 	private int ru;
@@ -92,7 +95,7 @@ public class ShipTypeChangeset implements Loggable {
 			Element item = (Element)nodes.item(i);
 	
 			if( !item.getNamespaceURI().equals(NAMESPACE) ) {
-				LOG.warn("Ungueltige XML-Namespace im ShipType-Changeset");
+				log.warn("Ungueltige XML-Namespace im ShipType-Changeset");
 				continue;
 			}
 			

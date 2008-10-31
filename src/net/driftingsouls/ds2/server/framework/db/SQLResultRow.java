@@ -21,7 +21,8 @@ package net.driftingsouls.ds2.server.framework.db;
 import java.math.BigInteger;
 import java.util.HashMap;
 
-import net.driftingsouls.ds2.server.framework.Loggable;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Repraesentiert eine SQL-Ergebniszeile, die nicht mehr direkt an die Datenbank
@@ -32,8 +33,9 @@ import net.driftingsouls.ds2.server.framework.Loggable;
  * @author Christopher Jung
  *
  */
-public class SQLResultRow extends HashMap<String,Object> implements Loggable,Cloneable {
+public class SQLResultRow extends HashMap<String,Object> implements Cloneable {
 	private static final long serialVersionUID = 1L;
+	private static final Log log = LogFactory.getLog(SQLResultRow.class);
 
 	/**
 	 * Gibt den Wert einer Spalte als <code>String</code> zurueck
@@ -46,7 +48,7 @@ public class SQLResultRow extends HashMap<String,Object> implements Loggable,Clo
 			return val.toString();
 		}
 		else if( !containsKey(column) ) {
-			LOG.warn("SQLResultRow: Unbekannte String-Spalte '"+column+"'", new Throwable());
+			log.warn("SQLResultRow: Unbekannte String-Spalte '"+column+"'", new Throwable());
 		}
 		return "";
 	}
@@ -65,7 +67,7 @@ public class SQLResultRow extends HashMap<String,Object> implements Loggable,Clo
 			return Integer.parseInt(val.toString());
 		}
 		else if( !containsKey(column) ) {
-			LOG.warn("SQLResultRow: Unbekannte int-Spalte '"+column+"'", new Throwable());
+			log.warn("SQLResultRow: Unbekannte int-Spalte '"+column+"'", new Throwable());
 		}
 		return 0;
 	}
@@ -84,7 +86,7 @@ public class SQLResultRow extends HashMap<String,Object> implements Loggable,Clo
 			return Boolean.parseBoolean(val.toString());
 		}
 		else if( !containsKey(column) ) {
-			LOG.warn("SQLResultRow: Unbekannte boolean-Spalte '"+column+"'", new Throwable());
+			log.warn("SQLResultRow: Unbekannte boolean-Spalte '"+column+"'", new Throwable());
 		}
 		return false;
 	}
@@ -103,7 +105,7 @@ public class SQLResultRow extends HashMap<String,Object> implements Loggable,Clo
 			return Long.parseLong(val.toString());
 		}
 		else if( !containsKey(column) ) {
-			LOG.warn("SQLResultRow: Unbekannte long-Spalte '"+column+"'", new Throwable());
+			log.warn("SQLResultRow: Unbekannte long-Spalte '"+column+"'", new Throwable());
 		}
 		return 0;
 	}
@@ -123,7 +125,7 @@ public class SQLResultRow extends HashMap<String,Object> implements Loggable,Clo
 			return new BigInteger(val.toString());
 		}
 		else if( !containsKey(column) ) {
-			LOG.warn("SQLResultRow: Unbekannte BigInteger-Spalte '"+column+"'", new Throwable());
+			log.warn("SQLResultRow: Unbekannte BigInteger-Spalte '"+column+"'", new Throwable());
 		}
 		return BigInteger.ZERO;
 	}
@@ -142,7 +144,7 @@ public class SQLResultRow extends HashMap<String,Object> implements Loggable,Clo
 			return Double.parseDouble(val.toString());
 		}
 		else if( !containsKey(column) ) {
-			LOG.warn("SQLResultRow: Unbekannte double-Spalte '"+column+"'", new Throwable());
+			log.warn("SQLResultRow: Unbekannte double-Spalte '"+column+"'", new Throwable());
 		}
 		return 0d;
 	}

@@ -29,17 +29,20 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.pipeline.ReaderPipeline;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Liesst Dateien von der Festplatte und schreibt sie in die Antwort
  * @author Christopher Jung
  *
  */
-public class FileReader implements Reader, Loggable {
+public class FileReader implements Reader {
+	private static final Log log = LogFactory.getLog(FileReader.class);
+	
 	private String guessMimeType( String extension ) {
 		if( extension == null ) {
 			return null;
@@ -93,7 +96,7 @@ public class FileReader implements Reader, Loggable {
 		if( !file.exists() ) {
 			context.getResponse().setStatus(HttpServletResponse.SC_NOT_FOUND);
 			context.getResponse().getContent().append("404 - Die von ihnen gesuchte Datei existiert nicht");
-			LOG.warn("Warning: file not found: '"+file+"'");
+			log.warn("Warning: file not found: '"+file+"'");
 			
 			return;
 		}

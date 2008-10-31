@@ -24,10 +24,11 @@ import java.util.Map;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import net.driftingsouls.ds2.server.namegenerator.NameGenerator;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -40,7 +41,8 @@ import org.w3c.dom.NodeList;
  * @author Christopher Jung
  *
  */
-public class Rassen implements Iterable<Rasse>, Loggable {
+public class Rassen implements Iterable<Rasse> {
+	private static final Log log = LogFactory.getLog(Rassen.class);
 	private static Rassen rassenList = new Rassen();
 	private Map<Integer, Rasse> list = new LinkedHashMap<Integer, Rasse>();
 	
@@ -126,7 +128,7 @@ public class Rassen implements Iterable<Rasse>, Loggable {
 			}
 		}
 		catch( Exception e ) {
-			LOG.fatal("FAILED: Kann Rassen nicht laden",e);
+			log.fatal("FAILED: Kann Rassen nicht laden",e);
 		}
 	}
 }

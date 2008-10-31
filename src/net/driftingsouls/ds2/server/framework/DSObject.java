@@ -23,7 +23,7 @@ package net.driftingsouls.ds2.server.framework;
  * @author Christopher Jung
  *
  */
-public class DSObject implements Loggable {
+public class DSObject {
 	/**
 	 * Lognachrichten der zuletzt aufgerufenen Methoden. Die Nachrichten sind Thread-Lokal
 	 */

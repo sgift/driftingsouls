@@ -33,7 +33,6 @@ import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
@@ -45,7 +44,7 @@ import org.apache.commons.lang.StringUtils;
  * @author Christopher Jung
  *
  */
-public class Ships implements Loggable {
+public class Ships {
 	private static final int MANGEL_TICKS = 9;
 
 	/**

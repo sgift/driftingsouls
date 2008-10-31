@@ -51,7 +51,6 @@ import net.driftingsouls.ds2.server.entities.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
@@ -68,6 +67,8 @@ import net.driftingsouls.ds2.server.ships.Ship;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Scriptbefehle fuer Questscripte
@@ -1163,7 +1164,9 @@ public class QuestFunctions {
 		}
 	}
 	
-	class LoadQuestContext implements SPFunction, Loggable {
+	class LoadQuestContext implements SPFunction {
+		private final Log log = LogFactory.getLog(LoadQuestContext.class);
+		
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1204,7 +1207,7 @@ public class QuestFunctions {
 				catch( Exception e ) {
 					scriptparser.log("Fehler: Konnte Questdaten nicht laden: "+e+"\n");
 					scriptparser.setRegister("QUEST","r"+questdata.getInt("id"));
-					LOG.warn("Fehler beim Laden der Questdaten (Quest: "+questid+"): "+e,e);
+					log.warn("Fehler beim Laden der Questdaten (Quest: "+questid+"): "+e,e);
 				}
 			}
 			questdata.free();
@@ -1213,7 +1216,9 @@ public class QuestFunctions {
 		}
 	}
 	
-	class SaveQuestContext implements SPFunction, Loggable {
+	class SaveQuestContext implements SPFunction {
+		private final Log log = LogFactory.getLog(SaveQuestContext.class);
+		
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1248,7 +1253,7 @@ public class QuestFunctions {
 				catch( Exception e ) {
 					scriptparser.log("Fehler: Konnte Questdaten nicht schreiben: "+e+"\n");
 					scriptparser.setRegister("QUEST","r"+questdata.getInt("id"));
-					LOG.warn("Fehler beim Schreiben der Questdaten (Quest: "+questid+"): "+e,e);
+					log.warn("Fehler beim Schreiben der Questdaten (Quest: "+questid+"): "+e,e);
 				}
 			}
 			questdata.free();
@@ -2181,7 +2186,7 @@ public class QuestFunctions {
 	}
 	
 	
-	class GetSectorProperty implements SPFunction {
+	static class GetSectorProperty implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			Database database = ContextMap.getContext().getDatabase();
@@ -2354,7 +2359,9 @@ public class QuestFunctions {
 	 *
 	 ----------------------------------------------*/
 	
-	class GenerateQuickQuestSourceMenu implements SPFunction,Loggable {
+	class GenerateQuickQuestSourceMenu implements SPFunction {
+		private final Log log = LogFactory.getLog(GenerateQuickQuestSourceMenu.class);
+		
 		private void call( SPFunction f, ScriptParser scriptparser, Object ... cmd) {
 			scriptparser.log("-> "+f.getClass().getSimpleName()+"\n");
 			String[] command = new String[cmd.length+1];
@@ -2404,7 +2411,7 @@ public class QuestFunctions {
 							.setString("qid", tmp[1])
 							.uniqueResult();
 						if( quest == null ) {
-							LOG.warn("QQuest "+qquest.getId()+" benoetigt Quest "+tmp[1]+", welches jedoch nicht existiert");
+							log.warn("QQuest "+qquest.getId()+" benoetigt Quest "+tmp[1]+", welches jedoch nicht existiert");
 							continue;
 						}
 		
@@ -2436,7 +2443,9 @@ public class QuestFunctions {
 	}
 	
 	
-	class GenerateQuickQuestTargetMenu implements SPFunction, Loggable {
+	class GenerateQuickQuestTargetMenu implements SPFunction {
+		private final Log log = LogFactory.getLog(GenerateQuickQuestTargetMenu.class);
+		
 		private void call( SPFunction f, ScriptParser scriptparser, Object ... cmd) {
 			scriptparser.log("-> "+f.getClass().getSimpleName()+"\n");
 			String[] command = new String[cmd.length+1];
@@ -2499,7 +2508,9 @@ public class QuestFunctions {
 	}
 	
 	
-	class HandleQuickQuestEvent implements SPFunction, Loggable {
+	class HandleQuickQuestEvent implements SPFunction {
+		private final Log log = LogFactory.getLog(HandleQuickQuestEvent.class);
+		
 		private void call( SPFunction f, ScriptParser scriptparser, Object ... cmd) {
 			scriptparser.log("-> "+f.getClass().getSimpleName()+"\n");
 			String[] command = new String[cmd.length+1];
@@ -2563,7 +2574,7 @@ public class QuestFunctions {
 							.setString("qid", tmp[1])
 							.uniqueResult();
 						if( quest == null ) {
-							LOG.warn("QQuest "+qquest.getId()+" benoetigt Quest "+tmp[1]+", welches jedoch nicht existiert");
+							log.warn("QQuest "+qquest.getId()+" benoetigt Quest "+tmp[1]+", welches jedoch nicht existiert");
 							continue;
 						}
 		
@@ -2657,7 +2668,7 @@ public class QuestFunctions {
 							.setString("qid", tmp[1])
 							.uniqueResult();
 						if( quest == null ) {
-							LOG.warn("QQuest "+qquest.getId()+" benoetigt Quest "+tmp[1]+", welches jedoch nicht existiert");
+							log.warn("QQuest "+qquest.getId()+" benoetigt Quest "+tmp[1]+", welches jedoch nicht existiert");
 							continue;
 						}
 		

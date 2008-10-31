@@ -23,8 +23,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import net.driftingsouls.ds2.server.framework.Loggable;
-
 import org.apache.commons.lang.ArrayUtils;
 
 /**
@@ -32,7 +30,7 @@ import org.apache.commons.lang.ArrayUtils;
  * @author Christopher Jung
  *
  */
-public class PreparedQuery implements Loggable {
+public class PreparedQuery {
 	private PreparedStatement stmt;
 	private Database db;
 	private String query;

@@ -24,9 +24,11 @@ import java.util.Map;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Diverse Funktionen rund um Schiffstypen
@@ -34,7 +36,9 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
  * @author Christopher Jung
  *
  */
-public class ShipTypes implements Loggable {
+public class ShipTypes {
+	private static final Log log = LogFactory.getLog(ShipTypes.class);
+	
 	/**
 	 * Kennzeichnet das Schiff als Jaeger
 	 */
@@ -262,7 +266,7 @@ public class ShipTypes implements Loggable {
 		if( !shipdata.containsKey("type") || !shipdata.containsKey("status") ) {
 			Database db = ContextMap.getContext().getDatabase();
 			shipdata = db.first("SELECT * FROM ships WHERE id="+shipdata.getInt("id"));
-			LOG.warn("getShipType: type oder status fehlen in den Schiffsdaten", new Throwable());
+			log.warn("getShipType: type oder status fehlen in den Schiffsdaten", new Throwable());
 		}
 		
 		int shiptype = shipdata.getInt("type");

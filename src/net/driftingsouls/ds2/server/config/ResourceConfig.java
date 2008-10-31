@@ -26,9 +26,10 @@ import java.util.List;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -41,7 +42,9 @@ import org.w3c.dom.NodeList;
  * @author Christopher Jung
  *
  */
-public class ResourceConfig implements Loggable {
+public class ResourceConfig {
+	private static final Log log = LogFactory.getLog(ResourceConfig.class);
+	
 	/**
 	 * Die Konfigurationsdaten einer einzelnen Resource (Ware)
 	 */
@@ -172,7 +175,7 @@ public class ResourceConfig implements Loggable {
 			}
 		}
 		catch(Exception e) {
-			LOG.fatal(e, e);
+			log.fatal(e, e);
 		}
 	}
 }

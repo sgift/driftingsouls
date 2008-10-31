@@ -23,9 +23,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -34,7 +35,9 @@ import org.w3c.dom.NodeList;
  * @author Christopher Jung
  *
  */
-public class Faction implements Loggable {
+public class Faction {
+	private static final Log log = LogFactory.getLog(Faction.class);
+	
 	private static Map<Integer,Faction> factionList = new LinkedHashMap<Integer,Faction>();
 	
 	/**
@@ -108,7 +111,7 @@ public class Faction implements Loggable {
 			}
 		}
 		catch( Exception e ) {
-			LOG.fatal("FAILED: Kann Items nicht laden",e);
+			log.fatal("FAILED: Kann Items nicht laden",e);
 		}
 	}
 }

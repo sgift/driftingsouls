@@ -43,11 +43,12 @@ import javax.servlet.http.HttpSession;
 
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.pipeline.ReaderPipeline;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
 import org.apache.axis.transport.http.AxisBridge;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Node;
 
 /**
@@ -58,7 +59,9 @@ import org.w3c.dom.Node;
  * @author Christopher Jung
  *
  */
-public class WSDDReader implements Reader, Loggable {
+public class WSDDReader implements Reader {
+	private static final Log log = LogFactory.getLog(WSDDReader.class);
+	
 	private static class HttpRequestWrapper implements HttpServletRequest {
 		private HttpServletRequest req = null;
 		private Pattern fakeServletPath = null;
@@ -93,11 +96,11 @@ public class WSDDReader implements Reader, Loggable {
 			return req.getHeader(arg0);
 		}
 
-		public Enumeration getHeaderNames() {
+		public Enumeration<?> getHeaderNames() {
 			return req.getHeaderNames();
 		}
 
-		public Enumeration getHeaders(String arg0) {
+		public Enumeration<?> getHeaders(String arg0) {
 			return req.getHeaders(arg0);
 		}
 
@@ -178,7 +181,7 @@ public class WSDDReader implements Reader, Loggable {
 			return req.getAttribute(arg0);
 		}
 
-		public Enumeration getAttributeNames() {
+		public Enumeration<?> getAttributeNames() {
 			return req.getAttributeNames();
 		}
 
@@ -214,7 +217,7 @@ public class WSDDReader implements Reader, Loggable {
 			return req.getLocale();
 		}
 
-		public Enumeration getLocales() {
+		public Enumeration<?> getLocales() {
 			return req.getLocales();
 		}
 
@@ -222,11 +225,11 @@ public class WSDDReader implements Reader, Loggable {
 			return req.getParameter(arg0);
 		}
 
-		public Map getParameterMap() {
+		public Map<?, ?> getParameterMap() {
 			return req.getParameterMap();
 		}
 
-		public Enumeration getParameterNames() {
+		public Enumeration<?> getParameterNames() {
 			return req.getParameterNames();
 		}
 
@@ -303,8 +306,8 @@ public class WSDDReader implements Reader, Loggable {
 			return null;
 		}
 
-		public Enumeration getInitParameterNames() {
-			return new Vector().elements();
+		public Enumeration<?> getInitParameterNames() {
+			return new Vector<Object>().elements();
 		}
 
 		public ServletContext getServletContext() {
@@ -331,7 +334,7 @@ public class WSDDReader implements Reader, Loggable {
 				}
 			}
 			catch( Exception e ) {
-				LOG.warn("Kann Soap-Config-Eintrag 'base-path' nicht lesen",e);
+				log.warn("Kann Soap-Config-Eintrag 'base-path' nicht lesen",e);
 			}
 		}
 	}
@@ -343,7 +346,7 @@ public class WSDDReader implements Reader, Loggable {
 		File file = new File(path);
 		if( !file.exists() ) {
 			context.getResponse().setStatus(HttpServletResponse.SC_NOT_FOUND);
-			LOG.warn("Warning: WebService Deployment Descriptor file not found: '" + file + "'");
+			log.warn("Warning: WebService Deployment Descriptor file not found: '" + file + "'");
 			return;
 		}
 		

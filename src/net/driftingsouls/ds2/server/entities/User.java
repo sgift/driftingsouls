@@ -39,12 +39,13 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -54,7 +55,9 @@ import org.apache.commons.lang.StringUtils;
  */
 @Entity
 @DiscriminatorValue("default")
-public class User extends BasicUser implements Loggable {
+public class User extends BasicUser {
+	private static final Log log = LogFactory.getLog(User.class);
+	
 	/**
 	 * Geldtransfer - Der Transfer ist manuell vom Spieler durchgefuerht worden
 	 */
@@ -425,11 +428,16 @@ public class User extends BasicUser implements Loggable {
 		if( this.relations == null ) {
 			Relations relations = new Relations();
 			
-			List<UserRelation> relationlist = context.query("from UserRelation " +
-					"where user="+this.getId()+" OR target="+this.getId()+" OR (user!="+this.getId()+" AND target=0) " +
-					"order by abs(target) desc", UserRelation.class);
+			org.hibernate.Session db = context.getDB();
 			
-			for( UserRelation relation : relationlist ) {
+			List<?> relationlist = db.createQuery("from UserRelation " +
+					"where user= :user OR target= :user OR (user!= :user AND target=0) " +
+					"order by abs(target) desc")
+				.setEntity("user", this)
+				.list();
+			
+			for( Iterator<?> iter=relationlist.iterator(); iter.hasNext(); ) {
+				UserRelation relation = (UserRelation)iter.next();
 				if( relation.getUser().getId() == this.getId() ) {
 					relations.toOther.put(relation.getTarget().getId(), Relation.values()[relation.getStatus()]);	
 				}
@@ -514,7 +522,7 @@ public class User extends BasicUser implements Loggable {
 			if( (relation != Relation.FRIEND) && (getAlly() != null) ) {
 				User targetuser = (User)context.getDB().get(User.class, userid);
 				if( targetuser.getAlly() == getAlly() ) {
-					LOG.warn("Versuch die allyinterne Beziehung von User "+this.getId()+" zu "+userid+" auf "+relation+" zu aendern", new Throwable());
+					log.warn("Versuch die allyinterne Beziehung von User "+this.getId()+" zu "+userid+" auf "+relation+" zu aendern", new Throwable());
 					return;
 				}
 			}
@@ -1071,11 +1079,11 @@ public class User extends BasicUser implements Loggable {
 			
 			org.hibernate.Session db = context.getDB();
 			
-			List userresList = db.createQuery("from UserResearch where owner= :user")
+			List<?> userresList = db.createQuery("from UserResearch where owner= :user")
 				.setEntity("user", this)
 				.list();
 			
-			for( Iterator iter=userresList.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=userresList.iterator(); iter.hasNext(); ) {
 				UserResearch userres = (UserResearch)iter.next();
 				
 				this.researched.put(userres.getResearch().getID(), userres);

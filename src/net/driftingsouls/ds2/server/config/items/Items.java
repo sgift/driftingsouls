@@ -26,9 +26,10 @@ import net.driftingsouls.ds2.server.config.items.effects.ItemEffectFactory;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -41,7 +42,8 @@ import org.w3c.dom.NodeList;
  * @author Christopher Jung
  *
  */
-public class Items implements Loggable,Iterable<Item> {
+public class Items implements Iterable<Item> {
+	private static final Log log = LogFactory.getLog(Items.class);
 	private static Items itemList = new Items();
 	private Map<Integer, Item> list = new LinkedHashMap<Integer, Item>();
 	
@@ -142,7 +144,7 @@ public class Items implements Loggable,Iterable<Item> {
 			}
 		}
 		catch( Exception e ) {
-			LOG.fatal("FAILED: Kann Items nicht laden",e);
+			log.fatal("FAILED: Kann Items nicht laden",e);
 			throw new ExceptionInInitializerError(e);
 		}
 	}

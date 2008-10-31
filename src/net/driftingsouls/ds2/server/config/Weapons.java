@@ -27,10 +27,11 @@ import java.util.Map;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -41,7 +42,8 @@ import org.w3c.dom.NodeList;
  * @author Christopher Jung
  *
  */
-public class Weapons implements Iterable<Weapon>,Loggable {
+public class Weapons implements Iterable<Weapon> {
+	private static final Log log = LogFactory.getLog(Weapons.class);
 	private Map<String, Weapon> list = new LinkedHashMap<String, Weapon>();
 	private static Weapons instance = new Weapons();
 	
@@ -102,8 +104,8 @@ public class Weapons implements Iterable<Weapon>,Loggable {
 	public static String packWeaponList(Map<String,String> weapons) {
 		List<String> weaponlist = new ArrayList<String>();
 
-		for( String wpnKey : weapons.keySet() ) {
-			weaponlist.add(wpnKey + '=' + weapons.get(wpnKey));
+		for( Map.Entry<String, String> wpnEntry : weapons.entrySet() ) {
+			weaponlist.add(wpnEntry.getKey() + '=' + wpnEntry.getValue());
 		}
 		String weaponstring = Common.implode("|",weaponlist);
 
@@ -148,7 +150,7 @@ public class Weapons implements Iterable<Weapon>,Loggable {
 			}
 		}
 		catch( Exception e ) {
-			LOG.fatal("FAILED: Kann Waffen nicht laden",e);
+			log.fatal("FAILED: Kann Waffen nicht laden",e);
 		}
 	}
 }

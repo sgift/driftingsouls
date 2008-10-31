@@ -32,8 +32,9 @@ import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Loggable;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -51,7 +52,8 @@ import org.scannotation.ClasspathUrlFinder;
  * @author Christopher Jung
  *
  */
-public class HibernateFacade implements Loggable {
+public class HibernateFacade {
+	private static final Log log = LogFactory.getLog(HibernateFacade.class);
 	private static final Object LOCK = new Object();
 	
 	private static SessionFactory sessionFactory;
@@ -91,7 +93,7 @@ public class HibernateFacade implements Loggable {
 			}
 		}
 		catch( Exception e ) {
-			LOG.fatal("HibernateFacade init fehlgeschlagen", e);
+			log.fatal("HibernateFacade init fehlgeschlagen", e);
 			throw new ExceptionInInitializerError(e);
 		}
 		

@@ -25,7 +25,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import net.driftingsouls.ds2.server.framework.Loggable;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Repraesentiert eine Verbindung mit der Datenbank. Eine Verbindung kann entweder inidividuell
@@ -34,7 +35,9 @@ import net.driftingsouls.ds2.server.framework.Loggable;
  * @author Christopher Jung
  *
  */
-public class Database implements Loggable {
+public class Database {
+	private static final Log log = LogFactory.getLog(Database.class);
+	
 	private Connection connection;
 	private int affectedRows = 0;
 	private int insertid = -1;
@@ -369,10 +372,10 @@ public class Database implements Loggable {
 	
 	protected void error( String text, Statement stmt ) {
 		error = true;
-		LOG.error(text);
+		log.error(text);
 		try {
 			if( (stmt != null) && (stmt.getWarnings() != null) ) {
-				LOG.error("SQL-WARNING: "+stmt.getWarnings().getMessage());
+				log.error("SQL-WARNING: "+stmt.getWarnings().getMessage());
 			}
 		}
 		catch( SQLException e ) {

@@ -23,9 +23,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Loggable;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -38,7 +39,8 @@ import org.w3c.dom.NodeList;
  * @author Christopher Jung
  *
  */
-public class ModuleSlots implements Loggable,Iterable<ModuleSlot> {
+public class ModuleSlots implements Iterable<ModuleSlot> {
+	private static final Log log = LogFactory.getLog(ModuleSlots.class);
 	private static ModuleSlots moduleList = new ModuleSlots();
 	private Map<String, ModuleSlot> list = new LinkedHashMap<String, ModuleSlot>();
 	
@@ -101,7 +103,7 @@ public class ModuleSlots implements Loggable,Iterable<ModuleSlot> {
 			}
 		}
 		catch( Exception e ) {
-			LOG.fatal("FAILED: Kann Modul-Slots nicht laden",e);
+			log.fatal("FAILED: Kann Modul-Slots nicht laden",e);
 		}
 	}
 }

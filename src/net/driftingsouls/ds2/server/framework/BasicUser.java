@@ -31,6 +31,8 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.DiscriminatorFormula;
 
 
@@ -43,7 +45,9 @@ import org.hibernate.annotations.DiscriminatorFormula;
 @Table(name="users")
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorFormula("'default'")
-public abstract class BasicUser implements Loggable {
+public abstract class BasicUser {
+	private static final Log log = LogFactory.getLog(BasicUser.class);
+	
 	/**
 	 * Es findet keine Kopplung von IP und Session-ID statt
 	 */
@@ -258,7 +262,7 @@ public abstract class BasicUser implements Loggable {
 			.uniqueResult();
 
 		if( value == null ) {
-			LOG.warn("Uservalue "+valuename+" hat keinen Defaultwert");
+			log.warn("Uservalue "+valuename+" hat keinen Defaultwert");
 			return "";
 		}
 		return value.getValue();

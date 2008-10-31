@@ -31,24 +31,25 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import net.driftingsouls.ds2.server.framework.Loggable;
-
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Implementiert das Request-Interface fuer HTTP-Requests
  * @author Christopher Jung
  *
  */
-public class HttpRequest implements Request,Loggable {
+public class HttpRequest implements Request {
+	private static final Log log = LogFactory.getLog(HttpRequest.class);
 	private HttpServletRequest request = null;
 	private Map<String,String> parameters = new HashMap<String,String>();
 	private boolean isMultipart = false;
-	private List uploadedFiles = null;
+	private List<?> uploadedFiles = null;
 	
 	/**
 	 * Konstruktor
@@ -87,7 +88,7 @@ public class HttpRequest implements Request,Loggable {
 				}
 			}
 			catch( FileUploadException e ) {
-				LOG.error(e);
+				log.error(e);
 			}
 		}
 	}
@@ -173,7 +174,7 @@ public class HttpRequest implements Request,Loggable {
 		}
 		
 		List<FileItem> result = new ArrayList<FileItem>();
-		List items = uploadedFiles;
+		List<?> items = uploadedFiles;
 		for( int i=0; i < items.size(); i++ ) {
 			if( items.get(i) instanceof FileItem ) {
 				FileItem item = (FileItem)items.get(i);
@@ -197,24 +198,24 @@ public class HttpRequest implements Request,Loggable {
 		Object obj = session.getAttribute(getClass().getName()+"#"+cls.getName());
 		if( obj == null ) {
 			try {
-				Constructor constr = cls.getConstructor();
+				Constructor<T> constr = cls.getConstructor();
 				constr.setAccessible(true);
 				obj = constr.newInstance();
 			}
 			catch( InstantiationException e ) {
-				LOG.error("getFromSession for "+cls.getName()+" failed", e);
+				log.error("getFromSession for "+cls.getName()+" failed", e);
 				return null;
 			}
 			catch( IllegalAccessException e ) {
-				LOG.error("getFromSession for "+cls.getName()+" failed", e);
+				log.error("getFromSession for "+cls.getName()+" failed", e);
 				return null;
 			}
 			catch( InvocationTargetException e ) {
-				LOG.error("getFromSession for "+cls.getName()+" failed", e);
+				log.error("getFromSession for "+cls.getName()+" failed", e);
 				return null;
 			}
 			catch( NoSuchMethodException e ) {
-				LOG.error("getFromSession for "+cls.getName()+" failed", e);
+				log.error("getFromSession for "+cls.getName()+" failed", e);
 				return null;
 			}
 			session.setAttribute(getClass().getName()+"#"+cls.getName(), obj);
@@ -222,7 +223,7 @@ public class HttpRequest implements Request,Loggable {
 		if( cls.isInstance(obj) ) {
 			return (T)obj;
 		}
-		LOG.error("getFromSession for "+cls.getName()+" failed - invalid type");
+		log.error("getFromSession for "+cls.getName()+" failed - invalid type");
 		
 		return null;
 	}
