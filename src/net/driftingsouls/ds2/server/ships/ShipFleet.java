@@ -158,7 +158,7 @@ public class ShipFleet {
 			}
 			List<Ship> jaegerliste = Common.cast(jaegerListeQuery.list());
 			
-			jaegerlist.addAll(jaegerliste.subList(0, free > jaegerliste.size() ? free : jaegerliste.size()));
+			jaegerlist.addAll(jaegerliste.subList(0, free > jaegerliste.size() ? jaegerliste.size() : free));
 			ship.land(jaegerlist.toArray(new Ship[jaegerlist.size()]));
 		}
 	}
@@ -258,7 +258,7 @@ public class ShipFleet {
 				.setInteger(4, ShipClasses.CONTAINER.ordinal())
 				.list();
 			
-			containerlist.addAll(Common.cast(containers,Ship.class).subList(0, free > containers.size() ? free : containers.size()));
+			containerlist.addAll(Common.cast(containers,Ship.class).subList(0, free > containers.size() ? containers.size() : free));
 			ship.dock(containerlist.toArray(new Ship[containerlist.size()]));
 		}
 	}
