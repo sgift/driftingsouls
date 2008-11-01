@@ -23,7 +23,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Blob;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
@@ -394,38 +396,44 @@ public class UeberController extends TemplateGenerator {
 		StringBuilder battlelist = new StringBuilder();
 
 		// Ab hier beginnt das erste Bier
-		Query battleQuery = null;
+		Set<Battle> battles = new LinkedHashSet<Battle>();
 
-		if(user.getAccessLevel() < 20 && !user.hasFlag(User.FLAG_VIEW_BATTLES)){
-			String query = "select distinct s.battle from Ship as s inner join s.battle " +
-					"where s.battle.commander1= :user or s.battle.commander2= :user or s.owner= :user";
+		if(user.getAccessLevel() < 20 && !user.hasFlag(User.FLAG_VIEW_BATTLES)) {
+			// Zwei separate Queries fuer alle Schlachten um einen sehr unvorteilhaften Join zu vermeiden
+			String query = "from Battle " +
+					"where commander1= :user or commander2= :user ";
 			
 			//hat der Benutzer eine ally, dann haeng das hier an
 			if(user.getAlly() != null) {
-				query += " or s.battle.ally1 = :ally or s.battle.ally2 = :ally";
+				query += " or ally1 = :ally or ally2 = :ally";
 			}
 			// ach haengen wir mal den quest kram dran
 			if(user.hasFlag(User.FLAG_QUEST_BATTLES)){
-				query += " or s.battle.quest is not null";	
+				query += " or quest is not null";	
 			}
 			
-			battleQuery = db.createQuery(query)
+			Query battleQuery = db.createQuery(query)
 				.setEntity("user", user);
 			
 			if( user.getAlly() != null ) {
 				battleQuery = battleQuery.setInteger("ally", user.getAlly().getId());
 			}
+			
+			battles.addAll(Common.cast(battleQuery.list(), Battle.class));
+			
+			battles.addAll(Common.cast(
+				db.createQuery("select battle from Ship where battle is not null and owner=:user")
+					.setEntity("user", user)
+					.list(),		
+				Battle.class));
 		}
 		// Bei entsprechendem AccessLevel/Flag alle Schlachten anzeigen
 		else {
-			battleQuery = db.createQuery("from Battle");
+			battles.addAll(Common.cast(db.createQuery("from Battle").list(), Battle.class));
 		}
-			
-		// Ab hier beginnt das zweite Bier
 		
-		for( Iterator<?> iter=battleQuery.list().iterator(); iter.hasNext(); ) {
-			Battle battle = (Battle)iter.next();
-			
+		// Ab hier beginnt das zweite Bier
+		for( Battle battle : battles ) {
 			String eparty = "";
 			String eparty2 = "";
 			if( battle.getAlly(0) == 0 ) {
