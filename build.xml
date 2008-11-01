@@ -282,6 +282,7 @@
 		
 	<target name="check-install" depends="prepare,compile">
 		<java classname="net.driftingsouls.ds2.server.install.CheckInstallation" fork="true" dir="${build.home}">
+			<jvmarg value="Xmx512m" />
 			<classpath>
 				<pathelement path="${build.home}/WEB-INF/classes" />
 			</classpath>
