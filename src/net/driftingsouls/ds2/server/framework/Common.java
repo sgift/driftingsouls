@@ -1243,4 +1243,32 @@ public class Common {
 		
 		map.put(property, val.longValue()+1);		
 	}
+	
+	/**
+	 * Konvertiert eine nicht naeher spezifizierte Liste in eine Liste
+	 * eines bestimmten Typs - <b>OHNE TYPSICHERHEIT</b>. Diese Methode
+	 * erspart nur ein grossflaechiges verteilen von <code>SuppressWarnings</code>.
+	 * @param <T> Der Zieltyp
+	 * @param list Die Liste
+	 * @param type Der Zieltyp
+	 * @return Die Liste
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> cast(List<?> list, Class<T> type) {
+		return (List<T>)list;
+	}
+	
+	/**
+	 * Konvertiert eine nicht naeher spezifizierte Liste in eine Liste
+	 * eines bestimmten Typs - <b>OHNE TYPSICHERHEIT</b>. Der Typ wird dabei
+	 * aus der "Umgebung" des Aufrufers versucht zu ermitteln (Type inference) Diese Methode
+	 * erspart nur ein grossflaechiges verteilen von <code>SuppressWarnings</code>.
+	 * @param <T> Der Zieltyp
+	 * @param list Die Liste
+	 * @return Die Liste
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> cast(List<?> list) {
+		return (List<T>)list;
+	}
 }
