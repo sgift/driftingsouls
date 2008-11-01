@@ -33,6 +33,8 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DiscriminatorFormula;
 
 
@@ -45,6 +47,7 @@ import org.hibernate.annotations.DiscriminatorFormula;
 @Table(name="users")
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorFormula("'default'")
+@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public abstract class BasicUser {
 	private static final Log log = LogFactory.getLog(BasicUser.class);
 	
@@ -455,7 +458,7 @@ public abstract class BasicUser {
 		return this.disabled != 0;
 	}
 	
-	protected void setId(int id)
+	public void setId(int id)
 	{
 		this.id = id;
 	}

@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -166,10 +167,6 @@ public class Battle implements Locatable {
 	private boolean ready2;
 	private String com1Msg = "";
 	private String com2Msg = "";
-	@SuppressWarnings("unused")
-	private int com1Points;
-	@SuppressWarnings("unused")
-	private int com2Points;
 	private boolean com1BETAK = true;
 	private boolean com2BETAK = true;
 	private int takeCommand1;
@@ -288,10 +285,10 @@ public class Battle implements Locatable {
 	public boolean isSecondRowStable( int side, BattleShip ... added ) {
 		List<BattleShip> shiplist = null;
 		if( side == this.ownSide ) {
-			shiplist = this.ownShips;
+			shiplist = getOwnShips();
 		}
 		else {
-			shiplist = this.enemyShips;
+			shiplist = getEnemyShips();
 		}
 		
 		double owncaps = 0;
@@ -417,63 +414,6 @@ public class Battle implements Locatable {
 	 */
 	public String getComMessageBuffer( int side ) {
 		return side == 0 ? this.com1Msg : this.com2Msg;
-	}
-	
-	private int getActionPoints( int side ) {
-		List<BattleShip> olist = this.ownShips;
-		List<BattleShip> elist = this.enemyShips;
-		
-		if( side != this.ownSide ) {
-			elist = this.ownShips;
-			olist = this.enemyShips;
-		}
-		
-		double points = 600;
-		
-		double ownsize = 0;
-		int owncount = 0;
-		double enemysize = 0;
-		int enemycount = 0;
-		
-		for( int i=0; i < olist.size(); i++ ) {
-			BattleShip aShip = olist.get(i);
-			
-			ShipTypeData aShipType = aShip.getTypeData();
-			if( (aShipType.getSize() > ShipType.SMALL_SHIP_MAXSIZE) && aShipType.isMilitary() && (aShipType.getCrew() > 0) ) {
-				double factor = aShip.getShip().getCrew() / (double)aShipType.getCrew();
-				ownsize += factor*aShipType.getSize();
-				owncount++;
-			}
-		}	
-		
-		for( int i=0; i < elist.size(); i++ ) {
-			BattleShip aShip = elist.get(i);
-			
-			ShipTypeData aShipType = aShip.getTypeData();
-			if( (aShipType.getSize() > ShipType.SMALL_SHIP_MAXSIZE) && aShipType.isMilitary() && (aShipType.getCrew() > 0) ) {
-				double factor = aShip.getCrew() / (double)aShipType.getCrew();
-				enemysize += factor*aShipType.getSize();
-				enemycount++;
-			}
-		}	
-		
-		if( enemycount > 0 ) {
-			if( enemysize < 1 ) {
-				enemysize = 1;
-			}
-			if( ownsize > enemysize ) {
-				points += (ownsize/enemysize-1 > 1 ? 1 : ownsize/enemysize-1)*points; 	
-			}
-		}
-		else {
-			int add = owncount*2;
-			if( add > 100 ) {
-				add = 100;
-			}
-			points += points*add/100;
-		}		
-		
-		return (int)Math.round(points);
 	}
 
 	/**
@@ -651,7 +591,6 @@ public class Battle implements Locatable {
 		this.inakt = 0;
 	}
 	
-	
 	/**
 	 * Erstellt eine neue Schlacht
 	 * @param id Die ID des Spielers, der die Schlacht beginnt
@@ -661,6 +600,38 @@ public class Battle implements Locatable {
 	 */
 	public static Battle create( int id, int ownShipID, int enemyShipID ) {
 		return create(id, ownShipID, enemyShipID, false);
+	}
+	
+	private static void insertShipsIntoDatabase(Battle battle, List<BattleShip> ships, List<Integer> startlist, List<Integer> idlist)
+	{
+		Set<Integer> addedships = new TreeSet<Integer>();
+		StringBuilder buildIn = new StringBuilder();
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		for( int i=0; i < ships.size(); i++ ) {
+			BattleShip ship = ships.get(i);
+			
+			Ship baseShip = ship.getShip().getBaseShip();
+			if( (baseShip != null) && 
+				(ship.getDocked().charAt(0) == 'l') && (baseShip.startFighters())) 
+			{
+				ship.getShip().setDocked("");
+				startlist.add(ship.getId());
+			}
+			idlist.add(ship.getId());
+			buildIn.append(ship.getShip().getId() + ",");
+			addedships.add(ship.getShip().getId());
+			
+			ship.setBattle(battle);
+			db.persist(ship);
+		}
+		
+		String in = buildIn.substring(0, buildIn.length() - 1); //Remove last ,
+		
+		//Set Parameter doesn't work for in (cast problem string/integer)
+		db.createQuery("update Ship set battle=:battle where id in ("+in+")")
+		  .setParameter("battle", battle)
+		  .executeUpdate();
 	}
 
 	/**
@@ -746,8 +717,8 @@ public class Battle implements Locatable {
 		battle.ownSide = 0;
 		battle.enemySide = 1;
 		
-		BattleShip enemyShip = null;
-		BattleShip ownShip = null;
+		BattleShip enemyBattleShip = null;
+		BattleShip ownBattleShip = null;
 		
 		Set<User> ownUsers = new HashSet<User>();
 		Set<User> enemyUsers = new HashSet<User>();
@@ -793,7 +764,7 @@ public class Battle implements Locatable {
 				battleShip.setSide(0);
 				
 				if( (ownShipID != 0) && (aShip.getId() == ownShipID) ) {
-					ownShip = battleShip;
+					ownBattleShip = battleShip;
 				} 
 				else {
 					battle.ownShips.add(battleShip);
@@ -804,7 +775,7 @@ public class Battle implements Locatable {
 				battleShip.setSide(1);
 				
 				if( (enemyShipID != 0) && (aShip.getId() == enemyShipID) ) {
-					enemyShip = battleShip;
+					enemyBattleShip = battleShip;
 				} 
 				else {
 					battle.enemyShips.add(battleShip);
@@ -821,16 +792,16 @@ public class Battle implements Locatable {
 		// - Wenn nicht: Abbrechen
 		//
 		
-		if( ownShip == null ) {
+		if( ownBattleShip == null ) {
 			context.addError("Offenbar liegt ein Problem mit dem von ihnen angegebenen Schiff oder ihrem eigenen Schiff vor (wird es evt. bereits angegriffen?)");
 			return null;
 		}
 		
-		if( enemyShip == null && (battle.enemyShips.size() == 0) ) {
+		if( enemyBattleShip == null && (battle.enemyShips.size() == 0) ) {
 			context.addError("Offenbar liegt ein Problem mit den feindlichen Schiffen vor (es gibt n&aumlmlich keine die sie angreifen k&ouml;nnten)");
 			return null;
 		}
-		else if( enemyShip == null ) {
+		else if( enemyBattleShip == null ) {
 			context.addError("Offenbar liegt ein Problem mit den feindlichen Schiffen vor (es gibt zwar welche, jedoch fehlt das Zielschiff)");
 			return null;
 		}
@@ -839,13 +810,14 @@ public class Battle implements Locatable {
 		// Schlacht in die DB einfuegen
 		//
 
-		battle.x = ownShip.getShip().getX();
-		battle.y = ownShip.getShip().getY();
-		battle.system = ownShip.getShip().getSystem();
-		battle.ally1 = ownShip.getOwner().getAlly() != null ? ownShip.getOwner().getAlly().getId() : 0;
-		battle.ally2 = enemyShip.getOwner().getAlly() != null ? enemyShip.getOwner().getAlly().getId() : 0;
-		battle.commander1 = ownShip.getOwner();
-		battle.commander2 = enemyShip.getOwner();
+		Ship ownShip = ownBattleShip.getShip();
+		battle.x = ownShip.getX();
+		battle.y = ownShip.getY();
+		battle.system = ownShip.getSystem();
+		battle.ally1 = ownBattleShip.getOwner().getAlly() != null ? ownBattleShip.getOwner().getAlly().getId() : 0;
+		battle.ally2 = enemyBattleShip.getOwner().getAlly() != null ? enemyBattleShip.getOwner().getAlly().getId() : 0;
+		battle.commander1 = ownBattleShip.getOwner();
+		battle.commander2 = enemyBattleShip.getOwner();
 		battle.lastaction = Common.time();
 		battle.lastturn = Common.time();
 		battle.flags = FLAG_FIRSTROUND;
@@ -863,34 +835,20 @@ public class Battle implements Locatable {
 		List<Integer> idlist = new ArrayList<Integer>();
 		List<Integer> startlist = new ArrayList<Integer>();
 
-		if( (enemyShip.getDocked().length() > 0) && (enemyShip.getDocked().charAt(0) == 'l') ) {
-			enemyShip.getShip().setDocked("");
-			startlist.add(enemyShip.getId());
+		Ship enemyShip = enemyBattleShip.getShip();
+		if( (enemyBattleShip.getDocked().length() > 0) && (enemyBattleShip.getDocked().charAt(0) == 'l') ) 
+		{
+			enemyShip.getBaseShip().start(enemyShip);
+			startlist.add(enemyBattleShip.getId());
 		}
-		idlist.add(enemyShip.getId());
+		idlist.add(enemyBattleShip.getId());
+		
+		enemyBattleShip.setBattle(battle);
+		db.persist(enemyBattleShip);
 		
 		enemyShip.setBattle(battle);
-		db.persist(enemyShip);
-		
-		enemyShip.getShip().setBattle(battle);
 
-		for( int i=0; i < battle.enemyShips.size(); i++ ) {
-			BattleShip ship = battle.enemyShips.get(i);
-			
-			Ship baseShip = ship.getShip().getBaseShip();
-			if( (baseShip != null) && 
-				(ship.getDocked().charAt(0) == 'l') && (baseShip.startFighters())) 
-			{
-				ship.getShip().setDocked("");
-				startlist.add(ship.getId());
-			}
-			idlist.add(ship.getId());
-			
-			ship.setBattle(battle);
-			db.persist(ship);
-			
-			ship.getShip().setBattle(battle);
-		}
+		insertShipsIntoDatabase(battle, battle.enemyShips, startlist, idlist);
 		if( startlist.size() > 0 ) {
 			battle.logme(startlist.size()+" J&auml;ger sind automatisch gestartet\n");
 			battle.logenemy("<action side=\"1\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\n"+startlist.size()+" J&auml;ger sind automatisch gestartet\n]]></action>\n");
@@ -901,30 +859,21 @@ public class Battle implements Locatable {
 		startlist = new ArrayList<Integer>();
 		
 		// * Eigene Schiffe in die Schlacht einfuegen
-		idlist.add(ownShip.getId());
+		idlist.add(ownBattleShip.getId());
+		
+		ownBattleShip.setBattle(battle);
+		db.persist(ownBattleShip);
 		
 		ownShip.setBattle(battle);
-		db.persist(ownShip);
-		
-		ownShip.getShip().setBattle(battle);
-		ownShip.getShip().setDocked("");
-
-		for( int i=0; i < battle.ownShips.size(); i++ ) {
-			BattleShip ship = battle.ownShips.get(i);
-			Ship baseShip = ship.getShip().getBaseShip();
-
-			if( (baseShip != null) && 
-					(ship.getDocked().charAt(0) == 'l') && baseShip.startFighters()) {
-				startlist.add(ship.getId());
-				ship.getShip().setDocked("");
-			}
-			idlist.add(ship.getId());
-			
-			ship.setBattle(battle);
-			db.persist(ship);
-			
-			ship.getShip().setBattle(battle);
+		if( (ownBattleShip.getDocked().length() > 0) && (ownBattleShip.getDocked().charAt(0) == 'l') ) 
+		{
+			//TODO: Maybe we could optimize this a little bit further with mass start?
+			ownShip.getBaseShip().start(enemyShip);
+			startlist.add(enemyBattleShip.getId());
 		}
+		ownShip.setDocked("");
+
+		insertShipsIntoDatabase(battle, battle.ownShips, startlist, idlist);
 		if( startOwn && startlist.size() > 0 ) {
 			battle.logme(startlist.size()+" J&auml;ger sind automatisch gestartet\n");
 			battle.logenemy("<action side=\"0\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\n"+startlist.size()+" J&auml;ger sind automatisch gestartet\n]]></action>\n");
@@ -942,20 +891,20 @@ public class Battle implements Locatable {
 			writer.append("<?xml version='1.0' encoding='UTF-8'?>\n");
 			writer.append("<battle>\n");
 			writer.append("<fileinfo format=\""+LOGFORMAT+"\" />\n");
-			writer.append("<coords x=\""+ownShip.getShip().getX()+"\" y=\""+ownShip.getShip().getY()+"\" system=\""+ownShip.getShip().getSystem()+"\" />\n");
+			writer.append("<coords x=\""+ownShip.getX()+"\" y=\""+ownShip.getY()+"\" system=\""+ownShip.getSystem()+"\" />\n");
 	
-			if( ownShip.getOwner().getAlly() != null ) {
-				writer.append("<side1 commander=\""+ownShip.getOwner().getId()+"\" ally=\""+ownShip.getOwner().getAlly().getId()+"\" />\n");
+			if( ownBattleShip.getOwner().getAlly() != null ) {
+				writer.append("<side1 commander=\""+ownBattleShip.getOwner().getId()+"\" ally=\""+ownBattleShip.getOwner().getAlly().getId()+"\" />\n");
 			}
 			else {
-				writer.append("<side1 commander=\""+ownShip.getOwner().getId()+"\" />\n");
+				writer.append("<side1 commander=\""+ownBattleShip.getOwner().getId()+"\" />\n");
 			}
 	
-			if( enemyShip.getOwner().getAlly() != null ) {
-				writer.append("<side2 commander=\""+enemyShip.getOwner().getId()+"\" ally=\""+enemyShip.getOwner().getAlly().getId()+"\" />\n");
+			if( enemyBattleShip.getOwner().getAlly() != null ) {
+				writer.append("<side2 commander=\""+enemyBattleShip.getOwner().getId()+"\" ally=\""+enemyBattleShip.getOwner().getAlly().getId()+"\" />\n");
 			}
 			else {
-				writer.append("<side2 commander=\""+enemyShip.getOwner().getId()+"\" />\n");
+				writer.append("<side2 commander=\""+enemyBattleShip.getOwner().getId()+"\" />\n");
 			}
 	
 			writer.append("<startdate tick=\""+tick+"\" time=\""+Common.time()+"\" />\n");
@@ -971,7 +920,7 @@ public class Battle implements Locatable {
 		
 		
 		//
-		// Beziehungen aktuallisieren
+		// Beziehungen aktualisieren
 		//
 		
 		// Zuerst schauen wir mal ob wir es mit Allys zu tun haben und 
@@ -1021,17 +970,6 @@ public class Battle implements Locatable {
 				euser.setRelation(auser.getId(), User.Relation.ENEMY);
 			}
 		}
-		
-		//
-		// APs berechnen
-		//
-
-		
-		// Zuerst berechnen wir die eigenen AP
-		battle.com1Points = battle.getActionPoints(battle.ownSide);
-
-		// Nun berechnen wir die gegnerischen AP 
-		battle.com2Points = battle.getActionPoints(battle.enemySide);
 
 		return battle;
 	}
@@ -1094,7 +1032,7 @@ public class Battle implements Locatable {
 		
 		int side = this.ownSide;
 		
-		// Beziehungen aktuallisieren
+		// Beziehungen aktualisieren
 		Set<Integer> calcedallys = new HashSet<Integer>();
 		
 		List<User> ownUsers = new ArrayList<User>();
@@ -1167,7 +1105,7 @@ public class Battle implements Locatable {
 					.setInteger(1, shipd.getX())
 					.setInteger(2, shipd.getY())
 					.setInteger(3, shipd.getSystem())
-					.list();;
+					.list();
 		}
 		
 		for( Iterator<?> iter=sid.iterator(); iter.hasNext(); ) {
@@ -1209,7 +1147,7 @@ public class Battle implements Locatable {
 				sid2bs.setAction(sid2Action);
 				sid2bs.setSide(this.ownSide);
 				
-				this.ownShips.add(sid2bs);
+				getOwnShips().add(sid2bs);
 	
 				Common.safeIntInc(shipcounts, sid2.getType());
 				
@@ -1229,7 +1167,7 @@ public class Battle implements Locatable {
 			aBattleShip.setAction(sidAction);
 			aBattleShip.setSide(side);
 			
-			this.ownShips.add(aBattleShip);
+			getOwnShips().add(aBattleShip);
 		
 			Common.safeIntInc(shipcounts, aship.getType());
 			
@@ -1572,7 +1510,8 @@ public class Battle implements Locatable {
 				}
 				else if( (aship.getAction() & BS_DESTROYED) != 0 ) {	
 					if( Configuration.getIntSetting("DESTROYABLE_SHIPS") != 0 ) {
-						destroyList.add(aship);
+						//destroyList.add(aship);
+						destroyShip(aship);
 					}
 					else {
 						continue; //Das Schiff kann nicht zerstoert werden
@@ -1582,14 +1521,18 @@ public class Battle implements Locatable {
 					//continue;
 				}
 				
-				ShipTypeData ashipType = aship.getTypeData();
 				
-				if( (aship.getAction() & BS_FLUCHT) != 0 ) {
+				
+				if( (aship.getAction() & BS_FLUCHT) != 0 ) 
+				{
+					ShipTypeData ashipType = aship.getTypeData();
 					if( ashipType.getCost() > 0 ) {
-						fluchtReposList.add(aship);
+						//fluchtReposList.add(aship);
+						removeShip(aship, false);
 					}
 					else {
-						fluchtList.add(aship);
+						//fluchtList.add(aship);
+						removeShip(aship, true);
 					}
 	
 					//continue;
@@ -1616,7 +1559,9 @@ public class Battle implements Locatable {
 					aship.setAction(aship.getAction() ^ BS_SECONDROW);	
 				}
 				
-				if( (aship.getAction() & BS_JOIN) != 0 ) {
+				if( (aship.getAction() & BS_JOIN) != 0 ) 
+				{
+					ShipTypeData ashipType = aship.getTypeData();
 					if( ashipType.hasFlag(ShipTypes.SF_SECONDROW) && 
 						this.isSecondRowStable(i, aship) ) {
 						aship.setAction(aship.getAction() ^ BS_SECONDROW);
@@ -1638,18 +1583,10 @@ public class Battle implements Locatable {
 				aship.getShip().setBattleAction(false);
 			}
 			
-			// Zerstoerte Schiffe aus der Schlacht entfernen
-			for( int key=0; key < destroyList.size(); key++ ) {
-				this.destroyShip(destroyList.get(key));
-			}
-			
-			for( int key=0; key < fluchtList.size(); key++ ) {
-				this.removeShip(fluchtList.get(key), false);
-			}
-			
-			for( int key=0; key < fluchtReposList.size(); key++ ) {
-				this.removeShip(fluchtReposList.get(key), true);
-			}
+			//Remove destroyed and fleeing ships
+			//this.destroyShips(destroyList);
+			//this.removeShips(fluchtList, false);
+			//this.removeShips(fluchtReposList, true);
 		}
 		
 		// Ist die Schlacht zuende (weil keine Schiffe mehr vorhanden sind?)
@@ -1885,117 +1822,142 @@ public class Battle implements Locatable {
 		
 		db.delete(this);
 	}
-
+	
 	/**
-	 * Zerstoert ein Schiff und alle an ihm gedockten Schiff
-	 * @param ship Das zu zerstoerende Schiff
+	 * Zerstoert eine Liste von Schiffen und alle daran angedockten Schiffe.
+	 * @param ships Schiffe, die zerstoert werden sollen
 	 */
-	private void destroyShip( BattleShip ship ) {
+	//TODO: Optimize ship.getShip().destroy
+	private void destroyShips(List<BattleShip> ships)
+	{
+		if(ships == null || ships.size() == 0)
+		{
+			return;
+		}
+		
+		StringBuilder toDestroy = new StringBuilder(); //List of ids - will be used in mass delete
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		for(BattleShip ship: ships)
+		{
+			long dockcount = (Long)db.createQuery("select count(*) from Ship where docked in (?,?)")
+			.setString(0, Integer.toString(ship.getId()))
+			.setString(1, "l "+ship.getId())
+			.iterate().next();
+			
+			toDestroy.append(ship.getId() + ",");
+			ship.getShip().destroy();
+			
+			//
+			// Feststellen in welcher der beiden Listen sich das Schiff befindet und dieses daraus entfernen
+			//
+
+			boolean found = false;
+			List<BattleShip> shiplist = null;
+			
+			if( ship.getSide() != this.ownSide ) 
+			{
+				shiplist = getEnemyShips();
+			}
+			else
+			{
+				shiplist = getOwnShips();
+			}
+			
+		
+			for( int i=0; i < shiplist.size(); i++ ) {
+				BattleShip aship = shiplist.get(i);
+				
+				if( aship == ship ) {
+					shiplist.remove(i);
+					i--; // Arraypositionen haben sich nach dem Entfernen veraendert. Daher Index aktuallisieren
+					
+					found = true;
+				}
+				// Evt ist das Schiff an das gerade zerstoerte gedockt
+				// In diesem Fall muss es ebenfalls entfernt werden
+				else if( (dockcount > 0) && (aship.getDocked().length() > 0) &&
+						(aship.getDocked().equals("l "+ship.getId()) || aship.getDocked().equals(Integer.toString(ship.getId()))) ) {
+					shiplist.remove(i);
+					i--; // Arraypositionen haben sich nach dem Entfernen veraendert. Daher Index aktuallisieren
+					
+					dockcount--;
+					
+					toDestroy.append(aship.getId() + ",");
+					aship.getShip().destroy();
+				}
+				
+				if( found && (dockcount == 0) ) {
+					break;
+				}
+			}
+			
+			if( (ship.getSide() == this.enemySide) && (this.activeSEnemy >= shiplist.size()) ) {
+				this.activeSEnemy = 0;
+			}
+			else if( (ship.getSide() == this.ownSide) && (this.activeSOwn >= shiplist.size()) ) {
+				this.activeSOwn = 0;
+			}
+		}
+		
+		//Remove all destroyed ships
+		String destroy = toDestroy.substring(0, toDestroy.length() - 1);
+		db.createQuery("delete from BattleShip where id in ("+ destroy +")").executeUpdate();
+	}
+	
+	
+	private void removeShips(List<BattleShip> ships, boolean relocate)
+	{
+		if(ships == null || ships.size() == 0)
+		{
+			return;
+		}
+		
+		StringBuilder toDestroy = new StringBuilder(); //List of ids - will be used in mass delete
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		
-		long dockcount = (Long)db.createQuery("select count(*) from Ship where docked in (?,?)")
+		for(BattleShip ship: ships)
+		{
+			Location loc = ship.getShip().getLocation();
+			
+			if( relocate && (ship.getDocked().length() == 0) ) {
+				StarSystem sys = Systems.get().system(this.system);
+				int maxRetries = 100;
+
+				while( ((loc.getX() == this.x) && (loc.getY() == this.y)) ||
+						(loc.getX() < 1) || (loc.getY() < 1) || 
+						(loc.getX() > sys.getWidth()) ||
+						(loc.getY() > sys.getHeight()) ) {
+					loc = loc.setX(this.x + RandomUtils.nextInt(3) - 1);
+					loc = loc.setY(this.y + RandomUtils.nextInt(3) - 1);
+					
+					maxRetries--;
+					if( maxRetries == 0 ) {
+						break;
+					}
+				}
+			}
+			
+			long dockcount = (Long)db.createQuery("select count(*) from Ship where docked IN (?,?)")
 			.setString(0, Integer.toString(ship.getId()))
 			.setString(1, "l "+ship.getId())
 			.iterate().next();
 		
-		db.delete(ship);
-		ship.getShip().destroy();
-
-		//
-		// Feststellen in welcher der beiden Listen sich das Schiff befindet und dieses daraus entfernen
-		//
-
-		boolean found = false;
-		List<BattleShip> shiplist = this.ownShips;
-		
-		if( ship.getSide() != this.ownSide ) {
-			shiplist = this.enemyShips;
-		}
-	
-		for( int i=0; i < shiplist.size(); i++ ) {
-			BattleShip aship = shiplist.get(i);
+			ship.getShip().setBattle(null);
+			ship.getShip().setX(loc.getX());
+			ship.getShip().setY(loc.getY());
 			
-			if( aship == ship ) {
-				shiplist.remove(i);
-				i--; // Arraypositionen haben sich nach dem Entfernen veraendert. Daher Index aktuallisieren
-				
-				found = true;
-			}
-			// Evt ist das Schiff an das gerade zerstoerte gedockt
-			// In diesem Fall muss es ebenfalls entfernt werden
-			else if( (dockcount > 0) && (aship.getDocked().length() > 0) &&
-					(aship.getDocked().equals("l "+ship.getId()) || aship.getDocked().equals(Integer.toString(ship.getId()))) ) {
-				shiplist.remove(i);
-				i--; // Arraypositionen haben sich nach dem Entfernen veraendert. Daher Index aktuallisieren
-				
-				dockcount--;
-				
-				db.delete(aship);
-				aship.getShip().destroy();
-			}
+			toDestroy.append(ship.getId() + ",");
+			ship.getShip().recalculateShipStatus();
 			
-			if( found && (dockcount == 0) ) {
-				break;
-			}
-		}
-		
-		if( (ship.getSide() == this.enemySide) && (this.activeSEnemy >= shiplist.size()) ) {
-			this.activeSEnemy = 0;
-		}
-		else if( (ship.getSide() == this.ownSide) && (this.activeSOwn >= shiplist.size()) ) {
-			this.activeSOwn = 0;
-		}
-	}
-	
-	/**
-	 * Entfernt ein Schiff aus einer Schlacht und platziert es falls gewuenscht in einem zufaelligen Sektor
-	 * um die Schlacht herum. Evt gedockte Schiffe werden mitentfernt und im selben Sektor platziert
-	 * @param ship Das fliehende Schiff
-	 * @param relocate Soll ein zufaelliger Sektor um die Schlacht herum gewaehlt werden? (<code>true</code>)
-	 */
-	private void removeShip( BattleShip ship, boolean relocate ) {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-		
-		Location loc = ship.getShip().getLocation();
-		
-		if( relocate && (ship.getDocked().length() == 0) ) {
-			StarSystem sys = Systems.get().system(this.system);
-			int maxRetries = 100;
+			//
+			// Feststellen in welcher der beiden Listen sich das Schiff befindet und dieses daraus entfernen
+			//
 
-			while( ((loc.getX() == this.x) && (loc.getY() == this.y)) ||
-					(loc.getX() < 1) || (loc.getY() < 1) || 
-					(loc.getX() > sys.getWidth()) ||
-					(loc.getY() > sys.getHeight()) ) {
-				loc = loc.setX(this.x + RandomUtils.nextInt(3) - 1);
-				loc = loc.setY(this.y + RandomUtils.nextInt(3) - 1);
-				
-				maxRetries--;
-				if( maxRetries == 0 ) {
-					break;
-				}
-			}
-		}
-
-		if( ship.getShip().getBattle() == null ) {
-			// Es kann vorkommen, dass das Schiff bereits entfernt wurde (wegen einer dock-Beziehung)
-			return;
-		}
-		
-		// Falls das Schiff an einem anderen Schiff gedockt ist, dann das 
-		// Elternschiff fliehen lassen. Dieses kuemmert sich dann um die
-		// gedockten Schiffe
-		if( ship.getDocked().length() > 0 ) {
-			int masterid = 0;
-			if( ship.getDocked().charAt(0) == 'l' ) {
-				masterid = Integer.parseInt(ship.getDocked().substring(2));
-			}
-			else {
-				masterid = Integer.parseInt(ship.getDocked());
-			}
-			
+			boolean found = false;
 			List<BattleShip> shiplist = this.ownShips;
+			
 			if( ship.getSide() != this.ownSide ) {
 				shiplist = this.enemyShips;
 			}
@@ -2003,74 +1965,46 @@ public class Battle implements Locatable {
 			for( int i=0; i < shiplist.size(); i++ ) {
 				BattleShip aship = shiplist.get(i);
 				
-				if( aship.getId() == masterid ) {
-					removeShip(aship, relocate);
-					return;
+				if( aship == ship ) {
+					shiplist.remove(i);
+					i--; // Arraypositionen haben sich nach dem Entfernen veraendert. Daher Index aktuallisieren
+					
+					found = true;
+				}
+				// Evt ist das Schiff an das gerade fliehende gedockt
+				// In diesem Fall muss es ebenfalls entfernt werden
+				else if( (dockcount > 0) && (aship.getDocked().length() > 0) &&
+						(aship.getDocked().equals("l "+ship.getId()) || aship.getDocked().equals(Integer.toString(ship.getId()))) ) {
+					shiplist.remove(i);
+					i--; // Arraypositionen haben sich nach dem Entfernen veraendert. Daher Index aktuallisieren
+					
+					dockcount--;
+					
+					aship.getShip().setBattle(null);
+					aship.getShip().setBattleAction(false);
+					aship.getShip().setX(loc.getX());
+					aship.getShip().setY(loc.getY());
+					
+					toDestroy.append(aship.getId() + ",");
+					aship.getShip().recalculateShipStatus();
+				}
+				
+				if( found && (dockcount == 0) ) {
+					break;
 				}
 			}
-		}
-		
-		long dockcount = (Long)db.createQuery("select count(*) from Ship where docked IN (?,?)")
-			.setString(0, Integer.toString(ship.getId()))
-			.setString(1, "l "+ship.getId())
-			.iterate().next();
-		
-		ship.getShip().setBattle(null);
-		ship.getShip().setX(loc.getX());
-		ship.getShip().setY(loc.getY());
-		
-		db.delete(ship);
-		ship.getShip().recalculateShipStatus();
-
-		//
-		// Feststellen in welcher der beiden Listen sich das Schiff befindet und dieses daraus entfernen
-		//
-
-		boolean found = false;
-		List<BattleShip> shiplist = this.ownShips;
-		
-		if( ship.getSide() != this.ownSide ) {
-			shiplist = this.enemyShips;
-		}
-		
-		for( int i=0; i < shiplist.size(); i++ ) {
-			BattleShip aship = shiplist.get(i);
 			
-			if( aship == ship ) {
-				shiplist.remove(i);
-				i--; // Arraypositionen haben sich nach dem Entfernen veraendert. Daher Index aktuallisieren
-				
-				found = true;
+			if( (ship.getSide() == this.enemySide) && (this.activeSEnemy >= shiplist.size()) ) {
+				this.activeSEnemy = 0;
 			}
-			// Evt ist das Schiff an das gerade fliehende gedockt
-			// In diesem Fall muss es ebenfalls entfernt werden
-			else if( (dockcount > 0) && (aship.getDocked().length() > 0) &&
-					(aship.getDocked().equals("l "+ship.getId()) || aship.getDocked().equals(Integer.toString(ship.getId()))) ) {
-				shiplist.remove(i);
-				i--; // Arraypositionen haben sich nach dem Entfernen veraendert. Daher Index aktuallisieren
-				
-				dockcount--;
-				
-				aship.getShip().setBattle(null);
-				aship.getShip().setBattleAction(false);
-				aship.getShip().setX(loc.getX());
-				aship.getShip().setY(loc.getY());
-				
-				db.delete(aship);
-				aship.getShip().recalculateShipStatus();
-			}
-			
-			if( found && (dockcount == 0) ) {
-				break;
+			else if( (ship.getSide() == this.ownSide) && (this.activeSOwn >= shiplist.size()) ) {
+				this.activeSOwn = 0;
 			}
 		}
 		
-		if( (ship.getSide() == this.enemySide) && (this.activeSEnemy >= shiplist.size()) ) {
-			this.activeSEnemy = 0;
-		}
-		else if( (ship.getSide() == this.ownSide) && (this.activeSOwn >= shiplist.size()) ) {
-			this.activeSOwn = 0;
-		}
+		//Remove all ships
+		String destroy = toDestroy.substring(0, toDestroy.length() - 1);
+		db.createQuery("delete from BattleShip where id in ("+ destroy +")").executeUpdate();
 	}
 	
 	/**
@@ -2403,5 +2337,192 @@ public class Battle implements Locatable {
 	 */
 	public int getVersion() {
 		return this.version;
+	}
+	
+	/**
+	 * Zerstoert ein Schiff und alle an ihm gedockten Schiff
+	 * @param ship Das zu zerstoerende Schiff
+	 */
+	private void destroyShip( BattleShip ship ) {
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		
+		long dockcount = (Long)db.createQuery("select count(*) from Ship where docked in (?,?)")
+			.setString(0, Integer.toString(ship.getId()))
+			.setString(1, "l "+ship.getId())
+			.iterate().next();
+		
+		db.delete(ship);
+		ship.getShip().destroy();
+
+		//
+		// Feststellen in welcher der beiden Listen sich das Schiff befindet und dieses daraus entfernen
+		//
+
+		boolean found = false;
+		List<BattleShip> shiplist = this.ownShips;
+		
+		if( ship.getSide() != this.ownSide ) {
+			shiplist = this.enemyShips;
+		}
+	
+		for( int i=0; i < shiplist.size(); i++ ) {
+			BattleShip aship = shiplist.get(i);
+			
+			if( aship == ship ) {
+				shiplist.remove(i);
+				i--; // Arraypositionen haben sich nach dem Entfernen veraendert. Daher Index aktuallisieren
+				
+				found = true;
+			}
+			// Evt ist das Schiff an das gerade zerstoerte gedockt
+			// In diesem Fall muss es ebenfalls entfernt werden
+			else if( (dockcount > 0) && (aship.getDocked().length() > 0) &&
+					(aship.getDocked().equals("l "+ship.getId()) || aship.getDocked().equals(Integer.toString(ship.getId()))) ) {
+				shiplist.remove(i);
+				i--; // Arraypositionen haben sich nach dem Entfernen veraendert. Daher Index aktuallisieren
+				
+				dockcount--;
+				
+				db.delete(aship);
+				aship.getShip().destroy();
+			}
+			
+			if( found && (dockcount == 0) ) {
+				break;
+			}
+		}
+		
+		if( (ship.getSide() == this.enemySide) && (this.activeSEnemy >= shiplist.size()) ) {
+			this.activeSEnemy = 0;
+		}
+		else if( (ship.getSide() == this.ownSide) && (this.activeSOwn >= shiplist.size()) ) {
+			this.activeSOwn = 0;
+		}
+	}
+	
+	/**
+	 * Entfernt ein Schiff aus einer Schlacht und platziert es falls gewuenscht in einem zufaelligen Sektor
+	 * um die Schlacht herum. Evt gedockte Schiffe werden mitentfernt und im selben Sektor platziert
+	 * @param ship Das fliehende Schiff
+	 * @param relocate Soll ein zufaelliger Sektor um die Schlacht herum gewaehlt werden? (<code>true</code>)
+	 */
+	private void removeShip( BattleShip ship, boolean relocate ) {
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		
+		Location loc = ship.getShip().getLocation();
+		
+		if( relocate && (ship.getDocked().length() == 0) ) {
+			StarSystem sys = Systems.get().system(this.system);
+			int maxRetries = 100;
+
+			while( ((loc.getX() == this.x) && (loc.getY() == this.y)) ||
+					(loc.getX() < 1) || (loc.getY() < 1) || 
+					(loc.getX() > sys.getWidth()) ||
+					(loc.getY() > sys.getHeight()) ) {
+				loc = loc.setX(this.x + RandomUtils.nextInt(3) - 1);
+				loc = loc.setY(this.y + RandomUtils.nextInt(3) - 1);
+				
+				maxRetries--;
+				if( maxRetries == 0 ) {
+					break;
+				}
+			}
+		}
+
+		if( ship.getShip().getBattle() == null ) {
+			// Es kann vorkommen, dass das Schiff bereits entfernt wurde (wegen einer dock-Beziehung)
+			return;
+		}
+		
+		// Falls das Schiff an einem anderen Schiff gedockt ist, dann das 
+		// Elternschiff fliehen lassen. Dieses kuemmert sich dann um die
+		// gedockten Schiffe
+		if( ship.getDocked().length() > 0 ) {
+			int masterid = 0;
+			if( ship.getDocked().charAt(0) == 'l' ) {
+				masterid = Integer.parseInt(ship.getDocked().substring(2));
+			}
+			else {
+				masterid = Integer.parseInt(ship.getDocked());
+			}
+			
+			List<BattleShip> shiplist = this.ownShips;
+			if( ship.getSide() != this.ownSide ) {
+				shiplist = this.enemyShips;
+			}
+			
+			for( int i=0; i < shiplist.size(); i++ ) {
+				BattleShip aship = shiplist.get(i);
+				
+				if( aship.getId() == masterid ) {
+					removeShip(aship, relocate);
+					return;
+				}
+			}
+		}
+		
+		long dockcount = (Long)db.createQuery("select count(*) from Ship where docked IN (?,?)")
+			.setString(0, Integer.toString(ship.getId()))
+			.setString(1, "l "+ship.getId())
+			.iterate().next();
+		
+		ship.getShip().setBattle(null);
+		ship.getShip().setX(loc.getX());
+		ship.getShip().setY(loc.getY());
+		
+		db.delete(ship);
+		ship.getShip().recalculateShipStatus();
+
+		//
+		// Feststellen in welcher der beiden Listen sich das Schiff befindet und dieses daraus entfernen
+		//
+
+		boolean found = false;
+		List<BattleShip> shiplist = this.ownShips;
+		
+		if( ship.getSide() != this.ownSide ) {
+			shiplist = this.enemyShips;
+		}
+		
+		for( int i=0; i < shiplist.size(); i++ ) {
+			BattleShip aship = shiplist.get(i);
+			
+			if( aship == ship ) {
+				shiplist.remove(i);
+				i--; // Arraypositionen haben sich nach dem Entfernen veraendert. Daher Index aktuallisieren
+				
+				found = true;
+			}
+			// Evt ist das Schiff an das gerade fliehende gedockt
+			// In diesem Fall muss es ebenfalls entfernt werden
+			else if( (dockcount > 0) && (aship.getDocked().length() > 0) &&
+					(aship.getDocked().equals("l "+ship.getId()) || aship.getDocked().equals(Integer.toString(ship.getId()))) ) {
+				shiplist.remove(i);
+				i--; // Arraypositionen haben sich nach dem Entfernen veraendert. Daher Index aktuallisieren
+				
+				dockcount--;
+				
+				aship.getShip().setBattle(null);
+				aship.getShip().setBattleAction(false);
+				aship.getShip().setX(loc.getX());
+				aship.getShip().setY(loc.getY());
+				
+				db.delete(aship);
+				aship.getShip().recalculateShipStatus();
+			}
+			
+			if( found && (dockcount == 0) ) {
+				break;
+			}
+		}
+		
+		if( (ship.getSide() == this.enemySide) && (this.activeSEnemy >= shiplist.size()) ) {
+			this.activeSEnemy = 0;
+		}
+		else if( (ship.getSide() == this.ownSide) && (this.activeSOwn >= shiplist.size()) ) {
+			this.activeSOwn = 0;
+		}
 	}
 }

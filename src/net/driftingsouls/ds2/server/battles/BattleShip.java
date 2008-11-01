@@ -28,6 +28,9 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -40,6 +43,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
  */
 @Entity
 @Table(name="battles_ships")
+@Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 public class BattleShip {
 	@Id
 	private int shipid;

@@ -1,5 +1,16 @@
 <ehcache>
-	<defaultCache maxElementsInMemory="1000" eternal="false" timeToIdleSeconds="20" timeToLiveSeconds="60" overflowToDisk="false" />
+    <diskStore path="java.io.tmpdir"/>
+
+    <defaultCache
+        maxElementsInMemory="10000"
+        eternal="false"
+        timeToIdleSeconds="120"
+        timeToLiveSeconds="120"
+        overflowToDisk="true"
+        diskPersistent="false"
+        diskExpiryThreadIntervalSeconds="120"
+        memoryStoreEvictionPolicy="LRU"
+    />
 	
 	<cache  name="net.driftingsouls.ds2.server.entities.Ammo"
 			maxElementsInMemory="100"
@@ -30,7 +41,7 @@
 			overflowToDisk="false"
 	/>
 	<cache  name="net.driftingsouls.ds2.server.ships.ShipType"
-			maxElementsInMemory="100"
+			maxElementsInMemory="300"
 			eternal="true"
 			timeToIdleSeconds="5"
 			timeToLiveSeconds="10"

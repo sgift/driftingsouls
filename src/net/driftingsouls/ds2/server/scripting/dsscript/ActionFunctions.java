@@ -202,7 +202,7 @@ public class ActionFunctions {
 		private Ship.DockMode mode = Ship.DockMode.DOCK;
 		
 		/**
-		 * Erstellt eine Scriptfunktion als Wrapper um {@link net.driftingsouls.ds2.server.ships.Ship#dock(net.driftingsouls.ds2.server.ships.Ship.DockMode, Ship[])}
+		 * Erstellt eine Scriptfunktion als Wrapper
 		 * @param mode Der Dock-Modus
 		 * @param allowAll Soll <code>all</code> (alle gedockten Schiffe) zugelassen werden?
 		 */

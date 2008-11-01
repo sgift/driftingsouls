@@ -77,25 +77,13 @@ public class KSUndockAllAction extends BasicKSAction {
 
 		ownShip.getShip().setBattleAction(true);
 		
-		int counter = 0;
-		
-		final Iterator<?> shipIter = db.createQuery("from Ship where docked in (?,?)")
-			.setString(0, "l "+ownShip.getId())
-			.setString(1, Integer.toString(ownShip.getId()))
-			.iterate();
-		while( shipIter.hasNext() ) {
-			Ship aship = (Ship)shipIter.next();
-			
-			if( aship.getDocked().charAt(0) == 'l' ) {
-				ownShip.getShip().dock(Ship.DockMode.START, aship);
-			}
-			else {
-				ownShip.getShip().dock(Ship.DockMode.UNDOCK, aship);
-			}
-			aship.setBattleAction(true);
-			
-			counter++;
-		}
+		int counter = db.createQuery("update Ship set battleaction=? where docked in (?,?)")
+			.setParameter(0, true)
+			.setString(1, "l " + ownShip.getId())
+			.setString(2, "" + ownShip.getId())
+			.executeUpdate();
+		ownShip.getShip().start(new Ship[0]);
+		ownShip.getShip().undock(new Ship[0]);
 
 		battle.logme(counter+" Schiffe wurden abgedockt");
 		battle.logenemy(counter+" Schiffe wurden von der "+Battle.log_shiplink(ownShip.getShip())+" abgedockt\n");

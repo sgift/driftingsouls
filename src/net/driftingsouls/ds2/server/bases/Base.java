@@ -52,6 +52,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.CallbackException;
 import org.hibernate.Session;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 import org.hibernate.classic.Lifecycle;
 
@@ -63,6 +65,7 @@ import org.hibernate.classic.Lifecycle;
  */
 @Entity
 @Table(name="bases")
+@Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 {
 	@Id @GeneratedValue

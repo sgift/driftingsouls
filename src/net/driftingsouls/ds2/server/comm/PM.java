@@ -30,6 +30,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -54,6 +57,7 @@ import net.driftingsouls.ds2.server.tasks.Taskmanager;
  */
 @Entity
 @Table(name="transmissionen")
+@Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 public class PM {
 	/**
 	 * Die PM hat einen Admin-Hintergrund

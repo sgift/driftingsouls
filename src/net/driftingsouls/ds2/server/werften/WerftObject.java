@@ -594,7 +594,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 						
 			output.append((jdockcount-shiptype.getJDocks())+" gelandete Schiffe wurden gestartet\n");
 			
-			ship.dock(Ship.DockMode.START, undockarray);
+			ship.start(undockarray);
 		}
 				
 		long adockcount = (Long)db.createQuery("select count(*) from Ship where docked=? and id>0")

@@ -30,6 +30,7 @@ import javax.persistence.Transient;
 import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
@@ -151,26 +152,10 @@ public class ShipFleet {
 			if( jaegertypeID > 0 ) {
 				jaegerListeQuery.setInteger("shiptype", jaegertypeID);
 			}
-			List<?> jaegerliste = jaegerListeQuery.list();
-			for( Iterator<?> iter2=jaegerliste.iterator(); iter2.hasNext(); ) {
-				Ship jaeger = (Ship)iter2.next();
-				
-				ShipTypeData jaegertype = jaeger.getTypeData();
-				if( jaegertype.hasFlag(ShipTypes.SF_JAEGER) ) {
-					jaegerlist.add(jaeger);
-					free--;
-					if( free == 0 ) {
-						break;
-					}
-				}
-			}
+			List<Ship> jaegerliste = Common.cast(jaegerListeQuery.list(),Ship.class);
 			
-			Ship[] list = new Ship[jaegerlist.size()];
-			for( int i=0; i < jaegerlist.size(); i++ ) {
-				list[i] = jaegerlist.get(i);
-			}
-			
-			ship.dock(Ship.DockMode.LAND, list);
+			jaegerlist.addAll(jaegerliste.subList(0, free));
+			ship.land(jaegerlist.toArray(new Ship[jaegerlist.size()]));
 		}
 	}
 
@@ -229,7 +214,7 @@ public class ShipFleet {
 			.list();
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship aship = (Ship)iter.next();
-			aship.dock(Ship.DockMode.START, (Ship[])null);
+			aship.start();
 		}
 	}
 
@@ -265,20 +250,9 @@ public class ShipFleet {
 				.setInteger(3, ship.getY())
 				.setInteger(4, ShipClasses.CONTAINER.ordinal())
 				.list();
-			for( Iterator<?> iter2=containers.iterator(); iter2.hasNext(); ) {
-				containerlist.add((Ship)iter2.next());
-				free--;
-				if( free == 0 ) {
-					break;
-				}
-			}
 			
-			Ship[] list = new Ship[containerlist.size()];
-			for( int i=0; i < containerlist.size(); i++ ) {
-				list[i] = containerlist.get(i);
-			}
-			
-			ship.dock(Ship.DockMode.DOCK, list);
+			containerlist.addAll(Common.cast(containers,Ship.class).subList(0, free));
+			ship.dock(containerlist.toArray(new Ship[containerlist.size()]));
 		}
 	}
 
@@ -294,7 +268,7 @@ public class ShipFleet {
 			.list();
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship aship = (Ship)iter.next();
-			aship.dock(Ship.DockMode.UNDOCK, (Ship[])null);
+			aship.undock();
 		}
 	}
 	
@@ -336,7 +310,7 @@ public class ShipFleet {
 	}
 	
 	/**
-	 * Entfernt ein Schiff aus der Flotte. Slotte die Flotte anschliessend zu wenige Schiffe haben
+	 * Entfernt ein Schiff aus der Flotte. Sollte die Flotte anschliessend zu wenige Schiffe haben
 	 * wird sie aufgeloesst.
 	 * @param ship Das Schiff
 	 */
@@ -388,6 +362,11 @@ public class ShipFleet {
 			return false;
 		}
 		return true;
+	}
+	
+	public void addShip(Ship ship)
+	{
+		ship.setFleet(this);
 	}
 
 	/**

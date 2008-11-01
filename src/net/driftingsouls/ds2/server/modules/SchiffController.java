@@ -463,7 +463,7 @@ public class SchiffController extends TemplateGenerator {
 			shiplist[i] = aship;
 		}
 		
-		ship.dock(Ship.DockMode.LAND, shiplist);
+		ship.land(shiplist);
 		t.setVar("ship.message", Ship.MESSAGE.getMessage());
 
 		redirect();
@@ -499,7 +499,7 @@ public class SchiffController extends TemplateGenerator {
 			shiplist[i] = aship;
 		}
 		
-		ship.dock(Ship.DockMode.START, shiplist);
+		ship.start(shiplist);
 		t.setVar("ship.message", Ship.MESSAGE.getMessage());
 
 		redirect();
@@ -549,7 +549,7 @@ public class SchiffController extends TemplateGenerator {
 			
 			Ship targetShip = (Ship)db.get(Ship.class, targetID);
 			
-			targetShip.dock(Ship.DockMode.UNDOCK, docked);
+			targetShip.undock(docked);
 		}
 		
 		Ship[] shiplist = new Ship[shipidlist.length];
@@ -563,7 +563,7 @@ public class SchiffController extends TemplateGenerator {
 			shiplist[i] = aship;
 		}
 		
-		ship.dock(Ship.DockMode.DOCK, shiplist);
+		ship.dock(shiplist);
 		t.setVar("ship.message", Ship.MESSAGE.getMessage());
 
 		redirect();
@@ -598,7 +598,7 @@ public class SchiffController extends TemplateGenerator {
 			shiplist[i] = aship;
 		}
 		
-		ship.dock(Ship.DockMode.UNDOCK, shiplist);
+		ship.undock(shiplist);
 		t.setVar("ship.message", Ship.MESSAGE.getMessage());
 
 		redirect();

@@ -46,6 +46,8 @@ import net.driftingsouls.ds2.server.werften.ShipWerft;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 
 /**
@@ -55,6 +57,7 @@ import org.apache.commons.logging.LogFactory;
  */
 @Entity
 @DiscriminatorValue("default")
+@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class User extends BasicUser {
 	private static final Log log = LogFactory.getLog(User.class);
 	

@@ -174,6 +174,7 @@ public class Ship implements Locatable,Transfering {
 	 * Erstellt ein neues Schiff
 	 * @param owner Der Besitzer
 	 */
+	@Deprecated
 	public Ship(User owner) {
 		this.owner = owner;
 		this.cargo = new Cargo();
@@ -185,6 +186,39 @@ public class Ship implements Locatable,Transfering {
 		this.docked = "";
 		this.weaponHeat = "";
 		this.autodeut = 1;
+	}
+	
+	/**
+	 * Erstellt ein neues Schiff
+	 * @param owner Der Besitzer
+	 * @param shiptype Der Schiffstyp
+	 * @param system Das System
+	 * @param x Die X-Koordinate
+	 * @param y Die Y-Koordinate
+	 */
+	public Ship(User owner, ShipType shiptype, int system, int x, int y)
+	{
+		this.owner = owner;
+		this.cargo = new Cargo();
+		this.destcom = "";
+		this.name = "";
+		this.status = "";
+		this.jumptarget = "";
+		this.history = "";
+		this.docked = "";
+		this.weaponHeat = "";
+		this.autodeut = 1;
+		this.setName(name);
+		this.setBaseType(shiptype);
+		this.setX(x);
+		this.setY(y);
+		this.setSystem(system);
+		this.setHull(shiptype.getHull());
+		this.setAblativeArmor(shiptype.getAblativeArmor());
+		this.setEngine(100);
+		this.setWeapons(100);
+		this.setComm(100);
+		this.setSensors(100);
 	}
 
 	/**
@@ -2502,245 +2536,422 @@ public class Ship implements Locatable,Transfering {
 		START;
 	}
 
+	private String generateIdString(Ship... ships)
+	{
+		if(ships.length == 0)
+		{
+			return "";
+		}
+		
+		//Build list of shipids
+		StringBuilder builder = new StringBuilder();
+		for(Ship ship: ships)
+		{
+			builder.append(ship.getId() + ",");
+		}
+		
+		return builder.substring(0, builder.length() - 1).trim(); //Eliminate last ,
+	}
+	
+	/**
+	 * Jaeger landen.
+	 * Der Vorgang wird mit den Berechtigungen des Besitzers des Traegers ausgefuehrt.
+	 * 
+	 * @param dockships Eine Liste mit Schiffen, die landen sollen.
+	 * @return <code>true</code>, falls ein Fehler aufgetreten ist
+	 */
+	public boolean land(Ship... dockships)
+	{
+		if(dockships == null || dockships.length == 0)
+		{
+			throw new IllegalArgumentException("Keine Schiffe zum landen gewaehlt.");
+		}
+		
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		  		StringBuilder outputbuffer = MESSAGE.get();
+		String ids = generateIdString(dockships);
+		  
+		//No superdock for landing
+		Ship[] help = performLandingChecks(outputbuffer, false, dockships);
+		boolean errors = false;
+		if(help.length < dockships.length)
+		{
+			errors = true;
+		}
+		dockships = help;
+		
+		//Check for type fighter
+		List<Ship> ships = Common.cast(
+				db.createQuery("from Ship where locate(:fighter, shiptype.flags) > -1 and id in ("+ ids +")")
+				  .setParameter("fighter", ShipTypes.SF_JAEGER)
+				  .list(), Ship.class);
+		
+		if(ships.size() < dockships.length)
+		{
+			//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
+			dockships = ships.toArray(new Ship[0]);
+			ids = generateIdString(dockships);
+			errors = true;
+		}
+		
+		long landedShips = (Long)db.createQuery("select count(*) from Ship where docked=?").setParameter(0, "l "+getId()).uniqueResult();
+		if(landedShips + dockships.length > shiptype.getJDocks())
+		{
+			outputbuffer.append("<span style=\"color:red\">Fehler: Nicht gen&uuml;gend freier Landepl&auml;tze vorhanden</span><br />\n");
+			
+			//Shorten list to max allowed size
+			int maxDockShips = shiptype.getJDocks() - (int)landedShips;
+			help = new Ship[maxDockShips];
+			System.arraycopy(dockships, 0, help, 0, maxDockShips);
+			dockships = help;
+			ids = generateIdString(dockships);
+		}
+		
+		if(dockships.length == 0)
+		{
+			return errors;
+		}
+		
+		db.createQuery("update Ship set docked=:docked where id in ("+ ids +")")
+		  .setParameter("docked", "l "+this.getId())
+		  .executeUpdate();
+		
+		return errors;
+	}
+	
+	/**
+	 * Jaeger starten.
+	 * Der Vorgang wird mit den Berechtigungen des Besitzers des Traegers ausgefuehrt.
+	 * 
+	 * @param dockships Eine Liste mit Schiffen, die starten sollen. Keine Angabe bewirkt das alle Schiffe gestartet werden.
+	 */
+	public void start(Ship... dockships)
+	{
+		  		Context context = ContextMap.getContext();
+		  		org.hibernate.Session db = context.getDB();
+		if(dockships == null || dockships.length == 0)
+		{
+			db.createQuery("update Ship set docked='', system=:system, x=:x, y=:y where docked=:docked")
+			  .setParameter("system", system)
+			  .setParameter("x", x)
+			  .setParameter("y", y)
+			  .setParameter("docked", "l "+this.getId())
+			  .executeUpdate();
+		}
+		else
+		{	
+			String ids = generateIdString(dockships);
+			db.createQuery("update Ship set docked='', system=:system, x=:x, y=:y where docked=:docked and id in ("+ ids +")")
+			  .setParameter("system", system)
+			  .setParameter("x", x)
+			  .setParameter("y", y)
+			  .setParameter("docked", "l "+this.getId())
+			  .executeUpdate();
+		}
+	}
+	
+	/**
+	 * Schiffe abdocken.
+	 * Der Vorgang wird mit den Berechtigungen des Besitzers des Traegers ausgefuehrt.
+	 * 
+	 * @param dockships 
+	 */
+	public void undock(Ship... dockships)
+	{
+		boolean gotmodule = false;
+		for( Ship aship : dockships ) 
+		{
+			if(!aship.getDocked().equals("" + getId()))
+			{
+				//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
+				continue;
+			}
+			
+			aship.setDocked("");
+		  
+			ShipTypeData type = aship.getTypeData();
+		  
+			if( type.getShipClass() != ShipClasses.CONTAINER.ordinal() ) {
+				continue;
+		  			}
+			gotmodule = true;
+		  
+			aship.removeModule( 0, Modules.MODULE_CONTAINER_SHIP, Integer.toString(aship.getId()) );		
+			this.removeModule( 0, Modules.MODULE_CONTAINER_SHIP, Integer.toString(aship.getId()) );
+		  		}
+		  
+		if( gotmodule ) 
+		{
+			Cargo cargo = this.cargo;
+		  
+			// Schiffstyp neu abholen, da sich der Maxcargo geaendert hat
+			ShipTypeData shiptype = this.getTypeData();
+		  
+			Cargo newcargo = cargo;
+			if( cargo.getMass() > shiptype.getCargo() ) 
+			{
+				newcargo = cargo.cutCargo( shiptype.getCargo() );	
+			}
+			else 
+			{
+				cargo = new Cargo();	
+			}
+		  
+			for( int i=0; i < dockships.length && cargo.getMass() > 0; i++ ) 
+			{
+				Ship aship = dockships[i];
+				ShipTypeData ashiptype = aship.getTypeData();
 
+				if( (ashiptype.getShipClass() == ShipClasses.CONTAINER.ordinal()) && (cargo.getMass() > 0) ) 
+				{
+					Cargo acargo = cargo.cutCargo( ashiptype.getCargo() );
+					if( !acargo.isEmpty() ) 
+					{
+						aship.setCargo(acargo);
+					}	
+		  				}
+		  			}
+			this.cargo = newcargo;
+		  		}
+		this.recalculateShipStatus();
+	}
+	
+	/**
+	 * Dockt eine Menge von Schiffen an dieses Schiff an 
+	 * @param dockships Die anzudockenden Schiffe
+	 * @return <code>true</code>, falls Fehler aufgetreten sind
+	 */
+	public boolean dock(Ship... dockships)
+	{
+		if(dockships == null || dockships.length == 0)
+		{
+			throw new IllegalArgumentException("Keine Schiffe zum landen gewaehlt.");
+		}
+		
+		
+		boolean superdock = owner.hasFlag(User.FLAG_SUPER_DOCK);
+		String ids = generateIdString(dockships);
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		StringBuilder outputbuffer = MESSAGE.get();
+		
+		Ship[] help = performLandingChecks(outputbuffer, false, dockships);
+		boolean errors = false;
+		if(help.length < dockships.length)
+		{
+			errors = true;
+		}
+		dockships = help;
+		
+		
+		long dockedShips = (Long)db.createQuery("select count(*) from Ship where docked=?").setParameter(0, ""+getId()).uniqueResult();
+		if(!superdock)
+		{
+			//Check for size
+			List<Ship> ships = Common.cast(
+				db.createQuery("from Ship where shiptype.size <= :maxsize and id in ("+ ids +")")
+					.setParameter("maxsize", ShipType.SMALL_SHIP_MAXSIZE)
+					.list());
+			
+			if(ships.size() < dockships.length)
+			{
+				//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
+				dockships = ships.toArray(new Ship[0]);
+				ids = generateIdString(dockships);
+				errors = true;
+			}
+		}
+		
+		if(dockedShips + dockships.length > shiptype.getADocks())
+		{
+			outputbuffer.append("<span style=\"color:red\">Fehler: Nicht gen&uuml;gend freier Andockplatz vorhanden</span><br />\n");
+			
+			//Shorten list to max allowed size
+			int maxDockShips = shiptype.getADocks() - (int)dockedShips;
+			help = new Ship[maxDockShips];
+			System.arraycopy(dockships, 0, help, 0, maxDockShips);
+			dockships = help;
+			ids = generateIdString(dockships);
+		}
+		
+		if(dockships.length == 0)
+		{
+			return errors;
+		}
+		
+		Cargo cargo = this.cargo;
+		final Cargo emptycargo = new Cargo();
+		  
+		for(Ship aship: dockships) 
+		{
+			aship.setDocked(Integer.toString(this.id));
+			ShipTypeData type = aship.getTypeData();
+		  
+			if( type.getShipClass() != ShipClasses.CONTAINER.ordinal() ) 
+			{
+				continue;
+			}
+		  
+			Cargo dockcargo = aship.getCargo();
+			cargo.addCargo( dockcargo );
+		  
+			if( !dockcargo.isEmpty() ) 
+			{
+				aship.setCargo(emptycargo);
+			}
+		  
+			aship.addModule( 0, Modules.MODULE_CONTAINER_SHIP, aship.getId()+"_"+(-type.getCargo()) );
+			this.addModule( 0, Modules.MODULE_CONTAINER_SHIP, aship.getId()+"_"+type.getCargo() );
+		}
+		  
+		this.cargo = cargo;
+		this.recalculateShipStatus();
+		
+		return errors;
+	}
+	
+	/**
+	 * Checks, die sowohl fuers landen, als auch fuers andocken durchgefuehrt werden muessen.
+	 * 
+	 * @param outputbuffer Puffer fuer Fehlermeldungen.
+	 * @param superdock <code>true</code>, falls im Superdock-Modus 
+	 * 			(Keine Ueberpruefung von Groesse/Besitzer) gedockt/gelandet werden soll
+	 * @param dockships Schiffe auf die geprueft werden soll.
+	 * @return Die Liste der zu dockenden/landenden Schiffe
+	 */
+	private Ship[] performLandingChecks(StringBuilder outputbuffer, boolean superdock, Ship ... dockships)
+	{
+		if(dockships.length == 0)
+		{
+			return dockships;
+		}
+		
+		String ids = generateIdString(dockships);
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		
+		//Enforce position
+		List<Ship> ships = Common.cast( 
+			db.createQuery("from Ship where system=:system and x=:x and y=:y and id in ("+ ids +")")
+				.setParameter("system", system)
+				.setParameter("x", x)
+				.setParameter("y", y)
+				.list());
+		
+		if(ships.size() < dockships.length)
+		{
+			//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
+			dockships = ships.toArray(new Ship[0]);
+			ids = generateIdString(dockships);
+			
+			if(dockships.length == 0)
+			{
+				return dockships;
+			}
+		}
+		
+		
+		/*
+		//Check quests
+		ships = (List<Ship>)db.createQuery("from Ship where (lock is :lock or lock=:lock2) and id in ("+ ids +")")
+							  .setParameter("lock", null)
+							  .setParameter("lock2", "")
+							  .list();
+		*/
+		
+		ships = Common.cast(db.createQuery("from Ship where (lock is null or lock = '') and id in ("+ids+")").list());
+		
+		if(ships.size() < dockships.length)
+		{
+			outputbuffer.append("<span style=\"color:red\">Fehler: Mindestens ein Schiff ist an ein Quest gebunden</span><br />\n");
+			dockships = ships.toArray(new Ship[0]);
+			ids = generateIdString(dockships);
+			
+			if(dockships.length == 0)
+			{
+				return dockships;
+			}
+		}
+		
+		
+		//Check already docked
+		ships = Common.cast(
+			db.createQuery("from Ship where docked='' and id in ("+ ids +")")
+				.list());
+		
+		if(ships.size() < dockships.length)
+		{
+			//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
+			dockships = ships.toArray(new Ship[0]);
+			ids = generateIdString(dockships);
+			
+			if(dockships.length == 0)
+			{
+				return dockships;
+			}
+		}
+		
+		//Enforce owner
+		if(!superdock)
+		{
+			ships = Common.cast(
+					db.createQuery("from Ship where owner=:owner and id in ("+ ids +")")
+						.setParameter("owner", owner)
+						.list());
+			
+			if(ships.size() < dockships.length)
+			{
+				//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
+				dockships = ships.toArray(new Ship[0]);
+				ids = generateIdString(dockships);
+				
+				if(dockships.length == 0)
+				{
+					return dockships;
+				}
+			}
+		}
+		
+		return dockships;
+	}
+		  
 	/**
 	 * Schiffe an/abdocken sowie Jaeger landen/starten. Der Dockvorgang wird mit den Berechtigungen
-	 * des Schiffsbesitzers ausgefuehrt
+	 * des Schiffsbesitzers ausgefuehrt.
+	 * Diese Methode sollte der Uebersichtlichkeit halber nur verwendet werden, 
+	 * wenn die Aktion (docken, abdocken, etc.) nicht im Voraus bestimmt werden kann.
+	 * 
 	 * @param mode Der Dock-Modus (Andocken, Abdocken usw)
 	 * @param dockships eine Liste mit Schiffen, welche (ab)docken oder landen/starten sollen. Keine Angabe bewirkt das alle Schiffe abgedockt/gestartet werden
 	 * @return <code>true</code>, falls ein Fehler aufgetreten ist
 	 */
-	public boolean dock(DockMode mode, Ship ... dockships) {
-		StringBuilder outputbuffer = MESSAGE.get();
-
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
-		User owner = this.owner;
-
-		ShipTypeData shiptype = this.getTypeData();
-
-		// Alle bereits angedockten Schiffe laden
-		List<Ship> docked = new ArrayList<Ship>();
-		if( (mode == DockMode.UNDOCK || mode == DockMode.DOCK) && (shiptype.getADocks() > 0) ) {
-			List<?> line = db.createQuery("from Ship where id>0 and docked=?")
-			.setString(0, Integer.toString(this.id))
-			.list();
-			for( Iterator<?> iter=line.iterator(); iter.hasNext(); ) {
-				Ship aship = (Ship)iter.next();
-				docked.add(aship);
-			}
+	public boolean dock(DockMode mode, Ship ... dockships) 
+	{		
+		if(mode == DockMode.DOCK)
+		{
+			return this.dock(dockships);
 		}
-
-		List<Ship> jdocked = new ArrayList<Ship>();
-		if( (mode == DockMode.LAND || mode == DockMode.START) && (shiptype.getJDocks() > 0) ) {
-			List<?> line = db.createQuery("from Ship where id>0 and docked=?")
-			.setString(0, "l "+this.id)
-			.list();
-			for( Iterator<?> iter=line.iterator(); iter.hasNext(); ) {
-				Ship aship = (Ship)iter.next();
-				jdocked.add(aship);
-			}
+		
+		if(mode == DockMode.LAND)
+		{
+			return this.land(dockships);
 		}
-
-
-		boolean superdock = false;
-		if( mode == DockMode.DOCK ) {
-			superdock = owner.hasFlag(User.FLAG_SUPER_DOCK);
+		
+		if(mode == DockMode.START)
+		{
+			this.start(dockships);
 		}
-
-		List<Ship> targetships = null;
-
-		if( (dockships != null) && (dockships.length > 0) ) {
-			targetships = new ArrayList<Ship>();
-			for( int i=0; i < dockships.length; i++ ) {
-				if( dockships[i].getId() <  0 ) {
-					continue;
-				}
-				targetships.add(dockships[i]);
-			}
-		} 
-		else {
-			if( mode == DockMode.LAND || mode == DockMode.START ) { 
-				targetships = jdocked;
-			} else {
-				targetships = docked;
-			}
+		
+		if(mode == DockMode.UNDOCK)
+		{
+			this.undock(dockships);
 		}
+	
+  		return false;
+  	}
+	  
 
-		if(targetships.size() == 0 ) {
-			outputbuffer.append("<span style=\"color:red\">Fehler: Es wurden keine passenden Schiffe gefunden</span><br />\n");
-			return false;
-		}
-
-		Location shipLoc = new Location(this.system, this.x, this.y);
-
-		for( Ship tarShip : targetships ) {
-			if( (mode == DockMode.DOCK) || (mode == DockMode.LAND) ) {
-				if( !shipLoc.sameSector(0, new Location(tarShip.getSystem(), tarShip.getX(), tarShip.getY()), 0) ) {
-					outputbuffer.append("<span style=\"color:red\">Fehler: Die Schiffe befinden sich nicht im selben Sektor</span><br />\n");
-					return true;
-				}
-
-				if( (tarShip.getLock() != null) && tarShip.getLock().length() > 0 ) {
-					outputbuffer.append("<span style=\"color:red\">Fehler: Das Schiff ist an ein Quest gebunden</span><br />\n");
-					return true;
-				}
-
-				if( (mode == DockMode.DOCK) && !superdock && (tarShip.getOwner() != owner) ) {
-					outputbuffer.append("<span style=\"color:red\">Fehler: Eines der aufzuladendenden Schiffe geh&ouml;rt nicht ihnen</span><br />\n");
-					return true;
-				}
-
-				if( (mode == DockMode.DOCK) && (tarShip.getDocked().length() != 0) ) {
-					outputbuffer.append("<span style=\"color:red\">Fehler: Eines der aufzuladendenden Schiffe ist bereits gedockt</span><br />\n");
-					return true;
-				}
-
-				if( (mode == DockMode.LAND) && (tarShip.getOwner() != owner) ) {
-					outputbuffer.append("<span style=\"color:red\">Fehler: Eines der zu landenden Schiffe geh&ouml;rt nicht ihnen</span><br />\n");
-					return true;
-				}
-
-				ShipTypeData tarShipType = tarShip.getTypeData();
-
-				if( (mode == DockMode.DOCK) && !superdock && (tarShipType.getSize() > ShipType.SMALL_SHIP_MAXSIZE ) ) {
-					outputbuffer.append("<span style=\"color:red\">Fehler: Eines der aufzuladendenden Schiffe ist zu gro&szlig;</span><br />\n");
-					return true;
-				}
-
-				if( (mode == DockMode.LAND) && !tarShipType.hasFlag(ShipTypes.SF_JAEGER) ) {
-					outputbuffer.append("<span style=\"color:red\">Fehler: Eines der zu landenden Schiffe ist kein J&auml;ger</span><br />\n");
-					return true;
-				}
-			}
-		}
-
-		if( (mode == DockMode.DOCK) && (shiptype.getADocks() < docked.size()+targetships.size())  ) {
-			outputbuffer.append("<span style=\"color:red\">Fehler: Nicht gen&uuml;gend freier Andockplatz vorhanden</span><br />\n");
-			return true;
-		}
-		else if( (mode == DockMode.LAND) && (shiptype.getJDocks() < jdocked.size()+targetships.size())  ) {
-			outputbuffer.append("<span style=\"color:red\">Fehler: Nicht gen&uuml;gend freier Landepl&auml;tze vorhanden</span><br />\n");
-			return true;
-		}
-
-		//Namensliste bauen
-		StringBuilder tarNameList = new StringBuilder(targetships.size()*10);
-		for( int i=0; i < targetships.size(); i++ ) {
-			if( tarNameList.length() > 0 ) {
-				tarNameList.append(", ");
-			}
-			Ship aship = targetships.get(i);
-
-			tarNameList.append("<a class=\"forschinfo\" style=\"font-size:12pt\" " +
-					"href=\"./ds?module=schiff&sess="+context.getSession()+"&ship="+aship.getId()+"\">"+
-					aship.getName()+"</a> ("+aship.getId()+")");
-		}
-
-		//Schiff aufladen
-		if( mode == DockMode.DOCK ) {
-			outputbuffer.append(this.name+" ("+this.id+") l&auml;dt "+tarNameList+" auf<br />\n");
-			for( Ship aship : targetships ) {
-				aship.setDocked(Integer.toString(this.id));
-			}
-
-			Cargo cargo = this.cargo;
-
-			final Cargo emptycargo = new Cargo();
-
-			for( int i=0; i < targetships.size(); i++ ) {
-				Ship aship = targetships.get(i);
-				ShipTypeData type = aship.getTypeData();
-
-				if( type.getShipClass() != ShipClasses.CONTAINER.ordinal() ) {
-					continue;
-				}
-
-				Cargo dockcargo = aship.getCargo();
-				cargo.addCargo( dockcargo );
-
-				if( !dockcargo.isEmpty() ) {
-					aship.setCargo(emptycargo);
-				}
-
-				aship.addModule( 0, Modules.MODULE_CONTAINER_SHIP, aship.getId()+"_"+(-type.getCargo()) );
-				this.addModule( 0, Modules.MODULE_CONTAINER_SHIP, aship.getId()+"_"+type.getCargo() );
-			}
-
-			this.cargo = cargo;
-		}
-		//Schiff abladen
-		else if( mode == DockMode.UNDOCK ) {
-			outputbuffer.append(this.name+" ("+this.id+") l&auml;dt "+tarNameList+" ab<br />\n");
-			for( Ship aship : targetships ) {
-				aship.setDocked("");
-			}
-
-			boolean gotmodule = false;
-
-			for( int i=0; i < targetships.size(); i++ ) {
-				Ship aship = targetships.get(i);
-				ShipTypeData type = aship.getTypeData();
-
-				if( type.getShipClass() != ShipClasses.CONTAINER.ordinal() ) {
-					continue;
-				}
-				gotmodule = true;
-
-				aship.removeModule( 0, Modules.MODULE_CONTAINER_SHIP, Integer.toString(aship.getId()) );		
-				this.removeModule( 0, Modules.MODULE_CONTAINER_SHIP, Integer.toString(aship.getId()) );
-			}
-
-			if( gotmodule ) {
-				Cargo cargo = this.cargo;
-
-				// Schiffstyp neu abholen, da sich der Maxcargo geaendert hat
-				shiptype = this.getTypeData();
-
-				Cargo newcargo = cargo;
-				if( cargo.getMass() > shiptype.getCargo() ) {
-					newcargo = cargo.cutCargo( shiptype.getCargo() );	
-				}
-				else {
-					cargo = new Cargo();	
-				}
-
-				for( int i=0; i < targetships.size() && cargo.getMass() > 0; i++ ) {
-					Ship aship = targetships.get(i);
-					ShipTypeData ashiptype = aship.getTypeData();
-
-					if( (ashiptype.getShipClass() == ShipClasses.CONTAINER.ordinal()) && (cargo.getMass() > 0) ) {
-						Cargo acargo = cargo.cutCargo( ashiptype.getCargo() );
-						if( !acargo.isEmpty() ) {
-							aship.setCargo(acargo);
-						}	
-					}
-				}
-
-				this.cargo = newcargo;
-			}
-		}
-		//Schiff landen
-		else if( mode == DockMode.LAND ) {
-			outputbuffer.append(tarNameList+" lande"+(targetships.size()>1?"n":"t")+" auf "+this.name+" ("+this.id+")<br />\n");
-			for( Ship aship : targetships ) {
-				aship.setDocked("l "+this.id);
-			}
-		}
-
-		//Schiff abladen
-		else if( mode == DockMode.START ) {
-			outputbuffer.append(tarNameList+" starte"+(targetships.size()>1?"n":"t")+" von "+this.name+" ("+this.id+")<br />\n");
-			for( Ship aship : targetships ) {
-				aship.setDocked("");
-			}
-		}
-
-		this.recalculateShipStatus();
-
-		return false;
-	}
 
 	/**
 	 * Generiert ein Truemmerteil mit Loot fuer das Schiff unter Beruecksichtigung desjenigen,
@@ -2888,7 +3099,7 @@ public class Ship implements Locatable,Transfering {
 		// Ist das Schiff selbst gedockt? -> Abdocken
 		if( !this.docked.equals("") && (this.docked.charAt(0) != 'l') ) {
 			Ship docked = (Ship)db.get(Ship.class, Integer.parseInt(this.docked));
-			docked.dock( DockMode.UNDOCK, this );
+			docked.undock(this);
 		}
 
 		// Wenn es das Flagschiff ist -> Flagschiff auf null setzen
@@ -2899,10 +3110,10 @@ public class Ship implements Locatable,Transfering {
 		// Evt. gedockte Schiffe abdocken
 		ShipTypeData type = this.getTypeData();
 		if( type.getADocks() != 0 ) {
-			this.dock( DockMode.UNDOCK );	
+			undock();	
 		}
 		if( type.getJDocks() != 0 ) {
-			this.dock( DockMode.START );	
+			start();	
 		}
 
 		// Gibts bereits eine Loesch-Task? Wenn ja, dann diese entfernen
@@ -3346,5 +3557,28 @@ public class Ship implements Locatable,Transfering {
 		base.setBewohner(base.getBewohner() + amount);
 		
 		return amount;
+	}
+	
+	/**
+	 * Greift ein gegnerisches Schiff an.
+	 * 
+	 * @param enemy Das Schiff, dass angegriffen werden soll.
+	 * @return Den Kampf oder null, falls kein Kampf erstellt werden konnte.
+	 */
+	public Battle attack(Ship enemy)
+	{
+		return Battle.create(this.getOwner().getId(), this.getId(), enemy.getId());
+	}
+	
+	/**
+	 * Greift ein gegnerisches Schiff an.
+	 * 
+	 * @param enemy Das Schiff, dass angegriffen werden soll.
+	 * @param startOwn <code>true</code>, wenn die eigenen Jaeger starten sollen
+	 * @return Den Kampf oder null, falls kein Kampf erstellt werden konnte.
+	 */
+	public Battle attack(Ship enemy, boolean startOwn)
+	{
+		return Battle.create(this.getOwner().getId(), this.getId(), enemy.getId());
 	}
 }
