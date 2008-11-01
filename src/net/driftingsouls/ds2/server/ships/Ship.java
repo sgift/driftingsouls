@@ -2580,12 +2580,12 @@ public class Ship implements Locatable,Transfering {
 		long landedShips = (Long)db.createQuery("select count(*) from Ship where docked=?")
 			.setParameter(0, "l "+getId())
 			.uniqueResult();
-		if(landedShips + dockships.length > shiptype.getJDocks())
+		if(landedShips + dockships.length > this.getTypeData().getJDocks())
 		{
 			outputbuffer.append("<span style=\"color:red\">Fehler: Nicht gen&uuml;gend freier Landepl&auml;tze vorhanden</span><br />\n");
 			
 			//Shorten list to max allowed size
-			int maxDockShips = shiptype.getJDocks() - (int)landedShips;
+			int maxDockShips = this.getTypeData().getJDocks() - (int)landedShips;
 			if( maxDockShips < 0 ) 
 			{
 				maxDockShips = 0;
@@ -2752,12 +2752,12 @@ public class Ship implements Locatable,Transfering {
 			}
 		}
 		
-		if(dockedShips + dockships.length > shiptype.getADocks())
+		if(dockedShips + dockships.length > this.getTypeData().getADocks())
 		{
 			outputbuffer.append("<span style=\"color:red\">Fehler: Nicht gen&uuml;gend freier Andockplatz vorhanden</span><br />\n");
 			
 			//Shorten list to max allowed size
-			int maxDockShips = shiptype.getADocks() - (int)dockedShips;
+			int maxDockShips = this.getTypeData().getADocks() - (int)dockedShips;
 			if( maxDockShips < 0 ) {
 				maxDockShips = 0;
 			}
@@ -3505,11 +3505,11 @@ public class Ship implements Locatable,Transfering {
 	 * @return <code>true</code>, wenn das Schiff beschaedigt ist, ansonsten <code>false</code>
 	 */
 	public boolean isDamaged() {
-		if(this.getAblativeArmor() < shiptype.getAblativeArmor()) {
+		if(this.getAblativeArmor() < this.getTypeData().getAblativeArmor()) {
 			return true;
 		}
 		
-		if(this.getHull() < shiptype.getHull()) {
+		if(this.getHull() < this.getTypeData().getHull()) {
 			return true;
 		}
 		
