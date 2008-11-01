@@ -112,30 +112,7 @@ public class PortalController extends TemplateGenerator {
 							
 		return true;	
 	}
-	
-	/**
-	 * Zeigt die Liste der Downloads an
-	 *
-	 */
-	@Action(ActionType.DEFAULT)
-	public void downloadAction() {
-		Database db = getDatabase();
-		TemplateEngine t = getTemplateEngine();
-		
-		t.setVar("show.downloads", 1);
-		t.setBlock("_PORTAL", "downloads.listitem", "downloads.list");
-		SQLQuery dl = db.query("SELECT * FROM portal_downloads ORDER BY `date` DESC");
-		while( dl.next() ) {
-			t.setVar(	"download.name", Common._plaintitle(dl.getString("name")),
-						"download.file", dl.getString("file"),
-						"download.date", Common.date("j.n.Y G:i",dl.getInt("date")),
-						"download.description", Common._plaintext(dl.getString("description")) );
-								
-			t.parse("downloads.list", "downloads.listitem", true);
-		}
-		dl.free();
-	}
-	
+
 	/**
 	 * Ermoeglicht das generieren eines neuen Passworts und anschliessenden
 	 * zumailens dessen
@@ -184,145 +161,7 @@ public class PortalController extends TemplateGenerator {
 			}
 		}
 	}
-	
-	/**
-	 * Zeigt allgemeine Infos an
-	 *
-	 */
-	@Action(ActionType.DEFAULT)
-	public void infosAction() {
-		getTemplateEngine().setVar("show.infos",1);
-	}
-	
-	/**
-	 * Zeigt einen Artikel an oder, falls keiner angegeben ist, die Liste
-	 * der Artikel
-	 * @urlparam Integer artikel Der anzuzeigende Artikel. Falls 0, dann die Liste der Artikel
-	 * @urlparam Integer page Die anzuzeigende Seite des Artikels
-	 *
-	 */
-	@Action(ActionType.DEFAULT)
-	public void infosArtikelAction() {
-		Database db = getDatabase();
-		TemplateEngine t = getTemplateEngine();
-		
-		parameterNumber("artikel");
-		int artikel = getInteger("artikel");
 
-		if( artikel == 0 ) {
-			t.setVar("show.articlelist",1);
-			t.setBlock("_PORTAL","articles.listitem","articles.list");
-
-			SQLQuery article = db.query("SELECT id,title,author FROM portal_articles ORDER BY id");
-			while( article.next() ) {
-				t.setVar(	"article.id", article.getInt("id"),
-							"article.title", article.getString("title"),
-							"article.author", article.getString("author") );
-				t.parse("articles.list","articles.listitem",true);
-			}
-			article.free();
-		} 
-		else {
-			parameterNumber("page");
-			int page = getInteger("page");
-
-			if( page == 0 ) {
-				page = 1;
-			}
-
-			SQLResultRow article = db.first("SELECT title,author,article FROM portal_articles WHERE id='",artikel,"'");
-
-			String[] pages = article.getString("article").split("\\[nextpage\\]");
-			String text = pages[page-1];
-
-			t.setVar(	"show.article", 1,
-						"article.id", artikel,
-						"article.title", article.getString("title"),
-						"article.author", article.getString("author"),
-						"article.text", Common._text(text),
-						"article.nextprev", pages.length > 1,
-						"article.prevpage", ((page > 1) ? (page-1) : 0),
-						"article.nextprevpage", (page-1 > 0) && (page < pages.length),
-						"article.nextpage", (page < pages.length ? (page+1) : 0 ) );
-	
-		}
-	}
-	
-	/**
-	 * Zeigt die Liste der registrierten Spieler an
-	 *
-	 */
-	@Action(ActionType.DEFAULT)
-	public void infosPlayerlistAction() {
-		StringBuffer context = getContext().getResponse().getContent();
-		getContext().getResponse().resetContent();
-		
-		PlayerList.draw(getContext());
-		
-		StringBuffer plist = getContext().getResponse().getContent();
-		getContext().getResponse().setContent(context.toString());
-
-		getTemplateEngine().setVar(	"show.plist", 1,
-										"plist.text", plist.toString() );
-	}
-	
-	private static Map<String,String> articleClasses = new HashMap<String,String>();
-	static {
-		articleClasses.put("ship", "Schiffe");
-		articleClasses.put("race", "Rassen");
-		articleClasses.put("groups", "Gruppierungen");
-		articleClasses.put("history", "Geschichte");
-		articleClasses.put("other", "Andere Fakten");
-	}
-	
-	/**
-	 * Zeigt die Daten und Fakten an
-	 *
-	 */
-	@Action(ActionType.DEFAULT)
-	public void infosDfAction() {
-		Database db = getDatabase();
-		TemplateEngine t = getTemplateEngine();
-		
-		t.setVar("show.df",1);
-
-		t.setBlock("_PORTAL","facts.articlegroup.listitem","facts.articlegroup.list");
-		t.setBlock("facts.articlegroup.listitem","facts.articles.listitem","facts.articles.list");
-
-		String oldclass = null;
-
-		SQLQuery article = db.query("SELECT id,class,title FROM portal_facts ORDER BY class,title");
-		while( article.next() ) {
-			if( (oldclass != null) && !oldclass.equals(article.getString("class")) ) {
-				t.setVar("articlegroup.name",articleClasses.get(oldclass));
-				t.parse("facts.articlegroup.list","facts.articlegroup.listitem",true);
-				
-				t.setVar("facts.articles.list","");
-			}
-			oldclass = article.getString("class");
-
-			t.setVar(	"article.id"	, article.getInt("id"),
-						"article.title"	, Common._title(article.getString("title")) );
-
-			t.parse("facts.articles.list","facts.articles.listitem",true);
-		}
-		article.free();
-
-		t.setVar("articlegroup.name",articleClasses.get(oldclass));
-		t.parse("facts.articlegroup.list","facts.articlegroup.listitem",true);
-
-		parameterNumber("article");
-		int articleID = getInteger("article");
-		
-		if( articleID != 0 ) {
-			SQLResultRow thisarticle = db.first("SELECT title,text,class FROM portal_facts WHERE id='",articleID,"'");
-
-			t.setVar(	"article.class"	, articleClasses.get(thisarticle.getString("class")),
-						"article.title"	, Common._title(thisarticle.getString("title")),
-						"article.text"	, Common._text(thisarticle.getString("text")) );
-		}
-	}
-	
 	/**
 	 * Zeigt die AGB an
 	 *
@@ -339,37 +178,6 @@ public class PortalController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void impressumAction() {
 		getTemplateEngine().setVar("show.impressum",1);
-	}
-
-	/**
-	 * Zeigt die Links an
-	 *
-	 */
-	@Action(ActionType.DEFAULT)
-	public void linksAction() {
-		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
-		
-		t.setVar("show.links",1);
-		t.setBlock("_PORTAL","links.listitem","links.list");
-
-		SQLQuery link = db.query("SELECT url,name,descrip FROM portal_links ORDER BY id");
-		while( link.next() ) {
-			t.setVar(	"link.url", link.getString("url"),
-						"link.name", link.getString("name"),
-						"link.description", link.getString("descrip") );
-			t.parse("links.list","links.listitem",true);
-		}
-		link.free();
-	}
-
-	/**
-	 * Zeigt den JavaChat an
-	 *
-	 */
-	@Action(ActionType.DEFAULT)
-	public void javachatAction() {
-		getTemplateEngine().setVar("show.javachat",1);
 	}
 	
 	private static class StartLocations {
