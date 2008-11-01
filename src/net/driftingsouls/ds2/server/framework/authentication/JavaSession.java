@@ -105,7 +105,12 @@ class JavaSession implements Serializable {
 	 * @param attach Der User
 	 */
 	public void setAttach(BasicUser attach) {
-		this.attachedUser = attach.getId();
+		if( attach != null ) {
+			this.attachedUser = attach.getId();
+		}
+		else {
+			this.attachedUser = null;
+		}
 	}
 	
 	/**
