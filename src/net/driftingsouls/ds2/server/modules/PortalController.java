@@ -20,7 +20,6 @@ package net.driftingsouls.ds2.server.modules;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,10 +56,11 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.uilibs.PlayerList;
 import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
 
 import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -73,6 +73,7 @@ import org.springframework.beans.factory.annotation.Required;
  */
 @Configurable
 public class PortalController extends TemplateGenerator {
+	private static final Log log = LogFactory.getLog(PortalController.class);
 	private AuthenticationManager authManager;
 	
 	/**
@@ -654,6 +655,7 @@ public class PortalController extends TemplateGenerator {
 						t.setVar(	"show.login.browserwarning", 1,
 									"browser.name", "Opera",
 									"browser.version", version );
+						return;
 					}
 				}
 			}
@@ -667,16 +669,15 @@ public class PortalController extends TemplateGenerator {
 				t.setVar(	"show.login.browserwarning", 1,
 							"browser.name", "Microsoft Internet Explorer",
 							"browser.version", version );
-			}
-			else {
-				getResponse().redirectTo(Common.buildUrl("default", "module", "main"));
 				return;
 			}
 		}
 		catch( NumberFormatException e ) {
-			java.lang.System.err.println(e);
-			e.printStackTrace();
+			log.error("", e);
 		}
+		
+		getResponse().redirectTo(Common.buildUrl("default", "module", "main"));
+		return;
 	}
 	
 	/**
