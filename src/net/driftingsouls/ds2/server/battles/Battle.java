@@ -384,9 +384,11 @@ public class Battle implements Locatable {
 	public void addComMessage( int side, String text ) {
 		if( side == 0 ) {
 			this.com1Msg += text;
+			this.com1Msg = StringUtils.right(this.com1Msg, 10000);
 		}
 		else {
 			this.com2Msg += text;
+			this.com2Msg = StringUtils.right(this.com2Msg, 10000);
 		}
 	}
 	
@@ -1724,15 +1726,8 @@ public class Battle implements Locatable {
 				Common.writeLog("battles/battle_id"+this.id+".log", this.getEnemyLog(true));
 			}
 		}
-		
-		String log = this.getEnemyLog(false);
-		
-		if( this.ownSide == 0 ) {
-			this.com1Msg += log;
-		}
-		else {
-			this.com2Msg += log;
-		}
+
+		this.addComMessage(this.ownSide, this.getEnemyLog(false));
 	}
 	
 	@Transient
