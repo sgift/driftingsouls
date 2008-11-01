@@ -2535,23 +2535,6 @@ public class Ship implements Locatable,Transfering {
 		 */
 		START;
 	}
-
-	private String generateIdString(Ship... ships)
-	{
-		if(ships.length == 0)
-		{
-			return "";
-		}
-		
-		//Build list of shipids
-		StringBuilder builder = new StringBuilder();
-		for(Ship ship: ships)
-		{
-			builder.append(ship.getId() + ",");
-		}
-		
-		return builder.substring(0, builder.length() - 1).trim(); //Eliminate last ,
-	}
 	
 	/**
 	 * Jaeger landen.
@@ -2569,9 +2552,8 @@ public class Ship implements Locatable,Transfering {
 		
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
-		  		StringBuilder outputbuffer = MESSAGE.get();
-		String ids = generateIdString(dockships);
-		  
+		StringBuilder outputbuffer = MESSAGE.get();
+
 		//No superdock for landing
 		Ship[] help = performLandingChecks(outputbuffer, false, dockships);
 		boolean errors = false;
@@ -2583,29 +2565,34 @@ public class Ship implements Locatable,Transfering {
 		
 		//Check for type fighter
 		List<Ship> ships = Common.cast(
-				db.createQuery("from Ship where locate(:fighter, shiptype.flags) > -1 and id in ("+ ids +")")
-				  .setParameter("fighter", ShipTypes.SF_JAEGER)
-				  .list(), Ship.class);
+			db.createQuery("from Ship s where locate(:fighter, shiptype.flags) > -1 and s in (:dockships)")
+				.setParameterList("dockships", dockships)
+				.setParameter("fighter", ShipTypes.SF_JAEGER)
+				.list());
 		
 		if(ships.size() < dockships.length)
 		{
 			//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
 			dockships = ships.toArray(new Ship[0]);
-			ids = generateIdString(dockships);
 			errors = true;
 		}
 		
-		long landedShips = (Long)db.createQuery("select count(*) from Ship where docked=?").setParameter(0, "l "+getId()).uniqueResult();
+		long landedShips = (Long)db.createQuery("select count(*) from Ship where docked=?")
+			.setParameter(0, "l "+getId())
+			.uniqueResult();
 		if(landedShips + dockships.length > shiptype.getJDocks())
 		{
 			outputbuffer.append("<span style=\"color:red\">Fehler: Nicht gen&uuml;gend freier Landepl&auml;tze vorhanden</span><br />\n");
 			
 			//Shorten list to max allowed size
 			int maxDockShips = shiptype.getJDocks() - (int)landedShips;
+			if( maxDockShips < 0 ) 
+			{
+				maxDockShips = 0;
+			}
 			help = new Ship[maxDockShips];
 			System.arraycopy(dockships, 0, help, 0, maxDockShips);
 			dockships = help;
-			ids = generateIdString(dockships);
 		}
 		
 		if(dockships.length == 0)
@@ -2613,9 +2600,10 @@ public class Ship implements Locatable,Transfering {
 			return errors;
 		}
 		
-		db.createQuery("update Ship set docked=:docked where id in ("+ ids +")")
-		  .setParameter("docked", "l "+this.getId())
-		  .executeUpdate();
+		db.createQuery("update Ship s set docked=:docked where s in (:dockships)")
+			.setParameterList("dockships", dockships)
+			.setParameter("docked", "l "+this.getId())
+			.executeUpdate();
 		
 		return errors;
 	}
@@ -2628,8 +2616,8 @@ public class Ship implements Locatable,Transfering {
 	 */
 	public void start(Ship... dockships)
 	{
-		  		Context context = ContextMap.getContext();
-		  		org.hibernate.Session db = context.getDB();
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
 		if(dockships == null || dockships.length == 0)
 		{
 			db.createQuery("update Ship set docked='', system=:system, x=:x, y=:y where docked=:docked")
@@ -2641,13 +2629,13 @@ public class Ship implements Locatable,Transfering {
 		}
 		else
 		{	
-			String ids = generateIdString(dockships);
-			db.createQuery("update Ship set docked='', system=:system, x=:x, y=:y where docked=:docked and id in ("+ ids +")")
-			  .setParameter("system", system)
-			  .setParameter("x", x)
-			  .setParameter("y", y)
-			  .setParameter("docked", "l "+this.getId())
-			  .executeUpdate();
+			db.createQuery("update Ship s set docked='', system=:system, x=:x, y=:y where docked=:docked and s in (:dockships)")
+				.setParameterList("dockships", dockships)
+				.setParameter("system", system)
+				.setParameter("x", x)
+				.setParameter("y", y)
+				.setParameter("docked", "l "+this.getId())
+				.executeUpdate();
 		}
 	}
 	
@@ -2674,12 +2662,12 @@ public class Ship implements Locatable,Transfering {
 		  
 			if( type.getShipClass() != ShipClasses.CONTAINER.ordinal() ) {
 				continue;
-		  			}
+		  	}
 			gotmodule = true;
 		  
 			aship.removeModule( 0, Modules.MODULE_CONTAINER_SHIP, Integer.toString(aship.getId()) );		
 			this.removeModule( 0, Modules.MODULE_CONTAINER_SHIP, Integer.toString(aship.getId()) );
-		  		}
+		}
 		  
 		if( gotmodule ) 
 		{
@@ -2710,10 +2698,10 @@ public class Ship implements Locatable,Transfering {
 					{
 						aship.setCargo(acargo);
 					}	
-		  				}
-		  			}
+				}
+			}
 			this.cargo = newcargo;
-		  		}
+		}
 		this.recalculateShipStatus();
 	}
 	
@@ -2731,7 +2719,6 @@ public class Ship implements Locatable,Transfering {
 		
 		
 		boolean superdock = owner.hasFlag(User.FLAG_SUPER_DOCK);
-		String ids = generateIdString(dockships);
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		StringBuilder outputbuffer = MESSAGE.get();
@@ -2745,12 +2732,15 @@ public class Ship implements Locatable,Transfering {
 		dockships = help;
 		
 		
-		long dockedShips = (Long)db.createQuery("select count(*) from Ship where docked=?").setParameter(0, ""+getId()).uniqueResult();
+		long dockedShips = (Long)db.createQuery("select count(*) from Ship where docked=?")
+			.setParameter(0, ""+getId())
+			.uniqueResult();
 		if(!superdock)
 		{
 			//Check for size
 			List<Ship> ships = Common.cast(
-				db.createQuery("from Ship where shiptype.size <= :maxsize and id in ("+ ids +")")
+				db.createQuery("from Ship s where shiptype.size <= :maxsize and s in (:dockships)")
+					.setParameterList("dockships", dockships)
 					.setParameter("maxsize", ShipType.SMALL_SHIP_MAXSIZE)
 					.list());
 			
@@ -2758,7 +2748,6 @@ public class Ship implements Locatable,Transfering {
 			{
 				//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
 				dockships = ships.toArray(new Ship[0]);
-				ids = generateIdString(dockships);
 				errors = true;
 			}
 		}
@@ -2769,10 +2758,12 @@ public class Ship implements Locatable,Transfering {
 			
 			//Shorten list to max allowed size
 			int maxDockShips = shiptype.getADocks() - (int)dockedShips;
+			if( maxDockShips < 0 ) {
+				maxDockShips = 0;
+			}
 			help = new Ship[maxDockShips];
 			System.arraycopy(dockships, 0, help, 0, maxDockShips);
 			dockships = help;
-			ids = generateIdString(dockships);
 		}
 		
 		if(dockships.length == 0)
@@ -2827,13 +2818,13 @@ public class Ship implements Locatable,Transfering {
 			return dockships;
 		}
 		
-		String ids = generateIdString(dockships);
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		
 		//Enforce position
 		List<Ship> ships = Common.cast( 
-			db.createQuery("from Ship where system=:system and x=:x and y=:y and id in ("+ ids +")")
+			db.createQuery("from Ship s where system=:system and x=:x and y=:y and s in (:dockships)")
+				.setParameterList("dockships", dockships)
 				.setParameter("system", system)
 				.setParameter("x", x)
 				.setParameter("y", y)
@@ -2843,8 +2834,7 @@ public class Ship implements Locatable,Transfering {
 		{
 			//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
 			dockships = ships.toArray(new Ship[0]);
-			ids = generateIdString(dockships);
-			
+
 			if(dockships.length == 0)
 			{
 				return dockships;
@@ -2860,13 +2850,15 @@ public class Ship implements Locatable,Transfering {
 							  .list();
 		*/
 		
-		ships = Common.cast(db.createQuery("from Ship where (lock is null or lock = '') and id in ("+ids+")").list());
+		ships = Common.cast(
+			db.createQuery("from Ship s where (lock is null or lock = '') and s in (:dockships)")
+				.setParameterList("dockships", dockships)
+				.list());
 		
 		if(ships.size() < dockships.length)
 		{
 			outputbuffer.append("<span style=\"color:red\">Fehler: Mindestens ein Schiff ist an ein Quest gebunden</span><br />\n");
 			dockships = ships.toArray(new Ship[0]);
-			ids = generateIdString(dockships);
 			
 			if(dockships.length == 0)
 			{
@@ -2877,14 +2869,14 @@ public class Ship implements Locatable,Transfering {
 		
 		//Check already docked
 		ships = Common.cast(
-			db.createQuery("from Ship where docked='' and id in ("+ ids +")")
+			db.createQuery("from Ship s where docked='' and s in (:dockships)")
+				.setParameterList("dockships", dockships)
 				.list());
 		
 		if(ships.size() < dockships.length)
 		{
 			//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
 			dockships = ships.toArray(new Ship[0]);
-			ids = generateIdString(dockships);
 			
 			if(dockships.length == 0)
 			{
@@ -2896,15 +2888,15 @@ public class Ship implements Locatable,Transfering {
 		if(!superdock)
 		{
 			ships = Common.cast(
-					db.createQuery("from Ship where owner=:owner and id in ("+ ids +")")
-						.setParameter("owner", owner)
-						.list());
+				db.createQuery("from Ship s where owner=:owner and s in (:dockships)")
+					.setParameterList("dockships", dockships)
+					.setParameter("owner", owner)
+					.list());
 			
 			if(ships.size() < dockships.length)
 			{
 				//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
 				dockships = ships.toArray(new Ship[0]);
-				ids = generateIdString(dockships);
 				
 				if(dockships.length == 0)
 				{
