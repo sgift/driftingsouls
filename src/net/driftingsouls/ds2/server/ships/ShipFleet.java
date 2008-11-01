@@ -135,6 +135,10 @@ public class ShipFleet {
 				continue;
 			}
 			int free = shiptype.getJDocks() - (int)ship.getLandedCount();
+			if( free == 0 ) {
+				continue;
+			}
+			
 			List<Ship>jaegerlist = new ArrayList<Ship>();
 			
 			Query jaegerListeQuery = db.createQuery("from Ship as s left join fetch s.modules " +
@@ -152,9 +156,9 @@ public class ShipFleet {
 			if( jaegertypeID > 0 ) {
 				jaegerListeQuery.setInteger("shiptype", jaegertypeID);
 			}
-			List<Ship> jaegerliste = Common.cast(jaegerListeQuery.list(),Ship.class);
+			List<Ship> jaegerliste = Common.cast(jaegerListeQuery.list());
 			
-			jaegerlist.addAll(jaegerliste.subList(0, free));
+			jaegerlist.addAll(jaegerliste.subList(0, free > jaegerliste.size() ? free : jaegerliste.size()));
 			ship.land(jaegerlist.toArray(new Ship[jaegerlist.size()]));
 		}
 	}
@@ -238,6 +242,9 @@ public class ShipFleet {
 			}
 	
 			int free = shiptype.getADocks() - (int)ship.getDockedCount();
+			if( free == 0 ) {
+				continue;
+			}
 			List<Ship> containerlist = new ArrayList<Ship>();
 			
 			List<?> containers = db.createQuery("from Ship as s " +
@@ -251,7 +258,7 @@ public class ShipFleet {
 				.setInteger(4, ShipClasses.CONTAINER.ordinal())
 				.list();
 			
-			containerlist.addAll(Common.cast(containers,Ship.class).subList(0, free));
+			containerlist.addAll(Common.cast(containers,Ship.class).subList(0, free > containers.size() ? free : containers.size()));
 			ship.dock(containerlist.toArray(new Ship[containerlist.size()]));
 		}
 	}
