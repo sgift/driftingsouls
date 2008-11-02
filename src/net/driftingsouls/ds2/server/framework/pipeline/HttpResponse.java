@@ -109,7 +109,6 @@ public class HttpResponse implements Response {
 				}
 				else if( this.writer != null ) {
 					this.writer.flush();
-					this.response.flushBuffer();
 					this.writer.close();
 				}
 				
