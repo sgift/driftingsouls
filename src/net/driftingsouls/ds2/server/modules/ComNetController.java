@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.entities.ComNetChannel;
 import net.driftingsouls.ds2.server.entities.ComNetEntry;
 import net.driftingsouls.ds2.server.entities.ComNetVisit;
@@ -304,14 +305,13 @@ public class ComNetController extends TemplateGenerator {
 				head = Common._title(head);
 			}
 
-			t.setVar(	"post.pic",			post.getPic(),
+			t.setVar(	"post",				post,
+						"post.user.rang.name", Medals.get().rang(post.getUser().getRang()).getName(),
 						"post.postid",		postNumber,
-						"post.id",			post.getUser().getId(),
 						"post.name",		Common._title(post.getName()),
 						"post.time",		Common.date("d.m.Y H:i:s",post.getTime()),
 						"post.title",		head,
 						"post.text",		text,
-						"post.allypic",		post.getAllyPic(),
 						"post.ingametime",	Common.getIngameTime(post.getTick()) );
 
 			i++;
