@@ -39,6 +39,7 @@ import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.LogFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -344,7 +345,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 			parser.parse(new InputSource( new SequenceInputStream(new FileInputStream(ksLog), new ByteArrayInputStream("</battle>".getBytes())) ));
 			
 			BBCodeParser bbcodeparser = BBCodeParser.getNewInstance();
-			bbcodeparser.registerHandler( "tooltip", 2, "<a onmouseover=\"return overlib('$2',TIMEOUT,0,DELAY,400,WIDTH,100,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\"aloglink\" href=\"#\">$1</a>" );
+			bbcodeparser.registerHandler( "tooltip", 2, "<a onmouseover=\"return ov('$2');\" onmouseout=\"return nd();\" href=\"#\">$1</a>" );
 		
 			for( int i=0; i <= this.historyMaxpage; i++ ) {
 				t.setVar(	"global.showlog.turnlist.pageid",	i,
