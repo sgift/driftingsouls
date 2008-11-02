@@ -422,7 +422,7 @@ public class UeberController extends TemplateGenerator {
 			battles.addAll(Common.cast(battleQuery.list(), Battle.class));
 			
 			battles.addAll(Common.cast(
-				db.createQuery("select battle from Ship where battle is not null and owner=:user")
+				db.createQuery("select distinct battle from Ship where battle is not null and owner=:user")
 					.setEntity("user", user)
 					.list(),		
 				Battle.class));
