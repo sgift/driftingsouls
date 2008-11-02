@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,22 +58,22 @@ public class TechDatabaseController extends TemplateGenerator {
 	}
 	
 	@Override
-	protected void printHeader( String action ) {
+	protected void printHeader( String action ) throws IOException {
 		getContext().getResponse().setContentType("text/html");
 		getContext().getResponse().setCharSet("UTF-8");	
-		getContext().getResponse().getContent().append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+		getContext().getResponse().getWriter().append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 		if( !action.equals("default") ) {
-			getContext().getResponse().getContent().append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
-			getContext().getResponse().getContent().append("<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"de\" lang=\"de\">");
+			getContext().getResponse().getWriter().append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
+			getContext().getResponse().getWriter().append("<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"de\" lang=\"de\">");
 			super.printHeader(action);	
 		}
 	}
 	
 	@Override
-	protected void printFooter( String action ) {
+	protected void printFooter( String action ) throws IOException {
 		if( !action.equals("default") ) {
 			super.printFooter(action);	
-			getContext().getResponse().getContent().append("</html>");
+			getContext().getResponse().getWriter().append("</html>");
 		}
 		else {
 			getTemplateEngine().parse( "OUT", getTemplateID() );

@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,12 +48,12 @@ import org.apache.commons.lang.StringUtils;
  *
  */
 public class StatWaren implements Statistic {
-	public void show(StatsController contr, int size) {
+	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 		User user = (User)context.getActiveUser();
 
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 	
 		Cargo cargo = new Cargo(Cargo.Type.STRING, db.first("SELECT cargo FROM stats_cargo ORDER BY tick DESC LIMIT 1").getString("cargo"));
 		

@@ -86,7 +86,7 @@ public class FileReader implements Reader {
 		String range = context.getRequest().getHeader("Range");
 		if( (range != null) && !"".equals(range) ) {
 			context.getResponse().setStatus(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
-			context.getResponse().getContent().append("416");
+			context.getResponse().getWriter().append("416");
 			
 			return;
 		}
@@ -95,7 +95,7 @@ public class FileReader implements Reader {
 		File file = new File(path);
 		if( !file.exists() ) {
 			context.getResponse().setStatus(HttpServletResponse.SC_NOT_FOUND);
-			context.getResponse().getContent().append("404 - Die von ihnen gesuchte Datei existiert nicht");
+			context.getResponse().getWriter().append("404 - Die von ihnen gesuchte Datei existiert nicht");
 			log.warn("Warning: file not found: '"+file+"'");
 			
 			return;

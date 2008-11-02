@@ -86,12 +86,13 @@ public class BuildingController extends TemplateGenerator {
 
 	/**
 	 * Aktiviert das Gebaeude
+	 * @throws IOException 
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void startAction() {
+	public void startAction() throws IOException {
 		int field = getInteger("field");
-		StringBuffer echo = getResponse().getContent();
+		Writer echo = getResponse().getWriter();
 		
 		if( (building.getArbeiter() > 0) && (building.getArbeiter() + base.getArbeiter() > base.getBewohner()) ) {
 			echo.append("<span style=\"color:#ff0000\">Nicht gen&uuml;gend Arbeiter vorhanden</span><br /><br />\n");
@@ -111,12 +112,13 @@ public class BuildingController extends TemplateGenerator {
 	
 	/**
 	 * Deaktiviert das Gebaeude
+	 * @throws IOException 
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shutdownAction() {
+	public void shutdownAction() throws IOException {
 		int field = getInteger("field");
-		StringBuffer echo = getResponse().getContent();
+		Writer echo = getResponse().getWriter();
 		
 		if( !building.isDeakAble() ) {
 			echo.append("<span style=\"color:red\">Sie k&ouml;nnen dieses Geb&auml;ude nicht deaktivieren</span>\n");

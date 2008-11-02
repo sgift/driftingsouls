@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -43,12 +45,12 @@ import org.apache.commons.logging.LogFactory;
 public class StatOwnOffiziere implements Statistic {
 	private static final Log log = LogFactory.getLog(StatOwnOffiziere.class);
 
-	public void show(StatsController contr, int size) {
+	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
 		Database db = context.getDatabase();
 
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 	
 		List<?> offiziere = context.getDB().createQuery("from Offizier where userid=? order by ing+nav+waf+sec+com desc")
 			.setInteger(0, user.getId())

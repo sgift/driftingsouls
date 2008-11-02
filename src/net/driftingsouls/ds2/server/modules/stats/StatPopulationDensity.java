@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.entities.User;
@@ -39,12 +42,12 @@ import org.apache.commons.logging.LogFactory;
 public class StatPopulationDensity implements Statistic {
 	private static final Log log = LogFactory.getLog(StatPopulationDensity.class);
 
-	public void show(StatsController contr, int size) {
+	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 		User user = (User)context.getActiveUser();
 
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 	
 		echo.append("<table class=\"noBorderX\" cellspacing=\"1\" cellpadding=\"1\" width=\"100%\">\n");
 		echo.append("<tr><td class=\"noBorderX\" align=\"left\" colspan=\"2\">Besiedlungsdichte:</td></tr>\n");

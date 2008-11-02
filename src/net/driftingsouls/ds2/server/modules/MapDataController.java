@@ -229,7 +229,7 @@ public class MapDataController extends DSGenerator {
 		int x = getInteger("x");
 		int y = getInteger("y");
 	
-		StringBuffer echo = getContext().getResponse().getContent();
+		Writer echo = getContext().getResponse().getWriter();
 		echo.append("<?xml version='1.0' encoding='UTF-16'?>\n");
 		echo.append("<sector x=\""+x+"\" y=\""+y+"\" system=\""+this.system+"\">\n");
 		

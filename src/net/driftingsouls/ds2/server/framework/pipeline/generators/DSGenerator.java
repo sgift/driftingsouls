@@ -63,14 +63,16 @@ public abstract class DSGenerator extends Generator {
 		
 		/**
 		 * Gibt den Header aus
+		 * @throws IOException 
 		 *
 		 */
-		public abstract void printHeader();
+		public abstract void printHeader() throws IOException;
 		/**
 		 * Gibt den Footer aus
+		 * @throws IOException 
 		 *
 		 */
-		public abstract void printFooter();
+		public abstract void printFooter() throws IOException;
 		/**
 		 * Gibt die Fehlerliste aus
 		 * @throws IOException 
@@ -130,7 +132,7 @@ public abstract class DSGenerator extends Generator {
 		}
 		
 		@Override
-		public void printHeader() {
+		public void printHeader() throws IOException {
 			Response response = getContext().getResponse();
 			
 			response.setContentType("text/html");
@@ -139,7 +141,7 @@ public abstract class DSGenerator extends Generator {
 			if( getContext().getRequest().getParameterString("_style").equals("xml") ) {
 				return;
 			}
-			StringBuffer sb = response.getContent();
+			Writer sb = response.getWriter();
 			String url = config.get("URL")+"/";
 			boolean usegfxpak = false;
 			final BasicUser user = getContext().getActiveUser();
@@ -162,7 +164,7 @@ public abstract class DSGenerator extends Generator {
 			sb.append("<![endif]-->\n");
 
 			if( this.getAttribute("header") != null ) {
-				sb.append(this.getAttribute("header"));
+				sb.append(this.getAttribute("header").toString());
 			}
 			
 			sb.append("</head>\n");
@@ -209,11 +211,11 @@ public abstract class DSGenerator extends Generator {
 		}
 		
 		@Override
-		public void printFooter() {
+		public void printFooter() throws IOException {
 			if( getContext().getRequest().getParameterString("_style").equals("xml") ) {
 				return;
 			}
-			StringBuffer sb = getContext().getResponse().getContent();
+			Writer sb = getContext().getResponse().getWriter();
 			if( !getDisableDebugOutput() ) {
 				sb.append("<div style=\"text-align:center; font-size:11px;color:#c7c7c7; font-family:arial, helvetica;\">\n");
 				sb.append("<br /><br /><br />\n");
@@ -590,7 +592,7 @@ public abstract class DSGenerator extends Generator {
 		actionTypeHandler.printFooter();
 	}
 	
-	protected void printHeader( String action ) {
+	protected void printHeader( String action ) throws IOException {
 		if( !this.disablePageMenu ) {
 			actionTypeHandler.setAttribute("module", getString("module"));
 			actionTypeHandler.setAttribute("pagetitle", this.pageTitle);
@@ -600,7 +602,7 @@ public abstract class DSGenerator extends Generator {
 		actionTypeHandler.printHeader();
 	}
 	
-	protected void printFooter( String action ) {
+	protected void printFooter( String action ) throws IOException {
 		actionTypeHandler.printFooter();
 	}
 	

@@ -23,6 +23,7 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -458,13 +459,14 @@ public class TemplateEngine {
 	/**
 	 * Gibt den Inhalt einer Variablen in der Kontext-Antwort aus
 	 * @param varname Der Name der auszugebenden Variablen
+	 * @throws IOException 
  	 */
-	public void p( String varname ) {
+	public void p( String varname ) throws IOException {
 		log.debug("out: "+varname);
 
 		Object value = varvals.get(varname);
 		Context context = ContextMap.getContext();
-		context.getResponse().getContent().append(value);
+		context.getResponse().getWriter().append(value.toString());
 	}
 	
 	/**

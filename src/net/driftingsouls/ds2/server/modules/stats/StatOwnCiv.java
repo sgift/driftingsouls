@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -32,12 +35,12 @@ import net.driftingsouls.ds2.server.modules.StatsController;
  *
  */
 public class StatOwnCiv implements Statistic {
-	public void show(StatsController contr, int size) {
+	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
 		Database db = context.getDatabase();
 
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		echo.append("<table class=\"noBorderX\" cellspacing=\"3\" cellpadding=\"3\" width=\"100%\">\n");
 		echo.append("<tr><td class=\"noBorderX\"colspan=\"2\" align=\"left\">Meine Zivilisation:</td></tr>\n");
 	

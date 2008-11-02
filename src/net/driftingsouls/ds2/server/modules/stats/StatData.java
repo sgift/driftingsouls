@@ -22,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Writer;
 import java.math.BigInteger;
 
 import net.driftingsouls.ds2.server.framework.Common;
@@ -42,11 +43,11 @@ import org.apache.commons.logging.LogFactory;
 public class StatData implements Statistic {
 	private static final Log log = LogFactory.getLog(StatData.class);
 
-	public void show(StatsController contr, int size) {
+	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 	
 		echo.append("<table class=\"noBorderX\" cellspacing=\"1\" cellpadding=\"3\">\n");
 		echo.append("<tr><td class=\"noBorderX\" align=\"left\" colspan=\"2\">Diverse Daten:</td></tr>\n");
