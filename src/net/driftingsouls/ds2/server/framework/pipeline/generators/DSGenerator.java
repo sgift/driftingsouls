@@ -553,20 +553,23 @@ public abstract class DSGenerator extends Generator {
 		
 		parseSubParameter("");
 		
+		printErrorList();
+			
+		printFooter( action );
+	}
+
+	protected void printErrorList() throws IOException
+	{
 		if( getErrorList().length > 0 ) {
 			actionTypeHandler.printErrorList();
 		}
-			
-		printFooter( action );
 	}
 
 	private void printErrorListOnly() throws IOException
 	{
 		actionTypeHandler.printHeader();
 		
-		if( getErrorList().length > 0 ) {
-			actionTypeHandler.printErrorList();
-		}
+		printErrorList();
 		
 		actionTypeHandler.printFooter();
 	}
