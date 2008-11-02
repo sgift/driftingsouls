@@ -29,6 +29,7 @@ import java.util.Map;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.SimpleResponse;
 import net.driftingsouls.ds2.server.framework.db.Database;
 
 import org.apache.commons.logging.Log;
@@ -149,11 +150,14 @@ public abstract class TickController {
 				}
 			}
 			
-			if( context.getResponse().getContent().length() > 0 ) {
-				log("\n-------------Weitere Ausgaben---------------\n");
-				log(context.getResponse().getContent().toString());
+			if( context.getResponse() instanceof SimpleResponse ) {
+				SimpleResponse response = (SimpleResponse)context.getResponse();
+				if( response.getContent().length() > 0 ) {
+					log("\n-------------Weitere Ausgaben---------------\n");
+					log(response.getContent().toString());
+				}
+				response.setContent("");
 			}
-			context.getResponse().setContent("");
 			
 			log("");
 			log("QCount: "+getDatabase().getQCount());

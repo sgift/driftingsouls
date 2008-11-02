@@ -151,19 +151,4 @@ public abstract class TemplateGenerator extends DSGenerator {
 		}
 		super.printHeader(action);
 	}
-
-	@Override
-	protected void printErrorList(boolean init) throws IOException {
-		if( !init && (getActionType() == ActionType.DEFAULT) && (this.templateEngine != null) ) {
-			getOutputHelper().setAttribute("header", getTemplateEngine().getVar("__HEADER"));
-		}
-		
-		super.printErrorList(init);
-		
-		if( !init && (getActionType() == ActionType.DEFAULT) && (getTemplateID().length() > 0) ) {
-			getTemplateEngine().parse( "OUT", getTemplateID() );
-				
-			getTemplateEngine().p("OUT");
-		}
-	}
 }

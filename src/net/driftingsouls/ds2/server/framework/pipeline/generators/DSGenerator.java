@@ -36,7 +36,6 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Error;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
 
-import org.apache.commons.lang.StringUtils;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.exception.GenericJDBCException;
 import org.hibernate.exception.LockAcquisitionException;
@@ -208,6 +207,7 @@ public abstract class DSGenerator extends Generator {
 
 			sb.append("// -->\n");
 			sb.append("</script>\n");
+			sb.append("<div id=\"error-placeholder\" />\n");
 		}
 		
 		@Override
@@ -230,7 +230,7 @@ public abstract class DSGenerator extends Generator {
 		@Override
 		public void printErrorList() throws IOException {
 			Writer sb = getContext().getResponse().getWriter();
-			sb.append("<div align=\"center\">\n");
+			sb.append("<div id=\"error-box\" align=\"center\">\n");
 			sb.append(Common.tableBegin(430,"left"));
 			sb.append("<div style=\"text-align:center; font-size:14px; font-weight:bold\">Es sind Fehler aufgetreten:</div><ul>\n");
 					
@@ -243,9 +243,15 @@ public abstract class DSGenerator extends Generator {
 				}
 			}
 					
-			sb.append("<ul>\n");
+			sb.append("</ul>\n");
 			sb.append(Common.tableEnd());
 			sb.append("</div>\n");
+			sb.append("<script type=\"text/javascript\">\n");
+			sb.append("var error = document.getElementById('error-box');\n");
+			sb.append("var errorMarker = document.getElementById('error-placeholder');\n");
+			sb.append("error.parentNode.removeChild(error);\n");
+			sb.append("errorMarker.appendChild(error);\n");
+			sb.append("</script>");
 		}
 	}
 	
@@ -472,9 +478,7 @@ public abstract class DSGenerator extends Generator {
 		if( (action == null) || action.isEmpty() ) {
 			action = "default";
 		}
-		
-		String content = "";
-		
+			
 		// Ungueltige Sessions brauchen nicht extra abgefangen zu werden,
 		// da fuer diese Bereits ein Fehler eingetragen wurde
 		if( requireValidSession && (getContext().getActiveUser() == null) ) {
@@ -482,17 +486,19 @@ public abstract class DSGenerator extends Generator {
 		}
 		
 		if( getErrorList().length != 0 ) {
-			printErrorList(true);
+			printErrorListOnly();
 			
 			return;
 		}
+		
+		printHeader( action );
 	
 		try {
 			Method method = getMethodForAction(action);
 			setActionType(method.getAnnotation(Action.class).value());
 			
 			if( (getErrorList().length != 0) || !validateAndPrepare(action) ) {
-				printErrorList(true);
+				printErrorListOnly();
 				
 				return;
 			}
@@ -546,47 +552,20 @@ public abstract class DSGenerator extends Generator {
 		}
 		
 		parseSubParameter("");
-		content = getResponse().getContent().toString();
-		content = StringUtils.replace(content,"{{{__SESSID__}}}", getString("sess"));
-		getResponse().setContent(content);
-
-		if( getErrorList().length > 0 ) {
-			printErrorList(false);
-		}
-		else {
-			getResponse().resetContent();
-			
-			printHeader( action );
-			
-			if( getErrorList().length > 0 ) {
-				actionTypeHandler.printErrorList();
-			}
-			
-			getResponse().getContent().append(content);
-			
-			printFooter( action );
-		}
-	}
-	
-	protected void printErrorList(boolean init) throws IOException {
-		String content = getResponse().getContent().toString();
-		if( !init ) {
-			getResponse().resetContent();
-		}
-		
-		if( !this.disablePageMenu ) {
-			actionTypeHandler.setAttribute("module", getString("module"));
-			actionTypeHandler.setAttribute("pagetitle", this.pageTitle);
-			actionTypeHandler.setAttribute("pagemenu", this.pageMenuEntries.toArray(new PageMenuEntry[this.pageMenuEntries.size()]));
-		}
-		actionTypeHandler.printHeader();
 		
 		if( getErrorList().length > 0 ) {
 			actionTypeHandler.printErrorList();
 		}
+			
+		printFooter( action );
+	}
 
-		if( !init ) {
-			getResponse().getContent().append(content);
+	private void printErrorListOnly() throws IOException
+	{
+		actionTypeHandler.printHeader();
+		
+		if( getErrorList().length > 0 ) {
+			actionTypeHandler.printErrorList();
 		}
 		
 		actionTypeHandler.printFooter();
