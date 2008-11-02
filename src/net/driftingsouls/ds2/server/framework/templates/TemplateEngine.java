@@ -181,6 +181,12 @@ public class TemplateEngine {
 
 		blocks.put(handle, handle); 
 		
+		if( !registeredBlocks.containsKey(handle) ) {
+			error("set_block: Der Block '"+handle+"' ist unbekannt");
+			
+			return;	
+		}
+		
 		TemplateBlock block = this.file.get(registeredBlocks.get(handle)[0]).getBlock(handle);
 							
 		if( block == null ) {
@@ -337,8 +343,8 @@ public class TemplateEngine {
 	 * @return <code>true</code>, falls der Inhalt wahr ist
 	 */
 	public boolean isVarTrue( String varname ) {
-		if( varvals.containsKey(varname) ) {
-			Object val = varvals.get(varname);
+		Object val = getVarObject(varname);
+		if( val != null ) {
 			if( val == null ) {
 				return false;
 			}
@@ -389,13 +395,14 @@ public class TemplateEngine {
 			}
 			
 			try {
-				BeanInfo info = Introspector.getBeanInfo(obj.getClass());
-				PropertyDescriptor[] descriptors = info.getPropertyDescriptors();
-				for( int i=0; i < descriptors.length; i++ ) {
-					if( descriptors[i].getName().equalsIgnoreCase(attrib) ) {
-						return descriptors[i].getReadMethod().invoke(obj);
+				while( attrib.indexOf('.') > -1 ) {
+					obj = getBeanAttribute(obj, attrib.substring(0, attrib.indexOf('.')));
+					if( obj == null ) {
+						return null;
 					}
+					attrib = attrib.substring(attrib.indexOf('.')+1);
 				}
+				return getBeanAttribute(obj, attrib);
 			}
 			catch( IntrospectionException e ) {
 				e.printStackTrace();
@@ -410,6 +417,20 @@ public class TemplateEngine {
 				e.printStackTrace();
 			}
 		}
+		return null;
+	}
+
+	private Object getBeanAttribute(Object obj, String attrib) throws IntrospectionException,
+			IllegalAccessException, InvocationTargetException
+	{
+		BeanInfo info = Introspector.getBeanInfo(obj.getClass());
+		PropertyDescriptor[] descriptors = info.getPropertyDescriptors();
+		for( int i=0; i < descriptors.length; i++ ) {
+			if( descriptors[i].getName().equalsIgnoreCase(attrib) ) {
+				return descriptors[i].getReadMethod().invoke(obj);
+			}
+		}
+		
 		return null;
 	}
 
@@ -441,13 +462,13 @@ public class TemplateEngine {
 	 * @return Der Wert der Variablen als String
 	 */
 	public Number getNumberVar( String varname ) {
-		if( varvals.get(varname) != null ) {						
-      		Object var = varvals.get(varname);
-      		if( var instanceof Number ) {
-      			return (Number)var;
+		Object value = this.getVarObject(varname);
+		if( value != null ) {						
+      		if( value instanceof Number ) {
+      			return (Number)value;
       		}
       		try {
-      			return Double.parseDouble(var.toString());
+      			return Double.parseDouble(value.toString());
       		}
       		catch( NumberFormatException e ) {
       			return new Double(0);
