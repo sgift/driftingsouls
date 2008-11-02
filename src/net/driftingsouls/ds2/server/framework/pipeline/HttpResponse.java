@@ -56,49 +56,32 @@ public class HttpResponse implements Response {
 		send = false;
 	}
 
-	/**
-	 * @return Returns the content.
-	 */
-	public StringBuffer getContent() {
-		return content;
-	}
-
-	public void resetContent() {
-		this.content = new StringBuffer(500);
-	}
-
-	/**
-	 * @return Returns the contentType.
-	 */
+	@Override
 	public String getContentType() {
 		return contentType;
 	}
 
-	/**
-	 * @param contentType The contentType to set.
-	 */
+	@Override
 	public void setContentType(String contentType) {
 		this.contentType = contentType;
 	}
 
-	/**
-	 * @return Returns the charSet.
-	 */
+	@Override
 	public String getCharSet() {
 		return charSet;
 	}
 
-	/**
-	 * @param charSet The charSet to set.
-	 */
+	@Override
 	public void setCharSet(String charSet) {
 		this.charSet = charSet;
 	}
 
+	@Override
 	public void setContentLength(int length) {
 		contentLength = length;
 	}
 
+	@Override
 	public OutputStream getOutputStream() throws IOException {
 		if( contentLength != 0 ) {
 			response.setContentLength(contentLength);
@@ -108,10 +91,12 @@ public class HttpResponse implements Response {
 		return response.getOutputStream();
 	}
 
+	@Override
 	public void setStatus(int status) {
 		response.setStatus(status);
 	}
 
+	@Override
 	public void send() throws IOException {
 		if( !manualSend ) {
 			if( !send ) {
@@ -178,18 +163,17 @@ public class HttpResponse implements Response {
 		return str;
 	}
 
-	public void setContent(String content) {
-		this.content = new StringBuffer(content);
-	}
-
+	@Override
 	public void setHeader(String name, String value) {
 		response.setHeader(name, value);
 	}
 
+	@Override
 	public void setManualSendStatus() {
 		this.manualSend = true;
 	}
 	
+	@Override
 	public void redirectTo(String url) {
 		this.response.setStatus(HttpServletResponse.SC_FOUND);
 		this.response.setHeader("Location", url);

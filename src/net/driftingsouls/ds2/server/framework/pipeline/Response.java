@@ -45,34 +45,12 @@ public interface Response {
 	 * @param length die erwartete Content-Laenge
 	 */
 	public void setContentLength(int length);
-	
-	/**
-	 * Liefert den Inhaltspuffer fuer Text.
-	 * Dieser wird am Schluss in den Ausgabestrom geschrieben.
-	 * Bitte nur dann verwenden, wenn der Inhalt auch manipuliert
-	 * werden muss.
-	 * 
-	 * @return Der aktuelle Inhaltspuffer fuer Text
-	 */
-	public StringBuffer getContent();
-	
+
 	/**
 	 * Gibt einen Writer zum Schreiben der Ausgabe zurueck.
 	 * @return Der Writer
 	 */
 	public Writer getWriter();
-	
-	/**
-	 * Setzt den Inhaltspuffer fuer Text zurueck
-	 *
-	 */
-	public void resetContent();
-	
-	/**
-	 * Setzt den Inhaltspuffer fuer Text
-	 * @param content Der neue Inhalt
-	 */
-	public void setContent(String content);
 	
 	/**
 	 * Liefert den Ausgabestrom
