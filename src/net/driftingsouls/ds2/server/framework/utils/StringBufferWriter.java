@@ -18,7 +18,6 @@
  */
 package net.driftingsouls.ds2.server.framework.utils;
 
-import java.io.IOException;
 import java.io.Writer;
 
 /**
