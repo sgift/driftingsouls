@@ -21,6 +21,9 @@ package net.driftingsouls.ds2.server.modules.ks;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.SequenceInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,6 +42,7 @@ import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -54,6 +58,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
  *
  */
 public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHandler {
+	private static final Log log = LogFactory.getLog(KSMenuHistoryAction.class);
 	private String text = "";
 	private boolean showOK = true;
 	private boolean showTakeCommand = false;
@@ -333,16 +338,13 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 					"global.showlog.actionstr",		actionstr );
 		
 		try {
-			XMLReader parser = XMLReaderFactory.createXMLReader();
-			
 			File ksLog = new File(Configuration.getSetting("LOXPATH")+"battles/battle_id"+battle.getId()+".log");
 			if( !ksLog.isFile() ) {
 				t.setVar( "global.showlog.log", "Fehler: Konnte Kampflog nicht &ouml;ffnen");
 				return RESULT_ERROR;
 			}
 			
-			parser.setContentHandler(this);
-			parser.parse(new InputSource( new SequenceInputStream(new FileInputStream(ksLog), new ByteArrayInputStream("</battle>".getBytes())) ));
+			parseLog(ksLog);
 			
 			BBCodeParser bbcodeparser = BBCodeParser.getNewInstance();
 			bbcodeparser.registerHandler( "tooltip", 2, "<a onmouseover=\"return ov('$2');\" onmouseout=\"return nd();\" href=\"#\">$1</a>" );
@@ -355,11 +357,29 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 		
 			t.setVar("global.showlog.log", StringUtils.replace(bbcodeparser.parse(this.history_text.toString()), "\n", "<br />"));
 		}
-		catch( Exception e ) {
+		catch( SAXException e ) {
 			t.setVar("global.showlog.log", "Fehler beim Anzeigen der Kampfhistorie: "+e);
-			throw new RuntimeException(e);
+			log.error("", e);
+		}
+		catch( IOException e ) {
+			t.setVar("global.showlog.log", "Fehler beim Anzeigen der Kampfhistorie: "+e);
+			log.error("", e);
 		}
 		
 		return RESULT_OK;
+	}
+
+	private void parseLog(File ksLog) throws SAXException, IOException
+	{
+		XMLReader parser = XMLReaderFactory.createXMLReader();
+		
+		parser.setContentHandler(this);
+		InputStream in = new SequenceInputStream(new FileInputStream(ksLog), new ByteArrayInputStream("</battle>".getBytes()));
+		try {
+			parser.parse(new InputSource(in));
+		}
+		finally {
+			in.close();
+		}
 	}
 }
