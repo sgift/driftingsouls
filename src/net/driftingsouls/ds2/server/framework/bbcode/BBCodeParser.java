@@ -153,9 +153,10 @@ public class BBCodeParser {
 	 * @param tag Name des BBCode-Tags
 	 * @param params Anzahl der Parameter des Tags
 	 * @param replace Ersatzstring
-	 * @throws Exception
+	 * @throws IllegalArgumentException Falls die Anzahl der Parameter ungueltig ist
+	 * @throws IllegalStateException Falls ein gleichlautender Tag mit der selben Anzahl an Parametern bereits registriert wurde
 	 */
-	public void registerHandler( String tag, int params, String replace ) throws Exception {
+	public void registerHandler( String tag, int params, String replace ) throws IllegalArgumentException,IllegalStateException {
 		registerHandler(tag, params, new SimpleBBCodeFunction(replace));
 	}
 	
@@ -164,17 +165,18 @@ public class BBCodeParser {
 	 * @param tagname Name des BBCode-Tags
 	 * @param params Anzahl der Parameter
 	 * @param replaceFunc Ersatzfunktion
-	 * @throws Exception
+	 * @throws IllegalArgumentException Falls die Anzahl der Parameter ungueltig ist
+	 * @throws IllegalStateException Falls ein gleichlautender Tag mit der selben Anzahl an Parametern bereits registriert wurde
 	 */
-	public void registerHandler( String tagname, int params, BBCodeFunction replaceFunc ) throws Exception {
+	public void registerHandler( String tagname, int params, BBCodeFunction replaceFunc ) throws IllegalArgumentException,IllegalStateException {
 		if( params > 3 ) {
-			throw new Exception("Illegal parameter count '"+params+"'");
+			throw new IllegalArgumentException("Illegal parameter count '"+params+"'");
 		}
 		
 		String tag = tagname.toLowerCase();
 		
 		if( replaceFunctions.containsKey(tag+"("+params+")") ) {
-			throw new Exception("Tag '"+tag+"("+params+")' already known to the BBCodeParser");
+			throw new IllegalStateException("Tag '"+tag+"("+params+")' already known to the BBCodeParser");
 		}
 
 		if( !tags.containsKey(tag) ) {
