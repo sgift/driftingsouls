@@ -32,12 +32,9 @@
 	<tr>
 		<td style="width:90px; text-align:center; vertical-align:top" class="noBorderX">
 			{!link_to $post.name, default, module:userprofile, css_class:profile, user:$post.id}
-			{if post.id < -89}
-				<br />[Gott]
-			{else}
-				{if post.id < 0}
-					<br />[NPC]
-				{/endif}
+			<img align="middle" {!overlib $user.rang.name, mo, width:100} src="{URL}data/interface/medals/rang{user.rang}.png" alt="" />
+			{if user.id < 0}
+				[NPC]
 			{/endif}
 			<br /><br />
 			<img src="{URL}data/logos/user/{post.pic}.gif" width="75" height="75" alt="logo" />

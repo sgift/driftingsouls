@@ -416,10 +416,12 @@ public class ComNetController extends TemplateGenerator {
 					"post.raw.title",	head,
 					"post.raw.text",	text,
 					"post.postid",		1,
+					"user",		user,
+					"user.rang.name", Medals.get().rang(user.getRang()).getName(),
 					"post.name",		Common._title(user.getName()),
 					"post.id",			user.getId(),
 					"post.pic",			user.getId(),
-					"post.allypic",		user.getAlly(),
+					"post.allypic",		user.getAlly().getId(),
 					"post.time",		Common.date("Y-m-d H:i:s"),
 					"post.ingametime",	Common.getIngameTime(tick) );	
 	}
