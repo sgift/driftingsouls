@@ -66,7 +66,7 @@ public class DefaultServletRequestFilter extends GenericFilterBean implements Fi
 			httpResponse.setHeader("Referer", "http://ds.drifting-souls.net");
 			
 			Request request = new HttpRequest(httpRequest);
-			Response response = new HttpResponse(httpResponse);
+			Response response = new HttpResponse(httpRequest, httpResponse);
 			
 			BasicContext context = null;
 			

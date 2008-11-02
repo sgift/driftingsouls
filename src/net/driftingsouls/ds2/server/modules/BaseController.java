@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -214,6 +215,37 @@ public class BaseController extends TemplateGenerator {
 	
 		redirect();
 	}
+	
+	@Override
+	protected void printHeader(String action) throws IOException {
+		if( "default".equals(action) ) {
+			TemplateEngine t = getTemplateEngine();
+			
+			t.setBlock("_BASE", "header", "none" );
+			t.setBlock("header", "tiles.listitem", "tiles.list");
+			
+			int topOffset = 5;
+			int leftOffset = 5;
+	
+			for( int i = 0; i < base.getHeight(); i++ ) {			
+				for( int j = 0; j < base.getWidth(); j++ ) {				
+					int top = topOffset + ((j % 2)+ i * 2) * 22;
+		   			int left = leftOffset + j * 39;
+		 	  		   				
+	   				t.setVar(	"tile.id",		base.getWidth()*i+j,
+	   							"tile.top",		top,
+	   							"tile.left",	left );
+	   				
+	   				t.parse("tiles.list", "tiles.listitem", true);
+				}
+	
+			}
+			
+			t.parse("__HEADER","header");
+		}
+		
+		super.printHeader(action);
+	}
 
 	/**
 	 * Zeigt die Basis an
@@ -222,28 +254,6 @@ public class BaseController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
-		
-		t.setBlock("_BASE", "header", "none" );
-		t.setBlock("header", "tiles.listitem", "tiles.list");
-		
-		int topOffset = 5;
-		int leftOffset = 5;
-
-		for( int i = 0; i < base.getHeight(); i++ ) {			
-			for( int j = 0; j < base.getWidth(); j++ ) {				
-				int top = topOffset + ((j % 2)+ i * 2) * 22;
-	   			int left = leftOffset + j * 39;
-	 	  		   				
-   				t.setVar(	"tile.id",		base.getWidth()*i+j,
-   							"tile.top",		top,
-   							"tile.left",	left );
-   				
-   				t.parse("tiles.list", "tiles.listitem", true);
-			}
-
-		}
-		
-		t.parse("__HEADER","header");
 		
 		StringBuilder tooltiptext = new StringBuilder(50);
 		tooltiptext.append(Common.tableBegin(300, "center").replace('"', '\''));

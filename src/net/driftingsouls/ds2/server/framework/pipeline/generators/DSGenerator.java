@@ -134,8 +134,7 @@ public abstract class DSGenerator extends Generator {
 		public void printHeader() throws IOException {
 			Response response = getContext().getResponse();
 			
-			response.setContentType("text/html");
-			response.setCharSet("UTF-8");
+			response.setContentType("text/html", "UTF-8");
 			
 			if( getContext().getRequest().getParameterString("_style").equals("xml") ) {
 				return;
@@ -490,8 +489,6 @@ public abstract class DSGenerator extends Generator {
 			
 			return;
 		}
-		
-		printHeader( action );
 	
 		try {
 			Method method = getMethodForAction(action);
@@ -502,6 +499,8 @@ public abstract class DSGenerator extends Generator {
 				
 				return;
 			}
+			
+			printHeader( action );
 			
 			method.setAccessible(true);
 			method.invoke(this);

@@ -538,6 +538,16 @@ public class AngriffController extends TemplateGenerator {
 		int mangelreaktorcount;
 	}
 	
+	@Override
+	protected void printHeader(String action) throws IOException {
+		TemplateEngine t = getTemplateEngine();
+		
+		t.setBlock("_BASE", "header", "none" );
+		t.parse("__HEADER","header");
+		
+		super.printHeader(action);
+	}
+	
 	/**
 	 * Zeigt die GUI an
 	 * @throws IOException 
@@ -683,9 +693,6 @@ public class AngriffController extends TemplateGenerator {
 		
 		User oUser = ownShip.getOwner();
 		User eUser = enemyShip.getOwner();
-		
-		t.setBlock("_BASE", "header", "none" );
-		t.parse("__HEADER","header");
 		
 		t.setVar(	"global.ksaction",			action,
 					"global.scan",				scan,

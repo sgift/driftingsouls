@@ -37,11 +37,6 @@ public class SimpleResponse implements Response
 	private String charset = "UTF-8";
 	private String contentType = "text";
 
-	public String getCharSet()
-	{
-		return charset;
-	}
-
 	public StringBuffer getContent()
 	{
 		return buffer;
@@ -65,11 +60,6 @@ public class SimpleResponse implements Response
 	public void send() throws IOException
 	{
 		new IOException("Send not possible");
-	}
-
-	public void setCharSet(String charSet)
-	{
-		this.charset = charSet;
 	}
 
 	public void setContent(String content)
@@ -112,5 +102,18 @@ public class SimpleResponse implements Response
 	public Writer getWriter()
 	{
 		return new StringBufferWriter(this.buffer);
+	}
+
+	@Override
+	public void setContentType(String contentType, String charSet)
+	{
+		this.contentType = contentType;
+		this.charset = charSet;
+	}
+
+	@Override
+	public void activateOutputCache()
+	{
+		// EMPTY
 	}
 }

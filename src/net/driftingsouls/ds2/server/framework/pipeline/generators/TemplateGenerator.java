@@ -135,14 +135,7 @@ public abstract class TemplateGenerator extends DSGenerator {
 	}
 
 	@Override
-	protected void printFooter(String action) throws IOException {
-		if( (getActionType() == ActionType.DEFAULT) && (this.templateEngine != null) ) {
-			getOutputHelper().setAttribute("header", getTemplateEngine().getVar("__HEADER"));
-		}
-		super.printHeader(action);
-		
-		printErrorList();
-		
+	protected void printFooter(String action) throws IOException {	
 		if( (getActionType() == ActionType.DEFAULT) && (getTemplateID().length() > 0) ) {
 			getTemplateEngine().parse( "OUT", getTemplateID() );
 				
@@ -150,12 +143,14 @@ public abstract class TemplateGenerator extends DSGenerator {
 		}
 		super.printFooter(action);
 	}
-	
-	@Override
-	protected void printErrorList() {
-	}
 
 	@Override
 	protected void printHeader(String action) throws IOException {
+		//this.getContext().getResponse().activateOutputCache();
+		
+		if( (getActionType() == ActionType.DEFAULT) && (this.templateEngine != null) ) {
+			getOutputHelper().setAttribute("header", getTemplateEngine().getVar("__HEADER"));
+		}
+		super.printHeader(action);
 	}
 }

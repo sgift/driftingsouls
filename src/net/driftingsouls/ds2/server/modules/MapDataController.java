@@ -135,12 +135,10 @@ public class MapDataController extends DSGenerator {
 	@Override
 	protected void printHeader( String action ) {
 		if( action.equals("showSector") || action.equals("getSystems") ) {
-			getContext().getResponse().setContentType("text/xml");
-			getContext().getResponse().setCharSet("UTF-16");
+			getContext().getResponse().setContentType("text/xml", "UTF-16");
 		}
 		else {
-			getContext().getResponse().setContentType("text/plain");
-			getContext().getResponse().setCharSet("ISO-8859-1");
+			getContext().getResponse().setContentType("text/plain", "ISO-8859-1");
 		}
 	}
 	

@@ -25,6 +25,7 @@ import java.io.Writer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import net.driftingsouls.ds2.server.framework.utils.StringBufferWriter;
@@ -35,59 +36,50 @@ import net.driftingsouls.ds2.server.framework.utils.StringBufferWriter;
  *
  */
 public class HttpResponse implements Response {
-	private String contentType;
-	private StringBuffer content;
 	private String charSet;
-	private int contentLength;
+	private StringBuffer content;
+	private Writer writer;
 	private HttpServletResponse response;
+	private HttpServletRequest request;
 	private boolean send;
 	private boolean manualSend = false;
+	private boolean cacheOutput = false;
 	
 	/**
 	 * Konstruktor
+	 * @param request Die HttpServletRequest
 	 * @param response Die HttpServletResponse, welche die gesendeten Daten erhalten soll
 	 */
-	public HttpResponse(HttpServletResponse response) {
-		contentType = "text/html";
-		charSet = "UTF-8";
-		content = new StringBuffer(500);
-		contentLength = 0;
+	public HttpResponse(HttpServletRequest request, HttpServletResponse response) {
+		response.setHeader("Content-Type", "text/html; charset=UTF-8");
+		this.charSet = "UTF-8";
+		this.cacheOutput = request.isRequestedSessionIdFromURL();
+		if( this.cacheOutput ) {
+			this.content = new StringBuffer(500);
+		}
+		this.request = request;
 		this.response = response;
-		send = false;
-	}
-
-	@Override
-	public String getContentType() {
-		return contentType;
+		this.send = false;
 	}
 
 	@Override
 	public void setContentType(String contentType) {
-		this.contentType = contentType;
+		response.setHeader("Content-Type", contentType);
 	}
 
 	@Override
-	public String getCharSet() {
-		return charSet;
-	}
-
-	@Override
-	public void setCharSet(String charSet) {
+	public void setContentType(String contentType, String charSet) {
 		this.charSet = charSet;
+		response.setHeader("Content-Type", contentType+"; charset="+charSet);
 	}
 
 	@Override
 	public void setContentLength(int length) {
-		contentLength = length;
+		response.setContentLength(length);
 	}
 
 	@Override
 	public OutputStream getOutputStream() throws IOException {
-		if( contentLength != 0 ) {
-			response.setContentLength(contentLength);
-		}
-		response.setHeader("Content-Type", contentType+"; charset="+charSet);
-
 		return response.getOutputStream();
 	}
 
@@ -100,22 +92,25 @@ public class HttpResponse implements Response {
 	public void send() throws IOException {
 		if( !manualSend ) {
 			if( !send ) {
-				if( contentLength != 0 ) {
-					response.setContentLength(contentLength);
-				}
-				response.setHeader("Content-Type", contentType+"; charset="+charSet);
-				try {
-					OutputStreamWriter writer = new OutputStreamWriter(response.getOutputStream(), charSet);
-					if( content.length() > 0 ) {
-						writer.append(prepareContentForSend());
+				if( this.cacheOutput ) {
+					try {
+						OutputStreamWriter writer = new OutputStreamWriter(response.getOutputStream(), charSet);
+						if( content.length() > 0 ) {
+							writer.append(prepareContentForSend());
+						}
+						writer.flush();
+						
+						writer.close();
 					}
-					writer.flush();
-					
-					writer.close();
+					catch( IOException e ) {
+						// Ignorieren, da es sich vmtl um einen Browser handelt, der
+						// die Leitung zu frueh dicht gemacht hat
+					}
 				}
-				catch( IOException e ) {
-					// Ignorieren, da es sich vmtl um einen Browser handelt, der
-					// die Leitung zu frueh dicht gemacht hat
+				else if( this.writer != null ) {
+					this.writer.flush();
+					this.response.flushBuffer();
+					this.writer.close();
 				}
 				
 				send = true;
@@ -134,6 +129,10 @@ public class HttpResponse implements Response {
 	
 	private String prepareContentForSend() {
 		String str = this.content.toString();
+		
+		if( this.request.isRequestedSessionIdFromCookie()) {
+			return str;
+		}
 		
 		for( int i=0; i < URL_PATTERNS.length; i++ ) {
 			str = encodeUrlsWithPattern(str, URL_PATTERNS[i]);
@@ -182,8 +181,27 @@ public class HttpResponse implements Response {
 	}
 
 	@Override
-	public Writer getWriter()
+	public Writer getWriter() throws IOException
 	{
+		if( !this.cacheOutput ) {
+			if( this.writer == null ) {
+				this.writer = this.response.getWriter();
+			}
+			return this.writer;
+		}
 		return new StringBufferWriter(this.content);
+	}
+
+	@Override
+	public void activateOutputCache() throws IllegalStateException
+	{
+		if( this.writer != null ) {
+			throw new IllegalStateException("Ausgabe bereits geschrieben");
+		}
+		
+		this.cacheOutput = true;
+		if( this.content == null ) {
+			this.content = new StringBuffer(500);
+		}
 	}
 }

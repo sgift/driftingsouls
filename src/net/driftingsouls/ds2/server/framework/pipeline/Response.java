@@ -29,16 +29,25 @@ import java.io.Writer;
  */
 public interface Response {
 	/**
-	 * Liefert den aktuell gesetzten Content-Typ
-	 * @return der Content-Typ
+	 * Aktiviert das Zwischenspeichern der via Writer geschriebenen Ausgabe.
+	 * Diese Methode kann nur so lange aufgerufen werden, wie noch keine Ausgabe
+	 * erfolgt ist.
+	 * @throws IllegalStateException Falls bereits die Ausgabe geschrieben wurde
 	 */
-	public String getContentType();
+	public void activateOutputCache() throws IllegalStateException;
 	
 	/**
 	 * Setzt den aktuellen Content-Typ
 	 * @param contentType der neue Content-Typ
 	 */
 	public void setContentType(String contentType);
+	
+	/**
+	 * Setzt den aktuellen Content-Typ
+	 * @param contentType der neue Content-Typ
+	 * @param charSet Setzt das aktuelle Character Set
+	 */
+	public void setContentType(String contentType, String charSet);
 	
 	/**
 	 * Setzt die erwartete Content-Laenge
@@ -49,8 +58,9 @@ public interface Response {
 	/**
 	 * Gibt einen Writer zum Schreiben der Ausgabe zurueck.
 	 * @return Der Writer
+	 * @throws IOException 
 	 */
-	public Writer getWriter();
+	public Writer getWriter() throws IOException;
 	
 	/**
 	 * Liefert den Ausgabestrom
@@ -58,18 +68,6 @@ public interface Response {
 	 * @throws IOException
 	 */
 	public OutputStream getOutputStream() throws IOException;
-	
-	/**
-	 * Liefert das aktuell gesetzte CharSet (z.B. UTF-8)
-	 * @return das aktuelle Character Set
-	 */
-	public String getCharSet();
-	
-	/**
-	 * Setzt das aktuelle Character Set
-	 * @param charSet das neue Character Set
-	 */
-	public void setCharSet(String charSet);
 	
 	/**
 	 * Setzt den HTTP-Statuscode der Antwort

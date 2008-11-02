@@ -59,8 +59,7 @@ public class TechDatabaseController extends TemplateGenerator {
 	
 	@Override
 	protected void printHeader( String action ) throws IOException {
-		getContext().getResponse().setContentType("text/html");
-		getContext().getResponse().setCharSet("UTF-8");	
+		getContext().getResponse().setContentType("text/html", "UTF-8");
 		getContext().getResponse().getWriter().append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 		if( !action.equals("default") ) {
 			getContext().getResponse().getWriter().append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
