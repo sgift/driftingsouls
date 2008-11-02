@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
+import java.io.IOException;
+
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.entities.User;
@@ -102,8 +104,9 @@ public abstract class BasicKSAction {
 	 * Fueht die Aktion aus
 	 * @param battle Die Schlacht in deren Kontext die Aktion ausgefuert werden soll
 	 * @return Das Ergebnis
+	 * @throws IOException 
 	 */
-	public int execute( Battle battle ) {
+	public int execute( Battle battle ) throws IOException {
 		User user = (User)ContextMap.getContext().getActiveUser();
 		
 		if( this.requireCommander ) {

@@ -19,6 +19,8 @@
 
 package net.driftingsouls.ds2.server.modules.stats;
 
+import java.io.IOException;
+
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
@@ -41,7 +43,7 @@ public class StatBiggestTrader extends AbstractStatistic implements Statistic {
 		this.allys = allys;
 	}
 	
-	public void show(StatsController contr, int size) {
+	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 

@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline.generators;
 
+import java.io.IOException;
+
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.db.Database;
@@ -156,8 +158,9 @@ public abstract class Generator {
 	/**
 	 * Fueht die angegebene Aktion aus
 	 * @param action Der Name der Aktion
+	 * @throws IOException 
 	 */
-	public abstract void handleAction( String action );
+	public abstract void handleAction( String action ) throws IOException;
 	
 	/**
 	 * Gibt den Identifikationsstring des Browsers des Spielers zurueck

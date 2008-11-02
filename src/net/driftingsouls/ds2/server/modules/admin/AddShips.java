@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -56,9 +58,9 @@ import org.apache.commons.lang.math.RandomUtils;
 @AdminMenuEntry(category="Schiffe", name="hinzuf&uuml;gen")
 public class AddShips implements AdminPlugin {
 
-	public void output(AdminController controller, String page, int action) {
+	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
 		User user = (User)context.getActiveUser();
 		

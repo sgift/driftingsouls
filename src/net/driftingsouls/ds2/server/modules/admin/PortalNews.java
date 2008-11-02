@@ -18,13 +18,14 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.modules.AdminController;
-import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
-import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 
 /**
  * Ermoeglicht das Verfassen von neuen News im Portal 
@@ -34,9 +35,9 @@ import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 @AdminMenuEntry(category="Portal", name="News schreiben")
 public class PortalNews implements AdminPlugin {
 
-	public void output(AdminController controller, String page, int action) {
+	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		
 		String news = context.getRequest().getParameterString("news");
 		String title = context.getRequest().getParameterString("title");

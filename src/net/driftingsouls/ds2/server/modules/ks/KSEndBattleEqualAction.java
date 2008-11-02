@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
+import java.io.IOException;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.battles.Battle;
@@ -100,7 +101,7 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 	}
 
 	@Override
-	public int execute(Battle battle) {
+	public int execute(Battle battle) throws IOException {
 		int result = super.execute(battle);
 		if( result != RESULT_OK ) {
 			return result;
@@ -114,7 +115,7 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
 		
-		context.getResponse().getContent().append("Sie haben die Schlacht mit einem unentschieden beendet");
+		context.getResponse().getWriter().append("Sie haben die Schlacht mit einem unentschieden beendet");
 		
 		PM.send(user, battle.getCommander(battle.getEnemySide()).getId(), "Schlacht beendet", "Der Gegner hat die Schlacht mit einem unentschieden beendet. Somit ist die Schlacht bei "+battle.getLocation()+" gegen [userprofile="+user.getId()+"]"+user.getName()+"[/userprofile] zuende!");
 	

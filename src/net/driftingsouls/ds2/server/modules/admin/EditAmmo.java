@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -38,10 +40,10 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 @AdminMenuEntry(category = "Waffen", name = "Munition bearbeiten")
 public class EditAmmo implements AdminPlugin
 {
-	public void output(AdminController controller, String page, int action)
+	public void output(AdminController controller, String page, int action) throws IOException
 	{
 		Context context = ContextMap.getContext();
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
 		int ammoId = context.getRequest().getParameterInt("ammo");
 

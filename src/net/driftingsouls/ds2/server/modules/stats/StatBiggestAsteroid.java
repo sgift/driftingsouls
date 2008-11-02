@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -39,7 +42,7 @@ public class StatBiggestAsteroid extends AbstractStatistic implements Statistic 
 		// EMPTY
 	}
 	
-	public void show(StatsController contr, int size) {
+	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 
@@ -50,7 +53,7 @@ public class StatBiggestAsteroid extends AbstractStatistic implements Statistic 
 			
 		String url = getUserURL();
 	
-		StringBuffer echo = getContext().getResponse().getContent();
+		Writer echo = getContext().getResponse().getWriter();
 		
 		echo.append("<table class=\"noBorderX\" cellspacing=\"1\" cellpadding=\"1\" width=\"100%\">\n");
 		echo.append("<tr><td class=\"noBorderX\" colspan=\"6\" align=\"left\">Die gr&ouml;&szlig;ten Asteroiden:</td></tr>\n");

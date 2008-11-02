@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -47,8 +50,9 @@ abstract class AbstractStatistic implements Statistic {
 	 * @param name Der Name der Statistik
 	 * @param tmp Ein SQL-Ergebnis mit den Feldern (Spieler/Ally) "id", (Spieler/Ally) "name" und "count", welches den Plaetzen nach sortiert ist (1. Platz zuerst)
 	 * @param url Die fuer Links
+	 * @throws IOException 
 	 */
-	protected final void generateStatistic(String name, SQLQuery tmp, String url) {
+	protected final void generateStatistic(String name, SQLQuery tmp, String url) throws IOException {
 		generateStatistic(name, tmp, url, true);
 	}
 	
@@ -58,9 +62,10 @@ abstract class AbstractStatistic implements Statistic {
 	 * @param tmp Ein SQL-Ergebnis mit den Feldern (Spieler/Ally) "id", (Spieler/Ally) "name" und "count", welches den Plaetzen nach sortiert ist (1. Platz zuerst)
 	 * @param url Die fuer Links
 	 * @param showCount Soll die Spalte "count" angezeigt werden?
+	 * @throws IOException 
 	 */
-	protected final void generateStatistic(String name, SQLQuery tmp, String url, boolean showCount) {
-		StringBuffer echo = getContext().getResponse().getContent();
+	protected final void generateStatistic(String name, SQLQuery tmp, String url, boolean showCount) throws IOException {
+		Writer echo = getContext().getResponse().getWriter();
 		
 		echo.append("<table class=\"noBorderX\" cellspacing=\"1\" cellpadding=\"1\" width=\"100%\">\n");
 		echo.append("<tr><td class=\"noBorderX\" colspan=\"4\" align=\"left\">"+name+"</td></tr>\n");

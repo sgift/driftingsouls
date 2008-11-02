@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -289,6 +290,7 @@ public class CommController extends TemplateGenerator {
 	
 	/**
 	 * Verschiebt die ausgewaehlten Nachrichten/Ordner von einem Basisordner in einen anderen
+	 * @throws IOException 
 	 * @urlparam Integer ordner Der Basisordner
 	 * @urlparam Integer moveto Die ID des Zielordners
 	 * @urlparam Integer ordner_$ordnerid Die ID eines zu verschiebenden Ordners ($ordnerid gibt diese ebenfalls an)
@@ -296,7 +298,7 @@ public class CommController extends TemplateGenerator {
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public void moveAjaxAct() {
+	public void moveAjaxAct() throws IOException {
 		User user = (User)getUser();
 		parameterNumber("moveto");
 		parameterNumber("ordner");
@@ -306,12 +308,12 @@ public class CommController extends TemplateGenerator {
 		Ordner source = Ordner.getOrdnerByID(getInteger("ordner"), user);
 
 		if( moveto == null || source == null ) {
-			getContext().getResponse().getContent().append("Der angegebene Ordner existiert nicht");
+			getContext().getResponse().getWriter().append("Der angegebene Ordner existiert nicht");
 			return;
 		}
 
 		if( trash == moveto ) {
-			getContext().getResponse().getContent().append("ERROR: Es duerfen keine Nachrichten/Ordner in den Papierkorb verschoben werden");
+			getContext().getResponse().getWriter().append("ERROR: Es duerfen keine Nachrichten/Ordner in den Papierkorb verschoben werden");
 			return;
 		}
 		
@@ -336,7 +338,7 @@ public class CommController extends TemplateGenerator {
 			}
 			
 			if( tomove.getAllChildren().contains(moveto)) {
-				getContext().getResponse().getContent().append("ERROR: Es duerfen keine Ordner in ihre eignen Unterordner verschoben werden");
+				getContext().getResponse().getWriter().append("ERROR: Es duerfen keine Ordner in ihre eignen Unterordner verschoben werden");
 				return;
 			}
 
@@ -356,7 +358,7 @@ public class CommController extends TemplateGenerator {
 			}
 		}
 	
-		getContext().getResponse().getContent().append(counter);
+		getContext().getResponse().getWriter().append(Integer.toString(counter));
 		return;
 	}
 	

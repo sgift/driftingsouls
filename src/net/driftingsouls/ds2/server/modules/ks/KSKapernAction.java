@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -121,7 +122,7 @@ public class KSKapernAction extends BasicKSAction {
 	}
 
 	@Override
-	public int execute(Battle battle) {
+	public int execute(Battle battle) throws IOException {
 		int result = super.execute(battle);
 		if( result != RESULT_OK ) {
 			return result;
@@ -347,7 +348,7 @@ public class KSKapernAction extends BasicKSAction {
 				
 				User commander = battle.getCommander(battle.getOwnSide());
 				
-				context.getResponse().getContent().append("Du hast das letzte gegnerische Schiff gekapert und somit die Schlacht gewonnen!");
+				context.getResponse().getWriter().append("Du hast das letzte gegnerische Schiff gekapert und somit die Schlacht gewonnen!");
 				PM.send(commander, battle.getCommander(battle.getEnemySide()).getId(), "Schlacht verloren", "Du hast die Schlacht bei "+battle.getLocation()+" gegen "+user.getName()+" verloren, da dein letztes Schiff gekapert wurde!");
 				
 				return RESULT_HALT;

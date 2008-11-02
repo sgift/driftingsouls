@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
+import java.io.IOException;
+
 import net.driftingsouls.ds2.server.modules.StatsController;
 
 /**
@@ -44,8 +46,9 @@ public interface Statistic {
 	 * 
 	 * @param contr Der Statistik-Controller
 	 * @param size Die Anzahl der anzuzeigenden Eintraege
+	 * @throws IOException 
 	 */
-	public void show(StatsController contr, int size);
+	public void show(StatsController contr, int size) throws IOException;
 	
 	/**
 	 * Sollen die durch den Controller zu generierenden Daten 

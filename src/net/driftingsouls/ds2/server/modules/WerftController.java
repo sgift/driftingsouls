@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -91,7 +94,7 @@ public class WerftController extends TemplateGenerator {
 
 	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
+	public void defaultAction() throws IOException {
 		org.hibernate.Session db = getDB();
 
 		int linkedbase = getInteger("linkedbase");
@@ -104,7 +107,7 @@ public class WerftController extends TemplateGenerator {
 			}
 		}
 
-		StringBuffer echo = getContext().getResponse().getContent();
+		Writer echo = getContext().getResponse().getWriter();
 		
 		// Soll die Werft an einen Asteroiden gekoppelt werden?
 		if( linkedbase != 0 ) {

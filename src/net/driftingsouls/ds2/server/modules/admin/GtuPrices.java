@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -26,8 +29,6 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.AdminController;
-import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
-import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 
 /**
  * Zeigt an, was wie oft versteigert wurde und welche Durchschnittspreise erziehlt wurden
@@ -37,9 +38,9 @@ import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 @AdminMenuEntry(category="GTU", name="Preisliste")
 public class GtuPrices implements AdminPlugin {
 
-	public void output(AdminController controller, String page, int action) {
+	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		
 		Database db = context.getDatabase();
 		

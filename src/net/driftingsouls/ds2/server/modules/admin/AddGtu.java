@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
@@ -38,9 +41,9 @@ import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 @AdminMenuEntry(category="GTU", name="Versteigern")
 public class AddGtu implements AdminPlugin {
 
-	public void output(AdminController controller, String page, int action) {
+	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		
 		int ship = context.getRequest().getParameterInt("ship");
 		String resource = context.getRequest().getParameterString("resource");

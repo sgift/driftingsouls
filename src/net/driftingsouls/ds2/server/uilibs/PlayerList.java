@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.uilibs;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -37,8 +39,9 @@ public class PlayerList {
 	/**
 	 * Gibt die Spielerliste im angegebenen Kontext aus
 	 * @param context Der Kontext
+	 * @throws IOException 
 	 */
-	public static void draw(Context context) {
+	public static void draw(Context context) throws IOException {
 		String ord = context.getRequest().getParameter("ord");
 		
 		int comPopup = context.getRequest().getParameter("compopup") != null ? 
@@ -64,7 +67,7 @@ public class PlayerList {
 		}
 		url += show;
 		
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		echo.append("<table class=\"noBorderX\" cellpadding=\"2\" cellspacing=\"2\" width=\"100%\">\n");
 		
 		if( comPopup == 0 ) {

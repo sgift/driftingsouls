@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -183,7 +184,7 @@ public class KSMenuAttackAction extends BasicKSMenuAction {
 	}
 	
 	@Override
-	public int execute(Battle battle) {
+	public int execute(Battle battle) throws IOException {
 		int result = super.execute(battle);
 		if( result != RESULT_OK ) {
 			return result;

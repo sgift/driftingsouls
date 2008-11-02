@@ -23,6 +23,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.Writer;
 
 import javax.imageio.ImageIO;
 
@@ -46,9 +47,9 @@ import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 @AdminMenuEntry(category="Objekte", name="Karte")
 public class BasesMap implements AdminPlugin {
 
-	public void output(AdminController controller, String page, int action) {
+	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		
 		int user = context.getRequest().getParameterInt("user");
 		int sysid = context.getRequest().getParameterInt("system");

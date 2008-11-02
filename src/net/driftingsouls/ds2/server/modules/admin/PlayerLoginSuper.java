@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -49,9 +52,9 @@ public class PlayerLoginSuper implements AdminPlugin {
 		this.authManager = authManager;
 	}
 	
-	public void output(AdminController controller, String page, int action) {
+	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		
 		int user = context.getRequest().getParameterInt("user");
 		int usesessid = context.getRequest().getParameterInt("usesessid");

@@ -19,6 +19,8 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.framework.Common;
@@ -56,9 +58,9 @@ public class QuestsFiles implements AdminPlugin {
 		return file;
 	}
 	
-	public void output(AdminController controller, String page, int action) {
+	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		
 		String unlink = context.getRequest().getParameterString("unlink");
 		String installfile = context.getRequest().getParameterString("installfile");

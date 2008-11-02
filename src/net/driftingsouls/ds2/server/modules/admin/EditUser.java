@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.math.BigInteger;
 import java.util.Map;
 
@@ -40,10 +42,10 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 @AdminMenuEntry(category = "Spieler", name = "Spieler editieren")
 public class EditUser implements AdminPlugin
 {
-	public void output(AdminController controller, String page, int action)
+	public void output(AdminController controller, String page, int action) throws IOException
 	{
 		Context context = ContextMap.getContext();
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
 		
 		int userid = context.getRequest().getParameterInt("userid");

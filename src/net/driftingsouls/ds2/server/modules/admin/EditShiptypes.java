@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -51,10 +53,10 @@ public class EditShiptypes implements AdminPlugin
 {
 	private static final Log log = LogFactory.getLog(EditShiptypes.class);
 	
-	public void output(AdminController controller, String page, int action)
+	public void output(AdminController controller, String page, int action) throws IOException
 	{
 		Context context = ContextMap.getContext();
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
 
 		int shiptypeId = context.getRequest().getParameterInt("shiptype");

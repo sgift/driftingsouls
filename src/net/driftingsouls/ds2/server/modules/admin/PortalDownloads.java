@@ -19,6 +19,8 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.framework.Common;
@@ -29,8 +31,6 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.AdminController;
-import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
-import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 
 import org.apache.commons.fileupload.FileItem;
 
@@ -42,9 +42,9 @@ import org.apache.commons.fileupload.FileItem;
 @AdminMenuEntry(category="Portal", name="Downloads")
 public class PortalDownloads implements AdminPlugin {
 
-	public void output(AdminController controller, String page, int action) {
+	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		
 		int dlid = context.getRequest().getParameterInt("dlid");
 		String dldescription = context.getRequest().getParameterString("dldescription");

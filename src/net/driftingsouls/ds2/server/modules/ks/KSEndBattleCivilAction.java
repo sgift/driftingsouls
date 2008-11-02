@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
+import java.io.IOException;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.battles.Battle;
@@ -57,7 +58,7 @@ public class KSEndBattleCivilAction extends BasicKSAction {
 	}
 
 	@Override
-	public int execute(Battle battle) {
+	public int execute(Battle battle) throws IOException {
 		int result = super.execute(battle);
 		if( result != RESULT_OK ) {
 			return result;
@@ -71,7 +72,7 @@ public class KSEndBattleCivilAction extends BasicKSAction {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
 		
-		context.getResponse().getContent().append("Sie haben die Schlacht gewonnen.");
+		context.getResponse().getWriter().append("Sie haben die Schlacht gewonnen.");
 
 		PM.send(user, battle.getCommander(battle.getEnemySide()).getId(), "Schlacht verloren", "Der Gegner hat die Schlacht beendet, da du nur noch zivile Schiffe hattest. Du hast die Schlacht bei "+battle.getLocation()+" gegen [userprofile="+user.getId()+"]"+user.getName()+"[/userprofile] somit verloren!");
 

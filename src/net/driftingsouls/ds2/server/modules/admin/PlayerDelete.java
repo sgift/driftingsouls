@@ -19,6 +19,8 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -60,10 +62,10 @@ public class PlayerDelete implements AdminPlugin
 {
 	private static final Log log = LogFactory.getLog(PlayerDelete.class);
 
-	public void output(AdminController controller, String page, int action)
+	public void output(AdminController controller, String page, int action) throws IOException
 	{
 		Context context = ContextMap.getContext();
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		Database database = context.getDatabase();
 		org.hibernate.Session db = context.getDB();
 

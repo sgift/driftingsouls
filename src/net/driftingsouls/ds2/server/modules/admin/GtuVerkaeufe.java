@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
@@ -30,8 +33,6 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.AdminController;
-import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
-import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 
 /**
  * Ermoeglicht das Einfuegen von neuen Versteigerungen in die GTU 
@@ -41,9 +42,9 @@ import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 @AdminMenuEntry(category="GTU", name="Verkaufsdaten")
 public class GtuVerkaeufe implements AdminPlugin {
 
-	public void output(AdminController controller, String page, int action) {
+	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		
 		int system = context.getRequest().getParameterInt("system");
 		String type = context.getRequest().getParameterString("type");

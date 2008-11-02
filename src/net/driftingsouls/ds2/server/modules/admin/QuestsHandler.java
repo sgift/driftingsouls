@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -36,9 +39,9 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 @AdminMenuEntry(category="Quests", name="Handler")
 public class QuestsHandler implements AdminPlugin {
 
-	public void output(AdminController controller, String page, int action) {
+	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		
 		int save = context.getRequest().getParameterInt("save");
 		String event = context.getRequest().getParameterString("event");

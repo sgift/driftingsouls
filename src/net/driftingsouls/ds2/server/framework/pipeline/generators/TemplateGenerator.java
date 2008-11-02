@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.framework.pipeline.generators;
 
 import java.io.File;
+import java.io.IOException;
 
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -152,7 +153,7 @@ public abstract class TemplateGenerator extends DSGenerator {
 	}
 
 	@Override
-	protected void printErrorList(boolean init) {
+	protected void printErrorList(boolean init) throws IOException {
 		if( !init && (getActionType() == ActionType.DEFAULT) && (this.templateEngine != null) ) {
 			getOutputHelper().setAttribute("header", getTemplateEngine().getVar("__HEADER"));
 		}

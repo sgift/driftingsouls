@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
+import java.io.IOException;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
@@ -55,7 +56,7 @@ public class KSDischargeBatteriesAllAction extends BasicKSAction {
 	}
 
 	@Override
-	public final int execute(Battle battle) {
+	public final int execute(Battle battle) throws IOException {
 		int result = super.execute(battle);
 		if( result != RESULT_OK ) {
 			return result;

@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -133,13 +136,14 @@ public class BuildingController extends TemplateGenerator {
 	
 	/**
 	 * Reisst das Gebaeude ab
+	 * @throws IOException 
 	 * @urlparam String conf Falls "ok" bestaetigt dies den Abriss
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void demoAction() {	
+	public void demoAction() throws IOException {	
 		int field = getInteger("field");
-		StringBuffer echo = getResponse().getContent();
+		Writer echo = getResponse().getWriter();
 		
 		parameterString("conf");
 		String conf = getString("conf");
@@ -202,77 +206,82 @@ public class BuildingController extends TemplateGenerator {
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {			
-		int field = getInteger("field");
-		StringBuffer echo = getResponse().getContent();
+	public void defaultAction() {
+		try {
+			int field = getInteger("field");
+			Writer echo = getResponse().getWriter();
+			
+			boolean classicDesign = building.classicDesign();
+			
+			if( building.printHeader() ) {
+				if( !classicDesign ) {
+					echo.append(Common.tableBegin(430, "left"));
+					
+					echo.append("<div style=\"text-align:center\">\n");
+					echo.append("<img style=\"vertical-align:middle\" src=\""+Configuration.getSetting("URL")+building.getPicture()+"\" alt=\"\" /> "+Common._plaintitle(building.getName())+"<br /></div>\n");
+				}
+				else {
+					echo.append("<div>\n");
+					echo.append("<span style=\"font-weight:bold\">"+Common._plaintitle(building.getName())+"</span><br />\n");
+				}
 		
-		boolean classicDesign = building.classicDesign();
-		
-		if( building.printHeader() ) {
-			if( !classicDesign ) {
-				echo.append(Common.tableBegin(430, "left"));
+				echo.append("Status: ");
+				if( building.isActive( base, base.getActive()[field], field ) ) {
+					echo.append("<span style=\"color:#00ff00\">Aktiv</span><br />\n");
+				} 
+				else {
+					echo.append("<span style=\"color:#ff0000\">Inaktiv</span><br />\n");
+				}
 				
-				echo.append("<div style=\"text-align:center\">\n");
-				echo.append("<img style=\"vertical-align:middle\" src=\""+Configuration.getSetting("URL")+building.getPicture()+"\" alt=\"\" /> "+Common._plaintitle(building.getName())+"<br /></div>\n");
+				echo.append("<br />");
+				if( classicDesign ) {
+					echo.append("</div>");
+				}
+			}
+			
+			echo.append(building.output( getContext(), getTemplateEngine(), base, field, building.getId() ));
+			
+			if( !classicDesign ) {
+				echo.append("Aktionen: ");
 			}
 			else {
 				echo.append("<div>\n");
-				echo.append("<span style=\"font-weight:bold\">"+Common._plaintitle(building.getName())+"</span><br />\n");
 			}
 	
-			echo.append("Status: ");
-			if( building.isActive( base, base.getActive()[field], field ) ) {
-				echo.append("<span style=\"color:#00ff00\">Aktiv</span><br />\n");
-			} 
+			if( building.isDeakAble() ) {
+				if( base.getActive()[field] == 1 ) {
+					echo.append("<a style=\"font-size:16px\" class=\"forschinfo\" href=\""+Common.buildUrl("shutdown", "col", base.getId() , "field", field)+"\">deaktivieren</a>");
+				} 
+				else {
+					echo.append("<a style=\"font-size:16px\" class=\"forschinfo\" href=\""+Common.buildUrl("start", "col", base.getId() , "field", field)+"\">aktivieren</a>");
+				}
+	
+				if( classicDesign ) {
+					echo.append("<br />\n");
+				}
+				else {
+					echo.append(", ");
+				}
+			}
+	
+			if( building.getId() != Building.KOMMANDOZENTRALE ) {
+				echo.append("<a style=\"font-size:16px\" class=\"error\" href=\""+Common.buildUrl("demo", "col", base.getId() , "field", field)+"\">abreissen</a><br />");
+			}
 			else {
-				echo.append("<span style=\"color:#ff0000\">Inaktiv</span><br />\n");
+				echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"javascript:ask(\'Wollen sie den Asteroiden wirklich aufgeben?\',\'"+Common.buildUrl("demo", "col", base.getId() , "field", field)+"\');\">Asteroid aufgeben</a><br />");
 			}
-			
-			echo.append("<br />");
-			if( classicDesign ) {
-				echo.append("</div>");
-			}
-		}
 		
-		echo.append(building.output( getContext(), getTemplateEngine(), base, field, building.getId() ));
-		
-		if( !classicDesign ) {
-			echo.append("Aktionen: ");
-		}
-		else {
-			echo.append("<div>\n");
-		}
-
-		if( building.isDeakAble() ) {
-			if( base.getActive()[field] == 1 ) {
-				echo.append("<a style=\"font-size:16px\" class=\"forschinfo\" href=\""+Common.buildUrl("shutdown", "col", base.getId() , "field", field)+"\">deaktivieren</a>");
-			} 
-			else {
-				echo.append("<a style=\"font-size:16px\" class=\"forschinfo\" href=\""+Common.buildUrl("start", "col", base.getId() , "field", field)+"\">aktivieren</a>");
-			}
-
-			if( classicDesign ) {
+			if( !classicDesign ) {
+				echo.append("<br />\n");
+				echo.append(Common.tableEnd());
+				echo.append("<div>\n");
 				echo.append("<br />\n");
 			}
-			else {
-				echo.append(", ");
-			}
-		}
-
-		if( building.getId() != Building.KOMMANDOZENTRALE ) {
-			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\""+Common.buildUrl("demo", "col", base.getId() , "field", field)+"\">abreissen</a><br />");
-		}
-		else {
-			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"javascript:ask(\'Wollen sie den Asteroiden wirklich aufgeben?\',\'"+Common.buildUrl("demo", "col", base.getId() , "field", field)+"\');\">Asteroid aufgeben</a><br />");
-		}
 	
-		if( !classicDesign ) {
-			echo.append("<br />\n");
-			echo.append(Common.tableEnd());
-			echo.append("<div>\n");
-			echo.append("<br />\n");
+			echo.append("<br /><a style=\"font-size:16px\" class=\"back\" href=\""+Common.buildUrl("default", "module", "base" , "col", base.getId())+"\">zur&uuml;ck</a><br /></div>\n");		
 		}
-
-		echo.append("<br /><a style=\"font-size:16px\" class=\"back\" href=\""+Common.buildUrl("default", "module", "base" , "col", base.getId())+"\">zur&uuml;ck</a><br /></div>\n");		
+		catch( IOException e ) {
+			throw new RuntimeException(e);
+		}
 	}
 }

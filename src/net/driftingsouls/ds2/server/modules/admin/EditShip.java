@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,11 +47,10 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 @AdminMenuEntry(category = "Schiffe", name = "Schiff editieren")
 public class EditShip implements AdminPlugin
 {
-	@SuppressWarnings("unchecked")
-	public void output(AdminController controller, String page, int action)
+	public void output(AdminController controller, String page, int action) throws IOException
 	{
 		Context context = ContextMap.getContext();
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
 		
 		int shipid = context.getRequest().getParameterInt("shipid");
@@ -133,7 +134,7 @@ public class EditShip implements AdminPlugin
 			
 			
 			Map<Integer, String> shiptypes = new HashMap<Integer, String>();
-			List<ShipType> types = (List<ShipType>)db.createQuery("from ShipType").list();
+			List<ShipType> types = Common.cast(db.createQuery("from ShipType").list());
 			for(ShipType shiptype: types)
 			{
 				shiptypes.put(shiptype.getId(), shiptype.getNickname());

@@ -1606,7 +1606,14 @@ public class Battle implements Locatable {
 			this.enemyShips.clear();
 
 			if( calledByUser ) {
-				context.getResponse().getContent().append("Du hast die Schlacht gegen "+Common._title( this.getCommanders()[this.enemySide].getName())+" mit einem Unendschieden beendet!");
+				try
+				{
+					context.getResponse().getWriter().append("Du hast die Schlacht gegen "+Common._title( this.getCommanders()[this.enemySide].getName())+" mit einem Unendschieden beendet!");
+				}
+				catch( IOException e )
+				{
+					throw new RuntimeException(e);
+				}
 			}
 			return false;
 		}
@@ -1627,7 +1634,14 @@ public class Battle implements Locatable {
 
 
 			if( calledByUser ) {
-				context.getResponse().getContent().append("Du hast die Schlacht gegen "+Common._title(this.getCommanders()[this.enemySide].getName())+" verloren!");
+				try
+				{
+					context.getResponse().getWriter().append("Du hast die Schlacht gegen "+Common._title(this.getCommanders()[this.enemySide].getName())+" verloren!");
+				}
+				catch( IOException e )
+				{
+					throw new RuntimeException(e);
+				}
 			}
 			return false;
 		}
@@ -1647,7 +1661,14 @@ public class Battle implements Locatable {
 			this.enemyShips.clear();
 
 			if( calledByUser ) {
-				context.getResponse().getContent().append("Du hast die Schlacht gegen "+Common._title(this.getCommanders()[this.enemySide].getName())+" gewonnen!");
+				try
+				{
+					context.getResponse().getWriter().append("Du hast die Schlacht gegen "+Common._title(this.getCommanders()[this.enemySide].getName())+" gewonnen!");
+				}
+				catch( IOException e )
+				{
+					throw new RuntimeException(e);
+				}
 			} 
 			return false;
 		}
@@ -1704,7 +1725,14 @@ public class Battle implements Locatable {
 			this.endBattle(0, 0, true);
 			 
 			if( !calledByUser ) {
-				context.getResponse().getContent().append("-> Die Schlacht wurde wegen Inaktivit&auml;t beendet"); 	
+				try
+				{
+					context.getResponse().getWriter().append("-> Die Schlacht wurde wegen Inaktivit&auml;t beendet");
+				}
+				catch( IOException e )
+				{
+					throw new RuntimeException(e);
+				} 	
 			}
 			
 			return false;

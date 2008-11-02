@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +31,7 @@ import net.driftingsouls.ds2.server.cargo.WarenID;
 import net.driftingsouls.ds2.server.config.ResourceConfig;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.Items;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
@@ -51,18 +54,17 @@ public class EditGroup implements AdminPlugin
 	private static int MAX_WEAPONS = 100;
 	
 	@Override
-	@SuppressWarnings("unchecked")
-	public void output(AdminController controller, String page, int action)
+	public void output(AdminController controller, String page, int action) throws IOException
 	{
 		Context context = ContextMap.getContext();
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
 		
 		int shiptypeId = context.getRequest().getParameterInt("shiptype");
 
 		// Update values?
 		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");
-		List<ShipType> shiptypes = db.createQuery("from ShipType").list();
+		List<ShipType> shiptypes = Common.cast(db.createQuery("from ShipType").list());
 
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<input type=\"hidden\" name=\"sess\" value=\"" + context.getSession() + "\" />\n");
@@ -72,7 +74,7 @@ public class EditGroup implements AdminPlugin
 		echo.append("<select size=\"1\" name=\"shiptype\">");
 		for (Iterator<ShipType> iter = shiptypes.iterator(); iter.hasNext();)
 		{
-			ShipType shiptype = (ShipType) iter.next();
+			ShipType shiptype = iter.next();
 
 			echo.append("<option value=\"" + shiptype.getId() + "\" " + (shiptype.getId() == shiptypeId ? "selected=\"selected\"" : "") + ">" + shiptype.getNickname() + "</option>");
 		}
@@ -114,7 +116,7 @@ public class EditGroup implements AdminPlugin
 			}
 			
 			//Get ships to edit
-			List<Ship> ships = query.list();
+			List<Ship> ships = Common.cast(query.list());
 			for(Ship ship: ships)
 			{				
 				ship.setHull(context.getRequest().getParameterInt("hull"));

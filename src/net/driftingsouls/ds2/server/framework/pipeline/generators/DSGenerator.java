@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline.generators;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.ParseException;
@@ -71,9 +73,10 @@ public abstract class DSGenerator extends Generator {
 		public abstract void printFooter();
 		/**
 		 * Gibt die Fehlerliste aus
+		 * @throws IOException 
 		 *
 		 */
-		public abstract void printErrorList();
+		public abstract void printErrorList() throws IOException;
 		
 		/**
 		 * Setzt ein Attribut
@@ -223,8 +226,8 @@ public abstract class DSGenerator extends Generator {
 		}
 
 		@Override
-		public void printErrorList() {
-			StringBuffer sb = getContext().getResponse().getContent();
+		public void printErrorList() throws IOException {
+			Writer sb = getContext().getResponse().getWriter();
 			sb.append("<div align=\"center\">\n");
 			sb.append(Common.tableBegin(430,"left"));
 			sb.append("<div style=\"text-align:center; font-size:14px; font-weight:bold\">Es sind Fehler aufgetreten:</div><ul>\n");
@@ -250,8 +253,8 @@ public abstract class DSGenerator extends Generator {
 		@Override
 		public void printFooter() {}
 		@Override
-		public void printErrorList() {
-			StringBuffer sb = getContext().getResponse().getContent();
+		public void printErrorList() throws IOException {
+			Writer sb = getContext().getResponse().getWriter();
 
 			for( Error error : getContext().getErrorList() ) {
 				sb.append("ERROR: "+error.getDescription().replaceAll("\n"," ")+"\n");
@@ -463,7 +466,7 @@ public abstract class DSGenerator extends Generator {
 	}
 	
 	@Override
-	public void handleAction( String action ) {
+	public void handleAction( String action ) throws IOException {
 		if( (action == null) || action.isEmpty() ) {
 			action = "default";
 		}
@@ -563,7 +566,7 @@ public abstract class DSGenerator extends Generator {
 		}
 	}
 	
-	protected void printErrorList(boolean init) {
+	protected void printErrorList(boolean init) throws IOException {
 		String content = getResponse().getContent().toString();
 		if( !init ) {
 			getResponse().resetContent();
@@ -758,17 +761,19 @@ public abstract class DSGenerator extends Generator {
 	
 	/**
 	 * Die Default-Ajax-Aktion
+	 * @throws IOException 
 	 *
 	 */
-	public void defaultAjaxAct() {
+	public void defaultAjaxAct() throws IOException {
 		defaultAction();	
 	}
 	
 	/**
 	 * Die Default-HTML-Aktion
+	 * @throws IOException 
 	 *
 	 */
-	public void defaultAction() {
-		getResponse().getContent().append("DEFAULT");
+	public void defaultAction() throws IOException {
+		getResponse().getWriter().append("DEFAULT");
 	}
 }

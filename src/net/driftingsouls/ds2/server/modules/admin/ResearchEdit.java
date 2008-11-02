@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Iterator;
 import java.util.List;
 
@@ -41,9 +43,9 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 @AdminMenuEntry(category="Techs", name="Bearbeiten")
 public class ResearchEdit implements AdminPlugin {
 
-	public void output(AdminController controller, String page, int action) {
+	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		
 		int techid = context.getRequest().getParameterInt("techid");
 		int changedata = context.getRequest().getParameterInt("changedata");

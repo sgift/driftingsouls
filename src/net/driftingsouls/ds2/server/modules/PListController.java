@@ -1,5 +1,8 @@
 package net.driftingsouls.ds2.server.modules;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -31,10 +34,10 @@ public class PListController extends DSGenerator {
 	
 	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
+	public void defaultAction() throws IOException {
 		parameterNumber("compopup");
 		
-		StringBuffer echo = getContext().getResponse().getContent();
+		Writer echo = getContext().getResponse().getWriter();
 		if( getInteger("compopup") != 0 ) {
 			echo.append("<script type=\"text/javascript\">\n");
 			echo.append("<!--\n");

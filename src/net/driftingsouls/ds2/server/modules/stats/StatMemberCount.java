@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
+import java.io.IOException;
+
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
@@ -31,7 +33,7 @@ import net.driftingsouls.ds2.server.modules.StatsController;
  */
 public class StatMemberCount extends AbstractStatistic implements Statistic {
 
-	public void show(StatsController contr, int size) {
+	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 

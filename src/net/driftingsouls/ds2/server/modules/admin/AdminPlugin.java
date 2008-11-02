@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import java.io.IOException;
+
 import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
@@ -31,6 +33,7 @@ public interface AdminPlugin {
 	 * @param controller Der Admin-Controller
 	 * @param page Die Seiten-ID des Plugins
 	 * @param act Die Aktions-ID des Plugins
+	 * @throws IOException 
 	 */
-	public void output(AdminController controller, String page, int act);
+	public void output(AdminController controller, String page, int act) throws IOException;
 }

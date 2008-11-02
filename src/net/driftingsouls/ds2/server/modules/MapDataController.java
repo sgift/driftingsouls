@@ -18,7 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -175,10 +177,10 @@ public class MapDataController extends DSGenerator {
 		return new String(returnstr, "ISO-8859-1");
 	}
 	
-	private void echoSectorShipData( Ship ship, String relation ) throws UnsupportedEncodingException {
+	private void echoSectorShipData( Ship ship, String relation ) throws IOException {
 		ShipTypeData stype = ship.getTypeData();
 		
-		StringBuffer echo = getContext().getResponse().getContent();
+		Writer echo = getContext().getResponse().getWriter();
 		
 		echo.append("<ship id=\""+ship.getId()+"\" relation=\""+relation+"\">\n");
 		echo.append("<owner>"+ship.getOwner().getId()+"</owner>\n");
@@ -212,12 +214,13 @@ public class MapDataController extends DSGenerator {
 	
 	/**
 	 * Gibt den Inhalt eines Sektors als XML-Dokument zurueck
+	 * @throws IOException 
 	 * @urlparam Integer x Die X-Koordinate des Sektors
 	 * @urlparam Integer y Die Y-Koordinate des Sektors
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void showSectorAction() {
+	public void showSectorAction() throws IOException {
 		org.hibernate.Session db = getDB();
 		
 		parameterNumber("x");
@@ -344,11 +347,12 @@ public class MapDataController extends DSGenerator {
 	
 	/**
 	 * Gibt die Liste der Systeme als XML-Dokument zurueck
+	 * @throws IOException 
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void getSystemsAction() {
-		StringBuffer echo = getContext().getResponse().getContent();
+	public void getSystemsAction() throws IOException {
+		Writer echo = getContext().getResponse().getWriter();
 		
 		echo.append("<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n");
 		echo.append("<systems>\n");
@@ -388,10 +392,11 @@ public class MapDataController extends DSGenerator {
 	
 	/**
 	 * Generiert die Sternenkarte
+	 * @throws IOException 
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
+	public void defaultAction() throws IOException {
 		boolean debug = getInteger("debugme") != 0;
 		
 		org.hibernate.Session db = getDB();
@@ -743,7 +748,7 @@ public class MapDataController extends DSGenerator {
 		//--------------------------------------
 
 		try {
-			StringBuffer echo = getContext().getResponse().getContent();
+			Writer echo = getContext().getResponse().getWriter();
 			// Senden wir ersteinmal die Protokoll-Version
 			echo.append((char)PROTOCOL_VERSION);
 			echo.append((char)PROTOCOL_MINOR_VERSION);

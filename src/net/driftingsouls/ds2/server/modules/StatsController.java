@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -141,8 +143,8 @@ public class StatsController extends DSGenerator {
 		this.statslist.get(this.catlist.get(cat)).add(new StatEntry(stat, name, size));
 	}
 	
-	private void printMenu() {
-		StringBuffer echo = getContext().getResponse().getContent();
+	private void printMenu() throws IOException {
+		Writer echo = getContext().getResponse().getWriter();
 
 		Map<Integer,String> lists = new HashMap<Integer,String>();
 
@@ -188,10 +190,11 @@ public class StatsController extends DSGenerator {
 
 	/**
 	 * Anzeige der Statistiken
+	 * @throws IOException 
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
+	public void defaultAction() throws IOException {
 		Database db = getDatabase();
 		
 		int stat = getInteger("stat");
@@ -221,7 +224,7 @@ public class StatsController extends DSGenerator {
 		}
 
 		
-		StringBuffer echo = getContext().getResponse().getContent();
+		Writer echo = getContext().getResponse().getWriter();
 
 		// TODO: Hack entfernen
 		if( this.show == 3 ) {

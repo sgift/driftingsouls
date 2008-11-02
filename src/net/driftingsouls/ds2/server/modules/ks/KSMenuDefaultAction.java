@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
+import java.io.IOException;
+
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 
@@ -28,7 +30,7 @@ import net.driftingsouls.ds2.server.battles.BattleShip;
  */
 public class KSMenuDefaultAction extends BasicKSMenuAction {
 	@Override
-	public int execute( Battle battle ) {	
+	public int execute( Battle battle ) throws IOException {	
 		int result = super.execute(battle);
 		if( result != RESULT_OK ) {
 			return result;

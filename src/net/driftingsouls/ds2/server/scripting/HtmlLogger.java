@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.scripting;
 
+import java.io.IOException;
 import java.io.Writer;
 
 import net.driftingsouls.ds2.server.framework.Common;
@@ -35,12 +36,12 @@ public class HtmlLogger extends Writer {
 	private boolean first = true;
 
 	@Override
-	public void close() {
+	public void close() throws IOException {
 		Context context = ContextMap.getContext();
 		if( context == null ) {
 			return;
 		}
-		StringBuffer out = context.getResponse().getContent();
+		Writer out = context.getResponse().getWriter();
 		out.append("</span>\n");
 		out.append(Common.tableEnd());
 		out.append("<br />\n");
@@ -54,14 +55,14 @@ public class HtmlLogger extends Writer {
 	}
 
 	@Override
-	public void write(char[] cbuf, int off, int len) {
+	public void write(char[] cbuf, int off, int len) throws IOException {
 		Context context = ContextMap.getContext();
 		if( context == null ) {
 			return;
 		}
 		
 		if( first ) {
-			StringBuffer out = context.getResponse().getContent();
+			Writer out = context.getResponse().getWriter();
 			out.append(Common.tableBegin(500,"left"));
 			out.append("<div align=\"center\">Scriptengine [Debug]</div><br />");
 			out.append("<span style=\"font-size:11px\">\n");
@@ -69,7 +70,7 @@ public class HtmlLogger extends Writer {
 			first = false;
 		}
 		
-		StringBuffer out = context.getResponse().getContent();
+		Writer out = context.getResponse().getWriter();
 		out.append(StringUtils.replace(new String(cbuf, off, len), "\n", "<br />"));
 	}
 }

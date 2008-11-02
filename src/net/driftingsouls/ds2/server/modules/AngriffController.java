@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -389,7 +390,7 @@ public class AngriffController extends TemplateGenerator {
 		t.clear_record();
 	}
 	
-	private boolean showMenu( Battle battle, StringBuilder action ) {
+	private boolean showMenu( Battle battle, StringBuilder action ) throws IOException {
 		User user = (User)this.getUser();
 		TemplateEngine t = this.getTemplateEngine();		
 		
@@ -539,6 +540,7 @@ public class AngriffController extends TemplateGenerator {
 	
 	/**
 	 * Zeigt die GUI an
+	 * @throws IOException 
 	 * 
 	 * @urlparam String ownshipgroup Die eigene ausgewaehlte Schiffsgruppe
 	 * @urlparam String enemyshipgroup Die gegnerische ausgewaehlte Schiffsgruppe
@@ -546,7 +548,7 @@ public class AngriffController extends TemplateGenerator {
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
+	public void defaultAction() throws IOException {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();

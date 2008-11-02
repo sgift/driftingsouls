@@ -1,5 +1,7 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.framework.Common;
@@ -18,10 +20,10 @@ public class EditConfigValues implements AdminPlugin
 {
 	@Override
 	@SuppressWarnings("unchecked")
-	public void output(AdminController controller, String page, int action)
+	public void output(AdminController controller, String page, int action) throws IOException
 	{
 		Context context = ContextMap.getContext();
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
 		
 		List<ConfigValue> configValues = db.createQuery("from ConfigValue").list();

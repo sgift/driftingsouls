@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.sql.Blob;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -52,9 +54,9 @@ import org.apache.commons.lang.StringUtils;
 @AdminMenuEntry(category="Quests", name="QuickQuests")
 public class QuestsQuick implements AdminPlugin {
 
-	public void output(AdminController controller, String page, int action) {
+	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		
 		int id = context.getRequest().getParameterInt("id");
 		String qact = context.getRequest().getParameterString("qact");

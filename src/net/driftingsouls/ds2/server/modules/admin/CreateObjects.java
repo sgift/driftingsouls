@@ -21,8 +21,8 @@ package net.driftingsouls.ds2.server.modules.admin;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -164,9 +164,9 @@ public class CreateObjects implements AdminPlugin {
 	}
 	
 	
-	public void output(AdminController controller, String page, int action) {
+	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		
 		String objekt = context.getRequest().getParameterString("objekt");
 		int system = context.getRequest().getParameterInt("system");
@@ -238,7 +238,7 @@ public class CreateObjects implements AdminPlugin {
 		} 
 	}
 	
-	private void handleSystemXML(Context context, StringBuffer echo, int system) {
+	private void handleSystemXML(Context context, Writer echo, int system) throws IOException {
 		org.hibernate.Session db = context.getDB();
 		
 		final String xmlpath = context.getRequest().getParameterString("xmlpath");
@@ -415,7 +415,7 @@ public class CreateObjects implements AdminPlugin {
 		}
 	}
 
-	private void handlePng(Context context, StringBuffer echo, int system) {
+	private void handlePng(Context context, Writer echo, int system) throws IOException {
 		org.hibernate.Session db = context.getDB();
 		
 		final String pngpath = context.getRequest().getParameterString("pngpath");
@@ -444,7 +444,7 @@ public class CreateObjects implements AdminPlugin {
 		return Location.fromString(system+":"+location);
 	}
 	
-	private void parsePngFile(org.hibernate.Session db, StringBuffer echo, int system, File png) throws IOException, FileNotFoundException {
+	private void parsePngFile(org.hibernate.Session db, Writer echo, int system, File png) throws IOException {
 		BufferedImage image = ImageIO.read(new FileInputStream(png));
 
 		for( int x=0; x < Systems.get().system(system).getWidth(); x++ ) {
@@ -524,8 +524,8 @@ public class CreateObjects implements AdminPlugin {
 		}
 	}
 	
-	private void createPlanet( org.hibernate.Session db, Location loc, int klasse ) {
-		StringBuffer echo = ContextMap.getContext().getResponse().getContent();
+	private void createPlanet( org.hibernate.Session db, Location loc, int klasse ) throws IOException {
+		Writer echo = ContextMap.getContext().getResponse().getWriter();
 		
 		int height = 0;
 		int width = 0;
@@ -578,7 +578,7 @@ public class CreateObjects implements AdminPlugin {
 		db.persist(base);
 	}
 
-	private void handleJumpnode(Context context, StringBuffer echo, int system) {
+	private void handleJumpnode(Context context, Writer echo, int system) throws IOException {
 		org.hibernate.Session db = context.getDB();
 		
 		final int minX = context.getRequest().getParameterInt("minX");
@@ -612,7 +612,7 @@ public class CreateObjects implements AdminPlugin {
 		}
 	}
 
-	private void handleBase(Context context, StringBuffer echo, int system) {
+	private void handleBase(Context context, Writer echo, int system) throws IOException {
 		org.hibernate.Session db = context.getDB();
 		
 		final int anzahl = context.getRequest().getParameterInt("anzahl");

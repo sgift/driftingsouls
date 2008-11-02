@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -62,10 +63,11 @@ public class MainController extends TemplateGenerator {
 	
 	/**
 	 * Prueft, ob der Spieler eine neue PM hat, welche noch nicht gelesen wurde
+	 * @throws IOException 
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public void hasNewPmAjaxAct() {
+	public void hasNewPmAjaxAct() throws IOException {
 		User user = (User)this.getUser();
 		org.hibernate.Session db = getDB();
 		
@@ -73,19 +75,20 @@ public class MainController extends TemplateGenerator {
 			.setEntity("user", user)
 			.iterate().next()).intValue();
 		if( pmcount > 0 ) {
-			getResponse().getContent().append("1");
+			getResponse().getWriter().append("1");
 		}
 		else {
-			getResponse().getContent().append("0");
+			getResponse().getWriter().append("0");
 		}
 	}
 	
 	/**
 	 * Gibt zu einer Seite den Hilfetext zurueck
+	 * @throws IOException 
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public void getHelpText() {
+	public void getHelpText() throws IOException {
 		org.hibernate.Session db = getDB();
 		parameterString("page");
 		
@@ -94,7 +97,7 @@ public class MainController extends TemplateGenerator {
 		GuiHelpText text = (GuiHelpText)db.get(GuiHelpText.class, page);
 		
 		if( text != null ) {
-			getResponse().getContent().append(Common._text(text.getText()));
+			getResponse().getWriter().append(Common._text(text.getText()));
 		}
 	}
 	

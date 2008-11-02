@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -159,14 +161,14 @@ public class AdminController extends DSGenerator {
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {	
+	public void defaultAction() throws IOException {	
 		int cleanpage = getInteger("cleanpage");
 		int act = getInteger("act");
 		String page = getString("page");
 		String sess = getString("sess");
 		String namedplugin = getString("namedplugin");
 		
-		StringBuffer echo = getContext().getResponse().getContent();
+		Writer echo = getContext().getResponse().getWriter();
 		if( cleanpage == 0 ) {
 			echo.append("<div align=\"center\">\n");
 			echo.append(Common.tableBegin( 700, "center" ));
@@ -238,6 +240,11 @@ public class AdminController extends DSGenerator {
 			AdminPlugin plugin = aClass.newInstance();
 			plugin.output(this, page, act);
 		}
+		catch( IOException e ) {
+			addError("Fehler beim Aufruf des Admin-Plugins: "+e);
+			
+			throw new RuntimeException(e);
+		}
 		catch( RuntimeException e ) {
 			addError("Fehler beim Aufruf des Admin-Plugins: "+e);
 			
@@ -268,6 +275,11 @@ public class AdminController extends DSGenerator {
 				}
 				catch( IllegalAccessException e ) {
 					addError("Fehler beim Aufruf des Admin-Plugins: "+e);
+				}
+				catch( IOException e ) {
+					addError("Fehler beim Aufruf des Admin-Plugins: "+e);
+					
+					throw new RuntimeException(e);
 				}
 			}
 		}

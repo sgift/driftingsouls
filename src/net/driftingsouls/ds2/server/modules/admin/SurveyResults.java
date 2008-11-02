@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.framework.Common;
@@ -27,8 +29,6 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.AdminController;
-import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
-import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.StringUtils;
@@ -61,9 +61,9 @@ public class SurveyResults implements AdminPlugin {
 		return (Map<Integer,String>)resultObj;
 	}
 	
-	public void output(AdminController controller, String page, int action) {
+	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
-		StringBuffer echo = context.getResponse().getContent();
+		Writer echo = context.getResponse().getWriter();
 		
 		int resultid = context.getRequest().getParameterInt("resultid");
 		int surveyid = context.getRequest().getParameterInt("surveyid");

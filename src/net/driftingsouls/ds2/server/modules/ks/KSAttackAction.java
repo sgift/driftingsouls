@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -1013,7 +1014,7 @@ public class KSAttackAction extends BasicKSAction {
 	}
 	
 	@Override
-	public int execute(Battle battle) {
+	public int execute(Battle battle) throws IOException {
 		Context context = ContextMap.getContext();
 		
 		User user = (User)context.getActiveUser();	

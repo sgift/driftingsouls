@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
+import java.io.IOException;
+
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.StatsController;
 import net.driftingsouls.ds2.server.uilibs.PlayerList;
@@ -29,7 +31,7 @@ import net.driftingsouls.ds2.server.uilibs.PlayerList;
  */
 public class StatPlayerList implements Statistic {
 
-	public void show(StatsController contr, int size) {
+	public void show(StatsController contr, int size) throws IOException {
 		PlayerList.draw(ContextMap.getContext());
 	}
 
