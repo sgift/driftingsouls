@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.framework.pipeline;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Writer;
 
 /**
  * Standardinterface fuer die Antwort auf die Request
@@ -47,11 +48,19 @@ public interface Response {
 	
 	/**
 	 * Liefert den Inhaltspuffer fuer Text.
-	 * Dieser wird am Schluss in den Ausgabestrom geschrieben
+	 * Dieser wird am Schluss in den Ausgabestrom geschrieben.
+	 * Bitte nur dann verwenden, wenn der Inhalt auch manipuliert
+	 * werden muss.
 	 * 
 	 * @return Der aktuelle Inhaltspuffer fuer Text
 	 */
 	public StringBuffer getContent();
+	
+	/**
+	 * Gibt einen Writer zum Schreiben der Ausgabe zurueck.
+	 * @return Der Writer
+	 */
+	public Writer getWriter();
 	
 	/**
 	 * Setzt den Inhaltspuffer fuer Text zurueck

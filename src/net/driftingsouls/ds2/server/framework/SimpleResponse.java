@@ -20,8 +20,10 @@ package net.driftingsouls.ds2.server.framework;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Writer;
 
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
+import net.driftingsouls.ds2.server.framework.utils.StringBufferWriter;
 
 /**
  * Eine einfache Response auf Basis von StringBuffer. Streams werden nicht unterstuetzt.
@@ -104,5 +106,11 @@ public class SimpleResponse implements Response
 	public void redirectTo(String url)
 	{
 		// EMPTY
+	}
+
+	@Override
+	public Writer getWriter()
+	{
+		return new StringBufferWriter(this.buffer);
 	}
 }

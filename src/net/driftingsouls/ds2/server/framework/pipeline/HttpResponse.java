@@ -21,10 +21,13 @@ package net.driftingsouls.ds2.server.framework.pipeline;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletResponse;
+
+import net.driftingsouls.ds2.server.framework.utils.StringBufferWriter;
 
 /**
  * Implementiert das Response-Interface fuer HTTP-Antworten
@@ -192,5 +195,11 @@ public class HttpResponse implements Response {
 		this.response.setHeader("Location", url);
 		
 		this.manualSend = true;
+	}
+
+	@Override
+	public Writer getWriter()
+	{
+		return new StringBufferWriter(this.content);
 	}
 }
