@@ -606,8 +606,11 @@ public class Battle implements Locatable {
 	
 	private static void insertShipsIntoDatabase(Battle battle, List<BattleShip> ships, List<Integer> startlist, List<Integer> idlist)
 	{
+		if( ships.isEmpty() ) {
+			return;
+		}
+		
 		Set<Integer> addedships = new TreeSet<Integer>();
-		StringBuilder buildIn = new StringBuilder();
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		for( int i=0; i < ships.size(); i++ ) {
@@ -621,18 +624,16 @@ public class Battle implements Locatable {
 				startlist.add(ship.getId());
 			}
 			idlist.add(ship.getId());
-			buildIn.append(ship.getShip().getId() + ",");
 			addedships.add(ship.getShip().getId());
 			
 			ship.setBattle(battle);
 			db.persist(ship);
 		}
 		
-		String in = buildIn.substring(0, buildIn.length() - 1); //Remove last ,
-		
 		//Set Parameter doesn't work for in (cast problem string/integer)
-		db.createQuery("update Ship set battle=:battle where id in ("+in+")")
+		db.createQuery("update Ship set battle=:battle where id in (:shipIds)")
 		  .setParameter("battle", battle)
+		  .setParameterList("shipIds", addedships)
 		  .executeUpdate();
 	}
 
