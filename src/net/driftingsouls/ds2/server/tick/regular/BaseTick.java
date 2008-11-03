@@ -45,6 +45,8 @@ import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
+import org.hibernate.StaleObjectStateException;
+
 /**
  * <h1>Berechnung des Ticks fuer Basen</h1>
  * @author Christopher Jung
@@ -387,6 +389,9 @@ public class BaseTick extends TickController {
 				}
 				catch( Exception e ) {
 					getContext().rollback();
+					if( e instanceof StaleObjectStateException ) {
+						evictStaleObjects(db, (StaleObjectStateException)e);
+					}
 					HibernateFacade.evictAll(db, PM.class);
 					db.evict(db.get(User.class, this.lastowner));
 					
@@ -410,6 +415,10 @@ public class BaseTick extends TickController {
 			}
 			catch( Exception e ) {
 				getContext().rollback();
+				
+				if( e instanceof StaleObjectStateException ) {
+					evictStaleObjects(db, (StaleObjectStateException)e);
+				}
 				
 				this.log("Base Tick - Base #"+base.getId()+" failed: "+e);
 				e.printStackTrace();
@@ -452,6 +461,17 @@ public class BaseTick extends TickController {
 				db.persist(stat);
 			}
 			stat.setStats(gtustat);
+		}
+	}
+
+	private void evictStaleObjects(org.hibernate.Session db, StaleObjectStateException e)
+	{
+		// Nicht besonders schoen, da moeglicherweise unangenehme Nebeneffekte auftreten koennen
+		// Eine solche Entity kann aber ebenso negative Effekte auf den Tick haben, wenn diese
+		// nicht entfernt wird
+		Object entity = db.get(e.getEntityName(), e.getIdentifier());
+		if( entity != null ) {
+			db.evict(entity);
 		}
 	}
 
