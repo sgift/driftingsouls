@@ -218,32 +218,30 @@ public class BaseController extends TemplateGenerator {
 	
 	@Override
 	protected void printHeader(String action) throws IOException {
-		if( "default".equals(action) ) {
-			TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = getTemplateEngine();
 			
-			t.setBlock("_BASE", "header", "none" );
-			t.setBlock("header", "tiles.listitem", "tiles.list");
-			
-			int topOffset = 5;
-			int leftOffset = 5;
-	
-			for( int i = 0; i < base.getHeight(); i++ ) {			
-				for( int j = 0; j < base.getWidth(); j++ ) {				
-					int top = topOffset + ((j % 2)+ i * 2) * 22;
-		   			int left = leftOffset + j * 39;
-		 	  		   				
-	   				t.setVar(	"tile.id",		base.getWidth()*i+j,
-	   							"tile.top",		top,
-	   							"tile.left",	left );
-	   				
-	   				t.parse("tiles.list", "tiles.listitem", true);
-				}
-	
+		t.setBlock("_BASE", "header", "none" );
+		t.setBlock("header", "tiles.listitem", "tiles.list");
+		
+		int topOffset = 5;
+		int leftOffset = 5;
+
+		for( int i = 0; i < base.getHeight(); i++ ) {			
+			for( int j = 0; j < base.getWidth(); j++ ) {				
+				int top = topOffset + ((j % 2)+ i * 2) * 22;
+	   			int left = leftOffset + j * 39;
+	 	  		   				
+   				t.setVar(	"tile.id",		base.getWidth()*i+j,
+   							"tile.top",		top,
+   							"tile.left",	left );
+   				
+   				t.parse("tiles.list", "tiles.listitem", true);
 			}
-			
-			t.parse("__HEADER","header");
+
 		}
 		
+		t.parse("__HEADER","header");
+	
 		super.printHeader(action);
 	}
 
