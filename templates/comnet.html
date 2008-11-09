@@ -253,10 +253,10 @@
 		<table width="100%" cellspacing="3" cellpadding="3" class="noBorderX">
 		<tr>
 			<td style="width:90px; text-align:center; vertical-align:top" class="noBorderX">
-				{!link_to $post.name, default, module:userprofile, css_class:profile, user:$post.id}<br />
+				{!link_to $post.name, default, module:userprofile, css_class:profile, user:$post.user.id}<br />
 				<img align="middle" {!overlib $post.user.rang.name, mo, width:100} src="{URL}data/interface/medals/rang{post.user.rang}.png" alt="" />
 				{if post.user.id < 0}
-					[NPC]
+					<br />[NPC]
 				{/endif}
 
 				<br /><br />
