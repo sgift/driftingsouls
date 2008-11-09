@@ -739,7 +739,12 @@ public class Battle implements Locatable {
 			.setParameter("ally1", tmpOwnShip.getOwner().getAlly())
 			.setParameter("ally2", tmpEnemyShip.getOwner().getAlly())
 			.list();
-							   		
+			
+		
+		Set<BattleShip> secondRowShips = new HashSet<BattleShip>();
+		boolean firstRowExists = false;
+		boolean firstRowEnemyExists = false;
+		
 		for( Iterator<?> iter=shiplist.iterator(); iter.hasNext(); ) {
 			Ship aShip = (Ship)iter.next();
 			// Loot-Truemmer sollten in keine Schlacht wandern... (nicht schoen, gar nicht schoen geloest)
@@ -755,10 +760,9 @@ public class Battle implements Locatable {
 			BattleShip battleShip = new BattleShip(null, aShip);
 			
 			ShipTypeData shiptype = aShip.getBaseType();
-			if( (aShip.getDocked().length() == 0) && shiptype.hasFlag(ShipTypes.SF_SECONDROW) ) {
-				battleShip.setAction(BS_SECONDROW);
-			}
+
 			
+			boolean ownShip = false;
 			if( (shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal()) && aShip.getDocked().length() > 0 ) {
 				battleShip.setAction(battleShip.getAction() | BS_DISABLE_WEAPONS);
 			}
@@ -766,6 +770,7 @@ public class Battle implements Locatable {
 			if( ( (tmpOwnShip.getOwner().getAlly() != null) && (tmpUser.getAlly() == tmpOwnShip.getOwner().getAlly()) ) || (id == tmpUser.getId()) ) {
 				ownUsers.add(tmpUser);
 				battleShip.setSide(0);
+				ownShip = true;
 				
 				if( (ownShipID != 0) && (aShip.getId() == ownShipID) ) {
 					ownBattleShip = battleShip;
@@ -785,11 +790,24 @@ public class Battle implements Locatable {
 					battle.enemyShips.add(battleShip);
 				}
 			}
-
+			
+			if( (aShip.getDocked().length() == 0) && shiptype.hasFlag(ShipTypes.SF_SECONDROW) ) {
+				secondRowShips.add(battleShip);
+			}
+			else
+			{
+				if(ownShip)
+				{
+					firstRowExists = true;
+				}
+				else
+				{
+					firstRowEnemyExists = true;
+				}
+			}
 		}
 		
-		tmpOwnShip = null;
-		tmpEnemyShip = null;
+		addToSecondRow(secondRowShips, firstRowExists, firstRowEnemyExists);
 
 		//
 		// Schauen wir mal ob wir was sinnvolles aus der DB gelesen haben
@@ -2555,6 +2573,35 @@ public class Battle implements Locatable {
 		}
 		else if( (ship.getSide() == this.ownSide) && (this.activeSOwn >= shiplist.size()) ) {
 			this.activeSOwn = 0;
+		}
+	}
+	
+	/**
+	 * Adds ships which have the second row flag to the second row.
+	 * If there is no first row no ship will be added to the second row.
+	 * 
+	 * @param secondRowShips Ships to add.
+	 * @param firstRowExists True, if side one has a first row.
+	 * @param firstRowEnemyExists True, if side two has a first row.
+	 */
+	private static void addToSecondRow(Set<BattleShip> secondRowShips, boolean firstRowExists, boolean firstRowEnemyExists)
+	{
+		for(BattleShip ship: secondRowShips)
+		{
+			if(ship.getSide() == 0)
+			{
+				if(firstRowExists)
+				{
+					ship.setAction(BS_SECONDROW);
+				}
+			}
+			else if(ship.getSide() == 1)
+			{
+				if(firstRowEnemyExists)
+				{
+					ship.setAction(BS_SECONDROW);
+				}
+			}
 		}
 	}
 }
