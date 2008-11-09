@@ -3089,9 +3089,16 @@ public class Ship implements Locatable,Transfering {
 		}
 
 		// Ist das Schiff selbst gedockt? -> Abdocken
-		if( !this.docked.equals("") && (this.docked.charAt(0) != 'l') ) {
+		if(this.docked != null && !this.docked.equals("") && (this.docked.charAt(0) != 'l') ) {
 			Ship docked = (Ship)db.get(Ship.class, Integer.parseInt(this.docked));
-			docked.undock(this);
+			if(docked != null)
+			{
+				docked.undock(this);
+			}
+			else
+			{
+				log.debug("Docked entry of ship was illegal: " + this.docked);
+			}
 		}
 
 		// Wenn es das Flagschiff ist -> Flagschiff auf null setzen
