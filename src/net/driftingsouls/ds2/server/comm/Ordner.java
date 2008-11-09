@@ -314,11 +314,12 @@ public class Ordner {
 		int trash = getTrash( this.owner ).getId();
 		
 		List<?> pmcounts = db.createQuery("select ordner, count(*) from PM " +
-				"where empfaenger=? and ordner in ("+Common.implode(",",ordnerIDs)+") " +
-						"and gelesen < case when ordner=? then 10 else 2 end " +
+				"where empfaenger=:owner and ordner in (:ordnerIds) " +
+						"and gelesen < case when ordner=:trash then 10 else 2 end " +
 				"group by ordner")
-			.setEntity(0, this.owner)
-			.setInteger(1, trash)
+			.setEntity("owner", this.owner)
+			.setParameterList("ordnerIds", ordnerIDs)
+			.setInteger("trash", trash)
 			.list();
 		for( Iterator<?> iter=pmcounts.iterator(); iter.hasNext(); ) {
 			Object[] pmcount = (Object[])iter.next();

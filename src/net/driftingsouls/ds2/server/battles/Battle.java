@@ -957,36 +957,23 @@ public class Battle implements Locatable {
 		
 		for( User auser : new ArrayList<User>(ownUsers) ) {
 			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly()) ) {
-				List<Integer> userIdList = new ArrayList<Integer>();
-				for( User oUser : ownUsers ) {
-					userIdList.add(oUser.getId());
-				}
-				List<?> allyusers = db.createQuery("from User where ally=? and (id not in ("+Common.implode(",",userIdList)+"))")
-					.setEntity(0, auser.getAlly())
-					.list();
-				for( Iterator<?> iter=allyusers.iterator(); iter.hasNext(); ) {
-					User allyuser = (User)iter.next();
-					
-					ownUsers.add(allyuser);	
-				}
+				List<User> allyusers = Common.cast(db.createQuery("from User uu where u.ally=:ally and (u not in (:ownUsers))")
+					.setEntity("ally", auser.getAlly())
+					.setParameterList("ownUsers", ownUsers)
+					.list());
+				
+				ownUsers.addAll(allyusers);
 				calcedallys.add(auser.getAlly().getId());
 			}
 		}
 
 		for( User auser : new ArrayList<User>(enemyUsers) ) {
 			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly()) ) {
-				List<Integer> userIdList = new ArrayList<Integer>();
-				for( User oUser : enemyUsers ) {
-					userIdList.add(oUser.getId());
-				}
-				List<?> allyusers = db.createQuery("from User where ally=? and (id not in ("+Common.implode(",",userIdList)+"))")
-					.setEntity(0, auser.getAlly())
-					.list();
-				for( Iterator<?> iter=allyusers.iterator(); iter.hasNext(); ) {
-					User allyuser = (User)iter.next();
-					
-					enemyUsers.add(allyuser);	
-				}
+				List<User> allyusers = Common.cast(db.createQuery("from User u where ally=:ally and (u not in (:enemyUsers))")
+					.setEntity("ally", auser.getAlly())
+					.setParameterList("enemyUsers", enemyUsers)
+					.list());
+				enemyUsers.addAll(allyusers);	
 				calcedallys.add(auser.getAlly().getId());
 			}
 		}
@@ -1885,17 +1872,17 @@ public class Battle implements Locatable {
 			return;
 		}
 		
-		StringBuilder toDestroy = new StringBuilder(); //List of ids - will be used in mass delete
+		List<Integer> toDestroy = new ArrayList<Integer>(); //List of ids - will be used in mass delete
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		for(BattleShip ship: ships)
 		{
 			long dockcount = (Long)db.createQuery("select count(*) from Ship where docked in (?,?)")
-			.setString(0, Integer.toString(ship.getId()))
-			.setString(1, "l "+ship.getId())
-			.iterate().next();
+				.setString(0, Integer.toString(ship.getId()))
+				.setString(1, "l "+ship.getId())
+				.iterate().next();
 			
-			toDestroy.append(ship.getId() + ",");
+			toDestroy.add(ship.getId());
 			ship.getShip().destroy();
 			
 			//
@@ -1933,7 +1920,7 @@ public class Battle implements Locatable {
 					
 					dockcount--;
 					
-					toDestroy.append(aship.getId() + ",");
+					toDestroy.add(aship.getId());
 					aship.getShip().destroy();
 				}
 				
@@ -1951,8 +1938,9 @@ public class Battle implements Locatable {
 		}
 		
 		//Remove all destroyed ships
-		String destroy = toDestroy.substring(0, toDestroy.length() - 1);
-		db.createQuery("delete from BattleShip where id in ("+ destroy +")").executeUpdate();
+		db.createQuery("delete from BattleShip where id in (:shipIds)")
+			.setParameterList("shipIds", toDestroy)
+			.executeUpdate();
 	}
 	
 	
@@ -1963,7 +1951,7 @@ public class Battle implements Locatable {
 			return;
 		}
 		
-		StringBuilder toDestroy = new StringBuilder(); //List of ids - will be used in mass delete
+		List<Integer> toDestroy = new ArrayList<Integer>(); //List of ids - will be used in mass delete
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		
@@ -1990,15 +1978,15 @@ public class Battle implements Locatable {
 			}
 			
 			long dockcount = (Long)db.createQuery("select count(*) from Ship where docked IN (?,?)")
-			.setString(0, Integer.toString(ship.getId()))
-			.setString(1, "l "+ship.getId())
-			.iterate().next();
+				.setString(0, Integer.toString(ship.getId()))
+				.setString(1, "l "+ship.getId())
+				.iterate().next();
 		
 			ship.getShip().setBattle(null);
 			ship.getShip().setX(loc.getX());
 			ship.getShip().setY(loc.getY());
 			
-			toDestroy.append(ship.getId() + ",");
+			toDestroy.add(ship.getId());
 			ship.getShip().recalculateShipStatus();
 			
 			//
@@ -2035,7 +2023,7 @@ public class Battle implements Locatable {
 					aship.getShip().setX(loc.getX());
 					aship.getShip().setY(loc.getY());
 					
-					toDestroy.append(aship.getId() + ",");
+					toDestroy.add(aship.getId());
 					aship.getShip().recalculateShipStatus();
 				}
 				
@@ -2053,8 +2041,9 @@ public class Battle implements Locatable {
 		}
 		
 		//Remove all ships
-		String destroy = toDestroy.substring(0, toDestroy.length() - 1);
-		db.createQuery("delete from BattleShip where id in ("+ destroy +")").executeUpdate();
+		db.createQuery("delete from BattleShip where id in (:shipIds)")
+			.setParameterList("shipIds", toDestroy)
+			.executeUpdate();
 	}
 	
 	/**

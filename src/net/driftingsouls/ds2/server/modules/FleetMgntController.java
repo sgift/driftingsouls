@@ -226,8 +226,9 @@ public class FleetMgntController extends TemplateGenerator {
 			return;
 		}
 		
-		boolean nonEmpty = db.createQuery("from Ship where id in ("+Common.implode(",",shiplist)+") and owner!=?")
-			.setEntity(0, user)
+		boolean nonEmpty = db.createQuery("from Ship where id in (:shipIds) and owner!=:user")
+			.setParameterList("shipIds", shiplist)
+			.setEntity("user", user)
 			.iterate().hasNext();
 		
 		if( nonEmpty ) {
@@ -268,8 +269,9 @@ public class FleetMgntController extends TemplateGenerator {
 				return;
 			}
 		
-			boolean nonEmpty = db.createQuery("from Ship where id in ("+Common.implode(",",shiplistInt)+") and (owner!=? or id < 0)")
-				.setEntity(0, user)
+			boolean nonEmpty = db.createQuery("from Ship where id in (:shipIds) and (owner!=:user or id < 0)")
+				.setParameterList("shipIds", shiplistInt)
+				.setEntity("user", user)
 				.iterate().hasNext();
 			if( nonEmpty ) {
 				t.setVar("fleetmgnt.message", "Alle Schiffe m&uuml;ssen ihrem Kommando unterstehen" );
