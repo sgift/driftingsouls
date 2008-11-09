@@ -2563,6 +2563,11 @@ public class Ship implements Locatable,Transfering {
 		}
 		dockships = help;
 		
+		if(dockships.length == 0)
+		{
+			return errors;
+		}
+		
 		//Check for type fighter
 		List<Ship> ships = Common.cast(
 			db.createQuery("from Ship s where locate(:fighter, shiptype.flags) > -1 and s in (:dockships)")
