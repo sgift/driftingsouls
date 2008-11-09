@@ -70,7 +70,7 @@ public class FleetMgntController extends TemplateGenerator {
 		
 		setTemplate("fleetmgnt.html");
 		
-		addOnLoadFunction("reloadMainpage('"+this.getString("sess")+"')");
+		addOnLoadFunction("reloadMainpage()");
 		
 		parameterNumber("fleet");
 		parameterString("shiplist");

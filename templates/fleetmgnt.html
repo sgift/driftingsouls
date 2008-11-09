@@ -171,7 +171,6 @@
 
 			<span style="font-style:italic">Aktionen:</span><br />
 			<form action="./ds" method="post">
-				<input type="hidden" name="sess" value="{global.sess}" />
 				<input type="hidden" name="fleet" value="{fleet.id}" />
 				<input type="hidden" name="module" value="fleetmgnt" />
 				<select name="action" size="1" onchange="actionSelectChange(this.options[this.options.selectedIndex].value)">
@@ -241,27 +240,24 @@
 <script type="text/javascript">
 <!--
 	function showShip( ship ) {
-		opener.parent.frames['main'].location.href = getDsUrl()+'?module=schiff&sess={global.sess}&ship='+ship;
+		opener.parent.frames['main'].location.href = getDsUrl()+'?module=schiff&ship='+ship;
 	}
 
 	function refreshOwn() {
-		window.location.href = getDsUrl()+'?module=fleetmgnt&sess={global.sess}&fleet={fleet.id}';
+		window.location.href = getDsUrl()+'?module=fleetmgnt&fleet={fleet.id}';
 	}
 
 	function removeShip( ship ) {
-		opener.parent.frames['main'].location.href = getDsUrl()+'?module=schiff&sess={global.sess}&ship='+ship+'&action=join&join=0';
+		opener.parent.frames['main'].location.href = getDsUrl()+'?module=schiff&ship='+ship+'&action=join&join=0';
 		window.setTimeout("refreshOwn()", 1000);
 	}
 
 	function showBattle( battle, ship ) {
-		opener.parent.frames['main'].location.href = getDsUrl()+'?module=angriff&sess={global.sess}&battle='+battle+'&ship='+ship;
+		opener.parent.frames['main'].location.href = getDsUrl()+'?module=angriff&battle='+battle+'&ship='+ship;
 		window.close();
 	}
-	
-	var sessid;
-	
-	function reloadMainpage(sess) {
-		sessid = sess;
+
+	function reloadMainpage() {
 		window.setTimeout("reloadMainpage2()", 1000);
 	}
 	
@@ -271,7 +267,7 @@
 		function reloadMainpage2() {
 			var szUrl = opener.parent.frames['main'].location.href;
 			if( (szUrl.search(/\?/) == -1) && (szUrl.search(/ship=/) == -1) && (shipid > 0) ) {
-				szUrl = szUrl + '?sess='+sessid+'&ship='+shipid;
+				szUrl = szUrl + '?&ship='+shipid;
 			}
 			szUrl = szUrl + "&tmp=1";
 
