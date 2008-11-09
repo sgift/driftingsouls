@@ -184,7 +184,7 @@ public class NavigationDefault implements SchiffPlugin {
 					"schiff.navigation.dest.system",	data.getDestSystem(),
 					"schiff.navigation.dest.text",		data.getDestCom() );
 		
-		if( !data.getDocked().equals("") ) {
+		if(data.getDocked() != null && !data.getDocked().equals("") ) {
 			String mastershipid = null;
 			
 			if( data.getDocked().charAt(0) == 'l' ) {
