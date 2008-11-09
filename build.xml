@@ -77,6 +77,8 @@
 		<fileset dir="${build.home}/WEB-INF/lib">
 			<include name="*.jar"/>
 		</fileset>
+		
+		 <pathelement location="${build.home}/WEB-INF/classes"/>
 	</path>
 	
 	<path id="ant.classpath">
@@ -351,7 +353,7 @@
 			<fileset dir="test/java" excludes="**/*.java"/>
 		</copy>
 		
-		<junit fork="yes" haltonfailure="false">
+		<junit fork="yes" haltonfailure="false" outputtoformatters="false">
 			<jvmarg value="-javaagent:web/WEB-INF/lib/spring-agent.jar" />
 			<classpath>
 				<fileset dir="web/WEB-INF/lib">
@@ -376,7 +378,7 @@
 				</fileset>	
 			</batchtest>
 			<formatter type="xml"/>
-			<formatter type="plain" usefile="false" />
+			<formatter type="brief" usefile="false" />
 		</junit>
 	</target>
 </project>
