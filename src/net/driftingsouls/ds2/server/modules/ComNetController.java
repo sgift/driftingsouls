@@ -23,8 +23,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rang;
@@ -42,6 +40,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Das ComNet - Alle Funktionalitaeten des ComNets befinden sich in 
  * dieser Klasse 
@@ -53,7 +54,7 @@ public class ComNetController extends TemplateGenerator {
 	private int activeChannel = 1;
 	private ComNetChannel activeChannelObj = null;
 	
-	private static final Logger log = Logger.getLogger(ComNetController.class);
+	private static final Log log = LogFactory.getLog(ComNetController.class);
 	
 	/**
 	 * Konstruktor
