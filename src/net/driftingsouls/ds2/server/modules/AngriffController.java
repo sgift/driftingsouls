@@ -786,6 +786,7 @@ public class AngriffController extends TemplateGenerator {
 		}
 		
 		action = actionBuilder.toString();
+		t.setVar("global.ksaction", action);
 		
 		t.setBlock("_ANGRIFF","ship.info","none");
 		t.setBlock("ship.info","shipinfo.ammo.listitem","shipinfo.ammo.list");
