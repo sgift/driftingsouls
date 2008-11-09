@@ -25,10 +25,14 @@
 	
 	<!-- Sonstiges -->
 	<setting type="string" name="ABSOLUTE_PATH" value="/path/to/ds/test/" />
+	<setting type="string" name="LOXPATH" value="/path/to/ds/test/lox/" />
 	<setting type="string" name="URL" value="http://localhost:8080/driftingsouls/" />
 	<setting type="number" name="LOG_QUERIES" value="1" />
 	
 	<!-- Gameplay -->
+	<setting type="number" name="DISABLE_FOOD_CONSUMPTION" value="0" />
+	<setting type="number" name="NOOB_PROTECTION" value="1" />
+	<setting type="number" name="DESTROYABLE_SHIPS" value="1" />
 	<setting type="number" name="USE_NEW_FOOD_SYSTEM" value="1" />
 	<setting type="number" name="NAHRUNG_CHECKOUT_FACTOR" value="1" />
 </config>
