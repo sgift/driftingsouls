@@ -23,8 +23,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.config.Medals;
+import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.entities.ComNetChannel;
 import net.driftingsouls.ds2.server.entities.ComNetEntry;
 import net.driftingsouls.ds2.server.entities.ComNetVisit;
@@ -49,6 +52,8 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 public class ComNetController extends TemplateGenerator {
 	private int activeChannel = 1;
 	private ComNetChannel activeChannelObj = null;
+	
+	private static final Logger log = Logger.getLogger(ComNetController.class);
 	
 	/**
 	 * Konstruktor
@@ -408,6 +413,17 @@ public class ComNetController extends TemplateGenerator {
 		
 		//Aktuellen Tick ermitteln
 		int tick = getContext().get(ContextCommon.class).getTick();
+		
+		Rang userRank = Medals.get().rang(user.getRang());
+		String userRankName = "";
+		if(userRank != null)
+		{
+			userRankName = userRank.getName();
+		}
+		else
+		{
+			log.debug("Illegal user rank for user " + user.getId() + " rankid: " + user.getRang());
+		}
 
 		t.setVar(	"show.vorschau",	1,
 					"show.inputform",	1,
@@ -417,7 +433,7 @@ public class ComNetController extends TemplateGenerator {
 					"post.raw.text",	text,
 					"post.postid",		1,
 					"user",		user,
-					"user.rang.name", Medals.get().rang(user.getRang()).getName(),
+					"user.rang.name", 	userRankName,
 					"post.name",		Common._title(user.getName()),
 					"post.id",			user.getId(),
 					"post.pic",			user.getId(),
