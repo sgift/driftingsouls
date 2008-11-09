@@ -626,6 +626,7 @@ public class Battle implements Locatable {
 			idlist.add(ship.getId());
 			addedships.add(ship.getShip().getId());
 			
+			ship.getShip().setBattle(battle);
 			ship.setBattle(battle);
 			db.persist(ship);
 		}
@@ -861,6 +862,9 @@ public class Battle implements Locatable {
 
 		startlist = new ArrayList<Integer>();
 		
+		battle.enemyShips.add(enemyBattleShip);
+		battle.activeSEnemy = battle.enemyShips.size()-1;
+		
 		// * Eigene Schiffe in die Schlacht einfuegen
 		idlist.add(ownBattleShip.getId());
 		
@@ -884,6 +888,9 @@ public class Battle implements Locatable {
 		startlist = null;
 
 		idlist = null;
+		
+		battle.ownShips.add(ownBattleShip);
+		battle.activeSOwn = battle.ownShips.size()-1;
 
 		//
 		// Log erstellen
@@ -1492,7 +1499,8 @@ public class Battle implements Locatable {
 			List<BattleShip> fluchtList = new ArrayList<BattleShip>();
 			List<BattleShip> fluchtReposList = new ArrayList<BattleShip>();
 			
-			List<BattleShip> shiplist = sides.get(i);
+			// Liste kopieren um Probleme beim Entfernen von Schffen aus der Ursprungsliste zu vermeiden
+			List<BattleShip> shiplist = new ArrayList<BattleShip>(sides.get(i));
 			for( int key=0; key < shiplist.size(); key++ ) {
 				BattleShip aship = shiplist.get(key);
 
