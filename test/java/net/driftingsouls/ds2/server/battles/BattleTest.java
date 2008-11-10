@@ -25,11 +25,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.DriftingSoulsDBTestCase;
+import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.ships.Ship;
 
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,8 +45,13 @@ public class BattleTest extends DriftingSoulsDBTestCase {
 		return new FlatXmlDataSet(BattleTest.class.getResourceAsStream("BattleTest.xml"));
 	}
 	
+	private static final int ATTACKER = 1;
+	private static final int DEFENDER = 4;
+	
 	private User user1;
 	private User user2;
+	private User user3;
+	private User user4;
 	private Map<Integer,Ship> ships = new HashMap<Integer,Ship>();
 	
 	/**
@@ -55,6 +62,8 @@ public class BattleTest extends DriftingSoulsDBTestCase {
 		org.hibernate.Session db = context.getDB();
 		user1 = (User)db.get(User.class, 1);
 		user2 = (User)db.get(User.class, 2);
+		user3 = (User)db.get(User.class, 3);
+		user4 = (User)db.get(User.class, 4);
 	}
 	
 	/**
@@ -63,35 +72,44 @@ public class BattleTest extends DriftingSoulsDBTestCase {
 	@Before
 	public void loadShips() {
 		org.hibernate.Session db = context.getDB();
-		for( int i=1; i < 6; i++ ) {
+		for( int i=1; i < 11; i++ ) {
 			ships.put(i, (Ship)db.get(Ship.class, i));
 		}
 	}
 	
 	/**
 	 * Testet das Erstellen von Schlachten
-	 * TODO: Verhalten bei Allianzen
 	 * TODO: Fehlerverhalten
 	 * TODO: Gelandete Schiffe
-	 * TODO: Setzen der Beziehungen zwischen Spielern (Allianzen)
 	 */
 	@Test
 	public void testCreateBattle() {
-		final int ATTACKER = 1;
-		final int DEFENDER = 4;
-		
 		Battle battle = Battle.create(user1.getId(), ATTACKER, DEFENDER);
 		
 		assertThat(battle, not(nullValue()));
 		
 		// Alle Schiffe sollten in der Schlacht sein
 		for( Ship ship : this.ships.values() ) {
-			assertThat(ship.getBattle(), is(battle));
+			if( ship.getOwner() == this.user1 || ship.getOwner() == this.user2 ) {
+				assertThat(ship.getBattle(), is(battle));
+			}
+			else {
+				assertThat(ship.getBattle(), is(nullValue()));
+			}
 		}
 		
 		// Kommandanten pruefen
 		assertThat(battle.getCommander(0), is(this.user1));
 		assertThat(battle.getCommander(1), is(this.user2));
+		
+		// Beziehungen pruefen
+		assertThat(this.user1.getRelation(this.user2.getId()), is(User.Relation.ENEMY));
+		assertThat(this.user1.getRelation(this.user3.getId()), is(User.Relation.NEUTRAL));
+		assertThat(this.user1.getRelation(this.user4.getId()), is(User.Relation.NEUTRAL));
+		
+		assertThat(this.user2.getRelation(this.user1.getId()), is(User.Relation.ENEMY));
+		assertThat(this.user2.getRelation(this.user3.getId()), is(User.Relation.NEUTRAL));
+		assertThat(this.user2.getRelation(this.user4.getId()), is(User.Relation.NEUTRAL));
 		
 		// Korrekte Schiffe ausgewaehlt?
 		assertThat(battle.getOwnShip().getShip(), is(ships.get(ATTACKER)));
@@ -118,13 +136,85 @@ public class BattleTest extends DriftingSoulsDBTestCase {
 	}
 	
 	/**
+	 * Testet das Erstellen von Schlachten bei Allianzspielern
+	 */
+	@Test
+	public void testCreateBattleAllies() {
+		// Setup der Allianzen
+		org.hibernate.Session db = this.context.getDB();
+		
+		Ally ally1 = new Ally("Testally1", this.user1);
+		db.persist(ally1);
+		this.user1.setAlly(ally1);
+		this.user3.setAlly(ally1);
+		
+		Ally ally2 = new Ally("Testally2", this.user2);
+		db.persist(ally2);
+		this.user2.setAlly(ally2);
+		this.user4.setAlly(ally2);
+		
+		this.context.commit();
+		
+		// Test
+		Battle battle = Battle.create(user1.getId(), ATTACKER, DEFENDER);
+		assertThat(battle, not(nullValue()));
+		
+		// Alle Schiffe sollten in der Schlacht sein
+		for( Ship ship : this.ships.values() ) {
+			assertThat(ship.getBattle(), is(battle));
+		}
+		
+		// Kommandanten pruefen
+		assertThat(battle.getCommander(0), is(this.user1));
+		assertThat(battle.getCommander(1), is(this.user2));
+		
+		// Beziehungen pruefen - die Beziehungen in der Allianz sind neutral, da sie
+		// von keiner Methode zuvor (beim Allybeitritt) auf FRIEND gesetzt wurden
+		assertThat(this.user1.getRelation(this.user2.getId()), is(User.Relation.ENEMY));
+		assertThat(this.user1.getRelation(this.user3.getId()), is(User.Relation.NEUTRAL));
+		assertThat(this.user1.getRelation(this.user4.getId()), is(User.Relation.ENEMY));
+		
+		assertThat(this.user2.getRelation(this.user1.getId()), is(User.Relation.ENEMY));
+		assertThat(this.user2.getRelation(this.user3.getId()), is(User.Relation.ENEMY));
+		assertThat(this.user2.getRelation(this.user4.getId()), is(User.Relation.NEUTRAL));
+		
+		assertThat(this.user3.getRelation(this.user1.getId()), is(User.Relation.NEUTRAL));
+		assertThat(this.user3.getRelation(this.user2.getId()), is(User.Relation.ENEMY));
+		assertThat(this.user3.getRelation(this.user4.getId()), is(User.Relation.ENEMY));
+		
+		assertThat(this.user4.getRelation(this.user1.getId()), is(User.Relation.ENEMY));
+		assertThat(this.user4.getRelation(this.user2.getId()), is(User.Relation.NEUTRAL));
+		assertThat(this.user4.getRelation(this.user3.getId()), is(User.Relation.ENEMY));
+		
+		// Korrekte Schiffe ausgewaehlt?
+		assertThat(battle.getOwnShip().getShip(), is(ships.get(ATTACKER)));
+		assertThat(battle.getEnemyShip().getShip(), is(ships.get(DEFENDER)));
+		
+		// Schiffslisten korrekt gefuellt?
+		assertThat(battle.getOwnShips().size(), is(5));
+		assertThat(battle.getEnemyShips().size(), is(5));
+		
+		// Schiffe korrekt in die Schlacht eingefuegt?
+		for( BattleShip bs : battle.getOwnShips() ) {
+			assertThat(bs.getOwner(), anyOf(is(this.user1), is(this.user3)));
+			assertThat(bs.getHull(), is(bs.getShip().getHull()));
+			assertThat(bs.getShields(), is(bs.getShip().getShields()));
+			assertThat(bs.getAction(), is(0));
+		}
+		
+		for( BattleShip bs : battle.getEnemyShips() ) {
+			assertThat(bs.getOwner(), anyOf(is(this.user2), is(this.user4)));
+			assertThat(bs.getHull(), is(bs.getShip().getHull()));
+			assertThat(bs.getShields(), is(bs.getShip().getShields()));
+			assertThat(bs.getAction(), is(0));
+		}
+	}
+	
+	/**
 	 * Testet, ob beim Rundenwechsel die Waffen korrekt entsperrt werden
 	 */
 	@Test
 	public void testEndTurnUnblockWeapons() {
-		final int ATTACKER = 1;
-		final int DEFENDER = 4;
-		
 		Battle battle = Battle.create(user1.getId(), ATTACKER, DEFENDER);
 		for( BattleShip bs : battle.getOwnShips() ) {
 			bs.setAction(Battle.BS_BLOCK_WEAPONS);
@@ -148,9 +238,6 @@ public class BattleTest extends DriftingSoulsDBTestCase {
 	 */
 	@Test
 	public void testEndTurnRemoveDestroyed() {
-		final int ATTACKER = 1;
-		final int DEFENDER = 4;
-		
 		Battle battle = Battle.create(user1.getId(), ATTACKER, DEFENDER);
 		// Alle bis auf eines zerstoeren
 		for( int i=0; i < battle.getOwnShips().size()-1; i++ ) {
