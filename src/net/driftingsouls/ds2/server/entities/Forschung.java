@@ -214,6 +214,11 @@ public class Forschung {
 			return false;
 		}
 		
+		if(user == null)
+		{
+			return false;
+		}
+		
 		for(int i = 1; i <= 3; i++) {
 			if(!user.hasResearched(getRequiredResearch(i))) {
 				return false;
