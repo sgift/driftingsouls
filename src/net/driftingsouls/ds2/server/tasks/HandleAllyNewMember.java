@@ -63,9 +63,11 @@ class HandleAllyNewMember implements TaskHandler {
 			int membercount = 1;
 			
 			// Beziehungen auf "Freund" setzen
-			List<User> members = context.query(
-					"from User where ally="+ally.getId()+" AND id!="+player.getId(), User.class);
+			List<User> members = ally.getMembers();
 			for( User allymember : members ) {
+				if( allymember.getId() == player.getId() ) {
+					continue;
+				}
 				allymember.setRelation(player.getId(), User.Relation.FRIEND);
 				player.setRelation(allymember.getId(), User.Relation.FRIEND);
 				
