@@ -957,7 +957,7 @@ public class Battle implements Locatable {
 		
 		for( User auser : new ArrayList<User>(ownUsers) ) {
 			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly()) ) {
-				List<User> allyusers = Common.cast(db.createQuery("from User uu where u.ally=:ally and (u not in (:ownUsers))")
+				List<User> allyusers = Common.cast(db.createQuery("from User u where u.ally=:ally and (u not in (:ownUsers))")
 					.setEntity("ally", auser.getAlly())
 					.setParameterList("ownUsers", ownUsers)
 					.list());
