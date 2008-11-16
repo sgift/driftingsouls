@@ -396,6 +396,10 @@ public abstract class DSGenerator extends Generator {
 			try {
 				this.parameter.put(parameter, Common.getNumberFormat().parse(val.trim()));
 			}
+			catch( NumberFormatException e ) {
+				addError("Parameter "+parameter+" ist keine g&uuml;ltige Zahl");
+				this.parameter.put(parameter, 0d);
+			}
 			catch( ParseException e ) {
 				addError("Parameter "+parameter+" ist keine g&uuml;ltige Zahl");
 				this.parameter.put(parameter, 0d);
