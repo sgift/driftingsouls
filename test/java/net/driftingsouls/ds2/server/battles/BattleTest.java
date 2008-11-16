@@ -30,6 +30,8 @@ import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipFleet;
+import net.driftingsouls.ds2.server.ships.ShipType;
 
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
@@ -265,6 +267,115 @@ public class BattleTest extends DriftingSoulsDBTestCase {
 			.iterate().next();
 		
 		assertThat(count2, is(2L));
+	}
+	
+	/**
+	 * Testet, ob alle zerstoerten Schiffe korrekt am Ende der Runde entfernt werden
+	 */
+	@Test
+	public void testEndTurnRemoveDestroyedWithDocked() {
+		Ship ship = new Ship(this.user1, (ShipType)context.getDB().get(ShipType.class, 2), 1, 1, 1);
+		ship.setName("Testjaeger");
+		context.getDB().persist(ship);
+		Ship masterShip = (Ship)context.getDB().get(Ship.class, 1);
+		masterShip.setStartFighters(false);
+		assertThat(masterShip.land(ship), is(false));
+		context.commit();
+		
+		Battle battle = Battle.create(user1.getId(), ATTACKER, DEFENDER);
+		// Alle bis auf eines zerstoeren
+		for( BattleShip bship : battle.getOwnShips() )
+		{
+			if( bship.getShip().getId() == 1 || "l 1".equals(bship.getShip().getDocked()) )
+			{
+				bship.setAction(Battle.BS_DESTROYED);
+			}
+		}
+		assertThat(battle.getOwnShips().size(), is(4));
+
+		boolean exists = battle.endTurn(false);
+		
+		assertThat(exists, is(true));
+		assertThat(battle.getOwnShips().size(), is(2));
+		assertThat(battle.getEnemyShips().size(), is(2));
+		
+		long count = (Long)context.getDB().createQuery("select count(*) from Ship where owner= :user1")
+			.setEntity("user1", user1)
+			.iterate().next();
+		
+		assertThat(count, is(2L));
+		
+		long count2 = (Long)context.getDB().createQuery("select count(*) from Ship where owner= :user2")
+			.setEntity("user2", user2)
+			.iterate().next();
+		
+		assertThat(count2, is(2L));
+	}
+	
+	/**
+	 * Testet, ob am Ende einer Runde eine Flotte korrekt entfernt wird, wenn alle ihre
+	 * Schiffe zerstoert wurden
+	 */
+	@Test
+	public void testEndTurnDestroyFleet()
+	{
+		ShipFleet fleet = new ShipFleet("Testflotte");
+		context.getDB().persist(fleet);
+		boolean first = true;
+		for( Ship ship : this.ships.values() )
+		{
+			if( ship.getOwner() != this.user1 )
+			{
+				continue;
+			}
+			if( first )
+			{
+				first = false;
+				continue;
+			}
+			fleet.addShip(ship);
+		}
+		context.commit();
+		
+		Battle battle = Battle.create(user1.getId(), ATTACKER, DEFENDER);
+		
+		// Alle bis auf eines zerstoeren
+		BattleShip surviving = null;
+		for( int i=0; i < battle.getOwnShips().size(); i++ )
+		{
+			if( battle.getOwnShips().get(i).getShip().getFleet() != null )
+			{
+				battle.getOwnShips().get(i).setAction(Battle.BS_DESTROYED);
+			}
+			else
+			{
+				surviving = battle.getOwnShips().get(i);
+			}
+		}
+	
+		boolean exists = battle.endTurn(false);
+		
+		assertThat(exists, is(true));
+		assertThat(battle.getOwnShips().size(), is(1));
+		assertThat(battle.getOwnShips().get(0), is(battle.getOwnShip()));
+		assertThat(battle.getOwnShip(), is(surviving));
+		assertThat(battle.getEnemyShips().size(), is(2));
+		
+		long count = (Long)context.getDB().createQuery("select count(*) from Ship where owner= :user1")
+			.setEntity("user1", user1)
+			.iterate().next();
+		
+		assertThat(count, is(1L));
+		
+		long count2 = (Long)context.getDB().createQuery("select count(*) from Ship where owner= :user2")
+			.setEntity("user2", user2)
+			.iterate().next();
+		
+		assertThat(count2, is(2L));
+		
+		long fleetCount = (Long)context.getDB().createQuery("select count(*) from ShipFleet")
+			.iterate().next();
+		assertThat(fleetCount, is(0L));
 	}
 	
 	/**
