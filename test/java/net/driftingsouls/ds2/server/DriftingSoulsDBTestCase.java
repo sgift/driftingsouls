@@ -84,20 +84,21 @@ public abstract class DriftingSoulsDBTestCase implements DBTestable {
 			Connection con = this.dbTester.getConnection().getConnection();
 			Statement stmt = con.createStatement();
 			try {
-				stmt.executeUpdate("SET FOREIGN_KEY_CHECKS=0");
 				ResultSet result = stmt.executeQuery("SHOW TABLES");
 				try {
+					final Statement stmt2 = con.createStatement();
+					stmt2.addBatch("SET FOREIGN_KEY_CHECKS=0");
 					while( result.next() ) {
 						String table = result.getString(1);
-						Statement stmt2 = con.createStatement();
-						stmt2.executeUpdate("DELETE FROM "+table);
-						stmt2.close();
+						stmt2.addBatch("DELETE FROM "+table);
 					}
+					stmt2.addBatch("SET FOREIGN_KEY_CHECKS=1");
+					stmt2.executeBatch();
+					stmt2.close();
 				}
 				finally {
 					result.close();
 				}
-				stmt.executeUpdate("SET FOREIGN_KEY_CHECKS=1");
 			}
 			finally {
 				stmt.close();
