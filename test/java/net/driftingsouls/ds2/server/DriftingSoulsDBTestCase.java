@@ -25,8 +25,8 @@ import java.sql.Statement;
 
 import net.driftingsouls.ds2.server.framework.BasicContext;
 import net.driftingsouls.ds2.server.framework.CmdLineRequest;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.SimpleResponse;
+import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 
 import org.junit.After;
 import org.junit.Before;
@@ -102,6 +102,8 @@ public abstract class DriftingSoulsDBTestCase implements DBTestable {
 			finally {
 				stmt.close();
 			}
+			
+			HibernateFacade.clearSecondLevelCache();
 		}
 		catch( SQLException e ) {
 			e.printStackTrace();
