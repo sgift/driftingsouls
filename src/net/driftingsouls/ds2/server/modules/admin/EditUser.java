@@ -84,6 +84,8 @@ public class EditUser implements AdminPlugin
 			user.setNpcPunkte(context.getRequest().getParameterInt("npcpoints"));
 			user.setMedals(context.getRequest().getParameterString("medals"));
 			
+			doVacation(user);
+			
 			echo.append("<p>Update abgeschlossen.</p>");
 		}
 		
@@ -138,6 +140,31 @@ public class EditUser implements AdminPlugin
 			echo.append("</table>");
 			echo.append("</form>\n");
 			echo.append(Common.tableEnd());
+		}
+	}
+	
+	private void doVacation(User user)
+	{
+		if(user.getVacationCount() == 0)
+		{
+			user.setName(user.getName().replace(" [VAC]", ""));
+			user.setNickname(user.getNickname().replace(" [VAC]", ""));
+		}
+		else if(user.getWait4VacationCount() == 0)
+		{
+			//Code geklaut aus RestTick - ueberarbeiten
+			String name = user.getName();
+			String nickname = user.getNickname();
+			
+			if( name.length() > 249 ) {
+				name = name.substring(0, 249);
+			}
+			if( nickname.length() > 249 ) {
+				nickname = nickname.substring(0, 249);
+			}
+			
+			user.setName(name+" [VAC]");
+			user.setNickname(nickname+" [VAC]");
 		}
 	}
 }
