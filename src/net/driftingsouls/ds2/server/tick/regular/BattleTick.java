@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 /**
@@ -100,7 +101,7 @@ public class BattleTick extends TickController {
 			}
 			finally {
 				db.evict(battle);
-				HibernateFacade.evictAll(db, Ship.class, BattleShip.class);
+				HibernateFacade.evictAll(db, Ship.class, BattleShip.class, ShipFleet.class);
 			}
 		}
 	}

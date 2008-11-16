@@ -1728,6 +1728,14 @@ public class Battle implements Locatable {
 		context.getRequest().setParameter("battle", Integer.toString(this.id));
 		
 		TickController schiffstick = new SchiffsTick();
+		try
+		{
+			schiffstick.addLogTarget(TickController.STDOUT, true);
+		}
+		catch( IOException e )
+		{
+			log.warn("", e);
+		}
 		schiffstick.execute();
 		schiffstick.dispose();
 
