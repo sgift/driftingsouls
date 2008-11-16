@@ -353,7 +353,7 @@
 			<fileset dir="test/java" excludes="**/*.java"/>
 		</copy>
 		
-		<junit fork="yes" haltonfailure="false" outputtoformatters="false">
+		<junit fork="yes" haltonfailure="false" outputtoformatters="false" forkmode="perBatch">
 			<jvmarg value="-javaagent:web/WEB-INF/lib/spring-agent.jar" />
 			<classpath>
 				<fileset dir="web/WEB-INF/lib">
