@@ -2610,6 +2610,11 @@ public class Ship implements Locatable,Transfering {
 			.setParameter("docked", "l "+this.getId())
 			.executeUpdate();
 		
+		// Die Query aktualisiert leider nicht die bereits im Speicher befindlichen Objekte...
+		for( Ship ship : dockships ) {
+			ship.setDocked("l "+this.getId());
+		}
+		
 		return errors;
 	}
 	
