@@ -38,5 +38,8 @@
         <!-- Echo all executed SQL to stdout -->
         <property name="show_sql">true</property>
        	<property name="format_sql">true</property> 
+       	
+       	<!-- Statistiken aktivieren -->
+       	<property name="hibernate.generate_statistics">true</property>
 	</session-factory>
 </hibernate-configuration>

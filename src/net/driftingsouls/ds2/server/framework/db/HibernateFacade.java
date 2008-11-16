@@ -96,8 +96,10 @@ public class HibernateFacade {
 			log.fatal("HibernateFacade init fehlgeschlagen", e);
 			throw new ExceptionInInitializerError(e);
 		}
-		
-		createStatisticsMBean();
+
+		if( "true".equals(conf.getProperty("hibernate.generate_statistics")) ) {
+			createStatisticsMBean();
+		}
 	}
 
 	private static void createStatisticsMBean() {
@@ -109,7 +111,7 @@ public class HibernateFacade {
 			ObjectName name = new ObjectName("org.hibernate:Type=Statistics");
 			server.registerMBean(statisticsService, name);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("", e);
 		}
 	}
 	
@@ -132,7 +134,6 @@ public class HibernateFacade {
 		synchronized(LOCK) {
 			if( sessionFactory == null ) {
 				sessionFactory = conf.buildSessionFactory();
-				sessionFactory.getStatistics().setStatisticsEnabled(true);
 			}
 			return sessionFactory;
 		}

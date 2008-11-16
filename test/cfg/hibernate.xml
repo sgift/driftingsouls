@@ -17,5 +17,8 @@
         
         <!-- Echo all executed SQL to stdout -->
         <property name="show_sql">false</property>
+        
+        <!-- Keine Statistiken -->
+       	<property name="hibernate.generate_statistics">false</property>
 	</session-factory>
 </hibernate-configuration>
