@@ -139,6 +139,29 @@ public class ComNetController extends TemplateGenerator {
 			return;			
 		}
 		
+		t.setVar(
+				"posts.action",		"search",
+				"search.string",	search,
+				"search.type",		searchtype );
+		
+		Object searchArgument = null;
+		if( searchtype == 3 )
+		{
+			try
+			{
+				searchArgument = Integer.valueOf(search);
+			}
+			catch( NumberFormatException e ) {
+				t.setVar("show.searchform", 1);
+				addError("'"+search+"' ist keine g&uuml;ltige User-ID");
+				return;
+			}
+		}
+		else
+		{
+			searchArgument =  "%"+search+"%";
+		}
+		
 		if( activeChannelObj.isWriteable(user) ) {
 			t.setVar("channel.writeable",1);
 		}
@@ -146,10 +169,6 @@ public class ComNetController extends TemplateGenerator {
 		db.update("UPDATE skn_visits SET time='",Common.time(),"' WHERE user=",user.getId()," AND channel=",activeChannel);
 	
 		t.setBlock("_COMNET","posts.listitem","posts.list");
-
-		t.setVar(	"posts.action",		"search",
-					"search.string",	search,
-					"search.type",		searchtype );
 
 		StringBuilder countstring = new StringBuilder("SELECT count(*) count FROM skn WHERE channel=? AND ");
 		StringBuilder querystring = new StringBuilder("SELECT * FROM skn WHERE channel=? AND ");
@@ -169,7 +188,7 @@ public class ComNetController extends TemplateGenerator {
 		querystring.append(" ORDER BY post DESC LIMIT ?, 10");
 
 		int channelPostCount = db.prepare(countstring.toString())
-			.first(activeChannel, (searchtype == 3 ? Integer.parseInt(search) : "%"+search+"%"))
+			.first(activeChannel, searchArgument)
 			.getInt("count");
 		 
 		if( channelPostCount == 0 ) {
