@@ -776,7 +776,7 @@ public class SchiffController extends TemplateGenerator {
 		}
 	
 		Ship targetship = (Ship)db.get(Ship.class, communicate);
-		if( (targetship.getId() < 0) || !targetship.getLocation().sameSector(0, ship.getLocation(), 0) ) {
+		if( (targetship == null) || (targetship.getId() < 0) || !targetship.getLocation().sameSector(0, ship.getLocation(), 0) ) {
 			t.setVar("ship.message", "<span style=\"color:red\">Sie k&ouml;nnen nur mit Schiffen im selben Sektor kommunizieren</span><br />");
 			redirect();
 			return;
