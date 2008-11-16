@@ -186,4 +186,23 @@ public class HibernateFacade {
 			}
 		}
 	}
+
+	/**
+	 * Leert den SecondLevel-Cache vollstaendig. Diese Methode arbeitet
+	 * ausserhalb aller Transaktionen und ignoriert auch alle momentan
+	 * laufenden. Bitte mit Vorsicht verwenden.
+	 */
+	public static void clearSecondLevelCache()
+	{
+		final SessionFactory factory = getSessionFactory();
+		for( Iterator<?> iter=factory.getAllClassMetadata().keySet().iterator(); iter.hasNext(); )
+		{
+			factory.evictEntity((String)iter.next());
+		}
+		
+		for( Iterator<?> iter=factory.getAllCollectionMetadata().keySet().iterator(); iter.hasNext(); )
+		{
+			factory.evictCollection((String)iter.next());
+		}
+	}
 }
