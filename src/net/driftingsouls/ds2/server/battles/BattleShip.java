@@ -381,4 +381,9 @@ public class BattleShip {
 	public int getVersion() {
 		return this.version;
 	}
+	
+	@Override
+	public String toString() {
+		return "{BattleShip: "+this.shipid+" Battle: "+(this.battle != null ? battle.getId() : "null")+"}";
+	}
 }
