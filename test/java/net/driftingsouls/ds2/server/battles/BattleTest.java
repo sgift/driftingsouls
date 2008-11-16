@@ -22,16 +22,17 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.DriftingSoulsDBTestCase;
 import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.ships.Ship;
 
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
-import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -245,18 +246,159 @@ public class BattleTest extends DriftingSoulsDBTestCase {
 		}
 		BattleShip surviving = battle.getOwnShips().get(battle.getOwnShips().size()-1);
 		
-		battle.endTurn(false);
+		boolean exists = battle.endTurn(false);
 		
-		assertThat(1, is(battle.getOwnShips().size()));
-		assertThat(battle.getOwnShip(), is(battle.getOwnShips().get(0)));
-		assertThat(surviving, is(battle.getOwnShip()));
-		assertThat(2, is(battle.getEnemyShips().size()));
+		assertThat(exists, is(true));
+		assertThat(battle.getOwnShips().size(), is(1));
+		assertThat(battle.getOwnShips().get(0), is(battle.getOwnShip()));
+		assertThat(battle.getOwnShip(), is(surviving));
+		assertThat(battle.getEnemyShips().size(), is(2));
 		
 		long count = (Long)context.getDB().createQuery("select count(*) from Ship where owner= :user1")
 			.setEntity("user1", user1)
 			.iterate().next();
 		
 		assertThat(count, is(1L));
+		
+		long count2 = (Long)context.getDB().createQuery("select count(*) from Ship where owner= :user2")
+			.setEntity("user2", user2)
+			.iterate().next();
+		
+		assertThat(count2, is(2L));
+	}
+	
+	/**
+	 * Testet, ob eine Schlacht korrekt beendet, wenn auf der eigenen Seite alle
+	 * Schiffe zerstoert wurden.
+	 */
+	@Test
+	public void testEndTurnRemoveDestroyedAndEndBattle() {
+		Battle battle = Battle.create(user1.getId(), ATTACKER, DEFENDER);
+		// Alle bis auf eines zerstoeren
+		for( int i=0; i < battle.getOwnShips().size(); i++ ) {
+			battle.getOwnShips().get(i).setAction(Battle.BS_DESTROYED);
+		}
+		
+		boolean exists = battle.endTurn(false);
+		
+		assertThat(exists, is(false));
+		assertThat(0, is(battle.getOwnShips().size()));
+		assertThat(0, is(battle.getEnemyShips().size()));
+		
+		assertThat((short)1, is(this.user1.getLostBattles()));
+		assertThat((short)0, is(this.user1.getWonBattles()));
+		
+		assertThat((short)0, is(this.user2.getLostBattles()));
+		assertThat((short)1, is(this.user2.getWonBattles()));
+		
+		long count = (Long)context.getDB().createQuery("select count(*) from Ship where owner= :user1")
+			.setEntity("user1", user1)
+			.iterate().next();
+		
+		assertThat(count, is(0L));
+		
+		long count2 = (Long)context.getDB().createQuery("select count(*) from Ship where owner= :user2 and battle is null")
+			.setEntity("user2", user2)
+			.iterate().next();
+		
+		assertThat(count2, is(2L));
+		
+		long battleCount = (Long)context.getDB().createQuery("select count(*) from Battle")
+			.iterate().next();
+		assertThat(battleCount, is(0L));
+	}
+	
+	/**
+	 * Testet, ob eine Schlacht korrekt beendet, wenn auf der Gegnerseite das letzte
+	 * Schiff zerstoert wurden.
+	 */
+	@Test
+	public void testEndTurnRemoveDestroyedLastShipAndEndBattle()
+	{
+		boolean first = true;
+		for( Ship ship : this.ships.values() )
+		{
+			if( ship.getOwner() != this.user1 )
+			{
+				continue;
+			}
+			if( first )
+			{
+				first = false;
+				continue;
+			}
+			ship.destroy();
+		}
+		Battle battle = Battle.create(user2.getId(), DEFENDER, ATTACKER);
+		assertThat(battle.getEnemyShips().size(), is(1));
+		
+		// Alle bis auf eines zerstoeren
+		for( int i=0; i < battle.getEnemyShips().size(); i++ )
+		{
+			battle.getEnemyShips().get(i).setAction(Battle.BS_DESTROYED);
+		}
+		
+		boolean exists = battle.endTurn(false);
+		
+		assertThat(exists, is(false));
+		assertThat(0, is(battle.getOwnShips().size()));
+		assertThat(0, is(battle.getEnemyShips().size()));
+		
+		assertThat((short)1, is(this.user1.getLostBattles()));
+		assertThat((short)0, is(this.user1.getWonBattles()));
+		
+		assertThat((short)0, is(this.user2.getLostBattles()));
+		assertThat((short)1, is(this.user2.getWonBattles()));
+		
+		long count = (Long)context.getDB().createQuery("select count(*) from Ship where owner= :user1")
+			.setEntity("user1", user1)
+			.iterate().next();
+		
+		assertThat(count, is(0L));
+		
+		long count2 = (Long)context.getDB().createQuery("select count(*) from Ship where owner= :user2 and battle is null")
+			.setEntity("user2", user2)
+			.iterate().next();
+		
+		assertThat(count2, is(2L));
+		
+		long battleCount = (Long)context.getDB().createQuery("select count(*) from Battle")
+			.iterate().next();
+		assertThat(battleCount, is(0L));
+	}
+	
+	/**
+	 * Testet, ob alle fluechtenden Schiffe korrekt am Ende der Runde entfernt werden
+	 */
+	@Test
+	public void testEndTurnRemoveEscaping() {
+		Battle battle = Battle.create(user1.getId(), ATTACKER, DEFENDER);
+		// Alle bis auf eines zerstoeren
+		for( int i=0; i < battle.getOwnShips().size()-1; i++ ) {
+			battle.getOwnShips().get(i).setAction(Battle.BS_FLUCHT);
+		}
+		BattleShip surviving = battle.getOwnShips().get(battle.getOwnShips().size()-1);
+		
+		boolean exists = battle.endTurn(false);
+		
+		assertThat(exists, is(true));
+		assertThat(battle.getOwnShips().size(), is(1));
+		assertThat(battle.getOwnShips().get(0), is(battle.getOwnShip()));
+		assertThat(battle.getOwnShip(), is(surviving));
+		assertThat(battle.getEnemyShips().size(), is(2));
+		
+		List<Ship> ships = Common.cast(context.getDB().createQuery("from Ship where owner= :user1")
+			.setEntity("user1", user1)
+			.list());
+		
+		assertThat(ships.size(), is(3));
+		for( Ship ship : ships ) {
+			if( ship == surviving.getShip() ) {
+				continue;
+			}
+			assertThat(ship.getBattle(), is(nullValue()));
+			assertThat(ship.getLocation().getSystem(), is(battle.getLocation().getSystem()));
+		}
 		
 		long count2 = (Long)context.getDB().createQuery("select count(*) from Ship where owner= :user2")
 			.setEntity("user2", user2)
