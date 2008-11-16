@@ -28,10 +28,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.Version;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.User;
@@ -40,6 +38,11 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * <p>Repraesentiert eine PM in der Datenbank.</p>
@@ -87,6 +90,9 @@ public class PM {
 	
 	@Version
 	private int version;
+	
+	@Transient
+	private static Log log = LogFactory.getLog(PM.class);
 
 	/**
 	 * Sendet eine PM von einem Spieler zu einem anderen
@@ -507,7 +513,25 @@ public class PM {
 		if( this.gelesen > 1 ) {
 			return 2;
 		}
-		int trash = Ordner.getTrash( this.empfaenger ).getId();
+		
+		Ordner trashCan = Ordner.getTrash(this.empfaenger);
+		int trash = -1;
+		if(trashCan != null)
+		{
+			trash = trashCan.getId();
+		}
+		else
+		{
+			if(this.empfaenger != null)
+			{
+				log.error("User " + this.empfaenger.getId() + " has no trash can.");
+			}
+			else
+			{
+				log.error("An anonymous user (object was null) has no trash can.");
+			}
+			return 1;
+		}
 		if( this.hasFlag(PM.FLAGS_IMPORTANT) && (this.gelesen < 1) ) {
 			return 1;
 		}
