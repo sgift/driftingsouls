@@ -18,8 +18,11 @@
  */
 package net.driftingsouls.ds2.server;
 
+import net.driftingsouls.ds2.server.tick.TickController;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.quartz.JobDataMap;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -94,6 +97,44 @@ public class TickAdminCommand
 		catch( SchedulerException e )
 		{
 			log.error("Konnte raretick nicht ausfuehren", e);
+		}
+	}
+	
+	/**
+	 * Fuehrt einen Teil des normalen DS-Tick aus
+	 * @param tickPart der auszufuehrende Teiltick
+	 */
+	public void runRegularTick(Class<? extends TickController> tickPart) {
+		try
+		{
+			JobDataMap map = new JobDataMap();
+			map.put("onlyTick", tickPart);
+			
+			log.info("RegularTick '"+tickPart+"' wird manuell gestartet");
+			scheduler.triggerJob(this.regularTick.getJobName(), this.regularTick.getJobGroup(), map);
+		}
+		catch( SchedulerException e )
+		{
+			log.error("Konnte regulartick nicht ausfuehren", e);
+		}
+	}
+	
+	/**
+	 * Fuehrt einen Teil des seltenen DS-Tick aus
+	 * @param tickPart der auszufuehrende Teiltick
+	 */
+	public void runRareTick(Class<? extends TickController> tickPart) {
+		try
+		{
+			JobDataMap map = new JobDataMap();
+			map.put("onlyTick", tickPart);
+			
+			log.info("RegularTick '"+tickPart+"' wird manuell gestartet");
+			scheduler.triggerJob(this.regularTick.getJobName(), this.regularTick.getJobGroup(), map);
+		}
+		catch( SchedulerException e )
+		{
+			log.error("Konnte regulartick nicht ausfuehren", e);
 		}
 	}
 }

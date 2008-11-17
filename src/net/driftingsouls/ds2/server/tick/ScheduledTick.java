@@ -58,6 +58,10 @@ public class ScheduledTick extends QuartzJobBean implements StatefulJob
 
 		try
 		{
+			if( context.getMergedJobDataMap().containsKey("onlyTick") ) {
+				request.setParameter("only", ((Class<?>)context.getMergedJobDataMap().get("onlyTick")).getName());
+			}
+			
 			Class<? extends AbstractTickExecuter> cls = Class
 				.forName(tick)
 				.asSubclass(AbstractTickExecuter.class);

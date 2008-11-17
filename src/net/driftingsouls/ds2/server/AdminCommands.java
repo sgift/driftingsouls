@@ -57,6 +57,7 @@ import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
+import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 import org.apache.commons.lang.StringUtils;
@@ -132,13 +133,49 @@ public class AdminCommands {
 		}
 		if( "regular".equals(command[1]) ) {
 			if( "run".equals(command[2]) ) {
-				new TickAdminCommand().runRegularTick();
+				if( command.length > 3 ) {
+					String only = command[3];
+					if( !only.startsWith("net.driftingsouls") ) {
+						only = "net.driftingsouls.ds2.server.tick.regular."+only;
+					}
+					try
+					{
+						Class<? extends TickController> clazz = Class.forName(only)
+							.asSubclass(TickController.class);
+						new TickAdminCommand().runRegularTick(clazz);
+					}
+					catch( ClassNotFoundException e )
+					{
+						return "Unbekannter Teiltick";
+					}
+				}
+				else {
+					new TickAdminCommand().runRegularTick();
+				}
 				return "Tick wird ausgefuehrt";
 			}
 		}
 		else if( "rare".equals(command[1]) ) {
 			if( "run".equals(command[2]) ) {
-				new TickAdminCommand().runRareTick();
+				if( command.length > 3 ) {
+					String only = command[3];
+					if( !only.startsWith("net.driftingsouls") ) {
+						only = "net.driftingsouls.ds2.server.tick.rare."+only;
+					}
+					try
+					{
+						Class<? extends TickController> clazz = Class.forName(only)
+							.asSubclass(TickController.class);
+						new TickAdminCommand().runRareTick(clazz);
+					}
+					catch( ClassNotFoundException e )
+					{
+						return "Unbekannter Teiltick";
+					}
+				}
+				else {
+					new TickAdminCommand().runRareTick();
+				}
 				return "Raretick wird ausgefuehrt";
 			}
 		}
