@@ -2398,9 +2398,6 @@ public class Battle implements Locatable {
 			.setString(0, Integer.toString(ship.getId()))
 			.setString(1, "l "+ship.getId())
 			.iterate().next();
-		
-		db.delete(ship);
-		ship.getShip().destroy();
 
 		//
 		// Feststellen in welcher der beiden Listen sich das Schiff befindet und dieses daraus entfernen
@@ -2445,6 +2442,13 @@ public class Battle implements Locatable {
 		}
 		else if( (ship.getSide() == this.ownSide) && (this.activeSOwn >= shiplist.size()) ) {
 			this.activeSOwn = 0;
+		}
+		
+		// Falls das Schiff nicht mehr in der Liste ist brauchen wir es hier auch nicht mehr zu loeschen
+		// Sehr wahrscheinlich ist dies bereits vorher passiert
+		if( found ) {
+			db.delete(ship);
+			ship.getShip().destroy();
 		}
 	}
 	
