@@ -1544,11 +1544,11 @@ public class Battle implements Locatable {
 					ShipTypeData ashipType = aship.getTypeData();
 					if( ashipType.getCost() > 0 ) {
 						//fluchtReposList.add(aship);
-						removeShip(aship, false);
+						removeShip(aship, true);
 					}
 					else {
 						//fluchtList.add(aship);
-						removeShip(aship, true);
+						removeShip(aship, false);
 					}
 	
 					//continue;
