@@ -1979,9 +1979,9 @@ public class Ship implements Locatable,Transfering {
 						"(y=-1 or y between :lowery and :uppery) order by system desc")
 					.setInteger("system", this.system)
 					.setInteger("lowerx", (waypoint.direction-1) % 3 == 0 ? this.x-waypoint.distance : this.x )
-					.setInteger("upperx", (waypoint.direction) % 3 == 0 ? this.x : this.x+waypoint.distance )
+					.setInteger("upperx", (waypoint.direction) % 3 == 0 ? this.x+waypoint.distance : this.x )
 					.setInteger("lowery", waypoint.direction <= 3 ? this.y-waypoint.distance : this.y )
-					.setInteger("uppery", waypoint.direction >= 7 ? this.y : this.y+waypoint.distance )
+					.setInteger("uppery", waypoint.direction >= 7 ? this.y+waypoint.distance : this.y )
 					.list();
 
 			for( Iterator<?> iter=sectors.iterator(); iter.hasNext(); ) {
@@ -1996,9 +1996,9 @@ public class Ship implements Locatable,Transfering {
 					.setEntity("owner", this.owner)
 					.setInteger("system", this.system)
 					.setInteger("lowerx", (waypoint.direction-1) % 3 == 0 ? this.x-waypoint.distance : this.x )
-					.setInteger("upperx", (waypoint.direction) % 3 == 0 ? this.x : this.x+waypoint.distance )
+					.setInteger("upperx", (waypoint.direction) % 3 == 0 ? this.x+waypoint.distance : this.x )
 					.setInteger("lowery", waypoint.direction <= 3 ? this.y-waypoint.distance : this.y )
-					.setInteger("uppery", waypoint.direction >= 7 ? this.y : this.y+waypoint.distance )
+					.setInteger("uppery", waypoint.direction >= 7 ? this.y+waypoint.distance : this.y )
 					.list();
 
 			for( Iterator<?> iter=sectorList.iterator(); iter.hasNext(); ) {
@@ -2012,9 +2012,9 @@ public class Ship implements Locatable,Transfering {
 					"where type>=3 and type<=5 and system=:system and x between :lowerx and :upperx and y between :lowery and :uppery")
 					.setInteger("system", this.system)
 					.setInteger("lowerx", (waypoint.direction-1) % 3 == 0 ? this.x-waypoint.distance : this.x )
-					.setInteger("upperx", (waypoint.direction) % 3 == 0 ? this.x : this.x+waypoint.distance )
+					.setInteger("upperx", (waypoint.direction) % 3 == 0 ? this.x+waypoint.distance : this.x )
 					.setInteger("lowery", waypoint.direction <= 3 ? this.y-waypoint.distance : this.y )
-					.setInteger("uppery", waypoint.direction >= 7 ? this.y : this.y+waypoint.distance )
+					.setInteger("uppery", waypoint.direction >= 7 ? this.y+waypoint.distance : this.y )
 					.list();
 
 			for( Iterator<?> iter=sectorList.iterator(); iter.hasNext(); ) {
