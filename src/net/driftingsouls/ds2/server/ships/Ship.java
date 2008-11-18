@@ -3565,6 +3565,8 @@ public class Ship implements Locatable,Transfering {
 		setCrew(getCrew() - amount);
 		base.setBewohner(base.getBewohner() + amount);
 		
+		recalculateShipStatus();
+		
 		return amount;
 	}
 	

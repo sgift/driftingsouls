@@ -871,6 +871,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		ship.setCrew(ship.getCrew() + amount);
 		setBewohner(getBewohner() - amount);
 		
+		ship.recalculateShipStatus();
+		
 		return amount;
 	}
 }
