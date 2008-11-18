@@ -82,6 +82,7 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.ObjectNotFoundException;
+import org.hibernate.Query;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
@@ -1460,13 +1461,21 @@ public class Ship implements Locatable,Transfering {
 			if( builder.length() > 1 ) {
 				builder.append(" or ");
 			}
-			builder.append("(s.system="+locs[i].getSystem()+" and s.x="+locs[i].getX()+" and s.y="+locs[i].getY()+")");
+			builder.append("(s.system=? and s.x=? and s.y=?)");
 		}
 		builder.append(")");
 
-		List<?> ownerList = db.createQuery("select distinct s.owner,s.x,s.y,s.system from Ship as s where s.id>0 and "+builder +
-			" and s.e>0 and s.owner!=? and s.alarm=1 and s.lock is null and s.docked='' and locate('nocrew',s.status)=0")
-			.setEntity(0, user)
+		Query query = db.createQuery("select distinct s.owner,s.x,s.y,s.system from Ship as s where s.id>0 and s.owner!=? and "+builder +
+			" and s.e>0 and s.alarm=1 and s.lock is null and s.docked='' and locate('nocrew',s.status)=0")
+			.setEntity(0, user);
+		
+		for( int i=0; i < locs.length; i++ ) {
+			query.setInteger(i*3+1, locs[i].getSystem());
+			query.setInteger(i*3+2, locs[i].getX());
+			query.setInteger(i*3+3, locs[i].getY());
+		}
+		
+		List<?> ownerList = query
 			.list();
 		for( Iterator<?> iter=ownerList.iterator(); iter.hasNext(); ) {
 			Object[] data = (Object[])iter.next();
