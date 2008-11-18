@@ -195,8 +195,15 @@ public class NavigationDefault implements SchiffPlugin {
 			}
 			Ship mastership = (Ship)db.get(Ship.class, Integer.parseInt(mastershipid));
 			
-			t.setVar(	"schiff.navigation.docked.master.name",	mastership.getName(),
-						"schiff.navigation.docked.master.id",	mastershipid );
+			if(mastership != null)
+			{
+				t.setVar(	"schiff.navigation.docked.master.name",	mastership.getName(),
+							"schiff.navigation.docked.master.id",	mastershipid );
+			}
+			else
+			{
+				log.error("Illegal docked entry " + data.getDocked() + " for ship " + data.getId());
+			}
 		} 
 		else if( datatype.getCost() == 0 ) {
 			t.setVar("schiff.navigation.showmessage","Dieses Objekt hat keinen Antrieb");
