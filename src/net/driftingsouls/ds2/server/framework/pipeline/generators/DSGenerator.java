@@ -36,6 +36,8 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Error;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.exception.GenericJDBCException;
 import org.hibernate.exception.LockAcquisitionException;
@@ -48,6 +50,8 @@ import org.springframework.beans.factory.annotation.Configurable;
  *
  */
 public abstract class DSGenerator extends Generator {
+	private static final Log log = LogFactory.getLog(DSGenerator.class);
+	
 	protected static abstract class OutputHelper {
 		private Context context = null;
 		private Map<String,Object> attributes = new HashMap<String,Object>();
@@ -439,8 +443,16 @@ public abstract class DSGenerator extends Generator {
 			method.invoke(this);
 		}
 		catch( Exception e ) {
-			e.printStackTrace();
+			log.error("Es ist ein Fehler beim Aufruf der Action '"+action+"' aufgetreten", e);
 			addError("Es ist ein Fehler beim Aufruf der Action '"+action+"' aufgetreten:\n"+e.toString());
+			
+			Common.mailThrowable(e, "DSGenerator Invocation Target Exception", 
+					"Redirect-Action: "+action+"\n" +
+					"ActionType: "+actionType+"\n" +
+					"User: "+(getContext().getActiveUser() != null ? getContext().getActiveUser().getId() : "none")+"\n" +
+					"Query-String: "+getContext().getRequest().getQueryString());
+			
+			getContext().rollback();
 		}
 	}
 	
@@ -511,7 +523,7 @@ public abstract class DSGenerator extends Generator {
 		}
 		catch( InvocationTargetException e ) {
 			Throwable t = e.getCause();
-			t.printStackTrace();
+			log.error("", t);
 			StackTraceElement[] st = t.getStackTrace();
 			String stacktrace = "";
 			for( StackTraceElement s : st ) {
@@ -542,9 +554,11 @@ public abstract class DSGenerator extends Generator {
 			getContext().rollback();
 		}
 		catch( NoSuchMethodException e ) {
+			log.error("", e);
 			addError("Die Aktion '"+action+"' existiert nicht!");
 		}
 		catch( Exception e ) {
+			log.error("", e);
 			addError("Es ist ein Fehler beim Aufruf der Action '"+action+"' aufgetreten:\n"+e.toString());
 			Common.mailThrowable(e, "DSGenerator Exception", 
 					"Action: "+action+"\n" +
