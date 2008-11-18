@@ -1955,33 +1955,33 @@ public class Ship implements Locatable,Transfering {
 			}
 
 			// Zielkoordinaten/Bewegungsrichtung berechnen
-			String xbetween = "x='"+this.x+"'";
-			String ybetween = "y='"+this.y+"'";
 			int xoffset = 0;
 			int yoffset = 0;
 			if( waypoint.direction <= 3 ) {
-				ybetween = "y BETWEEN '"+(this.y-waypoint.distance)+"' AND '"+this.y+"'";
 				yoffset--;
 			}
 			else if( waypoint.direction >= 7 ) {
-				ybetween = "y BETWEEN '"+this.y+"' AND '"+(this.y+waypoint.distance)+"'";
 				yoffset++;
 			}
 
 			if( (waypoint.direction-1) % 3 == 0 ) {
-				xbetween = "x BETWEEN '"+(this.x-waypoint.distance)+"' AND '"+this.x+"'";
 				xoffset--;
 			}
 			else if( waypoint.direction % 3 == 0 ) {
-				xbetween = "x BETWEEN '"+this.x+"' AND '"+(this.x+waypoint.distance)+"'";
 				xoffset++;
 			}
 
 			// Alle potentiell relevanten Sektoren (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
 			Map<Location,Sector> sectorlist = new HashMap<Location,Sector>();
 			List<?> sectors = db.createQuery("from Sector " +
-					"where system in (?,-1) and (x=-1 or "+xbetween+") AND (y=-1 or "+ybetween+") order by system desc")
-					.setInteger(0, this.system)
+					"where system in (:system,-1) and " +
+						"(x=-1 or x between :lowerx and :upperx) and " +
+						"(y=-1 or y between :lowery and :uppery) order by system desc")
+					.setInteger("system", this.system)
+					.setInteger("lowerx", (waypoint.direction-1) % 3 == 0 ? this.x-waypoint.distance : this.x )
+					.setInteger("upperx", (waypoint.direction) % 3 == 0 ? this.x : this.x+waypoint.distance )
+					.setInteger("lowery", waypoint.direction <= 3 ? this.y-waypoint.distance : this.y )
+					.setInteger("uppery", waypoint.direction >= 7 ? this.y : this.y+waypoint.distance )
 					.list();
 
 			for( Iterator<?> iter=sectors.iterator(); iter.hasNext(); ) {
@@ -1992,9 +1992,13 @@ public class Ship implements Locatable,Transfering {
 			// Alle potentiell relevanten Sektoren mit Schiffen auf rotem Alarm (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
 			Map<Location,Boolean> redalertlist = new HashMap<Location,Boolean>();
 			List<?> sectorList = db.createQuery("from Ship " +
-					"where owner!=? and alarm=1 and system=? and "+xbetween+" and "+ybetween)
-					.setEntity(0, this.owner)
-					.setInteger(1, this.system)
+					"where owner!=:owner and alarm=1 and system=:system and x between :lowerx and :upperx and y between :lowery and :uppery")
+					.setEntity("owner", this.owner)
+					.setInteger("system", this.system)
+					.setInteger("lowerx", (waypoint.direction-1) % 3 == 0 ? this.x-waypoint.distance : this.x )
+					.setInteger("upperx", (waypoint.direction-1) % 3 == 0 ? this.x : this.x+waypoint.distance )
+					.setInteger("lowery", waypoint.direction <= 3 ? this.y-waypoint.distance : this.y )
+					.setInteger("uppery", waypoint.direction >= 7 ? this.y : this.y+waypoint.distance )
 					.list();
 
 			for( Iterator<?> iter=sectorList.iterator(); iter.hasNext(); ) {
@@ -2005,8 +2009,12 @@ public class Ship implements Locatable,Transfering {
 			// Alle potentiell relevanten Sektoren mit EMP-Nebeln (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
 			Map<Location,Boolean> nebulaemplist = new HashMap<Location,Boolean>();
 			sectorList = db.createQuery("from Nebel " +
-					"where type>=3 and type<=5 and system=? and "+xbetween+" and "+ybetween)
-					.setInteger(0, this.system)
+					"where type>=3 and type<=5 and system=:system and x between :lowerx and :upperx and y between :lowery and :uppery")
+					.setInteger("system", this.system)
+					.setInteger("lowerx", (waypoint.direction-1) % 3 == 0 ? this.x-waypoint.distance : this.x )
+					.setInteger("upperx", (waypoint.direction-1) % 3 == 0 ? this.x : this.x+waypoint.distance )
+					.setInteger("lowery", waypoint.direction <= 3 ? this.y-waypoint.distance : this.y )
+					.setInteger("uppery", waypoint.direction >= 7 ? this.y : this.y+waypoint.distance )
 					.list();
 
 			for( Iterator<?> iter=sectorList.iterator(); iter.hasNext(); ) {
