@@ -325,8 +325,8 @@ public class SensorsDefault implements SchiffPlugin {
 				t.setVar(	"battle.id",		battle.getInt("id"),
 							"battle.party1",	party1,
 							"battle.party2",	party2,
-							"battle.side1",		Common._stripHTML(party1),
-							"battle.side2",		Common._stripHTML(party2),
+							"battle.side1",		Common._stripHTML(party1).replace("'", ""),
+							"battle.side2",		Common._stripHTML(party2).replace("'", ""),
 							"battle.fixedjoin",	fixedjoin,
 							"battle.joinable",	joinable,
 							"battle.viewable",	viewable,
@@ -547,7 +547,7 @@ public class SensorsDefault implements SchiffPlugin {
 								"sships.ablativearmor",	Common.ln(aship.getAblativeArmor()),
 								"sships.shields",		Common.ln(aship.getShields()),
 								"sships.fleet.id",		aship.getFleet() != null ? aship.getFleet().getId() : 0,
-								"sships.type.name",		ashiptype.getNickname(),
+								"sships.type.name",		ashiptype.getNickname().replace("'", ""),
 								"sships.type.image",	ashiptype.getPicture(),
 								"sships.docked.id",		aship.getDocked() );
 
