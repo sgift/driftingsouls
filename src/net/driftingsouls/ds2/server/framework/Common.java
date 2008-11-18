@@ -1096,7 +1096,7 @@ public class Common {
 		
 		String[] mailAddrs = StringUtils.split(Configuration.getSetting("EXCEPTION_MAIL"), ';');
 		for( int i=0; i < mailAddrs.length; i++ ) {
-			Common.mail(mailAddrs[i], prefix+" "+(title != null && title.length() > 0 ? title : "Exception"), msg.toString());
+			Common.mail(mailAddrs[i], prefix+" "+(title != null && title.length() > 0 ? title : "Exception"), msg);
 		}
 	}
 
