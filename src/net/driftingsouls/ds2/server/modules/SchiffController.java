@@ -1193,10 +1193,9 @@ public class SchiffController extends TemplateGenerator {
 		org.hibernate.Session db = getDB();
 
 		db.flush();
-		db.refresh(ship);
 			
 		ScriptEngine scriptparser = getContext().get(ContextCommon.class).getScriptParser("DSQuestScript");
-		if( ship == null ) {
+		if( ship.isDestroyed() ) {
 			if( (scriptparser != null) && (scriptparser.getContext().getWriter().toString().length() != 0) ) {
 				t.setVar("ship.scriptparseroutput",
 						scriptparser.getContext().getWriter().toString().replace("{{var.sessid}}", getString("sess")) );
@@ -1206,7 +1205,8 @@ public class SchiffController extends TemplateGenerator {
 			}
 			return;
 		}
-
+		
+		db.refresh(ship);
 		shiptype = ship.getTypeData();
 		
 		if( ship.getBattle() != null ) {
