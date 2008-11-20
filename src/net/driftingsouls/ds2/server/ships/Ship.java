@@ -164,6 +164,9 @@ public class Ship implements Locatable,Transfering {
 	@Version
 	private int version;
 	
+	@Transient
+	private boolean destroyed = false;
+	
 	/**
 	 * Konstruktor
 	 */
@@ -3179,8 +3182,21 @@ public class Ship implements Locatable,Transfering {
 			.executeUpdate();
 
 		db.delete(this);
+		
+		this.destroyed = true;
 	}
 
+	/**
+	 * Gibt zurueck, ob das Schiff mittels {@link #destroy()} zerstoert
+	 * wurde und somit nicht mehr in der Datenbank existiert. Diese
+	 * Methode laesst hingegen keine Rueckschluesse zu, ob ein Schiff innerhalb
+	 * einer Schlacht als zerstoert <b>markiert</b> wurde.
+	 * @return <code>true</code> falls es bereits zerstoert wurde
+	 */
+	public boolean isDestroyed() {
+		return this.destroyed;
+	}
+	
 	/**
 	 * Uebergibt ein Schiff an einen anderen Spieler. Gedockte/Gelandete Schiffe
 	 * werden, falls moeglich, mituebergeben.
