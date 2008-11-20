@@ -196,7 +196,7 @@ public class SchiffController extends TemplateGenerator {
 		noob = user.isNoob();
 		
 		// URL fuer Quests setzen
-		Quests.currentEventURLBase.set("./ds?module=schiff&sess="+getString("sess")+"&ship="+getInteger("ship"));
+		Quests.currentEventURLBase.set("./ds?module=schiff&ship="+getInteger("ship"));
 		
 		return true;	
 	}
@@ -1197,8 +1197,7 @@ public class SchiffController extends TemplateGenerator {
 		ScriptEngine scriptparser = getContext().get(ContextCommon.class).getScriptParser("DSQuestScript");
 		if( ship.isDestroyed() ) {
 			if( (scriptparser != null) && (scriptparser.getContext().getWriter().toString().length() != 0) ) {
-				t.setVar("ship.scriptparseroutput",
-						scriptparser.getContext().getWriter().toString().replace("{{var.sessid}}", getString("sess")) );
+				t.setVar("ship.scriptparseroutput", scriptparser.getContext().getWriter().toString() );
 			}
 			else {
 				addError("Das Schiff existiert nicht mehr oder geh&ouml;rt nicht mehr ihnen");
@@ -1211,8 +1210,7 @@ public class SchiffController extends TemplateGenerator {
 		
 		if( ship.getBattle() != null ) {
 			if( (scriptparser != null) && (scriptparser.getContext().getWriter().toString().length() > 0) ) {
-				t.setVar("ship.scriptparseroutput",
-						scriptparser.getContext().getWriter().toString().replace("{{var.sessid}}", getString("sess")) );
+				t.setVar("ship.scriptparseroutput", scriptparser.getContext().getWriter().toString() );
 			}
 		
 			addError("Das Schiff ist in einen Kampf verwickelt (hier klicken um zu diesem zu gelangen)!", Common.buildUrl("default", "module", "angriff", "battle", ship.getBattle().getId(), "ship", ship.getId()) );
@@ -1579,8 +1577,7 @@ public class SchiffController extends TemplateGenerator {
 		*/
 	
 		if( (scriptparser != null) ) {
-			t.setVar("ship.scriptparseroutput",
-					scriptparser.getContext().getWriter().toString().replace("{{var.sessid}}", getString("sess")));
+			t.setVar("ship.scriptparseroutput", scriptparser.getContext().getWriter().toString());
 		}
 	
 		caller.target = "plugin.output";
