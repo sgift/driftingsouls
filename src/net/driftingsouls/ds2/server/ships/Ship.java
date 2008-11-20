@@ -2666,6 +2666,13 @@ public class Ship implements Locatable,Transfering {
 				.setParameter("y", y)
 				.setParameter("docked", "l "+this.getId())
 				.executeUpdate();
+			
+			for( Ship dockship : dockships ) {
+				dockship.setDocked("");
+				dockship.setX(x);
+				dockship.setY(y);
+				dockship.setSystem(system);
+			}
 		}
 	}
 	
@@ -2761,6 +2768,10 @@ public class Ship implements Locatable,Transfering {
 		}
 		dockships = help;
 		
+		if(dockships.length == 0)
+		{
+			return errors;
+		}
 		
 		long dockedShips = (Long)db.createQuery("select count(*) from Ship where docked=?")
 			.setParameter(0, ""+getId())
