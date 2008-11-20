@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.battles;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -274,26 +275,43 @@ public class BattleTest extends DriftingSoulsDBTestCase {
 	 */
 	@Test
 	public void testEndTurnRemoveDestroyedWithDocked() {
-		Ship ship = new Ship(this.user1, (ShipType)context.getDB().get(ShipType.class, 2), 1, 1, 1);
-		ship.setName("Testjaeger");
-		context.getDB().persist(ship);
 		Ship masterShip = (Ship)context.getDB().get(Ship.class, 1);
 		masterShip.setStartFighters(false);
+				
+		Ship ship = new Ship(this.user1, (ShipType)context.getDB().get(ShipType.class, 2), 1, 1, 1);
+		ship.setName("Testjaeger1");
+		context.getDB().persist(ship);
 		assertThat(masterShip.land(ship), is(false));
+		
+		ship = new Ship(this.user1, (ShipType)context.getDB().get(ShipType.class, 2), 1, 1, 1);
+		ship.setName("Testjaeger2");
+		context.getDB().persist(ship);
+		assertThat(masterShip.land(ship), is(false));
+		
 		context.commit();
 		
 		Battle battle = Battle.create(user1.getId(), ATTACKER, DEFENDER);
 		// Alle bis auf eines zerstoeren
-		for( BattleShip bship : battle.getOwnShips() )
+		for( BattleShip bship : new ArrayList<BattleShip>(battle.getOwnShips()) )
 		{
 			if( bship.getShip().getId() == 1 || "l 1".equals(bship.getShip().getDocked()) )
 			{
 				bship.setAction(Battle.BS_DESTROYED);
+				
+				if( "Testjaeger2".equals(bship.getShip().getName()) ) {
+					// Testjaeger2 ans Ende der Schiffsliste setzen, damit dieser nach dem Elternschiff berechnet wird
+					List<BattleShip> list = battle.getOwnShips();
+					list.remove(bship);
+					list.add(bship);
+				}
 			}
 		}
-		assertThat(battle.getOwnShips().size(), is(4));
+		assertThat(battle.getOwnShips().size(), is(5));
 
 		boolean exists = battle.endTurn(false);
+		
+		// Flush durchfuehren um db-Fehler "sichtbar" zu machen
+		context.getDB().flush();
 		
 		assertThat(exists, is(true));
 		assertThat(battle.getOwnShips().size(), is(2));
