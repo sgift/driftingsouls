@@ -44,9 +44,9 @@
 					</div>
 					<div style="position:absolute; top:0px; left:0px; z-index:2; width:{schiff.navigation.size}px; height:{schiff.navigation.size}px">
 						{if schiff.navigation.nav.warn}
-							<div onclick="ask('Wenn sie in diese Richtung fliegen werden Schiffe auf Alarmstufe Rot auf sie feuern!\nWollen sie diese Aktion wirklich ausf&uuml;hren?',getDsUrl()+'?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;navigation_ops[act]={schiff.navigation.nav.direction}&amp;navigation_ops[count]=1')" style="display:table-cell; width:37px; height:37px; text-align:center; vertical-align:middle; font-size:9px; color:white; cursor:pointer">
+							<div onclick="ask('Wenn sie in diese Richtung fliegen werden Schiffe auf Alarmstufe Rot auf sie feuern!\nWollen sie diese Aktion wirklich ausf&uuml;hren?',getDsUrl()+'?module=schiff&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;navigation_ops[act]={schiff.navigation.nav.direction}&amp;navigation_ops[count]=1')" style="display:table-cell; width:37px; height:37px; text-align:center; vertical-align:middle; font-size:9px; color:white; cursor:pointer">
 						{else}
-							<div onclick="document.location.href=getDsUrl()+'?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;navigation_ops[act]={schiff.navigation.nav.direction}&amp;navigation_ops[count]=1'" style="display:table-cell; width:37px; height:37px; text-align:center; vertical-align:middle; font-size:9px; color:white; cursor:pointer">
+							<div onclick="document.location.href=getDsUrl()+'?module=schiff&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;navigation_ops[act]={schiff.navigation.nav.direction}&amp;navigation_ops[count]=1'" style="display:table-cell; width:37px; height:37px; text-align:center; vertical-align:middle; font-size:9px; color:white; cursor:pointer">
 						{/endif}
 							{if schiff.navigation.nav.warn}
 								<span style="color:red">
