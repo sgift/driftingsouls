@@ -142,6 +142,12 @@ public class CommController extends TemplateGenerator {
 		}
 		else {
 			PM pm = (PM)db.get(PM.class, delete);
+			if( pm == null )
+			{
+				t.setVar("show.message", "<span style=\"color:red\">Die angegebene Nachricht existiert nicht</span>");
+				redirect("showInbox");
+				return;
+			}
 			if( pm.getEmpfaenger() == user ) {
 				result = pm.delete();
 			}
