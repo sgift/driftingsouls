@@ -386,36 +386,41 @@ public class TemplateEngine {
 			return varvals.get(varname);
 		}
 		
-		if( varname.contains(".") ) {
-			String attrib = varname.substring(varname.indexOf('.')+1);
+		int index = -1;
+		
+		while( (index = varname.indexOf('.', index+1)) != -1 ) {;
+			Object obj = getVarObject(varname.substring(0, index));
+			if( obj != null ) {
+				return resolveBeanAttributePath(obj, varname.substring(index+1));
+			}
+		}
+		
+		return null;
+	}
 
-			Object obj = getVarObject(varname.substring(0, varname.indexOf('.')));
-			if( obj == null ) {
-				return null;
-			}
-			
-			try {
-				while( attrib.indexOf('.') > -1 ) {
-					obj = getBeanAttribute(obj, attrib.substring(0, attrib.indexOf('.')));
-					if( obj == null ) {
-						return null;
-					}
-					attrib = attrib.substring(attrib.indexOf('.')+1);
+	private Object resolveBeanAttributePath(Object obj, String attrib)
+	{
+		try {
+			while( attrib.indexOf('.') > -1 ) {
+				obj = getBeanAttribute(obj, attrib.substring(0, attrib.indexOf('.')));
+				if( obj == null ) {
+					return null;
 				}
-				return getBeanAttribute(obj, attrib);
+				attrib = attrib.substring(attrib.indexOf('.')+1);
 			}
-			catch( IntrospectionException e ) {
-				e.printStackTrace();
-			}
-			catch( InvocationTargetException e ) {
-				e.printStackTrace();
-			}
-			catch( IllegalArgumentException e ) {
-				e.printStackTrace();
-			}
-			catch( IllegalAccessException e ) {
-				e.printStackTrace();
-			}
+			return getBeanAttribute(obj, attrib);
+		}
+		catch( IntrospectionException e ) {
+			log.error("BeanPath: "+attrib, e);
+		}
+		catch( InvocationTargetException e ) {
+			log.error("BeanPath: "+attrib, e);
+		}
+		catch( IllegalArgumentException e ) {
+			log.error("BeanPath: "+attrib, e);
+		}
+		catch( IllegalAccessException e ) {
+			log.error("BeanPath: "+attrib, e);
 		}
 		return null;
 	}
