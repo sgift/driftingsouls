@@ -2639,8 +2639,9 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Jaeger starten.
-	 * Der Vorgang wird mit den Berechtigungen des Besitzers des Traegers ausgefuehrt.
+	 * Jaeger starten. Der Vorgang wird mit den Berechtigungen des Besitzers des Traegers ausgefuehrt.
+	 * <b>Warnung:</b> Beim starten aller Schiffe werden die Objekte der Session - sofern sie vorhanden sind - 
+	 * momentan nicht aktualisiert.
 	 * 
 	 * @param dockships Eine Liste mit Schiffen, die starten sollen. Keine Angabe bewirkt das alle Schiffe gestartet werden.
 	 */
@@ -2680,10 +2681,15 @@ public class Ship implements Locatable,Transfering {
 	 * Schiffe abdocken.
 	 * Der Vorgang wird mit den Berechtigungen des Besitzers des Traegers ausgefuehrt.
 	 * 
-	 * @param dockships 
+	 * @param dockships Eine Liste mit Schiffen, die abgedockt werden sollen. Keine Angabe bewirkt das alle Schiffe abgedockt werden.
 	 */
 	public void undock(Ship... dockships)
 	{
+		if( dockships == null || dockships.length == 0 ) {
+			List<Ship> dockshipList = getDockedShips();
+			dockships = dockshipList.toArray(new Ship[dockshipList.size()]);
+		}
+		
 		boolean gotmodule = false;
 		for( Ship aship : dockships ) 
 		{
@@ -2740,6 +2746,19 @@ public class Ship implements Locatable,Transfering {
 			this.cargo = newcargo;
 		}
 		this.recalculateShipStatus();
+	}
+
+	/**
+	 * Gibt die Liste aller an diesem Schiff (extern) gedockten Schiffe zurueck 
+	 * @return Die Liste der Schiffe
+	 */
+	public List<Ship> getDockedShips()
+	{
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		List<Ship> dockshipList = Common.cast(db.createQuery("from Ship where id>0 and docked= :docked")
+			.setString("docked", Integer.toString(this.id))
+			.list());
+		return dockshipList;
 	}
 	
 	/**
