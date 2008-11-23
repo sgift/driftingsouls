@@ -113,7 +113,7 @@ public class ShipTest extends DriftingSoulsDBTestCase
 	 * Testet das Abdocken von Containern an ein Schiff
 	 */
 	@Test
-	public void undockDock()
+	public void testUndock()
 	{
 		assertThat(this.tanker.dock(this.container1, this.container2), is(false));
 		assertThat(this.container1.getDocked(), is("" + this.tanker.getId()));
@@ -130,6 +130,52 @@ public class ShipTest extends DriftingSoulsDBTestCase
 		assertThat(this.tanker.getTypeData().getCargo(), is(3000L));
 		assertThat(this.container1.getTypeData().getCargo(), is(1500L));
 		assertThat(this.container2.getTypeData().getCargo(), is(0L));
+	}
+	
+	/**
+	 * Testet das Abdocken aller Container an ein Schiff auf einmal
+	 */
+	@Test
+	public void testUndockAll()
+	{
+		assertThat(this.tanker.dock(this.container1, this.container2), is(false));
+		assertThat(this.container1.getDocked(), is("" + this.tanker.getId()));
+		assertThat(this.container2.getDocked(), is("" + this.tanker.getId()));
+		assertThat(this.tanker.getTypeData().getCargo(), is(4500L));
+		assertThat(this.container1.getTypeData().getCargo(), is(0L));
+		assertThat(this.container2.getTypeData().getCargo(), is(0L));
+
+		this.context.commit();
+
+		this.tanker.undock();
+		assertThat(this.container1.getDocked(), is(""));
+		assertThat(this.container2.getDocked(), is(""));
+		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
+		assertThat(this.container1.getTypeData().getCargo(), is(1500L));
+		assertThat(this.container2.getTypeData().getCargo(), is(1500L));
+	}
+	
+	/**
+	 * Testet das Abdocken einer Liste von Container von ein Schiff
+	 */
+	@Test
+	public void testUndockList()
+	{
+		assertThat(this.tanker.dock(this.container1, this.container2), is(false));
+		assertThat(this.container1.getDocked(), is("" + this.tanker.getId()));
+		assertThat(this.container2.getDocked(), is("" + this.tanker.getId()));
+		assertThat(this.tanker.getTypeData().getCargo(), is(4500L));
+		assertThat(this.container1.getTypeData().getCargo(), is(0L));
+		assertThat(this.container2.getTypeData().getCargo(), is(0L));
+
+		this.context.commit();
+
+		this.tanker.undock(this.container1, this.container2);
+		assertThat(this.container1.getDocked(), is(""));
+		assertThat(this.container2.getDocked(), is(""));
+		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
+		assertThat(this.container1.getTypeData().getCargo(), is(1500L));
+		assertThat(this.container2.getTypeData().getCargo(), is(1500L));
 	}
 
 	/**
@@ -160,5 +206,64 @@ public class ShipTest extends DriftingSoulsDBTestCase
 		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
 		assertThat(this.jaeger1.getTypeData().getCargo(), is(1500L));
 		assertThat(this.jaeger2.getTypeData().getCargo(), is(1500L));
+	}
+	
+	/**
+	 * Testet das Starten aller Jaegern von einem Schiff
+	 */
+	@Test
+	public void testStartAll()
+	{
+		assertThat(this.tanker.land(this.jaeger1, this.jaeger2), is(false));
+		assertThat(this.jaeger1.getDocked(), is("l " + this.tanker.getId()));
+		assertThat(this.jaeger2.getDocked(), is("l " + this.tanker.getId()));
+		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger1.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger2.getTypeData().getCargo(), is(1500L));
+
+		this.context.commit();
+
+		this.tanker.start();
+		
+		// TODO: Refresh ist momentan notwendig, da die Objekte innerhalb 
+		// der Session nicht aktualisiert werden
+		context.getDB().refresh(this.jaeger1);
+		context.getDB().refresh(this.jaeger2);
+		
+		assertThat(this.jaeger1.getDocked(), is(""));
+		assertThat(this.jaeger2.getDocked(), is(""));
+		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger1.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger2.getTypeData().getCargo(), is(1500L));
+	}
+	
+	/**
+	 * Testet {@link Ship#getDockedShips()}
+	 */
+	@Test
+	public void testGetDockedList()
+	{
+		// Ausgangslage: Liste ist leer - keine Schiffe gedockt
+		assertThat(this.tanker.getDockedShips().size(), is(0));
+		
+		// Zwei Container andocken
+		assertThat(this.tanker.dock(this.container1, this.container2), is(false));
+		assertThat(this.container1.getDocked(), is("" + this.tanker.getId()));
+		assertThat(this.container2.getDocked(), is("" + this.tanker.getId()));
+
+		this.context.commit();
+
+		// Liste muss beide Container beinhalten
+		assertThat(this.tanker.getDockedShips().size(), is(2));
+		assertThat(this.tanker.getDockedShips().contains(this.container1), is(true));
+		assertThat(this.tanker.getDockedShips().contains(this.container2), is(true));
+		
+		this.tanker.undock(this.container1);
+		this.context.commit();
+		
+		// Die Liste muss nun nur noch den zweiten Container enthalten
+		assertThat(this.tanker.getDockedShips().size(), is(1));
+		assertThat(this.tanker.getDockedShips().contains(this.container1), is(false));
+		assertThat(this.tanker.getDockedShips().contains(this.container2), is(true));
 	}
 }
