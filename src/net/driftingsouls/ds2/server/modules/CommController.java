@@ -414,6 +414,11 @@ public class CommController extends TemplateGenerator {
 				continue;
 			}
 			
+			if(tomove.equals(ordners.get(i)))
+			{
+				continue;
+			}
+			
 			if( tomove.getAllChildren().contains(moveto)) {
 				t.setVar("show.message", "<span style=\"color:red\">Es d&uuml;rfen keine Ordner in ihre eignen Unterordner verschoben werden.</span>");
 				redirect("showInbox");
