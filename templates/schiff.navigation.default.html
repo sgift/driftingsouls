@@ -23,7 +23,11 @@
 		Gelandet auf<br />
 	{/endif}
 	&gt;{!link_to $schiff.navigation.docked.master.name, default, css_class:academy, ship:$schiff.navigation.docked.master.id}&lt;<br />
-	{!link_to Abflug, abladen, ship:$schiff.navigation.docked.master.id, tar:$ship.id}<br />
+	{if schiff.navigation.docked.extern}
+		{!link_to Abflug, abladen, ship:$schiff.navigation.docked.master.id, tar:$ship.id}<br />
+	{else}
+		{!link_to Abflug, start, ship:$schiff.navigation.docked.master.id, shiplist:$ship.id}<br />
+	{/endif}
 	{!link_to Auftanken, default, module:transport, to:$schiff.navigation.docked.master.id, from:$ship.id, way:stos}
 {else}
 	{if schiff.navigation.showmessage}
