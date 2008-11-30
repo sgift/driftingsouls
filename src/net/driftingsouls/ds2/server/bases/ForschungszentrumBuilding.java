@@ -123,7 +123,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 			else {
 				StringBuilder popup = new StringBuilder(Common.tableBegin( 350, "left" ).replace("\"", "'") );
 				Forschung forschung = fz.getForschung();
-				popup.append("<img align='left' border='0' src='"+config.get("URL")+"data/tech/"+fz.getForschung()+".gif' alt='' />");
+				popup.append("<img align='left' border='0' src='"+config.get("URL")+"data/tech/"+fz.getForschung().getID()+".gif' alt='' />");
 				popup.append(forschung.getName()+"<br />");
 				popup.append("Dauer: noch <img src='"+config.get("URL")+"data/interface/time.gif' alt='noch ' />"+fz.getDauer()+"<br />");
 				popup.append( Common.tableEnd().replace("\"", "'") );
