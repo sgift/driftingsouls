@@ -22,7 +22,6 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -33,6 +32,7 @@ import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.hibernate.annotations.Immutable;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Die Werft
@@ -42,6 +42,7 @@ import org.hibernate.annotations.Immutable;
 @Entity(name="WerftBuilding")
 @Immutable
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.Werft")
+@Configurable
 public class Werft extends DefaultBuilding {
 	/**
 	 * Erstellt eine neue Instanz der Werft
@@ -120,7 +121,7 @@ public class Werft extends DefaultBuilding {
 				
 				StringBuilder popup = new StringBuilder(100);
 				popup.append(Common.tableBegin(420, "left").replace( '"', '\'') );
-				popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='"+Configuration.getSetting("URL")+"data/interface/schiffinfo/werftslots.png' alt='' />"+usedSlots+"/"+totalSlots+"<br />");
+				popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='"+config.get("URL")+"data/interface/schiffinfo/werftslots.png' alt='' />"+usedSlots+"/"+totalSlots+"<br />");
 				popup.append("Im Bau: "+buildingCount+" Schiffe<br />");
 				popup.append("In der Warteschlange: "+(entries.length - buildingCount));
 				popup.append(Common.tableEnd().replace( '"', '\'' ));

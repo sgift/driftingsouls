@@ -46,7 +46,6 @@ import net.driftingsouls.ds2.server.entities.Ammo;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WeaponFactory;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextInstance;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -57,6 +56,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Immutable;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Die Waffenfabrik
@@ -66,6 +66,7 @@ import org.hibernate.annotations.Immutable;
 @Entity(name="WaffenfabrikBuilding")
 @Immutable
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.Waffenfabrik")
+@Configurable
 public class Waffenfabrik extends DefaultBuilding {
 	private static final Log log = LogFactory.getLog(Waffenfabrik.class);
 	
@@ -604,7 +605,7 @@ public class Waffenfabrik extends DefaultBuilding {
 		*/
 		echo.append(Common.tableBegin(760, "left"));
 		
-		echo.append("<img style=\"vertical-align:middle\" src=\""+Configuration.getSetting("URL")+"data/interface/time.gif\" alt=\"Zeiteinheiten\" />"+usedcapacity+"/"+wf.getCount()+" ausgelastet<br />\n");
+		echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/time.gif\" alt=\"Zeiteinheiten\" />"+usedcapacity+"/"+wf.getCount()+" ausgelastet<br />\n");
 		echo.append("Verbrauch: ");
 		ResourceList reslist = consumes.getResourceList();
 		for( ResourceEntry res : reslist ) {
@@ -644,7 +645,7 @@ public class Waffenfabrik extends DefaultBuilding {
 			echo.append("</td>\n");
 			
 			echo.append("<td class=\"noBorderX\" valign=\"top\">\n");
-			echo.append("<img style=\"vertical-align:middle\" src=\""+Configuration.getSetting("URL")+"data/interface/time.gif\" alt=\"Dauer\" />"+ammo.getDauer()+" \n");
+			echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/time.gif\" alt=\"Dauer\" />"+ammo.getDauer()+" \n");
 			
 			reslist = ammo.getBuildCosts().getResourceList();
 			for( ResourceEntry res : reslist ) {

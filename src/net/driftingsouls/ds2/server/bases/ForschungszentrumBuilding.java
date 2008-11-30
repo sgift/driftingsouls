@@ -33,7 +33,6 @@ import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -42,6 +41,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Immutable;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Das Forschungszentrum
@@ -51,6 +51,7 @@ import org.hibernate.annotations.Immutable;
 @Entity(name="ForschungszentrumBuilding")
 @Immutable
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.ForschungszentrumBuilding")
+@Configurable
 public class ForschungszentrumBuilding extends DefaultBuilding {
 	private static final Log log = LogFactory.getLog(ForschungszentrumBuilding.class);
 	
@@ -122,9 +123,9 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 			else {
 				StringBuilder popup = new StringBuilder(Common.tableBegin( 350, "left" ).replace("\"", "'") );
 				Forschung forschung = fz.getForschung();
-				popup.append("<img align='left' border='0' src='"+Configuration.getSetting("URL")+"data/tech/"+fz.getForschung()+".gif' alt='' />");
+				popup.append("<img align='left' border='0' src='"+config.get("URL")+"data/tech/"+fz.getForschung()+".gif' alt='' />");
 				popup.append(forschung.getName()+"<br />");
-				popup.append("Dauer: noch <img src='"+Configuration.getSetting("URL")+"data/interface/time.gif' alt='noch ' />"+fz.getDauer()+"<br />");
+				popup.append("Dauer: noch <img src='"+config.get("URL")+"data/interface/time.gif' alt='noch ' />"+fz.getDauer()+"<br />");
 				popup.append( Common.tableEnd().replace("\"", "'") );
 
 				result.append("<a name=\"p"+base.getId()+"_"+field+"\" id=\"p"+base.getId()+"_"+field+"\" " +
@@ -212,12 +213,12 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 								"'./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"&amp;res="+tech.getID()+"'" +
 							")\">"+Common._plaintitle(tech.getName())+"</a>\n");
 				}
-				echo.append("<a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;res="+tech.getID()+"\"><img style=\"border:0px;vertical-align:middle\" src=\""+Configuration.getSetting("URL")+"data/interface/forschung/info.gif\" alt=\"?\" /></a>\n");
+				echo.append("<a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;res="+tech.getID()+"\"><img style=\"border:0px;vertical-align:middle\" src=\""+config.get("URL")+"data/interface/forschung/info.gif\" alt=\"?\" /></a>\n");
 				echo.append("&nbsp;&nbsp;");
 				echo.append("</td>\n");
 				
 				echo.append("<td class=\"noBorderX\">");
-				echo.append("<img style=\"vertical-align:middle\" src=\""+Configuration.getSetting("URL")+"data/interface/time.gif\" alt=\"Dauer\" />"+tech.getTime()+" ");
+				echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/time.gif\" alt=\"Dauer\" />"+tech.getTime()+" ");
 				
 				Cargo costs = tech.getCosts();
 				costs.setOption( Cargo.Option.SHOWMASS, false );
@@ -263,10 +264,10 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	private boolean currentResearch(Context context, StringBuilder echo, Forschungszentrum fz, int field ) {
 		Forschung tech = fz.getForschung();
 		if( tech != null ) {
-			echo.append("<img style=\"float:left;border:0px\" src=\""+Configuration.getSetting("URL")+"data/tech/"+tech.getID()+".gif\" alt=\"\" />");
+			echo.append("<img style=\"float:left;border:0px\" src=\""+config.get("URL")+"data/tech/"+tech.getID()+".gif\" alt=\"\" />");
 			echo.append("Erforscht: <a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;res="+tech.getID()+"\">"+Common._plaintitle(tech.getName())+"</a>\n");
 			echo.append("[<a class=\"error\" href=\"./ds?module=building&amp;col="+fz.getBase().getId()+"&amp;field="+field+"&amp;kill=yes\">x</a>]<br />\n");
-			echo.append("Dauer: noch <img style=\"vertical-align:middle\" src=\""+Configuration.getSetting("URL")+"data/interface/time.gif\" alt=\"\" />"+fz.getDauer()+" Runden\n");
+			echo.append("Dauer: noch <img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/time.gif\" alt=\"\" />"+fz.getDauer()+" Runden\n");
 			echo.append("<br /><br />\n");
 			return true;
 		} 
@@ -310,7 +311,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		// Muss der User die Forschung noch best?tigen?
 		if( !conf.equals("ok") ) {
 			echo.append("<div style=\"text-align:center\">\n");
-			echo.append(Common._plaintitle(tech.getName())+"<br /><img style=\"vertical-align:middle\" src=\""+Configuration.getSetting("URL")+"data/interface/time.gif\" alt=\"Dauer\" />"+tech.getTime()+" ");
+			echo.append(Common._plaintitle(tech.getName())+"<br /><img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/time.gif\" alt=\"Dauer\" />"+tech.getTime()+" ");
 			
 			ResourceList reslist = techCosts.getResourceList();
 			for( ResourceEntry res : reslist ) {

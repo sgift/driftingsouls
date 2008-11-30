@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.bases;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.Transient;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
@@ -29,6 +30,8 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.hibernate.annotations.Immutable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * <h1>Das Standardgebaeude in DS</h1>
@@ -40,12 +43,25 @@ import org.hibernate.annotations.Immutable;
 @Entity
 @Immutable
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.DefaultBuilding")
+@Configurable
 public class DefaultBuilding extends Building {
+	@Transient
+	protected Configuration config;
+	
 	/**
 	 * Erstellt eine neue Gebaeude-Instanz
 	 */
 	public DefaultBuilding() {
 		// EMPTY
+	}
+	
+	/**
+	 * Injiziert die DS-Konfiguration
+	 * @param config Die DS-Konfiguration
+	 */
+	@Autowired
+	public void setConfiguration(Configuration config) {
+		this.config = config;
 	}
 
 	@Override
@@ -98,7 +114,7 @@ public class DefaultBuilding extends Building {
 		}
 	
 		if( getEVerbrauch() > 0 ) {
-			buffer.append("<img src=\""+Configuration.getSetting("URL")+"data/interface/energie.gif\" alt=\"\" />"+getEVerbrauch()+" ");
+			buffer.append("<img src=\""+this.config.get("URL")+"data/interface/energie.gif\" alt=\"\" />"+getEVerbrauch()+" ");
 			entry = true;
 		}
 		if( !entry ) buffer.append("-");
@@ -116,7 +132,7 @@ public class DefaultBuilding extends Building {
 		}
 		
 		if( getEProduktion() > 0 ) {
-			buffer.append("<img src=\""+Configuration.getSetting("URL")+"data/interface/energie.gif\" alt=\"\" />"+getEProduktion());
+			buffer.append("<img src=\""+this.config.get("URL")+"data/interface/energie.gif\" alt=\"\" />"+getEProduktion());
 			entry = true;
 		}
 	

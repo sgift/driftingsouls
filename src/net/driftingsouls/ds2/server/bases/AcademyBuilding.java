@@ -32,7 +32,6 @@ import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -43,6 +42,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Immutable;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Die Akademie
@@ -52,6 +52,7 @@ import org.hibernate.annotations.Immutable;
 @Entity(name="AcademyBuilding")
 @Immutable
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.AcademyBuilding")
+@Configurable
 public class AcademyBuilding extends DefaultBuilding {
 	private static final Log log = LogFactory.getLog(AcademyBuilding.class);
 	private static final Map<Integer,String> offis = new HashMap<Integer,String>();
@@ -76,7 +77,7 @@ public class AcademyBuilding extends DefaultBuilding {
 	public AcademyBuilding() {
 		// EMPTY
 	}
-
+	
 	@Override
 	public void build(Base base) {
 		super.build(base);
@@ -162,7 +163,7 @@ public class AcademyBuilding extends DefaultBuilding {
 					popup.append(")<br />");
 				}
 				popup.append("Dauer: <img style='vertical-align:middle' src='");
-				popup.append(Configuration.getSetting("URL"));
+				popup.append(this.config.get("URL"));
 				popup.append("data/interface/time.gif' alt='noch ' />");
 				popup.append(acc.getRemain());
 				popup.append("<br />");
