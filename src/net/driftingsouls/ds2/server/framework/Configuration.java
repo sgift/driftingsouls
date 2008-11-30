@@ -105,7 +105,9 @@ public class Configuration
 	 * 
 	 * @param setting Name der Konfigurationseinstellung
 	 * @return Wert der Konfigurationseinstellung
+	 * @deprecated Bitte die Konfiguration injizieren lassen
 	 */
+	@Deprecated
 	public static String getSetting(String setting)
 	{
 		if( config.containsKey(setting) )
@@ -127,7 +129,9 @@ public class Configuration
 	 * 
 	 * @param setting Name der Konfigurationseinstellung
 	 * @return Wert der Konfigurationseinstellung
+	 * @deprecated Bitte die Konfiguration injizieren lassen
 	 */
+	@Deprecated
 	public static int getIntSetting(String setting)
 	{
 		Integer val = configInt.get(setting);
