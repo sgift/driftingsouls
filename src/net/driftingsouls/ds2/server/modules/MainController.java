@@ -34,14 +34,20 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+
 /**
  * Das Hauptframe von DS
  * @author Christopher Jung
  *
  */
+@Configurable
 public class MainController extends TemplateGenerator {
 	private static final String SCRIPT_FORUM = "http://forum.drifting-souls.net/phpbb3/";
 
+	private Configuration config;
+	
 	/**
 	 * Konstruktor
 	 * @param context Der zu verwendende Kontext
@@ -52,6 +58,15 @@ public class MainController extends TemplateGenerator {
 		this.setTemplate("main.html");
 		setDisableDefaultCSS(true);
 		setDisableDebugOutput(true);
+	}
+	
+	/**
+	 * Injiziert die DS-Konfiguration
+	 * @param config Die DS-Konfiguration
+	 */
+	@Autowired
+	public void setConfiguration(Configuration config) {
+		this.config = config;
 	}
 
 	@Override
@@ -114,7 +129,7 @@ public class MainController extends TemplateGenerator {
 		if( !user.getUserImagePath().equals(BasicUser.getDefaultImagePath()) ) {
 			parameterNumber("gfxpakversion");
 			int gfxpakversion = getInteger("gfxpakversion");
-			if( (gfxpakversion != 0) && (gfxpakversion != Configuration.getIntSetting("GFXPAK_VERSION")) ) {
+			if( (gfxpakversion != 0) && (gfxpakversion != config.getInt("GFXPAK_VERSION")) ) {
 				t.setVar("show.gfxpakwarning", true);
 			}
 		}
