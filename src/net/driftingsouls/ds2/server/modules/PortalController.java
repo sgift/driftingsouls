@@ -75,6 +75,7 @@ import org.springframework.beans.factory.annotation.Required;
 public class PortalController extends TemplateGenerator {
 	private static final Log log = LogFactory.getLog(PortalController.class);
 	private AuthenticationManager authManager;
+	private Configuration config;
 	
 	/**
 	 * Konstruktor
@@ -98,6 +99,16 @@ public class PortalController extends TemplateGenerator {
 		this.authManager = authManager;
 	}
 	
+	/**
+	 * Injiziert die DS-Konfiguration
+	 * @param config Die DS-Konfiguration
+	 */
+	@Required
+	@Autowired
+	public void setConfiguration(Configuration config) {
+		this.config = config;
+	}
+	
 	@Override
 	protected void printHeader( String action ) {
 		// EMPTY
@@ -107,9 +118,9 @@ public class PortalController extends TemplateGenerator {
 	protected boolean validateAndPrepare( String action ) {
 		TemplateEngine t = getTemplateEngine();
 		
-		t.setVar(	"TUTORIAL_ID", Configuration.getSetting("ARTICLE_TUTORIAL"),
-					"FAQ_ID", Configuration.getSetting("ARTICLE_FAQ"),
-					"URL", Configuration.getSetting("URL") );
+		t.setVar(	"TUTORIAL_ID", this.config.get("ARTICLE_TUTORIAL"),
+					"FAQ_ID", this.config.get("ARTICLE_FAQ"),
+					"URL", this.config.get("URL") );
 							
 		return true;	
 	}
@@ -144,7 +155,7 @@ public class PortalController extends TemplateGenerator {
 
 				String subject = "Neues Passwort fuer Drifting Souls 2";
 				
-				String message = Configuration.getSetting("PWNEW_EMAIL").replace("{username}", getString("username"));
+				String message = this.config.get("PWNEW_EMAIL").replace("{username}", getString("username"));
 				message = message.replace("{password}", password);
 				message = message.replace("{date}", Common.date("H:i j.m.Y"));
 				
@@ -355,7 +366,7 @@ public class PortalController extends TemplateGenerator {
 	 	Location[] orderlocs = Systems.get().system(system).getOrderLocations();
 	 	Location orderloc = orderlocs[locations.minSysDistance.get(system).orderLocationID];
 	 	
-	 	String[] baselayoutStr = Configuration.getSetting("REGISTER_BASELAYOUT").split(",");
+	 	String[] baselayoutStr = this.config.get("REGISTER_BASELAYOUT").split(",");
 	 	Integer[] activebuildings = new Integer[baselayoutStr.length];
 	 	Integer[] baselayout = new Integer[baselayoutStr.length];
 	 	int bewohner = 0;
@@ -403,7 +414,7 @@ public class PortalController extends TemplateGenerator {
 	 	base.setActive(activebuildings);
 	 	base.setArbeiter(arbeiter);
 	 	base.setBewohner(bewohner);
-	 	base.setCargo(new Cargo(Cargo.Type.STRING, Configuration.getSetting("REGISTER_BASECARGO")));
+	 	base.setCargo(new Cargo(Cargo.Type.STRING, this.config.get("REGISTER_BASECARGO")));
 	 	base.setCore(0);
 	 	base.setCoreActive(false);
 	 	base.setAutoGTUActs(new ArrayList<AutoGTUAction>());
@@ -440,17 +451,17 @@ public class PortalController extends TemplateGenerator {
 		}
 	 	
 		//Willkommens-PM versenden
-	 	User source = (User)getDB().get(User.class, Configuration.getIntSetting("REGISTER_PM_SENDER"));
+	 	User source = (User)getDB().get(User.class, this.config.getInt("REGISTER_PM_SENDER"));
 		PM.send( source, newid, "Willkommen bei Drifting Souls 2", 
-				Configuration.getSetting("REGISTER_PM"));
+				this.config.get("REGISTER_PM"));
 		
 		t.setVar( "show.register.msg.ok", 1,
 					"register.newid", newid );
 							
-		Common.copyFile(Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/user/0.gif",
-				Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/user/"+newid+".gif");
+		Common.copyFile(this.config.get("ABSOLUTE_PATH")+"data/logos/user/0.gif",
+				this.config.get("ABSOLUTE_PATH")+"data/logos/user/"+newid+".gif");
 
-		String message = Configuration.getSetting("REGISTER_EMAIL");
+		String message = this.config.get("REGISTER_EMAIL");
 		message = message.replace("{username}", username);
 		message = message.replace("{password}", password);
 		message = message.replace("{date}", Common.date("H:i j.m.Y"));
