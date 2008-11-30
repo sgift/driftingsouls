@@ -101,7 +101,7 @@ public class HandelController extends TemplateGenerator {
 		}
 		
 		
-		ResourceList reslist = Resources.RESOURCE_LIST.getResourceList();
+		ResourceList reslist = Resources.getResourceList().getResourceList();
 		for( ResourceEntry res : reslist ) {
 			String name = "";
 			
@@ -163,7 +163,7 @@ public class HandelController extends TemplateGenerator {
 		
 		t.setBlock("_HANDEL", "addresources.listitem", "addresources.list");
 		
-		ResourceList reslist = Resources.RESOURCE_LIST.getResourceList();
+		ResourceList reslist = Resources.getResourceList().getResourceList();
 		for( ResourceEntry res : reslist ) {
 			if( res.getId().isItem() ) {
 				if( !Items.get().item(res.getId().getItemID()).getHandel() ) {

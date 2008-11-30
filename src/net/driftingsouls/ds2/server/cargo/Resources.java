@@ -105,24 +105,45 @@ public class Resources {
 	 */
 	public static final ResourceID ITEMS = new WarenID(18);
 	
-	/**
-	 * Ein Cargo, in dem jede Resource genau einmal vorkommt. Items sind in der Form ohne Questbindung und mit
-	 * unbegrenzter Nutzbarkeit vorhanden
-	 */
-	public static final Cargo RESOURCE_LIST;
 	
-	static {
+	private static volatile Cargo resourceList;
+	
+	/**
+	 * Gibt einen Cargo zurueck, in dem jede Resource genau einmal vorkommt. 
+	 * Items sind in der Form ohne Questbindung und mit unbegrenzter Nutzbarkeit vorhanden.
+	 * @return Der Cargo
+	 */
+	public static Cargo getResourceList()
+	{
+		// double-checked locking idiom - seit Java 5 funktionsfaehig
+		if( resourceList == null )
+		{
+			synchronized(Resources.class)
+			{
+				if( resourceList == null )
+				{
+					initResourceList();
+				}
+			}
+		}
+		
+		return resourceList;
+	}
+	
+	private static void initResourceList() {
 		Cargo resList = new Cargo();
 		
-		for( int i=0; i < Cargo.MAX_RES; i++ ) {
+		for( int i=0; i < Cargo.MAX_RES; i++ ) 
+		{
 			resList.addResource(new WarenID(i), 1);
 		}
 		
-		for( Item item : Items.get() ) {
+		for( Item item : Items.get() )
+		{
 			resList.addResource(new ItemID(item.getID()), 1);
 		}
 		
-		RESOURCE_LIST = new UnmodifiableCargo(resList);
+		resourceList = new UnmodifiableCargo(resList);
 	}
 
 	/**

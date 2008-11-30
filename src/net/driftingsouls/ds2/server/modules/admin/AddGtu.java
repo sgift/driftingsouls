@@ -83,7 +83,7 @@ public class AddGtu implements AdminPlugin {
 			echo.append("<tr><td class=\"noBorderS\" width=\"60\">Artefakt:</td><td class=\"noBorderS\">");
 			echo.append("<select name=\"resource\" size=\"1\">\n");
 			boolean wasItem = false;
-			for( ResourceEntry res : Resources.RESOURCE_LIST.getResourceList() ) {
+			for( ResourceEntry res : Resources.getResourceList().getResourceList() ) {
 				if( !wasItem && res.getId().isItem() ) {
 					wasItem = true;
 					echo.append("<option value=\"-1\">--------</option>\n");
