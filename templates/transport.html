@@ -158,11 +158,11 @@
 {if target.show}
 	{if target.isbase}
 		<span class="smallfont">
-			| <a class="back" href="./ds?module=base&sess={global.sess}&col={targetobj.id}">zu {targetobj.name}</a>
+			| <a class="back" href="./ds?module=base&col={targetobj.id}">zu {targetobj.name}</a>
 		</span>
 	{else}
 		<span class="smallfont">
-			| <a class="back" href="./ds?module=schiff&sess={global.sess}&ship={targetobj.id}">zur {targetobj.name}</a>
+			| <a class="back" href="./ds?module=schiff&ship={targetobj.id}">zur {targetobj.name}</a>
 		</span>
 	{/endif}
 {/endif}

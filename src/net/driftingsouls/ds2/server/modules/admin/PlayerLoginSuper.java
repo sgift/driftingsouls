@@ -59,14 +59,11 @@ public class PlayerLoginSuper implements AdminPlugin {
 		int user = context.getRequest().getParameterInt("user");
 		int usesessid = context.getRequest().getParameterInt("usesessid");
 		
-		String sess = context.getSession();
-
 		if( user == 0 ) {
 			echo.append("<form action=\"./ds\" method=\"post\">");
 			echo.append("ID: <input type=\"text\" name=\"user\" size=\"10\" value=\"0\" />\n");
 			echo.append("<br /><br />\n");
 			echo.append("<input type=\"checkbox\" name=\"usesessid\" id=\"form[usesessid]\" value=\"1\" /><label for=\"usesessid\">Rechte vererben?</label><br /><br />\n");
-			echo.append("<input type=\"hidden\" name=\"sess\" value=\""+sess+"\" />");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");

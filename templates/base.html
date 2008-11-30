@@ -71,9 +71,9 @@
 			<div class="p{tile.id}">
 				{if ! tile.overlay}
 					{if tile.building}
-						<a onmouseover="return overlib('{tile.building.name}',TIMEOUT,0,DELAY,600,WIDTH,100);" onmouseout="return nd();" href="./ds?module=building&amp;sess={global.sess}&amp;col={base.id}&amp;field={tile.field}">
+						<a onmouseover="return overlib('{tile.building.name}',TIMEOUT,0,DELAY,600,WIDTH,100);" onmouseout="return nd();" href="./ds?module=building&amp;col={base.id}&amp;field={tile.field}">
 					{else}
-						<a href="./ds?module=build&amp;sess={global.sess}&amp;col={base.id}&amp;field={tile.field}">
+						<a href="./ds?module=build&amp;col={base.id}&amp;field={tile.field}">
 					{/endif}
 				{/endif}
 				<img style="border:0px" src="{URL}{tile.building.image}" alt="" />
@@ -82,9 +82,9 @@
 			{if tile.overlay}
 				<div class="o{tile.id}">
 					{if tile.building}
-						<a onmouseover="return overlib('{tile.building.name}',TIMEOUT,0,DELAY,600,WIDTH,100);" onmouseout="return nd();" href="./ds?module=building&amp;sess={global.sess}&amp;col={base.id}&amp;field={tile.field}">
+						<a onmouseover="return overlib('{tile.building.name}',TIMEOUT,0,DELAY,600,WIDTH,100);" onmouseout="return nd();" href="./ds?module=building&amp;col={base.id}&amp;field={tile.field}">
 					{else}
-						<a href="./ds?module=build&amp;sess={global.sess}&amp;col={base.id}&amp;field={tile.field}">
+						<a href="./ds?module=build&amp;col={base.id}&amp;field={tile.field}">
 					{/endif}
 					<img style="border:0px" src="{URL}data/buildings/{tile.overlay.image}" alt="" />
 					</a>

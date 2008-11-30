@@ -143,8 +143,7 @@ public class DefaultServletRequestFilter extends GenericFilterBean implements Fi
 		}
 		
 		msg.append("QUERY_STRING: "+httpRequest.getQueryString()+"\n");
-		msg.append("Session: "+httpRequest.getParameter("sess")+"\n");
-		
+
 		if( context != null ) {
 			msg.append("User: "+(context.getActiveUser() != null ? context.getActiveUser().getId() : "none")+"\n");
 		}

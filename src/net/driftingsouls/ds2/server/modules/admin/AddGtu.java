@@ -68,7 +68,7 @@ public class AddGtu implements AdminPlugin {
 			echo.append("</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Dauer:</td><td class=\"noBorderS\"><input type=\"text\" name=\"dauer\" size=\"10\" value=\"30\" /></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Gebot:</td><td class=\"noBorderS\"><input type=\"text\" name=\"preis\" size=\"10\" /></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\" colspan=\"2\" align=\"center\"><input type=\"hidden\" name=\"sess\" value=\""+context.getSession()+"\" />\n");
+			echo.append("<tr><td class=\"noBorderS\" colspan=\"2\" align=\"center\">\n");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
@@ -95,7 +95,7 @@ public class AddGtu implements AdminPlugin {
 			echo.append("<tr><td class=\"noBorderS\">Menge:</td><td class=\"noBorderS\"><input type=\"text\" name=\"menge\" size=\"10\" value=\"1\" /></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Dauer:</td><td class=\"noBorderS\"><input type=\"text\" name=\"dauer\" size=\"10\" value=\"30\" /></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Gebot:</td><td class=\"noBorderS\"><input type=\"text\" name=\"preis\" size=\"10\" /></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\" colspan=\"2\" align=\"center\"><input type=\"hidden\" name=\"sess\" value=\""+context.getSession()+"\" />\n");
+			echo.append("<tr><td class=\"noBorderS\" colspan=\"2\" align=\"center\">\n");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");

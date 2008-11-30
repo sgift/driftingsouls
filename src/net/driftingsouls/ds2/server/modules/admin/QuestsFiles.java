@@ -71,7 +71,6 @@ public class QuestsFiles implements AdminPlugin {
 		echo.append(Common.tableBegin(550,"left"));
 		echo.append("<form action=\"./ds\" method=\"post\">\n");
 		echo.append("<input type=\"text\" name=\"installfile\" value=\""+(installfile.length() == 0 ? "Datei" : installfile)+"\" size=\"50\" />\n");
-		echo.append("<input type=\"hidden\" name=\"sess\" value=\""+context.getSession()+"\" />\n");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
 		echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
@@ -97,8 +96,8 @@ public class QuestsFiles implements AdminPlugin {
 			if( conf == 0 ) {
 				echo.append(Common.tableBegin(550,"center"));
 				echo.append("Wollen sie die Quest-XML "+unlinkName+" wirklich l&ouml;schen?<br />\n");
-				echo.append("<a class=\"error\" href=\"./ds?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"&unlink="+unlink+"&conf=1\">ja</a> - \n");
-				echo.append("<a class=\"ok\" href=\"./ds?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"\">nein</a>\n");
+				echo.append("<a class=\"error\" href=\"./ds?module=admin&act="+action+"&page="+page+"&unlink="+unlink+"&conf=1\">ja</a> - \n");
+				echo.append("<a class=\"ok\" href=\"./ds?module=admin&act="+action+"&page="+page+"\">nein</a>\n");
 				
 				echo.append(Common.tableEnd());
 				echo.append("<br />\n");
@@ -210,15 +209,14 @@ public class QuestsFiles implements AdminPlugin {
 			
 			if( childlist[i].getName().indexOf(".xml") > -1 ) {
 				echo.append(basename(childlist[i].getName(),".xml")+"\n");
-				echo.append(" - <a class=\"error\" href=\"./ds?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"&unlink="+basename(childlist[i].getName(),".xml")+"\">X</a>\n");
-				echo.append("<a class=\"forschinfo\" href=\"./ds?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"&info="+basename(childlist[i].getName(),".xml")+"\">info</a><br />\n");
+				echo.append(" - <a class=\"error\" href=\"./ds?module=admin&act="+action+"&page="+page+"&unlink="+basename(childlist[i].getName(),".xml")+"\">X</a>\n");
+				echo.append("<a class=\"forschinfo\" href=\"./ds?module=admin&act="+action+"&page="+page+"&info="+basename(childlist[i].getName(),".xml")+"\">info</a><br />\n");
 			}	
 		}
 		echo.append("<br />\n");
 		echo.append("<form action=\"./ds\" method=\"post\" enctype=\"multipart/form-data\">\n");
 		echo.append("<input type=\"file\" name=\"questfile\" size=\"40\" />\n");
 		echo.append("<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"307200\" />\n");
-		echo.append("<input type=\"hidden\" name=\"sess\" value=\""+context.getSession()+"\" />\n");
 		echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
 		echo.append("<input type=\"hidden\" name=\"upload\" value=\"1\" />\n");

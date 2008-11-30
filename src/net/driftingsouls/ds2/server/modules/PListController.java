@@ -43,7 +43,7 @@ public class PListController extends DSGenerator {
 			echo.append("<!--\n");
 			echo.append("function playerPM(id)\n");
 			echo.append("{\n");
-			echo.append("opener.parent.frames['main'].location.href='./ds?module=comm&sess="+getContext().getSession()+"&to='+id;\n");
+			echo.append("opener.parent.frames['main'].location.href='./ds?module=comm&to='+id;\n");
 			echo.append("window.close()\n");;
 			echo.append("}\n");
 			echo.append("// -->\n");

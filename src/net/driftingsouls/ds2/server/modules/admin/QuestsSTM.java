@@ -75,7 +75,6 @@ public class QuestsSTM implements AdminPlugin {
 				echo.append("groesse (optional): <input type=\"text\" name=\"w\" value=\""+st.getInt("w")+"\" size=\"4\"  />/\n");
 				echo.append("<input type=\"text\" name=\"h\" value=\""+st.getInt("h")+"\" size=\"4\"  /><br /><br />\n");
 				echo.append("<input type=\"hidden\" name=\"stmid\" value=\""+stmid+"\" />\n");
-				echo.append("<input type=\"hidden\" name=\"sess\" value=\""+context.getSession()+"\" />\n");
 				echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
 				echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 				echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
@@ -99,8 +98,8 @@ public class QuestsSTM implements AdminPlugin {
 			else if( stmaction.equals("delete1") ) {
 				echo.append(Common.tableBegin(550,"left"));
 				echo.append("Wollen sie das Sectortemplate '"+stmid+"' wirklich l&ouml;schen?<br />\n");
-				echo.append("<a class=\"error\" href=\"./ds?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"&stmid="+stmid+"&stmaction=delete2\">Ja</a>");
-				echo.append(" - <a class=\"forschinfo\" href=\"./ds?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"\">Nein</a>");
+				echo.append("<a class=\"error\" href=\"./ds?module=admin&act="+action+"&page="+page+"&stmid="+stmid+"&stmaction=delete2\">Ja</a>");
+				echo.append(" - <a class=\"forschinfo\" href=\"./ds?module=admin&act="+action+"&page="+page+"\">Nein</a>");
 				echo.append(Common.tableEnd());
 				echo.append("<br />\n");	
 			}
@@ -123,7 +122,6 @@ public class QuestsSTM implements AdminPlugin {
 			echo.append("<input type=\"text\" name=\"y\" value=\"y\" size=\"4\"  /><br />\n");
 			echo.append("groesse (optional): <input type=\"text\" name=\"w\" value=\"0\" size=\"4\"  />/\n");
 			echo.append("<input type=\"text\" name=\"h\" value=\"0\" size=\"4\"  /><br /><br />\n");
-			echo.append("<input type=\"hidden\" name=\"sess\" value=\""+context.getSession()+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
@@ -137,7 +135,7 @@ public class QuestsSTM implements AdminPlugin {
 		echo.append(Common.tableBegin(550,"left"));
 		SQLQuery st = db.query("SELECT * FROM global_sectortemplates");
 		while( st.next() ) {
-			echo.append("* <a class=\"forschinfo\" href=\"./ds?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"&stmid="+st.getString("id")+"&stmaction=edit1\">");
+			echo.append("* <a class=\"forschinfo\" href=\"./ds?module=admin&act="+action+"&page="+page+"&stmid="+st.getString("id")+"&stmaction=edit1\">");
 			echo.append(st.getString("id")+"</a> - "+st.getInt("x")+"/"+st.getInt("y"));
 			if( (st.getInt("w") != 0) || (st.getInt("h") != 0) ) {
 				echo.append(" (Groesse: "+st.getInt("w")+"x"+st.getInt("h")+")");	
@@ -145,12 +143,12 @@ public class QuestsSTM implements AdminPlugin {
 			if( st.getInt("scriptid") != 0 ) {
 				echo.append(" - Scriptid: "+st.getInt("scriptid"));	
 			} 
-			echo.append(" <a class=\"error\" href=\"./ds?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"&stmid="+st.getString("id")+"&stmaction=delete1\">X</a>");
+			echo.append(" <a class=\"error\" href=\"./ds?module=admin&act="+action+"&page="+page+"&stmid="+st.getString("id")+"&stmaction=delete1\">X</a>");
 			echo.append("<br />\n");
 		}
 		st.free();
 		echo.append("<br />\n");
-		echo.append("<div align=\"center\"><a class=\"forschinfo\" href=\"./ds?module=admin&sess="+context.getSession()+"&act="+action+"&page="+page+"&newstm=1\">&gt; neu &lt;</div>\n");
+		echo.append("<div align=\"center\"><a class=\"forschinfo\" href=\"./ds?module=admin&act="+action+"&page="+page+"&newstm=1\">&gt; neu &lt;</div>\n");
 		echo.append(Common.tableEnd());
 	}
 }

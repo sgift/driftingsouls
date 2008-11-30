@@ -48,7 +48,6 @@ public class PortalNews implements AdminPlugin {
 			echo.append("<form action=\"./ds\" method=\"post\">");
 			echo.append("Titel: <input type=\"text\" name=\"title\" size=\"50\" /><br />");
 			echo.append("<textarea name=\"news\" rows=\"20\" cols=\"50\"></textarea><br />");
-			echo.append("<input type=\"hidden\" name=\"sess\" value=\""+context.getSession()+"\" />");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");

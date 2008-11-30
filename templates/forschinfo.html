@@ -41,7 +41,7 @@
 			,<br />
 		{/endif}
 		{if tech.allows.item.hidden}
-			<a class="error" style="font-style:italic" href="./ds?module=forschinfo&sess={global.sess}&res={tech.allows.item.id}">[{tech.allows.item.name}]</a>
+			<a class="error" style="font-style:italic" href="./ds?module=forschinfo&res={tech.allows.item.id}">[{tech.allows.item.name}]</a>
 		{else}
 			{!link_to $tech.allows.item.name, default, res:$tech.allows.item.id}
 		{/endif}
@@ -207,7 +207,7 @@
 			{/endif}
 			<tr>
 				<td class="noBorderX">
-					<a onmouseover="return overlib('{tech.ship.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" class="noborder" href="./ds?module=schiffinfo&sess={global.sess}&ship={tech.ship.id}">
+					<a onmouseover="return overlib('{tech.ship.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" class="noborder" href="./ds?module=schiffinfo&ship={tech.ship.id}">
 						<img border="0" src="{tech.ship.picture}" alt="" />
 					</a>
 				</td>

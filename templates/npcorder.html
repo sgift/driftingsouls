@@ -122,7 +122,7 @@
 					{if edituser.rang.next}
 						<tr>
 							<td class="noBorderX" align="center" colspan="2">
-								<a class="forschinfo" href="./ds?module=npcorder&sess={global.sess}&action=changeRang&edituser={edituser.id}&rang={edituser.rang.next}">
+								<a class="forschinfo" href="./ds?module=npcorder&action=changeRang&edituser={edituser.id}&rang={edituser.rang.next}">
 									Zum <img border="0" align="middle" {!overlib $edituser.rang.next.name, mo, width:100} src="{URL}data/interface/medals/rang{edituser.rang.next}.png" alt="" /> bef&ouml;rdern
 								</a>
 							</td>
@@ -131,7 +131,7 @@
 					{if edituser.rang.prev}
 						<tr>
 							<td class="noBorderX" align="center" colspan="2">
-								<a class="forschinfo" href="./ds?module=npcorder&sess={global.sess}&action=changeRang&edituser={edituser.id}&rang={edituser.rang.prev}">
+								<a class="forschinfo" href="./ds?module=npcorder&action=changeRang&edituser={edituser.id}&rang={edituser.rang.prev}">
 									Zum <img border="0" align="middle" {!overlib $edituser.rang.prev.name, mo, width:100} src="{URL}data/interface/medals/rang{edituser.rang.prev}.png" alt="" /> degradieren
 								</a>
 							</td>

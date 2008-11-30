@@ -314,16 +314,6 @@ public class BasicContext implements Context
 		return this.request.getFromSession(cls);
 	}
 
-	public String getSession()
-	{
-		String session = getRequest().getParameter("sess");
-		if( session == null )
-		{
-			session = "";
-		}
-		return session;
-	}
-
 	public Object getVariable(Class<?> cls, String varname)
 	{
 		if( variables.containsKey(cls) )

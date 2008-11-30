@@ -165,7 +165,6 @@ public class AdminController extends DSGenerator {
 		int cleanpage = getInteger("cleanpage");
 		int act = getInteger("act");
 		String page = getString("page");
-		String sess = getString("sess");
 		String namedplugin = getString("namedplugin");
 		
 		Writer echo = getContext().getResponse().getWriter();
@@ -176,11 +175,11 @@ public class AdminController extends DSGenerator {
 			boolean first = true;
 			for( MenuEntry entry : this.menu.values() ) {
 				if( first ) {
-					echo.append("<a class=\"forschinfo\" href=\"./ds?module=admin&sess="+sess+"&page="+entry.name+"\">"+entry.name+"</a>\n");
+					echo.append("<a class=\"forschinfo\" href=\"./ds?module=admin&page="+entry.name+"\">"+entry.name+"</a>\n");
 					first = false;
 				}
 				else
-					echo.append(" | <a class=\"forschinfo\" href=\"./ds?module=admin&sess="+sess+"&page="+entry.name+"\">"+entry.name+"</a>\n");
+					echo.append(" | <a class=\"forschinfo\" href=\"./ds?module=admin&page="+entry.name+"\">"+entry.name+"</a>\n");
 			}
 			echo.append("</td></tr></table>\n");
 			echo.append(Common.tableEnd());
@@ -197,7 +196,7 @@ public class AdminController extends DSGenerator {
 				if( this.menu.containsKey(page) && (this.menu.get(page).actions.size() > 0) ) {
 					List<MenuEntry> actions = this.menu.get(page).actions;
 					for( int i=0; i < actions.size(); i++ ) {
-						echo.append("<tr><td align=\"left\" class=\"noBorderX\"><a class=\"forschinfo\" href=\"./ds?module=admin&sess="+sess+"&page="+page+"&act="+(i+1)+"\">"+actions.get(i).name+"</a></td></tr>\n");
+						echo.append("<tr><td align=\"left\" class=\"noBorderX\"><a class=\"forschinfo\" href=\"./ds?module=admin&page="+page+"&act="+(i+1)+"\">"+actions.get(i).name+"</a></td></tr>\n");
 					}
 				}
 				echo.append("</table>\n");

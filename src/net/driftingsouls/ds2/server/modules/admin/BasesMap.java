@@ -68,7 +68,7 @@ public class BasesMap implements AdminPlugin {
 		echo.append("<tr><td class=\"noBorderS\">System:</td><td class=\"noBorderS\"><input type=\"text\" name=\"system\" size=\"10\" value=\""+sysid+"\" /></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Scale:</td><td class=\"noBorderS\"><input type=\"text\" name=\"scale\" size=\"10\" value=\""+scale+"\" /></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\" colspan=\"2\"><input type=\"checkbox\" name=\"otherastis\" id=\"form_otherastis\" value=\"1\" "+(otherastis != 0 ? "checked=\"checked\"":"")+" /><label for=\"form_otherastis\">Asteroiden anderer Spieler anzeigen</label></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\" colspan=\"2\" align=\"center\"><input type=\"hidden\" name=\"sess\" value=\""+context.getSession()+"\" />\n");
+		echo.append("<tr><td class=\"noBorderS\" colspan=\"2\" align=\"center\">\n");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
 		echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
@@ -83,7 +83,7 @@ public class BasesMap implements AdminPlugin {
 				return;
 			}
 			
-			echo.append("<img src=\""+Configuration.getSetting("URL")+"downloads/"+context.getActiveUser().getId()+"/admin.bases.map.png?sess="+context.getSession()+"\" alt=\"\" />\n");		
+			echo.append("<img src=\""+Configuration.getSetting("URL")+"downloads/"+context.getActiveUser().getId()+"/admin.bases.map.png\" alt=\"\" />\n");		
 			
 			BufferedImage image = new BufferedImage(system.getWidth()*scale, system.getHeight()*scale, BufferedImage.TYPE_INT_RGB);
 			Color black = new Color(0, 0, 0);

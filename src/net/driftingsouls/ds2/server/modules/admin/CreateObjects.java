@@ -178,7 +178,7 @@ public class CreateObjects implements AdminPlugin {
 		echo.append("<script type=\"text/javascript\">\n");
 		echo.append("<!--\n");
 		echo.append("function Go(x) {\n");
-	   	echo.append("self.location.href = \"./ds?module=admin&sess="+context.getSession()+"&page="+page+"&act="+action+"&objekt=\"+x;\n");
+	   	echo.append("self.location.href = \"./ds?module=admin&page="+page+"&act="+action+"&objekt=\"+x;\n");
 		echo.append("}\n");
 		echo.append("//-->\n");
 		echo.append("</script>\n");
@@ -208,7 +208,6 @@ public class CreateObjects implements AdminPlugin {
 		echo.append("<tr><td class=\"noBorderX\" colspan=\"2\" align=\"center\"><input type=\"submit\" value=\".: create\" />&nbsp");
 		echo.append("<input type=\"reset\" value=\".: reset\" /></td></tr>");
 		echo.append("</table>\n");
-		echo.append("<input type=\"hidden\" name=\"sess\" value=\""+context.getSession()+"\" />\n");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
 		echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");

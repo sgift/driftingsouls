@@ -538,24 +538,23 @@ public class WerftGUI {
 		org.hibernate.Session db = context.getDB();
 
 		User user = (User)context.getActiveUser();
-		String sess = context.getSession();
 		
 		Ship ship = (Ship)db.get(Ship.class, ws);
 		if( (ship == null) || (ship.getId() < 0) ) {
-			context.addError("Das angegebene Schiff existiert nicht", werft.getUrlBase()+"&amp;sess="+sess);		
+			context.addError("Das angegebene Schiff existiert nicht", werft.getUrlBase());		
 			return;
 		}
 		if( (werft instanceof ShipWerft) && (((ShipWerft)werft).getShipID() == ws) ) {
-			context.addError("Sie k&ouml;nnen sich nicht selbst reparieren", werft.getUrlBase()+"&amp;sess="+sess);			
+			context.addError("Sie k&ouml;nnen sich nicht selbst reparieren", werft.getUrlBase());			
 			return;
 		}
 		if( !ship.getLocation().sameSector(0, werft, werft.getSize()) ) {
-			context.addError("Das Schiff befindet sich nicht im selben Sektor wie die Werft", werft.getUrlBase()+"&amp;sess="+sess);		
+			context.addError("Das Schiff befindet sich nicht im selben Sektor wie die Werft", werft.getUrlBase());		
 			return;
 		}
 		
 		if( ship.getBattle() != null ) {
-			context.addError("Das Schiff befindet sich in einer Schlacht", werft.getUrlBase()+"&amp;sess="+sess);			
+			context.addError("Das Schiff befindet sich in einer Schlacht", werft.getUrlBase());			
 			return;
 		}
 		
@@ -654,7 +653,6 @@ public class WerftGUI {
 
 	private void out_moduleShip(Ship ship, WerftObject werft) {
 		Context context = ContextMap.getContext();
-		String sess = context.getSession();
 		User user = (User)context.getActiveUser();
 		
 		int item = context.getRequest().getParameterInt("item");
@@ -663,7 +661,7 @@ public class WerftGUI {
 	
 		//Gehoert das Schiff dem User?
 		if( (ship == null) || (ship.getId() < 0) || ((ship.getOwner() != user) && (user.getAccessLevel() < 100)) ) {
-			context.addError("Das Schiff existiert nicht oder geh&ouml;rt nicht ihnen", werft.getUrlBase()+"&amp;sess="+sess);
+			context.addError("Das Schiff existiert nicht oder geh&ouml;rt nicht ihnen", werft.getUrlBase());
 			return;
 		}
 		
@@ -743,12 +741,11 @@ public class WerftGUI {
 
 	private void out_dismantleShip(Ship ship, WerftObject werft, String conf) {
 		Context context = ContextMap.getContext();
-		String sess = context.getSession();
 		User user = (User)context.getActiveUser();
 		
 		//Gehoert das Schiff dem User?
 		if( (ship == null) || (ship.getId() < 0) || (ship.getOwner() != user) ) {
-			context.addError("Das Schiff existiert nicht oder  geh&ouml;rt nicht ihnen", werft.getUrlBase()+"&amp;sess="+sess);
+			context.addError("Das Schiff existiert nicht oder  geh&ouml;rt nicht ihnen", werft.getUrlBase());
 			return;
 		}
 		

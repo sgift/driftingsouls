@@ -76,8 +76,7 @@ public abstract class TemplateGenerator extends DSGenerator {
 			templateEngine.setVar("global.datadir", BasicUser.getDefaultImagePath());
 		}
 		
-		templateEngine.setVar(	"global.sess",	getString("sess"),
-								"global.module", getString("module") );
+		templateEngine.setVar( "global.module", getString("module") );
 	}
 	
 	/**

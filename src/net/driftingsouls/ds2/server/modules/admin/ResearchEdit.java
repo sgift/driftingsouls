@@ -72,7 +72,6 @@ public class ResearchEdit implements AdminPlugin {
 			echo.append("<form action=\"./ds\" method=\"post\">\n");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
-			echo.append("<input type=\"hidden\" name=\"sess\" value=\""+context.getSession()+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("Tech: <select name=\"techid\" size=\"1\" style=\"width:250px\">\n");
 			
@@ -165,11 +164,11 @@ public class ResearchEdit implements AdminPlugin {
 				}
 				
 				if(requirement.hasVisibility(Forschung.Visibility.NEVER)) {
-					echo.append("<span class=\"smallfont\"><a class=\"error\" style=\"font-style:italic\" href=\"./ds?module=admin&sess="+context.getSession()+"&page="+page+"&act="+action+"&techid="+requirement.getID()+"\">["+Common._title(requirement.getName())+"]</a></span>\n");
+					echo.append("<span class=\"smallfont\"><a class=\"error\" style=\"font-style:italic\" href=\"./ds?module=admin&page="+page+"&act="+action+"&techid="+requirement.getID()+"\">["+Common._title(requirement.getName())+"]</a></span>\n");
 					entry = true;
 				}
 				else {
-					echo.append("<a class=\"forschinfo\" href=\"./ds?module=admin&sess="+context.getSession()+"&page="+page+"&act="+action+"&techid="+requirement.getID()+"\">"+Common._title(requirement.getName())+"</a>\n");
+					echo.append("<a class=\"forschinfo\" href=\"./ds?module=admin&page="+page+"&act="+action+"&techid="+requirement.getID()+"\">"+Common._title(requirement.getName())+"</a>\n");
 					entry = true;
 				}
 			}
@@ -197,7 +196,6 @@ public class ResearchEdit implements AdminPlugin {
 			echo.append("<input type=\"hidden\" name=\"changedata\" value=\"1\" />\n");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
-			echo.append("<input type=\"hidden\" name=\"sess\" value=\""+context.getSession()+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"hidden\" name=\"techid\" value=\""+techid+"\" />\n");
 			echo.append("<div align=\"center\"><input type=\"submit\" value=\"&Auml;nderungen speichern\" />\n");

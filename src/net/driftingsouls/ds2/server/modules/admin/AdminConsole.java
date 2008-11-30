@@ -70,7 +70,6 @@ public class AdminConsole implements AdminPlugin {
 		
 		echo.append("<form action=\"./ds\" method=\"post\">\n");
 		echo.append("Command: <input type=\"text\" name=\"cmd\" value=\""+cmd+"\" size=\"60\" />\n");
-		echo.append("<input type=\"hidden\" name=\"sess\" value=\""+context.getSession()+"\" />\n");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
 		echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");

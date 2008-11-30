@@ -166,15 +166,15 @@ public class QuestsQuick implements AdminPlugin {
 				echo.append("<tr><td class=\"noBorderX\">"+qquest.getQid()+"</td>\n");
 				echo.append("<td class=\"noBorderX\">&nbsp;&nbsp;&nbsp;" +
 						"<a class=\"forschinfo\" " +
-							"href=\"./ds?module=admin&sess="+context.getSession()+"&page="+page+"&act="+action+"&id="+qquest.getId()+"&qact=details\"" +
+							"href=\"./ds?module=admin&page="+page+"&act="+action+"&id="+qquest.getId()+"&qact=details\"" +
 						">"+qquest.getQName()+"</a>" +
 						"&nbsp;&nbsp;&nbsp;</td>\n");
 				echo.append("<td class=\"noBorderX\">");
 				if( qquest.getEnabled() == 0 ) {
-					echo.append("[<a class=\"error\" href=\"./ds?module=admin&sess="+context.getSession()+"&page="+page+"&act="+action+"&id="+qquest.getId()+"&qact=enable\">inaktiv</a>]");	
+					echo.append("[<a class=\"error\" href=\"./ds?module=admin&page="+page+"&act="+action+"&id="+qquest.getId()+"&qact=enable\">inaktiv</a>]");	
 				}
 				else {
-					echo.append("[<a class=\"ok\" href=\"./ds?module=admin&sess="+context.getSession()+"&page="+page+"&act="+action+"&id="+qquest.getId()+"&qact=disable\">aktiv</a>]");
+					echo.append("[<a class=\"ok\" href=\"./ds?module=admin&page="+page+"&act="+action+"&id="+qquest.getId()+"&qact=disable\">aktiv</a>]");
 				}
 				/*echo.append(" - [<a class=\"forschinfo\" " +
 				"href=\"./ds?module=admin&sess="+context.getSession()+"&page="+page+"&act="+action+"&id="+qquest.getId()+"&qact=script\"" +

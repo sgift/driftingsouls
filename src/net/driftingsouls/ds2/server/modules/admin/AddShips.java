@@ -238,7 +238,6 @@ public class AddShips implements AdminPlugin {
 			echo.append("</td>\n");
 			echo.append("</tr>\n");
 			echo.append("<tr><td class=\"noBorderX\" colspan=\"2\" align=\"center\">\n");
-			echo.append("<input type=\"hidden\" name=\"sess\" value=\""+context.getSession()+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");

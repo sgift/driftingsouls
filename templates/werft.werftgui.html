@@ -10,7 +10,7 @@
 		<tr>
 			<td colspan="2" class="noBorderX">
 				Werkstatt: {ship.name} ({ship.id})
-				{if ! ship.own}von <a class="profile" href="./ds?module=userprofile&amp;sess={global.sess}&amp;user={ship.owner.id}">{ship.owner.name}</a>{/endif}
+				{if ! ship.own}von <a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a>{/endif}
 				<br />
 				<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
 			</td>
@@ -18,7 +18,7 @@
 		<tr>
 			<td class="noBorderX" valign="top">
 			{if werftgui.ws.showinfo}
-				<a target="_blank" class="noborder" href="./ds?module=schiffinfo&amp;sess={global.sess}&amp;ship={ship.type.id}">
+				<a target="_blank" class="noborder" href="./ds?module=schiffinfo&amp;ship={ship.type.id}">
 					<img src="{ship.type.picture}" alt="{ship.type.name}" title="{ship.type.name}" style="border:0px; float:right; margin-right:5px; margin-left:15px;margin-bottom:10px" />
 				</a>
 				Zustand: <span style="color:{ship.hull.color}">{ship.hull}/{ship.type.hull}</span><br />
@@ -66,7 +66,7 @@
 					{if ws.repair.conf}
 						<br />
 						<div align="center">
-							<a class="ok" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;ws={ship.id}&amp;werftact=repair&amp;conf=ok">{ship.name} reparieren</a>
+							<a class="ok" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=repair&amp;conf=ok">{ship.name} reparieren</a>
 						</div>
 					{else}
 						<div style="text-align:center; color:green">{ship.name} repariert</div>
@@ -98,7 +98,7 @@
 					{if ws.dismantle.conf}
 						<div align="center">
 							<br />
-							<a class="ok" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;ws={ship.id}&amp;werftact=dismantle&amp;conf=ok">{ship.name} demontieren</a>
+							<a class="ok" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=dismantle&amp;conf=ok">{ship.name} demontieren</a>
 						</div>
 					{else}
 						<div align="center" style="color:green">{ship.name} demontiert</div>
@@ -122,7 +122,6 @@
 						{if slot.items.list}
 							<form action="./ds" method="post">
 							{werftgui.formhidden}
-							<input type="hidden" name="sess" value="{global.sess}" />
 							<input type="hidden" name="werftact" value="module" />
 							<input type="hidden" name="ws" value="{ship.id}" />
 							<input type="hidden" name="slot" value="{slot.id}" />
@@ -136,20 +135,20 @@
 						{/endif}
 					{else}
 						{slot.module.name}
-						<a class="error" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;ws={ship.id}&amp;werftact=module&amp;slot={slot.id}&amp;moduleaction=ausbauen">ausbauen</a>
+						<a class="error" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=module&amp;slot={slot.id}&amp;moduleaction=ausbauen">ausbauen</a>
 					{/endif}
 					<br />
 				<!-- END ws.modules.slots.listitem -->
 			{/endif}			
 			</td>
 			<td valign="top" align="center" class="noBorderX">
-				<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;ws={ship.id}">Infos</a><br />
-				<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;ws={ship.id}&amp;werftact=repair">Reparieren</a><br />
+				<a class="forschinfo" href="{werftgui.urlbase}&amp;ws={ship.id}">Infos</a><br />
+				<a class="forschinfo" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=repair">Reparieren</a><br />
 				{if ship.own}
-					<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;ws={ship.id}&amp;werftact=dismantle">Demontieren</a><br />
+					<a class="forschinfo" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=dismantle">Demontieren</a><br />
 				{/endif}
 				{if ship.type.modules}
-					<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;ws={ship.id}&amp;werftact=module">Module</a><br />
+					<a class="forschinfo" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=module">Module</a><br />
 				{/endif}
 			</td>
 		</tr>
@@ -157,7 +156,7 @@
 		<br />
 	{!table_end}
 	<br />
-	<a class="back" href="{werftgui.urlbase}&amp;sess={global.sess}">Zur&uuml;ck zur Werft&uuml;bersicht</a>
+	<a class="back" href="{werftgui.urlbase}">Zur&uuml;ck zur Werft&uuml;bersicht</a>
 	{if ship.own}
 		 | {!link_to Zum Schiff, default, module:schiff, ship:$ship.id, css_class:back}
 	{/endif}
@@ -222,7 +221,7 @@
 					{if build.instant.error}
 						<span class="error">{build.instant.error}</span><br />
 					{else}
-						<a class="ok" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;build={build.id}&amp;item={build.item.id}&amp;conf=ok&amp;pertick=0">Bauen und sofort bezahlen</a><br />
+						<a class="ok" href="{werftgui.urlbase}&amp;build={build.id}&amp;item={build.item.id}&amp;conf=ok&amp;pertick=0">Bauen und sofort bezahlen</a><br />
 					{/endif}
 				{else}
 					{if build.error}
@@ -233,7 +232,7 @@
 				{/endif}
 			</div>
 			<hr noshade="noshade" size="1" style="color:#cccccc; width:10%" />
-			<a class="ok" href="{werftgui.urlbase}&amp;sess={global.sess}">zur&uuml;ck</a><br />
+			<a class="ok" href="{werftgui.urlbase}">zur&uuml;ck</a><br />
 		</div>
 	{!table_end}
 {/endif}
@@ -275,16 +274,16 @@
 		<table class="noBorderX" style="width:90%; margin-left:auto; margin-right:auto">
 		<tr>
 			<td class="noBorderX" style="text-align:center">
-				<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;show=build">Bau</a>
+				<a class="forschinfo" href="{werftgui.urlbase}&amp;show=build">Bau</a>
 			</td>
 			<td class="noBorderX" style="text-align:center">
-				<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;show=repair">Wartung</a>
+				<a class="forschinfo" href="{werftgui.urlbase}&amp;show=repair">Wartung</a>
 			</td>
 			<td class="noBorderX" style="text-align:center">
-				<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;show=queue">Bauschlange</a>
+				<a class="forschinfo" href="{werftgui.urlbase}&amp;show=queue">Bauschlange</a>
 			</td>
 			<td class="noBorderX" style="text-align:center">
-				<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;show=options">Optionen</a>
+				<a class="forschinfo" href="{werftgui.urlbase}&amp;show=options">Optionen</a>
 			</td>
 		</tr>
 		</table>
@@ -332,7 +331,7 @@
 								<img style="vertical-align:middle;width:64px" src="{buildship.type.image}" alt="" />
 							</td>
 							<td class="noBorderX">
-								<a class="forschinfo" href="./ds?module=schiffinfo&amp;sess={global.sess}&amp;ship={buildship.type.id}">{buildship.type.name}</a>
+								<a class="forschinfo" href="./ds?module=schiffinfo&amp;ship={buildship.type.id}">{buildship.type.name}</a>
 							</td>
 							<td class="noBorderX">
 								<!-- BEGIN buildship.res.listitem -->
@@ -340,7 +339,7 @@
 								<!-- END buildship.res.listitem -->
 							</td>
 							<td class="noBorderX">
-								<a class="forschinfo" href="{werftgui.urlbase}&amp;sess={global.sess}&amp;build={buildship.id}{if buildship.item.id}&amp;item={buildship.item.id}{/endif}">bauen</a>
+								<a class="forschinfo" href="{werftgui.urlbase}&amp;build={buildship.id}{if buildship.item.id}&amp;item={buildship.item.id}{/endif}">bauen</a>
 							</td>
 						</tr>		
 					<!-- END buildshiplist.listitem -->
@@ -363,7 +362,6 @@
 						<!-- END wsshiplist.listitem -->
 					</select>&nbsp;
 				
-					<input name="sess" type="hidden" value="{global.sess}" />
 					<input type="submit" value="zur Werkstatt" />
 				</div>
 				</form>
@@ -393,7 +391,7 @@
 								<img style="vertical-align:middle;width:64px" src="{queueship.type.image}" alt="" />
 							</td>
 							<td class="noBorderX">
-								<a class="forschinfo" href="./ds?module=schiffinfo&amp;sess={global.sess}&amp;ship={queueship.type.id}">{queueship.type.name}</a>
+								<a class="forschinfo" href="./ds?module=schiffinfo&amp;ship={queueship.type.id}">{queueship.type.name}</a>
 							</td>
 							<td class="noBorderX">
 								Fertigstellung in: <img vertical-align="middle" src="{URL}data/interface/time.gif" alt="Dauer" title="Dauer" />{queueship.remainingtotal}<br />
@@ -415,20 +413,20 @@
 							</td>
 							<td class="noBorderX">
 								{if queueship.uppossible}
-									<a href="{werftgui.urlbase}&amp;sess={global.sess}&amp;werftact=queueup&entry={queueship.position}&amp;show=queue">
+									<a href="{werftgui.urlbase}&amp;werftact=queueup&entry={queueship.position}&amp;show=queue">
 										<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/up.png" alt="Runter" title="Runter" />
 									</a>
 								{else}
 									<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/spacer.png" alt="" />
 								{/endif}
 								{if queueship.downpossible}
-									<a href="{werftgui.urlbase}&amp;sess={global.sess}&amp;werftact=queuedown&entry={queueship.position}&amp;show=queue">
+									<a href="{werftgui.urlbase}&amp;werftact=queuedown&entry={queueship.position}&amp;show=queue">
 										<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/down.png" alt="Hoch" title="Hoch" />
 									</a>
 								{else}
 									<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/spacer.png" alt="" />
 								{/endif}
-								<a href="javascript:ask('Soll der Bau wirklich abgebrochen werden?','{werftgui.urlbase}&amp;sess={global.sess}&amp;werftact=canclebuild&entry={queueship.position}&amp;show=queue')">
+								<a href="javascript:ask('Soll der Bau wirklich abgebrochen werden?','{werftgui.urlbase}&amp;werftact=canclebuild&entry={queueship.position}&amp;show=queue')">
 									<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/delete.gif" alt="Abbrechen" title="Abbrechen" />
 								</a>
 							</td>
@@ -470,14 +468,13 @@
 										</select>
 										{komplexpart.werftgui.formhidden}
 										<input name="show" type="hidden" value="options" />
-										<input name="sess" type="hidden" value="{global.sess}" />
 										<input type="submit" value="ok" /><br />
 									</div>
 									</form>
 								{/endif}
 							</td>
 							<td class="noBorderX">
-								<a href="{werftgui.urlbase}&amp;sess={global.sess}&amp;werftact=removefromkomplex&entry={komplexpart.id}&amp;show=options">
+								<a href="{werftgui.urlbase}&amp;werftact=removefromkomplex&entry={komplexpart.id}&amp;show=options">
 									<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/delete.gif" alt="Entfernen" title="Entfernen" />
 								</a>
 							</td>
@@ -498,7 +495,6 @@
 					</select>
 					{werftgui.formhidden}
 					<input name="show" type="hidden" value="options" />
-					<input name="sess" type="hidden" value="{global.sess}" />
 					<input type="submit" value="ok" /><br />
 				</div>
 				</form>
@@ -516,7 +512,6 @@
 					</select>
 					{werftgui.formhidden}
 					<input name="show" type="hidden" value="options" />
-					<input name="sess" type="hidden" value="{global.sess}" />
 					<input type="submit" value="ok" /><br />
 				</div>
 				</form>

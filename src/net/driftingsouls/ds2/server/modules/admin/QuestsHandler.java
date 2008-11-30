@@ -50,7 +50,7 @@ public class QuestsHandler implements AdminPlugin {
 		
 		Database db = context.getDatabase();
 		
-		final String URLBASE = "./ds?module=admin&sess="+context.getSession()+"&page="+page+"&act="+action;
+		final String URLBASE = "./ds?module=admin&page="+page+"&act="+action;
 		
 		if( event.length() == 0 ) {
 			echo.append(Common.tableBegin(700, "center"));
@@ -63,7 +63,6 @@ public class QuestsHandler implements AdminPlugin {
 			echo.append("<option value=\"onendbattle\">onendbattle</option>\n");
 			echo.append("</select>\n");
 			echo.append("<input type=\"text\" name=\"oid\" value=\"object-id\" />\n");
-			echo.append("<input type=\"hidden\" name=\"sess\" value=\""+context.getSession()+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
@@ -188,7 +187,6 @@ public class QuestsHandler implements AdminPlugin {
 			echo.append("<input type=\"hidden\" name=\"event\" value=\""+event+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"oid\" value=\""+oid+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"save\" value=\"1\" />\n");
-			echo.append("<input type=\"hidden\" name=\"sess\" value=\""+context.getSession()+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");

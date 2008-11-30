@@ -157,15 +157,6 @@ public interface Context {
 	public void remove(Class<?> cls);
 	
 	/**
-	 * Gibt die zum Kontext gehoerende Session-ID zurueck.
-	 * Sollte keine Session-ID vorliegen, wird ein leerer String
-	 * (nicht <code>null</code>!) zurueckgegeben.
-	 * 
-	 * @return Die Session-ID oder ein leerer String
-	 */
-	public String getSession();
-	
-	/**
 	 * Setzt eine Kontext-lokale Variable auf einen angegebenen Wert.
 	 * @param cls Die Klasse, welche die Variable setzen moechte - fungiert als zusaetzlicher Schluessel
 	 * @param varname Der Name der Variablen

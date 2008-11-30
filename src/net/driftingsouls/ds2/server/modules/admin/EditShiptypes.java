@@ -66,7 +66,6 @@ public class EditShiptypes implements AdminPlugin
 		List<?> shiptypes = db.createQuery("from ShipType").list();
 
 		echo.append("<form action=\"./ds\" method=\"post\">");
-		echo.append("<input type=\"hidden\" name=\"sess\" value=\"" + context.getSession() + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
@@ -289,7 +288,6 @@ public class EditShiptypes implements AdminPlugin
 
 			echo.append("<form action=\"./ds\" method=\"post\">");
 			echo.append("<table class=\"noBorder\" width=\"100%\">");
-			echo.append("<input type=\"hidden\" name=\"sess\" value=\"" + context.getSession() + "\" />\n");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");

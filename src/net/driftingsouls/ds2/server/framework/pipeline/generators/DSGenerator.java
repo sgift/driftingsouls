@@ -309,7 +309,6 @@ public abstract class DSGenerator extends Generator {
 		this.parameter = new HashMap<String,Object>();
 		this.subParameter = "";
 		
-		parameterString("sess");
 		parameterString("module");
 		parameterString("action");
 		parameterString("_style");

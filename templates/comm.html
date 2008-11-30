@@ -20,13 +20,13 @@
 <!--
 //<![CDATA[
 	function PlayerList() {
-		fenster1=window.open(getDsUrl()+"?module=plist&sess={global.sess}&compopup=1",
+		fenster1=window.open(getDsUrl()+"?module=plist&compopup=1",
 							 "Spielerliste",
 							 "width=350,height=400,locationbar=0,menubar=0,scrollbars=1,statusbar=0,toolbar=0,resizeable=yes,directories=0");
 	}
 
 	function BBCodeInfo() {
-		fenster2=window.open(getDsUrl()+"?module=bbcodeview&sess={global.sess}",
+		fenster2=window.open(getDsUrl()+"?module=bbcodeview",
 							 "BBCodes",
 							 "width=550,height=400,locationbar=0,menubar=0,scrollbars=1,statusbar=0,toolbar=0,resizeable=yes,directories=0");
 	}
@@ -176,7 +176,7 @@
 	<script type="text/javascript">
 	<!--
 		function showpm(pmid) {
-			pmviewer.location.href = getDsUrl()+"?module=comm&sess={global.sess}&action=showPm&pmid="+pmid;
+			pmviewer.location.href = getDsUrl()+"?module=comm&action=showPm&pmid="+pmid;
 			
 			if( $('pm'+pmid) != null ) {	
 				$('pm'+pmid).firstChild.nodeValue = "";
@@ -227,7 +227,7 @@
 			
 			var url = getDsUrl();
 			// Oh ich liebe das toooolle caching vom *piep* ie
-			var params = 'module={global.module}&sess={global.sess}&action=move&ordner={ordner.parent}&moveto='+ordnerid+"&pm_"+pmid+"="+pmid+"&antiiecachingtimestamp="+(new Date().getTime());
+			var params = 'module={global.module}&action=move&ordner={ordner.parent}&moveto='+ordnerid+"&pm_"+pmid+"="+pmid+"&antiiecachingtimestamp="+(new Date().getTime());
 
 			var myAjax = new Ajax.Request( url, 
 			{
@@ -314,7 +314,7 @@
 							
 						</td>
 						<td class="noBorderX">
-							<a class="profile" href="./ds?module=comm&amp;sess={global.sess}&amp;action=showInbox&amp;ordner={ordner.id}">
+							<a class="profile" href="./ds?module=comm&amp;action=showInbox&amp;ordner={ordner.id}">
 								{ordner.name}
 							</a>&nbsp;
 						</td>
@@ -327,11 +327,11 @@
 							{/endif}
 						</td>
 						<td class="noBorderX">
-							<a href="./ds?module=comm&amp;sess={global.sess}&amp;action=showInbox&amp;ordner={ordner.id}" >
+							<a href="./ds?module=comm&amp;action=showInbox&amp;ordner={ordner.id}" >
 								<img style="border:0px" src="{URL}data/interface/text.png" alt="&ouml;ffnen" title="&ouml;ffnen" />
 							</a>
 							{if ordner.flags.trash}
-									<a href="javascript:ask('Wollen sie wirklich alle gel&ouml;schten PMs wiederherstellen?',getDsUrl()+'?module=comm&amp;sess={global.sess}&amp;action=recoverAll&amp;ordner={ordner.parent}')">
+									<a href="javascript:ask('Wollen sie wirklich alle gel&ouml;schten PMs wiederherstellen?',getDsUrl()+'?module=comm&amp;action=recoverAll&amp;ordner={ordner.parent}')">
 									<img style="border:0px" src="{URL}data/interface/pms/recover.png" alt="wiederherstellen" title="wiederherstellen" />
 								</a>
 							{/endif}
@@ -340,7 +340,7 @@
 									<a href="javascript:setRenameAction({ordner.id});" >
 										<img style="border:0px" src="{URL}data/interface/pen.gif" alt="umbenennen" title="umbenennen" />
 									</a>
-									<a href="javascript:ask('Wollen sie wirklich diesen Ordner samt enthaltener PMs und Unterordner löschen?',getDsUrl()+'?module=comm&amp;sess={global.sess}&amp;action=delete&amp;ordner={ordner.parent}&amp;delord={ordner.id}')">
+									<a href="javascript:ask('Wollen sie wirklich diesen Ordner samt enthaltener PMs und Unterordner löschen?',getDsUrl()+'?module=comm&amp;action=delete&amp;ordner={ordner.parent}&amp;delord={ordner.id}')">
 										<img style="border:0px" src="{URL}data/interface/delete.gif" alt="umbenennen" title="L&ouml;schen" /></a>
 								{/endif}
 							{/endif}
@@ -460,7 +460,7 @@
 	{!table_end}
 	<br />
 	{!table_begin 710,left}
-		<iframe src="./ds?module=comm&amp;sess={global.sess}&amp;action=showPm" name="pmviewer" width="630" height="240" scrolling="auto" marginheight="0" marginwidth="0" frameborder="0">
+		<iframe src="./ds?module=comm&amp;action=showPm" name="pmviewer" width="630" height="240" scrolling="auto" marginheight="0" marginwidth="0" frameborder="0">
 			Dein Browser unterst&uuml;tzt leider keine iframes. Am besten installierst du einen Browser neueren Datums wie z.B. den <a class="forschinfo" href="http://www.mozilla.org">Mozilla Firefox</a>
 		</iframe>
 	{!table_end}
@@ -478,7 +478,7 @@
 	<script type="text/javascript">
 	<!--
 		function showpm(pmid) {			
-			pmviewer.location.href = getDsUrl()+"?module=comm&sess={global.sess}&action=showPm&pmid="+pmid;
+			pmviewer.location.href = getDsUrl()+"?module=comm&action=showPm&pmid="+pmid;
 		}
 	-->
 	</script>
@@ -519,7 +519,7 @@
 	{!table_end}
 	<br />
 	{!table_begin 710,left}
-		<iframe src="./ds?module=comm&amp;sess={global.sess}&amp;action=showPm" name="pmviewer" width="630" height="240" scrolling="auto" marginheight="0" marginwidth="0" frameborder="0">
+		<iframe src="./ds?module=comm&amp;action=showPm" name="pmviewer" width="630" height="240" scrolling="auto" marginheight="0" marginwidth="0" frameborder="0">
 			Dein Browser unterst&uuml;tzt leider keine iframes. Am besten installierst du einen Browser neueren Datums wie z.B. den <a class="forschinfo" href="http://www.mozilla.org">Mozilla Firefox</a>
 		</iframe>
 	{!table_end}

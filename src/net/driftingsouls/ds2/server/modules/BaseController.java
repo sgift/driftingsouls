@@ -260,7 +260,6 @@ public class BaseController extends TemplateGenerator {
 		StringBuilder tooltiptext2 = new StringBuilder(50);
 		tooltiptext2.append("' />");
 		tooltiptext2.append("<input name='col' type='hidden' value='"+base.getId()+"' />");
-		tooltiptext2.append("<input name='sess' type='hidden' value='"+getString("sess")+"' />");
 		tooltiptext2.append("<input name='module' type='hidden' value='base' />");
 		tooltiptext2.append("<input name='action' type='hidden' value='changeName' />");
 		tooltiptext2.append("&nbsp;<input type='submit' value='rename' /><br />");
@@ -396,7 +395,6 @@ public class BaseController extends TemplateGenerator {
 				tooltiptext.append("<div>");
 				tooltiptext.append("Nahrung transferieren: <input name='nahrung' type='text' size='6' value='"+res.getCount1()+"' /><br />");
 				tooltiptext.append("<input name='col' type='hidden' value='"+base.getId()+"' />");
-				tooltiptext.append("<input name='sess' type='hidden' value='"+getString("sess")+"' />");
 				tooltiptext.append("<input name='module' type='hidden' value='base' />");
 				tooltiptext.append("<input name='action' type='hidden' value='transferNahrung' />");
 				tooltiptext.append("&nbsp;<input type='submit' value='ok' /><br />");

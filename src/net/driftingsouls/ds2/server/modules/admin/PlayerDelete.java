@@ -71,8 +71,6 @@ public class PlayerDelete implements AdminPlugin
 
 		int userid = context.getRequest().getParameterInt("userid");
 
-		String sess = context.getSession();
-
 		if( userid == 0 )
 		{
 			echo.append(Common.tableBegin(400, "center"));
@@ -82,7 +80,7 @@ public class PlayerDelete implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Userid:</td><td class=\"noBorderX\">");
 			echo.append("<input type=\"text\" name=\"userid\" size=\"6\" />");
 			echo.append("</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\" colspan=\"2\" align=\"center\"><input type=\"hidden\" name=\"sess\" value=\"" + sess + "\" />");
+			echo.append("<tr><td class=\"noBorderX\" colspan=\"2\" align=\"center\">");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");

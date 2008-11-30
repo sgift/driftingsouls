@@ -109,7 +109,7 @@ public class PortalDownloads implements AdminPlugin {
 			
 			echo.append("<td class=\"noBorderX\">\n");
 			echo.append("<a class=\"error\" href=\"" +
-					"./ds?module=admin&sess="+context.getSession()+
+					"./ds?module=admin"+
 					"&act="+action+"&page="+page+"&dlid="+dl.getInt("id")+"&dlaction=delete" +
 					"\">X</a>");
 			echo.append("</td>\n");
@@ -151,7 +151,6 @@ public class PortalDownloads implements AdminPlugin {
 
 		echo.append("<tr>\n");
 		echo.append("<td class=\"noBorderX\" style=\"vertical-align:top;text-align:center\" colspan=\"5\">\n");
-		echo.append("<input type=\"hidden\" name=\"sess\" value=\""+context.getSession()+"\" />\n");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
 		echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");

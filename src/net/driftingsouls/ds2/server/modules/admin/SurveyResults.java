@@ -74,7 +74,7 @@ public class SurveyResults implements AdminPlugin {
 			echo.append(Common.tableBegin(600,"center"));
 			SQLQuery survey = db.query("SELECT * FROM surveys");
 			while( survey.next() ) {
-				echo.append("<a class=\"forschinfo\" href=\"./ds?module=admin&sess="+context.getSession()+"&page="+page+"&act="+action+"&resultid=0&surveyid="+survey.getInt("id")+"\">"+survey.getString("name")+"</a>");
+				echo.append("<a class=\"forschinfo\" href=\"./ds?module=admin&page="+page+"&act="+action+"&resultid=0&surveyid="+survey.getInt("id")+"\">"+survey.getString("name")+"</a>");
 				if( (survey.getInt("enabled") != 0) && (survey.getInt("timeout") > 0) ) {
 					echo.append(" - <span style=\"color:green\">aktiv</span>");	
 				}
@@ -113,7 +113,7 @@ public class SurveyResults implements AdminPlugin {
 			
 			echo.append("<td class=\"noBorderX\" style=\"text-align:left\">");
 			if( !previd.isEmpty() ) {
-				echo.append("<a class=\"ok\" href=\"./ds?module=admin&sess="+context.getSession()+"&page="+page+"&act="+action+"&resultid="+previd.getInt("id")+"&surveyid="+surveyid+"\">&lt;&lt;&lt;</a>");
+				echo.append("<a class=\"ok\" href=\"./ds?module=admin&page="+page+"&act="+action+"&resultid="+previd.getInt("id")+"&surveyid="+surveyid+"\">&lt;&lt;&lt;</a>");
 			}
 			echo.append("</td>\n");
 			
@@ -124,7 +124,7 @@ public class SurveyResults implements AdminPlugin {
 					"ORDER BY id ASC");
 			echo.append("<td class=\"noBorderX\" style=\"text-align:right\">");
 			if( !nextid.isEmpty() ) {
-				echo.append("<a class=\"ok\" href=\"./ds?module=admin&sess="+context.getSession()+"&page="+page+"&act="+action+"&resultid="+nextid.getInt("id")+"&surveyid="+surveyid+"\">&gt;&gt;&gt;</a>");
+				echo.append("<a class=\"ok\" href=\"./ds?module=admin&page="+page+"&act="+action+"&resultid="+nextid.getInt("id")+"&surveyid="+surveyid+"\">&gt;&gt;&gt;</a>");
 			}
 			echo.append("</td>\n");
 			echo.append("</tr>\n");

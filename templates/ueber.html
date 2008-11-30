@@ -137,14 +137,14 @@
 			<div style="text-align:center; font-weight:bold">
 				{if show.bookmarks}Bookmarks{/endif}
 				{if show.fleets}Flotten{/endif}
-				<a onclick="javascript:overlib('&lt;div style=\'font-size:13px; text-align:center\'&gt;&lt;a style=\'font-size:13px\' class=\'forschinfo\' href=\''+getDsUrl()+'?sess={global.sess}&amp;module=ueber&amp;action=box&amp;box=bookmarks\'&gt;Bookmarks&lt;/a&gt;&lt;br /&gt;&lt;a style=\'font-size:13px\' class=\'forschinfo\' href=\''+getDsUrl()+'?sess={global.sess}&amp;module=ueber&amp;action=box&amp;box=fleets\'&gt;Flotten&lt;/a&gt;&lt;/div&gt;',REF,'box_popup', REFC,'LR',REFP,'UR',NOCLOSE,STICKY,WIDTH,150);" id="box_popup" name="box_popup" class="error" onmouseover="" onmouseout="return nd();" href="#">
+				<a onclick="javascript:overlib('&lt;div style=\'font-size:13px; text-align:center\'&gt;&lt;a style=\'font-size:13px\' class=\'forschinfo\' href=\''+getDsUrl()+'?module=ueber&amp;action=box&amp;box=bookmarks\'&gt;Bookmarks&lt;/a&gt;&lt;br /&gt;&lt;a style=\'font-size:13px\' class=\'forschinfo\' href=\''+getDsUrl()+'?module=ueber&amp;action=box&amp;box=fleets\'&gt;Flotten&lt;/a&gt;&lt;/div&gt;',REF,'box_popup', REFC,'LR',REFP,'UR',NOCLOSE,STICKY,WIDTH,150);" id="box_popup" name="box_popup" class="error" onmouseover="" onmouseout="return nd();" href="#">
 					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_dropdown.gif" alt="" />
 				</a>
 			</div>
 			<div style="height:130px; width:390px; overflow:auto; padding:4px; font-size:13px">
 				{if show.bookmarks}
 				<!-- BEGIN bookmarks.listitem -->
-					<a style="font-size:13px" class="forschinfo"  onmouseover="return overlib('&lt;span style=\'font-size:13px\'&gt;{bookmark.description}&lt;/span&gt;',TIMEOUT,0,DELAY,400,WIDTH,300);" onmouseout="return nd();" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={bookmark.shipid}">{bookmark.shipname}</a> ({bookmark.shipid})
+					<a style="font-size:13px" class="forschinfo"  onmouseover="return overlib('&lt;span style=\'font-size:13px\'&gt;{bookmark.description}&lt;/span&gt;',TIMEOUT,0,DELAY,400,WIDTH,300);" onmouseout="return nd();" href="./ds?module=schiff&amp;ship={bookmark.shipid}">{bookmark.shipname}</a> ({bookmark.shipid})
 					- {bookmark.shiptype} - {bookmark.location}<br />
 				<!-- END bookmarks.listitem -->
 				{/endif}
@@ -161,7 +161,7 @@
 	<td class="noBorderS" valign="top">&nbsp;</td>
 	<td class="noBorderS" valign="top" style="font-size:17px">
 		<p>
-			<a class="error" href="./ds?module=schiffe&amp;sess={global.sess}&amp;low=9" {!overlib <span style='font-size:13px'>Schiffe mit Vorr&auml;ten f&uuml;r weniger als 10 Runden</span>, mo, delay:300}>
+			<a class="error" href="./ds?module=schiffe&amp;low=9" {!overlib <span style='font-size:13px'>Schiffe mit Vorr&auml;ten f&uuml;r weniger als 10 Runden</span>, mo, delay:300}>
 				{if schiffe.mangel}
 					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_mangel.gif" alt="" />
 				{else}
@@ -171,7 +171,7 @@
 			{schiffe.mangel}
 		</p>
 		<p>
-			<a class="error" href="./ds?module=schiffe&amp;sess={global.sess}&amp;crewless=1" {!overlib <span style='font-size:13px'>Schiffe ohne Crew</span>, mo, delay:300, width:150}>
+			<a class="error" href="./ds?module=schiffe&amp;crewless=1" {!overlib <span style='font-size:13px'>Schiffe ohne Crew</span>, mo, delay:300, width:150}>
 				{if schiffe.nocrew}
 					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_nocrew.gif" alt="" />
 				{else}
@@ -181,7 +181,7 @@
 			{schiffe.nocrew}
 		</p>
 		<p>
-			<a class="error" href="./ds?module=basen&amp;sess={global.sess}" {!overlib <span style='font-size:13px'>Asteroiden mit Vorr&auml;ten welche f&uuml; weniger als 10 Runden reichen</span>, mo, delay:300, width:300}>
+			<a class="error" href="./ds?module=basen" {!overlib <span style='font-size:13px'>Asteroiden mit Vorr&auml;ten welche f&uuml; weniger als 10 Runden reichen</span>, mo, delay:300, width:300}>
 				{if astis.mangel}
 					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_mangel_asti.gif" alt="" />
 				{else}
@@ -191,7 +191,7 @@
 			{astis.mangel}
 		</p>
 		<p>
-			<a class="error" href="./ds?module=comm&amp;sess={global.sess}&amp;action=showInbox" {!overlib <span style='font-size:13px'>Neue ungelesene PMs</span>, mo, delay:300, width:150}>
+			<a class="error" href="./ds?module=comm&amp;action=showInbox" {!overlib <span style='font-size:13px'>Neue ungelesene PMs</span>, mo, delay:300, width:150}>
 				{if user.newmsgs}
 					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_pm.gif" alt="" />
 				{else}

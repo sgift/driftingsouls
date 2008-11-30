@@ -85,7 +85,6 @@ public class BattleEnd implements AdminPlugin {
 			echo.append("<hr style=\"height:1px; border:0px; background-color:#606060; color:#606060\" />\n");
 			echo.append("<form action=\"./ds\" method=\"post\">");
 			echo.append("BattleID: <input type=\"text\" name=\"battleid\" value=\"0\" />\n");
-			echo.append("<input type=\"hidden\" name=\"sess\" value=\""+context.getSession()+"\" />");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");		

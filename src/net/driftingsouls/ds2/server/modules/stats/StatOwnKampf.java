@@ -80,7 +80,7 @@ public class StatOwnKampf implements Statistic {
 				if( shiptype != null ) {
 					echo.append("<a onmouseover=\"return overlib('"+Common._plaintitle(shiptype.getNickname())+"',TIMEOUT,0,DELAY,400,WIDTH,100);\" " +
 							"onmouseout=\"return nd();\" target=\"_blank\" " +
-							"href=\"./ds?module=schiffinfo&sess="+context.getSession()+"&ship="+s.getInt("type")+"\">" +
+							"href=\"./ds?module=schiffinfo&ship="+s.getInt("type")+"\">" +
 							"<img border=\"0\" src=\""+shiptype.getPicture()+"\"></a><br />");
 				}
 				
@@ -162,7 +162,7 @@ public class StatOwnKampf implements Statistic {
 					echo.append(Common._plaintitle(s.getString("name"))+"<br />");
 					echo.append("<a onmouseover=\"return overlib('"+Common._plaintitle(shiptype.getNickname())+"',TIMEOUT,0,DELAY,400,WIDTH,100);\" " +
 							"onmouseout=\"return nd();\" target=\"_blank\" " +
-							"href=\"./ds?module=schiffinfo&sess="+context.getSession()+"&ship="+s.getInt("type")+"\">" +
+							"href=\"./ds?module=schiffinfo&ship="+s.getInt("type")+"\">" +
 							"<img border=\"0\" src=\""+shiptype.getPicture()+"\"></a><br />");
 				}
 				User auser = (User)context.getDB().get(User.class, s.getInt("destowner"));

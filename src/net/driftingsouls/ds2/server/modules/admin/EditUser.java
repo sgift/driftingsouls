@@ -55,7 +55,6 @@ public class EditUser implements AdminPlugin
 
 		echo.append(Common.tableBegin(350,"left"));
 		echo.append("<form action=\"./ds\" method=\"post\">");
-		echo.append("<input type=\"hidden\" name=\"sess\" value=\"" + context.getSession() + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
@@ -101,7 +100,6 @@ public class EditUser implements AdminPlugin
 			echo.append(Common.tableBegin(650,"left"));
 			echo.append("<form action=\"./ds\" method=\"post\">");
 			echo.append("<table class=\"noBorderX\" width=\"100%\">");
-			echo.append("<input type=\"hidden\" name=\"sess\" value=\"" + context.getSession() + "\" />\n");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");

@@ -21,7 +21,7 @@
 	<tr>
 		<td class="schiff" valign="middle">Sensoren
 			{if global.longscan}
-				&nbsp;-&nbsp;<a href="./ds?module=scan&amp;sess={global.sess}&amp;ship={global.ship}"><img style="vertical-align:top" src="{URL}data/interface/schiffe/scan.gif" alt="Sensoren" /></a>
+				&nbsp;-&nbsp;<a href="./ds?module=scan&amp;ship={global.ship}"><img style="vertical-align:top" src="{URL}data/interface/schiffe/scan.gif" alt="Sensoren" /></a>
 			{/endif}
 		</td>
 	</tr>
@@ -36,10 +36,10 @@
 	{if global.scan}
 		<table class="show">
 		<tr class="show">
-		<td class="show" style="width:30px"><a class="forschinfo" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={global.ship}&amp;action=plugin&amp;plugin={global.pluginid}&amp;{global.pluginid}_ops[order]=id">ID</a></td>
-		<td class="show" style="width:150px"><a class="forschinfo" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={global.ship}&amp;action=plugin&amp;plugin={global.pluginid}&amp;{global.pluginid}_ops[order]=owner">Besitzer</a></td>
-		<td class="show" style="width:150px"><a class="forschinfo" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={global.ship}&amp;action=plugin&amp;plugin={global.pluginid}&amp;{global.pluginid}_ops[order]=name">Name</a></td>
-		<td class="show" style="width:100px"><a class="forschinfo" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={global.ship}&amp;action=plugin&amp;plugin={global.pluginid}&amp;{global.pluginid}_ops[order]=shiptype">Klasse</a></td>
+		<td class="show" style="width:30px"><a class="forschinfo" href="./ds?module=schiff&amp;ship={global.ship}&amp;action=plugin&amp;plugin={global.pluginid}&amp;{global.pluginid}_ops[order]=id">ID</a></td>
+		<td class="show" style="width:150px"><a class="forschinfo" href="./ds?module=schiff&amp;ship={global.ship}&amp;action=plugin&amp;plugin={global.pluginid}&amp;{global.pluginid}_ops[order]=owner">Besitzer</a></td>
+		<td class="show" style="width:150px"><a class="forschinfo" href="./ds?module=schiff&amp;ship={global.ship}&amp;action=plugin&amp;plugin={global.pluginid}&amp;{global.pluginid}_ops[order]=name">Name</a></td>
+		<td class="show" style="width:100px"><a class="forschinfo" href="./ds?module=schiff&amp;ship={global.ship}&amp;action=plugin&amp;plugin={global.pluginid}&amp;{global.pluginid}_ops[order]=shiptype">Klasse</a></td>
 		<td class="show"><span class="smallfont">Zustand</span></td>
 		{if global.awac}<td class="show"><span class="smallfont">Info</span></td>{/endif}
 		<td class="show"><span class="smallfont">Aktionen</span></td></tr>
@@ -47,14 +47,14 @@
 		<!-- BEGIN bases.listitem -->
 			<tr><td class="show2"><span class="smallfont">
 			{if base.ownbase}
-				<a class="schiff" href="./ds?module=base&amp;sess={global.sess}&amp;col={base.id}">{base.id}</a>
+				<a class="schiff" href="./ds?module=base&amp;col={base.id}">{base.id}</a>
 			{else}
 				{base.id}
 			{/endif}
 			</span></td>
 			<td class="show2" style="width:150px"><span class="smallfont">
 			{if base.pm}
-				<a class="profile" href="./ds?module=userprofile&amp;sess={global.sess}&amp;user={base.owner.id}">{base.owner.name}</a>
+				<a class="profile" href="./ds?module=userprofile&amp;user={base.owner.id}">{base.owner.name}</a>
 			{else}
 				{base.owner.name}
 			{/endif}
@@ -69,17 +69,17 @@
 			{if global.awac}<td class="show2">&nbsp;</td>{/endif}
 			<td class="show2" align="left">
 			{if base.colonize}
-				<a class="greenborder" onmouseover="return helpme('{base.name} kolonisieren');" onmouseout="return nd();" href="./ds?module=colonize&amp;sess={global.sess}&amp;col={base.id}&amp;ship={global.ship}"><img src="{URL}data/interface/schiffe/schiff_kolonisieren.gif" alt="" /></a>
+				<a class="greenborder" onmouseover="return helpme('{base.name} kolonisieren');" onmouseout="return nd();" href="./ds?module=colonize&amp;col={base.id}&amp;ship={global.ship}"><img src="{URL}data/interface/schiffe/schiff_kolonisieren.gif" alt="" /></a>
 			{/endif}{if base.transfer}
-				<a class="greenborder" onmouseover="return helpme('mit {base.name} Waren austauschen');" onmouseout="return nd();" href="./ds?module=transport&amp;sess={global.sess}&amp;to={base.id}&amp;from={global.ship}&amp;way=stob"><img src="{URL}data/interface/schiffe/schiff_transport.gif" alt="" /></a>
+				<a class="greenborder" onmouseover="return helpme('mit {base.name} Waren austauschen');" onmouseout="return nd();" href="./ds?module=transport&amp;to={base.id}&amp;from={global.ship}&amp;way=stob"><img src="{URL}data/interface/schiffe/schiff_transport.gif" alt="" /></a>
 			{/endif}{if base.ownbase}
-				<a class="greenborder" onmouseover="return helpme('Crew mit {base.name} austauschen');" onmouseout="return nd();" href="./ds?module=crewtausch&amp;sess={global.sess}&amp;ship={global.ship}&amp;tar={base.id}&amp;mode=sb"><img src="{URL}data/interface/schiffe/schiff_bemannen.gif" alt="" /></a>
+				<a class="greenborder" onmouseover="return helpme('Crew mit {base.name} austauschen');" onmouseout="return nd();" href="./ds?module=crewtausch&amp;ship={global.ship}&amp;tar={base.id}&amp;mode=sb"><img src="{URL}data/interface/schiffe/schiff_bemannen.gif" alt="" /></a>
 			{/endif}{if base.offiziere.transfer}
-				<a class="greenborder" onmouseover="return helpme('Offizier nach {base.name} transferieren');" onmouseout="return nd();" href="./ds?module=tc&amp;sess={global.sess}&amp;action=shipToBase&amp;ship={global.ship}&amp;target={base.id}"><img src="{URL}data/interface/schiffe/schiff_captain_transfer.gif" alt="" /></a>
+				<a class="greenborder" onmouseover="return helpme('Offizier nach {base.name} transferieren');" onmouseout="return nd();" href="./ds?module=tc&amp;action=shipToBase&amp;ship={global.ship}&amp;target={base.id}"><img src="{URL}data/interface/schiffe/schiff_captain_transfer.gif" alt="" /></a>
 			{/endif}{if base.offiziere.set}
-				<a class="greenborder" onmouseover="return helpme('Offizier von {base.name} transferieren');" onmouseout="return nd();" href="./ds?module=tc&amp;sess={global.sess}&amp;action=baseToShip&amp;ship={global.ship}&amp;target={base.id}"><img src="{URL}data/interface/schiffe/schiff_captain_zuweisen.gif" alt="" /></a>
+				<a class="greenborder" onmouseover="return helpme('Offizier von {base.name} transferieren');" onmouseout="return nd();" href="./ds?module=tc&amp;action=baseToShip&amp;ship={global.ship}&amp;target={base.id}"><img src="{URL}data/interface/schiffe/schiff_captain_zuweisen.gif" alt="" /></a>
 			{/endif}{if base.action.repair}
-				<a class="greenborder" onmouseover="return helpme('auf {base.name} in die Werkstatt fliegen');" onmouseout="return nd();" href="./ds?module=building&amp;sess={global.sess}&amp;ws={global.ship}&amp;col={base.id}&amp;field={base.werft.field}"><img src="{URL}data/interface/schiffe/schiff_repair.gif" alt="" /></a>
+				<a class="greenborder" onmouseover="return helpme('auf {base.name} in die Werkstatt fliegen');" onmouseout="return nd();" href="./ds?module=building&amp;ws={global.ship}&amp;col={base.id}&amp;field={base.werft.field}"><img src="{URL}data/interface/schiffe/schiff_repair.gif" alt="" /></a>
 			{/endif}
 			</td></tr>
 		<!-- END bases.listitem -->
@@ -98,7 +98,7 @@
 				{if global.awac}<td class="show2">&nbsp;</td>{/endif}
 				<td class="show2">
 					{if global.ship.deutfactor}
-						<a class="greenborder" onmouseover="return helpme('Deuterium sammeln');" onmouseout="return nd();" href="./ds?module=deutsammeln&amp;sess={global.sess}&amp;ship={global.ship}"><img src="{URL}data/interface/schiffe/schiff_deutsammeln.gif" alt="" /></a>
+						<a class="greenborder" onmouseover="return helpme('Deuterium sammeln');" onmouseout="return nd();" href="./ds?module=deutsammeln&amp;ship={global.ship}"><img src="{URL}data/interface/schiffe/schiff_deutsammeln.gif" alt="" /></a>
 					{/endif}
 				</td>
 			</tr>
@@ -113,7 +113,7 @@
 				<td class="show2">&nbsp;</td>
 				{if global.awac}<td class="show2">&nbsp;</td>{/endif}
 				<td class="show2">
-					<a class="greenborder" onmouseover="return helpme('nach {node.name} springen');" onmouseout="return nd();" href="./ds?module=schiff&amp;sess={global.sess}&amp;action=jump&amp;node={node.id}&amp;ship={global.ship}"><img src="{URL}data/interface/schiffe/schiff_springen.gif" alt="" /></a>
+					<a class="greenborder" onmouseover="return helpme('nach {node.name} springen');" onmouseout="return nd();" href="./ds?module=schiff&amp;action=jump&amp;node={node.id}&amp;ship={global.ship}"><img src="{URL}data/interface/schiffe/schiff_springen.gif" alt="" /></a>
 				</td>
 			</tr>
 		{/endif}
@@ -140,14 +140,14 @@
 					{else}
 						{if battle.joinable}
 							{if battle.fixedjoin}
-								<a class="redborder" href="./ds?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;addship={global.ship}"><img src="{URL}data/interface/schiffe/schiff_battle.gif" alt="teilnehmen" /></a>
+								<a class="redborder" href="./ds?module=angriff&amp;battle={battle.id}&amp;addship={global.ship}"><img src="{URL}data/interface/schiffe/schiff_battle.gif" alt="teilnehmen" /></a>
 							{else}
-								<a class="redborder" href="javascript:ask('Wollen sie wirklich auf Seiten der {battle.side1} angreifen?',getDsUrl()+'?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;addship={global.ship}&amp;forcejoin=1')"><img src="{URL}data/interface/schiffe/schiff_battle_side1.gif" alt="teilnehmen auf Seite 2" /></a>
-								<a class="redborder" href="javascript:ask('Wollen sie wirklich auf Seiten der {battle.side2} angreifen?',getDsUrl()+'?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}&amp;addship={global.ship}&amp;forcejoin=2')"><img src="{URL}data/interface/schiffe/schiff_battle_side2.gif" alt="teilnehmen auf Seite 2" /></a>
+								<a class="redborder" href="javascript:ask('Wollen sie wirklich auf Seiten der {battle.side1} angreifen?',getDsUrl()+'?module=angriff&amp;battle={battle.id}&amp;addship={global.ship}&amp;forcejoin=1')"><img src="{URL}data/interface/schiffe/schiff_battle_side1.gif" alt="teilnehmen auf Seite 2" /></a>
+								<a class="redborder" href="javascript:ask('Wollen sie wirklich auf Seiten der {battle.side2} angreifen?',getDsUrl()+'?module=angriff&amp;battle={battle.id}&amp;addship={global.ship}&amp;forcejoin=2')"><img src="{URL}data/interface/schiffe/schiff_battle_side2.gif" alt="teilnehmen auf Seite 2" /></a>
 							{/endif}
 						{/endif}
 						{if battle.viewable}
-							<a class="greenborder" href="./ds?module=angriff&amp;sess={global.sess}&amp;battle={battle.id}"><img src="{URL}data/interface/schiffe/schiff_battle_view.gif" alt="ansehen" /></a>
+							<a class="greenborder" href="./ds?module=angriff&amp;battle={battle.id}"><img src="{URL}data/interface/schiffe/schiff_battle_view.gif" alt="ansehen" /></a>
 						{/endif}
 					{/endif}
 				</td>
@@ -195,19 +195,19 @@
 					</td>
 				{else}
 					<td class="show2" style="width:150px">
-						<span class="smallfont"><a class="profile" href="./ds?module=userprofile&amp;sess={global.sess}&amp;user={sshipgroup.owner.id}">{sshipgroup.owner.name}</a></span>
+						<span class="smallfont"><a class="profile" href="./ds?module=userprofile&amp;user={sshipgroup.owner.id}">{sshipgroup.owner.name}</a></span>
 					</td>
 				{/endif}		
 				<td class="show2"><span class="smallfont">{sshipgroup.name}</span></td>
 				<td class="show2">
-					<a onmouseover="return overlib('{sshipgroup.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" class="noborder" target="_blank" href="./ds?module=schiffinfo&amp;sess={global.sess}&amp;ship={sshipgroup.type.id}"><img src="{sshipgroup.type.image}" alt="" /></a>
+					<a onmouseover="return overlib('{sshipgroup.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" class="noborder" target="_blank" href="./ds?module=schiffinfo&amp;ship={sshipgroup.type.id}"><img src="{sshipgroup.type.image}" alt="" /></a>
 				</td>
 				<td class="show2"><span class="smallfont">-</span></td>
 				<td class="show2" align="left">
 					{if sshipgroup.sublist}
-						<a class="greenborder" onmouseover="return helpme('Zur&uuml;ck');" onmouseout="return nd();" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={global.ship}&amp;action=plugin&amp;plugin={global.pluginid}"><img src="{URL}data/interface/schiffe/schiff_zoom_in.gif" alt="rauszoomen" /></a>		
+						<a class="greenborder" onmouseover="return helpme('Zur&uuml;ck');" onmouseout="return nd();" href="./ds?module=schiff&amp;ship={global.ship}&amp;action=plugin&amp;plugin={global.pluginid}"><img src="{URL}data/interface/schiffe/schiff_zoom_in.gif" alt="rauszoomen" /></a>		
 					{else}		
-						<a class="greenborder" onmouseover="return helpme('Anzeigen');" onmouseout="return nd();" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={global.ship}&amp;action=plugin&amp;plugin={global.pluginid}&amp;{global.pluginid}_ops[showonly]={sshipgroup.type.id}&amp;{global.pluginid}_ops[showid]={sshipgroup.owner.id}"><img src="{URL}data/interface/schiffe/schiff_zoom_out.gif" alt="" /></a>		
+						<a class="greenborder" onmouseover="return helpme('Anzeigen');" onmouseout="return nd();" href="./ds?module=schiff&amp;ship={global.ship}&amp;action=plugin&amp;plugin={global.pluginid}&amp;{global.pluginid}_ops[showonly]={sshipgroup.type.id}&amp;{global.pluginid}_ops[showid]={sshipgroup.owner.id}"><img src="{URL}data/interface/schiffe/schiff_zoom_out.gif" alt="" /></a>		
 					{/endif}
 					{if sshipgroup.own}
 						{if sshipgroup.count}
@@ -227,7 +227,7 @@
 				<td class="show2">
 					<span class="smallfont">
 						{if sships.ownship}
-							<a class="schiff" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={sships.id}">{sships.id}</a>
+							<a class="schiff" href="./ds?module=schiff&amp;ship={sships.id}">{sships.id}</a>
 						{else}
 							{sships.id}
 						{/endif}
@@ -239,7 +239,7 @@
 					{if sships.disableiff}
 						<td class="show2" style="width:150px"><span class="smallfont">{sships.owner.name}</span></td>
 					{else}
-						<td class="show2" style="width:150px"><span class="smallfont"><a class="profile" href="./ds?module=userprofile&amp;sess={global.sess}&amp;user={sships.owner.id}">{sships.owner.name}</a></span></td>
+						<td class="show2" style="width:150px"><span class="smallfont"><a class="profile" href="./ds?module=userprofile&amp;user={sships.owner.id}">{sships.owner.name}</a></span></td>
 					{/endif}
 				{/endif}
 				<td class="show2">
@@ -250,12 +250,12 @@
 							<br /><span style="font-style:italic"><a class="forschinfo" href="javascript:PopupWnd(1,'&amp;fleet={sships.fleet.id}&amp;act=show')">{sships.fleet.name}</a></span>
 						{/endif}
 						{if sships.docked.id}
-							<br /><span style="font-style:italic">An <a class="forschinfo" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={sships.docked.id}">{sships.docked.name}</a></span>
+							<br /><span style="font-style:italic">An <a class="forschinfo" href="./ds?module=schiff&amp;ship={sships.docked.id}">{sships.docked.name}</a></span>
 						{/endif}
 					</span>
 				</td>
 				<td class="show2">
-					<a onmouseover="return overlib('{sships.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" class="noborder" target="_blank" href="./ds?module=schiffinfo&amp;sess={global.sess}&amp;ship={sships.type.id}"><img src="{sships.type.image}" alt="" /></a>
+					<a onmouseover="return overlib('{sships.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" class="noborder" target="_blank" href="./ds?module=schiffinfo&amp;ship={sships.type.id}"><img src="{sships.type.image}" alt="" /></a>
 				</td>
 				<td class="show2">
 					<span class="smallfont">
@@ -286,41 +286,41 @@
 				{/endif}
 				<td class="show2" align="left">
 					{if sships.action.angriff}
-						<a class="redborder" onmouseover="return helpme('{sships.type.name} angreifen');" onmouseout="return nd();" href="javascript:ask('Wollen sie die {sships.type.name} wirklich angreifen?',getDsUrl()+'?module=angriff&amp;sess={global.sess}&amp;ship={global.ship}&amp;attack={sships.id}')"><img src="{URL}data/interface/schiffe/schiff_angriff.gif" alt="" /></a>
+						<a class="redborder" onmouseover="return helpme('{sships.type.name} angreifen');" onmouseout="return nd();" href="javascript:ask('Wollen sie die {sships.type.name} wirklich angreifen?',getDsUrl()+'?module=angriff&amp;ship={global.ship}&amp;attack={sships.id}')"><img src="{URL}data/interface/schiffe/schiff_angriff.gif" alt="" /></a>
 					{/endif}{if sships.action.communicate}
-						<a class="greenborder" onmouseover="return helpme('Mit {sships.type.name} kontakt aufnehmen');" onmouseout="return nd();" href="./ds?module=schiff&amp;sess={global.sess}&amp;action=communicate&amp;communicate={sships.id}&amp;ship={global.ship}"><img src="{URL}data/interface/schiffe/schiff_com.gif" alt="" /></a>
+						<a class="greenborder" onmouseover="return helpme('Mit {sships.type.name} kontakt aufnehmen');" onmouseout="return nd();" href="./ds?module=schiff&amp;action=communicate&amp;communicate={sships.id}&amp;ship={global.ship}"><img src="{URL}data/interface/schiffe/schiff_com.gif" alt="" /></a>
 					{/endif}{if sships.action.jump}
-						<a class="greenborder" onmouseover="return helpme('springen');" onmouseout="return nd();" href="./ds?module=schiff&amp;sess={global.sess}&amp;action=kjump&amp;knode={sships.id}&amp;ship={global.ship}"><img src="{URL}data/interface/schiffe/schiff_springen.gif" alt="" /></a>
+						<a class="greenborder" onmouseover="return helpme('springen');" onmouseout="return nd();" href="./ds?module=schiff&amp;action=kjump&amp;knode={sships.id}&amp;ship={global.ship}"><img src="{URL}data/interface/schiffe/schiff_springen.gif" alt="" /></a>
 					{/endif}{if sships.action.trade}
-						<a class="greenborder" onmouseover="return helpme('mit {sships.type.name} handeln');" onmouseout="return nd();" href="./ds?module=trade&amp;sess={global.sess}&amp;ship={global.ship}&amp;tradepost={sships.id}"><img src="{URL}data/interface/schiffe/schiff_handel.gif" alt="" /></a>
+						<a class="greenborder" onmouseover="return helpme('mit {sships.type.name} handeln');" onmouseout="return nd();" href="./ds?module=trade&amp;ship={global.ship}&amp;tradepost={sships.id}"><img src="{URL}data/interface/schiffe/schiff_handel.gif" alt="" /></a>
 					{/endif}{if sships.action.transfer}
-						<a class="greenborder" onmouseover="return helpme('mit {sships.type.name} Waren austauschen');" onmouseout="return nd();" href="./ds?module=transport&amp;sess={global.sess}&amp;to={sships.id}&amp;from={global.ship}&amp;way=stos"><img src="{URL}data/interface/schiffe/schiff_transport.gif" alt="" /></a>
+						<a class="greenborder" onmouseover="return helpme('mit {sships.type.name} Waren austauschen');" onmouseout="return nd();" href="./ds?module=transport&amp;to={sships.id}&amp;from={global.ship}&amp;way=stos"><img src="{URL}data/interface/schiffe/schiff_transport.gif" alt="" /></a>
 					{/endif}{if sships.action.transferpluender}
-						<a class="greenborder" onmouseover="return helpme('von {sships.type.name} Waren pl&uuml;ndern');" onmouseout="return nd();" href="./ds?module=pluendern&amp;sess={global.sess}&amp;to={sships.id}&amp;from={global.ship}"><img src="{URL}data/interface/schiffe/schiff_transport.gif" alt="" /></a>
+						<a class="greenborder" onmouseover="return helpme('von {sships.type.name} Waren pl&uuml;ndern');" onmouseout="return nd();" href="./ds?module=pluendern&amp;to={sships.id}&amp;from={global.ship}"><img src="{URL}data/interface/schiffe/schiff_transport.gif" alt="" /></a>
 					{/endif}{if sships.action.kapern}
-						<a class="orangeborder" onmouseover="return helpme('{sships.type.name} kapern');" onmouseout="return nd();" href="./ds?module=kapern&amp;sess={global.sess}&amp;ship={global.ship}&amp;tar={sships.id}"><img src="{URL}data/interface/schiffe/schiff_kapern.gif" alt="" /></a>
+						<a class="orangeborder" onmouseover="return helpme('{sships.type.name} kapern');" onmouseout="return nd();" href="./ds?module=kapern&amp;ship={global.ship}&amp;tar={sships.id}"><img src="{URL}data/interface/schiffe/schiff_kapern.gif" alt="" /></a>
 					{/endif}{if sships.action.pluendern}
-						<a class="greenborder" onmouseover="return helpme('von {sships.type.name} Waren pl&uuml;ndern');" onmouseout="return nd();" href="./ds?module=pluendern&amp;sess={global.sess}&amp;to={sships.id}&amp;from={global.ship}"><img src="{URL}data/interface/schiffe/schiff_kapern.gif" alt="" /></a>
+						<a class="greenborder" onmouseover="return helpme('von {sships.type.name} Waren pl&uuml;ndern');" onmouseout="return nd();" href="./ds?module=pluendern&amp;to={sships.id}&amp;from={global.ship}"><img src="{URL}data/interface/schiffe/schiff_kapern.gif" alt="" /></a>
 					{/endif}{if sships.action.crewtausch}
-						<a class="greenborder" onmouseover="return helpme('{sships.type.name} bemannen');" onmouseout="return nd();" href="./ds?module=crewtausch&amp;sess={global.sess}&amp;ship={global.ship}&amp;tar={sships.id}&amp;mode=ss"><img src="{URL}data/interface/schiffe/schiff_bemannen.gif" alt="" /></a>
+						<a class="greenborder" onmouseover="return helpme('{sships.type.name} bemannen');" onmouseout="return nd();" href="./ds?module=crewtausch&amp;ship={global.ship}&amp;tar={sships.id}&amp;mode=ss"><img src="{URL}data/interface/schiffe/schiff_bemannen.gif" alt="" /></a>
 					{/endif}{if sships.action.tcaptain}
-						<a class="greenborder" onmouseover="return helpme('Offizier zu {sships.type.name} transferieren');" onmouseout="return nd();" href="./ds?module=tc&amp;sess={global.sess}&amp;action=shipToShip&amp;ship={global.ship}&amp;target={sships.id}"><img src="{URL}data/interface/schiffe/schiff_captain_transfer.gif" alt="" /></a>
+						<a class="greenborder" onmouseover="return helpme('Offizier zu {sships.type.name} transferieren');" onmouseout="return nd();" href="./ds?module=tc&amp;action=shipToShip&amp;ship={global.ship}&amp;target={sships.id}"><img src="{URL}data/interface/schiffe/schiff_captain_transfer.gif" alt="" /></a>
 					{/endif}{if sships.action.aufladen}
-						<a class="greenborder" onmouseover="return helpme('{sships.type.name} andocken');" onmouseout="return nd();" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={global.ship}&amp;action=aufladen&amp;tar={sships.id}"><img src="{URL}data/interface/schiffe/schiff_aufladen.gif" alt="" /></a>
+						<a class="greenborder" onmouseover="return helpme('{sships.type.name} andocken');" onmouseout="return nd();" href="./ds?module=schiff&amp;ship={global.ship}&amp;action=aufladen&amp;tar={sships.id}"><img src="{URL}data/interface/schiffe/schiff_aufladen.gif" alt="" /></a>
 					{/endif}{if sships.action.repair}
-						<a class="greenborder" onmouseover="return helpme('auf {sships.name} in die Werkstatt fliegen');" onmouseout="return nd();" href="./ds?module=werft&amp;sess={global.sess}&amp;ws={global.ship}&amp;ship={sships.id}"><img src="{URL}data/interface/schiffe/schiff_repair.gif" alt="" /></a>
+						<a class="greenborder" onmouseover="return helpme('auf {sships.name} in die Werkstatt fliegen');" onmouseout="return nd();" href="./ds?module=werft&amp;ws={global.ship}&amp;ship={sships.id}"><img src="{URL}data/interface/schiffe/schiff_repair.gif" alt="" /></a>
 					{/endif}{if sships.action.land}
-						<a class="greenborder" onmouseover="return helpme('auf {sships.type.name} landen');" onmouseout="return nd();" href="./ds?module=schiff&amp;sess={global.sess}&amp;action=land&amp;land={sships.id}&amp;ship={sships.id}&amp;shiplist={global.ship}"><img src="{URL}data/interface/schiffe/schiff_landen.gif" alt="" /></a>
+						<a class="greenborder" onmouseover="return helpme('auf {sships.type.name} landen');" onmouseout="return nd();" href="./ds?module=schiff&amp;action=land&amp;land={sships.id}&amp;ship={sships.id}&amp;shiplist={global.ship}"><img src="{URL}data/interface/schiffe/schiff_landen.gif" alt="" /></a>
 					{/endif}{if sships.action.landfleet}
-						<a class="greenborder" onmouseover="return helpme('Flotte auf {sships.type.name} landen');" onmouseout="return nd();" href="./ds?module=schiff&amp;sess={global.sess}&amp;action=land&amp;land={sships.id}&amp;ship={sships.id}&amp;shiplist={global.shiplist}"><img src="{URL}data/interface/schiffe/schiff_flottelanden.gif" alt="" /></a>
+						<a class="greenborder" onmouseover="return helpme('Flotte auf {sships.type.name} landen');" onmouseout="return nd();" href="./ds?module=schiff&amp;action=land&amp;land={sships.id}&amp;ship={sships.id}&amp;shiplist={global.shiplist}"><img src="{URL}data/interface/schiffe/schiff_flottelanden.gif" alt="" /></a>
 					{/endif}{if sships.action.landthis}
-						<a class="greenborder" onmouseover="return helpme('{sships.type.name} landen lassen');" onmouseout="return nd();" href="./ds?module=schiff&amp;sess={global.sess}&amp;action=land&amp;land={global.ship}&amp;ship={global.ship}&amp;shiplist={sships.id}"><img src="{URL}data/interface/schiffe/schiff_landen.gif" alt="" /></a>
+						<a class="greenborder" onmouseover="return helpme('{sships.type.name} landen lassen');" onmouseout="return nd();" href="./ds?module=schiff&amp;action=land&amp;land={global.ship}&amp;ship={global.ship}&amp;shiplist={sships.id}"><img src="{URL}data/interface/schiffe/schiff_landen.gif" alt="" /></a>
 					{/endif}{if sships.action.landthisfleet}
-						<a class="greenborder" onmouseover="return helpme('{sships.type.name}\'s Flotte landen lassen');" onmouseout="return nd();" href="./ds?module=schiff&amp;sess={global.sess}&amp;action=land&amp;land={global.ship}&amp;ship={global.ship}&amp;shiplist={sships.shiplist}"><img src="{URL}data/interface/schiffe/schiff_flottelanden.gif" alt="" /></a>
+						<a class="greenborder" onmouseover="return helpme('{sships.type.name}\'s Flotte landen lassen');" onmouseout="return nd();" href="./ds?module=schiff&amp;action=land&amp;land={global.ship}&amp;ship={global.ship}&amp;shiplist={sships.shiplist}"><img src="{URL}data/interface/schiffe/schiff_flottelanden.gif" alt="" /></a>
 					{/endif}{if sships.action.joinfleet}
-						<a class="greenborder" onmouseover="return helpme('an {sships.type.name}s Flotte anschliessen');" onmouseout="return nd();" href="./ds?module=schiff&amp;sess={global.sess}&amp;action=join&amp;join={sships.id}&amp;ship={global.ship}"><img src="{URL}data/interface/schiffe/schiff_anschliessen.gif" alt="" /></a>
+						<a class="greenborder" onmouseover="return helpme('an {sships.type.name}s Flotte anschliessen');" onmouseout="return nd();" href="./ds?module=schiff&amp;action=join&amp;join={sships.id}&amp;ship={global.ship}"><img src="{URL}data/interface/schiffe/schiff_anschliessen.gif" alt="" /></a>
 					{/endif}{if sships.action.add2fleet}
-						<a class="greenborder" onmouseover="return helpme('{sships.type.name} in Flotte aufnehmen');" onmouseout="return nd();" href="./ds?module=schiff&amp;sess={global.sess}&amp;action=join&amp;join={global.ship}&amp;ship={sships.id}"><img src="{URL}data/interface/schiffe/schiff_anschliessen.gif" alt="" /></a>
+						<a class="greenborder" onmouseover="return helpme('{sships.type.name} in Flotte aufnehmen');" onmouseout="return nd();" href="./ds?module=schiff&amp;action=join&amp;join={global.ship}&amp;ship={sships.id}"><img src="{URL}data/interface/schiffe/schiff_anschliessen.gif" alt="" /></a>
 					{/endif}{if sships.action.createfleet}
 						<a class="greenborder" onmouseover="return helpme('mit {sships.type.name} Flotte bilden');" onmouseout="return nd();" href="javascript:PopupWnd(1,'&amp;shiplist={global.ship}|{sships.id}&amp;action=create')"><img src="{URL}data/interface/schiffe/schiff_anschliessen.gif" alt="" /></a>
 					{/endif}

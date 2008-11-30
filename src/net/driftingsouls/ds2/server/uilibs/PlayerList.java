@@ -60,7 +60,6 @@ public class PlayerList {
 		if( context.getRequest().getParameter("module") != null ) {
 			url += "?module="+context.getRequest().getParameter("module");
 		}
-		url += "&sess="+context.getSession();
 		
 		if( context.getRequest().getParameter("action") != null ) {
 			url += "&action="+context.getRequest().getParameter("action");

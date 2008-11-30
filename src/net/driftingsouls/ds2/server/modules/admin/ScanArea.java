@@ -44,7 +44,7 @@ public class ScanArea implements AdminPlugin {
 		echo.append("<input type=\"text\" name=\"baseloc\" value=\"1:100/100\" size=\"13\" />:\n");
 		echo.append("</td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">radius:</td><td class=\"noBorderS\"><input type=\"text\" name=\"range\" value=\"5\" size=\"3\" /></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\" colspan=\"2\" align=\"center\"><input type=\"hidden\" name=\"sess\" value=\""+context.getSession()+"\" />\n");
+		echo.append("<tr><td class=\"noBorderS\" colspan=\"2\" align=\"center\">\n");
 		echo.append("<input type=\"hidden\" name=\"admin\" value=\"1\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"scan\" />\n");
 		echo.append("<input type=\"submit\" value=\"scan\" style=\"width:100px\"/></td></tr>");

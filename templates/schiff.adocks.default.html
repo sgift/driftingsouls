@@ -20,7 +20,7 @@
 <tr>
 	<td class="schiff" colspan="{ship.adocks}">Externe Docks
 		{if ship.docklist}
-			- <a class="forschinfo" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=abladen&amp;tar={ship.docklist}">Alle Abdocken</a>
+			- <a class="forschinfo" href="./ds?module=schiff&amp;ship={ship.id}&amp;action=abladen&amp;tar={ship.docklist}">Alle Abdocken</a>
 		{/endif}
 	</td>
 </tr>
@@ -31,9 +31,9 @@
 	{/endif}
 	{if docks.entry.id}
 		<td class="schiffData" valign="top" width="{docks.width}%" align="center">
-			<a class="forschinfo" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={docks.entry.id}">{docks.entry.name} ({docks.entry.id})</a><br />
-			<a class="noborder" target="_blank" href="./ds?module=schiffinfo&amp;sess={global.sess}&amp;ship={docks.entry.type}"><img src="{docks.entry.image}" alt="" /></a><br />
-			<a class="forschinfo" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=abladen&amp;tar={docks.entry.id}">abdocken</a><br>
+			<a class="forschinfo" href="./ds?module=schiff&amp;ship={docks.entry.id}">{docks.entry.name} ({docks.entry.id})</a><br />
+			<a class="noborder" target="_blank" href="./ds?module=schiffinfo&amp;ship={docks.entry.type}"><img src="{docks.entry.image}" alt="" /></a><br />
+			<a class="forschinfo" href="./ds?module=schiff&amp;ship={ship.id}&amp;action=abladen&amp;tar={docks.entry.id}">abdocken</a><br>
 		</td>
 	{else}
 		<td align="center" valign="middle" class="BorderS">Leer</td>

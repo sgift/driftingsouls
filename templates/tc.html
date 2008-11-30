@@ -39,7 +39,7 @@
 			</tr>
 			<tr>
 				<td class="noBorderX" colspan="8" style="text-align:center">
-					<a class="forschinfo" href="javascript:ask('Achtung! Es werden beliebige Offiziere von diesem Asteroiden zu Schiffen der Flotte ohne Offizier transferier!\nWollen sie dies wirklich?',getDsUrl()+'?module=tc&sess={global.sess}&action={tc.fleetmode}&ship={tc.ship}&target={tc.target}')">Flotte mit Offizieren ausr&uuml;sten</a>
+					<a class="forschinfo" href="javascript:ask('Achtung! Es werden beliebige Offiziere von diesem Asteroiden zu Schiffen der Flotte ohne Offizier transferier!\nWollen sie dies wirklich?',getDsUrl()+'?module=tc&action={tc.fleetmode}&ship={tc.ship}&target={tc.target}')">Flotte mit Offizieren ausr&uuml;sten</a>
 				</td>
 			</tr>
 		{/endif}
@@ -64,7 +64,7 @@
 	{/endif}
 	{!link_to zur&uuml;ck, default, css_class:back, module:schiff, ship:$tc.ship}
 	{if tc.target.isown}
-		 | <a class="back" href="./ds?module=schiff&sess={global.sess}&ship={tc.target}">zur {tc.target.name}</a>
+		 | <a class="back" href="./ds?module=schiff&ship={tc.target}">zur {tc.target.name}</a>
 	{/endif}
 	<br /><br />
 {/endif}
@@ -86,7 +86,7 @@
 	{/endif}
 	{!link_to zur&uuml;ck, default, css_class:back, module:schiff, ship:$tc.ship}
 	{if tc.target.isown}
-		| <a class="back" href="./ds?module=base&sess={global.sess}&col={tc.target}">zur {tc.target.name}</a>
+		| <a class="back" href="./ds?module=base&col={tc.target}">zur {tc.target.name}</a>
 	{/endif}
 	<br /><br />
 {/endif}

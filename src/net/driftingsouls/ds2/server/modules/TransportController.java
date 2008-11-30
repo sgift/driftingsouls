@@ -471,7 +471,6 @@ public class TransportController extends TemplateGenerator {
 		String to = getString("to");
 		String from = getString("from");
 		String rawway = getString("way");
-		String sess = getContext().getSession();
 				
 		String[] way = StringUtils.split(rawway, "to");
 
@@ -494,7 +493,7 @@ public class TransportController extends TemplateGenerator {
 			}
 		}
 		else {
-			addError("Ung&uuml;ltige Transportquelle", "./ds?sess="+sess+"&module=ueber" );
+			addError("Ung&uuml;ltige Transportquelle", "./ds?module=ueber" );
 
 			return false;
 		}
@@ -513,7 +512,7 @@ public class TransportController extends TemplateGenerator {
 			}
 		}
 		else {
-			addError( "Ung&uuml;ltiges Transportziel", "./ds?sess="+sess+"&module=ueber" );
+			addError( "Ung&uuml;ltiges Transportziel", "./ds?module=ueber" );
 			
 			return false;
 		}
@@ -532,7 +531,7 @@ public class TransportController extends TemplateGenerator {
 				TransportTarget afrom = this.from.get(i);
 				for( int j=0; j < this.to.size(); j++ ) {
 					if( this.to.get(j).getId() == afrom.getId() ) {
-						addError("Sie k&ouml;nnen keine Waren zu sich selbst transportieren",(way[0]=="b"?"./ds?module=base&":"./ds?module=schiff&")+"sess="+sess+"&"+(way[0]=="b"?"col":"ship")+"="+afrom);
+						addError("Sie k&ouml;nnen keine Waren zu sich selbst transportieren",(way[0]=="b"?"./ds?module=base&":"./ds?module=schiff&")+"&"+(way[0]=="b"?"col":"ship")+"="+afrom);
 						return false;
 					}
 				}

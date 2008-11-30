@@ -366,9 +366,6 @@ public class QuestFunctions {
 					val = ship.getRespawn();
 				}
 			}	
-			else if( value[0].equals("sessionid") ) {
-				val = ContextMap.getContext().getSession();
-			}
 			else if( value[0].equals("tick") ) {
 				val = ContextMap.getContext().get(ContextCommon.class).getTick();
 			}
