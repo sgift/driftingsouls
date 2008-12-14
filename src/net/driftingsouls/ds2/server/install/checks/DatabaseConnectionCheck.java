@@ -34,7 +34,7 @@ public class DatabaseConnectionCheck implements Checkable {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			
-			final String url = "jdbc:mysql://"+Configuration.getSetting("db_server")+"/"+Configuration.getSetting("db_database");
+			final String url = Configuration.getSetting("db_url");
 			final String user = Configuration.getSetting("db_user");
 			final String pw = Configuration.getSetting("db_password");
 			Connection con = DriverManager.getConnection(url, user, pw);
