@@ -19,16 +19,16 @@
 package net.driftingsouls.ds2.server.modules.ks;
 
 import java.io.IOException;
-import java.util.List;
 
 import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.battles.Side;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+
+import org.hibernate.Session;
 
 /**
  * Ermoeglicht das Beenden der Schlacht im Falle vom einer klaren militaerischen Uebermacht gegenueber dem Gegner
@@ -42,58 +42,10 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 		if( battle.getOwnSide() == 0 ) {
 			return RESULT_ERROR;
 		}
-	
-		//Flottenstaerke berechnen
-		int ownpower = 0;
-		int enemypower = 0;
 		
-		List<BattleShip> ownShips = battle.getOwnShips();
-		for( int i=0; i < ownShips.size(); i++ ) {
-			BattleShip aship = ownShips.get(i);
-			
-			if( (aship.getAction() & Battle.BS_JOIN) != 0 ) {
-				continue;
-			}
-			
-			ShipTypeData aShipType = aship.getTypeData();
-				
-			if( !aShipType.isMilitary() ) {
-				continue;
-			}
-			if( (aship.getCrew() == 0) && (aShipType.getCrew() != 0) ) {
-				continue;
-			}
-			if( aShipType.hasFlag(ShipTypes.SF_JAEGER) ) {
-				ownpower++;
-			} else { 
-				ownpower += 10;
-			}
-		}	
-					
-		List<BattleShip> enemyShips = battle.getEnemyShips();
-		for( int i=0; i < enemyShips.size(); i++ ) {
-			BattleShip aship = enemyShips.get(i);
-			
-			if( (aship.getAction() & Battle.BS_JOIN) != 0 ) {
-				continue;
-			}
-			
-			ShipTypeData aShipType = aship.getTypeData();
-				
-			if( !aShipType.isMilitary() ) {
-				continue;
-			}
-			if( (aship.getCrew() == 0) && (aShipType.getCrew() != 0) ) {
-				continue;
-			}
-			if( aShipType.hasFlag(ShipTypes.SF_JAEGER) ) {
-				enemypower++;
-			} else { 
-				enemypower += 10;
-			}
-		}		
-			
-		if( (enemypower == 0) || (ownpower > enemypower*5) ) {
+		ConfigValue endTieModifier = (ConfigValue)getDB().get(ConfigValue.class, "endtiemodifier");
+		if((battle.getBattleValue(Side.ENEMY) == 0) || (battle.getBattleValue(Side.OWN) > (battle.getBattleValue(Side.ENEMY) * Integer.valueOf(endTieModifier.getValue())))) 
+		{
 			return RESULT_OK;
 		}
 
@@ -124,5 +76,10 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 		battle.endBattle( 0, 0, true );
 	
 		return RESULT_HALT;
+	}
+	
+	private Session getDB()
+	{
+		return ContextMap.getContext().getDB();
 	}
 }

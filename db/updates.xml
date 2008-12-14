@@ -678,4 +678,19 @@
 	<update type="structure" datum="2008-10-04"><![CDATA[
 		ALTER TABLE `users` ADD `foodpooldegeneration` DOUBLE NOT NULL DEFAULT '0';
 	]]></update>
+	<update type="data" datum="2008-12-14"><![CDATA[
+		INSERT INTO config (
+			`name` ,
+			`value` ,
+			`description` ,
+			`version` 
+		)
+		VALUES (
+			'bvsizemodifier', 1, 'Faktor fuer die Groesse bei der Battle Value Formel', '0'
+		), (
+			'bvdockmodifier', 1, 'Faktor fuer die Dockanzahl bei der Battle Value Formel', '0'
+		), (
+			'endtiemodifier', 5, 'Faktor fuer die Anzahl der Schiffe, die man mehr haben muss, um einen Kampf unentschieden zu beenden', '0'
+		);
+	]]></update>
 </updates>
