@@ -370,35 +370,6 @@ public class KSAttackAction extends BasicKSAction {
 		return (int) Math.round(defTrefferWS + (defTrefferWS * differenceSize) + (defTrefferWS * differenceSkillz));
 	}
 	
-	private int getOffensivSkill(ShipTypeData ownShipType, Offizier offizier ) {
-		if( offizier != null ) {
-			return (int)Math.round((offizier.getAbility(Offizier.Ability.WAF)+offizier.getAbility(Offizier.Ability.COM))/2d);
-		}
-		
-		return 1;
-	}
-	
-	private int getNavSkill( Battle battle, ShipTypeData ownShipType, Offizier offizier ) {
-		double navskill = ownShipType.getSize()*3;
-		
-		if( offizier != null ) {
-			navskill = offizier.getAbility(Offizier.Ability.NAV);
-		} 
-		
-		navskill *= (battle.getOwnShip().getShip().getEngine()/100d);
-	
-		return Math.max(1, (int)Math.round(navskill));
-	}
-	
-	private int getDefensivSkill( ShipTypeData enemyShipType, Offizier eOffizier ) {
-		if( eOffizier != null ) {
-			double value = ((eOffizier.getAbility(Offizier.Ability.NAV)+eOffizier.getAbility(Offizier.Ability.COM))/2d)/ Double.valueOf(enemyShipType.getSize());
-			return Math.max(1, (int)Math.round(value));
-		} 
-
-		return 1;
-	}
-	
 	private boolean calcDamage( Battle battle, BattleShip eShip, ShipTypeData eShipType, int hit, int absSchaden, int schaden, int[] subdmgs, String prefix ) {
 		boolean ship_intact = true;
 
@@ -409,7 +380,7 @@ public class KSAttackAction extends BasicKSAction {
 		
 		if(this.weapon.getAmmoType().length != 0){
 			if ( this.localweapon.getBoolean("armor_redux")){
-				int tmppanzerung = this.getPanzerung(eShip, eShipType);
+				int tmppanzerung = eShip.getArmor();
 				if (tmppanzerung <= 0){
 					tmppanzerung = 1;
 				}
@@ -624,11 +595,6 @@ public class KSAttackAction extends BasicKSAction {
 
 		return ship_intact;
 	}
-	
-	private int getPanzerung(BattleShip ship, ShipTypeData shipType) {
-		return (int)Math.round(shipType.getPanzerung()*ship.getShip().getHull()/(double)shipType.getHull());
-	}
-	
 	
 	private SQLResultRow getWeaponData( Battle battle ) {	
 		ShipTypeData ownShipType = this.ownShip.getTypeData();
@@ -992,10 +958,9 @@ public class KSAttackAction extends BasicKSAction {
 		int[] tmpsubdmgs = null;
 					
 		if( this.localweapon.getInt("subdamage") > 0 ) {
-			int tmppanzerung = this.getPanzerung(aeShip, aeShipType);
+			int tmppanzerung = aeShip.getArmor();
 			
-			Offizier eOffizier = Offizier.getOffizierByDest('s', aeShip.getId());
-			int defensivskill = this.getDefensivSkill( aeShipType, eOffizier );
+			int defensivskill = aeShip.getDefensiveValue();
 
 			int subWS = this.getTrefferWS( battle, this.localweapon.getInt("subws"), aeShip, aeShipType, defensivskill, navskill );
 			battle.logme( "SubsystemTWS: "+subWS+"%\n" );
@@ -1163,11 +1128,6 @@ public class KSAttackAction extends BasicKSAction {
 			return RESULT_ERROR;
 		}
 		
-		/*
-		 * 	Offiziersdaten ermitteln
-		 */
-		Offizier offizier = Offizier.getOffizierByDest('s', this.ownShip.getId());
-		
 		int oldenemyship = battle.getEnemyShipIndex();
 		
 		boolean breakFlag = false;
@@ -1276,11 +1236,6 @@ public class KSAttackAction extends BasicKSAction {
 					}
 				}
 				
-				/*
-				 * 	Offiziersdaten ermitteln
-				 */
-				Offizier eOffizier = Offizier.getOffizierByDest('s', this.enemyShip.getId());
-				
 				ownShipType = this.ownShip.getTypeData();
 				ShipTypeData ownST = this.weapon.calcOwnShipType(ownShipType, enemyShipType);
 				ShipTypeData enemyST = this.weapon.calcEnemyShipType(ownShipType, enemyShipType);
@@ -1288,9 +1243,9 @@ public class KSAttackAction extends BasicKSAction {
 				ownShipType = ownST;
 				enemyShipType = enemyST;
 				
-				int offensivskill = this.getOffensivSkill( ownShipType, offizier );
-				int navskill = this.getNavSkill( battle, ownShipType, offizier );
-				int defensivskill = this.getDefensivSkill( enemyShipType, eOffizier );
+				int offensivskill = ownShip.getOffensiveValue();
+				int navskill = ownShip.getNavigationalValue();
+				int defensivskill = enemyShip.getDefensiveValue();
 			
 				//battle.logme( "Offensivskill: "+offensivskill+"\n" );
 				
@@ -1300,7 +1255,7 @@ public class KSAttackAction extends BasicKSAction {
 				int absSchaden = this.getDamage(this.localweapon.getInt("basedamage"), offensivskill, enemyShipType);
 				int shieldSchaden = this.getDamage(this.localweapon.getInt("shielddamage"), offensivskill, enemyShipType);
 				
-				int panzerung = this.getPanzerung(enemyShip, enemyShipType);
+				int panzerung = enemyShip.getArmor();
 				int schaden = absSchaden;
 			
 				int trefferWS = 0;

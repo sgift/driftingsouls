@@ -28,16 +28,17 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
-import org.hibernate.Session;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
+import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+
+import org.hibernate.Session;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * Repraesentiert ein Schiff in einer Schlacht
@@ -448,6 +449,63 @@ public class BattleShip {
 	public boolean isMilitary()
 	{
 		return getTypeData().isMilitary();
+	}
+	
+	/**
+	 * @return Offensivwert des Schiffes.
+	 */
+	public int getOffensiveValue()
+	{
+		Offizier officer = ship.getOffizier();
+		if(officer != null)
+		{
+			return officer.getOffensiveSkill();
+		}
+		
+		return 1;
+	}
+	
+	/**
+	 * @return Defensivwert des Schiffes.
+	 */
+	public int getDefensiveValue()
+	{
+		Offizier officer = ship.getOffizier();
+		if(officer != null)
+		{
+			double value = officer.getDefensiveSkill() / Double.valueOf(getTypeData().getSize());
+			return Math.max(1, (int)Math.round(value));
+		}
+		
+		return 1;
+	}
+	
+	/**
+	 * @return Aktueller Panzerungswert des Schiffes.
+	 */
+	public int getArmor()
+	{
+		ShipTypeData shipType = getTypeData();
+		
+		return (int)Math.round(shipType.getPanzerung()*ship.getHull()/(double)shipType.getHull());
+	}
+	
+	/**
+	 * @return Navigationswert des Schiffes.
+	 */
+	public int getNavigationalValue()
+	{
+		double navskill = getTypeData().getSize() * 3;
+		
+		Offizier officer = ship.getOffizier();
+		if(officer != null ) 
+		{
+			navskill = officer.getAbility(Offizier.Ability.NAV);
+		} 
+		
+		navskill *= (ship.getEngine()/100d);
+		
+		return Math.max(1, (int)Math.round(navskill));
 	}
 	
 	private Session getDB()

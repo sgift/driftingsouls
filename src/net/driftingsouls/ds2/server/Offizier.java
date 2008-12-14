@@ -436,6 +436,25 @@ public class Offizier extends DSObject {
 	public boolean hasSpecial( Special special ) {
 		return spec == special.ordinal();	
 	}
+	
+	/**
+	 * @return Offensivskill des Offiziers.
+	 */
+	public int getOffensiveSkill()
+	{
+		int weaponSkill = getAbility(Offizier.Ability.WAF);
+		int commSkill = getAbility(Offizier.Ability.COM);
+		
+		return (int)Math.round((weaponSkill + commSkill) / 2d);
+	}
+	
+	/**
+	 * @return Defensivskill des Offiziers.
+	 */
+	public int getDefensiveSkill()
+	{
+		return (getAbility(Offizier.Ability.NAV) + getAbility(Offizier.Ability.COM)) / 2;
+	}
 		
 	/**
 	 * Gibt einen Offizier am angegebenen Aufenthaltsort zurueck. Sollten mehrere
