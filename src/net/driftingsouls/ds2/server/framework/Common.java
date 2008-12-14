@@ -1024,8 +1024,13 @@ public class Common {
 	 */
 	public static synchronized void mail( String address, String subject, String text ) {
 		if( mailSession == null ) {
+			String mailServer = Configuration.getSetting("SMTP-SERVER");
+			if(mailServer.isEmpty())
+			{
+				return;
+			}
 			Properties props = System.getProperties();
-			props.put("mail.smtp.host", Configuration.getSetting("SMTP-SERVER"));
+			props.put("mail.smtp.host", mailServer);
 			mailSession = Session.getInstance(props, null);		
 		}
 		Message message = new MimeMessage(mailSession);
