@@ -45,6 +45,8 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Die PM-Verwaltung
@@ -52,8 +54,21 @@ import org.apache.commons.logging.LogFactory;
  * @author Christian Peltz
  *
  */
+@Configurable
 public class CommController extends TemplateGenerator {
 	private static final Log log = LogFactory.getLog(CommController.class);
+	
+	private Configuration config;
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 
 	/**
 	 * Konstruktor
@@ -73,7 +88,7 @@ public class CommController extends TemplateGenerator {
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		if( action.equals("showPm") ) {
-			addBodyParameter("style","background-image: url('"+Configuration.getSetting("URL")+"data/interface/border/border_background.gif');");
+			addBodyParameter("style","background-image: url('"+config.get("URL")+"data/interface/border/border_background.gif');");
 			setDisableDebugOutput(true);	
 		}
 		else {

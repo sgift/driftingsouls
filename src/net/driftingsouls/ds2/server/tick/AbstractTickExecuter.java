@@ -33,6 +33,8 @@ import net.driftingsouls.ds2.server.framework.SimpleResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
@@ -41,6 +43,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
  * @author Christopher Jung
  * 
  */
+@Configurable
 public abstract class AbstractTickExecuter extends TickController
 {
 	private static final Log log = LogFactory.getLog(AbstractTickExecuter.class);
@@ -48,10 +51,21 @@ public abstract class AbstractTickExecuter extends TickController
 	private String loxpath = Configuration.getSetting("LOXPATH");
 	private String name = "";
 	private String status = null;
-	private Map<Class<? extends TickController>, Long> tickTimes = 
-		new HashMap<Class<? extends TickController>, Long>();
+	private Map<Class<? extends TickController>, Long> tickTimes = new HashMap<Class<? extends TickController>, Long>();
 
 	private static BasicContext basicContext;
+	
+	private Configuration config;
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 
 	/**
 	 * Bootet DS Als Kommandozeilenparameter <code>--config</code> wird der Konfigurationspfad
@@ -194,9 +208,9 @@ public abstract class AbstractTickExecuter extends TickController
 	{
 		try
 		{
-			addLogTarget(Configuration.getSetting("LOXPATH") + "ticktime.log", false);
+			addLogTarget(config.get("LOXPATH") + "ticktime.log", false);
 			log("Bitte warten - " + status);
-			removeLogTarget(Configuration.getSetting("LOXPATH") + "ticktime.log");
+			removeLogTarget(config.get("LOXPATH") + "ticktime.log");
 
 			this.status = status;
 		}
@@ -258,15 +272,15 @@ public abstract class AbstractTickExecuter extends TickController
 
 		try
 		{
-			addLogTarget(Configuration.getSetting("LOXPATH") + "tix.log", true);
+			addLogTarget(config.get("LOXPATH") + "tix.log", true);
 			if( name.length() != 0 )
 			{
 				slog(name + ": ");
 			}
-			addLogTarget(Configuration.getSetting("LOXPATH") + "ticktime.log", false);
+			addLogTarget(config.get("LOXPATH") + "ticktime.log", false);
 			log(Common.date("d.m.Y H:i:s"));
-			removeLogTarget(Configuration.getSetting("LOXPATH") + "ticktime.log");
-			removeLogTarget(Configuration.getSetting("LOXPATH") + "tix.log");
+			removeLogTarget(config.get("LOXPATH") + "ticktime.log");
+			removeLogTarget(config.get("LOXPATH") + "tix.log");
 		}
 		catch( Exception e )
 		{

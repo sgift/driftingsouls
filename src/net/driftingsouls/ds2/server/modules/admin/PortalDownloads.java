@@ -33,14 +33,28 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
 import org.apache.commons.fileupload.FileItem;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Ermoeglicht das Einfuegen von Downloads ins Portal
  * @author Christopher Jung
  *
  */
+@Configurable
 @AdminMenuEntry(category="Portal", name="Downloads")
 public class PortalDownloads implements AdminPlugin {
+	private Configuration config;
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 
 	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
@@ -53,7 +67,7 @@ public class PortalDownloads implements AdminPlugin {
 		
 		Database db = context.getDatabase();
 		
-		final String downloadPath = Configuration.getSetting("ABSOLUTE_PATH")+"downloads/";
+		final String downloadPath = config.get("ABSOLUTE_PATH")+"downloads/";
 		
 		// Download loeschen
 		if( dlaction.equals("delete") ) {

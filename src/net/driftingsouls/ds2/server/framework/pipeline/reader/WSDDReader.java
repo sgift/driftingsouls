@@ -49,6 +49,8 @@ import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import org.apache.axis.transport.http.AxisBridge;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.w3c.dom.Node;
 
 /**
@@ -59,8 +61,21 @@ import org.w3c.dom.Node;
  * @author Christopher Jung
  *
  */
+@Configurable
 public class WSDDReader implements Reader {
 	private static final Log log = LogFactory.getLog(WSDDReader.class);
+	
+	public Configuration config;
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 	
 	private static class HttpRequestWrapper implements HttpServletRequest {
 		private HttpServletRequest req = null;
@@ -342,7 +357,7 @@ public class WSDDReader implements Reader {
 	public void read(Context context, ReaderPipeline pipeline) throws Exception {
 		String filename = pipeline.getFile();
 
-		String path = Configuration.getSetting("ABSOLUTE_PATH") + filename;
+		String path = config.get("ABSOLUTE_PATH") + filename;
 		File file = new File(path);
 		if( !file.exists() ) {
 			context.getResponse().setStatus(HttpServletResponse.SC_NOT_FOUND);

@@ -43,6 +43,9 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  *
  */
 public class BuildingsController extends TemplateGenerator {
+	
+	private Configuration config;
+	
 	/**
 	 * Konstruktor
 	 * @param context Der zu verwendende Kontext
@@ -112,7 +115,7 @@ public class BuildingsController extends TemplateGenerator {
 			Resources.echoResList( t, reslist, "building.consumes.list" );
 	
 			if( building.getEVerbrauch() > 0 ) {
-				t.setVar(	"res.image",	Configuration.getSetting("URL")+"data/interface/energie.gif",
+				t.setVar(	"res.image",	config.get("URL")+"data/interface/energie.gif",
 							"res.cargo",	building.getEVerbrauch(),
 							"res.plainname",	"Energie" );
 							
@@ -123,7 +126,7 @@ public class BuildingsController extends TemplateGenerator {
 			Resources.echoResList( t, reslist, "building.produces.list" );
 
 			if( building.getEProduktion() > 0 ) {
-				t.setVar(	"res.image",		Configuration.getSetting("URL")+"data/interface/energie.gif",
+				t.setVar(	"res.image",		config.get("URL")+"data/interface/energie.gif",
 							"res.cargo",		building.getEProduktion(),
 							"res.plainname",	"Energie" );
 									
@@ -184,7 +187,7 @@ public class BuildingsController extends TemplateGenerator {
 			Resources.echoResList( t, reslist, "core.consumes.list" );
 	
 			if( core.getEVerbrauch() > 0 ) {
-				t.setVar(	"res.image",	Configuration.getSetting("URL")+"data/interface/energie.gif",
+				t.setVar(	"res.image",	config.get("URL")+"data/interface/energie.gif",
 							"res.cargo",	core.getEVerbrauch(),
 							"res.plainname",	"Energie" );
 							
@@ -195,7 +198,7 @@ public class BuildingsController extends TemplateGenerator {
 			Resources.echoResList( t, reslist, "core.produces.list" );
 
 			if( core.getEProduktion() > 0 ) {
-				t.setVar(	"res.image",		Configuration.getSetting("URL")+"data/interface/energie.gif",
+				t.setVar(	"res.image",		config.get("URL")+"data/interface/energie.gif",
 							"res.cargo",		core.getEProduktion(),
 							"res.plainname",	"Energie" );
 									

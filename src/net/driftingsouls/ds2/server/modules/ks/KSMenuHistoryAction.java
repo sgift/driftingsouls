@@ -21,7 +21,6 @@ package net.driftingsouls.ds2.server.modules.ks;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
@@ -44,6 +43,8 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -57,6 +58,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
  * @author Christopher Jung
  *
  */
+@Configurable
 public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHandler {
 	private static final Log log = LogFactory.getLog(KSMenuHistoryAction.class);
 	private String text = "";
@@ -74,6 +76,18 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 	private boolean historyShowtag = true;
 	
 	private final Map<Integer,Boolean> filter = new HashMap<Integer,Boolean>();
+	
+	private Configuration config;
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 	
 	
 	/**
@@ -154,7 +168,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 				if( atts.getValue("type").equals("all") ) {
 					if( showCurrentPage() ) {
 						if( (side == -1) || this.filter.get(side) ) {
-							this.history_text.append("[tooltip="+Common.date("d.m.Y H:i:s",Long.parseLong(atts.getValue("time")))+"][img]"+Configuration.getSetting("URL")+"data/interface/ks/icon_side"+side+".png[/img][/tooltip] ");
+							this.history_text.append("[tooltip="+Common.date("d.m.Y H:i:s",Long.parseLong(atts.getValue("time")))+"][img]"+config.get("URL")+"data/interface/ks/icon_side"+side+".png[/img][/tooltip] ");
 							this.history_text.append(this.historySides.get(side)+" hat die Runde beendet\n");
 						}
 						else {
@@ -172,7 +186,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 							this.historyShowtag = false;
 							return;	
 						}
-						this.history_text.append("[tooltip="+Common.date("d.m.Y H:i:s",Long.parseLong(atts.getValue("time")))+"][img]"+Configuration.getSetting("URL")+"data/interface/ks/icon_side"+side+".png[/img][/tooltip] ");
+						this.history_text.append("[tooltip="+Common.date("d.m.Y H:i:s",Long.parseLong(atts.getValue("time")))+"][img]"+config.get("URL")+"data/interface/ks/icon_side"+side+".png[/img][/tooltip] ");
 						this.history_text.append(this.historySides.get(side)+" hat die Runde beendet\n");
 					}
 				}
@@ -184,7 +198,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 					return;	
 				}
 						
-				this.history_text.append("[tooltip="+Common.date("d.m.Y H:i:s",Long.parseLong(atts.getValue("time")))+"][img]"+Configuration.getSetting("URL")+"data/interface/ks/icon_side"+side+".png[/img][/tooltip] ");
+				this.history_text.append("[tooltip="+Common.date("d.m.Y H:i:s",Long.parseLong(atts.getValue("time")))+"][img]"+config.get("URL")+"data/interface/ks/icon_side"+side+".png[/img][/tooltip] ");
 			} 
 			else if( this.history_tag.equals("side1") || this.history_tag.equals("side2") ) {
 				int thisSide = 0;
@@ -338,7 +352,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 					"global.showlog.actionstr",		actionstr );
 		
 		try {
-			File ksLog = new File(Configuration.getSetting("LOXPATH")+"battles/battle_id"+battle.getId()+".log");
+			File ksLog = new File(config.get("LOXPATH")+"battles/battle_id"+battle.getId()+".log");
 			if( !ksLog.isFile() ) {
 				t.setVar( "global.showlog.log", "Fehler: Konnte Kampflog nicht &ouml;ffnen");
 				return RESULT_ERROR;

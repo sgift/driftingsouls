@@ -35,13 +35,29 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+
 /**
  * Ermoeglicht das Bearbeiten von Forschungen
  * @author Christopher Jung
  *
  */
+@Configurable
 @AdminMenuEntry(category="Techs", name="Bearbeiten")
 public class ResearchEdit implements AdminPlugin {
+	private Configuration config;
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
+	
 
 	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
@@ -104,7 +120,7 @@ public class ResearchEdit implements AdminPlugin {
 			echo.append("</tr>");
 			
 			echo.append("<tr>");
-			echo.append("<td class=\"noBorderX\"><img src=\""+Configuration.getSetting("URL")+"data/tech/"+techid+".gif\" alt=\"Kein Bild vorhanden\" /></td>");
+			echo.append("<td class=\"noBorderX\"><img src=\""+config.get("URL")+"data/tech/"+techid+".gif\" alt=\"Kein Bild vorhanden\" /></td>");
 				
 			echo.append("<td class=\"noBorderX\">\n");
 			
@@ -138,7 +154,7 @@ public class ResearchEdit implements AdminPlugin {
 			// TODO: Resourcen muessen auch editierbar sein
 			//
 			
-			echo.append("<img style=\"vertical-align:middle\" src=\""+Configuration.getSetting("URL")+"data/interface/time.gif\" alt=\"Dauer\" />"+research.getTime());
+			echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/time.gif\" alt=\"Dauer\" />"+research.getTime());
 				
 			Cargo costs = new Cargo(research.getCosts());
 			costs.setOption( Cargo.Option.SHOWMASS, false );

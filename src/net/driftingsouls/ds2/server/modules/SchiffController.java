@@ -74,6 +74,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Die Schiffsansicht
@@ -82,6 +84,7 @@ import org.hibernate.Hibernate;
  * @urlparam Integer ship Die ID des anzuzeigenden Schiffes
  *
  */
+@Configurable
 public class SchiffController extends TemplateGenerator {
 	private Log log = LogFactory.getLog(SchiffController.class);
 	
@@ -90,6 +93,8 @@ public class SchiffController extends TemplateGenerator {
 	private Offizier offizier = null;
 	private Map<String,SchiffPlugin> pluginMapper = new LinkedHashMap<String,SchiffPlugin>();
 	private boolean noob = false;
+	
+	private Configuration config;
 	
 	/**
 	 * Konstruktor
@@ -104,6 +109,16 @@ public class SchiffController extends TemplateGenerator {
 		
 		setPageTitle("Schiff");
 	}
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 	
 	private String genSubColor( int value, int defvalue ) {
 		if( defvalue == 0 ) {
@@ -1149,7 +1164,7 @@ public class SchiffController extends TemplateGenerator {
 		ship.setY(10);
 		ship.setSystem(99);
 		
-		t.setVar("ship.message", "<span style=\"color:green\">Willkommen auf der Insel <img align=\"middle\" src=\""+Configuration.getSetting("SMILIE_PATH")+"/icon_smile.gif\" alt=\":)\" /></span><br />");
+		t.setVar("ship.message", "<span style=\"color:green\">Willkommen auf der Insel <img align=\"middle\" src=\""+config.get("SMILIE_PATH")+"/icon_smile.gif\" alt=\":)\" /></span><br />");
 		
 		redirect();
 	}

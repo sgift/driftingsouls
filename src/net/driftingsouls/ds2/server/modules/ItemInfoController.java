@@ -62,13 +62,17 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Zeigt Informationen zu Items an
  * @author Christopher Jung
  *
  */
+@Configurable
 public class ItemInfoController extends TemplateGenerator {
+	private Configuration config;
 
 	/**
 	 * Konstruktor
@@ -81,6 +85,16 @@ public class ItemInfoController extends TemplateGenerator {
 		
 		setPageTitle("Item");
 	}
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
@@ -120,7 +134,7 @@ public class ItemInfoController extends TemplateGenerator {
 		
 		if( mods.getRm() != 0 ) {
 			colorize(effecttext, mods.getRm());
-			effecttext.append("Reaktor <img src=\""+Configuration.getSetting("URL")+"data/interface/energie.gif\" alt=\"\" /> "+mods.getRm());
+			effecttext.append("Reaktor <img src=\""+config.get("URL")+"data/interface/energie.gif\" alt=\"\" /> "+mods.getRm());
 			effecttext.append("</span><br />\n");
 		}
 		
@@ -409,8 +423,8 @@ public class ItemInfoController extends TemplateGenerator {
 			for( ResourceEntry res : reslist ) {
 				data.append("<img src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+"<br />\n");
 			}
-			data.append("<img src=\""+Configuration.getSetting("URL")+"data/interface/energie.gif\" alt=\"\" />"+effect.getE()+"<br />\n");
-			data.append("<img src=\""+Configuration.getSetting("URL")+"data/interface/besatzung.gif\" alt=\"\" />"+effect.getCrew()+"<br />\n");
+			data.append("<img src=\""+config.get("URL")+"data/interface/energie.gif\" alt=\"\" />"+effect.getE()+"<br />\n");
+			data.append("<img src=\""+config.get("URL")+"data/interface/besatzung.gif\" alt=\"\" />"+effect.getCrew()+"<br />\n");
 			
 			t.setVar(	"entry.name",	"Kosten",
 						"entry.data",	data );
@@ -418,12 +432,12 @@ public class ItemInfoController extends TemplateGenerator {
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 			
 			t.setVar(	"entry.name",	"Dauer",
-						"entry.data",	"<img valign=\"middle\" src=\""+Configuration.getSetting("URL")+"data/interface/time.gif\" alt=\"\" />"+effect.getDauer() );
+						"entry.data",	"<img valign=\"middle\" src=\""+config.get("URL")+"data/interface/time.gif\" alt=\"\" />"+effect.getDauer() );
 			
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 	
 			t.setVar(	"entry.name",	"Werftslots",
-						"entry.data",	"<img valign=\"middle\" src=\""+Configuration.getSetting("URL")+"data/interface/schiffinfo/werftslots.png\" alt=\"\" />"+effect.getWerftSlots() );
+						"entry.data",	"<img valign=\"middle\" src=\""+config.get("URL")+"data/interface/schiffinfo/werftslots.png\" alt=\"\" />"+effect.getWerftSlots() );
 			
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 	
@@ -730,8 +744,8 @@ public class ItemInfoController extends TemplateGenerator {
 			reslocations.put(amodule.getItemId(), StringUtils.split(amodule.getLocations(),';'));
 		}
 		
-		final String shipimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle' src='"+Configuration.getSetting("URL")+"data/interface/schiffe/"+user.getRace()+"/icon_schiff.gif' alt='' title='Schiff' /></td>";
-		final String baseimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle;width:15px;height:15px' src='"+Configuration.getSetting("URL")+"data/starmap/asti/asti.png' alt='' title='Asteroid' /></td>";
+		final String shipimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle' src='"+config.get("URL")+"data/interface/schiffe/"+user.getRace()+"/icon_schiff.gif' alt='' title='Schiff' /></td>";
+		final String baseimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle;width:15px;height:15px' src='"+config.get("URL")+"data/starmap/asti/asti.png' alt='' title='Asteroid' /></td>";
 
 		for( Item aitem : Items.get() ) {
 			int itemid = aitem.getID();

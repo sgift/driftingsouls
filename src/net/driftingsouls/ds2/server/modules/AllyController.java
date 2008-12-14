@@ -48,16 +48,31 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Zeigt die Allianzseite an
  * @author Christopher Jung
  */
+@Configurable
 public class AllyController extends TemplateGenerator {
 	private static final Log log = LogFactory.getLog(AllyController.class);
 	private static final double MAX_POSTENCOUNT = 0.3;
 	
 	private Ally ally = null;
+	
+	private Configuration config;
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 	
 	/**
 	 * Konstruktor
@@ -696,7 +711,7 @@ public class AllyController extends TemplateGenerator {
 			return;
 		}
 		
-		String uploaddir = Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/ally/";
+		String uploaddir = config.get("ABSOLUTE_PATH")+"data/logos/ally/";
 		try {
 			File uploadedFile = new File(uploaddir+this.ally.getId()+".gif");
 			list.get(0).write(uploadedFile);

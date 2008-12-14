@@ -71,6 +71,8 @@ import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Repraesentiert eine Schlacht in DS
@@ -79,6 +81,7 @@ import org.apache.commons.logging.LogFactory;
  */
 @Entity
 @Table(name="battles")
+@Configurable
 public class Battle implements Locatable {
 	private static final Log log = LogFactory.getLog(Battle.class);
 	
@@ -219,6 +222,19 @@ public class Battle implements Locatable {
 	private StringBuilder logoutputbuffer = new StringBuilder();
 	@Transient
 	private StringBuilder logenemybuffer = new StringBuilder();
+	
+	@Transient
+	private Configuration config;
+	
+    /**
+    * Injiziert die DS-Konfiguration
+    * @param config Die DS-Konfiguration
+    */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 	
 	/**
 	 * Generiert eine Stringrepraesentation eines Schiffes, welche
@@ -1525,7 +1541,7 @@ public class Battle implements Locatable {
 					aship.setAction(aship.getAction() ^ BS_HIT);
 				}
 				else if( (aship.getAction() & BS_DESTROYED) != 0 ) {	
-					if( Configuration.getIntSetting("DESTROYABLE_SHIPS") != 0 ) {
+					if( config.getInt("DESTROYABLE_SHIPS") != 0 ) {
 						//destroyList.add(aship);
 						destroyShip(aship);
 					}
@@ -1833,8 +1849,8 @@ public class Battle implements Locatable {
 
 		Common.writeLog("battles/battle_id"+this.id+".log", "</battle>");
 
-		final String newlog = Configuration.getSetting("LOXPATH")+"battles/ended/"+Common.time()+"_id"+this.id+".log";
-		new File(Configuration.getSetting("LOXPATH")+"battles/battle_id"+this.id+".log")
+		final String newlog = config.get("LOXPATH")+"battles/ended/"+Common.time()+"_id"+this.id+".log";
+		new File(config.get("LOXPATH")+"battles/battle_id"+this.id+".log")
 			.renameTo(new File(newlog));
 		
 		db.createQuery("update ShipLost set battle=0,battleLog=? where battle=?")

@@ -34,14 +34,29 @@ import net.driftingsouls.ds2.server.framework.pipeline.ReaderPipeline;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Liesst Dateien von der Festplatte und schreibt sie in die Antwort
  * @author Christopher Jung
  *
  */
+@Configurable
 public class FileReader implements Reader {
 	private static final Log log = LogFactory.getLog(FileReader.class);
+	
+	private Configuration config;
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 	
 	private String guessMimeType( String extension ) {
 		if( extension == null ) {
@@ -91,7 +106,7 @@ public class FileReader implements Reader {
 			return;
 		}
 		
-		String path = Configuration.getSetting("ABSOLUTE_PATH")+filename;
+		String path = config.get("ABSOLUTE_PATH")+filename;
 		File file = new File(path);
 		if( !file.exists() ) {
 			context.getResponse().setStatus(HttpServletResponse.SC_NOT_FOUND);

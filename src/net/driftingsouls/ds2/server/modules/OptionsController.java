@@ -40,14 +40,19 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Aendern der Einstellungen eines Benutzers durch den Benutzer selbst
  * @author Christopher Jung
  *
  */
+@Configurable
 public class OptionsController extends TemplateGenerator {
 	private static final Log log = LogFactory.getLog(OptionsController.class);
+	
+	private Configuration config;
 	
 	/**
 	 * Konstruktor
@@ -58,6 +63,16 @@ public class OptionsController extends TemplateGenerator {
 		
 		setTemplate("options.html");	
 	}
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
@@ -118,7 +133,7 @@ public class OptionsController extends TemplateGenerator {
 			changemsg += "<span style=\"color:red\">Das Password wurde ge&auml;ndert</span><br />\n";
 
 			String subject = "Drifting Souls - Passwortaenderung";
-			String message = Common.trimLines(Configuration.getSetting("PWCHANGE_EMAIL"));
+			String message = Common.trimLines(config.get("PWCHANGE_EMAIL"));
 			message = StringUtils.replace(message, "{username}", user.getUN());
 			message = StringUtils.replace(message, "{date}", Common.date("H:i j.m.Y"));
 			
@@ -179,7 +194,7 @@ public class OptionsController extends TemplateGenerator {
 	 		PM.sendToAdmins(user, "Account l&ouml;schen", msg.toString(), 0);
 	 		
 			t.setVar(	"options.delaccountresp",		1,
-						"delaccountresp.admins",		Configuration.getSetting("ADMIN_PMS_ACCOUNT") );
+						"delaccountresp.admins",		config.get("ADMIN_PMS_ACCOUNT") );
 			
 			return;
 		}
@@ -327,7 +342,7 @@ public class OptionsController extends TemplateGenerator {
 			return;
 		}
 		
-		String uploaddir = Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/user/";
+		String uploaddir = config.get("ABSOLUTE_PATH")+"data/logos/user/";
 		try {
 			File uploadedFile = new File(uploaddir+getUser().getId()+".gif");
 			list.get(0).write(uploadedFile);

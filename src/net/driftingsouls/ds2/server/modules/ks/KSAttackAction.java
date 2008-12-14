@@ -42,19 +42,22 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipLost;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
-import net.driftingsouls.ds2.server.ships.ShipClasses;
 
 import org.apache.commons.lang.math.RandomUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Berechnet das Waffenfeuer im KS
  * @author Christopher Jung
  *
  */
+@Configurable
 public class KSAttackAction extends BasicKSAction {
 	private Weapon weapon;
 	private BattleShip ownShip;
@@ -62,6 +65,10 @@ public class KSAttackAction extends BasicKSAction {
 	private SQLResultRow localweapon;
 	private String attmode;
 	private int attcount;
+	
+	private Configuration config;
+	
+
 	
 	/**
 	 * Konstruktor
@@ -88,6 +95,16 @@ public class KSAttackAction extends BasicKSAction {
 			this.attcount = 3;
 		}
 	}
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 	
 	private int attCountForShip( BattleShip ownShip, ShipTypeData ownShipType, int attcount ) {
 		int count = 0;
@@ -124,7 +141,7 @@ public class KSAttackAction extends BasicKSAction {
 			ShipLost lost = new ShipLost(eShip.getShip());
 			lost.setDestAlly(oUser.getAlly());
 			lost.setDestOwner(oUser);
-			lost.setBattleLog(Configuration.getSetting("LOXPATH")+"battles/battle_id"+battle.getId()+".log");
+			lost.setBattleLog(config.get("LOXPATH")+"battles/battle_id"+battle.getId()+".log");
 			
 			masterid = (Integer)db.save(lost);
 		}
@@ -157,7 +174,7 @@ public class KSAttackAction extends BasicKSAction {
 					lost.setDestAlly(oUser.getAlly());
 					lost.setDestOwner(oUser);
 					lost.setDocked(masterid);
-					lost.setBattleLog(Configuration.getSetting("LOXPATH")+"battles/battle_id"+battle.getId()+".log");
+					lost.setBattleLog(config.get("LOXPATH")+"battles/battle_id"+battle.getId()+".log");
 					
 					db.persist(lost);
 				}
@@ -562,7 +579,7 @@ public class KSAttackAction extends BasicKSAction {
 			else {
 				battle.logme( "[color=red]+ Schiff zerst&ouml;rt[/color]\n" );
 				battle.logenemy( "[color=red]+ Schiff zerst&ouml;rt[/color]\n" );
-				if( Configuration.getIntSetting("DESTROYABLE_SHIPS") == 0 ) {
+				if(config.getInt("DESTROYABLE_SHIPS") == 0 ) {
 					if( eShip.getHull() < 1 ) {
 						eShip.setHull(1);
 					}
@@ -996,7 +1013,7 @@ public class KSAttackAction extends BasicKSAction {
 		}
 		
 		boolean mydamage = this.calcDamage( battle, aeShip, aeShipType, hit, (int)(shieldSchaden*damagemod), (int)(schaden*damagemod), tmpsubdmgs, "" );
-		if( !mydamage && (Configuration.getIntSetting("DESTROYABLE_SHIPS") != 0) ) {
+		if( !mydamage && (config.getInt("DESTROYABLE_SHIPS") != 0) ) {
 			this.destroyShip(user.getId(), battle, aeShip);
 		}
 	}
@@ -1426,7 +1443,7 @@ public class KSAttackAction extends BasicKSAction {
 				/*
 				 *	Schiff falls notwendig zerstoeren
 				 */
-				if( !savedamage && (Configuration.getIntSetting("DESTROYABLE_SHIPS") != 0) ) {
+				if( !savedamage && (config.getInt("DESTROYABLE_SHIPS") != 0) ) {
 					this.destroyShip(user.getId(), battle, this.enemyShip);
 					battle.setEnemyShipIndex(battle.getNewTargetIndex());
 					this.enemyShip = battle.getEnemyShip();
@@ -1439,7 +1456,7 @@ public class KSAttackAction extends BasicKSAction {
 					battle.logme( "[color=red]+ Angreifer zerst&ouml;rt[/color]\n" );
 					battle.logenemy( "[color=red]+ Angreifer zerst&ouml;rt[/color]\n" );
 					
-					if( Configuration.getIntSetting("DESTROYABLE_SHIPS") != 0 ) {
+					if( config.getInt("DESTROYABLE_SHIPS") != 0 ) {
 						this.destroyShipOnly(user.getId(), battle, this.ownShip, false, false);
 
 						breakFlag = true;

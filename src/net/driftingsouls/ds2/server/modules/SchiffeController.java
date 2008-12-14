@@ -47,6 +47,8 @@ import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Die Schiffsliste
@@ -59,8 +61,21 @@ import org.apache.commons.logging.LogFactory;
  * @urlparam Integer kampf_only Falls != 0 werden nur Kriegsschiffe der Schiffsklasse mit der angegebenen ID angezeigt
  * 
  */
+@Configurable
 public class SchiffeController extends TemplateGenerator {
 	private static final Log log = LogFactory.getLog(SchiffeController.class);
+	
+	private Configuration config;
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 	
 	/**
 	 * Konstruktor
@@ -337,7 +352,7 @@ public class SchiffeController extends TemplateGenerator {
 						
 						StringBuilder popup = new StringBuilder(100);
 						popup.append(Common.tableBegin(420, "left").replace( '"', '\'') );
-						popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='"+Configuration.getSetting("URL")+"data/interface/schiffinfo/werftslots.png' alt='' />"+usedSlots+"/"+totalSlots+"<br />");
+						popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='"+config.get("URL")+"data/interface/schiffinfo/werftslots.png' alt='' />"+usedSlots+"/"+totalSlots+"<br />");
 						popup.append("Im Bau: "+buildingCount+" Schiffe<br />");
 						popup.append("In der Warteschlange: "+(entries.length - buildingCount));
 						popup.append(Common.tableEnd().replace( '"', '\'' ));

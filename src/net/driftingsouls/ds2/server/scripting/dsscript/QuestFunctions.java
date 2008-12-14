@@ -69,13 +69,28 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Scriptbefehle fuer Questscripte
  * @author Christopher Jung
  *
  */
+@Configurable
 public class QuestFunctions {
+	private Configuration config;
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
+	
 	void registerFunctions(ScriptParser parser) {
 		// Questfunktionen
 		parser.registerCommand( "LOADDIALOG", new LoadDialog(), ScriptParser.Args.PLAIN_REG );
@@ -196,7 +211,7 @@ public class QuestFunctions {
 			ScriptContext context = scriptparser.getContext();
 			try {
 				context.getWriter().append( "<table class=\"noBorderX\"><tr><td class=\"noBorderX\" valign=\"top\">" );
-				context.getWriter().append( "<img src=\""+Configuration.getSetting("URL")+"data/quests/"+dialogImage+"\" alt=\"\" />" );
+				context.getWriter().append( "<img src=\""+config.get("URL")+"data/quests/"+dialogImage+"\" alt=\"\" />" );
 				context.getWriter().append( "</td><td class=\"noBorderX\" valign=\"top\">" );
 				context.getWriter().append( StringUtils.replace(text, "\n", "<br />")+"<br /><br />" );
 				

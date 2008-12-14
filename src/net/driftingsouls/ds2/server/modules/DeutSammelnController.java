@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+
 import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
@@ -39,10 +42,13 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
  * @author Christopher Jung
  * @urlparam Integer ship Die ID des Tankers
  */
+@Configurable
 public class DeutSammelnController extends TemplateGenerator {
 	private Ship ship = null;
 	private Nebel nebel = null;
 	private ShipTypeData shiptype = null;
+	
+	private Configuration config;
 	
 	/**
 	 * Konstruktor
@@ -57,6 +63,16 @@ public class DeutSammelnController extends TemplateGenerator {
 		
 		setPageTitle("Deut. sammeln");
 	}
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
@@ -144,7 +160,7 @@ public class DeutSammelnController extends TemplateGenerator {
 		
 		long saugdeut = e * deutfactor;
 		
-		message += "<img src=\""+Cargo.getResourceImage(Resources.DEUTERIUM)+"\" alt=\"\" />"+saugdeut+" f&uuml;r <img src=\""+Configuration.getSetting("URL")+"data/interface/energie.gif\" alt=\"Energie\" />"+e+" gesammelt<br />";
+		message += "<img src=\""+Cargo.getResourceImage(Resources.DEUTERIUM)+"\" alt=\"\" />"+saugdeut+" f&uuml;r <img src=\""+config.get("URL")+"data/interface/energie.gif\" alt=\"Energie\" />"+e+" gesammelt<br />";
 		
 		if( saugdeut > 0 ) {
 			shipCargo.addResource( Resources.DEUTERIUM, saugdeut );

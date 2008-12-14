@@ -41,6 +41,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Zeigt die Liste der erforschten/nicht erforschten/erforschbaren Technologien
@@ -49,7 +51,10 @@ import org.apache.commons.lang.StringEscapeUtils;
  *
  * @urlparam Integer rasse Die Rasse, deren Technologien angezeigt werden sollen
  */
+@Configurable
 public class TechListeController extends TemplateGenerator {
+	private Configuration config;
+	
 	/**
 	 * Konstruktor
 	 * @param context Der zu verwendende Kontext
@@ -62,6 +67,16 @@ public class TechListeController extends TemplateGenerator {
 		
 		setPageTitle("Forschungen");
 	}
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
@@ -94,7 +109,7 @@ public class TechListeController extends TemplateGenerator {
 		for( Rasse aRasse : Rassen.get() ) {
 			if( aRasse.isExtPlayable() ) {
 				rassenliste.append("<a href='"+Common.buildUrl("default", "rasse", aRasse.getID())+"'>");
-				rassenliste.append("<img style='border:0px' src='"+Configuration.getSetting("URL")+"data/interface/rassen/"+aRasse.getID()+".png' />");
+				rassenliste.append("<img style='border:0px' src='"+config.get("URL")+"data/interface/rassen/"+aRasse.getID()+".png' />");
 				rassenliste.append("</a>");		
 			}
 		}

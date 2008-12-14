@@ -22,6 +22,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -40,7 +43,11 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * @author Christopher Jung
  *
  */
+@Configurable
 public class TechDatabaseController extends TemplateGenerator {
+	
+	private Configuration config;
+	
 	/**
 	 * Konstruktor
 	 * @param context Der zu verwendende Kontext
@@ -50,6 +57,16 @@ public class TechDatabaseController extends TemplateGenerator {
 		
 		setTemplate("techdatabase.html");	
 	}
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
@@ -119,7 +136,7 @@ public class TechDatabaseController extends TemplateGenerator {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
 
-		SQLResultRow article = db.first("SELECT title,author,article FROM portal_articles WHERE id="+Configuration.getSetting("ARTICLE_SCHIFFSLISTE"));
+		SQLResultRow article = db.first("SELECT title,author,article FROM portal_articles WHERE id="+config.get("ARTICLE_SCHIFFSLISTE"));
 
 		String text = Common._text(article.getString("article"));
 		
@@ -138,7 +155,7 @@ public class TechDatabaseController extends TemplateGenerator {
 		Database db = getDatabase();
 		TemplateEngine t = getTemplateEngine();
 
-		SQLResultRow article = db.first("SELECT title,author,article FROM portal_articles WHERE id="+Configuration.getSetting("ARTICLE_TUTORIAL"));
+		SQLResultRow article = db.first("SELECT title,author,article FROM portal_articles WHERE id="+config.get("ARTICLE_TUTORIAL"));
 
 		String text = Common._text(article.getString("article"));
 		

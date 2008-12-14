@@ -39,6 +39,8 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Zeigt die Sternenkarte an
@@ -47,11 +49,14 @@ import org.apache.commons.logging.LogFactory;
  * @urlparam Integer sys Die ID des anzuzeigenden Systems
  * @urlparam Integer loadmap Falls != 0 wird die Sternenkarte geladen
  */
+@Configurable
 public class MapController extends TemplateGenerator {
 	private static final Log log = LogFactory.getLog(MapController.class);
 	
 	private int system = 1;
 	private boolean showSystem = true;
+	
+	private Configuration config;
 	
 	/**
 	 * Konstruktor
@@ -67,6 +72,16 @@ public class MapController extends TemplateGenerator {
 		
 		setPageTitle("Sternenkarte");
 	}
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
@@ -106,7 +121,7 @@ public class MapController extends TemplateGenerator {
 		
 		t.setVar(	"map.showsystem",	showSystem,
 					"map.system",		sys,
-					"global.datapath",	Configuration.getSetting("URL") );
+					"global.datapath",	config.get("URL") );
 		
 		return true;
 	}
@@ -175,7 +190,7 @@ public class MapController extends TemplateGenerator {
 		String index = "";
 		String findex = "";
 
-		File starmapIndex = new File(Configuration.getSetting("ABSOLUTE_PATH")+"java/jstarmap.index");
+		File starmapIndex = new File(config.get("ABSOLUTE_PATH")+"java/jstarmap.index");
 		if( starmapIndex.exists() )
 		{
 			try
@@ -196,7 +211,7 @@ public class MapController extends TemplateGenerator {
 			}
 		}
 		
-		File frameworkIndex = new File(Configuration.getSetting("ABSOLUTE_PATH")+"java/jframework.index");
+		File frameworkIndex = new File(config.get("ABSOLUTE_PATH")+"java/jframework.index");
 		if( frameworkIndex.exists() )
 		{
 			try
@@ -219,7 +234,7 @@ public class MapController extends TemplateGenerator {
 		
 		t.setVar(	"map.applet.index",		index,
 					"map.framework.index",	findex,
-					"map.applet.codebase",	Configuration.getSetting("URL")+"java/",
+					"map.applet.codebase",	config.get("URL")+"java/",
 					"map.applet.width",		user.getUserValue("TBLORDER/map/width"),
 					"map.applet.height",	user.getUserValue("TBLORDER/map/height") );
 	}

@@ -40,6 +40,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Verwaltung einer Basis
@@ -47,10 +49,23 @@ import org.apache.commons.lang.StringEscapeUtils;
  *
  * @urlparam Integer col Die ID der Basis
  */
+@Configurable
 public class BaseController extends TemplateGenerator {
 	private static final int NAHRUNG_CHECKOUT_FACTOR = Configuration.getIntSetting("NAHRUNG_CHECKOUT_FACTOR");
 	
 	private Base base;
+	
+	private Configuration config;
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 	
 	/**
 	 * Konstruktor
@@ -444,11 +459,11 @@ public class BaseController extends TemplateGenerator {
 		// Energieverbrauch, Bevoelkerung usw.
 		//------------------------------------------
 		
-		String baseimg = Configuration.getSetting("URL")+"data/interface/energie2";
+		String baseimg = config.get("URL")+"data/interface/energie2";
 		int e = basedata.getE();
 		
 		if( e < 0 ) {
-			baseimg = Configuration.getSetting("URL")+"data/interface/nenergie2";
+			baseimg = config.get("URL")+"data/interface/nenergie2";
 			e = -e;
 		}	
 

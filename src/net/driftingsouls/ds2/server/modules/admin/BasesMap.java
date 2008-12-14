@@ -36,16 +36,30 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.AdminController;
-import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
-import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Generiert eine Karte eines Systems
  * @author Christopher Jung
  *
  */
+@Configurable
 @AdminMenuEntry(category="Objekte", name="Karte")
 public class BasesMap implements AdminPlugin {
+	
+	public Configuration config;
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 
 	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
@@ -83,7 +97,7 @@ public class BasesMap implements AdminPlugin {
 				return;
 			}
 			
-			echo.append("<img src=\""+Configuration.getSetting("URL")+"downloads/"+context.getActiveUser().getId()+"/admin.bases.map.png\" alt=\"\" />\n");		
+			echo.append("<img src=\""+config.get("URL")+"downloads/"+context.getActiveUser().getId()+"/admin.bases.map.png\" alt=\"\" />\n");		
 			
 			BufferedImage image = new BufferedImage(system.getWidth()*scale, system.getHeight()*scale, BufferedImage.TYPE_INT_RGB);
 			Color black = new Color(0, 0, 0);
@@ -136,14 +150,14 @@ public class BasesMap implements AdminPlugin {
 			g.dispose();
 			
 			try {
-				File pngdir = new File(Configuration.getSetting("ABSOLUTE_PATH")+
+				File pngdir = new File(config.get("ABSOLUTE_PATH")+
 						"downloads/"+context.getActiveUser().getId()+"/");
 				
 				if( !pngdir.isDirectory() ) {
 					pngdir.mkdirs();
 				}
 				
-				ImageIO.write(image, "png", new File(Configuration.getSetting("ABSOLUTE_PATH")+
+				ImageIO.write(image, "png", new File(config.get("ABSOLUTE_PATH")+
 						"downloads/"+context.getActiveUser().getId()+"/admin.bases.map.png"));
 			}
 			catch( IOException e ) {

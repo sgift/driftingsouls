@@ -27,6 +27,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import net.driftingsouls.ds2.server.cargo.HibernateCargoType;
 import net.driftingsouls.ds2.server.config.Offiziere;
@@ -40,6 +41,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Repraesentiert einen Offizier in DS
@@ -56,6 +59,7 @@ import org.hibernate.annotations.TypeDefs;
 )
 @Entity
 @Table(name="offiziere")
+@Configurable
 public class Offizier extends DSObject {
 	/**
 	 * Die Attribute eines Offiziers
@@ -159,6 +163,19 @@ public class Offizier extends DSObject {
 	@SuppressWarnings("unused")
 	private int comu;
 	
+	@Transient
+	private Configuration config;
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
+	
 	/**
 	 * Konstruktor
 	 *
@@ -223,7 +240,7 @@ public class Offizier extends DSObject {
 	 * @return Der Pfad des Bildes
 	 */
 	public String getPicture() {
-		return Configuration.getSetting("URL")+"data/interface/offiziere/off"+getRang()+".png";
+		return config.get("URL")+"data/interface/offiziere/off"+getRang()+".png";
 	}
 	
 	/**

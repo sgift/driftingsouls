@@ -48,6 +48,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 
 /**
@@ -58,6 +60,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @DiscriminatorValue("default")
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Configurable
 public class User extends BasicUser {
 	private static final Log log = LogFactory.getLog(User.class);
 	
@@ -210,6 +213,9 @@ public class User extends BasicUser {
 	@Transient
 	private Map<Integer,UserResearch> researched;
 	
+	@Transient
+	private Configuration config;
+	
 	/**
 	 * Konstruktor
 	 *
@@ -271,6 +277,16 @@ public class User extends BasicUser {
 		trash.setFlags(Ordner.FLAG_TRASH);
 		addResearch(0);
 	}
+	
+    /**
+    * Injiziert die DS-Konfiguration
+    * @param config Die DS-Konfiguration
+    */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 	
 	/**
 	 * Macht alle geladenen Benutzereigenschaften dem Templateengine bekannt.
@@ -752,7 +768,7 @@ public class User extends BasicUser {
 	 * @return <code>true</code>, falls der Spieler noch ein Noob ist
 	 */
 	public boolean isNoob() {
-		if( Configuration.getIntSetting("NOOB_PROTECTION") > 0 ) {
+		if( config.getInt("NOOB_PROTECTION") > 0 ) {
 			if( this.getId() < 0 ) {
 				return false;
 			}

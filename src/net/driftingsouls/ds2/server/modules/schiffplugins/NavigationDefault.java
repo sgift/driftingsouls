@@ -46,14 +46,29 @@ import net.driftingsouls.ds2.server.ships.Waypoint;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Schiffsmodul fuer die Anzeige der Navigation
  * @author Christopher Jung
  *
  */
+@Configurable
 public class NavigationDefault implements SchiffPlugin {
 	private static final Log log = LogFactory.getLog(NavigationDefault.class);
+	
+	private Configuration config;
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 
 	public String action(Parameters caller) {
 		Ship ship = caller.ship;
@@ -279,7 +294,7 @@ public class NavigationDefault implements SchiffPlugin {
 			
 			int tmp = 0;
 			boolean newrow = false;
-			final String url = Configuration.getSetting("URL"); 
+			final String url = config.get("URL"); 
 			
 			t.setVar("schiff.navigation.size",37);
 			

@@ -85,6 +85,8 @@ import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Repraesentiert ein Schiff in DS
@@ -93,6 +95,7 @@ import org.hibernate.annotations.Type;
  */
 @Entity
 @Table(name="ships")
+@Configurable
 public class Ship implements Locatable,Transfering {
 	private static final Log log = LogFactory.getLog(Ship.class);
 	
@@ -167,6 +170,9 @@ public class Ship implements Locatable,Transfering {
 	@Transient
 	private boolean destroyed = false;
 	
+	@Transient
+	private Configuration config;
+	
 	/**
 	 * Konstruktor
 	 */
@@ -224,6 +230,16 @@ public class Ship implements Locatable,Transfering {
 		this.setComm(100);
 		this.setSensors(100);
 	}
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 
 	/**
 	 * Gibt die ID des Schiffes zurueck
@@ -3081,7 +3097,7 @@ public class Ship implements Locatable,Transfering {
 		// Und nun den Loot generieren
 		Cargo cargo = new Cargo();
 
-		for( int i=0; i <= Configuration.getIntSetting("CONFIG_TRUEMER_MAXITEMS"); i++ ) {
+		for( int i=0; i <= config.getInt("CONFIG_TRUEMER_MAXITEMS"); i++ ) {
 			rnd = RandomUtils.nextInt(maxchance+1);
 			int currentchance = 0;
 			for( int j=0; j < loot.size(); j++ ) {
@@ -3108,12 +3124,12 @@ public class Ship implements Locatable,Transfering {
 		// Truemmer-Schiff hinzufuegen und entfernen-Task setzen
 		Ship truemmer = new Ship((User)db.get(User.class, -1));
 		truemmer.setName("Tr&uuml;mmerteile");
-		truemmer.setBaseType((ShipType)db.get(ShipType.class, Configuration.getIntSetting("CONFIG_TRUEMMER")));
+		truemmer.setBaseType((ShipType)db.get(ShipType.class, config.getInt("CONFIG_TRUEMMER")));
 		truemmer.setCargo(cargo);
 		truemmer.setX(this.x);
 		truemmer.setY(this.y);
 		truemmer.setSystem(this.system);
-		truemmer.setHull(Configuration.getIntSetting("CONFIG_TRUEMMER_HUELLE"));
+		truemmer.setHull(config.getInt("CONFIG_TRUEMMER_HUELLE"));
 		truemmer.setVisibility(destroyer);
 		int id = (Integer)db.save(truemmer);
 
@@ -3447,7 +3463,7 @@ public class Ship implements Locatable,Transfering {
 	 * @return <code>true</code> if the ship can be feed from the pool, <code>false</code> if not
 	 */
 	public boolean isUserCargoUsable() {
-		if( Configuration.getIntSetting("USE_NEW_FOOD_SYSTEM") == 1 ) {
+		if( config.getInt("USE_NEW_FOOD_SYSTEM") == 1 ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
 			return ((Number)db.createQuery("select count(*) from Base where owner=? and system=?")

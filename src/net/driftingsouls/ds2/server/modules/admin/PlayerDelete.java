@@ -50,6 +50,8 @@ import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Ermoeglicht das Einloggen in einen anderen Account ohne Passwort
@@ -57,10 +59,23 @@ import org.apache.commons.logging.LogFactory;
  * @author Christopher Jung
  * 
  */
+@Configurable
 @AdminMenuEntry(category = "Spieler", name = "Spieler l&ouml;schen")
 public class PlayerDelete implements AdminPlugin
 {
 	private static final Log log = LogFactory.getLog(PlayerDelete.class);
+	
+	private Configuration config;
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 
 	public void output(AdminController controller, String page, int action) throws IOException
 	{
@@ -317,7 +332,7 @@ public class PlayerDelete implements AdminPlugin
 			.executeUpdate();
 
 		echo.append("L&ouml;sche Userlogo...<br />\n");
-		new File(Configuration.getSetting("ABSOLUTE_PATH") + "data/logos/user/" + userid + ".gif")
+		new File(config.get("ABSOLUTE_PATH") + "data/logos/user/" + userid + ".gif")
 				.delete();
 
 		echo.append("L&ouml;sche Offiziere...\n");

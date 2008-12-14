@@ -68,16 +68,21 @@ import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Die Uebersicht
  * @author Christopher Jung
  *
  */
+@Configurable
 public class UeberController extends TemplateGenerator {
 	private static final Log log = LogFactory.getLog(UeberController.class);
 	
 	private String box = "";
+	
+	private Configuration config;
 	
 	/**
 	 * Konstruktor
@@ -88,6 +93,16 @@ public class UeberController extends TemplateGenerator {
 		
 		setTemplate("ueber.html");
 	}
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 
 	@Override
 	protected boolean validateAndPrepare(String action) {
@@ -577,7 +592,7 @@ public class UeberController extends TemplateGenerator {
 		// Letzten Tick ermitteln (Zeitpunkt)
 		try
 		{
-			BufferedReader bf = new BufferedReader(new FileReader(Configuration.getSetting("LOXPATH")+"ticktime.log"));
+			BufferedReader bf = new BufferedReader(new FileReader(config.get("LOXPATH")+"ticktime.log"));
 			try
 			{
 				ticktime = bf.readLine();

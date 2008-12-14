@@ -21,6 +21,9 @@ package net.driftingsouls.ds2.server.modules;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -42,9 +45,22 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
  * @urlparam Integer field Die ID des Felds, dessen Gebaeude angezeigt werden soll
  *
  */
+@Configurable
 public class BuildingController extends TemplateGenerator {
 	private Base base;
 	private Building building;
+	
+	private Configuration config;
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 	
 	/**
 	 * Konstruktor
@@ -154,7 +170,7 @@ public class BuildingController extends TemplateGenerator {
 	
 		if( !conf.equals("ok") ) {
 			echo.append("<div align=\"center\">\n");
-			echo.append("<img align=\"middle\" src=\""+Configuration.getSetting("URL")+building.getPicture()+"\" alt=\"\" /> "+Common._plaintitle(building.getName())+"<br /><br />\n");
+			echo.append("<img align=\"middle\" src=\""+config.get("URL")+building.getPicture()+"\" alt=\"\" /> "+Common._plaintitle(building.getName())+"<br /><br />\n");
 			echo.append("Wollen sie dieses Geb&auml;ude wirklich abreissen?<br /><br />\n");
 			echo.append("<a class=\"error\" href=\""+Common.buildUrl("demo", "col", base.getId(), "field", field, "conf", "ok")+"\">abreissen</a><br /></div>");
 			echo.append(Common.tableEnd());
@@ -220,7 +236,7 @@ public class BuildingController extends TemplateGenerator {
 					echo.append(Common.tableBegin(430, "left"));
 					
 					echo.append("<div style=\"text-align:center\">\n");
-					echo.append("<img style=\"vertical-align:middle\" src=\""+Configuration.getSetting("URL")+building.getPicture()+"\" alt=\"\" /> "+Common._plaintitle(building.getName())+"<br /></div>\n");
+					echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+building.getPicture()+"\" alt=\"\" /> "+Common._plaintitle(building.getName())+"<br /></div>\n");
 				}
 				else {
 					echo.append("<div>\n");

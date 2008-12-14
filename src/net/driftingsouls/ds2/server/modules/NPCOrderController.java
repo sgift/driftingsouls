@@ -5,6 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
@@ -37,8 +40,11 @@ import net.driftingsouls.ds2.server.tasks.Taskmanager;
  * @author Christopher Jung
  *
  */
+@Configurable
 public class NPCOrderController extends TemplateGenerator {
 	private boolean isHead = false;
+	
+	private Configuration config;
 	
 	/**
 	 * Konstruktor
@@ -51,6 +57,16 @@ public class NPCOrderController extends TemplateGenerator {
 		
 		setPageTitle("NPC-Menue");
 	}
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
@@ -201,12 +217,12 @@ public class NPCOrderController extends TemplateGenerator {
 		int ticks = getContext().get(ContextCommon.class).getTick();
 		
 		edituser.addHistory(Common.getIngameTime(ticks)+": Der Orden [img]"+
-				Configuration.getSetting("URL")+"data/"+Medals.get().medal(medal).getImage(Medal.IMAGE_SMALL)+"[/img]"+
+				config.get("URL")+"data/"+Medals.get().medal(medal).getImage(Medal.IMAGE_SMALL)+"[/img]"+
 				Medals.get().medal(medal).getName()+" wurde von [userprofile="+user.getId()+"]"+
 				user.getName()+"[/userprofile] verliehen Aufgrund der "+reason);
 		
 		PM.send(user, edituser.getId(), "Orden '"+Medals.get().medal(medal).getName()+"' verliehen", 
-				"Ich habe dir den Orden [img]"+Configuration.getSetting("URL")+
+				"Ich habe dir den Orden [img]"+config.get("URL")+
 				"data/"+Medals.get().medal(medal).getImage(Medal.IMAGE_SMALL)+"[/img]'"+
 				Medals.get().medal(medal).getName()+"' verliehen Aufgrund deiner "+reason);
 		
@@ -285,7 +301,7 @@ public class NPCOrderController extends TemplateGenerator {
 		int ticks = getContext().get(ContextCommon.class).getTick();
 		
 		edituser.addHistory(Common.getIngameTime(ticks)+": Von "+user.getName()+" zum [img]"+
-				Configuration.getSetting("URL")+"data/interface/medals/rang"+rang+"+png[/img] ["+
+				config.get("URL")+"data/interface/medals/rang"+rang+"+png[/img] ["+
 				Medals.get().rang(rang).getName()+"] "+( rang > edituser.getRang() ? "bef&ouml;rdert" : "degradiert"));
 		
 		t.setVar( "npcorder.message", "Der Spieler wurde zum "+Medals.get().rang(rang).getName()+" "+

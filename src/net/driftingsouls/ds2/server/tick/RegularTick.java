@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.tick;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.tick.regular.AcademyTick;
@@ -37,8 +40,20 @@ import net.driftingsouls.ds2.server.tick.regular.WerftTick;
  * @author Christopher Jung
  *
  */
+@Configurable
 public class RegularTick extends AbstractTickExecuter {
-
+	private Configuration config;
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
+	
 	@Override
 	protected void executeTicks() {
 		TimeoutChecker timeout = null;
@@ -115,7 +130,7 @@ public class RegularTick extends AbstractTickExecuter {
 	@Override
 	protected void prepare() {
 		setName("");
-		setLogPath(Configuration.getSetting("LOXPATH")+"tick/");
+		setLogPath(config.get("LOXPATH")+"tick/");
 	}
 	
 	/**

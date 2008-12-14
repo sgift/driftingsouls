@@ -52,17 +52,32 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Schiffsmodul fuer die SRS-Sensoren
  * @author Christopher Jung
  *
  */
+@Configurable
 public class SensorsDefault implements SchiffPlugin {
 	private static final Log log = LogFactory.getLog(SensorsDefault.class);
 	
 	private int showOnly = 0;
 	private int showId = 0;
+	
+	private Configuration config;
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 	
 	public String action(Parameters caller) {
 		SchiffController controller = caller.controller;
@@ -171,7 +186,7 @@ public class SensorsDefault implements SchiffPlugin {
 							"base.name",		base.getName(),
 							"base.klasse",		base.getKlasse(),
 							"base.size",		base.getSize(),
-							"base.image",		Configuration.getSetting("URL")+"data/starmap/kolonie"+base.getKlasse()+"_srs.png",
+							"base.image",		config.get("URL")+"data/starmap/kolonie"+base.getKlasse()+"_srs.png",
 							"base.transfer",	(base.getOwner().getId() != 0),
 							"base.colonize",	((base.getOwner().getId() == 0) || (base.getOwner().getId() == -1)) && shiptype.hasFlag(ShipTypes.SF_COLONIZER),
 							"base.action.repair",	0 );

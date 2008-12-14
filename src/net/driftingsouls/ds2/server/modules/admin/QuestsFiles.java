@@ -33,14 +33,28 @@ import net.driftingsouls.ds2.server.scripting.QuestXMLParser;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Ermoeglicht das Installieren und Verwalten von Quest-XMLs
  * @author Christopher Jung
  *
  */
+@Configurable
 @AdminMenuEntry(category="Quests", name="Quest-XMLs")
 public class QuestsFiles implements AdminPlugin {
+	private Configuration config;
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 
 	private String basename( String file ) {
 		int pos = file.lastIndexOf('/');
@@ -79,7 +93,7 @@ public class QuestsFiles implements AdminPlugin {
 		echo.append(Common.tableEnd());
 		echo.append("<br />\n");
 		
-		final String questpath = Configuration.getSetting("QUESTPATH");
+		final String questpath = config.get("QUESTPATH");
 		
 		if( installfile.length() > 0 ) {
 			echo.append(Common.tableBegin(550,"left"));

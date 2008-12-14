@@ -21,6 +21,9 @@ package net.driftingsouls.ds2.server.modules;
 import java.util.Iterator;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -42,7 +45,11 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * @author Christopher Jung
  *
  */
+@Configurable
 public class HandelController extends TemplateGenerator {
+	
+	
+	private Configuration config;
 
 	/**
 	 * Konstruktor
@@ -57,6 +64,16 @@ public class HandelController extends TemplateGenerator {
 		addPageMenuEntry("Angebote", Common.buildUrl("default"));
 		addPageMenuEntry("neues Angebot", Common.buildUrl("add"));
 	}
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
@@ -256,7 +273,7 @@ public class HandelController extends TemplateGenerator {
 				else {
 					t.setVar(	"res.cargo",	1,
 								"res.id",		-1,
-								"res.image",	Configuration.getSetting("URL")+"data/interface/handel/open.gif");
+								"res.image",	config.get("URL")+"data/interface/handel/open.gif");
 					if( i == 0 ) {
 						t.parse("angebot.want.list", "angebot.want.listitem", true);
 					}

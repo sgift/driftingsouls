@@ -20,6 +20,9 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
@@ -34,7 +37,21 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
  * @author Christopher Jung
  *
  */
+@Configurable
 public class KSCheatRegenerateOwnAction extends BasicKSAction {
+	
+	private Configuration config;
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
+    
 	@Override
 	public int execute(Battle battle) throws IOException {
 		int result = super.execute(battle);
@@ -44,7 +61,7 @@ public class KSCheatRegenerateOwnAction extends BasicKSAction {
 		
 		Context context = ContextMap.getContext();
 		
-		if( Configuration.getIntSetting("ENABLE_CHEATS") == 0 ) {
+		if( config.getInt("ENABLE_CHEATS") == 0 ) {
 			context.addError("Cheats sind deaktiviert!");
 			return RESULT_HALT;
 		}

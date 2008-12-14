@@ -21,6 +21,9 @@ package net.driftingsouls.ds2.server.modules;
 import java.util.Iterator;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.bases.Core;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -49,8 +52,11 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
  *
  * @urlparam Integer res Die ID der anzuzeigenden Forschung
  */
+@Configurable
 public class ForschinfoController extends TemplateGenerator {
 	private Forschung research = null;
+	
+	private Configuration config;
 	
 	/**
 	 * Konstruktor
@@ -65,6 +71,16 @@ public class ForschinfoController extends TemplateGenerator {
 		
 		setPageTitle("Forschung");
 	}
+	
+    /**
+     * Injiziert die DS-Konfiguration
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
 	
 	@Override
 	protected boolean validateAndPrepare(String action) {
@@ -237,7 +253,7 @@ public class ForschinfoController extends TemplateGenerator {
 			Resources.echoResList( t, reslist, "tech.building.consumes.list" );
 	
 			if( building.getEVerbrauch() > 0 ) {
-				t.setVar(	"res.image",	Configuration.getSetting("URL")+"data/interface/energie.gif",
+				t.setVar(	"res.image",	config.get("URL")+"data/interface/energie.gif",
 							"res.cargo",	building.getEVerbrauch() );
 							
 				t.parse("tech.building.consumes.list","tech.building.consumes.listitem",true);
@@ -247,7 +263,7 @@ public class ForschinfoController extends TemplateGenerator {
 			Resources.echoResList( t, reslist, "tech.building.produces.list" );
 
 			if( building.getEProduktion() > 0 ) {
-				t.setVar(	"res.image",	Configuration.getSetting("URL")+"data/interface/energie.gif",
+				t.setVar(	"res.image",	config.get("URL")+"data/interface/energie.gif",
 							"res.cargo",	building.getEProduktion() );
 									
 				t.parse("tech.building.produces.list","tech.building.produces.listitem",true);
@@ -294,7 +310,7 @@ public class ForschinfoController extends TemplateGenerator {
 			Resources.echoResList( t, reslist, "tech.core.consumes.list" );
 
 			if( core.getEVerbrauch() > 0 ) {
-				t.setVar(	"res.image",	Configuration.getSetting("URL")+"data/interface/energie.gif",
+				t.setVar(	"res.image",	config.get("URL")+"data/interface/energie.gif",
 							"res.cargo",	core.getEVerbrauch() );
 							
 				t.parse("tech.core.consumes.list","tech.core.consumes.listitem",true);
@@ -304,7 +320,7 @@ public class ForschinfoController extends TemplateGenerator {
 			Resources.echoResList( t, reslist, "tech.core.produces.list" );
 
 			if( core.getEProduktion() > 0 ) {
-				t.setVar(	"res.image",	Configuration.getSetting("URL")+"data/interface/energie.gif",
+				t.setVar(	"res.image",	config.get("URL")+"data/interface/energie.gif",
 							"res.cargo",	core.getEProduktion() );
 							
 				t.parse("tech.core.produces.list","tech.core.produces.listitem",true);
