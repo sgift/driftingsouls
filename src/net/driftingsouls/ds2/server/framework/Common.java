@@ -949,7 +949,7 @@ public class Common {
 	public static String ticks2Days( int ticks ) {
 		StringBuilder text = new StringBuilder();
 		
-		int dauer = ticks / 7;
+		int dauer = ticks / TICKS_PER_DAY;
 		int wochen = dauer / 7;
 		int tage = dauer % 7;
 		
