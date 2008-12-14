@@ -2403,6 +2403,35 @@ public class Battle implements Locatable {
 	}
 	
 	/**
+	 * Gets the battle value of one battle party.
+	 * The battle value is a measure of the fighting power.
+	 * 
+	 * @param side 
+	 * @return The battle value of one battle party.
+	 */
+	public int getBattleValue(Side side)
+	{
+		int battleValue = 0;
+		List<BattleShip> ships;
+		
+		if(side == Side.OWN)
+		{
+			ships = getOwnShips();
+		}
+		else
+		{
+			ships = getEnemyShips();
+		}
+		
+		for(BattleShip ship: ships)
+		{
+			battleValue += ship.getBattleValue();
+		}
+		
+		return battleValue;
+	}
+	
+	/**
 	 * Zerstoert ein Schiff und alle an ihm gedockten Schiff
 	 * @param ship Das zu zerstoerende Schiff
 	 */

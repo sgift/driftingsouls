@@ -28,11 +28,14 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+import org.hibernate.Session;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
@@ -385,5 +388,70 @@ public class BattleShip {
 	@Override
 	public String toString() {
 		return "{BattleShip: "+this.shipid+" Battle: "+(this.battle != null ? battle.getId() : "null")+"}";
+	}
+	
+	/**
+	 * Returns the battle value of a ship.
+	 * The battle value is a measurement of the fighting power a single ship has.
+	 * 
+	 * @return The battle value.
+	 */
+	public int getBattleValue()
+	{
+		if(isJoining())
+		{
+			return 0;
+		}
+		
+		if(isStarved())
+		{
+			return 0;
+		}
+		
+		if(!isMilitary())
+		{
+			return 0;
+		}
+		
+		ConfigValue sizeModifier = (ConfigValue)getDB().get(ConfigValue.class, "bvsizemodifier");
+		ConfigValue dockModifier = (ConfigValue)getDB().get(ConfigValue.class, "bvdockmodifier");
+		
+		return getTypeData().getSize() * Integer.valueOf(sizeModifier.getValue()) + getTypeData().getJDocks() * Integer.valueOf(dockModifier.getValue());
+	}
+	
+	/**
+	 * Checks if the ship is joining the battle.
+	 * 
+	 * @return true, if the ship is joining, false otherwise.
+	 */
+	public boolean isJoining()
+	{
+		return (getAction() & Battle.BS_JOIN) != 0;
+	}
+	
+	/**
+	 * Checks, if the ship is starved.
+	 * A ship is starved, if the shiptype demands crew, but the ship is crewless.
+	 * 
+	 * @return true, if the ship is starved, false otherwise.
+	 */
+	public boolean isStarved()
+	{
+		return getCrew() == 0 && getTypeData().getCrew() > 0;
+	}
+	
+	/**
+	 * Determines, if the ship is a military ship.
+	 * 
+	 * @return true, if it is a military ship, false otherwise.
+	 */
+	public boolean isMilitary()
+	{
+		return getTypeData().isMilitary();
+	}
+	
+	private Session getDB()
+	{
+		return ContextMap.getContext().getDB();
 	}
 }
