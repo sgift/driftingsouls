@@ -216,7 +216,7 @@ public class ShipWerft extends WerftObject {
 	@Override
 	public void setCrew(int crew) {
 		if( crew > this.getMaxCrew() ) {
-			throw new RuntimeException("ERROR: ShipWerft.setCrew(): crew ("+crew+") gr&ouml;&szlig;er als maxcrew ("+this.getMaxCrew()+")");
+			crew = getMaxCrew();
 		}
 		int shipcrew = 0;
 		if( this.linked != null ) {
