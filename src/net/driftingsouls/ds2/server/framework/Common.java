@@ -937,6 +937,11 @@ public class Common {
 			}
 		}
 	}
+	
+	/**
+	 * Anzahl der Ticks pro Tag
+	 */
+	public static final int TICKS_PER_DAY = 7;
 
 	/**
 	 * Gibt einen Formatierten Zeitstring zurueck, welcher angibt,
