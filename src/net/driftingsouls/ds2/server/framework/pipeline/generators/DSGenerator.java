@@ -33,6 +33,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.Version;
 import net.driftingsouls.ds2.server.framework.pipeline.Error;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
 
@@ -124,6 +125,7 @@ public abstract class DSGenerator extends Generator {
 	@Configurable
 	protected class HtmlOutputHelper extends OutputHelper {
 		private Configuration config;
+		private Version version;
 		
 		/**
 		 * Injiziert die DS-Konfiguration
@@ -132,6 +134,15 @@ public abstract class DSGenerator extends Generator {
 		@Autowired
 		public void setConfiguration(Configuration config) {
 			this.config = config;
+		}
+		
+		/**
+		 * Injiziert die momentane DS-Version
+		 * @param version Die DS-Version
+		 */
+		@Autowired
+		public void setVersion(Version version) {
+			this.version = version;
 		}
 		
 		@Override
@@ -214,16 +225,23 @@ public abstract class DSGenerator extends Generator {
 		}
 		
 		@Override
-		public void printFooter() throws IOException {
-			if( getContext().getRequest().getParameterString("_style").equals("xml") ) {
+		public void printFooter() throws IOException
+		{
+			if( getContext().getRequest().getParameterString("_style").equals("xml") )
+			{
 				return;
 			}
 			Writer sb = getContext().getResponse().getWriter();
-			if( !getDisableDebugOutput() ) {
+			if( !getDisableDebugOutput() )
+			{
 				sb.append("<div style=\"text-align:center; font-size:11px;color:#c7c7c7; font-family:arial, helvetica;\">\n");
 				sb.append("<br /><br /><br />\n");
-				sb.append("Execution-Time: "+(System.currentTimeMillis()-getStartTime())/1000d+"s<br />\n");
-				//echo "<a class=\"forschinfo\" target=\"none\" style=\"font-size:11px\" href=\"http://ds2.drifting-souls.net/mantis/\">Zum Bugtracker</a><br />\n";
+				sb.append("Execution-Time: "+(System.currentTimeMillis()-getStartTime())/1000d+"s");
+				if( this.version.getBuildTime() != null )
+				{
+					sb.append(" -- Version: "+this.version.getHgVersion()+", "+this.version.getBuildTime());
+				}
+				//	echo "<a class=\"forschinfo\" target=\"none\" style=\"font-size:11px\" href=\"http://ds2.drifting-souls.net/mantis/\">Zum Bugtracker</a><br />\n";
 				sb.append("</div>\n");
 			}
 			sb.append("</body>");

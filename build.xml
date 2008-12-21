@@ -214,6 +214,17 @@
 	
 	<!-- ==================== jar Target ===================================== -->
 	<target name="jar" depends="templates,compile" description="Create a jar">
+		<delete file="${build.home}/WEB-INF/classes/META-INF/ds.version" />
+		<tstamp>
+			<format property="touch.time" pattern="yyyy-MM-dd HH:mm"/>
+		</tstamp>
+		
+		<exec dir="${basedir}" executable="hg" failonerror="false" failifexecutionfails="false" outputproperty="hg-version">
+		  <arg line="id -i"/>
+		</exec>
+		
+		<echo file="${build.home}/WEB-INF/classes/META-INF/ds.version" append="false">build-time=${touch.time}${line.separator}hg-version=${hg-version}</echo>
+
 		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-framework.jar" basedir="${build.home}/WEB-INF/classes" includes="META-INF/ds.marker,**/server/framework/**" />
 		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-templates.jar" basedir="${build.home}/WEB-INF/classes" includes="META-INF/ds.marker,**/server/templates/**" />
 		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-ds-pipeline.jar" basedir="${build.home}/WEB-INF/classes" includes="META-INF/ds.marker,**/server/modules/**" />
