@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 import org.hibernate.Session;
@@ -70,6 +71,21 @@ public class UserTick extends TickController
 				usercargo.setResource(Resources.NAHRUNG, food - rottenFood);
 				
 				user.setCargo(usercargo.save());
+				
+				if(user.isInVacation())
+				{
+					Session db = ContextMap.getContext().getDB();
+					ConfigValue value = (ConfigValue)db.get("vacpointspervactick", ConfigValue.class);
+					int costsPerTick = Integer.valueOf(value.getValue());
+					user.setVacpoints(user.getVacationCount() - costsPerTick);
+				}
+				else
+				{
+					Session db = ContextMap.getContext().getDB();
+					ConfigValue value = (ConfigValue)db.get("vacpointsperplayedtick", ConfigValue.class);
+					int pointsPerTick = Integer.valueOf(value.getValue());
+					user.setVacpoints(user.getVacationCount() + pointsPerTick);
+				}
 				
 				getContext().commit();
 			}

@@ -1200,6 +1200,11 @@ public class User extends BasicUser {
 		setWait4VacationCount(getVacationPrerun(ticks));
 	}
 	
+	public boolean isInVacation()
+	{
+		return (getVacationCount() > 0) && (getWait4VacationCount() == 0);
+	}
+	
 	/**
 	 * @param ticks Anzahl der Urlaubsticks.
 	 * @return Prerun Vorlaufzeit in ticks.
