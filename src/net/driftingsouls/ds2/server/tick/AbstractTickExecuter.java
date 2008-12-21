@@ -62,9 +62,17 @@ public abstract class AbstractTickExecuter extends TickController
      * @param config Die DS-Konfiguration
      */
     @Autowired
-    public void setConfiguration(Configuration config) 
+    public final void setConfiguration(Configuration config) 
     {
     	this.config = config;
+    }
+    
+    /**
+     * Gibt die DS-Konfiguration zurueck
+     * @return Die DS-Konfiguration
+     */
+    protected Configuration getConfiguration() {
+    	return this.config;
     }
 
 	/**
