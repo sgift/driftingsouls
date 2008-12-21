@@ -67,6 +67,11 @@ public class Common {
 	private static NumberFormat numberFormat;
 	private static Locale locale;
 	
+	/**
+	 * Anzahl der Ticks pro Tag
+	 */
+	public final static int TICKS_PER_DAY = 7;
+	
 	static {
 		locale = Locale.GERMAN;
 		numberFormat = NumberFormat.getInstance(Locale.GERMAN);
@@ -937,11 +942,6 @@ public class Common {
 			}
 		}
 	}
-	
-	/**
-	 * Anzahl der Ticks pro Tag
-	 */
-	public static final int TICKS_PER_DAY = 7;
 
 	/**
 	 * Gibt einen Formatierten Zeitstring zurueck, welcher angibt,
@@ -1280,5 +1280,16 @@ public class Common {
 	@SuppressWarnings("unchecked")
 	public static <T> List<T> cast(List<?> list) {
 		return (List<T>)list;
+	}
+	
+	/**
+	 * Gets ticks from days.
+	 * 
+	 * @param days Day count
+	 * @return Tick count
+	 */
+	public int daysToTicks(int days)
+	{
+		return days * TICKS_PER_DAY;
 	}
 }

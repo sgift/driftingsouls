@@ -1159,4 +1159,21 @@ public class User extends BasicUser {
 	{
 		this.vacpoints = vacpoints;
 	}
+	
+	public void activateVac(int ticks)
+	{
+		setVacationCount(ticks);
+		setWait4VacationCount(getVacationPrerun(ticks));
+	}
+	
+	/**
+	 * Returns the time of the prerun.
+	 * 
+	 * @param ticks Vacation ticks of the user.
+	 * @return Prerun time in ticks.
+	 */
+	private int getVacationPrerun(int ticks)
+	{
+		return ticks / Common.TICKS_PER_DAY;
+	}
 }
