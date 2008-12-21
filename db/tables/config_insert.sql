@@ -20,4 +20,8 @@ VALUES (
 	'bvdockmodifier', 1, 'Faktor fuer die Dockanzahl bei der Battle Value Formel', '0'
 ), (
 	'endtiemodifier', 5, 'Faktor fuer die Anzahl der Schiffe, die man mehr haben muss, um einen Kampf unentschieden zu beenden', '0'
+), (
+	'vacpointspervactick', 7, 'Vacationpunkte, die ein Tick im Vac kostet', '0'
+), (
+	'vacpointsperplayedtick', 1, 'Vacationpunkte, die ein gespielter Tick bringt', '0'
 );

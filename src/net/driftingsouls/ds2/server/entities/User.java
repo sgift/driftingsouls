@@ -36,6 +36,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.Ordner;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -46,6 +47,7 @@ import net.driftingsouls.ds2.server.werften.ShipWerft;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1160,20 +1162,60 @@ public class User extends BasicUser {
 		this.vacpoints = vacpoints;
 	}
 	
-	public void activateVac(int ticks)
+	/**
+	 * @return Ticks, die der User maximal im Urlaub sein darf.
+	 */
+	public int maxVacTicks()
+	{
+		return getVacpoints() / vacationCostsPerTick();
+	}
+	
+	/**
+	 * Prueft, ob genug Punkte fuer die Urlaubsanfrage vorhanden sind.
+	 * 
+	 * @param ticks Ticks, die der Spieler in den Urlaub gehen will.
+	 * @return <code>true</code>, wenn genug Punkte vorhanden sind, sonst <code>false</code>
+	 */
+	public boolean checkVacationRequest(int ticks)
+	{
+
+		int costs = ticks * vacationCostsPerTick();
+		
+		if(costs > getVacpoints())
+		{
+			return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Aktiviert den Urlaubsmodus.
+	 * 
+	 * @param ticks Ticks, die der Spieler in den Urlaub gehen soll.
+	 */
+	public void activateVacation(int ticks)
 	{
 		setVacationCount(ticks);
 		setWait4VacationCount(getVacationPrerun(ticks));
 	}
 	
 	/**
-	 * Returns the time of the prerun.
-	 * 
-	 * @param ticks Vacation ticks of the user.
-	 * @return Prerun time in ticks.
+	 * @param ticks Anzahl der Urlaubsticks.
+	 * @return Prerun Vorlaufzeit in ticks.
 	 */
 	private int getVacationPrerun(int ticks)
 	{
 		return ticks / Common.TICKS_PER_DAY;
+	}
+	
+	/**
+	 * @return Punktekosten fuer einen Urlaubstick.
+	 */
+	private int vacationCostsPerTick()
+	{
+		Session db = ContextMap.getContext().getDB();
+		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "vacpointspervactick");
+		return Integer.valueOf(value.getValue());
 	}
 }

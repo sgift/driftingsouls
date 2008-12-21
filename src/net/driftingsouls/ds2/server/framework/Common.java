@@ -942,6 +942,18 @@ public class Common {
 			}
 		}
 	}
+	
+	/**
+	 * Rechnet die Ticks in Tage um.
+	 * Es wird abgerundet.
+	 * 
+	 * @param ticks Anzahl der Ticks.
+	 * @return Anzahl Tage, die die Ticks darstellen.
+	 */
+	public static int ticks2DaysInDays(int ticks)
+	{
+		return ticks / TICKS_PER_DAY;
+	}
 
 	/**
 	 * Gibt einen Formatierten Zeitstring zurueck, welcher angibt,
@@ -1288,7 +1300,7 @@ public class Common {
 	 * @param days Day count
 	 * @return Tick count
 	 */
-	public int daysToTicks(int days)
+	public static int daysToTicks(int days)
 	{
 		return days * TICKS_PER_DAY;
 	}

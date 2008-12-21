@@ -695,5 +695,8 @@
 	]]></update>
 	<update type="structure" datum="2008-12-21"><![CDATA[
 		ALTER TABLE users ADD `vacpoints` int NOT NULL DEFAULT '0';
+		INSERT INTO config (`name` , `value` , `description` , `version`) VALUES
+			('vacpointspervactick', 7, 'Vacationpunkte, die ein Tick im Vac kostet', '0'), 
+			('vacpointsperplayedtick', 1, 'Vacationpunkte, die ein gespielter Tick bringt', '0');
 	]]></update>
 </updates>

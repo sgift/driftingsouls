@@ -29,8 +29,6 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -400,29 +398,24 @@ public class OptionsController extends TemplateGenerator {
 	 * @urlparam Integer vacmode die ID des zu benutzenden Vacmodes
 	 */
 	@Action(ActionType.DEFAULT)
-	public void vacModeAction() {
+	public void vacModeAction() 
+	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 		
-		parameterNumber("vacmode");
-		int vacmodeID = getInteger("vacmode");
-	
-		SQLResultRow vacmode = getDatabase().first("SELECT * FROM config_vacmodes WHERE id=",vacmodeID);
-		if( !vacmode.isEmpty() ) {
-			StringBuilder changemsg = new StringBuilder();
+		parameterNumber("vacdays");
+		int vacDays = getInteger("vacdays");
+		int vacTicks = Common.daysToTicks(vacDays);
 		
-			user.setVacationCount(vacmode.getInt("dauer"));
-			user.setWait4VacationCount(vacmode.getInt("vorlauf"));
-			
-			changemsg.append("Vacationmodus aktiviert (Dauer: ");
-			changemsg.append(Common.ticks2Days(vacmode.getInt("dauer")));
-			changemsg.append(")<br />\n");
-		
-			Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getContext().getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+user.getUN()+"> Vac beantragt: "+vacmode.getInt("vorlauf")+" Wartezeit "+vacmode.getInt("dauer")+" Dauer Browser <"+getContext().getRequest().getUserAgent()+">\n");
-					
-			t.setVar( "options.message", changemsg.toString() );
+		if(!user.checkVacationRequest(vacTicks))
+		{
+			t.setVar("options.message", "Dein Urlaubskonto reicht nicht aus f&uuml;r soviele Tage Urlaub.");
+			redirect();
+			return;
 		}
 		
+		user.activateVacation(vacTicks);
+		t.setVar("options.message", "Der Vorlauf f&uuml;r deinen Urlaub wurde gestartet.");
 		redirect();
 	}
 	
@@ -517,19 +510,7 @@ public class OptionsController extends TemplateGenerator {
 					"user.ipsess",		!user.hasFlag( BasicUser.FLAG_DISABLE_IP_SESSIONS ),
 					"user.autologout",	!user.hasFlag( BasicUser.FLAG_DISABLE_AUTO_LOGOUT ),
 					"user.imgpath",		imagepath,
-					"user.noob",		user.isNoob() );
-
-
-		t.setBlock("_OPTIONS","options.general.vac.listitem","options.general.vac.list");
-		SQLQuery vacmode = getDatabase().query("SELECT * FROM config_vacmodes");
-		while( vacmode.next() ) {
-			String vacdauer = Common.ticks2Days( vacmode.getInt("dauer"))+"; Vorlauf: "+vacmode.getInt("vorlauf")+" Ticks";
-	
-			t.setVar(	"options.general.vac.dauer",	vacdauer,
-						"options.general.vac.index",	vacmode.getInt("id") );
-	
-			t.parse("options.general.vac.list","options.general.vac.listitem",true);
-		}
-		vacmode.free();
+					"user.noob",		user.isNoob(),
+					"vacation.maxtime", Common.ticks2DaysInDays(user.maxVacTicks()));
 	}
 }
