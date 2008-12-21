@@ -693,4 +693,7 @@
 			'endtiemodifier', 5, 'Faktor fuer die Anzahl der Schiffe, die man mehr haben muss, um einen Kampf unentschieden zu beenden', '0'
 		);
 	]]></update>
+	<update type="structure" datum="2008-12-21"><![CDATA[
+		ALTER TABLE users ADD `vacpoints` int NOT NULL DEFAULT '0';
+	]]></update>
 </updates>

@@ -205,6 +205,7 @@ public class User extends BasicUser {
 	private int lostShips;
 	private String knownItems;
 	private boolean blocked = false;
+	private int vacpoints;
 	
 	@Transient
 	private Context context;
@@ -1147,5 +1148,15 @@ public class User extends BasicUser {
 	public void setHistory(String history)
 	{
 		this.history = history;
+	}
+
+	public int getVacpoints()
+	{
+		return vacpoints;
+	}
+
+	public void setVacpoints(int vacpoints)
+	{
+		this.vacpoints = vacpoints;
 	}
 }
