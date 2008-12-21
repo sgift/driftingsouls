@@ -20,6 +20,10 @@ package net.driftingsouls.ds2.server.modules;
 
 import java.util.Iterator;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Required;
+
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.bases.Core;
@@ -42,10 +46,18 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * @urlparam Integer field Die ID des Feldes, dessen Gebaeude der zurueck-Link ansteuern soll
  *
  */
+@Configurable
 public class BuildingsController extends TemplateGenerator {
 	
 	private Configuration config;
 	
+	@Autowired
+	@Required
+	public void setConfig(Configuration config)
+	{
+		this.config = config;
+	}
+
 	/**
 	 * Konstruktor
 	 * @param context Der zu verwendende Kontext
