@@ -75,14 +75,14 @@ public class UserTick extends TickController
 				if(user.isInVacation())
 				{
 					Session db = ContextMap.getContext().getDB();
-					ConfigValue value = (ConfigValue)db.get("vacpointspervactick", ConfigValue.class);
+					ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "vacpointspervactick");
 					int costsPerTick = Integer.valueOf(value.getValue());
 					user.setVacpoints(user.getVacationCount() - costsPerTick);
 				}
 				else
 				{
 					Session db = ContextMap.getContext().getDB();
-					ConfigValue value = (ConfigValue)db.get("vacpointsperplayedtick", ConfigValue.class);
+					ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "vacpointsperplayedtick");
 					int pointsPerTick = Integer.valueOf(value.getValue());
 					user.setVacpoints(user.getVacationCount() + pointsPerTick);
 				}
