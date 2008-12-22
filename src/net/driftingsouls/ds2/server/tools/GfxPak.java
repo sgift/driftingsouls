@@ -34,6 +34,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFilter;
 import org.apache.commons.lang.math.RandomUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Kommandozeilentool zur Erstellung von Grafikpaks<br>
@@ -41,9 +44,10 @@ import org.apache.commons.lang.math.RandomUtils;
  * @author Christopher Jung
  *
  */
+@Configurable
 public class GfxPak extends DSApplication {
-	private String datadir;
-	
+	private Configuration config;
+
 	/**
 	 * Konstruktor
 	 * @param args Die Kommandozeilenargumente
@@ -51,8 +55,6 @@ public class GfxPak extends DSApplication {
 	 */
 	public GfxPak(String[] args) throws Exception {
 		super(args);
-		
-		datadir = Configuration.getSetting("ABSOLUTE_PATH")+"data";
 	}
 	
 	private void printHelp() {
@@ -73,6 +75,15 @@ public class GfxPak extends DSApplication {
 	}
 	
 	/**
+	 * Injiziert die DS-Konfiguration
+	 * @param config Die DS-Konfiguration
+	 */
+	@Autowired @Required
+	public void setConfiguration(Configuration config) {
+		this.config = config;
+	}
+	
+	/**
 	 * Startet die Ausfuehrung
 	 * @throws IOException
 	 * @throws InterruptedException
@@ -82,6 +93,8 @@ public class GfxPak extends DSApplication {
 			printHelp();
 			return;
 		}
+		
+		final String datadir = config.get("ABSOLUTE_PATH")+"data";
 		
 		log("\nBeginne:");
 
@@ -136,7 +149,7 @@ public class GfxPak extends DSApplication {
 			
 			String name = filename.substring(0, filename.length() - "png".length()-1);
 			
-			File[] files = new File(Configuration.getSetting("ABSOLUTE_PATH")+dirname).listFiles((FileFilter)new WildcardFilter(name+"*.png"));
+			File[] files = new File(config.get("ABSOLUTE_PATH")+dirname).listFiles((FileFilter)new WildcardFilter(name+"*.png"));
 			for( int i=0; i < files.length; i++ ) {
 				FileUtils.copyFile(files[i], new File(rnd+"/"+dirname+"/"+FilenameUtils.getName(files[i].getName())));
 			}
@@ -146,9 +159,13 @@ public class GfxPak extends DSApplication {
 		// GFXPak-Version speichern (erst jetzt, um eine ggf mitkopierte Version der Datei zu ueberschreiben)
 		log("Versionierung...");
 		FileWriter ver = new FileWriter(rnd+"/data/javascript/gfxpakversion.js");
-		ver.write("// DS GFXPAK VERSION\n");
-		ver.write("var _GFXPAKVERSION="+Configuration.getSetting("GFXPAK_VERSION")+";\n");
-		ver.close();
+		try {
+			ver.write("// DS GFXPAK VERSION\n");
+			ver.write("var _GFXPAKVERSION="+config.get("GFXPAK_VERSION")+";\n");
+		}
+		finally {
+			ver.close();
+		}
 
 		// Archiv erzeugen
 		log("tar...");

@@ -94,7 +94,7 @@ public class BattleEnd implements AdminPlugin {
 			echo.append(Common.tableEnd());
 		}
 		else {
-			AdminCommands.executeCommand("battle end "+battleid);
+			new AdminCommands().executeCommand("battle end "+battleid);
 					
 			echo.append("Schlacht beendet<br />");
 		}

@@ -52,7 +52,7 @@ public class PListController extends DSGenerator {
 
 		echo.append(Common.tableBegin(325,"left"));
 
-		PlayerList.draw(getContext());
+		new PlayerList().draw(getContext());
 		
 		echo.append(Common.tableEnd());
 	}

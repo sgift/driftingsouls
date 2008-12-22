@@ -46,7 +46,7 @@ public class AdminConsole implements AdminPlugin {
 		int responseOnly = context.getRequest().getParameterInt("responseOnly");
 
 		if( responseOnly == 1 ) {
-			echo.append(StringUtils.replace( AdminCommands.executeCommand(cmd), "\n", "<br />" ));
+			echo.append(StringUtils.replace( new AdminCommands().executeCommand(cmd), "\n", "<br />" ));
 			return;
 		}
 		
@@ -55,7 +55,7 @@ public class AdminConsole implements AdminPlugin {
 			echo.append("<table class=\"noBorderX\">\n");
 			echo.append("<tr>\n");
 			echo.append("<td class=\"noBorderX\">\n");
-			echo.append(StringUtils.replace( AdminCommands.executeCommand(cmd), "\n", "<br />" ));
+			echo.append(StringUtils.replace( new AdminCommands().executeCommand(cmd), "\n", "<br />" ));
 			echo.append("</td>\n");
 			echo.append("</tr>\n");
 			echo.append("</table>\n");
@@ -85,7 +85,7 @@ public class AdminConsole implements AdminPlugin {
 			echo.append("-\n");
 			echo.append("</td>\n");
 			echo.append("<td class=\"noBorderX\">\n");
-			echo.append(StringUtils.replace( AdminCommands.executeCommand(cmd), "\n", "<br />" ));
+			echo.append(StringUtils.replace( new AdminCommands().executeCommand(cmd), "\n", "<br />" ));
 			echo.append("</td>\n");
 			echo.append("</tr>\n");
 			echo.append("</table>\n");

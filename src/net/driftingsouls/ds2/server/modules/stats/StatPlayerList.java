@@ -32,7 +32,7 @@ import net.driftingsouls.ds2.server.uilibs.PlayerList;
 public class StatPlayerList implements Statistic {
 
 	public void show(StatsController contr, int size) throws IOException {
-		PlayerList.draw(ContextMap.getContext());
+		new PlayerList().draw(ContextMap.getContext());
 	}
 
 	public boolean generateAllyData() {

@@ -48,7 +48,7 @@ public abstract class AbstractTickExecuter extends TickController
 {
 	private static final Log log = LogFactory.getLog(AbstractTickExecuter.class);
 
-	private String loxpath = Configuration.getSetting("LOXPATH");
+	private String loxpath = null;
 	private String name = "";
 	private String status = null;
 	private Map<Class<? extends TickController>, Long> tickTimes = new HashMap<Class<? extends TickController>, Long>();
@@ -65,6 +65,9 @@ public abstract class AbstractTickExecuter extends TickController
     public final void setConfiguration(Configuration config) 
     {
     	this.config = config;
+    	if( this.loxpath == null ) {
+    		this.loxpath = config.get("LOXPATH");
+    	}
     }
     
     /**

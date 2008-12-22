@@ -64,21 +64,36 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Fueht spezielle Admin-Kommandos aus
  * @author Christopher Jung
  *
  */
+@Configurable
 public class AdminCommands {
 	private static final Log log = LogFactory.getLog(AdminCommands.class);
+	
+	private Configuration config;
+	
+	/**
+	 * Injiziert die DS-Konfiguration
+	 * @param config Die DS-Konfiguration
+	 */
+	@Autowired @Required
+	public void setConfiguration(Configuration config) {
+		this.config = config;
+	}
 	
 	/**
 	 * Fueht das angegebene Admin-Kommando aus
 	 * @param cmd Das Kommando
 	 * @return Die vom Kommando generierte Ausgabe
 	 */
-	public static String executeCommand( String cmd ) {
+	public String executeCommand( String cmd ) {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
 		if( (user == null) || (user.getAccessLevel() < 20) ) {
@@ -126,7 +141,7 @@ public class AdminCommands {
 		return output;
 	}
 	
-	private static String cmdTick(Context context, String[] command)
+	private String cmdTick(Context context, String[] command)
 	{
 		if( command.length < 2 ) {
 			return "";
@@ -182,7 +197,7 @@ public class AdminCommands {
 		return "Unbekannter befehl";
 	}
 
-	private static String cmdClearCaches( Context context, String[] command ) {
+	private String cmdClearCaches( Context context, String[] command ) {
 		String output = "Caches geleert";
 		
 		CacheManager.getInstance().clearCaches();
@@ -190,7 +205,7 @@ public class AdminCommands {
 		return output;
 	}
 	
-	private static String cmdEditShip( Context context, String[] command ) {
+	private String cmdEditShip( Context context, String[] command ) {
 		String output = "";
 		org.hibernate.Session db = context.getDB();
 		
@@ -327,7 +342,7 @@ public class AdminCommands {
 		return output;
 	}
 	
-	private static String cmdAddResource(Context context, String[] command) {
+	private String cmdAddResource(Context context, String[] command) {
 		String output = "";
 		
 		String oid = command[1];
@@ -381,7 +396,7 @@ public class AdminCommands {
 		return output;
 	}
 	
-	private static String cmdQuest(Context context, String[] command) {
+	private String cmdQuest(Context context, String[] command) {
 		String output = "";
 		org.hibernate.Session db = context.getDB();
 		
@@ -426,7 +441,7 @@ public class AdminCommands {
 		return output;
 	}
 	
-	private static String cmdBattle(Context context, String[] command) {
+	private String cmdBattle(Context context, String[] command) {
 		String output = "";
 		
 		String cmd = command[1];
@@ -454,7 +469,7 @@ public class AdminCommands {
 		return output;
 	}
 	
-	private static String cmdDestroyShip(Context context, String[] command) {
+	private String cmdDestroyShip(Context context, String[] command) {
 		String output = "";
 		
 		List<String> sql = new ArrayList<String>();
@@ -499,14 +514,14 @@ public class AdminCommands {
 		return output;
 	}
 	
-	private static void checkImage( String baseimg, String fleet ) {
+	private void checkImage( String baseimg, String fleet ) {
 		if( new File(baseimg+fleet+"+.png").isFile() ) {
 			return;
 		}
 		
 		try {
 			Font font = null;
-			if( !new File(Configuration.getSetting("ABSOLUTE_PATH")+"data/bnkgothm.ttf").isFile() ) {
+			if( !new File(config.get("ABSOLUTE_PATH")+"data/bnkgothm.ttf").isFile() ) {
 				log.warn("bnkgothm.ttf nicht auffindbar");
 				font = Font.getFont("bankgothic md bt");
 				if( font == null ) {
@@ -515,7 +530,7 @@ public class AdminCommands {
 			}
 			else {
 				font = Font.createFont(Font.TRUETYPE_FONT, 
-						new File(Configuration.getSetting("ABSOLUTE_PATH")+"data/bnkgothm.ttf"));
+						new File(config.get("ABSOLUTE_PATH")+"data/bnkgothm.ttf"));
 			}
 			
 			BufferedImage baseImage = ImageIO.read(new FileInputStream(baseimg+".png"));
@@ -582,8 +597,8 @@ public class AdminCommands {
 		}
 	}
 	
-	private static String splitplanetimgs( String baseimg, String targetname ) {
-		String datadir = Configuration.getSetting("ABSOLUTE_PATH")+"data/starmap/";
+	private String splitplanetimgs( String baseimg, String targetname ) {
+		String datadir = config.get("ABSOLUTE_PATH")+"data/starmap/";
 		
 		baseimg = datadir+baseimg;
 		targetname = datadir+targetname;
@@ -634,7 +649,7 @@ public class AdminCommands {
 		return "";
 	}
 	
-	private static String cmdBuildImgs(Context context, String[] command) {
+	private String cmdBuildImgs(Context context, String[] command) {
 		String output = "";
 		
 		String cmd = command[1];
@@ -644,7 +659,7 @@ public class AdminCommands {
 			boolean sizedimg = false;
 			int imgcount = 0;
 			
-			String path = Configuration.getSetting("ABSOLUTE_PATH")+"data/starmap/"+img+"/"+img;
+			String path = config.get("ABSOLUTE_PATH")+"data/starmap/"+img+"/"+img;
 			if( !new File(path+"0.png").isFile() ) {
 				if( !new File(path+".png").isFile() ) {
 					return "Unbekannte Grafik >"+img+"<";
@@ -702,7 +717,7 @@ public class AdminCommands {
 		return output;
 	}
 	
-	private static String cmdExecTask(Context context, String[] command) {
+	private String cmdExecTask(Context context, String[] command) {
 		String output = "";
 		
 		String taskid = command[1];

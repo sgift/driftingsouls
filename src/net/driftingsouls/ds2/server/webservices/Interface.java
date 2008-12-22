@@ -104,7 +104,7 @@ public class Interface extends BasicWebService {
 	public String admin_execcmd( String command ) throws WebServiceException {
 		requireAuthentication();
 		
-		return AdminCommands.executeCommand(command);
+		return new AdminCommands().executeCommand(command);
 	}
 
 	/**
