@@ -51,8 +51,6 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Configurable
 public class BaseController extends TemplateGenerator {
-	private static final int NAHRUNG_CHECKOUT_FACTOR = Configuration.getIntSetting("NAHRUNG_CHECKOUT_FACTOR");
-	
 	private Base base;
 	
 	private Configuration config;
@@ -107,7 +105,9 @@ public class BaseController extends TemplateGenerator {
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void transferNahrungAction() {		
+	public void transferNahrungAction() {
+		final int NAHRUNG_CHECKOUT_FACTOR = config.getInt("NAHRUNG_CHECKOUT_FACTOR");
+		
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 

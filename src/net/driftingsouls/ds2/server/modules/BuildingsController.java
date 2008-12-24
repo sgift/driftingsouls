@@ -51,6 +51,10 @@ public class BuildingsController extends TemplateGenerator {
 	
 	private Configuration config;
 	
+	/**
+	 * Injiziert die DS-Konfiguration
+	 * @param config Die DS-Konfiguration
+	 */
 	@Autowired
 	@Required
 	public void setConfig(Configuration config)

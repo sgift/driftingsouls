@@ -1065,7 +1065,6 @@ public class FleetMgntController extends TemplateGenerator {
 	 * @urlparam crewinpercent Anzahl der Crew in Prozent (der Maxcrew des Zielschiffes)
 	 */
 	@Action(ActionType.DEFAULT)
-	@SuppressWarnings("unchecked")
 	public void getCrewAction() {
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
@@ -1075,14 +1074,15 @@ public class FleetMgntController extends TemplateGenerator {
 		crewInPercent = Math.min(crewInPercent, 100.0);
 		crewInPercent = Math.max(crewInPercent, 0.0);
 		
-		List<Ship> ships = (List<Ship>)db.createQuery("from Ship where id>0 and owner=? and fleet=? order by id")
-										 .setEntity(0, user)
-										 .setEntity(1, this.fleet)
-										 .list();
+		List<Ship> ships = Common.cast(db.createQuery("from Ship " +
+				"where id>0 and owner=? and fleet=? order by id")
+			.setEntity(0, user)
+			.setEntity(1, this.fleet)
+			.list());
 		
-		List<Base> bases = (List<Base>)db.createQuery("from Base where owner=:owner")
-										 .setParameter("owner", user)
-										 .list();
+		List<Base> bases = Common.cast(db.createQuery("from Base where owner=:owner")
+			.setParameter("owner", user)
+			.list());
 		
 		for(Ship ship: ships) {
 			int amount = (int)(Math.round((ship.getTypeData().getCrew()*crewInPercent)) - ship.getCrew());
