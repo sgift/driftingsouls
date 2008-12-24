@@ -86,7 +86,7 @@ public class NPCScriptTick extends TickController {
 		org.hibernate.Session db = getContext().getDB();
 		this.log("Fuehre automatische NPC-Aktionen durch");
 		
-		List<User> users = getContext().query("from User where locate('execnotes',flags)!=0", User.class);
+		List<User> users = Common.cast(db.createQuery("from User where locate('execnotes',flags)!=0").list());
 		for( User user : users ) {
 			Writer logger = new NullLogger();
 			if( user.hasFlag( User.FLAG_SCRIPT_DEBUGGING ) ) {

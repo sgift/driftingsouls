@@ -27,6 +27,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
@@ -93,7 +94,8 @@ public class Smilie {
 				smiliesSearch = new ArrayList<Pattern>();
 				smiliesReplace = new ArrayList<String>();
 			
-				List<Smilie> smilies = ContextMap.getContext().query("from Smilie", Smilie.class);
+				org.hibernate.Session db = ContextMap.getContext().getDB();
+				List<Smilie> smilies = Common.cast(db.createQuery("from Smilie").list());
 				for( Smilie smilie : smilies ) {
 					smiliesSearch.add(Pattern.compile("(?<=.\\W|\\W.|^\\W)"+Pattern.quote(smilie.getTag())+"(?=.\\W|\\W.|\\W$)"));
 					smiliesReplace.add("<img style=\"border:0px\" src=\""+Configuration.getSetting("SMILIE_PATH")+"/"+smilie.getImage()+"\" alt=\""+smilie.getTag()+"\" title=\""+smilie.getTag()+"\" />");

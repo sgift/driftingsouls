@@ -158,7 +158,7 @@ public class PlayerList {
 			relationlist = user.getRelations();
 		}
 		
-		List<User> userlist = context.query(query, User.class);
+		List<User> userlist = Common.cast(db.createQuery(query).list());
 		for( User aUser : userlist ) {
 			String race = "???";
 			if( Rassen.get().rasse(aUser.getRace()) != null ) {

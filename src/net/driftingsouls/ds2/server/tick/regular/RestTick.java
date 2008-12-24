@@ -151,7 +151,7 @@ public class RestTick extends TickController {
 			db.createQuery("update User set vaccount=vaccount-1 where vaccount>0 and wait4vac=0")
 				.executeUpdate();
 
-			List<User> users = getContext().query("from User where wait4vac=1", User.class);
+			List<User> users = Common.cast(db.createQuery("from User where wait4vac=1").list());
 			for( User user : users ) {
 				User newcommander = null;
 				if( user.getAlly() != null ) {

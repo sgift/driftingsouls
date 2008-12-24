@@ -976,9 +976,10 @@ public class ErsteigernController extends TemplateGenerator
 		// ueberweisungen
 		t.setBlock("_ERSTEIGERN", "ueberweisen.listitem", "ueberweisen.list");
 
-		List<User> users = getContext().query(
-				"from User where locate('hide',flags)=0 and id!=" + user.getId() + " order by id",
-				User.class);
+		List<User> users = Common.cast(db.createQuery("from User " +
+				"where locate('hide',flags)=0 and id!=:userid order by id")
+			.setInteger("userid", user.getId())
+			.list());
 		for( User usr : users )
 		{
 			t.setVar("target.id", usr.getId(), "target.name", Common._title(usr.getName()));
