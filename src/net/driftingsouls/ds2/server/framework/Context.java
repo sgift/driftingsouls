@@ -42,6 +42,7 @@ public interface Context {
 	 * @return Eine Database-Instanz
 	 * @deprecated use getDB() (Hibernate)
 	 */
+	@Deprecated
 	public Database getDatabase();
 	
 	/**
