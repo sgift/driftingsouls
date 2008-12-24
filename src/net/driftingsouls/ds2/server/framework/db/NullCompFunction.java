@@ -38,18 +38,23 @@ import org.hibernate.type.Type;
 public class NullCompFunction implements SQLFunction {
 	private static String NULL_VALUE = NullCompFunction.class.getName()+"#render()#null-value";
 	
+	@Override
 	public Type getReturnType(Type columnType, Mapping mapping) throws QueryException {
 		return Hibernate.BOOLEAN;
 	}
 
+	@Override
 	public boolean hasArguments() {
 		return true;
 	}
 
+	@Override
 	public boolean hasParenthesesIfNoArguments() {
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
 	public String render(List args, SessionFactoryImplementor factory) throws QueryException {
 		final String param = (String)args.get(0);
 		final String value = (String)args.get(1);

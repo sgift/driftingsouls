@@ -34,7 +34,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.driftingsouls.ds2.server.framework.BasicContext;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.pipeline.configuration.PipelineConfig;
 
 import org.apache.commons.logging.Log;

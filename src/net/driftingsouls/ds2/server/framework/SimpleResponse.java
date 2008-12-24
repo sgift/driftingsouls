@@ -34,17 +34,14 @@ import net.driftingsouls.ds2.server.framework.utils.StringBufferWriter;
 public class SimpleResponse implements Response
 {
 	private StringBuffer buffer = new StringBuffer();
-	private String charset = "UTF-8";
-	private String contentType = "text";
 
+	/**
+	 * Gibt den Inhalt des Ausgabepuffers zurueck
+	 * @return Der Inhalt des Ausgabepuffers
+	 */
 	public StringBuffer getContent()
 	{
 		return buffer;
-	}
-
-	public String getContentType()
-	{
-		return contentType;
 	}
 
 	public OutputStream getOutputStream() throws IOException
@@ -52,16 +49,15 @@ public class SimpleResponse implements Response
 		throw new IOException("Kein Stream unterstuetzt");
 	}
 
-	public void resetContent()
-	{
-		buffer = new StringBuffer();
-	}
-
 	public void send() throws IOException
 	{
-		new IOException("Send not possible");
+		throw new IOException("Send not possible");
 	}
 
+	/**
+	 * Setzt den Inhalt des Ausgabepuffers
+	 * @param content Der Inhalt
+	 */
 	public void setContent(String content)
 	{
 		buffer = new StringBuffer(content);
@@ -74,7 +70,7 @@ public class SimpleResponse implements Response
 
 	public void setContentType(String contentType)
 	{
-		this.contentType = contentType;
+		// EMPTY
 	}
 
 	public void setHeader(String name, String value)
@@ -107,8 +103,7 @@ public class SimpleResponse implements Response
 	@Override
 	public void setContentType(String contentType, String charSet)
 	{
-		this.contentType = contentType;
-		this.charset = charSet;
+		// EMPTY
 	}
 
 	@Override

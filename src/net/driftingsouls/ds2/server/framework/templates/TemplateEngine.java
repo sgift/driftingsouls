@@ -130,7 +130,15 @@ public class TemplateEngine {
 					templateMap.put(overlay+'.'+filename, t);
 					gotTemplate = true;
 				}
-				catch( Exception e ) {
+				catch( ClassNotFoundException e ) {
+					// EMPTY
+				}
+				catch( InstantiationException e )
+				{
+					// EMPTY
+				}
+				catch( IllegalAccessException e )
+				{
 					// EMPTY
 				}
 			}
@@ -345,9 +353,6 @@ public class TemplateEngine {
 	public boolean isVarTrue( String varname ) {
 		Object val = getVarObject(varname);
 		if( val != null ) {
-			if( val == null ) {
-				return false;
-			}
 			if( val instanceof Number ) {
 				if( ((Number)val).doubleValue() != 0 ) {
 					return true;

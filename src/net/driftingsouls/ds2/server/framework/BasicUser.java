@@ -458,7 +458,13 @@ public abstract class BasicUser {
 		return this.disabled != 0;
 	}
 	
-	public void setId(int id)
+	/**
+	 * Setzt die ID des Benutzers. Diese Methode funktioniert
+	 * nur so lange, wie das Objekt nicht durch Hibernate persistiert wurde.
+	 * Danach koennen beliebige seiteneffekte auftreten.
+	 * @param id Die neue ID
+	 */
+	protected void setId(int id)
 	{
 		this.id = id;
 	}
