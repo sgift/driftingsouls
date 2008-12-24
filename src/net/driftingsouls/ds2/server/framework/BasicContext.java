@@ -143,13 +143,6 @@ public class BasicContext implements Context
 		return session;
 	}
 
-	@Deprecated
-	@SuppressWarnings("unchecked")
-	public <T> List<T> query(String query, Class<T> classType)
-	{
-		return this.getDB().createQuery(query).list();
-	}
-
 	public BasicUser getActiveUser()
 	{
 		return activeUser;

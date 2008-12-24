@@ -67,17 +67,6 @@ public interface Context {
 	public void commit();
 	
 	/**
-	 * Fuehrt eine Query mittels DB-Session aus und gibt das Ergebnis als Liste zurueck
-	 * @param <T> Der Typ der einzelnen Ergebnisse
-	 * @param query Die Query
-	 * @param classType Die Klasse des Rueckgabetyps
-	 * @return Eine Liste mit dem Ergebnis
-	 * @deprecated Bitte Hibernate direkt aufrufen
-	 */
-	@Deprecated
-	public <T> List<T> query(String query, Class<T> classType);
-
-	/**
 	 * Liefert den gerade aktiven User
 	 * 
 	 * @return Das zum gerade aktiven User gehoerende User-Objekt
