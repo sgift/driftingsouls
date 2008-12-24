@@ -20,18 +20,17 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.AdminController;
-import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
-import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
+import net.driftingsouls.ds2.server.ships.ShipType;
 
 /**
  * Ermoeglicht das Einfuegen von neuen Versteigerungen in die GTU 
@@ -51,7 +50,7 @@ public class AddGtu implements AdminPlugin {
 		int preis = context.getRequest().getParameterInt("preis");
 		int menge = context.getRequest().getParameterInt("menge");
 		
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		
 		if( (ship == 0) && ((resource.length() == 0) || resource.equals("-1") ) ) {
 			echo.append("Schiffe:\n");
@@ -59,11 +58,10 @@ public class AddGtu implements AdminPlugin {
 			echo.append("<table class=\"noBorder\" width=\"300\">\n");
 			echo.append("<tr><td class=\"noBorderS\" width=\"60\">Schifftyp:</td><td class=\"noBorderS\">");
 			echo.append("<select name=\"ship\" size=\"1\">\n");
-			SQLQuery st = db.query("SELECT nickname,id FROM ship_types");
-			while( st.next() ) {
-				echo.append("<option value=\""+st.getInt("id")+"\">"+st.getString("nickname")+" ("+st.getInt("id")+")</option>\n");
+			List<ShipType> shipTypes = Common.cast(db.createQuery("from ShipType").list());
+			for( ShipType shipType : shipTypes ) {
+				echo.append("<option value=\""+shipType.getId()+"\">"+shipType.getNickname()+" ("+shipType.getId()+")</option>\n");
 			}
-			st.free();
 			echo.append("</select>\n");
 			echo.append("</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Dauer:</td><td class=\"noBorderS\"><input type=\"text\" name=\"dauer\" size=\"10\" value=\"30\" /></td></tr>\n");

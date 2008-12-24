@@ -24,17 +24,17 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,9 +47,9 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Configurable
 @AdminMenuEntry(category="Objekte", name="Karte")
-public class BasesMap implements AdminPlugin {
-	
-	public Configuration config;
+public class BasesMap implements AdminPlugin 
+{
+	private Configuration config;
 	
     /**
      * Injiziert die DS-Konfiguration
@@ -61,7 +61,8 @@ public class BasesMap implements AdminPlugin {
     	this.config = config;
     }
 
-	public void output(AdminController controller, String page, int action) throws IOException {
+	public void output(AdminController controller, String page, int action) throws IOException 
+	{
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		
@@ -69,11 +70,12 @@ public class BasesMap implements AdminPlugin {
 		int sysid = context.getRequest().getParameterInt("system");
 		int otherastis = context.getRequest().getParameterInt("otherastis");
 		int scale = context.getRequest().getParameterInt("scale");
-		if( scale == 0 ) {
+		if( scale == 0 ) 
+		{
 			scale = 2;
 		}
 		
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		
 		echo.append("Karte:\n");
 		echo.append("<form action=\"./ds\" method=\"post\">");
@@ -91,9 +93,11 @@ public class BasesMap implements AdminPlugin {
 		echo.append("</form>\n");
 		echo.append("<br />\n");
 		
-		if( sysid != 0 ) {
+		if( sysid != 0 ) 
+		{
 			StarSystem system = Systems.get().system(sysid);
-			if( system == null ) {
+			if( system == null )
+			{
 				return;
 			}
 			
@@ -113,54 +117,69 @@ public class BasesMap implements AdminPlugin {
 			
 			g.setColor(green);
 			
-			SQLQuery base = db.query("SELECT x,y FROM bases WHERE owner="+user+" AND system="+system.getID());
-			while( base.next() ) {
-				g.fillRect(base.getInt("x")*scale, base.getInt("y")*scale, scale, scale);
+			List<Object[]> bases = Common.cast(db.createQuery("select x,y from Base where owner= :user and system= :system")
+				.setInteger("user", user)
+				.setInteger("system", system.getID())
+				.list());
+			for( Object[] base : bases ) 
+			{
+				g.fillRect((Integer)base[0]*scale, (Integer)base[1]*scale, scale, scale);
 			}
-			base.free();
 			
-			if( otherastis != 0 ) {
+			if( otherastis != 0 ) 
+			{
 				g.setColor(grey);
-				base = db.query("SELECT x,y FROM bases WHERE owner!="+user+" AND system="+system.getID());
-				while( base.next() ) {
-					g.fillRect(base.getInt("x")*scale, base.getInt("y")*scale, scale, scale);
+				bases = Common.cast(db.createQuery("select x,y from Base where owner!= :user and system= :system")
+					.setInteger("user", user)
+					.setInteger("system", system.getID())
+					.list());
+				for( Object[] base : bases ) 
+				{
+					g.fillRect((Integer)base[0]*scale, (Integer)base[1]*scale, scale, scale);
 				}
-				base.free();
 			}
 			
 			g.setColor(red);
-			SQLQuery nebel = db.query("SELECT x,y FROM nebel WHERE system="+system.getID());
-			while( nebel.next() ) {
-				g.fillRect(nebel.getInt("x")*scale, nebel.getInt("y")*scale, scale, scale);
+			List<Object[]> nebel = Common.cast(db.createQuery("select loc.x,loc.y from Nebel where system= :system")
+				.setInteger("system", system.getID())
+				.list());
+			for( Object[] aNebel : nebel ) 
+			{
+				g.fillRect((Integer)aNebel[0]*scale, (Integer)aNebel[1]*scale, scale, scale);
 			}
-			nebel.free();
-			
+
 			g.setColor(yellow);
-			SQLQuery jn = db.query("SELECT x,y FROM jumpnodes WHERE system="+system.getID());
-			while( jn.next() ) {
-				g.fillRect(jn.getInt("x")*scale, jn.getInt("y")*scale, scale, scale);
+			List<Object[]> jns = Common.cast(db.createQuery("select x,y from JumpNode where system= :system")
+				.setInteger("system", system.getID())
+				.list());
+			for( Object[] jn : jns ) 
+			{
+				g.fillRect((Integer)jn[0]*scale, (Integer)jn[1]*scale, scale, scale);
 			}
-			jn.free();
 			
 			g.setColor(blue);
 			Location[] locs = system.getOrderLocations();
-			for( int i=0; i < locs.length; i++ ) {
+			for( int i=0; i < locs.length; i++ ) 
+			{
 				g.fillRect(locs[i].getX()*scale, locs[i].getY()*scale, scale, scale);
 			}
 			g.dispose();
 			
-			try {
+			try 
+			{
 				File pngdir = new File(config.get("ABSOLUTE_PATH")+
 						"downloads/"+context.getActiveUser().getId()+"/");
 				
-				if( !pngdir.isDirectory() ) {
+				if( !pngdir.isDirectory() ) 
+				{
 					pngdir.mkdirs();
 				}
 				
 				ImageIO.write(image, "png", new File(config.get("ABSOLUTE_PATH")+
 						"downloads/"+context.getActiveUser().getId()+"/admin.bases.map.png"));
 			}
-			catch( IOException e ) {
+			catch( IOException e ) 
+			{
 				echo.append("Konnte png nicht schreiben: "+e);
 			}
 		}

@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -27,11 +28,10 @@ import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.entities.StatVerkaeufe;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
@@ -40,25 +40,27 @@ import net.driftingsouls.ds2.server.modules.AdminController;
  *
  */
 @AdminMenuEntry(category="GTU", name="Verkaufsdaten")
-public class GtuVerkaeufe implements AdminPlugin {
+public class GtuVerkaeufe implements AdminPlugin
+{
 
-	public void output(AdminController controller, String page, int action) throws IOException {
+	public void output(AdminController controller, String page, int action) throws IOException 
+	{
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		
 		int system = context.getRequest().getParameterInt("system");
 		String type = context.getRequest().getParameterString("type");
 		
-		Database db = context.getDatabase();
-		
-		if( (system == 0) || (type.length() == 0)  ) {
+		if( (system == 0) || (type.length() == 0)  ) 
+		{
 			echo.append(Common.tableBegin(400,"center"));
 			echo.append("<form action=\"./ds\" method=\"post\">");
 			echo.append("<table class=\"noBorderX\" width=\"100%\">\n");
 			echo.append("<tr><td class=\"noBorderX\" style=\"width:60px\">System:</td><td class=\"noBorderX\">");
 			echo.append("<select name=\"system\" size=\"1\">\n");
 			
-			for( StarSystem sys : Systems.get() ) {
+			for( StarSystem sys : Systems.get() ) 
+			{
 				echo.append("<option value=\""+sys.getID()+"\">"+sys.getName()+" ("+sys.getID()+")</option>\n");
 			}
 			
@@ -79,25 +81,33 @@ public class GtuVerkaeufe implements AdminPlugin {
 			echo.append("</form>\n");
 			echo.append(Common.tableEnd());
 		}
-		else {
-			int entries = 0;
+		else 
+		{
+			int entryCount = 0;
 			Cargo totalcargo = new Cargo();
 			Cargo cargo = new Cargo();
 			final int tick = context.get(ContextCommon.class).getTick();
 			
-			SQLQuery entry = db.query("SELECT * FROM stats_verkaeufe WHERE system="+system+" AND place='"+type+"'");
-			while( entry.next() ) {
-				Cargo ecargo = new Cargo( Cargo.Type.STRING, entry.getString("stats") );
+			org.hibernate.Session db = context.getDB();
+			
+			List<StatVerkaeufe> entries = Common.cast(db.createQuery("from StatVerkaeufe " +
+					"where system= :system and place= :type")
+				.setInteger("system", system)
+				.setString("type", type)
+				.list());
+			for( StatVerkaeufe entry : entries )
+			{
+				Cargo ecargo = entry.getStats();
 				
 				totalcargo.addCargo(ecargo);
-				entries++;
+				entryCount++;
 				
-				if( (entry.getInt("tick") != tick) && (entry.getInt("tick") >= tick-7) ) {
+				if( (entry.getTick() != tick) && (entry.getTick() >= tick-7) ) 
+				{
 					cargo.addCargo(ecargo);
 				}
 			}
-			entry.free();
-			
+
 			echo.append(Common.tableBegin(300,"center"));
 			echo.append("System: "+system+" - Type: "+type+"<br /><br />");
 			echo.append("<table class=\"noBorderX\" width=\"100%\">\n");
@@ -107,10 +117,11 @@ public class GtuVerkaeufe implements AdminPlugin {
 			echo.append("</tr>\n");
 			
 			ResourceList reslist = totalcargo.getResourceList();
-			for( ResourceEntry res : reslist ) {
+			for( ResourceEntry res : reslist ) 
+			{
 				echo.append("<tr>\n");
 				echo.append("<td class=\"noBorderX\">\n");
-				echo.append("<img src=\""+res.getImage()+"\" alt=\"\" title=\""+res.getPlainName()+"\" />~"+Common.ln(Math.round(res.getCount1()/(double)entries))+"&nbsp;&nbsp;\n");
+				echo.append("<img src=\""+res.getImage()+"\" alt=\"\" title=\""+res.getPlainName()+"\" />~"+Common.ln(Math.round(res.getCount1()/(double)entryCount))+"&nbsp;&nbsp;\n");
 				echo.append("</td>\n");
 				echo.append("<td class=\"noBorderX\">");
 				echo.append(Common.ln(Math.round(cargo.getResourceCount(res.getId())/7d)));

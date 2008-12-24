@@ -20,17 +20,15 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
 
 import net.driftingsouls.ds2.server.AdminCommands;
-import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.AdminController;
-import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
-import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 
 /**
  * Ermoeglicht das Beenden von Schlachten
@@ -38,49 +36,54 @@ import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
  *
  */
 @AdminMenuEntry(category="Sonstiges", name="Schlacht beenden")
-public class BattleEnd implements AdminPlugin {
+public class BattleEnd implements AdminPlugin 
+{
 
-	public void output(AdminController controller, String page, int action) throws IOException {
+	public void output(AdminController controller, String page, int action) throws IOException 
+	{
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		
 		int battleid = context.getRequest().getParameterInt("battleid");
 				
-		if( battleid == 0 ) {
+		if( battleid == 0 ) 
+		{
 			echo.append(Common.tableBegin(500, "center"));
 			
-			Database db = context.getDatabase();
+			org.hibernate.Session db = context.getDB();
 			
 			echo.append("<table class=\"noBorderX\" width=\"100%\">\n");
-			SQLQuery abattle = db.query("SELECT * FROM battles");
-			while( abattle.next() ) {
+			List<Battle> battles = Common.cast(db.createQuery("from Battle").list());
+			for( Battle battle : battles )
+			{
 				echo.append("<tr>\n");
-				echo.append("<td class=\"noBorderX\">ID "+abattle.getInt("id")+"&nbsp;&nbsp;</td>\n");
-				echo.append("<td class=\"noBorderX\">"+abattle.getInt("system")+":"+abattle.getInt("x")+"/"+abattle.getInt("y")+"</td>\n");
+				echo.append("<td class=\"noBorderX\">ID "+battle.getId()+"&nbsp;&nbsp;</td>\n");
+				echo.append("<td class=\"noBorderX\">"+battle.getSystem()+":"+battle.getX()+"/"+battle.getY()+"</td>\n");
 				
 				String commander1 = null;
 				String commander2 = null;
 				
-				if( abattle.getInt("ally1") != 0 ) {
-					commander1 = Common._title(db.first("SELECT name FROM ally " +
-							"WHERE id="+abattle.getInt("ally1")).getString("name"));
+				if( battle.getAlly(0) != 0 ) 
+				{
+					Ally ally = (Ally)db.get(Ally.class, battle.getAlly(0));
+					commander1 = Common._title(ally.getName());
 				}
-				else {
-					final User commander1Obj = (User)context.getDB().get(User.class, abattle.getInt("commander1"));
-					commander1 = Common._title(commander1Obj.getName());
+				else 
+				{
+					commander1 = Common._title(battle.getCommander(0).getName());
 				}
-				if( abattle.getInt("ally2") != 0 ) {
-					commander2 = Common._title(db.first("SELECT name FROM ally " +
-							"WHERE id="+abattle.getInt("ally2")).getString("name"));
+				if( battle.getAlly(1) != 0 ) 
+				{
+					Ally ally = (Ally)db.get(Ally.class, battle.getAlly(1));
+					commander2 = Common._title(ally.getName());
 				}
-				else {
-					final User commander2Obj = (User)context.getDB().get(User.class, abattle.getInt("commander2"));
-					commander2 = Common._title(commander2Obj.getName());
+				else 
+				{
+					commander2 = Common._title(battle.getCommander(1).getName());
 				} 
 				echo.append("<td class=\"noBorderX\" style=\"text-align:center\">"+commander1+"<br />vs<br />"+commander2+"</td>\n");
 				echo.append("</tr>\n");
 			}
-			abattle.free();
 			echo.append("</table>\n");
 			echo.append("<hr style=\"height:1px; border:0px; background-color:#606060; color:#606060\" />\n");
 			echo.append("<form action=\"./ds\" method=\"post\">");
@@ -93,7 +96,8 @@ public class BattleEnd implements AdminPlugin {
 			
 			echo.append(Common.tableEnd());
 		}
-		else {
+		else 
+		{
 			new AdminCommands().executeCommand("battle end "+battleid);
 					
 			echo.append("Schlacht beendet<br />");
