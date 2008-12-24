@@ -1152,11 +1152,19 @@ public class User extends BasicUser {
 		this.history = history;
 	}
 
+	/**
+	 * Gibt die Anzahl der Vacationpunkte zurueck
+	 * @return Die Anzahl
+	 */
 	public int getVacpoints()
 	{
 		return vacpoints;
 	}
 
+	/**
+	 * Setzt die Anzahl der Vacationpunkte
+	 * @param vacpoints Die Anzahl
+	 */
 	public void setVacpoints(int vacpoints)
 	{
 		this.vacpoints = vacpoints;
@@ -1200,6 +1208,10 @@ public class User extends BasicUser {
 		setWait4VacationCount(getVacationPrerun(ticks));
 	}
 	
+	/**
+	 * Gibt zurueck, ob sich der User im Vacationmodus befindet.
+	 * @return <code>true</code>, falls er sich im Vacationmodus befindet.
+	 */
 	public boolean isInVacation()
 	{
 		return (getVacationCount() > 0) && (getWait4VacationCount() == 0);
