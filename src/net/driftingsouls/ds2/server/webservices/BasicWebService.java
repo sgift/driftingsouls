@@ -42,7 +42,9 @@ public abstract class BasicWebService {
 	/**
 	 * Gibt eine Instanz der Datenbankverbindung zurueck
 	 * @return Eine Datenbankverbindung
+	 * @deprecated Bitte Hibernate verwenden
 	 */
+	@Deprecated 
 	public Database getDatabase() {
 		return context.getDatabase();
 	}

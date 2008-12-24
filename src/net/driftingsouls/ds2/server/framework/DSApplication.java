@@ -85,7 +85,9 @@ public abstract class DSApplication {
 	/**
 	 * Gibt eine Datenbankinstanz des Kontexts zurueck
 	 * @return eine Datenbankinstanz
+	 * @deprecated Bitte Hibernate verwenden
 	 */
+	@Deprecated
 	public Database getDatabase() {
 		return this.context.getDatabase();
 	}

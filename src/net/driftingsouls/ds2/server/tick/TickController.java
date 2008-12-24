@@ -267,7 +267,9 @@ public abstract class TickController {
 	/**
 	 * Gibt eine Datenbankinstanz des Kontexts zurueck
 	 * @return eine Datenbankinstanz
+	 * @deprecated Bitte Hibernate verwenden
 	 */
+	@Deprecated
 	public Database getDatabase() {
 		return context.getDatabase();
 	}

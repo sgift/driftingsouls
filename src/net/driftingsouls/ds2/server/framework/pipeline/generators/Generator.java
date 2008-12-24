@@ -71,6 +71,7 @@ public abstract class Generator {
 	 * @return Eine Database-Instanz
 	 * @deprecated use getDB() (Hibernate)
 	 */
+	@Deprecated
 	public final Database getDatabase() {
 		return context.getDatabase();
 	}
