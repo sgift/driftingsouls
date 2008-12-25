@@ -343,11 +343,7 @@ public class WerftQueueEntry {
 		String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
 		String history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+")\n";
 		
-		Ship ship = new Ship(auser);
-		ship.setBaseType((ShipType)db.get(ShipType.class, shipd.getTypeId()));
-		ship.setSystem(system);
-		ship.setX(x);
-		ship.setY(y);
+		Ship ship = new Ship(auser, (ShipType)db.get(ShipType.class, shipd.getTypeId()), system, x, y);
 		ship.setCrew(shipd.getCrew());
 		ship.setHull(shipd.getHull());
 		ship.setCargo(cargo);
@@ -434,7 +430,7 @@ public class WerftQueueEntry {
 		}
 		
 		db.delete(this);
-		final Iterator entryIter = db.createQuery("from WerftQueueEntry where werft=? and position>? order by position")
+		final Iterator<?> entryIter = db.createQuery("from WerftQueueEntry where werft=? and position>? order by position")
 			.setEntity(0, this.werft)
 			.setInteger(1, this.position)
 			.iterate();

@@ -20,7 +20,6 @@ package net.driftingsouls.ds2.server.werften;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +32,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
@@ -43,14 +43,11 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 @Entity
 @DiscriminatorValue("komplex")
 public class WerftKomplex extends WerftObject {
-	@SuppressWarnings("unused")
-	private boolean komplex;
-	
 	/**
 	 * Konstruktor
 	 */
 	public WerftKomplex() {
-		this.komplex = true;
+		// EMPTY
 	}
 	
 	@Transient
@@ -107,15 +104,14 @@ public class WerftKomplex extends WerftObject {
 		if( werften == null ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
-			List werftList = db.createQuery("from WerftObject where linkedWerft=? order by id")
+			List<WerftObject> werftList = Common.cast(db.createQuery("from WerftObject where linkedWerft=? order by id")
 				.setEntity(0, this)
-				.list();
+				.list());
 			
 			List<WerftObject> werften = new ArrayList<WerftObject>(werftList.size());
 
-			for( Iterator iter=werftList.iterator(); iter.hasNext(); ) {
-				WerftObject aWerft = (WerftObject)iter.next();
-				
+			for( WerftObject aWerft : werftList )
+			{
 				// Sicherheitshalber eine weitere Pruefung, da ggf eine Werft gerade dabei
 				// ist den Komplex zu verlassen (aber die Daten noch nicht geschrieben sind)
 				if( aWerft.getKomplex().getWerftID() == this.getWerftID() ) {
