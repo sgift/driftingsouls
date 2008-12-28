@@ -26,6 +26,9 @@ import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.VersteigerungResource;
+import net.driftingsouls.ds2.server.entities.VersteigerungSchiff;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -104,8 +107,12 @@ public class AddGtu implements AdminPlugin {
 		else if( ship != 0 ) {
 			int tick = context.get(ContextCommon.class).getTick();
 
-			db.update("INSERT INTO versteigerungen (mtype,type,tick,preis) " +
-					"VALUES ('1','"+ship+"',"+(tick+dauer)+",'"+preis+"')");
+			User gtu = (User)db.get(User.class, -2);
+			ShipType type = (ShipType)db.get(ShipType.class, ship);
+			
+			VersteigerungSchiff verst = new VersteigerungSchiff(gtu, type, preis);
+			verst.setTick(tick+dauer);
+			db.persist(verst);
 
 			echo.append("Schiff eingef&uuml;gt<br />");
 		}
@@ -115,8 +122,11 @@ public class AddGtu implements AdminPlugin {
 			Cargo cargo = new Cargo();
 			cargo.addResource( Resources.fromString(resource), menge );
 
-			db.update("INSERT INTO versteigerungen (mtype,type,tick,preis) " +
-					"VALUES ('2','"+cargo.save()+"','"+(tick+dauer)+"','"+preis+"')");
+			User gtu = (User)db.get(User.class, -2);
+			
+			VersteigerungResource verst = new VersteigerungResource(gtu, cargo, preis);
+			verst.setTick(tick+dauer);
+			db.persist(verst);
 
 			echo.append("Resource eingef&uuml;gt<br />");
 		}	
