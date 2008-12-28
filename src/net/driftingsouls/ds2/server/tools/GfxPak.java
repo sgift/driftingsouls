@@ -22,12 +22,12 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.DSApplication;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
+import net.driftingsouls.ds2.server.ships.ShipType;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -140,11 +140,12 @@ public class GfxPak extends DSApplication {
 
 		// Schiffsbilder kopieren
 		log("Kopiere Schiffsbilder");
-		Database db = getDatabase();
-		SQLQuery type = db.query("SELECT * FROM ship_types WHERE hide=0");
-		while( type.next() ) {
-			String dirname = dirname(type.getString("picture"));
-			String filename = type.getString("picture").substring(dirname.length()+1);
+		org.hibernate.Session db = getDB();
+		List<ShipType> types = Common.cast(db.createQuery("from ShipType where hide=0").list());
+		for( ShipType type : types )
+		{
+			String dirname = dirname(type.getPicture());
+			String filename = type.getPicture().substring(dirname.length()+1);
 			new File(rnd+"/"+dirname).mkdirs();
 			
 			String name = filename.substring(0, filename.length() - "png".length()-1);
@@ -154,7 +155,6 @@ public class GfxPak extends DSApplication {
 				FileUtils.copyFile(files[i], new File(rnd+"/"+dirname+"/"+FilenameUtils.getName(files[i].getName())));
 			}
 		}
-		type.free();
 
 		// GFXPak-Version speichern (erst jetzt, um eine ggf mitkopierte Version der Datei zu ueberschreiben)
 		log("Versionierung...");

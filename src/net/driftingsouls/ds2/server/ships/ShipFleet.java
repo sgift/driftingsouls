@@ -379,6 +379,10 @@ public class ShipFleet {
 		return true;
 	}
 	
+	/**
+	 * Fuegt das angegebene Schiff zur Flotte hinzu
+	 * @param ship Das Schiff das hinzugefuegt werden soll
+	 */
 	public void addShip(Ship ship)
 	{
 		ship.setFleet(this);

@@ -352,12 +352,8 @@ public class CreateObjects implements AdminPlugin {
 					cargo = new Cargo(cargoNode);
 				}
 				
-				Ship shipObj = new Ship(ownerObj);
+				Ship shipObj = new Ship(ownerObj, type, system, source.getX(), source.getY());
 				shipObj.setName(name);
-				shipObj.setX(source.getX());
-				shipObj.setY(source.getY());
-				shipObj.setSystem(system);
-				shipObj.setBaseType(type);
 				shipObj.setCargo(cargo);
 				if( tradepost ) {
 					shipObj.setStatus((shipObj.getStatus()+" tradepost").trim());

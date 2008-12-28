@@ -305,12 +305,8 @@ public class AddShips implements AdminPlugin {
 				User auser = (User)context.getDB().get(User.class, ownerId);	
 				String history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+") [hide]Admin: "+user.getId()+"[/hide]\n";
 				
-				Ship ship = new Ship(auser);
+				Ship ship = new Ship(auser, shiptype, system, x, y);
 				ship.setName(name);
-				ship.setBaseType(shiptype);
-				ship.setX(x);
-				ship.setY(y);
-				ship.setSystem(system);
 				ship.setHull(shiptype.getHull());
 				ship.setEnergy(shiptype.getEps());
 				ship.setCrew(shiptype.getCrew());
@@ -397,12 +393,8 @@ public class AddShips implements AdminPlugin {
 					for( int j=1; j <= shiptype.getJDocks(); j++ ) {
 						history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+") [hide]Admin: "+user.getId()+"[/hide]\n";
 						
-						Ship jaeger = new Ship(auser);
+						Ship jaeger = new Ship(auser, jshiptype, system, x, y);
 						jaeger.setName(name+" "+j);
-						jaeger.setBaseType(jshiptype);
-						jaeger.setX(x);
-						jaeger.setY(y);
-						jaeger.setSystem(system);
 						jaeger.setHull(jshiptype.getHull());
 						jaeger.setEnergy(jshiptype.getEps());
 						jaeger.setCrew(jshiptype.getCrew());

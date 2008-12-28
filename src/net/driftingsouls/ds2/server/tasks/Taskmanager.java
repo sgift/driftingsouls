@@ -18,10 +18,9 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
 import org.hibernate.Query;
@@ -220,16 +219,12 @@ public class Taskmanager {
 	 */
 	public Task[] getTasksByTimeout( int timeout ) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<Task> resultlist = new ArrayList<Task>();
-		
-		List tasks = db.createQuery("from Task where timeout=? order by time asc")
+
+		List<Task> tasks = Common.cast(db.createQuery("from Task where timeout=? order by time asc")
 			.setInteger(0, timeout)
-			.list();
-		for( Iterator iter=tasks.iterator(); iter.hasNext(); ) {
-			resultlist.add((Task)iter.next());
-		}
-		
-		return resultlist.toArray(new Task[resultlist.size()]);
+			.list());
+				
+		return tasks.toArray(new Task[tasks.size()]);
 	}
 	
 	/**
@@ -243,8 +238,7 @@ public class Taskmanager {
 	 */
 	public Task[] getTasksByData( Types type, String data1, String data2, String data3 ) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<Task> resultlist = new ArrayList<Task>();
-		
+
 		String query = "from Task where type=?";
 		if( !data1.equals("*") ) {
 			query += " and data1=?";	
@@ -269,12 +263,9 @@ public class Taskmanager {
 			q.setString(index++, data3);
 		}
 		
-		List tasks = q.list();
-		for( Iterator iter=tasks.iterator(); iter.hasNext(); ) {
-			resultlist.add((Task)iter.next());
-		}
+		List<Task> tasks = Common.cast(q.list());
 		
-		return resultlist.toArray(new Task[resultlist.size()]);
+		return tasks.toArray(new Task[tasks.size()]);
 	}
 	
 	/**

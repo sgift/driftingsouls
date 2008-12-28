@@ -132,12 +132,8 @@ public class RTCTick extends TickController {
 					cargo.addResource(Resources.NAHRUNG, shiptype.getCrew()*5);
 					cargo = cargo.cutCargo(shiptype.getCargo());
 					
-					Ship ship = new Ship(winner);
+					Ship ship = new Ship(winner, shiptype, loc.getSystem(), loc.getX(), loc.getY());
 					ship.setName("Verkauft");
-					ship.setBaseType(shiptype);
-					ship.setSystem(loc.getSystem());
-					ship.setY(loc.getY());
-					ship.setX(loc.getX());
 					ship.setCrew(shiptype.getCrew());
 					ship.setEnergy(shiptype.getEps());
 					ship.setHull(shiptype.getHull());
@@ -300,12 +296,8 @@ public class RTCTick extends TickController {
 				cargo.addResource(Resources.NAHRUNG, shipd.getCrew()*5);
 				// Kein cutCargo, da sonst ersteigerte Waren entfernt werden koennten
 				
-				Ship ship = new Ship(winner);
+				Ship ship = new Ship(winner, shipd, loc.getSystem(), loc.getX(), loc.getY());
 				ship.setName("Verkauft");
-				ship.setBaseType(shipd);
-				ship.setSystem(loc.getSystem());
-				ship.setX(loc.getX());
-				ship.setY(loc.getY());
 				ship.setCrew(shipd.getCrew());
 				ship.setEnergy(shipd.getEps());
 				ship.setHull(shipd.getHull());
@@ -343,12 +335,8 @@ public class RTCTick extends TickController {
 					
 					history = "Indienststellung am "+this.currentTime+" durch "+this.gtuuser.getName()+" (Versteigerung) f&uuml;r "+winner.getName()+" ("+winner.getId()+")\n";
 					
-					ship = new Ship(winner);
+					ship = new Ship(winner, shipd, loc.getSystem(), loc.getX(), loc.getY());
 					ship.setName("Verkauft");
-					ship.setBaseType(shipd);
-					ship.setSystem(loc.getSystem());
-					ship.setX(loc.getX());
-					ship.setY(loc.getY());
 					ship.setCrew(type.getCrew());
 					ship.setEnergy(type.getEps());
 					ship.setHull(type.getHull());

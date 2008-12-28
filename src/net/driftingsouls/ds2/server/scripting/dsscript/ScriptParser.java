@@ -415,7 +415,7 @@ public class ScriptParser extends AbstractScriptEngine {
 	 * @return Der Inhalt oder <code>null</code>
 	 */
 	protected String getParameter( int number ) {
-		List addparameterlist = (List)getContext().getAttribute("_ADDPARAMETERLIST");
+		List<?> addparameterlist = (List<?>)getContext().getAttribute("_ADDPARAMETERLIST");
 		if( (number > -1) && (addparameterlist.size() > number) ) { 
 			return (String)addparameterlist.get(number);
 		}

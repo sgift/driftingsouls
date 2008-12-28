@@ -58,7 +58,7 @@ public class ActionFunctions {
 		parser.registerCommand( "GETSHIPOWNER", new GetShipOwner(), ScriptParser.Args.PLAIN_REG);
 	}
 	
-	class ShipMove implements SPFunction {
+	static class ShipMove implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Ship ship = scriptparser.getShip();
 			
@@ -91,7 +91,7 @@ public class ActionFunctions {
 		}
 	}
 	
-	class Wait implements SPFunction {
+	static class Wait implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			Ship ship = scriptparser.getShip();
@@ -135,7 +135,7 @@ public class ActionFunctions {
 		}
 	}
 	
-	class KJump implements SPFunction {
+	static class KJump implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Ship ship = scriptparser.getShip();
 			
@@ -156,7 +156,7 @@ public class ActionFunctions {
 		}
 	}
 	
-	class NJump implements SPFunction {
+	static class NJump implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Ship ship = scriptparser.getShip();
 			
@@ -177,7 +177,7 @@ public class ActionFunctions {
 		}
 	}
 	
-	class Msg implements SPFunction {
+	static class Msg implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			int to = Integer.parseInt(command[1]);
 			
@@ -197,7 +197,7 @@ public class ActionFunctions {
 		}
 	}
 	
-	class Dock implements SPFunction {
+	static class Dock implements SPFunction {
 		private boolean allowAll = false;
 		private Ship.DockMode mode = Ship.DockMode.DOCK;
 		
@@ -235,7 +235,7 @@ public class ActionFunctions {
 		}
 	}
 	
-	class GetResource implements SPFunction {
+	static class GetResource implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -264,7 +264,7 @@ public class ActionFunctions {
 		}
 	}
 	
-	class TransferCargo implements SPFunction {
+	static class TransferCargo implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			String transferType = command[1].toLowerCase();
 			
@@ -318,7 +318,7 @@ public class ActionFunctions {
 		}
 	}
 	
-	class Attack implements SPFunction {
+	static class Attack implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -349,7 +349,7 @@ public class ActionFunctions {
 		}
 	}
 	
-	class ResetScript implements SPFunction {
+	static class ResetScript implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Ship ship = scriptparser.getShip();
 			
@@ -362,7 +362,7 @@ public class ActionFunctions {
 		}
 	}
 	
-	class ExecuteTask implements SPFunction {
+	static class ExecuteTask implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			String taskid = command[1];
 			scriptparser.log("taskid: "+taskid+"\n");
@@ -377,7 +377,7 @@ public class ActionFunctions {
 		}
 	}
 	
-	class GetShipOwner implements SPFunction {
+	static class GetShipOwner implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			int shipid = Integer.parseInt(command[1]);

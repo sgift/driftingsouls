@@ -34,12 +34,12 @@ import net.driftingsouls.ds2.server.entities.Order;
 import net.driftingsouls.ds2.server.entities.OrderOffizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.namegenerator.NameGenerator;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tick.TickController;
+import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 import org.apache.commons.lang.math.RandomUtils;
 
@@ -77,8 +77,7 @@ public class NPCOrderTick extends TickController {
 	@Override
 	protected void tick() {
 		org.hibernate.Session db = getDB();
-		Database database = getDatabase();
-		
+
 		final User sourceUser = (User)db.get(User.class, -1);
 		
 		List<?> orders = db.createQuery("from Order where tick=1 order by user").list();
@@ -130,12 +129,8 @@ public class NPCOrderTick extends TickController {
 					User auser = (User)getDB().get(User.class, owner);	
 					String history = "Indienststellung am "+this.currentTime+" durch "+auser.getName()+" ("+auser.getId()+") [hide]NPC-Order[/hide]\n";
 					
-					Ship ship = new Ship(user);
+					Ship ship = new Ship(user, (ShipType)db.get(ShipType.class, type), loc.getSystem(), loc.getX(), loc.getY());
 					ship.setName("noname");
-					ship.setBaseType((ShipType)db.get(ShipType.class, type));
-					ship.setX(loc.getX());
-					ship.setY(loc.getY());
-					ship.setSystem(loc.getSystem());
 					ship.setCrew(shipd.getCrew());
 					ship.setHull(shipd.getHull());
 					ship.setEnergy(shipd.getEps());
@@ -150,7 +145,8 @@ public class NPCOrderTick extends TickController {
 					id = (Integer)db.save(ship);
 					
 					if( shipd.getWerft() != 0 ) {
-						database.update("INSERT INTO werften (shipid) VALUES ('",id,"')");
+						ShipWerft awerft = new ShipWerft(ship);
+						db.persist(awerft);
 					}
 				}
 			

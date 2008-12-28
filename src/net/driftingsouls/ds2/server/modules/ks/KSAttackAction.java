@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.ContextCommon;
-import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -384,7 +383,7 @@ public class KSAttackAction extends BasicKSAction {
 				if (tmppanzerung <= 0){
 					tmppanzerung = 1;
 				}
-				schaden = (int)Math.round(schaden/tmppanzerung);
+				schaden = Math.round(schaden/tmppanzerung);
 				
 			}
 		}
@@ -738,9 +737,9 @@ public class KSAttackAction extends BasicKSAction {
 				
 		double antitorptrefferws = 1;
 
-		for( String wpn : eweapons.keySet() ) {
-			final int count = Integer.parseInt(eweapons.get(wpn));
-			final Weapon weapon = Weapons.get().weapon(wpn);
+		for( Map.Entry<String,String> wpn : eweapons.entrySet() ) {
+			final int count = Integer.parseInt(wpn.getValue());
+			final Weapon weapon = Weapons.get().weapon(wpn.getKey());
 			
 			if( weapon.getTorpTrefferWS() != 0 ) {
 				antitorptrefferws *= Math.pow(1-weapon.getTorpTrefferWS()/100d,count);
@@ -782,7 +781,7 @@ public class KSAttackAction extends BasicKSAction {
 			if(typeCrew <= 0){
 				typeCrew = 1;
 			}
-			double crewfactor = (int)(type.getJDocks() * selectedShip.getCrew()) / typeCrew;
+			double crewfactor = (type.getJDocks() * selectedShip.getCrew()) / typeCrew;
 
 			 if((selectedShip.getAction() & Battle.BS_JOIN) != 0){
 				// Beitretende Schiffe werden grundsaetzlich ausgenommen, hier wird gar nichts berechnet

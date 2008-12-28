@@ -18,10 +18,10 @@
  */
 package net.driftingsouls.ds2.server.tools;
 
-import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.Offizier;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.DSApplication;
 import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -77,17 +77,17 @@ public class RecalcShips extends DSApplication {
 			int lastsid = 0;
 			while( true ) {
 				// TODO: Support fuer Schiffe mit negativer ID einbauen
-				final List shipList = db.createQuery("from Ship where id>:minid order by id asc")
+				final List<Ship> shipList = Common.cast(db.createQuery("from Ship where id>:minid order by id asc")
 					.setInteger("minid", lastsid)
 					.setMaxResults(100)
-					.list();
+					.list());
 				
 				if( shipList.isEmpty() ) {
 					break;
 				}
 				
-				for( Iterator shipIter = shipList.iterator(); shipIter.hasNext(); ) {
-					Ship ship = (Ship)shipIter.next();
+				for( Ship ship : shipList )
+				{
 					
 					try {
 						// Es kann Luecken in der Liste der Schiffids geben (...,97,98,103,...)

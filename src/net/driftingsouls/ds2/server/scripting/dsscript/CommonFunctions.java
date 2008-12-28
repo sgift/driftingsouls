@@ -44,7 +44,7 @@ class CommonFunctions {
 		parser.registerCommand( "GETSCRIPTPARAMETER", new GetScriptParameter(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN);
 	}
 	
-	class Compare implements SPFunction {
+	static class Compare implements SPFunction {
 		public boolean[] execute(ScriptParser scriptparser, String[] command ) {
 			double val1 = Value.Double(command[1]);
 			double val2 = Value.Double(command[2]);
@@ -62,7 +62,7 @@ class CommonFunctions {
 		}
 	}
 	
-	class Copy implements SPFunction {
+	static class Copy implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			String reg = command[1];
 			String val = command[2];	
@@ -76,7 +76,7 @@ class CommonFunctions {
 		}
 	}
 	
-	class Add implements SPFunction {
+	static class Add implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			double val1 = Double.parseDouble(command[1]);
 			double val2 = Double.parseDouble(command[2]);
@@ -90,7 +90,7 @@ class CommonFunctions {
 		}
 	}
 	
-	class Substract implements SPFunction {
+	static class Substract implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			double val1 = Double.parseDouble(command[1]);
 			double val2 = Double.parseDouble(command[2]);
@@ -104,7 +104,7 @@ class CommonFunctions {
 		}
 	}
 	
-	class Multiply implements SPFunction {
+	static class Multiply implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			double val1 = Double.parseDouble(command[1]);
 			double val2 = Double.parseDouble(command[2]);
@@ -118,7 +118,7 @@ class CommonFunctions {
 		}
 	}
 	
-	class Divide implements SPFunction {
+	static class Divide implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			double val1 = Double.parseDouble(command[1]);
 			double val2 = Double.parseDouble(command[2]);
@@ -132,7 +132,7 @@ class CommonFunctions {
 		}
 	}
 	
-	class Random implements SPFunction {
+	static class Random implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			int min = Integer.parseInt(command[1]);
 			int max = Integer.parseInt(command[2]);
@@ -147,7 +147,7 @@ class CommonFunctions {
 		}
 	}
 	
-	class StrAppend implements SPFunction {
+	static class StrAppend implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			String mystring = "";
 			if( command[1].charAt(0) == '#' ) {
@@ -166,7 +166,7 @@ class CommonFunctions {
 		}
 	}
 	
-	class CopyString implements SPFunction {
+	static class CopyString implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			String targetstring = "";
 			if( command[1].charAt(0) == '#' ) {
@@ -185,7 +185,7 @@ class CommonFunctions {
 		}
 	}
 	
-	class StrReplace implements SPFunction {
+	static class StrReplace implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			String strdata = "";
 			if( command[1].charAt(0) == '#' ) {
@@ -209,7 +209,7 @@ class CommonFunctions {
 		}
 	}
 	
-	class GetScriptParameter implements SPFunction {
+	static class GetScriptParameter implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			int paramNum = Integer.parseInt(command[1]);
 			scriptparser.log("Parameter: "+paramNum+"\n");

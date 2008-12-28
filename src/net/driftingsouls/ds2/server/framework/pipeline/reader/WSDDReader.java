@@ -65,7 +65,7 @@ import org.w3c.dom.Node;
 public class WSDDReader implements Reader {
 	private static final Log log = LogFactory.getLog(WSDDReader.class);
 	
-	public Configuration config;
+	private Configuration config;
 	
     /**
      * Injiziert die DS-Konfiguration

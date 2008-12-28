@@ -18,8 +18,6 @@
  */
 package net.driftingsouls.ds2.server.framework;
 
-import java.util.List;
-
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.pipeline.Error;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;

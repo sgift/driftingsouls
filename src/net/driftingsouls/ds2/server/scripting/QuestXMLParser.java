@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -73,7 +74,7 @@ public class QuestXMLParser extends DSObject {
 		INSTALL
 	}
 	
-	private class ScriptEntry {
+	private static class ScriptEntry {
 		int id;
 		List<String> script;
 		Map<String,Integer> injectindex;
@@ -308,7 +309,15 @@ public class QuestXMLParser extends DSObject {
 				XMLReader parser = XMLReaderFactory.createXMLReader();
 				parser.setContentHandler(new InstallParser("", true));
 			
-				parser.parse(new InputSource(new FileInputStream(installXML)));			
+				InputStream in = new FileInputStream(installXML);
+				try
+				{
+					parser.parse(new InputSource(in));
+				}
+				finally
+				{
+					in.close();
+				}
 			}
 			catch( Exception e ) {
 				// TODO: Runtime-Exceptions sind suboptimal
@@ -607,7 +616,14 @@ public class QuestXMLParser extends DSObject {
 					XMLReader parser = XMLReaderFactory.createXMLReader();
 					parser.setContentHandler(new InstallParser("", true));
 				
-					parser.parse(new InputSource(new FileInputStream(installFile)));			
+					InputStream in = new FileInputStream(installFile);
+					try
+					{
+						parser.parse(new InputSource(in));
+					}
+					finally {
+						in.close();
+					}
 				}
 				catch( Exception e ) {
 					// TODO: Runtime-Exceptions sind suboptimal
@@ -624,7 +640,15 @@ public class QuestXMLParser extends DSObject {
 				XMLReader parser = XMLReaderFactory.createXMLReader();
 				parser.setContentHandler(this);
 			
-				parser.parse(new InputSource(new FileInputStream(questFile)));			
+				InputStream in = new FileInputStream(questFile);
+				try
+				{
+					parser.parse(new InputSource(in));
+				}
+				finally
+				{
+					in.close();
+				}
 			}
 			catch( Exception e ) {
 				// TODO: Runtime-Exceptions sind suboptimal

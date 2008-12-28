@@ -20,7 +20,6 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
@@ -264,12 +263,12 @@ public class KSKapernAction extends BasicKSAction {
 			List<Integer> kaperlist = new ArrayList<Integer>();
 			kaperlist.add(enemyShip.getId());
 			
-			List docked = db.createQuery("from Ship where id>0 and docked in (?,?)")
+			List<Ship> docked = Common.cast(db.createQuery("from Ship where id>0 and docked in (?,?)")
 				.setString(0, Integer.toString(enemyShip.getId()))
 				.setString(1, "l "+enemyShip.getId())
-				.list();
-			for( Iterator iter=docked.iterator(); iter.hasNext(); ) {
-				Ship dockShip = (Ship)iter.next();
+				.list());
+			for( Ship dockShip : docked )
+			{
 				dockShip.removeFromFleet();
 				dockShip.setOwner(user);
 				dockShip.setBattleAction(true);

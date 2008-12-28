@@ -37,8 +37,11 @@ public class ResourceList implements Iterable<ResourceEntry> {
 	 * @author Christopher Jung
 	 *
 	 */
-	private static class IDComparator implements Comparator<ResourceEntry> {
+	private static class IDComparator implements Comparator<ResourceEntry>, Serializable {
+		private static final long serialVersionUID = 4261849413786052732L;
+		
 		private ResourceIDComparator comp;
+		
 		IDComparator(boolean descending) {
 			this.comp = new ResourceIDComparator(descending);
 		}

@@ -198,8 +198,8 @@ public class QuestsFiles implements AdminPlugin {
 				Map<String,Integer> scriptids = questXML.getInstallData("scriptids");
 				if( scriptids.size() > 0 ) {
 					echo.append("<br />Scripte:<br />"); 
-					for( String xid : scriptids.keySet() ) {
-						echo.append("* "+xid+" [DB: "+scriptids.get(xid)+"]<br />");
+					for( Map.Entry<String,Integer> entry : scriptids.entrySet() ) {
+						echo.append("* "+entry.getKey()+" [DB: "+entry.getValue()+"]<br />");
 					}
 				}
 			}
