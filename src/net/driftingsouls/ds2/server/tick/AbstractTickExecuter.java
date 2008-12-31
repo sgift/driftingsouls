@@ -25,17 +25,13 @@ import java.util.Map;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.framework.BasicContext;
-import net.driftingsouls.ds2.server.framework.CmdLineRequest;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.DriftingSouls;
-import net.driftingsouls.ds2.server.framework.SimpleResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
  * Klasse zur Ausfuehrung von mehreren Ticks
@@ -77,36 +73,6 @@ public abstract class AbstractTickExecuter extends TickController
     protected Configuration getConfiguration() {
     	return this.config;
     }
-
-	/**
-	 * Bootet DS Als Kommandozeilenparameter <code>--config</code> wird der Konfigurationspfad
-	 * erwartet
-	 * 
-	 * @param args Die Kommandozeilenargumente
-	 * @throws Exception
-	 */
-	public static final void boot(String[] args) throws Exception
-	{
-		log.info("Booting DS...");
-
-		CmdLineRequest request = new CmdLineRequest(args);
-
-		try
-		{
-			new DriftingSouls(log, request.getParameterString("config"), true);
-		}
-		catch( Exception e )
-		{
-			log.fatal(e, e);
-			throw new Exception(e);
-		}
-
-		new FileSystemXmlApplicationContext("/" + request.getParameterString("config")
-				+ "/spring.xml");
-
-		SimpleResponse response = new SimpleResponse();
-		basicContext = new BasicContext(request, response);
-	}
 
 	/**
 	 * Gibt alle noch belegten Resourcen frei

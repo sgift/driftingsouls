@@ -21,6 +21,8 @@ package net.driftingsouls.ds2.server.tick;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.tick.rare.RestTick;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -29,23 +31,32 @@ import org.springframework.beans.factory.annotation.Configurable;
  *
  */
 @Configurable
-public class RareTick extends AbstractTickExecuter {
+public class RareTick extends AbstractTickExecuter
+{
+	private static final Log log = LogFactory.getLog(RareTick.class);
+	
 	@Override
-	protected void executeTicks() {
+	protected void executeTicks()
+	{
 		TimeoutChecker timeout = null;
-		try {
-			timeout = new TimeoutChecker(20*60*1000) {
+		try
+		{
+			timeout = new TimeoutChecker(20*60*1000)
+			{
 				private Thread main = Thread.currentThread();
 				
 				@Override
-				public void timeout() {
+				public void timeout()
+				{
 					StackTraceElement[] stack = main.getStackTrace();
 					// Falls der Stack 0 Elemente lang ist, ist der Thread nun doch fertig geworden
-					if( stack.length == 0 ) {
+					if( stack.length == 0 )
+					{
 						return;
 					}
 					StringBuilder stacktrace = new StringBuilder();
-					for( int i=0; i < stack.length; i++ ) {
+					for( int i=0; i < stack.length; i++ )
+					{
 						stacktrace.append(stack[i]+"\n");
 					}
 					System.out.println("Timeout");
@@ -61,35 +72,24 @@ public class RareTick extends AbstractTickExecuter {
 			
 			this.mailTickStatistics();
 		}
-		catch( Throwable e ) {
-			System.err.println("Fehler beim Ausfuehren der Ticks: "+e);
-			e.printStackTrace();
+		catch( Throwable e )
+		{
+			log.error("Fehler beim Ausfuehren der Ticks", e);
 			Common.mailThrowable(e, "RareTick Exception", null);
 		}
-		finally {
-			if( timeout != null ) {
+		finally
+		{
+			if( timeout != null )
+			{
 				timeout.interrupt();
 			}
 		}
 	}
 
 	@Override
-	protected void prepare() {
+	protected void prepare()
+	{
 		setName("");
 		setLogPath(this.getConfiguration().get("LOXPATH")+"raretick/");
-	}
-	
-	/**
-	 * Hauptfunktion
-	 * @param args Die Kommandozeilenargumente
-	 * @throws Exception
-	 */
-	public static void main( String[] args ) throws Exception {
-		boot(args);
-		RareTick tick = new RareTick();
-		tick.addLogTarget(TickController.STDOUT, false);
-		tick.execute();
-		tick.dispose();
-		free();
 	}
 }

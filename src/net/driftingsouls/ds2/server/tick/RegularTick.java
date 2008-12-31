@@ -31,6 +31,8 @@ import net.driftingsouls.ds2.server.tick.regular.SchiffsTick;
 import net.driftingsouls.ds2.server.tick.regular.UserTick;
 import net.driftingsouls.ds2.server.tick.regular.WerftTick;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -39,23 +41,32 @@ import org.springframework.beans.factory.annotation.Configurable;
  *
  */
 @Configurable
-public class RegularTick extends AbstractTickExecuter {
+public class RegularTick extends AbstractTickExecuter
+{
+	private static final Log log = LogFactory.getLog(RegularTick.class);
+	
 	@Override
-	protected void executeTicks() {
+	protected void executeTicks()
+	{
 		TimeoutChecker timeout = null;
-		try {
-			timeout = new TimeoutChecker(20*60*1000) {
+		try
+		{
+			timeout = new TimeoutChecker(20*60*1000)
+			{
 				private Thread main = Thread.currentThread();
 				
 				@Override
-				public void timeout() {
+				public void timeout()
+				{
 					StackTraceElement[] stack = main.getStackTrace();
 					// Falls der Stack 0 Elemente lang ist, ist der Thread nun doch fertig geworden
-					if( stack.length == 0 ) {
+					if( stack.length == 0 )
+					{
 						return;
 					}
 					StringBuilder stacktrace = new StringBuilder();
-					for( int i=0; i < stack.length; i++ ) {
+					for( int i=0; i < stack.length; i++ )
+					{
 						stacktrace.append(stack[i]+"\n");
 					}
 					System.out.println("Timeout");
@@ -101,35 +112,24 @@ public class RegularTick extends AbstractTickExecuter {
 			
 			this.mailTickStatistics();
 		}
-		catch( Throwable e ) {
-			System.err.println("Fehler beim Ausfuehren der Ticks: "+e);
-			e.printStackTrace();
+		catch( Throwable e )
+		{
+			log.error("Fehler beim Ausfuehren der Ticks", e);
 			Common.mailThrowable(e, "RegularTick Exception", null);
 		}
-		finally {
-			if( timeout != null ) {
+		finally
+		{
+			if( timeout != null )
+			{
 				timeout.interrupt();
 			}
 		}
 	}
 
 	@Override
-	protected void prepare() {
+	protected void prepare()
+	{
 		setName("");
 		setLogPath(this.getConfiguration().get("LOXPATH")+"tick/");
-	}
-	
-	/**
-	 * Hauptfunktion
-	 * @param args Die Kommandozeilenargumente
-	 * @throws Exception
-	 */
-	public static void main( String[] args ) throws Exception {
-		boot(args);
-		RegularTick tick = new RegularTick();
-		tick.addLogTarget(TickController.STDOUT, false);
-		tick.execute();
-		tick.dispose();
-		free();
 	}
 }
