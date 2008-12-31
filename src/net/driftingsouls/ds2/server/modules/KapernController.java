@@ -223,13 +223,6 @@ public class KapernController extends TemplateGenerator {
 		t.setVar("kapern.showkaperreport", 1);
 		
 		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", this.ownShip.getInt("id"));
-		
-		if( (this.targetShip.getInt("system") == 1) && (this.targetShip.getInt("crew") > 0) ) {
-			addError("Sie k&ouml;nnen keine Schiffe im System "+Systems.get().system(1).getName()+" (1) st&uuml;rmen", errorurl);
-			this.setTemplate("");
-					
-			return;
-		}
 	
 		if( ShipTypes.hasShipTypeFlag(this.targetShipType, ShipTypes.SF_NICHT_KAPERBAR ) ) {
 			addError("Sie k&ouml;nnen dieses Schiff nicht kapern", errorurl);
