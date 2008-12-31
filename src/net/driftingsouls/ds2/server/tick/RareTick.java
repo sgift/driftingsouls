@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.tick;
 
+import java.io.File;
+
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.tick.rare.RestTick;
 
@@ -66,9 +68,21 @@ public class RareTick extends AbstractTickExecuter
 			};
 			
 			timeout.start();
-			
-			publishStatus("berechne Sonstiges");
-			execTick(RestTick.class, false);
+
+			File lockFile = new File(this.getConfiguration().get("LOXPATH")+"/raretick.lock");
+			lockFile.createNewFile();
+			try
+			{
+				publishStatus("berechne Sonstiges");
+				execTick(RestTick.class, false);
+			}
+			finally
+			{
+				if( !lockFile.delete() )
+				{
+					log.warn("Konnte Lockdatei "+lockFile+" nicht loeschen");
+				}
+			}
 			
 			this.mailTickStatistics();
 		}

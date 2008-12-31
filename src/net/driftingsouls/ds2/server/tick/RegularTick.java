@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.tick;
 
+import java.io.File;
+
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.tick.regular.AcademyTick;
 import net.driftingsouls.ds2.server.tick.regular.BaseTick;
@@ -77,36 +79,48 @@ public class RegularTick extends AbstractTickExecuter
 			
 			timeout.start();
 			
-			publishStatus("berechne Nutzer");
-			execTick(UserTick.class, false);
-			
-			publishStatus("berechne Basen");
-			execTick(BaseTick.class,false);
-	
-			publishStatus("berechne Schiffe");
-			execTick(SchiffsTick.class,false);
-	
-			publishStatus("berechne Werften");
-			execTick(WerftTick.class, false);
-	
-			publishStatus("berechne Forschungen");
-			execTick(ForschungsTick.class, false);
-	
-			publishStatus("fuehre NPC-Aktionen aus");
-			execTick(NPCScriptTick.class, false);
-			execTick(NPCOrderTick.class, false);
-	
-			publishStatus("berechne Akademien");
-			execTick(AcademyTick.class, false);
-	
-			publishStatus("berechne GTU");
-			execTick(RTCTick.class, false);
-	
-			publishStatus("berechne Schlachten");
-			execTick(BattleTick.class, false);
-	
-			publishStatus("berechne Sonstiges");
-			execTick(RestTick.class, false);
+			File lockFile = new File(this.getConfiguration().get("LOXPATH")+"/regulartick.lock");
+			lockFile.createNewFile();
+			try
+			{
+				publishStatus("berechne Nutzer");
+				execTick(UserTick.class, false);
+				
+				publishStatus("berechne Basen");
+				execTick(BaseTick.class,false);
+		
+				publishStatus("berechne Schiffe");
+				execTick(SchiffsTick.class,false);
+		
+				publishStatus("berechne Werften");
+				execTick(WerftTick.class, false);
+		
+				publishStatus("berechne Forschungen");
+				execTick(ForschungsTick.class, false);
+		
+				publishStatus("fuehre NPC-Aktionen aus");
+				execTick(NPCScriptTick.class, false);
+				execTick(NPCOrderTick.class, false);
+		
+				publishStatus("berechne Akademien");
+				execTick(AcademyTick.class, false);
+		
+				publishStatus("berechne GTU");
+				execTick(RTCTick.class, false);
+		
+				publishStatus("berechne Schlachten");
+				execTick(BattleTick.class, false);
+		
+				publishStatus("berechne Sonstiges");
+				execTick(RestTick.class, false);
+			}
+			finally
+			{
+				if( !lockFile.delete() )
+				{
+					log.warn("Konnte Lockdatei "+lockFile+" nicht loeschen");
+				}
+			}
 			
 			timeout.interrupt();
 			
