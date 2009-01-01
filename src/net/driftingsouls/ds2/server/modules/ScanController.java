@@ -144,11 +144,12 @@ public class ScanController extends TemplateGenerator {
 		else {
 			this.range = getInteger("range");
 			Location loc = Location.fromString(getString("baseloc"));
-			this.ship = new Ship();
-			this.ship.setX(loc.getX());
-			this.ship.setY(loc.getY());
-			this.ship.setSystem(loc.getSystem());
 			
+			// Schiffstyp 1 ist zufaellig gewaehlt - wichtig ist nur, dass ein in der 
+			// DB vorhandener Typ hier verwendet wird (sonst gibts Exceptions).
+			ShipType type = (ShipType)db.get(ShipType.class, 1);
+			this.ship = new Ship((User)getUser(), type, loc.getSystem(), loc.getX(), loc.getY());
+
 			this.getTemplateEngine().setVar(	
 					"global.admin",	1,
 					"global.baseloc", loc.toString(),
