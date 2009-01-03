@@ -24,4 +24,6 @@ VALUES (
 	'vacpointspervactick', 7, 'Vacationpunkte, die ein Tick im Vac kostet', '0'
 ), (
 	'vacpointsperplayedtick', 1, 'Vacationpunkte, die ein gespielter Tick bringt', '0'
+),(
+	'truemmer_maxitems', 4, 'Die maximale Anzahl an Gegenstaenden (Items/Waren) pro Schiffs-Truemmerteil', '0'
 );

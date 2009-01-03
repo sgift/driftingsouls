@@ -36,7 +36,6 @@
 	<setting type="string" name="SMILIE_PATH" value="http://forum.drifting-souls.net/phpBB2/images/smiles" />
 	<setting type="number" name="CONFIG_TRUEMMER" value="49" />
 	<setting type="number" name="CONFIG_TRUEMMER_HUELLE" value="451" />
-	<setting type="number" name="CONFIG_TRUEMMER_MAXITEMS" value="4" />
 	<setting type="string" name="ADMIN_PMS_ACCOUNT" value="-90,-99" />
 	<setting type="string" name="EXCEPTION_MAIL" value="bktheg@web.de" />
 	<setting type="string" name="EXCEPTION_MAIL_PREFIX" value="[DS2J]" />

@@ -67,6 +67,7 @@ import net.driftingsouls.ds2.server.entities.Sector;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
@@ -3094,10 +3095,12 @@ public class Ship implements Locatable,Transfering {
 			return;	
 		}
 
+		ConfigValue truemmerMaxItems = (ConfigValue)db.get(ConfigValue.class, "truemmer_maxitems");
+		
 		// Und nun den Loot generieren
 		Cargo cargo = new Cargo();
 
-		for( int i=0; i <= config.getInt("CONFIG_TRUEMER_MAXITEMS"); i++ ) {
+		for( int i=0; i <= Integer.parseInt(truemmerMaxItems.getValue()); i++ ) {
 			rnd = RandomUtils.nextInt(maxchance+1);
 			int currentchance = 0;
 			for( int j=0; j < loot.size(); j++ ) {

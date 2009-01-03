@@ -699,4 +699,8 @@
 			('vacpointspervactick', 7, 'Vacationpunkte, die ein Tick im Vac kostet', '0'), 
 			('vacpointsperplayedtick', 1, 'Vacationpunkte, die ein gespielter Tick bringt', '0');
 	]]></update>
+	<update type="structure" datum="2009-01-03"><![CDATA[
+		INSERT INTO config (`name` , `value` , `description` , `version`) VALUES
+			('truemmer_maxitems', 4, 'Die maximale Anzahl an Gegenstaenden (Items/Waren) pro Schiffs-Truemmerteil', '0');
+	]]></update>
 </updates>
