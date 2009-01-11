@@ -30,12 +30,17 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.driftingsouls.ds2.server.framework.utils.StringBufferWriter;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Implementiert das Response-Interface fuer HTTP-Antworten.
  * @author Christopher Jung
  *
  */
 public class HttpResponse implements Response {
+	private Log log = LogFactory.getLog(HttpResponse.class);
+	
 	private String charSet;
 	private StringBuffer content;
 	private Writer writer;
@@ -174,7 +179,14 @@ public class HttpResponse implements Response {
 	@Override
 	public void redirectTo(String url) {
 		this.response.setStatus(HttpServletResponse.SC_FOUND);
-		this.response.setHeader("Location", url);
+		try
+		{
+			this.response.sendRedirect(this.response.encodeRedirectURL(url));
+		}
+		catch( IOException e )
+		{
+			log.error("Redirect konnte nicht durchgefuehrt werden", e);
+		}
 		
 		this.manualSend = true;
 	}

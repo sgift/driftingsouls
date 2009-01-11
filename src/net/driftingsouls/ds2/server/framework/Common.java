@@ -126,7 +126,7 @@ public class Common {
 	public static String buildUrl( String action, Object ... paramlist ) {
 		final Context context = ContextMap.getContext();
 		
-		final StringBuilder buffer = new StringBuilder("?module=");	
+		final StringBuilder buffer = new StringBuilder("./ds?module=");	
 		final Request request = context.getRequest();
 		
 		final HashMap<String,String> params = new HashMap<String,String>();
