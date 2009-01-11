@@ -25,16 +25,17 @@ import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
 /**
- * Schiffsmodul fuer die Anzeige des Werftstatus
+ * Schiffsmodul fuer die Anzeige des Werftstatus.
  * @author Christopher Jung
  *
  */
 public class WerftDefault implements SchiffPlugin {
-
+	@Override
 	public String action(Parameters parameters) {
 		return "";
 	}
 
+	@Override
 	public void output(Parameters caller) {
 		String pluginid = caller.pluginId;
 		SchiffController controller = caller.controller;

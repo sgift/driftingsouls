@@ -45,7 +45,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * Das ComNet - Alle Funktionalitaeten des ComNets befinden sich in 
- * dieser Klasse 
+ * dieser Klasse.
  * @author Christopher Jung
  *
  * @urlparam Integer channel Die ID des ausgewaehlten ComNet-Kanals (0, falls keiner ausgewaehlt wurde)
@@ -57,7 +57,7 @@ public class ComNetController extends TemplateGenerator {
 	private static final Log log = LogFactory.getLog(ComNetController.class);
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public ComNetController(Context context) {
@@ -97,7 +97,7 @@ public class ComNetController extends TemplateGenerator {
 	
 	/**
 	 * Sucht im aktuell ausgewaehlten ComNet-Kanal Posts nach bestimmten Kriterien.
-	 * Sollten keine Kriterien angegeben sein, so wird das Eingabefenster fuer die Suche angezeigt
+	 * Sollten keine Kriterien angegeben sein, so wird das Eingabefenster fuer die Suche angezeigt.
 	 * 
 	 * @urlparam Integer searchtype der Suchmodus. 
 	 * 		1 - Suchen nach Teilen eines Titels
@@ -463,7 +463,7 @@ public class ComNetController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Liste aller lesbaren ComNet-Kanaele an
+	 * Zeigt die Liste aller lesbaren ComNet-Kanaele an.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

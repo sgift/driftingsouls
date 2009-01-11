@@ -19,27 +19,27 @@
 package net.driftingsouls.ds2.server.entities;
 
 /**
- * Spezifiziert den Aufenthaltsort des Flagschiffs eines Spielers
+ * Spezifiziert den Aufenthaltsort des Flagschiffs eines Spielers.
  * @author Christopher Jung
  *
  */
 public class UserFlagschiffLocation implements Cloneable {
 	/**
-	 * Der Typ des Aufenthaltsortes
+	 * Der Typ des Aufenthaltsortes.
 	 * @author Christopher Jung
 	 *
 	 */
 	public enum Type {
 		/**
-		 * Das Schiff wird in einer Werft auf einer Basis gebaut
+		 * Das Schiff wird in einer Werft auf einer Basis gebaut.
 		 */
 		WERFT_BASE,
 		/**
-		 * Das Schiff wird in einer Werft auf einem Schiff gebaut
+		 * Das Schiff wird in einer Werft auf einem Schiff gebaut.
 		 */
 		WERFT_SHIP,
 		/**
-		 * Das Flagschiff existiert bereits als fertiges Schiff
+		 * Das Flagschiff existiert bereits als fertiges Schiff.
 		 */
 		SHIP;
 	}
@@ -52,7 +52,7 @@ public class UserFlagschiffLocation implements Cloneable {
 	}
 
 	/**
-	 * Gibt die ID des Flagschiffs bzw des Schiffs/der Basis, das es baut zurueck
+	 * Gibt die ID des Flagschiffs bzw des Schiffs/der Basis, das es baut zurueck.
 	 * @return Die ID des Schiffs
 	 */
 	public int getID() {
@@ -60,7 +60,7 @@ public class UserFlagschiffLocation implements Cloneable {
 	}
 
 	/**
-	 * Der Typ des Aufenthaltsortes des Flagschiffs
+	 * Der Typ des Aufenthaltsortes des Flagschiffs.
 	 * @return Returns the type.
 	 */
 	public Type getType() {

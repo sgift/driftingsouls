@@ -32,7 +32,7 @@ import org.hibernate.annotations.Type;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 
 /**
- * Ein Baueintrag fuer einen Schiffstyp
+ * Ein Baueintrag fuer einen Schiffstyp.
  * @author Christopher Jung
  *
  */
@@ -62,7 +62,7 @@ public class ShipBaubar {
 	private boolean flagschiff;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public ShipBaubar() {
@@ -70,7 +70,7 @@ public class ShipBaubar {
 	}
 
 	/**
-	 * Gibt die Baukosten zurueck
+	 * Gibt die Baukosten zurueck.
 	 * @return Die Baukosten
 	 */
 	public Cargo getCosts() {
@@ -78,7 +78,7 @@ public class ShipBaubar {
 	}
 
 	/**
-	 * Gibt die zum Bau benoetigte Crew zurueck
+	 * Gibt die zum Bau benoetigte Crew zurueck.
 	 * @return Die Crew
 	 */
 	public int getCrew() {
@@ -86,7 +86,7 @@ public class ShipBaubar {
 	}
 
 	/**
-	 * Gibt die Baudauer zurueck
+	 * Gibt die Baudauer zurueck.
 	 * @return Die Dauer
 	 */
 	public int getDauer() {
@@ -94,7 +94,7 @@ public class ShipBaubar {
 	}
 
 	/**
-	 * Gibt die Energiekosten zurueck
+	 * Gibt die Energiekosten zurueck.
 	 * @return Die Energiekosten
 	 */
 	public int getEKosten() {
@@ -102,7 +102,7 @@ public class ShipBaubar {
 	}
 
 	/**
-	 * Gibt zurueck, ob hergestellte Schiffe Flagschiffe sind
+	 * Gibt zurueck, ob hergestellte Schiffe Flagschiffe sind.
 	 * @return <code>true</code>, falls es Flagschiffe sind
 	 */
 	public boolean isFlagschiff() {
@@ -110,7 +110,7 @@ public class ShipBaubar {
 	}
 
 	/**
-	 * Gibt die ID zurueck
+	 * Gibt die ID zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -118,7 +118,7 @@ public class ShipBaubar {
 	}
 
 	/**
-	 * Gibt die Rasse zurueck, die diesen Baueintrag nutzen kann
+	 * Gibt die Rasse zurueck, die diesen Baueintrag nutzen kann.
 	 * @return Die Rasse
 	 */
 	public int getRace() {
@@ -126,7 +126,7 @@ public class ShipBaubar {
 	}
 
 	/**
-	 * Gibt zurueck, ob das Schiff nur in militaerischen Systenem gebaut werden kann
+	 * Gibt zurueck, ob das Schiff nur in militaerischen Systenem gebaut werden kann.
 	 * @return != 0 falls es nur in nicht militaerischen System gebaut werden kann
 	 */
 	public int getSystemReq() {
@@ -134,7 +134,7 @@ public class ShipBaubar {
 	}
 
 	/**
-	 * Gibt die benoetigte Forschung zurueck
+	 * Gibt die benoetigte Forschung zurueck.
 	 * @param res Die Nummer der Forschung (1-3)
 	 * @return Die Forschung
 	 */
@@ -151,7 +151,7 @@ public class ShipBaubar {
 	}
 
 	/**
-	 * Gibt den Schiffstyp zurueck, welcher hiermit gebaut werden kann
+	 * Gibt den Schiffstyp zurueck, welcher hiermit gebaut werden kann.
 	 * @return Der Schiffstyp
 	 */
 	public ShipType getType() {
@@ -159,7 +159,7 @@ public class ShipBaubar {
 	}
 
 	/**
-	 * Gibt die zum Bau benoetigte Werftslots zurueck
+	 * Gibt die zum Bau benoetigte Werftslots zurueck.
 	 * @return Die Werft-Requirements
 	 */
 	public int getWerftSlots() {

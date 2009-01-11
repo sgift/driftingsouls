@@ -32,13 +32,13 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
- * Ermoeglicht das Bearbeiten von Quest-Handlern
+ * Ermoeglicht das Bearbeiten von Quest-Handlern.
  * @author Christopher Jung
  *
  */
 @AdminMenuEntry(category="Quests", name="Handler")
 public class QuestsHandler implements AdminPlugin {
-
+	@Override
 	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();

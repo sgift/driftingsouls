@@ -36,7 +36,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
- * Repraesentiert eine Menge von Werften (Werftkomplex)
+ * Repraesentiert eine Menge von Werften (Werftkomplex).
  * @author Christopher Jung
  *
  */
@@ -44,7 +44,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 @DiscriminatorValue("komplex")
 public class WerftKomplex extends WerftObject {
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 */
 	public WerftKomplex() {
 		// EMPTY
@@ -443,7 +443,7 @@ public class WerftKomplex extends WerftObject {
 	}
 	
 	/**
-	 * Laedt die Daten des Werftkomplexes neu
+	 * Laedt die Daten des Werftkomplexes neu.
 	 *
 	 */
 	public void refresh() {
@@ -451,7 +451,7 @@ public class WerftKomplex extends WerftObject {
 	}
 	
 	/**
-	 * Gibt die Mitglieder im Werftkomplex zurueck
+	 * Gibt die Mitglieder im Werftkomplex zurueck.
 	 * @return Die Werften
 	 */
 	public WerftObject[] getMembers() {

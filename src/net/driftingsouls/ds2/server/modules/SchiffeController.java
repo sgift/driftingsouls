@@ -51,7 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Die Schiffsliste
+ * Die Schiffsliste.
  * @author Christopher Jung
  *
  * @urlparam String only Die anzuzeigende Schiffsart. Falls leer werden alle Schiffe angezeigt
@@ -68,7 +68,7 @@ public class SchiffeController extends TemplateGenerator {
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -78,7 +78,7 @@ public class SchiffeController extends TemplateGenerator {
     }
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public SchiffeController(Context context) {
@@ -99,7 +99,7 @@ public class SchiffeController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Aendert den Anzeigemodus fuer den Cargo
+	 * Aendert den Anzeigemodus fuer den Cargo.
 	 * @urlparam String mode Der Anzeigemodus fuer den Cargo (<code>carg</code> oder <code>norm</code>)
 	 *
 	 */
@@ -116,7 +116,7 @@ public class SchiffeController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Aendert den Sortierungsmodus fuer die Schiffe
+	 * Aendert den Sortierungsmodus fuer die Schiffe.
 	 * @urlparam String order Das neue Sortierkriterium
 	 *
 	 */
@@ -133,7 +133,7 @@ public class SchiffeController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Aendert den Anzeigemodus fuer gelandete Jaeger
+	 * Aendert den Anzeigemodus fuer gelandete Jaeger.
 	 * @urlparam Integer showLJaegder Falls != 0 werden gelandete Jaeger angezeigt
 	 */
 	@Action(ActionType.DEFAULT)

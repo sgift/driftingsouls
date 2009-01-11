@@ -69,7 +69,7 @@ public class GtuZwischenlager {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public GtuZwischenlager() {
@@ -77,7 +77,7 @@ public class GtuZwischenlager {
 	}
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param posten Der Handelsposten, auf dem gehandelt wird
 	 * @param user1 Der erste Handelspartner
 	 * @param user2 Der zweite Handelspartner
@@ -93,7 +93,7 @@ public class GtuZwischenlager {
 	}
 
 	/**
-	 * Gibt den aktuell User1 zur Verfuegung stehenden Waren zurueck
+	 * Gibt den aktuell User1 zur Verfuegung stehenden Waren zurueck.
 	 * @return Die Waren
 	 */
 	public Cargo getCargo1() {
@@ -101,7 +101,7 @@ public class GtuZwischenlager {
 	}
 
 	/**
-	 * Setzt die aktuell User1 zur Verfuegung stehenden Waren
+	 * Setzt die aktuell User1 zur Verfuegung stehenden Waren.
 	 * @param cargo1 Die Waren
 	 */
 	public void setCargo1(Cargo cargo1) {
@@ -109,7 +109,7 @@ public class GtuZwischenlager {
 	}
 
 	/**
-	 * Gibt die Warenmenge zurueck, die User1 nach Erfuellung der Handelsvereinbarung zusteht
+	 * Gibt die Warenmenge zurueck, die User1 nach Erfuellung der Handelsvereinbarung zusteht.
 	 * @return Die Warenmenge
 	 */
 	public Cargo getCargo1Need() {
@@ -117,7 +117,7 @@ public class GtuZwischenlager {
 	}
 
 	/**
-	 * Setzt die Warenmenge, die User1 nach Erfuellung der Handelsvereinbarung zusteht
+	 * Setzt die Warenmenge, die User1 nach Erfuellung der Handelsvereinbarung zusteht.
 	 * @param cargo1Need Die Warenmenge
 	 */
 	public void setCargo1Need(Cargo cargo1Need) {
@@ -125,7 +125,7 @@ public class GtuZwischenlager {
 	}
 
 	/**
-	 * Gibt den aktuell User2 zur Verfuegung stehenden Waren zurueck
+	 * Gibt den aktuell User2 zur Verfuegung stehenden Waren zurueck.
 	 * @return Die Waren
 	 */
 	public Cargo getCargo2() {
@@ -133,7 +133,7 @@ public class GtuZwischenlager {
 	}
 
 	/**
-	 * Setzt die aktuell User2 zur Verfuegung stehenden Waren
+	 * Setzt die aktuell User2 zur Verfuegung stehenden Waren.
 	 * @param cargo2 Die Waren
 	 */
 	public void setCargo2(Cargo cargo2) {
@@ -141,7 +141,7 @@ public class GtuZwischenlager {
 	}
 
 	/**
-	 * Gibt die Warenmenge zurueck, die User2 nach Erfuellung der Handelsvereinbarung zusteht
+	 * Gibt die Warenmenge zurueck, die User2 nach Erfuellung der Handelsvereinbarung zusteht.
 	 * @return Die Warenmenge
 	 */
 	public Cargo getCargo2Need() {
@@ -149,7 +149,7 @@ public class GtuZwischenlager {
 	}
 
 	/**
-	 * Setzt die Warenmenge, die User2 nach Erfuellung der Handelsvereinbarung zusteht
+	 * Setzt die Warenmenge, die User2 nach Erfuellung der Handelsvereinbarung zusteht.
 	 * @param cargo2Need Die Warenmenge
 	 */
 	public void setCargo2Need(Cargo cargo2Need) {
@@ -157,7 +157,7 @@ public class GtuZwischenlager {
 	}
 
 	/**
-	 * Gibt den Handelsposten zurueck, der als Zwischenlager fungiert
+	 * Gibt den Handelsposten zurueck, der als Zwischenlager fungiert.
 	 * @return Der Handelsposten
 	 */
 	public Ship getPosten() {
@@ -165,7 +165,7 @@ public class GtuZwischenlager {
 	}
 
 	/**
-	 * Setzt den Handelsposten, der als Zwischenlanger fungiert
+	 * Setzt den Handelsposten, der als Zwischenlanger fungiert.
 	 * @param posten Der Handelsposten
 	 */
 	public void setPosten(Ship posten) {
@@ -173,7 +173,7 @@ public class GtuZwischenlager {
 	}
 
 	/**
-	 * Gibt den ersten Handelspartner zurueck
+	 * Gibt den ersten Handelspartner zurueck.
 	 * @return Der erste Handelspartner
 	 */
 	public User getUser1() {
@@ -181,7 +181,7 @@ public class GtuZwischenlager {
 	}
 
 	/**
-	 * Gibt den ersten Handelspartner zurueck
+	 * Gibt den ersten Handelspartner zurueck.
 	 * @param user1 Der erste Handelspartner
 	 */
 	public void setUser1(User user1) {
@@ -189,7 +189,7 @@ public class GtuZwischenlager {
 	}
 
 	/**
-	 * Setzt den zweiten Handelspartner
+	 * Setzt den zweiten Handelspartner.
 	 * @return Der zweite Handelspartner
 	 */
 	public User getUser2() {
@@ -197,7 +197,7 @@ public class GtuZwischenlager {
 	}
 
 	/**
-	 * Setzt den zweiten Handelspartner
+	 * Setzt den zweiten Handelspartner.
 	 * @param user2 Der zweite Partner
 	 */
 	public void setUser2(User user2) {
@@ -205,7 +205,7 @@ public class GtuZwischenlager {
 	}
 
 	/**
-	 * Gibt die ID des Eintrags zurueck
+	 * Gibt die ID des Eintrags zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -213,7 +213,7 @@ public class GtuZwischenlager {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

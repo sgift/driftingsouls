@@ -58,8 +58,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.classic.Lifecycle;
 
 /**
- * <p>Repraesentiert eine Basis in DS</p>
- * Hinweis: Das setzen von Werten aktuallisiert nicht die Datenbank!
+ * <p>Repraesentiert eine Basis in DS.</p>
  * 
  * @author Christopher Jung
  */
@@ -115,7 +114,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	private Integer[] activeObj;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public Base()
@@ -124,7 +123,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Erstellt eine neue Basis
+	 * Erstellt eine neue Basis.
 	 * @param loc Die Position
 	 * @param owner Der Besitzer
 	 */
@@ -143,7 +142,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Gibt die ID der Basis zurueck
+	 * Gibt die ID der Basis zurueck.
 	 * @return die ID der Basis
 	 */
 	public int getId()
@@ -152,7 +151,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Gibt die Breite der Bauflaeche auf der Basis in Feldern zurueck
+	 * Gibt die Breite der Bauflaeche auf der Basis in Feldern zurueck.
 	 * @return Die Breite
 	 */
 	public int getWidth()
@@ -161,7 +160,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Setzt die Breite der Bauflaeche auf der Basis
+	 * Setzt die Breite der Bauflaeche auf der Basis.
 	 * @param width Die Breite
 	 */
 	public void setWidth(int width)
@@ -170,7 +169,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Gibt die Hoehe der Bauflaeche auf der Basis in Feldern zurueck
+	 * Gibt die Hoehe der Bauflaeche auf der Basis in Feldern zurueck.
 	 * @return Die Hoehe
 	 */
 	public int getHeight()
@@ -179,7 +178,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Setzt die Hoehe der Bauflaeche auf der Basis
+	 * Setzt die Hoehe der Bauflaeche auf der Basis.
 	 * @param height Die Hoehe
 	 */
 	public void setHeight(int height)
@@ -188,7 +187,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Gibt den Namen der Basis zurueck
+	 * Gibt den Namen der Basis zurueck.
 	 * @return Der Name
 	 */
 	public String getName()
@@ -197,7 +196,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Gibt der Basis einen neuen Namen
+	 * Gibt der Basis einen neuen Namen.
 	 * @param name Der neue Name
 	 */
 	public void setName(String name)
@@ -216,7 +215,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Setzt den neuen Besitzer fuer die Basis
+	 * Setzt den neuen Besitzer fuer die Basis.
 	 * @param owner Der neue Besitzer
 	 */
 	public void setOwner(User owner)
@@ -234,7 +233,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Setzt das neue Terrain der Basis
+	 * Setzt das neue Terrain der Basis.
 	 * @param terrain Das neue Terrain
 	 */
 	public void setTerrain(final Integer[] terrain)
@@ -255,7 +254,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Setzt die neue Bebauung der Basis
+	 * Setzt die neue Bebauung der Basis.
 	 * @param bebauung Die neue Bebauung
 	 */
 	public void setBebauung(final Integer[] bebauung)
@@ -266,7 +265,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	
 	/**
 	 * Gibt an, auf welchen Feldern die Gebaeude aktiv (1) sind und auf welchen
-	 * nicht (0)
+	 * nicht (0).
 	 * @return Aktivierungsgrad der Gebaeude auf den Feldern
 	 */
 	public Integer[] getActive()
@@ -286,7 +285,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Gibt den Cargo der Basis zurueck
+	 * Gibt den Cargo der Basis zurueck.
 	 * @return Der Cargo
 	 */
 	// TODO: UnmodifiableCargos zurueckgeben (zuerst alle Verwendungen checken und umbauen) 
@@ -325,7 +324,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Setzt den Cargo des Basisobjekts
+	 * Setzt den Cargo des Basisobjekts.
 	 * @param cargo Der neue Cargo
 	 */
 	public void setCargo(Cargo cargo) 
@@ -356,7 +355,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 
 	/**
-	 * Gibt die X-Koordinate der Basis zurueck
+	 * Gibt die X-Koordinate der Basis zurueck.
 	 * @return Die X-Koordinate
 	 */
 	public int getX()
@@ -365,7 +364,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Setzt die X-Koordinate der Basis
+	 * Setzt die X-Koordinate der Basis.
 	 * @param x Die X-Koordinate
 	 */
 	public void setX(int x)
@@ -374,7 +373,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 
 	/**
-	 * Gibt die Y-Koordinate der Basis zurueck
+	 * Gibt die Y-Koordinate der Basis zurueck.
 	 * @return Die Y-Koordinate
 	 */
 	public int getY()
@@ -383,7 +382,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Setzt die Y-Koordinate der Basis
+	 * Setzt die Y-Koordinate der Basis.
 	 * @param y Die Y-Koordinate
 	 */
 	public void setY(int y)
@@ -392,7 +391,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 
 	/**
-	 * Gibt die ID des Systems zurueck, in dem sich die Basis befindet
+	 * Gibt die ID des Systems zurueck, in dem sich die Basis befindet.
 	 * @return Die ID des Systems
 	 */
 	public int getSystem()
@@ -401,7 +400,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Setzt das System in dem sich die Basis befindet
+	 * Setzt das System in dem sich die Basis befindet.
 	 * @param system Das System
 	 */
 	public void setSystem(int system)
@@ -419,7 +418,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Setzt den Aktivierungszustand der Core
+	 * Setzt den Aktivierungszustand der Core.
 	 * @param active <code>true</code>, wenn die Core aktiv ist
 	 */
 	public void setCoreActive(boolean active)
@@ -428,7 +427,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 
 	/**
-	 * Gibt die maximale Masse an Cargo zurueck, die auf der Basis gelagert werden kann
+	 * Gibt die maximale Masse an Cargo zurueck, die auf der Basis gelagert werden kann.
 	 * @return Der Max-Cargo
 	 */
 	public long getMaxCargo()
@@ -437,7 +436,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Setzt den neuen maximalen Cargo der Basis
+	 * Setzt den neuen maximalen Cargo der Basis.
 	 * @param cargo Der neue maximale Cargo
 	 */
 	public void setMaxCargo(long cargo)
@@ -446,7 +445,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 
 	/**
-	 * Gibt die Anzahl der Bewohner auf der Basis zurueck
+	 * Gibt die Anzahl der Bewohner auf der Basis zurueck.
 	 * @return Die Bewohner
 	 */
 	public int getBewohner()
@@ -455,7 +454,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Setzt die Anzahl der Bewohner auf der Basis
+	 * Setzt die Anzahl der Bewohner auf der Basis.
 	 * @param bewohner Die neue Anzahl der Bewohner
 	 */
 	public void setBewohner(int bewohner)
@@ -464,7 +463,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Gibt die Anzahl der Marines auf der Basis zurueck
+	 * Gibt die Anzahl der Marines auf der Basis zurueck.
 	 * @return Die Anzahl der Marines
 	 */
 	public int getMarines()
@@ -473,7 +472,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Setzt die Anzahl der Marines auf der basis
+	 * Setzt die Anzahl der Marines auf der basis.
 	 * @param marines Die neue Anzahl der Marines
 	 */
 	public void setMarines(int marines)
@@ -482,7 +481,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Gibt die Anzahl der Arbeiter auf der Basis zurueck
+	 * Gibt die Anzahl der Arbeiter auf der Basis zurueck.
 	 * @return Die Arbeiter
 	 */
 	public int getArbeiter()
@@ -491,7 +490,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Setzt die neue Menge der Arbeiter auf der Basis. 
+	 * Setzt die neue Menge der Arbeiter auf der Basis.
 	 * @param arbeiter Die Anzahl der Arbeiter
 	 */
 	public void setArbeiter(int arbeiter)
@@ -500,7 +499,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 
 	/**
-	 * Gibt die vorhandene Energiemenge auf der Basis zurueck
+	 * Gibt die vorhandene Energiemenge auf der Basis zurueck.
 	 * @return Die Energiemenge
 	 */
 	public int getEnergy()
@@ -509,7 +508,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Setzt die Menge der auf der Basis vorhandenen Energie
+	 * Setzt die Menge der auf der Basis vorhandenen Energie.
 	 * @param e Die auf der Basis vorhandene Energie
 	 */
 	public void setEnergy(int e)
@@ -518,7 +517,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Gibt die maximal auf der Basis speicherbare Energiemenge zurueck
+	 * Gibt die maximal auf der Basis speicherbare Energiemenge zurueck.
 	 * @return die max. Energiemenge
 	 */
 	public int getMaxEnergy()
@@ -527,7 +526,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Setzt die maximale Menge an Energie die auf der Basis gespeichert werden kann
+	 * Setzt die maximale Menge an Energie die auf der Basis gespeichert werden kann.
 	 * @param maxe Die maximale Menge an Energie
 	 */
 	public void setMaxEnergy(int maxe)
@@ -536,7 +535,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Gibt die Klassennummer der Basis zurueck (= Der Astityp)
+	 * Gibt die Klassennummer der Basis zurueck (= Der Astityp).
 	 * @return Die Klassennummer
 	 */
 	public int getKlasse()
@@ -545,7 +544,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Setzt die Klasse der Basis
+	 * Setzt die Klasse der Basis.
 	 * @param klasse Die Klasse
 	 */
 	public void setKlasse(int klasse)
@@ -555,7 +554,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	
 	/**
 	 * Gibt die Anzahl an Feldern zurueck, die in die Gesamtflaechenanzahl eingerechnet werden
-	 * duerfen. Entspricht nicht immer der tatsaechlichen Anzahl an Feldern
+	 * duerfen. Entspricht nicht immer der tatsaechlichen Anzahl an Feldern.
 	 * @return Die verrechenbare Anzahl an Feldern
 	 */
 	public int getMaxTiles()
@@ -564,7 +563,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Setzt die Anzahl an Feldern, die in die Gesamtflaechenanzahl eingerechnet werden sollen
+	 * Setzt die Anzahl an Feldern, die in die Gesamtflaechenanzahl eingerechnet werden sollen.
 	 * @param tiles Die Felderanzahl
 	 */
 	public void setMaxTiles(int tiles)
@@ -575,7 +574,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	/**
 	 * Gibt den Radius der Basis auf der Sternenkarte zurueck.
 	 * 0 bedeutet in diesem Zusammenhang, dass die Basis keine Ausdehung
-	 * in benachbarte Felder hat (Normalfall)
+	 * in benachbarte Felder hat (Normalfall).
 	 * @return Der Radius
 	 */
 	public int getSize()
@@ -584,7 +583,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Setzt den Radius der Basis
+	 * Setzt den Radius der Basis.
 	 * @param size Der Radius
 	 */
 	public void setSize(int size)
@@ -593,7 +592,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Gibt eine Kopie der Liste der automatischen GTU-Verkaufsaktionen zurueck
+	 * Gibt eine Kopie der Liste der automatischen GTU-Verkaufsaktionen zurueck.
 	 * @return Eine Kopie der Liste der GTU-Verkaufsaktionen beim Tick
 	 */
 	public List<AutoGTUAction> getAutoGTUActs()
@@ -605,7 +604,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Setzt die Liste der automatischen GTU-Verkaufsaktionen
+	 * Setzt die Liste der automatischen GTU-Verkaufsaktionen.
 	 * @param list Die neue Liste
 	 */
 	public void setAutoGTUActs(List<AutoGTUAction> list)
@@ -615,7 +614,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Generiert den aktuellen Verbrauch/Produktion-Status einer Basis
+	 * Generiert den aktuellen Verbrauch/Produktion-Status einer Basis.
 	 * @param context Der aktuelle Kontext
 	 * @param base die ID der Basis
 	 * @return der aktuelle Verbrauchs/Produktions-Status
@@ -628,7 +627,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 		
 	/**
-	 * Generiert den aktuellen Verbrauch/Produktion-Status einer Basis
+	 * Generiert den aktuellen Verbrauch/Produktion-Status einer Basis.
 	 * @param context Der aktuelle Kontext
 	 * @param base die Basis
 	 * @return der aktuelle Verbrauchs/Produktions-Status
@@ -805,23 +804,27 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		return update;
 	}
 	
+	@Override
 	public boolean onDelete(Session s) throws CallbackException
 	{
 		// EMPTY
 		return false;
 	}
 
+	@Override
 	public void onLoad(Session s, Serializable id)
 	{
 		update();
 	}
 
+	@Override
 	public boolean onSave(Session s) throws CallbackException
 	{
 		// EMPTY
 		return false;
 	}
 
+	@Override
 	public boolean onUpdate(Session s) throws CallbackException
 	{
 		// EMPTY
@@ -829,7 +832,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 
 	/**
-	 * Gibt die Versionsnummer des Eintrags zurueck
+	 * Gibt die Versionsnummer des Eintrags zurueck.
 	 * @return Die Versionsnummer
 	 */
 	public int getVersion()
@@ -837,11 +840,13 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		return version;
 	}
 
+	@Override
 	public Location getLocation()
 	{
 		return new Location(this.getSystem(), this.getX(), this.getY());
 	}
 	
+	@Override
 	public String transfer(Transfering to, ResourceID resource, long count)
 	{
 		return new Transfer().transfer(this, to, resource, count);

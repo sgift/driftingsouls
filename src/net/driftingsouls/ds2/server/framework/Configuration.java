@@ -49,7 +49,7 @@ public class Configuration
 	/**
 	 * Laedt alle Konfigurationseinstellungen aus der config.xml im angegebenen Verzeichnis. Alle
 	 * bereits geladenen Konfigurationseinstellungen werden vorher geloescht. Das
-	 * Konfigurationsverzeichnis wird unter "configdir" in der Konfiguration abgelegt
+	 * Konfigurationsverzeichnis wird unter "configdir" in der Konfiguration abgelegt.
 	 * 
 	 * @param configdir Hauptkonfigurationsverzeichnis von DS
 	 * @throws Exception
@@ -101,7 +101,7 @@ public class Configuration
 	}
 
 	/**
-	 * Liefert eine Konfigurationseinstellung als String zurueck
+	 * Liefert eine Konfigurationseinstellung als String zurueck.
 	 * 
 	 * @param setting Name der Konfigurationseinstellung
 	 * @return Wert der Konfigurationseinstellung
@@ -145,7 +145,7 @@ public class Configuration
 	}
 
 	/**
-	 * Setzt eine Konfigurationseinstellung auf einen String-Wert
+	 * Setzt eine Konfigurationseinstellung auf einen String-Wert.
 	 * 
 	 * @param setting Name der Konfigurationseinstellung
 	 * @param value Wert der Konfigurationseinstellung
@@ -157,7 +157,7 @@ public class Configuration
 	}
 
 	/**
-	 * Setzt eine Konfigurationseinstellung auf einen Integer-Wert
+	 * Setzt eine Konfigurationseinstellung auf einen Integer-Wert.
 	 * 
 	 * @param setting Name der Konfigurationseinstellung
 	 * @param value Wert der Konfigurationseinstellung
@@ -169,7 +169,7 @@ public class Configuration
 	}
 
 	/**
-	 * Liefert eine Konfigurationseinstellung als String zurueck
+	 * Liefert eine Konfigurationseinstellung als String zurueck.
 	 * 
 	 * @param setting Name der Konfigurationseinstellung
 	 * @return Wert der Konfigurationseinstellung

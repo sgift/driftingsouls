@@ -28,7 +28,7 @@ import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Configuration;
 
 /**
- * Zeigt das Menue fuer sonstige Aktionen an, welche unter keine andere Kategorie fallen
+ * Zeigt das Menue fuer sonstige Aktionen an, welche unter keine andere Kategorie fallen.
  * @author Christopher Jung
  *
  */
@@ -38,7 +38,7 @@ public class KSMenuOtherAction extends BasicKSMenuAction {
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired

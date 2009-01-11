@@ -22,7 +22,7 @@ import javax.script.ScriptContext;
 import javax.script.ScriptException;
 
 /**
- * <h1>Interface fuer Rollen</h1>
+ * <h1>Interface fuer Rollen.</h1>
  * <p>Eine Rolle implementiert das Verhalten eines scriptbaren Objekts. Die Rolle
  * wird dabei auf Basis einer Rollendefinition initalisiert. Die Daten der
  * Rollendefinition werden dabei in mittels 
@@ -40,7 +40,7 @@ import javax.script.ScriptException;
  */
 public interface Role {
 	/**
-	 * Fuehrt die Rolle aus
+	 * Fuehrt die Rolle aus.
 	 * @param context Der Ausfuehrungskontext
 	 * @throws ScriptException Falls waehrend der Ausfuehrung ein Fehler auftritt
 	 */

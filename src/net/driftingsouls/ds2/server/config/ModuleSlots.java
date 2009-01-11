@@ -34,7 +34,7 @@ import org.w3c.dom.NodeList;
 /**
  * Repraesentiert die Liste aller in DS bekannten Modul-Slots.
  * Die Liste wird beim Start von DS aus der <code>moduleslots.xml</code>
- * geladen
+ * geladen.
  * 
  * @author Christopher Jung
  *
@@ -53,13 +53,14 @@ public class ModuleSlots implements Iterable<ModuleSlot> {
 	}
 	
 	/**
-	 * Gibt die Instanz der ModuleSlot-Liste zurueck
+	 * Gibt die Instanz der ModuleSlot-Liste zurueck.
 	 * @return Die ModuleSlot-Listen-Instanz
 	 */
 	public static ModuleSlots get() {
 		return moduleList;
 	}
 	
+	@Override
 	public Iterator<ModuleSlot> iterator() {
 		return list.values().iterator();
 	}

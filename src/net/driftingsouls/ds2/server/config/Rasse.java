@@ -33,16 +33,16 @@ import net.driftingsouls.ds2.server.namegenerator.NameGenerator;
 public class Rasse
 {
 	/**
-	 * Enum aller Namensgeneratortypen, die eine Rasse besitzen kann
+	 * Enum aller Namensgeneratortypen, die eine Rasse besitzen kann.
 	 */
 	public enum GeneratorType
 	{
 		/**
-		 * Der Namensgenerator fuer Personennamen
+		 * Der Namensgenerator fuer Personennamen.
 		 */
 		PERSON,
 		/**
-		 * Der Namensgenerator fuer Schiffsnamen
+		 * Der Namensgenerator fuer Schiffsnamen.
 		 */
 		SHIP;
 	}
@@ -86,7 +86,7 @@ public class Rasse
 	}
 
 	/**
-	 * Prueft, ob die Rasse direkt oder indirekt Mitglied in einer anderen Rasse ist
+	 * Prueft, ob die Rasse direkt oder indirekt Mitglied in einer anderen Rasse ist.
 	 * 
 	 * @param rasse die ID der Rasse, in der die Mitgliedschaft geprueft werden soll
 	 * @return <code>true</code>, falls die Rasse Mitglied ist
@@ -124,7 +124,7 @@ public class Rasse
 	}
 
 	/**
-	 * Prueft, ob ein Spieler ein Kopf der Rasse ist
+	 * Prueft, ob ein Spieler ein Kopf der Rasse ist.
 	 * 
 	 * @param id die ID des Spielers
 	 * @return <code>true</code>, falls der Spieler ein Kopf der Rasse ist
@@ -135,7 +135,7 @@ public class Rasse
 	}
 
 	/**
-	 * Gibt die ID der Rasse zurueck
+	 * Gibt die ID der Rasse zurueck.
 	 * 
 	 * @return Die ID der Rasse
 	 */
@@ -145,7 +145,7 @@ public class Rasse
 	}
 
 	/**
-	 * Gibt den Namen der Rasse zurueck
+	 * Gibt den Namen der Rasse zurueck.
 	 * 
 	 * @return der Name
 	 */
@@ -200,7 +200,7 @@ public class Rasse
 	}
 
 	/**
-	 * Gibt die Beschreibung der Rasse zurueck
+	 * Gibt die Beschreibung der Rasse zurueck.
 	 * 
 	 * @return Die Beschreibung der Rasse
 	 */

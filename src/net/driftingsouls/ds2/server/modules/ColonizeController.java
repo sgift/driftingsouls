@@ -41,7 +41,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
- * Kolonisieren eines Asteroiden mittels eines Colonizers (Schiff)
+ * Kolonisieren eines Asteroiden mittels eines Colonizers (Schiff).
  * @author Christopher Jung
  * 
  * @urlparam Integer ship Die Schiffs-ID des Colonizers
@@ -53,7 +53,7 @@ public class ColonizeController extends TemplateGenerator {
 	private Base base;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public ColonizeController(Context context) {
@@ -112,7 +112,7 @@ public class ColonizeController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Der Kolonisiervorgang
+	 * Der Kolonisiervorgang.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

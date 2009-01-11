@@ -35,7 +35,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
 /**
- * Scriptfunktionen fuer Schiffsaktionsscripte
+ * Scriptfunktionen fuer Schiffsaktionsscripte.
  * @author Christopher Jung
  *
  */
@@ -202,7 +202,7 @@ public class ActionFunctions {
 		private Ship.DockMode mode = Ship.DockMode.DOCK;
 		
 		/**
-		 * Erstellt eine Scriptfunktion als Wrapper
+		 * Erstellt eine Scriptfunktion als Wrapper.
 		 * @param mode Der Dock-Modus
 		 * @param allowAll Soll <code>all</code> (alle gedockten Schiffe) zugelassen werden?
 		 */

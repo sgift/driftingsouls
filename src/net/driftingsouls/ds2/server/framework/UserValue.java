@@ -28,7 +28,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 /**
- * <h1>Ein UserValue</h1>
+ * <h1>Ein UserValue.</h1>
  * Ein UserValue ist eine Kombination aus Name und Wert, welche an einen
  * User gebunden ist.
  * 
@@ -52,7 +52,7 @@ public class UserValue {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public UserValue() {
@@ -60,7 +60,7 @@ public class UserValue {
 	}
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param user Der User, dem der UserValue zugeordnet werden soll
 	 * @param name Der Name des UserValues
 	 * @param value Der Wert
@@ -72,7 +72,7 @@ public class UserValue {
 	}
 
 	/**
-	 * Gibt den Namen des UserValues zurueck
+	 * Gibt den Namen des UserValues zurueck.
 	 * @return Der Name
 	 */
 	public String getName() {
@@ -80,7 +80,7 @@ public class UserValue {
 	}
 
 	/**
-	 * Setzt den Namen des UserValues
+	 * Setzt den Namen des UserValues.
 	 * @param name Der Name
 	 */
 	public void setName(String name) {
@@ -88,7 +88,7 @@ public class UserValue {
 	}
 
 	/**
-	 * Gibt den User zurueck, welchem der UserValue zugeordnet ist
+	 * Gibt den User zurueck, welchem der UserValue zugeordnet ist.
 	 * @return Der User
 	 */
 	public BasicUser getUser() {
@@ -96,7 +96,7 @@ public class UserValue {
 	}
 
 	/**
-	 * Setzt den User, dem der UserValue zugeordnet ist
+	 * Setzt den User, dem der UserValue zugeordnet ist.
 	 * @param user Der User
 	 */
 	public void setUser(BasicUser user) {
@@ -104,7 +104,7 @@ public class UserValue {
 	}
 
 	/**
-	 * Gibt den Wert zurueck
+	 * Gibt den Wert zurueck.
 	 * @return Der Wert
 	 */
 	public String getValue() {
@@ -112,7 +112,7 @@ public class UserValue {
 	}
 
 	/**
-	 * Setzt den Wert
+	 * Setzt den Wert.
 	 * @param value Der neue Wert
 	 */
 	public void setValue(String value) {
@@ -120,7 +120,7 @@ public class UserValue {
 	}
 
 	/**
-	 * Gibt die ID des UserValues zurueck
+	 * Gibt die ID des UserValues zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -128,7 +128,7 @@ public class UserValue {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

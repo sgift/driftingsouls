@@ -32,7 +32,7 @@ import javax.persistence.Version;
 import org.hibernate.annotations.DiscriminatorFormula;
 
 /**
- * Basisklasse fuer Versteigerungen
+ * Basisklasse fuer Versteigerungen.
  * @author Christopher Jung
  *
  */
@@ -58,7 +58,7 @@ public abstract class Versteigerung {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public Versteigerung() {
@@ -66,7 +66,7 @@ public abstract class Versteigerung {
 	}
 	
 	/**
-	 * Erstellt eine neue Versteigerung
+	 * Erstellt eine neue Versteigerung.
 	 * @param owner Der Besitzer und zugleich default-Bieter
 	 * @param mtype Der Typ der Versteigerung
 	 * @param price Der Startpreis
@@ -79,7 +79,7 @@ public abstract class Versteigerung {
 	}
 
 	/**
-	 * Gibt den Bieter zurueck
+	 * Gibt den Bieter zurueck.
 	 * @return Der Bieter
 	 */
 	public User getBieter() {
@@ -87,7 +87,7 @@ public abstract class Versteigerung {
 	}
 
 	/**
-	 * Setzt den Bieter
+	 * Setzt den Bieter.
 	 * @param bieter Der Bieter
 	 */
 	public void setBieter(User bieter) {
@@ -95,7 +95,7 @@ public abstract class Versteigerung {
 	}
 
 	/**
-	 * Gibt den Besitzer der Versteigerung zurueck
+	 * Gibt den Besitzer der Versteigerung zurueck.
 	 * @return Der Besitzer
 	 */
 	public User getOwner() {
@@ -103,7 +103,7 @@ public abstract class Versteigerung {
 	}
 
 	/**
-	 * Setzt den Besitzer der Versteigerung
+	 * Setzt den Besitzer der Versteigerung.
 	 * @param owner Der Besitzer
 	 */
 	public void setOwner(User owner) {
@@ -111,7 +111,7 @@ public abstract class Versteigerung {
 	}
 
 	/**
-	 * Gibt den aktuellen Preis zurueck
+	 * Gibt den aktuellen Preis zurueck.
 	 * @return Der Preis
 	 */
 	public long getPreis() {
@@ -119,7 +119,7 @@ public abstract class Versteigerung {
 	}
 
 	/**
-	 * Setzt den aktuellen Preis
+	 * Setzt den aktuellen Preis.
 	 * @param preis Der Preis
 	 */
 	public void setPreis(long preis) {
@@ -127,7 +127,7 @@ public abstract class Versteigerung {
 	}
 
 	/**
-	 * Gibt den Tick zurueck, an dem die Versteigerung endet
+	 * Gibt den Tick zurueck, an dem die Versteigerung endet.
 	 * @return Der Tick
 	 */
 	public int getTick() {
@@ -135,7 +135,7 @@ public abstract class Versteigerung {
 	}
 
 	/**
-	 * Setzt den Tick, an dem die Versteigerung endet
+	 * Setzt den Tick, an dem die Versteigerung endet.
 	 * @param tick Der Tick
 	 */
 	public void setTick(int tick) {
@@ -143,7 +143,7 @@ public abstract class Versteigerung {
 	}
 
 	/**
-	 * Gibt die ID der Versteigerung zurueck
+	 * Gibt die ID der Versteigerung zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -151,38 +151,38 @@ public abstract class Versteigerung {
 	}
 	
 	/**
-	 * Gibt den Namen des zu versteigernden Objekts zurueck
+	 * Gibt den Namen des zu versteigernden Objekts zurueck.
 	 * @return Der Name
 	 */
 	public abstract String getObjectName();
 	
 	/**
-	 * Gibt das Bild des zu versteigernden Objekts zurueck
+	 * Gibt das Bild des zu versteigernden Objekts zurueck.
 	 * @return Das Bild
 	 */
 	public abstract String getObjectPicture();
 	
 	/**
-	 * Gibt eine URL zur Anzeige weiterer Details zurueck
+	 * Gibt eine URL zur Anzeige weiterer Details zurueck.
 	 * @return Die URL
 	 */
 	public abstract String getObjectUrl();
 	
 	/**
-	 * Gibt die Anzahl an zu versteigernden Objekten zurueck
+	 * Gibt die Anzahl an zu versteigernden Objekten zurueck.
 	 * @return Die Anzahl
 	 */
 	public abstract long getObjectCount();
 	
 	/**
 	 * Gibt zurueck, ob das Bild des Objekts fest auf 50x50 Pixel gesetzt werden soll.
-	 * Andernfalls wird das Bild in der urspruenglichen Groesse verwendet
+	 * Andernfalls wird das Bild in der urspruenglichen Groesse verwendet.
 	 * @return <code>true</code>, falls das Bild als 50x50 Pixel gossses Bild verwendet werden soll
 	 */
 	public abstract boolean isObjectFixedImageSize();
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

@@ -34,7 +34,7 @@ import net.driftingsouls.ds2.server.install.checks.WebXmlExistsCheck;
 import net.driftingsouls.ds2.server.install.checks.WebXmlValidXmlCheck;
 
 /**
- * Ueberprueft die Installation von Drifting Souls auf moegliche Probleme
+ * Ueberprueft die Installation von Drifting Souls auf moegliche Probleme.
  * @author Christopher Jung
  *
  */
@@ -57,7 +57,7 @@ public class CheckInstallation {
 	
 	/**
 	 * Bringt einen String auf eine feste Laenge. Zu lange Strings werden
-	 * abgeschnitten. Zu kurze mit Leerzeichen aufgefuellt
+	 * abgeschnitten. Zu kurze mit Leerzeichen aufgefuellt.
 	 * @param string Der String
 	 * @param length Die gewuenschte Laenge
 	 * @return Der neue String
@@ -79,7 +79,7 @@ public class CheckInstallation {
 	}
 	
 	/**
-	 * Die Main
+	 * Die Main.
 	 * @param args Kommandozeilenargumente
 	 */
 	public static void main(String[] args) {

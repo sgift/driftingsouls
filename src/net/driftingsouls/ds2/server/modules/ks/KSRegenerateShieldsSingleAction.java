@@ -29,13 +29,13 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
- * Laedt die Schilde des gerade ausgewaehlten Schiffes wieder auf
+ * Laedt die Schilde des gerade ausgewaehlten Schiffes wieder auf.
  * @author Christopher Jung
  *
  */
 public class KSRegenerateShieldsSingleAction extends BasicKSAction {
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public KSRegenerateShieldsSingleAction() {

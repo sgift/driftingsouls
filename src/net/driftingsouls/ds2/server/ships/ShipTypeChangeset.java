@@ -80,8 +80,8 @@ public class ShipTypeChangeset {
 	private int pickingCost;
 	
 	/**
-	 * Konstruktor
-	 * @param node
+	 * Konstruktor.
+	 * @param node Der XML-Knoten mit den Changeset-Informationen
 	 */
 	public ShipTypeChangeset(Node node) {
 		final String NAMESPACE = "http://www.drifting-souls.net/ds2/shipdata/2006";
@@ -253,7 +253,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, um wieviel die externen Docks modifiziert werden
+	 * Gibt zurueck, um wieviel die externen Docks modifiziert werden.
 	 * @return Die externen Docks
 	 */
 	public int getADocks() {
@@ -261,7 +261,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, um wieviel der Cargo modifiziert wird
+	 * Gibt zurueck, um wieviel der Cargo modifiziert wird.
 	 * @return Der Cargo
 	 */
 	public long getCargo() {
@@ -269,7 +269,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, um wieviel die Flugkosten modifiziert werden
+	 * Gibt zurueck, um wieviel die Flugkosten modifiziert werden.
 	 * @return Die Flugkosten
 	 */
 	public int getCost() {
@@ -277,7 +277,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, um wieviel die Crew modifiziert wird
+	 * Gibt zurueck, um wieviel die Crew modifiziert wird.
 	 * @return Die Crew
 	 */
 	public int getCrew() {
@@ -285,7 +285,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, um wieviel die Marines modifiziert werden sollen
+	 * Gibt zurueck, um wieviel die Marines modifiziert werden sollen.
 	 * @return Die Marines
 	 */
 	public int getMarines() {
@@ -293,7 +293,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, um wieviel der Deutfaktor modifiziert wird
+	 * Gibt zurueck, um wieviel der Deutfaktor modifiziert wird.
 	 * @return Der Deutfaktor
 	 */
 	public int getDeutFactor() {
@@ -301,7 +301,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, um wieviel die EPS modifiziert werden
+	 * Gibt zurueck, um wieviel die EPS modifiziert werden.
 	 * @return Die EPS
 	 */
 	public int getEps() {
@@ -309,7 +309,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, welche Flags zusaetzlich gesetzt werden
+	 * Gibt zurueck, welche Flags zusaetzlich gesetzt werden.
 	 * @return Die neuen Flags
 	 */
 	public String getFlags() {
@@ -317,7 +317,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, um wieviel die Antriebsueberhitzung modifiziert wird
+	 * Gibt zurueck, um wieviel die Antriebsueberhitzung modifiziert wird.
 	 * @return Die Antriebsueberhitzung
 	 */
 	public int getHeat() {
@@ -325,7 +325,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, um wieviel die Huelle modifiziert wird
+	 * Gibt zurueck, um wieviel die Huelle modifiziert wird.
 	 * @return Die Huelle
 	 */
 	public int getHull() {
@@ -333,7 +333,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, um wieviel die Nahrungsproduktion modifiziert wird
+	 * Gibt zurueck, um wieviel die Nahrungsproduktion modifiziert wird.
 	 * @return Die Nahrungsproduktion
 	 */
 	public int getHydro() {
@@ -341,7 +341,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, um wieviel die Jaegerdocks modifiziert werden
+	 * Gibt zurueck, um wieviel die Jaegerdocks modifiziert werden.
 	 * @return Die Jaegerdocks
 	 */
 	public int getJDocks() {
@@ -349,7 +349,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, wie die Waffenueberhitzung modifiziert wird
+	 * Gibt zurueck, wie die Waffenueberhitzung modifiziert wird.
 	 * @return Die Waffenueberhitzung
 	 */
 	public Map<String, Integer> getMaxHeat() {
@@ -360,7 +360,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt den neuen Nickname zurueck
+	 * Gibt den neuen Nickname zurueck.
 	 * @return Der Name
 	 */
 	public String getNickname() {
@@ -368,7 +368,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt die Einweg-Werftdaten zurueck
+	 * Gibt die Einweg-Werftdaten zurueck.
 	 * @return Die Einweg-Werftdaten
 	 */
 	public int getOneWayWerft() {
@@ -376,7 +376,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, um wieviel die Panzerung modifiziert wird
+	 * Gibt zurueck, um wieviel die Panzerung modifiziert wird.
 	 * @return Die Panzerung
 	 */
 	public int getPanzerung() {
@@ -384,7 +384,7 @@ public class ShipTypeChangeset {
 	}
 	
 	/**
-	 * Gibt zurueck, um wieviel die ablative Panzerung modifiziert wird
+	 * Gibt zurueck, um wieviel die ablative Panzerung modifiziert wird.
 	 * @return Die ablative Panzerung
 	 */
 	public int getAblativeArmor() {
@@ -392,7 +392,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt das neue Bild zurueck
+	 * Gibt das neue Bild zurueck.
 	 * @return Das Bild
 	 */
 	public String getPicture() {
@@ -400,7 +400,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, um wieviel der Reaktorwert fuer Antimaterie modifiziert wird
+	 * Gibt zurueck, um wieviel der Reaktorwert fuer Antimaterie modifiziert wird.
 	 * @return Der Reaktorwert
 	 */
 	public int getRa() {
@@ -408,7 +408,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, um wieviel der Reaktorwert fuer Deuterium modifiziert wird
+	 * Gibt zurueck, um wieviel der Reaktorwert fuer Deuterium modifiziert wird.
 	 * @return Der Reaktorwert
 	 */
 	public int getRd() {
@@ -416,7 +416,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, um wieviel die Wartungskosten modifiziert werden
+	 * Gibt zurueck, um wieviel die Wartungskosten modifiziert werden.
 	 * @return Die Wartungskosten
 	 */
 	public int getReCost() {
@@ -424,7 +424,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, um wieviel die Gesamtenergieproduktion des Reaktors modifiziert wird
+	 * Gibt zurueck, um wieviel die Gesamtenergieproduktion des Reaktors modifiziert wird.
 	 * @return Die Gesamtenergieproduktion
 	 */
 	public int getRm() {
@@ -432,7 +432,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, um wieviel der Reaktorwert fuer Uran modifiziert wird
+	 * Gibt zurueck, um wieviel der Reaktorwert fuer Uran modifiziert wird.
 	 * @return Der Reaktorwert
 	 */
 	public int getRu() {
@@ -440,7 +440,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, um wieviel die Sensorenreichweite modifiziert wird
+	 * Gibt zurueck, um wieviel die Sensorenreichweite modifiziert wird.
 	 * @return Die Sensorenreichweite
 	 */
 	public int getSensorRange() {
@@ -448,7 +448,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, um wieviel die Schilde modifiziert werden
+	 * Gibt zurueck, um wieviel die Schilde modifiziert werden.
 	 * @return Die Schilde
 	 */
 	public int getShields() {
@@ -456,7 +456,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, um wieviel die Schiffsgroesse modifiziert wird
+	 * Gibt zurueck, um wieviel die Schiffsgroesse modifiziert wird.
 	 * @return Die Schiffsgroesse
 	 */
 	public int getSize() {
@@ -464,7 +464,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, um wieviel die Torpedoabwehr modifiziert wird
+	 * Gibt zurueck, um wieviel die Torpedoabwehr modifiziert wird.
 	 * @return Die Torpedoabwehr
 	 */
 	public int getTorpedoDef() {
@@ -472,7 +472,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt die Modifikationsdaten der Waffen zurueck
+	 * Gibt die Modifikationsdaten der Waffen zurueck.
 	 * @return Die Modifikationsdaten der Waffen
 	 */
 	public Map<String, Integer[]> getWeapons() {
@@ -487,7 +487,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt die neuen Werftdaten zurueck
+	 * Gibt die neuen Werftdaten zurueck.
 	 * @return Die Werftdaten
 	 */
 	public int getWerft() {
@@ -495,7 +495,7 @@ public class ShipTypeChangeset {
 	}
 	
 	/**
-	 * Gibt die Bildmodifikatoren zurueck
+	 * Gibt die Bildmodifikatoren zurueck.
 	 * @return Die Bildmodifikatoren
 	 */
 	public String getPictureMods() {
@@ -503,7 +503,7 @@ public class ShipTypeChangeset {
 	}
 	
 	/**
-	 * Gibt zurueck, ob SRS vorhanden sein sollen
+	 * Gibt zurueck, ob SRS vorhanden sein sollen.
 	 * @return <code>true</code>, falls SRS vorhanden sein sollen
 	 */
 	public Boolean hasSrs() {
@@ -511,7 +511,7 @@ public class ShipTypeChangeset {
 	}
 	
 	/**
-	 * Gibt zurueck, wieviel ein LRS-Scan an Energie kosten soll
+	 * Gibt zurueck, wieviel ein LRS-Scan an Energie kosten soll.
 	 * @return Die Energiekosten
 	 */
 	public int getScanCost() {
@@ -519,7 +519,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, wieviel ein LRS-Sektorscan (Scannen des Inhalts eines Sektors) kosten soll
+	 * Gibt zurueck, wieviel ein LRS-Sektorscan (Scannen des Inhalts eines Sektors) kosten soll.
 	 * @return Die Energiekosten
 	 */
 	public int getPickingCost() {
@@ -527,7 +527,7 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Wendet das Changeset auf die angegebenen Schiffstypendaten an
+	 * Wendet das Changeset auf die angegebenen Schiffstypendaten an.
 	 * @param type Die Schiffstypendaten
 	 * @return Die modifizierten Daten
 	 */
@@ -536,7 +536,7 @@ public class ShipTypeChangeset {
 	}
 	
 	/**
-	 * Wendet das Changeset auf die angegebenen Schiffstypendaten an
+	 * Wendet das Changeset auf die angegebenen Schiffstypendaten an.
 	 * @param type Die Schiffstypendaten
 	 * @param replaceWeapons Die Waffen, welche ggf ersetzt werden sollen
 	 * @return Die modifizierten Daten

@@ -21,11 +21,11 @@ package net.driftingsouls.ds2.server.framework.bbcode;
 class TagList implements BBCodeFunction {
 	enum Type {
 		/**
-		 * Eine Liste
+		 * Eine Liste.
 		 */
 		LIST,
 		/**
-		 * Eine Unterliste (Liste innerhalb einer Liste
+		 * Eine Unterliste (Liste innerhalb einer Liste.
 		 */
 		SUBLIST
 	}

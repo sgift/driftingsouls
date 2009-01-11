@@ -39,7 +39,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
- * Die UI zum GTU-Zwischenlager
+ * Die UI zum GTU-Zwischenlager.
  * <p>Hinweise zur Datenbankstruktur:<br>
  * <ul>
  * <li><b>user1</b> - Die ID des einen Handelspartners</li>
@@ -62,7 +62,7 @@ public class GtuZwischenLagerController extends TemplateGenerator {
 	private int handel;
 		
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public GtuZwischenLagerController(Context context) {
@@ -116,7 +116,7 @@ public class GtuZwischenLagerController extends TemplateGenerator {
 	
 	/**
 	 * Transferiert nach der Bezahlung (jetzt) eigene Waren aus einem Handelsuebereinkommen
-	 * auf das aktuelle Schiff
+	 * auf das aktuelle Schiff.
 	 * @urlparam Integer entry Die ID des Zwischenlager-Eintrags
 	 *
 	 */
@@ -217,7 +217,7 @@ public class GtuZwischenLagerController extends TemplateGenerator {
 	}
 
 	/**
-	 * Transferiert fuer einen Eintrag noch fehlende Resourcen 
+	 * Transferiert fuer einen Eintrag noch fehlende Resourcen.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -226,7 +226,7 @@ public class GtuZwischenLagerController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt einen Handelsuebereinkommen an
+	 * Zeigt einen Handelsuebereinkommen an.
 	 * @urlparam Integer entry Die ID des Zwischenlager-Eintrags
 	 *
 	 */
@@ -286,7 +286,7 @@ public class GtuZwischenLagerController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Liste aller Handelsvereinbarungen auf diesem Handelsposten an, an denen der aktuelle Spieler beteiligt ist
+	 * Zeigt die Liste aller Handelsvereinbarungen auf diesem Handelsposten an, an denen der aktuelle Spieler beteiligt ist.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

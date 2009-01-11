@@ -32,7 +32,7 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * TASK_ALLY_NEW_MEMBER
- * 		Einer Allianz beitreten (Aufnahmeantrag)
+ * 		Einer Allianz beitreten (Aufnahmeantrag).
  * 
  * 	- data1 -> die ID der Allianz
  *  - data2 -> die ID des Spielers, der den Antrag gestellt hat

@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.config;
 
 /**
- * Kennzeichnet einen ungueltigen Slotbezeichner fuer einen Modulslot
+ * Kennzeichnet einen ungueltigen Slotbezeichner fuer einen Modulslot.
  * @author Christopher Jung
  *
  */
@@ -27,7 +27,7 @@ public class NoSuchSlotException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param slot Der Bezeichner des ungueltigen Modulslots
 	 */
 	public NoSuchSlotException(String slot) {

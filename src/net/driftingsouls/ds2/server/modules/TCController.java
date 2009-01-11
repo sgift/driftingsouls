@@ -36,7 +36,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
- * Transferiert Offiziere von und zu Schiffen/Basen
+ * Transferiert Offiziere von und zu Schiffen/Basen.
  * 
  * @author Christopher Jung
  * 
@@ -50,7 +50,7 @@ public class TCController extends TemplateGenerator {
 	private Ship ship = null;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public TCController(Context context) {
@@ -93,7 +93,7 @@ public class TCController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Offiziersliste eines Objekts ausgeben
+	 * Offiziersliste eines Objekts ausgeben.
 	 * 
 	 * @param mode	Transfermodus (shipToShip, baseToShip usw)
 	 * @param dest	Typ des Aufenthaltsort der Offiziere (s,b usw)
@@ -124,7 +124,7 @@ public class TCController extends TemplateGenerator {
 	}
 
 	/**
-	 * Transferiert einen Offizier von einem Schiff zu einem Schiff
+	 * Transferiert einen Offizier von einem Schiff zu einem Schiff.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -266,7 +266,7 @@ public class TCController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Transferiert einen Offizier von einem Schiff zu einer Basis
+	 * Transferiert einen Offizier von einem Schiff zu einer Basis.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -358,7 +358,7 @@ public class TCController extends TemplateGenerator {
 	
 	/**
 	 * Transfieriert Offiziere (sofern genug vorhanden) Offiziere von einer Basis
-	 * zu einer Flotte
+	 * zu einer Flotte.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -429,7 +429,7 @@ public class TCController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Transfieriert Offiziere von einer Basis zu einem Schiff
+	 * Transfieriert Offiziere von einer Basis zu einem Schiff.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)

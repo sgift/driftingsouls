@@ -39,7 +39,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
- * Die Liste aller baubaren Gebaeude und Cores
+ * Die Liste aller baubaren Gebaeude und Cores.
  * @author Christopher Jung
  * 
  * @urlparam Integer col Die ID der Basis, auf die der zurueck-Link zeigen soll
@@ -52,7 +52,7 @@ public class BuildingsController extends TemplateGenerator {
 	private Configuration config;
 	
 	/**
-	 * Injiziert die DS-Konfiguration
+	 * Injiziert die DS-Konfiguration.
 	 * @param config Die DS-Konfiguration
 	 */
 	@Autowired
@@ -63,7 +63,7 @@ public class BuildingsController extends TemplateGenerator {
 	}
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public BuildingsController(Context context) {
@@ -98,7 +98,7 @@ public class BuildingsController extends TemplateGenerator {
 	}
 
 	/**
-	 * Zeigt die Liste aller baubaren Gebaeude und Cores an
+	 * Zeigt die Liste aller baubaren Gebaeude und Cores an.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

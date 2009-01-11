@@ -24,7 +24,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 
 /**
- * Basisklasse fuer WebServices
+ * Basisklasse fuer WebServices.
  * @author Christopher Jung
  *
  */
@@ -32,7 +32,7 @@ public abstract class BasicWebService {
 	private Context context;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public BasicWebService() {
@@ -40,7 +40,7 @@ public abstract class BasicWebService {
 	}
 	
 	/**
-	 * Gibt eine Instanz der Datenbankverbindung zurueck
+	 * Gibt eine Instanz der Datenbankverbindung zurueck.
 	 * @return Eine Datenbankverbindung
 	 * @deprecated Bitte Hibernate verwenden
 	 */
@@ -50,7 +50,7 @@ public abstract class BasicWebService {
 	}
 	
 	/**
-	 * Gibt den Kontext zurueck
+	 * Gibt den Kontext zurueck.
 	 * @return Der Kontext
 	 */
 	public Context getContext() {
@@ -59,7 +59,7 @@ public abstract class BasicWebService {
 	
 	/**
 	 * Gibt den aktiven Benutzer oder <code>null</code>, falls kein aktiver
-	 * Benutzer existiert, zurueck
+	 * Benutzer existiert, zurueck.
 	 * @return Der aktive Benutzer oder <code>null</code>
 	 */
 	public User getUser() {

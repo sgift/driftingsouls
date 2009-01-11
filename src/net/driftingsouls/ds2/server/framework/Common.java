@@ -57,7 +57,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Allgemeine Hilfsfunktionen des Frameworks
+ * Allgemeine Hilfsfunktionen des Frameworks.
  * @author Christopher Jung
  *
  */
@@ -68,7 +68,7 @@ public class Common {
 	private static Locale locale;
 	
 	/**
-	 * Anzahl der Ticks pro Tag
+	 * Anzahl der Ticks pro Tag.
 	 */
 	public final static int TICKS_PER_DAY = 7;
 	
@@ -97,7 +97,7 @@ public class Common {
 	}
 	
 	/**
-	 * Entfernt am Anfang und Ende jeder Zeile eines Texts ueberschuessige Zeichen (Leerzeichen usw)
+	 * Entfernt am Anfang und Ende jeder Zeile eines Texts ueberschuessige Zeichen (Leerzeichen usw).
 	 * @param text Der Text
 	 * @return Das Ergebnis
 	 */
@@ -157,7 +157,7 @@ public class Common {
 	}
 	
 	/**
-	 * Liefert das aktuell verwendete <code>NumberFormat</code>
+	 * Liefert das aktuell verwendete <code>NumberFormat</code>.
 	 * @return das aktuell verwendete <code>NumberFormat</code>
 	 */
 	public static NumberFormat getNumberFormat() {
@@ -165,7 +165,7 @@ public class Common {
 	}
 	
 	/**
-	 * Liefert die aktive <code>Locale</code> zurueck
+	 * Liefert die aktive <code>Locale</code> zurueck.
 	 * @return Die aktive <code>Locale</code>
 	 */
 	public static Locale getLocale() {
@@ -173,7 +173,7 @@ public class Common {
 	}
 	
 	/**
-	 * Setzt die aktive Locale
+	 * Setzt die aktive Locale.
 	 * @param locale die neue Locale
 	 */
 	static void setLocale( Locale locale ) {
@@ -182,7 +182,7 @@ public class Common {
 	}
 	
 	/**
-	 * Formatiert eine Zahl unter Verwendung der gerade gesetzten <code>Locale</code>
+	 * Formatiert eine Zahl unter Verwendung der gerade gesetzten <code>Locale</code>.
 	 * @param number Die zu formatierende Zahl
 	 * @return Die formatierte Zahl
 	 */
@@ -191,7 +191,7 @@ public class Common {
 	}
 	
 	/**
-	 * Gibt den Anfangsteil einer DS-Tabelle als String zurueck
+	 * Gibt den Anfangsteil einer DS-Tabelle als String zurueck.
 	 * @param width Die gewuenschte Breite
 	 * @param align Die gewuenschte Ausrichtung des Inhalts (<code>left</code>,<code>center</code>,<code>right</code>,<code>justify</code>)
 	 * @return Der Tabellenkopf als String
@@ -202,7 +202,7 @@ public class Common {
 	}
 	
 	/**
-	 * Gibt den Anfangsteil einer DS-Tabelle als String zurueck
+	 * Gibt den Anfangsteil einer DS-Tabelle als String zurueck.
 	 * @param width Die gewuenschte Breite
 	 * @param align Die gewuenschte Ausrichtung des Inhalts (<code>left</code>,<code>center</code>,<code>right</code>,<code>justify</code>)
 	 * @param imagePath der Pfad zum Data-Verzeichnis
@@ -226,7 +226,7 @@ public class Common {
 	}
 	
 	/**
-	 * Gibt den Endteil einer DS-Tabelle als String zurueck
+	 * Gibt den Endteil einer DS-Tabelle als String zurueck.
 	 * @return Der Tabellenfuss als String
 	 * @see #tableBegin(int, String)
 	 */
@@ -235,7 +235,7 @@ public class Common {
 	}
 	
 	/**
-	 * Gibt den Endteil einer DS-Tabelle als String zurueck
+	 * Gibt den Endteil einer DS-Tabelle als String zurueck.
 	 * @param imagePath der Pfad zum Data-Verzeichnis
 	 * @return Der Tabellenfuss als String
 	 * @see #tableBegin(int, String)
@@ -257,7 +257,7 @@ public class Common {
 	}
 	
 	/**
-	 * Verknuepft ein Array mittels Trennzeichen zu einem String
+	 * Verknuepft ein Array mittels Trennzeichen zu einem String.
 	 * 
 	 * @param <T> Der Typ des Sets
 	 * @param separator Das Trennzeichen
@@ -284,7 +284,7 @@ public class Common {
 	}
 	
 	/**
-	 * Verknuepft ein Array mittels Trennzeichen zu einem String
+	 * Verknuepft ein Array mittels Trennzeichen zu einem String.
 	 * 
 	 * @param separator Das Trennzeichen
 	 * @param list Das zu verknuepfende Array
@@ -308,7 +308,7 @@ public class Common {
 	}
 	
 	/**
-	 * Verknuepft ein Array mittels Trennzeichen zu einem String
+	 * Verknuepft ein Array mittels Trennzeichen zu einem String.
 	 * 
 	 * @param <T> Der Typ des Arrays
 	 * @param separator Das Trennzeichen
@@ -333,7 +333,7 @@ public class Common {
 	}
 	
 	/**
-	 * Verknuepft eine Liste mittels Trennzeichen zu einem String
+	 * Verknuepft eine Liste mittels Trennzeichen zu einem String.
 	 * 
 	 * @param separator Das Trennzeichen
 	 * @param list Die zu verknuepfende Liste
@@ -361,7 +361,7 @@ public class Common {
 	
 	/**
 	 * Splittet einen String anhand eines Trenn-Strings in einzelne Teile
-	 * und konvertiert diese in Integer-Zahlen 
+	 * und konvertiert diese in Integer-Zahlen.
 	 * @param separator Der Trenn-String
 	 * @param array Der zu trennende String
 	 * @return der getrennte String als Integer-Array
@@ -377,7 +377,7 @@ public class Common {
 	
 	/**
 	 * Splittet einen String anhand eines Trenn-Strings in einzelne Teile
-	 * und konvertiert diese in Integer-Zahlen 
+	 * und konvertiert diese in Integer-Zahlen.
 	 * @param separator Der Trenn-String
 	 * @param array Der zu trennende String
 	 * @return der getrennte String als Integer-Array
@@ -389,7 +389,7 @@ public class Common {
 	/**
 	 * Splittet einen String anhand eines Trenn-Strings in einzelne Teile
 	 * und konvertiert diese in Integer-Zahlen. Das resultierende Integer-Array
-	 * hat dabei exakt die angegebende Groesse
+	 * hat dabei exakt die angegebende Groesse.
 	 *  
 	 * @param separator Der Trenn-String
 	 * @param array Der zu trennende String
@@ -414,7 +414,7 @@ public class Common {
 	}
 	
 	/**
-	 * Liefert den aktuellen Zeitstempel in Sekunden ab dem 1.1.1970
+	 * Liefert den aktuellen Zeitstempel in Sekunden ab dem 1.1.1970.
 	 * 
 	 * @return Der Zeitstempel
 	 */
@@ -448,7 +448,7 @@ public class Common {
 	};
 	
 	/**
-	 * Erzeugt anhand des Formatierungsmusters einen Datumsstring mit dem aktuellen Datum
+	 * Erzeugt anhand des Formatierungsmusters einen Datumsstring mit dem aktuellen Datum.
 	 * 
 	 * @param pattern Der Formatierungsstring
 	 * @return Das formatierte Datum
@@ -460,7 +460,7 @@ public class Common {
 
 	/**
 	 * Erzeugt aus einem Zeitstempel und einem Formatierungsmuster einen Datumsstring.
-	 * Vgl. date(...)-Befehl in php
+	 * Vgl. date(...)-Befehl in php.
 	 * 
 	 * @param pattern Das Formatierungsmuster
 	 * @param time Der Zeitstempel
@@ -657,7 +657,7 @@ public class Common {
 	}
 	
 	/**
-	 * Prueft, ob ein Wert in einem Array vorhanden ist
+	 * Prueft, ob ein Wert in einem Array vorhanden ist.
 	 * 
 	 * @param <T> Der Typ von Array und Wert
 	 * @param key Der zu suchende Wert
@@ -674,7 +674,7 @@ public class Common {
 	}
 	
 	/**
-	 * Prueft, ob ein Wert in einem Array vorhanden ist
+	 * Prueft, ob ein Wert in einem Array vorhanden ist.
 	 *
 	 * @param key Der zu suchende Wert
 	 * @param list Das Array
@@ -697,7 +697,7 @@ public class Common {
 	 * HTML-Zeichen uebersetzt.<br>
 	 * Bereits im Text vorhandene HTML-Zeichen (&amp;...;)  werden nach Moeglichkeit
 	 * erhalten.<br>
-	 * Zeilenumbrueche werden nicht in &lt;br&gt; umgewandelt
+	 * Zeilenumbrueche werden nicht in &lt;br&gt; umgewandelt.
 	 * 
 	 * @param string der zu formatierende Text
 	 * @return der in HTML formatierte Text
@@ -771,7 +771,7 @@ public class Common {
 	
 	/**
 	 * Formatiert einen Text in HTML-Code. Alle dem <code>BBCodeParser</code>
-	 * bekannten Tags werden dafuer genutzt. Zudem werden Zeilenumbrueche behandelt
+	 * bekannten Tags werden dafuer genutzt. Zudem werden Zeilenumbrueche behandelt.
 	 * 
 	 * @param text Der zu formatierende Text
 	 * @return Der formatierte Text als HTML-Code
@@ -783,7 +783,7 @@ public class Common {
 	/**
 	 * Formatiert einen Text in HTML-Code. Alle dem <code>BBCodeParser</code>
 	 * bekannten Tags, ausgenommen jene angegebene, werden dafuer genutzt. 
-	 * Zudem werden Zeilenumbrueche behandelt
+	 * Zudem werden Zeilenumbrueche behandelt.
 	 * 
 	 * @param text Der zu formatierende Text
 	 * @param ignore zu ignorierende BBCode-Tags (Namensformat: {@link net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser#parse(String, String[])})
@@ -806,8 +806,8 @@ public class Common {
 	private static final Pattern stripHTML = Pattern.compile("(<\\/?)(\\w+)([^>]*>)");
 	
 	/**
-	 * Entfernt alle HTML-Tags aus dem String und gibt ihn zurueck
-	 * @param text Der STring
+	 * Entfernt alle HTML-Tags aus dem String und gibt ihn zurueck.
+	 * @param text Der String
 	 * @return Der String ohne HTML-Tags
 	 */
 	public static String _stripHTML( String text ) {
@@ -848,7 +848,7 @@ public class Common {
 	
 	/**
 	 * Formatiert einen Text in HTML-Code. Zeilenumbrueche werden ignoriert. Ebenso
-	 * die zu ignorierenden BBCodes
+	 * die zu ignorierenden BBCodes.
 	 * @param text Der zu formatierende Text
 	 * @param ignore Liste der zu ignorierenden BBCodes (Namensformat: {@link net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser#parse(String, String[])})
 	 * @return Der formatierte Text
@@ -894,7 +894,7 @@ public class Common {
 	}
 	
 	/**
-	 * Kodiert einen String mittels md5
+	 * Kodiert einen String mittels md5.
 	 * 
 	 * @param text der zu kodierende String
 	 * @return der kodierte String
@@ -958,7 +958,7 @@ public class Common {
 	/**
 	 * Gibt einen Formatierten Zeitstring zurueck, welcher angibt,
 	 * wie lange es bis zu dem Tick dauert (die Berechnung erfolgt absolut
-	 * von 0 aus und nicht vom aktuellen Tick)
+	 * von 0 aus und nicht vom aktuellen Tick).
 	 * 
 	 * @param ticks Der zu konvertierende Tick
 	 * @return Der Zeitstring
@@ -997,7 +997,7 @@ public class Common {
 	private static int[] monthLengths = {31,28,31,30,31,30,31,31,30,31,30,31};
 	
 	/**
-	 * Konvertiert einen Tick in die Ingamezeitrechnung
+	 * Konvertiert einen Tick in die Ingamezeitrechnung.
 	 * 
 	 * @param tick Der zu konvertierende Tick
 	 * @return Ein String, welcher das Ingame-Datum enthaelt
@@ -1068,7 +1068,7 @@ public class Common {
 	
 	/**
 	 * Sendet, falls eine Mailadresse angegeben ist, eine Exception als Text an die in der Konfiguration unter
-	 * EXCEPTION_MAIL angegebene Email-Adresse
+	 * EXCEPTION_MAIL angegebene Email-Adresse.
 	 * @param t Das Throwable mit den Infos zur Exception
 	 * @param addInfo weitere Informationen, welche in der Email angezeigt werden sollen
 	 * @param title der Titel der Mail
@@ -1108,7 +1108,7 @@ public class Common {
 	}
 
 	/**
-	 * Sendet eine Email an alle eingetragenen Administratoren
+	 * Sendet eine Email an alle eingetragenen Administratoren.
 	 * @param title Der Titel der Email
 	 * @param msg Der Emailtext
 	 */
@@ -1123,7 +1123,7 @@ public class Common {
 	}
 
 	/**
-	 * Kopiert eine Datei
+	 * Kopiert eine Datei.
 	 * @param source Name der zu kopierenden Datei
 	 * @param destination Ziel der Datei (inkl. Dateiname!)
 	 */
@@ -1151,7 +1151,7 @@ public class Common {
 	
 	/**
 	 * Fuegt einen neuen Eintrag in die Log-DB ein. Als ausfuehrender Benutzer wird der in dem Kontext
-	 * aktive Benutzer verwendet
+	 * aktive Benutzer verwendet.
 	 * 
 	 * @param type Der Typ des Eintrags
 	 * @param source Die Quelle des Ereignisses
@@ -1163,7 +1163,7 @@ public class Common {
 	}
 	
 	/**
-	 * Fuegt einen neuen Eintrag in die Log-DB ein
+	 * Fuegt einen neuen Eintrag in die Log-DB ein.
 	 * 
 	 * @param type Der Typ des Eintrags
 	 * @param source Die Quelle des Ereignisses
@@ -1235,7 +1235,7 @@ public class Common {
 	}
 	
 	/**
-	 * Inkrementiert einen Integerwert in einer Map um den Wert 1
+	 * Inkrementiert einen Integerwert in einer Map um den Wert 1.
 	 * @param <T> Der Schluesseltyp der Map
 	 * @param map Die Map
 	 * @param property Der Schluessel, dessen Wert inkrementiert werden soll
@@ -1251,7 +1251,7 @@ public class Common {
 	}
 	
 	/**
-	 * Inkrementiert einen Integerwert in einer Map um den Wert 1
+	 * Inkrementiert einen Integerwert in einer Map um den Wert 1.
 	 * @param <T> Der Schluesseltyp der Map
 	 * @param map Die Map
 	 * @param property Der Schluessel, dessen Wert inkrementiert werden soll

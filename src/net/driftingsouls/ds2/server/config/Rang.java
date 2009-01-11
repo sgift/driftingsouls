@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.config;
 
 /**
- * Repraesentiert einen Rang in DS
+ * Repraesentiert einen Rang in DS.
  * @author Christopher Jung
  *
  */
@@ -28,7 +28,7 @@ public class Rang {
 	private String name;	
 	
 	/**
-	 * Erstellt einen neuen Rang
+	 * Erstellt einen neuen Rang.
 	 * @param id die ID des Ranges
 	 * @param name der Name des Ranges
 	 */
@@ -39,7 +39,7 @@ public class Rang {
 	}
 	
 	/**
-	 * Gibt die ID des Ranges zurueck
+	 * Gibt die ID des Ranges zurueck.
 	 * @return die ID des Ranges
 	 */
 	public int getID() {
@@ -47,7 +47,7 @@ public class Rang {
 	}
 	
 	/**
-	 * Gibt den Namen des Ranges zurueck
+	 * Gibt den Namen des Ranges zurueck.
 	 * @return der Name des Ranges
 	 */
 	public String getName() {

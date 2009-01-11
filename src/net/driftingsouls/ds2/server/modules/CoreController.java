@@ -34,7 +34,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
- * Verwaltung der Core eines Asteroiden
+ * Verwaltung der Core eines Asteroiden.
  * @author Christopher Jung
  * 
  * @urlparam Integer col Die ID des Asteroiden, dessen Core verwaltet werden soll
@@ -43,7 +43,7 @@ public class CoreController extends TemplateGenerator {
 	private Base base = null;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public CoreController(Context context) {
@@ -77,7 +77,7 @@ public class CoreController extends TemplateGenerator {
 
 	/**
 	 * Baut eine neue Core auf dem Asteroiden, sofern noch keine Core auf dem 
-	 * Asteroiden vorhanden ist
+	 * Asteroiden vorhanden ist.
 	 * @urlparam Integer build Die ID der zu bauenden Core
 	 *
 	 */
@@ -169,7 +169,7 @@ public class CoreController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Deaktiviert die Core auf dem Asteroiden, sofern sie noch nicht deaktiviert ist
+	 * Deaktiviert die Core auf dem Asteroiden, sofern sie noch nicht deaktiviert ist.
 	 */
 	@Action(ActionType.DEFAULT)
 	public void deactivateAction() {
@@ -325,7 +325,7 @@ public class CoreController extends TemplateGenerator {
 	/**
 	 * Zeigt entweder die Liste aller auf dem Asteroiden im Moment 
 	 * baubaren Cores an (wenn noch keine Core gebaut wurde) oder
-	 * die Daten zur aktuellen Core
+	 * die Daten zur aktuellen Core.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

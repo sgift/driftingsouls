@@ -32,7 +32,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
- * Zeigt das Menue fuer die verschiedenen Fluchtaktionen
+ * Zeigt das Menue fuer die verschiedenen Fluchtaktionen.
  * @author Christopher Jung
  *
  */

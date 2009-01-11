@@ -35,13 +35,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Zeigt die Bevoelkerungsdichte in einzelnen Systemen sowie insgesamt an
+ * Zeigt die Bevoelkerungsdichte in einzelnen Systemen sowie insgesamt an.
  * @author Christopher Jung
  *
  */
 public class StatPopulationDensity implements Statistic {
 	private static final Log log = LogFactory.getLog(StatPopulationDensity.class);
 
+	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
@@ -152,10 +153,12 @@ public class StatPopulationDensity implements Statistic {
 		echo.append("</table><br /><br />");
 	}
 
+	@Override
 	public boolean generateAllyData() {
 		return false;
 	}
 	
+	@Override
 	public int getRequiredData() {
 		return 0;
 	}

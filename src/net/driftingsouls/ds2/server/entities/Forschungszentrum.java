@@ -31,7 +31,7 @@ import javax.persistence.Version;
 import net.driftingsouls.ds2.server.bases.Base;
 
 /**
- * Ein Forschungszentrum
+ * Ein Forschungszentrum.
  * @author Christopher Jung
  *
  */
@@ -53,7 +53,7 @@ public class Forschungszentrum {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public Forschungszentrum() {
@@ -61,7 +61,7 @@ public class Forschungszentrum {
 	}
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param base Die Basis
 	 */
 	public Forschungszentrum(Base base) {
@@ -70,7 +70,7 @@ public class Forschungszentrum {
 	}
 
 	/**
-	 * Gibt die Basis zurueck, auf der das Forschungszentrum steht
+	 * Gibt die Basis zurueck, auf der das Forschungszentrum steht.
 	 * @return Die Basis
 	 */
 	public Base getBase() {
@@ -78,7 +78,7 @@ public class Forschungszentrum {
 	}
 
 	/**
-	 * Setzt die Basis, auf der das Forschungszentrum steht
+	 * Setzt die Basis, auf der das Forschungszentrum steht.
 	 * @param base Die Basis
 	 */
 	public void setBase(Base base) {
@@ -87,7 +87,7 @@ public class Forschungszentrum {
 	}
 
 	/**
-	 * Gibt die verbleibende Forschungsdauer zurueck
+	 * Gibt die verbleibende Forschungsdauer zurueck.
 	 * @return Die verbleibende Dauer
 	 */
 	public int getDauer() {
@@ -95,7 +95,7 @@ public class Forschungszentrum {
 	}
 
 	/**
-	 * Setzt die verbleibende Forschungsdauer
+	 * Setzt die verbleibende Forschungsdauer.
 	 * @param dauer Die verbleibende Dauer
 	 */
 	public void setDauer(int dauer) {
@@ -103,7 +103,7 @@ public class Forschungszentrum {
 	}
 
 	/**
-	 * Gibt die aktuelle Forschung zurueck
+	 * Gibt die aktuelle Forschung zurueck.
 	 * @return Die Forschung
 	 */
 	public Forschung getForschung() {
@@ -111,7 +111,7 @@ public class Forschungszentrum {
 	}
 
 	/**
-	 * Setzt die aktuelle Forshcung
+	 * Setzt die aktuelle Forschung.
 	 * @param forschung Die Forschung
 	 */
 	public void setForschung(Forschung forschung) {
@@ -119,7 +119,7 @@ public class Forschungszentrum {
 	}
 
 	/**
-	 * ???
+	 * ???.
 	 * @return Der Typ
 	 */
 	public int getType() {
@@ -127,7 +127,7 @@ public class Forschungszentrum {
 	}
 
 	/**
-	 * ??? 
+	 * ??? .
 	 * @param type Der Typ
 	 */
 	public void setType(int type) {
@@ -135,7 +135,7 @@ public class Forschungszentrum {
 	}
 
 	/**
-	 * Gibt die ID der Basis zurueck, auf der das Forschungszentrum steht
+	 * Gibt die ID der Basis zurueck, auf der das Forschungszentrum steht.
 	 * @return Die ID Der Basis
 	 */
 	public int getBaseId() {
@@ -143,7 +143,7 @@ public class Forschungszentrum {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

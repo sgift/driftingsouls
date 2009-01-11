@@ -30,7 +30,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
- * Zeigt das Menue zum Aufladen der Schilde an
+ * Zeigt das Menue zum Aufladen der Schilde an.
  * @author Christopher Jung
  *
  */

@@ -27,12 +27,12 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.StatsController;
 
 /**
- * Zeigt die Mitgliederanzahl der Allianzen an
+ * Zeigt die Mitgliederanzahl der Allianzen an.
  * @author Christopher Jung
  *
  */
 public class StatMemberCount extends AbstractStatistic implements Statistic {
-
+	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();

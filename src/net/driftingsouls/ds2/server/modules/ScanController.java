@@ -46,7 +46,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
- * Zeigt die LRS-Scanner an
+ * Zeigt die LRS-Scanner an.
  * @author Christopher Jung
  * 
  * @urlparam Integer ship Die ID des anzuzeigenden Schiffes
@@ -61,7 +61,7 @@ public class ScanController extends TemplateGenerator {
 	private boolean admin = false;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public ScanController(Context context) {
@@ -166,7 +166,7 @@ public class ScanController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt den Inhalt eines Sektors innerhalb der LRS-Reichweite an
+	 * Zeigt den Inhalt eines Sektors innerhalb der LRS-Reichweite an.
 	 * @urlparam Integer scanx Die X-Koordinate des Sektors
 	 * @urlparam Integer scany Die Y-Koordinate des Sektors
 	 *
@@ -474,7 +474,7 @@ public class ScanController extends TemplateGenerator {
 	}
 
 	/**
-	 * Zeigt die LRS-Karte an
+	 * Zeigt die LRS-Karte an.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

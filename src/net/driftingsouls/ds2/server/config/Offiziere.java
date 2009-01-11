@@ -25,18 +25,18 @@ import java.util.Map;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 /**
- * Liste aller ausbildbaren Offizierstypen
+ * Liste aller ausbildbaren Offizierstypen.
  * @author Christopher Jung
  *
  */
 public class Offiziere {
 	/**
-	 * Der maximale Rang, den ein Offizier durch Erfahrung erlangen kann
+	 * Der maximale Rang, den ein Offizier durch Erfahrung erlangen kann.
 	 */
 	public static final int MAX_RANG = 6;
 	
 	/**
-	 * Die Liste der Offizierstypen
+	 * Die Liste der Offizierstypen.
 	 */
 	public static final Map<Integer,SQLResultRow> LIST;
 	

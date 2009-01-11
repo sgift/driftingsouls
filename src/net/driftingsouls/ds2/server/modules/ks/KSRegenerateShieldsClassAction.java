@@ -23,7 +23,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
- * Laedt die Schilde aller eigener Schiffe einer Klasse auf
+ * Laedt die Schilde aller eigener Schiffe einer Klasse auf.
  * @author Christopher Jung
  *
  */
@@ -31,7 +31,7 @@ public class KSRegenerateShieldsClassAction extends KSRegenerateShieldsAllAction
 	private int shieldclass = 0;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public KSRegenerateShieldsClassAction() {

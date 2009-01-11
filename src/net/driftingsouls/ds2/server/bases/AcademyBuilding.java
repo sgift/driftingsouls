@@ -45,7 +45,7 @@ import org.hibernate.annotations.Immutable;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Die Akademie
+ * Die Akademie.
  * @author Christopher Jung
  *
  */
@@ -72,7 +72,7 @@ public class AcademyBuilding extends DefaultBuilding {
 	}
 	
 	/**
-	 * Erstellt eine neue Academy-Instanz
+	 * Erstellt eine neue Academy-Instanz.
 	 */
 	public AcademyBuilding() {
 		// EMPTY

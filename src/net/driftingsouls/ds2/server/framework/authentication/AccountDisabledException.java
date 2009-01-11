@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.framework.authentication;
 
 /**
- * Authentifizierungsfehler, weil der Account gesperrt wurde
+ * Authentifizierungsfehler, weil der Account gesperrt wurde.
  * @author Christopher Jung
  *
  */
@@ -27,7 +27,7 @@ public class AccountDisabledException extends AuthenticationException {
 	private static final long serialVersionUID = 8766749515224459285L;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 */
 	public AccountDisabledException() {
 		super("Der Account wurde gesperrt");

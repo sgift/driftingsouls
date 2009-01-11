@@ -22,14 +22,14 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Pipeline;
 
 /**
- * Generiert eine Pipeline zu einem Aufruf
+ * Generiert eine Pipeline zu einem Aufruf.
  * @author Christopher Jung
  *
  */
 interface Executer
 {
 	/**
-	 * Generiert die Pipeline
+	 * Generiert die Pipeline.
 	 * @param context Der Context
 	 * @return Die Pipeline
 	 * @throws Exception

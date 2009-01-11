@@ -35,7 +35,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Repraesentiert ein Modul auf Item-Basis
+ * Repraesentiert ein Modul auf Item-Basis.
  * @author Christopher Jung
  *
  */
@@ -127,7 +127,7 @@ public class ModuleItemModule extends Module {
 	}
 	
 	/**
-	 * Gibt die ID des zum ItemModul gehoerenden Items zurueck
+	 * Gibt die ID des zum ItemModul gehoerenden Items zurueck.
 	 * @return die Item-ID des Moduls
 	 */
 	public ResourceID getItemID() {
@@ -135,7 +135,7 @@ public class ModuleItemModule extends Module {
 	}
 
 	/**
-	 * Deaktiviert die Set-Effekte des Moduls
+	 * Deaktiviert die Set-Effekte des Moduls.
 	 *
 	 */
 	public void disableSetEffect() {

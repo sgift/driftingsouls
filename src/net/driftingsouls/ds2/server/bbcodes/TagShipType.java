@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * BBCode fuer Schiffstypen
+ * BBCode fuer Schiffstypen.
  * 
  * @author Christopher Jung
  * 
@@ -39,7 +39,7 @@ public class TagShipType implements BBCodeFunction
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -48,6 +48,7 @@ public class TagShipType implements BBCodeFunction
     	this.config = config;
     }
 
+    @Override
 	public String handleMatch(String content, String... values)
 	{
 		String url = config.get("URL");

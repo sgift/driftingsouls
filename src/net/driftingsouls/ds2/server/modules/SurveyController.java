@@ -36,7 +36,7 @@ import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Zeigt Umfragen an und laesst den aktiven Spieler die Umfrage ausfuellen
+ * Zeigt Umfragen an und laesst den aktiven Spieler die Umfrage ausfuellen.
  * @author Christopher Jung
  *
  */
@@ -50,7 +50,7 @@ public class SurveyController extends TemplateGenerator {
 	private static final String ETYPE_DESCRIPTION = "description";
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public SurveyController(Context context) {
@@ -85,7 +85,7 @@ public class SurveyController extends TemplateGenerator {
 	}
 
 	/**
-	 * Speichert ein Abstimmungsergebnis
+	 * Speichert ein Abstimmungsergebnis.
 	 * @urlparam * surveyentry_* Parameter Abhaengig von Feldtyp
 	 *
 	 */
@@ -151,7 +151,7 @@ public class SurveyController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Umfrage an
+	 * Zeigt die Umfrage an.
 	 * 
 	 */
 	@Override

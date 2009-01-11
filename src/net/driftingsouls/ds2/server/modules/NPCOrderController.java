@@ -36,7 +36,7 @@ import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
 /**
- * Das Interface fuer NPCs
+ * Das Interface fuer NPCs.
  * @author Christopher Jung
  *
  */
@@ -47,7 +47,7 @@ public class NPCOrderController extends TemplateGenerator {
 	private Configuration config;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public NPCOrderController(Context context) {
@@ -59,7 +59,7 @@ public class NPCOrderController extends TemplateGenerator {
 	}
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -93,7 +93,7 @@ public class NPCOrderController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt den aktuellen Status aller fuer Ganymede-Transporte reservierten Transporter an
+	 * Zeigt den aktuellen Status aller fuer Ganymede-Transporte reservierten Transporter an.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -156,7 +156,7 @@ public class NPCOrderController extends TemplateGenerator {
 	}
 
 	/**
-	 * Zeichnet einen Spieler mit einem Orden aus
+	 * Zeichnet einen Spieler mit einem Orden aus.
 	 * @urlparam Integer edituser Die ID des zu bearbeitenden Spielers
 	 * @urlparam Integer medal Die ID des Ordens
 	 * @urlparam String Der Grund, warum der Orden verliehen wurde
@@ -232,7 +232,7 @@ public class NPCOrderController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Befoerdert/Degradiert einen Spieler
+	 * Befoerdert/Degradiert einen Spieler.
 	 * @urlparam Integer edituser Die ID des zu bearbeitenden Spielers
 	 * @urlparam Integer rang Der neue Rang
 	 *
@@ -313,7 +313,7 @@ public class NPCOrderController extends TemplateGenerator {
 	}
 
 	/**
-	 * Zeigt die GUI fuer "Oberhaeupter" von Rassen an, mit der sich Raenge und Orden
+	 * Zeigt die GUI fuer "Oberhaeupter" von Rassen an, mit der sich Raenge und Orden.
 	 * setzen lassen
 	 *
 	 */
@@ -374,7 +374,7 @@ public class NPCOrderController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Setzt die Order-Koordinaten, an denen georderte Objekte erscheinen sollen
+	 * Setzt die Order-Koordinaten, an denen georderte Objekte erscheinen sollen.
 	 *
 	 * @urlparam String orderloc Die Koordinate des Ortes, an dem die georderten Objekte erscheinen sollen
 	 */
@@ -427,7 +427,7 @@ public class NPCOrderController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Ordert eine Menge von Schiffen/Offizieren
+	 * Ordert eine Menge von Schiffen/Offizieren.
 	 * @urlparam Integer order Das zu ordernde Objekt (positiv, dann Schiff; negativ, dann offizier)
 	 * @urlparam Integer count Die Menge der zu ordernden Objekte
 	 *
@@ -491,7 +491,7 @@ public class NPCOrderController extends TemplateGenerator {
 	}
 
 	/**
-	 * Zeigt die GUI zum Ordern von Schiffen/Offizieren
+	 * Zeigt die GUI zum Ordern von Schiffen/Offizieren.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

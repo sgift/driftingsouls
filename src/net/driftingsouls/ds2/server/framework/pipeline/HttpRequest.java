@@ -40,7 +40,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Implementiert das Request-Interface fuer HTTP-Requests
+ * Implementiert das Request-Interface fuer HTTP-Requests.
  * @author Christopher Jung
  *
  */
@@ -52,7 +52,7 @@ public class HttpRequest implements Request {
 	private List<?> uploadedFiles = null;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param request Die Servlet-Request
 	 */
 	public HttpRequest(HttpServletRequest request) {
@@ -93,6 +93,7 @@ public class HttpRequest implements Request {
 		}
 	}
 
+	@Override
 	public String getParameter(String parameter) {
 		if( parameters.containsKey(parameter) ) {
 			return parameters.get(parameter);
@@ -100,18 +101,22 @@ public class HttpRequest implements Request {
 		return request.getParameter(parameter);
 	}
 
+	@Override
 	public String getContentType() {
 		return request.getContentType();
 	}
 
+	@Override
 	public InputStream getInputStream() throws IOException {
 		return request.getInputStream();
 	}
 
+	@Override
 	public String getQueryString() {
 		return request.getQueryString();
 	}
 
+	@Override
 	public String getPath() {
 		if( request.getPathInfo() != null ) {
 			return request.getServletPath()+request.getPathInfo();
@@ -119,34 +124,42 @@ public class HttpRequest implements Request {
 		return request.getServletPath();
 	}
 
+	@Override
 	public String getCharacterEncoding() {
 		return request.getCharacterEncoding();
 	}
 
+	@Override
 	public int getContentLength() {
 		return request.getContentLength();
 	}
 
+	@Override
 	public void setParameter(String parameter, String value) {
 		parameters.put(parameter, value);
 	}
 	
+	@Override
 	public String getHeader(String header) {
 		return request.getHeader(header);
 	}
 	
+	@Override
 	public String getRemoteAddress() {
 		return request.getRemoteAddr();
 	}
 	
+	@Override
 	public String getRequestURL() {
 		return request.getRequestURL().toString();
 	}
 	
+	@Override
 	public String getUserAgent() {
 		return request.getHeader("user-agent");
 	}
 
+	@Override
 	public int getParameterInt(String parameter) {
 		String str = getParameter(parameter);
 		if( str == null || str.equals("") ) {
@@ -160,6 +173,7 @@ public class HttpRequest implements Request {
 		}
 	}
 
+	@Override
 	public String getParameterString(String parameter) {
 		String str = getParameter(parameter);
 		if( str == null ) {
@@ -167,7 +181,8 @@ public class HttpRequest implements Request {
 		}
 		return str;
 	}
-
+	
+	@Override
 	public List<FileItem> getUploadedFiles() {
 		if( !isMultipart ) {
 			return new ArrayList<FileItem>();
@@ -189,6 +204,7 @@ public class HttpRequest implements Request {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@Override
 	public <T> T getFromSession(Class<T> cls) {
 		HttpSession session = this.request.getSession(false);
 		
@@ -228,6 +244,7 @@ public class HttpRequest implements Request {
 		return null;
 	}
 	
+	@Override
 	public void removeFromSession(Class<?> cls) {
 		HttpSession session = this.request.getSession(false);
 		

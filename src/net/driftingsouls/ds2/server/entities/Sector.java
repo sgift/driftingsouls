@@ -50,7 +50,7 @@ public class Sector implements Locatable {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public Sector() {
@@ -58,7 +58,7 @@ public class Sector implements Locatable {
 	}
 	
 	/**
-	 * Erstellt einen neuen Sektoreintrag
+	 * Erstellt einen neuen Sektoreintrag.
 	 * @param loc Der Sektor
 	 */
 	public Sector(MutableLocation loc) {
@@ -67,7 +67,7 @@ public class Sector implements Locatable {
 	}
 
 	/**
-	 * Gibt die Position zurueck
+	 * Gibt die Position zurueck.
 	 * @return Die Position
 	 */
 	public Location getLocation() {
@@ -75,7 +75,7 @@ public class Sector implements Locatable {
 	}
 
 	/**
-	 * Gibt die Objektdaten zurueck (?)
+	 * Gibt die Objektdaten zurueck (?).
 	 * @return Die Objektdaten
 	 */
 	public int getObjects() {
@@ -83,7 +83,7 @@ public class Sector implements Locatable {
 	}
 
 	/**
-	 * Setzt die Objektdaten (?)
+	 * Setzt die Objektdaten (?).
 	 * @param object Die Objektdaten
 	 */
 	public void setObjects(int object) {
@@ -91,7 +91,7 @@ public class Sector implements Locatable {
 	}
 
 	/**
-	 * Gibt die Daten des OnEnter-Ereignisses zurueck
+	 * Gibt die Daten des OnEnter-Ereignisses zurueck.
 	 * @return Die Daten
 	 */
 	public String getOnEnter() {
@@ -99,7 +99,7 @@ public class Sector implements Locatable {
 	}
 
 	/**
-	 * Setzt die Daten des OnEnter-Ereignisses
+	 * Setzt die Daten des OnEnter-Ereignisses.
 	 * @param onEnter Die Daten
 	 */
 	public void setOnEnter(String onEnter) {
@@ -107,7 +107,7 @@ public class Sector implements Locatable {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

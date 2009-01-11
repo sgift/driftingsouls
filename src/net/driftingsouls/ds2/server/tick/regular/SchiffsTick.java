@@ -44,7 +44,7 @@ import net.driftingsouls.ds2.server.tick.TickController;
 import org.hibernate.FlushMode;
 
 /**
- * Berechnung des Ticks fuer Schiffe
+ * Berechnung des Ticks fuer Schiffe.
  * @author Christopher Jung
  *
  */

@@ -69,7 +69,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Fueht spezielle Admin-Kommandos aus
+ * Fueht spezielle Admin-Kommandos aus.
  * @author Christopher Jung
  *
  */
@@ -80,7 +80,7 @@ public class AdminCommands {
 	private Configuration config;
 	
 	/**
-	 * Injiziert die DS-Konfiguration
+	 * Injiziert die DS-Konfiguration.
 	 * @param config Die DS-Konfiguration
 	 */
 	@Autowired @Required
@@ -89,7 +89,7 @@ public class AdminCommands {
 	}
 	
 	/**
-	 * Fueht das angegebene Admin-Kommando aus
+	 * Fueht das angegebene Admin-Kommando aus.
 	 * @param cmd Das Kommando
 	 * @return Die vom Kommando generierte Ausgabe
 	 */

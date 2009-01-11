@@ -30,12 +30,12 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
- * Schiffsmodul fuer die Anzeige der Jaegerdocks
+ * Schiffsmodul fuer die Anzeige der Jaegerdocks.
  * @author Christopher Jung
  *
  */
 public class JDocksDefault implements SchiffPlugin {
-
+	@Override
 	public String action(Parameters caller) {
 		Ship ship = caller.ship;
 		ShipTypeData shiptype = caller.shiptype;
@@ -81,6 +81,7 @@ public class JDocksDefault implements SchiffPlugin {
 		return output;
 	}
 
+	@Override
 	public void output(Parameters caller) {
 		String pluginid = caller.pluginId;
 		Ship data = caller.ship;

@@ -23,7 +23,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
- * Entlaedt alle Battieren auf eigenen Schiffen einer bestimmten Klasse
+ * Entlaedt alle Battieren auf eigenen Schiffen einer bestimmten Klasse.
  * @author Christopher Jung
  *
  */
@@ -31,7 +31,7 @@ public class KSDischargeBatteriesClassAction extends KSDischargeBatteriesAllActi
 	private int battsclass = 0;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public KSDischargeBatteriesClassAction() {

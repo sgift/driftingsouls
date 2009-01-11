@@ -28,7 +28,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
- * Beendet die Kampfrunde des aktuellen Spielers
+ * Beendet die Kampfrunde des aktuellen Spielers.
  * @author Christopher Jung
  *
  */

@@ -21,7 +21,7 @@ package net.driftingsouls.ds2.server.framework.authentication;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 
 /**
- * Interface fuer Authentifizierungsdienste
+ * Interface fuer Authentifizierungsdienste.
  * @author Christopher Jung
  *
  */
@@ -39,7 +39,7 @@ public interface AuthenticationManager {
 			throws AuthenticationException;
 
 	/**
-	 * Loggt den mit dem aktuellen Context verknuepften Benutzer aus
+	 * Loggt den mit dem aktuellen Context verknuepften Benutzer aus.
 	 */
 	public void logout();
 	

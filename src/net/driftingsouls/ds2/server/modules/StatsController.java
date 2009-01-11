@@ -54,7 +54,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Die Statistikseite
+ * Die Statistikseite.
  * @author Christopher Jung
  *
  * @urlparam Integer stat Die ID der Statistik in der ausgewaehlten Kategorie
@@ -62,11 +62,11 @@ import org.apache.commons.lang.StringUtils;
  */
 public class StatsController extends DSGenerator {
 	/**
-	 * Die minimale User/Ally-ID um in den Statistiken beruecksichtigt zu werden
+	 * Die minimale User/Ally-ID um in den Statistiken beruecksichtigt zu werden.
 	 */
 	public static final int MIN_USER_ID = 0;
 	/**
-	 * Die groesste moegliche Forschungs-ID + 1
+	 * Die groesste moegliche Forschungs-ID + 1.
 	 */
 	public static final int MAX_RESID = 100;
 	
@@ -86,7 +86,7 @@ public class StatsController extends DSGenerator {
 	private int show = 0;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public StatsController(Context context) {
@@ -189,7 +189,7 @@ public class StatsController extends DSGenerator {
 	}
 
 	/**
-	 * Anzeige der Statistiken
+	 * Anzeige der Statistiken.
 	 * @throws IOException 
 	 */
 	@Override

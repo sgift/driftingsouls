@@ -36,7 +36,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Basisklasse fuer Ticks
+ * Basisklasse fuer Ticks.
  * @author Christopher Jung
  *
  */
@@ -44,7 +44,7 @@ public abstract class TickController {
 	private static final Log log = LogFactory.getLog(TickController.class);
 	
 	/**
-	 * Log-Ziel: Standardausgabe
+	 * Log-Ziel: Standardausgabe.
 	 */
 	public static final String STDOUT = "java://STDOUT";
 			
@@ -53,7 +53,7 @@ public abstract class TickController {
 	private Context context;
 	
 	/**
-	 * Erstellt eine neue Instanz
+	 * Erstellt eine neue Instanz.
 	 */
 	public TickController() {
 		logTargets = new HashMap<String,Writer>();
@@ -63,7 +63,7 @@ public abstract class TickController {
 	}
 	
 	/**
-	 * Beendet den Tick und gibt alle Resourcen wieder frei
+	 * Beendet den Tick und gibt alle Resourcen wieder frei.
 	 */
 	public void dispose() {
 		for( String handle : logTargets.keySet() ) {
@@ -129,7 +129,7 @@ public abstract class TickController {
 	}
 	
 	/**
-	 * Startet die Tickausfuehrung
+	 * Startet die Tickausfuehrung.
 	 */
 	public void execute() {
 		try {
@@ -175,7 +175,7 @@ public abstract class TickController {
 	}
 	
 	/**
-	 * Loggt einen String
+	 * Loggt einen String.
 	 * @param string Der zu loggende String
 	 */
 	protected void slog(String string) {
@@ -205,7 +205,7 @@ public abstract class TickController {
 	}
 	
 	/**
-	 * Fuegt ein neues Ziel fuer geloggte Daten hinzu
+	 * Fuegt ein neues Ziel fuer geloggte Daten hinzu.
 	 * @param file Das Ziel, zu dem geloggt werden soll. Das Ziel muss schreibbar sein
 	 * @param append Sollen die Daten angehangen werden?
 	 * 
@@ -240,7 +240,7 @@ public abstract class TickController {
 	}
 	
 	/**
-	 * Entfernt ein Ziel fuer geloggte Daten
+	 * Entfernt ein Ziel fuer geloggte Daten.
 	 * @param handle Die Datei/Das Logziel, zu dem bisher geloggt wurde
 	 * 
 	 * @return true bei erfolgreichem entfernen
@@ -257,7 +257,7 @@ public abstract class TickController {
 	}
 	
 	/**
-	 * Gibt den aktuellen Context zurueck
+	 * Gibt den aktuellen Context zurueck.
 	 * @return der Kontext
 	 */
 	public Context getContext() {
@@ -265,7 +265,7 @@ public abstract class TickController {
 	}
 	
 	/**
-	 * Gibt eine Datenbankinstanz des Kontexts zurueck
+	 * Gibt eine Datenbankinstanz des Kontexts zurueck.
 	 * @return eine Datenbankinstanz
 	 * @deprecated Bitte Hibernate verwenden
 	 */
@@ -275,7 +275,7 @@ public abstract class TickController {
 	}
 	
 	/**
-	 * Gibt die Hibernate DB-Session des Kontexts zurueck
+	 * Gibt die Hibernate DB-Session des Kontexts zurueck.
 	 * @return die DB-Session
 	 */
 	public org.hibernate.Session getDB() {
@@ -283,7 +283,7 @@ public abstract class TickController {
 	}
 	
 	/**
-	 * Gibt die Fehlerliste des Kontexts zurueck
+	 * Gibt die Fehlerliste des Kontexts zurueck.
 	 * @return die Fehlerliste
 	 */
 	public net.driftingsouls.ds2.server.framework.pipeline.Error[] getErrorList() {

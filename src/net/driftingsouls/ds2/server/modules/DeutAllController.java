@@ -39,14 +39,14 @@ import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
  * Laesst alle Tanker (solchen Schiffen mit einem <code>deutfactor</code> &gt; 0) Deuterium
- * sammeln, sofern diese in dem Moment in der Lage dazu sind
+ * sammeln, sofern diese in dem Moment in der Lage dazu sind.
  * @author Christopher Jung
  *
  */
 public class DeutAllController extends TemplateGenerator {
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public DeutAllController(Context context) {
@@ -63,7 +63,7 @@ public class DeutAllController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Sammelt das Deuterium auf den Tankern
+	 * Sammelt das Deuterium auf den Tankern.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

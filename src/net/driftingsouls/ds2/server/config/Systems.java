@@ -55,13 +55,14 @@ public class Systems implements Iterable<StarSystem> {
 	}
 	
 	/**
-	 * Liefert die Instanz der Sternensystem-Liste zurueck
+	 * Liefert die Instanz der Sternensystem-Liste zurueck.
 	 * @return Die Sternensystem-Listen-Instanz
 	 */
 	public static Systems get() {
 		return systemList;
 	}
 	
+	@Override
 	public Iterator<StarSystem> iterator() {
 		return list.values().iterator();
 	}

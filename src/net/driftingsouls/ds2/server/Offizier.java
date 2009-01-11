@@ -45,7 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Repraesentiert einen Offizier in DS
+ * Repraesentiert einen Offizier in DS.
  * @author Christopher Jung
  *
  */
@@ -62,29 +62,29 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 public class Offizier extends DSObject {
 	/**
-	 * Die Attribute eines Offiziers
+	 * Die Attribute eines Offiziers.
 	 * @author Christopher Jung
 	 *
 	 */
 	public enum Ability {
 		/**
-		 * Der Navigationsskill
+		 * Der Navigationsskill.
 		 */
 		NAV,
 		/**
-		 * Der Ingenieursskill/Technikskill
+		 * Der Ingenieursskill/Technikskill.
 		 */
 		ING,
 		/**
-		 * Der Waffenskill
+		 * Der Waffenskill.
 		 */
 		WAF,
 		/**
-		 * Der Sicherheitsskill
+		 * Der Sicherheitsskill.
 		 */
 		SEC,
 		/**
-		 * Der Kommandoskill
+		 * Der Kommandoskill.
 		 */
 		COM
 	}
@@ -97,31 +97,31 @@ public class Offizier extends DSObject {
 	 */
 	public enum Special {
 		/**
-		 * Keine Spezialfaehigkeit
+		 * Keine Spezialfaehigkeit.
 		 */
 		NONE("Nichts"),
 		/**
-		 * Motivationskuenstler
+		 * Motivationskuenstler.
 		 */
 		MOTIVATIONSKUENSTLER("Motivationsk&uuml;nstler"),
 		/**
-		 * Schnellmerker
+		 * Schnellmerker.
 		 */
 		SCHNELLMERKER("Schnellmerker"),
 		/**
-		 * Technikfreak
+		 * Technikfreak.
 		 */
 		TECHNIKFREAK("Technikfreak"),
 		/**
-		 * Waffennarr
+		 * Waffennarr.
 		 */
 		WAFFENNARR("Waffennarr"),
 		/**
-		 * Bleifuss
+		 * Bleifuss.
 		 */
 		BLEIFUSS("Bleifuss"),
 		/**
-		 * Verrueckter Diktator
+		 * Verrueckter Diktator.
 		 */
 		VERRUECKTER_DIKTATOR("Verr&uuml;ckter Diktator");
 		
@@ -132,7 +132,7 @@ public class Offizier extends DSObject {
 		
 		/**
 		 * Gibt den Namen der Spezialfaehigkeit zurueck (entspricht nicht 
-		 * zwangslaeufig der Konstante!)
+		 * zwangslaeufig der Konstante!).
 		 * @return Der Name
 		 */
 		public String getName() {
@@ -167,7 +167,7 @@ public class Offizier extends DSObject {
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -177,7 +177,7 @@ public class Offizier extends DSObject {
     }
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public Offizier() {
@@ -185,9 +185,9 @@ public class Offizier extends DSObject {
 	}
 	
 	/**
-	 * Konstruktor
-	 * @param owner
-	 * @param name
+	 * Konstruktor.
+	 * @param owner Der Besitzer des Offiziers
+	 * @param name Der Name des Offiziers
 	 */
 	public Offizier(User owner, String name) {
 		setOwner(owner);
@@ -195,7 +195,7 @@ public class Offizier extends DSObject {
 	}
 
 	/**
-	 * Gibt den Namen des Offiziers zurueck
+	 * Gibt den Namen des Offiziers zurueck.
 	 * @return Der Name
 	 */
 	public String getName() {
@@ -203,7 +203,7 @@ public class Offizier extends DSObject {
 	}
 	
 	/**
-	 * Setzt den Namen des Offiziers
+	 * Setzt den Namen des Offiziers.
 	 * @param name der neue Name
 	 */
 	public void setName( String name ) {
@@ -211,7 +211,7 @@ public class Offizier extends DSObject {
 	}
 	
 	/**
-	 * Gibt die ID des Offiziers zurueck
+	 * Gibt die ID des Offiziers zurueck.
 	 * @return die ID
 	 */
 	public int getID() {
@@ -219,7 +219,7 @@ public class Offizier extends DSObject {
 	}
 	
 	/**
-	 * Gibt den Rang des Offiziers zurueck
+	 * Gibt den Rang des Offiziers zurueck.
 	 * @return der Rang
 	 */
 	public int getRang() {
@@ -227,7 +227,7 @@ public class Offizier extends DSObject {
 	}
 	
 	/**
-	 * Setzt den Rang des Offiziers
+	 * Setzt den Rang des Offiziers.
 	 * @param rang Der Rang
 	 */
 	public void setRang(int rang) {
@@ -255,7 +255,7 @@ public class Offizier extends DSObject {
 	}
 	
 	/**
-	 * Setzt den Aufenthaltsort eines Offiziers
+	 * Setzt den Aufenthaltsort eines Offiziers.
 	 * @param dest Der Typ des Aufenthaltsortes (s, b, t)
 	 * @param objectid Die ID des Aufenthaltsortes
 	 * @see #getDest()
@@ -265,7 +265,7 @@ public class Offizier extends DSObject {
 	}
 	
 	/**
-	 * Gibt den Besitzers des Offiziers zurueck
+	 * Gibt den Besitzers des Offiziers zurueck.
 	 * @return der Besitzer
 	 */
 	public User getOwner() {
@@ -273,7 +273,7 @@ public class Offizier extends DSObject {
 	}
 	
 	/**
-	 * Setzt den Besitzer des Offiziers
+	 * Setzt den Besitzer des Offiziers.
 	 * @param owner der neue Besitzer
 	 */
 	public void setOwner( User owner ) {
@@ -281,7 +281,7 @@ public class Offizier extends DSObject {
 	}
 	
 	/**
-	 * Gibt den aktuellen Skillwert der angegebenen Faehigkeit des Offiziers zurueck
+	 * Gibt den aktuellen Skillwert der angegebenen Faehigkeit des Offiziers zurueck.
 	 * @param ability Die Faehigkeit
 	 * @return Der aktuelle Skill in dieser Faehigkeit
 	 */
@@ -302,7 +302,7 @@ public class Offizier extends DSObject {
 	}
 	
 	/**
-	 * Setzt den Skillwert einer Faehigkeit des offiziers
+	 * Setzt den Skillwert einer Faehigkeit des offiziers.
 	 * @param ability Die Faehigkeit
 	 * @param value Der Skill
 	 */
@@ -413,7 +413,7 @@ public class Offizier extends DSObject {
 	}
 	
 	/**
-	 * Gibt die Spezialfaehigkeit des Offiziers zurueck 
+	 * Gibt die Spezialfaehigkeit des Offiziers zurueck.
 	 * @return Die Spezialfaehigkeit
 	 */
 	public Special getSpecial() {
@@ -421,7 +421,7 @@ public class Offizier extends DSObject {
 	}
 	
 	/**
-	 * Setzt die Spezialeigenschaft des Offiziers
+	 * Setzt die Spezialeigenschaft des Offiziers.
 	 * @param special Die Spezialeigenschaft
 	 */
 	public void setSpecial(Special special) {
@@ -429,7 +429,7 @@ public class Offizier extends DSObject {
 	}
 	
 	/**
-	 * Prueft, ob der Offizier die angegebene Spezialfaehigkeit hat
+	 * Prueft, ob der Offizier die angegebene Spezialfaehigkeit hat.
 	 * @param special Die Spezialfaehigkeit
 	 * @return <code>true</code>, falls der Offizier die Faehigkeit hat
 	 */

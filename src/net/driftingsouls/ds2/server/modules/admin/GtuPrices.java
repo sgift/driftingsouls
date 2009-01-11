@@ -31,13 +31,14 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
- * Zeigt an, was wie oft versteigert wurde und welche Durchschnittspreise erziehlt wurden
+ * Zeigt an, was wie oft versteigert wurde und welche Durchschnittspreise erziehlt wurden.
  * @author Christopher Jung
  *
  */
 @AdminMenuEntry(category="GTU", name="Preisliste")
 public class GtuPrices implements AdminPlugin {
 
+	@Override
 	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();

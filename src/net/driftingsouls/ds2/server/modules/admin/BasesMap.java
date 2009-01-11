@@ -41,7 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Generiert eine Karte eines Systems
+ * Generiert eine Karte eines Systems.
  * @author Christopher Jung
  *
  */
@@ -52,7 +52,7 @@ public class BasesMap implements AdminPlugin
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -61,6 +61,7 @@ public class BasesMap implements AdminPlugin
     	this.config = config;
     }
 
+    @Override
 	public void output(AdminController controller, String page, int action) throws IOException 
 	{
 		Context context = ContextMap.getContext();

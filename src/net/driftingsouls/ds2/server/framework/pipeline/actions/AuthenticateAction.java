@@ -22,7 +22,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 
 /**
  * Ueberprueft, ob ein Benutzer eingeloggt ist bzw (auf Wunsch), ob der eingeloggte 
- * Benutzer mit dem angegebenen uebereinstimmt
+ * Benutzer mit dem angegebenen uebereinstimmt.
  * @author Christopher Jung
  *
  */
@@ -30,17 +30,19 @@ public class AuthenticateAction implements Action {
 	private Integer userid = null;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public AuthenticateAction() {
 		// EMPTY
 	}
 
+	@Override
 	public void reset() {
 		userid = null;
 	}
 
+	@Override
 	public boolean action(Context context) {
 		if( context.getActiveUser() == null ) {
 			return false;
@@ -51,6 +53,7 @@ public class AuthenticateAction implements Action {
 		return true;
 	}
 
+	@Override
 	public void setParameter(String name, String value) {
 		if( name.equals("userid") ) {
 			userid = Integer.parseInt(value);

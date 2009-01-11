@@ -42,7 +42,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
  */
 public class ScriptParserContext extends SimpleScriptContext {
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public ScriptParserContext() {
@@ -62,7 +62,7 @@ public class ScriptParserContext extends SimpleScriptContext {
 	}
 	
 	/**
-	 * Gibt die Ausgabe der Scripte zurueck
+	 * Gibt die Ausgabe der Scripte zurueck.
 	 * @return Die Scriptausgabe
 	 */
 	public String getOutput() {
@@ -70,7 +70,7 @@ public class ScriptParserContext extends SimpleScriptContext {
 	}
 	
 	/**
-	 * Fuegt den angegebenen Text zur Scriptausgabe hinzu
+	 * Fuegt den angegebenen Text zur Scriptausgabe hinzu.
 	 * @param text der auszugebende Text
 	 */
 	public void out( String text ) {
@@ -94,7 +94,7 @@ public class ScriptParserContext extends SimpleScriptContext {
 	}
 	
 	/**
-	 * Liesst den Kontext mit den Ausfuehrungsdaten aus dem Stream
+	 * Liesst den Kontext mit den Ausfuehrungsdaten aus dem Stream.
 	 * @param data Der InputStream
 	 * @return Der Kontext
 	 * @throws Exception
@@ -117,7 +117,7 @@ public class ScriptParserContext extends SimpleScriptContext {
 	}
 	
 	/**
-	 * Schreibt die Ausfuehrungsdaten des ScriptParsers in den angegebenen Stream
+	 * Schreibt die Ausfuehrungsdaten des ScriptParsers in den angegebenen Stream.
 	 * @param context Die zu schreibenden Ausfuehrungsdaten
 	 * @param out Der OutputStream
 	 * @throws Exception

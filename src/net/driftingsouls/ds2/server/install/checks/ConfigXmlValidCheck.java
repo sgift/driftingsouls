@@ -21,12 +21,12 @@ package net.driftingsouls.ds2.server.install.checks;
 import net.driftingsouls.ds2.server.framework.Configuration;
 
 /**
- * Ueberprueft, ob die config.xml existiert
+ * Ueberprueft, ob die config.xml existiert.
  * @author Christopher Jung
  *
  */
 public class ConfigXmlValidCheck implements Checkable {
-
+	@Override
 	public void doCheck() throws CheckFailedException {
 		try {
 			Configuration.init("WEB-INF/cfg/");
@@ -36,6 +36,7 @@ public class ConfigXmlValidCheck implements Checkable {
 		}
 	}
 
+	@Override
 	public String getDescription() {
 		return "config.xml validieren";
 	}

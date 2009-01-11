@@ -19,93 +19,93 @@
 package net.driftingsouls.ds2.server.ships;
 
 /**
- * Die unterschiedlichen Schiffsklassen in DS
+ * Die unterschiedlichen Schiffsklassen in DS.
  * @author Christopher Jung
  *
  */
 public enum ShipClasses {
 	/**
-	 * Die Schiffsklasse "Unbekannt"
+	 * Die Schiffsklasse "Unbekannt".
 	 */
 	UNBEKANNT("Unbekannt"),						// 0
 	/**
-	 * Die Schiffsklasse "Transporter"
+	 * Die Schiffsklasse "Transporter".
 	 */
 	TRANSPORTER("Transporter"),					// 1
 	/**
-	 * Die Schiffsklasse "Zerstoerer"
+	 * Die Schiffsklasse "Zerstoerer".
 	 */
 	ZERSTOERER("Zerst&ouml;rer"),				// 2
 	/**
-	 * Die Schiffsklasse "Tanker"
+	 * Die Schiffsklasse "Tanker".
 	 */
 	TANKER("Tanker"),							// 3
 	/**
-	 * Die Schiffsklasse "Juggernauten"
+	 * Die Schiffsklasse "Juggernauten".
 	 */
 	JUGGERNAUT("Juggernaut","Juggernauten"),	// 4
 	/**
-	 * Die Schiffsklasse "Korvetten"
+	 * Die Schiffsklasse "Korvetten".
 	 */
 	KORVETTE("Korvette", "Korvetten"),			// 5
 	/**
-	 * Die Schiffsklasse "Kreuzer"
+	 * Die Schiffsklasse "Kreuzer".
 	 */
 	KREUZER("Kreuzer", "Kreuzer"),				// 6
 	/**
-	 * Die Schiffsklasse "Schwere Kreuzer"
+	 * Die Schiffsklasse "Schwere Kreuzer".
 	 */
 	SCHWERER_KREUZER("Schwerer Kreuzer", "Schwere Kreuzer"),	// 7
 	/**
-	 * Die Schiffsklasse "Stationen"
+	 * Die Schiffsklasse "Stationen".
 	 */
 	STATION("Station", "Stationen"),			// 8
 	/**
-	 * Die Schiffsklasse "Jaeger"
+	 * Die Schiffsklasse "Jaeger".
 	 */
 	JAEGER("J&auml;ger"),						// 9
 	/**
-	 * Die Schiffsklasse "Geschuetze"
+	 * Die Schiffsklasse "Geschuetze".
 	 */
 	GESCHUETZ("Gesch&uuml;tz","Gesch&uuml;tze"),				// 10
 	/**
-	 * Die Schiffsklasse "Forschungskreuzer"
+	 * Die Schiffsklasse "Forschungskreuzer".
 	 */
 	FORSCHUNGSKREUZER("Forschungskreuzer"),		// 11
 	/**
-	 * Die Schiffsklasse "Container"
+	 * Die Schiffsklasse "Container".
 	 */
 	CONTAINER("Container"),						// 12
 	/**
-	 * Die Schiffsklasse "AWACs"
+	 * Die Schiffsklasse "AWACs".
 	 */
 	AWACS("AWAC", "AWACs"),						// 13
 	/**
-	 * Die Schiffsklasse "Schrotthaufen"
+	 * Die Schiffsklasse "Schrotthaufen".
 	 */
 	SCHROTT("Schrott", "Schrotthaufen"),		// 14
 	/**
-	 * Die Schiffsklasse "Traeger"
+	 * Die Schiffsklasse "Traeger".
 	 */
 	TRAEGER("Tr&auml;ger"),						// 15
 	/**
-	 * Die Schiffsklasse "Kommandoschiffe"
+	 * Die Schiffsklasse "Kommandoschiffe".
 	 */
 	KOMMANDOSCHIFF("Kommandoschiff", "Kommandoschiffe"),		// 16
 	/**
-	 * Die Schiffsklasse "Bomber"
+	 * Die Schiffsklasse "Bomber".
 	 */
 	BOMBER("Bomber"),							// 17
 	/**
-	 * Die Schiffsklasse "Rettungskapseln"
+	 * Die Schiffsklasse "Rettungskapseln".
 	 */
 	RETTUNGSKAPSEL("Rettungskapsel", "Rettungskapseln"),		// 18
 	/**
-	 * Die Schiffsklasse "" (nichts)
+	 * Die Schiffsklasse "" (nichts).
 	 */
 	EMTPY(""),									// 19
 	/**
-	 * Die Schiffsklasse "Felsbrocken"
+	 * Die Schiffsklasse "Felsbrocken".
 	 */
 	FELSBROCKEN("Felsbrocken");					// 20
 	
@@ -122,7 +122,7 @@ public enum ShipClasses {
 	}
 	
 	/**
-	 * Gibt die Singularform des Schiffsklassen-Namens zurueck
+	 * Gibt die Singularform des Schiffsklassen-Namens zurueck.
 	 * @return die Singularform
 	 */
 	public String getSingular() {
@@ -130,7 +130,7 @@ public enum ShipClasses {
 	}
 	
 	/**
-	 * Gibt die Pluralform des Schiffsklassen-Namens zurueck
+	 * Gibt die Pluralform des Schiffsklassen-Namens zurueck.
 	 * @return die Pluralform
 	 */
 	public String getPlural() {

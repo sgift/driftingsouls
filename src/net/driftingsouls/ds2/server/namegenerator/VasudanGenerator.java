@@ -33,7 +33,7 @@ public class VasudanGenerator implements NameGenerator
 	private Markov markov;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @throws IOException
 	 */
 	public VasudanGenerator() throws IOException

@@ -29,7 +29,7 @@ import org.hibernate.annotations.Type;
 
 /**
  * Ein Stats-Eintrag, der den Gesamtcargo im Spiel zu einem Zeitpunkt (Tick) 
- * festhaelt
+ * festhaelt.
  * @author Christopher Jung
  *
  */
@@ -45,7 +45,7 @@ public class StatCargo {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public StatCargo() {
@@ -53,7 +53,7 @@ public class StatCargo {
 	}
 	
 	/**
-	 * Erstellt einen neuen Eintrag
+	 * Erstellt einen neuen Eintrag.
 	 * @param tick Der Tick
 	 * @param cargo Der Cargo
 	 */
@@ -63,7 +63,7 @@ public class StatCargo {
 	}
 
 	/**
-	 * Gibt den Cargo zurueck
+	 * Gibt den Cargo zurueck.
 	 * @return Der Cargo
 	 */
 	public Cargo getCargo() {
@@ -71,7 +71,7 @@ public class StatCargo {
 	}
 
 	/**
-	 * Setzt den Cargo
+	 * Setzt den Cargo.
 	 * @param cargo Der Cargo
 	 */
 	public void setCargo(Cargo cargo) {
@@ -79,7 +79,7 @@ public class StatCargo {
 	}
 
 	/**
-	 * Gibt den Tick zurueck
+	 * Gibt den Tick zurueck.
 	 * @return Der Tick
 	 */
 	public int getTick() {
@@ -87,7 +87,7 @@ public class StatCargo {
 	}
 
 	/**
-	 * Setzt den Tick
+	 * Setzt den Tick.
 	 * @param tick Der Tick
 	 */
 	public void setTick(int tick) {
@@ -95,7 +95,7 @@ public class StatCargo {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

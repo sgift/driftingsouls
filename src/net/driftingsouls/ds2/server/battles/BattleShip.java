@@ -41,7 +41,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
- * Repraesentiert ein Schiff in einer Schlacht
+ * Repraesentiert ein Schiff in einer Schlacht.
  * @author Christopher Jung
  *
  */
@@ -72,14 +72,14 @@ public class BattleShip {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 */
 	public BattleShip() {
 		// EMPTY
 	}
 	
 	/**
-	 * Erstellt einen neuen Schlachteintrag fuer ein Schiff
+	 * Erstellt einen neuen Schlachteintrag fuer ein Schiff.
 	 * @param battle Die Schlacht
 	 * @param ship Das Schiff
 	 */
@@ -99,7 +99,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt die ID des Schiffes zurueck
+	 * Gibt die ID des Schiffes zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -107,7 +107,7 @@ public class BattleShip {
 	}
 	
 	/**
-	 * Gibt das Schiff zurueck
+	 * Gibt das Schiff zurueck.
 	 * @return Das Schiff
 	 */
 	public Ship getShip() {
@@ -115,7 +115,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt dieSchlacht zurueck
+	 * Gibt dieSchlacht zurueck.
 	 * @return Die Schlacht
 	 */
 	public Battle getBattle() {
@@ -123,7 +123,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Setzt die Schlacht
+	 * Setzt die Schlacht.
 	 * @param battle Die neue Schlacht
 	 */
 	public void setBattle(Battle battle) {
@@ -131,7 +131,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt die ID der Seite zurueck, auf der das Schiff kaempft
+	 * Gibt die ID der Seite zurueck, auf der das Schiff kaempft.
 	 * @return Die ID der Seite
 	 */
 	public int getSide() {
@@ -139,7 +139,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Setzt die ID der Seite, auf der das Schiff kaempft
+	 * Setzt die ID der Seite, auf der das Schiff kaempft.
 	 * @param side Die ID der Seite
 	 */
 	public void setSide(int side) {
@@ -147,7 +147,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt die Anzahl an Huellenpunkten, welche das Schiff am Ende der Runde hat, zurueck
+	 * Gibt die Anzahl an Huellenpunkten, welche das Schiff am Ende der Runde hat, zurueck.
 	 * @return Die Huellenpunkte am Ende der Runde
 	 */
 	public int getHull() {
@@ -155,7 +155,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Setzt die Anzahl der Huellenpunkte, welche das Schiff am Ende der Runde hat
+	 * Setzt die Anzahl der Huellenpunkte, welche das Schiff am Ende der Runde hat.
 	 * @param hull Die Huellenpunkte am Ende der Runde
 	 */
 	public void setHull(int hull) {
@@ -163,7 +163,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt die Anzahl an Schildpunkten, welche das Schiff am Ende der Runde hat, zurueck
+	 * Gibt die Anzahl an Schildpunkten, welche das Schiff am Ende der Runde hat, zurueck.
 	 * @return Die Schildpunkte am Ende der Runde
 	 */
 	public int getShields() {
@@ -171,7 +171,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Setzt die Anzahl der Schildpunkte, welche das Schiff am Ende der Runde hat
+	 * Setzt die Anzahl der Schildpunkte, welche das Schiff am Ende der Runde hat.
 	 * @param shields Die Schildpunkte am Ende der Runde
 	 */
 	public void setShields(int shields) {
@@ -179,7 +179,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt die Anzahl an Antriebspunkten, welche das Schiff am Ende der Runde hat, zurueck
+	 * Gibt die Anzahl an Antriebspunkten, welche das Schiff am Ende der Runde hat, zurueck.
 	 * @return Die Antriebspunkte am Ende der Runde
 	 */
 	public int getEngine() {
@@ -187,7 +187,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Setzt die Anzahl der Antriebspunkte, welche das Schiff am Ende der Runde hat
+	 * Setzt die Anzahl der Antriebspunkte, welche das Schiff am Ende der Runde hat.
 	 * @param engine Die Antriebspunkte am Ende der Runde
 	 */
 	public void setEngine(int engine) {
@@ -195,7 +195,7 @@ public class BattleShip {
 	}
 	
 	/**
-	 * Gibt die Anzahl an Waffenpunkten, welche das Schiff am Ende der Runde hat, zurueck
+	 * Gibt die Anzahl an Waffenpunkten, welche das Schiff am Ende der Runde hat, zurueck.
 	 * @return Die Waffenpunkte am Ende der Runde
 	 */
 	public int getWeapons() {
@@ -203,7 +203,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Setzt die Anzahl der Waffenpunkte, welche das Schiff am Ende der Runde hat
+	 * Setzt die Anzahl der Waffenpunkte, welche das Schiff am Ende der Runde hat.
 	 * @param weapons Die Waffenpunkte am Ende der Runde
 	 */
 	public void setWeapons(int weapons) {
@@ -211,7 +211,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt die Anzahl an Komm.Sys.punkten, welche das Schiff am Ende der Runde hat, zurueck
+	 * Gibt die Anzahl an Komm.Sys.punkten, welche das Schiff am Ende der Runde hat, zurueck.
 	 * @return Die Komm.Sys.punkte am Ende der Runde
 	 */
 	public int getComm() {
@@ -219,7 +219,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Setzt die Anzahl der Komm.Sys.punkte, welche das Schiff am Ende der Runde hat
+	 * Setzt die Anzahl der Komm.Sys.punkte, welche das Schiff am Ende der Runde hat.
 	 * @param comm Die Komm.Sys.punkte am Ende der Runde
 	 */
 	public void setComm(int comm) {
@@ -227,7 +227,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt die Anzahl an Sensorenpunkten, welche das Schiff am Ende der Runde hat, zurueck
+	 * Gibt die Anzahl an Sensorenpunkten, welche das Schiff am Ende der Runde hat, zurueck.
 	 * @return Die Sensorenpunkte am Ende der Runde
 	 */
 	public int getSensors() {
@@ -235,7 +235,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Setzt die Anzahl der Sensorenpunkte, welche das Schiff am Ende der Runde hat
+	 * Setzt die Anzahl der Sensorenpunkte, welche das Schiff am Ende der Runde hat.
 	 * @param sensors Die Sensorenpunkte am Ende der Runde
 	 */
 	public void setSensors(int sensors) {
@@ -243,7 +243,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt die Aktionsflags des Schiffes zurueck
+	 * Gibt die Aktionsflags des Schiffes zurueck.
 	 * @return Die Aktionsflags
 	 */
 	public int getAction() {
@@ -251,7 +251,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Setzt die Aktionsflags des Schiffes
+	 * Setzt die Aktionsflags des Schiffes.
 	 * @param action Die Aktionsflags
 	 */
 	public void setAction(int action) {
@@ -259,7 +259,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt die Anzahl an Schiffen zurueck, welche in diesem Schiff enthalten sind ("Staffeln")
+	 * Gibt die Anzahl an Schiffen zurueck, welche in diesem Schiff enthalten sind ("Staffeln").
 	 * @return Die Anzahl an Schiffen
 	 */
 	public int getCount() {
@@ -267,7 +267,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Setzt die Anzahl an Schiffen, welche in diesem Schiff enthalten sind ("Staffeln")
+	 * Setzt die Anzahl an Schiffen, welche in diesem Schiff enthalten sind ("Staffeln").
 	 * @param count Die Anzahl an Schiffen
 	 */
 	public void setCount(int count) {
@@ -275,7 +275,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt die Anzahl an Schiffen zurueck, welche am Ende der Runde in diesem Schiff enthalten sein werden ("Staffeln")
+	 * Gibt die Anzahl an Schiffen zurueck, welche am Ende der Runde in diesem Schiff enthalten sein werden ("Staffeln").
 	 * @return Die Anzahl an Schiffen
 	 */
 	public int getNewCount() {
@@ -283,7 +283,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Setzt die Anzahl an Schiffen, welche am Ende der Runde in diesem Schiff enthalten sein werden ("Staffeln")
+	 * Setzt die Anzahl an Schiffen, welche am Ende der Runde in diesem Schiff enthalten sein werden ("Staffeln").
 	 * @param newcount Die Anzahl an Schiffen
 	 */
 	public void setNewCount(int newcount) {
@@ -291,7 +291,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt den Cargo des Schiffes zurueck
+	 * Gibt den Cargo des Schiffes zurueck.
 	 * @return Der Cargo
 	 * @see net.driftingsouls.ds2.server.ships.Ship#getCargo()
 	 */
@@ -300,7 +300,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt die Crewanzahl auf dem Schiff zurueck
+	 * Gibt die Crewanzahl auf dem Schiff zurueck.
 	 * @return Die Crewanzahl
 	 * @see net.driftingsouls.ds2.server.ships.Ship#getCrew()
 	 */
@@ -309,7 +309,7 @@ public class BattleShip {
 	}
 	
 	/**
-	 * Gibt die Marineanzahl auf dem Schiff zurueck
+	 * Gibt die Marineanzahl auf dem Schiff zurueck.
 	 * @return Die Marineanzahl
 	 * @see net.driftingsouls.ds2.server.ships.Ship#getMarines()
 	 */
@@ -318,7 +318,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt den Namen des Schiffes zurueck
+	 * Gibt den Namen des Schiffes zurueck.
 	 * @return Der Name
 	 * @see net.driftingsouls.ds2.server.ships.Ship#getName()
 	 */
@@ -327,7 +327,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt den Besitzer des Schiffes zurueck
+	 * Gibt den Besitzer des Schiffes zurueck.
 	 * @return Der Besitzer
 	 * @see net.driftingsouls.ds2.server.ships.Ship#getOwner()
 	 */
@@ -336,7 +336,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt die Typen-Daten des Schiffs zurueck 
+	 * Gibt die Typen-Daten des Schiffs zurueck .
 	 * @return die Typen-Daten
 	 * @see net.driftingsouls.ds2.server.ships.Ship#getTypeData()
 	 */
@@ -345,7 +345,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt die Waffenhitze zurueck
+	 * Gibt die Waffenhitze zurueck.
 	 * @return heat Die Waffenhitze
 	 * @see net.driftingsouls.ds2.server.ships.Ship#getWeaponHeat()
 	 */
@@ -354,7 +354,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt die Dochdaten des Schiffes zurueck
+	 * Gibt die Dochdaten des Schiffes zurueck.
 	 * @return Die Dockdaten
 	 * @see net.driftingsouls.ds2.server.ships.Ship#getDocked()
 	 */
@@ -363,7 +363,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt die Punkte an ablativer Panzerung zurueck, ueber die das Schiff noch verfuegt
+	 * Gibt die Punkte an ablativer Panzerung zurueck, ueber die das Schiff noch verfuegt.
 	 * @return Die ablative Panzerung
 	 */
 	public int getAblativeArmor() {
@@ -371,7 +371,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Setzt die ablative Panzerung des Schiffes
+	 * Setzt die ablative Panzerung des Schiffes.
 	 * @param ablativeArmour Der neue Wert der ablativen Panzerung
 	 */
 	public void setAblativeArmor(int ablativeArmour) {
@@ -379,7 +379,7 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

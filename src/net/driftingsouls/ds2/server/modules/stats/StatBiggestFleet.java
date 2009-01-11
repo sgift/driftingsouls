@@ -27,7 +27,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.StatsController;
 
 /**
- * Zeigt die Liste der groessten Flotten an
+ * Zeigt die Liste der groessten Flotten an.
  * @author Christopher Jung
  *
  */
@@ -35,13 +35,14 @@ public class StatBiggestFleet extends AbstractStatistic implements Statistic {
 	private boolean allys;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param allys Sollten Allianzen (<code>true</code>) angezeigt werden?
 	 */
 	public StatBiggestFleet(boolean allys) {
 		this.allys = allys;
 	}
 	
+	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();

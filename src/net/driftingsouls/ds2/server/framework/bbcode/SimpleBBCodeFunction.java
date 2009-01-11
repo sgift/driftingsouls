@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Spezial-BBCode-Klasse
- * Wird intern von BBCodeParser zur Repraesentation von BBCodes ohne eigene BBCodeFunction genutzt
+ * Spezial-BBCode-Klasse.
+ * Wird intern von BBCodeParser zur Repraesentation von BBCodes ohne eigene BBCodeFunction genutzt.
  * @author bktheg
  *
  */

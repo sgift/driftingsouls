@@ -31,13 +31,13 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
- * Laesst ein Schiff die zweite Reihe verlassen
+ * Laesst ein Schiff die zweite Reihe verlassen.
  * @author Christopher Jung
  *
  */
 public class KSLeaveSecondRowAction extends BasicKSAction {
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public KSLeaveSecondRowAction() {

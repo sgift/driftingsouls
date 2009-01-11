@@ -43,7 +43,7 @@ public class TechKiller extends DSApplication {
 	private int techid;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param args Die Kommandozeilenargumente
 	 * @throws Exception
 	 */
@@ -65,7 +65,7 @@ public class TechKiller extends DSApplication {
 	}
 	
 	/**
-	 * Startet die Ausfuehrung
+	 * Startet die Ausfuehrung.
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
@@ -148,7 +148,7 @@ public class TechKiller extends DSApplication {
 	}
 
 	/**
-	 * Main
+	 * Main.
 	 * @param args Die Argumente
 	 * @throws Exception
 	 */

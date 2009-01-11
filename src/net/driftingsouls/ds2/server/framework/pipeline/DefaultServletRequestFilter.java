@@ -50,6 +50,7 @@ import org.springframework.web.filter.GenericFilterBean;
 public class DefaultServletRequestFilter extends GenericFilterBean implements Filter {
 	private static final Log log = LogFactory.getLog(DefaultServletRequestFilter.class);
 	
+	@Override
 	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
 		if( !(req instanceof HttpServletRequest) ) {
 			chain.doFilter(req, resp);

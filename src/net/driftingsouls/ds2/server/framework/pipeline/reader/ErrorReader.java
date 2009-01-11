@@ -22,7 +22,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.ReaderPipeline;
 
 /**
- * Meldet als Antwort einen HTTP-Fehlercode in Kombination mit einer HTML-Seite
+ * Meldet als Antwort einen HTTP-Fehlercode in Kombination mit einer HTML-Seite.
  * @author Christopher Jung
  *
  */

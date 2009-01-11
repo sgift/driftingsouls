@@ -30,13 +30,13 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
- * Laedt die Schilde aller eigener Schiffe auf
+ * Laedt die Schilde aller eigener Schiffe auf.
  * @author Christopher Jung
  *
  */
 public class KSRegenerateShieldsAllAction extends BasicKSAction {
 	/**
-	 * Prueft, ob das Schiff seine Schilde aufladen soll oder nicht
+	 * Prueft, ob das Schiff seine Schilde aufladen soll oder nicht.
 	 * @param ship Das Schiff
 	 * @param shiptype Der Schiffstyp
 	 * @return <code>true</code>, wenn das Schiff seine Schilde aufladen soll

@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
- * <p>Ein ComNet-Kanal</p>
+ * <p>Ein ComNet-Kanal.</p>
  * Die Berechtigungen fuer Lese- und Schreibrechte sind unabhaengig voneinander. Dies bedeutet, 
  * dass die Zugriffsberechtigten Spieler nicht die Liste der Spieler in einer zugriffsberechtigten
  * Allianz enthaelt. 
@@ -65,7 +65,7 @@ public class ComNetChannel {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public ComNetChannel() {
@@ -73,7 +73,7 @@ public class ComNetChannel {
 	}
 	
 	/**
-	 * Erstellt einen neuen ComNet-Kanal
+	 * Erstellt einen neuen ComNet-Kanal.
 	 * @param name Der Name des Kanals
 	 */
 	public ComNetChannel(String name) {
@@ -83,7 +83,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Gibt die Ally zurueck, die den Channel besitzt
+	 * Gibt die Ally zurueck, die den Channel besitzt.
 	 * @return Die Allianz
 	 */
 	public int getAllyOwner() {
@@ -91,7 +91,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Setzt den Allianzbesitzer des Channels
+	 * Setzt den Allianzbesitzer des Channels.
 	 * @param allyOwner Die Allianz
 	 */
 	public void setAllyOwner(int allyOwner) {
@@ -99,7 +99,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Gibt den Namen des Channels zurueck
+	 * Gibt den Namen des Channels zurueck.
 	 * @return Der Name
 	 */
 	public String getName() {
@@ -107,7 +107,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Setzt den Namen des Channels
+	 * Setzt den Namen des Channels.
 	 * @param name Der Name
 	 */
 	public void setName(String name) {
@@ -115,7 +115,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Gibt zurueck, ob der Kanal fuer alle lesbar ist
+	 * Gibt zurueck, ob der Kanal fuer alle lesbar ist.
 	 * @return <code>true</code>, falls er fuer alle lesbar ist
 	 */
 	public boolean isReadAll() {
@@ -123,7 +123,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Setzt, ob der Kanal fuer alle lesbar ist
+	 * Setzt, ob der Kanal fuer alle lesbar ist.
 	 * @param readAll <code>true</code>, falls er fuer alle lesbar ist
 	 */
 	public void setReadAll(boolean readAll) {
@@ -131,7 +131,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Gibt die Allianz zurueck, die den Kanal lesen kann
+	 * Gibt die Allianz zurueck, die den Kanal lesen kann.
 	 * @return Die Allianz
 	 */
 	public int getReadAlly() {
@@ -139,7 +139,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Setzt die Allianz, die den Kanal lesen kann
+	 * Setzt die Allianz, die den Kanal lesen kann.
 	 * @param readAlly Die Allianz
 	 */
 	public void setReadAlly(int readAlly) {
@@ -147,7 +147,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Gibt zurueck, ob NPCs den Kanal lesen koennen
+	 * Gibt zurueck, ob NPCs den Kanal lesen koennen.
 	 * @return <code>true</code>, falls NPCs den Kanal lesen koennen
 	 */
 	public boolean isReadNpc() {
@@ -155,7 +155,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Setzt, ob NPCs den Kanal lesen koennen
+	 * Setzt, ob NPCs den Kanal lesen koennen.
 	 * @param readNpc <code>true</code>, falls NPCs den Kanal lesen koennen
 	 */
 	public void setReadNpc(boolean readNpc) {
@@ -163,7 +163,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Gibt die Spieler zurueck, die den Kanal lesen koennen
+	 * Gibt die Spieler zurueck, die den Kanal lesen koennen.
 	 * @return die IDs (Komma-separiert)
 	 */
 	public String getReadPlayer() {
@@ -171,7 +171,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Setzt die Spieler, die den Kanal lesen koennen
+	 * Setzt die Spieler, die den Kanal lesen koennen.
 	 * @param readPlayer DIe IDs (Komman-separiert)
 	 */
 	public void setReadPlayer(String readPlayer) {
@@ -179,7 +179,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Gibt zurueck, ob alle Spieler im Kanal posten koennen
+	 * Gibt zurueck, ob alle Spieler im Kanal posten koennen.
 	 * @return <code>true</code>, falls alle Posten koennen
 	 */
 	public boolean isWriteAll() {
@@ -187,7 +187,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Setzt, ob alle Spieler im Kanal posten koennen
+	 * Setzt, ob alle Spieler im Kanal posten koennen.
 	 * @param writeAll <code>true</code>, falls alle Spieler posten koennen
 	 */
 	public void setWriteAll(boolean writeAll) {
@@ -195,7 +195,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Gibt die Allianz zurueck, deren Mitglieder im Kanal posten koennen
+	 * Gibt die Allianz zurueck, deren Mitglieder im Kanal posten koennen.
 	 * @return Die Allianz
 	 */
 	public int getWriteAlly() {
@@ -203,7 +203,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Setzt die Allianz, deren Mitglieder im Kanal posten koennen
+	 * Setzt die Allianz, deren Mitglieder im Kanal posten koennen.
 	 * @param writeAlly Die Allianz
 	 */
 	public void setWriteAlly(int writeAlly) {
@@ -211,7 +211,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Gibt zurueck, ob NPCs im Kanal posten koennen
+	 * Gibt zurueck, ob NPCs im Kanal posten koennen.
 	 * @return <code>true</code>, falls NPCs posten koennen
 	 */
 	public boolean isWriteNpc() {
@@ -219,7 +219,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Setzt, ob NPCs im Kanal posten koennen
+	 * Setzt, ob NPCs im Kanal posten koennen.
 	 * @param writeNpc <code>true</code>, falls NPCs posten koennen
 	 */
 	public void setWriteNpc(boolean writeNpc) {
@@ -227,7 +227,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Gibt die Spieler zurueck, die im Kanal posten koennen
+	 * Gibt die Spieler zurueck, die im Kanal posten koennen.
 	 * @return Die Spieler (Komma-separiert)
 	 */
 	public String getWritePlayer() {
@@ -235,7 +235,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Setzt die Spieler, die im Kanal posten koennen
+	 * Setzt die Spieler, die im Kanal posten koennen.
 	 * @param writePlayer Die IDs (Komma-separiert)
 	 */
 	public void setWritePlayer(String writePlayer) {
@@ -243,7 +243,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Gibt die ID des Kanals zurueck
+	 * Gibt die ID des Kanals zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -251,7 +251,7 @@ public class ComNetChannel {
 	}
 	
 	/**
-	 * Prueft, ob der ComNet-Kanal fuer den angegebenen Benutzer lesbar ist
+	 * Prueft, ob der ComNet-Kanal fuer den angegebenen Benutzer lesbar ist.
 	 * @param user Der Benutzer
 	 * @return <code>true</code>, falls er lesbar ist
 	 */
@@ -288,7 +288,7 @@ public class ComNetChannel {
 	}
 	
 	/**
-	 * Prueft, ob der ComNet-Kanal fuer den angegebenen Benutzer schreibbar ist
+	 * Prueft, ob der ComNet-Kanal fuer den angegebenen Benutzer schreibbar ist.
 	 * @param user Der Benutzer
 	 * @return <code>true</code>, falls er schreibbar ist
 	 */
@@ -311,7 +311,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Gibt die Anzahl an Posts im ComNet-Kanal zurueck
+	 * Gibt die Anzahl an Posts im ComNet-Kanal zurueck.
 	 * @return Die Anzahl der Posts
 	 */
 	public int getPostCount() {
@@ -323,7 +323,7 @@ public class ComNetChannel {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

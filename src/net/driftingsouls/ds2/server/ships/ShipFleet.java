@@ -37,7 +37,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.hibernate.Query;
 
 /**
- * Eine Flotte aus Schiffen
+ * Eine Flotte aus Schiffen.
  * @author Christopher Jung
  *
  */
@@ -45,7 +45,7 @@ import org.hibernate.Query;
 @Table(name="ship_fleets")
 public class ShipFleet {
 	/**
-	 * Objekt mit Funktionsmeldungen
+	 * Objekt mit Funktionsmeldungen.
 	 */
 	public static final ContextLocalMessage MESSAGE = new ContextLocalMessage();
 	
@@ -60,7 +60,7 @@ public class ShipFleet {
 	private boolean consignMode = false;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public ShipFleet() {
@@ -68,7 +68,7 @@ public class ShipFleet {
 	}
 	
 	/**
-	 * <p>Konstruktor</p>
+	 * <p>Konstruktor.</p>
 	 * Erstellt eine neue Flotte
 	 * @param name Der Name der Flotte
 	 */
@@ -77,7 +77,7 @@ public class ShipFleet {
 	}
 
 	/**
-	 * Gibt den Namen der Flotte zurueck
+	 * Gibt den Namen der Flotte zurueck.
 	 * @return Der Name
 	 */
 	public String getName() {
@@ -85,7 +85,7 @@ public class ShipFleet {
 	}
 
 	/**
-	 * Setzt den Namen der Flotte
+	 * Setzt den Namen der Flotte.
 	 * @param name Der Name
 	 */
 	public void setName(String name) {
@@ -93,7 +93,7 @@ public class ShipFleet {
 	}
 
 	/**
-	 * Gibt die ID der Flotte zurueck
+	 * Gibt die ID der Flotte zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -101,7 +101,7 @@ public class ShipFleet {
 	}
 	
 	/**
-	 * Gibt den Besitzer der Flotte zurueck
+	 * Gibt den Besitzer der Flotte zurueck.
 	 * @return Der Besitzer
 	 */
 	public User getOwner() {
@@ -168,7 +168,7 @@ public class ShipFleet {
 	}
 
 	/**
-	 * Setzt die Alarmstufe der Schiffe in der Flotte
+	 * Setzt die Alarmstufe der Schiffe in der Flotte.
 	 * @param alarm Die Alarmstufe
 	 */
 	public void setAlarm(int alarm) {
@@ -190,7 +190,7 @@ public class ShipFleet {
 	}
 
 	/**
-	 * Fuegt alle Schiffe der Zielflotte dieser Flotte hinzu
+	 * Fuegt alle Schiffe der Zielflotte dieser Flotte hinzu.
 	 * @param targetFleet Die Zielflotte
 	 */
 	public void joinFleet(ShipFleet targetFleet) {
@@ -211,7 +211,7 @@ public class ShipFleet {
 	}
 
 	/**
-	 * Startet alle Jaeger der Flotte
+	 * Startet alle Jaeger der Flotte.
 	 *
 	 */
 	public void startFighters() {
@@ -227,7 +227,7 @@ public class ShipFleet {
 	}
 
 	/**
-	 * Sammelt alle Container auf und dockt sie an Schiffe der Flotte
+	 * Sammelt alle Container auf und dockt sie an Schiffe der Flotte.
 	 * @param user Der Besitzer der Flotte/Container
 	 */
 	public void collectContainers(User user) {
@@ -272,7 +272,7 @@ public class ShipFleet {
 	}
 
 	/**
-	 * Dockt alle Container auf Schiffen der Flotte ab
+	 * Dockt alle Container auf Schiffen der Flotte ab.
 	 *
 	 */
 	public void undockContainers() {
@@ -380,7 +380,7 @@ public class ShipFleet {
 	}
 	
 	/**
-	 * Fuegt das angegebene Schiff zur Flotte hinzu
+	 * Fuegt das angegebene Schiff zur Flotte hinzu.
 	 * @param ship Das Schiff das hinzugefuegt werden soll
 	 */
 	public void addShip(Ship ship)
@@ -389,7 +389,7 @@ public class ShipFleet {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

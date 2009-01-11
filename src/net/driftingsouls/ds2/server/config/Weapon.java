@@ -28,33 +28,33 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Eine einfache Waffe in DS. Basisklasse fuer alle Waffen
+ * Eine einfache Waffe in DS. Basisklasse fuer alle Waffen.
  * @author Christopher Jung
  *
  */
 public class Weapon {
 	/**
-	 * Waffenflags
+	 * Waffenflags.
 	 */
 	public enum Flags {
 		/**
-		 * Spezial-Waffe (eigene Auswahlbox unter sonstiges)
+		 * Spezial-Waffe (eigene Auswahlbox unter sonstiges).
 		 */
 		SPECIAL(1),
 		/**
-		 * Nach dem Abfeuern das Schiff zerstoeren
+		 * Nach dem Abfeuern das Schiff zerstoeren.
 		 */
 		DESTROY_AFTER(2),
 		/**
-		 * Ammo-Auswahl fuer diese Waffe zulassen
+		 * Ammo-Auswahl fuer diese Waffe zulassen.
 		 */
 		AMMO_SELECT(4),
 		/**
-		 * Area-Damage ueber die Distanz nicht reduzieren
+		 * Area-Damage ueber die Distanz nicht reduzieren.
 		 */
 		AD_FULL(8),
 		/**
-		 * Weitreichende Waffen koennen aus der zweiten Reihe heraus abgefeuert werden
+		 * Weitreichende Waffen koennen aus der zweiten Reihe heraus abgefeuert werden.
 		 */
 		LONG_RANGE(16),
 		/**
@@ -69,7 +69,7 @@ public class Weapon {
 		}
 		
 		/**
-		 * Gibt das zum Flag gehoerende Bitmuster zurueck
+		 * Gibt das zum Flag gehoerende Bitmuster zurueck.
 		 * @return Das Bitmuster
 		 */
 		public int getBits() {
@@ -101,7 +101,7 @@ public class Weapon {
 	private int flags = 0;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param node Der zu landende XML-Knoten
 	 * @throws Exception
 	 */
@@ -224,7 +224,7 @@ public class Weapon {
 	}
 	
 	/**
-	 * Gibt den Namen der Waffe zurueck
+	 * Gibt den Namen der Waffe zurueck.
 	 * @return Der Name
 	 */
 	public String getName() {
@@ -232,7 +232,7 @@ public class Weapon {
 	}
 	
 	/**
-	 * Gibt die zum Abfeuern benoetigten AP zurueck
+	 * Gibt die zum Abfeuern benoetigten AP zurueck.
 	 * @return Die AP-Kosten
 	 */
 	public int getAPCost() {
@@ -240,7 +240,7 @@ public class Weapon {
 	}
 	
 	/**
-	 * Gibt die zum Abfeuern benoetigte Energie zurueck 
+	 * Gibt die zum Abfeuern benoetigte Energie zurueck .
 	 * @return Die Energie-Kosten
 	 */
 	public int getECost() {
@@ -248,7 +248,7 @@ public class Weapon {
 	}
 	
 	/**
-	 * Gibt den Schaden der Waffe gegenueber der Schiffshuelle zurueck
+	 * Gibt den Schaden der Waffe gegenueber der Schiffshuelle zurueck.
 	 * @param ownShipType Der Schiffstyp des feuernden Schiffes
 	 * @return Der Schaden an der Huelle
 	 */
@@ -257,7 +257,7 @@ public class Weapon {
 	}
 	
 	/**
-	 * Gibt den Multiplikationsfaktor fuer den Schaden in Abhaengigkeit vom getroffenen Schiffstyp zurueck
+	 * Gibt den Multiplikationsfaktor fuer den Schaden in Abhaengigkeit vom getroffenen Schiffstyp zurueck.
 	 * @param enemyShipType Der Typ des Schiffes, auf welches gefeuert werden soll
 	 * @return Der Multiplikationsfaktor
 	 */
@@ -266,7 +266,7 @@ public class Weapon {
 	}
 	
 	/**
-	 * Gibt den Schaden der Waffe gegenueber den Schilden zurueck
+	 * Gibt den Schaden der Waffe gegenueber den Schilden zurueck.
 	 * @param ownShipType Der Schiffstyp des feuernden Schiffes
 	 * @return Der Schaden an den Schilden
 	 */
@@ -275,7 +275,7 @@ public class Weapon {
 	}
 	
 	/**
-	 * Gibt den Schaden der Waffe gegenueber den Subsystemen zurueck
+	 * Gibt den Schaden der Waffe gegenueber den Subsystemen zurueck.
 	 * @param ownShipType Der Schiffstyp des feuernden Schiffes
 	 * @return Der Schaden an den Subsystemen
 	 */
@@ -284,7 +284,7 @@ public class Weapon {
 	}
 	
 	/**
-	 * Gibt die Trefferwahrscheinlichkeit gegenueber normalen Schiffen zurueck
+	 * Gibt die Trefferwahrscheinlichkeit gegenueber normalen Schiffen zurueck.
 	 * @return Die Trefferwahrscheinlichkeit gegenueber normalen Schiffen
 	 */
 	public int getDefTrefferWS() {
@@ -292,7 +292,7 @@ public class Weapon {
 	}
 	
 	/**
-	 * Gibt die Trefferwahrscheinlichkeit gegenueber kleinen Schiffen zurueck
+	 * Gibt die Trefferwahrscheinlichkeit gegenueber kleinen Schiffen zurueck.
 	 * @return Die Trefferwahrscheinlichkeit gegenueber kleinen Schiffen
 	 */
 	public int getDefSmallTrefferWS() {
@@ -300,7 +300,7 @@ public class Weapon {
 	}
 	
 	/**
-	 * Gibt die Trefferwahrscheinlichkeit gegenueber anfliegenden Torpedos (und anderen zerstoerbaren Waffen) zurueck
+	 * Gibt die Trefferwahrscheinlichkeit gegenueber anfliegenden Torpedos (und anderen zerstoerbaren Waffen) zurueck.
 	 * @return Die Trefferwahrscheinlichkeit gegenueber Torpedos (und anderen zerstoerbaren Waffen)
 	 */
 	public double getTorpTrefferWS() {
@@ -308,7 +308,7 @@ public class Weapon {
 	}
 	
 	/**
-	 * Gibt die Trefferwahrscheinlichkeit gegenueber Subsystemen zurueck
+	 * Gibt die Trefferwahrscheinlichkeit gegenueber Subsystemen zurueck.
 	 * @return Die Trefferwahrscheinlichkeit gegenueber Subsystemen
 	 */
 	public int getDefSubWS() {
@@ -316,7 +316,7 @@ public class Weapon {
 	}
 	
 	/**
-	 * Berechnet Aenderungen am Schiffstyp des feuernden Schiffes
+	 * Berechnet Aenderungen am Schiffstyp des feuernden Schiffes.
 	 * @param ownShipType Der Typ des feuernden Schiffes
 	 * @param enemyShipType Der Typ des getroffenen Schiffes
 	 * @return Wurden Aenderungen vorgenommen (<code>true</code>)
@@ -326,7 +326,7 @@ public class Weapon {
 	}
 	
 	/**
-	 * Berechnet Aenderungen am Schiffstyp des getroffenen Schiffes
+	 * Berechnet Aenderungen am Schiffstyp des getroffenen Schiffes.
 	 * @param ownShipType Der Typ des feuernden Schiffes
 	 * @param enemyShipType Der Typ des getroffenen Schiffes
 	 * @return Wurden Aenderungen vorgenommen (<code>true</code>)
@@ -345,7 +345,7 @@ public class Weapon {
 	}
 	
 	/**
-	 * Gibt die Anzahl der Einzelschuesse pro abgefeuertem Schuss zurueck
+	 * Gibt die Anzahl der Einzelschuesse pro abgefeuertem Schuss zurueck.
 	 * @return Die Anzahl der Einzelschuesse pro abgefeuertem Schiff 
 	 */
 	public int getSingleShots() {
@@ -353,7 +353,7 @@ public class Weapon {
 	}
 	
 	/**
-	 * Gibt die Reichweite des Schadens gegenueber der Umgebung des getroffenen Schiffes zurueck
+	 * Gibt die Reichweite des Schadens gegenueber der Umgebung des getroffenen Schiffes zurueck.
 	 * @return Der Umgebungsschaden
 	 */
 	public int getAreaDamage() {
@@ -361,7 +361,7 @@ public class Weapon {
 	}
 	
 	/**
-	 * Gibt zurueck, ob das Geschoss durch Abwehrfeuer zerstoerbar ist
+	 * Gibt zurueck, ob das Geschoss durch Abwehrfeuer zerstoerbar ist.
 	 * @return <code>true</code>, falls das Geschoss durch Abwehrfeuer zerstoerbar ist
 	 */
 	public boolean getDestroyable() {
@@ -369,7 +369,7 @@ public class Weapon {
 	}
 	
 	/**
-	 * Prueft, ob die Waffe ueber das angegebene Flag verfuegt
+	 * Prueft, ob die Waffe ueber das angegebene Flag verfuegt.
 	 * @param flag Das Flag
 	 * @return <code>true</code>, falls die Waffe das Flag besitzt
 	 */

@@ -40,9 +40,9 @@ public class ScheduledTick extends QuartzJobBean implements StatefulJob
 	private String tick;
 
 	/**
-	 * Injiziert den auszufuehrenden Tick (als Klassennamen)
+	 * Injiziert den auszufuehrenden Tick (als Klassennamen).
 	 * 
-	 * @param tick
+	 * @param tick Der Klassenname des auszufuehrenden Ticks
 	 */
 	public void setTickExecuter(String tick)
 	{

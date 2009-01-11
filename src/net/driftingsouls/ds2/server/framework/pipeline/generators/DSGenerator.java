@@ -46,19 +46,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Basisklasse fuer alle DS-spezifischen Generatoren
+ * Basisklasse fuer alle DS-spezifischen Generatoren.
  * @author Christopher Jung
  *
  */
 public abstract class DSGenerator extends Generator {
 	private static final Log log = LogFactory.getLog(DSGenerator.class);
 	
+	/**
+	 * Basisklasse fuer Objekte zur Ausgabe von Header, Footer und Fehlern.
+	 *
+	 */
 	protected static abstract class OutputHelper {
 		private Context context = null;
 		private Map<String,Object> attributes = new HashMap<String,Object>();
 		
 		/**
-		 * Konstruktor
+		 * Konstruktor.
 		 *
 		 */
 		public OutputHelper() {
@@ -66,26 +70,26 @@ public abstract class DSGenerator extends Generator {
 		}
 		
 		/**
-		 * Gibt den Header aus
+		 * Gibt den Header aus.
 		 * @throws IOException 
 		 *
 		 */
 		public abstract void printHeader() throws IOException;
 		/**
-		 * Gibt den Footer aus
+		 * Gibt den Footer aus.
 		 * @throws IOException 
 		 *
 		 */
 		public abstract void printFooter() throws IOException;
 		/**
-		 * Gibt die Fehlerliste aus
+		 * Gibt die Fehlerliste aus.
 		 * @throws IOException 
 		 *
 		 */
 		public abstract void printErrorList() throws IOException;
 		
 		/**
-		 * Setzt ein Attribut
+		 * Setzt ein Attribut.
 		 * @param key Der Schluessel
 		 * @param value Der Wert
 		 */
@@ -94,7 +98,7 @@ public abstract class DSGenerator extends Generator {
 		}
 		
 		/**
-		 * Gibt das Attribut mit dem angegebenen Schluessel zurueck
+		 * Gibt das Attribut mit dem angegebenen Schluessel zurueck.
 		 * @param key Der Schluessel
 		 * @return Der Wert
 		 */
@@ -103,7 +107,7 @@ public abstract class DSGenerator extends Generator {
 		}
 		
 		/**
-		 * Gibt den aktuellen Kontext zurueck
+		 * Gibt den aktuellen Kontext zurueck.
 		 * @return Der Kontext
 		 */
 		protected final Context getContext() {
@@ -112,7 +116,7 @@ public abstract class DSGenerator extends Generator {
 	}
 	
 	/**
-	 * <p>Ausgabehilfe fuer HTML</p>
+	 * <p>Ausgabehilfe fuer HTML.</p>
 	 * Attribute:
 	 * <ul>
 	 * <li><code>header</code> - String mit weiteren Header-Text
@@ -128,7 +132,7 @@ public abstract class DSGenerator extends Generator {
 		private Version version;
 		
 		/**
-		 * Injiziert die DS-Konfiguration
+		 * Injiziert die DS-Konfiguration.
 		 * @param config Die DS-Konfiguration
 		 */
 		@Autowired
@@ -137,7 +141,7 @@ public abstract class DSGenerator extends Generator {
 		}
 		
 		/**
-		 * Injiziert die momentane DS-Version
+		 * Injiziert die momentane DS-Version.
 		 * @param version Die DS-Version
 		 */
 		@Autowired
@@ -276,6 +280,9 @@ public abstract class DSGenerator extends Generator {
 		}
 	}
 	
+	/**
+	 * Ausgabeklasse fuer AJAX-Antworten.
+	 */
 	protected static class AjaxOutputHelper extends OutputHelper {
 		@Override
 		public void printHeader() {}
@@ -318,7 +325,7 @@ public abstract class DSGenerator extends Generator {
 	private boolean disablePageMenu;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der Kontext
 	 */
 	public DSGenerator(Context context) {
@@ -378,7 +385,7 @@ public abstract class DSGenerator extends Generator {
 	}
 	
 	/**
-	 * Gibt einen als String registrierten parameter zurueck
+	 * Gibt einen als String registrierten parameter zurueck.
 	 * @param parameter Der Name des Parameters
 	 * @return Der Wert
 	 */
@@ -449,7 +456,7 @@ public abstract class DSGenerator extends Generator {
 	}
 	
 	/**
-	 * Fuehrt eine Aktion aus. Die zur Aktion gehoerende Funktion wird aufgerufen 
+	 * Fuehrt eine Aktion aus. Die zur Aktion gehoerende Funktion wird aufgerufen.
 	 * @param action Der Name der Aktion
 	 */
 	protected void redirect( String action ) {
@@ -474,7 +481,7 @@ public abstract class DSGenerator extends Generator {
 	}
 	
 	/**
-	 * Ruft die Standardaktion auf
+	 * Ruft die Standardaktion auf.
 	 *
 	 */
 	protected void redirect() {
@@ -624,7 +631,7 @@ public abstract class DSGenerator extends Generator {
 	
 	/**
 	 * Gibt an, ob fuer die Ausfuehrung einer Aktion eine gueltige Session
-	 * erforderlich ist (also, dass der Benutzer angemeldet ist)
+	 * erforderlich ist (also, dass der Benutzer angemeldet ist).
 	 * @param value <code>true</code>, falls eine gueltige Session erforderlich ist
 	 */
 	public void requireValidSession( boolean value ) {
@@ -632,7 +639,7 @@ public abstract class DSGenerator extends Generator {
 	}
 	
 	/**
-	 * (De)aktiviert die Debug-Ausgaben
+	 * (De)aktiviert die Debug-Ausgaben.
 	 * @param value <code>true</code> zur Deaktivierung
 	 */
 	public void setDisableDebugOutput( boolean value ) {
@@ -640,7 +647,7 @@ public abstract class DSGenerator extends Generator {
 	}
 	
 	/**
-	 * Gibt zurueck, ob die Debugausgabe deaktiviert ist
+	 * Gibt zurueck, ob die Debugausgabe deaktiviert ist.
 	 * @return <code>true</code>, falls sie deaktiviert ist
 	 */
 	public boolean getDisableDebugOutput() {
@@ -648,7 +655,7 @@ public abstract class DSGenerator extends Generator {
 	}
 	
 	/**
-	 * (De)aktiviert die Default-CSS-Stile
+	 * (De)aktiviert die Default-CSS-Stile.
 	 * @param value <code>true</code> zur Deaktivierung
 	 */
 	public void setDisableDefaultCSS( boolean value ) {
@@ -656,7 +663,7 @@ public abstract class DSGenerator extends Generator {
 	}
 	
 	/**
-	 * Gibt zurueck, ob die Default-CSS-Stile deaktiviert sind
+	 * Gibt zurueck, ob die Default-CSS-Stile deaktiviert sind.
 	 * @return <code>true</code>, falls sie deaktiviert sind
 	 */
 	public boolean getDisableDefaultCSS() {
@@ -664,7 +671,7 @@ public abstract class DSGenerator extends Generator {
 	}
 	
 	/**
-	 * Setzt die Bezeichnung der aktuellen Seite
+	 * Setzt die Bezeichnung der aktuellen Seite.
 	 * @param title Die Bezeichnung
 	 */
 	public void setPageTitle(String title) {
@@ -672,7 +679,7 @@ public abstract class DSGenerator extends Generator {
 	}
 	
 	/**
-	 * Fuegt dem Seitenmenue einen Eintrag hinzu
+	 * Fuegt dem Seitenmenue einen Eintrag hinzu.
 	 * @param title Die Titel des Eintrags
 	 * @param url Die URL
 	 */
@@ -681,7 +688,7 @@ public abstract class DSGenerator extends Generator {
 	}
 	
 	/**
-	 * Setzt, ob das Seitenmenue nicht verwendet werden soll
+	 * Setzt, ob das Seitenmenue nicht verwendet werden soll.
 	 * @param value <code>true</code>, falls es nicht verwendet werden soll
 	 */
 	public void setDisablePageMenu(boolean value) {
@@ -689,7 +696,7 @@ public abstract class DSGenerator extends Generator {
 	}
 	
 	/**
-	 * Gibt den Startzeitpunkt der Verarbeitung zurueck
+	 * Gibt den Startzeitpunkt der Verarbeitung zurueck.
 	 * @return Der Startzeitpunkt der Verarbeitung
 	 */
 	public long getStartTime() {
@@ -697,7 +704,7 @@ public abstract class DSGenerator extends Generator {
 	}
 
 	/**
-	 * Gibt das <code>onLoad</code>-Attribut des HTML-Body-Tags zurueck
+	 * Gibt das <code>onLoad</code>-Attribut des HTML-Body-Tags zurueck.
 	 * @return Das <code>onLoad</code>-Attribut
 	 */
 	public String getOnLoadText() {
@@ -713,7 +720,7 @@ public abstract class DSGenerator extends Generator {
 	}
 	
 	/**
-	 * Fuegt eine Javascript-Funktion zum <code>onLoad</code>-Aufruf des Body-Tags hinzu
+	 * Fuegt eine Javascript-Funktion zum <code>onLoad</code>-Aufruf des Body-Tags hinzu.
 	 * @param func Der Javascript-Funktionsaufruf
 	 */
 	public void addOnLoadFunction( String func ) {
@@ -721,7 +728,7 @@ public abstract class DSGenerator extends Generator {
 	}
 	
 	/**
-	 * Gibt weitere HTML-Body-Tag-Attribute zurueck
+	 * Gibt weitere HTML-Body-Tag-Attribute zurueck.
 	 * @return Weitere HTML-Body-Tag-Attribute
 	 * @see #getOnLoadText()
 	 */
@@ -740,7 +747,7 @@ public abstract class DSGenerator extends Generator {
 	/**
 	 * Fuegt ein weiteres HTML-Body-Tag-Attribut hinzu.
 	 * Sollte das Attribut bereits gesetzt seit, so wird es
-	 * ueberschrieben
+	 * ueberschrieben.
 	 * @param parameter Der Name des Attributs
 	 * @param value Der Wert
 	 */
@@ -760,7 +767,7 @@ public abstract class DSGenerator extends Generator {
 	}
 	
 	/**
-	 * Gibt den aktuellen Aktionstyp zurueck
+	 * Gibt den aktuellen Aktionstyp zurueck.
 	 * @return Der Aktionstyp
 	 */
 	protected ActionType getActionType() {
@@ -768,7 +775,7 @@ public abstract class DSGenerator extends Generator {
 	}
 	
 	/**
-	 * Gibt die Ausgabehilfe zurueck
+	 * Gibt die Ausgabehilfe zurueck.
 	 * @return Die Ausgabehilfe
 	 */
 	protected OutputHelper getOutputHelper() {
@@ -778,7 +785,7 @@ public abstract class DSGenerator extends Generator {
 	protected abstract boolean validateAndPrepare(String action);
 	
 	/**
-	 * Die Default-Ajax-Aktion
+	 * Die Default-Ajax-Aktion.
 	 * @throws IOException 
 	 *
 	 */
@@ -787,7 +794,7 @@ public abstract class DSGenerator extends Generator {
 	}
 	
 	/**
-	 * Die Default-HTML-Aktion
+	 * Die Default-HTML-Aktion.
 	 * @throws IOException 
 	 *
 	 */

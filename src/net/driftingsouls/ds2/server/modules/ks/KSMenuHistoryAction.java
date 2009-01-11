@@ -54,7 +54,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 /**
- * Zeigt das Kampflog an
+ * Zeigt das Kampflog an.
  * @author Christopher Jung
  *
  */
@@ -80,7 +80,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -91,7 +91,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 	
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public KSMenuHistoryAction() {
@@ -112,7 +112,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 	}
 	
 	/**
-	 * Setzt den ueber dem Kampflog anzuzeigenden Text 
+	 * Setzt den ueber dem Kampflog anzuzeigenden Text .
 	 * @param text Der Text
 	 */
 	public void setText(String text) {
@@ -120,7 +120,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 	}
 	
 	/**
-	 * Gibt an, ob der OK-Buttom zum schliessen des Kampflogs angezeigt werden soll
+	 * Gibt an, ob der OK-Buttom zum schliessen des Kampflogs angezeigt werden soll.
 	 * @param value <code>true</code>, falls der OK-Button angezeigt werden soll
 	 */
 	public void showOK(boolean value) {
@@ -128,7 +128,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 	}
 	
 	/**
-	 * Gibt an, ob die Schlachtflaeche zur Uebernahme des Kampfes angezeigt werden soll
+	 * Gibt an, ob die Schlachtflaeche zur Uebernahme des Kampfes angezeigt werden soll.
 	 * @param value <code>true</code>, falls die Schaltflaeche angezeigt werden soll
 	 */
 	public void showTakeCommand(boolean value) {
@@ -137,7 +137,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 	
 	/**
 	 * Prueft, ob die aktuelle Seite ({@link #historyCurrentpage}) angezeigt werden soll
-	 * oder nicht
+	 * oder nicht.
 	 * 
 	 * @return <code>true</code>, falls die aktuelle Seite angezeigt werden soll
 	 */
@@ -151,6 +151,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 		return this.historyCurrentpage == this.historyMaxpage;
 	}
 
+	@Override
 	public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
 		Context context = ContextMap.getContext();
 		this.historyShowtag = true;
@@ -227,6 +228,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 		}
 	}
 	
+	@Override
 	public void characters(char[] ch, int start, int length) throws SAXException {
 		if( !this.historyShowtag ) {
 			return;
@@ -246,6 +248,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 		}		
 	}
 
+	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		if( !this.historyShowtag ) {
 			return;
@@ -255,34 +258,42 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 		}		
 	}
 	
+	@Override
 	public void endDocument() throws SAXException {
 		// EMPTY		
 	}
 
+	@Override
 	public void endPrefixMapping(String prefix) throws SAXException {
 		// EMPTY
 	}
 
+	@Override
 	public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
 		// EMPTY
 	}
 
+	@Override
 	public void processingInstruction(String target, String data) throws SAXException {
 		// EMPTY
 	}
 
+	@Override
 	public void setDocumentLocator(Locator locator) {
 		// EMPTY
 	}
 
+	@Override
 	public void skippedEntity(String name) throws SAXException {
 		// EMPTY
 	}
 
+	@Override
 	public void startDocument() throws SAXException {
 		// EMPTY
 	}
 
+	@Override
 	public void startPrefixMapping(String prefix, String uri) throws SAXException {
 		// EMPTY
 	}

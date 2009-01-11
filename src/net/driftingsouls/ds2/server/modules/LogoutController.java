@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Die Logoutfunktion
+ * Die Logoutfunktion.
  * @author Christopher Jung
  *
  */
@@ -38,7 +38,7 @@ public class LogoutController extends TemplateGenerator {
 	private AuthenticationManager authManager;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public LogoutController(Context context) {
@@ -48,7 +48,7 @@ public class LogoutController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Injiziert den DS-AuthenticationManager zum einloggen von Benutzern
+	 * Injiziert den DS-AuthenticationManager zum einloggen von Benutzern.
 	 * @param authManager Der AuthenticationManager
 	 */
 	@Autowired
@@ -63,7 +63,7 @@ public class LogoutController extends TemplateGenerator {
 	}
 
 	/**
-	 * Loggt den Spieler aus
+	 * Loggt den Spieler aus.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

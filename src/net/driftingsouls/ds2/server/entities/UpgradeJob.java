@@ -29,7 +29,7 @@ import javax.persistence.Table;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.ships.Ship;
 /**
- * Ein Auftrag zum Basisausbau
+ * Ein Auftrag zum Basisausbau.
  * @author Christoph Peltz
  *
  */
@@ -58,7 +58,7 @@ public class UpgradeJob {
 	private int end;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public UpgradeJob() {
@@ -66,7 +66,7 @@ public class UpgradeJob {
 	}
 	
 	/**
-	 * Erstellt einen neuen Ausbau Auftrag
+	 * Erstellt einen neuen Ausbau Auftrag.
 	 * @param base Die Basis die ausgebaut werden soll
 	 * @param user Der Benutzer, der die Erweiterung durchfuehren laesst
 	 * @param tiles Die Art der Felder Erweiterung
@@ -86,7 +86,7 @@ public class UpgradeJob {
 	}
 
 	/**
-	 * Gibt die Basis zurueck
+	 * Gibt die Basis zurueck.
 	 * @return Die Basis
 	 */
 	public Base getBase() {
@@ -94,7 +94,7 @@ public class UpgradeJob {
 	}
 
 	/**
-	 * Setzt die Basis, die ausgebaut werden soll
+	 * Setzt die Basis, die ausgebaut werden soll.
 	 * @param base Die Basis
 	 */
 	public void setBase(Base base) {
@@ -102,7 +102,7 @@ public class UpgradeJob {
 	}
 
 	/**
-	 * Gibt den User zurueck, der den Auftrag erstellt hat
+	 * Gibt den User zurueck, der den Auftrag erstellt hat.
 	 * @return Der Auftraggeber
 	 */
 	public User getUser() {
@@ -110,7 +110,7 @@ public class UpgradeJob {
 	}
 
 	/**
-	 * Setzt die User, der den Auftrag erteilt hat
+	 * Setzt die User, der den Auftrag erteilt hat.
 	 * @param user Der neue User
 	 */
 	public void setUser(User user) {
@@ -118,7 +118,7 @@ public class UpgradeJob {
 	}
 
 	/**
-	 * Gibt die Auftrags-ID zurueck
+	 * Gibt die Auftrags-ID zurueck.
 	 * @return Auftrags-ID
 	 */
 	public int getId() {
@@ -126,7 +126,7 @@ public class UpgradeJob {
 	}
 
 	/**
-	 * Setzt die Auftrags-ID
+	 * Setzt die Auftrags-ID.
 	 * @param id Die neue ID des Auftrages
 	 */
 	public void setId(int id) {
@@ -134,7 +134,7 @@ public class UpgradeJob {
 	}
 
 	/**
-	 * Gibt die Informationen ueber die Felder-Modifikationen zurueck
+	 * Gibt die Informationen ueber die Felder-Modifikationen zurueck.
 	 * @return Infos über den Felder-Ausbau
 	 */
 	public UpgradeInfo getTiles() {
@@ -142,7 +142,7 @@ public class UpgradeJob {
 	}
 
 	/**
-	 * Setzt die Informationen ueber die Felder-Modifikationen
+	 * Setzt die Informationen ueber die Felder-Modifikationen.
 	 * @param tiles Die neuen Infos ueber den Felder-Ausbau
 	 */
 	public void setTiles(UpgradeInfo tiles) {
@@ -150,7 +150,7 @@ public class UpgradeJob {
 	}
 
 	/**
-	 * Gibt die Informationen ueber die Cargo-Modifikationen zurueck
+	 * Gibt die Informationen ueber die Cargo-Modifikationen zurueck.
 	 * @return Infos ueber den Cargo-Ausbau
 	 */
 	public UpgradeInfo getCargo() {
@@ -158,7 +158,7 @@ public class UpgradeJob {
 	}
 
 	/**
-	 * Setzt die Informationen ueber die Cargo-Modifikationen
+	 * Setzt die Informationen ueber die Cargo-Modifikationen.
 	 * @param cargo Die neuen Infos ueber den Cargo-Ausbau
 	 */
 	public void setCargo(UpgradeInfo cargo) {
@@ -166,7 +166,7 @@ public class UpgradeJob {
 	}
 	
 	/**
-	 * Gibt zurueck ob der KÃ¤ufer bar bezahlen will oder nicht
+	 * Gibt zurueck ob der Kaeufer bar bezahlen will oder nicht.
 	 * @return Die Zahlungsart
 	 */
 	public boolean getBar() {
@@ -174,7 +174,7 @@ public class UpgradeJob {
 	}
 
 	/**
-	 * Setzt die Zahlungsmethode
+	 * Setzt die Zahlungsmethode.
 	 * @param bar Switch fuer Barzahlung
 	 */
 	public void setBar(boolean bar) {
@@ -182,7 +182,7 @@ public class UpgradeJob {
 	}
 
 	/**
-	 * Gibt zurueck, ob bereits bezahlt wurde (nur wenn bar == true relevant)
+	 * Gibt zurueck, ob bereits bezahlt wurde (nur wenn bar == true relevant).
 	 * @return Zahlungsstatus
 	 */
 	public boolean getPayed() {
@@ -190,7 +190,7 @@ public class UpgradeJob {
 	}
 
 	/**
-	 * Setzt den Zahlungsstatus
+	 * Setzt den Zahlungsstatus.
 	 * @param payed Der neue Zahlungsstatus
 	 */
 	public void setPayed(boolean payed) {
@@ -198,7 +198,7 @@ public class UpgradeJob {
 	}
 
 	/**
-	 * Gibt den fuer den Ausbau zu benutzenden Colonizer zurueck
+	 * Gibt den fuer den Ausbau zu benutzenden Colonizer zurueck.
 	 * @return Der Colonizer
 	 */
 	public Ship getColonizer() {
@@ -206,7 +206,7 @@ public class UpgradeJob {
 	}
 
 	/**
-	 * Setzt den fuer den Ausbau zu benutzenden Colonizer
+	 * Setzt den fuer den Ausbau zu benutzenden Colonizer.
 	 * @param colonizer Der Colonizer
 	 */
 	public void setColonizer(Ship colonizer) {
@@ -214,7 +214,7 @@ public class UpgradeJob {
 	}
 
 	/**
-	 * Gibt zurueck, wann der Ausbau begonnen wurde
+	 * Gibt zurueck, wann der Ausbau begonnen wurde.
 	 * @return Tick in dem der Ausbau begonnen wurde oder 0
 	 */
 	public int getEnd() {
@@ -222,7 +222,7 @@ public class UpgradeJob {
 	}
 
 	/**
-	 * Setzt den Tick in dem der Ausbau enden soll
+	 * Setzt den Tick in dem der Ausbau enden soll.
 	 * @param end Tick
 	 */
 	public void setEnd(int end) {

@@ -63,28 +63,28 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 public class PM {
 	/**
-	 * Die PM hat einen Admin-Hintergrund
+	 * Die PM hat einen Admin-Hintergrund.
 	 */
 	public static final int FLAGS_ADMIN = 1;
 	/**
-	 * Es handelt sich um eine automatisch versendete PM
+	 * Es handelt sich um eine automatisch versendete PM.
 	 */
 	public static final int FLAGS_AUTOMATIC = 2;
 	/**
-	 * Die PM wurde durch den Tick versendet
+	 * Die PM wurde durch den Tick versendet.
 	 */
 	public static final int FLAGS_TICK = 4; 
 	/**
-	 * Die PM hat einen rassenspezifischen Hintergrund
+	 * Die PM hat einen rassenspezifischen Hintergrund.
 	 */
 	public static final int FLAGS_OFFICIAL = 8;	// Spezieller (fraktions/rassenspezifischer) Hintergrund
 	/**
-	 * Die PM muss gelesen werden bevor sie geloescht werden kann
+	 * Die PM muss gelesen werden bevor sie geloescht werden kann.
 	 */
 	public static final int FLAGS_IMPORTANT = 16;	// Muss "absichtlich" gelesen werden
 	
 	/**
-	 * Der PM-Empfaenger des Taskmanagers
+	 * Der PM-Empfaenger des Taskmanagers.
 	 */
 	public static final int TASK = Integer.MIN_VALUE;
 	
@@ -95,7 +95,7 @@ public class PM {
 	private static Log log = LogFactory.getLog(PM.class);
 
 	/**
-	 * Sendet eine PM von einem Spieler zu einem anderen
+	 * Sendet eine PM von einem Spieler zu einem anderen.
 	 * @param from Der versendende Spieler
 	 * @param to Der Spieler, der die PM erhalten soll
 	 * @param title Der Titel der PM
@@ -106,7 +106,7 @@ public class PM {
 	}
 	
 	/**
-	 * Sendet eine PM von einem Spieler zu einer Allianz
+	 * Sendet eine PM von einem Spieler zu einer Allianz.
 	 * @param from Der versendende Spieler
 	 * @param to Die Allianz, welche die PM erhalten soll
 	 * @param title Der Titel der PM
@@ -117,7 +117,7 @@ public class PM {
 	}
 	
 	/**
-	 * Sendet eine PM von einem Spieler zu einer Allianz
+	 * Sendet eine PM von einem Spieler zu einer Allianz.
 	 * @param from Der versendende Spieler
 	 * @param to Die Allianz, welche die PM erhalten soll
 	 * @param title Der Titel der PM
@@ -147,7 +147,7 @@ public class PM {
 	}
 	
 	/**
-	 * Sendet eine PM von einem Spieler zu einem anderen Spieler 
+	 * Sendet eine PM von einem Spieler zu einem anderen Spieler.
 	 * @param from Der versendende Spieler
 	 * @param to Die ID des Spielers, welche die PM erhalten soll
 	 * @param title Der Titel der PM
@@ -207,7 +207,7 @@ public class PM {
 	}
 	
 	/**
-	 * Sendet eine PM an alle Admins (spezifiziert durch den Konfigurationseintrag <code>ADMIN_PMS_ACCOUT</code>)
+	 * Sendet eine PM an alle Admins (spezifiziert durch den Konfigurationseintrag <code>ADMIN_PMS_ACCOUT</code>).
 	 * @param from Der versendende Spieler
 	 * @param title Der Titel der PM
 	 * @param txt Der Text
@@ -222,7 +222,7 @@ public class PM {
 
 	/**
 	 * Loescht alle PMs aus einem Ordner eines bestimmten Spielers.
-	 * Der Vorgang schlaegt fehl, wenn noch nicht alle wichtigen PMs gelesen wurden
+	 * Der Vorgang schlaegt fehl, wenn noch nicht alle wichtigen PMs gelesen wurden.
 	 * @param ordner Der Ordner, dessen Inhalt geloescht werden soll
 	 * @param user Der Besitzer des Ordners
 	 * @return 0, falls der Vorgang erfolgreich war. 1, wenn ein Fehler aufgetreten ist und 2, falls nicht alle PMs gelesen wurden
@@ -249,7 +249,7 @@ public class PM {
 	}
 
 	/**
-	 * Verschiebt alle PMs von einem Ordner in einen anderen
+	 * Verschiebt alle PMs von einem Ordner in einen anderen.
 	 * @param source Der Ausgangsordner
 	 * @param dest Der Zielordner
 	 * @param user Der Besitzer der PM
@@ -272,7 +272,7 @@ public class PM {
 	}
 
 	/**
-	 * Stelllt alle geloeschten PMs eines Spielers wieder her
+	 * Stelllt alle geloeschten PMs eines Spielers wieder her.
 	 * @param user Der Spieler
 	 */
 	public static void recoverAll( User user ) {
@@ -302,7 +302,7 @@ public class PM {
 	private String kommentar;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public PM() {
@@ -310,7 +310,7 @@ public class PM {
 	}
 	
 	/**
-	 * Erstellt eine neue PM
+	 * Erstellt eine neue PM.
 	 * @param sender Der Sender der PM
 	 * @param empfaenger Der Empfaenger
 	 * @param title Der Titel
@@ -329,7 +329,7 @@ public class PM {
 	}
 
 	/**
-	 * Gibt den Empfaenger zurueck
+	 * Gibt den Empfaenger zurueck.
 	 * @return Der Empfaenger
 	 */
 	public User getEmpfaenger() {
@@ -337,7 +337,7 @@ public class PM {
 	}
 
 	/**
-	 * Setzt den Empfaenger
+	 * Setzt den Empfaenger.
 	 * @param empfaenger Der Empfaenger
 	 */
 	public void setEmpfaenger(User empfaenger) {
@@ -345,7 +345,7 @@ public class PM {
 	}
 
 	/**
-	 * Gibt die Flags zurueck
+	 * Gibt die Flags zurueck.
 	 * @return Die Flags
 	 */
 	public int getFlags() {
@@ -353,7 +353,7 @@ public class PM {
 	}
 	
 	/**
-	 * Prueft, ob die Nachricht das angegebene Flag hat
+	 * Prueft, ob die Nachricht das angegebene Flag hat.
 	 * @param flag Das Flag
 	 * @return <code>true</code>, falls die Nachricht das Flag hat
 	 */
@@ -362,7 +362,7 @@ public class PM {
 	}
 
 	/**
-	 * Setzt die Flags der Nachricht
+	 * Setzt die Flags der Nachricht.
 	 * @param flags Die Flags
 	 */
 	public void setFlags(int flags) {
@@ -370,7 +370,7 @@ public class PM {
 	}
 
 	/**
-	 * Gibt den Gelesen-Status der Nachricht zurueck
+	 * Gibt den Gelesen-Status der Nachricht zurueck.
 	 * @return Der Gelesen-Status
 	 */
 	public int getGelesen() {
@@ -378,7 +378,7 @@ public class PM {
 	}
 
 	/**
-	 * Setzt den Gelesen-Status der Nachricht
+	 * Setzt den Gelesen-Status der Nachricht.
 	 * @param gelesen Der Gelesen-Status
 	 */
 	public void setGelesen(int gelesen) {
@@ -386,7 +386,7 @@ public class PM {
 	}
 
 	/**
-	 * Gibt den Inhalt der Nachricht zurueck
+	 * Gibt den Inhalt der Nachricht zurueck.
 	 * @return Der Inhalt
 	 */
 	public String getInhalt() {
@@ -394,7 +394,7 @@ public class PM {
 	}
 
 	/**
-	 * Setzt den Inahlt der Nachricht
+	 * Setzt den Inahlt der Nachricht.
 	 * @param inhalt Der Inhalt
 	 */
 	public void setInhalt(String inhalt) {
@@ -402,7 +402,7 @@ public class PM {
 	}
 
 	/**
-	 * Gibt den Kommentar/die Anmerkung zur Nachricht zurueck
+	 * Gibt den Kommentar/die Anmerkung zur Nachricht zurueck.
 	 * @return Der Kommentar
 	 */
 	public String getKommentar() {
@@ -410,7 +410,7 @@ public class PM {
 	}
 
 	/**
-	 * Setzt den Kommentar/die Anmerkung zur Nachricht
+	 * Setzt den Kommentar/die Anmerkung zur Nachricht.
 	 * @param kommentar Der Kommentar
 	 */
 	public void setKommentar(String kommentar) {
@@ -418,7 +418,7 @@ public class PM {
 	}
 
 	/**
-	 * Gibt den Ordner zurueck, in dem sich die Nachricht befindet 
+	 * Gibt den Ordner zurueck, in dem sich die Nachricht befindet.
 	 * @return Der Ordner
 	 */
 	public int getOrdner() {
@@ -426,7 +426,7 @@ public class PM {
 	}
 
 	/**
-	 * Setzt den Ordner, in dem sich die Nachricht befindet
+	 * Setzt den Ordner, in dem sich die Nachricht befindet.
 	 * @param ordner Der Ordner
 	 */
 	public void setOrdner(int ordner) {
@@ -434,7 +434,7 @@ public class PM {
 	}
 
 	/**
-	 * Gibt den Sender der Nachricht zurueck
+	 * Gibt den Sender der Nachricht zurueck.
 	 * @return Der Sender
 	 */
 	public User getSender() {
@@ -442,7 +442,7 @@ public class PM {
 	}
 
 	/**
-	 * Setzt den Sender der Nachricht
+	 * Setzt den Sender der Nachricht.
 	 * @param sender Der Sender
 	 */
 	public void setSender(User sender) {
@@ -450,7 +450,7 @@ public class PM {
 	}
 
 	/**
-	 * Gibt den Zeitpunkt zurueck, an dem die Nachricht erstellt wurde
+	 * Gibt den Zeitpunkt zurueck, an dem die Nachricht erstellt wurde.
 	 * @return Der Zeitpunkt
 	 */
 	public long getTime() {
@@ -458,7 +458,7 @@ public class PM {
 	}
 
 	/**
-	 * Setzt den Zeitpunkt, an dem die Nachricht erstellt wurde
+	 * Setzt den Zeitpunkt, an dem die Nachricht erstellt wurde.
 	 * @param time Der Zeitpunkt
 	 */
 	public void setTime(long time) {
@@ -466,7 +466,7 @@ public class PM {
 	}
 
 	/**
-	 * Gibt den Titel der Nachricht zurueck
+	 * Gibt den Titel der Nachricht zurueck.
 	 * @return Der Titel
 	 */
 	public String getTitle() {
@@ -474,7 +474,7 @@ public class PM {
 	}
 
 	/**
-	 * Setzt den Titel der Nachricht
+	 * Setzt den Titel der Nachricht.
 	 * @param title Der Titel
 	 */
 	public void setTitle(String title) {
@@ -482,7 +482,7 @@ public class PM {
 	}
 
 	/**
-	 * Gibt die ID der Nachricht zurueck
+	 * Gibt die ID der Nachricht zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -490,7 +490,7 @@ public class PM {
 	}
 	
 	/**
-	 * Stellt eine geloeschte PM wieder her
+	 * Stellt eine geloeschte PM wieder her.
 	 */
 	public void recover() {
 		if( this.gelesen <= 1 ) {
@@ -506,7 +506,7 @@ public class PM {
 	}
 	
 	/**
-	 * Loescht die PM
+	 * Loescht die PM.
 	 * @return 0, falls der Vorgang erfolgreich war. 1, wenn ein Fehler aufgetreten ist und 2, falls nicht alle PMs gelesen wurden
 	 */
 	public int delete() {
@@ -542,7 +542,7 @@ public class PM {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

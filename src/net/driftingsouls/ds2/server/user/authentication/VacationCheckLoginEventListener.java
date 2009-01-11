@@ -32,7 +32,7 @@ import net.driftingsouls.ds2.server.framework.authentication.LoginEventListener;
  *
  */
 public class VacationCheckLoginEventListener implements LoginEventListener {
-
+	@Override
 	public void onLogin(BasicUser basicUser) throws AuthenticationException {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();

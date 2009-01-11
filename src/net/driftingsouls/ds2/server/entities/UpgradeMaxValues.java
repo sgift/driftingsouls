@@ -39,14 +39,14 @@ public class UpgradeMaxValues
 	private int maxtiles;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 */
 	public UpgradeMaxValues() {
 		// Empty
 	}
 
 	/**
-	 * Gibt den Asteroidentyp zurueck
+	 * Gibt den Asteroidentyp zurueck.
 	 * @return Der Typ
 	 */
 	public int getType()
@@ -55,7 +55,7 @@ public class UpgradeMaxValues
 	}
 
 	/**
-	 * Setzt den Asteroidentyp
+	 * Setzt den Asteroidentyp.
 	 * @param type Der Typ
 	 */
 	public void setType(int type)
@@ -64,7 +64,7 @@ public class UpgradeMaxValues
 	}
 
 	/**
-	 * Gibt den maximalen Cargo zurueck
+	 * Gibt den maximalen Cargo zurueck.
 	 * @return the maxcargo Der maximale Cargo
 	 */
 	public int getMaxCargo()
@@ -73,7 +73,7 @@ public class UpgradeMaxValues
 	}
 
 	/**
-	 * Setzt den maximalen Cargo
+	 * Setzt den maximalen Cargo.
 	 * @param maxcargo der maximale Cargo
 	 */
 	public void setMaxCargo(int maxcargo)
@@ -82,7 +82,7 @@ public class UpgradeMaxValues
 	}
 
 	/**
-	 * Gibt die maximale Anzahl an Feldern zurueck
+	 * Gibt die maximale Anzahl an Feldern zurueck.
 	 * @return Die maximale Anzahl an Feldern
 	 */
 	public int getMaxTiles()
@@ -91,7 +91,7 @@ public class UpgradeMaxValues
 	}
 
 	/**
-	 * Setzt die maximale Anzahl an Feldern
+	 * Setzt die maximale Anzahl an Feldern.
 	 * @param maxtiles Die maximale Anzahl
 	 */
 	public void setMaxTiles(int maxtiles)

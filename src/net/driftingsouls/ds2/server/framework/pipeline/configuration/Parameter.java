@@ -60,7 +60,7 @@ class Parameter {
 	}
 	
 	/**
-	 * Liefert den sich aus dem Parameter und den aktuellen Kontext ergebenden Wert
+	 * Liefert den sich aus dem Parameter und den aktuellen Kontext ergebenden Wert.
 	 * @param context Der aktuelle Kontext
 	 * @return Der Wert
 	 * @throws Exception

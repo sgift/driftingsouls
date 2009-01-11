@@ -77,7 +77,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Zeigt die Fraktionsseiten an
+ * Zeigt die Fraktionsseiten an.
  * 
  * @author Christopher Jung
  * 
@@ -87,7 +87,7 @@ import org.springframework.beans.factory.annotation.Required;
 public class ErsteigernController extends TemplateGenerator
 {
 	/**
-	 * Ein Eintrag im Shop
+	 * Ein Eintrag im Shop.
 	 * 
 	 * @author Christopher Jung
 	 * 
@@ -102,7 +102,7 @@ public class ErsteigernController extends TemplateGenerator
 		private int availability;
 
 		/**
-		 * Konstruktor
+		 * Konstruktor.
 		 * 
 		 * @param data Die SQL-Ergebniszeile zum Eintrag
 		 */
@@ -117,7 +117,7 @@ public class ErsteigernController extends TemplateGenerator
 		}
 
 		/**
-		 * Gibt die ID des Eintrags zurueck
+		 * Gibt die ID des Eintrags zurueck.
 		 * 
 		 * @return Die ID
 		 */
@@ -127,7 +127,7 @@ public class ErsteigernController extends TemplateGenerator
 		}
 
 		/**
-		 * Gibt die ID der Fraktion zurueck, der der Eintrag gehoert
+		 * Gibt die ID der Fraktion zurueck, der der Eintrag gehoert.
 		 * 
 		 * @return Die ID der Fraktion
 		 */
@@ -137,7 +137,7 @@ public class ErsteigernController extends TemplateGenerator
 		}
 
 		/**
-		 * Gibt den Typ des Eintrags zurueck
+		 * Gibt den Typ des Eintrags zurueck.
 		 * 
 		 * @return Der Typ
 		 */
@@ -147,28 +147,28 @@ public class ErsteigernController extends TemplateGenerator
 		}
 
 		/**
-		 * Gibt den Namen des Eintrags zurueck
+		 * Gibt den Namen des Eintrags zurueck.
 		 * 
 		 * @return Der Name
 		 */
 		public abstract String getName();
 
 		/**
-		 * Gibt das zum Eintrag gehoerende Bild zurueck
+		 * Gibt das zum Eintrag gehoerende Bild zurueck.
 		 * 
 		 * @return Das Bild
 		 */
 		public abstract String getImage();
 
 		/**
-		 * Gibt einen zum Eintrag gehoerenden Link zurueck
+		 * Gibt einen zum Eintrag gehoerenden Link zurueck.
 		 * 
 		 * @return Der Link
 		 */
 		public abstract String getLink();
 
 		/**
-		 * Gibt die Verfuegbarkeit des Eintrags zurueck
+		 * Gibt die Verfuegbarkeit des Eintrags zurueck.
 		 * 
 		 * @return Die Verfuegbarkeit
 		 */
@@ -178,7 +178,7 @@ public class ErsteigernController extends TemplateGenerator
 		}
 
 		/**
-		 * Gibt die Verfuegbarkeit des Eintrags als Text zurueck
+		 * Gibt die Verfuegbarkeit des Eintrags als Text zurueck.
 		 * 
 		 * @return Die Verfuegbarkeit als Text
 		 */
@@ -197,7 +197,7 @@ public class ErsteigernController extends TemplateGenerator
 		}
 
 		/**
-		 * Gibt die mit der Verfuegbarkeit assoziierte Farbe zurueck
+		 * Gibt die mit der Verfuegbarkeit assoziierte Farbe zurueck.
 		 * 
 		 * @return Die Farbe der Verfuegbarkeit
 		 */
@@ -226,7 +226,7 @@ public class ErsteigernController extends TemplateGenerator
 		}
 
 		/**
-		 * Gibt den Kaufpreis zurueck
+		 * Gibt den Kaufpreis zurueck.
 		 * 
 		 * @return Der Kaufpreis
 		 */
@@ -236,7 +236,7 @@ public class ErsteigernController extends TemplateGenerator
 		}
 
 		/**
-		 * Gibt den Kaufpreis als Text zurueck
+		 * Gibt den Kaufpreis als Text zurueck.
 		 * 
 		 * @return Der Kaufpreis als Text
 		 */
@@ -247,7 +247,7 @@ public class ErsteigernController extends TemplateGenerator
 
 		/**
 		 * Gibt den Verkaufsinhalt, den der Eintrag enthaelt, zurueck. Der Typ ist Abhaengig vom
-		 * Typen des Eintrags
+		 * Typen des Eintrags.
 		 * 
 		 * @return Der Verkaufsinhalt
 		 */
@@ -258,7 +258,7 @@ public class ErsteigernController extends TemplateGenerator
 	}
 
 	/**
-	 * Repraesentiert ein Shopeintrag, welcher ein Schiff enthaelt
+	 * Repraesentiert ein Shopeintrag, welcher ein Schiff enthaelt.
 	 * 
 	 * @author Christopher Jung
 	 * 
@@ -268,7 +268,7 @@ public class ErsteigernController extends TemplateGenerator
 		private ShipTypeData shiptype;
 
 		/**
-		 * Konstruktor
+		 * Konstruktor.
 		 * 
 		 * @param data Die SQL-Ergebniszeile des Shopeintrags
 		 */
@@ -299,7 +299,7 @@ public class ErsteigernController extends TemplateGenerator
 	}
 
 	/**
-	 * Repraesentiert ein Shopeintrag, welcher eine Resource enthaelt
+	 * Repraesentiert ein Shopeintrag, welcher eine Resource enthaelt.
 	 * 
 	 * @author Christopher Jung
 	 * 
@@ -309,7 +309,7 @@ public class ErsteigernController extends TemplateGenerator
 		private ResourceEntry resourceEntry;
 
 		/**
-		 * Konstruktor
+		 * Konstruktor.
 		 * 
 		 * @param data Die SQL-Ergebniszeile des Shopeintrags
 		 */
@@ -360,7 +360,7 @@ public class ErsteigernController extends TemplateGenerator
 	}
 
 	/**
-	 * Repraesentiert ein Shopeintrag, welcher einen Ganymede-Transport enthaelt
+	 * Repraesentiert ein Shopeintrag, welcher einen Ganymede-Transport enthaelt.
 	 * 
 	 * @author Christopher Jung
 	 * 
@@ -369,7 +369,7 @@ public class ErsteigernController extends TemplateGenerator
 	private static class ShopGanyTransportEntry extends ShopEntry
 	{
 		/**
-		 * Die Schiffstypen-ID einer Ganymede
+		 * Die Schiffstypen-ID einer Ganymede.
 		 */
 		public static final int SHIPTYPE_GANYMEDE = 33;
 
@@ -379,7 +379,7 @@ public class ErsteigernController extends TemplateGenerator
 		private Configuration config;
 		
 		/**
-		 * Konstruktor
+		 * Konstruktor.
 		 * 
 		 * @param data Die SQL-Ergebniszeile des Shopeintrags
 		 */
@@ -402,7 +402,7 @@ public class ErsteigernController extends TemplateGenerator
 		}
 		
 		/**
-		 * Injiziert die DS-Konfiguration
+		 * Injiziert die DS-Konfiguration.
 		 * @param config Die DS-Konfiguration
 		 */
 		@Autowired @Required
@@ -465,7 +465,7 @@ public class ErsteigernController extends TemplateGenerator
 	private int faction = 0;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * 
 	 * @param context Der zu verwendende Kontext
 	 */
@@ -589,7 +589,7 @@ public class ErsteigernController extends TemplateGenerator
 	}
 
 	/**
-	 * Aendert das System, in dem ersteigerte Dinge gespawnt werden sollen
+	 * Aendert das System, in dem ersteigerte Dinge gespawnt werden sollen.
 	 * 
 	 * @urlparam Integer favsys Die ID des neuen Systems, in dem ersteigerte Dinge gespawnt werden
 	 *           sollen
@@ -621,7 +621,7 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Gibt ein Gebot auf eine Versteigerung ab bzw zeigt, falls kein Gebot angegeben wurde, die
-	 * angegebene Versteigerung an
+	 * angegebene Versteigerung an.
 	 * 
 	 * @urlparam Integer bid Der gebotene Betrag oder 0
 	 * @urlparam Integer auk Die Auktion auf die geboten werden soll
@@ -762,7 +762,7 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Gibt ein Gebot auf die Versteigerung eines Pakets ab bzw zeigt, falls kein Gebot angegeben
-	 * wurde, die angegebene Versteigerung an
+	 * wurde, die angegebene Versteigerung an.
 	 * 
 	 * @urlparam Integer bid Der gebotene Betrag oder 0
 	 * @urlparam Integer auk Die Auktion auf die geboten werden soll
@@ -857,7 +857,7 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Ueberweist einen bestimmten Geldbetrag an einen anderen Spieler. Wenn die Ueberweisung noch
-	 * nicht explizit bestaetigt wurde, wird die Bestaetigung erfragt
+	 * nicht explizit bestaetigt wurde, wird die Bestaetigung erfragt.
 	 * 
 	 * @urlparam Integer to Die ID des Spielers, der Ziel der Ueberweisung sein soll
 	 * @urlparam String ack <code>yes</code> um die Ueberweisung zu bestaetigen
@@ -928,7 +928,7 @@ public class ErsteigernController extends TemplateGenerator
 	}
 
 	/**
-	 * Aendert den Anzeigetyp fuer Kontotransaktionen
+	 * Aendert den Anzeigetyp fuer Kontotransaktionen.
 	 * 
 	 * @urlparam Integer type Der neue Anzeigetyp (0-2)
 	 * 
@@ -955,7 +955,7 @@ public class ErsteigernController extends TemplateGenerator
 	}
 
 	/**
-	 * Zeigt die Seite mit diversen weiteren Infos an
+	 * Zeigt die Seite mit diversen weiteren Infos an.
 	 * 
 	 */
 	@Action(ActionType.DEFAULT)
@@ -1088,7 +1088,7 @@ public class ErsteigernController extends TemplateGenerator
 	}
 
 	/**
-	 * Zeigt die Angebote der Fraktion an
+	 * Zeigt die Angebote der Fraktion an.
 	 * 
 	 */
 	@Action(ActionType.DEFAULT)
@@ -1132,7 +1132,7 @@ public class ErsteigernController extends TemplateGenerator
 	}
 
 	/**
-	 * Zeigt das zur Versteigerung angebotene Paket an
+	 * Zeigt das zur Versteigerung angebotene Paket an.
 	 * 
 	 */
 	@Action(ActionType.DEFAULT)
@@ -1219,7 +1219,7 @@ public class ErsteigernController extends TemplateGenerator
 	}
 
 	/**
-	 * Zeigt die laufenden Versteigerungen an
+	 * Zeigt die laufenden Versteigerungen an.
 	 * 
 	 */
 	@Action(ActionType.DEFAULT)
@@ -1344,7 +1344,7 @@ public class ErsteigernController extends TemplateGenerator
 	}
 
 	/**
-	 * Zeigt den Fraktionstext an
+	 * Zeigt den Fraktionstext an.
 	 * 
 	 */
 	@Action(ActionType.DEFAULT)
@@ -1365,7 +1365,7 @@ public class ErsteigernController extends TemplateGenerator
 	}
 
 	/**
-	 * Berechnet die Kosten eines Transportauftrags und speichert ihn in der Datenbank
+	 * Berechnet die Kosten eines Transportauftrags und speichert ihn in der Datenbank.
 	 * 
 	 * @urlparam Integer sourcesystem Das Ausgangssystem
 	 * @urlparam Integer ganymedeid Die ID der zu transportierenden Ganymede
@@ -1610,7 +1610,7 @@ public class ErsteigernController extends TemplateGenerator
 	}
 
 	/**
-	 * Zeigt die GUI zur Erstellung eines Ganymede-Transportauftrags
+	 * Zeigt die GUI zur Erstellung eines Ganymede-Transportauftrags.
 	 * 
 	 * @urlparam Integer sourcesystem Das Ausgangssystem
 	 * @urlparam Integer ganymedeid Die ID der zu transportierenden Ganymede
@@ -1784,7 +1784,7 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Fuehrt eine Bestellung im Shop aus. Der User muss dazu eine gewuenschte Lieferposition
-	 * angeben. Wenn diese noch nicht angegeben wurde, wird sie erfragt
+	 * angeben. Wenn diese noch nicht angegeben wurde, wird sie erfragt.
 	 * 
 	 * @urlparam Integer shopentry Die ID des Shopeintrags, der bestellt werden soll
 	 * @urlparam Integer ordercount Die Liefermenge
@@ -1911,7 +1911,7 @@ public class ErsteigernController extends TemplateGenerator
 	}
 
 	/**
-	 * Aendert die Verfuegbarkeit eines Shopeintrags
+	 * Aendert die Verfuegbarkeit eines Shopeintrags.
 	 * 
 	 * @urlparam Integer shopentry Die ID des Shopeintrags
 	 * @urlparam Integer availability Die neue Verfuegbarkeit
@@ -1961,7 +1961,7 @@ public class ErsteigernController extends TemplateGenerator
 	}
 
 	/**
-	 * Aendert den Auftragsstatus einer Bestellung
+	 * Aendert den Auftragsstatus einer Bestellung.
 	 * 
 	 * @urlparam Integer orderentry Die ID des Auftrags
 	 * @urlparam Integer orderstatus Der neue Auftragsstatus
@@ -2047,7 +2047,7 @@ public class ErsteigernController extends TemplateGenerator
 	private static final int ITEM_BBS = 182;
 
 	/**
-	 * Zeigt die GUI für den Asti-Asubau an
+	 * Zeigt die GUI für den Asti-Asubau an.
 	 * 
 	 * @urlparam Integer astiid Die ID des auszubauenden Asteroiden
 	 * @urlparam Integer colonizerid Die ID des auszubauenden Asteroiden
@@ -2316,7 +2316,7 @@ public class ErsteigernController extends TemplateGenerator
 	}
 
 	/**
-	 * Zeigt den Shop der Fraktion an
+	 * Zeigt den Shop der Fraktion an.
 	 * 
 	 */
 	@Action(ActionType.DEFAULT)
@@ -2516,7 +2516,7 @@ public class ErsteigernController extends TemplateGenerator
 	}
 
 	/**
-	 * Leitet zur Default-Seite einer Fraktion weiter
+	 * Leitet zur Default-Seite einer Fraktion weiter.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

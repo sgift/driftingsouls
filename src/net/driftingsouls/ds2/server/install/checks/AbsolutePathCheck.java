@@ -23,12 +23,12 @@ import java.io.File;
 import net.driftingsouls.ds2.server.framework.Configuration;
 
 /**
- * Ueberprueft, ob die config.xml existiert
+ * Ueberprueft, ob die config.xml existiert.
  * @author Christopher Jung
  *
  */
 public class AbsolutePathCheck implements Checkable {
-
+	@Override
 	public void doCheck() throws CheckFailedException {
 		final String absolutePath = Configuration.getSetting("ABSOLUTE_PATH");
 		if( !new File(absolutePath).isDirectory() ) {
@@ -47,7 +47,8 @@ public class AbsolutePathCheck implements Checkable {
 			throw new CheckFailedException("ABSOLUTE_PATH enthaelt kein data-Verzeichnis");
 		}
 	}
-
+	
+	@Override
 	public String getDescription() {
 		return "config.xml:ABSOLUTE_PATH pruefen";
 	}

@@ -39,7 +39,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
 /**
- * Repraesentiert eine Allianz in DS
+ * Repraesentiert eine Allianz in DS.
  * @author Christopher Jung
  *
  */
@@ -72,7 +72,7 @@ public class Ally {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 */
 	public Ally() {
 		// EMPTY
@@ -80,7 +80,7 @@ public class Ally {
 	
 	/**
 	 * Erstellt eine neue Allianz. Als Gruendungszeitpunkt
-	 * wird der aktuelle Zeitpunkt eingetragen
+	 * wird der aktuelle Zeitpunkt eingetragen.
 	 * @param name Der Name der Allianz
 	 * @param president Der Praesident der Allianz
 	 */
@@ -102,7 +102,7 @@ public class Ally {
 	}
 
 	/**
-	 * Gibt den Allianz-Tag zurueck
+	 * Gibt den Allianz-Tag zurueck.
 	 * @return Der Allianz-Tag
 	 */
 	public String getAllyTag() {
@@ -110,7 +110,7 @@ public class Ally {
 	}
 
 	/**
-	 * Setzt den Allianz-Tag
+	 * Setzt den Allianz-Tag.
 	 * @param allytag Der neue Tag
 	 */
 	public void setAllyTag(String allytag) {
@@ -118,7 +118,7 @@ public class Ally {
 	}
 
 	/**
-	 * Gibt die Beschreibung der Allianz zurueck
+	 * Gibt die Beschreibung der Allianz zurueck.
 	 * @return Die Beschreibung
 	 */
 	public String getDescription() {
@@ -126,7 +126,7 @@ public class Ally {
 	}
 
 	/**
-	 * Setzt die Beschreibung der Allianz
+	 * Setzt die Beschreibung der Allianz.
 	 * @param description Die neue Beschreibung
 	 */
 	public void setDescription(String description) {
@@ -134,7 +134,7 @@ public class Ally {
 	}
 
 	/**
-	 * Gibt zurueck, wieviele Schiffe von der Allianz zerstoert wurden
+	 * Gibt zurueck, wieviele Schiffe von der Allianz zerstoert wurden.
 	 * @return Die Anzahl der zerstoerten Schiffe
 	 */
 	public int getDestroyedShips() {
@@ -142,7 +142,7 @@ public class Ally {
 	}
 
 	/**
-	 * Setzt die Anzahl der durch die Allianz zerstoerten Schiffe
+	 * Setzt die Anzahl der durch die Allianz zerstoerten Schiffe.
 	 * @param destroyedShips Die neue Anzahl der zerstoerten Schiffe
 	 */
 	public void setDestroyedShips(int destroyedShips) {
@@ -150,7 +150,7 @@ public class Ally {
 	}
 
 	/**
-	 * Gibt das Datum zurueck, an dem die Allianz gegruendet wurde
+	 * Gibt das Datum zurueck, an dem die Allianz gegruendet wurde.
 	 * @return Das Gruendungsdatum
 	 */
 	public Date getFounded() {
@@ -158,7 +158,7 @@ public class Ally {
 	}
 
 	/**
-	 * Setzt das Gruendungsdatum der Allianz
+	 * Setzt das Gruendungsdatum der Allianz.
 	 * @param founded Das neue Gruendungsdatum
 	 */
 	public void setFounded(Date founded) {
@@ -166,7 +166,7 @@ public class Ally {
 	}
 
 	/**
-	 * Gibt die Homepage der Allianz zurueck
+	 * Gibt die Homepage der Allianz zurueck.
 	 * @return Die Homepage
 	 */
 	public String getHp() {
@@ -174,7 +174,7 @@ public class Ally {
 	}
 
 	/**
-	 * Setzt die Homepage der Allianz
+	 * Setzt die Homepage der Allianz.
 	 * @param hp Die Homepage
 	 */
 	public void setHp(String hp) {
@@ -182,7 +182,7 @@ public class Ally {
 	}
 
 	/**
-	 * Gibt die Allianzitems zurueck
+	 * Gibt die Allianzitems zurueck.
 	 * @return Der Itemstring mit den Items
 	 */
 	public String getItems() {
@@ -190,7 +190,7 @@ public class Ally {
 	}
 	
 	/**
-	 * Setzt die Allianzitems
+	 * Setzt die Allianzitems.
 	 * @param items Der neue Itemstring
 	 */
 	public void setItems(String items) {
@@ -198,7 +198,7 @@ public class Ally {
 	}
 
 	/**
-	 * Gibt die Anzahl der verlorenen Schlachten zurueck
+	 * Gibt die Anzahl der verlorenen Schlachten zurueck.
 	 * @return Die Anzahl der verlorenen Schlachten
 	 */
 	public short getLostBattles() {
@@ -206,7 +206,7 @@ public class Ally {
 	}
 
 	/**
-	 * Setzt die Anzahl der verlorenen Schlachten
+	 * Setzt die Anzahl der verlorenen Schlachten.
 	 * @param lostBattles Die Anzahl der verlorenen Schlachten
 	 */
 	public void setLostBattles(short lostBattles) {
@@ -214,7 +214,7 @@ public class Ally {
 	}
 
 	/**
-	 * Gibt die Anzahl der verlorenen Schiffe zurueck
+	 * Gibt die Anzahl der verlorenen Schiffe zurueck.
 	 * @return Die Anzahl der verlorenen Schiffe
 	 */
 	public int getLostShips() {
@@ -222,7 +222,7 @@ public class Ally {
 	}
 
 	/**
-	 * Setzt die Anzahl der verlorenen Schiffe
+	 * Setzt die Anzahl der verlorenen Schiffe.
 	 * @param lostShips Die Anzahl der verlorenen Schiffe
 	 */
 	public void setLostShips(int lostShips) {
@@ -230,7 +230,7 @@ public class Ally {
 	}
 
 	/**
-	 * Gibt den Namen der Allianz zurueck
+	 * Gibt den Namen der Allianz zurueck.
 	 * @return Der Name
 	 */
 	public String getName() {
@@ -238,7 +238,7 @@ public class Ally {
 	}
 
 	/**
-	 * Setzt den Namen der Allianz
+	 * Setzt den Namen der Allianz.
 	 * @param name Der neue Name
 	 */
 	public void setName(String name) {
@@ -247,7 +247,7 @@ public class Ally {
 	}
 
 	/**
-	 * Gibt den Namen der Allianz ohne Tags zurueck
+	 * Gibt den Namen der Allianz ohne Tags zurueck.
 	 * @return Der Name der Allianz ohne Tags
 	 */
 	public String getPlainname() {
@@ -255,7 +255,7 @@ public class Ally {
 	}
 
 	/**
-	 * Gibt den Namen des Praesidentenamts zurueck
+	 * Gibt den Namen des Praesidentenamts zurueck.
 	 * @return Der Name des Praesidentneamts
 	 */
 	public String getPname() {
@@ -263,7 +263,7 @@ public class Ally {
 	}
 
 	/**
-	 * Setzt den Namen des Praesidentenamts
+	 * Setzt den Namen des Praesidentenamts.
 	 * @param pname Der neue Name des Amts
 	 */
 	public void setPname(String pname) {
@@ -271,7 +271,7 @@ public class Ally {
 	}
 
 	/**
-	 * Gibt den Praesidenten zurueck
+	 * Gibt den Praesidenten zurueck.
 	 * @return Der Praesident
 	 */
 	public User getPresident() {
@@ -279,7 +279,7 @@ public class Ally {
 	}
 
 	/**
-	 * Setzt den Allianzpraesidenten
+	 * Setzt den Allianzpraesidenten.
 	 * @param president Der neue Praesident
 	 */
 	public void setPresident(User president) {
@@ -287,7 +287,7 @@ public class Ally {
 	}
 
 	/**
-	 * Gibt zurueck, ob in der Sternenkarte Asteroiden von Allianzmitgliedern angezeigt werden sollen 
+	 * Gibt zurueck, ob in der Sternenkarte Asteroiden von Allianzmitgliedern angezeigt werden sollen .
 	 * @return <code>true</code>, falls Asteroiden von Allianzmitgliedern angezeigt werden sollen
 	 */
 	public boolean getShowAstis() {
@@ -295,7 +295,7 @@ public class Ally {
 	}
 
 	/**
-	 * Setzt, ob Asteroiden von Allianzmitgliedern in der Sternenkarte angezeigt werden sollen
+	 * Setzt, ob Asteroiden von Allianzmitgliedern in der Sternenkarte angezeigt werden sollen.
 	 * @param showastis <code>true</code>, falls Asteroiden von Allianzmitgliedern angezeigt werden sollen
 	 */
 	public void setShowAstis(boolean showastis) {
@@ -303,7 +303,7 @@ public class Ally {
 	}
 
 	/**
-	 * Gibt zurueck, ob Versteigerungen von Allianzmitgliedern inkl. Namen angezeigt werden sollen
+	 * Gibt zurueck, ob Versteigerungen von Allianzmitgliedern inkl. Namen angezeigt werden sollen.
 	 * @return <code>true</code>, falls bei Versteigerungen von Allianzmitgliedern deren Name angezeigt werden soll
 	 */
 	public boolean getShowGtuBieter() {
@@ -311,7 +311,7 @@ public class Ally {
 	}
 
 	/**
-	 * Setzt, ob Versteigerungen von Allianzmitgliedern inkl. Namen angezeigt werden sollen
+	 * Setzt, ob Versteigerungen von Allianzmitgliedern inkl. Namen angezeigt werden sollen.
 	 * @param showGtuBieter <code>true</code>, falls bei Versteigerungen von Allianzmitgliedern deren Name angezeigt werden soll
 	 */
 	public void setShowGtuBieter(boolean showGtuBieter) {
@@ -319,7 +319,7 @@ public class Ally {
 	}
 
 	/**
-	 * Gibt zurueck, ob die LRS-Sensorendaten von Aufklaerern in der Sternenkarte geteilt werden sollen
+	 * Gibt zurueck, ob die LRS-Sensorendaten von Aufklaerern in der Sternenkarte geteilt werden sollen.
 	 * @return <code>true</code>, falls sie geteilt werden sollen
 	 */
 	public boolean getShowLrs() {
@@ -327,7 +327,7 @@ public class Ally {
 	}
 
 	/**
-	 * Setzt, ob die LRS-Sensorendaten von Aufklaerern in der Sternenkarte geteilt werden sollen
+	 * Setzt, ob die LRS-Sensorendaten von Aufklaerern in der Sternenkarte geteilt werden sollen.
 	 * @param showlrs <code>true</code>, falls sie geteilt werden sollen
 	 */
 	public void setShowLrs(boolean showlrs) {
@@ -335,7 +335,7 @@ public class Ally {
 	}
 
 	/**
-	 * Gibt den Tick zurueck, an dem die Allianz gegruendet wurde
+	 * Gibt den Tick zurueck, an dem die Allianz gegruendet wurde.
 	 * @return Der Tick an den die Allianz gegruendet wurde
 	 */
 	public int getTick() {
@@ -343,7 +343,7 @@ public class Ally {
 	}
 
 	/**
-	 * Setzt den Tick, an dem die Allianz gegruendet wurde
+	 * Setzt den Tick, an dem die Allianz gegruendet wurde.
 	 * @param tick Der Tick an dem die Allianz gegruendet wurde
 	 */
 	public void setTick(int tick) {
@@ -351,7 +351,7 @@ public class Ally {
 	}
 
 	/**
-	 * Gibt die Anzahl der gewonnenen Schlachten zurueck
+	 * Gibt die Anzahl der gewonnenen Schlachten zurueck.
 	 * @return Die Anzahl der gewonnenen Schlachten
 	 */
 	public short getWonBattles() {
@@ -359,7 +359,7 @@ public class Ally {
 	}
 
 	/**
-	 * Setzt die Anzahl der gewonnenen Schlachten
+	 * Setzt die Anzahl der gewonnenen Schlachten.
 	 * @param wonBattles Die Anzahl der gewonnenen Schlachten
 	 */
 	public void setWonBattles(short wonBattles) {
@@ -367,7 +367,7 @@ public class Ally {
 	}
 
 	/**
-	 * Gibt die ID zurueck
+	 * Gibt die ID zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -375,7 +375,7 @@ public class Ally {
 	}
 	
 	/**
-	 * Gibt die Liste aller Mitglieder zurueck, welche Minister und/oder Praesident sind
+	 * Gibt die Liste aller Mitglieder zurueck, welche Minister und/oder Praesident sind.
 	 * @return Die Liste aller Spieler mit Minister-/Praesidentenposten
 	 */
 	@SuppressWarnings("unchecked")
@@ -389,7 +389,7 @@ public class Ally {
 	}
 	
 	/**
-	 * Gibt die Liste aller Mitglieder zurueck
+	 * Gibt die Liste aller Mitglieder zurueck.
 	 * @return Die Liste aller Spieler der Allianz
 	 */
 	@SuppressWarnings("unchecked")
@@ -401,7 +401,7 @@ public class Ally {
 	}
 	
 	/**
-	 * Gibt die Anzahl an Allymitgliedern zurueck
+	 * Gibt die Anzahl an Allymitgliedern zurueck.
 	 * @return Die Anzahl der Allymitglieder
 	 */
 	public long getMemberCount() {
@@ -413,7 +413,7 @@ public class Ally {
 	}
 	
 	/**
-	 * Loescht die Allianz
+	 * Loescht die Allianz.
 	 *
 	 */
 	public void destroy() {
@@ -516,7 +516,7 @@ public class Ally {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

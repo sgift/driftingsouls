@@ -59,7 +59,7 @@ import org.hibernate.annotations.Immutable;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Die Waffenfabrik
+ * Die Waffenfabrik.
  * @author Christopher Jung
  *
  */
@@ -71,7 +71,7 @@ public class Waffenfabrik extends DefaultBuilding {
 	private static final Log log = LogFactory.getLog(Waffenfabrik.class);
 	
 	/**
-	 * Daten von einer oder mehreren Waffenfabriken
+	 * Daten von einer oder mehreren Waffenfabriken.
 	 */
 	@ContextInstance(ContextInstance.Scope.REQUEST)
 	public static class ContextVars {
@@ -81,7 +81,7 @@ public class Waffenfabrik extends DefaultBuilding {
 		boolean init = false;
 		
 		/**
-		 * Konstruktor
+		 * Konstruktor.
 		 */
 		public ContextVars() {
 			// EMPTY
@@ -89,7 +89,7 @@ public class Waffenfabrik extends DefaultBuilding {
 	}
 	
 	/**
-	 * Erstellt eine neue Instanz der Waffenfabrik
+	 * Erstellt eine neue Instanz der Waffenfabrik.
 	 */
 	public Waffenfabrik() {
 		// EMPTY

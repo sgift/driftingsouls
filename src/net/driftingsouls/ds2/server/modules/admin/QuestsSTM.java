@@ -30,13 +30,13 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
- * Ermoeglicht das Verwalten von Sectortemplates 
+ * Ermoeglicht das Verwalten von Sectortemplates.
  * @author Christopher Jung
  *
  */
 @AdminMenuEntry(category="Quests", name="Sectortemplates")
 public class QuestsSTM implements AdminPlugin {
-
+	@Override
 	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();

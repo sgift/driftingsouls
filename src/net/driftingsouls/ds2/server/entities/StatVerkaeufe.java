@@ -49,7 +49,7 @@ public class StatVerkaeufe {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public StatVerkaeufe() {
@@ -57,7 +57,7 @@ public class StatVerkaeufe {
 	}
 	
 	/**
-	 * Erstellt einen neuen Stat-Eintrag
+	 * Erstellt einen neuen Stat-Eintrag.
 	 * @param tick Der Tick
 	 * @param system Das System
 	 * @param place Der Typ des Verkaufsorts
@@ -70,7 +70,7 @@ public class StatVerkaeufe {
 	}
 
 	/**
-	 * Gibt den Ort zurueck
+	 * Gibt den Ort zurueck.
 	 * @return Der Ort
 	 */
 	public String getPlace() {
@@ -78,7 +78,7 @@ public class StatVerkaeufe {
 	}
 
 	/**
-	 * Setzt den Ort
+	 * Setzt den Ort.
 	 * @param place Der Ort
 	 */
 	public final void setPlace(String place) {
@@ -86,7 +86,7 @@ public class StatVerkaeufe {
 	}
 
 	/**
-	 * Gibt die Verkaufsdaten zurueck
+	 * Gibt die Verkaufsdaten zurueck.
 	 * @return Die Verkaufsdaten
 	 */
 	public Cargo getStats() {
@@ -94,7 +94,7 @@ public class StatVerkaeufe {
 	}
 
 	/**
-	 * Setzt die Verkaufsdaten
+	 * Setzt die Verkaufsdaten.
 	 * @param stats Die Verkaufsdaten
 	 */
 	public final void setStats(Cargo stats) {
@@ -102,7 +102,7 @@ public class StatVerkaeufe {
 	}
 
 	/**
-	 * Gibt das System zurueck
+	 * Gibt das System zurueck.
 	 * @return Das System
 	 */
 	public int getSystem() {
@@ -110,7 +110,7 @@ public class StatVerkaeufe {
 	}
 
 	/**
-	 * Setzt das System
+	 * Setzt das System.
 	 * @param system Das System
 	 */
 	public final void setSystem(int system) {
@@ -118,7 +118,7 @@ public class StatVerkaeufe {
 	}
 
 	/**
-	 * Gibt den Tick zurueck
+	 * Gibt den Tick zurueck.
 	 * @return Der Tick
 	 */
 	public int getTick() {
@@ -126,7 +126,7 @@ public class StatVerkaeufe {
 	}
 
 	/**
-	 * Setzt den Tick
+	 * Setzt den Tick.
 	 * @param tick Der Tick
 	 */
 	public final void setTick(int tick) {
@@ -134,7 +134,7 @@ public class StatVerkaeufe {
 	}
 
 	/**
-	 * Gibt die ID zurueck
+	 * Gibt die ID zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -142,7 +142,7 @@ public class StatVerkaeufe {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

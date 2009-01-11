@@ -42,6 +42,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	private static final ServiceLoader<AuthenticateEventListener> authListenerList = ServiceLoader.load(AuthenticateEventListener.class);
 	private Configuration config;
 	
+	@Override
 	public BasicUser login(String username, String password, boolean useGfxPak) throws AuthenticationException {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
@@ -100,11 +101,13 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		}
 	}
 	
+	@Override
 	public void logout() {
 		Context context = ContextMap.getContext();
 		context.remove(JavaSession.class);
 	}
 
+	@Override
 	public BasicUser adminLogin(BasicUser user, boolean attach) throws AuthenticationException {
 		Context context = ContextMap.getContext();
 		
@@ -122,13 +125,14 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	}
 	
 	/**
-	 * Injiziert die DS-Konfiguration
+	 * Injiziert die DS-Konfiguration.
 	 * @param config Die DS-Konfiguration
 	 */
 	public void setConfiguration(Configuration config) {
 		this.config = config;
 	}
 	
+	@Override
 	public void authenticateCurrentSession() {
 		Context context = ContextMap.getContext();
 

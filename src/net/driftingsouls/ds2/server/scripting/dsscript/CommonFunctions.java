@@ -22,7 +22,7 @@ package net.driftingsouls.ds2.server.scripting.dsscript;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Allgemeine Script-Funktionen
+ * Allgemeine Script-Funktionen.
  * @author Christopher Jung
  *
  */

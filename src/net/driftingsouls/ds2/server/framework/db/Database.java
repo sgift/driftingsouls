@@ -49,7 +49,7 @@ public class Database {
 	private StringBuffer queryLogBuffer = null;
 	
 	/**
-	 * Erstellt eine neue Datenbank-Verbindung aus einer JDBC-Verbindung
+	 * Erstellt eine neue Datenbank-Verbindung aus einer JDBC-Verbindung.
 	 * @param con Die JDBC-Verbindung
 	 */
 	public Database(Connection con) {
@@ -57,7 +57,7 @@ public class Database {
 	}
 	
 	/**
-	 * Erstellt eine neue Datenbankverbindung zu einem bestimmten Server/Datenbank
+	 * Erstellt eine neue Datenbankverbindung zu einem bestimmten Server/Datenbank.
 	 * @param server Der Name des Servers (z.B. localhost)
 	 * @param database Der Name der Datenbank (z.B. 'ds2')
 	 * @param username Der Benutzername
@@ -76,7 +76,7 @@ public class Database {
 	}
 	
 	/**
-	 * (De)aktiviert das QueryLog
+	 * (De)aktiviert das QueryLog.
 	 * @param value <code>true</code>, falls das QueryLog aktiviert werden soll
 	 */
 	public void setQueryLogStatus( boolean value ) {
@@ -88,7 +88,7 @@ public class Database {
 	}
 	
 	/**
-	 * Gibt zurueck, ob das QueryLog aktiviert ist
+	 * Gibt zurueck, ob das QueryLog aktiviert ist.
 	 * @return <code>true</code>, falls das QueryLog aktiviert ist
 	 */
 	public boolean getQueryLogStatus() {
@@ -96,7 +96,7 @@ public class Database {
 	}
 	
 	/**
-	 * Gibt die geloggten Queries zurueck, jeweils getrennt durch zwei Zeilenumbrueche
+	 * Gibt die geloggten Queries zurueck, jeweils getrennt durch zwei Zeilenumbrueche.
 	 * @return Die geloggten Queries
 	 */
 	public String getQueryLog() {
@@ -104,7 +104,7 @@ public class Database {
 	}
 	
 	/**
-	 * Loggt die angegebene Query im QueryLog
+	 * Loggt die angegebene Query im QueryLog.
 	 * @param query Die zu loggende Query
 	 */
 	protected void logQuery(String query) {
@@ -114,7 +114,7 @@ public class Database {
 	}
 	
 	/**
-	 * Liefert die Anzahl der SQL-Querys, die mittels dieser Datenbankverbindung getaetigt wurden
+	 * Liefert die Anzahl der SQL-Querys, die mittels dieser Datenbankverbindung getaetigt wurden.
 	 * @return Anzahl der SQL-Querys
 	 */
 	public int getQCount() {
@@ -123,7 +123,7 @@ public class Database {
 	
 	/**
 	 * Schliesst die Datenbankverbindung und gibt (falls die Verbindung mittels 
-	 * eines DB-Pools erstellt wurde) die phyische Verbindung fuer andere wieder frei
+	 * eines DB-Pools erstellt wurde) die phyische Verbindung fuer andere wieder frei.
 	 */
 	public void close() {
 		try {
@@ -138,7 +138,7 @@ public class Database {
 	
 	/**
 	 * Erstellt ein neues Prepared-SQL-Statement aus der angegebenen Query.
-	 * Zurueckgegeben wird die vorbereitete SQL-Query, welche dann ausgefuehrt werden kann
+	 * Zurueckgegeben wird die vorbereitete SQL-Query, welche dann ausgefuehrt werden kann.
 	 * 
 	 * @param queryList Die SQL-Query
 	 * @return Die vorbereitete SQL-Query
@@ -237,7 +237,7 @@ public class Database {
 	 * Fuehrt eine Query auf der Datenbank aus. Die Query muss eine
 	 * rein lesende Query sein. Schreibende Querys sollten die update-Funktion
 	 * benutzen. Die erste Ergebniszeile wird anschliessend zurueckgegeben.
-	 * Sollten keine Ergebnisse vorliegen, ist die Ergebniszeile leer
+	 * Sollten keine Ergebnisse vorliegen, ist die Ergebniszeile leer.
 	 * 
 	 * @param query Die SQL-Query. Falls es sich um mehrere Elemente handelt, werden diese zu einem String verbunden
 	 * @return Die erste Ergebniszeile der SQL-Query.
@@ -256,7 +256,7 @@ public class Database {
 	/**
 	 * Liefert die Anzahl der von der vom 
 	 * letzten Aufruf der Update-Methode betroffenen 
-	 * Zeilen
+	 * Zeilen.
 	 * @return Die Anzahl der Zeilen
 	 */
 	public int affectedRows() {
@@ -266,7 +266,7 @@ public class Database {
 	/**
 	 * Liefert den vom SQL-Server generierten 
 	 * Wert (bzw ID) der zuletzt eingefuegten Zeile
-	 * mit einem auto_increment 
+	 * mit einem auto_increment .
 	 * @return die letzte eingefuegte ID/Wert
 	 */
 	public int insertID() {
@@ -275,7 +275,7 @@ public class Database {
 	
 	/**
 	 * Beginnt eine Transaktion. Waehrend der Transaktion auftretende Fehler
-	 * werden nicht gemeldet
+	 * werden nicht gemeldet.
 	 */
 	public void tBegin() {
 		tBegin(false);
@@ -283,7 +283,7 @@ public class Database {
 	
 	/**
 	 * Beginnt eine Transaktion. Auf Wunsch werden Fehler, die zu einem Abbruch der 
-	 * Transaktion fuehren, gemeldet. 
+	 * Transaktion fuehren, gemeldet.
 	 * @param debugtransact true, falls Fehler gemeldet werden sollen.
 	 */
 	public void tBegin(boolean debugtransact) {
@@ -385,7 +385,7 @@ public class Database {
 	}
 	
 	/**
-	 * Liefert den Fehlerstatus der Datenbankverbindung
+	 * Liefert den Fehlerstatus der Datenbankverbindung.
 	 * @return true, falls ein Fehler aufgetreten ist
 	 */
 	public boolean getErrorStatus() {

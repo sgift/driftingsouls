@@ -34,7 +34,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
  * Zeigt das Menue zur Uebergabe der Schlacht an einen anderen an der Schlacht
- * beteiligten Spieler
+ * beteiligten Spieler.
  * @author Christopher Jung
  *
  */

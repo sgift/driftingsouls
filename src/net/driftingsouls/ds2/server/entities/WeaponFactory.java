@@ -33,7 +33,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
- * Eine Waffenfabrik auf einer Basis
+ * Eine Waffenfabrik auf einer Basis.
  * @author Christopher Jung
  *
  */
@@ -41,7 +41,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 @Table(name="weaponfactory")
 public class WeaponFactory {
 	/**
-	 * Ein Auftrag in einer Waffenfabrik
+	 * Ein Auftrag in einer Waffenfabrik.
 	 * @author Christopher Jung
 	 *
 	 */
@@ -58,7 +58,7 @@ public class WeaponFactory {
 		}
 		
 		/**
-		 * Erstellt einen neuen Auftrag
+		 * Erstellt einen neuen Auftrag.
 		 * @param ammo Die Ammo die produziert werden soll
 		 * @param count Die zu produzierende Menge
 		 */
@@ -68,7 +68,7 @@ public class WeaponFactory {
 		}
 		
 		/**
-		 * Gibt die Ammo zurueck, die zum Auftrag gehoert
+		 * Gibt die Ammo zurueck, die zum Auftrag gehoert.
 		 * @return Die Ammo
 		 */
 		public Ammo getAmmo() {
@@ -76,7 +76,7 @@ public class WeaponFactory {
 		}
 		
 		/**
-		 * Gibt die zu produzierende Menge an Ammo zurueck
+		 * Gibt die zu produzierende Menge an Ammo zurueck.
 		 * @return Die Menge
 		 */
 		public int getCount() {
@@ -101,7 +101,7 @@ public class WeaponFactory {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public WeaponFactory() {
@@ -121,7 +121,7 @@ public class WeaponFactory {
 	}
 
 	/**
-	 * Gibt die Basis zurueck
+	 * Gibt die Basis zurueck.
 	 * @return Die Basis
 	 */
 	public Base getBase() {
@@ -129,7 +129,7 @@ public class WeaponFactory {
 	}
 
 	/**
-	 * Setzt die Basis
+	 * Setzt die Basis.
 	 * @param base Die Basis
 	 */
 	public void setBase(Base base) {
@@ -137,7 +137,7 @@ public class WeaponFactory {
 	}
 
 	/**
-	 * Gibt die maximale Auslastung zurueck
+	 * Gibt die maximale Auslastung zurueck.
 	 * @return Die maximale Auslastung
 	 */
 	public int getCount() {
@@ -145,7 +145,7 @@ public class WeaponFactory {
 	}
 
 	/**
-	 * Setzt die maximale Auslastung
+	 * Setzt die maximale Auslastung.
 	 * @param count Die maximale Auslastung
 	 */
 	public void setCount(int count) {
@@ -153,7 +153,7 @@ public class WeaponFactory {
 	}
 
 	/**
-	 * Gibt die aktuellen Produktionsdaten zurueck
+	 * Gibt die aktuellen Produktionsdaten zurueck.
 	 * @return Die Produktionsdaten
 	 */
 	public Task[] getProduces() {
@@ -168,7 +168,7 @@ public class WeaponFactory {
 	}
 
 	/**
-	 * Setzt die aktuellen Produktionsdaten
+	 * Setzt die aktuellen Produktionsdaten.
 	 * @param produces Die Produktionsdaten
 	 */
 	public void setProduces(Task[] produces) {
@@ -176,7 +176,7 @@ public class WeaponFactory {
 	}
 
 	/**
-	 * Gibt die ID der Basis zurueck
+	 * Gibt die ID der Basis zurueck.
 	 * @return Die ID der Basis
 	 */
 	public int getId() {
@@ -184,7 +184,7 @@ public class WeaponFactory {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

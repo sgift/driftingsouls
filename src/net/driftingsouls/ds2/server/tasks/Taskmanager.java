@@ -26,23 +26,23 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.hibernate.Query;
 
 /**
- * Der Taskmanager
+ * Der Taskmanager.
  * @author Christopher Jung
  *
  */
 public class Taskmanager {
 	/**
-	 * Die verschiedenen Task-Typen
+	 * Die verschiedenen Task-Typen.
 	 */
 	public enum Types {
 		/**
-		 * Aufnahmeantrag in eine Allianz
+		 * Aufnahmeantrag in eine Allianz.
 		 * data1 - die ID der Allianz
 		 * data2 - die ID des Spielers, der den Antrag gestellt hat
 		 */
 		ALLY_NEW_MEMBER(1, new HandleAllyNewMember()),
 		/**
-		 * Gruendung einer Allianz
+		 * Gruendung einer Allianz.
 		 * 
 		 * data1 - der Name der Allianz
 		 * data2 - die Anzahl der noch fehlenden Unterstuetzungen (vgl. TASK_ALLY_FOUND_CONFIRM)
@@ -50,31 +50,31 @@ public class Taskmanager {
 		 */
 		ALLY_FOUND(2, new HandleAllyFound()),
 		/**
-		 *  Ein Unterstuetzungsantrag fuer eine Allianzgruendung
+		 *  Ein Unterstuetzungsantrag fuer eine Allianzgruendung.
 		 * 
 		 * 	data1 - die TaskID der zugehoerigen TASK_ALLY_FOUND-Task
 		 *  data2 - die ID des angeschriebenen Spielers (um dessen Unterstuetzung gebeten wurde)
 		 */
 		ALLY_FOUND_CONFIRM(3, new HandleAllyFoundConfirm()),
 		/**
-		 * Eine Allianz hat weniger als 3 Mitglieder (Praesi eingerechnet) und ist daher von der Aufloesung bedroht
+		 * Eine Allianz hat weniger als 3 Mitglieder (Praesi eingerechnet) und ist daher von der Aufloesung bedroht.
 		 * 
 		 * data1 - die ID der betroffenen Allianz
 		 */
 		ALLY_LOW_MEMBER(4, new HandleAllyLowMember()),
 		/**
-		 * Zerstoert ein Schiff beim Timeout der Task
+		 * Zerstoert ein Schiff beim Timeout der Task.
 		 * data1 - Die ID des Schiffes
 		 */
 		SHIP_DESTROY_COUNTDOWN(5, new HandleShipDestroyCountdown()),
 		/**
-		 * Ein Countdown bis zum Respawn des Schiffes
+		 * Ein Countdown bis zum Respawn des Schiffes.
 		 * 
 		 * data1 - die ID des betroffenen Schiffes (neg. id!)
 		 */
 		SHIP_RESPAWN_COUNTDOWN(6, new HandleShipRespawnCountdown()),
 		/**
-		 * Ein Gany-Transportauftrag
+		 * Ein Gany-Transportauftrag.
 		 * 
 		 * data1 - die Order-ID des Auftrags
 		 * data2 - Schiffs-ID [Wird von der Task selbst gesetzt!]
@@ -82,7 +82,7 @@ public class Taskmanager {
 		 */
 		GANY_TRANSPORT(7, new HandleGanyTransport()),
 		/**
-		 * Ein Ausbau-Auftrag
+		 * Ein Ausbau-Auftrag.
 		 *
 		 * data1 - Die Auftrags-ID
 		 * data2 - Die Anzahl der bisherigen Versuche den Task durchzuführen
@@ -98,7 +98,7 @@ public class Taskmanager {
 		}
 		
 		/**
-		 * Gibt die Typen-ID der Task zurueck
+		 * Gibt die Typen-ID der Task zurueck.
 		 * @return Die Typen-ID
 		 */
 		public int getTypeID() {
@@ -106,7 +106,7 @@ public class Taskmanager {
 		}
 		
 		/**
-		 * Gibt die Instanz einer Klasse zurueck, die fuer die Verarbeitung von Ereignissen zustaendig ist
+		 * Gibt die Instanz einer Klasse zurueck, die fuer die Verarbeitung von Ereignissen zustaendig ist.
 		 * @return die Ereignisverarbeitungsklasseninstanz
 		 */
 		protected TaskHandler getHandlerClass() {
@@ -114,7 +114,7 @@ public class Taskmanager {
 		}
 		
 		/**
-		 * Gibt den Typ zu einer Typ-ID zurueck
+		 * Gibt den Typ zu einer Typ-ID zurueck.
 		 * @param id Die Typ-ID
 		 * @return Der Typ oder <code>null</code>
 		 */
@@ -134,7 +134,7 @@ public class Taskmanager {
 	}
 	
 	/**
-	 * Gibt eine Instanz des Taskmanagers zurueck
+	 * Gibt eine Instanz des Taskmanagers zurueck.
 	 * @return Eine Instanz des Taskmanagers
 	 */
 	public static synchronized Taskmanager getInstance() {
@@ -168,7 +168,7 @@ public class Taskmanager {
 	}
 	
 	/**
-	 * Modifiziert die Datenfelder einer Task
+	 * Modifiziert die Datenfelder einer Task.
 	 * @param taskid Die ID der Task
 	 * @param data1 Das erste Datenfeld
 	 * @param data2 Das zweite Datenfeld
@@ -182,7 +182,7 @@ public class Taskmanager {
 	}
 	
 	/**
-	 * Setzt den Timeout einer Task
+	 * Setzt den Timeout einer Task.
 	 * @param taskid Die Task-ID
 	 * @param timeout Das Timeout in Ticks
 	 */
@@ -192,7 +192,7 @@ public class Taskmanager {
 	}
 	
 	/**
-	 * Inkrementiert den Timeout einer Task um einen Tick
+	 * Inkrementiert den Timeout einer Task um einen Tick.
 	 * @param taskid Die ID der Task
 	 */
 	public void incTimeout( String taskid ) {
@@ -213,7 +213,7 @@ public class Taskmanager {
 	}
 	
 	/**
-	 * Gibt alle Tasks zurueck, deren Timeout den angegebenen Wert hat
+	 * Gibt alle Tasks zurueck, deren Timeout den angegebenen Wert hat.
 	 * @param timeout das gesuchte Timeout
 	 * @return Die Liste aller Tasks mit diesem Timeout (oder eine leere Liste)
 	 */
@@ -229,7 +229,7 @@ public class Taskmanager {
 	
 	/**
 	 * Ermittelt alle Tasks eines Typs deren Datenfelder einen bestimmten Inhalt enthalten.
-	 * Als Platzhalter fuer beliebigen Inhalt kann das <code>*</code> verwendet werden
+	 * Als Platzhalter fuer beliebigen Inhalt kann das <code>*</code> verwendet werden.
 	 * @param type Der Typ der gesuchten Task
 	 * @param data1 Der Inhalt des ersten Datenfelds
 	 * @param data2 Der Inhalt des zweiten Datenfelds
@@ -269,7 +269,7 @@ public class Taskmanager {
 	}
 	
 	/**
-	 * Fuehrt fuer eine Task ein Ereignis aus
+	 * Fuehrt fuer eine Task ein Ereignis aus.
 	 * @param taskid Die ID der Task
 	 * @param signal Das Ereignis
 	 */
@@ -284,7 +284,7 @@ public class Taskmanager {
 	}
 	
 	/**
-	 * Loescht die Task mit der angegebenen ID
+	 * Loescht die Task mit der angegebenen ID.
 	 * @param taskid Die ID der Task
 	 */
 	public void removeTask( String taskid ) {
@@ -295,7 +295,7 @@ public class Taskmanager {
 	}
 	
 	/**
-	 * Reduziert den Timeout aller Tasks um den angegebenen Wert
+	 * Reduziert den Timeout aller Tasks um den angegebenen Wert.
 	 * @param step Die Menge um die das Timeout reduziert werden soll
 	 */
 	public void reduceTimeout( int step ) {

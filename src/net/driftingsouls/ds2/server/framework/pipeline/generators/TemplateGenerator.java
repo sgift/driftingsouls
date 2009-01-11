@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
- * Generator fuer Module mit Templates
+ * Generator fuer Module mit Templates.
  * @author Christopher Jung
  *
  */
@@ -35,7 +35,7 @@ public abstract class TemplateGenerator extends DSGenerator {
 	private String masterTemplateID;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der Kontext
 	 */
 	public TemplateGenerator(Context context) {
@@ -80,7 +80,7 @@ public abstract class TemplateGenerator extends DSGenerator {
 	}
 	
 	/**
-	 * Gibt die mit dem Generator verknuepfte Instanz des Template-Engines zurueck
+	 * Gibt die mit dem Generator verknuepfte Instanz des Template-Engines zurueck.
 	 * @return Das Template-Engine
 	 */
 	public TemplateEngine getTemplateEngine() {
@@ -93,7 +93,7 @@ public abstract class TemplateGenerator extends DSGenerator {
 	/**
 	 * Gibt die ID der im System registrierten Template-File zurueck. 
 	 * Sollte noch kein Template-File registriert sein, so wird ein leerer
-	 * String zurueckgegeben
+	 * String zurueckgegeben.
 	 * @return die ID der Template-File oder <code>""</code>
 	 */
 	public String getTemplateID() {

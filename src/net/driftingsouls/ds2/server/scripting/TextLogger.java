@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 /**
- * Logger, welcher die Ausgabe in die Standardausgabe umleitet
+ * Logger, welcher die Ausgabe in die Standardausgabe umleitet.
  * @author Christopher Jung
  *
  */

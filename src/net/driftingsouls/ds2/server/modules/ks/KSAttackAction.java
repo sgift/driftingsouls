@@ -52,7 +52,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Berechnet das Waffenfeuer im KS
+ * Berechnet das Waffenfeuer im KS.
  * @author Christopher Jung
  *
  */
@@ -70,7 +70,7 @@ public class KSAttackAction extends BasicKSAction {
 
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public KSAttackAction() {
@@ -96,7 +96,7 @@ public class KSAttackAction extends BasicKSAction {
 	}
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired

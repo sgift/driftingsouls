@@ -29,7 +29,7 @@ import javax.persistence.Version;
 import org.apache.commons.lang.math.RandomUtils;
 
 /**
- * Eine Session in DS
+ * Eine Session in DS.
  * @author Christopher Jung
  *
  */
@@ -53,7 +53,7 @@ public class Session {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public Session() {
@@ -61,7 +61,7 @@ public class Session {
 	}
 	
 	/**
-	 * Erstellt eine neue Session fuer einen Benutzer
+	 * Erstellt eine neue Session fuer einen Benutzer.
 	 * @param user Der Benutzer
 	 */
 	public Session(BasicUser user) {
@@ -71,7 +71,7 @@ public class Session {
 	}
 
 	/**
-	 * Gibt den ActionCounter der Session zurueck
+	 * Gibt den ActionCounter der Session zurueck.
 	 * @return Der ActionCounter
 	 */
 	public int getActionCounter() {
@@ -79,7 +79,7 @@ public class Session {
 	}
 
 	/**
-	 * Setzt den ActionCounter der Session
+	 * Setzt den ActionCounter der Session.
 	 * @param actioncounter Der neue Wert
 	 */
 	public void setActionCounter(int actioncounter) {
@@ -87,7 +87,7 @@ public class Session {
 	}
 
 	/**
-	 * Gibt die angefuegte Session-ID oder <code>null</code> zurueck
+	 * Gibt die angefuegte Session-ID oder <code>null</code> zurueck.
 	 * @return Die Session-ID oder <code>null</code>
 	 */
 	public String getAttach() {
@@ -95,7 +95,7 @@ public class Session {
 	}
 
 	/**
-	 * Setzt die angefuegte Session-ID
+	 * Setzt die angefuegte Session-ID.
 	 * @param attach Die neue Session-ID
 	 */
 	public void setAttach(String attach) {
@@ -103,7 +103,7 @@ public class Session {
 	}
 
 	/**
-	 * Gibt die Liste der gueltigen IPs zurueck
+	 * Gibt die Liste der gueltigen IPs zurueck.
 	 * @return Die Liste der gueltigen IPs
 	 */
 	public String getIP() {
@@ -111,7 +111,7 @@ public class Session {
 	}
 
 	/**
-	 * Setzt die Liste der gueltigen IPs
+	 * Setzt die Liste der gueltigen IPs.
 	 * @param ip Die neue Liste
 	 */
 	public void setIP(String ip) {
@@ -119,7 +119,7 @@ public class Session {
 	}
 	
 	/**
-	 * Prueft, ob die angegebene IP-Adresse in der Liste der IP-Adressen vorkommt
+	 * Prueft, ob die angegebene IP-Adresse in der Liste der IP-Adressen vorkommt.
 	 * @param ip Die IP-Adresse
 	 * @return <code>true</code>, falls die IP-Adresse in der Liste vorkommt
 	 */
@@ -131,7 +131,7 @@ public class Session {
 	}
 
 	/**
-	 * Gibt den Zeitpunkt der letzten Aktion zurueck
+	 * Gibt den Zeitpunkt der letzten Aktion zurueck.
 	 * @return Der Zeitpunkt der letzten Aktion
 	 */
 	public long getLastAction() {
@@ -139,7 +139,7 @@ public class Session {
 	}
 
 	/**
-	 * Setzt den Zeitpunkt der letzten Aktion
+	 * Setzt den Zeitpunkt der letzten Aktion.
 	 * @param lastaction Der Zeitpunkt
 	 */
 	public void setLastAction(long lastaction) {
@@ -147,7 +147,7 @@ public class Session {
 	}
 
 	/**
-	 * Gibt die Session-ID zurueck
+	 * Gibt die Session-ID zurueck.
 	 * @return Die Session-ID
 	 */
 	public String getSession() {
@@ -155,7 +155,7 @@ public class Session {
 	}
 
 	/**
-	 * Gibt zurueck, ob fuer den Spieler gerade Daten berechnet werden
+	 * Gibt zurueck, ob fuer den Spieler gerade Daten berechnet werden.
 	 * @return <code>true</code>, falls gerade fuer den Spieler Daten berechnet werden
 	 */
 	public boolean getTick() {
@@ -163,7 +163,7 @@ public class Session {
 	}
 
 	/**
-	 * Setzt, ob fuer den Spieler gerade Daten berechnet werden
+	 * Setzt, ob fuer den Spieler gerade Daten berechnet werden.
 	 * @param tick <code>true</code>, falls gerade Daten berechnet werden
  	 */
 	public void setTick(boolean tick) {
@@ -171,7 +171,7 @@ public class Session {
 	}
 
 	/**
-	 * Gibt <code>true</code>, falls das Grafikpak verwendet werden soll
+	 * Gibt <code>true</code>, falls das Grafikpak verwendet werden soll.
 	 * @return <code>true</code>, falls das Grafikpak verwendet werden soll
 	 */
 	public boolean getUseGfxPak() {
@@ -179,7 +179,7 @@ public class Session {
 	}
 
 	/**
-	 * Setzt, ob das Grafikpak verwendet werden soll
+	 * Setzt, ob das Grafikpak verwendet werden soll.
 	 * @param usegfxpak <code>true</code>, falls das Grafikpak verwendet werden soll
 	 */
 	public void setUseGfxPak(boolean usegfxpak) {
@@ -187,7 +187,7 @@ public class Session {
 	}
 
 	/**
-	 * Gibt den mit der Session verknuepften User zurueck
+	 * Gibt den mit der Session verknuepften User zurueck.
 	 * @return Der mit der Session verknuepfte User
 	 */
 	public BasicUser getUser() {
@@ -195,7 +195,7 @@ public class Session {
 	}
 
 	/**
-	 * Setzt den mit der Session verknuepften User
+	 * Setzt den mit der Session verknuepften User.
 	 * @param user Der mit der Session verknuepfte User
 	 */
 	public void setUser(BasicUser user) {
@@ -203,7 +203,7 @@ public class Session {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

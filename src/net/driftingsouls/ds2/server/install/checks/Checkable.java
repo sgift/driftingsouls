@@ -19,20 +19,20 @@
 package net.driftingsouls.ds2.server.install.checks;
 
 /**
- * Interface fuer Installationschecks
+ * Interface fuer Installationschecks.
  * @author Christopher Jung
  *
  */
 public interface Checkable {
 	/**
-	 * Gibt eine kurze Beschreibung (ca 20 Zeichen) des Checks zurueck
+	 * Gibt eine kurze Beschreibung (ca 20 Zeichen) des Checks zurueck.
 	 * @return Eine kurze Beschreibung
 	 */
 	public String getDescription();
 	
 	/**
 	 * Fuehrt den Check durch. Wenn der Check fehlschlaegt wird eine {@link CheckFailedException}
-	 * geworfen
+	 * geworfen.
 	 * @throws CheckFailedException Falls der Check fehlschlaegt
 	 */
 	public void doCheck() throws CheckFailedException;

@@ -24,19 +24,19 @@ import javax.script.ScriptException;
 import net.driftingsouls.ds2.server.scripting.roles.Role;
 
 /**
- * Interface fuer Klassen, welche eine konkrete Rollendefinition ausfuehren koennen
+ * Interface fuer Klassen, welche eine konkrete Rollendefinition ausfuehren koennen.
  * @author Christopher Jung
  *
  */
 public interface RoleExecuter {
 	/**
-	 * Gibt die Instanz der Rollenimplementierung fuer diese Ausfuehrung der Rolle zurueck
+	 * Gibt die Instanz der Rollenimplementierung fuer diese Ausfuehrung der Rolle zurueck.
 	 * @return Die Instanz
 	 */
 	public Role getRole();
 	
 	/**
-	 * Fuehrt die Rolle aus
+	 * Fuehrt die Rolle aus.
 	 * @param context Der Ausfuehrungskontext
 	 * @throws ScriptException Falls die Ausfuehrung mit einem Fehler abbricht
 	 */

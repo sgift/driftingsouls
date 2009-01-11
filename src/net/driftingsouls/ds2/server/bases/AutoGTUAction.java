@@ -32,7 +32,7 @@ public final class AutoGTUAction implements Cloneable {
 	private long count;
 	
 	/**
-	 * Erstellt eine neue Instanz
+	 * Erstellt eine neue Instanz.
 	 * @param resid Die Resourcen-ID
 	 * @param actid Der Aktionstyp
 	 * @param count Die Resourcenmenge
@@ -44,7 +44,7 @@ public final class AutoGTUAction implements Cloneable {
 	}
 
 	/**
-	 * Gibt den Aktionstyp zurueck
+	 * Gibt den Aktionstyp zurueck.
 	 * @return der Aktionstyp
 	 */
 	public int getActID() {
@@ -52,7 +52,7 @@ public final class AutoGTUAction implements Cloneable {
 	}
 
 	/**
-	 * Gibt die Resourcenmenge zurueck
+	 * Gibt die Resourcenmenge zurueck.
 	 * @return die Resourcenmenge
 	 */
 	public long getCount() {
@@ -60,7 +60,7 @@ public final class AutoGTUAction implements Cloneable {
 	}
 
 	/**
-	 * Gibt die Resourcen-ID zurueck
+	 * Gibt die Resourcen-ID zurueck.
 	 * @return die Resourcen-ID
 	 */
 	public ResourceID getResID() {

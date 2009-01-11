@@ -25,7 +25,7 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import org.w3c.dom.Node;
 
 /**
- * Item-Effekt "Schiffsbauplan deaktivieren"
+ * Item-Effekt "Schiffsbauplan deaktivieren".
  * Deaktiviert die Moeglichkeit in einer Werft einen bestimmten Schiffstyp zu bauen.
  * <p>Der Effekt kann ein allianzweiter Effekt sein. In diesem Fall verfuegen alle 
  * Allianzmitglieder nicht mehr ueber die Moeglichkeit dieses Schiff zu bauen.</p>

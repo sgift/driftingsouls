@@ -27,13 +27,13 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
  * UI zur Eingabe eines Scanbereichs. Der eigendliche Scan wird dann vom
- * Modul 'scan' durchgefuehrt 
+ * Modul 'scan' durchgefuehrt.
  * @author Christopher Jung
  *
  */
 @AdminMenuEntry(category="Objekte", name="Bereich scannen")
 public class ScanArea implements AdminPlugin {
-
+	@Override
 	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();

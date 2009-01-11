@@ -31,7 +31,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Immutable;
 
 /**
- * Ein Nebel
+ * Ein Nebel.
  * @author Christopher Jung
  *
  */
@@ -45,7 +45,7 @@ public class Nebel implements Locatable {
 	private int type;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public Nebel() {
@@ -53,7 +53,7 @@ public class Nebel implements Locatable {
 	}
 	
 	/**
-	 * Erstellt einen neuen Nebel
+	 * Erstellt einen neuen Nebel.
 	 * @param loc Die Position des Nebels
 	 * @param type Der Typ
 	 */
@@ -63,7 +63,7 @@ public class Nebel implements Locatable {
 	}
 		
 	/**
-	 * Gibt das System des Nebels zurueck
+	 * Gibt das System des Nebels zurueck.
 	 * @return Das System
 	 */
 	public int getSystem() {
@@ -71,7 +71,7 @@ public class Nebel implements Locatable {
 	}
 	
 	/**
-	 * Gibt den Typ des Nebels zurueck
+	 * Gibt den Typ des Nebels zurueck.
 	 * @return Der Typ
 	 */
 	public int getType() {
@@ -79,7 +79,7 @@ public class Nebel implements Locatable {
 	}
 	
 	/**
-	 * Gibt die X-Koordinate zurueck
+	 * Gibt die X-Koordinate zurueck.
 	 * @return Die X-Koordinate
 	 */
 	public int getX() {
@@ -87,7 +87,7 @@ public class Nebel implements Locatable {
 	}
 	
 	/**
-	 * Gibt die Y-Koordinate zurueck
+	 * Gibt die Y-Koordinate zurueck.
 	 * @return Die Y-Koordinate
 	 */
 	public int getY() {
@@ -95,7 +95,7 @@ public class Nebel implements Locatable {
 	}
 	
 	/**
-	 * Gibt die Position des Nebels zurueck
+	 * Gibt die Position des Nebels zurueck.
 	 * @return Die Position
 	 */
 	public Location getLocation() {

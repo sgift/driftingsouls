@@ -33,6 +33,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Request;
  *
  */
 public class TickBlockAuthenticateEventListener implements AuthenticateEventListener {
+	@Override
 	public void onAuthenticate(BasicUser basicUser) throws AuthenticationException {
 		Context context = ContextMap.getContext();
 		Request request = context.getRequest();

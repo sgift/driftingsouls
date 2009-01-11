@@ -24,14 +24,14 @@ import net.driftingsouls.ds2.server.framework.pipeline.Pipeline;
 /**
  * Repraesentiert einen Regel innerhalb der Pipeline-Konfiguration.
  * Aus allgemeinen Regeln werden die konkreten, fuer den jeweiligen Kontext
- * angepassten Pipelines generiert
+ * angepassten Pipelines generiert.
  * 
  * @author Christopher Jung
  *
  */
 interface Rule {
 	/**
-	 * Prueft, ob die Regel ausgefuehrt werden kann
+	 * Prueft, ob die Regel ausgefuehrt werden kann.
 	 * @param context Der Kontext, in dem geprueft werden soll
 	 * @return true, falls die Regel ausgefuehrt werden kann
 	 * @throws Exception

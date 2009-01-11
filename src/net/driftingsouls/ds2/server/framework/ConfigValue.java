@@ -25,7 +25,7 @@ public class ConfigValue
 	private int version;
 	
 	/**
-	 * Gibt den Namen der Konfigurationsoption zurueck
+	 * Gibt den Namen der Konfigurationsoption zurueck.
 	 * @return Der Name
 	 */
 	public String getName()
@@ -34,7 +34,7 @@ public class ConfigValue
 	}
 	
 	/**
-	 * Gibt den momentanen Wert der Konfigurationsoption zurueck
+	 * Gibt den momentanen Wert der Konfigurationsoption zurueck.
 	 * @return Der Wert
 	 */
 	public String getValue()
@@ -43,7 +43,7 @@ public class ConfigValue
 	}
 	
 	/**
-	 * Gibt eine Beschreibung der Konfigurationsoption und ihrer moeglichen Werte zurueck
+	 * Gibt eine Beschreibung der Konfigurationsoption und ihrer moeglichen Werte zurueck.
 	 * @return Die Beschreibung
 	 */
 	public String getDescription()
@@ -52,7 +52,7 @@ public class ConfigValue
 	}
 	
 	/**
-	 * Gibt die Versionsnummer zurueck (Hibernate-Interna)
+	 * Gibt die Versionsnummer zurueck (Hibernate-Interna).
 	 * @return Die Versionsnummer
 	 */
 	public int getVersion()
@@ -61,7 +61,7 @@ public class ConfigValue
 	}
 
 	/**
-	 * Setzt den Namen der Konfigurationsoption
+	 * Setzt den Namen der Konfigurationsoption.
 	 * @param name Der Name
 	 */
 	public void setName(String name)
@@ -79,7 +79,7 @@ public class ConfigValue
 	}
 	
 	/**
-	 * Setzt eine Beschreibung der Konfigurationsoption und ihrer moeglichen Werte
+	 * Setzt eine Beschreibung der Konfigurationsoption und ihrer moeglichen Werte.
 	 * @param description Die Beschreibung
 	 */
 	public void setDescription(String description)
@@ -88,7 +88,7 @@ public class ConfigValue
 	}
 	
 	/**
-	 * Setzt die Versionsnummer (Hibernate-Interna)
+	 * Setzt die Versionsnummer (Hibernate-Interna).
 	 * @param version Die Versionsnummer
 	 */
 	public void setVersion(int version)

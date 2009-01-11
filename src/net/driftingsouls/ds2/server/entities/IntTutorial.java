@@ -27,7 +27,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Immutable;
 
 /**
- * Eine Tutorialseite
+ * Eine Tutorialseite.
  * @author Christopher Jung
  *
  */
@@ -50,7 +50,7 @@ public class IntTutorial {
 	private String text;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public IntTutorial() {
@@ -58,7 +58,7 @@ public class IntTutorial {
 	}
 
 	/**
-	 * Gibt die anzuzeigene Kopfgrafik zurueck
+	 * Gibt die anzuzeigene Kopfgrafik zurueck.
 	 * @return Die Grafik
 	 */
 	public String getHeadImg() {
@@ -66,7 +66,7 @@ public class IntTutorial {
 	}
 
 	/**
-	 * Die ID des Tutorialeintrags
+	 * Die ID des Tutorialeintrags.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -74,7 +74,7 @@ public class IntTutorial {
 	}
 
 	/**
-	 * Gibt zurueck, ob diese Tutorialseite eine Basis erfordert
+	 * Gibt zurueck, ob diese Tutorialseite eine Basis erfordert.
 	 * @return <code>true</code>, falls eine Basis benoetigt wird
 	 */
 	public boolean getReqBase() {
@@ -83,7 +83,7 @@ public class IntTutorial {
 
 	/**
 	 * Gibt zurueck, ob diese Tutorialseite erfordert, dass der Spieler
-	 * sich einen Namen gegeben hat
+	 * sich einen Namen gegeben hat.
 	 * @return <code>true</code>, falls ein Name erforderlich ist
 	 */
 	public int getReqName() {
@@ -91,7 +91,7 @@ public class IntTutorial {
 	}
 
 	/**
-	 * Gibt die Nummer der Tutorialseite zurueck, die vorher eingeblendet werden muss
+	 * Gibt die Nummer der Tutorialseite zurueck, die vorher eingeblendet werden muss.
 	 * @return Die Nummer der Tutorialseite
 	 */
 	public int getReqSheet() {
@@ -99,7 +99,7 @@ public class IntTutorial {
 	}
 
 	/**
-	 * Gibt zurueck, ob fuer diese Tutorialseite ein Schiff benoetigt wird
+	 * Gibt zurueck, ob fuer diese Tutorialseite ein Schiff benoetigt wird.
 	 * @return <code>true</code>, falls ein Schiff erforderlich ist
 	 */
 	public int getReqShip() {
@@ -107,7 +107,7 @@ public class IntTutorial {
 	}
 
 	/**
-	 * Gibt den Text der Tutorialseite zurueck
+	 * Gibt den Text der Tutorialseite zurueck.
 	 * @return Der Text
 	 */
 	public String getText() {

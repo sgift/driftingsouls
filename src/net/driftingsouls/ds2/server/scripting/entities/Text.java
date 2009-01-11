@@ -24,7 +24,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * <h1>Repraesentiert den Text in einem Questdialog</h1>
+ * <h1>Repraesentiert den Text in einem Questdialog.</h1>
  * <p>Einem solche, mit BBCode formatierten, Text kann jeweils ein Bild
  * zugeordnet werden, welches neben dem Text angezeigt wird. Zusaetzlich
  * besitzt ein Text einen Kommentar, welcher den Inhalt/Zweck beschreiben
@@ -42,7 +42,7 @@ public class Text {
 	private String comment;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public Text() {
@@ -50,7 +50,7 @@ public class Text {
 	}
 	
 	/**
-	 * Erstellt einen neuen Text
+	 * Erstellt einen neuen Text.
 	 * @param text Der Text
 	 */
 	public Text(String text) {
@@ -60,7 +60,7 @@ public class Text {
 	}
 
 	/**
-	 * Gibt den Kommentar zurueck
+	 * Gibt den Kommentar zurueck.
 	 * @return Der Kommentar
 	 */
 	public String getComment() {
@@ -68,7 +68,7 @@ public class Text {
 	}
 
 	/**
-	 * Setzt den Kommentar
+	 * Setzt den Kommentar.
 	 * @param comment Der Kommentar
 	 */
 	public void setComment(String comment) {
@@ -76,7 +76,7 @@ public class Text {
 	}
 
 	/**
-	 * Gibt das anzuzeigende Bild zurueck
+	 * Gibt das anzuzeigende Bild zurueck.
 	 * @return Das Bild
 	 */
 	public String getPicture() {
@@ -84,7 +84,7 @@ public class Text {
 	}
 
 	/**
-	 * Setzt das anzuzeigende Bild
+	 * Setzt das anzuzeigende Bild.
 	 * @param picture Das Bild
 	 */
 	public void setPicture(String picture) {
@@ -92,7 +92,7 @@ public class Text {
 	}
 
 	/**
-	 * Gibt den Text zurueck
+	 * Gibt den Text zurueck.
 	 * @return Der Text
 	 */
 	public String getText() {
@@ -100,7 +100,7 @@ public class Text {
 	}
 
 	/**
-	 * Setzt den Text
+	 * Setzt den Text.
 	 * @param text Der Text
 	 */
 	public void setText(String text) {
@@ -108,7 +108,7 @@ public class Text {
 	}
 
 	/**
-	 * Gibt die ID zurueck
+	 * Gibt die ID zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {

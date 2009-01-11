@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.framework;
 
 /**
- * Lognachrichten auf Contextbasis
+ * Lognachrichten auf Contextbasis.
  * @author Christopher Jung
  *
  */
@@ -33,7 +33,7 @@ public class ContextLocalMessage implements ContextListener {
 	};
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public ContextLocalMessage() {
@@ -41,7 +41,7 @@ public class ContextLocalMessage implements ContextListener {
 	}
 	
 	/**
-	 * Gibt die zuletzt gesetzen Nachrichten zurueck und leert dann den Nachrichtenpuffer
+	 * Gibt die zuletzt gesetzen Nachrichten zurueck und leert dann den Nachrichtenpuffer.
 	 * @return Die zuletzt gesetzten Nachrichten
 	 */
 	public String getMessage() {
@@ -59,6 +59,7 @@ public class ContextLocalMessage implements ContextListener {
 		return msg.get();
 	}
 
+	@Override
 	public void onContextDestory() {
 		msg.remove();
 	}

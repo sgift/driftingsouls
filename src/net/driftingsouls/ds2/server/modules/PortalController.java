@@ -67,7 +67,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Das Portal
+ * Das Portal.
  * @author Christopher Jung
  *
  */
@@ -78,7 +78,7 @@ public class PortalController extends TemplateGenerator {
 	private Configuration config;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public PortalController(Context context) {
@@ -90,7 +90,7 @@ public class PortalController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Injiziert den DS-AuthenticationManager zum einloggen von Benutzern
+	 * Injiziert den DS-AuthenticationManager zum einloggen von Benutzern.
 	 * @param authManager Der AuthenticationManager
 	 */
 	@Required
@@ -100,7 +100,7 @@ public class PortalController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Injiziert die DS-Konfiguration
+	 * Injiziert die DS-Konfiguration.
 	 * @param config Die DS-Konfiguration
 	 */
 	@Required
@@ -127,7 +127,7 @@ public class PortalController extends TemplateGenerator {
 
 	/**
 	 * Ermoeglicht das generieren eines neuen Passworts und anschliessenden
-	 * zumailens dessen
+	 * zumailens dessen.
 	 * @urlparam String username der Benutzername des Accounts
 	 *
 	 */
@@ -175,7 +175,7 @@ public class PortalController extends TemplateGenerator {
 	}
 
 	/**
-	 * Zeigt die AGB an
+	 * Zeigt die AGB an.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -184,7 +184,7 @@ public class PortalController extends TemplateGenerator {
 	}
 
 	/**
-	 * Zeigt das Impressum an
+	 * Zeigt das Impressum an.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -473,7 +473,7 @@ public class PortalController extends TemplateGenerator {
 	
 	/**
 	 * Registriert einen neuen Spieler. Falls keine Daten eingegeben wurden, 
-	 * wird die GUI zum registrieren angezeigt
+	 * wird die GUI zum registrieren angezeigt.
 	 * @urlparam String username der Benutzername des Accounts
 	 * @urlparam Integer race Die Rasse des Accounts
 	 * @urlparam String email Die Email-Adresse
@@ -559,7 +559,7 @@ public class PortalController extends TemplateGenerator {
 	
 	/**
 	 * Loggt einen Spieler ein. Falls keine Daten angegeben wurden, 
-	 * wird die GUI zum einloggen angezeigt
+	 * wird die GUI zum einloggen angezeigt.
 	 * @urlparam String username Der Benutzername
 	 * @urlparam String password Das Passwort
 	 * @urlparam Integer usegfxpak != 0, falls ein vorhandenes Grafikpak benutzt werden soll
@@ -692,7 +692,7 @@ public class PortalController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Ermoeglicht das Absenden einer Anfrage zur Deaktivierung des Vac-Modus
+	 * Ermoeglicht das Absenden einer Anfrage zur Deaktivierung des Vac-Modus.
 	 * @urlparam String asess Die Session-ID
 	 * @urlparam String reason Der Grund fuer eine vorzeitige Deaktivierung
 	 *
@@ -728,7 +728,7 @@ public class PortalController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die News an
+	 * Zeigt die News an.
 	 * @urlparam Integer archiv != 0, falls alte News angezeigt werden sollen
 	 */
 	@Override

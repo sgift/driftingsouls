@@ -24,13 +24,13 @@ import java.util.List;
 import net.driftingsouls.ds2.server.Location;
 
 /**
- * Klasse zum Ermitteln vom Flugrouten
+ * Klasse zum Ermitteln vom Flugrouten.
  * @author Christopher Jung
  *
  */
 public class RouteFactory {
 	/**
-	 * Gibt eine Flugoperation als Route zurueck
+	 * Gibt eine Flugoperation als Route zurueck.
 	 * @param direction Die Flugrichtung
 	 * @param distance Die Entfernung
 	 * @return Die Flugoperation als Route
@@ -72,7 +72,7 @@ public class RouteFactory {
 	}
 	
 	/**
-	 * Ermittelt eine Flugroute innerhalb eines Systems
+	 * Ermittelt eine Flugroute innerhalb eines Systems.
 	 * @param from Der Startpunkt
 	 * @param to Der Endpunkt
 	 * @param maxcount die maximale Anzahl an zu fliegenden Feldern

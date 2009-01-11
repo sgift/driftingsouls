@@ -31,13 +31,13 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
- * Uebergibt das Kommando ueber die Schlacht an einen anderen Spieler
+ * Uebergibt das Kommando ueber die Schlacht an einen anderen Spieler.
  * @author Christopher Jung
  *
  */
 public class KSNewCommanderAction extends BasicKSAction {
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 */
 	public KSNewCommanderAction() {
 		this.requireActive(false);

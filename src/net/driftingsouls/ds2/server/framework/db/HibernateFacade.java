@@ -48,7 +48,7 @@ import org.scannotation.AnnotationDB;
 import org.scannotation.ClasspathUrlFinder;
 
 /**
- * Hilfsklasse zur Initalisierung von Hibernate
+ * Hilfsklasse zur Initalisierung von Hibernate.
  * @author Christopher Jung
  *
  */
@@ -127,7 +127,7 @@ public class HibernateFacade {
 
 	
 	/**
-	 * Gibt die Instanz der SessionFactory zurueck
+	 * Gibt die Instanz der SessionFactory zurueck.
 	 * @return Die SessionFactory von Hibernate
 	 */
 	public static SessionFactory getSessionFactory() {
@@ -140,7 +140,7 @@ public class HibernateFacade {
 	}
 	
 	/**
-	 * Gibt die Hibernate-Statistikdaten zurueck
+	 * Gibt die Hibernate-Statistikdaten zurueck.
 	 * @return Die Hibernate-Statistikdaten
 	 */
 	public static Statistics getStatistics() {
@@ -148,7 +148,7 @@ public class HibernateFacade {
 	}
 	
 	/**
-	 * Oeffnet eine neue Hibernate-Session
+	 * Oeffnet eine neue Hibernate-Session.
 	 * @return eine neue Hibernate-Session
 	 */
 	public static Session openSession() {
@@ -157,7 +157,7 @@ public class HibernateFacade {
 	
 	/**
 	 * Gibt alle belegten Resourcen frei. Es ist Aufgabe der Anwendung dafür zu Sorgen,
-	 * dass keine offenen Sessions mehr vorhanden sind 
+	 * dass keine offenen Sessions mehr vorhanden sind.
 	 *
 	 */
 	public static void free() {
@@ -169,7 +169,7 @@ public class HibernateFacade {
 	
 	/**
 	 * Entfernt alle Objekte der Klasse(n) oder einer Unterklasse dieser Klasse(n)
-	 * aus der angegebenen Session
+	 * aus der angegebenen Session.
 	 * @param db Die Hibernate Session
 	 * @param cls Die Klasse(n)
 	 */

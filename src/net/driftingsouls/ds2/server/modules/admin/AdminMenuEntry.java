@@ -25,7 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Gibt an unter welchen Namen und welcher Kategorie das AdminPlugin aufgefuert werden soll
+ * Gibt an unter welchen Namen und welcher Kategorie das AdminPlugin aufgefuert werden soll.
  * @author Christopher Jung
  *
  */
@@ -34,14 +34,12 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface AdminMenuEntry {
 	/**
-	 * Gibt den Namen der Kategorie zurueck, in der das Plugin aufgefuehrt werden soll 
-	 * @return Der Name der Kategorie
+	 * Gibt den Namen der Kategorie zurueck, in der das Plugin aufgefuehrt werden soll.
 	 */
 	String category();
 	
 	/**
-	 * Gibt den Namen des Plugins selbst zurueck
-	 * @return Der Name
+	 * Gibt den Namen des Plugins selbst zurueck.
 	 */
 	String name();
 }

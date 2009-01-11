@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.ships;
 
 /**
- * Wird geworfen, wenn ein unbekannter Schiffstyp angefragt wird
+ * Wird geworfen, wenn ein unbekannter Schiffstyp angefragt wird.
  * @author Christopher Jung
  *
  */
@@ -27,7 +27,7 @@ public class NoSuchShipTypeException extends RuntimeException {
 	private static final long serialVersionUID = 8660763348818824926L;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param message Der Fehlertext
 	 */
 	public NoSuchShipTypeException(String message) {

@@ -33,7 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
- * Basisklasse fuer Applikationen von DS
+ * Basisklasse fuer Applikationen von DS.
  * @author Christopher Jung
  *
  */
@@ -45,7 +45,7 @@ public abstract class DSApplication {
 	private int handleCounter;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param args Die Kommandozeilenargumente
 	 * @throws Exception
 	 */
@@ -74,7 +74,7 @@ public abstract class DSApplication {
 	}
 	
 	/**
-	 * Gibt den aktuellen Context zurueck
+	 * Gibt den aktuellen Context zurueck.
 	 * @return der Kontext
 	 */
 	public Context getContext() {
@@ -82,7 +82,7 @@ public abstract class DSApplication {
 	}
 	
 	/**
-	 * Gibt eine Datenbankinstanz des Kontexts zurueck
+	 * Gibt eine Datenbankinstanz des Kontexts zurueck.
 	 * @return eine Datenbankinstanz
 	 * @deprecated Bitte Hibernate verwenden
 	 */
@@ -92,7 +92,7 @@ public abstract class DSApplication {
 	}
 	
 	/**
-	 * Gibt die Hibernate-Session des Kontexts zurueck
+	 * Gibt die Hibernate-Session des Kontexts zurueck.
 	 * @return die Hibernate-Session
 	 */
 	public org.hibernate.Session getDB() {
@@ -100,7 +100,7 @@ public abstract class DSApplication {
 	}
 	
 	/**
-	 * Fuegt ein neues Ziel fuer geloggte Daten hinzu
+	 * Fuegt ein neues Ziel fuer geloggte Daten hinzu.
 	 * @param file Das Ziel, zu dem geloggt werden soll. Das Ziel muss schreibbar sein
 	 * @param append Sollen die Daten angehangen werden?
 	 * 
@@ -126,7 +126,7 @@ public abstract class DSApplication {
 	}
 	
 	/**
-	 * Entfernt ein Ziel fuer geloggte Daten
+	 * Entfernt ein Ziel fuer geloggte Daten.
 	 * @param handle Das Handle des Log-Ziels
 	 * 
 	 * @return true bei erfolgreichem entfernen
@@ -142,7 +142,7 @@ public abstract class DSApplication {
 	/**
 	 * Beendet die Applikation und gibt alle Resourcen wieder frei.<br>
 	 * Diese Funktion sollte innerhalb der main() aufgerufen werden, nachdem
-	 * das Programm komplett durchgelaufen ist
+	 * das Programm komplett durchgelaufen ist.
 	 */
 	public void dispose() {
 		int[] handles = new int[logTargets.size()];
@@ -163,7 +163,7 @@ public abstract class DSApplication {
 	}
 	
 	/**
-	 * Loggt einen String
+	 * Loggt einen String.
 	 * @param string Der zu loggende String
 	 */
 	protected void slog(String string) {
@@ -185,7 +185,7 @@ public abstract class DSApplication {
 	}
 	
 	/**
-	 * Loggt eine Zeile. Fuer den Zeilenumbruch wird automatisch gesorgt
+	 * Loggt eine Zeile. Fuer den Zeilenumbruch wird automatisch gesorgt.
 	 * @param string Die zu loggende Zeile
 	 */
 	protected void log(String string) {

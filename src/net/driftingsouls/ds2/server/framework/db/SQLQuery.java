@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <h1>Das Ergebnis einer Datenbank-Query</h1>
+ * <h1>Das Ergebnis einer Datenbank-Query.</h1>
  * <p>Eine Datenbank-Query erlaubt es Daten aus einem Result-Set einer SQL-Query
  * abzurufen.</p>
  * Da das Ergebnis Resourcen der Datenbank belegt, sollte das Objekt nach Ermittlung
@@ -113,7 +113,7 @@ public class SQLQuery {
 	}
 	
 	/**
-	 * Gibt den Wert einer Spalte als <code>Object</code> zurueck
+	 * Gibt den Wert einer Spalte als <code>Object</code> zurueck.
 	 * @param column Der Spaltenname
 	 * @return Der Wert
 	 */
@@ -128,7 +128,7 @@ public class SQLQuery {
 	}
 	
 	/**
-	 * Gibt den Wert einer Spalte als <code>Object</code> zurueck
+	 * Gibt den Wert einer Spalte als <code>Object</code> zurueck.
 	 * @param column Der Spaltenname
 	 * @return Der Wert
 	 */
@@ -143,7 +143,7 @@ public class SQLQuery {
 	}
 	
 	/**
-	 * Gibt den Wert einer Spalte als <code>boolean</code> zurueck
+	 * Gibt den Wert einer Spalte als <code>boolean</code> zurueck.
 	 * @param column Der Spaltenname
 	 * @return Der Wert
 	 */
@@ -158,7 +158,7 @@ public class SQLQuery {
 	}
 	
 	/**
-	 * Gibt den Wert einer Spalte als <code>int</code> zurueck
+	 * Gibt den Wert einer Spalte als <code>int</code> zurueck.
 	 * @param column Der Spaltenname
 	 * @return Der Wert
 	 */
@@ -173,7 +173,7 @@ public class SQLQuery {
 	}
 	
 	/**
-	 * Gibt den Wert einer Spalte als <code>long</code> zurueck
+	 * Gibt den Wert einer Spalte als <code>long</code> zurueck.
 	 * @param column Der Spaltenname
 	 * @return Der Wert
 	 */
@@ -188,7 +188,7 @@ public class SQLQuery {
 	}
 	
 	/**
-	 * Gibt den Wert einer Spalte als <code>String</code> zurueck
+	 * Gibt den Wert einer Spalte als <code>String</code> zurueck.
 	 * @param column Der Spaltenname
 	 * @return Der Wert
 	 */
@@ -203,7 +203,7 @@ public class SQLQuery {
 	}
 	
 	/**
-	 * Gibt den Wert einer Spalte als <code>Double</code> zurueck
+	 * Gibt den Wert einer Spalte als <code>Double</code> zurueck.
 	 * @param column Der Spaltenname
 	 * @return Der Wert
 	 */
@@ -298,7 +298,7 @@ public class SQLQuery {
 	}
 	
 	/**
-	 * Aktuallisiert die Datenbank-Zeile mit den neuen, ueber die Set-Methoden gesetzen, Werten
+	 * Aktuallisiert die Datenbank-Zeile mit den neuen, ueber die Set-Methoden gesetzen, Werten.
 	 *
 	 */
 	public void update() {
@@ -312,7 +312,7 @@ public class SQLQuery {
 	}
 	
 	/**
-	 * Prueft, ob das Ergebnis-Set der Datenbank-Query leer ist
+	 * Prueft, ob das Ergebnis-Set der Datenbank-Query leer ist.
 	 * @return <code>true</code>, falls es leer ist
 	 */
 	public boolean isEmpty() {
@@ -325,7 +325,7 @@ public class SQLQuery {
 	}
 	
 	/**
-	 * Prueft, ob bereits die letzte Ergebnis-Zeile ereicht wurde
+	 * Prueft, ob bereits die letzte Ergebnis-Zeile ereicht wurde.
 	 * @return <code>true</code>, falls dies die letzte Zeile ist
 	 */
 	public boolean isEnd() {
@@ -334,7 +334,7 @@ public class SQLQuery {
 	
 	/**
 	 * Gibt die Datenbankresourcen der Query wieder frei.
-	 * Nach Aufruf dieser Methode koennen keine weiteren Operationen 
+	 * Nach Aufruf dieser Methode koennen keine weiteren Operationen
 	 * auf dem Ergebnis-Set mehr ausgefuehrt werden. 
 	 *
 	 */
@@ -347,7 +347,7 @@ public class SQLQuery {
 	 * Nach Aufruf dieser Methode koennen keine weiteren Operationen 
 	 * auf dem Ergebnis-Set mehr ausgefuehrt werden. 
 	 * Auf Wunsch wird die zu Grunde liegende Datenbank-Query selbst nicht
-	 * freigegeben (Sinnvoll bei PreparedStatements)
+	 * freigegeben (Sinnvoll bei PreparedStatements).
 	 * @param preserveStatement <code>true</code>, falls die unterliegende Query nicht freigegeben werden soll
 	 *
 	 */

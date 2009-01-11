@@ -37,7 +37,7 @@ import org.w3c.dom.NodeList;
 /**
  * <p>Repraesentiert die Liste aller bekannten Resourcen in DS. Resourcen
  * sind einfache Waren ohne Eigenschaften. Es handelt sich dabei nicht um Items!</p>
- * <p>Die Liste wird beim Start von DS aus der Datei <code>resources.xml</code> geladen</p>
+ * <p>Die Liste wird beim Start von DS aus der Datei <code>resources.xml</code> geladen.</p>
  * 
  * @author Christopher Jung
  *
@@ -46,7 +46,7 @@ public class ResourceConfig {
 	private static final Log log = LogFactory.getLog(ResourceConfig.class);
 	
 	/**
-	 * Die Konfigurationsdaten einer einzelnen Resource (Ware)
+	 * Die Konfigurationsdaten einer einzelnen Resource (Ware).
 	 */
 	public static class Entry {
 		private int id;
@@ -57,14 +57,14 @@ public class ResourceConfig {
 		
 		/**
 		 * Gibt zurueck, ob die Resource versteckt (d.h. fuer Spieler nicht sichtbar) ist.
-		 * @return <code>true</code>, falls sie nicht sichtbar ist
+		 * @return <code>true</code>, falls sie nicht sichtbar ist.
 		 */
 		public boolean isHidden() {
 			return hidden;
 		}
 
 		/**
-		 * Gibt die ID der Resource zurueck
+		 * Gibt die ID der Resource zurueck.
 		 * @return Die ID
 		 */
 		public int getId() {
@@ -72,7 +72,7 @@ public class ResourceConfig {
 		}
 
 		/**
-		 * Gibt den Pfad zum Bild der Resource zurueck
+		 * Gibt den Pfad zum Bild der Resource zurueck.
 		 * @return Der Pfad
 		 */
 		public String getImage() {
@@ -80,7 +80,7 @@ public class ResourceConfig {
 		}
 
 		/**
-		 * Gibt den Namen der Resource zurueck
+		 * Gibt den Namen der Resource zurueck.
 		 * @return Der Name
 		 */
 		public String getName() {
@@ -88,7 +88,7 @@ public class ResourceConfig {
 		}
 
 		/**
-		 * Gibt den Tag zurueck, der der Resource in XML-Dokumenten zugeordnet ist
+		 * Gibt den Tag zurueck, der der Resource in XML-Dokumenten zugeordnet ist.
 		 * @return Der Tag
 		 */
 		public String getTag() {
@@ -112,7 +112,7 @@ public class ResourceConfig {
 	}
 	
 	/**
-	 * Liefert den Namen einer Resource zurueck
+	 * Liefert den Namen einer Resource zurueck.
 	 * @param id Die ID der Resource
 	 * @return Der Name
 	 */
@@ -121,7 +121,7 @@ public class ResourceConfig {
 	}
 	
 	/**
-	 * Liefert den Pfad zum Bild einer Resource zurueck
+	 * Liefert den Pfad zum Bild einer Resource zurueck.
 	 * @param id Die ID der Resource
 	 * @return Der Pfad zum Bild
 	 */
@@ -140,7 +140,7 @@ public class ResourceConfig {
 	}
 	
 	/**
-	 * Gibt den XML-Tag einer Resource zurueck, sofern diese einen besitzt
+	 * Gibt den XML-Tag einer Resource zurueck, sofern diese einen besitzt.
 	 * @param id Die ID der Resource
 	 * @return Der Name des XML-Tags oder <code>null</code>
 	 */
@@ -149,7 +149,7 @@ public class ResourceConfig {
 	}
 	
 	/**
-	 * Gibt fuer einen Resource-Tag die Resource-ID zurueck
+	 * Gibt fuer einen Resource-Tag die Resource-ID zurueck.
 	 * @param tag der Tag
 	 * @return Die Resourcen-ID oder <code>null</code>
 	 */

@@ -25,7 +25,7 @@ import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import org.w3c.dom.Node;
 
 /**
- * <h1>Item-Effekt "Ammo-Bauplan"</h1>
+ * <h1>Item-Effekt "Ammo-Bauplan".</h1>
  * <p>Der Effekt kann ein allianzweiter Effekt sein. In diesem Fall besitzen alle 
  * Allianzmitglieder automatisch in allen Waffenfabriken diesen Bauplan.</p>
  *  
@@ -47,7 +47,7 @@ public class IEDraftAmmo extends ItemEffect {
 	}
 	
 	/**
-	 * Gibt die zugehoerigen Ammodaten zurueck
+	 * Gibt die zugehoerigen Ammodaten zurueck.
 	 * @return Die Ammodaten
 	 */
 	public Ammo getAmmo() {

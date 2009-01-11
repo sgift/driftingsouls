@@ -31,7 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Diverse Funktionen rund um Schiffstypen
+ * Diverse Funktionen rund um Schiffstypen.
  *  TODO: Ja, ich weiss, das ist nicht besonders schoen. Besser waeren richtige Schiffstypenobjekte...
  * @author Christopher Jung
  *
@@ -40,47 +40,47 @@ public class ShipTypes {
 	private static final Log log = LogFactory.getLog(ShipTypes.class);
 	
 	/**
-	 * Kennzeichnet das Schiff als Jaeger
+	 * Kennzeichnet das Schiff als Jaeger.
 	 */
 	public static final String SF_JAEGER = "jaeger";
 	
 	/**
-	 * Das angegebene Schiff verfuegt ueber eine Zerstoererpanzerung
+	 * Das angegebene Schiff verfuegt ueber eine Zerstoererpanzerung.
 	 */
 	public static final String SF_ZERSTOERERPANZERUNG = "zerstoererpanzerung";
 	
 	/**
-	 * Das angegebene Schiff kann Asteroiden kolonisieren
+	 * Das angegebene Schiff kann Asteroiden kolonisieren.
 	 */
 	public static final String SF_COLONIZER = "colonizer";
 	
 	/**
-	 * Das angegebene Schiff kann in Kaempfen fluechtende Schiffe abfangen
+	 * Das angegebene Schiff kann in Kaempfen fluechtende Schiffe abfangen.
 	 */
 	public static final String SF_ABFANGEN = "abfangen";
 	
 	/**
-	 * Das angegebene Schiff ist nicht kaperbar
+	 * Das angegebene Schiff ist nicht kaperbar.
 	 */
 	public static final String SF_NICHT_KAPERBAR = "nicht_kaperbar";
 	
 	/**
-	 * Das Schiff wird nach einem Transfervorgang beim naechsten Tick zerstoert
+	 * Das Schiff wird nach einem Transfervorgang beim naechsten Tick zerstoert.
 	 */
 	public static final String SF_INSTABIL = "instabil";
 	
 	/**
-	 * Das Schiff ist nur sichtbar, wenn man sich im selben Sektor befindet
+	 * Das Schiff ist nur sichtbar, wenn man sich im selben Sektor befindet.
 	 */
 	public static final String SF_SEHR_KLEIN = "sehr_klein";
 	
 	/**
-	 * Transfers von und zu dem Schiff sind nicht moeglich
+	 * Transfers von und zu dem Schiff sind nicht moeglich.
 	 */
 	public static final String SF_KEIN_TRANSFER = "kein_transfer";
 	
 	/**
-	 * Das Schiff verfuegt ueber erweiterte SRS-Sensoren (mehr Informationen)
+	 * Das Schiff verfuegt ueber erweiterte SRS-Sensoren (mehr Informationen).
 	 */
 	public static final String SF_SRS_AWAC = "srs_awac";
 	
@@ -91,48 +91,48 @@ public class ShipTypes {
 	public static final String SF_SRS_EXT_AWAC = "srs_ext_awac";
 	
 	/**
-	 * Das Schiff verfuegt ueber einen shivanischen Sprungantrieb
+	 * Das Schiff verfuegt ueber einen shivanischen Sprungantrieb.
 	 */
 	public static final String SF_JUMPDRIVE_SHIVAN = "jumpdrive_shivan";
 	
 	/**
-	 * Das Schiff kann direkt einer Schlacht beitreten ohne eine Runde "aussetzen" zu muessen
+	 * Das Schiff kann direkt einer Schlacht beitreten ohne eine Runde "aussetzen" zu muessen.
 	 */
 	public static final String SF_INSTANT_BATTLE_ENTER = "instant_battle_enter";
 	
 	/**
-	 * Das Schiff kann nicht gepluendert werden
+	 * Das Schiff kann nicht gepluendert werden.
 	 */
 	public static final String SF_NICHT_PLUENDERBAR = "nicht_pluenderbar";
 	
 	/**
-	 * Das Schiff kann nicht zerstoert werden
+	 * Das Schiff kann nicht zerstoert werden.
 	 */
 	public static final String SF_GOD_MODE = "god_mode";
 	
 	/**
-	 * Das Schiff kann Drohnen kontrollieren
+	 * Das Schiff kann Drohnen kontrollieren.
 	 */
 	public static final String SF_DROHNEN_CONTROLLER = "drohnen_controller";
 	
 	/**
 	 * Das Schiff ist eine Drohne und kann daher nur im selben Sektor wie ein Drohnenkontroller agieren ({@link #SF_DROHNEN_CONTROLLER}).
-	 * Wenn kein Drohnenkontroller vorhanden ist, ist es handlungsunfaehig
+	 * Wenn kein Drohnenkontroller vorhanden ist, ist es handlungsunfaehig.
 	 */
 	public static final String SF_DROHNE = "drohne";
 	
 	/**
-	 * Das Schiff kann in einer Schlacht in die zweite Reihe fliegen
+	 * Das Schiff kann in einer Schlacht in die zweite Reihe fliegen.
 	 */
 	public static final String SF_SECONDROW = "secondrow";
 	
 	/**
-	 * Das Schiff kann Offiziere in Hoehe der eigenen max. Crew aufnehmen
+	 * Das Schiff kann Offiziere in Hoehe der eigenen max. Crew aufnehmen.
 	 */
 	public static final String SF_OFFITRANSPORT = "offitransport";
 	
 	/**
-	 * Das Schiff kann sich mit anderen Werften zu Werftkomplexen zusammenschliessen
+	 * Das Schiff kann sich mit anderen Werften zu Werftkomplexen zusammenschliessen.
 	 */
 	public static final String SF_WERFTKOMPLEX = "werftkomplex";
 	
@@ -195,7 +195,7 @@ public class ShipTypes {
 	}
 	
 	/**
-	 * Gibt die Beschreibung zu einem Schiffsflag zurueck
+	 * Gibt die Beschreibung zu einem Schiffsflag zurueck.
 	 * @param flag Das Schiffsflag
 	 * @return die Beschreibung
 	 */
@@ -207,7 +207,7 @@ public class ShipTypes {
 	}
 	
 	/**
-	 * Testet, ob ein Schiffstyp ein bestimmtes Schiffstypen-Flag (SF_*) hat
+	 * Testet, ob ein Schiffstyp ein bestimmtes Schiffstypen-Flag (SF_*) hat.
 	 * @param shiptype Schiffstypenarray
 	 * @param flag Das Schiffstypen-Flag (SF_*)
 	 * 
@@ -222,7 +222,7 @@ public class ShipTypes {
 	
 	/**
 	 * Gibt die zu einer Schiffsklassen-ID gehoerende Schiffsklasse
-	 * zurueck
+	 * zurueck.
 	 * @param classid Die Schiffsklassen-ID
 	 * @return Die Schiffsklasse
 	 */
@@ -247,7 +247,7 @@ public class ShipTypes {
 	}
 
 	/**
-	 * Gibt die Typen-Daten des angegebenen Schiffs zurueck 
+	 * Gibt die Typen-Daten des angegebenen Schiffs zurueck.
 	 * @param shipdata Eine SQL-Ergebniszeile mit den daten des Schiffes
 	 * @return die Typen-Daten
 	 */
@@ -256,7 +256,7 @@ public class ShipTypes {
 	}
 
 	/**
-	 * Gibt die Typen-Daten des angegebenen Schiffs zurueck 
+	 * Gibt die Typen-Daten des angegebenen Schiffs zurueck.
 	 * @param shipdata Eine SQL-Ergebniszeile mit den daten des Schiffes
 	 * @param plaindata Sollen die Bildpfade angepasst werden (<code>false</code>) oder so zurueckgegeben werden,
 	 * wie sie in der DB stehen (<code>true</code>)?
@@ -290,7 +290,7 @@ public class ShipTypes {
 	}
 
 	/**
-	 * Gibt die Typen-Daten des angegebenen Schiffs bzw Schifftyps zurueck 
+	 * Gibt die Typen-Daten des angegebenen Schiffs bzw Schifftyps zurueck.
 	 * @param shiptype Die ID des Schiffs bzw des Schifftyps
 	 * @param isShip Handelt es sich um ein Schiff (<code>true</code>)?
 	 * @param plaindata Sollen die Bildpfade angepasst werden (<code>false</code>) oder so zurueckgegeben werden,

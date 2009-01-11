@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Repraesentiert einen gedockten Frachtcontainer in DS
+ * Repraesentiert einen gedockten Frachtcontainer in DS.
  * @author Christopher Jung
  *
  */

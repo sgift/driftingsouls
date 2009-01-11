@@ -32,7 +32,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 /**
  * TASK_SHIP_RESPAWN_COUNTDOWN
- * 		Ein Countdown bis zum Respawn des Schiffes
+ * 		Ein Countdown bis zum Respawn des Schiffes.
  * 
  * 	- data1 -> die ID des betroffenen Schiffes (neg. id!)
  *  - data2 -> unbenutzt

@@ -80,7 +80,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.DiscriminatorFormula;
 
 /**
- * Basisklasse fuer alle Werfttypen in DS
+ * Basisklasse fuer alle Werfttypen in DS.
  * @author Christopher Jung
  *
  */
@@ -102,7 +102,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	private int version;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public WerftObject() {
@@ -110,7 +110,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 	
 	/**
-	 * Erstellt eine neue Werft
+	 * Erstellt eine neue Werft.
 	 * @param type Der Typ der Werft
 	 */
 	public WerftObject(int type) {
@@ -118,7 +118,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 	
 	/**
-	 * Gibt die aktuell zum Bau vorgesehenen Bauschlangeneintraege zurueck
+	 * Gibt die aktuell zum Bau vorgesehenen Bauschlangeneintraege zurueck.
 	 * @return Die Liste der zum Bauvorgesehenen Bauschlangeneintraege
 	 */
 	public WerftQueueEntry[] getScheduledQueueEntries() {
@@ -136,7 +136,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 	
 	/**
-	 * Gibt zurueck, ob in der Werft im Moment gebaut wird
+	 * Gibt zurueck, ob in der Werft im Moment gebaut wird.
 	 * @return <code>true</code>, falls gebaut wird
 	 */
 	public final boolean isBuilding() {
@@ -148,7 +148,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 	
 	/**
-	 * Gibt zurueck, ob sich in der Bauschlange ein Flagschiff befindet
+	 * Gibt zurueck, ob sich in der Bauschlange ein Flagschiff befindet.
 	 * @return <code>true</code>, falls ein Flagschiff gebaut werden soll
 	 */
 	public boolean isBuildFlagschiff() {
@@ -156,7 +156,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 	
 	/**
-	 * Gibt die Anzahl der aktuell belegten Slots zurueck
+	 * Gibt die Anzahl der aktuell belegten Slots zurueck.
 	 * @return Die Anzahl der belegten Slots
 	 */
 	public final int getUsedSlots() {
@@ -168,7 +168,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 	
 	/**
-	 * Gibt den Zeitpunkt zurueck, an dem ein Bauauftrag voraussichtlich fertig sein wird
+	 * Gibt den Zeitpunkt zurueck, an dem ein Bauauftrag voraussichtlich fertig sein wird.
 	 * @param searched Der Bauauftrag
 	 * @return Die Zeit in Ticks bis zur Fertigstellung
 	 */
@@ -222,7 +222,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 	
 	/**
-	 * Gibt den Typ der Werft zurueck
+	 * Gibt den Typ der Werft zurueck.
 	 * @return Typ der Werft
 	 */
 	public int getType() {
@@ -240,7 +240,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 
 	/**
-	 * Berechnet, welche Eintraege der Bauschlange im Moment gebaut werden und welche nicht
+	 * Berechnet, welche Eintraege der Bauschlange im Moment gebaut werden und welche nicht.
 	 *
 	 */
 	protected void rescheduleQueue() {
@@ -282,7 +282,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 	
 	/**
-	 * Entfernt alle Eintraege aus der Bauschlange
+	 * Entfernt alle Eintraege aus der Bauschlange.
 	 *
 	 */
 	public void clearQueue() {
@@ -296,7 +296,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 
 	/**
-	 * Gibt das Einweg-Flag der Werft zurueck
+	 * Gibt das Einweg-Flag der Werft zurueck.
 	 * @return Das Einweg-Flag
 	 */
 	public int getOneWayFlag() {
@@ -304,7 +304,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 
 	/**
-	 * Gibt die ID des Werfteintrags zurueck
+	 * Gibt die ID des Werfteintrags zurueck.
 	 * @return Die ID des Werfteintrags
 	 */
 	public int getWerftID() {
@@ -312,131 +312,131 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 	
 	/**
-	 * Gibt den Namen der Werft zurueck
+	 * Gibt den Namen der Werft zurueck.
 	 * @return Der Name
 	 */
 	public abstract String getWerftName();
 	
 	/**
-	 * Gibt das Bild der Werft zurueck
+	 * Gibt das Bild der Werft zurueck.
 	 * @return Das Bild
 	 */
 	public abstract String getWerftPicture();
 
 	/**
-	 * Gibt die Anzahl an Werftslots zurueck, die der Werft zur Verfuegung stehen
+	 * Gibt die Anzahl an Werftslots zurueck, die der Werft zur Verfuegung stehen.
 	 * @return Die Werftslots
 	 */
 	public abstract int getWerftSlots();
 
 	/**
-	 * Gibt den Besitzer der Werft zurueck
+	 * Gibt den Besitzer der Werft zurueck.
 	 * @return Der Besitzer
 	 */
 	public abstract User getOwner();
 	
 	/**
-	 * Gibt den Cargo der Werft zurueck
+	 * Gibt den Cargo der Werft zurueck.
 	 * @param localonly Soll nur der eigene (<code>true</code>) oder auch der Cargo von gekoppelten Objekten (<code>false</code>) genommen werden?
 	 * @return Der Cargo der Werft
 	 */
 	public abstract Cargo getCargo(boolean localonly);
 
 	/**
-	 * Schreibt den Cargo der Werft wieder in die DB
+	 * Schreibt den Cargo der Werft wieder in die DB.
 	 * @param cargo Der neue Cargo der Werft
 	 * @param localonly Handelt es sich nur um den Cargo der Werft (<code>true</code>) oder auch um den Cargo von gekoppelten Objekten (<code>false</code>)?
 	 */
 	public abstract void setCargo(Cargo cargo, boolean localonly);
 
 	/**
-	 * Gibt die maximale Cargogroesse zurueck, den die Werft besitzen kann
+	 * Gibt die maximale Cargogroesse zurueck, den die Werft besitzen kann.
 	 * @param localonly Soll nur der eigene (<code>true</code>) oder auch der Lagerplatz von gekoppelten Objekten (<code>false</code>) genommen werden?
 	 * @return Die maximale Cargogroesse
 	 */
 	public abstract long getMaxCargo(boolean localonly);
 
 	/**
-	 * Gibt die vorhandene Crew zurueck
+	 * Gibt die vorhandene Crew zurueck.
 	 * @return Die vorhandene Crew
 	 */
 	public abstract int getCrew();
 
 	/**
-	 * Gibt die maximale Crew der Werft zurueck
+	 * Gibt die maximale Crew der Werft zurueck.
 	 * @return Die maximale Crew
 	 */
 	public abstract int getMaxCrew();
 
 	/**
-	 * Setzt die Crew der Werft auf den angegebenen Wert
+	 * Setzt die Crew der Werft auf den angegebenen Wert.
 	 * @param crew Die neue Crew der Werft
 	 */
 	public abstract void setCrew(int crew);
 
 	/**
-	 * Gibt die vorhanene Energie der Werft zurueck
+	 * Gibt die vorhanene Energie der Werft zurueck.
 	 * @return Die Energie auf der Werft
 	 */
 	public abstract int getEnergy();
 
 	/**
-	 * Setzt die vorhanene Energie auf der Werft auf den neuen Wert<br>
+	 * Setzt die vorhanene Energie auf der Werft auf den neuen Wert.<br>
 	 * Annahme: Es kann nur weniger Energie werden - niemals mehr
 	 * @param e Die neue Energie der Werft
 	 */
 	public abstract void setEnergy(int e);
 
 	/**
-	 * Gibt zurueck, wieviele Offiziere auf die Werft transferiert werden koennen
+	 * Gibt zurueck, wieviele Offiziere auf die Werft transferiert werden koennen.
 	 * @return Die max. Anzahl an transferierbaren Offizieren
 	 */
 	public abstract int canTransferOffis();
 
 	/**
-	 * Transferiert den Offizier mit der angegebenen ID auf die Werft
+	 * Transferiert den Offizier mit der angegebenen ID auf die Werft.
 	 * @param offi Die ID des zu transferierenden Offiziers
 	 */
 	public abstract void transferOffi(int offi);
 
 	/**
-	 * Gibt die URL-Basis der Werft zurueck
+	 * Gibt die URL-Basis der Werft zurueck.
 	 * @return Die URL-Basis
 	 */
 	public abstract String getUrlBase();
 	
 	/**
-	 * Gibt einige versteckte Formfelder zurueck fuer Werftaufrufe via Forms
+	 * Gibt einige versteckte Formfelder zurueck fuer Werftaufrufe via Forms.
 	 * @return Einige versteckte Formfelder
 	 */
 	public abstract String getFormHidden();
 
 	/**
-	 * Gibt die X-Koordinate der Werft zurueck
+	 * Gibt die X-Koordinate der Werft zurueck.
 	 * @return Die X-Koordinate
 	 */
 	public abstract int getX();
 
 	/**
-	 * Gibt die Y-Koordinate der Werft zurueck
+	 * Gibt die Y-Koordinate der Werft zurueck.
 	 * @return Die Y-Koordinate
 	 */
 	public abstract int getY();
 	
 	/**
-	 * Gibt das System zurueck, in dem die Werft steht
+	 * Gibt das System zurueck, in dem die Werft steht.
 	 * @return Die ID des Systems
 	 */
 	public abstract int getSystem();
 	
 	/**
-	 * Gibt den Namen der Werft zurueck
+	 * Gibt den Namen der Werft zurueck.
 	 * @return Der Name
 	 */
 	public abstract String getName();
 	
 	/**
-	 * Gibt die URL zum Objekt zurueck, auf dem sich die Werft befindet
+	 * Gibt die URL zum Objekt zurueck, auf dem sich die Werft befindet.
 	 * @return Die Url
 	 */
 	public abstract String getObjectUrl();
@@ -450,7 +450,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	public abstract double getWorkerPercentageAvailable();
 	
 	/**
-	 * Gibt den Radius der Werft zurueck
+	 * Gibt den Radius der Werft zurueck.
 	 * @return Der Radius
 	 */
 	public int getSize() {
@@ -893,16 +893,16 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 	
 	/**
-	 * Die Reparaturkosten eines Schiffes
+	 * Die Reparaturkosten eines Schiffes.
 	 *
 	 */
 	public static class RepairCosts {
 		/**
-		 * Die Energiekosten
+		 * Die Energiekosten.
 		 */
 		public int e;
 		/**
-		 * Die Resourcenkosten
+		 * Die Resourcenkosten.
 		 */
 		public Cargo cost;
 		
@@ -912,7 +912,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 	
 	/**
-	 * Berechnet die Reparaturkosten fuer ein Schiff
+	 * Berechnet die Reparaturkosten fuer ein Schiff.
 	 * @param ship Das Schiff
 	 * 
 	 * @return Die Reparaturkosten
@@ -1643,7 +1643,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	private WerftQueueEntry[] entries = null;
 	
 	/**
-	 * Gibt die Bauschlange der Werft zurueck (inkl gerade im Bau befindlicher Schiffe)
+	 * Gibt die Bauschlange der Werft zurueck (inkl gerade im Bau befindlicher Schiffe).
 	 * @return Die Bauschlange
 	 */
 	public WerftQueueEntry[] getBuildQueue() {
@@ -1670,7 +1670,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	
 	
 	/**
-	 * Bricht das Bauvorhaben ab
+	 * Bricht das Bauvorhaben ab.
 	 * @param entry Das Bauvorhaben
 	 */
 	public void cancelBuild(WerftQueueEntry entry) {
@@ -1741,7 +1741,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 	
 	/**
-	 * Gibt den Bauschlangeneintrag mit der angegebenen Position zurueck
+	 * Gibt den Bauschlangeneintrag mit der angegebenen Position zurueck.
 	 * @param position Die Position
 	 * @return Der Bauschlangeneintrag
 	 */
@@ -1754,12 +1754,13 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			.uniqueResult();
 	}
 	
+	@Override
 	public Location getLocation() {
 		return new Location(getSystem(), getX(), getY());
 	}
 
 	/**
-	 * Setzt, ob sich in der Bauschlange ein Flagschiff befindet
+	 * Setzt, ob sich in der Bauschlange ein Flagschiff befindet.
 	 * @param buildFlagschiff <code>true</code>, falls in der Bauschlange ein Flagschiff ist
 	 */
 	public void setBuildFlagschiff(boolean buildFlagschiff) {
@@ -1767,7 +1768,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 
 	/**
-	 * Gibt die Werft zurueck, an die diese Werft gekoppelt ist
+	 * Gibt die Werft zurueck, an die diese Werft gekoppelt ist.
 	 * @return Die Werft
 	 */
 	public WerftKomplex getKomplex() {
@@ -1825,7 +1826,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @param linkedWerft Der Werftkomplex
 	 * @throws IllegalStateException Falls sich die Werft bereits in einem Komplex befindet
 	 */
-	public void addToKomplex(WerftKomplex linkedWerft) {
+	public void addToKomplex(WerftKomplex linkedWerft) throws IllegalStateException {
 		if( !this.isLinkableWerft() ) {
 			throw new RuntimeException("Diese Werft kann sich mit keiner anderen Werft zusammenschliessen");
 		}
@@ -1851,7 +1852,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 	
 	/**
-	 * Erstellt einen neuen Werftkomplex zwischen dieser Werft und der angegebenen Werft
+	 * Erstellt einen neuen Werftkomplex zwischen dieser Werft und der angegebenen Werft.
 	 * @param werft Die Werft mit der ein Komplex gebildet werden soll
 	 */
 	public void createKomplexWithWerft(WerftObject werft) {
@@ -1899,13 +1900,13 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 	
 	/**
-	 * Gibt zurueck, ob sich diese Werft mit einer anderen Werft zusammenschliessen kann
+	 * Gibt zurueck, ob sich diese Werft mit einer anderen Werft zusammenschliessen kann.
 	 * @return <code>true</code>, falls ein Zusammenschluss moeglich ist
 	 */
 	public abstract boolean isLinkableWerft(); 
 	
 	/**
-	 * Loescht die Werft und alle mit ihr verbundenen Auftraege
+	 * Loescht die Werft und alle mit ihr verbundenen Auftraege.
 	 *
 	 */
 	public void destroy() {
@@ -1918,7 +1919,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

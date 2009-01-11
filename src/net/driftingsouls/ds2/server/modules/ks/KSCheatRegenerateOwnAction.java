@@ -33,7 +33,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
- * Cheat eigenes Schiff regenerieren
+ * Cheat eigenes Schiff regenerieren.
  * @author Christopher Jung
  *
  */
@@ -43,7 +43,7 @@ public class KSCheatRegenerateOwnAction extends BasicKSAction {
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired

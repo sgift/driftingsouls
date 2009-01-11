@@ -29,9 +29,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.Response;
 
 
 /**
- * Basisklasse fuer alle Controller
+ * Basisklasse fuer alle Controller.
  * 
- * @author bktheg
+ * @author Christopher Jung
  *
  */
 public abstract class Generator {
@@ -39,7 +39,7 @@ public abstract class Generator {
 	private String browser;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der Kontext
 	 */
 	public Generator(Context context) {
@@ -66,7 +66,7 @@ public abstract class Generator {
 	}
 	
 	/**
-	 * Liefert eine Instanz der Datenbank-Klasse zurueck
+	 * Liefert eine Instanz der Datenbank-Klasse zurueck.
 	 * 
 	 * @return Eine Database-Instanz
 	 * @deprecated use getDB() (Hibernate)
@@ -77,7 +77,7 @@ public abstract class Generator {
 	}
 	
 	/**
-	 * Fuegt einen Fehler zur Fehlerliste hinzu
+	 * Fuegt einen Fehler zur Fehlerliste hinzu.
 	 * 
 	 * @param error Die Beschreibung des Fehlers
 	 */
@@ -96,7 +96,7 @@ public abstract class Generator {
 	}
 	
 	/**
-	 * Liefert den letzten Fehler zurueck
+	 * Liefert den letzten Fehler zurueck.
 	 * 
 	 * @return Der letzte Fehlers
 	 * 
@@ -108,7 +108,7 @@ public abstract class Generator {
 	}
 	
 	/**
-	 * Liefert eine Liste aller Fehler zurueck
+	 * Liefert eine Liste aller Fehler zurueck.
 	 * 
 	 * @return Eine Liste aller Fehlerbeschreibungen 
 	 */
@@ -117,7 +117,7 @@ public abstract class Generator {
 	}
 	
 	/**
-	 * Liefert die Request fuer diesen Aufruf
+	 * Liefert die Request fuer diesen Aufruf.
 	 * @return Die Request des Aufrufs
 	 */
 	public final Response getResponse() {
@@ -125,7 +125,7 @@ public abstract class Generator {
 	}
 
 	/**
-	 * Liefert die zum Aufruf gehoerende Response
+	 * Liefert die zum Aufruf gehoerende Response.
 	 * @return Die Response des Aufrufs
 	 */
 	public final Request getRequest() {
@@ -133,7 +133,7 @@ public abstract class Generator {
 	}
 	
 	/**
-	 * Gibt den aktuellen Kontext zurueck
+	 * Gibt den aktuellen Kontext zurueck.
 	 * @return Der Kontext
 	 */
 	public final Context getContext() {
@@ -141,7 +141,7 @@ public abstract class Generator {
 	}
 	
 	/**
-	 * Gibt die aktuelle Hibernate-Session zurueck
+	 * Gibt die aktuelle Hibernate-Session zurueck.
 	 * @return Die aktuelle Hibernate-Session
 	 */
 	public final org.hibernate.Session getDB() {
@@ -150,7 +150,7 @@ public abstract class Generator {
 
 	/**
 	 * Gibt den aktiven User zurueck. Falls kein User eingeloggt ist
-	 * wird <code>null</code> zurueckgegeben
+	 * wird <code>null</code> zurueckgegeben.
 	 * @return Der User oder <code>null</code>
 	 */
 	public BasicUser getUser() {
@@ -158,14 +158,14 @@ public abstract class Generator {
 	}
 
 	/**
-	 * Fueht die angegebene Aktion aus
+	 * Fueht die angegebene Aktion aus.
 	 * @param action Der Name der Aktion
 	 * @throws IOException 
 	 */
 	public abstract void handleAction( String action ) throws IOException;
 	
 	/**
-	 * Gibt den Identifikationsstring des Browsers des Spielers zurueck
+	 * Gibt den Identifikationsstring des Browsers des Spielers zurueck.
 	 * @return Der Identifikationsstring des Browsers
 	 */
 	public final String getBrowser() {

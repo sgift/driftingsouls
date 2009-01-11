@@ -56,7 +56,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Schiffsmodul fuer die SRS-Sensoren
+ * Schiffsmodul fuer die SRS-Sensoren.
  * @author Christopher Jung
  *
  */
@@ -70,7 +70,7 @@ public class SensorsDefault implements SchiffPlugin {
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -79,6 +79,7 @@ public class SensorsDefault implements SchiffPlugin {
     	this.config = config;
     }
 	
+    @Override
 	public String action(Parameters caller) {
 		SchiffController controller = caller.controller;
 		controller.parameterNumber("showonly");
@@ -99,6 +100,7 @@ public class SensorsDefault implements SchiffPlugin {
 		return "";
 	}
 
+    @Override
 	public void output(Parameters caller) {
 		String pluginid = caller.pluginId;
 		Ship ship = caller.ship;

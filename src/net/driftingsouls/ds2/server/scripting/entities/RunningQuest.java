@@ -34,7 +34,7 @@ import org.hibernate.Hibernate;
 import net.driftingsouls.ds2.server.entities.User;
 
 /**
- * <h1>Repraesentiert ein laufendes Quest</h1>
+ * <h1>Repraesentiert ein laufendes Quest.</h1>
  * <p>Ein laufendes Quest in in gewisser Weise eine Instanz eines
  * Quests. Jedes laufende Quest ist an einen Spieler gebunden. Es beinhaltet
  * alle notwendigen Daten, damit der Spieler das Quest durchfuehren kann wie z.B.
@@ -64,7 +64,7 @@ public class RunningQuest {
 	private Integer onTick;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public RunningQuest() {
@@ -72,7 +72,7 @@ public class RunningQuest {
 	}
 	
 	/**
-	 * Erstellt ein neues laufendes Quest
+	 * Erstellt ein neues laufendes Quest.
 	 * @param quest Das Quest
 	 * @param user Der Spieler, der das Quest ausfuehrt
 	 */
@@ -145,7 +145,7 @@ public class RunningQuest {
 	}
 
 	/**
-	 * Gibt das Quest zurueck, zu dem das laufende Quest gehoert
+	 * Gibt das Quest zurueck, zu dem das laufende Quest gehoert.
 	 * @return Das Quest
 	 */
 	public Quest getQuest() {
@@ -153,7 +153,7 @@ public class RunningQuest {
 	}
 
 	/**
-	 * Setzt das Quest, zu dem das laufende Quest gehoert
+	 * Setzt das Quest, zu dem das laufende Quest gehoert.
 	 * @param quest Das Quest
 	 */
 	public void setQuest(Quest quest) {
@@ -162,7 +162,7 @@ public class RunningQuest {
 
 	/**
 	 * Gibt den Statustext zurueck, der dem User zum Quest
-	 * angezeigt werden soll
+	 * angezeigt werden soll.
 	 * @return Der Statustext
 	 */
 	public String getStatusText() {
@@ -170,7 +170,7 @@ public class RunningQuest {
 	}
 
 	/**
-	 * Setzt den Statustext, der dem User zum Quest angezeigt werden soll
+	 * Setzt den Statustext, der dem User zum Quest angezeigt werden soll.
 	 * @param statusText Der Statustext
 	 */
 	public void setStatusText(String statusText) {
@@ -180,7 +180,7 @@ public class RunningQuest {
 	/**
 	 * Gibt das Uninstall-Script zurueck, was nach Beendigung
 	 * des Quests ablaufen soll. Falls noch keines vorhanden ist,
-	 * wird <code>null</code> zurueckgegeben
+	 * wird <code>null</code> zurueckgegeben.
 	 * @return Das Uninstallscript oder <code>null</code>.
 	 */
 	public String getUninstall() {
@@ -198,15 +198,15 @@ public class RunningQuest {
 	}
 
 	/**
-	 * Gibt den Spieler zurueck, der das Quest durchfuehrt
-	 * @return the user Der Spieler
+	 * Gibt den Spieler zurueck, der das Quest durchfuehrt.
+	 * @return Der Spieler
 	 */
 	public User getUser() {
 		return user;
 	}
 
 	/**
-	 * Setzt den Spieler, der das Quest durchfuehrt
+	 * Setzt den Spieler, der das Quest durchfuehrt.
 	 * @param user Der Spieler
 	 */
 	public void setUser(User user) {
@@ -214,7 +214,7 @@ public class RunningQuest {
 	}
 
 	/**
-	 * Gibt die ID des laufenden Quests zurueck
+	 * Gibt die ID des laufenden Quests zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {

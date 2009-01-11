@@ -48,7 +48,7 @@ import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 import org.hibernate.StaleObjectStateException;
 
 /**
- * <h1>Berechnung des Ticks fuer Basen</h1>
+ * <h1>Berechnung des Ticks fuer Basen.</h1>
  * @author Christopher Jung
  *
  */

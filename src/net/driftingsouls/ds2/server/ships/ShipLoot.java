@@ -31,7 +31,7 @@ import javax.persistence.Version;
 import net.driftingsouls.ds2.server.entities.User;
 
 /**
- * Ein Looteintrag
+ * Ein Looteintrag.
  * @author Christopher Jung
  *
  */
@@ -58,7 +58,7 @@ public class ShipLoot {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public ShipLoot() {
@@ -66,7 +66,7 @@ public class ShipLoot {
 	}
 
 	/**
-	 * Gibt die Chance des Eintrags zurueck
+	 * Gibt die Chance des Eintrags zurueck.
 	 * @return Die Chance
 	 */
 	public int getChance() {
@@ -74,7 +74,7 @@ public class ShipLoot {
 	}
 
 	/**
-	 * Setzt die Chance des Eintrags
+	 * Setzt die Chance des Eintrags.
 	 * @param chance Die Chance
 	 */
 	public void setChance(int chance) {
@@ -82,7 +82,7 @@ public class ShipLoot {
 	}
 
 	/**
-	 * Gibt die Resourcenmenge zurueck
+	 * Gibt die Resourcenmenge zurueck.
 	 * @return Die Menge
 	 */
 	public int getCount() {
@@ -90,7 +90,7 @@ public class ShipLoot {
 	}
 
 	/**
-	 * Setzt die Resourcenmenge
+	 * Setzt die Resourcenmenge.
 	 * @param count Die Menge
 	 */
 	public void setCount(int count) {
@@ -98,7 +98,7 @@ public class ShipLoot {
 	}
 
 	/**
-	 * Gibt den Spieler zurueck, dessen Schiffe fuer Loot zerstoert werden muessen
+	 * Gibt den Spieler zurueck, dessen Schiffe fuer Loot zerstoert werden muessen.
 	 * @return Der Besitzer
 	 */
 	public User getOwner() {
@@ -106,7 +106,7 @@ public class ShipLoot {
 	}
 
 	/**
-	 * Setzt den Besitzer, dessen Schiffe fuer Loot zerstoert werden muessen
+	 * Setzt den Besitzer, dessen Schiffe fuer Loot zerstoert werden muessen.
 	 * @param owner Der Besitzer
 	 */
 	public void setOwner(User owner) {
@@ -114,7 +114,7 @@ public class ShipLoot {
 	}
 
 	/**
-	 * Gibt die Resource zurueck
+	 * Gibt die Resource zurueck.
 	 * @return Die Resource
 	 */
 	public String getResource() {
@@ -122,7 +122,7 @@ public class ShipLoot {
 	}
 
 	/**
-	 * Setzt die Resource
+	 * Setzt die Resource.
 	 * @param resource Die Resource
 	 */
 	public void setResource(String resource) {
@@ -131,7 +131,7 @@ public class ShipLoot {
 
 	/**
 	 * Gibt den Schiffstyp zurueck, der fuer Loot zerstoert werden muss oder, falls
-	 * der Wert negativ ist, die ID des Schiffs
+	 * der Wert negativ ist, die ID des Schiffs.
 	 * @return Der Schiffstyp oder das Schiff
 	 */
 	public int getShipType() {
@@ -140,7 +140,7 @@ public class ShipLoot {
 
 	/**
 	 * Setzt den Schiffstyp, der fuer Loot zerstoert werden muss oder, falls
-	 * der Wert negativ ist, die ID des Schiffs
+	 * der Wert negativ ist, die ID des Schiffs.
 	 * @param shipType Der Schiffstyp oder das Schiff
 	 */
 	public void setShipType(int shipType) {
@@ -148,7 +148,7 @@ public class ShipLoot {
 	}
 
 	/**
-	 * Gibt den Spieler zurueck, fuer den dieser Eintrag gilt (ID 0 fuer alle Spieler)
+	 * Gibt den Spieler zurueck, fuer den dieser Eintrag gilt (ID 0 fuer alle Spieler).
 	 * @return Der Spieler fuer den diesen Eintrag gilt
 	 */
 	public User getTargetUser() {
@@ -156,7 +156,7 @@ public class ShipLoot {
 	}
 
 	/**
-	 * Setzt den Spieler, fuer den dieser Eintrag gilt (ID 0 fuer alle)
+	 * Setzt den Spieler, fuer den dieser Eintrag gilt (ID 0 fuer alle).
 	 * @param targetUser Der Spieler
 	 */
 	public void setTargetUser(User targetUser) {
@@ -164,7 +164,7 @@ public class ShipLoot {
 	}
 
 	/**
-	 * Gibt die maximale Anzahl an Loot zurueck, die von diesen Eintrag generiert werden kann
+	 * Gibt die maximale Anzahl an Loot zurueck, die von diesen Eintrag generiert werden kann.
 	 * @return Die maximale Anzahl an Loot
 	 */
 	public int getTotalMax() {
@@ -172,7 +172,7 @@ public class ShipLoot {
 	}
 
 	/**
-	 * Setzt die maximale Anzahl an Loot die von diesem Eintrag generiert werden kann
+	 * Setzt die maximale Anzahl an Loot die von diesem Eintrag generiert werden kann.
 	 * @param totalMax Die maximale Anzahl an Loot
 	 */
 	public void setTotalMax(int totalMax) {
@@ -180,7 +180,7 @@ public class ShipLoot {
 	}
 
 	/**
-	 * Gibt die ID des Eintrags zurueck
+	 * Gibt die ID des Eintrags zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -188,7 +188,7 @@ public class ShipLoot {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

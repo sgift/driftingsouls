@@ -12,17 +12,17 @@ import net.driftingsouls.ds2.server.entities.User;
  */
 public interface Transfering extends Locatable {
 	/**
-	 * Gibt den Cargo des Objekts zurueck
+	 * Gibt den Cargo des Objekts zurueck.
 	 * @return Der Cargo
 	 */
 	public Cargo getCargo();
 	/**
-	 * Setzt den Cargo des Objekts
+	 * Setzt den Cargo des Objekts.
 	 * @param cargo Der Cargo
 	 */
 	public void setCargo(Cargo cargo);
 	/**
-	 * Gibt den maximalen Cargo, den das Objekt aufnehmen kann, zurueck
+	 * Gibt den maximalen Cargo, den das Objekt aufnehmen kann, zurueck.
 	 * @return Der maximale Cargo
 	 */
 	public long getMaxCargo();
@@ -36,7 +36,7 @@ public interface Transfering extends Locatable {
 	 */
 	public String transfer(Transfering to, ResourceID resource, long count);
 	/**
-	 * Gibt den Besitzer des Objekts zurueck
+	 * Gibt den Besitzer des Objekts zurueck.
 	 * @return Der Besitzer
 	 */
 	public User getOwner();

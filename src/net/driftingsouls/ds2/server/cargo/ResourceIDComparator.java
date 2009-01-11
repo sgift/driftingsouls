@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.util.Comparator;
 
 /**
- * Vergleichsklasse fuer Resourcen-IDs
+ * Vergleichsklasse fuer Resourcen-IDs.
  * @author Christopher Jung 
  *
  */

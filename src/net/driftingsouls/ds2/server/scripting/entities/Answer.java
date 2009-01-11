@@ -24,7 +24,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Repraesentiert eine Dialogantwort
+ * Repraesentiert eine Dialogantwort.
  * @author Christopher Jung
  *
  */
@@ -36,7 +36,7 @@ public class Answer {
 	private String text;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public Answer() {
@@ -44,7 +44,7 @@ public class Answer {
 	}
 	
 	/**
-	 * Erstellt eine neue Antwort
+	 * Erstellt eine neue Antwort.
 	 * @param text Der Antworttext
 	 */
 	public Answer(String text) {
@@ -52,7 +52,7 @@ public class Answer {
 	}
 
 	/**
-	 * Gibt den Antworttext zurueck
+	 * Gibt den Antworttext zurueck.
 	 * @return Der Antworttext
 	 */
 	public String getText() {
@@ -60,7 +60,7 @@ public class Answer {
 	}
 
 	/**
-	 * Setzt den Antworttext
+	 * Setzt den Antworttext.
 	 * @param text Der Antworttext
 	 */
 	public void setText(String text) {
@@ -68,7 +68,7 @@ public class Answer {
 	}
 
 	/**
-	 * Gibt die ID zurueck
+	 * Gibt die ID zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {

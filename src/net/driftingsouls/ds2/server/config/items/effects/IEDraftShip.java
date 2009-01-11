@@ -28,7 +28,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Item-Effekt "Schiffsbauplan"
+ * Item-Effekt "Schiffsbauplan".
  * @author Christopher Jung
  *
  */
@@ -49,7 +49,7 @@ public class IEDraftShip extends ItemEffect {
 	}
 	
 	/**
-	 * Gibt den Typ des baubaren Schiffs zurueck
+	 * Gibt den Typ des baubaren Schiffs zurueck.
 	 * @return Der Typ
 	 */
 	public int getShipType() {
@@ -57,7 +57,7 @@ public class IEDraftShip extends ItemEffect {
 	}
 	
 	/**
-	 * Gibt die Rasse zurueck, fuer die das Schiff baubar ist
+	 * Gibt die Rasse zurueck, fuer die das Schiff baubar ist.
 	 * @return Die Rasse
 	 */
 	public int getRace() {
@@ -65,7 +65,7 @@ public class IEDraftShip extends ItemEffect {
 	}
 	
 	/**
-	 * Gibt zurueck, ob das Schiff nur in militaerischen Systemen gebaut werden kann
+	 * Gibt zurueck, ob das Schiff nur in militaerischen Systemen gebaut werden kann.
 	 * @return Die System-Voraussetzung
 	 */
 	public boolean hasSystemReq() {
@@ -73,7 +73,7 @@ public class IEDraftShip extends ItemEffect {
 	}
 	
 	/**
-	 * Gibt die Baukosten zurueck
+	 * Gibt die Baukosten zurueck.
 	 * @return Die Baukosten
 	 */
 	public Cargo getBuildCosts() {
@@ -81,7 +81,7 @@ public class IEDraftShip extends ItemEffect {
 	}
 	
 	/**
-	 * Gibt die zum Bau benoetigte Crew zurueck
+	 * Gibt die zum Bau benoetigte Crew zurueck.
 	 * @return Die benoetigte Crew
 	 */
 	public int getCrew() {
@@ -89,7 +89,7 @@ public class IEDraftShip extends ItemEffect {
 	}
 	
 	/**
-	 * Gibt die zum Bau benoetigte Energie zurueck
+	 * Gibt die zum Bau benoetigte Energie zurueck.
 	 * @return die benoetigte Energie
 	 */
 	public int getE() {
@@ -97,7 +97,7 @@ public class IEDraftShip extends ItemEffect {
 	}
 	
 	/**
-	 * Gibt zurueck, ob ein Flagschiff gebaut wird
+	 * Gibt zurueck, ob ein Flagschiff gebaut wird.
 	 * @return <code>true</code>, wenn es ein Flagschiff ist
 	 */
 	public boolean isFlagschiff() {
@@ -105,7 +105,7 @@ public class IEDraftShip extends ItemEffect {
 	}
 	
 	/**
-	 * Gibt die Baudauer zurueck
+	 * Gibt die Baudauer zurueck.
 	 * @return Die Baudauer
 	 */
 	public int getDauer() {
@@ -113,7 +113,7 @@ public class IEDraftShip extends ItemEffect {
 	}
 	
 	/**
-	 * Gibt die benoetigte Tech mit dem Index zurueck
+	 * Gibt die benoetigte Tech mit dem Index zurueck.
 	 * @param index Der Index (1-3)
 	 * @return Die Tech
 	 */
@@ -126,7 +126,7 @@ public class IEDraftShip extends ItemEffect {
 	}
 	
 	/**
-	 * Gibt die Werftslots zurueck, die zum Bau des Schiffes erforderlich sind
+	 * Gibt die Werftslots zurueck, die zum Bau des Schiffes erforderlich sind.
 	 * @return Die Werftslots
 	 */
 	public int getWerftSlots() {

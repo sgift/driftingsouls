@@ -26,7 +26,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 /**
- * Ein Eintrag im Shop einer Fraktion
+ * Ein Eintrag im Shop einer Fraktion.
  * @author Christopher Jung
  *
  */
@@ -46,7 +46,7 @@ public class FactionShopEntry {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public FactionShopEntry() {
@@ -54,7 +54,7 @@ public class FactionShopEntry {
 	}
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param faction Die Fraktion, zu deren Shop der Eintrag gehoert
 	 * @param type Der Typ des Eintrags
 	 * @param resource Die Eintragsdaten
@@ -66,7 +66,7 @@ public class FactionShopEntry {
 	}
 
 	/**
-	 * Gibt die Verfuegbarkeit des Produkts zurueck
+	 * Gibt die Verfuegbarkeit des Produkts zurueck.
 	 * @return Die Verfuegbarkeit
 	 */
 	public int getAvailability() {
@@ -74,7 +74,7 @@ public class FactionShopEntry {
 	}
 
 	/**
-	 * Setzt die Verfuegbarkeit des Produkts
+	 * Setzt die Verfuegbarkeit des Produkts.
 	 * @param availability Die Verfuegbarkeit
 	 */
 	public void setAvailability(int availability) {
@@ -82,7 +82,7 @@ public class FactionShopEntry {
 	}
 
 	/**
-	 * Gibt die Fraktion zurueck, der der Eintrag gehoert
+	 * Gibt die Fraktion zurueck, der der Eintrag gehoert.
 	 * @return Die Fraktions-ID
 	 */
 	public int getFaction() {
@@ -90,7 +90,7 @@ public class FactionShopEntry {
 	}
 
 	/**
-	 * Setzt die Fraktion, der der Eintrag gehoert
+	 * Setzt die Fraktion, der der Eintrag gehoert.
 	 * @param faction Die Fraktions-ID
 	 */
 	public final void setFaction(final int faction) {
@@ -98,7 +98,7 @@ public class FactionShopEntry {
 	}
 
 	/**
-	 * Gibt den Preis des Produkts in RE zurueck
+	 * Gibt den Preis des Produkts in RE zurueck.
 	 * @return Der Preis
 	 */
 	public long getPrice() {
@@ -106,7 +106,7 @@ public class FactionShopEntry {
 	}
 
 	/**
-	 * Setzt den Preis des Produkts in RE
+	 * Setzt den Preis des Produkts in RE.
 	 * @param price Der neue Preis
 	 */
 	public void setPrice(long price) {
@@ -114,7 +114,7 @@ public class FactionShopEntry {
 	}
 
 	/**
-	 * Gibt die Produktdaten zurueck
+	 * Gibt die Produktdaten zurueck.
 	 * @return Die Produktdaten
 	 */
 	public String getResource() {
@@ -122,7 +122,7 @@ public class FactionShopEntry {
 	}
 
 	/**
-	 * Setzt die Produktdaten
+	 * Setzt die Produktdaten.
 	 * @param resource Die Produktdaten
 	 */
 	public final void setResource(final String resource) {
@@ -130,7 +130,7 @@ public class FactionShopEntry {
 	}
 
 	/**
-	 * Gibt den Typ des Produkts zurueck
+	 * Gibt den Typ des Produkts zurueck.
 	 * @return Der Typ
 	 */
 	public int getType() {
@@ -138,7 +138,7 @@ public class FactionShopEntry {
 	}
 
 	/**
-	 * Setzt den Typ des Produkts
+	 * Setzt den Typ des Produkts.
 	 * @param type Der Typ
 	 */
 	public final void setType(final int type) {
@@ -146,7 +146,7 @@ public class FactionShopEntry {
 	}
 
 	/**
-	 * Gibt die ID des Eintrags zurueck
+	 * Gibt die ID des Eintrags zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -154,7 +154,7 @@ public class FactionShopEntry {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

@@ -34,9 +34,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * <h1>Das Standardgebaeude in DS</h1>
+ * <h1>Das Standardgebaeude in DS.</h1>
  * Alle Gebaeude, die ueber keine eigene Gebaeudeklasse verfuegen, werden von dieser
- * Gebaeudeklasse bearbeitet
+ * Gebaeudeklasse bearbeitet.
  * @author Christopher Jung
  *
  */
@@ -49,14 +49,14 @@ public class DefaultBuilding extends Building {
 	protected Configuration config;
 	
 	/**
-	 * Erstellt eine neue Gebaeude-Instanz
+	 * Erstellt eine neue Gebaeude-Instanz.
 	 */
 	public DefaultBuilding() {
 		// EMPTY
 	}
 	
 	/**
-	 * Injiziert die DS-Konfiguration
+	 * Injiziert die DS-Konfiguration.
 	 * @param config Die DS-Konfiguration
 	 */
 	@Autowired

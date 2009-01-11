@@ -51,7 +51,7 @@ public class ComNetVisit {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public ComNetVisit() {
@@ -59,7 +59,7 @@ public class ComNetVisit {
 	}
 	
 	/**
-	 * Erstellt einen neuen Besuchseintrag fuer den aktuellen Zeitpunkt
+	 * Erstellt einen neuen Besuchseintrag fuer den aktuellen Zeitpunkt.
 	 * @param user Der Besitzer
 	 * @param channel Der Kanal
 	 */
@@ -70,7 +70,7 @@ public class ComNetVisit {
 	}
 
 	/**
-	 * Gibt den ComNet-Kanal zurueck
+	 * Gibt den ComNet-Kanal zurueck.
 	 * @return Der ComNet-Kanal
 	 */
 	public ComNetChannel getChannel() {
@@ -78,7 +78,7 @@ public class ComNetVisit {
 	}
 
 	/**
-	 * Setzt den ComNet-Kanal
+	 * Setzt den ComNet-Kanal.
 	 * @param channel Der Kanal
 	 */
 	public void setChannel(ComNetChannel channel) {
@@ -86,7 +86,7 @@ public class ComNetVisit {
 	}
 
 	/**
-	 * Gibt den Zeitpunkt des Besuchs zurueck
+	 * Gibt den Zeitpunkt des Besuchs zurueck.
 	 * @return Der Zeitpunkt
 	 */
 	public long getTime() {
@@ -94,7 +94,7 @@ public class ComNetVisit {
 	}
 
 	/**
-	 * Setzt den Zeitpunkt des Besuchs
+	 * Setzt den Zeitpunkt des Besuchs.
 	 * @param time Der Zeitpunkt
 	 */
 	public void setTime(long time) {
@@ -102,7 +102,7 @@ public class ComNetVisit {
 	}
 
 	/**
-	 * Gibt den Besitzer des Besuchseintrags zurueck
+	 * Gibt den Besitzer des Besuchseintrags zurueck.
 	 * @return Der Besitzer
 	 */
 	public User getUser() {
@@ -110,7 +110,7 @@ public class ComNetVisit {
 	}
 
 	/**
-	 * Setzt den Besitzer des Besuchseintrags
+	 * Setzt den Besitzer des Besuchseintrags.
 	 * @param user Der Besitzer
 	 */
 	public void setUser(User user) {
@@ -118,7 +118,7 @@ public class ComNetVisit {
 	}
 
 	/**
-	 * Gibt die ID des Eintrags zurueck
+	 * Gibt die ID des Eintrags zurueck.
 	 * @return Der Eintrag
 	 */
 	public int getId() {
@@ -126,7 +126,7 @@ public class ComNetVisit {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

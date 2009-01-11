@@ -28,18 +28,19 @@ import net.driftingsouls.ds2.server.framework.Context;
 import org.w3c.dom.Node;
 
 /**
- * Eine Pipeline die die Filterchain weiter abarbeitet (also nachgelagerte Servlets ausfuehrt)
+ * Eine Pipeline die die Filterchain weiter abarbeitet (also nachgelagerte Servlets ausfuehrt).
  * @author Christopher Jung
  *
  */
 public class ServletPipeline implements Pipeline {
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 */
 	public ServletPipeline() {
 		// EMPTY
 	}
 
+	@Override
 	public void execute(Context context) throws Exception {
 		ServletRequest req = (ServletRequest)context.getVariable(HttpServlet.class, "request");
 		ServletResponse resp = (ServletResponse)context.getVariable(HttpServlet.class, "response");
@@ -50,6 +51,7 @@ public class ServletPipeline implements Pipeline {
 		chain.doFilter(req, resp);
 	}
 
+	@Override
 	public void setConfiguration(Node node) {
 		// EMPTY
 	}

@@ -35,7 +35,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Response;
  */
 public interface Context {
 	/**
-	 * Liefert eine Instanz der Datenbank-Klasse zurueck
+	 * Liefert eine Instanz der Datenbank-Klasse zurueck.
 	 * 
 	 * @return Eine Database-Instanz
 	 * @deprecated use getDB() (Hibernate)
@@ -44,7 +44,7 @@ public interface Context {
 	public Database getDatabase();
 	
 	/**
-	 * Liefert eine Instanz der berwendeten DB-Session zurueck
+	 * Liefert eine Instanz der berwendeten DB-Session zurueck.
 	 * @return Die DB-Session
 	 */
 	public org.hibernate.Session getDB();
@@ -65,21 +65,21 @@ public interface Context {
 	public void commit();
 	
 	/**
-	 * Liefert den gerade aktiven User
+	 * Liefert den gerade aktiven User.
 	 * 
 	 * @return Das zum gerade aktiven User gehoerende User-Objekt
 	 */
 	public BasicUser getActiveUser();
 
 	/**
-	 * Setzt den gerade aktiven User auf das angebene User-Objekt
+	 * Setzt den gerade aktiven User auf das angebene User-Objekt.
 	 * 
 	 * @param user Der neue aktive User
 	 */
 	public void setActiveUser(BasicUser user);
 
 	/**
-	 * Fuegt einen Fehler zur Fehlerliste hinzu
+	 * Fuegt einen Fehler zur Fehlerliste hinzu.
 	 * 
 	 * @param error Die Beschreibung des Fehlers
 	 */
@@ -94,7 +94,7 @@ public interface Context {
 	public void addError(String error, String link);
 
 	/**
-	 * Liefert den letzten Fehler zurueck
+	 * Liefert den letzten Fehler zurueck.
 	 * 
 	 * @return Der letzte Fehlers
 	 * 
@@ -104,26 +104,26 @@ public interface Context {
 	public Error getLastError();
 
 	/**
-	 * Liefert eine Liste aller Fehler zurueck
+	 * Liefert eine Liste aller Fehler zurueck.
 	 * 
 	 * @return Eine Liste aller Fehlerbeschreibungen 
 	 */
 	public Error[] getErrorList();
 	
 	/**
-	 * Liefert die Request fuer diesen Aufruf
+	 * Liefert die Request fuer diesen Aufruf.
 	 * @return Die Request des Aufrufs
 	 */
 	public Request getRequest();
 	
 	/**
-	 * Liefert die zum Aufruf gehoerende Response
+	 * Liefert die zum Aufruf gehoerende Response.
 	 * @return Die Response des Aufrufs
 	 */
 	public Response getResponse();
 	
 	/**
-	 * Setzt das zum Aufruf gehoerende Response-Objekt
+	 * Setzt das zum Aufruf gehoerende Response-Objekt.
 	 * @param response Das Response-Objekt
 	 */
 	public void setResponse(Response response);
@@ -140,7 +140,7 @@ public interface Context {
 	public <T> T get(Class<T> cls);
 	
 	/**
-	 * Entfernt die unter einem bestimmten Scope gueltige Instanz dieser Klasse
+	 * Entfernt die unter einem bestimmten Scope gueltige Instanz dieser Klasse.
 	 * @param cls Die Klasse
 	 */
 	public void remove(Class<?> cls);
@@ -154,7 +154,7 @@ public interface Context {
 	public void putVariable(Class<?> cls, String varname, Object value);
 	
 	/**
-	 * Liefert eine Kontext-lokale Variable zurueck
+	 * Liefert eine Kontext-lokale Variable zurueck.
 	 * @param cls Die Klasse, welche die Variable abrufen moechte - fungiert als zusaetzlicher Schluessel
 	 * @param varname Der Name der Variablen
 	 * @return Die Variable oder <code>null</code>, falls die Variable nicht existiert

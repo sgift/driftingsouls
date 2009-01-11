@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.ships;
 
 /**
- * Basisklasse fuer ShipTypeData-Wrapper
+ * Basisklasse fuer ShipTypeData-Wrapper.
  * @author Christopher Jung
  *
  */
@@ -27,7 +27,7 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	private ShipTypeData inner;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param inner Das Objekt, das der Wrapper kapseln soll
 	 */
 	public AbstractShipTypeDataWrapper(ShipTypeData inner) {
@@ -35,7 +35,7 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	}
 	
 	/**
-	 * Gibt die innere Klasse zurueck
+	 * Gibt die innere Klasse zurueck.
 	 * @return Die innere Klasse
 	 */
 	protected final ShipTypeData getInner() {
@@ -55,174 +55,217 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 		return wrapper;
 	}
 
+	@Override
 	public int getADocks() {
 		return inner.getADocks();
 	}
 
+	@Override
 	public long getCargo() {
 		return inner.getCargo();
 	}
 
+	@Override
 	public int getChance4Loot() {
 		return inner.getChance4Loot();
 	}
 
+	@Override
 	public int getCost() {
 		return inner.getCost();
 	}
 
+	@Override
 	public int getCrew() {
 		return inner.getCrew();
 	}
 	
+	@Override
 	public int getMarines() {
 		return inner.getMarines();
 	}
 
+	@Override
 	public String getDescrip() {
 		return inner.getDescrip();
 	}
 
+	@Override
 	public int getDeutFactor() {
 		return inner.getDeutFactor();
 	}
 
+	@Override
 	public int getEps() {
 		return inner.getEps();
 	}
 
+	@Override
 	public String getFlags() {
 		return inner.getFlags();
 	}
 
+	@Override
 	public int getGroupwrap() {
 		return inner.getGroupwrap();
 	}
 
+	@Override
 	public int getHeat() {
 		return inner.getHeat();
 	}
 
+	@Override
 	public int getHull() {
 		return inner.getHull();
 	}
 
+	@Override
 	public int getHydro() {
 		return inner.getHydro();
 	}
 
+	@Override
 	public int getJDocks() {
 		return inner.getJDocks();
 	}
 
+	@Override
 	public String getMaxHeat() {
 		return inner.getMaxHeat();
 	}
 
+	@Override
 	public String getNickname() {
 		return inner.getNickname();
 	}
 
+	@Override
 	public int getOneWayWerft() {
 		return inner.getOneWayWerft();
 	}
 
+	@Override
 	public int getPanzerung() {
 		return inner.getPanzerung();
 	}
 
+	@Override
 	public String getPicture() {
 		return inner.getPicture();
 	}
 
+	@Override
 	public int getRa() {
 		return inner.getRa();
 	}
 
+	@Override
 	public int getRd() {
 		return inner.getRd();
 	}
 
+	@Override
 	public int getReCost() {
 		return inner.getReCost();
 	}
 
+	@Override
 	public int getRm() {
 		return inner.getRm();
 	}
 
+	@Override
 	public int getRu() {
 		return inner.getRu();
 	}
 
+	@Override
 	public int getSensorRange() {
 		return inner.getSensorRange();
 	}
 
+	@Override
 	public int getShields() {
 		return inner.getShields();
 	}
 
+	@Override
 	public int getShipClass() {
 		return inner.getShipClass();
 	}
 
+	@Override
 	public int getShipCount() {
 		return inner.getShipCount();
 	}
 
+	@Override
 	public int getSize() {
 		return inner.getSize();
 	}
 
+	@Override
 	public int getTorpedoDef() {
 		return inner.getTorpedoDef();
 	}
 
+	@Override
 	public ShipTypeData getType() {
 		return inner.getType();
 	}
 
+	@Override
 	public int getTypeId() {
 		return inner.getTypeId();
 	}
 
+	@Override
 	public String getTypeModules() {
 		return inner.getTypeModules();
 	}
 
+	@Override
 	public String getWeapons() {
 		return inner.getWeapons();
 	}
 
+	@Override
 	public int getWerft() {
 		return inner.getWerft();
 	}
 
+	@Override
 	public boolean hasFlag(String flag) {
 		return inner.hasFlag(flag);
 	}
 
+	@Override
 	public boolean isHide() {
 		return inner.isHide();
 	}
 
+	@Override
 	public boolean isMilitary() {
 		return inner.isMilitary();
 	}
 	
+	@Override
 	public int getAblativeArmor() {
 		return inner.getAblativeArmor();
 	}
 	
+	@Override
 	public boolean hasSrs() {
 		return inner.hasSrs();
 	}
 	
+	@Override
 	public int getScanCost() {
 		return inner.getScanCost();
 	}
 	
+	@Override
 	public int getPickingCost() {
 		return inner.getPickingCost();
 	}

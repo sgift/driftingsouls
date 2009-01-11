@@ -25,7 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Definiert die Art und Weise wie eine kontextgebundene Klasse sich verhaelt
+ * Definiert die Art und Weise wie eine kontextgebundene Klasse sich verhaelt.
  * @author Christopher Jung
  *
  */
@@ -34,26 +34,25 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface ContextInstance {
 	/**
-	 * Der Scope der kontextgebundenen Klasse
+	 * Der Scope der kontextgebundenen Klasse.
 	 * @author Christopher Jung
 	 *
 	 */
 	enum Scope {
 		/**
 		 * Die Klasse darf lediglich pro Request einmal vorkommen.
-		 * Verschiedene Requests muessen unterschiedliche Instanzen haben
+		 * Verschiedene Requests muessen unterschiedliche Instanzen haben.
 		 */
 		REQUEST,
 		/**
 		 * Die Klasse darf lediglich einmal pro Session vorkommen.
-		 * Verschiedene Sessions muessen unterschiedliche Instanzen haben
+		 * Verschiedene Sessions muessen unterschiedliche Instanzen haben.
 		 */
 		SESSION
 	};
 	
 	/**
-	 * Gibt den Scope der kontextgebundenen Klasse zurueck
-	 * @return der Scope
+	 * Der Scope der kontextgebundenen Klasse.
 	 */
 	Scope value();
 }

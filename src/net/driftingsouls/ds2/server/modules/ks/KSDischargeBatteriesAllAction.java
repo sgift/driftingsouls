@@ -32,20 +32,20 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
- * Entlaedt alle Batterien auf Schiffen der eigenen Seite
+ * Entlaedt alle Batterien auf Schiffen der eigenen Seite.
  * @author Christopher Jung
  *
  */
 public class KSDischargeBatteriesAllAction extends BasicKSAction {
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public KSDischargeBatteriesAllAction() {
 	}
 	
 	/**
-	 * Prueft, ob das Schiff seine Battieren entladen soll oder nicht
+	 * Prueft, ob das Schiff seine Battieren entladen soll oder nicht.
 	 * @param ship Das Schiff
 	 * @param shiptype Der Schiffstyp
 	 * @return <code>true</code>, wenn das Schiff seine Batterien entladen soll

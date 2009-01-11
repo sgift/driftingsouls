@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.scripting.roles.parser;
 
 /**
- * Repraesentiert einen Fehler beim Parsen einer Rolle
+ * Repraesentiert einen Fehler beim Parsen einer Rolle.
  * @author Christopher Jung
  *
  */
@@ -27,7 +27,7 @@ public class ParsingException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Erstellt eine neue ParsingException
+	 * Erstellt eine neue ParsingException.
 	 * @param message Der Fehlertext
 	 * @param cause Der Grund fuer den Fehler
 	 */
@@ -36,7 +36,7 @@ public class ParsingException extends RuntimeException {
 	}
 
 	/**
-	 * Erstellt eine neue ParsingException
+	 * Erstellt eine neue ParsingException.
 	 * @param message Der Fehlertext
 	 */
 	public ParsingException(String message) {

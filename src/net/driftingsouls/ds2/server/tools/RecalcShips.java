@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.ships.ShipModules;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 /**
- * Kommandozeilentool zur Neuberechnung von redundanten Schiffsdaten
+ * Kommandozeilentool zur Neuberechnung von redundanten Schiffsdaten.
  * @author Christopher Jung
  *
  */
@@ -37,7 +37,7 @@ public class RecalcShips extends DSApplication {
 	private Integer shipid;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param args Die Kommandozeilenargumente
 	 * @throws Exception
 	 */
@@ -60,7 +60,7 @@ public class RecalcShips extends DSApplication {
 	}
 	
 	/**
-	 * Startet die Ausfuehrung
+	 * Startet die Ausfuehrung.
 	 *
 	 */
 	public void execute() {
@@ -123,7 +123,7 @@ public class RecalcShips extends DSApplication {
 	}
 
 	/**
-	 * Main
+	 * Main.
 	 * @param args Die Argumente
 	 * @throws Exception
 	 */

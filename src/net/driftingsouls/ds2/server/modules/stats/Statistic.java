@@ -23,26 +23,26 @@ import java.io.IOException;
 import net.driftingsouls.ds2.server.modules.StatsController;
 
 /**
- * Interface fuer eine Statistik auf der Statistikseite
+ * Interface fuer eine Statistik auf der Statistikseite.
  * @author Christopher Jung
  *
  */
 public interface Statistic {
 	/**
-	 * Die Bevoelkerungs-/Crewdaten (Tabelle tmpbev)
+	 * Die Bevoelkerungs-/Crewdaten (Tabelle tmpbev).
 	 */
 	public static final int DATA_CREW = 1;
 	/**
-	 * Die Forschungsdaten (Tabelle tmpres)
+	 * Die Forschungsdaten (Tabelle tmpres).
 	 */
 	public static final int DATA_RESEARCH = 2;
 	/**
-	 * Die Schiffsdaten (Tabelle tmpships)
+	 * Die Schiffsdaten (Tabelle tmpships).
 	 */
 	public static final int DATA_SHIPS = 4;
 	
 	/**
-	 * Zeigt die Statistik an
+	 * Zeigt die Statistik an.
 	 * 
 	 * @param contr Der Statistik-Controller
 	 * @param size Die Anzahl der anzuzeigenden Eintraege
@@ -58,7 +58,7 @@ public interface Statistic {
 	public boolean generateAllyData();
 	
 	/**
-	 * Gibt zurueck, welche benoetigten Daten generiert werden sollen
+	 * Gibt zurueck, welche benoetigten Daten generiert werden sollen.
 	 * @return Die benoetigten Daten
 	 * @see #DATA_CREW
 	 * @see #DATA_RESEARCH

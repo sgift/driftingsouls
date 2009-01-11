@@ -25,7 +25,7 @@ import net.driftingsouls.ds2.server.framework.ContextInstance;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
- * Sessionobjekt fuer Java-Sessions
+ * Sessionobjekt fuer Java-Sessions.
  * @author Christopher Jung
  *
  */
@@ -40,13 +40,13 @@ class JavaSession implements Serializable {
 	private String ip;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 */
 	public JavaSession() {
 	}
 	
 	/**
-	 * Setzt den mit der Session verknuepften User
+	 * Setzt den mit der Session verknuepften User.
 	 * @param user Der mit der Session verknuepfte User
 	 */
 	public void setUser(BasicUser user) {
@@ -59,7 +59,7 @@ class JavaSession implements Serializable {
 	}
 
 	/**
-	 * Gibt den mit der Session verknuepften User zurueck
+	 * Gibt den mit der Session verknuepften User zurueck.
 	 * @return Der mit der Session verknuepfte User
 	 */
 	public BasicUser getUser() {
@@ -72,7 +72,7 @@ class JavaSession implements Serializable {
 	}
 	
 	/**
-	 * Gibt <code>true</code>, falls das Grafikpak verwendet werden soll
+	 * Gibt <code>true</code>, falls das Grafikpak verwendet werden soll.
 	 * @return <code>true</code>, falls das Grafikpak verwendet werden soll
 	 */
 	public boolean getUseGfxPak() {
@@ -80,7 +80,7 @@ class JavaSession implements Serializable {
 	}
 
 	/**
-	 * Setzt, ob das Grafikpak verwendet werden soll
+	 * Setzt, ob das Grafikpak verwendet werden soll.
 	 * @param usegfxpak <code>true</code>, falls das Grafikpak verwendet werden soll
 	 */
 	public void setUseGfxPak(boolean usegfxpak) {
@@ -88,7 +88,7 @@ class JavaSession implements Serializable {
 	}
 	
 	/**
-	 * Gibt den angefuegten User oder <code>null</code> zurueck
+	 * Gibt den angefuegten User oder <code>null</code> zurueck.
 	 * @return Der User oder <code>null</code>
 	 */
 	public BasicUser getAttach() {
@@ -101,7 +101,7 @@ class JavaSession implements Serializable {
 	}
 
 	/**
-	 * Setzt den angefuegten User
+	 * Setzt den angefuegten User.
 	 * @param attach Der User
 	 */
 	public void setAttach(BasicUser attach) {
@@ -114,7 +114,7 @@ class JavaSession implements Serializable {
 	}
 	
 	/**
-	 * Gibt die Liste der gueltigen IPs zurueck
+	 * Gibt die Liste der gueltigen IPs zurueck.
 	 * @return Die Liste der gueltigen IPs
 	 */
 	public String getIP() {
@@ -122,7 +122,7 @@ class JavaSession implements Serializable {
 	}
 
 	/**
-	 * Setzt die Liste der gueltigen IPs
+	 * Setzt die Liste der gueltigen IPs.
 	 * @param ip Die neue Liste
 	 */
 	public void setIP(String ip) {
@@ -130,7 +130,7 @@ class JavaSession implements Serializable {
 	}
 	
 	/**
-	 * Prueft, ob die angegebene IP-Adresse in der Liste der IP-Adressen vorkommt
+	 * Prueft, ob die angegebene IP-Adresse in der Liste der IP-Adressen vorkommt.
 	 * @param ip Die IP-Adresse
 	 * @return <code>true</code>, falls die IP-Adresse in der Liste vorkommt
 	 */

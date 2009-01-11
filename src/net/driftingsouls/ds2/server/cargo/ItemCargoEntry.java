@@ -24,7 +24,7 @@ import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 
 // TODO: Readonly-Version anfertigen
 /**
- * Repraesentiert ein Itemeintrag innerhalb eines Cargos
+ * Repraesentiert ein Itemeintrag innerhalb eines Cargos.
  * @author Christopher Jung
  *
  */
@@ -45,12 +45,12 @@ public class ItemCargoEntry {
 	
 	/**
 	 * Benutzt ein Item. Wenn dieses nur eine begrenzte Anzahl an Benutzungen
-	 * hat, wird diese verringert und geprueft ob das Item weiterhin existiert
+	 * hat, wird diese verringert und geprueft ob das Item weiterhin existiert.
 	 * 
 	 * @return true, wenn das Item weiterhin existiert
 	 * @throws UnsupportedOperationException (Falls kein CCargo zugeordnet wurde) 
 	 */
-	public boolean useItem() {
+	public boolean useItem() throws UnsupportedOperationException {
 		if( (cargo != null) && (uses > 0) ) {
 			cargo.substractResource(getResourceID(), 1);
 			uses--;
@@ -87,7 +87,7 @@ public class ItemCargoEntry {
 	}
 	
 	/**
-	 * Gibt die ID des Itemtyps zurueck
+	 * Gibt die ID des Itemtyps zurueck.
 	 * @return die ID des Itemtyps
 	 */
 	public int getItemID() {		
@@ -96,7 +96,7 @@ public class ItemCargoEntry {
 	
 	/**
 	 * Gibt die Resourcen-ID zurueck, die den Eintrag innerhalb
-	 * des Cargos identifiziert
+	 * des Cargos identifiziert.
 	 * @return Die Resourcen-ID
 	 */
 	public ResourceID getResourceID() {
@@ -104,7 +104,7 @@ public class ItemCargoEntry {
 	}
 	
 	/**
-	 * Gibt den Itemtyp als Objekt zurueck
+	 * Gibt den Itemtyp als Objekt zurueck.
 	 * @return Der Itemtyp
 	 */
 	public Item getItemObject() {
@@ -112,7 +112,7 @@ public class ItemCargoEntry {
 	}
 	
 	/**
-	 * Gibt den zum Itemtyp zugeordneten Item-Effekt als Objekt zurueck
+	 * Gibt den zum Itemtyp zugeordneten Item-Effekt als Objekt zurueck.
 	 * @return Der Item-Effekt
 	 */
 	public ItemEffect getItemEffect() {
@@ -120,7 +120,7 @@ public class ItemCargoEntry {
 	}
 	
 	/**
-	 * Gibt die im Cargo vorhandene Menge des Items zurueck 
+	 * Gibt die im Cargo vorhandene Menge des Items zurueck.
 	 * @return Die Menge
 	 */
 	public long getCount() {
@@ -128,7 +128,7 @@ public class ItemCargoEntry {
 	}
 	
 	/**
-	 * Gibt die Masse zurueck, die die im Cargo vorhandenen Resourcen verbrauchen
+	 * Gibt die Masse zurueck, die die im Cargo vorhandenen Resourcen verbrauchen.
 	 * @return Die Masse
 	 */
 	public long getMass() {
@@ -136,7 +136,7 @@ public class ItemCargoEntry {
 	}
 	
 	/**
-	 * Gibt den Cargo zurueck, zu dem das Item gehoert
+	 * Gibt den Cargo zurueck, zu dem das Item gehoert.
 	 * @return der Cargo
 	 */
 	public Cargo getCargoObject() {		
@@ -144,7 +144,7 @@ public class ItemCargoEntry {
 	}
 	
 	/**
-	 * Kopiert das Item in einen anderen Cargo
+	 * Kopiert das Item in einen anderen Cargo.
 	 * @param cargo der Cargo
 	 * @return der kopierte Item-Eintrag
 	 */

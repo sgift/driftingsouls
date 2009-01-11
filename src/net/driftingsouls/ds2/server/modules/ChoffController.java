@@ -38,7 +38,7 @@ public class ChoffController extends TemplateGenerator {
 	private Offizier offizier;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public ChoffController(Context context) {
@@ -76,7 +76,7 @@ public class ChoffController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Benennt einen Offizier um
+	 * Benennt einen Offizier um.
 	 * @urlparam String name Der neue Name des Offiziers 
 	 *
 	 */

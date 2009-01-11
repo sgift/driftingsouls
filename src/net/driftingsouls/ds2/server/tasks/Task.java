@@ -29,7 +29,7 @@ import org.apache.commons.lang.math.RandomUtils;
 import net.driftingsouls.ds2.server.framework.Common;
 
 /**
- * Eine Task im Taskmanager
+ * Eine Task im Taskmanager.
  * @author Christopher Jung
  *
  */
@@ -50,7 +50,7 @@ public class Task {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public Task() {
@@ -58,7 +58,7 @@ public class Task {
 	}
 	
 	/**
-	 * Erstellt eine neue Task
+	 * Erstellt eine neue Task.
 	 * @param type Der Typ der Task
 	 */
 	public Task(Taskmanager.Types type) {
@@ -68,7 +68,7 @@ public class Task {
 	}
 
 	/**
-	 * Gibt den Inhalt des ersten Datenfelds zurueck
+	 * Gibt den Inhalt des ersten Datenfelds zurueck.
 	 * @return das erste Datenfeld
 	 */
 	public String getData1() {
@@ -76,7 +76,7 @@ public class Task {
 	}
 	
 	/**
-	 * Setzt den Inhalt des ersten Datenfelds
+	 * Setzt den Inhalt des ersten Datenfelds.
 	 * @param data Der Inhalt
 	 */
 	public void setData1(String data) {
@@ -84,7 +84,7 @@ public class Task {
 	}
 
 	/**
-	 * Gibt den Inhalt des zweiten Datenfelds zurueck
+	 * Gibt den Inhalt des zweiten Datenfelds zurueck.
 	 * @return das zweite Datenfeld
 	 */
 	public String getData2() {
@@ -92,7 +92,7 @@ public class Task {
 	}
 	
 	/**
-	 * Setzt den Inhalt des zweiten Datenfelds
+	 * Setzt den Inhalt des zweiten Datenfelds.
 	 * @param data Der Inhalt
 	 */
 	public void setData2(String data) {
@@ -100,7 +100,7 @@ public class Task {
 	}
 
 	/**
-	 * Gibt den Inhalt des dritten Datenfelds zurueck
+	 * Gibt den Inhalt des dritten Datenfelds zurueck.
 	 * @return das dritte Datenfeld
 	 */
 	public String getData3() {
@@ -108,7 +108,7 @@ public class Task {
 	}
 	
 	/**
-	 * Setzt den Inhalt des dritten Datenfelds
+	 * Setzt den Inhalt des dritten Datenfelds.
 	 * @param data Der Inhalt
 	 */
 	public void setData3(String data) {
@@ -116,7 +116,7 @@ public class Task {
 	}
 
 	/**
-	 * Gibt die ID der Task zurueck
+	 * Gibt die ID der Task zurueck.
 	 * @return Die Task-ID
 	 */
 	public String getTaskID() {
@@ -124,7 +124,7 @@ public class Task {
 	}
 
 	/**
-	 * Gibt den Zeitpunkt zurueck, an dem die Task angelegt wurde
+	 * Gibt den Zeitpunkt zurueck, an dem die Task angelegt wurde.
 	 * @return Die Timestamp des Erstellungszeitpunkts
 	 */
 	public long getTime() {
@@ -132,7 +132,7 @@ public class Task {
 	}
 
 	/**
-	 * Gibt den Timeout der Task in Ticks zurueck
+	 * Gibt den Timeout der Task in Ticks zurueck.
 	 * @return der Timeout
 	 */
 	public int getTimeout() {
@@ -140,7 +140,7 @@ public class Task {
 	}
 	
 	/**
-	 * Setzt den Timeout der Task in Ticks
+	 * Setzt den Timeout der Task in Ticks.
 	 * @param timeout der Timeout
 	 */
 	public void setTimeout(int timeout) {
@@ -148,7 +148,7 @@ public class Task {
 	}
 
 	/**
-	 * Gibt den Typ der Task zurueck
+	 * Gibt den Typ der Task zurueck.
 	 * @return der Typ
 	 */
 	public Taskmanager.Types getType() {
@@ -156,7 +156,7 @@ public class Task {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

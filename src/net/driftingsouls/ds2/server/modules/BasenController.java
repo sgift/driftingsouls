@@ -40,7 +40,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import org.apache.commons.lang.ArrayUtils;
 
 /**
- * Die Basenliste
+ * Die Basenliste.
  * @author Christopher Jung
  * 
  * @urlparam Integer l Falls == 1 werden die Cargos der Basen angezeigt
@@ -59,7 +59,7 @@ public class BasenController extends TemplateGenerator {
 			{"e", "e"} } );
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public BasenController(Context context) {
@@ -78,7 +78,7 @@ public class BasenController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Liste aller Basen an
+	 * Zeigt die Liste aller Basen an.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

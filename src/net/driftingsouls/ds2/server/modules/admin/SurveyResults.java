@@ -34,7 +34,7 @@ import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Zeigt die Ergebnisse von Umfragen an
+ * Zeigt die Ergebnisse von Umfragen an.
  * @author Christopher Jung
  *
  */
@@ -61,6 +61,7 @@ public class SurveyResults implements AdminPlugin {
 		return (Map<Integer,String>)resultObj;
 	}
 	
+	@Override
 	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();

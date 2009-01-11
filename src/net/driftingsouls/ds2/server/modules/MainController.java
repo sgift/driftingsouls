@@ -38,7 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Das Hauptframe von DS
+ * Das Hauptframe von DS.
  * @author Christopher Jung
  *
  */
@@ -49,7 +49,7 @@ public class MainController extends TemplateGenerator {
 	private Configuration config;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public MainController(Context context) {
@@ -61,7 +61,7 @@ public class MainController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Injiziert die DS-Konfiguration
+	 * Injiziert die DS-Konfiguration.
 	 * @param config Die DS-Konfiguration
 	 */
 	@Autowired
@@ -77,7 +77,7 @@ public class MainController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Prueft, ob der Spieler eine neue PM hat, welche noch nicht gelesen wurde
+	 * Prueft, ob der Spieler eine neue PM hat, welche noch nicht gelesen wurde.
 	 * @throws IOException 
 	 *
 	 */
@@ -98,7 +98,7 @@ public class MainController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Gibt zu einer Seite den Hilfetext zurueck
+	 * Gibt zu einer Seite den Hilfetext zurueck.
 	 * @throws IOException 
 	 *
 	 */
@@ -117,7 +117,7 @@ public class MainController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Generiert das Hauptframe
+	 * Generiert das Hauptframe.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

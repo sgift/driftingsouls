@@ -38,13 +38,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Zeigt die eigenen Offiziere und deren Aufenthaltsort
+ * Zeigt die eigenen Offiziere und deren Aufenthaltsort.
  * @author Christopher Jung
  *
  */
 public class StatOwnOffiziere implements Statistic {
 	private static final Log log = LogFactory.getLog(StatOwnOffiziere.class);
 
+	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
@@ -117,10 +118,12 @@ public class StatOwnOffiziere implements Statistic {
 		echo.append("</table><div><br /><br /></div>\n");
 	}
 
+	@Override
 	public boolean generateAllyData() {
 		return false;
 	}
 	
+	@Override
 	public int getRequiredData() {
 		return 0;
 	}

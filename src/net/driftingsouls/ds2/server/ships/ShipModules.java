@@ -28,7 +28,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 /**
- * Die Moduldaten eines Schiffes
+ * Die Moduldaten eines Schiffes.
  * @author Christopher Jung
  *
  */
@@ -86,7 +86,7 @@ public class ShipModules implements ShipTypeData {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public ShipModules() {
@@ -94,7 +94,7 @@ public class ShipModules implements ShipTypeData {
 	}
 	
 	/**
-	 * <p>Konstruktor</p>
+	 * <p>Konstruktor.</p>
 	 * Erstellt einen neuen Schiffsmoduleintrag fuer das angegebene Schiff
 	 * @param ship Das Schiff
 	 */
@@ -110,140 +110,150 @@ public class ShipModules implements ShipTypeData {
 	}
 	
 	/**
-	 * Gibt das Schiff zurueck, zu dem der Eintrag gehoert
+	 * Gibt das Schiff zurueck, zu dem der Eintrag gehoert.
 	 * @return Das Schiff
 	 */
 	public Ship getShip() {
 		return ship;
 	}
 
+	@Override
 	public int getADocks() {
 		return aDocks;
 	}
 
 	/**
-	 * Setzt die externen Docks
+	 * Setzt die externen Docks.
 	 * @param docks Die externen Docks
 	 */
 	public void setADocks(int docks) {
 		aDocks = docks;
 	}
 
+	@Override
 	public long getCargo() {
 		return cargo;
 	}
 
 	/**
-	 * Setzt den Cargo
+	 * Setzt den Cargo.
 	 * @param cargo Den Cargo
 	 */
 	public void setCargo(long cargo) {
 		this.cargo = cargo;
 	}
 
+	@Override
 	public int getCost() {
 		return cost;
 	}
 
 	/**
-	 * Setzt die Flugkosten
+	 * Setzt die Flugkosten.
 	 * @param cost Die Flugkosten
 	 */
 	public void setCost(int cost) {
 		this.cost = cost;
 	}
 
+	@Override
 	public int getCrew() {
 		return crew;
 	}
 
 	/**
-	 * Setzt die Crew
+	 * Setzt die Crew.
 	 * @param crew Die Crew
 	 */
 	public void setCrew(int crew) {
 		this.crew = crew;
 	}
 	
-
+	@Override
 	public int getMarines() {
 		return marines;
 	}
 	
 	/**
-	 * Setzt die Anzahl an moeglichen Marines
+	 * Setzt die Anzahl an moeglichen Marines.
 	 * @param marines Die Marinemenge
 	 */
 	public void setMarines(int marines) {
 		this.marines = marines;
 	}
 
+	@Override
 	public int getDeutFactor() {
 		return deutFactor;
 	}
 
 	/**
-	 * Setzt den Deuteriumfaktor
+	 * Setzt den Deuteriumfaktor.
 	 * @param deutFactor Der Deuteriumfaktor
 	 */
 	public void setDeutFactor(int deutFactor) {
 		this.deutFactor = deutFactor;
 	}
 
+	@Override
 	public int getEps() {
 		return eps;
 	}
 
 	/**
-	 * Setzt die Eps
+	 * Setzt die Eps.
 	 * @param eps Die Eps
 	 */
 	public void setEps(int eps) {
 		this.eps = eps;
 	}
 
+	@Override
 	public String getFlags() {
 		return flags;
 	}
 
 	/**
-	 * Setzt die Flags
+	 * Setzt die Flags.
 	 * @param flags Die Flags
 	 */
 	public void setFlags(String flags) {
 		this.flags = flags;
 	}
 
+	@Override
 	public int getHeat() {
 		return heat;
 	}
 
 	/**
-	 * Setzt die Antriebsueberhitzung
+	 * Setzt die Antriebsueberhitzung.
 	 * @param heat Die Antriebsueberhitzung
 	 */
 	public void setHeat(int heat) {
 		this.heat = heat;
 	}
 
+	@Override
 	public int getHull() {
 		return hull;
 	}
 
 	/**
-	 * Setzt die Huellenpunkte
+	 * Setzt die Huellenpunkte.
 	 * @param hull Die Huellenpunkte
 	 */
 	public void setHull(int hull) {
 		this.hull = hull;
 	}
 
+	@Override
 	public int getHydro() {
 		return hydro;
 	}
 
 	/**
-	 * Setzt die Nahrungsproduktion
+	 * Setzt die Nahrungsproduktion.
 	 * @param hydro Die Nahrungsproduktion
 	 */
 	public void setHydro(int hydro) {
@@ -251,31 +261,33 @@ public class ShipModules implements ShipTypeData {
 	}
 
 	/**
-	 * Gibt die ID zurueck
+	 * Gibt die ID zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
 		return id;
 	}
 
+	@Override
 	public int getJDocks() {
 		return jDocks;
 	}
 
 	/**
-	 * Setzt die Jaegerdocks
+	 * Setzt die Jaegerdocks.
 	 * @param docks Die Jaegerdocks
 	 */
 	public void setJDocks(int docks) {
 		jDocks = docks;
 	}
 
+	@Override
 	public String getMaxHeat() {
 		return maxHeat;
 	}
 
 	/**
-	 * Setzt die max. Waffenueberhitzungs
+	 * Setzt die max. Waffenueberhitzungs.
 	 * @param maxHeat Die Waffenueberhitzung
 	 */
 	public void setMaxHeat(String maxHeat) {
@@ -283,7 +295,7 @@ public class ShipModules implements ShipTypeData {
 	}
 
 	/**
-	 * Gibt die Moduldaten der eingebauten Module zurueck
+	 * Gibt die Moduldaten der eingebauten Module zurueck.
 	 * @return Die Moduldaten
 	 */
 	public String getModules() {
@@ -291,233 +303,259 @@ public class ShipModules implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Moduldaten der eingebauten Module
+	 * Setzt die Moduldaten der eingebauten Module.
 	 * @param modules Die Moduldaten
 	 */
 	public void setModules(String modules) {
 		this.modules = modules;
 	}
 
+	@Override
 	public String getNickname() {
 		return nickname;
 	}
 
 	/**
-	 * Setzt den Namen
+	 * Setzt den Namen.
 	 * @param nickname Der Name
 	 */
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
 	}
 
+	@Override
 	public int getOneWayWerft() {
 		return oneWayWerft;
 	}
 
 	/**
-	 * Setzt die Einweg-Werftdaten
+	 * Setzt die Einweg-Werftdaten.
 	 * @param oneWayWerft Die Einweg-Werftdaten
 	 */
 	public void setOneWayWerft(int oneWayWerft) {
 		this.oneWayWerft = oneWayWerft;
 	}
 
+	@Override
 	public int getPanzerung() {
 		return panzerung;
 	}
 
 	/**
-	 * Setzt die Panzerung
+	 * Setzt die Panzerung.
 	 * @param panzerung Die Panzerung
 	 */
 	public void setPanzerung(int panzerung) {
 		this.panzerung = panzerung;
 	}
 
+	@Override
 	public String getPicture() {
 		return picture;
 	}
 
 	/**
-	 * Setzt das Bild
+	 * Setzt das Bild.
 	 * @param picture Das Bild
 	 */
 	public void setPicture(String picture) {
 		this.picture = picture;
 	}
 
+	@Override
 	public int getRa() {
 		return ra;
 	}
 
 	/**
-	 * Setzt die Reaktoreffizienz bei Antimaterie
+	 * Setzt die Reaktoreffizienz bei Antimaterie.
 	 * @param ra Die Reaktoreffizienz
 	 */
 	public void setRa(int ra) {
 		this.ra = ra;
 	}
 
+	@Override
 	public int getRd() {
 		return rd;
 	}
 
 	/**
-	 * Setzt die Reaktoreffizienz bei Deuterium
+	 * Setzt die Reaktoreffizienz bei Deuterium.
 	 * @param rd Die Reaktoreffizienz
 	 */
 	public void setRd(int rd) {
 		this.rd = rd;
 	}
 
+	@Override
 	public int getReCost() {
 		return reCost;
 	}
 	
 	/**
-	 * Setzt die Wartungskosten
+	 * Setzt die Wartungskosten.
 	 * @param recost Die Wartungskosten
 	 */
 	public void setReCost(int recost) {
 		this.reCost = recost;
 	}
 
+	@Override
 	public int getRm() {
 		return rm;
 	}
 
 	/**
-	 * Setzt die Gesamtenergieproduktion
+	 * Setzt die Gesamtenergieproduktion.
 	 * @param rm Die Gesamtenergieproduktion
 	 */
 	public void setRm(int rm) {
 		this.rm = rm;
 	}
 
+	@Override
 	public int getRu() {
 		return ru;
 	}
 
 	/**
-	 * Setzt die Energieeffizienz bei Uran
+	 * Setzt die Energieeffizienz bei Uran.
 	 * @param ru Die Energieeffizienz
 	 */
 	public void setRu(int ru) {
 		this.ru = ru;
 	}
 
+	@Override
 	public int getSensorRange() {
 		return sensorRange;
 	}
 
 	/**
-	 * Setzt die Sensorenreichweite
+	 * Setzt die Sensorenreichweite.
 	 * @param sensorRange Die Sensorenreichweite
 	 */
 	public void setSensorRange(int sensorRange) {
 		this.sensorRange = sensorRange;
 	}
 
+	@Override
 	public int getShields() {
 		return shields;
 	}
 
 	/**
-	 * Setzt die Schildpunkte
+	 * Setzt die Schildpunkte.
 	 * @param shields Die Schildpunkte
 	 */
 	public void setShields(int shields) {
 		this.shields = shields;
 	}
 
+	@Override
 	public int getSize() {
 		return size;
 	}
 
 	/**
-	 * Setzt die Groesse
+	 * Setzt die Groesse.
 	 * @param size Die Groesse
 	 */
 	public void setSize(int size) {
 		this.size = size;
 	}
 
+	@Override
 	public int getTorpedoDef() {
 		return torpedoDef;
 	}
 
 	/**
-	 * Setzt die Torpedoabwehrdaten
+	 * Setzt die Torpedoabwehrdaten.
 	 * @param torpedoDef Die Torpedoabwehrdaten
 	 */
 	public void setTorpedoDef(int torpedoDef) {
 		this.torpedoDef = torpedoDef;
 	}
 
+	@Override
 	public String getWeapons() {
 		return weapons;
 	}
 
 	/**
-	 * Setzt die Waffen
+	 * Setzt die Waffen.
 	 * @param weapons Die Waffen
 	 */
 	public void setWeapons(String weapons) {
 		this.weapons = weapons;
 	}
 
+	@Override
 	public int getWerft() {
 		return werft;
 	}
 
 	/**
-	 * Setzt die Werftdaten
+	 * Setzt die Werftdaten.
 	 * @param werft Die Werftdaten
 	 */
 	public void setWerft(int werft) {
 		this.werft = werft;
 	}
 	
+	@Override
 	public int getGroupwrap() {
 		return getShip().getBaseType().getGroupwrap();
 	}
 	
+	@Override
 	public String getTypeModules() {
 		return getShip().getBaseType().getModules();
 	}
 	
+	@Override
 	public int getShipCount() {
 		return getShip().getBaseType().getShipCount();
 	}
 	
+	@Override
 	public String getDescrip() {
 		return getShip().getBaseType().getDescrip();
 	}
 	
+	@Override
 	public boolean isHide() {
 		return getShip().getBaseType().isHide();
 	}
 	
+	@Override
 	public int getShipClass() {
 		return getShip().getBaseType().getShipClass();
 	}
 	
+	@Override
 	public int getChance4Loot() {
 		return getShip().getBaseType().getChance4Loot();
 	}
 	
+	@Override
 	public boolean isMilitary() {
 		return getWeapons().indexOf('=') > -1;
 	}
 	
+	@Override
 	public int getTypeId() {
 		return getShip().getBaseType().getId();
 	}
 
+	@Override
 	public ShipTypeData getType() {
 		return getShip().getBaseType();
 	}
 	
+	@Override
 	public boolean hasFlag(String flag) {
 		if( getFlags().indexOf(flag) > -1 ) {
 			return true;
@@ -530,48 +568,52 @@ public class ShipModules implements ShipTypeData {
 		return super.clone();
 	}
 
+	@Override
 	public int getAblativeArmor() {
 		return ablativeArmor;
 	}
 
 	/**
-	 * Setzt den Wert der ablativen Panzerung
+	 * Setzt den Wert der ablativen Panzerung.
 	 * @param ablativeArmor Die ablative Panzerung
 	 */
 	public void setAblativeArmor(int ablativeArmor) {
 		this.ablativeArmor = ablativeArmor;
 	}
 
+	@Override
 	public boolean hasSrs() {
 		return srs;
 	}
 
 	/**
-	 * Setzt, ob das Schiff SRS hat oder nicht
+	 * Setzt, ob das Schiff SRS hat oder nicht.
 	 * @param srs <code>true</code>, falls es SRS haben soll
 	 */
 	public void setSrs(boolean srs) {
 		this.srs = srs;
 	}
 	
+	@Override
 	public int getScanCost() {
 		return scanCost;
 	}
 
 	/**
-	 * Setzt die Energiekosten pro LRS-Scan (Gesamtuebersicht)
+	 * Setzt die Energiekosten pro LRS-Scan (Gesamtuebersicht).
 	 * @param scanCost Die Energiekosten
 	 */
 	public void setScanCost(int scanCost) {
 		this.scanCost = scanCost;
 	}
-
+	
+	@Override
 	public int getPickingCost() {
 		return pickingCost;
 	}
 
 	/**
-	 * Setzt die Energiekosten pro LRS-Sektorscan (Scannen des Inhalts eines Sektors)
+	 * Setzt die Energiekosten pro LRS-Sektorscan (Scannen des Inhalts eines Sektors).
 	 * @param pickingCost Die Energiekosten
 	 */
 	public void setPickingCost(int pickingCost) {
@@ -579,7 +621,7 @@ public class ShipModules implements ShipTypeData {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

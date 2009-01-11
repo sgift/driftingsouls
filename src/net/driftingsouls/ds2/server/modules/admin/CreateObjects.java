@@ -58,7 +58,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Ermoeglicht das Absetzen von Admin-Kommandos
+ * Ermoeglicht das Absetzen von Admin-Kommandos.
  * @author Christopher Jung
  *
  */
@@ -66,7 +66,7 @@ import org.xml.sax.SAXException;
 public class CreateObjects implements AdminPlugin {
 	private static interface DialogEntry {
 		/**
-		 * Wandelt den Eintrag in HTML um
+		 * Wandelt den Eintrag in HTML um.
 		 * @param request Die Request
 		 * @return Der HTML-Code
 		 */
@@ -163,7 +163,7 @@ public class CreateObjects implements AdminPlugin {
 		});
 	}
 	
-	
+	@Override
 	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();

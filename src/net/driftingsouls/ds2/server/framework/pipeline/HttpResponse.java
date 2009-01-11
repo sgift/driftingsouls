@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import net.driftingsouls.ds2.server.framework.utils.StringBufferWriter;
 
 /**
- * Implementiert das Response-Interface fuer HTTP-Antworten
+ * Implementiert das Response-Interface fuer HTTP-Antworten.
  * @author Christopher Jung
  *
  */
@@ -46,7 +46,7 @@ public class HttpResponse implements Response {
 	private boolean cacheOutput = false;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param request Die HttpServletRequest
 	 * @param response Die HttpServletResponse, welche die gesendeten Daten erhalten soll
 	 */

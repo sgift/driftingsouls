@@ -44,7 +44,7 @@ public class TickAdminCommand
 	private Scheduler scheduler;
 	
 	/**
-	 * Injiziert den Quartz-Trigger fuer den normalen DS-Tick
+	 * Injiziert den Quartz-Trigger fuer den normalen DS-Tick.
 	 * @param regularTick Der Trigger
 	 */
 	@Required
@@ -53,7 +53,7 @@ public class TickAdminCommand
 	}
 	
 	/**
-	 * Injiziert den Quartz-Trigger fuer den seltenen DS-Tick
+	 * Injiziert den Quartz-Trigger fuer den seltenen DS-Tick.
 	 * @param rareTick Der Trigger
 	 */
 	@Required
@@ -62,7 +62,7 @@ public class TickAdminCommand
 	}
 	
 	/**
-	 * Injiziert den Quartz-Scheduler zum Ausfuehren von Quartz-Jobs
+	 * Injiziert den Quartz-Scheduler zum Ausfuehren von Quartz-Jobs.
 	 * @param bean Der Scheduler
 	 */
 	@Required
@@ -71,7 +71,7 @@ public class TickAdminCommand
 	}
 	
 	/**
-	 * Fuehrt den normalen DS-Tick aus
+	 * Fuehrt den normalen DS-Tick aus.
 	 */
 	public void runRegularTick() {
 		try
@@ -86,7 +86,7 @@ public class TickAdminCommand
 	}
 	
 	/**
-	 * Fuehrt den seltenen DS-Tick aus
+	 * Fuehrt den seltenen DS-Tick aus.
 	 */
 	public void runRareTick() {
 		try
@@ -101,7 +101,7 @@ public class TickAdminCommand
 	}
 	
 	/**
-	 * Fuehrt einen Teil des normalen DS-Tick aus
+	 * Fuehrt einen Teil des normalen DS-Tick aus.
 	 * @param tickPart der auszufuehrende Teiltick
 	 */
 	public void runRegularTick(Class<? extends TickController> tickPart) {
@@ -120,7 +120,7 @@ public class TickAdminCommand
 	}
 	
 	/**
-	 * Fuehrt einen Teil des seltenen DS-Tick aus
+	 * Fuehrt einen Teil des seltenen DS-Tick aus.
 	 * @param tickPart der auszufuehrende Teiltick
 	 */
 	public void runRareTick(Class<? extends TickController> tickPart) {

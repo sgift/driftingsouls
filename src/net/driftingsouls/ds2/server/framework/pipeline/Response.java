@@ -23,7 +23,7 @@ import java.io.OutputStream;
 import java.io.Writer;
 
 /**
- * Standardinterface fuer die Antwort auf die Request
+ * Standardinterface fuer die Antwort auf die Request.
  * @author Christopher Jung
  *
  */
@@ -37,20 +37,20 @@ public interface Response {
 	public void activateOutputCache() throws IllegalStateException;
 	
 	/**
-	 * Setzt den aktuellen Content-Typ
+	 * Setzt den aktuellen Content-Typ.
 	 * @param contentType der neue Content-Typ
 	 */
 	public void setContentType(String contentType);
 	
 	/**
-	 * Setzt den aktuellen Content-Typ
+	 * Setzt den aktuellen Content-Typ.
 	 * @param contentType der neue Content-Typ
 	 * @param charSet Setzt das aktuelle Character Set
 	 */
 	public void setContentType(String contentType, String charSet);
 	
 	/**
-	 * Setzt die erwartete Content-Laenge
+	 * Setzt die erwartete Content-Laenge.
 	 * @param length die erwartete Content-Laenge
 	 */
 	public void setContentLength(int length);
@@ -63,27 +63,27 @@ public interface Response {
 	public Writer getWriter() throws IOException;
 	
 	/**
-	 * Liefert den Ausgabestrom
+	 * Liefert den Ausgabestrom.
 	 * @return Der Ausgabestrom der Response
 	 * @throws IOException
 	 */
 	public OutputStream getOutputStream() throws IOException;
 	
 	/**
-	 * Setzt den HTTP-Statuscode der Antwort
+	 * Setzt den HTTP-Statuscode der Antwort.
 	 * @param status der Statuscode
 	 */
 	public void setStatus(int status);
 	
 	/**
-	 * Setzt einen Wert im Kopf der Antwort
+	 * Setzt einen Wert im Kopf der Antwort.
 	 * @param name Name des Wertes
 	 * @param value Der Wert selbst
 	 */
 	public void setHeader(String name, String value);
 	
 	/**
-	 * Sendet die Antwort
+	 * Sendet die Antwort.
 	 * @throws IOException
 	 */
 	public void send() throws IOException;

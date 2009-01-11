@@ -26,7 +26,7 @@ import java.sql.SQLException;
 import org.apache.commons.lang.ArrayUtils;
 
 /**
- * <h1>Ein PreparedStatement</h1>
+ * <h1>Ein PreparedStatement.</h1>
  * @author Christopher Jung
  *
  */
@@ -45,7 +45,7 @@ public class PreparedQuery {
 	
 	/**
 	 * Fuehrt eine Query auf der Datenbank (<code>SELECT</code> usw)
-	 * mit dem PreparedStatement aus 
+	 * mit dem PreparedStatement aus.
 	 * @param values Die Parameter des Statements in der Reihenfolge in der Query
 	 * @return Das Ergebnis der SQL-Query
 	 */
@@ -115,7 +115,7 @@ public class PreparedQuery {
 	
 	/**
 	 * Fuehrt ein Update der Datenbank (<code>UPDATE</code>,<code>INSERT</code> usw)
-	 * mit dem PreparedStatement aus 
+	 * mit dem PreparedStatement aus.
 	 * @param values Die Parameter des Statements in der Reihenfolge in der Query
 	 * @return die Anzahl der von der Datenbankveraenderung betroffenen Zeilen
 	 */
@@ -206,7 +206,7 @@ public class PreparedQuery {
 	}
 	
 	/**
-	 * Liefert die Anzahl der vom letzten Update-Befehl betroffenen Zeilen
+	 * Liefert die Anzahl der vom letzten Update-Befehl betroffenen Zeilen.
 	 * @return Die Anzahl der betroffenen Zeilen
 	 */
 	public int affectedRows() {
@@ -214,7 +214,7 @@ public class PreparedQuery {
 	}
 	
 	/**
-	 * Liefert die mittels auto_increment gesetzte ID der zuletzt eingefuegten Zeile
+	 * Liefert die mittels auto_increment gesetzte ID der zuletzt eingefuegten Zeile.
 	 * @return Die ID
 	 * @see Database#insertID()
 	 */
@@ -223,7 +223,7 @@ public class PreparedQuery {
 	}
 	
 	/**
-	 * Setzt alle Parameter der Query zurueck
+	 * Setzt alle Parameter der Query zurueck.
 	 *
 	 */
 	public void clear() {
@@ -237,7 +237,7 @@ public class PreparedQuery {
 	}
 	
 	/**
-	 * Setzt den Parameter mit dem angegebenen Index auf den angegebenen Wert
+	 * Setzt den Parameter mit dem angegebenen Index auf den angegebenen Wert.
 	 * @param index Der Parameter-Index
 	 * @param value Der Wert
 	 * @return Dieses Objekt
@@ -254,7 +254,7 @@ public class PreparedQuery {
 	}
 	
 	/**
-	 * Setzt den Parameter mit dem angegebenen Index auf den angegebenen Wert
+	 * Setzt den Parameter mit dem angegebenen Index auf den angegebenen Wert.
 	 * @param index Der Parameter-Index
 	 * @param value Der Wert
 	 * @return Dieses Objekt
@@ -271,7 +271,7 @@ public class PreparedQuery {
 	}
 	
 	/**
-	 * Setzt den Parameter mit dem angegebenen Index auf den angegebenen Wert
+	 * Setzt den Parameter mit dem angegebenen Index auf den angegebenen Wert.
 	 * @param index Der Parameter-Index
 	 * @param value Der Wert
 	 * @return Dieses Objekt
@@ -288,7 +288,7 @@ public class PreparedQuery {
 	}
 	
 	/**
-	 * Setzt den Parameter mit dem angegebenen Index auf den angegebenen Wert
+	 * Setzt den Parameter mit dem angegebenen Index auf den angegebenen Wert.
 	 * @param index Der Parameter-Index
 	 * @param value Der Wert
 	 * @return Dieses Objekt
@@ -305,7 +305,7 @@ public class PreparedQuery {
 	}
 	
 	/**
-	 * Setzt den Parameter mit dem angegebenen Index auf den angegebenen Wert
+	 * Setzt den Parameter mit dem angegebenen Index auf den angegebenen Wert.
 	 * @param index Der Parameter-Index
 	 * @param value Der Wert
 	 * @return Dieses Objekt
@@ -322,7 +322,7 @@ public class PreparedQuery {
 	}
 	
 	/**
-	 * Setzt den Parameter mit dem angegebenen Index auf den angegebenen Wert
+	 * Setzt den Parameter mit dem angegebenen Index auf den angegebenen Wert.
 	 * @param index Der Parameter-Index
 	 * @param value Der Wert
 	 * @return Dieses Objekt

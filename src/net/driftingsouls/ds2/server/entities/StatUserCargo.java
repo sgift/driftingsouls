@@ -31,7 +31,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import org.hibernate.annotations.Type;
 
 /**
- * Ein Statistikeintrag ueber den Gesamtcargo eines Spielers (zum letzten Berechnungszeitpunkt)
+ * Ein Statistikeintrag ueber den Gesamtcargo eines Spielers (zum letzten Berechnungszeitpunkt).
  * @author Chirstopher Jung
  *
  */
@@ -53,7 +53,7 @@ public class StatUserCargo {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public StatUserCargo() {
@@ -61,7 +61,7 @@ public class StatUserCargo {
 	}
 	
 	/**
-	 * Erstellt einen neuen Statistikeintrag
+	 * Erstellt einen neuen Statistikeintrag.
 	 * @param user Der User
 	 * @param cargo Der Cargo
 	 */
@@ -71,7 +71,7 @@ public class StatUserCargo {
 	}
 
 	/**
-	 * Gibt den Cargo des Spielers zurueck
+	 * Gibt den Cargo des Spielers zurueck.
 	 * @return Der Cargo
 	 */
 	public Cargo getCargo() {
@@ -79,7 +79,7 @@ public class StatUserCargo {
 	}
 
 	/**
-	 * Setzt den Cargo des Spielers
+	 * Setzt den Cargo des Spielers.
 	 * @param cargo Der Cargo
 	 */
 	public final void setCargo(final Cargo cargo) {
@@ -87,7 +87,7 @@ public class StatUserCargo {
 	}
 
 	/**
-	 * Gibt den Spieler zurueck
+	 * Gibt den Spieler zurueck.
 	 * @return Der Spieler
 	 */
 	public User getUser() {
@@ -95,7 +95,7 @@ public class StatUserCargo {
 	}
 
 	/**
-	 * Setzt den Spieler
+	 * Setzt den Spieler.
 	 * @param user Der Spieler
 	 */
 	public final void setUser(final User user) {
@@ -104,7 +104,7 @@ public class StatUserCargo {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

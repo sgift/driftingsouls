@@ -42,7 +42,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
- * Repraesentiert einen Ordner im Postfach
+ * Repraesentiert einen Ordner im Postfach.
  * 
  * Hinweis: Die Ordner-ID 0 hat eine spezielle Bedeutung. 
  * Sie kennzeichnet den Hauptordner, in dem sich alle Unterordner
@@ -56,11 +56,11 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Ordner {
 	/**
-	 * Ein normaler Ordner
+	 * Ein normaler Ordner.
 	 */
 	public static final int FLAG_NORMAL = 0;
 	/**
-	 * Der Muelleimer
+	 * Der Muelleimer.
 	 */
 	public static final int FLAG_TRASH 	= 1;
 	
@@ -76,7 +76,7 @@ public class Ordner {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 */
 	public Ordner() {
 		// EMPTY
@@ -155,7 +155,7 @@ public class Ordner {
 	}
 	
 	/**
-	 * Loescht den Ordner. Alle im Ordner enthaltenen
+	 * Loescht den Ordner. Alle im Ordner enthaltenen.
 	 * Unterordner und Pms werden ebenfalls geloescht.
 	 * @return <code>0</code>, falls das Loeschen erfolgreich war, <code>1</code>, falls erst noch eine PM gelesen werden muss
 	 * und <code>2</code>, bei sonstigen Fehlern
@@ -188,7 +188,7 @@ public class Ordner {
 	}
 	
 	/**
-	 * Erstellt einen neuen Ordner fuer einen bestimmten Spieler
+	 * Erstellt einen neuen Ordner fuer einen bestimmten Spieler.
 	 * @param name Der Name des neuen Ordners
 	 * @param parent Der Elternordner
 	 * @param user Der Besitzer
@@ -208,7 +208,7 @@ public class Ordner {
 	}
 	
 	/**
-	 * Gibt alle Kindordner, ob direkt oder indirekt, des Ordners zurueck
+	 * Gibt alle Kindordner, ob direkt oder indirekt, des Ordners zurueck.
 	 * @return Liste mit Ordnern
 	 */
 	public List<Ordner> getAllChildren() {
@@ -222,7 +222,7 @@ public class Ordner {
 	}
 	
 	/**
-	 * Gibt alle direkten Kindordner des Ordners zurueck
+	 * Gibt alle direkten Kindordner des Ordners zurueck.
 	 * @return Liste mit Ordnern
 	 */
 	public List<Ordner> getChildren() {
@@ -287,7 +287,7 @@ public class Ordner {
 	 * Gibt die Anzahl der PMs in allen Ordnern unterhalb des Ordners zurueck.
 	 * PMs in Unterordnern erhoehen die Anzahl der PMs im uebergeordneten Ordner.
 	 * Zurueckgegeben wird eine Map, in der die Ordner-ID der Schluessel ist. Der Wert
-	 * ist die Anzahl der PMs
+	 * ist die Anzahl der PMs.
 	 * @return Map mit der Anzahl der PMs in den jeweiligen Unterordnern
 	 */
 	public Map<Ordner,Integer> getPmCountPerSubOrdner() { 
@@ -358,7 +358,7 @@ public class Ordner {
 	}
 	
 	/**
-	 * Markiert alle Pms im Ordner als gelesen (ausser solche, welche als wichtig markiert sind)
+	 * Markiert alle Pms im Ordner als gelesen (ausser solche, welche als wichtig markiert sind).
 	 *
 	 */
 	public void markAllAsRead() {
@@ -374,7 +374,7 @@ public class Ordner {
 	
 	/**
 	 * Loescht alle Pms im Ordner (ausser solche, welche als wichtig markiert sind, aber noch
-	 * nicht gelesen wurden)
+	 * nicht gelesen wurden).
 	 *
 	 */
 	public void deleteAllPms() {
@@ -394,7 +394,7 @@ public class Ordner {
 	/**
 	 * Loescht alle PMs im Ordner, die von dem angegebenen Benutzer stammen
 	 * (ausser solche, welche als wichtig markiert sind, aber noch
-	 * nicht gelesen wurden)
+	 * nicht gelesen wurden).
 	 * @param user Der Benutzer
 	 */
 	public void deletePmsByUser(User user) {
@@ -413,7 +413,7 @@ public class Ordner {
 	}
 	
 	/**
-	 * Gibt die ID es Ordners zurueck
+	 * Gibt die ID es Ordners zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -421,7 +421,7 @@ public class Ordner {
 	}
 
 	/**
-	 * Gibt den Namen des Ordners zurueck
+	 * Gibt den Namen des Ordners zurueck.
 	 * @return Der Name
 	 */
 	public String getName() {
@@ -429,7 +429,7 @@ public class Ordner {
 	}
 	
 	/**
-	 * Setzt den Namen des Ordners
+	 * Setzt den Namen des Ordners.
 	 * @param name der neue Name
 	 */
 	public void setName( String name ) {
@@ -438,7 +438,7 @@ public class Ordner {
 
 	
 	/**
-	 * Gibt den Eltern-Ordner zurueck
+	 * Gibt den Eltern-Ordner zurueck.
 	 * @return Der Elternordner
 	 */
 	public Ordner getParent() {
@@ -446,7 +446,7 @@ public class Ordner {
 	}
 
 	/**
-	 * Setzt den Elternordner
+	 * Setzt den Elternordner.
 	 * @param parent Der Elternordner
 	 */
 	public void setParent(Ordner parent) {
@@ -454,7 +454,7 @@ public class Ordner {
 	}
 	
 	/**
-	 * Gibt die Flags des Ordners zurueck
+	 * Gibt die Flags des Ordners zurueck.
 	 * @return Die Flags
 	 */
 	public int getFlags() {
@@ -462,7 +462,7 @@ public class Ordner {
 	}
 	
 	/**
-	 * Setzt die Flags des Ordners
+	 * Setzt die Flags des Ordners.
 	 * @param flags Die Flags
 	 */
 	public void setFlags(int flags) {
@@ -470,7 +470,7 @@ public class Ordner {
 	}
 	
 	/**
-	 * Prueft, ob der Ordner das angegebene Flag besitzt
+	 * Prueft, ob der Ordner das angegebene Flag besitzt.
 	 * @param flag Das Flag
 	 * @return <code>true</code>, falls der Ordner das Flag besitzt
 	 */
@@ -479,7 +479,7 @@ public class Ordner {
 	}
 	
 	/**
-	 * Gibt den Besitzer des Ordners zurueck
+	 * Gibt den Besitzer des Ordners zurueck.
 	 * @return Der Besitzer
 	 */
 	public User getOwner() {
@@ -487,7 +487,7 @@ public class Ordner {
 	}
 	
 	/**
-	 * Setzt den Besitzer des Ordners
+	 * Setzt den Besitzer des Ordners.
 	 * @param owner Der Besitzer
 	 */
 	public void setOwner(User owner) {
@@ -522,7 +522,7 @@ public class Ordner {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

@@ -29,7 +29,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 /**
- * Statistik fuer die Aufenthaltsorte eines Items bei einem Spieler
+ * Statistik fuer die Aufenthaltsorte eines Items bei einem Spieler.
  * @author Christopher Jung
  *
  */
@@ -49,7 +49,7 @@ public class StatItemLocations {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public StatItemLocations() {
@@ -57,7 +57,7 @@ public class StatItemLocations {
 	}
 	
 	/**
-	 * Erstellt einen neuen Statistikeintrag
+	 * Erstellt einen neuen Statistikeintrag.
 	 * @param user Der Spieler
 	 * @param itemid Das Item
 	 * @param locations Die Aufenthaltsorte
@@ -69,7 +69,7 @@ public class StatItemLocations {
 	}
 
 	/**
-	 * Gibt die ID des Items zurueck
+	 * Gibt die ID des Items zurueck.
 	 * @return DIe ID
 	 */
 	public int getItemId() {
@@ -77,7 +77,7 @@ public class StatItemLocations {
 	}
 
 	/**
-	 * Setzt die ID des Items
+	 * Setzt die ID des Items.
 	 * @param itemId Die ID
 	 */
 	public void setItemId(int itemId) {
@@ -85,7 +85,7 @@ public class StatItemLocations {
 	}
 
 	/**
-	 * Gibt die Aufenthaltsorte des Items beim Spieler zurueck
+	 * Gibt die Aufenthaltsorte des Items beim Spieler zurueck.
 	 * @return Die Aufenthaltsorte
 	 */
 	public String getLocations() {
@@ -93,7 +93,7 @@ public class StatItemLocations {
 	}
 
 	/**
-	 * Setzt die Aufenthaltsorte des Items beim Spieler
+	 * Setzt die Aufenthaltsorte des Items beim Spieler.
 	 * @param locations Die Aufenthaltsorte
 	 */
 	public void setLocations(String locations) {
@@ -101,7 +101,7 @@ public class StatItemLocations {
 	}
 
 	/**
-	 * Gibt den Spieler zurueck
+	 * Gibt den Spieler zurueck.
 	 * @return Der Spieler
 	 */
 	public User getUser() {
@@ -109,7 +109,7 @@ public class StatItemLocations {
 	}
 
 	/**
-	 * Setzt den Spieler
+	 * Setzt den Spieler.
 	 * @param user Der Spieler
 	 */
 	public void setUser(User user) {
@@ -117,7 +117,7 @@ public class StatItemLocations {
 	}
 
 	/**
-	 * Gibt die ID des Eintrags zurueck
+	 * Gibt die ID des Eintrags zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -125,7 +125,7 @@ public class StatItemLocations {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

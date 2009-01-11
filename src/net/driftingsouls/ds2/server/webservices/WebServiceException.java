@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.webservices;
 
 /**
- * Repraesentiert einen Fehler in einem WebService
+ * Repraesentiert einen Fehler in einem WebService.
  * @author Christopher Jung
  *
  */
@@ -28,7 +28,7 @@ public class WebServiceException extends Exception {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public WebServiceException() {
@@ -36,7 +36,7 @@ public class WebServiceException extends Exception {
 	}
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param message Die Fehlerbeschreibung
 	 * @param cause Der Fehlergrund (Nested Exception)
 	 */
@@ -45,7 +45,7 @@ public class WebServiceException extends Exception {
 	}
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param message Die Fehlerbeschreibung
 	 */
 	public WebServiceException(String message) {
@@ -53,7 +53,7 @@ public class WebServiceException extends Exception {
 	}
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param cause Der Fehlergrund (Nested Exception)
 	 */
 	public WebServiceException(Throwable cause) {

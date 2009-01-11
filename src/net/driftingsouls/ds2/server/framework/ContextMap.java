@@ -40,7 +40,7 @@ public class ContextMap {
 	}
 
 	/**
-	 * Setzt das Kontextobjekt fuer den aktuellen Thread
+	 * Setzt das Kontextobjekt fuer den aktuellen Thread.
 	 * @param context Das Kontextobjekt
 	 */
 	public static void addContext(Context context) {
@@ -48,7 +48,7 @@ public class ContextMap {
 	}
 
 	/**
-	 * Entfernt das Kontextobjekt aus dem aktuellen Thread
+	 * Entfernt das Kontextobjekt aus dem aktuellen Thread.
 	 *
 	 */
 	protected static void removeContext() {

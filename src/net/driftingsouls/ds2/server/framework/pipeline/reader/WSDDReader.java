@@ -68,7 +68,7 @@ public class WSDDReader implements Reader {
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -354,6 +354,7 @@ public class WSDDReader implements Reader {
 		}
 	}
 	
+	@Override
 	public void read(Context context, ReaderPipeline pipeline) throws Exception {
 		String filename = pipeline.getFile();
 

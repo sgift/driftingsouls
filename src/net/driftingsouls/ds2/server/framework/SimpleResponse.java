@@ -36,7 +36,7 @@ public class SimpleResponse implements Response
 	private StringBuffer buffer = new StringBuffer();
 
 	/**
-	 * Gibt den Inhalt des Ausgabepuffers zurueck
+	 * Gibt den Inhalt des Ausgabepuffers zurueck.
 	 * @return Der Inhalt des Ausgabepuffers
 	 */
 	public StringBuffer getContent()
@@ -44,18 +44,20 @@ public class SimpleResponse implements Response
 		return buffer;
 	}
 
+	@Override
 	public OutputStream getOutputStream() throws IOException
 	{
 		throw new IOException("Kein Stream unterstuetzt");
 	}
 
+	@Override
 	public void send() throws IOException
 	{
 		throw new IOException("Send not possible");
 	}
 
 	/**
-	 * Setzt den Inhalt des Ausgabepuffers
+	 * Setzt den Inhalt des Ausgabepuffers.
 	 * @param content Der Inhalt
 	 */
 	public void setContent(String content)
@@ -63,26 +65,31 @@ public class SimpleResponse implements Response
 		buffer = new StringBuffer(content);
 	}
 
+	@Override
 	public void setContentLength(int length)
 	{
 		// EMPTY
 	}
 
+	@Override
 	public void setContentType(String contentType)
 	{
 		// EMPTY
 	}
 
+	@Override
 	public void setHeader(String name, String value)
 	{
 		// EMPTY
 	}
 
+	@Override
 	public void setStatus(int status)
 	{
 		// EMPTY
 	}
 
+	@Override
 	public void setManualSendStatus()
 	{
 		// EMPTY

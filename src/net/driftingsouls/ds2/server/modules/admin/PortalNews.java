@@ -28,13 +28,13 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
- * Ermoeglicht das Verfassen von neuen News im Portal 
+ * Ermoeglicht das Verfassen von neuen News im Portal.
  * @author Christopher Jung
  *
  */
 @AdminMenuEntry(category="Portal", name="News schreiben")
 public class PortalNews implements AdminPlugin {
-
+	@Override
 	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();

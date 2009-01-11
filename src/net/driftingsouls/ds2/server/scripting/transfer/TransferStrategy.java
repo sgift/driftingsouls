@@ -35,7 +35,7 @@ public abstract class TransferStrategy {
 	private boolean forceSameOwner;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	protected TransferStrategy() {
@@ -43,7 +43,7 @@ public abstract class TransferStrategy {
 	}
 
 	/**
-	 * Setzt, ob Quelle und Ziel den selben Besitzer haben muessen
+	 * Setzt, ob Quelle und Ziel den selben Besitzer haben muessen.
 	 * @param forceSameOwner <code>true</code>, falls sie den selben Besitzer haben muessen
 	 */
 	protected final void setForceSameOwner(boolean forceSameOwner) {
@@ -51,7 +51,7 @@ public abstract class TransferStrategy {
 	}
 	
 	/**
-	 * Setzt das Quellobjekt
+	 * Setzt das Quellobjekt.
 	 * @param from Das Quellobjekt
 	 */
 	protected final void setFrom(Transfering from) {
@@ -63,7 +63,7 @@ public abstract class TransferStrategy {
 	}
 	
 	/**
-	 * Setzt das Zielobjekt
+	 * Setzt das Zielobjekt.
 	 * @param to Das Zielobjekt
 	 */
 	protected final void setTo(Transfering to) {
@@ -75,7 +75,7 @@ public abstract class TransferStrategy {
 	}
 	
 	/**
-	 * Transferiert die angegebene Resourcenmenge von Quellobjekt zum Zielobjekt
+	 * Transferiert die angegebene Resourcenmenge von Quellobjekt zum Zielobjekt.
 	 * @param resource Die Resource
 	 * @param count Die Menge die zu transferieren ist
 	 * @return Ein Meldungstext

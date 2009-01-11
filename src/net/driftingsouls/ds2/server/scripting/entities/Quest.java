@@ -24,7 +24,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Repraesentiert ein Quest
+ * Repraesentiert ein Quest.
  * @author Christopher Jung
  *
  */
@@ -37,7 +37,7 @@ public class Quest {
 	private String qid;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public Quest() {
@@ -45,7 +45,7 @@ public class Quest {
 	}
 	
 	/**
-	 * Erstellt ein neues Quest
+	 * Erstellt ein neues Quest.
 	 * @param name Der Name des Quests
 	 */
 	public Quest(String name) {
@@ -54,7 +54,7 @@ public class Quest {
 	}
 
 	/**
-	 * Gibt den Namen des Quests zurueck
+	 * Gibt den Namen des Quests zurueck.
 	 * @return Der Name
 	 */
 	public String getName() {
@@ -62,7 +62,7 @@ public class Quest {
 	}
 
 	/**
-	 * Setzt den Namen des Quests
+	 * Setzt den Namen des Quests.
 	 * @param name Der Name
 	 */
 	public void setName(String name) {
@@ -72,7 +72,7 @@ public class Quest {
 	/**
 	 * Gibt die ID des QuickQuests zurueck, sofern das Quest mit einem
 	 * QuickQuest verbunden ist. Andernfalls wird ein leerer String
-	 * zurueckgegeben 
+	 * zurueckgegeben .
 	 * @return Die QuickQuest-ID
 	 */
 	public String getQid() {
@@ -80,7 +80,7 @@ public class Quest {
 	}
 
 	/**
-	 * Setzt die ID des QuickQuests, mit dem das Quest verbunden ist
+	 * Setzt die ID des QuickQuests, mit dem das Quest verbunden ist.
 	 * @param qid Die QuickQuest-ID oder ein leerer String
 	 */
 	public void setQid(String qid) {
@@ -88,7 +88,7 @@ public class Quest {
 	}
 
 	/**
-	 * Gibt die ID des Quests zurueck
+	 * Gibt die ID des Quests zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {

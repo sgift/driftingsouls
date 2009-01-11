@@ -31,7 +31,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
 
 /**
- * Kontextlokale Operationen
+ * Kontextlokale Operationen.
  * 
  * @author Christopher Jung
  */
@@ -41,7 +41,7 @@ public final class ContextCommon
 	private Context context = null;
 
 	/**
-	 * Konstruktur - Wird vom Kontext aufgerufen
+	 * Konstruktur - Wird vom Kontext aufgerufen.
 	 */
 	public ContextCommon()
 	{
@@ -49,7 +49,7 @@ public final class ContextCommon
 	}
 
 	/**
-	 * Liefert den aktuellen Tick zurueck
+	 * Liefert den aktuellen Tick zurueck.
 	 * 
 	 * @return Der aktuelle Tick
 	 */
@@ -62,7 +62,7 @@ public final class ContextCommon
 	private Map<String, ScriptEngine> scriptParsers = new HashMap<String, ScriptEngine>();
 
 	/**
-	 * Gibt eine Instanz einer ScriptEngine zurueck
+	 * Gibt eine Instanz einer ScriptEngine zurueck.
 	 * 
 	 * @param name Der Name der ScriptEngine
 	 * @return die ScriptEngine

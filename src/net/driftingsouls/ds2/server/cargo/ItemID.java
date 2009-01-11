@@ -34,7 +34,7 @@ public class ItemID extends WarenID
 	private int hashCode = 0;
 	
 	/**
-	 * Erstellt eine neue Item-ID
+	 * Erstellt eine neue Item-ID.
 	 * @param itemid Die Item-Typen-ID
 	 */
 	public ItemID(int itemid)
@@ -44,7 +44,7 @@ public class ItemID extends WarenID
 	}
 	
 	/**
-	 * Erstellt eine neue Item-ID
+	 * Erstellt eine neue Item-ID.
 	 * 
 	 * @param itemid Die Item-Typen-ID
 	 * @param uses Die noch verbleibende Anzahl an Benutzungen
@@ -82,7 +82,7 @@ public class ItemID extends WarenID
 	}
 	
 	/**
-	 * Prueft, ob es sich bei einem String um eine Item-ResourceID handelt
+	 * Prueft, ob es sich bei einem String um eine Item-ResourceID handelt.
 	 * @param rid Der String
 	 * @return <code>true</code>, falls es eine Item-ResourceID ist
 	 */

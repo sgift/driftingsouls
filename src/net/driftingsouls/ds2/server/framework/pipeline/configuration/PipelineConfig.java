@@ -37,7 +37,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * <h1>Repraesentiert die Pipeline-Konfiguration</h1>
+ * <h1>Repraesentiert die Pipeline-Konfiguration.</h1>
  * <p>Eine Pipeline entscheidet darueber wie, unter welchen Bedingungen und von wem
  * eine Request verarbeitet wird.</p> 
  * @author Christopher Jung
@@ -66,7 +66,7 @@ public class PipelineConfig {
 	}
 	
 	/**
-	 * Injiziert die DS-Konfiguration
+	 * Injiziert die DS-Konfiguration.
 	 * @param config Die DS-Konfiguration
 	 */
 	public void setConfiguration(Configuration config) {
@@ -74,7 +74,7 @@ public class PipelineConfig {
 	}
 	
 	/**
-	 * Liesst die Konfiguration aus der Pipeline-Konfigurationsdatei ein
+	 * Liesst die Konfiguration aus der Pipeline-Konfigurationsdatei ein.
 	 * @throws Exception
 	 */
 	@PostConstruct

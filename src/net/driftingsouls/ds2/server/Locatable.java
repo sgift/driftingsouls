@@ -26,7 +26,7 @@ package net.driftingsouls.ds2.server;
  */
 public interface Locatable {
 	/**
-	 * Gibt die Position des Objekts zurueck
+	 * Gibt die Position des Objekts zurueck.
 	 * @return Die Position
 	 */
 	Location getLocation();

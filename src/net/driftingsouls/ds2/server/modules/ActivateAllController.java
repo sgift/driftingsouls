@@ -30,7 +30,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
- * (De)aktivierung aller Gebaeude auf einer Basis
+ * (De)aktivierung aller Gebaeude auf einer Basis.
  * @author Christopher Jung
  * 
  * @urlparam Integer col Die ID der Basis
@@ -41,7 +41,7 @@ public class ActivateAllController extends TemplateGenerator {
 	private Base base = null;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public ActivateAllController(Context context) {
@@ -74,7 +74,7 @@ public class ActivateAllController extends TemplateGenerator {
 	}
 	
 	/**
-	 * (de)aktiviert die Gebaeude/Cores
+	 * (de)aktiviert die Gebaeude/Cores.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

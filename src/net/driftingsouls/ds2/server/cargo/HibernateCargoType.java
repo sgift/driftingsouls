@@ -29,7 +29,7 @@ import org.hibernate.usertype.UserType;
 
 /**
  * Hibernate-Typdaten fuer DS-Cargos.
- * <p>Hinweis: <code>null</code>-Werte werden automatisch zu leeren Cargos konvertiert</p>
+ * <p>Hinweis: <code>null</code>-Werte werden automatisch zu leeren Cargos konvertiert.</p>
  * @author Christopher Jung
  *
  */

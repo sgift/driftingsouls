@@ -19,13 +19,13 @@
 package net.driftingsouls.ds2.server.framework;
 
 /**
- * Observer fuer Ereignisse eines Kontexts
+ * Observer fuer Ereignisse eines Kontexts.
  * @author Christopher Jung
  *
  */
 public interface ContextListener {
 	/**
-	 * Signalisiert, dass der Kontext freigegeben wird
+	 * Signalisiert, dass der Kontext freigegeben wird.
 	 *
 	 */
 	public void onContextDestory();

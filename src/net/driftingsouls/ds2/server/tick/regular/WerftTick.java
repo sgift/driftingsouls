@@ -35,7 +35,7 @@ import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
 /**
- * Berechnung des Ticks fuer Werften
+ * Berechnung des Ticks fuer Werften.
  * @author Christopher Jung
  *
  */

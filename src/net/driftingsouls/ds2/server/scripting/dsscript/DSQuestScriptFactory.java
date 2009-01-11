@@ -26,7 +26,7 @@ import javax.script.ScriptEngine;
 
 
 /**
- * Factory fuer Questscript-Parser
+ * Factory fuer Questscript-Parser.
  * @author Christopher Jung
  *
  */
@@ -40,6 +40,7 @@ public class DSQuestScriptFactory extends DSScriptFactory {
 		return Collections.unmodifiableList(list);
 	}
 	
+	@Override
 	public ScriptEngine getScriptEngine() {
 		return new ScriptParser(this, ScriptParser.NameSpace.QUEST);
 	}

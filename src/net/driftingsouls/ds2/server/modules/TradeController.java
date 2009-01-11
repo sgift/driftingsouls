@@ -42,7 +42,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Verkauft Waren an einem Handelsposten
+ * Verkauft Waren an einem Handelsposten.
  * @author Christopher Jung
  * @urlparam Integer ship die ID des Schiffes, das Waren verkaufen moechte
  * @urlparam Integer tradepost die ID des Handelspostens, an dem die Waren verkauft werden sollen
@@ -57,7 +57,7 @@ public class TradeController extends TemplateGenerator {
 	private String place = null;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public TradeController(Context context) {
@@ -205,7 +205,7 @@ public class TradeController extends TemplateGenerator {
 	}
 
 	/**
-	 * Verkauft die angegebenen Waren
+	 * Verkauft die angegebenen Waren.
 	 * @urlparam Integer ${resid}to Verkauft die Resource mit der ID ${resid} in der angegebenen Menge
 	 *
 	 */
@@ -312,7 +312,7 @@ public class TradeController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die eigenen Waren sowie die Warenkurse am Handelsposten an
+	 * Zeigt die eigenen Waren sowie die Warenkurse am Handelsposten an.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

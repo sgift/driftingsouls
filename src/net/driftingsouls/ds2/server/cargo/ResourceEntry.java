@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.cargo;
 
 /**
- * Ein Eintrag innerhalb einer Resourcen-Liste
+ * Ein Eintrag innerhalb einer Resourcen-Liste.
  * 
  * @author Christopher Jung
  * @see ResourceList
@@ -38,7 +38,7 @@ public class ResourceEntry {
 	private boolean largeImages = false;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param id Die Resourcen-ID
 	 * @param name Der Name
 	 * @param plainname Der Name ohne Formatierung
@@ -56,7 +56,7 @@ public class ResourceEntry {
 	}
 	
 	/**
-	 * Konstruktor, falls zwei Cargos verglichen werden
+	 * Konstruktor, falls zwei Cargos verglichen werden.
 	 * @param id Die ID der Resource
 	 * @param name Der Name
 	 * @param plainname Der Name ohne Formatierung
@@ -79,7 +79,7 @@ public class ResourceEntry {
 	}
 
 	/**
-	 * Gibt die Menge des ersten Cargos formatiert zurueck
+	 * Gibt die Menge des ersten Cargos formatiert zurueck.
 	 * @return Die Menge des ersten Cargos formatiert
 	 */
 	public String getCargo1() {
@@ -87,7 +87,7 @@ public class ResourceEntry {
 	}
 
 	/**
-	 * Gibt die Menge des zweiten Cargos formatiert zurueck
+	 * Gibt die Menge des zweiten Cargos formatiert zurueck.
 	 * @return Die Menge des zweiten Cargos formatiert
 	 */
 	public String getCargo2() {
@@ -95,7 +95,7 @@ public class ResourceEntry {
 	}
 
 	/**
-	 * Gibt die Menge des ersten Cargos ohne Formatierung zurueck
+	 * Gibt die Menge des ersten Cargos ohne Formatierung zurueck.
 	 * @return Die Menge des ersten Cargos ohne Formatierung
 	 */
 	public long getCount1() {
@@ -103,7 +103,7 @@ public class ResourceEntry {
 	}
 
 	/**
-	 * Gibt die Menge des zweiten Cargos ohne Formatierung zurueck
+	 * Gibt die Menge des zweiten Cargos ohne Formatierung zurueck.
 	 * @return Die Menge des zweiten Cargos ohne Formatierung
 	 */
 	public long getCount2() {
@@ -111,7 +111,7 @@ public class ResourceEntry {
 	}
 
 	/**
-	 * Gibt die Differenz der beiden Cargomengen zurueck
+	 * Gibt die Differenz der beiden Cargomengen zurueck.
 	 * @return Die Differenz
 	 */
 	public long getDiff() {
@@ -119,7 +119,7 @@ public class ResourceEntry {
 	}
 
 	/**
-	 * Gibt die Resourcen-ID des Eintrags zurueck
+	 * Gibt die Resourcen-ID des Eintrags zurueck.
 	 * @return Die Resourcen-ID
 	 */
 	public ResourceID getId() {
@@ -127,7 +127,7 @@ public class ResourceEntry {
 	}
 
 	/**
-	 * Gibt das Bild des Eintrags zurueck
+	 * Gibt das Bild des Eintrags zurueck.
 	 * @return das Bild des Eintrags
 	 */
 	public String getImage() {
@@ -135,7 +135,7 @@ public class ResourceEntry {
 	}
 
 	/**
-	 * Gibt den (formatierten) Namen des Eintrags zurueck
+	 * Gibt den (formatierten) Namen des Eintrags zurueck.
 	 * @return der (formatierte) Name
 	 */
 	public String getName() {
@@ -143,7 +143,7 @@ public class ResourceEntry {
 	}
 
 	/**
-	 * Gibt den unformatierten Namen des Eintrags zurueck
+	 * Gibt den unformatierten Namen des Eintrags zurueck.
 	 * @return der unformatierte Name
 	 */
 	public String getPlainName() {
@@ -151,7 +151,7 @@ public class ResourceEntry {
 	}
 
 	/**
-	 * Gibt an, ob grosse Fassungen der Bilder angezeigt werden duerfen (<code>true</code>)
+	 * Gibt an, ob grosse Fassungen der Bilder angezeigt werden duerfen (<code>true</code>).
 	 * @return <code>true</code>, falls grosse Fassungen angezeigt werden duerfen
 	 */
 	public boolean showLargeImages() {

@@ -47,13 +47,13 @@ import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Ermoeglicht das Verwalten von Quick-Quests
+ * Ermoeglicht das Verwalten von Quick-Quests.
  * @author Christopher Jung
  *
  */
 @AdminMenuEntry(category="Quests", name="QuickQuests")
 public class QuestsQuick implements AdminPlugin {
-
+	@Override
 	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();

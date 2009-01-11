@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.framework.pipeline;
 
 /**
- * Error repr?sentiert einen Fehler innerhalb des Frameworks. Jeder Fehler besteht mindestens
+ * Error repraesentiert einen Fehler innerhalb des Frameworks. Jeder Fehler besteht mindestens
  * aus der Fehlerbeschreibung. Optional kann noch eine Ausweich-URL angeben werden, welche
  * dann als Link dem User zur Verf?gung gestellt wird.
  * 
@@ -31,7 +31,7 @@ public class Error {
 	private String url;
 	
 	/**
-	 * Erstellt ein neues Fehlerobject
+	 * Erstellt ein neues Fehlerobject.
 	 * 
 	 * @param description Die Beschreibung des Fehlers
 	 */
@@ -41,7 +41,7 @@ public class Error {
 	}
 	
 	/**
-	 * Erstellt ein neues Fehlerobjekt
+	 * Erstellt ein neues Fehlerobjekt.
 	 * 
 	 * @param description Die Beschreibung des Fehlers
 	 * @param url Die Ausweich-URL
@@ -52,7 +52,7 @@ public class Error {
 	}
 	
 	/**
-	 * Liefert die Beschreibung des Fehlers zur?ck
+	 * Liefert die Beschreibung des Fehlers zurueck.
 	 * 
 	 * @return Die Fehlerbeschreibung
 	 */
@@ -61,7 +61,7 @@ public class Error {
 	}
 	
 	/**
-	 * Liefert die zum Fehler geh?rende Ausweich-URL oder, falls keine URL gesetzt wurde, null.
+	 * Liefert die zum Fehler gehoerende Ausweich-URL oder, falls keine URL gesetzt wurde, null.
 	 * 
 	 * @return Ausweich-URL oder null
 	 */

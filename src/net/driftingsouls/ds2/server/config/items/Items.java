@@ -37,7 +37,7 @@ import org.w3c.dom.NodeList;
 /**
  * Repraesentiert die Liste aller in DS bekannten Itemtypen.
  * Die Liste wird beim Start von DS aus der <code>items.xml</code>
- * geladen
+ * geladen.
  * 
  * @author Christopher Jung
  *
@@ -56,13 +56,14 @@ public class Items implements Iterable<Item> {
 	}
 	
 	/**
-	 * Gibt die Instanz der Item-Liste zurueck
+	 * Gibt die Instanz der Item-Liste zurueck.
 	 * @return Die Item-Listen-Instanz
 	 */
 	public static Items get() {
 		return itemList;
 	}
 	
+	@Override
 	public Iterator<Item> iterator() {
 		return list.values().iterator();
 	}

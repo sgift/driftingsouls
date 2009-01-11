@@ -25,7 +25,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 /**
- * Ein Angebot einer Fraktion
+ * Ein Angebot einer Fraktion.
  * @author Christopher Jung
  *
  */
@@ -43,7 +43,7 @@ public class FactionOffer {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public FactionOffer() {
@@ -51,7 +51,7 @@ public class FactionOffer {
 	}
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param faction Die Fraktion, der das Angebot gehoert
 	 * @param title Der Titel des Angebots
 	 */
@@ -61,7 +61,7 @@ public class FactionOffer {
 	}
 
 	/**
-	 * Gibt die Angebotsbeschreibung zurueck
+	 * Gibt die Angebotsbeschreibung zurueck.
 	 * @return Die Angebotsbeschreibung
 	 */
 	public String getDescription() {
@@ -69,7 +69,7 @@ public class FactionOffer {
 	}
 
 	/**
-	 * Setzt die Angebotsbeschreibung
+	 * Setzt die Angebotsbeschreibung.
 	 * @param description Die Angebotsbeschreibung
 	 */
 	public void setDescription(String description) {
@@ -77,7 +77,7 @@ public class FactionOffer {
 	}
 
 	/**
-	 * Gibt die ID der Fraktion zurueck
+	 * Gibt die ID der Fraktion zurueck.
 	 * @return Die ID der Fraktion
 	 */
 	public int getFaction() {
@@ -85,7 +85,7 @@ public class FactionOffer {
 	}
 
 	/**
-	 * Setzt die Fraktion der das Angebot gehoert
+	 * Setzt die Fraktion der das Angebot gehoert.
 	 * @param faction Die ID der Fraktion
 	 */
 	public final void setFaction(int faction) {
@@ -93,7 +93,7 @@ public class FactionOffer {
 	}
 
 	/**
-	 * Gibt das zum Angebot gehoerende Bild zurueck
+	 * Gibt das zum Angebot gehoerende Bild zurueck.
 	 * @return Das Bild
 	 */
 	public String getImage() {
@@ -101,7 +101,7 @@ public class FactionOffer {
 	}
 
 	/**
-	 * Setzt das zum Angebot gehoerende Bild
+	 * Setzt das zum Angebot gehoerende Bild.
 	 * @param image Das Bild
 	 */
 	public void setImage(String image) {
@@ -109,7 +109,7 @@ public class FactionOffer {
 	}
 
 	/**
-	 * Gibt den Titel des Angebots zurueck
+	 * Gibt den Titel des Angebots zurueck.
 	 * @return Der Titel
 	 */
 	public String getTitle() {
@@ -117,7 +117,7 @@ public class FactionOffer {
 	}
 
 	/**
-	 * Setzt den Titel des Angebots
+	 * Setzt den Titel des Angebots.
 	 * @param title Der Titel
 	 */
 	public final void setTitle(String title) {
@@ -125,7 +125,7 @@ public class FactionOffer {
 	}
 
 	/**
-	 * Gibt die ID des Angebots zurueck
+	 * Gibt die ID des Angebots zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -133,7 +133,7 @@ public class FactionOffer {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

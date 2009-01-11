@@ -19,18 +19,15 @@
 package net.driftingsouls.ds2.server.framework.authentication;
 
 /**
- * Authentifizierungsfehler weil das angegebene Passwort falsch ist
+ * Authentifizierungsfehler weil das angegebene Passwort falsch ist.
  * @author Christopher Jung
  *
  */
 public class WrongPasswordException extends AuthenticationException {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 3913264400383487294L;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 */
 	public WrongPasswordException() {
 		super("Das angegebene Passwort ist nicht korrekt");

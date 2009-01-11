@@ -46,57 +46,57 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Der ScriptParser
+ * Der ScriptParser.
  * @author Christopher Jung
  *
  */
 public class ScriptParser extends AbstractScriptEngine {
 	/**
-	 * Die verschiedenen, dem ScriptParser bekannten, Namespaces
+	 * Die verschiedenen, dem ScriptParser bekannten, Namespaces.
 	 *
 	 */
 	public enum NameSpace {
 		/**
-		 * Schiffsaktions-Scripte
+		 * Schiffsaktions-Scripte.
 		 */
 		ACTION,
 		/**
-		 * Quest-Scripte
+		 * Quest-Scripte.
 		 */
 		QUEST
 	}
 	
 	/**
-	 * Die verschiedenen Argumenttypen
+	 * Die verschiedenen Argumenttypen.
 	 *
 	 */
 	public enum Args {
 		/**
-		 * Variabele Anzahl an Parametern
+		 * Variabele Anzahl an Parametern.
 		 */
 		VARIABLE(1),
 		/**
-		 * Einfache Daten
+		 * Einfache Daten.
 		 */
 		PLAIN(2),
 		/**
-		 * Register, welche die Daten enthalten
+		 * Register, welche die Daten enthalten.
 		 */
 		REG(4),
 		/**
-		 * Einfache Daten oder Register
+		 * Einfache Daten oder Register.
 		 */
 		PLAIN_REG(PLAIN.value() | REG.value()),
 		/**
-		 * Einfache Daten variabler Anzahl
+		 * Einfache Daten variabler Anzahl.
 		 */
 		PLAIN_VARIABLE(PLAIN.value() | VARIABLE.value()),
 		/**
-		 * Register variabler Anzahl
+		 * Register variabler Anzahl.
 		 */
 		REG_VARIABLE(REG.value() | VARIABLE.value()),
 		/**
-		 * Einfache Daten oder Register variabler Anzahl
+		 * Einfache Daten oder Register variabler Anzahl.
 		 */
 		PLAIN_REG_VARIABLE(PLAIN.value() | REG.value() | VARIABLE.value());
 
@@ -106,7 +106,7 @@ public class ScriptParser extends AbstractScriptEngine {
 		}
 		
 		/**
-		 * Gibt die Integer-Repraesentation des Argument-Typs zurueck
+		 * Gibt die Integer-Repraesentation des Argument-Typs zurueck.
 		 * @return Die Integer-Repraesentation
 		 */
 		public int value() {
@@ -131,7 +131,7 @@ public class ScriptParser extends AbstractScriptEngine {
 	private ScriptEngineFactory factory;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param factory Die Factory, welche die Instanz erzeugt hat
 	 * @param namespace Der Namespace, in dem der ScriptParser arbeiten soll
 	 */
@@ -153,7 +153,7 @@ public class ScriptParser extends AbstractScriptEngine {
 	}
 
 	/**
-	 * Registriert eine ScriptParser-Funktion
+	 * Registriert eine ScriptParser-Funktion.
 	 * @param command Der Name der Script-Parser-Funktion
 	 * @param function Die Funktionsimplementierung
 	 * @param args Die Parameterstruktur
@@ -171,7 +171,7 @@ public class ScriptParser extends AbstractScriptEngine {
 	}
 	
 	/**
-	 * Loggt den angegebenen String
+	 * Loggt den angegebenen String.
 	 * @param txt Der zu loggende String
 	 */
 	protected void log( String txt ) {
@@ -184,7 +184,7 @@ public class ScriptParser extends AbstractScriptEngine {
 	}
 
 	/**
-	 * Setzt das Schiff
+	 * Setzt das Schiff.
 	 * @param ship Das Schiff
 	 */
 	protected void setShip( Ship ship ) {
@@ -192,7 +192,7 @@ public class ScriptParser extends AbstractScriptEngine {
 	}
 	
 	/**
-	 * Gibt das Schiff zurueck
+	 * Gibt das Schiff zurueck.
 	 * @return Das Schiff
 	 */
 	protected Ship getShip() {
@@ -200,7 +200,7 @@ public class ScriptParser extends AbstractScriptEngine {
 	}
 		
 	/**
-	 * Gibt das angegebene Register zurueck
+	 * Gibt das angegebene Register zurueck.
 	 * @param reg Das Register
 	 * @return der Inhalt des Registers
 	 */
@@ -218,7 +218,7 @@ public class ScriptParser extends AbstractScriptEngine {
 	}
 	
 	/**
-	 * Gibt das angegebene Register zurueck
+	 * Gibt das angegebene Register zurueck.
 	 * @param reg Das Register
 	 * @return der Inhalt des Registers
 	 */
@@ -231,7 +231,7 @@ public class ScriptParser extends AbstractScriptEngine {
 	}
 	
 	/**
-	 * Setzt das angegebene Register auf den angegebenen Wert
+	 * Setzt das angegebene Register auf den angegebenen Wert.
 	 * @param reg Der Name des Registers
 	 * @param data Der Wert
 	 */
@@ -329,7 +329,7 @@ public class ScriptParser extends AbstractScriptEngine {
 	}
 	
 	/**
-	 * Fuehrt einen Term aus und gibt das Ergebnis zurueck
+	 * Fuehrt einen Term aus und gibt das Ergebnis zurueck.
 	 * @param term Der Term
 	 * @return Das Ergebnis
 	 */
@@ -423,7 +423,7 @@ public class ScriptParser extends AbstractScriptEngine {
 	}
 	
 	/**
-	 * Setzt den zur Ausfuehrung von Scripten zu verwendenden Kontext
+	 * Setzt den zur Ausfuehrung von Scripten zu verwendenden Kontext.
 	 * @param context Der Kontext
 	 */
 	public void setContext(ScriptParserContext context) {
@@ -444,6 +444,7 @@ public class ScriptParser extends AbstractScriptEngine {
 		this.context.setAttribute("__INSTRUCTIONPOINTER", ip, ScriptContext.ENGINE_SCOPE);
 	}
 	
+	@Override
 	public Object eval(String script, ScriptContext context) throws ScriptException {
 		ScriptContext oldContext = this.context;
 		this.context = context;
@@ -844,6 +845,7 @@ public class ScriptParser extends AbstractScriptEngine {
 		return null;
 	}
 
+	@Override
 	public Bindings createBindings() {
 		SimpleBindings bindings = new SimpleBindings();
 		bindings.put("__INSTRUCTIONPOINTER", 0);
@@ -851,6 +853,7 @@ public class ScriptParser extends AbstractScriptEngine {
 		return bindings;
 	}
 
+	@Override
 	public Object eval(Reader reader, ScriptContext context) throws ScriptException {
 		StringBuilder builder = new StringBuilder();
 		BufferedReader bf = new BufferedReader(reader);
@@ -867,6 +870,7 @@ public class ScriptParser extends AbstractScriptEngine {
 		return eval(builder.toString(), context);
 	}
 
+	@Override
 	public ScriptEngineFactory getFactory() {
 		return factory;
 	}

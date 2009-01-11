@@ -34,12 +34,12 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeFunction;
 
 /**
- * BBCode fuer Resourcen
+ * BBCode fuer Resourcen.
  * @author Christopher Jung
  *
  */
 public class TagResource implements BBCodeFunction {
-
+	@Override
 	public String handleMatch(String content, String... values) {
 		Context context = ContextMap.getContext();
 		

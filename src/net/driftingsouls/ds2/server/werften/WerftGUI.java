@@ -53,7 +53,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Die GUI einer Werft
+ * Die GUI einer Werft.
  * @author bktheg
  *
  */
@@ -65,7 +65,7 @@ public class WerftGUI {
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -75,7 +75,7 @@ public class WerftGUI {
     }
 	
 	/**
-	 * Erstellt eine neue Instanz einer Werftgui auf Basis des Kontexts
+	 * Erstellt eine neue Instanz einer Werftgui auf Basis des Kontexts.
 	 * @param context Der Kontext
 	 * @param t Das zu verwendende TemplateEngine
 	 */
@@ -85,7 +85,7 @@ public class WerftGUI {
 	}
 	
 	/**
-	 * Generiert die Werft-GUI fuer das angegebene Werftobjekt
+	 * Generiert die Werft-GUI fuer das angegebene Werftobjekt.
 	 * @param werft Das Werftobjekt
 	 * @return Die GUI als String
 	 */

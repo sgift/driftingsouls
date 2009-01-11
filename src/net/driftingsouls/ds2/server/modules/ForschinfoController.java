@@ -47,7 +47,7 @@ import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
- * Zeigt Details zu einer Forschung an 
+ * Zeigt Details zu einer Forschung an .
  * @author Christopher Jung
  *
  * @urlparam Integer res Die ID der anzuzeigenden Forschung
@@ -59,7 +59,7 @@ public class ForschinfoController extends TemplateGenerator {
 	private Configuration config;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public ForschinfoController(Context context) {
@@ -73,7 +73,7 @@ public class ForschinfoController extends TemplateGenerator {
 	}
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired

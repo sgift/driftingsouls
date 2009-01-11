@@ -31,7 +31,7 @@ import javax.persistence.Version;
 import net.driftingsouls.ds2.server.framework.Common;
 
 /**
- * Ein Handelseintrag
+ * Ein Handelseintrag.
  * @author Christopher Jung
  *
  */
@@ -55,7 +55,7 @@ public class Handel {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public Handel() {
@@ -63,8 +63,8 @@ public class Handel {
 	}
 	
 	/**
-	 * <p>Konstruktor</p>
-	 * Erstellt einen neuen Handelseintrag fuer den aktuellen Zeitpunkt
+	 * <p>Konstruktor.</p>
+	 * Erstellt einen neuen Handelseintrag fuer den aktuellen Zeitpunkt.
 	 * @param who Der Besitzer des Eintrags
 	 */
 	public Handel(User who) {
@@ -76,7 +76,7 @@ public class Handel {
 	}
 
 	/**
-	 * Gibt die gebotenen Waren zurueck
+	 * Gibt die gebotenen Waren zurueck.
 	 * @return Die gebotenen Waren
 	 */
 	public String getBietet() {
@@ -84,7 +84,7 @@ public class Handel {
 	}
 
 	/**
-	 * Setzt die gebotenen Waren
+	 * Setzt die gebotenen Waren.
 	 * @param bietet Die Waren
 	 */
 	public void setBietet(String bietet) {
@@ -92,7 +92,7 @@ public class Handel {
 	}
 
 	/**
-	 * Gibt den Kommentar zurueck
+	 * Gibt den Kommentar zurueck.
 	 * @return der Kommentar
 	 */
 	public String getKommentar() {
@@ -100,7 +100,7 @@ public class Handel {
 	}
 
 	/**
-	 * Setzt den Kommentar
+	 * Setzt den Kommentar.
 	 * @param kommentar Der Kommentar
 	 */
 	public void setKommentar(String kommentar) {
@@ -108,7 +108,7 @@ public class Handel {
 	}
 
 	/**
-	 * Gibt die gesuchten Waren zurueck
+	 * Gibt die gesuchten Waren zurueck.
 	 * @return Die gesuchten Waren
 	 */
 	public String getSucht() {
@@ -116,7 +116,7 @@ public class Handel {
 	}
 
 	/**
-	 * Setzt die gesuchten Waren
+	 * Setzt die gesuchten Waren.
 	 * @param sucht Die gesuchten Waren
 	 */
 	public void setSucht(String sucht) {
@@ -124,7 +124,7 @@ public class Handel {
 	}
 
 	/**
-	 * Gibt den Zeitpunkt zurueck, an dem das Angebot erstellt wurde
+	 * Gibt den Zeitpunkt zurueck, an dem das Angebot erstellt wurde.
 	 * @return Der Zeitpunkt
 	 */
 	public long getTime() {
@@ -132,7 +132,7 @@ public class Handel {
 	}
 
 	/**
-	 * Setzt den Zeitpunkt, an dem das Angebot erstellt wurde
+	 * Setzt den Zeitpunkt, an dem das Angebot erstellt wurde.
 	 * @param time Der Zeitpunkt
 	 */
 	public void setTime(long time) {
@@ -140,7 +140,7 @@ public class Handel {
 	}
 
 	/**
-	 * Gibt den Besitzer des Angebots zurueck
+	 * Gibt den Besitzer des Angebots zurueck.
 	 * @return Der Besitzer
 	 */
 	public User getWho() {
@@ -148,7 +148,7 @@ public class Handel {
 	}
 
 	/**
-	 * Setzt den Besitzer des Angebots
+	 * Setzt den Besitzer des Angebots.
 	 * @param who Der Besitzer
 	 */
 	public void setWho(User who) {
@@ -156,7 +156,7 @@ public class Handel {
 	}
 
 	/**
-	 * Gibt die ID des Handelseintrags zurueck
+	 * Gibt die ID des Handelseintrags zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -164,7 +164,7 @@ public class Handel {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

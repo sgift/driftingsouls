@@ -49,7 +49,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.hibernate.annotations.Type;
 
 /**
- * Ein Eintrag in der WerftQueue
+ * Ein Eintrag in der WerftQueue.
  * @author Christopher Jung
  *
  */
@@ -57,7 +57,7 @@ import org.hibernate.annotations.Type;
 @Table(name="werft_queues")
 public class WerftQueueEntry {
 	/**
-	 * Lognachrichten der zuletzt aufgerufenen Methoden. Die Nachrichten sind Thread-Lokal
+	 * Lognachrichten der zuletzt aufgerufenen Methoden. Die Nachrichten sind Thread-Lokal.
 	 */
 	@Transient
 	public final ContextLocalMessage MESSAGE = new ContextLocalMessage();
@@ -85,7 +85,7 @@ public class WerftQueueEntry {
 	private boolean scheduled = false;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public WerftQueueEntry() {
@@ -93,7 +93,7 @@ public class WerftQueueEntry {
 	}
 	
 	/**
-	 * Erstellt einen neuen Bauschlangeneintrag
+	 * Erstellt einen neuen Bauschlangeneintrag.
 	 * @param werft Die Werft
 	 * @param building Das zu bauende Schiff
 	 * @param remaining Die verbleibende Bauzeit
@@ -110,7 +110,7 @@ public class WerftQueueEntry {
 	}
 	
 	/**
-	 * Erstellt einen neuen Bauschlangeneintrag
+	 * Erstellt einen neuen Bauschlangeneintrag.
 	 * @param werft Die Werft
 	 * @param building Das zu bauende Schiff
 	 * @param buildItem Das zum Bau benoetigte Item
@@ -136,7 +136,7 @@ public class WerftQueueEntry {
 	}
 	
 	/**
-	 * Gibt die Id zurueck
+	 * Gibt die Id zurueck.
 	 * @return Die Id
 	 */
 	public int getId() {
@@ -162,7 +162,7 @@ public class WerftQueueEntry {
 	}
 	
 	/**
-	 * Gibt die Werft zurueck, zu der die Bauschlange gehoert
+	 * Gibt die Werft zurueck, zu der die Bauschlange gehoert.
 	 * @return Die Werft
 	 */
 	public WerftObject getWerft() {
@@ -170,7 +170,7 @@ public class WerftQueueEntry {
 	}
 	
 	/**
-	 * Gibt die Position des Eintrags innerhalb der Bauschlange zurueck
+	 * Gibt die Position des Eintrags innerhalb der Bauschlange zurueck.
 	 * @return Die Position
 	 */
 	public int getPosition() {
@@ -187,7 +187,7 @@ public class WerftQueueEntry {
 	}
 	
 	/**
-	 * Gibt zurueck, ob es sich bei dem Bau um ein Flagschiff handelt
+	 * Gibt zurueck, ob es sich bei dem Bau um ein Flagschiff handelt.
 	 * @return <code>true</code>, falls es ein Flagschiff ist
 	 */
 	public boolean isBuildFlagschiff() {
@@ -195,7 +195,7 @@ public class WerftQueueEntry {
 	}
 
 	/**
-	 * Setzt, ob es sich beim Bau um ein Flagschiff handelt
+	 * Setzt, ob es sich beim Bau um ein Flagschiff handelt.
 	 * @param buildFlagschiff <code>true</code>, falls es ein Flagschiff ist
 	 */
 	public void setBuildFlagschiff(boolean buildFlagschiff) {
@@ -203,7 +203,7 @@ public class WerftQueueEntry {
 	}
 
 	/**
-	 * Gibt den zu bauenden Schiffstyp zurueck
+	 * Gibt den zu bauenden Schiffstyp zurueck.
 	 * @return Der Schiffstyp
 	 */
 	public ShipType getBuildShipType() {
@@ -211,7 +211,7 @@ public class WerftQueueEntry {
 	}
 
 	/**
-	 * Setzt den zu bauenden Schiffstyp
+	 * Setzt den zu bauenden Schiffstyp.
 	 * @param building Der Schiffstyp
 	 */
 	public void setBuildShipType(ShipType building) {
@@ -228,7 +228,7 @@ public class WerftQueueEntry {
 	}
 
 	/**
-	 * Setzt das fuer den Bau benoetigte Item
+	 * Setzt das fuer den Bau benoetigte Item.
 	 * @param buildItem Das Item oder <code>-1</code>
 	 */
 	public void setRequiredItem(int buildItem) {
@@ -236,7 +236,7 @@ public class WerftQueueEntry {
 	}
 
 	/**
-	 * Gibt die verbleibende Bauzeit zurueck
+	 * Gibt die verbleibende Bauzeit zurueck.
 	 * @return Die verbleibende Bauzeit
 	 */
 	public int getRemainingTime() {
@@ -244,7 +244,7 @@ public class WerftQueueEntry {
 	}
 
 	/**
-	 * Setzt die noch verbleibende Bauzeit
+	 * Setzt die noch verbleibende Bauzeit.
 	 * @param remaining Die Bauzeit
 	 */
 	public void setRemainingTime(int remaining) {
@@ -252,7 +252,7 @@ public class WerftQueueEntry {
 	}
 
 	/**
-	 * Gibt die pro Tick faelligen Baukosten zurueck
+	 * Gibt die pro Tick faelligen Baukosten zurueck.
 	 * @return Die Baukosten pro Tick
 	 */
 	public Cargo getCostsPerTick() {
@@ -260,7 +260,7 @@ public class WerftQueueEntry {
 	}
 
 	/**
-	 * Setzt die pro Tick faelligen Baukosten
+	 * Setzt die pro Tick faelligen Baukosten.
 	 * @param costsPerTick Die Baukosten pro Tick
 	 */
 	public void setCostsPerTick(Cargo costsPerTick) {
@@ -268,7 +268,7 @@ public class WerftQueueEntry {
 	}
 	
 	/**
-	 * Gibt die Energiekosten pro Tick zurueck
+	 * Gibt die Energiekosten pro Tick zurueck.
 	 * @return Die Energiekosten pro Tick
 	 */
 	public int getEnergyPerTick() {
@@ -276,7 +276,7 @@ public class WerftQueueEntry {
 	}
 
 	/**
-	 * Setzt die Energiekosten pro Tick
+	 * Setzt die Energiekosten pro Tick.
 	 * @param energyPerTick Die Energiekosten pro Tick
 	 */
 	public void setEnergyPerTick(int energyPerTick) {
@@ -284,7 +284,7 @@ public class WerftQueueEntry {
 	}
 
 	/**
-	 * Gibt zurueck, ob der Eintrag gerade zum Bau vorgesehen ist
+	 * Gibt zurueck, ob der Eintrag gerade zum Bau vorgesehen ist.
 	 * @return <code>true</code>, falls er gerade gebaut wird
 	 */
 	public boolean isScheduled() {
@@ -292,7 +292,7 @@ public class WerftQueueEntry {
 	}
 
 	/**
-	 * Setzt, ob der Eintrag nun gebaut werden soll
+	 * Setzt, ob der Eintrag nun gebaut werden soll.
 	 * @param sheduled <code>true</code>, falls er gebaut werden soll
 	 */
 	public void setScheduled(boolean sheduled) {
@@ -300,7 +300,7 @@ public class WerftQueueEntry {
 	}
 
 	/**
-	 * Gibt zurueck, wieviele Slots der Eintrag belegt
+	 * Gibt zurueck, wieviele Slots der Eintrag belegt.
 	 * @return Die Anzahl der belegten Slots
 	 */
 	public int getSlots() {
@@ -308,7 +308,7 @@ public class WerftQueueEntry {
 	}
 
 	/**
-	 * Setzt die Anzahl der belegten Slots
+	 * Setzt die Anzahl der belegten Slots.
 	 * @param slots Die Anzahl der Slots
 	 */
 	public void setSlots(int slots) {
@@ -505,7 +505,7 @@ public class WerftQueueEntry {
 	}
 	
 	/**
-	 * Dekrementiert die verbliebene Bauzeit um 1
+	 * Dekrementiert die verbliebene Bauzeit um 1.
 	 */
 	public final void decRemainingTime() {
 		if( this.getRemainingTime() <= 0 ) {

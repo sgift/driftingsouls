@@ -49,7 +49,7 @@ public class TechDatabaseController extends TemplateGenerator {
 	private Configuration config;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public TechDatabaseController(Context context) {
@@ -59,7 +59,7 @@ public class TechDatabaseController extends TemplateGenerator {
 	}
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -99,7 +99,7 @@ public class TechDatabaseController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt das Frameset an
+	 * Zeigt das Frameset an.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)
@@ -108,7 +108,7 @@ public class TechDatabaseController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt eine leere Seite an
+	 * Zeigt eine leere Seite an.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -117,7 +117,7 @@ public class TechDatabaseController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt das Tech-Datenbank Menue an
+	 * Zeigt das Tech-Datenbank Menue an.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -128,7 +128,7 @@ public class TechDatabaseController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Schiffsliste an
+	 * Zeigt die Schiffsliste an.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -147,7 +147,7 @@ public class TechDatabaseController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt das Tutorial an
+	 * Zeigt das Tutorial an.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)

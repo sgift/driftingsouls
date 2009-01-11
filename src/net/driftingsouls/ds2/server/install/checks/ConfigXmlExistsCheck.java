@@ -21,18 +21,19 @@ package net.driftingsouls.ds2.server.install.checks;
 import java.io.File;
 
 /**
- * Ueberprueft, ob die config.xml existiert
+ * Ueberprueft, ob die config.xml existiert.
  * @author Christopher Jung
  *
  */
 public class ConfigXmlExistsCheck implements Checkable {
-
+	@Override
 	public void doCheck() throws CheckFailedException {
 		if( !new File("WEB-INF/cfg/config.xml").isFile() ) {
 			throw new CheckFailedException("WEB-INF/cfg/config.xml nicht gefunden");
 		}
 	}
 
+	@Override
 	public String getDescription() {
 		return "config.xml existiert";
 	}

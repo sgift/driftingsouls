@@ -29,13 +29,13 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
- * Laesst das gerade ausgewaehlte Schiff fliehen
+ * Laesst das gerade ausgewaehlte Schiff fliehen.
  * @author Christopher Jung
  *
  */
 public class KSFluchtSingleAction extends BasicKSAction {
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public KSFluchtSingleAction() {

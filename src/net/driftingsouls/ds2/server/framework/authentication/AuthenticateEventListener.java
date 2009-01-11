@@ -28,7 +28,7 @@ import net.driftingsouls.ds2.server.framework.BasicUser;
 public interface AuthenticateEventListener {
 	/**
 	 * Wird immer dann aufgerufen, wenn ein User eine Aktion
-	 * durchfuehrt und die Session validiert wird
+	 * durchfuehrt und die Session validiert wird.
 	 * @param user Der User
 	 * @throws AuthenticationException Falls die Authentifizierung fehlschlaegt
 	 */

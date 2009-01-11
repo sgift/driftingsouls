@@ -35,13 +35,13 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
- * Zeigt die Liste der Allianzen sowie Allianzdetails
+ * Zeigt die Liste der Allianzen sowie Allianzdetails.
  * @author Christopher Jung
  *
  */
 public class AllyListController extends TemplateGenerator {
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public AllyListController(Context context) {
@@ -81,7 +81,7 @@ public class AllyListController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Setzt die Beziehungen des Spielers zu allen Mitgliedern der Allianz
+	 * Setzt die Beziehungen des Spielers zu allen Mitgliedern der Allianz.
 	 * @urlparam Integer details Die ID der Allianz
 	 * @urlparam Integer relation Die neue Beziehung. 1 fuer feindlich, 2 fuer freundlich und neural bei allen anderen Werten
 	 *
@@ -131,7 +131,7 @@ public class AllyListController extends TemplateGenerator {
 	}
 
 	/**
-	 * Setzt die Beziehungen der Allianz des Spielers zur ausgewaehlten Allianz
+	 * Setzt die Beziehungen der Allianz des Spielers zur ausgewaehlten Allianz.
 	 * @urlparam Integer details Die ID der Allianz
 	 * @urlparam Integer relation Die neue Beziehung. 1 fuer feindlich, 2 fuer freundlich und neural bei allen anderen Werten
 	 */
@@ -194,7 +194,7 @@ public class AllyListController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Informationen zu einer Allianz an
+	 * Zeigt die Informationen zu einer Allianz an.
 	 * @urlparam Integer details Die ID der anzuzeigenden Allianz
 	 *
 	 */
@@ -290,7 +290,7 @@ public class AllyListController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Liste der Allianzen in DS an
+	 * Zeigt die Liste der Allianzen in DS an.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

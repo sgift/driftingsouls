@@ -55,7 +55,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 
 /**
- * Die Benutzerklasse von DS
+ * Die Benutzerklasse von DS.
  * @author Christopher Jung
  *
  */
@@ -67,102 +67,102 @@ public class User extends BasicUser {
 	private static final Log log = LogFactory.getLog(User.class);
 	
 	/**
-	 * Geldtransfer - Der Transfer ist manuell vom Spieler durchgefuerht worden
+	 * Geldtransfer - Der Transfer ist manuell vom Spieler durchgefuerht worden.
 	 */
 	public static final int TRANSFER_NORMAL = 0;
 	/**
-	 * Geldtransfer - Der Transfer ist in direkter Folge einer Spieleraktion ausgefuehrt worden
+	 * Geldtransfer - Der Transfer ist in direkter Folge einer Spieleraktion ausgefuehrt worden.
 	 */
 	public static final int TRANSFER_SEMIAUTO = 1;
 	/**
-	 * Geldtransfer - Der Transfer ist automatisch erfolgt
+	 * Geldtransfer - Der Transfer ist automatisch erfolgt.
 	 */
 	public static final int TRANSFER_AUTO = 2;
 	
 	/**
-	 * Der Spieler taucht in der Spielerliste nicht auf
+	 * Der Spieler taucht in der Spielerliste nicht auf.
 	 */
 	public static final String FLAG_HIDE = "hide";
 	/**
-	 * Der Spieler kann auch in entmilitarisierte Systeme mit Militaerschiffen springen
+	 * Der Spieler kann auch in entmilitarisierte Systeme mit Militaerschiffen springen.
 	 */
 	public static final String FLAG_MILITARY_JUMPS = "miljumps";
 	/**
-	 * Der Spieler kann alle Schlachten sehen
+	 * Der Spieler kann alle Schlachten sehen.
 	 */
 	public static final String FLAG_VIEW_BATTLES = "viewbattles";
 	/**
-	 * Der Spieler hat Zugriff auf das NPC-Menue
+	 * Der Spieler hat Zugriff auf das NPC-Menue.
 	 */
 	public static final String FLAG_ORDER_MENU = "ordermenu";
 	/**
-	 * Der Spieler kann auch NPC-Systeme sehen
+	 * Der Spieler kann auch NPC-Systeme sehen.
 	 */
 	public static final String FLAG_VIEW_SYSTEMS = "viewsystems";
 	/**
-	 * Der Spieler kann sowohl Admin- als auch NPC-Systeme sehen 
+	 * Der Spieler kann sowohl Admin- als auch NPC-Systeme sehen.
 	 */
 	public static final String FLAG_VIEW_ALL_SYSTEMS = "viewallsystems";
 	/**
-	 * Der Spieler kann Schiffsscripte benutzen
+	 * Der Spieler kann Schiffsscripte benutzen.
 	 */
 	public static final String FLAG_EXEC_NOTES = "execnotes";
 	/**
-	 * Der Spieler kann Questschlachten leiten (und uebernehmen)
+	 * Der Spieler kann Questschlachten leiten (und uebernehmen).
 	 */
 	public static final String FLAG_QUEST_BATTLES = "questbattles";
 	/**
-	 * Der Spieler sieht den Debug-Output des Scriptparsers
+	 * Der Spieler sieht den Debug-Output des Scriptparsers.
 	 */
 	public static final String FLAG_SCRIPT_DEBUGGING = "scriptdebug";
 	/**
-	 * Dem Spieler koennen keine Schiffe uebergeben werden
+	 * Dem Spieler koennen keine Schiffe uebergeben werden.
 	 */
 	public static final String FLAG_NO_SHIP_CONSIGN = "noshipconsign";
 	/**
-	 * Der Spieler kann mit Schiffen jederzeit ins System 99 springen
+	 * Der Spieler kann mit Schiffen jederzeit ins System 99 springen.
 	 */
 	public static final String FLAG_NPC_ISLAND = "npc_island";
 	/**
-	 * Sprungpunkte sind fuer den Spieler immer passierbar
+	 * Sprungpunkte sind fuer den Spieler immer passierbar.
 	 */
 	public static final String FLAG_NO_JUMPNODE_BLOCK = "nojnblock";
 	/**
-	 * Der Spieler kann jedes Schiff, egal welcher Besitzer und wie Gross andocken
+	 * Der Spieler kann jedes Schiff, egal welcher Besitzer und wie Gross andocken.
 	 */
 	public static final String FLAG_SUPER_DOCK = "superdock";
 	/**
-	 * Der Spieler hat Moderatorrechte im Handel
+	 * Der Spieler hat Moderatorrechte im Handel.
 	 */
 	public static final String FLAG_MODERATOR_HANDEL = "moderator_handel";
 	/**
-	 * Der Spieler ist ein Noob
+	 * Der Spieler ist ein Noob.
 	 */
 	public static final String FLAG_NOOB = "noob";
 	
 	/**
-	 * Die Arten von Beziehungen zwischen zwei Spielern
+	 * Die Arten von Beziehungen zwischen zwei Spielern.
 	 * @author Christopher Jung
 	 *
 	 */
 	public static enum Relation {
 		/**
-		 * Neutral
+		 * Neutral.
 		 */
 		NEUTRAL,	// 0
 		/**
-		 * Feindlich
+		 * Feindlich.
 		 */
 		ENEMY,		// 1
 		/**
-		 * Freundlich
+		 * Freundlich.
 		 */
 		FRIEND;		// 2
 	}
 
 	/**
 	 * Klasse, welche die Beziehungen eines Spielers zu anderen
-	 * Spielern enthaelt
+	 * Spielern enthaelt.
 	 * @author Christopher Jung
 	 *
 	 */
@@ -174,7 +174,7 @@ public class User extends BasicUser {
 		public Map<Integer,Relation> toOther = new HashMap<Integer,Relation>();
 		/**
 		 * Die Beziehungen von anderen Spielern zum Spieler selbst.
-		 * Schluessel ist die Spieler-ID
+		 * Schluessel ist die Spieler-ID.
 		 */
 		public Map<Integer,Relation> fromOther = new HashMap<Integer,Relation>();
 		
@@ -220,7 +220,7 @@ public class User extends BasicUser {
 	private Configuration config;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public User() {
@@ -282,7 +282,7 @@ public class User extends BasicUser {
 	}
 	
     /**
-    * Injiziert die DS-Konfiguration
+    * Injiziert die DS-Konfiguration.
     * @param config Die DS-Konfiguration
     */
     @Autowired
@@ -295,7 +295,7 @@ public class User extends BasicUser {
 	 * Macht alle geladenen Benutzereigenschaften dem Templateengine bekannt.
 	 * Die daraus resultierenden Template-Variablen haben die Form Prefix+"."+Datenbankname.
 	 * Die Eigenschaft Wait4Vacation, welche den Datenbanknamen "wait4vac" hat, wuerde sich, beim 
-	 * Prefix "activeuser", somit in der Template-Variablen "activeuser.wait4vac" wiederfinden
+	 * Prefix "activeuser", somit in der Template-Variablen "activeuser.wait4vac" wiederfinden.
 	 * 
 	 * @param templateEngine Das Template-Engine, in dem die Variablen gesetzt werden sollen
 	 * @param prefix Der fuer die Template-Variablen zu verwendende Prefix
@@ -330,7 +330,7 @@ public class User extends BasicUser {
 	
 	/**
 	 * Liefert einen Profile-Link zu den Benutzer zurueck (als HTML).
-	 * Als CSS-Klasse fuer den Link wird die angegebene Klasse verwendet
+	 * Als CSS-Klasse fuer den Link wird die angegebene Klasse verwendet.
 	 * @param username Der anzuzeigende Spielername
 	 * @return Der Profile-Link
 	 */
@@ -344,7 +344,7 @@ public class User extends BasicUser {
 	
 	/**
 	 * Liefert einen vollstaendigen Profile-Link zu den Benutzer zurueck (als HTML).
-	 * Der Linkt enthaelt einen &lt;a&gt;-Tag sowie den Benutzernamen als HTML
+	 * Der Linkt enthaelt einen &lt;a&gt;-Tag sowie den Benutzernamen als HTML.
 	 * @return Der Profile-Link
 	 */
 	public String getProfileLink() {
@@ -364,7 +364,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Setzt den Spieler-Cargo auf den angegebenen Cargo-String in der Datenbank
+	 * Setzt den Spieler-Cargo auf den angegebenen Cargo-String in der Datenbank.
 	 * @param cargo Der Cargo-String
 	 */
 	public void setCargo(String cargo) {
@@ -372,7 +372,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Stellt fest, ob noch Platz fuer ein Flagschiff vorhanden ist
+	 * Stellt fest, ob noch Platz fuer ein Flagschiff vorhanden ist.
 	 * 
 	 * @return true, falls noch Platz vorhanden ist
 	 */
@@ -383,7 +383,7 @@ public class User extends BasicUser {
 	/**
 	 * Liefert den Aufenthaltsort des Flagschiffs dieses Spielers.
 	 * Der Typ Aufenthaltsort kann entweder ein Schiff (normal), eine Basiswerft
-	 * oder eine Schiffswerft sein (in beiden Faellen wird das Schiff noch gebaut)
+	 * oder eine Schiffswerft sein (in beiden Faellen wird das Schiff noch gebaut).
 	 * 
 	 * @return Infos zum Aufenthaltsort
 	 */
@@ -426,7 +426,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Setzt die Schiffs-ID des Flagschiffs. Falls diese 0 ist, besitzt der Spieler kein Flagschiff mehr
+	 * Setzt die Schiffs-ID des Flagschiffs. Falls diese 0 ist, besitzt der Spieler kein Flagschiff mehr.
 	 * 
 	 * @param shipid Die Schiffs-ID des Flagschiffs
 	 */
@@ -438,7 +438,7 @@ public class User extends BasicUser {
 	private Relations relations = null;
 	
 	/**
-	 * Liefert alle Beziehungen vom Spieler selbst zu anderen Spielern und umgekehrt
+	 * Liefert alle Beziehungen vom Spieler selbst zu anderen Spielern und umgekehrt.
 	 * 
 	 * @return Gibt ein Array zurueck. 
 	 * 	Position 0 enthaelt alle Beziehungen von einem selbst ($userid => $beziehung).
@@ -485,7 +485,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Gibt den Status der Beziehung des Spielers zu einem anderen Spieler zurueck
+	 * Gibt den Status der Beziehung des Spielers zu einem anderen Spieler zurueck.
 	 * @param userid Die ID des anderen Spielers
 	 * @return Der Status der Beziehungen zu dem anderen Spieler
 	 */
@@ -524,7 +524,7 @@ public class User extends BasicUser {
 	
 	/**
 	 * Setzt die Beziehungen des Spielers zu einem anderen Spieler auf den angegebenen
-	 * Wert
+	 * Wert.
 	 * @param userid Die ID des anderen Spielers
 	 * @param relation Der neue Status der Beziehungen
 	 */
@@ -616,7 +616,7 @@ public class User extends BasicUser {
 	 * Der Transfer kann entweder ein echter Transfer sein (Geld wird abgebucht) oder ein gefakter
 	 * Transfer (kein Geld wird abgebucht sondern nur hinzugefuegt).
 	 * Zudem faellt jeder Geldtransfer in eine von 3 Kategorien (automatisch, halbautomatisch und manuell).<br>
-	 * Die Berechnung erfolgt intern auf Basis von <code>BigInteger</code>
+	 * Die Berechnung erfolgt intern auf Basis von <code>BigInteger</code>.
 	 * 
 	 * @param fromID Die ID des Benutzers, von dem Geld abgebucht werden soll
 	 * @param count Die zu transferierende Geldmenge
@@ -681,7 +681,7 @@ public class User extends BasicUser {
 	/**
 	 * Transferiert einen bestimmten Geldbetrag (RE) von einem anderen Spieler zum aktuellen. Beim
 	 * Transfer handelt es sich um einen manuellen Transfer. Das Geld wird tatsaechlich dem Ausgangsspieler
-	 * abgezogen (kein "gefakter" Transfer)
+	 * abgezogen (kein "gefakter" Transfer).
 	 * 
 	 * @param fromID Die ID des Benutzers, von dem Geld abgebucht werden soll
 	 * @param count Die zu transferierende Geldmenge
@@ -695,7 +695,7 @@ public class User extends BasicUser {
 	private int wait4vac;
 	
 	/**
-	 * Prueft, ob die angegebene Forschung durch den Benutzer erforscht wurde
+	 * Prueft, ob die angegebene Forschung durch den Benutzer erforscht wurde.
 	 * 
 	 * @param researchID Die ID der zu pruefenden Forschung
 	 * @return <code>true</code>, falls die Forschung erforscht wurde
@@ -705,7 +705,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Fuegt eine Forschung zur Liste der durch den Benutzer erforschten Technologien hinzu
+	 * Fuegt eine Forschung zur Liste der durch den Benutzer erforschten Technologien hinzu.
 	 * @param researchID Die ID der erforschten Technologie
 	 */
 	public void addResearch( int researchID ) {
@@ -719,7 +719,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Fuegt eine Zeile zur User-Historie hinzu
+	 * Fuegt eine Zeile zur User-Historie hinzu.
 	 * @param text Die hinzuzufuegende Zeile
 	 */
 	public void addHistory( String text ) {
@@ -767,7 +767,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Prueft, ob der Spieler noch unter Noob-Schutz steht
+	 * Prueft, ob der Spieler noch unter Noob-Schutz steht.
 	 * @return <code>true</code>, falls der Spieler noch ein Noob ist
 	 */
 	public boolean isNoob() {
@@ -782,7 +782,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Gibt die ID der Rasse des Spielers zurueck
+	 * Gibt die ID der Rasse des Spielers zurueck.
 	 * @return Die ID der Rasse
 	 */
 	public int getRace() {
@@ -790,7 +790,7 @@ public class User extends BasicUser {
 	}
 
 	/**
-	 * Gibt die Spielerhistorie als BBCode-formatierten String zurueck
+	 * Gibt die Spielerhistorie als BBCode-formatierten String zurueck.
 	 * @return Die Spielerhistorie
 	 */
 	public String getHistory() {
@@ -807,7 +807,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Setzt die Liste der Orden des Spielers
+	 * Setzt die Liste der Orden des Spielers.
 	 * @param medals Eine mittels ; separierte Liste von Orden
 	 */
 	public void setMedals( String medals ) {
@@ -815,7 +815,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Liefert den Rang des Benutzers zurueck
+	 * Liefert den Rang des Benutzers zurueck.
 	 * @return Der Rang
 	 */
 	public byte getRang() {
@@ -823,7 +823,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Setzt den Rang des Benutzers
+	 * Setzt den Rang des Benutzers.
 	 * @param rang Die ID des Rangs
 	 */
 	public void setRang( byte rang ) {
@@ -840,7 +840,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Setzt die Allianz, der der Spieler angehoert
+	 * Setzt die Allianz, der der Spieler angehoert.
 	 * @param ally die neue Allianz
 	 */
 	public void setAlly( Ally ally ) {
@@ -848,7 +848,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Liefert den Kontostand des Benutzers zurueck
+	 * Liefert den Kontostand des Benutzers zurueck.
 	 * @return Der Kontostand
 	 */
 	public BigInteger getKonto() {
@@ -856,7 +856,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Setzt den Kontostand des Spielers auf den angegebenen Wert
+	 * Setzt den Kontostand des Spielers auf den angegebenen Wert.
 	 * @param count der neue Kontostand
 	 */
 	public void setKonto( BigInteger count ) {
@@ -864,7 +864,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Gibt den Cargo des Spielers als Cargo-String zurueck
+	 * Gibt den Cargo des Spielers als Cargo-String zurueck.
 	 * @return der Cargo des Spielers
 	 */
 	public String getCargo() {
@@ -872,7 +872,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Die Nahrungsbilanz des letzten Ticks
+	 * Die Nahrungsbilanz des letzten Ticks.
 	 * @return Die Nahrungsbilanz des letzten Ticks
 	 */
 	public String getNahrungsStat() {
@@ -880,7 +880,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Setzt die Nahrungsbilanz des letzten Ticks
+	 * Setzt die Nahrungsbilanz des letzten Ticks.
 	 * @param stat Die Nahrungsbilanz des letzten Ticks
 	 */
 	public void setNahrungsStat(String stat) {
@@ -896,7 +896,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Setzt die Anzahl der NPC-Punkte des Benutzers
+	 * Setzt die Anzahl der NPC-Punkte des Benutzers.
 	 * @param punkte Die neue Anzahl der NPC-Punkte
 	 */
 	public void setNpcPunkte(int punkte) {
@@ -905,7 +905,6 @@ public class User extends BasicUser {
 	
 	/**
 	 * Gibt den durch den Spieler besetzten Allianz-Posten zurueck.
-	 * zurueckgegeben. 
 	 * @return Der AllyPosten oder <code>null</code>
 	 */
 	public AllyPosten getAllyPosten() {
@@ -913,7 +912,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Setzt den durch den Spieler besetzten Allianz-Posten
+	 * Setzt den durch den Spieler besetzten Allianz-Posten.
 	 * @param posten Der Allianzposten
 	 */
 	public void setAllyPosten( AllyPosten posten ) {
@@ -937,7 +936,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Setzt die ID des von der GTU verwendeten Dropzone-Systems des Spielers
+	 * Setzt die ID des von der GTU verwendeten Dropzone-Systems des Spielers.
 	 * @param system Die ID des neuen Systems mit der bevorzugten GTU-Dropzone
 	 */
 	public void setGtuDropZone( int system ) {
@@ -954,7 +953,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Setzt die Koordinaten des Ortes, an dem von NPCs georderte Dinge erscheinen sollen
+	 * Setzt die Koordinaten des Ortes, an dem von NPCs georderte Dinge erscheinen sollen.
 	 * @param loc Die Koordinaten des Ortes, an dem georderte Dinge erscheinen sollen
 	 */
 	public void setNpcOrderLocation( String loc ) {
@@ -962,7 +961,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Gibt die Anzahl der gewonnenen Schlachten zurueck
+	 * Gibt die Anzahl der gewonnenen Schlachten zurueck.
 	 * @return die Anzahl der gewonnenen Schlachten
 	 */
 	public short getWonBattles() {
@@ -970,7 +969,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Setzt die Anzahl der gewonnenen Schlachten
+	 * Setzt die Anzahl der gewonnenen Schlachten.
 	 * @param battles Die Anzahl
 	 */
 	public void setWonBattles(short battles) {
@@ -978,7 +977,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Gibt die Anzahl der verlorenen Schlachten zurueck
+	 * Gibt die Anzahl der verlorenen Schlachten zurueck.
 	 * @return die Anzahl der verlorenen Schlachten
 	 */
 	public short getLostBattles() {
@@ -986,7 +985,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Setzt die Anzahl der verlorenen Schlachten
+	 * Setzt die Anzahl der verlorenen Schlachten.
 	 * @param battles Die Anzahl
 	 */
 	public void setLostBattles(short battles) {
@@ -994,7 +993,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Gibt die Anzahl der verlorenen Schiffe zurueck
+	 * Gibt die Anzahl der verlorenen Schiffe zurueck.
 	 * @return die Anzahl der verlorenen Schiffe
 	 */
 	public int getLostShips() {
@@ -1002,7 +1001,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Setzt die Anzahl der verlorenen Schiffe
+	 * Setzt die Anzahl der verlorenen Schiffe.
 	 * @param lost Die Anzahl
 	 */
 	public void setLostShips(int lost) {
@@ -1010,7 +1009,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Gibt die Anzahl der zerstoerten Schiffe zurueck
+	 * Gibt die Anzahl der zerstoerten Schiffe zurueck.
 	 * @return die Anzahl der zerstoerten Schiffe
 	 */
 	public int getDestroyedShips() {
@@ -1018,7 +1017,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Setzt die Anzahl der zerstoerten Schiffe
+	 * Setzt die Anzahl der zerstoerten Schiffe.
 	 * @param ships die neue Anzahl
 	 */
 	public void setDestroyedShips(int ships) {
@@ -1044,7 +1043,7 @@ public class User extends BasicUser {
 	}
 
 	/**
-	 * Setzt die Anzahl der Ticks, die der Account im Vacation-Modus verbringen soll
+	 * Setzt die Anzahl der Ticks, die der Account im Vacation-Modus verbringen soll.
 	 * @param value Die Anzahl der Ticks im Vacation-Modus
 	 */
 	public void setVacationCount(int value) {
@@ -1053,7 +1052,7 @@ public class User extends BasicUser {
 
 	/**
 	 * Gibt zurueck, wieviele Ticks sich der Account noch im Vorlauf fuer den
-	 * Vacation-Modus befindet
+	 * Vacation-Modus befindet.
 	 * @return Die Anzahl der verbleibenden Ticks im Vacation-Vorlauf 
 	 */
 	public int getWait4VacationCount() {
@@ -1062,7 +1061,7 @@ public class User extends BasicUser {
 
 	/**
 	 * Setzt die Anzahl der Ticks des Vacation-Modus-Vorlaufs auf den angegebenen
-	 * Wert
+	 * Wert.
 	 * @param value Die Anzahl der Ticks im Vacation-Modus-Vorlauf
 	 */
 	public void setWait4VacationCount(int value) {
@@ -1070,7 +1069,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Gibt zurueck, ob der User wegen einer Tickberechnung kurzzeitig blockiert wird
+	 * Gibt zurueck, ob der User wegen einer Tickberechnung kurzzeitig blockiert wird.
 	 * @return <code>true</code>, falls er geblockt wird
 	 */
 	public boolean isBlocked() {
@@ -1078,7 +1077,7 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Setzt, ob der User wegen einer Tickberechnung kurzzeitig geblockt wird
+	 * Setzt, ob der User wegen einer Tickberechnung kurzzeitig geblockt wird.
 	 * @param blocked <code>true</code>, falls er geblockt wird
 	 */
 	public void setBlocked(boolean blocked) {
@@ -1153,7 +1152,7 @@ public class User extends BasicUser {
 	}
 
 	/**
-	 * Gibt die Anzahl der Vacationpunkte zurueck
+	 * Gibt die Anzahl der Vacationpunkte zurueck.
 	 * @return Die Anzahl
 	 */
 	public int getVacpoints()
@@ -1162,7 +1161,7 @@ public class User extends BasicUser {
 	}
 
 	/**
-	 * Setzt die Anzahl der Vacationpunkte
+	 * Setzt die Anzahl der Vacationpunkte.
 	 * @param vacpoints Die Anzahl
 	 */
 	public void setVacpoints(int vacpoints)

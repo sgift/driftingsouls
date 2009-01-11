@@ -44,7 +44,7 @@ import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 /**
- * Berechnung des Ticks fuer GTU-Versteigerungen
+ * Berechnung des Ticks fuer GTU-Versteigerungen.
  * @author Christopher Jung
  *
  */

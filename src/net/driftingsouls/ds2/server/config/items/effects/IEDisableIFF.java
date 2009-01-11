@@ -21,10 +21,10 @@ package net.driftingsouls.ds2.server.config.items.effects;
 import org.w3c.dom.Node;
 
 /**
- * <h1>Item-Effekt "IFF deaktivieren"</h1>
+ * <h1>Item-Effekt "IFF deaktivieren".</h1>
  * <p>Schiffe ohne IFF-Kennung koennen nicht angegriffen, gekapert, gepluendert oder Ziel eines
  * Warentransfers sein. Zudem ist ihr Besitzer nicht erkennbar.</p>
- * <p>Der Effekttyp ist lediglich ein "Marker" und besitzt selbst keine Eigenschaften</p>
+ * <p>Der Effekttyp ist lediglich ein "Marker" und besitzt selbst keine Eigenschaften.</p>
  * @author Christopher Jung
  *
  */

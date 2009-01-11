@@ -39,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 
 /**
- * Hilfsfunktionen zur Questverarbeitung
+ * Hilfsfunktionen zur Questverarbeitung.
  * @author Christopher Jung
  *
  */
@@ -47,39 +47,39 @@ public class Quests {
 	private static final Log log = LogFactory.getLog(Quests.class);
 	
 	/**
-	 * Ereignis fuer einen Kommunikationsversuch zwischen zwei Schiffen
+	 * Ereignis fuer einen Kommunikationsversuch zwischen zwei Schiffen.
 	 */
 	public static final String EVENT_ONCOMMUNICATE = "1";
 	/**
-	 * Ereignis bei einem Tick
+	 * Ereignis bei einem Tick.
 	 */
 	public static final String EVENT_RUNNING_ONTICK = "2";
 	/**
-	 * Ereignis bei Einflug eines (beliebigen) Schiffes in einen bestimmten Sektor
+	 * Ereignis bei Einflug eines (beliebigen) Schiffes in einen bestimmten Sektor.
 	 */
 	public static final String EVENT_ONENTER = "3";
 	/**
 	 * Ereignis beim Bewegen eines bestimmten Schiffes. Wird vor dem Bewegen ausgeloesst und kann
-	 * die Flugrichtung und die Anzahl der zu fliegenden Sektoren veraendern
+	 * die Flugrichtung und die Anzahl der zu fliegenden Sektoren veraendern.
 	 */
 	public static final String EVENT_ONMOVE = "4";
 	
 	/**
-	 * Die fuer in Ereignissen produzierte Ausgabe zu verwendenden URL-Parameter
+	 * Die fuer in Ereignissen produzierte Ausgabe zu verwendenden URL-Parameter.
 	 */
 	public static final ThreadLocal<String> currentEventURL = new ThreadLocal<String>() {
 		// EMPTY
 	};
 	
 	/**
-	 * Die fuer in Ereignissen produzierte Ausgabe zu verwendenden URL-Basis
+	 * Die fuer in Ereignissen produzierte Ausgabe zu verwendenden URL-Basis.
 	 */
 	public static final ThreadLocal<String> currentEventURLBase = new ThreadLocal<String>() {
 		// EMPTY
 	};
 	
 	/**
-	 * Baut eine URL fuer eine Antwort in einem Questscript
+	 * Baut eine URL fuer eine Antwort in einem Questscript.
 	 * @param answerid Die Antwort-ID
 	 * @return Die URL
 	 */
@@ -88,7 +88,7 @@ public class Quests {
 	}
 	
 	/**
-	 * Fuehrt einen Lock-String aus (bzw das dem Lock-String zugeordnete Script, sofern vorhanden)
+	 * Fuehrt einen Lock-String aus (bzw das dem Lock-String zugeordnete Script, sofern vorhanden).
 	 * @param scriptparser Die ScriptEngine, mit dem der Lock ausgefuehrt werden soll
 	 * @param lock Der Lock-String
 	 * @param user Der User unter dem der Lock ausgefuehrt werden soll
@@ -165,7 +165,7 @@ public class Quests {
 	}
 	
 	/**
-	 * Fuehrt einen Ereignis-String aus (bzw das zugehoerige Script)
+	 * Fuehrt einen Ereignis-String aus (bzw das zugehoerige Script).
 	 * @param scriptparser Die ScriptEngine, mit dem das Ereignis ausgefuhert werden soll
 	 * @param handler Der Ereignis-String
 	 * @param user Der Benutzer unter dem das Ereignis ausgefuehrt werden soll

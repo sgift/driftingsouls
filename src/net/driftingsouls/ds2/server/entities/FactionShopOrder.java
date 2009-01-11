@@ -31,7 +31,7 @@ import javax.persistence.Version;
 import net.driftingsouls.ds2.server.framework.Common;
 
 /**
- * Eine Bestellung in einem Fraktionsshop
+ * Eine Bestellung in einem Fraktionsshop.
  * @author Christopher Jung
  *
  */
@@ -57,7 +57,7 @@ public class FactionShopOrder {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public FactionShopOrder() {
@@ -65,8 +65,8 @@ public class FactionShopOrder {
 	}
 
 	/**
-	 * <p>Konstruktor</p>
-	 * Erstellt eine neue Bestellung fuer den aktuellen Zeitpunkt
+	 * <p>Konstruktor.</p>
+	 * Erstellt eine neue Bestellung fuer den aktuellen Zeitpunkt.
 	 * @param entry Der Shopeintrag, der gekauft wurde
 	 * @param user Der User, der den Kauf getaetigt hat
 	 */
@@ -77,7 +77,7 @@ public class FactionShopOrder {
 	}
 
 	/**
-	 * Gibt weitere Daten zurueck
+	 * Gibt weitere Daten zurueck.
 	 * @return Weitere Daten
 	 */
 	public String getAddData() {
@@ -85,7 +85,7 @@ public class FactionShopOrder {
 	}
 
 	/**
-	 * Setzt weitere Daten
+	 * Setzt weitere Daten.
 	 * @param adddata weitere Daten
 	 */
 	public void setAddData(String adddata) {
@@ -93,7 +93,7 @@ public class FactionShopOrder {
 	}
 
 	/**
-	 * Gibt zurueck, wie oft der Eintrag gekauft wurde
+	 * Gibt zurueck, wie oft der Eintrag gekauft wurde.
 	 * @return Die Anzahl
 	 */
 	public int getCount() {
@@ -101,7 +101,7 @@ public class FactionShopOrder {
 	}
 
 	/**
-	 * Setzt, wie oft der Eintrag gekauft wurde
+	 * Setzt, wie oft der Eintrag gekauft wurde.
 	 * @param count Die Anzahl
 	 */
 	public void setCount(int count) {
@@ -109,7 +109,7 @@ public class FactionShopOrder {
 	}
 
 	/**
-	 * Gibt das Datum des Kaufs zurueck
+	 * Gibt das Datum des Kaufs zurueck.
 	 * @return Das Datum
 	 */
 	public long getDate() {
@@ -117,7 +117,7 @@ public class FactionShopOrder {
 	}
 
 	/**
-	 * Setzt das Datum des Kaufs
+	 * Setzt das Datum des Kaufs.
 	 * @param date Das Datum
 	 */
 	public final void setDate(final long date) {
@@ -125,7 +125,7 @@ public class FactionShopOrder {
 	}
 
 	/**
-	 * Gibt den Kaufpreis in RE zurueck
+	 * Gibt den Kaufpreis in RE zurueck.
 	 * @return Der Kaufpreis
 	 */
 	public long getPrice() {
@@ -133,7 +133,7 @@ public class FactionShopOrder {
 	}
 
 	/**
-	 * Setzt den Kaufpreis in RE
+	 * Setzt den Kaufpreis in RE.
 	 * @param price Der Kaufpreis
 	 */
 	public void setPrice(long price) {
@@ -141,7 +141,7 @@ public class FactionShopOrder {
 	}
 
 	/**
-	 * Gibt den Shopeintrag zurueck, der gekauft wurde
+	 * Gibt den Shopeintrag zurueck, der gekauft wurde.
 	 * @return Der Shopeintrag
 	 */
 	public FactionShopEntry getShopEntry() {
@@ -149,7 +149,7 @@ public class FactionShopOrder {
 	}
 
 	/**
-	 * Setzt den Shopeintrag, der gekauft wurde
+	 * Setzt den Shopeintrag, der gekauft wurde.
 	 * @param shopEntry Der Shopeintrag
 	 */
 	public final void setShopEntry(final FactionShopEntry shopEntry) {
@@ -157,7 +157,7 @@ public class FactionShopOrder {
 	}
 
 	/**
-	 * Gibt den Bearbeitungsstatus zurueck
+	 * Gibt den Bearbeitungsstatus zurueck.
 	 * @return Der Bearbeitungsstatus
 	 */
 	public int getStatus() {
@@ -165,7 +165,7 @@ public class FactionShopOrder {
 	}
 
 	/**
-	 * Setzt den Bearbeitungsstatus
+	 * Setzt den Bearbeitungsstatus.
 	 * @param status Der neue Status
 	 */
 	public void setStatus(int status) {
@@ -173,7 +173,7 @@ public class FactionShopOrder {
 	}
 
 	/**
-	 * Gibt den Kaeufer zurueck
+	 * Gibt den Kaeufer zurueck.
 	 * @return Der Kaeufer
 	 */
 	public User getUser() {
@@ -181,7 +181,7 @@ public class FactionShopOrder {
 	}
 
 	/**
-	 * Setzt den Kaeufer
+	 * Setzt den Kaeufer.
 	 * @param user Der Kaeufer
 	 */
 	public final void setUser(final User user) {
@@ -189,7 +189,7 @@ public class FactionShopOrder {
 	}
 
 	/**
-	 * Gibt die ID der Bestellung zurueck
+	 * Gibt die ID der Bestellung zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -197,7 +197,7 @@ public class FactionShopOrder {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

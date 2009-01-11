@@ -24,12 +24,12 @@ import java.sql.DriverManager;
 import net.driftingsouls.ds2.server.framework.Configuration;
 
 /**
- * Ueberprueft, ob die config.xml existiert
+ * Ueberprueft, ob die config.xml existiert.
  * @author Christopher Jung
  *
  */
 public class DatabaseConnectionCheck implements Checkable {
-
+	@Override
 	public void doCheck() throws CheckFailedException {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
@@ -45,6 +45,7 @@ public class DatabaseConnectionCheck implements Checkable {
 		}
 	}
 
+	@Override
 	public String getDescription() {
 		return "Datenbankverbindung pruefen";
 	}

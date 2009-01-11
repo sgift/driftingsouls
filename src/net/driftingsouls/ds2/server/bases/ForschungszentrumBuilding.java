@@ -44,7 +44,7 @@ import org.hibernate.annotations.Immutable;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Das Forschungszentrum
+ * Das Forschungszentrum.
  * @author Christopher Jung
  *
  */
@@ -56,7 +56,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	private static final Log log = LogFactory.getLog(ForschungszentrumBuilding.class);
 	
 	/**
-	 * Erstellt eine neue Forschungszentrum-Instanz
+	 * Erstellt eine neue Forschungszentrum-Instanz.
 	 */
 	public ForschungszentrumBuilding() {
 		// EMPTY

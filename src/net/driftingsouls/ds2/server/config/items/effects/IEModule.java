@@ -30,7 +30,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Item-Effekt "Modul"
+ * Item-Effekt "Modul".
  * @author Christopher Jung
  *
  */
@@ -65,7 +65,7 @@ public class IEModule extends ItemEffect {
 	}
 	
 	/**
-	 * Gibt das Aenderungsobjekt mit den durch das Modul geaenderten Schiffstypendaten zurueck
+	 * Gibt das Aenderungsobjekt mit den durch das Modul geaenderten Schiffstypendaten zurueck.
 	 * @return Das Aenderungsobjekt
 	 */
 	public ShipTypeChangeset getMods() {

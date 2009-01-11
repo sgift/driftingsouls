@@ -23,7 +23,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
- * Laesst alle Schiffe einer bestimmten Klasse auf der eigenen Seite fliehen
+ * Laesst alle Schiffe einer bestimmten Klasse auf der eigenen Seite fliehen.
  * @author Christopher Jung
  *
  */
@@ -31,7 +31,7 @@ public class KSFluchtClassAction extends KSFluchtAllAction {
 	private int fluchtclass = 0;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public KSFluchtClassAction() 

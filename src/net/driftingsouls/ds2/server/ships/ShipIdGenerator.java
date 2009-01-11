@@ -46,6 +46,7 @@ import org.hibernate.type.Type;
 public class ShipIdGenerator implements PostInsertIdentifierGenerator, Configurable {
 	private IdentityGenerator ident;
 
+	@Override
 	public synchronized Serializable generate(SessionImplementor session, Object object) throws HibernateException {
 		Ship ship = (Ship)object;
 		
@@ -55,6 +56,7 @@ public class ShipIdGenerator implements PostInsertIdentifierGenerator, Configura
 		return IdentifierGeneratorFactory.POST_INSERT_INDICATOR;
 	}
 	
+	@Override
 	public InsertGeneratedIdentifierDelegate getInsertGeneratedIdentifierDelegate(
 			PostInsertIdentityPersister persister,
 	        Dialect dialect,
@@ -62,6 +64,7 @@ public class ShipIdGenerator implements PostInsertIdentifierGenerator, Configura
 		return ident.getInsertGeneratedIdentifierDelegate(persister, dialect, isGetGeneratedKeysEnabled);
 	}
 
+	@Override
 	public void configure(Type type, Properties params, Dialect dialect) throws MappingException {
 		this.ident = new IdentityGenerator();
 	}

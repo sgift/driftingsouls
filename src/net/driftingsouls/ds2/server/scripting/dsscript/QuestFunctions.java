@@ -74,7 +74,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Scriptbefehle fuer Questscripte
+ * Scriptbefehle fuer Questscripte.
  * @author Christopher Jung
  *
  */
@@ -83,7 +83,7 @@ public class QuestFunctions {
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired

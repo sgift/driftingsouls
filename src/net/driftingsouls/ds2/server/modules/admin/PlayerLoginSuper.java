@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Ermoeglicht das Einloggen in einen anderen Account ohne Passwort
+ * Ermoeglicht das Einloggen in einen anderen Account ohne Passwort.
  * @author Christopher Jung
  *
  */
@@ -43,7 +43,7 @@ public class PlayerLoginSuper implements AdminPlugin {
 	private AuthenticationManager authManager;
 	
 	/**
-	 * Injiziert den DS-AuthenticationManager zum einloggen von Benutzern
+	 * Injiziert den DS-AuthenticationManager zum einloggen von Benutzern.
 	 * @param authManager Der AuthenticationManager
 	 */
 	@Autowired
@@ -52,6 +52,7 @@ public class PlayerLoginSuper implements AdminPlugin {
 		this.authManager = authManager;
 	}
 	
+	@Override
 	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();

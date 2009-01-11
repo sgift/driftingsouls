@@ -37,7 +37,7 @@ import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 
 /**
- * Der Admin
+ * Der Admin.
  * @author Christopher Jung
  * 
  * @urlparam Integer act Die auszufuehrende Aktions-ID (ein Plugin wird ueber Seiten- und Aktions-ID identifiziert)
@@ -85,7 +85,7 @@ public class AdminController extends DSGenerator {
 	Set<String> validPlugins = new HashSet<String>();
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public AdminController(Context context) {
@@ -138,7 +138,7 @@ public class AdminController extends DSGenerator {
 	}
 	
 	/**
-	 * Fuehrt ein Admin-Plugin aus
+	 * Fuehrt ein Admin-Plugin aus.
 	 */
 	@Action(ActionType.AJAX)
 	public void ajaxAction() {
@@ -157,7 +157,7 @@ public class AdminController extends DSGenerator {
 	}
 
 	/**
-	 * Zeigt die Gui an und fuehrt ein Admin-Plugin (sofern ausgewaehlt) aus
+	 * Zeigt die Gui an und fuehrt ein Admin-Plugin (sofern ausgewaehlt) aus.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

@@ -30,7 +30,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 
 /**
- * Ein in einer Schlacht zerstoertes Schiff
+ * Ein in einer Schlacht zerstoertes Schiff.
  * @author Christopher Jung
  *
  */
@@ -60,7 +60,7 @@ public class ShipLost {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public ShipLost() {
@@ -95,7 +95,7 @@ public class ShipLost {
 	}
 
 	/**
-	 * Gibt die Allianz zurueck, der das Schiff gehoert hat
+	 * Gibt die Allianz zurueck, der das Schiff gehoert hat.
 	 * @return Die Allianz
 	 */
 	public int getAlly() {
@@ -103,7 +103,7 @@ public class ShipLost {
 	}
 
 	/**
-	 * Setzt die Allianz, der das Schiff gehoert hat
+	 * Setzt die Allianz, der das Schiff gehoert hat.
 	 * @param ally Die Allianz
 	 */
 	public void setAlly(Ally ally) {
@@ -111,7 +111,7 @@ public class ShipLost {
 	}
 
 	/**
-	 * Gibt die Schlacht zurueck, in der das Schiff zerstoert wurde
+	 * Gibt die Schlacht zurueck, in der das Schiff zerstoert wurde.
 	 * @return Die Schlacht
 	 */
 	public int getBattle() {
@@ -119,7 +119,7 @@ public class ShipLost {
 	}
 
 	/**
-	 * Setzt die Schlacht, in der das Schiff zerstoert wurde
+	 * Setzt die Schlacht, in der das Schiff zerstoert wurde.
 	 * @param battle Die Schlacht
 	 */
 	public void setBattle(int battle) {
@@ -127,7 +127,7 @@ public class ShipLost {
 	}
 
 	/**
-	 * Gibt den Dateinamen des Schlachtlogs zurueck
+	 * Gibt den Dateinamen des Schlachtlogs zurueck.
 	 * @return Das Schlachtlog
 	 */
 	public String getBattleLog() {
@@ -135,7 +135,7 @@ public class ShipLost {
 	}
 
 	/**
-	 * Setzt den Dateinamen des Schlachtlogs
+	 * Setzt den Dateinamen des Schlachtlogs.
 	 * @param battleLog Das Schlachtlog
 	 */
 	public void setBattleLog(String battleLog) {
@@ -143,7 +143,7 @@ public class ShipLost {
 	}
 
 	/**
-	 * Gibt die Allianz zurueck, die das Schiff zerstoert hat
+	 * Gibt die Allianz zurueck, die das Schiff zerstoert hat.
 	 * @return Die Allianz
 	 */
 	public int getDestAlly() {
@@ -151,7 +151,7 @@ public class ShipLost {
 	}
 
 	/**
-	 * Setzt die Allianz, die das Schiff zerstoert hat
+	 * Setzt die Allianz, die das Schiff zerstoert hat.
 	 * @param destAlly Die Allianz
 	 */
 	public void setDestAlly(Ally destAlly) {
@@ -159,7 +159,7 @@ public class ShipLost {
 	}
 
 	/**
-	 * Gibt den Spieler zurueck, der das Schiff zerstoert hat
+	 * Gibt den Spieler zurueck, der das Schiff zerstoert hat.
 	 * @return Der Spieler
 	 */
 	public int getDestOwner() {
@@ -167,7 +167,7 @@ public class ShipLost {
 	}
 
 	/**
-	 * Setzt den Spieler, der das Schiff zerstoert hat
+	 * Setzt den Spieler, der das Schiff zerstoert hat.
 	 * @param destOwner Der Spieler
 	 */
 	public void setDestOwner(User destOwner) {
@@ -175,7 +175,7 @@ public class ShipLost {
 	}
 
 	/**
-	 * Gibt zurueck, an welches Schiff das Schiff bei der Zerstoerung gedockt war
+	 * Gibt zurueck, an welches Schiff das Schiff bei der Zerstoerung gedockt war.
 	 * @return das Schiff
 	 */
 	public int getDocked() {
@@ -183,7 +183,7 @@ public class ShipLost {
 	}
 
 	/**
-	 * Setzt das Schiff an das das Schiff bei seiner Zerstoerung gedockt war
+	 * Setzt das Schiff an das das Schiff bei seiner Zerstoerung gedockt war.
 	 * @param docked Das Schiff
 	 */
 	public void setDocked(int docked) {
@@ -191,7 +191,7 @@ public class ShipLost {
 	}
 
 	/**
-	 * Gibt den Namen des Schiffes zurueck
+	 * Gibt den Namen des Schiffes zurueck.
 	 * @return Der Name
 	 */
 	public String getName() {
@@ -199,7 +199,7 @@ public class ShipLost {
 	}
 
 	/**
-	 * Setzt den Namen des Schiffes
+	 * Setzt den Namen des Schiffes.
 	 * @param name Der Name
 	 */
 	public void setName(String name) {
@@ -207,7 +207,7 @@ public class ShipLost {
 	}
 
 	/**
-	 * Gibt den Besitzer des Schiffes zurueck
+	 * Gibt den Besitzer des Schiffes zurueck.
 	 * @return Der Besitzer
 	 */
 	public int getOwner() {
@@ -215,7 +215,7 @@ public class ShipLost {
 	}
 
 	/**
-	 * Setzt den Besiter des Schiffes
+	 * Setzt den Besiter des Schiffes.
 	 * @param owner der Besitzer
 	 */
 	public void setOwner(User owner) {
@@ -223,7 +223,7 @@ public class ShipLost {
 	}
 
 	/**
-	 * Gibt den Zeitpunkt der Zerstoerung zurueck
+	 * Gibt den Zeitpunkt der Zerstoerung zurueck.
 	 * @return Der Zeitpunkt
 	 */
 	public long getTime() {
@@ -231,7 +231,7 @@ public class ShipLost {
 	}
 
 	/**
-	 * Setzt den Zeitpunkt der Zerstoerung
+	 * Setzt den Zeitpunkt der Zerstoerung.
 	 * @param time Der Zeitpunkt
 	 */
 	public void setTime(long time) {
@@ -239,7 +239,7 @@ public class ShipLost {
 	}
 
 	/**
-	 * Gibt den Schiffstyp zurueck
+	 * Gibt den Schiffstyp zurueck.
 	 * @return Der Schiffstyp
 	 */
 	public int getType() {
@@ -247,7 +247,7 @@ public class ShipLost {
 	}
 
 	/**
-	 * Setzt den Schiffstyp
+	 * Setzt den Schiffstyp.
 	 * @param type Der Typ
 	 */
 	public void setType(int type) {
@@ -264,7 +264,7 @@ public class ShipLost {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

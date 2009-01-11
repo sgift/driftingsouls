@@ -37,7 +37,7 @@ public class MutableLocation implements Locatable, Serializable {
 	private int system;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public MutableLocation() {
@@ -45,7 +45,7 @@ public class MutableLocation implements Locatable, Serializable {
 	}
 
 	/**
-	 * Erstellt ein neues Positionsobjekt bestehend aus einem Sternensystem, einer x- sowie einer y-Position
+	 * Erstellt ein neues Positionsobjekt bestehend aus einem Sternensystem, einer x- sowie einer y-Position.
 	 * 
 	 * @param system Das Sternensystem (id)
 	 * @param x Die x-Position
@@ -58,7 +58,7 @@ public class MutableLocation implements Locatable, Serializable {
 	}
 	
 	/**
-	 * Erstellt ein neues Positionsobjekt aus einem Locatable-Objekt
+	 * Erstellt ein neues Positionsobjekt aus einem Locatable-Objekt.
 	 * @param loc Das Location-Objekt
 	 */
 	public MutableLocation(Locatable loc) {
@@ -68,7 +68,7 @@ public class MutableLocation implements Locatable, Serializable {
 	}
 	
 	/**
-	 * Gibt die ID des Sternensystems zurueck
+	 * Gibt die ID des Sternensystems zurueck.
 	 * @return Die ID des Sternensystems
 	 */
 	public int getSystem() {
@@ -76,7 +76,7 @@ public class MutableLocation implements Locatable, Serializable {
 	}
 
 	/**
-	 * Gibt die X-Position zurueck
+	 * Gibt die X-Position zurueck.
 	 * @return Die X-Position
 	 */
 	public int getX() {
@@ -84,7 +84,7 @@ public class MutableLocation implements Locatable, Serializable {
 	}
 
 	/**
-	 * Gibt die Y-Position zurueck
+	 * Gibt die Y-Position zurueck.
 	 * @return Die Y-Position
 	 */
 	public int getY() {
@@ -92,7 +92,7 @@ public class MutableLocation implements Locatable, Serializable {
 	}
 	
 	/**
-	 * Setzt die ID des Sternensystems
+	 * Setzt die ID des Sternensystems.
 	 * @param system Die ID des Sternensystems
 	 */
 	public void setSystem(int system) {
@@ -100,7 +100,7 @@ public class MutableLocation implements Locatable, Serializable {
 	}
 
 	/**
-	 * Setzt die X-Position
+	 * Setzt die X-Position.
 	 * @param x Die X-Position
 	 */
 	public void setX(int x) {
@@ -108,7 +108,7 @@ public class MutableLocation implements Locatable, Serializable {
 	}
 
 	/**
-	 * Setzt die Y-Position
+	 * Setzt die Y-Position.
 	 * @param y Die Y-Position
 	 */
 	public void setY(int y) {
@@ -146,13 +146,14 @@ public class MutableLocation implements Locatable, Serializable {
 		return true;
 	}
 
+	@Override
 	public Location getLocation() {
 		return new Location(this.system, this.x, this.y);
 	}
 	
 	/**
 	 * Generiert ein Location-Objekt aus einem Positionsstring des
-	 * Formats system:x/y oder x/y
+	 * Formats system:x/y oder x/y.
 	 * 
 	 * @param loc Der Positionsstring
 	 * @return Das zum Positionsstring gehoerende Location-Objekt

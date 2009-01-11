@@ -34,7 +34,7 @@ import org.w3c.dom.NodeList;
 /**
  * Repraesentiert die Liste aller in DS bekannten Orden und Raenge.
  * Die Liste wird beim Start von DS aus der <code>medals.xml</code>
- * geladen
+ * geladen.
  * 
  * @author Christopher Jung
  *
@@ -58,7 +58,7 @@ public class Medals {
 	}
 	
 	/**
-	 * Gibt die Instanz der Orden/Raenge-Liste zurueck
+	 * Gibt die Instanz der Orden/Raenge-Liste zurueck.
 	 * @return Die Medals-Listen-Instanz
 	 */
 	public static Medals get() {
@@ -78,7 +78,7 @@ public class Medals {
 	}
 	
 	/**
-	 * Gibt die Liste der Raenge zurueck
+	 * Gibt die Liste der Raenge zurueck.
 	 * @return die Liste der Raenge
 	 */
 	public Map<Integer,Rang> raenge() {
@@ -98,7 +98,7 @@ public class Medals {
 	}
 	
 	/**
-	 * Gibt die Liste der Orden zurueck
+	 * Gibt die Liste der Orden zurueck.
 	 * @return die Liste der Orden
 	 */
 	public Map<Integer,Medal> medals() {

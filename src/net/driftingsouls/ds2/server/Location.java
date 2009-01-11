@@ -23,7 +23,7 @@ import java.io.Serializable;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 /**
- * Eine Positionsklasse
+ * Eine Positionsklasse.
  * @author Christopher Jung
  *
  */
@@ -36,7 +36,7 @@ public final class Location implements Serializable, Locatable {
 	private transient int hashCode = 0;
 	
 	/**
-	 * Erstellt ein neues Positionsobjekt fuer den Ort 0:0/0
+	 * Erstellt ein neues Positionsobjekt fuer den Ort 0:0/0.
 	 *
 	 */
 	public Location() {
@@ -46,7 +46,7 @@ public final class Location implements Serializable, Locatable {
 	}
 
 	/**
-	 * Erstellt ein neues Positionsobjekt bestehend aus einem Sternensystem, einer x- sowie einer y-Position
+	 * Erstellt ein neues Positionsobjekt bestehend aus einem Sternensystem, einer x- sowie einer y-Position.
 	 * 
 	 * @param system Das Sternensystem (id)
 	 * @param x Die x-Position
@@ -59,7 +59,7 @@ public final class Location implements Serializable, Locatable {
 	}
 
 	/**
-	 * Gibt die ID des Sternensystems zurueck
+	 * Gibt die ID des Sternensystems zurueck.
 	 * @return Die ID des Sternensystems
 	 */
 	public int getSystem() {
@@ -67,7 +67,7 @@ public final class Location implements Serializable, Locatable {
 	}
 
 	/**
-	 * Gibt die X-Position zurueck
+	 * Gibt die X-Position zurueck.
 	 * @return Die X-Position
 	 */
 	public int getX() {
@@ -75,7 +75,7 @@ public final class Location implements Serializable, Locatable {
 	}
 
 	/**
-	 * Gibt die Y-Position zurueck
+	 * Gibt die Y-Position zurueck.
 	 * @return Die Y-Position
 	 */
 	public int getY() {
@@ -88,7 +88,7 @@ public final class Location implements Serializable, Locatable {
 	}
 	
 	/**
-	 * Erzeugt eine neue Location aus dieser mit den angegebenen X-Wert
+	 * Erzeugt eine neue Location aus dieser mit den angegebenen X-Wert.
 	 * @param x der neue X-Wert
 	 * @return Das neue Location-Objekt
 	 */
@@ -97,7 +97,7 @@ public final class Location implements Serializable, Locatable {
 	}
 	
 	/**
-	 * Erzeugt eine neue Location aus dieser mit den angegebenen Y-Wert
+	 * Erzeugt eine neue Location aus dieser mit den angegebenen Y-Wert.
 	 * @param y der neue Y-Wert
 	 * @return Das neue Location-Objekt
 	 */
@@ -106,7 +106,7 @@ public final class Location implements Serializable, Locatable {
 	}
 	
 	/**
-	 * Erzeugt eine neue Location aus dieser mit der angegebenen System-ID
+	 * Erzeugt eine neue Location aus dieser mit der angegebenen System-ID.
 	 * @param system die neue System-ID
 	 * @return Das neue Location-Objekt
 	 */
@@ -115,7 +115,7 @@ public final class Location implements Serializable, Locatable {
 	}
 	
 	/**
-	 * Generiert ein Location-Objekt aus einem Positionsstring des
+	 * Generiert ein Location-Objekt aus einem Positionsstring des.
 	 * Formats system:x/y oder x/y
 	 * 
 	 * @param loc Der Positionsstring
@@ -143,7 +143,7 @@ public final class Location implements Serializable, Locatable {
 	
 	/**
 	 * Generiert ein Location-Objekt aus einer SQL-Ergebniszeile, welche die Spalten
-	 * 'x', 'y' und 'system' enthaelt
+	 * 'x', 'y' und 'system' enthaelt.
 	 * @param result Die SQL-Ergebniszeile
 	 * @return Das zur Ergebniszeile gehoerende Location-Objekt
 	 * @deprecated Bitte Hibernate benutzen
@@ -187,7 +187,7 @@ public final class Location implements Serializable, Locatable {
 	
 	/**
 	 * Prueft, ob zwei Koordinaten unter Beruecksichtigung ihrer Radien einen oder mehrere
-	 * gemeinsame Sektoren haben (sie sich also in gewisser Weise im selben Sektor befinden)
+	 * gemeinsame Sektoren haben (sie sich also in gewisser Weise im selben Sektor befinden).
 	 * 
 	 * @param ownRadius Der eigene Radius (bzw 0 wenn das Objekt keine Ausdehnung hat)
 	 * @param object Das Objekt mit dem es einen gemeinsamen Sektor haben soll
@@ -207,6 +207,7 @@ public final class Location implements Serializable, Locatable {
 		return true;
 	}
 
+	@Override
 	public Location getLocation() {
 		return this;
 	}

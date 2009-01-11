@@ -19,32 +19,32 @@
 package net.driftingsouls.ds2.server.framework.templates;
 
 /**
- * Interface fuer Template-Files
+ * Interface fuer Template-Files.
  * @author Christopher Jung
  *
  */
 public interface Template {
 	/**
-	 * Bereitet das Template fuer die Ausgabe vor
+	 * Bereitet das Template fuer die Ausgabe vor.
 	 * @param te Das TemplateEngine
 	 * @param parent Das Elterntemplate
 	 */
 	public void prepare( TemplateEngine te, String parent );
 	/**
-	 * Gibt die Liste aller Variablen im Template zurueck
+	 * Gibt die Liste aller Variablen im Template zurueck.
 	 * @param all Falls <code>true</code> werden auch Variablen von Bloecken zurueckgegeben
 	 * @return Die Liste aller Variablen
 	 */
 	public String[] getVarList(boolean all);
 	/**
-	 * Verarbeitet das Template
+	 * Verarbeitet das Template.
 	 * @param te Das Templateengine
 	 * @return Das verarbeitete Template
 	 */
 	public String main( TemplateEngine te );
 	
 	/**
-	 * Gibt den Templateblock mit dem angegebenen Namen zurueck
+	 * Gibt den Templateblock mit dem angegebenen Namen zurueck.
 	 * @param name Der Name des Blocks
 	 * @return Der TemplateBlock
 	 */

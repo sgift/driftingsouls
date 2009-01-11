@@ -39,7 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Ermoeglicht das Bearbeiten von Forschungen
+ * Ermoeglicht das Bearbeiten von Forschungen.
  * @author Christopher Jung
  *
  */
@@ -49,7 +49,7 @@ public class ResearchEdit implements AdminPlugin {
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -58,7 +58,7 @@ public class ResearchEdit implements AdminPlugin {
     	this.config = config;
     }
 	
-
+    @Override
 	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();

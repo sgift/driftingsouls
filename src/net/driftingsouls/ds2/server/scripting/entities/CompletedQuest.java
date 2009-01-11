@@ -29,7 +29,7 @@ import javax.persistence.Table;
 import net.driftingsouls.ds2.server.entities.User;
 
 /**
- * Repraesentiert ein durch einen Benutzer abgeschlossenes Quest
+ * Repraesentiert ein durch einen Benutzer abgeschlossenes Quest.
  * @author Christopher Jung
  *
  */
@@ -46,7 +46,7 @@ public class CompletedQuest {
 	private User user;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public CompletedQuest() {
@@ -54,7 +54,7 @@ public class CompletedQuest {
 	}
 	
 	/**
-	 * Erstellt einen neuen Eintrag fuer ein abgeschlossenes Quest
+	 * Erstellt einen neuen Eintrag fuer ein abgeschlossenes Quest.
 	 * @param quest Das Quest
 	 * @param user Der Benutzer, der das Quest abgeschlossen hat
 	 */
@@ -64,7 +64,7 @@ public class CompletedQuest {
 	}
 
 	/**
-	 * Gibt das Quest zurueck
+	 * Gibt das Quest zurueck.
 	 * @return Das Quest
 	 */
 	public Quest getQuest() {
@@ -72,7 +72,7 @@ public class CompletedQuest {
 	}
 
 	/**
-	 * Setzt das Quest
+	 * Setzt das Quest.
 	 * @param quest Das Quest
 	 */
 	public void setQuest(Quest quest) {
@@ -80,7 +80,7 @@ public class CompletedQuest {
 	}
 
 	/**
-	 * Gibt den Benutzer zurueck
+	 * Gibt den Benutzer zurueck.
 	 * @return Der Benutzer
 	 */
 	public User getUser() {
@@ -88,7 +88,7 @@ public class CompletedQuest {
 	}
 
 	/**
-	 * Setzt den Benutzer
+	 * Setzt den Benutzer.
 	 * @param user Der Benutzer
 	 */
 	public void setUser(User user) {
@@ -96,7 +96,7 @@ public class CompletedQuest {
 	}
 
 	/**
-	 * Gibt die ID zurueck
+	 * Gibt die ID zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {

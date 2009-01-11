@@ -45,7 +45,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
  * Laesst den Benutzer fuer eine ammobasierte Waffe die gewuenschte Munition auswaehlen (sofern
- * dies fuer die Waffe erlaubt wurde)
+ * dies fuer die Waffe erlaubt wurde).
  * @author Christopher Jung
  *
  */

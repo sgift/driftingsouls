@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Cheat Gegner regenerieren
+ * Cheat Gegner regenerieren.
  * @author Christopher Jung
  *
  */
@@ -43,7 +43,7 @@ public class KSCheatRegenerateEnemyAction extends BasicKSAction {
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired

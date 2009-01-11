@@ -40,7 +40,7 @@ import org.apache.commons.logging.LogFactory;
 // TODO: Runtime-functions
 
 /**
- * Das Template-Engine
+ * Das Template-Engine.
  * @author Christopher Jung
  * 
  */
@@ -74,7 +74,7 @@ public class TemplateEngine {
 	private Map<String,String> varNameMap = new HashMap<String,String>();
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 */
 	public TemplateEngine() {
 		// EMPTY
@@ -105,7 +105,7 @@ public class TemplateEngine {
 	/**
 	 * Registriert eine Template-Datei im TemplateEngine unter einem bestimmten Namen.
 	 * Die Template-Datei muss in kompilierter Form unter <code>net.driftingsouls.ds2.server.templates</code>
-	 * vorliegen
+	 * vorliegen.
 	 * 
 	 * @param handle Der Name unter dem das Template zu registrieren ist
 	 * @param filename Der Name der Template-Datei
@@ -226,7 +226,7 @@ public class TemplateEngine {
 	}
 
 	/**
-	 * Setzt eine Template-Variable auf einem Wert
+	 * Setzt eine Template-Variable auf einem Wert.
 	 * @param varname Der Name der Template-Variablen
 	 * @param value Der Wert der Template-Variablen
 	 *
@@ -242,7 +242,7 @@ public class TemplateEngine {
 	}
 	
 	/**
-	 * Setzt mehrere Template-Variablen
+	 * Setzt mehrere Template-Variablen.
 	 * @param list Eine Liste von Werten, in der alle ungeraden Werte Variablennamen und alle Geraden Variablenwerte sind
 	 *
 	 */
@@ -325,15 +325,15 @@ public class TemplateEngine {
 	}
 
 	/**
-	 * Gibt alle im TemplateEngine bekannten Variablen mit samt Wert zurueck
-	 * @return Alle Templatevariablen inklusive Wert 
+	 * Gibt alle im TemplateEngine bekannten Variablen mit samt Wert zurueck.
+	 * @return Alle Templatevariablen inklusive Wert
 	 */
 	public Map<String,Object> get_vars() {
 		return varvals;
 	}
 
 	/**
-	 * Gibt den Inhalt der Variablen zurueck, welche einen Block ersetzt hat
+	 * Gibt den Inhalt der Variablen zurueck, welche einen Block ersetzt hat.
 	 * @param varname Der Name des Blocks
 	 * @return Der Inhalt der Variablen
 	 */
@@ -346,7 +346,7 @@ public class TemplateEngine {
 	
 	/**
 	 * Prueft, ob der Inhalt einer Variablen wahr ist. Hierbei werden
-	 * sowohl Boolean als auch Number und String unterstuetzt
+	 * sowohl Boolean als auch Number und String unterstuetzt.
 	 * @param varname Der Name der Variable
 	 * @return <code>true</code>, falls der Inhalt wahr ist
 	 */
@@ -488,7 +488,7 @@ public class TemplateEngine {
 	}
 
 	/**
-	 * Gibt den Inhalt einer Variablen in der Kontext-Antwort aus
+	 * Gibt den Inhalt einer Variablen in der Kontext-Antwort aus.
 	 * @param varname Der Name der auszugebenden Variablen
 	 * @throws IOException 
  	 */
@@ -501,7 +501,7 @@ public class TemplateEngine {
 	}
 	
 	/**
-	 * Registriert einen TemplateBlock
+	 * Registriert einen TemplateBlock.
 	 * @param name Der Name
 	 * @param filehandle Das Dateihandle
 	 * @param parent Der Elternblock
@@ -512,7 +512,7 @@ public class TemplateEngine {
 	}
 
 	/**
-	 * Startet die Aufzeichnung aller Variablensetzungen
+	 * Startet die Aufzeichnung aller Variablensetzungen.
 	 *
 	 */
 	public void start_record() {
@@ -523,7 +523,7 @@ public class TemplateEngine {
   	}
 
 	/**
-	 * Beendet die Aufzeichnung aller Variablensetzungen
+	 * Beendet die Aufzeichnung aller Variablensetzungen.
 	 *
 	 */
 	public void stop_record() {
@@ -535,7 +535,7 @@ public class TemplateEngine {
 
 	/**
 	 * Entfernt alle Variablen, die innerhalb eines Aufzeichnungsblocks
-	 * gesetzt wurden. Der Aufzeichnungspuffer wird anschliessend geleert
+	 * gesetzt wurden. Der Aufzeichnungspuffer wird anschliessend geleert.
 	 *
 	 */
 	public void clear_record() {

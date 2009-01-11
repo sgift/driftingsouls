@@ -20,49 +20,49 @@ package net.driftingsouls.ds2.server.config.items.effects;
 
 
 /**
- * Basisklasse fuer Item-Effekte in DS
+ * Basisklasse fuer Item-Effekte in DS.
  * @author Christopher Jung
  *
  */
 public abstract class ItemEffect {
 	/**
-	 * Liste aller Item-Effekt-Typen
+	 * Liste aller Item-Effekt-Typen.
 	 * @author Christopher Jung
 	 *
 	 */
 	public enum Type {
 		/**
-		 * Kein Effekt
+		 * Kein Effekt.
 		 */
 		NONE("Nichts"),
 		/**
-		 * Schiffsbauplan
+		 * Schiffsbauplan.
 		 */
 		DRAFT_SHIP("Schiffsbauplan"),
 		//DRAFT_BUILDING,
 		/**
-		 * Munitionsbauplan
+		 * Munitionsbauplan.
 		 */
 		DRAFT_AMMO("Munitionsbauplan"),
 		//DRAFT_CORE,
 		/**
-		 * Modul
+		 * Modul.
 		 */
 		MODULE("Modul"),
 		/**
-		 * Munition
+		 * Munition.
 		 */
 		AMMO("Munition"),
 		/**
-		 * Schiffsbauplan-Deaktivierer
+		 * Schiffsbauplan-Deaktivierer.
 		 */
 		DISABLE_SHIP("Schiffsverbot"),
 		/**
-		 * IFF-Deaktivierer
+		 * IFF-Deaktivierer.
 		 */
 		DISABLE_IFF("IFF-Sperre"),
 		/**
-		 * Modul-Set Metainformationen
+		 * Modul-Set Metainformationen.
 		 */
 		MODULE_SET_META("Modul-Set");
 		
@@ -73,7 +73,7 @@ public abstract class ItemEffect {
 		}
 		
 		/**
-		 * Gibt den umgangssprachlichen Namen der Modulklasse zurueck
+		 * Gibt den umgangssprachlichen Namen der Modulklasse zurueck.
 		 * @return der Name
 		 */
 		public String getName() {

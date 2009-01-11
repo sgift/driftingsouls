@@ -39,7 +39,7 @@ import org.hibernate.annotations.DiscriminatorFormula;
 
 
 /**
- * Die Benutzerklasse von DS
+ * Die Benutzerklasse von DS.
  * @author Christopher Jung
  *
  */
@@ -52,15 +52,15 @@ public abstract class BasicUser {
 	private static final Log log = LogFactory.getLog(BasicUser.class);
 	
 	/**
-	 * Es findet keine Kopplung von IP und Session-ID statt
+	 * Es findet keine Kopplung von IP und Session-ID statt.
 	 */
 	public static final String FLAG_DISABLE_IP_SESSIONS = "NO_IP_SESS";
 	/**
-	 * Es findet kein Autologout in Folge von Inaktivitaet statt
+	 * Es findet kein Autologout in Folge von Inaktivitaet statt.
 	 */
 	public static final String FLAG_DISABLE_AUTO_LOGOUT = "NO_AUTOLOGOUT";
 	/**
-	 * Der Spieler ist von der Klicksperre befreit
+	 * Der Spieler ist von der Klicksperre befreit.
 	 */
 	public static final String FLAG_NO_ACTION_BLOCKING = "noactionblocking";
 	
@@ -95,7 +95,7 @@ public abstract class BasicUser {
 	private BasicUser attachedUser;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public BasicUser() {
@@ -104,7 +104,7 @@ public abstract class BasicUser {
 	}
 	
 	/**
-	 * Fuegt dem Benutzer weitere Sessiondaten hinzu
+	 * Fuegt dem Benutzer weitere Sessiondaten hinzu.
 	 * @param useGfxPak <code>true</code>, falls ein Grafikpak genutzt werden soll
 	 */
 	public void setSessionData(boolean useGfxPak) {
@@ -114,7 +114,7 @@ public abstract class BasicUser {
 	}
 
 	/**
-	 * Liefert die User-ID des User-Objekts zurueck
+	 * Liefert die User-ID des User-Objekts zurueck.
 	 * 
 	 * @return Die User-ID
 	 */
@@ -124,7 +124,7 @@ public abstract class BasicUser {
 	
 	/**
 	 * Koppelt den Benutzer temporaer an einen anderen. Dadurch werden AccessLevel und Flags
-	 * des angegebenen Benutzers verwendet
+	 * des angegebenen Benutzers verwendet.
 	 * @param user Der Benutzer, der temporaer an diesen gekoppelt werden soll
 	 */
 	public void attachToUser( BasicUser user ) {
@@ -135,7 +135,7 @@ public abstract class BasicUser {
 	 * Macht alle geladenen Benutzereigenschaften dem Templateengine bekannt.
 	 * Die daraus resultierenden Template-Variablen haben die Form "user."+Datenbankname.
 	 * Die Eigenschaft Wait4Vacation, welche den Datenbanknamen "wait4vac" hat, wuerde sich
-	 * somit in der Template-Variablen "user.wait4vac" wiederfinden
+	 * somit in der Template-Variablen "user.wait4vac" wiederfinden.
 	 * 
 	 * @param templateEngine Das Template-Engine, in dem die Variablen gesetzt werden sollen
 	 */
@@ -147,7 +147,7 @@ public abstract class BasicUser {
 	 * Macht alle geladenen Benutzereigenschaften dem Templateengine bekannt.
 	 * Die daraus resultierenden Template-Variablen haben die Form Prefix+"."+Datenbankname.
 	 * Die Eigenschaft Wait4Vacation, welche den Datenbanknamen "wait4vac" hat, wuerde sich, beim 
-	 * Prefix "activeuser", somit in der Template-Variablen "activeuser.wait4vac" wiederfinden
+	 * Prefix "activeuser", somit in der Template-Variablen "activeuser.wait4vac" wiederfinden.
 	 * 
 	 * @param templateEngine Das Template-Engine, in dem die Variablen gesetzt werden sollen
 	 * @param prefix Der fuer die Template-Variablen zu verwendende Prefix
@@ -170,7 +170,7 @@ public abstract class BasicUser {
 	}
 	
 	/**
-	 * Liefert den Standard-Image-Path zurueck
+	 * Liefert den Standard-Image-Path zurueck.
 	 * @return Der Standard-Image-Path
 	 */
 	public static String getDefaultImagePath() {
@@ -209,7 +209,7 @@ public abstract class BasicUser {
 	
 	/**
 	 * Setzt ein Flag fuer den User entweder auf aktiviert (<code>true</code>)
-	 * oder auf deaktiviert (<code>false</code>)
+	 * oder auf deaktiviert (<code>false</code>).
 	 * @param flag Das zu setzende Flag
 	 * @param on true, falls es aktiviert werden soll
 	 */
@@ -242,7 +242,7 @@ public abstract class BasicUser {
 	}
 	
 	/**
-	 * Aktiviert ein Flag fuer den User
+	 * Aktiviert ein Flag fuer den User.
 	 * @param flag Das zu aktivierende Flag
 	 */
 	public void setFlag( String flag ) {
@@ -251,7 +251,7 @@ public abstract class BasicUser {
 	
 	/**
 	 * Liefert den Wert eines User-Values zurueck.
-	 * User-Values sind die Eintraege, welche sich in der Tabelle user_values befinden
+	 * User-Values sind die Eintraege, welche sich in der Tabelle user_values befinden.
 	 * 
 	 * @param valuename Name des User-Values
 	 * @return Wert des User-Values
@@ -272,7 +272,7 @@ public abstract class BasicUser {
 	}
 	
 	/**
-	 * Setzt ein User-Value auf einen bestimmten Wert
+	 * Setzt ein User-Value auf einen bestimmten Wert.
 	 * @see #getUserValue(String)
 	 * 
 	 * @param valuename Name des User-Values
@@ -295,7 +295,7 @@ public abstract class BasicUser {
 	}
 	
 	/**
-	 * Gibt das Zugriffslevel des Benutzers zurueck
+	 * Gibt das Zugriffslevel des Benutzers zurueck.
 	 * @return Das Zugriffslevel
 	 */
 	public int getAccessLevel() {
@@ -318,7 +318,7 @@ public abstract class BasicUser {
 	/**
 	 * Gibt den vollstaendigen Ingame-Namen des Spielers zurueck.
 	 * Der vollstaendige Ingame-Name enthaelt den Ally-Tag sofern vorhanden
-	 * und ist ggf auch mittels BBCode formatiert 
+	 * und ist ggf auch mittels BBCode formatiert.
 	 * @return Der vollstaendige Ingame-Name
 	 */
 	public String getName() {
@@ -340,7 +340,7 @@ public abstract class BasicUser {
 	}
 
 	/**
-	 * Gibt das verschluesselte Passwort des Spielers zurueck
+	 * Gibt das verschluesselte Passwort des Spielers zurueck.
 	 * @return Das verschluesselte Passwort
 	 */
 	public String getPassword() {
@@ -348,7 +348,7 @@ public abstract class BasicUser {
 	}
 	
 	/**
-	 * Setzt das Passwort fuer den Spieler
+	 * Setzt das Passwort fuer den Spieler.
 	 * @param pw Das neue (mittels MD5 kodierte) Passwort
 	 */
 	public void setPassword( String pw ) {
@@ -356,7 +356,7 @@ public abstract class BasicUser {
 	}
 	
 	/**
-	 * Gibt die Inaktivitaet des Spielers in Ticks zurueck
+	 * Gibt die Inaktivitaet des Spielers in Ticks zurueck.
 	 * @return Die Inaktivitaet des Spielers in Ticks
 	 */
 	public int getInactivity() {
@@ -364,7 +364,7 @@ public abstract class BasicUser {
 	}
 	
 	/**
-	 * Setzt die Inaktivitaet des Spielers in Ticks
+	 * Setzt die Inaktivitaet des Spielers in Ticks.
 	 * @param inakt Die neue Inaktivitaet des Spielers
 	 */
 	public void setInactivity(int inakt) {
@@ -373,7 +373,7 @@ public abstract class BasicUser {
 	
 	/**
 	 * Gibt die Timestamp des Zeitpunkts zurueck, an dem Sich der Spieler 
-	 * angemeldet hat
+	 * angemeldet hat.
 	 * @return Die Timestamp des Anmeldezeitpunkts
 	 */
 	public int getSignup() {
@@ -381,7 +381,7 @@ public abstract class BasicUser {
 	}
 
 	/**
-	 * Gibt die Email-Adresse des Spielers zurueck
+	 * Gibt die Email-Adresse des Spielers zurueck.
 	 * @return Die Email-Adresse
 	 */
 	public String getEmail() { 
@@ -389,7 +389,7 @@ public abstract class BasicUser {
 	}
 	
 	/**
-	 * Gibt die Anzahl der fehlgeschlagenen Login-Versuche des Spielers zurueck
+	 * Gibt die Anzahl der fehlgeschlagenen Login-Versuche des Spielers zurueck.
 	 * @return die Anzahl der fehlgeschlagenene Logins
 	 */
 	public int getLoginFailedCount() {
@@ -397,7 +397,7 @@ public abstract class BasicUser {
 	}
 	
 	/**
-	 * Setzt die Anzahl der fehlgeschlagenen Logins des Spielers auf den angegebenen Wert
+	 * Setzt die Anzahl der fehlgeschlagenen Logins des Spielers auf den angegebenen Wert.
 	 * @param count Die neue Anzahl der fehlgeschlagenene Logins
 	 */
 	public void setLoginFailedCount(int count) {
@@ -406,7 +406,7 @@ public abstract class BasicUser {
 	
 	/**
 	 * Gibt den Ingame-Namen des Spielers ohne Ally-Tag zurueck.
-	 * Der Name ist ggf mittels BBCodes formatiert
+	 * Der Name ist ggf mittels BBCodes formatiert.
 	 * @return der Ingame-Name ohne Ally-Tag
 	 */
 	public String getNickname() {
@@ -414,7 +414,7 @@ public abstract class BasicUser {
 	}
 	
 	/**
-	 * Setzt den Ingame-Namen ohne Ally-Tag des Spielers auf den angegebenen BBCode-String 
+	 * Setzt den Ingame-Namen ohne Ally-Tag des Spielers auf den angegebenen BBCode-String .
 	 * @param nick der neue Ingame-Name ohne Ally-Tag
 	 */
 	public void setNickname( String nick ) {
@@ -423,7 +423,7 @@ public abstract class BasicUser {
 	
 	/**
 	 * Gibt den unformatierten Ingame-Namen des Spielers zurueck.
-	 * Der Name ist inklusive des Ally-Tags sofern vorhanden
+	 * Der Name ist inklusive des Ally-Tags sofern vorhanden.
 	 * @return Der unformatierte Name inkl. Ally-Tag
 	 */
 	public String getPlainname() {
@@ -431,7 +431,7 @@ public abstract class BasicUser {
 	}
 	
 	/**
-	 * Gibt den Image-Pfad des Spielers zurueck
+	 * Gibt den Image-Pfad des Spielers zurueck.
 	 * @return Der Image-Pfad des Spielers
 	 */
 	public String getImagePath() {
@@ -443,7 +443,7 @@ public abstract class BasicUser {
 	}
 	
 	/**
-	 * Setzt den Image-Pfad des Spielers auf den angegebenen Wert
+	 * Setzt den Image-Pfad des Spielers auf den angegebenen Wert.
 	 * @param value Der neue Image-Pfad des Spielers
 	 */
 	public void setImagePath(String value) {
@@ -451,7 +451,7 @@ public abstract class BasicUser {
 	}
 	
 	/**
-	 * Gibt <code>true</code> zurueck, falls der Account deaktiviert ist
+	 * Gibt <code>true</code> zurueck, falls der Account deaktiviert ist.
 	 * @return <code>true</code>, falls der Account deaktiviert ist
 	 */
 	public boolean getDisabled() {
@@ -478,7 +478,7 @@ public abstract class BasicUser {
 	}
 	
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {
@@ -486,7 +486,7 @@ public abstract class BasicUser {
 	}
 
 	/**
-	 * Setzt die Email-Adresse des Spielers
+	 * Setzt die Email-Adresse des Spielers.
 	 * @param email Die Email
 	 */
 	protected void setEmail(String email) {
@@ -494,7 +494,7 @@ public abstract class BasicUser {
 	}
 
 	/**
-	 * Setzt den Plaintext-Namen des Spielers
+	 * Setzt den Plaintext-Namen des Spielers.
 	 * @param plainname Der Name
 	 */
 	protected void setPlainname(String plainname) {
@@ -503,7 +503,7 @@ public abstract class BasicUser {
 
 	/**
 	 * Setzt den Zeitpunkt, zu dem sich der User registriert hat
-	 * in Sekunden seit dem 1.1.1970
+	 * in Sekunden seit dem 1.1.1970.
 	 * @param signup Die Timestamp
 	 */
 	protected void setSignup(int signup) {
@@ -511,7 +511,7 @@ public abstract class BasicUser {
 	}
 
 	/**
-	 * Setzt den Loginnamen des Users
+	 * Setzt den Loginnamen des Users.
 	 * @param un Der Loginname
 	 */
 	protected void setUn(String un) {
@@ -519,7 +519,7 @@ public abstract class BasicUser {
 	}
 
 	/**
-	 * Setzt den Zugriffslevel den Users auf Adminfunktionen
+	 * Setzt den Zugriffslevel den Users auf Adminfunktionen.
 	 * @param accesslevel Der Level
 	 */
 	protected void setAccesslevel(int accesslevel) {
@@ -527,7 +527,7 @@ public abstract class BasicUser {
 	}
 	
 	/**
-	 * Gibt die Flags des Benutzers zurueck
+	 * Gibt die Flags des Benutzers zurueck.
 	 * @return Die Flags
 	 */
 	public String getFlags()
@@ -536,7 +536,7 @@ public abstract class BasicUser {
 	}
 	
 	/**
-	 * Setzt die Flags des Benutzers
+	 * Setzt die Flags des Benutzers.
 	 * @param flags Die Flags
 	 */
 	public void setFlags(String flags)

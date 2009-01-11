@@ -33,13 +33,14 @@ import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
- * Adminpanel zum Bearbeiten der Munitionswerte
+ * Adminpanel zum Bearbeiten der Munitionswerte.
  * @author Sebastian Gift
  *
  */
 @AdminMenuEntry(category = "Waffen", name = "Munition bearbeiten")
 public class EditAmmo implements AdminPlugin
 {
+	@Override
 	public void output(AdminController controller, String page, int action) throws IOException
 	{
 		Context context = ContextMap.getContext();

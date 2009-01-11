@@ -32,12 +32,12 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
- * Zeigt in Schlachten zerstoerte und verlorene Schiffe an
+ * Zeigt in Schlachten zerstoerte und verlorene Schiffe an.
  * @author Christopher Jung
  *
  */
 public class StatOwnKampf implements Statistic {
-
+	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
@@ -211,10 +211,12 @@ public class StatOwnKampf implements Statistic {
 		}
 	}
 
+	@Override
 	public boolean generateAllyData() {
 		return false;
 	}
 	
+	@Override
 	public int getRequiredData() {
 		return 0;
 	}

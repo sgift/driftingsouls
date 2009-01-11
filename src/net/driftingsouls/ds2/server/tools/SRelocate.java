@@ -25,7 +25,7 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 /**
- * Kommandozeilentool zur Aenderung einer Schiffs-ID eines Schiffes
+ * Kommandozeilentool zur Aenderung einer Schiffs-ID eines Schiffes.
  * @author Christopher Jung
  *
  */
@@ -34,7 +34,7 @@ public class SRelocate extends DSApplication {
 	private int to;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param args Die Kommandozeilenargumente
 	 * @throws Exception
 	 */
@@ -57,7 +57,7 @@ public class SRelocate extends DSApplication {
 	}
 		
 	/**
-	 * Startet die Ausfuehrung
+	 * Startet die Ausfuehrung.
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
@@ -100,7 +100,7 @@ public class SRelocate extends DSApplication {
 	}
 
 	/**
-	 * Main
+	 * Main.
 	 * @param args Die Argumente
 	 * @throws Exception
 	 */

@@ -31,7 +31,7 @@ import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 /**
- * Fuehrt den Tick fuer Schlachten aus
+ * Fuehrt den Tick fuer Schlachten aus.
  * @author Christopher Jung
  *
  */

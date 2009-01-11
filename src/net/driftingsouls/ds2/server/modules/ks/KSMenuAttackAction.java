@@ -34,7 +34,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
- * Das Auswahlmenue fuer den Feuermodus und die abzufeuernde Waffe
+ * Das Auswahlmenue fuer den Feuermodus und die abzufeuernde Waffe.
  * @author Christopher Jung
  *
  */

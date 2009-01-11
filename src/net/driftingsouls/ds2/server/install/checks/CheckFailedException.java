@@ -20,7 +20,7 @@ package net.driftingsouls.ds2.server.install.checks;
 
 /**
  * Diese Exception wird geworfen, wenn ein Check der Installation
- * nicht erfolgreich durchgefuehrt werden konnte
+ * nicht erfolgreich durchgefuehrt werden konnte.
  * @author Christopher Jung
  *
  */
@@ -28,7 +28,7 @@ public class CheckFailedException extends Exception {
 	private static final long serialVersionUID = 6395977535269450901L;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param message Die Fehlermeldung
 	 * @param cause Der Grund
 	 */
@@ -38,7 +38,7 @@ public class CheckFailedException extends Exception {
 	}
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param message Die Fehlermeldung
 	 */
 	public CheckFailedException(String message) {

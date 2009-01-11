@@ -29,7 +29,7 @@ import javax.persistence.Version;
 import net.driftingsouls.ds2.server.bases.Base;
 
 /**
- * Eine Akademie
+ * Eine Akademie.
  * @author Christopher Jung
  *
  */
@@ -48,7 +48,7 @@ public class Academy {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public Academy() {
@@ -56,7 +56,7 @@ public class Academy {
 	}
 	
 	/**
-	 * Erstellt eine neue Akademie
+	 * Erstellt eine neue Akademie.
 	 * @param base Die Basis auf der die Akademie steht
 	 */
 	public Academy(Base base) {
@@ -66,7 +66,7 @@ public class Academy {
 	}
 
 	/**
-	 * Gibt die Basis zurueck
+	 * Gibt die Basis zurueck.
 	 * @return Die Basis
 	 */
 	public Base getBase() {
@@ -74,7 +74,7 @@ public class Academy {
 	}
 
 	/**
-	 * Setzt die Basis auf der sich die Akademie befindet
+	 * Setzt die Basis auf der sich die Akademie befindet.
 	 * @param col Die Basis
 	 */
 	public void setBase(Base col) {
@@ -82,7 +82,7 @@ public class Academy {
 	}
 
 	/**
-	 * Gibt die verbleibende Ausbildungszeit zurueck
+	 * Gibt die verbleibende Ausbildungszeit zurueck.
 	 * @return Die verbleibende Ausbildungszeit
 	 */
 	public int getRemain() {
@@ -90,7 +90,7 @@ public class Academy {
 	}
 
 	/**
-	 * Setzt die verbleibende Ausbildungszeit
+	 * Setzt die verbleibende Ausbildungszeit.
 	 * @param remain Die verbleibende Ausbildungszeit
 	 */
 	public void setRemain(int remain) {
@@ -98,7 +98,7 @@ public class Academy {
 	}
 
 	/**
-	 * Gibt den Typ des auszubildenden Offiziers zurueck
+	 * Gibt den Typ des auszubildenden Offiziers zurueck.
 	 * @return Der Typ
 	 */
 	public int getTrain() {
@@ -106,7 +106,7 @@ public class Academy {
 	}
 
 	/**
-	 * Setzt den Typ des auszubildenden Offiziers
+	 * Setzt den Typ des auszubildenden Offiziers.
 	 * @param train Der Typ
 	 */
 	public void setTrain(int train) {
@@ -114,7 +114,7 @@ public class Academy {
 	}
 
 	/**
-	 * Gibt die Weiterbildungsdaten zurueck
+	 * Gibt die Weiterbildungsdaten zurueck.
 	 * @return Die Weiterbildungsdaten
 	 */
 	public String getUpgrade() {
@@ -122,7 +122,7 @@ public class Academy {
 	}
 
 	/**
-	 * Setzt die Weiterbildungsdaten
+	 * Setzt die Weiterbildungsdaten.
 	 * @param upgrade Die Weiterbildungsdaten
 	 */
 	public void setUpgrade(String upgrade) {
@@ -130,7 +130,7 @@ public class Academy {
 	}
 
 	/**
-	 * Gibt die ID der Basis zurueck, auf der sich die Akademie befindet
+	 * Gibt die ID der Basis zurueck, auf der sich die Akademie befindet.
 	 * @return Die ID der Basis
 	 */
 	public int getBaseId() {
@@ -138,7 +138,7 @@ public class Academy {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

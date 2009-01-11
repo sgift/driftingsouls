@@ -29,7 +29,7 @@ import org.hibernate.type.Type;
 
 /**
  * <p>Vergleicht ob zwei Werte gleich sind unter Beruecksichtigung der <code>null</code>. Der Rueckgabewert
- * ist ein <code>Boolean</code></p>
+ * ist ein <code>Boolean</code>.</p>
  * <p>Syntax: <code>ncp(<i>&lt;zu pruefende Spalte&gt;</i>, <i>&lt;Wert der Spalte&gt;</i>)</code></p> 
  * @author Christopher Jung
  *

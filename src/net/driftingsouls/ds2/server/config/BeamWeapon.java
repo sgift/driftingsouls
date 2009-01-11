@@ -25,13 +25,13 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.w3c.dom.Node;
 
 /**
- * Ein Strahlengeschuetz in DS
+ * Ein Strahlengeschuetz in DS.
  * @author Christopher Jung
  *
  */
 public class BeamWeapon extends Weapon {
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param node Der zu landende XML-Knoten
 	 * @throws Exception
 	 */

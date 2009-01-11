@@ -31,14 +31,14 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
- * Ermoeglicht das Beenden von Schlachten
+ * Ermoeglicht das Beenden von Schlachten.
  * @author Christopher Jung
  *
  */
 @AdminMenuEntry(category="Sonstiges", name="Schlacht beenden")
 public class BattleEnd implements AdminPlugin 
 {
-
+	@Override
 	public void output(AdminController controller, String page, int action) throws IOException 
 	{
 		Context context = ContextMap.getContext();

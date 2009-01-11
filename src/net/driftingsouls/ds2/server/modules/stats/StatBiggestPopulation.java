@@ -25,7 +25,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.StatsController;
 
 /**
- * Zeigt die Liste der groessten Bevoelkerungen an
+ * Zeigt die Liste der groessten Bevoelkerungen an.
  * @author Christopher Jung
  *
  */
@@ -33,13 +33,14 @@ public class StatBiggestPopulation extends AbstractStatistic implements Statisti
 	private boolean allys;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param allys Sollten Allianzen (<code>true</code>) angezeigt werden?
 	 */
 	public StatBiggestPopulation(boolean allys) {
 		this.allys = allys;
 	}
 	
+	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Database db = getContext().getDatabase();
 

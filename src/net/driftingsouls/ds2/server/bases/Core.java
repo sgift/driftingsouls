@@ -37,7 +37,7 @@ import org.hibernate.annotations.Type;
 
 //TODO: Warum Verbrauch/Produktion unterscheiden?
 /**
- * Basisklasse fuer alle Coretypen
+ * Basisklasse fuer alle Coretypen.
  * @author Christopher Jung
  *
  */
@@ -70,7 +70,7 @@ public abstract class Core {
 	private int eps;	
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public Core() {
@@ -91,7 +91,7 @@ public abstract class Core {
 	}
 	
 	/**
-	 * Die ID des Coretyps
+	 * Die ID des Coretyps.
 	 * @return die ID
 	 */
 	public int getId() {
@@ -99,7 +99,7 @@ public abstract class Core {
 	}
 	
 	/**
-	 * Der Name der Core
+	 * Der Name der Core.
 	 * @return der Name
 	 */
 	public String getName() {
@@ -107,7 +107,7 @@ public abstract class Core {
 	}
 	
 	/**
-	 * Gibt den Basis-Typ, in den die Core passt, zurueck
+	 * Gibt den Basis-Typ, in den die Core passt, zurueck.
 	 * @return der Basistyp
 	 * @see Base#getKlasse()
 	 */
@@ -116,7 +116,7 @@ public abstract class Core {
 	}
 	
 	/**
-	 * Gibt die Baukosten, welche zum errichten der Core notwendig sind, zurueck
+	 * Gibt die Baukosten, welche zum errichten der Core notwendig sind, zurueck.
 	 * @return die Baukosten
 	 */
 	public Cargo getBuildCosts() {
@@ -124,7 +124,7 @@ public abstract class Core {
 	}
 	
 	/**
-	 * Gibt die Produktion pro Tick der Core zurueck
+	 * Gibt die Produktion pro Tick der Core zurueck.
 	 * @return die Produktion pro Tick
 	 */
 	public Cargo getProduces() {
@@ -132,7 +132,7 @@ public abstract class Core {
 	}
 	
 	/**
-	 * Gibt den Verbrauch pro Tick der Core zurueck
+	 * Gibt den Verbrauch pro Tick der Core zurueck.
 	 * @return der Verbrauch pro Tick
 	 */
 	public Cargo getConsumes() {
@@ -140,7 +140,7 @@ public abstract class Core {
 	}
 	
 	/**
-	 * Gibt die Anzahl der zum Betrieb der Core notwendigen Arbeiter zurueck
+	 * Gibt die Anzahl der zum Betrieb der Core notwendigen Arbeiter zurueck.
 	 * @return die benoetigten Arbeiter
 	 */
 	public int getArbeiter() {
@@ -148,7 +148,7 @@ public abstract class Core {
 	}
 	
 	/**
-	 * Gibt den Energieverbrauch der Core pro Tick zurueck
+	 * Gibt den Energieverbrauch der Core pro Tick zurueck.
 	 * @return der Energieverbrauch pro Tick
 	 */
 	public int getEVerbrauch() {
@@ -156,7 +156,7 @@ public abstract class Core {
 	}
 	
 	/**
-	 * Gibt die Energieproduktion der Core pro Tick zurueck
+	 * Gibt die Energieproduktion der Core pro Tick zurueck.
 	 * @return Die Energieproduktion pro Tick
 	 */
 	public int getEProduktion() {
@@ -164,7 +164,7 @@ public abstract class Core {
 	}
 	
 	/**
-	 * Gibt den durch die Core bereitgestellten Wohnraum zurueck
+	 * Gibt den durch die Core bereitgestellten Wohnraum zurueck.
 	 * @return Der Wohnraum
 	 */
 	public int getBewohner() {
@@ -172,7 +172,7 @@ public abstract class Core {
 	}
 	
 	/**
-	 * Gibt die ID der Forschung zurueck, welche zum errichten der Core benoetigt wird
+	 * Gibt die ID der Forschung zurueck, welche zum errichten der Core benoetigt wird.
 	 * @return Die ID der benoetigten Forschung
 	 */
 	public int getTechRequired() {
@@ -180,7 +180,7 @@ public abstract class Core {
 	}
 	
 	/**
-	 * Unbekannt (?????) - Wird aber auch nicht verwendet
+	 * Unbekannt (?????) - Wird aber auch nicht verwendet.
 	 * @return ????
 	 */
 	public int getEPS() {

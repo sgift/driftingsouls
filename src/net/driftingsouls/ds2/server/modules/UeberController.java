@@ -72,7 +72,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Die Uebersicht
+ * Die Uebersicht.
  * @author Christopher Jung
  *
  */
@@ -85,7 +85,7 @@ public class UeberController extends TemplateGenerator {
 	private Configuration config;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public UeberController(Context context) {
@@ -95,7 +95,7 @@ public class UeberController extends TemplateGenerator {
 	}
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -112,7 +112,7 @@ public class UeberController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Beendet den Vacation-Modus-Vorlauf
+	 * Beendet den Vacation-Modus-Vorlauf.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -129,7 +129,7 @@ public class UeberController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Wechselt die Tutorial-Seite bzw beendet das Tutorial 
+	 * Wechselt die Tutorial-Seite bzw beendet das Tutorial.
 	 * @urlparam Integer tutorial 1, falls die naechste Tutorialseite angezeigt werden soll. Zum Beenden -1
 	 */
 	@Action(ActionType.DEFAULT)
@@ -152,7 +152,7 @@ public class UeberController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Wechselt den Anzeigemodus der Flotten/Bookmark-Box
+	 * Wechselt den Anzeigemodus der Flotten/Bookmark-Box.
 	 * @urlparam String box Der Name des neuen Anzeigemodus
 	 *
 	 */
@@ -171,7 +171,7 @@ public class UeberController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Beendet das angegebene Quest
+	 * Beendet das angegebene Quest.
 	 * @urlparam Integer questid Die ID des zu beendenden Quests
 	 *
 	 */
@@ -221,7 +221,7 @@ public class UeberController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Uebersicht an
+	 * Zeigt die Uebersicht an.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

@@ -21,7 +21,7 @@ package net.driftingsouls.ds2.server.namegenerator.markov;
 import java.io.Serializable;
 
 /**
- * Header einer Markov-Tabellen-Datei
+ * Header einer Markov-Tabellen-Datei.
  * @author Christopher Jung
  *
  */

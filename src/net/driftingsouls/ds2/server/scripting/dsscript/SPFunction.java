@@ -20,26 +20,26 @@ package net.driftingsouls.ds2.server.scripting.dsscript;
 
 
 /**
- * Interface fuer ScriptParser-Funktionen
+ * Interface fuer ScriptParser-Funktionen.
  * @author Christopher Jung
  *
  */
 public interface SPFunction {
 	/**
-	 * Der ScriptParser soll weiterlaufen und der Funktionszeiger soll inkrementiert werden
+	 * Der ScriptParser soll weiterlaufen und der Funktionszeiger soll inkrementiert werden.
 	 */
 	public static final boolean[] CONTINUE = new boolean[] {true,true};
 	/**
-	 * Der ScriptParser soll stoppen und der Funktionszeiger soll nicht inkrementiert werden
+	 * Der ScriptParser soll stoppen und der Funktionszeiger soll nicht inkrementiert werden.
 	 */
 	public static final boolean[] STOP = new boolean[] {false,false};
 	/**
-	 * Der ScriptParser soll stoppen und der Funktionszeiger soll inkrementiert werden
+	 * Der ScriptParser soll stoppen und der Funktionszeiger soll inkrementiert werden.
 	 */
 	public static final boolean[] STOP_AND_INC = new boolean[] {false,true};
 	
 	/**
-	 * Fuehrt die ScriptParser-Funktion aus
+	 * Fuehrt die ScriptParser-Funktion aus.
 	 * @param scriptparser Der ScriptParser
 	 * @param command Die Parameter
 	 * @return Array der Laenge 2. Element 1 besagt, ob der ScriptParser weiterlaufen soll. Element 2, ob der Funktionszeiger inkrementiert werden soll

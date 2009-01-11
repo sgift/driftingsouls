@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.scripting.roles.Role;
 import net.driftingsouls.ds2.server.scripting.roles.parser.RoleDefinition;
 
 /**
- * Interpreter fuer Rollendefinitionen
+ * Interpreter fuer Rollendefinitionen.
  * @author Christopher Jung
  *
  */
@@ -62,7 +62,7 @@ public class Interpreter {
 	}
 	
 	/**
-	 * Entfernt alle Rollen aus dem Interpreter
+	 * Entfernt alle Rollen aus dem Interpreter.
 	 */
 	public static void cleanUpRoles() {
 		synchronized(roles) {
@@ -72,7 +72,7 @@ public class Interpreter {
 	}
 	
 	/**
-	 * Erzeugt aus der Rollendefinition einen Executer
+	 * Erzeugt aus der Rollendefinition einen Executer.
 	 * @param def Die Rollendefinition
 	 * @return Der Executer fuer die Rollendefinition
 	 * @throws IllegalRoleDefinitionException Falls die Rollendefinition ungueltig ist

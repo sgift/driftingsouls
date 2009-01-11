@@ -24,7 +24,7 @@ import javax.persistence.Entity;
 import org.hibernate.annotations.Immutable;
 
 /**
- * <h1>Die Standardcore in DS</h1>
+ * <h1>Die Standardcore in DS.</h1>
  * Alle Cores, welche keine eigene Core-Klasse besitzen, werden von
  * dieser Klasse bearbeitet.
  * 
@@ -36,7 +36,7 @@ import org.hibernate.annotations.Immutable;
 @DiscriminatorValue("1")
 public class DefaultCore extends Core {
 	/**
-	 * Erstellt eine neue Core-Instanz
+	 * Erstellt eine neue Core-Instanz.
 	 */
 	public DefaultCore() {
 		// EMPTY

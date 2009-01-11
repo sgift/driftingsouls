@@ -34,7 +34,7 @@ public class Markov
 	private float[][][] table = new float[32][32][32];
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * 
 	 * @param in Der Eingabestrom, welcher eine Markov-Kette/Tabelle enthaelt
 	 * @throws IOException
@@ -61,7 +61,7 @@ public class Markov
 	}
 
 	/**
-	 * Generiert die angegebene Anzahl an Namen
+	 * Generiert die angegebene Anzahl an Namen.
 	 * 
 	 * @param count Die Anzahl
 	 * @return Die generierten Namen

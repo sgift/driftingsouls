@@ -38,7 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Liesst Dateien von der Festplatte und schreibt sie in die Antwort
+ * Liesst Dateien von der Festplatte und schreibt sie in die Antwort.
  * @author Christopher Jung
  *
  */
@@ -49,7 +49,7 @@ public class FileReader implements Reader {
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -90,6 +90,7 @@ public class FileReader implements Reader {
 		return null;
 	}
 	
+	@Override
 	public void read(Context context, ReaderPipeline pipeline) throws Exception {
 		String filename = pipeline.getFile();
 		

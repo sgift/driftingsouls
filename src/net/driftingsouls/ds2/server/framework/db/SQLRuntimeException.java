@@ -21,9 +21,9 @@ package net.driftingsouls.ds2.server.framework.db;
 import java.sql.SQLException;
 
 /**
- * <h1>Wrapperklasse fuer {@link java.sql.SQLException}</h1>
+ * <h1>Wrapperklasse fuer {@link java.sql.SQLException}.</h1>
  * Diese Klasse kapselt {@link java.sql.SQLException}s in Laufzeit-Exceptions.
- * (Das mag nicht unbedingt im Sinne des Erfinders ein, vereinfacht aber einiges beim portieren) 
+ * (Das mag nicht unbedingt im Sinne des Erfinders ein, vereinfacht aber einiges beim portieren) .
  * @author Christopher Jung
  *
  */
@@ -31,7 +31,7 @@ public class SQLRuntimeException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param e Die SQL-Exception, welche gekapselt werden soll
 	 */
 	protected SQLRuntimeException(SQLException e) {

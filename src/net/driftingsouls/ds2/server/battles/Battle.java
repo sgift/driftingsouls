@@ -75,7 +75,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Repraesentiert eine Schlacht in DS
+ * Repraesentiert eine Schlacht in DS.
  * @author Christopher Jung
  *
  */
@@ -91,65 +91,65 @@ public class Battle implements Locatable {
 	// Aktionskonstanten von Schiffen in der Schlacht (battles_ships->action)
 	//
 	/**
-	 * Schiff wird am Rundenende geloescht
+	 * Schiff wird am Rundenende geloescht.
 	 */
 	public static final int BS_DESTROYED = 1;
 	/**
-	 * Schiff verlaesst am Rundenende die Schlacht
+	 * Schiff verlaesst am Rundenende die Schlacht.
 	 */
 	public static final int BS_FLUCHT = 2;
 	/**
-	 * Schiff ist getroffen (Wertabgleich ships und battles_ships!)
+	 * Schiff ist getroffen (Wertabgleich ships und battles_ships!).
 	 */
 	public static final int BS_HIT = 4;
 	/**
-	 * Das Schiff hat gefeuernt
+	 * Das Schiff hat gefeuernt.
 	 */
 	public static final int BS_SHOT = 8;
 	/**
-	 * Schiff tritt der Schlacht bei
+	 * Schiff tritt der Schlacht bei.
 	 */
 	public static final int BS_JOIN = 16;
 	/**
-	 * Schiff befindet sich in der zweiten Reihe
+	 * Schiff befindet sich in der zweiten Reihe.
 	 */
 	public static final int BS_SECONDROW = 32;
 	/**
-	 * Schiff flieht naechste Runde
+	 * Schiff flieht naechste Runde.
 	 */
 	public static final int BS_FLUCHTNEXT = 64;
 	/**
-	 *  Schiff hat bereits eine zweite Reihe aktion in der Runde ausgefuehrt
+	 *  Schiff hat bereits eine zweite Reihe aktion in der Runde ausgefuehrt.
 	 */
 	public static final int BS_SECONDROW_BLOCKED = 128;
 	/**
-	 * Waffen sind bis zum Rundenende blockiert
+	 * Waffen sind bis zum Rundenende blockiert.
 	 */
 	public static final int BS_BLOCK_WEAPONS = 256;
 	/**
-	 * Waffen sind bis zum Kampfende blockiert
+	 * Waffen sind bis zum Kampfende blockiert.
 	 */
 	public static final int BS_DISABLE_WEAPONS = 512;
 	
 	// Flags fuer Schlachten
 	/**
-	 * Erste Runde
+	 * Erste Runde.
 	 */
 	public static final int FLAG_FIRSTROUND = 1;
 	/**
-	 * Entfernt die zweite Reihe auf Seite 0
+	 * Entfernt die zweite Reihe auf Seite 0.
 	 */
 	public static final int FLAG_DROP_SECONDROW_0 = 2;
 	/**
-	 * Entfernt die zweite Reihe auf Seite 1
+	 * Entfernt die zweite Reihe auf Seite 1.
 	 */
 	public static final int FLAG_DROP_SECONDROW_1 = 4;
 	/**
-	 * Blockiert die zweite Reihe auf Seite 0
+	 * Blockiert die zweite Reihe auf Seite 0.
 	 */
 	public static final int FLAG_BLOCK_SECONDROW_0 = 8;
 	/**
-	 * Blockiert die zweite Reihe auf Seite 1
+	 * Blockiert die zweite Reihe auf Seite 1.
 	 */
 	public static final int FLAG_BLOCK_SECONDROW_1 = 16;
 	
@@ -227,7 +227,7 @@ public class Battle implements Locatable {
 	private Configuration config;
 	
     /**
-    * Injiziert die DS-Konfiguration
+    * Injiziert die DS-Konfiguration.
     * @param config Die DS-Konfiguration
     */
     @Autowired
@@ -238,7 +238,7 @@ public class Battle implements Locatable {
 	
 	/**
 	 * Generiert eine Stringrepraesentation eines Schiffes, welche
-	 * in KS-Logs geschrieben werden kann
+	 * in KS-Logs geschrieben werden kann.
 	 * @param ship Das Schiff
 	 * @return Die Stringrepraesentation
 	 */
@@ -249,7 +249,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public Battle() {
@@ -258,7 +258,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Gibt die ID der Schlacht zurueck
+	 * Gibt die ID der Schlacht zurueck.
 	 * @return die ID
 	 */
 	public int getId() {
@@ -266,7 +266,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Gibt die X-Position der Schlacht zurueck
+	 * Gibt die X-Position der Schlacht zurueck.
 	 * @return die X-Position
 	 */
 	public int getX() {
@@ -274,7 +274,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Gibt die Y-Position der Schlacht zurueck
+	 * Gibt die Y-Position der Schlacht zurueck.
 	 * @return Die Y-Position
 	 */
 	public int getY() {
@@ -282,7 +282,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Gibt das System zurueck, in dem die Schlacht stattfindet
+	 * Gibt das System zurueck, in dem die Schlacht stattfindet.
 	 * @return das System
 	 */
 	public int getSystem() {
@@ -362,7 +362,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Prueft, ob die Schlacht ueber das angegebene Flag verfuegt
+	 * Prueft, ob die Schlacht ueber das angegebene Flag verfuegt.
 	 * @param flag Das Flag
 	 * @return <code>true</code>, falls die Schlacht das Flag besitzt
 	 */
@@ -371,7 +371,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Fuegt der Schlacht das angegebene Flag hinzu
+	 * Fuegt der Schlacht das angegebene Flag hinzu.
 	 * @param flag Das Flag
 	 */
 	public void setFlag( int flag ) { 
@@ -379,7 +379,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Fuegt der Schlacht ein Flag hinzu oder entfernt eines
+	 * Fuegt der Schlacht ein Flag hinzu oder entfernt eines.
 	 * @param flag Das Flag
 	 * @param status <code>true</code>, falls das Flag hinzugefuegt werden soll. Andernfalls <code>false</code>
 	 */
@@ -393,7 +393,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Fuegt dem Nachrichtenpuffer einer Seite eine Nachricht hinzu
+	 * Fuegt dem Nachrichtenpuffer einer Seite eine Nachricht hinzu.
 	 * @param side Die Seite
 	 * @param text Der hinzuzufuegende Text
 	 */
@@ -409,7 +409,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Leert den Nachrichtenpuffer fuer die angegebene Seite
+	 * Leert den Nachrichtenpuffer fuer die angegebene Seite.
 	 * @param side Die Seite oder <code>-1</code> fuer die eigene Seite
 	 */
 	public void clearComMessageBuffer( int side ) {
@@ -426,7 +426,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Gibt den Inhalt des Nachrichtenpuffers der angegebenen Seite zurueck
+	 * Gibt den Inhalt des Nachrichtenpuffers der angegebenen Seite zurueck.
 	 * @param side Die Seite
 	 * @return Der Nachrichtenpuffer
 	 */
@@ -435,7 +435,7 @@ public class Battle implements Locatable {
 	}
 
 	/**
-	 * Gibt den Betak-Status einer Seite zurueck
+	 * Gibt den Betak-Status einer Seite zurueck.
 	 * @param side Die Seite
 	 * @return <code>true</code>, falls die Seite noch nicht gegen die Betak verstossen hat
 	 */
@@ -444,7 +444,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Setzt den Betak-Status einer Seite
+	 * Setzt den Betak-Status einer Seite.
 	 * @param side Die Seite
 	 * @param status Der neue Betak-Status
 	 */
@@ -458,7 +458,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Prueft, ob der Betrachter ein Gast ist
+	 * Prueft, ob der Betrachter ein Gast ist.
 	 * @return <code>true</code>, falls der Betrachter ein Gast ist
 	 */
 	public boolean isGuest() {
@@ -466,7 +466,7 @@ public class Battle implements Locatable {
 	}
 
 	/**
-	 * Gibt das aktuell ausgewaehlte eigene Schiff zurueck
+	 * Gibt das aktuell ausgewaehlte eigene Schiff zurueck.
 	 * @return Das aktuell ausgewaehlte eigene Schiff
 	 */
 	public BattleShip getOwnShip() {
@@ -474,7 +474,7 @@ public class Battle implements Locatable {
 	}
 
 	/**
-	 * Gibt das aktuell ausgewaehlte gegnerische Schiff zurueck
+	 * Gibt das aktuell ausgewaehlte gegnerische Schiff zurueck.
 	 * @return Das aktuell ausgewaehlte gegnerische Schiff
 	 */
 	public BattleShip getEnemyShip() {
@@ -565,7 +565,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Gibt den Index des aktuell ausgewaehlten generischen Schiffes zurueck
+	 * Gibt den Index des aktuell ausgewaehlten generischen Schiffes zurueck.
 	 * @return Der Index des aktuell ausgewaehlten gegnerischen Schiffes
 	 */
 	public int getEnemyShipIndex() {
@@ -573,7 +573,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Setzt den Index des aktuell ausgewaehlten gegnerischen Schiffes
+	 * Setzt den Index des aktuell ausgewaehlten gegnerischen Schiffes.
 	 * @param index Der neue Index
 	 */
 	public void setEnemyShipIndex(int index) {
@@ -584,7 +584,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Gibt den Index des aktuell ausgewaehlten eigenen Schiffes zurueck
+	 * Gibt den Index des aktuell ausgewaehlten eigenen Schiffes zurueck.
 	 * @return Der Index des aktuell ausgewaehlten eigenen Schiffes
 	 */
 	public int getOwnShipIndex() {
@@ -592,7 +592,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Setzt den Index des aktuell ausgewaehlten eigenen Schiffes
+	 * Setzt den Index des aktuell ausgewaehlten eigenen Schiffes.
 	 * @param index Der neue Index
 	 */
 	public void setOwnShipIndex(int index) {
@@ -603,14 +603,14 @@ public class Battle implements Locatable {
 	}
 
 	/**
-	 * Setzt den Inaktivitaetszaehler der Schlacht zurueck
+	 * Setzt den Inaktivitaetszaehler der Schlacht zurueck.
 	 */
 	public void resetInactivity(  ) {	
 		this.inakt = 0;
 	}
 	
 	/**
-	 * Erstellt eine neue Schlacht
+	 * Erstellt eine neue Schlacht.
 	 * @param id Die ID des Spielers, der die Schlacht beginnt
 	 * @param ownShipID Die ID des Schiffes des Spielers, der angreift
 	 * @param enemyShipID Die ID des angegriffenen Schiffes
@@ -655,7 +655,7 @@ public class Battle implements Locatable {
 	}
 
 	/**
-	 * Erstellt eine neue Schlacht
+	 * Erstellt eine neue Schlacht.
 	 * @param id Die ID des Spielers, der die Schlacht beginnt
 	 * @param ownShipID Die ID des Schiffes des Spielers, der angreift
 	 * @param enemyShipID Die ID des angegriffenen Schiffes
@@ -1006,7 +1006,7 @@ public class Battle implements Locatable {
 	}
 
 	/**
-	 * Laesst eines oder mehrere Schiffe (in einer Flotte) der Schlacht beitreten
+	 * Laesst eines oder mehrere Schiffe (in einer Flotte) der Schlacht beitreten.
 	 * @param id Die ID des Besitzers der Schiffe
 	 * @param shipid Die ID eines der Schiffe, welche beitreten sollen
 	 * 
@@ -1225,7 +1225,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Laedt eine Schlacht aus der Datenbank
+	 * Laedt eine Schlacht aus der Datenbank.
 	 * @param battleId die ID der Schlacht
 	 * @param user Der aktive Spieler
 	 * @param ownShip Das auszuwaehlende eigene Schiff (oder <code>null</code>)
@@ -1254,7 +1254,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Laedt weitere Schlachtdaten aus der Datenbank
+	 * Laedt weitere Schlachtdaten aus der Datenbank.
 	 * @param user Der aktive Spieler
 	 * @param ownShip Das auszuwaehlende eigene Schiff (oder <code>null</code>)
 	 * @param enemyShip Das auszuwaehlende gegnerische Schiff (oder <code>null</code>)
@@ -1444,7 +1444,7 @@ public class Battle implements Locatable {
 	}
 
 	/**
-	 * Loggt eine Nachricht fuer aktuellen Spieler
+	 * Loggt eine Nachricht fuer aktuellen Spieler.
 	 * @param text Die zu loggende Nachricht
 	 */
 	public void logme( String text ) {
@@ -1452,7 +1452,7 @@ public class Battle implements Locatable {
 	}
 
 	/**
-	 * Gibt die fuer den akuellen Spieler anzuzeigenden Nachrichten zurueck
+	 * Gibt die fuer den akuellen Spieler anzuzeigenden Nachrichten zurueck.
 	 * @param raw Sollen die Nachrichten im Rohformat (unformatiert) zurueckgegeben werden?
 	 * @return die Nachrichten
 	 */
@@ -1464,7 +1464,7 @@ public class Battle implements Locatable {
 	}
 
 	/**
-	 * Loggt eine Nachricht fuer den Gegner/fuer das Kampflog
+	 * Loggt eine Nachricht fuer den Gegner/fuer das Kampflog.
 	 * @param text Die zu loggende Nachricht
 	 */
 	public void logenemy( String text ) {
@@ -1472,7 +1472,7 @@ public class Battle implements Locatable {
 	}
 
 	/**
-	 * Gibt die fuer den Gegner/fuer das Kampflog zu speichernden Nachrichten zurueck
+	 * Gibt die fuer den Gegner/fuer das Kampflog zu speichernden Nachrichten zurueck.
 	 * @param raw Sollen die Nachrichten im Rohformat (unformatiert) zurueckgegeben werden?
 	 * @return die Nachrichten
 	 */
@@ -1484,7 +1484,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Leert den Nachrichtenpuffer fuer den Gegner/fuer das Kampflog
+	 * Leert den Nachrichtenpuffer fuer den Gegner/fuer das Kampflog.
 	 *
 	 */
 	public void clearEnemyLog() {
@@ -1492,7 +1492,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Beendet die laufende Runde und berechnet einen Rundenwechsel
+	 * Beendet die laufende Runde und berechnet einen Rundenwechsel.
 	 * @param calledByUser Wurde das Rundenende (in)direkt durch einen Spieler ausgeloesst? (<code>true</code>)
 	 * 
 	 * @return <code>true</code>, falls die Schlacht weiterhin existiert. <code>false</code>, falls sie beendet wurde.
@@ -1784,7 +1784,7 @@ public class Battle implements Locatable {
 	private static final Object LOG_WRITE_LOCK = new Object();
 	
 	/**
-	 * Schreibt das aktuelle Kampflog in die Logdatei
+	 * Schreibt das aktuelle Kampflog in die Logdatei.
 	 */
 	public void writeLog() {
 		if( (this.ownShips.size() > 0) && (this.enemyShips.size() > 0) ) {
@@ -1800,7 +1800,7 @@ public class Battle implements Locatable {
 	private boolean deleted = false;
 	
 	/**
-	 * Beendet die Schlacht
+	 * Beendet die Schlacht.
 	 * @param side1points Die Punkte, die die erste Seite bekommen soll (Positiv meint Schlacht gewonnen; Negativ meint Schlacht verloren)
 	 * @param side2points Die Punkte, die die zweite Seite bekommen soll (Positiv meint Schlacht gewonnen; Negativ meint Schlacht verloren)
 	 * @param executeScripts Sollen ggf vorhandene Scripte, welche auf das Ende der Schlacht "lauschen" ausgefuehrt werden (<code>true</code>)?
@@ -2072,7 +2072,7 @@ public class Battle implements Locatable {
 	
 	/**
 	 * Fuegt einen Benutzer der Sichtbarkeit der Schlacht hinzu.
-	 * Der Benutzer kann somit die Schlacht fortan sehen
+	 * Der Benutzer kann somit die Schlacht fortan sehen.
 	 * @param userid Die ID des hinzuzufuegenden Benutzers
 	 */
 	public void addToVisibility( int userid ) {
@@ -2085,7 +2085,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Prueft, ob die Schlacht fuer einen Benutzer sichtbar ist
+	 * Prueft, ob die Schlacht fuer einen Benutzer sichtbar ist.
 	 * @param user Der Benutzer
 	 * @return <code>true</code>, falls sie sichtbar ist
 	 */
@@ -2133,7 +2133,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Gibt den Zeitpunkt des letzten Rundenwechsels zurueck
+	 * Gibt den Zeitpunkt des letzten Rundenwechsels zurueck.
 	 * @return Der Zeitpunkt
 	 */
 	public long getLastTurn() {
@@ -2141,7 +2141,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Prueft, ob ein Spieler Kommandant der Schlacht ist
+	 * Prueft, ob ein Spieler Kommandant der Schlacht ist.
 	 * @param user Der Spieler
 	 * @return <code>true</code>, falls er Kommandant ist
 	 */
@@ -2150,7 +2150,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Prueft, ob ein Spieler auf einer Seite Kommandant ist
+	 * Prueft, ob ein Spieler auf einer Seite Kommandant ist.
 	 * @param user Der Spieler
 	 * @param side Die Seite oder <code>-1</code>, falls die Seite egal ist
 	 * @return <code>true</code>, falls er Kommandant ist
@@ -2173,7 +2173,7 @@ public class Battle implements Locatable {
 	}
 
 	/**
-	 * Gibt die ID der aktuell ausgewaehlten gegnerischen Schiffsgruppe zurueck
+	 * Gibt die ID der aktuell ausgewaehlten gegnerischen Schiffsgruppe zurueck.
 	 * @return Die ID der aktuellen gegnerischen Schiffsgruppe
 	 */
 	public String getEnemyShipGroup() {
@@ -2181,7 +2181,7 @@ public class Battle implements Locatable {
 	}
 
 	/**
-	 * Setzt die ID der aktuell ausgewaehlten gegnerischen Schiffsgruppe
+	 * Setzt die ID der aktuell ausgewaehlten gegnerischen Schiffsgruppe.
 	 * @param enemyShipGroup Die neue Schiffsgruppen-ID
 	 */
 	public void setEnemyShipGroup(String enemyShipGroup) {
@@ -2189,7 +2189,7 @@ public class Battle implements Locatable {
 	}
 
 	/**
-	 * Gibt die ID der aktuell ausgewaehlten eigenen Schiffsgruppe zurueck
+	 * Gibt die ID der aktuell ausgewaehlten eigenen Schiffsgruppe zurueck.
 	 * @return Die ID der aktuellen eigenen Schiffsgruppe
 	 */
 	public String getOwnShipGroup() {
@@ -2197,7 +2197,7 @@ public class Battle implements Locatable {
 	}
 
 	/**
-	 * Setzt die ID der aktuell ausgewaehlten eigenen Schiffsgruppe
+	 * Setzt die ID der aktuell ausgewaehlten eigenen Schiffsgruppe.
 	 * @param ownShipGroup Die neue Schiffsgruppen-ID
 	 */
 	public void setOwnShipGroup(String ownShipGroup) {
@@ -2205,7 +2205,7 @@ public class Battle implements Locatable {
 	}
 
 	/**
-	 * Gibt die ID der gegnerischen Seite zurueck
+	 * Gibt die ID der gegnerischen Seite zurueck.
 	 * @return Die ID der gegnerischen Seite
 	 */
 	public int getEnemySide() {
@@ -2213,7 +2213,7 @@ public class Battle implements Locatable {
 	}
 
 	/**
-	 * Gibt die ID der eigenen Seite zurueck
+	 * Gibt die ID der eigenen Seite zurueck.
 	 * @return Die ID der eigenen Seite
 	 */
 	public int getOwnSide() {
@@ -2221,7 +2221,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Gibt die Liste der gegnerischen Schiffe zurueck
+	 * Gibt die Liste der gegnerischen Schiffe zurueck.
 	 * @return Die Liste der gegnerischen Schiffe
 	 */
 	public List<BattleShip> getEnemyShips() {
@@ -2229,7 +2229,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Gibt das gegnerische Schiff mit dem angegebenen Index (nicht ID!) zurueck
+	 * Gibt das gegnerische Schiff mit dem angegebenen Index (nicht ID!) zurueck.
 	 * @param index Der Index
 	 * @return Das Schiff
 	 */
@@ -2238,7 +2238,7 @@ public class Battle implements Locatable {
 	}
 
 	/**
-	 * Gibt die Liste der eigenen Schiffe zurueck
+	 * Gibt die Liste der eigenen Schiffe zurueck.
 	 * @return Die Liste der eigenen Schiffe
 	 */
 	public List<BattleShip> getOwnShips() {
@@ -2246,7 +2246,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Gibt das eigene Schiff mit dem angegebenen Index (nicht ID!) zurueck
+	 * Gibt das eigene Schiff mit dem angegebenen Index (nicht ID!) zurueck.
 	 * @param index Der Index
 	 * @return Das Schiff
 	 */
@@ -2255,7 +2255,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Gibt die mit einer Seite assoziierte Allianz zurueck
+	 * Gibt die mit einer Seite assoziierte Allianz zurueck.
 	 * @param side Die Seite
 	 * @return Die ID der Allianz oder 0
 	 */
@@ -2268,7 +2268,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Gibt den Kommandanten einer Seite zurueck
+	 * Gibt den Kommandanten einer Seite zurueck.
 	 * @param side Die Seite
 	 * @return Der Spieler
 	 */
@@ -2277,7 +2277,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Setzt den Kommandaten einer Seite
+	 * Setzt den Kommandaten einer Seite.
 	 * @param side Die Seite
 	 * @param user Der neue Kommandant
 	 */
@@ -2295,7 +2295,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Prueft, ob eine Seite mit ihren Aktionen in der Runde fertig ist
+	 * Prueft, ob eine Seite mit ihren Aktionen in der Runde fertig ist.
 	 * @param side Die Seite
 	 * @return <code>true</code>, falls sie mit ihren Aktionen in der Runde fertig ist
 	 */
@@ -2304,7 +2304,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Setzt den "fertig"-Status einer Seite fuer die aktuelle Runde
+	 * Setzt den "fertig"-Status einer Seite fuer die aktuelle Runde.
 	 * @param side Die Seite
 	 * @param ready Der Status
 	 */
@@ -2328,7 +2328,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Setzt die ID eines Spielers, welcher auf einer Seite das Kommando uebernehmen will
+	 * Setzt die ID eines Spielers, welcher auf einer Seite das Kommando uebernehmen will.
 	 * @param side Die Seite
 	 * @param id Die ID des Spielers
 	 */
@@ -2347,7 +2347,7 @@ public class Battle implements Locatable {
 	
 	/**
 	 * Gibt eine Map fuer eine Seite zurueck, welche als Schluessel Schiffstypen und als zugeordnete
-	 * Werte die Anzahl der vorkommenden Schiffes des Typs auf der Seite hat
+	 * Werte die Anzahl der vorkommenden Schiffes des Typs auf der Seite hat.
 	 * @param side Die Seite
 	 * @return Eine Map, welche angibt, wie haeufig ein Schiffstyp auf einer Seite vorkommt
 	 */
@@ -2359,7 +2359,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Gibt zurueck, wie oft ein Schiffstyp auf einer Seite vorkommt
+	 * Gibt zurueck, wie oft ein Schiffstyp auf einer Seite vorkommt.
 	 * @param side Die ID der Seite
 	 * @param shiptype Die ID des Schifftyps
 	 * @return Die Anzahl der vorkommenden Schiffe des Schifftyps
@@ -2373,7 +2373,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Gibt zurueck, wie oft ein Schiffstyp auf der eigenen Seite vorkommt
+	 * Gibt zurueck, wie oft ein Schiffstyp auf der eigenen Seite vorkommt.
 	 * @param shiptype Die ID des Schifftyps
 	 * @return Die Anzahl der vorkommenden Schiffe des Schifftyps 
 	 */
@@ -2382,7 +2382,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Gibt zurueck, wie oft ein Schiffstyp auf der gegnerischen Seite vorkommt
+	 * Gibt zurueck, wie oft ein Schiffstyp auf der gegnerischen Seite vorkommt.
 	 * @param shiptype Die ID des Schifftyps
 	 * @return Die Anzahl der vorkommenden Schiffe des Schifftyps 
 	 */
@@ -2390,12 +2390,13 @@ public class Battle implements Locatable {
 		return getShipTypeCount(this.enemySide, shiptype);
 	}
 
+	@Override
 	public Location getLocation() {
 		return new Location(this.system, this.x, this.y);
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {
@@ -2406,7 +2407,7 @@ public class Battle implements Locatable {
 	 * Gets the battle value of one battle party.
 	 * The battle value is a measure of the fighting power.
 	 * 
-	 * @param side 
+	 * @param side Die Seite, dessen BattleValue abgefragt werden soll
 	 * @return The battle value of one battle party.
 	 */
 	public int getBattleValue(Side side)
@@ -2432,7 +2433,7 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Zerstoert ein Schiff und alle an ihm gedockten Schiff
+	 * Zerstoert ein Schiff und alle an ihm gedockten Schiff.
 	 * @param ship Das zu zerstoerende Schiff
 	 */
 	private void destroyShip( BattleShip ship ) {
@@ -2499,7 +2500,7 @@ public class Battle implements Locatable {
 	
 	/**
 	 * Entfernt ein Schiff aus einer Schlacht und platziert es falls gewuenscht in einem zufaelligen Sektor
-	 * um die Schlacht herum. Evt gedockte Schiffe werden mitentfernt und im selben Sektor platziert
+	 * um die Schlacht herum. Evt gedockte Schiffe werden mitentfernt und im selben Sektor platziert.
 	 * @param ship Das fliehende Schiff
 	 * @param relocate Soll ein zufaelliger Sektor um die Schlacht herum gewaehlt werden? (<code>true</code>)
 	 */

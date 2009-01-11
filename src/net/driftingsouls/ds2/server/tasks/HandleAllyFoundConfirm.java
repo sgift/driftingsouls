@@ -20,7 +20,7 @@ package net.driftingsouls.ds2.server.tasks;
 
 /**
  * TASK_ALLY_FOUND_CONFIRM
- * 		Ein Unterstuetzungsantrag fuer eine Allianzgruendung
+ * 		Ein Unterstuetzungsantrag fuer eine Allianzgruendung.
  * 
  * 	- data1 -> die TaskID der zugehoerigen TASK_ALLY_FOUND-Task
  *  - data2 -> die ID des angeschriebenen Spielers (um dessen Unterstuetzung gebeten wurde)

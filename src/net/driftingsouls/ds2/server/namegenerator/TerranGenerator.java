@@ -41,7 +41,7 @@ public class TerranGenerator implements NameGenerator
 	private List<String> firstNames = new ArrayList<String>();
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @throws IOException
 	 */
 	public TerranGenerator() throws IOException

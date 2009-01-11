@@ -46,19 +46,19 @@ import net.driftingsouls.ds2.server.framework.Common;
 @Table(name="user_moneytransfer")
 public class UserMoneyTransfer {
 	/**
-	 * Der Automatisierungsgrad unter dem die Ueberweisung zu Stande kam
+	 * Der Automatisierungsgrad unter dem die Ueberweisung zu Stande kam.
 	 */
 	public enum Transfer {
 		/**
-		 * Geldtransfer - Der Transfer ist manuell vom Spieler durchgefuerht worden
+		 * Geldtransfer - Der Transfer ist manuell vom Spieler durchgefuerht worden.
 		 */
 		NORMAL,
 		/**
-		 * Geldtransfer - Der Transfer ist in direkter Folge einer Spieleraktion ausgefuehrt worden
+		 * Geldtransfer - Der Transfer ist in direkter Folge einer Spieleraktion ausgefuehrt worden.
 		 */
 		SEMIAUTO,
 		/**
-		 * Geldtransfer - Der Transfer ist automatisch erfolgt
+		 * Geldtransfer - Der Transfer ist automatisch erfolgt.
 		 */
 		AUTO
 	}
@@ -81,7 +81,7 @@ public class UserMoneyTransfer {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public UserMoneyTransfer() {
@@ -89,7 +89,7 @@ public class UserMoneyTransfer {
 	}
 	
 	/**
-	 * Erstellt einen neuen Transfereintrag
+	 * Erstellt einen neuen Transfereintrag.
 	 * @param from Der ueberweisende Benutzer
 	 * @param to Der Empfaenger der Ueberweisung
 	 * @param count Der ueberweisene Betrag
@@ -106,7 +106,7 @@ public class UserMoneyTransfer {
 	}
 
 	/**
-	 * Gibt die ueberwiesene Menge zurueck
+	 * Gibt die ueberwiesene Menge zurueck.
 	 * @return Der Geldbetrag
 	 */
 	public BigInteger getCount() {
@@ -114,7 +114,7 @@ public class UserMoneyTransfer {
 	}
 
 	/**
-	 * Setzt die ueberwiesene Menge
+	 * Setzt die ueberwiesene Menge.
 	 * @param count Der Geldbetrag
 	 */
 	public void setCount(BigInteger count) {
@@ -123,7 +123,7 @@ public class UserMoneyTransfer {
 
 	/**
 	 * Gibt zurueck, ob es sich um eine Dummy-Ueberweisung handelt,
-	 * bei der beim ueberweisenden kein Geld abgebucht wurde
+	 * bei der beim ueberweisenden kein Geld abgebucht wurde.
 	 * @return <code>true</code>, falls es eine Dummy-Ueberweisung ist
 	 */
 	public boolean isFake() {
@@ -132,7 +132,7 @@ public class UserMoneyTransfer {
 
 	/**
 	 * Setzt, ob es sich um eine Dummy-Ueberweisung handelt, 
-	 * bei der beim ueberweisenden kein Geld abgebucht wurde
+	 * bei der beim ueberweisenden kein Geld abgebucht wurde.
 	 * @param fake <code>true</code>, falls es eine Dummy-Ueberweisung ist
 	 */
 	public void setFake(boolean fake) {
@@ -140,7 +140,7 @@ public class UserMoneyTransfer {
 	}
 
 	/**
-	 * Gibt den ueberweisenden Spieler zurueck
+	 * Gibt den ueberweisenden Spieler zurueck.
 	 * @return Der ueberweisende Spieler
 	 */
 	public User getFrom() {
@@ -148,7 +148,7 @@ public class UserMoneyTransfer {
 	}
 
 	/**
-	 * Setzt den ueberweisenden Spieler
+	 * Setzt den ueberweisenden Spieler.
 	 * @param from Der ueberweisende Spieler
 	 */
 	public void setFrom(User from) {
@@ -156,7 +156,7 @@ public class UserMoneyTransfer {
 	}
 
 	/**
-	 * Gibt den Hinweistext zur Ueberweisung zurueck
+	 * Gibt den Hinweistext zur Ueberweisung zurueck.
 	 * @return Der Text
 	 */
 	public String getText() {
@@ -164,7 +164,7 @@ public class UserMoneyTransfer {
 	}
 
 	/**
-	 * Setzt den Hinweistext zur Ueberweisung
+	 * Setzt den Hinweistext zur Ueberweisung.
 	 * @param text Der Hinweistext
 	 */
 	public void setText(String text) {
@@ -172,7 +172,7 @@ public class UserMoneyTransfer {
 	}
 
 	/**
-	 * Gibt den Zeitpunkt der Ueberweisung zurueck
+	 * Gibt den Zeitpunkt der Ueberweisung zurueck.
 	 * @return Der Zeitpunkt
 	 */
 	public long getTime() {
@@ -180,7 +180,7 @@ public class UserMoneyTransfer {
 	}
 
 	/**
-	 * Setzt den Zeitpunkt der Ueberweisung
+	 * Setzt den Zeitpunkt der Ueberweisung.
 	 * @param time Der Zeitpunkt
 	 */
 	public void setTime(long time) {
@@ -188,7 +188,7 @@ public class UserMoneyTransfer {
 	}
 
 	/**
-	 * Gibt den Empfaenger der Ueberweisung zurueck
+	 * Gibt den Empfaenger der Ueberweisung zurueck.
 	 * @return Der Empfaenger
 	 */
 	public User getTo() {
@@ -196,7 +196,7 @@ public class UserMoneyTransfer {
 	}
 
 	/**
-	 * Setzt den Empfaenger der Ueberweisung
+	 * Setzt den Empfaenger der Ueberweisung.
 	 * @param to Der Empfaenger
 	 */
 	public void setTo(User to) {
@@ -204,7 +204,7 @@ public class UserMoneyTransfer {
 	}
 
 	/**
-	 * Gibt den Typ der Ueberweisung zurueck
+	 * Gibt den Typ der Ueberweisung zurueck.
 	 * @return Der Typ
 	 */
 	public Transfer getType() {
@@ -212,7 +212,7 @@ public class UserMoneyTransfer {
 	}
 
 	/**
-	 * Setzt den Typ der Ueberweisung
+	 * Setzt den Typ der Ueberweisung.
 	 * @param type Der Typ
 	 */
 	public void setType(Transfer type) {
@@ -220,7 +220,7 @@ public class UserMoneyTransfer {
 	}
 
 	/**
-	 * Gibt die ID der Ueberweisung zurueck
+	 * Gibt die ID der Ueberweisung zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -228,7 +228,7 @@ public class UserMoneyTransfer {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

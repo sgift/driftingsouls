@@ -38,7 +38,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 
 /**
- * Die Gebaeudeansicht
+ * Die Gebaeudeansicht.
  * @author Christopher Jung
  * 
  * @urlparam Integer col Die ID der Basis
@@ -53,7 +53,7 @@ public class BuildingController extends TemplateGenerator {
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -63,7 +63,7 @@ public class BuildingController extends TemplateGenerator {
     }
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public BuildingController(Context context) {
@@ -101,7 +101,7 @@ public class BuildingController extends TemplateGenerator {
 	}
 
 	/**
-	 * Aktiviert das Gebaeude
+	 * Aktiviert das Gebaeude.
 	 * @throws IOException 
 	 *
 	 */
@@ -127,7 +127,7 @@ public class BuildingController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Deaktiviert das Gebaeude
+	 * Deaktiviert das Gebaeude.
 	 * @throws IOException 
 	 *
 	 */
@@ -153,7 +153,7 @@ public class BuildingController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Reisst das Gebaeude ab
+	 * Reisst das Gebaeude ab.
 	 * @throws IOException 
 	 * @urlparam String conf Falls "ok" bestaetigt dies den Abriss
 	 *
@@ -220,7 +220,7 @@ public class BuildingController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die GUI des Gebaeudes an
+	 * Zeigt die GUI des Gebaeudes an.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

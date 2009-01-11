@@ -35,8 +35,8 @@ import net.driftingsouls.ds2.server.scripting.roles.interpreter.Attribute;
 import net.driftingsouls.ds2.server.ships.Ship;
 
 /**
- * <h1>Die Rolle DeutTransporter</h1>
- * Holt Deuterium von Tankern ab und transportiert es auf einen Asteroiden
+ * <h1>Die Rolle DeutTransporter.</h1>
+ * Holt Deuterium von Tankern ab und transportiert es auf einen Asteroiden.
  * @author Christopher Jung
  *
  */
@@ -58,6 +58,7 @@ public class DeutTransporter implements Role {
 		return deut - reqDeut;
 	}
 	
+	@Override
 	public void execute(ScriptContext context) throws ScriptException {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		

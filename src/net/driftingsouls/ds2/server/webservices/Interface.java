@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 /**
- * Standardwebservice von DS
+ * Standardwebservice von DS.
  * @author Christopher Jung
  *
  */
@@ -37,7 +37,7 @@ public class Interface extends BasicWebService {
 	}
 	
 	/**
-	 * Gibt den Namen eines Schiffes eigenen Schiffes zurueck
+	 * Gibt den Namen eines Schiffes eigenen Schiffes zurueck.
 	 * @param shipid Die ID des Schiffes
 	 * @return Der Name
 	 * @throws WebServiceException
@@ -57,7 +57,7 @@ public class Interface extends BasicWebService {
 	}
 
 	/**
-	 * Gibt den Namen einer eigenen Basis zurueck
+	 * Gibt den Namen einer eigenen Basis zurueck.
 	 * @param baseid Die ID der Basis
 	 * @return Der Name
 	 * @throws WebServiceException
@@ -77,7 +77,7 @@ public class Interface extends BasicWebService {
 	}
 
 	/**
-	 * Prueft, ob die verwendete Session ok ist
+	 * Prueft, ob die verwendete Session ok ist.
 	 * @return <code>true</code>, falls die Session OK ist
 	 */
 	public boolean validateSessID() {
@@ -85,7 +85,7 @@ public class Interface extends BasicWebService {
 	}
 
 	/**
-	 * Gibt zurueck, wieviel neue PMs der aktuelle Spieler hat
+	 * Gibt zurueck, wieviel neue PMs der aktuelle Spieler hat.
 	 * @return Die Anzahl der neuen PMs
 	 * @throws WebServiceException
 	 */
@@ -96,7 +96,7 @@ public class Interface extends BasicWebService {
 	}
 
 	/**
-	 * Fuehrt ein Admin-Kommando aus
+	 * Fuehrt ein Admin-Kommando aus.
 	 * @param command Das Kommand
 	 * @return Der Rueckgabewert des Kommandos
 	 * @throws WebServiceException
@@ -108,7 +108,7 @@ public class Interface extends BasicWebService {
 	}
 
 	/**
-	 * Prueft, ob der aktuelle Spieler Adminrechte besitzt 
+	 * Prueft, ob der aktuelle Spieler Adminrechte besitzt.
 	 * @return <code>true</code>, falls der Spieler Adminrechte besitzt
 	 */
 	public boolean admin_isAdmin() {
@@ -119,7 +119,7 @@ public class Interface extends BasicWebService {
 	}
 
 	/**
-	 * Gibt den Wert eines Uservalues fuer den aktuellen Spieler zurueck
+	 * Gibt den Wert eines Uservalues fuer den aktuellen Spieler zurueck.
 	 * @param uservalue Das Uservalue
 	 * @return Der Wert
 	 * @throws WebServiceException
@@ -135,7 +135,7 @@ public class Interface extends BasicWebService {
 	}
 
 	/**
-	 * Setzt ein Uservalue fuer den aktuellen Spieler auf einen neuen Wert
+	 * Setzt ein Uservalue fuer den aktuellen Spieler auf einen neuen Wert.
 	 * @param uservalue Das Uservalue
 	 * @param newvalue Der neue Wert
 	 * @throws WebServiceException

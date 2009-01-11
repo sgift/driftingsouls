@@ -35,7 +35,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
- * Repraesentiert eine Werft auf einer Basis in DS
+ * Repraesentiert eine Werft auf einer Basis in DS.
  * @author Christopher Jung
  *
  */
@@ -50,7 +50,7 @@ public class BaseWerft extends WerftObject {
 	private int fieldid;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public BaseWerft() {
@@ -58,7 +58,7 @@ public class BaseWerft extends WerftObject {
 	}
 	
 	/**
-	 * Erstellt eine neue Werft
+	 * Erstellt eine neue Werft.
 	 * @param base Die Basis auf der die Werft stehen soll
 	 */
 	public BaseWerft(Base base) {
@@ -67,7 +67,7 @@ public class BaseWerft extends WerftObject {
 	}
 	
 	/**
-	 * Gibt die ID der Basis zurueck, auf dem die Werft steht
+	 * Gibt die ID der Basis zurueck, auf dem die Werft steht.
 	 * @return Die ID der Basis
 	 */
 	public int getBaseID() {

@@ -35,14 +35,14 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
- * Ermoeglicht das Einfuegen von neuen Versteigerungen in die GTU 
+ * Ermoeglicht das Einfuegen von neuen Versteigerungen in die GTU. 
  * @author Christopher Jung
  *
  */
 @AdminMenuEntry(category="GTU", name="Verkaufsdaten")
 public class GtuVerkaeufe implements AdminPlugin
 {
-
+	@Override
 	public void output(AdminController controller, String page, int action) throws IOException 
 	{
 		Context context = ContextMap.getContext();

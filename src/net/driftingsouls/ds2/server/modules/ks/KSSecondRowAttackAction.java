@@ -32,13 +32,13 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
- * Ermoeglicht den Angriff auf die zweite Reihe des Gegners
+ * Ermoeglicht den Angriff auf die zweite Reihe des Gegners.
  * @author Christopher Jung
  *
  */
 public class KSSecondRowAttackAction extends BasicKSAction {
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public KSSecondRowAttackAction() {

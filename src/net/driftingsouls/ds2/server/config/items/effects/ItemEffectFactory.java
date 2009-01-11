@@ -23,7 +23,7 @@ import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import org.w3c.dom.Node;
 
 /**
- * Fabrikklasse fuer Itemeffekte
+ * Fabrikklasse fuer Itemeffekte.
  * @author Christopher Jung
  *
  */
@@ -33,7 +33,7 @@ public class ItemEffectFactory {
 	}
 	
 	/**
-	 * Erzeugt aus einem XML-Fragment den passenden Itemeffekt
+	 * Erzeugt aus einem XML-Fragment den passenden Itemeffekt.
 	 * @param effectNode Das XML-Fragment
 	 * @return Der Effekt
 	 * @throws Exception Falls das Fragment ungueltig ist

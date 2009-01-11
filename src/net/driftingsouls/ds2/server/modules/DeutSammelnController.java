@@ -51,7 +51,7 @@ public class DeutSammelnController extends TemplateGenerator {
 	private Configuration config;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public DeutSammelnController(Context context) {
@@ -65,7 +65,7 @@ public class DeutSammelnController extends TemplateGenerator {
 	}
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -126,7 +126,7 @@ public class DeutSammelnController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Sammelnt fuer eine angegebene Menge Energie Deuterium aus einem Nebel
+	 * Sammelnt fuer eine angegebene Menge Energie Deuterium aus einem Nebel.
 	 * @urlparam Integer e Die Menge Energie, fuer die Deuterium gesammelt werden soll
 	 *
 	 */
@@ -177,7 +177,7 @@ public class DeutSammelnController extends TemplateGenerator {
 	
 	/**
 	 * Zeigt eine Eingabemaske an, in der angegeben werden kann,
-	 * fuer wieviel Energie Deuterium gesammelt werden soll
+	 * fuer wieviel Energie Deuterium gesammelt werden soll.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

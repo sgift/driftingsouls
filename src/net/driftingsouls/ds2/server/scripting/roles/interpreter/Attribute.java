@@ -25,7 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Ordnet ein Attribut der Rollendefinition einem Feld der Rollenimplementierung zu
+ * Ordnet ein Attribut der Rollendefinition einem Feld der Rollenimplementierung zu.
  * @author Christopher Jung
  *
  */
@@ -34,8 +34,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface Attribute {
 	/**
-	 * Gibt den Namen des Attributs zurueck, welches dem Feld zugeordnet werden soll
-	 * @return Der Name
+	 * Der Namen des Attributs, welches dem Feld zugeordnet werden soll.
 	 */
 	String value();
 }

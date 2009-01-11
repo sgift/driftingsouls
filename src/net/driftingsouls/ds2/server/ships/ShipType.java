@@ -28,7 +28,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
- * Ein Schiffstyp
+ * Ein Schiffstyp.
  * @author Christopher Jung
  *
  */
@@ -37,7 +37,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class ShipType implements ShipTypeData {
 	/**
-	 * Kennzeichnet die maximale Groesse, die ein kleines Schiff (z.B. ein Jaeger) haben kann 
+	 * Kennzeichnet die maximale Groesse, die ein kleines Schiff (z.B. ein Jaeger) haben kann .
 	 */
 	public static final int SMALL_SHIP_MAXSIZE = 3;
 	
@@ -96,177 +96,215 @@ public class ShipType implements ShipTypeData {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public ShipType() {
 		// EMPTY
 	}
 
+	@Override
 	public int getADocks() {
 		return aDocks;
 	}
 
+	@Override
 	public long getCargo() {
 		return cargo;
 	}
 
+	@Override
 	public int getChance4Loot() {
 		return chance4Loot;
 	}
 
+	@Override
 	public int getCost() {
 		return cost;
 	}
 
+	@Override
 	public int getCrew() {
 		return crew;
 	}
 	
+	@Override
 	public int getMarines(){
 		return marines;
 	}
 
+	@Override
 	public String getDescrip() {
 		return descrip;
 	}
 
+	@Override
 	public int getDeutFactor() {
 		return deutFactor;
 	}
 
+	@Override
 	public int getEps() {
 		return eps;
 	}
-
+	
+	@Override
 	public String getFlags() {
 		return flags;
 	}
 
+	@Override
 	public int getGroupwrap() {
 		return groupwrap;
 	}
 
+	@Override
 	public int getHeat() {
 		return heat;
 	}
 
+	@Override
 	public boolean isHide() {
 		return hide;
 	}
 
+	@Override
 	public int getHull() {
 		return hull;
 	}
 
+	@Override
 	public int getHydro() {
 		return hydro;
 	}
 
 	/**
-	 * Gibt die ID des Schifftyps zurueck
+	 * Gibt die ID des Schifftyps zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
 		return id;
 	}
 
+	@Override
 	public int getJDocks() {
 		return jDocks;
 	}
 
+	@Override
 	public String getMaxHeat() {
 		return maxHeat;
 	}
 	
 	/**
-	 * Gibt die Modulsteckplaetze des Schiffstyps zurueck
+	 * Gibt die Modulsteckplaetze des Schiffstyps zurueck.
 	 * @return Die Modulsteckplaetze
 	 */
 	public String getModules() {
 		return modules;
 	}
 
+	@Override
 	public String getTypeModules() {
 		return getModules();
 	}
 
+	@Override
 	public String getNickname() {
 		return nickname;
 	}
 
+	@Override
 	public int getOneWayWerft() {
 		return oneWayWerft;
 	}
 
+	@Override
 	public int getPanzerung() {
 		return panzerung;
 	}
 
+	@Override
 	public String getPicture() {
 		return picture;
 	}
 
+	@Override
 	public int getRa() {
 		return ra;
 	}
 
+	@Override
 	public int getRd() {
 		return rd;
 	}
 
+	@Override
 	public int getReCost() {
 		return reCost;
 	}
 
+	@Override
 	public int getRm() {
 		return rm;
 	}
 
+	@Override
 	public int getRu() {
 		return ru;
 	}
 
+	@Override
 	public int getSensorRange() {
 		return sensorRange;
 	}
 
+	@Override
 	public int getShields() {
 		return shields;
 	}
 
+	@Override
 	public int getShipClass() {
 		return shipClass;
 	}
 
+	@Override
 	public int getShipCount() {
 		return shipCount;
 	}
 
+	@Override
 	public int getSize() {
 		return size;
 	}
 
+	@Override
 	public int getTorpedoDef() {
 		return torpedoDef;
 	}
 
+	@Override
 	public int getTypeId() {
 		return getId();
 	}
 	
+	@Override
 	public String getWeapons() {
 		return weapons;
 	}
 
+	@Override
 	public int getWerft() {
 		return werft;
 	}
 	
+	@Override
 	public boolean isMilitary() {
 		return getWeapons().indexOf('=') > -1;
 	}
 	
+	@Override
 	public boolean hasFlag(String flag) {
 		if( getFlags().indexOf(flag) > -1 ) {
 			return true;
@@ -274,6 +312,7 @@ public class ShipType implements ShipTypeData {
 		return false;
 	}
 	
+	@Override
 	public ShipTypeData getType() {
 		return this;
 	}
@@ -283,24 +322,28 @@ public class ShipType implements ShipTypeData {
 		throw new CloneNotSupportedException("Diese Klasse ist unveraenderbar");
 	}
 
+	@Override
 	public int getAblativeArmor() {
 		return ablativeArmor;
 	}
 
+	@Override
 	public boolean hasSrs() {
 		return srs;
 	}
 
+	@Override
 	public int getScanCost() {
 		return scanCost;
 	}
 
+	@Override
 	public int getPickingCost() {
 		return pickingCost;
 	}
 
 	/**
-	 * Setzt die ablative Panzerung
+	 * Setzt die ablative Panzerung.
 	 * @param ablativeArmor Die Panzerung
 	 */
 	public void setAblativeArmor(int ablativeArmor) {
@@ -308,7 +351,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Anzahl der externen Docks
+	 * Setzt die Anzahl der externen Docks.
 	 * @param docks Die Docks
 	 */
 	public void setADocks(int docks) {
@@ -316,7 +359,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt den vorhandenen Cargo
+	 * Setzt den vorhandenen Cargo.
 	 * @param cargo Der Cargo
 	 */
 	public void setCargo(long cargo) {
@@ -324,7 +367,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Wahrscheinlichkeit fuer einen Drop
+	 * Setzt die Wahrscheinlichkeit fuer einen Drop.
 	 * @param chance4Loot Die Wahrscheinlichkeit
 	 */
 	public void setChance4Loot(int chance4Loot) {
@@ -332,7 +375,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Flugkosten in Energie
+	 * Setzt die Flugkosten in Energie.
 	 * @param cost Die Kosten
 	 */
 	public void setCost(int cost) {
@@ -340,7 +383,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die maximale Crewmenge
+	 * Setzt die maximale Crewmenge.
 	 * @param crew Die Crewmenge
 	 */
 	public void setCrew(int crew) {
@@ -348,7 +391,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Beschreibung des Schiffstyps
+	 * Setzt die Beschreibung des Schiffstyps.
 	 * @param descrip Die Beschreibung
 	 */
 	public void setDescrip(String descrip) {
@@ -356,7 +399,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt den Faktor mit dem das Schiff Deuterium extrahieren kann
+	 * Setzt den Faktor mit dem das Schiff Deuterium extrahieren kann.
 	 * @param deutFactor Der Faktor
 	 */
 	public void setDeutFactor(int deutFactor) {
@@ -364,7 +407,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die maximale Energiemenge des Schiffs
+	 * Setzt die maximale Energiemenge des Schiffs.
 	 * @param eps Die Energiemenge
 	 */
 	public void setEps(int eps) {
@@ -372,7 +415,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Flags des Schiffs
+	 * Setzt die Flags des Schiffs.
 	 * @param flags Die Flags
 	 */
 	public void setFlags(String flags) {
@@ -380,7 +423,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt den Schwellenwert fuer die Gruppierung von Schiffen dieses Typs
+	 * Setzt den Schwellenwert fuer die Gruppierung von Schiffen dieses Typs.
 	 * @param groupwrap Der Schwellenwert
 	 */
 	public void setGroupwrap(int groupwrap) {
@@ -388,7 +431,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Ueberhitzung pro geflogenen Feld
+	 * Setzt die Ueberhitzung pro geflogenen Feld.
 	 * @param heat Die Ueberhitzung
 	 */
 	public void setHeat(int heat) {
@@ -396,7 +439,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt, ob der Schiffstyp versteckt, d.h. nicht fuer alle sichtbar ist
+	 * Setzt, ob der Schiffstyp versteckt, d.h. nicht fuer alle sichtbar ist.
 	 * @param hide <code>true</code>, falls er versteckt ist
 	 */
 	public void setHide(boolean hide) {
@@ -404,7 +447,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt den maximalen Huellenwert des Typs
+	 * Setzt den maximalen Huellenwert des Typs.
 	 * @param hull Der Huellenwert
 	 */
 	public void setHull(int hull) {
@@ -412,7 +455,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Menge der produzierten Nahrung pro Tick
+	 * Setzt die Menge der produzierten Nahrung pro Tick.
 	 * @param hydro Die Menge
 	 */
 	public void setHydro(int hydro) {
@@ -420,7 +463,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Anzahl der Jaegerdocks
+	 * Setzt die Anzahl der Jaegerdocks.
 	 * @param docks Die Anzahl
 	 */
 	public void setJDocks(int docks) {
@@ -428,7 +471,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Anzahl der Marines, die auf dem Schiff platz haben
+	 * Setzt die Anzahl der Marines, die auf dem Schiff platz haben.
 	 * @param marines Die Marines
 	 */
 	public void setMarines(int marines) {
@@ -436,7 +479,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die maximale Ueberhitzung der Waffen
+	 * Setzt die maximale Ueberhitzung der Waffen.
 	 * @param maxHeat Die max. Hitze
 	 */
 	public void setMaxHeat(String maxHeat) {
@@ -444,7 +487,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Modulslots des Schiffes
+	 * Setzt die Modulslots des Schiffes.
 	 * @param modules Die Slots
 	 */
 	public void setModules(String modules) {
@@ -452,7 +495,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt den Namen des Typs
+	 * Setzt den Namen des Typs.
 	 * @param nickname Der Name
 	 */
 	public void setNickname(String nickname) {
@@ -469,7 +512,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Panzerung des Schiffes
+	 * Setzt die Panzerung des Schiffes.
 	 * @param panzerung Die Panzerung
 	 */
 	public void setPanzerung(int panzerung) {
@@ -477,7 +520,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Energiekosten pro LRS-Sektorscan
+	 * Setzt die Energiekosten pro LRS-Sektorscan.
 	 * @param pickingCost Die Kosten
 	 */
 	public void setPickingCost(int pickingCost) {
@@ -485,7 +528,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt das Bild des Schiffstyps
+	 * Setzt das Bild des Schiffstyps.
 	 * @param picture Das Bild
 	 */
 	public void setPicture(String picture) {
@@ -493,7 +536,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Reaktoreffizienz bei Antimaterie
+	 * Setzt die Reaktoreffizienz bei Antimaterie.
 	 * @param ra Die Effizienz
 	 */
 	public void setRa(int ra) {
@@ -501,7 +544,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Reaktoreffizienz bei Deuterium
+	 * Setzt die Reaktoreffizienz bei Deuterium.
 	 * @param rd Die Effizienz
 	 */
 	public void setRd(int rd) {
@@ -509,7 +552,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Wartungskosten in RE
+	 * Setzt die Wartungskosten in RE.
 	 * @param reCost Die Kosten
 	 */
 	public void setReCost(int reCost) {
@@ -517,7 +560,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Gesamtenergieproduktion pro Tick
+	 * Setzt die Gesamtenergieproduktion pro Tick.
 	 * @param rm Die Energie
 	 */
 	public void setRm(int rm) {
@@ -525,7 +568,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Reaktoreffizienz bei Uran
+	 * Setzt die Reaktoreffizienz bei Uran.
 	 * @param ru Die Effizienz
 	 */
 	public void setRu(int ru) {
@@ -533,7 +576,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Energiekosten pro LRS-Scan
+	 * Setzt die Energiekosten pro LRS-Scan.
 	 * @param scanCost Die Kosten
 	 */
 	public void setScanCost(int scanCost) {
@@ -541,7 +584,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Sensorreichweite
+	 * Setzt die Sensorreichweite.
 	 * @param sensorRange Die Reichweite
 	 */
 	public void setSensorRange(int sensorRange) {
@@ -549,7 +592,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Schildpunkte
+	 * Setzt die Schildpunkte.
 	 * @param shields Die Schildpunkte
 	 */
 	public void setShields(int shields) {
@@ -557,7 +600,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Schiffsklasse, zu der der Typ zugehoert
+	 * Setzt die Schiffsklasse, zu der der Typ zugehoert.
 	 * @param shipClass Die Schiffsklasse
 	 */
 	public void setShipClass(int shipClass) {
@@ -565,7 +608,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Anzahl der Schiffe, die von einem Schiff repraesentiert werden
+	 * Setzt die Anzahl der Schiffe, die von einem Schiff repraesentiert werden.
 	 * @param shipCount Die Anzahl
 	 */
 	public void setShipCount(int shipCount) {
@@ -573,7 +616,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Groesse des Schiffstyps
+	 * Setzt die Groesse des Schiffstyps.
 	 * @param size Die Groesse
 	 */
 	public void setSize(int size) {
@@ -581,7 +624,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt, ob das Schiff einen SRS-Scanner besitzt
+	 * Setzt, ob das Schiff einen SRS-Scanner besitzt.
 	 * @param srs <code>true</code>, falls es einen solchen Scanner besitzt
 	 */
 	public void setSrs(boolean srs) {
@@ -589,7 +632,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt den Verteidigungsfaktor gegenueber Torpedos
+	 * Setzt den Verteidigungsfaktor gegenueber Torpedos.
 	 * @param torpedoDef Der Faktor
 	 */
 	public void setTorpedoDef(int torpedoDef) {
@@ -597,7 +640,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Waffen des Schiffes
+	 * Setzt die Waffen des Schiffes.
 	 * @param weapons Die Waffen
 	 */
 	public void setWeapons(String weapons) {
@@ -605,7 +648,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Anzahl der Werftslots
+	 * Setzt die Anzahl der Werftslots.
 	 * @param werft Die Anzahl
 	 */
 	public void setWerft(int werft)	{
@@ -613,7 +656,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

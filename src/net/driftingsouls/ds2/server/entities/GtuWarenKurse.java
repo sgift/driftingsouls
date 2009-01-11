@@ -30,7 +30,7 @@ import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Type;
 
 /**
- * Die Warenkurse an einem Ort
+ * Die Warenkurse an einem Ort.
  * @author Christopher Jung
  *
  */
@@ -48,7 +48,7 @@ public class GtuWarenKurse {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public GtuWarenKurse() {
@@ -65,7 +65,7 @@ public class GtuWarenKurse {
 	}
 
 	/**
-	 * Gibt den Namen des Handelsorts zurueck
+	 * Gibt den Namen des Handelsorts zurueck.
 	 * @return Der Name
 	 */
 	public String getName() {
@@ -73,7 +73,7 @@ public class GtuWarenKurse {
 	}
 
 	/**
-	 * Der Handelsort
+	 * Der Handelsort.
 	 * @return Der Handelsort
 	 */
 	public String getPlace() {
@@ -81,7 +81,7 @@ public class GtuWarenKurse {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

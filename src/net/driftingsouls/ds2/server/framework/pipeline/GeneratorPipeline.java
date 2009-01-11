@@ -35,7 +35,7 @@ public class GeneratorPipeline implements Pipeline {
 	private Class<? extends Generator> generator;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param generator Der zu verwendende Generator
 	 */
 	public GeneratorPipeline( Class<? extends Generator> generator ) {
@@ -51,10 +51,12 @@ public class GeneratorPipeline implements Pipeline {
 		cntl.handleAction(context.getRequest().getParameter("action"));
 	}
 
+	@Override
 	public void execute(Context context) throws Exception {
 		generateContent(context, generator);
 	}
 
+	@Override
 	public void setConfiguration(Node node)  {
 		//Won't used - only to fulfill contract - wrong interface?	
 	}

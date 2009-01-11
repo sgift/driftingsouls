@@ -34,7 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Klasse zur Ausfuehrung von mehreren Ticks
+ * Klasse zur Ausfuehrung von mehreren Ticks.
  * 
  * @author Christopher Jung
  * 
@@ -54,7 +54,7 @@ public abstract class AbstractTickExecuter extends TickController
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -67,7 +67,7 @@ public abstract class AbstractTickExecuter extends TickController
     }
     
     /**
-     * Gibt die DS-Konfiguration zurueck
+     * Gibt die DS-Konfiguration zurueck.
      * @return Die DS-Konfiguration
      */
     protected Configuration getConfiguration() {
@@ -75,7 +75,7 @@ public abstract class AbstractTickExecuter extends TickController
     }
 
 	/**
-	 * Gibt alle noch belegten Resourcen frei
+	 * Gibt alle noch belegten Resourcen frei.
 	 * 
 	 */
 	public static final void free()
@@ -84,7 +84,7 @@ public abstract class AbstractTickExecuter extends TickController
 	}
 
 	/**
-	 * Setzt den Namen des Ticks. Dieser wird in LOXPATH/tix.log festgehalten
+	 * Setzt den Namen des Ticks. Dieser wird in LOXPATH/tix.log festgehalten.
 	 * 
 	 * @param name Name des Ticks
 	 */
@@ -112,7 +112,7 @@ public abstract class AbstractTickExecuter extends TickController
 	}
 
 	/**
-	 * Fuehrt ein Tickscript aus
+	 * Fuehrt ein Tickscript aus.
 	 * 
 	 * @param tickname Eine Instanz des Tickscripts
 	 * @param useSTDOUT Soll STDOUT oder eine Logdatei mit dem Namen des Ticks verwendet werden?
@@ -151,7 +151,7 @@ public abstract class AbstractTickExecuter extends TickController
 	}
 
 	/**
-	 * Kopiert alle Logs im Tick-Log-Verzeichnis in ein Unterverzeichnis mit der Tick-Nr
+	 * Kopiert alle Logs im Tick-Log-Verzeichnis in ein Unterverzeichnis mit der Tick-Nr.
 	 * 
 	 * @param ticknr Nummer des Ticks
 	 */
@@ -177,7 +177,7 @@ public abstract class AbstractTickExecuter extends TickController
 
 	/**
 	 * Schreibt den aktuellen Status nach ticktime.log (befindet sich unter LOXPATH und nicht im
-	 * Basisverzeichnis der Tick-Logs!)
+	 * Basisverzeichnis der Tick-Logs!).
 	 * 
 	 * @param status Der zu schreibende Status
 	 */
@@ -209,7 +209,7 @@ public abstract class AbstractTickExecuter extends TickController
 	}
 
 	/**
-	 * Vor- und Nachbereitung der Tickausfuehrung
+	 * Vor- und Nachbereitung der Tickausfuehrung.
 	 */
 	@Override
 	protected final void tick()
@@ -282,12 +282,12 @@ public abstract class AbstractTickExecuter extends TickController
 	}
 
 	/**
-	 * Fuehrt alle Einzelticks aus
+	 * Fuehrt alle Einzelticks aus.
 	 */
 	protected abstract void executeTicks();
 
 	/**
-	 * Erlaubt das Behandeln von Timeouts
+	 * Erlaubt das Behandeln von Timeouts.
 	 * 
 	 */
 	protected abstract static class TimeoutChecker extends Thread
@@ -296,7 +296,7 @@ public abstract class AbstractTickExecuter extends TickController
 		private volatile boolean hasTimedOut;
 
 		/**
-		 * Konstruktor
+		 * Konstruktor.
 		 * 
 		 * @param timeout Die Anzahl an Millisekunden, die nach dem Start gewartet werden soll
 		 */
@@ -333,13 +333,13 @@ public abstract class AbstractTickExecuter extends TickController
 		}
 
 		/**
-		 * Wird aufgerufen, wenn ein Timeout geschieht
+		 * Wird aufgerufen, wenn ein Timeout geschieht.
 		 * 
 		 */
 		protected abstract void timeout();
 
 		/**
-		 * Gibt zurueck, ob ein Timeout stattgefunden hat
+		 * Gibt zurueck, ob ein Timeout stattgefunden hat.
 		 * 
 		 * @return <code>true</code>, falls ein Timeout stattgefunden hat
 		 */

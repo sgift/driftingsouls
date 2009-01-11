@@ -22,12 +22,13 @@ import net.driftingsouls.ds2.server.framework.bbcode.BBCodeFunction;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
 /**
- * BBCode zur Bestaetigung/Ablehung von Tasks
+ * BBCode zur Bestaetigung/Ablehung von Tasks.
  * @author Christopher Jung
  *
  */
 public class TagIntrnlConfTask implements BBCodeFunction
 {
+	@Override
 	public String handleMatch(String content, String... values)
 	{
 		String taskid = values[0];

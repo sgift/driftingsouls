@@ -24,7 +24,7 @@ import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 
 /**
- * Zeigt das Hauptmenue des KS an
+ * Zeigt das Hauptmenue des KS an.
  * @author Christopher Jung
  *
  */

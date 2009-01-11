@@ -25,47 +25,57 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 
 /**
- * Basisklasse fuer DSScript-Factories
+ * Basisklasse fuer DSScript-Factories.
  * @author Christopher Jung
  *
  */
 public abstract class DSScriptFactory implements ScriptEngineFactory {
+	@Override
 	public String getEngineName() {
 		return "Drifting Souls ScriptParser Engine";
 	}
 
+	@Override
 	public String getEngineVersion() {
 		return "1.0";
 	}
 
+	@Override
 	public List<String> getExtensions() {
 		return Arrays.asList(new String[] {"dsscript"});
 	}
 
+	@Override
 	public String getLanguageName() {
 		return "DSScript";
 	}
 
+	@Override
 	public String getLanguageVersion() {
 		return "1.0";
 	}
 
+	@Override
 	public String getMethodCallSyntax(String obj, String m, String... args) {
 		throw new UnsupportedOperationException("Methodenaufruf wird nicht unterstuetzt");
 	}
 
+	@Override
 	public List<String> getMimeTypes() {
 		return Arrays.asList(new String[] {"text/plain", "text/dsscript"});
 	}
 
+	@Override
 	public List<String> getNames() {
 		return Arrays.asList(new String[] {"dsscript", "DSScript", "scriptparser", "ScriptParser"});
 	}
 
+	@Override
 	public String getOutputStatement(String toDisplay) {
 		throw new UnsupportedOperationException("Methodenaufruf wird nicht unterstuetzt");
 	}
 
+	@Override
 	public Object getParameter(String key) {
 		if( ScriptEngine.ENGINE.equals(key) ) {
 			return getEngineName();
@@ -86,6 +96,7 @@ public abstract class DSScriptFactory implements ScriptEngineFactory {
 		return null;
 	}
 
+	@Override
 	public String getProgram(String... statements) {
 		StringBuilder builder = new StringBuilder();
 		for( int i=0; i < statements.length; i++ ) { 

@@ -29,7 +29,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 /**
- * Ein Allianzposten
+ * Ein Allianzposten.
  * @author Christopher Jung
  *
  */
@@ -50,7 +50,7 @@ public class AllyPosten {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public AllyPosten() {
@@ -58,7 +58,7 @@ public class AllyPosten {
 	}
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param ally Die Allianz, zu der der Posten gehoert
 	 * @param name Der Name des Postens
 	 */
@@ -68,7 +68,7 @@ public class AllyPosten {
 	}
 
 	/**
-	 * Gibt die Allianz zurueck, der der Allyposten gehoert
+	 * Gibt die Allianz zurueck, der der Allyposten gehoert.
 	 * @return Die Allianz
 	 */
 	public Ally getAlly() {
@@ -76,7 +76,7 @@ public class AllyPosten {
 	}
 
 	/**
-	 * Setzt die Allianz, der der Allyposten gehoert
+	 * Setzt die Allianz, der der Allyposten gehoert.
 	 * @param ally Die neue Allianz
 	 */
 	public final void setAlly(final Ally ally) {
@@ -84,7 +84,7 @@ public class AllyPosten {
 	}
 
 	/**
-	 * Gibt den Namen des Postens zurueck
+	 * Gibt den Namen des Postens zurueck.
 	 * @return Der Name
 	 */
 	public String getName() {
@@ -92,7 +92,7 @@ public class AllyPosten {
 	}
 
 	/**
-	 * Setzt den Namen des Postens
+	 * Setzt den Namen des Postens.
 	 * @param name Der neue Name
 	 */
 	public final void setName(final String name) {
@@ -100,7 +100,7 @@ public class AllyPosten {
 	}
 
 	/**
-	 * Gibt die ID des Postens zurueck
+	 * Gibt die ID des Postens zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -108,7 +108,7 @@ public class AllyPosten {
 	}
 
 	/**
-	 * Gibt den assoziierten Benutzer zurueck
+	 * Gibt den assoziierten Benutzer zurueck.
 	 * @return Der Benutzer
 	 */
 	public User getUser() {
@@ -117,7 +117,7 @@ public class AllyPosten {
 
 	/**
 	 * Setzt den assoziierten User.
-	 * Diese Operation aktuallisiert <b>nicht</b> die Datenbank
+	 * Diese Operation aktuallisiert <b>nicht</b> die Datenbank.
 	 * @param user Der neue User
 	 * @see net.driftingsouls.ds2.server.entities.User#setAllyPosten(AllyPosten)
 	 */
@@ -126,7 +126,7 @@ public class AllyPosten {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

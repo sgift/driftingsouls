@@ -53,7 +53,7 @@ import net.driftingsouls.ds2.server.tick.TickController;
 import org.apache.commons.lang.math.RandomUtils;
 
 /**
- * Berechnet sonstige Tick-Aktionen, welche keinen eigenen TickController haben
+ * Berechnet sonstige Tick-Aktionen, welche keinen eigenen TickController haben.
  * @author Christopher Jung
  *
  */

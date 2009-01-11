@@ -21,18 +21,19 @@ package net.driftingsouls.ds2.server.install.checks;
 import java.io.File;
 
 /**
- * Ueberprueft, ob die web.xml geparset werden kann
+ * Ueberprueft, ob die web.xml geparset werden kann.
  * @author Christopher Jung
  *
  */
 public class WebXmlExistsCheck implements Checkable {
-
+	@Override
 	public void doCheck() throws CheckFailedException {
 		if( !new File("WEB-INF/web.xml").isFile() ) {
 			throw new CheckFailedException("WEB-INF/web.xml nicht gefunden");
 		}
 	}
 
+	@Override
 	public String getDescription() {
 		return "web.xml existiert";
 	}

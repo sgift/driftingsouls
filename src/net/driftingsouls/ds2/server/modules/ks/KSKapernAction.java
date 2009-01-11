@@ -42,13 +42,13 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 /**
- * Laesst das aktuell ausgewaehlte Schiff versuchen das aktuell ausgewaehlte Zielschiff zu kapern 
+ * Laesst das aktuell ausgewaehlte Schiff versuchen das aktuell ausgewaehlte Zielschiff zu kapern.
  * @author Christopher Jung
  *
  */
 public class KSKapernAction extends BasicKSAction {
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public KSKapernAction() {

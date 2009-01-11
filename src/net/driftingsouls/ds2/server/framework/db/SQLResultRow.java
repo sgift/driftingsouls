@@ -29,7 +29,7 @@ import org.apache.commons.logging.LogFactory;
  * gekoppelt ist (Keine offenen Resourcen usw).
  * Bei <code>null</code>-Werten oder nicht vorhandenen Spalten wird ein default-Wert
  * zurueckgegeben. (Ja, dass ist vieleicht nicht so ganz schoen, vereinfacht aber so manch
- * eine Sache beim portieren)
+ * eine Sache beim portieren).
  * @author Christopher Jung
  *
  */
@@ -38,7 +38,7 @@ public class SQLResultRow extends HashMap<String,Object> implements Cloneable {
 	private static final Log log = LogFactory.getLog(SQLResultRow.class);
 
 	/**
-	 * Gibt den Wert einer Spalte als <code>String</code> zurueck
+	 * Gibt den Wert einer Spalte als <code>String</code> zurueck.
 	 * @param column Der Spaltenname
 	 * @return Der Wert
 	 */
@@ -54,7 +54,7 @@ public class SQLResultRow extends HashMap<String,Object> implements Cloneable {
 	}
 	
 	/**
-	 * Gibt den Wert einer Spalte als <code>int</code> zurueck
+	 * Gibt den Wert einer Spalte als <code>int</code> zurueck.
 	 * @param column Der Spaltenname
 	 * @return Der Wert
 	 */
@@ -73,7 +73,7 @@ public class SQLResultRow extends HashMap<String,Object> implements Cloneable {
 	}
 	
 	/**
-	 * Gibt den Wert einer Spalte als <code>boolean</code> zurueck
+	 * Gibt den Wert einer Spalte als <code>boolean</code> zurueck.
 	 * @param column Der Spaltenname
 	 * @return Der Wert
 	 */
@@ -92,7 +92,7 @@ public class SQLResultRow extends HashMap<String,Object> implements Cloneable {
 	}
 	
 	/**
-	 * Gibt den Wert einer Spalte als <code>long</code> zurueck
+	 * Gibt den Wert einer Spalte als <code>long</code> zurueck.
 	 * @param column Der Spaltenname
 	 * @return Der Wert
 	 */
@@ -111,7 +111,7 @@ public class SQLResultRow extends HashMap<String,Object> implements Cloneable {
 	}
 	
 	/**
-	 * Gibt den Wert einer Spalte als <code>BitInteger</code> zurueck
+	 * Gibt den Wert einer Spalte als <code>BitInteger</code> zurueck.
 	 * @param column Der Spaltenname
 	 * @return Der Wert
 	 */
@@ -131,7 +131,7 @@ public class SQLResultRow extends HashMap<String,Object> implements Cloneable {
 	}
 	
 	/**
-	 * Gibt den Wert einer Spalte als <code>double</code> zurueck
+	 * Gibt den Wert einer Spalte als <code>double</code> zurueck.
 	 * @param column Der Spaltenname
 	 * @return Der Wert
 	 */

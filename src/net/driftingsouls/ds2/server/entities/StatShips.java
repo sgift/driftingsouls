@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
  * Ein Statistikeintrag zur Schiffszahl und zur Crewmenge in DS
- * bei einem bestimmten Tick
+ * bei einem bestimmten Tick.
  * @author Christopher Jung
  *
  */
@@ -47,7 +47,7 @@ public class StatShips {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public StatShips() {
@@ -55,7 +55,7 @@ public class StatShips {
 	}
 	
 	/**
-	 * Erstellt einen neuen Statistikeintrag fuer den aktuellen Tick
+	 * Erstellt einen neuen Statistikeintrag fuer den aktuellen Tick.
 	 * @param shipCount Die Schiffsanzahl
 	 * @param crewCount Die Crewanzahl
 	 */
@@ -66,7 +66,7 @@ public class StatShips {
 	}
 
 	/**
-	 * Gibt die Crewmenge zurueck
+	 * Gibt die Crewmenge zurueck.
 	 * @return Die Crewmenge
 	 */
 	public long getCrewCount() {
@@ -74,7 +74,7 @@ public class StatShips {
 	}
 
 	/**
-	 * Setzt die Crewmenge
+	 * Setzt die Crewmenge.
 	 * @param crewCount Die Crewmenge
 	 */
 	public void setCrewCount(long crewCount) {
@@ -82,7 +82,7 @@ public class StatShips {
 	}
 
 	/**
-	 * Gibt die Schiffsanzahl zurueck
+	 * Gibt die Schiffsanzahl zurueck.
 	 * @return Die Schiffsanzal
 	 */
 	public long getShipCount() {
@@ -90,7 +90,7 @@ public class StatShips {
 	}
 
 	/**
-	 * Setzt die Schiffsanzahl
+	 * Setzt die Schiffsanzahl.
 	 * @param shipCount Die Schiffsanzahl
 	 */
 	public void setShipCount(long shipCount) {
@@ -98,7 +98,7 @@ public class StatShips {
 	}
 
 	/**
-	 * Gibt den Tick zurueck, zu dem die Werte erhoben wurden
+	 * Gibt den Tick zurueck, zu dem die Werte erhoben wurden.
 	 * @return Der Tick
 	 */
 	public int getTick() {
@@ -106,7 +106,7 @@ public class StatShips {
 	}
 
 	/**
-	 * Setzt den Tick, zu dem die Werte erhoben wurden
+	 * Setzt den Tick, zu dem die Werte erhoben wurden.
 	 * @param tick Der TIck
 	 */
 	public void setTick(int tick) {
@@ -114,7 +114,7 @@ public class StatShips {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

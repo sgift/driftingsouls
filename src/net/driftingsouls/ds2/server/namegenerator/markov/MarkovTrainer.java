@@ -43,7 +43,7 @@ public class MarkovTrainer
 	private float total = 0;
 
 	/**
-	 * Fuegt einen Namen zur Kette/Tabelle hinzu
+	 * Fuegt einen Namen zur Kette/Tabelle hinzu.
 	 * @param name Der Name
 	 * @throws IllegalStateException Falls die Daten bereits abschliessend verarbeitet und gespeichert wurden
 	 */

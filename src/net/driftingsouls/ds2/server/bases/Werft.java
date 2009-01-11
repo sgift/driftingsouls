@@ -35,7 +35,7 @@ import org.hibernate.annotations.Immutable;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Die Werft
+ * Die Werft.
  * @author Christopher Jung
  *
  */
@@ -45,7 +45,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 public class Werft extends DefaultBuilding {
 	/**
-	 * Erstellt eine neue Instanz der Werft
+	 * Erstellt eine neue Instanz der Werft.
 	 */
 	public Werft() {
 		// EMPTY

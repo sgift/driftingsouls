@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
- * Hilfeseite fuer BBCodes (Popup)
+ * Hilfeseite fuer BBCodes (Popup).
  * @author Christopher Jung
  * @author Christian Peltz
  *
@@ -60,7 +60,7 @@ public class BBCodeViewController extends TemplateGenerator {
 	}
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public BBCodeViewController(Context context) {
@@ -75,7 +75,7 @@ public class BBCodeViewController extends TemplateGenerator {
 	}
 
 	/**
-	 * Anzeigen der BBCode-Liste
+	 * Anzeigen der BBCode-Liste.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

@@ -47,7 +47,7 @@ public class ImpObjectsController extends TemplateGenerator {
 	private boolean viewableSystem;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public ImpObjectsController(Context context) {

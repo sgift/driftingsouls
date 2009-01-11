@@ -45,7 +45,7 @@ import net.driftingsouls.ds2.server.tick.TickController;
 import org.hibernate.Hibernate;
 
 /**
- * Fuehrt NPC-Aktionsscripte aus
+ * Fuehrt NPC-Aktionsscripte aus.
  * @author Christopher Jung
  *
  */

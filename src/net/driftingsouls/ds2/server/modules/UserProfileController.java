@@ -35,7 +35,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Zeigt das Profil eines Benutzers an
+ * Zeigt das Profil eines Benutzers an.
  * 
  * @author Christopher Jung
  * @urlparam Integer user Die ID des anzuzeigenden Benutzers
@@ -45,7 +45,7 @@ public class UserProfileController extends TemplateGenerator {
 	private User user = null;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public UserProfileController(Context context) {
@@ -76,7 +76,7 @@ public class UserProfileController extends TemplateGenerator {
 	}
 
 	/**
-	 * Setzt die Beziehung des Users mit dem aktuell angezeigtem User
+	 * Setzt die Beziehung des Users mit dem aktuell angezeigtem User.
 	 * @urlparam Integer relation Die neue Beziehung. 1 fuer feindlich, 2 fuer freundlich und neural bei allen anderen Werten
 	 */
 	@Action(ActionType.DEFAULT)
@@ -161,7 +161,7 @@ public class UserProfileController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Daten des angegebenen Benutzers an
+	 * Zeigt die Daten des angegebenen Benutzers an.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

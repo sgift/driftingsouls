@@ -24,7 +24,7 @@ import net.driftingsouls.ds2.server.ships.AbstractShipTypeDataWrapper;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
- * Repraesentiert ein Modul, welches das Bild eines Schiffes veraendert
+ * Repraesentiert ein Modul, welches das Bild eines Schiffes veraendert.
  * @author Christopher Jung
  *
  */

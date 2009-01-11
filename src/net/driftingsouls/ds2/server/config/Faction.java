@@ -31,7 +31,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 /**
- * Klasse mit Konfigurationsdaten zu den einzelnen Fraktionen
+ * Klasse mit Konfigurationsdaten zu den einzelnen Fraktionen.
  * @author Christopher Jung
  *
  */
@@ -41,22 +41,22 @@ public class Faction {
 	private static Map<Integer,Faction> factionList = new LinkedHashMap<Integer,Faction>();
 	
 	/**
-	 * Die Spieler-ID der GTU
+	 * Die Spieler-ID der GTU.
 	 */
 	public static final int GTU = -2;
 	
 	/**
-	 * Die Spieler-ID von Demolition Inc.
+	 * Die Spieler-ID von Demolition Inc..
 	 */
 	public static final int DI = -19;
 	
 	/**
-	 * Die Spieler-ID von Ito
+	 * Die Spieler-ID von Ito.
 	 */
 	public static final int ITO = -26;
 	
 	/**
-	 * Gibt die angegebene Fraktion zurueck. Sollte keine passende Fraktion existieren, so wird <code>null</code> zurueckgegeben
+	 * Gibt die angegebene Fraktion zurueck. Sollte keine passende Fraktion existieren, so wird <code>null</code> zurueckgegeben.
 	 * @param id Die ID der Fraktion 
 	 * @return Die angegebene Fraktion oder <code>null</code>
 	 */
@@ -65,7 +65,7 @@ public class Faction {
 	}
 	
 	/**
-	 * Gibt die Liste aller bekannten Fraktionen zurueck
+	 * Gibt die Liste aller bekannten Fraktionen zurueck.
 	 * @return Die Liste der bekannten Fraktionen
 	 */
 	public static Map<Integer,Faction> getFactions() {
@@ -80,7 +80,7 @@ public class Faction {
 	}
 	
 	/**
-	 * Gibt die Beschreibung der Fraktionsseite zurueck
+	 * Gibt die Beschreibung der Fraktionsseite zurueck.
 	 * @return Die Fraktionsseite
 	 */
 	public FactionPages getPages() {
@@ -88,7 +88,7 @@ public class Faction {
 	}
 	
 	/**
-	 * Gibt die ID der Fraktion zurueck
+	 * Gibt die ID der Fraktion zurueck.
 	 * @return Die ID
 	 */
 	public int getID() {

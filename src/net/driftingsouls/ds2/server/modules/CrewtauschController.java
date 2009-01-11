@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 
 /**
- * Transfer von Crew von Schiffen zu Schiffen/Basen (und umgekehrt)
+ * Transfer von Crew von Schiffen zu Schiffen/Basen (und umgekehrt).
  * @author Christopher Jung
  * 
  * @urlparam int ship Die ID des Schiffes von dem/zu dem transferiert werden soll
@@ -39,64 +39,64 @@ import net.driftingsouls.ds2.server.ships.Ship;
  */
 public class CrewtauschController extends TemplateGenerator {
 	/**
-	 * Das Ziel fuer einen Crewtransfer
+	 * Das Ziel fuer einen Crewtransfer.
 	 *
 	 */
 	private static interface Target {
 		/**
-		 * Gibt die verfuegbare Crew zurueck
+		 * Gibt die verfuegbare Crew zurueck.
 		 * @return Die Crew
 		 */
 		public int getCrew();
 		/**
-		 * * Gibt die verfuegbaren Marines zurueck
+		 * * Gibt die verfuegbaren Marines zurueck.
 		 * @return Die Marines
 		 */
 		public int getMarines();
 		/**
-		 * Setzt die Crew auf dem Objekt
+		 * Setzt die Crew auf dem Objekt.
 		 * @param crew Die Crew
 		 */
 		public void setCrew(int crew);
 		/**
-		 * * Setzt die Marines auf dem Objekt
+		 * * Setzt die Marines auf dem Objekt.
 		 * @param marines Die Marines
 		 */
 		public void setMarines(int marines);
 		/**
-		 * Wird am Ende des Transfervorgangs aufgerufen
+		 * Wird am Ende des Transfervorgangs aufgerufen.
 		 *
 		 */
 		public void finishTransfer();
 		/**
-		 * Gibt den Namen des Objekts zurueck
+		 * Gibt den Namen des Objekts zurueck.
 		 * @return Der Name
 		 */
 		public String getName();
 		/**
-		 * Gibt die ID des Objekts zurueck
+		 * Gibt die ID des Objekts zurueck.
 		 * @return Die ID
 		 */
 		public int getId();
 		/**
-		 * Gibt den Besitzer des Objekts zurueck
+		 * Gibt den Besitzer des Objekts zurueck.
 		 * @return Der Besitzer
 		 */
 		public User getOwner();
 		/**
-		 * Gibt die maximale Anzahl an Crew auf dem Objekt zurueck
+		 * Gibt die maximale Anzahl an Crew auf dem Objekt zurueck.
 		 * @return Die maximale Crewmenge (<code>-1</code> = unbegrenzt)
 		 */
 		public int getMaxCrew();
 		/**
-		 * Gibt die maximale Anzahl an Marines auf dem Objekt zurueck
+		 * Gibt die maximale Anzahl an Marines auf dem Objekt zurueck.
 		 * @return Die maximale Menge Marines (<code>-1</code> = unbegrenzt)
 		 */
 		public int getMaxMarines();
 	}
 	
 	/**
-	 * Crewtransfer-Ziel "Schiff"
+	 * Crewtransfer-Ziel "Schiff".
 	 *
 	 */
 	private static class ShipTarget implements Target {
@@ -148,7 +148,7 @@ public class CrewtauschController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Crewtransfer-Ziel "Basis"
+	 * Crewtransfer-Ziel "Basis".
 	 *
 	 */
 	private static class BaseTarget implements Target {
@@ -205,7 +205,7 @@ public class CrewtauschController extends TemplateGenerator {
 	private int maxmarines;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public CrewtauschController(Context context) {
@@ -286,8 +286,8 @@ public class CrewtauschController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Transferiert Crew vom Ausgangsschiff zum Zielschiff/Basis
-	 * Transferiert Crew/Marines vom Ausgangsschiff zum Zielschiff/Basis
+	 * Transferiert Crew vom Ausgangsschiff zum Zielschiff/Basis.
+	 * Transferiert Crew/Marines vom Ausgangsschiff zum Zielschiff/Basis.
 	 * @urlparam int send Die Anzahl der zu transferierenden Crew
 	 * @urlparam int sendm Die Anzahl der zu transferierenden Marines
 	 *
@@ -346,7 +346,7 @@ public class CrewtauschController extends TemplateGenerator {
 	
 	/**
 	 * Transfer in umgekehrter Richtung.<br>
-	 * Transferiert Crew/Marines vom Zielschiff/Basis zum Ausgangsschiff
+	 * Transferiert Crew/Marines vom Zielschiff/Basis zum Ausgangsschiff.
 	 * @urlparam int rec Die Anzahl der zu transferierenden Crew
 	 * @urlparam int recm Die Anzahl der zu transferierenden Marines
 	 *
@@ -404,7 +404,7 @@ public class CrewtauschController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Anzeige von Infos sowie Eingabe der zu transferierenden Crew
+	 * Anzeige von Infos sowie Eingabe der zu transferierenden Crew.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

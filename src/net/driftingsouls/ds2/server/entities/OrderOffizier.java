@@ -26,7 +26,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Immutable;
 
 /**
- * Ein fuer NPCs bestellbarer Offizier
+ * Ein fuer NPCs bestellbarer Offizier.
  * @author Christopher Jung
  *
  */
@@ -46,7 +46,7 @@ public class OrderOffizier {
 	private int cost;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public OrderOffizier() {
@@ -54,7 +54,7 @@ public class OrderOffizier {
 	}
 
 	/**
-	 * Gibt den Kommunikationsskill zurueck
+	 * Gibt den Kommunikationsskill zurueck.
 	 * @return Der Kommunikationsskill
 	 */
 	public int getCom() {
@@ -62,7 +62,7 @@ public class OrderOffizier {
 	}
 
 	/**
-	 * Gibt die Orderkosten zurueck
+	 * Gibt die Orderkosten zurueck.
 	 * @return Die Kosten
 	 */
 	public int getCost() {
@@ -70,7 +70,7 @@ public class OrderOffizier {
 	}
 
 	/**
-	 * Gibt die ID des Eintrags zurueck
+	 * Gibt die ID des Eintrags zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -78,7 +78,7 @@ public class OrderOffizier {
 	}
 
 	/**
-	 * Gibt den Technikskill zurueck
+	 * Gibt den Technikskill zurueck.
 	 * @return Der Technikskill
 	 */
 	public int getIng() {
@@ -86,7 +86,7 @@ public class OrderOffizier {
 	}
 
 	/**
-	 * Gibt den Namen zurueck
+	 * Gibt den Namen zurueck.
 	 * @return Der Name
 	 */
 	public String getName() {
@@ -94,7 +94,7 @@ public class OrderOffizier {
 	}
 
 	/**
-	 * Gibt den Navigationsskill zurueck
+	 * Gibt den Navigationsskill zurueck.
 	 * @return Der Navigationsskill
 	 */
 	public int getNav() {
@@ -102,7 +102,7 @@ public class OrderOffizier {
 	}
 
 	/**
-	 * Gibt den Rang zurueck
+	 * Gibt den Rang zurueck.
 	 * @return Der Rang
 	 */
 	public int getRang() {
@@ -110,7 +110,7 @@ public class OrderOffizier {
 	}
 
 	/**
-	 * Gibt den Sicherheitsskill zurueck
+	 * Gibt den Sicherheitsskill zurueck.
 	 * @return Der Skill
 	 */
 	public int getSec() {
@@ -118,7 +118,7 @@ public class OrderOffizier {
 	}
 
 	/**
-	 * Gibt den Waffenskill zurueck
+	 * Gibt den Waffenskill zurueck.
 	 * @return Der Skill
 	 */
 	public int getWaf() {

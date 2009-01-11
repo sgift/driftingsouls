@@ -26,7 +26,7 @@ package net.driftingsouls.ds2.server.tasks;
  */
 interface TaskHandler {
 	/**
-	 * Fuehrt fuer die angegebene Task das entsprechende Event aus
+	 * Fuehrt fuer die angegebene Task das entsprechende Event aus.
 	 * @param task Die Task
 	 * @param event Der Eventtyp
 	 */

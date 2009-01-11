@@ -41,7 +41,7 @@ public class VersteigerungResource extends Versteigerung {
 	private String type;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public VersteigerungResource() {
@@ -49,7 +49,7 @@ public class VersteigerungResource extends Versteigerung {
 	}
 
 	/**
-	 * Erstellt einen neuen Versteigerungseintrag fuer die angegebene Resource
+	 * Erstellt einen neuen Versteigerungseintrag fuer die angegebene Resource.
 	 * @param owner Der Besitzer und zugleich default-Bieter
 	 * @param res Der Cargo der die Resource enthaelt. Der Cargo darf nicht leer sein und muss
 	 * exakt eine Resource enthalten.
@@ -66,7 +66,7 @@ public class VersteigerungResource extends Versteigerung {
 	}
 	
 	/**
-	 * Gibt den Cargo zurueck
+	 * Gibt den Cargo zurueck.
 	 * @return Der Cargo
 	 */
 	public Cargo getCargo() {
@@ -74,7 +74,7 @@ public class VersteigerungResource extends Versteigerung {
 	}
 	
 	/**
-	 * Setzt den Cargo
+	 * Setzt den Cargo.
 	 * @param res Der Cargo der die Resource enthaelt. Der Cargo darf nicht leer sein und muss
 	 * exakt eine Resource enthalten.
 	 */

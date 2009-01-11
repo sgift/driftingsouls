@@ -29,13 +29,13 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
- * Ermoeglicht das Vorruecken gegen eine instabile zweite Reihe des Gegners
+ * Ermoeglicht das Vorruecken gegen eine instabile zweite Reihe des Gegners.
  * @author Christopher Jung
  *
  */
 public class KSSecondRowEngageAction extends BasicKSAction {
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public KSSecondRowEngageAction() {

@@ -24,33 +24,33 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
- * Parameter fuer die Schiffsmodule
+ * Parameter fuer die Schiffsmodule.
  * @author Christopher Jung
  *
  */
 public class Parameters {
 	/**
-	 * Der Schiffscontroller
+	 * Der Schiffscontroller.
 	 */
 	public SchiffController controller;
 	/**
-	 * Die ID des Plugins
+	 * Die ID des Plugins.
 	 */
 	public String pluginId;
 	/**
-	 * Die Zielvariable im Template
+	 * Die Zielvariable im Template.
 	 */
 	public String target;
 	/**
-	 * Das Schiff
+	 * Das Schiff.
 	 */
 	public Ship ship;
 	/**
-	 * Der Schiffstyp
+	 * Der Schiffstyp.
 	 */
 	public ShipTypeData shiptype;
 	/**
-	 * Der Offizier oder <code>null</code>
+	 * Der Offizier oder <code>null</code>.
 	 */
 	public Offizier offizier;
 }

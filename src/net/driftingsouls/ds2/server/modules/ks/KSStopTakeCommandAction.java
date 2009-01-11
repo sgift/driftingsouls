@@ -27,13 +27,13 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
- * Bricht die Uebernahme des Kommandos durch einen anderen Spieler ab
+ * Bricht die Uebernahme des Kommandos durch einen anderen Spieler ab.
  * @author Christopher Jung
  *
  */
 public class KSStopTakeCommandAction extends BasicKSAction {
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public KSStopTakeCommandAction() {

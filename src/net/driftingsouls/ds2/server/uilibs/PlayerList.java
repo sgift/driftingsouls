@@ -35,7 +35,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Die Spielerliste
+ * Die Spielerliste.
  * @author Christopher Jung
  *
  */
@@ -44,7 +44,7 @@ public class PlayerList {
 	private Configuration config;
 	
 	/**
-	 * Injiziert die DS-Konfiguration
+	 * Injiziert die DS-Konfiguration.
 	 * @param config Die DS-Konfiguration
 	 */
 	@Autowired @Required
@@ -53,7 +53,7 @@ public class PlayerList {
 	}
 	
 	/**
-	 * Gibt die Spielerliste im angegebenen Kontext aus
+	 * Gibt die Spielerliste im angegebenen Kontext aus.
 	 * @param context Der Kontext
 	 * @throws IOException 
 	 */

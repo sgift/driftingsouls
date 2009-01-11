@@ -21,7 +21,7 @@ package net.driftingsouls.ds2.server.user.authentication;
 import net.driftingsouls.ds2.server.framework.authentication.AuthenticationException;
 
 /**
- * Fehler beim Authentifizieren weil der Tick gerade den Account gesperrt hat
+ * Fehler beim Authentifizieren weil der Tick gerade den Account gesperrt hat.
  * @author Christopher Jung
  *
  */
@@ -29,7 +29,7 @@ public class TickInProgressException extends AuthenticationException {
 	private static final long serialVersionUID = 7683711830944450958L;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public TickInProgressException() {

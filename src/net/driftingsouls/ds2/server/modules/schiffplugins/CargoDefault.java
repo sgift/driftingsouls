@@ -28,12 +28,12 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
- * Schiffsmodul fuer die Anzeige des Schiffscargos
+ * Schiffsmodul fuer die Anzeige des Schiffscargos.
  * @author Christopher Jung
  *
  */
 public class CargoDefault implements SchiffPlugin {
-
+	@Override
 	public String action(Parameters caller) {
 		Ship ship = caller.ship;
 		SchiffController controller = caller.controller;
@@ -131,6 +131,7 @@ public class CargoDefault implements SchiffPlugin {
 		return output;
 	}
 
+	@Override
 	public void output(Parameters caller) {
 		String pluginid = caller.pluginId;
 		Ship ship = caller.ship;

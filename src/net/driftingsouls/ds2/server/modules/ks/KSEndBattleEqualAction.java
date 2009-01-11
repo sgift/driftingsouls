@@ -31,7 +31,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.hibernate.Session;
 
 /**
- * Ermoeglicht das Beenden der Schlacht im Falle vom einer klaren militaerischen Uebermacht gegenueber dem Gegner
+ * Ermoeglicht das Beenden der Schlacht im Falle vom einer klaren militaerischen Uebermacht gegenueber dem Gegner.
  * @author Christopher Jung
  *
  */

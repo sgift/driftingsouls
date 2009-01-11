@@ -30,13 +30,13 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Ermoeglicht das Absetzen von Admin-Kommandos
+ * Ermoeglicht das Absetzen von Admin-Kommandos.
  * @author Christopher Jung
  *
  */
 @AdminMenuEntry(category="Sonstiges", name="Admin-Konsole")
 public class AdminConsole implements AdminPlugin {
-
+	@Override
 	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();

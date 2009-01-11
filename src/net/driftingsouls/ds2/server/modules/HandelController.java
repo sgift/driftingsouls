@@ -41,7 +41,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
- * Zeigt aktive Handelsangebote an und ermoeglicht das Erstellen eigener Handelsangebote
+ * Zeigt aktive Handelsangebote an und ermoeglicht das Erstellen eigener Handelsangebote.
  * @author Christopher Jung
  *
  */
@@ -52,7 +52,7 @@ public class HandelController extends TemplateGenerator {
 	private Configuration config;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public HandelController(Context context) {
@@ -66,7 +66,7 @@ public class HandelController extends TemplateGenerator {
 	}
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -81,7 +81,7 @@ public class HandelController extends TemplateGenerator {
 	}
 
 	/**
-	 * Speichert ein neues Handelsangebot in der Datenbank
+	 * Speichert ein neues Handelsangebot in der Datenbank.
 	 * @urlparam String comm Die Beschreibung
 	 * @urlparam Integer ($warenid|"i"+$itemid)+"need" Benoetigte Waren
 	 * @urlparam Integer ($warenid|"i"+$itemid)+"have" Angebotene Waren
@@ -169,7 +169,7 @@ public class HandelController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Seite zur Eingabe eines Handelsangebots an 
+	 * Zeigt die Seite zur Eingabe eines Handelsangebots an.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -202,7 +202,7 @@ public class HandelController extends TemplateGenerator {
 	}
 
 	/**
-	 * Loescht ein Handelsangebot
+	 * Loescht ein Handelsangebot.
 	 * @urlparam Integer del Die ID des zu loeschenden Handelsangebots
 	 *
 	 */
@@ -228,7 +228,7 @@ public class HandelController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die vorhandenen Handelsangebote an
+	 * Zeigt die vorhandenen Handelsangebote an.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

@@ -25,7 +25,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Immutable;
 
 /**
- * Repraesentiert einen Hilfeeintrag zu einer Seite in DS
+ * Repraesentiert einen Hilfeeintrag zu einer Seite in DS.
  * @author Christopher Jung
  *
  */
@@ -38,7 +38,7 @@ public class GuiHelpText {
 	private String text;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public GuiHelpText() {
@@ -46,7 +46,7 @@ public class GuiHelpText {
 	}
 
 	/**
-	 * Gibt den Namen der Seite zurueck
+	 * Gibt den Namen der Seite zurueck.
 	 * @return Der Seitenname
 	 */
 	public String getPage() {
@@ -54,7 +54,7 @@ public class GuiHelpText {
 	}
 
 	/**
-	 * Gibt den Hilfetext zurueck
+	 * Gibt den Hilfetext zurueck.
 	 * @return Der Hilfetext
 	 */
 	public String getText() {

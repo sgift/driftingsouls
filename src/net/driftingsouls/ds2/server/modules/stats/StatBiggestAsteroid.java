@@ -29,19 +29,20 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.StatsController;
 
 /**
- * Zeigt die Liste der groessten Asteroiden an
+ * Zeigt die Liste der groessten Asteroiden an.
  * @author Christopher Jung
  *
  */
 public class StatBiggestAsteroid extends AbstractStatistic implements Statistic {
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * 
 	 */
 	public StatBiggestAsteroid() {
 		// EMPTY
 	}
 	
+	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();

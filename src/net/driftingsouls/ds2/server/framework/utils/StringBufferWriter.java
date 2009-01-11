@@ -21,7 +21,7 @@ package net.driftingsouls.ds2.server.framework.utils;
 import java.io.Writer;
 
 /**
- * Adapter von einem StringBuffer auf einen Writer
+ * Adapter von einem StringBuffer auf einen Writer.
  * @author Christopher Jung
  *
  */
@@ -29,7 +29,7 @@ public final class StringBufferWriter extends Writer {
 	private StringBuffer buffer;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param buffer Der zu wrappende StringBuffer 
 	 */
 	public StringBufferWriter(StringBuffer buffer) {

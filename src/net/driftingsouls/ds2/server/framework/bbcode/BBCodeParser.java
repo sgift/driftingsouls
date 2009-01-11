@@ -47,7 +47,7 @@ import org.w3c.dom.NodeList;
  * <p>Der BBCodeParser erlaubt es neben den Framework-BBCodes auf eigene 
  * anwendungsspezifische BBCodes hinzuzufuegen. Diese muessen dazu in der
  * Datei <code>META-INF/services/net.driftingsouls.ds2.server.framework.bbcode.BBCodeFunction</code>
- * eingetragen werden. Zudem koennen zur Laufzeit weitere BBCodes registriert werden</p>
+ * eingetragen werden. Zudem koennen zur Laufzeit weitere BBCodes registriert werden.</p>
  * 
  * @author Christopher Jung
  *
@@ -126,7 +126,7 @@ public class BBCodeParser {
 	}
 	
 	/**
-	 * Liefert eine Instanz des BBCodeParsers zurueck
+	 * Liefert eine Instanz des BBCodeParsers zurueck.
 	 * 
 	 * @return Eine BBCodeParser-Instanz
 	 */
@@ -149,7 +149,7 @@ public class BBCodeParser {
 	/**
 	 * Registriert einen neuen BBCode unter Angabe eines Ersatzstrings. 
 	 * Dabei werden jeweils die $1-$3 des Ersatzstrings durch die jeweiligen
-	 * Parameter des BBCodes ersetzt (Muster: [tag $2,$3]$1[/tag]) 
+	 * Parameter des BBCodes ersetzt (Muster: [tag $2,$3]$1[/tag]) .
 	 * @param tag Name des BBCode-Tags
 	 * @param params Anzahl der Parameter des Tags
 	 * @param replace Ersatzstring
@@ -161,7 +161,7 @@ public class BBCodeParser {
 	}
 	
 	/**
-	 * Registriert einen neuen BBCode unter Verwendung einer Ersatzfunktion 
+	 * Registriert einen neuen BBCode unter Verwendung einer Ersatzfunktion.
 	 * @param tagname Name des BBCode-Tags
 	 * @param params Anzahl der Parameter
 	 * @param replaceFunc Ersatzfunktion

@@ -30,7 +30,7 @@ import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
 import org.hibernate.annotations.Type;
 
 /**
- * Repraesentiert ein QuickQuest
+ * Repraesentiert ein QuickQuest.
  * @author Christopher Jung
  *
  */
@@ -65,7 +65,7 @@ public class QuickQuest {
 	private String loottable;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public QuickQuest() {
@@ -73,7 +73,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Gibt die Belohnung in Waren zurueck
+	 * Gibt die Belohnung in Waren zurueck.
 	 * @return Die Belohnung
 	 */
 	public Cargo getAwardItems() {
@@ -81,7 +81,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Setzt die Belohnung in Waren
+	 * Setzt die Belohnung in Waren.
 	 * @param awarditems Die Belohnung
 	 */
 	public void setAwardItems(Cargo awarditems) {
@@ -89,7 +89,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Gibt die Belohnung in RE zurueck
+	 * Gibt die Belohnung in RE zurueck.
 	 * @return Die Belohnung
 	 */
 	public long getAwardRe() {
@@ -97,7 +97,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Setzt die Belohnung in Re
+	 * Setzt die Belohnung in Re.
 	 * @param awardre Die Belohnung
 	 */
 	public void setAwardRe(long awardre) {
@@ -105,7 +105,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Gibt die Quests zurueck, welche vorher beendet sein muessen
+	 * Gibt die Quests zurueck, welche vorher beendet sein muessen.
 	 * @return Die benoetigten Quests
 	 */
 	public String getDependsOnQuests() {
@@ -113,7 +113,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Setzt die fuer das Quest benoetigten Quests
+	 * Setzt die fuer das Quest benoetigten Quests.
 	 * @param dependsOnQuests Die benoetigten Quests
 	 */
 	public void setDependsOnQuests(String dependsOnQuests) {
@@ -121,7 +121,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Gibt die Beschreibung zurueck
+	 * Gibt die Beschreibung zurueck.
 	 * @return Die Beschreibung
 	 */
 	public String getDescription() {
@@ -129,7 +129,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Setzt die Beschreibung
+	 * Setzt die Beschreibung.
 	 * @param desc Die Beschreibung
 	 */
 	public void setDescription(String desc) {
@@ -137,7 +137,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Gibt zurueck, ob das Quest aktiviert ist
+	 * Gibt zurueck, ob das Quest aktiviert ist.
 	 * @return Den Aktivierungszustand
 	 */
 	public int getEnabled() {
@@ -145,7 +145,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Setzt den Aktivierungszustand des Quests
+	 * Setzt den Aktivierungszustand des Quests.
 	 * @param enabled Der Aktivierungszustand
 	 */
 	public void setEnabled(int enabled) {
@@ -153,7 +153,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Gibt den Abschlusstext des Quests zurueck
+	 * Gibt den Abschlusstext des Quests zurueck.
 	 * @return Der Abschlusstext
 	 */
 	public String getFinishText() {
@@ -161,7 +161,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Setzt den Abschlusstext des Quests
+	 * Setzt den Abschlusstext des Quests.
 	 * @param finishtext Der Abschlusstext
 	 */
 	public void setFinishtext(String finishtext) {
@@ -169,7 +169,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Gibt die Kopfgrafik zurueck, welche in Dialogen angezeigt werden soll
+	 * Gibt die Kopfgrafik zurueck, welche in Dialogen angezeigt werden soll.
 	 * @return Die Kopfgrafik
 	 */
 	public String getHead() {
@@ -177,7 +177,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Setzt die Kopfgrafik, welche in Dialogen angezeigt werden soll
+	 * Setzt die Kopfgrafik, welche in Dialogen angezeigt werden soll.
 	 * @param head Die Kopfgrafik
 	 */
 	public void setHead(String head) {
@@ -185,7 +185,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Gibt die ID des QuickQuests zurueck
+	 * Gibt die ID des QuickQuests zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -193,7 +193,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Gibt die Loottabelle des Quests zurueck
+	 * Gibt die Loottabelle des Quests zurueck.
 	 * @return Die Loottabelle
 	 */
 	public String getLoottable() {
@@ -201,7 +201,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Setzt die Loottabelle des Quests
+	 * Setzt die Loottabelle des Quests.
 	 * @param loottable Die Loottabelle
 	 */
 	public void setLoottable(String loottable) {
@@ -209,7 +209,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Gibt zurueck, ob das Quest mehr als einmal gemacht werden kann
+	 * Gibt zurueck, ob das Quest mehr als einmal gemacht werden kann.
 	 * @return <code>true</code>, falls es mehr als einmal gemacht werden kann
 	 */
 	public boolean getMoreThanOnce() {
@@ -217,7 +217,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Setzt, ob das Quest mehr als einmal gemacht werden kann
+	 * Setzt, ob das Quest mehr als einmal gemacht werden kann.
 	 * @param moreThanOnce <code>true</code>, falls es mehr als einmal gemacht werden kann
 	 */
 	public void setMoreThanOnce(boolean moreThanOnce) {
@@ -225,7 +225,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Gibt den Text zurueck, welcher angezeigt wird, wenn das Quest noch nicht abgeschlossen werden kann
+	 * Gibt den Text zurueck, welcher angezeigt wird, wenn das Quest noch nicht abgeschlossen werden kann.
 	 * @return Der Text
 	 */
 	public String getNotYetText() {
@@ -233,7 +233,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Setzt den Text, welcher angezeigt wird, wenn das Quest noch nicht abgeschlossen werden kann
+	 * Setzt den Text, welcher angezeigt wird, wenn das Quest noch nicht abgeschlossen werden kann.
 	 * @param notyettext the notyettext to set
 	 */
 	public void setNotYetText(String notyettext) {
@@ -241,7 +241,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Gibt die Quest-ID zurueck
+	 * Gibt die Quest-ID zurueck.
 	 * @return Die Quest-ID
 	 */
 	public String getQid() {
@@ -249,7 +249,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Setzt die Quest-ID
+	 * Setzt die Quest-ID.
 	 * @param qid Die Quest-ID
 	 */
 	public void setQid(String qid) {
@@ -257,7 +257,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Gibt den Namen des Quests zurueck
+	 * Gibt den Namen des Quests zurueck.
 	 * @return Der Name
 	 */
 	public String getQName() {
@@ -265,7 +265,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Setzt den Namen des Quests
+	 * Setzt den Namen des Quests.
 	 * @param qname Der Name
 	 */
 	public void setQName(String qname) {
@@ -273,7 +273,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Gibt die zum Abschluss benoetigten Waren zurueck
+	 * Gibt die zum Abschluss benoetigten Waren zurueck.
 	 * @return Die Waren
 	 */
 	public Cargo getReqItems() {
@@ -281,7 +281,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Setzt die zum Abschluss benoetigten Waren
+	 * Setzt die zum Abschluss benoetigten Waren.
 	 * @param reqitems Die Waren
 	 */
 	public void setReqItems(Cargo reqitems) {
@@ -289,7 +289,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Gibt die zum Abschluss benoetigten RE zurueck
+	 * Gibt die zum Abschluss benoetigten RE zurueck.
 	 * @return Die RE
 	 */
 	public long getReqRe() {
@@ -297,7 +297,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Setzt die zum Abschluss benoetigten RE
+	 * Setzt die zum Abschluss benoetigten RE.
 	 * @param reqre Die RE
 	 */
 	public void setReqRe(long reqre) {
@@ -305,7 +305,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Gibt eine kurze Beschreibung des Quests zurueck
+	 * Gibt eine kurze Beschreibung des Quests zurueck.
 	 * @return Eine kurze Beschreibung
 	 */
 	public String getShortDesc() {
@@ -313,7 +313,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Setzt eine kurze Beschreibung des Quests
+	 * Setzt eine kurze Beschreibung des Quests.
 	 * @param shortdesc Die kurze Beschreibung
 	 */
 	public void setShortdesc(String shortdesc) {
@@ -321,7 +321,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Gibt den Ausgangspunkt des Quests zurueck
+	 * Gibt den Ausgangspunkt des Quests zurueck.
 	 * @return Der Ausgangspunkt
 	 */
 	public String getSource() {
@@ -329,7 +329,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Setzt den Ausgangspunkt des Quests
+	 * Setzt den Ausgangspunkt des Quests.
 	 * @param source Der Ausgangspunkt
 	 */
 	public void setSource(String source) {
@@ -337,7 +337,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Gibt den Typ des Ausgangspunkts zurueck
+	 * Gibt den Typ des Ausgangspunkts zurueck.
 	 * @return Der Typ
 	 */
 	public String getSourceType() {
@@ -345,7 +345,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Setzt den Typ des Ausgangspunkts
+	 * Setzt den Typ des Ausgangspunkts.
 	 * @param sourcetype Der Typ
 	 */
 	public void setSourceType(String sourcetype) {
@@ -353,7 +353,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Gibt die beim Start uebergebenen Waren zurueck
+	 * Gibt die beim Start uebergebenen Waren zurueck.
 	 * @return Die Startwaren
 	 */
 	public Cargo getStartItems() {
@@ -361,7 +361,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Setzt die beim Start uebergebenen Waren
+	 * Setzt die beim Start uebergebenen Waren.
 	 * @param startitems Die Waren
 	 */
 	public void setStartItems(Cargo startitems) {
@@ -369,7 +369,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Gibt den Zielpunkt zurueck
+	 * Gibt den Zielpunkt zurueck.
 	 * @return Der Zielpunkt
 	 */
 	public String getTarget() {
@@ -377,7 +377,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Setzt den Zielpunkt des Quests
+	 * Setzt den Zielpunkt des Quests.
 	 * @param target Der Zielpunkt
 	 */
 	public void setTarget(String target) {
@@ -385,7 +385,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Gibt den Typ des Zielpunkts zurueck
+	 * Gibt den Typ des Zielpunkts zurueck.
 	 * @return Der Typ
 	 */
 	public String getTargetType() {
@@ -393,7 +393,7 @@ public class QuickQuest {
 	}
 
 	/**
-	 * Setzt den Typ des Zielpunkts
+	 * Setzt den Typ des Zielpunkts.
 	 * @param targettype Der Typ
 	 */
 	public void setTargetType(String targettype) {

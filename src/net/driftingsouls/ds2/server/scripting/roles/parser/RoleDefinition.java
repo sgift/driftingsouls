@@ -19,13 +19,13 @@
 package net.driftingsouls.ds2.server.scripting.roles.parser;
 
 /**
- * Repraesentiert eine geparste Rollendefinition
+ * Repraesentiert eine geparste Rollendefinition.
  * @author Christopher Jung
  *
  */
 public interface RoleDefinition {
 	/**
-	 * Gibt den Namen der verwendeten Rolle zurueck
+	 * Gibt den Namen der verwendeten Rolle zurueck.
 	 * @return Der Name
 	 */
 	public String getRoleName();

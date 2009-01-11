@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.scripting.roles.interpreter;
 
 /**
- * Fehler bei ungueltigen Rollendefinitionen
+ * Fehler bei ungueltigen Rollendefinitionen.
  * @author Christopher Jung
  *
  */
@@ -27,7 +27,7 @@ public class IllegalRoleDefinitionException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Erstellt eine neue Exception
+	 * Erstellt eine neue Exception.
 	 * @param message Die Fehlerbeschreibung
 	 * @param cause Der Grund
 	 */
@@ -36,7 +36,7 @@ public class IllegalRoleDefinitionException extends RuntimeException {
 	}
 
 	/**
-	 * Erstellt eine neue Exception
+	 * Erstellt eine neue Exception.
 	 * @param message Die Fehlerbeschreibung
 	 */
 	public IllegalRoleDefinitionException(String message) {

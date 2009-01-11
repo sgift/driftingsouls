@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.ships;
 
 /**
- * Ein Wegpunkt in einer Flugroute
+ * Ein Wegpunkt in einer Flugroute.
  * @author Christopher Jung
  *
  */
@@ -42,7 +42,7 @@ public class Waypoint {
 	}
 	
 	/**
-	 * Der Typ des Wegpunktes
+	 * Der Typ des Wegpunktes.
 	 */
 	public Type type;
 	/**

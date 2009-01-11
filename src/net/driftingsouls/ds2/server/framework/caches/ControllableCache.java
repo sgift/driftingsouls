@@ -19,13 +19,13 @@
 package net.driftingsouls.ds2.server.framework.caches;
 
 /**
- * Ein Cache, der ueber bestimmte Kontrollfunktionen verfuegt
+ * Ein Cache, der ueber bestimmte Kontrollfunktionen verfuegt.
  * @author Christopher Jung
  *
  */
 public interface ControllableCache {
 	/**
-	 * Leert den Cache
+	 * Leert den Cache.
 	 *
 	 */
 	public void clear();

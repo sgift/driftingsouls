@@ -38,7 +38,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
- * Repraesentiert eine Werft auf einem Schiff in DS
+ * Repraesentiert eine Werft auf einem Schiff in DS.
  * @author Christopher Jung
  *
  */
@@ -54,7 +54,7 @@ public class ShipWerft extends WerftObject {
 	private Base linked;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public ShipWerft() {
@@ -62,7 +62,7 @@ public class ShipWerft extends WerftObject {
 	}
 	
 	/**
-	 * Erstellt eine neue Schiffswerft
+	 * Erstellt eine neue Schiffswerft.
 	 * @param ship Das Schiff auf dem sich die Werft befinden soll
 	 */
 	public ShipWerft(Ship ship) {
@@ -76,7 +76,7 @@ public class ShipWerft extends WerftObject {
 	}
 	
 	/**
-	 * Gibt zurueck, ob die Werft mit einer Basis verbunden ist
+	 * Gibt zurueck, ob die Werft mit einer Basis verbunden ist.
 	 * @return true, falls eine Verbindung existiert
 	 */
 	public boolean isLinked() {
@@ -84,7 +84,7 @@ public class ShipWerft extends WerftObject {
 	}
 	
 	/**
-	 * Gibt die verbundenen Basis zurueck
+	 * Gibt die verbundenen Basis zurueck.
 	 * @return Die Basis
 	 */
 	public Base getLinkedBase() {
@@ -100,7 +100,7 @@ public class ShipWerft extends WerftObject {
 	}
 	
 	/**
-	 * Erstellt eine Verbindung mit einer angegebenen Basis
+	 * Erstellt eine Verbindung mit einer angegebenen Basis.
 	 * @param base Die Basis
 	 */
 	public void setLink( Base base ) {
@@ -126,7 +126,7 @@ public class ShipWerft extends WerftObject {
 	}
 
 	/**
-	 * Gibt die Schiffs-ID zurueck, auf dem sich die Werft befindet
+	 * Gibt die Schiffs-ID zurueck, auf dem sich die Werft befindet.
 	 * @return Die ID des Schiffs, auf dem sich die Werft befindet
 	 */
 	public int getShipID() {
@@ -134,7 +134,7 @@ public class ShipWerft extends WerftObject {
 	}
 	
 	/**
-	 * Gibt das Schiff zurueck, auf dem sich die Werft befindet
+	 * Gibt das Schiff zurueck, auf dem sich die Werft befindet.
 	 * @return Das Schiff
 	 */
 	public Ship getShip() {

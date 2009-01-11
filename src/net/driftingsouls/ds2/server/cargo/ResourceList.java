@@ -26,14 +26,14 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Liste von Resourcen aus einem Cargo
+ * Liste von Resourcen aus einem Cargo.
  * @author Christopher Jung
  * @see ResourceEntry
  *
  */
 public class ResourceList implements Iterable<ResourceEntry> {
 	/**
-	 * Vergleichsklasse fuer Resourcen-IDs
+	 * Vergleichsklasse fuer Resourcen-IDs.
 	 * @author Christopher Jung
 	 *
 	 */
@@ -52,7 +52,7 @@ public class ResourceList implements Iterable<ResourceEntry> {
 	}
 	
 	/**
-	 * Vergleichsklasse fuer Resourcen-IDs. Verglichen wird auf Basis
+	 * Vergleichsklasse fuer Resourcen-IDs. Verglichen wird auf Basis.
 	 * der vorhandenen Resourcenmenge
 	 * @author Christopher Jung
 	 *
@@ -78,7 +78,7 @@ public class ResourceList implements Iterable<ResourceEntry> {
 	}
 	
 	/**
-	 * Iterator ueber die Resourceneintraege in der Liste
+	 * Iterator ueber die Resourceneintraege in der Liste.
 	 * @author Christopher Jung
 	 *
 	 */
@@ -109,7 +109,7 @@ public class ResourceList implements Iterable<ResourceEntry> {
 	}
 	
 	/**
-	 * Fuegt einen neuen Resourceneintrag zur Resourcenliste hinzu
+	 * Fuegt einen neuen Resourceneintrag zur Resourcenliste hinzu.
 	 * @param entry Der Resourceneintrag
 	 */
 	public void addEntry(ResourceEntry entry) {
@@ -117,7 +117,7 @@ public class ResourceList implements Iterable<ResourceEntry> {
 	}
 	
 	/**
-	 * Sortiert die Liste auf Basis der Resourcen-ID
+	 * Sortiert die Liste auf Basis der Resourcen-ID.
 	 * @param descending Soll die Liste absteigend sortiert werden (<code>true</code>)?
 	 */
 	public void sortByID( boolean descending ) {
@@ -125,7 +125,7 @@ public class ResourceList implements Iterable<ResourceEntry> {
 	}
 
 	/**
-	 * Sortiert die Liste auf Basis der Cargomenge einer Resource
+	 * Sortiert die Liste auf Basis der Cargomenge einer Resource.
 	 * @param descending Soll die Liste absteigend sortiert werden (<code>true</code>)?
 	 */
 	public void sortByCargo( boolean descending ) {
@@ -133,13 +133,14 @@ public class ResourceList implements Iterable<ResourceEntry> {
 	}
 	
 	/**
-	 * Gibt die Anzahl der Resourceneintraege in der Resourcenliste an
+	 * Gibt die Anzahl der Resourceneintraege in der Resourcenliste an.
 	 * @return Die Anzahl der Resourceneintraege
 	 */
 	public int size() {
 		return list.size();
 	}
 
+	@Override
 	public Iterator<ResourceEntry> iterator() {
 		return new ResourceIterator(list.iterator());
 	}

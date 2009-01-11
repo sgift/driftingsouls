@@ -19,16 +19,16 @@
 package net.driftingsouls.ds2.server.framework.pipeline.generators;
 
 /**
- * Die verschiedenen Aufrufarten
+ * Die verschiedenen Aufrufarten.
  *
  */
 public enum ActionType {
 	/**
-	 * Eine normale HTTP-Request mit HTML-Anwort
+	 * Eine normale HTTP-Request mit HTML-Anwort.
 	 */
 	DEFAULT("Action"),
 	/**
-	 * Eine Ajax-Request
+	 * Eine Ajax-Request.
 	 */
 	AJAX("AjaxAct");
 	
@@ -39,7 +39,7 @@ public enum ActionType {
 	}
 	
 	/**
-	 * Gibt den Postfix der Aktionsmethoden zurueck
+	 * Gibt den Postfix der Aktionsmethoden zurueck.
 	 * @return Der Postfix der Aktionsmethoden
 	 */
 	public String getActionExt() {
@@ -47,7 +47,7 @@ public enum ActionType {
 	}
 	
 	/**
-	 * Gibt den Aktionstyp zurueck, der zum Ausfuehrungsmodus gehoert
+	 * Gibt den Aktionstyp zurueck, der zum Ausfuehrungsmodus gehoert.
 	 * @param execType Der Ausfuehrungsmodus
 	 * @return Der Aktionstyp
 	 */

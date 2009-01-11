@@ -61,7 +61,7 @@ public class BaseStatus {
 	}
 
 	/**
-	 * Gibt die Arbeiter zurueck
+	 * Gibt die Arbeiter zurueck.
 	 * @return die Arbeiter.
 	 */
 	public int getArbeiter() {
@@ -69,7 +69,7 @@ public class BaseStatus {
 	}
 
 	/**
-	 * Gibt die Bewohner zurueck
+	 * Gibt die Bewohner zurueck.
 	 * 
 	 * @return die Bewohner
 	 */
@@ -88,7 +88,7 @@ public class BaseStatus {
 	}
 
 	/**
-	 * Gibt die pro Tick produzierte Energie zurueck
+	 * Gibt die pro Tick produzierte Energie zurueck.
 	 * @return Die pro Tick produzierte Energie
 	 */
 	public int getE() {
@@ -96,7 +96,7 @@ public class BaseStatus {
 	}
 
 	/**
-	 * Gibt den pro Tick produzierten/verbrauchten Cargo zurueck
+	 * Gibt den pro Tick produzierten/verbrauchten Cargo zurueck.
 	 * 
 	 * @return Die Cargobilanz
 	 */

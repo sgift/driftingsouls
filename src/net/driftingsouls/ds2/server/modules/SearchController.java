@@ -33,7 +33,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 
 /**
- * Zeigt alle Objekte an, welche zu einem Suchbegriff passen
+ * Zeigt alle Objekte an, welche zu einem Suchbegriff passen.
  * @author Christopher Jung
  *
  * @urlparam String search Der Suchbegriff
@@ -42,7 +42,7 @@ public class SearchController extends TemplateGenerator {
 	private static final int MAX_OBJECTS = 25;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public SearchController(Context context) {

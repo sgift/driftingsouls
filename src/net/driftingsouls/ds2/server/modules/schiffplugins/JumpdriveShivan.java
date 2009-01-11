@@ -31,13 +31,13 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
- * Schiffsmodul fuer die Anzeige der shivanischen Sprungantriebe
+ * Schiffsmodul fuer die Anzeige der shivanischen Sprungantriebe.
  * @author Christopher Jung
  *
  */
 public class JumpdriveShivan implements SchiffPlugin
 {
-
+	@Override
 	public String action(Parameters caller)
 	{
 		SchiffController controller = caller.controller;
@@ -202,6 +202,7 @@ public class JumpdriveShivan implements SchiffPlugin
 		return output;
 	}
 
+	@Override
 	public void output(Parameters caller)
 	{
 		SchiffController controller = caller.controller;

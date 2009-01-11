@@ -23,7 +23,7 @@ import java.util.List;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
- * Basisklasse fuer (Schiffs)module
+ * Basisklasse fuer (Schiffs)module.
  * @author Christopher Jung
  *
  */
@@ -37,7 +37,7 @@ public abstract class Module {
 	public abstract ShipTypeData modifyStats( ShipTypeData stats, List<Module> moduleobjlist );	
 	
 	/**
-	 * Prueft, ob die angegebenen Daten das selbe Modul kennzeichnen die das aktuelle
+	 * Prueft, ob die angegebenen Daten das selbe Modul kennzeichnen die das aktuelle.
 	 * @param slot Die Slot-Nummer
 	 * @param moduleid Der Modul-Typ
 	 * @param data Weitere Modul-Typ spezifische Daten
@@ -48,7 +48,7 @@ public abstract class Module {
 	}
 	
 	/**
-	 * Gibt den Namen des Moduls zurueck
+	 * Gibt den Namen des Moduls zurueck.
 	 * @return der Name
 	 */
 	public String getName() { 
@@ -56,7 +56,7 @@ public abstract class Module {
 	}
 	
 	/**
-	 * Setzt Modul-Typ spezifische Daten
+	 * Setzt Modul-Typ spezifische Daten.
 	 * @param data Die Daten
 	 */
 	public abstract void setSlotData( String data );

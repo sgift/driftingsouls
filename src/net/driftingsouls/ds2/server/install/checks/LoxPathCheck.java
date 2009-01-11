@@ -23,12 +23,12 @@ import java.io.File;
 import net.driftingsouls.ds2.server.framework.Configuration;
 
 /**
- * Ueberprueft, ob die config.xml existiert
+ * Ueberprueft, ob die config.xml existiert.
  * @author Christopher Jung
  *
  */
 public class LoxPathCheck implements Checkable {
-
+	@Override
 	public void doCheck() throws CheckFailedException {
 		final String path = Configuration.getSetting("LOXPATH");
 		if( !new File(path).isDirectory() ) {
@@ -52,6 +52,7 @@ public class LoxPathCheck implements Checkable {
 		}
 	}
 
+	@Override
 	public String getDescription() {
 		return "config.xml:LOXPATH pruefen";
 	}

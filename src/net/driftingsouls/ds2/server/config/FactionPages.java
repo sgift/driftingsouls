@@ -29,7 +29,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Die Liste und Darstellungsdetails der Fraktionsseiten einer Fraktion
+ * Die Liste und Darstellungsdetails der Fraktionsseiten einer Fraktion.
  * @author Christopher Jung
  *
  */
@@ -48,7 +48,7 @@ public class FactionPages {
 	}
 	
 	/**
-	 * Gibt die ID der Fraktion zurueck
+	 * Gibt die ID der Fraktion zurueck.
 	 * @return Die ID
 	 */
 	public int getID() {
@@ -56,7 +56,7 @@ public class FactionPages {
 	}
 	
 	/**
-	 * Fuegt eine Seite zur Fraktion hinzu
+	 * Fuegt eine Seite zur Fraktion hinzu.
 	 * @param page Die ID der neuen Seite
 	 */
 	protected void addPage( String page ) {
@@ -64,7 +64,7 @@ public class FactionPages {
 	}
 	
 	/**
-	 * Prueft, ob die Fraktion die angegebene Seite besitzt
+	 * Prueft, ob die Fraktion die angegebene Seite besitzt.
 	 * @param page Die ID der Seite
 	 * @return <code>true</code>, falls die Fraktion die angegebene Seite hat
 	 */
@@ -73,7 +73,7 @@ public class FactionPages {
 	}
 	
 	/**
-	 * Gibt die Liste aller Seiten der Fraktion zurueck
+	 * Gibt die Liste aller Seiten der Fraktion zurueck.
 	 * @return Die Liste aller Seiten
 	 */
 	public Set<String> getPages() {
@@ -81,7 +81,7 @@ public class FactionPages {
 	}
 	
 	/**
-	 * Gibt die Startseite der Fraktion zurueck
+	 * Gibt die Startseite der Fraktion zurueck.
 	 * @return Die ID der Startseite oder <code>null</code>, falls die Fraktion keine Seiten besitzt
 	 */
 	public String getFirstPage() {
@@ -92,7 +92,7 @@ public class FactionPages {
 	}
 	
 	/**
-	 * Setzt die Menuegroesse der Fraktionsseite
+	 * Setzt die Menuegroesse der Fraktionsseite.
 	 * @param size Die neue Menuegroesse
 	 */
 	protected void setMenuSize( int size ) {
@@ -100,7 +100,7 @@ public class FactionPages {
 	}
 	
 	/**
-	 * Gibt die Menuegroesse der Fraktion zurueck
+	 * Gibt die Menuegroesse der Fraktion zurueck.
 	 * @return Die Menuegroesse
 	 */
 	public int getMenuSize() {
@@ -108,7 +108,7 @@ public class FactionPages {
 	}
 	
 	/**
-	 * Setzt den Beschreibungstext der Fraktion
+	 * Setzt den Beschreibungstext der Fraktion.
 	 * @param text Der neue Beschreibungstext
 	 */
 	protected void setFactionText( String text ) {
@@ -116,7 +116,7 @@ public class FactionPages {
 	}
 	
 	/**
-	 * Gibt den Beschreibungstext der Fraktion zurueck
+	 * Gibt den Beschreibungstext der Fraktion zurueck.
 	 * @return Der Beschreibungstext
 	 */
 	public String getFactionText() {
@@ -124,21 +124,21 @@ public class FactionPages {
 	}
 	
 	/**
-	 * Aktiviert die Fraktionsseiten
+	 * Aktiviert die Fraktionsseiten.
 	 */
 	protected void enable() {
 		this.show = true;	
 	}
 	
 	/**
-	 * Deaktiviert die Fraktionsseiten
+	 * Deaktiviert die Fraktionsseiten.
 	 */
 	protected void disable() {
 		this.show = false;	
 	}
 	
 	/**
-	 * Prueft, ob die Fraktionsseiten aktiviert sind
+	 * Prueft, ob die Fraktionsseiten aktiviert sind.
 	 * @return <code>true</code>, falls die Fraktionsseiten aktiviert sind
 	 */
 	public boolean isEnabled() {

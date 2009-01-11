@@ -30,7 +30,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 /**
- * <h1>Der Forschungstick</h1>
+ * <h1>Der Forschungstick.</h1>
  * Bearbeitet die Forschungszentren und markiert erforschte Techs bei den 
  * Spielern als erforscht.
  * @author Christopher Jung

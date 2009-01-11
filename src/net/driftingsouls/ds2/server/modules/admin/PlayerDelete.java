@@ -54,7 +54,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Ermoeglicht das Einloggen in einen anderen Account ohne Passwort
+ * Ermoeglicht das Einloggen in einen anderen Account ohne Passwort.
  * 
  * @author Christopher Jung
  * 
@@ -68,7 +68,7 @@ public class PlayerDelete implements AdminPlugin
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -77,6 +77,7 @@ public class PlayerDelete implements AdminPlugin
     	this.config = config;
     }
 
+    @Override
 	public void output(AdminController controller, String page, int action) throws IOException
 	{
 		Context context = ContextMap.getContext();

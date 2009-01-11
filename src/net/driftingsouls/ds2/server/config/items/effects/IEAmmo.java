@@ -25,7 +25,7 @@ import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import org.w3c.dom.Node;
 
 /**
- * <h1>Item-Effekt "Ammo"</h1>
+ * <h1>Item-Effekt "Ammo".</h1>
  * Repraesentiert eine Munitionseinheit als Wareneinheit innerhalb von Drifting Souls.<br>
  * Der Effekt besitzt lediglich das Attribut <code>ammo</code>, welches die ID
  * des zugehoerigen Ammo-Eintrags in der Datenbank enthaelt.
@@ -45,7 +45,7 @@ public class IEAmmo extends ItemEffect {
 	}
 	
 	/**
-	 * Gibt die zugehoerigen Ammodaten zurueck
+	 * Gibt die zugehoerigen Ammodaten zurueck.
 	 * @return Die Ammodaten
 	 */
 	public Ammo getAmmo() {

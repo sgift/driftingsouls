@@ -40,7 +40,7 @@ public class Version
 	private String BUILD_TIME = null;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 */
 	public Version() {
 		parseVersionFile();

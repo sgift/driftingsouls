@@ -78,7 +78,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Die Schiffsansicht
+ * Die Schiffsansicht.
  * @author Christopher Jung
  * 
  * @urlparam Integer ship Die ID des anzuzeigenden Schiffes
@@ -97,7 +97,7 @@ public class SchiffController extends TemplateGenerator {
 	private Configuration config;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public SchiffController(Context context) {
@@ -111,7 +111,7 @@ public class SchiffController extends TemplateGenerator {
 	}
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -217,7 +217,7 @@ public class SchiffController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Wechselt die Alarmstufe des Schiffes
+	 * Wechselt die Alarmstufe des Schiffes.
 	 * @urlparam Integer alarm Die neue Alarmstufe
 	 *
 	 */
@@ -248,7 +248,7 @@ public class SchiffController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Uebergibt das Schiff an einen anderen Spieler
+	 * Uebergibt das Schiff an einen anderen Spieler.
 	 * @urlparam Integer newowner Die ID des neuen Besitzers
 	 * @urlparam Integer conf 1, falls die Sicherheitsabfrage positiv bestaetigt wurde
 	 *
@@ -316,7 +316,7 @@ public class SchiffController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zerstoert das Schiff
+	 * Zerstoert das Schiff.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -348,7 +348,7 @@ public class SchiffController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Springt durch den angegebenen Sprungpunkt
+	 * Springt durch den angegebenen Sprungpunkt.
 	 * @urlparam Integer knode Die ID des Sprungpunkts
 	 *
 	 */
@@ -373,7 +373,7 @@ public class SchiffController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Benutzt einen an ein Schiff assoziierten Sprungpunkt
+	 * Benutzt einen an ein Schiff assoziierten Sprungpunkt.
 	 * @urlparam Integer knode Die ID des Schiffes mit dem Sprungpunkt
 	 *
 	 */
@@ -398,7 +398,7 @@ public class SchiffController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Benennt das Schiff um
+	 * Benennt das Schiff um.
 	 * @urlparam String newname Der neue Name des Schiffes
 	 *
 	 */
@@ -417,7 +417,7 @@ public class SchiffController extends TemplateGenerator {
 	
 	/**
 	 * Fuehrt Aktionen eines Plugins aus. Plugin-spezifische
-	 * Parameter haben die Form $PluginName_ops[$ParameterName]
+	 * Parameter haben die Form $PluginName_ops[$ParameterName].
 	 * @urlparam String plugin Der Name des Plugins 
 	 *
 	 */
@@ -449,7 +449,7 @@ public class SchiffController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Landet die angegebenen Schiffe auf dem aktuellen Schiff
+	 * Landet die angegebenen Schiffe auf dem aktuellen Schiff.
 	 * @urlparameter String shiplist Eine mit | separierte Liste an Schiffs-IDs
 	 *
 	 */
@@ -485,7 +485,7 @@ public class SchiffController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Startet die angegebenen Schiffe vom aktuellen Schiff
+	 * Startet die angegebenen Schiffe vom aktuellen Schiff.
 	 * @urlparam String shiplist Eine mit | separierte Liste von Schiffs-IDs
 	 *
 	 */
@@ -521,7 +521,7 @@ public class SchiffController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Dockt die angegebenen Schiffe an das aktuelle Schiff an
+	 * Dockt die angegebenen Schiffe an das aktuelle Schiff an.
 	 * @urlparam String shiplist Eine mit | separierte Liste von Schiffs-IDs 
 	 *
 	 */
@@ -585,7 +585,7 @@ public class SchiffController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Dockt die angegebenen Schiffe vom aktuellen Schiff ab
+	 * Dockt die angegebenen Schiffe vom aktuellen Schiff ab.
 	 * @urlparam String shiplist Eine mit | separierte Liste von Schiffs-IDs
 	 *
 	 */
@@ -620,7 +620,7 @@ public class SchiffController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Laesst ein Schiff einer Flotte beitreten oder aus der aktuellen Flotte austreten
+	 * Laesst ein Schiff einer Flotte beitreten oder aus der aktuellen Flotte austreten.
 	 * @urlparam Integer join Die ID der Flotte, der das Schiff beitreten soll oder <code>0</code>, falls es aus der aktuellen Flotte austreten soll
 	 *
 	 */
@@ -678,7 +678,7 @@ public class SchiffController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Laedt die Schilde des aktuellen Schiffes auf
+	 * Laedt die Schilde des aktuellen Schiffes auf.
 	 * @urlparam Integer shup Die Menge an Energie, die zum Aufladen der Schilde verwendet werden soll
 	 *
 	 */
@@ -718,7 +718,7 @@ public class SchiffController extends TemplateGenerator {
 	
 	/**
 	 * Speichert ein neues Schiffsaktionsscript und setzt optional
-	 * die aktuellen Ausfuehrungsdaten wieder zurueck
+	 * die aktuellen Ausfuehrungsdaten wieder zurueck.
 	 * @urlparam String script das neue Schfifsaktionsscript
 	 * @urlparam Integer reset Wenn der Wert != 0 ist, dann werden die Ausfuehrungsdaten zurueckgesetzt
 	 *
@@ -750,7 +750,7 @@ public class SchiffController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Behandelt ein OnCommunicate-Ereigniss
+	 * Behandelt ein OnCommunicate-Ereigniss.
 	 * @urlparam Integer communicate Die ID des Schiffes, mit dem kommuniziert werden soll
 	 * @urlparam String execparameter Weitere Ausfuehrungsdaten
 	 *
@@ -802,7 +802,7 @@ public class SchiffController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Behandelt ein OnMove-Ereigniss
+	 * Behandelt ein OnMove-Ereigniss.
 	 * @urlparam String execparameter Weitere Ausfuehrungsdaten
 	 *
 	 */
@@ -846,7 +846,7 @@ public class SchiffController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Behandelt ein OnEnter-Ereignis
+	 * Behandelt ein OnEnter-Ereignis.
 	 * @urlparam String execparameter Weitere Ausfuehrungsdaten
 	 *
 	 */
@@ -1101,7 +1101,7 @@ public class SchiffController extends TemplateGenerator {
 	/**
 	 * Setzt die Respawn-Daten des Schiffes. Wenn bereits ein 
 	 * Respawn-Eintrag existiert, wird dieser zurueckgesetzt.
-	 * Andernfalls wird ein neuer Respawn-Eintrag erzeugt
+	 * Andernfalls wird ein neuer Respawn-Eintrag erzeugt.
 	 * @urlparam Integer respawntime Die Zeit in Ticks bis zum Respawn
 	 *
 	 */
@@ -1147,7 +1147,7 @@ public class SchiffController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Transferiert das Schiff ins System 99
+	 * Transferiert das Schiff ins System 99.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -1198,7 +1198,7 @@ public class SchiffController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Schiffsansicht an
+	 * Zeigt die Schiffsansicht an.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

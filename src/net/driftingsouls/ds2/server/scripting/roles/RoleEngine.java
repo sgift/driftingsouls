@@ -37,7 +37,7 @@ import net.driftingsouls.ds2.server.scripting.roles.parser.ParsingException;
 import net.driftingsouls.ds2.server.scripting.roles.parser.RoleDefinition;
 
 /**
- * Die javax.script.ScriptEngine-Implementierung des Rollensystems
+ * Die javax.script.ScriptEngine-Implementierung des Rollensystems.
  * @author Christopher Jung
  *
  */
@@ -45,17 +45,19 @@ class RoleEngine extends AbstractScriptEngine {
 	private ScriptEngineFactory factory;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param factory Die Fabrikklasse welche zum Erstellen der Instanz verwendet wurde
 	 */
 	public RoleEngine(ScriptEngineFactory factory) {
 		this.factory = factory;
 	}
 	
+	@Override
 	public Bindings createBindings() {
 		return new SimpleBindings();
 	}
 
+	@Override
 	public Object eval(String script, ScriptContext context) throws ScriptException {
 		try {
 			RoleDefinition roleDef = Parser.parse(script);
@@ -72,6 +74,7 @@ class RoleEngine extends AbstractScriptEngine {
 		return null;
 	}
 
+	@Override
 	public Object eval(Reader reader, ScriptContext context) throws ScriptException {
 		StringBuilder builder = new StringBuilder();
 		BufferedReader bf = new BufferedReader(reader);
@@ -88,6 +91,7 @@ class RoleEngine extends AbstractScriptEngine {
 		return eval(builder.toString(), context);
 	}
 
+	@Override
 	public ScriptEngineFactory getFactory() {
 		return this.factory;
 	}

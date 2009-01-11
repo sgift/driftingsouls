@@ -38,7 +38,7 @@ public class CacheManager {
 	}
 	
 	/**
-	 * Gibt eine Instanz der Cacheverwaltung zurueck
+	 * Gibt eine Instanz der Cacheverwaltung zurueck.
 	 * @return Eine Instanz der Cacheverwaltung
 	 */
 	public static synchronized CacheManager getInstance() {
@@ -50,7 +50,7 @@ public class CacheManager {
 	
 	/**
 	 * Registriert einen Cache. Wenn der Cache bereits registriert ist,
-	 * wird der Cache nicht erneut registriert
+	 * wird der Cache nicht erneut registriert.
 	 * @param cache Der zu registrierende Cache
 	 */
 	public void registerCache(ControllableCache cache) {
@@ -58,7 +58,7 @@ public class CacheManager {
 	}
 	
 	/**
-	 * Leert alle registrierten Caches
+	 * Leert alle registrierten Caches.
 	 *
 	 */
 	public void clearCaches() {

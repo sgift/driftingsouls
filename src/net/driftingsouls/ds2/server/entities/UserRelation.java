@@ -52,7 +52,7 @@ public class UserRelation {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public UserRelation() {
@@ -60,7 +60,7 @@ public class UserRelation {
 	}
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param user Der Ausgangsuser
 	 * @param target Der Zieluser
 	 * @param status Der Status der Beziehung
@@ -72,7 +72,7 @@ public class UserRelation {
 	}
 
 	/**
-	 * Gibt den Beziehungsstatus zurueck
+	 * Gibt den Beziehungsstatus zurueck.
 	 * @return Der Beziehungsstatus
 	 */
 	public final int getStatus() {
@@ -80,7 +80,7 @@ public class UserRelation {
 	}
 
 	/**
-	 * Setzt den Beziehungsstatus
+	 * Setzt den Beziehungsstatus.
 	 * @param status Der neue Status
 	 */
 	public final void setStatus(final int status) {
@@ -88,7 +88,7 @@ public class UserRelation {
 	}
 
 	/**
-	 * Gibt den Zieluser zurueck
+	 * Gibt den Zieluser zurueck.
 	 * @return Der Zieluser
 	 */
 	public User getTarget() {
@@ -96,7 +96,7 @@ public class UserRelation {
 	}
 
 	/**
-	 * Setzt den Zieluser
+	 * Setzt den Zieluser.
 	 * @param target Der Zieluser
 	 */
 	public final void setTarget(final User target) {
@@ -104,7 +104,7 @@ public class UserRelation {
 	}
 
 	/**
-	 * Gibt den Ausgangsuser (Besitzer dieser Beziehung) zurueck
+	 * Gibt den Ausgangsuser (Besitzer dieser Beziehung) zurueck.
 	 * @return Der Ausgangsuser
 	 */
 	public User getUser() {
@@ -112,7 +112,7 @@ public class UserRelation {
 	}
 
 	/**
-	 * Setzt den Ausgangsuser (Besitzer dieser Beziehung)
+	 * Setzt den Ausgangsuser (Besitzer dieser Beziehung).
 	 * @param user Der neue Ausgangsuser
 	 */
 	public void setUser(User user) {
@@ -120,7 +120,7 @@ public class UserRelation {
 	}
 
 	/**
-	 * Gibt die ID zurueck
+	 * Gibt die ID zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -128,7 +128,7 @@ public class UserRelation {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

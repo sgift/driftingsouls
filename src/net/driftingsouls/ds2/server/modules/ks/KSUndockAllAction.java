@@ -29,13 +29,13 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 
 /**
- * Dockt alle Schiffe vom gerade ausgewaehlten Schiff ab
+ * Dockt alle Schiffe vom gerade ausgewaehlten Schiff ab.
  * @author Christopher Jung
  *
  */
 public class KSUndockAllAction extends BasicKSAction {
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public KSUndockAllAction() {

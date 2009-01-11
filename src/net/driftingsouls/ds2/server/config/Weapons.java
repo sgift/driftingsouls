@@ -38,7 +38,7 @@ import org.w3c.dom.NodeList;
 
 /**
  * Repraesentiert die Liste aller bekannten Waffen in DS sowie einige
- * Hilfsfunktionen
+ * Hilfsfunktionen.
  * @author Christopher Jung
  *
  */
@@ -52,13 +52,14 @@ public class Weapons implements Iterable<Weapon> {
 	}
 	
 	/**
-	 * Gibt eine Instanz der Waffenliste zurueck
+	 * Gibt eine Instanz der Waffenliste zurueck.
 	 * @return die Instanz der Waffenliste
 	 */
 	public static Weapons get() {
 		return instance;
 	}
 	
+	@Override
 	public Iterator<Weapon> iterator() {
 		return list.values().iterator();
 	}
@@ -97,7 +98,7 @@ public class Weapons implements Iterable<Weapon> {
 	}
 	
 	/**
-	 * Packt eine Waffen-Map wieder in einen String zusammen
+	 * Packt eine Waffen-Map wieder in einen String zusammen.
 	 * @param weapons die Waffen-Map
 	 * @return der Waffen-String
 	 */

@@ -21,36 +21,36 @@ package net.driftingsouls.ds2.server.config.items;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 
 /**
- * Repraesentiert einen Item-Typ in DS
+ * Repraesentiert einen Item-Typ in DS.
  * 
  * @author Christopher Jung
  *
  */
 public class Item {
 	/**
-	 * Enthaelt die moeglichen Qualitaetsstufen eines Items
+	 * Enthaelt die moeglichen Qualitaetsstufen eines Items.
 	 * @author Christopher Jung
 	 *
 	 */
 	public enum Quality {
 		/**
-		 * Gewoehnliches Item
+		 * Gewoehnliches Item.
 		 */
 		COMMON(0,""),
 		/**
-		 * Seltenes Item
+		 * Seltenes Item.
 		 */
 		RARE(1,"#3CB371"),
 		/**
-		 * Sehr seltenes Item
+		 * Sehr seltenes Item.
 		 */
 		ULTRA_RARE(2,"#BA55D3"),
 		/**
-		 * Episches (noch selteners) Item
+		 * Episches (noch selteners) Item.
 		 */
 		EPIC(3,"#FF8C00"),
 		/**
-		 * Artefakt (am seltensten) oder Admin-Item
+		 * Artefakt (am seltensten) oder Admin-Item.
 		 */
 		ARTIFACT(4,"#DC143C");
 		
@@ -86,7 +86,7 @@ public class Item {
 		/**
 		 * Konvertiert ein String in einen Qualitaetswert. Sollte kein passender
 		 * Qualitaetswert existieren wird <code>COMMON</code> zurueckgegeben
-		 * @param quality Der String, welcher den Qualitaetswert als Text enthaelt
+		 * @param quality Der String, welcher den Qualitaetswert als Text enthaelt.
 		 * @return Der Qualitaetswert
 		 */
 		public static Quality fromString(String quality) {
@@ -135,7 +135,7 @@ public class Item {
 	}
 	
 	/**
-	 * Gibt die ID des Item-Typs zurueck
+	 * Gibt die ID des Item-Typs zurueck.
 	 * @return die ID
 	 */
 	public int getID() {
@@ -143,7 +143,7 @@ public class Item {
 	}
 	
 	/**
-	 * Gibt den Namen des Item-Typs zurueck
+	 * Gibt den Namen des Item-Typs zurueck.
 	 * @return der Name
 	 */
 	public String getName() {
@@ -165,7 +165,7 @@ public class Item {
 	}
 	
 	/**
-	 * Gibt den verbrauchten Cargo einer Einheit dieses Item-Typs zurueck
+	 * Gibt den verbrauchten Cargo einer Einheit dieses Item-Typs zurueck.
 	 * @return der Cargo
 	 */
 	public long getCargo() {
@@ -187,7 +187,7 @@ public class Item {
 	
 	/**
 	 * Gibt <code>true</code> zurueck, falls dieses Item in Menues explizit
-	 * angezeigt werden soll, wo Items normalerweise nicht gelistet werden (z.B. im Handel)
+	 * angezeigt werden soll, wo Items normalerweise nicht gelistet werden (z.B. im Handel).
 	 * 
 	 * @return <code>true</code>, falls es explizit angezeigt werden soll
 	 */
@@ -196,7 +196,7 @@ public class Item {
 	}
 	
 	/**
-	 * Gibt den Qualitaetswert des Items zurueck
+	 * Gibt den Qualitaetswert des Items zurueck.
 	 * @return der Qualitaetswert
 	 */
 	public Quality getQuality() {
@@ -237,7 +237,7 @@ public class Item {
 	
 	/**
 	 * Gibt zurueck, falls das Item ein per default unbekanntes Item ist und erst nach seiner
-	 * Entdeckung durch den Benutzer angezeigt wird
+	 * Entdeckung durch den Benutzer angezeigt wird.
 	 * @return <code>true</code>, falls es ein unbekanntes Item ist
 	 */
 	public boolean isUnknownItem() {

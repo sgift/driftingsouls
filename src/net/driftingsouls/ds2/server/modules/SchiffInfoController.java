@@ -50,7 +50,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Die Schiffstypen-Infos
+ * Die Schiffstypen-Infos.
  * @author Christopher Jung
  *
  */
@@ -60,7 +60,7 @@ public class SchiffInfoController extends TemplateGenerator {
 	private ShipBaubar shipBuildData = null;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public SchiffInfoController(Context context) {

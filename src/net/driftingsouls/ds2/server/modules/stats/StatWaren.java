@@ -45,7 +45,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Zeigt die insgesamt vorkommenden sowie die eigenen Waren an. Bei Items werden zudem,
- * falls vorhanden, die Aufenthaltsorte angezeigt
+ * falls vorhanden, die Aufenthaltsorte angezeigt.
  * @author Christopher Jung
  *
  */
@@ -54,7 +54,7 @@ public class StatWaren implements Statistic {
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -63,6 +63,7 @@ public class StatWaren implements Statistic {
     	this.config = config;
     }
 	
+    @Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
@@ -216,10 +217,12 @@ public class StatWaren implements Statistic {
 		echo.append("</table><br /><br />\n");
 	}
 
+    @Override
 	public boolean generateAllyData() {
 		return false;
 	}
 	
+    @Override
 	public int getRequiredData() {
 		return 0;
 	}

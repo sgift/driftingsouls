@@ -29,12 +29,12 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.StatsController;
 
 /**
- * Zeigt an, wie oft ein Schiff in DS vorkommt
+ * Zeigt an, wie oft ein Schiff in DS vorkommt.
  * @author Christopher Jung
  *
  */
 public class StatShips implements Statistic {
-
+	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
@@ -55,10 +55,12 @@ public class StatShips implements Statistic {
 		echo.append("</table><br /><br />");
 	}
 
+	@Override
 	public boolean generateAllyData() {
 		return false;
 	}
 	
+	@Override
 	public int getRequiredData() {
 		return 0;
 	}

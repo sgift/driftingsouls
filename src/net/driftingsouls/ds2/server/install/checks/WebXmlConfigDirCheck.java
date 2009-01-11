@@ -29,12 +29,12 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
 
 /**
- * Ueberprueft, ob die config.xml geparset werden kann
+ * Ueberprueft, ob die config.xml geparset werden kann.
  * @author Christopher Jung
  *
  */
 public class WebXmlConfigDirCheck implements Checkable {
-
+	@Override
 	public void doCheck() throws CheckFailedException {
 		try {
 			XPathFactory xFactory = XPathFactory.newInstance();
@@ -71,6 +71,7 @@ public class WebXmlConfigDirCheck implements Checkable {
 		}
 	}
 
+	@Override
 	public String getDescription() {
 		return "web.xml: configdir pruefen";
 	}

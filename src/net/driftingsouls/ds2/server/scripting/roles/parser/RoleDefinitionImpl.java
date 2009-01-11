@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Implementiert die Rollendefinition
+ * Implementiert die Rollendefinition.
  * @author Christopher Jung
  *
  */
@@ -35,7 +35,7 @@ class RoleDefinitionImpl implements RoleDefinition {
 	}
 	
 	/**
-	 * Setzt den Rollennamen
+	 * Setzt den Rollennamen.
 	 * @param roleName Der Rollenname
 	 */
 	public void setRoleName(String roleName) {
@@ -47,7 +47,7 @@ class RoleDefinitionImpl implements RoleDefinition {
 	}
 	
 	/**
-	 * Setzt das Attribut auf den angegebenen Wert
+	 * Setzt das Attribut auf den angegebenen Wert.
 	 * @param name Der Name des Attributs
 	 * @param value Der Wert
 	 */

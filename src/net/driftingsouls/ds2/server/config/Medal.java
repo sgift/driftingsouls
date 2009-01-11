@@ -19,21 +19,21 @@
 package net.driftingsouls.ds2.server.config;
 
 /**
- * Repraesentiert einen Orden in DS
+ * Repraesentiert einen Orden in DS.
  * @author Chirstopher Jung
  *
  */
 public class Medal {
 	/**
-	 * Das normale Bild
+	 * Das normale Bild.
 	 */
 	public static final int IMAGE_NORMAL = 1;
 	/**
-	 * Das Highlight-Bild
+	 * Das Highlight-Bild.
 	 */
 	public static final int IMAGE_HIGHLIGHT = 2;
 	/**
-	 * Das kleine Bild
+	 * Das kleine Bild.
 	 */
 	public static final int IMAGE_SMALL = 3;
 	
@@ -45,7 +45,7 @@ public class Medal {
 	private boolean adminOnly;
 	
 	/**
-	 * Erstellt einen neuen Orden
+	 * Erstellt einen neuen Orden.
 	 * @param id die ID des Ordens
 	 * @param name der Name des Ordens
 	 */
@@ -56,7 +56,7 @@ public class Medal {
 	}
 	
 	/**
-	 * Setzt die Bilder des Ordens
+	 * Setzt die Bilder des Ordens.
 	 * @param image Das normale Bild
 	 * @param imageh Das highlight-Bild
 	 * @param imagesmall das kleine Bild
@@ -76,7 +76,7 @@ public class Medal {
 	}
 	
 	/**
-	 * Gibt zurueck, ob der Orden nur von Admins verliehen werden kann
+	 * Gibt zurueck, ob der Orden nur von Admins verliehen werden kann.
 	 * @return <code>true</code>, falls der Orden nur von Admins verliehen werden kann
 	 */
 	public boolean isAdminOnly() {
@@ -84,7 +84,7 @@ public class Medal {
 	}
 	
 	/**
-	 * Gibt die ID des Ordens zurueck
+	 * Gibt die ID des Ordens zurueck.
 	 * @return die ID des Ordens
 	 */
 	public int getID() {
@@ -92,7 +92,7 @@ public class Medal {
 	}
 	
 	/**
-	 * Gibt den Namen des Ordens zurueck
+	 * Gibt den Namen des Ordens zurueck.
 	 * @return der Name des Ordens
 	 */
 	public String getName() {
@@ -100,7 +100,7 @@ public class Medal {
 	}
 	
 	/**
-	 * Gibt das angegebene Bild des Ordens zurueck
+	 * Gibt das angegebene Bild des Ordens zurueck.
 	 * @param imageid der Typ des Bildes
 	 * @return der Pfad zum Bild oder <code>null</code>
 	 */

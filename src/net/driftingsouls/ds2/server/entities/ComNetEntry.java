@@ -33,9 +33,9 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
- * <p>Ein Post im ComNet</p>
+ * <p>Ein Post im ComNet.</p>
  * <p>Ein Post existiert auch nach entfernen des Posters aus dem System
- * weiterhin und wird dann an den Spieler 0 gebunden</p>
+ * weiterhin und wird dann an den Spieler 0 gebunden.</p>
  * @author Christopher Jung
  *
  */
@@ -63,7 +63,7 @@ public class ComNetEntry {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public ComNetEntry() {
@@ -71,7 +71,7 @@ public class ComNetEntry {
 	}
 	
 	/**
-	 * Erstellt einen neuen Post fuer den aktuellen Zeitpunkt
+	 * Erstellt einen neuen Post fuer den aktuellen Zeitpunkt.
 	 * @param user Der User, der den Post erstellt hat
 	 * @param channel Der Channel, in dem gepostet werden soll
 	 */
@@ -86,7 +86,7 @@ public class ComNetEntry {
 	}
 
 	/**
-	 * Gibt die Nummer des Ally-Pics zurueck
+	 * Gibt die Nummer des Ally-Pics zurueck.
 	 * @return Die Nummer
 	 */
 	public int getAllyPic() {
@@ -94,7 +94,7 @@ public class ComNetEntry {
 	}
 	
 	/**
-	 * Setzt die Nummer des Ally-Pics
+	 * Setzt die Nummer des Ally-Pics.
 	 * @param allyPic Die Nummer
 	 */
 	public final void setAllyPic(int allyPic) {
@@ -102,7 +102,7 @@ public class ComNetEntry {
 	}
 
 	/**
-	 * Gibt den ComNet-Kanal zurueck, in dem sich der Post befindet
+	 * Gibt den ComNet-Kanal zurueck, in dem sich der Post befindet.
 	 * @return Der ComNet-Kanal
 	 */
 	public ComNetChannel getChannel() {
@@ -110,7 +110,7 @@ public class ComNetEntry {
 	}
 
 	/**
-	 * Setzt den ComNet-Kanal, in dem sich der Post befindet
+	 * Setzt den ComNet-Kanal, in dem sich der Post befindet.
 	 * @param channel Der ComNet-Kanal
 	 */
 	public final void setChannel(ComNetChannel channel) {
@@ -118,7 +118,7 @@ public class ComNetEntry {
 	}
 
 	/**
-	 * Gibt den Titel des Posts zurueck
+	 * Gibt den Titel des Posts zurueck.
 	 * @return Der Titel
 	 */
 	public String getHead() {
@@ -126,7 +126,7 @@ public class ComNetEntry {
 	}
 
 	/**
-	 * Setzt den Titel des Posts
+	 * Setzt den Titel des Posts.
 	 * @param head Der Titel
 	 */
 	public void setHead(String head) {
@@ -134,7 +134,7 @@ public class ComNetEntry {
 	}
 
 	/**
-	 * Gibt den Namen des Spielers zurueck
+	 * Gibt den Namen des Spielers zurueck.
 	 * @return Der Name
 	 */
 	public String getName() {
@@ -142,7 +142,7 @@ public class ComNetEntry {
 	}
 
 	/**
-	 * Setzt den Namen des Spielers
+	 * Setzt den Namen des Spielers.
 	 * @param name Der Name
 	 */
 	public void setName(String name) {
@@ -150,7 +150,7 @@ public class ComNetEntry {
 	}
 
 	/**
-	 * Gibt die Nummer des Spieler-Pics zurueck
+	 * Gibt die Nummer des Spieler-Pics zurueck.
 	 * @return Die Nummer
 	 */
 	public int getPic() {
@@ -158,7 +158,7 @@ public class ComNetEntry {
 	}
 
 	/**
-	 * Setzt die Nummer des Spieler-Pics
+	 * Setzt die Nummer des Spieler-Pics.
 	 * @param pic Die Nummer
 	 */
 	public final void setPic(int pic) {
@@ -166,7 +166,7 @@ public class ComNetEntry {
 	}
 
 	/**
-	 * Gibt den Text des Posts zurueck
+	 * Gibt den Text des Posts zurueck.
 	 * @return Der Text
 	 */
 	public String getText() {
@@ -174,7 +174,7 @@ public class ComNetEntry {
 	}
 
 	/**
-	 * Setzt den Text des Posts
+	 * Setzt den Text des Posts.
 	 * @param text Der Text
 	 */
 	public void setText(String text) {
@@ -182,7 +182,7 @@ public class ComNetEntry {
 	}
 
 	/**
-	 * Gibt den Tick zurueck, an dem der Post erstellt wurde
+	 * Gibt den Tick zurueck, an dem der Post erstellt wurde.
 	 * @return Der Tick
 	 */
 	public int getTick() {
@@ -190,7 +190,7 @@ public class ComNetEntry {
 	}
 
 	/**
-	 * Setzt den Tick, an dem der Post erstellt wurde
+	 * Setzt den Tick, an dem der Post erstellt wurde.
 	 * @param tick Der Tick
 	 */
 	public final void setTick(int tick) {
@@ -198,7 +198,7 @@ public class ComNetEntry {
 	}
 
 	/**
-	 * Gibt den Zeitpunkt des Posts zurueck
+	 * Gibt den Zeitpunkt des Posts zurueck.
 	 * @return Der Zeitpunkt
 	 */
 	public long getTime() {
@@ -206,7 +206,7 @@ public class ComNetEntry {
 	}
 
 	/**
-	 * Setzt den Zeitpunkt des Posts
+	 * Setzt den Zeitpunkt des Posts.
 	 * @param time Der Zeitpunkt
 	 */
 	public void setTime(long time) {
@@ -214,7 +214,7 @@ public class ComNetEntry {
 	}
 
 	/**
-	 * Gibt den User zurueck, der den Post erstellt hat
+	 * Gibt den User zurueck, der den Post erstellt hat.
 	 * @return Der User
 	 */
 	public User getUser() {
@@ -222,7 +222,7 @@ public class ComNetEntry {
 	}
 
 	/**
-	 * Setzt den User, der den Post erstellt hat
+	 * Setzt den User, der den Post erstellt hat.
 	 * @param user Der User
 	 */
 	public final void setUser(final User user) {
@@ -230,7 +230,7 @@ public class ComNetEntry {
 	}
 
 	/**
-	 * Gibt die ID es Posts zurueck
+	 * Gibt die ID es Posts zurueck.
 	 * @return Die ID
 	 */
 	public int getPost() {
@@ -238,7 +238,7 @@ public class ComNetEntry {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

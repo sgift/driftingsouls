@@ -39,7 +39,7 @@ import org.hibernate.annotations.Type;
 
 // TODO: Warum Verbrauch/Produktion unterscheiden?
 /**
- * Basisklasse fuer alle Gebaeudetypen
+ * Basisklasse fuer alle Gebaeudetypen.
  * 
  * @author Christopher Jung
  *
@@ -52,7 +52,7 @@ import org.hibernate.annotations.Type;
 @Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
 public abstract class Building {
 	/**
-	 * Die ID des Kommandozentralen-Gebaeudes
+	 * Die ID des Kommandozentralen-Gebaeudes.
 	 */
 	public static final int KOMMANDOZENTRALE = 1;
 	
@@ -100,7 +100,7 @@ public abstract class Building {
 	private boolean deakable;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public Building() {
@@ -108,7 +108,7 @@ public abstract class Building {
 	}
 
 	/**
-	 * Gibt die ID des Gebaeudetyps zurueck
+	 * Gibt die ID des Gebaeudetyps zurueck.
 	 * @return Die ID des Gebaeudetyps
 	 */
 	public int getId() {
@@ -116,7 +116,7 @@ public abstract class Building {
 	}
 	
 	/**
-	 * Gibt den Namen des Gebaeudetyps zurueck
+	 * Gibt den Namen des Gebaeudetyps zurueck.
 	 * @return Der Name
 	 */
 	public String getName() {
@@ -124,7 +124,7 @@ public abstract class Building {
 	}
 	
 	/**
-	 * Gibt das zum Gebaeudetyp gehoerende Bild zurueck
+	 * Gibt das zum Gebaeudetyp gehoerende Bild zurueck.
 	 * @return Das Bild
 	 */
 	public String getPicture() {
@@ -132,7 +132,7 @@ public abstract class Building {
 	}
 	
 	/**
-	 * Gibt die fuer das Gebaeude anfallenden Baukosten zurueck
+	 * Gibt die fuer das Gebaeude anfallenden Baukosten zurueck.
 	 * @return Die Baukosten
 	 */
 	public Cargo getBuildCosts() {
@@ -140,7 +140,7 @@ public abstract class Building {
 	}
 	
 	/**
-	 * Gibt die Produktion des Gebaeudes pro Tick zurueck
+	 * Gibt die Produktion des Gebaeudes pro Tick zurueck.
 	 * @return Die Produktion
 	 */
 	public Cargo getProduces() {
@@ -148,7 +148,7 @@ public abstract class Building {
 	}
 	
 	/**
-	 * Gibt den Verbrauch des Gebaeudes pro Tick zurueck
+	 * Gibt den Verbrauch des Gebaeudes pro Tick zurueck.
 	 * @return Der Verbrauch
 	 */
 	public Cargo getConsumes() {
@@ -156,7 +156,7 @@ public abstract class Building {
 	}
 	
 	/**
-	 * Gibt die Anzahl Wohnraum zurueck, die das Gebaeude schafft
+	 * Gibt die Anzahl Wohnraum zurueck, die das Gebaeude schafft.
 	 * @return Der Wohnraum
 	 */
 	public int getBewohner() {
@@ -164,7 +164,7 @@ public abstract class Building {
 	}
 	
 	/**
-	 * Gibt die Anzahl der Arbeiter zurueck, die das Gebaeude fuer den Betrieb benoetigt
+	 * Gibt die Anzahl der Arbeiter zurueck, die das Gebaeude fuer den Betrieb benoetigt.
 	 * @return Die Anzahl der Arbeiter
 	 */
 	public int getArbeiter() {
@@ -172,7 +172,7 @@ public abstract class Building {
 	}
 	
 	/**
-	 * Gibt den Energieverbrauch des Gebaeudes pro Tick zurueck
+	 * Gibt den Energieverbrauch des Gebaeudes pro Tick zurueck.
 	 * @return Der Energieverbrauch
 	 */
 	public int getEVerbrauch() {
@@ -180,7 +180,7 @@ public abstract class Building {
 	}
 	
 	/**
-	 * Gibt die Energieproduktion des Gebaeudes pro Tick zurueck
+	 * Gibt die Energieproduktion des Gebaeudes pro Tick zurueck.
 	 * @return die Energieproduktion
 	 */
 	public int getEProduktion() {
@@ -188,7 +188,7 @@ public abstract class Building {
 	}
 	
 	/**
-	 * Gibt die ID der zum Bau benoetigten Forschung zurueck
+	 * Gibt die ID der zum Bau benoetigten Forschung zurueck.
 	 * @return die benoetigte Forschung
 	 */
 	public int getTechRequired() {
@@ -196,7 +196,7 @@ public abstract class Building {
 	}
 	
 	/**
-	 * Unbekannt (?????) - Wird aber auch nicht verwendet
+	 * Unbekannt (?????) - Wird aber auch nicht verwendet.
 	 * @return ????
 	 */
 	public int getEPS() {
@@ -222,7 +222,7 @@ public abstract class Building {
 	}
 	
 	/**
-	 * Gibt die ID der Kategorie des Gebaeudes zurueck
+	 * Gibt die ID der Kategorie des Gebaeudes zurueck.
 	 * @return die ID der Kategorie
 	 */
 	public int getCategory() {
@@ -230,7 +230,7 @@ public abstract class Building {
 	}
 	
 	/**
-	 * Gibt <code>true</code> zurueck, falls das Gebaeude ein unterirdischer Komplex ist
+	 * Gibt <code>true</code> zurueck, falls das Gebaeude ein unterirdischer Komplex ist.
 	 * @return <code>true</code>, falls es ein unterirdischer Komplex ist
 	 */
 	public boolean isUComplex() {
@@ -238,7 +238,7 @@ public abstract class Building {
 	}
 	
 	/**
-	 * Gibt <code>true</code> zurueck, falls das Gebaeude deaktivierbar ist
+	 * Gibt <code>true</code> zurueck, falls das Gebaeude deaktivierbar ist.
 	 * @return <code>true</code>, falls das Gebaeude deaktivierbar ist
 	 */
 	public boolean isDeakAble() {
@@ -246,20 +246,20 @@ public abstract class Building {
 	}
 
 	/**
-	 * Wird aufgerufen, wenn das Gebaeude auf einer Basis gebaut wurde
+	 * Wird aufgerufen, wenn das Gebaeude auf einer Basis gebaut wurde.
 	 * @param base Die Basis
 	 */
 	public abstract void build( Base base );
 	
 	/**
-	 * Wird aufgerufen, wenn das Gebaeude auf einer Basis abgerissen wurde
+	 * Wird aufgerufen, wenn das Gebaeude auf einer Basis abgerissen wurde.
 	 * @param context Der aktive Kontext
 	 * @param base Die Basis
 	 */
 	public abstract void cleanup( Context context, Base base );
 	
 	/**
-	 * Modifiziert das stats-objekt der Basis um die Stats dieses Gebaeudes
+	 * Modifiziert das stats-objekt der Basis um die Stats dieses Gebaeudes.
 	 * @param base Die Basis
 	 * @param stats Ein Cargo-Objekt mit dem aktuellen Stats
 	 * @return Warnungen fuer den Benutzer/Fuers Log
@@ -267,7 +267,7 @@ public abstract class Building {
 	public abstract String modifyStats( Base base, Cargo stats );
 	
 	/**
-	 * Gibt <code>true</code> zurueck, wenn das Gebaeude aktiv ist
+	 * Gibt <code>true</code> zurueck, wenn das Gebaeude aktiv ist.
 	 * @param base Die Basis
 	 * @param status der aktuelle Aktivierungsstatus (0 oder 1)
 	 * @param field Das Feld, auf dem das Gebaeude steht
@@ -277,7 +277,7 @@ public abstract class Building {
 	
 	/**
 	 * Generiert einen Shortcut-Link (String) sofern notwendig. Sollte das Gebaeude keinen haben 
-	 * wird ein leerer String zurueckgegeben
+	 * wird ein leerer String zurueckgegeben.
 	 * @param context der aktive Kontext
 	 * @param base Die Basis
 	 * @param field Das Feld, auf dem das Gebaeude steht
@@ -288,19 +288,19 @@ public abstract class Building {
 	
 	/**
 	 * Gibt <code>true</code> zurueck, wenn eine Kopfzeile ausgegeben werden soll (Enthaelt den Namen des Gebaeudes und ggf dessen Bild.
-	 * Dies ist jedoch von {@link #classicDesign()} abhaengig)
+	 * Dies ist jedoch von {@link #classicDesign()} abhaengig).
 	 * @return <code>true</code>, falls der Header ausgegeben werden soll
 	 */
 	public abstract boolean printHeader();
 	
 	/**
-	 * Gibt <code>true</code> zurueck, wenn das klassische Design fuer die Gebaeudeseite verwendet werden soll
+	 * Gibt <code>true</code> zurueck, wenn das klassische Design fuer die Gebaeudeseite verwendet werden soll.
 	 * @return <code>true</code>,falls das klassische Design verwendet werden soll
 	 */
 	public abstract boolean classicDesign();
 	
 	/**
-	 * Gibt die eigendliche UI des Gebaeudes aus
+	 * Gibt die eigendliche UI des Gebaeudes aus.
 	 * @param context Der aktive Kontext
 	 * @param t Eine Instanz des zu verwendenden TemplateEngines
 	 * @param base Die ID der Basis

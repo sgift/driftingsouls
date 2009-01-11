@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.config;
 
 /**
- * Kennzeichnet einen ungueltigen Waffenbezeichner
+ * Kennzeichnet einen ungueltigen Waffenbezeichner.
  * @author Christopher Jung
  *
  */
@@ -27,7 +27,7 @@ public class NoSuchWeaponException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param weapon Der Bezeichner der ungueltigen Waffe
 	 */
 	public NoSuchWeaponException(String weapon) {

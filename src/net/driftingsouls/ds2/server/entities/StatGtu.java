@@ -30,7 +30,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
 /**
- * Ein Statistikeintrag fuer ein in der Gtu versteigertes Objekt
+ * Ein Statistikeintrag fuer ein in der Gtu versteigertes Objekt.
  * @author Christopher Jung
  *
  */
@@ -55,7 +55,7 @@ public class StatGtu {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public StatGtu() {
@@ -63,7 +63,7 @@ public class StatGtu {
 	}
 	
 	/**
-	 * Erstellt einen neuen Statistikeintrag fuer die angegebene Versteigerung
+	 * Erstellt einen neuen Statistikeintrag fuer die angegebene Versteigerung.
 	 * @param entry Die Versteigerung
 	 * @param gtuGewinn Der Gewinn der GTU in Prozent (0-100)
 	 */
@@ -89,7 +89,7 @@ public class StatGtu {
 	}
 	
 	/**
-	 * Erstellt einen neuen Statistikeintrag fuer die angegebene Paketversteigerung
+	 * Erstellt einen neuen Statistikeintrag fuer die angegebene Paketversteigerung.
 	 * @param entry Die Versteigerung
 	 */
 	public StatGtu(PaketVersteigerung entry) {
@@ -116,7 +116,7 @@ public class StatGtu {
 	}
 
 	/**
-	 * Gibt den Gewinn der Gtu in Prozent (0-100) zurueck
+	 * Gibt den Gewinn der Gtu in Prozent (0-100) zurueck.
 	 * @return Der Gewinn
 	 */
 	public double getGtuGew() {
@@ -124,7 +124,7 @@ public class StatGtu {
 	}
 
 	/**
-	 * Setzt den Gewinn der Gtu in Prozent (0-100)
+	 * Setzt den Gewinn der Gtu in Prozent (0-100).
 	 * @param gtuGew Der Gewinn (0-100)
 	 */
 	public void setGtuGew(double gtuGew) {
@@ -132,7 +132,7 @@ public class StatGtu {
 	}
 
 	/**
-	 * Gibt die ID des Eintrags zurueck
+	 * Gibt die ID des Eintrags zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -140,7 +140,7 @@ public class StatGtu {
 	}
 
 	/**
-	 * Gibt den Obertyp des versteigerten Objekts zurueck
+	 * Gibt den Obertyp des versteigerten Objekts zurueck.
 	 * @return Der Obertyp
 	 */
 	public int getMType() {
@@ -148,7 +148,7 @@ public class StatGtu {
 	}
 
 	/**
-	 * Setzt den Obertyp des versteigerten Objekts
+	 * Setzt den Obertyp des versteigerten Objekts.
 	 * @param type Der Obertyp
 	 */
 	public void setMType(int type) {
@@ -156,7 +156,7 @@ public class StatGtu {
 	}
 
 	/**
-	 * Gibt den Besitzer der Versteigerung zurueck
+	 * Gibt den Besitzer der Versteigerung zurueck.
 	 * @return Der Besitzer
 	 */
 	public int getOwner() {
@@ -164,7 +164,7 @@ public class StatGtu {
 	}
 
 	/**
-	 * Setzt den Besitzer der Versteigerung
+	 * Setzt den Besitzer der Versteigerung.
 	 * @param owner Der Besitzer
 	 */
 	public void setOwner(int owner) {
@@ -172,7 +172,7 @@ public class StatGtu {
 	}
 
 	/**
-	 * Gibt den Namen des Besitzers zurueck
+	 * Gibt den Namen des Besitzers zurueck.
 	 * @return Der Name
 	 */
 	public String getOwnername() {
@@ -180,7 +180,7 @@ public class StatGtu {
 	}
 
 	/**
-	 * Setzt den Namen des Besitzers
+	 * Setzt den Namen des Besitzers.
 	 * @param ownername Der Name
 	 */
 	public void setOwnername(String ownername) {
@@ -188,7 +188,7 @@ public class StatGtu {
 	}
 
 	/**
-	 * Gibt den Versteigerungspreis zurueck
+	 * Gibt den Versteigerungspreis zurueck.
 	 * @return Der Preis
 	 */
 	public long getPrice() {
@@ -196,7 +196,7 @@ public class StatGtu {
 	}
 
 	/**
-	 * Setzt den Versteigrungspreis
+	 * Setzt den Versteigrungspreis.
 	 * @param price Der Preis
 	 */
 	public void setPrice(long price) {
@@ -204,7 +204,7 @@ public class StatGtu {
 	}
 
 	/**
-	 * Gibt den Untertyp des versteigerten Objekts zurueck
+	 * Gibt den Untertyp des versteigerten Objekts zurueck.
 	 * @return Der Untertyp
 	 */
 	public String getType() {
@@ -212,7 +212,7 @@ public class StatGtu {
 	}
 
 	/**
-	 * Setzt den Untertyp des versteigerten Objekts
+	 * Setzt den Untertyp des versteigerten Objekts.
 	 * @param type Der Untertyp
 	 */
 	public void setType(String type) {
@@ -220,7 +220,7 @@ public class StatGtu {
 	}
 
 	/**
-	 * Gibt den User zurueck, der das Objekt ersteigert hat
+	 * Gibt den User zurueck, der das Objekt ersteigert hat.
 	 * @return Der User
 	 */
 	public int getUserId() {
@@ -228,7 +228,7 @@ public class StatGtu {
 	}
 
 	/**
-	 * Setzt den User, der das Objekt ersteigert hat
+	 * Setzt den User, der das Objekt ersteigert hat.
 	 * @param userId Der User
 	 */
 	public void setUserId(int userId) {
@@ -236,7 +236,7 @@ public class StatGtu {
 	}
 
 	/**
-	 * Gibt den Namen des Users zurueck, der das Objekt ersteigert hat
+	 * Gibt den Namen des Users zurueck, der das Objekt ersteigert hat.
 	 * @return Der Name
 	 */
 	public String getUsername() {
@@ -244,7 +244,7 @@ public class StatGtu {
 	}
 
 	/**
-	 * Setzt den Namen des Users, der das Objekt ersteigert hat
+	 * Setzt den Namen des Users, der das Objekt ersteigert hat.
 	 * @param username Der Name
 	 */
 	public void setUsername(String username) {
@@ -252,7 +252,7 @@ public class StatGtu {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

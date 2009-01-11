@@ -35,7 +35,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
 /**
- * <h1>Ein zu Versteigerndes Paket</h1>
+ * <h1>Ein zu Versteigerndes Paket.</h1>
  * <p>Ein Paket besteht aus einer Anzahl an Schiffen sowie einem Cargo
  * mit Resourcen</p>
  * 
@@ -60,7 +60,7 @@ public class PaketVersteigerung {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public PaketVersteigerung() {
@@ -68,7 +68,7 @@ public class PaketVersteigerung {
 	}
 	
 	/**
-	 * Erstellt eine neue Versteigerung
+	 * Erstellt eine neue Versteigerung.
 	 * @param owner Der default-Bieter
 	 * @param price Der Startpreis
 	 */
@@ -79,7 +79,7 @@ public class PaketVersteigerung {
 	}
 
 	/**
-	 * Gibt den Bieter zurueck
+	 * Gibt den Bieter zurueck.
 	 * @return Der Bieter
 	 */
 	public User getBieter() {
@@ -87,7 +87,7 @@ public class PaketVersteigerung {
 	}
 
 	/**
-	 * Setzt den Bieter
+	 * Setzt den Bieter.
 	 * @param bieter Der Bieter
 	 */
 	public void setBieter(User bieter) {
@@ -95,7 +95,7 @@ public class PaketVersteigerung {
 	}
 
 	/**
-	 * Gibt den aktuellen Preis zurueck
+	 * Gibt den aktuellen Preis zurueck.
 	 * @return Der Preis
 	 */
 	public long getPreis() {
@@ -103,7 +103,7 @@ public class PaketVersteigerung {
 	}
 
 	/**
-	 * Setzt den aktuellen Preis
+	 * Setzt den aktuellen Preis.
 	 * @param preis Der Preis
 	 */
 	public void setPreis(long preis) {
@@ -111,7 +111,7 @@ public class PaketVersteigerung {
 	}
 
 	/**
-	 * Gibt den Tick zurueck, an dem die Versteigerung endet
+	 * Gibt den Tick zurueck, an dem die Versteigerung endet.
 	 * @return Der Tick
 	 */
 	public int getTick() {
@@ -119,7 +119,7 @@ public class PaketVersteigerung {
 	}
 
 	/**
-	 * Setzt den Tick, an dem die Versteigerung endet
+	 * Setzt den Tick, an dem die Versteigerung endet.
 	 * @param tick Der Tick
 	 */
 	public void setTick(int tick) {
@@ -127,7 +127,7 @@ public class PaketVersteigerung {
 	}
 
 	/**
-	 * Gibt die ID der Versteigerung zurueck
+	 * Gibt die ID der Versteigerung zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -135,7 +135,7 @@ public class PaketVersteigerung {
 	}
 	
 	/**
-	 * Gibt den Cargo zurueck
+	 * Gibt den Cargo zurueck.
 	 * @return Der Cargo
 	 */
 	public Cargo getCargo() {
@@ -143,7 +143,7 @@ public class PaketVersteigerung {
 	}
 	
 	/**
-	 * Setzt den Cargo
+	 * Setzt den Cargo.
 	 * @param cargo Der Cargo
 	 */
 	public void setCargo(Cargo cargo) {
@@ -170,7 +170,7 @@ public class PaketVersteigerung {
 	}
 	
 	/**
-	 * Fuegt einen Schiffstyp zur Liste der zu versteigernden Schiffe hinzu
+	 * Fuegt einen Schiffstyp zur Liste der zu versteigernden Schiffe hinzu.
 	 * @param type Der Typ, der hinzugefuegt werden soll
 	 */
 	public void addShipType(ShipType type) {
@@ -183,7 +183,7 @@ public class PaketVersteigerung {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

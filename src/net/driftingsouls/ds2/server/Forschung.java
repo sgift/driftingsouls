@@ -30,7 +30,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 /**
- * <h1>Repraesentiert eine Forschung in DS</h1>
+ * <h1>Repraesentiert eine Forschung in DS.</h1>
  * Hinweis zu den Forschungs-IDs:<br>
  * Eine normale Forschung hat eine ID ab 1<br>
  * "Keine Forschung"/"Keine Vorbedingung" hat die ID 0<br>
@@ -40,7 +40,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
  */
 public class Forschung {
 	/**
-	 * Beim Erforschen einer Forschung mit dieser Technologie, verliert
+	 * Beim Erforschen einer Forschung mit dieser Technologie, verliert.
 	 * der Spieler den Noob-Status
 	 */
 	public static final String FLAG_DROP_NOOB_PROTECTION = "drop_noob";
@@ -81,7 +81,7 @@ public class Forschung {
 	}
 	
 	/**
-	 * Leert den Forschungscache
+	 * Leert den Forschungscache.
 	 *
 	 */
 	public static void clearCache() {
@@ -132,7 +132,7 @@ public class Forschung {
 	}
 	
 	/**
-	 * Gibt die ID der Forschung zurueck
+	 * Gibt die ID der Forschung zurueck.
 	 * @return die ID
 	 */
 	public int getID() {
@@ -140,7 +140,7 @@ public class Forschung {
 	}
 	
 	/**
-	 * Gibt den Namen der Forschung zurueck
+	 * Gibt den Namen der Forschung zurueck.
 	 * @return Der Name
 	 */
 	public String getName() {
@@ -148,7 +148,7 @@ public class Forschung {
 	}
 	
 	/**
-	 * Gibt die ID einer der fuer diese Forschung benoetigten Forschungen zurueck
+	 * Gibt die ID einer der fuer diese Forschung benoetigten Forschungen zurueck.
 	 * @param number Die Nummer der benoetigten Forschung (1-3)
 	 * @return Die ID oder 0
 	 */
@@ -157,7 +157,7 @@ public class Forschung {
 	}
 	
 	/**
-	 * Gibt die Forschungsdauer in Ticks zurueck
+	 * Gibt die Forschungsdauer in Ticks zurueck.
 	 * @return Die Forschungsdauer
 	 */
 	public int getTime() {
@@ -165,7 +165,7 @@ public class Forschung {
 	}
 	
 	/**
-	 * Gibt die Forschungskosten als Cargo-String zurueck
+	 * Gibt die Forschungskosten als Cargo-String zurueck.
 	 * @return Die Forschungskosten
 	 */
 	public String getCosts() {
@@ -173,7 +173,7 @@ public class Forschung {
 	}
 	
 	/**
-	 * Gibt die Beschreibung der Forschung zurueck
+	 * Gibt die Beschreibung der Forschung zurueck.
 	 * @return Die Beschreibung
 	 */
 	public String getDescription() {
@@ -181,7 +181,7 @@ public class Forschung {
 	}
 	
 	/**
-	 * Gibt die ID der Rasse zurueck, der die Forschung zugeordnet ist
+	 * Gibt die ID der Rasse zurueck, der die Forschung zugeordnet ist.
 	 * @return Die ID der Rasse
 	 */
 	public int getRace() {
@@ -190,7 +190,7 @@ public class Forschung {
 	
 	/**
 	 * Prueft, ob die Forschung allgemein sichtbar ist oder erst sichtbar wird,
-	 * wenn alle benoetigten Forschungen erforscht sind
+	 * wenn alle benoetigten Forschungen erforscht sind.
 	 * @return <code>true</code>, falls die Forschung allgemein sichtbar ist
 	 */
 	public boolean isVisibile() {
@@ -198,7 +198,7 @@ public class Forschung {
 	}
 	
 	/**
-	 * Prueft, ob die Forschung ein bestimmtes Flag hat
+	 * Prueft, ob die Forschung ein bestimmtes Flag hat.
 	 * @param flag Das Flag
 	 * @return <code>true</code>, falls die Forschung das Flag besitzt
 	 */

@@ -24,7 +24,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Daten zu moeglichen Basis-Ausbauten
+ * Daten zu moeglichen Basis-Ausbauten.
  * @author Christoph Peltz
  *
  */
@@ -42,7 +42,7 @@ public class UpgradeInfo {
 	private int ore;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public UpgradeInfo() {
@@ -66,7 +66,7 @@ public class UpgradeInfo {
 	}
 
 	/**
-	 * Gibt die Klasse der Asteroiden zurueck, fuer die der Ausbau zutrifft
+	 * Gibt die Klasse der Asteroiden zurueck, fuer die der Ausbau zutrifft.
 	 * @return Die Klasse des Asteroiden
 	 */
 	public int getType() {
@@ -74,7 +74,7 @@ public class UpgradeInfo {
 	}
 
 	/**
-	 * Setzt die Klasse
+	 * Setzt die Klasse.
 	 * @param type Die neue Klasse des Asteroiden
 	 */
 	public void setType(int type) {
@@ -90,7 +90,7 @@ public class UpgradeInfo {
 	}
 
 	/**
-	 * Setzt den Zahlenwert der Modifikation
+	 * Setzt den Zahlenwert der Modifikation.
 	 * @param mod Zahlenwert der Modifikation
 	 */
 	public void setMod(int mod) {
@@ -98,7 +98,7 @@ public class UpgradeInfo {
 	}
 
 	/**
-	 * Weist aus, ob die Modifikation die Felder oder den Cargo betrifft
+	 * Weist aus, ob die Modifikation die Felder oder den Cargo betrifft.
 	 * @return Cargo-Flag
 	 */
 	public boolean getCargo() {
@@ -106,7 +106,7 @@ public class UpgradeInfo {
 	}
 
 	/**
-	 * Setzt das Cargo-oder-Felder-Flag
+	 * Setzt das Cargo-oder-Felder-Flag.
 	 * @param cargo Cargo-Flag
 	 */
 	public void setCargo(boolean cargo) {
@@ -114,7 +114,7 @@ public class UpgradeInfo {
 	}
 
 	/**
-	 * Gibt den Preis zurueck
+	 * Gibt den Preis zurueck.
 	 * @return Der Preis
 	 */
 	public int getPrice() {
@@ -122,7 +122,7 @@ public class UpgradeInfo {
 	}
 
 	/**
-	 * Setzt den Preis
+	 * Setzt den Preis.
 	 * @param price Preis
 	 */
 	public void setPrice(int price) {
@@ -146,7 +146,7 @@ public class UpgradeInfo {
 	}
 
 	/**
-	 * Gibt die Anzahl noetigen Erzes zurueck
+	 * Gibt die Anzahl noetigen Erzes zurueck.
 	 * @return Anzahl Erz
 	 */
 	public int getOre() {

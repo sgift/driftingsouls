@@ -24,7 +24,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Repraesentiert ein in der DB gespeichertes Script
+ * Repraesentiert ein in der DB gespeichertes Script.
  * @author Christopher Jung
  *
  */
@@ -37,7 +37,7 @@ public class Script {
 	private String script;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public Script() {
@@ -45,7 +45,7 @@ public class Script {
 	}
 	
 	/**
-	 * Erstellt ein neues Script
+	 * Erstellt ein neues Script.
 	 * @param name Der Name des Scripts
 	 * @param script Das Script selbst
 	 */
@@ -55,7 +55,7 @@ public class Script {
 	}
 
 	/**
-	 * Gibt den Namen des Scripts zurueck
+	 * Gibt den Namen des Scripts zurueck.
 	 * @return Der Name
 	 */
 	public String getName() {
@@ -63,7 +63,7 @@ public class Script {
 	}
 
 	/**
-	 * Setzt den Namen des Scripts
+	 * Setzt den Namen des Scripts.
 	 * @param name Der Name
 	 */
 	public void setName(String name) {
@@ -71,7 +71,7 @@ public class Script {
 	}
 
 	/**
-	 * Gibt das Script zurueck
+	 * Gibt das Script zurueck.
 	 * @return Das Script
 	 */
 	public String getScript() {
@@ -79,7 +79,7 @@ public class Script {
 	}
 
 	/**
-	 * Setzt das Script
+	 * Setzt das Script.
 	 * @param script Das Script
 	 */
 	public void setScript(String script) {
@@ -87,7 +87,7 @@ public class Script {
 	}
 
 	/**
-	 * Gibt die ID zurueck
+	 * Gibt die ID zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {

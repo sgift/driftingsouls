@@ -47,6 +47,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 @AdminMenuEntry(category = "Schiffe", name = "Schiff editieren")
 public class EditShip implements AdminPlugin
 {
+	@Override
 	public void output(AdminController controller, String page, int action) throws IOException
 	{
 		Context context = ContextMap.getContext();

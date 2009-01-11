@@ -66,7 +66,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Zeigt Informationen zu Items an
+ * Zeigt Informationen zu Items an.
  * @author Christopher Jung
  *
  */
@@ -75,7 +75,7 @@ public class ItemInfoController extends TemplateGenerator {
 	private Configuration config;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public ItemInfoController(Context context) {
@@ -87,7 +87,7 @@ public class ItemInfoController extends TemplateGenerator {
 	}
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -297,7 +297,7 @@ public class ItemInfoController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt Details zu einem Item an
+	 * Zeigt Details zu einem Item an.
 	 * @urlparam Integer itemid Die ID des anzuzeigenden Items
 	 */
 	@Action(ActionType.DEFAULT)
@@ -713,7 +713,7 @@ public class ItemInfoController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Liste aller bekannten Items sowie ihren Aufenthaltsort, sofern man sie besitzt, an
+	 * Zeigt die Liste aller bekannten Items sowie ihren Aufenthaltsort, sofern man sie besitzt, an.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -824,7 +824,7 @@ public class ItemInfoController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt eine Itemliste an
+	 * Zeigt eine Itemliste an.
 	 * @urlparam String itemlist Die Itemliste
 	 */
 	@Override

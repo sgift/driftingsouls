@@ -30,7 +30,7 @@ class RoleExecuterImpl implements RoleExecuter {
 	private Role role;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param roleCls Die Implementierung der Rolle
 	 * @param roleDef Die Definition der Rolle
 	 * @throws IllegalRoleDefinitionException Falls das erzeugen des Executers nicht moeglich ist

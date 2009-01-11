@@ -30,7 +30,7 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import org.hibernate.annotations.Immutable;
 
 /**
- * Eine NPC-Schiffsbestellung
+ * Eine NPC-Schiffsbestellung.
  * @author Christopher Jung
  *
  */
@@ -46,7 +46,7 @@ public class OrderShip {
 	private int cost;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public OrderShip() {
@@ -54,7 +54,7 @@ public class OrderShip {
 	}
 
 	/**
-	 * Die Kosten der Bestellung
+	 * Die Kosten der Bestellung.
 	 * @return Die Kosten
 	 */
 	public int getCost() {
@@ -62,7 +62,7 @@ public class OrderShip {
 	}
 
 	/**
-	 * Der Schiffstyp des bestellten Schiffes
+	 * Der Schiffstyp des bestellten Schiffes.
 	 * @return Der Schiffstyp
 	 */
 	public ShipType getShipType() {
@@ -70,7 +70,7 @@ public class OrderShip {
 	}
 	
 	/**
-	 * Gibt die ID des Eintrags zurueck
+	 * Gibt die ID des Eintrags zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {

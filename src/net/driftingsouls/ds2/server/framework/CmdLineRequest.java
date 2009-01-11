@@ -32,7 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Repraesentiert eine Request auf Basis von Kommandozeilenparametern
+ * Repraesentiert eine Request auf Basis von Kommandozeilenparametern.
  * @author Christopher Jung
  *
  */
@@ -42,7 +42,7 @@ public class CmdLineRequest implements Request {
 	private Map<String,String> params = new HashMap<String,String>();
 	
 	/**
-	 * Erstellt ein neues Request-Objekt
+	 * Erstellt ein neues Request-Objekt.
 	 * @param args Die Kommandozeilenparameter
 	 */
 	public CmdLineRequest(String[] args) {
@@ -60,30 +60,37 @@ public class CmdLineRequest implements Request {
 		}
 	}
 	
+	@Override
 	public String getCharacterEncoding() {
 		return "UTF-8";
 	}
 
+	@Override
 	public int getContentLength() {
 		return 0;
 	}
 
+	@Override
 	public String getContentType() {
 		return "text";
 	}
 
+	@Override
 	public String getHeader(String header) {
 		return null;
 	}
 
+	@Override
 	public InputStream getInputStream() throws IOException {
 		return null;
 	}
 
+	@Override
 	public String getParameter(String parameter) {
 		return params.get(parameter);
 	}
 
+	@Override
 	public int getParameterInt(String parameter) {
 		String param = params.get(parameter);
 		if( param == null ) {
@@ -98,6 +105,7 @@ public class CmdLineRequest implements Request {
 		return 0;
 	}
 
+	@Override
 	public String getParameterString(String parameter) {
 		String param = params.get(parameter);
 		if( param == null ) {
@@ -105,41 +113,50 @@ public class CmdLineRequest implements Request {
 		}
 		return param;
 	}
-
+	
+	@Override
 	public String getPath() {
 		return System.getProperty("user.dir");
 	}
 
+	@Override
 	public String getQueryString() {
 		return "";
 	}
 
+	@Override
 	public String getRemoteAddress() {
 		return "localhost";
 	}
 
+	@Override
 	public String getRequestURL() {
 		return "./java";
 	}
 
+	@Override
 	public String getUserAgent() {
 		return "Command Line";
 	}
 
+	@Override
 	public void setParameter(String parameter, String value) {
 		params.put(parameter, value);
 	}
 
+	@Override
 	public List<FileItem> getUploadedFiles() {
 		return new ArrayList<FileItem>();
 	}
 
+	@Override
 	public <T> T getFromSession(Class<T> cls) {
 		log.error("getFromSession not supported");
 		
 		return null;
 	}
 
+	@Override
 	public void removeFromSession(Class<?> cls) {
 		log.error("removeFromSession not supported");
 	}

@@ -44,7 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Verwaltung einer Basis
+ * Verwaltung einer Basis.
  * @author Christopher Jung
  *
  * @urlparam Integer col Die ID der Basis
@@ -56,7 +56,7 @@ public class BaseController extends TemplateGenerator {
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -66,7 +66,7 @@ public class BaseController extends TemplateGenerator {
     }
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public BaseController(Context context) {
@@ -100,7 +100,7 @@ public class BaseController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Transferiert Nahrung von/in den Nahrungspool
+	 * Transferiert Nahrung von/in den Nahrungspool.
 	 * @urlparam Integer nahrung Die Menge der zu transferierenden Nahrung. Negative Werte transferieren Nahrung aus den Pool.
 	 *
 	 */
@@ -146,7 +146,7 @@ public class BaseController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Aendert den Namen einer Basis
+	 * Aendert den Namen einer Basis.
 	 * @urlparam String newname Der neue Name der Basis
 	 *
 	 */
@@ -168,7 +168,7 @@ public class BaseController extends TemplateGenerator {
 	}
 	
 	/**
-	 * (de)aktiviert Gebaeudegruppen
+	 * (de)aktiviert Gebaeudegruppen.
 	 * @urlparam Integer act 0, wenn die Gebaeude deaktiviert werden sollen. Andernfalls 1
 	 * @urlparam Integer buildingoff Die ID des Gebaeudetyps, dessen Gebaeude (de)aktiviert werden sollen
 	 *
@@ -261,7 +261,7 @@ public class BaseController extends TemplateGenerator {
 	}
 
 	/**
-	 * Zeigt die Basis an
+	 * Zeigt die Basis an.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

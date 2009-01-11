@@ -24,7 +24,7 @@ import java.util.List;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 
 /**
- * <h1>Wrapper-Klasse fuer <code>Cargo</code>-Objekte</h1>
+ * <h1>Wrapper-Klasse fuer <code>Cargo</code>-Objekte.</h1>
  * Die Wrapper-Klasse faengt alle Funktionsaufrufe ab, welche das Cargo-Objekt
  * veraendern wuerden und wirft jeweils eine <code>UnsupportedOperationException</code>.
  * Alle anderen Aufrufe werden an das Cargo-Objekt weitergeleitet.
@@ -36,7 +36,7 @@ public class UnmodifiableCargo extends Cargo {
 	private Cargo innerCargo;
 	
 	/**
-	 * Erstellt eine neue Instanz um das angegebene Cargo-Objekt
+	 * Erstellt eine neue Instanz um das angegebene Cargo-Objekt.
 	 * @param cargo Das zu kapselnde Cargo-Objekt
 	 */
 	public UnmodifiableCargo(Cargo cargo) {

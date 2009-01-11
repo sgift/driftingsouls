@@ -36,13 +36,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Zeigt allgemeine Daten zu DS und zum Server an
+ * Zeigt allgemeine Daten zu DS und zum Server an.
  * @author Christopher Jung
  *
  */
 public class StatData implements Statistic {
 	private static final Log log = LogFactory.getLog(StatData.class);
 
+	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
@@ -146,10 +147,12 @@ public class StatData implements Statistic {
 
 	}
 
+	@Override
 	public boolean generateAllyData() {
 		return false;
 	}
 	
+	@Override
 	public int getRequiredData() {
 		return 0;
 	}

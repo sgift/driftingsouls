@@ -32,7 +32,7 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
- * Ein Smilie
+ * Ein Smilie.
  * @author Christopher Jung
  *
  */
@@ -48,7 +48,7 @@ public class Smilie {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public Smilie() {
@@ -56,7 +56,7 @@ public class Smilie {
 	}
 
 	/**
-	 * Gibt die ID des Smilies zurueck
+	 * Gibt die ID des Smilies zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -64,7 +64,7 @@ public class Smilie {
 	}
 	
 	/**
-	 * Gibt das Bild des Smilies zurueck
+	 * Gibt das Bild des Smilies zurueck.
 	 * @return Das Bild
 	 */
 	public String getImage() {
@@ -72,7 +72,7 @@ public class Smilie {
 	}
 
 	/**
-	 * Gibt den Tag des Smilies zurueck
+	 * Gibt den Tag des Smilies zurueck.
 	 * @return Der Tag
 	 */
 	public String getTag() {
@@ -84,7 +84,7 @@ public class Smilie {
 	private static Object LOCK = new Object();
 	
 	/**
-	 * Ersetzt alle bekannten Smilies in einem Text durch entsprechende Grafiken (als HTML-Code)
+	 * Ersetzt alle bekannten Smilies in einem Text durch entsprechende Grafiken (als HTML-Code).
 	 * @param text Der Text
 	 * @return der Text mit den Grafiken
 	 */
@@ -113,7 +113,7 @@ public class Smilie {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

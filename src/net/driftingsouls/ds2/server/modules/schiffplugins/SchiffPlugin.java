@@ -19,20 +19,20 @@
 package net.driftingsouls.ds2.server.modules.schiffplugins;
 
 /**
- * Interface fuer Plugins des Schiff-Controllers
+ * Interface fuer Plugins des Schiff-Controllers.
  * @author Christopher Jung
  *
  */
 public interface SchiffPlugin {
 	/**
-	 * Fuehrt eine Aktion aus
+	 * Fuehrt eine Aktion aus.
 	 * @param parameters Objekt mit Parametern
 	 * @return die Ausgabe
 	 */
 	public String action(Parameters parameters);
 	
 	/**
-	 * Gibt das UI des Plugins via Templates aus
+	 * Gibt das UI des Plugins via Templates aus.
 	 * @param parameters Objekt mit Parametern
 	 */
 	public void output(Parameters parameters);

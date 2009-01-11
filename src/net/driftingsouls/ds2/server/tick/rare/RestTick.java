@@ -52,7 +52,7 @@ import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 
 /**
- * Berechnet sonstige Tick-Aktionen, welche keinen eigenen TickController haben
+ * Berechnet sonstige Tick-Aktionen, welche keinen eigenen TickController haben.
  * @author Christopher Jung
  *
  */

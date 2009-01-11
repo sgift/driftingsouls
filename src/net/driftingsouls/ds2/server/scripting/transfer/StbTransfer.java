@@ -24,13 +24,13 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 
 /**
- * Transferstrategie fuer Schiff zu Basis
+ * Transferstrategie fuer Schiff zu Basis.
  * @author Sebastian Gift
  *
  */
 class StbTransfer extends TransferStrategy {
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param fromId Die ID des Quellschiffs
 	 * @param toId Die ID der Zielbasis
 	 * @param forceSameOwner <code>true</code>, falls der selbe Besitzer erzwungen werden soll

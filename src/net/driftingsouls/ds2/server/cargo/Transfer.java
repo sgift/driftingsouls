@@ -20,13 +20,13 @@ package net.driftingsouls.ds2.server.cargo;
 
 
 /**
- * Klasse zum Transfer von Waren von einem Objekt zu einem anderen
+ * Klasse zum Transfer von Waren von einem Objekt zu einem anderen.
  * @author Christopher Jung
  *
  */
 public final class Transfer {
 	/**
-	 * Transferiert die angegebene Warenmenge von Quellobjekt zum Zielobjekt
+	 * Transferiert die angegebene Warenmenge von Quellobjekt zum Zielobjekt.
 	 * @param from Das Quellobjekt
 	 * @param to Das Zielobjekt
 	 * @param resource Die zu transferierende Resource

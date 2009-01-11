@@ -31,13 +31,13 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
- * Entlaedt die Reservebatterien auf dem gerade ausgewaehlten Schiff
+ * Entlaedt die Reservebatterien auf dem gerade ausgewaehlten Schiff.
  * @author Christopher Jung
  *
  */
 public class KSDischargeBatteriesSingleAction extends BasicKSAction {
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public KSDischargeBatteriesSingleAction() {

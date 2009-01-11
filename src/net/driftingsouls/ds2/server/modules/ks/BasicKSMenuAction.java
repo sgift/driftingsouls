@@ -24,13 +24,13 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import org.apache.commons.lang.StringEscapeUtils;
 
 /**
- * Basisklasse fuer KS-Menues
+ * Basisklasse fuer KS-Menues.
  * @author Christopher Jung
  *
  */
 public abstract class BasicKSMenuAction extends BasicKSAction {
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public BasicKSMenuAction() {
@@ -41,7 +41,7 @@ public abstract class BasicKSMenuAction extends BasicKSAction {
 	}
 	
 	/**
-	 * Generiert einen Menueeintrag mit Sicherheitsabfrage
+	 * Generiert einen Menueeintrag mit Sicherheitsabfrage.
 	 * @param t Das Templateengine 
 	 * @param title Der Titel des Eintrags
 	 * @param params URL-Parameter
@@ -56,7 +56,7 @@ public abstract class BasicKSMenuAction extends BasicKSAction {
 	}
 
 	/**
-	 * Generiert einen Menueeintrag
+	 * Generiert einen Menueeintrag.
 	 * @param t Das Templateengine
 	 * @param title Der Titel des Eintrags
 	 * @param params URL-Parameter
@@ -96,7 +96,7 @@ public abstract class BasicKSMenuAction extends BasicKSAction {
 	}
 	
 	/**
-	 * Gibt zurueck, ob die angegebene Aktion ausfuehrbar ist
+	 * Gibt zurueck, ob die angegebene Aktion ausfuehrbar ist.
 	 * @param battle Die aktuelle Schlacht
 	 * @param action Die Aktion
 	 * @return Der Rueckgabewert

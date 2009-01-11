@@ -28,7 +28,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 /**
- * <h1>Die Sektor-Template-Verwaltung</h1>
+ * <h1>Die Sektor-Template-Verwaltung.</h1>
  * Sektor-Templates sind Vorlagen, die 1..* Schiffe mit bestimmten Werten enthalten.
  * Die Vorlagen liegen in System 0.<br>
  * Der SectorTemplateManager fuegt diese Templates an einer Position fuer einen bestimmten
@@ -47,7 +47,7 @@ public class SectorTemplateManager {
 	 * TODO: Caching, Caching, Caching....
 	 */
 	/**
-	 * Gibt eine Instanz des SektorTemplateManagers zurueck
+	 * Gibt eine Instanz des SektorTemplateManagers zurueck.
 	 * @return eine Instanz des SektorTemplateManagers
 	 */
 	public static SectorTemplateManager getInstance() {
@@ -78,7 +78,7 @@ public class SectorTemplateManager {
 	}
 	
 	/**
-	 * Fuegt Schiffe eines Templates an einer gegebenen Position ein
+	 * Fuegt Schiffe eines Templates an einer gegebenen Position ein.
 	 * @param db Die DB-Verbindung
 	 * @param name Der Name des Templates
 	 * @param location Die Position, an der das Template eingefuegt werden soll
@@ -206,7 +206,7 @@ public class SectorTemplateManager {
 
 	/**
 	 * Fuegt Schiffe eines Templates an einer gegebenen Position ein. Als Schiffs-ID
-	 * wird die naechste von der DB vergebene verwendet
+	 * wird die naechste von der DB vergebene verwendet.
 	 * @param db Die DB-Verbindung
 	 * @param name Der Name des Templates
 	 * @param location Die Position, an der das Template eingefuegt werden soll

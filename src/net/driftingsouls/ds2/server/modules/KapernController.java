@@ -28,7 +28,6 @@ import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlagschiffLocation;
@@ -48,7 +47,7 @@ import net.driftingsouls.ds2.server.ships.Ships;
 import org.apache.commons.lang.math.RandomUtils;
 
 /**
- * Ermoeglicht das Kapern eines Schiffes sowie verlinkt auf das Pluendern des Schiffes
+ * Ermoeglicht das Kapern eines Schiffes sowie verlinkt auf das Pluendern des Schiffes.
  * @author Christopher Jung
  * 
  * @urlparam Integer ship Die ID des Schiffes, mit dem der Spieler kapern moechte
@@ -60,7 +59,7 @@ public class KapernController extends TemplateGenerator {
 	private SQLResultRow targetShipType;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public KapernController(Context context) {
@@ -211,7 +210,7 @@ public class KapernController extends TemplateGenerator {
 	}
 
 	/**
-	 * Kapert das Schiff
+	 * Kapert das Schiff.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -424,7 +423,7 @@ public class KapernController extends TemplateGenerator {
 	}
 
 	/**
-	 * Zeigt die Auswahl ab, ob das Schiff gekapert oder gepluendert werden soll
+	 * Zeigt die Auswahl ab, ob das Schiff gekapert oder gepluendert werden soll.
 	 */
 	@Action(ActionType.DEFAULT)
 	@Override

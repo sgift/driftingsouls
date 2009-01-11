@@ -50,7 +50,7 @@ public class ItemManipulator extends DSApplication {
 	private long recount;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param args Die Kommandozeilenargumente
 	 * @throws Exception
 	 */
@@ -85,7 +85,7 @@ public class ItemManipulator extends DSApplication {
 	}
 	
 	/**
-	 * Startet die Ausfuehrung
+	 * Startet die Ausfuehrung.
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
@@ -338,7 +338,7 @@ public class ItemManipulator extends DSApplication {
 	}
 
 	/**
-	 * Main
+	 * Main.
 	 * @param args Die Argumente
 	 * @throws Exception
 	 */

@@ -50,7 +50,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 /**
- * Ermoeglicht das Verarbeiten und Installieren von Quest-XMLs
+ * Ermoeglicht das Verarbeiten und Installieren von Quest-XMLs.
  * ACHTUNG: Der nun folgende Code ist bestenfalls suboptimal, graunenvoll zu verstehen und vollstaendig
  * undokumentiert. 
  * Daher gilt: Zu Risiken und Nebenwirkungen fragen sie bitte ihren Arzt oder Apotheker (nur nicht mich).
@@ -60,16 +60,16 @@ import org.xml.sax.helpers.XMLReaderFactory;
 @Configurable
 public class QuestXMLParser extends DSObject {
 	/**
-	 * Der Modus in dem der Parser betrieben wird
+	 * Der Modus in dem der Parser betrieben wird.
 	 *
 	 */
 	public enum Mode {
 		/**
-		 * Liesst Installationsdaten falls das Quest bereits installiert wurde
+		 * Liesst Installationsdaten falls das Quest bereits installiert wurde.
 		 */
 		READ,
 		/**
-		 * Installiert ein Quest
+		 * Installiert ein Quest.
 		 */
 		INSTALL
 	}
@@ -112,7 +112,7 @@ public class QuestXMLParser extends DSObject {
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -122,7 +122,7 @@ public class QuestXMLParser extends DSObject {
     }
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param mode Der Modus in dem eine Quest-XML verarbeitet werden soll
 	 * @param file Der Pfad zur Quest-XML
 	 */
@@ -142,7 +142,7 @@ public class QuestXMLParser extends DSObject {
 		private String currentFile;
 		
 		/**
-		 * Konstruktor
+		 * Konstruktor.
 		 * @param currentFile Der Name der mit diesen Parser uebersetzten Datei
 		 * @param doNotUninstall Soll das install-xml nur geparst, nicht aber ausgefuehrt werden (<code>true</code>)?
 		 */
@@ -241,7 +241,7 @@ public class QuestXMLParser extends DSObject {
 	}
 	
 	/**
-	 * Gibt Informationen zum geparsten Installationsscript zurueck
+	 * Gibt Informationen zum geparsten Installationsscript zurueck.
 	 * @param data Die Klasse der Informationen (questids, answerids, dialogids, scriptids)
 	 * @return Eine Map, in der die QuestXML-ID Schluessel und die ID in der DB Wert sind
 	 */
@@ -338,7 +338,7 @@ public class QuestXMLParser extends DSObject {
 		private String currentInjectScript = "";
 		
 		/**
-		 * Konstruktor
+		 * Konstruktor.
 		 * @param currentFile Der Name der mit diesen Parser uebersetzten Datei
 		 */
 		public QuestParser(String currentFile) {
@@ -591,7 +591,7 @@ public class QuestXMLParser extends DSObject {
 		}
 		
 		/**
-		 * Parst im aktuellen Parser-Objekt eine weitere Quest-XML
+		 * Parst im aktuellen Parser-Objekt eine weitere Quest-XML.
 		 * @param file Die zu parsende XML
 		 */
 		public void parseAddXml(String file) {

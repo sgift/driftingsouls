@@ -37,7 +37,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 
 /**
- * Die Munition
+ * Die Munition.
  * @author Christopher Jung
  *
  */
@@ -46,16 +46,16 @@ import org.hibernate.annotations.Type;
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Ammo {
 	/**
-	 * Ammoflags
+	 * Ammoflags.
 	 */
 	public enum Flags {
 		/**
-		 * Area-Damage ueber die Distanz nicht reduzieren
+		 * Area-Damage ueber die Distanz nicht reduzieren.
 		 */
 		AD_FULL(1),
 		
 		/**
-		 * Schaden der Munition wird durch Panzerung dividiert
+		 * Schaden der Munition wird durch Panzerung dividiert.
 		 */
 		ARMOR_REDUX(2);
 		
@@ -65,7 +65,7 @@ public class Ammo {
 		}
 		
 		/**
-		 * Gibt das zum Flag gehoerende Bitmuster zurueck
+		 * Gibt das zum Flag gehoerende Bitmuster zurueck.
 		 * @return Das Bitmuster
 		 */
 		public int getBits() {
@@ -114,7 +114,7 @@ public class Ammo {
 	private String picture;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public Ammo() {
@@ -122,7 +122,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt die Areadamage zurueck
+	 * Gibt die Areadamage zurueck.
 	 * @return Die Areadamage
 	 */
 	public int getAreaDamage() {
@@ -130,7 +130,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt die Baukosten zurueck
+	 * Gibt die Baukosten zurueck.
 	 * @return Die Baukosten
 	 */
 	public Cargo getBuildCosts() {
@@ -138,7 +138,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt den Huellenschaden zurueck
+	 * Gibt den Huellenschaden zurueck.
 	 * @return Der Huellenschaden
 	 */
 	public int getDamage() {
@@ -146,7 +146,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt die Waffenfabrikauslastung zurueck
+	 * Gibt die Waffenfabrikauslastung zurueck.
 	 * @return Die Auslastung der Waffenfabrik
 	 */
 	public BigDecimal getDauer() {
@@ -154,7 +154,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt die Beschreibung zurueck
+	 * Gibt die Beschreibung zurueck.
 	 * @return Die Beschreibung
 	 */
 	public String getDescription() {
@@ -162,7 +162,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt den Zerstoerbarkeitsfaktor zurueck
+	 * Gibt den Zerstoerbarkeitsfaktor zurueck.
 	 * @return Der Zerstoerbarkeitsfaktor
 	 */
 	public double getDestroyable() {
@@ -170,7 +170,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt die Flags der Ammo zurueck
+	 * Gibt die Flags der Ammo zurueck.
 	 * @return Die Flags
 	 */
 	public int getFlags() {
@@ -178,7 +178,7 @@ public class Ammo {
 	}
 	
 	/**
-	 * Gibt zurueck, ob die Ammo das angegebene Flag hat
+	 * Gibt zurueck, ob die Ammo das angegebene Flag hat.
 	 * @param flag Das Flag
 	 * @return <code>true</code>, falls die Ammo das Flag hat
 	 */
@@ -187,7 +187,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt die ID zurueck
+	 * Gibt die ID zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -195,7 +195,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt die Item-ID den zugehoerigen Ammo-Items zurueck
+	 * Gibt die Item-ID den zugehoerigen Ammo-Items zurueck.
 	 * @return Die Item-ID
 	 */
 	public int getItemId() {
@@ -203,7 +203,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt den Namen der Ammo zurueck
+	 * Gibt den Namen der Ammo zurueck.
 	 * @return Der Name
 	 */
 	public String getName() {
@@ -211,7 +211,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt das Bild der Ammo zurueck
+	 * Gibt das Bild der Ammo zurueck.
 	 * @return Das Bild
 	 */
 	public String getPicture() {
@@ -219,7 +219,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt zurueck, welche Ammo diese Ammo ersetzt
+	 * Gibt zurueck, welche Ammo diese Ammo ersetzt.
 	 * @return Die ersetzte Ammo
 	 */
 	public Ammo getReplaces() {
@@ -227,7 +227,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt die erste benoetigte Forschung zurueck
+	 * Gibt die erste benoetigte Forschung zurueck.
 	 * @return Die erste benoetigte Forschung
 	 */
 	public int getRes1() {
@@ -235,7 +235,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt die zweite benoetigte Forschung zurueck
+	 * Gibt die zweite benoetigte Forschung zurueck.
 	 * @return Die zweite benoetigte Forschung
 	 */
 	public int getRes2() {
@@ -243,7 +243,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt die dritte benoetigte Forschung zurueck
+	 * Gibt die dritte benoetigte Forschung zurueck.
 	 * @return Die erste benoetigte Forschung
 	 */
 	public int getRes3() {
@@ -251,7 +251,7 @@ public class Ammo {
 	}
 	
 	/**
-	 * Gibt die benoetigte Forschung zurueck
+	 * Gibt die benoetigte Forschung zurueck.
 	 * @param i Die Nummer der Forschung (1-3)
 	 * @return Die Forschung
 	 * @see #getRes1()
@@ -272,7 +272,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt den Schildschaden der Ammo zurueck
+	 * Gibt den Schildschaden der Ammo zurueck.
 	 * @return Der Schildschaden
 	 */
 	public int getShieldDamage() {
@@ -280,7 +280,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt die Einzelschuesse pro Schuss zurueck
+	 * Gibt die Einzelschuesse pro Schuss zurueck.
 	 * @return Die Anzahl der Einzelschuesse
 	 */
 	public int getShotsPerShot() {
@@ -288,7 +288,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt die TrefferWS gegen kleine Objekte zurueck
+	 * Gibt die TrefferWS gegen kleine Objekte zurueck.
 	 * @return Die TrefferWS gegen keine Objekte
 	 */
 	public int getSmallTrefferWS() {
@@ -296,7 +296,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt den Subsystemschaden zurueck
+	 * Gibt den Subsystemschaden zurueck.
 	 * @return Der Subsystemschaden
 	 */
 	public int getSubDamage() {
@@ -304,7 +304,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt die Trefferwahrscheinlichkeit gegen Subsysteme zurueck
+	 * Gibt die Trefferwahrscheinlichkeit gegen Subsysteme zurueck.
 	 * @return Die Trefferwahrscheinlichkeit gegen Subsysteme
 	 */
 	public int getSubWS() {
@@ -312,7 +312,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt die Trefferwahrscheinlichkeit gegen Torpedos zurueck
+	 * Gibt die Trefferwahrscheinlichkeit gegen Torpedos zurueck.
 	 * @return Die TrefferWS gegen Torpedos
 	 */
 	public int getTorpTrefferWS() {
@@ -320,7 +320,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt die Trefferwahrscheinlichkeit zurueck
+	 * Gibt die Trefferwahrscheinlichkeit zurueck.
 	 * @return Die Trefferwahrscheinlichkeit
 	 */
 	public int getTrefferWS() {
@@ -328,7 +328,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt den Ammotyp zurueck
+	 * Gibt den Ammotyp zurueck.
 	 * @return Der Ammotyp
 	 */
 	public String getType() {
@@ -336,7 +336,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt die Ausdehnung des Flaechenschadens
+	 * Setzt die Ausdehnung des Flaechenschadens.
 	 * @param areaDamage Die Areadamage
 	 */
 	public void setAreaDamage(int areaDamage) {
@@ -344,7 +344,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt die Baukosten pro Einheit
+	 * Setzt die Baukosten pro Einheit.
 	 * @param buildCosts Die Kosten
 	 */
 	public void setBuildCosts(Cargo buildCosts) {
@@ -352,7 +352,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt den Schaden
+	 * Setzt den Schaden.
 	 * @param damage Der Schaden
 	 */
 	public void setDamage(int damage) {
@@ -360,7 +360,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt die beim Bau belegte Produktionskapazitaet
+	 * Setzt die beim Bau belegte Produktionskapazitaet.
 	 * @param dauer Die notwendige Kapazitaet
 	 */
 	public void setDauer(BigDecimal dauer) {
@@ -368,7 +368,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt die Beschreibung
+	 * Setzt die Beschreibung.
 	 * @param description Die Beschreibung
 	 */
 	public void setDescription(String description) {
@@ -376,7 +376,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt den Faktor fuer die Zerstoerbarkeit vor dem Aufschlagen
+	 * Setzt den Faktor fuer die Zerstoerbarkeit vor dem Aufschlagen.
 	 * @param destroyable Die Zerstoerbarkeit
 	 */
 	public void setDestroyable(double destroyable)
@@ -385,7 +385,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt die Flags der Munition
+	 * Setzt die Flags der Munition.
 	 * @param flags Die Flags
 	 */
 	public void setFlags(int flags) {
@@ -393,7 +393,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt den Namen der Munition
+	 * Setzt den Namen der Munition.
 	 * @param name Der Name
 	 */
 	public void setName(String name) {
@@ -401,7 +401,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt den Pfad zum Bild der Munition
+	 * Setzt den Pfad zum Bild der Munition.
 	 * @param picture Der Pfad
 	 */
 	public void setPicture(String picture) {
@@ -410,7 +410,7 @@ public class Ammo {
 
 	/**
 	 * Setzt die Munition, die durch diese Munition ersetzt wird.
-	 * Falls diese Munition keine andere ersetzt ist der Wert <code>null</code>
+	 * Falls diese Munition keine andere ersetzt ist der Wert <code>null</code>.
 	 * @param replaces Die Munition oder <code>null</code>
 	 */
 	public void setReplaces(Ammo replaces) {
@@ -418,7 +418,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt die erste benoetigte Forschung
+	 * Setzt die erste benoetigte Forschung.
 	 * @param res1 Die Forschung
 	 */
 	public void setRes1(int res1) {
@@ -426,7 +426,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt die zweite benoetigte Forschung
+	 * Setzt die zweite benoetigte Forschung.
 	 * @param res2 Die Forschung
 	 */
 	public void setRes2(int res2) {
@@ -434,7 +434,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt die dritte benoetigte Forschung
+	 * Setzt die dritte benoetigte Forschung.
 	 * @param res3 Die Forschung
 	 */
 	public void setRes3(int res3) {
@@ -442,7 +442,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt den Schaden bei Schilden
+	 * Setzt den Schaden bei Schilden.
 	 * @param shieldDamage Der Schaden
 	 */
 	public void setShieldDamage(int shieldDamage) {
@@ -450,7 +450,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt die Anzahl an Geschossen pro abgefeuertem Schuss
+	 * Setzt die Anzahl an Geschossen pro abgefeuertem Schuss.
 	 * @param shotsPerShot Die Anzahl
 	 */
 	public void setShotsPerShot(int shotsPerShot) {
@@ -458,7 +458,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt die Treffer-WS gegen kleine Schiffe
+	 * Setzt die Treffer-WS gegen kleine Schiffe.
 	 * @param smallTrefferWS Die Treffer-WS
 	 */
 	public void setSmallTrefferWS(int smallTrefferWS) {
@@ -466,7 +466,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt den Schaden an Subsystemen
+	 * Setzt den Schaden an Subsystemen.
 	 * @param subDamage Der Schaden
 	 */
 	public void setSubDamage(int subDamage) {
@@ -474,7 +474,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt die Treffer-WS auf Subsystemee
+	 * Setzt die Treffer-WS auf Subsystemee.
 	 * @param subWS Die Treffer-WS
 	 */
 	public void setSubWS(int subWS) {
@@ -482,7 +482,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt die Treffer-WS gegen anfliegende Torpedos
+	 * Setzt die Treffer-WS gegen anfliegende Torpedos.
 	 * @param torpTrefferWS Die Treffer-WS
 	 */
 	public void setTorpTrefferWS(int torpTrefferWS) {
@@ -490,7 +490,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt die Treffer-WS gegen normale Schiffe
+	 * Setzt die Treffer-WS gegen normale Schiffe.
 	 * @param trefferWS Die Treffer-WS
 	 */
 	public void setTrefferWS(int trefferWS) {
@@ -498,7 +498,7 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt den Slot mit dem diese Munition verschossen werden kann
+	 * Setzt den Slot mit dem diese Munition verschossen werden kann.
 	 * @param type Der Slot
 	 */
 	public void setType(String type) {

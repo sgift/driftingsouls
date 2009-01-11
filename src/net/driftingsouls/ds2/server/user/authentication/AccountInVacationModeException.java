@@ -21,7 +21,7 @@ package net.driftingsouls.ds2.server.user.authentication;
 import net.driftingsouls.ds2.server.framework.authentication.AuthenticationException;
 
 /**
- * Authentifizierungsfehler, da sich der Account noch im Vacationmodus befindet
+ * Authentifizierungsfehler, da sich der Account noch im Vacationmodus befindet.
  * @author Christopher Jung
  *
  */
@@ -31,7 +31,7 @@ public class AccountInVacationModeException extends AuthenticationException {
 	private int dauer;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param dauer Die verbleibende Vacationdauer in Ticks
 	 */
 	public AccountInVacationModeException(int dauer) {
@@ -40,7 +40,7 @@ public class AccountInVacationModeException extends AuthenticationException {
 	}
 
 	/**
-	 * Gibt die noch verbleibende Zeit im Vacationmodus in Ticks zurueck
+	 * Gibt die noch verbleibende Zeit im Vacationmodus in Ticks zurueck.
 	 * @return Die Restdauer in Ticks
 	 */
 	public int getDauer() {

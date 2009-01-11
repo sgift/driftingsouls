@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.framework.authentication;
 
 /**
- * Fehler beim Authentifizieren eines Benutzers
+ * Fehler beim Authentifizieren eines Benutzers.
  * @author Christopher Jung
  *
  */
@@ -27,7 +27,7 @@ public class AuthenticationException extends Exception {
 	private static final long serialVersionUID = -5571388291256523981L;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param message Der Grund fuer den Fehler
 	 */
 	public AuthenticationException(String message) {

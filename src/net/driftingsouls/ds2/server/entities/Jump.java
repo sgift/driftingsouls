@@ -32,8 +32,8 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.ships.Ship;
 
 /**
- * Ein Sprung eines Schiffes durch den Subraum (Subraumspalte)
- * @author bktheg
+ * Ein Sprung eines Schiffes durch den Subraum (Subraumspalte).
+ * @author Christopher Jung
  *
  */
 @Entity
@@ -52,7 +52,7 @@ public class Jump implements Locatable {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public Jump() {
@@ -60,7 +60,7 @@ public class Jump implements Locatable {
 	}
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param ship Das springende Schiff
 	 * @param loc Der Zielpunkt
 	 */
@@ -72,7 +72,7 @@ public class Jump implements Locatable {
 	}
 
 	/**
-	 * Gibt das springende Schiff zurueck
+	 * Gibt das springende Schiff zurueck.
 	 * @return Das Schiff
 	 */
 	public Ship getShip() {
@@ -80,7 +80,7 @@ public class Jump implements Locatable {
 	}
 
 	/**
-	 * Setzt das springende Schiff
+	 * Setzt das springende Schiff.
 	 * @param ship Das Schiff
 	 */
 	public final void setShip(final Ship ship) {
@@ -88,7 +88,7 @@ public class Jump implements Locatable {
 	}
 
 	/**
-	 * Gibt das Zielsystem zurueck
+	 * Gibt das Zielsystem zurueck.
 	 * @return Das Zielsystem
 	 */
 	public int getSystem() {
@@ -96,7 +96,7 @@ public class Jump implements Locatable {
 	}
 
 	/**
-	 * Setzt das Zielsystem
+	 * Setzt das Zielsystem.
 	 * @param system Das System
 	 */
 	public final void setSystem(final int system) {
@@ -104,7 +104,7 @@ public class Jump implements Locatable {
 	}
 
 	/**
-	 * Gibt die Ziel-X-Koordinate zurueck
+	 * Gibt die Ziel-X-Koordinate zurueck.
 	 * @return Die Ziel-X-Koordinate
 	 */
 	public int getX() {
@@ -112,7 +112,7 @@ public class Jump implements Locatable {
 	}
 
 	/**
-	 * Setzt die Ziel-X-Koordinate
+	 * Setzt die Ziel-X-Koordinate.
 	 * @param x Die Ziel-X-Koordinate
 	 */
 	public final void setX(final int x) {
@@ -120,7 +120,7 @@ public class Jump implements Locatable {
 	}
 
 	/**
-	 * Gibt die Ziel-Y-Koordinate zurueck
+	 * Gibt die Ziel-Y-Koordinate zurueck.
 	 * @return Die Ziel-Y-Koordinate
 	 */
 	public int getY() {
@@ -128,7 +128,7 @@ public class Jump implements Locatable {
 	}
 
 	/**
-	 * Setzt die Ziel-Y-Koordinate
+	 * Setzt die Ziel-Y-Koordinate.
 	 * @param y Die Ziel-Y-Koordinate
 	 */
 	public final void setY(final int y) {
@@ -136,19 +136,20 @@ public class Jump implements Locatable {
 	}
 
 	/**
-	 * Gibt die ID zurueck
+	 * Gibt die ID zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
 		return id;
 	}
 
+	@Override
 	public Location getLocation() {
 		return new Location(this.system, this.x, this.y);
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

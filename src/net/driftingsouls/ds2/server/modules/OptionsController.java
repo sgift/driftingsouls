@@ -42,7 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Aendern der Einstellungen eines Benutzers durch den Benutzer selbst
+ * Aendern der Einstellungen eines Benutzers durch den Benutzer selbst.
  * @author Christopher Jung
  *
  */
@@ -53,7 +53,7 @@ public class OptionsController extends TemplateGenerator {
 	private Configuration config;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public OptionsController(Context context) {
@@ -63,7 +63,7 @@ public class OptionsController extends TemplateGenerator {
 	}
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -78,7 +78,7 @@ public class OptionsController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Aendert den Namen und das Passwort des Benutzers
+	 * Aendert den Namen und das Passwort des Benutzers.
 	 * @urlparam String name Der neue Benutzername
 	 * @urlparam String pw Das neue Passwort
 	 * @urlparam String pw2 Die Wiederholung des neuen Passworts
@@ -149,7 +149,7 @@ public class OptionsController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Sendet die Löschanfrage des Spielers
+	 * Sendet die Löschanfrage des Spielers.
 	 * @urlparam Integer del Der Interaktionsschritt. Bei 0 wird das Eingabeformular angezeigt. Andernfalls wird versucht die Anfrage zu senden
 	 * @urlparam String reason Die schluessige Begruendung. Muss mindestens die Laenge 5 haben
 	 */
@@ -199,7 +199,7 @@ public class OptionsController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Aendert die erweiterten Einstellungen des Spielers
+	 * Aendert die erweiterten Einstellungen des Spielers.
 	 * @urlparam Integer shipgroupmulti der neue Schiffsgruppierungswert
 	 * @urlparam Integer inttutorial Die Seite des Tutorials in der Uebersicht (0 = deaktiviert)
 	 * @urlparam Integer scriptdebug Ist fuer den Spieler die Option zum Debugging von (ScriptParser-)Scripten sichtbar gewesen? (es wird hinterher noch auf das AccessLevel gecheckt. Daher kein "Einbruch" moeglich.
@@ -300,7 +300,7 @@ public class OptionsController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die erweiterten Einstellungen des Spielers
+	 * Zeigt die erweiterten Einstellungen des Spielers.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -321,7 +321,7 @@ public class OptionsController extends TemplateGenerator {
 	private static final int MAX_UPLOAD_SIZE = 307200;
 	
 	/**
-	 * Aendert das Logo des Spielers
+	 * Aendert das Logo des Spielers.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -354,7 +354,7 @@ public class OptionsController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Setzt die Grafikpak-Einstellungen fuer den Spieler
+	 * Setzt die Grafikpak-Einstellungen fuer den Spieler.
 	 * @urlparam String gfxpak Der neue GfxPak-Pfad. Wenn dieser leer ist, wird der Default-Pfad verwendet
 	 *
 	 */
@@ -394,7 +394,7 @@ public class OptionsController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Aktiviert den Vac-Mode fuer den Spieler
+	 * Aktiviert den Vac-Mode fuer den Spieler.
 	 * @urlparam Integer vacmode die ID des zu benutzenden Vacmodes
 	 */
 	@Action(ActionType.DEFAULT)
@@ -420,7 +420,7 @@ public class OptionsController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Speichert die neuen Optionen
+	 * Speichert die neuen Optionen.
 	 * @urlparam Integer enableipsess Falls != 0 wird die Koppelung der Session an die IP aktiviert
 	 * @urlparam Integer enableautologout Falls != 0 wird der automatische Logout aktiviert
 	 * @urlparam Integer showtooltip Falls != 0 werden die Hilfstooltips aktiviert
@@ -473,7 +473,7 @@ public class OptionsController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Deaktiviert den Noob-Schutz des Spielers
+	 * Deaktiviert den Noob-Schutz des Spielers.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -490,7 +490,7 @@ public class OptionsController extends TemplateGenerator {
 	}
 
 	/**
-	 * Uebersicht ueber die Einstellungen
+	 * Uebersicht ueber die Einstellungen.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

@@ -37,7 +37,7 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * TASK_GANY_TRANSPORT
- * 		Ein Gany-Transportauftrag
+ * 		Ein Gany-Transportauftrag.
  * 
  * 	- data1 -> die Order-ID des Auftrags
  *  - data2 -> Schiffs-ID [Wird von der Task selbst gesetzt!]

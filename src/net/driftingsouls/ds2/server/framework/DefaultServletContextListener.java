@@ -36,10 +36,12 @@ import org.apache.commons.logging.LogFactory;
 public class DefaultServletContextListener implements ServletContextListener {
 	private static final Log log = LogFactory.getLog(DefaultServletContextListener.class);
 	
+	@Override
 	public void contextDestroyed(ServletContextEvent event) {
 		HibernateFacade.free();
 	}
 
+	@Override
 	public void contextInitialized(ServletContextEvent event) {
 		ServletContext context = event.getServletContext();
 

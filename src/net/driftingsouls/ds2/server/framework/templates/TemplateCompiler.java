@@ -41,9 +41,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * <h1>Der Template-Compiler</h1>
+ * <h1>Der Template-Compiler.</h1>
  * Compiliert ein Template zu Java-Code, welcher anschliessend von javac weiterverarbeitet 
- * werden kann
+ * werden kann.
  * @author Christopher Jung
  *
  */
@@ -52,7 +52,7 @@ public class TemplateCompiler {
 	
 	private interface TemplateCompileFunction {
 		/**
-		 * Fuehrt die Compilezeit-Funktion aus
+		 * Fuehrt die Compilezeit-Funktion aus.
 		 * @param parameter Die Parameter der Funktion
 		 * @return Der in das Template einzufuegende String
 		 */
@@ -348,7 +348,7 @@ public class TemplateCompiler {
 	private String subPackage;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param file Die zu kompilierende Datei
 	 * @param outputPath Das Ausgabeverzeichnis, in dem die kompilierte Datei abgelegt werden soll
 	 */
@@ -357,7 +357,7 @@ public class TemplateCompiler {
 	}
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param file Die zu kompilierende Datei
 	 * @param outputPath Das Ausgabeverzeichnis, in dem die kompilierte Datei abgelegt werden soll
 	 * @param subPackage Das zu verwendende Overlay-Paket. <code>null</code>, falls das Template in kein Overlay-Paket gehoert
@@ -483,22 +483,22 @@ public class TemplateCompiler {
 	
 	private static class CompiledBlock {
 		/**
-		 * Der Name des Blocks
+		 * Der Name des Blocks.
 		 */
 		String name;
 		
 		/**
-		 * Der Inhalt des Blocks
+		 * Der Inhalt des Blocks.
 		 */
 		String block;
 		
 		/**
-		 * Die im Block auftauchenden Variablen
+		 * Die im Block auftauchenden Variablen.
 		 */
 		List<String> varlist;
 		
 		/**
-		 * Der Elternblock
+		 * Der Elternblock.
 		 */
 		String parent;
 		
@@ -577,7 +577,7 @@ public class TemplateCompiler {
 	}
 	
 	/**
-	 * Startet den Kompiliervorgang
+	 * Startet den Kompiliervorgang.
 	 * @throws IOException
 	 */
 	public void compile() throws IOException {
@@ -812,8 +812,8 @@ public class TemplateCompiler {
 	}
 	
 	/**
-	 * Main
-	 * @param args
+	 * Main.
+	 * @param args Die Kommandozeilenparameter
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {

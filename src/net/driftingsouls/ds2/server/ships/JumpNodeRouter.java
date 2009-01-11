@@ -33,15 +33,15 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
  */
 public class JumpNodeRouter {
 	/**
-	 * Eine Route zwischen zwei Systemen
+	 * Eine Route zwischen zwei Systemen.
 	 */
 	public static class Result {
 		/**
-		 * Die Distanz
+		 * Die Distanz.
 		 */
 		public int distance;
 		/**
-		 * Der Pfad. Elemente sind die zu benutzenden Jumpnodes
+		 * Der Pfad. Elemente sind die zu benutzenden Jumpnodes.
 		 */
 		public List<SQLResultRow> path = new ArrayList<SQLResultRow>();
 		
@@ -62,7 +62,7 @@ public class JumpNodeRouter {
 	private Map<Integer,List<SQLResultRow>> jnlist = new HashMap<Integer,List<SQLResultRow>>();
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param jns Die benutzbaren Jumpnodes. Schluessel ist das Ausgangssystem der Jumpnode
 	 */
 	public JumpNodeRouter(Map<Integer,List<SQLResultRow>> jns) {
@@ -77,7 +77,7 @@ public class JumpNodeRouter {
 	}
 	
 	/**
-	 * Findet den kuerzesten Weg zwischen zwei Punkten 
+	 * Findet den kuerzesten Weg zwischen zwei Punkten. 
 	 * @param currentsys Das Startsystem
 	 * @param currentx Die Start-X-Koordinate
 	 * @param currenty Die Start-Y-Koordinate

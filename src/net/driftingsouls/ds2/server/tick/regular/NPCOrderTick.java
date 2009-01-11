@@ -44,7 +44,7 @@ import net.driftingsouls.ds2.server.werften.ShipWerft;
 import org.apache.commons.lang.math.RandomUtils;
 
 /**
- * Berechnet NPC-Bestellungen
+ * Berechnet NPC-Bestellungen.
  * 
  * @author Christopher Jung
  *

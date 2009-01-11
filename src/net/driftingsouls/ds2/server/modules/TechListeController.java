@@ -56,7 +56,7 @@ public class TechListeController extends TemplateGenerator {
 	private Configuration config;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public TechListeController(Context context) {
@@ -69,7 +69,7 @@ public class TechListeController extends TemplateGenerator {
 	}
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -85,7 +85,7 @@ public class TechListeController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Techliste an
+	 * Zeigt die Techliste an.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

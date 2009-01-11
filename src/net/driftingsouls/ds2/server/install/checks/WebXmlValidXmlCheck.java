@@ -24,12 +24,12 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 /**
- * Ueberprueft, ob die config.xml geparset werden kann
+ * Ueberprueft, ob die config.xml geparset werden kann.
  * @author Christopher Jung
  *
  */
 public class WebXmlValidXmlCheck implements Checkable {
-
+	@Override
 	public void doCheck() throws CheckFailedException {
 		try {
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -40,6 +40,7 @@ public class WebXmlValidXmlCheck implements Checkable {
 		}
 	}
 
+	@Override
 	public String getDescription() {
 		return "web.xml XML pruefen";
 	}

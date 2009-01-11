@@ -36,19 +36,20 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Zeigt die Liste hoechsten Gebote (welche zur Ersteigerung fuehrten) in der GTU
+ * Zeigt die Liste hoechsten Gebote (welche zur Ersteigerung fuehrten) in der GTU.
  * @author Christopher Jung
  *
  */
 public class StatGtuPrice extends AbstractStatistic implements Statistic {
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * 
 	 */
 	public StatGtuPrice() {
 		// EMPTY
 	}
 	
+	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();

@@ -25,20 +25,22 @@ import net.driftingsouls.ds2.server.modules.StatsController;
 import net.driftingsouls.ds2.server.uilibs.PlayerList;
 
 /**
- * Zeigt die Spielerliste an
+ * Zeigt die Spielerliste an.
  * @author Christopher Jung
  *
  */
 public class StatPlayerList implements Statistic {
-
+	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		new PlayerList().draw(ContextMap.getContext());
 	}
 
+	@Override
 	public boolean generateAllyData() {
 		return false;
 	}
 	
+	@Override
 	public int getRequiredData() {
 		return 0;
 	}

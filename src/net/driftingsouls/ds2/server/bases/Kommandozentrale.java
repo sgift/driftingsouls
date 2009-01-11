@@ -50,7 +50,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 
 /**
- * Die Kommandozentrale
+ * Die Kommandozentrale.
  * @author Christopher Jung
  *
  */
@@ -59,7 +59,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.Kommandozentrale")
 public class Kommandozentrale extends DefaultBuilding {
 	/**
-	 * Erstellt eine neue Instanz der Kommandozentrale
+	 * Erstellt eine neue Instanz der Kommandozentrale.
 	 */
 	public Kommandozentrale() {
 		// EMPTY

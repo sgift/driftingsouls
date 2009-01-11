@@ -50,7 +50,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Generiert die Sternenkarte, die Sternensystem-Liste sowie die Liste der Schiffe in einem Sektor
+ * Generiert die Sternenkarte, die Sternensystem-Liste sowie die Liste der Schiffe in einem Sektor.
  * @author Christopher Jung
  * 
  * @urlparam Integer sys Das anzuzeigende System
@@ -87,7 +87,7 @@ public class MapDataController extends DSGenerator {
 	private int system;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public MapDataController(Context context) {
@@ -211,7 +211,7 @@ public class MapDataController extends DSGenerator {
 	}
 	
 	/**
-	 * Gibt den Inhalt eines Sektors als XML-Dokument zurueck
+	 * Gibt den Inhalt eines Sektors als XML-Dokument zurueck.
 	 * @throws IOException 
 	 * @urlparam Integer x Die X-Koordinate des Sektors
 	 * @urlparam Integer y Die Y-Koordinate des Sektors
@@ -344,7 +344,7 @@ public class MapDataController extends DSGenerator {
 	}
 	
 	/**
-	 * Gibt die Liste der Systeme als XML-Dokument zurueck
+	 * Gibt die Liste der Systeme als XML-Dokument zurueck.
 	 * @throws IOException 
 	 *
 	 */
@@ -389,7 +389,7 @@ public class MapDataController extends DSGenerator {
 	}
 	
 	/**
-	 * Generiert die Sternenkarte
+	 * Generiert die Sternenkarte.
 	 * @throws IOException 
 	 */
 	@Override

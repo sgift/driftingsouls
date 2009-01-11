@@ -45,7 +45,7 @@ import org.w3c.dom.NodeList;
  * Repraesentiert einen Cargo, also eine Liste von Waren und Items mit jeweils einer bestimmten Menge, in DS.
  * <p>Hinweis zu {@link #equals(Object)} und {@link #hashCode()}:<br>
  * Zwei Cargoobjekte sind dann gleich, wenn sie zum Zeitpunkt des Vergleichs den selben Inhalt haben. Es wird nicht
- * beruecksichtigt ob die Optionen gleich sind oder die Cargos bei der Initalisierung einen unterschiedlichen Inhalt hatten</p>
+ * beruecksichtigt ob die Optionen gleich sind oder die Cargos bei der Initalisierung einen unterschiedlichen Inhalt hatten.</p>
  * @author Christopher Jung
  *
  */
@@ -62,56 +62,56 @@ public class Cargo implements Cloneable {
 	 */
 	public enum Type { 
 		/**
-		 * Ein leerer Cargo - Bitte den Default-Konstruktor stattdessen verwenden
+		 * Ein leerer Cargo - Bitte den Default-Konstruktor stattdessen verwenden.
 		 */
 		EMPTY,
 		/**
-		 * Ein Cargo-String
+		 * Ein Cargo-String.
 		 */
 		STRING,
 		/**
-		 * Ein Array von Waren/Items - Nicht mehr unterstuetzt
+		 * Ein Array von Waren/Items - Nicht mehr unterstuetzt.
 		 */
 		ARRAY,
 		/**
-		 * Ein Item-String. Vergleichbar einem Cargo-String, jedoch auf Items beschraenkt
+		 * Ein Item-String. Vergleichbar einem Cargo-String, jedoch auf Items beschraenkt.
 		 */
 		ITEMSTRING
 	};
 	
 	
 	/**
-	 * Die verschiedenen Rundungstypen bei {@link Cargo#multiply(double, net.driftingsouls.ds2.server.cargo.Cargo.Round)}
+	 * Die verschiedenen Rundungstypen bei {@link Cargo#multiply(double, net.driftingsouls.ds2.server.cargo.Cargo.Round)}.
 	 * @author Christopher Jung
 	 *
 	 */
 	public enum Round {
 		/**
-		 * Nachkommastellen abschneiden
+		 * Nachkommastellen abschneiden.
 		 */
 		NONE,
 		/**
-		 * {@link java.lang.Math#round(double)} zum Runden verwenden
+		 * {@link java.lang.Math#round(double)} zum Runden verwenden.
 		 */
 		ROUND,
 		/**
-		 * Alias fuer {@link #NONE}
+		 * Alias fuer {@link #NONE}.
 		 */
 		FLOOR,
 		/**
-		 * {@link java.lang.Math#ceil(double)} zum Runden verwenden
+		 * {@link java.lang.Math#ceil(double)} zum Runden verwenden.
 		 */
 		CEIL
 	};
 
 	/**
-	 * Die verschiedenen Optionen des Cargo-Objekts
+	 * Die verschiedenen Optionen des Cargo-Objekts.
 	 * @author Christopher Jung
 	 * @see Cargo#setOption(net.driftingsouls.ds2.server.cargo.Cargo.Option, Object)
 	 */
 	public enum Option {
 		/**
-		 * Die fuer die Ausgabe zu verwendende CSS-Link-Klasse (java.lang.String)
+		 * Die fuer die Ausgabe zu verwendende CSS-Link-Klasse (java.lang.String).
 		 */
 		LINKCLASS,
 		/**
@@ -123,7 +123,7 @@ public class Cargo implements Cloneable {
 		 */
 		LARGEIMAGES,
 		/**
-		 * Soll die Ausgabe vollstaendig ohne HTML generiert werden? (java.lang.Boolean);
+		 * Soll die Ausgabe vollstaendig ohne HTML generiert werden? (java.lang.Boolean)
 		 */
 		NOHTML
 	};
@@ -142,7 +142,7 @@ public class Cargo implements Cloneable {
 	private boolean nohtml = false;
 	
 	/**
-	 * Erstellt ein neues leeres Cargo-Objekt
+	 * Erstellt ein neues leeres Cargo-Objekt.
 	 *
 	 */
 	public Cargo() {
@@ -150,7 +150,7 @@ public class Cargo implements Cloneable {
 	}
 	
 	/**
-	 * <p>Konstruktor</p>
+	 * <p>Konstruktor.</p>
 	 * Erstellt einen neuen Cargo aus dem aktuellen Cargo sowie den Optionen eines anderen Cargo-Objekts.
 	 * @param cargo Der Cargo, dessen Daten genommen werden sollen
 	 */
@@ -195,7 +195,7 @@ public class Cargo implements Cloneable {
 	}
 	
 	/**
-	 * Erstellt einen Cargo aus einer XML-Node
+	 * Erstellt einen Cargo aus einer XML-Node.
 	 * @param node Die Node unter der die Cargo-Infos stehen
 	 */
 	public Cargo(Node node) {
@@ -223,7 +223,7 @@ public class Cargo implements Cloneable {
 	}
 	
 	/**
-	 * Erstellt ein neues Cargo-Objekt aus einem Cargo-String oder einem Item-String
+	 * Erstellt ein neues Cargo-Objekt aus einem Cargo-String oder einem Item-String.
 	 * @param type der Typ (entweder {@link Type#STRING} oder {@link Type#ITEMSTRING})
 	 * @param source Der Cargo-String/Item-String
 	 */
@@ -289,7 +289,7 @@ public class Cargo implements Cloneable {
 	}
 	
 	/**
-	 * Schreibt den Cargo in einen Cargo- oder Itemstring
+	 * Schreibt den Cargo in einen Cargo- oder Itemstring.
 	 * @param type Der zu schreibende Typ (Cargostring/Itemstring)
 	 * @return der String mit dem Cargo
 	 */
@@ -376,7 +376,7 @@ public class Cargo implements Cloneable {
 	}
 	
 	/**
-	 * Gibt den Cargo als Resourcen-String zurueck
+	 * Gibt den Cargo als Resourcen-String zurueck.
 	 * @return Der Resourcen-String
 	 */
 	public String save() {
@@ -385,7 +385,7 @@ public class Cargo implements Cloneable {
 	
 	/**
 	 * Gibt den aktuellen oder den bei der Erstellung verwendeten Cargo als
-	 * Resourcen-String zurueck
+	 * Resourcen-String zurueck.
 	 * @param orginalCargo Soll der urspruengliche Cargo zurueckgegeben werden (<code>true</code>)?
 	 * @return Der Resourcen-String
 	 */
@@ -422,7 +422,7 @@ public class Cargo implements Cloneable {
 	}
 	
 	/**
-	 * Fuegt den angegebenen ItemCargo-Eintrag zum Cargo hinzu
+	 * Fuegt den angegebenen ItemCargo-Eintrag zum Cargo hinzu.
 	 * @param item Der ItemCargo-Eintrag
 	 */
 	public void addItem( ItemCargoEntry item ) {
@@ -430,7 +430,7 @@ public class Cargo implements Cloneable {
 	}
 	
 	/**
-	 * Fuegt dem Cargo die angegebene Resource in der angegebenen Hoehe hinzu
+	 * Fuegt dem Cargo die angegebene Resource in der angegebenen Hoehe hinzu.
 	 * @param resourceid Die Resource
 	 * @param count Die Anzahl an hinzuzufuegenden Resourceneinheiten
 	 */
@@ -458,7 +458,7 @@ public class Cargo implements Cloneable {
 	}
 	
 	/**
-	 * Zieht den angegebenen ItemCargo-Eintrag von Cargo ab
+	 * Zieht den angegebenen ItemCargo-Eintrag von Cargo ab.
 	 * @param item der ItemCargo-Eintrag
 	 */
 	public void substractItem( ItemCargoEntry item ) {
@@ -466,7 +466,7 @@ public class Cargo implements Cloneable {
 	}
 	
 	/**
-	 * Verringert die angegebene Resource im Cargo um den angegebenen Wert
+	 * Verringert die angegebene Resource im Cargo um den angegebenen Wert.
 	 * @param resourceid Die Resource
 	 * @param count Die Anzahl an Einheiten, die abgezogen werden sollen
 	 */
@@ -519,7 +519,7 @@ public class Cargo implements Cloneable {
 	}
 	
 	/**
-	 * Gibt alle Items eines bestimmten Itemtyps als <code>ItemCargoEntry</code>-Instanzen zurueck
+	 * Gibt alle Items eines bestimmten Itemtyps als <code>ItemCargoEntry</code>-Instanzen zurueck.
 	 * @param itemid Die ID des Item-Typs
 	 * @return Liste aller Items des Typs im Cargo
 	 */
@@ -537,7 +537,7 @@ public class Cargo implements Cloneable {
 	}
 	
 	/**
-	 * Gibt alle Items im Cargo als <code>ItemCargoEntry</code>-Instanzen zurueck
+	 * Gibt alle Items im Cargo als <code>ItemCargoEntry</code>-Instanzen zurueck.
 	 * @return Liste aller Items im Cargo
 	 */
 	public List<ItemCargoEntry> getItems() {
@@ -551,7 +551,7 @@ public class Cargo implements Cloneable {
 	}
 	
 	/**
-	 * Gibt die Anzahl der vorhandenen Resourceneinheiten der Resource im Cargo zurueck
+	 * Gibt die Anzahl der vorhandenen Resourceneinheiten der Resource im Cargo zurueck.
 	 * @param resourceid Die gewuenschte Resource
 	 * @return die Anzahl der Resourceneinheiten
 	 */
@@ -570,7 +570,7 @@ public class Cargo implements Cloneable {
 	}
 	
 	/**
-	 * Gibt die Gesamtmasse aller Waren und Items im <code>Cargo</code>-Objekt zurueck
+	 * Gibt die Gesamtmasse aller Waren und Items im <code>Cargo</code>-Objekt zurueck.
 	 * @return Die Gesamtmasse
 	 */
 	public long getMass() {
@@ -951,7 +951,7 @@ public class Cargo implements Cloneable {
 	
 	/**
 	 * Multipliziert jede Resource im Cargo mit dem angegebenen Faktor und rundet
-	 * das Ergebnis entsprechend des Rundungsmodus
+	 * das Ergebnis entsprechend des Rundungsmodus.
 	 * @param factor Der Faktor
 	 * @param round Der Rundungsmodus
 	 */
@@ -1058,7 +1058,7 @@ public class Cargo implements Cloneable {
 	
 	/**
 	 * Setzt die vorhandene Menge der angegebenen Resource auf 
-	 * den angegebenen Wert
+	 * den angegebenen Wert.
 	 * @param resourceid Die Resourcen-ID
 	 * @param count Die neue Menge
 	 */
@@ -1133,7 +1133,7 @@ public class Cargo implements Cloneable {
 	}
 	
 	/**
-	 * Prueft, ob der Cargo leer ist
+	 * Prueft, ob der Cargo leer ist.
 	 * @return <code>true</code>, falls er leer ist
 	 */
 	public boolean isEmpty() {
@@ -1156,7 +1156,7 @@ public class Cargo implements Cloneable {
 	}
 	
 	/**
-	 * Setzt eine Option auf den angegebenen Wert
+	 * Setzt eine Option auf den angegebenen Wert.
 	 * @param option Die Option
 	 * @param data Der Wert
 	 */
@@ -1181,7 +1181,7 @@ public class Cargo implements Cloneable {
 	}
 	
 	/**
-	 * Gibt den Wert einer Option zurueck
+	 * Gibt den Wert einer Option zurueck.
 	 * @param option Die Option
 	 * @return Der Wert
 	 */
@@ -1228,7 +1228,7 @@ public class Cargo implements Cloneable {
 
 	/**
 	 * Gibt das zu einer Resourcen-ID gehoerende Bild zurueck.
-	 * Der Pfad ist bereits vollstaendig und in URL-Form
+	 * Der Pfad ist bereits vollstaendig und in URL-Form.
 	 * 
 	 * @param resid Die Resourcen-ID
 	 * @return Der Pfad zum Bild
@@ -1251,7 +1251,7 @@ public class Cargo implements Cloneable {
 	}
 	
 	/**
-	 * Gibt den Namen einer Resource zurueck
+	 * Gibt den Namen einer Resource zurueck.
 	 * @param resid Die Resourcen-ID
 	 * @return Der Name
 	 */
@@ -1266,7 +1266,7 @@ public class Cargo implements Cloneable {
 	}
 	
 	/**
-	 * Gibt die Masse einer Resource in einer bestimmten Menge zurueck
+	 * Gibt die Masse einer Resource in einer bestimmten Menge zurueck.
 	 * 
 	 * @param resourceid Die Resourcen-ID
 	 * @param count Die Menge
@@ -1296,6 +1296,8 @@ public class Cargo implements Cloneable {
 	 * Prueft, ob zwei Cargos im Moment den selben Inhalt haben.
 	 * Es wird nicht geprueft, ob sie auch urspruenglich den selben Inhalt hatten
 	 * oder ob die Optionen gleich sind!
+	 * @param obj Der zu vergleichende Cargo
+	 * @return <code>true</code>, falls der Inhalt gleich ist
 	 */
 	@Override
 	public boolean equals(Object obj) {

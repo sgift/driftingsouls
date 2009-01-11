@@ -30,7 +30,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
- * Zeigt das Cheatmenue an
+ * Zeigt das Cheatmenue an.
  * @author Christopher Jung
  *
  */
@@ -40,7 +40,7 @@ public class KSMenuCheatsAction extends BasicKSMenuAction {
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired

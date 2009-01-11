@@ -36,13 +36,13 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
 /**
- * Ermoeglicht das Einfuegen von neuen Versteigerungen in die GTU 
+ * Ermoeglicht das Einfuegen von neuen Versteigerungen in die GTU.
  * @author Christopher Jung
  *
  */
 @AdminMenuEntry(category="GTU", name="Versteigern")
 public class AddGtu implements AdminPlugin {
-
+	@Override
 	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();

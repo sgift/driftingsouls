@@ -37,7 +37,7 @@ public interface Action {
 	
 	/**
 	 * Setzt alle fuer diesen "Einsatz" vorhandenen Parameter. Das setzen der Parameter
-	 * erfolgt nach dem Aufruf von reset aber noch vor dem Aufruf von action
+	 * erfolgt nach dem Aufruf von reset aber noch vor dem Aufruf von action.
 	 * 
 	 * @param name Der Name des Parameters
 	 * @param value Der Wert
@@ -48,7 +48,7 @@ public interface Action {
 	 * Fuehrt die eigendliche Aktion aus. Wenn diese true zurueck gibt, 
 	 * wird mit der Ausfuehrung der Pipeline fortgefahen. Andernfalls 
 	 * gilt die Pipeline als nicht passend und es wird nach einer anderen Pipeline
-	 * gesucht
+	 * gesucht.
 	 * 
 	 * @param context der mit dem Aufruf verbundene Kontext
 	 * @return true falls alles Ok ist oder false, falls die Pipeline nicht passt

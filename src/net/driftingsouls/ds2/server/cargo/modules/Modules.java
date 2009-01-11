@@ -21,30 +21,30 @@ package net.driftingsouls.ds2.server.cargo.modules;
 import net.driftingsouls.ds2.server.ships.Ship;
 
 /**
- * Allgmeine (Schiffs)Modulfunktionen und Konstanten
+ * Allgmeine (Schiffs)Modulfunktionen und Konstanten.
  * @author Christopher Jung
  *
  */
 public class Modules {
 	/**
-	 * Ein Frachtkontainer-Modul
+	 * Ein Frachtkontainer-Modul.
 	 * @see ModuleContainerShip
 	 */
 	public static final int MODULE_CONTAINER_SHIP = 1;
 	/**
-	 * Ein Schiffsbild-Modul
+	 * Ein Schiffsbild-Modul.
 	 * @see ModuleShipPicture
 	 */
 	public static final int MODULE_SHIP_PICTURE = 2;
 	/**
-	 * Ein Item-Modul
+	 * Ein Item-Modul.
 	 * @see ModuleItemModule
 	 */
 	public static final int MODULE_ITEMMODULE = 3;
 	
 	/**
 	 * Gibt zu den Moduldaten eines Slots auf einem Schiff eine passende Modul-Instanz
-	 * zurueck 
+	 * zurueck.
 	 * @param moduledata Die Moduldaten fuer einen Slot
 	 * @return eine Modul-Instanz oder <code>null</code>, falls keine passende Instanz erzeugt werden konnte
 	 */

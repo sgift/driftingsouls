@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.framework.authentication;
 
 /**
- * Authentifizierungsfehler, weil der Loginvorgang gesperrt wurde
+ * Authentifizierungsfehler, weil der Loginvorgang gesperrt wurde.
  * @author Christopher Jung
  *
  */
@@ -27,8 +27,8 @@ public class LoginDisabledException extends AuthenticationException {
 	private static final long serialVersionUID = -8690120994567708859L;
 
 	/**
-	 * Konstruktor
-	 * @param reason
+	 * Konstruktor.
+	 * @param reason Die Begruendung
 	 */
 	public LoginDisabledException(String reason) {
 		super(reason);

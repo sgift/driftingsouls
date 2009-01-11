@@ -7,7 +7,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 /**
- * Eine NPC-Bestellung
+ * Eine NPC-Bestellung.
  * @author Christopher Jung
  *
  */
@@ -24,7 +24,7 @@ public class Order {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public Order() {
@@ -32,7 +32,7 @@ public class Order {
 	}
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param user Der User, fuer den der Auftrag abgewickelt werden soll
 	 * @param type Der Typ, der abgewickelt werden soll
 	 */
@@ -42,7 +42,7 @@ public class Order {
 	}
 
 	/**
-	 * Gibt den Tick zurueck, an dem der Auftrag abgewickelt werden soll
+	 * Gibt den Tick zurueck, an dem der Auftrag abgewickelt werden soll.
 	 * @return Der Tick
 	 */
 	public int getTick() {
@@ -50,7 +50,7 @@ public class Order {
 	}
 
 	/**
-	 * Setzt den Tick, am den der Auftrag abgewickelt werden soll
+	 * Setzt den Tick, am den der Auftrag abgewickelt werden soll.
 	 * @param tick Der Tick
 	 */
 	public void setTick(int tick) {
@@ -58,7 +58,7 @@ public class Order {
 	}
 
 	/**
-	 * Gibt den abzuwickelnden Auftragstyp an
+	 * Gibt den abzuwickelnden Auftragstyp an.
 	 * @return Der Auftragstyp
 	 */
 	public int getType() {
@@ -66,7 +66,7 @@ public class Order {
 	}
 
 	/**
-	 * Setzt den abzuwickelnden Auftragstyp
+	 * Setzt den abzuwickelnden Auftragstyp.
 	 * @param type Der Typ
 	 */
 	public final void setType(final int type) {
@@ -74,7 +74,7 @@ public class Order {
 	}
 
 	/**
-	 * Gibt den User zurueck, fuer den der Auftrag abgewickelt werden soll
+	 * Gibt den User zurueck, fuer den der Auftrag abgewickelt werden soll.
 	 * @return Der User
 	 */
 	public int getUser() {
@@ -82,7 +82,7 @@ public class Order {
 	}
 
 	/**
-	 * Setzt den User fuer den der Auftrag abgewickelt werden soll
+	 * Setzt den User fuer den der Auftrag abgewickelt werden soll.
 	 * @param user Der User
 	 */
 	public final void setUser(final int user) {
@@ -90,7 +90,7 @@ public class Order {
 	}
 
 	/**
-	 * Gibt die ID zurueck
+	 * Gibt die ID zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -98,7 +98,7 @@ public class Order {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

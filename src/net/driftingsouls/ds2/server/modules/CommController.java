@@ -49,7 +49,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Die PM-Verwaltung
+ * Die PM-Verwaltung.
  * @author Christopher Jung
  * @author Christian Peltz
  *
@@ -61,7 +61,7 @@ public class CommController extends TemplateGenerator {
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -71,7 +71,7 @@ public class CommController extends TemplateGenerator {
     }
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public CommController(Context context) {
@@ -98,7 +98,7 @@ public class CommController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Markiert alle PMs in einem Ordner als gelesen
+	 * Markiert alle PMs in einem Ordner als gelesen.
 	 * @urlparam Integer ordner Die ID des Ordners
 	 *
 	 */
@@ -117,7 +117,7 @@ public class CommController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Loescht alle PMs in einem Ordner
+	 * Loescht alle PMs in einem Ordner.
 	 * @urlparam Integer ordner Der Ordner, dessen PMs geloescht werden sollen
 	 *
 	 */
@@ -135,7 +135,7 @@ public class CommController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Loescht einen Ordner/eine PM
+	 * Loescht einen Ordner/eine PM.
 	 * @urlparam Integer delete Falls eine PM zu loeschen ist, dann enthaelt dies die ID der PM. Andernfalls 0
 	 * @urlparam Integer delord Die ID des zu loeschenden Ordners, andernfalls 0.
 	 *
@@ -184,7 +184,7 @@ public class CommController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Erstellt einen neuen Ordner
+	 * Erstellt einen neuen Ordner.
 	 * @urlparam Integer ordner Der Basisordner
 	 * @urlparam String ordnername Der Name des neuen Ordners
 	 *
@@ -208,7 +208,7 @@ public class CommController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Verschiebt alle PMs von einem Ordner in einen anderen
+	 * Verschiebt alle PMs von einem Ordner in einen anderen.
 	 * @urlparam Integer ordner Der Ausgangsordner
 	 * @urlparam Integer moveto Der Zielordner
 	 *
@@ -231,7 +231,7 @@ public class CommController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Benennt einen Ordner um
+	 * Benennt einen Ordner um.
 	 * @urlparam String ordnername Der neue Name des Ordners
 	 * @urlparam Integer subject Die ID des Ordners
 	 *
@@ -252,7 +252,7 @@ public class CommController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Loescht alle PMs von einem bestimmten Spieler in einem Ordner
+	 * Loescht alle PMs von einem bestimmten Spieler in einem Ordner.
 	 * @urlparam Integer playerid Die ID des Spielers
 	 * @urlparam Integer ordner Die ID des Ordners
 	 *
@@ -280,7 +280,7 @@ public class CommController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Markiert die ausgewaehlten Nachrichten als gelesen
+	 * Markiert die ausgewaehlten Nachrichten als gelesen.
 	 * @urlparam Integer pm_$pmid Die ID einer als gelesen zu markierenden PM ($pmid gibt diese ebenfalls an)
 	 *
 	 */
@@ -310,7 +310,7 @@ public class CommController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Verschiebt die ausgewaehlten Nachrichten/Ordner von einem Basisordner in einen anderen
+	 * Verschiebt die ausgewaehlten Nachrichten/Ordner von einem Basisordner in einen anderen.
 	 * @throws IOException 
 	 * @urlparam Integer ordner Der Basisordner
 	 * @urlparam Integer moveto Die ID des Zielordners
@@ -384,7 +384,7 @@ public class CommController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Verschiebt die ausgewaehlten Nachrichten/Ordner von einem Basisordner in einen anderen
+	 * Verschiebt die ausgewaehlten Nachrichten/Ordner von einem Basisordner in einen anderen.
 	 * @urlparam Integer ordner Der Basisordner
 	 * @urlparam Integer moveto Die ID des Zielordners
 	 * @urlparam Integer ordner_$ordnerid Die ID eines zu verschiebenden Ordners ($ordnerid gibt diese ebenfalls an)
@@ -466,7 +466,7 @@ public class CommController extends TemplateGenerator {
 	}
 
 	/**
-	 * Loescht die ausgewaehlten Nachrichten/Ordner in einem Basisordner
+	 * Loescht die ausgewaehlten Nachrichten/Ordner in einem Basisordner.
 	 * @urlparam Integer ordner Der Basisordner
 	 * @urlparam Integer ordner_$ordnerid Die ID eines zu loeschenden Ordners ($ordnerid gibt diese ebenfalls an)
 	 * @urlparam Integer pm_$pmid Die ID einer zu loeschenden PM ($pmid gibt diese ebenfalls an)
@@ -519,7 +519,7 @@ public class CommController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Versendet eine Nachricht
+	 * Versendet eine Nachricht.
 	 * @urlparam String to Der Empfaenger (Eine ID oder "task" oder "ally")
 	 * @urlparam Integer reply Falls != 0, dann die ID der Nachricht auf die geantwortet wird (Titel wird dann generiert)
 	 * @urlparam String msg Der Text der Nachricht
@@ -622,7 +622,7 @@ public class CommController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt eine empfangene/gesendete PM an
+	 * Zeigt eine empfangene/gesendete PM an.
 	 * @urlparam Integer pmid Die ID der Nachricht
 	 * @urlparam Integer ordner Die ID des Ordners, in dem sich die Nachricht befindet
 	 *
@@ -730,7 +730,7 @@ public class CommController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Stellt eine Nachricht aus dem Papierkorb wieder her
+	 * Stellt eine Nachricht aus dem Papierkorb wieder her.
 	 * @urlparam Integer recover Die wiederherzustellende Nachricht
 	 *
 	 */
@@ -749,7 +749,7 @@ public class CommController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Stellt alle geloeschten Nachrichten aus dem Papierkorb wieder her
+	 * Stellt alle geloeschten Nachrichten aus dem Papierkorb wieder her.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -765,7 +765,7 @@ public class CommController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Liste aller empfangenen Nachrichten an
+	 * Zeigt die Liste aller empfangenen Nachrichten an.
 	 * @urlparam Integer Der anzuzeigende Ordner (0 ist die oberste Ebene)
 	 *
 	 */
@@ -853,7 +853,7 @@ public class CommController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Liste aller versendeten und noch nicht geloeschten PMs
+	 * Zeigt die Liste aller versendeten und noch nicht geloeschten PMs.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -884,7 +884,7 @@ public class CommController extends TemplateGenerator {
 	}
 
 	/**
-	 * Zeigt eine Preview einer geschriebenen Nachricht an
+	 * Zeigt eine Preview einer geschriebenen Nachricht an.
 	 * @urlparam String msg Die Nachricht
 	 * @urlparam String to Der Empfaenger der Nachricht
 	 * @urlparam String title Der Titel der Nachricht
@@ -956,7 +956,7 @@ public class CommController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die GUI zum anlegen/bearbeiten eines Kommentars zu einer Nachricht an
+	 * Zeigt die GUI zum anlegen/bearbeiten eines Kommentars zu einer Nachricht an.
 	 * @urlparam Integer pm Die Nachricht
 	 * @urlparam Integer ordner Der Ordner, in dem sich die Nachricht befindet
 	 *
@@ -990,7 +990,7 @@ public class CommController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Speichert einen Kommentar zu einer Nachricht
+	 * Speichert einen Kommentar zu einer Nachricht.
 	 * @urlparam Integer pmid Die ID der Nachricht
 	 * @urlparam String msg Der Kommentar
 	 */

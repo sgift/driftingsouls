@@ -37,7 +37,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
- * Der Gebaeudebau
+ * Der Gebaeudebau.
  * @author Christopher Jung
  * 
  * @urlparam Integer col Die Bases, auf der das Gebaeude gebaut werden soll 
@@ -47,7 +47,7 @@ public class BuildController extends TemplateGenerator {
 	private Base base;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public BuildController(Context context) {
@@ -84,7 +84,7 @@ public class BuildController extends TemplateGenerator {
 	}
 
 	/**
-	 * Baut ein Gebaeute auf der Kolonie
+	 * Baut ein Gebaeute auf der Kolonie.
 	 * @urlparam Integer build Die ID des zu bauenden Gebaeudes
 	 *
 	 */
@@ -248,7 +248,7 @@ public class BuildController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Liste der baubaren Gebaeude, sortiert nach Kategorien, an
+	 * Zeigt die Liste der baubaren Gebaeude, sortiert nach Kategorien, an.
 	 * @urlparam Integer cat Die anzuzeigende Kategorie
 	 */
 	@Override

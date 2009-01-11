@@ -24,8 +24,8 @@ import java.util.List;
  * Repraesentiert einen Modulslot-Typ in DS.
  * Ein Modulslot hat einen Slottypen (der ID), einen Namen (der Beschreibung) und (optional)
  * einem Elternslot (Gegenstaende, die in den Elternslot passen, passen
- * auch in diesen Slot)
- * @author bktheg
+ * auch in diesen Slot).
+ * @author Christopher Jung
  *
  */
 public class ModuleSlot {
@@ -40,7 +40,7 @@ public class ModuleSlot {
 	}
 	
 	/**
-	 * Gibt die Typen-ID des Slots zurueck
+	 * Gibt die Typen-ID des Slots zurueck.
 	 * @return Die Typen-ID des Slots
 	 */
 	public String getSlotType() {
@@ -48,7 +48,7 @@ public class ModuleSlot {
 	}
 	
 	/**
-	 * Gibt den Namen/Beschreibung des Slots zurueck
+	 * Gibt den Namen/Beschreibung des Slots zurueck.
 	 * @return der Name/Beschreibung
 	 */
 	public String getName() {

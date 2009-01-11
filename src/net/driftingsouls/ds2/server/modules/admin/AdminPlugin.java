@@ -23,13 +23,13 @@ import java.io.IOException;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
- * Interface fuer Plugins des Admins
+ * Interface fuer Plugins des Admins.
  * @author Christopher Jung
  *
  */
 public interface AdminPlugin {
 	/**
-	 * Fuert das Adminplugin aus
+	 * Fuert das Adminplugin aus.
 	 * @param controller Der Admin-Controller
 	 * @param page Die Seiten-ID des Plugins
 	 * @param act Die Aktions-ID des Plugins

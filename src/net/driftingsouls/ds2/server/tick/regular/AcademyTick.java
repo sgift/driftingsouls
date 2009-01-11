@@ -40,7 +40,7 @@ import net.driftingsouls.ds2.server.tick.TickController;
 import org.apache.commons.lang.math.RandomUtils;
 
 /**
- * <h1>Berechnung des Ticks fuer Akademien</h1>
+ * <h1>Berechnung des Ticks fuer Akademien.</h1>
  * Der Ausbildungscountdown wird reduziert und, wenn dieser abgelaufen ist,
  * die Aus- bzw. Weiterbildung durchgefuehrt.
  * Abschliessend werden die Raenge der Offiziere aktuallsiert.

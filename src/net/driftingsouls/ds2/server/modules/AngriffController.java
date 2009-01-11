@@ -84,7 +84,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Das UI fuer Schlachten
+ * Das UI fuer Schlachten.
  * @author Christopher Jung
  * 
  * @urlparam Integer ship Die ID eines eigenen ausgewaehlten Schiffes (Pflicht bei der Erstellung einer neuen Schlacht)
@@ -148,7 +148,7 @@ public class AngriffController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public AngriffController(Context context) {
@@ -549,7 +549,7 @@ public class AngriffController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die GUI an
+	 * Zeigt die GUI an.
 	 * @throws IOException 
 	 * 
 	 * @urlparam String ownshipgroup Die eigene ausgewaehlte Schiffsgruppe

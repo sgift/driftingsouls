@@ -39,7 +39,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Diverse Funktionen rund um Schiffe in DS
+ * Diverse Funktionen rund um Schiffe in DS.
  * TODO: Ja, ich weiss, das ist nicht besonders schoen. Besser waeren richtige Schiffsobjekte...
  * @author Christopher Jung
  *
@@ -48,7 +48,7 @@ public class Ships {
 	private static final int MANGEL_TICKS = 9;
 
 	/**
-	 * Leert den Cache fuer Schiffsdaten
+	 * Leert den Cache fuer Schiffsdaten.
 	 *
 	 */
 	public static void clearShipCache() {
@@ -164,7 +164,7 @@ public class Ships {
 
 	/**
 	 * Gibt den Positionstext unter Beruecksichtigung von Nebeleffekten zurueck.
-	 * Dadurch kann der Positionstext teilweise unleserlich werden (gewuenschter Effekt) 
+	 * Dadurch kann der Positionstext teilweise unleserlich werden (gewuenschter Effekt).
 	 * @param system Die System-ID
 	 * @param x Die X-Koordinate
 	 * @param y Die Y-Koordinate
@@ -201,7 +201,7 @@ public class Ships {
 	/**
 	 * Gibt den Positionstext fuer die Position zurueck.
 	 * Beruecksichtigt werden Nebeleffekten.
-	 * Dadurch kann der Positionstext teilweise unleserlich werden (gewuenschter Effekt) 
+	 * Dadurch kann der Positionstext teilweise unleserlich werden (gewuenschter Effekt).
 	 * @param loc Die Position
 	 * @param noSystem Soll die System-ID angezeigt werden?
 	 * @return Der Positionstext

@@ -55,19 +55,20 @@ public class Rassen implements Iterable<Rasse> {
 	}
 	
 	/**
-	 * Liefert eine Instanz der Rassenliste
+	 * Liefert eine Instanz der Rassenliste.
 	 * @return Eine Instanz der Rassenliste
 	 */
 	public static Rassen get() {
 		return rassenList;
 	}
 	
+	@Override
 	public Iterator<Rasse> iterator() {
 		return list.values().iterator();
 	}
 	
 	/**
-	 * Liefert die zu einer ID gehoerende Rasse
+	 * Liefert die zu einer ID gehoerende Rasse.
 	 * @param id Die ID der Rasse 
 	 * @return Die zur ID gehoerende Rasse
 	 */

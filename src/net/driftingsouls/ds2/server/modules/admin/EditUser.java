@@ -35,13 +35,14 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
- * Aktualisierungstool fuer die Werte eines Spielers
+ * Aktualisierungstool fuer die Werte eines Spielers.
  * 
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Spieler", name = "Spieler editieren")
 public class EditUser implements AdminPlugin
 {
+	@Override
 	public void output(AdminController controller, String page, int action) throws IOException
 	{
 		Context context = ContextMap.getContext();

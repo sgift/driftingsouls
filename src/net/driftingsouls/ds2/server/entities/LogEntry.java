@@ -27,7 +27,7 @@ import javax.persistence.Version;
 import net.driftingsouls.ds2.server.framework.Common;
 
 /**
- * Ein Logeintrag
+ * Ein Logeintrag.
  * @author Christopher Jung
  *
  */
@@ -47,7 +47,7 @@ public class LogEntry {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public LogEntry() {
@@ -55,8 +55,8 @@ public class LogEntry {
 	}
 	
 	/**
-	 * <p>Konstruktor</p>
-	 * Erstellt einen neuen Logeintrag fuer den aktuellen Zeitpunkt
+	 * <p>Konstruktor.</p>
+	 * Erstellt einen neuen Logeintrag fuer den aktuellen Zeitpunkt.
 	 * @param type Der Typ des Eintrgas
 	 * @param user Der User, der den Eintrag ausgeloest hat
 	 * @param source Die Quelle der Handlung
@@ -71,7 +71,7 @@ public class LogEntry {
 	}
 	
 	/**
-	 * Gibt weitere Daten zurueck
+	 * Gibt weitere Daten zurueck.
 	 * @return weitere Daten
 	 */
 	public String getData() {
@@ -79,7 +79,7 @@ public class LogEntry {
 	}
 	
 	/**
-	 * Setzt weitere Daten
+	 * Setzt weitere Daten.
 	 * @param data weitere Daten
 	 */
 	public void setData(String data) {
@@ -87,7 +87,7 @@ public class LogEntry {
 	}
 	
 	/**
-	 * Gibt die Quelle der Aktion zurueck
+	 * Gibt die Quelle der Aktion zurueck.
 	 * @return Die Quelle
 	 */
 	public String getSource() {
@@ -95,7 +95,7 @@ public class LogEntry {
 	}
 	
 	/**
-	 * Setzt die Quelle der Aktion
+	 * Setzt die Quelle der Aktion.
 	 * @param source Die Quelle
 	 */
 	public void setSource(String source) {
@@ -103,7 +103,7 @@ public class LogEntry {
 	}
 	
 	/**
-	 * Gibt das Ziel der Aktion zurueck
+	 * Gibt das Ziel der Aktion zurueck.
 	 * @return Das Ziel
 	 */
 	public String getTarget() {
@@ -111,7 +111,7 @@ public class LogEntry {
 	}
 	
 	/**
-	 * Setzt das Ziel der Aktion
+	 * Setzt das Ziel der Aktion.
 	 * @param target Das Ziel
 	 */
 	public void setTarget(String target) {
@@ -119,7 +119,7 @@ public class LogEntry {
 	}
 	
 	/**
-	 * Gibt den Zeitpunkt der Aktion zurueck
+	 * Gibt den Zeitpunkt der Aktion zurueck.
 	 * @return Der Zeitpunkt
 	 */
 	public long getTime() {
@@ -127,7 +127,7 @@ public class LogEntry {
 	}
 	
 	/**
-	 * Setzt den Zeitpunkt der Aktion
+	 * Setzt den Zeitpunkt der Aktion.
 	 * @param time Der Zeitpunkt
 	 */
 	public void setTime(long time) {
@@ -135,7 +135,7 @@ public class LogEntry {
 	}
 	
 	/**
-	 * Gibt den Typ des Logeintrags zurueck
+	 * Gibt den Typ des Logeintrags zurueck.
 	 * @return Der Logeintrag
 	 */
 	public String getType() {
@@ -143,7 +143,7 @@ public class LogEntry {
 	}
 	
 	/**
-	 * Setzt den Typ des Logeintrags
+	 * Setzt den Typ des Logeintrags.
 	 * @param type Der Typ
 	 */
 	public void setType(String type) {
@@ -151,7 +151,7 @@ public class LogEntry {
 	}
 	
 	/**
-	 * Gibt den ausloesenden User zurueck
+	 * Gibt den ausloesenden User zurueck.
 	 * @return Der User
 	 */
 	public int getUser() {
@@ -159,7 +159,7 @@ public class LogEntry {
 	}
 	
 	/**
-	 * Setzt den ausloesenden user
+	 * Setzt den ausloesenden user.
 	 * @param user Der User
 	 */
 	public void setUser(int user) {
@@ -167,7 +167,7 @@ public class LogEntry {
 	}
 	
 	/**
-	 * Gibt die ID des Eintrags zurueck
+	 * Gibt die ID des Eintrags zurueck.
 	 * @return Die ID
 	 */
 	public long getId() {
@@ -175,7 +175,7 @@ public class LogEntry {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

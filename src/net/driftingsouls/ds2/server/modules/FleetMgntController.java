@@ -48,7 +48,7 @@ import net.driftingsouls.ds2.server.werften.WerftObject;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Die Flottenverwaltung
+ * Die Flottenverwaltung.
  * @author Christopher Jung
  * 
  * @urlparam Integer fleet Die ID der Flotte, falls schon eine existiert
@@ -62,7 +62,7 @@ public class FleetMgntController extends TemplateGenerator {
 	private ShipFleet fleet = null;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public FleetMgntController(Context context) {
@@ -173,7 +173,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt den Flottenerstelldialog fuer eine
+	 * Zeigt den Flottenerstelldialog fuer eine.
 	 * Flotte aus einer Koordinaten-, Mengen- und Schiffstypenangabe
 	 * an
 	 *
@@ -210,7 +210,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt den Erstelldialog fuer eine neue Flotte an
+	 * Zeigt den Erstelldialog fuer eine neue Flotte an.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -241,7 +241,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Erstellt eine Flotte aus einer Schiffsliste oder einer Koordinaten/Typen-Angabe
+	 * Erstellt eine Flotte aus einer Schiffsliste oder einer Koordinaten/Typen-Angabe.
 	 * @urlparam String fleetname der Name der neuen Flotte
 	 *
 	 */
@@ -334,7 +334,7 @@ public class FleetMgntController extends TemplateGenerator {
 	
 	/**
 	 * Fuegt eine definierte Anzahl an Schiffen eines Typs aus einem Sektor zur
-	 * Flotte hinzu
+	 * Flotte hinzu.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -399,7 +399,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Seite zum Umbenennen von Flotten an
+	 * Zeigt die Seite zum Umbenennen von Flotten an.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -412,7 +412,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Benennt eine Flotte um
+	 * Benennt eine Flotte um.
 	 * @urlparam String fleetname Der neue Name der Flotte
 	 *
 	 */
@@ -439,7 +439,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Abfrage an, ob eine Flotte aufgeloest werden soll
+	 * Zeigt die Abfrage an, ob eine Flotte aufgeloest werden soll.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -452,7 +452,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Loest eine Flotte auf
+	 * Loest eine Flotte auf.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -470,7 +470,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 
 	/**
-	 * Zeigt das Eingabefeld fuer die Uebergabe von Flotten an
+	 * Zeigt das Eingabefeld fuer die Uebergabe von Flotten an.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -483,7 +483,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Bestaetigung fuer die Uebergabe der Flotte an
+	 * Zeigt die Bestaetigung fuer die Uebergabe der Flotte an.
 	 * @urlparam Integer ownerid Die ID des Users, an den die Flotte uebergeben werden soll
 	 *
 	 */
@@ -511,7 +511,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Uebergibt die Flotte an einen neuen Spieler
+	 * Uebergibt die Flotte an einen neuen Spieler.
 	 * @urlparam Integer ownerid Die ID des neuen Besitzers
 	 *
 	 */
@@ -549,7 +549,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Laedt die Schilde aller Schiffe in der Flotte auf
+	 * Laedt die Schilde aller Schiffe in der Flotte auf.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -589,7 +589,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Entlaedt die Batterien auf den Schiffen der Flotte, um die EPS wieder aufzuladen
+	 * Entlaedt die Batterien auf den Schiffen der Flotte, um die EPS wieder aufzuladen.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -632,7 +632,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Laedt die Batterien auf den Schiffen der Flotte auf
+	 * Laedt die Batterien auf den Schiffen der Flotte auf.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -672,7 +672,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Exportiert die Schiffsliste der Flotte
+	 * Exportiert die Schiffsliste der Flotte.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -699,7 +699,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Dockt alle Schiffe der Flotte ab
+	 * Dockt alle Schiffe der Flotte ab.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -715,7 +715,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Sammelt alle nicht gedockten eigenen Container im Sektor auf (sofern genug Platz vorhanden ist)
+	 * Sammelt alle nicht gedockten eigenen Container im Sektor auf (sofern genug Platz vorhanden ist).
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -732,7 +732,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Startet alle Jaeger der Flotte
+	 * Startet alle Jaeger der Flotte.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -748,7 +748,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Sammelt alle nicht gelandeten eigenen Jaeger im Sektor auf (sofern genug Platz vorhanden ist)
+	 * Sammelt alle nicht gelandeten eigenen Jaeger im Sektor auf (sofern genug Platz vorhanden ist).
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -768,7 +768,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Fuegt die Schiffe einer anderen Flotte der aktiven Flotte hinzu
+	 * Fuegt die Schiffe einer anderen Flotte der aktiven Flotte hinzu.
 	 * @urlparam Integer fleetcombine Die ID der Flotte, deren Schiffe zur aktiven Flotte hinzugefuegt werden sollen
 	 *
 	 */
@@ -804,7 +804,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Aendert die Alarmstufe der Schiffe
+	 * Aendert die Alarmstufe der Schiffe.
 	 * @urlparam Integer alarm Die neue Alarmstufe
 	 *
 	 */
@@ -824,7 +824,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt das Eingabefeld fuer das Umbenennen der Schiffe der Flotte
+	 * Zeigt das Eingabefeld fuer das Umbenennen der Schiffe der Flotte.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -837,7 +837,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Baut ein Schiffstyp n-mal in allen Werften der Flotte, die dazu in der Lage sind
+	 * Baut ein Schiffstyp n-mal in allen Werften der Flotte, die dazu in der Lage sind.
 	 */
 	@Action(ActionType.DEFAULT)
 	@SuppressWarnings("unchecked")
@@ -901,11 +901,11 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Teil eines Formatierungsstrings fuer Schiffsnamen
+	 * Teil eines Formatierungsstrings fuer Schiffsnamen.
 	 */
 	private static interface NamePatternElement {
 		/**
-		 * Gibt den Text fuer das naechste Schiff zurueck
+		 * Gibt den Text fuer das naechste Schiff zurueck.
 		 * @return Der Text
 		 */
 		public String next();
@@ -963,7 +963,7 @@ public class FleetMgntController extends TemplateGenerator {
 	
 	/**
 	 * Konvertiert das angegebene Formatierungsmuster fuer Schiffsnamen in eine Liste
-	 * von <code>NamePatternElements</code>. 
+	 * von <code>NamePatternElements</code>.
 	 * Die Sortierung entspricht ihrem vorkommen im String.
 	 * @param name Der Formatierungsstring
 	 * @return Die Liste
@@ -1014,7 +1014,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Generiert aus einer Liste von Namensteilen den Gesamtnamen fuer das naechste Schiff
+	 * Generiert aus einer Liste von Namensteilen den Gesamtnamen fuer das naechste Schiff.
 	 * @param nameParts Die Namensteile
 	 * @return Der Gesamtname
 	 */
@@ -1029,7 +1029,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Benennt die Schiffe der Flotte um
+	 * Benennt die Schiffe der Flotte um.
 	 * @urlparam String name Das Namensmuster
 	 *
 	 */
@@ -1061,7 +1061,7 @@ public class FleetMgntController extends TemplateGenerator {
 	
 	/**
 	 * Transferiert eine bestimmte Menge (in Prozent) an Crew zwischen der Flotte
-	 * und einer den Basen des Spielers
+	 * und einer den Basen des Spielers.
 	 * @urlparam crewinpercent Anzahl der Crew in Prozent (der Maxcrew des Zielschiffes)
 	 */
 	@Action(ActionType.DEFAULT)

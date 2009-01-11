@@ -28,7 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Der seltene Tick
+ * Der seltene Tick.
  * @author Christopher Jung
  *
  */

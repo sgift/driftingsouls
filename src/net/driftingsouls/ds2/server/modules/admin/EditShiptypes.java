@@ -53,6 +53,7 @@ public class EditShiptypes implements AdminPlugin
 {
 	private static final Log log = LogFactory.getLog(EditShiptypes.class);
 	
+	@Override
 	public void output(AdminController controller, String page, int action) throws IOException
 	{
 		Context context = ContextMap.getContext();

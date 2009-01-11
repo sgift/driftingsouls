@@ -46,7 +46,7 @@ abstract class AbstractStatistic implements Statistic {
 	}
 	
 	/**
-	 * Generiert eine Statistik mit Platz, Namen und Anzahl
+	 * Generiert eine Statistik mit Platz, Namen und Anzahl.
 	 * @param name Der Name der Statistik
 	 * @param tmp Ein SQL-Ergebnis mit den Feldern (Spieler/Ally) "id", (Spieler/Ally) "name" und "count", welches den Plaetzen nach sortiert ist (1. Platz zuerst)
 	 * @param url Die fuer Links
@@ -57,7 +57,7 @@ abstract class AbstractStatistic implements Statistic {
 	}
 	
 	/**
-	 * Generiert eine Statistik mit Platz, Namen und Anzahl
+	 * Generiert eine Statistik mit Platz, Namen und Anzahl.
 	 * @param name Der Name der Statistik
 	 * @param tmp Ein SQL-Ergebnis mit den Feldern (Spieler/Ally) "id", (Spieler/Ally) "name" und "count", welches den Plaetzen nach sortiert ist (1. Platz zuerst)
 	 * @param url Die fuer Links
@@ -85,10 +85,12 @@ abstract class AbstractStatistic implements Statistic {
 		echo.append("</table><br /><br />\n");
 	}
 	
+	@Override
 	public boolean generateAllyData() {
 		return false;
 	}
 	
+	@Override
 	public int getRequiredData() {
 		return 0;
 	}

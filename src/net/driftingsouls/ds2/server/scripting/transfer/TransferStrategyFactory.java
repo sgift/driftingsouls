@@ -20,7 +20,7 @@ package net.driftingsouls.ds2.server.scripting.transfer;
 
 /**
  * Factoryklasse fuer Transferstrategien. Eine Transferstrategie erlaubt den
- * Transfer von Resourcen von einem Objekt zu einem Anderen
+ * Transfer von Resourcen von einem Objekt zu einem Anderen.
  * @author Sebastian Gift
  *
  */

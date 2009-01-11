@@ -24,15 +24,15 @@ import net.driftingsouls.ds2.server.framework.Common;
 
 class TagURL implements BBCodeFunction {
 	/**
-	 * Maximale Laenge des Titels
+	 * Maximale Laenge des Titels.
 	 */
 	private static final int MAXWIDTH = 100;
 	/**
-	 * Falls der Titel zu Lang ist: Anzahl Zeichen vom Anfang
+	 * Falls der Titel zu Lang ist: Anzahl Zeichen vom Anfang.
 	 */
 	private static final int WIDTH_BEGIN = 60;
 	/**
-	 * Falls der Titel zu Lang ist: Anzahl Zeichen vom Ende
+	 * Falls der Titel zu Lang ist: Anzahl Zeichen vom Ende.
 	 */
 	private static final int WIDTH_END = 25;
 	

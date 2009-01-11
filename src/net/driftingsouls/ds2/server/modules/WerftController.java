@@ -34,7 +34,7 @@ import net.driftingsouls.ds2.server.werften.ShipWerft;
 import net.driftingsouls.ds2.server.werften.WerftGUI;
 
 /**
- * <h1>Anzeige einer Schiffswerft</h1>
+ * <h1>Anzeige einer Schiffswerft.</h1>
  * Die GUI selbst wird von {@link net.driftingsouls.ds2.server.werften.WerftGUI} gezeichnet
  * @author Christopher Jung
  * 
@@ -48,7 +48,7 @@ public class WerftController extends TemplateGenerator {
 	private ShipTypeData type;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public WerftController(Context context) {

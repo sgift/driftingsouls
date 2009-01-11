@@ -25,7 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Kennzeichnet eine Action
+ * Kennzeichnet eine Action.
  * @author Christopher Jung
  *
  */
@@ -34,8 +34,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Action {
 	/**
-	 * Der Typ der Action
-	 * @return Der Typ
+	 * Der Typ der Action.
 	 */
 	ActionType value();
 }

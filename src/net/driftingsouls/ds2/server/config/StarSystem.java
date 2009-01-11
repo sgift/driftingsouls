@@ -23,24 +23,24 @@ import java.util.ArrayList;
 import net.driftingsouls.ds2.server.Location;
 
 /**
- * Repraesentiert ein Sternensystem in DS
+ * Repraesentiert ein Sternensystem in DS.
  * 
- * <p>Order-Locations: Geben Positionen an, in deren Umgebung neue Spieler nach der Registrierung "spawnen" koennen</p>
+ * <p>Order-Locations: Geben Positionen an, in deren Umgebung neue Spieler nach der Registrierung "spawnen" koennen.</p>
  * 
  * @author Christopher Jung
  *
  */
 public class StarSystem {
 	/**
-	 * Normaler Zugriffslevel - Alle Benutzer koennen das System sehen
+	 * Normaler Zugriffslevel - Alle Benutzer koennen das System sehen.
 	 */
 	public static final int AC_NORMAL = 1;
 	/**
-	 * NPC Zugriffslevel - Nur NPCs und Admins koennen das System sehen
+	 * NPC Zugriffslevel - Nur NPCs und Admins koennen das System sehen.
 	 */
 	public static final int AC_NPC = 2;
 	/**
-	 * Admin Zugriffslevel - Nur Admins koennen das System sehen
+	 * Admin Zugriffslevel - Nur Admins koennen das System sehen.
 	 */
 	public static final int AC_ADMIN = 3;
 	
@@ -69,7 +69,7 @@ public class StarSystem {
 	}
 	
 	/**
-	 * Gibt die Liste aller Order-Locations im System zurueck
+	 * Gibt die Liste aller Order-Locations im System zurueck.
 	 * @return die Liste aller Order-Locations
 	 */
 	public Location[] getOrderLocations() {
@@ -90,7 +90,7 @@ public class StarSystem {
 	}
 	
 	/**
-	 * Liefert die Position der GTU-Dropzone im System
+	 * Liefert die Position der GTU-Dropzone im System.
 	 * @return die Position der GTU-Dropzone
 	 */
 	public Location getDropZone() {
@@ -102,7 +102,7 @@ public class StarSystem {
 	}
 	
 	/**
-	 * Gibt an, ob militaerische Einheiten im System zugelassen sind
+	 * Gibt an, ob militaerische Einheiten im System zugelassen sind.
 	 * @return <code>true</code>, falls militaerische Einheiten zugelassen sind
 	 */
 	public boolean isMilitaryAllowed() {
@@ -110,7 +110,7 @@ public class StarSystem {
 	}
 	
 	/**
-	 * Gibt die maximale zulaessige Anzahl an Kolonien 
+	 * Gibt die maximale zulaessige Anzahl an Kolonien
 	 * innerhalb dieses Sternensystems zurueck. Sollte keine 
 	 * Begrenzung existieren, wird <code>-1</code> zurueckgegeben.
 	 * 
@@ -130,7 +130,7 @@ public class StarSystem {
 	}
 	
 	/**
-	 * Gibt die Breite in Feldern des Sternensystems zurueck
+	 * Gibt die Breite in Feldern des Sternensystems zurueck.
 	 * @return die Breite in Feldern
 	 */
 	public int getWidth() {
@@ -138,7 +138,7 @@ public class StarSystem {
 	}
 	
 	/**
-	 * Gibt die Hoehe in Feldern des Sternensystems zurueck
+	 * Gibt die Hoehe in Feldern des Sternensystems zurueck.
 	 * @return die Hoehe
 	 */
 	public int getHeight() {
@@ -146,7 +146,7 @@ public class StarSystem {
 	}
 	
 	/**
-	 * Gibt den Namen des Sternensystems zurueck
+	 * Gibt den Namen des Sternensystems zurueck.
 	 * @return der Name
 	 */
 	public String getName() {
@@ -154,7 +154,7 @@ public class StarSystem {
 	}
 	
 	/**
-	 * Gibt die ID des Sternensystems zurueck
+	 * Gibt die ID des Sternensystems zurueck.
 	 * @return die ID des Sternensystems
 	 */
 	public int getID() {
@@ -162,7 +162,7 @@ public class StarSystem {
 	}
 	
 	/**
-	 * Gibt die Beschreibung des Sternensystems zurueck
+	 * Gibt die Beschreibung des Sternensystems zurueck.
 	 * @return Die Beschreibung
 	 */
 	public String getDescription() {

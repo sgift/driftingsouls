@@ -28,7 +28,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * ScriptEngine-Logger, welcher die Ausgabe als HTML formatiert
+ * ScriptEngine-Logger, welcher die Ausgabe als HTML formatiert.
  * @author Christopher Jung
  *
  */

@@ -34,7 +34,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
 
 /**
  * TASK_AUSBAU_AUFTRAG
- * 		Ein Ausbau eines Asteroiden.
+ * 		Ein Ausbau eines Asteroiden..
  * 
  * 	- data1 -> die Auftrags-ID
  * 	- data2 -> Die Anzahl der bisherigen Versuche den Task durchzufuehren

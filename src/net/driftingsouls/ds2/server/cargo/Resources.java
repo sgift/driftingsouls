@@ -23,85 +23,85 @@ import net.driftingsouls.ds2.server.config.items.Items;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
- * Liste von gaengigen Resourcen sowie einigen Hilfsfunktionen fuer Resourcen-IDs
+ * Liste von gaengigen Resourcen sowie einigen Hilfsfunktionen fuer Resourcen-IDs.
  * @author Christopher Jung
  *
  */
 public class Resources {
 	/**
-	 * Die Resource Nahrung
+	 * Die Resource Nahrung.
 	 */
 	public static final ResourceID NAHRUNG = new WarenID(0);
 	/**
-	 * Die Resource Deuterium
+	 * Die Resource Deuterium.
 	 */
 	public static final ResourceID DEUTERIUM = new WarenID(1);
 	/**
-	 * Die Resource Kunststoffe
+	 * Die Resource Kunststoffe.
 	 */
 	public static final ResourceID KUNSTSTOFFE = new WarenID(2);
 	/**
-	 * Die Resource Titan
+	 * Die Resource Titan.
 	 */
 	public static final ResourceID TITAN = new WarenID(3);
 	/**
-	 * Die Resource Uran
+	 * Die Resource Uran.
 	 */
 	public static final ResourceID URAN = new WarenID(4);
 	/**
-	 * Die Resource Antimaterie
+	 * Die Resource Antimaterie.
 	 */
 	public static final ResourceID ANTIMATERIE = new WarenID(5);
 	/**
-	 * Die Resource Adamatium
+	 * Die Resource Adamatium.
 	 */
 	public static final ResourceID ADAMATIUM = new WarenID(6);
 	/**
-	 * Die Resource Platin
+	 * Die Resource Platin.
 	 */
 	public static final ResourceID PLATIN = new WarenID(7);
 	/**
-	 * Die Resource Silizium
+	 * Die Resource Silizium.
 	 */
 	public static final ResourceID SILIZIUM = new WarenID(8);
 	/**
-	 * Die Resource Xentronium
+	 * Die Resource Xentronium.
 	 */
 	public static final ResourceID XENTRONIUM = new WarenID(9);
 	/**
-	 * Die Resource Erz
+	 * Die Resource Erz.
 	 */
 	public static final ResourceID ERZ = new WarenID(10);
 	/**
-	 * Die Resource Isochips
+	 * Die Resource Isochips.
 	 */
 	public static final ResourceID ISOCHIPS = new WarenID(11);
 	/**
-	 * Die Resource Batterien
+	 * Die Resource Batterien.
 	 */
 	public static final ResourceID BATTERIEN = new WarenID(12);
 	/**
-	 * Die Resource Leere Batterien
+	 * Die Resource Leere Batterien.
 	 */
 	public static final ResourceID LBATTERIEN = new WarenID(13);
 	/**
-	 * Die Resource Antarit
+	 * Die Resource Antarit.
 	 */
 	public static final ResourceID ANTARIT = new WarenID(14);
 	/**
-	 * Die Resource Shivanische Artefakte
+	 * Die Resource Shivanische Artefakte.
 	 */
 	public static final ResourceID SHIVARTE = new WarenID(15);
 	/**
-	 * Die Resource Artefakte der Uralten
+	 * Die Resource Artefakte der Uralten.
 	 */
 	public static final ResourceID ANCIENTARTE = new WarenID(16);
 	/**
-	 * Die Resource Boese Admins
+	 * Die Resource Boese Admins.
 	 */
 	public static final ResourceID BOESERADMIN = new WarenID(17);
 	/**
-	 * Die Spezialresource Items
+	 * Die Spezialresource Items.
 	 */
 	public static final ResourceID ITEMS = new WarenID(18);
 	
@@ -181,7 +181,7 @@ public class Resources {
 	}
 	
 	/**
-	 * Gibt die <code>ResourceList</code> via TemplateEngine aus
+	 * Gibt die <code>ResourceList</code> via TemplateEngine aus.
 	 * @param t Das TemplateEngine
 	 * @param reslist Die ResourceList
 	 * @param templateblock Der Name des betreffenden TemplateBlocks

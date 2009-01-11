@@ -28,14 +28,14 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.Waypoint;
 
 /**
- * <p>Hilfsfunktionen zum Umgang mit Schiffen fuer das Scripting-System</p>
- * <p>Vorerst hier gesammelt, bis eine bessere Loesung gefunden ist</p>
+ * <p>Hilfsfunktionen zum Umgang mit Schiffen fuer das Scripting-System.</p>
+ * <p>Vorerst hier gesammelt, bis eine bessere Loesung gefunden ist.</p>
  * @author Christopher Jung
  *
  */
 public class ShipUtils {
 	/**
-	 * Objekt mit Funktionsmeldungen
+	 * Objekt mit Funktionsmeldungen.
 	 */
 	public static final ContextLocalMessage MESSAGE = new ContextLocalMessage();
 	

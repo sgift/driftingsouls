@@ -26,7 +26,7 @@ import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.Tree;
 
 /**
- * <h1>Der Parser fuer Rollendefinitionen</h1>
+ * <h1>Der Parser fuer Rollendefinitionen.</h1>
  * Das eigendliche Parsen wird ueber eine ANTLR-Grammatik realisiert.
  * 
  * @author Christopher Jung
@@ -34,7 +34,7 @@ import org.antlr.runtime.tree.Tree;
  */
 public class Parser {	
 	/**
-	 * Parst die Rollendefinition
+	 * Parst die Rollendefinition.
 	 * @param roleDef Der Text mit der Rollendefinition
 	 * @return Die geparste Rolle
 	 * @throws ParsingException Bei Uebersaetzung

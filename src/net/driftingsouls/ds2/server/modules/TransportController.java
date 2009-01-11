@@ -48,7 +48,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.mutable.MutableLong;
 
 /**
- * Transfer von Waren zwischen Basen und Schiffen
+ * Transfer von Waren zwischen Basen und Schiffen.
  * @author Christopher Jung
  *
  */
@@ -63,7 +63,7 @@ public class TransportController extends TemplateGenerator {
 		}
 		
 		/**
-		 * Gibt den Namen des MultiTargets zurueck
+		 * Gibt den Namen des MultiTargets zurueck.
 		 * @return Der Name
 		 */
 		String getName() {
@@ -71,7 +71,7 @@ public class TransportController extends TemplateGenerator {
 		}
 		
 		/**
-		 * Gibt eine |-separierte Liste mit Zielen zurueck
+		 * Gibt eine |-separierte Liste mit Zielen zurueck.
 		 * @return Liste der Ziele
 		 */
 		String getTargetList() {
@@ -180,7 +180,7 @@ public class TransportController extends TemplateGenerator {
 		static final int ROLE_TARGET = 1;
 		
 		/**
-		 * Konstruktor
+		 * Konstruktor.
 		 *
 		 */
 		public TransportTarget() {
@@ -188,7 +188,7 @@ public class TransportController extends TemplateGenerator {
 		}
 		
 		/**
-		 * Erstellt ein neues TransportTarget
+		 * Erstellt ein neues TransportTarget.
 		 * @param role Die Rolle (Source oder Target)
 		 * @param id Die ID
 		 * @throws Exception
@@ -199,7 +199,7 @@ public class TransportController extends TemplateGenerator {
 		}
 		
 		/**
-		 * Gibt die ID des Objekts zurueck
+		 * Gibt die ID des Objekts zurueck.
 		 * @return Die ID
 		 */
 		int getId() {
@@ -207,13 +207,13 @@ public class TransportController extends TemplateGenerator {
 		}
 		
 		/**
-		 * Gibt den Radius des Objekts zurueck
+		 * Gibt den Radius des Objekts zurueck.
 		 * @return Der Radius
 		 */
 		abstract int getSize();
 		
 		/**
-		 * Gibt die ID des Besitzers zurueck
+		 * Gibt die ID des Besitzers zurueck.
 		 * @return Die ID des Besitzers
 		 */
 		int getOwner() {
@@ -221,7 +221,7 @@ public class TransportController extends TemplateGenerator {
 		}
 		
 		/**
-		 * Setzt den Besitzer auf den angegebenen Wert
+		 * Setzt den Besitzer auf den angegebenen Wert.
 		 * @param owner Der neue Besitzer
 		 */
 		void setOwner(int owner) {
@@ -229,7 +229,7 @@ public class TransportController extends TemplateGenerator {
 		}
 			
 		/**
-		 * Gibt den maximalen Cargo zurueck
+		 * Gibt den maximalen Cargo zurueck.
 		 * @return Der maximale Cargo
 		 */
 		long getMaxCargo() {
@@ -237,7 +237,7 @@ public class TransportController extends TemplateGenerator {
 		}
 		
 		/**
-		 * Setzt den maximalen Cargo
+		 * Setzt den maximalen Cargo.
 		 * @param maxcargo der neue maximale Cargo
 		 */
 		void setMaxCargo(long maxcargo) {
@@ -245,7 +245,7 @@ public class TransportController extends TemplateGenerator {
 		}
 		
 		/**
-		 * Gibt den Cargo zurueck
+		 * Gibt den Cargo zurueck.
 		 * @return Der Cargo
 		 */
 		Cargo getCargo() {
@@ -253,7 +253,7 @@ public class TransportController extends TemplateGenerator {
 		}
 		
 		/**
-		 * Setzt den Cargo auf den angegebenen Wert
+		 * Setzt den Cargo auf den angegebenen Wert.
 		 * @param cargo der neue Cargo
 		 */
 		void setCargo(Cargo cargo) {
@@ -261,13 +261,13 @@ public class TransportController extends TemplateGenerator {
 		}
 		
 		/**
-		 * Gibt die Position des Objekts zurueck
+		 * Gibt die Position des Objekts zurueck.
 		 * @return Die Position
 		 */
 		abstract Location getLocation();
 		
 		/**
-		 * Schreibt die Daten in die Datenbank
+		 * Schreibt die Daten in die Datenbank.
 		 */
 		abstract void write();
 		/**
@@ -278,13 +278,13 @@ public class TransportController extends TemplateGenerator {
 		abstract MultiTarget getMultiTarget();
 		
 		/**
-		 * Gibt den Namen des Target-Typen zurueck
+		 * Gibt den Namen des Target-Typen zurueck.
 		 * @return Der Name
 		 */
 		abstract String getTargetName();
 		
 		/**
-		 * Gibt den Namen des konkreten Objekts zurueck (z.B. der Name des Schiffes/der Basis)
+		 * Gibt den Namen des konkreten Objekts zurueck (z.B. der Name des Schiffes/der Basis).
 		 * @return Der Name
 		 */
 		abstract String getObjectName();
@@ -294,7 +294,7 @@ public class TransportController extends TemplateGenerator {
 		private Ship ship;
 		
 		/**
-		 * Konstruktor
+		 * Konstruktor.
 		 */
 		public ShipTransportTarget() {
 			// EMPTY
@@ -376,7 +376,7 @@ public class TransportController extends TemplateGenerator {
 		}
 		
 		/**
-		 * Gibt die Flotte zurueck, zu der das Schiff gehoert
+		 * Gibt die Flotte zurueck, zu der das Schiff gehoert.
 		 * @return Die Flotte
 		 */
 		ShipFleet getFleet() {
@@ -388,7 +388,7 @@ public class TransportController extends TemplateGenerator {
 		private Base base;
 		
 		/**
-		 * Konstruktor
+		 * Konstruktor.
 		 */
 		public BaseTransportTarget() {
 			// EMPTY
@@ -448,7 +448,7 @@ public class TransportController extends TemplateGenerator {
 	private List<TransportTarget> to;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public TransportController(Context context) {
@@ -633,7 +633,7 @@ public class TransportController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Transferiert die Waren
+	 * Transferiert die Waren.
 	 * @urlparam Integer $resid+"to" Die Menge von $resid, welche zum Zielschiff transferiert werden soll
 	 * @urlparam Integer $resid+"from" Die Menge von $resid, welche von Zielschiff runter zum Quellschiff transferiert werden soll
 	 *

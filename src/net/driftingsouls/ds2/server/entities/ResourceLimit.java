@@ -12,7 +12,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.ships.Ship;
 
 /**
- * A limit for a single resource
+ * A limit for a single resource.
  * 
  * @author Sebastian Gift
  */
@@ -20,7 +20,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
 @Table(name="tradepost_buy_limit")
 public class ResourceLimit {
 	/**
-	 * Der Primaerschluessel eines Resourcenlimits
+	 * Der Primaerschluessel eines Resourcenlimits.
 	 */
 	@Embeddable
 	public static class ResourceLimitKey implements Serializable {
@@ -30,14 +30,14 @@ public class ResourceLimit {
 		private int resourceid;
 		
 		/**
-		 * Konstruktor
+		 * Konstruktor.
 		 */
 		public ResourceLimitKey() {
 			// EMPTY
 		}
 		
 		/**
-		 * Erstellt einen neuen Key
+		 * Erstellt einen neuen Key.
 		 * @param ship Das Schiff
 		 * @param resourceId Die ID der Resource
 		 */
@@ -54,7 +54,7 @@ public class ResourceLimit {
 		}
 
 		/**
-		 * Gibt die ID der Resource zurueck
+		 * Gibt die ID der Resource zurueck.
 		 * @return Die ID
 		 */
 		public int getResourceId() {
@@ -62,7 +62,7 @@ public class ResourceLimit {
 		}
 
 		/**
-		 * Gibt die ID des Schiffes zurueck
+		 * Gibt die ID des Schiffes zurueck.
 		 * @return Die ID
 		 */
 		public int getShipId() {
@@ -78,14 +78,14 @@ public class ResourceLimit {
 	private int version;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 */
 	public ResourceLimit() {
 		//Empty
 	}
 	
 	/**
-	 * Gibt die ID des Resourcenlimits zurueck
+	 * Gibt die ID des Resourcenlimits zurueck.
 	 * @return Die ID
 	 */
 	public ResourceLimitKey getId() {
@@ -93,7 +93,7 @@ public class ResourceLimit {
 	}
 
 	/**
-	 * Gibt das Limit der Resource zurueck
+	 * Gibt das Limit der Resource zurueck.
 	 * @return Das Limit
 	 */
 	public long getLimit() {
@@ -101,7 +101,7 @@ public class ResourceLimit {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

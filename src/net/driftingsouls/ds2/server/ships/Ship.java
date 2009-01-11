@@ -90,7 +90,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Repraesentiert ein Schiff in DS
+ * Repraesentiert ein Schiff in DS.
  * @author Christopher Jung
  *
  */
@@ -101,7 +101,7 @@ public class Ship implements Locatable,Transfering {
 	private static final Log log = LogFactory.getLog(Ship.class);
 	
 	/**
-	 * Objekt mit Funktionsmeldungen
+	 * Objekt mit Funktionsmeldungen.
 	 */
 	public static final ContextLocalMessage MESSAGE = new ContextLocalMessage();
 	
@@ -175,14 +175,14 @@ public class Ship implements Locatable,Transfering {
 	private Configuration config;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 */
 	public Ship() {
 		// EMPTY
 	}
 	
 	/**
-	 * Erstellt ein neues Schiff
+	 * Erstellt ein neues Schiff.
 	 * @param owner Der Besitzer
 	 */
 	@Deprecated
@@ -200,7 +200,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Erstellt ein neues Schiff
+	 * Erstellt ein neues Schiff.
 	 * @param owner Der Besitzer
 	 * @param shiptype Der Schiffstyp
 	 * @param system Das System
@@ -233,7 +233,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -243,7 +243,7 @@ public class Ship implements Locatable,Transfering {
     }
 
 	/**
-	 * Gibt die ID des Schiffes zurueck
+	 * Gibt die ID des Schiffes zurueck.
 	 * @return Die ID des Schiffes
 	 */
 	public int getId() {
@@ -251,7 +251,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Setzt die ID des Schiffes
+	 * Setzt die ID des Schiffes.
 	 * @param id Die ID
 	 */
 	public void setId(int id) {
@@ -259,7 +259,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Gibt den Besitzer des Schiffes zurueck
+	 * Gibt den Besitzer des Schiffes zurueck.
 	 * @return Der Besitzer
 	 */
 	public User getOwner() {
@@ -267,7 +267,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Setzt den Besitzer des Schiffes
+	 * Setzt den Besitzer des Schiffes.
 	 * @param owner Der Besitzer des Schiffes
 	 */
 	public void setOwner(User owner) {
@@ -275,7 +275,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Gibt den Namen des Schiffes zurueck
+	 * Gibt den Namen des Schiffes zurueck.
 	 * @return Der Name
 	 */
 	public String getName() {
@@ -283,7 +283,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Setzt den Namen des Schiffes
+	 * Setzt den Namen des Schiffes.
 	 * @param name Der neue Name
 	 */
 	public void setName(String name) {
@@ -291,7 +291,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Gibt den Typ des Schiffes zurueck
+	 * Gibt den Typ des Schiffes zurueck.
 	 * @return Der Typ
 	 */
 	public int getType() {
@@ -299,7 +299,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Gibt das zugrunde liegende Schiffstypen-Objekt zurueck
+	 * Gibt das zugrunde liegende Schiffstypen-Objekt zurueck.
 	 * @return Das Schiffstypen-Objekt
 	 */
 	public ShipType getBaseType() {
@@ -307,7 +307,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Setzt den Typ des Schiffes
+	 * Setzt den Typ des Schiffes.
 	 * @param type Der neue Typ
 	 */
 	public void setBaseType(ShipType type) {
@@ -315,7 +315,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Gibt den Cargo des Schiffes zurueck
+	 * Gibt den Cargo des Schiffes zurueck.
 	 * @return Der Cargo
 	 */
 	public Cargo getCargo() {
@@ -323,7 +323,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Setzt den Cargo des Schiffes
+	 * Setzt den Cargo des Schiffes.
 	 * @param cargo Der neue Cargo
 	 */
 	public void setCargo(Cargo cargo) {
@@ -331,7 +331,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Gibt die X-Koordinate des Schiffes zurueck
+	 * Gibt die X-Koordinate des Schiffes zurueck.
 	 * @return Die X-Koordinate
 	 */
 	public int getX() {
@@ -339,7 +339,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Setzt die X-Koordinate des Schiffes
+	 * Setzt die X-Koordinate des Schiffes.
 	 * @param x Die X-Koordinate
 	 */
 	public void setX(int x) {
@@ -347,7 +347,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Gibt die Y-Koordinate des Schiffes zurueck
+	 * Gibt die Y-Koordinate des Schiffes zurueck.
 	 * @return Die Y-Koordinate
 	 */
 	public int getY() {
@@ -355,7 +355,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Setzt die Y-Koordinate des Schiffes
+	 * Setzt die Y-Koordinate des Schiffes.
 	 * @param y Die Y-Koordinate
 	 */
 	public void setY(int y) {
@@ -363,7 +363,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Gibt das Sternensystem des Schiffes zurueck
+	 * Gibt das Sternensystem des Schiffes zurueck.
 	 * @return Das Sternensystem
 	 */
 	public int getSystem() {
@@ -371,7 +371,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Setzt das Sternensystem des Schiffes
+	 * Setzt das Sternensystem des Schiffes.
 	 * @param system Das Sternensystem
 	 */
 	public void setSystem(int system) {
@@ -379,7 +379,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt die Alarmstufe des Schiffes zurueck
+	 * Gibt die Alarmstufe des Schiffes zurueck.
 	 * @return Die Alarmstufe
 	 */
 	public int getAlarm() {
@@ -387,7 +387,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt die Alarmstufe des Schiffes
+	 * Setzt die Alarmstufe des Schiffes.
 	 * @param alarm Die neue Alarmstufe
 	 */
 	public void setAlarm(int alarm) {
@@ -395,7 +395,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt zurueck, ob das Schiff automatisch Deuterium sammeln soll oder nicht
+	 * Gibt zurueck, ob das Schiff automatisch Deuterium sammeln soll oder nicht.
 	 * @return <code>true</code>, falls das Schiff automatisch Deuterium sammeln soll
 	 */
 	public boolean getAutoDeut() {
@@ -403,7 +403,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt das automatische Deuteriumsammeln
+	 * Setzt das automatische Deuteriumsammeln.
 	 * @param autodeut <code>true</code>, falls das Schiff automatisch Deuterium sammeln soll
 	 */
 	public void setAutoDeut(boolean autodeut) {
@@ -419,7 +419,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt die Schlacht in der sich das Schiff befindet
+	 * Setzt die Schlacht in der sich das Schiff befindet.
 	 * @param battle Die Schlacht
 	 */
 	public void setBattle(Battle battle) {
@@ -427,7 +427,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt zurueck, ob das Schiff in der Schlacht eine Aktion durchgefuehrt hat
+	 * Gibt zurueck, ob das Schiff in der Schlacht eine Aktion durchgefuehrt hat.
 	 * @return <code>true</code>, falls das Schiff in der Schlacht bereits eine Aktion durchgefuehrt hat
 	 */
 	public boolean isBattleAction() {
@@ -435,7 +435,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt den Aktionsstatus des Schiffes in einer Schlacht 
+	 * Setzt den Aktionsstatus des Schiffes in einer Schlacht.
 	 * @param battleAction <code>true</code>, falls das Schiff in der Schlacht bereits eine Aktion durchgefuehrt hat
 	 */
 	public void setBattleAction(boolean battleAction) {
@@ -443,7 +443,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt zurueck, ob das Schiff gebookmarkt ist
+	 * Gibt zurueck, ob das Schiff gebookmarkt ist.
 	 * @return <code>true</code>, falls es ein Lesezeichen hat
 	 */
 	public boolean isBookmark() {
@@ -451,7 +451,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt den Lesezeichenstatus fuer ein Schiff
+	 * Setzt den Lesezeichenstatus fuer ein Schiff.
 	 * @param bookmark <code>true</code>, falls es ein Lesezeichen haben soll
 	 */
 	public void setBookmark(boolean bookmark) {
@@ -459,7 +459,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt den Status des Kommunikationssubsystems zurueck
+	 * Gibt den Status des Kommunikationssubsystems zurueck.
 	 * @return Der Status der Kommunikation
 	 */
 	public int getComm() {
@@ -467,7 +467,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt den Status des Kommunikationssubsystems
+	 * Setzt den Status des Kommunikationssubsystems.
 	 * @param comm Das neue Status
 	 */
 	public void setComm(int comm) {
@@ -475,7 +475,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt die Crewanzahl auf dem Schiff zurueck
+	 * Gibt die Crewanzahl auf dem Schiff zurueck.
 	 * @return Die Crewanzahl
 	 */
 	public int getCrew() {
@@ -483,7 +483,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt die Crewanzahl auf dem Schiff
+	 * Setzt die Crewanzahl auf dem Schiff.
 	 * @param crew Die neue Crewanzahl
 	 */
 	public void setCrew(int crew) {
@@ -491,7 +491,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt die Anzahl Marines auf dem Schiff zurueck
+	 * Gibt die Anzahl Marines auf dem Schiff zurueck.
 	 * @return Die Anzahl Marines
 	 */
 	public int getMarines() {
@@ -499,7 +499,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt die Anzahl Marines auf dem Schiff
+	 * Setzt die Anzahl Marines auf dem Schiff.
 	 * @param marines Die neue Anzahl Marines
 	 */
 	public void setMarines(int marines) {
@@ -507,7 +507,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Gibt die Energiemenge auf dem Schiff zurueck
+	 * Gibt die Energiemenge auf dem Schiff zurueck.
 	 * @return Die Energiemenge
 	 */
 	public int getEnergy() {
@@ -515,7 +515,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt die Energiemenge auf dem Schiff
+	 * Setzt die Energiemenge auf dem Schiff.
 	 * @param e Die neue Energiemenge
 	 */
 	public void setEnergy(int e) {
@@ -523,7 +523,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt die Antriebshitze zurueck
+	 * Gibt die Antriebshitze zurueck.
 	 * @return Die Antriebshitze
 	 */
 	public int getHeat() {
@@ -531,7 +531,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt die Antriebshitze
+	 * Setzt die Antriebshitze.
 	 * @param s Die neue Antriebshitze
 	 */
 	public void setHeat(int s) {
@@ -539,7 +539,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt den Huellenstatus zurueck
+	 * Gibt den Huellenstatus zurueck.
 	 * @return Der Huellenstatus
 	 */
 	public int getHull() {
@@ -547,7 +547,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt den Huellenstatus
+	 * Setzt den Huellenstatus.
 	 * @param hull Der neue Huellenstatus
 	 */
 	public void setHull(int hull) {
@@ -555,7 +555,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt den Schildstatus zurueck
+	 * Gibt den Schildstatus zurueck.
 	 * @return Der Schildstatus
 	 */
 	public int getShields() {
@@ -563,7 +563,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt den Schildstatus
+	 * Setzt den Schildstatus.
 	 * @param shields Der neue Schildstatus
 	 */
 	public void setShields(int shields) {
@@ -571,7 +571,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt die Waffenhitze zurueck
+	 * Gibt die Waffenhitze zurueck.
 	 * @return heat Die Waffenhitze
 	 */
 	public String getWeaponHeat() {
@@ -579,7 +579,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Setzt die Waffenhitze
+	 * Setzt die Waffenhitze.
 	 * @param heat Die neue Waffenhitze
 	 */
 	public void setWeaponHeat(String heat) {
@@ -587,7 +587,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt die Flotte zurueck in der sich das Schiff befindet
+	 * Gibt die Flotte zurueck in der sich das Schiff befindet.
 	 * @return Die Flotte
 	 */
 	public ShipFleet getFleet() {
@@ -595,7 +595,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt die Flotte in der sich das Schiff befindet
+	 * Setzt die Flotte in der sich das Schiff befindet.
 	 * @param fleet Die neue Flotte
 	 */
 	public void setFleet(ShipFleet fleet) {
@@ -603,7 +603,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt den Status des Antriebssubsystems zurueck
+	 * Gibt den Status des Antriebssubsystems zurueck.
 	 * @return Der Status des Antriebs
 	 */
 	public int getEngine() {
@@ -611,7 +611,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt den Status des Antriebssubsystems
+	 * Setzt den Status des Antriebssubsystems.
 	 * @param engine Der neue Status
 	 */
 	public void setEngine(int engine) {
@@ -619,7 +619,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt den Status der Sensoren zurueck
+	 * Gibt den Status der Sensoren zurueck.
 	 * @return Der Status
 	 */
 	public int getSensors() {
@@ -627,7 +627,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt den Status des Sensorsubsystems
+	 * Setzt den Status des Sensorsubsystems.
 	 * @param sensors Der neue Status
 	 */
 	public void setSensors(int sensors) {
@@ -635,7 +635,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt den Status des Waffensubsystems zurueck
+	 * Gibt den Status des Waffensubsystems zurueck.
 	 * @return Der Status des Waffensubsystems
 	 */
 	public int getWeapons() {
@@ -643,7 +643,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt den Status des Waffensubsystems
+	 * Setzt den Status des Waffensubsystems.
 	 * @param weapons Der neue Status
 	 */
 	public void setWeapons(int weapons) {
@@ -651,7 +651,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt die Dochdaten des Schiffes zurueck
+	 * Gibt die Dochdaten des Schiffes zurueck.
 	 * @return Die Dockdaten
 	 */
 	public String getDocked() {
@@ -659,7 +659,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt die Dockdaten des Schiffes
+	 * Setzt die Dockdaten des Schiffes.
 	 * @param docked Die neuen Dockdaten
 	 */
 	public void setDocked(String docked) {
@@ -667,7 +667,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt das Statusfeld des Schiffes zurueck
+	 * Gibt das Statusfeld des Schiffes zurueck.
 	 * @return Das Statusfeld
 	 */
 	public String getStatus() {
@@ -675,7 +675,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt das Statusfeld des Schiffes
+	 * Setzt das Statusfeld des Schiffes.
 	 * @param status das neue Statusfeld
 	 */
 	public void setStatus(String status) {
@@ -683,7 +683,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt den mit dem Schiff assoziierten Kommentar zurueck
+	 * Gibt den mit dem Schiff assoziierten Kommentar zurueck.
 	 * @return Der Kommentar
 	 */
 	public String getDestCom() {
@@ -691,7 +691,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt den Kommentar des Schiffes
+	 * Setzt den Kommentar des Schiffes.
 	 * @param destcom Der Kommentar
 	 */
 	public void setDestCom(String destcom) {
@@ -699,7 +699,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt das Zielsystem zurueck
+	 * Gibt das Zielsystem zurueck.
 	 * @return Das Zielsystem
 	 */
 	public int getDestSystem() {
@@ -707,7 +707,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt das Zielsystem
+	 * Setzt das Zielsystem.
 	 * @param destsystem Das neue Zielsystem
 	 */
 	public void setDestSystem(int destsystem) {
@@ -715,7 +715,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt die Ziel-X-Koordinate zurueck
+	 * Gibt die Ziel-X-Koordinate zurueck.
 	 * @return Die Ziel-X-Koordinate
 	 */
 	public int getDestX() {
@@ -723,7 +723,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt die Ziel-X-Koordinate
+	 * Setzt die Ziel-X-Koordinate.
 	 * @param destx Die neue X-Koordinate
 	 */
 	public void setDestX(int destx) {
@@ -731,7 +731,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt die Ziel-Y-Koordinate zurueck
+	 * Gibt die Ziel-Y-Koordinate zurueck.
 	 * @return Die Ziel-Y-Koordinate
 	 */
 	public int getDestY() {
@@ -739,7 +739,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt die Ziel-Y-Koordinate
+	 * Setzt die Ziel-Y-Koordinate.
 	 * @param desty Die neue Y-Koordinate
 	 */
 	public void setDestY(int desty) {
@@ -747,7 +747,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt das Sprungziel zurueck, welches von diesem Schiff aus angesprungen werden kann
+	 * Gibt das Sprungziel zurueck, welches von diesem Schiff aus angesprungen werden kann.
 	 * @return Das Sprungziel
 	 */
 	public String getJumpTarget() {
@@ -755,15 +755,15 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt das Sprungziel, welches von diesem Schiff aus angesprungen werden kann
-	 * @param jumptarget
+	 * Setzt das Sprungziel, welches von diesem Schiff aus angesprungen werden kann.
+	 * @param jumptarget Das Sprungziel (Koordinatenangabe)
 	 */
 	public void setJumpTarget(String jumptarget) {
 		this.jumptarget = jumptarget;
 	}
 
 	/**
-	 * Gibt die Schiffshistorie zurueck
+	 * Gibt die Schiffshistorie zurueck.
 	 * @return Die Schiffshistorie
 	 */
 	public String getHistory() {
@@ -771,7 +771,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt die Schiffshistorie
+	 * Setzt die Schiffshistorie.
 	 * @param history Die neue Schiffshistorie
 	 */
 	public void setHistory(String history) {
@@ -779,7 +779,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt den Status des Schiffslocks zurueck
+	 * Gibt den Status des Schiffslocks zurueck.
 	 * @return Das Schiffslock
 	 */
 	public String getLock() {
@@ -787,7 +787,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt den Schiffslock
+	 * Setzt den Schiffslock.
 	 * @param lock Der neue Schiffslock
 	 */
 	public void setLock(String lock) {
@@ -795,7 +795,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt die Daten des OnCommunicate-Ereignisses zurueck
+	 * Gibt die Daten des OnCommunicate-Ereignisses zurueck.
 	 * @return Die Ausfuehrungsdaten
 	 */
 	public String getOnCommunicate() {
@@ -803,7 +803,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt die Ausfuehrungsdaten des OnCommunicate-Ereignisses
+	 * Setzt die Ausfuehrungsdaten des OnCommunicate-Ereignisses.
 	 * @param oncommunicate Die neuen Ausfuehrungsdaten
 	 */
 	public void setOnCommunicate(String oncommunicate) {
@@ -811,7 +811,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt die Daten des OnMove-Ereignisses zurueck
+	 * Gibt die Daten des OnMove-Ereignisses zurueck.
 	 * @return Die Ausfuehrungsdaten
 	 */
 	public String getOnMove() {
@@ -819,7 +819,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt die Ausfuehrungsdaten des OnMove-Ereignisses
+	 * Setzt die Ausfuehrungsdaten des OnMove-Ereignisses.
 	 * @param onmove Die neuen Ausfuehrungsdaten
 	 */
 	public void setOnMove(String onmove) {
@@ -827,7 +827,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt die Anzahl an Runden bis zu einem Respawn zurueck
+	 * Gibt die Anzahl an Runden bis zu einem Respawn zurueck.
 	 * @return Die Anzahl der Runden bis zu einem Respawn
 	 */
 	public Byte getRespawn() {
@@ -835,7 +835,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt die Anzahl an Runden bis zu einem Respawn
+	 * Setzt die Anzahl an Runden bis zu einem Respawn.
 	 * @param respawn Die neue Rundenanzahl
 	 */
 	public void setRespawn(Byte respawn) {
@@ -843,7 +843,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt das Script des Schiffes zurueck
+	 * Gibt das Script des Schiffes zurueck.
 	 * @return Das Script
 	 */
 	public String getScript() {
@@ -851,7 +851,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt das Script des Schiffes
+	 * Setzt das Script des Schiffes.
 	 * @param script Das neue Script
 	 */
 	public void setScript(String script) {
@@ -859,7 +859,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt die Scriptausfuehrungsdaten zurueck
+	 * Gibt die Scriptausfuehrungsdaten zurueck.
 	 * @return Die Scriptausfuehrungsdaten
 	 */
 	public Blob getScriptExeData() {
@@ -867,7 +867,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt die Scriptausfuehrungsdaten
+	 * Setzt die Scriptausfuehrungsdaten.
 	 * @param scriptexedata Die neuen Ausfuehrungsdaten
 	 */
 	public void setScriptExeData(Blob scriptexedata) {
@@ -875,7 +875,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt die Sichtbarkeitsdaten zurueck
+	 * Gibt die Sichtbarkeitsdaten zurueck.
 	 * @return Die Sichtbarkeitsdaten des Schiffes
 	 */
 	public Integer getVisibility() {
@@ -883,7 +883,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt die Sichtbarkeitsdaten des Schiffes
+	 * Setzt die Sichtbarkeitsdaten des Schiffes.
 	 * @param visibility Die neuen Sichtbarkeitsdaten
 	 */
 	public void setVisibility(Integer visibility) {
@@ -891,7 +891,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Gibt die Typen-Daten des Schiffs zurueck 
+	 * Gibt die Typen-Daten des Schiffs zurueck.
 	 * @return die Typen-Daten
 	 */
 	public ShipTypeData getTypeData() {	
@@ -1102,20 +1102,20 @@ public class Ship implements Locatable,Transfering {
 
 	/**
 	 * Repraesentiert ein in ein Schiff eingebautes Modul (oder vielmehr die Daten, 
-	 * die hinterher verwendet werden um daraus ein Modul zu rekonstruieren)
+	 * die hinterher verwendet werden um daraus ein Modul zu rekonstruieren).
 	 */
 	public static class ModuleEntry {
 		/**
-		 * Der Slot in den das Modul eingebaut ist
+		 * Der Slot in den das Modul eingebaut ist.
 		 */
 		public final int slot;
 		/**
-		 * Der Modultyp
+		 * Der Modultyp.
 		 * @see net.driftingsouls.ds2.server.cargo.modules.Module
 		 */
 		public final int moduleType;
 		/**
-		 * Weitere Modultyp-spezifische Daten
+		 * Weitere Modultyp-spezifische Daten.
 		 */
 		public final String data;
 
@@ -1132,7 +1132,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt die Moduleintraege des Schiffes zurueck
+	 * Gibt die Moduleintraege des Schiffes zurueck.
 	 * @return Eine Liste von Moduleintraegen
 	 */
 	public ModuleEntry[] getModules() {
@@ -1157,7 +1157,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Fuegt ein Modul in das Schiff ein
+	 * Fuegt ein Modul in das Schiff ein.
 	 * @param slot Der Slot, in den das Modul eingebaut werden soll
 	 * @param moduleid Die Typen-ID des Modultyps
 	 * @param data Weitere Daten, welche das Modul identifizieren
@@ -1253,7 +1253,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Entfernt ein Modul aus dem Schiff
+	 * Entfernt ein Modul aus dem Schiff.
 	 * @param slot Der Slot, aus dem das Modul entfernt werden soll
 	 * @param moduleid Die Typen-ID des Modultyps
 	 * @param data Weitere Daten, welche das Modul identifizieren
@@ -1323,7 +1323,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Berechnet die durch Module verursachten Effekte des Schiffes neu
+	 * Berechnet die durch Module verursachten Effekte des Schiffes neu.
 	 */
 	public void recalculateModules() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
@@ -1518,23 +1518,23 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Die verschiedenen Zustaende, die zum Ende eines Fluges gefuehrt haben koennen
+	 * Die verschiedenen Zustaende, die zum Ende eines Fluges gefuehrt haben koennen.
 	 */
 	public static enum MovementStatus {
 		/**
-		 * Der Flug war Erfolgreich
+		 * Der Flug war Erfolgreich.
 		 */
 		SUCCESS,
 		/**
-		 * Der Flug wurde an einem EMP-Nebel abgebrochen
+		 * Der Flug wurde an einem EMP-Nebel abgebrochen.
 		 */
 		BLOCKED_BY_EMP,
 		/**
-		 * Der Flug wurde vor einem Feld mit rotem Alarm abgebrochen
+		 * Der Flug wurde vor einem Feld mit rotem Alarm abgebrochen.
 		 */
 		BLOCKED_BY_RED_ALERT,
 		/**
-		 * Das Schiff konnte nicht mehr weiterfliegen
+		 * Das Schiff konnte nicht mehr weiterfliegen.
 		 */
 		SHIP_FAILURE
 	}
@@ -1714,7 +1714,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Enthaelt die Daten der Schiffe in einer Flotte, welche sich gerade bewegt
+	 * Enthaelt die Daten der Schiffe in einer Flotte, welche sich gerade bewegt.
 	 *
 	 */
 	private static class FleetMovementData {
@@ -1723,19 +1723,19 @@ public class Ship implements Locatable,Transfering {
 		}
 
 		/**
-		 * Die Schiffe in der Flotte
+		 * Die Schiffe in der Flotte.
 		 */
 		Map<Integer,Ship> ships = new HashMap<Integer,Ship>();
 		/**
-		 * Die Offiziere auf den Schiffen der Flotte
+		 * Die Offiziere auf den Schiffen der Flotte.
 		 */
 		Map<Integer,Offizier> offiziere = new HashMap<Integer,Offizier>();
 		/**
-		 * Die Anzahl der gedockten/gelandeten Schiffe
+		 * Die Anzahl der gedockten/gelandeten Schiffe.
 		 */
 		Map<Integer,Integer> dockedCount = new HashMap<Integer,Integer>();
 		/**
-		 * Die Anzahl der extern gedocketen Schiffe
+		 * Die Anzahl der extern gedocketen Schiffe.
 		 */
 		Map<Integer,Integer> aDockedCount = new HashMap<Integer,Integer>();
 	}
@@ -1903,7 +1903,7 @@ public class Ship implements Locatable,Transfering {
 	 * <p>Fliegt eine Flugroute entlang. Falls das Schiff einer Flotte angehoert, fliegt
 	 * diese ebenfalls n Felder in diese Richtung.</p>
 	 * <p>Der Flug wird abgebrochen sobald eines der Schiffe nicht mehr weiterfliegen kann</p>
-	 * Die Flugrouteninformationen werden waehrend des Fluges modifiziert
+	 * Die Flugrouteninformationen werden waehrend des Fluges modifiziert.
 	 * 
 	 * @param route Die Flugroute
 	 * @param forceLowHeat Soll bei Ueberhitzung sofort abgebrochen werden?
@@ -2552,23 +2552,23 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Die verschiedenen Dock-Aktionen
+	 * Die verschiedenen Dock-Aktionen.
 	 */
 	public static enum DockMode {
 		/**
-		 * Schiff extern docken
+		 * Schiff extern docken.
 		 */
 		DOCK,
 		/**
-		 * Schiff abdocken
+		 * Schiff abdocken.
 		 */
 		UNDOCK,
 		/**
-		 * Schiff landen
+		 * Schiff landen.
 		 */
 		LAND,
 		/**
-		 * Schiff starten
+		 * Schiff starten.
 		 */
 		START;
 	}
@@ -2766,7 +2766,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt die Liste aller an diesem Schiff (extern) gedockten Schiffe zurueck 
+	 * Gibt die Liste aller an diesem Schiff (extern) gedockten Schiffe zurueck.
 	 * @return Die Liste der Schiffe
 	 */
 	public List<Ship> getDockedShips()
@@ -2779,7 +2779,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Dockt eine Menge von Schiffen an dieses Schiff an 
+	 * Dockt eine Menge von Schiffen an dieses Schiff an.
 	 * @param dockships Die anzudockenden Schiffe
 	 * @return <code>true</code>, falls Fehler aufgetreten sind
 	 */
@@ -3142,7 +3142,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Entfernt das Schiff aus der Datenbank
+	 * Entfernt das Schiff aus der Datenbank.
 	 */
 	public void destroy() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
@@ -3377,13 +3377,14 @@ public class Ship implements Locatable,Transfering {
 		MESSAGE.get().append(ShipFleet.MESSAGE.getMessage());
 	}
 
+	@Override
 	public Location getLocation() {
 		return new Location(this.system, this.x, this.y);
 	}
 
 	/**
 	 * Gibt die Liste aller Flags zurueck, ueber die der angegebene
-	 * Schiffstyp verfuegt
+	 * Schiffstyp verfuegt.
 	 * @param shiptype Die Daten des Schiffstyps
 	 * @return Die Liste der Flags
 	 */
@@ -3392,7 +3393,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt die Typen-Daten des angegebenen Schiffs bzw Schifftyps zurueck 
+	 * Gibt die Typen-Daten des angegebenen Schiffs bzw Schifftyps zurueck.
 	 * @param shiptype Die ID des Schiffs bzw des Schifftyps
 	 * @return die Typen-Daten
 	 */
@@ -3433,7 +3434,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt das Schiff zurueck, an dem dieses Schiff gedockt/gelandet ist
+	 * Gibt das Schiff zurueck, an dem dieses Schiff gedockt/gelandet ist.
 	 * @return Das Schiff oder <code>null</code>
 	 */
 	public Ship getBaseShip() {
@@ -3478,12 +3479,13 @@ public class Ship implements Locatable,Transfering {
 		return true;
 	}
 
+	@Override
 	public String transfer(Transfering to, ResourceID resource, long count) {
 		return new Transfer().transfer(this, to, resource, count);
 	}
 
 	/**
-	 * Gibt den maximalen Cargo, den das Schiff aufnehmen kann, zurueck
+	 * Gibt den maximalen Cargo, den das Schiff aufnehmen kann, zurueck.
 	 * @return Der maximale Cargo
 	 */
 	public long getMaxCargo() {
@@ -3491,7 +3493,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Gibt den Wert der ablativen Panzerung des Schiffes zurueck
+	 * Gibt den Wert der ablativen Panzerung des Schiffes zurueck.
 	 * @return Der Panzerungswert
 	 */
 	public int getAblativeArmor() {
@@ -3499,7 +3501,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt die ablative Panzerung des Schiffes
+	 * Setzt die ablative Panzerung des Schiffes.
 	 * @param ablativeArmor Der neue Panzerungswert
 	 */
 	public void setAblativeArmor(int ablativeArmor) {
@@ -3507,7 +3509,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt zurueck, ob Jaeger beim Kampfbeginn gestartet werden sollen
+	 * Gibt zurueck, ob Jaeger beim Kampfbeginn gestartet werden sollen.
 	 * @return <code>true</code>, falls sie gestartet werden sollen
 	 */
 	public boolean startFighters() {
@@ -3515,7 +3517,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Setzt, ob Jaeger beim Kampfbeginn gestartet werden sollen
+	 * Setzt, ob Jaeger beim Kampfbeginn gestartet werden sollen.
 	 * @param startFighters <code>true</code>, falls sie gestartet werden sollen
 	 */
 	public void setStartFighters(boolean startFighters) {
@@ -3541,7 +3543,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt die Anzahl der an externen Docks gedockten Schiffe zurueck
+	 * Gibt die Anzahl der an externen Docks gedockten Schiffe zurueck.
 	 * @return Die Anzahl
 	 */
 	public long getDockedCount() {
@@ -3556,7 +3558,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Gibt die Anzahl der gelandeten Schiffe zurueck
+	 * Gibt die Anzahl der gelandeten Schiffe zurueck.
 	 * @return Die Anzahl
 	 */
 	public long getLandedCount() {
@@ -3574,7 +3576,7 @@ public class Ship implements Locatable,Transfering {
 	private Offizier offizier;
 	
 	/**
-	 * Gibt den Offizier des Schiffes zurueck
+	 * Gibt den Offizier des Schiffes zurueck.
 	 * @return Der Offizier
 	 */
 	public Offizier getOffizier() {
@@ -3591,7 +3593,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

@@ -65,7 +65,7 @@ public class BasicContext implements Context
 
 	/**
 	 * Erstellt eine neue Instanz der Klasse unter Verwendung eines <code>Request</code> und einer
-	 * <code>Response</code>-Objekts
+	 * <code>Response</code>-Objekts.
 	 * 
 	 * @param request Die mit dem Kontext zu verbindende <code>Request</code>
 	 * @param response Die mit dem Kontext zu verbindende <code>Response</code>
@@ -94,7 +94,7 @@ public class BasicContext implements Context
 	}
 
 	/**
-	 * Injiziert die DS-Konfiguration
+	 * Injiziert die DS-Konfiguration.
 	 * @param config Die DS-Konfiguration
 	 */
 	@Autowired
@@ -105,7 +105,7 @@ public class BasicContext implements Context
 	}
 	
 	/**
-	 * Injiziert den AuthenticationManager zum Validieren von Sessions
+	 * Injiziert den AuthenticationManager zum Validieren von Sessions.
 	 * 
 	 * @param authManager Der AuthenticationManager
 	 */
@@ -116,6 +116,7 @@ public class BasicContext implements Context
 		this.authManager = authManager;
 	}
 
+	@Override
 	public void revalidate()
 	{
 		if( this.activeUser == null )
@@ -125,6 +126,7 @@ public class BasicContext implements Context
 		}
 	}
 
+	@Override
 	public Database getDatabase()
 	{
 		if( database == null )
@@ -134,6 +136,7 @@ public class BasicContext implements Context
 		return database;
 	}
 
+	@Override
 	public org.hibernate.Session getDB()
 	{
 		if( session == null )
@@ -143,46 +146,55 @@ public class BasicContext implements Context
 		return session;
 	}
 
+	@Override
 	public BasicUser getActiveUser()
 	{
 		return activeUser;
 	}
 
+	@Override
 	public void setActiveUser(BasicUser user)
 	{
 		activeUser = user;
 	}
 
+	@Override
 	public void addError(String error)
 	{
 		errorList.add(new Error(error));
 	}
 
+	@Override
 	public void addError(String error, String link)
 	{
 		errorList.add(new Error(error, link));
 	}
 
+	@Override
 	public Error getLastError()
 	{
 		return errorList.get(errorList.size() - 1);
 	}
 
+	@Override
 	public Error[] getErrorList()
 	{
 		return errorList.toArray(new Error[errorList.size()]);
 	}
 
+	@Override
 	public Request getRequest()
 	{
 		return request;
 	}
 
+	@Override
 	public Response getResponse()
 	{
 		return response;
 	}
 
+	@Override
 	public void setResponse(Response response)
 	{
 		this.response = response;
@@ -244,6 +256,7 @@ public class BasicContext implements Context
 		}
 	}
 
+	@Override
 	public void rollback()
 	{
 		// Keine Session == nichts zum zurueckrollen
@@ -259,6 +272,7 @@ public class BasicContext implements Context
 		transaction = session.beginTransaction();
 	}
 
+	@Override
 	public void commit()
 	{
 		// Keine Session == nichts zum committen
@@ -275,6 +289,7 @@ public class BasicContext implements Context
 	}
 
 	@SuppressWarnings("unchecked")
+	@Override
 	public <T> T get(Class<T> cls)
 	{
 		if( !cls.isAnnotationPresent(ContextInstance.class) )
@@ -307,6 +322,7 @@ public class BasicContext implements Context
 		return this.request.getFromSession(cls);
 	}
 
+	@Override
 	public Object getVariable(Class<?> cls, String varname)
 	{
 		if( variables.containsKey(cls) )
@@ -320,6 +336,7 @@ public class BasicContext implements Context
 		return null;
 	}
 
+	@Override
 	public void putVariable(Class<?> cls, String varname, Object value)
 	{
 		synchronized( variables )
@@ -336,11 +353,13 @@ public class BasicContext implements Context
 		}
 	}
 
+	@Override
 	public void registerListener(ContextListener listener)
 	{
 		this.listener.add(listener);
 	}
 
+	@Override
 	public void remove(Class<?> cls)
 	{
 		if( !cls.isAnnotationPresent(ContextInstance.class) )

@@ -23,13 +23,13 @@ import net.driftingsouls.ds2.server.cargo.Transfering;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
- * Transferstrategie fuer Basis zu Basis
+ * Transferstrategie fuer Basis zu Basis.
  * @author Sebastian Gift
  *
  */
 class BtbTransfer extends TransferStrategy {
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param fromId Die ID der Quellbasis
 	 * @param toId Die ID der Zielbasis
 	 * @param forceSameOwner <code>true</code>, falls der selbe Besitzer erzwungen werden soll

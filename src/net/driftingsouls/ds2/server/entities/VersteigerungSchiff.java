@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
 /**
- * Eine Versteigerung fuer ein Schiff eines Schiffstyps
+ * Eine Versteigerung fuer ein Schiff eines Schiffstyps.
  * @author Christopher Jung
  *
  */
@@ -36,7 +36,7 @@ public class VersteigerungSchiff extends Versteigerung {
 	private String type = "1";
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public VersteigerungSchiff() {
@@ -44,7 +44,7 @@ public class VersteigerungSchiff extends Versteigerung {
 	}
 
 	/**
-	 * Erstellt einen neuen Versteigerungseintrag fuer einen Schiffstyp
+	 * Erstellt einen neuen Versteigerungseintrag fuer einen Schiffstyp.
 	 * @param owner Der Besitzer und zugleich default-Bieter
 	 * @param type Der Typ des Schiffes
 	 * @param price Der Startpreis
@@ -56,7 +56,7 @@ public class VersteigerungSchiff extends Versteigerung {
 	}
 	
 	/**
-	 * Gibt den Schiffstyp zurueck
+	 * Gibt den Schiffstyp zurueck.
 	 * @return Der Schiffstyp
 	 */
 	public ShipType getShipType() {
@@ -65,7 +65,7 @@ public class VersteigerungSchiff extends Versteigerung {
 	}
 	
 	/**
-	 * Setzt den Schiffstyp
+	 * Setzt den Schiffstyp.
 	 * @param type Der Schiffstyp
 	 */
 	public void setShipType(ShipType type) {

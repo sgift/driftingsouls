@@ -27,7 +27,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
- * Repraesentiert eine durch einen Spieler erforschte Technologie
+ * Repraesentiert eine durch einen Spieler erforschte Technologie.
  * @author Christopher Jung
  *
  */
@@ -46,14 +46,14 @@ public class UserResearch {
 	private Forschung research;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 */
 	public UserResearch() {
 		//EMPTY
 	}
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param owner Der Spieler, welcher die Technologie erforscht hat
 	 * @param research Die erforschte Technologie
 	 */
@@ -63,7 +63,7 @@ public class UserResearch {
 	}
 
 	/**
-	 * Gibt die ID des Eintrags zurueck
+	 * Gibt die ID des Eintrags zurueck.
 	 * @return Die ID
 	 */
 	public int getId() {
@@ -71,7 +71,7 @@ public class UserResearch {
 	}
 
 	/**
-	 * Gibt die erforschte Technologie zurueck
+	 * Gibt die erforschte Technologie zurueck.
 	 * @return Die Technologie
 	 */
 	public Forschung getResearch() {
@@ -79,7 +79,7 @@ public class UserResearch {
 	}
 
 	/**
-	 * Gibt den Spieler zurueck, der die Technologie erforscht hat
+	 * Gibt den Spieler zurueck, der die Technologie erforscht hat.
 	 * @return Der Spieler
 	 */
 	public User getOwner() {

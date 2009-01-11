@@ -32,7 +32,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
  * TASK_ALLY_FOUND
- * 		Einer Allianz gruenden
+ * 		Einer Allianz gruenden.
  * 
  * 	- data1 -> der Name der Allianz
  *  - data2 -> die Anzahl der noch fehlenden Unterstuetzungen (vgl. TASK_ALLY_FOUND_CONFIRM)
@@ -45,7 +45,7 @@ class HandleAllyFound implements TaskHandler {
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired

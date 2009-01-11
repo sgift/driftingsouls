@@ -32,11 +32,11 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 
 /**
- * <h1>Repraesentiert eine Forschung in DS</h1>
+ * <h1>Repraesentiert eine Forschung in DS.</h1>
  * Hinweis zu den Forschungs-IDs:<br>
  * Eine normale Forschung hat eine ID ab 1<br>
  * "Keine Forschung"/"Keine Vorbedingung" hat die ID 0<br>
- * "Nie erforschbar" hat die ID -1
+ * "Nie erforschbar" hat die ID -1.
  * @author Christopher Jung
  *
  */
@@ -46,24 +46,24 @@ import org.hibernate.annotations.Type;
 public class Forschung {
 	/**
 	 * Beim Erforschen einer Forschung mit dieser Technologie, verliert
-	 * der Spieler den Noob-Status
+	 * der Spieler den Noob-Status.
 	 */
 	public static final String FLAG_DROP_NOOB_PROTECTION = "drop_noob";
 	
 	/**
-	 * Sichtbarkeiten von einzelnen Forschungen
+	 * Sichtbarkeiten von einzelnen Forschungen.
 	 */
 	public enum Visibility {
 		/**
-		 * Erst sichtbar, wenn die Forschung auch erforschbar ist
+		 * Erst sichtbar, wenn die Forschung auch erforschbar ist.
 		 */
 		IF_RESEARCHABLE(0, "Sichtbar, wenn erforschbar"),
 		/**
-		 * Immer sichtbar
+		 * Immer sichtbar.
 		 */
 		ALWAYS(1, "Sichtbar"),
 		/**
-		 * Niemals sichtbar
+		 * Niemals sichtbar.
 		 */
 		NEVER(2, "Unsichtbar");
 		
@@ -77,7 +77,7 @@ public class Forschung {
 		}
 		
 		/**
-		 * Gibt das zum Flag gehoerende Bitmuster zurueck
+		 * Gibt das zum Flag gehoerende Bitmuster zurueck.
 		 * @return Das Bitmuster
 		 */
 		public int getBits() {
@@ -92,7 +92,7 @@ public class Forschung {
 	
 	/**
 	 * Gibt ein Forschungsobjekt fuer die angegebene Forschungs-ID zurueck.
-	 * Sollte keine solche Forschung existieren, so wird <code>null</code> zurueckgegeben
+	 * Sollte keine solche Forschung existieren, so wird <code>null</code> zurueckgegeben.
 	 * @param fid Die Forschungs-ID
 	 * @return Das zur ID gehoerende Forschungsobjekt oder <code>null</code>
 	 */
@@ -117,7 +117,7 @@ public class Forschung {
 	private String flags;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public Forschung() {
@@ -125,7 +125,7 @@ public class Forschung {
 	}
 	
 	/**
-	 * Gibt die ID der Forschung zurueck
+	 * Gibt die ID der Forschung zurueck.
 	 * @return die ID
 	 */
 	public int getID() {
@@ -133,7 +133,7 @@ public class Forschung {
 	}
 	
 	/**
-	 * Gibt den Namen der Forschung zurueck
+	 * Gibt den Namen der Forschung zurueck.
 	 * @return Der Name
 	 */
 	public String getName() {
@@ -141,7 +141,7 @@ public class Forschung {
 	}
 	
 	/**
-	 * Gibt die ID einer der fuer diese Forschung benoetigten Forschungen zurueck
+	 * Gibt die ID einer der fuer diese Forschung benoetigten Forschungen zurueck.
 	 * @param number Die Nummer der benoetigten Forschung (1-3)
 	 * @return Die ID oder 0
 	 */
@@ -158,7 +158,7 @@ public class Forschung {
 	}
 	
 	/**
-	 * Gibt die Forschungsdauer in Ticks zurueck
+	 * Gibt die Forschungsdauer in Ticks zurueck.
 	 * @return Die Forschungsdauer
 	 */
 	public int getTime() {
@@ -166,7 +166,7 @@ public class Forschung {
 	}
 	
 	/**
-	 * Gibt die Forschungskosten als nicht modifizierbarer Cargo zurueck
+	 * Gibt die Forschungskosten als nicht modifizierbarer Cargo zurueck.
 	 * @return Die Forschungskosten
 	 */
 	public Cargo getCosts() {
@@ -174,7 +174,7 @@ public class Forschung {
 	}
 	
 	/**
-	 * Gibt die Beschreibung der Forschung zurueck
+	 * Gibt die Beschreibung der Forschung zurueck.
 	 * @return Die Beschreibung
 	 */
 	public String getDescription() {
@@ -182,7 +182,7 @@ public class Forschung {
 	}
 	
 	/**
-	 * Gibt die ID der Rasse zurueck, der die Forschung zugeordnet ist
+	 * Gibt die ID der Rasse zurueck, der die Forschung zugeordnet ist.
 	 * @return Die ID der Rasse
 	 */
 	public int getRace() {
@@ -190,7 +190,7 @@ public class Forschung {
 	}
 	
 	/**
-	 * Gibt zurueck, ob die Forschung die angegebene Sichtbarkeit hat
+	 * Gibt zurueck, ob die Forschung die angegebene Sichtbarkeit hat.
 	 * @param visibility Die Sichtbarkeit
 	 * @return <code>true</code>, falls die Sichtbarkeit gegeben ist
 	 */
@@ -256,7 +256,7 @@ public class Forschung {
 	}
 
 	/**
-	 * Setzt die erste benoetigte Forschung 
+	 * Setzt die erste benoetigte Forschung .
 	 * @param req1 Die ID der Forschung.
 	 */
 	public void setReq1(int req1) {
@@ -264,7 +264,7 @@ public class Forschung {
 	}
 
 	/** 
-	 * Setzt die zweite benoetigte Forschung 
+	 * Setzt die zweite benoetigte Forschung .
 	 * @param req2 Die ID der Forschung.
 	 */
 	public void setReq2(int req2) {
@@ -272,7 +272,7 @@ public class Forschung {
 	}
 
 	/** 
-	 * Setzt die zweite benoetigte Forschung 
+	 * Setzt die zweite benoetigte Forschung.
 	 * @param req3 Die ID der Forschung.
 	 */
 	public void setReq3(int req3) {
@@ -281,7 +281,7 @@ public class Forschung {
 
 	/**
 	 * Setzt die Dauer in Ticks die notwendig ist um die Forschung
-	 * zu erforschen
+	 * zu erforschen.
 	 * @param time Die Dauer
 	 */
 	public void setTime(int time) {
@@ -298,7 +298,7 @@ public class Forschung {
 	}
 
 	/**
-	 * Prueft, ob die Forschung ein bestimmtes Flag hat
+	 * Prueft, ob die Forschung ein bestimmtes Flag hat.
 	 * @param flag Das Flag
 	 * @return <code>true</code>, falls die Forschung das Flag besitzt
 	 */

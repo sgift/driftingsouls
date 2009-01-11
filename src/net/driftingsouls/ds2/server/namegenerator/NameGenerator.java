@@ -19,14 +19,14 @@
 package net.driftingsouls.ds2.server.namegenerator;
 
 /**
- * Interface fuer Namensgeneratoren
+ * Interface fuer Namensgeneratoren.
  * @author Christopher Jung
  *
  */
 public interface NameGenerator
 {
 	/**
-	 * Generiert eine Menge von Namen
+	 * Generiert eine Menge von Namen.
 	 * @param count Die Anzahl der zu generierenden Namen
 	 * @return Die generierten Namen
 	 */

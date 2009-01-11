@@ -39,7 +39,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Kommandozeilentool zur Erstellung von Grafikpaks<br>
+ * Kommandozeilentool zur Erstellung von Grafikpaks.<br>
  * ACHTUNG: Dieses Programm funktioniert nur in einer Kommandozeile, wenn tar vorhanden ist!
  * @author Christopher Jung
  *
@@ -49,7 +49,7 @@ public class GfxPak extends DSApplication {
 	private Configuration config;
 
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param args Die Kommandozeilenargumente
 	 * @throws Exception
 	 */
@@ -75,7 +75,7 @@ public class GfxPak extends DSApplication {
 	}
 	
 	/**
-	 * Injiziert die DS-Konfiguration
+	 * Injiziert die DS-Konfiguration.
 	 * @param config Die DS-Konfiguration
 	 */
 	@Autowired @Required
@@ -84,7 +84,7 @@ public class GfxPak extends DSApplication {
 	}
 	
 	/**
-	 * Startet die Ausfuehrung
+	 * Startet die Ausfuehrung.
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
@@ -180,7 +180,7 @@ public class GfxPak extends DSApplication {
 	}
 
 	/**
-	 * Main
+	 * Main.
 	 * @param args Die Argumente
 	 * @throws Exception
 	 */

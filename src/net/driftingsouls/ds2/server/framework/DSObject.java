@@ -19,13 +19,13 @@
 package net.driftingsouls.ds2.server.framework;
 
 /**
- * Basisklasse fuer Objekte innerhalb von DS
+ * Basisklasse fuer Objekte innerhalb von DS.
  * @author Christopher Jung
  *
  */
 public class DSObject {
 	/**
-	 * Lognachrichten der zuletzt aufgerufenen Methoden. Die Nachrichten sind Thread-Lokal
+	 * Lognachrichten der zuletzt aufgerufenen Methoden. Die Nachrichten sind Thread-Lokal.
 	 */
 	public final ContextLocalMessage MESSAGE = new ContextLocalMessage();
 }

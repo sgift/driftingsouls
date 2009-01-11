@@ -52,7 +52,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Zeigt die Allianzseite an
+ * Zeigt die Allianzseite an.
  * @author Christopher Jung
  */
 @Configurable
@@ -65,7 +65,7 @@ public class AllyController extends TemplateGenerator {
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -75,7 +75,7 @@ public class AllyController extends TemplateGenerator {
     }
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public AllyController(Context context) {
@@ -143,7 +143,7 @@ public class AllyController extends TemplateGenerator {
 	
 	/**
 	 * Leitet die Gruendung einer Allianz ein. Die Aktion erstellt
-	 * die notwendigen Tasks und benachrichtigt die Unterstuetzer der Gruendung
+	 * die notwendigen Tasks und benachrichtigt die Unterstuetzer der Gruendung.
 	 * @urlparam String name Der Name der neuen Allianz
 	 * @urlparam Integer confuser1 Die User-ID des ersten Unterstuetzers
 	 * @urlparam Integer confuser2 Die User-ID des zweiten Unterstuetzers
@@ -246,7 +246,7 @@ public class AllyController extends TemplateGenerator {
 	/**
 	 * Leitet den Beitritt zu einer Allianz ein.
 	 * Die Aktion erstellt die notwendige Task und benachrichtigt
-	 * die "Minister" und den Praesident der Zielallianz
+	 * die "Minister" und den Praesident der Zielallianz.
 	 *
 	 * @urlparam Integer join Die ID der Allianz, der der Benuzter beitreten moechte
 	 * @urlparam String conf Bestaetigt den Aufnahmewunsch falls der Wert "ok" ist
@@ -317,7 +317,7 @@ public class AllyController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Loescht einen Allianz-Posten
+	 * Loescht einen Allianz-Posten.
 	 * @urlparam Integer postenid Die ID des zu loeschenden Postens
 	 *
 	 */
@@ -355,7 +355,7 @@ public class AllyController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Weisst einem Posten einen neuen Users zu
+	 * Weisst einem Posten einen neuen Users zu.
 	 * @urlparam Integer user Die ID des neuen Inhabers des Postens
 	 * @urlparam Integer id Die ID des zu besetzenden Postens
 	 *
@@ -410,7 +410,7 @@ public class AllyController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Erstellt einen neuen Posten
+	 * Erstellt einen neuen Posten.
 	 * @urlparam String name Der Name des neuen Postens
 	 * @urlparam Integer user Die ID des Benutzers, der den Posten innehaben soll
 	 *
@@ -469,7 +469,7 @@ public class AllyController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Erstellt fuer die Allianz einen neuen Comnet-Kanal
+	 * Erstellt fuer die Allianz einen neuen Comnet-Kanal.
 	 * @urlparam String name Der Name des neuen Kanals
 	 * @urlparam String read Der Zugriffsmodus (all, ally, player)
 	 * @urlparam String readids Falls der Lesemodus player ist: Die Komma-separierte Liste der Spieler-IDs
@@ -547,7 +547,7 @@ public class AllyController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Setzt Namen und Zugriffrechte fuer einen Allianz-Comnet-Kanal
+	 * Setzt Namen und Zugriffrechte fuer einen Allianz-Comnet-Kanal.
 	 * @urlparam Integer edit Die ID des Comnet-Kanals
 	 * @urlparam String name Der neue Name
 	 * @urlparam String read Der Zugriffsmodus (all, ally, player)
@@ -630,7 +630,7 @@ public class AllyController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Loescht einen Comnet-Kanal der Allianz
+	 * Loescht einen Comnet-Kanal der Allianz.
 	 * @urlparam Integer channel Die ID des zu loeschenden Kanals
 	 * @urlparam String conf Die Bestaetigung des Vorgangs. <code>ok</code>, falls der Vorgang durchgefuehrt werden soll
 	 *
@@ -685,7 +685,7 @@ public class AllyController extends TemplateGenerator {
 	private static final int MAX_UPLOAD_SIZE = 307200;
 	
 	/**
-	 * Laedt das neue Logo der Allianz auf den Server
+	 * Laedt das neue Logo der Allianz auf den Server.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -726,7 +726,7 @@ public class AllyController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Speichert die neuen Daten der Allianz
+	 * Speichert die neuen Daten der Allianz.
 	 * @urlparam String name Der Name der Allianz
 	 * @urlparam String desc Die Allianzbeschreibung
 	 * @urlparam String allytag Der Allianztag
@@ -804,7 +804,7 @@ public class AllyController extends TemplateGenerator {
 	}
 
 	/**
-	 * Laesst den aktuellen Spieler aus der Allianz austreten
+	 * Laesst den aktuellen Spieler aus der Allianz austreten.
 	 * @urlparam String conf Falls <code>ok</code> wird der Austritt vollzogen
 	 *
 	 */
@@ -845,7 +845,7 @@ public class AllyController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Loest einen Allianz auf
+	 * Loest einen Allianz auf.
 	 * @urlparam String conf Bestaetigt die Aufloesung, wenn der Wert <code>ok</code> ist 
 	 *
 	 */
@@ -885,7 +885,7 @@ public class AllyController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Befoerdert einen Spieler zum Praesidenten
+	 * Befoerdert einen Spieler zum Praesidenten.
 	 * @urlparam Integer presn Die ID des neuen Praesidenten der Allianz
 	 *
 	 */
@@ -919,7 +919,7 @@ public class AllyController extends TemplateGenerator {
 	}
 
 	/**
-	 * Wirft einen Spieler aus der Allianz
+	 * Wirft einen Spieler aus der Allianz.
 	 * @urlparam Integer kick Die ID des aus der Allianz zu werfenden Spielers
 	 *
 	 */
@@ -960,7 +960,7 @@ public class AllyController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Liste der Allianzen fuer einen Allianzbeitritt an
+	 * Zeigt die Liste der Allianzen fuer einen Allianzbeitritt an.
 	 */
 	@Action(ActionType.DEFAULT)
 	public void defaultNoAllyAction() {
@@ -981,7 +981,7 @@ public class AllyController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die GUI zum Gruenden einer Allianz an
+	 * Zeigt die GUI zum Gruenden einer Allianz an.
 	 */
 	@Action(ActionType.DEFAULT)
 	public void showCreateAllyAction() {
@@ -997,7 +997,7 @@ public class AllyController extends TemplateGenerator {
 	}
 
 	/**
-	 * Zeigt die Postenliste der Allianz an
+	 * Zeigt die Postenliste der Allianz an.
 	 * 
 	 * @urlparam Integer destpos Offset fuer die Liste der zerstoerten Schiffe
 	 * @urlparam Integer lostpos Offset fuer die Liste der verlorenen Schiffe
@@ -1075,7 +1075,7 @@ public class AllyController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Liste der zerstoerten und verlorenen Schiffe der Allianz
+	 * Zeigt die Liste der zerstoerten und verlorenen Schiffe der Allianz.
 	 * 
 	 * @urlparam Integer destpos Offset fuer die Liste der zerstoerten Schiffe
 	 * @urlparam Integer lostpos Offset fuer die Liste der verlorenen Schiffe
@@ -1231,7 +1231,7 @@ public class AllyController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Allianzeinstellungen an
+	 * Zeigt die Allianzeinstellungen an.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -1309,7 +1309,7 @@ public class AllyController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Mitgliederliste an
+	 * Zeigt die Mitgliederliste an.
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -1369,7 +1369,7 @@ public class AllyController extends TemplateGenerator {
 	
 	/**
 	 * Zeigt die GUI, spezifiziert durch den Parameter show, 
-	 * fuer Spieler mit Allianz, an
+	 * fuer Spieler mit Allianz, an.
 	 * 
 	 * @urlparam Integer destpos Offset fuer die Liste der zerstoerten Schiffe
 	 * @urlparam Integer lostpos Offset fuer die Liste der verlorenen Schiffe

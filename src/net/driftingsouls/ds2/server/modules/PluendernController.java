@@ -36,7 +36,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
- * Pluendert ein Schiff
+ * Pluendert ein Schiff.
  * @author Christopher Jung
  *
  * @urlparam Integer from Die ID des Schiffes, mit dem ein anderes Schiff gepluendert werden soll
@@ -47,7 +47,7 @@ public class PluendernController extends TemplateGenerator {
 	private Ship shipTo;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public PluendernController(Context context) {
@@ -204,7 +204,7 @@ public class PluendernController extends TemplateGenerator {
 	}
 
 	/**
-	 * Transferiert Waren zwischen den Schiffen
+	 * Transferiert Waren zwischen den Schiffen.
 	 * @urlparam Integer $resID+"to" Die Menge der Ware $resID, welche zum Zielschiff transferiert werden soll
 	 * @urlparam Integer $resID+"from" Die Menge der Ware $resID, welche vom Zielschiff herunter transferiert werden soll
 	 *
@@ -374,7 +374,7 @@ public class PluendernController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die GUI fuer den Warentransfer an
+	 * Zeigt die GUI fuer den Warentransfer an.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

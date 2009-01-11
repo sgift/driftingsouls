@@ -29,14 +29,14 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
- * Laesst alle Schiffe einer Seite fliehen
+ * Laesst alle Schiffe einer Seite fliehen.
  * @author Christopher Jung
  *
  */
 public class KSFluchtAllAction extends BasicKSAction {
 	
 	/**
-	 * Prueft, ob das Schiff fliehen kann oder nicht
+	 * Prueft, ob das Schiff fliehen kann oder nicht.
 	 * @param fluchtmode Der Zeitpunkt der Flucht (<code>current</code> oder <code>next</code>) - dieser Parameter ist nur noch aus historischen Gruenden vorhanden und hat keinen Effekt mehr
 	 * @param ship Das Schiff
 	 * @param shiptype Der Schiffstyp

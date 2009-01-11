@@ -42,7 +42,7 @@ public class SellLimit {
 	private int version;
 	
 	/**
-	 * Gibt die ID des Resourcenlimits zurueck
+	 * Gibt die ID des Resourcenlimits zurueck.
 	 * @return Die ID
 	 */
 	public ResourceLimitKey getId() {
@@ -50,7 +50,7 @@ public class SellLimit {
 	}
 
 	/**
-	 * Gibt das Limit der Resource zurueck
+	 * Gibt das Limit der Resource zurueck.
 	 * @return Das Limit
 	 */
 	public long getMinimum() {
@@ -58,7 +58,7 @@ public class SellLimit {
 	}
 	
 	/**
-	 * Gibt den Verkaufspreis der Ware zurueck
+	 * Gibt den Verkaufspreis der Ware zurueck.
 	 * @return Der Verkaufspreis in RE
 	 */
 	public long getPrice() {
@@ -66,7 +66,7 @@ public class SellLimit {
 	}
 
 	/**
-	 * Gibt die Versionsnummer zurueck
+	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {

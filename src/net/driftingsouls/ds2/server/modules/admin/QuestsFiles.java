@@ -37,7 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Ermoeglicht das Installieren und Verwalten von Quest-XMLs
+ * Ermoeglicht das Installieren und Verwalten von Quest-XMLs.
  * @author Christopher Jung
  *
  */
@@ -47,7 +47,7 @@ public class QuestsFiles implements AdminPlugin {
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -72,6 +72,7 @@ public class QuestsFiles implements AdminPlugin {
 		return file;
 	}
 	
+	@Override
 	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();

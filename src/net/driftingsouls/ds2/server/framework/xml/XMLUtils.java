@@ -34,7 +34,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Hilfsfunktionen fuer XML-Daten
+ * Hilfsfunktionen fuer XML-Daten.
  * @author Christopher Jung
  *
  */
@@ -47,7 +47,7 @@ public class XMLUtils {
 	}
 	
 	/**
-	 * Liesst eine Datei als XML-Dokument ein
+	 * Liesst eine Datei als XML-Dokument ein.
 	 * @param file Der Pfad zur Datei
 	 * @return Das XML-Dokument
 	 * @throws SAXException
@@ -59,7 +59,7 @@ public class XMLUtils {
 	}
 	
 	/**
-	 * Liefert eine Liste von Nodes als Ergebnis eines X-Path-Ausdrucks zurueck
+	 * Liefert eine Liste von Nodes als Ergebnis eines X-Path-Ausdrucks zurueck.
 	 * @param node Der Basisknoten, von dem aus der Ausdruck ausgewertet werden soll
 	 * @param xpath Der X-Path-Ausdruck
 	 * @return Das Ergebnis
@@ -71,7 +71,7 @@ public class XMLUtils {
 	}
 	
 	/**
-	 * Liefert eine Node als Ergebnis eines X-Path-Ausdrucks zurueck
+	 * Liefert eine Node als Ergebnis eines X-Path-Ausdrucks zurueck.
 	 * @param node Der Basisknoten, von dem aus der Ausdruck ausgewertet werden soll
 	 * @param xpath Der X-Path-Ausdruck
 	 * @return Das Ergebnis
@@ -83,7 +83,7 @@ public class XMLUtils {
 	}
 	
 	/**
-	 * Liefert einen String als Ergebnis eines X-Path-Ausdrucks zurueck
+	 * Liefert einen String als Ergebnis eines X-Path-Ausdrucks zurueck.
 	 * @param node Der Basisknoten, von dem aus der Ausdruck ausgewertet werden soll
 	 * @param xpath Der X-Path-Ausdruck
 	 * @return Das Ergebnis
@@ -95,7 +95,7 @@ public class XMLUtils {
 	}
 	
 	/**
-	 * Liefert eine Number als Ergebnis eines X-Path-Ausdrucks zurueck
+	 * Liefert eine Number als Ergebnis eines X-Path-Ausdrucks zurueck.
 	 * @param node Der Basisknoten, von dem aus der Ausdruck ausgewertet werden soll
 	 * @param xpath Der X-Path-Ausdruck
 	 * @return Das Ergebnis
@@ -107,7 +107,7 @@ public class XMLUtils {
 	}
 	
 	/**
-	 * Liefert ein Booleans als Ergebnis eines X-Path-Ausdrucks zurueck
+	 * Liefert ein Booleans als Ergebnis eines X-Path-Ausdrucks zurueck.
 	 * @param node Der Basisknoten, von dem aus der Ausdruck ausgewertet werden soll
 	 * @param xpath Der X-Path-Ausdruck
 	 * @return Das Ergebnis

@@ -27,21 +27,21 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AngriffController;
 
 /**
- * Basisklasse fuer KS-Aktionen
+ * Basisklasse fuer KS-Aktionen.
  * @author Christopher Jung
  *
  */
 public abstract class BasicKSAction {
 	/**
-	 * Das Ergebnis "Ok"
+	 * Das Ergebnis "Ok".
 	 */
 	public static final int RESULT_OK = 1;
 	/**
-	 * Das Ergebnis "nicht kritischer Fehler"
+	 * Das Ergebnis "nicht kritischer Fehler".
 	 */
 	public static final int RESULT_ERROR = 0;
 	/**
-	 * Das Ergebnis "kritischer Fehler"
+	 * Das Ergebnis "kritischer Fehler".
 	 */
 	public static final int RESULT_HALT = -1;
 	
@@ -51,7 +51,7 @@ public abstract class BasicKSAction {
 	private AngriffController controller;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 *
 	 */
 	public BasicKSAction() {
@@ -63,7 +63,7 @@ public abstract class BasicKSAction {
 	}
 	
 	/**
-	 * Setzt den KS-Controller
+	 * Setzt den KS-Controller.
 	 * @param controller Der KS-Controller
 	 */
 	public void setController(AngriffController controller) {
@@ -71,7 +71,7 @@ public abstract class BasicKSAction {
 	}
 	
 	/**
-	 * Gibt den assoziierten KS-Controller zurueck
+	 * Gibt den assoziierten KS-Controller zurueck.
 	 * @return Der KS-Controller
 	 */
 	public AngriffController getController() {
@@ -92,7 +92,7 @@ public abstract class BasicKSAction {
 	
 	// TODO: auch bei der validierung sollten requireAP usw gecheckt werden
 	/**
-	 * Ueberprueft, ob die AKtion ausgefuert werden kann in Kontext der angegebenen Schlacht
+	 * Ueberprueft, ob die AKtion ausgefuert werden kann in Kontext der angegebenen Schlacht.
 	 * @param battle Die Schlacht
 	 * @return Das Ergebnis
 	 */
@@ -101,7 +101,7 @@ public abstract class BasicKSAction {
 	} 
 	
 	/**
-	 * Fueht die Aktion aus
+	 * Fueht die Aktion aus.
 	 * @param battle Die Schlacht in deren Kontext die Aktion ausgefuert werden soll
 	 * @return Das Ergebnis
 	 * @throws IOException 

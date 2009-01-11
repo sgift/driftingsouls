@@ -43,7 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Zeigt die Sternenkarte an
+ * Zeigt die Sternenkarte an.
  * @author Christopher Jung
  *
  * @urlparam Integer sys Die ID des anzuzeigenden Systems
@@ -59,7 +59,7 @@ public class MapController extends TemplateGenerator {
 	private Configuration config;
 	
 	/**
-	 * Konstruktor
+	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public MapController(Context context) {
@@ -74,7 +74,7 @@ public class MapController extends TemplateGenerator {
 	}
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -127,7 +127,7 @@ public class MapController extends TemplateGenerator {
 	}
 
 	/**
-	 * Zeigt die Sternenkarte an
+	 * Zeigt die Sternenkarte an.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

@@ -31,7 +31,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Item-Effekt "Meta-Effekt fuer Item-Modul-Sets"
+ * Item-Effekt "Meta-Effekt fuer Item-Modul-Sets".
  * @author Christopher Jung
  *
  */
@@ -53,7 +53,7 @@ public class IEModuleSetMeta extends ItemEffect {
 	}
 	
 	/**
-	 * Gibt den Namen des Sets zurueck
+	 * Gibt den Namen des Sets zurueck.
 	 * @return Der Name des Sets
 	 */
 	public String getName() {

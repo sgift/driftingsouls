@@ -20,7 +20,7 @@ package net.driftingsouls.ds2.server.config.items.effects;
 
 
 /**
- * Ein leerer Item-Effekt ohne wirklichen Effekt
+ * Ein leerer Item-Effekt ohne wirklichen Effekt.
  * @author Christopher Jung
  *
  */

@@ -25,7 +25,7 @@ import java.util.List;
 import org.apache.commons.fileupload.FileItem;
 
 /**
- * Standardinterface fuer Requestdaten
+ * Standardinterface fuer Requestdaten.
  * @author Christopher Jung
  *
  */
@@ -40,7 +40,7 @@ public interface Request {
 	
 	/**
 	 * Gibt einen Parameter als String zurueck. Sollte der Parameter
-	 * nicht angegeben worden sein wird ein leerer String zurueckgegeben
+	 * nicht angegeben worden sein wird ein leerer String zurueckgegeben.
 	 * @param parameter Der Parameter
 	 * @return Der Wert oder ein leerer String
 	 */
@@ -49,84 +49,84 @@ public interface Request {
 	/**
 	 * Gibt einen Parameter als Zahl zurueck. Sollte der Parameter nicht
 	 * angegeben worden sein oder sollte er keine Zahl sein wird <code>0</code>
-	 * zurueckgegeben
+	 * zurueckgegeben.
 	 * @param parameter Der Parameter
 	 * @return Der Wert oder <code>0</code>
 	 */
 	public int getParameterInt(String parameter);
 	
 	/**
-	 * Setzt einen Parameter auf einen bestimmten Wert
+	 * Setzt einen Parameter auf einen bestimmten Wert.
 	 * @param parameter Der Parameter
 	 * @param value Der neue Wert
 	 */
 	public void setParameter(String parameter, String value);
 	
 	/**
-	 * Gibt den ContentType des Aufrufs zurueck
+	 * Gibt den ContentType des Aufrufs zurueck.
 	 * @return Der ContentType
 	 */
 	public String getContentType();
 	
 	/**
-	 * Gibt den InputStream des Aufrufs zurueck
+	 * Gibt den InputStream des Aufrufs zurueck.
 	 * @return Der InputStream
 	 * @throws IOException
 	 */
 	public InputStream getInputStream() throws IOException;
 	
 	/**
-	 * Gibt den Query-String zurueck
+	 * Gibt den Query-String zurueck.
 	 * @return Der Query-String
 	 */
 	public String getQueryString();
 	
 	/**
-	 * Gibt den Aufrufpfad zurueck
+	 * Gibt den Aufrufpfad zurueck.
 	 * @return Der Aufrufpfad
 	 */
 	public String getPath();
 	
 	/**
-	 * Gibt die im Aufruf verwendete Encoding zurueck
+	 * Gibt die im Aufruf verwendete Encoding zurueck.
 	 * @return Das Charset
 	 */
 	public String getCharacterEncoding();
 	
 	/**
-	 * Gibt die Anzahl an Bytes des Aufrufs zurueck
+	 * Gibt die Anzahl an Bytes des Aufrufs zurueck.
 	 * @return Die Laenge
 	 */
 	public int getContentLength();
 	
 	/**
 	 * Gibt den Header mit dem angegebenen Namen zurueck.
-	 * Sollte der Header nicht existieren wird <code>null</code> zurueckgegeben
+	 * Sollte der Header nicht existieren wird <code>null</code> zurueckgegeben.
 	 * @param header Der Header
 	 * @return Der Wert oder <code>null</code>
 	 */
 	public String getHeader(String header);
 	
 	/**
-	 * Gibt die Adresse des Aufrufers zurueck
+	 * Gibt die Adresse des Aufrufers zurueck.
 	 * @return Die Adresse des Aufrufers
 	 */
 	public String getRemoteAddress();
 	
 	/**
-	 * Gibt die fuer die Anfrage verwendete URL zurueck
+	 * Gibt die fuer die Anfrage verwendete URL zurueck.
 	 * @return Die URL
 	 */
 	public String getRequestURL();
 	
 	/**
-	 * Gibt den User-Agent des Aufrufers zurueck
+	 * Gibt den User-Agent des Aufrufers zurueck.
 	 * @return Der User-Agent
 	 */
 	public String getUserAgent();
 	
 	/**
-	 * Gibt evt hochgeladene Dateien zurueck
+	 * Gibt evt hochgeladene Dateien zurueck.
 	 * @return Die Liste der hochgeladenen Dateien
 	 */
 	public List<FileItem> getUploadedFiles();
@@ -143,7 +143,7 @@ public interface Request {
 	public <T> T getFromSession(Class<T> cls);
 	
 	/**
-	 * Entfernt die Instanz dieser Klasse aus der Session
+	 * Entfernt die Instanz dieser Klasse aus der Session.
 	 * @param cls Die Klasse
 	 */
 	public void removeFromSession(Class<?> cls);

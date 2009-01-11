@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
  * TASK_ALLY_LOW_MEMBER
- * 		Eine Allianz hat weniger als 3 Mitglieder (Praesi eingerechnet) und ist daher von der Aufloesung bedroht
+ * 		Eine Allianz hat weniger als 3 Mitglieder (Praesi eingerechnet) und ist daher von der Aufloesung bedroht.
  * 
  * 	- data1 -> die ID der betroffenen Allianz
  *  - data2 -> unbenutzt

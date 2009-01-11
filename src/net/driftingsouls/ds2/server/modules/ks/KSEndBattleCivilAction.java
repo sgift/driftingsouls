@@ -30,7 +30,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
- * Ermoeglicht es eine Schlacht zu beenden, wenn der Gegner nur noch zivile Schiffe hat
+ * Ermoeglicht es eine Schlacht zu beenden, wenn der Gegner nur noch zivile Schiffe hat.
  * @author Christopher Jung
  *
  */

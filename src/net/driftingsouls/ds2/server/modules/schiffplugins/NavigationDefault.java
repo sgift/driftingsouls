@@ -50,7 +50,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Schiffsmodul fuer die Anzeige der Navigation
+ * Schiffsmodul fuer die Anzeige der Navigation.
  * @author Christopher Jung
  *
  */
@@ -61,7 +61,7 @@ public class NavigationDefault implements SchiffPlugin {
 	private Configuration config;
 	
     /**
-     * Injiziert die DS-Konfiguration
+     * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
@@ -70,6 +70,7 @@ public class NavigationDefault implements SchiffPlugin {
     	this.config = config;
     }
 
+    @Override
 	public String action(Parameters caller) {
 		Ship ship = caller.ship;
 		SchiffController controller = caller.controller;
@@ -178,6 +179,7 @@ public class NavigationDefault implements SchiffPlugin {
 		return output;
 	}
 
+    @Override
 	public void output(Parameters caller) {
 		String pluginid = caller.pluginId;
 		Ship data = caller.ship;

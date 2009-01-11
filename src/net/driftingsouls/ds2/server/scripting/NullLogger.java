@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 /**
- * Logger, welcher keine Ausgabe durchfuehrt
+ * Logger, welcher keine Ausgabe durchfuehrt.
  * @author Christopher Jung
  *
  */

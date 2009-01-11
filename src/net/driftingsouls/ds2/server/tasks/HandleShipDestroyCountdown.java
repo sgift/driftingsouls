@@ -23,7 +23,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
 
 /**
  * TASK_SHIP_DESTROY_COUNTDOWN
- * Ein Countdown bis zur Loeschung des Schiffes
+ * Ein Countdown bis zur Loeschung des Schiffes.
  * 
  * 	- data1 -> die ID des betroffenen Schiffes
  *  - data2 -> unbenutzt

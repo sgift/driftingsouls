@@ -22,13 +22,13 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.ReaderPipeline;
 
 /**
- * Standardinterface fuer alle Reader
+ * Standardinterface fuer alle Reader.
  * @author Christopher Jung
  *
  */
 public interface Reader {
 	/**
-	 * Startet den Reader
+	 * Startet den Reader.
 	 * @param context Der zu verwendende Kontext
 	 * @param pipeline Die Pipeline, welche den Reader aufgerufen hat
 	 * @throws Exception
