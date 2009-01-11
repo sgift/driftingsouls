@@ -2798,7 +2798,7 @@ public class Ship implements Locatable,Transfering {
 		org.hibernate.Session db = context.getDB();
 		StringBuilder outputbuffer = MESSAGE.get();
 		
-		Ship[] help = performLandingChecks(outputbuffer, false, dockships);
+		Ship[] help = performLandingChecks(outputbuffer, superdock, dockships);
 		boolean errors = false;
 		if(help.length < dockships.length)
 		{

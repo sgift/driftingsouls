@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.ships;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import net.driftingsouls.ds2.server.DriftingSoulsDBTestCase;
+import net.driftingsouls.ds2.server.entities.User;
 
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
@@ -87,6 +88,49 @@ public class ShipTest extends DriftingSoulsDBTestCase
 
 		// Wiederholtes docken sollte nicht funktionieren
 		assertThat(this.tanker.dock(this.container2), is(true));
+	}
+	
+	/**
+	 * Testet das Andocken von Containern an ein Schiff
+	 */
+	@Test
+	public void testDockUserWithSuperDock()
+	{
+		User user2 = (User)this.context.getDB().get(User.class, 2);
+		user2.setFlag(User.FLAG_SUPER_DOCK);
+		this.tanker.setOwner(user2);
+		
+		this.context.commit();
+		
+		assertThat(this.container1.getDocked(), is(""));
+		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
+		assertThat(this.container1.getTypeData().getCargo(), is(1500L));
+
+		assertThat(this.tanker.dock(this.container1), is(false));
+		assertThat(this.container1.getDocked(), is("" + this.tanker.getId()));
+		assertThat(this.tanker.getTypeData().getCargo(), is(3000L));
+		assertThat(this.container1.getTypeData().getCargo(), is(0L));
+	}
+	
+	/**
+	 * Testet das Andocken von Containern an ein Schiff
+	 */
+	@Test
+	public void testDockUserWithoutSuperDock()
+	{
+		User user2 = (User)this.context.getDB().get(User.class, 2);
+		this.tanker.setOwner(user2);
+		
+		this.context.commit();
+		
+		assertThat(this.container1.getDocked(), is(""));
+		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
+		assertThat(this.container1.getTypeData().getCargo(), is(1500L));
+
+		assertThat(this.tanker.dock(this.container1), is(true));
+		assertThat(this.container1.getDocked(), is(""));
+		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
+		assertThat(this.container1.getTypeData().getCargo(), is(1500L));
 	}
 
 	/**
