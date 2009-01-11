@@ -338,6 +338,34 @@
 		<exec executable="/usr/local/bin/ci-prepare.sh" failonerror="true" />
 	</target>
 	
+	<!-- ==================== Checkstyle Target ================================== -->
+	
+	<path id="checkstyle.classpath">
+		<fileset dir="${build.home}/WEB-INF/lib">
+			<include name="*.jar"/>
+		</fileset>
+		<pathelement location="${build.home}/WEB-INF/classes"/>
+		<fileset dir="build-utils/checkstyle" includes="checkstyle-all-5.0-beta01.jar" />
+	</path>
+	
+	<taskdef resource="checkstyletask.properties" classpath="build-utils/checkstyle/checkstyle-all-5.0-beta01.jar"/>
+	
+	<target name="checkstyle" description="Ueberprueft die Konformitaet mit dem Codestyle-Vorgaben" depends="compile">
+		<checkstyle config="${basedir}/build-utils/checkstyle/ds.xml" classpathref="checkstyle.classpath">
+			<fileset dir="${src.home}">
+				<include name="net/**/*.java" />
+				<exclude name="**/RoleParser.java" />
+				<exclude name="**/RoleLexer.java" />
+			</fileset>
+
+			<!-- Location of cache-file. Something that is project specific -->
+			<property key="checkstyle.cache.file" file="${build.home}/checkstyle.cache"/>
+			
+			<formatter type="plain"/>
+			<formatter type="xml" toFile="${build.home}/checkstyle.result.xml"/>
+		</checkstyle>
+	</target>
+	
 	<!-- ==================== Test Target ================================== -->
 	
 	<target name="test" depends="compile">
