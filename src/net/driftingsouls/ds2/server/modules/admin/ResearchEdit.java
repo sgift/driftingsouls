@@ -135,12 +135,17 @@ public class ResearchEdit implements AdminPlugin {
 		
 			echo.append("<td class=\"noBorderX\">");
 			
-			for( int i=1; i <= 3; i++ ) {
-				if( i > 1 ) echo.append("<br />");
+			for( int i=1; i <= 3; i++ )
+			{
+				if( i > 1 )
+				{
+					echo.append("<br />");
+				}
 				
 				echo.append("<select name=\"req"+i+"\" size=\"1\" style=\"width:200px\">\n");
 				List<?> researches = db.createQuery("from Forschung").list();
-				for( Iterator<?> iter=researches.iterator(); iter.hasNext(); ) {
+				for( Iterator<?> iter=researches.iterator(); iter.hasNext(); )
+				{
 					Forschung requirement = (Forschung)iter.next();
 					echo.append("<option value=\""+research.getID()+" "+(requirement.getID() == techid ? "selected=\"selected\"" : "")+" \">"+requirement.getName()+"</option>\n");
 				}

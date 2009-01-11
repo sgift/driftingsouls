@@ -35,11 +35,11 @@
 		<module name="LocalFinalVariableName"/>
 		<module name="LocalVariableName"/>
 		<module name="MemberName"/>
-		<module name="MethodName"/>
+		<module name="MethodName"/>-->
 		<module name="PackageName"/>
 		<module name="ParameterName"/>
-		<module name="StaticVariableName"/>
-		<module name="TypeName"/>-->
+		<!--<module name="StaticVariableName"/>-->
+		<module name="TypeName"/>
 
 
 		<!-- Checks for Headers                                -->
@@ -61,10 +61,10 @@
 
 
 		<!-- Checks for imports      -->
-		<!--<module name="AvoidStarImport"/>
+		<module name="AvoidStarImport"/>
 		<module name="IllegalImport"/>
 		<module name="RedundantImport"/>
-		<module name="UnusedImports"/>-->
+		<module name="UnusedImports"/>
 
 
 		<!-- Checks for Size Violations.    -->
@@ -94,16 +94,18 @@
 
 
 		<!-- Modifier Checks    -->
-		<!--<module name="ModifierOrder"/>
-		<module name="RedundantModifier"/>-->
+		<module name="ModifierOrder"/>
+		<!--<module name="RedundantModifier"/>-->
 
 
 		<!-- Checks for blocks. You know, those {}'s -->
 		<!--<module name="AvoidNestedBlocks"/>
 		<module name="EmptyBlock"/>
-		<module name="LeftCurly"/>
+		<module name="LeftCurly"/>-->
 		<module name="NeedBraces"/>
-		<module name="RightCurly"/>-->
+		<module name="RightCurly">
+			<property name="option" value="alone" />
+		</module>
 
 
 		<!-- Checks for common coding problems       -->

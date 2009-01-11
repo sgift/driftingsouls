@@ -108,16 +108,21 @@ public class DefaultBuilding extends Building {
 		
 		boolean entry = false;
 		ResourceList reslist = getConsumes().getResourceList();
-		for( ResourceEntry res : reslist ) {
+		for( ResourceEntry res : reslist )
+		{
 			buffer.append("<img src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+" ");
 			entry = true;
 		}
 	
-		if( getEVerbrauch() > 0 ) {
+		if( getEVerbrauch() > 0 )
+		{
 			buffer.append("<img src=\""+this.config.get("URL")+"data/interface/energie.gif\" alt=\"\" />"+getEVerbrauch()+" ");
 			entry = true;
 		}
-		if( !entry ) buffer.append("-");
+		if( !entry )
+		{
+			buffer.append("-");
+		}
 		
 		buffer.append("</div>\n");
 		
@@ -126,17 +131,22 @@ public class DefaultBuilding extends Building {
 		
 		entry = false;
 		reslist = getProduces().getResourceList();
-		for( ResourceEntry res : reslist ) {
+		for( ResourceEntry res : reslist )
+		{
 			buffer.append("<img src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+" ");
 			entry = true;
 		}
 		
-		if( getEProduktion() > 0 ) {
+		if( getEProduktion() > 0 )
+		{
 			buffer.append("<img src=\""+this.config.get("URL")+"data/interface/energie.gif\" alt=\"\" />"+getEProduktion());
 			entry = true;
 		}
 	
-		if( !entry ) buffer.append("-");
+		if( !entry ) 
+		{ 
+			buffer.append("-");
+		}
 		buffer.append("</div><br />\n");
 		return buffer.toString();
 	}

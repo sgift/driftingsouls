@@ -70,7 +70,7 @@ public class Common {
 	/**
 	 * Anzahl der Ticks pro Tag.
 	 */
-	public final static int TICKS_PER_DAY = 7;
+	public static final int TICKS_PER_DAY = 7;
 	
 	static {
 		locale = Locale.GERMAN;
@@ -627,9 +627,18 @@ public class Common {
 				break;
 			case 'Y': {
 					int year = cal.get(Calendar.YEAR);
-					if( year < 1000 ) buffer.append('0');
-					if( year < 100 ) buffer.append('0');
-					if( year < 10 ) buffer.append('0');
+					if( year < 1000 )
+					{
+						buffer.append('0');
+					}
+					if( year < 100 )
+					{
+						buffer.append('0');
+					}
+					if( year < 10 )
+					{
+						buffer.append('0');
+					}
 					buffer.append(year);
 				}
 				break;
@@ -734,8 +743,12 @@ public class Common {
 				lastWasBlankChar = false;
 				//
 				// HTML Special Chars
-				if( c == '"' ) sb.append("&quot;");
-				else if( c == '&' ) {
+				if( c == '"' )
+				{
+					sb.append("&quot;");
+				}
+				else if( c == '&' )
+				{
 					int index = string.indexOf(';', i);
 					if( (index != -1) && ((index - i < 9) || (string.charAt(i+1) == '#')) ) {
 						String str = string.substring(i,index+1);
@@ -750,14 +763,24 @@ public class Common {
 						sb.append("&amp;");
 					}
 				}
-				else if( c == '<' ) sb.append("&lt;");
-				else if( c == '>' ) sb.append("&gt;");
-				else {
+				else if( c == '<' )
+				{
+					sb.append("&lt;");
+				}
+				else if( c == '>' )
+				{
+					sb.append("&gt;");
+				}
+				else
+				{
 					int ci = 0xffff & c;
 					if( ci < 160 )
+					{
 						// nothing special only 7 Bit
 						sb.append(c);
-					else {
+					}
+					else
+					{
 						// Not 7 Bit use the unicode system
 						sb.append("&#");
 						sb.append(ci);
@@ -1022,7 +1045,10 @@ public class Common {
 			curpos++;
 		}
 
-		if( curtime == 0 ) curtime = 1;
+		if( curtime == 0 )
+		{
+			curtime = 1;
+		}
 
 		return curtime+". "+months[curpos]+" "+(2372+years);
 	}

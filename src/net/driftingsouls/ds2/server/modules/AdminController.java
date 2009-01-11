@@ -173,13 +173,17 @@ public class AdminController extends DSGenerator {
 			echo.append(Common.tableBegin( 700, "center" ));
 			echo.append("<table class=\"noBorderX\" width=\"700\"><tr><td align=\"center\" class=\"noBorderX\">\n");
 			boolean first = true;
-			for( MenuEntry entry : this.menu.values() ) {
-				if( first ) {
+			for( MenuEntry entry : this.menu.values() )
+			{
+				if( first )
+				{
 					echo.append("<a class=\"forschinfo\" href=\"./ds?module=admin&page="+entry.name+"\">"+entry.name+"</a>\n");
 					first = false;
 				}
 				else
+				{
 					echo.append(" | <a class=\"forschinfo\" href=\"./ds?module=admin&page="+entry.name+"\">"+entry.name+"</a>\n");
+				}
 			}
 			echo.append("</td></tr></table>\n");
 			echo.append(Common.tableEnd());

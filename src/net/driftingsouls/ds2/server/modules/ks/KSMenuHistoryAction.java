@@ -152,38 +152,50 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 	}
 
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+	public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException
+	{
 		Context context = ContextMap.getContext();
 		this.historyShowtag = true;
 
-		if( this.history_validTags.contains(localName.toLowerCase()) ) {
+		if( this.history_validTags.contains(localName.toLowerCase()) )
+		{
 			this.history_tag = localName.toLowerCase();
 			this.trimHistory = true;
 			
 			int side = 0;
-			if( atts.getValue("side") != null ) {
+			if( atts.getValue("side") != null )
+			{
 				side = Integer.parseInt(atts.getValue("side"));
 			}
 	
 			if( this.history_tag.equals("endturn") ) {
-				if( atts.getValue("type").equals("all") ) {
-					if( showCurrentPage() ) {
-						if( (side == -1) || this.filter.get(side) ) {
+				if( atts.getValue("type").equals("all") )
+				{
+					if( showCurrentPage() )
+					{
+						if( (side == -1) || this.filter.get(side) )
+						{
 							this.history_text.append("[tooltip="+Common.date("d.m.Y H:i:s",Long.parseLong(atts.getValue("time")))+"][img]"+config.get("URL")+"data/interface/ks/icon_side"+side+".png[/img][/tooltip] ");
 							this.history_text.append(this.historySides.get(side)+" hat die Runde beendet\n");
 						}
-						else {
+						else
+						{
 							this.historyShowtag = false;
 						}
 					}
 					this.historyCurrentpage++;
 					this.historyMaxpage++;
-					if( this.historyPage == -1 ) {
+					if( this.historyPage == -1 )
+					{
 						this.history_text.setLength(0);
 					}
-				} else {
-					if( showCurrentPage() ) {
-						if( (side > -1) && !this.filter.get(side) ) {
+				}
+				else
+				{
+					if( showCurrentPage() )
+					{
+						if( (side > -1) && !this.filter.get(side) )
+						{
 							this.historyShowtag = false;
 							return;	
 						}
@@ -192,37 +204,46 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 					}
 				}
 			} 
-			else if( this.history_tag.equals("action") && showCurrentPage() ) {
+			else if( this.history_tag.equals("action") && showCurrentPage() )
+			{
 				
-				if( (side > -1) && !this.filter.get(side) ) {
+				if( (side > -1) && !this.filter.get(side) )
+				{
 					this.historyShowtag = false;
 					return;	
 				}
 						
 				this.history_text.append("[tooltip="+Common.date("d.m.Y H:i:s",Long.parseLong(atts.getValue("time")))+"][img]"+config.get("URL")+"data/interface/ks/icon_side"+side+".png[/img][/tooltip] ");
 			} 
-			else if( this.history_tag.equals("side1") || this.history_tag.equals("side2") ) {
+			else if( this.history_tag.equals("side1") || this.history_tag.equals("side2") )
+			{
 				int thisSide = 0;
-				if( this.history_tag.equals("side2") ) {
+				if( this.history_tag.equals("side2") )
+				{
 					thisSide = 1;
 				}
 				User auser = (User)context.getDB().get(User.class, Integer.parseInt(atts.getValue("commander")));
-				if( auser == null ) {
+				if( auser == null )
+				{
 					this.historySides.put(thisSide, "Unbekannter Spieler ("+atts.getValue("commander")+")");
 				}
-				else {
+				else
+				{
 					this.historySides.put(thisSide, "<a class=\"profile\" style=\"color:#000050\" href=\""+Common.buildUrl("default", "module", "userprofile", "user", auser.getId())+"\">"+Common._titleNoFormat(auser.getName())+"</a>");
 				}
 			} 
 		}
-		else {
+		else
+		{
 			List<String> params = new ArrayList<String>();
 	
-			for( int i=0; i < atts.getLength(); i++ ) {
+			for( int i=0; i < atts.getLength(); i++ )
+			{
 				params.add(atts.getQName(i)+"=\""+atts.getValue(i)+"\"");
 			}
 
-			if( showCurrentPage()  ) {
+			if( showCurrentPage()  )
+			{
 				this.history_text.append("<"+qName+" "+Common.implode(" ",params)+">");
 			}
 		}

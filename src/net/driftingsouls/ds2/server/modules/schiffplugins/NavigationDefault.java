@@ -180,7 +180,8 @@ public class NavigationDefault implements SchiffPlugin {
 	}
 
     @Override
-	public void output(Parameters caller) {
+	public void output(Parameters caller)
+    {
 		String pluginid = caller.pluginId;
 		Ship data = caller.ship;
 		ShipTypeData datatype = caller.shiptype;
@@ -201,13 +202,16 @@ public class NavigationDefault implements SchiffPlugin {
 					"schiff.navigation.dest.system",	data.getDestSystem(),
 					"schiff.navigation.dest.text",		data.getDestCom() );
 		
-		if(data.getDocked() != null && !data.getDocked().equals("") ) {
+		if(data.getDocked() != null && !data.getDocked().equals("") )
+		{
 			String mastershipid = null;
 			
 			if( data.getDocked().charAt(0) == 'l' ) {
 				String[] docked = data.getDocked().split(" ");
 				mastershipid = docked[1];
-			} else {
+			}
+			else
+			{
 				mastershipid = data.getDocked();
 			}
 			Ship mastership = (Ship)db.get(Ship.class, Integer.parseInt(mastershipid));
@@ -222,13 +226,16 @@ public class NavigationDefault implements SchiffPlugin {
 				log.error("Illegal docked entry " + data.getDocked() + " for ship " + data.getId());
 			}
 		} 
-		else if( datatype.getCost() == 0 ) {
+		else if( datatype.getCost() == 0 )
+		{
 			t.setVar("schiff.navigation.showmessage","Dieses Objekt hat keinen Antrieb");
 		} 
-		else if( (data.getLock() != null) && !data.getLock().equals("") ) {
+		else if( (data.getLock() != null) && !data.getLock().equals("") )
+		{
 			t.setVar("schiff.navigation.showmessage","Fahren sie im Quest fort<br />um das Schiff wieder bewegen<br />zu k&ouml;nnen");	
 		}
-		else {
+		else
+		{
 			int x = data.getX();
 			int y = data.getY();
 			int sys = data.getSystem();

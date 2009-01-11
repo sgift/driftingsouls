@@ -1454,17 +1454,23 @@ public class SchiffController extends TemplateGenerator {
 			Map<String,String> weaponlist = Weapons.parseWeaponList( type.getWeapons() );
 			Map<String,String> defweaponlist = Weapons.parseWeaponList( basetype.getWeapons() );
 			
-			for( Map.Entry<String, String> entry: weaponlist.entrySet() ) {
+			for( Map.Entry<String, String> entry: weaponlist.entrySet() )
+			{
 				String aweapon = entry.getKey();
 				int aweaponcount = Integer.parseInt(entry.getValue());
-				if( !defweaponlist.containsKey(aweapon) ) {
+				if( !defweaponlist.containsKey(aweapon) )
+				{
 					tooltiplines.add("<span class='nobr' style='color:green'>+"+aweaponcount+" "+Weapons.get().weapon(aweapon).getName()+"</span><br />");
-				} else {
+				}
+				else
+				{
 					String defweapon = defweaponlist.get(aweapon);
-					if( Integer.parseInt(defweapon) < aweaponcount ) {
+					if( Integer.parseInt(defweapon) < aweaponcount )
+					{
 						tooltiplines.add("<span class='nobr' style='color:green'>+"+(aweaponcount - Integer.parseInt(defweapon))+" "+Weapons.get().weapon(aweapon).getName()+"</span><br />");
 					}	
-					else if( Integer.parseInt(defweapon) > aweaponcount ) {
+					else if( Integer.parseInt(defweapon) > aweaponcount )
+					{
 						tooltiplines.add("<span class='nobr' style='color:red'>"+(aweaponcount - Integer.parseInt(defweapon))+" "+Weapons.get().weapon(aweapon).getName()+"</span><br />");
 					}
 				}

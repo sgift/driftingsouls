@@ -122,7 +122,9 @@ public class ADocksDefault implements SchiffPlugin {
 		for( int j = 0; j < shiptype.getADocks(); j++ ) {
 			t.start_record();
 			if( (j > 0) && (j % 4 == 0) )
+			{
 				t.setVar("docks.endrow",1);
+			}
 
 			if( dockedShips.size() > j ) {
 				Ship aship = dockedShips.get(j);

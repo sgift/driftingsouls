@@ -431,7 +431,9 @@ public class ScanController extends TemplateGenerator {
 					else if( nebeltype == 6 && shiptype.getSize() > 8 ) // Schadensnebel
 					{
 						scanable = true;
-					}else if (ship.getOwner().getId() == user.getId()){
+					}
+					else if (ship.getOwner().getId() == user.getId())
+					{
 						scanable = true;
 					}
 				}
@@ -690,37 +692,46 @@ public class ScanController extends TemplateGenerator {
 										own++;
 									}
 								}
-								else if( (myship.getOwner().getId() != user.getId()) && (user.getAlly() != null) && (myship.getOwner().getAlly() == user.getAlly()) ) {
-									if( (myship.getDocked().length() == 0) || (myship.getDocked().charAt(0) != 'l') ) {
-										if( ally == 0 ) {
+								else if( (myship.getOwner().getId() != user.getId()) && (user.getAlly() != null) && (myship.getOwner().getAlly() == user.getAlly()) )
+								{
+									if( (myship.getDocked().length() == 0) || (myship.getDocked().charAt(0) != 'l') )
+									{
+										if( ally == 0 )
+										{
 											fleet[1] = "_fa";
 										}	
 										ally++;
 									}
 								}
-								else if( (myship.getOwner().getId() != user.getId()) && ( (user.getAlly() == null) || ((user.getAlly() != null) && (myship.getOwner().getAlly() != user.getAlly()) ) )  ) {
+								else if( (myship.getOwner().getId() != user.getId()) && ( (user.getAlly() == null) || ((user.getAlly() != null) && (myship.getOwner().getAlly() != user.getAlly()) ) )  )
+								{
 									boolean scan = false;
 									if (nebelmap.containsKey(loc))
 									{
 										if (nebelmap.get(loc) == 1 && myship.getTypeData().getSize() > 4) // leichter Deutnebel
 										{
 											scan = true;
-										}else if (nebelmap.get(loc) == 0 && myship.getTypeData().getSize() > 6) // mittlerer Deutnebel
-										{
-											scan = true;
-										}else if (nebelmap.get(loc) == 2 && myship.getTypeData().getSize() > 10) // schwerer Deutnebel
-										{
-											scan = true;
-										}else if (nebelmap.get(loc) == 6 && myship.getTypeData().getSize() > 8) // Schadensnebel
+										}
+										else if (nebelmap.get(loc) == 0 && myship.getTypeData().getSize() > 6) // mittlerer Deutnebel
 										{
 											scan = true;
 										}
-									}else
+										else if (nebelmap.get(loc) == 2 && myship.getTypeData().getSize() > 10) // schwerer Deutnebel
+										{
+											scan = true;
+										}
+										else if (nebelmap.get(loc) == 6 && myship.getTypeData().getSize() > 8) // Schadensnebel
+										{
+											scan = true;
+										}
+									}
+									else
 									{
 										scan = true;
 									}
 									
-									if( ((myship.getDocked().length() == 0) || (myship.getDocked().charAt(0) != 'l')) && scan == true ) {
+									if( ((myship.getDocked().length() == 0) || (myship.getDocked().charAt(0) != 'l')) && scan == true )
+									{
 										if( enemy == 0 ) {
 											fleet[2] = "_fe";
 										}	
@@ -732,7 +743,8 @@ public class ScanController extends TemplateGenerator {
 	
 						String tooltip = "";
 						String fleetStr = "";
-						if( own+ally+enemy > 0 ) {
+						if( own+ally+enemy > 0 )
+						{
 							tooltip = "onmouseover=\"return overlib('<span class=\\'smallfont\\'>"+(own != 0 ? "Eigene: "+own+"<br />":"")+(ally != 0 ? "Ally: "+ally+"<br />":"")+(enemy != 0 ? "Feindliche: "+enemy+"<br />":"")+"</span>',TIMEOUT,0,DELAY,400,WIDTH,120);\" onmouseout=\"return nd();\"";
 							fleetStr = Common.implode("", fleet);
 						}
@@ -741,40 +753,49 @@ public class ScanController extends TemplateGenerator {
 									"map.fleet",	fleetStr );
 					
 						// Nebel, Basen, Sprungpunkte
-						if( nebelmap.containsKey(loc) ) {
+						if( nebelmap.containsKey(loc) )
+						{
 							t.setVar(	"map.image",		"fog"+nebelmap.get(loc)+"/fog"+nebelmap.get(loc),
 										"map.image.name",	"Nebel" );
 						}
-						else if( basemap.containsKey(loc) ) {
+						else if( basemap.containsKey(loc) )
+						{
 							BaseEntry entry = basemap.get(loc);
-							if( entry.base.getSize() > 0 ) {
+							if( entry.base.getSize() > 0 )
+							{
 								t.setVar(	"map.image",		"kolonie"+entry.base.getKlasse()+"_lrs/kolonie"+entry.base.getKlasse()+"_lrs"+entry.imgcount,
 											"map.image.name",	"Asteroid" );
 							}
-							else if( entry.base.getOwner().getId() == user.getId() ) {
+							else if( entry.base.getOwner().getId() == user.getId() )
+							{
 								t.setVar(	"map.image",		"asti_own/asti_own",
 											"map.image.name",	"Eigener Asteroid" );
 							}
-							else if( (entry.base.getOwner().getId() != 0) && (user.getAlly() != null) && (entry.base.getOwner().getAlly() == user.getAlly()) ) {
+							else if( (entry.base.getOwner().getId() != 0) && (user.getAlly() != null) && (entry.base.getOwner().getAlly() == user.getAlly()) )
+							{
 								t.setVar(	"map.image",		"asti_ally/asti_ally",
 											"map.image.name",	"Ally Asteroid" );
 							}
-							else if( (entry.base.getOwner().getId() != 0) ) {
+							else if( (entry.base.getOwner().getId() != 0) )
+							{
 								t.setVar(	"map.image",		"asti_enemy/asti_enemy",
 											"map.image.name",	"Feindlicher Asteroid" );
 							}
-							else {
+							else
+							{
 								String astiimg = "kolonie"+entry.base.getKlasse()+"_lrs";
 								
 								t.setVar(	"map.image",		astiimg+"/"+astiimg,
 											"map.image.name",	"Asteroid" );
 							}
 						}
-						else if( nodemap.containsKey(loc) ) {
+						else if( nodemap.containsKey(loc) )
+						{
 							t.setVar(	"map.image",		"jumpnode/jumpnode",
 										"map.image.name",	"Jumpnode" );
 						}
-						else {
+						else
+						{
 							t.setVar(	"map.image",		"space/space",
 										"map.image.name",	"Leer" );
 						}

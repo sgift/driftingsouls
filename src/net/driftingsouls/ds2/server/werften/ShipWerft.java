@@ -219,7 +219,8 @@ public class ShipWerft extends WerftObject {
 			crew = getMaxCrew();
 		}
 		int shipcrew = 0;
-		if( this.linked != null ) {
+		if( this.linked != null )
+		{
 			ShipTypeData shiptype = this.ship.getTypeData();
 			int basecrew = this.linked.getBewohner()-this.linked.getArbeiter();
 			shipcrew = this.ship.getCrew();
@@ -248,7 +249,9 @@ public class ShipWerft extends WerftObject {
 
 			int bewohner = basecrew + this.linked.getArbeiter();
 			this.linked.setBewohner(bewohner);
-		} else {
+		}
+		else
+		{
 			shipcrew = crew;
 		}
 		this.ship.setCrew(shipcrew);
@@ -309,21 +312,28 @@ public class ShipWerft extends WerftObject {
 	}
 	
 	@Override
-	public void transferOffi(int offi) {
-		if( this.canTransferOffis() == 0 ) {
+	public void transferOffi(int offi)
+	{
+		if( this.canTransferOffis() == 0 )
+		{
 			throw new RuntimeException("ERROR: ShipWerft.transferOffi(): Kein Platz f&uuml;r weitere Offiziere");
 		}
 
 		Offizier offizier = Offizier.getOffizierByID(offi);
 		
-		if( this.linked == null ) {
+		if( this.linked == null )
+		{
 			offizier.setDest("s", this.ship.getId());
 		}
-		else {
+		else
+		{
 			Offizier myoffi = Offizier.getOffizierByDest('s', this.ship.getId());
-			if( myoffi != null ) {
+			if( myoffi != null )
+			{
 				offizier.setDest("b", this.linked.getId());
-			} else {
+			}
+			else
+			{
 				offizier.setDest("s", this.ship.getId());
 			}
 		}

@@ -80,7 +80,8 @@ public final class AutoGTUAction implements Cloneable {
 			act.count = this.count;
 			act.resid = this.resid;
 			return act;
-		} catch (CloneNotSupportedException e) {
+		}
+		catch (CloneNotSupportedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

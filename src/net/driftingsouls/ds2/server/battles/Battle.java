@@ -1428,16 +1428,24 @@ public class Battle implements Locatable {
 			this.activeSEnemy++;
 		}
 	
-		if( activeSEnemy >= enemyShips.size() ) activeSEnemy = 0;
+		if( activeSEnemy >= enemyShips.size() )
+		{ 
+			activeSEnemy = 0;
+		}
 
-		if( this.guest ) {
+		if( this.guest )
+		{
 			while( activeSOwn < ownShips.size() &&
 				  ( (this.ownShips.get(activeSOwn).getDocked().length() > 0) &&
-				 	(this.ownShips.get(activeSOwn).getDocked().charAt(0) == 'l') ) ) {
+				 	(this.ownShips.get(activeSOwn).getDocked().charAt(0) == 'l') ) )
+			{
 				this.activeSOwn++;
 			}
 		
-			if( activeSOwn >= ownShips.size() ) activeSOwn = 0;
+			if( activeSOwn >= ownShips.size() )
+			{
+				activeSOwn = 0;
+			}
 		}
 		
 		return true;

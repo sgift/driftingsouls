@@ -57,7 +57,7 @@ public abstract class DSGenerator extends Generator {
 	 * Basisklasse fuer Objekte zur Ausgabe von Header, Footer und Fehlern.
 	 *
 	 */
-	protected static abstract class OutputHelper {
+	protected abstract static class OutputHelper {
 		private Context context = null;
 		private Map<String,Object> attributes = new HashMap<String,Object>();
 		

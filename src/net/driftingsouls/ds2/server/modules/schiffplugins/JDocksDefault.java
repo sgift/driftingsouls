@@ -127,7 +127,9 @@ public class JDocksDefault implements SchiffPlugin {
 		for( int j = 0; j < datatype.getJDocks(); j++ ) {
 			t.start_record();
 			if( (j > 0) && (j % 4 == 0) )
+			{
 				t.setVar("docks.endrow",1);
+			}
 
 			if( jdockedShip.size() > j ) {
 				Ship aship = jdockedShip.get(j);

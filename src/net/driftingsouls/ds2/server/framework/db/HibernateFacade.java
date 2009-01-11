@@ -110,7 +110,8 @@ public class HibernateFacade {
 		try {
 			ObjectName name = new ObjectName("org.hibernate:Type=Statistics");
 			server.registerMBean(statisticsService, name);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			log.error("", e);
 		}
 	}

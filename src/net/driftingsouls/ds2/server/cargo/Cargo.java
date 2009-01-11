@@ -603,8 +603,14 @@ public class Cargo implements Cloneable {
 		ResourceList reslist = new ResourceList();
 		
 		for( int i=0; i <= MAX_RES; i++ ) {
-			if( i == Resources.ITEMS.getID() ) continue;
-			if( cargo[i] == 0 ) continue;
+			if( i == Resources.ITEMS.getID() )
+			{
+				continue;
+			}
+			if( cargo[i] == 0 )
+			{
+				continue;
+			}
 			
 			ResourceID id = new WarenID(i);
 			
@@ -620,7 +626,8 @@ public class Cargo implements Cloneable {
 		if( !items.isEmpty() ) {
 			for( Long[] item : items  ) {
 				Item itemType = Items.get().item(item[0].intValue());
-				if( itemType == null ) {
+				if( itemType == null )
+				{
 					log.warn("Unbekanntes Item "+item[0]+" geortet");
 					continue;
 				}
@@ -718,10 +725,19 @@ public class Cargo implements Cloneable {
 		List<Long[]> items = cargoObj.getItemArray();
 
 		for( int i=0; i <= MAX_RES; i++ ) {
-			if( i == Resources.ITEMS.getID() ) continue;
+			if( i == Resources.ITEMS.getID() )
+			{
+				continue;
+			}
 			
-			if( echoBothSides && (this.cargo[i] == 0) && (cargo[i] == 0) ) continue;
-			else if( !echoBothSides && (this.cargo[i] == 0) ) continue;
+			if( echoBothSides && (this.cargo[i] == 0) && (cargo[i] == 0) )
+			{
+				continue;
+			}
+			else if( !echoBothSides && (this.cargo[i] == 0) )
+			{
+				continue;
+			}
 			
 			ResourceID id = new WarenID(i);
 			
@@ -872,8 +888,12 @@ public class Cargo implements Cloneable {
 		long[] cargo = subcargo.getCargoArray();
 		List<Long[]> items = subcargo.getItemArray();
 
-		for( int i=0; i <= MAX_RES; i++ ) {
-			if( i == Resources.ITEMS.getID() ) continue;
+		for( int i=0; i <= MAX_RES; i++ )
+		{
+			if( i == Resources.ITEMS.getID() )
+			{
+				continue;
+			}
 			this.cargo[i] -= cargo[i];			
 		}
 
@@ -918,8 +938,12 @@ public class Cargo implements Cloneable {
 		long[] cargo = addcargo.getCargoArray();
 		List<Long[]> items = addcargo.getItemArray();
 
-		for( int i=0; i <= MAX_RES; i++ ) {
-			if( i == Resources.ITEMS.getID() ) continue;
+		for( int i=0; i <= MAX_RES; i++ )
+		{
+			if( i == Resources.ITEMS.getID() )
+			{
+				continue;
+			}
 			this.cargo[i] += cargo[i];			
 		}
 
@@ -930,7 +954,8 @@ public class Cargo implements Cloneable {
 				
 				if( !this.items.isEmpty() ) {
 					for( Long[] myitem : this.items ) {
-						if( !isSameIID(myitem,item) ) {
+						if( !isSameIID(myitem,item) )
+						{
 							continue;
 						}
 						entry = myitem;
@@ -957,7 +982,10 @@ public class Cargo implements Cloneable {
 	 */
 	public void multiply( double factor, Round round ) {
 		for( int i=0; i <= MAX_RES; i++ ) {
-			if( i == Resources.ITEMS.getID() ) continue;
+			if( i == Resources.ITEMS.getID() )
+			{
+				continue;
+			}
 			double val = cargo[i] * factor;
 			switch( round ) {
 			case NONE:
@@ -1018,7 +1046,10 @@ public class Cargo implements Cloneable {
 		long currentmass = 0;
 
 		for( int i=0; i <= MAX_RES; i++ ) {
-			if( i == Resources.ITEMS.getID() ) continue;
+			if( i == Resources.ITEMS.getID() )
+			{
+				continue;
+			}
 			
 			if( cargo[i] + currentmass < mass ) {
 				currentmass += cargo[i];
@@ -1138,7 +1169,10 @@ public class Cargo implements Cloneable {
 	 */
 	public boolean isEmpty() {
 		for( int i=0; i <= MAX_RES; i++ ) {
-			if( i == Resources.ITEMS.getID() ) continue;
+			if( i == Resources.ITEMS.getID() )
+			{
+				continue;
+			}
 			
 			if( cargo[i] > 0 ) {
 				return false;	

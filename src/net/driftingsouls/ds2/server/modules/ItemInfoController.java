@@ -659,7 +659,10 @@ public class ItemInfoController extends TemplateGenerator {
 				
 				StringBuilder weapons = new StringBuilder(50);
 				for( Weapon weapon : Weapons.get() ) {
-					if( !Common.inArray(ammo.getType(), weapon.getAmmoType()) ) continue;
+					if( !Common.inArray(ammo.getType(), weapon.getAmmoType()) )
+					{
+						continue;
+					}
 			
 					if( weapons.length() == 0 ) {
 						weapons.append(weapon.getName());

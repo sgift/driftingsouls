@@ -145,9 +145,11 @@ public class SensorsDefault implements SchiffPlugin {
 
 		String order = user.getUserValue("TBLORDER/schiff/sensororder");
 
-		if( ( ship.getSensors() > 30 ) && ( ship.getCrew() >= shiptype.getCrew() / 4 ) ) {
+		if( ( ship.getSensors() > 30 ) && ( ship.getCrew() >= shiptype.getCrew() / 4 ) )
+		{
 			t.setVar("global.goodscan",1);
-		} else if( ship.getSensors() > 0 ) {
+		}
+		else if( ship.getSensors() > 0 ) {
 			t.setVar("global.badscan",1);
 		}
 
@@ -198,8 +200,14 @@ public class SensorsDefault implements SchiffPlugin {
 				}
 
 				String ownername = Common._title(base.getOwner().getName());
-				if( ownername.equals("") ) ownername = "-";
-				if( base.getOwner().getId() == -1) ownername = "verlassen";
+				if( ownername.equals("") )
+				{
+					ownername = "-";
+				}
+				if( base.getOwner().getId() == -1)
+				{
+					ownername = "verlassen";
+				}
 				if( !ownername.equals("-") && (base.getOwner().getId() != -1) && (base.getOwner() != user) ) {
 					t.setVar("base.pm", 1);
 				}
@@ -278,7 +286,10 @@ public class SensorsDefault implements SchiffPlugin {
 				if( node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn( 0 ) ) {
 					blocked = 1;
 				}
-				if( user.hasFlag( User.FLAG_NO_JUMPNODE_BLOCK ) ) blocked = 0;
+				if( user.hasFlag( User.FLAG_NO_JUMPNODE_BLOCK ) )
+				{
+					blocked = 0;
+				}
 							
 				t.setVar(	"node.id",		node.getId(),
 							"node.name",	node.getName(),
@@ -509,9 +520,12 @@ public class SensorsDefault implements SchiffPlugin {
 								"sshipgroup.count",			types.get(typeGroupID) + (ship.getType() == aship.getType() ? 1 : 0) - ownfleetcount,
 								"sshipgroup.fleetlesscount",	fleetlesscount );
 		
-					if( aship.getOwner().getId() == user.getId() ) {
+					if( aship.getOwner().getId() == user.getId() )
+					{
 						t.setVar("sshipgroup.ownship",1);
-					} else {
+					}
+					else
+					{
 						t.setVar("sshipgroup.ownship",0);
 					}
 									
@@ -571,13 +585,19 @@ public class SensorsDefault implements SchiffPlugin {
 					boolean disableIFF = aship.getStatus().contains("disable_iff");
 					t.setVar("sships.disableiff",disableIFF);
 		
-					if( aship.getOwner().getId() == user.getId() ) {
+					if( aship.getOwner().getId() == user.getId() )
+					{
 						t.setVar("sships.ownship",1);
-					} else {
+					}
+					else
+					{
 						t.setVar("sships.ownship",0);
 					}
 
-					if( disableIFF ) t.setVar("sships.owner.name","Unbekannt");
+					if( disableIFF )
+					{
+						t.setVar("sships.owner.name","Unbekannt");
+					}
 		
 					if( aship.getFleet() != null ) {
 						t.setVar("sships.fleet.name",Common._plaintitle(aship.getFleet().getName()));
@@ -601,36 +621,52 @@ public class SensorsDefault implements SchiffPlugin {
 						if( aship.getHeat() == 0 ) {
 							t.setVar("sships.heat.none",1);
 						}
-						if( (aship.getHeat() > 0) && (aship.getHeat() <= 100) ) {
+						if( (aship.getHeat() > 0) && (aship.getHeat() <= 100) )
+						{
 							t.setVar("sships.heat.medium",1);
-						} else if( aship.getHeat() > 100 ) {
+						}
+						else if( aship.getHeat() > 100 )
+						{
 							t.setVar("sships.heat.hight",1);
 						}
 		
 						// Anzeige Crew
-						if( (aship.getCrew() == 0) && (ashiptype.getCrew() != 0) ) {
+						if( (aship.getCrew() == 0) && (ashiptype.getCrew() != 0) )
+						{
 							t.setVar("sships.nocrew",1);
-						} else if( aship.getCrew() > 0 ) {
+						}
+						else if( aship.getCrew() > 0 )
+						{
 							t.setVar("sships.crew",aship.getCrew());
 						}
 		
 						// Anzeige Energie
-						if( aship.getEnergy() == 0 ) {
+						if( aship.getEnergy() == 0 )
+						{
 							t.setVar("sships.noe",1);
-						} else if( aship.getEnergy() > 0 ) {
+						}
+						else if( aship.getEnergy() > 0 )
+						{
 							t.setVar("sships.e",aship.getEnergy());
 						}
 					} 
 					else if( shiptype.hasFlag(ShipTypes.SF_SRS_AWAC) ) {
 						t.setVar("global.standartawac",1);
 						
-						if( aship.getHeat() > 100 ) {
+						if( aship.getHeat() > 100 )
+						{
 							t.setVar("sships.heat.high",1);
-						} else if( aship.getHeat() > 40 ) {
+						}
+						else if( aship.getHeat() > 40 )
+						{
 							t.setVar("sships.heat.medium",1);
-						} else if( aship.getHeat() > 0 ) {
+						}
+						else if( aship.getHeat() > 0 )
+						{
 							t.setVar("sships.heat.low",1);
-						} else {
+						}
+						else
+						{
 							t.setVar("sships.heat.none",1);
 						}
 					}
@@ -721,15 +757,20 @@ public class SensorsDefault implements SchiffPlugin {
 					//Bemannen, Kapern
 					if( !disableIFF && (aship.getOwner().getId() != user.getId()) && (ashiptype.getShipClass() != ShipClasses.GESCHUETZ.ordinal()) &&
 						((aship.getOwner().getId() != -1) || (ashiptype.getShipClass() == ShipClasses.SCHROTT.ordinal() || ashiptype.getShipClass() == ShipClasses.FELSBROCKEN.ordinal())) ) {
-						if( (user.getAlly() == null) || (aship.getOwner().getAlly() != user.getAlly()) ) {
-							if( !ashiptype.hasFlag(ShipTypes.SF_NICHT_KAPERBAR) ) {
+						if( (user.getAlly() == null) || (aship.getOwner().getAlly() != user.getAlly()) )
+						{
+							if( !ashiptype.hasFlag(ShipTypes.SF_NICHT_KAPERBAR) )
+							{
 								t.setVar("sships.action.kapern",1);
 							}
-							else {
+							else
+							{
 								t.setVar("sships.action.pluendern",1);
 							}
 						}
-					} else if( !disableIFF && (aship.getOwner().getId() == user.getId()) && (ashiptype.getCrew() > 0)  ) {
+					}
+					else if( !disableIFF && (aship.getOwner().getId() == user.getId()) && (ashiptype.getCrew() > 0)  )
+					{
 						t.setVar("sships.action.crewtausch",1);
 					}
 
@@ -797,10 +838,13 @@ public class SensorsDefault implements SchiffPlugin {
 										}
 									}
 
-									if( !fleetlist.isEmpty() && (fleetlist.size() <= ashiptype.getJDocks()) ) {
+									if( !fleetlist.isEmpty() && (fleetlist.size() <= ashiptype.getJDocks()) )
+									{
 										if( carrierFullCount + fleetlist.size() <= ashiptype.getJDocks() )
+										{
 											t.setVar(	"sships.action.landfleet", 1,
 														"global.shiplist", Common.implode("|",fleetlist) );
+										}
 									}
 								}
 							}
@@ -841,8 +885,10 @@ public class SensorsDefault implements SchiffPlugin {
 							
 							if( !thisFleetList.isEmpty() && (thisFleetList.size() <= shiptype.getJDocks()) ) {
 								if( fullcount + thisFleetList.size() <= shiptype.getJDocks() )
+								{
 									t.setVar(	"sships.action.landthisfleet", 1,
 												"sships.shiplist", Common.implode("|",thisFleetList) );
+								}
 							}
 						}
 					}

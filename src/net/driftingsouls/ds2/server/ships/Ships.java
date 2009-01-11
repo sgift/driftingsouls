@@ -128,7 +128,10 @@ public class Ships {
 			
 			int nn = (int)Math.ceil(ship.getInt("crew")/scale) - type.getInt("hydro");
 			if( (nn > 0) || ((nn == 0) && (type.getInt("hydro") == 0)) ) {
-				if( nn == 0 ) nn = 1;
+				if( nn == 0 )
+				{
+					nn = 1;
+				}
 				long nr = usercargo.getResourceCount( Resources.NAHRUNG )/nn;
 				
 				if( nr <= MANGEL_TICKS ) {

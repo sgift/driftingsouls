@@ -1865,7 +1865,9 @@ public class Ship implements Locatable,Transfering {
 		}
 
 		if( !firstEntry )
+		{
 			out.append("</table>\n");
+		}
 
 		return status;
 	}

@@ -315,7 +315,10 @@ public class Waffenfabrik extends DefaultBuilding {
 					
 					usedcapacity = usedcapacity.subtract(capUsedByAmmo);
 						
-					if( usedcapacity.compareTo(targetCapacity) <= 0 ) break;
+					if( usedcapacity.compareTo(targetCapacity) <= 0 )
+					{
+						break;
+					}
 				}
 				wf.setProduces(plist);
 			}
@@ -422,15 +425,19 @@ public class Waffenfabrik extends DefaultBuilding {
 		List<Ammo> removelist = new ArrayList<Ammo>();
 		
 		Iterator<?> ammoIter = db.createQuery("from Ammo").list().iterator();
-		for( ; ammoIter.hasNext(); ) {
+		for( ; ammoIter.hasNext(); )
+		{
 			Ammo ammo = (Ammo)ammoIter.next();
 
 			if( !user.hasResearched(ammo.getRes1()) || !user.hasResearched(ammo.getRes2()) || !user.hasResearched(ammo.getRes3()) )
+			{
 				continue;
+			}
 			
 			ammolist.add(ammo);
 			
-			if( (ammo.getReplaces() != null) && !removelist.contains(ammo.getReplaces()) ) {
+			if( (ammo.getReplaces() != null) && !removelist.contains(ammo.getReplaces()) )
+			{
 				removelist.add(ammo.getReplaces());	
 			}
 		}
@@ -620,25 +627,33 @@ public class Waffenfabrik extends DefaultBuilding {
 		echo.append("<td class=\"noBorderX\" style=\"width:130px\"></td>\n");
 		echo.append("</tr>");
 		
-		for( Item item : Items.get() ) {
-			if( item.getEffect().getType() != ItemEffect.Type.AMMO ) continue;
+		for( Item item : Items.get() )
+		{
+			if( item.getEffect().getType() != ItemEffect.Type.AMMO )
+			{
+				continue;
+			}
 			
 			final Ammo ammo = ((IEAmmo)item.getEffect()).getAmmo();
 			
-			if( !ammolist.contains(ammo) ) {
+			if( !ammolist.contains(ammo) )
+			{
 				continue;
 			}
 		
 			echo.append("<tr>\n");
-			if( productlist.containsKey(ammo) ) {
+			if( productlist.containsKey(ammo) )
+			{
 				echo.append("<td class=\"noBorderX\" valign=\"top\">"+productlist.get(ammo)+"x</td>\n");
 			} 
-			else {
+			else
+			{
 				echo.append("<td class=\"noBorderX\" valign=\"top\">-</td>\n");
 			}
 			
 			echo.append("<td class=\"noBorderX\" valign=\"top\">\n");
-			if( bPlanMap.containsKey(ammo) ) {
+			if( bPlanMap.containsKey(ammo) )
+			{
 				echo.append(bPlanMap.get(ammo));
 			}
 			echo.append("<img style=\"vertical-align:middle\" src=\""+item.getPicture()+"\" alt=\"\" /><a class=\"forschinfo\" href=\"./ds?module=iteminfo&amp;action=details&amp;item="+item.getID()+"\">"+item.getName()+"</a>");
@@ -648,7 +663,8 @@ public class Waffenfabrik extends DefaultBuilding {
 			echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/time.gif\" alt=\"Dauer\" />"+ammo.getDauer()+" \n");
 			
 			reslist = ammo.getBuildCosts().getResourceList();
-			for( ResourceEntry res : reslist ) {
+			for( ResourceEntry res : reslist )
+			{
 				echo.append("<span class=\"nobr\"><img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+"</span>\n");
 			}
 		
