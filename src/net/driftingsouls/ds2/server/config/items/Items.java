@@ -46,7 +46,7 @@ public class Items implements Iterable<Item> {
 	private static final Log log = LogFactory.getLog(Items.class);
 	private static Items itemList = new Items();
 	private Map<Integer, Item> list = new LinkedHashMap<Integer, Item>();
-	
+
 	private Items() {
 		// EMPTY
 	}
@@ -54,7 +54,7 @@ public class Items implements Iterable<Item> {
 	private void addItem( Item item ) {
 		list.put(item.getID(), item);
 	}
-	
+
 	/**
 	 * Gibt die Instanz der Item-Liste zurueck.
 	 * @return Die Item-Listen-Instanz
@@ -62,12 +62,12 @@ public class Items implements Iterable<Item> {
 	public static Items get() {
 		return itemList;
 	}
-	
+
 	@Override
 	public Iterator<Item> iterator() {
 		return list.values().iterator();
 	}
-	
+
 	/**
 	 * Gibt das Item mit der angegebenen ID zurueck.
 	 * Falls kein Item mit der ID existiert wird <code>null</code>
@@ -79,68 +79,77 @@ public class Items implements Iterable<Item> {
 	public Item item( int id ) {
 		return list.get(id);
 	}
-	
+
 	static {
 		/*
 		 * items.xml parsen
 		 */
 		try {
 			String imagepath = BasicUser.getDefaultImagePath()+"data/items/";
-			
+
 			Document doc = XMLUtils.readFile(Configuration.getSetting("configdir")+"items.xml");
 			NodeList nodes = XMLUtils.getNodesByXPath(doc, "items/item");
 			for( int i=0; i < nodes.getLength(); i++ ) {
+
 				Node node = nodes.item(i);
 				int id = (int)XMLUtils.getLongAttribute(node, "id");
-				
+
 				if( itemList.item(id) != null ) {
 					throw new Exception("Item-ID "+id+" mehrfach vergeben");
 				}
-				
+
 				String version = XMLUtils.getStringAttribute(node, "version");
 				if( (version != null) && !version.equalsIgnoreCase(Configuration.getSetting("VERSION_TYPE")) ) {
 					continue;
 				}
-				
+
 				String name = XMLUtils.firstNodeByTagName(node, "name").getTextContent();
-				
+
 				String picture = "open.gif";
 				Node pictureNode = XMLUtils.firstNodeByTagName(node, "picture");
 				if( pictureNode != null ) {
 					picture = pictureNode.getTextContent();
 				}
-				
+
 				Item item = new Item(id, name, imagepath+picture);
-				item.cargo = (int)XMLUtils.getLongAttribute(node, "cargo");
-				
-				Node largePicture = XMLUtils.firstNodeByTagName(node, "large-picture");
-				if( largePicture != null ) {
-					item.largepicture = imagepath+largePicture.getTextContent();
+				try
+				{
+					item.cargo = (int)XMLUtils.getLongAttribute(node, "cargo");
+
+					Node largePicture = XMLUtils.firstNodeByTagName(node, "large-picture");
+					if( largePicture != null ) {
+						item.largepicture = imagepath+largePicture.getTextContent();
+					}
+
+					Node description = XMLUtils.firstNodeByTagName(node, "description");
+					if( description != null ) {
+						item.description = Common.trimLines(description.getTextContent());
+					}
+
+					item.effect = ItemEffectFactory.fromXML(XMLUtils.firstNodeByTagName(node, "effect"));
+
+					Boolean handel = XMLUtils.getBooleanAttribute(node, "handel");
+					if( handel != null ) {
+						item.handel = handel;
+					}
+
+					item.accesslevel = (int)XMLUtils.getLongAttribute(node, "accesslevel");
+
+					if( XMLUtils.firstNodeByTagName(node, "quality") != null ) {
+						item.quality = Item.Quality.fromString(XMLUtils.firstNodeByTagName(node, "quality").getTextContent());
+					}
+
+					Boolean unknownItem = XMLUtils.getBooleanAttribute(node, "unknownItem");
+					if( unknownItem != null ) {
+						item.unknownItem = unknownItem;
+					}
 				}
-				
-				Node description = XMLUtils.firstNodeByTagName(node, "description");
-				if( description != null ) {
-					item.description = Common.trimLines(description.getTextContent());
+				catch(Exception e)
+				{
+					log.warn("Item " + item.getName() + " not available due to errors");
+					log.debug(e);
 				}
-				
-				item.effect = ItemEffectFactory.fromXML(XMLUtils.firstNodeByTagName(node, "effect"));
-				
-				Boolean handel = XMLUtils.getBooleanAttribute(node, "handel");
-				if( handel != null ) {
-					item.handel = handel;
-				}
-				
-				item.accesslevel = (int)XMLUtils.getLongAttribute(node, "accesslevel");
-				
-				if( XMLUtils.firstNodeByTagName(node, "quality") != null ) {
-					item.quality = Item.Quality.fromString(XMLUtils.firstNodeByTagName(node, "quality").getTextContent());
-				}
-				
-				Boolean unknownItem = XMLUtils.getBooleanAttribute(node, "unknownItem");
-				if( unknownItem != null ) {
-					item.unknownItem = unknownItem;
-				}
-				
+
 				itemList.addItem(item);
 			}
 		}
