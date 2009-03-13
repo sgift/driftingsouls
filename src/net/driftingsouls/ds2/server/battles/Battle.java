@@ -2434,8 +2434,8 @@ public class Battle implements Locatable {
 	/**
 	 * Gets the ships of one battle party.
 	 * 
-	 * @param side
-	 * @return
+	 * @param side Own side or enemy side.
+	 * @return Ships, which fight for the given side.
 	 */
 	public List<BattleShip> getShips(Side side)
 	{
