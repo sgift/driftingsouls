@@ -28,6 +28,16 @@
 		</flags>
 	</weapon>
 	
+	<weapon id="BVas" handler="net.driftingsouls.ds2.server.config.BeamWeapon">
+		<name>Schwere Strahlengeschuetze</name>
+		<treffer-ws default="70" sub="0" />
+		<cost ap="6" e="25" />
+		<damage hull="7700" shields="7700" />
+		<flags>
+			<flag id="LONG_RANGE" />
+		</flags>
+	</weapon>
+	
 	<weapon id="TerSlash" handler="net.driftingsouls.ds2.server.config.BeamWeapon">
 		<name>Leichte Strahlengeschuetze</name>
 		<treffer-ws default="90" sub="0" />
@@ -66,10 +76,21 @@
 		</flags>
 	</weapon>
 	
+	<weapon id="doubleraketen">
+		<name>Doppelraketenwerfer</name>
+		<cost ap="1" e="3" />
+		<shots single="2" ammo="rak" />
+		<flags>
+			<flag id="AMMO_SELECT" />
+		</flags>
+	</weapon>
+
 	<weapon id="standard_flak">
 		<name>Flakgeschuetze</name>
 		<cost ap="1" e="1" />
-		<shots single="2" ammo="flak" />
+		<shots single="2">
+			<ammo type="flak" />
+		</shots>
 	</weapon>
 	
 	<weapon id="AAAf">
@@ -78,6 +99,19 @@
 		<cost ap="2" e="4" />
 		<damage hull="98" shields="98" />
 		<shots single="3" />
+	</weapon>
+	
+	<weapon id="set_hol_shrine_of_sacrifice">
+		<name>Letztes Opfer</name>
+		<treffer-ws default="70" small="25" torpedo="0" sub="0" />
+		<cost ap="1" e="0" />
+		<damage hull="15000" shields="15000" area="2" />
+		<shots single="6" />
+		<flags>
+			<flag id="DESTROY_AFTER" />
+			<flag id="AD_FULL" />
+			<flag id="SPECIAL" />
+		</flags>
 	</weapon>
 	
 	<weapon id="ntf_cm_shipwrek">
