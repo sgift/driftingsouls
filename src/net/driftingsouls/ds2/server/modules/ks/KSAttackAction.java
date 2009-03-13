@@ -889,6 +889,10 @@ public class KSAttackAction extends BasicKSAction {
 				else if( eship.getDocked().length() > 0 && (eship.getDocked().charAt(0) == 'l') ) {
 					continue;	
 				}
+				else if(eship.isSecondRow())
+				{
+					continue;
+				}
 				
 				shiplist.add(eship);
 				if( !gottarget && (i >= this.localweapon.getInt("areadamage")) ) {
