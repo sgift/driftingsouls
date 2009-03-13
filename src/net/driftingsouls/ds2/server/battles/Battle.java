@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -2412,25 +2413,15 @@ public class Battle implements Locatable {
 	}
 	
 	/**
-	 * Gets the battle value of one battle party.
-	 * The battle value is a measure of the fighting power.
+	 * Ermittelt den Kampfstärke einer Seite.
 	 * 
-	 * @param side Die Seite, dessen BattleValue abgefragt werden soll
-	 * @return The battle value of one battle party.
+	 * @param side Die Seite, deren Kampfstärke abgefragt werden soll
+	 * @return Die Kampfstärke einer Seite
 	 */
 	public int getBattleValue(Side side)
 	{
 		int battleValue = 0;
-		List<BattleShip> ships;
-		
-		if(side == Side.OWN)
-		{
-			ships = getOwnShips();
-		}
-		else
-		{
-			ships = getEnemyShips();
-		}
+		List<BattleShip> ships = getShips(side);
 		
 		for(BattleShip ship: ships)
 		{
@@ -2438,6 +2429,24 @@ public class Battle implements Locatable {
 		}
 		
 		return battleValue;
+	}
+	
+	/**
+	 * Gets the ships of one battle party.
+	 * 
+	 * @param side
+	 * @return
+	 */
+	public List<BattleShip> getShips(Side side)
+	{
+		if(side == Side.OWN)
+		{
+			return Collections.unmodifiableList(getOwnShips());
+		}
+		else
+		{
+			return Collections.unmodifiableList(getEnemyShips());
+		}
 	}
 	
 	/**

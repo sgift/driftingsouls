@@ -452,6 +452,16 @@ public class BattleShip {
 	}
 	
 	/**
+	 * Checks, if the ship is in the second row.
+	 * 
+	 * @return true, if the ship is in the second row, false otherwise.
+	 */
+	public boolean isSecondRow()
+	{
+		return (getAction() & Battle.BS_SECONDROW) != 0;
+	}
+	
+	/**
 	 * @return Offensivwert des Schiffes.
 	 */
 	public int getOffensiveValue()
