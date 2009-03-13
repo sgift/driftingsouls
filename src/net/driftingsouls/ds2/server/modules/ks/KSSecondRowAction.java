@@ -24,6 +24,7 @@ import java.util.List;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.battles.Side;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -116,7 +117,16 @@ public class KSSecondRowAction extends BasicKSAction {
 			return RESULT_ERROR;
 		}
 		
-		return RESULT_OK;
+		//Does a first row exist without this ship?
+		for(BattleShip ship: battle.getShips(Side.OWN))
+		{
+			if(!ship.equals(ownShip) && !ship.isSecondRow())
+			{
+				return RESULT_OK;
+			}
+		}
+				
+		return RESULT_ERROR;
 	}
 
 	@Override
