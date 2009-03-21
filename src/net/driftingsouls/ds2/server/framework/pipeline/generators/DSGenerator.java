@@ -28,6 +28,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -521,7 +526,7 @@ public abstract class DSGenerator extends Generator {
 		// Ungueltige Sessions brauchen nicht extra abgefangen zu werden,
 		// da fuer diese Bereits ein Fehler eingetragen wurde
 		if( requireValidSession && (getContext().getActiveUser() == null) ) {
-			addError( "Sie muessen sich einloggen um die Aktion durchfuehren zu koennen" );
+			addError( "<a href=\"./ds?module=portal\">Du musst sich einloggen, um die Aktion durchfuehren zu k&ouml;nnen.</a>" );
 		}
 		
 		if( getErrorList().length != 0 ) {
