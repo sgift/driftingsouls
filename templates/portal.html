@@ -16,41 +16,34 @@
  	License along with this library; if not, write to the Free Software
  	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 -->
-<head>
-	<title>DS2 - Drifting Souls 2</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<link rel="stylesheet" type="text/css" href="./format.css" />
-	<link type="text/css" rel="stylesheet" href="{URL}data/css/ds2.css" />
-	<link type="text/css" rel="stylesheet" href="{URL}data/css/facebox.css"/>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
+	<head>
+		<title>DS2 - Drifting Souls 2</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta name="keywords" content="Spiel,Game,Games,Spiele,Browsergame,Strategie,Weltraum,Freespace,Strategiespiel,Strategiespiele,Browsergames,GTVA,Shivaner,Vasudaner,Onlinegame,Onlinespiel" />
+		<meta name="description" content="Drifting Souls 2 - Ein kostenloses werbefreies Browsergame, welches im Weltraum spielt und sich an Freespace anlehnt" />
 		
-	
-	<meta name="keywords" content="Spiel,Game,Games,Spiele,Browsergame,Strategie,Weltraum,Freespace,Strategiespiel,Strategiespiele,Browsergames,GTVA,Shivaner,Vasudaner,Onlinegame,Onlinespiel" />
-	<meta name="description" content="Drifting Souls 2 - Ein kostenloses werbefreies Browsergame, welches im Weltraum spielt und sich an Freespace anlehnt" />
-	
-	<script type="text/javascript" src="{URL}data/javascript/overlibmws.js"><!-- overLIB (c) Erik Bosrup --></script>
-	<script type="text/javascript" src="{URL}data/javascript/prototype.js"></script>
-	<script type="text/javascript" src="{URL}data/javascript/scriptaculous.js"></script>
-	<script type="text/javascript" src="{URL}data/javascript/jquery.js"></script>
-	<script type="text/javascript" src="{URL}data/javascript/facebox.js"></script>
-	<script type="text/javascript">
-	<!--
-		OLpageDefaults(TEXTPADDING,0,TEXTFONTCLASS,'tooltip',FGCLASS,'tooltip',BGCLASS,'tooltip');
-				
-		function ask(text,url) {
-			if( confirm(text) ) {
-				window.location.href = url;
-			}
-		}
-	// -->
-	</script>
-</head>
-<body>
+		<link rel="stylesheet" type="text/css" href="./format.css" />
+		<link type="text/css" rel="stylesheet" href="{URL}data/css/ds2.css" />
+		<link type="text/css" rel="stylesheet" href="{URL}data/css/facebox.css"/>
+			
+		<script type="text/javascript" src="{URL}data/javascript/jquery.js"></script>
+		<script type="text/javascript" src="{URL}data/javascript/facebox.js"></script>
+		<script type="text/javascript">
+		jQuery(document).ready(function($) 
+		{
+			$('a[rel*=facebox]').facebox() 
+		})
+		
+		</script>
+	</head>
+	<body>
 	<ol id="navigation">
 		<li><a class="portallink" title="Zur Startseite" href="./ds">Home</a></li>
-		<li><a class="portallink" title="Klicke hier, um einen Account bei Drifting Souls zu erstellen" href="./ds?module=portal&amp;action=register">Anmeldung</a></li>
 		<li><a class="portallink" title="Zum Forum" href="http://forum.drifting-souls.net/phpbb3/index.php">Forum</a></li>
 		<li><a class="portallink" title="Zur Wiki" href="http://wiki.drifting-souls.net/">Wiki</a></li>
-		<!-- <li><a class="portallink" href="http://fanart.drifting-souls.net/gallery/view_album.php?set_albumName=ds-fanart">Fanart</a></li> -->
 		<li><a class="portallink" title="Entwicklung: Alle Bug, Feature Requests und Patches auf einen Blick. Weitere Informationen zur Entwicklung findest du in der Wiki und im Forum." 
 				href="http://dev.drifting-souls.net/jira/">Bugtracker</a></li>
 		<li><a class="portallink" title="Entwicklung: Bietet dir Zugriff das Continuous Integration System von Drifting Souls. Weitere Informationen zur Entwicklung findest du in der Wiki und im Forum." 
@@ -119,7 +112,6 @@
 					<a href="./ds?module=portal&amp;action=register"><span style="color:red;font-weight:bold">Die von Ihnen gew&uuml;nschte Rasse ist leider nicht spielbar. Bitte w&auml;hlen sie eine andere Rasse aus!</span></a>
 				</p>		
 			</li>
-		</ul>
 		{/endif}
 		{if show.register.msg.wrongpassword}
 			<li>
@@ -169,18 +161,19 @@
 			{if ! show.register}
 				{if ! show.register.choosesystem}
 					{if ! show.register.msg.ok}
-						<form action="./ds" method="post">
 							<li id="login">
-								Name: <input style="width:170px" name="username" type="text" maxlength="40" value="{login.username}" />
-								Passwort: <input style="width:170px" name="password" type="password" value="" />
-								<input type="checkbox" id="login_usegfxpak" name="usegfxpak" value="1" checked="checked" />
-								<label for="login_usegfxpak">Grafikpak verwenden</label>
-							<input type="hidden" name="action" value="login" />
-							<input type="hidden" name="module" value="portal" />
-								<input type="submit" value="Login" />	
-							<input name="Reset" type="reset" value="Abbruch" />	
+								<form action="./ds" method="post">
+									<ol>
+										<li>Name: <input style="width:170px" name="username" type="text" maxlength="40" value="{login.username}" /></li>
+										<li>Passwort: <input style="width:170px" name="password" type="password" value="" /></li>
+										<li><input type="checkbox" id="login_usegfxpak" name="usegfxpak" value="1" checked="checked" /></li>
+										<li><label for="login_usegfxpak">Grafikpack verwenden</label></li>
+										<li><input type="hidden" name="action" value="login" /></li>
+										<li><input type="hidden" name="module" value="portal" /></li>
+										<li><input type="submit" value="Login" /></li>
+									</ol>	
+								</form>
 							</li>
-						</form>
 					{/endif}
 				{/endif}
 			{/endif}
@@ -338,9 +331,8 @@
 		
 		{if show.agb}
 			<li>
-				<p>
 					<h1>Allgemeine Gesch&auml;ftsbedingungen</h1>
-					<ol>
+					<ol id="agb">
 						<li>Durch die Benutzung von DS2 erkennt der Spieler diese AGB automatisch an</li>
 						<li>Die Registrierung/Betreibung mehrerer Accounts durch die selbe Person ist untersagt.</li>
 						<li>Ausnahmegenehmigungen k&ouml;nnen durch die Administration erteilt werden.</li>
@@ -357,7 +349,6 @@
 						<li>Die Administration beh&auml;lt sich das Recht vor diese AGB jederzeit zu &auml;ndern.</li>
 						<li>Der Nutzer hat sich selbst&auml;ndig &uuml;ber &Auml;nderungen der AGBs zu informieren.</li>
 					</ol>
-				</p>
 			</li>
 		{/endif}
 		{if show.impressum}
@@ -380,7 +371,7 @@
 				<h1>Was ist Drifting-Souls?</h1>
 				<p>Drifting-Souls ist eine Kombination aus Aufbaustrategie- und Multiplayerspiel. 
 				Du wirst also einen grossen Teil deiner Zeit mit anderen Spielern verbringen. 
-				Die Frage was Du in Drifting-Souls machst ist wohl für jeden Spieler anders:
+				Die Frage was Du in Drifting-Souls machst ist wohl f&uuml;r jeden Spieler anders:
 				Aufbauen, k&auml;mpfen, handeln. Nicht immer in der Reihenfolge und &ouml;fter auch
 				gleichzeitig.<br />
 				Aber Erkl&auml;rungen sind eigentlich langweilig. 
@@ -388,16 +379,16 @@
 				an und wenn Du Interesse hast, dann geht&#8217;s hier zur <a class="portallink" href="./ds?module=portal&amp;action=register">Anmeldung</a></p>
 			</li>
 			<li id="screenshots">
-				<a href="./data/interface/screenshots/teaser1_midsize.jpg"  target="_blank" title="Eine Basis" rel="facebox">
+				<a href="./data/interface/screenshots/teaser1_midsize.jpg" title="Eine Basis" rel="facebox">
 					<img src="./data/interface/screenshots/teaser1_thumbnail.jpg" alt="Bild einer Basis" class="screenshot"/>
 				</a>
-				<a href="./data/interface/screenshots/teaser2_midsize.jpg"  target="_blank" title="Ein Schiff" rel="facebox">
+				<a href="./data/interface/screenshots/teaser2_midsize.jpg" title="Ein Schiff" rel="facebox">
 					<img src="./data/interface/screenshots/teaser2_thumbnail.jpg" alt="Schiffsbildschirm" class="screenshot"/>
 				</a>
-				<a href="./data/interface/screenshots/teaser3_midsize.jpg"  target="_blank" title="Ansicht einer Werft" rel="facebox">
+				<a href="./data/interface/screenshots/teaser3_midsize.jpg" title="Ansicht einer Werft" rel="facebox">
 					<img src="./data/interface/screenshots/teaser3_thumbnail.jpg" alt="Werftansicht" class="screenshot"/>
 				</a>
-				<a href="./data/interface/screenshots/teaser4_midsize.jpg"  target="_blank" title="Ein weiteres Schiff" rel="facebox">
+				<a href="./data/interface/screenshots/teaser4_midsize.jpg" title="Ein weiteres Schiff" rel="facebox">
 					<img src="./data/interface/screenshots/teaser4_thumbnail.jpg" alt="Schiffsansicht" class="screenshot"/>
 				</a>
 			</li>
@@ -420,16 +411,13 @@
 			<!-- END news.listitem -->
 			</li>
 		{/endif}
-			<li><a class="portallink" title="Zum News-Archiv" href="./ds?module=portal&action=default&archiv=1">Zum News-Archiv</a></li>
+			<li><a class="portallink" title="Zum News-Archiv" href="./ds?module=portal&amp;action=default&amp;archiv=1">Zum News-Archiv</a></li>
 		
 			<li id="votes">
-				<a href="http://www.galaxy-news.de/?page=charts&amp;op=vote&amp;game_id=339" target="_blank"><img style="border: 0px none ; width: 86px; height: 29px;" src="http://ds.drifting-souls.net/ds2j/vote.gif" alt="vote4ds"></a> - 
-				<a href="http://www.browsergames24.de/modules.php?name=Web_Links&amp;l_op=ratelink&amp;lid=1159" target="_blank"><img src="http://www.browsergames24.de/votebg.gif" alt="Vote for us @ BG24"></a>
+				<a href="http://www.galaxy-news.de/?page=charts&amp;op=vote&amp;game_id=339"><img style="border: 0px none ; width: 86px; height: 29px;" src="http://ds.drifting-souls.net/ds2j/vote.gif" alt="vote4ds" /></a> - 
+				<a href="http://www.browsergames24.de/modules.php?name=Web_Links&amp;l_op=ratelink&amp;lid=1159"><img src="http://www.browsergames24.de/votebg.gif" alt="Vote for us @ BG24" /></a>
 			</li>
 		</ul>
-	</body>
-</html>
-
 
 
 

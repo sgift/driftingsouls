@@ -36,12 +36,28 @@ li#login
 	font-weight: bold;
 }
 
+li#login > form > ol
+{
+	display: inline;
+}
+
+li#login > form > ol > li
+{
+	float: left;
+	padding-left: 0.5em;
+}
+
 #navigation
 {
 	position: relative;
 	margin-top: 0.5em;
 	margin-left: 3em;
 	padding-bottom: 3em;
+}
+
+ol#agb > li
+{
+	list-style: decimal;
 }
 
 #navigation li
