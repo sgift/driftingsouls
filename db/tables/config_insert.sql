@@ -26,4 +26,6 @@ VALUES (
 	'vacpointsperplayedtick', 1, 'Vacationpunkte, die ein gespielter Tick bringt', '0'
 ),(
 	'truemmer_maxitems', 4, 'Die maximale Anzahl an Gegenstaenden (Items/Waren) pro Schiffs-Truemmerteil', '0'
+),(
+	'nocrewhulldamagescale', '2', 'Skalierungsfaktor fuer den Huellenschaden durch zu wenig Crew', '0'
 );

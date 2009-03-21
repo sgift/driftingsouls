@@ -711,5 +711,9 @@
 		UPDATE ship_types SET minCrew = crew;
 		UPDATE ship_modules SET minCrew = crew;
 	]]></update>
+	<update type="data" datum="2009-03-21"><![CDATA[
+		INSERT INTO `config` (`name`,`value`,`description`,`version`)
+		VALUES ('nocrewhulldamagescale', '2', 'Skalierungsfaktor fuer den Huellenschaden durch zu wenig Crew', '0');
+	]]></update>
 	
 </updates>

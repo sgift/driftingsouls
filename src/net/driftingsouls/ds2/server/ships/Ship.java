@@ -3678,4 +3678,12 @@ public class Ship implements Locatable,Transfering {
 	{
 		return Battle.create(this.getOwner().getId(), this.getId(), enemy.getId());
 	}
+	
+	/**
+	 * Wendet den Tick auf das Schiff an
+	 */
+	public void tick()
+	{
+		
+	}
 }
