@@ -402,13 +402,16 @@
 		{/endif}
 		{if show.news}
 			<li id="news">
+				<h1>News</h1>
+				<ol>
 			<!-- BEGIN news.listitem -->
-				{!table_begin 700,left}
-				<h1>{news.title}</h1>
-				<h2>Author: {news.author}</h2><h2>Datum:{news.date}</h2>
-				<p>{news.text}</p>
-		 		{!table_end}
+					<li class="newsitem">
+						<h2 class="title">{news.title}</h2>
+						<span class="authoring">{news.author}, {news.date}</span>
+						<p class="newstext">{news.text}</p>
+					</li>
 			<!-- END news.listitem -->
+				</ol>
 			</li>
 		{/endif}
 			<li><a class="portallink" title="Zum News-Archiv" href="./ds?module=portal&amp;action=default&amp;archiv=1">Zum News-Archiv</a></li>

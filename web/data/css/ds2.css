@@ -126,3 +126,29 @@ a:visited
 #votes img {
 	vertical-align:middle;
 }
+
+li.newsitem
+{
+	margin-bottom: 2em;
+}
+
+li.newsitem > h2.title
+{
+	font-size: 1.5em;
+	padding-bottom: 0px;
+	margin-bottom: 0px;
+}
+
+li.newsitem > span.authoring
+{
+	font-style: italic;
+	font-size: 0.5em;
+	padding-top: 0px;
+	margin-top: 0px;
+}
+
+li.newsitem > p.newstext
+{
+	padding-top: 0px;
+	margin-top: 0.5em;
+}
