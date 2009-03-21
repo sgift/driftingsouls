@@ -81,6 +81,7 @@ public class ShipModules implements ShipTypeData {
 	private boolean srs;
 	private int scanCost;
 	private int pickingCost;
+	private int minCrew;
 	
 	@Version
 	private int version;
@@ -618,6 +619,20 @@ public class ShipModules implements ShipTypeData {
 	 */
 	public void setPickingCost(int pickingCost) {
 		this.pickingCost = pickingCost;
+	}
+	
+	@Override
+	public int getMinCrew()
+	{
+		return minCrew;
+	}
+
+	/**
+	 * @return Crewwert bei dem das Schiff noch normal funktioniert.
+	 */
+	public void setMinCrew(int minCrew)
+	{
+		this.minCrew = minCrew;
 	}
 
 	/**

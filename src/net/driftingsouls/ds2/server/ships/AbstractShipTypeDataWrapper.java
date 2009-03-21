@@ -269,4 +269,10 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	public int getPickingCost() {
 		return inner.getPickingCost();
 	}
+	
+	@Override
+	public int getMinCrew()
+	{
+		return inner.getMinCrew();
+	}
 }

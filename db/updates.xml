@@ -703,4 +703,13 @@
 		INSERT INTO config (`name` , `value` , `description` , `version`) VALUES
 			('truemmer_maxitems', 4, 'Die maximale Anzahl an Gegenstaenden (Items/Waren) pro Schiffs-Truemmerteil', '0');
 	]]></update>
+	<update type="structure" datum="2009-03-21"><![CDATA[
+		ALTER TABLE `ship_types` ADD `minCrew` INT NOT NULL;
+		ALTER TABLE `ships_modules` ADD `minCrew` INT NOT NULL;
+	]]></update>
+	<update type="data" datum="2009-03-21"><![CDATA[
+		UPDATE ship_types SET minCrew = crew;
+		UPDATE ship_modules SET minCrew = crew;
+	]]></update>
+	
 </updates>

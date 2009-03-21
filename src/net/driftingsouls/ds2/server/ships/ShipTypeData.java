@@ -284,6 +284,12 @@ public interface ShipTypeData extends Cloneable {
 	 */
 	public int getPickingCost();
 	
+
+	/**
+	 * @return Crewwert bei dem das Schiff noch normal funktioniert.
+	 */
+	public int getMinCrew();
+	
 	/**
 	 * Zusaetzlich zu den Bedingungen von {@link Object#clone()} gilt folgende Bedingung:
 	 * Eine Klasse soll nur dann eine <code>CloneNotSupportedException</code> werfen,

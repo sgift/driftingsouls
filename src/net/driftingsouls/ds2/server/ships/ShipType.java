@@ -91,6 +91,7 @@ public class ShipType implements ShipTypeData {
 	private boolean srs;
 	private int scanCost;
 	private int pickingCost;
+	private int minCrew;
 	
 	@Version
 	private int version;
@@ -661,5 +662,21 @@ public class ShipType implements ShipTypeData {
 	 */
 	public int getVersion() {
 		return this.version;
+	}
+
+	/**
+	 * @return Crewwert bei dem das Schiff noch normal funktioniert.
+	 */
+	public int getMinCrew()
+	{
+		return minCrew;
+	}
+
+	/**
+	 * @param minCrew Crewwert bei dem das Schiff noch normal funktioniert.
+	 */
+	public void setMinCrew(int minCrew)
+	{
+		this.minCrew = minCrew;
 	}
 }

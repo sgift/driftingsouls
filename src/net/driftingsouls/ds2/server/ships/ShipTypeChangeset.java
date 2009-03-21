@@ -78,6 +78,7 @@ public class ShipTypeChangeset {
 	private Boolean srs;
 	private int scanCost;
 	private int pickingCost;
+	private int minCrew;
 	
 	/**
 	 * Konstruktor.
@@ -241,6 +242,10 @@ public class ShipTypeChangeset {
 			}
 			else if( name.equals("picking-cost") ) {
 				this.pickingCost = Integer.parseInt(item.getAttribute("value"));
+			}
+			else if( name.equals("minCrew"))
+			{
+				this.minCrew = Integer.parseInt(item.getAttribute("value"));
 			}
 			else {
 				throw new RuntimeException("Unbekannte Changeset-Eigenschaft '"+name+"'");
@@ -524,6 +529,14 @@ public class ShipTypeChangeset {
 	 */
 	public int getPickingCost() {
 		return pickingCost;
+	}
+	
+	/**
+	 * @return Crewwert bei dem das Schiff noch normal funktioniert.
+	 */
+	public int getMinCrew()
+	{
+		return this.minCrew;
 	}
 
 	/**
@@ -973,6 +986,11 @@ public class ShipTypeChangeset {
 
 		public int getScanCost() {
 			return ShipTypeChangeset.this.getScanCost() + inner.getScanCost();
+		}
+		
+		public int getMinCrew()
+		{
+			return ShipTypeChangeset.this.getMinCrew() + inner.getMinCrew();
 		}
 	}
 }
