@@ -6,8 +6,11 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.WarenID;
 import net.driftingsouls.ds2.server.config.ResourceConfig;
+import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.config.items.Items;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -28,13 +31,13 @@ public class EditBuilding implements AdminPlugin
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
-		
+
 		int buildingId = context.getRequest().getParameterInt("building");
 		List<Building> buildings = Common.cast(db.createQuery("from Building").list());
-		
+
 		// Update values?
 		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");
-		
+
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
@@ -47,8 +50,8 @@ public class EditBuilding implements AdminPlugin
 		echo.append("</select>");
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\"");
 		echo.append("</form>");
-		
-		
+
+
 		if(update && buildingId > 0)
 		{
 			Cargo buildcosts = new Cargo();
@@ -57,7 +60,7 @@ public class EditBuilding implements AdminPlugin
 				long amount = context.getRequest().getParameterInt("build"+resource.getId());
 				buildcosts.addResource(new WarenID(resource.getId()), amount);
 			}
-			
+
 			Cargo produces = new Cargo();
 			Cargo consumes = new Cargo();
 			for(ResourceConfig.Entry resource: ResourceConfig.getResources())
@@ -72,37 +75,52 @@ public class EditBuilding implements AdminPlugin
 				{
 					produces.addResource(new WarenID(resource.getId()), amount);
 				}
-				
-				Building building = (Building)db.get(Building.class, buildingId);
-				building.setName(context.getRequest().getParameterString("name"));
-				building.setPicture(context.getRequest().getParameterString("picture"));
-				building.setArbeiter(context.getRequest().getParameterInt("worker"));
-				int energy = context.getRequest().getParameterInt("energy");
-				if(energy < 0)
+			}
+			
+			for(Item item: Items.get())
+			{
+				long amount = context.getRequest().getParameterInt("i"+item.getID());
+				int uses = context.getRequest().getParameterInt("i" + item.getID() + "uses");
+				if(amount < 0)
 				{
-					energy = -1 * energy;
-					building.setEVerbrauch(energy);
-					building.setEProduktion(0);
+					amount = -1*amount;
+					consumes.addResource(new ItemID(item.getID(), uses, 0), amount);
 				}
 				else
 				{
-					building.setEProduktion(energy);
-					building.setEVerbrauch(0);
+					produces.addResource(new ItemID(item.getID(), uses, 0), amount);
 				}
-				building.setEps(context.getRequest().getParameterInt("eps"));
-				building.setBewohner(context.getRequest().getParameterInt("room"));
-				building.setTechReq(context.getRequest().getParameterInt("tech"));
-				building.setUcomplex(context.getRequest().getParameterInt("undergroundbuilding"));
-				building.setPerPlanet(context.getRequest().getParameterInt("perplanet"));
-				building.setPerOwner(context.getRequest().getParameterInt("perowner"));
-				building.setDeakable(context.getRequest().getParameterString("deactivable").equals("true") ? true : false);
-				building.setCategory(context.getRequest().getParameterInt("category"));
-				building.setBuildCosts(buildcosts);
-				building.setProduces(produces);
-				building.setConsumes(consumes);
 			}
+
+			Building building = (Building)db.get(Building.class, buildingId);
+			building.setName(context.getRequest().getParameterString("name"));
+			building.setPicture(context.getRequest().getParameterString("picture"));
+			building.setArbeiter(context.getRequest().getParameterInt("worker"));
+			int energy = context.getRequest().getParameterInt("energy");
+			if(energy < 0)
+			{
+				energy = -1 * energy;
+				building.setEVerbrauch(energy);
+				building.setEProduktion(0);
+			}
+			else
+			{
+				building.setEProduktion(energy);
+				building.setEVerbrauch(0);
+			}
+			building.setEps(context.getRequest().getParameterInt("eps"));
+			building.setBewohner(context.getRequest().getParameterInt("room"));
+			building.setTechReq(context.getRequest().getParameterInt("tech"));
+			building.setUcomplex(context.getRequest().getParameterInt("undergroundbuilding"));
+			building.setPerPlanet(context.getRequest().getParameterInt("perplanet"));
+			building.setPerOwner(context.getRequest().getParameterInt("perowner"));
+			building.setDeakable(context.getRequest().getParameterString("deactivable").equals("true") ? true : false);
+			building.setCategory(context.getRequest().getParameterInt("category"));
+			building.setBuildCosts(buildcosts);
+			building.setProduces(produces);
+			building.setConsumes(consumes);
 		}
-		
+
 		if(buildingId > 0)
 		{
 			Building building = (Building)db.get(Building.class, buildingId);
@@ -110,9 +128,9 @@ public class EditBuilding implements AdminPlugin
 			{
 				return;
 			}
-			
+
 			List<Forschung> researchs = Common.cast(db.createQuery("from Forschung").list());
-			
+
 			echo.append("<form action=\"./ds\" method=\"post\">");
 			echo.append("<table class=\"noBorder\" width=\"100%\">");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
@@ -148,6 +166,23 @@ public class EditBuilding implements AdminPlugin
 			{
 				long amount = -1*building.getConsumes().getResourceCount(new WarenID(resource.getId())) +  building.getProduces().getResourceCount(new WarenID(resource.getId()));
 				echo.append("<tr><td class=\"noBorderS\"><img src=\""+resource.getImage()+"\" alt=\"\" />"+resource.getName()+": </td><td><input type=\"text\" name=\"prod"+resource.getId()+"\" value=\"" + amount + "\"></td></tr>");
+			}
+			echo.append("<tr><td class=\"noBorderS\"></td><td class=\"noBorderS\">Menge</td><td class=\"noBorderS\">Nutzungen</td></tr>");
+			for(Item item: Items.get())
+			{
+				long amount = -1*building.getConsumes().getResourceCount(new ItemID(item.getID())) + building.getProduces().getResourceCount(new ItemID(item.getID()));
+				int uses = 0;
+				if(!building.getConsumes().getItem(item.getID()).isEmpty())
+				{
+					uses = building.getConsumes().getItem(item.getID()).get(0).getMaxUses();
+				}
+				
+				if(!building.getProduces().getItem(item.getID()).isEmpty())
+				{
+					uses = building.getProduces().getItem(item.getID()).get(0).getMaxUses();
+				}
+				
+				echo.append("<tr><td class=\"noBorderS\"><img src=\""+item.getPicture()+"\" alt=\"\" />"+item.getName()+": </td><td><input type=\"text\" name=\"i"+item.getID()+"\" value=\"" + amount + "\"></td><td><input type=\"text\" name=\"i"+item.getID()+"u\" value=\"" + uses + "\"></td></tr>");
 			}
 			echo.append("<tr><td class=\"noBorderS\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
 			echo.append("</table>");
