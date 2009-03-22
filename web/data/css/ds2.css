@@ -152,3 +152,16 @@ li.newsitem > p.newstext
 	padding-top: 0px;
 	margin-top: 0.5em;
 }
+
+li#lostpass
+{
+	position: relative;
+	left: -47.5em;
+}
+
+li#lostpass > a
+{
+	color: #ff0000;
+	font-size: 0.5em;
+	font-style: italic;
+}

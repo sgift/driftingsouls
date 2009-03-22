@@ -20,8 +20,6 @@ package net.driftingsouls.ds2.server.modules;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
@@ -615,6 +613,8 @@ public class PortalController extends TemplateGenerator {
 		}
 
 		t.setVar(	"show.login", 1,
+					"show.overview", 1,
+					"show.news", 1,
 					"login.username", username );
 	}
 
@@ -628,65 +628,7 @@ public class PortalController extends TemplateGenerator {
 			t.setVar(	"login.checkgfxpak", 1,
 						"login.checkgfxpak.path", user.getUserImagePath() );
 		}
-		
-		/*
-		 * HACK (? - das ganze sollte vieleicht besser ins Framework)
-		 * 
-		 * Browser erkennen und ggf eine Warnung ausgeben
-		 * 
-		 */
-		
-		String browser = getRequest().getUserAgent();
-		if( browser == null ) {
-			browser = "";
-		}
-		browser = browser.toLowerCase();
-		String browsername = null;
-		if( browser.indexOf("opera") != -1 ) {
-			browsername = "opera";
-		}
-		else if( browser.indexOf("msie") != -1 ) {
-			browsername = "msie";
-		}
-		else if( (browser.indexOf("firefox") != -1) || (browser.indexOf("gecko") != -1) ) {
-			browsername = "mozilla";
-		}
-		else {
-			browsername = "unknown";	
-		}
-		
-		try {
-			if( browsername.equals("opera") ) {
-				Matcher browserpattern = Pattern.compile("opera ([0-9\\.,]+)").matcher(browser);
-				if( browserpattern.find() ) {
-					String tmp = browserpattern.group(0);
-					
-					double version = Double.parseDouble(tmp);
-					if( (version > 0) && (version < 9.0) ) {
-						t.setVar(	"show.login.browserwarning", 1,
-									"browser.name", "Opera",
-									"browser.version", version );
-						return;
-					}
-				}
-			}
-			else if( browsername.equals("msie") ) {
-				Matcher browserpattern = Pattern.compile("msie ([0-9\\.,]+)").matcher(browser);
-				browserpattern.find();
-				String tmp = browserpattern.group(1);
-
-				double version = Double.parseDouble(tmp);
 				
-				t.setVar(	"show.login.browserwarning", 1,
-							"browser.name", "Microsoft Internet Explorer",
-							"browser.version", version );
-				return;
-			}
-		}
-		catch( NumberFormatException e ) {
-			log.error("", e);
-		}
-		
 		getResponse().redirectTo(Common.buildUrl("default", "module", "main"));
 		return;
 	}
