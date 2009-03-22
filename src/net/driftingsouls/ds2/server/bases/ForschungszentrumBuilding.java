@@ -40,7 +40,6 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.annotations.Immutable;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -49,7 +48,6 @@ import org.springframework.beans.factory.annotation.Configurable;
  *
  */
 @Entity(name="ForschungszentrumBuilding")
-@Immutable
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.ForschungszentrumBuilding")
 @Configurable
 public class ForschungszentrumBuilding extends DefaultBuilding {

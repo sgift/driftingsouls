@@ -41,7 +41,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.annotations.Immutable;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -50,7 +49,6 @@ import org.springframework.beans.factory.annotation.Configurable;
  *
  */
 @Entity(name="AcademyBuilding")
-@Immutable
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.AcademyBuilding")
 @Configurable
 public class AcademyBuilding extends DefaultBuilding {

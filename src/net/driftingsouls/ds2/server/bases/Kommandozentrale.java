@@ -25,8 +25,6 @@ import java.util.List;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
-import org.hibernate.annotations.Immutable;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -55,7 +53,6 @@ import net.driftingsouls.ds2.server.ships.Ship;
  *
  */
 @Entity(name="KommandozentraleBuilding")
-@Immutable
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.Kommandozentrale")
 public class Kommandozentrale extends DefaultBuilding {
 	/**

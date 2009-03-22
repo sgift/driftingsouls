@@ -29,7 +29,6 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
-import org.hibernate.annotations.Immutable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -41,7 +40,6 @@ import org.springframework.beans.factory.annotation.Configurable;
  *
  */
 @Entity
-@Immutable
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.DefaultBuilding")
 @Configurable
 public class DefaultBuilding extends Building {

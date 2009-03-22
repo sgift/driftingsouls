@@ -23,3 +23,4 @@ net.driftingsouls.ds2.server.modules.admin.EditShip
 net.driftingsouls.ds2.server.modules.admin.EditGroup
 net.driftingsouls.ds2.server.modules.admin.EditConfigValues
 net.driftingsouls.ds2.server.modules.admin.EditUser
+net.driftingsouls.ds2.server.modules.admin.EditBuilding

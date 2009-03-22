@@ -34,7 +34,6 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DiscriminatorFormula;
-import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Type;
 
 // TODO: Warum Verbrauch/Produktion unterscheiden?
@@ -46,11 +45,11 @@ import org.hibernate.annotations.Type;
  */
 @Entity
 @Table(name="buildings")
-@Immutable
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorFormula("module")
-@Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
+@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public abstract class Building {
+
 	/**
 	 * Die ID des Kommandozentralen-Gebaeudes.
 	 */
@@ -243,6 +242,176 @@ public abstract class Building {
 	 */
 	public boolean isDeakAble() {
 		return deakable;
+	}
+	
+	/**
+	 * Setzt die Id.
+	 * 
+	 * @param id id
+	 */
+	public void setId(int id)
+	{
+		this.id = id;
+	}
+
+	/**
+	 * Setzt den Wohnraum
+	 * 
+	 * @param bewohner Wohnraum
+	 */
+	public void setBewohner(int bewohner)
+	{
+		this.bewohner = bewohner;
+	}
+
+	/**
+	 * Setzt die Arbeiter.
+	 * 
+	 * @param arbeiter Arbeiter
+	 */
+	public void setArbeiter(int arbeiter)
+	{
+		this.arbeiter = arbeiter;
+	}
+
+	/**
+	 * Setzt den Namen.
+	 * 
+	 * @param name Name
+	 */
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	/**
+	 * Setzt den Pfad zum Bild.
+	 * 
+	 * @param picture Bildpfad
+	 */
+	public void setPicture(String picture)
+	{
+		this.picture = picture;
+	}
+
+	/**
+	 * Setzt die Baukosten..
+	 * 
+	 * @param buildCosts Baukosten
+	 */
+	public void setBuildCosts(Cargo buildCosts)
+	{
+		this.buildCosts = buildCosts;
+	}
+
+	/**
+	 * Setzt die Produktion.
+	 * 
+	 * @param produces Produktion
+	 */
+	public void setProduces(Cargo produces)
+	{
+		this.produces = produces;
+	}
+
+	/**
+	 * Setzt den Verbrauch.
+	 * 
+	 * @param consumes Verbrauch
+	 */
+	public void setConsumes(Cargo consumes)
+	{
+		this.consumes = consumes;
+	}
+
+	/**
+	 * Setzt den Energieverbrauch.
+	 * 
+	 * @param verbrauch Energieverbrauch
+	 */
+	public void setEVerbrauch(int verbrauch)
+	{
+		eVerbrauch = verbrauch;
+	}
+
+	/**
+	 * Setzt die Energieproduktion.
+	 * 
+	 * @param produktion Energieproduktion
+	 */
+	public void setEProduktion(int produktion)
+	{
+		eProduktion = produktion;
+	}
+
+	/**
+	 * Setzt die notwendige Forschung.
+	 * 
+	 * @param techReq Forschung
+	 */
+	public void setTechReq(int techReq)
+	{
+		this.techReq = techReq;
+	}
+	
+	/**
+	 * Setzt den Energiespeicher.
+	 * 
+	 * @param eps Energiespeicher
+	 */
+	public void setEps(int eps)
+	{
+		this.eps = eps;
+	}
+
+	/**
+	 * Setzt die max. Anzahl pro Planet.
+	 * 
+	 * @param perPlanet max. Anzahl pro Planet
+	 */
+	public void setPerPlanet(int perPlanet)
+	{
+		this.perPlanet = perPlanet;
+	}
+
+	/**
+	 * Setzt die max. Anzahl pro Spieler
+	 * 
+	 * @param perOwner max. Anzahl pro Spieler
+	 */
+	public void setPerOwner(int perOwner)
+	{
+		this.perOwner = perOwner;
+	}
+
+	/**
+	 * Setzt die Kategorie.
+	 * 
+	 * @param category Kategorie
+	 */
+	public void setCategory(int category)
+	{
+		this.category = category;
+	}
+
+	/**
+	 * Setzt, ob das Gebaeude ein unterirdischer Komplex ist
+	 * 
+	 * @param ucomplex 0 nein, 1 ja
+	 */
+	public void setUcomplex(int ucomplex)
+	{
+		this.ucomplex = ucomplex;
+	}
+
+	/**
+	 * Setzt, ob das Gebaeude abgeschaltet werden kann.
+	 * 
+	 * @param deakable Abschaltbar
+	 */
+	public void setDeakable(boolean deakable)
+	{
+		this.deakable = deakable;
 	}
 
 	/**

@@ -31,7 +31,6 @@ import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.hibernate.annotations.Immutable;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -40,7 +39,6 @@ import org.springframework.beans.factory.annotation.Configurable;
  *
  */
 @Entity(name="WerftBuilding")
-@Immutable
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.Werft")
 @Configurable
 public class Werft extends DefaultBuilding {

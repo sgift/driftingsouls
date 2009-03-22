@@ -55,7 +55,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.annotations.Immutable;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -64,7 +63,6 @@ import org.springframework.beans.factory.annotation.Configurable;
  *
  */
 @Entity(name="WaffenfabrikBuilding")
-@Immutable
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.Waffenfabrik")
 @Configurable
 public class Waffenfabrik extends DefaultBuilding {
