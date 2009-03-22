@@ -126,6 +126,7 @@ public class EditShiptypes implements AdminPlugin
 			boolean srs = request.getParameter("srs").trim().toLowerCase().equals("true");
 			int scanCost = request.getParameterInt("scancosts");
 			int pickingCost = request.getParameterInt("pickingcosts");
+			int minCrew = request.getParameterInt("mincrew");
 
 			ShipType shiptype = (ShipType) db.createQuery("from ShipType where id=?").setInteger(0, shiptypeId).uniqueResult();
 
@@ -177,6 +178,7 @@ public class EditShiptypes implements AdminPlugin
 			shiptype.setSrs(srs);
 			shiptype.setScanCost(scanCost);
 			shiptype.setPickingCost(pickingCost);
+			shiptype.setMinCrew(minCrew);
 
 			// Update ships
 			int count = 0;
@@ -332,6 +334,7 @@ public class EditShiptypes implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">Besitzt SRS: </td><td><input type=\"text\" name=\"srs\" value=\"" + ship.hasSrs() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Scankosten: </td><td><input type=\"text\" name=\"scancosts\" value=\"" + ship.getScanCost() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Picking-Kosten: </td><td><input type=\"text\" name=\"pickingcosts\" value=\"" + ship.getPickingCost() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Mindest-Crew: </td><td><input type=\"text\" name=\"mincrew\" value=\"" + ship.getMinCrew() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
 			echo.append("</table>");
 			echo.append("</form>\n");
