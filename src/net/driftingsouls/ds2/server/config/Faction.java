@@ -56,6 +56,11 @@ public class Faction {
 	public static final int ITO = -26;
 	
 	/**
+	 * Die Spieler-ID des Piraten-Accounts
+	 */
+	public static final int PIRATE = -15;
+	
+	/**
 	 * Gibt die angegebene Fraktion zurueck. Sollte keine passende Fraktion existieren, so wird <code>null</code> zurueckgegeben.
 	 * @param id Die ID der Fraktion 
 	 * @return Die angegebene Fraktion oder <code>null</code>

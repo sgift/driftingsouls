@@ -728,4 +728,15 @@
 			'socialsecuritybenefit', '1', 'Sozialhilfe (RE), die ein Arbeitsloser kostet', '0'
 			);
 	]]></update>
+	<update type="data" datum="2009-03-222"><![CDATA[
+		INSERT INTO `ds2`.`config` (
+			`name` ,
+			`value` ,
+			`description` ,
+			`version` 
+			)
+			VALUES (
+			'desertedmeetingpoint', '1:15/15', 'Treffpunkt, bei dem alle desertierten Schiffe landen.', '0'
+			);
+	]]></update>
 </updates>

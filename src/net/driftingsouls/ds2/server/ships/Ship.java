@@ -165,6 +165,9 @@ public class Ship implements Locatable,Transfering {
 	private int ablativeArmor;
 	private boolean startFighters;
 	
+	@Transient
+	private Offizier offizier;
+	
 	@Version
 	private int version;
 	
@@ -3574,9 +3577,6 @@ public class Ship implements Locatable,Transfering {
 			.iterate().next();
 	}
 	
-	@Transient
-	private Offizier offizier;
-	
 	/**
 	 * Gibt den Offizier des Schiffes zurueck.
 	 * @return Der Offizier
@@ -3678,12 +3678,14 @@ public class Ship implements Locatable,Transfering {
 	{
 		return Battle.create(this.getOwner().getId(), this.getId(), enemy.getId());
 	}
-	
+
 	/**
-	 * Wendet den Tick auf das Schiff an
+	 * Gibt an, ob das Schiff auf einem anderen Schiff gelandet ist.
+	 * 
+	 * @return <code>true</code>, wenn das Schiff gelandet ist, sonst <code>false</code>
 	 */
-	public void tick()
+	public boolean isLanded()
 	{
-		
+		return getDocked().startsWith("l");
 	}
 }

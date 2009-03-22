@@ -18,16 +18,20 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
@@ -200,7 +204,40 @@ public class SchiffsTick extends TickController {
 				{
 					this.log("Schiff zerstoert.");
 					shipd.setStatus("destroy");
+					return;
 				}
+			}
+		}
+		
+		//Pay sold and maintenance
+		int reCost = shiptd.getReCost();
+		if(reCost > 0 && !shipd.isLanded())
+		{
+			this.log("Zahle Sold und Wartungskosten");
+			User owner = shipd.getOwner();
+			BigInteger account = owner.getKonto();
+			BigInteger reCostHelp = BigInteger.valueOf(reCost);
+			
+			//Account is balanced
+			if(account.compareTo(reCostHelp) >= 0)
+			{
+				this.log("Bezahlter Betrag: " + reCost);
+				User nobody = (User)db.get(User.class, -1);
+				nobody.transferMoneyFrom(owner.getId(), reCost, "Sold und Wartungskosten " + shipd.getId() + " - " + shipd.getName() + " User: " + owner.getName() + " (" + owner.getId() + ")", false, User.TRANSFER_AUTO);
+			}
+			else
+			{
+				ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "desertedmeetingpoint");
+				Location location = Location.fromString(value.getValue());
+				User pirate = (User)db.get(User.class, Faction.PIRATE);
+				
+				shipd.setOwner(pirate);
+				shipd.setSystem(location.getSystem());
+				shipd.setX(location.getX());
+				shipd.setY(location.getY());
+				
+				this.log("Konto nicht gedeckt; Schiff desertiert zum Piraten.");
+				PM.send(pirate, owner.getId(), "Schiff desertiert", "Die " + shipd.getName() + " (" + shipd.getId() + ") ist desertiert, nachdem Sie den Sold der Crew nicht aufbringen konnten.");
 			}
 		}
 

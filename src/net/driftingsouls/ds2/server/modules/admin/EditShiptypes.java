@@ -111,7 +111,7 @@ public class EditShiptypes implements AdminPlugin
 			int aDocks = request.getParameterInt("hulldocks");
 			int sensorRange = request.getParameterInt("sensorrange");
 			int hydro = request.getParameterInt("hydro");
-			int reCost = request.getParameterInt("recost");
+			int reCost = request.getParameterInt("recosts");
 			String description = request.getParameter("description");
 			int deutFactor = request.getParameterInt("deutfactor");
 			int shipClass = request.getParameterInt("class");
@@ -318,7 +318,7 @@ public class EditShiptypes implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">Aussendocks: </td><td><input type=\"text\" name=\"hulldocks\" value=\"" + ship.getADocks() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Sensorreichweite: </td><td><input type=\"text\" name=\"sensorrange\" value=\"" + ship.getSensorRange() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Hydros: </td><td><input type=\"text\" name=\"hydro\" value=\"" + ship.getHydro() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">RE Kosten (?): </td><td><input type=\"text\" name=\"recosts\" value=\"" + ship.getReCost() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">RE Kosten: </td><td><input type=\"text\" name=\"recosts\" value=\"" + ship.getReCost() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Beschreibung: </td><td><textarea cols=\"50\" rows=\"10\" name=\"description\">" + ship.getDescrip() + "</textarea></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Deuteriumsammeln: </td><td><input type=\"text\" name=\"deutfactor\" value=\"" + ship.getDeutFactor() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Schiffsklasse: </td><td><input type=\"text\" name=\"class\" value=\"" + ship.getShipClass() + "\"></td></tr>\n");

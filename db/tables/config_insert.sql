@@ -32,4 +32,6 @@ VALUES (
 	'tax', '2', 'Steuern (RE), die ein Arbeiter produziert', '0'
 ), (
 	'socialsecuritybenefit', '1', 'Sozialhilfe (RE), die ein Arbeitsloser kostet', '0'
+), (
+	'desertedmeetingpoint', '1:15/15', 'Treffpunkt, bei dem alle desertierten Schiffe landen.', '0'
 );
