@@ -140,7 +140,7 @@ public class User extends BasicUser {
 	 */
 	public static final String FLAG_NOOB = "noob";
 	/**
-	 * Die Schiffe des Spielers werden nicht beschaedigt, wenn sie zu wenig Crew haben
+	 * Die Schiffe des Spielers werden nicht beschaedigt, wenn sie zu wenig Crew haben.
 	 */
 	public static final String FLAG_NO_HULL_DECAY = "nohulldecay";
 	

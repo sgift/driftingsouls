@@ -172,7 +172,7 @@ public class SchiffsTick extends TickController {
 		{
 			this.log("Schiff hat nicht genug Crew; beschaedige Huelle.");
 			ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "nocrewhulldamagescale");
-			double scale = Integer.parseInt(value.getValue());
+			double scale = Double.parseDouble(value.getValue());
 			double damageInPercent = (1.0 - (((double)crew) / ((double)minCrew))) / scale;
 			
 			int oldArmor = shipd.getAblativeArmor();

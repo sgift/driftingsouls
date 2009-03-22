@@ -628,7 +628,9 @@ public class ShipModules implements ShipTypeData {
 	}
 
 	/**
-	 * @return Crewwert bei dem das Schiff noch normal funktioniert.
+	 * Crewwert.
+	 * 
+	 * @param minCrew Crewwert bei dem das Schiff noch normal funktioniert.
 	 */
 	public void setMinCrew(int minCrew)
 	{

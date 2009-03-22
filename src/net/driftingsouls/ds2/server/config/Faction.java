@@ -46,7 +46,7 @@ public class Faction {
 	public static final int GTU = -2;
 	
 	/**
-	 * Die Spieler-ID von Demolition Inc..
+	 * Die Spieler-ID von Demolition Inc.
 	 */
 	public static final int DI = -19;
 	
@@ -56,7 +56,7 @@ public class Faction {
 	public static final int ITO = -26;
 	
 	/**
-	 * Die Spieler-ID des Piraten-Accounts
+	 * Die Spieler-ID des Piraten-Accounts.
 	 */
 	public static final int PIRATE = -15;
 	

@@ -255,7 +255,7 @@ public abstract class Building {
 	}
 
 	/**
-	 * Setzt den Wohnraum
+	 * Setzt den Wohnraum.
 	 * 
 	 * @param bewohner Wohnraum
 	 */
@@ -395,7 +395,7 @@ public abstract class Building {
 	}
 
 	/**
-	 * Setzt, ob das Gebaeude ein unterirdischer Komplex ist
+	 * Setzt, ob das Gebaeude ein unterirdischer Komplex ist.
 	 * 
 	 * @param ucomplex 0 nein, 1 ja
 	 */
