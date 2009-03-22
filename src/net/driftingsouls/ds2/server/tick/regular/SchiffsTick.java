@@ -161,9 +161,10 @@ public class SchiffsTick extends TickController {
 		//Damage ships which don't have enough crew
 		int crew = shipd.getCrew();
 		int minCrew = shiptd.getMinCrew();
+		User user = shipd.getOwner();
 		this.log("Crew " + crew);
 		this.log("MinCrew " + minCrew);
-		if(crew < minCrew)
+		if(crew < minCrew && !user.hasFlag(User.FLAG_NO_HULL_DECAY))
 		{
 			this.log("Schiff hat nicht genug Crew; beschaedige Huelle.");
 			ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "nocrewhulldamagescale");
