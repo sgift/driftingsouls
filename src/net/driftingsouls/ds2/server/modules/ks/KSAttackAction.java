@@ -48,6 +48,8 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 import org.apache.commons.lang.math.RandomUtils;
+import org.hibernate.LockMode;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -1023,6 +1025,7 @@ public class KSAttackAction extends BasicKSAction {
 	public int execute(Battle battle) throws IOException
 	{
 		Context context = ContextMap.getContext();
+		Session db = context.getDB();
 		
 		User user = (User)context.getActiveUser();	
 		
@@ -1039,6 +1042,7 @@ public class KSAttackAction extends BasicKSAction {
 		
 		// Schiff laden
 		this.ownShip = battle.getOwnShip();
+		db.lock(this.ownShip, LockMode.READ);
 	
 		ShipTypeData ownShipType = this.ownShip.getTypeData();
 		
@@ -1190,6 +1194,7 @@ public class KSAttackAction extends BasicKSAction {
 		{
 			// Nun das gegnerische Schiff laden und checken
 			this.enemyShip = battle.getEnemyShip();
+			db.lock(this.enemyShip, LockMode.READ);
 						
 			for( int innerloop=0; innerloop < sameShipLoop; innerloop++ )
 			{
