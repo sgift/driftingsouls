@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -40,6 +41,7 @@ import net.driftingsouls.ds2.server.entities.StatVerkaeufe;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WeaponFactory;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.werften.WerftObject;
@@ -90,36 +92,75 @@ public class BaseTick extends TickController {
 	
 		Integer[] bebon = base.getActive();
 	
-		int bewohner = base.getBewohner();
+		int inhabitants = base.getBewohner();
 		int marines = base.getMarines();
 		int e = base.getEnergy();
-		int arbeiter = base.getArbeiter();
+		int worker = base.getArbeiter();
 	
 		BaseStatus basedata = Base.getStatus(getContext(), base);
 	
 		//Bevoelkerungswachstum
-		if( basedata.getBewohner() > bewohner ) {
-			basedata.getStatus().addResource( Resources.NAHRUNG, bewohner );
+		if( basedata.getBewohner() > inhabitants ) {
+			basedata.getStatus().addResource( Resources.NAHRUNG, inhabitants );
 			
-			int diff = basedata.getBewohner()-bewohner;
-			bewohner += diff/2+1;
+			int diff = basedata.getBewohner()-inhabitants;
+			inhabitants += diff/2+1;
 			this.log("\t+ "+(diff/2+1)+" Bewohner");
 			
-			basedata.getStatus().substractResource( Resources.NAHRUNG, bewohner );
+			basedata.getStatus().substractResource( Resources.NAHRUNG, inhabitants );
 		}
 		if( marines != 0){
 			basedata.getStatus().substractResource( Resources.NAHRUNG, marines );
 		}
 		
-		if( basedata.getBewohner() < bewohner ) {
-			basedata.getStatus().addResource( Resources.NAHRUNG, bewohner );
+		if( basedata.getBewohner() < inhabitants ) {
+			basedata.getStatus().addResource( Resources.NAHRUNG, inhabitants );
 			
-			this.log("\tBewohner ("+bewohner+") auf "+basedata.getBewohner()+" gesetzt");
-			bewohner = basedata.getBewohner();
+			this.log("\tBewohner ("+inhabitants+") auf "+basedata.getBewohner()+" gesetzt");
+			inhabitants = basedata.getBewohner();
 			
-			basedata.getStatus().substractResource( Resources.NAHRUNG, bewohner );
+			basedata.getStatus().substractResource( Resources.NAHRUNG, inhabitants );
 		}
-	
+		
+		//Get taxes and pay social security benefits
+		ConfigValue taxValue = (ConfigValue)db.get(ConfigValue.class, "tax");
+		ConfigValue ssbValue = (ConfigValue)db.get(ConfigValue.class, "socialsecuritybenefit");
+		int tax = Integer.parseInt(taxValue.getValue());
+		int socialSecurityBenefit = Integer.parseInt(ssbValue.getValue());
+		
+		User owner = base.getOwner();
+		BigInteger account = owner.getKonto();
+		int income = worker * tax - (inhabitants - worker) * socialSecurityBenefit;
+		if(income > 0)
+		{
+			this.log("Steuern ausbezahlt " + income);
+			owner.transferMoneyFrom(owner.getId(), income, "Steuereinnahmen Asteroid " + base.getId() + " - " + base.getName(), true, User.TRANSFER_AUTO);
+		}
+		else
+		{
+			this.log("Steuereinnahmen reichen nicht, greife auf Konto zurueck");
+			income = Math.abs(income);
+			BigInteger incomeHelper = BigInteger.valueOf(income);
+			
+			User nobody = (User)db.get(User.class, -1);
+			//Account is bigger than costs
+			if(account.compareTo(incomeHelper) >= 0)
+			{
+				this.log("Bezahlter Betrag: " + income);
+				nobody.transferMoneyFrom(owner.getId(), income, "Arbeitslosenhilfe Asteroid " + base.getId() + " - " + base.getName() + " User: " + owner.getName() + " (" + owner.getId() + ")", false, User.TRANSFER_AUTO);
+			}
+			else
+			{
+				//Inhabitants flee
+				int excess = Math.abs(account.subtract(incomeHelper).intValue());
+				income = income - excess;
+				nobody.transferMoneyFrom(owner.getId(), income, "Arbeitslosenhilfe Asteroid " + base.getId() + " - " + base.getName() + " User: " + owner.getName() + " (" + owner.getId() + ")", false, User.TRANSFER_AUTO);
+				inhabitants = inhabitants - excess;
+				this.log("Konto nicht gedeckt, " + excess + " Einwohner fliehen.");
+				this.log("Bezahlter Betrag: " + income);
+			}
+		}
+		
 		//Grund zurcksetzen
 		String reason = "";
 	
@@ -156,8 +197,8 @@ public class BaseTick extends TickController {
 		}
 		nc.addCargo(basedata.getStatus());
 	
-		this.log("\t - Arbeiter : "+arbeiter+" / "+basedata.getArbeiter());
-		this.log("\t - Bewohner : "+bewohner+" / "+basedata.getBewohner());
+		this.log("\t - Arbeiter : "+worker+" / "+basedata.getArbeiter());
+		this.log("\t - Bewohner : "+inhabitants+" / "+basedata.getBewohner());
 		this.log("\t - e  : "+e+" / "+basedata.getE());
 	
 		int newe = e + basedata.getE();
@@ -293,7 +334,7 @@ public class BaseTick extends TickController {
 			this.usercargo.setResource(Resources.NAHRUNG, userNahrung);
 			
 			base.setArbeiter(basedata.getArbeiter());
-			base.setBewohner(bewohner);
+			base.setBewohner(inhabitants);
 			base.setEnergy(newe);
 			base.setCargo(nc);
 		}
@@ -302,7 +343,7 @@ public class BaseTick extends TickController {
 			this.log("\tEs herschen offenbar chaotische Zust&auml;nde (Grund: "+reason+")");
 			newe = (int)(newe/1.5d);
 			
-			this.usercargo.substractResource( Resources.NAHRUNG, bewohner/2);
+			this.usercargo.substractResource( Resources.NAHRUNG, inhabitants/2);
 			if( this.usercargo.getResourceCount(Resources.NAHRUNG) < 0 ) {
 				this.usercargo.setResource(Resources.NAHRUNG, 0);
 			}
@@ -334,8 +375,8 @@ public class BaseTick extends TickController {
 					bebon[i] = 0;
 				}
 				base.setCoreActive(false);
-				base.setArbeiter(arbeiter);
-				base.setBewohner(arbeiter);
+				base.setArbeiter(worker);
+				base.setBewohner(worker);
 				base.setActive(bebon);
 				base.setCoreActive(false);
 			}

@@ -28,4 +28,8 @@ VALUES (
 	'truemmer_maxitems', 4, 'Die maximale Anzahl an Gegenstaenden (Items/Waren) pro Schiffs-Truemmerteil', '0'
 ),(
 	'nocrewhulldamagescale', '2', 'Skalierungsfaktor fuer den Huellenschaden durch zu wenig Crew', '0'
+),(
+	'tax', '2', 'Steuern (RE), die ein Arbeiter produziert', '0'
+), (
+	'socialsecuritybenefit', '1', 'Sozialhilfe (RE), die ein Arbeitsloser kostet', '0'
 );

@@ -715,5 +715,17 @@
 		INSERT INTO `config` (`name`,`value`,`description`,`version`)
 		VALUES ('nocrewhulldamagescale', '2', 'Skalierungsfaktor fuer den Huellenschaden durch zu wenig Crew', '0');
 	]]></update>
-	
+	<update type="data" datum="2009-03-22"><![CDATA[
+		INSERT INTO `ds2`.`config` (
+			`name` ,
+			`value` ,
+			`description` ,
+			`version` 
+			)
+			VALUES (
+			'tax', '2', 'Steuern (RE), die ein Arbeiter produziert', '0'
+			), (
+			'socialsecuritybenefit', '1', 'Sozialhilfe (RE), die ein Arbeitsloser kostet', '0'
+			);
+	]]></update>
 </updates>
