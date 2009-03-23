@@ -104,8 +104,9 @@ public class BaseTick extends TickController {
 			basedata.getStatus().addResource( Resources.NAHRUNG, inhabitants );
 			
 			int diff = basedata.getBewohner()-inhabitants;
-			inhabitants += diff/2+1;
-			this.log("\t+ "+(diff/2+1)+" Bewohner");
+			int immigrants = (int)(Math.random()*(diff/2));
+			inhabitants += immigrants;
+			this.log("\t+ "+immigrants+" Bewohner");
 			
 			basedata.getStatus().substractResource( Resources.NAHRUNG, inhabitants );
 		}
@@ -349,7 +350,7 @@ public class BaseTick extends TickController {
 			}
 
 			base.setArbeiter(basedata.getArbeiter());
-			base.setBewohner(basedata.getBewohner());
+			base.setBewohner(inhabitants);
 			base.setEnergy(newe);
 			base.setCargo(cargo);
 			
