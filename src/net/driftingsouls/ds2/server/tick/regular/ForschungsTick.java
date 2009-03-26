@@ -44,58 +44,58 @@ public class ForschungsTick extends TickController {
 
 	@Override
 	protected void tick() {
-		org.hibernate.Session db = getDB();
-		final User sourceUser = (User)db.get(User.class, -1);
-		
-		List<?> fzList = db.createQuery("from Forschungszentrum where dauer=1 and (base.owner.vaccount=0 or base.owner.wait4vac!=0)").list();
-		for( Iterator<?> iter=fzList.iterator(); iter.hasNext(); ) {
-			Forschungszentrum fz = (Forschungszentrum)iter.next();
+			org.hibernate.Session db = getDB();
+			final User sourceUser = (User)db.get(User.class, -1);
 			
-			try {
-				Base base = fz.getBase();
-				User user = base.getOwner();
-
-				log("fz "+fz.getBaseId());
-				log("\tforschung: "+fz.getForschung());
-				Forschung forschung = fz.getForschung();
+			List<?> fzList = db.createQuery("from Forschungszentrum where dauer=1 and (base.owner.vaccount=0 or base.owner.wait4vac!=0)").list();
+			for( Iterator<?> iter=fzList.iterator(); iter.hasNext(); ) {
+				Forschungszentrum fz = (Forschungszentrum)iter.next();
+				
+				try {
+					Base base = fz.getBase();
+					User user = base.getOwner();
+	
+					log("fz "+fz.getBaseId());
+					log("\tforschung: "+fz.getForschung());
+					Forschung forschung = fz.getForschung();
+						
+					log("\t"+forschung.getName()+" ("+forschung.getID()+") erforscht");
+						
+					user.addResearch( forschung.getID() );
+						
+					String msg = "Das Forschungszentrum auf "+base.getName()+" hat die Forschungen an "+forschung.getName()+" abgeschlossen";
+						
+					if( forschung.hasFlag( Forschung.FLAG_DROP_NOOB_PROTECTION) && user.isNoob() ) {
+						msg += "\n\n[color=red]Durch die Erforschung dieser Technologie stehen sie nicht l&auml;nger unter GCP-Schutz.\nSie k&ouml;nnen nun sowohl angreifen als auch angegriffen werden![/color]";
+						user.setFlag( User.FLAG_NOOB, false );
+						
+						log("\t"+user.getId()+" steht nicht laenger unter gcp-schutz");
+					}
+						
+					PM.send(sourceUser, base.getOwner().getId(), "Forschung abgeschlossen", msg);
 					
-				log("\t"+forschung.getName()+" ("+forschung.getID()+") erforscht");
+					fz.setForschung(null);
+					fz.setDauer(0);
 					
-				user.addResearch( forschung.getID() );
-					
-				String msg = "Das Forschungszentrum auf "+base.getName()+" hat die Forschungen an "+forschung.getName()+" abgeschlossen";
-					
-				if( forschung.hasFlag( Forschung.FLAG_DROP_NOOB_PROTECTION) && user.isNoob() ) {
-					msg += "\n\n[color=red]Durch die Erforschung dieser Technologie stehen sie nicht l&auml;nger unter GCP-Schutz.\nSie k&ouml;nnen nun sowohl angreifen als auch angegriffen werden![/color]";
-					user.setFlag( User.FLAG_NOOB, false );
-					
-					log("\t"+user.getId()+" steht nicht laenger unter gcp-schutz");
+					getContext().commit();
+					db.evict(fz);
+					db.evict(base);
 				}
+				catch( RuntimeException e ) {
+					this.log("Forschungszentrum "+fz.getBaseId()+" failed: "+e);
+					e.printStackTrace();
+					Common.mailThrowable(e, "ForschungsTick Exception", "Forschungszentrum: "+fz.getBaseId());
 					
-				PM.send(sourceUser, base.getOwner().getId(), "Forschung abgeschlossen", msg);
-				
-				fz.setForschung(null);
-				fz.setDauer(0);
-				
-				getContext().commit();
-				db.evict(fz);
-				db.evict(base);
+					throw e;
+				}
 			}
-			catch( RuntimeException e ) {
-				this.log("Forschungszentrum "+fz.getBaseId()+" failed: "+e);
-				e.printStackTrace();
-				Common.mailThrowable(e, "ForschungsTick Exception", "Forschungszentrum: "+fz.getBaseId());
-				
-				throw e;
-			}
-		}
-
-		int count = db.createQuery("update Forschungszentrum as f " +
-				"set f.dauer=f.dauer-1 " +
-				"where f.dauer!=0 and f.col in (select id from Base where id=f.col and (owner.vaccount=0 or owner.wait4vac!=0))")
-			.executeUpdate();
-		
-		log("Laufende Forschungen: "+count);
+	
+			int count = db.createQuery("update Forschungszentrum as f " +
+					"set f.dauer=f.dauer-1 " +
+					"where f.dauer!=0 and f.col in (select id from Base where id=f.col and (owner.vaccount=0 or owner.wait4vac!=0))")
+				.executeUpdate();
+			
+			log("Laufende Forschungen: "+count);
 	}
 
 }

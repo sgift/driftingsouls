@@ -45,48 +45,48 @@ public class BattleTick extends TickController {
 	@Override
 	protected void tick() {
 		org.hibernate.Session db = getDB();
-		
+
 		/*
-			Schlachten
-		*/
-		
+				Schlachten
+		 */
+
 		this.log("Schlachten: Aendere aktiven Kommandanten");
 		long lastacttime = Common.time()-1800;
-		
+
 		db.createQuery("update Battle set blockcount=blockcount-1 where blockcount > 0 and lastturn<= ?")
-			.setLong(0, lastacttime)
-			.executeUpdate();
-		
+		.setLong(0, lastacttime)
+		.executeUpdate();
+
 		List<?> battles = db.createQuery("from Battle where blockcount<=0 or lastaction<= ?")
-			.setLong(0, lastacttime)
-			.list();
-		
+		.setLong(0, lastacttime)
+		.list();
+
 		for( Iterator<?> iter=battles.iterator(); iter.hasNext(); ) {
 			Battle battle = (Battle)iter.next();
-			
+
 			try {
 				this.log("+ Naechste Runde bei Schlacht "+battle.getId());
-			
+
 				battle.load( battle.getCommander(0), null, null, 0 );
-				
+
 				//In der ersten Runde verzoegern wir grundsaetzlich - aufgehoben
 				//maximal jedoch einmal, damit Schlachten nicht unendlich lange im System
 				//vorhanden sind
 				/*
-				if( battle.hasFlag(Battle.FLAG_FIRSTROUND) ) {
-					battle.setFlag(Battle.FLAG_FIRSTROUND, false);
-					getContext().commit();
-					
-					continue;
-				}
-				*/
-			
+					if( battle.hasFlag(Battle.FLAG_FIRSTROUND) ) {
+						battle.setFlag(Battle.FLAG_FIRSTROUND, false);
+						getContext().commit();
+
+						continue;
+					}
+				 */
+
 				if( battle.endTurn(false) ) {
 					// Daten nur aktualisieren, wenn die Schlacht auch weiterhin existiert
 					battle.logenemy("<endturn type=\"all\" side=\"-1\" time=\""+Common.time()+"\" tick=\""+getContext().get(ContextCommon.class).getTick()+"\" />\n");
-				
+
 					battle.writeLog();
-					
+
 					battle.addComMessage(battle.getOwnSide(), "++++ Das Tickscript hat die Runde beendet ++++\n\n");
 					battle.addComMessage(battle.getEnemySide(), "++++ Das Tickscript hat die Runde beendet ++++\n\n");
 				}
@@ -94,7 +94,7 @@ public class BattleTick extends TickController {
 			}
 			catch( RuntimeException e ) {
 				getContext().rollback();
-				
+
 				this.log("Battle "+battle.getId()+" failed: "+e);
 				e.printStackTrace();
 				Common.mailThrowable(e, "BattleTick Exception", "battle: "+battle.getId());
@@ -105,5 +105,4 @@ public class BattleTick extends TickController {
 			}
 		}
 	}
-
 }

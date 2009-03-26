@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.tick;
 import java.io.File;
 
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.tick.regular.AcademyTick;
 import net.driftingsouls.ds2.server.tick.regular.BaseTick;
 import net.driftingsouls.ds2.server.tick.regular.BattleTick;
@@ -81,6 +82,7 @@ public class RegularTick extends AbstractTickExecuter
 			
 			File lockFile = new File(this.getConfiguration().get("LOXPATH")+"/regulartick.lock");
 			lockFile.createNewFile();
+			blockAccs();
 			try
 			{
 				publishStatus("berechne Nutzer");
@@ -116,6 +118,7 @@ public class RegularTick extends AbstractTickExecuter
 			}
 			finally
 			{
+				unblockAccs();
 				if( !lockFile.delete() )
 				{
 					log.warn("Konnte Lockdatei "+lockFile+" nicht loeschen");
@@ -145,5 +148,19 @@ public class RegularTick extends AbstractTickExecuter
 	{
 		setName("");
 		setLogPath(this.getConfiguration().get("LOXPATH")+"tick/");
+	}
+	
+	private void blockAccs()
+	{
+		Context context = getContext();
+		context.getDB().createQuery("update User set blocked=1").executeUpdate();
+		context.commit();
+	}
+	
+	private void unblockAccs()
+	{
+		Context context = getContext();
+		context.getDB().createQuery("update User set blocked=0").executeUpdate();
+		context.commit();
 	}
 }

@@ -547,7 +547,6 @@ public class SchiffsTick extends TickController {
 		for(; useriter.hasNext(); ) {
 			int auserId = (Integer)useriter.next();
 
-			this.block(auserId);
 			User auser = (User)db.get(User.class, auserId);
 
 			for( int retry=0; retry < 3; retry++ ) {
@@ -580,7 +579,6 @@ public class SchiffsTick extends TickController {
 					auser = (User)db.get(User.class, auser.getId());
 				}
 				finally {
-					this.unblock(auser.getId());
 					if( !calledByBattle ) {
 						db.evict(auser);
 					}

@@ -518,11 +518,8 @@ public class BaseTick extends TickController {
 	}
 
 	@Override
-	protected void tick() {
-		// User-Accs sperren
-		block(0);
-		getContext().commit();
-		
+	protected void tick() 
+	{
 		try {
 			tickBases();
 			getContext().commit();
@@ -531,11 +528,6 @@ public class BaseTick extends TickController {
 			this.log("Base Tick failed: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "BaseTick Exception", "");
-		}
-		finally {
-			// User-Accs wieder entsperren
-			unblock(0);
-			getContext().commit();
 		}
 	}
 }

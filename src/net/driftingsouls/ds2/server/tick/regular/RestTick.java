@@ -487,9 +487,6 @@ public class RestTick extends TickController {
 		
 		this.log("Zaehle Timeout bei Umfragen runter");
 		database.update("UPDATE surveys SET timeout=timeout-1 WHERE timeout>0");
-		
-		this.log("Entsperre alle evt noch durch den Tick gesperrten Accounts");
-		this.unblock(0);
 	}
 
 }
