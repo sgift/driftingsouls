@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.Semaphore;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -226,6 +227,12 @@ public class Battle implements Locatable {
 	
 	@Transient
 	private Configuration config;
+	
+	/**
+	 * Holds the writing mutex for a battle.
+	 * Before attempting a write action this mutex must be locked.
+	 */
+	private static Map<Integer, Semaphore> writingActionTable = new HashMap<Integer, Semaphore>();
 	
     /**
     * Injiziert die DS-Konfiguration.
@@ -666,7 +673,7 @@ public class Battle implements Locatable {
 	public static Battle create( int id, int ownShipID, int enemyShipID, final boolean startOwn ) {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
-
+		
 		log.info("battle: "+id+" :: "+ownShipID+" :: "+enemyShipID);
 		// Kann der Spieler ueberhaupt angreifen (Noob-Schutz?)
 		User user = (User)context.getDB().get(User.class, id);
@@ -863,6 +870,10 @@ public class Battle implements Locatable {
 		battle.com1Msg = "";
 		battle.com2Msg = "";
 		db.save(battle);
+		
+		
+		Semaphore mutex = new Semaphore(1);
+		writingActionTable.put(battle.id, mutex);
 
 		//
 		// Schiffe in die Schlacht einfuegen
@@ -1524,11 +1535,8 @@ public class Battle implements Locatable {
 		// Zuerst die Schiffe berechnen
 		//
 
-		for( int i=0; i < 2; i++ ) {
-			List<BattleShip> destroyList = new ArrayList<BattleShip>();
-			List<BattleShip> fluchtList = new ArrayList<BattleShip>();
-			List<BattleShip> fluchtReposList = new ArrayList<BattleShip>();
-			
+		for( int i=0; i < 2; i++ ) 
+		{
 			// Liste kopieren um Probleme beim Entfernen von Schffen aus der Ursprungsliste zu vermeiden
 			List<BattleShip> shiplist = new ArrayList<BattleShip>(sides.get(i));
 			for( int key=0; key < shiplist.size(); key++ ) {
@@ -1819,6 +1827,8 @@ public class Battle implements Locatable {
 		
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
+		
+		writingActionTable.remove(this);
 
 		if( deleted ) {
 			log.warn("Mehrfacher Aufruf von Battle.endBattle festgestellt", new Throwable());
@@ -2447,6 +2457,35 @@ public class Battle implements Locatable {
 		{
 			return Collections.unmodifiableList(getEnemyShips());
 		}
+	}
+	
+	/**
+	 * Acquires the writing mutex for this battle.
+	 * This method must be called before any value of an enemy ship is changed.
+	 */
+	public void acquireWritingMutex()
+	{
+		if(!writingActionTable.containsKey(this.id))
+		{
+			writingActionTable.put(this.id, new Semaphore(1));
+		}
+		
+		try
+		{
+			writingActionTable.get(this.id).acquire();
+		}
+		catch( InterruptedException e )
+		{
+			log.info("Interrupted, while waiting for battle mutex.");
+		}
+	}
+	
+	/**
+	 * Releases the writing mutex. 
+	 */
+	public void releaseWritingMutex()
+	{
+		writingActionTable.get(this.id).release();
 	}
 	
 	/**
