@@ -337,7 +337,7 @@ public class EditShiptypes implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">Scankosten: </td><td><input type=\"text\" name=\"scancosts\" value=\"" + ship.getScanCost() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Picking-Kosten: </td><td><input type=\"text\" name=\"pickingcosts\" value=\"" + ship.getPickingCost() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Mindest-Crew: </td><td><input type=\"text\" name=\"mincrew\" value=\"" + ship.getMinCrew() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">EMP verfliegen: </td><td><input type=\"text\" name=\"lostinempchange\" value=\"" + ship.getLostInEmpChance() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">EMP verfliegen: </td><td><input type=\"text\" name=\"lostinempchance\" value=\"" + ship.getLostInEmpChance() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
 			echo.append("</table>");
 			echo.append("</form>\n");
