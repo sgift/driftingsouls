@@ -786,7 +786,7 @@ public class KSAttackAction extends BasicKSAction {
 			{
 				typeCrew = 1;
 			}
-			double crewfactor = (type.getJDocks() * selectedShip.getCrew()) / typeCrew;
+			double crewfactor = ((double)selectedShip.getCrew()) / ((double)typeCrew);
 
 			if((selectedShip.getAction() & Battle.BS_JOIN) != 0)
 			{
@@ -848,9 +848,9 @@ public class KSAttackAction extends BasicKSAction {
 		// Rechnen wir mal die endgueltige Verteidigung aus
 		if (docksuse > docks)
 		{
-			fighterdefcount = (int)Math.floor((fighterdefcount/(double)fighter)*docks);
+			fighterdefcount = (int)Math.floor((((double)fighterdefcount)/((double)fighter))*((double)docks));
 		}
-		int fighterdef = (int)Math.round(((fighterdefcount + gksdefcount)/(double)defcount)/localweapon.getDouble("destroyable"));
+		int fighterdef = (int)Math.round((((double)(fighterdefcount + gksdefcount))/((double)defcount))/localweapon.getDouble("destroyable"));
 		if( fighterdef > 100 )
 		{
 			fighterdef = 100;	
