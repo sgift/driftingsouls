@@ -43,6 +43,7 @@ import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.werften.ShipWerft;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 
 import org.apache.commons.lang.StringUtils;
@@ -1099,6 +1100,70 @@ public class FleetMgntController extends TemplateGenerator {
 		this.redirect();
 	}
 	
+	@Action(ActionType.DEFAULT)
+	public void askDismantleAction()
+	{
+		TemplateEngine t = getTemplateEngine();
+		
+		t.setVar(	"fleet.name",		Common._plaintitle(fleet.getName()),
+					"fleet.id",			fleet.getId(),
+					"show.dismantle",	1 );
+	}
+	
+	/**
+	 * Demontiert die Flotte.
+	 */
+	@Action(ActionType.DEFAULT)
+	public void dismantleAction()
+	{
+		WerftObject shipyard = null;
+		
+		org.hibernate.Session db = getDB();
+		if(getGanymedCount() > 0)
+		{
+			Ship aship = getOneFleetShip();
+			shipyard = (ShipWerft)db.createQuery("from ShipWerft where ship.system=:system and ship.x=:x and ship.y=:y")
+			   						.setParameter("system", aship.getSystem())
+			   						.setParameter("x", aship.getX())
+			   						.setParameter("y", aship.getY())
+			   						.setMaxResults(1)
+			   						.uniqueResult();
+		}
+		else
+		{
+			List<Base> bases = getOwnerAsteroids();
+			if(!bases.isEmpty())
+			{
+				for(Base base: bases)
+				{
+					shipyard = base.getShipyard();
+					if(shipyard != null)
+					{
+						break;
+					}
+				}
+			}
+		}
+		
+		if(shipyard != null)
+		{
+			if(fleet.dismantleFleet(shipyard))
+			{
+				TemplateEngine t = getTemplateEngine();
+				t.setVar(	"fleetmgnt.message",	"Die Flotte '"+fleet.getName()+"' wurde demontiert.",
+							"jscript.reloadmain",	1 );
+				
+				return;
+			}
+		}
+		else
+		{
+			getContext().addError("Keine Werft im Sektor gefunden.");
+		}
+		
+		redirect();
+	}
+	
 	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
@@ -1108,10 +1173,7 @@ public class FleetMgntController extends TemplateGenerator {
 
 		List<String> sectors = new ArrayList<String>();
 	
-		Ship aship = (Ship)db.createQuery("from Ship where id>0 and fleet=?")
-			.setEntity(0, this.fleet)
-			.setMaxResults(1)
-			.uniqueResult();
+		Ship aship = getOneFleetShip();
 		
 		sectors.add("(s.x="+aship.getX()+" and s.y="+aship.getY()+" and s.system="+aship.getSystem()+")");
 
@@ -1193,6 +1255,31 @@ public class FleetMgntController extends TemplateGenerator {
 		if(asteroidcount > 0) {
 			t.setVar("astiinsector", 1);
 		}
+		
+		//Find shipyards in sector
+		long ganymedCount = getGanymedCount();
+		
+		if(ganymedCount > 0)
+		{
+			t.setVar("shipyardinsector", 1);
+		}
+		else
+		{
+			//Find shipyards on asteroids
+			if(asteroidcount > 0)
+			{
+				List<Base> bases = getOwnerAsteroids();
+				
+				for(Base base: bases)
+				{
+					if(base.hasShipyard())
+					{
+						t.setVar("shipyardinsector", 1);
+						break;
+					}
+				}
+			}
+		}
 	
 		// Jaegerliste bauen
 		String sectorstring = Common.implode(" or ", sectors);
@@ -1239,5 +1326,52 @@ public class FleetMgntController extends TemplateGenerator {
 								
 			t.parse("fleetcombine.list", "fleetcombine.listitem", true);
 		}
+	}
+	
+	/**
+	 * Gibt alle Asteroiden des Flottenbesitzers im Sektor zurueck.
+	 * 
+	 * @return s.o.
+	 */
+	private List<Base> getOwnerAsteroids()
+	{
+		org.hibernate.Session db = getDB();
+		Ship aship = getOneFleetShip();
+		return Common.cast(db.createQuery("from Base where system=:system and x=:x and y=:y and owner=:owner")
+	 			 	 .setParameter("system", aship.getSystem())
+	 			 	 .setParameter("x", aship.getX())
+	 			 	 .setParameter("y", aship.getY())
+	 			 	 .setParameter("owner", aship.getOwner())
+	 			 	 .list());
+	}
+	
+	/**
+	 * Gibt irgendein Schiff aus der Flotte zurueck.
+	 * 
+	 * @return Irgendein Schiff.
+	 */
+	private Ship getOneFleetShip()
+	{
+		org.hibernate.Session db = getDB();
+		return (Ship)db.createQuery("from Ship where id>0 and fleet=?")
+					   .setEntity(0, this.fleet)
+					   .setMaxResults(1)
+					   .uniqueResult();
+	}
+	
+	/**
+	 * Gibt die Anzahl Ganymeds im Sektor zurueck.
+	 * 
+	 * @return Anzahl Ganymeds.
+	 */
+	private long getGanymedCount()
+	{
+		org.hibernate.Session db = getDB();
+		Ship aship = getOneFleetShip();
+		return (Long)db.createQuery("select count(id) from ShipWerft where ship.system=:system and ship.x=:x and ship.y=:y")
+					   .setParameter("system", aship.getSystem())
+					   .setParameter("x", aship.getX())
+					   .setParameter("y", aship.getY())
+					   .uniqueResult();
 	}
 }

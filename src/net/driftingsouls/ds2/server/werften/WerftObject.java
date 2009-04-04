@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.werften;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -77,6 +78,7 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.hibernate.annotations.DiscriminatorFormula;
 
 /**
@@ -100,6 +102,10 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	
 	@Version
 	private int version;
+	
+	
+	@Transient
+	private Logger log = Logger.getLogger(WerftObject.class);
 
 	/**
 	 * Konstruktor.
@@ -823,6 +829,27 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		return cost;
 	}
 	
+
+	/**
+	 * Demontiert mehrere Schiffe auf einmal.
+	 * 
+	 * @param ships Schiffe, die demontiert werden sollten.
+	 * @return Anzahl der Schiffe, die wirklich demontiert wurde.
+	 */
+	public int dismantleShips(Collection<Ship> ships)
+	{
+		int dismantledShips = 0;
+		for(Ship ship: ships)
+		{
+			if(dismantleShip(ship, false))
+			{
+				dismantledShips++;
+			}
+		}
+		
+		return dismantledShips;
+	}
+	
 	/**
 	 * Demontiert ein Schiff. Es wird dabei nicht ueberprueft, ob sich Schiff
 	 * und Werft im selben Sektor befinden, ob das Schiff in einem Kampf ist usw sondern
@@ -832,12 +859,24 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @param testonly Soll nur geprueft (true) oder wirklich demontiert werden (false)?
 	 * @return true, wenn kein Fehler aufgetreten ist
 	 */
-	public boolean dismantleShip(Ship ship, boolean testonly) {	
+	public boolean dismantleShip(Ship ship, boolean testonly) {
+		log.debug("Dismantling ship " + ship.getId());
 		StringBuilder output = MESSAGE.get();
 	
 		if( ship.getId() < 0 ) {
 			ContextMap.getContext().addError("Das angegebene Schiff existiert nicht");
+			log.debug("Ship doesn't exist");
 			return false;
+		}
+		
+		if(this instanceof ShipWerft)
+		{
+			Ship shipyard = ((ShipWerft)this).getShip();
+			if(ship.equals(shipyard))
+			{
+				log.debug("Shipyard tried to dismantle itself.");
+				return false;
+			}
 		}
 		
 		Cargo scargo = ship.getCargo();
@@ -857,15 +896,11 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		newcargo.addCargo( cost );
 	
 		if( cost.getMass() + totalcargo > maxcargo ) {
+			log.debug("Not enough space for resources.");
 			output.append("Nicht gen&uuml;gend Platz f&uuml;r alle Waren\n");
 			ok = false;
 		}
 	
-		if( this.getCrew() + ship.getCrew() > this.getMaxCrew() ) {
-			output.append("Nicht gengend Platz f&uuml;r die Crew\n");
-			ok = false;
-		}
-		
 		int maxoffis = this.canTransferOffis();
 		
 		List<Offizier> offiziere = Offizier.getOffiziereByDest('s', ship.getId());
@@ -882,6 +917,11 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			this.setCargo(newcargo, false);
 	
 			this.setCrew(this.getCrew()+ship.getCrew());
+			if(this.getCrew() > this.getMaxCrew())
+			{
+				this.setCrew(this.getMaxCrew());
+			}
+			
 			for( Offizier offi : offiziere ) {
 				this.transferOffi(offi.getID());
 			}
