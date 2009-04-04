@@ -29,11 +29,14 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 
+import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.werften.WerftObject;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Query;
 
 /**
@@ -58,6 +61,9 @@ public class ShipFleet {
 	
 	@Transient
 	private boolean consignMode = false;
+	
+	@Transient
+	private final Logger log = Logger.getLogger(ShipFleet.class);
 	
 	/**
 	 * Konstruktor.
@@ -377,6 +383,34 @@ public class ShipFleet {
 			return false;
 		}
 		return true;
+	}
+	
+	/**
+	 * Schickt die Flotte in die Werft zur Demontage.
+	 * 
+	 * @param shipyard Werft, in der die Schiffe demontiert werden sollen.
+	 * @return <code>true</code>, wenn alle Schiffe demontiert wurden.
+	 */
+	public boolean dismantleFleet(WerftObject shipyard)
+	{
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		Location shipyardLocation = shipyard.getLocation();
+		List<Ship> ships = Common.cast(db.createQuery("from Ship where fleet=:fleet and system=:system and x=:x and y=:y")
+							 			 .setParameter("fleet", this)
+							 			 .setParameter("system", shipyardLocation.getSystem())
+							 			 .setParameter("x", shipyardLocation.getX())
+							 			 .setParameter("y", shipyardLocation.getY())
+							 			 .list());
+		log.debug("Ships to dismantle in fleet " + getId() + ": " + ships.size());
+		int dismantled = shipyard.dismantleShips(ships);
+		log.debug("Ships dismantled in fleet " + getId() + ": " + dismantled);
+		if(dismantled == ships.size())
+		{
+			db.delete(this);
+			return true;
+		}
+		
+		return false;
 	}
 	
 	/**

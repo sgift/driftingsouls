@@ -34,7 +34,8 @@ CREATE TABLE `ships_modules` (
   `scanCost` INT NOT NULL DEFAULT '0',
   `pickingCost` INT NOT NULL DEFAULT '0',
   `marines` int unsigned NOT NULL default '0',
-  `minCrew`int NOT NULL,
+  `minCrew`int NOT NULL default '0',
+  `lostInEmpChance` double NOT NULL default '0.75',
   `version` int(10) unsigned not null default '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='modifizierte Schiffstypenwerte fuer "jedes" Schiff'; 

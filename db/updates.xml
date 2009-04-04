@@ -742,4 +742,8 @@
 	<update type="data" datum="2009-03-22"><![CDATA[
 		ALTER TABLE `ship_types` CHANGE `minCrew` `minCrew` INT( 11 ) NOT NULL DEFAULT '0';
 	]]></update>
+	<update type="structure" datum="2009-03-31"><![CDATA[
+		ALTER TABLE `ship_types` ADD `lostInEmpChance` DOUBLE NOT NULL DEFAULT '0.75';
+		ALTER TABLE `ships_modules` ADD `lostInEmpChance` DOUBLE NOT NULL DEFAULT '0.75';
+	]]></update>
 </updates>

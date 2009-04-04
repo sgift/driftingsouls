@@ -2100,13 +2100,12 @@ public class Ship implements Locatable,Transfering {
 
 				// ACHTUNG: Ob das ganze hier noch sinnvoll funktioniert, wenn distance > 1 ist, ist mehr als fraglich...
 				if( nebulaemplist.containsKey(nextLocation) && 
-						(RandomUtils.nextInt(100+1) > 75) ) {
+						(RandomUtils.nextDouble() < getTypeData().getLostInEmpChance()) ) {
 					int nebel = Ships.getNebula(getLocation());
 					if( nebel == 5 ) {
 						waypoint.direction = RandomUtils.nextInt(10)+1;
-						if( waypoint.direction > 4 ) {
+						if( waypoint.direction == 5 ) {
 							waypoint.direction++;
-
 						}
 						// Nun muessen wir noch die Caches fuellen
 						if( waypoint.direction != olddirection ) {

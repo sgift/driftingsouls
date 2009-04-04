@@ -79,6 +79,7 @@ public class ShipTypeChangeset {
 	private int scanCost;
 	private int pickingCost;
 	private int minCrew;
+	private double lostInEmpChance;
 	
 	/**
 	 * Konstruktor.
@@ -246,6 +247,10 @@ public class ShipTypeChangeset {
 			else if( name.equals("minCrew"))
 			{
 				this.minCrew = Integer.parseInt(item.getAttribute("value"));
+			}
+			else if (name.equals("lostInEmpChance"))
+			{
+				this.lostInEmpChance = Double.parseDouble(item.getAttribute("value"));
 			}
 			else {
 				throw new RuntimeException("Unbekannte Changeset-Eigenschaft '"+name+"'");
@@ -537,6 +542,16 @@ public class ShipTypeChangeset {
 	public int getMinCrew()
 	{
 		return this.minCrew;
+	}
+	
+	/**
+	 * Wahrscheinlichkeit, dass das Schiff sich in einem EMP-Nebel verfliegt.
+	 * 
+	 * @return Zahl zwischen 0 und 1.
+	 */
+	public double getLostInEmpChance()
+	{
+		return this.lostInEmpChance;
 	}
 
 	/**
@@ -991,6 +1006,16 @@ public class ShipTypeChangeset {
 		public int getMinCrew()
 		{
 			return ShipTypeChangeset.this.getMinCrew() + inner.getMinCrew();
+		}
+		
+		/**
+		 * Wahrscheinlichkeit, dass das Schiff sich in einem EMP-Nebel verfliegt.
+		 * 
+		 * @return Zahl zwischen 0 und 1.
+		 */
+		public double getLostInEmpChance()
+		{
+			return ShipTypeChangeset.this.getLostInEmpChance() + inner.getLostInEmpChance();
 		}
 	}
 }

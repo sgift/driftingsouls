@@ -275,4 +275,10 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	{
 		return inner.getMinCrew();
 	}
+	
+	@Override
+	public double getLostInEmpChance()
+	{
+		return inner.getLostInEmpChance();
+	}
 }

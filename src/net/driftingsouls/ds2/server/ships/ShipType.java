@@ -92,6 +92,7 @@ public class ShipType implements ShipTypeData {
 	private int scanCost;
 	private int pickingCost;
 	private int minCrew;
+	private double lostInEmpChance;
 	
 	@Version
 	private int version;
@@ -678,5 +679,23 @@ public class ShipType implements ShipTypeData {
 	public void setMinCrew(int minCrew)
 	{
 		this.minCrew = minCrew;
+	}
+	
+	/**
+	 * Wahrscheinlichkeit, dass das Schiff sich in einem EMP-Nebel verfliegt.
+	 * 
+	 * @return Zahl zwischen 0 und 1.
+	 */
+	public double getLostInEmpChance()
+	{
+		return lostInEmpChance;
+	}
+	
+	/**
+	 * @param lostinEmpChance Wahrscheinlichkeit, dass das Schiff sich in einem EMP-Nebel verfliegt.
+	 */
+	public void setLostInEmpChance(double lostInEmpChance)
+	{
+		this.lostInEmpChance = lostInEmpChance;
 	}
 }
