@@ -173,12 +173,13 @@ public class SchiffsTick extends TickController {
 			this.log("Schiff hat nicht genug Crew; beschaedige Huelle.");
 			ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "nocrewhulldamagescale");
 			double scale = Double.parseDouble(value.getValue());
-			double damageInPercent = (1.0 - (((double)crew) / ((double)minCrew))) / scale;
+			double damageFactor = (1.0 - (((double)crew) / ((double)minCrew))) / scale;
+			this.log("Damage factor is: " + damageFactor);
 			
 			int oldArmor = shipd.getAblativeArmor();
 			if(oldArmor > 0)
 			{
-				int damage = (int)Math.ceil(shiptd.getAblativeArmor()*damageInPercent);
+				int damage = (int)Math.ceil(shiptd.getAblativeArmor()*damageFactor);
 				int newArmor = oldArmor - damage;
 				if(newArmor < 0)
 				{
@@ -193,7 +194,7 @@ public class SchiffsTick extends TickController {
 			}
 			else
 			{
-				int damage = (int)Math.ceil(shiptd.getHull()*damageInPercent);
+				int damage = (int)Math.ceil(shiptd.getHull()*damageFactor);
 				int newHull = shipd.getHull() - damage;
 				if(newHull > 0)
 				{
@@ -414,8 +415,7 @@ public class SchiffsTick extends TickController {
 		// Schiffe berechnen
 		List<?> ships = db.createQuery(
 				"from Ship as s left join fetch s.modules " +
-				"where s.id>0 and s.owner=? and " +
-				"((s.crew > 0) or (s.shiptype.crew = 0)) " +
+				"where s.id>0 and s.owner=? " +
 				"and system!=0 and "+battle +
 				"order by s.owner,s.docked,s.shiptype asc")
 				.setEntity(0, auser)
