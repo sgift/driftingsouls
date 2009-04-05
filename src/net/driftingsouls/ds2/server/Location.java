@@ -238,7 +238,7 @@ public final class Location implements Serializable, Locatable {
 			return text.toString();
 		}
 		else if( (nebulaType == EMP_NEBULA_NORMAL) || (nebulaType == EMP_NEBULA_THICK) ) {
-			text.append(":??/??");
+			text.append("??/??");
 			return text.toString();
 		}
 		text.append(x);
