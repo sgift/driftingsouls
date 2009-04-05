@@ -404,9 +404,11 @@ public class ShipFleet {
 		log.debug("Ships to dismantle in fleet " + getId() + ": " + ships.size());
 		int dismantled = shipyard.dismantleShips(ships);
 		log.debug("Ships dismantled in fleet " + getId() + ": " + dismantled);
+		ContextMap.getContext().commit();
 		if(dismantled == ships.size())
 		{
 			db.delete(this);
+			ContextMap.getContext().commit();
 			return true;
 		}
 		
