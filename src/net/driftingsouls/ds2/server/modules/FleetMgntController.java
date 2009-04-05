@@ -1100,6 +1100,9 @@ public class FleetMgntController extends TemplateGenerator {
 		this.redirect();
 	}
 	
+	/**
+	 * Bestaetigungsanfrage fuers Demontieren.
+	 */
 	@Action(ActionType.DEFAULT)
 	public void askDismantleAction()
 	{

@@ -649,7 +649,9 @@ public class ShipModules implements ShipTypeData {
 	}
 	
 	/**
-	 * @param lostinEmpChance Wahrscheinlichkeit, dass das Schiff sich in einem EMP-Nebel verfliegt.
+	 * Wahrscheinlichkeit, dass das Schiff sich in einem EMP-Nebel verfliegt.
+	 * 
+	 * @param lostinEmpChance Zahl zwischen 0 und 1.
 	 */
 	public void setLostInEmpChance(double lostInEmpChance)
 	{

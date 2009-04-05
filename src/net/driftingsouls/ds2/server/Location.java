@@ -216,6 +216,7 @@ public final class Location implements Serializable, Locatable {
 	 * Gibt die angezeigten Koordinaten zurueck.
 	 * EMP wird dabei beruecksichtigt.
 	 * 
+	 * @param noSystem <code>true</code>, wenn das System nicht mit angezeigt werden soll, sonst <code>false</code>
 	 * @return Anzeigbare Koordinaten.
 	 */
 	public String displayCoordinates(boolean noSystem)
