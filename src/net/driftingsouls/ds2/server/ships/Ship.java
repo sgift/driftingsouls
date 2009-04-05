@@ -3687,4 +3687,14 @@ public class Ship implements Locatable,Transfering {
 	{
 		return getDocked().startsWith("l");
 	}
+	
+	/**
+	 * Gibt an, ob das Schiff an einem anderen Schiff angedockt ist.
+	 * 
+	 * @return <code>true</code>, wenn das Schiff gedockt ist, sonst <code>false</code>
+	 */
+	public boolean isDocked()
+	{
+		return !getDocked().trim().equals("") && !isLanded();
+	}
 }

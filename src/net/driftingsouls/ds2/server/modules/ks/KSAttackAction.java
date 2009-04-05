@@ -792,6 +792,10 @@ public class KSAttackAction extends BasicKSAction {
 			{
 				// Beitretende Schiffe werden grundsaetzlich ausgenommen, hier wird gar nichts berechnet
 			}
+			else if(selectedShip.getShip().isLanded() || selectedShip.getShip().isDocked())
+			{
+				//Gelandete Schiffe zaehlen nicht
+			}
 			else if(type.getJDocks() > 0 && (selectedShip.getAction() & Battle.BS_FLUCHT) == 0 && type.getSize() > ShipType.SMALL_SHIP_MAXSIZE)
 			{
 				// Alle Schiffe mit Jaegerdocks die nicht auf der Flucht sind zaehlen a) als zu verteidigend und b) liefern Docks
