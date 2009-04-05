@@ -93,13 +93,21 @@ public class UserTick extends TickController
 				
 
 				//Delete all pms older than 14 days from inbox
-				int trash = Ordner.getTrash(user).getId();
-				db.createQuery("update PM set gelesen=2, ordner= :trash where empfaenger= :user and ordner= :ordner and time < :time")
-				  .setInteger("trash", trash)
-				  .setEntity("user", user)
-				  .setInteger("ordner", 0)
-				  .setLong("time", deleteThreshould)
-				  .executeUpdate();
+				Ordner trashCan = Ordner.getTrash(user);
+				if(trashCan != null)
+				{
+					int trash = trashCan.getId();
+					db.createQuery("update PM set gelesen=2, ordner= :trash where empfaenger= :user and ordner= :ordner and time < :time")
+					  .setInteger("trash", trash)
+					  .setEntity("user", user)
+					  .setInteger("ordner", 0)
+					  .setLong("time", deleteThreshould)
+					  .executeUpdate();
+				}
+				else
+				{
+					log("User hat keinen Muelleimer.");
+				}
 				
 				getContext().commit();
 			}
