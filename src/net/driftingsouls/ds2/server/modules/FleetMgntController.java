@@ -1125,10 +1125,11 @@ public class FleetMgntController extends TemplateGenerator {
 		if(getGanymedCount() > 0)
 		{
 			Ship aship = getOneFleetShip();
-			shipyard = (ShipWerft)db.createQuery("from ShipWerft where ship.system=:system and ship.x=:x and ship.y=:y")
+			shipyard = (ShipWerft)db.createQuery("from ShipWerft where ship.system=:system and ship.x=:x and ship.y=:y and ship.owner=:owner")
 			   						.setParameter("system", aship.getSystem())
 			   						.setParameter("x", aship.getX())
 			   						.setParameter("y", aship.getY())
+			   						.setParameter("owner", aship.getOwner())
 			   						.setMaxResults(1)
 			   						.uniqueResult();
 		}
