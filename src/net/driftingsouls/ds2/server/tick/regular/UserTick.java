@@ -22,6 +22,8 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.comm.Ordner;
+import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
@@ -54,6 +56,9 @@ public class UserTick extends TickController
 	{
 		final double foodPoolDegeneration = getGlobalFoodPoolDegeneration();
 		
+		
+		long deleteThreshould = Common.time() - 60*60*24*14;
+		log("DeleteThreshould is " + deleteThreshould);
 		List<User> users = getActiveUserList();
 		for(User user: users)
 		{
@@ -71,6 +76,8 @@ public class UserTick extends TickController
 				
 				user.setCargo(usercargo.save());
 				
+				
+				//Set vacation points
 				if(user.isInVacation())
 				{
 					ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "vacpointspervactick");
@@ -83,6 +90,16 @@ public class UserTick extends TickController
 					int pointsPerTick = Integer.valueOf(value.getValue());
 					user.setVacpoints(user.getVacpoints() + pointsPerTick);
 				}
+				
+
+				//Delete all pms older than 14 days from inbox
+				int trash = Ordner.getTrash(user).getId();
+				db.createQuery("update PM set gelesen=2, ordner= :trash where empfaenger= :user and ordner= :ordner and time < :time")
+				  .setInteger("trash", trash)
+				  .setEntity("user", user)
+				  .setInteger("ordner", 0)
+				  .setLong("time", deleteThreshould)
+				  .executeUpdate();
 				
 				getContext().commit();
 			}
