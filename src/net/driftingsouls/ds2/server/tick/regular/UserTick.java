@@ -18,11 +18,14 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.Ordner;
+import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.entities.Handel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
@@ -108,6 +111,42 @@ public class UserTick extends TickController
 					log("User hat keinen Muelleimer.");
 				}
 				
+				//Subtract costs for trade ads
+				long adCount = (Long)db.createQuery("select count(*) from Handel where who=:who")
+								 	   .setParameter("who", user)
+								 	   .uniqueResult();
+				
+				ConfigValue adCostValue = (ConfigValue)db.get(ConfigValue.class, "adcost");
+				int adCost = Integer.parseInt(adCostValue.getValue());
+				
+				BigInteger account = user.getKonto();
+				
+				//Not enough money in account
+				BigInteger costs = BigInteger.valueOf(adCost*adCount);
+				if(account.compareTo(costs) < 0)
+				{
+					int wasteAdCount = BigInteger.valueOf(adCount).subtract(account.divide(BigInteger.valueOf(adCount))).intValue();
+					
+					account = BigInteger.ZERO;
+					user.setKonto(account);
+					
+					List<Handel> wasteAds = Common.cast(db.createQuery("from Handel where who=:who sort by time asc")
+														  .setMaxResults(wasteAdCount)
+														  .list());
+					
+					for(Handel wasteAd: wasteAds)
+					{
+						db.delete(wasteAd);
+					}
+					
+					PM.send(user, user.getId(), "Handelsinserate gel&oml;scht", wasteAdCount + " Ihrer Handelsinserate wurden gel&oml;scht, weil Sie die Kosten nicht aufbringen konnten.");
+				}
+				else
+				{
+					account = account.subtract(costs);
+					user.setKonto(account);
+				}
+
 				getContext().commit();
 			}
 			catch( Exception e )

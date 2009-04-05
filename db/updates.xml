@@ -746,4 +746,15 @@
 		ALTER TABLE `ship_types` ADD `lostInEmpChance` DOUBLE NOT NULL DEFAULT '0.75';
 		ALTER TABLE `ships_modules` ADD `lostInEmpChance` DOUBLE NOT NULL DEFAULT '0.75';
 	]]></update>
+	<update type="data" datum="2009-04-06"><![CDATA[
+		INSERT INTO `ds2`.`config` (
+			`name` ,
+			`value` ,
+			`description` ,
+			`version` 
+			)
+			VALUES (
+			'adcost', '10', 'Preis, den ein Handelsinserat pro Tick kostet.', '0'
+			);
+	]]></update>
 </updates>
