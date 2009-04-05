@@ -369,7 +369,7 @@ public class SchiffeController extends TemplateGenerator {
 							"ship.battle",			ship.getBattle() != null ? ship.getBattle().getId() : 0,
 							"ship.type",			ship.getType(),
 							"ship.type.name",		shiptype.getNickname(),
-							"ship.location",		Ships.getLocationText(ship.getLocation(),false),
+							"ship.location",		ship.getLocation().displayCoordinates(false),
 							"ship.e",				ship.getEnergy(),
 							"ship.hull",			Common.ln(ship.getHull()),
 							"ship.hullcolor",		hullcolor,

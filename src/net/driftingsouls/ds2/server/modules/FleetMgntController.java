@@ -534,7 +534,7 @@ public class FleetMgntController extends TemplateGenerator {
 					.setEntity(1, this.fleet)
 					.iterate().next();
 				
-				PM.send(user, newowner.getId(), "Flotte &uuml;bergeben", "Ich habe dir die Flotte "+Common._plaintitle(this.fleet.getName())+" &uuml;bergeben. Sie steht bei "+coords.getLocation());
+				PM.send(user, newowner.getId(), "Flotte &uuml;bergeben", "Ich habe dir die Flotte "+Common._plaintitle(this.fleet.getName())+" &uuml;bergeben. Sie steht bei "+coords.getLocation().displayCoordinates(false));
 		
 				t.setVar("fleetmgnt.message", ShipFleet.MESSAGE.getMessage()+"Die Flotte wurde &uuml;bergeben");
 			}

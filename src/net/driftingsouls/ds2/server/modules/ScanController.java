@@ -213,23 +213,8 @@ public class ScanController extends TemplateGenerator {
 		boolean scanableNebel = false;
 	
 		Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(scanLoc));
-		if( !this.admin && (nebel != null) && ((nebel.getType() < 3) || (nebel.getType() > 5)) ) {
-			/*List nebelships = db.createQuery("from Ship where id>0 and x= :x and y= :y and system= :sys and owner= :owner and sensors>30)")
-				.setInteger("x", scanLoc.getX())
-				.setInteger("y", scanLoc.getY())
-				.setInteger("sys", scanLoc.getSystem())
-				.setEntity("owner", user)
-				.list();
-			
-			for( Iterator iter=nebelships.iterator(); iter.hasNext(); ) {
-				Ship nebelship = (Ship)iter.next();
-				
-				ShipTypeData ownshiptype = nebelship.getTypeData();	
-				if( nebelship.getCrew() >= ownshiptype.getCrew()/4 ) {
-					scanableNebel = true;
-					break;
-				}
-			}*/
+		if( !this.admin && (nebel != null) && ((nebel.getType() < 3) || (nebel.getType() > 5)) ) 
+		{
 			// Wenn kein EMP-Nebel, dann kann man ihn scannen
 			scanableNebel = true;
 		}
@@ -662,11 +647,6 @@ public class ScanController extends TemplateGenerator {
 								"map.showsector",	1 );
 	
 					// Nebel
-					/*if( nebelmap.containsKey(loc) && 
-							(!ownshipmap.containsKey(loc) || ((nebelmap.get(loc) >= 3) && (nebelmap.get(loc) <= 5)) ) ) {
-						t.setVar(	"map.image",		"fog"+nebelmap.get(loc)+"/fog"+nebelmap.get(loc),
-									"map.image.name",	"Nebel" );
-					} */
 					if (nebelmap.containsKey(loc) && ((nebelmap.get(loc) >=3) && (nebelmap.get(loc) <= 5)))
 					{
 						t.setVar(	"map.image",		"fog"+nebelmap.get(loc)+"/fog"+nebelmap.get(loc),

@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server;
 import java.io.Serializable;
 
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
  * Eine Positionsklasse.
@@ -29,6 +30,10 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
  */
 public final class Location implements Serializable, Locatable {
 	private static final long serialVersionUID = -5144442902462679539L;
+	
+	private static final int EMP_NEBULA_LOW = 3;
+	private static final int EMP_NEBULA_NORMAL = 4;
+	private static final int EMP_NEBULA_THICK = 5;
 	
 	private final int x;
 	private final int y;
@@ -205,6 +210,41 @@ public final class Location implements Serializable, Locatable {
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * Gibt die angezeigten Koordinaten zurueck.
+	 * EMP wird dabei beruecksichtigt.
+	 * 
+	 * @return Anzeigbare Koordinaten.
+	 */
+	public String displayCoordinates(boolean noSystem)
+	{
+		int nebulaType = Ships.getNebula(this);
+		
+		StringBuilder text = new StringBuilder(8);
+		if( !noSystem ) {
+			text.append(system);
+			text.append(":");
+		}
+		
+		if( nebulaType == EMP_NEBULA_LOW ) {
+			text.append(x / 10);
+			text.append("x/");
+			text.append(y / 10);
+			text.append('x');
+			
+			return text.toString();
+		}
+		else if( (nebulaType == EMP_NEBULA_NORMAL) || (nebulaType == EMP_NEBULA_THICK) ) {
+			text.append(":??/??");
+			return text.toString();
+		}
+		text.append(x);
+		text.append('/');
+		text.append(y);
+		
+		return text.toString();
 	}
 
 	@Override

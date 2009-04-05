@@ -469,7 +469,7 @@ public class UeberController extends TemplateGenerator {
 				eparty2 = Common._title(ally.getName());
 			}
 					
-			battlelist.append("<a class=\"error\" href=\"ds?module=angriff&amp;battle="+battle.getId()+"\">Schlacht "+eparty+" vs "+eparty2+" bei "+battle.getLocation()+"</a><br />\n");
+			battlelist.append("<a class=\"error\" href=\"ds?module=angriff&amp;battle="+battle.getId()+"\">Schlacht "+eparty+" vs "+eparty2+" bei "+battle.getLocation().displayCoordinates(false)+"</a><br />\n");
 			
 			if( ( (user.getAccessLevel() >= 20) || user.hasFlag(User.FLAG_QUEST_BATTLES) ) 
 				&& (battle.getQuest() != null) ) {
@@ -524,7 +524,7 @@ public class UeberController extends TemplateGenerator {
 				ShipTypeData shiptype = bookmark.getTypeData();
 				t.setVar(	"bookmark.shipid",		bookmark.getId(),
 							"bookmark.shipname",	bookmark.getName(),
-							"bookmark.location",	Ships.getLocationText(bookmark.getLocation(), false),
+							"bookmark.location",	bookmark.getLocation().displayCoordinates(false),
 							"bookmark.shiptype",	shiptype.getNickname(),
 							"bookmark.description",	bookmark.getDestSystem()+":"+bookmark.getDestX()+"/"+bookmark.getDestY()+"<br />"+bookmark.getDestCom().replace("\r\n","<br />") );
 				t.parse("bookmarks.list","bookmarks.listitem",true);

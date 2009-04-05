@@ -41,7 +41,6 @@ import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.ships.RouteFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.ships.Waypoint;
 
 import org.apache.commons.logging.Log;
@@ -327,7 +326,7 @@ public class NavigationDefault implements SchiffPlugin {
 					tmp++;
 					
 					t.setVar(	"schiff.navigation.nav.direction",		tmp,
-								"schiff.navigation.nav.location",		Ships.getLocationText(sys, x+nx-1, y+ny-1, true),
+								"schiff.navigation.nav.location",		new Location(sys, x+nx-1, y+ny-1).displayCoordinates(true),
 								"schiff.navigation.nav.sectorimage",	url + (sectorimgs[nx][ny] != null ? sectorimgs[nx][ny] : "data/starmap/space/space.png"),
 								"schiff.navigation.nav.newrow",			newrow,
 								"schiff.navigation.nav.warn",			(1 != nx || 1 != ny ? redAlertStatus[index++] : false) );

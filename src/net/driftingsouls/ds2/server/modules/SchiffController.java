@@ -291,7 +291,7 @@ public class SchiffController extends TemplateGenerator {
 			redirect();
 		}
 		else {
-			String msg = "Ich habe dir die "+ship.getName()+" ("+ship.getId()+"), ein Schiff der "+shiptype.getNickname()+"-Klasse, &uuml;bergeben\nSie steht bei "+ship.getSystem()+":"+ship.getX()+"/"+ship.getY();
+			String msg = "Ich habe dir die "+ship.getName()+" ("+ship.getId()+"), ein Schiff der "+shiptype.getNickname()+"-Klasse, &uuml;bergeben\nSie steht bei " + ship.getLocation().displayCoordinates(false);
 			PM.send(user, newowner.getId(), "Schiff &uuml;bergeben", msg);
 		
 			String consMessage = Ship.MESSAGE.getMessage();
@@ -1243,7 +1243,7 @@ public class SchiffController extends TemplateGenerator {
 		t.setVar(	"ship.showui",			1,
 					"ship.id",				ship.getId(),
 					"ship.name",			Common._plaintitle(ship.getName()),
-					"ship.location",		Ships.getLocationText(ship.getLocation(), false),
+					"ship.location",		ship.getLocation().displayCoordinates(false),
 					"ship.type",			ship.getType(),
 					"shiptype.picture",		shiptype.getPicture(),
 					"shiptype.name",		shiptype.getNickname(),

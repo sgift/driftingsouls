@@ -93,7 +93,7 @@ public class DeutAllController extends TemplateGenerator {
 	
 			if( (lastcoords == null) || !lastcoords.sameSector(0, ship.getLocation(), 0) ) {
 				t.setVar(	"ship.newcoords",		1,
-							"ship.location",		Ships.getLocationText(ship.getLocation(), false),
+							"ship.location",		ship.getLocation().displayCoordinates(false),
 							"ship.newcoords.break",	lastcoords != null );
 
 				lastcoords = ship.getLocation();

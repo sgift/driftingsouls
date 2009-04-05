@@ -125,7 +125,7 @@ public class SensorsDefault implements SchiffPlugin {
 		
 		t.setVar(	"global.ship",				ship.getId(),
 					"global.pluginid",			pluginid,
-					"ship.sensors.location",	Ships.getLocationText(ship.getLocation(), true),
+					"ship.sensors.location",	ship.getLocation().displayCoordinates(true),
 					"global.awac",				shiptype.hasFlag(ShipTypes.SF_SRS_AWAC) );
 
 		final long dataOffizierCount = (Long)db.createQuery("select count(*) from Offizier where dest=?")

@@ -46,7 +46,9 @@ import net.driftingsouls.ds2.server.cargo.Transfering;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.werften.BaseWerft;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -879,5 +881,31 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		ship.recalculateShipStatus();
 		
 		return amount;
+	}
+	
+	/**
+	 * Gibt die Werft der Basis zurueck.
+	 * 
+	 * @return <code>null</code>, wenn die Basis keine Werft hat, ansonsten das Objekt.
+	 */
+	public BaseWerft getShipyard()
+	{
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		return (BaseWerft)db.createQuery("from BaseWerft where base=:base")
+							.setParameter("base", this)
+							.uniqueResult();
+	}
+	
+	/**
+	 * Gibt an, ob die Basis eine Werft hat.
+	 * 
+	 * @return <code>true</code>, wenn die Basis eine Werft hat, <code>false</code> ansonsten.
+	 */
+	public boolean hasShipyard()
+	{
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		return ((Long)db.createQuery("select count(id) from BaseWerft where base=:base")
+					    .setParameter("base", this)
+					    .uniqueResult()) != 0;
 	}
 }

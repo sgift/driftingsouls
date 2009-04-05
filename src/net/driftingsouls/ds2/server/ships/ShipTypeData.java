@@ -293,7 +293,7 @@ public interface ShipTypeData extends Cloneable {
 	/**
 	 * Wahrscheinlichkeit, dass das Schiff sich in einem EMP-Nebel verfliegt.
 	 * 
-	 * @return Zahl zwischen 0 und 1.
+	 * @return Wahrscheinlichkeit als Anteil von 0 bis 1. Kann auch groesser oder kleienr als 0 oder 1 sein (Module!)
 	 */
 	public double getLostInEmpChance();
 	

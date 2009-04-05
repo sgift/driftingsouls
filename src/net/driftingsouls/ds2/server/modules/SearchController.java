@@ -100,7 +100,7 @@ public class SearchController extends TemplateGenerator {
 			
 			t.setVar(	"base.id",		base.getId(),
 						"base.name",	Common._plaintitle(base.getName()),
-						"base.location",	base.getLocation());
+						"base.location",	base.getLocation().displayCoordinates(false));
 
 			t.parse("objects.list", "base.listitem", true);
 			
@@ -123,7 +123,7 @@ public class SearchController extends TemplateGenerator {
 							"ship.name",	Common._plaintitle(ship.getName()),
 							"ship.type.name",	ship.getTypeData().getNickname(),
 							"ship.type.picture",	ship.getTypeData().getPicture(),
-							"ship.location",	ship.getLocation());
+							"ship.location",	ship.getLocation().displayCoordinates(false));
 		
 				t.parse("objects.list", "ship.listitem", true);
 				
