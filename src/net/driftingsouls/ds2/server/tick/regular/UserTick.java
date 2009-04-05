@@ -125,27 +125,26 @@ public class UserTick extends TickController
 				BigInteger costs = BigInteger.valueOf(adCost*adCount);
 				if(account.compareTo(costs) < 0)
 				{
-					int wasteAdCount = BigInteger.valueOf(adCount).subtract(account.divide(BigInteger.valueOf(adCount))).intValue();
-					
-					account = BigInteger.ZERO;
-					user.setKonto(account);
-					
+					BigInteger adCountBI = BigInteger.valueOf(adCount);
+					int wasteAdCount = adCountBI.subtract(account.divide(adCountBI)).intValue();
+										
 					List<Handel> wasteAds = Common.cast(db.createQuery("from Handel where who=:who sort by time asc")
 														  .setMaxResults(wasteAdCount)
 														  .list());
+					
+					costs = account.divide(adCountBI);
 					
 					for(Handel wasteAd: wasteAds)
 					{
 						db.delete(wasteAd);
 					}
 					
-					PM.send(user, user.getId(), "Handelsinserate gel&oml;scht", wasteAdCount + " Ihrer Handelsinserate wurden gel&oml;scht, weil Sie die Kosten nicht aufbringen konnten.");
+					PM.send(user, user.getId(), "Handelsinserate gel&ouml;scht", wasteAdCount + " Ihrer Handelsinserate wurden gel&ouml;scht, weil Sie die Kosten nicht aufbringen konnten.");
 				}
-				else
-				{
-					account = account.subtract(costs);
-					user.setKonto(account);
-				}
+				
+				this.log("Geld f&uuml;r Handelsinserate " + costs);
+				User nobody = (User)db.get(User.class, -1);
+				nobody.transferMoneyFrom(user.getId(), costs, "Kosten f&uuml;r Handelsinserate - User: " + user.getName() + " (" + user.getId() + ")", false, User.TRANSFER_AUTO);
 
 				getContext().commit();
 			}
