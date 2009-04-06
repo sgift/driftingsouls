@@ -1,30 +1,9 @@
-/*
- *	Drifting Souls 2
- *	Copyright (c) 2006 Christopher Jung
- *
- *	This library is free software; you can redistribute it and/or
- *	modify it under the terms of the GNU Lesser General Public
- *	License as published by the Free Software Foundation; either
- *	version 2.1 of the License, or (at your option) any later version.
- *
- *	This library is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *	Lesser General Public License for more details.
- *
- *	You should have received a copy of the GNU Lesser General Public
- *	License along with this library; if not, write to the Free Software
- *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
 package net.driftingsouls.ds2.server.modules;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
@@ -37,32 +16,17 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 
-/**
- * Zeigt die Sternenkarte an.
- * @author Christopher Jung
- *
- * @urlparam Integer sys Die ID des anzuzeigenden Systems
- * @urlparam Integer loadmap Falls != 0 wird die Sternenkarte geladen
- */
-@Configurable
-public class MapController extends TemplateGenerator {
-	private static final Log log = LogFactory.getLog(MapController.class);
+public class MapController extends TemplateGenerator 
+{
 	
-	private int system = 1;
-	private boolean showSystem = true;
-	
+	private boolean showSystem;
+	private int system;
 	private Configuration config;
-	
-	/**
-	 * Konstruktor.
-	 * @param context Der zu verwendende Kontext
-	 */
-	public MapController(Context context) {
+
+	public MapController(Context context)
+	{
 		super(context);
 		
 		parameterNumber("sys");
@@ -82,7 +46,7 @@ public class MapController extends TemplateGenerator {
     {
     	this.config = config;
     }
-	
+
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		User user = (User)getUser();
@@ -120,12 +84,11 @@ public class MapController extends TemplateGenerator {
 		this.system = sys;
 		
 		t.setVar(	"map.showsystem",	showSystem,
-					"map.system",		sys,
-					"global.datapath",	config.get("URL") );
+					"map.system",		sys );
 		
 		return true;
 	}
-
+	
 	/**
 	 * Zeigt die Sternenkarte an.
 	 */
@@ -187,55 +150,23 @@ public class MapController extends TemplateGenerator {
 			t.parse("jumpnodes.list", "jumpnodes.listitem", true);
 		}
 		
-		String index = "";
-		String findex = "";
-
-		File starmapIndex = new File(config.get("ABSOLUTE_PATH")+"java/jstarmap.index");
-		if( starmapIndex.exists() )
-		{
-			try
-			{
-				BufferedReader b = new BufferedReader(new FileReader(starmapIndex));
-				try
-				{
-					index = b.readLine();
-				}
-				finally
-				{
-					b.close();
-				}
-			}
-			catch( IOException e )
-			{
-				log.warn(e, e);
-			}
-		}
+		StarSystem displayedSystem = Systems.get().system(this.system);
+		int width = displayedSystem.getWidth();
+		int height = displayedSystem.getHeight();
 		
-		File frameworkIndex = new File(config.get("ABSOLUTE_PATH")+"java/jframework.index");
-		if( frameworkIndex.exists() )
+		StringBuilder map = new StringBuilder();
+		map.append("<table>");
+		for(int y = 0; y < height; y++)
 		{
-			try
+			map.append("<tr>");
+			for(int x = 0; x < width; x++)
 			{
-				BufferedReader b = new BufferedReader(new FileReader(frameworkIndex));
-				try
-				{
-					findex = b.readLine();
-				}
-				finally
-				{
-					b.close();
-				}
+				map.append("<td>");
+				new Location(this.system, x, y);
+				map.append("</td>");
 			}
-			catch( IOException e )
-			{
-				log.warn(e, e);
-			}
+			map.append("</tr>");
 		}
-		
-		t.setVar(	"map.applet.index",		index,
-					"map.framework.index",	findex,
-					"map.applet.codebase",	config.get("URL")+"java/",
-					"map.applet.width",		user.getUserValue("TBLORDER/map/width"),
-					"map.applet.height",	user.getUserValue("TBLORDER/map/height") );
+		map.append("</table>");
 	}
 }

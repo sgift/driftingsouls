@@ -20,8 +20,12 @@ package net.driftingsouls.ds2.server;
 
 import java.io.Serializable;
 
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.ships.Ships;
+
+import org.hibernate.Session;
 
 /**
  * Eine Positionsklasse.
@@ -251,5 +255,27 @@ public final class Location implements Serializable, Locatable {
 	@Override
 	public Location getLocation() {
 		return this;
+	}
+	
+	public String getSectorImage()
+	{
+		Session db = ContextMap.getContext().getDB();
+		
+		String sectorImage = "space/space.png";
+		int nebulaType = Ships.getNebula(this);
+		if(nebulaType != -1)
+		{
+			sectorImage = "fog"+nebulaType+"/fog"+nebulaType+".png";
+		}
+		else
+		{
+			long baseCount = (Long)db.createQuery("select count(*) from Base where system=:system and x=:x and y=:y")
+									 .setParameter("system", system)
+									 .setParameter("x", x)
+									 .setParameter("y", y)
+									 .uniqueResult();
+		}
+		
+		return sectorImage;
 	}
 }
