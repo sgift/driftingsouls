@@ -121,31 +121,42 @@ public class UserTick extends TickController
 				
 				BigInteger account = user.getKonto();
 				
-				//Not enough money in account
-				BigInteger costs = BigInteger.valueOf(adCost*adCount);
-				if(account.compareTo(costs) < 0)
+				log("Ads: " + adCount);
+				log("Costs: " + adCost);
+				
+				if(adCount > 0)
 				{
-					BigInteger adCountBI = BigInteger.valueOf(adCount);
-					int wasteAdCount = adCountBI.subtract(account.divide(adCountBI)).intValue();
-										
-					List<Handel> wasteAds = Common.cast(db.createQuery("from Handel where who=:who sort by time asc")
-														  .setMaxResults(wasteAdCount)
-														  .list());
-					
-					costs = account.divide(adCountBI);
-					
-					for(Handel wasteAd: wasteAds)
+					//Not enough money in account
+					BigInteger costs = BigInteger.valueOf(adCost*adCount);
+					if(account.compareTo(costs) < 0)
 					{
-						db.delete(wasteAd);
+						log("Spieler kann nicht alle Rechnungen zahlen, loesche Handelsinserate.");
+						BigInteger adCountBI = BigInteger.valueOf(adCount);
+						BigInteger adCostBI = BigInteger.valueOf(adCost);
+						int wasteAdCount = adCountBI.subtract(account.divide(adCostBI)).intValue();
+											
+						List<Handel> wasteAds = Common.cast(db.createQuery("from Handel where who=:who order by time asc")
+															  .setParameter("who", user)
+															  .setMaxResults(wasteAdCount)
+															  .list());
+						
+						log(wasteAdCount + " ads zu loeschen.");
+						
+						costs = BigInteger.valueOf((adCount - wasteAdCount)*adCost);
+						
+						for(Handel wasteAd: wasteAds)
+						{
+							db.delete(wasteAd);
+						}
+						
+						PM.send(user, user.getId(), "Handelsinserate gel&ouml;scht", wasteAdCount + " Ihrer Handelsinserate wurden gel&ouml;scht, weil Sie die Kosten nicht aufbringen konnten.");
 					}
 					
-					PM.send(user, user.getId(), "Handelsinserate gel&ouml;scht", wasteAdCount + " Ihrer Handelsinserate wurden gel&ouml;scht, weil Sie die Kosten nicht aufbringen konnten.");
+					log("Geld f&uuml;r Handelsinserate " + costs);
+					User nobody = (User)db.get(User.class, -1);
+					nobody.transferMoneyFrom(user.getId(), costs, "Kosten f&uuml;r Handelsinserate - User: " + user.getName() + " (" + user.getId() + ")", false, User.TRANSFER_AUTO);
 				}
 				
-				this.log("Geld f&uuml;r Handelsinserate " + costs);
-				User nobody = (User)db.get(User.class, -1);
-				nobody.transferMoneyFrom(user.getId(), costs, "Kosten f&uuml;r Handelsinserate - User: " + user.getName() + " (" + user.getId() + ")", false, User.TRANSFER_AUTO);
-
 				getContext().commit();
 			}
 			catch( Exception e )
