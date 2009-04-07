@@ -915,26 +915,36 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	 * 
 	 * @param location Koordinate fuer die das Bild der Basis ermittelt werden soll.
 	 * @param user Aktueller Spieler.
-	 * @return Der Bildstring der Basis oder <code>null</code>, wenn das Bild sich nicht schneidet.
+	 * @return Der Bildstring der Basis oder einen Leerstring, wenn die Basis die Koordinaten nicht schneidet
 	 */
 	public String getImage(Location location, User user)
 	{
-		if(!location.sameSector(1, getLocation(), size))
+		if(!location.sameSector(0, getLocation(), size))
 		{
-			return null;
+			return "";
 		}
 		
 		if(size > 0)
 		{
-			int imageCount = 0;
-			for(int y = this.y - size; y < this.y + size; y++)
+			int imgcount = 0;
+			Location centerLoc = getLocation();
+			for(int by = getY() - getSize(); by <= getY() + getSize(); by++) 
 			{
-				for(int x = this.x - size; x < this.x + size; x++)
+				for(int bx = getX() - getSize(); bx <= getX() + getSize(); bx++) 
 				{
-					if(location.getX() == x && location.getY() == y)
+					Location loc = new Location(getSystem(), bx, by);
+					
+					if( !centerLoc.sameSector(0, loc, getSize())) 
 					{
-						return "kolonie"+getKlasse()+"_lrs/kolonie"+getKlasse()+"_lrs"+imageCount;
+						continue;	
 					}
+					
+					if(location.equals(loc))
+					{
+						return "kolonie"+getKlasse()+"_lrs/kolonie"+getKlasse()+"_lrs"+imgcount;
+					}
+					
+					imgcount++;
 				}
 			}
 		}
@@ -951,8 +961,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 			return "kolonie"+getKlasse()+"_lrs";
 		}
 		
-		//This should never happen
 		assert false;
-		return "";
+		return null;
 	}
 }
