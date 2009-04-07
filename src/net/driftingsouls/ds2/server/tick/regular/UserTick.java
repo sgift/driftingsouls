@@ -47,41 +47,22 @@ public class UserTick extends TickController
 	{
 		this.db = getDB();
 	}
-	
-	private List<User> getActiveUserList()
-	{
-		return Common.cast(db.createQuery("from User where vaccount=0 or wait4vac>0").list());
-	}
 
 	@Override
 	protected void tick()
 	{
-		final double foodPoolDegeneration = getGlobalFoodPoolDegeneration();
-		
+		final double foodPoolDegeneration = getGlobalFoodPoolDegeneration();		
 		
 		long deleteThreshould = Common.time() - 60*60*24*14;
 		log("DeleteThreshould is " + deleteThreshould);
-		List<User> users = getActiveUserList();
+		List<User> users = Common.cast(db.createQuery("from User").list());
 		for(User user: users)
 		{
-			try {
-				Cargo usercargo = new Cargo( Cargo.Type.STRING, user.getCargo());
-				
-				//Rot food
-				double rottenFoodPercentage = foodPoolDegeneration + user.getFoodpooldegeneration();
-				long food = usercargo.getResourceCount(Resources.NAHRUNG);
-				long rottenFood = (long)(food*(rottenFoodPercentage/100.0));
-				
-				log(user.getId()+": "+rottenFood);
-				
-				usercargo.setResource(Resources.NAHRUNG, food - rottenFood);
-				
-				user.setCargo(usercargo.save());
-				
-				
-				//Set vacation points
+			try 
+			{	
 				if(user.isInVacation())
 				{
+					//Set vacation points
 					ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "vacpointspervactick");
 					int costsPerTick = Integer.valueOf(value.getValue());
 					user.setVacpoints(user.getVacpoints() - costsPerTick);
@@ -91,70 +72,82 @@ public class UserTick extends TickController
 					ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "vacpointsperplayedtick");
 					int pointsPerTick = Integer.valueOf(value.getValue());
 					user.setVacpoints(user.getVacpoints() + pointsPerTick);
-				}
-				
-
-				//Delete all pms older than 14 days from inbox
-				Ordner trashCan = Ordner.getTrash(user);
-				if(trashCan != null)
-				{
-					int trash = trashCan.getId();
-					db.createQuery("update PM set gelesen=2, ordner= :trash where empfaenger= :user and ordner= :ordner and time < :time")
-					  .setInteger("trash", trash)
-					  .setEntity("user", user)
-					  .setInteger("ordner", 0)
-					  .setLong("time", deleteThreshould)
-					  .executeUpdate();
-				}
-				else
-				{
-					log("User hat keinen Muelleimer.");
-				}
-				
-				//Subtract costs for trade ads
-				long adCount = (Long)db.createQuery("select count(*) from Handel where who=:who")
-								 	   .setParameter("who", user)
-								 	   .uniqueResult();
-				
-				ConfigValue adCostValue = (ConfigValue)db.get(ConfigValue.class, "adcost");
-				int adCost = Integer.parseInt(adCostValue.getValue());
-				
-				BigInteger account = user.getKonto();
-				
-				log("Ads: " + adCount);
-				log("Costs: " + adCost);
-				
-				if(adCount > 0)
-				{
-					//Not enough money in account
-					BigInteger costs = BigInteger.valueOf(adCost*adCount);
-					if(account.compareTo(costs) < 0)
+					
+					Cargo usercargo = new Cargo( Cargo.Type.STRING, user.getCargo());
+					
+					//Rot food
+					double rottenFoodPercentage = foodPoolDegeneration + user.getFoodpooldegeneration();
+					long food = usercargo.getResourceCount(Resources.NAHRUNG);
+					long rottenFood = (long)(food*(rottenFoodPercentage/100.0));
+					
+					log(user.getId()+": "+rottenFood);
+					
+					usercargo.setResource(Resources.NAHRUNG, food - rottenFood);
+					
+					user.setCargo(usercargo.save());
+					
+					//Delete all pms older than 14 days from inbox
+					Ordner trashCan = Ordner.getTrash(user);
+					if(trashCan != null)
 					{
-						log("Spieler kann nicht alle Rechnungen zahlen, loesche Handelsinserate.");
-						BigInteger adCountBI = BigInteger.valueOf(adCount);
-						BigInteger adCostBI = BigInteger.valueOf(adCost);
-						int wasteAdCount = adCountBI.subtract(account.divide(adCostBI)).intValue();
-											
-						List<Handel> wasteAds = Common.cast(db.createQuery("from Handel where who=:who order by time asc")
-															  .setParameter("who", user)
-															  .setMaxResults(wasteAdCount)
-															  .list());
-						
-						log(wasteAdCount + " ads zu loeschen.");
-						
-						costs = BigInteger.valueOf((adCount - wasteAdCount)*adCost);
-						
-						for(Handel wasteAd: wasteAds)
-						{
-							db.delete(wasteAd);
-						}
-						
-						PM.send(user, user.getId(), "Handelsinserate gel&ouml;scht", wasteAdCount + " Ihrer Handelsinserate wurden gel&ouml;scht, weil Sie die Kosten nicht aufbringen konnten.");
+						int trash = trashCan.getId();
+						db.createQuery("update PM set gelesen=2, ordner= :trash where empfaenger= :user and ordner= :ordner and time < :time")
+						  .setInteger("trash", trash)
+						  .setEntity("user", user)
+						  .setInteger("ordner", 0)
+						  .setLong("time", deleteThreshould)
+						  .executeUpdate();
+					}
+					else
+					{
+						log("User hat keinen Muelleimer.");
 					}
 					
-					log("Geld f&uuml;r Handelsinserate " + costs);
-					User nobody = (User)db.get(User.class, -1);
-					nobody.transferMoneyFrom(user.getId(), costs, "Kosten f&uuml;r Handelsinserate - User: " + user.getName() + " (" + user.getId() + ")", false, User.TRANSFER_AUTO);
+					//Subtract costs for trade ads
+					long adCount = (Long)db.createQuery("select count(*) from Handel where who=:who")
+									 	   .setParameter("who", user)
+									 	   .uniqueResult();
+					
+					ConfigValue adCostValue = (ConfigValue)db.get(ConfigValue.class, "adcost");
+					int adCost = Integer.parseInt(adCostValue.getValue());
+					
+					BigInteger account = user.getKonto();
+					
+					log("Ads: " + adCount);
+					log("Costs: " + adCost);
+					
+					if(adCount > 0)
+					{
+						//Not enough money in account
+						BigInteger costs = BigInteger.valueOf(adCost*adCount);
+						if(account.compareTo(costs) < 0)
+						{
+							log("Spieler kann nicht alle Rechnungen zahlen, loesche Handelsinserate.");
+							BigInteger adCountBI = BigInteger.valueOf(adCount);
+							BigInteger adCostBI = BigInteger.valueOf(adCost);
+							int wasteAdCount = adCountBI.subtract(account.divide(adCostBI)).intValue();
+												
+							List<Handel> wasteAds = Common.cast(db.createQuery("from Handel where who=:who order by time asc")
+																  .setParameter("who", user)
+																  .setMaxResults(wasteAdCount)
+																  .list());
+							
+							log(wasteAdCount + " ads zu loeschen.");
+							
+							costs = BigInteger.valueOf((adCount - wasteAdCount)*adCost);
+							
+							for(Handel wasteAd: wasteAds)
+							{
+								db.delete(wasteAd);
+							}
+							
+							PM.send(user, user.getId(), "Handelsinserate gel&ouml;scht", wasteAdCount + " Ihrer Handelsinserate wurden gel&ouml;scht, weil Sie die Kosten nicht aufbringen konnten.");
+						}
+						
+						log("Geld f&uuml;r Handelsinserate " + costs);
+						User nobody = (User)db.get(User.class, -1);
+						nobody.transferMoneyFrom(user.getId(), costs, "Kosten f&uuml;r Handelsinserate - User: " + user.getName() + " (" + user.getId() + ")", false, User.TRANSFER_AUTO);
+					}
 				}
 				
 				getContext().commit();
