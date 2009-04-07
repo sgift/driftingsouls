@@ -101,4 +101,15 @@ public class Nebel implements Locatable {
 	public Location getLocation() {
 		return loc.getLocation();
 	}
+
+	/**
+	 * Gibt das Bild des Nebels zurueck (als Pfad).
+	 * Der Pfad ist relativ zum data-Verzeichnis.
+	 * 
+	 * @return Das Bild des Nebels als Pfad.
+	 */
+	public String getImage()
+	{
+		return "fog"+type+"/fog"+type;
+	}
 }

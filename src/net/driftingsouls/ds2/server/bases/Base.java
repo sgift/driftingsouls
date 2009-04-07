@@ -908,4 +908,51 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 					    .setParameter("base", this)
 					    .uniqueResult()) != 0;
 	}
+	
+	/**
+	 * Gibt das Bild der Basis zurueck.
+	 * Dabei werden Ausdehnung und Besitzer beruecksichtigt.
+	 * 
+	 * @param location Koordinate fuer die das Bild der Basis ermittelt werden soll.
+	 * @param user Aktueller Spieler.
+	 * @return Der Bildstring der Basis oder <code>null</code>, wenn das Bild sich nicht schneidet.
+	 */
+	public String getImage(Location location, User user)
+	{
+		if(!location.sameSector(1, getLocation(), size))
+		{
+			return null;
+		}
+		
+		if(size > 0)
+		{
+			int imageCount = 0;
+			for(int y = this.y - size; y < this.y + size; y++)
+			{
+				for(int x = this.x - size; x < this.x + size; x++)
+				{
+					if(location.getX() == x && location.getY() == y)
+					{
+						return "kolonie"+getKlasse()+"_lrs/kolonie"+getKlasse()+"_lrs"+imageCount;
+					}
+				}
+			}
+		}
+		else if(getOwner().getId() == user.getId())
+		{
+			return "asti_own/asti_own";
+		}
+		else if((getOwner().getId() != 0) && (user.getAlly() != null) && (getOwner().getAlly() == user.getAlly()))
+		{
+			return "asti_ally/asti_ally";
+		}
+		else
+		{
+			return "kolonie"+getKlasse()+"_lrs";
+		}
+		
+		//This should never happen
+		assert false;
+		return "";
+	}
 }
