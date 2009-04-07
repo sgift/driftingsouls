@@ -31,7 +31,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  *
  */
 public abstract class TemplateGenerator extends DSGenerator {
-	private TemplateEngine templateEngine;
+	protected TemplateEngine templateEngine;
 	private String masterTemplateID;
 	
 	/**

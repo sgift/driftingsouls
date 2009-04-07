@@ -38,7 +38,7 @@ import org.hibernate.annotations.Immutable;
 @Entity
 @Table(name="nebel")
 @Immutable
-@Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
+@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Nebel implements Locatable {
 	@Id
 	private MutableLocation loc;

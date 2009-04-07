@@ -164,7 +164,7 @@ public class MapController extends TemplateGenerator
 		int width = displayedSystem.getWidth();
 		int height = displayedSystem.getHeight();
 		
-		String dataPath = config.get("URL") + "data/starmap/";
+		String dataPath = templateEngine.getVar("global.datadir") + "data/starmap/";
 		Ally userAlly = user.getAlly();
 		
 		List<Ship> ships = Common.cast(db.createQuery("from Ship where system=:system")
@@ -191,7 +191,7 @@ public class MapController extends TemplateGenerator
 		StringBuilder map = new StringBuilder();
 		
 		//X markings
-		map.append("<table>");
+		map.append("<table id=\"starmap\">");
 		map.append("<tr>");
 		map.append("<td>x/y</td>");
 		for(int x = 1; x < width; x++)
@@ -310,7 +310,32 @@ public class MapController extends TemplateGenerator
 				shipMap.put(position, new ArrayList<Base>());
 			}
 			
-			shipMap.get(position).add(base);
+			int size = base.getSize();
+			if(size > 0)
+			{
+				for(int y = base.getY() - size; y <= base.getY() + size; y++)
+				{
+					for(int x = base.getX() - size; x <= base.getX() + size; x++)
+					{
+						Location loc = new Location(system, x, y);
+						
+						if( !position.sameSector( 0, loc, base.getSize() ) ) {
+							continue;	
+						}
+						
+						if(!shipMap.containsKey(loc))
+						{
+							shipMap.put(loc, new ArrayList<Base>());
+						}
+						
+						shipMap.get(loc).add(0, base); //Big objects are always printed first
+					}
+				}
+			}
+			else
+			{
+				shipMap.get(position).add(base);
+			}
 		}
 		
 		return shipMap;
