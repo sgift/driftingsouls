@@ -111,7 +111,7 @@ public class EditCore implements AdminPlugin
 			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-			echo.append("<input type=\"hidden\" name=\"building\" value=\"" + coreId + "\" />\n");
+			echo.append("<input type=\"hidden\" name=\"core\" value=\"" + coreId + "\" />\n");
 			echo.append("<tr><td class=\"noBorderS\">Name: </td><td><input type=\"text\" name=\"name\" value=\"" + core.getName() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Astitype: </td><td><input type=\"text\" name=\"asti\" value=\"" + core.getAstiType() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Arbeiter: </td><td><input type=\"text\" name=\"worker\" value=\"" + core.getArbeiter() + "\"></td></tr>\n");
