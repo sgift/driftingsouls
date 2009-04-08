@@ -952,7 +952,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		{
 			return "asti_own/asti_own";
 		}
-		else if((getOwner().getId() != 0) && (user.getAlly() != null) && (getOwner().getAlly() == user.getAlly()))
+		else if((getOwner().getId() != 0) && (user.getAlly() != null) && (getOwner().getAlly() == user.getAlly()))// || (owner.getRelation(user.getId()) == Relation.FRIEND && user.getRelation(owner.getId()) == Relation.FRIEND))
 		{
 			return "asti_ally/asti_ally";
 		}

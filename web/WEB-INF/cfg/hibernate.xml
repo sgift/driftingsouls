@@ -7,18 +7,21 @@
 		<property name="connection.driver_class">com.mysql.jdbc.Driver</property>
 	
 		<property name="hibernate.connection.isolation">2</property>
+		<property name="hibernate.jdbc.batch_versioned_data">true</property>
+		
+		<!-- configure transaction manager -->
+		<property name="transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>		
 
 		<!-- C3P0 connection pool -->
 		<property name="hibernate.connection.provider_class">org.hibernate.connection.C3P0ConnectionProvider</property>
-		<property name="hibernate.c3p0.min_size">0</property>
+		<property name="hibernate.c3p0.min_size">5</property>
 		<property name="hibernate.c3p0.acquire_increment">1</property>
-		<property name="hibernate.c3p0.max_size">10</property>
-		<property name="hibernate.c3p0.timeout">120</property>
-		<property name="hibernate.c3p0.max_statements">10</property>
-		<property name="hibernate.c3p0.max_statements_per_connection">5</property>
-		<property name="hibernate.c3p0.max_idle_time">120</property>
+		<property name="hibernate.c3p0.max_size">50</property>
+		<property name="hibernate.c3p0.timeout">5000</property>
+		<property name="hibernate.c3p0.max_statements">500</property>
+		<property name="hibernate.c3p0.max_statements_per_connection">10</property>
+		<property name="hibernate.c3p0.idle_test_period">3000</property>
 		<property name="hibernate.c3p0.preferred_test_query">SELECT ticks FROM config LIMIT 1</property>
-		<property name="hibernate.c3p0.idle_connection_test_period">30</property>
 
         <!-- SQL dialect -->
         <property name="dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
@@ -34,9 +37,14 @@
 		
 		<!-- Enable batching -->
 		<property name="hibernate.jdbc.batch_size">50</property>
+		<property name="hibernate.jdbc.fetch_size">50</property>
+		<property name="hibernate.default_batch_fetch_size">50</property>
 		
 		<!-- Minimal puts -->
 		<property name="hibernate.cache.use_minimal_puts">true</property>
+		
+		<!-- faster bytecode -->
+		<property name="hibernate.bytecode.use_reflection_optimizer">true</property>
 	
         <!-- Echo all executed SQL to stdout -->
         <property name="show_sql">true</property>

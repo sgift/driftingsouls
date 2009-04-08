@@ -493,8 +493,10 @@ public class User extends BasicUser {
 	 * @param userid Die ID des anderen Spielers
 	 * @return Der Status der Beziehungen zu dem anderen Spieler
 	 */
-	public Relation getRelation( int userid ) {
-		if( userid == this.getId() ) {
+	public Relation getRelation(int userid) 
+	{
+		if( userid == this.getId() ) 
+		{
 			return Relation.FRIEND;
 		}
 		

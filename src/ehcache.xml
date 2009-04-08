@@ -2,14 +2,50 @@
     <diskStore path="java.io.tmpdir"/>
 
     <defaultCache
-        maxElementsInMemory="10000"
-        eternal="false"
-        timeToIdleSeconds="120"
-        timeToLiveSeconds="120"
-        overflowToDisk="true"
-        diskPersistent="false"
-        diskExpiryThreadIntervalSeconds="120"
-        memoryStoreEvictionPolicy="LRU"
+            maxElementsInMemory="10000"
+            eternal="false"
+            timeToIdleSeconds="120"
+            timeToLiveSeconds="120"
+            overflowToDisk="true"
+            diskPersistent="false"
+            diskExpiryThreadIntervalSeconds="120"
+            memoryStoreEvictionPolicy="LRU"
+    />
+    
+    <cache name="net.driftingsouls.ds2.server.framework.BasicUser"
+    		maxElementsInMemory="500"
+    		eternal="true"
+    		overflowToDisk="true"
+    />
+    
+    <cache name="net.driftingsouls.ds2.server.battles.BattleShip"
+    		maxElementsInMemory="20000"
+    		eternal="false"
+    		overflowToDisk="true"
+    />
+    
+    <cache name="net.driftingsouls.ds2.server.bases.Base"
+    		maxElementsInMemory="500"
+    		eternal="false"
+    		overflowToDisk="false"
+    />
+    
+    <cache name="net.driftingsouls.ds2.server.entities.Forschung"
+    		maxElementsInMemory="100"
+    		eternal="true"
+    		overflowToDisk="false"
+    />
+    
+    <cache name="net.driftingsouls.ds2.server.comm.PM"
+    		maxElementsInMemory="500"
+    		eternal="false"
+    		overflowToDisk="false"
+    />
+    
+    <cache name="net.driftingsouls.ds2.server.comm.Ordner"
+    		maxElementsInMemory="5000"
+    		eternal="false"
+    		overflowToDisk="true"
     />
 	
 	<cache  name="net.driftingsouls.ds2.server.entities.Ammo"
@@ -19,6 +55,7 @@
 			timeToLiveSeconds="10"
 			overflowToDisk="false"
 	/>
+	
 	<cache  name="net.driftingsouls.ds2.server.bases.Building"
 			maxElementsInMemory="30"
 			eternal="true"
@@ -26,6 +63,7 @@
 			timeToLiveSeconds="600"
 			overflowToDisk="false"
   	/>
+  	
 	<cache  name="net.driftingsouls.ds2.server.bases.Core"
 			maxElementsInMemory="20"
 			eternal="true"
@@ -33,6 +71,7 @@
 			timeToLiveSeconds="600"
 			overflowToDisk="false"
 	/>
+	
 	<cache  name="net.driftingsouls.ds2.server.entities.Nebel"
 			maxElementsInMemory="200"
 			eternal="false"
@@ -40,6 +79,7 @@
 			timeToLiveSeconds="600"
 			overflowToDisk="false"
 	/>
+	
 	<cache  name="net.driftingsouls.ds2.server.ships.ShipType"
 			maxElementsInMemory="300"
 			eternal="true"
