@@ -214,3 +214,24 @@ tooltip1		{color: #FFFFFF; background-color: #cccccc}
 	Inbox Ordner Hover
 */
 td.inboxOrdnerHover	{background-color:#36413A; background-image:none }
+
+
+/* Starmap */
+
+table#starmap
+{
+	border-width: 0px;
+	padding: 0px;
+	margin: 0px;
+	border-spacing: 0px;
+	border-style: none;
+}
+
+table#starmap > tr > td
+{
+	border-width: 0px;
+	padding: 0px;
+	margin: 0px;
+	border-spacing: 0px;
+	border-style: none;
+}
