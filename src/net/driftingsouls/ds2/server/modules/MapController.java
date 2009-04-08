@@ -16,7 +16,6 @@ import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -24,17 +23,22 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-
-@Configurable
+/**
+ * Zeigt die Sternenkarte eines Systems an.
+ * 
+ * @author Sebastian Gift
+ */
 public class MapController extends TemplateGenerator 
 {
 	
 	private boolean showSystem;
 	private int system;
-	private Configuration config;
 
+	/**
+	 * Legt den MapController an.
+	 * 
+	 * @param context Der Kontext.
+	 */
 	public MapController(Context context)
 	{
 		super(context);
@@ -46,16 +50,6 @@ public class MapController extends TemplateGenerator
 		
 		setPageTitle("Sternenkarte");
 	}
-	
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config) 
-    {
-    	this.config = config;
-    }
 
 	@Override
 	protected boolean validateAndPrepare(String action) {
@@ -167,7 +161,7 @@ public class MapController extends TemplateGenerator
 		String dataPath = templateEngine.getVar("global.datadir") + "data/starmap/";
 		Ally userAlly = user.getAlly();
 		
-		List<Ship> ships = Common.cast(db.createQuery("from Ship where system=:system")
+		List<Ship> ships = Common.cast(db.createQuery("from Ship s inner join fetch s.owner inner join fetch s.owner.ally where system=:system")
 							 			 .setParameter("system", system)
 							 			 .list());
 		
@@ -179,7 +173,7 @@ public class MapController extends TemplateGenerator
 											 .setParameter("system", system)
 											 .list());
 		
-		List<Base> bases = Common.cast(db.createQuery("from Base where system=:system")
+		List<Base> bases = Common.cast(db.createQuery("from Base b inner join fetch b.owner where system=:system")
 										 .setParameter("system", system)
 										 .list());
 		
@@ -260,8 +254,9 @@ public class MapController extends TemplateGenerator
 						}
 						else 
 						{
-							Ally shipAlly = ship.getOwner().getAlly();
-							if(shipAlly != null && shipAlly.equals(userAlly))
+							User shipOwner = ship.getOwner();
+							Ally shipAlly = shipOwner.getAlly();
+							if(shipAlly != null && shipAlly.equals(userAlly))// || (shipOwner.getRelation(user.getId()) == Relation.FRIEND && user.getRelation(shipOwner.getId()) == Relation.FRIEND))
 							{
 								alliedShips++;
 							}
@@ -284,7 +279,10 @@ public class MapController extends TemplateGenerator
 							map.append("_fa");
 						}
 						
-						map.append("_fe");
+						if(enemyShips > 0)
+						{
+							map.append("_fe");
+						}
 					}
 				}
 				

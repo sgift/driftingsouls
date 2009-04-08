@@ -232,6 +232,6 @@ table#starmap > tr > td
 	border-width: 0px;
 	padding: 0px;
 	margin: 0px;
-	border-spacing: 0px;
+	border-spacing: -1px;
 	border-style: none;
 }

@@ -14,6 +14,13 @@ a.portallink
 	font-weight: bold;
 }
 
+a#registerlink
+{
+	color: #a4a8b7;
+	text-decoration: none;
+	font-weight: bold;
+}
+
 h1
 {
 	font-size: 17px;

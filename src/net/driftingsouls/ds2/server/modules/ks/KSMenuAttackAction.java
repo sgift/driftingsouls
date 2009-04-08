@@ -74,9 +74,12 @@ public class KSMenuAttackAction extends BasicKSMenuAction {
 		if( (enemyShip.getAction() & Battle.BS_DESTROYED) != 0 ) {
 			return RESULT_ERROR;
 		}
+		
+		/*
 		if( (ownShip.getDocked().length() > 0) && ownShip.getDocked().charAt(0) == 'l' ) {
 			return RESULT_ERROR;
 		}
+		*/
 		
 		if( (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ) {
 			return RESULT_ERROR;

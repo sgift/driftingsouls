@@ -19,18 +19,9 @@
 package net.driftingsouls.ds2.server;
 
 import java.io.Serializable;
-import java.util.List;
 
-import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.entities.JumpNode;
-import net.driftingsouls.ds2.server.entities.Nebel;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.Ships;
-
-import org.hibernate.Session;
 
 /**
  * Eine Positionsklasse.
@@ -261,104 +252,4 @@ public final class Location implements Serializable, Locatable {
 	public Location getLocation() {
 		return this;
 	}
-	
-	/**
-	 * @return <code>true</code>, wenn der Sektor einen Nebel enthaelt.
-	 */
-	public boolean isNebula()
-	{
-		return Ships.getNebula(this) != -1;
-	}
-	
-	public Nebel getNebula()
-	{
-		int type = Ships.getNebula(this);
-		
-		if(type == -1)
-		{
-			return null;
-		}
-		
-		Session db = ContextMap.getContext().getDB();
-		Nebel nebula = (Nebel)db.createQuery("from Nebel where loc.system=:system and loc.x=:x and loc.y=:y")
-								.setParameter("system", system)
-								.setParameter("x", x)
-								.setParameter("y", y)
-								.setMaxResults(1)
-								.uniqueResult();
-		
-		return nebula;
-	}
-	
-	public boolean hasBase()
-	{
-		return !getBases().isEmpty();
-	}
-	
-	public List<Base> getBases()
-	{
-		Session db = ContextMap.getContext().getDB();
-		List<Base> bases = Common.cast(db.createQuery("from Base where system=:system and (x-size <= :x) and (:x <= x+size) and (y-size <= :y) and (:y <= y+size) order by size desc")
-							 			 .setParameter("system", system)
-							 			 .setParameter("x", x)
-							 			 .setParameter("y", y)
-							 			 .list());
-		
-		return bases;
-	}
-
-	public boolean hasJumpnode()
-	{
-		Session db = ContextMap.getContext().getDB();
-		JumpNode node = (JumpNode)db.createQuery("from JumpNode where (system=:system or systemOut=:system) and  (x=:x or xOut=:x) and (y=:y or yOut=:y)")
-									.setParameter("system", system)
-									.setParameter("x", x)
-									.setParameter("y", y)
-									.setMaxResults(1)
-									.uniqueResult();
-	
-		return node != null;
-	}
-	
-	public List<Ship> getShips()
-	{
-		Session db = ContextMap.getContext().getDB();
-		return Common.cast(db.createQuery("from Ship where system=:system and x=:x and y=:y")
-							 .setParameter("system", system)
-							 .setParameter("x", x)
-							 .setParameter("y", y)
-							 .list());
-	}
-	
-	
-	
-	/*
-	public String getSectorImage()
-	{
-		Session db = ContextMap.getContext().getDB();
-		
-		String sectorImage = "space/space.png";
-		int nebulaType = Ships.getNebula(this);
-		if(nebulaType != -1)
-		{
-			sectorImage = "fog"+nebulaType+"/fog"+nebulaType+".png";
-		}
-		else
-		{
-			Base base = (Base)db.createQuery("from Base b inner join fetch b.owner where b.system=:system and (floor(sqrt(pow(b.x - :x,2)+pow(b.y - :y,2))) <= :range+b.size) order by b.size")
-								 				.setParameter("system", system)
-								 				.setParameter("x", x)
-								 				.setParameter("y", y)
-								 				.setMaxResults(1)
-								 				.uniqueResult();
-			
-			if(base != null)
-			{
-				
-			}
-		}
-		
-		return sectorImage;
-	}
-	*/
 }
