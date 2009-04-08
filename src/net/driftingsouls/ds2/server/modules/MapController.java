@@ -1,47 +1,68 @@
+/*
+ *	Drifting Souls 2
+ *	Copyright (c) 2006 Christopher Jung
+ *
+ *	This library is free software; you can redistribute it and/or
+ *	modify it under the terms of the GNU Lesser General Public
+ *	License as published by the Free Software Foundation; either
+ *	version 2.1 of the License, or (at your option) any later version.
+ *
+ *	This library is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *	Lesser General Public License for more details.
+ *
+ *	You should have received a copy of the GNU Lesser General Public
+ *	License along with this library; if not, write to the Free Software
+ *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
-import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.JumpNode;
-import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.User.Relation;
-import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.ships.Ship;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Zeigt die Sternenkarte eines Systems an.
- * 
- * @author Sebastian Gift
+ * Zeigt die Sternenkarte an.
+ * @author Christopher Jung
+ *
+ * @urlparam Integer sys Die ID des anzuzeigenden Systems
+ * @urlparam Integer loadmap Falls != 0 wird die Sternenkarte geladen
  */
-public class MapController extends TemplateGenerator 
-{
+@Configurable
+public class MapController extends TemplateGenerator {
+	private static final Log log = LogFactory.getLog(MapController.class);
 	
-	private boolean showSystem;
-	private int system;
-
+	private int system = 1;
+	private boolean showSystem = true;
+	
+	private Configuration config;
+	
 	/**
-	 * Legt den MapController an.
-	 * 
-	 * @param context Der Kontext.
+	 * Konstruktor.
+	 * @param context Der zu verwendende Kontext
 	 */
-	public MapController(Context context)
-	{
+	public MapController(Context context) {
 		super(context);
 		
 		parameterNumber("sys");
@@ -51,7 +72,17 @@ public class MapController extends TemplateGenerator
 		
 		setPageTitle("Sternenkarte");
 	}
-
+	
+    /**
+     * Injiziert die DS-Konfiguration.
+     * @param config Die DS-Konfiguration
+     */
+    @Autowired
+    public void setConfiguration(Configuration config) 
+    {
+    	this.config = config;
+    }
+	
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		User user = (User)getUser();
@@ -89,11 +120,12 @@ public class MapController extends TemplateGenerator
 		this.system = sys;
 		
 		t.setVar(	"map.showsystem",	showSystem,
-					"map.system",		sys );
+					"map.system",		sys,
+					"global.datapath",	config.get("URL") );
 		
 		return true;
 	}
-	
+
 	/**
 	 * Zeigt die Sternenkarte an.
 	 */
@@ -155,245 +187,55 @@ public class MapController extends TemplateGenerator
 			t.parse("jumpnodes.list", "jumpnodes.listitem", true);
 		}
 		
-		StarSystem displayedSystem = Systems.get().system(this.system);
-		int width = displayedSystem.getWidth();
-		int height = displayedSystem.getHeight();
-		
-		String dataPath = templateEngine.getVar("global.datadir") + "data/starmap/";
-		Ally userAlly = user.getAlly();
-		
-		List<Ship> ships = Common.cast(db.createQuery("from Ship where system=:system")
-							 			 .setParameter("system", system)
-							 			 .list());
-		
-		List<Nebel> nebulas = Common.cast(db.createQuery("from Nebel where system=:system")
-											.setParameter("system", system)
-											.list());
-		
-		List<JumpNode> nodes = Common.cast(db.createQuery("from JumpNode where system=:system or systemOut=:system")
-											 .setParameter("system", system)
-											 .list());
-		
-		List<Base> bases = Common.cast(db.createQuery("from Base where system=:system")
-										 .setParameter("system", system)
-										 .list());
-		
-		Map<Location, List<Ship>> shipMap = getShipMap(ships);
-		Map<Location, Nebel> nebulaMap = getNebulaMap(nebulas);
-		Map<Location, List<JumpNode>> nodeMap = getNodeMap(nodes);
-		Map<Location, List<Base>> baseMap = getBaseMap(bases);
-		
-		StringBuilder map = new StringBuilder();
-		
-		//X markings
-		map.append("<table id=\"starmap\">");
-		map.append("<tr>");
-		map.append("<td>x/y</td>");
-		for(int x = 1; x < width; x++)
-		{
-			map.append("<td>");
-			map.append(x);
-			map.append("</td>");
-		}
-		map.append("</tr>");
-		
-		for(int y = 0; y < height; y++)
-		{
-			map.append("<tr>");
-			map.append("<td>");
-			map.append(y + 1);
-			map.append("</td>");
-			for(int x = 0; x < width; x++)
-			{
-				map.append("<td>");
-				Location position = new Location(this.system, x, y);
-				
-				map.append("<img src=\"" + dataPath);
-				
-				//Basic image
-				Nebel nebula = nebulaMap.get(position);
-				if(nebula != null)
-				{
-					
-					map.append(dataPath + nebula.getImage());
-				}
-				else
-				{
-					List<Base> positionBases = baseMap.get(position);
-					if(positionBases != null && !positionBases.isEmpty())
-					{
-						Base base = positionBases.get(0);
-						map.append(base.getImage(position, user));
-					}
-					else 
-					{
-						List<JumpNode> positionNodes = nodeMap.get(position);
-						if(positionNodes != null && !positionNodes.isEmpty())
-						{
-							map.append("jumpnode/jumpnode");
-						}
-						else
-						{
-							map.append("space/space");
-						}
-					}
-				}
-				
-				//Fleet attachment
-				List<Ship> sectorShips = shipMap.get(position);
-				int ownShips = 0;
-				int alliedShips = 0;
-				int enemyShips = 0;
-				
-				if(sectorShips != null && !sectorShips.isEmpty())
-				{
-					for(Ship ship: sectorShips)
-					{
-						if(ship.getOwner().equals(user))
-						{
-							ownShips++;
-						}
-						else 
-						{
-							User shipOwner = ship.getOwner();
-							Ally shipAlly = shipOwner.getAlly();
-							if(shipAlly != null && shipAlly.equals(userAlly) || (shipOwner.getRelation(user.getId()) == Relation.FRIEND && user.getRelation(shipOwner.getId()) == Relation.FRIEND))
-							{
-								alliedShips++;
-							}
-							else
-							{
-								enemyShips++;
-							}
-						}
-					}
-					
-					if(ownShips > 0 || alliedShips > 0)
-					{
-						if(ownShips > 0)
-						{
-							map.append("_fo");
-						}
-						
-						if(alliedShips > 0)
-						{
-							map.append("_fa");
-						}
-						
-						if(enemyShips > 0)
-						{
-							map.append("_fe");
-						}
-					}
-				}
-				
-				map.append(".png\"/>");
-				map.append("</td>");
-			}
-			map.append("</tr>");
-		}
-		map.append("</table>");
-		
-		t.setVar("map.fields", map);
-	}
+		String index = "";
+		String findex = "";
 
-	private Map<Location, List<Base>> getBaseMap(List<Base> bases)
-	{
-		Map<Location, List<Base>> shipMap = new HashMap<Location, List<Base>>();
-		
-		for(Base base: bases)
+		File starmapIndex = new File(config.get("ABSOLUTE_PATH")+"java/jstarmap.index");
+		if( starmapIndex.exists() )
 		{
-			Location position = base.getLocation();
-			if(!shipMap.containsKey(position))
+			try
 			{
-				shipMap.put(position, new ArrayList<Base>());
-			}
-			
-			int size = base.getSize();
-			if(size > 0)
-			{
-				for(int y = base.getY() - size; y <= base.getY() + size; y++)
+				BufferedReader b = new BufferedReader(new FileReader(starmapIndex));
+				try
 				{
-					for(int x = base.getX() - size; x <= base.getX() + size; x++)
-					{
-						Location loc = new Location(system, x, y);
-						
-						if( !position.sameSector( 0, loc, base.getSize() ) ) {
-							continue;	
-						}
-						
-						if(!shipMap.containsKey(loc))
-						{
-							shipMap.put(loc, new ArrayList<Base>());
-						}
-						
-						shipMap.get(loc).add(0, base); //Big objects are always printed first
-					}
+					index = b.readLine();
+				}
+				finally
+				{
+					b.close();
 				}
 			}
-			else
+			catch( IOException e )
 			{
-				shipMap.get(position).add(base);
+				log.warn(e, e);
 			}
 		}
 		
-		return shipMap;
-	}
-
-	private Map<Location, List<JumpNode>> getNodeMap(List<JumpNode> nodes)
-	{
-		Map<Location, List<JumpNode>> nodeMap = new HashMap<Location, List<JumpNode>>();
-		
-		for(JumpNode node: nodes)
+		File frameworkIndex = new File(config.get("ABSOLUTE_PATH")+"java/jframework.index");
+		if( frameworkIndex.exists() )
 		{
-			Location position;
-			if(node.getSystem() == system)
+			try
 			{
-				position = new Location(node.getSystem(), node.getX(), node.getY());
+				BufferedReader b = new BufferedReader(new FileReader(frameworkIndex));
+				try
+				{
+					findex = b.readLine();
+				}
+				finally
+				{
+					b.close();
+				}
 			}
-			else
+			catch( IOException e )
 			{
-				position = new Location(node.getSystemOut(), node.getXOut(), node.getYOut());
+				log.warn(e, e);
 			}
-			
-			if(!nodeMap.containsKey(position))
-			{
-				nodeMap.put(position, new ArrayList<JumpNode>());
-			}
-			
-			nodeMap.get(position).add(node);
 		}
 		
-		return nodeMap;
-	}
-
-	private Map<Location, Nebel> getNebulaMap(List<Nebel> nebulas)
-	{
-		Map<Location, Nebel> nebulaMap = new HashMap<Location, Nebel>();
-		
-		for(Nebel nebula: nebulas)
-		{
-			nebulaMap.put(nebula.getLocation(), nebula);
-		}
-		
-		return nebulaMap;
-	}
-
-	private Map<Location, List<Ship>> getShipMap(List<Ship> ships)
-	{
-		Map<Location, List<Ship>> shipMap = new HashMap<Location, List<Ship>>();
-		
-		for(Ship ship: ships)
-		{
-			Location position = ship.getLocation();
-			if(!shipMap.containsKey(position))
-			{
-				shipMap.put(position, new ArrayList<Ship>());
-			}
-			
-			shipMap.get(position).add(ship);
-		}
-		
-		return shipMap;
+		t.setVar(	"map.applet.index",		index,
+					"map.framework.index",	findex,
+					"map.applet.codebase",	config.get("URL")+"java/",
+					"map.applet.width",		user.getUserValue("TBLORDER/map/width"),
+					"map.applet.height",	user.getUserValue("TBLORDER/map/height") );
 	}
 }
