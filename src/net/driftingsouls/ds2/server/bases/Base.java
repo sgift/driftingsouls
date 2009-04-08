@@ -958,7 +958,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		}
 		else
 		{
-			return "kolonie"+getKlasse()+"_lrs";
+			return "kolonie"+getKlasse()+"_lrs/kolonie"+getKlasse()+"_lrs";
 		}
 		
 		assert false;

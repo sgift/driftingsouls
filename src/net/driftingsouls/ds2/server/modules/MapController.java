@@ -15,8 +15,8 @@ import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.User.Relation;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -24,16 +24,11 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-
-@Configurable
 public class MapController extends TemplateGenerator 
 {
 	
 	private boolean showSystem;
 	private int system;
-	private Configuration config;
 
 	public MapController(Context context)
 	{
@@ -46,16 +41,6 @@ public class MapController extends TemplateGenerator
 		
 		setPageTitle("Sternenkarte");
 	}
-	
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config) 
-    {
-    	this.config = config;
-    }
 
 	@Override
 	protected boolean validateAndPrepare(String action) {
@@ -260,8 +245,9 @@ public class MapController extends TemplateGenerator
 						}
 						else 
 						{
-							Ally shipAlly = ship.getOwner().getAlly();
-							if(shipAlly != null && shipAlly.equals(userAlly))
+							User shipOwner = ship.getOwner();
+							Ally shipAlly = shipOwner.getAlly();
+							if(shipAlly != null && shipAlly.equals(userAlly) || (shipOwner.getRelation(user.getId()) == Relation.FRIEND && user.getRelation(shipOwner.getId()) == Relation.FRIEND))
 							{
 								alliedShips++;
 							}
@@ -284,7 +270,10 @@ public class MapController extends TemplateGenerator
 							map.append("_fa");
 						}
 						
-						map.append("_fe");
+						if(enemyShips > 0)
+						{
+							map.append("_fe");
+						}
 					}
 				}
 				
