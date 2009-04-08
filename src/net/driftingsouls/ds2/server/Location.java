@@ -19,18 +19,9 @@
 package net.driftingsouls.ds2.server;
 
 import java.io.Serializable;
-import java.util.List;
 
-import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.entities.JumpNode;
-import net.driftingsouls.ds2.server.entities.Nebel;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.Ships;
-
-import org.hibernate.Session;
 
 /**
  * Eine Positionsklasse.

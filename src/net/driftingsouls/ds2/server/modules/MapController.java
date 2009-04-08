@@ -24,12 +24,22 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 
+/**
+ * Zeigt die Sternenkarte eines Systems an.
+ * 
+ * @author Sebastian Gift
+ */
 public class MapController extends TemplateGenerator 
 {
 	
 	private boolean showSystem;
 	private int system;
 
+	/**
+	 * Legt den MapController an.
+	 * 
+	 * @param context Der Kontext.
+	 */
 	public MapController(Context context)
 	{
 		super(context);
