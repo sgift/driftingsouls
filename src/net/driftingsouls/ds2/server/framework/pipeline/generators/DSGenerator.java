@@ -231,9 +231,11 @@ public abstract class DSGenerator extends Generator {
 
 			sb.append("// -->\n");
 			sb.append("</script>\n");
+			/*
 			sb.append("<script src=\""+url+"data/javascript/jquery.js\" type=\"text/javascript\"></script>\n");
 			sb.append("<script src=\""+url+"data/javascript/jquery.ui.js\" type=\"text/javascript\"></script>\n");
 			sb.append("<script src=\""+url+"data/javascript/jquery.blockUI.js\" type=\"text/javascript\"></script>\n");
+			*/
 			sb.append("<div id=\"error-placeholder\" />\n");
 		}
 		
