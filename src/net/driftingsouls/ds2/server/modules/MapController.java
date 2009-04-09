@@ -186,15 +186,8 @@ public class MapController extends TemplateGenerator
 		
 		//X markings
 		map.append("<table id=\"starmap\">");
-		map.append("<tr>");
-		map.append("<td>x/y</td>");
-		for(int x = 1; x < width; x++)
-		{
-			map.append("<td>");
-			map.append(x);
-			map.append("</td>");
-		}
-		map.append("</tr>");
+		
+		printXLegend(map, width);
 		
 		for(int y = 0; y < height; y++)
 		{
@@ -286,14 +279,33 @@ public class MapController extends TemplateGenerator
 					}
 				}
 				
-				map.append(".png\"/>");
+				map.append(".png\" alt=\"" + x + "/" + y + "\"/>");
 				map.append("</td>");
 			}
+			map.append("<td>");
+			map.append(y + 1);
+			map.append("</td>");
 			map.append("</tr>");
 		}
+		
+		printXLegend(map, width);
+		
 		map.append("</table>");
 		
 		t.setVar("map.fields", map);
+	}
+	
+	private void printXLegend(StringBuilder map, int width)
+	{
+		map.append("<tr>");
+		map.append("<td>x/y</td>");
+		for(int x = 1; x <= width; x++)
+		{
+			map.append("<td>");
+			map.append(x);
+			map.append("</td>");
+		}
+		map.append("</tr>");
 	}
 
 	private Map<Location, List<Base>> getBaseMap(List<Base> bases)
