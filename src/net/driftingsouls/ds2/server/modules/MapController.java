@@ -1,5 +1,7 @@
 package net.driftingsouls.ds2.server.modules;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -102,7 +104,7 @@ public class MapController extends TemplateGenerator
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() 
+	public void defaultAction() throws IOException
 	{
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
@@ -225,8 +227,9 @@ public class MapController extends TemplateGenerator
 			yEnd = yStart + maxMapSize - 1;
 		}
 		
-		StringBuilder map = new StringBuilder();
+		//StringBuilder map = new StringBuilder();
 		
+		Writer map = getContext().getResponse().getWriter();
 		map.append("<script type=\"text/javascript\">");
 		map.append("$(document).ready(function()"); 
 		map.append("{");
@@ -240,7 +243,7 @@ public class MapController extends TemplateGenerator
 		{
 			map.append("<tr>");
 			map.append("<td width=\"25\" height=\"25\">");
-			map.append(y);
+			map.append("" + y);
 			map.append("</td>");
 			for(int x = xStart; x <= xEnd; x++)
 			{
@@ -330,7 +333,7 @@ public class MapController extends TemplateGenerator
 				map.append("</td>");
 			}
 			map.append("<td width=\"25\" height=\"25\">");
-			map.append(y);
+			map.append("" + y);
 			map.append("</td>");
 			map.append("</tr>");
 		}
@@ -342,9 +345,23 @@ public class MapController extends TemplateGenerator
 		map.append("$.unblockUI");
 		map.append("</script>");
 		
-		t.setVar("map.fields", map);
+		//t.setVar("map.fields", map);
 	}
 	
+	private void printXLegend(Writer map, int start, int end) throws IOException
+	{
+		map.append("<tr>");
+		map.append("<td width=\"25\" height=\"25\">x/y</td>");
+		for(int x = start; x <= end; x++)
+		{
+			map.append("<td width=\"25\" height=\"25\">");
+			map.append("" + x);
+			map.append("</td>");
+		}
+		map.append("</tr>");
+	}
+	
+	/*
 	private void printXLegend(StringBuilder map, int start, int end)
 	{
 		map.append("<tr>");
@@ -357,6 +374,7 @@ public class MapController extends TemplateGenerator
 		}
 		map.append("</tr>");
 	}
+	*/
 
 	private Map<Location, List<Base>> getBaseMap(List<Base> bases)
 	{
