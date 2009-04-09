@@ -192,15 +192,15 @@ public class MapController extends TemplateGenerator
 		for(int y = 1; y <= height; y++)
 		{
 			map.append("<tr>");
-			map.append("<td>");
+			map.append("<td width=\"25\" height=\"25\">");
 			map.append(y);
 			map.append("</td>");
 			for(int x = 1; x <= width; x++)
 			{
-				map.append("<td>");
+				map.append("<td width=\"25\" height=\"25\">");
 				Location position = new Location(this.system, x, y);
 				
-				map.append("<img src=\"" + dataPath);
+				map.append("<img width=\"25\" height=\"25\" src=\"" + dataPath);
 				
 				//Basic image
 				Nebel nebula = nebulaMap.get(position);
@@ -282,7 +282,7 @@ public class MapController extends TemplateGenerator
 				map.append(".png\" alt=\"" + x + "/" + y + "\"/>");
 				map.append("</td>");
 			}
-			map.append("<td>");
+			map.append("<td width=\"25\" height=\"25\">");
 			map.append(y);
 			map.append("</td>");
 			map.append("</tr>");
@@ -298,10 +298,10 @@ public class MapController extends TemplateGenerator
 	private void printXLegend(StringBuilder map, int width)
 	{
 		map.append("<tr>");
-		map.append("<td>x/y</td>");
+		map.append("<td width=\"25\" height=\"25\">x/y</td>");
 		for(int x = 1; x <= width; x++)
 		{
-			map.append("<td>");
+			map.append("<td width=\"25\" height=\"25\">");
 			map.append(x);
 			map.append("</td>");
 		}

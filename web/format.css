@@ -220,6 +220,7 @@ td.inboxOrdnerHover	{background-color:#36413A; background-image:none }
 
 table#starmap
 {
+	table-layout: fixed;
 	border-width: 0px;
 	padding: 0px;
 	margin: 0px;
@@ -232,6 +233,6 @@ table#starmap > tr > td
 	border-width: 0px;
 	padding: 0px;
 	margin: 0px;
-	border-spacing: -1px;
+	border-spacing: 0px;
 	border-style: none;
 }
