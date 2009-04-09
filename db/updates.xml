@@ -757,4 +757,24 @@
 			'adcost', '10', 'Preis, den ein Handelsinserat pro Tick kostet.', '0'
 			);
 	]]></update>
+		<update type="data" datum="2009-04-06"><![CDATA[
+		INSERT INTO `config` (
+			`name` ,
+			`value` ,
+			`description` ,
+			`version` 
+			)
+			VALUES (
+			'immigrationfactor', '1', 'Wert zwischen 0 und 1, der angibt welcher Anteil des freien Platzes maximal von neuen Einwanderern belegt wird.', '0'
+			);
+				INSERT INTO `config` (
+			`name` ,
+			`value` ,
+			`description` ,
+			`version` 
+			)
+			VALUES (
+			'randomizeimmigration', 'false', 'Zufallswert zwischen 0 und dem Maximum an Einwanderern waehlen.', '0'
+			);	
+	]]></update>
 </updates>

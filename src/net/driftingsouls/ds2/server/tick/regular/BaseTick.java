@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.bases.AutoGTUAction;
@@ -47,6 +48,7 @@ import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
+import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.StaleObjectStateException;
 
 /**
@@ -103,8 +105,20 @@ public class BaseTick extends TickController {
 		if( basedata.getBewohner() > inhabitants ) {
 			basedata.getStatus().addResource( Resources.NAHRUNG, inhabitants );
 			
-			int diff = basedata.getBewohner()-inhabitants;
-			int immigrants = (int)(Math.random()*(diff/2));
+			ConfigValue immigrationFactorValue = (ConfigValue)db.get(ConfigValue.class, "immigrationfactor");
+			ConfigValue randomizeImmigrationValue = (ConfigValue)db.get(ConfigValue.class, "randomizeimmigration");
+			
+			double immigrationFactor = Double.valueOf(immigrationFactorValue.getValue());
+			boolean randomizeImmigration = Boolean.parseBoolean(randomizeImmigrationValue.getValue());
+			
+			int diff = basedata.getBewohner()-inhabitants;			
+			int immigrants = (int)(diff*immigrationFactor);
+			
+			if(randomizeImmigration)
+			{
+				immigrants = RandomUtils.nextInt(immigrants);
+			}
+			
 			inhabitants += immigrants;
 			this.log("\t+ "+immigrants+" Bewohner");
 			

@@ -36,4 +36,8 @@ VALUES (
 	'desertedmeetingpoint', '1:15/15', 'Treffpunkt, bei dem alle desertierten Schiffe landen.', '0'
 ), (
 	'adcost', '10', 'Preis, den ein Handelsinserat pro Tick kostet.', '0'
+), (
+	'immigrationfactor', '1', 'Wert zwischen 0 und 1, der angibt welcher Anteil des freien Platzes maximal von neuen Einwanderern belegt wird.', '0'
+), (
+	'randomizeimmigration', 'false', 'Zufallswert zwischen 0 und dem Maximum an Einwanderern waehlen.', '0'
 );
