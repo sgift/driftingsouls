@@ -189,13 +189,13 @@ public class MapController extends TemplateGenerator
 		
 		printXLegend(map, width);
 		
-		for(int y = 0; y < height; y++)
+		for(int y = 1; y <= height; y++)
 		{
 			map.append("<tr>");
 			map.append("<td>");
-			map.append(y + 1);
+			map.append(y);
 			map.append("</td>");
-			for(int x = 0; x < width; x++)
+			for(int x = 1; x <= width; x++)
 			{
 				map.append("<td>");
 				Location position = new Location(this.system, x, y);
@@ -283,7 +283,7 @@ public class MapController extends TemplateGenerator
 				map.append("</td>");
 			}
 			map.append("<td>");
-			map.append(y + 1);
+			map.append(y);
 			map.append("</td>");
 			map.append("</tr>");
 		}
