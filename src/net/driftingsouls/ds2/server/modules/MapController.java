@@ -45,6 +45,10 @@ public class MapController extends TemplateGenerator
 		
 		parameterNumber("sys");
 		parameterNumber("loadmap");
+		parameterNumber("xstart");
+		parameterNumber("xend");
+		parameterNumber("ystart");
+		parameterNumber("yend");
 		
 		setTemplate("map.html");
 		
@@ -98,7 +102,8 @@ public class MapController extends TemplateGenerator
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
+	public void defaultAction() 
+	{
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
@@ -128,14 +133,15 @@ public class MapController extends TemplateGenerator
 	
 		t.setBlock("_MAP", "jumpnodes.listitem", "jumpnodes.list");
 			
-		if( !this.showSystem ) {
+		if( !this.showSystem ) 
+		{
 			return;
 		}
 						
 		List<?> nodeList = db.createQuery("from JumpNode where system= :sys and hidden=0 order by id")
 			.setInteger("sys", system)
 			.list();
-		for( Iterator<?> iter=nodeList.iterator(); iter.hasNext(); )
+		for(Iterator<?> iter=nodeList.iterator(); iter.hasNext();)
 		{
 			JumpNode node = (JumpNode)iter.next();
 			
@@ -182,20 +188,61 @@ public class MapController extends TemplateGenerator
 		Map<Location, List<JumpNode>> nodeMap = getNodeMap(nodes);
 		Map<Location, List<Base>> baseMap = getBaseMap(bases);
 		
+		int xStart = getInteger("xstart");
+		int xEnd = getInteger("xend");
+		int yStart = getInteger("ystart");
+		int yEnd = getInteger("yend");
+		
+		//Limit width and height
+		if(xStart < 1)
+		{
+			xStart = 1;
+		}
+		
+		if(xEnd > width)
+		{
+			xEnd = width;
+		}
+		
+		if(yStart < 1)
+		{
+			yStart = 1;
+		}
+		
+		if(yEnd > height)
+		{
+			yEnd = height;
+		}
+		
+		final int maxMapSize = 50;
+		if(xEnd - xStart > maxMapSize)
+		{
+			xEnd = xStart + maxMapSize - 1;
+		}
+		
+		if(yEnd - yStart > maxMapSize)
+		{
+			yEnd = yStart + maxMapSize - 1;
+		}
+		
 		StringBuilder map = new StringBuilder();
 		
-		//X markings
+		map.append("<script type=\"text/javascript\">");
+		map.append("$(document).ready(function()"); 
+		map.append("{");
+		map.append("$.blockUI(); ");
+        map.append("});");
+        map.append("</script>");
 		map.append("<table id=\"starmap\">");
+		printXLegend(map, xStart, xEnd);
 		
-		printXLegend(map, width);
-		
-		for(int y = 1; y <= height; y++)
+		for(int y = yStart; y <= yEnd; y++)
 		{
 			map.append("<tr>");
 			map.append("<td width=\"25\" height=\"25\">");
 			map.append(y);
 			map.append("</td>");
-			for(int x = 1; x <= width; x++)
+			for(int x = xStart; x <= xEnd; x++)
 			{
 				map.append("<td width=\"25\" height=\"25\">");
 				Location position = new Location(this.system, x, y);
@@ -288,18 +335,21 @@ public class MapController extends TemplateGenerator
 			map.append("</tr>");
 		}
 		
-		printXLegend(map, width);
+		printXLegend(map, xStart, xEnd);
 		
 		map.append("</table>");
+		map.append("<script type=\"text/javascript\">");
+		map.append("$.unblockUI");
+		map.append("</script>");
 		
 		t.setVar("map.fields", map);
 	}
 	
-	private void printXLegend(StringBuilder map, int width)
+	private void printXLegend(StringBuilder map, int start, int end)
 	{
 		map.append("<tr>");
 		map.append("<td width=\"25\" height=\"25\">x/y</td>");
-		for(int x = 1; x <= width; x++)
+		for(int x = start; x <= end; x++)
 		{
 			map.append("<td width=\"25\" height=\"25\">");
 			map.append(x);

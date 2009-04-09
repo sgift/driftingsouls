@@ -176,9 +176,15 @@ public abstract class DSGenerator extends Generator {
 			if( !getDisableDefaultCSS() ) { 
 				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"format.css\" />\n");
 			}
+			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+url+"data/css/ui-darkness/jquery.ui.darkness.css\" />\n");
+			
+			
+			
+			/*
 			sb.append("<!--[if IE]>\n");
 			sb.append("<style type=\"text/css\">@import url("+config.get("URL")+"format_fuer_den_dummen_ie.css);</style>\n");
 			sb.append("<![endif]-->\n");
+			*/
 
 			if( this.getAttribute("header") != null ) {
 				sb.append(this.getAttribute("header").toString());
@@ -225,6 +231,9 @@ public abstract class DSGenerator extends Generator {
 
 			sb.append("// -->\n");
 			sb.append("</script>\n");
+			sb.append("<script src=\""+url+"data/javascript/jquery.js\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\""+url+"data/javascript/jquery.ui.js\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\""+url+"data/javascript/jquery.blockUI.js\" type=\"text/javascript\"></script>\n");
 			sb.append("<div id=\"error-placeholder\" />\n");
 		}
 		
