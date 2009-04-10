@@ -228,7 +228,7 @@ public class MapController extends TemplateGenerator
 											.setParameter("system", system)
 											.list());
 		
-		List<JumpNode> nodes = Common.cast(db.createQuery("from JumpNode where system=:system or systemOut=:system")
+		List<JumpNode> nodes = Common.cast(db.createQuery("from JumpNode where system=:system and hidden=0")
 											 .setParameter("system", system)
 											 .list());
 		
@@ -267,7 +267,20 @@ public class MapController extends TemplateGenerator
 			yEnd = height;
 		}
 		
+
 		final int maxMapSize = 50;
+		
+		//Use sensible defaults in case of useless input
+		if(yEnd <= yStart)
+		{
+			yEnd = yStart + maxMapSize;
+		}
+		
+		if(xEnd <= xStart)
+		{
+			xEnd = xStart + maxMapSize;
+		}
+		
 		if(xEnd - xStart > maxMapSize)
 		{
 			xEnd = xStart + maxMapSize - 1;
