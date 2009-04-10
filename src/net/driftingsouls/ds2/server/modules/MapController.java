@@ -8,6 +8,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.Rassen;
@@ -17,8 +20,12 @@ import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.Version;
+import net.driftingsouls.ds2.server.framework.pipeline.Response;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -30,11 +37,13 @@ import net.driftingsouls.ds2.server.ships.Ship;
  * 
  * @author Sebastian Gift
  */
+@Configurable
 public class MapController extends TemplateGenerator 
 {
 	
 	private boolean showSystem;
 	private int system;
+	private Configuration config;
 
 	/**
 	 * Legt den MapController an.
@@ -55,6 +64,49 @@ public class MapController extends TemplateGenerator
 		setTemplate("map.html");
 		
 		setPageTitle("Sternenkarte");
+	}
+	
+	/**
+	 * Injiziert die DS-Konfiguration.
+	 * @param config Die DS-Konfiguration
+	 */
+	@Autowired
+	public void setConfiguration(Configuration config) {
+		this.config = config;
+	}
+	
+	@Override
+	protected void printHeader(String action) throws IOException 
+	{
+		//The map uses jquery instead of the default javascript libraries, so
+		//we disable the default header and print our own header here
+		
+		Response response = getContext().getResponse();
+		response.setContentType("text/html", "UTF-8");
+		Writer sb = response.getWriter();
+		
+		String url = config.get("URL")+"/";
+		final BasicUser user = getContext().getActiveUser();
+		if( user != null ) 
+		{
+			url = user.getImagePath();
+		}
+		
+		sb.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n");
+		sb.append("<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"de\" lang=\"de\">\n");
+		sb.append("<head>\n");
+		sb.append("<title>Drifting Souls 2</title>\n");
+		sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
+		if( !getDisableDefaultCSS() ) { 
+			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"format.css\" />\n");
+		}
+		sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+url+"data/css/ui-darkness/jquery.ui.darkness.css\" />\n");
+		
+		sb.append("<script src=\""+url+"data/javascript/jquery.js\" type=\"text/javascript\"></script>\n");
+		sb.append("<script src=\""+url+"data/javascript/jquery.ui.js\" type=\"text/javascript\"></script>\n");
+		//sb.append("<script src=\""+url+"data/javascript/jquery.blockUI.js\" type=\"text/javascript\"></script>\n");
+		
+		sb.append("</head>\n");
 	}
 
 	@Override
@@ -230,12 +282,6 @@ public class MapController extends TemplateGenerator
 		//StringBuilder map = new StringBuilder();
 		
 		Writer map = getContext().getResponse().getWriter();
-		map.append("<script type=\"text/javascript\">");
-		map.append("$(document).ready(function()"); 
-		map.append("{");
-		map.append("$.blockUI(); ");
-        map.append("});");
-        map.append("</script>");
 		map.append("<table id=\"starmap\">");
 		printXLegend(map, xStart, xEnd);
 		
@@ -341,11 +387,6 @@ public class MapController extends TemplateGenerator
 		printXLegend(map, xStart, xEnd);
 		
 		map.append("</table>");
-		map.append("<script type=\"text/javascript\">");
-		map.append("$.unblockUI");
-		map.append("</script>");
-		
-		//t.setVar("map.fields", map);
 	}
 	
 	private void printXLegend(Writer map, int start, int end) throws IOException
