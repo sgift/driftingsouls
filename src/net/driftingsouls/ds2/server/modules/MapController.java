@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
@@ -103,7 +105,7 @@ public class MapController extends TemplateGenerator
 		
 		sb.append("<script src=\""+url+"data/javascript/jquery.js\" type=\"text/javascript\"></script>\n");
 		sb.append("<script src=\""+url+"data/javascript/jquery.ui.js\" type=\"text/javascript\"></script>\n");
-		//sb.append("<script src=\""+url+"data/javascript/jquery.blockUI.js\" type=\"text/javascript\"></script>\n");
+		sb.append("<script src=\""+url+"data/javascript/jquery.blockUI.js\" type=\"text/javascript\"></script>\n");
 		
 		sb.append("</head>\n");
 	}
@@ -220,9 +222,13 @@ public class MapController extends TemplateGenerator
 		String dataPath = templateEngine.getVar("global.datadir") + "data/starmap/";
 		Ally userAlly = user.getAlly();
 		
-		List<Ship> ships = Common.cast(db.createQuery("from Ship s inner join fetch s.owner inner join fetch s.owner.ally where system=:system")
-							 			 .setParameter("system", system)
-							 			 .list());
+		List<Ship> ships = Common.cast(db.createQuery("from Ship where system=:system")
+										 .setParameter("system", system)
+										 .list());
+		
+		//List<Ship> ships = Common.cast(db.createQuery("from Ship s inner join fetch s.owner inner join fetch s.owner.ally where system=:system")
+		//					 			 .setParameter("system", system)
+		//					 			 .list());
 		
 		List<Nebel> nebulas = Common.cast(db.createQuery("from Nebel where system=:system")
 											.setParameter("system", system)
@@ -236,17 +242,21 @@ public class MapController extends TemplateGenerator
 										 .setParameter("system", system)
 										 .list());
 		
+		System.out.println("___________________Ships: " + ships.size());
+		
 		Map<Location, List<Ship>> shipMap = getShipMap(ships);
 		Map<Location, Nebel> nebulaMap = getNebulaMap(nebulas);
 		Map<Location, List<JumpNode>> nodeMap = getNodeMap(nodes);
 		Map<Location, List<Base>> baseMap = getBaseMap(bases);
+		
+		Set<Location> scannableLocations = getScannableLocations(shipMap, nebulaMap);
 		
 		int xStart = getInteger("xstart");
 		int xEnd = getInteger("xend");
 		int yStart = getInteger("ystart");
 		int yEnd = getInteger("yend");
 		
-		//Limit width and height
+		//Limit width and height to map size
 		if(xStart < 1)
 		{
 			xStart = 1;
@@ -268,30 +278,16 @@ public class MapController extends TemplateGenerator
 		}
 		
 
-		final int maxMapSize = 50;
-		
 		//Use sensible defaults in case of useless input
 		if(yEnd <= yStart)
 		{
-			yEnd = yStart + maxMapSize;
+			yEnd = height;
 		}
 		
 		if(xEnd <= xStart)
 		{
-			xEnd = xStart + maxMapSize;
+			xEnd = width;
 		}
-		
-		if(xEnd - xStart > maxMapSize)
-		{
-			xEnd = xStart + maxMapSize - 1;
-		}
-		
-		if(yEnd - yStart > maxMapSize)
-		{
-			yEnd = yStart + maxMapSize - 1;
-		}
-		
-		//StringBuilder map = new StringBuilder();
 		
 		Writer map = getContext().getResponse().getWriter();
 		map.append("<table id=\"starmap\">");
@@ -368,7 +364,7 @@ public class MapController extends TemplateGenerator
 						}
 					}
 					
-					if(ownShips > 0 || alliedShips > 0)
+					if(scannableLocations.contains(position))
 					{
 						if(ownShips > 0)
 						{
@@ -413,21 +409,6 @@ public class MapController extends TemplateGenerator
 		}
 		map.append("</tr>");
 	}
-	
-	/*
-	private void printXLegend(StringBuilder map, int start, int end)
-	{
-		map.append("<tr>");
-		map.append("<td width=\"25\" height=\"25\">x/y</td>");
-		for(int x = start; x <= end; x++)
-		{
-			map.append("<td width=\"25\" height=\"25\">");
-			map.append(x);
-			map.append("</td>");
-		}
-		map.append("</tr>");
-	}
-	*/
 
 	private Map<Location, List<Base>> getBaseMap(List<Base> bases)
 	{
@@ -527,5 +508,55 @@ public class MapController extends TemplateGenerator
 		}
 		
 		return shipMap;
+	}
+	
+	private Set<Location> getScannableLocations(Map<Location, List<Ship>> locatedShips, Map<Location, Nebel> nebulas)
+	{
+		User user = (User)getUser();
+		Set<Location> scannableLocations = new HashSet<Location>();
+		
+		for(Map.Entry<Location, List<Ship>> sectorShips: locatedShips.entrySet())
+		{
+			Location position = sectorShips.getKey();
+			List<Ship> ships = sectorShips.getValue();
+			
+			int scanRange = -1;
+			//Find ship with best scanrange
+			for(Ship ship: ships)
+			{
+				if(!ship.getOwner().equals(user))
+				{
+					continue;
+				}
+				
+				int shipScanRange = ship.getTypeData().getSensorRange();
+				if(shipScanRange > scanRange)
+				{
+					scanRange = shipScanRange;
+				}
+			}
+				
+			//Find sectors scanned from ship
+			for(int y = position.getY() - scanRange; y <= position.getY() + scanRange; y++)
+			{
+				for(int x = position.getX() - scanRange; x <= position.getX() + scanRange; x++)
+				{
+					Location loc = new Location(system, x, y);
+					
+					if(!position.sameSector(scanRange, loc, 0)) 
+					{
+						continue;	
+					}
+					
+					
+					//No nebula scan
+					if(!nebulas.containsKey(loc) || loc.equals(position))
+					{
+						scannableLocations.add(loc);
+					}
+				}
+			}
+		}
+		return scannableLocations;
 	}
 }

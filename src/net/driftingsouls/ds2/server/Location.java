@@ -252,4 +252,12 @@ public final class Location implements Serializable, Locatable {
 	public Location getLocation() {
 		return this;
 	}
+
+	/**
+	 * @return <code>true</code>, wenn der Sektor einen Nebel enthaelt.
+	 */
+	public boolean isNebula() 
+	{
+		return Ships.getNebula(this) != -1;
+	}
 }
