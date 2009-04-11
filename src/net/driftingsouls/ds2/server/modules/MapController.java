@@ -521,6 +521,7 @@ public class MapController extends TemplateGenerator
 	private Set<Location> getScannableLocations(Map<Location, List<Ship>> locatedShips, Map<Location, Nebel> nebulas)
 	{
 		User user = (User)getUser();
+		Ally ally = user.getAlly();
 		Set<Location> scannableLocations = new HashSet<Location>();
 
 		for(Map.Entry<Location, List<Ship>> sectorShips: locatedShips.entrySet())
@@ -534,7 +535,19 @@ public class MapController extends TemplateGenerator
 			{
 				if(!ship.getOwner().equals(user))
 				{
-					continue;
+					//Check for allied ships
+					if(ally != null && ally.getShowLrs())
+					{
+						Ally ownerAlly = ship.getOwner().getAlly();
+						if(!ownerAlly.equals(ally))
+						{
+							continue;
+						}
+					}
+					else
+					{
+						continue;
+					}
 				}
 
 				int shipScanRange = ship.getTypeData().getSensorRange();
@@ -542,6 +555,13 @@ public class MapController extends TemplateGenerator
 				{
 					scanRange = shipScanRange;
 				}
+			}
+			
+			//Adjust for nebula position
+			//TODO: Check, if there's an performant way to bring this part into the Ship class
+			if(nebulas.containsKey(position))
+			{
+				scanRange /= 2;
 			}
 
 			//Find sectors scanned from ship
@@ -555,7 +575,6 @@ public class MapController extends TemplateGenerator
 					{
 						continue;	
 					}
-
 
 					//No nebula scan
 					if(!nebulas.containsKey(loc) || loc.equals(position))
