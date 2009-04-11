@@ -218,6 +218,11 @@ td.inboxOrdnerHover	{background-color:#36413A; background-image:none }
 
 /* Starmap */
 
+img.noscan
+{
+	opacity: 0.6;
+}
+
 table#starmap
 {
 	table-layout: fixed;
