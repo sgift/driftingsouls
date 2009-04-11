@@ -1574,7 +1574,7 @@ public class Ship implements Locatable,Transfering {
 		int news = ship.getHeat() + shiptype.getHeat();
 
 		newe -= adocked;
-		if( shiptype.getCrew()/2 > ship.getCrew() ) {
+		if( shiptype.getMinCrew() > ship.getCrew() ) {
 			newe--;
 			if(verbose) {
 				out.append("<span style=\"color:red\">Geringe Besatzung erh&ouml;ht Flugkosten</span><br />\n");
