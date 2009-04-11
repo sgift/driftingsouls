@@ -235,7 +235,7 @@ public class KSAttackAction extends BasicKSAction {
 	private int getTrefferWS( Battle battle, int defTrefferWS, BattleShip eShip, ShipTypeData eShipType, int defensivskill, int navskill ) {
 		ShipTypeData ownShipType = this.ownShip.getTypeData();
 
-		if( (eShip.getCrew() == 0) && (eShipType.getCrew() > 0) ) {
+		if( (eShip.getCrew() == 0) && (eShipType.getMinCrew() > 0) ) {
 			return 100;
 		}
 		if( (defTrefferWS <= 0) && (eShipType.getCost() > 0) && (eShip.getShip().getEngine() > 0) ) {
@@ -260,15 +260,15 @@ public class KSAttackAction extends BasicKSAction {
 
 		// Nun die TrefferWS anteilig senken, wenn Crew/Sensoren nicht auf 100 sind
 		trefferWS *= (this.ownShip.getShip().getSensors()/100d);
-		if( (ownShipType.getCrew() > 0) && (this.ownShip.getCrew() < ownShipType.getCrew()) ) {
-			trefferWS *= this.ownShip.getCrew()/(double)ownShipType.getCrew();
+		if( (ownShipType.getMinCrew() > 0) && (this.ownShip.getCrew() < ownShipType.getMinCrew()) ) {
+			trefferWS *= this.ownShip.getCrew()/(double)ownShipType.getMinCrew();
 		}
 
 		// Und nun die TrefferWS anteilig steigern, wenn die Gegnerische Crew/Antrie nicht auf 100 sind
 		int restws = 100-trefferWS;
 		trefferWS += restws*((100-eShip.getShip().getEngine())/100d);
-		if( eShip.getCrew() < eShipType.getCrew() ) {
-			trefferWS += restws*((eShipType.getCrew()-eShip.getCrew())/(double)eShipType.getCrew());
+		if( eShip.getCrew() < eShipType.getMinCrew() ) {
+			trefferWS += restws*((eShipType.getMinCrew()-eShip.getCrew())/(double)eShipType.getMinCrew());
 		}
 
 		if( trefferWS < 0 ) {
@@ -284,7 +284,7 @@ public class KSAttackAction extends BasicKSAction {
 	private int getSmallTrefferWS( Battle battle, int defTrefferWS, BattleShip eShip, ShipTypeData eShipType, int defensivskill, int navskill ) {
 		ShipTypeData ownShipType = this.ownShip.getTypeData();
 
-		if( (eShip.getCrew() == 0) && (eShipType.getCrew() > 0) ) {
+		if( (eShip.getCrew() == 0) && (eShipType.getMinCrew() > 0) ) {
 			return 100;
 		}
 		if( (defTrefferWS <= 0) && (eShipType.getCost() > 0) && (eShip.getShip().getEngine() > 0) ) {
@@ -308,15 +308,15 @@ public class KSAttackAction extends BasicKSAction {
 
 		// Nun die TrefferWS anteilig senken, wenn Crew/Sensoren nicht auf 100 sind
 		trefferWS *= (this.ownShip.getShip().getSensors()/100d);
-		if( (ownShipType.getCrew() > 0) && (this.ownShip.getCrew() < ownShipType.getCrew()) ) {
+		if( (ownShipType.getMinCrew() > 0) && (this.ownShip.getCrew() < ownShipType.getMinCrew()) ) {
 			trefferWS *= this.ownShip.getCrew()/(double)ownShipType.getCrew();
 		}
 
 		// Und nun die TrefferWS anteilig steigern, wenn die Gegnerische Crew/Antrie nicht auf 100 sind
 		int restws = 100-trefferWS;
 		trefferWS += restws*((100-eShip.getShip().getEngine())/100d);
-		if( eShip.getCrew() < eShipType.getCrew() ) {
-			trefferWS += restws*((eShipType.getCrew()-eShip.getCrew())/(double)eShipType.getCrew());
+		if( eShip.getCrew() < eShipType.getMinCrew() ) {
+			trefferWS += restws*((eShipType.getMinCrew()-eShip.getCrew())/(double)eShipType.getMinCrew());
 		}
 
 		if( trefferWS < 0 ) {
@@ -781,12 +781,18 @@ public class KSAttackAction extends BasicKSAction {
 			BattleShip selectedShip = enemyShips.get(i);
 			ShipTypeData type = selectedShip.getTypeData();
 
-			int typeCrew = type.getCrew();
+			int typeCrew = type.getMinCrew();
 			if(typeCrew <= 0)
 			{
 				typeCrew = 1;
 			}
 			double crewfactor = ((double)selectedShip.getCrew()) / ((double)typeCrew);
+			
+			//No bonus for more crew than needed
+			if(crewfactor > 1.0)
+			{
+				crewfactor = 1.0;
+			}
 
 			if((selectedShip.getAction() & Battle.BS_JOIN) != 0)
 			{
@@ -1128,7 +1134,7 @@ public class KSAttackAction extends BasicKSAction {
 
 			// Und nun checken wir mal ein wenig....
 
-			if( (ownShipType.getCrew() > 0) && (this.ownShip.getCrew() <= (int)(ownShipType.getCrew()/4d)) )
+			if( (ownShipType.getMinCrew() > 0) && (this.ownShip.getCrew() < ownShipType.getMinCrew()/2d) )
 			{
 				battle.logme( "Nicht genug Crew um mit der Waffe "+this.weapon.getName()+" zu feuern\n" );
 				return RESULT_ERROR;
