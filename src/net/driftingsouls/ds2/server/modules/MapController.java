@@ -532,7 +532,7 @@ public class MapController extends TemplateGenerator
 					if(ally != null && ally.getShowLrs())
 					{
 						Ally ownerAlly = ship.getOwner().getAlly();
-						if(!ownerAlly.equals(ally))
+						if(ownerAlly == null || !ownerAlly.equals(ally))
 						{
 							continue;
 						}
