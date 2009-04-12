@@ -526,11 +526,13 @@ public class MapController extends TemplateGenerator
 			//Find ship with best scanrange
 			for(Ship ship: ships)
 			{
+				//Own ship
 				if(!ship.getOwner().equals(user))
 				{
-					//Check for allied ships
+					//See allied scans?
 					if(ally != null && ally.getShowLrs())
 					{
+						//Allied ship
 						Ally ownerAlly = ship.getOwner().getAlly();
 						if(ownerAlly == null || !ownerAlly.equals(ally))
 						{
@@ -541,6 +543,10 @@ public class MapController extends TemplateGenerator
 					{
 						continue;
 					}
+				}
+				else
+				{
+					continue;
 				}
 
 				int shipScanRange = ship.getTypeData().getSensorRange();
