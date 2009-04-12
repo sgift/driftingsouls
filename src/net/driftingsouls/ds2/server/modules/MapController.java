@@ -544,10 +544,6 @@ public class MapController extends TemplateGenerator
 						continue;
 					}
 				}
-				else
-				{
-					continue;
-				}
 
 				int shipScanRange = ship.getTypeData().getSensorRange();
 				if(shipScanRange > scanRange)
