@@ -915,9 +915,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	 * 
 	 * @param location Koordinate fuer die das Bild der Basis ermittelt werden soll.
 	 * @param user Aktueller Spieler.
+	 * @param scanned <code>true</code>, wenn die Basis derzeit von einem Schiff des Spielers gescannt werden kann.
 	 * @return Der Bildstring der Basis oder einen Leerstring, wenn die Basis die Koordinaten nicht schneidet
 	 */
-	public String getImage(Location location, User user)
+	public String getImage(Location location, User user, boolean scanned)
 	{
 		if(!location.sameSector(0, getLocation(), size))
 		{
@@ -955,6 +956,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		else if((getOwner().getId() != 0) && (user.getAlly() != null) && (getOwner().getAlly() == user.getAlly()) && user.getAlly().getShowAstis())
 		{
 			return "asti_ally/asti_ally";
+		}
+		else if(scanned)
+		{
+			return "asti_enemy/asti_enemy";
 		}
 		else
 		{

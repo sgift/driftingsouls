@@ -284,14 +284,6 @@ public class MapController extends TemplateGenerator
 
 		Writer map = getContext().getResponse().getWriter();
 		
-		/*
-		map.append("<script type=\"text/javascript\">\n");
-		map.append("$(document).ready(function ()\n");
-		map.append("{\n");
-        map.append("$(\".noscan\").fadeTo(\"fast\", 0.6)\n");
-		map.append("});\n");
-		map.append("</script>\n");
-		*/
 		map.append("<table id=\"starmap\">");
 		printXLegend(map, xStart, xEnd);
 
@@ -307,6 +299,7 @@ public class MapController extends TemplateGenerator
 				map.append("<img width=\"25\" height=\"25\" src=\"" + dataPath);
 
 				Location position = new Location(this.system, x, y);
+				boolean scannable = scannableLocations.contains(position);
 				//Basic image
 				Nebel nebula = nebulaMap.get(position);
 				if(nebula != null)
@@ -320,7 +313,7 @@ public class MapController extends TemplateGenerator
 					if(positionBases != null && !positionBases.isEmpty())
 					{
 						Base base = positionBases.get(0);
-						map.append(base.getImage(position, user));
+						map.append(base.getImage(position, user, scannable));
 					}
 					else 
 					{
@@ -336,8 +329,8 @@ public class MapController extends TemplateGenerator
 					}
 				}
 
-				boolean unscannable = !scannableLocations.contains(position);
-				if(!unscannable)
+
+				if(scannable)
 				{
 
 					//Fleet attachment
