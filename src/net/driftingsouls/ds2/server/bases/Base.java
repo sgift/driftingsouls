@@ -927,6 +927,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		User nobody = (User)db.get(User.class, -1);
+		User zero = (User)db.get(User.class, 0);
 		
 		if(size > 0)
 		{
@@ -960,7 +961,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		{
 			return "asti_ally/asti_ally";
 		}
-		else if(scanned && !getOwner().equals(nobody))
+		else if(scanned && !getOwner().equals(nobody) && !getOwner().equals(zero))
 		{
 			return "asti_enemy/asti_enemy";
 		}

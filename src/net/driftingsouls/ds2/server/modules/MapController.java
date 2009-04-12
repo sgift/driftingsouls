@@ -343,15 +343,15 @@ public class MapController extends TemplateGenerator
 					{
 						for(Ship ship: sectorShips)
 						{
-							if(ship.getOwner().equals(user))
+							User shipOwner = ship.getOwner();
+							if(shipOwner.equals(user))
 							{
 								ownShips++;
 							}
 							else 
 							{
-								User shipOwner = ship.getOwner();
 								Ally shipAlly = shipOwner.getAlly();
-								if(shipAlly != null && shipAlly.equals(userAlly))// || (shipOwner.getRelation(user.getId()) == Relation.FRIEND && user.getRelation(shipOwner.getId()) == Relation.FRIEND))
+								if(shipAlly != null && shipAlly.equals(userAlly))
 								{
 									alliedShips++;
 								}
