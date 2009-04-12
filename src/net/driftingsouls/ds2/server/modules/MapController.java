@@ -526,13 +526,13 @@ public class MapController extends TemplateGenerator
 			//Find ship with best scanrange
 			for(Ship ship: ships)
 			{
-				//Own ship
+				//Own ship?
 				if(!ship.getOwner().equals(user))
 				{
 					//See allied scans?
 					if(ally != null && ally.getShowLrs())
 					{
-						//Allied ship
+						//Allied ship?
 						Ally ownerAlly = ship.getOwner().getAlly();
 						if(ownerAlly == null || !ownerAlly.equals(ally))
 						{
@@ -550,6 +550,12 @@ public class MapController extends TemplateGenerator
 				{
 					scanRange = shipScanRange;
 				}
+			}
+			
+			//No ship found
+			if(scanRange == -1)
+			{
+				continue;
 			}
 			
 			//Adjust for nebula position
