@@ -129,7 +129,6 @@ public class RTCTick extends TickController {
 					String history = "Indienststellung am "+this.currentTime+" durch "+this.gtuuser.getName()+" (Versteigerung) f&uuml;r "+winner.getName()+" ("+winner.getId()+")\n";
 					
 					Cargo cargo = new Cargo();
-					cargo.addResource(Resources.NAHRUNG, shiptype.getCrew()*5);
 					cargo = cargo.cutCargo(shiptype.getCargo());
 					
 					Ship ship = new Ship(winner, shiptype, loc.getSystem(), loc.getX(), loc.getY());
