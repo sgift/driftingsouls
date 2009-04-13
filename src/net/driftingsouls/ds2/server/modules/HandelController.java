@@ -33,6 +33,7 @@ import net.driftingsouls.ds2.server.config.items.Items;
 import net.driftingsouls.ds2.server.entities.Handel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -199,6 +200,10 @@ public class HandelController extends TemplateGenerator {
 			
 			t.parse("addresources.list", "addresources.listitem", true);
 		}
+		
+		org.hibernate.Session db = getDB();
+		ConfigValue runningcost = (ConfigValue)db.get(ConfigValue.class, "adcost");
+		t.setVar("trade.runningcost", runningcost.getValue());
 	}
 
 	/**
