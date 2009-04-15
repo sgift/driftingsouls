@@ -378,7 +378,7 @@ public class MapController extends TemplateGenerator
 						}
 					}
 					
-					map.append(".png\" alt=\"" + x + "/" + y + "\"/>");
+					map.append(".png\" alt=\"" + x + "/" + y + "\"/ class=\"scan\">");
 				}
 				else
 				{

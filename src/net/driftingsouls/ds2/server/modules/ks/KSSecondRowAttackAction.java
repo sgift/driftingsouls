@@ -58,7 +58,7 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 			return RESULT_ERROR;
 		}
 		
-		if( !battle.isSecondRowStable(battle.getEnemySide()) ) {
+		if( battle.isSecondRowStable(battle.getEnemySide()) ) {
 			return RESULT_ERROR;
 		}  
 		
@@ -103,7 +103,7 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 			ShipTypeData shiptype = aship.getTypeData();
 			
 			if( shiptype.getSize() > ShipType.SMALL_SHIP_MAXSIZE ) {
-				size += shiptype.getSize();
+				size -= shiptype.getSize();
 			}
 		}
 		
