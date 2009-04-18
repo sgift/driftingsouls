@@ -1240,6 +1240,7 @@ public class SchiffController extends TemplateGenerator {
 		String tooltiptextStr = StringEscapeUtils.escapeJavaScript(tooltiptext.toString().replace(">", "&gt;").replace("<", "&lt;"));
 
 		t.setVar(	"ship.showui",			1,
+					"ship.islanded",		ship.isLanded(),
 					"ship.id",				ship.getId(),
 					"ship.name",			Common._plaintitle(ship.getName()),
 					"ship.location",		ship.getLocation().displayCoordinates(false),
