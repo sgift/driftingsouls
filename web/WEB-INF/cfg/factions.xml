@@ -24,6 +24,7 @@
 		<page id="shop" />
 		<page id="other" />
 	</faction>
+
 	<faction id="-19" menusize="380">
 		<page id="general" />
 		<page id="angebote" />
@@ -39,6 +40,7 @@
 			[align=right][size=7]Alle Angaben ohne Gewähr[/size][/align]
 		</text>
 	</faction>
+<!--
 	<faction id="-26" menusize="380">
 		<page id="general" />
 		<page id="shop" />
@@ -49,7 +51,7 @@
 			Bezahlt wird im Vorraus. Eine Garantie, dass die Waren auch geliefert werden können gibt es nicht. Auch wann geliefert wird steht vorher nicht fest. Wenn die Waren dann ausgeliefert werden, dann wie üblich sehr diskret auf einen Asteroiden.
 		</text>
 	</faction>
-	<!-- 
+
 		<faction id="-99" menusize="380" disable="true">
 			<page id="general" />
 			<page id="shop" />

@@ -40,6 +40,12 @@
 	
 	<!-- 
 		Ein paar weitere Slots
+	 -->	
+	<slot id="miscawacs" name="Scanner" parent="misc" />
+	<slot id="armour" name="Panzerung" />
+	
+	<!-- 
+		Ein paar weitere Slots
 	 -->
 	<slot id="drone_cont" name="Drohnen Kontrollslot" />
 	<slot id="weapon_station" name="Bewaffnung Station" />
