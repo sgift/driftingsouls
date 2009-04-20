@@ -347,6 +347,11 @@ public class BaseTick extends TickController {
 			
 			this.usercargo.setResource(Resources.NAHRUNG, userNahrung);
 			
+			if(inhabitants < 0)
+			{
+				inhabitants = 0;
+			}
+			
 			base.setArbeiter(basedata.getArbeiter());
 			base.setBewohner(inhabitants);
 			base.setEnergy(newe);
@@ -360,6 +365,11 @@ public class BaseTick extends TickController {
 			this.usercargo.substractResource( Resources.NAHRUNG, inhabitants/2);
 			if( this.usercargo.getResourceCount(Resources.NAHRUNG) < 0 ) {
 				this.usercargo.setResource(Resources.NAHRUNG, 0);
+			}
+			
+			if(inhabitants < 0)
+			{
+				inhabitants = 0;
 			}
 
 			base.setArbeiter(basedata.getArbeiter());
