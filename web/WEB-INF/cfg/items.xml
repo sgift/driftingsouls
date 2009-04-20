@@ -225,6 +225,190 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<description>Dies ist der Bauplan für die GTF Hercules Mk I</description>
 	</item>
 
+	<!-- 16 - Nahrung -->
+	<item id="16" cargo="1">
+		<name>Nahrung</name>
+		<picture>data/resources/Nahrung.gif</picture>
+		<large-picture>data/resources/Nahrung.gif</large-picture>
+		<description>Nahrung</description>
+	</item>
+
+	<!-- 17 - Deuterium -->
+	<item id="17" cargo="1">
+		<name>Deuterium</name>
+		<picture>data/resources/Deuterium.gif</picture>
+		<large-picture>data/resources/Deuterium.gif</large-picture>
+		<description>Deuterium</description>
+	</item>
+
+	<!-- 18 - Kunststoff -->
+	<item id="18" cargo="1">
+		<name>Kunststoff</name>
+		<picture>data/resources/Kunststoffe.gif</picture>
+				<large-picture>data/resources/Kunststoffe.gif</large-picture>
+		<description>Kunststoff</description>
+	</item>
+
+	<!-- 19 - Titan -->
+	<item id="19" cargo="1">
+		<name>Titan</name>
+		<picture>data/resources/Titan.gif</picture>
+				<large-picture>data/resources/Titan.gif</large-picture>
+		<description>Titan</description>
+	</item>
+
+	<!-- 20 - Uran -->
+	<item id="20" cargo="1">
+		<name>Uran</name>
+		<picture>data/resources/Uran.gif</picture>
+				<large-picture>data/resources/Uran.gif</large-picture>
+		<description>Uran</description>
+	</item>
+
+	<!-- 21 - Antimaterie -->
+	<item id="21" cargo="1">
+		<name>Antimaterie</name>
+		<picture>data/resources/Antimaterie.gif</picture>
+				<large-picture>data/resources/Antimaterie.gif</large-picture>
+		<description>Antimaterie</description>
+	</item>
+
+	<!-- 22 - Adamatium -->
+	<item id="22" cargo="1">
+		<name>Adamatium</name>
+		<picture>data/resources/Adamatium.gif</picture>
+				<large-picture>data/resources/Adamatium.gif</large-picture>
+		<description>Adamatium</description>
+	</item>
+
+	<!-- 23 - Platin -->
+	<item id="23" cargo="1">
+		<name>Platin</name>
+		<picture>data/resources/Platin.gif</picture>
+				<large-picture>data/resources/Platin.gif</large-picture>
+		<description>Adamatium</description>
+	</item>
+
+	<!-- 24 - Silizium -->
+	<item id="24" cargo="1">
+		<name>Silizium</name>
+		<picture>data/resources/Silizium.gif</picture>
+				<large-picture>data/resources/Silizium.gif</large-picture>
+		<description>Silizium</description>
+	</item>
+
+	<!-- 25 - Xentronium -->
+	<item id="25" cargo="1">
+		<name>Xentronium</name>
+		<picture>data/resources/Xentronium.gif</picture>
+				<large-picture>data/resources/Xentronium.gif</large-picture>
+		<description>Xentronium</description>
+	</item>
+
+	<!-- 26 - Erz -->
+	<item id="26" cargo="1">
+		<name>Erz</name>
+		<picture>data/resources/Erz.gif</picture>
+				<large-picture>data/resources/Erz.gif</large-picture>
+		<description>Erz</description>
+	</item>
+
+	<!-- 27 - Antarit -->
+	<item id="27" cargo="1">
+		<name>Antarit</name>
+		<picture>data/resources/antarit.gif</picture>
+				<large-picture>data/resources/antarit.gif</large-picture>
+		<description>Antarit</description>
+	</item>
+
+	<!-- 28 - Wasser -->
+	<item id="28" cargo="1">
+		<name>Wasser</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Wasser</description>
+	</item>
+
+	<!-- 29 - Eis -->
+	<item id="29" cargo="1">
+		<name>Eis</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Eis</description>
+	</item>
+
+	<!-- 30 - Öl -->
+	<item id="30" cargo="1">
+		<name>Öl</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Öl</description>
+	</item>
+
+	<!-- 31 - Kerosin -->
+	<item id="31" cargo="1">
+		<name>Kerosin</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Kerosin</description>
+	</item>
+
+	<!-- 32 - Holz -->
+	<item id="32" cargo="1">
+		<name>Holz</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Holz</description>
+	</item>
+
+	<!-- 35 - Isochips -->
+	<item id="35" cargo="1">
+		<name>Isochips</name>
+		<picture>data/resources/Isochips.gif</picture>
+				<large-picture>data/resources/Isochips.gif</large-picture>
+		<description>Isochips</description>
+	</item>
+
+	<!-- 36 - Batterien -->
+	<item id="36" cargo="1">
+		<name>Batterien</name>
+		<picture>data/resources/Reservebatterien.gif</picture>
+				<large-picture>data/resources/Reservebatterien.gif</large-picture>
+		<description>Batterien</description>
+	</item>
+
+	<!-- 37 - Leere Batterien -->
+	<item id="37" cargo="1">
+		<name>Leere Batterien</name>
+		<picture>data/resources/Leere Reservebatterien.gif</picture>
+				<large-picture>data/resources/Leere Reservebatterien.gif</large-picture>
+		<description>Leere Batterien</description>
+	</item>
+
+	<!-- 38 - Shivanisches Artefakt -->
+	<item id="38" cargo="1">
+		<name>Shivanisches Artefakt</name>
+		<picture>data/resources/shiv-arte.gif</picture>
+				<large-picture>data/resources/shiv-arte.gif</large-picture>
+		<description>Shivanisches Artefakt</description>
+	</item>
+
+	<!-- 39 - Artefakt der Uralten -->
+	<item id="39" cargo="1">
+		<name>Artefakt der Uralten</name>
+		<picture>data/resources/ancient-arte.gif</picture>
+				<large-picture>data/resources/ancient-arte.gif</large-picture>
+		<description>Artefakt der Uralten</description>
+	</item>
+
+	<!-- 40 - Böser Admin -->
+	<item id="40" cargo="1">
+		<name>Böser Admin</name>
+		<picture>data/resources/Soldaten.gif</picture>
+				<large-picture>data/resources/Soldaten.gif</large-picture>
+		<description>Böser Admin</description>
+	</item>
+
 	<!-- 41 - Vasu-Cola -->
 	<item id="41" cargo="1">
 		<name>Vasu-Cola</name>
@@ -271,7 +455,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>module/dose.png</picture>
 		<large-picture>module/dose_large.png</large-picture>
 		<description>Ein Kühlcontainer mit einer merkwürdigen terranischen Spezialität.</description>
-	</item>	
+	</item>
 
 	<!-- 47 - Neurostim -->
 	<item id="47" cargo="2">
@@ -287,7 +471,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>module/ampulle.png</picture>
 		<large-picture>module/ampulle_large.png</large-picture>
 		<description>Ein Kühlcontainer mit dem Medikament Paranex. Es ist eines der wenigen Medikamente, die auf beide Spezies dieselbe Wirkung haben. Ein starkes Betäubungs- und Schmerzmittel.</description>
-	</item>	
+	</item>
 
 	<!-- 49 - BioScienceKit -->
 	<item id="49" cargo="2">
@@ -303,7 +487,88 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>module/res_defi.png</picture>
 		<large-picture>module/res_defi_large.png</large-picture>
 		<description>Ein Container mit einer medizischen Notfallausrüstung.</description>
-	</item>	
+	</item>
+
+	<!-- 51 - Bauteil Struktur (klein) -->
+	<item id="51" cargo="2">
+		<name>Bauteil Struktur (klein)</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Ein kleines Struktur-Bauteil.</description>
+	</item>
+
+	<!-- 52 - Bauteil Struktur (mittel) -->
+	<item id="52" cargo="5">
+		<name>Bauteil Struktur (klein)</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Ein mittleres Struktur-Bauteil.</description>
+	</item>
+
+	<!-- 53 - Bauteil Struktur (groß) -->
+	<item id="53" cargo="10">
+		<name>Bauteil Struktur (groß)</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Ein großes Struktur-Bauteil.</description>
+	</item>
+
+	<!-- 54 - Bauteil Panzerung (klein) -->
+	<item id="54" cargo="2">
+		<name>Bauteil Panzerung (klein)</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Ein kleines Panzerungs-Bauteil.</description>
+	</item>
+
+	<!-- 55 - Bauteil Panzerung (mittel) -->
+	<item id="55" cargo="5">
+		<name>Bauteil Panzerung (klein)</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Ein mittleres Panzerungs-Bauteil.</description>
+	</item>
+
+	<!-- 56 - Bauteil Panzerung (groß) -->
+	<item id="56" cargo="10">
+		<name>Bauteil Panzerung (groß)</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Ein großes Panzerungs-Bauteil.</description>
+	</item>
+
+	<!-- 57 - Bauteil Steuerung -->
+	<item id="57" cargo="1">
+		<name>Bauteil Steuerung</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Ein Bauteil für Steuerung und Bordelektronik.</description>
+	</item>
+
+	<!-- 58 - Bauteil Reaktor -->
+	<item id="58" cargo="5">
+		<name>Bauteil Reaktor</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Ein Reaktor-Bauteil. Die Fertigung dieser Teile erfordert höchste Präzision.</description>
+	</item>
+
+	<!-- 59 - Bauteil Waffen -->
+	<item id="59" cargo="2">
+		<name>Bauteil Waffen</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Ein Waffen-Bauteil.</description>
+	</item>
+
+	<!-- 60 - Werkzeug -->
+	<item id="60" cargo="2">
+		<name>Werkzeug</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Werkzeug - alles, was beim Bau von Gebäuden, Fahrzeugen oder Schiffen an Material verbaut wird, wird mit Bohrern, Sägeblättern, Feilen oder ähnlichem bearbeitet. Unter Werkzeug fällt dieses gesamte Verbrauchsmaterial. Böse Zungen behaupten, darunter fielen auch Bier und Donuts.</description>
+	</item>
+
 
 	<!-- 150 - Flakmagazine -->
 	<item id="150" cargo="1" handel="true">
@@ -601,7 +866,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<effect type="ammo" ammo="35" />
 		<description>Die schweren Flakmagazine LR stellen eine Weiterentwicklung der klassischen Flakmagazine dar. Sie sind deutlich stärker, aber sie können nicht mittels der normalen Flakgeschütze verschossen werden.</description>
 	</item>
-	
+
 	<!-- 185 - GTM-N1 Harbinger -->
 	<item id="185" cargo="6" handel="true">
 		<name>GTM-N1 Harbinger</name>
@@ -609,7 +874,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>ammo/harbinger.png</picture>
 		<description> </description>
 	</item>
-	
+
 	<!-- 186 - GTM Tsunami -->
 	<item id="186" cargo="8" handel="true">
 		<name>GTM Tsunami</name>
@@ -617,7 +882,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>ammo/tsunami.png</picture>
 		<description> </description>
 	</item>
-	
+
 	<!-- 187- Phalanx -->
 	<item id="187" cargo="1" handel="true" version="development">
 		<name>Phalanx</name>
@@ -625,7 +890,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>ammo/phalanx.png</picture>
 		<description> </description>
 	</item>
-	
+
 	<!-- 188 - Aegis -->
 	<item id="188" cargo="1" handel="true" version="development">
 		<name>Aegis</name>
@@ -633,7 +898,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>ammo/aegis.png</picture>
 		<description> </description>
 	</item>
-	
+
 	<!-- 189 - Moonfire -->
 	<item id="189" cargo="6" handel="true" version="development">
 		<name>Moonfire</name>
@@ -641,7 +906,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>ammo/moonfire.png</picture>
 		<description> </description>
 	</item>
-	
+
 	<!-- 190 - Sunfire -->
 	<item id="190" cargo="8" handel="true" version="development">
 		<name>Sunfire</name>
@@ -649,28 +914,28 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>ammo/sunfire.png</picture>
 		<description> </description>
 	</item>
-	
+
 	<!-- 191 - Starfire -->
 	<item id="191" cargo="10" handel="true" version="development">
 		<name>Starfire</name>
 		<effect type="ammo" ammo="42" />
 		<description> </description>
 	</item>
-	
+
 	<!-- 192 - Butcher -->
 	<item id="192" cargo="8" handel="true" version="development">
 		<name>Butcher</name>
 		<effect type="ammo" ammo="43" />
 		<description> </description>
 	</item>
-	
+
 	<!-- 193 - Slayer -->
 	<item id="193" cargo="10" handel="true" version="development">
 		<name>Slayer</name>
 		<effect type="ammo" ammo="44" />
 		<description> </description>
 	</item>
-	
+
 	<!-- 194 - GTW-99 Railgun -->
 	<item id="194" cargo="1" handel="true" version="development">
 		<name>GTW-99 Railgun</name>
@@ -678,7 +943,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>ammo/railgun.png</picture>
 		<description> </description>
 	</item>
-	
+
 	<!-- 195 - AAAF Railgun -->
 	<item id="195" cargo="1" handel="true" version="development">
 		<name>AAAF Railgun</name>
@@ -694,7 +959,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<effect type="ammo" ammo="47" />
 		<description> </description>
 	</item>
-	
+
 	<!-- 197 - Mittlere Railgun -->
 	<item id="197" cargo="1" handel="true" version="development">
 		<name>Mittlere Railgun</name>
@@ -702,7 +967,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<effect type="ammo" ammo="48" />
 		<description> </description>
 	</item>
-	
+
 	<!-- 198 - Schwere Railgun -->
 	<item id="198" cargo="3" handel="true" version="development">
 		<name>Schwere Railgun</name>
@@ -710,7 +975,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<effect type="ammo" ammo="49" />
 		<description> </description>
 	</item>
-	
+
 	<!-- 300 - Cargo-Booster + 1 K -->
 	<item id="300" cargo="5">
 		<name>Cargo-Booster + 1 K</name>
@@ -2610,7 +2875,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		</effect>
 		<description>NPC-Hilfe: Crewboost</description>
 	</item>
-	
+
 	<!-- 413 - NPC-Hilfe: Externes Dock -->
 	<item id="413" cargo="0" accesslevel="5">
 		<name>NPC-Hilfe: Externes Dock</name>
@@ -2623,7 +2888,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		</effect>
 		<description>NPC-Hilfe: Externes Dock</description>
 	</item>
-	
+
 	<!-- 414 - NPC-Hilfe: 500 Cargoboost -->
 	<item id="414" cargo="0" accesslevel="5">
 		<name>NPC-Hilfe: 500 Cargoboost</name>
@@ -2662,7 +2927,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 			</shipdata>
 		</effect>
 	</item>
-	
+
 	<!-- 416 - Rüstset Arcadia -->
 	<item id="416" cargo="0">
 		<name>Rüstset für Arcadia Station</name>
@@ -2683,7 +2948,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 			</shipdata>
 		</effect>
 	</item>
-	
+
 	<!-- 417 - NPC-Hilfe: +500K Cargoboost -->
 	<item id="417" cargo="0" accesslevel="5">
 		<name>NPC-Hilfe: +500K Cargoboost</name>
@@ -2731,9 +2996,9 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<effect type="module">
 			<slot id="armour" />
 			<shipdata>
-				
+
 				<shd:ablativearmor value="2000" />
-				
+
 			</shipdata>
 		</effect>
 		<description>Dieser Satz Standardpanzerplatten kann auf nahezu jedes Schiff montiert werden.</description>
@@ -2747,7 +3012,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<effect type="module">
 			<slot id="armour" />
 			<shipdata>
-				
+
 				<shd:ablativearmor value="2500" />
 				<shd:hull value="500" />
 			</shipdata>
@@ -2763,7 +3028,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<effect type="module">
 			<slot id="armour" />
 			<shipdata>
-				
+
 				<shd:ablativearmor value="3000" />
 				<shd:hull value="1000" />
 			</shipdata>
@@ -2780,7 +3045,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<effect type="module">
 			<slot id="armour" />
 			<shipdata>
-				
+
 				<shd:ablativearmor value="5000" />
 				<shd:hull value="1500" />
 			</shipdata>
@@ -2797,7 +3062,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<effect type="module">
 			<slot id="armour" />
 			<shipdata>
-				
+
 				<shd:ablativearmor value="6000" />
 				<shd:hull value="2000" />
 			</shipdata>
@@ -2814,7 +3079,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<effect type="module">
 			<slot id="armour" />
 			<shipdata>
-				
+
 				<shd:ablativearmor value="8000" />
 				<shd:hull value="3000" />
 			</shipdata>
@@ -2830,7 +3095,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<effect type="module">
 			<slot id="armour" />
 			<shipdata>
-				
+
 				<shd:ablativearmor value="1000" />
 
 			</shipdata>
