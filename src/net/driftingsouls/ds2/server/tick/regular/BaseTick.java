@@ -145,10 +145,11 @@ public class BaseTick extends TickController {
 		User owner = base.getOwner();
 		BigInteger account = owner.getKonto();
 		int income = worker * tax - (inhabitants - worker) * socialSecurityBenefit;
+		User nobody = (User)db.get(User.class, -1);
 		if(income > 0)
 		{
 			this.log("Steuern ausbezahlt " + income);
-			owner.transferMoneyFrom(owner.getId(), income, "Steuereinnahmen Asteroid " + base.getId() + " - " + base.getName(), true, User.TRANSFER_AUTO);
+			owner.transferMoneyFrom(nobody.getId(), income, "Steuereinnahmen Asteroid " + base.getId() + " - " + base.getName(), true, User.TRANSFER_AUTO);
 		}
 		else
 		{
@@ -156,7 +157,6 @@ public class BaseTick extends TickController {
 			income = Math.abs(income);
 			BigInteger incomeHelper = BigInteger.valueOf(income);
 			
-			User nobody = (User)db.get(User.class, -1);
 			//Account is bigger than costs
 			if(account.compareTo(incomeHelper) >= 0)
 			{
