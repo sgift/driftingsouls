@@ -1884,8 +1884,9 @@ public class Ship implements Locatable,Transfering {
 
 			for( Ship fleetship : fleetdata.ships.values() ) {
 				if( fleetdata.dockedCount.get(fleetship.getId()) > 0 ) {
-					List<?> dockedList = db.createQuery("from Ship where id>0 and docked=?")
-						.setString(0, Integer.toString(fleetship.getId()))
+					List<?> dockedList = db.createQuery("from Ship where id>0 and docked in (?,?)")
+						.setString(0, "l "+fleetship.getId())
+						.setString(1, Integer.toString(fleetship.getId()))
 						.list();
 					for( Iterator<?> iter=dockedList.iterator(); iter.hasNext(); ) {
 						Ship dockedShip = (Ship)iter.next();
@@ -1950,15 +1951,15 @@ public class Ship implements Locatable,Transfering {
 			return MovementStatus.SHIP_FAILURE;
 		}
 
-		//int docked = 0;
+		int docked = 0;
 		int adocked = 0;
 		MovementStatus status = MovementStatus.SUCCESS;
 
 		if( (shiptype.getJDocks() > 0) || (shiptype.getADocks() > 0) ) {
-			//docked = ((Number)db.createQuery("select count(*) from Ship where id>0 and docked in (?,?)")
-			//		.setString(0, "l "+this.id)
-			//		.setString(1, Integer.toString(this.id))
-			//		.iterate().next()).intValue();
+			docked = ((Number)db.createQuery("select count(*) from Ship where id>0 and docked in (?,?)")
+					.setString(0, "l "+this.id)
+					.setString(1, Integer.toString(this.id))
+					.iterate().next()).intValue();
 
 			if( shiptype.getADocks() > 0 ) {
 				adocked = (int)getDockedCount();
@@ -2186,16 +2187,6 @@ public class Ship implements Locatable,Transfering {
 
 						if( (sector != null) && sector.getOnEnter().length() > 0 ) {
 							this.docked = "";
-							if(adocked > 0)
-							{
-								db.createQuery("update Ship set x=? ,y=?, system=? where id>0 and docked=?")
-								.setInteger(0, this.x)
-								.setInteger(1, this.y)
-								.setInteger(2, this.system)
-								.setString(3, Integer.toString(this.id))
-								.executeUpdate();
-							}
-							/*
 							if( docked != 0 ) {
 								db.createQuery("update Ship set x=? ,y=?, system=? where id>0 and docked in (?,?)")
 									.setInteger(0, this.x)
@@ -2205,7 +2196,6 @@ public class Ship implements Locatable,Transfering {
 									.setString(4, Integer.toString(this.id))
 									.executeUpdate();
 							}
-							*/
 							this.recalculateShipStatus();
 							saveFleetShips();
 
@@ -2222,18 +2212,7 @@ public class Ship implements Locatable,Transfering {
 							Quests.currentEventURL.set("&action=onenter");
 
 							db.refresh(this);
-							
-							if(adocked > 0)
-							{
-								db.createQuery("update Ship set x=? ,y=?, system=? where id>0 and docked=?")
-								.setInteger(0, this.x)
-								.setInteger(1, this.y)
-								.setInteger(2, this.system)
-								.setString(3, Integer.toString(this.id))
-								.executeUpdate();
-							}
 
-							/*
 							if( docked != 0 ) {
 								db.createQuery("update Ship set x=? ,y=?, system=? where id>0 and docked in (?,?)")
 									.setInteger(0, this.x)
@@ -2243,7 +2222,6 @@ public class Ship implements Locatable,Transfering {
 									.setString(4, Integer.toString(this.id))
 									.executeUpdate();
 							}
-							*/
 
 							if( Quests.executeEvent(scriptparser, sector.getOnEnter(), this.owner, "", false ) ) {
 								if( scriptparser.getContext().getWriter().toString().length()!= 0 ) {							
@@ -2255,16 +2233,6 @@ public class Ship implements Locatable,Transfering {
 
 					if( redalertlist.containsKey(this.getLocation()) ) {
 						this.docked = "";
-						if(adocked > 0)
-						{
-							db.createQuery("update Ship set x=? ,y=?, system=? where id>0 and docked=?")
-							.setInteger(0, this.x)
-							.setInteger(1, this.y)
-							.setInteger(2, this.system)
-							.setString(3, Integer.toString(this.id))
-							.executeUpdate();
-						}
-						/*
 						if( docked != 0 ) {
 							db.createQuery("update Ship set x=? ,y=?, system=? where id>0 and docked in (?,?)")
 								.setInteger(0, this.x)
@@ -2274,7 +2242,6 @@ public class Ship implements Locatable,Transfering {
 								.setString(4, Integer.toString(this.id))
 								.executeUpdate();
 						}
-						*/
 						this.recalculateShipStatus();
 						saveFleetShips();
 
@@ -2298,16 +2265,6 @@ public class Ship implements Locatable,Transfering {
 			out.append("Ankunft bei "+Ships.getLocationText(this.getLocation(),true)+"<br /><br />\n");
 
 			this.docked = "";
-			if(adocked > 0)
-			{
-				db.createQuery("update Ship set x=? ,y=?, system=? where id>0 and docked=?")
-				.setInteger(0, this.x)
-				.setInteger(1, this.y)
-				.setInteger(2, this.system)
-				.setString(3, Integer.toString(this.id))
-				.executeUpdate();
-			}
-			/*
 			if( docked != 0 ) {
 				List<?> dockedList = db.createQuery("from Ship where id>0 and docked in (?,?)")
 					.setString(0, "l "+this.id)
@@ -2321,7 +2278,6 @@ public class Ship implements Locatable,Transfering {
 					dockedShip.recalculateShipStatus();
 				}
 			}
-			*/
 		}
 		this.recalculateShipStatus();
 		saveFleetShips();
