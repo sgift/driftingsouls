@@ -69,6 +69,7 @@ class HandleUpgradeJob implements TaskHandler
 		// wir haben nicht mehr als 10 "Slots" (adminentscheidung)
 		if( auftraege.size() > MAX_SLOTS )
 		{
+			tm.incTimeout(task.getTaskID());			
 			return;
 		}
 
