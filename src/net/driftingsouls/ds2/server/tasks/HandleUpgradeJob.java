@@ -18,7 +18,6 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
-import java.util.List;
 import java.util.Random;
 
 import net.driftingsouls.ds2.server.ContextCommon;
