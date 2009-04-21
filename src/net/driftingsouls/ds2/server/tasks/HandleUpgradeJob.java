@@ -47,9 +47,6 @@ class HandleUpgradeJob implements TaskHandler
 	private static final int ITEM_BBS = 182;
 	private static final int ITEM_RE = 6;
 	
-	private static final int MAX_SLOTS = 10;
-	
-	@SuppressWarnings("unchecked")
 	public void handleEvent(Task task, String event)
 	{
 		Context context = ContextMap.getContext();
@@ -62,16 +59,6 @@ class HandleUpgradeJob implements TaskHandler
 		}
 		
 		final int faction = Integer.parseInt(task.getData3());
-
-		// Teste zuerst ob wir "Slots" fuer den Ausbau frei haben
-		List<UpgradeJob> auftraege = db.createQuery("from UpgradeJob uj where uj.end!=0").list();
-		
-		// wir haben nicht mehr als 10 "Slots" (adminentscheidung)
-		if( auftraege.size() > MAX_SLOTS )
-		{
-			tm.incTimeout(task.getTaskID());			
-			return;
-		}
 
 		int orderid = Integer.parseInt(task.getData1());
 		int tick = context.get(ContextCommon.class).getTick();
