@@ -228,12 +228,6 @@ public class Battle implements Locatable {
 	@Transient
 	private Configuration config;
 	
-	/**
-	 * Holds the writing mutex for a battle.
-	 * Before attempting a write action this mutex must be locked.
-	 */
-	private static Map<Integer, Semaphore> writingActionTable = new HashMap<Integer, Semaphore>();
-	
     /**
     * Injiziert die DS-Konfiguration.
     * @param config Die DS-Konfiguration
@@ -871,10 +865,6 @@ public class Battle implements Locatable {
 		battle.com2Msg = "";
 		db.save(battle);
 		
-		
-		Semaphore mutex = new Semaphore(1);
-		writingActionTable.put(battle.id, mutex);
-
 		//
 		// Schiffe in die Schlacht einfuegen
 		//
@@ -1828,8 +1818,6 @@ public class Battle implements Locatable {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		
-		writingActionTable.remove(this);
-
 		if( deleted ) {
 			log.warn("Mehrfacher Aufruf von Battle.endBattle festgestellt", new Throwable());
 			return;
@@ -2457,35 +2445,6 @@ public class Battle implements Locatable {
 		{
 			return Collections.unmodifiableList(getEnemyShips());
 		}
-	}
-	
-	/**
-	 * Acquires the writing mutex for this battle.
-	 * This method must be called before any value of an enemy ship is changed.
-	 */
-	public void acquireWritingMutex()
-	{
-		if(!writingActionTable.containsKey(this.id))
-		{
-			writingActionTable.put(this.id, new Semaphore(1));
-		}
-		
-		try
-		{
-			writingActionTable.get(this.id).acquire();
-		}
-		catch( InterruptedException e )
-		{
-			log.info("Interrupted, while waiting for battle mutex.");
-		}
-	}
-	
-	/**
-	 * Releases the writing mutex. 
-	 */
-	public void releaseWritingMutex()
-	{
-		writingActionTable.get(this.id).release();
 	}
 	
 	/**

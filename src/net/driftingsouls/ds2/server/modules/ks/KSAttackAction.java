@@ -787,7 +787,7 @@ public class KSAttackAction extends BasicKSAction {
 				typeCrew = 1;
 			}
 			double crewfactor = ((double)selectedShip.getCrew()) / ((double)typeCrew);
-			
+
 			//No bonus for more crew than needed
 			if(crewfactor > 1.0)
 			{
@@ -1034,532 +1034,523 @@ public class KSAttackAction extends BasicKSAction {
 	@Override
 	public int execute(Battle battle) throws IOException
 	{
-		battle.acquireWritingMutex();
+		Context context = ContextMap.getContext();
+		Session db = context.getDB();
 
-		try
+		User user = (User)context.getActiveUser();	
+
+		int result = super.execute(battle);
+		if( result != RESULT_OK )
 		{
-			Context context = ContextMap.getContext();
-			Session db = context.getDB();
+			return result;
+		}
 
-			User user = (User)context.getActiveUser();	
+		if( this.weapon == null )
+		{
+			return RESULT_ERROR;
+		}
 
-			int result = super.execute(battle);
-			if( result != RESULT_OK )
+		// Schiff laden
+		this.ownShip = battle.getOwnShip();
+
+		ShipTypeData ownShipType = this.ownShip.getTypeData();
+
+		Map<String,String> weaponList = Weapons.parseWeaponList(ownShipType.getWeapons());
+		Map<String,String> maxheatList = Weapons.parseWeaponList(ownShipType.getMaxHeat());
+		Map<String,String> heatList = Weapons.parseWeaponList(this.ownShip.getWeaponHeat());
+
+		final String weaponName = context.getRequest().getParameterString("weapon");
+		if( !weaponList.containsKey(weaponName) )
+		{
+			battle.logme("Ihr Schiff besitzt keine Waffen des Typs "+this.weapon.getName());
+			return RESULT_ERROR;
+		}
+
+		int weapons = Integer.parseInt(weaponList.get(weaponName));
+		int maxheat = Integer.parseInt(maxheatList.get(weaponName));
+		int heat = 0;
+		if( heatList.containsKey(weaponName) )
+		{
+			heat = Integer.parseInt(heatList.get(weaponName));
+		}
+
+		weapons = (int)(weapons/(double)ownShipType.getShipCount())*this.attCountForShip(this.ownShip, ownShipType, this.attcount);
+		if( ownShipType.getShipCount() > this.ownShip.getCount() )
+		{
+			maxheat = (int)(maxheat*this.ownShip.getCount()/(double)ownShipType.getShipCount());
+		}
+
+		// Feststellen wie oft wird welchen Feuerloop durchlaufen sollen
+
+		int apcost = 0;
+
+		boolean firstentry = true; // Battlehistory-Log
+
+		int sameShipLoop = 1; // Alphastrike (same ship)
+		int nextShipLoop = 1; // Breitseite (cycle through ships)
+
+		if( this.attmode.equals("alphastrike") )
+		{
+			sameShipLoop = 5;	
+		}
+		else if( this.attmode.equals("strafe") )
+		{
+			nextShipLoop = 5;	
+		}
+		else if( this.attmode.equals("alphastrike_max") )
+		{
+			if( weapons > 0 )
 			{
-				return result;
-			}
-
-			if( this.weapon == null )
-			{
-				return RESULT_ERROR;
-			}
-
-			// Schiff laden
-			this.ownShip = battle.getOwnShip();
-
-			ShipTypeData ownShipType = this.ownShip.getTypeData();
-
-			Map<String,String> weaponList = Weapons.parseWeaponList(ownShipType.getWeapons());
-			Map<String,String> maxheatList = Weapons.parseWeaponList(ownShipType.getMaxHeat());
-			Map<String,String> heatList = Weapons.parseWeaponList(this.ownShip.getWeaponHeat());
-
-			final String weaponName = context.getRequest().getParameterString("weapon");
-			if( !weaponList.containsKey(weaponName) )
-			{
-				battle.logme("Ihr Schiff besitzt keine Waffen des Typs "+this.weapon.getName());
-				return RESULT_ERROR;
-			}
-
-			int weapons = Integer.parseInt(weaponList.get(weaponName));
-			int maxheat = Integer.parseInt(maxheatList.get(weaponName));
-			int heat = 0;
-			if( heatList.containsKey(weaponName) )
-			{
-				heat = Integer.parseInt(heatList.get(weaponName));
-			}
-
-			weapons = (int)(weapons/(double)ownShipType.getShipCount())*this.attCountForShip(this.ownShip, ownShipType, this.attcount);
-			if( ownShipType.getShipCount() > this.ownShip.getCount() )
-			{
-				maxheat = (int)(maxheat*this.ownShip.getCount()/(double)ownShipType.getShipCount());
-			}
-
-			// Feststellen wie oft wird welchen Feuerloop durchlaufen sollen
-
-			int apcost = 0;
-
-			boolean firstentry = true; // Battlehistory-Log
-
-			int sameShipLoop = 1; // Alphastrike (same ship)
-			int nextShipLoop = 1; // Breitseite (cycle through ships)
-
-			if( this.attmode.equals("alphastrike") )
-			{
-				sameShipLoop = 5;	
-			}
-			else if( this.attmode.equals("strafe") )
-			{
-				nextShipLoop = 5;	
-			}
-			else if( this.attmode.equals("alphastrike_max") )
-			{
-				if( weapons > 0 )
-				{
-					sameShipLoop = (int)((maxheat-heat)/(double)weapons);
-				}
-				else
-				{
-					sameShipLoop = 1;
-				}
-				if( sameShipLoop < 1 )
-				{
-					sameShipLoop = 1;
-				}
-			}
-			else if( this.attmode.equals("strafe_max") )
-			{
-				if( weapons > 0 )
-				{
-					nextShipLoop = (int)((maxheat-heat)/(double)weapons);
-				}
-				else
-				{
-					nextShipLoop = 1;
-				}
-				if( nextShipLoop < 1 )
-				{
-					nextShipLoop = 1;	
-				}
-			}
-
-			// Und nun checken wir mal ein wenig....
-
-			if( (ownShipType.getMinCrew() > 0) && (this.ownShip.getCrew() < ownShipType.getMinCrew()/2d) )
-			{
-				battle.logme( "Nicht genug Crew um mit der Waffe "+this.weapon.getName()+" zu feuern\n" );
-				return RESULT_ERROR;
-			}
-
-			if( (this.ownShip.getAction() & Battle.BS_DISABLE_WEAPONS) != 0 )
-			{
-				battle.logme( "Das Schiff kann seine Waffen in diesem Kampf nicht mehr abfeuern\n" );
-				return RESULT_ERROR;
-			}
-
-			if( (this.ownShip.getAction() & Battle.BS_BLOCK_WEAPONS) != 0 )
-			{
-				battle.logme( "Sie k&ouml;nnen in dieser Runde keine Waffen mehr abfeuern\n" );
-				return RESULT_ERROR;
-			}
-
-			boolean gotone = false;
-			if( ownShipType.hasFlag(ShipTypes.SF_DROHNE) )
-			{
-				List<BattleShip> ownShips = battle.getOwnShips();
-				for( int i=0; i < ownShips.size(); i++ )
-				{
-					BattleShip aship = ownShips.get(i);
-					ShipTypeData ashiptype = aship.getTypeData();
-					if( ashiptype.hasFlag(ShipTypes.SF_DROHNEN_CONTROLLER) )
-					{
-						gotone = true;
-						break;	
-					}
-				}
+				sameShipLoop = (int)((maxheat-heat)/(double)weapons);
 			}
 			else
 			{
-				gotone = true;	
+				sameShipLoop = 1;
 			}
-
-			if( !gotone )
+			if( sameShipLoop < 1 )
 			{
-				battle.logme( "Sie ben&ouml;tigen ein Drohnen-Kontrollschiff um feuern zu k&ouml;nnen\n" );
-				return RESULT_ERROR;
+				sameShipLoop = 1;
 			}
-
-			if( weapons <= 0 )
+		}
+		else if( this.attmode.equals("strafe_max") )
+		{
+			if( weapons > 0 )
 			{
-				battle.logme( "Das Schiff verf&uuml;gt nicht &uuml;ber die von ihnen gew&auml;hlte Waffe ("+weaponName+")\n" );
-				return RESULT_ERROR;
+				nextShipLoop = (int)((maxheat-heat)/(double)weapons);
 			}
-
-			if( this.ownShip.getShip().getEnergy() < this.weapon.getECost()*weapons )
+			else
 			{
-				battle.logme( "Nicht genug Energie um mit der Waffe "+this.weapon.getName()+" zu feuern\n" );
-				return RESULT_ERROR;
+				nextShipLoop = 1;
 			}
-
-			if( (this.ownShip.getDocked().length() > 0) && (this.ownShip.getDocked().charAt(0) == 'l') )
+			if( nextShipLoop < 1 )
 			{
-				battle.logme( "Sie k&ouml;nnen nicht mit gelandeten Schiffen feuern\n" );
-				return RESULT_ERROR;
+				nextShipLoop = 1;	
 			}
+		}
 
-			int oldenemyship = battle.getEnemyShipIndex();
+		// Und nun checken wir mal ein wenig....
 
-			boolean breakFlag = false;
+		if( (ownShipType.getMinCrew() > 0) && (this.ownShip.getCrew() < ownShipType.getMinCrew()/2d) )
+		{
+			battle.logme( "Nicht genug Crew um mit der Waffe "+this.weapon.getName()+" zu feuern\n" );
+			return RESULT_ERROR;
+		}
 
-			// Die auessere Schleife laeuft ueber die generischen Schiffe
-			// Die innere Scheife feuernt n Mal auf das gerade ausgewaehlte gegnerische Schiff
+		if( (this.ownShip.getAction() & Battle.BS_DISABLE_WEAPONS) != 0 )
+		{
+			battle.logme( "Das Schiff kann seine Waffen in diesem Kampf nicht mehr abfeuern\n" );
+			return RESULT_ERROR;
+		}
 
-			for( int outerloop=0; outerloop < nextShipLoop; outerloop++ )
+		if( (this.ownShip.getAction() & Battle.BS_BLOCK_WEAPONS) != 0 )
+		{
+			battle.logme( "Sie k&ouml;nnen in dieser Runde keine Waffen mehr abfeuern\n" );
+			return RESULT_ERROR;
+		}
+
+		boolean gotone = false;
+		if( ownShipType.hasFlag(ShipTypes.SF_DROHNE) )
+		{
+			List<BattleShip> ownShips = battle.getOwnShips();
+			for( int i=0; i < ownShips.size(); i++ )
 			{
-				// Nun das gegnerische Schiff laden und checken
-				this.enemyShip = battle.getEnemyShip();
-				db.refresh(this.enemyShip, LockMode.READ);
-
-				for( int innerloop=0; innerloop < sameShipLoop; innerloop++ )
+				BattleShip aship = ownShips.get(i);
+				ShipTypeData ashiptype = aship.getTypeData();
+				if( ashiptype.hasFlag(ShipTypes.SF_DROHNEN_CONTROLLER) )
 				{
-					if( (outerloop > 0) || (innerloop > 0) ) {
-						battle.logme("\n[HR]");
-						battle.logenemy("\n");
-					}
+					gotone = true;
+					break;	
+				}
+			}
+		}
+		else
+		{
+			gotone = true;	
+		}
 
-					ShipTypeData enemyShipType = this.enemyShip.getTypeData();
+		if( !gotone )
+		{
+			battle.logme( "Sie ben&ouml;tigen ein Drohnen-Kontrollschiff um feuern zu k&ouml;nnen\n" );
+			return RESULT_ERROR;
+		}
 
-					/*
-					 * 	Die konkreten Waffendaten ermitteln
-					 */
-					SQLResultRow localweapon = null;
+		if( weapons <= 0 )
+		{
+			battle.logme( "Das Schiff verf&uuml;gt nicht &uuml;ber die von ihnen gew&auml;hlte Waffe ("+weaponName+")\n" );
+			return RESULT_ERROR;
+		}
 
-					if( this.weapon.getAmmoType().length > 0 )
+		if( this.ownShip.getShip().getEnergy() < this.weapon.getECost()*weapons )
+		{
+			battle.logme( "Nicht genug Energie um mit der Waffe "+this.weapon.getName()+" zu feuern\n" );
+			return RESULT_ERROR;
+		}
+
+		if( (this.ownShip.getDocked().length() > 0) && (this.ownShip.getDocked().charAt(0) == 'l') )
+		{
+			battle.logme( "Sie k&ouml;nnen nicht mit gelandeten Schiffen feuern\n" );
+			return RESULT_ERROR;
+		}
+
+		int oldenemyship = battle.getEnemyShipIndex();
+
+		boolean breakFlag = false;
+
+		// Die auessere Schleife laeuft ueber die generischen Schiffe
+		// Die innere Scheife feuernt n Mal auf das gerade ausgewaehlte gegnerische Schiff
+
+		for( int outerloop=0; outerloop < nextShipLoop; outerloop++ )
+		{
+			// Nun das gegnerische Schiff laden und checken
+			this.enemyShip = battle.getEnemyShip();
+			db.refresh(this.enemyShip, LockMode.READ);
+
+			for( int innerloop=0; innerloop < sameShipLoop; innerloop++ )
+			{
+				if( (outerloop > 0) || (innerloop > 0) ) {
+					battle.logme("\n[HR]");
+					battle.logenemy("\n");
+				}
+
+				ShipTypeData enemyShipType = this.enemyShip.getTypeData();
+
+				/*
+				 * 	Die konkreten Waffendaten ermitteln
+				 */
+				SQLResultRow localweapon = null;
+
+				if( this.weapon.getAmmoType().length > 0 )
+				{
+					localweapon = this.getAmmoBasedWeaponData( battle );
+					if( (localweapon == null) || localweapon.isEmpty() )
 					{
-						localweapon = this.getAmmoBasedWeaponData( battle );
-						if( (localweapon == null) || localweapon.isEmpty() )
-						{
-							breakFlag = true;
-							break;
-						}
-					} 
-					else
-					{
-						localweapon = this.getWeaponData( battle );
-						if( (localweapon == null) || localweapon.isEmpty() )
-						{
-							breakFlag = true;
-							break;
-						}
-					}
-
-					localweapon.put("count", weapons);
-
-					this.localweapon = localweapon;
-
-					if( (this.ownShip.getAction() & Battle.BS_SECONDROW) != 0 && 
-							!this.localweapon.getBoolean("long_range") &&
-							!this.localweapon.getBoolean("very_long_range") )
-					{
-						battle.logme( this.weapon.getName()+" haben nicht die notwendige Reichweite, um aus der zweiten Reihe heraus abgefeuert zu werden\n" );
 						breakFlag = true;
 						break;
 					}
-
-					battle.logme( "Ziel: "+Battle.log_shiplink(this.enemyShip.getShip())+"\n" );
-
-					if( heat + weapons > maxheat )
+				} 
+				else
+				{
+					localweapon = this.getWeaponData( battle );
+					if( (localweapon == null) || localweapon.isEmpty() )
 					{
-						battle.logme( this.weapon.getName()+" k&ouml;nnen nicht abgefeuert werden, da diese sonst &uuml;berhitzen w&uuml;rden\n" );
 						breakFlag = true;
 						break;
-					}
-
-					if( this.ownShip.getShip().getEnergy() < this.weapon.getECost()*weapons )
-					{
-						battle.logme( "Nicht genug Energie um mit der Waffe "+this.weapon.getName()+" zu feuern\n" );
-						breakFlag = true;
-						break;
-					}
-
-					if( (this.enemyShip.getAction() & Battle.BS_DESTROYED) != 0 )
-					{
-						battle.logme( "Das angegebene Ziel ist bereits zerst&ouml;rt\n" );
-						breakFlag = true;
-						break;
-					}
-
-					if( (this.enemyShip.getAction() & Battle.BS_FLUCHT) != 0 && !ownShipType.hasFlag(ShipTypes.SF_ABFANGEN) )
-					{
-						battle.logme( "Ihr Schiff kann keine fl&uuml;chtenden Schiffe abfangen\n" );
-						breakFlag = true;
-						break;
-					}
-
-					if( (this.enemyShip.getAction() & Battle.BS_SECONDROW) != 0 &&
-							!this.localweapon.getBoolean("very_long_range") )
-					{
-						battle.logme( "Ihre Waffen k&ouml;nnen das angegebene Ziel nicht erreichen\n" );
-						breakFlag = true;
-						break;
-					}
-
-					if( (this.enemyShip.getAction() & Battle.BS_JOIN) != 0 )
-					{
-						battle.logme( "Sie k&ouml;nnen nicht auf einem Schiff feuern, dass gerade erst der Schlacht beitritt\n" );
-						breakFlag = true;
-						break;
-					}
-
-					/*
-					 * 	Anti-Torp-Verteidigungswerte ermitteln
-					 */
-					int fighterdef = 0;
-					int antitorptrefferws = 0;
-
-					if( this.localweapon.getDouble("destroyable") > 0 )
-					{
-						antitorptrefferws = this.getAntiTorpTrefferWS( enemyShipType );
-						battle.logme("AntiTorp-TrefferWS: "+ this.getTWSText(antitorptrefferws) +"%\n");
-
-						if( enemyShipType.getSize() > ShipType.SMALL_SHIP_MAXSIZE )
-						{
-							fighterdef = this.getFighterDefense(battle);
-							if( fighterdef > 0 )
-							{
-								battle.logme("Verteidigung durch Schiffe: "+ this.getTWSText(fighterdef) +"%\n");	
-							}	
-						}
-					}
-
-					ownShipType = this.ownShip.getTypeData();
-					ShipTypeData ownST = this.weapon.calcOwnShipType(ownShipType, enemyShipType);
-					ShipTypeData enemyST = this.weapon.calcEnemyShipType(ownShipType, enemyShipType);
-
-					ownShipType = ownST;
-					enemyShipType = enemyST;
-
-					int offensivskill = ownShip.getOffensiveValue();
-					int navskill = ownShip.getNavigationalValue();
-					int defensivskill = enemyShip.getDefensiveValue();
-
-					//battle.logme( "Offensivskill: "+offensivskill+"\n" );
-
-					/*
-					 * 	Schadenswerte, Panzerung & TrefferWS ermitteln
-					 */
-					int absSchaden = this.getDamage(this.localweapon.getInt("basedamage"), offensivskill, enemyShipType);
-					int shieldSchaden = this.getDamage(this.localweapon.getInt("shielddamage"), offensivskill, enemyShipType);
-
-					int panzerung = enemyShip.getArmor();
-					int schaden = absSchaden;
-
-					int trefferWS = 0;
-					if( enemyShipType.getSize() <= ShipType.SMALL_SHIP_MAXSIZE )
-					{
-						trefferWS = this.getSmallTrefferWS( battle, this.localweapon.getInt("deftrefferws"), this.enemyShip, enemyShipType, defensivskill, navskill );
-					} 
-					else
-					{
-						trefferWS = this.getTrefferWS( battle, this.localweapon.getInt("deftrefferws"), this.enemyShip, enemyShipType, defensivskill, navskill );
-					}
-
-					battle.logme( "Basis-TrefferWS: "+ this.getTWSText(trefferWS) +"%\n");
-
-					trefferWS -= antitorptrefferws;
-					// Minimum bei 5% bei zerstoerbaren Waffen
-					if( (trefferWS - fighterdef < 5) && (fighterdef > 0) ) {
-						trefferWS = 5;
-					} 
-					else {
-						trefferWS -= fighterdef;
-					}
-					battle.logme( "TrefferWS: "+ this.getTWSText(trefferWS) +"%\n" );
-
-					int[] subdmgs = null;
-
-					/*
-					 * 	Subsystem-Schaden, falls notwendig, berechnen
-					 */
-					if( this.localweapon.getInt("subdamage") > 0 )
-					{
-						int subWS = this.getTrefferWS( battle, this.localweapon.getInt("subws"), this.enemyShip, enemyShipType, defensivskill, navskill );
-						battle.logme( "SubsystemTWS: "+ this.getTWSText(subWS) +"%\n" );
-
-						int subPanzerung = panzerung;
-						if( subPanzerung > 10 )
-						{
-							subPanzerung = 10;
-							battle.logme("Panzerung absorbiert Subsystemschaden\n");
-						} 
-						else if( subPanzerung > 0 )
-						{
-							battle.logme("Panzerung reduziert Subsystemschaden ("+(subPanzerung*10)+"%)\n");
-						}
-
-						subdmgs = this.getSubDamages( subPanzerung, trefferWS, subWS, 1);
-					} 
-
-					if( schaden < 0 )
-					{
-						schaden = 0;
-					}
-
-					if( firstentry )
-					{
-						battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
-						firstentry = false;
-					}
-
-					/*
-					 * 	Treffer berechnen
-					 */
-					int hit = 0;
-					int def = 0;
-					for( int i=1; i <= this.localweapon.getInt("count")*this.localweapon.getInt("shotsPerShot"); i++)
-					{
-						int rnd = RandomUtils.nextInt(101);
-						if( rnd <= trefferWS )
-						{
-							hit++;
-						}
-						if( (rnd > trefferWS) && (rnd <= trefferWS+fighterdef) && (this.localweapon.getDouble("destroyable") > 0) )
-						{
-							def++;
-						}
-					}
-					battle.logme( this.weapon.getName()+": "+hit+" von "+(this.localweapon.getInt("count")*this.localweapon.getInt("shotsPerShot"))+" Sch&uuml;ssen haben getroffen\n" );
-					battle.logenemy( Battle.log_shiplink(this.ownShip.getShip())+" feuert auf "+Battle.log_shiplink(this.enemyShip.getShip())+"\n+ Waffe: "+this.localweapon.getString("name")+"\n" );
-					if( this.localweapon.getDouble("destroyable") > 0 && (def != 0) )
-					{
-						battle.logme( this.weapon.getName()+": "+def+" von "+(this.localweapon.getInt("count")*this.localweapon.getInt("shotsPerShot"))+" Sch&uuml;ssen wurden abgefangen\n" );
-						battle.logenemy( "+ "+this.weapon.getName()+": "+def+" von "+(this.localweapon.getInt("count")*this.localweapon.getInt("shotsPerShot"))+" Sch&uuml;ssen wurden abgefangen\n" );
-					}
-
-					boolean savedamage = this.calcDamage( battle, this.enemyShip, enemyShipType, hit, shieldSchaden, schaden, subdmgs, "" );
-
-					/*
-					 *  Areadamage - falls notwendig - berechnen
-					 */
-					if( (this.localweapon.getInt("areadamage") != 0) && (hit != 0) )
-					{
-						List<BattleShip> areashiplist = this.getADShipList(battle);
-
-						// In der $areashiplist ist das aktuell ausgewaehlte Schiff immer in der Mitte (abgerundet)
-						int targetindex = areashiplist.size()/2;  
-
-						// schaden anwenden
-						int damagemod = 0;
-
-						if( !this.localweapon.getBoolean("ad_full") )
-						{
-							damagemod = 1 / (this.localweapon.getInt("areadamage")+1);
-						}
-
-						for( int i=1; i <= this.localweapon.getInt("areadamage"); i++ )
-						{
-							// Es kann sein, dass die Liste nicht vollstaendig gefuellt ist (Schiffe ohne Schlacht).
-							// Diese muessen wir jetzt rausfiltern
-							if( (targetindex-i >= 0) && areashiplist.get(targetindex-i).getBattle() != null )
-							{
-								BattleShip aeShip = areashiplist.get(targetindex-i);
-
-								this.calcADStep(battle, trefferWS, navskill, aeShip, hit, schaden, shieldSchaden, 1-i*damagemod);
-							}
-							if( (targetindex+i < areashiplist.size()) && areashiplist.get(targetindex+i).getBattle() != null )
-							{
-								BattleShip aeShip = areashiplist.get(targetindex+i);
-
-								this.calcADStep(battle, trefferWS, navskill, aeShip, hit, schaden, shieldSchaden, 1-i*damagemod);
-							}		
-						}
-					}
-
-					/*
-					 * 	E, AP, Muni usw in die DB schreiben
-					 */
-					heat += this.localweapon.getInt("count");
-					this.ownShip.getShip().setEnergy(this.ownShip.getShip().getEnergy() - this.weapon.getECost()*this.localweapon.getInt("count"));
-
-					if( (this.enemyShip.getAction() & Battle.BS_FLUCHT) != 0 )
-					{ 
-						apcost += (int)Math.ceil(this.weapon.getAPCost()*1.5)*this.attCountForShip(this.ownShip, ownShipType, this.attcount);
-					} 
-					else
-					{
-						apcost += this.weapon.getAPCost()*this.attCountForShip(this.ownShip, ownShipType, this.attcount);	
-					}
-
-					if( this.weapon.getAmmoType().length > 0 )
-					{
-						Cargo mycargo = this.ownShip.getCargo();
-						mycargo.substractResource( ((ItemCargoEntry)this.localweapon.get("ammoitem")).getResourceID(), this.localweapon.getInt("count")*this.weapon.getSingleShots() );
-						this.ownShip.getShip().setCargo(mycargo);
-					}
-
-					heatList.put(weaponName, Integer.toString(heat));
-					this.ownShip.getShip().setWeaponHeat(Weapons.packWeaponList(heatList));
-
-
-					/*
-					 *  BETAK - Check
-					 */
-					if( battle.getBetakStatus(battle.getOwnSide()) && !enemyShipType.isMilitary() )
-					{
-						battle.setBetakStatus(battle.getOwnSide(), false);
-						battle.logme("[color=red][b]Sie haben die BETAK-Konvention verletzt[/b][/color]\n\n");
-						battle.logenemy("[color=red][b]Die BETAK-Konvention wurde verletzt[/b][/color]\n\n");
-					}
-
-					/*
-					 *	Schiff falls notwendig zerstoeren
-					 */
-					if( !savedamage && (config.getInt("DESTROYABLE_SHIPS") != 0) )
-					{
-						this.destroyShip(user.getId(), battle, this.enemyShip);
-						battle.setEnemyShipIndex(battle.getNewTargetIndex());
-						this.enemyShip = battle.getEnemyShip();
-					}
-
-					/*
-					 * 	Wenn das angreifende Schiff auch zerstoert werden muss tun wir das jetzt mal
-					 */
-					if( this.localweapon.getBoolean("destroyAfter") )
-					{
-						battle.logme( "[color=red]+ Angreifer zerst&ouml;rt[/color]\n" );
-						battle.logenemy( "[color=red]+ Angreifer zerst&ouml;rt[/color]\n" );
-
-						if( config.getInt("DESTROYABLE_SHIPS") != 0 )
-						{
-							this.destroyShipOnly(user.getId(), battle, this.ownShip, false, false);
-
-							breakFlag = true;
-							break;
-						}
 					}
 				}
 
-				if( outerloop < nextShipLoop - 1)
-				{
-					battle.setEnemyShipIndex(battle.getNewTargetIndex());
-				}
+				localweapon.put("count", weapons);
 
-				if( breakFlag )
+				this.localweapon = localweapon;
+
+				if( (this.ownShip.getAction() & Battle.BS_SECONDROW) != 0 && 
+						!this.localweapon.getBoolean("long_range") &&
+						!this.localweapon.getBoolean("very_long_range") )
 				{
+					battle.logme( this.weapon.getName()+" haben nicht die notwendige Reichweite, um aus der zweiten Reihe heraus abgefeuert zu werden\n" );
+					breakFlag = true;
 					break;
 				}
+
+				battle.logme( "Ziel: "+Battle.log_shiplink(this.enemyShip.getShip())+"\n" );
+
+				if( heat + weapons > maxheat )
+				{
+					battle.logme( this.weapon.getName()+" k&ouml;nnen nicht abgefeuert werden, da diese sonst &uuml;berhitzen w&uuml;rden\n" );
+					breakFlag = true;
+					break;
+				}
+
+				if( this.ownShip.getShip().getEnergy() < this.weapon.getECost()*weapons )
+				{
+					battle.logme( "Nicht genug Energie um mit der Waffe "+this.weapon.getName()+" zu feuern\n" );
+					breakFlag = true;
+					break;
+				}
+
+				if( (this.enemyShip.getAction() & Battle.BS_DESTROYED) != 0 )
+				{
+					battle.logme( "Das angegebene Ziel ist bereits zerst&ouml;rt\n" );
+					breakFlag = true;
+					break;
+				}
+
+				if( (this.enemyShip.getAction() & Battle.BS_FLUCHT) != 0 && !ownShipType.hasFlag(ShipTypes.SF_ABFANGEN) )
+				{
+					battle.logme( "Ihr Schiff kann keine fl&uuml;chtenden Schiffe abfangen\n" );
+					breakFlag = true;
+					break;
+				}
+
+				if( (this.enemyShip.getAction() & Battle.BS_SECONDROW) != 0 &&
+						!this.localweapon.getBoolean("very_long_range") )
+				{
+					battle.logme( "Ihre Waffen k&ouml;nnen das angegebene Ziel nicht erreichen\n" );
+					breakFlag = true;
+					break;
+				}
+
+				if( (this.enemyShip.getAction() & Battle.BS_JOIN) != 0 )
+				{
+					battle.logme( "Sie k&ouml;nnen nicht auf einem Schiff feuern, dass gerade erst der Schlacht beitritt\n" );
+					breakFlag = true;
+					break;
+				}
+
+				/*
+				 * 	Anti-Torp-Verteidigungswerte ermitteln
+				 */
+				int fighterdef = 0;
+				int antitorptrefferws = 0;
+
+				if( this.localweapon.getDouble("destroyable") > 0 )
+				{
+					antitorptrefferws = this.getAntiTorpTrefferWS( enemyShipType );
+					battle.logme("AntiTorp-TrefferWS: "+ this.getTWSText(antitorptrefferws) +"%\n");
+
+					if( enemyShipType.getSize() > ShipType.SMALL_SHIP_MAXSIZE )
+					{
+						fighterdef = this.getFighterDefense(battle);
+						if( fighterdef > 0 )
+						{
+							battle.logme("Verteidigung durch Schiffe: "+ this.getTWSText(fighterdef) +"%\n");	
+						}	
+					}
+				}
+
+				ownShipType = this.ownShip.getTypeData();
+				ShipTypeData ownST = this.weapon.calcOwnShipType(ownShipType, enemyShipType);
+				ShipTypeData enemyST = this.weapon.calcEnemyShipType(ownShipType, enemyShipType);
+
+				ownShipType = ownST;
+				enemyShipType = enemyST;
+
+				int offensivskill = ownShip.getOffensiveValue();
+				int navskill = ownShip.getNavigationalValue();
+				int defensivskill = enemyShip.getDefensiveValue();
+
+				//battle.logme( "Offensivskill: "+offensivskill+"\n" );
+
+				/*
+				 * 	Schadenswerte, Panzerung & TrefferWS ermitteln
+				 */
+				int absSchaden = this.getDamage(this.localweapon.getInt("basedamage"), offensivskill, enemyShipType);
+				int shieldSchaden = this.getDamage(this.localweapon.getInt("shielddamage"), offensivskill, enemyShipType);
+
+				int panzerung = enemyShip.getArmor();
+				int schaden = absSchaden;
+
+				int trefferWS = 0;
+				if( enemyShipType.getSize() <= ShipType.SMALL_SHIP_MAXSIZE )
+				{
+					trefferWS = this.getSmallTrefferWS( battle, this.localweapon.getInt("deftrefferws"), this.enemyShip, enemyShipType, defensivskill, navskill );
+				} 
+				else
+				{
+					trefferWS = this.getTrefferWS( battle, this.localweapon.getInt("deftrefferws"), this.enemyShip, enemyShipType, defensivskill, navskill );
+				}
+
+				battle.logme( "Basis-TrefferWS: "+ this.getTWSText(trefferWS) +"%\n");
+
+				trefferWS -= antitorptrefferws;
+				// Minimum bei 5% bei zerstoerbaren Waffen
+				if( (trefferWS - fighterdef < 5) && (fighterdef > 0) ) {
+					trefferWS = 5;
+				} 
+				else {
+					trefferWS -= fighterdef;
+				}
+				battle.logme( "TrefferWS: "+ this.getTWSText(trefferWS) +"%\n" );
+
+				int[] subdmgs = null;
+
+				/*
+				 * 	Subsystem-Schaden, falls notwendig, berechnen
+				 */
+				if( this.localweapon.getInt("subdamage") > 0 )
+				{
+					int subWS = this.getTrefferWS( battle, this.localweapon.getInt("subws"), this.enemyShip, enemyShipType, defensivskill, navskill );
+					battle.logme( "SubsystemTWS: "+ this.getTWSText(subWS) +"%\n" );
+
+					int subPanzerung = panzerung;
+					if( subPanzerung > 10 )
+					{
+						subPanzerung = 10;
+						battle.logme("Panzerung absorbiert Subsystemschaden\n");
+					} 
+					else if( subPanzerung > 0 )
+					{
+						battle.logme("Panzerung reduziert Subsystemschaden ("+(subPanzerung*10)+"%)\n");
+					}
+
+					subdmgs = this.getSubDamages( subPanzerung, trefferWS, subWS, 1);
+				} 
+
+				if( schaden < 0 )
+				{
+					schaden = 0;
+				}
+
+				if( firstentry )
+				{
+					battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
+					firstentry = false;
+				}
+
+				/*
+				 * 	Treffer berechnen
+				 */
+				int hit = 0;
+				int def = 0;
+				for( int i=1; i <= this.localweapon.getInt("count")*this.localweapon.getInt("shotsPerShot"); i++)
+				{
+					int rnd = RandomUtils.nextInt(101);
+					if( rnd <= trefferWS )
+					{
+						hit++;
+					}
+					if( (rnd > trefferWS) && (rnd <= trefferWS+fighterdef) && (this.localweapon.getDouble("destroyable") > 0) )
+					{
+						def++;
+					}
+				}
+				battle.logme( this.weapon.getName()+": "+hit+" von "+(this.localweapon.getInt("count")*this.localweapon.getInt("shotsPerShot"))+" Sch&uuml;ssen haben getroffen\n" );
+				battle.logenemy( Battle.log_shiplink(this.ownShip.getShip())+" feuert auf "+Battle.log_shiplink(this.enemyShip.getShip())+"\n+ Waffe: "+this.localweapon.getString("name")+"\n" );
+				if( this.localweapon.getDouble("destroyable") > 0 && (def != 0) )
+				{
+					battle.logme( this.weapon.getName()+": "+def+" von "+(this.localweapon.getInt("count")*this.localweapon.getInt("shotsPerShot"))+" Sch&uuml;ssen wurden abgefangen\n" );
+					battle.logenemy( "+ "+this.weapon.getName()+": "+def+" von "+(this.localweapon.getInt("count")*this.localweapon.getInt("shotsPerShot"))+" Sch&uuml;ssen wurden abgefangen\n" );
+				}
+
+				boolean savedamage = this.calcDamage( battle, this.enemyShip, enemyShipType, hit, shieldSchaden, schaden, subdmgs, "" );
+
+				/*
+				 *  Areadamage - falls notwendig - berechnen
+				 */
+				if( (this.localweapon.getInt("areadamage") != 0) && (hit != 0) )
+				{
+					List<BattleShip> areashiplist = this.getADShipList(battle);
+
+					// In der $areashiplist ist das aktuell ausgewaehlte Schiff immer in der Mitte (abgerundet)
+					int targetindex = areashiplist.size()/2;  
+
+					// schaden anwenden
+					int damagemod = 0;
+
+					if( !this.localweapon.getBoolean("ad_full") )
+					{
+						damagemod = 1 / (this.localweapon.getInt("areadamage")+1);
+					}
+
+					for( int i=1; i <= this.localweapon.getInt("areadamage"); i++ )
+					{
+						// Es kann sein, dass die Liste nicht vollstaendig gefuellt ist (Schiffe ohne Schlacht).
+						// Diese muessen wir jetzt rausfiltern
+						if( (targetindex-i >= 0) && areashiplist.get(targetindex-i).getBattle() != null )
+						{
+							BattleShip aeShip = areashiplist.get(targetindex-i);
+
+							this.calcADStep(battle, trefferWS, navskill, aeShip, hit, schaden, shieldSchaden, 1-i*damagemod);
+						}
+						if( (targetindex+i < areashiplist.size()) && areashiplist.get(targetindex+i).getBattle() != null )
+						{
+							BattleShip aeShip = areashiplist.get(targetindex+i);
+
+							this.calcADStep(battle, trefferWS, navskill, aeShip, hit, schaden, shieldSchaden, 1-i*damagemod);
+						}		
+					}
+				}
+
+				/*
+				 * 	E, AP, Muni usw in die DB schreiben
+				 */
+				heat += this.localweapon.getInt("count");
+				this.ownShip.getShip().setEnergy(this.ownShip.getShip().getEnergy() - this.weapon.getECost()*this.localweapon.getInt("count"));
+
+				if( (this.enemyShip.getAction() & Battle.BS_FLUCHT) != 0 )
+				{ 
+					apcost += (int)Math.ceil(this.weapon.getAPCost()*1.5)*this.attCountForShip(this.ownShip, ownShipType, this.attcount);
+				} 
+				else
+				{
+					apcost += this.weapon.getAPCost()*this.attCountForShip(this.ownShip, ownShipType, this.attcount);	
+				}
+
+				if( this.weapon.getAmmoType().length > 0 )
+				{
+					Cargo mycargo = this.ownShip.getCargo();
+					mycargo.substractResource( ((ItemCargoEntry)this.localweapon.get("ammoitem")).getResourceID(), this.localweapon.getInt("count")*this.weapon.getSingleShots() );
+					this.ownShip.getShip().setCargo(mycargo);
+				}
+
+				heatList.put(weaponName, Integer.toString(heat));
+				this.ownShip.getShip().setWeaponHeat(Weapons.packWeaponList(heatList));
+
+
+				/*
+				 *  BETAK - Check
+				 */
+				if( battle.getBetakStatus(battle.getOwnSide()) && !enemyShipType.isMilitary() )
+				{
+					battle.setBetakStatus(battle.getOwnSide(), false);
+					battle.logme("[color=red][b]Sie haben die BETAK-Konvention verletzt[/b][/color]\n\n");
+					battle.logenemy("[color=red][b]Die BETAK-Konvention wurde verletzt[/b][/color]\n\n");
+				}
+
+				/*
+				 *	Schiff falls notwendig zerstoeren
+				 */
+				if( !savedamage && (config.getInt("DESTROYABLE_SHIPS") != 0) )
+				{
+					this.destroyShip(user.getId(), battle, this.enemyShip);
+					battle.setEnemyShipIndex(battle.getNewTargetIndex());
+					this.enemyShip = battle.getEnemyShip();
+				}
+
+				/*
+				 * 	Wenn das angreifende Schiff auch zerstoert werden muss tun wir das jetzt mal
+				 */
+				if( this.localweapon.getBoolean("destroyAfter") )
+				{
+					battle.logme( "[color=red]+ Angreifer zerst&ouml;rt[/color]\n" );
+					battle.logenemy( "[color=red]+ Angreifer zerst&ouml;rt[/color]\n" );
+
+					if( config.getInt("DESTROYABLE_SHIPS") != 0 )
+					{
+						this.destroyShipOnly(user.getId(), battle, this.ownShip, false, false);
+
+						breakFlag = true;
+						break;
+					}
+				}
 			}
 
-			this.ownShip.getShip().setBattleAction(true);
-			this.ownShip.setAction(this.ownShip.getAction() | Battle.BS_SHOT);
-
-			if( !firstentry )
+			if( outerloop < nextShipLoop - 1)
 			{
-				battle.logenemy("]]></action>\n");
+				battle.setEnemyShipIndex(battle.getNewTargetIndex());
 			}
 
-			if( (battle.getEnemyShip(oldenemyship).getAction() & Battle.BS_DESTROYED) == 0 )
+			if( breakFlag )
 			{
-				battle.setEnemyShipIndex(oldenemyship);	
+				break;
 			}
-
-			battle.resetInactivity();
-
-			this.ownShip.getShip().recalculateShipStatus();
 		}
-		finally
+
+		this.ownShip.getShip().setBattleAction(true);
+		this.ownShip.setAction(this.ownShip.getAction() | Battle.BS_SHOT);
+
+		if( !firstentry )
 		{
-			battle.releaseWritingMutex();
+			battle.logenemy("]]></action>\n");
 		}
+
+		if( (battle.getEnemyShip(oldenemyship).getAction() & Battle.BS_DESTROYED) == 0 )
+		{
+			battle.setEnemyShipIndex(oldenemyship);	
+		}
+
+		battle.resetInactivity();
+
+		this.ownShip.getShip().recalculateShipStatus();
 
 		return RESULT_OK;
 	}
