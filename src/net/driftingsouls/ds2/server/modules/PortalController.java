@@ -362,7 +362,7 @@ public class PortalController extends TemplateGenerator {
 		
 		// Startgeld festlegen
 		
-		user.setKonto(new BigInteger(50000));
+		user.setKonto(BigInteger.valueOf(50000));
 		
 		// Schiffe erstellen
 	 	StartLocations locations = getStartLocation();
