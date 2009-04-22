@@ -47,7 +47,7 @@ public class ForschungsTick extends TickController {
 			org.hibernate.Session db = getDB();
 			final User sourceUser = (User)db.get(User.class, -1);
 			
-			List<?> fzList = db.createQuery("from Forschungszentrum where dauer=<1 and (base.owner.vaccount=0 or base.owner.wait4vac!=0) and forschung!=null").list();
+			List<?> fzList = db.createQuery("from Forschungszentrum where dauer<=1 and (base.owner.vaccount=0 or base.owner.wait4vac!=0) and forschung!=null").list();
 			for( Iterator<?> iter=fzList.iterator(); iter.hasNext(); ) {
 				Forschungszentrum fz = (Forschungszentrum)iter.next();
 				
