@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.modules.ks;
 
 import java.io.IOException;
-import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
