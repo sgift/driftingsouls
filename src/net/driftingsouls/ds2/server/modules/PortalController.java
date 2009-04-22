@@ -359,6 +359,10 @@ public class PortalController extends TemplateGenerator {
 		
 		User newuser = new User(username, enc_pw, race, history, cargo, email);
 		
+		// Startgeld festlegen
+		
+		user.setKonto(new BigInteger(50000));
+		
 		// Schiffe erstellen
 	 	StartLocations locations = getStartLocation();
 	 	Location[] orderlocs = Systems.get().system(system).getOrderLocations();
