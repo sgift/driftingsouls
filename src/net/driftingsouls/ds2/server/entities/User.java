@@ -711,16 +711,23 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Fuegt eine Forschung zur Liste der durch den Benutzer erforschten Technologien hinzu.
+	 * Fuegt eine Forschung zur Liste der durch den Benutzer erforschten Technologien hinzu,
+	 * wenn er sie noch nicht hatte.
+	 * 
 	 * @param researchID Die ID der erforschten Technologie
 	 */
 	public void addResearch( int researchID ) {
 		org.hibernate.Session db = context.getDB();
-		UserResearch userres = new UserResearch(this, Forschung.getInstance(researchID));
-		db.persist(userres);
+		UserResearch research = (UserResearch)db.get(UserResearch.class, researchID);
 		
-		if( this.researched != null ) {
-			this.researched.put(researchID, userres);
+		if(research == null)
+		{
+			UserResearch userres = new UserResearch(this, Forschung.getInstance(researchID));
+			db.persist(userres);
+			
+			if( this.researched != null ) {
+				this.researched.put(researchID, userres);
+			}
 		}
 	}
 	
