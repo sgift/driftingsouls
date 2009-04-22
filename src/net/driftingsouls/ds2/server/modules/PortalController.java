@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.math.BigInteger;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
