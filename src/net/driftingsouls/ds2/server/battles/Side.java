@@ -20,7 +20,7 @@ package net.driftingsouls.ds2.server.battles;
 
 /**
  * Enum der beiden Seiten in einer Schlacht.
- * @author Christopher Jung
+ * @author Sebastian Gift
  *
  */
 public enum Side

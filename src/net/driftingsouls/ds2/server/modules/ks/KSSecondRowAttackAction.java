@@ -24,11 +24,11 @@ import java.util.List;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.battles.Side;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
-import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
@@ -58,56 +58,28 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 			return RESULT_ERROR;
 		}
 		
-		if( battle.isSecondRowStable(battle.getEnemySide()) ) {
-			return RESULT_ERROR;
-		}  
-		
-		int size = 0;
-		int rowcount = 0;
-		boolean gotone = false;
-		
-		List<BattleShip> ownShips = battle.getOwnShips();
-		for( int i=0; i < ownShips.size(); i++ ) {
-			BattleShip aship = ownShips.get(i);
-			
+		//The attacker needs a destroyer
+		boolean hasDestroyer = false;
+		for(BattleShip aship: battle.getOwnShips()) 
+		{
 			if( (aship.getAction() & Battle.BS_FLUCHT) != 0 || (aship.getAction() & Battle.BS_JOIN) != 0 ||
-				(aship.getAction() & Battle.BS_SECONDROW) != 0 ) {
+				(aship.getAction() & Battle.BS_SECONDROW) != 0 ) 
+			{
 				continue;
 			}
 			ShipTypeData shiptype = aship.getTypeData();
 			
 			if( shiptype.getShipClass() == ShipClasses.ZERSTOERER.ordinal() ) {
-				gotone = true;
-			}
-			
-			if( shiptype.getSize() > ShipType.SMALL_SHIP_MAXSIZE ) {
-				size += shiptype.getSize();
+				hasDestroyer = true;
 			}
 		}
 		
-		if( !gotone ) {
+		if( !hasDestroyer ) {
 			return RESULT_ERROR;
 		}
 		
-		List<BattleShip> enemyShips = battle.getOwnShips();
-		for( int i=0; i < enemyShips.size(); i++ ) {
-			BattleShip aship = enemyShips.get(i);
-			
-			if( (aship.getAction() & Battle.BS_FLUCHT) != 0 || (aship.getAction() & Battle.BS_JOIN) != 0  ) {
-				continue;
-			}
-			if( (aship.getAction() & Battle.BS_SECONDROW) != 0 ) {
-				rowcount++;
-				continue;
-			}
-			ShipTypeData shiptype = aship.getTypeData();
-			
-			if( shiptype.getSize() > ShipType.SMALL_SHIP_MAXSIZE ) {
-				size -= shiptype.getSize();
-			}
-		}
-		
-		if( (rowcount == 0) || (size < 0) ) {
+		if(battle.getBattleValue(Side.OWN) < battle.getBattleValue(Side.ENEMY)*2)
+		{
 			return RESULT_ERROR;
 		}
 		
