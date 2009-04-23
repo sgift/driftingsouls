@@ -116,6 +116,10 @@ public class BaseTick extends TickController {
 			if(randomizeImmigration)
 			{
 				immigrants = RandomUtils.nextInt(immigrants);
+				if(immigrants == 0)
+				{
+					immigrants = 1;
+				}
 			}
 			
 			inhabitants += immigrants;
