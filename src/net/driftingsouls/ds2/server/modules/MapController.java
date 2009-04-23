@@ -230,7 +230,7 @@ public class MapController extends TemplateGenerator
 				.setParameter("system", system)
 				.list());
 
-		List<JumpNode> nodes = Common.cast(db.createQuery("from JumpNode where system=:system and hidden=0")
+		List<JumpNode> nodes = Common.cast(db.createQuery("from JumpNode where system=:system")
 				.setParameter("system", system)
 				.list());
 
