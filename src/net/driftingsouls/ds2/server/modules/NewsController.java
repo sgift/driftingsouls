@@ -33,7 +33,7 @@ import com.sun.syndication.io.SyndFeedOutput;
 public class NewsController extends TemplateGenerator 
 {	
 	/**
-	 * Legt den RSS Feed an
+	 * Legt den RSS Feed an.
 	 * 
 	 * @param context Der Kontext.
 	 */
