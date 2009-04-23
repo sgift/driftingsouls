@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -338,6 +339,7 @@ public class MapController extends TemplateGenerator
 					int ownShips = 0;
 					int alliedShips = 0;
 					int enemyShips = 0;
+					int unscannableEnemyShips = 0;
 
 					if(sectorShips != null && !sectorShips.isEmpty())
 					{
@@ -357,11 +359,24 @@ public class MapController extends TemplateGenerator
 								}
 								else
 								{
-									enemyShips++;
+									if(ship.getTypeData().hasFlag(ShipTypes.SF_SEHR_KLEIN))
+									{
+										unscannableEnemyShips++;
+									}
+									else
+									{
+										enemyShips++;
+									}
 								}
 							}
 						}
-
+						
+						//Ships which are small etc. are shown in fields with own or allied ships
+						if(ownShips > 0 || alliedShips > 0)
+						{
+							enemyShips += unscannableEnemyShips;
+						}
+						
 						if(ownShips > 0)
 						{
 							map.append("_fo");
