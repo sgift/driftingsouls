@@ -718,11 +718,15 @@ public class User extends BasicUser {
 	 */
 	public void addResearch( int researchID ) {
 		org.hibernate.Session db = context.getDB();
-		UserResearch research = (UserResearch)db.get(UserResearch.class, researchID);
+		Forschung research = Forschung.getInstance(researchID);
+		UserResearch userres = (UserResearch)db.createQuery("from UserResearch where owner=:owner and research=:research")
+												.setParameter("owner", this)
+												.setParameter("research", research)
+												.uniqueResult();
 		
-		if(research == null)
+		if(userres == null)
 		{
-			UserResearch userres = new UserResearch(this, Forschung.getInstance(researchID));
+			userres = new UserResearch(this, research);
 			db.persist(userres);
 			
 			if( this.researched != null ) {
