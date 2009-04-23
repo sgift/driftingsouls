@@ -101,6 +101,22 @@ public class Nebel implements Locatable {
 	public Location getLocation() {
 		return loc.getLocation();
 	}
+	
+	/**
+	 * Gibt an, ob Schiffe in diesem Feld scannen duerfen.
+	 * 
+	 * @return <code>true</code>, wenn sie scannen duerfen, sonst <code>false</code>.
+	 */
+	public boolean allowsScan()
+	{
+		//EMP
+		if(type == 3 || type == 4 || type == 5)
+		{
+			return false;
+		}
+		
+		return true;
+	}
 
 	/**
 	 * Gibt das Bild des Nebels zurueck (als Pfad).

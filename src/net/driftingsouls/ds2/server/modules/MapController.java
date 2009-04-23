@@ -579,10 +579,16 @@ public class MapController extends TemplateGenerator
 			}
 			
 			//Adjust for nebula position
-			//TODO: Check, if there's an performant way to bring this part into the Ship class
+			//TODO: Check, if there's an performant way to bring this part into the Ship and/or the Location class
 			if(nebulas.containsKey(position))
 			{
 				scanRange /= 2;
+				
+				Nebel nebula = nebulas.get(position);
+				if(!nebula.allowsScan())
+				{
+					continue;
+				}
 			}
 
 			//Find sectors scanned from ship
