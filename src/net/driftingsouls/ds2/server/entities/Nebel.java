@@ -109,13 +109,7 @@ public class Nebel implements Locatable {
 	 */
 	public boolean allowsScan()
 	{
-		//EMP
-		if(type == 3 || type == 4 || type == 5)
-		{
-			return false;
-		}
-		
-		return true;
+		return !isEmp();
 	}
 
 	/**
@@ -127,5 +121,19 @@ public class Nebel implements Locatable {
 	public String getImage()
 	{
 		return "fog"+type+"/fog"+type;
+	}
+
+	/**
+	 * 
+	 * @return <code>true</code>, wenn in dem Feld ein EMP-Nebel ist, sonst <code>false</code>
+	 */
+	public boolean isEmp()
+	{
+		if(type == 3 || type == 4 || type == 5)
+		{
+			return true;
+		}
+		
+		return false;
 	}
 }

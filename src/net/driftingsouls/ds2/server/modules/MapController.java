@@ -604,9 +604,20 @@ public class MapController extends TemplateGenerator
 					}
 
 					//No nebula scan
-					if(!nebulas.containsKey(loc) || loc.equals(position))
+					if(!nebulas.containsKey(loc))
 					{
 						scannableLocations.add(loc);
+					}
+					else
+					{
+						if(loc.equals(position))
+						{
+							Nebel nebula = nebulas.get(position);
+							if(!nebula.isEmp())
+							{
+								scannableLocations.add(loc);
+							}
+						}
 					}
 				}
 			}
