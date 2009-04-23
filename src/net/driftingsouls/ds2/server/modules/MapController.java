@@ -321,7 +321,21 @@ public class MapController extends TemplateGenerator
 						List<JumpNode> positionNodes = nodeMap.get(position);
 						if(positionNodes != null && !positionNodes.isEmpty())
 						{
-							map.append("jumpnode/jumpnode");
+							if(scannableLocations.contains(position))
+							{
+								map.append("jumpnode/jumpnode");
+							}
+							else
+							{
+								for(JumpNode node: positionNodes)
+								{
+									if(!node.isHidden())
+									{
+										map.append("jumpnode/jumpnode");
+										break;
+									}
+								}
+							}
 						}
 						else
 						{
