@@ -168,6 +168,12 @@ public class AcademyTick extends TickController {
 		"where a.remain!=0 and a.base in (from Base where id=a.col and (owner.vaccount=0 or owner.wait4vac!=0))")
 		.executeUpdate();
 		log("Offiziere in der Aus/Weiterbildung: "+count);
+		
+		//Cleanup hanging tasks
+		db.createQuery("update Academy as a set a.train=:train,a.upgrade=:upgrade where a.remain=0")
+		  .setParameter("train", 0)
+		  .setParameter("upgrade", "")
+		  .executeUpdate();
 
 		//
 		// Raenge der Offiziere neu berechnen
