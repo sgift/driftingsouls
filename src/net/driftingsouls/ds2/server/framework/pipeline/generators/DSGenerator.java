@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -39,7 +40,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.Response;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
+import org.hibernate.dialect.DB2390Dialect;
 import org.hibernate.exception.GenericJDBCException;
 import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -528,11 +531,26 @@ public abstract class DSGenerator extends Generator {
 		if( (action == null) || action.isEmpty() ) {
 			action = "default";
 		}
+		
+		BasicUser account = getContext().getActiveUser();
 			
 		// Ungueltige Sessions brauchen nicht extra abgefangen zu werden,
 		// da fuer diese Bereits ein Fehler eingetragen wurde
-		if( requireValidSession && (getContext().getActiveUser() == null) ) {
-			addError( "<a href=\"./ds?module=portal\">Du musst sich einloggen, um die Aktion durchfuehren zu k&ouml;nnen.</a>" );
+		if( requireValidSession) 
+		{
+			if(account == null)
+			{
+				addError( "<a href=\"./ds?module=portal\">Du musst dich einloggen, um die Aktion durchfuehren zu k&ouml;nnen.</a>" );
+			}
+			else
+			{
+				Session db = getDB();
+				User user = (User)db.get(User.class, account.getId());
+				if(user != null && user.isInVacation())
+				{
+					addError("<a href=\"./ds?module=portal\">Dein Account befindet sich noch im Urlaub.</a>");
+				}
+			}
 		}
 		
 		if( getErrorList().length != 0 ) {
