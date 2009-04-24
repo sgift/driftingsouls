@@ -327,13 +327,20 @@ public class MapController extends TemplateGenerator
 							}
 							else
 							{
+								boolean isNode = false;
 								for(JumpNode node: positionNodes)
 								{
 									if(!node.isHidden())
 									{
 										map.append("jumpnode/jumpnode");
+										isNode = true;
 										break;
 									}
+								}
+								
+								if(!isNode)
+								{
+									map.append("space/space");
 								}
 							}
 						}
