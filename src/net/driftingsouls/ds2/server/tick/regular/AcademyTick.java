@@ -68,6 +68,13 @@ public class AcademyTick extends TickController {
 		dTrain.put(3, Offizier.Ability.NAV);
 		dTrain.put(4, Offizier.Ability.SEC);
 		dTrain.put(5, Offizier.Ability.COM);
+		
+		//Reset all hanging tasks to one tick
+		db.createQuery("update Academy as a set a.remain=:remain where a.remain=0 && (a.upgrade!=:upgrade || a.train!=:train)")
+		  .setParameter("remain", 1)
+		  .setParameter("upgrade", "")
+		  .setParameter("train", 0)
+		  .executeUpdate();
 	}
 
 	private String getNewOffiName(int race) {
@@ -169,12 +176,6 @@ public class AcademyTick extends TickController {
 		.executeUpdate();
 		log("Offiziere in der Aus/Weiterbildung: "+count);
 		
-		//Cleanup hanging tasks
-		db.createQuery("update Academy as a set a.train=:train,a.upgrade=:upgrade where a.remain=0")
-		  .setParameter("train", 0)
-		  .setParameter("upgrade", "")
-		  .executeUpdate();
-
 		//
 		// Raenge der Offiziere neu berechnen
 		//
