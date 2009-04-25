@@ -13,7 +13,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
- * Ein einzelner Newseintrag
+ * Ein einzelner Newseintrag.
  * 
  * @author Sebastian Gift
  */
