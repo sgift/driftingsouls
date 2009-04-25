@@ -21,6 +21,9 @@
 	<modules>
 		<generator class="net.driftingsouls.ds2.server.modules.PortalController" />
 		
+		<module name="newsdetail">
+			<generator class="net.driftingsouls.ds2.server.modules.NewsDetailController" />
+		</module>
 		<module name="news">
 			<generator class="net.driftingsouls.ds2.server.modules.NewsController" />
 		</module>

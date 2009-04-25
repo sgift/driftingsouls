@@ -18,14 +18,29 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class NewsEntry
 {
-
-	@Id
-	private int id;
-	private String title;
-	private String author;
-	private long date;
-	@Column(name="txt")
-	private String description;
+	/**
+	 * Fuer Hibernate.
+	 */
+	public NewsEntry()
+	{}
+	
+	/**
+	 * Legt einen neuen Newseintrag an.
+	 * 
+	 * @param title Der Titel des Eintrags.
+	 * @param author Der Autor.
+	 * @param date Das Datum, im DS-Datumsformat.
+	 * @param shortDescription Eine kurze Beschreibung.
+	 * @param text Der eigentliche Eintrag.
+	 */
+	public NewsEntry(String title, String author, long date, String shortDescription, String text)
+	{
+		this.title = title;
+		this.author = author;
+		this.date = date;
+		this.shortDescription = shortDescription;
+		this.newsText = text;
+	}
 	
 	/**
 	 * @return ID des Newseintrags.
@@ -52,7 +67,7 @@ public class NewsEntry
 	}
 	
 	/**
-	 * @return Datum des Eintrags in Sekunden.
+	 * @return Datum des Eintrags in Sekunden/1000.
 	 */
 	public long getDate()
 	{
@@ -62,8 +77,26 @@ public class NewsEntry
 	/**
 	 * @return Text des Newseintrags.
 	 */
-	public String getDescription()
+	public String getNewsText()
 	{
-		return description;
+		return newsText;
 	}
+	
+	/**
+	 * @return Die Kurzbeschreibung des Newseintrags.
+	 */
+	public String getShortDescription()
+	{
+		return shortDescription;
+	}
+	
+	@Id
+	private int id;
+	private String title;
+	private String author;
+	private long date;
+	private String shortDescription;
+	@Column(name="txt")
+	private String newsText;
+	
 }

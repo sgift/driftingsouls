@@ -4,5 +4,6 @@ CREATE TABLE `portal_news` (
   `author` varchar(80) NOT NULL default '',
   `date` int(11) NOT NULL default '0',
   `txt` text NOT NULL,
+  `shortDescription` text NOT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 

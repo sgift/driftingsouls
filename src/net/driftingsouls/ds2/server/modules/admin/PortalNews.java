@@ -21,11 +21,13 @@ package net.driftingsouls.ds2.server.modules.admin;
 import java.io.IOException;
 import java.io.Writer;
 
+import net.driftingsouls.ds2.server.entities.NewsEntry;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.modules.AdminController;
+
+import org.hibernate.Session;
 
 /**
  * Ermoeglicht das Verfassen von neuen News im Portal.
@@ -41,12 +43,13 @@ public class PortalNews implements AdminPlugin {
 		
 		String news = context.getRequest().getParameterString("news");
 		String title = context.getRequest().getParameterString("title");
+		String shortDescription = context.getRequest().getParameterString("shortdescription");
 		
-		Database db = context.getDatabase();
-		
-		if( (news.length() == 0) || (title.length() == 0) ) {
+		if( (news.length() == 0) || (title.length() == 0) ) 
+		{
 			echo.append("<form action=\"./ds\" method=\"post\">");
 			echo.append("Titel: <input type=\"text\" name=\"title\" size=\"50\" /><br />");
+			echo.append("<textarea name=\"shortdescription\" rows=\"2\" cols=\"50\"></textarea><br />");
 			echo.append("<textarea name=\"news\" rows=\"20\" cols=\"50\"></textarea><br />");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />");
@@ -54,12 +57,13 @@ public class PortalNews implements AdminPlugin {
 			echo.append("<center><input type=\"submit\" value=\"senden\" style=\"width:200px\" /></center>");
 			echo.append("</form>");
 		}
-		else {
+		else 
+		{
+			Session db = context.getDB();
 			String username = Common._title(context.getActiveUser().getName());
 			long timestamp = Common.time();
-			db.prepare("INSERT INTO portal_news (title,author,date,txt) " +
-					"VALUES ( ?, ?, ?, ?)")
-				.update(title, username, timestamp, news);
+			NewsEntry entry = new NewsEntry(title, username, timestamp, shortDescription, news);
+			db.persist(entry);
 			echo.append("News hinzugef&uuml;gt<br />");
 		}
 	}

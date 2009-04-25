@@ -777,4 +777,7 @@
 			'randomizeimmigration', 'false', 'Zufallswert zwischen 0 und dem Maximum an Einwanderern waehlen.', '0'
 			);	
 	]]></update>
+		<update type="structure" datum="2009-04-23"><![CDATA[
+		ALTER TABLE `portal_news` ADD `shortDescription` TEXT NOT NULL;
+	]]></update>
 </updates>

@@ -8,6 +8,7 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.entities.NewsEntry;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -15,6 +16,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Required;
 
 import com.sun.syndication.feed.synd.SyndContent;
 import com.sun.syndication.feed.synd.SyndContentImpl;
@@ -30,6 +34,7 @@ import com.sun.syndication.io.SyndFeedOutput;
  * 
  * @author Sebastian Gift
  */
+@Configurable
 public class NewsController extends TemplateGenerator 
 {	
 	/**
@@ -75,18 +80,16 @@ public class NewsController extends TemplateGenerator
 		List<NewsEntry> allNews = Common.cast(db.createQuery("from NewsEntry").list());
 		for(NewsEntry news: allNews)
 		{
-	     
-	     SyndEntry entry;
-	     SyndContent description;
-
-	     entry = new SyndEntryImpl();
+	     SyndEntry entry = new SyndEntryImpl();
 	     entry.setTitle(news.getTitle());
-	     entry.setPublishedDate(new Date(news.getDate()));
+	     entry.setPublishedDate(new Date(news.getDate() * 1000));
+	     entry.setLink(config.get("URL") + "ds?module=newsdetail&action=default&newsid=" + news.getId());
 	     
-	     description = new SyndContentImpl();
+	     SyndContent description = new SyndContentImpl();
 	     description.setType("text/plain");
-	     description.setValue(news.getDescription());
+	     description.setValue(news.getShortDescription());
 	     entry.setDescription(description);
+	     
 	     entries.add(entry);
 		}
 		feed.setEntries(entries);
@@ -104,5 +107,17 @@ public class NewsController extends TemplateGenerator
 		}
 	}
 	
-	Logger log = Logger.getLogger(NewsController.class);
+	/**
+	 * Injiziert die DS-Konfiguration.
+	 * @param config Die DS-Konfiguration
+	 */
+	@Required
+	@Autowired
+	public void setConfiguration(Configuration config) 
+	{
+		this.config = config;
+	}
+	
+	private Logger log = Logger.getLogger(NewsController.class);
+	private Configuration config;
 }
