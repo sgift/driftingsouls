@@ -70,7 +70,7 @@ public class AcademyTick extends TickController {
 		dTrain.put(5, Offizier.Ability.COM);
 		
 		//Reset all hanging tasks to one tick
-		db.createQuery("update Academy as a set a.remain=:remain where a.remain=0 && (a.upgrade!=:upgrade || a.train!=:train)")
+		db.createQuery("update Academy as a set a.remain=:remain where a.remain=0 and (a.upgrade!=:upgrade or a.train!=:train)")
 		  .setParameter("remain", 1)
 		  .setParameter("upgrade", "")
 		  .setParameter("train", 0)
