@@ -1546,6 +1546,11 @@ public class Ship implements Locatable,Transfering {
 		SHIP_FAILURE
 	}
 	
+	/**
+	 * Die verschiedenen Alarmstufen eines Schiffes.
+	 * 
+	 * @author Sebastian Gift
+	 */
 	public static enum Alert
 	{
 		GREEN(0), YELLOW(1), RED(2);
@@ -1555,6 +1560,9 @@ public class Ship implements Locatable,Transfering {
 			this.code = code;
 		}
 		
+		/**
+		 * @return Der zugehoerige Code als int.
+		 */
 		public int getCode()
 		{
 			return this.code;
