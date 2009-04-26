@@ -130,11 +130,7 @@ public class SchiffsTick extends TickController {
 		int crewToFeed = shipd.getCrew() + shipd.getMarines();
 
 		//Faktor fuer den Verbrauch
-		double scaleFactor = 1;
-		//10% mehr Verbrauch bei Alarm rot
-		if( (shipd.getAlarm() == 1) && (shiptd.getShipClass() != ShipClasses.GESCHUETZ.ordinal()) ) {
-			scaleFactor = 0.9;
-		}
+		double scaleFactor = shipd.getAlertScaleFactor();
 
 		//Usercargo, Basisschiffcargo, eigener Cargo - Leerfuttern in der Reihenfolge
 		if(shipd.isUserCargoUsable()) {

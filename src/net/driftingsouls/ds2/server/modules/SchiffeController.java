@@ -247,7 +247,7 @@ public class SchiffeController extends TemplateGenerator {
 			t.setVar("only.other",1);
 		}
 		
-		String[] alarms = {"yellow","red"};
+		String[] alarms = {"green","yellow","red"};
 
 		int shiplistcount = 0;
 

@@ -235,7 +235,7 @@ public class SchiffController extends TemplateGenerator {
 		parameterNumber("alarm");
 		int alarm = getInteger("alarm");
 		
-		if( (alarm >= 0) && (alarm <= 1) ) { 
+		if( (alarm >= Ship.Alert.GREEN.getCode()) && (alarm <= Ship.Alert.RED.getCode()) ) { 
 			ship.setAlarm(alarm);
 			
 			getTemplateEngine().setVar("ship.message", "Alarmstufe erfolgreich ge&auml;ndert<br />");
@@ -1548,7 +1548,7 @@ public class SchiffController extends TemplateGenerator {
 			t.setVar("ship.shields.reloade", Common.ln((int)Math.ceil((shiptype.getShields() - ship.getShields())/(double)shieldfactor)));
 		}
 		
-		String[] alarmn = {"gelb","rot"};
+		String[] alarmn = {"gr&uuml;n","gelb","rot"};
 	
 		// Alarmstufe aendern
 		t.setBlock("_SCHIFF", "ship.alarms.listitem", "ship.alarms.list");

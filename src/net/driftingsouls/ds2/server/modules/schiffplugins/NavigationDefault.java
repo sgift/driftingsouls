@@ -317,7 +317,7 @@ public class NavigationDefault implements SchiffPlugin {
 				}
 			}
 			
-			boolean[] redAlertStatus = Ship.getRedAlertStatus(user.getId(), locs);
+			boolean[] alertStatus = Ship.getAlertStatus(user.getId(), locs);
 			
 			t.setBlock("_NAVIGATION","schiff.navigation.nav.listitem","schiff.navigation.nav.list");
 			for( int ny = 0, index=0; ny <= 2; ny++ ) {
@@ -329,7 +329,7 @@ public class NavigationDefault implements SchiffPlugin {
 								"schiff.navigation.nav.location",		new Location(sys, x+nx-1, y+ny-1).displayCoordinates(true),
 								"schiff.navigation.nav.sectorimage",	url + (sectorimgs[nx][ny] != null ? sectorimgs[nx][ny] : "data/starmap/space/space.png"),
 								"schiff.navigation.nav.newrow",			newrow,
-								"schiff.navigation.nav.warn",			(1 != nx || 1 != ny ? redAlertStatus[index++] : false) );
+								"schiff.navigation.nav.warn",			(1 != nx || 1 != ny ? alertStatus[index++] : false) );
 					
 					t.parse( "schiff.navigation.nav.list", "schiff.navigation.nav.listitem", true );
 					newrow = false;
