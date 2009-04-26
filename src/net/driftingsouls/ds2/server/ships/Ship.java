@@ -1553,7 +1553,18 @@ public class Ship implements Locatable,Transfering {
 	 */
 	public static enum Alert
 	{
-		GREEN(0), YELLOW(1), RED(2);
+		/**
+		 * Keine Reaktion.
+		 */
+		GREEN(0), 
+		/**
+		 * Reaktion bei feindlichen Schiffen.
+		 */
+		YELLOW(1), 
+		/**
+		 * Reaktion bei Schiffen, die nicht freundlich eingestellt sind.
+		 */
+		RED(2);
 		
 		private Alert(int code)
 		{
