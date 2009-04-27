@@ -5,7 +5,6 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -194,13 +193,11 @@ public class MapController extends TemplateGenerator
 			return;
 		}
 
-		List<?> nodeList = db.createQuery("from JumpNode where system= :sys and hidden=0 order by id")
-		.setInteger("sys", system)
-		.list();
-		for(Iterator<?> iter=nodeList.iterator(); iter.hasNext();)
+		List<JumpNode> publicNodes = Common.cast(db.createQuery("from JumpNode where system= :sys and hidden=0 order by id")
+												.setInteger("sys", system)
+												.list());
+		for(JumpNode node: publicNodes)
 		{
-			JumpNode node = (JumpNode)iter.next();
-
 			String blocked = "";
 			if( node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn(0) )
 			{
@@ -208,10 +205,10 @@ public class MapController extends TemplateGenerator
 			}
 
 			t.setVar(	"jumpnode.x",			node.getX(),
-					"jumpnode.y",			node.getY(),
-					"jumpnode.name",		node.getName(),
-					"jumpnode.systemout",	node.getSystemOut(),
-					"jumpnode.blocked",		blocked );
+						"jumpnode.y",			node.getY(),
+						"jumpnode.name",		node.getName(),
+						"jumpnode.systemout",	node.getSystemOut(),
+						"jumpnode.blocked",		blocked );
 
 			t.parse("jumpnodes.list", "jumpnodes.listitem", true);
 		}
@@ -219,7 +216,7 @@ public class MapController extends TemplateGenerator
 		StarSystem displayedSystem = Systems.get().system(this.system);
 		int width = displayedSystem.getWidth();
 		int height = displayedSystem.getHeight();
-
+		
 		String dataPath = templateEngine.getVar("global.datadir") + "data/starmap/";
 		Ally userAlly = user.getAlly();
 
@@ -449,14 +446,14 @@ public class MapController extends TemplateGenerator
 
 	private Map<Location, List<Base>> getBaseMap(List<Base> bases)
 	{
-		Map<Location, List<Base>> shipMap = new HashMap<Location, List<Base>>();
+		Map<Location, List<Base>> baseMap = new HashMap<Location, List<Base>>();
 
 		for(Base base: bases)
 		{
 			Location position = base.getLocation();
-			if(!shipMap.containsKey(position))
+			if(!baseMap.containsKey(position))
 			{
-				shipMap.put(position, new ArrayList<Base>());
+				baseMap.put(position, new ArrayList<Base>());
 			}
 
 			int size = base.getSize();
@@ -472,22 +469,22 @@ public class MapController extends TemplateGenerator
 							continue;	
 						}
 
-						if(!shipMap.containsKey(loc))
+						if(!baseMap.containsKey(loc))
 						{
-							shipMap.put(loc, new ArrayList<Base>());
+							baseMap.put(loc, new ArrayList<Base>());
 						}
 
-						shipMap.get(loc).add(0, base); //Big objects are always printed first
+						baseMap.get(loc).add(0, base); //Big objects are always printed first
 					}
 				}
 			}
 			else
 			{
-				shipMap.get(position).add(base);
+				baseMap.get(position).add(base);
 			}
 		}
 
-		return shipMap;
+		return baseMap;
 	}
 
 	private Map<Location, List<JumpNode>> getNodeMap(List<JumpNode> nodes)

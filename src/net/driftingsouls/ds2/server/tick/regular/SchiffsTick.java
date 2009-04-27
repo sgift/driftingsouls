@@ -224,14 +224,8 @@ public class SchiffsTick extends TickController {
 			}
 			else
 			{
-				ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "desertedmeetingpoint");
-				Location location = Location.fromString(value.getValue());
 				User pirate = (User)db.get(User.class, Faction.PIRATE);
-				
 				shipd.setOwner(pirate);
-				shipd.setSystem(location.getSystem());
-				shipd.setX(location.getX());
-				shipd.setY(location.getY());
 				
 				this.log("Konto nicht gedeckt; Schiff desertiert zum Piraten.");
 				PM.send(pirate, owner.getId(), "Schiff desertiert", "Die " + shipd.getName() + " (" + shipd.getId() + ") ist desertiert, nachdem Sie den Sold der Crew nicht aufbringen konnten.");
