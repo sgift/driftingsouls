@@ -3306,6 +3306,7 @@ public class Ship implements Locatable,Transfering {
 
 		if( newowner.hasFlag( User.FLAG_NO_SHIP_CONSIGN ) ) {
 			MESSAGE.get().append("Sie k&ouml;nnen diesem Spieler keine Schiffe &uuml;bergeben");
+			return true;
 		}
 
 		if( this.lock != null ) {
