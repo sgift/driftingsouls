@@ -734,35 +734,28 @@ public class KSAttackAction extends BasicKSAction {
 
 	private int getAntiTorpTrefferWS(ShipTypeData enemyShipType) {
 		Context context = ContextMap.getContext();
-
 		Map<String,String> eweapons = Weapons.parseWeaponList(enemyShipType.getWeapons());
-
-		double antitorptrefferws = 1;
-
+		double antitorptrefferws = 0;
+		
 		for( Map.Entry<String,String> wpn : eweapons.entrySet() ) {
 			final int count = Integer.parseInt(wpn.getValue());
 			final Weapon weapon = Weapons.get().weapon(wpn.getKey());
 
 			if( weapon.getTorpTrefferWS() != 0 ) {
-				antitorptrefferws *= Math.pow(1-weapon.getTorpTrefferWS()/100d,count);
+				antitorptrefferws += weapon.getTorpTrefferWS()*count;
 			}
 			// TODO: Was ist mit Waffen mit AMMO_SELECT?
 			else if( (weapon.getAmmoType().length > 0) && !weapon.hasFlag(Weapon.Flags.AMMO_SELECT) ) {
 				Ammo ammo = (Ammo)context.getDB()
 				.createQuery("from Ammo where type in ('"+Common.implode("','", weapon.getAmmoType())+"')")
 				.iterate().next();
-
-				// TODO: Die erst beste Ammo in der DB ist nicht unbedingt die beste Wahl
-
-				antitorptrefferws *= Math.pow(1-ammo.getTorpTrefferWS()/100d,count);
+				// TODO: Insert check what ammo is in ships cargo
+				antitorptrefferws += ammo.getTorpTrefferWS()*count;
 			}
 		}	
-		antitorptrefferws = 1 - antitorptrefferws;
-		antitorptrefferws *= 100d;
 		antitorptrefferws *= (this.enemyShip.getShip().getWeapons()/100);
-		antitorptrefferws /= this.localweapon.getDouble("destroyable");
-
-		return (int)antitorptrefferws;	
+		
+		return (int)antitorptrefferws;
 	}
 
 	private int getFighterDefense( Battle battle )
@@ -858,9 +851,13 @@ public class KSAttackAction extends BasicKSAction {
 		// Rechnen wir mal die endgueltige Verteidigung aus
 		if (docksuse > docks)
 		{
+			if ( docks != 0)
+			{
+				docks = (int)Math.floor(docks * (fighter / docksuse));
+			}
 			fighterdefcount = (int)Math.floor((((double)fighterdefcount)/((double)fighter))*((double)docks));
 		}
-		int fighterdef = (int)Math.round((((double)(fighterdefcount + gksdefcount))/((double)defcount))/localweapon.getDouble("destroyable"));
+		int fighterdef = (int)Math.round((((double)(fighterdefcount + gksdefcount))/((double)defcount)));
 		if( fighterdef > 100 )
 		{
 			fighterdef = 100;	
