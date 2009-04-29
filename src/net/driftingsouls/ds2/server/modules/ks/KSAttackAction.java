@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
+import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.config.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
@@ -732,7 +733,7 @@ public class KSAttackAction extends BasicKSAction {
 		return localweapon;
 	}
 
-	private int getAntiTorpTrefferWS(ShipTypeData enemyShipType) {
+	private int getAntiTorpTrefferWS(ShipTypeData enemyShipType, Cargo enemyCargo) {
 		Context context = ContextMap.getContext();
 		Map<String,String> eweapons = Weapons.parseWeaponList(enemyShipType.getWeapons());
 		double antitorptrefferws = 0;
@@ -744,14 +745,30 @@ public class KSAttackAction extends BasicKSAction {
 			if( weapon.getTorpTrefferWS() != 0 ) {
 				antitorptrefferws += weapon.getTorpTrefferWS()*count;
 			}
-			// TODO: Was ist mit Waffen mit AMMO_SELECT?
-			else if( (weapon.getAmmoType().length > 0) && !weapon.hasFlag(Weapon.Flags.AMMO_SELECT) ) {
-				Ammo ammo = (Ammo)context.getDB()
-				.createQuery("from Ammo where type in ('"+Common.implode("','", weapon.getAmmoType())+"')")
-				.iterate().next();
-				// TODO: Insert check what ammo is in ships cargo
-				antitorptrefferws += ammo.getTorpTrefferWS()*count;
+			else if( (weapon.getAmmoType().length > 0) )
+			{
+				// Load possible ammo from database
+				List<Ammo> ammo = Common.cast(context.getDB().createQuery("from Ammo where type in ('"+Common.implode("','", weapon.getAmmoType())+"')").list());
+				// iterate through whole ammo
+				for(Ammo munition: ammo)
+				{
+					ItemID ammoId = new ItemID(munition.getItemId());
+					int ammocount = (int) enemyCargo.getResourceCount(ammoId);
+					int shots = weapon.getSingleShots()*count;
+					// check if there's enough ammo to fire
+					if(	ammocount >= shots)
+					{
+						// increase antitorptws
+						antitorptrefferws += munition.getTorpTrefferWS()*count;
+						// reduce amount of ammo in cargo
+						enemyCargo.setResource(ammoId, ammocount - shots);
+						// stop iteration of ammo here
+						// TODO maybe we should check if there's a better ammo in cargo
+						break;
+					}					
+				}
 			}
+
 		}	
 		antitorptrefferws *= (this.enemyShip.getShip().getWeapons()/100);
 		
@@ -1301,7 +1318,7 @@ public class KSAttackAction extends BasicKSAction {
 
 				if( this.localweapon.getDouble("destroyable") > 0 )
 				{
-					antitorptrefferws = this.getAntiTorpTrefferWS( enemyShipType );
+					antitorptrefferws = this.getAntiTorpTrefferWS( enemyShipType, this.enemyShip.getCargo());
 					battle.logme("AntiTorp-TrefferWS: "+ this.getTWSText(antitorptrefferws) +"%\n");
 
 					if( enemyShipType.getSize() > ShipType.SMALL_SHIP_MAXSIZE )
