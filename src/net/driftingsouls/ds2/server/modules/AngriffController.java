@@ -212,7 +212,7 @@ public class AngriffController extends TemplateGenerator {
 					"shipinfo.sensors",			ship.getShip().getSensors(),
 					"shipinfo.showtmp",			(ship.getAction() & Battle.BS_HIT) != 0 || (ship.getAction() & Battle.BS_DESTROYED) != 0,
 					"shipinfo.tmp.hull",		((ship.getAction() & Battle.BS_DESTROYED) != 0 ? 0 : Common.ln(ship.getHull()) ),
-					"shipinfo.tmp.shields",		((ship.getAction() & Battle.BS_DESTROYED) != 0 ? 0 : Common.ln(ship.getHull())),
+					"shipinfo.tmp.shields",		((ship.getAction() & Battle.BS_DESTROYED) != 0 ? 0 : Common.ln(ship.getShields())),
 					"shipinfo.tmp.engine",		ship.getEngine(),
 					"shipinfo.tmp.weapons",		ship.getWeapons(),
 					"shipinfo.tmp.comm",		ship.getComm(),
