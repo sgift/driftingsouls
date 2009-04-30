@@ -781,7 +781,6 @@ public class KSAttackAction extends BasicKSAction {
 		int fighterdefcount = 0;// Gesamtpunktzahl an Bombenabwehr durch Jaeger
 		int gksdefcount = 0;	// Gesamtpunktzahl an Bombenabwehr durch GKS
 		int fighter = 0;		// Gesamtanzahl Jaeger
-		int gks = 0;			// Gesamtanzahl GKS die Tropabwehr liefern
 		int docks = 0;			// Gesamtanzahl Docks
 		int docksuse = 0;		// Gesamtanzahl an Schiffen, welche Docks brauchen
 
@@ -804,67 +803,54 @@ public class KSAttackAction extends BasicKSAction {
 				crewfactor = 1.0;
 			}
 
-			if((selectedShip.getAction() & Battle.BS_JOIN) != 0)
+			// check if ship has to be defended
+			if(shipHasToBeDefended(selectedShip))
 			{
-				// Beitretende Schiffe werden grundsaetzlich ausgenommen, hier wird gar nichts berechnet
+				defcount = defcount + 1;
 			}
-			else if(selectedShip.getShip().isLanded() || selectedShip.getShip().isDocked())
+			
+			//check if ship has torpdef
+			if(shipHasTorpDef(type))
 			{
-				//Gelandete Schiffe zaehlen nicht
+				// check if ship is a GKS
+				if(shipIsGKS(type))
+				{
+					// increase the gks-torpedo-defense
+					gksdefcount = gksdefcount + (int)Math.floor(type.getTorpedoDef() * crewfactor);
+				}
+				else
+				{
+					// check if ship is landed
+					if(shipIsNotLanded(selectedShip))
+					{
+						// increase the fighter-torpedo-defense
+						fighterdefcount += (int)Math.floor(type.getTorpedoDef() * crewfactor);
+						// increase number of fighters
+						fighter = fighter + 1;	
+					}
+				}
 			}
-			else if(type.getJDocks() > 0 && (selectedShip.getAction() & Battle.BS_FLUCHT) == 0 && type.getSize() > ShipType.SMALL_SHIP_MAXSIZE)
+			
+			// check if ship needs dock
+			if(shipNeedsDock(type))
 			{
-				// Alle Schiffe mit Jaegerdocks die nicht auf der Flucht sind zaehlen a) als zu verteidigend und b) liefern Docks
-				// Wenn wir allerdings nicht genug Crew haben koennen wir auch nicht alle Docks bedienen
+				// increase number of docks needed
+				docksuse = docksuse + 1;
+			}
+
+			// check if ship has docks
+			if(shipHasDocks(type))
+			{
+				// add docks
 				docks = docks + (int)Math.floor(type.getJDocks() * crewfactor);
-				// Einschraenkung, nur Schiffe in Reihe 1 muessen verteidigt werden
-				if ((selectedShip.getAction() & Battle.BS_SECONDROW) != 0)
-				{
-					defcount = defcount + 1;
-				}
-				// Wenn Schiffe mit Docks Torpabwehr stellen, dann hinzufuegen
-				if(type.getTorpedoDef() > 0)
-				{
-					gks = gks + 1;
-					gksdefcount = gksdefcount + (int)Math.floor(type.getTorpedoDef() * crewfactor);
-				}
-			}
-			else if(type.getShipClass() == ShipClasses.JAEGER.ordinal() && (selectedShip.getAction() & Battle.BS_FLUCHT) == 0)
-			{
-				// Alle Jaeger zaehlen als docknutzend und liefern ihre Torpabwehr
-				// Allerdings nur, wenn sie nicht fluechten.
-				fighter = fighter + 1;
-				fighterdefcount += (int)Math.floor(type.getTorpedoDef() * crewfactor);
-				docksuse = docksuse + 1;
-			}
-			else if(type.getShipClass() == ShipClasses.BOMBER.ordinal()&& (selectedShip.getAction() & Battle.BS_FLUCHT) == 0 )
-			{
-				// Bomber zaehlen als docknutzend, ausser sie fluechten
-				docksuse = docksuse + 1;
-			}
-			else if(type.getSize() > ShipType.SMALL_SHIP_MAXSIZE)
-			{
-				// GKS in Reihe 1 ohne Docks muessen auch verteidigt werden
-				if ((selectedShip.getAction() & Battle.BS_SECONDROW) != 0)
-				{
-					defcount = defcount + 1;
-				}
-				// Wenn Schiffe Torpabwehr stellen, dann hinzufuegen
-				if(type.getTorpedoDef() > 0)
-				{
-					gks = gks + 1;
-					gksdefcount = gksdefcount + (int)Math.floor(type.getTorpedoDef() * crewfactor);
-				}				
-			}
-			else
-			{
-				// TODO: Hier die Faelle einfuegen, die ich vergessen habe 
 			}
 		}
+		
 		if( defcount == 0 )
 		{
 			defcount = 1;	
 		}
+		
 		// Rechnen wir mal die endgueltige Verteidigung aus
 		if (docksuse > docks)
 		{
@@ -874,13 +860,79 @@ public class KSAttackAction extends BasicKSAction {
 			}
 			fighterdefcount = (int)Math.floor( ( (double)fighterdefcount / (double)fighter ) * (double)docks );
 		}
-		int fighterdef = (int)Math.round( ( (double)fighterdefcount + gksdefcount ) / (double)defcount );
+		int fighterdef = (int)Math.round( (double)(fighterdefcount + gksdefcount ) / (double)defcount );
 		if( fighterdef > 100 )
 		{
 			fighterdef = 100;	
 		}
 
 		return fighterdef;
+	}
+
+	private boolean shipIsNotLanded(BattleShip selectedShip) {
+		if(selectedShip.getShip().isLanded() || selectedShip.getShip().isDocked())
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+
+	private boolean shipHasDocks(ShipTypeData type) {
+		if(type.getJDocks() <= 0)
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+
+	private boolean shipHasToBeDefended(BattleShip selectedShip) {
+		if((selectedShip.getAction() & Battle.BS_JOIN) != 0 || (selectedShip.getAction() & Battle.BS_SECONDROW) != 0)
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+
+	private boolean shipHasTorpDef(ShipTypeData type) {
+		if(type.getTorpedoDef() <= 0)
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+
+	private boolean shipNeedsDock(ShipTypeData type) {
+		if(type.getShipClass() != ShipClasses.JAEGER.ordinal() && type.getShipClass() != ShipClasses.BOMBER.ordinal())
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+
+	private boolean shipIsGKS(ShipTypeData type) {
+		if(type.getSize() <= ShipType.SMALL_SHIP_MAXSIZE)
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
 	}
 
 	private List<BattleShip> getADShipList( Battle battle ) {
