@@ -872,9 +872,9 @@ public class KSAttackAction extends BasicKSAction {
 			{
 				docks = (int)Math.floor(docks * (fighter / docksuse));
 			}
-			fighterdefcount = (int)Math.floor((((double)fighterdefcount)/((double)fighter))*((double)docks));
+			fighterdefcount = (int)Math.floor( ( (double)fighterdefcount / (double)fighter ) * (double)docks );
 		}
-		int fighterdef = (int)Math.round((((double)(fighterdefcount + gksdefcount))/((double)defcount)));
+		int fighterdef = (int)Math.round( ( (double)fighterdefcount + gksdefcount ) / (double)defcount );
 		if( fighterdef > 100 )
 		{
 			fighterdef = 100;	
