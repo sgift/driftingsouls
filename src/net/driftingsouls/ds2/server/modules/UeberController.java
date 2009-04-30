@@ -469,7 +469,7 @@ public class UeberController extends TemplateGenerator {
 				eparty2 = Common._title(ally.getName());
 			}
 					
-			battlelist.append("<a class=\"error\" href=\"ds?module=angriff&amp;battle="+battle.getId()+"\">Schlacht "+eparty+" vs "+eparty2+" bei "+battle.getLocation().displayCoordinates(false)+"</a><br />\n");
+			battlelist.append("<a class=\"error\" href=\"ds?module=angriff&amp;battle="+battle.getId()+"\">Schlacht "+eparty+" vs "+eparty2+" bei "+battle.getLocation().displayCoordinates(false)+"</a>");
 			
 			if( ( (user.getAccessLevel() >= 20) || user.hasFlag(User.FLAG_QUEST_BATTLES) ) 
 				&& (battle.getQuest() != null) ) {
