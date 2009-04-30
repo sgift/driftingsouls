@@ -474,7 +474,7 @@ public class UeberController extends TemplateGenerator {
 			if( ( (user.getAccessLevel() >= 20) || user.hasFlag(User.FLAG_QUEST_BATTLES) ) 
 				&& (battle.getQuest() != null) ) {
 				RunningQuest quest = (RunningQuest)db.get(RunningQuest.class, battle.getQuest());
-				battlelist.append("*&nbsp;[Quest: "+quest.getQuest().getName()+"]<br />\n");
+				battlelist.append("*&nbsp;[Quest: "+quest.getQuest().getName()+"]");
 			}
 			
 			battlelist.append("<br />\n");
