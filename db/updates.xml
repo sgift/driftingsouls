@@ -777,7 +777,13 @@
 			'randomizeimmigration', 'false', 'Zufallswert zwischen 0 und dem Maximum an Einwanderern waehlen.', '0'
 			);	
 	]]></update>
-		<update type="structure" datum="2009-04-23"><![CDATA[
+	<update type="structure" datum="2009-04-23"><![CDATA[
 		ALTER TABLE `portal_news` ADD `shortDescription` TEXT NOT NULL;
+	]]></update>
+	<update type="structure" datum="2009-04-27"><![CDATA[
+		CREATE TABLE `ds2`.`starmap` (
+			`system` INT NOT NULL ,
+			PRIMARY KEY ( `system` ) 
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
 	]]></update>
 </updates>

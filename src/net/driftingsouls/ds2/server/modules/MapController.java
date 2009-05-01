@@ -2,24 +2,15 @@ package net.driftingsouls.ds2.server.modules;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Systems;
-import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.JumpNode;
-import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.BasicUser;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
@@ -27,8 +18,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.map.PlayerStarmap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -179,9 +169,9 @@ public class MapController extends TemplateGenerator
 			}
 
 			t.setVar(	"system.name",		system.getName(),
-					"system.id",		system.getID(),
-					"system.addinfo",	systemAddInfo,
-					"system.selected",	(system.getID() == this.system) );
+						"system.id",		system.getID(),
+						"system.addinfo",	systemAddInfo,
+						"system.selected",	(system.getID() == this.system) );
 
 			t.parse("systems.list", "systems.listitem", true);
 		}
@@ -193,9 +183,9 @@ public class MapController extends TemplateGenerator
 			return;
 		}
 
-		List<JumpNode> publicNodes = Common.cast(db.createQuery("from JumpNode where system= :sys and hidden=0 order by id")
-												.setInteger("sys", system)
-												.list());
+		
+		PlayerStarmap content = new PlayerStarmap(db, user, system);
+		List<JumpNode> publicNodes = content.getPublicNodes();
 		for(JumpNode node: publicNodes)
 		{
 			String blocked = "";
@@ -218,30 +208,6 @@ public class MapController extends TemplateGenerator
 		int height = displayedSystem.getHeight();
 		
 		String dataPath = templateEngine.getVar("global.datadir") + "data/starmap/";
-		Ally userAlly = user.getAlly();
-
-		List<Ship> ships = Common.cast(db.createQuery("from Ship where system=:system")
-				.setParameter("system", system)
-				.list());
-
-		List<Nebel> nebulas = Common.cast(db.createQuery("from Nebel where system=:system")
-				.setParameter("system", system)
-				.list());
-
-		List<JumpNode> nodes = Common.cast(db.createQuery("from JumpNode where system=:system")
-				.setParameter("system", system)
-				.list());
-
-		List<Base> bases = Common.cast(db.createQuery("from Base b inner join fetch b.owner where system=:system")
-				.setParameter("system", system)
-				.list());
-
-		Map<Location, List<Ship>> shipMap = getShipMap(ships);
-		Map<Location, Nebel> nebulaMap = getNebulaMap(nebulas);
-		Map<Location, List<JumpNode>> nodeMap = getNodeMap(nodes);
-		Map<Location, List<Base>> baseMap = getBaseMap(bases);
-
-		Set<Location> scannableLocations = getScannableLocations(shipMap, nebulaMap);
 
 		int xStart = getInteger("xstart");
 		int xEnd = getInteger("xend");
@@ -297,125 +263,18 @@ public class MapController extends TemplateGenerator
 				map.append("<img width=\"25\" height=\"25\" src=\"" + dataPath);
 
 				Location position = new Location(this.system, x, y);
-				boolean scannable = scannableLocations.contains(position);
-				//Basic image
-				Nebel nebula = nebulaMap.get(position);
-				if(nebula != null)
-				{
-
-					map.append(dataPath + nebula.getImage());
-				}
-				else
-				{
-					List<Base> positionBases = baseMap.get(position);
-					if(positionBases != null && !positionBases.isEmpty())
-					{
-						Base base = positionBases.get(0);
-						map.append(base.getImage(position, user, scannable));
-					}
-					else 
-					{
-						List<JumpNode> positionNodes = nodeMap.get(position);
-						if(positionNodes != null && !positionNodes.isEmpty())
-						{
-							if(scannableLocations.contains(position))
-							{
-								map.append("jumpnode/jumpnode");
-							}
-							else
-							{
-								boolean isNode = false;
-								for(JumpNode node: positionNodes)
-								{
-									if(!node.isHidden())
-									{
-										map.append("jumpnode/jumpnode");
-										isNode = true;
-										break;
-									}
-								}
-								
-								if(!isNode)
-								{
-									map.append("space/space");
-								}
-							}
-						}
-						else
-						{
-							map.append("space/space");
-						}
-					}
-				}
-
-
+				boolean scannable = content.isScannable(position);
+				String sectorImage = dataPath + content.getSectorImage(position);
+				
 				if(scannable)
 				{
-
-					//Fleet attachment
-					List<Ship> sectorShips = shipMap.get(position);
-					int ownShips = 0;
-					int alliedShips = 0;
-					int enemyShips = 0;
-					int unscannableEnemyShips = 0;
-
-					if(sectorShips != null && !sectorShips.isEmpty())
-					{
-						for(Ship ship: sectorShips)
-						{
-							User shipOwner = ship.getOwner();
-							if(shipOwner.equals(user))
-							{
-								ownShips++;
-							}
-							else 
-							{
-								Ally shipAlly = shipOwner.getAlly();
-								if(shipAlly != null && shipAlly.equals(userAlly))
-								{
-									alliedShips++;
-								}
-								else
-								{
-									if(ship.getTypeData().hasFlag(ShipTypes.SF_SEHR_KLEIN))
-									{
-										unscannableEnemyShips++;
-									}
-									else
-									{
-										enemyShips++;
-									}
-								}
-							}
-						}
-						
-						//Ships which are small etc. are shown in fields with own or allied ships
-						if(ownShips > 0 || alliedShips > 0)
-						{
-							enemyShips += unscannableEnemyShips;
-						}
-						
-						if(ownShips > 0)
-						{
-							map.append("_fo");
-						}
-
-						if(alliedShips > 0)
-						{
-							map.append("_fa");
-						}
-
-						if(enemyShips > 0)
-						{
-							map.append("_fe");
-						}
-					}
-					
-					map.append(".png\" alt=\"" + x + "/" + y + "\"/ class=\"scan\">");
+					map.append(sectorImage);
+					map.append("\" alt=\"" + x + "/" + y + "\"/ class=\"scan\">");
 				}
 				else
 				{
-					map.append(".png\" alt=\"" + x + "/" + y + "\" class=\"noscan\"/>");
+					map.append(sectorImage);
+					map.append("\" alt=\"" + x + "/" + y + "\" class=\"noscan\"/>");
 				}
 
 				map.append("</td>");
@@ -442,204 +301,5 @@ public class MapController extends TemplateGenerator
 			map.append("</td>");
 		}
 		map.append("</tr>");
-	}
-
-	private Map<Location, List<Base>> getBaseMap(List<Base> bases)
-	{
-		Map<Location, List<Base>> baseMap = new HashMap<Location, List<Base>>();
-
-		for(Base base: bases)
-		{
-			Location position = base.getLocation();
-			if(!baseMap.containsKey(position))
-			{
-				baseMap.put(position, new ArrayList<Base>());
-			}
-
-			int size = base.getSize();
-			if(size > 0)
-			{
-				for(int y = base.getY() - size; y <= base.getY() + size; y++)
-				{
-					for(int x = base.getX() - size; x <= base.getX() + size; x++)
-					{
-						Location loc = new Location(system, x, y);
-
-						if( !position.sameSector( 0, loc, base.getSize() ) ) {
-							continue;	
-						}
-
-						if(!baseMap.containsKey(loc))
-						{
-							baseMap.put(loc, new ArrayList<Base>());
-						}
-
-						baseMap.get(loc).add(0, base); //Big objects are always printed first
-					}
-				}
-			}
-			else
-			{
-				baseMap.get(position).add(base);
-			}
-		}
-
-		return baseMap;
-	}
-
-	private Map<Location, List<JumpNode>> getNodeMap(List<JumpNode> nodes)
-	{
-		Map<Location, List<JumpNode>> nodeMap = new HashMap<Location, List<JumpNode>>();
-
-		for(JumpNode node: nodes)
-		{
-			Location position;
-			if(node.getSystem() == system)
-			{
-				position = new Location(node.getSystem(), node.getX(), node.getY());
-			}
-			else
-			{
-				position = new Location(node.getSystemOut(), node.getXOut(), node.getYOut());
-			}
-
-			if(!nodeMap.containsKey(position))
-			{
-				nodeMap.put(position, new ArrayList<JumpNode>());
-			}
-
-			nodeMap.get(position).add(node);
-		}
-
-		return nodeMap;
-	}
-
-	private Map<Location, Nebel> getNebulaMap(List<Nebel> nebulas)
-	{
-		Map<Location, Nebel> nebulaMap = new HashMap<Location, Nebel>();
-
-		for(Nebel nebula: nebulas)
-		{
-			nebulaMap.put(nebula.getLocation(), nebula);
-		}
-
-		return nebulaMap;
-	}
-
-	private Map<Location, List<Ship>> getShipMap(List<Ship> ships)
-	{
-		Map<Location, List<Ship>> shipMap = new HashMap<Location, List<Ship>>();
-
-		for(Ship ship: ships)
-		{
-			Location position = ship.getLocation();
-			if(!shipMap.containsKey(position))
-			{
-				shipMap.put(position, new ArrayList<Ship>());
-			}
-
-			shipMap.get(position).add(ship);
-		}
-
-		return shipMap;
-	}
-
-	private Set<Location> getScannableLocations(Map<Location, List<Ship>> locatedShips, Map<Location, Nebel> nebulas)
-	{
-		User user = (User)getUser();
-		Ally ally = user.getAlly();
-		Set<Location> scannableLocations = new HashSet<Location>();
-
-		for(Map.Entry<Location, List<Ship>> sectorShips: locatedShips.entrySet())
-		{
-			Location position = sectorShips.getKey();
-			List<Ship> ships = sectorShips.getValue();
-
-			int scanRange = -1;
-			//Find ship with best scanrange
-			for(Ship ship: ships)
-			{
-				//Own ship?
-				if(!ship.getOwner().equals(user))
-				{
-					//See allied scans?
-					if(ally != null && ally.getShowLrs())
-					{
-						//Allied ship?
-						Ally ownerAlly = ship.getOwner().getAlly();
-						if(ownerAlly == null || !ownerAlly.equals(ally))
-						{
-							continue;
-						}
-					}
-					else
-					{
-						continue;
-					}
-				}
-				
-				if(ship.getOwner().isInVacation())
-				{
-					continue;
-				}
-
-				int shipScanRange = ship.getTypeData().getSensorRange();
-				if(shipScanRange > scanRange)
-				{
-					scanRange = shipScanRange;
-				}
-			}
-			
-			//No ship found
-			if(scanRange == -1)
-			{
-				continue;
-			}
-			
-			//Adjust for nebula position
-			//TODO: Check, if there's an performant way to bring this part into the Ship and/or the Location class
-			if(nebulas.containsKey(position))
-			{
-				scanRange /= 2;
-				
-				Nebel nebula = nebulas.get(position);
-				if(!nebula.allowsScan())
-				{
-					continue;
-				}
-			}
-
-			//Find sectors scanned from ship
-			for(int y = position.getY() - scanRange; y <= position.getY() + scanRange; y++)
-			{
-				for(int x = position.getX() - scanRange; x <= position.getX() + scanRange; x++)
-				{
-					Location loc = new Location(system, x, y);
-
-					if(!position.sameSector(scanRange, loc, 0)) 
-					{
-						continue;	
-					}
-
-					//No nebula scan
-					if(!nebulas.containsKey(loc))
-					{
-						scannableLocations.add(loc);
-					}
-					else
-					{
-						if(loc.equals(position))
-						{
-							Nebel nebula = nebulas.get(position);
-							if(!nebula.isEmp())
-							{
-								scannableLocations.add(loc);
-							}
-						}
-					}
-				}
-			}
-		}
-		return scannableLocations;
 	}
 }

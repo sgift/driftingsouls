@@ -892,11 +892,11 @@ public class KSAttackAction extends BasicKSAction {
 	}
 
 	private boolean shipHasToBeDefended(BattleShip selectedShip) {
-		if((selectedShip.getAction() & Battle.BS_JOIN) != 0 )
+		if((selectedShip.getAction() & Battle.BS_JOIN) == 0 )
 		{
 			return false;
 		}
-		else if((selectedShip.getAction() & Battle.BS_SECONDROW) != 0)
+		else if((selectedShip.getAction() & Battle.BS_SECONDROW) == 0)
 		{
 			return false;
 		}
