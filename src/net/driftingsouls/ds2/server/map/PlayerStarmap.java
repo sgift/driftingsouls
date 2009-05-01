@@ -85,7 +85,7 @@ public class PlayerStarmap
 	 * Das Bild kann fuer verschiedene Spieler anders sein.
 	 * 
 	 * @param location Der Sektor
-	 * @return
+	 * @return Das Bild als String ohne den Pfad zum Data-Verzeichnis.
 	 */
 	public String getSectorImage(Location location)
 	{
