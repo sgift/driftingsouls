@@ -180,7 +180,6 @@ public class Battle implements Locatable {
 	private long lastaction;
 	private long lastturn;
 	private int flags;
-	private int inakt;
 	private String onend;
 	private String visibility;
 	private Integer quest;
@@ -601,13 +600,6 @@ public class Battle implements Locatable {
 			throw new IndexOutOfBoundsException("Schiffsindex fuer eigene Schiffe '"+index+"' > als das das vorhandene Maximum ("+this.ownShips.size()+")");
 		}
 		this.activeSOwn = index;
-	}
-
-	/**
-	 * Setzt den Inaktivitaetszaehler der Schlacht zurueck.
-	 */
-	public void resetInactivity(  ) {	
-		this.inakt = 0;
 	}
 	
 	/**
@@ -1760,29 +1752,6 @@ public class Battle implements Locatable {
 		}
 		schiffstick.execute();
 		schiffstick.dispose();
-
-		if( this.inakt > 6 ) {
-			final User sourceUser = (User)context.getDB().get(User.class, -1);
-			
-			PM.send(sourceUser, this.commander1.getId(), "Schlacht beendet", "Die Schlacht bei "+this.getLocation()+" wurde wegen Inaktivit&auml;t automatisch beendet");
-			PM.send(sourceUser, this.commander2.getId(), "Schlacht beendet", "Die Schlacht bei "+this.getLocation()+" wurde wegen Inaktivit&auml;t automatisch beendet");
-			this.endBattle(0, 0, true);
-			 
-			if( !calledByUser ) {
-				try
-				{
-					context.getResponse().getWriter().append("-> Die Schlacht wurde wegen Inaktivit&auml;t beendet");
-				}
-				catch( IOException e )
-				{
-					throw new RuntimeException(e);
-				} 	
-			}
-			
-			return false;
-		} 
-
-		this.inakt++;
 		
 		return true;
 	}

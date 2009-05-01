@@ -96,7 +96,6 @@ public class KSDischargeBatteriesSingleAction extends BasicKSAction {
 		ownShip.getShip().recalculateShipStatus();
 		
 		battle.logenemy("]]></action>\n");
-		battle.resetInactivity();
 		
 		return RESULT_OK;
 	}

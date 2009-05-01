@@ -102,8 +102,6 @@ public class KSRegenerateShieldsSingleAction extends BasicKSAction {
 		ownShip.setShields(curShields);
 
 		battle.logenemy("]]></action>\n");
-
-		battle.resetInactivity();
 		
 		ownShip.getShip().recalculateShipStatus();
 			

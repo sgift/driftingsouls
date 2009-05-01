@@ -1618,8 +1618,6 @@ public class KSAttackAction extends BasicKSAction {
 			battle.setEnemyShipIndex(oldenemyship);	
 		}
 
-		battle.resetInactivity();
-
 		this.ownShip.getShip().recalculateShipStatus();
 
 		return RESULT_OK;

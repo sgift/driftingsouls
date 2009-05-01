@@ -111,8 +111,6 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 		battle.logenemy("Die feindlichen Schiffe r&uuml;cken unter schwerem Feuer langsam vor und dr&auml;ngen trotz heftigsten Widerstands die Linien zur&uuml;ck\n");
 		battle.logenemy("]]></action>\n");	
 		
-		battle.resetInactivity();
-		
 		return RESULT_OK;
 	}
 }

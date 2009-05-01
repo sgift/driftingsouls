@@ -96,8 +96,6 @@ public class KSNewCommanderAction extends BasicKSAction {
 		battle.logenemy("<side"+(battle.getOwnSide()+1)+" commander=\""+battle.getCommander(battle.getOwnSide()).getId()+"\" ally=\""+battle.getAlly(battle.getOwnSide())+"\" />\n");
 
 		battle.setTakeCommand(battle.getOwnSide(), 0);
-
-		battle.resetInactivity();
 		
 		return RESULT_OK;
 	}

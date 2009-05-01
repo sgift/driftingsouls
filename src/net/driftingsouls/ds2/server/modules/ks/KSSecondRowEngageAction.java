@@ -85,8 +85,6 @@ public class KSSecondRowEngageAction extends BasicKSAction {
 			battle.setFlag(Battle.FLAG_BLOCK_SECONDROW_0, true);
 		}
 		
-		battle.resetInactivity();
-		
 		return RESULT_OK;
 	}
 }

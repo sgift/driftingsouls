@@ -111,7 +111,6 @@ public class KSLeaveSecondRowAction extends BasicKSAction {
 		BattleShip ownShip = battle.getOwnShip();
 		 
 		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
-		battle.resetInactivity();
 		
 		battle.logme( ownShip.getName()+" fliegt zur Front\n" );
 		battle.logenemy( Battle.log_shiplink(ownShip.getShip())+" fliegt zur Front\n" );

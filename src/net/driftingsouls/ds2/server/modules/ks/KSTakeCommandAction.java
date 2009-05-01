@@ -69,13 +69,7 @@ public class KSTakeCommandAction extends BasicKSAction {
 			return RESULT_ERROR;
 		}
 		
-		//battle.setTakeCommand(battle.getOwnSide(), user.getId());
-
 		battle.setCommander(battle.getOwnSide(), user);
-		
-		battle.resetInactivity();
-
-		//battle.logme("Versuche das Kommando zu &uuml;bernehmen...\n\nBitte Warten sie bis zum n&auml;chsten automatischen Rundenwechsel!");
 				
 		return RESULT_OK;		
 	}

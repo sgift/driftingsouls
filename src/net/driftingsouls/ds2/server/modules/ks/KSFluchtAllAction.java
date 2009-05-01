@@ -140,10 +140,6 @@ public class KSFluchtAllAction extends BasicKSAction {
 			shipcount += remove;
 		}
 		
-		if( shipcount > 0 ) {
-			battle.resetInactivity();
-		}
-		
 		return RESULT_OK;	
 	}
 }

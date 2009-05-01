@@ -61,8 +61,6 @@ public class KSStopTakeCommandAction extends BasicKSAction {
 
 		battle.setTakeCommand(battle.getOwnSide(), 0);
 
-		battle.resetInactivity();
-		
 		return RESULT_OK;
 	}
 }

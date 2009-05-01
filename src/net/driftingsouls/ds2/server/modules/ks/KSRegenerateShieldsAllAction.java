@@ -120,8 +120,6 @@ public class KSRegenerateShieldsAllAction extends BasicKSAction {
 			battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
 			battle.logenemy(eshieldlog.toString());
 			battle.logenemy("]]></action>\n");
-			
-			battle.resetInactivity();
 		}
 	
 		return RESULT_OK;

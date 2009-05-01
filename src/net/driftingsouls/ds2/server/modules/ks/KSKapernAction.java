@@ -367,8 +367,6 @@ public class KSKapernAction extends BasicKSAction {
 
 		ownShip.getShip().recalculateShipStatus();
 
-		battle.resetInactivity();
-
 		return RESULT_OK;
 	}
 }
