@@ -74,7 +74,10 @@ public class TradepostController extends TemplateGenerator {
 		
 		// get ship-id
 		parameterNumber("ship");
+		parameterNumber("update");
 		int shipid = getInteger("ship");
+		int update = getInteger("update");
+		Cargo buylistgtu = null;
 		ship = (Ship)db.get(Ship.class, shipid);
 		
 		// check is ship is tradepost
@@ -95,7 +98,14 @@ public class TradepostController extends TemplateGenerator {
 		List<ResourceLimit> buylimitlist = Common.cast(db.createQuery("from ResourceLimit where shipid=:shipid").setParameter("shipid", shipid).list());
 		// get GtuWarenKurse cause of fucking database structure
 		GtuWarenKurse kurse = (GtuWarenKurse)db.get(GtuWarenKurse.class, "p"+shipid);
-		Cargo buylistgtu = kurse.getKurse();
+		if(kurse == null)
+		{
+			buylistgtu = new Cargo();
+		}
+		else
+		{
+			buylistgtu = kurse.getKurse();	
+		}
 				
 		// build form
 		for( Item aitem : Items.get() ) {
@@ -126,38 +136,42 @@ public class TradepostController extends TemplateGenerator {
 			saleslimit = getInteger("i"+aitem.getID()+"saleslimit");
 			buylimit = getInteger("i"+aitem.getID()+"buylimit");
 			
-			// set new values ti submitted values or to 0 if not set
-			if(salesprice != 0)
+			// check if we have to update the values
+			if(update == 1)
 			{
-				itemsell.setPrice(salesprice);
-			}
-			else
-			{
-				itemsell.setPrice(0);
-			}
-			if(buyprice != 0)
-			{
-				buylistgtu.setResource(new ItemID(aitem.getID()) , buyprice * 1000);
-			}
-			else
-			{
-				buylistgtu.setResource(new ItemID(aitem.getID()) , 0);
-			}
-			if(saleslimit != 0)
-			{
-				itemsell.setLimit(saleslimit);
-			}
-			else
-			{
-				itemsell.setLimit(0);
-			}
-			if(buylimit != 0)
-			{
-				itembuy.setLimit(buylimit);
-			}
-			else
-			{
-				itembuy.setLimit(0);
+				// set new values to submitted values or to 0 if not set
+				if(salesprice != 0)
+				{
+					itemsell.setPrice(salesprice);
+				}
+				else
+				{
+					itemsell.setPrice(0);
+				}
+				if(buyprice != 0)
+				{
+					buylistgtu.setResource(new ItemID(aitem.getID()) , buyprice * 1000);
+				}
+				else
+				{
+					buylistgtu.setResource(new ItemID(aitem.getID()) , 0);
+				}
+				if(saleslimit != 0)
+				{
+					itemsell.setLimit(saleslimit);
+				}
+				else
+				{
+					itemsell.setLimit(0);
+				}
+				if(buylimit != 0)
+				{
+					itembuy.setLimit(buylimit);
+				}
+				else
+				{
+					itembuy.setLimit(0);
+				}
 			}
 			
 			// hier wollte ich einen intelligenten kommentar einfuegen
