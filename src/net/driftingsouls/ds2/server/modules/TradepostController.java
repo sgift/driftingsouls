@@ -2,8 +2,12 @@ package net.driftingsouls.ds2.server.modules;
 
 import java.util.List;
 
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
+import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.Items;
+import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.ResourceLimit;
 import net.driftingsouls.ds2.server.entities.SellLimit;
 import net.driftingsouls.ds2.server.entities.User;
@@ -89,7 +93,10 @@ public class TradepostController extends TemplateGenerator {
 		
 		// get all ResourceLimits of this ship
 		List<ResourceLimit> buylimitlist = Common.cast(db.createQuery("from ResourceLimit where shipid=:shipid").setParameter("shipid", shipid).list());
-		
+		// get GtuWarenKurse cause of fucking database structure
+		GtuWarenKurse kurse = (GtuWarenKurse)db.get(GtuWarenKurse.class, "p"+shipid);
+		Cargo buylistgtu = kurse.getKurse();
+				
 		// build form
 		for( Item aitem : Items.get() ) {
 			int itemid = aitem.getID();
@@ -110,10 +117,10 @@ public class TradepostController extends TemplateGenerator {
 			long buylimit = 0;
 			
 			// read new values for item
-			parameterString("i"+aitem.getID()+"salesprice");
-			parameterString("i"+aitem.getID()+"buyprice");
-			parameterString("i"+aitem.getID()+"saleslimit");
-			parameterString("i"+aitem.getID()+"buylimit");
+			parameterNumber("i"+aitem.getID()+"salesprice");
+			parameterNumber("i"+aitem.getID()+"buyprice");
+			parameterNumber("i"+aitem.getID()+"saleslimit");
+			parameterNumber("i"+aitem.getID()+"buylimit");
 			salesprice = getInteger("i"+aitem.getID()+"salesprice");
 			buyprice = getInteger("i"+aitem.getID()+"buyprice");
 			saleslimit = getInteger("i"+aitem.getID()+"saleslimit");
@@ -130,11 +137,11 @@ public class TradepostController extends TemplateGenerator {
 			}
 			if(buyprice != 0)
 			{
-				itembuy.setPrice(buyprice);
+				buylistgtu.setResource(new ItemID(aitem.getID()) , buyprice * 1000);
 			}
 			else
 			{
-				itembuy.setPrice(0);
+				buylistgtu.setResource(new ItemID(aitem.getID()) , 0);
 			}
 			if(saleslimit != 0)
 			{
@@ -164,7 +171,7 @@ public class TradepostController extends TemplateGenerator {
 						"item.name",	name,
 						"item.cargo",	Common.ln(aitem.getCargo()),
 						"item.salesprice",	itemsell.getPrice(),
-						"item.buyprice",	itembuy.getPrice(),
+						"item.buyprice",	buylistgtu.getResourceCount(new ItemID(aitem.getID())),
 						"item.saleslimit",	itemsell.getLimit(),
 						"item.buylimit",	itembuy.getLimit(),
 						"item.salesprice.parameter",	"i"+aitem.getID()+"salesprice",

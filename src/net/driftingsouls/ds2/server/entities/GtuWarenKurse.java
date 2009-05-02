@@ -61,7 +61,7 @@ public class GtuWarenKurse {
 	 * @return Die Kurse
 	 */
 	public Cargo getKurse() {
-		return new UnmodifiableCargo(kurse);
+		return kurse;
 	}
 
 	/**
