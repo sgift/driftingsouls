@@ -156,7 +156,7 @@ public class TradeController extends TemplateGenerator {
 				continue;
 			}
 			
-			long amountOnPost = tradepostCargo.getResourceCount(resource.getId()) - limit.getMinimum();
+			long amountOnPost = tradepostCargo.getResourceCount(resource.getId()) - limit.getLimit();
 			if( amountOnPost <= 0 ) {
 				continue;
 			}
@@ -367,7 +367,7 @@ public class TradeController extends TemplateGenerator {
 				continue;
 			}
 			
-			long buyable = this.posten.getCargo().getResourceCount(resource.getId()) - limit.getMinimum();
+			long buyable = this.posten.getCargo().getResourceCount(resource.getId()) - limit.getLimit();
 			if(buyable <= 0) {
 				continue;
 			}
