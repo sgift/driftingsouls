@@ -118,8 +118,8 @@ public class TradepostController extends TemplateGenerator {
 			}
 			
 			// read actual values of limits
-			SellLimit itemsell = selllimitlist.get(itemid);
-			ResourceLimit itembuy = buylimitlist.get(itemid);
+			SellLimit itemsell = selllimitlist.get(itemid * -1);
+			ResourceLimit itembuy = buylimitlist.get(itemid * -1);
 			
 			long salesprice = 0;
 			long buyprice = 0;
