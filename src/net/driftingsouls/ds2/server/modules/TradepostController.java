@@ -2,8 +2,12 @@ package net.driftingsouls.ds2.server.modules;
 
 import java.util.List;
 
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
+import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.Items;
+import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.ResourceLimit;
 import net.driftingsouls.ds2.server.entities.SellLimit;
 import net.driftingsouls.ds2.server.entities.User;
@@ -70,7 +74,10 @@ public class TradepostController extends TemplateGenerator {
 		
 		// get ship-id
 		parameterNumber("ship");
+		parameterNumber("update");
 		int shipid = getInteger("ship");
+		int update = getInteger("update");
+		Cargo buylistgtu = null;
 		ship = (Ship)db.get(Ship.class, shipid);
 		
 		// check is ship is tradepost
@@ -89,7 +96,17 @@ public class TradepostController extends TemplateGenerator {
 		
 		// get all ResourceLimits of this ship
 		List<ResourceLimit> buylimitlist = Common.cast(db.createQuery("from ResourceLimit where shipid=:shipid").setParameter("shipid", shipid).list());
-		
+		// get GtuWarenKurse cause of fucking database structure
+		GtuWarenKurse kurse = (GtuWarenKurse)db.get(GtuWarenKurse.class, "p"+shipid);
+		if(kurse == null)
+		{
+			buylistgtu = new Cargo();
+		}
+		else
+		{
+			buylistgtu = kurse.getKurse();	
+		}
+				
 		// build form
 		for( Item aitem : Items.get() ) {
 			int itemid = aitem.getID();
@@ -110,47 +127,51 @@ public class TradepostController extends TemplateGenerator {
 			long buylimit = 0;
 			
 			// read new values for item
-			parameterString("i"+aitem.getID()+"salesprice");
-			parameterString("i"+aitem.getID()+"buyprice");
-			parameterString("i"+aitem.getID()+"saleslimit");
-			parameterString("i"+aitem.getID()+"buylimit");
+			parameterNumber("i"+aitem.getID()+"salesprice");
+			parameterNumber("i"+aitem.getID()+"buyprice");
+			parameterNumber("i"+aitem.getID()+"saleslimit");
+			parameterNumber("i"+aitem.getID()+"buylimit");
 			salesprice = getInteger("i"+aitem.getID()+"salesprice");
 			buyprice = getInteger("i"+aitem.getID()+"buyprice");
 			saleslimit = getInteger("i"+aitem.getID()+"saleslimit");
 			buylimit = getInteger("i"+aitem.getID()+"buylimit");
 			
-			// set new values ti submitted values or to 0 if not set
-			if(salesprice != 0)
+			// check if we have to update the values
+			if(update == 1)
 			{
-				itemsell.setPrice(salesprice);
-			}
-			else
-			{
-				itemsell.setPrice(0);
-			}
-			if(buyprice != 0)
-			{
-				itembuy.setPrice(buyprice);
-			}
-			else
-			{
-				itembuy.setPrice(0);
-			}
-			if(saleslimit != 0)
-			{
-				itemsell.setLimit(saleslimit);
-			}
-			else
-			{
-				itemsell.setLimit(0);
-			}
-			if(buylimit != 0)
-			{
-				itembuy.setLimit(buylimit);
-			}
-			else
-			{
-				itembuy.setLimit(0);
+				// set new values to submitted values or to 0 if not set
+				if(salesprice != 0)
+				{
+					itemsell.setPrice(salesprice);
+				}
+				else
+				{
+					itemsell.setPrice(0);
+				}
+				if(buyprice != 0)
+				{
+					buylistgtu.setResource(new ItemID(aitem.getID()) , buyprice * 1000);
+				}
+				else
+				{
+					buylistgtu.setResource(new ItemID(aitem.getID()) , 0);
+				}
+				if(saleslimit != 0)
+				{
+					itemsell.setLimit(saleslimit);
+				}
+				else
+				{
+					itemsell.setLimit(0);
+				}
+				if(buylimit != 0)
+				{
+					itembuy.setLimit(buylimit);
+				}
+				else
+				{
+					itembuy.setLimit(0);
+				}
 			}
 			
 			// hier wollte ich einen intelligenten kommentar einfuegen
@@ -164,7 +185,7 @@ public class TradepostController extends TemplateGenerator {
 						"item.name",	name,
 						"item.cargo",	Common.ln(aitem.getCargo()),
 						"item.salesprice",	itemsell.getPrice(),
-						"item.buyprice",	itembuy.getPrice(),
+						"item.buyprice",	buylistgtu.getResourceCount(new ItemID(aitem.getID())),
 						"item.saleslimit",	itemsell.getLimit(),
 						"item.buylimit",	itembuy.getLimit(),
 						"item.salesprice.parameter",	"i"+aitem.getID()+"salesprice",
