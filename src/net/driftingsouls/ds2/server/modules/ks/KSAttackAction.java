@@ -733,7 +733,8 @@ public class KSAttackAction extends BasicKSAction {
 		return localweapon;
 	}
 
-	private int getAntiTorpTrefferWS(ShipTypeData enemyShipType, Cargo enemyCargo) {
+	private int getAntiTorpTrefferWS(ShipTypeData enemyShipType, BattleShip enemyShip) {
+		Cargo enemyCargo = enemyShip.getCargo();
 		Context context = ContextMap.getContext();
 		Map<String,String> eweapons = Weapons.parseWeaponList(enemyShipType.getWeapons());
 		double antitorptrefferws = 0;
@@ -762,6 +763,7 @@ public class KSAttackAction extends BasicKSAction {
 						antitorptrefferws += munition.getTorpTrefferWS()*count;
 						// reduce amount of ammo in cargo
 						enemyCargo.setResource(ammoId, ammocount - shots);
+						enemyShip.getShip().setCargo(enemyCargo);
 						// stop iteration of ammo here
 						// TODO maybe we should check if there's a better ammo in cargo
 						break;
@@ -1374,7 +1376,7 @@ public class KSAttackAction extends BasicKSAction {
 
 				if( this.localweapon.getDouble("destroyable") > 0 )
 				{
-					antitorptrefferws = this.getAntiTorpTrefferWS( enemyShipType, this.enemyShip.getCargo());
+					antitorptrefferws = this.getAntiTorpTrefferWS( enemyShipType, this.enemyShip);
 					battle.logme("AntiTorp-TrefferWS: "+ this.getTWSText(antitorptrefferws) +"%\n");
 
 					if( enemyShipType.getSize() > ShipType.SMALL_SHIP_MAXSIZE )
