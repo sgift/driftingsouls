@@ -69,7 +69,7 @@ public class TradepostController extends TemplateGenerator {
 		t.setBlock("_TRADEPOST", "tradepost.list", "tradepost.post");
 		
 		// get ship-id
-		parameterString("ship");
+		parameterNumber("ship");
 		int shipid = getInteger("ship");
 		ship = (Ship)db.get(Ship.class, shipid);
 		
