@@ -142,15 +142,7 @@ class Starmap
 
 		for(JumpNode node: nodes)
 		{
-			Location position;
-			if(node.getSystem() == system)
-			{
-				position = new Location(node.getSystem(), node.getX(), node.getY());
-			}
-			else
-			{
-				position = new Location(node.getSystemOut(), node.getXOut(), node.getYOut());
-			}
+			Location position = new Location(node.getSystem(), node.getX(), node.getY());
 
 			if(!nodeMap.containsKey(position))
 			{
