@@ -781,9 +781,9 @@
 		ALTER TABLE `portal_news` ADD `shortDescription` TEXT NOT NULL;
 	]]></update>
 	<update type="structure" datum="2009-04-27"><![CDATA[
-		CREATE TABLE `ds2`.`starmap` (
+		CREATE TABLE `starmap` (
 			`system` INT NOT NULL ,
 			PRIMARY KEY ( `system` ) 
-		) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 	]]></update>
 </updates>
