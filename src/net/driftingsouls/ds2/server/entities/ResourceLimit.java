@@ -28,7 +28,7 @@ public class ResourceLimit {
 		
 		private int shipid;
 		private int resourceid;
-		
+
 		/**
 		 * Konstruktor.
 		 */
@@ -84,6 +84,15 @@ public class ResourceLimit {
 		//Empty
 	}
 	
+	public ResourceLimit(ResourceLimitKey resourcelimitkey, long limit) {
+		this.setResourceLimitKey(resourcelimitkey);
+		this.setLimit(limit);
+	}
+
+	private void setResourceLimitKey(ResourceLimitKey resourcelimitkey) {
+		this.resourceLimitKey = resourcelimitkey;
+	}
+
 	/**
 	 * Gibt die ID des Resourcenlimits zurueck.
 	 * @return Die ID
