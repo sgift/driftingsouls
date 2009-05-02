@@ -34,6 +34,7 @@ import javax.persistence.Transient;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.Ordner;
+import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
@@ -1250,5 +1251,13 @@ public class User extends BasicUser {
 		Session db = ContextMap.getContext().getDB();
 		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "vacpointspervactick");
 		return Integer.valueOf(value.getValue());
+	}
+
+	public boolean canSeeItem(Item aitem) {
+		boolean check = false;
+		if( ( aitem.getAccessLevel() <= this.getAccessLevel() ) || !( aitem.isUnknownItem() && !this.isKnownItem(aitem.getID()) && (this.getAccessLevel() < 15) ) ) {
+			check = true;	
+		}
+		return check;
 	}
 }

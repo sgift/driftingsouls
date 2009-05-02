@@ -53,7 +53,7 @@ public class SellLimit {
 	 * Gibt das Limit der Resource zurueck.
 	 * @return Das Limit
 	 */
-	public long getMinimum() {
+	public long getLimit() {
 		return limit;
 	}
 	
@@ -71,5 +71,13 @@ public class SellLimit {
 	 */
 	public int getVersion() {
 		return this.version;
+	}
+
+	public void setPrice(long price) {
+		this.price = price;
+	}
+
+	public void setLimit(long limit) {
+		this.limit = limit;
 	}
 }

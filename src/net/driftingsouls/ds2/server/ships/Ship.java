@@ -677,6 +677,14 @@ public class Ship implements Locatable,Transfering {
 	public String getStatus() {
 		return status;
 	}
+	
+	/**
+	 * Returns true if Ship is a tradepost.
+	 */
+	public boolean isTradepost()
+	{
+		return this.getStatus().contains("tradepost");
+	}
 
 	/**
 	 * Setzt das Statusfeld des Schiffes.

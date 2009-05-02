@@ -73,6 +73,7 @@ public class ResourceLimit {
 	@Id
 	private ResourceLimitKey resourceLimitKey;
 	private long limit;
+	private long price;
 	
 	@Version
 	private int version;
@@ -106,5 +107,21 @@ public class ResourceLimit {
 	 */
 	public int getVersion() {
 		return this.version;
+	}
+	
+	/**
+	 * Gibt die Ankaufspreis der Ware zurueck.
+	 * @return Der Ankaufspreis in RE
+	 */
+	public long getPrice() {
+		return this.price;
+	}
+
+	public void setPrice(long price) {
+		this.price = price;
+	}
+
+	public void setLimit(long limit) {
+		this.limit = limit;
 	}
 }

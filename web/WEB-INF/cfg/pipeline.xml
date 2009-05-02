@@ -168,6 +168,9 @@
 		<module name="trade">
 			<generator class="net.driftingsouls.ds2.server.modules.TradeController" />
 		</module>
+		<module name="tradepost">
+			<generator class="net.driftingsouls.ds2.server.modules.TradepostController" />
+		</module>
 		<module name="transport">
 			<generator class="net.driftingsouls.ds2.server.modules.TransportController" />
 		</module>
