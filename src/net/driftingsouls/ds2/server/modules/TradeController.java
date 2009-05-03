@@ -301,7 +301,7 @@ public class TradeController extends TemplateGenerator {
 			this.ship.recalculateShipStatus();
 	
 			User user = (User)getUser();
-			user.transferMoneyFrom(this.posten.getOwner().getId(), totalRE, "Warenverkauf Handelsposten bei "+this.posten.getLocation(), false, User.TRANSFER_SEMIAUTO );
+			user.transferMoneyFrom(this.posten.getOwner().getId(), totalRE, "Warenverkauf Handelsposten bei "+this.posten.getLocation().displayCoordinates(false), false, User.TRANSFER_SEMIAUTO );
 		}
 		
 		redirect();
