@@ -80,10 +80,16 @@ public class TradepostController extends TemplateGenerator {
 		Cargo buylistgtu = null;
 		ship = (Ship)db.get(Ship.class, shipid);	// the tradepost
 
+		if(ship != null)
+		{
+			addError("Das angegebene Schiff existiert nicht");
+			return;
+		}
+		
 		// security check
 		if(!getUser().equals(ship.getOwner()))
 		{
-			addError("FUCK OFF!");
+			addError("Allgemeine Richtlinienverletzung.");
 			return;
 		}
 		
@@ -209,10 +215,16 @@ public class TradepostController extends TemplateGenerator {
 		Cargo buylistgtu = null;
 		ship = (Ship)db.get(Ship.class, shipid);	// the tradepost
 
+		if(ship != null)
+		{
+			addError("Das angegebene Schiff existiert nicht");
+			return;
+		}
+		
 		// security check
 		if(!getUser().equals(ship.getOwner()))
 		{
-			addError("FUCK OFF!");
+			addError("Allgemeine Richtlinienverletzung.");
 			return;
 		}
 		
