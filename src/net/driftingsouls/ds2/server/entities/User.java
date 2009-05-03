@@ -1255,8 +1255,8 @@ public class User extends BasicUser {
 
 	/**
 	 * checks if the user is able to see the item.
-	 * @param aitem
-	 * @return
+	 * @param aitem a specific item
+	 * @return boolean, true if user  is able to see the item
 	 */
 	public boolean canSeeItem(Item aitem) {
 		boolean check = false;

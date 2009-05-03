@@ -88,8 +88,8 @@ public class ResourceLimit {
 	
 	/**
 	 * generates an new ResourceLimit with key and limit as parameters.
-	 * @param resourcelimitkey
-	 * @param limit
+	 * @param resourcelimitkey the key of the resourcelimit
+	 * @param limit the limit of this kind of resources
 	 */
 	public ResourceLimit(ResourceLimitKey resourcelimitkey, long limit) {
 		this.setResourceLimitKey(resourcelimitkey);
@@ -126,7 +126,7 @@ public class ResourceLimit {
 	
 	/**
 	 * Sets the limit for this ResourceLimit.
-	 * @param limit
+	 * @param limit the limit for this kind of resource
 	 */
 	public void setLimit(long limit) {
 		this.limit = limit;

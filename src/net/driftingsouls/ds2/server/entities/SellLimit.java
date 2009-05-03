@@ -52,9 +52,9 @@ public class SellLimit {
 	}
 	/**
 	 * Konstruktor.
-	 * @param resourcelimitkey
-	 * @param price
-	 * @param limit
+	 * @param resourcelimitkey the key of the limit
+	 * @param price the price for this kind of resource
+	 * @param limit the limit for this kind of resource
 	 */
 	public SellLimit(ResourceLimitKey resourcelimitkey, long price, long limit) {
 		this.setResourceLimitKey(resourcelimitkey);
@@ -100,7 +100,7 @@ public class SellLimit {
 
 	/**
 	 * set the price for this limit.
-	 * @param price
+	 * @param price the price of the resource
 	 */
 	public void setPrice(long price) {
 		this.price = price;
@@ -108,7 +108,7 @@ public class SellLimit {
 
 	/**
 	 * set the limit.
-	 * @param limit
+	 * @param limit the limit for this resource
 	 */
 	public void setLimit(long limit) {
 		this.limit = limit;
