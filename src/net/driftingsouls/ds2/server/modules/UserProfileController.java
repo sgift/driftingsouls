@@ -237,7 +237,18 @@ public class UserProfileController extends TemplateGenerator {
 		
 		t.setVar(	"user.relation",		relname,
 					"user.relation.color",	relcolor );
-							
+		
+		// Vacstatus
+		int vaccount = this.user.getVacationCount();
+		int wait4vac = this.user.getWait4VacationCount();
+		
+		if(vaccount > 0 && wait4vac <= 0)
+		{
+			t.setVar("user.vacstatus", "aktiv");	
+		}
+		
+		// Faction
+		
 		// History
 		t.setBlock("_USERPROFILE", "history.listitem", "history.list");
 		if( this.user.getHistory().length() != 0 ) {

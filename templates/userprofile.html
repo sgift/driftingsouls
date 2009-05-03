@@ -55,14 +55,15 @@
 				{if user.ally.position}
 					Position: {user.ally.position}<br />
 				{/endif}
-				Dabei seit: {user.signupdate}<br />
 				Beziehung zu Ihnen: <span style="color:{user.relation.color}">{user.relation}</span><br />
+				Fraktion: {user.faction}<br />
 				Rang: <img align="middle" {!overlib $user.rang.name, mo, width:100} src="{URL}data/interface/medals/rang{user.rang}.png" alt="" />
 			</div>
 		{!table_end}
 		{!table_begin 395,left}
 			<div style="height:102px; overflow:auto">
-				&nbsp;
+				Dabei seit: {user.signupdate}<br />
+				Vac-Status: {user.vacstatus}<br />
 			</div>
 		{!table_end}
 	</td>
