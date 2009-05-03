@@ -122,7 +122,8 @@ public class PlayerStarmap
 				{
 					Ally shipAlly = shipOwner.getAlly();
 					Ally userAlly = user.getAlly();
-					if(shipAlly != null && shipAlly.equals(userAlly))
+					Relations relations = user.getRelations();
+					if((shipAlly != null && shipAlly.equals(userAlly)) || (relations.toOther.get(ship.getOwner()) == Relation.FRIEND && relations.fromOther.get(ship.getOwner()) == Relation.FRIEND))
 					{
 						alliedShips++;
 					}
