@@ -1,9 +1,10 @@
 package net.driftingsouls.ds2.server.modules;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.Items;
@@ -11,6 +12,7 @@ import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.ResourceLimit;
 import net.driftingsouls.ds2.server.entities.SellLimit;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.ResourceLimit.ResourceLimitKey;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -29,7 +31,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Configurable
 public class TradepostController extends TemplateGenerator {
-	private Configuration config;
+	private Configuration config;	// never read, but we'll need it for later integreation of pictures i guess
 	private Ship ship = null;
 
 	/**
@@ -72,21 +74,23 @@ public class TradepostController extends TemplateGenerator {
 
 		t.setBlock("_TRADEPOST", "tradepost.list", "tradepost.post");
 		
-		// get ship-id
+		// get variables
 		parameterNumber("ship");
 		parameterNumber("update");
 		int shipid = getInteger("ship");
-		int update = getInteger("update");
+		int update = getInteger("update");	// variable to check if we have to update the pricelist
 		Cargo buylistgtu = null;
-		ship = (Ship)db.get(Ship.class, shipid);
+		ship = (Ship)db.get(Ship.class, shipid);	// the tradepost
 		
 		// check is ship is tradepost
 		if(ship.isTradepost())
 		{
+			// hey fine, we have a tradepost here
 			t.setVar("ship.tradepost", 1);
 		}
 		else
 		{
+			// not a tradepost, sent message to user and stop script
 			t.setVar("tradepost.message", "Dieses Schiff ist kein Handelsposten. Bitte bestellen Sie die entsprechende Software beim Handelsunternehmen Ihres vertrauens");
 			return;
 		}
@@ -100,16 +104,33 @@ public class TradepostController extends TemplateGenerator {
 		GtuWarenKurse kurse = (GtuWarenKurse)db.get(GtuWarenKurse.class, "p"+shipid);
 		if(kurse == null)
 		{
+			// there's no cargo, create one bastard
 			buylistgtu = new Cargo();
 		}
 		else
 		{
 			buylistgtu = kurse.getKurse();	
 		}
-				
+		
+		// generate Maps which contain the SellLimits and den ResourceLimits of the Tradepost
+		Map<Integer,SellLimit> selllistmap = new LinkedHashMap<Integer,SellLimit>();
+		Map<Integer,ResourceLimit> buylistmap = new LinkedHashMap<Integer,ResourceLimit>();
+		for(SellLimit limit: selllimitlist)
+		{
+			// add a sepcific selllimit to the map at position of his id
+			selllistmap.put(limit.getId().getResourceId(), limit);
+		}
+		for(ResourceLimit limit: buylimitlist)
+		{
+			// add a specific buylimit to the map at position of his id
+			buylistmap.put(limit.getId().getResourceId(), limit);
+		}
+		
+		
 		// build form
 		for( Item aitem : Items.get() ) {
 			int itemid = aitem.getID();
+			ResourceLimitKey resourcekey = new ResourceLimitKey(ship, new ItemID(aitem.getID()));
 			
 			// check if user is allowed to see the item and go to next item if not
 			if( !user.canSeeItem(aitem))
@@ -120,26 +141,26 @@ public class TradepostController extends TemplateGenerator {
 			// read actual values of limits
 			SellLimit itemsell = null;
 			ResourceLimit itembuy = null;
-			if(selllimitlist.get(itemid * -1) == null)
+			// check if the List of items to sell contains current item 
+			if(selllistmap.containsKey(itemid * -1))
 			{
-				itemsell = new SellLimit();
-				itemsell.setLimit(0);
-				itemsell.setPrice(0);
+				itemsell = selllistmap.get(itemid * -1);
 			}
 			else
 			{
-				itemsell = selllimitlist.get(itemid * -1);
+				itemsell = new SellLimit(resourcekey, 0, 0);
 			}
-			if(buylimitlist.get(itemid * -1) == null)
+			// check if the List of items to buy contains current item
+			if(buylistmap.containsKey(itemid * -1))
 			{
-				itembuy = new ResourceLimit();
-				itembuy.setLimit(0);
+				itembuy = buylistmap.get(itemid * -1);
 			}
 			else
 			{
-				itembuy = buylimitlist.get(itemid * -1);
+				itembuy = new ResourceLimit(resourcekey, 0);
 			}
 			
+			// initiate starting values
 			long salesprice = 0;
 			long buyprice = 0;
 			long saleslimit = 0;
@@ -167,13 +188,17 @@ public class TradepostController extends TemplateGenerator {
 				{
 					itemsell.setPrice(0);
 				}
+				// buyprice uses gtuwarenkonto cuase price for buying stuff is not implemented in ResourceLimit
 				if(buyprice != 0)
 				{
 					buylistgtu.setResource(new ItemID(aitem.getID()) , buyprice * 1000);
+					kurse.setKurse(buylistgtu);
+					
 				}
 				else
 				{
 					buylistgtu.setResource(new ItemID(aitem.getID()) , 0);
+					kurse.setKurse(buylistgtu);
 				}
 				if(saleslimit != 0)
 				{

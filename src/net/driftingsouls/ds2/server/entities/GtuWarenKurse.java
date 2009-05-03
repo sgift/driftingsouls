@@ -61,7 +61,15 @@ public class GtuWarenKurse {
 	 * @return Die Kurse
 	 */
 	public Cargo getKurse() {
-		return new UnmodifiableCargo(kurse);
+		return kurse;
+	}
+
+	/**
+	 * Sets the price for the items in cargo
+	 * @param kurse
+	 */
+	public void setKurse(Cargo kurse) {
+		this.kurse = kurse;
 	}
 
 	/**
