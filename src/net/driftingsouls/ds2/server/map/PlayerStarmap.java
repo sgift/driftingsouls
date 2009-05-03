@@ -13,6 +13,8 @@ import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.User.Relation;
+import net.driftingsouls.ds2.server.entities.User.Relations;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
@@ -216,6 +218,7 @@ public class PlayerStarmap
 	private Set<Location> buildScannableLocations(User user, Map<Location, List<Ship>> locatedShips, Map<Location, Nebel> nebulas)
 	{
 		Ally ally = user.getAlly();
+		Relations relations = user.getRelations();
 		Set<Location> scannableLocations = new HashSet<Location>();
 
 		for(Map.Entry<Location, List<Ship>> sectorShips: locatedShips.entrySet())
@@ -242,7 +245,10 @@ public class PlayerStarmap
 					}
 					else
 					{
-						continue;
+						if(relations.toOther.get(ship.getOwner()) != Relation.FRIEND || relations.fromOther.get(ship.getOwner()) != Relation.FRIEND)
+						{
+							continue;
+						}
 					}
 				}
 				
