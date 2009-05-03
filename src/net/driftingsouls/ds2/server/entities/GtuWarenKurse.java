@@ -54,6 +54,17 @@ public class GtuWarenKurse {
 	public GtuWarenKurse() {
 		// EMPTY
 	}
+	
+
+	/**
+	 * Konstruktor.
+	 *
+	 */
+	public GtuWarenKurse(String place, String name, Cargo kurse) {
+		this.place = place;
+		this.name = name;
+		this.kurse = kurse;
+	}
 
 	/**
 	 * <p>Gibt die Kurse fuer einzelne Waren zurueck.</p>

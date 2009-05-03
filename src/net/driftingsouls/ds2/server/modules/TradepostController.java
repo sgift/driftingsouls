@@ -106,6 +106,8 @@ public class TradepostController extends TemplateGenerator {
 		{
 			// there's no cargo, create one bastard
 			buylistgtu = new Cargo();
+			// there's no GtuWarenKurse Object, create one
+			kurse = new GtuWarenKurse("p"+shipid, ship.getName(), buylistgtu);
 		}
 		else
 		{
