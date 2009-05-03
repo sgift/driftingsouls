@@ -65,6 +65,14 @@ public class GtuWarenKurse {
 	}
 
 	/**
+	 * Sets the price for the items in cargo
+	 * @param kurse
+	 */
+	public void setKurse(Cargo kurse) {
+		this.kurse = kurse;
+	}
+
+	/**
 	 * Gibt den Namen des Handelsorts zurueck.
 	 * @return Der Name
 	 */

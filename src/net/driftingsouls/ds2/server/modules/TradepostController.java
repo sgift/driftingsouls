@@ -192,10 +192,13 @@ public class TradepostController extends TemplateGenerator {
 				if(buyprice != 0)
 				{
 					buylistgtu.setResource(new ItemID(aitem.getID()) , buyprice * 1000);
+					kurse.setKurse(buylistgtu);
+					
 				}
 				else
 				{
 					buylistgtu.setResource(new ItemID(aitem.getID()) , 0);
+					kurse.setKurse(buylistgtu);
 				}
 				if(saleslimit != 0)
 				{
