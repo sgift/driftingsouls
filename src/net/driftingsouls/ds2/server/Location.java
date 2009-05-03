@@ -89,7 +89,7 @@ public final class Location implements Serializable, Locatable {
 	
 	@Override
 	public String toString() {
-		return system+":"+x+"/"+y;
+		return "THIS METHOD IGNORES FIELD TYPES IN PRINTING: USE displayCoordinates() INSTEAD";
 	}
 	
 	/**
