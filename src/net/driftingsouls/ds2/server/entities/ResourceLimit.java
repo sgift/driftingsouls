@@ -2,6 +2,7 @@ package net.driftingsouls.ds2.server.entities;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -28,7 +29,7 @@ public class ResourceLimit {
 		
 		private int shipid;
 		private int resourceid;
-		
+
 		/**
 		 * Konstruktor.
 		 */
@@ -72,8 +73,8 @@ public class ResourceLimit {
 	
 	@Id
 	private ResourceLimitKey resourceLimitKey;
+	@Column(name="maximum")
 	private long limit;
-	private long price;
 	
 	@Version
 	private int version;
@@ -85,6 +86,15 @@ public class ResourceLimit {
 		//Empty
 	}
 	
+	public ResourceLimit(ResourceLimitKey resourcelimitkey, long limit) {
+		this.setResourceLimitKey(resourcelimitkey);
+		this.setLimit(limit);
+	}
+
+	private void setResourceLimitKey(ResourceLimitKey resourcelimitkey) {
+		this.resourceLimitKey = resourcelimitkey;
+	}
+
 	/**
 	 * Gibt die ID des Resourcenlimits zurueck.
 	 * @return Die ID
@@ -109,18 +119,6 @@ public class ResourceLimit {
 		return this.version;
 	}
 	
-	/**
-	 * Gibt die Ankaufspreis der Ware zurueck.
-	 * @return Der Ankaufspreis in RE
-	 */
-	public long getPrice() {
-		return this.price;
-	}
-
-	public void setPrice(long price) {
-		this.price = price;
-	}
-
 	public void setLimit(long limit) {
 		this.limit = limit;
 	}

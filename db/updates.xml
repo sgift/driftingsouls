@@ -786,4 +786,8 @@
 			PRIMARY KEY ( `system` ) 
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 	]]></update>
+	<update type="structure" datum="2009-05-03"><![CDATA[
+		 ALTER TABLE `tradepost_buy_limit` CHANGE `limit` `maximum` INT( 11 ) NOT NULL  
+		 ALTER TABLE `tradepost_sell` CHANGE `limit` `minimum` INT( 11 ) NOT NULL  
+	]]></update>
 </updates>
