@@ -108,6 +108,7 @@ public class TradepostController extends TemplateGenerator {
 			buylistgtu = new Cargo();
 			// there's no GtuWarenKurse Object, create one
 			kurse = new GtuWarenKurse("p"+shipid, ship.getName(), buylistgtu);
+			db.persist(kurse);
 		}
 		else
 		{
@@ -151,6 +152,7 @@ public class TradepostController extends TemplateGenerator {
 			else
 			{
 				itemsell = new SellLimit(resourcekey, 0, 0);
+				db.persist(itemsell);
 			}
 			// check if the List of items to buy contains current item
 			if(buylistmap.containsKey(itemid * -1))
@@ -160,6 +162,7 @@ public class TradepostController extends TemplateGenerator {
 			else
 			{
 				itembuy = new ResourceLimit(resourcekey, 0);
+				db.persist(itembuy);
 			}
 			
 			// initiate starting values
