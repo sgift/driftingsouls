@@ -79,6 +79,13 @@ public class TradepostController extends TemplateGenerator {
 		int shipid = getInteger("ship");
 		Cargo buylistgtu = null;
 		ship = (Ship)db.get(Ship.class, shipid);	// the tradepost
+
+		// security check
+		if(!getUser().equals(ship.getOwner()))
+		{
+			addError("FUCK OFF!");
+			return;
+		}
 		
 		// check is ship is tradepost
 		if(ship.isTradepost())
@@ -201,6 +208,13 @@ public class TradepostController extends TemplateGenerator {
 		
 		Cargo buylistgtu = null;
 		ship = (Ship)db.get(Ship.class, shipid);	// the tradepost
+
+		// security check
+		if(!getUser().equals(ship.getOwner()))
+		{
+			addError("FUCK OFF!");
+			return;
+		}
 		
 		// check is ship is tradepost
 		if(ship.isTradepost())
@@ -336,7 +350,8 @@ public class TradepostController extends TemplateGenerator {
 			}
 			
 			t.setVar(	"tradepost.update", "1",
-						"tradepost.update.message", "Die Einstellungen wurden &uuml;bernommen.");
+						"tradepost.update.message", "Die Einstellungen wurden &uuml;bernommen.",
+						"tradepost.id",	shipid );
 						
 			t.parse("tradepost.post", "tradepost.list", true);
 		}
