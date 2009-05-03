@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -35,6 +36,7 @@ import net.driftingsouls.ds2.server.entities.ResourceLimit.ResourceLimitKey;
 public class SellLimit {
 	@Id
 	private ResourceLimitKey resourceLimitKey;
+	@Column(name="minimum")
 	private long limit;
 	private long price;
 	

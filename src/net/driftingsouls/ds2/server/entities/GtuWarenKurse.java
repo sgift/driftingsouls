@@ -24,7 +24,6 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
 
 import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Type;
@@ -36,7 +35,6 @@ import org.hibernate.annotations.Type;
  */
 @Entity
 @Table(name="gtu_warenkurse")
-@Immutable
 public class GtuWarenKurse {
 	@Id
 	private String place;

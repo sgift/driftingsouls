@@ -1,39 +1,42 @@
 {if ship.tradepost}
-	<form action="./ds" method="post" id='transfermode_form'>
-		<input type="hidden" name="ship" id="tradepost_id" value="{tradepost.id}" />
-		<input type="hidden" name="update" id="tradepost_update" value="1" />
-		{!form_create_hidden default}
-		
-		<table class="noBorderX" border="0" style="border:0px; width:80%">
-			<tr>
-				<td class="noBorderX">Ware</td>
-				<td class="noBorderX">Ankaufsmenge</td>
-				<td class="noBorderX">Ankaufspreis</td>
-				<td class="noBorderX">Verkaufsmenge</td>
-				<td class="noBorderX">Verkaufspreis</td>
-			</tr>
-			<!-- BEGIN tradepost.list -->
-			<tr>
-				<td class="noBorderX"><img src="{item.picture}" alt="" />{item.name}</td>
-				<td class="noBorderX"><input name="{item.buylimit.parameter}" type="text" size="15" maxlength="15" value="{item.buylimit}"></td>
-				<td class="noBorderX"><input name="{item.buyprice.paramter}" type="text" size="15" maxlength="15" value="{item.buyprice}"></td>
-				<td class="noBorderX"><input name="{item.saleslimit.parameter}" type="text" size="15" maxlength="15" value="{item.saleslimit}"></td>
-				<td class="noBorderX"><input name="{item.salesprice.parameter}" type="text" size="15" maxlength="15" value="{item.salesprice}"></td>
-			</tr>
-			<!-- END tradepost.list -->
-			<tr>
-				<td class="noBorderX" colspan="5">
-					<hr noshade="noshade" size="1" style="color:#cccccc" />
-				</td>
-			</tr>
-			<tr>
-				<td class="noBorderX" colspan="5" align="center"><br />
-					<input type="submit" value="Update" style="width:150px" />
-				</td>
-			</tr>
-		</table>	
-	</form>
-	
+	{if tradepost.update}
+		{tradepost.update.message}<br />
+	{else}
+		<form action="./ds" method="post" id='transfermode_form'>
+			<input type="hidden" name="ship" id="tradepost_id" value="{tradepost.id}" />
+			<input type="hidden" name="update" id="tradepost_update" value="1" />
+			{!form_create_hidden update}
+			
+			<table class="noBorderX" border="0" style="border:0px; width:80%">
+				<tr>
+					<td class="noBorderX">Ware</td>
+					<td class="noBorderX">Ankaufsmenge</td>
+					<td class="noBorderX">Ankaufspreis</td>
+					<td class="noBorderX">Verkaufsmenge</td>
+					<td class="noBorderX">Verkaufspreis</td>
+				</tr>
+				<!-- BEGIN tradepost.list -->
+				<tr>
+					<td class="noBorderX"><img src="{item.picture}" alt="" />{item.name}</td>
+					<td class="noBorderX"><input name="{item.buylimit.parameter}" type="text" size="15" maxlength="15" value="{item.buylimit}"></td>
+					<td class="noBorderX"><input name="{item.buyprice.parameter}" type="text" size="15" maxlength="15" value="{item.buyprice}"></td>
+					<td class="noBorderX"><input name="{item.saleslimit.parameter}" type="text" size="15" maxlength="15" value="{item.saleslimit}"></td>
+					<td class="noBorderX"><input name="{item.salesprice.parameter}" type="text" size="15" maxlength="15" value="{item.salesprice}"></td>
+				</tr>
+				<!-- END tradepost.list -->
+				<tr>
+					<td class="noBorderX" colspan="5">
+						<hr noshade="noshade" size="1" style="color:#cccccc" />
+					</td>
+				</tr>
+				<tr>
+					<td class="noBorderX" colspan="5" align="center"><br />
+						<input type="submit" value="Update" style="width:150px" />
+					</td>
+				</tr>
+			</table>	
+		</form>
+	{/endif}
 	<span class="smallfont">
 		<a class="back" href="./ds?module=schiff&ship={tradepost.id}">zur&uuml;ck</a>
 	</span>

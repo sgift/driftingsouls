@@ -76,9 +76,7 @@ public class TradepostController extends TemplateGenerator {
 		
 		// get variables
 		parameterNumber("ship");
-		parameterNumber("update");
 		int shipid = getInteger("ship");
-		int update = getInteger("update");	// variable to check if we have to update the pricelist
 		Cargo buylistgtu = null;
 		ship = (Ship)db.get(Ship.class, shipid);	// the tradepost
 		
@@ -133,7 +131,7 @@ public class TradepostController extends TemplateGenerator {
 		// build form
 		for( Item aitem : Items.get() ) {
 			int itemid = aitem.getID();
-			ResourceLimitKey resourcekey = new ResourceLimitKey(ship, new ItemID(aitem.getID()));
+			ItemID itemidobejct = new ItemID(aitem.getID());
 			
 			// check if user is allowed to see the item and go to next item if not
 			if( !user.canSeeItem(aitem))
@@ -141,28 +139,128 @@ public class TradepostController extends TemplateGenerator {
 				continue;
 			}
 			
+			// initiate starting values
+			long salesprice = 0;
+			long buyprice = 0;
+			long saleslimit = 0;
+			long buylimit = 0;
+						
 			// read actual values of limits
-			SellLimit itemsell = null;
-			ResourceLimit itembuy = null;
-			// check if the List of items to sell contains current item 
+			// check if the List of items to sell contains current item
 			if(selllistmap.containsKey(itemid * -1))
 			{
-				itemsell = selllistmap.get(itemid * -1);
-			}
-			else
-			{
-				itemsell = new SellLimit(resourcekey, 0, 0);
-				db.persist(itemsell);
+				salesprice = selllistmap.get(itemid * -1).getPrice();
+				saleslimit = selllistmap.get(itemid * -1).getLimit();
 			}
 			// check if the List of items to buy contains current item
 			if(buylistmap.containsKey(itemid * -1))
 			{
-				itembuy = buylistmap.get(itemid * -1);
+				buylimit = buylistmap.get(itemid * -1).getLimit();
+				buyprice = buylistgtu.getResourceCount(itemidobejct) / 1000 ;
 			}
-			else
+			
+			// hier wollte ich einen intelligenten kommentar einfuegen
+			String name = Common._plaintitle(aitem.getName());
+			if( aitem.getQuality().color().length() > 0 ) {
+				name = "<span style=\"color:"+aitem.getQuality().color()+"\">"+name+"</span>";	
+			}
+
+			t.setVar(	"item.picture",	aitem.getPicture(),
+						"item.id",		itemid,
+						"item.name",	name,
+						"item.cargo",	Common.ln(aitem.getCargo()),
+						"item.salesprice",	salesprice,
+						"item.buyprice",	buyprice,
+						"item.saleslimit",	saleslimit,
+						"item.buylimit",	buylimit,
+						"item.salesprice.parameter",	"i"+aitem.getID()+"salesprice",
+						"item.buyprice.parameter",	"i"+aitem.getID()+"buyprice",
+						"item.saleslimit.parameter",	"i"+aitem.getID()+"saleslimit",
+						"item.buylimit.parameter",	"i"+aitem.getID()+"buylimit",
+						"tradepost.id",	shipid );
+			
+			t.parse("tradepost.post", "tradepost.list", true);
+		}
+	}
+	
+	/**
+	 * shows configuration site for a single tradepost
+	 * @urlparam String ship the ship-id
+	 */
+	@Action(ActionType.DEFAULT)
+	public void updateAction() {
+		TemplateEngine t = getTemplateEngine();
+		User user = (User)getUser();
+		org.hibernate.Session db = getDB();
+
+		t.setBlock("_TRADEPOST", "tradepost.list", "tradepost.post");
+		
+		// get variables
+		parameterNumber("ship");
+		int shipid = getInteger("ship");
+		
+		Cargo buylistgtu = null;
+		ship = (Ship)db.get(Ship.class, shipid);	// the tradepost
+		
+		// check is ship is tradepost
+		if(ship.isTradepost())
+		{
+			// hey fine, we have a tradepost here
+			t.setVar("ship.tradepost", 1);
+		}
+		else
+		{
+			// not a tradepost, sent message to user and stop script
+			t.setVar("tradepost.message", "Dieses Schiff ist kein Handelsposten. Bitte bestellen Sie die entsprechende Software beim Handelsunternehmen Ihres vertrauens");
+			return;
+		}
+				
+		// get all SellLimits of this ship
+		List<SellLimit> selllimitlist = Common.cast(db.createQuery("from SellLimit where shipid=:shipid").setParameter("shipid", shipid).list());
+		
+		// get all ResourceLimits of this ship
+		List<ResourceLimit> buylimitlist = Common.cast(db.createQuery("from ResourceLimit where shipid=:shipid").setParameter("shipid", shipid).list());
+		// get GtuWarenKurse cause of fucking database structure
+		GtuWarenKurse kurse = (GtuWarenKurse)db.get(GtuWarenKurse.class, "p"+shipid);
+		if(kurse == null)
+		{
+			// there's no cargo, create one bastard
+			buylistgtu = new Cargo();
+			// there's no GtuWarenKurse Object, create one
+			kurse = new GtuWarenKurse("p"+shipid, ship.getName(), buylistgtu);
+			db.persist(kurse);
+		}
+		else
+		{
+			buylistgtu = kurse.getKurse();	
+		}
+		
+		// generate Maps which contain the SellLimits and den ResourceLimits of the Tradepost
+		Map<Integer,SellLimit> selllistmap = new LinkedHashMap<Integer,SellLimit>();
+		Map<Integer,ResourceLimit> buylistmap = new LinkedHashMap<Integer,ResourceLimit>();
+		for(SellLimit limit: selllimitlist)
+		{
+			// add a sepcific selllimit to the map at position of his id
+			selllistmap.put(limit.getId().getResourceId(), limit);
+		}
+		for(ResourceLimit limit: buylimitlist)
+		{
+			// add a specific buylimit to the map at position of his id
+			buylistmap.put(limit.getId().getResourceId(), limit);
+		}
+		
+		
+		// build form
+		for( Item aitem : Items.get() ) {
+			int itemid = aitem.getID();
+			ItemID itemidobejct = new ItemID(aitem.getID());
+			
+			ResourceLimitKey resourcekey = new ResourceLimitKey(ship, itemidobejct);
+			
+			// check if user is allowed to see the item and go to next item if not
+			if( !user.canSeeItem(aitem))
 			{
-				itembuy = new ResourceLimit(resourcekey, 0);
-				db.persist(itembuy);
+				continue;
 			}
 			
 			// initiate starting values
@@ -181,68 +279,65 @@ public class TradepostController extends TemplateGenerator {
 			saleslimit = getInteger("i"+aitem.getID()+"saleslimit");
 			buylimit = getInteger("i"+aitem.getID()+"buylimit");
 			
-			// check if we have to update the values
-			if(update == 1)
+			// check if values are positive and set to zero if not
+			if(salesprice < 0)
 			{
-				// set new values to submitted values or to 0 if not set
-				if(salesprice != 0)
-				{
-					itemsell.setPrice(salesprice);
+				salesprice = 0;
+			}
+			if(buyprice < 0)
+			{
+				buyprice = 0;
+			}
+			if(saleslimit < 0)
+			{
+				saleslimit = 0;
+			}
+			if(buylimit < 0)
+			{
+				buylimit = 0;
+			}
+			
+			SellLimit itemsell = null;
+			ResourceLimit itembuy = null;
+			// check if the List of items to sell contains current item
+			if(selllistmap.containsKey(itemid * -1))
+			{
+				itemsell = selllistmap.get(itemid * -1);
+				itemsell.setPrice(salesprice);
+				itemsell.setLimit(saleslimit);
+			}
+			else
+			{
+				// create new object, if we have to set a price or a limit
+				if(salesprice != 0 || saleslimit != 0)
+					{
+					itemsell = new SellLimit(resourcekey, salesprice, saleslimit);
+					db.persist(itemsell);
 				}
-				else
+			}
+			// check if the List of items to buy contains current item
+			if(buylistmap.containsKey(itemid * -1))
+			{
+				itembuy = buylistmap.get(itemid * -1);
+				buylistgtu.setResource(itemidobejct , buyprice * 1000);
+				kurse.setKurse(buylistgtu);
+				itembuy.setLimit(buylimit);
+			}
+			else
+			{
+				// create new object, if we have to set a price or a limit
+				if(buyprice != 0 || buylimit != 0)
 				{
-					itemsell.setPrice(0);
-				}
-				// buyprice uses gtuwarenkonto cuase price for buying stuff is not implemented in ResourceLimit
-				if(buyprice != 0)
-				{
-					buylistgtu.setResource(new ItemID(aitem.getID()) , buyprice * 1000);
+					itembuy = new ResourceLimit(resourcekey, buylimit);
+					buylistgtu.setResource(itemidobejct , buyprice * 1000);
 					kurse.setKurse(buylistgtu);
-					
-				}
-				else
-				{
-					buylistgtu.setResource(new ItemID(aitem.getID()) , 0);
-					kurse.setKurse(buylistgtu);
-				}
-				if(saleslimit != 0)
-				{
-					itemsell.setLimit(saleslimit);
-				}
-				else
-				{
-					itemsell.setLimit(0);
-				}
-				if(buylimit != 0)
-				{
-					itembuy.setLimit(buylimit);
-				}
-				else
-				{
-					itembuy.setLimit(0);
+					db.persist(itembuy);
 				}
 			}
 			
-			// hier wollte ich einen intelligenten kommentar einfuegen
-			String name = Common._plaintitle(aitem.getName());
-			if( aitem.getQuality().color().length() > 0 ) {
-				name = "<span style=\"color:"+aitem.getQuality().color()+"\">"+name+"</span>";	
-			}
-					
-			t.setVar(	"item.picture",	aitem.getPicture(),
-						"item.id",		itemid,
-						"item.name",	name,
-						"item.cargo",	Common.ln(aitem.getCargo()),
-						"item.salesprice",	itemsell.getPrice(),
-						"item.buyprice",	buylistgtu.getResourceCount(new ItemID(aitem.getID())),
-						"item.saleslimit",	itemsell.getLimit(),
-						"item.buylimit",	itembuy.getLimit(),
-						"item.salesprice.parameter",	"i"+aitem.getID()+"salesprice",
-						"item.buyprice.parameter",	"i"+aitem.getID()+"buyprice",
-						"item.saleslimit.parameter",	"i"+aitem.getID()+"saleslimit",
-						"item.buylimit.parameter",	"i"+aitem.getID()+"buylimit",
-						"tradepost.id",	shipid );
-			
+			t.setVar(	"tradepost.update", "1",
+						"tradepost.update.message", "Die Einstellungen wurden &uuml;bernommen.");
+						
 			t.parse("tradepost.post", "tradepost.list", true);
 		}
 	}

@@ -2,6 +2,7 @@ package net.driftingsouls.ds2.server.entities;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -72,6 +73,7 @@ public class ResourceLimit {
 	
 	@Id
 	private ResourceLimitKey resourceLimitKey;
+	@Column(name="maximum")
 	private long limit;
 	
 	@Version
