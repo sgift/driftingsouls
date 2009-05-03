@@ -55,7 +55,9 @@ public class GtuWarenKurse {
 
 	/**
 	 * Konstruktor.
-	 *
+	 * @param place
+	 * @param name
+	 * @param kurse
 	 */
 	public GtuWarenKurse(String place, String name, Cargo kurse) {
 		this.place = place;
@@ -73,7 +75,7 @@ public class GtuWarenKurse {
 	}
 
 	/**
-	 * Sets the price for the items in cargo
+	 * Sets the price for the items in cargo.
 	 * @param kurse
 	 */
 	public void setKurse(Cargo kurse) {

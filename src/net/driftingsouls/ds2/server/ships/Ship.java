@@ -680,6 +680,7 @@ public class Ship implements Locatable,Transfering {
 	
 	/**
 	 * Returns true if Ship is a tradepost.
+	 * @return tradepoststatus
 	 */
 	public boolean isTradepost()
 	{

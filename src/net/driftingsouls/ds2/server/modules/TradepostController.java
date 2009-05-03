@@ -62,7 +62,7 @@ public class TradepostController extends TemplateGenerator {
 	}
 		
 	/**
-	 * shows configuration site for a single tradepost
+	 * shows configuration site for a single tradepost.
 	 * @urlparam String ship the ship-id
 	 */
 	@Override
@@ -184,7 +184,7 @@ public class TradepostController extends TemplateGenerator {
 	}
 	
 	/**
-	 * shows configuration site for a single tradepost
+	 * shows configuration site for a single tradepost.
 	 * @urlparam String ship the ship-id
 	 */
 	@Action(ActionType.DEFAULT)

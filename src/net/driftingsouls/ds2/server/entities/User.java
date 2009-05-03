@@ -1253,6 +1253,11 @@ public class User extends BasicUser {
 		return Integer.valueOf(value.getValue());
 	}
 
+	/**
+	 * checks if the user is able to see the item.
+	 * @param aitem
+	 * @return
+	 */
 	public boolean canSeeItem(Item aitem) {
 		boolean check = false;
 		if( ( aitem.getAccessLevel() <= this.getAccessLevel() ) || !( aitem.isUnknownItem() && !this.isKnownItem(aitem.getID()) && (this.getAccessLevel() < 15) ) ) {
