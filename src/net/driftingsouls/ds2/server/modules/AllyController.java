@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
@@ -48,6 +49,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -279,6 +281,19 @@ public class AllyController extends TemplateGenerator {
 	
 		if( isUserInAllyFoundBlock(user) ) {
 			t.setVar( "ally.message", "Es gibt eine oder mehrere Anfragen an sie zwecks Unterst&uuml;tzung einer Allianzgr&uuml;ndung. Sie m&uuml;ssen diese Anfragen erst bearbeiten bevor sie einer Allianz beitreten k&ouml;nnen." );
+			
+			redirect("defaultNoAlly");
+			return;
+		}
+		
+		Session db = getDB();
+		long battlesAgainstAlly = (Long)db.createQuery("from Battle where (commander1=:user and commander2.ally=:ally) or (commander1.ally=:ally and commander2=:user)")
+										  .setParameter("user", user)
+										  .setParameter("ally", ally)
+										  .uniqueResult();
+		if(battlesAgainstAlly > 0)
+		{
+			t.setVar( "ally.message", "Sie k&ouml;nnen keiner Allianz beitreten gegen die Sie k&auml;mpfen.");
 			
 			redirect("defaultNoAlly");
 			return;
