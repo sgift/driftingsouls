@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.config.items.Item;
@@ -80,7 +81,7 @@ public class TradepostController extends TemplateGenerator {
 		Cargo buylistgtu = null;
 		ship = (Ship)db.get(Ship.class, shipid);	// the tradepost
 
-		if(ship != null)
+		if(ship == null)
 		{
 			addError("Das angegebene Schiff existiert nicht");
 			return;
@@ -140,6 +141,9 @@ public class TradepostController extends TemplateGenerator {
 			buylistmap.put(limit.getId().getResourceId(), limit);
 		}
 		
+		t.setVar(	"tradepost.id",	shipid,
+					"tradepost.image", ship.getTypeData().getPicture(),
+					"tradepost.koords", new Location(ship.getSystem(), ship.getX(), ship.getY()).displayCoordinates(false) );
 		
 		// build form
 		for( Item aitem : Items.get() ) {
@@ -177,7 +181,7 @@ public class TradepostController extends TemplateGenerator {
 			if( aitem.getQuality().color().length() > 0 ) {
 				name = "<span style=\"color:"+aitem.getQuality().color()+"\">"+name+"</span>";	
 			}
-
+			
 			t.setVar(	"item.picture",	aitem.getPicture(),
 						"item.id",		itemid,
 						"item.name",	name,
@@ -189,8 +193,7 @@ public class TradepostController extends TemplateGenerator {
 						"item.salesprice.parameter",	"i"+aitem.getID()+"salesprice",
 						"item.buyprice.parameter",	"i"+aitem.getID()+"buyprice",
 						"item.saleslimit.parameter",	"i"+aitem.getID()+"saleslimit",
-						"item.buylimit.parameter",	"i"+aitem.getID()+"buylimit",
-						"tradepost.id",	shipid );
+						"item.buylimit.parameter",	"i"+aitem.getID()+"buylimit" );
 			
 			t.parse("tradepost.post", "tradepost.list", true);
 		}
