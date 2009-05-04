@@ -218,7 +218,7 @@ public class TradepostController extends TemplateGenerator {
 		Cargo buylistgtu = null;
 		ship = (Ship)db.get(Ship.class, shipid);	// the tradepost
 
-		if(ship != null)
+		if(ship == null)
 		{
 			addError("Das angegebene Schiff existiert nicht");
 			return;
