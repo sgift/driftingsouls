@@ -1646,8 +1646,8 @@ public class Battle implements Locatable {
 			return false;
 		}
 		else if( owncount == 0 ) {
-			PM.send(this.getCommanders()[this.enemySide], this.getCommanders()[this.ownSide].getId(), "Schlacht verloren", "Du hast die Schlacht bei "+this.getLocation()+" gegen "+this.getCommanders()[this.enemySide].getName()+" verloren!");
-			PM.send(this.getCommanders()[this.ownSide], this.getCommanders()[this.enemySide].getId(), "Schlacht gewonnen", "Du hast die Schlacht bei "+this.getLocation()+" gegen "+this.getCommanders()[this.ownSide].getName()+" gewonnen!");
+			PM.send(this.getCommanders()[this.enemySide], this.getCommanders()[this.ownSide].getId(), "Schlacht verloren", "Du hast die Schlacht bei "+this.getLocation().displayCoordinates(false)+" gegen "+this.getCommanders()[this.enemySide].getName()+" verloren!");
+			PM.send(this.getCommanders()[this.ownSide], this.getCommanders()[this.enemySide].getId(), "Schlacht gewonnen", "Du hast die Schlacht bei "+this.getLocation().displayCoordinates(false)+" gegen "+this.getCommanders()[this.ownSide].getName()+" gewonnen!");
 					
 			// Schlacht beenden - eine siegreiche Schlacht fuer den aktive Seite verbuchen sowie eine verlorene fuer den Gegner
 			if( this.ownSide == 0 ) {
