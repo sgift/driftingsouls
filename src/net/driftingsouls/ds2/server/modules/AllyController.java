@@ -286,7 +286,7 @@ public class AllyController extends TemplateGenerator {
 		}
 		
 		Session db = getDB();
-		long battlesAgainstAlly = (Long)db.createQuery("from Battle where (commander1=:user and commander2.ally=:ally) or (commander1.ally=:ally and commander2=:user)")
+		long battlesAgainstAlly = (Long)db.createQuery("select count(battle) from Battle battle where (commander1=:user and commander2.ally=:ally) or (commander1.ally=:ally and commander2=:user)")
 										  .setParameter("user", user)
 										  .setParameter("ally", ally)
 										  .uniqueResult();
