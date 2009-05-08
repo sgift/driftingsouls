@@ -1197,7 +1197,7 @@ public class AllyController extends TemplateGenerator {
 		t.setVar(	"show.lostpos.back",	lostpos-10,
 					"show.lostpos.forward",	lostpos+10 );
 
-		sList = db.createQuery("from ShipLost where destally=? order by time desc")
+		sList = db.createQuery("from ShipLost where ally=? order by time desc")
 			.setInteger(0, this.ally.getId())
 			.setMaxResults(10)
 			.setFirstResult((int)lostpos)
