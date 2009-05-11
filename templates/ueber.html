@@ -26,7 +26,14 @@
 				<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
 				Letzter Tick: {global.ticktime}<br />
 				Zeitpunkt: {time.current} ({global.ticks})<br />
-				Kontostand: {user.konto} RE<br />
+				Kontostand: {user.konto} RE 
+				{if user.balance.plain > 0}
+					<span style="color:green">{user.balance}</span>
+				{/endif}
+				{if user.balance.plain < 0}
+					<span style="color:red">{user.balance}</span>
+				{/endif}
+				<br />
 				<img src="{res.nahrung.image}" alt="" />{if user.nahrung}Nahrung: {user.nahrung}{else}<span style="color:red">Nahrung: {user.nahrung}</span>{/endif}
 				{if user.nahrung.stat.tick}
 					&nbsp;-

@@ -32,6 +32,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.Ordner;
 import net.driftingsouls.ds2.server.config.items.Item;
@@ -42,6 +43,7 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 
@@ -636,6 +638,28 @@ public class User extends BasicUser {
 	 */
 	public void transferMoneyFrom( int fromID, long count, String text, boolean faketransfer, int transfertype) {
 		transferMoneyFrom(fromID,BigInteger.valueOf(count), text, faketransfer, transfertype);
+	}
+	
+	/**
+	 * Transferiert einen bestimmten RE-Betrag von einem Spieler zum aktuellen.
+	 * Es wird KEIN Log geschrieben.
+	 * 
+	 * @param fromID Die ID des Benutzers, von dem Geld abgebucht werden soll.
+	 * @param count Die zu transferierende Geldmenge.
+	 */
+	public void transferMoneyFrom(int fromID, long count)
+	{
+		BigInteger biCount = BigInteger.valueOf(count);
+		if(!biCount.equals(BigInteger.ZERO))
+		{
+			User fromUser = (User)context.getDB().get(User.class, fromID);
+			if( (fromID != 0)) 
+			{
+				fromUser.setKonto(fromUser.getKonto().subtract(biCount));
+			}
+		
+			konto = konto.add(biCount);	
+		}
 	}
 
 	/**
@@ -1264,5 +1288,34 @@ public class User extends BasicUser {
 			check = true;	
 		}
 		return check;
+	}
+	
+	/**
+	 * @return Die Bilanz des Spielers nach Aufrechnung aller Basen und Schiffe.
+	 */
+	public int getBalance()
+	{
+		int balance = 0;
+		
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		List<Base> bases = Common.cast(db.createQuery("from Base where owner=:owner")
+										 .setParameter("owner", this)
+										 .list());
+		
+		for(Base base: bases)
+		{
+			balance += base.getBalance();
+		}
+		
+		List<Ship> ships = Common.cast(db.createQuery("from Ship where owner=:owner")
+										 .setParameter("owner", this)
+										 .list());
+		
+		for(Ship ship: ships)
+		{
+			balance -= ship.getBalance();
+		}
+		
+		return balance;
 	}
 }

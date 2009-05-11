@@ -153,7 +153,7 @@ public class BaseTick extends TickController {
 		if(income > 0)
 		{
 			this.log("Steuern ausbezahlt " + income);
-			owner.transferMoneyFrom(nobody.getId(), income, "Steuereinnahmen Asteroid " + base.getId() + " - " + base.getName(), true, User.TRANSFER_AUTO);
+			owner.transferMoneyFrom(nobody.getId(), income);
 		}
 		else
 		{
@@ -165,14 +165,14 @@ public class BaseTick extends TickController {
 			if(account.compareTo(incomeHelper) >= 0)
 			{
 				this.log("Bezahlter Betrag: " + income);
-				nobody.transferMoneyFrom(owner.getId(), income, "Arbeitslosenhilfe Asteroid " + base.getId() + " - " + base.getName() + " User: " + owner.getName() + " (" + owner.getId() + ")", false, User.TRANSFER_AUTO);
+				nobody.transferMoneyFrom(owner.getId(), income);
 			}
 			else
 			{
 				//Inhabitants flee
 				int excess = Math.abs(account.subtract(incomeHelper).intValue());
 				income = income - excess;
-				nobody.transferMoneyFrom(owner.getId(), income, "Arbeitslosenhilfe Asteroid " + base.getId() + " - " + base.getName() + " User: " + owner.getName() + " (" + owner.getId() + ")", false, User.TRANSFER_AUTO);
+				nobody.transferMoneyFrom(owner.getId(), income);
 				inhabitants = inhabitants - excess;
 				this.log("Konto nicht gedeckt, " + excess + " Einwohner fliehen.");
 				this.log("Bezahlter Betrag: " + income);

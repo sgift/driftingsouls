@@ -3737,4 +3737,12 @@ public class Ship implements Locatable,Transfering {
 	{
 		return !getDocked().trim().equals("") && !isLanded();
 	}
+	
+	/**
+	 * @return Die Bilanz des Schiffes.
+	 */
+	public int getBalance()
+	{
+		return getTypeData().getReCost();
+	}
 }

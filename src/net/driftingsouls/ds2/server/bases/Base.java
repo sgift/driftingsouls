@@ -45,6 +45,7 @@ import net.driftingsouls.ds2.server.cargo.Transfer;
 import net.driftingsouls.ds2.server.cargo.Transfering;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -972,5 +973,22 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		
 		assert false;
 		return null;
+	}
+	
+	/**
+	 * @return Die Bilanz der Basis.
+	 */
+	public int getBalance()
+	{
+		int worker = getArbeiter();
+		int unemployed = getBewohner() - worker;
+		
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		ConfigValue taxValue = (ConfigValue)db.get(ConfigValue.class, "tax");
+		ConfigValue ssbValue = (ConfigValue)db.get(ConfigValue.class, "socialsecuritybenefit");
+		int tax = Integer.parseInt(taxValue.getValue());
+		int socialSecurityBenefit = Integer.parseInt(ssbValue.getValue());
+		
+		return worker*tax - unemployed*socialSecurityBenefit;
 	}
 }

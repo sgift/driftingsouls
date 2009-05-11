@@ -219,7 +219,7 @@ public class SchiffsTick extends TickController {
 			{
 				this.log("Bezahlter Betrag: " + reCost);
 				User nobody = (User)db.get(User.class, -1);
-				nobody.transferMoneyFrom(owner.getId(), reCost, "Sold und Wartungskosten " + shipd.getId() + " - " + shipd.getName() + " User: " + owner.getName() + " (" + owner.getId() + ")", false, User.TRANSFER_AUTO);
+				nobody.transferMoneyFrom(owner.getId(), reCost);
 			}
 			else
 			{
@@ -227,7 +227,7 @@ public class SchiffsTick extends TickController {
 				shipd.setOwner(pirate);
 				
 				this.log("Konto nicht gedeckt; Schiff desertiert zum Piraten.");
-				PM.send(pirate, owner.getId(), "Schiff desertiert", "Die " + shipd.getName() + " (" + shipd.getId() + ") ist desertiert, nachdem Sie den Sold der Crew nicht aufbringen konnten.");
+				PM.send(pirate, owner.getId(), "Schiff desertiert", "Die " + shipd.getName() + " ist desertiert, nachdem Sie den Sold der Crew nicht aufbringen konnten.");
 			}
 		}
 

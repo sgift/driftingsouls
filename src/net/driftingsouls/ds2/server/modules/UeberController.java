@@ -241,13 +241,15 @@ public class UeberController extends TemplateGenerator {
 		
 		Cargo usercargo = new Cargo( Cargo.Type.STRING, user.getCargo() );
 				
-		t.setVar(	"user.name",		Common._title(user.getName()),
-				  	"user.race",		race,
+		t.setVar(	"user.name",			Common._title(user.getName()),
+				  	"user.race",			race,
 				  	"res.nahrung.image",	Cargo.getResourceImage(Resources.NAHRUNG),
-				  	"user.nahrung",		Common.ln(usercargo.getResourceCount(Resources.NAHRUNG)),
-				  	"user.konto",		Common.ln(user.getKonto()),
-				  	"global.ticks",		ticks,
-				  	"global.ticktime",	ticktime );
+				  	"user.nahrung",			Common.ln(usercargo.getResourceCount(Resources.NAHRUNG)),
+				  	"user.konto",			Common.ln(user.getKonto()),
+				  	"user.balance",			Common.ln(user.getBalance()),
+				  	"user.balance.plain",	user.getBalance(),
+				  	"global.ticks",			ticks,
+				  	"global.ticktime",		ticktime );
 				  		  
 		// Gibt es eine Umfrage an der wir teilnehmen koennen
 		SQLResultRow survey = database.prepare("SELECT * FROM surveys WHERE enabled='1' AND minid<=? AND maxid>=? AND ",
