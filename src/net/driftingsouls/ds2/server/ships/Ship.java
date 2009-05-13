@@ -3743,6 +3743,11 @@ public class Ship implements Locatable,Transfering {
 	 */
 	public int getBalance()
 	{
+		if(isLanded())
+		{
+			return 0;
+		}
+		
 		return getTypeData().getReCost();
 	}
 }
