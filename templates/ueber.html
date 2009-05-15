@@ -28,7 +28,7 @@
 				Zeitpunkt: {time.current} ({global.ticks})<br />
 				Kontostand: {user.konto} RE 
 				{if user.balance.plain > 0}
-					<span style="color:green">{user.balance}</span>
+					<span style="color:green">+{user.balance}</span>
 				{/endif}
 				{if user.balance.plain < 0}
 					<span style="color:red">{user.balance}</span>
