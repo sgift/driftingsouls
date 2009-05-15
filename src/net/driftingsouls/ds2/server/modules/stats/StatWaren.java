@@ -178,7 +178,7 @@ public class StatWaren implements Statistic {
 								"<a style='font-size:14px' class='forschinfo' " +
 								"href='"+Common.buildUrl("default", "module", "base", "col", objectid)+"'>"+
 								Common._plaintitle(basecache.get(objectid).getString("name"))+" - "+
-								Location.fromResult(basecache.get(objectid))+
+								Location.fromResult(basecache.get(objectid)).displayCoordinates(false)+
 								"</a></td>");
 						break;
 					

@@ -154,7 +154,7 @@ public class RTCTick extends TickController {
 					
 					ship.recalculateShipStatus();
 		
-					String msg = "Sie haben "+entryname+" ersteigert.\nDas Objekt wurde ihnen bei "+loc+" &uuml;bergeben.\n\nJack Miller\nHan Ronalds";
+					String msg = "Sie haben "+entryname+" ersteigert.\nDas Objekt wurde ihnen bei "+loc.displayCoordinates(false)+" &uuml;bergeben.\n\nJack Miller\nHan Ronalds";
 					PM.send(gtuuser, winner.getId(), entryname+" ersteigert", msg);
 		
 					if( entry.getOwner() != this.gtuuser ) {				
