@@ -393,6 +393,9 @@ public class SchiffsTick extends TickController {
 		this.slog("\tNeu: crew "+shipd.getCrew()+" e "+e+" status: <");
 
 		this.log(">");
+		
+		
+		shipd.recalculateShipStatus();
 	}
 
 	private void tickUser(org.hibernate.Session db, User auser, String battle) {
