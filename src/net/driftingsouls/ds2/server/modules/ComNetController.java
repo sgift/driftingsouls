@@ -503,6 +503,8 @@ public class ComNetController extends TemplateGenerator {
 		while( chnlIter.hasNext() ) {
 			ComNetChannel achannel = (ComNetChannel)chnlIter.next();
 			
+			t.start_record();
+			
 			if( !achannel.isReadable(user) ) {
 				continue;
 			}
@@ -515,8 +517,6 @@ public class ComNetController extends TemplateGenerator {
 			{
 				t.setVar("thischannel.writeable", 1);
 			}
-			
-			t.start_record();
 			
 			if( (lastowner == 0) && (lastowner != achannel.getAllyOwner()) ) {
 				t.setVar("thischannel.showprivateinfo",1);
