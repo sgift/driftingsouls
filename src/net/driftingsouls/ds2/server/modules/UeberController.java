@@ -515,56 +515,55 @@ public class UeberController extends TemplateGenerator {
 		t.setVar(	"bookmarks.list",	"",
 					"fleets.list",		"" );
 
-		if( box.equals("bookmarks") ) {
-			t.setVar("show.bookmarks",1);
-	
-			List<?> bookmarks = db.createQuery("from Ship where id>0 and bookmark=1 and owner=? order by id desc")
-				.setEntity(0, user)
-				.list();
-			for( Iterator<?> iter=bookmarks.iterator(); iter.hasNext(); ) {
-				Ship bookmark = (Ship)iter.next();
-				ShipTypeData shiptype = bookmark.getTypeData();
-				t.setVar(	"bookmark.shipid",		bookmark.getId(),
-							"bookmark.shipname",	bookmark.getName(),
-							"bookmark.location",	bookmark.getLocation().displayCoordinates(false),
-							"bookmark.shiptype",	shiptype.getNickname(),
-							"bookmark.description",	bookmark.getDestSystem()+":"+bookmark.getDestX()+"/"+bookmark.getDestY()+"<br />"+bookmark.getDestCom().replace("\r\n","<br />") );
-				t.parse("bookmarks.list","bookmarks.listitem",true);
-			}
-		}
-		else if( box.equals("fleets") ) {
-			t.setVar("show.fleets",1);
-			boolean jdocked = false;
-			
-			List<?> fleets = db.createQuery("select count(*),s.fleet from Ship s " +
-					"where s.id>0 and s.owner= :user and s.fleet!=0 " +
-					"group by s.fleet " +
-					"order by s.docked,s.system,s.x,s.y")
-				.setEntity("user", user)
-				.list();
-			for( Iterator<?> iter=fleets.iterator(); iter.hasNext(); ) {
-				Object[] data = (Object[])iter.next();
-				long count = (Long)data[0];
-				ShipFleet fleet = (ShipFleet)data[1];
-				
-				Ship aship = (Ship)db.createQuery("from Ship where fleet=?")
-					.setEntity(0, fleet)
-					.iterate().next();;
-				
-				if( !jdocked && (aship.getDocked().indexOf('l') == 0) ) {
-					jdocked = true;
-					t.setVar( "fleet.jaegerfleet", 1 );
-				}
-				else {
-					t.setVar( "fleet.jaegerfleet", 0 );
-				}
 
-				t.setVar(	"fleet.shipid",		aship.getId(),
-							"fleet.name",		fleet.getName(),
-							"fleet.location",	Ships.getLocationText(aship.getLocation(), false),
-							"fleet.shipcount",	count );
-				t.parse("fleets.list","fleets.listitem",true);
+		// Bookmarks zusammenbauen
+		t.setVar("show.bookmarks",1);
+
+		List<?> bookmarks = db.createQuery("from Ship where id>0 and bookmark=1 and owner=? order by id desc")
+			.setEntity(0, user)
+			.list();
+		for( Iterator<?> iter=bookmarks.iterator(); iter.hasNext(); ) {
+			Ship bookmark = (Ship)iter.next();
+			ShipTypeData shiptype = bookmark.getTypeData();
+			t.setVar(	"bookmark.shipid",		bookmark.getId(),
+						"bookmark.shipname",	bookmark.getName(),
+						"bookmark.location",	bookmark.getLocation().displayCoordinates(false),
+						"bookmark.shiptype",	shiptype.getNickname(),
+						"bookmark.description",	bookmark.getDestSystem()+":"+bookmark.getDestX()+"/"+bookmark.getDestY()+"<br />"+bookmark.getDestCom().replace("\r\n","<br />") );
+			t.parse("bookmarks.list","bookmarks.listitem",true);
+		}
+		// Flotten zusammenbauen
+		t.setVar("show.fleets",1);
+		boolean jdocked = false;
+		
+		List<?> fleets = db.createQuery("select count(*),s.fleet from Ship s " +
+				"where s.id>0 and s.owner= :user and s.fleet!=0 " +
+				"group by s.fleet " +
+				"order by s.docked,s.system,s.x,s.y")
+			.setEntity("user", user)
+			.list();
+		for( Iterator<?> iter=fleets.iterator(); iter.hasNext(); ) {
+			Object[] data = (Object[])iter.next();
+			long count = (Long)data[0];
+			ShipFleet fleet = (ShipFleet)data[1];
+			
+			Ship aship = (Ship)db.createQuery("from Ship where fleet=?")
+				.setEntity(0, fleet)
+				.iterate().next();;
+			
+			if( !jdocked && (aship.getDocked().indexOf('l') == 0) ) {
+				jdocked = true;
+				t.setVar( "fleet.jaegerfleet", 1 );
 			}
+			else {
+				t.setVar( "fleet.jaegerfleet", 0 );
+			}
+
+			t.setVar(	"fleet.shipid",		aship.getId(),
+						"fleet.name",		fleet.getName(),
+						"fleet.location",	Ships.getLocationText(aship.getLocation(), false),
+						"fleet.shipcount",	count );
+			t.parse("fleets.list","fleets.listitem",true);
 		}
 
 		//------------------------------------
