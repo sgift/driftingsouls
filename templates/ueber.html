@@ -142,32 +142,33 @@
 	<td class="noBorderS">
 		{!table_begin 440,left}
 			<div style="text-align:center; font-weight:bold">
-				{if show.bookmarks}Bookmarks{/endif}
-				{if show.fleets}Flotten{/endif}
-				<a onclick="javascript:overlib('&lt;div style=\'font-size:13px; text-align:center\'&gt;&lt;a style=\'font-size:13px\' class=\'forschinfo\' href=\''+getDsUrl()+'?module=ueber&amp;action=box&amp;box=bookmarks\'&gt;Bookmarks&lt;/a&gt;&lt;br /&gt;&lt;a style=\'font-size:13px\' class=\'forschinfo\' href=\''+getDsUrl()+'?module=ueber&amp;action=box&amp;box=fleets\'&gt;Flotten&lt;/a&gt;&lt;/div&gt;',REF,'box_popup', REFC,'LR',REFP,'UR',NOCLOSE,STICKY,WIDTH,150);" id="box_popup" name="box_popup" class="error" onmouseover="" onmouseout="return nd();" href="#">
-					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_dropdown.gif" alt="" />
-				</a>
+				Bookmarks
 			</div>
 			<div style="height:130px; width:390px; overflow:auto; padding:4px; font-size:13px">
-				{if show.bookmarks}
 				<!-- BEGIN bookmarks.listitem -->
 					<a style="font-size:13px" class="forschinfo"  onmouseover="return overlib('&lt;span style=\'font-size:13px\'&gt;{bookmark.description}&lt;/span&gt;',TIMEOUT,0,DELAY,400,WIDTH,300);" onmouseout="return nd();" href="./ds?module=schiff&amp;ship={bookmark.shipid}">{bookmark.shipname}</a> ({bookmark.shipid})
 					- {bookmark.shiptype} - {bookmark.location}<br />
 				<!-- END bookmarks.listitem -->
-				{/endif}
-				{if show.fleets}
+			</div>
+		{!table_end}
+	</td>
+	<td class="noBorderS" valign="top">
+		{!table_begin 440,left}
+			<div style="text-align:center; font-weight:bold">
+				Flotten
+			</div>
+			<div style="height:130px; width:390px; overflow:auto; padding:4px; font-size:13px">
 				<!-- BEGIN fleets.listitem -->
 					{if fleet.jaegerfleet}<br />+++ gelandete J&auml;gerstaffeln +++<br />{/endif}
 					{!link_to $fleet.name, default, css_style:font-size:13px, module:schiff, ship:$fleet.shipid}
 					- {fleet.shipcount} Schiffe - {fleet.location}<br />
 				<!-- END fleets.listitem -->
-				{/endif}
 			</div>
 		{!table_end}
 	</td>
-	<td class="noBorderS" valign="top">&nbsp;</td>
-	<td class="noBorderS" valign="top" style="font-size:17px">
-		<p>
+</tr>
+<tr>
+	<td class="noBorderS" colspan="2" valign="top" style="font-size:17px">
 			<a class="error" href="./ds?module=schiffe&amp;low=9" {!overlib <span style='font-size:13px'>Schiffe mit Vorr&auml;ten f&uuml;r weniger als 10 Runden</span>, mo, delay:300}>
 				{if schiffe.mangel}
 					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_mangel.gif" alt="" />
@@ -176,8 +177,7 @@
 				{/endif}
 			</a> 
 			{schiffe.mangel}
-		</p>
-		<p>
+			 - 
 			<a class="error" href="./ds?module=schiffe&amp;crewless=1" {!overlib <span style='font-size:13px'>Schiffe ohne Crew</span>, mo, delay:300, width:150}>
 				{if schiffe.nocrew}
 					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_nocrew.gif" alt="" />
@@ -186,8 +186,7 @@
 				{/endif}
 			</a> 
 			{schiffe.nocrew}
-		</p>
-		<p>
+			 - 
 			<a class="error" href="./ds?module=basen" {!overlib <span style='font-size:13px'>Asteroiden mit Vorr&auml;ten welche f&uuml; weniger als 10 Runden reichen</span>, mo, delay:300, width:300}>
 				{if astis.mangel}
 					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_mangel_asti.gif" alt="" />
@@ -196,8 +195,7 @@
 				{/endif}
 			</a> 
 			{astis.mangel}
-		</p>
-		<p>
+			 - 
 			<a class="error" href="./ds?module=comm&amp;action=showInbox" {!overlib <span style='font-size:13px'>Neue ungelesene PMs</span>, mo, delay:300, width:150}>
 				{if user.newmsgs}
 					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_pm.gif" alt="" />
@@ -206,34 +204,26 @@
 				{/endif}
 			</a> 
 			{user.newmsgs}
-		</p>
-	</td>
-	<td class="noBorderS" valign="top">&nbsp;&nbsp;</td>
-	<td class="noBorderS" valign="top" style="font-size:17px">
-		<p>
+			 - 
 			<a class="error" href="#" {!overlib <span style='font-size:13px'>Schlachten die du verloren hast</span>, mo, delay:300, width:200}>
 				<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_battle_lost.gif" alt="" />
 			</a> 
 			{user.lostBattles}
-		</p>
-		<p>
+			 - 
 			<a class="error" href="#" {!overlib <span style='font-size:13px'>Schlachten die du gewonnen hast</span>, mo, delay:300, width:200}>
 				<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_battle_won.gif" alt="" />
 			</a> 
 			{user.wonBattles}
-		</p>
-		<p>
+			 - 
 			<a class="error" href="#" {!overlib <span style='font-size:13px'>Schiffe die du verloren hast</span>, mo, delay:300, width:300}>
 				<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_lost_ships.gif" alt="" />
 			</a> 
 			{user.lostShips}
-		</p>
-		<p>
+			 - 
 			<a class="error" href="#" {!overlib <span style='font-size:13px'>Schiffe die von deinen Schiffen zerst&ouml;rt wurden</span>, mo, delay:300, width:300}>
 				<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_destroyed_ships.gif" alt="" />
 			</a> 
 			{user.destroyedShips}
-		</p>
 	</td>
 </tr>
 </table>
