@@ -147,13 +147,9 @@ public class WerftGUI {
 			this.out_buildShip(build, werft);
 		}
 		// Werkstadt
-		else if( ws != 0 ) {
-			if( werft.isBuilding() ) {
-				t.setVar("werftgui.msg", "Sie k&ouml;nnen nicht gleichzeitig ein Schiff der Werkstatt bearbeiten und eines bauen");
-			}
-			else {
-				this.out_ws(werft, ws);
-			}
+		else if( ws != 0 ) 
+		{
+			this.out_ws(werft, ws);
 		}
 		// Hauptseite
 		else {
