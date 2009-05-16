@@ -506,6 +506,15 @@ public class ComNetController extends TemplateGenerator {
 			if( !achannel.isReadable(user) ) {
 				continue;
 			}
+			else
+			{
+				t.setVar("thischannel.readable", 1);
+			}
+			
+			if(achannel.isReadable(user))
+			{
+				t.setVar("thischannel.writeable", 1);
+			}
 			
 			t.start_record();
 			

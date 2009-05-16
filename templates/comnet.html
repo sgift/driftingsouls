@@ -170,18 +170,6 @@
 		Subraum-Tranciever ... Aktiviert<br />
 		{channel.name}-Frequenz ... gew&auml;hlt<br />
 		Kommunikations-System einsatzbereit<br /><br />
-		{if channel.writeable}
-			{!link_to Sende Com-net Nachricht, write, channel:$channel.id}<br />
-		{else}
-			<span class="smallfont" style="font-weight:bold">Senden nicht m&ouml;glich</span><br />
-		{/endif}
-		{if channel.readable}
-			{!link_to Empfangene Com-net Nachrichten, read, channel:$channel.id}<br />
-			{!link_to Com-net Frequenz Scannen, search, channel:$channel.id}
-		{else}
-			<span class="smallfont" style="font-weight:bold">Empfang nicht m&ouml;glich</span><br />
-		{/endif}
-		<br /><br />
 	</div>
 	<table class="noBorder">
 	<tr>
@@ -193,14 +181,17 @@
 				<td class="noBorderS" colspan="2" style="font-weight:bold"><br />Allianz-Frequenzen:</td>
 			</tr>
 		{/endif}
-		{if thischannel.isactive}
 			<tr>
 				<td class="noBorderS" style="width:10px">&nbsp;+</td>
-				<td class="noBorderS" style="font-weight:bold">{thischannel.name} (gew&auml;hlt)
-		{else}
-			<tr>
-				<td class="noBorderS" style="width:10px">&nbsp;+</td>
-				<td class="noBorderS"> {!link_to $thischannel.name, default, channel:$thischannel.id}
+				<td class="noBorderS"> {$thischannel.id}
+		{/endif}
+		
+		{if thischannel.readable}
+			 - {!link_to Lesen, read, channel:$thischannel.id} - {!link_to Suchen, search, channel:$thischannel.id}
+		{/endif}
+		
+		{if thischannel.writeable}
+			 - {!link_to Sende Com-net Nachricht, write, channel:$thischannel.id}<br />
 		{/endif}
 
 		{if thischannel.newposts}
