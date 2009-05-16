@@ -427,6 +427,8 @@ public class CrewtauschController extends TemplateGenerator {
 					"target.maxmarines",	(datat.getMaxMarines() > -1 ? datat.getMaxMarines() : "&#x221E;"),
 					"global.mode",		mode,
 					"global.mode.ss",	mode.equals("ss"),
-					"global.mode.sb",	mode.equals("sb") );
+					"global.mode.sb",	mode.equals("sb"),
+					"target.send",		datat.getMaxCrew() - datat.getCrew(),
+					"ship.receive",		ship.getTypeData().getCrew() - ship.getCrew());
 	}
 }

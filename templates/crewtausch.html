@@ -9,7 +9,7 @@
 	<img src="{URL}data/interface/besatzung.gif" alt="Crew" />{ship.crew}/{ship.maxcrew}<br />
 
 	<form action="./ds" method="post">
-		<input name="send" type="text" size="3" value="0" />
+		<input name="send" type="text" size="3" value="{target.send}" />
 		{!form_create_hidden send, ship:$ship.id, tar:$target.id, mode:$global.mode}
 		&nbsp;&nbsp;
 		<input type="submit" value="zu {target.name} transferieren" /><br />
@@ -18,7 +18,7 @@
 	<img src="{URL}data/interface/besatzung.gif" alt="Crew" />{target.crew}/{target.maxcrew}<br />
 
 	<form action="./ds" method="post">
-		<input name="rec" type="text" size="3" value="0" />
+		<input name="rec" type="text" size="3" value="{ship.receive}" />
 		{!form_create_hidden rec, ship:$ship.id, tar:$target.id, mode:$global.mode}
 		&nbsp;&nbsp;
 		<input type="submit" value="von {target.name} transferieren" /><br />
