@@ -194,15 +194,9 @@
 			</tr>
 		{/endif}
 
-		{if thischannel.isactive}
  			<tr>
  				<td class="noBorderS" style="width:10px">&nbsp;+</td>
-				<td class="noBorderS" style="font-weight:bold">{thischannel.name} (gew&auml;hlt)
-		{else}
-			<tr>
-				<td class="noBorderS" style="width:10px">&nbsp;+</td>
-				<td class="noBorderS"> {!link_to $thischannel.name, default, channel:$thischannel.id}
-		{/endif}
+				<td class="noBorderS">{thischannel.name}
 		
 		{if thischannel.readable}
 			 - {!link_to Lesen, read, channel:$thischannel.id} - {!link_to Suchen, search, channel:$thischannel.id}
