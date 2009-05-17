@@ -144,7 +144,7 @@
 			<div style="text-align:center; font-weight:bold">
 				Bookmarks
 			</div>
-			<div style="height:130px; width:390px; overflow:auto; padding:4px; font-size:13px">
+			<div style="height:260px; width:390px; overflow:auto; padding:4px; font-size:13px">
 				<!-- BEGIN bookmarks.listitem -->
 					<a style="font-size:13px" class="forschinfo"  onmouseover="return overlib('&lt;span style=\'font-size:13px\'&gt;{bookmark.description}&lt;/span&gt;',TIMEOUT,0,DELAY,400,WIDTH,300);" onmouseout="return nd();" href="./ds?module=schiff&amp;ship={bookmark.shipid}">{bookmark.shipname}</a> ({bookmark.shipid})
 					- {bookmark.shiptype} - {bookmark.location}<br />
@@ -157,7 +157,7 @@
 			<div style="text-align:center; font-weight:bold">
 				Flotten
 			</div>
-			<div style="height:130px; width:390px; overflow:auto; padding:4px; font-size:13px">
+			<div style="height:260px; width:390px; overflow:auto; padding:4px; font-size:13px">
 				<!-- BEGIN fleets.listitem -->
 					{if fleet.jaegerfleet}<br />+++ gelandete J&auml;gerstaffeln +++<br />{/endif}
 					{!link_to $fleet.name, default, css_style:font-size:13px, module:schiff, ship:$fleet.shipid}
