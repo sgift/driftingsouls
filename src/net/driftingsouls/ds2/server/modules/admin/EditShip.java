@@ -96,6 +96,7 @@ public class EditShip implements AdminPlugin
 			ship.setWeapons(context.getRequest().getParameterInt("weapons"));
 			ship.setHeat(context.getRequest().getParameterInt("heat"));
 			ship.setAlarm(context.getRequest().getParameterInt("alarm"));
+			ship.setStatus(context.getRequest().getParameter("status"));
 			
 			Cargo cargo = new Cargo();
 			
@@ -175,6 +176,7 @@ public class EditShip implements AdminPlugin
 				echo.append("<option value=\""+ alarm.getKey() +"\" " + (alarm.getKey().equals(ship.getAlarm()) ? "selected=\"selected\"" : "") + " />"+alarm.getValue()+"</option>");
 			}
 			echo.append("</select></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Flags: </td><td><input type=\"text\" name=\"status\" value=\"" + ship.getStatus() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\"></td><td class=\"noBorderS\">Menge</td></tr>");
 			for(ResourceConfig.Entry resource: ResourceConfig.getResources())
 			{
