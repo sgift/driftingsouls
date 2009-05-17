@@ -143,6 +143,7 @@ public class TradepostController extends TemplateGenerator {
 		
 		t.setVar(	"tradepost.id",	shipid,
 					"tradepost.image", ship.getTypeData().getPicture(),
+					"tradepost.name", ship.getName(),
 					"tradepost.koords", new Location(ship.getSystem(), ship.getX(), ship.getY()).displayCoordinates(false) );
 		
 		// build form

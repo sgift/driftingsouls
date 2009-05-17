@@ -1,4 +1,16 @@
 {if ship.tradepost}
+	{!table_begin 440,left}
+	<table class="noBorder" style="height:300px">
+		<tr>
+			<td>
+				{$tradepost.image}
+			</td>
+			<td>
+				{$tradepost.name} - {$tradepost.koords}
+			</td>
+		</tr>
+	</table>
+	{!table_end}
 	{if tradepost.update}
 		{tradepost.update.message}<br />
 	{else}
