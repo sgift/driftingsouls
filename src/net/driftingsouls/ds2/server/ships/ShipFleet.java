@@ -406,7 +406,6 @@ public class ShipFleet {
 		log.debug("Ships dismantled in fleet " + getId() + ": " + dismantled);
 		if(dismantled == ships.size())
 		{
-			db.delete(this);
 			return true;
 		}
 		
