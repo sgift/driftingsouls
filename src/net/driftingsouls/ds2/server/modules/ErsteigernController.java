@@ -1070,6 +1070,20 @@ public class ErsteigernController extends TemplateGenerator
 		{
 			GtuWarenKurse kurse = (GtuWarenKurse)iter.next();
 
+			String place = kurse.getPlace();
+			if (place.startsWith("p"))
+			{
+				int shipid = Integer.valueOf(place.substring(1));
+				Ship tradepost = (Ship)db.get(Ship.class, shipid);
+				if(tradepost == null)
+				{
+					db.delete(kurse);
+					db.createQuery("delete from ResourceLimit where shipid = :shipid").setParameter(0, shipid).executeUpdate();
+					db.createQuery("delete from SellLimit where shipid = :shipid").setParameter(0, shipid).executeUpdate();
+					continue;
+				}
+			}
+			
 			Cargo kurseCargo = new Cargo(kurse.getKurse());
 			kurseCargo.setOption(Cargo.Option.SHOWMASS, false);
 
