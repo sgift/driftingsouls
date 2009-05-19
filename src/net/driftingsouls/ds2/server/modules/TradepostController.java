@@ -279,6 +279,10 @@ public class TradepostController extends TemplateGenerator {
 			buylistmap.put(limit.getId().getResourceId(), limit);
 		}
 		
+		t.setVar(	"tradepost.id",	shipid,
+				"tradepost.image", ship.getTypeData().getPicture(),
+				"tradepost.name", ship.getName(),
+				"tradepost.koords", new Location(ship.getSystem(), ship.getX(), ship.getY()).displayCoordinates(false) );		
 		
 		// build form
 		for( Item aitem : Items.get() ) {
