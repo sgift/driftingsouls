@@ -1326,6 +1326,12 @@ public class SchiffController extends TemplateGenerator {
 						"sector.handel.name",	Common._plaintitle(handelShip.getName()));
 		}
 		
+		// Tooltip: Tradepost
+		if(ship.isTradepost())
+		{
+			t.setVar("tooltip.tradepost", 1);
+		}
+		
 		// Tooltip: Schiffscripte
 		if( user.hasFlag( User.FLAG_EXEC_NOTES ) ) {
 		

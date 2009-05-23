@@ -234,6 +234,11 @@
 					<img src="{URL}data/interface/info.png" alt="?" />
 				</a>
 			{/endif}
+			{if tooltip.tradepost}
+				<a class="noborder" onmouseover="return helpme('Konfiguration des Handelspostens');" onmouseout="return nd();" href="./ds?module=tradepost&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=default">
+					<img src="{URL}data/interface/hppref.png" alt="Handelsposten" />
+				</a>
+			{/endif}
 			<br />
 			<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
 			{if ship.shields.reloade}
