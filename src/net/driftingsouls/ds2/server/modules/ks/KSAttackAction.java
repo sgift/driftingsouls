@@ -172,7 +172,7 @@ public class KSAttackAction extends BasicKSAction {
 
 			if( s.getDocked().equals(Integer.toString(eShip.getId())) || s.getDocked().equals("l "+eShip.getId()) ) {
 				if( generateStats ) {
-					ShipLost lost = new ShipLost(eShip.getShip());
+					ShipLost lost = new ShipLost(s.getShip());
 					lost.setDestAlly(oUser.getAlly());
 					lost.setDestOwner(oUser);
 					lost.setDocked(masterid);
