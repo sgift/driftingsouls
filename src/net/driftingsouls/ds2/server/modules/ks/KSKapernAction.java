@@ -244,7 +244,7 @@ public class KSKapernAction extends BasicKSAction {
 				}
 				acrew = acrew -newshipcrew;		
 
-				ownShip.getShip().setCrew(acrew);
+				ownShip.getShip().setCrew(acrew + savecrew);
 
 				battle.logme( (newshipcrew)+" Crewmitglieder werden auf dem gekaperten Schiff stationiert\n" );
 			}
