@@ -43,7 +43,6 @@ import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
-import net.driftingsouls.ds2.server.werften.ShipWerft;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 
 import org.apache.commons.lang.StringUtils;
