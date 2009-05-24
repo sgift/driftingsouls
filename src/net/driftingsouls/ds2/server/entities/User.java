@@ -50,6 +50,9 @@ import net.driftingsouls.ds2.server.werften.ShipWerft;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.CacheMode;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -1307,13 +1310,24 @@ public class User extends BasicUser {
 			balance += base.getBalance();
 		}
 		
-		List<Ship> ships = Common.cast(db.createQuery("from Ship where owner=:owner")
-										 .setParameter("owner", this)
-										 .list());
 		
-		for(Ship ship: ships)
+		ScrollableResults ships = db.createQuery("from Ship where owner=:owner")
+		 							.setParameter("owner", this)
+		 							.setCacheMode(CacheMode.IGNORE)
+		 							.scroll(ScrollMode.FORWARD_ONLY);
+		
+		int count = 0;
+		while(ships.next())
 		{
+			Ship ship = (Ship)ships.get(0);
 			balance -= ship.getBalance();
+			count++;
+			
+			if(count%20 == 0)
+			{
+				db.flush();
+				db.clear();
+			}
 		}
 		
 		return balance;
