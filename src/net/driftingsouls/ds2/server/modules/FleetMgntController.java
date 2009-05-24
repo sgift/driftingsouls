@@ -1119,45 +1119,45 @@ public class FleetMgntController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void dismantleAction()
 	{
-		WerftObject shipyard = null;
+		List<WerftObject> shipyards = new ArrayList<WerftObject>();
 		
 		org.hibernate.Session db = getDB();
 		if(getGanymedCount() > 0)
 		{
 			Ship aship = getOneFleetShip();
-			shipyard = (ShipWerft)db.createQuery("from ShipWerft where ship.system=:system and ship.x=:x and ship.y=:y and ship.owner=:owner")
+			shipyards = Common.cast(db.createQuery("from ShipWerft where ship.system=:system and ship.x=:x and ship.y=:y and ship.owner=:owner")
 			   						.setParameter("system", aship.getSystem())
 			   						.setParameter("x", aship.getX())
 			   						.setParameter("y", aship.getY())
 			   						.setParameter("owner", aship.getOwner())
-			   						.setMaxResults(1)
-			   						.uniqueResult();
+			   						.list());
 		}
-		else
+		
+		List<Base> bases = getOwnerAsteroids();
+		if(!bases.isEmpty())
 		{
-			List<Base> bases = getOwnerAsteroids();
-			if(!bases.isEmpty())
+			for(Base base: bases)
 			{
-				for(Base base: bases)
+				WerftObject shipyard = base.getShipyard();
+				if(shipyard != null)
 				{
-					shipyard = base.getShipyard();
-					if(shipyard != null)
-					{
-						break;
-					}
+					shipyards.add(shipyard);
 				}
 			}
 		}
 		
-		if(shipyard != null)
+		if(!shipyards.isEmpty())
 		{
-			if(fleet.dismantleFleet(shipyard))
+			for(WerftObject shipyard: shipyards)
 			{
-				TemplateEngine t = getTemplateEngine();
-				t.setVar(	"fleetmgnt.message",	"Die Flotte '"+fleet.getName()+"' wurde demontiert.",
-							"jscript.reloadmain",	1 );
-				
-				return;
+				if(fleet.dismantleFleet(shipyard))
+				{
+					TemplateEngine t = getTemplateEngine();
+					t.setVar(	"fleetmgnt.message",	"Die Flotte '"+fleet.getName()+"' wurde demontiert.",
+								"jscript.reloadmain",	1 );
+					
+					return;
+				}
 			}
 		}
 		else
