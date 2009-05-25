@@ -36,6 +36,7 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipModules;
 import net.driftingsouls.ds2.server.ships.ShipType;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -131,15 +132,6 @@ public class EditShiptypes implements AdminPlugin
 
 			ShipType shiptype = (ShipType) db.createQuery("from ShipType where id=?").setInteger(0, shiptypeId).uniqueResult();
 
-			// Weight the difference between the old and the new value
-			Map<String, Double> factor = new HashMap<String, Double>();
-			factor.put("eps", eps / (double) shiptype.getEps());
-			factor.put("hull", hull / (double) shiptype.getHull());
-			factor.put("crew", crew / (double) shiptype.getCrew());
-			factor.put("shields", shields / (double) shiptype.getShields());
-			factor.put("ablativearmor", ablativeArmor / (double) shiptype.getAblativeArmor());
-			factor.put("marines", marines / (double) shiptype.getMarines());
-
 			shiptype.setRu(ru);
 			shiptype.setRd(rd);
 			shiptype.setRa(ra);
@@ -189,6 +181,15 @@ public class EditShiptypes implements AdminPlugin
 			while (ships.next())
 			{
 				Ship ship = (Ship) ships.get(0);
+				ShipTypeData type = ship.getTypeData();
+				// Weight the difference between the old and the new value
+				Map<String, Double> factor = new HashMap<String, Double>();
+				factor.put("eps", eps / (double) type.getEps());
+				factor.put("hull", hull / (double) type.getHull());
+				factor.put("crew", crew / (double) type.getCrew());
+				factor.put("shields", shields / (double) type.getShields());
+				factor.put("ablativearmor", ablativeArmor / (double) type.getAblativeArmor());
+				factor.put("marines", marines / (double) type.getMarines());
 				try
 				{
 					ship.setEnergy((int)Math.floor(ship.getEnergy() * factor.get("eps")));
@@ -262,6 +263,16 @@ public class EditShiptypes implements AdminPlugin
 			while (battleShips.next())
 			{
 				BattleShip battleShip = (BattleShip) battleShips.get(0);
+				
+				ShipTypeData type = battleShip.getShip().getTypeData();
+				// Weight the difference between the old and the new value
+				Map<String, Double> factor = new HashMap<String, Double>();
+				factor.put("eps", eps / (double) type.getEps());
+				factor.put("hull", hull / (double) type.getHull());
+				factor.put("crew", crew / (double) type.getCrew());
+				factor.put("shields", shields / (double) type.getShields());
+				factor.put("ablativearmor", ablativeArmor / (double) type.getAblativeArmor());
+				factor.put("marines", marines / (double) type.getMarines());
 				try
 				{		
 					battleShip.setShields((int)Math.floor(battleShip.getShields() * factor.get("shields")));
