@@ -339,7 +339,7 @@ public class PluendernController extends TemplateGenerator {
 		if( transfer && (msg.length() > 0) ) {
 			msg.insert(0, this.shipTo.getName()+" ("+this.shipTo.getId()+") wird von "+
 					this.shipFrom.getName()+" ("+this.shipFrom.getId()+") bei "+
-					this.shipFrom.getLocation()+" gepl&uuml;ndert.\n");
+					this.shipFrom.getLocation().displayCoordinates(false)+" gepl&uuml;ndert.\n");
 			
 			PM.send(this.shipFrom.getOwner(), this.shipTo.getOwner().getId(), "Schiff gepl&uuml;ndert", msg.toString());
 		}

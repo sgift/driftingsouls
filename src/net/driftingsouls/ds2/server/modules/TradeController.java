@@ -198,7 +198,7 @@ public class TradeController extends TemplateGenerator {
 		if( totalRE > 0 ) {
 			this.posten.getOwner()
 				.transferMoneyFrom(user.getId(), totalRE, 
-						"Warenkauf Handelsposten bei "+this.posten.getLocation(), 
+						"Warenkauf Handelsposten bei "+this.posten.getLocation().displayCoordinates(false), 
 						false, User.TRANSFER_SEMIAUTO);
 		}
 		redirect();

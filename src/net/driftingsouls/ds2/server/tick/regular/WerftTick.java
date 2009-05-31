@@ -121,7 +121,7 @@ public class WerftTick extends TickController {
 					
 					if( shipid > 0 ) {
 						// MSG
-						String msg = "Auf "+werft.getName()+" wurde eine "+shipd.getNickname()+" gebaut. Sie steht bei "+werft.getSystem()+" : "+werft.getX()+"/"+werft.getY()+".";
+						String msg = "Auf "+werft.getName()+" wurde eine "+shipd.getNickname()+" gebaut. Sie steht bei "+werft.getLocation().displayCoordinates(false)+".";
 					
 						PM.send(sourceUser, werft.getOwner().getId(), "Schiff gebaut", msg);
 					}
