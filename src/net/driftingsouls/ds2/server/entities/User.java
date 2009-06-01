@@ -1287,7 +1287,7 @@ public class User extends BasicUser {
 	 */
 	public boolean canSeeItem(Item aitem) {
 		boolean check = false;
-		if( ( aitem.getAccessLevel() <= this.getAccessLevel() ) {
+		if( aitem.getAccessLevel() <= this.getAccessLevel() ) {
 			check = true;	
 		}
 		return check;
