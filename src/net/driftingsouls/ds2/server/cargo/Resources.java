@@ -31,75 +31,75 @@ public class Resources {
 	/**
 	 * Die Resource Nahrung.
 	 */
-	public static final ResourceID NAHRUNG = new WarenID(0);
+	public static final ResourceID NAHRUNG = new ItemID(16);
 	/**
 	 * Die Resource Deuterium.
 	 */
-	public static final ResourceID DEUTERIUM = new WarenID(1);
+	public static final ResourceID DEUTERIUM = new ItemID(17);
 	/**
 	 * Die Resource Kunststoffe.
 	 */
-	public static final ResourceID KUNSTSTOFFE = new WarenID(2);
+	public static final ResourceID KUNSTSTOFFE = new ItemID(18);
 	/**
 	 * Die Resource Titan.
 	 */
-	public static final ResourceID TITAN = new WarenID(3);
+	public static final ResourceID TITAN = new ItemID(19);
 	/**
 	 * Die Resource Uran.
 	 */
-	public static final ResourceID URAN = new WarenID(4);
+	public static final ResourceID URAN = new ItemID(20);
 	/**
 	 * Die Resource Antimaterie.
 	 */
-	public static final ResourceID ANTIMATERIE = new WarenID(5);
+	public static final ResourceID ANTIMATERIE = new ItemID(21);
 	/**
 	 * Die Resource Adamatium.
 	 */
-	public static final ResourceID ADAMATIUM = new WarenID(6);
+	public static final ResourceID ADAMATIUM = new ItemID(22);
 	/**
 	 * Die Resource Platin.
 	 */
-	public static final ResourceID PLATIN = new WarenID(7);
+	public static final ResourceID PLATIN = new ItemID(23);
 	/**
 	 * Die Resource Silizium.
 	 */
-	public static final ResourceID SILIZIUM = new WarenID(8);
+	public static final ResourceID SILIZIUM = new ItemID(24);
 	/**
 	 * Die Resource Xentronium.
 	 */
-	public static final ResourceID XENTRONIUM = new WarenID(9);
+	public static final ResourceID XENTRONIUM = new ItemID(25);
 	/**
 	 * Die Resource Erz.
 	 */
-	public static final ResourceID ERZ = new WarenID(10);
+	public static final ResourceID ERZ = new ItemID(26);
 	/**
 	 * Die Resource Isochips.
 	 */
-	public static final ResourceID ISOCHIPS = new WarenID(11);
+	public static final ResourceID ISOCHIPS = new ItemID(35);
 	/**
 	 * Die Resource Batterien.
 	 */
-	public static final ResourceID BATTERIEN = new WarenID(12);
+	public static final ResourceID BATTERIEN = new ItemID(36);
 	/**
 	 * Die Resource Leere Batterien.
 	 */
-	public static final ResourceID LBATTERIEN = new WarenID(13);
+	public static final ResourceID LBATTERIEN = new ItemID(37);
 	/**
 	 * Die Resource Antarit.
 	 */
-	public static final ResourceID ANTARIT = new WarenID(14);
+	public static final ResourceID ANTARIT = new ItemID(27);
 	/**
 	 * Die Resource Shivanische Artefakte.
 	 */
-	public static final ResourceID SHIVARTE = new WarenID(15);
+	public static final ResourceID SHIVARTE = new ItemID(38);
 	/**
 	 * Die Resource Artefakte der Uralten.
 	 */
-	public static final ResourceID ANCIENTARTE = new WarenID(16);
+	public static final ResourceID ANCIENTARTE = new ItemID(39);
 	/**
 	 * Die Resource Boese Admins.
 	 */
-	public static final ResourceID BOESERADMIN = new WarenID(17);
+	public static final ResourceID BOESERADMIN = new WarenID(40);
 	/**
 	 * Die Spezialresource Items.
 	 */
