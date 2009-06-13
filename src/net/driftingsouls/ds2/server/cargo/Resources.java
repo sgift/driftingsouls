@@ -29,6 +29,11 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  */
 public class Resources {
 	/**
+	 * Die Spezialresource Items.
+	 */
+	public static final ResourceID ITEMS = new WarenID(18);
+	
+	/**
 	 * Die Resource Nahrung.
 	 */
 	public static final ResourceID NAHRUNG = new ItemID(16);
@@ -100,11 +105,6 @@ public class Resources {
 	 * Die Resource Boese Admins.
 	 */
 	public static final ResourceID BOESERADMIN = new ItemID(40);
-	/**
-	 * Die Spezialresource Items.
-	 */
-	public static final ResourceID ITEMS = new WarenID(18);
-	
 	
 	private static volatile Cargo resourceList;
 	
