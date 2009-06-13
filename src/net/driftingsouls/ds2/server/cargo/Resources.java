@@ -99,7 +99,7 @@ public class Resources {
 	/**
 	 * Die Resource Boese Admins.
 	 */
-	public static final ResourceID BOESERADMIN = new WarenID(40);
+	public static final ResourceID BOESERADMIN = new ItemID(40);
 	/**
 	 * Die Spezialresource Items.
 	 */
