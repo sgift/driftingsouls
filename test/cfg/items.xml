@@ -1,21 +1,3313 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-	Drifting Souls 2
- 	Copyright (c) 2006 Christopher Jung
- 	
- 	This library is free software; you can redistribute it and/or
- 	modify it under the terms of the GNU Lesser General Public
- 	License as published by the Free Software Foundation; either
- 	version 2.1 of the License, or (at your option) any later version.
- 
- 	This library is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- 	Lesser General Public License for more details.
- 
- 	You should have received a copy of the GNU Lesser General Public
- 	License along with this library; if not, write to the Free Software
- 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
--->
 <items xmlns:res="http://www.drifting-souls.net/ds2/resources/2006" xmlns:shd="http://www.drifting-souls.net/ds2/shipdata/2006">
+	<!-- 1 - Bauplan: GTSG Alastor -->
+	<item id="1" cargo="10">
+		<name>Bauplan: GTSG Alastor</name>
+		<picture>buildalastor.png</picture>
+		<large-picture>buildalastor_large.gif</large-picture>
+		<effect type="draft-ship" shiptype="64" race="0" system-req="true" flagschiff="false">
+			<buildcosts>
+				<res:Kunststoffe count="43" />
+				<res:Titan count="48" />
+				<res:Adamatium count="12" />
+				<res:Platin count="27" />
+				<res:Silizium count="19" />
+				<res:Xentronium count="4" />
+				<crew count="0" />
+				<e count="91" />
+			</buildcosts>
+			<dauer count="3" />
+			<tech-req id="12" />
+			<werft-slots count="6" />
+		</effect>
+		<description>Bauplan
+des
+GTSG Alastor Spergeschützes</description>
+	</item>
+
+	<!-- 2 - IFF-Störsender -->
+	<item id="2" cargo="20">
+		<name>IFF-Störsender</name>
+		<effect type="disable-iff" />
+		<description>Dieser Gegenstand stört die IFF-Kennung des Schiffes
+und verhindert, das der Besitzer bekannt wird</description>
+	</item>
+
+	<!-- 3 - Menschliche Leiche -->
+	<item id="3" cargo="1">
+		<name>Menschliche Leiche</name>
+		<description>Die Leiche eines Terraners</description>
+	</item>
+
+	<!-- 4 - Vasudanische Leiche -->
+	<item id="4" cargo="1">
+		<name>Vasudanische Leiche</name>
+		<description>Die Leiche eines Vasudaners</description>
+	</item>
+
+	<!-- 5 - NTF-Boykott Ulysses -->
+	<item id="5" cargo="1">
+		<name>NTF-Boykott Ulysses</name>
+		<picture>falseulysses.png</picture>
+		<large-picture>falseulysses_large.png</large-picture>
+		<effect ally-effect="true" type="disable-ship" shiptype="56" />
+		<description>Die NTF besitzt keine Baupläne für die Jäger der Ulysses Klasse</description>
+	</item>
+
+	<!-- 6 - Ein RE -->
+	<item id="6" cargo="0" handel="true">
+		<name>Ein RE</name>
+		<picture>re.png</picture>
+		<description>Auch wenn der elektronische Geldtransfer eindeutig die Überhand gewonnen hat, gibt es auch weiterhin noch die ausgezahlte Form. Besonders beliebt ist diese Form, wenn keine Spuren hinterlassen werden sollen....</description>
+	</item>
+
+	<!-- 7 - Bauplan: GTF Perseus -->
+	<item id="7" cargo="10">
+		<name>Bauplan: GTF Perseus</name>
+		<picture>buildperseus.png</picture>
+		<large-picture>buildperseus_large.png</large-picture>
+		<effect type="draft-ship" shiptype="57" race="0" system-req="true" flagschiff="false">
+			<buildcosts>
+				<res:Kunststoffe count="152" />
+				<res:Titan count="84" />
+				<res:Adamatium count="56" />
+				<res:Platin count="104" />
+				<res:Silizium count="116" />
+				<res:Xentronium count="44" />
+				<res:Isochips count="8" />
+				<crew count="4" />
+				<e count="196" />
+			</buildcosts>
+			<dauer count="2" />
+			<werft-slots count="6" />
+		</effect>
+		<description>Dies sind die Baupläne der GTF Perseus</description>
+	</item>
+
+	<!-- 8 - Datendisk -->
+	<item id="8" cargo="5">
+		<name>Datendisk</name>
+		<picture>datadisk1.png</picture>
+		<description>Eine Datendisk kann große Mengen an Daten speichern</description>
+	</item>
+
+	<!-- 9 - NTF-Boykott Samurai -->
+	<item id="9" cargo="1">
+		<name>NTF-Boykott Samurai</name>
+		<picture>falsesamurai.png</picture>
+		<large-picture>falsesamurai_large.png</large-picture>
+		<effect ally-effect="true" type="disable-ship" shiptype="53" />
+		<description>Die NTF besitzt keine Baupläne für die Bomber der Samurai-Klasse</description>
+	</item>
+
+	<!-- 10 - NTF-Boykott Hercules MK2 -->
+	<item id="10" cargo="1">
+		<name>NTF-Boykott Hercules MK2</name>
+		<picture>falseherkmk2.png</picture>
+		<large-picture>falseherkmk2_large.png</large-picture>
+		<effect ally-effect="true" type="disable-ship" shiptype="70" />
+		<description>Die NTF besitzt keine Baupläne für den verbesserten Jäger der Hercules 2 Klasse</description>
+	</item>
+
+	<!-- 11 - Bauplan: GTF Ares -->
+	<item id="11" cargo="10">
+		<name>Bauplan: GTF Ares</name>
+		<picture>buildares.png</picture>
+		<large-picture>buildares_large.png</large-picture>
+		<effect type="draft-ship" shiptype="38" race="0" system-req="true" flagschiff="false">
+			<buildcosts>
+				<res:Kunststoffe count="68" />
+				<res:Titan count="92" />
+				<res:Adamatium count="92" />
+				<res:Platin count="112" />
+				<res:Silizium count="108" />
+				<res:Xentronium count="128" />
+				<res:Isochips count="12" />
+				<res:Antarit count="48" />
+				<crew count="4" />
+				<e count="272" />
+			</buildcosts>
+			<dauer count="4" />
+			<werft-slots count="6" />
+		</effect>
+		<description>Dies sind die Baupläne der GTF Ares</description>
+	</item>
+
+	<!-- 12 - Bauplan: GTF Myrmidon -->
+	<item id="12" cargo="10">
+		<name>Bauplan: GTF Myrmidon</name>
+		<picture>buildmyrmidon.png</picture>
+		<large-picture>buildmyrmidon_large.png</large-picture>
+		<effect type="draft-ship" shiptype="66" race="0" system-req="true" flagschiff="false">
+			<buildcosts>
+				<res:Kunststoffe count="152" />
+				<res:Titan count="72" />
+				<res:Adamatium count="96" />
+				<res:Platin count="104" />
+				<res:Silizium count="116" />
+				<res:Xentronium count="44" />
+				<res:Isochips count="8" />
+				<crew count="4" />
+				<e count="112" />
+			</buildcosts>
+			<dauer count="3" />
+			<werft-slots count="6" />
+		</effect>
+		<description>Dies sind die Baupläne der GTF Myrmidon</description>
+	</item>
+
+	<!-- 13 - Bauplan: GVB Osiris -->
+	<item id="13" cargo="10">
+		<name>Bauplan: GVB Osiris</name>
+		<picture>buildosiris.png</picture>
+		<large-picture>buildosiris_large.png</large-picture>
+		<effect type="draft-ship" shiptype="67" race="0" system-req="true" flagschiff="false">
+			<buildcosts>
+				<res:Kunststoffe count="152" />
+				<res:Titan count="112" />
+				<res:Adamatium count="96" />
+				<res:Platin count="104" />
+				<res:Silizium count="116" />
+				<res:Xentronium count="124" />
+				<res:Isochips count="12" />
+				<crew count="12" />
+				<e count="120" />
+			</buildcosts>
+			<dauer count="3" />
+			<werft-slots count="6" />
+		</effect>
+		<description>Dies sind die Baupläne der GVB Osiris</description>
+	</item>
+
+	<!-- 14 - Bauplan: GTF Batis -->
+	<item id="14" cargo="10">
+		<name>Bauplan: GTF Batis</name>
+		<picture>buildbatis.png</picture>
+		<large-picture>buildbatis_large.png</large-picture>
+		<effect type="draft-ship" shiptype="55" race="0" system-req="true" flagschiff="false">
+			<buildcosts>
+				<res:Kunststoffe count="360" />
+				<res:Titan count="600" />
+				<res:Adamatium count="240" />
+				<res:Platin count="320" />
+				<res:Silizium count="720" />
+				<res:Xentronium count="396" />
+				<res:Isochips count="20" />
+				<crew count="4" />
+				<e count="348" />
+			</buildcosts>
+			<dauer count="7" />
+			<werft-slots count="6" />
+		</effect>
+		<description>Dies ist der Bauplan für die GTF Batis</description>
+	</item>
+
+	<!-- 15 - Bauplan: GTF Hercules -->
+	<item id="15" cargo="10">
+		<name>Bauplan: GTF Hercules</name>
+		<picture>buildhercules.png</picture>
+		<large-picture>buildhercules_large.png</large-picture>
+		<effect type="draft-ship" shiptype="72" race="0" system-req="true" flagschiff="false">
+			<buildcosts>
+				<res:Kunststoffe count="100" />
+				<res:Titan count="100" />
+				<res:Adamatium count="16" />
+				<res:Platin count="48" />
+				<res:Silizium count="56" />
+				<res:Xentronium count="32" />
+				<res:Isochips count="4" />
+				<crew count="4" />
+				<e count="68" />
+			</buildcosts>
+			<dauer count="3" />
+			<werft-slots count="6" />
+		</effect>
+		<description>Dies ist der Bauplan für die GTF Hercules Mk I</description>
+	</item>
+
+	<!-- 16 - Nahrung -->
+	<item id="16" cargo="1">
+		<name>Nahrung</name>
+		<picture>data/resources/Nahrung.gif</picture>
+		<large-picture>data/resources/Nahrung.gif</large-picture>
+		<description>Nahrung</description>
+	</item>
+
+	<!-- 17 - Deuterium -->
+	<item id="17" cargo="1">
+		<name>Deuterium</name>
+		<picture>data/resources/Deuterium.gif</picture>
+		<large-picture>data/resources/Deuterium.gif</large-picture>
+		<description>Deuterium</description>
+	</item>
+
+	<!-- 18 - Kunststoff -->
+	<item id="18" cargo="1">
+		<name>Kunststoff</name>
+		<picture>data/resources/Kunststoffe.gif</picture>
+				<large-picture>data/resources/Kunststoffe.gif</large-picture>
+		<description>Kunststoff</description>
+	</item>
+
+	<!-- 19 - Titan -->
+	<item id="19" cargo="1">
+		<name>Titan</name>
+		<picture>data/resources/Titan.gif</picture>
+				<large-picture>data/resources/Titan.gif</large-picture>
+		<description>Titan</description>
+	</item>
+
+	<!-- 20 - Uran -->
+	<item id="20" cargo="1">
+		<name>Uran</name>
+		<picture>data/resources/Uran.gif</picture>
+				<large-picture>data/resources/Uran.gif</large-picture>
+		<description>Uran</description>
+	</item>
+
+	<!-- 21 - Antimaterie -->
+	<item id="21" cargo="1">
+		<name>Antimaterie</name>
+		<picture>data/resources/Antimaterie.gif</picture>
+				<large-picture>data/resources/Antimaterie.gif</large-picture>
+		<description>Antimaterie</description>
+	</item>
+
+	<!-- 22 - Adamatium -->
+	<item id="22" cargo="1">
+		<name>Adamatium</name>
+		<picture>data/resources/Adamatium.gif</picture>
+				<large-picture>data/resources/Adamatium.gif</large-picture>
+		<description>Adamatium</description>
+	</item>
+
+	<!-- 23 - Platin -->
+	<item id="23" cargo="1">
+		<name>Platin</name>
+		<picture>data/resources/Platin.gif</picture>
+				<large-picture>data/resources/Platin.gif</large-picture>
+		<description>Adamatium</description>
+	</item>
+
+	<!-- 24 - Silizium -->
+	<item id="24" cargo="1">
+		<name>Silizium</name>
+		<picture>data/resources/Silizium.gif</picture>
+				<large-picture>data/resources/Silizium.gif</large-picture>
+		<description>Silizium</description>
+	</item>
+
+	<!-- 25 - Xentronium -->
+	<item id="25" cargo="1">
+		<name>Xentronium</name>
+		<picture>data/resources/Xentronium.gif</picture>
+				<large-picture>data/resources/Xentronium.gif</large-picture>
+		<description>Xentronium</description>
+	</item>
+
+	<!-- 26 - Erz -->
+	<item id="26" cargo="1">
+		<name>Erz</name>
+		<picture>data/resources/Erz.gif</picture>
+				<large-picture>data/resources/Erz.gif</large-picture>
+		<description>Erz</description>
+	</item>
+
+	<!-- 27 - Antarit -->
+	<item id="27" cargo="1">
+		<name>Antarit</name>
+		<picture>data/resources/antarit.gif</picture>
+				<large-picture>data/resources/antarit.gif</large-picture>
+		<description>Antarit</description>
+	</item>
+
+	<!-- 28 - Wasser -->
+	<item id="28" cargo="1">
+		<name>Wasser</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Wasser</description>
+	</item>
+
+	<!-- 29 - Eis -->
+	<item id="29" cargo="1">
+		<name>Eis</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Eis</description>
+	</item>
+
+	<!-- 30 - Öl -->
+	<item id="30" cargo="1">
+		<name>Öl</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Öl</description>
+	</item>
+
+	<!-- 31 - Kerosin -->
+	<item id="31" cargo="1">
+		<name>Kerosin</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Kerosin</description>
+	</item>
+
+	<!-- 32 - Holz -->
+	<item id="32" cargo="1">
+		<name>Holz</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Holz</description>
+	</item>
+
+	<!-- 35 - Isochips -->
+	<item id="35" cargo="1">
+		<name>Isochips</name>
+		<picture>data/resources/Isochips.gif</picture>
+				<large-picture>data/resources/Isochips.gif</large-picture>
+		<description>Isochips</description>
+	</item>
+
+	<!-- 36 - Batterien -->
+	<item id="36" cargo="1">
+		<name>Batterien</name>
+		<picture>data/resources/Reservebatterien.gif</picture>
+				<large-picture>data/resources/Reservebatterien.gif</large-picture>
+		<description>Batterien</description>
+	</item>
+
+	<!-- 37 - Leere Batterien -->
+	<item id="37" cargo="1">
+		<name>Leere Batterien</name>
+		<picture>data/resources/Leere Reservebatterien.gif</picture>
+				<large-picture>data/resources/Leere Reservebatterien.gif</large-picture>
+		<description>Leere Batterien</description>
+	</item>
+
+	<!-- 38 - Shivanisches Artefakt -->
+	<item id="38" cargo="1">
+		<name>Shivanisches Artefakt</name>
+		<picture>data/resources/shiv-arte.gif</picture>
+				<large-picture>data/resources/shiv-arte.gif</large-picture>
+		<description>Shivanisches Artefakt</description>
+	</item>
+
+	<!-- 39 - Artefakt der Uralten -->
+	<item id="39" cargo="1">
+		<name>Artefakt der Uralten</name>
+		<picture>data/resources/ancient-arte.gif</picture>
+				<large-picture>data/resources/ancient-arte.gif</large-picture>
+		<description>Artefakt der Uralten</description>
+	</item>
+
+	<!-- 40 - Böser Admin -->
+	<item id="40" cargo="1">
+		<name>Böser Admin</name>
+		<picture>data/resources/Soldaten.gif</picture>
+				<large-picture>data/resources/Soldaten.gif</large-picture>
+		<description>Böser Admin</description>
+	</item>
+
+	<!-- 41 - Vasu-Cola -->
+	<item id="41" cargo="1">
+		<name>Vasu-Cola</name>
+		<picture>module/vasucola.png</picture>
+		<large-picture>module/vasucola_large.png</large-picture>
+		<description>Ein ganzer Container dieses berühmten Erfrischungsgetränkes</description>
+	</item>
+
+	<!-- 42 - Bier -->
+	<item id="42" cargo="1">
+		<name>Centauri Bier</name>
+		<picture>module/bier.png</picture>
+		<large-picture>module/bier_large.png</large-picture>
+		<description>Ein ganzer Container dieses berühmten Erfrischungsgetränkes</description>
+	</item>
+
+	<!-- 43 - Wazefag -->
+	<item id="43" cargo="10">
+		<name>Wazefag</name>
+		<picture>module/wazefag.png</picture>
+		<large-picture>module/wazefag_large.png</large-picture>
+		<description>Ein lebendes Wazefag. Der Name dieses denebolanischen Tieres geht auf den Ausruf bei seiner ersten Sichtung auf Deneb II zurück. Wazefags sind sehr angriffslustig geben aber prima Steaks ... Der Transport der Tiere ohne entsprende Vorsichtsmaßnahmen ist nicht zu empfehlen!</description>
+	</item>
+
+	<!-- 44 - Ganelho -->
+	<item id="44" cargo="5">
+		<name>Ganelho</name>
+		<picture>module/echse.png</picture>
+		<large-picture>module/echse_large.png</large-picture>
+		<description>Ein lebendes Ganelho. Auch sie sind für ihre kulinarische Verwertbarkeit sehr geschätzt. Da sie sich in Gefangenschaft kaum vermehren sind sie allerdings auch sehr teuer. Keine klassische Festtafel ohne zarte Ganelho-Filets. Einmal der Gefangenschaft entronnen, lassen sie sich selten wieder einfangen.</description>
+	</item>
+
+	<!-- 45 - Headz -->
+	<item id="45" cargo="2">
+		<name>Headz</name>
+		<picture>module/headz.png</picture>
+		<large-picture>module/headz_large.png</large-picture>
+		<description>Ein Kühlcontainer mit einer merkwürdigen vasudanischen Spezialität.</description>
+	</item>
+
+	<!-- 46 - Deli -->
+	<item id="46" cargo="2">
+		<name>Delikatessenkonserve</name>
+		<picture>module/dose.png</picture>
+		<large-picture>module/dose_large.png</large-picture>
+		<description>Ein Kühlcontainer mit einer merkwürdigen terranischen Spezialität.</description>
+	</item>
+
+	<!-- 47 - Neurostim -->
+	<item id="47" cargo="2">
+		<name>NeuroStim</name>
+		<picture>module/neurostim.png</picture>
+		<large-picture>module/neurostim_large.png</large-picture>
+		<description>Ein Kühlcontainer mit einer Ladung Nervenstimulantien. Sie sind für den Gebrauch in der Raumfahrt nicht zugelassen, werden aber dennoch in großen Mengen auf Stationen vor allem in Krisengebieten gehandelt.</description>
+	</item>
+
+	<!-- 48 - Paranex -->
+	<item id="48" cargo="2">
+		<name>Paranex Ampullen</name>
+		<picture>module/ampulle.png</picture>
+		<large-picture>module/ampulle_large.png</large-picture>
+		<description>Ein Kühlcontainer mit dem Medikament Paranex. Es ist eines der wenigen Medikamente, die auf beide Spezies dieselbe Wirkung haben. Ein starkes Betäubungs- und Schmerzmittel.</description>
+	</item>
+
+	<!-- 49 - BioScienceKit -->
+	<item id="49" cargo="2">
+		<name>BioScienceKit</name>
+		<picture>module/res_mikro.png</picture>
+		<large-picture>module/headz_large.png</large-picture>
+		<description>Ein Container mit wissenschaftlichen Instrumenten.</description>
+	</item>
+
+	<!-- 50 - MediKit -->
+	<item id="50" cargo="2">
+		<name>Mediquip</name>
+		<picture>module/res_defi.png</picture>
+		<large-picture>module/res_defi_large.png</large-picture>
+		<description>Ein Container mit einer medizischen Notfallausrüstung.</description>
+	</item>
+
+	<!-- 51 - Bauteil Struktur (klein) -->
+	<item id="51" cargo="2">
+		<name>Bauteil Struktur (klein)</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Ein kleines Struktur-Bauteil.</description>
+	</item>
+
+	<!-- 52 - Bauteil Struktur (mittel) -->
+	<item id="52" cargo="5">
+		<name>Bauteil Struktur (klein)</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Ein mittleres Struktur-Bauteil.</description>
+	</item>
+
+	<!-- 53 - Bauteil Struktur (groß) -->
+	<item id="53" cargo="10">
+		<name>Bauteil Struktur (groß)</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Ein großes Struktur-Bauteil.</description>
+	</item>
+
+	<!-- 54 - Bauteil Panzerung (klein) -->
+	<item id="54" cargo="2">
+		<name>Bauteil Panzerung (klein)</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Ein kleines Panzerungs-Bauteil.</description>
+	</item>
+
+	<!-- 55 - Bauteil Panzerung (mittel) -->
+	<item id="55" cargo="5">
+		<name>Bauteil Panzerung (klein)</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Ein mittleres Panzerungs-Bauteil.</description>
+	</item>
+
+	<!-- 56 - Bauteil Panzerung (groß) -->
+	<item id="56" cargo="10">
+		<name>Bauteil Panzerung (groß)</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Ein großes Panzerungs-Bauteil.</description>
+	</item>
+
+	<!-- 57 - Bauteil Steuerung -->
+	<item id="57" cargo="1">
+		<name>Bauteil Steuerung</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Ein Bauteil für Steuerung und Bordelektronik.</description>
+	</item>
+
+	<!-- 58 - Bauteil Reaktor -->
+	<item id="58" cargo="5">
+		<name>Bauteil Reaktor</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Ein Reaktor-Bauteil. Die Fertigung dieser Teile erfordert höchste Präzision.</description>
+	</item>
+
+	<!-- 59 - Bauteil Waffen -->
+	<item id="59" cargo="2">
+		<name>Bauteil Waffen</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Ein Waffen-Bauteil.</description>
+	</item>
+
+	<!-- 60 - Werkzeug -->
+	<item id="60" cargo="2">
+		<name>Werkzeug</name>
+		<picture>open.gif</picture>
+				<large-picture>open.gif</large-picture>
+		<description>Werkzeug - alles, was beim Bau von Gebäuden, Fahrzeugen oder Schiffen an Material verbaut wird, wird mit Bohrern, Sägeblättern, Feilen oder ähnlichem bearbeitet. Unter Werkzeug fällt dieses gesamte Verbrauchsmaterial. Böse Zungen behaupten, darunter fielen auch Bier und Donuts.</description>
+	</item>
+
+
+	<!-- 150 - Flakmagazine -->
+	<item id="150" cargo="1" handel="true">
+		<name>Flakmagazine</name>
+		<picture>ammo/flakmagazine.gif</picture>
+		<effect type="ammo" ammo="1" />
+		<description>Das Flakmagazin wird mittels Flakgeschützen verschossen</description>
+	</item>
+
+	<!-- 151 - GTM MX-64 Rockeye -->
+	<item id="151" cargo="1" handel="true">
+		<name>GTM MX-64 Rockeye</name>
+		<picture>ammo/rockeye.gif</picture>
+		<large-picture>ammo/rockeye_large.gif</large-picture>
+		<effect type="ammo" ammo="2" />
+		<description>Die GTM MX-64 Rockeye ist eine schnellere, zielgenauere und mit größerem Sprengkopf ausgestattete Variante der MX-50, welche zur Zeit des Großen Krieges verwendet wurde.</description>
+	</item>
+
+	<!-- 152 - GTM-13 Helios -->
+	<item id="152" cargo="8" handel="true">
+		<name>GTM-13 Helios</name>
+		<picture>ammo/heliosbomben.png</picture>
+		<large-picture>ammo/heliosbomben_large.gif</large-picture>
+		<effect type="ammo" ammo="3" />
+		<description>Heliosbomben sind die Monster unter den Torpedos. Sie verfügen über eine sehr große Menge Antimaterie und stellen so eine massive Bedrohung selbst für Zerstörer dar.</description>
+	</item>
+
+	<!-- 153 - GTM-10 Piranha -->
+	<item id="153" cargo="2" handel="true">
+		<name>GTM-10 Piranha</name>
+		<picture>ammo/piranha.png</picture>
+		<large-picture>ammo/piranha_large.png</large-picture>
+		<effect type="ammo" ammo="12" />
+		<description>Die Piranha ist die dritte Generation der alten Synaptic sowie Havoc-Raketen. Die Piranha ermöglicht einem Bombern einen effektiven Schutz vor angreifenden Jägergruppen indem sie bei der Zündung alles im Umkreis von mehreren Metern zerstört.</description>
+	</item>
+
+	<!-- 154 - Schwere Flakmagazine -->
+	<item id="154" cargo="2" handel="true">
+		<name>Schwere Flakmagazine</name>
+		<picture>ammo/schwereflakmagazine.gif</picture>
+		<effect type="ammo" ammo="5" />
+		<description>Die schweren Flakmagazine stellen eine Weiterentwicklung der klassischen Flakmagazine dar. Sie sind deutlich stärker, aber sie können nicht mittels der normalen Flakgeschütze verschossen werden.</description>
+	</item>
+
+	<!-- 155 - GTM-4 Hornet -->
+	<item id="155" cargo="2" handel="true">
+		<name>GTM-4 Hornet</name>
+		<picture>ammo/hornet.png</picture>
+		<large-picture>ammo/hornet_large.gif</large-picture>
+		<effect type="ammo" ammo="7" />
+		<description>Hornet-Schwarmraketen sind zielsuchend und tödlich für Jäger und Bomber</description>
+	</item>
+
+	<!-- 156 - GTM-55 Trebuchet -->
+	<item id="156" cargo="4" handel="true">
+		<name>GTM-55 Trebuchet</name>
+		<picture>ammo/trebuchet.png</picture>
+		<large-picture>ammo/trebuchet_large.gif</large-picture>
+		<effect type="ammo" ammo="8" />
+		<description>Trebuchet-Raketen sind zielsuchend und wegen ihrer Zerstörungskraft tödlich fr Jäger und Bomber - wenn sie treffen</description>
+	</item>
+
+	<!-- 157 - GTM-43a Stiletto II -->
+	<item id="157" cargo="2" handel="true">
+		<name>GTM-43a Stiletto II</name>
+		<picture>ammo/stiletto2.gif</picture>
+		<large-picture>ammo/stiletto2_large.gif</large-picture>
+		<effect type="ammo" ammo="9" />
+		<description>Die Stiletto-Rakete ist die ultimative Waffe, wenn es darum geht Schiffe schnell Kampfunfähig zu machen</description>
+	</item>
+
+	<!-- 158 - GTM-12 Cyclops -->
+	<item id="158" cargo="6" handel="true">
+		<name>GTM-12 Cyclops</name>
+		<picture>ammo/cyclops.png</picture>
+		<large-picture>ammo/cyclops_large.gif</large-picture>
+		<effect type="ammo" ammo="10" />
+		<description>Der Cyclops-Torpedo stellt das Rückrad jeder Bomberflotte seit nunmehr vielen Jahren da. Er verfügt zwar über einen geringeren Schaden als die Helios, aber er ist auch deutlich kostengünstiger.</description>
+	</item>
+
+	<!-- 159 - GTM-19 Harpoon -->
+	<item id="159" cargo="2" handel="true">
+		<name>GTM-19 Harpoon</name>
+		<picture>ammo/harpoon.png</picture>
+		<large-picture>ammo/harpoon_large.gif</large-picture>
+		<effect type="ammo" ammo="4" />
+		<description>Die GTM-19 Harpoon ist die modernste zielsuchende Rakete im Arsenal der GCP. Sie ist sowohl die schnellste alsauch die genauste zielsuchende Rakete und dank ihrer Hülle aus extrem verdichtetem abgereichertem Uran durchdringt sie problemlos die meisten Aussenhüllen.</description>
+	</item>
+
+	<!-- 160 - GTM-4a Tornado -->
+	<item id="160" cargo="3" handel="true">
+		<name>GTM-4a Tornado</name>
+		<picture>ammo/tornado.png</picture>
+		<large-picture>ammo/tornado_large.gif</large-picture>
+		<effect type="ammo" ammo="11" />
+		<description>Die GTM-4a Tornado-Schwarmraketen sind eine weiterentwicklung der Hornet-Schwarmraketen. Noch schneller, noch besser, noch tödlicher...</description>
+	</item>
+
+	<!-- 161 - GTM-11 Infyrno -->
+	<item id="161" cargo="8" handel="true">
+		<name>GTM-11 Infyrno</name>
+		<picture>ammo/infyrno.png</picture>
+		<large-picture>ammo/infyrno_large.gif</large-picture>
+		<effect type="ammo" ammo="14" />
+		<description>Test: Infyrno</description>
+	</item>
+
+	<!-- 162 - NTF Hochenergieplasma -->
+	<item id="162" cargo="1" handel="true">
+		<name>NTF Hochenergieplasma</name>
+		<picture>ammo/hplasmashell.png</picture>
+		<large-picture>ammo/hplasmashell_large.gif</large-picture>
+		<effect type="ammo" ammo="15" />
+		<description>Hochenergieplasma verfügt über eine relativ große Sprengkraft, welche mit 50 t TNT vergleichbar ist. Es ist besonders f?r den Einsatz gegen große Schiffe geeignet.</description>
+	</item>
+
+	<!-- 163 - Schweres Autocannon Magazin -->
+	<item id="163" cargo="1">
+		<name>Schweres Autocannon Magazin</name>
+		<picture>ammo/flakmagazine.gif</picture>
+		<effect type="ammo" ammo="16" />
+		<description>Munition für schwere Autocannon.</description>
+	</item>
+
+	<!-- 164 - Mittleres Autocannon Magazin -->
+	<item id="164" cargo="1">
+		<name>Mittleres Autocannon Magazin</name>
+		<picture>ammo/flakmagazine.gif</picture>
+		<effect type="ammo" ammo="17" />
+		<description>Munition für mittlere Autocannon.</description>
+	</item>
+
+	<!-- 165 - Leichtes Autocannon Magazin -->
+	<item id="165" cargo="1">
+		<name>Leichtes Autocannon Magazin</name>
+		<picture>ammo/flakmagazine.gif</picture>
+		<effect type="ammo" ammo="18" />
+		<description>Munition für leichte Autocannon.</description>
+	</item>
+
+	<!-- 166 - NTF AM-Plasma -->
+	<item id="166" cargo="4" handel="true">
+		<name>NTF AM-Plasma</name>
+		<picture>ammo/amplasmashell.gif</picture>
+		<large-picture>ammo/amplasmashell_large.png</large-picture>
+		<effect type="ammo" ammo="19" />
+		<description>AM-Plasma</description>
+	</item>
+
+	<!-- 167 - Munitionsbauplan NTF AM-Plasma -->
+	<item id="167" cargo="10">
+		<name>Munitionsbauplan NTF AM-Plasma</name>
+		<picture>ammo/amplasmashell.gif</picture>
+		<large-picture>ammo/amplasmashell_large.png</large-picture>
+		<effect ally-effect="true" type="draft-ammo" ammo="19" />
+		<description>Der Bauplan für die NTF-Munition AM-Plasma</description>
+	</item>
+
+	<!-- 168 - NTF EM-Plasma -->
+	<item id="168" cargo="5" handel="true">
+		<name>NTF EM-Plasma</name>
+		<picture>ammo/emplasmashell.gif</picture>
+		<large-picture>ammo/emplasmashell_large.png</large-picture>
+		<effect type="ammo" ammo="20" />
+		<description>NTF EM-Plasma</description>
+	</item>
+
+	<!-- 169 - Munitionsbauplan EM-Plasma -->
+	<item id="169" cargo="10">
+		<name>Munitionsbauplan EM-Plasma</name>
+		<picture>ammo/emplasmashell.gif</picture>
+		<large-picture>ammo/emplasmashell_large.png</large-picture>
+		<effect ally-effect="true" type="draft-ammo" ammo="20" />
+		<description>Der Bauplan für die Munition EM-Plasma</description>
+	</item>
+
+	<!-- 170 - GTM-2 Interceptor -->
+	<item id="170" cargo="2" handel="true">
+		<name>GTM-2 Interceptor</name>
+		<picture>ammo/interceptor.png</picture>
+		<large-picture>ammo/interceptor_large.png</large-picture>
+		<effect type="ammo" ammo="21" />
+		<description>GTM-2 Interceptor</description>
+	</item>
+
+	<!-- 171 - GTM-3 Phoenix V -->
+	<item id="171" cargo="2" handel="true">
+		<name>GTM-3 Phoenix V</name>
+		<picture>ammo/phoenixv.png</picture>
+		<large-picture>ammo/phoenixv_large.png</large-picture>
+		<effect type="ammo" ammo="22" />
+		<description>GTM-3 Phoenix V</description>
+	</item>
+
+	<!-- 172 - GTM-10 Stiletto -->
+	<item id="172" cargo="2" handel="true">
+		<name>GTM-10 Stiletto</name>
+		<picture>ammo/stiletto.png</picture>
+		<large-picture>ammo/stiletto_large.png</large-picture>
+		<effect type="ammo" ammo="23" />
+		<description>GTM-10 Stiletto</description>
+	</item>
+
+	<!-- 173 - GTM-5 Synaptic -->
+	<item id="173" cargo="8" handel="true">
+		<name>GTM-5 Synaptic</name>
+		<picture>ammo/synaptic.png</picture>
+		<large-picture>ammo/synaptic_large.png</large-picture>
+		<effect type="ammo" ammo="24" />
+		<description>GTM-5 Synaptic</description>
+	</item>
+
+	<!-- 174 - Shivanische Cluster Bombe -->
+	<item id="174" cargo="8">
+		<name>Shivanische Cluster Bombe</name>
+		<large-picture>open.gif</large-picture>
+		<effect type="ammo" ammo="25" />
+		<description>Shivanische Cluster Bombe</description>
+	</item>
+
+	<!-- 175 - Shivanische Swarm Rakete -->
+	<item id="175" cargo="3">
+		<name>Shivanische Swarm Rakete</name>
+		<large-picture>open.gif</large-picture>
+		<effect type="ammo" ammo="26" />
+		<description>Shivanische Swarm Rakete</description>
+	</item>
+
+	<!-- 176 - Shivanische Rakete -->
+	<item id="176" cargo="2">
+		<name>Shivanische Rakete</name>
+		<large-picture>open.gif</large-picture>
+		<effect type="ammo" ammo="27" />
+		<description>Shivanische Rakete</description>
+	</item>
+
+	<!-- 177 - Shivanischer großer Torpedo -->
+	<item id="177" cargo="5">
+		<name>Shivanischer großer Torpedo</name>
+		<large-picture>open.gif</large-picture>
+		<effect type="ammo" ammo="28" />
+		<description>Shivanischer großer Torpedo</description>
+	</item>
+
+	<!-- 178 - Shivanischer Torpedo -->
+	<item id="178" cargo="4">
+		<name>Shivanischer Torpedo</name>
+		<large-picture>open.gif</large-picture>
+		<effect type="ammo" ammo="29" />
+		<description>Shivanischer Torpedo</description>
+	</item>
+
+	<!-- 179 - OS ConFire -->
+	<item id="179" cargo="4">
+		<name>OS ConFire</name>
+		<large-picture>open.gif</large-picture>
+		<description>OS ConFire</description>
+	</item>
+
+	<!-- 180 - OS Barrage -->
+	<item id="180" cargo="4">
+		<name>OS Barrage</name>
+		<large-picture>open.gif</large-picture>
+		<description>OS Barrage</description>
+	</item>
+
+	<!-- 181 - OS Supression -->
+	<item id="181" cargo="4">
+		<name>OS Supression</name>
+		<large-picture>open.gif</large-picture>
+		<description>OS Supression</description>
+	</item>
+
+	<!-- 182 - Bergbausprengstoff -->
+	<item id="182" cargo="4">
+		<name>Bergbausprengstoff</name>
+		<picture>ammo/explosive.png</picture>
+		<large-picture>ammo/explosive_large.png</large-picture>
+		<effect type="ammo" ammo="33" />
+		<description>Der Bergbausprengstoff ersetzt das bisherige riskante Verfahren der Nutzung von Helios-Gefechtsköpfen für den Asteroiden-Ausbau.</description>
+	</item>
+
+	<!-- 183 - Flakmagazine LR -->
+	<item id="183" cargo="1" handel="true">
+		<name>Flakmagazine LR</name>
+		<picture>ammo/flak_ld.png</picture>
+		<effect type="ammo" ammo="34" />
+		<description>Das Flakmagazin LR wird mittels Flakgeschützen verschossen</description>
+	</item>
+
+	<!-- 184 - Schwere Flakmagazine LR -->
+	<item id="184" cargo="2" handel="true">
+		<name>Schwere Flakmagazine LR</name>
+		<picture>ammo/sflak_ld.png</picture>
+		<effect type="ammo" ammo="35" />
+		<description>Die schweren Flakmagazine LR stellen eine Weiterentwicklung der klassischen Flakmagazine dar. Sie sind deutlich stärker, aber sie können nicht mittels der normalen Flakgeschütze verschossen werden.</description>
+	</item>
+
+	<!-- 185 - GTM-N1 Harbinger -->
+	<item id="185" cargo="6" handel="true">
+		<name>GTM-N1 Harbinger</name>
+		<effect type="ammo" ammo="36" />
+		<picture>ammo/harbinger.png</picture>
+		<description> </description>
+	</item>
+
+	<!-- 186 - GTM Tsunami -->
+	<item id="186" cargo="8" handel="true">
+		<name>GTM Tsunami</name>
+		<effect type="ammo" ammo="37" />
+		<picture>ammo/tsunami.png</picture>
+		<description> </description>
+	</item>
+
+	<!-- 187- Phalanx -->
+	<item id="187" cargo="1" handel="true" version="development">
+		<name>Phalanx</name>
+		<effect type="ammo" ammo="38" />
+		<picture>ammo/phalanx.png</picture>
+		<description> </description>
+	</item>
+
+	<!-- 188 - Aegis -->
+	<item id="188" cargo="1" handel="true" version="development">
+		<name>Aegis</name>
+		<effect type="ammo" ammo="39" />
+		<picture>ammo/aegis.png</picture>
+		<description> </description>
+	</item>
+
+	<!-- 189 - Moonfire -->
+	<item id="189" cargo="6" handel="true" version="development">
+		<name>Moonfire</name>
+		<effect type="ammo" ammo="40" />
+		<picture>ammo/moonfire.png</picture>
+		<description> </description>
+	</item>
+
+	<!-- 190 - Sunfire -->
+	<item id="190" cargo="8" handel="true" version="development">
+		<name>Sunfire</name>
+		<effect type="ammo" ammo="41" />
+		<picture>ammo/sunfire.png</picture>
+		<description> </description>
+	</item>
+
+	<!-- 191 - Starfire -->
+	<item id="191" cargo="10" handel="true" version="development">
+		<name>Starfire</name>
+		<effect type="ammo" ammo="42" />
+		<description> </description>
+	</item>
+
+	<!-- 192 - Butcher -->
+	<item id="192" cargo="8" handel="true" version="development">
+		<name>Butcher</name>
+		<effect type="ammo" ammo="43" />
+		<description> </description>
+	</item>
+
+	<!-- 193 - Slayer -->
+	<item id="193" cargo="10" handel="true" version="development">
+		<name>Slayer</name>
+		<effect type="ammo" ammo="44" />
+		<description> </description>
+	</item>
+
+	<!-- 194 - GTW-99 Railgun -->
+	<item id="194" cargo="1" handel="true" version="development">
+		<name>GTW-99 Railgun</name>
+		<effect type="ammo" ammo="45" />
+		<picture>ammo/railgun.png</picture>
+		<description> </description>
+	</item>
+
+	<!-- 195 - AAAF Railgun -->
+	<item id="195" cargo="1" handel="true" version="development">
+		<name>AAAF Railgun</name>
+		<effect type="ammo" ammo="46" />
+		<picture>ammo/railgun_aaaf.png</picture>
+		<description> </description>
+	</item>
+
+	<!-- 196 - Leichte Railgun -->
+	<item id="196" cargo="1" handel="true" version="development">
+		<name>Leichte Railgun</name>
+		<picture>ammo/railgun_light.png</picture>
+		<effect type="ammo" ammo="47" />
+		<description> </description>
+	</item>
+
+	<!-- 197 - Mittlere Railgun -->
+	<item id="197" cargo="1" handel="true" version="development">
+		<name>Mittlere Railgun</name>
+		<picture>ammo/railgun_medium.png</picture>
+		<effect type="ammo" ammo="48" />
+		<description> </description>
+	</item>
+
+	<!-- 198 - Schwere Railgun -->
+	<item id="198" cargo="3" handel="true" version="development">
+		<name>Schwere Railgun</name>
+		<picture>ammo/railgun_heavy.png</picture>
+		<effect type="ammo" ammo="49" />
+		<description> </description>
+	</item>
+
+	<!-- 300 - Cargo-Booster + 1 K -->
+	<item id="300" cargo="5">
+		<name>Cargo-Booster + 1 K</name>
+		<picture>module/cargobooster_1k.png</picture>
+		<large-picture>module/cargobooster_1k_large.png</large-picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:cargo value="1000" />
+			</shipdata>
+		</effect>
+	</item>
+
+	<!-- 301 - Scan-Modul -->
+	<item id="301" cargo="5">
+		<name>Scan-Modul</name>
+		<picture>module/sensorrange.png</picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:sensorrange value="2" />
+				<shd:flags>
+					<shd:set name="srs_ext_awac" />
+				</shd:flags>
+				<shd:cargo value="-5" />
+			</shipdata>
+		</effect>
+	</item>
+
+	<!-- 302 - Hydroponischer Garten -->
+	<item id="302" cargo="20">
+		<name>Hydroponischer Garten</name>
+		<picture>module/module_hydro+5.png</picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:hydro value="500" />
+			</shipdata>
+		</effect>
+		<description>Ein hydroponischer Garten um eine Grundversorgung mit Nahrung sicherzustellen</description>
+	</item>
+
+	<!-- 303 - Kleiner Hydroponischer Garten -->
+	<item id="303" cargo="10">
+		<name>Kleiner Hydroponischer Garten</name>
+		<picture>module/module_hydro+2.png</picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:hydro value="300" />
+			</shipdata>
+		</effect>
+		<description>Ein kleiner hydroponischer Garten um ein wenig Nahrung zu produzieren</description>
+	</item>
+
+	<!-- 304 - Großer Hydroponischer Garten -->
+	<item id="304" cargo="30">
+		<name>Großer Hydroponischer Garten</name>
+		<picture>module/module_hydro+15.png</picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:hydro value="1500" />
+			</shipdata>
+		</effect>
+		<description>Ein Großer Hydroponischer Garten kann größere Mengen an Nahrung herzustellen</description>
+	</item>
+
+	<!-- 305 - Kleine alte Schiffsbatterie -->
+	<item id="305" cargo="2">
+		<name>Kleine alte Schiffsbatterie</name>
+		<picture>module/schiffsbatterie/schiffsbatterie_klein_alt.png</picture>
+		<large-picture>module/schiffsbatterie/schiffsbatterie_klein_alt_large.png</large-picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:eps value="20" />
+				<shd:cargo value="-20" />
+			</shipdata>
+		</effect>
+		<description>Eine kleine alte Schiffbatterie hilft den Energiespeicher leicht zu vergrößern</description>
+	</item>
+
+	<!-- 306 - Kleine Schiffsbatterie -->
+	<item id="306" cargo="2">
+		<name>Kleine Schiffsbatterie</name>
+		<picture>module/schiffsbatterie/schiffsbatterie_klein.png</picture>
+		<large-picture>module/schiffsbatterie/schiffsbatterie_klein_large.png</large-picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:eps value="50" />
+				<shd:cargo value="-25" />
+			</shipdata>
+		</effect>
+		<description>Eine kleine Schiffbatterie hilft den Energiespeicher leicht zu vergrößern</description>
+	</item>
+
+	<!-- 307 - Schiffsbatterie -->
+	<item id="307" cargo="5">
+		<name>Schiffsbatterie</name>
+		<picture>module/schiffsbatterie/schiffsbatterie.png</picture>
+		<large-picture>module/schiffsbatterie/schiffsbatterie_large.png</large-picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:eps value="100" />
+				<shd:cargo value="-30" />
+			</shipdata>
+		</effect>
+		<description>Eine Schiffbatterie hilft den Energiespeicher eines Schiffes zu vergrößern</description>
+	</item>
+
+	<!-- 308 - Große Schiffsbatterie -->
+	<item id="308" cargo="10">
+		<name>Große Schiffsbatterie</name>
+		<picture>module/schiffsbatterie/schiffsbatterie_gross.png</picture>
+		<large-picture>module/schiffsbatterie/schiffsbatterie_gross_large.png</large-picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:eps value="150" />
+				<shd:cargo value="-40" />
+			</shipdata>
+		</effect>
+		<description>Eine große Schiffbatterie hilft den Energiespeicher stark zu vergrößern</description>
+	</item>
+
+	<!-- 309 - Shivanische Schiffsbatterie -->
+	<item id="309" cargo="5">
+		<name>Shivanische Schiffsbatterie</name>
+		<picture>module/schiffsbatterie/schiffsbatterie_shiv.png</picture>
+		<large-picture>module/schiffsbatterie/schiffsbatterie_shiv_large.png</large-picture>
+		<quality>rare</quality>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:eps value="250" />
+				<shd:cargo value="-40" />
+			</shipdata>
+		</effect>
+		<description>Eine shivanische Schiffsbatterie ist den Schiffsbatterien der GCP in jeder hinsicht überlegen</description>
+	</item>
+
+	<!-- 310 - Energiekern der Uralten -->
+	<item id="310" cargo="7">
+		<name>Energiekern der Uralten</name>
+		<picture>module/schiffsbatterie/schiffsbatterie_ancient.png</picture>
+		<large-picture>module/schiffsbatterie/schiffsbatterie_ancient_large.png</large-picture>
+		<quality>ultra-rare</quality>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:eps value="400" />
+				<shd:cargo value="-35" />
+			</shipdata>
+		</effect>
+		<description>Ursprünglich vermutlich für relativ große Kriegsschiffe entwickelt, verrichten sie auch in kleineren Schiffen wahre Wunder</description>
+	</item>
+
+	<!-- 311 - Experimenteller Sensorprofildämpfer -->
+	<item id="311" cargo="30">
+		<name>Experimenteller Sensorprofildämpfer</name>
+		<quality>rare</quality>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:flags>
+					<shd:set name="sehr_klein" />
+				</shd:flags>
+				<shd:cargo value="-30" />
+			</shipdata>
+		</effect>
+		<description>Diese Hightech-Entwicklung kommt direkt aus den Labors der GCP. Ursprünglich im Rahmen von Jägertarn-Experimenten entwickelt, konnte dieser Prototyp auch auf größere Kriegsschiffe adaptiert werden</description>
+	</item>
+
+	<!-- 312 - Hochleistungsdeuteriumpumpe -->
+	<item id="312" cargo="30">
+		<name>Hochleistungsdeuteriumpumpe</name>
+		<picture>module/deutpumpe_mk1.png</picture>
+		<large-picture>module/deutpumpe_mk1_large.png</large-picture>
+		<effect type="module">
+			<slot id="misctanker" />
+			<shipdata>
+				<shd:deutfactor value="1" />
+				<shd:cargo value="-30" />
+			</shipdata>
+		</effect>
+		<description>Diese Hochleitungsdeuteriumpumpe ist in der Lage bis zu 500 m?? Gase pro Sekunde anzusaugen und ermöglichen so eine deutlich erhöhte Deuteriumausbeute</description>
+	</item>
+
+	<!-- 313 - Verbeulte Panzerplatten -->
+	<item id="313" cargo="75">
+		<name>Verbeulte Panzerplatten</name>
+		<picture>module/panzerplatte/panzerplatte_verbeult.png</picture>
+		<large-picture>module/panzerplatte/panzerplatte_verbeult_large.png</large-picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:panzerung value="1" />
+				<shd:hull value="2500" />
+				<shd:cargo value="-75" />
+				<shd:heat value="1" />
+			</shipdata>
+		</effect>
+		<description>Von irgendeinem Schrotth??ndler aufgetrieben, erhöhen diese Panzerplatten leicht die Panzerung und die max. Schadenspunkte - allerdings mit einigen negativen Auswirkungen</description>
+	</item>
+
+	<!-- 314 - Panzerplatten -->
+	<item id="314" cargo="50">
+		<name>Panzerplatten</name>
+		<picture>module/panzerplatte/panzerplatte.png</picture>
+		<large-picture>module/panzerplatte/panzerplatte_large.png</large-picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:panzerung value="1" />
+				<shd:hull value="4000" />
+				<shd:cargo value="-50" />
+				<shd:heat value="1" />
+			</shipdata>
+		</effect>
+		<description>Dieser Satz Standardpanzerplatten kann auf nahezu jedes Schiff montiert werden</description>
+	</item>
+
+	<!-- 315 - Panzerplatten aus Adamatium -->
+	<item id="315" cargo="50">
+		<name>Panzerplatten aus Adamatium</name>
+		<picture>module/panzerplatte/panzerplatte_adamatium.png</picture>
+		<large-picture>module/panzerplatte/panzerplatte_adamatium_large.png</large-picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:panzerung value="2" />
+				<shd:hull value="5000" />
+				<shd:cargo value="-50" />
+				<shd:heat value="1" />
+			</shipdata>
+		</effect>
+		<description>Ein Satz Panzerplatten aus gehärtetem Adamatium. Sehr wiederstandsfähig und verringert überdies die Wirkung von Disruptoren</description>
+	</item>
+
+	<!-- 316 - Panzerplatten aus Xentronium -->
+	<item id="316" cargo="60">
+		<name>Panzerplatten aus Xentronium</name>
+		<picture>module/panzerplatte/panzerplatte_xentronium.png</picture>
+		<large-picture>module/panzerplatte/panzerplatte_xentronium_large.png</large-picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:panzerung value="2" />
+				<shd:hull value="7000" />
+				<shd:cargo value="-60" />
+			</shipdata>
+		</effect>
+		<description>Ein Satz Panzerplatten aus gehärtetem Xentronium. Eigendlich nicht für Zivilisten zugänglich, gelangen doch immerwieder einzelne Teile dieser Hightech-Panzerung aus den Lagerbeständen der GCP nach draussen</description>
+	</item>
+
+	<!-- 317 - Antaritpanzerplatten -->
+	<item id="317" cargo="40">
+		<name>Antaritpanzerplatten</name>
+		<picture>module/panzerplatte/panzerplatte_antarit.png</picture>
+		<large-picture>module/panzerplatte/panzerplatte_antarit_large.png</large-picture>
+		<quality>rare</quality>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:panzerung value="3" />
+				<shd:hull value="9000" />
+				<shd:cargo value="-40" />
+			</shipdata>
+		</effect>
+		<description>Diese extrem teuren Panzerplatten aus einer speziell gehärteten Antarit-Xentronium-Legierung ist das Non-Plus-Ultra der GCP-Technik</description>
+	</item>
+
+	<!-- 318 - Shivanische Panzerplatten -->
+	<item id="318" cargo="50">
+		<name>Shivanische Panzerplatten</name>
+		<picture>module/panzerplatte/panzerplatte_shiv.png</picture>
+		<large-picture>module/panzerplatte/panzerplatte_shiv_large.png</large-picture>
+		<quality>rare</quality>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:panzerung value="4" />
+				<shd:hull value="12000" />
+				<shd:cargo value="-50" />
+			</shipdata>
+		</effect>
+		<description>Gefertigt aus einer komplett unbekannten Legierung sind sie wiederstandsfähiger als alles bisher bekannte</description>
+	</item>
+
+	<!-- 319 - Panzerplatten der Uralten -->
+	<item id="319" cargo="40">
+		<name>Panzerplatten der Uralten</name>
+		<picture>module/panzerplatte/panzerplatte_ancient.png</picture>
+		<large-picture>module/panzerplatte/panzerplatte_ancient_large.png</large-picture>
+		<quality>ultra-rare</quality>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:panzerung value="6" />
+				<shd:hull value="15000" />
+				<shd:cargo value="-40" />
+			</shipdata>
+		</effect>
+		<description>Viele gerüchte Ranken sich um die Panzerungstechnologie der Uralten. Da die Uralten über keinerlei Schildtechnologie verfügten ist sie aber vermutlich allem bekannten überlegen gewesen</description>
+	</item>
+
+	<!-- 320 - Prometheus S -->
+	<item id="320" cargo="2">
+		<name>Prometheus S</name>
+		<picture>module/prometheus_s.png</picture>
+		<large-picture>module/prometheus_s_large.png</large-picture>
+		<effect type="module">
+			<slot id="jprimary" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="Prometheus" count="4" maxheat="20" />
+				</shd:weapons>
+				<shd:cargo value="-2" />
+			</shipdata>
+		</effect>
+		<description>Eines der Standard-Geschütze der GCP. Stärker als Subach HL-7, aber nicht viel</description>
+	</item>
+
+	<!-- 321 - Kayser -->
+	<item id="321" cargo="2">
+		<name>Kayser</name>
+		<picture>module/kayser.png</picture>
+		<large-picture>module/kayser_large.png</large-picture>
+		<effect type="module">
+			<slot id="jprimary" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="Kayser" count="4" maxheat="20" />
+				</shd:weapons>
+				<shd:cargo value="-2" />
+			</shipdata>
+		</effect>
+		<description>Eine der mächtigsten Jäger- und Bombergestützten Waffen die die GCP besitzt</description>
+	</item>
+
+	<!-- 322 - Wartungsroboter -->
+	<item id="322" cargo="10">
+		<name>Wartungsroboter</name>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:recost value="-10" />
+				<shd:rm value="-2" />
+				<shd:cargo value="-10" />
+			</shipdata>
+		</effect>
+		<description>Der Wartungsroboter hilft dabei Schiffsreparaturen effizienter durchzuführen</description>
+	</item>
+
+	<!-- 323 - Plüschadmin mit Saugnäpfen -->
+	<item id="323" cargo="5">
+		<name>Plüschadmin mit Saugnäpfen</name>
+		<picture>module/3043.gif</picture>
+		<large-picture>module/3043.gif</large-picture>
+		<quality>rare</quality>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:rm value="5" />
+				<shd:hull value="150" />
+				<shd:hydro value="10" />
+				<shd:panzerung value="1" />
+				<shd:cargo value="-5" />
+			</shipdata>
+		</effect>
+		<description>Dieses, bei jeder Besatzung sehr beliebte Objekt, hebt die allgemeine Moral auf einem Schiff und sorgt so für eine generelle Verbesserung aller Werte</description>
+	</item>
+
+	<!-- 324 - Plakat: NTF High Command -->
+	<item id="324" cargo="5">
+		<name>Plakat: NTF High Command</name>
+		<picture>module/ntf_plakat.gif</picture>
+		<large-picture>module/ntf_plakat.gif</large-picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:cargo value="-5" />
+				<shd:eps value="50" />
+				<shd:sensorrange value="1" />
+				<shd:panzerung value="2" />
+				<shd:hydro value="10" />
+			</shipdata>
+		</effect>
+		<description>Dieses Plakat zeigt die NTF Führung. Durch eine kluge Platzierung auf dem Raumschiff werden NTF-Treue Besatzungen immer wieder daran errinnert wie wichtig es ist ihr bestes zu geben. Auf GCP-Raumschiffen hingegen fungieren diese Plakate als Zielscheibe und stellen so eine willkommene Freizeitbeschäftigung da</description>
+	</item>
+
+	<!-- 325 - Scan-Modul +3 -->
+	<item id="325" cargo="5">
+		<name>Scan-Modul +3</name>
+		<picture>module/sensorrange_3.png</picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:sensorrange value="3" />
+				<shd:cargo value="-5" />
+			</shipdata>
+		</effect>
+	</item>
+
+	<!-- 326 - Scan-Modul +2 -->
+	<item id="326" cargo="5">
+		<name>Scan-Modul +2</name>
+		<picture>module/sensorrange_2.png</picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:sensorrange value="2" />
+				<shd:cargo value="-5" />
+			</shipdata>
+		</effect>
+	</item>
+
+	<!-- 327 - Schwerer Shiv. Laser -->
+	<item id="327" cargo="4">
+		<name>Schwerer Shiv. Laser</name>
+		<effect type="module">
+			<slot id="jprimary" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="Shivan_Heavy_Laser" count="4" maxheat="20" />
+				</shd:weapons>
+				<shd:cargo value="-4" />
+			</shipdata>
+		</effect>
+		<description>Diese kleine Waffe hat mehr Piloten das Leben gekostet als jede eine andere. Leider ist die Technik allen der GCP bekannten Waffen Lichtjahre vorraus und bisher hat noch kein Wissenschaftler sie auch nur annähernd verstanden. Jeder Nachbau versuch scheiterte bisher völlig. Daher bleiben uns nur die paar wenigen intakten Waffen die wir in abgeschossenen Jägern gefunden haben</description>
+	</item>
+
+	<!-- 328 - Circe -->
+	<item id="328" cargo="2">
+		<name>Circe</name>
+		<picture>module/circe.png</picture>
+		<large-picture>module/circe_large.png</large-picture>
+		<effect type="module">
+			<slot id="jprimary" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="Circe" count="4" maxheat="20" />
+				</shd:weapons>
+				<shd:cargo value="-2" />
+			</shipdata>
+		</effect>
+		<description>Dieser kleine Disruptor ist auch für den Einbau in Jäger geeignet</description>
+	</item>
+
+	<!-- 329 - Shivanischer Sprungantrieb -->
+	<item id="329" cargo="50">
+		<name>Shivanischer Sprungantrieb</name>
+		<picture>module/shivsprungantrieb.png</picture>
+		<quality>ultra-rare</quality>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:flags>
+					<shd:set name="jumpdrive_shivan" />
+				</shd:flags>
+				<shd:cargo value="-50" />
+			</shipdata>
+		</effect>
+		<description>Dieser Sprungantrieb kann bisher noch nicht nachgebaut werden - die wenigen Exemplare stammen aus shivanischen Wracks oder Beuteschiffen</description>
+	</item>
+
+	<!-- 330 - Cargo-Booster + 5 K -->
+	<item id="330" cargo="50">
+		<name>Cargo-Booster + 5 K</name>
+		<picture>module/cargobooster_5k.png</picture>
+		<large-picture>module/cargobooster_5k_large.png</large-picture>
+		<effect type="module">
+			<slot id="misc_large" />
+			<shipdata>
+				<shd:cargo value="5000" />
+			</shipdata>
+		</effect>
+		<description>Laderaumerweiterung für entsprechend grosse Schiffe</description>
+	</item>
+
+	<!-- 331 - Cargo-Booster + 10 K -->
+	<item id="331" cargo="100">
+		<name>Cargo-Booster + 10 K</name>
+		<picture>module/cargobooster_10k.png</picture>
+		<large-picture>module/cargobooster_10k_large.png</large-picture>
+		<effect type="module">
+			<slot id="misc_large" />
+			<shipdata>
+				<shd:cargo value="10000" />
+			</shipdata>
+		</effect>
+		<description>Laderaumerweiterung für entsprechend grosse Schiffe</description>
+	</item>
+
+	<!-- 332 - AM-Reaktor-Upgrade Mark II -->
+	<item id="332" cargo="50">
+		<name>AM-Reaktor-Upgrade Mark II</name>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:rm value="40" />
+				<shd:ra value="10" />
+				<shd:eps value="120" />
+				<shd:cargo value="-50" />
+			</shipdata>
+		</effect>
+		<description>Dieser verstärkte Antimaterie-Reaktor verleiht einem Schiff zusätzliche Kapazitäten</description>
+	</item>
+
+	<!-- 333 - U-Reaktor-Upgrade Mark II -->
+	<item id="333" cargo="50">
+		<name>U-Reaktor-Upgrade Mark II</name>
+		<picture>module/uran_mk2.png</picture>
+		<large-picture>module/uran_mk2_large.png</large-picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:rm value="8" />
+				<shd:ru value="4" />
+				<shd:eps value="24" />
+				<shd:cargo value="-25" />
+			</shipdata>
+		</effect>
+		<description>Dieser verstärkte Uran-Reaktor verleiht einem Schiff zusätzliche Kapazitäten</description>
+	</item>
+
+	<!-- 334 - Deuterium-Reaktor-Upgrade Mark II -->
+	<item id="334" cargo="50">
+		<name>Deuterium-Reaktor-Upgrade Mark II</name>
+		<picture>module/reaktordeutmk2.png</picture>
+		<large-picture>module/reaktordeutmk2_large.png</large-picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:rm value="18" />
+				<shd:rd value="6" />
+				<shd:eps value="60" />
+				<shd:cargo value="-40" />
+			</shipdata>
+		</effect>
+		<description>Dieser verstärkte Deuterium-Reaktor verleiht einem Schiff zusätzliche Kapazitäten</description>
+	</item>
+
+	<!-- 335 - Flakbatterie (2) -->
+	<item id="335" cargo="2">
+		<name>Flakbatterie [2x2]</name>
+		<picture>module/flak2.png</picture>
+		<large-picture>module/flak2_large.png</large-picture>
+		<effect type="module">
+			<slot id="misc_weapon" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="standard_flak" count="2" maxheat="10" />
+				</shd:weapons>
+				<shd:cargo value="-5" />
+			</shipdata>
+		</effect>
+		<description>Diese zusätzlichen Flakbatterien sind zur Ergänzung der Bewaffnung gedacht</description>
+	</item>
+
+	<!-- 336 - Flakbatterie (8) -->
+	<item id="336" cargo="2">
+		<name>Flakbatterie [2x8]</name>
+		<picture>module/flak8.png</picture>
+		<large-picture>module/flak8_large.png</large-picture>
+		<effect type="module">
+			<slot id="misc_large_weapon" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="standard_flak" count="2" maxheat="40" />
+				</shd:weapons>
+				<shd:cargo value="-20" />
+			</shipdata>
+		</effect>
+		<description>Diese zusätzlichen Flakbatterien sind zur Ergänzung der Bewaffnung gedacht. Sie passen nur auf entsprechend grosse Schiffe.</description>
+	</item>
+
+	<!-- 337 - Buddelschiff: Ca Nimbifer -->
+	<item id="337" cargo="5">
+		<name>Buddelschiff: Ca Nimbifer</name>
+		<picture>module/nimbi_idol.png</picture>
+		<large-picture>module/nimbi_idol_large.png</large-picture>
+		<quality>rare</quality>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:cargo value="-5" />
+				<shd:recost value="-100" />
+				<shd:eps value="50" />
+				<shd:sensorrange value="1" />
+				<shd:panzerung value="1" />
+				<shd:hydro value="50" />
+			</shipdata>
+		</effect>
+		<description>Dieses Buddelschiff zeigt die Ca Nimbifer. Durch eine kluge Platzierung auf dem Raumschiff werden Freunde der schweren Träger an das hervorragende Konzept erinnert und motiviert.</description>
+	</item>
+
+	<!-- 338 - NPC-Hilfe 1 -->
+	<item id="338" cargo="5" accesslevel="15">
+		<name>NPC-Hilfe 1</name>
+		<picture>module/generic/generic_def2_artifact.png</picture>
+		<quality>ultra-rare</quality>
+		<effect type="module" set="999">
+			<slot id="jprimary" />
+			<shipdata>
+				<shd:cargo value="2000000" />
+				<shd:eps value="50000" />
+				<shd:rm value="10000" />
+				<shd:ru value="10000" />
+				<shd:ra value="10000" />
+				<shd:rd value="10000" />
+				<shd:sensorrange value="5" />
+				<shd:werft value="7" />
+				<shd:flags>
+					<shd:set name="nicht_kaperbar" />
+				</shd:flags>
+			</shipdata>
+			<slot id="misc" />
+			<shipdata>
+				<shd:cargo value="2000000" />
+				<shd:eps value="50000" />
+				<shd:rm value="10000" />
+				<shd:ru value="10000" />
+				<shd:ra value="10000" />
+				<shd:rd value="10000" />
+				<shd:sensorrange value="5" />
+				<shd:werft value="7" />
+				<shd:flags>
+					<shd:set name="nicht_kaperbar" />
+				</shd:flags>
+			</shipdata>
+		</effect>
+		<description>Reparatur gefällig???</description>
+	</item>
+
+	<!-- 339 - NPC-Hilfe 2 -->
+	<item id="339" cargo="5" accesslevel="15">
+		<name>NPC-Hilfe 2</name>
+		<picture>module/generic/generic_def2_artifact.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="999">
+			<slot id="jprimary" />
+			<shipdata>
+				<shd:flags>
+					<shd:set name="nicht_kaperbar" />
+					<shd:set name="god_mode" />
+				</shd:flags>
+			</shipdata>
+			<slot id="misc" />
+			<shipdata>
+				<shd:flags>
+					<shd:set name="nicht_kaperbar" />
+					<shd:set name="god_mode" />
+				</shd:flags>
+			</shipdata>
+		</effect>
+		<description>Einmal Godmode - kommt sofort</description>
+	</item>
+
+	<!-- 340 - Feldwerft-Rüstpack Mk I -->
+	<item id="340" cargo="500">
+		<name>Feldwerft-Rüstpack Mk I</name>
+		<picture>module/feldwerft1.png</picture>
+		<effect type="module">
+			<slot id="misc_shipyard" />
+			<shipdata>
+				<shd:cargo value="6800" />
+				<shd:eps value="1000" />
+				<shd:rm value="250" />
+				<shd:ru value="10" />
+				<shd:ra value="15" />
+				<shd:rd value="25" />
+				<shd:sensorrange value="3" />
+			</shipdata>
+		</effect>
+		<description>Das Feldwerft-Rüstpack Mk I wertet einen Flottentender gewaltig auf.</description>
+	</item>
+
+	<!-- 341 - NPC-Hilfe: Feldwerft-Rüstpack Mk II -->
+	<item id="341" cargo="2500" accesslevel="5">
+		<name>NPC-Hilfe: Feldwerft-Rüstpack Mk II</name>
+		<picture>module/generic/generic_def2_artifact.png</picture>
+		<quality>artifact</quality>
+		<effect type="module" set="999">
+			<slot id="misc_shipyard" />
+			<shipdata>
+				<shd:cargo value="11800" />
+				<shd:eps value="2600" />
+				<shd:rm value="500" />
+				<shd:ru value="10" />
+				<shd:ra value="15" />
+				<shd:rd value="25" />
+				<shd:jdocks value="2" />
+				<shd:flags>
+					<shd:set name="srs_ext_awac" />
+					<shd:set name="nicht_kaperbar" />
+				</shd:flags>
+				<shd:sensorrange value="6" />
+			</shipdata>
+		</effect>
+		<description>Das Feldwerft-Rüstpack Mk II wertet einen Flottentender gewaltig auf.</description>
+	</item>
+
+	<!-- 342 - Adminitem: Wrackmarker -->
+	<item id="342" cargo="0" accesslevel="15">
+		<name>Adminitem: Wrackmarker</name>
+		<picture>module/generic/generic_def2_artifact.png</picture>
+		<quality>artifact</quality>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:picture_mod value="wrack" />
+				<shd:flags>
+					<shd:set name="nicht_kaperbar" />
+				</shd:flags>
+			</shipdata>
+		</effect>
+		<description>Schiffe mit diesem Item bekommen ein Wrackbild (funktioniert nur mit png-Bildern und es muss natürlich vorher ein Wrackbild angelegt werden)</description>
+	</item>
+
+	<!-- 343 - Testitem: Strahlende Angriffsspitze -->
+	<item id="343" cargo="0" accesslevel="15">
+		<name>Testitem: Strahlende Angriffsspitze</name>
+		<picture>module/generic/generic_off.png</picture>
+		<quality>artifact</quality>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:maxheat>
+					<shd:weapon name="BGreen" maxheat="30" />
+					<shd:weapon name="TerSlash" maxheat="30" />
+					<shd:weapon name="Terran_Huge_Turret" maxheat="80" />
+				</shd:maxheat>
+				<shd:flags>
+					<shd:set name="nicht_kaperbar" />
+				</shd:flags>
+			</shipdata>
+		</effect>
+		<description>Schiffe mit diesem Item bekommen ein Wrackbild (funktioniert nur mit png-Bildern und es muss natürlich vorher ein Wrackbild angelegt werden)</description>
+	</item>
+
+	<!-- 344 - Kontroller für Drohnen -->
+	<item id="344" cargo="50">
+		<name>Kontroller für Drohnen</name>
+		<picture>module/generic/generic_off.png</picture>
+		<quality>rare</quality>
+		<effect type="module">
+			<slot id="drone_cont" />
+			<shipdata>
+				<shd:cargo value="-100" />
+				<shd:flags>
+					<shd:set name="drohnen_controller" />
+				</shd:flags>
+			</shipdata>
+		</effect>
+		<description>Kontroller für Drohnen</description>
+	</item>
+
+	<!-- 345 - GCP Orion Flightdeck -->
+	<item id="345" cargo="0">
+		<name>GCP Orion Flightdeck</name>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="orion_terran_destroyer_special" />
+			<shipdata>
+				<shd:cargo value="2000" />
+				<shd:eps value="2000" />
+				<shd:crew value="2000" />
+				<shd:jdocks value="10" />
+				<shd:hydro value="1000" />
+				<shd:werft value="7" />
+			</shipdata>
+		</effect>
+		<description>Erweiterte Kapazität für Jäger und Bomber</description>
+	</item>
+
+	<!-- 346 - GCP Orion Engine -->
+	<item id="346" cargo="0">
+		<name>GCP Orion Engine</name>
+		<picture>module/generic/generic_engine_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="orion_terran_destroyer_engine" />
+			<shipdata>
+				<shd:cost value="-3" />
+				<shd:heat value="-1" />
+			</shipdata>
+		</effect>
+		<description>Verbesserter Antrieb</description>
+	</item>
+
+	<!-- 347 - GCP Orion Reactor -->
+	<item id="347" cargo="0">
+		<name>GCP Orion Reactor</name>
+		<picture>module/generic/generic_power_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="orion_terran_destroyer_reactor" />
+			<shipdata>
+				<shd:eps value="1000" />
+				<shd:rm value="450" />
+				<shd:ru value="2" />
+				<shd:ra value="50" />
+				<shd:rd value="8" />
+			</shipdata>
+		</effect>
+		<description>Verbesserter Reaktor</description>
+	</item>
+
+	<!-- 348 - GCP Orion Ofensive Armament -->
+	<item id="348" cargo="0">
+		<name>GCP Orion Ofensive Armament</name>
+		<picture>module/generic/generic_off.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="orion_terran_destroyer_offensive" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="BGreen" count="1" maxheat="10" />
+					<shd:weapon name="TerSlash" count="1" maxheat="10" />
+					<shd:weapon name="Terran_Turret" count="1" maxheat="10" />
+				</shd:weapons>
+			</shipdata>
+		</effect>
+		<description>Zusätzliche Ofensivbewaffnung</description>
+	</item>
+
+	<!-- 349 - GCP Orion Defensive Armament -->
+	<item id="349" cargo="0">
+		<name>GCP Orion Defensive Armament</name>
+		<picture>module/generic/generic_def1_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="orion_terran_destroyer_deffensive" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="heavy_flak_ld" count="4" maxheat="60" />
+					<shd:weapon name="LRAAAF" count="4" maxheat="60" />
+					<shd:weapon name="AAAf" count="-3" maxheat="0" />
+				</shd:weapons>
+			</shipdata>
+		</effect>
+		<description>Zusätzliche Defensivbewaffnung</description>
+	</item>
+
+	<!-- 350 - GCP Orion Enhanced Protection -->
+	<item id="350" cargo="0">
+		<name>GCP Orion Enhanced Protection</name>
+		<picture>module/generic/generic_def1_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="orion_terran_destroyer_hull" />
+			<shipdata>
+				<shd:hull value="60000" />
+				<shd:panzerung value="8" />
+			</shipdata>
+		</effect>
+		<description>Zusätzliche Panzerung</description>
+	</item>
+
+	<!-- 351 - GCP Orion Enhanced Technology -->
+	<item id="351" cargo="0">
+		<name>GCP Orion Enhanced Technology</name>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="orion_terran_destroyer_tech" />
+			<shipdata>
+				<shd:cargo value="0" />
+			</shipdata>
+		</effect>
+		<description>Zusätzliche Defensivbewaffnung</description>
+	</item>
+
+	<!-- 352 - GCP Typhoon Flightdeck -->
+	<item id="352" cargo="0">
+		<name>GCP Typhoon Flightdeck</name>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="typhoon_vasudan_destroyer_special" />
+			<shipdata>
+				<shd:cargo value="2000" />
+				<shd:eps value="2000" />
+				<shd:crew value="2000" />
+				<shd:jdocks value="10" />
+				<shd:hydro value="1200" />
+				<shd:werft value="7" />
+			</shipdata>
+		</effect>
+		<description>Erweiterte Kapazität für Jäger und Bomber</description>
+	</item>
+
+	<!-- 353 - GCP Typhoon Engine -->
+	<item id="353" cargo="0">
+		<name>GCP Typhoon Engine</name>
+		<picture>module/generic/generic_engine_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="typhoon_vasudan_destroyer_engine" />
+			<shipdata>
+				<shd:cost value="-3" />
+				<shd:heat value="-1" />
+			</shipdata>
+		</effect>
+		<description>Verbesserter Antrieb</description>
+	</item>
+
+	<!-- 354 - GCP Typhoon Reactor -->
+	<item id="354" cargo="0">
+		<name>GCP Typhoon Reactor</name>
+		<picture>module/generic/generic_power_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="typhoon_vasudan_destroyer_reactor" />
+			<shipdata>
+				<shd:eps value="1000" />
+				<shd:rm value="650" />
+				<shd:ru value="4" />
+				<shd:ra value="60" />
+				<shd:rd value="9" />
+			</shipdata>
+		</effect>
+		<description>Verbesserter Reaktor</description>
+	</item>
+
+	<!-- 355 - GCP Typhoon Ofensive Armament -->
+	<item id="355" cargo="0">
+		<name>GCP Typhoon Ofensive Armament</name>
+		<picture>module/generic/generic_off.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="typhoon_vasudan_destroyer_offensive" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="BVas" count="1" maxheat="15" />
+				</shd:weapons>
+			</shipdata>
+		</effect>
+		<description>Zusätzliche Ofensivbewaffnung</description>
+	</item>
+
+	<!-- 356 - GCP Typhoon Defensive Armament -->
+	<item id="356" cargo="0">
+		<name>GCP Typhoon Defensive Armament</name>
+		<picture>module/generic/generic_def1_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="typhoon_vasudan_destroyer_deffensive" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="Terran_Huge_Turret" count="2" maxheat="60" />
+					<shd:weapon name="standard_flak" count="-5" maxheat="0" />
+					<shd:weapon name="standard_flak_ld" count="6" maxheat="90" />
+					<shd:weapon name="LRAAAF" count="4" maxheat="60" />
+					<shd:weapon name="doubleraketen" count="2" maxheat="20" />
+					<shd:weapon name="AAAf" count="-2" maxheat="0" />
+				</shd:weapons>
+				<shd:maxheat>
+					<shd:weapon name="standard_flak" maxheat="50" />
+				</shd:maxheat>
+			</shipdata>
+		</effect>
+		<description>Zusätzliche Defensivbewaffnung</description>
+	</item>
+
+	<!-- 357 - GCP Typhoon Enhanced Protection -->
+	<item id="357" cargo="0">
+		<name>GCP Typhoon Enhanced Protection</name>
+		<picture>module/generic/generic_def1_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="typhoon_vasudan_destroyer_hull" />
+			<shipdata>
+				<shd:hull value="70000" />
+				<shd:panzerung value="7" />
+			</shipdata>
+		</effect>
+		<description>Zusätzliche Panzerung</description>
+	</item>
+
+	<!-- 358 - GCP Typhoon Enhanced Technology -->
+	<item id="358" cargo="0">
+		<name>GCP Typhoon Enhanced Technology</name>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="typhoon_vasudan_destroyer_tech" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="Terran_Huge_Turret" count="1" maxheat="20" />
+					<shd:weapon name="doubleraketen" count="1" maxheat="10" />
+				</shd:weapons>
+			</shipdata>
+		</effect>
+		<description>Zusätzliche Defensivbewaffnung</description>
+	</item>
+
+	<!-- 359 - GCP Hecate Flightdeck -->
+	<item id="359" cargo="0">
+		<name>GCP Hecate Flightdeck</name>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="hecate_terran_destroyer_special" />
+			<shipdata>
+				<shd:cargo value="2000" />
+				<shd:eps value="2000" />
+				<shd:crew value="2000" />
+				<shd:jdocks value="8" />
+				<shd:hydro value="1100" />
+				<shd:werft value="7" />
+			</shipdata>
+		</effect>
+		<description>Erweiterte Kapazität für Jäger und Bomber</description>
+	</item>
+
+	<!-- 360 - GCP Hecate Engine -->
+	<item id="360" cargo="0">
+		<name>GCP Hecate Engine</name>
+		<picture>module/generic/generic_engine_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="hecate_terran_destroyer_engine" />
+			<shipdata>
+				<shd:cost value="-3" />
+				<shd:heat value="-3" />
+			</shipdata>
+		</effect>
+		<description>Verbesserter Antrieb</description>
+	</item>
+
+	<!-- 361 - GCP Hecate Reactor -->
+	<item id="361" cargo="0">
+		<name>GCP Hecate Reactor</name>
+		<picture>module/generic/generic_power_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="hecate_terran_destroyer_reactor" />
+			<shipdata>
+				<shd:eps value="1000" />
+				<shd:rm value="400" />
+				<shd:ru value="6" />
+				<shd:ra value="80" />
+				<shd:rd value="8" />
+			</shipdata>
+		</effect>
+		<description>Verbesserter Reaktor</description>
+	</item>
+
+	<!-- 362 - GCP Hecate Ofensive Armament -->
+	<item id="362" cargo="0">
+		<name>GCP Hecate Ofensive Armament</name>
+		<picture>module/generic/generic_off.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="hecate_terran_destroyer_offensive" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="BGreen" count="1" maxheat="18" />
+					<shd:weapon name="TerSlash" count="1" maxheat="15" />
+					<shd:weapon name="Terran_Huge_Turret" count="2" maxheat="30" />
+				</shd:weapons>
+			</shipdata>
+		</effect>
+		<description>Zusätzliche Ofensivbewaffnung</description>
+	</item>
+
+	<!-- 363 - GCP Hecate Defensive Armament -->
+	<item id="363" cargo="0">
+		<name>GCP Hecate Defensive Armament</name>
+		<picture>module/generic/generic_def1_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="hecate_terran_destroyer_deffensive" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="heavy_flak" count="-4" maxheat="0" />
+					<shd:weapon name="standard_flak" count="-6" maxheat="0" />
+					<shd:weapon name="AAAf" count="-6" maxheat="0" />
+					<shd:weapon name="heavy_flak_ld" count="4" maxheat="60" />
+					<shd:weapon name="standard_flak_ld" count="6" maxheat="90" />
+					<shd:weapon name="LRAAAF" count="6" maxheat="90" />
+				</shd:weapons>
+			</shipdata>
+		</effect>
+		<description>Zusätzliche Defensivbewaffnung</description>
+	</item>
+
+	<!-- 364 - GCP Hecate Enhanced Protection -->
+	<item id="364" cargo="0">
+		<name>GCP Hecate Enhanced Protection</name>
+		<picture>module/generic/generic_def1_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="hecate_terran_destroyer_hull" />
+			<shipdata>
+				<shd:hull value="75000" />
+				<shd:panzerung value="11" />
+			</shipdata>
+		</effect>
+		<description>Zusätzliche Panzerung</description>
+	</item>
+
+	<!-- 365 - GCP Hecate Enhanced Technology -->
+	<item id="365" cargo="0">
+		<name>GCP Hecate Enhanced Technology</name>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="hecate_terran_destroyer_tech" />
+			<shipdata>
+				<shd:cargo value="0" />
+			</shipdata>
+		</effect>
+		<description>Zusätzliche Defensivbewaffnung</description>
+	</item>
+
+	<!-- 366 - GCP Hatshepsut Flightdeck -->
+	<item id="366" cargo="0">
+		<name>GCP Hatshepsut Flightdeck</name>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="hatshepsut_vasudan_destroyer_special" />
+			<shipdata>
+				<shd:cargo value="2000" />
+				<shd:eps value="2000" />
+				<shd:crew value="2000" />
+				<shd:jdocks value="8" />
+				<shd:hydro value="1250" />
+				<shd:werft value="7" />
+			</shipdata>
+		</effect>
+		<description>Erweiterte Kapazität für Jäger und Bomber</description>
+	</item>
+
+	<!-- 367 - GCP Hatshepsut Engine -->
+	<item id="367" cargo="0">
+		<name>GCP Hatshepsut Engine</name>
+		<picture>module/generic/generic_engine_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="hatshepsut_vasudan_destroyer_engine" />
+			<shipdata>
+				<shd:cost value="-4" />
+				<shd:heat value="-1" />
+			</shipdata>
+		</effect>
+		<description>Verbesserter Antrieb</description>
+	</item>
+
+	<!-- 368 - GCP Hatshepsut Reactor -->
+	<item id="368" cargo="0">
+		<name>GCP Hatshepsut Reactor</name>
+		<picture>module/generic/generic_power_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="hatshepsut_vasudan_destroyer_reactor" />
+			<shipdata>
+				<shd:eps value="1000" />
+				<shd:rm value="350" />
+				<shd:ru value="25" />
+				<shd:ra value="20" />
+				<shd:rd value="50" />
+			</shipdata>
+		</effect>
+		<description>Verbesserter Reaktor</description>
+	</item>
+
+	<!-- 369 - GCP Hatshepsut Ofensive Armament -->
+	<item id="369" cargo="0">
+		<name>GCP Hatshepsut Ofensive Armament</name>
+		<picture>module/generic/generic_off.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="hatshepsut_vasudan_destroyer_offensive" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="BVas" count="1" maxheat="35" />
+					<shd:weapon name="SVas" count="4" maxheat="60" />
+				</shd:weapons>
+			</shipdata>
+		</effect>
+		<description>Zusätzliche Ofensivbewaffnung</description>
+	</item>
+
+	<!-- 370 - GCP Hatshepsut Defensive Armament -->
+	<item id="370" cargo="0">
+		<name>GCP Hatshepsut Defensive Armament</name>
+		<picture>module/generic/generic_def1_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="hatshepsut_vasudan_destroyer_deffensive" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="AAAf" count="-4" maxheat="0" />
+					<shd:weapon name="doubleraketen" count="4" maxheat="80" />
+					<shd:weapon name="standard_flak" count="-11" maxheat="0" />
+					<shd:weapon name="LRAAAF" count="6" maxheat="90" />
+					<shd:weapon name="standard_flak_ld" count="10" maxheat="200" />
+				</shd:weapons>
+				<shd:maxheat>
+					<shd:weapon name="raketen" maxheat="50" />
+				</shd:maxheat>
+			</shipdata>
+		</effect>
+		<description>Zusätzliche Defensivbewaffnung</description>
+	</item>
+
+	<!-- 371 - GCP Hatshepsut Enhanced Protection -->
+	<item id="371" cargo="0">
+		<name>GCP Hatshepsut Enhanced Protection</name>
+		<picture>module/generic/generic_def1_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="hatshepsut_vasudan_destroyer_hull" />
+			<shipdata>
+				<shd:hull value="60000" />
+				<shd:panzerung value="12" />
+			</shipdata>
+		</effect>
+		<description>Zusätzliche Panzerung</description>
+	</item>
+
+	<!-- 372 - GCP Hatshepsut Enhanced Technology -->
+	<item id="372" cargo="0">
+		<name>GCP Hatshepsut Enhanced Technology</name>
+		<quality>epic</quality>
+		<effect type="module" set="998">
+			<slot id="hatshepsut_vasudan_destroyer_tech" />
+			<shipdata>
+				<shd:cargo value="0" />
+			</shipdata>
+		</effect>
+		<description>Zusätzliche Defensivbewaffnung</description>
+	</item>
+
+	<!-- 373 - NTF Cookie -->
+	<item id="373" cargo="50">
+		<name>NTF Cookie</name>
+		<picture>module/ntf_cookie.png</picture>
+		<large-picture>module/ntf_cookie_large.png</large-picture>
+		<quality>rare</quality>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:heat value="-1" />
+				<shd:rm value="50" />
+			</shipdata>
+		</effect>
+		<description>Eine köstliche Packung Kekse aus den Küchen der NTF. Die Crew, die in den Genuss dieser süßen Sünde kommt, arbeitet motivierter.</description>
+	</item>
+
+	<!-- 374 - NTF Deimos Kommandoschiff -->
+	<item id="374" cargo="50" accesslevel="5">
+		<name>NTF Deimos Kommandoschiff</name>
+		<picture>module/generic/generic_def1_rare.png</picture>
+		<quality>rare</quality>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="TerSlash" count="-4" maxheat="0" />
+					<shd:weapon name="heavy_pulse_gun" count="2" maxheat="12" />
+					<shd:weapon name="Terran_Huge_Turret" count="-4" maxheat="0" />
+					<shd:weapon name="light_pulse_gun" count="4" maxheat="40" />
+					<shd:weapon name="Terran_Turret" count="-6" maxheat="0" />
+					<shd:weapon name="mikro_pulse_gun" count="15" maxheat="150" />
+					<shd:weapon name="standard_flak" count="-6" maxheat="0" />
+					<shd:weapon name="heavy_flak" count="6" maxheat="36" />
+				</shd:weapons>
+				<shd:ru value="-6" />
+				<shd:rd value="10" />
+				<shd:ra value="4" />
+				<shd:rm value="85" />
+				<shd:heat value="-1" />
+				<shd:cargo value="1000" />
+				<shd:panzerung value="2" />
+				<shd:picture_mod value="kommando" />
+				<shd:flags>
+					<shd:set name="drohnen_controller" />
+				</shd:flags>
+			</shipdata>
+		</effect>
+		<description>Eine Kommando-Deimos</description>
+	</item>
+
+	<!-- 375 - Zorn -->
+	<item id="375" cargo="0" accesslevel="15">
+		<name>Zorn</name>
+		<picture>module/generic/generic_off.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="997">
+			<slot id="typhoon_vasudan_destroyer_offensive" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="BVas" count="-2" maxheat="0" />
+					<shd:weapon name="Terran_Huge_Turret" count="-2" maxheat="0" />
+				</shd:weapons>
+			</shipdata>
+		</effect>
+	</item>
+
+	<!-- 376 - Stolz -->
+	<item id="376" cargo="0" accesslevel="15">
+		<name>Stolz</name>
+		<picture>module/generic/generic_def1_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="997">
+			<slot id="typhoon_vasudan_destroyer_deffensive" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="standard_flak" count="-5" maxheat="0" />
+					<shd:weapon name="AAAf" count="-2" maxheat="0" />
+				</shd:weapons>
+			</shipdata>
+		</effect>
+	</item>
+
+	<!-- 377 - Trägheit -->
+	<item id="377" cargo="0" accesslevel="15">
+		<name>Trägheit</name>
+		<picture>module/generic/generic_engine_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="997">
+			<slot id="typhoon_vasudan_destroyer_engine" />
+			<shipdata>
+				<shd:cost value="2" />
+				<shd:heat value="6" />
+			</shipdata>
+		</effect>
+	</item>
+
+	<!-- 378 - Geiz -->
+	<item id="378" cargo="0" accesslevel="15">
+		<name>Geiz</name>
+		<picture>module/generic/generic_power_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="997">
+			<slot id="typhoon_vasudan_destroyer_reactor" />
+			<shipdata>
+				<shd:eps value="-1100" />
+				<shd:rm value="-370" />
+				<shd:ru value="-14" />
+				<shd:rd value="-21" />
+			</shipdata>
+		</effect>
+	</item>
+
+	<!-- 379 - Unkeuschheit -->
+	<item id="379" cargo="0" accesslevel="15">
+		<name>Unkeuschheit</name>
+		<quality>epic</quality>
+		<effect type="module" set="997">
+			<slot id="typhoon_vasudan_destroyer_tech" />
+			<shipdata>
+				<shd:jdocks value="-30" />
+				<shd:sensorrange value="-2" />
+				<shd:cargo value="-6500" />
+			</shipdata>
+		</effect>
+	</item>
+
+	<!-- 380 - Unmässigkeit -->
+	<item id="380" cargo="0" accesslevel="15">
+		<name>Unmässigkeit</name>
+		<quality>epic</quality>
+		<effect type="module" set="997">
+			<slot id="typhoon_vasudan_destroyer_hull" />
+			<shipdata>
+				<shd:panzerung value="-18" />
+			</shipdata>
+		</effect>
+	</item>
+
+	<!-- 381 - Neid -->
+	<item id="381" cargo="0" accesslevel="15">
+		<name>Neid</name>
+		<quality>epic</quality>
+		<effect type="module" set="997">
+			<slot id="typhoon_vasudan_destroyer_special" />
+			<shipdata>
+				<shd:flags>
+					<shd:set name="instant_battle_enter" />
+				</shd:flags>
+			</shipdata>
+		</effect>
+	</item>
+
+	<!-- 382 - NPC-Hilfe: Kottos#1 -->
+	<item id="382" cargo="0" accesslevel="5">
+		<name>NPC-Hilfe: Kottos#1</name>
+		<picture>module/generic/generic_off.png</picture>
+		<quality>artifact</quality>
+		<effect type="module">
+			<slot id="misc_kottos" />
+			<shipdata>
+				<shd:sensorrange value="6" />
+				<shd:rm value="175" />
+				<shd:cost value="-1" />
+				<shd:heat value="-1" />
+				<shd:flags>
+					<shd:set name="nicht_kaperbar" />
+				</shd:flags>
+				<shd:weapons>
+					<shd:weapon name="TerSlash" count="2" maxheat="10" />
+				</shd:weapons>
+			</shipdata>
+		</effect>
+	</item>
+
+	<!-- 383 - Paladin Rüstset -->
+	<item id="383" cargo="500">
+		<name>Paladin Rüstset</name>
+		<picture>module/generic/generic_off.png</picture>
+		<quality>artifact</quality>
+		<effect type="module">
+			<slot id="paladin_misc" />
+			<shipdata>
+				<shd:panzerung value="15" />
+				<shd:cost value="-5" />
+				<shd:heat value="-2" />
+				<shd:hull value="400000" />
+				<shd:cargo value="1000" />
+			</shipdata>
+		</effect>
+	</item>
+
+	<!-- 384 - Behemoth Flightdeck -->
+	<item id="384" cargo="1000">
+		<name>Behemoth Flightdeck</name>
+		<effect type="module">
+			<slot id="misc_large" />
+			<shipdata>
+				<shd:cargo value="2000" />
+				<shd:eps value="500" />
+				<shd:crew value="100" />
+				<shd:jdocks value="1" />
+			</shipdata>
+		</effect>
+		<description>Kapazität für Jäger und Bomber</description>
+	</item>
+
+	<!-- 385 - Atlas Flightdeck -->
+	<item id="385" cargo="1000">
+		<name>Atlas Flightdeck</name>
+		<effect type="module">
+			<slot id="misc_large" />
+			<shipdata>
+				<shd:cargo value="4000" />
+				<shd:eps value="750" />
+				<shd:crew value="150" />
+				<shd:jdocks value="2" />
+			</shipdata>
+		</effect>
+		<description>Kapazität für Jäger und Bomber</description>
+	</item>
+
+	<!-- 386 - Ganymed Flightdeck -->
+	<item id="386" cargo="2000">
+		<name>Ganymed Flightdeck</name>
+		<effect type="module">
+			<slot id="misc_ganystation" />
+			<shipdata>
+				<shd:cargo value="10000" />
+				<shd:eps value="5000" />
+				<shd:crew value="1000" />
+				<shd:jdocks value="10" />
+			</shipdata>
+		</effect>
+		<description>Kapazität für Jäger und Bomber</description>
+	</item>
+
+	<!-- 387 - Ganymed Waffen I - Flak -->
+	<item id="387" cargo="2000">
+		<name>Ganymed Waffen I - Flak</name>
+		<picture>module/generic/generic_off.png</picture>
+		<effect type="module">
+			<slot id="weapon_ganystation" />
+			<shipdata>
+				<shd:crew value="100" />
+				<shd:weapons>
+					<shd:weapon name="standard_flak_ld" count="10" maxheat="200" />
+				</shd:weapons>
+			</shipdata>
+		</effect>
+		<description>Defensiv-Kapazität für die Ganymed-Stationen</description>
+	</item>
+
+	<!-- 388 - Ganymed Waffen II - Raketen -->
+	<item id="388" cargo="2000">
+		<name>Ganymed Waffen II - Raketen</name>
+		<picture>module/generic/generic_off.png</picture>
+		<effect type="module">
+			<slot id="weapon_ganystation" />
+			<shipdata>
+				<shd:crew value="100" />
+				<shd:weapons>
+					<shd:weapon name="lrraketen" count="5" maxheat="50" />
+				</shd:weapons>
+			</shipdata>
+		</effect>
+		<description>Defensiv-Kapazität für die Ganymed-Stationen</description>
+	</item>
+
+	<!-- 389 - Zacharys Plot Gun - Hecate Offensive Armament -->
+	<item id="389" cargo="0" accesslevel="5">
+		<name>Zacharys Plot Gun - Hecate Offensive Armament</name>
+		<picture>module/generic/generic_off.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="996">
+			<slot id="hecate_terran_destroyer_offensive" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="heavy_pulse_gun" count="4" maxheat="60" />
+					<shd:weapon name="light_pulse_gun" count="8" maxheat="120" />
+				</shd:weapons>
+			</shipdata>
+		</effect>
+		<description>Zusätzliche Offensivbewaffnung</description>
+	</item>
+
+	<!-- 390 - Zacharys Plot Shield - Hecate Deffensive Armament -->
+	<item id="390" cargo="0" accesslevel="5">
+		<name>Zacharys Plot Shield - Hecate Deffensive Armament</name>
+		<picture>module/generic/generic_def1_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="996">
+			<slot id="hecate_terran_destroyer_deffensive" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="ntfraketen" count="4" maxheat="80" />
+				</shd:weapons>
+			</shipdata>
+		</effect>
+		<description>Zusätzliche Deffensivbewaffnung</description>
+	</item>
+
+	<!-- 391 - Zacharys Plot Device: Speedjunky - Hecate Engine -->
+	<item id="391" cargo="0" accesslevel="5">
+		<name>Zacharys Plot Device: Speedjunky - Hecate Engine</name>
+		<picture>module/generic/generic_engine_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="996">
+			<slot id="hecate_terran_destroyer_engine" />
+			<shipdata>
+				<shd:cost value="-4" />
+				<shd:heat value="-3" />
+			</shipdata>
+		</effect>
+		<description>Verbesserter Antrieb</description>
+	</item>
+
+	<!-- 392 - Zacharys Plot Power - Hecate Reactor -->
+	<item id="392" cargo="0" accesslevel="5">
+		<name>Zacharys Plot Power - Hecate Reactor</name>
+		<picture>module/generic/generic_power_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="996">
+			<slot id="hecate_terran_destroyer_reactor" />
+			<shipdata>
+				<shd:eps value="500" />
+				<shd:rm value="250" />
+			</shipdata>
+		</effect>
+		<description>Verbesserter Reaktor</description>
+	</item>
+
+	<!-- 393 - Zacharys Plot Technobabble - Hecate Enhanced Technology -->
+	<item id="393" cargo="0" accesslevel="5">
+		<name>Zacharys Plot Technobabble - Hecate Enhanced Technology</name>
+		<quality>epic</quality>
+		<effect type="module" set="996">
+			<slot id="hecate_terran_destroyer_tech" />
+			<shipdata>
+				<shd:cargo value="7000" />
+				<shd:sensorrange value="12" />
+			</shipdata>
+		</effect>
+		<description>Verbesserte Technik</description>
+	</item>
+
+	<!-- 394 - Zacharys Plot Device: Last man standing - Hecate Enhanced Protection -->
+	<item id="394" cargo="0" accesslevel="5">
+		<name>Zacharys Plot Device: Last man standing - Hecate Enhanced Protection</name>
+		<picture>module/generic/generic_def1_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="996">
+			<slot id="hecate_terran_destroyer_hull" />
+			<shipdata>
+				<shd:hull value="500000" />
+				<shd:panzerung value="25" />
+			</shipdata>
+		</effect>
+		<description>Zusätzliche Panzerung</description>
+	</item>
+
+	<!-- 395 - Zacharys Plot Special: Drohnenkontrolle - Hecate Special -->
+	<item id="395" cargo="0" accesslevel="5">
+		<name>Zacharys Plot Special: Drohnenkontrolle - Hecate Special</name>
+		<quality>epic</quality>
+		<effect type="module" set="996">
+			<slot id="hecate_terran_destroyer_special" />
+			<shipdata>
+				<shd:flags>
+					<shd:set name="nicht_kaperbar" />
+					<shd:set name="nicht_pluenderbar" />
+					<shd:set name="drohnen_controller" />
+				</shd:flags>
+			</shipdata>
+		</effect>
+		<description>Drohnen-Kontroller für Jäger und Bomber</description>
+	</item>
+
+	<!-- 396 - Zorn der Zerstörer -->
+	<item id="396" cargo="0">
+		<name>Zorn der Zerstörer</name>
+		<picture>module/generic/generic_off.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="995">
+			<slot id="typhoon_vasudan_destroyer_offensive" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="BVas" count="1" maxheat="15" />
+				</shd:weapons>
+			</shipdata>
+		</effect>
+	</item>
+
+	<!-- 397 - Tanz der Seelen -->
+	<item id="397" cargo="0">
+		<name>Tanz der Seelen</name>
+		<picture>module/generic/generic_def1_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="995">
+			<slot id="typhoon_vasudan_destroyer_deffensive" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="Terran_Huge_Turret" count="2" maxheat="60" />
+					<shd:weapon name="doubleraketen" count="2" maxheat="20" />
+					<shd:weapon name="AAAf" count="1" maxheat="40" />
+				</shd:weapons>
+				<shd:maxheat>
+					<shd:weapon name="standard_flak" maxheat="50" />
+				</shd:maxheat>
+			</shipdata>
+		</effect>
+	</item>
+
+	<!-- 398 - Fluegel der Reinheit -->
+	<item id="398" cargo="0">
+		<name>Fluegel der Reinheit</name>
+		<picture>module/generic/generic_engine_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="995">
+			<slot id="typhoon_vasudan_destroyer_engine" />
+			<shipdata>
+				<shd:cost value="-1" />
+				<shd:heat value="-1" />
+			</shipdata>
+		</effect>
+	</item>
+
+	<!-- 399 - Segen Shivas -->
+	<item id="399" cargo="0">
+		<name>Segen Shivas</name>
+		<picture>module/generic/generic_power_epic.png</picture>
+		<quality>epic</quality>
+		<effect type="module" set="995">
+			<slot id="typhoon_vasudan_destroyer_reactor" />
+			<shipdata>
+				<shd:eps value="1000" />
+				<shd:rm value="650" />
+				<shd:ru value="4" />
+				<shd:ra value="20" />
+				<shd:rd value="9" />
+			</shipdata>
+		</effect>
+	</item>
+
+	<!-- 400 - Gnade den Reinen -->
+	<item id="400" cargo="0">
+		<name>Gnade den Reinen</name>
+		<quality>epic</quality>
+		<effect type="module" set="995">
+			<slot id="typhoon_vasudan_destroyer_tech" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="BVas" count="1" maxheat="15" />
+				</shd:weapons>
+			</shipdata>
+		</effect>
+	</item>
+
+	<!-- 401 - Sehnsucht der Gläubigen -->
+	<item id="401" cargo="0">
+		<name>Sehnsucht der Gläubigen</name>
+		<quality>epic</quality>
+		<effect type="module" set="995">
+			<slot id="typhoon_vasudan_destroyer_hull" />
+			<shipdata>
+				<shd:hull value="80000" />
+				<shd:panzerung value="7" />
+			</shipdata>
+		</effect>
+	</item>
+
+	<!-- 402 - Mirakel der Sonnen -->
+	<item id="402" cargo="0">
+		<name>Mirakel der Sonnen</name>
+		<quality>epic</quality>
+		<effect type="module" set="995">
+			<slot id="typhoon_vasudan_destroyer_special" />
+			<shipdata>
+				<shd:cargo value="2000" />
+				<shd:eps value="2000" />
+				<shd:crew value="2000" />
+				<shd:jdocks value="5" />
+				<shd:hydro value="1200" />
+				<shd:werft value="7" />
+			</shipdata>
+		</effect>
+	</item>
+
+	<!-- 403 - Rüstset Kreuzer (Aten) -->
+	<item id="403" cargo="50" accesslevel="5">
+		<name>Rüstset Kreuzer (Aten)</name>
+		<picture>module/generic/generic_off.png</picture>
+		<quality>rare</quality>
+		<effect type="module">
+			<slot id="vasudan_cruiser_upgrade" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="Subach_HL-7" count="-4" maxheat="0" />
+					<shd:weapon name="Terran_Turret" count="-2" maxheat="0" />
+					<shd:weapon name="Kayser" count="4" maxheat="24" />
+					<shd:weapon name="kamikaze_cruiser" count="1" maxheat="1" />
+					<shd:weapon name="raketen" count="2" maxheat="16" />
+					<shd:weapon name="AAAf" count="1" maxheat="8" />
+				</shd:weapons>
+				<shd:panzerung value="6" />
+				<shd:hull value="4000" />
+				<shd:cargo value="1000" />
+				<shd:heat value="-2" />
+				<shd:cost value="-2" />
+				<shd:eps value="300" />
+				<shd:rm value="150" />
+				<shd:ru value="4" />
+				<shd:rd value="11" />
+				<shd:ra value="25" />
+			</shipdata>
+		</effect>
+		<description>Rüstset für vasudanische Kreuzer (Aten)</description>
+	</item>
+
+	<!-- 404 - Ganymed Waffen III - Flak -->
+	<item id="404" cargo="2000" accesslevel="5">
+		<name>Ganymed Waffen III - Flak</name>
+		<picture>module/generic/generic_off.png</picture>
+		<quality>artifact</quality>
+		<effect type="module">
+			<slot id="weapon_ganystation" />
+			<shipdata>
+				<shd:crew value="100" />
+				<shd:weapons>
+					<shd:weapon name="standard_flak" count="10" maxheat="200" />
+					<shd:weapon name="standard_flak_ld" count="10" maxheat="200" />
+				</shd:weapons>
+			</shipdata>
+		</effect>
+		<description>Defensiv-Kapazität für die Ganymed-Stationen</description>
+	</item>
+
+	<!-- 405 - Ganymed Waffen IV - Raketen -->
+	<item id="405" cargo="2000" accesslevel="5">
+		<name>Ganymed Waffen IV - Raketen</name>
+		<picture>module/generic/generic_off.png</picture>
+		<quality>artifact</quality>
+		<effect type="module">
+			<slot id="weapon_ganystation" />
+			<shipdata>
+				<shd:crew value="100" />
+				<shd:weapons>
+					<shd:weapon name="lrraketen" count="10" maxheat="100" />
+				</shd:weapons>
+			</shipdata>
+		</effect>
+		<description>Defensiv-Kapazität für die Ganymed-Stationen</description>
+	</item>
+
+	<!-- 406 - Cargo-Booster + 50 K -->
+	<item id="406" cargo="100" accesslevel="5">
+		<name>Cargo-Booster + 50 K</name>
+		<picture>module/cargobooster_10k.png</picture>
+		<large-picture>module/cargobooster_10k_large.png</large-picture>
+		<effect type="module">
+			<slot id="misc_large" />
+			<shipdata>
+				<shd:cargo value="50000" />
+			</shipdata>
+		</effect>
+		<description>Laderaumerweiterung für entsprechend grosse Schiffe</description>
+	</item>
+
+	<!-- 407 - Cargo-Booster + 100 K -->
+	<item id="407" cargo="100" accesslevel="5">
+		<name>Cargo-Booster + 100 K</name>
+		<picture>module/cargobooster_10k.png</picture>
+		<large-picture>module/cargobooster_10k_large.png</large-picture>
+		<effect type="module">
+			<slot id="misc_large" />
+			<shipdata>
+				<shd:cargo value="100000" />
+			</shipdata>
+		</effect>
+		<description>Laderaumerweiterung für entsprechend grosse Schiffe</description>
+	</item>
+
+	<!-- 408 - NPC-Hilfe: Flag Abfangen -->
+	<item id="408" cargo="0" accesslevel="5">
+		<name>NPC-Hilfe: Flag Abfangen</name>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:flags>
+					<shd:set name="abfangen" />
+				</shd:flags>
+			</shipdata>
+		</effect>
+		<description>NPC-Hilfe: Flag Abfangen</description>
+	</item>
+
+	<!-- 409 - NPC-Hilfe: Flag Sehr_Klein -->
+	<item id="409" cargo="0" accesslevel="5">
+		<name>NPC-Hilfe: Flag Sehr_Klein</name>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:flags>
+					<shd:set name="sehr_klein" />
+				</shd:flags>
+			</shipdata>
+		</effect>
+		<description>NPC-Hilfe: Flag Sehr_Klein</description>
+	</item>
+
+	<!-- 410 - NPC-Hilfe: Flag Instant_Enter -->
+	<item id="410" cargo="0" accesslevel="5">
+		<name>NPC-Hilfe: Flag Instant_Enter</name>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:flags>
+					<shd:set name="instant_battle_enter" />
+				</shd:flags>
+			</shipdata>
+		</effect>
+		<description>NPC-Hilfe: Flag Instant_Enter</description>
+	</item>
+
+	<!-- 411 - Rüstset Korvette (Deimos) -->
+	<item id="411" cargo="50" accesslevel="5">
+		<name>Rüstset Korvette (Deimos)</name>
+		<picture>module/generic/generic_off.png</picture>
+		<quality>rare</quality>
+		<effect type="module">
+			<slot id="terran_corvette_upgrade" />
+			<shipdata>
+				<shd:weapons>
+					<shd:weapon name="TerSlash" count="1" maxheat="10" />
+					<shd:weapon name="Terran_Turret" count="-6" maxheat="0" />
+					<shd:weapon name="standard_flak" count="2" maxheat="50" />
+					<shd:weapon name="AAAf" count="1" maxheat="30" />
+					<shd:weapon name="raketen" count="2" maxheat="20" />
+				</shd:weapons>
+				<shd:panzerung value="6" />
+				<shd:cargo value="1000" />
+				<shd:heat value="-2" />
+				<shd:cost value="-1" />
+				<shd:eps value="200" />
+				<shd:rm value="150" />
+				<shd:ru value="4" />
+				<shd:rd value="10" />
+				<shd:ra value="40" />
+			</shipdata>
+		</effect>
+		<description>Rüstset für Korvette (Deimos)</description>
+	</item>
+
+	<!-- 412 - NPC-Hilfe: Crewboost -->
+	<item id="412" cargo="0" accesslevel="5">
+		<name>NPC-Hilfe: Crewboost</name>
+		<picture>open.gif</picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:crew value="500" />
+			</shipdata>
+		</effect>
+		<description>NPC-Hilfe: Crewboost</description>
+	</item>
+
+	<!-- 413 - NPC-Hilfe: Externes Dock -->
+	<item id="413" cargo="0" accesslevel="5">
+		<name>NPC-Hilfe: Externes Dock</name>
+		<picture>open.gif</picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:adocks value="1" />
+			</shipdata>
+		</effect>
+		<description>NPC-Hilfe: Externes Dock</description>
+	</item>
+
+	<!-- 414 - NPC-Hilfe: 500 Cargoboost -->
+	<item id="414" cargo="0" accesslevel="5">
+		<name>NPC-Hilfe: 500 Cargoboost</name>
+		<picture>open.gif</picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:cargo value="500" />
+			</shipdata>
+		</effect>
+		<description>NPC-Hilfe: 500 Cargoboost</description>
+	</item>
+
+	<!-- 415 - Rüstset für Träger (Kottos) -->
+	<item id="415" cargo="0">
+		<name>Rüstset für Träger Kottos</name>
+		<picture>module/generic/generic_off.png</picture>
+		<quality>rare</quality>
+		<effect type="module">
+			<slot id="misc_kottos" />
+			<shipdata>
+				<shd:sensorrange value="4" />
+				<shd:rm value="165" />
+				<shd:cost value="-1" />
+				<shd:heat value="-1" />
+				<shd:cargo value="1000" />
+				<shd:eps value="200" />
+				<shd:ru value="4" />
+				<shd:rd value="12" />
+				<shd:crew value="50" />
+				<shd:jdocks value="2" />
+				<shd:weapons>
+					<shd:weapon name="TerSlash" count="2" maxheat="10" />
+					<shd:weapon name="AAAf" count="3" maxheat="24" />
+				</shd:weapons>
+			</shipdata>
+		</effect>
+	</item>
+
+	<!-- 416 - Rüstset Arcadia -->
+	<item id="416" cargo="0">
+		<name>Rüstset für Arcadia Station</name>
+		<picture>module/generic/generic_off.png</picture>
+		<quality>rare</quality>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:sensorrange value="4" />
+				<shd:rm value="165" />
+				<shd:cost value="10000" />
+				<shd:heat value="1000" />
+				<shd:cargo value="50000" />
+				<shd:eps value="1300" />
+				<shd:hydro value="25000" />
+				<shd:crew value="6000" />
+				<shd:jdocks value="25" />
+			</shipdata>
+		</effect>
+	</item>
+
+	<!-- 417 - NPC-Hilfe: +500K Cargoboost -->
+	<item id="417" cargo="0" accesslevel="5">
+		<name>NPC-Hilfe: +500K Cargoboost</name>
+		<picture>open.gif</picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:cargo value="500000" />
+			</shipdata>
+		</effect>
+		<description>NPC-Hilfe: 500K Cargoboost</description>
+	</item>
+
+	<!-- 418 - NPC-Hilfe: +1M Cargoboost -->
+	<item id="418" cargo="0" accesslevel="5">
+		<name>NPC-Hilfe: +1M Cargoboost</name>
+		<picture>open.gif</picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:cargo value="1000000" />
+			</shipdata>
+		</effect>
+		<description>NPC-Hilfe: 1M Cargoboost</description>
+	</item>
+
+	<!-- 419 - NPC-Hilfe: +5M Cargoboost -->
+	<item id="419" cargo="0" accesslevel="5">
+		<name>NPC-Hilfe: +5M Cargoboost</name>
+		<picture>open.gif</picture>
+		<effect type="module">
+			<slot id="misc" />
+			<shipdata>
+				<shd:cargo value="5000000" />
+			</shipdata>
+		</effect>
+		<description>NPC-Hilfe: 5M Cargoboost</description>
+	</item>
+
+	<!-- 420 - Panzerplatten -->
+	<item id="420" cargo="10">
+		<name>Panzerplatten</name>
+		<picture>module/panzerplatte/panzerplatte.png</picture>
+		<large-picture>module/panzerplatte/panzerplatte_large.png</large-picture>
+		<effect type="module">
+			<slot id="armour" />
+			<shipdata>
+
+				<shd:ablativearmor value="2000" />
+
+			</shipdata>
+		</effect>
+		<description>Dieser Satz Standardpanzerplatten kann auf nahezu jedes Schiff montiert werden.</description>
+	</item>
+
+	<!-- 421 - Panzerplatten aus Adamatium -->
+	<item id="421" cargo="10">
+		<name>Panzerplatten aus Adamatium</name>
+		<picture>module/panzerplatte/panzerplatte_adamatium.png</picture>
+		<large-picture>module/panzerplatte/panzerplatte_adamatium_large.png</large-picture>
+		<effect type="module">
+			<slot id="armour" />
+			<shipdata>
+
+				<shd:ablativearmor value="2500" />
+				<shd:hull value="500" />
+			</shipdata>
+		</effect>
+		<description>Ein Satz Panzerplatten aus gehärtetem Adamatium. Sehr wiederstandsfähig und verringert überdies die Wirkung von Disruptoren</description>
+	</item>
+
+	<!-- 422 - Panzerplatten aus Xentronium -->
+	<item id="422" cargo="10">
+		<name>Panzerplatten aus Xentronium</name>
+		<picture>module/panzerplatte/panzerplatte_xentronium.png</picture>
+		<large-picture>module/panzerplatte/panzerplatte_xentronium_large.png</large-picture>
+		<effect type="module">
+			<slot id="armour" />
+			<shipdata>
+
+				<shd:ablativearmor value="3000" />
+				<shd:hull value="1000" />
+			</shipdata>
+		</effect>
+		<description>Ein Satz Panzerplatten aus gehärtetem Xentronium. Usprünglich nicht für Zivilisten zugänglich, sind sie mittlerweile auch für Kolonisten baubar</description>
+	</item>
+
+	<!-- 423 - Antaritpanzerplatten -->
+	<item id="423" cargo="10">
+		<name>Antaritpanzerplatten</name>
+		<picture>module/panzerplatte/panzerplatte_antarit.png</picture>
+		<large-picture>module/panzerplatte/panzerplatte_antarit_large.png</large-picture>
+		<quality>rare</quality>
+		<effect type="module">
+			<slot id="armour" />
+			<shipdata>
+
+				<shd:ablativearmor value="5000" />
+				<shd:hull value="1500" />
+			</shipdata>
+		</effect>
+		<description>Diese extrem teuren Panzerplatten aus einer speziell gehärteten Antarit-Xentronium-Legierung sind das Non-Plus-Ultra der GCP-Technik</description>
+	</item>
+
+	<!-- 424 - Shivanische Panzerplatten -->
+	<item id="424" cargo="10">
+		<name>Shivanische Panzerplatten</name>
+		<picture>module/panzerplatte/panzerplatte_shiv.png</picture>
+		<large-picture>module/panzerplatte/panzerplatte_shiv_large.png</large-picture>
+		<quality>rare</quality>
+		<effect type="module">
+			<slot id="armour" />
+			<shipdata>
+
+				<shd:ablativearmor value="6000" />
+				<shd:hull value="2000" />
+			</shipdata>
+		</effect>
+		<description>Gefertigt aus einer komplett unbekannten Legierung sind sie wiederstandsfähiger als alles bisher bekannte</description>
+	</item>
+
+	<!-- 425 - Panzerplatten der Uralten -->
+	<item id="425" cargo="10">
+		<name>Panzerplatten der Uralten</name>
+		<picture>module/panzerplatte/panzerplatte_ancient.png</picture>
+		<large-picture>module/panzerplatte/panzerplatte_ancient_large.png</large-picture>
+		<quality>ultra-rare</quality>
+		<effect type="module">
+			<slot id="armour" />
+			<shipdata>
+
+				<shd:ablativearmor value="8000" />
+				<shd:hull value="3000" />
+			</shipdata>
+		</effect>
+		<description>Viele Gerüchte ranken sich um die Panzerungstechnologie der Uralten. Da die Uralten über keinerlei Schildtechnologie verfügten ist sie aber vermutlich allem bekannten überlegen gewesen</description>
+	</item>
+
+	<!-- 426 - Verbeulte Panzerplatten -->
+	<item id="426" cargo="10">
+		<name>Verbeulte Panzerplatten</name>
+		<picture>module/panzerplatte/panzerplatte_verbeult.png</picture>
+		<large-picture>module/panzerplatte/panzerplatte_verbeult_large.png</large-picture>
+		<effect type="module">
+			<slot id="armour" />
+			<shipdata>
+
+				<shd:ablativearmor value="1000" />
+
+			</shipdata>
+		</effect>
+		<description>Von irgendeinem Schrotthändler aufgetrieben, erhöhen diese Panzerplatten leicht die Panzerung.</description>
+	</item>
+
+	<!-- 427 - EMP-Scan-Modul -->
+	<item id="427" cargo="5">
+		<name>EMP-Tracking-Modul</name>
+		<picture>module/sensorrange.png</picture>
+		<effect type="module">
+			<slot id="miscawacs" />
+			<shipdata>
+				<shd:lostInEmpChance value="-0.25" />
+				<shd:cargo value="-10" />
+			</shipdata>
+		</effect>
+		<description>Verbessertes Tracking erlaubt sichereres Navigieren in EMP-Nebeln.</description>
+	</item>
+
+
+
+	<!-- 995 - HoL - Schrein des Opferns -->
+	<item id="995" cargo="0" accesslevel="5">
+		<name>HoL - Schrein des Opferns</name>
+		<quality>epic</quality>
+		<effect type="module-set-meta">
+			<name>HoL - Schrein des Opferns</name>
+			<combo item-count="3">
+				<shd:hull value="50000" />
+				<shd:panzerung value="5" />
+				<shd:eps value="100" />
+				<shd:rm value="50" />
+				<shd:ru value="4" />
+				<shd:rd value="5" />
+				<shd:ra value="20" />
+				<shd:crew value="1000" />
+				<shd:sensorrange value="2" />
+				<shd:cargo value="2500" />
+				<shd:flags>
+					<shd:set name="srs_ext_awac" />
+					<shd:set name="nicht_pluenderbar" />
+				</shd:flags>
+			</combo>
+			<combo item-count="5">
+				<shd:hull value="100000" />
+				<shd:panzerung value="10" />
+				<shd:eps value="200" />
+				<shd:rm value="80" />
+				<shd:ru value="8" />
+				<shd:rd value="10" />
+				<shd:ra value="30" />
+				<shd:jdocks value="10" />
+				<shd:cost value="-1" />
+				<shd:crew value="2000" />
+				<shd:sensorrange value="3" />
+				<shd:cargo value="5000" />
+				<shd:flags>
+					<shd:set name="srs_ext_awac" />
+					<shd:set name="nicht_pluenderbar" />
+					<shd:set name="instant_battle_enter" />
+				</shd:flags>
+			</combo>
+			<combo item-count="6">
+				<shd:hull value="200000" />
+				<shd:panzerung value="15" />
+				<shd:eps value="800" />
+				<shd:rm value="100" />
+				<shd:ru value="12" />
+				<shd:rd value="15" />
+				<shd:ra value="50" />
+				<shd:jdocks value="20" />
+				<shd:cost value="-2" />
+				<shd:heat value="-1" />
+				<shd:crew value="3000" />
+				<shd:sensorrange value="6" />
+				<shd:cargo value="10500" />
+				<shd:flags>
+					<shd:set name="srs_ext_awac" />
+					<shd:set name="sehr_klein" />
+					<shd:set name="nicht_pluenderbar" />
+					<shd:set name="instant_battle_enter" />
+				</shd:flags>
+			</combo>
+			<combo item-count="7">
+				<shd:hull value="200000" />
+				<shd:panzerung value="40" />
+				<shd:weapons>
+					<shd:weapon name="set_hol_shrine_of_sacrifice" count="1" maxheat="1" />
+				</shd:weapons>
+				<shd:eps value="2200" />
+				<shd:rm value="200" />
+				<shd:ru value="16" />
+				<shd:rd value="25" />
+				<shd:ra value="100" />
+				<shd:jdocks value="35" />
+				<shd:cost value="-3" />
+				<shd:heat value="-2" />
+				<shd:crew value="6000" />
+				<shd:sensorrange value="12" />
+				<shd:cargo value="70000" />
+				<shd:picture_mod value="hol" />
+				<shd:flags>
+					<shd:set name="srs_ext_awac" />
+					<shd:set name="sehr_klein" />
+					<shd:set name="jumpdrive_shivan" />
+					<shd:set name="nicht_kaperbar" />
+					<shd:set name="nicht_pluenderbar" />
+					<shd:set name="instant_battle_enter" />
+				</shd:flags>
+			</combo>
+		</effect>
+		<description>Das Meta-Set-Item für das Set HoL - Schrein des Opferns (Typhon)</description>
+	</item>
+
+	<!-- 996 - Set Zacharys Life Insurrance [Hecate] -->
+	<item id="996" cargo="0" accesslevel="5">
+		<name>Set Zacharys Life Insurrance [Hecate]</name>
+		<quality>epic</quality>
+		<effect type="module-set-meta">
+			<name>Zacharys Life Insurrance</name>
+			<combo item-count="7">
+				<shd:hull value="1500000" />
+				<shd:maxheat>
+					<shd:weapon name="standard_flak" maxheat="120" />
+					<shd:weapon name="heavy_flak" maxheat="80" />
+					<shd:weapon name="AAAf" maxheat="120" />
+					<shd:weapon name="BGreen" maxheat="40" />
+				</shd:maxheat>
+				<shd:eps value="2000" />
+				<shd:rm value="1250" />
+				<shd:picture_mod value="kommandosparkle" />
+			</combo>
+		</effect>
+		<description>Das Meta-Set-Item für das Set Zacharys Life Insurrance</description>
+	</item>
+
+	<!-- 997 - Sieben Sünden -->
+	<item id="997" cargo="0" accesslevel="15">
+		<name>Sieben Sünden</name>
+		<quality>epic</quality>
+		<effect type="module-set-meta">
+			<name>Sieben Sünden</name>
+			<combo item-count="7">
+				<shd:hull value="105000" />
+				<shd:panzerung value="40" />
+				<shd:weapons>
+					<shd:weapon name="BVas" count="8" maxheat="80" />
+					<shd:weapon name="heavy_flak" count="10" maxheat="100" />
+					<shd:weapon name="AAAf" count="6" maxheat="60" />
+					<shd:weapon name="set_ewige_verdammnis" count="1" maxheat="3" />
+				</shd:weapons>
+				<shd:eps value="3200" />
+				<shd:rm value="1500" />
+				<shd:ru value="25" />
+				<shd:rd value="75" />
+				<shd:ra value="300" />
+				<shd:jdocks value="60" />
+				<shd:cost value="-8" />
+				<shd:heat value="-8" />
+				<shd:sensorrange value="10" />
+				<shd:cargo value="10500" />
+				<shd:picture_mod value="setsiebensuenden" />
+			</combo>
+		</effect>
+		<description>Das Meta-Set-Item für das Set Sieben Sünden (Typhon)</description>
+	</item>
+
+	<!-- 998 - GCP Advanced Technology -->
+	<item id="998" cargo="0" accesslevel="5">
+		<name>GCP Advanced Technology</name>
+		<quality>epic</quality>
+		<effect type="module-set-meta">
+			<name>GCP Advanced Technology</name>
+			<combo item-count="4">
+				<shd:eps value="500" />
+				<shd:sensorrange value="1" />
+			</combo>
+			<combo item-count="6">
+				<shd:eps value="1500" />
+				<shd:jdocks value="1" />
+				<shd:sensorrange value="3" />
+				<shd:panzerung value="10" />
+				<shd:flags>
+					<shd:set name="instant_battle_enter" />
+					<shd:set name="abfangen" />
+				</shd:flags>
+			</combo>
+		</effect>
+		<description>Das Meta-Set-Item für das Set GCP Advanced Technology</description>
+	</item>
+
+	<!-- 999 - Die große NPC-Hilfe -->
+	<item id="999" cargo="0" accesslevel="15">
+		<name>Die große NPC-Hilfe</name>
+		<quality>artifact</quality>
+		<effect type="module-set-meta">
+			<name>Die große NPC-Hilfe</name>
+			<combo item-count="2">
+				<shd:eps value="50" />
+				<shd:sensorrange value="1" />
+			</combo>
+			<combo item-count="3">
+				<shd:eps value="150" />
+				<shd:jdocks value="1" />
+				<shd:flags>
+					<shd:set name="nicht_pluenderbar" />
+				</shd:flags>
+			</combo>
+		</effect>
+		<description>Das Meta-Set-Item für die große NPC-Hilfe (Test-Set...nicht mehr und nicht weniger)</description>
+	</item>
+
 </items>
