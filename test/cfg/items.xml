@@ -1,230 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <items xmlns:res="http://www.drifting-souls.net/ds2/resources/2006" xmlns:shd="http://www.drifting-souls.net/ds2/shipdata/2006">
-	<!-- 1 - Bauplan: GTSG Alastor -->
-	<item id="1" cargo="10">
-		<name>Bauplan: GTSG Alastor</name>
-		<picture>buildalastor.png</picture>
-		<large-picture>buildalastor_large.gif</large-picture>
-		<effect type="draft-ship" shiptype="64" race="0" system-req="true" flagschiff="false">
-			<buildcosts>
-				<res:Kunststoffe count="43" />
-				<res:Titan count="48" />
-				<res:Adamatium count="12" />
-				<res:Platin count="27" />
-				<res:Silizium count="19" />
-				<res:Xentronium count="4" />
-				<crew count="0" />
-				<e count="91" />
-			</buildcosts>
-			<dauer count="3" />
-			<tech-req id="12" />
-			<werft-slots count="6" />
-		</effect>
-		<description>Bauplan
-des
-GTSG Alastor Spergeschützes</description>
-	</item>
-
-	<!-- 2 - IFF-Störsender -->
-	<item id="2" cargo="20">
-		<name>IFF-Störsender</name>
-		<effect type="disable-iff" />
-		<description>Dieser Gegenstand stört die IFF-Kennung des Schiffes
-und verhindert, das der Besitzer bekannt wird</description>
-	</item>
-
-	<!-- 3 - Menschliche Leiche -->
-	<item id="3" cargo="1">
-		<name>Menschliche Leiche</name>
-		<description>Die Leiche eines Terraners</description>
-	</item>
-
-	<!-- 4 - Vasudanische Leiche -->
-	<item id="4" cargo="1">
-		<name>Vasudanische Leiche</name>
-		<description>Die Leiche eines Vasudaners</description>
-	</item>
-
-	<!-- 5 - NTF-Boykott Ulysses -->
-	<item id="5" cargo="1">
-		<name>NTF-Boykott Ulysses</name>
-		<picture>falseulysses.png</picture>
-		<large-picture>falseulysses_large.png</large-picture>
-		<effect ally-effect="true" type="disable-ship" shiptype="56" />
-		<description>Die NTF besitzt keine Baupläne für die Jäger der Ulysses Klasse</description>
-	</item>
-
-	<!-- 6 - Ein RE -->
-	<item id="6" cargo="0" handel="true">
-		<name>Ein RE</name>
-		<picture>re.png</picture>
-		<description>Auch wenn der elektronische Geldtransfer eindeutig die Überhand gewonnen hat, gibt es auch weiterhin noch die ausgezahlte Form. Besonders beliebt ist diese Form, wenn keine Spuren hinterlassen werden sollen....</description>
-	</item>
-
-	<!-- 7 - Bauplan: GTF Perseus -->
-	<item id="7" cargo="10">
-		<name>Bauplan: GTF Perseus</name>
-		<picture>buildperseus.png</picture>
-		<large-picture>buildperseus_large.png</large-picture>
-		<effect type="draft-ship" shiptype="57" race="0" system-req="true" flagschiff="false">
-			<buildcosts>
-				<res:Kunststoffe count="152" />
-				<res:Titan count="84" />
-				<res:Adamatium count="56" />
-				<res:Platin count="104" />
-				<res:Silizium count="116" />
-				<res:Xentronium count="44" />
-				<res:Isochips count="8" />
-				<crew count="4" />
-				<e count="196" />
-			</buildcosts>
-			<dauer count="2" />
-			<werft-slots count="6" />
-		</effect>
-		<description>Dies sind die Baupläne der GTF Perseus</description>
-	</item>
-
-	<!-- 8 - Datendisk -->
-	<item id="8" cargo="5">
-		<name>Datendisk</name>
-		<picture>datadisk1.png</picture>
-		<description>Eine Datendisk kann große Mengen an Daten speichern</description>
-	</item>
-
-	<!-- 9 - NTF-Boykott Samurai -->
-	<item id="9" cargo="1">
-		<name>NTF-Boykott Samurai</name>
-		<picture>falsesamurai.png</picture>
-		<large-picture>falsesamurai_large.png</large-picture>
-		<effect ally-effect="true" type="disable-ship" shiptype="53" />
-		<description>Die NTF besitzt keine Baupläne für die Bomber der Samurai-Klasse</description>
-	</item>
-
-	<!-- 10 - NTF-Boykott Hercules MK2 -->
-	<item id="10" cargo="1">
-		<name>NTF-Boykott Hercules MK2</name>
-		<picture>falseherkmk2.png</picture>
-		<large-picture>falseherkmk2_large.png</large-picture>
-		<effect ally-effect="true" type="disable-ship" shiptype="70" />
-		<description>Die NTF besitzt keine Baupläne für den verbesserten Jäger der Hercules 2 Klasse</description>
-	</item>
-
-	<!-- 11 - Bauplan: GTF Ares -->
-	<item id="11" cargo="10">
-		<name>Bauplan: GTF Ares</name>
-		<picture>buildares.png</picture>
-		<large-picture>buildares_large.png</large-picture>
-		<effect type="draft-ship" shiptype="38" race="0" system-req="true" flagschiff="false">
-			<buildcosts>
-				<res:Kunststoffe count="68" />
-				<res:Titan count="92" />
-				<res:Adamatium count="92" />
-				<res:Platin count="112" />
-				<res:Silizium count="108" />
-				<res:Xentronium count="128" />
-				<res:Isochips count="12" />
-				<res:Antarit count="48" />
-				<crew count="4" />
-				<e count="272" />
-			</buildcosts>
-			<dauer count="4" />
-			<werft-slots count="6" />
-		</effect>
-		<description>Dies sind die Baupläne der GTF Ares</description>
-	</item>
-
-	<!-- 12 - Bauplan: GTF Myrmidon -->
-	<item id="12" cargo="10">
-		<name>Bauplan: GTF Myrmidon</name>
-		<picture>buildmyrmidon.png</picture>
-		<large-picture>buildmyrmidon_large.png</large-picture>
-		<effect type="draft-ship" shiptype="66" race="0" system-req="true" flagschiff="false">
-			<buildcosts>
-				<res:Kunststoffe count="152" />
-				<res:Titan count="72" />
-				<res:Adamatium count="96" />
-				<res:Platin count="104" />
-				<res:Silizium count="116" />
-				<res:Xentronium count="44" />
-				<res:Isochips count="8" />
-				<crew count="4" />
-				<e count="112" />
-			</buildcosts>
-			<dauer count="3" />
-			<werft-slots count="6" />
-		</effect>
-		<description>Dies sind die Baupläne der GTF Myrmidon</description>
-	</item>
-
-	<!-- 13 - Bauplan: GVB Osiris -->
-	<item id="13" cargo="10">
-		<name>Bauplan: GVB Osiris</name>
-		<picture>buildosiris.png</picture>
-		<large-picture>buildosiris_large.png</large-picture>
-		<effect type="draft-ship" shiptype="67" race="0" system-req="true" flagschiff="false">
-			<buildcosts>
-				<res:Kunststoffe count="152" />
-				<res:Titan count="112" />
-				<res:Adamatium count="96" />
-				<res:Platin count="104" />
-				<res:Silizium count="116" />
-				<res:Xentronium count="124" />
-				<res:Isochips count="12" />
-				<crew count="12" />
-				<e count="120" />
-			</buildcosts>
-			<dauer count="3" />
-			<werft-slots count="6" />
-		</effect>
-		<description>Dies sind die Baupläne der GVB Osiris</description>
-	</item>
-
-	<!-- 14 - Bauplan: GTF Batis -->
-	<item id="14" cargo="10">
-		<name>Bauplan: GTF Batis</name>
-		<picture>buildbatis.png</picture>
-		<large-picture>buildbatis_large.png</large-picture>
-		<effect type="draft-ship" shiptype="55" race="0" system-req="true" flagschiff="false">
-			<buildcosts>
-				<res:Kunststoffe count="360" />
-				<res:Titan count="600" />
-				<res:Adamatium count="240" />
-				<res:Platin count="320" />
-				<res:Silizium count="720" />
-				<res:Xentronium count="396" />
-				<res:Isochips count="20" />
-				<crew count="4" />
-				<e count="348" />
-			</buildcosts>
-			<dauer count="7" />
-			<werft-slots count="6" />
-		</effect>
-		<description>Dies ist der Bauplan für die GTF Batis</description>
-	</item>
-
-	<!-- 15 - Bauplan: GTF Hercules -->
-	<item id="15" cargo="10">
-		<name>Bauplan: GTF Hercules</name>
-		<picture>buildhercules.png</picture>
-		<large-picture>buildhercules_large.png</large-picture>
-		<effect type="draft-ship" shiptype="72" race="0" system-req="true" flagschiff="false">
-			<buildcosts>
-				<res:Kunststoffe count="100" />
-				<res:Titan count="100" />
-				<res:Adamatium count="16" />
-				<res:Platin count="48" />
-				<res:Silizium count="56" />
-				<res:Xentronium count="32" />
-				<res:Isochips count="4" />
-				<crew count="4" />
-				<e count="68" />
-			</buildcosts>
-			<dauer count="3" />
-			<werft-slots count="6" />
-		</effect>
-		<description>Dies ist der Bauplan für die GTF Hercules Mk I</description>
-	</item>
-
 	<!-- 16 - Nahrung -->
 	<item id="16" cargo="1">
 		<name>Nahrung</name>
@@ -569,6 +344,230 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<description>Werkzeug - alles, was beim Bau von Gebäuden, Fahrzeugen oder Schiffen an Material verbaut wird, wird mit Bohrern, Sägeblättern, Feilen oder ähnlichem bearbeitet. Unter Werkzeug fällt dieses gesamte Verbrauchsmaterial. Böse Zungen behaupten, darunter fielen auch Bier und Donuts.</description>
 	</item>
 
+	<!-- 1 - Bauplan: GTSG Alastor -->
+	<item id="1" cargo="10">
+		<name>Bauplan: GTSG Alastor</name>
+		<picture>buildalastor.png</picture>
+		<large-picture>buildalastor_large.gif</large-picture>
+		<effect type="draft-ship" shiptype="64" race="0" system-req="true" flagschiff="false">
+			<buildcosts>
+				<res:Kunststoffe count="43" />
+				<res:Titan count="48" />
+				<res:Adamatium count="12" />
+				<res:Platin count="27" />
+				<res:Silizium count="19" />
+				<res:Xentronium count="4" />
+				<crew count="0" />
+				<e count="91" />
+			</buildcosts>
+			<dauer count="3" />
+			<tech-req id="12" />
+			<werft-slots count="6" />
+		</effect>
+		<description>Bauplan
+des
+GTSG Alastor Spergeschützes</description>
+	</item>
+
+	<!-- 2 - IFF-Störsender -->
+	<item id="2" cargo="20">
+		<name>IFF-Störsender</name>
+		<effect type="disable-iff" />
+		<description>Dieser Gegenstand stört die IFF-Kennung des Schiffes
+und verhindert, das der Besitzer bekannt wird</description>
+	</item>
+
+	<!-- 3 - Menschliche Leiche -->
+	<item id="3" cargo="1">
+		<name>Menschliche Leiche</name>
+		<description>Die Leiche eines Terraners</description>
+	</item>
+
+	<!-- 4 - Vasudanische Leiche -->
+	<item id="4" cargo="1">
+		<name>Vasudanische Leiche</name>
+		<description>Die Leiche eines Vasudaners</description>
+	</item>
+
+	<!-- 5 - NTF-Boykott Ulysses -->
+	<item id="5" cargo="1">
+		<name>NTF-Boykott Ulysses</name>
+		<picture>falseulysses.png</picture>
+		<large-picture>falseulysses_large.png</large-picture>
+		<effect ally-effect="true" type="disable-ship" shiptype="56" />
+		<description>Die NTF besitzt keine Baupläne für die Jäger der Ulysses Klasse</description>
+	</item>
+
+	<!-- 6 - Ein RE -->
+	<item id="6" cargo="0" handel="true">
+		<name>Ein RE</name>
+		<picture>re.png</picture>
+		<description>Auch wenn der elektronische Geldtransfer eindeutig die Überhand gewonnen hat, gibt es auch weiterhin noch die ausgezahlte Form. Besonders beliebt ist diese Form, wenn keine Spuren hinterlassen werden sollen....</description>
+	</item>
+
+	<!-- 7 - Bauplan: GTF Perseus -->
+	<item id="7" cargo="10">
+		<name>Bauplan: GTF Perseus</name>
+		<picture>buildperseus.png</picture>
+		<large-picture>buildperseus_large.png</large-picture>
+		<effect type="draft-ship" shiptype="57" race="0" system-req="true" flagschiff="false">
+			<buildcosts>
+				<res:Kunststoffe count="152" />
+				<res:Titan count="84" />
+				<res:Adamatium count="56" />
+				<res:Platin count="104" />
+				<res:Silizium count="116" />
+				<res:Xentronium count="44" />
+				<res:Isochips count="8" />
+				<crew count="4" />
+				<e count="196" />
+			</buildcosts>
+			<dauer count="2" />
+			<werft-slots count="6" />
+		</effect>
+		<description>Dies sind die Baupläne der GTF Perseus</description>
+	</item>
+
+	<!-- 8 - Datendisk -->
+	<item id="8" cargo="5">
+		<name>Datendisk</name>
+		<picture>datadisk1.png</picture>
+		<description>Eine Datendisk kann große Mengen an Daten speichern</description>
+	</item>
+
+	<!-- 9 - NTF-Boykott Samurai -->
+	<item id="9" cargo="1">
+		<name>NTF-Boykott Samurai</name>
+		<picture>falsesamurai.png</picture>
+		<large-picture>falsesamurai_large.png</large-picture>
+		<effect ally-effect="true" type="disable-ship" shiptype="53" />
+		<description>Die NTF besitzt keine Baupläne für die Bomber der Samurai-Klasse</description>
+	</item>
+
+	<!-- 10 - NTF-Boykott Hercules MK2 -->
+	<item id="10" cargo="1">
+		<name>NTF-Boykott Hercules MK2</name>
+		<picture>falseherkmk2.png</picture>
+		<large-picture>falseherkmk2_large.png</large-picture>
+		<effect ally-effect="true" type="disable-ship" shiptype="70" />
+		<description>Die NTF besitzt keine Baupläne für den verbesserten Jäger der Hercules 2 Klasse</description>
+	</item>
+
+	<!-- 11 - Bauplan: GTF Ares -->
+	<item id="11" cargo="10">
+		<name>Bauplan: GTF Ares</name>
+		<picture>buildares.png</picture>
+		<large-picture>buildares_large.png</large-picture>
+		<effect type="draft-ship" shiptype="38" race="0" system-req="true" flagschiff="false">
+			<buildcosts>
+				<res:Kunststoffe count="68" />
+				<res:Titan count="92" />
+				<res:Adamatium count="92" />
+				<res:Platin count="112" />
+				<res:Silizium count="108" />
+				<res:Xentronium count="128" />
+				<res:Isochips count="12" />
+				<res:Antarit count="48" />
+				<crew count="4" />
+				<e count="272" />
+			</buildcosts>
+			<dauer count="4" />
+			<werft-slots count="6" />
+		</effect>
+		<description>Dies sind die Baupläne der GTF Ares</description>
+	</item>
+
+	<!-- 12 - Bauplan: GTF Myrmidon -->
+	<item id="12" cargo="10">
+		<name>Bauplan: GTF Myrmidon</name>
+		<picture>buildmyrmidon.png</picture>
+		<large-picture>buildmyrmidon_large.png</large-picture>
+		<effect type="draft-ship" shiptype="66" race="0" system-req="true" flagschiff="false">
+			<buildcosts>
+				<res:Kunststoffe count="152" />
+				<res:Titan count="72" />
+				<res:Adamatium count="96" />
+				<res:Platin count="104" />
+				<res:Silizium count="116" />
+				<res:Xentronium count="44" />
+				<res:Isochips count="8" />
+				<crew count="4" />
+				<e count="112" />
+			</buildcosts>
+			<dauer count="3" />
+			<werft-slots count="6" />
+		</effect>
+		<description>Dies sind die Baupläne der GTF Myrmidon</description>
+	</item>
+
+	<!-- 13 - Bauplan: GVB Osiris -->
+	<item id="13" cargo="10">
+		<name>Bauplan: GVB Osiris</name>
+		<picture>buildosiris.png</picture>
+		<large-picture>buildosiris_large.png</large-picture>
+		<effect type="draft-ship" shiptype="67" race="0" system-req="true" flagschiff="false">
+			<buildcosts>
+				<res:Kunststoffe count="152" />
+				<res:Titan count="112" />
+				<res:Adamatium count="96" />
+				<res:Platin count="104" />
+				<res:Silizium count="116" />
+				<res:Xentronium count="124" />
+				<res:Isochips count="12" />
+				<crew count="12" />
+				<e count="120" />
+			</buildcosts>
+			<dauer count="3" />
+			<werft-slots count="6" />
+		</effect>
+		<description>Dies sind die Baupläne der GVB Osiris</description>
+	</item>
+
+	<!-- 14 - Bauplan: GTF Batis -->
+	<item id="14" cargo="10">
+		<name>Bauplan: GTF Batis</name>
+		<picture>buildbatis.png</picture>
+		<large-picture>buildbatis_large.png</large-picture>
+		<effect type="draft-ship" shiptype="55" race="0" system-req="true" flagschiff="false">
+			<buildcosts>
+				<res:Kunststoffe count="360" />
+				<res:Titan count="600" />
+				<res:Adamatium count="240" />
+				<res:Platin count="320" />
+				<res:Silizium count="720" />
+				<res:Xentronium count="396" />
+				<res:Isochips count="20" />
+				<crew count="4" />
+				<e count="348" />
+			</buildcosts>
+			<dauer count="7" />
+			<werft-slots count="6" />
+		</effect>
+		<description>Dies ist der Bauplan für die GTF Batis</description>
+	</item>
+
+	<!-- 15 - Bauplan: GTF Hercules -->
+	<item id="15" cargo="10">
+		<name>Bauplan: GTF Hercules</name>
+		<picture>buildhercules.png</picture>
+		<large-picture>buildhercules_large.png</large-picture>
+		<effect type="draft-ship" shiptype="72" race="0" system-req="true" flagschiff="false">
+			<buildcosts>
+				<res:Kunststoffe count="100" />
+				<res:Titan count="100" />
+				<res:Adamatium count="16" />
+				<res:Platin count="48" />
+				<res:Silizium count="56" />
+				<res:Xentronium count="32" />
+				<res:Isochips count="4" />
+				<crew count="4" />
+				<e count="68" />
+			</buildcosts>
+			<dauer count="3" />
+			<werft-slots count="6" />
+		</effect>
+		<description>Dies ist der Bauplan für die GTF Hercules Mk I</description>
+	</item>
 
 	<!-- 150 - Flakmagazine -->
 	<item id="150" cargo="1" handel="true">
