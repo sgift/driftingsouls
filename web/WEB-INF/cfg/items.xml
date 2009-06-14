@@ -112,12 +112,12 @@
 		<description>Eis</description>
 	</item>
 
-	<!-- 30 - Öl -->
+	<!-- 30 - oel -->
 	<item id="30" cargo="1">
-		<name>Öl</name>
+		<name>oel</name>
 		<picture>open.gif</picture>
 				<large-picture>open.gif</large-picture>
-		<description>Öl</description>
+		<description>oel</description>
 	</item>
 
 	<!-- 31 - Kerosin -->
@@ -176,12 +176,12 @@
 		<description>Artefakt der Uralten</description>
 	</item>
 
-	<!-- 40 - Böser Admin -->
+	<!-- 40 - Boeser Admin -->
 	<item id="40" cargo="1">
-		<name>Böser Admin</name>
+		<name>Boeser Admin</name>
 		<picture>data/resources/Soldaten.gif</picture>
 				<large-picture>data/resources/Soldaten.gif</large-picture>
-		<description>Böser Admin</description>
+		<description>Boeser Admin</description>
 	</item>
 
 	<!-- 41 - Vasu-Cola -->
@@ -189,7 +189,7 @@
 		<name>Vasu-Cola</name>
 		<picture>module/vasucola.png</picture>
 		<large-picture>module/vasucola_large.png</large-picture>
-		<description>Ein ganzer Container dieses berühmten Erfrischungsgetränkes</description>
+		<description>Ein ganzer Container dieses beruehmten Erfrischungsgetraenkes</description>
 	</item>
 
 	<!-- 42 - Bier -->
@@ -197,7 +197,7 @@
 		<name>Centauri Bier</name>
 		<picture>module/bier.png</picture>
 		<large-picture>module/bier_large.png</large-picture>
-		<description>Ein ganzer Container dieses berühmten Erfrischungsgetränkes</description>
+		<description>Ein ganzer Container dieses beruehmten Erfrischungsgetraenkes</description>
 	</item>
 
 	<!-- 43 - Wazefag -->
@@ -205,7 +205,7 @@
 		<name>Wazefag</name>
 		<picture>module/wazefag.png</picture>
 		<large-picture>module/wazefag_large.png</large-picture>
-		<description>Ein lebendes Wazefag. Der Name dieses denebolanischen Tieres geht auf den Ausruf bei seiner ersten Sichtung auf Deneb II zurück. Wazefags sind sehr angriffslustig geben aber prima Steaks ... Der Transport der Tiere ohne entsprende Vorsichtsmaßnahmen ist nicht zu empfehlen!</description>
+		<description>Ein lebendes Wazefag. Der Name dieses denebolanischen Tieres geht auf den Ausruf bei seiner ersten Sichtung auf Deneb II zurueck. Wazefags sind sehr angriffslustig geben aber prima Steaks ... Der Transport der Tiere ohne entsprende Vorsichtsmaßnahmen ist nicht zu empfehlen!</description>
 	</item>
 
 	<!-- 44 - Ganelho -->
@@ -213,7 +213,7 @@
 		<name>Ganelho</name>
 		<picture>module/echse.png</picture>
 		<large-picture>module/echse_large.png</large-picture>
-		<description>Ein lebendes Ganelho. Auch sie sind für ihre kulinarische Verwertbarkeit sehr geschätzt. Da sie sich in Gefangenschaft kaum vermehren sind sie allerdings auch sehr teuer. Keine klassische Festtafel ohne zarte Ganelho-Filets. Einmal der Gefangenschaft entronnen, lassen sie sich selten wieder einfangen.</description>
+		<description>Ein lebendes Ganelho. Auch sie sind fuer ihre kulinarische Verwertbarkeit sehr geschaetzt. Da sie sich in Gefangenschaft kaum vermehren sind sie allerdings auch sehr teuer. Keine klassische Festtafel ohne zarte Ganelho-Filets. Einmal der Gefangenschaft entronnen, lassen sie sich selten wieder einfangen.</description>
 	</item>
 
 	<!-- 45 - Headz -->
@@ -221,7 +221,7 @@
 		<name>Headz</name>
 		<picture>module/headz.png</picture>
 		<large-picture>module/headz_large.png</large-picture>
-		<description>Ein Kühlcontainer mit einer merkwürdigen vasudanischen Spezialität.</description>
+		<description>Ein Kuehlcontainer mit einer merkwuerdigen vasudanischen Spezialitaet.</description>
 	</item>
 
 	<!-- 46 - Deli -->
@@ -229,7 +229,7 @@
 		<name>Delikatessenkonserve</name>
 		<picture>module/dose.png</picture>
 		<large-picture>module/dose_large.png</large-picture>
-		<description>Ein Kühlcontainer mit einer merkwürdigen terranischen Spezialität.</description>
+		<description>Ein Kuehlcontainer mit einer merkwuerdigen terranischen Spezialitaet.</description>
 	</item>
 
 	<!-- 47 - Neurostim -->
@@ -237,7 +237,7 @@
 		<name>NeuroStim</name>
 		<picture>module/neurostim.png</picture>
 		<large-picture>module/neurostim_large.png</large-picture>
-		<description>Ein Kühlcontainer mit einer Ladung Nervenstimulantien. Sie sind für den Gebrauch in der Raumfahrt nicht zugelassen, werden aber dennoch in großen Mengen auf Stationen vor allem in Krisengebieten gehandelt.</description>
+		<description>Ein Kuehlcontainer mit einer Ladung Nervenstimulantien. Sie sind fuer den Gebrauch in der Raumfahrt nicht zugelassen, werden aber dennoch in großen Mengen auf Stationen vor allem in Krisengebieten gehandelt.</description>
 	</item>
 
 	<!-- 48 - Paranex -->
@@ -245,7 +245,7 @@
 		<name>Paranex Ampullen</name>
 		<picture>module/ampulle.png</picture>
 		<large-picture>module/ampulle_large.png</large-picture>
-		<description>Ein Kühlcontainer mit dem Medikament Paranex. Es ist eines der wenigen Medikamente, die auf beide Spezies dieselbe Wirkung haben. Ein starkes Betäubungs- und Schmerzmittel.</description>
+		<description>Ein Kuehlcontainer mit dem Medikament Paranex. Es ist eines der wenigen Medikamente, die auf beide Spezies dieselbe Wirkung haben. Ein starkes Betaeubungs- und Schmerzmittel.</description>
 	</item>
 
 	<!-- 49 - BioScienceKit -->
@@ -261,7 +261,7 @@
 		<name>Mediquip</name>
 		<picture>module/res_defi.png</picture>
 		<large-picture>module/res_defi_large.png</large-picture>
-		<description>Ein Container mit einer medizischen Notfallausrüstung.</description>
+		<description>Ein Container mit einer medizischen Notfallausruestung.</description>
 	</item>
 
 	<!-- 51 - Bauteil Struktur (klein) -->
@@ -317,7 +317,7 @@
 		<name>Bauteil Steuerung</name>
 		<picture>open.gif</picture>
 				<large-picture>open.gif</large-picture>
-		<description>Ein Bauteil für Steuerung und Bordelektronik.</description>
+		<description>Ein Bauteil fuer Steuerung und Bordelektronik.</description>
 	</item>
 
 	<!-- 58 - Bauteil Reaktor -->
@@ -325,7 +325,7 @@
 		<name>Bauteil Reaktor</name>
 		<picture>open.gif</picture>
 				<large-picture>open.gif</large-picture>
-		<description>Ein Reaktor-Bauteil. Die Fertigung dieser Teile erfordert höchste Präzision.</description>
+		<description>Ein Reaktor-Bauteil. Die Fertigung dieser Teile erfordert hoechste Praezision.</description>
 	</item>
 
 	<!-- 59 - Bauteil Waffen -->
@@ -341,7 +341,7 @@
 		<name>Werkzeug</name>
 		<picture>open.gif</picture>
 				<large-picture>open.gif</large-picture>
-		<description>Werkzeug - alles, was beim Bau von Gebäuden, Fahrzeugen oder Schiffen an Material verbaut wird, wird mit Bohrern, Sägeblättern, Feilen oder ähnlichem bearbeitet. Unter Werkzeug fällt dieses gesamte Verbrauchsmaterial. Böse Zungen behaupten, darunter fielen auch Bier und Donuts.</description>
+		<description>Werkzeug - alles, was beim Bau von Gebaeuden, Fahrzeugen oder Schiffen an Material verbaut wird, wird mit Bohrern, Saegeblaettern, Feilen oder aehnlichem bearbeitet. Unter Werkzeug faellt dieses gesamte Verbrauchsmaterial. Boese Zungen behaupten, darunter fielen auch Bier und Donuts.</description>
 	</item>
 
 	<!-- 1 - Bauplan: GTSG Alastor -->
@@ -366,14 +366,14 @@
 		</effect>
 		<description>Bauplan
 des
-GTSG Alastor Spergeschützes</description>
+GTSG Alastor Spergeschuetzes</description>
 	</item>
 
-	<!-- 2 - IFF-Störsender -->
+	<!-- 2 - IFF-Stoersender -->
 	<item id="2" cargo="20">
-		<name>IFF-Störsender</name>
+		<name>IFF-Stoersender</name>
 		<effect type="disable-iff" />
-		<description>Dieser Gegenstand stört die IFF-Kennung des Schiffes
+		<description>Dieser Gegenstand stoert die IFF-Kennung des Schiffes
 und verhindert, das der Besitzer bekannt wird</description>
 	</item>
 
@@ -395,14 +395,14 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>falseulysses.png</picture>
 		<large-picture>falseulysses_large.png</large-picture>
 		<effect ally-effect="true" type="disable-ship" shiptype="56" />
-		<description>Die NTF besitzt keine Baupläne für die Jäger der Ulysses Klasse</description>
+		<description>Die NTF besitzt keine Bauplaene fuer die Jaeger der Ulysses Klasse</description>
 	</item>
 
 	<!-- 6 - Ein RE -->
 	<item id="6" cargo="0" handel="true">
 		<name>Ein RE</name>
 		<picture>re.png</picture>
-		<description>Auch wenn der elektronische Geldtransfer eindeutig die Überhand gewonnen hat, gibt es auch weiterhin noch die ausgezahlte Form. Besonders beliebt ist diese Form, wenn keine Spuren hinterlassen werden sollen....</description>
+		<description>Auch wenn der elektronische Geldtransfer eindeutig die ueberhand gewonnen hat, gibt es auch weiterhin noch die ausgezahlte Form. Besonders beliebt ist diese Form, wenn keine Spuren hinterlassen werden sollen....</description>
 	</item>
 
 	<!-- 7 - Bauplan: GTF Perseus -->
@@ -425,7 +425,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 			<dauer count="2" />
 			<werft-slots count="6" />
 		</effect>
-		<description>Dies sind die Baupläne der GTF Perseus</description>
+		<description>Dies sind die Bauplaene der GTF Perseus</description>
 	</item>
 
 	<!-- 8 - Datendisk -->
@@ -441,7 +441,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>falsesamurai.png</picture>
 		<large-picture>falsesamurai_large.png</large-picture>
 		<effect ally-effect="true" type="disable-ship" shiptype="53" />
-		<description>Die NTF besitzt keine Baupläne für die Bomber der Samurai-Klasse</description>
+		<description>Die NTF besitzt keine Bauplaene fuer die Bomber der Samurai-Klasse</description>
 	</item>
 
 	<!-- 10 - NTF-Boykott Hercules MK2 -->
@@ -450,7 +450,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>falseherkmk2.png</picture>
 		<large-picture>falseherkmk2_large.png</large-picture>
 		<effect ally-effect="true" type="disable-ship" shiptype="70" />
-		<description>Die NTF besitzt keine Baupläne für den verbesserten Jäger der Hercules 2 Klasse</description>
+		<description>Die NTF besitzt keine Bauplaene fuer den verbesserten Jaeger der Hercules 2 Klasse</description>
 	</item>
 
 	<!-- 11 - Bauplan: GTF Ares -->
@@ -474,7 +474,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 			<dauer count="4" />
 			<werft-slots count="6" />
 		</effect>
-		<description>Dies sind die Baupläne der GTF Ares</description>
+		<description>Dies sind die Bauplaene der GTF Ares</description>
 	</item>
 
 	<!-- 12 - Bauplan: GTF Myrmidon -->
@@ -497,7 +497,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 			<dauer count="3" />
 			<werft-slots count="6" />
 		</effect>
-		<description>Dies sind die Baupläne der GTF Myrmidon</description>
+		<description>Dies sind die Bauplaene der GTF Myrmidon</description>
 	</item>
 
 	<!-- 13 - Bauplan: GVB Osiris -->
@@ -520,7 +520,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 			<dauer count="3" />
 			<werft-slots count="6" />
 		</effect>
-		<description>Dies sind die Baupläne der GVB Osiris</description>
+		<description>Dies sind die Bauplaene der GVB Osiris</description>
 	</item>
 
 	<!-- 14 - Bauplan: GTF Batis -->
@@ -543,7 +543,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 			<dauer count="7" />
 			<werft-slots count="6" />
 		</effect>
-		<description>Dies ist der Bauplan für die GTF Batis</description>
+		<description>Dies ist der Bauplan fuer die GTF Batis</description>
 	</item>
 
 	<!-- 15 - Bauplan: GTF Hercules -->
@@ -566,7 +566,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 			<dauer count="3" />
 			<werft-slots count="6" />
 		</effect>
-		<description>Dies ist der Bauplan für die GTF Hercules Mk I</description>
+		<description>Dies ist der Bauplan fuer die GTF Hercules Mk I</description>
 	</item>
 
 	<!-- 150 - Flakmagazine -->
@@ -574,7 +574,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<name>Flakmagazine</name>
 		<picture>ammo/flakmagazine.gif</picture>
 		<effect type="ammo" ammo="1" />
-		<description>Das Flakmagazin wird mittels Flakgeschützen verschossen</description>
+		<description>Das Flakmagazin wird mittels Flakgeschuetzen verschossen</description>
 	</item>
 
 	<!-- 151 - GTM MX-64 Rockeye -->
@@ -583,7 +583,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>ammo/rockeye.gif</picture>
 		<large-picture>ammo/rockeye_large.gif</large-picture>
 		<effect type="ammo" ammo="2" />
-		<description>Die GTM MX-64 Rockeye ist eine schnellere, zielgenauere und mit größerem Sprengkopf ausgestattete Variante der MX-50, welche zur Zeit des Großen Krieges verwendet wurde.</description>
+		<description>Die GTM MX-64 Rockeye ist eine schnellere, zielgenauere und mit groeßerem Sprengkopf ausgestattete Variante der MX-50, welche zur Zeit des Großen Krieges verwendet wurde.</description>
 	</item>
 
 	<!-- 152 - GTM-13 Helios -->
@@ -592,7 +592,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>ammo/heliosbomben.png</picture>
 		<large-picture>ammo/heliosbomben_large.gif</large-picture>
 		<effect type="ammo" ammo="3" />
-		<description>Heliosbomben sind die Monster unter den Torpedos. Sie verfügen über eine sehr große Menge Antimaterie und stellen so eine massive Bedrohung selbst für Zerstörer dar.</description>
+		<description>Heliosbomben sind die Monster unter den Torpedos. Sie verfuegen ueber eine sehr große Menge Antimaterie und stellen so eine massive Bedrohung selbst fuer Zerstoerer dar.</description>
 	</item>
 
 	<!-- 153 - GTM-10 Piranha -->
@@ -601,7 +601,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>ammo/piranha.png</picture>
 		<large-picture>ammo/piranha_large.png</large-picture>
 		<effect type="ammo" ammo="12" />
-		<description>Die Piranha ist die dritte Generation der alten Synaptic sowie Havoc-Raketen. Die Piranha ermöglicht einem Bombern einen effektiven Schutz vor angreifenden Jägergruppen indem sie bei der Zündung alles im Umkreis von mehreren Metern zerstört.</description>
+		<description>Die Piranha ist die dritte Generation der alten Synaptic sowie Havoc-Raketen. Die Piranha ermoeglicht einem Bombern einen effektiven Schutz vor angreifenden Jaegergruppen indem sie bei der Zuendung alles im Umkreis von mehreren Metern zerstoert.</description>
 	</item>
 
 	<!-- 154 - Schwere Flakmagazine -->
@@ -609,7 +609,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<name>Schwere Flakmagazine</name>
 		<picture>ammo/schwereflakmagazine.gif</picture>
 		<effect type="ammo" ammo="5" />
-		<description>Die schweren Flakmagazine stellen eine Weiterentwicklung der klassischen Flakmagazine dar. Sie sind deutlich stärker, aber sie können nicht mittels der normalen Flakgeschütze verschossen werden.</description>
+		<description>Die schweren Flakmagazine stellen eine Weiterentwicklung der klassischen Flakmagazine dar. Sie sind deutlich staerker, aber sie koennen nicht mittels der normalen Flakgeschuetze verschossen werden.</description>
 	</item>
 
 	<!-- 155 - GTM-4 Hornet -->
@@ -618,7 +618,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>ammo/hornet.png</picture>
 		<large-picture>ammo/hornet_large.gif</large-picture>
 		<effect type="ammo" ammo="7" />
-		<description>Hornet-Schwarmraketen sind zielsuchend und tödlich für Jäger und Bomber</description>
+		<description>Hornet-Schwarmraketen sind zielsuchend und toedlich fuer Jaeger und Bomber</description>
 	</item>
 
 	<!-- 156 - GTM-55 Trebuchet -->
@@ -627,7 +627,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>ammo/trebuchet.png</picture>
 		<large-picture>ammo/trebuchet_large.gif</large-picture>
 		<effect type="ammo" ammo="8" />
-		<description>Trebuchet-Raketen sind zielsuchend und wegen ihrer Zerstörungskraft tödlich fr Jäger und Bomber - wenn sie treffen</description>
+		<description>Trebuchet-Raketen sind zielsuchend und wegen ihrer Zerstoerungskraft toedlich fr Jaeger und Bomber - wenn sie treffen</description>
 	</item>
 
 	<!-- 157 - GTM-43a Stiletto II -->
@@ -636,7 +636,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>ammo/stiletto2.gif</picture>
 		<large-picture>ammo/stiletto2_large.gif</large-picture>
 		<effect type="ammo" ammo="9" />
-		<description>Die Stiletto-Rakete ist die ultimative Waffe, wenn es darum geht Schiffe schnell Kampfunfähig zu machen</description>
+		<description>Die Stiletto-Rakete ist die ultimative Waffe, wenn es darum geht Schiffe schnell Kampfunfaehig zu machen</description>
 	</item>
 
 	<!-- 158 - GTM-12 Cyclops -->
@@ -645,7 +645,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>ammo/cyclops.png</picture>
 		<large-picture>ammo/cyclops_large.gif</large-picture>
 		<effect type="ammo" ammo="10" />
-		<description>Der Cyclops-Torpedo stellt das Rückrad jeder Bomberflotte seit nunmehr vielen Jahren da. Er verfügt zwar über einen geringeren Schaden als die Helios, aber er ist auch deutlich kostengünstiger.</description>
+		<description>Der Cyclops-Torpedo stellt das Rueckrad jeder Bomberflotte seit nunmehr vielen Jahren da. Er verfuegt zwar ueber einen geringeren Schaden als die Helios, aber er ist auch deutlich kostenguenstiger.</description>
 	</item>
 
 	<!-- 159 - GTM-19 Harpoon -->
@@ -654,7 +654,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>ammo/harpoon.png</picture>
 		<large-picture>ammo/harpoon_large.gif</large-picture>
 		<effect type="ammo" ammo="4" />
-		<description>Die GTM-19 Harpoon ist die modernste zielsuchende Rakete im Arsenal der GCP. Sie ist sowohl die schnellste alsauch die genauste zielsuchende Rakete und dank ihrer Hülle aus extrem verdichtetem abgereichertem Uran durchdringt sie problemlos die meisten Aussenhüllen.</description>
+		<description>Die GTM-19 Harpoon ist die modernste zielsuchende Rakete im Arsenal der GCP. Sie ist sowohl die schnellste alsauch die genauste zielsuchende Rakete und dank ihrer Huelle aus extrem verdichtetem abgereichertem Uran durchdringt sie problemlos die meisten Aussenhuellen.</description>
 	</item>
 
 	<!-- 160 - GTM-4a Tornado -->
@@ -663,7 +663,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>ammo/tornado.png</picture>
 		<large-picture>ammo/tornado_large.gif</large-picture>
 		<effect type="ammo" ammo="11" />
-		<description>Die GTM-4a Tornado-Schwarmraketen sind eine weiterentwicklung der Hornet-Schwarmraketen. Noch schneller, noch besser, noch tödlicher...</description>
+		<description>Die GTM-4a Tornado-Schwarmraketen sind eine weiterentwicklung der Hornet-Schwarmraketen. Noch schneller, noch besser, noch toedlicher...</description>
 	</item>
 
 	<!-- 161 - GTM-11 Infyrno -->
@@ -681,7 +681,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>ammo/hplasmashell.png</picture>
 		<large-picture>ammo/hplasmashell_large.gif</large-picture>
 		<effect type="ammo" ammo="15" />
-		<description>Hochenergieplasma verfügt über eine relativ große Sprengkraft, welche mit 50 t TNT vergleichbar ist. Es ist besonders f?r den Einsatz gegen große Schiffe geeignet.</description>
+		<description>Hochenergieplasma verfuegt ueber eine relativ große Sprengkraft, welche mit 50 t TNT vergleichbar ist. Es ist besonders f?r den Einsatz gegen große Schiffe geeignet.</description>
 	</item>
 
 	<!-- 163 - Schweres Autocannon Magazin -->
@@ -689,7 +689,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<name>Schweres Autocannon Magazin</name>
 		<picture>ammo/flakmagazine.gif</picture>
 		<effect type="ammo" ammo="16" />
-		<description>Munition für schwere Autocannon.</description>
+		<description>Munition fuer schwere Autocannon.</description>
 	</item>
 
 	<!-- 164 - Mittleres Autocannon Magazin -->
@@ -697,7 +697,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<name>Mittleres Autocannon Magazin</name>
 		<picture>ammo/flakmagazine.gif</picture>
 		<effect type="ammo" ammo="17" />
-		<description>Munition für mittlere Autocannon.</description>
+		<description>Munition fuer mittlere Autocannon.</description>
 	</item>
 
 	<!-- 165 - Leichtes Autocannon Magazin -->
@@ -705,7 +705,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<name>Leichtes Autocannon Magazin</name>
 		<picture>ammo/flakmagazine.gif</picture>
 		<effect type="ammo" ammo="18" />
-		<description>Munition für leichte Autocannon.</description>
+		<description>Munition fuer leichte Autocannon.</description>
 	</item>
 
 	<!-- 166 - NTF AM-Plasma -->
@@ -723,7 +723,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>ammo/amplasmashell.gif</picture>
 		<large-picture>ammo/amplasmashell_large.png</large-picture>
 		<effect ally-effect="true" type="draft-ammo" ammo="19" />
-		<description>Der Bauplan für die NTF-Munition AM-Plasma</description>
+		<description>Der Bauplan fuer die NTF-Munition AM-Plasma</description>
 	</item>
 
 	<!-- 168 - NTF EM-Plasma -->
@@ -741,7 +741,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>ammo/emplasmashell.gif</picture>
 		<large-picture>ammo/emplasmashell_large.png</large-picture>
 		<effect ally-effect="true" type="draft-ammo" ammo="20" />
-		<description>Der Bauplan für die Munition EM-Plasma</description>
+		<description>Der Bauplan fuer die Munition EM-Plasma</description>
 	</item>
 
 	<!-- 170 - GTM-2 Interceptor -->
@@ -847,7 +847,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<picture>ammo/explosive.png</picture>
 		<large-picture>ammo/explosive_large.png</large-picture>
 		<effect type="ammo" ammo="33" />
-		<description>Der Bergbausprengstoff ersetzt das bisherige riskante Verfahren der Nutzung von Helios-Gefechtsköpfen für den Asteroiden-Ausbau.</description>
+		<description>Der Bergbausprengstoff ersetzt das bisherige riskante Verfahren der Nutzung von Helios-Gefechtskoepfen fuer den Asteroiden-Ausbau.</description>
 	</item>
 
 	<!-- 183 - Flakmagazine LR -->
@@ -855,7 +855,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<name>Flakmagazine LR</name>
 		<picture>ammo/flak_ld.png</picture>
 		<effect type="ammo" ammo="34" />
-		<description>Das Flakmagazin LR wird mittels Flakgeschützen verschossen</description>
+		<description>Das Flakmagazin LR wird mittels Flakgeschuetzen verschossen</description>
 	</item>
 
 	<!-- 184 - Schwere Flakmagazine LR -->
@@ -863,7 +863,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<name>Schwere Flakmagazine LR</name>
 		<picture>ammo/sflak_ld.png</picture>
 		<effect type="ammo" ammo="35" />
-		<description>Die schweren Flakmagazine LR stellen eine Weiterentwicklung der klassischen Flakmagazine dar. Sie sind deutlich stärker, aber sie können nicht mittels der normalen Flakgeschütze verschossen werden.</description>
+		<description>Die schweren Flakmagazine LR stellen eine Weiterentwicklung der klassischen Flakmagazine dar. Sie sind deutlich staerker, aber sie koennen nicht mittels der normalen Flakgeschuetze verschossen werden.</description>
 	</item>
 
 	<!-- 185 - GTM-N1 Harbinger -->
@@ -1040,7 +1040,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:hydro value="1500" />
 			</shipdata>
 		</effect>
-		<description>Ein Großer Hydroponischer Garten kann größere Mengen an Nahrung herzustellen</description>
+		<description>Ein Großer Hydroponischer Garten kann groeßere Mengen an Nahrung herzustellen</description>
 	</item>
 
 	<!-- 305 - Kleine alte Schiffsbatterie -->
@@ -1055,7 +1055,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-20" />
 			</shipdata>
 		</effect>
-		<description>Eine kleine alte Schiffbatterie hilft den Energiespeicher leicht zu vergrößern</description>
+		<description>Eine kleine alte Schiffbatterie hilft den Energiespeicher leicht zu vergroeßern</description>
 	</item>
 
 	<!-- 306 - Kleine Schiffsbatterie -->
@@ -1070,7 +1070,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-25" />
 			</shipdata>
 		</effect>
-		<description>Eine kleine Schiffbatterie hilft den Energiespeicher leicht zu vergrößern</description>
+		<description>Eine kleine Schiffbatterie hilft den Energiespeicher leicht zu vergroeßern</description>
 	</item>
 
 	<!-- 307 - Schiffsbatterie -->
@@ -1085,7 +1085,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-30" />
 			</shipdata>
 		</effect>
-		<description>Eine Schiffbatterie hilft den Energiespeicher eines Schiffes zu vergrößern</description>
+		<description>Eine Schiffbatterie hilft den Energiespeicher eines Schiffes zu vergroeßern</description>
 	</item>
 
 	<!-- 308 - Große Schiffsbatterie -->
@@ -1100,7 +1100,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-40" />
 			</shipdata>
 		</effect>
-		<description>Eine große Schiffbatterie hilft den Energiespeicher stark zu vergrößern</description>
+		<description>Eine große Schiffbatterie hilft den Energiespeicher stark zu vergroeßern</description>
 	</item>
 
 	<!-- 309 - Shivanische Schiffsbatterie -->
@@ -1116,7 +1116,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-40" />
 			</shipdata>
 		</effect>
-		<description>Eine shivanische Schiffsbatterie ist den Schiffsbatterien der GCP in jeder hinsicht überlegen</description>
+		<description>Eine shivanische Schiffsbatterie ist den Schiffsbatterien der GCP in jeder hinsicht ueberlegen</description>
 	</item>
 
 	<!-- 310 - Energiekern der Uralten -->
@@ -1132,12 +1132,12 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-35" />
 			</shipdata>
 		</effect>
-		<description>Ursprünglich vermutlich für relativ große Kriegsschiffe entwickelt, verrichten sie auch in kleineren Schiffen wahre Wunder</description>
+		<description>Urspruenglich vermutlich fuer relativ große Kriegsschiffe entwickelt, verrichten sie auch in kleineren Schiffen wahre Wunder</description>
 	</item>
 
-	<!-- 311 - Experimenteller Sensorprofildämpfer -->
+	<!-- 311 - Experimenteller Sensorprofildaempfer -->
 	<item id="311" cargo="30">
-		<name>Experimenteller Sensorprofildämpfer</name>
+		<name>Experimenteller Sensorprofildaempfer</name>
 		<quality>rare</quality>
 		<effect type="module">
 			<slot id="misc" />
@@ -1148,7 +1148,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-30" />
 			</shipdata>
 		</effect>
-		<description>Diese Hightech-Entwicklung kommt direkt aus den Labors der GCP. Ursprünglich im Rahmen von Jägertarn-Experimenten entwickelt, konnte dieser Prototyp auch auf größere Kriegsschiffe adaptiert werden</description>
+		<description>Diese Hightech-Entwicklung kommt direkt aus den Labors der GCP. Urspruenglich im Rahmen von Jaegertarn-Experimenten entwickelt, konnte dieser Prototyp auch auf groeßere Kriegsschiffe adaptiert werden</description>
 	</item>
 
 	<!-- 312 - Hochleistungsdeuteriumpumpe -->
@@ -1163,7 +1163,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-30" />
 			</shipdata>
 		</effect>
-		<description>Diese Hochleitungsdeuteriumpumpe ist in der Lage bis zu 500 m?? Gase pro Sekunde anzusaugen und ermöglichen so eine deutlich erhöhte Deuteriumausbeute</description>
+		<description>Diese Hochleitungsdeuteriumpumpe ist in der Lage bis zu 500 m?? Gase pro Sekunde anzusaugen und ermoeglichen so eine deutlich erhoehte Deuteriumausbeute</description>
 	</item>
 
 	<!-- 313 - Verbeulte Panzerplatten -->
@@ -1180,7 +1180,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:heat value="1" />
 			</shipdata>
 		</effect>
-		<description>Von irgendeinem Schrotth??ndler aufgetrieben, erhöhen diese Panzerplatten leicht die Panzerung und die max. Schadenspunkte - allerdings mit einigen negativen Auswirkungen</description>
+		<description>Von irgendeinem Schrotth??ndler aufgetrieben, erhoehen diese Panzerplatten leicht die Panzerung und die max. Schadenspunkte - allerdings mit einigen negativen Auswirkungen</description>
 	</item>
 
 	<!-- 314 - Panzerplatten -->
@@ -1214,7 +1214,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:heat value="1" />
 			</shipdata>
 		</effect>
-		<description>Ein Satz Panzerplatten aus gehärtetem Adamatium. Sehr wiederstandsfähig und verringert überdies die Wirkung von Disruptoren</description>
+		<description>Ein Satz Panzerplatten aus gehaertetem Adamatium. Sehr wiederstandsfaehig und verringert ueberdies die Wirkung von Disruptoren</description>
 	</item>
 
 	<!-- 316 - Panzerplatten aus Xentronium -->
@@ -1230,7 +1230,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-60" />
 			</shipdata>
 		</effect>
-		<description>Ein Satz Panzerplatten aus gehärtetem Xentronium. Eigendlich nicht für Zivilisten zugänglich, gelangen doch immerwieder einzelne Teile dieser Hightech-Panzerung aus den Lagerbeständen der GCP nach draussen</description>
+		<description>Ein Satz Panzerplatten aus gehaertetem Xentronium. Eigendlich nicht fuer Zivilisten zugaenglich, gelangen doch immerwieder einzelne Teile dieser Hightech-Panzerung aus den Lagerbestaenden der GCP nach draussen</description>
 	</item>
 
 	<!-- 317 - Antaritpanzerplatten -->
@@ -1247,7 +1247,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-40" />
 			</shipdata>
 		</effect>
-		<description>Diese extrem teuren Panzerplatten aus einer speziell gehärteten Antarit-Xentronium-Legierung ist das Non-Plus-Ultra der GCP-Technik</description>
+		<description>Diese extrem teuren Panzerplatten aus einer speziell gehaerteten Antarit-Xentronium-Legierung ist das Non-Plus-Ultra der GCP-Technik</description>
 	</item>
 
 	<!-- 318 - Shivanische Panzerplatten -->
@@ -1264,7 +1264,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-50" />
 			</shipdata>
 		</effect>
-		<description>Gefertigt aus einer komplett unbekannten Legierung sind sie wiederstandsfähiger als alles bisher bekannte</description>
+		<description>Gefertigt aus einer komplett unbekannten Legierung sind sie wiederstandsfaehiger als alles bisher bekannte</description>
 	</item>
 
 	<!-- 319 - Panzerplatten der Uralten -->
@@ -1281,7 +1281,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-40" />
 			</shipdata>
 		</effect>
-		<description>Viele gerüchte Ranken sich um die Panzerungstechnologie der Uralten. Da die Uralten über keinerlei Schildtechnologie verfügten ist sie aber vermutlich allem bekannten überlegen gewesen</description>
+		<description>Viele geruechte Ranken sich um die Panzerungstechnologie der Uralten. Da die Uralten ueber keinerlei Schildtechnologie verfuegten ist sie aber vermutlich allem bekannten ueberlegen gewesen</description>
 	</item>
 
 	<!-- 320 - Prometheus S -->
@@ -1298,7 +1298,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-2" />
 			</shipdata>
 		</effect>
-		<description>Eines der Standard-Geschütze der GCP. Stärker als Subach HL-7, aber nicht viel</description>
+		<description>Eines der Standard-Geschuetze der GCP. Staerker als Subach HL-7, aber nicht viel</description>
 	</item>
 
 	<!-- 321 - Kayser -->
@@ -1315,7 +1315,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-2" />
 			</shipdata>
 		</effect>
-		<description>Eine der mächtigsten Jäger- und Bombergestützten Waffen die die GCP besitzt</description>
+		<description>Eine der maechtigsten Jaeger- und Bombergestuetzten Waffen die die GCP besitzt</description>
 	</item>
 
 	<!-- 322 - Wartungsroboter -->
@@ -1329,12 +1329,12 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-10" />
 			</shipdata>
 		</effect>
-		<description>Der Wartungsroboter hilft dabei Schiffsreparaturen effizienter durchzuführen</description>
+		<description>Der Wartungsroboter hilft dabei Schiffsreparaturen effizienter durchzufuehren</description>
 	</item>
 
-	<!-- 323 - Plüschadmin mit Saugnäpfen -->
+	<!-- 323 - Plueschadmin mit Saugnaepfen -->
 	<item id="323" cargo="5">
-		<name>Plüschadmin mit Saugnäpfen</name>
+		<name>Plueschadmin mit Saugnaepfen</name>
 		<picture>module/3043.gif</picture>
 		<large-picture>module/3043.gif</large-picture>
 		<quality>rare</quality>
@@ -1348,7 +1348,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-5" />
 			</shipdata>
 		</effect>
-		<description>Dieses, bei jeder Besatzung sehr beliebte Objekt, hebt die allgemeine Moral auf einem Schiff und sorgt so für eine generelle Verbesserung aller Werte</description>
+		<description>Dieses, bei jeder Besatzung sehr beliebte Objekt, hebt die allgemeine Moral auf einem Schiff und sorgt so fuer eine generelle Verbesserung aller Werte</description>
 	</item>
 
 	<!-- 324 - Plakat: NTF High Command -->
@@ -1366,7 +1366,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:hydro value="10" />
 			</shipdata>
 		</effect>
-		<description>Dieses Plakat zeigt die NTF Führung. Durch eine kluge Platzierung auf dem Raumschiff werden NTF-Treue Besatzungen immer wieder daran errinnert wie wichtig es ist ihr bestes zu geben. Auf GCP-Raumschiffen hingegen fungieren diese Plakate als Zielscheibe und stellen so eine willkommene Freizeitbeschäftigung da</description>
+		<description>Dieses Plakat zeigt die NTF Fuehrung. Durch eine kluge Platzierung auf dem Raumschiff werden NTF-Treue Besatzungen immer wieder daran errinnert wie wichtig es ist ihr bestes zu geben. Auf GCP-Raumschiffen hingegen fungieren diese Plakate als Zielscheibe und stellen so eine willkommene Freizeitbeschaeftigung da</description>
 	</item>
 
 	<!-- 325 - Scan-Modul +3 -->
@@ -1407,7 +1407,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-4" />
 			</shipdata>
 		</effect>
-		<description>Diese kleine Waffe hat mehr Piloten das Leben gekostet als jede eine andere. Leider ist die Technik allen der GCP bekannten Waffen Lichtjahre vorraus und bisher hat noch kein Wissenschaftler sie auch nur annähernd verstanden. Jeder Nachbau versuch scheiterte bisher völlig. Daher bleiben uns nur die paar wenigen intakten Waffen die wir in abgeschossenen Jägern gefunden haben</description>
+		<description>Diese kleine Waffe hat mehr Piloten das Leben gekostet als jede eine andere. Leider ist die Technik allen der GCP bekannten Waffen Lichtjahre vorraus und bisher hat noch kein Wissenschaftler sie auch nur annaehernd verstanden. Jeder Nachbau versuch scheiterte bisher voellig. Daher bleiben uns nur die paar wenigen intakten Waffen die wir in abgeschossenen Jaegern gefunden haben</description>
 	</item>
 
 	<!-- 328 - Circe -->
@@ -1424,7 +1424,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-2" />
 			</shipdata>
 		</effect>
-		<description>Dieser kleine Disruptor ist auch für den Einbau in Jäger geeignet</description>
+		<description>Dieser kleine Disruptor ist auch fuer den Einbau in Jaeger geeignet</description>
 	</item>
 
 	<!-- 329 - Shivanischer Sprungantrieb -->
@@ -1455,7 +1455,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="5000" />
 			</shipdata>
 		</effect>
-		<description>Laderaumerweiterung für entsprechend grosse Schiffe</description>
+		<description>Laderaumerweiterung fuer entsprechend grosse Schiffe</description>
 	</item>
 
 	<!-- 331 - Cargo-Booster + 10 K -->
@@ -1469,7 +1469,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="10000" />
 			</shipdata>
 		</effect>
-		<description>Laderaumerweiterung für entsprechend grosse Schiffe</description>
+		<description>Laderaumerweiterung fuer entsprechend grosse Schiffe</description>
 	</item>
 
 	<!-- 332 - AM-Reaktor-Upgrade Mark II -->
@@ -1484,7 +1484,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-50" />
 			</shipdata>
 		</effect>
-		<description>Dieser verstärkte Antimaterie-Reaktor verleiht einem Schiff zusätzliche Kapazitäten</description>
+		<description>Dieser verstaerkte Antimaterie-Reaktor verleiht einem Schiff zusaetzliche Kapazitaeten</description>
 	</item>
 
 	<!-- 333 - U-Reaktor-Upgrade Mark II -->
@@ -1501,7 +1501,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-25" />
 			</shipdata>
 		</effect>
-		<description>Dieser verstärkte Uran-Reaktor verleiht einem Schiff zusätzliche Kapazitäten</description>
+		<description>Dieser verstaerkte Uran-Reaktor verleiht einem Schiff zusaetzliche Kapazitaeten</description>
 	</item>
 
 	<!-- 334 - Deuterium-Reaktor-Upgrade Mark II -->
@@ -1518,7 +1518,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-40" />
 			</shipdata>
 		</effect>
-		<description>Dieser verstärkte Deuterium-Reaktor verleiht einem Schiff zusätzliche Kapazitäten</description>
+		<description>Dieser verstaerkte Deuterium-Reaktor verleiht einem Schiff zusaetzliche Kapazitaeten</description>
 	</item>
 
 	<!-- 335 - Flakbatterie (2) -->
@@ -1535,7 +1535,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-5" />
 			</shipdata>
 		</effect>
-		<description>Diese zusätzlichen Flakbatterien sind zur Ergänzung der Bewaffnung gedacht</description>
+		<description>Diese zusaetzlichen Flakbatterien sind zur Ergaenzung der Bewaffnung gedacht</description>
 	</item>
 
 	<!-- 336 - Flakbatterie (8) -->
@@ -1552,7 +1552,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="-20" />
 			</shipdata>
 		</effect>
-		<description>Diese zusätzlichen Flakbatterien sind zur Ergänzung der Bewaffnung gedacht. Sie passen nur auf entsprechend grosse Schiffe.</description>
+		<description>Diese zusaetzlichen Flakbatterien sind zur Ergaenzung der Bewaffnung gedacht. Sie passen nur auf entsprechend grosse Schiffe.</description>
 	</item>
 
 	<!-- 337 - Buddelschiff: Ca Nimbifer -->
@@ -1572,7 +1572,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:hydro value="50" />
 			</shipdata>
 		</effect>
-		<description>Dieses Buddelschiff zeigt die Ca Nimbifer. Durch eine kluge Platzierung auf dem Raumschiff werden Freunde der schweren Träger an das hervorragende Konzept erinnert und motiviert.</description>
+		<description>Dieses Buddelschiff zeigt die Ca Nimbifer. Durch eine kluge Platzierung auf dem Raumschiff werden Freunde der schweren Traeger an das hervorragende Konzept erinnert und motiviert.</description>
 	</item>
 
 	<!-- 338 - NPC-Hilfe 1 -->
@@ -1610,7 +1610,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:flags>
 			</shipdata>
 		</effect>
-		<description>Reparatur gefällig???</description>
+		<description>Reparatur gefaellig???</description>
 	</item>
 
 	<!-- 339 - NPC-Hilfe 2 -->
@@ -1637,9 +1637,9 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<description>Einmal Godmode - kommt sofort</description>
 	</item>
 
-	<!-- 340 - Feldwerft-Rüstpack Mk I -->
+	<!-- 340 - Feldwerft-Ruestpack Mk I -->
 	<item id="340" cargo="500">
-		<name>Feldwerft-Rüstpack Mk I</name>
+		<name>Feldwerft-Ruestpack Mk I</name>
 		<picture>module/feldwerft1.png</picture>
 		<effect type="module">
 			<slot id="misc_shipyard" />
@@ -1653,12 +1653,12 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:sensorrange value="3" />
 			</shipdata>
 		</effect>
-		<description>Das Feldwerft-Rüstpack Mk I wertet einen Flottentender gewaltig auf.</description>
+		<description>Das Feldwerft-Ruestpack Mk I wertet einen Flottentender gewaltig auf.</description>
 	</item>
 
-	<!-- 341 - NPC-Hilfe: Feldwerft-Rüstpack Mk II -->
+	<!-- 341 - NPC-Hilfe: Feldwerft-Ruestpack Mk II -->
 	<item id="341" cargo="2500" accesslevel="5">
-		<name>NPC-Hilfe: Feldwerft-Rüstpack Mk II</name>
+		<name>NPC-Hilfe: Feldwerft-Ruestpack Mk II</name>
 		<picture>module/generic/generic_def2_artifact.png</picture>
 		<quality>artifact</quality>
 		<effect type="module" set="999">
@@ -1678,7 +1678,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:sensorrange value="6" />
 			</shipdata>
 		</effect>
-		<description>Das Feldwerft-Rüstpack Mk II wertet einen Flottentender gewaltig auf.</description>
+		<description>Das Feldwerft-Ruestpack Mk II wertet einen Flottentender gewaltig auf.</description>
 	</item>
 
 	<!-- 342 - Adminitem: Wrackmarker -->
@@ -1695,7 +1695,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:flags>
 			</shipdata>
 		</effect>
-		<description>Schiffe mit diesem Item bekommen ein Wrackbild (funktioniert nur mit png-Bildern und es muss natürlich vorher ein Wrackbild angelegt werden)</description>
+		<description>Schiffe mit diesem Item bekommen ein Wrackbild (funktioniert nur mit png-Bildern und es muss natuerlich vorher ein Wrackbild angelegt werden)</description>
 	</item>
 
 	<!-- 343 - Testitem: Strahlende Angriffsspitze -->
@@ -1716,12 +1716,12 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:flags>
 			</shipdata>
 		</effect>
-		<description>Schiffe mit diesem Item bekommen ein Wrackbild (funktioniert nur mit png-Bildern und es muss natürlich vorher ein Wrackbild angelegt werden)</description>
+		<description>Schiffe mit diesem Item bekommen ein Wrackbild (funktioniert nur mit png-Bildern und es muss natuerlich vorher ein Wrackbild angelegt werden)</description>
 	</item>
 
-	<!-- 344 - Kontroller für Drohnen -->
+	<!-- 344 - Kontroller fuer Drohnen -->
 	<item id="344" cargo="50">
-		<name>Kontroller für Drohnen</name>
+		<name>Kontroller fuer Drohnen</name>
 		<picture>module/generic/generic_off.png</picture>
 		<quality>rare</quality>
 		<effect type="module">
@@ -1733,7 +1733,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:flags>
 			</shipdata>
 		</effect>
-		<description>Kontroller für Drohnen</description>
+		<description>Kontroller fuer Drohnen</description>
 	</item>
 
 	<!-- 345 - GCP Orion Flightdeck -->
@@ -1751,7 +1751,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:werft value="7" />
 			</shipdata>
 		</effect>
-		<description>Erweiterte Kapazität für Jäger und Bomber</description>
+		<description>Erweiterte Kapazitaet fuer Jaeger und Bomber</description>
 	</item>
 
 	<!-- 346 - GCP Orion Engine -->
@@ -1802,7 +1802,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:weapons>
 			</shipdata>
 		</effect>
-		<description>Zusätzliche Ofensivbewaffnung</description>
+		<description>Zusaetzliche Ofensivbewaffnung</description>
 	</item>
 
 	<!-- 349 - GCP Orion Defensive Armament -->
@@ -1820,7 +1820,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:weapons>
 			</shipdata>
 		</effect>
-		<description>Zusätzliche Defensivbewaffnung</description>
+		<description>Zusaetzliche Defensivbewaffnung</description>
 	</item>
 
 	<!-- 350 - GCP Orion Enhanced Protection -->
@@ -1835,7 +1835,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:panzerung value="8" />
 			</shipdata>
 		</effect>
-		<description>Zusätzliche Panzerung</description>
+		<description>Zusaetzliche Panzerung</description>
 	</item>
 
 	<!-- 351 - GCP Orion Enhanced Technology -->
@@ -1848,7 +1848,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="0" />
 			</shipdata>
 		</effect>
-		<description>Zusätzliche Defensivbewaffnung</description>
+		<description>Zusaetzliche Defensivbewaffnung</description>
 	</item>
 
 	<!-- 352 - GCP Typhoon Flightdeck -->
@@ -1866,7 +1866,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:werft value="7" />
 			</shipdata>
 		</effect>
-		<description>Erweiterte Kapazität für Jäger und Bomber</description>
+		<description>Erweiterte Kapazitaet fuer Jaeger und Bomber</description>
 	</item>
 
 	<!-- 353 - GCP Typhoon Engine -->
@@ -1915,7 +1915,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:weapons>
 			</shipdata>
 		</effect>
-		<description>Zusätzliche Ofensivbewaffnung</description>
+		<description>Zusaetzliche Ofensivbewaffnung</description>
 	</item>
 
 	<!-- 356 - GCP Typhoon Defensive Armament -->
@@ -1939,7 +1939,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:maxheat>
 			</shipdata>
 		</effect>
-		<description>Zusätzliche Defensivbewaffnung</description>
+		<description>Zusaetzliche Defensivbewaffnung</description>
 	</item>
 
 	<!-- 357 - GCP Typhoon Enhanced Protection -->
@@ -1954,7 +1954,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:panzerung value="7" />
 			</shipdata>
 		</effect>
-		<description>Zusätzliche Panzerung</description>
+		<description>Zusaetzliche Panzerung</description>
 	</item>
 
 	<!-- 358 - GCP Typhoon Enhanced Technology -->
@@ -1970,7 +1970,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:weapons>
 			</shipdata>
 		</effect>
-		<description>Zusätzliche Defensivbewaffnung</description>
+		<description>Zusaetzliche Defensivbewaffnung</description>
 	</item>
 
 	<!-- 359 - GCP Hecate Flightdeck -->
@@ -1988,7 +1988,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:werft value="7" />
 			</shipdata>
 		</effect>
-		<description>Erweiterte Kapazität für Jäger und Bomber</description>
+		<description>Erweiterte Kapazitaet fuer Jaeger und Bomber</description>
 	</item>
 
 	<!-- 360 - GCP Hecate Engine -->
@@ -2039,7 +2039,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:weapons>
 			</shipdata>
 		</effect>
-		<description>Zusätzliche Ofensivbewaffnung</description>
+		<description>Zusaetzliche Ofensivbewaffnung</description>
 	</item>
 
 	<!-- 363 - GCP Hecate Defensive Armament -->
@@ -2060,7 +2060,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:weapons>
 			</shipdata>
 		</effect>
-		<description>Zusätzliche Defensivbewaffnung</description>
+		<description>Zusaetzliche Defensivbewaffnung</description>
 	</item>
 
 	<!-- 364 - GCP Hecate Enhanced Protection -->
@@ -2075,7 +2075,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:panzerung value="11" />
 			</shipdata>
 		</effect>
-		<description>Zusätzliche Panzerung</description>
+		<description>Zusaetzliche Panzerung</description>
 	</item>
 
 	<!-- 365 - GCP Hecate Enhanced Technology -->
@@ -2088,7 +2088,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="0" />
 			</shipdata>
 		</effect>
-		<description>Zusätzliche Defensivbewaffnung</description>
+		<description>Zusaetzliche Defensivbewaffnung</description>
 	</item>
 
 	<!-- 366 - GCP Hatshepsut Flightdeck -->
@@ -2106,7 +2106,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:werft value="7" />
 			</shipdata>
 		</effect>
-		<description>Erweiterte Kapazität für Jäger und Bomber</description>
+		<description>Erweiterte Kapazitaet fuer Jaeger und Bomber</description>
 	</item>
 
 	<!-- 367 - GCP Hatshepsut Engine -->
@@ -2156,7 +2156,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:weapons>
 			</shipdata>
 		</effect>
-		<description>Zusätzliche Ofensivbewaffnung</description>
+		<description>Zusaetzliche Ofensivbewaffnung</description>
 	</item>
 
 	<!-- 370 - GCP Hatshepsut Defensive Armament -->
@@ -2179,7 +2179,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:maxheat>
 			</shipdata>
 		</effect>
-		<description>Zusätzliche Defensivbewaffnung</description>
+		<description>Zusaetzliche Defensivbewaffnung</description>
 	</item>
 
 	<!-- 371 - GCP Hatshepsut Enhanced Protection -->
@@ -2194,7 +2194,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:panzerung value="12" />
 			</shipdata>
 		</effect>
-		<description>Zusätzliche Panzerung</description>
+		<description>Zusaetzliche Panzerung</description>
 	</item>
 
 	<!-- 372 - GCP Hatshepsut Enhanced Technology -->
@@ -2207,7 +2207,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="0" />
 			</shipdata>
 		</effect>
-		<description>Zusätzliche Defensivbewaffnung</description>
+		<description>Zusaetzliche Defensivbewaffnung</description>
 	</item>
 
 	<!-- 373 - NTF Cookie -->
@@ -2223,7 +2223,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:rm value="50" />
 			</shipdata>
 		</effect>
-		<description>Eine köstliche Packung Kekse aus den Küchen der NTF. Die Crew, die in den Genuss dieser süßen Sünde kommt, arbeitet motivierter.</description>
+		<description>Eine koestliche Packung Kekse aus den Kuechen der NTF. Die Crew, die in den Genuss dieser sueßen Suende kommt, arbeitet motivierter.</description>
 	</item>
 
 	<!-- 374 - NTF Deimos Kommandoschiff -->
@@ -2292,9 +2292,9 @@ und verhindert, das der Besitzer bekannt wird</description>
 		</effect>
 	</item>
 
-	<!-- 377 - Trägheit -->
+	<!-- 377 - Traegheit -->
 	<item id="377" cargo="0" accesslevel="15">
-		<name>Trägheit</name>
+		<name>Traegheit</name>
 		<picture>module/generic/generic_engine_epic.png</picture>
 		<quality>epic</quality>
 		<effect type="module" set="997">
@@ -2336,9 +2336,9 @@ und verhindert, das der Besitzer bekannt wird</description>
 		</effect>
 	</item>
 
-	<!-- 380 - Unmässigkeit -->
+	<!-- 380 - Unmaessigkeit -->
 	<item id="380" cargo="0" accesslevel="15">
-		<name>Unmässigkeit</name>
+		<name>Unmaessigkeit</name>
 		<quality>epic</quality>
 		<effect type="module" set="997">
 			<slot id="typhoon_vasudan_destroyer_hull" />
@@ -2384,9 +2384,9 @@ und verhindert, das der Besitzer bekannt wird</description>
 		</effect>
 	</item>
 
-	<!-- 383 - Paladin Rüstset -->
+	<!-- 383 - Paladin Ruestset -->
 	<item id="383" cargo="500">
-		<name>Paladin Rüstset</name>
+		<name>Paladin Ruestset</name>
 		<picture>module/generic/generic_off.png</picture>
 		<quality>artifact</quality>
 		<effect type="module">
@@ -2413,7 +2413,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:jdocks value="1" />
 			</shipdata>
 		</effect>
-		<description>Kapazität für Jäger und Bomber</description>
+		<description>Kapazitaet fuer Jaeger und Bomber</description>
 	</item>
 
 	<!-- 385 - Atlas Flightdeck -->
@@ -2428,7 +2428,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:jdocks value="2" />
 			</shipdata>
 		</effect>
-		<description>Kapazität für Jäger und Bomber</description>
+		<description>Kapazitaet fuer Jaeger und Bomber</description>
 	</item>
 
 	<!-- 386 - Ganymed Flightdeck -->
@@ -2443,7 +2443,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:jdocks value="10" />
 			</shipdata>
 		</effect>
-		<description>Kapazität für Jäger und Bomber</description>
+		<description>Kapazitaet fuer Jaeger und Bomber</description>
 	</item>
 
 	<!-- 387 - Ganymed Waffen I - Flak -->
@@ -2459,7 +2459,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:weapons>
 			</shipdata>
 		</effect>
-		<description>Defensiv-Kapazität für die Ganymed-Stationen</description>
+		<description>Defensiv-Kapazitaet fuer die Ganymed-Stationen</description>
 	</item>
 
 	<!-- 388 - Ganymed Waffen II - Raketen -->
@@ -2475,7 +2475,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:weapons>
 			</shipdata>
 		</effect>
-		<description>Defensiv-Kapazität für die Ganymed-Stationen</description>
+		<description>Defensiv-Kapazitaet fuer die Ganymed-Stationen</description>
 	</item>
 
 	<!-- 389 - Zacharys Plot Gun - Hecate Offensive Armament -->
@@ -2492,7 +2492,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:weapons>
 			</shipdata>
 		</effect>
-		<description>Zusätzliche Offensivbewaffnung</description>
+		<description>Zusaetzliche Offensivbewaffnung</description>
 	</item>
 
 	<!-- 390 - Zacharys Plot Shield - Hecate Deffensive Armament -->
@@ -2508,7 +2508,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:weapons>
 			</shipdata>
 		</effect>
-		<description>Zusätzliche Deffensivbewaffnung</description>
+		<description>Zusaetzliche Deffensivbewaffnung</description>
 	</item>
 
 	<!-- 391 - Zacharys Plot Device: Speedjunky - Hecate Engine -->
@@ -2567,7 +2567,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:panzerung value="25" />
 			</shipdata>
 		</effect>
-		<description>Zusätzliche Panzerung</description>
+		<description>Zusaetzliche Panzerung</description>
 	</item>
 
 	<!-- 395 - Zacharys Plot Special: Drohnenkontrolle - Hecate Special -->
@@ -2584,12 +2584,12 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:flags>
 			</shipdata>
 		</effect>
-		<description>Drohnen-Kontroller für Jäger und Bomber</description>
+		<description>Drohnen-Kontroller fuer Jaeger und Bomber</description>
 	</item>
 
-	<!-- 396 - Zorn der Zerstörer -->
+	<!-- 396 - Zorn der Zerstoerer -->
 	<item id="396" cargo="0">
-		<name>Zorn der Zerstörer</name>
+		<name>Zorn der Zerstoerer</name>
 		<picture>module/generic/generic_off.png</picture>
 		<quality>epic</quality>
 		<effect type="module" set="995">
@@ -2667,9 +2667,9 @@ und verhindert, das der Besitzer bekannt wird</description>
 		</effect>
 	</item>
 
-	<!-- 401 - Sehnsucht der Gläubigen -->
+	<!-- 401 - Sehnsucht der Glaeubigen -->
 	<item id="401" cargo="0">
-		<name>Sehnsucht der Gläubigen</name>
+		<name>Sehnsucht der Glaeubigen</name>
 		<quality>epic</quality>
 		<effect type="module" set="995">
 			<slot id="typhoon_vasudan_destroyer_hull" />
@@ -2697,9 +2697,9 @@ und verhindert, das der Besitzer bekannt wird</description>
 		</effect>
 	</item>
 
-	<!-- 403 - Rüstset Kreuzer (Aten) -->
+	<!-- 403 - Ruestset Kreuzer (Aten) -->
 	<item id="403" cargo="50" accesslevel="5">
-		<name>Rüstset Kreuzer (Aten)</name>
+		<name>Ruestset Kreuzer (Aten)</name>
 		<picture>module/generic/generic_off.png</picture>
 		<quality>rare</quality>
 		<effect type="module">
@@ -2725,7 +2725,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:ra value="25" />
 			</shipdata>
 		</effect>
-		<description>Rüstset für vasudanische Kreuzer (Aten)</description>
+		<description>Ruestset fuer vasudanische Kreuzer (Aten)</description>
 	</item>
 
 	<!-- 404 - Ganymed Waffen III - Flak -->
@@ -2743,7 +2743,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:weapons>
 			</shipdata>
 		</effect>
-		<description>Defensiv-Kapazität für die Ganymed-Stationen</description>
+		<description>Defensiv-Kapazitaet fuer die Ganymed-Stationen</description>
 	</item>
 
 	<!-- 405 - Ganymed Waffen IV - Raketen -->
@@ -2760,7 +2760,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:weapons>
 			</shipdata>
 		</effect>
-		<description>Defensiv-Kapazität für die Ganymed-Stationen</description>
+		<description>Defensiv-Kapazitaet fuer die Ganymed-Stationen</description>
 	</item>
 
 	<!-- 406 - Cargo-Booster + 50 K -->
@@ -2774,7 +2774,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="50000" />
 			</shipdata>
 		</effect>
-		<description>Laderaumerweiterung für entsprechend grosse Schiffe</description>
+		<description>Laderaumerweiterung fuer entsprechend grosse Schiffe</description>
 	</item>
 
 	<!-- 407 - Cargo-Booster + 100 K -->
@@ -2788,7 +2788,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:cargo value="100000" />
 			</shipdata>
 		</effect>
-		<description>Laderaumerweiterung für entsprechend grosse Schiffe</description>
+		<description>Laderaumerweiterung fuer entsprechend grosse Schiffe</description>
 	</item>
 
 	<!-- 408 - NPC-Hilfe: Flag Abfangen -->
@@ -2833,9 +2833,9 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<description>NPC-Hilfe: Flag Instant_Enter</description>
 	</item>
 
-	<!-- 411 - Rüstset Korvette (Deimos) -->
+	<!-- 411 - Ruestset Korvette (Deimos) -->
 	<item id="411" cargo="50" accesslevel="5">
-		<name>Rüstset Korvette (Deimos)</name>
+		<name>Ruestset Korvette (Deimos)</name>
 		<picture>module/generic/generic_off.png</picture>
 		<quality>rare</quality>
 		<effect type="module">
@@ -2859,7 +2859,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:ra value="40" />
 			</shipdata>
 		</effect>
-		<description>Rüstset für Korvette (Deimos)</description>
+		<description>Ruestset fuer Korvette (Deimos)</description>
 	</item>
 
 	<!-- 412 - NPC-Hilfe: Crewboost -->
@@ -2901,9 +2901,9 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<description>NPC-Hilfe: 500 Cargoboost</description>
 	</item>
 
-	<!-- 415 - Rüstset für Träger (Kottos) -->
+	<!-- 415 - Ruestset fuer Traeger (Kottos) -->
 	<item id="415" cargo="0">
-		<name>Rüstset für Träger Kottos</name>
+		<name>Ruestset fuer Traeger Kottos</name>
 		<picture>module/generic/generic_off.png</picture>
 		<quality>rare</quality>
 		<effect type="module">
@@ -2927,9 +2927,9 @@ und verhindert, das der Besitzer bekannt wird</description>
 		</effect>
 	</item>
 
-	<!-- 416 - Rüstset Arcadia -->
+	<!-- 416 - Ruestset Arcadia -->
 	<item id="416" cargo="0">
-		<name>Rüstset für Arcadia Station</name>
+		<name>Ruestset fuer Arcadia Station</name>
 		<picture>module/generic/generic_off.png</picture>
 		<quality>rare</quality>
 		<effect type="module">
@@ -3016,7 +3016,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:hull value="500" />
 			</shipdata>
 		</effect>
-		<description>Ein Satz Panzerplatten aus gehärtetem Adamatium. Sehr wiederstandsfähig und verringert überdies die Wirkung von Disruptoren</description>
+		<description>Ein Satz Panzerplatten aus gehaertetem Adamatium. Sehr wiederstandsfaehig und verringert ueberdies die Wirkung von Disruptoren</description>
 	</item>
 
 	<!-- 422 - Panzerplatten aus Xentronium -->
@@ -3032,7 +3032,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:hull value="1000" />
 			</shipdata>
 		</effect>
-		<description>Ein Satz Panzerplatten aus gehärtetem Xentronium. Usprünglich nicht für Zivilisten zugänglich, sind sie mittlerweile auch für Kolonisten baubar</description>
+		<description>Ein Satz Panzerplatten aus gehaertetem Xentronium. Uspruenglich nicht fuer Zivilisten zugaenglich, sind sie mittlerweile auch fuer Kolonisten baubar</description>
 	</item>
 
 	<!-- 423 - Antaritpanzerplatten -->
@@ -3049,7 +3049,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:hull value="1500" />
 			</shipdata>
 		</effect>
-		<description>Diese extrem teuren Panzerplatten aus einer speziell gehärteten Antarit-Xentronium-Legierung sind das Non-Plus-Ultra der GCP-Technik</description>
+		<description>Diese extrem teuren Panzerplatten aus einer speziell gehaerteten Antarit-Xentronium-Legierung sind das Non-Plus-Ultra der GCP-Technik</description>
 	</item>
 
 	<!-- 424 - Shivanische Panzerplatten -->
@@ -3066,7 +3066,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:hull value="2000" />
 			</shipdata>
 		</effect>
-		<description>Gefertigt aus einer komplett unbekannten Legierung sind sie wiederstandsfähiger als alles bisher bekannte</description>
+		<description>Gefertigt aus einer komplett unbekannten Legierung sind sie wiederstandsfaehiger als alles bisher bekannte</description>
 	</item>
 
 	<!-- 425 - Panzerplatten der Uralten -->
@@ -3083,7 +3083,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:hull value="3000" />
 			</shipdata>
 		</effect>
-		<description>Viele Gerüchte ranken sich um die Panzerungstechnologie der Uralten. Da die Uralten über keinerlei Schildtechnologie verfügten ist sie aber vermutlich allem bekannten überlegen gewesen</description>
+		<description>Viele Geruechte ranken sich um die Panzerungstechnologie der Uralten. Da die Uralten ueber keinerlei Schildtechnologie verfuegten ist sie aber vermutlich allem bekannten ueberlegen gewesen</description>
 	</item>
 
 	<!-- 426 - Verbeulte Panzerplatten -->
@@ -3099,7 +3099,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 
 			</shipdata>
 		</effect>
-		<description>Von irgendeinem Schrotthändler aufgetrieben, erhöhen diese Panzerplatten leicht die Panzerung.</description>
+		<description>Von irgendeinem Schrotthaendler aufgetrieben, erhoehen diese Panzerplatten leicht die Panzerung.</description>
 	</item>
 
 	<!-- 427 - EMP-Scan-Modul -->
@@ -3208,7 +3208,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:flags>
 			</combo>
 		</effect>
-		<description>Das Meta-Set-Item für das Set HoL - Schrein des Opferns (Typhon)</description>
+		<description>Das Meta-Set-Item fuer das Set HoL - Schrein des Opferns (Typhon)</description>
 	</item>
 
 	<!-- 996 - Set Zacharys Life Insurrance [Hecate] -->
@@ -3230,15 +3230,15 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:picture_mod value="kommandosparkle" />
 			</combo>
 		</effect>
-		<description>Das Meta-Set-Item für das Set Zacharys Life Insurrance</description>
+		<description>Das Meta-Set-Item fuer das Set Zacharys Life Insurrance</description>
 	</item>
 
-	<!-- 997 - Sieben Sünden -->
+	<!-- 997 - Sieben Suenden -->
 	<item id="997" cargo="0" accesslevel="15">
-		<name>Sieben Sünden</name>
+		<name>Sieben Suenden</name>
 		<quality>epic</quality>
 		<effect type="module-set-meta">
-			<name>Sieben Sünden</name>
+			<name>Sieben Suenden</name>
 			<combo item-count="7">
 				<shd:hull value="105000" />
 				<shd:panzerung value="40" />
@@ -3261,7 +3261,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<shd:picture_mod value="setsiebensuenden" />
 			</combo>
 		</effect>
-		<description>Das Meta-Set-Item für das Set Sieben Sünden (Typhon)</description>
+		<description>Das Meta-Set-Item fuer das Set Sieben Suenden (Typhon)</description>
 	</item>
 
 	<!-- 998 - GCP Advanced Technology -->
@@ -3285,7 +3285,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:flags>
 			</combo>
 		</effect>
-		<description>Das Meta-Set-Item für das Set GCP Advanced Technology</description>
+		<description>Das Meta-Set-Item fuer das Set GCP Advanced Technology</description>
 	</item>
 
 	<!-- 999 - Die große NPC-Hilfe -->
@@ -3306,7 +3306,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 				</shd:flags>
 			</combo>
 		</effect>
-		<description>Das Meta-Set-Item für die große NPC-Hilfe (Test-Set...nicht mehr und nicht weniger)</description>
+		<description>Das Meta-Set-Item fuer die große NPC-Hilfe (Test-Set...nicht mehr und nicht weniger)</description>
 	</item>
 
 </items>
