@@ -3750,4 +3750,14 @@ public class Ship implements Locatable,Transfering {
 		
 		return getTypeData().getReCost();
 	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public int getEffectiveScanRange() {
+		double scanrange = 0;
+		scanrange = this.getShipType(this.getId()).getSensorRange() * ( this.getSensors()/100d);
+		return (int) Math.floor(scanrange);
+	}
 }

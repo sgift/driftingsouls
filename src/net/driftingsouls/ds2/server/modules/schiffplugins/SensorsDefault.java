@@ -134,7 +134,8 @@ public class SensorsDefault implements SchiffPlugin {
 		
 		List<Integer> fleetlist = null;
 		
-		int sensorrange = Math.round(shiptype.getSensorRange()*(ship.getSensors()/100f));
+		//int sensorrange = Math.round(shiptype.getSensorRange()*(ship.getSensors()/100f));
+		int sensorrange = ship.getEffectiveScanRange();
 		
 		if ( ( sensorrange > 0 ) && ( ship.getCrew() >= shiptype.getCrew()/3 ) ) {
 			int nebel = Ships.getNebula(ship.getLocation());
