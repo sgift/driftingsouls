@@ -258,7 +258,7 @@ public class PlayerStarmap
 					continue;
 				}
 
-				int shipScanRange = ship.getTypeData().getSensorRange();
+				int shipScanRange = ship.getEffectiveScanRange();
 				if(shipScanRange > scanRange)
 				{
 					scanRange = shipScanRange;
