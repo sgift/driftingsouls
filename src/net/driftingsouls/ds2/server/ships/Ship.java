@@ -3753,7 +3753,7 @@ public class Ship implements Locatable,Transfering {
 
 	/**
 	 * 
-	 * @return
+	 * @return The effective scan range caused by sensors subsystem
 	 */
 	public int getEffectiveScanRange() {
 		double scanrange = 0;
