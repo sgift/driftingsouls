@@ -214,9 +214,26 @@ public class Cargo implements Cloneable {
 				log.warn("Unbekannte Resource "+name+" - ignoriere Eintrag");
 				continue;
 			}
-			long count = XMLUtils.getLongAttribute(item, "count");
-			cargo[id] = count;
-			orgcargo[id] = count;
+			
+			if(id != Resources.ITEMS.getID())
+			{
+				long count = XMLUtils.getLongAttribute(item, "count");
+				cargo[id] = count;
+				orgcargo[id] = count;
+			}
+			else
+			{
+				String count = XMLUtils.getStringAttribute(item, "count");
+				if(orgitems == null)
+				{
+					orgitems = count;
+				}
+				else
+				{
+					orgitems += ";";
+					orgitems += count;
+				}
+			}
 		}
 		
 		// TODO: Item-Unterstuetzung
