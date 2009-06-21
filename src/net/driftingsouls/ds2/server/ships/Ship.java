@@ -3756,8 +3756,7 @@ public class Ship implements Locatable,Transfering {
 	 * @return The effective scan range caused by sensors subsystem
 	 */
 	public int getEffectiveScanRange() {
-		double scanrange = 0;
-		scanrange = this.getTypeData().getSensorRange() * ( this.getSensors()/100d);
+		double scanrange = this.getTypeData().getSensorRange() * ( this.getSensors()/100d);
 		return (int) Math.floor(scanrange);
 	}
 }

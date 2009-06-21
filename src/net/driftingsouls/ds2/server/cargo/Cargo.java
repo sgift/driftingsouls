@@ -232,6 +232,7 @@ public class Cargo implements Cloneable {
 				{
 					orgitems += ";";
 					orgitems += count;
+					items.add(parseItems(count));
 				}
 			}
 		}
