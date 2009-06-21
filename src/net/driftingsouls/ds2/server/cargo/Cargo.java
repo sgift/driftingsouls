@@ -227,6 +227,7 @@ public class Cargo implements Cloneable {
 				if(orgitems == null)
 				{
 					orgitems = count;
+					items.add(parseItems(count));
 				}
 				else
 				{
@@ -236,8 +237,6 @@ public class Cargo implements Cloneable {
 				}
 			}
 		}
-		
-		// TODO: Item-Unterstuetzung
 	}
 	
 	/**
