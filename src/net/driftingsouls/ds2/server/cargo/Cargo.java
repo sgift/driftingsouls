@@ -1018,7 +1018,9 @@ public class Cargo implements Cloneable {
 			}
 		}
 		
-		if( items.size() > 0 ) {
+		if( items.size() > 0 ) 
+		{
+			List<Long[]> toRemove = new ArrayList<Long[]>();
 			for( Long[] aitem : items ) {
 				double val = aitem[1]*factor;
 				switch( round ) {
@@ -1034,9 +1036,11 @@ public class Cargo implements Cloneable {
 					break;
 				}
 				if( aitem[1] == 0 ) {
-					items.remove(aitem);
+					toRemove.add(aitem);
 				}
 			}
+			
+			items.removeAll(toRemove);
 		}
 	}
 	
