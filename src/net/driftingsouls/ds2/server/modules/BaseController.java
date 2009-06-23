@@ -92,7 +92,7 @@ public class BaseController extends TemplateGenerator {
 			return false;
 		}
 		
-		/* base.getCargo().setOption( Cargo.Option.LINKCLASS, "schiffwaren" ); */
+		base.getCargo().setOption( Cargo.Option.LINKCLASS, "schiffwaren" );
 		
 		setPageTitle(Common._plaintitle(base.getName()));
 		
@@ -396,18 +396,20 @@ public class BaseController extends TemplateGenerator {
 		t.setBlock("_BASE", "base.cargo.listitem", "base.cargo.list");
 		
 		for( ResourceEntry res : reslist ) {
-			t.setVar(	"res.name",		res.getName(),
-						"res.image",	res.getImage(),
-						"res.cargo1",	res.getCargo1(),
-						"res.cargo2",	res.getCargo2(),
-						"res.plaincount2",	res.getCount2(),
-						"res.nahrungspeciallink", "" );
+			
 			if( res.getCount2() > 0 ) {
 				base.getCargo().setOption( Cargo.Option.LINKCLASS, "ok" );
 			}
 			if( res.getCount2() < 0 ) {
 				base.getCargo().setOption( Cargo.Option.LINKCLASS, "error" );
 			}
+			t.setVar(	"res.name",		res.getName(),
+						"res.image",	res.getImage(),
+						"res.cargo1",	res.getCargo1(),
+						"res.cargo2",	res.getCargo2(),
+						"res.plaincount2",	res.getCount2(),
+						"res.nahrungspeciallink", "" );
+
 			if( res.getId().equals(Resources.NAHRUNG) ) {
 				tooltiptext = new StringBuilder(100);
 				tooltiptext.append(Common.tableBegin(300,"center").replace('"', '\''));
