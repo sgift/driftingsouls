@@ -46,7 +46,7 @@ public class KSMenuAttackAction extends BasicKSMenuAction {
 		ATTMODES.put("single", "Einzelsalve");
 		ATTMODES.put("alphastrike", "Mehrfachsalve (5)");
 		ATTMODES.put("strafe", "Sperrfeuer (5)");
-		ATTMODES.put("alphastrike_max", "Mehrfachsavle (max)");
+		ATTMODES.put("alphastrike_max", "Mehrfachsalve (max)");
 		ATTMODES.put("strafe_max", "Sperrfeuer (max)");
 		
 		NEXTATTMODES.put("single", "alphastrike");

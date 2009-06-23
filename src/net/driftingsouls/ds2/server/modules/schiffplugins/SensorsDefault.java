@@ -134,8 +134,7 @@ public class SensorsDefault implements SchiffPlugin {
 		
 		List<Integer> fleetlist = null;
 		
-		//int sensorrange = Math.round(shiptype.getSensorRange()*(ship.getSensors()/100f));
-		int sensorrange = ship.getEffectiveScanRange();
+		int sensorrange = Math.round(shiptype.getSensorRange()*(ship.getSensors()/100f));
 		
 		if ( ( sensorrange > 0 ) && ( ship.getCrew() >= shiptype.getCrew()/3 ) ) {
 			int nebel = Ships.getNebula(ship.getLocation());
@@ -628,7 +627,7 @@ public class SensorsDefault implements SchiffPlugin {
 						}
 						else if( aship.getHeat() > 100 )
 						{
-							t.setVar("sships.heat.hight",1);
+							t.setVar("sships.heat.high",1);
 						}
 		
 						// Anzeige Crew
