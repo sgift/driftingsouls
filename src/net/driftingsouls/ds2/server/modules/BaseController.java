@@ -396,13 +396,6 @@ public class BaseController extends TemplateGenerator {
 		t.setBlock("_BASE", "base.cargo.listitem", "base.cargo.list");
 		
 		for( ResourceEntry res : reslist ) {
-			
-			if( res.getCount2() > 0 ) {
-				base.getCargo().setOption( Cargo.Option.LINKCLASS, "ok" );
-			}
-			if( res.getCount2() < 0 ) {
-				base.getCargo().setOption( Cargo.Option.LINKCLASS, "error" );
-			}
 			t.setVar(	"res.name",		res.getName(),
 						"res.image",	res.getImage(),
 						"res.cargo1",	res.getCargo1(),

@@ -881,7 +881,15 @@ public class Cargo implements Cloneable {
 				
 				if( !nohtml ) {			
 					fcargo1 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo1+"</a>";
-					fcargo2 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo2+"</a>";
+					if(cargo2 > 0) {
+            fcargo2 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\"ok\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo2+"</a>";
+            }
+          else if(cargo2 < 0) {
+            fcargo2 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\"error\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo2+"</a>";
+          }
+          else {
+					 fcargo2 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo2+"</a>";
+          }
 				}
 				
 				ResourceEntry entry = new ResourceEntry(aitem, name, plainname, image, fcargo1, fcargo2, cargo1, cargo2, diff);
