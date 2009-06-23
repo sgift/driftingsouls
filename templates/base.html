@@ -100,13 +100,13 @@
 			<!-- +START+ Cargo -->
 			<!-- BEGIN base.cargo.listitem -->
 				{if res.plaincount2 > 0}
-					<img style="vertical-align:middle" src="{res.image}" alt="" /><span style="color:#00ff00">{res.name} {res.cargo1} +{res.cargo2}</span>
+					<img style="vertical-align:middle" src="{res.image}" alt="" /><span style="color:#00ff00" class="ok">{res.name} {res.cargo1} +{res.cargo2}</span>
 				{/endif}
 				{if res.plaincount2 == 0}
 					<img style="vertical-align:middle" src="{res.image}" alt="" />{res.name} {res.cargo1}
 				{/endif}
 				{if res.plaincount2 < 0}
-					<img style="vertical-align:middle" src="{res.image}" alt="" /><span style="color:#ff0000">{res.name} {res.cargo1} {res.cargo2}</span>
+					<img style="vertical-align:middle" src="{res.image}" alt="" /><span style="color:#ff0000" class="error">{res.name} {res.cargo1} {res.cargo2}</span>
 				{/endif}
 				{if res.nahrungspeciallink}
 					<a class="noborder" id="transfernahrung" name="transfernahrung" onclick="javascript:void(overlib('{res.nahrungspeciallink}',REF,'transfernahrung', WIDTH,'300',REFC,'UL',REFP,'UL',FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'tooltip',NOCLOSE,STICKY));" onmouseout="return nd();" href="#">
