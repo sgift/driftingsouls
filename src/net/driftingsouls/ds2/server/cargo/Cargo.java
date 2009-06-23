@@ -738,6 +738,20 @@ public class Cargo implements Cloneable {
 	public ResourceList compare( Cargo cargoObj, boolean echoBothSides ) {
 		return compare(cargoObj,echoBothSides,false);
     }
+    
+	/**
+	 * Vergleicht diesen Cargo mit einem anderen Cargo und gibt das Ergebnis als
+	 * Resourcenliste teilweise vorformatiert zurueck. Der Vergleich kann entweder einseitig
+	 * (nur die Resourcen in diesem Cargo werden im anderen Cargo geprueft) oder auch gegenseitig
+	 * (jede Resource, welche in einem der beiden Cargos vorkommt, wird geprueft) erfolgen.<br>
+	 * In der zurueckgegebenen Resourcenliste ist dieser Cargo der erste, der Cargo, gegen den geprueft
+	 * werden soll (das Argument) der zweite.
+	 * 
+	 * @param cargoObj Das Cargoobjekt, gegen das geprueft werden soll.
+	 * @param echoBothSides Soll gegenseitig geprueft werden (<code>true</code>)?
+	 * @param basis Soll fuer den BaseController geprueft werden (<code>true</code>)?
+	 * @return Die Resourcenliste mit dem Ergebnis.
+	 */ 
 	public ResourceList compare( Cargo cargoObj, boolean echoBothSides, boolean basis) {
 		ResourceList reslist = new ResourceList();
 		
