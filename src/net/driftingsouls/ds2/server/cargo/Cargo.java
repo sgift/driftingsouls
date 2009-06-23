@@ -735,9 +735,9 @@ public class Cargo implements Cloneable {
 	 * @param echoBothSides Soll gegenseitig geprueft werden (<code>true</code>)?
 	 * @return Die Resourcenliste mit dem Ergebnis.
 	 */
-	public ResourceList compare( Cargo cargoObj, boolean echoBothSides  boolean basis ) {
+	public ResourceList compare( Cargo cargoObj, boolean echoBothSides ) {
 		return compare(cargoObj,echoBothSides,false);
-  }
+    }
 	public ResourceList compare( Cargo cargoObj, boolean echoBothSides, boolean basis) {
 		ResourceList reslist = new ResourceList();
 		
