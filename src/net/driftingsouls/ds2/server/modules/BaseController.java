@@ -377,7 +377,7 @@ public class BaseController extends TemplateGenerator {
 		int bue = base.getBewohner() - basedata.getArbeiter();
 		int wue = basedata.getBewohner() - base.getBewohner();
 		
-		ResourceList reslist = base.getCargo().compare(basedata.getStatus(), true);
+		ResourceList reslist = base.getCargo().compare(basedata.getStatus(), true,true);
 		if( basedata.getStatus().getResourceCount(Resources.NAHRUNG) == 0 && !base.getCargo().hasResource(Resources.NAHRUNG) ) {
 			reslist.addEntry(
 					new ResourceEntry(

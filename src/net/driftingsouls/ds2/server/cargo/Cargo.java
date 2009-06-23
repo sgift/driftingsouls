@@ -735,7 +735,10 @@ public class Cargo implements Cloneable {
 	 * @param echoBothSides Soll gegenseitig geprueft werden (<code>true</code>)?
 	 * @return Die Resourcenliste mit dem Ergebnis.
 	 */
-	public ResourceList compare( Cargo cargoObj, boolean echoBothSides ) {
+	public ResourceList compare( Cargo cargoObj, boolean echoBothSides  boolean basis ) {
+		return compare(cargoObj,echoBothSides,false);
+  }
+	public ResourceList compare( Cargo cargoObj, boolean echoBothSides, boolean basis) {
 		ResourceList reslist = new ResourceList();
 		
 		long[] cargo = cargoObj.getCargoArray();
@@ -881,10 +884,10 @@ public class Cargo implements Cloneable {
 				
 				if( !nohtml ) {			
 					fcargo1 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo1+"</a>";
-					if(cargo2 > 0) {
+					if(cargo2 > 0 && basis) {
             fcargo2 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\"ok\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo2+"</a>";
             }
-          else if(cargo2 < 0) {
+          else if(cargo2 < 0 && basis) {
             fcargo2 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\"error\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo2+"</a>";
           }
           else {
