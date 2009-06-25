@@ -493,7 +493,8 @@ public class WerftGUI {
 							"res.mangel",		res.getDiff() > 0 );
         if(res.getDiff() > 0) {
           costs.setOption( Cargo.Option.LINKCLASS, "error" );
-        } else {
+        } 
+        else {
           costs.setOption( Cargo.Option.LINKCLASS, "ok" );
         }
 				t.parse("buildship.res.list", "buildship.res.listitem", true);
