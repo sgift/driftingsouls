@@ -485,12 +485,17 @@ public class WerftGUI {
 						"res.mangel",		0 );
 			t.parse("buildship.res.list", "buildship.res.listitem", false);
 				
-			ResourceList reslist = costs.compare( availablecargo, false );
+			ResourceList reslist = costs.compare( availablecargo, false, false, true );
 			for( ResourceEntry res : reslist ) {
 				t.setVar(	"res.image",		res.getImage(),
 							"res.count",		res.getCargo1(),
 							"res.plainname",	res.getPlainName(),
 							"res.mangel",		res.getDiff() > 0 );
+        if(res.getDiff() > 0) {
+          costs.setOption( Cargo.Option.LINKCLASS, "error" );
+        } else {
+          costs.setOption( Cargo.Option.LINKCLASS, "ok" );
+        }
 				t.parse("buildship.res.list", "buildship.res.listitem", true);
 			}
 
@@ -888,7 +893,7 @@ public class WerftGUI {
 		Cargo perTickCosts = new Cargo(shipdataCosts);
 		perTickCosts.multiply(1/(double)shipdata.getInt("dauer"), Cargo.Round.CEIL);
 		
-		ResourceList reslist = shipdataCosts.compare( cargo, false );
+		ResourceList reslist = shipdataCosts.compare( cargo, false, false, true );
 		for( ResourceEntry res : reslist ) {
 			t.setVar(	"res.image",			res.getImage(),
 						"res.plainname",		res.getPlainName(),

@@ -736,7 +736,7 @@ public class Cargo implements Cloneable {
 	 * @return Die Resourcenliste mit dem Ergebnis.
 	 */
 	public ResourceList compare( Cargo cargoObj, boolean echoBothSides ) {
-		return compare(cargoObj,echoBothSides,false);
+		return compare(cargoObj,echoBothSides,false,false);
     }
     
 	/**
@@ -752,7 +752,25 @@ public class Cargo implements Cloneable {
 	 * @param basis Soll fuer den BaseController geprueft werden (<code>true</code>)?
 	 * @return Die Resourcenliste mit dem Ergebnis.
 	 */ 
-	public ResourceList compare( Cargo cargoObj, boolean echoBothSides, boolean basis) {
+  public ResourceList compare( Cargo cargoObj, boolean echoBothSides, boolean basis) {
+    return compare(cargoObj,echoBothSides,basis,false);
+  }
+
+	/**
+	 * Vergleicht diesen Cargo mit einem anderen Cargo und gibt das Ergebnis als
+	 * Resourcenliste teilweise vorformatiert zurueck. Der Vergleich kann entweder einseitig
+	 * (nur die Resourcen in diesem Cargo werden im anderen Cargo geprueft) oder auch gegenseitig
+	 * (jede Resource, welche in einem der beiden Cargos vorkommt, wird geprueft) erfolgen.<br>
+	 * In der zurueckgegebenen Resourcenliste ist dieser Cargo der erste, der Cargo, gegen den geprueft
+	 * werden soll (das Argument) der zweite.
+	 * 
+	 * @param cargoObj Das Cargoobjekt, gegen das geprueft werden soll.
+	 * @param echoBothSides Soll gegenseitig geprueft werden (<code>true</code>)?
+	 * @param basis Soll fuer den BaseController geprueft werden (<code>true</code>)?
+	 * @param baukosten Soll fuer den BaseController geprueft werden (<code>true</code>)?
+	 * @return Die Resourcenliste mit dem Ergebnis.
+	 */  
+	public ResourceList compare( Cargo cargoObj, boolean echoBothSides, boolean basis, boolean baukosten) {
 		ResourceList reslist = new ResourceList();
 		
 		long[] cargo = cargoObj.getCargoArray();
@@ -897,18 +915,26 @@ public class Cargo implements Cloneable {
 				}
 				
 				if( !nohtml ) {			
-					fcargo1 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo1+"</a>";
-					if(cargo2 > 0 && basis) {
+          if(diff > 0 && baukosten) {
+            fcargo1 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\"error\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo1+"</a>";
+          } 
+          else if(diff <= 0 && baukosten) {
+            fcargo1 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\"ok\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo1+"</a>";
+          } 
+          else {
+					  fcargo1 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo1+"</a>";
+          }
+          if(cargo2 > 0 && basis) {
             fcargo2 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\"ok\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo2+"</a>";
-            }
+          }
           else if(cargo2 < 0 && basis) {
             fcargo2 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\"error\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo2+"</a>";
           }
           else {
-					 fcargo2 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo2+"</a>";
-          }
-				}
-				
+					  fcargo2 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo2+"</a>";
+				  }
+        }
+        
 				ResourceEntry entry = new ResourceEntry(aitem, name, plainname, image, fcargo1, fcargo2, cargo1, cargo2, diff);
 				if( large ) {
 					entry.setLargeImages(large);

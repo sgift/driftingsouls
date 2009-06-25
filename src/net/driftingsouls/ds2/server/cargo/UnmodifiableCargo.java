@@ -68,6 +68,11 @@ public class UnmodifiableCargo extends Cargo {
 	public ResourceList compare(Cargo cargoObj, boolean echoBothSides) {
 		return innerCargo.compare(cargoObj, echoBothSides);
 	}
+  
+  @Override
+  public ResourceList compare(Cargo cargoObj, boolean echoBothSides, boolean baukosten) {
+    return innerCargo.compare(cargoObj, echoBothSides, false, baukosten);
+  }
 
 	@Override
 	public Cargo cutCargo(long mass) {

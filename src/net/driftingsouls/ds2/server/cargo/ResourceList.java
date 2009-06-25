@@ -114,6 +114,7 @@ public class ResourceList implements Iterable<ResourceEntry> {
 	 */
 	public void addEntry(ResourceEntry entry) {
 		list.add(entry);
+    this.sortByID(false);
 	}
 	
 	/**

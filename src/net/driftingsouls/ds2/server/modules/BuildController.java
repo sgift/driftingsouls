@@ -335,7 +335,7 @@ public class BuildController extends TemplateGenerator {
 			
 			boolean ok = true;
 			
-			ResourceList compreslist = buildcosts.compare(basecargo, false);
+			ResourceList compreslist = buildcosts.compare(basecargo, false, true);
 			for( ResourceEntry compres : compreslist ) {
 				if( compres.getDiff() > 0 ) {
 					ok = false;
