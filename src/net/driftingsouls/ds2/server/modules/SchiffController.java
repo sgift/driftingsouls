@@ -327,6 +327,12 @@ public class SchiffController extends TemplateGenerator {
 			redirect();
 			return;
 		}
+		if( ship.isNoSuicide() )
+		{
+			t.setVar("ship.message", "<span style=\"color:red\">Dieses Schiff kann sich nicht selbstzerst&ouml;ren.</span><br />");
+			redirect();
+			return;
+		}
 	
 		parameterNumber("conf");
 		int conf = getInteger("conf");

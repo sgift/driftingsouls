@@ -3759,4 +3759,14 @@ public class Ship implements Locatable,Transfering {
 		double scanrange = this.getTypeData().getSensorRange() * ( this.getSensors()/100d);
 		return (int) Math.floor(scanrange);
 	}
+	
+	/**
+	 * Gibt an, ob das Schiff selbstzerstoert werden kann
+	 * 
+	 * @return <code>true</code>, wenn das Schiff nicht selbstzerstoert werden kann, sonst <code>false</code>
+	 */
+	public boolean isNoSuicide()
+	{
+		return this.getStatus().contains("nosuicide");
+	}
 }

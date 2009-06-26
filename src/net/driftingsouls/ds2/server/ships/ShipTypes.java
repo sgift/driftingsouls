@@ -136,6 +136,11 @@ public class ShipTypes {
 	 */
 	public static final String SF_WERFTKOMPLEX = "werftkomplex";
 	
+	/**
+	 * Das Schiff kann keine selbstzerstoerung
+	 */
+	public static final String SF_NICHT_ZERSTOERBAR = "nosuicide";
+	
 	private static final Map<String,String> shipTypeFlagNames = new HashMap<String,String>();
 	private static final Map<String,String> shipTypeFlagDescs = new HashMap<String,String>();
 	
