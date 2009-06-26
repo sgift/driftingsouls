@@ -137,7 +137,7 @@ public class ShipTypes {
 	public static final String SF_WERFTKOMPLEX = "werftkomplex";
 	
 	/**
-	 * Das Schiff kann keine selbstzerstoerung
+	 * Das Schiff kann keine selbstzerstoerung.
 	 */
 	public static final String SF_NICHT_ZERSTOERBAR = "nosuicide";
 	

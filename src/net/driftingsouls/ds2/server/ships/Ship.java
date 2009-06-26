@@ -3761,7 +3761,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Gibt an, ob das Schiff selbstzerstoert werden kann
+	 * Gibt an, ob das Schiff selbstzerstoert werden kann.
 	 * 
 	 * @return <code>true</code>, wenn das Schiff nicht selbstzerstoert werden kann, sonst <code>false</code>
 	 */
