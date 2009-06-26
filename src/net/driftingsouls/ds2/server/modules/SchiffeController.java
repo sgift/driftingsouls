@@ -342,10 +342,12 @@ public class SchiffeController extends TemplateGenerator {
 						final int totalSlots = werft.getWerftSlots();
 						int usedSlots = 0;
 						int buildingCount = 0;
+						String imBau = "";
 						for( int i=0; i < entries.length; i++ ) {
 							if( entries[i].isScheduled() ) {
 								usedSlots += entries[i].getSlots();
 								buildingCount++;
+								imBau = imBau+"<br />Aktuell im Bau: "+entries[i].getBuildShipType().getNickname()+" <img src='"+config.get("URL")+"data/interface/time.gif' alt='Dauer: ' />"+entries[i].getRemainingTime();
 							}
 						}
 						
@@ -354,6 +356,7 @@ public class SchiffeController extends TemplateGenerator {
 						popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='"+config.get("URL")+"data/interface/schiffinfo/werftslots.png' alt='' />"+usedSlots+"/"+totalSlots+"<br />");
 						popup.append("Im Bau: "+buildingCount+" Schiffe<br />");
 						popup.append("In der Warteschlange: "+(entries.length - buildingCount));
+						popup.append(imBau);
 						popup.append(Common.tableEnd().replace( '"', '\'' ));
 						String popupStr = StringEscapeUtils.escapeJavaScript(popup.toString().replace(">", "&gt;").replace("<", "&lt;"));
 	

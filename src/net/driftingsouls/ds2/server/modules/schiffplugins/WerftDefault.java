@@ -59,10 +59,12 @@ public class WerftDefault implements SchiffPlugin {
 			final int totalSlots = werft.getWerftSlots();
 			int usedSlots = 0;
 			int buildingCount = 0;
+			String imBau = "";
 			for( int i=0; i < entries.length; i++ ) {
 				if( entries[i].isScheduled() ) {
 					usedSlots += entries[i].getSlots();
 					buildingCount++;
+					imBau = imBau+"<br />Aktuell im Bau: "+entries[i].getBuildShipType().getNickname()+" <img src='data/interface/time.gif' alt='Dauer: ' />"+entries[i].getRemainingTime();
 				}
 			}
 			t.setVar(
@@ -71,7 +73,8 @@ public class WerftDefault implements SchiffPlugin {
 					"schiff.werft.usedslots",	usedSlots,
 					"schiff.werft.totalslots",	totalSlots,
 					"schiff.werft.scheduled",	buildingCount,
-					"schiff.werft.waiting",		entries.length-buildingCount
+					"schiff.werft.waiting",		entries.length-buildingCount,
+					"schiff.werft.bau", imBau
 					);
 			
 			t.parse(caller.target,"_PLUGIN_"+pluginid);
