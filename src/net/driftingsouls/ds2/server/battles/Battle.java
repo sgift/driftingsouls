@@ -547,7 +547,7 @@ public class Battle implements Locatable {
 				return i;
 			}
 		}
-	
+	/*
 		// Irgendein nicht gelandetes Schiff suchen
 		for( int i=0; i < enemyShips.size(); i++ ) {
 			BattleShip aship = enemyShips.get(i);
@@ -560,7 +560,7 @@ public class Battle implements Locatable {
 				return i;
 			}
 		}
-		
+		*/
 		return 0;
 	}
 	
