@@ -32,6 +32,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -135,12 +136,18 @@ public class BaseController extends TemplateGenerator {
 		Cargo cargo = new Cargo(base.getCargo());
 		
 		cargo.substractResource( Resources.NAHRUNG, count );
-		usercargo.addResource( Resources.NAHRUNG, count*NAHRUNG_CHECKOUT_FACTOR );
+		
+		ConfigValue foodpooldegenerationConfig = (ConfigValue)getDB().get(ConfigValue.class, "foodpooldegeneration");
+		double transferfactor = 10.0;
+		double foodpooldegeneration = Double.valueOf(foodpooldegenerationConfig.getValue());
+		foodpooldegeneration = (foodpooldegeneration/100.0)*transferfactor;
+		long foodAddedPool = (long) ((count*NAHRUNG_CHECKOUT_FACTOR)*foodpooldegeneration);
+		usercargo.addResource( Resources.NAHRUNG, foodAddedPool );
 	
 		user.setCargo(usercargo.save());
 		base.setCargo(cargo);
 	
-		t.setVar("base.message", "<img src=\""+Cargo.getResourceImage(Resources.NAHRUNG)+"\" alt=\"\" />"+Math.abs(count)+" transferiert" );
+		t.setVar("base.message", "<img src=\""+Cargo.getResourceImage(Resources.NAHRUNG)+"\" alt=\"\" />"+Math.abs(foodAddedPool)+" transferiert" );
 	
 		redirect();
 	}
