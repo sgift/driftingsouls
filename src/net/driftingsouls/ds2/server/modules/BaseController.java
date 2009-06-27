@@ -138,7 +138,15 @@ public class BaseController extends TemplateGenerator {
 		cargo.substractResource( Resources.NAHRUNG, count );
 		
 		ConfigValue foodpooldegenerationConfig = (ConfigValue)getDB().get(ConfigValue.class, "foodpooldegeneration");
-		double transferfactor = 10.0;
+		double transferfactor = 1.0;
+		if(count < 0)
+		{
+			transferfactor = 10.0;	
+		}
+		else
+		{
+			transferfactor = 1.0;
+		}
 		double foodpooldegeneration = Double.valueOf(foodpooldegenerationConfig.getValue());
 		foodpooldegeneration = (foodpooldegeneration/100.0)*transferfactor;
 		long foodAddedPool = (long) ((count*NAHRUNG_CHECKOUT_FACTOR)*foodpooldegeneration);
