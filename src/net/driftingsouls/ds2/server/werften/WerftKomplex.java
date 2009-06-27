@@ -43,11 +43,14 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 @Entity
 @DiscriminatorValue("komplex")
 public class WerftKomplex extends WerftObject {
+	//Used within the database to check for komplex
+	@SuppressWarnings("unused")
+	private boolean komplex = true;
+	
 	/**
 	 * Konstruktor.
 	 */
 	public WerftKomplex() {
-		// EMPTY
 	}
 	
 	@Transient
