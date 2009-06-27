@@ -147,7 +147,7 @@ public class BaseController extends TemplateGenerator {
 		}
 		else
 		{
-			transferfactor = 1.0 - (0.1 * foodpooldegeneration);
+			transferfactor = 1.0 + (0.1 * foodpooldegeneration);
 		}
 		long foodAddedPool = (long) ((count*NAHRUNG_CHECKOUT_FACTOR)*transferfactor);
 		usercargo.addResource( Resources.NAHRUNG, foodAddedPool );
