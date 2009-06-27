@@ -71,6 +71,11 @@ public class Kommandozentrale extends DefaultBuilding {
 		base.setAutoGTUActs(new ArrayList<AutoGTUAction>());
 		User nullUser = (User)context.getDB().get(User.class, 0);
 		base.setOwner(nullUser);
+		Integer[] active = base.getActive();
+		for(int i = 0; i < active.length; i++)
+		{
+			active[i] = 0;
+		}
 				
 		db.createQuery("update ShipWerft set linked=null where linked=:base")
 			.setEntity("base", base)

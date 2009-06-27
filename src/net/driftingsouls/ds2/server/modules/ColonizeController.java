@@ -124,6 +124,11 @@ public class ColonizeController extends TemplateGenerator {
 		Integer[] bebauung = base.getBebauung();
 		Integer[] bebon = base.getActive();
 		
+		for(int i = 0; i < bebon.length; i++)
+		{
+			bebon[i] = 0;
+		}
+		
 		Map<Integer,Integer> bases = new HashMap<Integer,Integer>();
 		bases.put(base.getSystem(), 0);
 		int basecount = 0;
