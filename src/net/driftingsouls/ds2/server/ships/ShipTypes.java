@@ -164,7 +164,7 @@ public class ShipTypes {
 		shipTypeFlagNames.put(SF_SECONDROW, "Zweite Reihe");
 		shipTypeFlagNames.put(SF_OFFITRANSPORT, "Offizierstransporter");
 		shipTypeFlagNames.put(SF_WERFTKOMPLEX, "Werftkomplex");
-		shipTypeFlagNames.put(SF_NICHT_ZERSTOERBAR, "Keine Selbstzerstîrung");
+		shipTypeFlagNames.put(SF_NICHT_ZERSTOERBAR, "Keine Selbstzerst&ouml;rung");
 		
 		shipTypeFlagDescs.put(SF_COLONIZER, "Die Eigenschaft Colonzier erm&ouml;glicht es umbewohnte Asteroiden zu kolonisieren");
 		shipTypeFlagDescs.put(SF_ZERSTOERERPANZERUNG, "Die Zerst&ouml;rerpanzerung sorgt daf&uuml;r, dass pro Kampfrunde maximal 33% Schaden gemessen an an der maximalen H&uuml;llenst&auml;rke dem Schiff zugef&uuml;gt werden kann");
@@ -185,7 +185,7 @@ public class ShipTypes {
 		shipTypeFlagDescs.put(SF_SECONDROW, "Dieses Schiff kann in einem Kampf in die zweite Reihe wechseln, wo es vor Angriffen des Gegners sicherer ist");
 		shipTypeFlagDescs.put(SF_OFFITRANSPORT, "Dieses Schiff kann Offiziere in der H&ouml;he seiner max. Crew transportieren");
 		shipTypeFlagDescs.put(SF_WERFTKOMPLEX, "Diese Werft kann sich mit anderen Werften, welche die Eigenschaft Werftkomplex besitzen, zusammenschliessen. Die Ressourcen der Einzelwerften werden dabei gemeinsam genutzt");
-		shipTypeFlagDescs.put(SF_NICHT_ZERSTOERBAR, "Dieses Schiff verfÅgt Åber keine Selbstzerstîrungsanlage");
+		shipTypeFlagDescs.put(SF_NICHT_ZERSTOERBAR, "Dieses Schiff verf&uuml;gt &uuml;ber keine Selbstzerst&ouml;rungsanlage");
 	}
 	
 	/**
