@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
+import java.util.List;
 import java.util.Random;
 
 import net.driftingsouls.ds2.server.ContextCommon;
@@ -27,9 +28,11 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.UpgradeJob;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 /**
  * TASK_AUSBAU_AUFTRAG
@@ -142,6 +145,11 @@ class HandleUpgradeJob implements TaskHandler
 
 				// Base "besetzen"
 				base.setOwner((User) db.get(User.class, -19));
+				List<ShipWerft> linkedShipyards = Common.cast(db.createQuery("from ShipWerft where linked=:linked").setParameter("linked", base).list());
+				for(ShipWerft shipyard: linkedShipyards)
+				{
+					shipyard.resetLink();
+				}
 
 				// "Vernichte" den colonizer.
 				order.setColonizer(null);
