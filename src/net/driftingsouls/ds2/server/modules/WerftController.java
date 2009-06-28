@@ -102,7 +102,13 @@ public class WerftController extends TemplateGenerator {
 		// Ueberpruefen, ob die Werft inzwischen verschoben wurde (und ggf. der link aufgeloesst werden muss)
 		if( werft.isLinked() ) {
 			Base base = werft.getLinkedBase();
-			if( !base.getLocation().sameSector(base.getSize(), ship.getLocation(), 0) ) {
+			if( !base.getLocation().sameSector(base.getSize(), ship.getLocation(), 0) ) 
+			{
+				werft.resetLink();
+			}
+			
+			if(!base.getOwner().equals(ship.getOwner()))
+			{
 				werft.resetLink();
 			}
 		}
