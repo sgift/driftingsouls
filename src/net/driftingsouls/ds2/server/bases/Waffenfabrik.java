@@ -608,7 +608,7 @@ public class Waffenfabrik extends DefaultBuilding {
 		/*
 			Ausgabe: Verbrauch, Auftraege, Liste baubarer Munitionstypen
 		*/
-		echo.append(Common.tableBegin(760, "left"));
+		echo.append(Common.tableBegin(1060, "left"));
 		
 		echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/time.gif\" alt=\"Zeiteinheiten\" />"+usedcapacity+"/"+wf.getCount()+" ausgelastet<br />\n");
 		echo.append("Verbrauch: ");
@@ -622,7 +622,12 @@ public class Waffenfabrik extends DefaultBuilding {
 		echo.append("<td class=\"noBorderX\" style=\"width:20px\">&nbsp;</td>\n");
 		echo.append("<td class=\"noBorderX\" style=\"font-weight:bold\">Objekt</td>\n");
 		echo.append("<td class=\"noBorderX\" style=\"font-weight:bold\">Kosten</td>\n");
-		echo.append("<td class=\"noBorderX\" style=\"width:130px\"></td>\n");
+		echo.append("<td class=\"noBorderX\" style=\"width:130px\">&nbsp;</td>\n");
+		echo.append("<td class=\"noBorderX\" style=\"width:30px\">&nbsp;</td>\n");
+		echo.append("<td class=\"noBorderX\" style=\"width:30px\">&nbsp;</td>\n");
+		echo.append("<td class=\"noBorderX\" style=\"width:30px\">&nbsp;</td>\n");
+		echo.append("<td class=\"noBorderX\" style=\"width:30px\">&nbsp;</td>\n");
+		echo.append("<td class=\"noBorderX\" style=\"width:30px\">&nbsp;</td>\n");
 		echo.append("</tr>");
 		
 		for( Item item : Items.get() )
@@ -677,6 +682,72 @@ public class Waffenfabrik extends DefaultBuilding {
 			echo.append("<input name=\"module\" type=\"hidden\" value=\"building\" />\n");
 			echo.append("<input type=\"submit\" value=\"herstellen\" />\n");
 			echo.append("</div>\n");
+			echo.append("</form></td>\n");
+			
+			/* auf null */
+			echo.append("<td class=\"noBorderX\" style=\"vertical-align:top; width:30px\">\n");
+			echo.append("<form action=\"./ds\" method=\"post\">\n");
+			echo.append("<div>\n");
+			echo.append("<input name=\"count\" type=\"hidden\" size=\"2\" value=\"-"+productlist.get(ammo)+"\" />\n");
+			echo.append("<input name=\"produce\" type=\"hidden\" value=\""+ammo.getId()+"\" />\n");
+			echo.append("<input name=\"col\" type=\"hidden\" value=\""+base.getId()+"\" />\n");
+			echo.append("<input name=\"field\" type=\"hidden\" value=\""+field+"\" />\n");
+			echo.append("<input name=\"module\" type=\"hidden\" value=\"building\" />\n");
+			echo.append("<input type=\"submit\" value=\"reset\" />\n");
+			echo.append("</div>\n");
+			echo.append("</form></td>\n");
+			
+			/* plus 1 */
+			echo.append("<td class=\"noBorderX\" style=\"vertical-align:top; width:30px\">\n");
+			echo.append("<form action=\"./ds\" method=\"post\">\n");
+			echo.append("<div>\n");
+			echo.append("<input name=\"count\" type=\"hidden\" size=\"2\" value=\"1\" />\n");
+			echo.append("<input name=\"produce\" type=\"hidden\" value=\""+ammo.getId()+"\" />\n");
+			echo.append("<input name=\"col\" type=\"hidden\" value=\""+base.getId()+"\" />\n");
+			echo.append("<input name=\"field\" type=\"hidden\" value=\""+field+"\" />\n");
+			echo.append("<input name=\"module\" type=\"hidden\" value=\"building\" />\n");
+			echo.append("<input name=\"plus 1\" type=\"submit\" value=\"+1\" />\n");
+			echo.append("</div>\n");
+			echo.append("</form></td>\n");
+
+			/* plus 5 */
+			echo.append("<td class=\"noBorderX\" style=\"vertical-align:top; width:30px\">\n");
+			echo.append("<form action=\"./ds\" method=\"post\">\n");
+			echo.append("<div>\n");
+			echo.append("<input name=\"count\" type=\"hidden\" size=\"2\" value=\"5\" />\n");
+			echo.append("<input name=\"produce\" type=\"hidden\" value=\""+ammo.getId()+"\" />\n");
+			echo.append("<input name=\"col\" type=\"hidden\" value=\""+base.getId()+"\" />\n");
+			echo.append("<input name=\"field\" type=\"hidden\" value=\""+field+"\" />\n");
+			echo.append("<input name=\"module\" type=\"hidden\" value=\"building\" />\n");
+			echo.append("<input name=\"plus 5\" type=\"submit\" value=\"+ 5\" />\n");
+			echo.append("</div>\n");
+			echo.append("</form></td>\n");
+
+			/* minus 1 */
+			echo.append("<td class=\"noBorderX\" style=\"vertical-align:top; width:30px\">\n");
+			echo.append("<form action=\"./ds\" method=\"post\">\n");
+			echo.append("<div>\n");
+			echo.append("<input name=\"count\" type=\"hidden\" size=\"2\" value=\"-1\" />\n");
+			echo.append("<input name=\"produce\" type=\"hidden\" value=\""+ammo.getId()+"\" />\n");
+			echo.append("<input name=\"col\" type=\"hidden\" value=\""+base.getId()+"\" />\n");
+			echo.append("<input name=\"field\" type=\"hidden\" value=\""+field+"\" />\n");
+			echo.append("<input name=\"module\" type=\"hidden\" value=\"building\" />\n");
+			echo.append("<input name=\"minus 1\" type=\"submit\" value=\"- 1\" />\n");
+			echo.append("</div>\n");
+			echo.append("</form></td>\n");
+
+			/* minus 5 */
+			echo.append("<td class=\"noBorderX\" style=\"vertical-align:top; width:30px\">\n");
+			echo.append("<form action=\"./ds\" method=\"post\">\n");
+			echo.append("<div>\n");
+			echo.append("<input name=\"count\" type=\"hidden\" size=\"2\" value=\"-5\" />\n");
+			echo.append("<input name=\"produce\" type=\"hidden\" value=\""+ammo.getId()+"\" />\n");
+			echo.append("<input name=\"col\" type=\"hidden\" value=\""+base.getId()+"\" />\n");
+			echo.append("<input name=\"field\" type=\"hidden\" value=\""+field+"\" />\n");
+			echo.append("<input name=\"module\" type=\"hidden\" value=\"building\" />\n");
+			echo.append("<input name=\"minus 5\" type=\"submit\" value=\"- 5\" />\n");
+			echo.append("</div>\n");
+			
 			echo.append("</form></td></tr>\n");
 		}
 		
