@@ -136,7 +136,7 @@ public class SensorsDefault implements SchiffPlugin {
 		
 		int sensorrange = Math.round(shiptype.getSensorRange()*(ship.getSensors()/100f));
 		
-		if ( ( sensorrange > 0 ) && ( ship.getCrew() >= shiptype.getCrew()/3 ) ) {
+		if ( ( sensorrange > 0 ) && ( ship.getCrew() >= shiptype.getMinCrew()/3 ) ) {
 			int nebel = Ships.getNebula(ship.getLocation());
 			if( (nebel < 3) || (nebel > 5) ) {
 				t.setVar("global.longscan",1);
@@ -145,7 +145,7 @@ public class SensorsDefault implements SchiffPlugin {
 
 		String order = user.getUserValue("TBLORDER/schiff/sensororder");
 
-		if( ( ship.getSensors() > 30 ) && ( ship.getCrew() >= shiptype.getCrew() / 4 ) )
+		if( ( ship.getSensors() > 30 ) && ( ship.getCrew() >= shiptype.getMinCrew() / 4 ) )
 		{
 			t.setVar("global.goodscan",1);
 		}
