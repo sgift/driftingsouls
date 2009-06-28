@@ -709,7 +709,7 @@
 	]]></update>
 	<update type="data" datum="2009-03-21"><![CDATA[
 		UPDATE ship_types SET minCrew = crew;
-		UPDATE ship_modules SET minCrew = crew;
+		UPDATE ships_modules SET minCrew = crew;
 	]]></update>
 	<update type="data" datum="2009-03-21"><![CDATA[
 		INSERT INTO `config` (`name`,`value`,`description`,`version`)
@@ -787,7 +787,7 @@
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 	]]></update>
 	<update type="structure" datum="2009-05-03"><![CDATA[
-		 ALTER TABLE `tradepost_buy_limit` CHANGE `limit` `maximum` INT( 11 ) NOT NULL  
-		 ALTER TABLE `tradepost_sell` CHANGE `limit` `minimum` INT( 11 ) NOT NULL  
+		 ALTER TABLE `tradepost_buy_limit` CHANGE `limit` `maximum` INT( 11 ) NOT NULL;
+		 ALTER TABLE `tradepost_sell` CHANGE `limit` `minimum` INT( 11 ) NOT NULL;
 	]]></update>
 </updates>
