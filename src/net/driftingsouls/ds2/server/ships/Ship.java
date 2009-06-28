@@ -3368,8 +3368,17 @@ public class Ship implements Locatable,Transfering {
 					.setEntity(0, this)
 					.uniqueResult();
 				
-				if( (werft != null) && (werft.getKomplex() != null) ) {
-					werft.removeFromKomplex();
+				if(werft != null)
+				{
+					if(werft.isLinked())
+					{
+						werft.resetLink();
+					}
+					
+					if(werft.getKomplex() != null)
+					{
+						werft.removeFromKomplex();
+					}
 				}
 			}
 		}
