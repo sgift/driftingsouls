@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -205,6 +207,19 @@ public class AcademyBuilding extends DefaultBuilding {
 		org.hibernate.Session db = context.getDB();
 		User user = (User)context.getActiveUser();
 		
+		ConfigValue siliziumcostsConfig = (ConfigValue)db.get(ConfigValue.class, "newoffsiliziumcosts");
+		ConfigValue nahrungcostsConfig = (ConfigValue)db.get(ConfigValue.class, "newoffnahrungcosts");
+		ConfigValue siliziumfactorConfig = (ConfigValue)db.get(ConfigValue.class, "offsiliziumfactor");
+		ConfigValue nahrungfactorConfig = (ConfigValue)db.get(ConfigValue.class, "offnahrungfactor");
+		ConfigValue dauercostsConfig = (ConfigValue)db.get(ConfigValue.class, "offdauercosts");
+		ConfigValue dauerfactorConfig = (ConfigValue)db.get(ConfigValue.class, "offdauerfactor");
+		double siliziumcosts = Double.valueOf(siliziumcostsConfig.getValue());
+		double nahrungcosts = Double.valueOf(nahrungcostsConfig.getValue());
+		double siliziumfactor = Double.valueOf(siliziumfactorConfig.getValue());
+		double nahrungfactor = Double.valueOf(nahrungfactorConfig.getValue());
+		double dauercosts = Double.valueOf(dauercostsConfig.getValue());
+		double dauerfactor = Double.valueOf(dauerfactorConfig.getValue());
+
 		int newo = context.getRequest().getParameterInt("newo");
 		int train = context.getRequest().getParameterInt("train");
 		int off = context.getRequest().getParameterInt("off");
@@ -227,129 +242,123 @@ public class AcademyBuilding extends DefaultBuilding {
 				"base.field",	field);
 		
 		//---------------------------------
-		// Einen neue Offiziere ausbilden
+		// Einen neuen Offizier ausbilden
 		//---------------------------------
 		
 		if( newo != 0 ) {
-			if( (academy.getTrain() == 0) && (academy.getUpgrade().length() == 0)) {
-				t.setVar("academy.show.trainnewoffi", 1);
-				
-				Cargo cargo = new Cargo(base.getCargo());
+			t.setVar("academy.show.trainnewoffi", 1);
 			
-				boolean ok = true;
-				if( cargo.getResourceCount( Resources.SILIZIUM ) < 25 ) {
-					t.setVar("trainnewoffi.error", "Nicht genug Silizium");
-					ok = false;
-				}
-				Cargo usercargo = new Cargo( Cargo.Type.STRING, user.getCargo() );
-				if( cargo.getResourceCount( Resources.NAHRUNG )+usercargo.getResourceCount( Resources.NAHRUNG ) < 35 ) {
-					t.setVar("trainnewoffi.error", "Nicht genug Nahrung");
-					ok = false;
-				}
+			Cargo cargo = new Cargo(base.getCargo());
 		
-				if( ok ) {
-					t.setVar("trainnewoffi.train", 1);
-		
-					cargo.substractResource( Resources.SILIZIUM, 25 );
-					usercargo.substractResource( Resources.NAHRUNG, 35 );
-					if( usercargo.getResourceCount( Resources.NAHRUNG ) < 0 ) {
-						cargo.substractResource( Resources.NAHRUNG, -usercargo.getResourceCount( Resources.NAHRUNG ) );
-						usercargo.setResource( Resources.NAHRUNG, 0 );	
-					}
-		
-					user.setCargo(usercargo.save());
-					academy.setTrain(newo);
-					academy.setRemain(8);
-					base.setCargo(cargo);
-				} 
+			boolean ok = true;
+			if( cargo.getResourceCount( Resources.SILIZIUM ) < siliziumcosts ) {
+				t.setVar("trainnewoffi.error", "Nicht genug Silizium");
+				ok = false;
 			}
+			Cargo usercargo = new Cargo( Cargo.Type.STRING, user.getCargo() );
+			if( cargo.getResourceCount( Resources.NAHRUNG )+usercargo.getResourceCount( Resources.NAHRUNG ) < nahrungcosts ) {
+				t.setVar("trainnewoffi.error", "Nicht genug Nahrung");
+				ok = false;
+			}
+		
+			if( ok ) {
+				t.setVar("trainnewoffi.train", 1);
+		
+				cargo.substractResource( Resources.SILIZIUM, (int)siliziumcosts );
+				usercargo.substractResource( Resources.NAHRUNG, (int)nahrungcosts );
+				if( usercargo.getResourceCount( Resources.NAHRUNG ) < 0 ) {
+					cargo.substractResource( Resources.NAHRUNG, -usercargo.getResourceCount( Resources.NAHRUNG ) );
+					usercargo.setResource( Resources.NAHRUNG, 0 );	
+				}
+				user.setCargo(usercargo.save());
+				academy.setTrain(newo);
+				academy.setRemain((int)dauercosts);
+				base.setCargo(cargo);
+			} 
 		}
-	
+		
 		//--------------------------------------
 		// "Upgrade" eines Offiziers durchfuehren
 		//--------------------------------------
 		
-		if( (train != 0) && (off != 0) ) {
-			if( (academy.getTrain() == 0) && (academy.getUpgrade().length() == 0) ) {				
-				Offizier offizier = Offizier.getOffizierByID(off);
-				if( offizier.getDest()[0].equals("b") && offizier.getDest()[1].equals(Integer.toString(base.getId())) ) {					
-					Map<Integer,Offizier.Ability> dTrain = new HashMap<Integer,Offizier.Ability>();
-					dTrain.put(1, Offizier.Ability.ING);
-					dTrain.put(2, Offizier.Ability.WAF);
-					dTrain.put(3, Offizier.Ability.NAV);
-					dTrain.put(4, Offizier.Ability.SEC);
-					dTrain.put(5, Offizier.Ability.COM);
-									 
-					int sk = offizier.getAbility(dTrain.get(train))+1;
-					int nk = (int)(offizier.getAbility(dTrain.get(train))*1.5d)+1;
-					int dauer = (int)(offizier.getAbility(dTrain.get(train))/4d)+1;
-					
-					t.setVar(
-							"academy.show.trainoffi", 1,
-							"trainoffi.id",			offizier.getID(),
-							"trainoffi.trainid",	train,
-							"offizier.name",		Common._plaintext(offizier.getName()),
-							"offizier.train.dauer",		dauer,
-							"offizier.train.nahrung", 	nk,
-							"offizier.train.silizium",	sk,
-							"resource.nahrung.image",	Cargo.getResourceImage(Resources.NAHRUNG),
-							"resource.silizium.image",	Cargo.getResourceImage(Resources.SILIZIUM));
-					
-					if( train == 1 ) {
-						t.setVar("offizier.train.ability", "Technik");
-					} 
-					else if( train == 2 ) {
-						t.setVar("offizier.train.ability", "Waffen");
-					} 
-					else if( train == 3 ) {
-						t.setVar("offizier.train.ability", "Navigation");
-					}
-					else if( train == 4 ) {
-						t.setVar("offizier.train.ability", "Sicherheit");
-					} 
-					else if( train == 5 ) {
-						t.setVar("offizier.train.ability", "Kommandoeffizienz");
-					}
-					
-					Cargo cargo = new Cargo(base.getCargo());
-
+		if( (train != 0) && (off != 0) ) {			
+			Offizier offizier = Offizier.getOffizierByID(off);
+			if( offizier.getDest()[0].equals("b") && offizier.getDest()[1].equals(Integer.toString(base.getId())) ) {					
+				Map<Integer,Offizier.Ability> dTrain = new HashMap<Integer,Offizier.Ability>();
+				dTrain.put(1, Offizier.Ability.ING);
+				dTrain.put(2, Offizier.Ability.WAF);
+				dTrain.put(3, Offizier.Ability.NAV);
+				dTrain.put(4, Offizier.Ability.SEC);
+				dTrain.put(5, Offizier.Ability.COM);
+								 
+				int sk = (int)(offizier.getAbility(dTrain.get(train))*siliziumfactor)+1;
+				int nk = (int)(offizier.getAbility(dTrain.get(train))*nahrungfactor)+1;
+				int dauer = (int)(offizier.getAbility(dTrain.get(train))*dauerfactor)+1;
+				
+				t.setVar(
+						"academy.show.trainoffi", 1,
+						"trainoffi.id",			offizier.getID(),
+						"trainoffi.trainid",	train,
+						"offizier.name",		Common._plaintext(offizier.getName()),
+						"offizier.train.dauer",		dauer,
+						"offizier.train.nahrung", 	nk,
+						"offizier.train.silizium",	sk,
+						"resource.nahrung.image",	Cargo.getResourceImage(Resources.NAHRUNG),
+						"resource.silizium.image",	Cargo.getResourceImage(Resources.SILIZIUM));
+				
+				if( train == 1 ) {
+					t.setVar("offizier.train.ability", "Technik");
+				} 
+				else if( train == 2 ) {
+					t.setVar("offizier.train.ability", "Waffen");
+				} 
+				else if( train == 3 ) {
+					t.setVar("offizier.train.ability", "Navigation");
+				}
+				else if( train == 4 ) {
+					t.setVar("offizier.train.ability", "Sicherheit");
+				} 
+				else if( train == 5 ) {
+					t.setVar("offizier.train.ability", "Kommandoeffizienz");
+				}
+				
+				Cargo cargo = new Cargo(base.getCargo());
 					boolean ok = true;
-					if( cargo.getResourceCount( Resources.SILIZIUM ) < sk) {
+				if( cargo.getResourceCount( Resources.SILIZIUM ) < sk) {
 						t.setVar("trainoffi.error", "Nicht genug Silizium"); 
-						ok = false;
+					ok = false;
+				}
+				Cargo usercargo = new Cargo( Cargo.Type.STRING, user.getCargo() );
+				if( cargo.getResourceCount( Resources.NAHRUNG )+usercargo.getResourceCount( Resources.NAHRUNG ) < nk ) {
+					t.setVar("trainoffi.error", "Nicht genug Nahrung"); 
+					ok = false;
+				}
+	
+				if( !conf.equals("ok") ) {
+					t.setVar("trainoffi.conf",	1);
+					t.parse( "OUT", "_BUILDING" );	
+					return t.getVar("OUT");
+				}
+	
+				if( ok ) {
+					t.setVar("trainoffi.train", 1);
+	
+					cargo.substractResource( Resources.SILIZIUM, sk );
+					usercargo.substractResource( Resources.NAHRUNG, nk );
+					if( usercargo.getResourceCount( Resources.NAHRUNG ) < 0 ) {
+						cargo.substractResource( Resources.NAHRUNG, -usercargo.getResourceCount( Resources.NAHRUNG ) );
+						usercargo.setResource( Resources.NAHRUNG, 0 );	
 					}
-					Cargo usercargo = new Cargo( Cargo.Type.STRING, user.getCargo() );
-					if( cargo.getResourceCount( Resources.NAHRUNG )+usercargo.getResourceCount( Resources.NAHRUNG ) < nk ) {
-						t.setVar("trainoffi.error", "Nicht genug Nahrung"); 
-						ok = false;
-					}
-		
-					if( !conf.equals("ok") ) {
-						t.setVar("trainoffi.conf",	1);
-						t.parse( "OUT", "_BUILDING" );	
-						return t.getVar("OUT");
-					}
-		
-					if( ok ) {
-						t.setVar("trainoffi.train", 1);
-		
-						cargo.substractResource( Resources.SILIZIUM, sk );
-						usercargo.substractResource( Resources.NAHRUNG, nk );
-						if( usercargo.getResourceCount( Resources.NAHRUNG ) < 0 ) {
-							cargo.substractResource( Resources.NAHRUNG, -usercargo.getResourceCount( Resources.NAHRUNG ) );
-							usercargo.setResource( Resources.NAHRUNG, 0 );	
-						}
-		
-						user.setCargo( usercargo.save() );
-						academy.setUpgrade(offizier.getID()+" "+train);
-						academy.setRemain(dauer);
-						
-						offizier.setDest("t", base.getId());
-						base.setCargo(cargo);
-						
-						t.parse( "OUT", "_BUILDING" );	
-						return t.getVar("OUT");
-					}
+	
+					user.setCargo( usercargo.save() );
+					academy.setUpgrade(offizier.getID()+" "+train);
+					academy.setRemain(dauer);
+					
+					offizier.setDest("t", base.getId());
+					base.setCargo(cargo);
+					
+					t.parse( "OUT", "_BUILDING" );	
+					return t.getVar("OUT");
 				}
 			}
 		}
@@ -388,7 +397,11 @@ public class AcademyBuilding extends DefaultBuilding {
 			t.setVar(
 					"academy.show.trainnew",	1,
 					"resource.silizium.image",	Cargo.getResourceImage(Resources.SILIZIUM),
-					"resource.nahrung.image",	Cargo.getResourceImage(Resources.NAHRUNG));
+					"resource.nahrung.image",	Cargo.getResourceImage(Resources.NAHRUNG),
+					"resource.silizium.costs",	(int)siliziumcosts,
+					"resource.nahrung.costs",	(int)nahrungcosts,
+					"dauer.costs",				(int)dauercosts
+					);
 			
 			t.setBlock("_BUILDING", "academy.trainnew.listitem", "academy.trainnew.list");
 			
