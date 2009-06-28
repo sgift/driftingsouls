@@ -259,7 +259,7 @@ public class SensorsDefault implements SchiffPlugin {
 		//
 		// Nebel,Jumpnodes und Schiffe nur anzeigen, wenn genuegend crew vorhanden und die Sensoren funktionsfaehig sind (>30)
 		//
-		if( ( ship.getSensors() > 30 ) && ( ship.getCrew() >= shiptype.getCrew() / 4 ) ) {
+		if( ( ship.getSensors() > 30 ) && ( ship.getCrew() >= shiptype.getMinCrew() / 4 ) ) {
 			/*
 				Nebel
 			*/
