@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import java.util.Iterator;
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -27,10 +30,15 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.bases.AcademyQueueEntry;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
 
 /**
  * Eine Akademie.
  * @author Christopher Jung
+ * @author Bernhard Ludemann
  *
  */
 @Entity
@@ -41,9 +49,7 @@ public class Academy {
 	@OneToOne(fetch=FetchType.LAZY)
 	@PrimaryKeyJoinColumn
 	private Base base;
-	private int train;
-	private int remain;
-	private String upgrade;
+	private boolean train;
 	@Version
 	private int version;
 	
@@ -62,7 +68,6 @@ public class Academy {
 	public Academy(Base base) {
 		this.col = base.getId();
 		this.base = base;
-		this.upgrade = "";
 	}
 
 	/**
@@ -82,59 +87,27 @@ public class Academy {
 	}
 
 	/**
-	 * Gibt die verbleibende Ausbildungszeit zurueck.
-	 * @return Die verbleibende Ausbildungszeit
-	 */
-	public int getRemain() {
-		return remain;
-	}
-
-	/**
-	 * Setzt die verbleibende Ausbildungszeit.
-	 * @param remain Die verbleibende Ausbildungszeit
-	 */
-	public void setRemain(int remain) {
-		this.remain = remain;
-	}
-
-	/**
-	 * Gibt den Typ des auszubildenden Offiziers zurueck.
-	 * @return Der Typ
-	 */
-	public int getTrain() {
-		return train;
-	}
-
-	/**
-	 * Setzt den Typ des auszubildenden Offiziers.
-	 * @param train Der Typ
-	 */
-	public void setTrain(int train) {
-		this.train = train;
-	}
-
-	/**
-	 * Gibt die Weiterbildungsdaten zurueck.
-	 * @return Die Weiterbildungsdaten
-	 */
-	public String getUpgrade() {
-		return upgrade;
-	}
-
-	/**
-	 * Setzt die Weiterbildungsdaten.
-	 * @param upgrade Die Weiterbildungsdaten
-	 */
-	public void setUpgrade(String upgrade) {
-		this.upgrade = upgrade;
-	}
-
-	/**
 	 * Gibt die ID der Basis zurueck, auf der sich die Akademie befindet.
 	 * @return Die ID der Basis
 	 */
 	public int getBaseId() {
 		return col;
+	}
+	
+	/**
+	 * Gibt zurueck, ob die Akademie ausbildet
+	 * @return <code>true</code> wenn die Akademie ausbildet, ansonsten <code>false</code>
+	 */
+	public boolean getTrain() {
+		return this.train;
+	}
+	
+	/**
+	 * Setz den Ausbildungsstand der Akademie
+	 * @param <code>true</code> oder <code>false</code> ob die Akademie gerade ausbildet
+	 */
+	public void setTrain(boolean train) {
+		this.train = train;
 	}
 
 	/**
@@ -143,5 +116,132 @@ public class Academy {
 	 */
 	public int getVersion() {
 		return this.version;
+	}
+	
+	/**
+	 * Gibt die aktuell ausgebildeten Offiziere zurueck
+	 * @return Die Liste der zur Ausbildung vorgesehenen Bauschlangeneintraege
+	 */
+	public AcademyQueueEntry[] getScheduledQueueEntries() {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		List<?> list = db.createQuery("from AcademyQueueEntry where basis=? and scheduled=1 order by position")
+		.setInteger(0, this.getBaseId())
+		.list();
+		AcademyQueueEntry[] entries = new AcademyQueueEntry[list.size()];
+		int index = 0;
+		for( Iterator<?> iter=list.iterator(); iter.hasNext(); ) {
+			entries[index++] = (AcademyQueueEntry)iter.next();
+		}
+	
+		return entries;
+	}
+	
+	/**
+	 * Gibt die Anzahl der aktuell laufenen Ausbildlungsvorhaben der Bauschlange zurueck
+	 * @return Die Anzahl der aktuellen Ausbildungsvorhaben
+	 */
+	public int getNumberScheduledQueueEntries() {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		List<?> list = db.createQuery("from AcademyQueueEntry where basis=? and scheduled=1 order by position")
+		.setInteger(0, this.getBaseId())
+		.list();
+		return list.size();
+	}
+	
+	/**
+	 * Gibt die komplette Bauschlange zurueck
+	 * @return Die Bauschlange
+	 */
+	public AcademyQueueEntry[] getQueueEntries() {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		List<?> list = db.createQuery("from AcademyQueueEntry where basis=? order by position")
+		.setInteger(0, this.getBaseId())
+		.list();
+		AcademyQueueEntry[] entries = new AcademyQueueEntry[list.size()];
+		int index = 0;
+		for( Iterator<?> iter=list.iterator(); iter.hasNext(); ) {
+			entries[index++] = (AcademyQueueEntry)iter.next();
+		}
+	
+		return entries;
+	}
+	
+	/**
+	 * Berechnet die aktuell laufenden Ausbildungen neu
+	 * 
+	 */
+	public void rescheduleQueue() {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		ConfigValue maxoffstotrainConfig = (ConfigValue)db.get(ConfigValue.class, "maxoffstotrain");
+		double maxoffstotrain = Double.valueOf(maxoffstotrainConfig.getValue());
+		int trainingoffs = 0;
+		
+		AcademyQueueEntry[] queue = this.getQueueEntries();
+		
+		for( AcademyQueueEntry entry : queue )  {
+			entry.setScheduled(false);
+			if( trainingoffs < maxoffstotrain && !this.isOffizierScheduled(entry.getTraining()) ) {
+				entry.setScheduled(true);
+				trainingoffs = trainingoffs+1;
+			}
+		}
+	}
+	
+	/**
+	 * Gibt an ob der Offizier bereits aktuell ausgebildet wird
+	 * @param Die ID des Offiziers
+	 * @return <code>true</code> wenn der Offizier aktuell ausgebildet wird, ansonsten <code>false</code>
+	 */
+	public boolean isOffizierScheduled(int offID) {
+		
+		AcademyQueueEntry[] entries = this.getScheduledQueueEntries();
+		if( offID < 0 ){
+			return false;
+		}
+		for ( AcademyQueueEntry entry : entries ) {
+			if( entry.getTraining() == offID ) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Gibt den Bauschlangeneintrag mit der Position zurueck
+	 * @param position Die Position in der Bauschlange
+	 * @return Der Bauschlangeneintrag
+	 */
+	public AcademyQueueEntry getQueueEntryByPosition(int position) {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		List<?> list = db.createQuery("from AcademyQueueEntry where basis=? and position=?")
+		.setInteger(0, this.getBaseId())
+		.setInteger(1, position)
+		.list();
+		AcademyQueueEntry[] entries = new AcademyQueueEntry[list.size()];
+		int index = 0;
+		for( Iterator<?> iter=list.iterator(); iter.hasNext(); ) {
+			entries[index++] = (AcademyQueueEntry)iter.next();
+		}
+	
+		return entries[0];
+	}
+	
+	/**
+	 * Gibt den Bauschlangeneintrag mit der Id zurueck
+	 * @param id Die Id des Bauschlangeneintrags
+	 * @return Der Bauschlangeneintrag
+	 */
+	public AcademyQueueEntry getQueueEntryById(int id) {
+		
+		AcademyQueueEntry[] entries = this.getQueueEntries();
+		
+		for( AcademyQueueEntry entry : entries ) {
+			if( entry.getId() == id )
+			{
+				return entry;
+			}
+		}
+		return null;
 	}
 }

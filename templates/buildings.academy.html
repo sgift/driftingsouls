@@ -39,13 +39,45 @@
 {if academy.show.training}
 	 {!table_begin 400,left}
 	 	<span style="font-weight:bold">Bildet aus:</span>
-	 	{if trainoffizier.id}
-	 		<img style="vertical-align:middle" src="trainoffizier" alt="" />
-	 		<a class="academy" href="./ds?module=choff&amp;off={trainoffizier.id}">{trainoffizier.name}</a><br />
-	 	{else}
-		 	{trainoffizier.name}<br />
-		{/endif}
-		<span style="font-weight:bold">Dauer:</span> noch <img align="middle" src="{URL}data/interface/time.gif" alt="" />{training.remain} Runden<br />
+	 	<table class=noBorderX" border="0">
+	 	<tr>
+	 		<td class="noBorderX">ID</td>
+	 		<td class="noBorderX">Name</td>
+	 		<td class="noBorderX">Ausbildung</td>
+	 		<td class="noBorderX"><span style="font-weight:bold">Dauer:</span></td>
+	 		<td class="noBorderX"></td>
+	 		<td class="noBorderX">Optionen</td>
+	 	</tr>
+	 	<!-- BEGIN academy.training.listitem -->
+	 	<tr>
+			<td class="noBorderX">{trainoffizier.id}</td>
+	 		<td class="noBorderX"><img style="vertical-align:middle" src="trainoffizier" alt="" />
+	 		{if trainoffizier.offi}
+	 		<a class="academy" href="./ds?module=choff&amp;off={trainoffizier.id}">{trainoffizier.name}</a>
+	 		{else}
+	 		{trainoffizier.name}
+	 		{/endif}
+	 		</td>
+	 		<td class="noBorderX">{trainoffizier.attribute}</td>
+			<td class="noBorderX"><img align="middle" src="{URL}data/interface/time.gif" alt="" />{trainoffizier.remain}</td>
+			<td class="noBorderX">
+			{if trainoffizier.build}
+				<img style="vertical-align:middle" src="data/interface/werft/active.png" alt="" />
+			{/endif}
+			</td>
+			<td class="noBorderX">
+				{if trainoffizier.showup}
+					<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;up=1&amp;queueid={trainoffizier.queue.id}"><img style="vertical-align:middle" src="data/interface/werft/up.png" alt="Hoch" title="Hoch" /></a>	
+				{/endif}
+				{if trainoffizier.showdown}
+					<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;down=1&amp;queueid={trainoffizier.queue.id}"><img style="vertical-align:middle" src="data/interface/werft/down.png" alt="Runter" title="Runter" /></a>
+				{/endif}
+				<a href="javascript:ask('Soll die Ausbildung wirklich abgebrochen werden?','./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;cancel=1&amp;queueid={trainoffizier.queue.id}')">
+				<img style="vertical-align:middle;border:0px" src="data/interface/werft/delete.gif" alt="Abbrechen" title="Abbrechen" /></a>
+			</td>
+		</tr>
+		<!-- END academy.training.listitem -->
+		</table>
 	 {!table_end}
 	 <br />
 {/endif}
