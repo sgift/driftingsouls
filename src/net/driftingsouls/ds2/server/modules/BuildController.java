@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -186,7 +187,11 @@ public class BuildController extends TemplateGenerator {
 				return;
 			}
 		}
-		
+		if( !Rassen.get().rasse(user.getRace()).isMemberIn(building.getRace()) ) {
+			addError("Sie geh&ouml;ren der falschen Spezies an und k&ouml;nnen dieses Geb&auml;ude nicht selbst errichten.");
+			redirect();
+			return;	
+		}
 		if( !user.hasResearched(building.getTechRequired()) ) {
 			addError("Sie verf&uuml;gen nicht &uuml;ber alle n&ouml;tigen Forschungen um dieses Geb&auml;ude zu bauen");
 			
@@ -330,7 +335,9 @@ public class BuildController extends TemplateGenerator {
 			if( !user.hasResearched(building.getTechRequired()) ) {
 				continue;
 			}
-			
+			if( !Rassen.get().rasse(user.getRace()).isMemberIn(building.getRace()) ) {
+				continue;	
+			}
 			Cargo buildcosts = building.getBuildCosts();
 			
 			boolean ok = true;

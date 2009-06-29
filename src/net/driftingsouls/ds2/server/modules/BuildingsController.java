@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.bases.Core;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -106,7 +107,9 @@ public class BuildingsController extends TemplateGenerator {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
+		int userrasse = user.getRace();
 		
+	
 		t.setBlock("_BUILDINGS", "buildings.listitem", "buildings.list");
 		t.setBlock("buildings.listitem", "building.buildcosts.listitem", "building.buildcosts.list");
 		t.setBlock("buildings.listitem", "building.produces.listitem", "building.produces.list");
@@ -123,7 +126,7 @@ public class BuildingsController extends TemplateGenerator {
 						"building.picture",	building.getPicture(),
 						"building.arbeiter",	building.getArbeiter(),
 						"building.bewohner",	building.getBewohner() );
-				
+			
 			ResourceList reslist = building.getBuildCosts().getResourceList();
 			Resources.echoResList( t, reslist, "building.buildcosts.list" );
 		
@@ -149,23 +152,34 @@ public class BuildingsController extends TemplateGenerator {
 				t.parse("building.produces.list","building.produces.listitem",true);
 			}
 			
-			// Weitere Infos generieren (max per Basis/Acc & UComplex)
+			// Weitere Infos generieren (spezies, max per Basis/Acc & UComplex)
 			StringBuilder addinfo = new StringBuilder(20);
+			
+			
+			int buildingrasse = building.getRace();
+			
+			if( buildingrasse == 0 ) {
+				addinfo.append("<span style=\"color:#FFFFFF; font-weight:normal\">"+Rassen.get().rasse(buildingrasse).getName()+" <br /></span>"); 
+			}
+			else if( userrasse == buildingrasse ) {
+				addinfo.append("<span style=\"color:#00FF00; font-weight:normal\">"+Rassen.get().rasse(buildingrasse).getName()+" <br /></span>");
+			}
+			else {
+				addinfo.append("<span style=\"color:#FF0000; font-weight:normal\">"+Rassen.get().rasse(buildingrasse).getName()+" <br /></span>");
+			}
+ 
+			
 			if( building.isUComplex() ) {
-				addinfo.append("Unterirdischer Komplex");	
+				addinfo.append("Unterirdischer Komplex<br />");	
 			}
 			
 			if( building.getPerPlanetCount() != 0 ) {
-				if( addinfo.length() != 0 ) {
-					addinfo.append(", ");	
-				}
-				addinfo.append("Max. "+building.getPerPlanetCount()+"x pro Basis");
+
+				addinfo.append("Max. "+building.getPerPlanetCount()+"x pro Basis<br />");
 			}
 			
 			if( building.getPerUserCount() != 0 ) {
-				if( addinfo.length() != 0 ) {
-					addinfo.append(", ");	
-				}
+
 				addinfo.append("Max. "+building.getPerUserCount()+"x pro Account");
 			}
 			

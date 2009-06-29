@@ -97,6 +97,7 @@ public abstract class Building {
 	private int category;
 	private int ucomplex;
 	private boolean deakable;
+	private int race;
 	
 	/**
 	 * Konstruktor.
@@ -242,6 +243,14 @@ public abstract class Building {
 	 */
 	public boolean isDeakAble() {
 		return deakable;
+	}
+
+	/**
+	 * Gibt die ID der Spezieszugehoerigkeit des Gebaeudes zurueck.
+	 * @return die ID der Spezies
+	 */
+	public int getRace() {
+		return race;
 	}
 	
 	/**
@@ -412,6 +421,16 @@ public abstract class Building {
 	public void setDeakable(boolean deakable)
 	{
 		this.deakable = deakable;
+	}
+
+	/**
+	 * Setzt die Spezieszugehoerigkeit.
+	 * 
+	 * @param race Spezies
+	 */
+	public void setRace(int race)
+	{
+		this.race = race;
 	}
 
 	/**
