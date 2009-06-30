@@ -76,6 +76,9 @@ public class Kommandozentrale extends DefaultBuilding {
 		{
 			active[i] = 0;
 		}
+		
+		base.setActive(active);
+		base.setCoreActive(false);
 				
 		db.createQuery("update ShipWerft set linked=null where linked=:base")
 			.setEntity("base", base)
