@@ -24,15 +24,14 @@ import java.util.List;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.Offizier;
-import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.AcademyQueueEntry;
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 /**
@@ -45,14 +44,12 @@ import net.driftingsouls.ds2.server.tick.TickController;
  *
  */
 public class AcademyTick extends TickController {
-	private int maxid;
 	private Map<Integer,Offizier.Ability> dTrain;
 	private static final Map<Integer,String> offis = new HashMap<Integer,String>();
 
 	@Override
-	protected void prepare() {
-		org.hibernate.Session db = getDB();
-
+	protected void prepare() 
+	{
 		dTrain = new HashMap<Integer,Offizier.Ability>();
 		dTrain.put(1, Offizier.Ability.ING);
 		dTrain.put(2, Offizier.Ability.WAF);
@@ -64,11 +61,11 @@ public class AcademyTick extends TickController {
 		offis.put(2, "Navigator");
 		offis.put(3, "Sicherheitsexperte");
 		offis.put(4, "Captain");
-		
 	}
 
 	@Override
-	protected void tick() {
+	protected void tick() 
+	{
 		org.hibernate.Session db = getDB();
 
 		final User sourceUser = (User)db.get(User.class, -1);
@@ -121,6 +118,7 @@ public class AcademyTick extends TickController {
 							PM.send(sourceUser,base.getOwner().getId(), "Ausbildung abgeschlossen", msg);
 						}
 					}
+					
 					if( acc.getNumberScheduledQueueEntries() == 0 )
 					{
 						acc.setTrain(false);

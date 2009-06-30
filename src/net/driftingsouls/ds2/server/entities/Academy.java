@@ -29,16 +29,15 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
-import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.AcademyQueueEntry;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
  * Eine Akademie.
- * @author Christopher Jung
- * @author Bernhard Ludemann
+ * 
  *
  */
 @Entity
@@ -124,8 +123,9 @@ public class Academy {
 	 */
 	public AcademyQueueEntry[] getScheduledQueueEntries() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<?> list = db.createQuery("from AcademyQueueEntry where basis=? and scheduled=1 order by position")
-		.setInteger(0, this.getBaseId())
+		List<?> list = db.createQuery("from AcademyQueueEntry where base=:base and scheduled=:scheduled order by position")
+		.setParameter("base", this.getBase())
+		.setParameter("scheduled", true)
 		.list();
 		AcademyQueueEntry[] entries = new AcademyQueueEntry[list.size()];
 		int index = 0;
@@ -142,8 +142,9 @@ public class Academy {
 	 */
 	public int getNumberScheduledQueueEntries() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<?> list = db.createQuery("from AcademyQueueEntry where basis=? and scheduled=1 order by position")
-		.setInteger(0, this.getBaseId())
+		List<?> list = db.createQuery("from AcademyQueueEntry where base=:base and scheduled=:scheduled order by position")
+		.setParameter("base", this.getBase())
+		.setParameter("scheduled", true)
 		.list();
 		return list.size();
 	}
@@ -154,8 +155,8 @@ public class Academy {
 	 */
 	public AcademyQueueEntry[] getQueueEntries() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<?> list = db.createQuery("from AcademyQueueEntry where basis=? order by position")
-		.setInteger(0, this.getBaseId())
+		List<?> list = db.createQuery("from AcademyQueueEntry where base=:base order by position")
+		.setParameter("base", this.getBase())
 		.list();
 		AcademyQueueEntry[] entries = new AcademyQueueEntry[list.size()];
 		int index = 0;
@@ -214,14 +215,15 @@ public class Academy {
 	 */
 	public AcademyQueueEntry getQueueEntryByPosition(int position) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<?> list = db.createQuery("from AcademyQueueEntry where basis=? and position=?")
-		.setInteger(0, this.getBaseId())
-		.setInteger(1, position)
-		.list();
+		List<AcademyQueueEntry> list = Common.cast(db.createQuery("from AcademyQueueEntry where base=:base and position=:position")
+											 .setParameter("base", this.getBase())
+											 .setParameter("position", position)
+											 .list());
+		
 		AcademyQueueEntry[] entries = new AcademyQueueEntry[list.size()];
-		int index = 0;
-		for( Iterator<?> iter=list.iterator(); iter.hasNext(); ) {
-			entries[index++] = (AcademyQueueEntry)iter.next();
+		for(int i = 0; i < entries.length; i++)
+		{
+			entries[i] = list.get(i);
 		}
 	
 		return entries[0];

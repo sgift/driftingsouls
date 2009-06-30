@@ -17,6 +17,7 @@ CREATE TABLE `buildings` (
   `ucomplex` tinyint(3) unsigned NOT NULL default '0',
   `deakable` tinyint(1) unsigned NOT NULL default '1',
   `module` varchar(60) NOT NULL default 'net.driftingsouls.ds2.server.bases.DefaultBuilding',
+  `race` tinyint(3) NOT NULL default '0'
   PRIMARY KEY  (`id`),
   KEY `category` (`category`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
