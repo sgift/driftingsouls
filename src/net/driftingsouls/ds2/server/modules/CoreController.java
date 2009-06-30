@@ -128,7 +128,7 @@ public class CoreController extends TemplateGenerator {
 		t.setBlock("_CORE", "build.res.listitem", "build.res.list");
 	
 		boolean ok = true;
-		ResourceList reslist = costs.compare( cargo, false );
+		ResourceList reslist = costs.compare( cargo, false, true );
 		for( ResourceEntry res : reslist ) {
 			if( res.getDiff() > 0 ) {
 				ok = false;	
@@ -275,7 +275,7 @@ public class CoreController extends TemplateGenerator {
 			Cargo consumes = core.getConsumes();
 
 			boolean buildable = true;
-			ResourceList reslist = costs.compare(cargo, false);
+			ResourceList reslist = costs.compare(cargo, false, true);
 			for( ResourceEntry res : reslist ) {
 				if( res.getDiff() > 0 ) {
 					buildable = false;

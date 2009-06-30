@@ -221,7 +221,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 				Cargo costs = tech.getCosts();
 				costs.setOption( Cargo.Option.SHOWMASS, false );
 				
-				ResourceList reslist = costs.compare( cargo, false );
+				ResourceList reslist = costs.compare( cargo, false, false, true );
 				for( ResourceEntry res : reslist ) {
 					if( res.getDiff() > 0 ) {
 						echo.append("<img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\" /><span style=\"color:red\">"+res.getCargo1()+"</span> ");
@@ -345,7 +345,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		Cargo cargo = new Cargo(base.getCargo());
 		ok = true;
 		
-		ResourceList reslist = techCosts.compare( cargo, false );
+		ResourceList reslist = techCosts.compare( cargo, false, false, true );
 		for( ResourceEntry res : reslist ) {
 			if( res.getDiff() > 0 ) {
 				echo.append("<span style=\"color:red\">Nicht genug <img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\" />"+res.getName()+"</span><br />\n");
