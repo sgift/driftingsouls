@@ -83,7 +83,7 @@ public class Waffenfabrik extends DefaultBuilding {
 		 */
 		public ContextVars() {
 			// EMPTY
-		}
+		} 
 	}
 	
 	/**
