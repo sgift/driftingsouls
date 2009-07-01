@@ -1055,7 +1055,7 @@ public class Common {
 	
 	private static Session mailSession = null;
 	private static final String MAIL_SEND_ADDRESS = "ds-admin@drifting-souls.net";
-	private static final String MAIL_GUZMAN = "r.hajek@web.de";
+	private static final String MAIL_GUZMAN = "rhajek@web.de";
 	
 	/**
 	 * Versendet eine Email. Als Senderadresse wird automatisch MAIL_SEND_ADDRESS

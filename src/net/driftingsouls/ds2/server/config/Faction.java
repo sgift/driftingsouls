@@ -61,6 +61,11 @@ public class Faction {
 	public static final int PIRATE = -15;
 	
 	/**
+	 * Die Spieler-ID des Regulus Syndikats.
+	 */
+	public static final int XR = -32;
+		
+	/**
 	 * Gibt die angegebene Fraktion zurueck. Sollte keine passende Fraktion existieren, so wird <code>null</code> zurueckgegeben.
 	 * @param id Die ID der Fraktion 
 	 * @return Die angegebene Fraktion oder <code>null</code>
