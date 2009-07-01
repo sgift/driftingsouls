@@ -133,7 +133,12 @@ public class AcademyBuilding extends DefaultBuilding {
 		}
 		return false;
 	}
-	
+
+	/**
+	 * Ermittelt Ausbildungskosten.
+	 * @param train Sparte/Faehigkeit die ausgebildet wird
+	 * @param typ gibt an ob es sich um Silizium Nahrung oder Dauer handelt (0-2)
+	 */
 	public int getUpgradeCosts(Context context, Academy acc, int typ, Offizier offizier, int train) {
 		org.hibernate.Session db = context.getDB();
 	

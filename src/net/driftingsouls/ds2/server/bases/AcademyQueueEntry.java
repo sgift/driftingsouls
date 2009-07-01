@@ -175,7 +175,7 @@ public class AcademyQueueEntry {
 	}
 
 	/**
-	 * Gibt die ID der ausgebildeten Offiziers zurueck
+	 * Gibt die ID der ausgebildeten Offiziers zurueck.
 	 * @return Die ID (-1 bis -4 bei neu gebauten Offizieren)
 	 */
 	public int getTraining() {
@@ -183,7 +183,7 @@ public class AcademyQueueEntry {
 	}
 	
 	/**
-	 * Gibt den Typ der Auusbildung zurueck
+	 * Gibt den Typ der Auusbildung zurueck.
 	 * @return Der Typ der Ausbildung (0 = neuer Offizier, 1-5 Aufgewertete Eigenschaft)
 	 */
 	public int getTrainingType() {
@@ -294,7 +294,7 @@ public class AcademyQueueEntry {
 	}
 
 	/**
-	 * Gibt einen neuen Offiziersnamen aus
+	 * Gibt einen neuen Offiziersnamen aus.
 	 * @param race Die Rasse aus der der Offiziersname generiert werden soll
 	 * @return Der Offiziersname
 	 */
@@ -311,7 +311,7 @@ public class AcademyQueueEntry {
 	}
 	
 	/**
-	 * Gibt zurueck ob es sich bei dem Eintrag um den letzten Eintrag der Bauschlange handelt
+	 * Gibt zurueck ob es sich bei dem Eintrag um den letzten Eintrag der Bauschlange handelt.
 	 * @return <code>true</code> wenn es sich um den letzten Eintrag handelt, ansonsten <code>false</code>
 	 */
 	public boolean isLastPosition() {
@@ -324,7 +324,10 @@ public class AcademyQueueEntry {
 		}
 		return false;
 	}
-	
+
+	/**
+	 * Loescht den Eintrag aus der Bauschlange.
+	 */	
 	public void deleteQueueEntry() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		db.delete(this);

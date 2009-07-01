@@ -94,7 +94,7 @@ public class Academy {
 	}
 	
 	/**
-	 * Gibt zurueck, ob die Akademie ausbildet
+	 * Gibt zurueck, ob die Akademie ausbildet.
 	 * @return <code>true</code> wenn die Akademie ausbildet, ansonsten <code>false</code>
 	 */
 	public boolean getTrain() {
@@ -102,8 +102,8 @@ public class Academy {
 	}
 	
 	/**
-	 * Setz den Ausbildungsstand der Akademie
-	 * @param <code>true</code> oder <code>false</code> ob die Akademie gerade ausbildet
+	 * Setzt den Ausbildungsstand der Akademie.
+	 * @param train <code>true</code> oder <code>false</code> ob die Akademie gerade ausbildet
 	 */
 	public void setTrain(boolean train) {
 		this.train = train;
@@ -118,7 +118,7 @@ public class Academy {
 	}
 	
 	/**
-	 * Gibt die aktuell ausgebildeten Offiziere zurueck
+	 * Gibt die aktuell ausgebildeten Offiziere zurueck.
 	 * @return Die Liste der zur Ausbildung vorgesehenen Bauschlangeneintraege
 	 */
 	public AcademyQueueEntry[] getScheduledQueueEntries() {
@@ -137,7 +137,7 @@ public class Academy {
 	}
 	
 	/**
-	 * Gibt die Anzahl der aktuell laufenen Ausbildlungsvorhaben der Bauschlange zurueck
+	 * Gibt die Anzahl der aktuell laufenen Ausbildlungsvorhaben der Bauschlange zurueck.
 	 * @return Die Anzahl der aktuellen Ausbildungsvorhaben
 	 */
 	public int getNumberScheduledQueueEntries() {
@@ -150,7 +150,7 @@ public class Academy {
 	}
 	
 	/**
-	 * Gibt die komplette Bauschlange zurueck
+	 * Gibt die komplette Bauschlange zurueck.
 	 * @return Die Bauschlange
 	 */
 	public AcademyQueueEntry[] getQueueEntries() {
@@ -168,7 +168,7 @@ public class Academy {
 	}
 	
 	/**
-	 * Berechnet die aktuell laufenden Ausbildungen neu
+	 * Berechnet die aktuell laufenden Ausbildungen neu.
 	 * 
 	 */
 	public void rescheduleQueue() {
@@ -191,7 +191,7 @@ public class Academy {
 	
 	/**
 	 * Gibt an ob der Offizier bereits aktuell ausgebildet wird
-	 * @param Die ID des Offiziers
+	 * @param offID Die ID des Offiziers
 	 * @return <code>true</code> wenn der Offizier aktuell ausgebildet wird, ansonsten <code>false</code>
 	 */
 	public boolean isOffizierScheduled(int offID) {
@@ -209,7 +209,7 @@ public class Academy {
 	}
 	
 	/**
-	 * Gibt den Bauschlangeneintrag mit der Position zurueck
+	 * Gibt den Bauschlangeneintrag mit der Position zurueck.
 	 * @param position Die Position in der Bauschlange
 	 * @return Der Bauschlangeneintrag
 	 */
@@ -230,7 +230,7 @@ public class Academy {
 	}
 	
 	/**
-	 * Gibt den Bauschlangeneintrag mit der Id zurueck
+	 * Gibt den Bauschlangeneintrag mit der Id zurueck.
 	 * @param id Die Id des Bauschlangeneintrags
 	 * @return Der Bauschlangeneintrag
 	 */
