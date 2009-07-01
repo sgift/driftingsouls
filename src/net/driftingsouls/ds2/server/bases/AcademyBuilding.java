@@ -331,6 +331,7 @@ public class AcademyBuilding extends DefaultBuilding {
 		if( cancel == 1 && queueid > 0 )
 		{
 			academy.getQueueEntryById(queueid).deleteQueueEntry();
+			academy.rescheduleQueue();
 			if( academy.getNumberScheduledQueueEntries() == 0 ) {
 				academy.setTrain(false);
 			}
