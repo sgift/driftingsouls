@@ -136,8 +136,12 @@ public class AcademyBuilding extends DefaultBuilding {
 
 	/**
 	 * Ermittelt Ausbildungskosten.
+	 * @param context der ds-context (framework)
+	 * @param acc die akademie
+	 * @param offizier der auszubildende offizier
 	 * @param train Sparte/Faehigkeit die ausgebildet wird
 	 * @param typ gibt an ob es sich um Silizium Nahrung oder Dauer handelt (0-2)
+	 * @return nada
 	 */
 	public int getUpgradeCosts(Context context, Academy acc, int typ, Offizier offizier, int train) {
 		org.hibernate.Session db = context.getDB();

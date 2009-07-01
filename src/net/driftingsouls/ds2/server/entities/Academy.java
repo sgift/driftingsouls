@@ -190,7 +190,7 @@ public class Academy {
 	}
 	
 	/**
-	 * Gibt an ob der Offizier bereits aktuell ausgebildet wird
+	 * Gibt an ob der Offizier bereits aktuell ausgebildet wird.
 	 * @param offID Die ID des Offiziers
 	 * @return <code>true</code> wenn der Offizier aktuell ausgebildet wird, ansonsten <code>false</code>
 	 */
