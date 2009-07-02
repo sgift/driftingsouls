@@ -153,8 +153,8 @@ public class SchiffsTick extends TickController {
 			shipd.setCrew(crew);
 		}
 		else {
-			crewToFeed = crewToFeed - shipd.getMarines();
-			shipd.setMarines(0);			
+			shipd.setMarines(shipd.getMarines() - crewToFeed);
+			crewToFeed = 0;
 		}
 		
 		//Damage ships which don't have enough crew

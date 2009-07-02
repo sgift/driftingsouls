@@ -400,11 +400,14 @@ public class UeberController extends TemplateGenerator {
 		else {
 			nstat = user.getNahrungsStat();
 		}
+		int	nbalance = user.getNahrungsBalance();
 						  
 		t.setVar(	"schiffe.mangel", Common.ln(sw),
 					"schiffe.nocrew", Common.ln(shipNoCrew),
 					"user.nahrung.stat", Common.ln(Long.parseLong(nstat)),
-					"user.nahrung.stat.plain", Long.parseLong(nstat) );
+					"user.nahrung.stat.plain", Long.parseLong(nstat),
+					"user.nahrung.new", Common.ln(nbalance),
+					"user.nahrung.new.plain", nbalance );
 
 		//------------------------------
 		// Schlachten anzeigen

@@ -43,6 +43,11 @@
 					{else}
 						&nbsp;<span style="color:green">+{user.nahrung.stat}</span>
 					{/endif}
+					{if user.nahrung.new.plain < 0}
+						&nbsp;<span style="color:red">({user.nahrung.new})</span>
+					{else}
+						&nbsp;<span style="color:green">(+{user.nahrung.new})</span>
+					{/endif}
 				{/endif}
 				<br />
 				{if flagschiff.id}

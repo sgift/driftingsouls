@@ -1332,4 +1332,43 @@ public class User extends BasicUser {
 		
 		return balance;
 	}
+	
+	/**
+	 * @return Die Nahrungsbilanz des Spielers nach Aufrechnung aller Basen und Schiffe.
+	 */
+	public int getNahrungsBalance()
+	{
+		int balance = 0;
+		
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		List<Base> bases = Common.cast(db.createQuery("from Base where owner=:owner")
+										 .setParameter("owner", this)
+										 .list());
+		
+		for(Base base: bases)
+		{
+			balance += base.getNahrungsBalance();
+		}
+		
+		ScrollableResults ships = db.createQuery("from Ship where owner=:owner and id>0")
+		 							.setParameter("owner", this)
+		 							.setCacheMode(CacheMode.IGNORE)
+		 							.scroll(ScrollMode.FORWARD_ONLY);
+		
+		int count = 0;
+		while(ships.next())
+		{
+			Ship ship = (Ship)ships.get(0);
+			balance -= ship.getNahrungsBalance();
+			count++;
+			
+			if(count%20 == 0)
+			{
+				db.flush();
+				db.clear();
+			}
+		}
+		
+		return balance;
+	}
 }

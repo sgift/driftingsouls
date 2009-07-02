@@ -1115,9 +1115,8 @@ public class Ship implements Locatable,Transfering {
 	 * @return Crew scaled by a factor according to shiptype.
 	 */
 	private int getScaledCrew() {
-		ShipTypeData type = this.getTypeData();
 		double scale = getAlertScaleFactor();
-		int scaledCrew = (int)Math.ceil(this.crew/scale) - type.getHydro();
+		int scaledCrew = (int)Math.ceil((this.crew+this.marines)/scale);
 		return scaledCrew;
 	}
 
@@ -3777,5 +3776,17 @@ public class Ship implements Locatable,Transfering {
 	public boolean isNoSuicide()
 	{
 		return this.getStatus().contains("nosuicide");
+	}
+	
+	/**
+	 * @return Die Nahrungsbilanz des Schiffes.
+	 */
+	public int getNahrungsBalance()
+	{
+		if ( getBattle() == null )
+		{
+			return getFoodConsumption();
+		}
+		return 0;
 	}
 }

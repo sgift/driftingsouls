@@ -688,6 +688,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		}
 	
 		stat.substractResource( Resources.NAHRUNG, base.getBewohner() );
+		stat.substractResource( Resources.NAHRUNG, base.getMarines() );
 
 		return new BaseStatus(stat, e, bewohner, arbeiter, Collections.unmodifiableMap(buildinglocs), bebon);
 	}
@@ -990,5 +991,19 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		int socialSecurityBenefit = Integer.parseInt(ssbValue.getValue());
 		
 		return worker*tax - unemployed*socialSecurityBenefit;
+	}
+	
+	/**
+	 * @return Die Nahrungsbilanz der Basis.
+	 */
+	public long getNahrungsBalance()
+	{
+		Context context = ContextMap.getContext();
+		
+		BaseStatus status = getStatus(context, getId() );
+		
+		Cargo produktion = status.getStatus();
+		
+		return produktion.getResourceCount( Resources.NAHRUNG );
 	}
 }
