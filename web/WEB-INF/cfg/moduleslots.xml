@@ -32,7 +32,7 @@
 	<slot id="misc_ganystation" name="Rüstslot Ganymed-Station" parent="misc" />
 
 	<slot id="misc_shipyard" name="Werftpack" parent="misc" />
-	<slot id="misc_scanner" name="Diverses[Scanner]" parent="misc" />
+	<slot id="misc_scanner" name="Diverses [Scanner]" parent="misc" />
 
 	<slot id="misc_kottos" name="Diverses [Kottos]" parent="misc" />
 
@@ -66,7 +66,7 @@
 
 	<slot id="terran_cruiser_upgrade" name="Rüstslot terranischer Kreuzer" />
 
-	<slot id="terran_corvette_upgrade" name="Rüstslot terranischer Korvette" />
+	<slot id="terran_corvette_upgrade" name="Rüstslot terranische Korvette" />
 
 	<slot id="boarding_cruiser_upgrade" name="Rüstslot Kaperschiff" />
 
@@ -81,7 +81,7 @@
 	<slot id="destroyer_reactor" name="Zerstörer Reaktor" />
 	<slot id="destroyer_tech" name="Zerstörer Technik" />
 	<slot id="destroyer_hull" name="Zerstörer Hülle" />
-	<slot id="destroyer_special" name="erstörer Spezial" />
+	<slot id="destroyer_special" name="Zerstörer Spezial" />
 
 	<slot id="terran_destroyer_offensive" name="Terranische Zerstörer Offensivwaffen" parent="destroyer_offensive" />
 	<slot id="terran_destroyer_deffensive" name="Terranische Zerstörer Deffensivwaffen" parent="destroyer_deffensive" />
@@ -102,7 +102,7 @@
 	<slot id="shivan_destroyer_offensive" name="Shivanische Zerstörer Offensivwaffen" parent="destroyer_offensive" />
 	<slot id="shivan_destroyer_deffensive" name="Shivanische Zerstörer Deffensivwaffen" parent="destroyer_deffensive" />
 	<slot id="shivan_destroyer_engine" name="Shivanische Zerstörer Antrieb" parent="destroyer_engine" />
-	<slot id="shivan_destroyer_reactor" name="'Shivanische Zerstörer Reaktor" parent="destroyer_reactor" />
+	<slot id="shivan_destroyer_reactor" name="Shivanische Zerstörer Reaktor" parent="destroyer_reactor" />
 	<slot id="shivan_destroyer_tech" name="Shivanische Zerstörer Technik" parent="destroyer_tech" />
 	<slot id="shivan_destroyer_hull" name="Shivanische Zerstörer Hülle" parent="destroyer_hull" />
 	<slot id="shivan_destroyer_special" name="Shivanische Zerstörer Spezial" parent="destroyer_special" />

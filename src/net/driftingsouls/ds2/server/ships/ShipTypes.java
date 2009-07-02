@@ -210,7 +210,7 @@ public class ShipTypes {
 		if( !shipTypeFlagNames.containsKey(flag) ) {
 			return "";
 		}
-		return shipTypeFlagNames.get(flag);
+		return shipTypeFlagDescs.get(flag);
 	}
 	
 	/**
