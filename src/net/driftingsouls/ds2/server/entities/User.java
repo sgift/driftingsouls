@@ -1311,7 +1311,7 @@ public class User extends BasicUser {
 		}
 		
 		
-		ScrollableResults ships = db.createQuery("from Ship where owner=:owner")
+		ScrollableResults ships = db.createQuery("from Ship where owner=:owner and id>0 and battle is null")
 		 							.setParameter("owner", this)
 		 							.setCacheMode(CacheMode.IGNORE)
 		 							.scroll(ScrollMode.FORWARD_ONLY);
@@ -1350,7 +1350,7 @@ public class User extends BasicUser {
 			balance += base.getNahrungsBalance();
 		}
 		
-		ScrollableResults ships = db.createQuery("from Ship where owner=:owner and id>0")
+		ScrollableResults ships = db.createQuery("from Ship where owner=:owner and id>0 and battle is null")
 		 							.setParameter("owner", this)
 		 							.setCacheMode(CacheMode.IGNORE)
 		 							.scroll(ScrollMode.FORWARD_ONLY);

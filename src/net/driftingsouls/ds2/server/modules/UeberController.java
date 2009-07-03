@@ -474,13 +474,43 @@ public class UeberController extends TemplateGenerator {
 				eparty2 = Common._title(ally.getName());
 			}
 					
-			battlelist.append("<a class=\"error\" href=\"ds?module=angriff&amp;battle="+battle.getId()+"\">Schlacht "+eparty+" vs "+eparty2+" bei "+battle.getLocation().displayCoordinates(false)+"</a>");
+			
+			battlelist.append("<a class=\"error\" href=\"ds?module=angriff&amp;battle="+battle.getId()+"\">Schlacht "+eparty+" vs "+eparty2+" bei "+battle.getLocation().displayCoordinates(false)+"</a>&nbsp;");
+			
 			
 			if( ( (user.getAccessLevel() >= 20) || user.hasFlag(User.FLAG_QUEST_BATTLES) ) 
 				&& (battle.getQuest() != null) ) {
 				RunningQuest quest = (RunningQuest)db.get(RunningQuest.class, battle.getQuest());
 				battlelist.append("*&nbsp;[Quest: "+quest.getQuest().getName()+"]");
 			}
+			
+			// Nahrunganzeige der Schlacht
+			int nahrung = battle.getNahrungsBalance(user);
+			
+			if ( nahrung < 0 )
+			{
+				battlelist.append("<span style=\"color:red\">("+Common.ln(nahrung));
+			}
+			else
+			{
+				battlelist.append("<span style=\"color:green\">(+"+Common.ln(nahrung));
+			}
+			
+			battlelist.append(" <img src=\""+Cargo.getResourceImage(Resources.NAHRUNG)+"\" alt=\"Nahrung\" title=\"Nahrung\" />)</span>");
+			
+			// RE Anzeige der Schlacht
+			int re = battle.getBalance(user);
+
+			if ( re < 0 )
+			{
+				battlelist.append("&nbsp;<span style=\"color:red\">("+Common.ln(re));
+			}
+			else
+			{
+				battlelist.append("&nbsp;<span style=\"color:green\">(+"+Common.ln(re));
+			}
+			
+			battlelist.append(" RE)</span>");
 			
 			battlelist.append("<br />\n");
 		}

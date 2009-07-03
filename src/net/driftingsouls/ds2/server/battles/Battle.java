@@ -72,6 +72,9 @@ import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.CacheMode;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -2633,5 +2636,69 @@ public class Battle implements Locatable {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * 
+	 * @return Gibt die Nahrungsbalance der Schlacht zurueck
+	 */
+	public int getNahrungsBalance(User user)
+	{
+		int balance = 0;
+		
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		ScrollableResults ships = db.createQuery("from Ship where owner=:owner and id>0 and battle=:battle")
+			.setParameter("owner", user)
+			.setParameter("battle", this)
+			.setCacheMode(CacheMode.IGNORE)
+			.scroll(ScrollMode.FORWARD_ONLY);
+
+		int count = 0;
+		while(ships.next())
+		{
+			Ship ship = (Ship)ships.get(0);
+			balance -= ship.getNahrungsBalance();
+			count++;
+
+			if(count%20 == 0)
+			{
+				db.flush();
+				db.clear();
+			}
+		}
+
+		return balance;
+	}
+	
+	/**
+	 * 
+	 * @return Gibt die Balance der Schlacht zurueck
+	 */
+	public int getBalance(User user)
+	{
+		int balance = 0;
+		
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		ScrollableResults ships = db.createQuery("from Ship where owner=:owner and id>0 and battle=:battle")
+			.setParameter("owner", user)
+			.setParameter("battle", this)
+			.setCacheMode(CacheMode.IGNORE)
+			.scroll(ScrollMode.FORWARD_ONLY);
+
+		int count = 0;
+		while(ships.next())
+		{
+			Ship ship = (Ship)ships.get(0);
+			balance -= ship.getBalance();
+			count++;
+
+			if(count%20 == 0)
+			{
+				db.flush();
+				db.clear();
+			}
+		}
+
+		return balance;
 	}
 }

@@ -3783,10 +3783,6 @@ public class Ship implements Locatable,Transfering {
 	 */
 	public int getNahrungsBalance()
 	{
-		if ( getBattle() == null )
-		{
 			return getFoodConsumption();
-		}
-		return 0;
 	}
 }
