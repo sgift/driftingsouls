@@ -330,6 +330,16 @@ public class AcademyBuilding extends DefaultBuilding {
 		}
 		if( cancel == 1 && queueid > 0 )
 		{
+			if(academy.getQueueEntryById(queueid).getTraining() > 0 )
+			{
+				if( !academy.isOffizierScheduled(academy.getQueueEntryById(queueid).getTraining()))
+				{
+					db.createQuery("update Offizier set dest=:dest where id=:id")
+					.setParameter("dest", "b "+base.getId())
+					.setParameter("id", academy.getQueueEntryById(queueid).getTraining())
+					.executeUpdate();	
+				}
+			}
 			academy.getQueueEntryById(queueid).deleteQueueEntry();
 			academy.rescheduleQueue();
 			if( academy.getNumberScheduledQueueEntries() == 0 ) {
