@@ -1270,6 +1270,7 @@ public class Ship implements Locatable,Transfering {
 		shipModules.setSrs(type.hasSrs());
 		shipModules.setPickingCost(type.getPickingCost());
 		shipModules.setScanCost(type.getScanCost());
+		shipModules.setMinCrew(type.getMinCrew());
 	}
 
 	/**

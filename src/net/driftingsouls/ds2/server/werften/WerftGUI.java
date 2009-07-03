@@ -828,7 +828,7 @@ public class WerftGUI {
 		WerftObject.RepairCosts repairCost = werft.getRepairCosts(ship);
 	
 		//Kosten ausgeben
-		ResourceList reslist = repairCost.cost.compare( cargo, false );
+		ResourceList reslist = repairCost.cost.compare( cargo, false, false, true );
 		for( ResourceEntry res : reslist ) {
 			t.setVar(	"res.image",			res.getImage(),
 						"res.plainname",		res.getPlainName(),
