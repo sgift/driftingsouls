@@ -792,71 +792,65 @@
 	]]></update>
 	<update type="data" datum="2009-06-30"><![CDATA[
 		INSERT INTO `config` (
-			`id` ,
 			`name` ,
 			`value` ,
 			`description` ,
 			`version` 
 			)
 			VALUES (
-			NULL , 'maxoffstotrain', '20', 'Laenge der Offiziersbauschlange', '0'
+			'maxoffstotrain', '20', 'Laenge der Offiziersbauschlange', '0'
 			);
 		INSERT INTO `config` (
-			`id` ,
 			`name` ,
 			`value` ,
 			`description` ,
 			`version` 
 			)
 			VALUES (
-			NULL , 'newoffsiliziumcosts', '20', 'Siliziumkosten fuer einen neuen Offizier', '0'
+			'newoffsiliziumcosts', '20', 'Siliziumkosten fuer einen neuen Offizier', '0'
 			);
 		INSERT INTO `config` (
-			`id` ,
 			`name` ,
 			`value` ,
 			`description` ,
 			`version` 
 			)
 			VALUES (
-			NULL , 'newoffnahrungcosts', '30', 'Nahrungskosten fuer einen neuen Offizier', '0'
-			)
+			'newoffnahrungcosts', '30', 'Nahrungskosten fuer einen neuen Offizier', '0'
+			);
 		INSERT INTO `config` (
-			`id` ,
 			`name` ,
 			`value` ,
 			`description` ,
 			`version` 
 			)
 			VALUES (
-			NULL , 'offdauercosts', '8', 'Laenge der Offiziersausbildung', '0'
-			)			
+			'offdauercosts', '8', 'Laenge der Offiziersausbildung', '0'
+			);
 	]]></update>
 	<update type="structure" datum="2009-06-30"><![CDATA[
 		ALTER TABLE `buildings` ADD `race` TINYINT( 3 ) NOT NULL default 0;
 	]]></update>
 	<update type="data" datum="2009-06-30"><![CDATA[
 		INSERT INTO `ds2`.`config` (
-			`id` ,
 			`name` ,
 			`value` ,
 			`description` ,
 			`version` 
 			)
 			VALUES (
-			NULL , 'offnahrungfactor', '1.5', 'Faktor fuer die Nahrungskosten beim Offizierstraining.', '0'
+			'offnahrungfactor', '1.5', 'Faktor fuer die Nahrungskosten beim Offizierstraining.', '0'
 			);
 		INSERT INTO `ds2`.`config` (
-			`id` ,
 			`name` ,
 			`value` ,
 			`description` ,
 			`version` 
 			)
 			VALUES (
-			NULL , 'offsiliziumfactor', '1', 'Faktor fuer Siliziumkosten beim Offizierstraining.', '0'
+			'offsiliziumfactor', '1', 'Faktor fuer Siliziumkosten beim Offizierstraining.', '0'
 			), (
-			NULL , 'offdauerfactor', '0.25', 'Faktor fuer die Zeitdauer beim Offizierstraining.', '0'
+			'offdauerfactor', '0.25', 'Faktor fuer die Zeitdauer beim Offizierstraining.', '0'
 			);				
 	]]></update>
 </updates>
