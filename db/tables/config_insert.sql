@@ -40,4 +40,18 @@ VALUES (
 	'immigrationfactor', '1', 'Wert zwischen 0 und 1, der angibt welcher Anteil des freien Platzes maximal von neuen Einwanderern belegt wird.', '0'
 ), (
 	'randomizeimmigration', 'false', 'Zufallswert zwischen 0 und dem Maximum an Einwanderern waehlen.', '0'
+), (
+	'maxoffstotrain', '20', 'Laenge der Offiziersbauschlange', '0'
+), (
+	'newoffsiliziumcosts', '20', 'Siliziumkosten fuer einen neuen Offizier', '0'
+), (
+	'newoffnahrungcosts', '30', 'Nahrungskosten fuer einen neuen Offizier', '0'
+), (
+	'offdauercosts', '8', 'Laenge der Offiziersausbildung', '0'
+), (
+	'offnahrungfactor', '1.5', 'Faktor fuer die Nahrungskosten beim Offizierstraining.', '0'
+), (
+	'offsiliziumfactor', '1', 'Faktor fuer Siliziumkosten beim Offizierstraining.', '0'
+), (
+	'offdauerfactor', '0.25', 'Faktor fuer die Zeitdauer beim Offizierstraining.', '0'
 );
