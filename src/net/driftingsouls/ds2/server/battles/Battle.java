@@ -2640,7 +2640,8 @@ public class Battle implements Locatable {
 	
 	/**
 	 * 
-	 * @return Gibt die Nahrungsbalance der Schlacht zurueck
+	 * @param user Der Spieler von dem die Nahrungsbalance berechnet werden soll.
+	 * @return Gibt die Nahrungsbalance der Schlacht zurueck.
 	 */
 	public int getNahrungsBalance(User user)
 	{
@@ -2672,7 +2673,8 @@ public class Battle implements Locatable {
 	
 	/**
 	 * 
-	 * @return Gibt die Balance der Schlacht zurueck
+	 * @param user Der Spieler von dem die Balance berechnet werden soll.
+	 * @return Gibt die Balance der Schlacht zurueck.
 	 */
 	public int getBalance(User user)
 	{
