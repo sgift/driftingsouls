@@ -3,6 +3,11 @@
 	{academy.message}
 	<br />
 {/endif}
+<br />
+<span style="font-weight:bold">{academy.actualbuilds}/{academy.maxbuilds} Pl&auml;tzen belegt</span>
+<br />
+<br />
+<br />
 {if academy.show.trainnewoffi}
 	{!table_begin 500,left}
 		{if trainnewoffi.error}
@@ -114,6 +119,71 @@
 {if academy.show.offilist}
 	{if academy.offilist.list}
 		{!table_begin 550,left}
+		<h3>Offiziere in Ausbildung</h3>
+		<table class="noBorderX" border="1">
+		<tr>
+			<td class="noBorderX">Name</td>
+			<td class="noBorderX">Technik</td>
+			<td class="noBorderX">Waffen</td>
+			<td class="noBorderX">Navigation</td>
+			<td class="noBorderX">Sicherheit</td>
+			<td class="noBorderX">Kommandoeffizienz</td>
+			<td class="noBorderX">Spezial</td>
+		</tr>
+		<!-- BEGIN academy.offilistausb.listitem -->
+			<tr>
+			<td class="noBorderX" style="white-space:nowrap">
+			<img style="vertical-align:middle" src="{offizier.picture}" alt="" />
+			<a class="academy" href="./ds?module=choff&amp;off={offizier.id}">{offizier.name}</a>
+			</td>
+			
+			<td class="noBorderX" align="center">
+			{if offilist.allowactions}
+				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=1&amp;off={offizier.id}">{offizier.ing}</a>
+			{else}
+				{offizier.ing}
+			{/endif}
+			</td>
+			
+			<td class="noBorderX" align="center">
+			{if offilist.allowactions}
+				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=2&amp;off={offizier.id}">{offizier.waf}</a>
+			{else}
+				{offizier.waf}
+			{/endif}
+			</td>
+			
+			<td class="noBorderX" align="center">
+			{if offilist.allowactions}
+				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=3&amp;off={offizier.id}">{offizier.nav}</a>
+			{else}
+				{offizier.nav}
+			{/endif}
+			</td>
+			
+			<td class="noBorderX" align="center">
+			{if offilist.allowactions}
+				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=4&amp;off={offizier.id}">{offizier.sec}</a>
+			{else}
+				{offizier.sec}
+			{/endif}
+			</td>
+			
+			<td class="noBorderX" align="center">
+			{if offilist.allowactions}
+				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=5&amp;off={offizier.id}">{offizier.com}</a>
+			{else}
+				{offizier.com}
+			{/endif}
+			</td>
+			
+			<td class="noBorderX">{offizier.special}</td>
+			</tr>
+		<!-- END academy.offilistausb.listitem -->
+		</table><br />
+		{!table_end}
+		<br />
+		{!table_begin 550,left}
 		<h3>Anwesende Offiziere</h3>
 		<table class="noBorderX" border="1">
 		<tr>
@@ -180,5 +250,8 @@
 		<br />
 	{/endif}
 {/endif}
+<br />
+{!link_to zur&uuml;ck zur Akademie, default, css_class:back, module:building, col:$base.id, field:$base.field}
+<br />
 <br />
 </div>

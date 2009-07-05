@@ -270,10 +270,12 @@ public class AcademyBuilding extends DefaultBuilding {
 		ConfigValue siliziumcostsConfig = (ConfigValue)db.get(ConfigValue.class, "newoffsiliziumcosts");
 		ConfigValue nahrungcostsConfig = (ConfigValue)db.get(ConfigValue.class, "newoffnahrungcosts");
 		ConfigValue dauercostsConfig = (ConfigValue)db.get(ConfigValue.class, "offdauercosts");
+		ConfigValue maxoffstotrainConfig = (ConfigValue)db.get(ConfigValue.class, "maxoffstotrain");
 		
 		double siliziumcosts = Double.valueOf(siliziumcostsConfig.getValue());
 		double nahrungcosts = Double.valueOf(nahrungcostsConfig.getValue());
 		double dauercosts = Double.valueOf(dauercostsConfig.getValue());
+		double maxoffstotrain = Double.valueOf(maxoffstotrainConfig.getValue());
 
 		int newo = context.getRequest().getParameterInt("newo");
 		int train = context.getRequest().getParameterInt("train");
@@ -330,18 +332,19 @@ public class AcademyBuilding extends DefaultBuilding {
 		}
 		if( cancel == 1 && queueid > 0 )
 		{
-			if(academy.getQueueEntryById(queueid).getTraining() > 0 )
+			int offid = academy.getQueueEntryById(queueid).getTraining();
+			academy.getQueueEntryById(queueid).deleteQueueEntry();
+			academy.rescheduleQueue();
+			if(offid > 0 )
 			{
-				if( !academy.isOffizierScheduled(academy.getQueueEntryById(queueid).getTraining()))
+				if( !academy.isOffizierScheduled(offid))
 				{
 					db.createQuery("update Offizier set dest=:dest where id=:id")
 					.setParameter("dest", "b "+base.getId())
-					.setParameter("id", academy.getQueueEntryById(queueid).getTraining())
+					.setParameter("id", offid)
 					.executeUpdate();	
 				}
 			}
-			academy.getQueueEntryById(queueid).deleteQueueEntry();
-			academy.rescheduleQueue();
 			if( academy.getNumberScheduledQueueEntries() == 0 ) {
 				academy.setTrain(false);
 			}
@@ -355,7 +358,9 @@ public class AcademyBuilding extends DefaultBuilding {
 		t.setVar(	
 				"base.name",	base.getName(),
 				"base.id",		base.getId(),
-				"base.field",	field);
+				"base.field",	field,
+				"academy.actualbuilds", academy.getNumberScheduledQueueEntries(),
+				"academy.maxbuilds", (int)maxoffstotrain);
 		
 		//---------------------------------
 		// Einen neuen Offizier ausbilden
@@ -581,7 +586,7 @@ public class AcademyBuilding extends DefaultBuilding {
 				"academy.show.offilist", 1,
 				"offilist.allowactions", 1);
 		
-		t.setBlock("_BUILDING", "academy.offilist.listitem", "academy.offilist.list");
+		t.setBlock("_BUILDING", "academy.offilistausb.listitem", "academy.offilistausb.list");
 		
 		List<Offizier> offiziere = Offizier.getOffiziereByDest('t', base.getId());
 		for( Offizier offi : offiziere ) {
@@ -597,8 +602,11 @@ public class AcademyBuilding extends DefaultBuilding {
 					"offizier.com",		offi.getAbility(Offizier.Ability.COM),
 					"offizier.special",	offi.getSpecial().getName() );
 			
-			t.parse("academy.offilist.list", "academy.offilist.listitem", true);
+			t.parse("academy.offilistausb.list", "academy.offilistausb.listitem", true);
 		}
+		
+		t.setBlock("_BUILDING", "academy.offilist.listitem", "academy.offilist.list");
+		
 		offiziere = Offizier.getOffiziereByDest('b', base.getId());
 		for( Offizier offi : offiziere ) {
 			

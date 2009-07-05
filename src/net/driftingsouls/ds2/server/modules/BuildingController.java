@@ -296,7 +296,7 @@ public class BuildingController extends TemplateGenerator {
 				echo.append("<br />\n");
 			}
 	
-			echo.append("<br /><a style=\"font-size:16px\" class=\"back\" href=\""+Common.buildUrl("default", "module", "base" , "col", base.getId())+"\">zur&uuml;ck</a><br /></div>\n");		
+			echo.append("<br /><a style=\"font-size:16px\" class=\"back\" href=\""+Common.buildUrl("default", "module", "base" , "col", base.getId())+"\">zur&uuml;ck zur Basis</a><br /></div>\n");		
 		}
 		catch( IOException e ) {
 			throw new RuntimeException(e);
