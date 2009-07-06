@@ -8,7 +8,7 @@
 	<!--<module name="JavadocPackage"/>-->
 
 	<!-- Checks whether files end with a new line.                        -->
-	<module name="NewlineAtEndOfFile"/>
+	<!-- <module name="NewlineAtEndOfFile"/> -->
 
 	<!-- Checks that property files contain the same keys.         -->
 	<!--<module name="Translation"/>-->
