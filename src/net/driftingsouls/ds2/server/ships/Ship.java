@@ -1810,9 +1810,9 @@ public class Ship implements Locatable,Transfering {
 
 		org.hibernate.Session db = context.getDB();
 
-		List<?> fleetships = db.createQuery("from Ship " +
-				"where id>0 and fleet=? and x=? and y=? and system=? and owner=? and " +
-				"docked='' and id!=? and e>0 and battle is null")
+		List<?> fleetships = db.createQuery("from Ship s left join fetch s.modules " +
+				"where s.id>0 and s.fleet=? and s.x=? and s.y=? and s.system=? and s.owner=? and " +
+				"s.docked='' and s.id!=? and s.e>0 and s.battle is null")
 			.setEntity(0, this.fleet)
 			.setInteger(1, this.x)
 			.setInteger(2, this.y)
@@ -1931,22 +1931,33 @@ public class Ship implements Locatable,Transfering {
 		if( fleetdata != null ) {
 			org.hibernate.Session db = context.getDB();
 
+			Map<Location,List<String>> shipDockIds = new HashMap<Location,List<String>>();
 			for( Ship fleetship : fleetdata.ships.values() ) {
 				if( fleetdata.dockedCount.get(fleetship.getId()) > 0 ) {
-					List<?> dockedList = db.createQuery("from Ship where id>0 and docked in (?,?)")
-						.setString(0, "l "+fleetship.getId())
-						.setString(1, Integer.toString(fleetship.getId()))
-						.list();
-					for( Iterator<?> iter=dockedList.iterator(); iter.hasNext(); ) {
-						Ship dockedShip = (Ship)iter.next();
-						dockedShip.setSystem(fleetship.getSystem());
-						dockedShip.setX(fleetship.x);
-						dockedShip.setY(fleetship.y);
-						dockedShip.recalculateShipStatus();
+					List<String> posIds = shipDockIds.get(fleetship.getLocation());
+					if( posIds == null ) {
+						posIds = new ArrayList<String>();
+						shipDockIds.put(fleetship.getLocation(), posIds);
 					}
+					posIds.add("l "+fleetship.getId());
+					posIds.add(Integer.toString(fleetship.getId()));
 				}
 
 				fleetship.recalculateShipStatus();
+			}
+			
+			for( Map.Entry<Location, List<String>> entry : shipDockIds.entrySet() ) {
+				final Location loc = entry.getKey();
+				List<?> dockedList = db.createQuery("from Ship s left join fetch s.modules where s.id>0 and s.docked in (:dockedIds)")
+					.setParameterList("dockedIds", entry.getValue())
+					.list();
+				for( Iterator<?> iter=dockedList.iterator(); iter.hasNext(); ) {
+					Ship dockedShip = (Ship)iter.next();
+					dockedShip.setSystem(loc.getSystem());
+					dockedShip.setX(loc.getX());
+					dockedShip.setY(loc.getY());
+					dockedShip.recalculateShipStatus();
+				}
 			}
 		}
 		context.putVariable(Ships.class, "fleetships", null);
@@ -2083,14 +2094,14 @@ public class Ship implements Locatable,Transfering {
 
 			// Alle potentiell relevanten Sektoren mit EMP-Nebeln (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
 			Map<Location,Boolean> nebulaemplist = new HashMap<Location,Boolean>();
-			sectorList = db.createQuery("from Nebel " +
+			sectorList = Common.cast(db.createQuery("from Nebel " +
 					"where type>=3 and type<=5 and system=:system and x between :lowerx and :upperx and y between :lowery and :uppery")
 					.setInteger("system", this.system)
 					.setInteger("lowerx", (waypoint.direction-1) % 3 == 0 ? this.x-waypoint.distance : this.x )
 					.setInteger("upperx", (waypoint.direction) % 3 == 0 ? this.x+waypoint.distance : this.x )
 					.setInteger("lowery", waypoint.direction <= 3 ? this.y-waypoint.distance : this.y )
 					.setInteger("uppery", waypoint.direction >= 7 ? this.y+waypoint.distance : this.y )
-					.list();
+					.list());
 
 			for( Iterator<?> iter=sectorList.iterator(); iter.hasNext(); ) {
 				Nebel nebel = (Nebel)iter.next();
@@ -3630,6 +3641,11 @@ public class Ship implements Locatable,Transfering {
 	 * @return Der Offizier
 	 */
 	public Offizier getOffizier() {
+		if( this.getTypeData().getSize() <= ShipType.SMALL_SHIP_MAXSIZE && 
+				this.getTypeData().getShipClass() != ShipClasses.RETTUNGSKAPSEL.ordinal() ) {
+			return null;
+		}
+		
 		if( this.offizier == null ) {
 			this.offizier = Offizier.getOffizierByDest('s', this.id);
 		}

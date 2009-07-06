@@ -853,4 +853,26 @@
 			'offdauerfactor', '0.25', 'Faktor fuer die Zeitdauer beim Offizierstraining.', '0'
 			);				
 	]]></update>
+	<update type="data" datum="2009-07-04"><![CDATA[
+		CREATE TABLE offi_tmp_update (
+			dest VARCHAR(15) NOT NULL,
+			ship_id INT(11) NOT NULL,
+			ship_owner INT(11) NOT NULL,
+			base_id INT(11),
+			primary key(ship_id)
+		);
+		
+		INSERT INTO offi_tmp_update SELECT CONCAT('s ',id), id, owner, null AS base_id FROM ships 
+			WHERE status LIKE "%offizier%" AND type IN (SELECT id FROM ship_types WHERE size<=3 AND class!=18);
+			
+		UPDATE offi_tmp_update SET base_id=(SELECT id FROM bases WHERE bases.owner=offi_tmp_update.ship_owner LIMIT 1);
+			
+		UPDATE offiziere,offi_tmp_update 
+			SET offiziere.dest=CONCAT('b ',offi_tmp_update.base_id) WHERE offiziere.dest=offi_tmp_update.dest;
+			
+		UPDATE ships SET status=REPLACE(REPLACE(REPLACE(status,'offizier ',''),' offizier',''),'offizier','') 
+			WHERE id IN (SELECT ship_id FROM offi_tmp_update);
+		
+		DROP TABLE offi_tmp_update;
+	]]></update>
 </updates>
