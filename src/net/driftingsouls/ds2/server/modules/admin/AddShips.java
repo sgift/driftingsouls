@@ -43,6 +43,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
@@ -344,7 +345,9 @@ public class AddShips implements AdminPlugin {
 				echo.append("Schiff ("+ship.getId()+") hinzugef&uuml;gt<br />");
 				
 				// Offizier einfuegen
-				if( (offitype > 0) && (offiname.length() > 0) ) {
+				if( (offitype > 0) && (offiname.length() > 0) && 
+						((ship.getTypeData().getSize() > ShipType.SMALL_SHIP_MAXSIZE) || 
+								ship.getTypeData().getShipClass() == ShipClasses.RETTUNGSKAPSEL.ordinal()) ) {
 					OrderOffizier offi = (OrderOffizier)db.get(OrderOffizier.class, offitype);
 					if( offi != null ) {
 						Offizier offizier = new Offizier(auser, offiname);
