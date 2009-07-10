@@ -103,9 +103,12 @@ public class AcademyBuilding extends DefaultBuilding {
 		
 		// Bereinige Queue Eintraege
 		Academy academy = (Academy)db.get(Academy.class, base.getId());
-		AcademyQueueEntry[] entries = academy.getQueueEntries();
-		for( AcademyQueueEntry entry : entries ) {
-			entry.deleteQueueEntry();
+		if( academy != null )
+		{
+			AcademyQueueEntry[] entries = academy.getQueueEntries();
+			for( AcademyQueueEntry entry : entries ) {
+				entry.deleteQueueEntry();
+			}
 		}
 		
 		// Bereinige Akademie
