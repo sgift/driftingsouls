@@ -32,6 +32,8 @@ import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.entities.Academy;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
@@ -43,8 +45,7 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.Session;
 
 /**
- * Ein Eintrag in der AcademyQueue.
- * @author Bernhard Ludemann
+ * 
  *
  */
 @Entity
@@ -221,17 +222,37 @@ public class AcademyQueueEntry {
 			return false;
 		}
 		
+		// Speichere alle wichtigen Daten
 		int offizier = this.training;
 		int training = this.trainingtype;
+		User owner = this.base.getOwner();
+		Base base = this.base;
+		Academy academy = (Academy)db.get(Academy.class, base.getId());
+		int race = owner.getRace();
+		int position = this.position;
+		
+		// Loesche Eintrag und berechne Queue neu
+		db.delete(this);
+		List<AcademyQueueEntry> entries = Common.cast(db.createQuery("from AcademyQueueEntry where base=:base and position > :position order by position")
+				.setParameter("base", base)
+				.setParameter("position", position)
+				.list());
 
+		for(AcademyQueueEntry entry: entries)
+		{
+			entry.setPosition(entry.getPosition() - 1);
+		}
+		
+		academy.rescheduleQueue();
+		
 		if(training == 0)
 		{
 			/*
 			 * Neuer Offizier wurde ausgebildet
 			 */
-			String offiname = getNewOffiName(this.base.getOwner().getRace());
+			String offiname = getNewOffiName(race);
 
-			Offizier offz = new Offizier(this.base.getOwner(), offiname);
+			Offizier offz = new Offizier(owner, offiname);
 			
 			if( !Offiziere.LIST.containsKey(-offizier) ) {
 				offizier = -Offiziere.LIST.keySet().iterator().next();
@@ -250,7 +271,7 @@ public class AcademyQueueEntry {
 
 			offz.setSpecial(Offizier.Special.values()[spec-1]);
 
-			offz.setDest("b", this.base.getId());
+			offz.setDest("b", base.getId());
 			id = (Integer)db.save(offz);
 		}
 		else
@@ -263,20 +284,11 @@ public class AcademyQueueEntry {
 			
 			final Offizier offz = Offizier.getOffizierByID(offizier);
 			offz.setAbility(ability, offz.getAbility(ability)+2);
-			offz.setDest("b", this.base.getId());
+			if( !academy.isOffizierScheduled(offz.getID()) )
+			{
+				offz.setDest("b", base.getId());
+			}
 			id = (Integer)db.save(offz);
-		}
-
-		
-		db.delete(this);
-		List<AcademyQueueEntry> entries = Common.cast(db.createQuery("from AcademyQueueEntry where base=:base and position > :position order by position")
-														.setParameter("base", this.base)
-														.setParameter("position", this.position)
-														.list());
-		
-		for(AcademyQueueEntry entry: entries)
-		{
-			entry.setPosition(entry.getPosition() - 1);
 		}
 		
 		return true;

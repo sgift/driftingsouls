@@ -117,7 +117,7 @@
 	<br />
 {/endif}
 {if academy.show.offilist}
-	{if academy.offilist.list}
+	{if academy.offilistausb.list}
 		{!table_begin 550,left}
 		<h3>Offiziere in Ausbildung</h3>
 		<table class="noBorderX" border="1">
@@ -182,7 +182,9 @@
 		<!-- END academy.offilistausb.listitem -->
 		</table><br />
 		{!table_end}
-		<br />
+	{/endif}
+	<br />
+	{if academy.offilist.list}
 		{!table_begin 550,left}
 		<h3>Anwesende Offiziere</h3>
 		<table class="noBorderX" border="1">

@@ -80,6 +80,8 @@ public class AcademyTick extends TickController {
 
 				log("Akademie "+acc.getBaseId()+":");
 				
+				boolean build;
+				
 				String msg = "";
 				
 				// Einen neuen Offizier ausbilden?
@@ -88,35 +90,38 @@ public class AcademyTick extends TickController {
 					
 					AcademyQueueEntry[] entries = acc.getScheduledQueueEntries();
 					
-					boolean build;
+					msg = "Die Ausbildung von<br />"; 
+					
+					build = false;
 					
 					for( AcademyQueueEntry entry : entries )
 					{	
 						entry.decRemainingTime();
-						build = false;
+
 						if( entry.getRemainingTime() <= 0 )
 						{	
 							build = true;
-							msg = "Die Ausbildung von "; 
+
 							if( entry.getTraining() < 0 )
 							{
-								msg = msg+"einem Neuen Offizier ("+offis.get(-entry.getTraining())+")";
+								msg = msg+"einem Neuen Offizier ("+offis.get(-entry.getTraining())+")<br />";
 							}
 							else
 							{
 								msg = msg+Offizier.getOffizierByID(entry.getTraining()).getName()+" ("+dTrain.get(entry.getTrainingType())+")<br />";
 							}
-							msg = msg+" auf dem Asteroiden "+base.getName()+" wurde abgeschlossen.<br />";
 							entry.finishBuildProcess();
 							
 							log("\tOffizier Aus-/Weitergebildet");
 						}
-						if( build )
-						{
-							acc.rescheduleQueue();
-							// Nachricht versenden
-							PM.send(sourceUser,base.getOwner().getId(), "Ausbildung abgeschlossen", msg);
-						}
+					}
+					msg = msg+" auf dem Asteroiden "+base.getName()+" wurde abgeschlossen.";
+					
+					if( build )
+					{
+						acc.rescheduleQueue();
+						// Nachricht versenden
+						PM.send(sourceUser,base.getOwner().getId(), "Ausbildung abgeschlossen", msg);
 					}
 					
 					if( acc.getNumberScheduledQueueEntries() == 0 )
