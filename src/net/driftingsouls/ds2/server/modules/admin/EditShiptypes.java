@@ -131,7 +131,13 @@ public class EditShiptypes implements AdminPlugin
 			double lostInEmpChance = Double.parseDouble(request.getParameter("lostinempchance"));
 
 			ShipType shiptype = (ShipType) db.createQuery("from ShipType where id=?").setInteger(0, shiptypeId).uniqueResult();
-
+			int oldeps = shiptype.getEps();
+			int oldhull = shiptype.getHull();
+			int oldcrew = shiptype.getCrew();
+			int oldshields = shiptype.getShields();
+			int oldablativearmor = shiptype.getAblativeArmor();
+			int oldmarines = shiptype.getMarines();
+			
 			shiptype.setRu(ru);
 			shiptype.setRd(rd);
 			shiptype.setRa(ra);
@@ -184,23 +190,54 @@ public class EditShiptypes implements AdminPlugin
 				ShipTypeData type = ship.getTypeData();
 				// Weight the difference between the old and the new value
 				Map<String, Double> factor = new HashMap<String, Double>();
-				factor.put("eps", eps / (double) type.getEps());
-				factor.put("hull", hull / (double) type.getHull());
-				factor.put("crew", crew / (double) type.getCrew());
-				factor.put("shields", shields / (double) type.getShields());
-				factor.put("ablativearmor", ablativeArmor / (double) type.getAblativeArmor());
-				factor.put("marines", marines / (double) type.getMarines());
+				if( type.getEps() == eps ) { // Schiff ohne Module
+					factor.put("eps", ship.getEnergy() / (double) oldeps);
+				} 
+				else {// Schiff mit Modulen
+					factor.put("eps", ship.getEnergy() / (double) type.getEps());
+				}
+				if( type.getHull() == hull ) {
+					factor.put("hull", ship.getHull() / (double) oldhull);
+				}
+				else {
+					factor.put("hull", ship.getHull() / (double) type.getHull());
+				}
+				if( type.getCrew() == crew ) {
+					factor.put("crew", ship.getCrew() / (double) oldcrew);
+				}
+				else {
+					factor.put("crew", ship.getCrew() / (double) type.getCrew());
+				}
+				if( type.getShields() == shields ) {
+					factor.put("shields", ship.getShields() / (double) oldshields);
+				}
+				else {
+					factor.put("shields", ship.getShields() / (double) type.getShields());
+				}
+				if( type.getAblativeArmor() == ablativeArmor ) {
+					factor.put("ablativearmor", ship.getAblativeArmor() / (double) oldablativearmor);
+				}
+				else {
+					factor.put("ablativearmor", ship.getAblativeArmor() / (double) type.getAblativeArmor());
+				}
+				if( type.getMarines() == marines ) {
+					factor.put("marines", ship.getMarines() / (double) oldmarines);
+				}
+				else {
+					factor.put("marines", ship.getMarines() / (double) type.getMarines());
+				}
 				try
 				{
-					ship.setEnergy((int)Math.floor(ship.getEnergy() * factor.get("eps")));
-					ship.setHull((int)Math.floor(ship.getHull() * factor.get("hull")));
-					ship.setCrew((int)Math.floor(ship.getCrew() * factor.get("crew")));
-					ship.setShields((int)Math.floor(ship.getShields() * factor.get("shields")));
-					ship.setAblativeArmor((int)Math.floor(ship.getAblativeArmor() * factor.get("ablativearmor")));
-					ship.setMarines((int)Math.floor(ship.getMarines() * factor.get("marines")));
-					
 					ship.recalculateModules();
-	
+					type = ship.getTypeData();
+					
+					ship.setEnergy((int)Math.floor(type.getEps() * factor.get("eps")));
+					ship.setHull((int)Math.floor(type.getHull() * factor.get("hull")));
+					ship.setCrew((int)Math.floor(type.getCrew() * factor.get("crew")));
+					ship.setShields((int)Math.floor(type.getShields() * factor.get("shields")));
+					ship.setAblativeArmor((int)Math.floor(type.getAblativeArmor() * factor.get("ablativearmor")));
+					ship.setMarines((int)Math.floor(type.getMarines() * factor.get("marines")));
+
 					String id = "l " + ship.getId();
 					int fighterDocks = ship.getTypeData().getJDocks();
 					if (ship.getLandedCount() > fighterDocks)
@@ -267,17 +304,29 @@ public class EditShiptypes implements AdminPlugin
 				ShipTypeData type = battleShip.getShip().getTypeData();
 				// Weight the difference between the old and the new value
 				Map<String, Double> factor = new HashMap<String, Double>();
-				factor.put("eps", eps / (double) type.getEps());
-				factor.put("hull", hull / (double) type.getHull());
-				factor.put("crew", crew / (double) type.getCrew());
-				factor.put("shields", shields / (double) type.getShields());
-				factor.put("ablativearmor", ablativeArmor / (double) type.getAblativeArmor());
-				factor.put("marines", marines / (double) type.getMarines());
+				if( type.getHull() == hull ) {
+					factor.put("hull", battleShip.getHull() / (double) oldhull);
+				}
+				else {
+					factor.put("hull", battleShip.getHull() / (double) type.getHull());
+				}
+				if( type.getShields() == shields ) {
+					factor.put("shields", battleShip.getShields() / (double) oldshields);
+				}
+				else {
+					factor.put("shields", battleShip.getShields() / (double) type.getShields());
+				}
+				if( type.getAblativeArmor() == ablativeArmor ) {
+					factor.put("ablativearmor", battleShip.getAblativeArmor() / (double) oldablativearmor);
+				}
+				else {
+					factor.put("ablativearmor", battleShip.getAblativeArmor() / (double) type.getAblativeArmor());
+				}
 				try
 				{		
-					battleShip.setShields((int)Math.floor(battleShip.getShields() * factor.get("shields")));
-					battleShip.setHull((int)Math.floor(battleShip.getHull() * factor.get("hull")));
-					battleShip.setAblativeArmor((int)Math.floor(battleShip.getAblativeArmor() * factor.get("ablativearmor")));
+					battleShip.setShields((int)Math.floor(type.getShields() * factor.get("shields")));
+					battleShip.setHull((int)Math.floor(type.getHull() * factor.get("hull")));
+					battleShip.setAblativeArmor((int)Math.floor(type.getAblativeArmor() * factor.get("ablativearmor")));
 					count++;
 					//All unflushed changes are part of the sessioncache, so we need to clean it regularly
 					if (count % 20 == 0)
