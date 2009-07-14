@@ -762,7 +762,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		{
 			Integer[] terrain = new Integer[getWidth()*getHeight()];
 			System.arraycopy(getTerrain(), 0, terrain, 0, getTerrain().length );
-			for( int i=Math.max(getTerrain().length-1,0); i < getWidth()*getHeight(); i++ )
+			for( int i=Math.max(getTerrain().length,0); i < getWidth()*getHeight(); i++ )
 			{
 				int rnd = RandomUtils.nextInt(7);
 				if( rnd > 4 )
@@ -783,7 +783,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		{
 			Integer[] bebauung = new Integer[getWidth()*getHeight()];
 			System.arraycopy(getBebauung(), 0, bebauung, 0, getBebauung().length );
-			for( int i=Math.max(getBebauung().length-1,0); i < getWidth()*getHeight(); i++ )
+			for( int i=Math.max(getBebauung().length,0); i < getWidth()*getHeight(); i++ )
 			{
 				bebauung[i] = 0;	
 			}
@@ -796,7 +796,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		{
 			Integer[] active = new Integer[getWidth()*getHeight()];
 			System.arraycopy(getActive(), 0, active, 0, getActive().length );
-			for( int i=Math.max(getActive().length-1,0); i < getWidth()*getHeight(); i++ )
+			for( int i=Math.max(getActive().length,0); i < getWidth()*getHeight(); i++ )
 			{
 				active[i] = 0;	
 			}
