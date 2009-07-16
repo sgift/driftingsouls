@@ -1376,7 +1376,7 @@ public class User extends BasicUser {
 
 	/**
 	 * returns a Set of all systems the user has a colony in.
-	 * @return
+	 * @return the set of all systems the user has a colony in.
 	 */
 	public Set<Integer> getAstiSystems()
 	{
