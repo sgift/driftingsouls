@@ -610,7 +610,7 @@ public class ErsteigernController extends TemplateGenerator
 		parameterNumber("favsys");
 		int favsys = getInteger("favsys");
 
-		if( Systems.get().system(favsys).getDropZone() != null )
+		if( Systems.get().system(favsys).getDropZone() != null && user.getAstiSystems().contains(favsys) )
 		{
 			user.setGtuDropZone(favsys);
 			t.setVar("show.newcoords", 1);
@@ -1347,7 +1347,7 @@ public class ErsteigernController extends TemplateGenerator
 		t.setBlock("_ERSTEIGERN", "gtu.dropzones.listitem", "gtu.dropzones.list");
 		for( StarSystem system : Systems.get() )
 		{
-			if( system.getDropZone() != null )
+			if( system.getDropZone() != null && user.getAstiSystems().contains(system.getID()))
 			{
 				t.setVar("dropzone.system.id", system.getID(), "dropzone.system.name", system
 						.getName(), "dropzone.selected", (user.getGtuDropZone() == system.getID()));

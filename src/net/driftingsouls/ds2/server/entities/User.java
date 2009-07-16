@@ -20,9 +20,11 @@ package net.driftingsouls.ds2.server.entities;
 
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -1370,5 +1372,27 @@ public class User extends BasicUser {
 		}
 		
 		return balance;
+	}
+
+	/**
+	 * returns a Set of all systems the user has a colony in.
+	 * @return
+	 */
+	public Set<Integer> getAstiSystems()
+	{
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		List<Base> bases = Common.cast(db.createQuery("from Base where owner=:owner")
+				 .setParameter("owner", this)
+				 .list());
+		Set<Integer> systemlist = new HashSet<Integer>();
+		for(Base base: bases)
+		{
+			int baseid = base.getId();
+			if (!systemlist.contains(baseid))
+			{
+				systemlist.add(baseid);
+			}
+		}
+		return systemlist;
 	}
 }
