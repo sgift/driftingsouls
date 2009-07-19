@@ -2,7 +2,7 @@
     <diskStore path="java.io.tmpdir"/>
 
     <defaultCache
-            maxElementsInMemory="10000"
+            maxElementsInMemory="5000"
             eternal="false"
             timeToIdleSeconds="120"
             timeToLiveSeconds="120"
@@ -19,7 +19,7 @@
     />
     
     <cache name="net.driftingsouls.ds2.server.battles.BattleShip"
-    		maxElementsInMemory="20000"
+    		maxElementsInMemory="10000"
     		eternal="false"
     		overflowToDisk="true"
     />
@@ -85,6 +85,13 @@
 			eternal="true"
 			timeToIdleSeconds="5"
 			timeToLiveSeconds="10"
-			overflowToDisk="false"
+			overflowToDisk="true"
+	/>
+	<cache name="net.driftingsouls.ds2.server.modules.GuiHelpText"
+			maxElementsInMemory="300"
+			eternal="true"
+			timeToIdleSeconds="5"
+			timeToLiveSeconds="10"
+			overflowToDisk="true"
 	/>
 </ehcache>
