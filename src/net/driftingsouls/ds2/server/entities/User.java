@@ -1387,10 +1387,10 @@ public class User extends BasicUser {
 		Set<Integer> systemlist = new HashSet<Integer>();
 		for(Base base: bases)
 		{
-			int baseid = base.getId();
-			if (!systemlist.contains(baseid))
+			int basesystem = base.getSystem();
+			if (!systemlist.contains(basesystem))
 			{
-				systemlist.add(baseid);
+				systemlist.add(basesystem);
 			}
 		}
 		return systemlist;
