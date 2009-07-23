@@ -2696,14 +2696,16 @@ public class Ship implements Locatable,Transfering {
 			return errors;
 		}
 		
-		db.createQuery("update Ship s set docked=:docked where s in (:dockships)")
+		db.createQuery("update Ship s set docked=:docked where s in (:dockships) and battle is null")
 			.setParameterList("dockships", dockships)
 			.setParameter("docked", "l "+this.getId())
 			.executeUpdate();
 		
 		// Die Query aktualisiert leider nicht die bereits im Speicher befindlichen Objekte...
 		for( Ship ship : dockships ) {
-			ship.setDocked("l "+this.getId());
+			if ( ship.getBattle() == null ){
+				ship.setDocked("l "+this.getId());
+			}
 		}
 		
 		return errors;
