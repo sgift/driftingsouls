@@ -145,7 +145,7 @@ public class CreateObjects implements AdminPlugin {
 				new TextEntry("System", "system", 18, "0"),
 				new TextEntry("X", "minX", 18, "0"),
 				new TextEntry("Y", "minY", 18, "0"),
-				new TextEntry("Austritts-X", "maxY", 18, "0"),
+				new TextEntry("Austritts-X", "maxX", 18, "0"),
 				new TextEntry("Austritts-Y", "maxY", 18, "0"),
 				new TextEntry("Austritts-System", "systemout", 18, "0"),
 				new TextEntry("Austritts-Name", "systemname", 18, "0")

@@ -147,7 +147,7 @@ public class ResearchEdit implements AdminPlugin {
 				for( Iterator<?> iter=researches.iterator(); iter.hasNext(); )
 				{
 					Forschung requirement = (Forschung)iter.next();
-					echo.append("<option value=\""+research.getID()+" "+(requirement.getID() == techid ? "selected=\"selected\"" : "")+" \">"+requirement.getName()+"</option>\n");
+					echo.append("<option value=\""+requirement.getID()+"\" "+(requirement.getID() == research.getRequiredResearch(i) ? "selected=\"selected\"" : "")+" \">"+requirement.getName()+"</option>\n");
 				}
 				echo.append("</select>\n");
 			}
@@ -211,7 +211,7 @@ public class ResearchEdit implements AdminPlugin {
 			echo.append("<hr noshade=\"noshade\" size=\"1\" style=\"color:#cccccc\" />\n");
 			echo.append("<select name=\"visibility\" size=\"1\" style=\"width:200px\">\n");
 			for(Forschung.Visibility visibility: Forschung.Visibility.values()) {
-				echo.append("<option value=\""+visibility.getBits()+" "+(research.hasVisibility(visibility) ? "selected=\"selected\"" : "")+" \">"+visibility.toString()+"</option>\n");
+				echo.append("<option value=\""+visibility.getBits()+"\" "+(research.hasVisibility(visibility) ? "selected=\"selected\"" : "")+" \">"+visibility.toString()+"</option>\n");
 			}
 			echo.append("</select>");
 			echo.append("<input type=\"hidden\" name=\"changedata\" value=\"1\" />\n");
