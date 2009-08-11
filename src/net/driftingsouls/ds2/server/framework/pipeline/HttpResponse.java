@@ -25,6 +25,7 @@ import java.io.Writer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -214,5 +215,13 @@ public class HttpResponse implements Response {
 		if( this.content == null ) {
 			this.content = new StringBuffer(500);
 		}
+	}
+	
+	@Override
+	public void setCookie(String name, String value, int expiry) 
+	{
+		Cookie cookie = new Cookie(name, value);
+		cookie.setMaxAge(expiry);
+		response.addCookie(cookie);
 	}
 }

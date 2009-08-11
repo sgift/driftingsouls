@@ -118,4 +118,10 @@ public class SimpleResponse implements Response
 	{
 		// EMPTY
 	}
+
+	@Override
+	public void setCookie(String name, String value, int expiry) 
+	{
+		// EMPTY
+	}
 }

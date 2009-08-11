@@ -101,4 +101,13 @@ public interface Response {
 	 * @param url Die Ziel-URL
 	 */
 	public void redirectTo(String url);
+	
+	/**
+	 * Setzt einen Cookie.
+	 * 
+	 * @param name Name des Cookie.
+	 * @param value Wert des Cookie.
+	 * @param expiry Lebenszeit des Cookie.
+	 */
+	public void setCookie(String name, String value, int expiry);
 }

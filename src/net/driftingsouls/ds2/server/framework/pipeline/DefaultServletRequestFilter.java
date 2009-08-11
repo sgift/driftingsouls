@@ -62,7 +62,7 @@ public class DefaultServletRequestFilter extends GenericFilterBean implements Fi
 		HttpServletResponse httpResponse = (HttpServletResponse)resp;
 		
 		try {
-			// Refferer verstecken, um Abgreifen der sessid zu vermeiden
+			// Refferer verstecken, um abgreifen der sessid zu vermeiden
 			httpResponse.setHeader("Referer", "http://ds.drifting-souls.net");
 			
 			Request request = new HttpRequest(httpRequest);

@@ -19,7 +19,9 @@
 package net.driftingsouls.ds2.server.framework.authentication;
 
 import java.util.ServiceLoader;
+import java.util.UUID;
 
+import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
@@ -68,8 +70,20 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			
 			throw new WrongPasswordException();
 		}
+		
+
+		
+		return finishLogin(user, useGfxPak);
+	}
+	
+	private BasicUser finishLogin(BasicUser user, boolean useGfxPack) throws AuthenticationException
+	{
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		Request request = context.getRequest();
+		
 		if( user.getDisabled() ) {
-			Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+request.getRemoteAddress()+"> ("+user.getId()+") <"+username+"> Password <"+password+"> ***ACC DISABLED*** von Browser <"+request.getUserAgent()+">\n");
+			Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+request.getRemoteAddress()+"> ("+user.getId()+") <"+user.getUN()+"> ***ACC DISABLED*** von Browser <"+request.getUserAgent()+">\n");
 
 			db.createQuery("delete from Session where user=?")
 				.setEntity(0, user)
@@ -84,12 +98,28 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 
 		log.info("Login "+user.getId());
 		Common.writeLog("login.log",Common.date( "j.m.Y H:i:s")+": <"+request.getRemoteAddress()+"> ("+user.getId()+") <"+user.getUN()+"> Login von Browser <"+request.getUserAgent()+">\n");
-
+		
 		JavaSession jsession = context.get(JavaSession.class);
 		jsession.setUser(user);
-		jsession.setUseGfxPak(useGfxPak);
+		jsession.setUseGfxPak(useGfxPack);
 		jsession.setIP("<"+context.getRequest().getRemoteAddress()+">");
 		
+
+		if(user.hasFlag(BasicUser.FLAG_DISABLE_AUTO_LOGOUT))
+		{
+			UUID uuid = UUID.randomUUID();
+			String value = user.getId() + ";" + uuid;
+			context.getResponse().setCookie("dsRememberMe", value, 157680000);
+			
+			PermanentSession permanentSession = new PermanentSession();
+			permanentSession.setTick(context.get(ContextCommon.class).getTick());
+			permanentSession.setToken(Common.md5(uuid.toString()));
+			permanentSession.setUserId(user.getId());
+			permanentSession.setUseGfxPack(useGfxPack);
+			
+			db.save(permanentSession);
+		}
+				
 		return user;
 	}
 
@@ -104,6 +134,15 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	@Override
 	public void logout() {
 		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		JavaSession session = context.get(JavaSession.class);
+		if(session != null)
+		{
+			db.createQuery("delete from PermanentSession where userId=:userId")
+			  .setParameter("userId", session.getUser().getId())
+			  .executeUpdate();
+		}
+		
 		context.remove(JavaSession.class);
 	}
 
@@ -140,11 +179,28 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		
 		JavaSession jsession = context.get(JavaSession.class);
 		
-		if( jsession == null || jsession.getUser() == null ) {
+		BasicUser user;
+		if( jsession == null || jsession.getUser() == null ) 
+		{
+			try
+			{
+				user = checkRememberMe();
+			}
+			catch(AuthenticationException e)
+			{
+				return;
+			}
+		}
+		else
+		{
+			user = jsession.getUser();
+		}
+		
+		if(user == null)
+		{
 			return;
 		}
-
-		BasicUser user = jsession.getUser();
+		
 		user.setSessionData(jsession.getUseGfxPak());
 		if( !user.hasFlag(BasicUser.FLAG_DISABLE_IP_SESSIONS) && !jsession.isValidIP(context.getRequest().getRemoteAddress()) ) {
 			context.addError( "Diese Session ist einer anderen IP zugeordnet", errorurl );
@@ -171,5 +227,40 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		context.setActiveUser(user);
 		
 		return;
+	}
+
+	//Prueft, ob der User einen remember me Token hat, um automatisch neu authentifiziert zu werden
+	private BasicUser checkRememberMe() throws AuthenticationException
+	{
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		Request request = context.getRequest();
+		
+		String value = request.getCookie("dsRememberMe");
+		
+		if(value == null)
+		{
+			return null;
+		}
+		
+		String[] parts = value.split(";");
+		int userId = Integer.parseInt(parts[0]);
+		String token = parts[1];
+		
+		PermanentSession session = (PermanentSession)db.createQuery("from PermanentSession where userId=:userId and token=:token")
+													   .setParameter("userId", userId)
+													   .setParameter("token", Common.md5(token))
+													   .uniqueResult();
+		
+		if(session == null)
+		{
+			return null;
+		}
+		
+		db.delete(session);
+		BasicUser user = (BasicUser)db.get(BasicUser.class, userId);
+		user.setSessionData(session.isUseGfxPack());
+		
+		return finishLogin(user, session.isUseGfxPack());
 	}
 }

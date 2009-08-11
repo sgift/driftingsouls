@@ -147,4 +147,12 @@ public interface Request {
 	 * @param cls Die Klasse
 	 */
 	public void removeFromSession(Class<?> cls);
+	
+	/**
+	 * Gibt einen Cookie zurueck.
+	 * 
+	 * @param name Name des Cookies.
+	 * @return Wert des Cookie oder <code>null</code>, wenn er nicht existiert.
+	 */
+	public String getCookie(String name);
 }

@@ -161,4 +161,8 @@ public class CmdLineRequest implements Request {
 		log.error("removeFromSession not supported");
 	}
 
+	@Override
+	public String getCookie(String name) {
+		return null;
+	}
 }

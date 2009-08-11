@@ -38,6 +38,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -430,6 +431,7 @@ public class OptionsController extends TemplateGenerator {
 	public void saveOptionsAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
+		Session db = getDB();
 		
 		parameterNumber("enableipsess");
 		parameterNumber("enableautologout");
@@ -451,7 +453,10 @@ public class OptionsController extends TemplateGenerator {
 	
 		if( enableautologout == user.hasFlag( BasicUser.FLAG_DISABLE_AUTO_LOGOUT ) ) {
 			user.setFlag( BasicUser.FLAG_DISABLE_AUTO_LOGOUT, !enableautologout );
-		 
+			db.createQuery("delete from PermanentSession where userId=:userId")
+			  .setParameter("userId", user.getId())
+			  .executeUpdate();
+			
 			changemsg += "Das automatische Ausloggen wurde "+(enableautologout ? "" : "de" )+"aktiviert<br />\n";
 		} 
 

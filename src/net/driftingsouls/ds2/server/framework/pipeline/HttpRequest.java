@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -252,5 +253,21 @@ public class HttpRequest implements Request {
 			return;
 		}
 		session.removeAttribute(getClass().getName()+"#"+cls.getName());
+	}
+	
+	
+	@Override
+	public String getCookie(String name) 
+	{
+		Cookie[] cookies = request.getCookies();
+		for(Cookie cookie: cookies)
+		{
+			if(cookie.getName().equals(name))
+			{
+				return cookie.getValue();
+			}
+		}
+		
+		return null;
 	}
 }

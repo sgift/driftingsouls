@@ -875,4 +875,20 @@
 		
 		DROP TABLE offi_tmp_update;
 	]]></update>
+	<update><![CDATA[
+		ALTER TABLE `sessions`
+		  DROP `ip`,
+		  DROP `lastaction`,
+		  DROP `actioncounter`,
+		  DROP `attach`;
+		  
+		ALTER TABLE `sessions` 
+			CHANGE `session` `token` VARCHAR( 36 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;		  
+	
+		ALTER TABLE `sessions` ADD `userId` INT NOT NULL AFTER `id`;
+		
+		ALTER TABLE `sessions` CHANGE `tick` `tick` INT UNSIGNED NOT NULL DEFAULT '0';
+		
+		ALTER TABLE `sessions` CHANGE `usegfxpak` `usegfxpack` TINYINT( 3 ) UNSIGNED NOT NULL DEFAULT '1';
+	]]></update>
 </updates>
