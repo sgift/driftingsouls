@@ -227,7 +227,7 @@ public class SchiffsTick extends TickController {
 				shipd.setOwner(pirate);
 				
 				this.log("Konto nicht gedeckt; Schiff desertiert zum Piraten.");
-				PM.send(pirate, owner.getId(), "Schiff desertiert", "Die " + shipd.getName() + " ist desertiert, nachdem Sie den Sold der Crew nicht aufbringen konnten.");
+				PM.send(pirate, owner.getId(), "Schiff desertiert", "Die " + shipd.getName() + " ist desertiert, nachdem Sie den Sold der Crew nicht aufbringen konnten. (" + shipd.getLocation().displayCoordinates(false) + ")");
 			}
 		}
 
