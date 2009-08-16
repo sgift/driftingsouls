@@ -54,4 +54,6 @@ VALUES (
 	'offsiliziumfactor', '1', 'Faktor fuer Siliziumkosten beim Offizierstraining.', '0'
 ), (
 	'offdauerfactor', '0.25', 'Faktor fuer die Zeitdauer beim Offizierstraining.', '0'
+), (
+	'tick', '0', 'Sperrt Accounts waehrend des Ticks. 0 fuer keine Sperre, 1 fuer Sperre.', '0'
 );

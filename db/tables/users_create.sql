@@ -34,7 +34,6 @@ CREATE TABLE `users` (
   `lostShips` int(10) unsigned NOT NULL default '0',
   `knownItems` text NOT NULL default '',
   `version` int(10) unsigned not null default '0',
-  `blocked` tinyint(1) unsigned not null default '0',
   `foodpooldegeneration` DOUBLE NOT NULL DEFAULT '0',
   `vacpoints` int NOT NULL DEFAULT '0',
   PRIMARY KEY  (`id`),

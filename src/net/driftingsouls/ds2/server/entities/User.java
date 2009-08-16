@@ -218,7 +218,6 @@ public class User extends BasicUser {
 	private int destroyedShips;
 	private int lostShips;
 	private String knownItems;
-	private boolean blocked = false;
 	private int vacpoints;
 	
 	@Transient
@@ -1119,16 +1118,11 @@ public class User extends BasicUser {
 	 * Gibt zurueck, ob der User wegen einer Tickberechnung kurzzeitig blockiert wird.
 	 * @return <code>true</code>, falls er geblockt wird
 	 */
-	public boolean isBlocked() {
-		return this.blocked;
-	}
-	
-	/**
-	 * Setzt, ob der User wegen einer Tickberechnung kurzzeitig geblockt wird.
-	 * @param blocked <code>true</code>, falls er geblockt wird
-	 */
-	public void setBlocked(boolean blocked) {
-		this.blocked = blocked;
+	public boolean isBlocked() 
+	{
+		Session db = ContextMap.getContext().getDB();
+		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "tick");
+		return Integer.parseInt(value.getValue()) == 1 ? true : false;
 	}
 	
 	/**

@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.tick;
 import java.io.File;
 
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.tick.regular.AcademyTick;
 import net.driftingsouls.ds2.server.tick.regular.BaseTick;
@@ -36,6 +37,7 @@ import net.driftingsouls.ds2.server.tick.regular.WerftTick;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -153,14 +155,18 @@ public class RegularTick extends AbstractTickExecuter
 	private void blockAccs()
 	{
 		Context context = getContext();
-		context.getDB().createQuery("update User set blocked=1").executeUpdate();
+		Session db = getDB();
+		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "tick");
+		value.setValue("" + 1);
 		context.commit();
 	}
 	
 	private void unblockAccs()
 	{
 		Context context = getContext();
-		context.getDB().createQuery("update User set blocked=0").executeUpdate();
+		Session db = getDB();
+		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "tick");
+		value.setValue("" + 0);
 		context.commit();
 	}
 }
