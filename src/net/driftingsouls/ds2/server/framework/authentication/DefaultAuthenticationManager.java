@@ -174,6 +174,15 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	@Override
 	public void authenticateCurrentSession() {
 		Context context = ContextMap.getContext();
+		
+		try 
+		{
+			checkLoginDisabled(context);
+		} 
+		catch (LoginDisabledException e) 
+		{
+			return;
+		}
 
 		String errorurl = config.get("URL")+"ds?module=portal&action=login";
 		
