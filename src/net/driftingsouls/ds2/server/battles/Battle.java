@@ -316,7 +316,7 @@ public class Battle implements Locatable {
 		{
 			BattleShip aship = shiplist.get(i);
 			
-			if( (aship.getAction() & BS_JOIN) != 0 || (aship.getAction() & BS_FLUCHT) != 0 ) {
+			if( (aship.getAction() & BS_JOIN) != 0) {
 				continue;	
 			}
 			ShipTypeData type = aship.getTypeData();
