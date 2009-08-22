@@ -51,19 +51,6 @@ import org.hibernate.annotations.DiscriminatorFormula;
 public abstract class BasicUser {
 	private static final Log log = LogFactory.getLog(BasicUser.class);
 	
-	/**
-	 * Es findet keine Kopplung von IP und Session-ID statt.
-	 */
-	public static final String FLAG_DISABLE_IP_SESSIONS = "NO_IP_SESS";
-	/**
-	 * Es findet kein Autologout in Folge von Inaktivitaet statt.
-	 */
-	public static final String FLAG_DISABLE_AUTO_LOGOUT = "NO_AUTOLOGOUT";
-	/**
-	 * Der Spieler ist von der Klicksperre befreit.
-	 */
-	public static final String FLAG_NO_ACTION_BLOCKING = "noactionblocking";
-	
 	private static String defaultImagePath = null;
 
 	@Id

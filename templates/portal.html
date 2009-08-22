@@ -145,38 +145,39 @@
 			</li>	
 		{/endif}
 		
-		{if show.login.msg.ok}
-			<li id="login">	<a class="ok" id="login_redirect" href="./ds?module=main&amp;sess={login.sess}">Zum Spiel</a></li>
-			{if login.checkgfxpak}
-				<script src="{login.checkgfxpak.path}data/javascript/gfxpakversion.js" type="text/javascript"></script>
-				<script type="text/javascript">
-				<!-- 
-					if( _GFXPAKVERSION ) {
-						$('login_redirect').href = $('login_redirect')+"&gfxpakversion="+_GFXPAKVERSION;
-					}
-				// -->
-				</script>
-			{/endif}
-		{else}	
-			{if ! show.register}
-				{if ! show.register.choosesystem}
-					{if ! show.register.msg.ok}
-							<li id="login">
-								<form action="./ds" method="post">
-									<ol>
-										<li>Name: <input style="width:170px" name="username" type="text" maxlength="40" value="{login.username}" /></li>
-										<li>Passwort: <input style="width:170px" name="password" type="password" value="" /></li>
-										<li><input type="checkbox" id="login_usegfxpak" name="usegfxpak" value="1" checked="checked" /></li>
-										<li><label for="login_usegfxpak">Grafikpack verwenden</label></li>
-										<li><input type="hidden" name="action" value="login" /></li>
-										<li><input type="hidden" name="module" value="portal" /></li>
-										<li><input type="submit" value="Login" /></li>
-									</ol>	
-								</form>
-							</li>
-							<li id="lostpass">
-								<a href="./ds?module=portal&amp;action=passwordLost" title="Passwort vergessen">Passwort vergessen?</a>
-							</li>
+		{if ! show.register}
+			{if ! show.register.choosesystem}
+				{if ! show.register.msg.ok}
+					{if ! is.logged.in}
+						<li id="login">
+							<form action="./ds" method="post">
+								<ol>
+									<li>Name: <input style="width:170px" name="username" type="text" maxlength="40" value="{login.username}" /></li>
+									<li>Passwort: <input style="width:170px" name="password" type="password" value="" /></li>
+									<li><input type="checkbox" id="login_usegfxpak" name="usegfxpak" value="1" checked="checked" /></li>
+									<li><label for="login_usegfxpak">Grafikpack verwenden</label></li>
+									<li><input type="checkbox" id="login_rememberme" name="rememberme" value="true" /></li>
+									<li><label for="login_rememberme">Eingeloggt bleiben</label></li>
+									<li><input type="hidden" name="action" value="login" /></li>
+									<li><input type="hidden" name="module" value="portal" /></li>
+									<li><input type="submit" value="Login" /></li>
+								</ol>	
+							</form>
+						</li>
+						<li id="lostpass">
+							<a href="./ds?module=portal&amp;action=passwordLost" title="Passwort vergessen">Passwort vergessen?</a>
+						</li>
+					{else}
+						<li id="login">
+							<form action="./ds" method="post">
+								<ol>
+									<li>Willkommen zur&uuml;ck</li>
+									<li><input type="hidden" name="action" value="relogin" /></li>
+									<li><input type="hidden" name="module" value="portal" /></li>
+									<li><input type="submit" value="Zum Spiel" /></li>
+								</ol>	
+							</form>
+						</li>
 					{/endif}
 				{/endif}
 			{/endif}
@@ -357,7 +358,7 @@
 			<li>
 				<h1>Impressum</h1>
 				<p>
-				Webmaster: Ralf Hajek - Alias: Guzman<br />
+				Webmaster/Administrator: Ralf Hajek - Alias: Guzman<br />
 				Sch&ouml;nauer Stra&szlig;e 4<br />
 				65232 Taunusstein<br />
 				E-Mail: R.Hajek@t-online.de<br />
@@ -378,7 +379,7 @@
 				gleichzeitig.<br />
 				Aber Erkl&auml;rungen sind eigentlich langweilig. 
 				Schau dir doch einfach mal ein paar Screenshots 
-				an und wenn Du Interesse hast, dann geht&#8217;s hier zur <a id="registerlink" href="./ds?module=portal&amp;action=register">Anmeldung</a></p>
+				an und wenn Du Interesse hast, dann geht es hier zur <a id="registerlink" href="./ds?module=portal&amp;action=register">Anmeldung</a></p>
 			</li>
 			<li id="screenshots">
 				<a href="./data/interface/screenshots/teaser1_midsize.jpg" title="Eine Basis" rel="facebox">

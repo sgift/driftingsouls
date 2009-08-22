@@ -18,9 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.math.BigInteger;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
@@ -58,8 +58,6 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
 
 import org.apache.commons.lang.math.RandomUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -72,7 +70,6 @@ import org.springframework.beans.factory.annotation.Required;
  */
 @Configurable
 public class PortalController extends TemplateGenerator {
-	private static final Log log = LogFactory.getLog(PortalController.class);
 	private AuthenticationManager authManager;
 	private Configuration config;
 	
@@ -575,14 +572,16 @@ public class PortalController extends TemplateGenerator {
 		parameterString("username");
 		parameterString("password");
 		parameterNumber("usegfxpak");
+		parameterString("rememberme");
 		
 		String username = getString("username");
 		String password = getString("password");
 		int usegfxpak = getInteger("usegfxpak") != 0 ? 1 : 0;
+		boolean rememberMe = Boolean.parseBoolean(getString("rememberme"));
 		
 		if( !username.isEmpty() && !password.isEmpty() ) {
 			try {
-				User user = (User)this.authManager.login(username, password, usegfxpak != 0);
+				User user = (User)this.authManager.login(username, password, usegfxpak != 0, rememberMe);
 				
 				doLogin(user);
 				
@@ -675,6 +674,16 @@ public class PortalController extends TemplateGenerator {
 	}
 	
 	/**
+	 * Allows players, which are remembered by ds to login directly.
+	 */
+	@Action(ActionType.DEFAULT)
+	public void reloginAction()
+	{
+		getResponse().redirectTo(Common.buildUrl("default", "module", "main"));
+		return;
+	}
+	
+	/**
 	 * Zeigt die News an.
 	 * @urlparam Integer archiv != 0, falls alte News angezeigt werden sollen
 	 */
@@ -686,6 +695,11 @@ public class PortalController extends TemplateGenerator {
 		
 		parameterNumber("archiv");
 		int archiv = getInteger("archiv");
+		
+		if(this.authManager.isRemembered())
+		{
+			t.setVar("is.logged.in", 1);
+		}
 		
 		t.setVar(
 				"show.news",	1,

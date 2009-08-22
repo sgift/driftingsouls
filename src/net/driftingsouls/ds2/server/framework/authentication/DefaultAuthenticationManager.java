@@ -45,7 +45,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	private Configuration config;
 	
 	@Override
-	public BasicUser login(String username, String password, boolean useGfxPak) throws AuthenticationException {
+	public BasicUser login(String username, String password, boolean useGfxPak, boolean rememberMe) throws AuthenticationException {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		Request request = context.getRequest();
@@ -71,12 +71,10 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			throw new WrongPasswordException();
 		}
 		
-
-		
-		return finishLogin(user, useGfxPak);
+		return finishLogin(user, useGfxPak, rememberMe);
 	}
 	
-	private BasicUser finishLogin(BasicUser user, boolean useGfxPack) throws AuthenticationException
+	private BasicUser finishLogin(BasicUser user, boolean useGfxPack, boolean rememberMe) throws AuthenticationException
 	{
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
@@ -105,7 +103,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		jsession.setIP("<"+context.getRequest().getRemoteAddress()+">");
 		
 
-		if(user.hasFlag(BasicUser.FLAG_DISABLE_AUTO_LOGOUT))
+		if(rememberMe)
 		{
 			UUID uuid = UUID.randomUUID();
 			String value = user.getId() + ";" + uuid;
@@ -211,11 +209,6 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		}
 		
 		user.setSessionData(jsession.getUseGfxPak());
-		if( !user.hasFlag(BasicUser.FLAG_DISABLE_IP_SESSIONS) && !jsession.isValidIP(context.getRequest().getRemoteAddress()) ) {
-			context.addError( "Diese Session ist einer anderen IP zugeordnet", errorurl );
-
-			return;
-		}
 		
 		try {
 			for( AuthenticateEventListener listener : authListenerList ) {
@@ -236,6 +229,41 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		context.setActiveUser(user);
 		
 		return;
+	}
+	
+	/**
+	 * Checks, if the player is remembered by ds.
+	 * 
+	 * @return <code>true</code> if ds remembers the player, <code>false</code> otherwise.
+	 */
+	public boolean isRemembered()
+	{
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		Request request = context.getRequest();
+		
+		String value = request.getCookie("dsRememberMe");
+		
+		if(value == null)
+		{
+			return false;
+		}
+		
+		String[] parts = value.split(";");
+		int userId = Integer.parseInt(parts[0]);
+		String token = parts[1];
+		
+		PermanentSession session = (PermanentSession)db.createQuery("from PermanentSession where userId=:userId and token=:token")
+		   .setParameter("userId", userId)
+		   .setParameter("token", Common.md5(token))
+		   .uniqueResult();
+
+		if(session == null)
+		{
+			return false;
+		}
+		
+		return true;
 	}
 
 	//Prueft, ob der User einen remember me Token hat, um automatisch neu authentifiziert zu werden
@@ -270,6 +298,6 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		BasicUser user = (BasicUser)db.get(BasicUser.class, userId);
 		user.setSessionData(session.isUseGfxPack());
 		
-		return finishLogin(user, session.isUseGfxPack());
+		return finishLogin(user, session.isUseGfxPack(), true);
 	}
 }

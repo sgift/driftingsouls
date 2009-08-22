@@ -38,7 +38,6 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -431,34 +430,14 @@ public class OptionsController extends TemplateGenerator {
 	public void saveOptionsAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		Session db = getDB();
 		
-		parameterNumber("enableipsess");
-		parameterNumber("enableautologout");
 		parameterNumber("showtooltip");
 		parameterNumber("wrapfactor");
 		
-		boolean enableipsess = getInteger("enableipsess") != 0 ? true : false;
-		boolean enableautologout = getInteger("enableautologout") != 0 ? true : false;
 		boolean showtooltip = getInteger("showtooltip") != 0 ? true : false;
 		int wrapfactor = getInteger("wrapfactor");
 	
 		String changemsg = "";
-
-		if( enableipsess == user.hasFlag( BasicUser.FLAG_DISABLE_IP_SESSIONS ) ) {
-			user.setFlag( BasicUser.FLAG_DISABLE_IP_SESSIONS, !enableipsess );
-			
-			changemsg += "Session-ID von der IP-Adresse "+(enableipsess ? "ge" : "ent" )+"koppelt<br />\n";
-		} 
-	
-		if( enableautologout == user.hasFlag( BasicUser.FLAG_DISABLE_AUTO_LOGOUT ) ) {
-			user.setFlag( BasicUser.FLAG_DISABLE_AUTO_LOGOUT, !enableautologout );
-			db.createQuery("delete from PermanentSession where userId=:userId")
-			  .setParameter("userId", user.getId())
-			  .executeUpdate();
-			
-			changemsg += "Das automatische Ausloggen wurde "+(enableautologout ? "" : "de" )+"aktiviert<br />\n";
-		} 
 
 		if( showtooltip != (Integer.parseInt(user.getUserValue("TBLORDER/schiff/tooltips")) != 0) ) {
 			user.setUserValue( "TBLORDER/schiff/tooltips", showtooltip ? "1" : "0" );
@@ -512,8 +491,6 @@ public class OptionsController extends TemplateGenerator {
 		t.setVar(	"options.general",	1,
 					"user.wrapfactor",	user.getUserValue("TBLORDER/schiff/wrapfactor"),
 					"user.tooltip",		user.getUserValue("TBLORDER/schiff/tooltips"),
-					"user.ipsess",		!user.hasFlag( BasicUser.FLAG_DISABLE_IP_SESSIONS ),
-					"user.autologout",	!user.hasFlag( BasicUser.FLAG_DISABLE_AUTO_LOGOUT ),
 					"user.imgpath",		imagepath,
 					"user.noob",		user.isNoob(),
 					"vacation.maxtime", Common.ticks2DaysInDays(user.maxVacTicks()));

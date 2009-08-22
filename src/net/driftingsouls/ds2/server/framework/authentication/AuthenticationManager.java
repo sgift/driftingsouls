@@ -35,7 +35,7 @@ public interface AuthenticationManager {
 	 * @return Der Account des eingeloggten Benutzers
 	 * @throws AuthenticationException Falls der Loginvorgang nicht erfolgreich ist
 	 */
-	public BasicUser login(String username, String password, boolean useGfxPak)
+	public BasicUser login(String username, String password, boolean useGfxPak, boolean rememberMe)
 			throws AuthenticationException;
 
 	/**
@@ -59,4 +59,11 @@ public interface AuthenticationManager {
 	 * Context hinzugefuegt.
 	 */
 	public void authenticateCurrentSession();
+	
+	/**
+	 * Checks, if the player is remembered by ds.
+	 * 
+	 * @return <code>true</code> if ds remembers the player, <code>false</code> otherwise.
+	 */
+	public boolean isRemembered();
 }
