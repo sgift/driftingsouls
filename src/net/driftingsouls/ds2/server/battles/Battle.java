@@ -1050,7 +1050,7 @@ public class Battle implements Locatable {
 		}
 		
 		ShipTypeData shiptype = shipd.getTypeData();
-		if( shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) {
+		if( (shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) && !shipd.isDocked() ) {
 			context.addError("<span style=\"color:red\">Gesch&uuml;tze k&ouml;nnen einer Schlacht nicht beitreten!</span>");
 			return false;
 		}
