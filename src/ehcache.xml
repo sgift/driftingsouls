@@ -53,7 +53,14 @@
 			eternal="true"
 			timeToIdleSeconds="5"
 			timeToLiveSeconds="10"
-			overflowToDisk="false"
+			overflowToDisk="true"
+	/>
+	<cache name="net.driftingsouls.ds2.server.modules.GuiHelpText"
+			maxElementsInMemory="300"
+			eternal="true"
+			timeToIdleSeconds="5"
+			timeToLiveSeconds="10"
+			overflowToDisk="true"
 	/>
 	
 	<cache  name="net.driftingsouls.ds2.server.bases.Building"

@@ -1008,7 +1008,7 @@ public class TransportController extends TemplateGenerator {
 		Cargo tocargo = new Cargo();
 		
 		for( TransportTarget to : this.to ) {
-			if( (getUser().getId() != to.getOwner()) && (to.getOwner() != 0) ) {
+			if( getUser().getId() != to.getOwner() ) {
 				continue;
 			}
 			showtarget = true;
