@@ -1389,26 +1389,4 @@ public class User extends BasicUser {
 		}
 		return systemlist;
 	}
-
-	/**
-	 * returns a Set of all systems the user has a colony in.
-	 * @return the set of all systems the user has a colony in.
-	 */
-	public Set<Integer> getAstiSystems()
-	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<Base> bases = Common.cast(db.createQuery("from Base where owner=:owner")
-				 .setParameter("owner", this)
-				 .list());
-		Set<Integer> systemlist = new HashSet<Integer>();
-		for(Base base: bases)
-		{
-			int basesystem = base.getSystem();
-			if (!systemlist.contains(basesystem))
-			{
-				systemlist.add(basesystem);
-			}
-		}
-		return systemlist;
-	}
 }
