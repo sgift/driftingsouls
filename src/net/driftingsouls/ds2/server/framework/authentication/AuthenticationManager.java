@@ -32,6 +32,7 @@ public interface AuthenticationManager {
 	 * @param username Der Benutzername
 	 * @param password Das Passwort im Klartext
 	 * @param useGfxPak <code>true</code>, falls ein evt angegebenes Grafikpak genutzt werden soll
+	 * @param rememberMe <code>true</code>, wenn der Spieler eingeloggt bleiben will.
 	 * @return Der Account des eingeloggten Benutzers
 	 * @throws AuthenticationException Falls der Loginvorgang nicht erfolgreich ist
 	 */
