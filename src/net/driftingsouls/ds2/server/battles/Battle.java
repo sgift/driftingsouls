@@ -803,7 +803,7 @@ public class Battle implements Locatable {
 				}
 			}
 			
-			if( (shiptype.hasFlag(ShipTypes.SF_SECONDROW) ) {
+			if( shiptype.hasFlag(ShipTypes.SF_SECONDROW) ) {
 				secondRowShips.add(battleShip);
 			}
 			else
