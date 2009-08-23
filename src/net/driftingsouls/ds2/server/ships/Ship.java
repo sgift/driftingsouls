@@ -655,7 +655,7 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt die Dochdaten des Schiffes zurueck.
+	 * Gibt die Dockdaten des Schiffes zurueck.
 	 * @return Die Dockdaten
 	 */
 	public String getDocked() {

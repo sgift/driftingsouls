@@ -803,7 +803,7 @@ public class Battle implements Locatable {
 				}
 			}
 			
-			if( (aShip.getDocked().length() == 0) && shiptype.hasFlag(ShipTypes.SF_SECONDROW) ) {
+			if( shiptype.hasFlag(ShipTypes.SF_SECONDROW) ) {
 				secondRowShips.add(battleShip);
 			}
 			else
@@ -1139,7 +1139,7 @@ public class Battle implements Locatable {
 			Ship aship = (Ship)iter.next();
 			
 			shiptype = aship.getTypeData();
-			if( shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) {
+			if( shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() && !aship.isDocked()) {
 				continue;
 			}
 			
