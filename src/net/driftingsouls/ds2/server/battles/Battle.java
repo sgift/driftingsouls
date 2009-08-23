@@ -1139,7 +1139,7 @@ public class Battle implements Locatable {
 			Ship aship = (Ship)iter.next();
 			
 			shiptype = aship.getTypeData();
-			if( shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) {
+			if( shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() && !aship.isDocked()) {
 				continue;
 			}
 			
