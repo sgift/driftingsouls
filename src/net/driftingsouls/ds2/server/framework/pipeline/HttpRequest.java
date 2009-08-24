@@ -259,12 +259,18 @@ public class HttpRequest implements Request {
 	@Override
 	public String getCookie(String name) 
 	{
-		Cookie[] cookies = request.getCookies();
-		for(Cookie cookie: cookies)
+		if(request != null)
 		{
-			if(cookie.getName().equals(name))
+			Cookie[] cookies = request.getCookies();
+			if(cookies != null)
 			{
-				return cookie.getValue();
+				for(Cookie cookie: cookies)
+				{
+					if(cookie.getName().equals(name))
+					{
+						return cookie.getValue();
+					}
+				}
 			}
 		}
 		
