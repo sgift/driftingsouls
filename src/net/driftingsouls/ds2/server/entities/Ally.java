@@ -20,7 +20,9 @@ package net.driftingsouls.ds2.server.entities;
 
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -31,7 +33,10 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+import org.hibernate.Query;
+
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -457,6 +462,29 @@ public class Ally {
 		db.createQuery("delete from AllyPosten where ally=?")
 			.setEntity(0, this)
 			.executeUpdate();
+		
+		// Delete Ally from running Battles
+		Set<Battle> battles = new LinkedHashSet<Battle>();
+		
+		String query = "from Battle " +
+		"where ally1 = :ally or ally2 = :ally";
+
+		Query battleQuery = db.createQuery(query)
+			.setInteger("ally", this.getId());
+
+		battles.addAll(Common.cast(battleQuery.list(), Battle.class));
+		
+		for( Battle battle : battles ) {
+			if(battle.getAlly(0) == this.getId())
+			{
+				battle.setAlly(0, 0);
+			}
+			if (battle.getAlly(1) == this.getId())
+			{
+				battle.setAlly(1, 0);	
+			}
+		}
+		
 		db.delete(this);
 	}
 	

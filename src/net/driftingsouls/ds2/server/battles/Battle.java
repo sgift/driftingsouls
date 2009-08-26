@@ -2703,4 +2703,20 @@ public class Battle implements Locatable {
 
 		return balance;
 	}
+	
+	/**
+	 * Setzt die mit einer Seite assoziierte Allianz.
+	 * @param side Die Seite
+	 * @param ally Die Allianz
+	 */
+	public void setAlly(int side, int ally) {
+		if (side == 0)
+		{
+			this.ally1 = ally;
+		}
+		if (side == 1)
+		{
+			this.ally2 = ally;
+		}
+	}
 }
