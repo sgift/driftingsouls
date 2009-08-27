@@ -37,6 +37,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 public class KSEndBattleCivilAction extends BasicKSAction {
 	@Override
 	public int validate(Battle battle) {
+		/*
 		if( battle.getBetakStatus(battle.getOwnSide()) ) {
 			boolean onlyCivil = true;
 			
@@ -54,6 +55,7 @@ public class KSEndBattleCivilAction extends BasicKSAction {
 				return RESULT_OK;
 			}
 		}
+		*/
 		return RESULT_ERROR;
 	}
 
