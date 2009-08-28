@@ -486,7 +486,7 @@ public class AngriffController extends TemplateGenerator {
 				if( (battle.getAlly(battle.getOwnSide()) != 0) && (battle.getTakeCommand(battle.getOwnSide()) == 0) && 
 					(user.getAlly() != null) && (battle.getAlly(battle.getOwnSide()) == user.getAlly().getId()) ) {
 					User auser = battle.getCommander(battle.getOwnSide());
-					if( auser.getInactivity() > 0 ) {
+					if( auser.getInactivity() >= 0 ) {
 						historyobj.showTakeCommand(true);
 					}
 				}
