@@ -66,7 +66,7 @@ public class KSTakeCommandAction extends BasicKSAction {
 		User oldCommander = battle.getCommander(battle.getOwnSide());
 		if( oldCommander.getInactivity() <= 0 ) {
 			battle.logme( "Der kommandierende Spieler ist noch anwesend\n" );
-			return RESULT_ERROR;
+			//return RESULT_ERROR;
 		}
 		
 		battle.setCommander(battle.getOwnSide(), user);
