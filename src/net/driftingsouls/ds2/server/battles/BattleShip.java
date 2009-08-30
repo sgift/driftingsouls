@@ -505,7 +505,7 @@ public class BattleShip {
 	 */
 	public int getNavigationalValue()
 	{
-		double navskill = getTypeData().getSize() * 3;
+		double navskill = getTypeData().getSize();
 		
 		Offizier officer = ship.getOffizier();
 		if(officer != null ) 
