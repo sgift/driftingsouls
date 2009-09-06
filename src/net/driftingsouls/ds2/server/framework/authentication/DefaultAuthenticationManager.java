@@ -25,7 +25,6 @@ import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
@@ -42,8 +41,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	private static final Log log = LogFactory.getLog(DefaultAuthenticationManager.class);
 	private static final ServiceLoader<LoginEventListener> loginListenerList = ServiceLoader.load(LoginEventListener.class);
 	private static final ServiceLoader<AuthenticateEventListener> authListenerList = ServiceLoader.load(AuthenticateEventListener.class);
-	private Configuration config;
-	
+
 	@Override
 	public BasicUser login(String username, String password, boolean useGfxPak, boolean rememberMe) throws AuthenticationException {
 		Context context = ContextMap.getContext();
@@ -161,14 +159,6 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		return user;
 	}
 	
-	/**
-	 * Injiziert die DS-Konfiguration.
-	 * @param config Die DS-Konfiguration
-	 */
-	public void setConfiguration(Configuration config) {
-		this.config = config;
-	}
-	
 	@Override
 	public void authenticateCurrentSession() {
 		Context context = ContextMap.getContext();
@@ -182,8 +172,6 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			return;
 		}
 
-		String errorurl = config.get("URL")+"ds?module=portal&action=login";
-		
 		JavaSession jsession = context.get(JavaSession.class);
 		
 		BasicUser user;
@@ -238,36 +226,29 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	 */
 	public boolean isRemembered()
 	{
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-		Request request = context.getRequest();
-		
-		String value = request.getCookie("dsRememberMe");
-		
-		if(value == null)
-		{
-			return false;
-		}
-		
-		String[] parts = value.split(";");
-		int userId = Integer.parseInt(parts[0]);
-		String token = parts[1];
-		
-		PermanentSession session = (PermanentSession)db.createQuery("from PermanentSession where userId=:userId and token=:token")
-		   .setParameter("userId", userId)
-		   .setParameter("token", Common.md5(token))
-		   .uniqueResult();
-
-		if(session == null)
-		{
-			return false;
-		}
-		
-		return true;
+		return getPermanentSession() != null;
 	}
-
+	
 	//Prueft, ob der User einen remember me Token hat, um automatisch neu authentifiziert zu werden
 	private BasicUser checkRememberMe() throws AuthenticationException
+	{
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		
+		PermanentSession session = getPermanentSession();
+		if(session == null)
+		{
+			return null;
+		}
+		
+		db.delete(session);
+		BasicUser user = (BasicUser)db.get(BasicUser.class, session.getUserId());
+		user.setSessionData(session.isUseGfxPack());
+		
+		return finishLogin(user, session.isUseGfxPack(), true);
+	}
+	
+	private PermanentSession getPermanentSession()
 	{
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
@@ -289,15 +270,6 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 													   .setParameter("token", Common.md5(token))
 													   .uniqueResult();
 		
-		if(session == null)
-		{
-			return null;
-		}
-		
-		db.delete(session);
-		BasicUser user = (BasicUser)db.get(BasicUser.class, userId);
-		user.setSessionData(session.isUseGfxPack());
-		
-		return finishLogin(user, session.isUseGfxPack(), true);
+		return session;
 	}
 }

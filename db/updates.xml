@@ -905,4 +905,8 @@
 	<update type="structure" datum="2009-08-16"><![CDATA[
 		ALTER TABLE `users` DROP `blocked`
 	]]></update>
+	<update type="structure" datum="2009-08-16"><![CDATA[
+		ALTER TABLE `sessions` CHANGE `id` `id` INT( 11 ) NOT NULL AUTO_INCREMENT;
+		ALTER TABLE `sessions` ADD UNIQUE ( `id` );
+	]]></update>
 </updates>
