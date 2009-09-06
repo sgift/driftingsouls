@@ -1984,6 +1984,35 @@ public class Ship implements Locatable,Transfering {
 			out.append("Fehler: Das Schiff ist an ein Quest gebunden\n");
 			return MovementStatus.SHIP_FAILURE;
 		}
+		
+		//We want to fly the slowest ship first, so the fleet cannot be seperated
+		if(this.fleet != null)
+		{
+			Ship moving = this;
+			
+			List<Ship> ships = Common.cast(db.createQuery("from Ship where fleet=:fleet")
+											 .setParameter("fleet", this.fleet)
+											 .list());
+			for(Ship ship: ships)
+			{
+				if(ship.getSafeTravelDistance() < moving.getSafeTravelDistance())
+				{
+					moving = ship;
+				}
+			}
+			
+			//We have used references instead of copies, so we can compare by != here
+			if(moving != this)
+			{
+				//Maximum distance is safe travel distance
+				if(route.size() > moving.getSafeTravelDistance())
+				{
+					route = route.subList(0, moving.getSafeTravelDistance());
+				}
+				
+				return moving.move(route, forceLowHeat, disableQuests);
+			}
+		}
 
 		User user = this.owner;
 
@@ -3803,5 +3832,27 @@ public class Ship implements Locatable,Transfering {
 	public int getNahrungsBalance()
 	{
 			return getFoodConsumption();
+	}
+	
+	/**
+	 * @return Die Felder, die das Schiff zuruecklegen kann ohne zu ueberhitzen / keine Energie mehr zu haben.
+	 */
+	public int getSafeTravelDistance()
+	{
+		
+		int energy = getEnergy();
+		int heat = getHeat();
+		
+		ShipTypeData typeData = getTypeData();
+		int consumption = typeData.getCost();
+		int heatBuildup = typeData.getHeat();
+		
+		int distance = Math.min(energy/consumption, (100-heat)/heatBuildup);
+		if(distance < 0)
+		{
+			distance = 0;
+		}
+		
+		return distance;
 	}
 }
