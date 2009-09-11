@@ -902,6 +902,10 @@ public class KSAttackAction extends BasicKSAction {
 		{
 			return false;
 		}
+		else if(selectedShip.getTypeData().hasFlag( ShipTypes.SF_JAEGER ))
+		{
+			return false;
+		}
 		else
 		{
 			return true;

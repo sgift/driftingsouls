@@ -1858,6 +1858,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			this.linkedWerft = null;
 			
 			komplex.refresh();
+			komplex.rescheduleQueue();
 		}
 	}
 
