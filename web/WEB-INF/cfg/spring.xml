@@ -25,10 +25,10 @@
 	<bean id="authenticationManager" class="net.driftingsouls.ds2.server.framework.authentication.DefaultAuthenticationManager" lazy-init="true">
 		<property name="configuration" ref="configuration" />
 	</bean>
-	-->
 	<bean class="net.driftingsouls.ds2.server.framework.BasicContext" scope="prototype" lazy-init="true">
 		<property name="authenticationManager" ref="authenticationManager" />
 	</bean>
+	-->
 	
 	<!-- Server -->
 	
