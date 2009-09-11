@@ -757,7 +757,7 @@ public class KSAttackAction extends BasicKSAction {
 					int ammocount = (int) enemyCargo.getResourceCount(ammoId);
 					int shots = weapon.getSingleShots()*count;
 					// check if there's enough ammo to fire
-					if(	ammocount >= shots)
+					if(	ammocount >= shots && munition.getTorpTrefferWS() != 0)
 					{
 						// increase antitorptws
 						antitorptrefferws += munition.getTorpTrefferWS()*count;
