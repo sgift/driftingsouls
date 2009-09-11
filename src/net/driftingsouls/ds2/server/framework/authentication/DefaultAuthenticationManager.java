@@ -223,6 +223,8 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	
 	/**
 	 * Checks, if the user account has been disabled.
+	 * 
+	 * @param user The current user account.
 	 */
 	public void checkDisabled(BasicUser user) throws AccountDisabledException
 	{
