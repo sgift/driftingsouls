@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Request;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
 
 /**
  * Verwaltungsklasse fuer Aktionen rund um das ein- und ausloggen.
@@ -78,15 +79,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		org.hibernate.Session db = context.getDB();
 		Request request = context.getRequest();
 		
-		if( user.getDisabled() ) {
-			Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+request.getRemoteAddress()+"> ("+user.getId()+") <"+user.getUN()+"> ***ACC DISABLED*** von Browser <"+request.getUserAgent()+">\n");
-
-			db.createQuery("delete from Session where user=?")
-				.setEntity(0, user)
-				.executeUpdate();
-			
-			throw new AccountDisabledException();
-		}
+		checkDisabled(user);
 		
 		for( LoginEventListener listener : loginListenerList ) {
 			listener.onLogin(user);
@@ -171,7 +164,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		{
 			return;
 		}
-
+		
 		JavaSession jsession = context.get(JavaSession.class);
 		
 		BasicUser user;
@@ -196,6 +189,15 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			return;
 		}
 		
+		try
+		{
+			checkDisabled(user);
+		}
+		catch (AccountDisabledException e) 
+		{
+			return;
+		}
+				
 		user.setSessionData(jsession.getUseGfxPak());
 		
 		try {
@@ -217,6 +219,26 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		context.setActiveUser(user);
 		
 		return;
+	}
+	
+	/**
+	 * Checks, if the user account has been disabled.
+	 */
+	public void checkDisabled(BasicUser user) throws AccountDisabledException
+	{
+		Context context = ContextMap.getContext();
+		if( user.getDisabled() ) 
+		{
+			Session db = context.getDB();
+			Request request = context.getRequest();
+			Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+request.getRemoteAddress()+"> ("+user.getId()+") <"+user.getUN()+"> ***ACC DISABLED*** von Browser <"+request.getUserAgent()+">\n");
+
+			db.createQuery("delete from Session where user=?")
+				.setEntity(0, user)
+				.executeUpdate();
+			
+			throw new AccountDisabledException();
+		}
 	}
 	
 	/**
