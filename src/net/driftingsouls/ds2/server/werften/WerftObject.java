@@ -1084,15 +1084,11 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		User owner = this.getOwner();
 		
 		Set<ShipType> shipTypes = new HashSet<ShipType>();
-		boolean militaryAllowed = Systems.get().system(this.getSystem()).isMilitaryAllowed();
 		boolean flagshipAllowed = owner.hasFlagschiffSpace();
 		
 		String query = "from ShipBaubar where werftslots <= ? and ";
 		if(!flagshipAllowed) {
 			query += "flagschiff=false and ";
-		}
-		if(!militaryAllowed) {
-			query += "systemReq = 0 and ";
 		}
 		query += "1=1";
 		query = query.trim();

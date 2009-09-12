@@ -38,7 +38,6 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
  */
 @Entity
 @Table(name="ships_baubar")
-@Immutable
 public class ShipBaubar {
 	@Id
 	private int id;
@@ -52,8 +51,6 @@ public class ShipBaubar {
 	@Column(name="ekosten")
 	private int eKosten;
 	private int race;
-	@Column(name="systemreq")
-	private int systemReq;
 	private int tr1;
 	private int tr2;
 	private int tr3;
@@ -126,14 +123,6 @@ public class ShipBaubar {
 	}
 
 	/**
-	 * Gibt zurueck, ob das Schiff nur in militaerischen Systenem gebaut werden kann.
-	 * @return != 0 falls es nur in nicht militaerischen System gebaut werden kann
-	 */
-	public int getSystemReq() {
-		return systemReq;
-	}
-
-	/**
 	 * Gibt die benoetigte Forschung zurueck.
 	 * @param res Die Nummer der Forschung (1-3)
 	 * @return Die Forschung
@@ -164,5 +153,85 @@ public class ShipBaubar {
 	 */
 	public int getWerftSlots() {
 		return werftSlots;
+	}
+	
+	/**
+	 * Setzt die Baukosten.
+	 * @param costs Die Baukosten
+	 */
+	public void setCosts(Cargo costs) {
+		this.costs = costs;
+	}
+	
+	/**
+	 * Setzt die benoetigte Crew.
+	 * @param crew Die Crew
+	 */
+	public void setCrew(int crew) {
+		this.crew = crew;
+	}
+	
+	/**
+	 * Setzt die Dauer des Baus.
+	 * @param dauer Die Dauer
+	 */
+	public void setDauer(int dauer) {
+		this.dauer = dauer;
+	}
+	
+	/**
+	 * Setzt die Energiekosten.
+	 * @param eKosten Die Energiekosten
+	 */
+	public void setEKosten(int eKosten) {
+		this.eKosten = eKosten;
+	}
+	
+	/**
+	 * Setzt, ob das Schiff ein Flagschiff ist, oder nicht.
+	 * @param isFlagschiff <code>true</code> wenn es sich um ein Flagschiff handelt ansonsten <code>false</code>
+	 */
+	public void setFlagschiff(boolean isFlagschiff) {
+		this.flagschiff = isFlagschiff;
+	}
+	
+	/**
+	 * Setzt die zum Bau benoetigte Rasse.
+	 * @param race Die Rasse
+	 */
+	public void setRace(int race) {
+		this.race = race;
+	}
+	
+	/**
+	 * Setzt die Forschung Nummer 1.
+	 * @param res Die ID der neuen Forschung
+	 */
+	public void setRes1(int res) {
+		this.tr1 = res;
+	}
+	
+	/**
+	 * Setzt die Forschung Nummer 2.
+	 * @param res Die ID der neuen Forschung
+	 */
+	public void setRes2(int res) {
+		this.tr2 = res;
+	}
+	
+	/**
+	 * Setzt die Forschung Nummer 3.
+	 * @param res Die ID der neuen Forschung
+	 */
+	public void setRes3(int res) {
+		this.tr3 = res;
+	}
+	
+	/**
+	 * Setzt die Anzahl der benoetigten Werftslots.
+	 * @param werftSlots Die Anzahl der Werftslots
+	 */
+	public void setWerftSlots(int werftSlots) {
+		this.werftSlots = werftSlots;
 	}
 }
