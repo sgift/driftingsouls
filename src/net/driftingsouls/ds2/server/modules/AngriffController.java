@@ -49,7 +49,6 @@ import net.driftingsouls.ds2.server.modules.ks.KSDischargeBatteriesAllAction;
 import net.driftingsouls.ds2.server.modules.ks.KSDischargeBatteriesClassAction;
 import net.driftingsouls.ds2.server.modules.ks.KSDischargeBatteriesSingleAction;
 import net.driftingsouls.ds2.server.modules.ks.KSEndBattleCivilAction;
-import net.driftingsouls.ds2.server.modules.ks.KSEndBattleEqualAction;
 import net.driftingsouls.ds2.server.modules.ks.KSEndTurnAction;
 import net.driftingsouls.ds2.server.modules.ks.KSFluchtAllAction;
 import net.driftingsouls.ds2.server.modules.ks.KSFluchtClassAction;
