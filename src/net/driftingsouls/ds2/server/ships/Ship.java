@@ -3855,4 +3855,14 @@ public class Ship implements Locatable,Transfering {
 		
 		return distance;
 	}
+	
+	/**
+	 * @return The energe costs 
+	 */
+	public int getAlertEnergyCost()
+	{
+		double[] alertFactor = new double[] { 0, 0.5d, 0.75d };
+		
+		return (int)Math.ceil(this.getTypeData().getRm() * alertFactor[getAlarm()]);
+	}
 }

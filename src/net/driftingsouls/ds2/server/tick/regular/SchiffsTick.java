@@ -113,10 +113,6 @@ public class SchiffsTick extends TickController {
 			}
 		}
 
-		if( shipd.getAlarm() == 1 ) {
-			this.log("\tAlarm: rot");
-		}
-
 		//Cargo meines Mutterschiffs - relevant bei gedockten Schiffen
 		Ship baseShip = shipd.getBaseShip();
 		Cargo baseShipCargo = null;
@@ -234,9 +230,11 @@ public class SchiffsTick extends TickController {
 		//Berechnung der Energie
 		this.log("\tEnergie:");
 		int e = shipd.getEnergy();
-
-		if( (shipd.getAlarm() == 1) && (shiptd.getShipClass() != ShipClasses.GESCHUETZ.ordinal()) ) {
-			e -= (int)Math.ceil(shiptd.getRm() * 0.5d);
+		
+		
+		if(shiptd.getShipClass() != ShipClasses.GESCHUETZ.ordinal()) 
+		{
+			e -= shipd.getAlertEnergyCost();
 			if( e < 0 ) {
 				e = 0;
 			}	
