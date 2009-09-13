@@ -55,7 +55,8 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 											"attack",	enemyShip.getId(),
 											"ksaction",	"endbattle" );
 		}
-			
+		
+		/*
 		// Kampf beenden weil die eigene Streitmacht deutlich groesser ist?
 		if( this.isPossible(battle, new KSEndBattleEqualAction()) == RESULT_OK ) {
 			this.menuEntryAsk("Kampf beenden (unentschieden)", 
@@ -64,6 +65,7 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 												"ksaction",	"endbattleequal" },
 								"Wollen sie den Kampf wirklich mit einem Unentschieden beenden?" );
 		}
+		*/
 		
 		// Kapern?
 		if( this.isPossible(battle, new KSKapernAction()) == RESULT_OK ) {

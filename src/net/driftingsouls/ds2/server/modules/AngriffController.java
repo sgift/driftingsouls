@@ -112,7 +112,7 @@ public class AngriffController extends TemplateGenerator {
 		ACTIONS.put("leavesecondrow", KSLeaveSecondRowAction.class);
 		ACTIONS.put("secondrowengage", KSSecondRowEngageAction.class);
 		ACTIONS.put("secondrowattack", KSSecondRowAttackAction.class);
-		ACTIONS.put("endbattleequal", KSEndBattleEqualAction.class);
+		//ACTIONS.put("endbattleequal", KSEndBattleEqualAction.class);
 		ACTIONS.put("endturn", KSEndTurnAction.class);
 		ACTIONS.put("alleabdocken", KSUndockAllAction.class);
 		ACTIONS.put("new_commander2", KSNewCommanderAction.class);
