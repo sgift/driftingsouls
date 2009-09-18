@@ -1061,7 +1061,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<effect type="module">
 			<slot id="misc" />
 			<shipdata>
-				<shd:hydro value="500" />
+				<shd:hydro value="1" />
 			</shipdata>
 		</effect>
 		<description>Ein hydroponischer Garten um eine Grundversorgung mit Nahrung sicherzustellen</description>
@@ -1074,7 +1074,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<effect type="module">
 			<slot id="misc" />
 			<shipdata>
-				<shd:hydro value="300" />
+				<shd:hydro value="1" />
 			</shipdata>
 		</effect>
 		<description>Ein kleiner hydroponischer Garten um ein wenig Nahrung zu produzieren</description>
@@ -1087,7 +1087,7 @@ und verhindert, das der Besitzer bekannt wird</description>
 		<effect type="module">
 			<slot id="misc" />
 			<shipdata>
-				<shd:hydro value="1500" />
+				<shd:hydro value="1" />
 			</shipdata>
 		</effect>
 		<description>Ein Großer Hydroponischer Garten kann größere Mengen an Nahrung herzustellen</description>
