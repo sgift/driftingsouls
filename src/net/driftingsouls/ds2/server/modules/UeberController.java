@@ -392,20 +392,14 @@ public class UeberController extends TemplateGenerator {
 							"where id>0 and owner= :user and locate('nocrew',status)!=0" )
 				.setEntity("user", user)
 				.iterate().next();
-						  
-		String nstat = "0";			  
+			  
 		if( ticktime.indexOf("Bitte warten") > -1 ) {
 			t.setVar("user.nahrung.stat.tick", 1);
-		}
-		else {
-			nstat = user.getNahrungsStat();
 		}
 		int	nbalance = user.getNahrungsBalance();
 						  
 		t.setVar(	"schiffe.mangel", Common.ln(sw),
 					"schiffe.nocrew", Common.ln(shipNoCrew),
-					"user.nahrung.stat", Common.ln(Long.parseLong(nstat)),
-					"user.nahrung.stat.plain", Long.parseLong(nstat),
 					"user.nahrung.new", Common.ln(nbalance),
 					"user.nahrung.new.plain", nbalance );
 

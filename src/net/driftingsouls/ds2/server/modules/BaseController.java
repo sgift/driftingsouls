@@ -393,19 +393,7 @@ public class BaseController extends TemplateGenerator {
 		int wue = basedata.getBewohner() - base.getBewohner();
 		
 		ResourceList reslist = base.getCargo().compare(basedata.getStatus(), true,true);
-		if( basedata.getStatus().getResourceCount(Resources.NAHRUNG) == 0 && !base.getCargo().hasResource(Resources.NAHRUNG) ) {
-			reslist.addEntry(
-					new ResourceEntry(
-							Resources.NAHRUNG, 
-							Cargo.getResourceName(Resources.NAHRUNG),	// Name
-							Cargo.getResourceName(Resources.NAHRUNG),	// PlainName
-							Cargo.getResourceImage(Resources.NAHRUNG),
-							"0",	// Cargo1
-							"0",	// Cargo2
-							0,		// Count1
-							0,		// Count2
-							0));	// Diff
-		}
+		
 		reslist.sortByID(false);
 		
 		t.setBlock("_BASE", "base.cargo.listitem", "base.cargo.list");
