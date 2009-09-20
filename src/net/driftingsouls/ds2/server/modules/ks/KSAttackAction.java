@@ -983,14 +983,12 @@ public class KSAttackAction extends BasicKSAction {
 				}
 
 				shiplist.add(eship);
-				if( !gottarget && (i >= this.localweapon.getInt("areadamage")) ) {
+				
+				if( !gottarget && (shiplist.size() > this.localweapon.getInt("areadamage")) ) {
 					backup.add(shiplist.remove(0));
 				}
-				else {
-					i++;
-				}
 
-				if( gottarget && (i >= this.localweapon.getInt("areadamage")*2) ) {
+				if( gottarget && (shiplist.size() >= this.localweapon.getInt("areadamage")*2) ) {
 					break;
 				}
 			}	
@@ -1157,8 +1155,6 @@ public class KSAttackAction extends BasicKSAction {
 		}
 
 		// Feststellen wie oft wird welchen Feuerloop durchlaufen sollen
-
-		int apcost = 0;
 
 		boolean firstentry = true; // Battlehistory-Log
 
@@ -1537,19 +1533,10 @@ public class KSAttackAction extends BasicKSAction {
 				}
 
 				/*
-				 * 	E, AP, Muni usw in die DB schreiben
+				 * 	E, Muni usw in die DB schreiben
 				 */
 				heat += this.localweapon.getInt("count");
 				this.ownShip.getShip().setEnergy(this.ownShip.getShip().getEnergy() - this.weapon.getECost()*this.localweapon.getInt("count"));
-
-				if( (this.enemyShip.getAction() & Battle.BS_FLUCHT) != 0 )
-				{ 
-					apcost += (int)Math.ceil(this.weapon.getAPCost()*1.5)*this.attCountForShip(this.ownShip, ownShipType, this.attcount);
-				} 
-				else
-				{
-					apcost += this.weapon.getAPCost()*this.attCountForShip(this.ownShip, ownShipType, this.attcount);	
-				}
 
 				if( this.weapon.getAmmoType().length > 0 )
 				{
