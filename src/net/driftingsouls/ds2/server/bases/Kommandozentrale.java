@@ -322,7 +322,7 @@ public class Kommandozentrale extends DefaultBuilding {
 			
 			if( (actid >= 0) && (actid <= 1 ) && (count != 0 || (actid == 1)) ) {
 				BaseStatus basedata = Base.getStatus(context, base.getId());
-				Cargo stat = (Cargo)basedata.getStatus().clone();
+				Cargo stat = (Cargo)basedata.getProduction().clone();
 				stat.setResource(Resources.NAHRUNG, 0);
 				
 				if( stat.getResourceCount(resid) != 0 && kurse.getResourceCount(resid) != 0 ) {
@@ -505,7 +505,7 @@ public class Kommandozentrale extends DefaultBuilding {
 			}
 			
 			BaseStatus basedata = Base.getStatus(context, base.getId());
-			Cargo stat = (Cargo)basedata.getStatus().clone();
+			Cargo stat = (Cargo)basedata.getProduction().clone();
 			stat.setResource( Resources.NAHRUNG, 0 );
 			stat.setOption( Cargo.Option.NOHTML, true );
 			ResourceList reslist = stat.compare(kurse, false);

@@ -89,5 +89,6 @@ public final class AutoGTUAction implements Cloneable {
 		return null;
 	}
 	
-	
+	public static final int SELL_ALL = 0;
+	public static final int SELL_TO_LIMIT = 1;
 }

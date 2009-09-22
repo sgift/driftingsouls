@@ -105,6 +105,10 @@ public class Resources {
 	 * Die Resource Boese Admins.
 	 */
 	public static final ResourceID BOESERADMIN = new ItemID(40);
+	/**
+	 * Die Resource RE.
+	 */
+	public static final ResourceID RE = new ItemID(6);
 	
 	private static volatile Cargo resourceList;
 	

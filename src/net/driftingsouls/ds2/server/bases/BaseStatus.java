@@ -31,7 +31,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 public class BaseStatus {
 	private Cargo status;
 	private int e;
-	private int bewohner;
+	private int livingSpace;
 	private int arbeiter;
 	private Map<Integer,Integer> blocations;
 	private Integer[] active;
@@ -40,7 +40,7 @@ public class BaseStatus {
 		super();
 		this.status = status;
 		this.e = e;
-		this.bewohner = bewohner;
+		this.livingSpace = bewohner;
 		this.arbeiter = arbeiter;
 		this.blocations = blocations;
 		this.active = active;
@@ -69,12 +69,12 @@ public class BaseStatus {
 	}
 
 	/**
-	 * Gibt die Bewohner zurueck.
+	 * Gibt den Wohnraum zurueck.
 	 * 
-	 * @return die Bewohner
+	 * @return der Wohnraum.
 	 */
-	public int getBewohner() {
-		return bewohner;
+	public int getLivingSpace() {
+		return livingSpace;
 	}
 
 	/**
@@ -91,7 +91,7 @@ public class BaseStatus {
 	 * Gibt die pro Tick produzierte Energie zurueck.
 	 * @return Die pro Tick produzierte Energie
 	 */
-	public int getE() {
+	public int getEnergy() {
 		return e;
 	}
 
@@ -100,8 +100,7 @@ public class BaseStatus {
 	 * 
 	 * @return Die Cargobilanz
 	 */
-	public Cargo getStatus() {
+	public Cargo getProduction() {
 		return status;
 	}
-
 }

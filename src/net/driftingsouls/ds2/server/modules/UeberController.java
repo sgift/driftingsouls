@@ -360,7 +360,7 @@ public class UeberController extends TemplateGenerator {
 
 			boolean mangel = false;
 
-			ResourceList reslist = basedata.getStatus().getResourceList();
+			ResourceList reslist = basedata.getProduction().getResourceList();
 			for( ResourceEntry res : reslist ) {
 				if( (res.getCount1() < 0) && (-(cargo.getResourceCount(res.getId())/res.getCount1()) < 9) ) {
 					mangel = true;
