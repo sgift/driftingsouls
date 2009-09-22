@@ -32,7 +32,6 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
@@ -84,7 +83,7 @@ public class MapDataController extends DSGenerator {
 	
 	private User usedUser;
 	private Ally ally;
-	private int system;
+	private StarSystem system;
 	
 	/**
 	 * Konstruktor.
@@ -100,6 +99,7 @@ public class MapDataController extends DSGenerator {
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		User user = (User)getUser();
+		org.hibernate.Session db = getDB();
 	
 		this.usedUser = user;
 		
@@ -115,19 +115,23 @@ public class MapDataController extends DSGenerator {
 		ally = this.usedUser.getAlly();
 		
 		int sys = getInteger("sys");
+		StarSystem system = (StarSystem)db.get(StarSystem.class, sys);
 		
-		if( Systems.get().system(sys) == null ) {
+		if( system == null ) {
 			sys = 1;
 		}
 
-		if( (Systems.get().system(sys).getAccess() == StarSystem.AC_ADMIN) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) ) {
+		if( (system.getAccess() == StarSystem.AC_ADMIN) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) ) {
 			sys = 1;
 		}  
-		else if( (Systems.get().system(sys).getAccess() == StarSystem.AC_NPC) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) && !user.hasFlag( User.FLAG_VIEW_SYSTEMS ) ) {
+		else if( (system.getAccess() == StarSystem.AC_NPC) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) && !user.hasFlag( User.FLAG_VIEW_SYSTEMS ) ) {
+			sys = 1;
+		}
+		else if( !system.isStarmapVisible() && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS )) {
 			sys = 1;
 		}
 		
-		this.system = sys;
+		this.system = (StarSystem)db.get(StarSystem.class, sys);
 		
 		return true;
 	}
@@ -231,7 +235,7 @@ public class MapDataController extends DSGenerator {
 		echo.append("<?xml version='1.0' encoding='UTF-16'?>\n");
 		echo.append("<sector x=\""+x+"\" y=\""+y+"\" system=\""+this.system+"\">\n");
 		
-		Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(this.system, x, y));
+		Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(this.system.getID(), x, y));
 		
 		// EMP-Nebel?
 		if( (nebel != null) && (nebel.getType() >= 3) && (nebel.getType() <= 5) ) {
@@ -256,7 +260,7 @@ public class MapDataController extends DSGenerator {
 		try {
 			List<?> shipList = db.createQuery("from Ship " +
 					"where id>0 and owner "+usersql+" and system= :sys and x= :x and y=:y and locate('l ',docked)=0")
-				.setInteger("sys", this.system)
+				.setInteger("sys", this.system.getID())
 				.setInteger("x", x)
 				.setInteger("y", y)
 				.list();
@@ -280,7 +284,7 @@ public class MapDataController extends DSGenerator {
 			List<?> scannerList = db.createQuery("from Ship as s " +
 					"where s.id>0 and s.system= :sys and s.owner "+usersql+" and " +
 							"s.shiptype.shipClass in (11,13)")
-				.setInteger("sys", this.system)
+				.setInteger("sys", this.system.getID())
 				.list();
 			for( Iterator<?> iter=scannerList.iterator(); iter.hasNext(); ) {
 				Ship scanner = (Ship)iter.next();
@@ -309,7 +313,7 @@ public class MapDataController extends DSGenerator {
 						"where s.id>0 and locate('l ',s.docked)=0 and s.system= :sys and s.owner!= :user and s.x= :x and s.y= :y and " +
 							"(s.visibility is null or s.visibility= :userid) and (locate(:smallflag, s.shiptype.flags)=0 and (s.modules is null or locate(:smallflag,s.modules.flags)=0)) " +
 							"order by s.x,s.y")
-					.setInteger("sys", this.system)
+					.setInteger("sys", this.system.getID())
 					.setInteger("x", x)
 					.setInteger("y", y)
 					.setEntity("user", this.usedUser)
@@ -351,14 +355,21 @@ public class MapDataController extends DSGenerator {
 	@Action(ActionType.DEFAULT)
 	public void getSystemsAction() throws IOException {
 		Writer echo = getContext().getResponse().getWriter();
+		org.hibernate.Session db = getDB();
 		
 		echo.append("<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n");
 		echo.append("<systems>\n");
-		for( StarSystem asystem : Systems.get() ) {
+		
+		List<StarSystem> systems = Common.cast(db.createQuery("from StarSystem").list());
+		
+		for( StarSystem asystem : systems ) {
 			if( (asystem.getAccess() == StarSystem.AC_ADMIN) && !this.getUser().hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) ) {
 				continue;
 			}  
 			else if( (asystem.getAccess() == StarSystem.AC_NPC) && !this.getUser().hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) && !this.getUser().hasFlag( User.FLAG_VIEW_SYSTEMS ) ) {
+				continue;
+			}
+			else if( !asystem.isStarmapVisible() && !this.getUser().hasFlag( User.FLAG_VIEW_ALL_SYSTEMS )) {
 				continue;
 			}
 		
@@ -398,10 +409,9 @@ public class MapDataController extends DSGenerator {
 		boolean debug = getInteger("debugme") != 0;
 		
 		org.hibernate.Session db = getDB();
-		StarSystem sys = Systems.get().system(system);
 		
-		int[][] map = new int[sys.getWidth()+1][sys.getHeight()+1];
-		String[][] maptext = new String[sys.getWidth()+1][sys.getHeight()+1];
+		int[][] map = new int[system.getWidth()+1][system.getHeight()+1];
+		String[][] maptext = new String[system.getWidth()+1][system.getHeight()+1];
 
 		//--------------------------------------
 		//Jumpgates in die Karte eintragen
@@ -409,9 +419,9 @@ public class MapDataController extends DSGenerator {
 		List<?> nodeList = db.createQuery("from JumpNode " +
 				"where system= :sys and hidden=0 and (x between 1 and :width) and (y between 1 and :height) " +
 				"order by id")
-			.setInteger("sys", this.system)
-			.setInteger("width", sys.getWidth())
-			.setInteger("height", sys.getHeight())
+			.setInteger("sys", system.getID())
+			.setInteger("width", system.getWidth())
+			.setInteger("height", system.getHeight())
 			.list();
 		for( Iterator<?> iter=nodeList.iterator(); iter.hasNext(); ) {
 			JumpNode node = (JumpNode)iter.next();
@@ -426,9 +436,9 @@ public class MapDataController extends DSGenerator {
 		List<?> baseList = db.createQuery("from Base as b inner join fetch b.owner " +
 				"where b.system= :sys and b.size=0 and (b.x between 1 and :width) and (b.y between 1 and :height) " +
 				"order by case when b.owner= :user then 0 else 1 end, b.id")
-			.setInteger("sys", this.system)
-			.setInteger("width", sys.getWidth())
-			.setInteger("height", sys.getHeight())
+			.setInteger("sys", system.getID())
+			.setInteger("width", system.getWidth())
+			.setInteger("height", system.getHeight())
 			.setEntity("user", this.usedUser)
 			.list();
 		for( Iterator<?> iter=baseList.iterator(); iter.hasNext(); ) {
@@ -455,9 +465,9 @@ public class MapDataController extends DSGenerator {
 		List<?> nebelList = db.createQuery("from Nebel " +
 				"where system= :sys and (x between 1 and :width) and (y between 1 and :height) " +
 				"order by system,x,y")
-			.setInteger("sys", this.system)
-			.setInteger("width", sys.getWidth())
-			.setInteger("height", sys.getHeight())
+			.setInteger("sys", system.getID())
+			.setInteger("width", system.getWidth())
+			.setInteger("height", system.getHeight())
 			.list();
 		for( Iterator<?> iter=nebelList.iterator(); iter.hasNext(); ) {
 			Nebel nebel = (Nebel)iter.next();
@@ -480,7 +490,7 @@ public class MapDataController extends DSGenerator {
 		//--------------------------------------
 		List<?> shipList = db.createQuery("select x,y,count(*) from Ship " +
 				"where id>0 and owner= :user and system= :sys group by x,y")
-			.setInteger("sys", this.system)
+			.setInteger("sys", this.system.getID())
 			.setEntity("user", this.usedUser)
 			.list();
 		for( Iterator<?> iter=shipList.iterator(); iter.hasNext(); ) {
@@ -488,7 +498,7 @@ public class MapDataController extends DSGenerator {
 			
 			final long count = (Long)data[2];
 			
-			Location loc = new Location(system, (Integer)data[0], (Integer)data[1]);
+			Location loc = new Location(system.getID(), (Integer)data[0], (Integer)data[1]);
 			if( checkMapObjectsOR(map[loc.getX()][loc.getY()], OBJECT_NEBEL_EMP_LOW, OBJECT_NEBEL_EMP_NORMAL, OBJECT_NEBEL_EMP_HIGH) ) {
 				continue;
 			}
@@ -526,7 +536,7 @@ public class MapDataController extends DSGenerator {
 		
 		List<?> scannerList = db.createQuery("from Ship as s " +
 				"where s.id>0 and s.system= :sys and s.owner "+usersql+" and s.shiptype.shipClass in (11,13)")
-			.setInteger("sys", this.system)
+			.setInteger("sys", this.system.getID())
 			.list();
 		for( Iterator<?> iter=scannerList.iterator(); iter.hasNext(); ) {
 			Ship scanner = (Ship)iter.next();
@@ -564,7 +574,7 @@ public class MapDataController extends DSGenerator {
 					"where b.system= :sys and b.owner!= :user and b.owner!=0 and " +
 							"(b.x between :minx and :maxx) and " +
 							"(b.y between :miny and :maxy)")
-				.setInteger("sys", this.system)
+				.setInteger("sys", this.system.getID())
 				.setEntity("user", this.usedUser)
 				.setInteger("minx", loc.getX()-range)
 				.setInteger("maxx", loc.getX()+range)
@@ -624,7 +634,7 @@ public class MapDataController extends DSGenerator {
 					"where s.id>0 and s.system= :sys and locate('l ',s.docked)=0 and s.owner!= :user and (s.x between :minx and :maxx) and (s.y between :miny and :maxy) and " +
 						"(s.visibility is null or s.visibility= :userid) and (locate(:smallflag, s.shiptype.flags)=0 and (s.modules is null or locate(:smallflag, s.modules.flags)=0)) " +
 					"order by s.x,s.y")
-				.setInteger("sys", this.system)
+				.setInteger("sys", this.system.getID())
 				.setEntity("user", this.usedUser)
 				.setInteger("userid", this.usedUser.getId())
 				.setInteger("minx", loc.getX()-range)
@@ -670,7 +680,7 @@ public class MapDataController extends DSGenerator {
 				}
 				
 				if( (lastX != sLoc.getX()) || (lastY != sLoc.getY()) ) {
-					lrsScanSectors.add(new Location(system, lastX, lastY));
+					lrsScanSectors.add(new Location(system.getID(), lastX, lastY));
 					if( usercount.size() > 9 ) {
 						if( allycount != 0 && ((maptext[lastX][lastY] == null) || (maptext[lastX][lastY].indexOf("verb&uuml;ndete") == -1)) ) {
 							appendStr(maptext, lastX, lastY, allycount+" verb&uuml;ndete"+(allycount==1?"s":"")+" Schiff"+(allycount==1?"":"e")+"\n");
@@ -719,7 +729,7 @@ public class MapDataController extends DSGenerator {
 			}
 			
 			if( lastX != 0 && lastY != 0 ) {
-				lrsScanSectors.add(new Location(system, lastX, lastY));
+				lrsScanSectors.add(new Location(system.getID(), lastX, lastY));
 				if( usercount.size() > 9 ) {
 					if( allycount != 0 && ((maptext[lastX][lastY] == null) || (maptext[lastX][lastY].indexOf("verb&uuml;ndete") == -1)) ) {
 						appendStr(maptext, lastX, lastY, allycount+" verb&uuml;ndete"+(allycount==1?"s":"")+" Schiff"+(allycount==1?"":"e")+"\n");
@@ -760,24 +770,24 @@ public class MapDataController extends DSGenerator {
 			echo.append(getStarmapValue(Math.abs(this.usedUser.getId())));
 			
 			// Nun die Kartengroesse senden (erst x dann y - jeweils zwei stellen pro char)
-			int width = sys.getWidth();
-			int height = sys.getHeight();
+			int width = system.getWidth();
+			int height = system.getHeight();
 			
 			echo.append(getStarmapValue(width));
 			echo.append(getStarmapValue(height));
 			
 			//Nun das System senden
 			if( !debug ) {
-				echo.append(getStarmapValue(this.system));
+				echo.append(getStarmapValue(this.system.getID()));
 			}
 			else {
-				echo.append("<br />System: "+this.system+"<br />\n");
+				echo.append("<br />System: "+this.system.getID()+"<br />\n");
 			}
 			
 			//Die Felder einzeln ausgeben
 			int zerocount = 0;
-			for( int y = 1; y <= sys.getHeight(); y++ ) {
-				for( int x = 1; x <= sys.getWidth(); x++ ) {
+			for( int y = 1; y <= system.getHeight(); y++ ) {
+				for( int x = 1; x <= system.getWidth(); x++ ) {
 					if( (zerocount != 0) && ( map[x][y] != 0 ) ) {
 						if( !debug ) {
 							echo.append((char)0);
@@ -816,8 +826,8 @@ public class MapDataController extends DSGenerator {
 			}
 			
 			// Texte ausgeben
-			for( int y = 1; y <= sys.getHeight(); y++ ) {
-				for( int x = 1; x <= sys.getWidth(); x++ ) {
+			for( int y = 1; y <= system.getHeight(); y++ ) {
+				for( int x = 1; x <= system.getWidth(); x++ ) {
 					if( maptext[x][y] != null && maptext[x][y].trim().length() > 0 ) {
 						echo.append((char)ADDDATA_TEXT);
 						
@@ -839,9 +849,9 @@ public class MapDataController extends DSGenerator {
 			// Planeten (grosse Objekte) ausgeben
 			List<?> lobjectList = db.createQuery("from Base " +
 					"where system= :sys and size>0 and (x between 1 and :width) and (y between 1 and :height)")
-				.setInteger("sys", this.system)
-				.setInteger("width", sys.getWidth())
-				.setInteger("height", sys.getHeight())
+				.setInteger("sys", system.getID())
+				.setInteger("width", system.getWidth())
+				.setInteger("height", system.getHeight())
 				.list();
 			for( Iterator<?> iter=lobjectList.iterator(); iter.hasNext(); ) {
 				Base lobject = (Base)iter.next();

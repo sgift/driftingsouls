@@ -48,7 +48,6 @@ import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.User;
@@ -1962,7 +1961,7 @@ public class Battle implements Locatable {
 			Location loc = ship.getShip().getLocation();
 			
 			if( relocate && (ship.getDocked().length() == 0) ) {
-				StarSystem sys = Systems.get().system(this.system);
+				StarSystem sys = (StarSystem)db.get(StarSystem.class, this.system);
 				int maxRetries = 100;
 
 				while( ((loc.getX() == this.x) && (loc.getY() == this.y)) ||
@@ -2497,7 +2496,7 @@ public class Battle implements Locatable {
 		Location loc = ship.getShip().getLocation();
 		
 		if( relocate && (ship.getDocked().length() == 0) ) {
-			StarSystem sys = Systems.get().system(this.system);
+			StarSystem sys = (StarSystem)db.get(StarSystem.class, this.system);
 			int maxRetries = 100;
 
 			while( ((loc.getX() == this.x) && (loc.getY() == this.y)) ||

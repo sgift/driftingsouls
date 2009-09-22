@@ -28,7 +28,7 @@ import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
-import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -153,10 +153,12 @@ public class ColonizeController extends TemplateGenerator {
 	
 			return;
 		}
-
-		if( (Systems.get().system(base.getSystem()).getMaxColonies() >= 0) && 
-			(bases.get(base.getSystem()) >= Systems.get().system(base.getSystem()).getMaxColonies()) ) {
-			t.setVar("colonize.message", "<span style=\"color:#ff0000\">Sie d&uuml;rfen lediglich "+Systems.get().system(base.getSystem()).getMaxColonies()+" Asteroiden in "+Systems.get().system(base.getSystem()).getName()+" ("+base.getSystem()+") kolonisieren" );
+		
+		StarSystem system = (StarSystem)db.get(StarSystem.class, base.getSystem());
+		
+		if( (system.getMaxColonies() >= 0) && 
+			(bases.get(base.getSystem()) >= system.getMaxColonies()) ) {
+			t.setVar("colonize.message", "<span style=\"color:#ff0000\">Sie d&uuml;rfen lediglich "+system.getMaxColonies()+" Asteroiden in "+system.getName()+" ("+base.getSystem()+") kolonisieren" );
 			
 			return;
 		}

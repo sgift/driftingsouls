@@ -33,7 +33,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Jump;
 import net.driftingsouls.ds2.server.entities.StatShips;
 import net.driftingsouls.ds2.server.entities.User;
@@ -267,6 +267,7 @@ public class RestTick extends TickController {
 	private void doFelsbrocken() {
 		try {
 			Database db = getDatabase();
+			org.hibernate.Session database = getDB();
 			
 			this.log("");
 			this.log("Fuege Felsbrocken ein");
@@ -309,9 +310,11 @@ public class RestTick extends TickController {
 						shouldId++;
 						shouldId = db.first("SELECT newIntelliShipID( "+shouldId+" ) AS sid").getInt("sid");
 						
-						// Coords ermitteln
-						int x = RandomUtils.nextInt(Systems.get().system(system.getInt("system")).getWidth())+1;
-						int y = RandomUtils.nextInt(Systems.get().system(system.getInt("system")).getHeight())+1;
+						StarSystem thissystem = (StarSystem)database.get(StarSystem.class, system.getInt("system"));
+						
+						// Koords ermitteln
+						int x = RandomUtils.nextInt(thissystem.getWidth())+1;
+						int y = RandomUtils.nextInt(thissystem.getHeight())+1;
 						
 						this.log("\t*System "+system.getInt("system")+": Fuege Felsbrocken "+shouldId+" ein");
 						

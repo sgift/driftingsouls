@@ -60,7 +60,6 @@ import net.driftingsouls.ds2.server.cargo.modules.Module;
 import net.driftingsouls.ds2.server.cargo.modules.Modules;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.JumpNode;
@@ -1607,6 +1606,7 @@ public class Ship implements Locatable,Transfering {
 		boolean moved = false;
 		MovementStatus status = MovementStatus.SUCCESS;
 		boolean firstOutput = true;
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		StringBuilder out = MESSAGE.get();
 
@@ -1709,7 +1709,7 @@ public class Ship implements Locatable,Transfering {
 		else if( direction == 8 ) { y++; }
 		else if( direction == 9 ) { x++; y++; }
 
-		StarSystem sys = Systems.get().system(ship.getSystem());
+		StarSystem sys = (StarSystem)db.get(StarSystem.class, ship.getSystem());
 
 		if( x > sys.getWidth()) { 
 			x = sys.getWidth();

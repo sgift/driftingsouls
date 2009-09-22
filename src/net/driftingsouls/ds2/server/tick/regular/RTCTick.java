@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
-import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
 import net.driftingsouls.ds2.server.entities.PaketVersteigerung;
 import net.driftingsouls.ds2.server.entities.StatGtu;
@@ -98,13 +98,14 @@ public class RTCTick extends TickController {
 				User winner = entry.getBieter();
 				long price = entry.getPreis();
 				int dropzone = winner.getGtuDropZone();
-			
-				Location loc = Systems.get().system(dropzone).getDropZone();
+				StarSystem system = (StarSystem)db.get(StarSystem.class, dropzone);				
+				
+				Location loc = system.getDropZone();
 			
 				if( loc == null ) {
-					dropzone = 2;
+					system = (StarSystem)db.get(StarSystem.class, dropzone);
 					
-					loc = Systems.get().system(dropzone).getDropZone();
+					loc = system.getDropZone();
 				}
 				
 				int gtucost = 100;
@@ -271,13 +272,14 @@ public class RTCTick extends TickController {
 				Cargo cargo = paket.getCargo();
 
 				int dropzone = winner.getGtuDropZone();
-			
-				Location loc = Systems.get().system(dropzone).getDropZone();
+				StarSystem system = (StarSystem)db.get(StarSystem.class, dropzone);
+				
+				Location loc = system.getDropZone();
 	
 				if( loc == null ) {
-					dropzone = 2;
+					system = (StarSystem)db.get(StarSystem.class, dropzone);
 					
-					loc = Systems.get().system(dropzone).getDropZone();
+					loc = system.getDropZone();
 				}
 				
 				this.log("[GTU-Paket] BEGIN");

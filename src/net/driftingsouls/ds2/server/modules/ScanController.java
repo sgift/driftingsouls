@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.Rassen;
-import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
@@ -194,11 +194,13 @@ public class ScanController extends TemplateGenerator {
 		
 		t.setVar("global.scansector",1);
 		
-		if( (scany < 1) || (scany > Systems.get().system(system).getHeight()) ) {
+		StarSystem thissystem = (StarSystem)db.get(StarSystem.class, system);
+		
+		if( (scany < 1) || (scany > thissystem.getHeight()) ) {
 			return;
 		}
 		
-		if( (scanx < 1) || (scanx > Systems.get().system(system).getWidth()) ) {
+		if( (scanx < 1) || (scanx > thissystem.getWidth()) ) {
 			return;
 		}
 		
@@ -603,8 +605,10 @@ public class ScanController extends TemplateGenerator {
 		
 		t.setBlock("_SCAN", "mapborder.listitem", "mapborder.list");
 		
+		StarSystem system = (StarSystem)db.get(StarSystem.class, this.ship.getSystem());
+		
 		for( int x = this.ship.getX()-this.range; x <= this.ship.getX()+this.range; x++ ) {
-			if( (x > 0) && (x <= Systems.get().system(this.ship.getSystem()).getWidth()) ) {
+			if( (x > 0) && (x <= system.getWidth()) ) {
 				t.setVar("mapborder.x", x);
 				t.parse("mapborder.list", "mapborder.listitem", true);
 			}
@@ -618,7 +622,7 @@ public class ScanController extends TemplateGenerator {
 		t.setBlock("map.rowitem", "map.listitem", "map.list");
 		
 		for( int y = this.ship.getY()-this.range; y <= this.ship.getY()+this.range; y++ ) {
-			if( (y < 1) || (y > Systems.get().system(this.ship.getSystem()).getHeight()) ) {
+			if( (y < 1) || (y > system.getHeight()) ) {
 				continue;
 			}
 			
@@ -627,7 +631,7 @@ public class ScanController extends TemplateGenerator {
 	
 			// Einen einzelnen Sektor ausgeben
 			for( int x = this.ship.getX()-this.range; x <= this.ship.getX()+this.range; x++ ) {
-				if( (x < 1) || (x > Systems.get().system(this.ship.getSystem()).getWidth()) ) {
+				if( (x < 1) || (x > system.getWidth()) ) {
 					continue;
 				}
 				Location loc = new Location(this.ship.getSystem(), x, y);

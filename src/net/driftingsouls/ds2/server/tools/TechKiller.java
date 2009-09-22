@@ -23,7 +23,7 @@ import java.io.IOException;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.config.Faction;
-import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.DSApplication;
@@ -104,9 +104,10 @@ public class TechKiller extends DSApplication {
 				"WHERE f.r"+techid+"!=0");
 		while( query.next() ) {
 			User user = (User)db.get(User.class, query.getInt("id")); 
+			StarSystem system = (StarSystem)db.get(StarSystem.class, user.getGtuDropZone());
 			log("* "+user.getId()+"\n");
 		
-			Location dz = Systems.get().system(user.getGtuDropZone()).getDropZone();
+			Location dz = system.getDropZone();
 			
 			// Zuerst exakter Match von System, x und y
 			Ship gtuposten = (Ship)db.createQuery("from Ship where owner= :owner and locate('tradepost',status) and system= :system and x= :x and y= :y")

@@ -39,7 +39,6 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.FactionPages;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.entities.FactionOffer;
 import net.driftingsouls.ds2.server.entities.FactionShopEntry;
 import net.driftingsouls.ds2.server.entities.FactionShopOrder;
@@ -606,11 +605,13 @@ public class ErsteigernController extends TemplateGenerator
 
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
+		org.hibernate.Session db = getDB();
 
 		parameterNumber("favsys");
 		int favsys = getInteger("favsys");
 
-		if( Systems.get().system(favsys).getDropZone() != null && user.getAstiSystems().contains(favsys) )
+		StarSystem system = (StarSystem)db.get(StarSystem.class, favsys);
+		if( system.getDropZone() != null && user.getAstiSystems().contains(favsys) )
 		{
 			user.setGtuDropZone(favsys);
 			t.setVar("show.newcoords", 1);
@@ -1345,7 +1346,10 @@ public class ErsteigernController extends TemplateGenerator
 		}
 
 		t.setBlock("_ERSTEIGERN", "gtu.dropzones.listitem", "gtu.dropzones.list");
-		for( StarSystem system : Systems.get() )
+		
+		List<StarSystem> systems = Common.cast(db.createQuery("from StarSystem").list());
+		
+		for( StarSystem system : systems )
 		{
 			if( system.getDropZone() != null && user.getAstiSystems().contains(system.getID()))
 			{
@@ -1396,6 +1400,7 @@ public class ErsteigernController extends TemplateGenerator
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 		Database db = getDatabase();
+		org.hibernate.Session database = getDB();
 
 		if( !Faction.get(faction).getPages().hasPage("shop") )
 		{
@@ -1450,7 +1455,7 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
-		StarSystem system = Systems.get().system(targetsystem);
+		StarSystem system = (StarSystem)database.get(StarSystem.class, targetsystem);
 		if( (system.getAccess() == StarSystem.AC_ADMIN)
 				&& !user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS) )
 		{
@@ -1639,6 +1644,7 @@ public class ErsteigernController extends TemplateGenerator
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 		Database db = getDatabase();
+		org.hibernate.Session database = getDB();
 
 		if( !Faction.get(faction).getPages().hasPage("shop") )
 		{
@@ -1719,9 +1725,8 @@ public class ErsteigernController extends TemplateGenerator
 			{
 				t.setVar("sourcesystem.selected", 0);
 			}
-
-			t.setVar("sourcesystem.id", asystem.getInt("system"), "sourcesystem.name", Systems
-					.get().system(asystem.getInt("system")).getName());
+			StarSystem system = (StarSystem)database.get(StarSystem.class, asystem.getInt("system"));
+			t.setVar("sourcesystem.id", asystem.getInt("system"), "sourcesystem.name", system.getName());
 
 			t.parse("ganytrans.sourcesystem.list", "ganytrans.sourcesystem.listitem", true);
 		}
@@ -1764,9 +1769,11 @@ public class ErsteigernController extends TemplateGenerator
 		}
 		agany.free();
 
+		List<StarSystem> systems = Common.cast(database.createQuery("from StarSystem").list());
+		
 		// Zielsysteme ausgeben
 		first = true;
-		for( StarSystem system : Systems.get() )
+		for( StarSystem system : systems )
 		{
 			if( (system.getAccess() == StarSystem.AC_ADMIN)
 					&& !user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS) )

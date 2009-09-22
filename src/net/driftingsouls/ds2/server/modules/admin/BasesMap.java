@@ -30,7 +30,6 @@ import javax.imageio.ImageIO;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -96,7 +95,7 @@ public class BasesMap implements AdminPlugin
 		
 		if( sysid != 0 ) 
 		{
-			StarSystem system = Systems.get().system(sysid);
+			StarSystem system = (StarSystem)db.get(StarSystem.class, sysid);
 			if( system == null )
 			{
 				return;

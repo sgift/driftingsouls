@@ -58,7 +58,7 @@ import net.driftingsouls.ds2.server.cargo.modules.ModuleItemModule;
 import net.driftingsouls.ds2.server.cargo.modules.Modules;
 import net.driftingsouls.ds2.server.config.ModuleSlots;
 import net.driftingsouls.ds2.server.config.Rassen;
-import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.items.Items;
 import net.driftingsouls.ds2.server.config.items.effects.IEDisableShip;
 import net.driftingsouls.ds2.server.config.items.effects.IEDraftShip;
@@ -1224,6 +1224,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
+		org.hibernate.Session database = context.getDB();
 		
 		User user = this.getOwner();
 	
@@ -1231,9 +1232,11 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		if( !user.hasFlagschiffSpace() ) {
 			fsquery = "AND t1.flagschiff=0";
 		}
-	
+		
+		StarSystem system = (StarSystem)database.get(StarSystem.class, this.getSystem());
+		
 		String sysreqquery = "";
-		if( !Systems.get().system(this.getSystem()).isMilitaryAllowed() ) {
+		if( !system.isMilitaryAllowed() ) {
 			sysreqquery = "t1.systemreq=0 AND ";
 		}
 		String query = "SELECT t1.id,t1.race,t1.type,t1.dauer,t1.costs,t1.ekosten,t1.crew,t1.tr1,t1.tr2,t1.tr3,t1.flagschiff " +
@@ -1543,9 +1546,10 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			output.append("Ihre Rasse kann dieses Schiff nicht bauen");		
 			return false;
 		}
-	
+		
+		StarSystem system = (StarSystem)db.get(StarSystem.class, this.getSystem());
 		//Kann das Schiff im aktuellen System gebaut werden?
-		if( shipdata.getBoolean("systemreq") && (!Systems.get().system(this.getSystem()).isMilitaryAllowed()) ) {
+		if( shipdata.getBoolean("systemreq") && (!system.isMilitaryAllowed()) ) {
 			output.append("Dieses Schiff l&auml;sst sich im aktuellen System nicht bauen");			
 			return false;
 		}

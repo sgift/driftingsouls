@@ -24,7 +24,6 @@ import java.util.List;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -43,7 +42,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
  * @urlparam Integer system Die ID des Sternensystems
  */
 public class ImpObjectsController extends TemplateGenerator {
-	private int system;
+	private StarSystem system;
 	private boolean viewableSystem;
 	
 	/**
@@ -67,22 +66,22 @@ public class ImpObjectsController extends TemplateGenerator {
 	protected boolean validateAndPrepare(String action) {
 		User user = (User)getUser();
 		int sys = getInteger("system");
+		org.hibernate.Session db = getDB();
 		
 		if( sys == 0 ) {
 			sys = 1;
 		}
-		else if( Systems.get().system(sys) == null ) {
-			sys = 1;
-		}
+		
+		StarSystem thissystem = (StarSystem)db.get(StarSystem.class, sys);
 
-		if( (Systems.get().system(sys).getAccess() == StarSystem.AC_ADMIN) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) ) {
+		if( (thissystem.getAccess() == StarSystem.AC_ADMIN) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) ) {
 			viewableSystem = false;
 		} 
-		else if( (Systems.get().system(sys).getAccess() == StarSystem.AC_NPC) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) && !user.hasFlag( User.FLAG_VIEW_SYSTEMS ) ) {
+		else if( (thissystem.getAccess() == StarSystem.AC_NPC) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) && !user.hasFlag( User.FLAG_VIEW_SYSTEMS ) ) {
 			viewableSystem = false;
 		}
 		
-		system = sys;
+		system = thissystem;
 		
 		return true;	
 	}
@@ -93,8 +92,8 @@ public class ImpObjectsController extends TemplateGenerator {
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		
-		t.setVar(	"global.sysname",	Systems.get().system(system).getName(),
-				 	"global.sysid",		system );
+		t.setVar(	"global.sysname",	system.getName(),
+				 	"global.sysid",		system.getID() );
 		
 		t.setBlock("_IMPOBJECTS", "jn.listitem", "jn.list");				 			
 		t.setBlock("_IMPOBJECTS", "gtuposten.listitem", "gtuposten.list");
@@ -105,16 +104,18 @@ public class ImpObjectsController extends TemplateGenerator {
 			*/
 		
 			List<?> jnList = db.createQuery("from JumpNode where system=?  and hidden=0")
-				.setInteger(0, system)
+				.setInteger(0, system.getID())
 				.list();
 			for( Iterator<?> iter=jnList.iterator(); iter.hasNext(); ) {
 				JumpNode node = (JumpNode)iter.next();
+				
+				StarSystem systemout = (StarSystem)db.get(StarSystem.class, node.getSystemOut());
 				
 				t.setVar(	"jn.x",			node.getX(),
 						  	"jn.y",			node.getY(),
 						  	"jn.name",		node.getName(),
 						 	"jn.target",	node.getSystemOut(),
-							"jn.targetname",	Systems.get().system(node.getSystemOut()).getName() );
+							"jn.targetname",	systemout.getName() );
 
 				t.parse("jn.list", "jn.listitem", true);
 			}
@@ -125,7 +126,7 @@ public class ImpObjectsController extends TemplateGenerator {
 		
 			List<?> postenList = db.createQuery("from Ship where id>0 and owner=? and system=? and locate('tradepost',status)!=0")
 				.setInteger(0, Faction.GTU)
-				.setInteger(1, system)
+				.setInteger(1, system.getID())
 				.list();
 			for( Iterator<?> iter=postenList.iterator(); iter.hasNext(); ) {
 				Ship posten = (Ship)iter.next();
@@ -145,7 +146,7 @@ public class ImpObjectsController extends TemplateGenerator {
 		
 		List<?> baseList = db.createQuery("from Base where owner=? and system=?")
 			.setEntity(0, getUser())
-			.setInteger(1, system)
+			.setInteger(1, system.getID())
 			.list();
 		for( Iterator<?> iter=baseList.iterator(); iter.hasNext(); ) {
 			Base base = (Base)iter.next();

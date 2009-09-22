@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.Writer;
 
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -47,6 +46,7 @@ public class StatPopulationDensity implements Statistic {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 		User user = (User)context.getActiveUser();
+		org.hibernate.Session database = context.getDB();
 
 		Writer echo = context.getResponse().getWriter();
 	
@@ -65,7 +65,7 @@ public class StatPopulationDensity implements Statistic {
 	
 		while( systemStats.next() ) {
 			String systemAddInfo = "";
-			StarSystem system = Systems.get().system(systemStats.getInt("system"));
+			StarSystem system = (StarSystem)database.get(StarSystem.class, systemStats.getInt("system"));
 			if( system == null ) {
 				log.warn("Asteroiden im ungueltigen System "+systemStats.getInt("system")+" vorhanden");
 				continue;

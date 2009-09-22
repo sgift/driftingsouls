@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.modules;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
@@ -34,7 +35,6 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.BasicUser;
@@ -212,13 +212,16 @@ public class PortalController extends TemplateGenerator {
 	
 	private StartLocations getStartLocation() {
 		Database db = getDatabase();
+		org.hibernate.Session database = getDB();
 		
 		int systemID = 0;
 		int orderLocationID = 0;
 		int mindistance = 99999;
 		HashMap<Integer,StartLocation> minsysdistance = new HashMap<Integer,StartLocation>();
 		
-		for( StarSystem system : Systems.get() ) {
+		List<StarSystem> systems = Common.cast(database.createQuery("from StarSystem").list());
+		
+		for( StarSystem system : systems ) {
 			Location[] locations = system.getOrderLocations();
 			
 			for( int i=0; i < locations.length; i++ ) {
@@ -251,6 +254,7 @@ public class PortalController extends TemplateGenerator {
 	
 	private boolean register( String username, String email, int race, int system, String key, ConfigValue keys) {
 		Database db = getDatabase();
+		org.hibernate.Session database = getDB();
 		TemplateEngine t = getTemplateEngine();
 		
 		if( "".equals(username) || "".equals(email) ) {
@@ -284,16 +288,19 @@ public class PortalController extends TemplateGenerator {
 			return false;	
 		}
 		
-		if( (system == 0) || (Systems.get().system(system) == null) || (Systems.get().system(system).getOrderLocations().length == 0) ) {
+		StarSystem thissystem = (StarSystem)database.get(StarSystem.class, system);
+		List<StarSystem> systems = Common.cast(database.createQuery("from StarSystem").list());
+		
+		if( (system == 0) || (thissystem == null) || (thissystem.getOrderLocations().length == 0) ) {
 			t.setBlock("_PORTAL", "register.systems.listitem", "register.systems.list");
 			t.setBlock("_PORTAL", "register.systemdesc.listitem", "register.systemdesc.list");
 			
 			StartLocations locations = getStartLocation();
 			t.setVar(	"register.system.id", locations.systemID,
-						"register.system.name", Systems.get().system(locations.systemID).getName(),
+						"register.system.name", thissystem.getName(),
 						"show.register.choosesystem", 1 );
 		
-			for( StarSystem sys : Systems.get() ) {
+			for( StarSystem sys : systems ) {
 				if( (sys.getOrderLocations().length > 0) && locations.minSysDistance.containsKey(sys.getID()) ) {
 					t.setVar(	"system.id", sys.getID(),
 								"system.name", sys.getName(),
@@ -363,7 +370,7 @@ public class PortalController extends TemplateGenerator {
 		
 		// Schiffe erstellen
 	 	StartLocations locations = getStartLocation();
-	 	Location[] orderlocs = Systems.get().system(system).getOrderLocations();
+	 	Location[] orderlocs = thissystem.getOrderLocations();
 	 	Location orderloc = orderlocs[locations.minSysDistance.get(system).orderLocationID];
 	 	
 	 	String[] baselayoutStr = this.config.get("REGISTER_BASELAYOUT").split(",");
@@ -520,13 +527,15 @@ public class PortalController extends TemplateGenerator {
 			needkey = true;
 		}		
 		
+		StarSystem thissystem = (StarSystem)db.get(StarSystem.class, system);
+		
 		t.setVar(	"register.username"		, username,
 					"register.email"		, email,
 					"register.needkey"		, needkey,
 					"register.key"			, key,
 					"register.race"			, race,
 					"register.system.id"	, system,
-					"register.system.name" 	, (Systems.get().system(system) != null  ? Systems.get().system(system).getName() : "") );
+					"register.system.name" 	, (thissystem != null  ? thissystem.getName() : "") );
 		
 		showform = !register(username, email, race, system, key, keys);
 		

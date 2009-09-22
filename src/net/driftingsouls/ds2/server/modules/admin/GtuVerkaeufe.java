@@ -27,7 +27,6 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.entities.StatVerkaeufe;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -47,9 +46,12 @@ public class GtuVerkaeufe implements AdminPlugin
 	{
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
+		org.hibernate.Session db = context.getDB();
 		
 		int system = context.getRequest().getParameterInt("system");
 		String type = context.getRequest().getParameterString("type");
+		
+		List<StarSystem> systems = Common.cast(db.createQuery("from StarSystem").list());
 		
 		if( (system == 0) || (type.length() == 0)  ) 
 		{
@@ -59,7 +61,7 @@ public class GtuVerkaeufe implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderX\" style=\"width:60px\">System:</td><td class=\"noBorderX\">");
 			echo.append("<select name=\"system\" size=\"1\">\n");
 			
-			for( StarSystem sys : Systems.get() ) 
+			for( StarSystem sys : systems ) 
 			{
 				echo.append("<option value=\""+sys.getID()+"\">"+sys.getName()+" ("+sys.getID()+")</option>\n");
 			}
@@ -87,9 +89,7 @@ public class GtuVerkaeufe implements AdminPlugin
 			Cargo totalcargo = new Cargo();
 			Cargo cargo = new Cargo();
 			final int tick = context.get(ContextCommon.class).getTick();
-			
-			org.hibernate.Session db = context.getDB();
-			
+
 			List<StatVerkaeufe> entries = Common.cast(db.createQuery("from StatVerkaeufe " +
 					"where system= :system and place= :type")
 				.setInteger("system", system)

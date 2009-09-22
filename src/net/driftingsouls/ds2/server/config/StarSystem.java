@@ -20,6 +20,11 @@ package net.driftingsouls.ds2.server.config;
 
 import java.util.ArrayList;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 import net.driftingsouls.ds2.server.Location;
 
 /**
@@ -30,6 +35,8 @@ import net.driftingsouls.ds2.server.Location;
  * @author Christopher Jung
  *
  */
+@Entity
+@Table(name="systems")
 public class StarSystem {
 	/**
 	 * Normaler Zugriffslevel - Alle Benutzer koennen das System sehen.
@@ -44,28 +51,45 @@ public class StarSystem {
 	 */
 	public static final int AC_ADMIN = 3;
 	
+	@Column(name="Name")
 	private String name = "";
+	@Id
 	private int id = 0;
 	private int width = 200;
 	private int height = 200;
-	private int maxColonys = -1;
+	private int maxColonies = -1;
+	@Column(name="military")
 	private boolean allowMilitary = true;
+	@Column(name="access")
 	private int starmap = StarSystem.AC_NORMAL;
 	private Location gtuDropZone = null;
 	private ArrayList<Location> orderloc = new ArrayList<Location>();
+	@Column(name="descrip")
 	private String description = "";
+	@Column(name="starmap")
+	private boolean isStarmapVisible = false;
 
-	protected StarSystem( int myid, String myname, int width, int height, boolean allowMilitary, int myStarMap) {
+	protected StarSystem() {
+		// Empty
+	}
+	
+	protected StarSystem( int myid, String myname, int width, int height, boolean allowMilitary, int myStarMap, String myDescription, Location mygtuDropZone) {
 		name 		= myname;
 		id 			= myid;
 		this.width		= width;
 		this.height		= height;
 		this.allowMilitary = allowMilitary;
 		starmap 		= myStarMap;
+		this.description = myDescription;
+		this.gtuDropZone = mygtuDropZone;
 	}
 	
 	protected void addOrderLocation( Location orderloc ) {
 		this.orderloc.add(orderloc);	
+	}
+	
+	protected void removeOrderLocation( Location orderloc) {
+		this.orderloc.remove(orderloc);
 	}
 	
 	/**
@@ -85,6 +109,10 @@ public class StarSystem {
 		return orderloc.get(locid);	
 	}
 	
+	/**
+	 * Setzt die Location der DropZone.
+	 * @param dropZone Die Location der DropZone
+	 */
 	protected void setDropZone( Location dropZone ) {
 		gtuDropZone = dropZone;	
 	}
@@ -97,8 +125,12 @@ public class StarSystem {
 		return gtuDropZone;	
 	}
 	
-	protected void setMaxColonys( int maxColonys ) {
-		this.maxColonys = maxColonys;	
+	/**
+	 * Setzt die maximale Anzahl an Kolonien in diesem System.
+	 * @param maxColonies Die Anzahl der maximalen Kolonien (-1 fuer keine Begrenzung)
+	 */
+	protected void setMaxColonies( int maxColonies ) {
+		this.maxColonies = maxColonies;	
 	}
 	
 	/**
@@ -117,7 +149,7 @@ public class StarSystem {
 	 * @return Die max. Anzahl an Kolonien oder <code>-1</code>
 	 */
 	public int getMaxColonies() {
-		return this.maxColonys;	
+		return this.maxColonies;	
 	}
 	
 	/**
@@ -154,6 +186,14 @@ public class StarSystem {
 	}
 	
 	/**
+	 * Setzt den Namen des Sternensystems.
+	 * @param name Der neue Name des Sternensystems
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	/**
 	 * Gibt die ID des Sternensystems zurueck.
 	 * @return die ID des Sternensystems
 	 */
@@ -169,7 +209,27 @@ public class StarSystem {
 		return this.description;
 	}
 	
+	/**
+	 * Setzt die Beschreibung des Sternensystems.
+	 * @param text Der neue Berschreibungstext
+	 */
 	protected void setDescription( String text ) {
 		this.description = text;
+	}
+	
+	/**
+	 * Gibt zurueclk ob dieses System per Sternenkarte angesehen werden kann.
+	 * @return <code>true</code> falls dieses System auf der Sternenkarte angesehen werden kann, ansonsten <code>false</code>
+	 */
+	public boolean isStarmapVisible() {
+		return this.isStarmapVisible;
+	}
+	
+	/**
+	 * Setzt, ob dieses System auf der Sternenkarte angeschaut werden kann.
+	 * @param visible <code>true</code> falls es angeschaut werden können soll, ansonsten <code>false</code>
+	 */
+	public void setStarmapVisible(boolean visible) {
+		this.isStarmapVisible = visible;
 	}
 }

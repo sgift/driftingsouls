@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Jump;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
@@ -48,7 +48,7 @@ public class JumpdriveShivan implements SchiffPlugin
 		org.hibernate.Session db = controller.getDB();
 		
 		controller.parameterNumber("system");
-		int system = controller.getInteger("system");
+		StarSystem system = (StarSystem)db.get(StarSystem.class, controller.getInteger("system"));
 		
 		if( ship.getOwner().getId() < 0 )
 		{
@@ -60,9 +60,9 @@ public class JumpdriveShivan implements SchiffPlugin
 			String subaction = controller.getString("subaction");
 			
 			
-			if( subaction.equals("set") && (system != 0) && (system < 99) && (Systems.get().system(system) != null) )
+			if( subaction.equals("set") && (system.getID() != 0) && (system.getID() < 99) && (system != null) )
 			{
-				final Location targetLoc = new Location(system,x,y);
+				final Location targetLoc = new Location(system.getID(),x,y);
 				
 				output += ship.getName()+" aktiviert den Sprungantrieb<br />\n";
 				
@@ -99,7 +99,7 @@ public class JumpdriveShivan implements SchiffPlugin
 					}
 				}
 			}
-			else if ( subaction.equals("newtarget") && (system != 0) && (system < 99) && (Systems.get().system(system) != null) )
+			else if ( subaction.equals("newtarget") && (system.getID() != 0) && (system.getID() < 99) && (system != null) )
 			{
 				Jump jump = (Jump)db.createQuery("from Jump where shipid=?")
 					.setEntity(0, ship)
@@ -110,7 +110,7 @@ public class JumpdriveShivan implements SchiffPlugin
 					return output;
 				}
 				
-				jump.setSystem(system);
+				jump.setSystem(system.getID());
 				jump.setX(x);
 				jump.setY(y);
 				
@@ -143,7 +143,7 @@ public class JumpdriveShivan implements SchiffPlugin
 						jump = (Jump)db.createQuery("from Jump where shipid=?")
 							.setEntity(0, ship)
 							.uniqueResult();
-						jump.setSystem(system);
+						jump.setSystem(system.getID());
 						jump.setX(x);
 						jump.setY(y);
 	  	

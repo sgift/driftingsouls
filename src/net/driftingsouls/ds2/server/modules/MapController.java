@@ -7,10 +7,10 @@ import java.util.List;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.config.Systems;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.BasicUser;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
@@ -33,7 +33,7 @@ public class MapController extends TemplateGenerator
 {
 
 	private boolean showSystem;
-	private int system;
+	private StarSystem system;
 	private Configuration config;
 
 	/**
@@ -104,6 +104,7 @@ public class MapController extends TemplateGenerator
 	protected boolean validateAndPrepare(String action) {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
+		org.hibernate.Session db = getDB();
 		int sys = getInteger("sys");
 
 		showSystem = true;
@@ -111,30 +112,37 @@ public class MapController extends TemplateGenerator
 		if( this.getInteger("loadmap") == 0 ) {
 			showSystem = false;	
 		}
-
+		
+		StarSystem system = (StarSystem)db.get(StarSystem.class, sys);
+		
 		if( sys == 0 ) {
 			t.setVar("map.message", "Bitte w&auml;hlen sie ein System aus:" );
 			sys = 1;
 			showSystem = false; //Zeige das System nicht an
 		}
-		else if( Systems.get().system(sys) == null ) {
+		else if( system == null ) {
 			t.setVar("map.message", "&Uuml;ber dieses System liegen keine Informationen vor");
 			sys = 1;
 			showSystem = false; //Zeige das System nicht an
 		}
 
-		if( (Systems.get().system(sys).getAccess() == StarSystem.AC_ADMIN) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) ) {
+		if( (system.getAccess() == StarSystem.AC_ADMIN) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) ) {
 			t.setVar("map.message", "Sie haben keine entsprechenden Karten - Ihnen sind bekannt:");
 			sys = 1;
 			showSystem = false; //Zeige das System nicht an
 		} 
-		else if( (Systems.get().system(sys).getAccess() == StarSystem.AC_NPC) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) && !user.hasFlag( User.FLAG_VIEW_SYSTEMS ) ) {
+		else if( (system.getAccess() == StarSystem.AC_NPC) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) && !user.hasFlag( User.FLAG_VIEW_SYSTEMS ) ) {
+			t.setVar("map.message", "Sie haben keine entsprechenden Karten - Ihnen sind bekannt:");
+			sys = 1;
+			showSystem = false; //Zeige das System nicht an
+		}
+		else if( !system.isStarmapVisible() && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS )) {
 			t.setVar("map.message", "Sie haben keine entsprechenden Karten - Ihnen sind bekannt:");
 			sys = 1;
 			showSystem = false; //Zeige das System nicht an
 		}
 
-		this.system = sys;
+		this.system = system;
 
 		t.setVar(	"map.showsystem",	showSystem,
 				"map.system",		sys );
@@ -155,7 +163,9 @@ public class MapController extends TemplateGenerator
 
 		t.setBlock("_MAP", "systems.listitem", "systems.list");
 
-		for( StarSystem system : Systems.get() ) {
+		List<StarSystem> systems = Common.cast(db.createQuery("from StarSystem").list());
+		
+		for( StarSystem system : systems ) {
 			String systemAddInfo = " ";
 
 			if( (system.getAccess() == StarSystem.AC_ADMIN) && user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) ) {
@@ -167,11 +177,14 @@ public class MapController extends TemplateGenerator
 			else if( (system.getAccess() == StarSystem.AC_ADMIN) || (system.getAccess() == StarSystem.AC_NPC) ) {
 				continue;
 			}
+			else if( !system.isStarmapVisible() && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS )) {
+				continue;
+			}
 
 			t.setVar(	"system.name",		system.getName(),
 						"system.id",		system.getID(),
 						"system.addinfo",	systemAddInfo,
-						"system.selected",	(system.getID() == this.system) );
+						"system.selected",	(system.getID() == this.system.getID()) );
 
 			t.parse("systems.list", "systems.listitem", true);
 		}
@@ -184,7 +197,7 @@ public class MapController extends TemplateGenerator
 		}
 
 		
-		PlayerStarmap content = new PlayerStarmap(db, user, system);
+		PlayerStarmap content = new PlayerStarmap(db, user, system.getID());
 		List<JumpNode> publicNodes = content.getPublicNodes();
 		for(JumpNode node: publicNodes)
 		{
@@ -203,9 +216,8 @@ public class MapController extends TemplateGenerator
 			t.parse("jumpnodes.list", "jumpnodes.listitem", true);
 		}
 
-		StarSystem displayedSystem = Systems.get().system(this.system);
-		int width = displayedSystem.getWidth();
-		int height = displayedSystem.getHeight();
+		int width = this.system.getWidth();
+		int height = this.system.getHeight();
 		
 		String dataPath = templateEngine.getVar("global.datadir") + "data/starmap/";
 
@@ -262,7 +274,7 @@ public class MapController extends TemplateGenerator
 				map.append("<td width=\"25\" height=\"25\">");
 				map.append("<img width=\"25\" height=\"25\" src=\"" + dataPath);
 
-				Location position = new Location(this.system, x, y);
+				Location position = new Location(this.system.getID(), x, y);
 				boolean scannable = content.isScannable(position);
 				String sectorImage = dataPath + content.getSectorImage(position);
 				

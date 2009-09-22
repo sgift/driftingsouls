@@ -36,7 +36,7 @@ import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.config.Offiziere;
-import net.driftingsouls.ds2.server.config.Systems;
+import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
@@ -441,9 +441,11 @@ public class CreateObjects implements AdminPlugin {
 	
 	private void parsePngFile(org.hibernate.Session db, Writer echo, int system, File png) throws IOException {
 		BufferedImage image = ImageIO.read(new FileInputStream(png));
-
-		for( int x=0; x < Systems.get().system(system).getWidth(); x++ ) {
-			for( int y=0; y < Systems.get().system(system).getHeight(); y++ ) {
+		
+		StarSystem thissystem = (StarSystem)db.get(StarSystem.class, system);
+		
+		for( int x=0; x < thissystem.getWidth(); x++ ) {
+			for( int y=0; y < thissystem.getHeight(); y++ ) {
 				Location loc = new Location(system, x+1, y+1);
 				
 				int colorhex = image.getRGB(x, y);
