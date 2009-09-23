@@ -24,8 +24,12 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import org.apache.commons.lang.StringUtils;
 
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.framework.Common;
 
 /**
  * Repraesentiert ein Sternensystem in DS.
@@ -62,18 +66,21 @@ public class StarSystem {
 	private boolean allowMilitary = true;
 	@Column(name="access")
 	private int starmap = StarSystem.AC_NORMAL;
-	private Location gtuDropZone = null;
-	private ArrayList<Location> orderloc = new ArrayList<Location>();
+	private String gtuDropZone = "";
+	private String orderloc = "";
 	@Column(name="descrip")
 	private String description = "";
 	@Column(name="starmap")
 	private boolean isStarmapVisible = false;
+	
+	@Transient
+	private ArrayList<Location> orderlocs = new ArrayList<Location>();
 
 	protected StarSystem() {
 		// Empty
 	}
 	
-	protected StarSystem( int myid, String myname, int width, int height, boolean allowMilitary, int myStarMap, String myDescription, Location mygtuDropZone) {
+	protected StarSystem( int myid, String myname, int width, int height, boolean allowMilitary, int myStarMap, String myDescription, Location mygtuDropZone, String myorderloc) {
 		name 		= myname;
 		id 			= myid;
 		this.width		= width;
@@ -81,15 +88,53 @@ public class StarSystem {
 		this.allowMilitary = allowMilitary;
 		starmap 		= myStarMap;
 		this.description = myDescription;
-		this.gtuDropZone = mygtuDropZone;
+		this.gtuDropZone = mygtuDropZone.getSystem() + ":" + mygtuDropZone.getX() + "/" + mygtuDropZone.getY();	
+		this.orderloc = myorderloc;
+		StringtoLocations();
+	}
+	
+	/**
+	 * Schreibt alle Locations aus dem Array in einen String.
+	 */
+	private void locationstoString() {
+		if(orderlocs.isEmpty()) {
+			this.orderloc = "";
+		}
+		else {
+			for(int i=0; i < orderlocs.size(); i++) {
+				if( i != 0 ) {
+					this.orderloc = this.orderloc + "|" + orderlocs.get(i).getX() + "/" + orderlocs.get(i).getY();
+				}
+				else if( i == 0 ) {
+					this.orderloc = orderlocs.get(i).getX() + "/" + orderlocs.get(i).getY();
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Schreibt den String in die Locations um.
+	 */
+	private void StringtoLocations() {
+		this.orderlocs.clear();
+		if(this.orderloc != "" && this.orderloc != null) {
+			String[] locations = StringUtils.split(this.orderloc, "|");
+			for(int i=0; i < locations.length; i++) {
+				if(locations[i] != "" && locations[i] != null) {
+					addOrderLocation(Location.fromString(locations[i]));
+				}
+			}
+		}
 	}
 	
 	protected void addOrderLocation( Location orderloc ) {
-		this.orderloc.add(orderloc);	
+		this.orderlocs.add(orderloc);
+		locationstoString();
 	}
 	
 	protected void removeOrderLocation( Location orderloc) {
-		this.orderloc.remove(orderloc);
+		this.orderlocs.remove(orderloc);
+		locationstoString();
 	}
 	
 	/**
@@ -97,7 +142,13 @@ public class StarSystem {
 	 * @return die Liste aller Order-Locations
 	 */
 	public Location[] getOrderLocations() {
-		return orderloc.toArray(new Location[orderloc.size()]);	
+		StringtoLocations();
+		return orderlocs.toArray(new Location[orderlocs.size()]);	
+	}
+	
+	public void setOrderLocations(String locations) {
+		this.orderloc = locations;
+		StringtoLocations();
 	}
 	
 	/**
@@ -106,7 +157,8 @@ public class StarSystem {
 	 * @return die Order-Location oder <code>null</code>
 	 */
 	public Location getOrderLocation( int locid ) {
-		return orderloc.get(locid);	
+		StringtoLocations();
+		return orderlocs.get(locid);	
 	}
 	
 	/**
@@ -114,7 +166,7 @@ public class StarSystem {
 	 * @param dropZone Die Location der DropZone
 	 */
 	protected void setDropZone( Location dropZone ) {
-		gtuDropZone = dropZone;	
+		gtuDropZone = dropZone.getX() + "/" + dropZone.getY();	
 	}
 	
 	/**
@@ -122,7 +174,10 @@ public class StarSystem {
 	 * @return die Position der GTU-Dropzone
 	 */
 	public Location getDropZone() {
-		return gtuDropZone;	
+		if(!(gtuDropZone == "") && !(gtuDropZone == null)) {
+			return Location.fromString(gtuDropZone);
+		}
+		return new Location(0, 0, 0 );
 	}
 	
 	/**
@@ -139,6 +194,14 @@ public class StarSystem {
 	 */
 	public boolean isMilitaryAllowed() {
 		return this.allowMilitary;	
+	}
+	
+	/**
+	 * Setzt, ob militaerische Einheiten im System zugelassen sind.
+	 * @param allowed <code>true</code> wenn erlaubt, ansonsten <code>false</code>
+	 */
+	public void setMilitaryAllowed(boolean allowed) {
+		this.allowMilitary = allowed;
 	}
 	
 	/**
@@ -170,11 +233,27 @@ public class StarSystem {
 	}
 	
 	/**
+	 * Setzt die Breite in Feldern des Sternensystems.
+	 * @param width Die Breite in Feldern
+	 */
+	public void setWidth(int width) {
+		this.width = width;
+	}
+	
+	/**
 	 * Gibt die Hoehe in Feldern des Sternensystems zurueck.
 	 * @return die Hoehe
 	 */
 	public int getHeight() {
 		return this.height;	
+	}
+	
+	/**
+	 * Setzt die Hoehe in Feldern des Sternensystems.
+	 * @param height Die Hoehe
+	 */
+	public void setHeight(int height) {
+		this.height = height;
 	}
 	
 	/**

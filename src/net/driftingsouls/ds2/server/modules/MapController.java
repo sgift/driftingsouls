@@ -2,6 +2,7 @@ package net.driftingsouls.ds2.server.modules;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.Location;
@@ -163,9 +164,10 @@ public class MapController extends TemplateGenerator
 
 		t.setBlock("_MAP", "systems.listitem", "systems.list");
 
-		List<StarSystem> systems = Common.cast(db.createQuery("from StarSystem").list());
-		
-		for( StarSystem system : systems ) {
+		List<?> systems = db.createQuery("from StarSystem order by id asc").list();
+		for( Iterator<?> iter = systems.iterator(); iter.hasNext(); )
+		{
+			StarSystem system = (StarSystem)iter.next();
 			String systemAddInfo = " ";
 
 			if( (system.getAccess() == StarSystem.AC_ADMIN) && user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) ) {

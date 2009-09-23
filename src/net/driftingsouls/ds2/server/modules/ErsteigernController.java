@@ -1347,10 +1347,10 @@ public class ErsteigernController extends TemplateGenerator
 
 		t.setBlock("_ERSTEIGERN", "gtu.dropzones.listitem", "gtu.dropzones.list");
 		
-		List<StarSystem> systems = Common.cast(db.createQuery("from StarSystem").list());
-		
-		for( StarSystem system : systems )
+		List<?> systems = db.createQuery("from StarSystem order by id asc").list();
+		for( Iterator<?> iter = systems.iterator(); iter.hasNext(); )
 		{
+			StarSystem system = (StarSystem)iter.next();
 			if( system.getDropZone() != null && user.getAstiSystems().contains(system.getID()))
 			{
 				t.setVar("dropzone.system.id", system.getID(), "dropzone.system.name", system

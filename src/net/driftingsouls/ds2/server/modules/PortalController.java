@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.modules;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
@@ -219,9 +220,10 @@ public class PortalController extends TemplateGenerator {
 		int mindistance = 99999;
 		HashMap<Integer,StartLocation> minsysdistance = new HashMap<Integer,StartLocation>();
 		
-		List<StarSystem> systems = Common.cast(database.createQuery("from StarSystem").list());
-		
-		for( StarSystem system : systems ) {
+		List<?> systems = database.createQuery("from StarSystem order by id asc").list();
+		for( Iterator<?> iter = systems.iterator(); iter.hasNext(); )
+		{
+			StarSystem system = (StarSystem)iter.next();
 			Location[] locations = system.getOrderLocations();
 			
 			for( int i=0; i < locations.length; i++ ) {
