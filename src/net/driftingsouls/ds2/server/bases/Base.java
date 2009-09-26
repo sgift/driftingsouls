@@ -1051,13 +1051,13 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		{
 			if(!rebalanceEnergy(state))
 			{
-				message += "Zu wenig Energie. Die Produktion f&auml;llt aus.\n";
+				message += "Zu wenig Energie. Die Produktion fällt aus.\n";
 			}
 			else
 			{
 				if(!produce(state))
 				{
-					message += "Zu wenig Resourcen vorhanden. Die Produktion f&aum;llt aus.\n";
+					message += "Zu wenig Resourcen vorhanden. Die Produktion fällt aus.\n";
 				}
 				else
 				{
