@@ -62,13 +62,13 @@ public class KSTakeCommandAction extends BasicKSAction {
 			battle.logme( "Es versucht bereits ein anderer Spieler das Kommando zu &uuml;bernehmen\n" );
 			return RESULT_ERROR;
 		}
-		
+		/*
 		User oldCommander = battle.getCommander(battle.getOwnSide());
 		if( oldCommander.getInactivity() <= 0 ) {
 			battle.logme( "Der kommandierende Spieler ist noch anwesend\n" );
-			//return RESULT_ERROR;
+			return RESULT_ERROR;
 		}
-		
+		*/
 		battle.setCommander(battle.getOwnSide(), user);
 				
 		return RESULT_OK;		
