@@ -202,8 +202,8 @@ public class SchiffsTick extends TickController {
 		}
 		
 		//Pay sold and maintenance
-		int reCost = shiptd.getReCost();
-		if(reCost > 0 && !shipd.isLanded())
+		int reCost = shipd.getBalance();
+		if(reCost > 0)
 		{
 			this.log("Zahle Sold und Wartungskosten");
 			User owner = shipd.getOwner();

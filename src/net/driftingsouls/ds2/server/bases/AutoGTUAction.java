@@ -89,6 +89,12 @@ public final class AutoGTUAction implements Cloneable {
 		return null;
 	}
 	
+	/**
+	 * Legt fest, dass die Resource komplett verkauft werden soll.
+	 */
 	public static final int SELL_ALL = 0;
+	/**
+	 * Legt fest, dass die Resource bis zu einem Minimum verkauft werden soll.
+	 */
 	public static final int SELL_TO_LIMIT = 1;
 }

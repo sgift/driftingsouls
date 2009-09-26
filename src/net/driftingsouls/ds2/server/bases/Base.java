@@ -991,15 +991,9 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	 */
 	public int getBalance()
 	{
-		int worker = getArbeiter();
-		int unemployed = getBewohner() - worker;
+		int balance = 0;
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		ConfigValue ssbValue = (ConfigValue)db.get(ConfigValue.class, "socialsecuritybenefit");
-		int socialSecurityBenefit = Integer.parseInt(ssbValue.getValue());
-		
-		int balance = unemployed*socialSecurityBenefit;
-		
 		Integer[] buildings = getBebauung();
 		Integer[] active = getActive();
 		for(int i = 0; i < getBebauung().length; i++)
@@ -1348,26 +1342,30 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		if(food > hungryPeople)
 		{
 			food -= hungryPeople;
+			hungryPeople = 0;
 			usercargo.setResource(Resources.NAHRUNG, food);
-			return 0;
 		}
 		else
 		{
 			hungryPeople -= food;
-			usercargo.setResource(Resources.NAHRUNG, 0);	
+			food = 0;
+			usercargo.setResource(Resources.NAHRUNG, food);	
 			food = cargo.getResourceCount(Resources.NAHRUNG);
 			if(food > hungryPeople)
 			{
 				food -= hungryPeople;
+				hungryPeople = 0;
 				cargo.setResource(Resources.NAHRUNG, food);
-				return 0;
 			}
 			else
 			{
 				hungryPeople -= food;
-				return hungryPeople;
+				food = 0;
+				cargo.setResource(Resources.NAHRUNG, food);
 			}
 		}
+		
+		return hungryPeople;
 	}
 	
 	private Session getDB()
