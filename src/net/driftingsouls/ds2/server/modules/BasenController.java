@@ -157,7 +157,8 @@ public class BasenController extends TemplateGenerator {
 	
 			Cargo cargo = new Cargo(base.getCargo());
 			cargo.addResource( Resources.NAHRUNG, usercargo.getResourceCount( Resources.NAHRUNG ) );
-	
+			cargo.addResource(Resources.RE, user.getKonto().longValue());
+			
 			ResourceList reslist = basedata.getProduction().getResourceList();
 			for( ResourceEntry res : reslist ) {
 				if( res.getCount1() < 0 ) {
