@@ -390,9 +390,9 @@ public class BaseController extends TemplateGenerator {
 		base.setArbeiter(basedata.getArbeiter());
 		
 		int bue = base.getBewohner() - basedata.getArbeiter();
-		int wue = basedata.getBewohner() - base.getBewohner();
+		int wue = basedata.getLivingSpace() - base.getBewohner();
 		
-		ResourceList reslist = base.getCargo().compare(basedata.getStatus(), true,true);
+		ResourceList reslist = base.getCargo().compare(basedata.getProduction(), true,true);
 		
 		reslist.sortByID(false);
 		
@@ -427,15 +427,15 @@ public class BaseController extends TemplateGenerator {
 			t.parse("base.cargo.list", "base.cargo.listitem", true);
 		}
 		
-		basedata.getStatus().setResource( Resources.NAHRUNG, 0 ); // Nahrung landet nicht im lokalen Cargo...
-		long cstat = -basedata.getStatus().getMass();
+		basedata.getProduction().setResource( Resources.NAHRUNG, 0 ); // Nahrung landet nicht im lokalen Cargo...
+		long cstat = -basedata.getProduction().getMass();
 		
 		t.setVar(	"base.cstat",		Common.ln(cstat),
 					"base.e",			base.getEnergy(),
-					"base.estat",		basedata.getE(),
+					"base.estat",		basedata.getEnergy(),
 					"base.bewohner",	base.getBewohner(),
 					"base.arbeiter.needed",	basedata.getArbeiter(),
-					"base.wohnraum",		basedata.getBewohner() );
+					"base.wohnraum",		basedata.getLivingSpace() );
 		
 		//----------------
 		// Aktionen
@@ -463,7 +463,7 @@ public class BaseController extends TemplateGenerator {
 		//------------------------------------------
 		
 		String baseimg = config.get("URL")+"data/interface/energie2";
-		int e = basedata.getE();
+		int e = basedata.getEnergy();
 		
 		if( e < 0 ) {
 			baseimg = config.get("URL")+"data/interface/nenergie2";
@@ -493,13 +493,13 @@ public class BaseController extends TemplateGenerator {
 		
 		Map<Integer,String> bevstats = new LinkedHashMap<Integer,String>();
 
-		if( basedata.getBewohner() >= base.getBewohner() ) {
+		if( basedata.getLivingSpace() >= base.getBewohner() ) {
 			bevstats.put(basedata.getArbeiter()/10, "arbeiter.gif");
 			bevstats.put(bue/10, "arbeitslos.gif");
 			bevstats.put(wue/10, "frei.gif");
 		}	
 		else {
-			int free = basedata.getBewohner()-basedata.getArbeiter();
+			int free = basedata.getLivingSpace()-basedata.getArbeiter();
 			bevstats.put(basedata.getArbeiter()/10, "arbeiter.gif");
 			bevstats.put(free/10, "arbeitslos.gif");
 			bevstats.put(bue/10, "narbeiter.gif");

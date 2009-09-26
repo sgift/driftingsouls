@@ -147,7 +147,7 @@ public class BasenController extends TemplateGenerator {
 					"base.y"		, base.getY(),
 					"base.bewohner"	, base.getBewohner(),
 					"base.e"		, base.getEnergy(),
-					"base.e.diff"	, basedata.getE(),
+					"base.e.diff"	, basedata.getEnergy(),
 					"bases.mangel.list"	, "",
 					"bases.cargo.list"	, "" );
 			
@@ -158,7 +158,7 @@ public class BasenController extends TemplateGenerator {
 			Cargo cargo = new Cargo(base.getCargo());
 			cargo.addResource( Resources.NAHRUNG, usercargo.getResourceCount( Resources.NAHRUNG ) );
 	
-			ResourceList reslist = basedata.getStatus().getResourceList();
+			ResourceList reslist = basedata.getProduction().getResourceList();
 			for( ResourceEntry res : reslist ) {
 				if( res.getCount1() < 0 ) {
 					long rounds = -cargo.getResourceCount(res.getId())/res.getCount1();
@@ -171,6 +171,7 @@ public class BasenController extends TemplateGenerator {
 			}
 			
 			cargo.substractResource( Resources.NAHRUNG, usercargo.getResourceCount( Resources.NAHRUNG ) );
+			cargo.substractResource(Resources.RE, user.getKonto().longValue());
 			
 			/*
 				Cargo anzeigen

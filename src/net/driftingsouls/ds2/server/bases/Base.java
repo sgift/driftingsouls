@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.bases;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,10 +40,14 @@ import javax.persistence.Version;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
+import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.cargo.Transfer;
 import net.driftingsouls.ds2.server.cargo.Transfering;
+import net.driftingsouls.ds2.server.config.Faction;
+import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
@@ -692,7 +697,12 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 
 		return new BaseStatus(stat, e, bewohner, arbeiter, Collections.unmodifiableMap(buildinglocs), bebon);
 	}
-
+	
+	private BaseStatus getStatus()
+	{
+		return Base.getStatus(ContextMap.getContext(), this);
+	}
+	
 	@Override
 	public Object clone()
 	{
@@ -985,12 +995,25 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		int unemployed = getBewohner() - worker;
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		ConfigValue taxValue = (ConfigValue)db.get(ConfigValue.class, "tax");
 		ConfigValue ssbValue = (ConfigValue)db.get(ConfigValue.class, "socialsecuritybenefit");
-		int tax = Integer.parseInt(taxValue.getValue());
 		int socialSecurityBenefit = Integer.parseInt(ssbValue.getValue());
 		
-		return worker*tax - unemployed*socialSecurityBenefit;
+		int balance = unemployed*socialSecurityBenefit;
+		
+		Integer[] buildings = getBebauung();
+		Integer[] active = getActive();
+		for(int i = 0; i < getBebauung().length; i++)
+		{
+			Integer buildingId = buildings[i];
+			if(buildingId != 0 && active[i] != 0)
+			{
+				Building building = (Building)db.get(Building.class, buildingId);
+				balance += building.getProduces().getResourceCount(Resources.RE);
+				balance -= building.getConsumes().getResourceCount(Resources.RE);
+			}
+		}
+		
+		return balance;
 	}
 	
 	/**
@@ -1002,8 +1025,353 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		
 		BaseStatus status = getStatus(context, getId() );
 		
-		Cargo produktion = status.getStatus();
+		Cargo produktion = status.getProduction();
 		
 		return produktion.getResourceCount( Resources.NAHRUNG );
+	}
+	
+	/**
+	 * Laesst die Basis ticken.
+	 * 
+	 * @return Die Ticknachrichten, wenn es welche gab.
+	 */
+	public String tick()
+	{
+		String message = "Basis " + getName() + "\n----------------------------------\n";
+		boolean produce = true;
+		if(!feedInhabitants())
+		{
+			produce = false;
+			message += "Wegen einer Hungersnot fliehen ihre Einwohner. Die Produktion f&auml;llt aus.\n";
+		}
+		
+		if(!feedMarines())
+		{
+			message += "Wegen Untern&auml;hrung desertieren ihre Truppen.\n";
+		}
+		
+		BaseStatus state = getStatus();
+		immigrate(state);
+		
+		if(produce)
+		{
+			if(!rebalanceEnergy(state))
+			{
+				message += "Zu wenig Energie. Die Produktion f&auml;llt aus.\n";
+			}
+			else
+			{
+				if(!produce(state))
+				{
+					message += "Zu wenig Resourcen vorhanden. Die Produktion f&aum;llt aus.\n";
+				}
+				else
+				{
+					long automaticSale = automaticSale();
+					long forcedSale = forcedSale(state);
+					long money = automaticSale + forcedSale;
+					if(money > 0)
+					{
+						getOwner().transferMoneyFrom(Faction.GTU, money, "Automatischer Warenverkauf Asteroid " + getName(), false, User.TRANSFER_AUTO);	
+					}
+					
+					message += "Ihnen wurden " + automaticSale + " RE f&uuml;r automatische Verk&auml;ufe gut geschrieben.\n";
+					message += "Ihnen wurden " + forcedSale + " RE f&uuml;r erzwungene Verk&auml;ufe gut geschrieben.\n";
+				}
+			}
+		}
+		
+		message += "\n";
+		return message;
+	}
+	
+	/**
+	 * Enforces the automatic sale rules of the base.
+	 * 
+	 * @return The money for resource sales.
+	 */
+	private long automaticSale()
+	{
+		long money = 0;
+		List<AutoGTUAction> actions = getAutoGTUActs();
+		if(!actions.isEmpty() ) 
+		{	
+			for(AutoGTUAction action: actions)
+			{
+				
+				ResourceID resource = action.getResID();
+				
+				long sell;
+				switch(action.getActID())
+				{
+					case AutoGTUAction.SELL_ALL:
+						sell = cargo.getResourceCount(resource);
+						break;
+					case AutoGTUAction.SELL_TO_LIMIT:
+						long maximum = action.getCount();
+						sell = cargo.getResourceCount(resource) - maximum;
+						break;
+					default:
+						sell = 0;
+				}
+				
+				if(sell > 0)
+				{
+					cargo.substractResource(resource, sell);
+					money += getSalePrice(resource, sell);
+				}
+			}
+		}
+		
+		return money;
+	}
+	
+	/**
+	 * Enforces the maximum cargo rules.
+	 * 
+	 * @return The money for resource sales.
+	 */
+	private long forcedSale(BaseStatus state)
+	{
+		final int RESOURCE_MINIMUM = 200;
+		
+		long money = 0;
+		long maxCargo = getMaxCargo();
+		long currentCargo = cargo.getMass();
+		
+		if(currentCargo > maxCargo)
+		{
+			ResourceList production = state.getProduction().getResourceList();
+			production.sortByCargo(true);
+			for(ResourceEntry resource: production)
+			{
+				//If we sell resources, which are consumed we 
+				//enforce production problems
+				if(resource.getCount1() < 0)
+				{
+					continue;
+				}
+				
+				long sell = cargo.getResourceCount(resource.getId()) - RESOURCE_MINIMUM;
+				if(sell > 0)
+				{
+					cargo.substractResource(resource.getId(), sell);
+					money += getSalePrice(resource.getId(), sell);
+				}
+			}
+		}
+		
+		return money;
+	}
+
+	/**
+	 * Calculates the money using the current gtu price for base sales.
+	 * 
+	 * @return The money for a base sale of the resource.
+	 */
+	private long getSalePrice(ResourceID resource, long count)
+	{
+		GtuWarenKurse kurs = (GtuWarenKurse)getDB().get(GtuWarenKurse.class, "asti");
+		Cargo prices = kurs.getKurse();
+		double price = prices.getResourceCount(resource) / 1000d;
+		
+		long pay = Math.round(price * count);
+		return pay;
+	}
+	
+	private boolean rebalanceEnergy(BaseStatus state)
+	{
+		int energy = getEnergy();
+		int eps = getMaxEnergy();
+		int production = state.getEnergy();
+		
+		energy = energy + production;
+		if(energy < 0)
+		{
+			return false;
+		}
+		
+		if(energy > eps)
+		{
+			long overflow = energy - eps;
+			long emptyBatteries = cargo.getResourceCount(Resources.LBATTERIEN);
+			if(emptyBatteries < overflow)
+			{
+				overflow = emptyBatteries;
+			}
+			
+			cargo.substractResource(Resources.LBATTERIEN, overflow);
+			cargo.addResource(Resources.BATTERIEN, overflow);
+			energy = eps;
+		}
+		
+		setEnergy(energy);
+		return true;
+	}
+	
+	private boolean produce(BaseStatus state)
+	{
+		Cargo baseCargo = (Cargo)cargo.clone();
+		Cargo usercargo = new Cargo( Cargo.Type.STRING, getOwner().getCargo());
+		
+		baseCargo.addResource(Resources.NAHRUNG, usercargo.getResourceCount(Resources.NAHRUNG));
+		baseCargo.addResource(Resources.RE, getOwner().getKonto().longValue());
+		
+		ResourceList resources = baseCargo.compare(state.getProduction(), true);
+		for(ResourceEntry entry: resources)
+		{
+			long stock = entry.getCount1();
+			long production = entry.getCount2();
+			long balance = stock + production;
+			
+			//Not enough resources for production
+			if(balance < 0)
+			{
+				return false;
+			}
+			
+			if(production > 0)
+			{
+				baseCargo.addResource(entry.getId(), production);
+			}
+			else
+			{
+				production = Math.abs(production);
+				baseCargo.substractResource(entry.getId(), production);
+			}
+		}
+		
+		//Try to take all of the special resources food and RE from the pool
+		//Only use the asteroid cargo if there's no choice
+		long baseFood = cargo.getResourceCount(Resources.NAHRUNG);
+		long baseRE = cargo.getResourceCount(Resources.RE);
+		
+		long newFood = baseCargo.getResourceCount(Resources.NAHRUNG);
+		long newRE = baseCargo.getResourceCount(Resources.RE);
+		
+		if(newFood > baseFood)
+		{
+			usercargo.setResource(Resources.NAHRUNG, newFood - baseFood);
+			baseCargo.setResource(Resources.NAHRUNG, baseFood);
+		}
+		else
+		{
+			usercargo.setResource(Resources.NAHRUNG, 0);
+		}
+		getOwner().setCargo(usercargo.save());
+		
+		if(newRE > baseRE)
+		{
+			getOwner().setKonto(BigInteger.valueOf(newRE - baseRE));
+			baseCargo.setResource(Resources.RE, baseRE);
+		}
+		else
+		{
+			getOwner().setKonto(BigInteger.ZERO);
+		}
+		
+		this.cargo = baseCargo;
+		return true;
+	}
+	
+	private void immigrate(BaseStatus state)
+	{
+		int inhabitants = getBewohner();
+		int maxInhabitants = state.getLivingSpace();
+		
+		if(maxInhabitants > inhabitants)
+		{
+			int immigrants = maxInhabitants - inhabitants;
+			
+			Session db = getDB();
+			ConfigValue immigrationFactorValue = (ConfigValue)db.get(ConfigValue.class, "immigrationfactor");
+			ConfigValue randomizeImmigrationValue = (ConfigValue)db.get(ConfigValue.class, "randomizeimmigration");
+			
+			double immigrationFactor = Double.valueOf(immigrationFactorValue.getValue());
+			boolean randomizeImmigration = Boolean.parseBoolean(randomizeImmigrationValue.getValue());
+			
+			immigrants *= immigrationFactor;
+			if(randomizeImmigration)
+			{
+				immigrants = RandomUtils.nextInt(immigrants);
+				if(immigrants == 0)
+				{
+					immigrants = 1;
+				}
+			}
+			
+			setBewohner(getBewohner() + immigrants);
+		}
+	}
+	
+	private boolean feedMarines() 
+	{
+		int hungryPeople = getMarines();
+		int fleeingPeople = feedPeople(hungryPeople);
+		
+		if(fleeingPeople > 0)
+		{
+			setMarines(getMarines() - fleeingPeople);
+			return false;
+		}
+		
+		return true;
+	}
+	
+
+	private boolean feedInhabitants()
+	{
+		int hungryPeople = getBewohner();
+		int fleeingPeople = feedPeople(hungryPeople);
+		
+		if(fleeingPeople > 0)
+		{
+			setBewohner(getBewohner() - fleeingPeople);
+			return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Tries to feed hungry people.
+	 * 
+	 * @param hungryPeople People, which should be feed.
+	 * @return People, which got no food.
+	 */
+	private int feedPeople(int hungryPeople)
+	{
+		Cargo usercargo = new Cargo( Cargo.Type.STRING, getOwner().getCargo());
+		long food = usercargo.getResourceCount(Resources.NAHRUNG);
+		
+		//First try to feed from pool, then try to feed from cargo, then flee
+		if(food > hungryPeople)
+		{
+			food -= hungryPeople;
+			usercargo.setResource(Resources.NAHRUNG, food);
+			return 0;
+		}
+		else
+		{
+			hungryPeople -= food;
+			usercargo.setResource(Resources.NAHRUNG, 0);	
+			food = cargo.getResourceCount(Resources.NAHRUNG);
+			if(food > hungryPeople)
+			{
+				food -= hungryPeople;
+				cargo.setResource(Resources.NAHRUNG, food);
+				return 0;
+			}
+			else
+			{
+				hungryPeople -= food;
+				return hungryPeople;
+			}
+		}
+	}
+	
+	private Session getDB()
+	{
+		return ContextMap.getContext().getDB();
 	}
 }
