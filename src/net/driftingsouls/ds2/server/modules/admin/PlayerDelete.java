@@ -347,11 +347,6 @@ public class PlayerDelete implements AdminPlugin
 			.setInteger(0, userid)
 			.executeUpdate();
 
-		echo.append("L&ouml;sche Sessions...<br />\n");
-		db.createQuery("delete from Session where id=?")
-			.setInteger(0, userid)
-			.executeUpdate();
-
 		echo.append("L&ouml;sche Statistik 'Item-Locations'...<br />\n");
 		db.createQuery("delete from StatItemLocations where user=?")
 			.setInteger(0, userid)
