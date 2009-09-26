@@ -29,7 +29,6 @@ import javax.persistence.Transient;
 import org.apache.commons.lang.StringUtils;
 
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.framework.Common;
 
 /**
  * Repraesentiert ein Sternensystem in DS.
@@ -146,6 +145,10 @@ public class StarSystem {
 		return orderlocs.toArray(new Location[orderlocs.size()]);	
 	}
 	
+	/**
+	 * Setzt die Liste aller Order-Locations im System.
+	 * @param locations
+	 */
 	public void setOrderLocations(String locations) {
 		this.orderloc = locations;
 		StringtoLocations();
