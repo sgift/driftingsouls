@@ -147,7 +147,7 @@ public class StarSystem {
 	
 	/**
 	 * Setzt die Liste aller Order-Locations im System.
-	 * @param locations
+	 * @param locations Die Liste der Order Locations.
 	 */
 	public void setOrderLocations(String locations) {
 		this.orderloc = locations;
