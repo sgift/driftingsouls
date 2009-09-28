@@ -87,6 +87,7 @@ public class EditSystem implements AdminPlugin
 			String gtuDropZoneString = request.getParameterString("gtuDropZone");
 			int access = request.getParameterInt("access");
 			String descrip = request.getParameterString("descrip");
+			String spawnableress = request.getParameterString("spawnableress");
 			
 			StarSystem system = (StarSystem) db.createQuery("from StarSystem where id=?").setInteger(0, systemid).uniqueResult();
 			
@@ -106,6 +107,7 @@ public class EditSystem implements AdminPlugin
 			}
 			system.setAccess(access);
 			system.setDescription(descrip);
+			system.setSpawnableRess(spawnableress);
 			
 			// Update ships
 			int count = 0;
@@ -184,6 +186,7 @@ public class EditSystem implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">GTU Dropzone(Form: x/y): </td><td><input type=\"text\" name=\"gtuDropZone\" value=\"" + system.getDropZoneString() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Zugriffsrechte(1=Jeder;2=NPC;3=Admin): </td><td><input type=\"text\" name=\"access\" value=\"" + system.getAccess() + "\"></td></tr>\n");		
 			echo.append("<tr><td class=\"noBorderS\">Beschreibung: </td><td><textarea cols=\"50\" rows=\"10\" name=\"descrip\">" + system.getDescription() + "</textarea></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Ressourcenvorkommen: </td><td><input type=\"text\" name=\"spawnableress\" value=\"" + system.getSpawnableRess() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
 			echo.append("</table>");
 			echo.append("</form>\n");

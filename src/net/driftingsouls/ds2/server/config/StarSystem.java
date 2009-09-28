@@ -71,6 +71,7 @@ public class StarSystem {
 	private String description = "";
 	@Column(name="starmap")
 	private boolean isStarmapVisible = false;
+	private String spawnableress = "";
 	
 	@Transient
 	private ArrayList<Location> orderlocs = new ArrayList<Location>();
@@ -336,5 +337,21 @@ public class StarSystem {
 	 */
 	public void setStarmapVisible(boolean visible) {
 		this.isStarmapVisible = visible;
+	}
+	
+	/**
+	 * Gibt einen String mit Ressourcen zurueck, die in diesem System vorkommen koennen.
+	 * @return Die vorkommenden Ressourcen
+	 */
+	public String getSpawnableRess() {
+		return this.spawnableress;
+	}
+	
+	/**
+	 * Setzt einen String mit Ressourcen, die in diesem System vorkommen koennen.
+	 * @param spawnableress Die vorkommenden Ressourcen
+	 */
+	public void setSpawnableRess(String spawnableress) {
+		this.spawnableress = spawnableress;
 	}
 }
