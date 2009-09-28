@@ -276,11 +276,27 @@ public class Battle implements Locatable {
 	}
 	
 	/**
+	 * Setzt die X-Position der Schlacht.
+	 * @param x die X-Position
+	 */
+	public void setX(int x) {
+		this.x = x;
+	}
+	
+	/**
 	 * Gibt die Y-Position der Schlacht zurueck.
 	 * @return Die Y-Position
 	 */
 	public int getY() {
 		return this.y;
+	}
+	
+	/**
+	 * Setzt die Y-Koordinate der Schlacht.
+	 * @param y Die Y-Position
+	 */
+	public void setY(int y) {
+		this.y = y;
 	}
 	
 	/**

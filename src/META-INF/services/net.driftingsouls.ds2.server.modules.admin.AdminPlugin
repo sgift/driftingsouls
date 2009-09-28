@@ -26,3 +26,4 @@ net.driftingsouls.ds2.server.modules.admin.EditConfigValues
 net.driftingsouls.ds2.server.modules.admin.EditUser
 net.driftingsouls.ds2.server.modules.admin.EditBuilding
 net.driftingsouls.ds2.server.modules.admin.EditCore
+net.driftingsouls.ds2.server.modules.admin.EditSystem

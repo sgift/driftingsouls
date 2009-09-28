@@ -74,22 +74,12 @@ public class StarSystem {
 	
 	@Transient
 	private ArrayList<Location> orderlocs = new ArrayList<Location>();
-
-	protected StarSystem() {
-		// Empty
-	}
 	
-	protected StarSystem( int myid, String myname, int width, int height, boolean allowMilitary, int myStarMap, String myDescription, Location mygtuDropZone, String myorderloc) {
-		name 		= myname;
-		id 			= myid;
-		this.width		= width;
-		this.height		= height;
-		this.allowMilitary = allowMilitary;
-		starmap 		= myStarMap;
-		this.description = myDescription;
-		this.gtuDropZone = mygtuDropZone.getSystem() + ":" + mygtuDropZone.getX() + "/" + mygtuDropZone.getY();	
-		this.orderloc = myorderloc;
-		StringtoLocations();
+	/**
+	 * Der Standardkonstruktor, nix drin.
+	 */
+	public StarSystem() {
+		// Empty
 	}
 	
 	/**
@@ -165,10 +155,21 @@ public class StarSystem {
 	}
 	
 	/**
+	 * Gibt die Order-Locations als String zurueck.
+	 * @return Die Locations als String
+	 */
+	public String getOrderLocationString() {
+		if (this.orderloc == null) {
+			return "";
+		}
+		return this.orderloc;
+	}
+	
+	/**
 	 * Setzt die Location der DropZone.
 	 * @param dropZone Die Location der DropZone
 	 */
-	protected void setDropZone( Location dropZone ) {
+	public void setDropZone( Location dropZone ) {
 		gtuDropZone = dropZone.getX() + "/" + dropZone.getY();	
 	}
 	
@@ -177,17 +178,28 @@ public class StarSystem {
 	 * @return die Position der GTU-Dropzone
 	 */
 	public Location getDropZone() {
-		if(!(gtuDropZone == "") && !(gtuDropZone == null)) {
-			return Location.fromString(gtuDropZone);
+		if((gtuDropZone == "") || (gtuDropZone == null)) {
+			return new Location(0, 0, 0 );
 		}
-		return new Location(0, 0, 0 );
+		return Location.fromString(gtuDropZone);	
+	}
+	
+	/**
+	 * Liefert die Position der Dropzone als String.
+	 * @return Die Position als String
+	 */
+	public String getDropZoneString() {
+		if (this.gtuDropZone == null) {
+			return "";
+		}
+		return this.gtuDropZone;
 	}
 	
 	/**
 	 * Setzt die maximale Anzahl an Kolonien in diesem System.
 	 * @param maxColonies Die Anzahl der maximalen Kolonien (-1 fuer keine Begrenzung)
 	 */
-	protected void setMaxColonies( int maxColonies ) {
+	public void setMaxColonies( int maxColonies ) {
 		this.maxColonies = maxColonies;	
 	}
 	
@@ -225,6 +237,14 @@ public class StarSystem {
 	 */
 	public int getAccess() {
 		return this.starmap;	
+	}
+	
+	/**
+	 * Setzt den Zugriffslevel, ab dem das Sternensystem sichtbar ist.
+	 * @param access Der Zugriffslevel
+	 */
+	public void setAccess(int access) {
+		this.starmap = access;
 	}
 	
 	/**
@@ -288,6 +308,9 @@ public class StarSystem {
 	 * @return Die Beschreibung
 	 */
 	public String getDescription() {
+		if( this.description == null) {
+			return "";
+		}
 		return this.description;
 	}
 	
@@ -295,7 +318,7 @@ public class StarSystem {
 	 * Setzt die Beschreibung des Sternensystems.
 	 * @param text Der neue Berschreibungstext
 	 */
-	protected void setDescription( String text ) {
+	public void setDescription( String text ) {
 		this.description = text;
 	}
 	
