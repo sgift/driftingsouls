@@ -226,7 +226,6 @@ public class UeberController extends TemplateGenerator {
 	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
-		Database database = getDatabase();
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
@@ -250,20 +249,6 @@ public class UeberController extends TemplateGenerator {
 				  	"user.balance.plain",	user.getBalance(),
 				  	"global.ticks",			ticks,
 				  	"global.ticktime",		ticktime );
-				  		  
-		// Gibt es eine Umfrage an der wir teilnehmen koennen
-		SQLResultRow survey = database.prepare("SELECT * FROM surveys WHERE enabled='1' AND minid<=? AND maxid>=? AND ",
-				" mintime<=? AND maxtime>=? AND timeout>0")
-				.first(user.getId(), user.getId(), user.getSignup(), user.getSignup());
-				
-		if( !survey.isEmpty() ) {
-			SQLResultRow voted = database.prepare("SELECT * FROM survey_voted WHERE survey_id=? AND user_id=?")
-				.first(survey.getInt("id"), user.getId());
-			
-			if( !voted.isEmpty() ) {
-				t.setVar("global.survey", 1);
-			}
-		}
 				  
 		UserFlagschiffLocation flagschiff = user.getFlagschiff();
 		if( flagschiff != null ) {
