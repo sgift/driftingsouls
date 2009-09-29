@@ -166,7 +166,7 @@ public class RTCTick extends TickController {
 						PM.send(sourceUser, Faction.GTU, entryname+" ersteigert", msg);
 					}
 					else {
-						msg = "Es wurde "+entryname+" versteigert.\nDas Objekt wurde bei "+loc+" dem Gewinner "+winner.getId()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben.";
+						msg = "Es wurde "+entryname+" versteigert.\nDas Objekt wurde bei "+loc.displayCoordinates(false)+" dem Gewinner "+winner.getId()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben.";
 						PM.send(winner, Faction.GTU, entryname+" versteigert", msg);
 					}
 				}
