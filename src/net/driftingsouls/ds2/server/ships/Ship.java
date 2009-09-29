@@ -3395,10 +3395,6 @@ public class Ship implements Locatable,Transfering {
 				.setString(1, "s "+this.id)
 				.executeUpdate();
 
-			Common.dblog( "consign", Integer.toString(this.id), Integer.toString(newowner.getId()),	
-					"pos", new Location(this.system, this.x, this.y).toString(),
-					"shiptype", Integer.toString(this.shiptype.getId()) );
-
 			if( (flagschiff != null) && (flagschiff.getType() == UserFlagschiffLocation.Type.SHIP) && 
 					(flagschiff.getID() == this.id) ) {
 				oldOwner.setFlagschiff(null);

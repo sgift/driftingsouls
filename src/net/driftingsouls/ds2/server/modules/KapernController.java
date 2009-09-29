@@ -413,11 +413,6 @@ public class KapernController extends TemplateGenerator {
 		}	
 		Ships.recalculateShipStatus(this.ownShip.getInt("id"));
 		Ships.recalculateShipStatus(this.targetShip.getInt("id"));
-	
-		Common.dblog("kapern", Integer.toString(this.ownShip.getInt("id")), Integer.toString(this.targetShip.getInt("id")), user.getId(),
-				"owner",	Integer.toString(this.targetShip.getInt("owner")),
-				"pos",		Location.fromResult(this.targetShip).toString(),
-				"shiptype",	Integer.toString(this.targetShip.getInt("type")) );
 		
 		db.tCommit();
 	}

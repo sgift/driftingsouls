@@ -74,8 +74,6 @@ public class EditShipCosts implements AdminPlugin
 
 		if (update && shiptypeId > 0)
 		{
-			Common.dblog("changeshipcosts", "", "", "typeid", Integer.toString(shiptypeId));
-			
 			Request request = context.getRequest();
 
 			int ekosten = request.getParameterInt("ekosten");

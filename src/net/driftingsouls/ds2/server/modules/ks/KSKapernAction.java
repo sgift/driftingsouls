@@ -317,12 +317,6 @@ public class KSKapernAction extends BasicKSAction {
 				user.setFlagschiff(enemyShip.getId());
 			}
 
-			Common.dblog("kapern", Integer.toString(ownShip.getId()), Integer.toString(enemyShip.getId()), 
-					"battle",	Integer.toString(battle.getId()),
-					"owner",	Integer.toString(enemyShip.getOwner().getId()),
-					"pos",		enemyShip.getShip().getLocation().toString(),
-					"shiptype",	Integer.toString(enemyShip.getShip().getType()) );
-
 			// TODO: Das Entfernen eines Schiffes aus der Liste sollte in Battle 
 			// durchgefuehrt werden und den Zielindex automatisch anpassen
 			// (durch das Entfernen von Schiffen kann der Zielindex ungueltig geworden sein)

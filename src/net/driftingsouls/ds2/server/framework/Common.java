@@ -1174,51 +1174,6 @@ public class Common {
 			log.error(e,e);
 		}
 	}
-	
-	/**
-	 * Fuegt einen neuen Eintrag in die Log-DB ein. Als ausfuehrender Benutzer wird der in dem Kontext
-	 * aktive Benutzer verwendet.
-	 * 
-	 * @param type Der Typ des Eintrags
-	 * @param source Die Quelle des Ereignisses
-	 * @param target Das Ziel des Ereignisses
-	 * @param data Weitere Daten in Form Schluessel, Wert, Schluessel, Wert (die Anzahl muss folglich gerade sein)
-	 */
-	public static void dblog( String type, String source, String target, String ... data) {
-		dblog(type, source, target, 0, data);
-	}
-	
-	/**
-	 * Fuegt einen neuen Eintrag in die Log-DB ein.
-	 * 
-	 * @param type Der Typ des Eintrags
-	 * @param source Die Quelle des Ereignisses
-	 * @param target Das Ziel des Ereignisses
-	 * @param userid Der Benutzer, der das Ereigniss ausgeloest hat (falls dieser vom aktiven Benutzer abweicht)
-	 * @param data Weitere Daten in Form Schluessel, Wert, Schluessel, Wert (die Anzahl muss folglich gerade sein)
-	 */
-	public static void dblog( String type, String source, String target, int userid, String ... data ) {
-		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
-		
-		if( (userid == 0) && (context.getActiveUser() != null) ) {
-			userid = context.getActiveUser().getId();
-		}
-		
-		StringBuilder dataText = new StringBuilder();
-		for( int i=0; i < data.length; i+=2 ) {
-			dataText.append(data[i]);
-			dataText.append(':');
-			dataText.append(data[i+1]);
-			if( i+1 < data.length ) {
-				dataText.append("\n");
-			}
-		}
-		
-		db.update("INSERT INTO logging (type,user_id,time,source,target,data)" ,
-				"VALUES " ,
-				"('",type,"','",userid,"','",time(),"','",source,"','",target,"',",(dataText.length() != 0 ? "'"+dataText+"'" : "NULL"),")");
-	}
 
 	/**
 	 * Fuegt Zeilenumbrueche ein. Beruecksichtigt werden dabei 

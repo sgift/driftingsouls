@@ -52,7 +52,6 @@ public class EditAmmo implements AdminPlugin
 		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");
 		if (update && ammoId > 0)
 		{
-			Common.dblog("changeammo", "", "", "typeid", Integer.toString(ammoId));
 			Request request = context.getRequest();
 			Ammo ammo = (Ammo) db.get(Ammo.class, ammoId);
 			ammo.setAreaDamage(request.getParameterInt("area"));

@@ -160,8 +160,6 @@ public abstract class TickController {
 			}
 			
 			log("");
-			log("QCount: "+getDatabase().getQCount());
-			
 			log("Execution-Time: "+(System.currentTimeMillis()-exectime)+"s");
 			
 			getContext().commit();

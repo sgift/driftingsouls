@@ -84,8 +84,6 @@ public class EditShiptypes implements AdminPlugin
 
 		if (update && shiptypeId > 0)
 		{
-			Common.dblog("changeshiptype", "", "", "typeid", Integer.toString(shiptypeId));
-			
 			Request request = context.getRequest();
 
 			int ru = request.getParameterInt("reactoruran");

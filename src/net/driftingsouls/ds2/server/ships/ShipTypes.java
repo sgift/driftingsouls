@@ -296,44 +296,6 @@ public class ShipTypes {
 		return getShipType(shiptype, shipdata, plaindata);
 	}
 
-	/**
-	 * Gibt die Typen-Daten des angegebenen Schiffs bzw Schifftyps zurueck.
-	 * @param shiptype Die ID des Schiffs bzw des Schifftyps
-	 * @param isShip Handelt es sich um ein Schiff (<code>true</code>)?
-	 * @param plaindata Sollen die Bildpfade angepasst werden (<code>false</code>) oder so zurueckgegeben werden,
-	 * wie sie in der DB stehen (<code>true</code>)?
-	 * @return die Typen-Daten
-	 */
-	protected static SQLResultRow getShipType( int shiptype, boolean isShip, boolean plaindata ) {
-		if( isShip ) {
-			// TODO: Schiffscache implementieren!
-			int shipid = shiptype;
-			
-			Database db = ContextMap.getContext().getDatabase();
-			SQLResultRow shipdata = db.prepare("SELECT type,status FROM ships WHERE id>0 AND id= ?")
-				.first(shiptype);
-			
-			shiptype = shipdata.getInt("type");
-			
-			if( !shipdata.containsKey("modules") || (shipdata.getInt("modules") != 0) ) {
-				shipdata = db.prepare("SELECT nickname,picture,ru,rd,ra,rm,eps,cost,hull,panzerung,cargo,heat,crew,weapons,maxheat,torpedodef,shields,size,jdocks,adocks,sensorrange,hydro,deutfactor,recost,flags,werft,ow_werft " +
-						"FROM ships_modules " +
-						"WHERE id>0 AND id= ? ")
-					.first(shipid);
-			
-				if( shipdata.isEmpty() ) {
-					shipdata = null;
-				}
-			}
-			else {
-				shipdata = null;
-			}
-			
-			return getShipType(shiptype, shipdata, plaindata);
-		}
-		return getShipType(shiptype, null, plaindata);
-	}
-
 	private static SQLResultRow getShipType( int shiptype, SQLResultRow shipdata, boolean plaindata ) {
 		synchronized (shiptypes) {
 			if( !shiptypes.containsKey(shiptype) ) {
