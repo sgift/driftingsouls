@@ -30,7 +30,6 @@ import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.Items;
 import net.driftingsouls.ds2.server.entities.Forschung;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;

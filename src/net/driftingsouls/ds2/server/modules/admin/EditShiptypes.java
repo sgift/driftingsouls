@@ -27,7 +27,6 @@ import java.util.Map;
 
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.battles.BattleShip;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.HibernateFacade;

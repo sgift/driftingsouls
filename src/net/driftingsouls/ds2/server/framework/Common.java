@@ -49,7 +49,6 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
-import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 
 import org.apache.commons.lang.StringUtils;
