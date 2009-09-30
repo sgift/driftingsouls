@@ -111,7 +111,7 @@ public class BaseTick extends TickController
 				}
 			}
 			
-			if(this.lastowner != base.getOwner().getId())
+			if(this.lastowner != base.getOwner().getId() && !messages.trim().equals(""))
 			{
 				PM.send(sourceUser, this.lastowner, "Basis-Tick", messages);
 				messages = "";

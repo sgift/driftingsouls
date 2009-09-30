@@ -1032,6 +1032,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	public String tick()
 	{
 		String message = "Basis " + getName() + "\n----------------------------------\n";
+		boolean usefullMessage = false;
+		
 		boolean produce = true;
 		if(!feedInhabitants())
 		{
@@ -1052,12 +1054,14 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 			if(!rebalanceEnergy(state))
 			{
 				message += "Zu wenig Energie. Die Produktion fällt aus.\n";
+				usefullMessage = true;
 			}
 			else
 			{
 				if(!produce(state))
 				{
 					message += "Zu wenig Resourcen vorhanden. Die Produktion fällt aus.\n";
+					usefullMessage = true;
 				}
 				else
 				{
@@ -1069,13 +1073,30 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 						getOwner().transferMoneyFrom(Faction.GTU, money, "Automatischer Warenverkauf Asteroid " + getName(), false, User.TRANSFER_AUTO);	
 					}
 					
-					message += "Ihnen wurden " + automaticSale + " RE f&uuml;r automatische Verk&auml;ufe gut geschrieben.\n";
-					message += "Ihnen wurden " + forcedSale + " RE f&uuml;r erzwungene Verk&auml;ufe gut geschrieben.\n";
+					if(automaticSale > 0)
+					{
+						message += "Ihnen wurden " + automaticSale + " RE f&uuml;r automatische Verk&auml;ufe gut geschrieben.\n";
+						usefullMessage = true;
+					}
+					
+					if(forcedSale > 0)
+					{
+						message += "Ihnen wurden " + forcedSale + " RE f&uuml;r erzwungene Verk&auml;ufe gut geschrieben.\n";
+						usefullMessage = true;
+					}
 				}
 			}
 		}
 		
-		message += "\n";
+		if(usefullMessage)
+		{
+			message += "\n";
+		}
+		else
+		{
+			message = "";
+		}
+		
 		return message;
 	}
 	
