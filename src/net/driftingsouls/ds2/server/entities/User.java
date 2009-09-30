@@ -124,6 +124,10 @@ public class User extends BasicUser {
 	 */
 	public static final String FLAG_SCRIPT_DEBUGGING = "scriptdebug";
 	/**
+	 * Der Spieler sieht zusaetzliche Anzeigen der TWs im Kampf.
+	 */
+	public static final String FLAG_KS_DEBUG = "ks_debug";
+	/**
 	 * Dem Spieler koennen keine Schiffe uebergeben werden.
 	 */
 	public static final String FLAG_NO_SHIP_CONSIGN = "noshipconsign";
