@@ -77,10 +77,18 @@ public class StarSystem {
 	private ArrayList<Location> orderlocs = new ArrayList<Location>();
 	
 	/**
-	 * Der Standardkonstruktor, nix drin.
+	 * Standardkonstruktor.
 	 */
 	public StarSystem() {
-		// Empty
+		//Empty
+	}
+	
+	/**
+	 * Der Konstruktor.
+	 * @param id Die ID des neuen Systems
+	 */
+	public StarSystem(int id) {
+		this.id = id;
 	}
 	
 	/**
