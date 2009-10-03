@@ -352,12 +352,7 @@ public class AcademyBuilding extends DefaultBuilding {
 				academy.setTrain(false);
 			}
 		}
-		
-		//--------------------------------
-		// Dann berechnen wir die Ausbildungsschlange neu
-		//--------------------------------
-		academy.rescheduleQueue();
-		
+				
 		t.setVar(	
 				"base.name",	base.getName(),
 				"base.id",		base.getId(),
@@ -482,6 +477,7 @@ public class AcademyBuilding extends DefaultBuilding {
 					base.setCargo(cargo);
 					db.save(entry);
 					academy.setTrain(true);
+					academy.rescheduleQueue();
 					
 					t.parse( "OUT", "_BUILDING" );	
 					return t.getVar("OUT");
@@ -489,10 +485,9 @@ public class AcademyBuilding extends DefaultBuilding {
 			}
 		}
 		
-		//-----------------------------------------------
-		// Es wurde moeglicherweise ein neuer Offizier hinzugefuegt
-		// Also machen wir die Bauschlange nochmal neu
-		//-----------------------------------------------
+		//--------------------------------
+		// Dann berechnen wir die Ausbildungsschlange neu
+		//--------------------------------
 		academy.rescheduleQueue();
 		
 		//-----------------------------------------------

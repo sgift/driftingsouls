@@ -159,7 +159,7 @@ public class EditSystem implements AdminPlugin
 					base.setY(system.getHeight());
 				}
 				db.flush();
-				HibernateFacade.evictAll(db, Battle.class);
+				HibernateFacade.evictAll(db, Base.class);
 			}
 			
 			echo.append("<p>Update abgeschlossen.</p>");
@@ -183,7 +183,7 @@ public class EditSystem implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">Max Colonies (-1 = keine Begrenzung): </td><td><input type=\"text\" name=\"maxcolonies\" value=\"" + system.getMaxColonies() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">In Sternenkarte sichtbar: </td><td><input type=\"text\" name=\"starmap\" value=\"" + system.isStarmapVisible() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">OrderLocations(Form: x/y|x/y): </td><td><input type=\"text\" name=\"orderloc\" value=\"" + system.getOrderLocationString() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">GTU Dropzone(Form: x/y): </td><td><input type=\"text\" name=\"gtuDropZone\" value=\"" + system.getDropZoneString() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">GTU Dropzone(Form: x/y): </td><td><input type=\"text\" name=\"gtuDropZone\" value=\"" + (system.getDropZone().equals(new Location( 0, 0, 0 )) ? "" : system.getDropZoneString()) + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Zugriffsrechte(1=Jeder;2=NPC;3=Admin): </td><td><input type=\"text\" name=\"access\" value=\"" + system.getAccess() + "\"></td></tr>\n");		
 			echo.append("<tr><td class=\"noBorderS\">Beschreibung: </td><td><textarea cols=\"50\" rows=\"10\" name=\"descrip\">" + system.getDescription() + "</textarea></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Ressourcenvorkommen: </td><td><input type=\"text\" name=\"spawnableress\" value=\"" + system.getSpawnableRess() + "\"></td></tr>\n");
