@@ -153,9 +153,6 @@
 		<module name="stats">
 			<generator class="net.driftingsouls.ds2.server.modules.StatsController" />
 		</module>
-		<module name="survey">
-			<generator class="net.driftingsouls.ds2.server.modules.SurveyController" />
-		</module>
 		<module name="tc">
 			<generator class="net.driftingsouls.ds2.server.modules.TCController" />
 		</module>
