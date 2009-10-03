@@ -33,8 +33,6 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.bbcode.Smilie;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -42,6 +40,8 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Query;
+import org.hibernate.Session;
 
 /**
  * Das ComNet - Alle Funktionalitaeten des ComNets befinden sich in 
@@ -104,15 +104,19 @@ public class ComNetController extends TemplateGenerator {
 	 * 		2 - Suchen nach Teilen eines Posts
 	 * 		3 - Suchen nach Posts eines bestimmten Spielers auf Basis der Spieler-ID
 	 * @urlparam String/Integer search Der Suchbegriff, abhaengig vom Suchmodus
-	 *  @urlparam Integer back Der Offset der anzuzeigenden Posts. Ein Offset 
-	 * 	von 0 bedeutet der neuste Post. Je groesser der Wert umso aelter der Post
+	 * @urlparam Integer back Der Offset der anzuzeigenden Posts. Ein Offset 
+	 * 		von 0 bedeutet der neuste Post. Je groesser der Wert umso aelter der Post
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void searchAction() {
 		TemplateEngine t = getTemplateEngine();
-		Database db = getDatabase();
+		Session db = getContext().getDB();
 		User user = (User)getUser();
+		
+		final int SCAN_TITLE = 1;
+		final int SCAN_CONTENT = 2;
+		final int SCAN_ID = 3;
 		
 		parameterString("search");
 		parameterNumber("searchtype");
@@ -139,13 +143,12 @@ public class ComNetController extends TemplateGenerator {
 			return;			
 		}
 		
-		t.setVar(
-				"posts.action",		"search",
-				"search.string",	search,
-				"search.type",		searchtype );
+		t.setVar("posts.action",	"search",
+				 "search.string",	search,
+				 "search.type",		searchtype);
 		
 		Object searchArgument = null;
-		if( searchtype == 3 )
+		if( searchtype == SCAN_ID )
 		{
 			try
 			{
@@ -165,87 +168,90 @@ public class ComNetController extends TemplateGenerator {
 		if( activeChannelObj.isWriteable(user) ) {
 			t.setVar("channel.writeable",1);
 		}
-
-		db.update("UPDATE skn_visits SET time='",Common.time(),"' WHERE user=",user.getId()," AND channel=",activeChannel);
-	
-		t.setBlock("_COMNET","posts.listitem","posts.list");
-
-		StringBuilder countstring = new StringBuilder("SELECT count(*) count FROM skn WHERE channel=? AND ");
-		StringBuilder querystring = new StringBuilder("SELECT * FROM skn WHERE channel=? AND ");
- 
-		if( searchtype == 1 ) {
-			querystring.append("head LIKE ?");
-			countstring.append("head LIKE ?");
-		}
-		else if( searchtype == 2 ) {
-			querystring.append("text LIKE ?");
-			countstring.append("text LIKE ?");
-		}
-		else if( searchtype == 3 ) {
-			querystring.append("userid=?");
-			countstring.append("userid=?");
-		}
-		querystring.append(" ORDER BY post DESC LIMIT ?, 10");
-
-		int channelPostCount = db.prepare(countstring.toString())
-			.first(activeChannel, searchArgument)
-			.getInt("count");
-		 
-		if( channelPostCount == 0 ) {
-			t.setVar("show.read", 0);
-			t.setVar("show.searcherror", 1);
-		}
-
-		int b = back + 10;
-		int v = back - 10;
 		
-		if( b > channelPostCount ) {
-			b = 0;	
+		ComNetVisit visit = (ComNetVisit)db.createQuery("from ComNetVisit where user=:user and channel=:channel")
+										   .setParameter("user", user)
+										   .setParameter("channel", activeChannelObj)
+										   .uniqueResult();
+		visit.setTime(Common.time());
+		
+		Query query = null;
+		if(searchtype == SCAN_TITLE)
+		{
+			query = db.createQuery("from ComNetEntry entry where entry.head like :input and channel=:channel order by entry.post desc");
 		}
+		else if(searchtype == SCAN_CONTENT)
+		{
+			query = db.createQuery("from ComNetEntry entry where entry.text like :input and channel=:channel order by entry.post desc");
+		}
+		else if(searchtype == SCAN_ID)
+		{
+			query = db.createQuery("from ComNetEntry entry where entry.user.id=:input and channel=:channel order by entry.post desc");
+		}
+		
+		if(query != null)
+		{
+			List<ComNetEntry> entries = Common.cast(query.setParameter("input", searchArgument)
+														 .setParameter("channel", activeChannelObj)
+														 .setFirstResult(back)
+														 .setMaxResults(10)
+														 .list());
+			
+			if(entries.isEmpty())
+			{
+				t.setVar("show.read", 0);
+				t.setVar("show.searcherror", 1);
+			}
+			
+			int channelPostCount = entries.size();
+			
+			int b = back + 10;
+			int v = back - 10;
+			if(b > channelPostCount) 
+			{
+				b = 0;	
+			}
+			
+			t.setVar("show.vor",	v,
+					 "show.back",	b );
+ 
+			if( back > 0 ) 
+			{
+				t.setVar("read.nextpossible",1);
+			}
+			
+			t.setVar("posts.action","read");
+			t.setBlock("_COMNET","posts.listitem","posts.list");
+			
+			for(ComNetEntry entry: entries)
+			{
+				String head = entry.getHead();
+				if(head.trim().isEmpty())
+				{
+					head = "-";
+				}
+				else
+				{
+					head = Common._title(head);
+				}
 				
-		t.setVar(	"show.vor",		v,
-					"show.back",	b );
- 
-		if( back > 0 ) {
-			t.setVar("read.nextpossible",1);
-		}
-
-		int i = 0;
-		
-		SQLQuery ref = db.prepare(querystring.toString())
-			.query(activeChannel, (searchtype == 3 ? Integer.parseInt(search) : "%"+search+"%"), back);
-		while( ref.next() ) {
-			t.start_record();
-			int post = channelPostCount - back - i;
-			String head = ref.getString("head");
-			String text = ref.getString("text");
-
-			text = Smilie.parseSmilies(Common._text(text));
-
-			if( head.length() == 0 ) {
-				head = "-";
+				String text = Smilie.parseSmilies(Common._text(entry.getText()));
+				
+				t.setVar("post.pic",			entry.getPic(),
+						 "post.postid",		entry.getPost(),
+						 "post.id",			entry.getUser().getId(),
+						 "post.name",		Common._title(entry.getName()),
+						 "post.time",		Common.date("d.m.Y H:i:s", entry.getTime()),
+						 "post.title",		head,
+						 "post.text",		text,
+						 "post.allypic",	entry.getAllyPic(),
+						 "post.ingametime",	Common.getIngameTime(entry.getTick()));
+				
+				t.parse("posts.list", "posts.listitem", true);
+				t.stop_record();
+				t.clear_record();
 			}
-			else {
-				head = Common._title(head);
-			}
-
-			t.setVar(	"post.pic",			ref.getInt("pic"),
-						"post.postid",		post,
-						"post.id",			ref.getInt("userid"),
-						"post.name",		Common._title(ref.getString("name")),
-						"post.time",		Common.date("d.m.Y H:i:s",ref.getLong("time")),
-						"post.title",		head,
-						"post.text",		text,
-						"post.allypic",		ref.getInt("allypic"),
-						"post.ingametime",	Common.getIngameTime(ref.getInt("tick")) );
-
-			i++;
-
-			t.parse("posts.list","posts.listitem",true);
-			t.stop_record();
-			t.clear_record();
 		}
-		ref.free();
 	}
 
 	/**
