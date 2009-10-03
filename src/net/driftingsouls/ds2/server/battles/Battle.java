@@ -532,7 +532,7 @@ public class Battle implements Locatable {
 				}
 			}
 			
-			return 0;
+			return -1;
 		}
 		
 		boolean foundOld = false;
@@ -579,7 +579,7 @@ public class Battle implements Locatable {
 			}
 		}
 		*/
-		return 0;
+		return -1;
 	}
 	
 	/**

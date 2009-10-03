@@ -347,7 +347,12 @@ public class KSKapernAction extends BasicKSAction {
 			}
 
 			if( !battle.isValidTarget() ) {
-				battle.setEnemyShipIndex(battle.getNewTargetIndex());
+				int newindex = battle.getNewTargetIndex();
+				if( newindex == -1)
+				{
+					newindex = 0;
+				}
+				battle.setEnemyShipIndex(newindex);
 			}
 
 			enemyShip.getShip().recalculateShipStatus();

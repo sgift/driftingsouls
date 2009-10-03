@@ -1582,7 +1582,15 @@ public class KSAttackAction extends BasicKSAction {
 				if( !savedamage && (config.getInt("DESTROYABLE_SHIPS") != 0) )
 				{
 					this.destroyShip(user.getId(), battle, this.enemyShip);
-					battle.setEnemyShipIndex(battle.getNewTargetIndex());
+					int newindex = battle.getNewTargetIndex();
+					if(newindex != -1)
+					{
+						battle.setEnemyShipIndex(newindex);
+					}
+					else
+					{
+						breakFlag = true;
+					}
 					this.enemyShip = battle.getEnemyShip();
 				}
 
@@ -1606,7 +1614,12 @@ public class KSAttackAction extends BasicKSAction {
 
 			if( outerloop < nextShipLoop - 1)
 			{
-				battle.setEnemyShipIndex(battle.getNewTargetIndex());
+				int newindex = battle.getNewTargetIndex();
+				if( newindex == -1)
+				{
+					newindex = 0;
+				}
+				battle.setEnemyShipIndex(newindex);
 			}
 
 			if( breakFlag )
