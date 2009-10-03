@@ -1986,7 +1986,7 @@ public class Ship implements Locatable,Transfering {
 		}
 		
 		//We want to fly the slowest ship first, so the fleet cannot be seperated
-		if(this.fleet != null)
+		if(this.fleet != null && route.size() > 1)
 		{
 			Ship moving = this;
 			
