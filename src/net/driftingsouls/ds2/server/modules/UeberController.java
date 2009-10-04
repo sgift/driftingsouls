@@ -340,7 +340,8 @@ public class UeberController extends TemplateGenerator {
 			
 			Cargo cargo = new Cargo(base.getCargo());
 			cargo.addResource( Resources.NAHRUNG, usercargo.getResourceCount(Resources.NAHRUNG) );
-
+			cargo.addResource(Resources.RE, user.getKonto().longValue());
+			
 			boolean mangel = false;
 
 			ResourceList reslist = basedata.getProduction().getResourceList();
