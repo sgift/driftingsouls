@@ -1562,6 +1562,13 @@ public class KSAttackAction extends BasicKSAction {
 				heat += this.localweapon.getInt("count");
 				this.ownShip.getShip().setEnergy(this.ownShip.getShip().getEnergy() - this.weapon.getECost()*this.localweapon.getInt("count"));
 
+				if( this.weapon.getAmmoType().length > 0)
+				{
+					Cargo mycargo = this.ownShip.getCargo();
+					mycargo.substractResource( ((ItemCargoEntry)this.localweapon.get("ammoitem")).getResourceID(), this.localweapon.getInt("count")*this.weapon.getSingleShots() );
+					this.ownShip.getShip().setCargo(mycargo);
+				}
+				
 				heatList.put(weaponName, Integer.toString(heat));
 				this.ownShip.getShip().setWeaponHeat(Weapons.packWeaponList(heatList));
 
