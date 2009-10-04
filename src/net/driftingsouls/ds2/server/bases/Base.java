@@ -1010,8 +1010,11 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		int coreId = getCore();
 		Core core = (Core)db.get(Core.class, coreId);
 		
-		balance += core.getProduces().getResourceCount(Resources.RE);
-		balance -= core.getConsumes().getResourceCount(Resources.RE);
+		if(core != null)
+		{
+			balance += core.getProduces().getResourceCount(Resources.RE);
+			balance -= core.getConsumes().getResourceCount(Resources.RE);
+		}
 		
 		return balance;
 	}
