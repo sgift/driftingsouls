@@ -119,7 +119,8 @@ public class StarSystem {
 			String[] locations = StringUtils.split(this.orderloc, "|");
 			for(int i=0; i < locations.length; i++) {
 				if(locations[i] != "" && locations[i] != null) {
-					addOrderLocation(Location.fromString(locations[i]));
+					Location orderloc = Location.fromString(locations[i]).setSystem(this.id);
+					addOrderLocation(orderloc);
 				}
 			}
 		}
@@ -190,7 +191,8 @@ public class StarSystem {
 		if((gtuDropZone == "") || (gtuDropZone == null)) {
 			return new Location(0, 0, 0 );
 		}
-		return Location.fromString(gtuDropZone);	
+		Location loc = Location.fromString(gtuDropZone).setSystem(this.id);
+		return loc;	
 	}
 	
 	/**
