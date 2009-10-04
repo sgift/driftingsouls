@@ -60,6 +60,14 @@ public class EditBuilding implements AdminPlugin
 				long amount = context.getRequest().getParameterInt("build"+resource.getId());
 				buildcosts.addResource(new WarenID(resource.getId()), amount);
 			}
+			
+			for(Item item: Items.get())
+			{
+				long amount = context.getRequest().getParameterInt("buildi"+item.getID());
+				int uses = context.getRequest().getParameterInt("buildi" + item.getID() + "uses");
+				
+				buildcosts.addResource(new ItemID(item.getID(), uses, 0), amount);
+			}
 
 			Cargo produces = new Cargo();
 			Cargo consumes = new Cargo();
@@ -155,13 +163,25 @@ public class EditBuilding implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">Max. pro Spieler: </td><td><input type=\"text\" name=\"perowner\" value=\"" + building.getPerUserCount() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Abschaltbar: </td><td><input type=\"text\" name=\"deactivable\" value=\"" + building.isDeakAble() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Kategorie: </td><td><input type=\"text\" name=\"category\" value=\"" + building.getCategory() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Baukosten</td><td class=\"noBorderS\">Menge</td></tr>");
+			echo.append("<tr><td class=\"noBorderS\"><b>Baukosten</b></td><td class=\"noBorderS\">Menge</td></tr>");
 			for(ResourceConfig.Entry resource: ResourceConfig.getResources())
 			{
 				long amount = building.getBuildCosts().getResourceCount(new WarenID(resource.getId()));
 				echo.append("<tr><td class=\"noBorderS\"><img src=\""+resource.getImage()+"\" alt=\"\" />"+resource.getName()+": </td><td><input type=\"text\" name=\"build"+resource.getId()+"\" value=\"" + amount + "\"></td></tr>");
 			}
-			echo.append("<tr><td class=\"noBorderS\">Produktion</td><td class=\"noBorderS\">Menge</td></tr>");
+			echo.append("<tr><td class=\"noBorderS\"></td><td class=\"noBorderS\">Menge</td><td class=\"noBorderS\">Nutzungen</td></tr>");
+			for(Item item: Items.get())
+			{
+				long amount = building.getBuildCosts().getResourceCount(new ItemID(item.getID()));
+				int uses = 0;
+				if(!building.getBuildCosts().getItem(item.getID()).isEmpty())
+				{
+					uses = building.getBuildCosts().getItem(item.getID()).get(0).getMaxUses();
+				}
+				
+				echo.append("<tr><td class=\"noBorderS\"><img src=\""+item.getPicture()+"\" alt=\"\" />"+item.getName()+": </td><td><input type=\"text\" name=\"buildi"+item.getID()+"\" value=\"" + amount + "\"></td><td><input type=\"text\" name=\"buildi"+item.getID()+"uses\" value=\"" + uses + "\"></td></tr>");
+			}
+			echo.append("<tr><td class=\"noBorderS\"><b>Produktion</b></td><td class=\"noBorderS\">Menge</td></tr>");
 			for(ResourceConfig.Entry resource: ResourceConfig.getResources())
 			{
 				long amount = -1*building.getConsumes().getResourceCount(new WarenID(resource.getId())) +  building.getProduces().getResourceCount(new WarenID(resource.getId()));
@@ -182,7 +202,7 @@ public class EditBuilding implements AdminPlugin
 					uses = building.getProduces().getItem(item.getID()).get(0).getMaxUses();
 				}
 				
-				echo.append("<tr><td class=\"noBorderS\"><img src=\""+item.getPicture()+"\" alt=\"\" />"+item.getName()+": </td><td><input type=\"text\" name=\"i"+item.getID()+"\" value=\"" + amount + "\"></td><td><input type=\"text\" name=\"i"+item.getID()+"u\" value=\"" + uses + "\"></td></tr>");
+				echo.append("<tr><td class=\"noBorderS\"><img src=\""+item.getPicture()+"\" alt=\"\" />"+item.getName()+": </td><td><input type=\"text\" name=\"i"+item.getID()+"\" value=\"" + amount + "\"></td><td><input type=\"text\" name=\"i"+item.getID()+"uses\" value=\"" + uses + "\"></td></tr>");
 			}
 			echo.append("<tr><td class=\"noBorderS\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
 			echo.append("</table>");
