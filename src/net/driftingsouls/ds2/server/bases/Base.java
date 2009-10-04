@@ -1097,6 +1097,11 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 			}
 		}
 		
+		if(getBewohner() > state.getLivingSpace())
+		{
+			setBewohner(state.getLivingSpace());
+		}
+		
 		if(usefullMessage)
 		{
 			message += "\n";
