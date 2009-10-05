@@ -152,7 +152,7 @@ public class NPCOrderController extends TemplateGenerator {
 			}
 			catch (NullPointerException e)
 			{
-				order = new FactionShopOrder();
+				continue;
 			}
 			
 			User orderuser;
