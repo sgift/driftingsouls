@@ -106,6 +106,10 @@ public class AdminCommands {
 		if( command[0].equals("editship") ) {
 			output = cmdEditShip(context, command);
 		}
+		else if( command[0].equals("recalculateshipmodules"))
+		{
+			output = cmdRecalcShipModules(context, command);
+		}
 		else if( command[0].equals("addresource") ) {
 			output = cmdAddResource(context, command);
 		}
@@ -731,6 +735,27 @@ public class AdminCommands {
 			output = "Keine g&uuml;ltige TaskID";
 		}
 		
+		return output;
+	}
+	
+	private String cmdRecalcShipModules(Context context, String[] command) {
+		String output = "";
+		org.hibernate.Session db = context.getDB();
+		
+		List<?> ships = db.createQuery(
+				"from Ship as s left join fetch s.modules " +
+				"where s.id>0 order by s.owner,s.docked,s.shiptype asc")
+				.list();
+		
+		int count = 0;
+		
+		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
+			Ship ship = (Ship)iter.next();
+			ship.recalculateModules();
+			count++;
+		}
+		
+		output = "Es wurden "+count+" Schiffe neu berechnet.";
 		return output;
 	}
 }
