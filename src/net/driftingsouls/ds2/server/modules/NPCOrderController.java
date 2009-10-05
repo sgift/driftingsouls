@@ -152,6 +152,7 @@ public class NPCOrderController extends TemplateGenerator {
 			}
 			catch (NullPointerException e)
 			{
+				db.delete(task);
 				continue;
 			}
 			
