@@ -18,7 +18,10 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import net.driftingsouls.ds2.server.ContextCommon;
@@ -69,6 +72,7 @@ class HandleUpgradeJob implements TaskHandler
 		Base base = order.getBase();
 		User user = order.getUser();
 		Ship colonizer = order.getColonizer();
+		User nullUser = (User)db.get(User.class, 0);
 
 		// Try-Count ueberschritten?
 		if( Integer.parseInt(task.getData2()) > 35 && order.getEnd() == 0 )
@@ -101,10 +105,34 @@ class HandleUpgradeJob implements TaskHandler
 					}
 				}
 				base.setMaxCargo(base.getMaxCargo() + order.getCargo().getMod());
-				base.setOwner(user);
-
-				sendFinishedMessage(db, order, faction);
 				
+				Map<Integer,Integer> bases = new HashMap<Integer,Integer>();
+				bases.put(base.getSystem(), 0);
+				int basecount = 0;
+				
+				final List<?> baseList = db.createQuery("from Base where owner=?")
+					.setEntity(0, user)
+					.list();
+				for( Iterator<?> iter=baseList.iterator(); iter.hasNext(); ) {
+					Base aBase = (Base)iter.next();
+				
+					final int system = aBase.getSystem();
+					Common.safeIntInc(bases, system);
+					basecount += aBase.getMaxTiles();
+				}
+				
+				basecount += base.getMaxTiles();
+			
+				if( basecount > Integer.parseInt(user.getUserValue("GAMEPLAY/bases/maxtiles")) ) {
+					
+					sendFinishedWarningMessage(db, order, faction);
+					base.setOwner(nullUser);
+				}
+				else
+				{
+					sendFinishedMessage(db, order, faction);
+					base.setOwner(user);
+				}				
 				// Loesche den Auftrag und den Task
 				db.delete(order);
 				tm.removeTask( task.getTaskID() );
@@ -223,6 +251,21 @@ class HandleUpgradeJob implements TaskHandler
 		String message = "Sehr geehrter "+order.getUser().getPlainname()+",\n\n"+
 			"der von ihnen bestellte Ausbau des Asteroids '"+order.getBase().getName()+"' ("+order.getBase().getId()+") ist nun abgeschlossen. " +
 					"Wir hoffen, dass sie mit der herausragenden Qualität von "+faction.getPlainname()+" Asteroidenerweiterungen zufrieden sind. \n";
+		message += "Wir würden uns freuen, wenn wir sie in Zukunft erneut als Kunden begrüßen dürften.\n\n";
+		message += "Mit freundlichen Grüßen\n";
+		message += faction.getPlainname();
+		
+		PM.send(faction, order.getUser().getId(), "Asteroidenausbau abgeschlossen", message);
+	}
+	
+	private void sendFinishedWarningMessage(org.hibernate.Session db, UpgradeJob order, final int factionId)
+	{
+		User faction = (User)db.get(User.class, factionId);
+		
+		String message = "Sehr geehrter "+order.getUser().getPlainname()+",\n\n"+
+			"der von ihnen bestellte Ausbau des Asteroids '"+order.getBase().getName()+"' ("+order.getBase().getId()+") ist nun abgeschlossen. " +
+					"Aufgrund ihres erreichten Feldermaximums ist es nicht m&ouml;glich Ihnen den Asteroiden zur&uuml;ckzugeben.\n";
+		message += "Der Asteroid wurde von "+ faction.getPlainname() +" aufgegeben und kann jederzeit von Ihnen besiedelt werden.\n";
 		message += "Wir würden uns freuen, wenn wir sie in Zukunft erneut als Kunden begrüßen dürften.\n\n";
 		message += "Mit freundlichen Grüßen\n";
 		message += faction.getPlainname();
