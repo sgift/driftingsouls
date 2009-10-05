@@ -876,6 +876,10 @@ public class FleetMgntController extends TemplateGenerator {
 			int couldNotBuild = 0;
 			for(Ship ship: shipyards) {
 				WerftObject shipyard = (WerftObject)db.createQuery("from WerftObject where shipid=?").setInteger(0, ship.getId()).uniqueResult();
+				if(shipyard.getKomplex() != null)
+				{
+					shipyard = shipyard.getKomplex();
+				}
 				if(shipyard.buildShip(buildid, false, false)) {
 					buildCount--;
 				}
