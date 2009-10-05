@@ -95,7 +95,7 @@ public abstract class Building {
 	@Column(name="perowner")
 	private int perOwner;
 	private int category;
-	private int ucomplex;
+	private boolean ucomplex;
 	private boolean deakable;
 	private int race;
 	
@@ -234,7 +234,7 @@ public abstract class Building {
 	 * @return <code>true</code>, falls es ein unterirdischer Komplex ist
 	 */
 	public boolean isUComplex() {
-		return ucomplex == 1;
+		return ucomplex;
 	}
 	
 	/**
@@ -408,7 +408,7 @@ public abstract class Building {
 	 * 
 	 * @param ucomplex 0 nein, 1 ja
 	 */
-	public void setUcomplex(int ucomplex)
+	public void setUcomplex(boolean ucomplex)
 	{
 		this.ucomplex = ucomplex;
 	}
