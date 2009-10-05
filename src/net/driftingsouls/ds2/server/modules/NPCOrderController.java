@@ -145,9 +145,24 @@ public class NPCOrderController extends TemplateGenerator {
 			
 			t.setVar("transport.status", status);
 			
-			FactionShopOrder order = (FactionShopOrder)db.get(FactionShopOrder.class, Integer.parseInt(task.getData1()));
+			FactionShopOrder order; 
 			
-			User orderuser = order.getUser();
+			try {
+				order = (FactionShopOrder)db.get(FactionShopOrder.class, Integer.parseInt(task.getData1()));
+			}
+			catch (NullPointerException e)
+			{
+				order = new FactionShopOrder();
+			}
+			
+			User orderuser;
+			try {
+				orderuser = order.getUser();
+			}
+			catch (NullPointerException e){
+				orderuser =  new User();
+				orderuser.setName("deleted user");
+			}
 			
 			t.setVar("transport.assignment", order.getId()+": "+Common._title(orderuser.getName())+"<br />"+order.getAddData());
 							
