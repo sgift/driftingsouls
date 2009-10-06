@@ -753,6 +753,7 @@ public class AdminCommands {
 												 .scroll(ScrollMode.FORWARD_ONLY);
 		
 		int count = 0;
+		long start = System.currentTimeMillis();
 		while(ships.next())
 		{
 			Ship ship = (Ship) ships.get(0);
@@ -766,7 +767,7 @@ public class AdminCommands {
 			}
 		}
 		
-		output = "Es wurden "+count+" Schiffe neu berechnet.";
+		output = "Es wurden "+count+" Schiffe in "+ (System.currentTimeMillis() - start)/1000d +" Sekunden neu berechnet.";
 		return output;
 	}
 }
