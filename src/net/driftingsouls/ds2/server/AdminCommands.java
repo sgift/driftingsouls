@@ -52,9 +52,11 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.caches.CacheManager;
+import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipModules;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.tick.TickController;
@@ -64,6 +66,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.CacheMode;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Required;
@@ -742,17 +747,23 @@ public class AdminCommands {
 		String output = "";
 		org.hibernate.Session db = context.getDB();
 		
-		List<?> ships = db.createQuery(
-				"from Ship as s left join fetch s.modules " +
-				"where s.id>0 order by s.owner,s.docked,s.shiptype asc")
-				.list();
+		ScrollableResults ships = db.createQuery("from Ship as s left join fetch s.modules " +
+												 "where s.id>0 order by s.owner,s.docked,s.shiptype asc")
+												 .setCacheMode(CacheMode.IGNORE)
+												 .scroll(ScrollMode.FORWARD_ONLY);
 		
 		int count = 0;
-		
-		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-			Ship ship = (Ship)iter.next();
+		while(ships.next())
+		{
+			Ship ship = (Ship) ships.get(0);
 			ship.recalculateModules();
 			count++;
+			
+			if(count % 20 == 0)
+			{
+				db.flush();
+				HibernateFacade.evictAll(db, Ship.class, ShipModules.class, Offizier.class);
+			}
 		}
 		
 		output = "Es wurden "+count+" Schiffe neu berechnet.";
