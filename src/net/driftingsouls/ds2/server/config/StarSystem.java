@@ -180,7 +180,14 @@ public class StarSystem {
 	 * @param dropZone Die Location der DropZone
 	 */
 	public void setDropZone( Location dropZone ) {
-		gtuDropZone = dropZone.getX() + "/" + dropZone.getY();	
+		if(dropZone.getX() == 0 && dropZone.getY() == 0)
+		{
+			gtuDropZone = "";
+		}
+		else
+		{
+			gtuDropZone = dropZone.getX() + "/" + dropZone.getY();	
+		}
 	}
 	
 	/**
@@ -189,7 +196,7 @@ public class StarSystem {
 	 */
 	public Location getDropZone() {
 		if((gtuDropZone == "") || (gtuDropZone == null)) {
-			return new Location(0, 0, 0 );
+			return null;
 		}
 		Location loc = Location.fromString(gtuDropZone).setSystem(this.id);
 		return loc;	
