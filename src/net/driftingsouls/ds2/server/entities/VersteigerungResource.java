@@ -100,7 +100,7 @@ public class VersteigerungResource extends Versteigerung {
 
 	@Override
 	public String getObjectName() {
-		return getEntry().getName();
+		return getEntry().getPlainName();
 	}
 
 	@Override
