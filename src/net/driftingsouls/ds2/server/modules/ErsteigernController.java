@@ -1299,7 +1299,7 @@ public class ErsteigernController extends TemplateGenerator
 			User bieter = entry.getBieter();
 
 			String objectname = entry.getObjectName();
-			String replaceobjectname = StringUtils.replaceChars(objectname, '"', '\'');
+			String entryname = StringUtils.replaceChars(objectname, '"', '\'');
 			//String entryname = StringEscapeUtils.escapeJavaScript(replaceobjectname);			
 			
 			int entrywidth = entry.isObjectFixedImageSize() ? 50 : 0;
