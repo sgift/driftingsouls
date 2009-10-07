@@ -683,6 +683,10 @@ public class Ship implements Locatable,Transfering {
 	 */
 	public boolean isTradepost()
 	{
+		if (this.getStatus().contains("tradepost") || this.getTypeData().hasFlag(ShipTypes.SF_TRADEPOST))
+		{
+			return true;
+		}
 		return this.getStatus().contains("tradepost");
 	}
 
