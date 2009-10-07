@@ -1298,8 +1298,10 @@ public class ErsteigernController extends TemplateGenerator
 			Versteigerung entry = (Versteigerung)iter.next();
 			User bieter = entry.getBieter();
 
-			String entryname = StringEscapeUtils.escapeJavaScript(StringUtils.replaceChars(entry
-					.getObjectName(), '"', '\''));
+			String objectname = entry.getObjectName();
+			String replaceobjectname = StringUtils.replaceChars(objectname, '"', '\'');
+			//String entryname = StringEscapeUtils.escapeJavaScript(replaceobjectname);			
+			
 			int entrywidth = entry.isObjectFixedImageSize() ? 50 : 0;
 
 			String bietername = "";
@@ -1332,15 +1334,21 @@ public class ErsteigernController extends TemplateGenerator
 				ownername = Common._title(entry.getOwner().getName());
 			}
 
-			t.setVar("entry.link", entry.getObjectUrl(), "entry.type.name", entryname,
-					"entry.type.image", entry.getObjectPicture(), "entry.preis", Common.ln(entry
-							.getPreis()), "entry.bieter", Common._title(bietername),
-					"entry.bieter.id", entry.getBieter().getId(), "entry.dauer", entry.getTick()
-							- this.ticks, "entry.aukid", entry.getId(), "entry.width", entrywidth,
-					"entry.height", entrywidth, "entry.count", entry.getObjectCount(),
-					"entry.user.name", ownername, "entry.user.id", entry.getOwner().getId(),
-					"entry.user", (entry.getOwner().getId() != faction), "entry.ownauction", (entry
-							.getOwner() == user));
+			t.setVar("entry.link", entry.getObjectUrl(), 
+					"entry.type.name", entryname,
+					"entry.type.image", entry.getObjectPicture(), 
+					"entry.preis", Common.ln(entry.getPreis()), 
+					"entry.bieter", Common._title(bietername),
+					"entry.bieter.id", entry.getBieter().getId(), 
+					"entry.dauer", entry.getTick() - this.ticks, 
+					"entry.aukid", entry.getId(), 
+					"entry.width", entrywidth,
+					"entry.height", entrywidth, 
+					"entry.count", entry.getObjectCount(),
+					"entry.user.name", ownername, 
+					"entry.user.id", entry.getOwner().getId(),
+					"entry.user", (entry.getOwner().getId() != faction), 
+					"entry.ownauction", (entry.getOwner() == user));
 
 			t.parse("entry.list", "entry.listitem", true);
 		}
