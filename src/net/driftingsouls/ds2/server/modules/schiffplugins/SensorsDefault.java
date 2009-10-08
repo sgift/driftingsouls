@@ -744,7 +744,8 @@ public class SensorsDefault implements SchiffPlugin {
 					}
 
 					//Handeln, Pluendernlink, Waren transferieren
-					if( aship.getStatus().indexOf("tradepost") != -1 ) {
+					if (aship.isTradepost())
+					{
 						t.setVar("sships.action.trade",1);
 					} 
 					else if( !disableIFF && (aship.getOwner().getId() == -1) && (ashiptype.getShipClass() == ShipClasses.SCHROTT.ordinal() || ashiptype.getShipClass() == ShipClasses.FELSBROCKEN.ordinal()) ) {
