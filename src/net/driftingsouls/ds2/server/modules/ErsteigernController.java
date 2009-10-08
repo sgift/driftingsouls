@@ -868,7 +868,7 @@ public class ErsteigernController extends TemplateGenerator
 	@Action(ActionType.DEFAULT)
 	public void ueberweisenAction()
 	{
-		if( !Faction.get(faction).getPages().hasPage("other") )
+		if( !Faction.get(faction).getPages().hasPage("bank") )
 		{
 			redirect();
 			return;
@@ -925,7 +925,7 @@ public class ErsteigernController extends TemplateGenerator
 		user.setTemplateVars(t);
 		t.setVar("user.konto", Common.ln(user.getKonto()));
 
-		redirect("other");
+		redirect("bank");
 	}
 
 	/**
@@ -937,7 +937,7 @@ public class ErsteigernController extends TemplateGenerator
 	@Action(ActionType.DEFAULT)
 	public void showKontoTransactionTypeAction()
 	{
-		if( !Faction.get(faction).getPages().hasPage("other") )
+		if( !Faction.get(faction).getPages().hasPage("bank") )
 		{
 			redirect();
 			return;
@@ -952,17 +952,16 @@ public class ErsteigernController extends TemplateGenerator
 		{
 			user.setUserValue("TBLORDER/factions/konto_maxtype", Integer.toString(type));
 		}
-		redirect("other");
+		redirect("bank");
 	}
 
 	/**
-	 * Zeigt die Seite mit diversen weiteren Infos an.
-	 * 
+	 * Shows the Bank Page.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void otherAction()
+	public void bankAction()
 	{
-		if( !Faction.get(faction).getPages().hasPage("other") )
+		if( !Faction.get(faction).getPages().hasPage("bank") )
 		{
 			redirect();
 			return;
@@ -972,8 +971,8 @@ public class ErsteigernController extends TemplateGenerator
 		org.hibernate.Session db = getDB();
 		User user = (User)this.getUser();
 
-		t.setVar("show.other", 1);
-
+		t.setVar("show.bank", 1);
+		
 		// ueberweisungen
 		t.setBlock("_ERSTEIGERN", "ueberweisen.listitem", "ueberweisen.list");
 
@@ -1061,6 +1060,27 @@ public class ErsteigernController extends TemplateGenerator
 
 			t.parse("moneytransfer.list", "moneytransfer.listitem", true);
 		}
+		
+	}
+	
+	/**
+	 * Zeigt die Seite mit diversen weiteren Infos an.
+	 * 
+	 */
+	@Action(ActionType.DEFAULT)
+	public void otherAction()
+	{
+		if( !Faction.get(faction).getPages().hasPage("other") )
+		{
+			redirect();
+			return;
+		}
+
+		TemplateEngine t = this.getTemplateEngine();
+		org.hibernate.Session db = getDB();
+		User user = (User)this.getUser();
+
+		t.setVar("show.other", 1);
 
 		// GTU-Preise
 		t.setBlock("_ERSTEIGERN", "kurse.listitem", "kurse.list");

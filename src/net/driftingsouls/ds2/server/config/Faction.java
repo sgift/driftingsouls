@@ -46,6 +46,11 @@ public class Faction {
 	public static final int GTU = -2;
 	
 	/**
+	 * Die Spieler-ID der Bank der Lost Lands.
+	 */
+	public static final int BANK = -8;
+	
+	/**
 	 * Die Spieler-ID von Demolition Inc.
 	 */
 	public static final int DI = -19;

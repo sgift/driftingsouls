@@ -24,6 +24,13 @@
 		<page id="shop" />
 		<page id="other" />
 	</faction>
+	
+	<faction id="-8" menusize="530">
+		<page id="bank" />
+		<text>
+			Die Bank der Lost Lands ist das gr&ouml;te Kredit- und Geldunternehmen in den gesamten Lost Lands.
+		</text>
+	</faction>
 
 	<faction id="-19" menusize="380">
 		<page id="general" />

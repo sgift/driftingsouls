@@ -420,8 +420,8 @@
 		</div>
 	</form>
 {/endif}
-{if show.other}
-	<form action="./ds" method="post">
+{if show.bank}
+<form action="./ds" method="post">
 		<div class="smallfont">
 			<input name="count" type="text" value="0">
 			<select name="to">
@@ -485,6 +485,8 @@
 			</table>
 		</div>
 	{!table_end}
+{/endif}
+{if show.other}	
 	<div class="smallfont">
 		<br />
 		<br />Kurse:<br />
