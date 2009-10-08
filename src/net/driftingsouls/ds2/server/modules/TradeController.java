@@ -85,14 +85,14 @@ public class TradeController extends TemplateGenerator {
 		}
 		
 		int tradepost = getInteger("tradepost");
-		Ship handel = (Ship)db.createQuery("from Ship where id>0 and system=? and x=? and y=? and locate('tradepost',status)!=0 and id=?")
+		Ship handel = (Ship)db.createQuery("from Ship where id>0 and system=? and x=? and y=? and id=?")
 			.setInteger(0, this.ship.getSystem())
 			.setInteger(1, this.ship.getX())
 			.setInteger(2, this.ship.getY())
 			.setInteger(3, tradepost)
 			.setMaxResults(1)
 			.uniqueResult();
-		if( handel == null ) {
+		if( handel == null  || !handel.isTradepost()) {
 			addError( "Fehler: Der angegebene Handelsposten konnte nicht im Sektor lokalisiert werden", Common.buildUrl("default", "module", "schiff", "ship", shipId));
 			
 			return false;
