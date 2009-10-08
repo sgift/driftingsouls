@@ -914,7 +914,7 @@ public class ErsteigernController extends TemplateGenerator
 
 		tmp.transferMoneyFrom(user.getId(), count, "&Uuml;berweisung vom "
 				+ Common.getIngameTime(this.ticks));
-		User factionUser = (User)db.get(User.class, Faction.GTU);
+		User factionUser = (User)db.get(User.class, Faction.BANK);
 
 		PM.send(factionUser, tmp.getId(), "RE &uuml;berwiesen", user.getNickname()
 				+ " hat dir soeben " + Common.ln(count) + " RE &uuml;berwiesen");
