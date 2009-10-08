@@ -1751,10 +1751,19 @@ public class Battle implements Locatable {
 			this.setFlag(FLAG_FIRSTROUND, false);
 		}
 		
-		this.setFlag(FLAG_DROP_SECONDROW_0, false);
-		this.setFlag(FLAG_DROP_SECONDROW_1, false);
 		this.setFlag(FLAG_BLOCK_SECONDROW_0, false);
 		this.setFlag(FLAG_BLOCK_SECONDROW_1, false);
+		
+		if(this.hasFlag(FLAG_DROP_SECONDROW_0))
+		{
+			this.setFlag(FLAG_DROP_SECONDROW_0, false);
+			this.setFlag(FLAG_BLOCK_SECONDROW_0, true);
+		}
+		if(this.hasFlag(FLAG_DROP_SECONDROW_1))
+		{
+			this.setFlag(FLAG_DROP_SECONDROW_1, false);
+			this.setFlag(FLAG_BLOCK_SECONDROW_1, true);
+		}		
 		
 		// Schiffstick ausfuehren
 		context.getRequest().setParameter("battle", Integer.toString(this.id));
