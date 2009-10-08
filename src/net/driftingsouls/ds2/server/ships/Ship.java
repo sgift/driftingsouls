@@ -64,6 +64,7 @@ import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.entities.ResourceLimit;
 import net.driftingsouls.ds2.server.entities.Sector;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlagschiffLocation;
@@ -3314,7 +3315,14 @@ public class Ship implements Locatable,Transfering {
 		if( werft != null ) {
 			werft.destroy();
 		}
-
+		
+		// Delete Trade Limits if necessary
+		if (this.isTradepost())
+		{
+			db.createQuery("delete from ResourceLimit where shipid=:shipid").setParameter("shipid", this.id).executeUpdate();
+			db.createQuery("delete from SellLimit where shipid=:shipid").setParameter("shipid", this.id).executeUpdate();
+		}
+		
 		db.createQuery("delete from ShipModules where id=?")
 			.setInteger(0, this.id)
 			.executeUpdate();
