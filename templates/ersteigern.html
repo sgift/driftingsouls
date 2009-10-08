@@ -37,6 +37,9 @@
 		{if faction.ausbau}
 			&nbsp;&nbsp;|&nbsp;&nbsp;{!link_to Ausbau, ausbau, faction:$global.faction}
 		{/endif}
+		{if faction.bank}
+			&nbsp;&nbsp;|&nbsp;&nbsp;{!link_to Bank, bank, faction:$global.faction}
+		{/endif}
 		{if faction.other}
 			&nbsp;&nbsp;|&nbsp;&nbsp;{!link_to Sonstiges, other, faction:$global.faction}
 		{/endif}
@@ -67,11 +70,10 @@
 	{!table_begin 400,center}
 		{ueberweisen.betrag} RE an {ueberweisen.to.name} ({ueberweisen.to}) &uuml;berweisen?<br />
 		{!link_to ja, ueberweisen, css_class:ok, to:$ueberweisen.to, count:$ueberweisen.betrag.plain, ack:yes, faction:$global.faction}&nbsp;|&nbsp;
-		{!link_to nein, other, css_class:error, faction:$global.faction}<br />
+		{!link_to nein, bank, css_class:error, faction:$global.faction}<br />
 	{!table_end}
 	<br />
 {/endif}
-
 {if show.bid.entry}
 	{!table_begin 630,left}
 		<form action="./ds" method="post">
