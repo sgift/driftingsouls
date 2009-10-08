@@ -1070,6 +1070,9 @@ public class ErsteigernController extends TemplateGenerator
 		for( Iterator<?> iter = kurseList.iterator(); iter.hasNext(); )
 		{
 			GtuWarenKurse kurse = (GtuWarenKurse)iter.next();
+			
+			Cargo kurseCargo = new Cargo(kurse.getKurse());
+			kurseCargo.setOption(Cargo.Option.SHOWMASS, false);
 
 			String place = kurse.getPlace();
 			if (place.startsWith("p"))
@@ -1083,12 +1086,12 @@ public class ErsteigernController extends TemplateGenerator
 					db.createQuery("delete from SellLimit where shipid = :shipid").setParameter(0, shipid).executeUpdate();
 					continue;
 				}
+				t.setVar("posten.name", tradepost.getName(), "kurse.waren.list", "");
 			}
-			
-			Cargo kurseCargo = new Cargo(kurse.getKurse());
-			kurseCargo.setOption(Cargo.Option.SHOWMASS, false);
-
-			t.setVar("posten.name", kurse.getName(), "kurse.waren.list", "");
+			else
+			{
+				t.setVar("posten.name", kurse.getName(), "kurse.waren.list", "");
+			}
 
 			ResourceList reslist = kurseCargo.getResourceList();
 			for( ResourceEntry res : reslist )
