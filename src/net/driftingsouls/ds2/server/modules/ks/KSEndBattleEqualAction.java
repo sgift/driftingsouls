@@ -19,8 +19,10 @@
 package net.driftingsouls.ds2.server.modules.ks;
 
 import java.io.IOException;
+import java.util.List;
 
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.Side;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
@@ -38,11 +40,12 @@ import org.hibernate.Session;
 public class KSEndBattleEqualAction extends BasicKSAction {
 	@Override
 	public int validate(Battle battle) {
+		/*
 		//Check ob man nicht der Angreifer ist
 		if( battle.getOwnSide() == 0 ) {
 			return RESULT_ERROR;
 		}
-		
+		*/
 		ConfigValue endTieModifier = (ConfigValue)getDB().get(ConfigValue.class, "endtiemodifier");
 		if((battle.getBattleValue(Side.ENEMY) == 0) || (battle.getBattleValue(Side.OWN) > (battle.getBattleValue(Side.ENEMY) * Integer.valueOf(endTieModifier.getValue())))) 
 		{
@@ -64,18 +67,26 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 			return RESULT_ERROR;
 		}
 		
-		Context context = ContextMap.getContext();
-		User user = (User)context.getActiveUser();
+		List<BattleShip> shiplist = battle.getShips(Side.OWN);
+		for( int key=0; key < shiplist.size(); key++ ) {
+			BattleShip aship = shiplist.get(key);
+			
+			if( this.validate(battle) == RESULT_OK )
+			{
+				if (((aship.getAction() & Battle.BS_SECONDROW_BLOCKED) == 0) || ((aship.getAction() & Battle.BS_SHOT) == 0) || ((aship.getAction() & Battle.BS_SECONDROW) == 0) || (aship.getEngine() > 0 ) || ((aship.getAction() & Battle.BS_DESTROYED) == 0 ) || (aship.getDocked().length() == 0 ) )  
+				{
+					battle.removeShip(aship, false);
+					battle.logme(Battle.log_shiplink(aship.getShip()) + "ist durchgebrochen");
+					battle.logenemy(Battle.log_shiplink(aship.getShip()) + "ist durchgebrochen");
+				}
+			}
+			else
+			{
+				return RESULT_OK;
+			}
+		}
+		return RESULT_OK;
 		
-		context.getResponse().getWriter().append("Sie haben die Schlacht mit einem unentschieden beendet");
-		
-		PM.send(user, battle.getCommander(battle.getEnemySide()).getId(), "Schlacht beendet", "Der Gegner hat die Schlacht mit einem unentschieden beendet. Somit ist die Schlacht bei "+battle.getLocation().displayCoordinates(false)+" gegen [userprofile="+user.getId()+"]"+user.getName()+"[/userprofile] zuende!");
-	
-		// Schlacht beenden -> 0 Siege fuer mich; 0 Niederlagen fuer den Gegner
-		battle.endTurn(true);
-		battle.endBattle( 0, 0, true );
-	
-		return RESULT_HALT;
 	}
 	
 	private Session getDB()

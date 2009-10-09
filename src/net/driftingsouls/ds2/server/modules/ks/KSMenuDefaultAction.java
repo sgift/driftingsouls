@@ -56,16 +56,16 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 											"ksaction",	"endbattle" );
 		}
 		
-		/*
+		
 		// Kampf beenden weil die eigene Streitmacht deutlich groesser ist?
 		if( this.isPossible(battle, new KSEndBattleEqualAction()) == RESULT_OK ) {
-			this.menuEntryAsk("Kampf beenden (unentschieden)", 
+			this.menuEntryAsk("Durchbrechen", 
 								new Object[] {	"ship",		ownShip.getId(),
 												"attack",	enemyShip.getId(),
 												"ksaction",	"endbattleequal" },
-								"Wollen sie den Kampf wirklich mit einem Unentschieden beenden?" );
+								"Wollen Sie mit so vielen Schiffen wie möglich die Schlachtlinien durchbrechen?" );
 		}
-		*/
+		
 		
 		// Kapern?
 		if( this.isPossible(battle, new KSKapernAction()) == RESULT_OK ) {

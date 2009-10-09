@@ -49,6 +49,7 @@ import net.driftingsouls.ds2.server.modules.ks.KSDischargeBatteriesAllAction;
 import net.driftingsouls.ds2.server.modules.ks.KSDischargeBatteriesClassAction;
 import net.driftingsouls.ds2.server.modules.ks.KSDischargeBatteriesSingleAction;
 import net.driftingsouls.ds2.server.modules.ks.KSEndBattleCivilAction;
+import net.driftingsouls.ds2.server.modules.ks.KSEndBattleEqualAction;
 import net.driftingsouls.ds2.server.modules.ks.KSEndTurnAction;
 import net.driftingsouls.ds2.server.modules.ks.KSFluchtAllAction;
 import net.driftingsouls.ds2.server.modules.ks.KSFluchtClassAction;
@@ -111,7 +112,7 @@ public class AngriffController extends TemplateGenerator {
 		ACTIONS.put("leavesecondrow", KSLeaveSecondRowAction.class);
 		ACTIONS.put("secondrowengage", KSSecondRowEngageAction.class);
 		ACTIONS.put("secondrowattack", KSSecondRowAttackAction.class);
-		//ACTIONS.put("endbattleequal", KSEndBattleEqualAction.class);
+		ACTIONS.put("endbattleequal", KSEndBattleEqualAction.class);
 		ACTIONS.put("endturn", KSEndTurnAction.class);
 		ACTIONS.put("alleabdocken", KSUndockAllAction.class);
 		ACTIONS.put("new_commander2", KSNewCommanderAction.class);

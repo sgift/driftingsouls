@@ -2514,7 +2514,7 @@ public class Battle implements Locatable {
 	 * @param ship Das fliehende Schiff
 	 * @param relocate Soll ein zufaelliger Sektor um die Schlacht herum gewaehlt werden? (<code>true</code>)
 	 */
-	private void removeShip( BattleShip ship, boolean relocate ) {
+	public void removeShip( BattleShip ship, boolean relocate ) {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		
