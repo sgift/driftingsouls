@@ -24,10 +24,7 @@ import java.util.List;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.Side;
-import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
 import org.hibernate.Session;
