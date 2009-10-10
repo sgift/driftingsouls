@@ -65,7 +65,7 @@ public class StarSystem {
 	private boolean allowMilitary = true;
 	@Column(name="access")
 	private int starmap = StarSystem.AC_NORMAL;
-	private String gtuDropZone = "";
+	private String gtuDropZone = null;
 	private String orderloc = "";
 	@Column(name="descrip")
 	private String description = "";
@@ -182,7 +182,7 @@ public class StarSystem {
 	public void setDropZone( Location dropZone ) {
 		if(dropZone.getX() == 0 && dropZone.getY() == 0)
 		{
-			gtuDropZone = "";
+			gtuDropZone = null;
 		}
 		else
 		{
@@ -195,11 +195,10 @@ public class StarSystem {
 	 * @return die Position der GTU-Dropzone
 	 */
 	public Location getDropZone() {
-		if((gtuDropZone == "") || (gtuDropZone == null)) {
+		if(gtuDropZone == null) {
 			return null;
 		}
-		Location loc = Location.fromString(gtuDropZone).setSystem(this.id);
-		return loc;	
+		return Location.fromString(gtuDropZone).setSystem(id);	
 	}
 	
 	/**
