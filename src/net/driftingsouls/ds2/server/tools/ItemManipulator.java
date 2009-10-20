@@ -24,16 +24,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.modules.Modules;
-import net.driftingsouls.ds2.server.config.items.Items;
+import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.DSApplication;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipModules;
 
@@ -91,6 +91,7 @@ public class ItemManipulator extends DSApplication {
 	 */
 	public void execute() throws IOException, InterruptedException {
 		log("WARNUNG: Dieses Tool funktioniert evt. nicht mehr!");
+		org.hibernate.Session db = getContext().getDB();
 		
 		if( getContext().getRequest().getParameter("help") != null ) {
 			printHelp();
@@ -104,30 +105,29 @@ public class ItemManipulator extends DSApplication {
 		
 		addLogTarget("_ds2_items_"+itemid+"_to_"+replaceid+"_"+recount+".log", false);
 		
+		Item item = (Item)db.get(Item.class, itemid);
+		Item replaceitem = (Item)db.get(Item.class, replaceid);
 		log("DS2 Itemmanipulator");
 		log("ItemID: "+itemid+"");
-		if( Items.get().item(itemid) != null ) {
-			log("["+Items.get().item(itemid).getName()+"]");
+		if( item != null ) {
+			log("["+item.getName()+"]");
 		}
 		log("ReplaceID: "+replaceid+"");
-		if( Items.get().item(replaceid) != null ) {
-			log("["+Items.get().item(replaceid).getName()+"]");
+		if( replaceitem != null ) {
+			log("["+replaceitem.getName()+"]");
 		}
 
 		log("RE-Count: "+Common.ln(recount)+" RE\n");
 		
 		Map<Integer,Long> userlist = new HashMap<Integer,Long>();
 
-		Database database = getDatabase();
-		org.hibernate.Session db = getDB();
-		
 		try {
 			log("* Processing Bases:");
-			SQLQuery base = database.query("SELECT id,cargo,owner FROM bases WHERE cargo LIKE \"%"+itemid+"%\"" );
-			while( base.next() ) {
+			List<Base> bases = Common.cast(db.createQuery("FROM Base WHERE cargo LIKE \"%"+itemid+"%\"" ).list());
+			for( Base base : bases ) {
 				boolean changed = false;
 				
-				Cargo cargo = new Cargo( Cargo.Type.STRING, base.getString("cargo") );
+				Cargo cargo = base.getCargo();
 				
 				List<ItemCargoEntry> itemlist = cargo.getItems();
 				for( int i=0; i < itemlist.size(); i++ ) {
@@ -137,7 +137,7 @@ public class ItemManipulator extends DSApplication {
 						changed = true;
 						
 						if( recount != 0 ) {
-							awardRE(userlist, base.getInt("owner"), recount*aitem.getCount());
+							awardRE(userlist, base.getOwner().getId(), recount*aitem.getCount());
 						}
 						
 						cargo.setResource(aitem.getResourceID(),0);
@@ -148,18 +148,18 @@ public class ItemManipulator extends DSApplication {
 				}
 				
 				if( changed ) {
-					log("\t- modifiziere Basis "+base.getInt("id"));
-					database.update("UPDATE bases SET cargo='"+cargo.save()+"' WHERE id="+base.getInt("id"));	
+					log("\t- modifiziere Basis "+base.getId());
+					base.setCargo(cargo);
 				}
 			}
-			base.free();
-	
+			
 			log("* Processing Ships:");
-			SQLQuery shipQuery = database.query("SELECT id,cargo,owner FROM ships WHERE cargo LIKE \"%"+itemid+"%\"" );
-			while( shipQuery.next() ) {
+			
+			List<Ship> ships = Common.cast(db.createQuery("from Ship where cargo like \"%"+itemid+"5\"" ).list());
+			for( Ship ship : ships ) {
 				boolean changed = false;
 				
-				Cargo cargo = new Cargo( Cargo.Type.STRING, shipQuery.getString("cargo") );
+				Cargo cargo = ship.getCargo();
 				
 				List<ItemCargoEntry> itemlist = cargo.getItems();
 				for( int i=0; i < itemlist.size(); i++ ) {
@@ -169,7 +169,7 @@ public class ItemManipulator extends DSApplication {
 						changed = true;
 						
 						if( recount != 0 ) {
-							awardRE(userlist, shipQuery.getInt("owner"), recount*aitem.getCount());
+							awardRE(userlist, ship.getOwner().getId(), recount*aitem.getCount());
 						}
 						
 						cargo.setResource(aitem.getResourceID(),0);
@@ -180,18 +180,17 @@ public class ItemManipulator extends DSApplication {
 				}
 				
 				if( changed ) {
-					log("\t- modifiziere Schiff "+shipQuery.getInt("id"));
-					database.update("UPDATE ships SET cargo='"+cargo.save()+"' WHERE id="+shipQuery.getInt("id"));	
+					log("\t- modifiziere Schiff "+ship.getId());
+					ship.setCargo(cargo);
 				}
 			}
-			shipQuery.free();
-	
+			
 			log("* Processing Ship-Modules:");
-			List<?> ships = db.createQuery("from ShipModules inner join fetch ship where modules like ?")
+			List<?> moduleships = db.createQuery("from ShipModules inner join fetch ship where modules like ?")
 				.setString(0, "%:"+itemid+"%")
 				.list();
 			
-			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=moduleships.iterator(); iter.hasNext(); ) {
 				ShipModules shipModules = (ShipModules)iter.next();
 				Ship ship = shipModules.getShip();
 				
@@ -201,25 +200,22 @@ public class ItemManipulator extends DSApplication {
 					if( (module.moduleType == Modules.MODULE_ITEMMODULE) && (Integer.parseInt(module.data) == itemid) ) {
 						ship.removeModule(module.slot, module.moduleType, module.data);
 						if( recount != 0 ) {
-							awardRE(userlist, shipQuery.getInt("owner"), recount);
+							awardRE(userlist, ship.getOwner().getId(), recount);
 						}
 						if( replaceid != 0  ) {
 							ship.addModule(module.slot, module.moduleType, Integer.toString(replaceid));
 						}
-						log("\t- modifiziere "+shipQuery.getInt("id")+": slot "+module.slot);
+						log("\t- modifiziere "+ship.getId()+": slot "+module.slot);
 					}
 				}
 			}
 	
 			log("* Processing gtu-zwischenlager:");
-			SQLQuery entry = database.query("SELECT id,user1,user2,cargo1,cargo1need,cargo2,cargo2need " +
-					"FROM gtu_zwischenlager " +
-					"WHERE cargo1 LIKE \"%"+itemid+"%\" OR cargo1need LIKE \"%"+itemid+"%\" OR " +
-						"cargo2 LIKE \"%"+itemid+"%\" OR cargo2need LIKE \"%"+itemid+"%\"" );
-			while( entry.next() ) {
+			List<GtuZwischenlager> allelager = Common.cast(db.createQuery("from GtuZwischenlager where cargo1 like \"%"+itemid+"%\" or cargo1need like \"%"+itemid+"%\" or cargo2 LIKE \"%"+itemid+"%\" OR cargo2need LIKE \"%"+itemid+"%\"").list());
+			for( GtuZwischenlager lager : allelager ) {
 				boolean changed = false;
 				
-				Cargo cargo = new Cargo( Cargo.Type.STRING, entry.getString("cargo1") );
+				Cargo cargo = lager.getCargo1();
 				
 				List<ItemCargoEntry> itemlist = cargo.getItems();
 				for( int i=0; i < itemlist.size(); i++ ) {
@@ -229,7 +225,7 @@ public class ItemManipulator extends DSApplication {
 						changed = true;
 						
 						if( recount != 0 ) {
-							awardRE(userlist, entry.getInt("user1"), recount*aitem.getCount());
+							awardRE(userlist, lager.getUser1().getId(), recount*aitem.getCount());
 						}
 						
 						cargo.setResource(aitem.getResourceID(),0);
@@ -240,13 +236,13 @@ public class ItemManipulator extends DSApplication {
 				}
 							
 				if( changed ) {
-					log("\t- modifiziere "+entry.getInt("id")+" cargo1");
-					database.update("UPDATE gtu_zwischenlager SET cargo1='"+cargo.save()+"' WHERE id="+entry.getInt("id"));	
+					log("\t- modifiziere "+lager.getId()+" cargo1");
+					lager.setCargo1(cargo);
 				}
 				
 				changed = false;
 				
-				cargo = new Cargo( Cargo.Type.STRING, entry.getString("cargo1need") );
+				cargo = lager.getCargo1Need();
 				
 				itemlist = cargo.getItems();
 				for( int i=0; i < itemlist.size(); i++ ) {
@@ -263,13 +259,13 @@ public class ItemManipulator extends DSApplication {
 				}
 				
 				if( changed ) {
-					log("\t- modifiziere "+entry.getInt("id")+" cargo1need");
-					database.update("UPDATE gtu_zwischenlager SET cargo1need='"+cargo.save()+"' WHERE id="+entry.getInt("id"));	
+					log("\t- modifiziere "+lager.getId()+" cargo1need");
+					lager.setCargo1Need(cargo);
 				}
 				
 				changed = false;
 				
-				cargo = new Cargo( Cargo.Type.STRING, entry.getString("cargo2") );
+				cargo = lager.getCargo2();
 				
 				itemlist = cargo.getItems();
 				for( int i=0; i < itemlist.size(); i++ ) {
@@ -279,7 +275,7 @@ public class ItemManipulator extends DSApplication {
 						changed = true;
 						
 						if( recount != 0 ) {
-							awardRE(userlist, entry.getInt("user2"), recount*aitem.getCount());
+							awardRE(userlist, lager.getUser2().getId(), recount*aitem.getCount());
 						}
 						
 						cargo.setResource(aitem.getResourceID(),0);
@@ -290,13 +286,13 @@ public class ItemManipulator extends DSApplication {
 				}
 				
 				if( changed ) {
-					log("\t- modifiziere "+entry.getInt("id")+" cargo2");
-					database.update("UPDATE gtu_zwischenlager SET cargo2='"+cargo.save()+"' WHERE id="+entry.getInt("id"));	
+					log("\t- modifiziere "+lager.getId()+" cargo2");
+					lager.setCargo2(cargo);
 				}
 				
 				changed = false;
 				
-				cargo = new Cargo( Cargo.Type.STRING, entry.getString("cargo2need") );
+				cargo = lager.getCargo2Need();
 				
 				itemlist = cargo.getItems();
 				for( int i=0; i < itemlist.size(); i++ ) {
@@ -313,11 +309,10 @@ public class ItemManipulator extends DSApplication {
 				}
 				
 				if( changed ) {
-					log("\t- modifiziere "+entry.getInt("id")+" cargo2need");
-					database.update("UPDATE gtu_zwischenlager SET cargo2need='"+cargo.save()+"' WHERE id="+entry.getInt("id"));	
+					log("\t- modifiziere "+lager.getId()+" cargo2need");
+					lager.setCargo2Need(cargo);
 				}
 			}
-			entry.free();
 		}
 		catch( Throwable t ) {
 			log("Fehler beim Verarbeiten der Cargos: "+t);

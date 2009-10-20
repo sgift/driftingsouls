@@ -19,10 +19,9 @@
 package net.driftingsouls.ds2.server.config.items.effects;
 
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
-import org.w3c.dom.Node;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Item-Effekt "Schiffsbauplan deaktivieren".
@@ -55,8 +54,17 @@ public class IEDisableShip extends ItemEffect {
 		return shipType;
 	}
 	
-	protected static ItemEffect fromXML(Node effectNode) throws Exception {
-		int shiptype = XMLUtils.getNumberByXPath(effectNode, "@shiptype").intValue();
+	/**
+	 * Laedt einen Effect aus einem String.
+	 * @param effectString Der Effect als String
+	 * @return Der Effect
+	 * @throws Exception falls der Effect nicht richtig geladen werden konnte
+	 */
+	public static ItemEffect fromString(String effectString) throws Exception {
+		
+		String[] effects = StringUtils.split(effectString, "&");
+		Boolean allyEffect = effects[1].equals("true") ? true : false;
+		int shiptype = Integer.parseInt(effects[0]);
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		ShipType shipType = (ShipType)db.get(ShipType.class, shiptype);
@@ -64,8 +72,7 @@ public class IEDisableShip extends ItemEffect {
 			throw new Exception("Illegaler Schiffstyp '"+shiptype+"' im Item-Effekt 'Schiffsbauplan deaktivieren'");
 		}
 		
-		Boolean allyEffect = XMLUtils.getBooleanByXPath(effectNode, "@ally-effect");
-		if( allyEffect != null ) {
+		if( allyEffect ) {
 			return new IEDisableShip(allyEffect, shiptype);
 		}
 		return new IEDisableShip(false, shiptype);

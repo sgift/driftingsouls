@@ -20,9 +20,7 @@ package net.driftingsouls.ds2.server.config.items.effects;
 
 import net.driftingsouls.ds2.server.entities.Ammo;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-
-import org.w3c.dom.Node;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * <h1>Item-Effekt "Ammo-Bauplan".</h1>
@@ -55,8 +53,17 @@ public class IEDraftAmmo extends ItemEffect {
 		return (Ammo)db.get(Ammo.class, this.ammoId);
 	}
 	
-	protected static ItemEffect fromXML(Node effectNode) throws Exception {
-		int ammo = (int)XMLUtils.getLongAttribute(effectNode, "ammo");
+	/**
+	 * Laedt einen Effect aus einem String.
+	 * @param effectString Der Effect als String
+	 * @return Der Effect
+	 * @throws Exception falls der Effect nicht richtig geladen werden konnte
+	 */
+	public static ItemEffect fromString(String effectString) throws Exception {
+		
+		String[] effects = StringUtils.split(effectString, "&");
+		int ammo = Integer.parseInt(effects[0]);
+		Boolean allyEffect = effects[1].equals("true") ? true : false;
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		Ammo ammoEntry = (Ammo)db.get(Ammo.class, ammo);
@@ -64,8 +71,7 @@ public class IEDraftAmmo extends ItemEffect {
 			throw new Exception("Illegaler Ammo-Typ '"+ammo+"' im Item-Effekt 'Munitionsbauplan'");
 		}
 		
-		Boolean allyEffect = XMLUtils.getBooleanByXPath(effectNode, "@ally-effect");
-		if( allyEffect != null ) {
+		if( allyEffect ) {
 			return new IEDraftAmmo(allyEffect, ammo);
 		}
 		return new IEDraftAmmo(false, ammo);

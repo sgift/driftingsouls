@@ -433,11 +433,11 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<res:Items count="25|44|0|0" />
 				<res:Items count="35|8|0|0" />
 
-				<crew count="4" />
+				<crew count="1" />
 				<e count="196" />
 			</buildcosts>
 			<dauer count="2" />
-			<werft-slots count="6" />
+			<werft-slots count="2" />
 		</effect>
 		<description>Dies sind die Baupläne der GTF Perseus</description>
 	</item>
@@ -490,11 +490,11 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<res:Items count="24|108|0|0" />
 				<res:Items count="25|128|0|0" />
 				<res:Items count="35|12|0|0" />
-				<crew count="4" />
+				<crew count="1" />
 				<e count="272" />
 			</buildcosts>
 			<dauer count="4" />
-			<werft-slots count="6" />
+			<werft-slots count="2" />
 		</effect>
 		<description>Dies sind die Baupläne der GTF Ares</description>
 	</item>
@@ -520,11 +520,11 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<res:Items count="24|116|0|0" />
 				<res:Items count="25|44|0|0" />
 				<res:Items count="35|8|0|0" />
-				<crew count="4" />
+				<crew count="1" />
 				<e count="112" />
 			</buildcosts>
 			<dauer count="3" />
-			<werft-slots count="6" />
+			<werft-slots count="2" />
 		</effect>
 		<description>Dies sind die Baupläne der GTF Myrmidon</description>
 	</item>
@@ -550,11 +550,11 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<res:Items count="24|116|0|0" />
 				<res:Items count="25|124|0|0" />
 				<res:Items count="35|12|0|0" />
-				<crew count="12" />
+				<crew count="3" />
 				<e count="120" />
 			</buildcosts>
 			<dauer count="3" />
-			<werft-slots count="6" />
+			<werft-slots count="3" />
 		</effect>
 		<description>Dies sind die Baupläne der GVB Osiris</description>
 	</item>
@@ -580,11 +580,11 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<res:Items count="24|420|0|0" />
 				<res:Items count="25|296|0|0" />
 				<res:Items count="35|20|0|0" />
-				<crew count="4" />
+				<crew count="1" />
 				<e count="348" />
 			</buildcosts>
 			<dauer count="7" />
-			<werft-slots count="6" />
+			<werft-slots count="2" />
 		</effect>
 		<description>Dies ist der Bauplan für die GTF Batis</description>
 	</item>
@@ -610,11 +610,11 @@ und verhindert, das der Besitzer bekannt wird</description>
 				<res:Items count="24|56|0|0" />
 				<res:Items count="25|32|0|0" />
 				<res:Items count="35|4|0|0" />
-				<crew count="4" />
+				<crew count="1" />
 				<e count="68" />
 			</buildcosts>
 			<dauer count="3" />
-			<werft-slots count="6" />
+			<werft-slots count="2" />
 		</effect>
 		<description>Dies ist der Bauplan für die GTF Hercules Mk I</description>
 	</item>

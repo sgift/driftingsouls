@@ -26,7 +26,6 @@ import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.config.items.Items;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -42,6 +41,7 @@ public class TagResource implements BBCodeFunction {
 	@Override
 	public String handleMatch(String content, String... values) {
 		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
 		
 		try {
 			long count = 0;
@@ -61,7 +61,7 @@ public class TagResource implements BBCodeFunction {
 					unknstr = Common.ln(count)+"x "+unknstr;
 				}
 				
-				Item item = Items.get().item(rid.getItemID());
+				Item item = (Item)db.get(Item.class, rid.getItemID());
 				
 				if( item == null ) {
 					return unknstr;	

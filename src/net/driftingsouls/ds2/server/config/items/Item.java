@@ -18,7 +18,12 @@
  */
 package net.driftingsouls.ds2.server.config.items;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
+import net.driftingsouls.ds2.server.config.items.effects.ItemEffectFactory;
 
 /**
  * Repraesentiert einen Item-Typ in DS.
@@ -26,6 +31,8 @@ import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
  * @author Christopher Jung
  *
  */
+@Entity
+@Table(name="items")
 public class Item {
 	/**
 	 * Enthaelt die moeglichen Qualitaetsstufen eines Items.
@@ -112,24 +119,43 @@ public class Item {
 		}
 	}
 	
-	private int id = 0;
-	protected String name = "noname";
-	protected String picture = "open.gif";
-	protected String largepicture = "none";
-	protected String description = null;
-	protected ItemEffect effect = null;
-	protected long cargo = 1;
-	protected boolean handel = false;	// Soll das Item im Handel angezeigt werden?
-	protected int accesslevel = 0;
-	protected Quality quality = Quality.COMMON;
-	protected boolean unknownItem = false;
+	@Id
+	private int id;
+	private String name;
+	private String picture = "open.gif";
+	private String largepicture = "none";
+	private String description = null;
+	private String effect = "";
+	private long cargo = 1;
+	private boolean handel = false;	// Soll das Item im Handel angezeigt werden?
+	private int accesslevel = 0;
+	private String quality = null;
+	private boolean unknownItem = false;
 
-	protected Item(int id, String name) {
+	/**
+	 * Leerer Konstruktor.
+	 */
+	public Item() {
+		//Empty
+	}
+	
+	/**
+	 * Konstruktor fuer ein Item.
+	 * @param id die id des Items
+	 * @param name der Name des Items
+	 */
+	public Item(int id, String name) {
 		this.name = name;
 		this.id = id;
 	}
 	
-	protected Item(int id, String name, String picture) {
+	/**
+	 * Konstruktor fuer ein Item.
+	 * @param id Die id des Items
+	 * @param name Der Name des Items
+	 * @param picture Das Bild des Items
+	 */
+	public Item(int id, String name, String picture) {
 		this(id, name);
 		this.picture = picture;
 	}
@@ -160,7 +186,11 @@ public class Item {
 		return this.description;	
 	}
 
-	protected void setDescription(String text) {
+	/**
+	 * Setzt die Berschreibung des Item-Typs.
+	 * @param text Die neue Beschreibung
+	 */
+	public void setDescription(String text) {
 		this.description = text;
 	}
 	
@@ -171,18 +201,35 @@ public class Item {
 	public long getCargo() {
 		return this.cargo;	
 	}
+	
+	/**
+	 * Setzt den verbrauchten Cargo einer Einheit dieses Item-Typs.
+	 * @param cargo der verbrauchte Cargo
+	 */
+	public void setCargo(long cargo) {
+		this.cargo = cargo;
+	}
 
-	protected void setEffect(ItemEffect effect) {
-		this.effect = effect;
+	/**
+	 * Setzt den Effekt des Item-Typs.
+	 * @param effect Der neue Effekt
+	 */
+	public void setEffect(ItemEffect effect) {
+		this.effect = effect.toString();
 	}
 	
 	/**
 	 * Gibt den mit dem Item assoziierten Effekt zurueck.
-	 * 
 	 * @return der Effekt des Items
 	 */
 	public ItemEffect getEffect() {
-		return this.effect;	
+		try {
+			return ItemEffectFactory.fromString(this.effect);
+		} 
+		catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	/**
@@ -196,11 +243,27 @@ public class Item {
 	}
 	
 	/**
+	 * Setzt, ob dieses Item in Menues explizit angezeigt werden soll.
+	 * @param handel <code>true</code> falls es explizit angezeigt werden soll
+	 */
+	public void setHandel(boolean handel) {
+		this.handel = handel;
+	}
+	
+	/**
 	 * Gibt den Qualitaetswert des Items zurueck.
 	 * @return der Qualitaetswert
 	 */
 	public Quality getQuality() {
-		return this.quality;	
+		return Quality.fromString(quality);
+	}
+	
+	/**
+	 * Setzt den Qualitaetswert der Items.
+	 * @param quality der Qualitaetswert
+	 */
+	public void setQuality(Quality quality) {
+		this.quality = quality.toString();
 	}
 
 	/**
@@ -211,6 +274,14 @@ public class Item {
 	 */
 	public String getPicture() {
 		return this.picture;
+	}
+	
+	/**
+	 * Setzt das Bild des Items.
+	 * @param picture Der Bild-Pfad
+	 */
+	public void setPicture(String picture) {
+		this.picture = picture;
 	}
 	
 	/**
@@ -228,11 +299,27 @@ public class Item {
 	}
 	
 	/**
+	 * Setzt den Bildpfad fuer die grosse Version des Bildes.
+	 * @param largepicture Der Bildpfad, "none", wenn es kein grosses Bild gibt.
+	 */
+	public void setLargePicture(String largepicture) {
+		this.largepicture = largepicture;
+	}
+	
+	/**
 	 * Gibt das fuer die Benutzung/Ansicht erforderliche Access-Level des Benutzers zurueck.
 	 * @return Das notwendige Access-Level
 	 */
 	public int getAccessLevel() {
 		return this.accesslevel;	
+	}
+	
+	/**
+	 * Setzt das fuer die Benutzung/Ansicht erforderliche Access-Level des Benutzers.
+	 * @param accesslevel Das notwendige Access-Level
+	 */
+	public void setAccessLevel(int accesslevel) {
+		this.accesslevel = accesslevel;
 	}
 	
 	/**
@@ -242,5 +329,13 @@ public class Item {
 	 */
 	public boolean isUnknownItem() {
 		return this.unknownItem;
+	}
+	
+	/**
+	 * Setzt, ob es sich bei dem Item um ein default-maessig unbekanntes Item handelt.
+	 * @param unknownitem <code>true</code>, falls es ein unbekanntes Item ist
+	 */
+	public void setUnknownItem(boolean unknownitem) {
+		this.unknownItem = unknownitem;
 	}
 }

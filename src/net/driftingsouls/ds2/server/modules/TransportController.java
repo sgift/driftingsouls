@@ -30,7 +30,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.config.items.Items;
+import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -641,6 +641,7 @@ public class TransportController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void transferAction() {
 		TemplateEngine t = getTemplateEngine();
+		org.hibernate.Session db = getDB();
 		t.setBlock( "_TRANSPORT", "transfer.listitem", "transfer.list" );
 
 		boolean transfer = false;
@@ -715,7 +716,8 @@ public class TransportController extends TemplateGenerator {
 							
 							// Evt unbekannte Items bekannt machen
 							if( res.getId().isItem() && (getUser().getId() != to.getOwner()) ) {
-								if( Items.get().item(res.getId().getItemID()).isUnknownItem() ) {
+								Item item = (Item)db.get(Item.class, res.getId().getItemID());
+								if( item.isUnknownItem() ) {
 									User auser = (User)getDB().get(User.class, to.getOwner());
 									auser.addKnownItem(res.getId().getItemID());
 								}

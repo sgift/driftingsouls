@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.ResourceConfig;
-import net.driftingsouls.ds2.server.config.items.Items;
+import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.Handel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -124,7 +124,8 @@ public class HandelController extends TemplateGenerator {
 			String name = "";
 			
 			if( res.getId().isItem() ) {
-				if( !Items.get().item(res.getId().getItemID()).getHandel() ) {
+				Item item = (Item)db.get(Item.class, res.getId().getItemID());
+				if( !item.getHandel() ) {
 					continue;
 				}
 				name = "i"+res.getId().getItemID();
@@ -176,6 +177,7 @@ public class HandelController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void addAction() {
 		TemplateEngine t = getTemplateEngine();
+		org.hibernate.Session db = getDB();
 		
 		t.setVar("handel.add", 1);
 		
@@ -184,7 +186,8 @@ public class HandelController extends TemplateGenerator {
 		ResourceList reslist = Resources.getResourceList().getResourceList();
 		for( ResourceEntry res : reslist ) {
 			if( res.getId().isItem() ) {
-				if( !Items.get().item(res.getId().getItemID()).getHandel() ) {
+				Item item = (Item)db.get(Item.class, res.getId().getItemID());
+				if( !item.getHandel() ) {
 					continue;
 				}
 			}
@@ -201,7 +204,6 @@ public class HandelController extends TemplateGenerator {
 			t.parse("addresources.list", "addresources.listitem", true);
 		}
 		
-		org.hibernate.Session db = getDB();
 		ConfigValue runningcost = (ConfigValue)db.get(ConfigValue.class, "adcost");
 		t.setVar("trade.runningcost", runningcost.getValue());
 	}

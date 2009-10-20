@@ -35,7 +35,6 @@ import net.driftingsouls.ds2.server.cargo.modules.Module;
 import net.driftingsouls.ds2.server.cargo.modules.Modules;
 import net.driftingsouls.ds2.server.config.ModuleSlots;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.config.items.Items;
 import net.driftingsouls.ds2.server.config.items.effects.IEModule;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.User;
@@ -46,6 +45,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 import org.apache.commons.lang.StringUtils;
@@ -396,6 +396,7 @@ public class WerftGUI {
 	private void out_queueShipList(WerftObject werft, WerftQueueEntry[] queue) {		
 		t.setBlock("_WERFT.WERFTGUI", "queueshiplist.listitem", "queueshiplist.list");
 		t.setBlock("queueshiplist.listitem", "queueship.buildcosts.listitem", "queueship.buildcosts.list");
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
 		for( int i=0; i < queue.length; i++ ) {
 			t.start_record();
@@ -414,10 +415,11 @@ public class WerftGUI {
 					"queueship.downpossible",	i < queue.length-1);
 			
 			if( entry.getRequiredItem() != -1 ) {
+				Item item = (Item)db.get(Item.class, entry.getRequiredItem());
 				t.setVar(
 						"queueship.reqitem",	true,
-						"queueship.item.picture",	Items.get().item(entry.getRequiredItem()).getPicture(),
-						"queueship.item.name",	Items.get().item(entry.getRequiredItem()).getName());
+						"queueship.item.picture",	item.getPicture(),
+						"queueship.item.name",	item.getName());
 			}
 			
 			if( !entry.getCostsPerTick().isEmpty() ) {
@@ -671,8 +673,9 @@ public class WerftGUI {
 	private void out_moduleShip(Ship ship, WerftObject werft) {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
+		org.hibernate.Session db = context.getDB();
 		
-		int item = context.getRequest().getParameterInt("item");
+		int itemid = context.getRequest().getParameterInt("item");
 		int slot = context.getRequest().getParameterInt("slot");
 		String moduleaction = context.getRequest().getParameterString("moduleaction");
 	
@@ -698,9 +701,12 @@ public class WerftGUI {
 					"ship.type.image",		shiptype.getPicture() );
 			
 		// Modul einbauen
-		if( (item != 0) && (slot != 0) && (Items.get().item(item) != null) ) {
-			werft.addModule( ship, slot, item );
-			t.setVar("ws.modules.msg", Common._plaintext(werft.MESSAGE.getMessage()));
+		if( (itemid != 0) && (slot != 0) ) {
+			Item item = (Item)db.get(Item.class, itemid);
+			if( item != null) {
+				werft.addModule( ship, slot, itemid );
+				t.setVar("ws.modules.msg", Common._plaintext(werft.MESSAGE.getMessage()));
+			}
 		}
 		else if( moduleaction.equals("ausbauen") && (slot != 0) ) {
 			werft.removeModule( ship, slot );
@@ -741,11 +747,11 @@ public class WerftGUI {
 					if( !ModuleSlots.get().slot(aslot[1]).isMemberIn(effect.getSlots()) ) {
 						continue;	
 					}
-					if( Items.get().item(itemlist.get(j).getItemID()).getAccessLevel() > user.getAccessLevel() ) {
+					Item itemobj = itemlist.get(j).getItemObject();
+					if( itemobj.getAccessLevel() > user.getAccessLevel() ) {
 						continue;
 					}
 					
-					Item itemobj = itemlist.get(j).getItemObject();
 					t.setVar(	"item.id",		itemlist.get(j).getItemID(),
 								"item.name",	itemobj.getName() );
 
@@ -859,7 +865,7 @@ public class WerftGUI {
 	}
 
 	private void out_buildShip(int build, WerftObject werft) {
-		final int item = context.getRequest().getParameterInt("item");
+		final int itemid = context.getRequest().getParameterInt("item");
 		final boolean perTick = context.getRequest().getParameterInt("pertick") != 0;
 		final String conf = context.getRequest().getParameterString("conf");
 		
@@ -870,13 +876,13 @@ public class WerftGUI {
 		
 		Cargo cargo = werft.getCargo(false);
 	
-		SQLResultRow shipdata = werft.getShipBuildData( build, item );
-		if( (shipdata == null) || shipdata.isEmpty() ) {
+		ShipBaubar shipdata = werft.getShipBuildData( build, itemid );
+		if( (shipdata == null) ) {
 			t.setVar("werftgui.msg", "<span style=\"color:red\">"+werft.MESSAGE.getMessage()+"</span>");
 			return;
 		}
 		
-		ShipTypeData shiptype = Ship.getShipType( shipdata.getInt("type") );
+		ShipTypeData shiptype = shipdata.getType();
 		
 		t.setBlock("_WERFT.WERFTGUI", "build.res.listitem", "build.res.list");
 		
@@ -885,14 +891,14 @@ public class WerftGUI {
 					"build.type.image",	shiptype.getPicture(),
 					"build.conf",		!conf.equals("ok"),
 					"build.id",			build,
-					"build.item.id",	item );
+					"build.item.id",	itemid );
 	
 		//Resourcenbedraft angeben
 		
 	   	//Standardresourcen
-		Cargo shipdataCosts = new Cargo((Cargo)shipdata.get("costs"));
+		Cargo shipdataCosts = new Cargo(shipdata.getCosts());
 		Cargo perTickCosts = new Cargo(shipdataCosts);
-		perTickCosts.multiply(1/(double)shipdata.getInt("dauer"), Cargo.Round.CEIL);
+		perTickCosts.multiply(1/(double)shipdata.getDauer(), Cargo.Round.CEIL);
 		
 		ResourceList reslist = shipdataCosts.compare( cargo, false, false, true );
 		for( ResourceEntry res : reslist ) {
@@ -907,14 +913,14 @@ public class WerftGUI {
 	
 		//E-Kosten
 		
-		int ePerTick = (int)Math.ceil(shipdata.getInt("ekosten")/(double)shipdata.getInt("dauer"));
+		int ePerTick = (int)Math.ceil(shipdata.getEKosten()/(double)shipdata.getDauer());
 		
 		t.setVar(	"res.image",		config.get("URL")+"data/interface/energie.gif",
 					"res.plainname",	"Energie",
 					"res.cargo.pertick",	ePerTick,
 					"res.cargo.available",	werft.getEnergy(),
-					"res.cargo.needed",	shipdata.getInt("ekosten"),
-					"res.cargo.mangel",	(shipdata.getInt("ekosten") > werft.getEnergy() ? shipdata.getInt("ekosten") - werft.getEnergy() : 0) );
+					"res.cargo.needed",	shipdata.getEKosten(),
+					"res.cargo.mangel",	(shipdata.getEKosten() > werft.getEnergy() ? shipdata.getEKosten() - werft.getEnergy() : 0) );
 		t.parse("build.res.list", "build.res.listitem", true);
 
 		// Crew
@@ -924,8 +930,8 @@ public class WerftGUI {
 					"res.plainname",		"Crew",
 					"res.cargo.pertick",	"",
 					"res.cargo.available",	frei,
-					"res.cargo.needed",		shipdata.getInt("crew"),
-					"res.cargo.mangel",		(shipdata.getInt("crew") > frei ? shipdata.getInt("crew") - frei : 0));
+					"res.cargo.needed",		shipdata.getCrew(),
+					"res.cargo.mangel",		(shipdata.getCrew() > frei ? shipdata.getCrew() - frei : 0));
 		t.parse("build.othercosts.list", "build.res.listitem", true);
 		
 		// Werftslots
@@ -933,7 +939,7 @@ public class WerftGUI {
 					"res.plainname",		"Werftslots",
 					"res.cargo.pertick",	"",
 					"res.cargo.available",	werft.getWerftSlots(),
-					"res.cargo.needed",		shipdata.getInt("werftslots"),
+					"res.cargo.needed",		shipdata.getWerftSlots(),
 					"res.cargo.mangel",		false);
 		t.parse("build.othercosts.list", "build.res.listitem", true);
 		
@@ -942,21 +948,21 @@ public class WerftGUI {
 					"res.plainname",		"Dauer",
 					"res.cargo.pertick",	"",
 					"res.cargo.available",	"",
-					"res.cargo.needed",		shipdata.getInt("dauer"),
+					"res.cargo.needed",		shipdata.getDauer(),
 					"res.cargo.mangel",		false);
 		t.parse("build.othercosts.list", "build.res.listitem", true);
 		
 		// Testen ob Bau moeglich
 		if( !conf.equals("ok") ) {
 			// Sofort zahlen
-			boolean result = werft.buildShip(build, item, false, true );
+			boolean result = werft.buildShip(build, itemid, false, true );
 		
 			if( !result ) {
 				t.setVar("build.instant.error", StringUtils.replace(werft.MESSAGE.getMessage(), "\n", "<br/>\n"));
 			}
 			
 			// Kosten pro Tick
-			result = werft.buildShip(build, item, true, true );
+			result = werft.buildShip(build, itemid, true, true );
 			
 			if( !result ) {
 				t.setVar("build.pertick.error", StringUtils.replace(werft.MESSAGE.getMessage(), "\n", "<br/>\n"));
@@ -964,7 +970,7 @@ public class WerftGUI {
 		}
 		// Bau ausfuehren
 		else {
-			boolean result = werft.buildShip(build, item, perTick, false );
+			boolean result = werft.buildShip(build, itemid, perTick, false );
 			
 			if( !result ) {
 				t.setVar("build.error", StringUtils.replace(werft.MESSAGE.getMessage(), "\n", "<br/>\n"));

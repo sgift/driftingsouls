@@ -38,7 +38,6 @@ import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.config.items.Items;
 import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
 import net.driftingsouls.ds2.server.config.items.effects.IEDraftAmmo;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
@@ -347,8 +346,9 @@ public class Waffenfabrik extends DefaultBuilding {
 			for( int i=0; i < prodlist.length; i++ ) {
 				Ammo ammo = prodlist[i].getAmmo();
 				int count = prodlist[i].getCount();
+				Item item = (Item)db.get(Item.class, ammo.getItemId());
 				if( (count > 0) && vars.ownerammobase.contains(ammo) ) {
-					popup.append(count+"x <img style='vertical-align:middle' src='"+Items.get().item(ammo.getItemId()).getPicture()+"' alt='' />"+ammo.getName()+"<br />");
+					popup.append(count+"x <img style='vertical-align:middle' src='"+item.getPicture()+"' alt='' />"+ammo.getName()+"<br />");
 				}
 			}
 		
@@ -495,7 +495,8 @@ public class Waffenfabrik extends DefaultBuilding {
 				echo.append("<span style=\"color:red\">Fehler: Der angegebene Munitionstyp existiert nicht</span>\n");
 				return echo.toString();
 			}
-			if( Items.get().item(ammo.getItemId()).getEffect().getType() != ItemEffect.Type.AMMO ) {
+			Item item = (Item)db.get(Item.class, ammo.getItemId());
+			if( item.getEffect().getType() != ItemEffect.Type.AMMO ) {
 				echo.append("<span style=\"color:red\">Fehler: Das angegebene Item ist keine Munition</span>\n");
 				return echo.toString();
 			}
@@ -559,7 +560,7 @@ public class Waffenfabrik extends DefaultBuilding {
 					
 					wf.setProduces(producelist.toArray(new WeaponFactory.Task[producelist.size()]));
 			
-					echo.append(Math.abs(count)+" "+Items.get().item(ammo.getItemId()).getName()+" wurden "+(count>=0 ? "hinzugef&uuml;gt":"abgezogen")+"<br /><br />");
+					echo.append(Math.abs(count)+" "+item.getName()+" wurden "+(count>=0 ? "hinzugef&uuml;gt":"abgezogen")+"<br /><br />");
 				}
 			} 
 			else {
@@ -630,7 +631,9 @@ public class Waffenfabrik extends DefaultBuilding {
 		echo.append("<td class=\"noBorderX\" style=\"width:30px\">&nbsp;</td>\n");
 		echo.append("</tr>");
 		
-		for( Item item : Items.get() )
+		List<Item> items = Common.cast(db.createQuery("from Item").list());
+		
+		for( Item item : items )
 		{
 			if( item.getEffect().getType() != ItemEffect.Type.AMMO )
 			{

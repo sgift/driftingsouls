@@ -25,7 +25,6 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.config.ResourceConfig;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.config.items.Items;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -591,6 +590,7 @@ public class Cargo implements Cloneable {
 	 * @return Die Gesamtmasse
 	 */
 	public long getMass() {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 		long tmp = 0;
 		
 		for( int i=0; i <= MAX_RES; i++ ) {
@@ -599,11 +599,12 @@ public class Cargo implements Cloneable {
 			}
 			else {
 				for( int j=0; j < items.size(); j++ ) {
-					if( Items.get().item(items.get(j)[0].intValue()) == null ) {
+					Item item = (Item)db.get(Item.class, items.get(j)[0].intValue());
+					if( item == null ) {
 						log.warn("Unbekanntes Item "+items.get(j)[0]+" geortet");
 						continue;
 					}
-					tmp += items.get(j)[1]*Items.get().item(items.get(j)[0].intValue()).getCargo();
+					tmp += items.get(j)[1]*item.getCargo();
 				} 
 			}
 		}
@@ -617,6 +618,7 @@ public class Cargo implements Cloneable {
 	 * @return Eine Resourcenliste
 	 */
 	public ResourceList getResourceList() {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 		ResourceList reslist = new ResourceList();
 		
 		for( int i=0; i <= MAX_RES; i++ ) {
@@ -642,7 +644,7 @@ public class Cargo implements Cloneable {
 		}
 		if( !items.isEmpty() ) {
 			for( Long[] item : items  ) {
-				Item itemType = Items.get().item(item[0].intValue());
+				Item itemType = (Item)db.get(Item.class, item[0].intValue());
 				if( itemType == null )
 				{
 					log.warn("Unbekanntes Item "+item[0]+" geortet");
@@ -772,6 +774,7 @@ public class Cargo implements Cloneable {
 	 */  
 	public ResourceList compare( Cargo cargoObj, boolean echoBothSides, boolean basis, boolean baukosten) {
 		ResourceList reslist = new ResourceList();
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
 		long[] cargo = cargoObj.getCargoArray();
 		List<Long[]> items = cargoObj.getItemArray();
@@ -828,7 +831,8 @@ public class Cargo implements Cloneable {
 			Collections.sort(itemlist, new ResourceIDComparator(false) );
 			
 			for( ItemID aitem : itemlist ) {
-				if( Items.get().item(aitem.getItemID()) == null ) {
+				Item item = (Item)db.get(Item.class, aitem.getItemID());
+				if( item == null ) {
 					log.warn("Ungueliges Item (Data: "+aitem+") entdeckt");
 					continue;	
 				}
@@ -851,22 +855,22 @@ public class Cargo implements Cloneable {
 				
 				String style = "";
 				
-				String name = Items.get().item(aitem.getItemID()).getName();
+				String name = item.getName();
 				String plainname = name;
 				String image = "";
 				boolean large = false;
 				String tooltiptext = "";
 				
 				if( !nohtml ) {
-					if( !Items.get().item(aitem.getItemID()).getQuality().color().equals("") ) {
-						style = "color:"+Items.get().item(aitem.getItemID()).getQuality().color()+";";
+					if( !item.getQuality().color().equals("") ) {
+						style = "color:"+item.getQuality().color()+";";
 					}
 					
 					if( !style.equals("") ) {
 						style = "style='"+style+"'";	
 					}
 					
-					tooltiptext = "&lt;span class=\\'nobr\\'&gt;&lt;span "+StringEscapeUtils.escapeJavaScript(style)+" class=\\'libwarentt\\'&gt;&lt;img align=\\'left\\' src=\\'"+Items.get().item(aitem.getItemID()).getPicture()+"\\' alt=\\'\\' /&gt;"+Items.get().item(aitem.getItemID()).getName()+"&lt;/span&gt;&lt;/span&gt;";
+					tooltiptext = "&lt;span class=\\'nobr\\'&gt;&lt;span "+StringEscapeUtils.escapeJavaScript(style)+" class=\\'libwarentt\\'&gt;&lt;img align=\\'left\\' src=\\'"+item.getPicture()+"\\' alt=\\'\\' /&gt;"+item.getName()+"&lt;/span&gt;&lt;/span&gt;";
 					
 					if( aitem.getQuest() != 0 ) {
 						name = "<span style=\"text-decoration:underline\">"+name+"</span>";
@@ -889,13 +893,13 @@ public class Cargo implements Cloneable {
 				}
 				
 				if( !largeImages ) {
-					image = Items.get().item(aitem.getItemID()).getPicture();
+					image = item.getPicture();
 				}
 				else {
 					large = true;
-					image = Items.get().item(aitem.getItemID()).getLargePicture();
+					image = item.getLargePicture();
 					if( image == null) {
-						image = Items.get().item(aitem.getItemID()).getPicture();	
+						image = item.getPicture();	
 						large = false;
 					}
 				}
@@ -905,12 +909,12 @@ public class Cargo implements Cloneable {
 				String fcargo1 = Common.ln(cargo1);
 				String fcargo2 = Common.ln(cargo2);
 				
-				if( showmass && (Items.get().item(aitem.getItemID()).getCargo() != 1) ) {
+				if( showmass && (item.getCargo() != 1) ) {
 					if( cargo1 != 0 ) {
-						fcargo1 = fcargo1+" ("+(Items.get().item(aitem.getItemID()).getCargo()*cargo1)+")";
+						fcargo1 = fcargo1+" ("+(item.getCargo()*cargo1)+")";
 					}
 					if( cargo2 != 0 ) {
-						fcargo2 = fcargo2+" ("+(Items.get().item(aitem.getItemID()).getCargo()*cargo2)+")";
+						fcargo2 = fcargo2+" ("+(item.getCargo()*cargo2)+")";
 					}
 				}
 				
@@ -1105,6 +1109,7 @@ public class Cargo implements Cloneable {
 	 */
 	public Cargo cutCargo( long mass ) {
 		Cargo retcargo = null;
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
 		if( mass >= getMass() ) {
 			retcargo = (Cargo)clone();
@@ -1140,17 +1145,18 @@ public class Cargo implements Cloneable {
 			for( int i=0; i < items.size(); i++ ) {
 				Long[] aitem = items.get(i);
 				
-				if( Items.get().item(aitem[0].intValue()).getCargo()*aitem[1] + currentmass < mass ) {
-					currentmass += Items.get().item(aitem[0].intValue()).getCargo()*aitem[1];
+				Item item = (Item)db.get(Item.class, aitem[0].intValue());
+				if( item.getCargo()*aitem[1] + currentmass < mass ) {
+					currentmass += item.getCargo()*aitem[1];
 					retcargo.getItemArray().add(aitem);
 					items.remove(aitem);
 					i--;
 				}
 				else {
 					Long[] newitem = aitem.clone();
-					newitem[1] = (mass-currentmass)/Items.get().item(aitem[0].intValue()).getCargo();
+					newitem[1] = (mass-currentmass)/item.getCargo();
 					aitem[1] -= newitem[1];
-					currentmass += Items.get().item(aitem[0].intValue()).getCargo()*newitem[1];
+					currentmass += item.getCargo()*newitem[1];
 					retcargo.getItemArray().add(newitem);
 				}
 			}
@@ -1195,14 +1201,16 @@ public class Cargo implements Cloneable {
 	 * @return Ein Item mit dem Effekt oder <code>null</code>
 	 */
 	public ItemCargoEntry getItemWithEffect( ItemEffect.Type itemeffectid ) {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 		for( int i=0; i < items.size(); i++ ) {
 			Long[] aitem = items.get(i);
 			
 			final int itemid = aitem[0].intValue();
-			if( Items.get().item(itemid) == null ) {
+			Item item = (Item)db.get(Item.class, itemid);
+			if( item == null ) {
 				throw new RuntimeException("Unbekanntes Item "+itemid);
 			}
-			if( Items.get().item(itemid).getEffect().getType() != itemeffectid ) {
+			if( item.getEffect().getType() != itemeffectid ) {
 				continue;
 			}
 			return new ItemCargoEntry(this, itemid, aitem[1], aitem[2].intValue(), aitem[3].intValue());
@@ -1218,15 +1226,18 @@ public class Cargo implements Cloneable {
 	 */
 	public List<ItemCargoEntry> getItemsWithEffect( ItemEffect.Type itemeffectid ) {
 		List<ItemCargoEntry> itemlist = new ArrayList<ItemCargoEntry>();
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
 		for( int i=0; i < items.size(); i++ ) {
 			Long[] aitem = items.get(i);
 			
 			final int itemid = aitem[0].intValue();
-			if( Items.get().item(itemid) == null ) {
+			Item item = (Item)db.get(Item.class, itemid);
+			
+			if( item == null ) {
 				throw new RuntimeException("Unbekanntes Item "+itemid);
 			}
-			if( Items.get().item(itemid).getEffect().getType() != itemeffectid ) {
+			if( item.getEffect().getType() != itemeffectid ) {
 				continue;
 			}
 			itemlist.add( new ItemCargoEntry(this, itemid, aitem[1], aitem[2].intValue(), aitem[3].intValue()));
@@ -1340,9 +1351,12 @@ public class Cargo implements Cloneable {
 	 * @return Der Pfad zum Bild
 	 */
 	public static String getResourceImage( ResourceID resid ) {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
 		if( resid.isItem() ) {
-			if( Items.get().item(resid.getItemID()) != null ) {
-				return Items.get().item(resid.getItemID()).getPicture();	
+			Item item = (Item)db.get(Item.class, resid.getItemID());
+			if( item != null ) {
+				return item.getPicture();	
 			}
 			return "Kein passendes Item gefunden";	
 		}
@@ -1362,9 +1376,12 @@ public class Cargo implements Cloneable {
 	 * @return Der Name
 	 */
 	public static String getResourceName( ResourceID resid ) {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
 		if( resid.isItem() ) {
-			if( Items.get().item(resid.getItemID()) != null ) {
-				return Items.get().item(resid.getItemID()).getName();	
+			Item item = (Item)db.get(Item.class, resid.getItemID());
+			if( item != null ) {
+				return item.getName();	
 			}
 			return "Kein passendes Item gefunden";	
 		}
@@ -1380,10 +1397,12 @@ public class Cargo implements Cloneable {
 	 */
 	public static long getResourceMass( ResourceID resourceid, long count ) {
 		long tmp = 0;
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 	
 		if( resourceid.isItem() ) {
-			if( Items.get().item(resourceid.getItemID()) != null ) {
-				tmp = count * Items.get().item(resourceid.getItemID()).getCargo();
+			Item item = (Item)db.get(Item.class, resourceid.getItemID());
+			if( item != null ) {
+				tmp = count * item.getCargo();
 			}
 		}
 		else {

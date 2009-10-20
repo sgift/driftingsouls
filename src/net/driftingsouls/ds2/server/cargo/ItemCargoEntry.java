@@ -19,8 +19,9 @@
 package net.driftingsouls.ds2.server.cargo;
 
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.config.items.Items;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 
 // TODO: Readonly-Version anfertigen
 /**
@@ -108,7 +109,10 @@ public class ItemCargoEntry {
 	 * @return Der Itemtyp
 	 */
 	public Item getItemObject() {
-		return Items.get().item(itemid);
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		
+		return (Item)db.get(Item.class, itemid);
 	}
 	
 	/**

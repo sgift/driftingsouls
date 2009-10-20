@@ -28,8 +28,8 @@ import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.config.items.Items;
 import net.driftingsouls.ds2.server.entities.Forschung;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
@@ -49,6 +49,7 @@ public class EditShipCosts implements AdminPlugin
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
+		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
 
 		int shiptypeId = context.getRequest().getParameterInt("shiptype");
 
@@ -99,7 +100,7 @@ public class EditShipCosts implements AdminPlugin
 			
 			Cargo cargo = new Cargo();
 			
-			for(Item item: Items.get())
+			for(Item item: itemlist)
 			{
 				long amount = context.getRequest().getParameterInt("i"+item.getID());
 				int uses = context.getRequest().getParameterInt("i" + item.getID() + "uses");
@@ -156,7 +157,7 @@ public class EditShipCosts implements AdminPlugin
 				echo.append("<option value=\""+requirement.getID()+"\" "+(requirement.getID() == ship.getRes(3) ? "selected=\"selected\"" : "")+" \">"+requirement.getName()+"</option>\n");
 			}
 			echo.append("<tr><td class=\"noBorderS\"></td><td class=\"noBorderS\">Menge</td><td class=\"noBorderS\">Nutzungen</td></tr>");
-			for(Item item: Items.get())
+			for(Item item: itemlist)
 			{
 				long amount = ship.getCosts().getResourceCount(new ItemID(item.getID()));
 				int uses = 0;

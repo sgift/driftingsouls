@@ -36,7 +36,6 @@ import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.config.items.Items;
 import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
 import net.driftingsouls.ds2.server.config.items.effects.IEDisableShip;
 import net.driftingsouls.ds2.server.config.items.effects.IEDraftShip;
@@ -304,52 +303,56 @@ public class ItemInfoController extends TemplateGenerator {
 	public void detailsAction() {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
+		org.hibernate.Session db = getDB();
+		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
 		
 		parameterNumber("item");
 		int itemid = getInteger("item");
+		
+		Item item = (Item)db.get(Item.class, itemid);
 				
-		if( Items.get().item(itemid) == null ) {
+		if( item == null ) {
 			t.setVar("iteminfo.message", "Es ist kein Item mit dieser Identifikationsnummer bekannt");
 		
 			return;
 		}
 		
-		if( Items.get().item(itemid).getAccessLevel() > user.getAccessLevel() ) {
+		if( item.getAccessLevel() > user.getAccessLevel() ) {
 			t.setVar("iteminfo.message", "Es ist kein Item mit dieser Identifikationsnummer bekannt");
 		
 			return;
 		}
 		
-		if( Items.get().item(itemid).isUnknownItem() && !user.isKnownItem(itemid) && (user.getAccessLevel() < 15) ) {
+		if( item.isUnknownItem() && !user.isKnownItem(itemid) && (user.getAccessLevel() < 15) ) {
 			t.setVar("iteminfo.message", "Es ist kein Item mit dieser Identifikationsnummer bekannt");
 		
 			return;
 		}
 		
-		String name = Common._plaintitle(Items.get().item(itemid).getName());
-		if( Items.get().item(itemid).getQuality().color().length() > 0 ) {
-			name = "<span style=\"color:"+Items.get().item(itemid).getQuality().color()+"\">"+name+"</span>";	
+		String name = Common._plaintitle(item.getName());
+		if( item.getQuality().color().length() > 0 ) {
+			name = "<span style=\"color:"+item.getQuality().color()+"\">"+name+"</span>";	
 		}
 		
 		t.setVar(	"iteminfo.details",	1,
-					"item.picture",		Items.get().item(itemid).getPicture(),
+					"item.picture",		item.getPicture(),
 					"item.name",		name,
-					"item.cargo",		Items.get().item(itemid).getCargo(),
-					"item.accesslevel",	Items.get().item(itemid).getAccessLevel(),
-					"item.allyitem",	Items.get().item(itemid).getEffect().hasAllyEffect(),
-					"item.class",		Items.get().item(itemid).getEffect().getType().getName(),
-					"item.description",	Common._text(Items.get().item(itemid).getDescription()) );
+					"item.cargo",		item.getCargo(),
+					"item.accesslevel",	item.getAccessLevel(),
+					"item.allyitem",	item.getEffect().hasAllyEffect(),
+					"item.class",		item.getEffect().getType().getName(),
+					"item.description",	Common._text(item.getDescription()) );
 		
 		t.setBlock("_ITEMINFO", "itemdetails.entry", "itemdetails.entrylist");
 		
-		switch( Items.get().item(itemid).getEffect().getType() ) {
+		switch( item.getEffect().getType() ) {
 		/*
 		
 			EFFECT_DRAFT_SHIP
 			
 		*/
 		case DRAFT_SHIP: {
-			IEDraftShip effect = (IEDraftShip)Items.get().item(itemid).getEffect();
+			IEDraftShip effect = (IEDraftShip)item.getEffect();
 			
 			ShipTypeData shiptype = Ship.getShipType( effect.getShipType() );
 	
@@ -454,7 +457,7 @@ public class ItemInfoController extends TemplateGenerator {
 			
 		*/
 		case DISABLE_SHIP: {
-			IEDisableShip effect = (IEDisableShip)Items.get().item(itemid).getEffect();
+			IEDisableShip effect = (IEDisableShip)item.getEffect();
 			t.setVar( "entry.name", "Schiffstyp" );
 			
 			ShipTypeData shiptype = Ship.getShipType( effect.getShipType() );
@@ -475,7 +478,7 @@ public class ItemInfoController extends TemplateGenerator {
 			
 		*/
 		case MODULE: {
-			IEModule effect = (IEModule)Items.get().item(itemid).getEffect();
+			IEModule effect = (IEModule)item.getEffect();
 			
 			StringBuilder targetslots = new StringBuilder(50);
 			List<String> slots = effect.getSlots();
@@ -497,7 +500,7 @@ public class ItemInfoController extends TemplateGenerator {
 			if( effect.getSetID() != 0 ) {
 				int setcount = 0;
 				
-				for( Item aitem : Items.get() ) {
+				for( Item aitem : itemlist ) {
 					if( aitem.getEffect().getType() != ItemEffect.Type.MODULE ) {
 						continue;	
 					}	
@@ -510,8 +513,9 @@ public class ItemInfoController extends TemplateGenerator {
 					}
 				}
 				
+				Item setItem = (Item)db.get(Item.class, effect.getSetID());
 				t.setVar(	"entry.name",	"Set",
-							"entry.data",	((IEModuleSetMeta)Items.get().item(effect.getSetID()).getEffect()).getName()+" ("+setcount+")" );
+							"entry.data",	((IEModuleSetMeta)setItem.getEffect()).getName()+" ("+setcount+")" );
 								
 				t.parse("itemdetails.entrylist", "itemdetails.entry", true);	
 			}
@@ -529,7 +533,8 @@ public class ItemInfoController extends TemplateGenerator {
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 								
 			if( effect.getSetID() != 0 ) {
-				IEModuleSetMeta meta = ((IEModuleSetMeta)Items.get().item(effect.getSetID()).getEffect());
+				Item setItem = (Item)db.get(Item.class, effect.getSetID());
+				IEModuleSetMeta meta = ((IEModuleSetMeta)setItem.getEffect());
 				Map<Integer,ShipTypeChangeset> modlist = meta.getCombos();
 				
 				for( Map.Entry<Integer, ShipTypeChangeset> entry: modlist.entrySet() ) {
@@ -554,7 +559,7 @@ public class ItemInfoController extends TemplateGenerator {
 			
 		*/
 		case AMMO: {
-			IEAmmo effect = (IEAmmo)Items.get().item(itemid).getEffect();
+			IEAmmo effect = (IEAmmo)item.getEffect();
 			
 			Ammo ammo = effect.getAmmo();
 		
@@ -691,9 +696,9 @@ public class ItemInfoController extends TemplateGenerator {
 			}
 			Cargo setitemlist = new Cargo();
 			
-			for( Item item : Items.get() ) {
-				if( (item.getEffect().getType() == ItemEffect.Type.MODULE) && (((IEModule)item.getEffect()).getSetID() == itemid) ) {
-					setitemlist.addResource(new ItemID(item.getID()), 1);
+			for( Item thisitem : itemlist ) {
+				if( (thisitem.getEffect().getType() == ItemEffect.Type.MODULE) && (((IEModule)thisitem.getEffect()).getSetID() == itemid) ) {
+					setitemlist.addResource(new ItemID(thisitem.getID()), 1);
 				}
 			}
 			
@@ -724,6 +729,7 @@ public class ItemInfoController extends TemplateGenerator {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 		org.hibernate.Session db = getDB();
+		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
 		
 		StatUserCargo ownCargoRow = (StatUserCargo)db.get(StatUserCargo.class, user.getId());
 		Cargo owncargo = null;
@@ -750,7 +756,7 @@ public class ItemInfoController extends TemplateGenerator {
 		final String shipimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle' src='"+config.get("URL")+"data/interface/schiffe/"+user.getRace()+"/icon_schiff.gif' alt='' title='Schiff' /></td>";
 		final String baseimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle;width:15px;height:15px' src='"+config.get("URL")+"data/starmap/asti/asti.png' alt='' title='Asteroid' /></td>";
 
-		for( Item aitem : Items.get() ) {
+		for( Item aitem : itemlist ) {
 			int itemid = aitem.getID();
 			
 			ItemEffect itemeffect = aitem.getEffect();
@@ -792,7 +798,7 @@ public class ItemInfoController extends TemplateGenerator {
 						if( base == null ) {
 							continue;
 						}
-						tooltiptext.append(baseimage+"<td class='noBorderX'><a style='font-size:14px' class='forschinfo' href='"+Common.buildUrl("default", "module", "base", "col", objectid)+"'>"+base.getName()+" - "+base.getLocation()+"</a></td>");
+						tooltiptext.append(baseimage+"<td class='noBorderX'><a style='font-size:14px' class='forschinfo' href='"+Common.buildUrl("default", "module", "base", "col", objectid)+"'>"+base.getName()+" - "+base.getLocation().displayCoordinates(false)+"</a></td>");
 						break;
 					}
 					case 'g': {

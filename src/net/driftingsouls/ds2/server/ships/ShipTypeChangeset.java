@@ -30,11 +30,6 @@ import net.driftingsouls.ds2.server.framework.Common;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * Ein Changeset fuer Schiffstypendaten-Aenderungen, wie sie z.B. von
@@ -43,7 +38,6 @@ import org.w3c.dom.NodeList;
  *
  */
 public class ShipTypeChangeset {
-	private static final Log log = LogFactory.getLog(ShipTypeChangeset.class);
 	
 	private String nickname;
 	private String picture;
@@ -60,7 +54,7 @@ public class ShipTypeChangeset {
 	private int heat;
 	private int crew;
 	private int marines;
-	private Map<String,Integer[]> weapons;
+	private Map<String,Integer[]> weapons = new HashMap<String,Integer[]>();
 	private Map<String,Integer> maxHeat;
 	private int torpedoDef;
 	private int shields;
@@ -83,182 +77,170 @@ public class ShipTypeChangeset {
 	
 	/**
 	 * Konstruktor.
-	 * @param node Der XML-Knoten mit den Changeset-Informationen
+	 * @param changesetString Der String mit den Changeset-Informationen
 	 */
-	public ShipTypeChangeset(Node node) {
-		final String NAMESPACE = "http://www.drifting-souls.net/ds2/shipdata/2006";
-		boolean found = false;
+	public ShipTypeChangeset(String changesetString)
+	{
 		
-		NodeList nodes = node.getChildNodes();
-		for( int i=0; i < nodes.getLength(); i++ ) {
-			if( nodes.item(i).getNodeType() != Node.ELEMENT_NODE ) {
-				continue;
-			}
-			Element item = (Element)nodes.item(i);
-	
-			if( !item.getNamespaceURI().equals(NAMESPACE) ) {
-				log.warn("Ungueltige XML-Namespace im ShipType-Changeset");
-				continue;
-			}
-			
-			found = true;
-			
-			String name = item.getLocalName();
-			if( name.equals("weapons") ) {
-				Map<String,Integer[]> wpnList = new HashMap<String,Integer[]>();
-				NodeList weapons = item.getChildNodes();
-				for( int j=0; j < weapons.getLength(); j++ ) {
-					if( (weapons.item(j).getNodeType() != Node.ELEMENT_NODE) ||
-							!("weapon").equals(weapons.item(j).getLocalName())) {
-						continue;
-					}
-					String wpnName = weapons.item(j).getAttributes().getNamedItem("name").getNodeValue();
-					
-					// Sicherstellen, dass die Waffe auch existiert
-					Weapons.get().weapon(wpnName);
-					
-					Integer wpnMaxHeat = new Integer(weapons.item(j).getAttributes().getNamedItem("maxheat").getNodeValue());
-					Integer wpnCount = new Integer(weapons.item(j).getAttributes().getNamedItem("count").getNodeValue());
-					wpnList.put(wpnName, new Integer[] {wpnCount, wpnMaxHeat});
-				}
-				this.weapons = wpnList;
-			}
-			else if( name.equals("maxheat") ) {
-				Map<String,Integer> heatList = new HashMap<String,Integer>();
-				NodeList heats = item.getChildNodes();
-				for( int j=0; j < heats.getLength(); j++ ) {
-					if( (heats.item(j).getNodeType() != Node.ELEMENT_NODE) ||
-						!("weapon").equals(heats.item(j).getLocalName())) {
-						continue;
-					}
-					String wpnName = heats.item(j).getAttributes().getNamedItem("name").getNodeValue();
-					
-					// Sicherstellen, dass die Waffe auch existiert
-					Weapons.get().weapon(wpnName);
-					
-					Integer wpnMaxHeat = new Integer(heats.item(j).getAttributes().getNamedItem("maxheat").getNodeValue());
-					heatList.put(wpnName, wpnMaxHeat);
-				}
+		if( changesetString.equals(""))
+		{
+			throw new RuntimeException("Keine Shiptype-Changeset-Informationen vorhanden");
+		}
+		String[] changesets = StringUtils.split(changesetString, "|");
+		for ( int i=0; i < changesets.length; i++)
+		{
+			String[] changeset = StringUtils.split(changesets[i], ",");
+			if( changeset[0].equals("weapons"))
+			{
+				String[] weapon = StringUtils.split(changeset[1], "/");
 				
-				this.maxHeat = heatList;
+				// Sicherstellen, dass die Waffe existiert
+				Weapons.get().weapon(weapon[0]);
+				
+				weapons.put(weapon[0], new Integer[] {Integer.parseInt(weapon[1]), Integer.parseInt(weapon[2])});
 			}
-			else if( name.equals("flags") ) {
+			else if( changeset[0].equals("flags"))
+			{
 				List<String> flagList = new ArrayList<String>();
-				NodeList flags = item.getChildNodes();
-				for( int j=0; j < flags.getLength(); j++ ) {
-					if( (flags.item(j).getNodeType() != Node.ELEMENT_NODE) ||
-						!("set").equals(flags.item(j).getLocalName())) {
-						continue;
-					}
-					flagList.add(flags.item(j).getAttributes().getNamedItem("name").getNodeValue());
+				String[] flags = StringUtils.split(changeset[1], "/");
+				for( int j=0; j< flags.length; j++)
+				{
+					flagList.add(flags[j]);
 				}
 				this.flags = Common.implode(" ", flagList);
 			}
-			else if( name.equals("nickname") ) {
-				this.nickname = item.getAttribute("value");
-			}
-			else if( name.equals("picture") ) {
-				this.picture = item.getAttribute("value");
-			}
-			else if( name.equals("ru") ) {
-				this.ru = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("rd") ) {
-				this.rd = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("ra") ) {
-				this.ra = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("rm") ) {
-				this.rm = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("eps") ) {
-				this.eps = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("cost") ) {
-				this.cost = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("hull") ) {
-				this.hull = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("panzerung") ) {
-				this.panzerung = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("ablativearmor") ) {
-				this.ablativeArmor = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("cargo") ) {
-				this.cargo = Long.parseLong(item.getAttribute("value"));
-			}
-			else if( name.equals("heat") ) {
-				this.heat = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("crew") ) {
-				this.crew = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("marines") ) {
-				this.marines = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("torpedodef") ) {
-				this.torpedoDef = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("shields") ) {
-				this.shields = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("size") ) {
-				this.size = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("jdocks") ) {
-				this.jDocks = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("adocks") ) {
-				this.aDocks = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("sensorrange") ) {
-				this.sensorRange = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("hydro") ) {
-				this.hydro = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("deutfactor") ) {
-				this.deutFactor = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("recost") ) {
-				this.reCost = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("werft") ) {
-				this.werft = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("ow_werft") ) {
-				this.oneWayWerft = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("picture_mod") ) {
-				this.pictureMod = item.getAttribute("value");
-			}
-			else if( name.equals("srs") ) {
-				this.srs = Boolean.parseBoolean(item.getAttribute("value"));
-			}
-			else if( name.equals("scan-cost") ) {
-				this.scanCost = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("picking-cost") ) {
-				this.pickingCost = Integer.parseInt(item.getAttribute("value"));
-			}
-			else if( name.equals("minCrew"))
+			else if( changeset[0].equals("nickname"))
 			{
-				this.minCrew = Integer.parseInt(item.getAttribute("value"));
+				this.nickname = changeset[1];
 			}
-			else if (name.equals("lostInEmpChance"))
+			else if( changeset[0].equals("picture") ) 
 			{
-				this.lostInEmpChance = Double.parseDouble(item.getAttribute("value"));
+				this.picture = changeset[1];
 			}
-			else {
-				throw new RuntimeException("Unbekannte Changeset-Eigenschaft '"+name+"'");
+			else if( changeset[0].equals("ru") ) 
+			{
+				this.ru = Integer.parseInt(changeset[1]);
 			}
-		}
-		
-		if( !found ) {
-			throw new RuntimeException("Keine Shiptype-Changeset-Informationen vorhanden");
+			else if( changeset[0].equals("rd") ) 
+			{
+				this.rd = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("ra") ) 
+			{
+				this.ra = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("rm") ) 
+			{
+				this.rm = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("eps") ) 
+			{
+				this.eps = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("cost") ) 
+			{
+				this.cost = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("hull") ) 
+			{
+				this.hull = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("panzerung") ) 
+			{
+				this.panzerung = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("ablativearmor") ) 
+			{
+				this.ablativeArmor = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("cargo") ) 
+			{
+				this.cargo = Long.parseLong(changeset[1]);
+			}
+			else if( changeset[0].equals("heat") ) 
+			{
+				this.heat = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("crew") ) 
+			{
+				this.crew = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("marines") ) 
+			{
+				this.marines = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("torpedodef") ) 
+			{
+				this.torpedoDef = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("shields") ) 
+			{
+				this.shields = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("size") ) 
+			{
+				this.size = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("jdocks") ) 
+			{
+				this.jDocks = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("adocks") ) 
+			{
+				this.aDocks = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("sensorrange") ) 
+			{
+				this.sensorRange = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("hydro") ) 
+			{
+				this.hydro = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("deutfactor") ) 
+			{
+				this.deutFactor = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("recost") ) 
+			{
+				this.reCost = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("werft") ) 
+			{
+				this.werft = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("ow_werft") ) 
+			{
+				this.oneWayWerft = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("picture_mod") ) 
+			{
+				this.pictureMod = changeset[1];
+			}
+			else if( changeset[0].equals("srs") ) 
+			{
+				this.srs = Boolean.parseBoolean(changeset[1]);
+			}
+			else if( changeset[0].equals("scan-cost") ) 
+			{
+				this.scanCost = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("picking-cost") ) 
+			{
+				this.pickingCost = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("minCrew"))
+			{
+				this.minCrew = Integer.parseInt(changeset[1]);
+			}
+			else if (changeset[0].equals("lostInEmpChance"))
+			{
+				this.lostInEmpChance = Double.parseDouble(changeset[1]);
+			}
+			else
+			{
+				throw new RuntimeException("Unbekannte Changeset-Eigenschaft '"+changeset[0]+"'");
+			}
 		}
 	}
 

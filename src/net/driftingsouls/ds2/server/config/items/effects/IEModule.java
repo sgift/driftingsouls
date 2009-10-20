@@ -23,11 +23,9 @@ import java.util.Collections;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.config.ModuleSlots;
-import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import net.driftingsouls.ds2.server.ships.ShipTypeChangeset;
 
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Item-Effekt "Modul".
@@ -72,23 +70,29 @@ public class IEModule extends ItemEffect {
 		return mods;
 	}
 	
-	protected static ItemEffect fromXML(Node effectNode) throws Exception {		
+	/**
+	 * Laedt einen Effect aus einem String.
+	 * @param effectString Der Effect als String
+	 * @return Der Effect
+	 * @throws Exception falls der Effect nicht richtig geladen werden konnte
+	 */
+	public static ItemEffect fromString(String effectString) throws Exception {
 		List<String> slots = new ArrayList<String>();
-		NodeList nodes = XMLUtils.getNodesByXPath(effectNode, "slot");
-		for( int i=0, length=nodes.getLength(); i < length; i++ ) {
-			final String slot = XMLUtils.getStringAttribute(nodes.item(i), "id");
+		String[] effects = StringUtils.split(effectString, "&");
+		String[] theslots = StringUtils.split(effects[0], ",");
+		for( int i=0; i < theslots.length; i++) {
 			
 			// Sicherstellen, dass der Slot existiert
 			// sonst -> NoSuchSlotException
-			ModuleSlots.get().slot(slot);
+			ModuleSlots.get().slot(theslots[i]);
 			
-			slots.add(slot);
+			slots.add(theslots[i]);
 		}
 		
-		Number setId = XMLUtils.getNumberAttribute(effectNode, "set");
+		int setId = Integer.parseInt(effects[1]);
 		
-		ShipTypeChangeset mods = new ShipTypeChangeset(XMLUtils.firstNodeByTagName(effectNode, "shipdata"));
+		ShipTypeChangeset mods = new ShipTypeChangeset(effects[2]);
 		
-		return new IEModule(slots, mods, setId != null ? setId.intValue() : -1);
+		return new IEModule(slots, mods, setId);
 	}
 }

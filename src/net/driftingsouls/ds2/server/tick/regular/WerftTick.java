@@ -23,7 +23,7 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.config.items.Items;
+import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
@@ -97,7 +97,8 @@ public class WerftTick extends TickController {
 				this.log("\tAktueller Auftrag: "+shipd.getTypeId()+"; dauer: "+entry.getRemainingTime());
 				
 				if( entry.getRequiredItem() > -1 ) {
-					this.log("\tItem benoetigt: "+Items.get().item(entry.getRequiredItem()).getName()+" ("+entry.getRequiredItem()+")");
+					Item item = (Item)db.get(Item.class, entry.getRequiredItem());
+					this.log("\tItem benoetigt: "+item.getName()+" ("+entry.getRequiredItem()+")");
 				}
 				
 				// Wenn keine volle Crew vorhanden ist, besteht hier die Moeglichkeit, dass nicht weitergebaut wird.

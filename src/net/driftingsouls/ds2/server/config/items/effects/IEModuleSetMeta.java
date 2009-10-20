@@ -24,11 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import net.driftingsouls.ds2.server.ships.ShipTypeChangeset;
 
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Item-Effekt "Meta-Effekt fuer Item-Modul-Sets".
@@ -90,15 +88,21 @@ public class IEModuleSetMeta extends ItemEffect {
 		return Collections.unmodifiableMap(combos);
 	}
 	
-	protected static ItemEffect fromXML(Node effectNode) throws Exception {
-		String name = XMLUtils.getStringByXPath(effectNode, "name/text()");
+	/**
+	 * Laedt einen Effect aus einem String.
+	 * @param itemeffectString Der Effect als String
+	 * @return Der Effect
+	 * @throws Exception falls der Effect nicht richtig geladen werden konnte
+	 */
+	public static ItemEffect fromString(String itemeffectString) throws Exception {
+		String[] effects = StringUtils.split(itemeffectString, "&");
 		
-		IEModuleSetMeta effect = new IEModuleSetMeta(name);
-		NodeList nodes = XMLUtils.getNodesByXPath(effectNode, "combo");
-		for( int i=0, length=nodes.getLength(); i < length; i++ ) {
-			int count = XMLUtils.getNumberByXPath(nodes.item(i), "@item-count").intValue();
-			ShipTypeChangeset combo = new ShipTypeChangeset(nodes.item(i));
-			effect.addCombo(count, combo);
+		IEModuleSetMeta effect = new IEModuleSetMeta(effects[0]);
+		
+		for( int i=1; i< effects.length; i++)
+		{
+			String[] combo = StringUtils.split(effects[i], "\\");
+			effect.addCombo(Integer.parseInt(combo[0]), new ShipTypeChangeset(combo[1]));
 		}
 		
 		return effect;

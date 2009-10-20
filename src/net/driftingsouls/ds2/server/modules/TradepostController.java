@@ -8,7 +8,6 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.config.items.Items;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.ResourceLimit;
 import net.driftingsouls.ds2.server.entities.SellLimit;
@@ -72,7 +71,8 @@ public class TradepostController extends TemplateGenerator {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 		org.hibernate.Session db = getDB();
-
+		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
+		
 		t.setBlock("_TRADEPOST", "tradepost.list", "tradepost.post");
 		
 		// get variables
@@ -147,7 +147,7 @@ public class TradepostController extends TemplateGenerator {
 					"tradepost.koords", new Location(ship.getSystem(), ship.getX(), ship.getY()).displayCoordinates(false) );
 		
 		// build form
-		for( Item aitem : Items.get() ) {
+		for( Item aitem : itemlist ) {
 			int itemid = aitem.getID();
 			ItemID itemidobejct = new ItemID(aitem.getID());
 			
@@ -209,6 +209,7 @@ public class TradepostController extends TemplateGenerator {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 		org.hibernate.Session db = getDB();
+		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
 
 		t.setBlock("_TRADEPOST", "tradepost.list", "tradepost.post");
 		
@@ -285,7 +286,7 @@ public class TradepostController extends TemplateGenerator {
 				"tradepost.koords", new Location(ship.getSystem(), ship.getX(), ship.getY()).displayCoordinates(false) );		
 		
 		// build form
-		for( Item aitem : Items.get() ) {
+		for( Item aitem : itemlist ) {
 			int itemid = aitem.getID();
 			ItemID itemidobejct = new ItemID(aitem.getID());
 			

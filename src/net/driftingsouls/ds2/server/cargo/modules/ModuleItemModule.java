@@ -23,10 +23,12 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
-import net.driftingsouls.ds2.server.config.items.Items;
+import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.IEModule;
 import net.driftingsouls.ds2.server.config.items.effects.IEModuleSetMeta;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipTypeChangeset;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
@@ -57,7 +59,11 @@ public class ModuleItemModule extends Module {
 	
 	@Override
 	public ShipTypeData modifyStats(ShipTypeData stats, List<Module> moduleobjlist) {
-		ItemEffect itemEffect = Items.get().item(this.itemid).getEffect();
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		
+		Item item = (Item)db.get(Item.class, this.itemid);
+		ItemEffect itemEffect = item.getEffect();
 		if( itemEffect.getType() != ItemEffect.Type.MODULE ) {
 			log.warn("WARNUNG: Ungueltiger Itemeffect in CModuleItemModule ("+this.itemid+")<br />\n");
 			return stats;
@@ -77,7 +83,9 @@ public class ModuleItemModule extends Module {
 				}
 				ModuleItemModule itemModule = (ModuleItemModule)moduleobj;
 				
-				if( ((IEModule)Items.get().item(itemModule.getItemID().getItemID()).getEffect()).getSetID() != effect.getSetID() ) {
+				Item ModuleItem = (Item)db.get(Item.class, itemModule.getItemID().getItemID());
+				
+				if( ((IEModule)ModuleItem.getEffect()).getSetID() != effect.getSetID() ) {
 					continue;
 				}
 				
@@ -91,7 +99,8 @@ public class ModuleItemModule extends Module {
 				count++;
 			}
 			
-			ShipTypeChangeset[] mods = ((IEModuleSetMeta)Items.get().item(effect.getSetID()).getEffect()).getCombo(count);
+			Item effectSet = (Item)db.get(Item.class, effect.getSetID());
+			ShipTypeChangeset[] mods = ((IEModuleSetMeta)effectSet.getEffect()).getCombo(count);
 			for( int i=0; i < mods.length; i++ ) {
 				stats = mods[i].applyTo(stats, this.weaponrepl);
 			}
@@ -123,7 +132,15 @@ public class ModuleItemModule extends Module {
 	
 	@Override
 	public String getName() {
-		return "<a class=\"forschinfo\" href=\"./ds?module=iteminfo&amp;action=details&amp;item="+this.itemid+"\">"+Items.get().item(this.itemid).getName()+"</a>";
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		
+		Item item = (Item)db.get(Item.class, this.itemid);
+		if(item == null) {
+			return "Noname";
+		}
+		
+		return "<a class=\"forschinfo\" href=\"./ds?module=iteminfo&amp;action=details&amp;item="+this.itemid+"\">"+item.getName()+"</a>";
 	}
 	
 	/**

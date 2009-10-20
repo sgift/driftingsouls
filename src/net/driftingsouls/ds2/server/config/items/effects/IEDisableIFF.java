@@ -18,8 +18,6 @@
  */
 package net.driftingsouls.ds2.server.config.items.effects;
 
-import org.w3c.dom.Node;
-
 /**
  * <h1>Item-Effekt "IFF deaktivieren".</h1>
  * <p>Schiffe ohne IFF-Kennung koennen nicht angegriffen, gekapert, gepluendert oder Ziel eines
@@ -33,7 +31,13 @@ public class IEDisableIFF extends ItemEffect {
 		super(ItemEffect.Type.DISABLE_IFF);
 	}
 	
-	protected static ItemEffect fromXML(Node effectNode) throws Exception {
+	/**
+	 * Laedt einen Effect aus einem String.
+	 * @param effectString Der Effect als String
+	 * @return Der Effect
+	 * @throws Exception falls der Effect nicht richtig geladen werden konnte
+	 */
+	public static ItemEffect fromString(String effectString) throws Exception {
 		return new IEDisableIFF();
 	}
 }

@@ -44,7 +44,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.cargo.modules.Modules;
 import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.config.items.Items;
+import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -304,13 +304,14 @@ public class AdminCommands {
 			if( !NumberUtils.isNumber(command[4]) ) {
 				return "Item-ID ungueltig";
 			}
-			int item = Integer.parseInt(command[4]);
+			int itemid = Integer.parseInt(command[4]);
+			Item item = (Item)db.get(Item.class, itemid);
 			
-			if( (Items.get().item(item) == null) || (Items.get().item(item).getEffect().getType() != ItemEffect.Type.MODULE) ) {
+			if( (item == null) || (item.getEffect().getType() != ItemEffect.Type.MODULE) ) {
 				return "Das Item passt nicht";	
 			}
 				
-			ship.addModule( slot, Modules.MODULE_ITEMMODULE, Integer.toString(item) );
+			ship.addModule( slot, Modules.MODULE_ITEMMODULE, Integer.toString(itemid) );
 									
 			ShipTypeData shiptype = ship.getTypeData();
 				
@@ -341,7 +342,7 @@ public class AdminCommands {
 				}	
 			}
 					
-			output = "Modul '"+Items.get().item(item).getName()+"'@"+slot+" eingebaut\n";
+			output = "Modul '"+item.getName()+"'@"+slot+" eingebaut\n";
 		}
 		else {
 			output = "Unknown editship sub-command >"+command[2]+"<";	

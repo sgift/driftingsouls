@@ -64,6 +64,14 @@ public class ShipBaubar {
 	public ShipBaubar() {
 		// EMPTY
 	}
+	
+	/**
+	 * Konstruktor.
+	 * @param shiptype der Schiffstyp
+	 */
+	public ShipBaubar(ShipType shiptype) {
+		this.type = shiptype;
+	}
 
 	/**
 	 * Gibt die Baukosten zurueck.

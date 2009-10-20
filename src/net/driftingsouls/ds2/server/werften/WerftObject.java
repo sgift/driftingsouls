@@ -58,8 +58,7 @@ import net.driftingsouls.ds2.server.cargo.modules.ModuleItemModule;
 import net.driftingsouls.ds2.server.cargo.modules.Modules;
 import net.driftingsouls.ds2.server.config.ModuleSlots;
 import net.driftingsouls.ds2.server.config.Rassen;
-import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.config.items.Items;
+import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.IEDisableShip;
 import net.driftingsouls.ds2.server.config.items.effects.IEDraftShip;
 import net.driftingsouls.ds2.server.config.items.effects.IEModule;
@@ -650,12 +649,15 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * 
 	 * @param ship Das Schiff
 	 * @param slot Der Slot, in den das Modul eingebaut werden soll
-	 * @param item Die ID des einzubauenden Item-Moduls
+	 * @param itemid Die ID des einzubauenden Item-Moduls
 	 * 
 	 */
-	public void addModule( Ship ship, int slot, int item ) {
+	public void addModule( Ship ship, int slot, int itemid ) {
 		Map<Integer,Integer> usedslots = new HashMap<Integer,Integer>();
 		Ship.ModuleEntry[] modules = ship.getModules();
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		
 		for( int i=0; i < modules.length; i++ ) {
 			usedslots.put(modules[i].slot, i);
 		}
@@ -686,13 +688,14 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			MESSAGE.get().append("Keinen passenden Slot gefunden\n");
 			return;
 		}
-			
-		if( (aslot == null) || !ModuleSlots.get().slot(aslot[1]).isMemberIn( ((IEModule)Items.get().item(item).getEffect()).getSlots() ) ) {
+		
+		Item item = (Item)db.get(Item.class, itemid);
+		if( (aslot == null) || !ModuleSlots.get().slot(aslot[1]).isMemberIn( ((IEModule)item.getEffect()).getSlots() ) ) {
 			MESSAGE.get().append("Das Item passt nicht in dieses Slot\n");
 			return;
 		}
 		
-		if( Items.get().item(item).getAccessLevel() > ContextMap.getContext().getActiveUser().getAccessLevel() ) {
+		if( item.getAccessLevel() > context.getActiveUser().getAccessLevel() ) {
 			MESSAGE.get().append("Ihre Techniker wissen nichts mit dem Modul anzufangen\n");
 			return;
 		}
@@ -700,7 +703,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		ItemCargoEntry myitem = null;
 	
 		for( int i=0; i < itemlist.size(); i++ ) {
-			if( itemlist.get(i).getItemID() == item ) {
+			if( itemlist.get(i).getItemID() == itemid ) {
 				myitem = itemlist.get(i);	
 				break;
 			}	
@@ -719,7 +722,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			oldshiptype = shiptype;
 		}
 	
-		ship.addModule( slot, Modules.MODULE_ITEMMODULE, Integer.toString(item) );
+		ship.addModule( slot, Modules.MODULE_ITEMMODULE, Integer.toString(itemid) );
 		cargo.substractResource( myitem.getResourceID(), 1 );
 	
 		moduleUpdateShipData(ship, oldshiptype, cargo);
@@ -1224,7 +1227,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
-		org.hibernate.Session database = context.getDB();
 		
 		User user = this.getOwner();
 	
@@ -1233,15 +1235,9 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			fsquery = "AND t1.flagschiff=0";
 		}
 		
-		StarSystem system = (StarSystem)database.get(StarSystem.class, this.getSystem());
-		
-		String sysreqquery = "";
-		if( !system.isMilitaryAllowed() ) {
-			sysreqquery = "t1.systemreq=0 AND ";
-		}
 		String query = "SELECT t1.id,t1.race,t1.type,t1.dauer,t1.costs,t1.ekosten,t1.crew,t1.tr1,t1.tr2,t1.tr3,t1.flagschiff " +
 			"FROM ships_baubar t1 JOIN ship_types t2 ON t1.type=t2.id " +
-			"WHERE "+sysreqquery+" t1.werftslots<="+this.getWerftSlots()+" "+fsquery+" " +
+			"WHERE t1.werftslots<="+this.getWerftSlots()+" "+fsquery+" " +
 			"ORDER BY t2.nickname";
 			
 	
@@ -1326,7 +1322,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			shipdata.put("dauer", effect.getDauer());
 			shipdata.put("ekosten", effect.getE());
 			shipdata.put("race", effect.getRace());
-			shipdata.put("systemreq", effect.hasSystemReq());
 			shipdata.put("tr1", effect.getTechReq(1));
 			shipdata.put("tr2", effect.getTechReq(2));
 			shipdata.put("tr3", effect.getTechReq(3));
@@ -1366,7 +1361,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			shipdata.put("dauer", effect.getDauer());
 			shipdata.put("ekosten", effect.getE());
 			shipdata.put("race", effect.getRace());
-			shipdata.put("systemreq", effect.hasSystemReq());
 			shipdata.put("tr1", effect.getTechReq(1));
 			shipdata.put("tr2", effect.getTechReq(2));
 			shipdata.put("tr3", effect.getTechReq(3));
@@ -1387,13 +1381,13 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * Schiffsbaudatenarray zurueckgegeben. {@link DSObject#MESSAGE} enthaelt die Hinweistexte
 	 * 
 	 * @param build Die Schiffsbau-ID
-	 * @param item Die Item-ID
+	 * @param itemid Die Item-ID
 	 * 
 	 * @return schiffsbaudaten
 	 */
-	public SQLResultRow getShipBuildData( int build, int item ) {
+	public ShipBaubar getShipBuildData( int build, int itemid ) {
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		User user = this.getOwner();
 		
 		Cargo allyitems = null;
@@ -1408,42 +1402,45 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			allyitems = localcargo;
 		}
 	
-	   	SQLResultRow shipdata = null;
+	   	ShipBaubar shipdata = null;
 		if( build > 0 ) {
-			shipdata = db.first("SELECT type,costs,ekosten,crew,dauer,race,systemreq,tr1,tr2,tr3,werftslots,flagschiff FROM ships_baubar WHERE id=",build);
-			if( shipdata.isEmpty() ) {
+			shipdata = (ShipBaubar)db.createQuery("from ShipBaubar where id=:id")
+										.setInteger("id", build)
+										.setMaxResults(1)
+										.uniqueResult();
+			if( shipdata == null ) {
 				MESSAGE.get().append("Es wurde kein passender Schiffsbauplan gefunden");
 				return null;
 			}
 			
-			shipdata.put("costs", new Cargo(Cargo.Type.STRING, shipdata.getString("costs")));
+			return shipdata;
 		}
 		else {
-			int itemcount = allyitems.getItem( item ).size();
+			int itemcount = allyitems.getItem( itemid ).size();
 			
 			if( itemcount == 0 ) {
 				MESSAGE.get().append("Kein passendes Item vorhanden");
 				return null;
 			}
 	
-			if( Items.get().item(item).getEffect().getType() != ItemEffect.Type.DRAFT_SHIP ) {
+			Item item = (Item)db.get(Item.class, itemid);
+			if( item.getEffect().getType() != ItemEffect.Type.DRAFT_SHIP ) {
 			 	MESSAGE.get().append("Bei dem Item handelt es sich um keinen Schiffsbauplan");
 			 	return null;
 			}
-			IEDraftShip effect = (IEDraftShip)Items.get().item(item).getEffect();
-			shipdata = new SQLResultRow();
-			shipdata.put("type", effect.getShipType());
-			shipdata.put("costs", effect.getBuildCosts());
-			shipdata.put("crew", effect.getCrew());
-			shipdata.put("dauer", effect.getDauer());
-			shipdata.put("ekosten", effect.getE());
-			shipdata.put("race", effect.getRace());
-			shipdata.put("systemreq", effect.hasSystemReq());
-			shipdata.put("tr1", effect.getTechReq(1));
-			shipdata.put("tr2", effect.getTechReq(2));
-			shipdata.put("tr3", effect.getTechReq(3));
-			shipdata.put("werftslots", effect.getWerftSlots());
-			shipdata.put("flagschiff", effect.isFlagschiff());
+			IEDraftShip effect = (IEDraftShip)item.getEffect();
+			ShipType shiptype = (ShipType)db.get(ShipType.class, effect.getShipType());
+			shipdata = new ShipBaubar(shiptype);
+			shipdata.setCosts(effect.getBuildCosts());
+			shipdata.setCrew(effect.getCrew());
+			shipdata.setDauer(effect.getDauer());
+			shipdata.setEKosten(effect.getE());
+			shipdata.setRace(effect.getRace());
+			shipdata.setRes1(effect.getTechReq(1));
+			shipdata.setRes2(effect.getTechReq(2));
+			shipdata.setRes3(effect.getTechReq(3));
+			shipdata.setWerftSlots(effect.getWerftSlots());
+			shipdata.setFlagschiff(effect.isFlagschiff());
 		}
 		
 		return shipdata;
@@ -1520,14 +1517,8 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			allyitems = this.getCargo(true);
 		}
 	
-		SQLResultRow shipdata = this.getShipBuildData( build, item );
-		if( (shipdata == null) || shipdata.isEmpty() ) {
-			return false;
-		}
-		
-		if( shipdata.getInt("type") == 0 ) {
-			output.append("Der angegebene (baubare) Schiffstyp existiert nicht");
-			
+		ShipBaubar shipdata = this.getShipBuildData( build, item );
+		if( (shipdata == null) ) {
 			return false;
 		}
 	
@@ -1535,38 +1526,31 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		for(int i=0; i < itemlist.size(); i++ ) {
 			IEDisableShip effect = (IEDisableShip)itemlist.get(i).getItemEffect();
 			
-			if( effect.getShipType() == shipdata.getInt("type") ) {
+			if( effect.getShipType() == shipdata.getType().getId() ) {
 				output.append("Ihnen wurde der Bau dieses Schiffs verboten");
 				return false;
 			}
 		}
 	
 		//Kann die aktuelle Rasse das Schiff bauen?
-		if( !Rassen.get().rasse(user.getRace()).isMemberIn(shipdata.getInt("race")) ) {
+		if( !Rassen.get().rasse(user.getRace()).isMemberIn(shipdata.getRace()) ) {
 			output.append("Ihre Rasse kann dieses Schiff nicht bauen");		
 			return false;
 		}
 		
-		StarSystem system = (StarSystem)db.get(StarSystem.class, this.getSystem());
-		//Kann das Schiff im aktuellen System gebaut werden?
-		if( shipdata.getBoolean("systemreq") && (!system.isMilitaryAllowed()) ) {
-			output.append("Dieses Schiff l&auml;sst sich im aktuellen System nicht bauen");			
-			return false;
-		}
-	
 		//Verfuegt der Spieler ueber alle noetigen Forschungen?
-		if( !user.hasResearched(shipdata.getInt("tr1")) || !user.hasResearched(shipdata.getInt("tr2")) || !user.hasResearched(shipdata.getInt("tr3")) ) {
+		if( !user.hasResearched(shipdata.getRes(1)) || !user.hasResearched(shipdata.getRes(2)) || !user.hasResearched(shipdata.getRes(3)) ) {
 			output.append("Sie besitzen nicht alle zum Bau n&ouml;tigen Technologien");		
 			return false;
 		}
 	
 		//Kann das Schiff in dieser Werft gebaut werden?
-		if( shipdata.getInt("werftslots") > this.getWerftSlots() ) {
+		if( shipdata.getWerftSlots() > this.getWerftSlots() ) {
 			output.append("Dieses Werft ist nicht gro&szlig; genug f&uuml;r das Schiff");
 			return false;
 		}
 	
-		if( shipdata.getBoolean("flagschiff") ) {
+		if( shipdata.isFlagschiff() ) {
 			boolean space = user.hasFlagschiffSpace();
 			if( !space ) {
 				output.append("Sie k&ouml;nnen lediglich ein Flagschiff besitzen");				
@@ -1574,12 +1558,12 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			}
 		}
 	
-		//Resourcenbedraft angeben
+		//Resourcenbedarf angeben
 		boolean ok = true;
 		
 		int e = this.getEnergy();
 		
-		Cargo shipdataCosts = new Cargo((Cargo)shipdata.get("costs"));
+		Cargo shipdataCosts = new Cargo((Cargo)shipdata.getCosts());
 		
 		if( !costsPerTick ) {
 			// Abzug der sofort anfallenden Baukosten
@@ -1592,7 +1576,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			}
 
 			// E-Kosten
-			if( shipdata.getInt("ekosten") > this.getEnergy()) {
+			if( shipdata.getEKosten() > this.getEnergy()) {
 				ok = false;
 			}		
 		}
@@ -1600,7 +1584,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		int frei = this.getCrew();
 	
 		//Crew
-		if (shipdata.getInt("crew") > frei) {
+		if (shipdata.getCrew() > frei) {
 			ok = false;
 		}
 
@@ -1615,11 +1599,11 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			return true;
 		} 
 		else {
-			frei -= shipdata.getInt("crew");
+			frei -= shipdata.getCrew();
 			
 			if( !costsPerTick ) {
 				cargo.substractCargo( shipdataCosts );
-				e -= shipdata.getInt("ekosten");
+				e -= shipdata.getEKosten();
 				
 				this.setCargo(cargo, false);
 				this.setEnergy(e);
@@ -1657,17 +1641,17 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			/*
 				Werftauftrag einstellen
 			*/
-			ShipType type = (ShipType)db.get(ShipType.class, shipdata.getInt("type"));
+			ShipType type = shipdata.getType();
 			
-			WerftQueueEntry entry = new WerftQueueEntry(this, type, (build > 0 ? -1 : item), shipdata.getInt("dauer"), shipdata.getInt("werftslots"));
-			entry.setBuildFlagschiff(shipdata.getBoolean("flagschiff"));
+			WerftQueueEntry entry = new WerftQueueEntry(this, type, (build > 0 ? -1 : item), shipdata.getDauer(), shipdata.getWerftSlots());
+			entry.setBuildFlagschiff(shipdata.isFlagschiff());
 			if( entry.isBuildFlagschiff() ) {
 				this.buildFlagschiff = true;
 			}
 			if( costsPerTick ) {
-				shipdataCosts.multiply(1/(double)shipdata.getInt("dauer"), Cargo.Round.CEIL);
+				shipdataCosts.multiply(1/(double)shipdata.getDauer(), Cargo.Round.CEIL);
 				entry.setCostsPerTick(shipdataCosts);
-				entry.setEnergyPerTick((int)Math.ceil(shipdata.getInt("ekosten")/(double)shipdata.getInt("dauer")));
+				entry.setEnergyPerTick((int)Math.ceil(shipdata.getEKosten()/(double)shipdata.getDauer()));
 			}
 			db.persist(entry);
 			

@@ -27,7 +27,7 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
-import net.driftingsouls.ds2.server.config.items.Items;
+import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -67,6 +67,7 @@ public class StatWaren implements Statistic {
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
+		org.hibernate.Session database = context.getDB();
 		User user = (User)context.getActiveUser();
 
 		Writer echo = context.getResponse().getWriter();
@@ -115,13 +116,14 @@ public class StatWaren implements Statistic {
 			// Wenn die Resource ein Item ist, dann pruefen, ob dieses angezeigt werden darf
 			if( res.getId().isItem() ) {
 				int itemid = res.getId().getItemID();
-				if( Items.get().item(itemid) == null ) {
+				Item item = (Item)database.get(Item.class, itemid);
+				if( item == null ) {
 					continue;
 				}
-				if( Items.get().item(itemid).getAccessLevel() > user.getAccessLevel() ) {
+				if( item.getAccessLevel() > user.getAccessLevel() ) {
 					continue;
 				}
-				if( Items.get().item(itemid).isUnknownItem() && !user.isKnownItem(itemid) && (user.getAccessLevel() < 15) ) {
+				if( item.isUnknownItem() && !user.isKnownItem(itemid) && (user.getAccessLevel() < 15) ) {
 					continue;
 				}
 			}

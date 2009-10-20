@@ -22,7 +22,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.config.items.Items;
+import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -213,6 +213,7 @@ public class PluendernController extends TemplateGenerator {
 	public void transferAction() {
 		TemplateEngine t = this.getTemplateEngine();
 		User user = (User)this.getUser();
+		org.hibernate.Session db = getDB();
 		
 		Cargo cargofrom = this.shipFrom.getCargo();
 		Cargo cargoto = this.shipTo.getCargo();
@@ -266,7 +267,8 @@ public class PluendernController extends TemplateGenerator {
 				// Falls es sich um ein unbekanntes Item handelt, dann dem Besitzer des Zielschiffes bekannt machen
 				if( (transt > 0) && res.getId().isItem() ) {
 					int itemid = res.getId().getItemID();
-					if( Items.get().item(itemid).isUnknownItem() ) {
+					Item item = (Item)db.get(Item.class, itemid);
+					if( item.isUnknownItem() ) {
 						User targetUser = this.shipTo.getOwner();
 						targetUser.addKnownItem(itemid);
 					}
@@ -308,7 +310,8 @@ public class PluendernController extends TemplateGenerator {
 				// Falls es sich um ein unbekanntes Item handelt, dann dieses dem Spieler bekannt machen
 				if( (transf > 0) && res.getId().isItem() ) {
 					int itemid = res.getId().getItemID();
-					if( Items.get().item(itemid).isUnknownItem() ) {
+					Item item = (Item)db.get(Item.class, itemid);
+					if( item.isUnknownItem() ) {
 						user.addKnownItem(itemid);
 					}
 				}

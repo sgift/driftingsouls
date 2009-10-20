@@ -21,11 +21,9 @@ package net.driftingsouls.ds2.server.config.items.effects;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Item-Effekt "Schiffsbauplan".
@@ -35,7 +33,6 @@ import org.w3c.dom.NodeList;
 public class IEDraftShip extends ItemEffect {
 	private int shiptype = 0;
 	private int race = 0;
-	private boolean systemReq = false;
 	private boolean flagschiff = false;
 	private Cargo buildcosts = null;
 	private int crew = 0;
@@ -62,14 +59,6 @@ public class IEDraftShip extends ItemEffect {
 	 */
 	public int getRace() {
 		return race;
-	}
-	
-	/**
-	 * Gibt zurueck, ob das Schiff nur in militaerischen Systemen gebaut werden kann.
-	 * @return Die System-Voraussetzung
-	 */
-	public boolean hasSystemReq() {
-		return systemReq;
 	}
 	
 	/**
@@ -133,10 +122,17 @@ public class IEDraftShip extends ItemEffect {
 		return werftslots;
 	}
 	
-	protected static ItemEffect fromXML(Node effectNode) throws Exception {
+	/**
+	 * Laedt einen Effect aus einem String.
+	 * @param effectString Der Effect als String
+	 * @return Der Effect
+	 * @throws Exception falls der Effect nicht richtig geladen werden konnte
+	 */
+	public static ItemEffect fromString(String effectString) throws Exception {
 		IEDraftShip draft = new IEDraftShip(false);
 		
-		draft.shiptype = (int)XMLUtils.getLongAttribute(effectNode, "shiptype");
+		String[] effects = StringUtils.split(effectString, "&");
+		draft.shiptype = Integer.parseInt(effects[0]);
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		ShipType shipType = (ShipType)db.get(ShipType.class, draft.shiptype);
@@ -144,22 +140,18 @@ public class IEDraftShip extends ItemEffect {
 			throw new Exception("Illegaler Schiffstyp '"+draft.shiptype+"' im Item-Effekt 'Schiffsbauplan'");
 		}
 		
-		draft.race = (int)XMLUtils.getLongAttribute(effectNode, "race");
-		draft.systemReq = XMLUtils.getBooleanByXPath(effectNode, "system-req");
-		draft.flagschiff = XMLUtils.getBooleanByXPath(effectNode, "flagschiff");
-		draft.crew = XMLUtils.getNumberByXPath(effectNode, "buildcosts/crew/@count").intValue();
-		draft.e = XMLUtils.getNumberByXPath(effectNode, "buildcosts/e/@count").intValue();
-		draft.dauer = XMLUtils.getNumberByXPath(effectNode, "dauer/@count").intValue();
-		
-		NodeList technodes = XMLUtils.getNodesByXPath(effectNode, "tech-req");
-		draft.techs = new int[technodes.getLength()];
-		for( int i=0; i < technodes.getLength(); i++ ) {
-			draft.techs[i] = (int)XMLUtils.getLongAttribute(technodes.item(i), "id");
+		draft.race = Integer.parseInt(effects[1]);
+		draft.flagschiff = effects[2].equals("true") ? true : false;
+		draft.crew = Integer.parseInt(effects[3]);
+		draft.e = Integer.parseInt(effects[4]);
+		draft.dauer = Integer.parseInt(effects[5]);
+		draft.werftslots = Integer.parseInt(effects[6]);
+		draft.buildcosts = new UnmodifiableCargo(new Cargo(Cargo.Type.STRING, effects[7]));
+		String[] techs = StringUtils.split(effects[8], ",");
+		draft.techs = new int[techs.length];
+		for(int i = 0; i < techs.length; i++) {
+			draft.techs[i] = Integer.parseInt(techs[i]);
 		}
-	
-		draft.werftslots = XMLUtils.getNumberByXPath(effectNode, "werft-slots/@count").intValue();
-		
-		draft.buildcosts = new UnmodifiableCargo(new Cargo(XMLUtils.getNodeByXPath(effectNode, "buildcosts")));
 		
 		return draft;
 	}

@@ -18,9 +18,7 @@
  */
 package net.driftingsouls.ds2.server.config.items.effects;
 
-import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-
-import org.w3c.dom.Node;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Fabrikklasse fuer Itemeffekte.
@@ -33,42 +31,43 @@ public class ItemEffectFactory {
 	}
 	
 	/**
-	 * Erzeugt aus einem XML-Fragment den passenden Itemeffekt.
-	 * @param effectNode Das XML-Fragment
-	 * @return Der Effekt
-	 * @throws Exception Falls das Fragment ungueltig ist
+	 * Erzeugt aus einem ItemEffectString einen ItemEffect.
+	 * @param itemEffectString Der String in Form "typ|effectvalue1;effectvalue2"
+	 * @return Der daraus erzeugte Itemeffect
+	 * @throws Exception Exception falls der ItemEffectString ungueltig ist
 	 */
-	public static ItemEffect fromXML(Node effectNode) throws Exception {
-		if( effectNode == null ) {
+	public static ItemEffect fromString(String itemEffectString) throws Exception {
+		if( itemEffectString == null || itemEffectString.equals("")) {
 			return new IENone();
 		}
-		String type = XMLUtils.getStringAttribute(effectNode, "type");
-		if( type == null || "".equals(type) ) {
+		String[] effects = StringUtils.split(itemEffectString, ":");
+		if( effects[0] == null || effects[0].equals("")) {
 			return new IENone();
 		}
 		
-		if( type.equals("draft-ship") ) {
-			return IEDraftShip.fromXML(effectNode);
+		if( effects[0].equals("draft-ship")) {
+			return IEDraftShip.fromString(effects[1]);
 		}
-		if( type.equals("draft-ammo") ) {
-			return IEDraftAmmo.fromXML(effectNode);
+		if( effects[0].equals("draft-ammo") ) {
+			return IEDraftAmmo.fromString(effects[1]);
 		}
-		if( type.equals("module") ) {
-			return IEModule.fromXML(effectNode);
+		if( effects[0].equals("module") ) {
+			return IEModule.fromString(effects[1]);
 		}
-		if( type.equals("ammo") ) {
-			return IEAmmo.fromXML(effectNode);
+		if( effects[0].equals("ammo") ) {
+			return IEAmmo.fromString(effects[1]);
 		}
-		if( type.equals("disable-ship") ) {
-			return IEDisableShip.fromXML(effectNode);
+		if( effects[0].equals("disable-ship") ) {
+			return IEDisableShip.fromString(effects[1]);
 		}
-		if( type.equals("disable-iff") ) {
-			return IEDisableIFF.fromXML(effectNode);
+		if( effects[0].equals("disable-iff") ) {
+			return IEDisableIFF.fromString(effects[1]);
 		}
-		if( type.equals("module-set-meta") ) {
-			return IEModuleSetMeta.fromXML(effectNode);
+		if( effects[0].equals("module-set-meta") ) {
+			return IEModuleSetMeta.fromString(effects[1]);
 		}
 		
-		throw new Exception("Unbekannter Item-Effekttyp: '"+type+"'");
+		throw new Exception("Unbekannter Item-Effekttyp: '"+effects[0]+"'");
+		
 	}
 }

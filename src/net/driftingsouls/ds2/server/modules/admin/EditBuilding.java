@@ -10,7 +10,6 @@ import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.WarenID;
 import net.driftingsouls.ds2.server.config.ResourceConfig;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.config.items.Items;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -31,6 +30,7 @@ public class EditBuilding implements AdminPlugin
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
+		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
 
 		int buildingId = context.getRequest().getParameterInt("building");
 		List<Building> buildings = Common.cast(db.createQuery("from Building").list());
@@ -61,7 +61,7 @@ public class EditBuilding implements AdminPlugin
 				buildcosts.addResource(new WarenID(resource.getId()), amount);
 			}
 			
-			for(Item item: Items.get())
+			for(Item item: itemlist )
 			{
 				long amount = context.getRequest().getParameterInt("buildi"+item.getID());
 				int uses = context.getRequest().getParameterInt("buildi" + item.getID() + "uses");
@@ -85,7 +85,7 @@ public class EditBuilding implements AdminPlugin
 				}
 			}
 			
-			for(Item item: Items.get())
+			for(Item item: itemlist)
 			{
 				long amount = context.getRequest().getParameterInt("i"+item.getID());
 				int uses = context.getRequest().getParameterInt("i" + item.getID() + "uses");
@@ -170,7 +170,7 @@ public class EditBuilding implements AdminPlugin
 				echo.append("<tr><td class=\"noBorderS\"><img src=\""+resource.getImage()+"\" alt=\"\" />"+resource.getName()+": </td><td><input type=\"text\" name=\"build"+resource.getId()+"\" value=\"" + amount + "\"></td></tr>");
 			}
 			echo.append("<tr><td class=\"noBorderS\"></td><td class=\"noBorderS\">Menge</td><td class=\"noBorderS\">Nutzungen</td></tr>");
-			for(Item item: Items.get())
+			for(Item item: itemlist)
 			{
 				long amount = building.getBuildCosts().getResourceCount(new ItemID(item.getID()));
 				int uses = 0;
@@ -188,7 +188,7 @@ public class EditBuilding implements AdminPlugin
 				echo.append("<tr><td class=\"noBorderS\"><img src=\""+resource.getImage()+"\" alt=\"\" />"+resource.getName()+": </td><td><input type=\"text\" name=\"prod"+resource.getId()+"\" value=\"" + amount + "\"></td></tr>");
 			}
 			echo.append("<tr><td class=\"noBorderS\"></td><td class=\"noBorderS\">Menge</td><td class=\"noBorderS\">Nutzungen</td></tr>");
-			for(Item item: Items.get())
+			for(Item item: itemlist)
 			{
 				long amount = -1*building.getConsumes().getResourceCount(new ItemID(item.getID())) + building.getProduces().getResourceCount(new ItemID(item.getID()));
 				int uses = 0;

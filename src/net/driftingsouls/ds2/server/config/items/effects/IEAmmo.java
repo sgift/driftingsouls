@@ -20,9 +20,6 @@ package net.driftingsouls.ds2.server.config.items.effects;
 
 import net.driftingsouls.ds2.server.entities.Ammo;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-
-import org.w3c.dom.Node;
 
 /**
  * <h1>Item-Effekt "Ammo".</h1>
@@ -53,13 +50,19 @@ public class IEAmmo extends ItemEffect {
 		return (Ammo)db.get(Ammo.class, this.ammoId);
 	}
 	
-	protected static ItemEffect fromXML(Node effectNode) throws Exception {
-		int ammo = XMLUtils.getNumberAttribute(effectNode, "ammo").intValue();
+	/**
+	 * Liest die Ammodaten aus einem String aus.
+	 * @param effectString Der String mit dem Effect
+	 * @return Der Effect
+	 * @throws Exception falls der Effect nicht richtig geladen werden konnte
+	 */
+	public static ItemEffect fromString(String effectString) throws Exception {
+		int ammo = Integer.parseInt(effectString);
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		Ammo ammoEntry = (Ammo)db.get(Ammo.class, ammo);
 		if( ammoEntry == null ) {
-			throw new Exception("Illegaler Ammo-Typ '"+ammo+"' im Item-Effekt 'Munition'");
+			return new IENone();
 		}
 		
 		return new IEAmmo(ammo);

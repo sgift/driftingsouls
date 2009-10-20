@@ -18,8 +18,12 @@
  */
 package net.driftingsouls.ds2.server.cargo;
 
+import java.util.List;
+
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.config.items.Items;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
@@ -135,6 +139,8 @@ public class Resources {
 	}
 	
 	private static void initResourceList() {
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
 		Cargo resList = new Cargo();
 		
 		for( int i=0; i < Cargo.MAX_RES; i++ ) 
@@ -142,7 +148,9 @@ public class Resources {
 			resList.addResource(new WarenID(i), 1);
 		}
 		
-		for( Item item : Items.get() )
+		List<Item> items = Common.cast(db.createQuery("from Item").list());
+		
+		for( Item item : items )
 		{
 			resList.addResource(new ItemID(item.getID()), 1);
 		}

@@ -37,7 +37,6 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.config.items.Items;
 import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.StatVerkaeufe;
@@ -283,28 +282,29 @@ public class Kommandozentrale extends DefaultBuilding {
 		*/
 		
 		if( baction.equals("item") ) {
-			int item = context.getRequest().getParameterInt("item");
+			int itemid = context.getRequest().getParameterInt("item");
 			
 			Ally ally = user.getAlly();
+			Item item = (Item)db.get(Item.class, itemid);
 			
 			if( ally == null ) {
 				message.append("Sie sind in keiner Allianz<br /><br />\n");
 			}
-			else if( Items.get().item(item) == null || !Items.get().item(item).getEffect().hasAllyEffect() ) {
+			else if( item == null || item.getEffect().hasAllyEffect() ) {
 				message.append("Kein passenden Itemtyp gefunden<br /><br />\n");
 			}
-			else if( !cargo.hasResource( new ItemID(item) ) ) {
+			else if( !cargo.hasResource( new ItemID(itemid) ) ) {
 				message.append("Kein passendes Item vorhanden<br /><br />\n");
 			}
 			else {
 				Cargo allyitems = new Cargo( Cargo.Type.ITEMSTRING, ally.getItems() );
-				allyitems.addResource( new ItemID(item), 1 );
-				cargo.substractResource( new ItemID(item), 1 );
+				allyitems.addResource( new ItemID(itemid), 1 );
+				cargo.substractResource( new ItemID(itemid), 1 );
 		
 				ally.setItems(allyitems.getData( Cargo.Type.ITEMSTRING ));
 				base.setCargo(cargo);
 						
-				String msg = "Ich habe das Item \""+Items.get().item(item).getName()+"\" der Allianz zur Verf&uuml;gung gestellt.";
+				String msg = "Ich habe das Item \""+item.getName()+"\" der Allianz zur Verf&uuml;gung gestellt.";
 				PM.sendToAlly(user, ally, "Item &uuml;berstellt", msg);
 		
 				message.append("Das Item wurde an die Allianz &uuml;bergeben<br /><br />\n");

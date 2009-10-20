@@ -30,7 +30,6 @@ import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.WarenID;
 import net.driftingsouls.ds2.server.config.ResourceConfig;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.config.items.Items;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -59,6 +58,7 @@ public class EditGroup implements AdminPlugin
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
+		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
 		
 		int shiptypeId = context.getRequest().getParameterInt("shiptype");
 
@@ -138,7 +138,7 @@ public class EditGroup implements AdminPlugin
 					cargo.addResource(new WarenID(resource.getId()), amount);
 				}
 				
-				for(Item item: Items.get())
+				for(Item item: itemlist)
 				{
 					long amount = context.getRequest().getParameterInt("i"+item.getID());
 					int uses = context.getRequest().getParameterInt("i" + item.getID() + "uses");
@@ -209,7 +209,7 @@ public class EditGroup implements AdminPlugin
 				echo.append("<tr><td class=\"noBorderS\"><img src=\""+resource.getImage()+"\" alt=\"\" />"+resource.getName()+": </td><td><input type=\"text\" name=\""+resource.getId()+"\"></td></tr>");
 			}
 			echo.append("<tr><td class=\"noBorderS\"></td><td class=\"noBorderS\">Menge</td><td class=\"noBorderS\">Nutzungen</td></tr>");
-			for(Item item: Items.get())
+			for(Item item: itemlist)
 			{
 				int uses = 0;
 				echo.append("<tr><td class=\"noBorderS\"><img src=\""+item.getPicture()+"\" alt=\"\" />"+item.getName()+": </td><td><input type=\"text\" name=\"i"+item.getID()+"\"></td><td><input type=\"text\" name=\"i"+item.getID()+"u\" value=\"" + uses + "\"></td></tr>");
