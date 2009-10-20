@@ -2413,22 +2413,26 @@ und verhindert, das der Besitzer bekannt wird</description>
 	</item>
 
 	<!-- 382 - NPC-Hilfe: Kottos#1 -->
-	<item id="382" cargo="0" accesslevel="5">
-		<name>NPC-Hilfe: Kottos#1</name>
+	<item id="382" cargo="0">
+		<name>Rüstset für Träger Kottos</name>
 		<picture>module/generic/generic_off.png</picture>
-		<quality>artifact</quality>
+		<quality>rare</quality>
 		<effect type="module">
 			<slot id="misc_kottos" />
 			<shipdata>
-				<shd:sensorrange value="6" />
-				<shd:rm value="175" />
+				<shd:sensorrange value="4" />
+				<shd:rm value="165" />
 				<shd:cost value="-1" />
 				<shd:heat value="-1" />
-				<shd:flags>
-					<shd:set name="nicht_kaperbar" />
-				</shd:flags>
+				<shd:cargo value="1000" />
+				<shd:eps value="200" />
+				<shd:ru value="4" />
+				<shd:rd value="12" />
+				<shd:crew value="50" />
+				<shd:jdocks value="2" />
 				<shd:weapons>
 					<shd:weapon name="TerSlash" count="2" maxheat="10" />
+					<shd:weapon name="AAAf" count="3" maxheat="24" />
 				</shd:weapons>
 			</shipdata>
 		</effect>
