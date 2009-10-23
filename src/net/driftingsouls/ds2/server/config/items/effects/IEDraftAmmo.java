@@ -18,7 +18,11 @@
  */
 package net.driftingsouls.ds2.server.config.items.effects;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import net.driftingsouls.ds2.server.entities.Ammo;
+import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.apache.commons.lang.StringUtils;
 
@@ -75,5 +79,48 @@ public class IEDraftAmmo extends ItemEffect {
 			return new IEDraftAmmo(allyEffect, ammo);
 		}
 		return new IEDraftAmmo(false, ammo);
+	}
+	
+	/**
+	 * Laedt einen ItemEffect aus einem Context.
+	 * @param context Der Context
+	 * @return Der Effect
+	 */
+	public static ItemEffect fromContext(Context context) {
+		
+		int ammoid = context.getRequest().getParameterInt("ammoid");
+		Boolean allyEffect = context.getRequest().getParameterString("allyeffect").equals("true") ? true : false;
+		
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		Ammo ammoEntry = (Ammo)db.get(Ammo.class, ammoid);
+		if( ammoEntry == null) {
+			return new IENone();
+		}
+		if(allyEffect) {
+			return new IEDraftAmmo(allyEffect, ammoid);
+		}
+		return new IEDraftAmmo(false,ammoid);
+		
+	}
+	
+	/**
+	 * Gibt das passende Fenster für das Adminmenü aus.
+	 * @param echo Der Writer des Adminmenüs
+	 * @throws IOException Exception falls ein fehler auftritt
+	 */
+	public void getAdminTool(Writer echo) throws IOException {
+		
+		echo.append("<input type=\"hidden\" name=\"type\" value=\"draft-ammo\" >");
+		echo.append("<tr><td class=\"noBorderS\">AmmoId: </td><td><input type=\"text\" name=\"ammoid\" value=\"" + ammoId + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Ally-Effekt (true/false): </td><td><input type=\"text\" name=\"allyeffect\" value=\"" + hasAllyEffect() + "\"></td></tr>\n");
+	}
+	
+	/**
+	 * Gibt den Itemeffect als String aus.
+	 * @return der Effect als String
+	 */
+	public String toString() {
+		String itemstring = "draft-ammo:" + ammoId;
+		return itemstring;
 	}
 }

@@ -18,6 +18,11 @@
  */
 package net.driftingsouls.ds2.server.config.items.effects;
 
+import java.io.IOException;
+import java.io.Writer;
+
+import net.driftingsouls.ds2.server.framework.Context;
+
 /**
  * <h1>Item-Effekt "IFF deaktivieren".</h1>
  * <p>Schiffe ohne IFF-Kennung koennen nicht angegriffen, gekapert, gepluendert oder Ziel eines
@@ -39,5 +44,32 @@ public class IEDisableIFF extends ItemEffect {
 	 */
 	public static ItemEffect fromString(String effectString) throws Exception {
 		return new IEDisableIFF();
+	}
+	
+	/**
+	 * Laedt einen Effect aus einem Context.
+	 * @param context der Context
+	 * @return der Effect
+	 */
+	public static ItemEffect fromContext(Context context) {
+		return new IEDisableIFF();
+	}
+	
+	/**
+	 * Gibt das passende Fenster für das Adminmenü aus.
+	 * @param echo Der Writer des Adminmenüs
+	 * @throws IOException Exception falls ein fehler auftritt
+	 */
+	public void getAdminTool(Writer echo) throws IOException {
+		
+		echo.append("<input type=\"hidden\" name=\"type\" value=\"disable-iff\" >");
+	}
+	
+	/**
+	 * Gibt den Itemeffect als String aus.
+	 * @return der Effect als String
+	 */
+	public String toString() {
+		return "disable-iff:0";
 	}
 }

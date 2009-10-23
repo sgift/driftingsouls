@@ -18,8 +18,13 @@
  */
 package net.driftingsouls.ds2.server.config.items.effects;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
@@ -154,5 +159,73 @@ public class IEDraftShip extends ItemEffect {
 		}
 		
 		return draft;
+	}
+	
+	/**
+	 * Laedt ein ItemEffect aus dem angegebenen Context.
+	 * @param context Der Context
+	 * @return Der Effect
+	 */
+	public static ItemEffect fromContext(Context context) {
+		IEDraftShip draft = new IEDraftShip(false);
+		
+		draft.shiptype = context.getRequest().getParameterInt("shiptype");
+		
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		ShipType shipType = (ShipType)db.get(ShipType.class, draft.shiptype);
+		if( shipType == null) {
+			return null;
+		}
+		
+		draft.race = context.getRequest().getParameterInt("race");
+		draft.flagschiff = context.getRequest().getParameterString("flagschiff").equals("true") ? true : false;
+		draft.crew = context.getRequest().getParameterInt("crew");
+		draft.e = context.getRequest().getParameterInt("energie");
+		draft.dauer = context.getRequest().getParameterInt("dauer");
+		draft.werftslots = context.getRequest().getParameterInt("werftslots");
+		draft.buildcosts = new UnmodifiableCargo(new Cargo(Cargo.Type.STRING, context.getRequest().getParameterString("buildcosts")));
+		String[] techs = StringUtils.split(context.getRequest().getParameterString("techs"), ",");
+		draft.techs = new int[techs.length];
+		for(int i = 0; i < techs.length; i++) {
+			draft.techs[i] = Integer.parseInt(techs[i]);
+		}
+		
+		return draft;
+	}
+	
+	/**
+	 * Gibt das passende Fenster für das Adminmenü aus.
+	 * @param echo Der Writer des Adminmenüs
+	 * @throws IOException Exception falls ein fehler auftritt
+	 */
+	public void getAdminTool(Writer echo) throws IOException {
+		
+		echo.append("<input type=\"hidden\" name=\"type\" value=\"draft-ship\" >");
+		echo.append("<tr><td class=\"noBorderS\">SchiffsId: </td><td><input type=\"text\" name=\"shiptype\" value=\"" + getShipType() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Rasse: </td><td><input type=\"text\" name=\"race\" value=\"" + getRace() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Flagschiff (true/false): </td><td><input type=\"text\" name=\"flagschiff\" value=\"" + isFlagschiff() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Benötigte Crew: </td><td><input type=\"text\" name=\"crew\" value=\"" + getCrew() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Benötigte Energie: </td><td><input type=\"text\" name=\"energie\" value=\"" + getE() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Benötigte Dauer: </td><td><input type=\"text\" name=\"dauer\" value=\"" + getDauer() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Benötigte Werftslots: </td><td><input type=\"text\" name=\"werftslots\" value=\"" + getWerftSlots() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Baukosten: </td><td><input type=\"text\" name=\"buildcosts\" value=\"" + getBuildCosts().save() + "\"></td></tr>\n");
+		String techs = Common.implode(",", this.techs);
+		echo.append("<tr><td class=\"noBorderS\">Benötigte Technologien: </td><td><input type=\"text\" name=\"techs\" value=\"" + techs + "\"></td></tr>\n");
+	}
+	
+	/**
+	 * Gibt den Itemeffect als String aus.
+	 * @return der Effect als String
+	 */
+	public String toString() {
+		String itemstring = "draft-ship:" + getShipType() + "&" + getRace() + "&" + isFlagschiff() + "&" + getCrew() + "&" + getE() + "&" + getDauer() + "&" + getWerftSlots() + "&" + getBuildCosts().save();
+		String techs = Common.implode(",", this.techs);
+		if( techs.equals("")) {
+			techs = ",";
+		}
+		itemstring = itemstring + "&" + techs;
+		
+		return itemstring;
 	}
 }

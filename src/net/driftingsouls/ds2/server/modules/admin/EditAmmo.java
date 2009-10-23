@@ -36,7 +36,7 @@ import net.driftingsouls.ds2.server.modules.AdminController;
  * @author Sebastian Gift
  *
  */
-@AdminMenuEntry(category = "Waffen", name = "Munition bearbeiten")
+@AdminMenuEntry(category = "Items", name = "Munition bearbeiten")
 public class EditAmmo implements AdminPlugin
 {
 	@Override

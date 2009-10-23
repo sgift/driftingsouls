@@ -177,6 +177,14 @@ public class Item {
 	}
 	
 	/**
+	 * Setzt den Namen des Item-Typs.
+	 * @param name der neue Name
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	/**
 	 * Gibt die Beschreibung des Item-Typs zurueck.
 	 * Falls keine Beschreibung vorliegt, wird <code>null</code>
 	 * zurueckgegeben.
@@ -292,7 +300,7 @@ public class Item {
 	 * @return Das grosse Bild inkl. Bild-Pfad oder <code>null</code>
 	 */
 	public String getLargePicture() {
-		if( !this.largepicture.equals("none") ) {
+		if( !(this.largepicture == null) && !this.largepicture.equals("none") ) {
 			return this.largepicture;
 		}
 		return null;
@@ -303,7 +311,14 @@ public class Item {
 	 * @param largepicture Der Bildpfad, "none", wenn es kein grosses Bild gibt.
 	 */
 	public void setLargePicture(String largepicture) {
-		this.largepicture = largepicture;
+		if( !largepicture.equals("")) 
+		{
+			this.largepicture = largepicture;
+		}
+		else
+		{
+			this.largepicture = null;
+		}
 	}
 	
 	/**

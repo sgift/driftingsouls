@@ -18,11 +18,15 @@
  */
 package net.driftingsouls.ds2.server.config.items.effects;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.config.ModuleSlots;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.ships.ShipTypeChangeset;
 
 import org.apache.commons.lang.StringUtils;
@@ -94,5 +98,49 @@ public class IEModule extends ItemEffect {
 		ShipTypeChangeset mods = new ShipTypeChangeset(effects[2]);
 		
 		return new IEModule(slots, mods, setId);
+	}
+	
+	/**
+	 * Laedt ein Modul aus dem angegbenen Context.
+	 * @param context Der Context
+	 * @return Der Effect
+	 */
+	public static ItemEffect fromContext(Context context) {
+		List<String> slots = new ArrayList<String>();
+		String[] theslots = StringUtils.split(context.getRequest().getParameterString("slots"), ";");
+		for( int i=0; i < theslots.length; i++) {
+			
+			ModuleSlots.get().slot(theslots[i]);
+			
+			slots.add(theslots[i]);
+		}
+		
+		int setId = context.getRequest().getParameterInt("setid");
+		
+		ShipTypeChangeset mods = new ShipTypeChangeset(context, "");
+		
+		return new IEModule(slots, mods, setId);
+	}
+	
+	/**
+	 * Gibt das passende Fenster für das Adminmenü aus.
+	 * @param echo Der Writer des Adminmenüs
+	 * @throws IOException Exception falls ein fehler auftritt
+	 */
+	public void getAdminTool(Writer echo) throws IOException {
+		
+		echo.append("<input type=\"hidden\" name=\"type\" value=\"module\" >");
+		echo.append("<tr><td class=\"noBorderS\">SetId (0=kein Set): </td><td><input type=\"text\" name=\"setid\" value=\"" + getSetID() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Slots: </td><td><input type=\"text\" name=\"slots\" value=\"" + Common.implode(";", getSlots()) + "\"></td></tr>\n");
+		getMods().getAdminTool(echo, "");
+	}
+	
+	/**
+	 * Gibt den Itemeffect als String aus.
+	 * @return der Effect als String
+	 */
+	public String toString() {
+		String itemstring = "module:" + Common.implode(";", getSlots()) + "&" + getSetID() + "&" + getMods().toString();
+		return itemstring;
 	}
 }

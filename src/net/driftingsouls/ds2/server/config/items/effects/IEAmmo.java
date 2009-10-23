@@ -18,7 +18,11 @@
  */
 package net.driftingsouls.ds2.server.config.items.effects;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import net.driftingsouls.ds2.server.entities.Ammo;
+import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
@@ -66,5 +70,42 @@ public class IEAmmo extends ItemEffect {
 		}
 		
 		return new IEAmmo(ammo);
+	}
+	
+	/**
+	 * Liest die Ammodaten aus einem Context aus.
+	 * @param context der Context
+	 * @return der Effect
+	 */
+	public static ItemEffect fromContext(Context context) {
+		int ammoid = context.getRequest().getParameterInt("ammoid");
+		
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		Ammo ammoEntry = (Ammo)db.get(Ammo.class, ammoid);
+		if( ammoEntry == null) {
+			return new IENone();
+		}
+		
+		return new IEAmmo(ammoid);
+	}
+	
+	/**
+	 * Gibt das passende Fenster für das Adminmenü aus.
+	 * @param echo Der Writer des Adminmenüs
+	 * @throws IOException Exception falls ein fehler auftritt
+	 */
+	public void getAdminTool(Writer echo) throws IOException {
+		
+		echo.append("<input type=\"hidden\" name=\"type\" value=\"ammo\" >");
+		echo.append("<tr><td class=\"noBorderS\">AmmoId: </td><td><input type=\"text\" name=\"ammoid\" value=\"" + ammoId + "\"></td></tr>\n");
+	}
+	
+	/**
+	 * Gibt den Itemeffect als String aus.
+	 * @return der Effect als String
+	 */
+	public String toString() {
+		String itemstring = "ammo:" + ammoId;
+		return itemstring;
 	}
 }

@@ -18,6 +18,10 @@
  */
 package net.driftingsouls.ds2.server.config.items.effects;
 
+import java.io.IOException;
+import java.io.Writer;
+
+import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
@@ -76,5 +80,41 @@ public class IEDisableShip extends ItemEffect {
 			return new IEDisableShip(allyEffect, shiptype);
 		}
 		return new IEDisableShip(false, shiptype);
+	}
+	
+	/**
+	 * Laedt einen Effect aus dem angegebenen Context.
+	 * @param context der context
+	 * @return der Effect
+	 */
+	public static ItemEffect fromContext(Context context) {
+		
+		int shiptype = context.getRequest().getParameterInt("shiptype");
+		boolean allyeffect = context.getRequest().getParameterString("allyeffect").equals("true") ? true : false;
+		
+		if( allyeffect ) {
+			return new IEDisableShip(allyeffect, shiptype);
+		}
+		return new IEDisableShip(false, shiptype);
+	}
+	
+	/**
+	 * Gibt das passende Fenster für das Adminmenü aus.
+	 * @param echo Der Writer des Adminmenüs
+	 * @throws IOException Exception falls ein fehler auftritt
+	 */
+	public void getAdminTool(Writer echo) throws IOException {
+		
+		echo.append("<input type=\"hidden\" name=\"type\" value=\"disable-ship\" >");
+		echo.append("<tr><td class=\"noBorderS\">SchiffsId: </td><td><input type=\"text\" name=\"shiptype\" value=\"" + getShipType() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">AllyEffect (true/false): </td><td><input type=\"text\" name=\"allyeffect\" value=\"" + hasAllyEffect() + "\"></td></tr>\n");
+	}
+	
+	/**
+	 * Gibt den Itemeffect als String aus.
+	 * @return der Effect als String
+	 */
+	public String toString() {
+		return "disable-ship:" + getShipType();
 	}
 }

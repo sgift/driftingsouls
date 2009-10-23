@@ -18,12 +18,15 @@
  */
 package net.driftingsouls.ds2.server.config.items.effects;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.ships.ShipTypeChangeset;
 
 import org.apache.commons.lang.StringUtils;
@@ -106,5 +109,61 @@ public class IEModuleSetMeta extends ItemEffect {
 		}
 		
 		return effect;
+	}
+	
+	/**
+	 * Laedt einen Effect aus dem angegebenen Context.
+	 * @param context Der Context
+	 * @return Der Effect
+	 */
+	public static ItemEffect fromContext(Context context) {
+		
+		IEModuleSetMeta effect = new IEModuleSetMeta(context.getRequest().getParameterString("setname"));
+		
+		for( int i = 1; i <= 10; i++)
+		{
+			if(context.getRequest().getParameterString("used"+i).equals("true"))
+			{
+				effect.addCombo(i, new ShipTypeChangeset(context, ""+i));
+			}
+		}
+		return effect;
+	}
+	
+	/**
+	 * Gibt das passende Fenster für das Adminmenü aus.
+	 * @param echo Der Writer des Adminmenüs
+	 * @throws IOException Exception falls ein fehler auftritt
+	 */
+	public void getAdminTool(Writer echo) throws IOException {
+		Map<Integer, ShipTypeChangeset> combos = getCombos();
+		
+		for(int i = 1; i <= 10; i++) {
+			if( combos.containsKey(i)) {
+				echo.append("<tr><td class=\"noBorderS\">Benutze Combo "+i+": </td><td><input type=\"text\" name=\"used"+i+"\" value=\"true\"></td></tr>\n");
+				combos.get(i).getAdminTool(echo, ""+i);
+			}
+			else
+			{
+				echo.append("<tr><td class=\"noBorderS\">Benutze Combo "+i+": </td><td><input type=\"text\" name=\"used"+i+"\" value=\"false\"></td></tr>\n");
+				new ShipTypeChangeset().getAdminTool(echo, ""+i);
+			}
+		}
+	}
+	
+	/**
+	 * Gibt den Itemeffect als String aus.
+	 * @return der Effect als String
+	 */
+	public String toString() {
+		Map<Integer, ShipTypeChangeset> combos = getCombos();
+		String itemstring = "module-set-meta:";
+		for(int i = 1; i <= 10; i++) {
+			if( combos.containsKey(i)) {
+				itemstring = itemstring + i + "\\" + combos.get(i).toString() + "&";
+			}
+		}
+		itemstring = itemstring.substring(0, itemstring.length()-1);
+		return itemstring;
 	}
 }

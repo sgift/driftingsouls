@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.config.items.effects;
 
+import java.io.IOException;
+import java.io.Writer;
+
 
 /**
  * Ein leerer Item-Effekt ohne wirklichen Effekt.
@@ -27,5 +30,21 @@ package net.driftingsouls.ds2.server.config.items.effects;
 public class IENone extends ItemEffect {
 	protected IENone() {
 		super(ItemEffect.Type.NONE);
+	}
+	
+	/**
+	 * Gibt das passende Fenster für das Adminmenü aus.
+	 * @param echo Der Writer des Adminmenüs
+	 * @throws IOException Exception falls ein fehler auftritt
+	 */
+	public void getAdminTool(Writer echo) throws IOException {
+	}
+	
+	/**
+	 * Gibt den Itemeffect als String aus.
+	 * @return der Effect als String
+	 */
+	public String toString() {
+		return null;
 	}
 }
