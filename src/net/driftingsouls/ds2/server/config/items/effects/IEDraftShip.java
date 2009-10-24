@@ -195,8 +195,8 @@ public class IEDraftShip extends ItemEffect {
 	}
 	
 	/**
-	 * Gibt das passende Fenster für das Adminmenü aus.
-	 * @param echo Der Writer des Adminmenüs
+	 * Gibt das passende Fenster fuer das Adminmenue aus.
+	 * @param echo Der Writer des Adminmenues
 	 * @throws IOException Exception falls ein fehler auftritt
 	 */
 	public void getAdminTool(Writer echo) throws IOException {
@@ -205,13 +205,13 @@ public class IEDraftShip extends ItemEffect {
 		echo.append("<tr><td class=\"noBorderS\">SchiffsId: </td><td><input type=\"text\" name=\"shiptype\" value=\"" + getShipType() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Rasse: </td><td><input type=\"text\" name=\"race\" value=\"" + getRace() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Flagschiff (true/false): </td><td><input type=\"text\" name=\"flagschiff\" value=\"" + isFlagschiff() + "\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Benötigte Crew: </td><td><input type=\"text\" name=\"crew\" value=\"" + getCrew() + "\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Benötigte Energie: </td><td><input type=\"text\" name=\"energie\" value=\"" + getE() + "\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Benötigte Dauer: </td><td><input type=\"text\" name=\"dauer\" value=\"" + getDauer() + "\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Benötigte Werftslots: </td><td><input type=\"text\" name=\"werftslots\" value=\"" + getWerftSlots() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Benoetigte Crew: </td><td><input type=\"text\" name=\"crew\" value=\"" + getCrew() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Benoetigte Energie: </td><td><input type=\"text\" name=\"energie\" value=\"" + getE() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Benoetigte Dauer: </td><td><input type=\"text\" name=\"dauer\" value=\"" + getDauer() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Benoetigte Werftslots: </td><td><input type=\"text\" name=\"werftslots\" value=\"" + getWerftSlots() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Baukosten: </td><td><input type=\"text\" name=\"buildcosts\" value=\"" + getBuildCosts().save() + "\"></td></tr>\n");
 		String techs = Common.implode(",", this.techs);
-		echo.append("<tr><td class=\"noBorderS\">Benötigte Technologien: </td><td><input type=\"text\" name=\"techs\" value=\"" + techs + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Benï¿½tigte Technologien: </td><td><input type=\"text\" name=\"techs\" value=\"" + techs + "\"></td></tr>\n");
 	}
 	
 	/**
