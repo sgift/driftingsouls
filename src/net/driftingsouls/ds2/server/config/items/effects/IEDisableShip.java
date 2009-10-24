@@ -115,6 +115,6 @@ public class IEDisableShip extends ItemEffect {
 	 * @return der Effect als String
 	 */
 	public String toString() {
-		return "disable-ship:" + getShipType();
+		return "disable-ship:" + getShipType() + "&" + hasAllyEffect();
 	}
 }

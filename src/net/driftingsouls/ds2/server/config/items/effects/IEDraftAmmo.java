@@ -120,7 +120,7 @@ public class IEDraftAmmo extends ItemEffect {
 	 * @return der Effect als String
 	 */
 	public String toString() {
-		String itemstring = "draft-ammo:" + ammoId;
+		String itemstring = "draft-ammo:" + ammoId + "&" + hasAllyEffect();
 		return itemstring;
 	}
 }

@@ -241,6 +241,7 @@ public class UeberController extends TemplateGenerator {
 		t.setVar(	"user.name",			Common._title(user.getName()),
 				  	"user.race",			race,
 				  	"res.nahrung.image",	Cargo.getResourceImage(Resources.NAHRUNG),
+				  	"res.re.image",			Cargo.getResourceImage(Resources.RE),
 				  	"user.nahrung",			Common.ln(usercargo.getResourceCount(Resources.NAHRUNG)),
 				  	"user.konto",			Common.ln(user.getKonto()),
 				  	"user.balance",			Common.ln(user.getBalance()),
