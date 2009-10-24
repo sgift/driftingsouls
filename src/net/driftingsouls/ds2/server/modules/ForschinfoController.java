@@ -107,6 +107,9 @@ public class ForschinfoController extends TemplateGenerator {
 		return true;
 	}
 	
+	/**
+	 * Wirft eine Forschung - mit allen davon abhaengigen Forschungen - weg.
+	 */
 	@Action(ActionType.DEFAULT)
 	public void dropAction()
 	{

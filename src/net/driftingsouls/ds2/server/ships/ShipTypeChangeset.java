@@ -701,6 +701,9 @@ public class ShipTypeChangeset {
 		echo.append("<tr><td class=\"noBorderS\">Lost in EMP: </td><td><input type=\"text\" name=\"lostinempchance" +append+"\" value=\"" + getLostInEmpChance() + "\"></td></tr>\n");
 	}
 	
+	/**
+	 * Gibt das Changeset aus.
+	 */
 	public String toString()
 	{
 		String itemstring = "";

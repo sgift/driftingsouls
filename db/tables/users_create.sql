@@ -36,7 +36,7 @@ CREATE TABLE `users` (
   `version` int(10) unsigned not null default '0',
   `foodpooldegeneration` DOUBLE NOT NULL DEFAULT '0',
   `vacpoints` int NOT NULL DEFAULT '0',
-  `specializationPoints` INT NOT NULL DEFAULT '0'
+  `specializationPoints` INT NOT NULL DEFAULT '0',
   PRIMARY KEY  (`id`),
   KEY `ally` (`ally`),
   KEY `vaccount` (`vaccount`,`wait4vac`),
