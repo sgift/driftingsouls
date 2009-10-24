@@ -258,7 +258,7 @@ public class ShipTypeChangeset {
 	 * Konstruktor.
 	 * @param context Der Context mit den Changeset-Informationen
 	 * @param addict Gibt an, was im context hinter den Variablen steht
-	 * (wird für Meta-Sets verwendet)
+	 * (wird fuer Meta-Sets verwendet)
 	 */
 	public ShipTypeChangeset(Context context, String addict)
 	{
@@ -640,8 +640,8 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt das passende Fenster für das Adminmenü aus.
-	 * @param echo Der Writer des Adminmenüs
+	 * Gibt das passende Fenster fuer das Adminmenue aus.
+	 * @param echo Der Writer des Adminmenues
 	 * @param append Der Zusatz der bei diesem Changeset genutzt werden soll (Fuer Meta-Sets)
 	 * @throws IOException Exception falls ein fehler auftritt
 	 */
@@ -673,19 +673,19 @@ public class ShipTypeChangeset {
 		echo.append("<tr><td class=\"noBorderS\">Reaktor Max: </td><td><input type=\"text\" name=\"rm"+append+"\" value=\"" + getRm() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Energiespeicher: </td><td><input type=\"text\" name=\"eps"+append+"\" value=\"" + getEps() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Flugkosten: </td><td><input type=\"text\" name=\"cost"+append+"\" value=\"" + getCost() + "\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Hülle: </td><td><input type=\"text\" name=\"hull"+append+"\" value=\"" + getHull() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Huelle: </td><td><input type=\"text\" name=\"hull"+append+"\" value=\"" + getHull() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Panzerung: </td><td><input type=\"text\" name=\"panzerung" +append+"\" value=\"" + getPanzerung() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Ablative Panzerung: </td><td><input type=\"text\" name=\"ablativearmor" +append+"\" value=\"" + getAblativeArmor() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Cargo: </td><td><input type=\"text\" name=\"cargo" +append+"\" value=\"" + getCargo() + "\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Überhitzung: </td><td><input type=\"text\" name=\"heat" +append+"\" value=\"" + getHeat() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Ueberhitzung: </td><td><input type=\"text\" name=\"heat" +append+"\" value=\"" + getHeat() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Crew: </td><td><input type=\"text\" name=\"crew" +append+"\" value=\"" + getCrew() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Marines: </td><td><input type=\"text\" name=\"marines" +append+"\" value=\"" + getMarines() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Waffen: </td><td><input type=\"text\" name=\"weapons" +append+"\" value=\"" + weaponstring + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">TorpedoDeff: </td><td><input type=\"text\" name=\"torpdeff" +append+"\" value=\"" + getTorpedoDef() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Schilde: </td><td><input type=\"text\" name=\"shields" +append+"\" value=\"" + getShields() + "\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Größe: </td><td><input type=\"text\" name=\"size" +append+"\" value=\"" + getSize() + "\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Jägerdocks: </td><td><input type=\"text\" name=\"jdocks" +append+"\" value=\"" + getJDocks() + "\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Außendocks: </td><td><input type=\"text\" name=\"adocks" +append+"\" value=\"" + getADocks() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Groesse: </td><td><input type=\"text\" name=\"size" +append+"\" value=\"" + getSize() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Jaegerdocks: </td><td><input type=\"text\" name=\"jdocks" +append+"\" value=\"" + getJDocks() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Aussendocks: </td><td><input type=\"text\" name=\"adocks" +append+"\" value=\"" + getADocks() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Sensorreichweite: </td><td><input type=\"text\" name=\"sensorrange" +append+"\" value=\"" + getSensorRange() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Nahrung: </td><td><input type=\"text\" name=\"hydro" +append+"\" value=\"" + getHydro() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Deuterium-Produktion: </td><td><input type=\"text\" name=\"deutfactor" +append+"\" value=\"" + getDeutFactor() + "\"></td></tr>\n");
@@ -701,6 +701,9 @@ public class ShipTypeChangeset {
 		echo.append("<tr><td class=\"noBorderS\">Lost in EMP: </td><td><input type=\"text\" name=\"lostinempchance" +append+"\" value=\"" + getLostInEmpChance() + "\"></td></tr>\n");
 	}
 	
+	/**
+	 * @return Das Changeset als Text.
+	 */
 	public String toString()
 	{
 		String itemstring = "";

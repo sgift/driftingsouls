@@ -69,7 +69,7 @@ public class EditUser implements AdminPlugin
 			User user = (User)db.get(User.class, userid);
 			
 			boolean disableAccount = context.getRequest().getParameterInt("blockuser") == 1 ? true : false;
-
+			
 			user.setDisabled(disableAccount);
 			
 			user.setNickname(context.getRequest().getParameterString("name"));
@@ -84,6 +84,7 @@ public class EditUser implements AdminPlugin
 			user.setNpcPunkte(context.getRequest().getParameterInt("npcpoints"));
 			user.setMedals(context.getRequest().getParameterString("medals"));
 			user.setVacpoints(context.getRequest().getParameterInt("vacationpoints"));
+			user.setSpecializationPoints(context.getRequest().getParameterInt("specializationpoints"));
 			
 			doVacation(user);
 			
@@ -128,6 +129,7 @@ public class EditUser implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderX\">NPC-Punkte: </td><td><input type=\"text\" size=\"40\" name=\"npcpoints\" value=\"" + user.getNpcPunkte() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Medaillen: </td><td><input type=\"text\" size=\"40\" name=\"medals\" value=\"" + user.getMedals()+ "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Vac-Punkte: </td><td><input type=\"text\" size=\"40\" name=\"vacationpoints\" value=\"" + user.getVacpoints()+ "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\">Spezialisierungspunkte: </td><td><input type=\"text\" size=\"40\" name=\"specializationpoints\" value=\"" + user.getSpecializationPoints()+ "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Zugang sperren: </td><td><input type=\"checkbox\" name=\"blockuser\" value=\"1\" "+ (user.getDisabled() ? " checked " : "")+"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\" colspan=\"2\">Vorhandene Medallien:<br />");

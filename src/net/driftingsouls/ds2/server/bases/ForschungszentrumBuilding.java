@@ -183,6 +183,11 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 				continue;
 			}
 			
+			if(user.getFreeSpecializationPoints() < tech.getSpecializationCosts())
+			{
+				continue;
+			}
+			
 			boolean ok = true;
 			
 			for( int k = 1; k <= 3; k++ ) {
@@ -217,6 +222,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 				
 				echo.append("<td class=\"noBorderX\">");
 				echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/time.gif\" alt=\"Dauer\" />"+tech.getTime()+" ");
+				echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/forschung/specpoints.gif\" alt=\"Spezialisierungskosten\" />"+tech.getSpecializationCosts()+" ");
 				
 				Cargo costs = tech.getCosts();
 				costs.setOption( Cargo.Option.SHOWMASS, false );
@@ -253,7 +259,8 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 			if( tech.isVisibile(user) && user.hasResearched(tech.getID()) ) {
 				echo.append("<tr><td class=\"noBorderX\">\n");
 				echo.append("<a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;res="+tech.getID()+"\">"+Common._plaintitle(tech.getName())+"</a>");
-				echo.append("</td></tr>\n");
+				echo.append("</td><td class=\"noBorderX\"><img src=\""+config.get("URL")+"data/interface/forschung/specpoints.gif\" alt=\"Spezialisierungskosten\">"+tech.getSpecializationCosts()+"</td>");
+				echo.append("</tr>\n");
 			}
 		}
 		echo.append("</table><br />");
@@ -310,7 +317,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		if( !conf.equals("ok") ) {
 			echo.append("<div style=\"text-align:center\">\n");
 			echo.append(Common._plaintitle(tech.getName())+"<br /><img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/time.gif\" alt=\"Dauer\" />"+tech.getTime()+" ");
-			
+			echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/forschung/specpoints.gif\" alt=\"Spezialisierungskosten\" />"+tech.getSpecializationCosts()+" ");
 			ResourceList reslist = techCosts.getResourceList();
 			for( ResourceEntry res : reslist ) {
 				echo.append("<img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+" ");
@@ -334,6 +341,11 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 				ok = false;
 				break;
 			}
+		}
+		
+		if(user.getFreeSpecializationPoints() < tech.getSpecializationCosts())
+		{
+			ok = false;
 		}
 	
 		if( !ok ) {

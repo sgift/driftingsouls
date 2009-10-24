@@ -1223,4 +1223,8 @@
 		INSERT INTO `items` VALUES ('998', 'GCP Advanced Technology', 'open.gif', null, '0', 'module-set-meta:GCP Advanced Technology&4\\eps,500|sensorrange,1&6\\eps,1500|jdocks,1|sensorrange,3|panzerung,10|flags,instant_battle_enter/abfangen', 'epic', 'Das Meta-Set-Item für das Set GCP Advanced Technology', '0', '5', '0');
 		INSERT INTO `items` VALUES ('999', 'Die große NPC-Hilfe', 'open.gif', null, '0', 'module-set-meta:Die große NPC-Hilfe&2\\eps,50|sensorrange,1&3\\eps,150|jdocks,1|flags,nicht_pluenderbar', 'artifact', 'Das Meta-Set-Item für die große NPC-Hilfe (Test-Set...nicht mehr und nicht weniger)', '0', '15', '0');
 	]]></update>
+	<update><![CDATA[
+		ALTER TABLE `forschungen` ADD `specializationCosts` INT NOT NULL DEFAULT '0';
+		ALTER TABLE `users` ADD `specializationPoints` INT NOT NULL DEFAULT '0';
+	]]></update>
 </updates>

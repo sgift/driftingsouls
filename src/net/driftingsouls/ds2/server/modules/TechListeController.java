@@ -193,7 +193,8 @@ public class TechListeController extends TemplateGenerator {
 						  	"tech.name",		Common._title(result.getName()),
 						  	"tech.dauer",		result.getTime(),
 						  	"res.list",			"",
-						  	"tech.remaining",	currentResearches.get(result.getID()) );
+						  	"tech.remaining",	currentResearches.get(result.getID()),
+						  	"tech.specpoints",	result.getSpecializationCosts());
 
 				// Kosten der Forschung ausgeben
 				Cargo costs = result.getCosts();

@@ -21,9 +21,6 @@ package net.driftingsouls.ds2.server.modules;
 import java.util.Iterator;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.bases.Core;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -45,6 +42,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Zeigt Details zu einer Forschung an .
@@ -106,6 +106,22 @@ public class ForschinfoController extends TemplateGenerator {
 
 		return true;
 	}
+	
+	/**
+	 * Wirft eine Forschung - mit allen davon abhaengigen Forschungen - weg.
+	 */
+	@Action(ActionType.DEFAULT)
+	public void dropAction()
+	{
+		User user = (User)getUser();
+		if(user.getUserResearch(this.research) == null)
+		{
+			return;
+		}
+		
+		user.dropResearch(this.research);
+		redirect();
+	}
 
 	@Override
 	@Action(ActionType.DEFAULT)
@@ -118,7 +134,8 @@ public class ForschinfoController extends TemplateGenerator {
 		t.setVar(	"tech.name",			Common._plaintitle(research.getName()),
 					"tech.race.notall",		(research.getRace() != -1),
 					"tech.id",				research.getID(),
-					"tech.time",			research.getTime() );
+					"tech.time",			research.getTime(),
+					"tech.speccosts",		research.getSpecializationCosts());
 					
 		// Rasse 
 		if( this.research.getRace() != -1 ) {
@@ -512,6 +529,11 @@ public class ForschinfoController extends TemplateGenerator {
 		
 			t.stop_record();
 			t.clear_record();
+		}
+		
+		if(this.research.getSpecializationCosts() > 0 && user.getUserResearch(this.research) != null)
+		{
+			t.setVar("tech.dropable", 1);
 		}
 	}
 }

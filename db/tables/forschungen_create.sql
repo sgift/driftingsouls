@@ -10,5 +10,6 @@ CREATE TABLE `forschungen` (
   `race` tinyint(4) NOT NULL default '0',
   `visibility` tinyint(4) NOT NULL default '1',
   `flags` varchar(60) NOT NULL default '',
+  `specializationCosts` int NOT NULL default '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 

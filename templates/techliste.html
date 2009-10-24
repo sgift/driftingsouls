@@ -10,6 +10,7 @@
 	<td class="noBorderX">{!link_to $tech.name, default, module:forschinfo, css_style:font-weight:bold, res:$tech.id}</td>
 	<td class="noBorderX">
 		<img style="vertical-align:middle" src="{URL}data/interface/time.gif" alt="Dauer" />{tech.dauer}&nbsp;
+		<img style="vertical-align:middle" src="{URL}data/interface/forschung/specpoints.gif" alt="Spezialisierungskosten" />{tech.specpoints}&nbsp;
 		<!-- BEGIN res.listitem -->
 			<img style="vertical-align:middle" src="{warenb}" alt="{waren}" />{tech.cost}{if tech.cost.space}&nbsp;{/endif}
 		<!-- END res.listitem -->
@@ -30,8 +31,12 @@
 		</a><br />
 		{!link_to $tech.name, default, module:forschinfo, css_style:font-weight:bold, res:$tech.id}<br />
 		{if tech.remaining}
-			[noch <img style="vertical-align:middle" src="{URL}data/interface/time.gif" alt="" />{tech.remaining}]<br />
+			[noch <img style="vertical-align:middle" src="{URL}data/interface/time.gif" alt="Restzeit" />{tech.remaining}]<br />
 		{/endif}
+		{if ! tech.remaining}
+			<img style="vertical-align:middle" src="{URL}data/interface/time.gif" alt="Dauer" />{tech.dauer}<br />
+		{/endif}
+			<img style="vertical-align:middle" src="{URL}data/interface/forschung/specpoints.gif" alt="Spezialisierungskosten" />{tech.specpoints} 
 		{res.list}
 		<br />
 		<br />

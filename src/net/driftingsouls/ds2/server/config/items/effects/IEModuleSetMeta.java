@@ -112,9 +112,9 @@ public class IEModuleSetMeta extends ItemEffect {
 	}
 	
 	/**
-	 * Laedt einen Effect aus dem angegebenen Context.
+	 * Laedt einen Effekt aus dem angegebenen Context.
 	 * @param context Der Context
-	 * @return Der Effect
+	 * @return Der Effekt
 	 */
 	public static ItemEffect fromContext(Context context) {
 		
@@ -131,8 +131,8 @@ public class IEModuleSetMeta extends ItemEffect {
 	}
 	
 	/**
-	 * Gibt das passende Fenster für das Adminmenü aus.
-	 * @param echo Der Writer des Adminmenüs
+	 * Gibt das passende Fenster fuer das Adminmenue aus.
+	 * @param echo Der Writer des Adminmenues
 	 * @throws IOException Exception falls ein fehler auftritt
 	 */
 	public void getAdminTool(Writer echo) throws IOException {

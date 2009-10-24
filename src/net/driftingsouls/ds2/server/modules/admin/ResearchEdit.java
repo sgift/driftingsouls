@@ -78,6 +78,7 @@ public class ResearchEdit implements AdminPlugin {
 			research.setVisibility( context.getRequest().getParameterInt("visibility"));
 			research.setName(context.getRequest().getParameterString("name"));
 			research.setDescription(context.getRequest().getParameterString("descrip"));
+			research.setSpecializationCosts(context.getRequest().getParameterInt("specializationcosts"));
 			
 		}
 
@@ -214,6 +215,9 @@ public class ResearchEdit implements AdminPlugin {
 				echo.append("<option value=\""+visibility.getBits()+"\" "+(research.hasVisibility(visibility) ? "selected=\"selected\"" : "")+" \">"+visibility.toString()+"</option>\n");
 			}
 			echo.append("</select>");
+			echo.append("</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\" colspan=\"5\">\n");
+			echo.append("Spezialisierungskosten:<input type=\"text\" name=\"specializationcosts\" value=\""+ research.getSpecializationCosts() +"\">");
 			echo.append("<input type=\"hidden\" name=\"changedata\" value=\"1\" />\n");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");

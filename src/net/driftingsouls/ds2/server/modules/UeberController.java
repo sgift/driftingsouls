@@ -245,6 +245,8 @@ public class UeberController extends TemplateGenerator {
 				  	"user.konto",			Common.ln(user.getKonto()),
 				  	"user.balance",			Common.ln(user.getBalance()),
 				  	"user.balance.plain",	user.getBalance(),
+				  	"user.specpoints",		user.getFreeSpecializationPoints(),
+				  	"user.maxspecpoints",	user.getSpecializationPoints(),
 				  	"global.ticks",			ticks,
 				  	"global.ticktime",		ticktime );
 				  

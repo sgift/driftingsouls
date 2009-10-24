@@ -90,8 +90,8 @@ public class IEAmmo extends ItemEffect {
 	}
 	
 	/**
-	 * Gibt das passende Fenster für das Adminmenü aus.
-	 * @param echo Der Writer des Adminmenüs
+	 * Gibt das passende Fenster fuer das Adminmenue aus.
+	 * @param echo Der Writer des Adminmenues
 	 * @throws IOException Exception falls ein fehler auftritt
 	 */
 	public void getAdminTool(Writer echo) throws IOException {

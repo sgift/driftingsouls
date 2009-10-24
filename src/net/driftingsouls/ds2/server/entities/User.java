@@ -35,6 +35,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.Ordner;
 import net.driftingsouls.ds2.server.config.items.Item;
@@ -223,13 +224,12 @@ public class User extends BasicUser {
 	private int lostShips;
 	private String knownItems;
 	private int vacpoints;
+	private int specializationPoints;
 	
 	@Transient
 	private Context context;
 	@Transient
 	private UserFlagschiffLocation flagschiffObj = null;
-	@Transient
-	private Map<Integer,UserResearch> researched;
 	
 	@Transient
 	private Configuration config;
@@ -761,10 +761,6 @@ public class User extends BasicUser {
 		{
 			userres = new UserResearch(this, research);
 			db.persist(userres);
-			
-			if( this.researched != null ) {
-				this.researched.put(researchID, userres);
-			}
 		}
 	}
 	
@@ -1136,26 +1132,16 @@ public class User extends BasicUser {
 	 * @return Die Forschungsdaten oder <code>null</code>
 	 */
 	public UserResearch getUserResearch(Forschung research) {
-		if(research == null) {
+		if(research == null) 
+		{
 			return null;
 		}
 		
-		if( this.researched == null ) {
-			this.researched = new HashMap<Integer,UserResearch>();
-			
-			org.hibernate.Session db = context.getDB();
-			
-			List<?> userresList = db.createQuery("from UserResearch where owner= :user")
-				.setEntity("user", this)
-				.list();
-			
-			for( Iterator<?> iter=userresList.iterator(); iter.hasNext(); ) {
-				UserResearch userres = (UserResearch)iter.next();
-				
-				this.researched.put(userres.getResearch().getID(), userres);
-			}
-		}
-		return this.researched.get(research.getID());
+		org.hibernate.Session db = context.getDB();
+		return (UserResearch)db.createQuery("from UserResearch where research=:research and owner=:user")
+							   .setParameter("research", research)
+							   .setParameter("user", this)
+							   .uniqueResult();
 	}
 	
 	/**
@@ -1392,5 +1378,102 @@ public class User extends BasicUser {
 			}
 		}
 		return systemlist;
+	}
+	
+	/**
+	 * @return Die Spezialisierungspunkte des Nutzers.
+	 */
+	public int getSpecializationPoints()
+	{
+		return this.specializationPoints;
+	}
+	
+	/**
+	 * @param specializationPoints Die Spezialisierungspunkte des Nutzers.
+	 */
+	public void setSpecializationPoints(int specializationPoints)
+	{
+		this.specializationPoints = specializationPoints;
+	}
+	
+	/**
+	 * @return Die Spezialisierungspunkte, die noch nicht von Forschungen belegt sind.
+	 */
+	public long getFreeSpecializationPoints()
+	{
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		long usedSpecpoints =  (Long)db.createQuery("select sum(res.research.specializationCosts) from UserResearch res where res.owner=:owner")
+		  		   	   				   .setParameter("owner", this)
+		  		   	   				   .uniqueResult();
+		
+		//Add researchs, which are currently developed in research centers
+		List<Forschungszentrum> researchcenters = Common.cast(db.createQuery("from Forschungszentrum where forschung is not null and base.owner=?")
+												  		  		.setEntity(0, this)
+												  		  		.list());
+		for(Forschungszentrum researchcenter: researchcenters)
+		{
+			usedSpecpoints += researchcenter.getForschung().getSpecializationCosts();
+		}
+		
+		return getSpecializationPoints() - usedSpecpoints;
+	}
+
+	/**
+	 * Verlernt eine Forschung und alle davon abhaengigen Forschungen.
+	 * Ausserdem werden die von den einzelnen Forschungen abhaengigen Gebaeude
+	 * auf den Basen des Spielers zerstoert.
+	 * 
+	 * @param research Die Forschung, die der Spieler fallen lassen will.
+	 */
+	@SuppressWarnings("unchecked")
+	public void dropResearch(Forschung research) 
+	{
+		UserResearch userResearch = getUserResearch(research);
+		if(userResearch == null)
+		{
+			return;
+		}
+		
+		//Drop dependent researchs
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		List<Forschung> dependentResearchs = Common.cast(db.createQuery("from Forschung where req1= :fid or req2= :fid or req3= :fid")
+									  			  .setInteger("fid", research.getID())
+									  			  .list());
+		
+		for(Forschung dependentResearch: dependentResearchs)
+		{
+			dropResearch(dependentResearch);
+		}
+		
+		
+		//Destroy dependent buildings
+		Set<Integer> buildings = new HashSet<Integer>();
+		buildings.addAll((List<Integer>)db.createQuery("select id from Building where techReq=:tech")
+					  					   .setParameter("tech", research.getID())
+					  					   .list());
+		
+		List<Base> bases = Common.cast(db.createQuery("from Base where owner=:owner")
+							 	 		 .setParameter("owner", this)
+							 	 		 .list());
+		
+		for(Base base: bases)
+		{
+			Integer[] baseBuildings = base.getBebauung();
+			Integer[] baseActive = base.getActive();
+			for(int i = 0; i < baseBuildings.length; i++)
+			{
+				if(buildings.contains(baseBuildings[i]))
+				{
+					Building building = (Building)db.get(Building.class, baseBuildings[i]);
+					building.cleanup( ContextMap.getContext(), base );
+					baseBuildings[i] = 0;
+					baseActive[i] = 0;
+				}
+			}
+			base.setBebauung(baseBuildings);
+			base.setActive(baseActive);
+		}
+		
+		db.delete(userResearch);
 	}
 }

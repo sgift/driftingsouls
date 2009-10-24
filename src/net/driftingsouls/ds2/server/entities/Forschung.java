@@ -115,6 +115,7 @@ public class Forschung {
 	private int race;
 	private int visibility;
 	private String flags;
+	private int specializationCosts;
 	
 	/**
 	 * Konstruktor.
@@ -304,5 +305,21 @@ public class Forschung {
 	 */
 	public boolean hasFlag( String flag ) {
 		return this.flags.indexOf(flag) > -1;
+	}
+	
+	/**
+	 * @return Die Spezialisierungskosten dieser Forschung.
+	 */
+	public int getSpecializationCosts()
+	{
+		return this.specializationCosts;
+	}
+	
+	/**
+	 * @param specializationCosts Die Spezialisierungskosten dieser Forschung.
+	 */
+	public void setSpecializationCosts(int specializationCosts)
+	{
+		this.specializationCosts = specializationCosts;
 	}
 }

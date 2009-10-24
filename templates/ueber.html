@@ -34,7 +34,7 @@
 					<span style="color:red">{user.balance}</span>
 				{/endif}
 				<br />
-				<img src="{res.nahrung.image}" alt="" />{if user.nahrung}Nahrung: {user.nahrung}{else}<span style="color:red">Nahrung: {user.nahrung}</span>{/endif}
+				<img src="{res.nahrung.image}" alt="" />{if user.nahrung}{user.nahrung}{else}<span style="color:red">{user.nahrung}</span>{/endif}
 				{if user.nahrung.stat.tick}
 					&nbsp;-
 				{else}
@@ -44,6 +44,8 @@
 						&nbsp;<span style="color:green">+{user.nahrung.new}</span>
 					{/endif}
 				{/endif}
+				<br />
+				<img src="{URL}data/interface/forschung/specpoints.gif" alt="Spezialisierungspunkte" />{user.specpoints} / {user.maxspecpoints}
 				<br />
 				{if flagschiff.id}
 					Flagschiff: {!link_to $flagschiff.name, default, module:schiff, ship:$flagschiff.id} ({flagschiff.id})<br />
