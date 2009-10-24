@@ -702,7 +702,7 @@ public class ShipTypeChangeset {
 	}
 	
 	/**
-	 * Gibt das Changeset aus.
+	 * @return Das Changeset als Text.
 	 */
 	public String toString()
 	{
