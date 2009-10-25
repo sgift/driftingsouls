@@ -118,6 +118,10 @@ public class Item {
 			return COMMON;
 		}
 		
+		/**
+		 * Gibt die Qualitaet als String zurueck.
+		 * @return Die Qualitaet als String
+		 */
 		public String toString() {
 			if( id() == 0) {
 				return "common";
