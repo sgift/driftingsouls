@@ -117,6 +117,25 @@ public class Item {
 			}
 			return COMMON;
 		}
+		
+		public String toString() {
+			if( id() == 0) {
+				return "common";
+			}
+			else if ( id() == 1) {
+				return "rare";
+			}
+			else if ( id() == 2) {
+				return "ultra-rare";
+			}
+			else if ( id() == 3) {
+				return "epic";
+			}
+			else if ( id() == 4) {
+				return "artifact";
+			}
+			return "common";
+		}
 	}
 	
 	@Id

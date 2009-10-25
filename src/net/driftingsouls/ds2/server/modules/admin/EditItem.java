@@ -64,7 +64,7 @@ public class EditItem implements AdminPlugin
 				item.setName(context.getRequest().getParameterString("name"));
 				item.setPicture(context.getRequest().getParameterString("picture"));
 				item.setLargePicture(context.getRequest().getParameterString("largepicture"));
-				item.setCargo(context.getRequest().getParameterInt("cargo"));
+				item.setCargo(context.getRequest().getParameterInt("itemcargo"));
 				item.setEffect(ItemEffectFactory.fromContext(context));
 				item.setQuality(Quality.fromString(context.getRequest().getParameterString("quality")));
 				item.setDescription(context.getRequest().getParameterString("description"));
@@ -98,8 +98,8 @@ public class EditItem implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">Name: </td><td><input type=\"text\" name=\"name\" value=\"" + item.getName() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Bild: </td><td><input type=\"text\" name=\"picture\" value=\"" + item.getPicture() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Bild (gross): </td><td><input type=\"text\" name=\"largepicture\" value=\"" + (item.getLargePicture() == null ? "" : item.getLargePicture()) + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Cargo: </td><td><input type=\"text\" name=\"cargo\" value=\"" + item.getCargo() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Qualitaet: </td><td><input type=\"text\" name=\"quality\" value=\"" + item.getQuality() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Cargo: </td><td><input type=\"text\" name=\"itemcargo\" value=\"" + item.getCargo() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Qualitaet: </td><td><input type=\"text\" name=\"quality\" value=\"" + item.getQuality().toString() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Beschreibung: </td><td><input type=\"text\" name=\"description\" value=\"" + item.getDescription() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Handel: </td><td><input type=\"text\" name=\"handel\" value=\"" + item.getHandel() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Accesslevel: </td><td><input type=\"text\" name=\"accesslevel\" value=\"" + item.getAccessLevel() + "\"></td></tr>\n");

@@ -179,7 +179,7 @@ public class ShipTypeChangeset {
 			{
 				this.marines = Integer.parseInt(changeset[1]);
 			}
-			else if( changeset[0].equals("torpedodef") ) 
+			else if( changeset[0].equals("torpdeff") ) 
 			{
 				this.torpedoDef = Integer.parseInt(changeset[1]);
 			}
@@ -215,15 +215,15 @@ public class ShipTypeChangeset {
 			{
 				this.reCost = Integer.parseInt(changeset[1]);
 			}
-			else if( changeset[0].equals("werft") ) 
+			else if( changeset[0].equals("werftslots") ) 
 			{
 				this.werft = Integer.parseInt(changeset[1]);
 			}
-			else if( changeset[0].equals("ow_werft") ) 
+			else if( changeset[0].equals("onewaywerft") ) 
 			{
 				this.oneWayWerft = Integer.parseInt(changeset[1]);
 			}
-			else if( changeset[0].equals("picture_mod") ) 
+			else if( changeset[0].equals("picturemod") ) 
 			{
 				this.pictureMod = changeset[1];
 			}
@@ -231,19 +231,19 @@ public class ShipTypeChangeset {
 			{
 				this.srs = Boolean.parseBoolean(changeset[1]);
 			}
-			else if( changeset[0].equals("scan-cost") ) 
+			else if( changeset[0].equals("scancost") ) 
 			{
 				this.scanCost = Integer.parseInt(changeset[1]);
 			}
-			else if( changeset[0].equals("picking-cost") ) 
+			else if( changeset[0].equals("pickingcost") ) 
 			{
 				this.pickingCost = Integer.parseInt(changeset[1]);
 			}
-			else if( changeset[0].equals("minCrew"))
+			else if( changeset[0].equals("mincrew"))
 			{
 				this.minCrew = Integer.parseInt(changeset[1]);
 			}
-			else if (changeset[0].equals("lostInEmpChance"))
+			else if (changeset[0].equals("lostinempchance"))
 			{
 				this.lostInEmpChance = Double.parseDouble(changeset[1]);
 			}
@@ -661,12 +661,12 @@ public class ShipTypeChangeset {
 				}
 				else
 				{
-					weaponstring = ";" + entry.getKey() + "/" + entry.getValue()[0] + "/" + entry.getValue()[1];
+					weaponstring = weaponstring + ";" + entry.getKey() + "/" + entry.getValue()[0] + "/" + entry.getValue()[1];
 				}
 			}
 		}
 		echo.append("<tr><td class=\"noBorderS\">Nickname: </td><td><input type=\"text\" name=\"nickname"+append+"\" value=\"" + (getNickname() == null ? "" : getNickname()) + "\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Picture: </td><td><input type=\"text\" name=\"picture"+append+"\" value=\"" + (getPicture() == null ? "" : getPicture()) + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Picture: </td><td><input type=\"text\" name=\"picturemod"+append+"\" value=\"" + (getPicture() == null ? "" : getPicture()) + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Reaktor Uran: </td><td><input type=\"text\" name=\"ru"+append+"\" value=\"" + getRu() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Reaktor Deuterium: </td><td><input type=\"text\" name=\"rd"+append+"\" value=\"" + getRd() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Reaktor Antimaterie: </td><td><input type=\"text\" name=\"ra"+append+"\" value=\"" + getRa() + "\"></td></tr>\n");
@@ -777,7 +777,7 @@ public class ShipTypeChangeset {
 			itemstring = itemstring + "recost," + getReCost() + "|";
 		}
 		if ( getWerft() != 0) {
-			itemstring = itemstring + "wertfslots," + getWerft() + "|";
+			itemstring = itemstring + "werftslots," + getWerft() + "|";
 		}
 		if ( getOneWayWerft() != 0) {
 			itemstring = itemstring + "onewaywerft," + getOneWayWerft() + "|";

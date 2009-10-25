@@ -83,7 +83,7 @@ public class IEModule extends ItemEffect {
 	public static ItemEffect fromString(String effectString) throws Exception {
 		List<String> slots = new ArrayList<String>();
 		String[] effects = StringUtils.split(effectString, "&");
-		String[] theslots = StringUtils.split(effects[0], ",");
+		String[] theslots = StringUtils.split(effects[0], ";");
 		for( int i=0; i < theslots.length; i++) {
 			
 			// Sicherstellen, dass der Slot existiert
@@ -107,7 +107,8 @@ public class IEModule extends ItemEffect {
 	 */
 	public static ItemEffect fromContext(Context context) {
 		List<String> slots = new ArrayList<String>();
-		String[] theslots = StringUtils.split(context.getRequest().getParameterString("slots"), ";");
+		String slotstring = context.getRequest().getParameterString("slots");
+		String[] theslots = StringUtils.split(slotstring, ";");
 		for( int i=0; i < theslots.length; i++) {
 			
 			ModuleSlots.get().slot(theslots[i]);

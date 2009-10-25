@@ -119,6 +119,7 @@ public class IEModuleSetMeta extends ItemEffect {
 	public static ItemEffect fromContext(Context context) {
 		
 		IEModuleSetMeta effect = new IEModuleSetMeta(context.getRequest().getParameterString("setname"));
+		effect.name = context.getRequest().getParameterString("setname");
 		
 		for( int i = 1; i <= 10; i++)
 		{
@@ -138,6 +139,7 @@ public class IEModuleSetMeta extends ItemEffect {
 	public void getAdminTool(Writer echo) throws IOException {
 		Map<Integer, ShipTypeChangeset> combos = getCombos();
 		
+		echo.append("<tr><td class=\"noBorderS\">Set-Name: </td><td><input type=\"text\" name=\"setname\" value=\""+getName()+"\"></td></tr>\n");
 		for(int i = 1; i <= 10; i++) {
 			if( combos.containsKey(i)) {
 				echo.append("<tr><td class=\"noBorderS\">Benutze Combo "+i+": </td><td><input type=\"text\" name=\"used"+i+"\" value=\"true\"></td></tr>\n");
@@ -157,7 +159,7 @@ public class IEModuleSetMeta extends ItemEffect {
 	 */
 	public String toString() {
 		Map<Integer, ShipTypeChangeset> combos = getCombos();
-		String itemstring = "module-set-meta:";
+		String itemstring = "module-set-meta:" + getName() + "&";
 		for(int i = 1; i <= 10; i++) {
 			if( combos.containsKey(i)) {
 				itemstring = itemstring + i + "\\" + combos.get(i).toString() + "&";
