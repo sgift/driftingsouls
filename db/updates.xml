@@ -967,7 +967,7 @@
 		CREATE TABLE `items` (
   			`id` int(11) NOT NULL,
   			`name` varchar(100) NOT NULL,
-  			`picture` text ',
+  			`picture` text,
   			`largepicture` text,
   			`cargo` int(5) NOT NULL default '1',
   			`effect` text,
