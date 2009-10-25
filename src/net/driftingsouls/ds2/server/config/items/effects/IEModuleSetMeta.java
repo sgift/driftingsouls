@@ -139,6 +139,7 @@ public class IEModuleSetMeta extends ItemEffect {
 	public void getAdminTool(Writer echo) throws IOException {
 		Map<Integer, ShipTypeChangeset> combos = getCombos();
 		
+		echo.append("<input type=\"hidden\" name=\"type\" value=\"module-set-meta\" >");
 		echo.append("<tr><td class=\"noBorderS\">Set-Name: </td><td><input type=\"text\" name=\"setname\" value=\""+getName()+"\"></td></tr>\n");
 		for(int i = 1; i <= 10; i++) {
 			if( combos.containsKey(i)) {
