@@ -154,6 +154,7 @@ public class Item {
 	private int accesslevel = 0;
 	private String quality = null;
 	private boolean unknownItem = false;
+	private boolean isspawnable = false;
 
 	/**
 	 * Leerer Konstruktor.
@@ -375,5 +376,21 @@ public class Item {
 	 */
 	public void setUnknownItem(boolean unknownitem) {
 		this.unknownItem = unknownitem;
+	}
+	
+	/**
+	 * Gibt zurueck, ob dieses Item eine Spawnable Ressource ist.
+	 * @return <code>true</code>, falls es eine Spawn-Ressource ist
+	 */
+	public boolean isSpawnableRess() {
+		return this.isspawnable;
+	}
+	
+	/**
+	 * Setzt, ob es sich bei dem Item um eine Spawn-Ressource handelt.
+	 * @param spawnableress <code>true</code>, falls es eine Spawn-Ressource sein soll
+	 */
+	public void setSpawnableRess(boolean spawnableress) {
+		this.isspawnable = spawnableress;
 	}
 }

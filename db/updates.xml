@@ -1227,4 +1227,9 @@
 		ALTER TABLE `forschungen` ADD `specializationCosts` INT NOT NULL DEFAULT '0';
 		ALTER TABLE `users` ADD `specializationPoints` INT NOT NULL DEFAULT '0';
 	]]></update>
+	<update><![CDATA[
+		ALTER TABLE `bases` ADD `spawnableress` text;
+		ALTER TABLE `bases` ADD `spawnressavailable` text;
+		ALTER TABLE `items` ADD `isspawnable` tinyint (1) NOT NULL;
+	]]></update>
 </updates>

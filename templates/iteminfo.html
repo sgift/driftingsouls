@@ -27,6 +27,12 @@
 				<td class="noBorderX">ja</td>
 			</tr>
 		{/endif}
+		{if item.isspawnable}
+			<tr>
+				<td class="noBorderX" style="width:80px">Zusatz</td>
+				<td class="noBorderX">Das Vorkommen dieser Ressource ist begrenzt.</td>
+			</tr>
+		{/endif}
 		<tr>
 			<td class="noBorderX" style="width:80px">Typ</td>
 			<td class="noBorderX">{item.class}</td>

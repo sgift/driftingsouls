@@ -341,6 +341,7 @@ public class ItemInfoController extends TemplateGenerator {
 					"item.accesslevel",	item.getAccessLevel(),
 					"item.allyitem",	item.getEffect().hasAllyEffect(),
 					"item.class",		item.getEffect().getType().getName(),
+					"item.isspawnable", item.isSpawnableRess(),
 					"item.description",	Common._text(item.getDescription()) );
 		
 		t.setBlock("_ITEMINFO", "itemdetails.entry", "itemdetails.entrylist");

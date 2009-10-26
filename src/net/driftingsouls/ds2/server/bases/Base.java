@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -46,7 +47,10 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.cargo.Transfer;
 import net.driftingsouls.ds2.server.cargo.Transfering;
+import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
+import net.driftingsouls.ds2.server.config.StarSystem;
+import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -109,6 +113,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	private int coreActive;
 	@Column(name="autogtuacts")
 	private String autoGtuActs;
+	private String spawnableress;
+	private String spawnressavailable;
 	@Version
 	private int version;
 	
@@ -619,6 +625,153 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	{
 		this.autoGtuActsObj = list;
 		this.autoGtuActs = Common.implode(";", list);
+	}
+	
+	/**
+	 * Gibt die zum spawn freigegebenen Ressourcen zurueck.
+	 * @return Die Spawn-Ressourcen als String (itemid,chance,maxmenge)
+	 */
+	public String getSpawnableRess() 
+	{
+		if (this.spawnableress == null )
+		{
+			return "";
+		}
+		return this.spawnableress;
+	}
+	
+	/**
+	 * Setzt die zum spawn freigegebenen Ressourcen zurueck.
+	 * @param spawnableRess Die Spawn-Ressourcen als String
+	 */
+	public void setSpawnableRess(String spawnableRess)
+	{
+		this.spawnableress = spawnableRess;
+	}
+	
+	/**
+	 * Gibt die zum spawn freigegebenen Ressourcen in einer HashMap zurueck.
+	 * Beruecksichtigt ebenfalls die Systemvorraussetzungen
+	 * Keys von 1 bis 100 mit der dazugehörigen Ressource und Maxmenge die gespawnt wird
+	 * @return Die zum Spawn freigegebenen Ressourcen
+	 */
+	private Map<Integer,Integer[]> getSpawnableRessMap()
+	{
+		org.hibernate.Session db = getDB();
+		StarSystem system = (StarSystem)db.get(StarSystem.class, this.system);
+		
+		if(getSpawnableRess() == null && system.getSpawnableRess() == null)
+		{
+			return null;
+		}
+		Map<Integer,Integer[]> spawnress = new HashMap<Integer,Integer[]>();
+		Map<Integer,Integer[]> spawnressmap = new HashMap<Integer,Integer[]>();
+		int chances = 0;
+		int baseress = 0;
+		
+		if(!(getSpawnableRess() == null))
+		{
+			String[] spawnableress = StringUtils.split(getSpawnableRess(), ";");
+			for(int i = 0;i < spawnableress.length; i++) {
+				String[] thisress = StringUtils.split(spawnableress[i], ",");
+				int itemid = Integer.parseInt(thisress[0]);
+				int chance = Integer.parseInt(thisress[1]);
+				int maxvalue = Integer.parseInt(thisress[2]);
+				
+				chances += chance;
+				
+				spawnress.put(i, new Integer[] {chance, itemid, maxvalue});
+			}
+			baseress = spawnableress.length;
+		}
+		if(!(system.getSpawnableRess() == null))
+		{
+			String[] spawnableresssystem = StringUtils.split(system.getSpawnableRess(), ";");
+			for(int i = 0;i < spawnableresssystem.length; i++) {
+				String[] thisress = StringUtils.split(spawnableresssystem[i], ",");
+				int itemid = Integer.parseInt(thisress[0]);
+				int chance = Integer.parseInt(thisress[1]);
+				int maxvalue = Integer.parseInt(thisress[2]);
+				
+				chances += chance;
+				
+				spawnress.put(i+baseress, new Integer[] {chance, itemid, maxvalue});
+			}
+		}
+		double chancefactor = 100 / (double)chances;
+		chances = 1;
+		for(int i = 0; i < spawnress.size(); i++)
+		{
+			Integer[] thisress = spawnress.get(i);
+			int chance = (int)Math.round((double)thisress[0] * chancefactor);
+			int itemid = (int)thisress[1];
+			int maxvalue = (int)thisress[2];
+			for(int a = chances; a <= chance+chances; a++) {
+				spawnressmap.put(a, new Integer[] {itemid, maxvalue});
+			}
+			chances += chance+1;
+		}
+		
+		return spawnressmap;
+	}
+	
+	/**
+	 * Gibt die aktuell verfuegbare Ressourcenmenge der Spawnable-Ressourcen zurueck.
+	 * @return Die Ressourcenmengen als String (itemid,menge;itemid,menge)
+	 */
+	public String getAvailableSpawnableRess()
+	{
+		if( this.spawnressavailable == null || this.spawnressavailable.equals("null"))
+		{
+			return null;
+		}
+		return this.spawnressavailable;
+	}
+	
+	/**
+	 * Setzt die aktuell verfuegbare Ressourcenmenge der Spawnable-Ressourcen.
+	 * @param availableRess Die Ressourcenmengen als String
+	 */
+	public void setAvailableSpawnableRess(String availableRess)
+	{
+		this.spawnressavailable = availableRess;
+	}
+	
+	/**
+	 * Gibt die Nettoproduktion der angegebenen Resourcenid.
+	 * @param resid Die ResourcenID
+	 * @return Die Nettoproduktion
+	 */
+	private Cargo getNettoProduction()
+	{
+		Cargo stat = new Cargo();
+		if( (getCore() > 0) && isCoreActive() ) {
+			Core core = Core.getCore(getCore());
+
+			stat.addCargo(core.getProduces());
+		}
+		
+		Integer[] bebauung = getBebauung();
+		Integer[] bebon = getActive();
+			
+		for( int o=0; o < getWidth() * getHeight(); o++ )
+		{
+			if( bebauung[o] == 0 )
+			{
+				continue;
+			} 
+			
+			Building building = Building.getBuilding(bebauung[o]);
+
+			if( bebon[o] == 0 )
+			{
+				continue;
+			}
+			
+			stat.addCargo(building.getProduces());
+		}
+		
+		return stat;
 	}
 	
 	/**
@@ -1242,6 +1395,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	{
 		Cargo baseCargo = (Cargo)cargo.clone();
 		Cargo usercargo = new Cargo( Cargo.Type.STRING, getOwner().getCargo());
+		Cargo nettoproduction = getNettoProduction();
+		org.hibernate.Session db = getDB();
 		
 		baseCargo.addResource(Resources.NAHRUNG, usercargo.getResourceCount(Resources.NAHRUNG));
 		baseCargo.addResource(Resources.RE, getOwner().getKonto().longValue());
@@ -1251,6 +1406,31 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		{
 			long stock = entry.getCount1();
 			long production = entry.getCount2();
+			
+			// Auf Spawn Resource pruefen und ggf Produktion anpassen
+			if(entry.getId().isItem()) 
+			{
+				Item item = (Item)db.get(Item.class,entry.getId().getItemID());
+				if(item.isSpawnableRess()) {
+					// Genug auf dem Asteroiden vorhanden
+					// und abziehen
+					if(getSpawnableRessAmount(item.getID()) > nettoproduction.getResourceCount(entry.getId())) {
+						setSpawnableRessAmount(item.getID(), getSpawnableRessAmount(item.getID()) - nettoproduction.getResourceCount(entry.getId()));
+					}
+					// Ueberhaupt nichts auf dem Asteroiden vorhanden
+					else if (getSpawnableRessAmount(item.getID()) == 0) {
+						// Dann ziehen wir die Production eben ab
+						production -= nettoproduction.getResourceCount(entry.getId());
+					}
+					// Es kann nicht mehr die volle Produktion gefoerdert werden
+					else {
+						// Produktion drosseln und neue Ressource spawnen
+						production = -nettoproduction.getResourceCount(entry.getId()) + getSpawnableRessAmount(item.getID());
+						respawnRess(item.getID());
+					}
+				}
+			}
+			
 			long balance = stock + production;
 			
 			//Not enough resources for production
@@ -1406,5 +1586,80 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	private Session getDB()
 	{
 		return ContextMap.getContext().getDB();
+	}
+	
+	private int getSpawnableRessAmount(int itemid)
+	{
+		if(getAvailableSpawnableRess() == null) {
+			return 0;
+		}
+		String[] spawnress = StringUtils.split(getAvailableSpawnableRess(), ";");
+		for(int i = 0; i < spawnress.length; i++) {
+			String[] thisress = StringUtils.split(spawnress[i], ",");
+			if(Integer.valueOf(thisress[0]) == itemid) {
+				return Integer.valueOf(thisress[1]);
+			}
+		}
+		return 0;
+	}
+	
+	private void setSpawnableRessAmount(int itemid, long value)
+	{
+		if(getAvailableSpawnableRess() == null)
+		{
+			return;
+		}
+		String[] spawnress = StringUtils.split(getAvailableSpawnableRess(), ";");
+		String newspawnress = "";
+		boolean found = false;
+		for(int i = 0; i < spawnress.length; i++) 
+		{
+			String[] thisress = StringUtils.split(spawnress[i], ",");
+			if(Integer.valueOf(thisress[0]) == itemid) {
+				found = true;
+				if( value > 0)
+				{
+					newspawnress = newspawnress + itemid + "," + value + ";";
+				}
+			}
+			else
+			{
+				newspawnress = newspawnress + itemid + "," + thisress[1] + ";";
+			}
+		}
+		if(!found)
+		{
+			newspawnress = newspawnress + itemid + "," + value + ";";
+		}
+		newspawnress = StringUtils.substring(newspawnress, 0, newspawnress.length() - 1);
+		this.spawnressavailable = newspawnress;
+	}
+	
+	private void respawnRess(int itemid)
+	{
+		org.hibernate.Session db = getDB();
+		User sourceUser = (User)db.get(User.class, -1);
+	
+		setSpawnableRessAmount(itemid, 0);
+		
+		Map<Integer,Integer[]> spawnableress = getSpawnableRessMap();
+		if(spawnableress == null || spawnableress.isEmpty())
+		{
+			return;
+		}
+		int chance = RandomUtils.nextInt(99) + 1;
+		Integer[] spawnress = spawnableress.get(chance);
+		int item = (int)spawnress[0];
+		int maxvalue = RandomUtils.nextInt((int)spawnress[1]-1)+1;
+		
+		setSpawnableRessAmount(item, maxvalue);
+		
+		Item olditem = (Item)db.get(Item.class, itemid);
+		Item newitem = (Item)db.get(Item.class, item);
+		String message = "Kolonie: " + this.getName() + " (" + this.getId() + ")\n";
+		message = message + "Ihre Arbeiter melden: Die Ressource " + olditem.getName() + " wurde aufgebraucht!\n";
+		message = message + "Erfreulich ist: Ihre Geologen haben " + newitem.getName() + " gefunden!";
+			
+		PM.send(sourceUser, this.getOwner().getId(), "Ressourcen aufgebraucht!", message);
 	}
 }

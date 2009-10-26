@@ -71,6 +71,7 @@ public class EditItem implements AdminPlugin
 				item.setHandel(context.getRequest().getParameterString("handel").equals("true") ? true : false);
 				item.setAccessLevel(context.getRequest().getParameterInt("accesslevel"));
 				item.setUnknownItem(context.getRequest().getParameterString("unknownitem").equals("true") ? true : false);
+				item.setSpawnableRess(context.getRequest().getParameterString("spawnableress").equals("true") ? true : false);
 				
 				echo.append("<p>Update abgeschlossen.</p>");
 			}
@@ -104,6 +105,7 @@ public class EditItem implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">Handel: </td><td><input type=\"text\" name=\"handel\" value=\"" + item.getHandel() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Accesslevel: </td><td><input type=\"text\" name=\"accesslevel\" value=\"" + item.getAccessLevel() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Unbekanntes Item: </td><td><input type=\"text\" name=\"unknownitem\" value=\"" + item.isUnknownItem() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Spawn-Ressource: </td><td><input type=\"text\" name=\"spawnableress\" value=\"" + item.isSpawnableRess() + "\"></td></tr>\n");
 			item.getEffect().getAdminTool(echo);
 			echo.append("<tr><td class=\"noBorderS\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
 			echo.append("</table>");

@@ -88,6 +88,8 @@ public class EditBases implements AdminPlugin
 			base.setBebauung(Common.explodeToInteger("|", context.getRequest().getParameterString("bebauung")));
 			base.setActive(Common.explodeToInteger("|", context.getRequest().getParameterString("active")));
 			base.setCoreActive(context.getRequest().getParameterString("coreactive").equals("true") ? true : false);
+			base.setSpawnableRess(context.getRequest().getParameterString("spawnableress"));
+			base.setAvailableSpawnableRess(context.getRequest().getParameterString("availableress"));
 			String[] autogtuacts = StringUtils.split(context.getRequest().getParameterString("autogtuacts"),";");
 			List<AutoGTUAction> acts = new ArrayList<AutoGTUAction>();
 			for( int i=0; i < autogtuacts.length; i++ )
@@ -136,6 +138,8 @@ public class EditBases implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderX\">Bebauung: </td><td><input type=\"text\" size=\"40\" name=\"bebauung\" value=\"" + Common.implode("|", base.getBebauung()) + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Active: </td><td><input type=\"text\" size=\"40\" name=\"active\" value=\"" + Common.implode("|", base.getActive()) + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Core-Aktiv: </td><td><input type=\"text\" size=\"40\" name=\"coreactive\" value=\"" + base.isCoreActive() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\">Zum Spawn freigegebene Ressourcen: </td><td><input type=\"text\" size=\"40\" name=\"spawnableress\" value=\"" + base.getSpawnableRess() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\">Aktuell verfuegbare Ressourcen: </td><td><input type=\"text\" size=\"40\" name=\"availableress\" value=\"" + base.getAvailableSpawnableRess() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">AutoGTUActs: </td><td><input type=\"text\" size=\"40\" name=\"autogtuacts\" value=\"" + Common.implode(";" , base.getAutoGTUActs()) + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
 			echo.append("</table>");
