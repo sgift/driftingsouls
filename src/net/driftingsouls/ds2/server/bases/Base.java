@@ -652,7 +652,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	/**
 	 * Gibt die zum spawn freigegebenen Ressourcen in einer HashMap zurueck.
 	 * Beruecksichtigt ebenfalls die Systemvorraussetzungen
-	 * Keys von 1 bis 100 mit der dazugehörigen Ressource und Maxmenge die gespawnt wird
+	 * Keys von 1 bis 100 mit der dazugehoerigen Ressource und Maxmenge die gespawnt wird
 	 * @return Die zum Spawn freigegebenen Ressourcen
 	 */
 	private Map<Integer,Integer[]> getSpawnableRessMap()
@@ -738,8 +738,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Gibt die Nettoproduktion der angegebenen Resourcenid.
-	 * @param resid Die ResourcenID
+	 * Gibt die Nettoproduktion der Basis aus.
 	 * @return Die Nettoproduktion
 	 */
 	private Cargo getNettoProduction()
