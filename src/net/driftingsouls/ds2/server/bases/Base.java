@@ -678,11 +678,15 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 				int chance = Integer.parseInt(thisress[1]);
 				int maxvalue = Integer.parseInt(thisress[2]);
 				
-				chances += chance;
-				
-				spawnress.put(i, new Integer[] {chance, itemid, maxvalue});
+				// Er soll nur Ressourcen spawnen die noch nicht vorhanden sind
+				if(getSpawnableRessAmount(itemid) <= 0)
+				{
+					chances += chance;
+					
+					spawnress.put(i, new Integer[] {chance, itemid, maxvalue});
+				}
 			}
-			baseress = spawnableress.length;
+			baseress = spawnress.size();
 		}
 		if(!(system.getSpawnableRess() == null))
 		{
@@ -693,9 +697,13 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 				int chance = Integer.parseInt(thisress[1]);
 				int maxvalue = Integer.parseInt(thisress[2]);
 				
-				chances += chance;
-				
-				spawnress.put(i+baseress, new Integer[] {chance, itemid, maxvalue});
+				// Er soll nur Ressourcen spawnen die noch nicht vorhanden sind
+				if(getSpawnableRessAmount(itemid) <= 0)
+				{
+					chances += chance;
+					
+					spawnress.put(i+baseress, new Integer[] {chance, itemid, maxvalue});
+				}
 			}
 		}
 		double chancefactor = 100 / (double)chances;
