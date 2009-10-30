@@ -746,6 +746,42 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
+	 * Gibt den Nettoverbrauch der Basis aus.
+	 * @return Der Nettoverbrauch
+	 */
+	private Cargo getNettoConsumption()
+	{
+		Cargo stat = new Cargo();
+		if( (getCore() > 0) && isCoreActive() ) {
+			Core core = Core.getCore(getCore());
+
+			stat.addCargo(core.getConsumes());
+		}
+		
+		Integer[] bebauung = getBebauung();
+		Integer[] bebon = getActive();
+			
+		for( int o=0; o < getWidth() * getHeight(); o++ )
+		{
+			if( bebauung[o] == 0 )
+			{
+				continue;
+			} 
+			
+			Building building = Building.getBuilding(bebauung[o]);
+
+			if( bebon[o] == 0 )
+			{
+				continue;
+			}
+			
+			stat.addCargo(building.getConsumes());
+		}
+		
+		return stat;
+	}
+	
+	/**
 	 * Gibt die Nettoproduktion der Basis aus.
 	 * @return Die Nettoproduktion
 	 */
@@ -1403,17 +1439,14 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		Cargo baseCargo = (Cargo)cargo.clone();
 		Cargo usercargo = new Cargo( Cargo.Type.STRING, getOwner().getCargo());
 		Cargo nettoproduction = getNettoProduction();
+		Cargo nettoconsumption = getNettoConsumption();
 		org.hibernate.Session db = getDB();
 		
 		baseCargo.addResource(Resources.NAHRUNG, usercargo.getResourceCount(Resources.NAHRUNG));
 		baseCargo.addResource(Resources.RE, getOwner().getKonto().longValue());
 		
-		ResourceList resources = baseCargo.compare(state.getProduction(), true);
-		for(ResourceEntry entry: resources)
+		for(ResourceEntry entry : nettoproduction.getResourceList())
 		{
-			long stock = entry.getCount1();
-			long production = entry.getCount2();
-			
 			// Auf Spawn Resource pruefen und ggf Produktion anpassen
 			if(entry.getId().isItem()) 
 			{
@@ -1427,16 +1460,25 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 					// Ueberhaupt nichts auf dem Asteroiden vorhanden
 					else if (getSpawnableRessAmount(item.getID()) == 0) {
 						// Dann ziehen wir die Production eben ab
-						production -= nettoproduction.getResourceCount(entry.getId());
+						nettoproduction.substractResource(entry.getId(), nettoproduction.getResourceCount((entry.getId())));
 					}
 					// Es kann nicht mehr die volle Produktion gefoerdert werden
 					else {
 						// Produktion drosseln und neue Ressource spawnen
-						production = -nettoproduction.getResourceCount(entry.getId()) + getSpawnableRessAmount(item.getID());
+						nettoproduction.substractResource(entry.getId(), getSpawnableRessAmount(item.getID()) -nettoproduction.getResourceCount(entry.getId()) );
 						respawnRess(item.getID());
 					}
 				}
 			}
+		}
+		Cargo fullproduction = (Cargo)nettoproduction.clone();
+		fullproduction.addCargo(nettoconsumption);
+		
+		ResourceList resources = baseCargo.compare(fullproduction, true);
+		for(ResourceEntry entry: resources)
+		{
+			long stock = entry.getCount1();
+			long production = entry.getCount2();
 			
 			long balance = stock + production;
 			
