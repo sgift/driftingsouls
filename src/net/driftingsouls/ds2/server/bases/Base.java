@@ -1465,14 +1465,15 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 					// Es kann nicht mehr die volle Produktion gefoerdert werden
 					else {
 						// Produktion drosseln und neue Ressource spawnen
-						nettoproduction.substractResource(entry.getId(), getSpawnableRessAmount(item.getID()) -nettoproduction.getResourceCount(entry.getId()) );
+						nettoproduction.substractResource(entry.getId(), nettoproduction.getResourceCount(entry.getId()) );
+						nettoproduction.addResource(entry.getId(), getSpawnableRessAmount(item.getID()));
 						respawnRess(item.getID());
 					}
 				}
 			}
 		}
 		Cargo fullproduction = (Cargo)nettoproduction.clone();
-		fullproduction.addCargo(nettoconsumption);
+		fullproduction.substractCargo(nettoconsumption);
 		
 		ResourceList resources = baseCargo.compare(fullproduction, true);
 		for(ResourceEntry entry: resources)
