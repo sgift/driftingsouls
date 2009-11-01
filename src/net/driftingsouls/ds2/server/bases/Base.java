@@ -775,6 +775,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 				continue;
 			}
 			
+			building.modifyConsumptionStats( this, stat );
+			
 			stat.addCargo(building.getConsumes());
 		}
 		
@@ -810,6 +812,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 			{
 				continue;
 			}
+			
+			building.modifyProductionStats( this, stat );
 			
 			stat.addCargo(building.getProduces());
 		}
@@ -1244,11 +1248,13 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		{
 			produce = false;
 			message += "Wegen einer Hungersnot fliehen ihre Einwohner. Die Produktion f&auml;llt aus.\n";
+			usefullMessage = true;
 		}
 		
 		if(!feedMarines())
 		{
 			message += "Wegen Untern&auml;hrung desertieren ihre Truppen.\n";
+			usefullMessage = true;
 		}
 		
 		BaseStatus state = getStatus();
@@ -1460,13 +1466,12 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 					// Ueberhaupt nichts auf dem Asteroiden vorhanden
 					else if (getSpawnableRessAmount(item.getID()) == 0) {
 						// Dann ziehen wir die Production eben ab
-						nettoproduction.substractResource(entry.getId(), nettoproduction.getResourceCount((entry.getId())));
+						nettoproduction.setResource(entry.getId(), 0);
 					}
 					// Es kann nicht mehr die volle Produktion gefoerdert werden
 					else {
 						// Produktion drosseln und neue Ressource spawnen
-						nettoproduction.substractResource(entry.getId(), nettoproduction.getResourceCount(entry.getId()) );
-						nettoproduction.addResource(entry.getId(), getSpawnableRessAmount(item.getID()));
+						nettoproduction.setResource(entry.getId(), getSpawnableRessAmount(item.getID()));
 						respawnRess(item.getID());
 					}
 				}
@@ -1629,6 +1634,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 				cargo.setResource(Resources.NAHRUNG, food);
 			}
 		}
+		getOwner().setCargo(usercargo.save());
 		
 		return hungryPeople;
 	}

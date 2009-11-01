@@ -77,6 +77,18 @@ public class DefaultBuilding extends Building {
 		// EMPTY
 		return "";
 	}
+	
+	@Override
+	public String modifyProductionStats(Base base, Cargo stats) {
+		// EMPTY
+		return "";
+	}
+	
+	@Override
+	public String modifyConsumptionStats(Base base, Cargo stats) {
+		// EMPTY
+		return "";
+	}
 
 	@Override
 	public boolean isActive(Base base, int status, int field) {

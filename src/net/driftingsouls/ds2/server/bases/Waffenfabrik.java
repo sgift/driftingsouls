@@ -74,6 +74,8 @@ public class Waffenfabrik extends DefaultBuilding {
 	public static class ContextVars {
 		Set<Ammo> ownerammobase = new HashSet<Ammo>();
 		Map<Integer,Cargo> stats = new HashMap<Integer,Cargo>();
+		Map<Integer,Cargo> productionstats = new HashMap<Integer,Cargo>();
+		Map<Integer,Cargo> consumptionstats = new HashMap<Integer,Cargo>();
 		Map<Integer,BigDecimal> usedcapacity = new HashMap<Integer,BigDecimal>();
 		boolean init = false;
 		
@@ -124,6 +126,12 @@ public class Waffenfabrik extends DefaultBuilding {
 		
 		if( !vars.stats.containsKey(base.getId()) ) {
 			vars.stats.put(base.getId(), new Cargo());
+		}
+		if( !vars.productionstats.containsKey(base.getId()) ) {
+			vars.productionstats.put(base.getId(), new Cargo());
+		}
+		if( !vars.consumptionstats.containsKey(base.getId()) ) {
+			vars.consumptionstats.put(base.getId(), new Cargo());
 		}
 		
 		boolean ok = true;
@@ -183,8 +191,10 @@ public class Waffenfabrik extends DefaultBuilding {
 					if( count > 1 ) {
 						tmpcargo.multiply( count, Cargo.Round.NONE );
 					}
+					vars.consumptionstats.get(base.getId()).addCargo( tmpcargo );
 					vars.stats.get(base.getId()).substractCargo( tmpcargo );
 					vars.stats.get(base.getId()).addResource( new ItemID(ammo.getItemId()), count );
+					vars.productionstats.get(base.getId()).addResource( new ItemID(ammo.getItemId()), count);
 				}
 			}
 		}
@@ -392,6 +402,48 @@ public class Waffenfabrik extends DefaultBuilding {
 		
 		if( (vars.usedcapacity.get(base.getId()).compareTo(new BigDecimal(0)) > 0) && !colcomplete.containsKey(base.getId()) ) {
 			stats.addCargo( vars.stats.get(base.getId()) );
+			colcomplete.put(base.getId(), true);
+		}
+	
+		return msg;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public String modifyProductionStats(Base base, Cargo stats) {
+		String msg = loaddata( base );
+		
+		Context context = ContextMap.getContext();
+		ContextVars vars = context.get(ContextVars.class);
+		Map<Integer,Boolean> colcomplete = (Map<Integer,Boolean>)context.getVariable(getClass(), "colprodcomplete");
+		if( colcomplete == null ) {
+			colcomplete = new HashMap<Integer,Boolean>();
+			context.putVariable(getClass(), "colprodcomplete", colcomplete);
+		}
+		
+		if( (vars.usedcapacity.get(base.getId()).compareTo(new BigDecimal(0)) > 0) && !colcomplete.containsKey(base.getId()) ) {
+			stats.addCargo( vars.productionstats.get(base.getId()) );
+			colcomplete.put(base.getId(), true);
+		}
+	
+		return msg;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public String modifyConsumptionStats(Base base, Cargo stats) {
+		String msg = loaddata( base );
+		
+		Context context = ContextMap.getContext();
+		ContextVars vars = context.get(ContextVars.class);
+		Map<Integer,Boolean> colcomplete = (Map<Integer,Boolean>)context.getVariable(getClass(), "colconscomplete");
+		if( colcomplete == null ) {
+			colcomplete = new HashMap<Integer,Boolean>();
+			context.putVariable(getClass(), "colconscomplete", colcomplete);
+		}
+		
+		if( (vars.usedcapacity.get(base.getId()).compareTo(new BigDecimal(0)) > 0) && !colcomplete.containsKey(base.getId()) ) {
+			stats.addCargo( vars.consumptionstats.get(base.getId()) );
 			colcomplete.put(base.getId(), true);
 		}
 	

@@ -449,10 +449,26 @@ public abstract class Building {
 	/**
 	 * Modifiziert das stats-objekt der Basis um die Stats dieses Gebaeudes.
 	 * @param base Die Basis
-	 * @param stats Ein Cargo-Objekt mit dem aktuellen Stats
+	 * @param stats Ein Cargo-Objekt mit den aktuellen Stats
 	 * @return Warnungen fuer den Benutzer/Fuers Log
 	 */
 	public abstract String modifyStats( Base base, Cargo stats );
+	
+	/**
+	 * Modifiziert das stats-objekt der Basis um die Produktion dieses Gebaeudes.
+	 * @param base Die Basis
+	 * @param stats Ein Cargo-Objekt mit den aktuellen Stats
+	 * @return Warnungen fuer den Benutzer/Fuers Log
+	 */
+	public abstract String modifyProductionStats( Base base, Cargo stats );
+	
+	/**
+	 * Modifiziert das stats-objekt der Basis um den Verbrauch dieses Gebaeudes.
+	 * @param base Die Basis
+	 * @param stats Ein Cargo-Objekt mit den aktuellen Stats
+	 * @return Warnungen fuer den Bnutzer/Fuers Log
+	 */
+	public abstract String modifyConsumptionStats(Base base, Cargo stats );
 	
 	/**
 	 * Gibt <code>true</code> zurueck, wenn das Gebaeude aktiv ist.
