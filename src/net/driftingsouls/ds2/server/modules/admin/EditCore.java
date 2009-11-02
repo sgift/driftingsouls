@@ -92,6 +92,7 @@ public class EditCore implements AdminPlugin
 				core.setBuildcosts(buildcosts);
 				core.setProduces(produces);
 				core.setConsumes(consumes);
+				core.setShutDown(context.getRequest().getParameterString("shutdown").equals("true") ? true : false);
 			}
 		}
 		
@@ -119,6 +120,7 @@ public class EditCore implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">Energie: </td><td><input type=\"text\" name=\"energy\" value=\"" + energy  + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">EPS: </td><td><input type=\"text\" name=\"eps\" value=\"" + core.getEPS() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Wohnraum: </td><td><input type=\"text\" name=\"room\" value=\"" + core.getBewohner() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Auto Abschalten: </td><td><input type=\"text\" name=\"shutdown\" value=\"" + core.isShutDown() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Forschung: </td><td><select size=\"1\" name=\"tech\">");
 			for (Forschung research: researchs)
 			{

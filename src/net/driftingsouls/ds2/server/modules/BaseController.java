@@ -204,7 +204,17 @@ public class BaseController extends TemplateGenerator {
 		}
 		
 		Building building = Building.getBuilding(buildingonoff);
-		if( building.isDeakAble() ) {
+		
+		// Wenn das Gebaude automatisch abschalten soll und der Besitzer 
+		// die entsprechenden Forschungen oder die Rasse nicht hat
+		// bleibt das Gebaeude aus (Rasse != GCP)
+		if( bebstatus == 1 && building.isShutDown() && 
+				(!base.getOwner().hasResearched(building.getTechRequired()) 
+						|| ((base.getOwner().getRace() != building.getRace()) && building.getRace() != 0)))
+		{
+			t.setVar("base.message", "<span style=\"color:red\">Sie haben nicht die notwendigen Voraussetzungen um diese Geb&auml;ude aktivieren zu k&ouml;nnen</span>");
+		}
+		else if( building.isDeakAble() ) {
 			int count = 0;
 			Integer[] active = base.getActive();
 			

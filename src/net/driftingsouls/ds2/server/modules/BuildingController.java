@@ -110,9 +110,19 @@ public class BuildingController extends TemplateGenerator {
 		int field = getInteger("field");
 		Writer echo = getResponse().getWriter();
 		
+		System.out.println("Forschung: "+base.getOwner().hasResearched(building.getTechRequired()));
+		System.out.println("Rasse (User): "+base.getOwner().getRace());
+		System.out.println("Rasse (Building): "+building.getRace());
+		
 		if( (building.getArbeiter() > 0) && (building.getArbeiter() + base.getArbeiter() > base.getBewohner()) ) {
 			echo.append("<span style=\"color:#ff0000\">Nicht gen&uuml;gend Arbeiter vorhanden</span><br /><br />\n");
 		} 
+		else if( building.isShutDown() && 
+				(!base.getOwner().hasResearched(building.getTechRequired()) 
+						|| (base.getOwner().getRace() != building.getRace() && building.getRace() != 0)))
+		{
+			echo.append("<span style=\"color:#ff0000\">Sie k&ouml;nnen dieses Geb&auml;ude wegen unzureichenden Voraussetzungen nicht aktivieren</span><br /><br />\n");
+		}
 		else {
 			Integer[] active = base.getActive();
 			active[field] = 1;

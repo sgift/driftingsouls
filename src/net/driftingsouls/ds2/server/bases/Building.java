@@ -98,6 +98,7 @@ public abstract class Building {
 	private boolean ucomplex;
 	private boolean deakable;
 	private int race;
+	private boolean shutdown;
 	
 	/**
 	 * Konstruktor.
@@ -193,6 +194,22 @@ public abstract class Building {
 	 */
 	public int getTechRequired() {
 		return techReq;
+	}
+	
+	/**
+	 * Gibt zureuck, ob das Gebaeude bei nicht vorhandenen Voraussetzungen abschaltet.
+	 * @return <code>true</code>, wenn das Gebaeude abschaltet
+	 */
+	public boolean isShutDown() {
+		return shutdown;
+	}
+	
+	/**
+	 * Setzt, ob das Gebaeude bei nicht vorhandenen Voraussetzungen abschaltet.
+	 * @param shutdown <code>true</code> wenn das Gebaeude abschalten soll
+	 */
+	public void setShutDown(boolean shutdown) {
+		this.shutdown = shutdown;
 	}
 	
 	/**

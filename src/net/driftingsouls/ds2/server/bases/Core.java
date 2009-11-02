@@ -66,6 +66,7 @@ public abstract class Core {
 	@Column(name="techreq")
 	private int techReq;
 	private int eps;	
+	private boolean shutdown;
 	
 	/**
 	 * Konstruktor.
@@ -135,6 +136,22 @@ public abstract class Core {
 	 */
 	public Cargo getConsumes() {
 		return new UnmodifiableCargo(consumes);
+	}
+	
+	/**
+	 * Gibt zurueck, ob dieser Core bei unzureichenden Voraussetzungen abschaltet.
+	 * @return <code>true</code>, wenn dieses Gebaeude abschaltet
+	 */
+	public boolean isShutDown() {
+		return shutdown;
+	}
+	
+	/**
+	 * Setzt, ob dieser Core bei unzureichenden Voraussetzungen abschaltet.
+	 * @param shutdown <code>true</code>, wenn der Core abschalten soll
+	 */
+	public void setShutDown(boolean shutdown) {
+		this.shutdown = shutdown;
 	}
 	
 	/**

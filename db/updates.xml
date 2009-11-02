@@ -1232,4 +1232,8 @@
 		ALTER TABLE `bases` ADD `spawnressavailable` text;
 		ALTER TABLE `items` ADD `isspawnable` tinyint (1) NOT NULL;
 	]]></update>
+	<update><![CDATA[
+		ALTER TABLE `buildings` ADD `shutdown` tinyint (1) NOT NULL default '0';
+		ALTER TABLE `cores` ADD `shutdown` tinyint (1) NOT NULL default '0';
+	]]></update>
 </updates>

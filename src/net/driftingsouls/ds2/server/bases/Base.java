@@ -1243,6 +1243,13 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		String message = "Basis " + getName() + "\n----------------------------------\n";
 		boolean usefullMessage = false;
 		
+		String proof = proofBuildings();
+		if(!proof.equals(""))
+		{
+			message += proof;
+			usefullMessage = true;
+		}
+		
 		boolean produce = true;
 		if(!feedInhabitants())
 		{
@@ -1314,6 +1321,56 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		}
 		
 		return message;
+	}
+	
+	/**
+	 * Ueberprueft alle Gebaeude und schaltet bei nicht vorhandenen Voraussetzungen ab.
+	 * @return Gibt eine Meldung mit allen abgeschalteten Gebaeuden zurueck
+	 */
+	private String proofBuildings()
+	{
+		User owner = getOwner();
+		String msg = "";
+		
+		if( (getCore() > 0) && isCoreActive() ) {
+			Core core = Core.getCore(getCore());
+			
+			if( core.isShutDown() && !owner.hasResearched(core.getTechRequired()) )
+			{
+				setCoreActive(false);
+				msg += "Der Core wurde wegen unzureichenden Voraussetzungen abgeschaltet.\n";
+			}
+		}
+		
+		Integer[] bebauung = getBebauung();
+		Integer[] bebon = getActive();
+			
+		for( int o=0; o < getWidth() * getHeight(); o++ )
+		{
+			if( bebauung[o] == 0 )
+			{
+				continue;
+			} 
+			
+			Building building = Building.getBuilding(bebauung[o]);
+
+			if( bebon[o] == 0 )
+			{
+				continue;
+			}
+			
+			if( building.isShutDown() && 
+					(!owner.hasResearched(building.getTechRequired()) 
+							|| (owner.getRace() != building.getRace() && building.getRace() != 0)))
+			{
+				bebon[o] = 0;
+				msg += "Das Geb&auml;ude "+building.getName()+" wurde wegen unzureichenden Voraussetzungen abgeschaltet.\n";
+			}
+		}
+		
+		setActive(bebon);
+		
+		return msg;
 	}
 	
 	/**

@@ -207,6 +207,10 @@ public class CoreController extends TemplateGenerator {
 		if( core.getArbeiter()+base.getArbeiter() > base.getBewohner() ) {
 			t.setVar( "core.message", "<span style=\"color:#ff0000\">Nicht gen&uuml;gend Arbeiter</span>" );
 		} 
+		else if( core.isShutDown() && !base.getOwner().hasResearched(core.getTechRequired()))
+		{
+			t.setVar( "core.message", "<span sytel=\"color:#ff0000\">Sie haben nicht die notwendigen Voraussetzungen um dieses Geb&auml;ude aktivieren zu k&ouml;nnen.</span>");
+		}
 		else {
 			base.setArbeiter(base.getArbeiter() + core.getArbeiter());
 			base.setCoreActive(true);
