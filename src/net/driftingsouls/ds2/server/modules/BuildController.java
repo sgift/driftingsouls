@@ -158,8 +158,16 @@ public class BuildController extends TemplateGenerator {
 				return;
 			}
 		}
-
-
+		
+		// Pruefe auf richtiges Terrain
+		if( !building.hasTerrain(base.getTerrain()[field]) )
+		{
+			addError("Dieses Gebaeude ist nicht auf diesem Terrainfeld baubar.");
+			
+			redirect();
+			return;
+		}
+		
 		if( base.getBebauung()[field] != 0 ) {
 			addError("Es existiert bereits ein Geb&auml;ude an dieser Stelle");
 			
@@ -266,6 +274,7 @@ public class BuildController extends TemplateGenerator {
 		parameterNumber("cat");
 		
 		int cat = getInteger("cat");
+		int field = getInteger("field");
 		if( (cat < 0) || (cat > 4) ) {
 			cat = 0;	
 		} 
@@ -337,6 +346,9 @@ public class BuildController extends TemplateGenerator {
 			}
 			if( !Rassen.get().rasse(user.getRace()).isMemberIn(building.getRace()) ) {
 				continue;	
+			}
+			if( !building.hasTerrain(base.getTerrain()[field]) ) {
+				continue;
 			}
 			Cargo buildcosts = building.getBuildCosts();
 			

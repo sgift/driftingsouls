@@ -27,6 +27,7 @@ import javax.persistence.Table;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -99,6 +100,7 @@ public abstract class Building {
 	private boolean deakable;
 	private int race;
 	private boolean shutdown;
+	private String terrain;
 	
 	/**
 	 * Konstruktor.
@@ -450,6 +452,47 @@ public abstract class Building {
 		this.race = race;
 	}
 
+	/**
+	 * Gibt die Terrainarten zurueck auf denen das Gebauede baubar ist. (Leer oder NULL == auf allen baubar).
+	 * @return die Terrainarten auf denen das Gebaeude baubar ist
+	 */
+	public String getTerrain()
+	{
+		return this.terrain;
+	}
+	
+	/**
+	 * Setzt die Terrainarten auf denen das Gebaeude baubar ist.
+	 * @param terrain die Terrainarten auf denen das Gebaeude baubar ist
+	 */
+	public void setTerrain(String terrain)
+	{
+		this.terrain = terrain;
+	}
+	
+	/**
+	 * Prueft, ob das Gebaeude auf dem Terrain baubar ist.
+	 * @param type der Terraintyp auf den geprueft werden soll
+	 */
+	public boolean hasTerrain(int type)
+	{
+		if(this.terrain == null || this.terrain.equals(""))
+		{
+			return true;
+		}
+		int[] terrains = Common.explodeToInt(";", this.terrain);
+		
+		for(int i = 0; i < terrains.length; i++)
+		{
+			if(terrains[i] == type)
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	/**
 	 * Wird aufgerufen, wenn das Gebaeude auf einer Basis gebaut wurde.
 	 * @param base Die Basis

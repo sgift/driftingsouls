@@ -100,7 +100,9 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	@Column(name="maxcargo")
 	private long maxCargo;
 	private int core;
-	private int klasse;
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="klasse", nullable=false)
+	private BaseType klasse;
 	private int width;
 	private int height;
 	@Column(name="maxtiles")
@@ -549,12 +551,21 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
+	 * Gibt die Basis-Klasse zurueck.
+	 * @return die Klasse
+	 */
+	public BaseType getBaseType()
+	{
+		return this.klasse;
+	}
+	
+	/**
 	 * Gibt die Klassennummer der Basis zurueck (= Der Astityp).
 	 * @return Die Klassennummer
 	 */
 	public int getKlasse()
 	{
-		return this.klasse;
+		return this.klasse.getId();
 	}
 	
 	/**
@@ -563,7 +574,12 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	 */
 	public void setKlasse(int klasse)
 	{
-		this.klasse = klasse;
+		org.hibernate.Session db = getDB();
+		BaseType type = (BaseType)db.get(BaseType.class, klasse);
+		if(type != null)
+		{
+			this.klasse = type;
+		}
 	}
 	
 	/**
@@ -660,10 +676,11 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		org.hibernate.Session db = getDB();
 		StarSystem system = (StarSystem)db.get(StarSystem.class, this.system);
 		
-		if(getSpawnableRess() == null && system.getSpawnableRess() == null)
+		if(getSpawnableRess() == null && system.getSpawnableRess() == null && getBaseType().getSpawnableRess() == null)
 		{
 			return null;
 		}
+		
 		Map<Integer,Integer[]> spawnress = new HashMap<Integer,Integer[]>();
 		Map<Integer,Integer[]> spawnressmap = new HashMap<Integer,Integer[]>();
 		int chances = 0;
@@ -693,6 +710,24 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 			String[] spawnableresssystem = StringUtils.split(system.getSpawnableRess(), ";");
 			for(int i = 0;i < spawnableresssystem.length; i++) {
 				String[] thisress = StringUtils.split(spawnableresssystem[i], ",");
+				int itemid = Integer.parseInt(thisress[0]);
+				int chance = Integer.parseInt(thisress[1]);
+				int maxvalue = Integer.parseInt(thisress[2]);
+				
+				// Er soll nur Ressourcen spawnen die noch nicht vorhanden sind
+				if(getSpawnableRessAmount(itemid) <= 0)
+				{
+					chances += chance;
+					
+					spawnress.put(i+baseress, new Integer[] {chance, itemid, maxvalue});
+				}
+			}
+		}
+		if(!(getBaseType().getSpawnableRess() == null))
+		{
+			String[] spawnableresstype = StringUtils.split(getBaseType().getSpawnableRess(), ";");
+			for(int i = 0;i < spawnableresstype.length; i++) {
+				String[] thisress = StringUtils.split(spawnableresstype[i], ",");
 				int itemid = Integer.parseInt(thisress[0]);
 				int chance = Integer.parseInt(thisress[1]);
 				int maxvalue = Integer.parseInt(thisress[2]);
@@ -972,17 +1007,20 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		{
 			Integer[] terrain = new Integer[getWidth()*getHeight()];
 			System.arraycopy(getTerrain(), 0, terrain, 0, getTerrain().length );
+			Integer[] allowedterrain = getBaseType().getTerrain();
 			for( int i=Math.max(getTerrain().length,0); i < getWidth()*getHeight(); i++ )
 			{
-				int rnd = RandomUtils.nextInt(7);
-				if( rnd > 4 )
+				if(allowedterrain == null || allowedterrain.length == 0)
 				{
-					terrain[i] = rnd - 4;	
+					terrain[i] = 0;
 				}
-				else
+				if(allowedterrain.length == 1)
 				{
-					terrain[i] = 0;	
+					terrain[i] = allowedterrain[0];
 				}
+				int rnd = RandomUtils.nextInt(allowedterrain.length);
+				
+				terrain[i] = allowedterrain[rnd];	
 			}
 			
 			setTerrain(terrain);

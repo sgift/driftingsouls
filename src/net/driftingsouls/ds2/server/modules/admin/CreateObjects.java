@@ -34,6 +34,7 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.config.StarSystem;
@@ -122,8 +123,7 @@ public class CreateObjects implements AdminPlugin {
 		OPTIONS.put("Base", new DialogEntry[] {
 				new TextEntry("Anzahl", "anzahl", 18, "0"),
 				new TextEntry("Klasse", "klasse", 18, "0"),
-				new TextEntry("Breite", "width", 18, "0"),
-				new TextEntry("H&ouml;he", "height", 18, "0"),
+				new TextEntry("Vorhandene Spawn-Ressourcen", "availspawnress", 18, "0"),
 				new TextEntry("System", "system", 18, "0"),
 				new TextEntry("Min X", "minX", 18, "0"),
 				new TextEntry("Min Y", "minY", 18, "0"),
@@ -614,14 +614,20 @@ public class CreateObjects implements AdminPlugin {
 		
 		final int anzahl = context.getRequest().getParameterInt("anzahl");
 		final int klasse = context.getRequest().getParameterInt("klasse");
-		final int width = context.getRequest().getParameterInt("width");
-		final int height = context.getRequest().getParameterInt("height");
+		final String availablespawnableress = context.getRequest().getParameterString("availspawnress");
 		final int minX = context.getRequest().getParameterInt("minX");
 		final int minY = context.getRequest().getParameterInt("minY");
 		final int maxX = context.getRequest().getParameterInt("maxX");
 		final int maxY = context.getRequest().getParameterInt("maxY");
 
 		final User nullUser = (User)db.get(User.class, 0);
+		BaseType type = (BaseType)db.get(BaseType.class, klasse);
+		
+		if(type == null)
+		{
+			echo.append("Basis-Klasse nicht gefunden!\n");
+			return;
+		}
 		
 		for( int i=1; i <= anzahl; i++ ) {
 			int x = RandomUtils.nextInt(maxX-minX+1)+minX;
@@ -629,11 +635,12 @@ public class CreateObjects implements AdminPlugin {
 
 			Base base = new Base(new Location(system, x, y), nullUser);
 			base.setKlasse(klasse);
-			base.setWidth(width);
-			base.setHeight(height);
-			base.setMaxTiles(width*height);
-			base.setMaxCargo(75000);
-			base.setMaxEnergy(1000);
+			base.setWidth(type.getWidth());
+			base.setHeight(type.getHeight());
+			base.setMaxTiles(type.getMaxTiles());
+			base.setMaxCargo(type.getCargo());
+			base.setMaxEnergy(type.getEnergy());
+			base.setAvailableSpawnableRess(availablespawnableress);
 			db.persist(base);
 
 			echo.append("Erstelle Kolonie...<br />\n");

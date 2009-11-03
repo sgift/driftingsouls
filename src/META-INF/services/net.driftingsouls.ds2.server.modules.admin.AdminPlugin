@@ -27,6 +27,7 @@ net.driftingsouls.ds2.server.modules.admin.EditBuilding
 net.driftingsouls.ds2.server.modules.admin.EditCore
 net.driftingsouls.ds2.server.modules.admin.EditSystem
 net.driftingsouls.ds2.server.modules.admin.EditBases
+net.driftingsouls.ds2.server.modules.admin.EditBaseType
 net.driftingsouls.ds2.server.modules.admin.EditItem
 net.driftingsouls.ds2.server.modules.admin.AddSystem
 net.driftingsouls.ds2.server.modules.admin.DeleteSystem
