@@ -235,21 +235,24 @@ public class UeberController extends TemplateGenerator {
 		}
 
 		int ticks = getContext().get(ContextCommon.class).getTick();
+		int[] fullbalance = user.getFullBalance();
 		
 		Cargo usercargo = new Cargo( Cargo.Type.STRING, user.getCargo() );
 				
-		t.setVar(	"user.name",			Common._title(user.getName()),
-				  	"user.race",			race,
-				  	"res.nahrung.image",	Cargo.getResourceImage(Resources.NAHRUNG),
-				  	"res.re.image",			Cargo.getResourceImage(Resources.RE),
-				  	"user.nahrung",			Common.ln(usercargo.getResourceCount(Resources.NAHRUNG)),
-				  	"user.konto",			Common.ln(user.getKonto()),
-				  	"user.balance",			Common.ln(user.getBalance()),
-				  	"user.balance.plain",	user.getBalance(),
-				  	"user.specpoints",		user.getFreeSpecializationPoints(),
-				  	"user.maxspecpoints",	user.getSpecializationPoints(),
-				  	"global.ticks",			ticks,
-				  	"global.ticktime",		ticktime );
+		t.setVar(	"user.name",				Common._title(user.getName()),
+				  	"user.race",				race,
+				  	"res.nahrung.image",		Cargo.getResourceImage(Resources.NAHRUNG),
+				  	"res.re.image",				Cargo.getResourceImage(Resources.RE),
+				  	"user.nahrung",				Common.ln(usercargo.getResourceCount(Resources.NAHRUNG)),
+				  	"user.nahrung.new", 		Common.ln(fullbalance[0]),
+					"user.nahrung.new.plain", 	fullbalance[0],
+				  	"user.konto",				Common.ln(user.getKonto()),
+				  	"user.balance",				Common.ln(fullbalance[1]),
+				  	"user.balance.plain",		fullbalance[1],
+				  	"user.specpoints",			user.getFreeSpecializationPoints(),
+				  	"user.maxspecpoints",		user.getSpecializationPoints(),
+				  	"global.ticks",				ticks,
+				  	"global.ticktime",			ticktime );
 				  
 		UserFlagschiffLocation flagschiff = user.getFlagschiff();
 		if( flagschiff != null ) {
@@ -383,12 +386,9 @@ public class UeberController extends TemplateGenerator {
 		if( ticktime.indexOf("Bitte warten") > -1 ) {
 			t.setVar("user.nahrung.stat.tick", 1);
 		}
-		int	nbalance = user.getNahrungsBalance();
 						  
 		t.setVar(	"schiffe.mangel", Common.ln(sw),
-					"schiffe.nocrew", Common.ln(shipNoCrew),
-					"user.nahrung.new", Common.ln(nbalance),
-					"user.nahrung.new.plain", nbalance );
+					"schiffe.nocrew", Common.ln(shipNoCrew) );
 
 		//------------------------------
 		// Schlachten anzeigen

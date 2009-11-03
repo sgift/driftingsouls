@@ -1280,11 +1280,14 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * @return Die Bilanz des Spielers nach Aufrechnung aller Basen und Schiffe.
+	 * Gibt die Nahrungs- und RE-Bilanz zurueck.
+	 * @return die Bilanzen
 	 */
-	public int getBalance()
+	public int[] getFullBalance()
 	{
-		int balance = 0;
+		int[] balance = new int[2];
+		balance[0] = 0;
+		balance[1] = 0;
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		List<Base> bases = Common.cast(db.createQuery("from Base where owner=:owner")
@@ -1293,7 +1296,8 @@ public class User extends BasicUser {
 		
 		for(Base base: bases)
 		{
-			balance += base.getBalance();
+			balance[0] += base.getNahrungsBalance();
+			balance[1] += base.getBalance();
 		}
 		
 		
@@ -1306,7 +1310,8 @@ public class User extends BasicUser {
 		while(ships.next())
 		{
 			Ship ship = (Ship)ships.get(0);
-			balance -= ship.getBalance();
+			balance[0] -= ship.getNahrungsBalance();
+			balance[1] -= ship.getBalance();
 			count++;
 			
 			if(count%20 == 0)
@@ -1319,45 +1324,6 @@ public class User extends BasicUser {
 		return balance;
 	}
 	
-	/**
-	 * @return Die Nahrungsbilanz des Spielers nach Aufrechnung aller Basen und Schiffe.
-	 */
-	public int getNahrungsBalance()
-	{
-		int balance = 0;
-		
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<Base> bases = Common.cast(db.createQuery("from Base where owner=:owner")
-										 .setParameter("owner", this)
-										 .list());
-		
-		for(Base base: bases)
-		{
-			balance += base.getNahrungsBalance();
-		}
-		
-		ScrollableResults ships = db.createQuery("from Ship where owner=:owner and id>0 and battle is null")
-		 							.setParameter("owner", this)
-		 							.setCacheMode(CacheMode.IGNORE)
-		 							.scroll(ScrollMode.FORWARD_ONLY);
-		
-		int count = 0;
-		while(ships.next())
-		{
-			Ship ship = (Ship)ships.get(0);
-			balance -= ship.getNahrungsBalance();
-			count++;
-			
-			if(count%20 == 0)
-			{
-				db.flush();
-				db.clear();
-			}
-		}
-		
-		return balance;
-	}
-
 	/**
 	 * returns a Set of all systems the user has a colony in.
 	 * @return the set of all systems the user has a colony in.
