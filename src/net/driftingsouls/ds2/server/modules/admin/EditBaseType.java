@@ -92,9 +92,9 @@ public class EditBaseType implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderX\">Energie: </td><td><input type=\"text\" size=\"40\" name=\"energie\" value=\"" + type.getEnergy() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Cargo: </td><td><input type=\"text\" size=\"40\" name=\"cargo\" value=\"" + type.getCargo() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Breite: </td><td><input type=\"text\" size=\"40\" name=\"width\" value=\"" + type.getWidth() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Feldergroesze: </td><td><input type=\"text\" size=\"40\" name=\"maxtiles\" value=\"" + type.getMaxTiles() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">H&ouml;he: </td><td><input type=\"text\" size=\"40\" name=\"height\" value=\"" + type.getHeight() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Terrain: </td><td><input type=\"text\" size=\"40\" name=\"terrain\" value=\"" + Common.implode(";", type.getTerrain()) + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\">Feldergroesze: </td><td><input type=\"text\" size=\"40\" name=\"maxtiles\" value=\"" + type.getMaxTiles() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\">Terrain: </td><td><input type=\"text\" size=\"40\" name=\"terrain\" value=\"" + (type.getTerrain() == null ? "" : Common.implode(";", type.getTerrain()))  + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Zum Spawn freigegebene Ressourcen: </td><td><input type=\"text\" size=\"40\" name=\"spawnableress\" value=\"" + type.getSpawnableRess() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
 			echo.append("</table>");
