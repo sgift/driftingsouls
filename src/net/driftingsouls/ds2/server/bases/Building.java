@@ -473,6 +473,7 @@ public abstract class Building {
 	/**
 	 * Prueft, ob das Gebaeude auf dem Terrain baubar ist.
 	 * @param type der Terraintyp auf den geprueft werden soll
+	 * @return <code>true</code>, wenn das Gebaeude auf diesem Terrain gebaut werden darf
 	 */
 	public boolean hasTerrain(int type)
 	{

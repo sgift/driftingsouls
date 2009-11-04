@@ -9,7 +9,7 @@
 		size="14" descrip="" deutfactor="3" class="3" flags="" modules="" werft="8" />
 
 	<bases id="1" name="Testasti" owner="1" x="5" y="1" system="1" bewohner="1" arbeiter="0" e="1000"
-		maxe="10000" cargo="" maxcargo="10000" klasse="1" width="5" height="5" maxtiles="0"
+		maxe="10000" cargo="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0," maxcargo="10000" klasse="1" width="5" height="5" maxtiles="0"
 		terrain="" bebauung="" active="" autogtuacts="" />
 		
 	<!-- Basiswerft -->
@@ -20,11 +20,11 @@
 		
 	<!-- Werftkomplex -->
 	
-	<ships id="1" owner="1" name="Werft" type="1" cargo=""
+	<ships id="1" owner="1" name="Werft" type="1" cargo="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
 		x="1" y="1" system="1" crew="30" e="150" hull="30000" heat="" history="" />
-	<ships id="2" owner="1" name="Werft" type="1" cargo=""
+	<ships id="2" owner="1" name="Werft" type="1" cargo="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
 		x="1" y="1" system="1" crew="30" e="150" hull="30000" heat="" history="" />
-	<ships id="3" owner="1" name="Werft" type="1" cargo=""
+	<ships id="3" owner="1" name="Werft" type="1" cargo="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
 		x="1" y="1" system="1" crew="30" e="150" hull="30000" heat="" history="" />
 		
 	<werften id="2" type="0" flagschiff="0" komplex="1" />
@@ -35,10 +35,10 @@
 		
 	<werften id="3" type="0" flagschiff="0" shipid="1" linkedWerft="2" />
 	<werften id="4" type="0" flagschiff="0" shipid="2" linkedWerft="2" />
-	<werften id="5" type="0" flagschiff="0" shipid="2" linkedWerft="2" />
+	<werften id="5" type="0" flagschiff="0" shipid="3" linkedWerft="2" />
 	
 	<!-- Schiffswerft -->
-	<ships id="4" owner="1" name="Werft" type="1" cargo=""
+	<ships id="4" owner="1" name="Werft" type="1" cargo="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
 		x="1" y="1" system="1" crew="30" e="150" hull="30000" heat="" history="" />
 	
 	<werften id="6" type="0" flagschiff="0" shipid="4" />

@@ -1013,6 +1013,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 				if(allowedterrain == null || allowedterrain.length == 0)
 				{
 					terrain[i] = 0;
+					continue;
 				}
 				if(allowedterrain.length == 1)
 				{
