@@ -164,7 +164,8 @@ public class Ship implements Locatable,Transfering {
 	private Byte respawn;
 	private int ablativeArmor;
 	private boolean startFighters;
-	
+	private int showtradepost;
+
 	@Transient
 	private Offizier offizier;
 	
@@ -3871,5 +3872,102 @@ public class Ship implements Locatable,Transfering {
 		double[] alertFactor = new double[] { 0, 0.5d, 0.75d };
 		
 		return (int)Math.ceil(this.getTypeData().getRm() * alertFactor[getAlarm()]);
+	}
+
+	/**
+	 * returns who can see the tradepost entry in factions.
+	 * @return The variable who can see the post
+	 */
+	public int getShowtradepost()
+	{
+		return showtradepost;
+	}
+
+	/**
+	 * Sets who can see the tradepost entry in factions.
+	 * 0 everybody is able to see the tradepost
+	 * 1 everybody except enemys is able to see the tradepost
+	 * 2 every friend is able to see the tradepost
+	 * 3 the own allymembers are able to see the tradepost
+	 * 4 nobody except owner is able to see the tradepost
+	 * @param showtradepost
+	 */
+	public void setShowtradepost(int showtradepost)
+	{
+		this.showtradepost = showtradepost;
+	}
+	
+	/**
+	 * returns wether the tradepost is visible or not
+	 * 0 everybody is able to see the tradepost
+	 * 1 everybody except enemys is able to see the tradepost
+	 * 2 every friend is able to see the tradepost
+	 * 3 the own allymembers are able to see the tradepost
+	 * 4 nobody except owner is able to see the tradepost
+	 * @param observer
+	 * @param relationlist
+	 * @return
+	 */
+	public boolean isTradepostVisible(User observer, User.Relations relationlist)
+	{
+		int tradepostvisibility = this.getShowtradepost();
+		int ownerid = this.getOwner().getId();
+		int observerid = observer.getId();
+		switch (tradepostvisibility)
+		{
+	        case 0:  
+	        	 return true;
+	        case 1:
+	        	// check wether we are an enemy of the owner
+	        	 if( relationlist.fromOther.get(ownerid) == User.Relation.ENEMY )
+	        	 {
+	        		 //shit we are an enemy, we're not allowed to see the tradepost
+	        		 return false;
+	        	 }
+	        	 else
+	        	 {
+	        		 // hey fine, we're allowed to see the tradepost
+	        		 return true;
+	        	 }
+	        case 2:
+	        	// check wether we are a friend of the owner
+	        	 if( relationlist.fromOther.get(ownerid) == User.Relation.FRIEND )
+	        	 {
+	        		 // hey cool we are, let's take a look at the tradepost
+	        		 return true;
+	        	 }
+	        	 else
+	        	 {
+	        		 // damn it, we're not friends, no tradepost for us
+	        		 return false;
+	        	 }
+	        case 3:
+	        	// check if we are members of the same ally and if the owner has an ally
+	        	 if( (this.getOwner().getAlly() != null) && (this.getOwner().getAlly().getId() == observer.getAlly().getId() ) )
+	        	 {
+	        		 // same ally, we can see the tradepost, that's fine
+	        		 return true;
+	        	 }
+	        	 else
+	        	 {
+	        		 // no tradepost for us
+	        		 return false;
+	        	 }
+	        case 4:
+	        	// check if we are the owner of the tradepost
+	        	 if(ownerid == observerid)
+	        	 {
+	        		 // hey that's funny, it's our tradepost, we are able to see it :D
+	        		 return true;
+	        	 }
+	        	 else
+	        	 {
+	        		 // another one's tradepost, not shown to us
+	        		 return false;
+	        	 }
+	        default:
+	        	// damn it, broken configuration, don't show the tradepost
+	        	 return false;
+		}
 	}
 }

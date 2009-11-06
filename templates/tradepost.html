@@ -1,12 +1,30 @@
 {if ship.tradepost}
 	{!table_begin 600,left}
+	{if tradepost.update}
+	{else}
+	<form action="./ds" method="post" id='transfermode_form'>
+		<input type="hidden" name="ship" id="tradepost_id" value="{tradepost.id}" />
+		<input type="hidden" name="update" id="tradepost_update" value="1" />
+	{/endif}
 	<table class="noBorder" style="height:300px">
 		<tr>
 			<td class="noBorderS" valign="top">
 				<img style="vertical-align:middle; border:0px" src="{tradepost.image}" alt="Handelsposten" />			
 			</td>
 			<td class="noBorderS" valign="top">
-				{tradepost.name} - {tradepost.koords}
+				{tradepost.name} - {tradepost.koords}				
+				{if tradepost.update}
+					
+				{else}
+					<br>
+					Anzeige f&uuml;r:
+					<br>
+					 <select name="tradepostvisibility" size="1">
+					<!-- BEGIN tradepost.tradepostvisibility.listitem -->
+					<option value="{tradepost.tradepostvisibility.id}" {if tradepost.tradepostvisibility.selected}selected="selected"{/endif}>{tradepost.tradepostvisibility.descripton}</option>
+					<!-- END tradepost.tradepostvisibility.listitem -->
+					</select>
+				{/endif}
 			</td>
 		</tr>
 	</table>
@@ -14,9 +32,7 @@
 	{if tradepost.update}
 		{tradepost.update.message}<br />
 	{else}
-		<form action="./ds" method="post" id='transfermode_form'>
-			<input type="hidden" name="ship" id="tradepost_id" value="{tradepost.id}" />
-			<input type="hidden" name="update" id="tradepost_update" value="1" />
+	
 			{!form_create_hidden update}
 			
 			<table class="noBorderX" border="0" style="border:0px; width:80%">

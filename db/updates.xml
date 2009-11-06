@@ -1252,4 +1252,7 @@
 		
 		ALTER TABLE `buildings` ADD `terrain` text;
 	]]></update>
+	<update><![CDATA[
+		ALTER TABLE `ships` ADD `showtradepost` tinyint (4) NOT NULL default '0';
+	]]></update>
 </updates>

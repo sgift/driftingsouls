@@ -1079,6 +1079,9 @@ public class ErsteigernController extends TemplateGenerator
 		TemplateEngine t = this.getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		User user = (User)this.getUser();
+		
+		User.Relations relationlist = null;
+		relationlist = user.getRelations();
 
 		t.setVar("show.other", 1);
 
@@ -1104,6 +1107,10 @@ public class ErsteigernController extends TemplateGenerator
 					db.delete(kurse);
 					db.createQuery("delete from ResourceLimit where shipid = :shipid").setParameter(0, shipid).executeUpdate();
 					db.createQuery("delete from SellLimit where shipid = :shipid").setParameter(0, shipid).executeUpdate();
+					continue;
+				}
+				if(!tradepost.isTradepostVisible(user, relationlist))
+				{
 					continue;
 				}
 				t.setVar("posten.name", tradepost.getName(), "kurse.waren.list", "");

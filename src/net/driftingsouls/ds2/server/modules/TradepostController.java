@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.modules;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Map;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
+import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.ResourceLimit;
@@ -146,6 +148,16 @@ public class TradepostController extends TemplateGenerator {
 					"tradepost.name", ship.getName(),
 					"tradepost.koords", new Location(ship.getSystem(), ship.getX(), ship.getY()).displayCoordinates(false) );
 		
+		// set the tradepostvisibility
+		// first we need an array of descriptional text
+		String[] description = { "Allen zugänglich", "Feinde ausnehmen", "Auf Freunde begrenzen", "Auf die Allianz begrenzen", "Niemandem zugänglich" };
+		// now we cycle through the possible values and insert them into the template
+		for( int i = 0; i <= 4; i++ )
+		{
+			t.setVar("tradepostvisibility.id", i, "tradepostvisibility.descripton", description[i], "tradepostvisibility.selected", (ship.getShowtradepost() == i));
+			t.parse("tradepost.tradepostvisibility.list", "tradepost.tradepostvisibility.listitem", true);
+		}
+		
 		// build form
 		for( Item aitem : itemlist ) {
 			int itemid = aitem.getID();
@@ -216,7 +228,6 @@ public class TradepostController extends TemplateGenerator {
 		// get variables
 		parameterNumber("ship");
 		int shipid = getInteger("ship");
-		
 		Cargo buylistgtu = null;
 		ship = (Ship)db.get(Ship.class, shipid);	// the tradepost
 
@@ -283,7 +294,12 @@ public class TradepostController extends TemplateGenerator {
 		t.setVar(	"tradepost.id",	shipid,
 				"tradepost.image", ship.getTypeData().getPicture(),
 				"tradepost.name", ship.getName(),
-				"tradepost.koords", new Location(ship.getSystem(), ship.getX(), ship.getY()).displayCoordinates(false) );		
+				"tradepost.koords", new Location(ship.getSystem(), ship.getX(), ship.getY()).displayCoordinates(false) );	
+		
+		// read possible new value of tradepostvisibility and write to ship
+		parameterNumber("tradepostvisibility");
+		int tradepostvisibility = getInteger("tradepostvisibility");
+		ship.setShowtradepost(tradepostvisibility);
 		
 		// build form
 		for( Item aitem : itemlist ) {
