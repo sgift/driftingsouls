@@ -3931,7 +3931,7 @@ public class Ship implements Locatable,Transfering {
 	        	 }
 	        case 2:
 	        	// check wether we are a friend of the owner
-	        	 if( relationlist.fromOther.get(ownerid) == User.Relation.FRIEND )
+	        	 if( (relationlist.fromOther.get(ownerid) == User.Relation.FRIEND) || (ownerid == observerid) )
 	        	 {
 	        		 // hey cool we are, let's take a look at the tradepost
 	        		 return true;
@@ -3943,7 +3943,7 @@ public class Ship implements Locatable,Transfering {
 	        	 }
 	        case 3:
 	        	// check if we are members of the same ally and if the owner has an ally
-	        	 if( (this.getOwner().getAlly() != null) && (this.getOwner().getAlly().getId() == observer.getAlly().getId() ) )
+	        	 if( ((this.getOwner().getAlly() != null) && observer.getAlly() != null && (this.getOwner().getAlly().getId() == observer.getAlly().getId() )) || (ownerid == observerid) )
 	        	 {
 	        		 // same ally, we can see the tradepost, that's fine
 	        		 return true;
