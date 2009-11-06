@@ -1113,7 +1113,9 @@ public class ErsteigernController extends TemplateGenerator
 				{
 					continue;
 				}
+				
 				t.setVar("posten.name", tradepost.getName(), "kurse.waren.list", "");
+				t.setVar("posten.owner.name", tradepost.getOwner().getName() );
 			}
 			else
 			{
