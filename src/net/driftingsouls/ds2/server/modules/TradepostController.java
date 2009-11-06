@@ -153,7 +153,7 @@ public class TradepostController extends TemplateGenerator {
 		for( int i = 0; i <= 4; i++ )
 		{
 			t.setVar("tradepostvisibility.id", i, "tradepostvisibility.descripton", description[i], "tradepostvisibility.selected", (ship.getShowtradepost() == i));
-			t.parse("tradepost.tradepostvisibility.list", "tradepost.tradepostvisibility.listitem", true);
+			t.parse("tradepost.post", "tradepost.list", true);
 		}
 		
 		// build form
