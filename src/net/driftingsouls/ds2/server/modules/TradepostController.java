@@ -146,16 +146,6 @@ public class TradepostController extends TemplateGenerator {
 					"tradepost.name", ship.getName(),
 					"tradepost.koords", new Location(ship.getSystem(), ship.getX(), ship.getY()).displayCoordinates(false) );
 		
-		// set the tradepostvisibility
-		// first we need an array of descriptional text
-		String[] description = { "Allen zugänglich", "Feinde ausnehmen", "Auf Freunde begrenzen", "Auf die Allianz begrenzen", "Niemandem zugänglich" };
-		// now we cycle through the possible values and insert them into the template
-		for( int i = 0; i <= 4; i++ )
-		{
-			t.setVar("tradepostvisibility.id", i, "tradepostvisibility.descripton", description[i], "tradepostvisibility.selected", (ship.getShowtradepost() == i));
-			t.parse("tradepost.post", "tradepost.list", true);
-		}
-		
 		// build form
 		for( Item aitem : itemlist ) {
 			int itemid = aitem.getID();
@@ -208,6 +198,18 @@ public class TradepostController extends TemplateGenerator {
 			
 			t.parse("tradepost.post", "tradepost.list", true);
 		}
+		
+		t.setBlock("_TRADEPOST", "tradepostvisibility.list", "tradepostvisibility.post");
+		// set the tradepostvisibility
+		// first we need an array of descriptional text
+		String[] description = { "Allen zugänglich", "Feinde ausnehmen", "Auf Freunde begrenzen", "Auf die Allianz begrenzen", "Niemandem zugänglich" };
+		// now we cycle through the possible values and insert them into the template
+		for( int i = 0; i <= 4; i++ )
+		{
+			t.setVar("tradepostvisibility.id", i, "tradepostvisibility.descripton", description[i], "tradepostvisibility.selected", (ship.getShowtradepost() == i));
+			t.parse("tradepostvisibility.post", "tradepostvisibility.list", true);
+		}
+		
 	}
 	
 	/**
