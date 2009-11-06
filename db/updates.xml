@@ -903,7 +903,7 @@
 		);
 	]]></update>
 	<update type="structure" datum="2009-08-16"><![CDATA[
-		ALTER TABLE `users` DROP `blocked`
+		ALTER TABLE `users` DROP `blocked`;
 	]]></update>
 	<update type="structure" datum="2009-08-16"><![CDATA[
 		ALTER TABLE `sessions` CHANGE `id` `id` INT( 11 ) NOT NULL AUTO_INCREMENT;
@@ -977,7 +977,7 @@
   			`accesslevel` int(11) NOT NULL,
   			`unknownitem` tinyint(1) NOT NULL,
   			PRIMARY KEY  (`id`)
-		)
+		);
 	]]></update>
 	<update type="data" datum="2009-10-20"><![CDATA[
 		INSERT INTO `items` VALUES ('16', 'Nahrung', 'data/resources/Nahrung.gif', 'data/resources/Nahrung.gif', '1', null, 'common', 'Nahrung', '0', '0', '0');
@@ -1248,7 +1248,7 @@
   			`terrain` text,
   			`spawnableress` text,
   			PRIMARY KEY  (`id`)
-		)
+		);
 		
 		ALTER TABLE `buildings` ADD `terrain` text;
 	]]></update>
