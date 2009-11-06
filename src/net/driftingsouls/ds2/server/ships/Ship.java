@@ -3885,12 +3885,12 @@ public class Ship implements Locatable,Transfering {
 
 	/**
 	 * Sets who can see the tradepost entry in factions.
-	 * 0 everybody is able to see the tradepost
-	 * 1 everybody except enemys is able to see the tradepost
-	 * 2 every friend is able to see the tradepost
-	 * 3 the own allymembers are able to see the tradepost
-	 * 4 nobody except owner is able to see the tradepost
-	 * @param showtradepost
+	 * 0 everybody is able to see the tradepost.
+	 * 1 everybody except enemys is able to see the tradepost.
+	 * 2 every friend is able to see the tradepost.
+	 * 3 the own allymembers are able to see the tradepost.
+	 * 4 nobody except owner is able to see the tradepost.
+	 * @param showtradepost the value who can see the tradepost.
 	 */
 	public void setShowtradepost(int showtradepost)
 	{
@@ -3898,15 +3898,15 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * returns wether the tradepost is visible or not
-	 * 0 everybody is able to see the tradepost
-	 * 1 everybody except enemys is able to see the tradepost
-	 * 2 every friend is able to see the tradepost
-	 * 3 the own allymembers are able to see the tradepost
-	 * 4 nobody except owner is able to see the tradepost
-	 * @param observer
-	 * @param relationlist
-	 * @return
+	 * returns wether the tradepost is visible or not.
+	 * 0 everybody is able to see the tradepost.
+	 * 1 everybody except enemys is able to see the tradepost.
+	 * 2 every friend is able to see the tradepost.
+	 * 3 the own allymembers are able to see the tradepost.
+	 * 4 nobody except owner is able to see the tradepost.
+	 * @param observer the user who watches the tradepostlist.
+	 * @param relationlist the relations of the observer.
+	 * @return bollean if tradepost is visible
 	 */
 	public boolean isTradepostVisible(User observer, User.Relations relationlist)
 	{
