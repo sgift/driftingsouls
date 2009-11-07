@@ -1124,6 +1124,11 @@ public class ErsteigernController extends TemplateGenerator
 			else
 			{
 				t.setVar("posten.name", kurse.getName(), "kurse.waren.list", "");
+				t.setVar(	"posten.owner.name", "",
+						"posten.owner.id", "",
+						"posten.koords.system", "",
+						"posten.koords.x", "",
+						"posten.koords.y", "");
 			}
 
 			ResourceList reslist = kurseCargo.getResourceList();
