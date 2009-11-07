@@ -1137,6 +1137,7 @@ public class ErsteigernController extends TemplateGenerator
 				t.setVar(	"ware.image", res.getImage(),
 							"ware.preis", (res.getCount1() / 1000d > 0.05 ? Common.ln(res.getCount1() / 1000d) : ""),
 							"ware.name", res.getName(),
+							"ware.plainname", res.getPlainName(),
 							"ware.id", res.getId() );
 
 				t.parse("kurse.waren.list", "kurse.waren.listitem", true);
