@@ -162,7 +162,7 @@ public class RTCTick extends TickController {
 						msg = "Es wurde ihre "+entryname+" versteigert.\nDas Objekt wurde dem Gewinner "+winner.getName()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben. Die GTU berechnet ihnen "+gtucost+"% des Gewinnes als Preis. Dies entspricht "+Common.ln(Math.ceil(price*gtucost/100d))+" RE. Ihnen bleiben somit noch "+Common.ln(price-Math.ceil(price*gtucost/100d))+" RE\n\nJack Miller\nHan Ronalds";
 						PM.send(gtuuser, entry.getOwner().getId(), entryname+" versteigert", msg);
 						
-						msg = "Es wurde "+entryname+" im Auftrag von "+entry.getOwner().getId()+" versteigert.\nDas Objekt wurde bei "+loc+" dem Gewinner "+winner.getId()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben. Einnahme: "+Common.ln(Math.ceil(price*gtucost/100d))+" RE ("+gtucost+"%)";
+						msg = "Es wurde "+entryname+" im Auftrag von "+entry.getOwner().getId()+" versteigert.\nDas Objekt wurde bei "+loc.displayCoordinates(false)+" dem Gewinner "+winner.getId()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben. Einnahme: "+Common.ln(Math.ceil(price*gtucost/100d))+" RE ("+gtucost+"%)";
 						PM.send(sourceUser, Faction.GTU, entryname+" ersteigert", msg);
 					}
 					else {
