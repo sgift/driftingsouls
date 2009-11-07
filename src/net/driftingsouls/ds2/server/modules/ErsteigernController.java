@@ -1115,7 +1115,7 @@ public class ErsteigernController extends TemplateGenerator
 				}
 				
 				t.setVar("posten.name", tradepost.getName(), "kurse.waren.list", "");
-				t.setVar(	"posten.owner.name", tradepost.getOwner().getName(),
+				t.setVar(	"posten.owner.name", Common._title(tradepost.getOwner().getName()),
 							"posten.owner.id", tradepost.getOwner().getId(),
 							"posten.koords.system", tradepost.getLocation().getSystem(),
 							"posten.koords.x", tradepost.getLocation().getX(),

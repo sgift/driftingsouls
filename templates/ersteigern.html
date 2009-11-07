@@ -498,8 +498,8 @@
 	<!-- BEGIN kurse.listitem -->
 		<td class="noBorder" valign="top">
 		{!table_begin 230,left}
-			<span style="text-decoration:underline">{posten.name}:</span><br />
-			{posten.owner.name}<br />
+			<span style="text-decoration:underline">{posten.name}:</span><br />			
+			{!link_to $posten.owner.name, default, css_class:profile, module:userprofile, user:$posten.owner.id}<br />
 			{posten.koords.system}:{posten.koords.x}/{posten.koords.y}<br />
 			<!-- BEGIN kurse.waren.listitem -->
 				<img src="{ware.image}" alt="" />
