@@ -11,5 +11,6 @@ CREATE TABLE `cores` (
   `bewohner` int(11) NOT NULL default '0',
   `techreq` int(11) NOT NULL default '0',
   `eps` int(11) NOT NULL default '0',
+  `shutdown` tinyint (1) NOT NULL default '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 

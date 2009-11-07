@@ -18,6 +18,8 @@ CREATE TABLE `buildings` (
   `deakable` tinyint(1) unsigned NOT NULL default '1',
   `module` varchar(60) NOT NULL default 'net.driftingsouls.ds2.server.bases.DefaultBuilding',
   `race` tinyint(3) NOT NULL default '0',
+  `shutdown` tinyint (1) NOT NULL default '0',
+  `terrain` text,
   PRIMARY KEY  (`id`),
   KEY `category` (`category`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 

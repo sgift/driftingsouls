@@ -1,0 +1,1 @@
+INSERT INTO `base_types` VALUES (1, 'Normaler Asteroid', 5, 8, 40, 2000000, 1000);

@@ -43,6 +43,7 @@ CREATE TABLE `ships` (
   `startFighters` tinyint(3) unsigned NOT NULL default '1',
   `marines` int unsigned NOT NULL default '0',
   `version` int(10) unsigned not null default '0',
+  `showtradepost` tinyint (4) NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `coords` (`x`,`y`,`system`),
   KEY `owner` (`owner`,`id`),
