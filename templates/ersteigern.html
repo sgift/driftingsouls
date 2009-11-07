@@ -502,7 +502,7 @@
 			{!link_to $posten.owner.name, default, css_class:profile, module:userprofile, user:$posten.owner.id}<br />
 			{posten.koords.system}:{posten.koords.x}/{posten.koords.y}<br />
 			<!-- BEGIN kurse.waren.listitem -->
-				<a  onmouseover="return overlib('&lt;span class=\'nobr\'&gt;&lt;span class=\'libwarentt\'&gt;&lt;img align=\'left\' src=\'{ware.image}\' alt=\'\' /&gt;Deuterium&lt;/span&gt;&lt;/span&gt;',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');" onmouseout="return nd();" class="forschinfo" href="./ds?module=iteminfo&amp;itemlist=i{ware.id}|0|0"><img src="{ware.image}" alt="{ware.name}" /></a>				
+				{ware.name}				
 				{if ware.preis}{ware.preis} RE{else}Kein bedarf{/endif}<br />
 			<!-- END kurse.waren.listitem -->
 		{!table_end}
