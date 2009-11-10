@@ -141,7 +141,7 @@ public class BuildingsController extends TemplateGenerator {
 				t.parse("building.consumes.list","building.consumes.listitem",true);
 			}
 
-			reslist = building.getProduces().getResourceList();
+			reslist = building.getAllProduces().getResourceList();
 			Resources.echoResList( t, reslist, "building.produces.list" );
 
 			if( building.getEProduktion() > 0 ) {

@@ -1255,4 +1255,7 @@
 	<update><![CDATA[
 		ALTER TABLE `ships` ADD `showtradepost` tinyint (4) NOT NULL default '0';
 	]]></update>
+	<ipdate><![CDATA[
+		ALTER TABLE `buildings` ADD `chanceress` varchar (120);
+	]]></ipdate>
 </updates>

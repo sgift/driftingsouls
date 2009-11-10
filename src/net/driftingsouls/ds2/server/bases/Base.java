@@ -920,7 +920,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 			building.modifyStats( base, stat );
 		
 			stat.substractCargo(building.getConsumes());
-			stat.addCargo(building.getProduces());
+			stat.addCargo(building.getAllProduces());
 			
 			e = e - building.getEVerbrauch() + building.getEProduktion();
 			arbeiter += building.getArbeiter();

@@ -127,6 +127,7 @@ public class EditBuilding implements AdminPlugin
 			building.setBuildCosts(buildcosts);
 			building.setProduces(produces);
 			building.setConsumes(consumes);
+			building.setChanceRess(context.getRequest().getParameterString("chancress"));
 			building.setShutDown(context.getRequest().getParameterString("shutdown").equals("true") ? true : false);
 		}
 
@@ -165,6 +166,7 @@ public class EditBuilding implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">Abschaltbar: </td><td><input type=\"text\" name=\"deactivable\" value=\"" + building.isDeakAble() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Kategorie: </td><td><input type=\"text\" name=\"category\" value=\"" + building.getCategory() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Auto Abschalten: </td><td><input type=\"text\" name=\"shutdown\" value=\"" + building.isShutDown() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">ChanceRess: </td><td><input type=\"text\" name=\"chanceress\" value=\"" + building.getChanceRess() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\"><b>Baukosten</b></td><td class=\"noBorderS\">Menge</td></tr>");
 			for(ResourceConfig.Entry resource: ResourceConfig.getResources())
 			{

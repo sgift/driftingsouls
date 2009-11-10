@@ -101,6 +101,7 @@ public abstract class Building {
 	private int race;
 	private boolean shutdown;
 	private String terrain;
+	private String chanceress;
 	
 	/**
 	 * Konstruktor.
@@ -143,11 +144,27 @@ public abstract class Building {
 	}
 	
 	/**
+	 * Gibt die Ressourcen zurueck die zufaellig gespawnt werden.
+	 * @return die Zufalls-Ressourcen
+	 */
+	public String getChanceRess() {
+		return chanceress;
+	}
+	
+	/**
 	 * Gibt die Produktion des Gebaeudes pro Tick zurueck.
 	 * @return Die Produktion
 	 */
 	public Cargo getProduces() {
 		return new UnmodifiableCargo(produces);
+	}
+	
+	/**
+	 * Gibt die Produktion des Gebaeudes pro Tick zurueck. (Extra Funktion fuer Buddelstaetten).
+	 * @return Die Produktion
+	 */
+	public Cargo getAllProduces() {
+		return getProduces();
 	}
 	
 	/**
@@ -332,6 +349,15 @@ public abstract class Building {
 		this.buildCosts = buildCosts;
 	}
 
+	/**
+	 * Setzt die zufaellig gespawnten Ressourcen.
+	 * @param chanceress Zufalls-Ressourcen
+	 */
+	public void setChanceRess(String chanceress)
+	{
+		this.chanceress = chanceress;
+	}
+	
 	/**
 	 * Setzt die Produktion.
 	 * 

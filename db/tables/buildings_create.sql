@@ -20,6 +20,7 @@ CREATE TABLE `buildings` (
   `race` tinyint(3) NOT NULL default '0',
   `shutdown` tinyint (1) NOT NULL default '0',
   `terrain` text,
+  `chanceress` varchar(120),
   PRIMARY KEY  (`id`),
   KEY `category` (`category`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
