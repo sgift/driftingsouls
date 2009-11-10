@@ -276,7 +276,7 @@ public class ForschinfoController extends TemplateGenerator {
 				t.parse("tech.building.consumes.list","tech.building.consumes.listitem",true);
 			}	
 
-			reslist = building.getProduces().getResourceList();
+			reslist = building.getAllProduces().getResourceList();
 			Resources.echoResList( t, reslist, "tech.building.produces.list" );
 
 			if( building.getEProduktion() > 0 ) {
