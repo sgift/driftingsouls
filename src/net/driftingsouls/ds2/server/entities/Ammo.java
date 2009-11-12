@@ -18,23 +18,14 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
-import java.math.BigDecimal;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Type;
 
 /**
  * Die Munition.
@@ -77,14 +68,6 @@ public class Ammo {
 	@Id @GeneratedValue
 	private int id;
 	private String name;
-	private String description;
-	
-	@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="replaces", nullable=true)
-	private Ammo replaces;
-	private int res1;
-	private int res2;
-	private int res3;
 	private String type;
 	private int damage;
 	@Column(name="shielddamage")
@@ -105,12 +88,7 @@ public class Ammo {
 	private int areaDamage;
 	private double destroyable;
 	private int flags;
-	@Column(name="itemid")
-	private int itemId;
-	private BigDecimal dauer;
-	@Column(name="buildcosts")
-	@Type(type="cargo")
-	private Cargo buildCosts;
+	private int itemid;
 	private String picture;
 	
 	/**
@@ -130,14 +108,6 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt die Baukosten zurueck.
-	 * @return Die Baukosten
-	 */
-	public Cargo getBuildCosts() {
-		return new UnmodifiableCargo(buildCosts);
-	}
-
-	/**
 	 * Gibt den Huellenschaden zurueck.
 	 * @return Der Huellenschaden
 	 */
@@ -146,21 +116,23 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt die Waffenfabrikauslastung zurueck.
-	 * @return Die Auslastung der Waffenfabrik
+	 * Gibt den Namen zurueck.
+	 * @return Der Name
 	 */
-	public BigDecimal getDauer() {
-		return dauer;
+	public String getName()
+	{
+		return this.name;
 	}
-
+	
 	/**
-	 * Gibt die Beschreibung zurueck.
-	 * @return Die Beschreibung
+	 * Gibt die ItemID zurueck.
+	 * @return Die ItemID
 	 */
-	public String getDescription() {
-		return description;
+	public int getItemId()
+	{
+		return this.itemid;
 	}
-
+	
 	/**
 	 * Gibt den Zerstoerbarkeitsfaktor zurueck.
 	 * @return Der Zerstoerbarkeitsfaktor
@@ -195,80 +167,11 @@ public class Ammo {
 	}
 
 	/**
-	 * Gibt die Item-ID den zugehoerigen Ammo-Items zurueck.
-	 * @return Die Item-ID
-	 */
-	public int getItemId() {
-		return itemId;
-	}
-
-	/**
-	 * Gibt den Namen der Ammo zurueck.
-	 * @return Der Name
-	 */
-	public String getName() {
-		return name;
-	}
-
-	/**
 	 * Gibt das Bild der Ammo zurueck.
 	 * @return Das Bild
 	 */
 	public String getPicture() {
 		return picture;
-	}
-
-	/**
-	 * Gibt zurueck, welche Ammo diese Ammo ersetzt.
-	 * @return Die ersetzte Ammo
-	 */
-	public Ammo getReplaces() {
-		return replaces;
-	}
-
-	/**
-	 * Gibt die erste benoetigte Forschung zurueck.
-	 * @return Die erste benoetigte Forschung
-	 */
-	public int getRes1() {
-		return res1;
-	}
-
-	/**
-	 * Gibt die zweite benoetigte Forschung zurueck.
-	 * @return Die zweite benoetigte Forschung
-	 */
-	public int getRes2() {
-		return res2;
-	}
-
-	/**
-	 * Gibt die dritte benoetigte Forschung zurueck.
-	 * @return Die erste benoetigte Forschung
-	 */
-	public int getRes3() {
-		return res3;
-	}
-	
-	/**
-	 * Gibt die benoetigte Forschung zurueck.
-	 * @param i Die Nummer der Forschung (1-3)
-	 * @return Die Forschung
-	 * @see #getRes1()
-	 * @see #getRes2()
-	 * @see #getRes3()
-	 */
-	public int getRes(int i) {
-		switch(i) {
-		case 1:
-			return getRes1();
-		case 2:
-			return getRes2();
-		case 3:
-			return getRes3();
-		default:
-			throw new RuntimeException("Ungueltiger Forschungsindex '"+i+"'");
-		}
 	}
 
 	/**
@@ -344,35 +247,20 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt die Baukosten pro Einheit.
-	 * @param buildCosts Die Kosten
+	 * Setzt den Namen der Munition.
+	 * @param name Der Name
 	 */
-	public void setBuildCosts(Cargo buildCosts) {
-		this.buildCosts = buildCosts;
+	public void setName(String name)
+	{
+		this.name = name;
 	}
-
+	
 	/**
 	 * Setzt den Schaden.
 	 * @param damage Der Schaden
 	 */
 	public void setDamage(int damage) {
 		this.damage = damage;
-	}
-
-	/**
-	 * Setzt die beim Bau belegte Produktionskapazitaet.
-	 * @param dauer Die notwendige Kapazitaet
-	 */
-	public void setDauer(BigDecimal dauer) {
-		this.dauer = dauer;
-	}
-
-	/**
-	 * Setzt die Beschreibung.
-	 * @param description Die Beschreibung
-	 */
-	public void setDescription(String description) {
-		this.description = description;
 	}
 
 	/**
@@ -393,52 +281,11 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt den Namen der Munition.
-	 * @param name Der Name
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	/**
 	 * Setzt den Pfad zum Bild der Munition.
 	 * @param picture Der Pfad
 	 */
 	public void setPicture(String picture) {
 		this.picture = picture;
-	}
-
-	/**
-	 * Setzt die Munition, die durch diese Munition ersetzt wird.
-	 * Falls diese Munition keine andere ersetzt ist der Wert <code>null</code>.
-	 * @param replaces Die Munition oder <code>null</code>
-	 */
-	public void setReplaces(Ammo replaces) {
-		this.replaces = replaces;
-	}
-
-	/**
-	 * Setzt die erste benoetigte Forschung.
-	 * @param res1 Die Forschung
-	 */
-	public void setRes1(int res1) {
-		this.res1 = res1;
-	}
-
-	/**
-	 * Setzt die zweite benoetigte Forschung.
-	 * @param res2 Die Forschung
-	 */
-	public void setRes2(int res2) {
-		this.res2 = res2;
-	}
-
-	/**
-	 * Setzt die dritte benoetigte Forschung.
-	 * @param res3 Die Forschung
-	 */
-	public void setRes3(int res3) {
-		this.res3 = res3;
 	}
 
 	/**

@@ -810,7 +810,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 				continue;
 			}
 			
-			building.modifyConsumptionStats( this, stat );
+			building.modifyConsumptionStats( this, stat, bebauung[o] );
 			
 			stat.addCargo(building.getConsumes());
 		}
@@ -848,7 +848,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 				continue;
 			}
 			
-			building.modifyProductionStats( this, stat );
+			building.modifyProductionStats( this, stat, bebauung[o] );
 			
 			stat.addCargo(building.getProduces());
 		}
@@ -917,7 +917,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 				continue;
 			}
 			
-			building.modifyStats( base, stat );
+			building.modifyStats( base, stat, bebauung[o] );
 		
 			stat.substractCargo(building.getConsumes());
 			stat.addCargo(building.getAllProduces());

@@ -412,7 +412,7 @@ public class PortalController extends TemplateGenerator {
 			}
 			
 			Building building = Building.getBuilding(bebauung[i]);
-			building.cleanup(getContext(), base);
+			building.cleanup(getContext(), base, bebauung[i]);
 		}
 	 	
 	 	//User newuser = (User)getDB().get(User.class, newid);
@@ -437,7 +437,7 @@ public class PortalController extends TemplateGenerator {
 	 	for( int i=0; i < baselayout.length; i++ ) {
 			if( baselayout[i] > 0 ) {
 				Building building = Building.getBuilding(baselayout[i]);
-				building.build(base);	 			
+				building.build(base, baselayout[i]);	 			
 			}
 		}
 	 	

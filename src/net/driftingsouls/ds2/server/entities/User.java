@@ -35,7 +35,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.Ordner;
 import net.driftingsouls.ds2.server.config.items.Item;
@@ -1417,29 +1416,7 @@ public class User extends BasicUser {
 		buildings.addAll((List<Integer>)db.createQuery("select id from Building where techReq=:tech")
 					  					   .setParameter("tech", research.getID())
 					  					   .list());
-		
-		List<Base> bases = Common.cast(db.createQuery("from Base where owner=:owner")
-							 	 		 .setParameter("owner", this)
-							 	 		 .list());
-		
-		for(Base base: bases)
-		{
-			Integer[] baseBuildings = base.getBebauung();
-			Integer[] baseActive = base.getActive();
-			for(int i = 0; i < baseBuildings.length; i++)
-			{
-				if(buildings.contains(baseBuildings[i]))
-				{
-					Building building = (Building)db.get(Building.class, baseBuildings[i]);
-					building.cleanup( ContextMap.getContext(), base );
-					baseBuildings[i] = 0;
-					baseActive[i] = 0;
-				}
-			}
-			base.setBebauung(baseBuildings);
-			base.setActive(baseActive);
-		}
-		
+
 		db.delete(userResearch);
 	}
 }

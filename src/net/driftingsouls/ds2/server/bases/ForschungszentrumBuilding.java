@@ -61,8 +61,8 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	}
 
 	@Override
-	public void build(Base base) {
-		super.build(base);
+	public void build(Base base, int building) {
+		super.build(base, building);
 		
 		Context context = ContextMap.getContext();
 		if( context == null ) {
@@ -75,8 +75,8 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	}
 
 	@Override
-	public void cleanup(Context context, Base base) {
-		super.cleanup(context, base);
+	public void cleanup(Context context, Base base, int building) {
+		super.cleanup(context, base, building);
 		
 		org.hibernate.Session db = context.getDB();
 		db.createQuery("delete from Forschungszentrum where base=?")

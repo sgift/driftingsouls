@@ -523,39 +523,44 @@ public abstract class Building {
 	/**
 	 * Wird aufgerufen, wenn das Gebaeude auf einer Basis gebaut wurde.
 	 * @param base Die Basis
+	 * @param buildingid Die ID des Gebaeudes auf dem Feld
 	 */
-	public abstract void build( Base base );
+	public abstract void build( Base base, int buildingid );
 	
 	/**
 	 * Wird aufgerufen, wenn das Gebaeude auf einer Basis abgerissen wurde.
 	 * @param context Der aktive Kontext
 	 * @param base Die Basis
+	 * @param buildingid Die Id des Gebaeudes an der Stelle
 	 */
-	public abstract void cleanup( Context context, Base base );
+	public abstract void cleanup( Context context, Base base, int buildingid );
 	
 	/**
 	 * Modifiziert das stats-objekt der Basis um die Stats dieses Gebaeudes.
 	 * @param base Die Basis
 	 * @param stats Ein Cargo-Objekt mit den aktuellen Stats
+	 * @param building Die Id des Gebaeudes an dieser Stelle
 	 * @return Warnungen fuer den Benutzer/Fuers Log
 	 */
-	public abstract String modifyStats( Base base, Cargo stats );
+	public abstract String modifyStats( Base base, Cargo stats, int building );
 	
 	/**
 	 * Modifiziert das stats-objekt der Basis um die Produktion dieses Gebaeudes.
 	 * @param base Die Basis
 	 * @param stats Ein Cargo-Objekt mit den aktuellen Stats
+	 * @param building Die Id des Gebaeudes an dieser Stelle
 	 * @return Warnungen fuer den Benutzer/Fuers Log
 	 */
-	public abstract String modifyProductionStats( Base base, Cargo stats );
+	public abstract String modifyProductionStats( Base base, Cargo stats, int building );
 	
 	/**
 	 * Modifiziert das stats-objekt der Basis um den Verbrauch dieses Gebaeudes.
 	 * @param base Die Basis
 	 * @param stats Ein Cargo-Objekt mit den aktuellen Stats
+	 * @param building Die Id des Gebaeudes an dieser Stelle
 	 * @return Warnungen fuer den Bnutzer/Fuers Log
 	 */
-	public abstract String modifyConsumptionStats(Base base, Cargo stats );
+	public abstract String modifyConsumptionStats(Base base, Cargo stats, int building );
 	
 	/**
 	 * Gibt <code>true</code> zurueck, wenn das Gebaeude aktiv ist.

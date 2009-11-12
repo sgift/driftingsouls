@@ -33,16 +33,13 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.ModuleSlots;
 import net.driftingsouls.ds2.server.config.NoSuchSlotException;
 import net.driftingsouls.ds2.server.config.Rassen;
-import net.driftingsouls.ds2.server.config.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
 import net.driftingsouls.ds2.server.config.items.effects.IEDisableShip;
 import net.driftingsouls.ds2.server.config.items.effects.IEDraftShip;
 import net.driftingsouls.ds2.server.config.items.effects.IEModule;
 import net.driftingsouls.ds2.server.config.items.effects.IEModuleSetMeta;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
-import net.driftingsouls.ds2.server.entities.Ammo;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.StatItemLocations;
 import net.driftingsouls.ds2.server.entities.StatUserCargo;
@@ -554,138 +551,6 @@ public class ItemInfoController extends TemplateGenerator {
 			
 			break;
 		}	
-		/*
-		
-			EFFECT_AMMO
-			
-		*/
-		case AMMO: {
-			IEAmmo effect = (IEAmmo)item.getEffect();
-			
-			Ammo ammo = effect.getAmmo();
-		
-			if( ammo == null ) {
-				t.setVar(	"entry.name",	"Munition",
-							"entry.data",	"Es liegen keine genaueren Daten zur Munition vor" );
-			
-				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
-			}
-			else {
-				StringBuilder data = new StringBuilder(100);
-				boolean entry = false;
-				for( int i = 1; i < 4; i++ ) {
-					if( ammo.getRes(i) != 0 ) {
-						if( entry ) {
-							data.append(",<br />\n");
-						}
-						
-						Forschung dat = Forschung.getInstance(ammo.getRes(i));
-						if( (ammo.getRes(i) == -1) || 
-							(!dat.isVisibile(user) && (!user.hasResearched(dat.getRequiredResearch(1)) || !user.hasResearched(dat.getRequiredResearch(2)) || !user.hasResearched(dat.getRequiredResearch(3)))) ) {
-							
-							data.append("Unbekannte Technologie");
-							if( user.getAccessLevel() > 20 ) {
-								data.append(" [ID:"+ammo.getRes(i)+"]");
-							}
-							entry = true;
-							continue;
-						}
-						
-						data.append("<a class=\"nonbold\" href=\""+Common.buildUrl("default", "module", "forschinfo", "res", ammo.getRes(i))+"\">");
-		 				if( user.hasResearched(ammo.getRes(i)) ) {
-		 					data.append("<span style=\"color:green; font-size:14px\">");
-		 				}
-			 			else {
-			 				data.append("<span style=\"color:red; font-size:14px\">");
-			 			}
-		 				data.append(dat.getName());
-		 				data.append("</span></a>\n");
-						entry = true;
-					}
-				}
-				if( !entry ) {
-					data.append("-");
-				}
-				
-				t.setVar(	"entry.name",	"Ben&ouml;tigt",
-							"entry.data",	data );
-			
-				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
-				
-				Cargo buildcosts = ammo.getBuildCosts();
-			
-				data.setLength(0);
-
-				ResourceList reslist = buildcosts.getResourceList();
-				for( ResourceEntry res : reslist ) {
-					data.append("<img src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+" ");
-				}	
-				
-				t.setVar(	"entry.name",	"Kosten",
-							"entry.data",	data );
-			
-				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
-				
-				data.setLength(0);
-				if( ammo.getShotsPerShot() > 1 ) {
-					data.append(ammo.getShotsPerShot()+" Salven<br />\n");
-				}
-				if( ammo.getDamage() != 0 ) {
-					data.append(ammo.getDamage()+" Schaden<br />\n");
-				}
-				if( ammo.getDamage() != ammo.getShieldDamage() ) {
-					data.append(ammo.getShieldDamage()+" Schildschaden<br />\n");
-				}
-				if( ammo.getSubDamage() != 0 ) {
-					data.append(ammo.getSubDamage()+" Subsystemschaden<br />\n");
-					data.append(ammo.getSubWS()+"% Subsystem-Trefferws<br />\n");
-				}
-				data.append(ammo.getSmallTrefferWS()+"% Trefferws (J&auml;ger)<br />\n");
-				data.append(ammo.getTrefferWS()+"% Trefferws (Capitals)\n");
-				if( ammo.getTorpTrefferWS() != 0 ) {
-					data.append("<br />"+ammo.getTorpTrefferWS()+"% Trefferws (Torpedos)\n");
-				}
-				if( ammo.getAreaDamage() != 0 ) {
-					data.append("<br />Umgebungsschaden ("+ammo.getAreaDamage()+")\n");
-				}
-				if( ammo.getDestroyable() > 0 ) {
-					data.append("<br />Durch Abwehrfeuer zerst&ouml;rbar\n");
-				}
-				if( ammo.getReplaces() != null ) {
-					Ammo replammo = ammo.getReplaces();
-					data.append("<br />Ersetzt <a style=\"font-size:14px\" class=\"forschinfo\" href=\""+
-							Common.buildUrl("details", "module", "iteminfo", "item", replammo.getItemId())+"\">"+
-							replammo.getName()+"</a>\n");
-				}
-					
-				t.setVar(	"entry.name",	"Daten",
-							"entry.data",	data );
-			
-				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
-				
-				StringBuilder weapons = new StringBuilder(50);
-				for( Weapon weapon : Weapons.get() ) {
-					if( !Common.inArray(ammo.getType(), weapon.getAmmoType()) )
-					{
-						continue;
-					}
-			
-					if( weapons.length() == 0 ) {
-						weapons.append(weapon.getName());
-					}
-					else {
-						weapons.append(",<br />\n"+weapon.getName());
-					}
-				}
-				if( weapons.length() > 0 ) {
-					t.setVar(	"entry.name",	"Waffe",
-								"entry.data",	weapons );
-					t.parse("itemdetails.entrylist", "itemdetails.entry", true);
-				}
-			}
-			
-			break;
-		}
 		/*
 		 * 
 		 *  EFFECT_MODUE_SET_META

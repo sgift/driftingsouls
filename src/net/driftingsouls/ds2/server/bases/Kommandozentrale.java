@@ -62,8 +62,8 @@ public class Kommandozentrale extends DefaultBuilding {
 	}
 
 	@Override
-	public void cleanup(Context context, Base base) {
-		super.cleanup(context, base);
+	public void cleanup(Context context, Base base, int building) {
+		super.cleanup(context, base, building);
 		
 		org.hibernate.Session db = context.getDB();
 		

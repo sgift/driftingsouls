@@ -63,29 +63,29 @@ public class DefaultBuilding extends Building {
 	}
 
 	@Override
-	public void build(Base base) {
+	public void build(Base base, int building) {
 		// EMPTY
 	}
 
 	@Override
-	public void cleanup(Context context, Base base) {
+	public void cleanup(Context context, Base base, int building) {
 		// EMPTY
 	}
 
 	@Override
-	public String modifyStats(Base base, Cargo stats) {
+	public String modifyStats(Base base, Cargo stats, int building) {
 		// EMPTY
 		return "";
 	}
 	
 	@Override
-	public String modifyProductionStats(Base base, Cargo stats) {
+	public String modifyProductionStats(Base base, Cargo stats, int building) {
 		// EMPTY
 		return "";
 	}
 	
 	@Override
-	public String modifyConsumptionStats(Base base, Cargo stats) {
+	public String modifyConsumptionStats(Base base, Cargo stats, int building) {
 		// EMPTY
 		return "";
 	}

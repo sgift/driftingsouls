@@ -28,7 +28,7 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.WeaponFactory;
+import net.driftingsouls.ds2.server.entities.Factory;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.tick.TickController;
@@ -87,7 +87,7 @@ public class BaseTick extends TickController
 						WerftQueueEntry.class, 
 						Forschungszentrum.class,
 						Academy.class,
-						WeaponFactory.class);
+						Factory.class);
 				
 				log(base.getOwner().getId()+":");
 				if( this.pmcache.length() != 0 ) {

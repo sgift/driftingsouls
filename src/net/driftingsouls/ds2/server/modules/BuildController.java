@@ -255,7 +255,7 @@ public class BuildController extends TemplateGenerator {
 			base.setActive(active);
 		
 			// Evt. muss das Gebaeude selbst noch ein paar Dinge erledigen
-			building.build(base);
+			building.build(base, build);
 		}
 		
 	}

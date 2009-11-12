@@ -206,9 +206,10 @@ public class BuildingController extends TemplateGenerator {
 		baseCargo.addCargo( addcargo );
 		base.setCargo(baseCargo);
 		
-		building.cleanup( getContext(), base );
-
 		Integer[] bebauung = base.getBebauung();
+		
+		building.cleanup( getContext(), base, bebauung[field] );
+		
 		bebauung[field] = 0;
 		base.setBebauung(bebauung);
 		

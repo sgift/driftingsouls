@@ -30,49 +30,47 @@ import org.apache.commons.lang.StringUtils;
 
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
- * Eine Waffenfabrik auf einer Basis.
- * @author Christopher Jung
- *
+ * Eine Fabrik auf einer Basis.
+ * 
  */
+
 @Entity
-@Table(name="weaponfactory")
-public class WeaponFactory {
+@Table(name="factory")
+public class Factory {
 	/**
 	 * Ein Auftrag in einer Waffenfabrik.
 	 * @author Christopher Jung
 	 *
 	 */
 	public static class Task {
-		private Ammo ammo;
+		private int id;
 		private int count;
 		
 		protected Task(String task) {
-			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
 			String[] tmp = StringUtils.split(task,'=');
-			this.ammo = (Ammo)db.get(Ammo.class, Integer.parseInt(tmp[0]));
+			this.id = Integer.parseInt(tmp[0]);
 			this.count = Integer.parseInt(tmp[1]);
 		}
 		
 		/**
 		 * Erstellt einen neuen Auftrag.
-		 * @param ammo Die Ammo die produziert werden soll
+		 * @param id Die ID des Eintrages der produziert werden soll
 		 * @param count Die zu produzierende Menge
 		 */
-		public Task(Ammo ammo, int count) {
-			this.ammo = ammo;
+		public Task(int id, int count) {
+			this.id = id;
 			this.count= count;
 		}
 		
 		/**
-		 * Gibt die Ammo zurueck, die zum Auftrag gehoert.
-		 * @return Die Ammo
+		 * Gibt die ID zurueck, die zum Auftrag gehoert.
+		 * @return Die ID
 		 */
-		public Ammo getAmmo() {
-			return this.ammo;
+		public int getId() {
+			return this.id;
 		}
 		
 		/**
@@ -85,17 +83,20 @@ public class WeaponFactory {
 		
 		@Override
 		public String toString() {
-			return this.ammo.getId()+"="+this.count;
+			return this.id+"="+this.count;
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	@Id
+	private int id;
 	private int col;
 	@OneToOne(fetch=FetchType.LAZY)
 	@PrimaryKeyJoinColumn
 	private Base base;
 	private int count;
 	private String produces;
+	private int buildingid;
 	
 	@Version
 	private int version;
@@ -104,20 +105,22 @@ public class WeaponFactory {
 	 * Konstruktor.
 	 *
 	 */
-	public WeaponFactory() {
+	public Factory() {
 		// EMPTY
 	}
 	
 	/**
-	 * Erstellt eine neue Waffenfabrik auf der Basis.
+	 * Erstellt eine neue Fabrik auf der Basis.
 	 * Die Waffenfabrik hat eine maximale Auslastung von 1.
 	 * @param base Die Basis
+	 * @param buildingid Die ID des Gebauedes
 	 */
-	public WeaponFactory(Base base) {
+	public Factory(Base base, int buildingid) {
 		this.col = base.getId();
 		this.base = base;
 		this.count = 1;
 		this.produces = "";
+		this.buildingid = buildingid;
 	}
 
 	/**
@@ -183,6 +186,16 @@ public class WeaponFactory {
 		return col;
 	}
 
+	/**
+	 * Gibt die Id des Gebaeudes zurueck.
+	 * @return Die Gebaeude-ID
+	 * 
+	 */
+	public int getBuildingID()
+	{
+		return this.buildingid;
+	}
+	
 	/**
 	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer

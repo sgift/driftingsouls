@@ -38,12 +38,11 @@ import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
 import net.driftingsouls.ds2.server.config.items.effects.IEDraftAmmo;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
-import net.driftingsouls.ds2.server.entities.Ammo;
+import net.driftingsouls.ds2.server.entities.Factory;
+import net.driftingsouls.ds2.server.entities.FactoryEntry;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.WeaponFactory;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextInstance;
@@ -57,28 +56,42 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Die Waffenfabrik.
- * @author Christopher Jung
+ * Die Fabrik.
  *
  */
-@Entity(name="WaffenfabrikBuilding")
-@DiscriminatorValue("net.driftingsouls.ds2.server.bases.Waffenfabrik")
+@Entity(name="FabrikBuilding")
+@DiscriminatorValue("net.driftingsouls.ds2.server.bases.Fabrik")
 @Configurable
-public class Waffenfabrik extends DefaultBuilding {
-	private static final Log log = LogFactory.getLog(Waffenfabrik.class);
+public class Fabrik extends DefaultBuilding {
+	private static final Log log = LogFactory.getLog(Fabrik.class);
 	
 	/**
-	 * Daten von einer oder mehreren Waffenfabriken.
+	 * Daten von einer oder mehreren Fabriken-Typen.
+	 *
 	 */
 	@ContextInstance(ContextInstance.Scope.REQUEST)
+	public static class AllContextVars {
+		Map<Integer, ContextVars> allvars = new HashMap<Integer, ContextVars>();
+		
+		/**
+		 * Konstruktor.
+		 */
+		public AllContextVars() {
+			// EMPTY
+		}
+	}
+	
+	/**
+	 * Daten von einer oder mehreren Fabriken.
+	 */
 	public static class ContextVars {
-		Set<Ammo> ownerammobase = new HashSet<Ammo>();
+		Set<FactoryEntry> owneritemsbase = new HashSet<FactoryEntry>();
 		Map<Integer,Cargo> stats = new HashMap<Integer,Cargo>();
 		Map<Integer,Cargo> productionstats = new HashMap<Integer,Cargo>();
 		Map<Integer,Cargo> consumptionstats = new HashMap<Integer,Cargo>();
 		Map<Integer,BigDecimal> usedcapacity = new HashMap<Integer,BigDecimal>();
-		boolean init = false;
 		
+		boolean init = false;
 		/**
 		 * Konstruktor.
 		 */
@@ -88,147 +101,137 @@ public class Waffenfabrik extends DefaultBuilding {
 	}
 	
 	/**
-	 * Erstellt eine neue Instanz der Waffenfabrik.
+	 * Erstellt eine neue Instanz der Fabriken.
 	 */
-	public Waffenfabrik() {
+	public Fabrik() {
 		// EMPTY
 	}
 	
-	private String loaddata( Base base ) {
+	private String loaddata( Base base, int buildingid ) {
 		Context context = ContextMap.getContext();
 		
 		User user = base.getOwner();
 		
-		ContextVars vars = context.get(ContextVars.class);
+		AllContextVars vars = context.get(AllContextVars.class);
 		Integer lastUser = (Integer)context.getVariable(getClass(), "last_user");
 		
-		List<Ammo> removelist = new ArrayList<Ammo>();
-		
-		if( (vars.init == false) || (user.getId() != lastUser.intValue()) ) {
-			vars.init = true;
+		if( !vars.allvars.containsKey(buildingid) || (vars.allvars.get(buildingid).init == false) ||(user.getId() != lastUser.intValue()) ) {
+			vars.allvars.put(buildingid, new ContextVars());
+			vars.allvars.get(buildingid).init = true;
 			context.putVariable(getClass(), "last_user", user.getId());
-		
-			removelist = loadOwnerAmmoBase(user, vars);
+			
+			loadOwnerBase( user, vars, buildingid );
 		}
 		
-		if( !vars.usedcapacity.containsKey(base.getId()) ) {
-			return loadAmmoTasks(base, vars, removelist);
+		if( !vars.allvars.get(buildingid).usedcapacity.containsKey(base.getId()) ) {
+			return loadAmmoTasks(base, vars, buildingid);
 		}
 		
 		return "";
 	}
-
-	private String loadAmmoTasks(Base base, ContextVars vars, List<Ammo> removelist) {
+	
+	private String loadAmmoTasks(Base base, AllContextVars vars, int buildingid) {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		
 		StringBuilder wfreason = new StringBuilder(100);
 		
-		if( !vars.stats.containsKey(base.getId()) ) {
-			vars.stats.put(base.getId(), new Cargo());
+		if( !vars.allvars.get(buildingid).stats.containsKey(base.getId()) ) {
+			vars.allvars.get(buildingid).stats.put(base.getId(), new Cargo());
 		}
-		if( !vars.productionstats.containsKey(base.getId()) ) {
-			vars.productionstats.put(base.getId(), new Cargo());
+		if( !vars.allvars.get(buildingid).productionstats.containsKey(base.getId()) ) {
+			vars.allvars.get(buildingid).productionstats.put(base.getId(), new Cargo());
 		}
-		if( !vars.consumptionstats.containsKey(base.getId()) ) {
-			vars.consumptionstats.put(base.getId(), new Cargo());
+		if( !vars.allvars.get(buildingid).consumptionstats.containsKey(base.getId()) ) {
+			vars.allvars.get(buildingid).consumptionstats.put(base.getId(), new Cargo());
 		}
 		
 		boolean ok = true;
-		Set<Ammo> thisammolist = vars.ownerammobase;	
+		Set<FactoryEntry> thisitemslist = vars.allvars.get(buildingid).owneritemsbase;	
 		
 		Cargo cargo = base.getCargo();
 		
 		List<ItemCargoEntry> list = cargo.getItemsWithEffect( ItemEffect.Type.DRAFT_AMMO ) ;
 		for( ItemCargoEntry item : list ) {
 			IEDraftAmmo itemeffect = (IEDraftAmmo)item.getItemEffect();
-			Ammo ammo = itemeffect.getAmmo();
+			FactoryEntry entry = (FactoryEntry)db.get(FactoryEntry.class, itemeffect.getAmmo().getId());
 			
-			thisammolist.add(ammo);
+			thisitemslist.add(entry);
 		}
 		
-		WeaponFactory wf = (WeaponFactory)db.get(WeaponFactory.class, base.getId());
+		Factory wf = (Factory)db.createQuery("from Factory where col="+base.getId()+" and buildingid="+buildingid).uniqueResult();
 		if( wf == null ) {
-			vars.usedcapacity.put(base.getId(), BigDecimal.valueOf(-1));
+			vars.allvars.get(buildingid).usedcapacity.put(base.getId(), BigDecimal.valueOf(-1));
 			
-			log.warn("Basis "+base.getId()+" verfuegt ueber keinen Waffenfabrik-Eintrag, obwohl es eine Waffenfabrik hat");
-			return "Basis "+base.getId()+" verfuegt ueber keinen Waffenfabrik-Eintrag, obwohl es eine Waffenfabrik hat";
+			log.warn("Basis "+base.getId()+" verfuegt ueber keinen Fabrik-Eintrag, obwohl es eine Fabrik hat");
+			return "Basis "+base.getId()+" verfuegt ueber keinen Fabrik-Eintrag, obwohl es eine Fabrik hat";
 		}
-		WeaponFactory.Task[] plist = wf.getProduces();
+		
+		Factory.Task[] plist = wf.getProduces();
 		for( int i=0; i < plist.length; i++ ) {
-			Ammo ammo = plist[i].getAmmo();
+			int id = plist[i].getId();
 			int count = plist[i].getCount();
 			
-			if( ammo == null ) {
-				plist = (WeaponFactory.Task[])ArrayUtils.remove(plist, i);
+			FactoryEntry entry = (FactoryEntry)db.get(FactoryEntry.class, id);
+			if( entry == null ) {
+				plist = (Factory.Task[])ArrayUtils.remove(plist, i);
 				i--;
 				continue;
 			}
 			
-			// Ammo ohne Plaene melden - veraltete Ammo aber ignorieren!
-			if( (count > 0) && !thisammolist.contains(ammo) && !removelist.contains(ammo) ) {
+			// Items ohne Plaene melden
+			if( (count > 0) && !thisitemslist.contains(entry)) {
 				ok = false;
-				wfreason.append("Es existieren nicht die n&ouml;tigen Baupl&auml;ne f&uuml;r "+ammo.getName()+"\n");
+				wfreason.append("Es existieren nicht die n&ouml;tigen Baupl&auml;ne f&uuml;r "+entry.getName()+"\n");
 				break;
 			}
-			else if( (count > 0) && !thisammolist.contains(ammo) ) {
-				plist = (WeaponFactory.Task[])ArrayUtils.remove(plist, i);
-				i--;
-			}
 		}
-		 	
+		
 		if( ok ) {
 			for( int i=0; i < plist.length; i++  ) {
-				Ammo ammo = plist[i].getAmmo();
+				int id = plist[i].getId();
 				int count = plist[i].getCount();
 				
-				if( !vars.usedcapacity.containsKey(base.getId()) ) {
-					vars.usedcapacity.put(base.getId(), new BigDecimal(0, MathContext.DECIMAL32));
+				FactoryEntry entry = (FactoryEntry)db.get(FactoryEntry.class, id);
+				
+				if( !vars.allvars.get(buildingid).usedcapacity.containsKey(base.getId()) ) {
+					vars.allvars.get(buildingid).usedcapacity.put(base.getId(), new BigDecimal(0, MathContext.DECIMAL32));
 				}
-				vars.usedcapacity.put(base.getId(), vars.usedcapacity.get(base.getId()).add(ammo.getDauer().multiply((new BigDecimal(count)))) );
+				vars.allvars.get(buildingid).usedcapacity.put(base.getId(), vars.allvars.get(buildingid).usedcapacity.get(base.getId()).add(entry.getDauer().multiply((new BigDecimal(count)))) );
 				if( count > 0 ) {
-					Cargo tmpcargo = new Cargo(ammo.getBuildCosts());
+					Cargo tmpcargo = new Cargo(entry.getBuildCosts());
 					if( count > 1 ) {
 						tmpcargo.multiply( count, Cargo.Round.NONE );
 					}
-					vars.consumptionstats.get(base.getId()).addCargo( tmpcargo );
-					vars.stats.get(base.getId()).substractCargo( tmpcargo );
-					vars.stats.get(base.getId()).addResource( new ItemID(ammo.getItemId()), count );
-					vars.productionstats.get(base.getId()).addResource( new ItemID(ammo.getItemId()), count);
+					vars.allvars.get(buildingid).consumptionstats.get(base.getId()).addCargo( tmpcargo );
+					vars.allvars.get(buildingid).stats.get(base.getId()).substractCargo( tmpcargo );
+					vars.allvars.get(buildingid).stats.get(base.getId()).addResource( new ItemID(entry.getItemId()), count );
+					vars.allvars.get(buildingid).productionstats.get(base.getId()).addResource( new ItemID(entry.getItemId()), count);
 				}
 			}
 		}
 		else {
 			String basename = base.getName();
-			wfreason.insert(0, "[b]"+basename+"[/b] - Die Arbeiten in der Waffenfabrik zeitweise eingestellt.\nGrund:\n");
+			wfreason.insert(0, "[b]"+basename+"[/b] - Die Arbeiten in der Fabrik zeitweise eingestellt.\nGrund:\n");
 		}
 		
-		if( !vars.usedcapacity.containsKey(base.getId()) || (vars.usedcapacity.get(base.getId()).doubleValue() <= 0) ) {
-			vars.usedcapacity.put(base.getId(), new BigDecimal(-1));
+		if( !vars.allvars.get(buildingid).usedcapacity.containsKey(base.getId()) || (vars.allvars.get(buildingid).usedcapacity.get(base.getId()).doubleValue() <= 0) ) {
+			vars.allvars.get(buildingid).usedcapacity.put(base.getId(), new BigDecimal(-1));
 		}
 		
 		return wfreason.toString();
 	}
 
-	private List<Ammo> loadOwnerAmmoBase(User user, ContextVars vars) {
+	private void loadOwnerBase(User user, AllContextVars vars, int buildingid) {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		
-		List<Ammo> removelist = new ArrayList<Ammo>();
-		
-		// Iterator, da sich die Ammo-Objekte sich mit hoher Wahrscheinlichkeit
-		// bereits im Cache befinden
-		Iterator<?> ammoIter = db.createQuery("from Ammo").list().iterator();
-		for( ; ammoIter.hasNext(); ) {
-			Ammo ammo = (Ammo)ammoIter.next();
-			if( !user.hasResearched(ammo.getRes1()) || !user.hasResearched(ammo.getRes2()) || !user.hasResearched(ammo.getRes3()) ) {
+		List<FactoryEntry> entrylist = Common.cast(db.createQuery("from FactoryEntry").list());
+		for( FactoryEntry entry : entrylist ) {
+			if( !user.hasResearched(entry.getRes1()) || !user.hasResearched(entry.getRes2()) || !user.hasResearched(entry.getRes3()) || !entry.hasBuildingId(buildingid)) {
 				continue;
 			}
-			vars.ownerammobase.add(ammo);
-			
-			if( (ammo.getReplaces() != null) && !removelist.contains(ammo.getReplaces()) ) {
-				removelist.add(ammo.getReplaces());
-			}
+			vars.allvars.get(buildingid).owneritemsbase.add(entry);
 		}
 		
 		if( user.getAlly() != null ) {
@@ -237,38 +240,25 @@ public class Waffenfabrik extends DefaultBuilding {
 			List<ItemCargoEntry> list = itemlist.getItemsWithEffect( ItemEffect.Type.DRAFT_AMMO ) ;
 			for( ItemCargoEntry item : list ) {
 				IEDraftAmmo itemeffect = (IEDraftAmmo)item.getItemEffect();
-				Ammo ammo = itemeffect.getAmmo();
+				FactoryEntry entry = (FactoryEntry)db.get(FactoryEntry.class, itemeffect.getAmmo().getId());
 				
-				vars.ownerammobase.add(ammo);
-				
-				if( (ammo.getReplaces() != null) && removelist.contains(ammo.getReplaces()) ) {
-					removelist.add(ammo.getReplaces());
-				}
+				vars.allvars.get(buildingid).owneritemsbase.add(entry);
 			}
 		}
-		
-		// Alle Raks entfernen, die durch andere Raks ersetzt wurden (DB-Feld: replaces)
-		if( !removelist.isEmpty() ) {
-			for( Ammo removeentry : removelist ) {
-				vars.ownerammobase.remove(removeentry);
-			}
-		}
-		
-		return removelist;
 	}
 
 	@Override
-	public void build(Base base) {
-		super.build(base);
+	public void build(Base base, int buildingid) {
+		super.build(base,buildingid);
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		WeaponFactory wf = (WeaponFactory)db.get(WeaponFactory.class, base.getId());
+		Factory wf = (Factory)db.createQuery("from Factory where col="+base.getId()+" and buildingid="+buildingid).uniqueResult();
 		
 		if( wf != null ) {
 			wf.setCount(wf.getCount()+1);
 		} 
 		else {
-			wf = new WeaponFactory(base);
+			wf = new Factory(base, buildingid);
 			db.persist(wf);
 		}
 	}
@@ -284,10 +274,10 @@ public class Waffenfabrik extends DefaultBuilding {
 	}
 
 	@Override
-	public void cleanup(Context context, Base base) {
+	public void cleanup(Context context, Base base, int buildingid) {
 		org.hibernate.Session db = context.getDB();
 		
-		WeaponFactory wf = (WeaponFactory)db.get(WeaponFactory.class, base.getId());
+		Factory wf = (Factory)db.createQuery("from Factory where col="+base.getId()+" and buildingid="+buildingid).uniqueResult();
 		if( wf == null ) {
 			return;
 		}
@@ -295,32 +285,36 @@ public class Waffenfabrik extends DefaultBuilding {
 		if( wf.getCount() > 1 ) {	
 			BigDecimal usedcapacity = new BigDecimal(0, MathContext.DECIMAL32);
 	
-			WeaponFactory.Task[] plist = wf.getProduces();
+			Factory.Task[] plist = wf.getProduces();
 			for( int i=0; i < plist.length; i++ ) {
-				Ammo ammo = plist[i].getAmmo();
-				int ammoCount = plist[i].getCount();
+				int id = plist[i].getId();
+				int count = plist[i].getCount();
 				
-				usedcapacity = usedcapacity.add(ammo.getDauer().multiply(new BigDecimal(ammoCount)));
+				FactoryEntry entry = (FactoryEntry)db.get(FactoryEntry.class, id);
+				
+				usedcapacity = usedcapacity.add(entry.getDauer().multiply(new BigDecimal(count)));
 			}
 	
 			if( usedcapacity.compareTo(new BigDecimal(wf.getCount()-1)) > 0 ) {
 				BigDecimal targetCapacity = new BigDecimal(wf.getCount()-1);
 				
 				for( int i=0; i < plist.length; i++ ) {
-					Ammo ammo = plist[i].getAmmo();
-					int ammoCount = plist[i].getCount();
+					int id = plist[i].getId();
+					int count = plist[i].getCount();
 					
-					BigDecimal capUsedByAmmo = new BigDecimal(ammoCount).multiply(ammo.getDauer());
+					FactoryEntry entry = (FactoryEntry)db.get(FactoryEntry.class, id);
 					
-					if( usedcapacity.subtract(capUsedByAmmo).compareTo(targetCapacity) < 0 ) {
-						BigDecimal capLeftForAmmo = capUsedByAmmo.subtract(usedcapacity.subtract(targetCapacity));
-						plist[i] = new WeaponFactory.Task(ammo, capLeftForAmmo.divide(ammo.getDauer(), BigDecimal.ROUND_DOWN).intValue());
+					BigDecimal capUsed = new BigDecimal(count).multiply(entry.getDauer());
+					
+					if( usedcapacity.subtract(capUsed).compareTo(targetCapacity) < 0 ) {
+						BigDecimal capLeft = capUsed.subtract(usedcapacity.subtract(targetCapacity));
+						plist[i] = new Factory.Task(id, capLeft.divide(entry.getDauer(), BigDecimal.ROUND_DOWN).intValue());
 						break;
 					}
-					plist = (WeaponFactory.Task[])ArrayUtils.remove(plist, i);
+					plist = (Factory.Task[])ArrayUtils.remove(plist, i);
 					i--;
 					
-					usedcapacity = usedcapacity.subtract(capUsedByAmmo);
+					usedcapacity = usedcapacity.subtract(capUsed);
 						
 					if( usedcapacity.compareTo(targetCapacity) <= 0 )
 					{
@@ -340,48 +334,55 @@ public class Waffenfabrik extends DefaultBuilding {
 	@Override
 	public String echoShortcut(Context context, Base base, int field, int building) {
 		org.hibernate.Session db = context.getDB();
-
+		
 		StringBuilder result = new StringBuilder(200);
 		
-		loaddata( base );
-		ContextVars vars = ContextMap.getContext().get(ContextVars.class);
-	
-		if( vars.usedcapacity.get(base.getId()).doubleValue() > 0 ) {
-			WeaponFactory wf = (WeaponFactory)db.get(WeaponFactory.class, base.getId());
-			WeaponFactory.Task[] prodlist = wf.getProduces();
+		loaddata( base, building );
+		AllContextVars vars = ContextMap.getContext().get(AllContextVars.class);
+		
+		if( vars.allvars.get(building).usedcapacity.get(base.getId()).doubleValue() > 0)
+		{
+			Factory wf = (Factory)db.createQuery("from Factory where col="+base.getId()+" and buildingid="+building).uniqueResult();
+			Factory.Task[] prodlist = wf.getProduces();
 			
 			StringBuilder popup = new StringBuilder(200);
+			
 			popup.append(Common.tableBegin(350, "left").replace('"', '\'') );
-				
+			
+			Building buildingobj = (Building)db.get(Building.class, building);
+			popup.append(buildingobj.getName()+"<br /><br />");
+			
 			for( int i=0; i < prodlist.length; i++ ) {
-				Ammo ammo = prodlist[i].getAmmo();
+				int id = prodlist[i].getId();
 				int count = prodlist[i].getCount();
-				Item item = (Item)db.get(Item.class, ammo.getItemId());
-				if( (count > 0) && vars.ownerammobase.contains(ammo) ) {
-					popup.append(count+"x <img style='vertical-align:middle' src='"+item.getPicture()+"' alt='' />"+ammo.getName()+"<br />");
+				FactoryEntry entry = (FactoryEntry)db.get(FactoryEntry.class, id);
+				
+				if( (count > 0) && vars.allvars.get(building).owneritemsbase.contains(entry) ) {
+					popup.append(count+"x <img style='vertical-align:middle' src='"+entry.getPicture()+"' alt='' />"+entry.getName()+"<br />");
 				}
 			}
-		
+			
 			popup.append(Common.tableEnd().replace('"', '\'') );
-							
+			
 			result.append("<a name=\"p"+base.getId()+"_"+field+"\" id=\"p"+base.getId()+"_"+field+"\" " +
 					"class=\"error\" " +
 					"onmouseover=\"return overlib('<span style=\\'font-size:13px\\'>"+StringEscapeUtils.escapeJavaScript(popup.toString())+"</span>',REF,'p"+base.getId()+"_"+field+"',REFY,22,NOJUSTY,TIMEOUT,0,DELAY,150,WIDTH,260,BGCLASS,'gfxtooltip',FGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');\" " +
 					"onmouseout=\"return nd();\" " +
-					"href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">[WF]</a>");
-		} 
-		else {
-			result.append("<a class=\"back\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">[WF]</a>");
+					"href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">[FA]</a>");
 		}
-	
+		else
+		{
+			result.append("<a class=\"back\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">[FA]</a>");
+		}
+		
 		return result.toString();
 	}
 
 	@Override
 	public boolean isActive(Base base, int status, int field) {
-		loaddata( base );
-		ContextVars vars = ContextMap.getContext().get(ContextVars.class);
-		if( vars.usedcapacity.get(base.getId()).doubleValue() > 0 ) {
+		loaddata( base, base.getBebauung()[field] );
+		AllContextVars vars = ContextMap.getContext().get(AllContextVars.class);
+		if( vars.allvars.get(base.getBebauung()[field]).usedcapacity.get(base.getId()).doubleValue() > 0 ) {
 			return true;
 		}
 		return false;
@@ -389,41 +390,41 @@ public class Waffenfabrik extends DefaultBuilding {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public String modifyStats(Base base, Cargo stats) {
-		String msg = loaddata( base );
+	public String modifyStats(Base base, Cargo stats, int building) {
+		String msg = loaddata( base, building );
 		
 		Context context = ContextMap.getContext();
-		ContextVars vars = context.get(ContextVars.class);
-		Map<Integer,Boolean> colcomplete = (Map<Integer,Boolean>)context.getVariable(getClass(), "colcomplete");
+		AllContextVars vars = context.get(AllContextVars.class);
+		Map<String,Boolean> colcomplete = (Map<String,Boolean>)context.getVariable(getClass(), "colcomplete");
 		if( colcomplete == null ) {
-			colcomplete = new HashMap<Integer,Boolean>();
+			colcomplete = new HashMap<String,Boolean>();
 			context.putVariable(getClass(), "colcomplete", colcomplete);
 		}
 		
-		if( (vars.usedcapacity.get(base.getId()).compareTo(new BigDecimal(0)) > 0) && !colcomplete.containsKey(base.getId()) ) {
-			stats.addCargo( vars.stats.get(base.getId()) );
-			colcomplete.put(base.getId(), true);
+		if( (vars.allvars.get(building).usedcapacity.get(base.getId()).compareTo(new BigDecimal(0)) > 0) && !colcomplete.containsKey(base.getId()+":"+building) ) {
+			stats.addCargo( vars.allvars.get(building).stats.get(base.getId()) );
+			colcomplete.put(base.getId()+":"+building, true);
 		}
-	
+		
 		return msg;
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public String modifyProductionStats(Base base, Cargo stats) {
-		String msg = loaddata( base );
+	public String modifyProductionStats(Base base, Cargo stats, int building) {
+		String msg = loaddata( base, building );
 		
 		Context context = ContextMap.getContext();
-		ContextVars vars = context.get(ContextVars.class);
-		Map<Integer,Boolean> colcomplete = (Map<Integer,Boolean>)context.getVariable(getClass(), "colprodcomplete");
+		AllContextVars vars = context.get(AllContextVars.class);
+		Map<String,Boolean> colcomplete = (Map<String,Boolean>)context.getVariable(getClass(), "colprodcomplete");
 		if( colcomplete == null ) {
-			colcomplete = new HashMap<Integer,Boolean>();
+			colcomplete = new HashMap<String,Boolean>();
 			context.putVariable(getClass(), "colprodcomplete", colcomplete);
 		}
 		
-		if( (vars.usedcapacity.get(base.getId()).compareTo(new BigDecimal(0)) > 0) && !colcomplete.containsKey(base.getId()) ) {
-			stats.addCargo( vars.productionstats.get(base.getId()) );
-			colcomplete.put(base.getId(), true);
+		if( (vars.allvars.get(building).usedcapacity.get(base.getId()).compareTo(new BigDecimal(0)) > 0) && !colcomplete.containsKey(base.getId()+":"+building) ) {
+			stats.addCargo( vars.allvars.get(building).productionstats.get(base.getId()) );
+			colcomplete.put(base.getId()+":"+building, true);
 		}
 	
 		return msg;
@@ -431,20 +432,20 @@ public class Waffenfabrik extends DefaultBuilding {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public String modifyConsumptionStats(Base base, Cargo stats) {
-		String msg = loaddata( base );
+	public String modifyConsumptionStats(Base base, Cargo stats, int building) {
+		String msg = loaddata( base, building );
 		
 		Context context = ContextMap.getContext();
-		ContextVars vars = context.get(ContextVars.class);
-		Map<Integer,Boolean> colcomplete = (Map<Integer,Boolean>)context.getVariable(getClass(), "colconscomplete");
+		AllContextVars vars = context.get(AllContextVars.class);
+		Map<String,Boolean> colcomplete = (Map<String,Boolean>)context.getVariable(getClass(), "colconscomplete");
 		if( colcomplete == null ) {
-			colcomplete = new HashMap<Integer,Boolean>();
+			colcomplete = new HashMap<String,Boolean>();
 			context.putVariable(getClass(), "colconscomplete", colcomplete);
 		}
 		
-		if( (vars.usedcapacity.get(base.getId()).compareTo(new BigDecimal(0)) > 0) && !colcomplete.containsKey(base.getId()) ) {
-			stats.addCargo( vars.consumptionstats.get(base.getId()) );
-			colcomplete.put(base.getId(), true);
+		if( (vars.allvars.get(building).usedcapacity.get(base.getId()).compareTo(new BigDecimal(0)) > 0) && !colcomplete.containsKey(base.getId()+":"+building) ) {
+			stats.addCargo( vars.allvars.get(building).consumptionstats.get(base.getId()) );
+			colcomplete.put(base.getId()+":"+building, true);
 		}
 	
 		return msg;
@@ -460,36 +461,30 @@ public class Waffenfabrik extends DefaultBuilding {
 		
 		StringBuilder echo = new StringBuilder(2000);
 		
-		WeaponFactory wf = (WeaponFactory)db.get(WeaponFactory.class, base.getId());
+		Factory wf = (Factory)db.createQuery("from Factory where col="+base.getId()+" and buildingid="+building).uniqueResult();
 		
 		if( wf == null ) {
-			echo.append("<div style=\"color:red\">FEHLER: Diese Waffenfabrik besitzt keinen Eintrag<br /></div>\n");
+			echo.append("<div style=\"color:red\">FEHLER: Diese Fabrik besitzt keinen Eintrag<br /></div>\n");
 			return echo.toString();
 		}
 		/*
-			Liste der baubaren Munition zusammenstellen
+			Liste der baubaren Items zusammenstellen
 		*/
 		
-		Set<Ammo> ammolist = new HashSet<Ammo>();
-		Map<Ammo, String> bPlanMap = new HashMap<Ammo, String>();
-		List<Ammo> removelist = new ArrayList<Ammo>();
+		Set<FactoryEntry> itemslist = new HashSet<FactoryEntry>();
+		Map<FactoryEntry, String> bPlanMap = new HashMap<FactoryEntry, String>();
 		
-		Iterator<?> ammoIter = db.createQuery("from Ammo").list().iterator();
-		for( ; ammoIter.hasNext(); )
+		Iterator<?> itemsIter = db.createQuery("from FactoryEntry").list().iterator();
+		for( ; itemsIter.hasNext(); )
 		{
-			Ammo ammo = (Ammo)ammoIter.next();
+			FactoryEntry entry = (FactoryEntry)itemsIter.next();
 
-			if( !user.hasResearched(ammo.getRes1()) || !user.hasResearched(ammo.getRes2()) || !user.hasResearched(ammo.getRes3()) )
+			if( !user.hasResearched(entry.getRes1()) || !user.hasResearched(entry.getRes2()) || !user.hasResearched(entry.getRes3()) || !entry.hasBuildingId(building))
 			{
 				continue;
 			}
 			
-			ammolist.add(ammo);
-			
-			if( (ammo.getReplaces() != null) && !removelist.contains(ammo.getReplaces()) )
-			{
-				removelist.add(ammo.getReplaces());	
-			}
+			itemslist.add(entry);
 		}
 		
 		Cargo cargo = base.getCargo();
@@ -498,14 +493,11 @@ public class Waffenfabrik extends DefaultBuilding {
 		List<ItemCargoEntry> itemlist = cargo.getItemsWithEffect( ItemEffect.Type.DRAFT_AMMO );
 		for( ItemCargoEntry item : itemlist ) {
 			Item itemobject = item.getItemObject();
-			final Ammo ammo = ((IEDraftAmmo)itemobject.getEffect()).getAmmo();
+			final FactoryEntry entry = (FactoryEntry)db.get(FactoryEntry.class,((IEDraftAmmo)itemobject.getEffect()).getAmmo().getId());
 			
-			if( !ammolist.contains(ammo) ) {
-				bPlanMap.put(ammo, "<span class=\"smallfont\" style=\"color:#EECC44\">[Item]</span> ");
-				ammolist.add(ammo);
-				if( (ammo.getReplaces() != null) && !removelist.contains(ammo.getReplaces()) ) {
-					removelist.add(ammo.getReplaces());
-				}
+			if( !itemslist.contains(entry) ) {
+				bPlanMap.put(entry, "<span class=\"smallfont\" style=\"color:#EECC44\">[Item]</span> ");
+				itemslist.add(entry);
 			}
 		}
 		
@@ -516,23 +508,13 @@ public class Waffenfabrik extends DefaultBuilding {
 			itemlist = allyitems.getItemsWithEffect( ItemEffect.Type.DRAFT_AMMO );
 			for( ItemCargoEntry item : itemlist ) {
 				Item itemobject = item.getItemObject();
-				final Ammo ammo = ((IEDraftAmmo)itemobject.getEffect()).getAmmo();
+				final FactoryEntry entry = (FactoryEntry)db.get(FactoryEntry.class,((IEDraftAmmo)itemobject.getEffect()).getAmmo().getId());
 				
-				if( !ammolist.contains(ammo) ) {
-					bPlanMap.put(ammo, "<span class=\"smallfont\" style=\"color:#44EE44\">[Item]</span> ");
-					ammolist.add(ammo);
-					if( (ammo.getReplaces() != null) && !removelist.contains(ammo.getReplaces()) ) {
-						removelist.add(ammo.getReplaces());
-					}
+				if( !itemslist.contains(entry) ) {
+					bPlanMap.put(entry, "<span class=\"smallfont\" style=\"color:#EECC44\">[Item]</span> ");
+					itemslist.add(entry);
 				}
 			}
-		}
-		
-		// Alle Raks entfernen, die durch andere Raks ersetzt wurden (DB-Feld: replaces)
-		if( !removelist.isEmpty() ) {
-			for( int i=0; i < removelist.size(); i++ ) {
-				ammolist.remove(removelist.get(i));	
-			}	
 		}
 		
 		/*
@@ -541,82 +523,73 @@ public class Waffenfabrik extends DefaultBuilding {
 		
 		echo.append("<div class=\"smallfont\">");
 		if( (produce != 0) && (count != 0) ) {
-			final Ammo ammo = (Ammo)db.get(Ammo.class, produce);
+			final FactoryEntry entry = (FactoryEntry)db.get(FactoryEntry.class, produce);
 			
-			if( ammo == null ) {
-				echo.append("<span style=\"color:red\">Fehler: Der angegebene Munitionstyp existiert nicht</span>\n");
-				return echo.toString();
-			}
-			Item item = (Item)db.get(Item.class, ammo.getItemId());
-			if( item.getEffect().getType() != ItemEffect.Type.AMMO ) {
-				echo.append("<span style=\"color:red\">Fehler: Das angegebene Item ist keine Munition</span>\n");
+			if( entry == null ) {
+				echo.append("<span style=\"color:red\">Fehler: Der angegebene Bauplan existiert nicht</span>\n");
 				return echo.toString();
 			}
 		
-			if( ammolist.contains(ammo) ) {
+			if( itemslist.contains(entry) ) {
 				BigDecimal usedcapacity = new BigDecimal(0, MathContext.DECIMAL32);
 		
-				WeaponFactory.Task[] plist = wf.getProduces();
+				Factory.Task[] plist = wf.getProduces();
 				for( int i=0; i < plist.length; i++ ) {
-					final Ammo aAmmo = plist[i].getAmmo();
-					final int ammoCount = plist[i].getCount();
+					final int aId = plist[i].getId();
+					final int aCount = plist[i].getCount();
 					
-					usedcapacity = usedcapacity.add(aAmmo.getDauer().multiply(new BigDecimal(ammoCount)));
+					final FactoryEntry aEntry = (FactoryEntry)db.get(FactoryEntry.class, aId);
+					usedcapacity = usedcapacity.add(aEntry.getDauer().multiply(new BigDecimal(aCount)));
 				}
-				if( usedcapacity.add(new BigDecimal(count).multiply(ammo.getDauer())).doubleValue() > wf.getCount() ) {
+				if( usedcapacity.add(new BigDecimal(count).multiply(entry.getDauer())).doubleValue() > wf.getCount() ) {
 					BigDecimal availableCap = usedcapacity.multiply(new BigDecimal(-1)).add(new BigDecimal(wf.getCount()));
-					count = availableCap.divide(ammo.getDauer(), BigDecimal.ROUND_DOWN).intValue();
+					count = availableCap.divide(entry.getDauer(), BigDecimal.ROUND_DOWN).intValue();
 				}
 			
 				if( count != 0 ) {
-					boolean entry = false;
-					List<WeaponFactory.Task> producelist = new ArrayList<WeaponFactory.Task>(
+					boolean gotit = false;
+					List<Factory.Task> producelist = new ArrayList<Factory.Task>(
 							Arrays.asList(wf.getProduces())
 					);
 					
 					for( int i=0; i < producelist.size(); i++ ) {
-						Ammo aAmmo = producelist.get(i).getAmmo();
+						int aId = producelist.get(i).getId();
 						int ammoCount = producelist.get(i).getCount();
 						
-						// Veraltete Ammo automatisch entfernen
-						if( removelist.contains(aAmmo) ) {
-							producelist.remove(i);
-							i--;
-							continue;	
-						}
+						FactoryEntry aEntry = (FactoryEntry)db.get(FactoryEntry.class, aId);
 						
-						if( (aAmmo == null) || (ammoCount <= 0) ) {
+						if( (aEntry == null) || (ammoCount <= 0) ) {
 							producelist.remove(i);
 							i--;
 							continue;
 						}
 						
-						if( aAmmo == ammo ) {
+						if( aEntry == entry ) {
 							if( (count < 0) && (ammoCount+count < 0) ) {
 								count = -ammoCount;
 							}
 							ammoCount += count;
-							entry = true;
+							gotit = true;
 						}
 						if( ammoCount > 0 ) {
-							producelist.set(i, new WeaponFactory.Task(aAmmo, ammoCount));
+							producelist.set(i, new Factory.Task(aEntry.getId(), ammoCount));
 						}
 						else {
 							producelist.remove(i);
 							i--;
 						}
 					}
-					if( !entry && (count > 0) ) {
-						producelist.add(new WeaponFactory.Task(ammo, count));
+					if( !gotit && (count > 0) ) {
+						producelist.add(new Factory.Task(entry.getId(), count));
 					}
 					
-					wf.setProduces(producelist.toArray(new WeaponFactory.Task[producelist.size()]));
+					wf.setProduces(producelist.toArray(new Factory.Task[producelist.size()]));
 			
-					echo.append(Math.abs(count)+" "+item.getName()+" wurden "+(count>=0 ? "hinzugef&uuml;gt":"abgezogen")+"<br /><br />");
+					echo.append(Math.abs(count)+" "+entry.getName()+" wurden "+(count>=0 ? "hinzugef&uuml;gt":"abgezogen")+"<br /><br />");
 				}
 			} 
 			else {
-				echo.append("Sie haben nicht alle ben&ouml;tigten Forschungen f&uuml;r "+ammo.getName()+"<br /><br />");
+				echo.append("Sie haben nicht alle ben&ouml;tigten Forschungen f&uuml;r "+entry.getName()+"<br /><br />");
 			}
 		}
 		
@@ -625,35 +598,32 @@ public class Waffenfabrik extends DefaultBuilding {
 		*/
 		// Warum BigDecimal? Weil 0.05 eben nicht 0.05000000074505806 ist (Ungenauigkeit von double/float)....
 		BigDecimal usedcapacity = new BigDecimal(0, MathContext.DECIMAL32);
-		Map<Ammo,Integer> productlist = new HashMap<Ammo,Integer>();
+		Map<FactoryEntry,Integer> productlist = new HashMap<FactoryEntry,Integer>();
 		Cargo consumes = new Cargo();
 		
 		if( wf.getProduces().length > 0 ) {
-			WeaponFactory.Task[] plist = wf.getProduces();
+			Factory.Task[] plist = wf.getProduces();
 			for( int i=0; i < plist.length; i++ ) {
-				final Ammo ammo = plist[i].getAmmo();
+				final int id = plist[i].getId();
 				final int ammoCount = plist[i].getCount();
 				
-				if( !ammolist.contains(ammo) ) {
-					echo.append("WARNUNG: Ungueltige Ammo >"+ammo.getId()+"< (count: "+ammoCount+") in der Produktionsliste entdeckt<br />\n");
+				FactoryEntry entry = (FactoryEntry)db.get(FactoryEntry.class, id);
+				
+				if( !itemslist.contains(entry) ) {
+					echo.append("WARNUNG: Ungueltiges Item >"+entry.getId()+"< (count: "+ammoCount+") in der Produktionsliste entdeckt<br />\n");
 					continue;	
 				}
 				
-				usedcapacity = usedcapacity.add(ammo.getDauer().multiply(new BigDecimal(ammoCount)));
-			
-				// Veraltete Ammo ignorieren
-				if( removelist.contains(ammo) ) {
-					continue;	
-				}
+				usedcapacity = usedcapacity.add(entry.getDauer().multiply(new BigDecimal(ammoCount)));
 			
 				if( ammoCount > 0 ) {
-					Cargo tmpcargo = new Cargo(ammo.getBuildCosts());
+					Cargo tmpcargo = new Cargo(entry.getBuildCosts());
 					if( ammoCount > 1 ) {
 						tmpcargo.multiply( ammoCount, Cargo.Round.NONE );
 					}
 					consumes.addCargo( tmpcargo );
 				}
-				productlist.put(ammo, ammoCount);
+				productlist.put(entry, ammoCount);
 			}
 		}
 		echo.append("</div>\n");
@@ -683,26 +653,19 @@ public class Waffenfabrik extends DefaultBuilding {
 		echo.append("<td class=\"noBorderX\" style=\"width:30px\">&nbsp;</td>\n");
 		echo.append("</tr>");
 		
-		List<Item> items = Common.cast(db.createQuery("from Item").list());
+		List<FactoryEntry> entries = Common.cast(db.createQuery("from FactoryEntry").list());
 		
-		for( Item item : items )
-		{
-			if( item.getEffect().getType() != ItemEffect.Type.AMMO )
-			{
-				continue;
-			}
-			
-			final Ammo ammo = ((IEAmmo)item.getEffect()).getAmmo();
-			
-			if( !ammolist.contains(ammo) )
+		for( FactoryEntry entry : entries )
+		{			
+			if( !itemslist.contains(entry) )
 			{
 				continue;
 			}
 		
 			echo.append("<tr>\n");
-			if( productlist.containsKey(ammo) )
+			if( productlist.containsKey(entry) )
 			{
-				echo.append("<td class=\"noBorderX\" valign=\"top\">"+productlist.get(ammo)+"x</td>\n");
+				echo.append("<td class=\"noBorderX\" valign=\"top\">"+productlist.get(entry)+"x</td>\n");
 			} 
 			else
 			{
@@ -710,17 +673,17 @@ public class Waffenfabrik extends DefaultBuilding {
 			}
 			
 			echo.append("<td class=\"noBorderX\" valign=\"top\">\n");
-			if( bPlanMap.containsKey(ammo) )
+			if( bPlanMap.containsKey(entry) )
 			{
-				echo.append(bPlanMap.get(ammo));
+				echo.append(bPlanMap.get(entry));
 			}
-			echo.append("<img style=\"vertical-align:middle\" src=\""+item.getPicture()+"\" alt=\"\" /><a class=\"forschinfo\" href=\"./ds?module=iteminfo&amp;action=details&amp;item="+item.getID()+"\">"+item.getName()+"</a>");
+			echo.append("<img style=\"vertical-align:middle\" src=\""+entry.getPicture()+"\" alt=\"\" /><a class=\"forschinfo\" href=\"./ds?module=iteminfo&amp;action=details&amp;item="+entry.getId()+"\">"+entry.getName()+"</a>");
 			echo.append("</td>\n");
 			
 			echo.append("<td class=\"noBorderX\" valign=\"top\">\n");
-			echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/time.gif\" alt=\"Dauer\" />"+ammo.getDauer()+" \n");
+			echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/time.gif\" alt=\"Dauer\" />"+entry.getDauer()+" \n");
 			
-			reslist = ammo.getBuildCosts().getResourceList();
+			reslist = entry.getBuildCosts().getResourceList();
 			for( ResourceEntry res : reslist )
 			{
 				echo.append("<span class=\"nobr\"><img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+"</span>\n");
@@ -731,7 +694,7 @@ public class Waffenfabrik extends DefaultBuilding {
 			echo.append("<form action=\"./ds\" method=\"post\">\n");
 			echo.append("<div>\n");
 			echo.append("<input name=\"count\" type=\"text\" size=\"2\" value=\"0\" />\n");
-			echo.append("<input name=\"produce\" type=\"hidden\" value=\""+ammo.getId()+"\" />\n");
+			echo.append("<input name=\"produce\" type=\"hidden\" value=\""+entry.getId()+"\" />\n");
 			echo.append("<input name=\"col\" type=\"hidden\" value=\""+base.getId()+"\" />\n");
 			echo.append("<input name=\"field\" type=\"hidden\" value=\""+field+"\" />\n");
 			echo.append("<input name=\"module\" type=\"hidden\" value=\"building\" />\n");
@@ -743,8 +706,8 @@ public class Waffenfabrik extends DefaultBuilding {
 			echo.append("<td class=\"noBorderX\" style=\"vertical-align:top; width:30px\">\n");
 			echo.append("<form action=\"./ds\" method=\"post\">\n");
 			echo.append("<div>\n");
-			echo.append("<input name=\"count\" type=\"hidden\" size=\"2\" value=\"-"+productlist.get(ammo)+"\" />\n");
-			echo.append("<input name=\"produce\" type=\"hidden\" value=\""+ammo.getId()+"\" />\n");
+			echo.append("<input name=\"count\" type=\"hidden\" size=\"2\" value=\"-"+productlist.get(entry)+"\" />\n");
+			echo.append("<input name=\"produce\" type=\"hidden\" value=\""+entry.getId()+"\" />\n");
 			echo.append("<input name=\"col\" type=\"hidden\" value=\""+base.getId()+"\" />\n");
 			echo.append("<input name=\"field\" type=\"hidden\" value=\""+field+"\" />\n");
 			echo.append("<input name=\"module\" type=\"hidden\" value=\"building\" />\n");
@@ -757,7 +720,7 @@ public class Waffenfabrik extends DefaultBuilding {
 			echo.append("<form action=\"./ds\" method=\"post\">\n");
 			echo.append("<div>\n");
 			echo.append("<input name=\"count\" type=\"hidden\" size=\"2\" value=\"1\" />\n");
-			echo.append("<input name=\"produce\" type=\"hidden\" value=\""+ammo.getId()+"\" />\n");
+			echo.append("<input name=\"produce\" type=\"hidden\" value=\""+entry.getId()+"\" />\n");
 			echo.append("<input name=\"col\" type=\"hidden\" value=\""+base.getId()+"\" />\n");
 			echo.append("<input name=\"field\" type=\"hidden\" value=\""+field+"\" />\n");
 			echo.append("<input name=\"module\" type=\"hidden\" value=\"building\" />\n");
@@ -770,7 +733,7 @@ public class Waffenfabrik extends DefaultBuilding {
 			echo.append("<form action=\"./ds\" method=\"post\">\n");
 			echo.append("<div>\n");
 			echo.append("<input name=\"count\" type=\"hidden\" size=\"2\" value=\"5\" />\n");
-			echo.append("<input name=\"produce\" type=\"hidden\" value=\""+ammo.getId()+"\" />\n");
+			echo.append("<input name=\"produce\" type=\"hidden\" value=\""+entry.getId()+"\" />\n");
 			echo.append("<input name=\"col\" type=\"hidden\" value=\""+base.getId()+"\" />\n");
 			echo.append("<input name=\"field\" type=\"hidden\" value=\""+field+"\" />\n");
 			echo.append("<input name=\"module\" type=\"hidden\" value=\"building\" />\n");
@@ -783,7 +746,7 @@ public class Waffenfabrik extends DefaultBuilding {
 			echo.append("<form action=\"./ds\" method=\"post\">\n");
 			echo.append("<div>\n");
 			echo.append("<input name=\"count\" type=\"hidden\" size=\"2\" value=\"-1\" />\n");
-			echo.append("<input name=\"produce\" type=\"hidden\" value=\""+ammo.getId()+"\" />\n");
+			echo.append("<input name=\"produce\" type=\"hidden\" value=\""+entry.getId()+"\" />\n");
 			echo.append("<input name=\"col\" type=\"hidden\" value=\""+base.getId()+"\" />\n");
 			echo.append("<input name=\"field\" type=\"hidden\" value=\""+field+"\" />\n");
 			echo.append("<input name=\"module\" type=\"hidden\" value=\"building\" />\n");
@@ -796,7 +759,7 @@ public class Waffenfabrik extends DefaultBuilding {
 			echo.append("<form action=\"./ds\" method=\"post\">\n");
 			echo.append("<div>\n");
 			echo.append("<input name=\"count\" type=\"hidden\" size=\"2\" value=\"-5\" />\n");
-			echo.append("<input name=\"produce\" type=\"hidden\" value=\""+ammo.getId()+"\" />\n");
+			echo.append("<input name=\"produce\" type=\"hidden\" value=\""+entry.getId()+"\" />\n");
 			echo.append("<input name=\"col\" type=\"hidden\" value=\""+base.getId()+"\" />\n");
 			echo.append("<input name=\"field\" type=\"hidden\" value=\""+field+"\" />\n");
 			echo.append("<input name=\"module\" type=\"hidden\" value=\"building\" />\n");

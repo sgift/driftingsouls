@@ -23,14 +23,12 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.bases.Core;
+import net.driftingsouls.ds2.server.entities.FactoryEntry;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Rassen;
-import net.driftingsouls.ds2.server.config.Weapon;
-import net.driftingsouls.ds2.server.config.Weapons;
-import net.driftingsouls.ds2.server.entities.Ammo;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -445,86 +443,32 @@ public class ForschinfoController extends TemplateGenerator {
 
 		firstentry = true;
 
-		List<?> ammoList = db.createQuery("from Ammo " +
+		List<?> entryList = db.createQuery("from FactoryEntry " +
 				"where res1= :fid or res2= :fid or res3= :fid")
 				.setInteger("fid", this.research.getID())
 				.list();
 		
-		for( Iterator<?> iter=ammoList.iterator(); iter.hasNext(); ) {
-			Ammo ammo = (Ammo)iter.next();
+		for( Iterator<?> iter=entryList.iterator(); iter.hasNext(); ) {
+			FactoryEntry facentry = (FactoryEntry)iter.next();
 			t.start_record();
 	
 			t.setVar(	"tech.ammo.hr",			!firstentry,
-						"tech.ammo.name",		Common._plaintitle(ammo.getName()),
-						"tech.ammo.picture",	ammo.getPicture(),
-						"tech.ammo.description",	Common._text(ammo.getDescription()),
-						"tech.ammo.itemid",		ammo.getItemId(),
-						"tech.ammo.dauer",		ammo.getDauer() );
+						"tech.ammo.name",		Common._plaintitle(facentry.getName()),
+						"tech.ammo.picture",	facentry.getPicture(),
+						"tech.ammo.description",	Common._text(facentry.getDescription()),
+						"tech.ammo.itemid",		facentry.getItemId(),
+						"tech.ammo.dauer",		facentry.getDauer() );
 	
 			if( firstentry ) {
 				firstentry = false;
 			}
 			
-			Cargo buildcosts = ammo.getBuildCosts();
+			Cargo buildcosts = facentry.getBuildCosts();
 
 			// Produktionskosten	
 			reslist = buildcosts.getResourceList();
 			Resources.echoResList( t, reslist, "tech.ammo.buildcosts.list" );
-
-			// Diverse Daten
-			StringBuilder data = new StringBuilder(50);
-	
-			if( ammo.getShotsPerShot() > 1 ) {
-				data.append(ammo.getShotsPerShot()+" Salven<br />\n");
-			}
-			if( ammo.getDamage() != 0 ) {
-				data.append(ammo.getDamage()+" Schaden<br />\n");
-			}
-			if( ammo.getDamage() != ammo.getShieldDamage() ) {
-				data.append(ammo.getShieldDamage()+" Schildschaden<br />\n");
-			}
-			if( ammo.getSubDamage() != 0 ) {
-				data.append(ammo.getSubDamage()+" Subsystemschaden<br />\n");
-				data.append(ammo.getSubWS()+"% Subsystem-Trefferws<br />\n");
-			}
-			data.append(ammo.getSmallTrefferWS()+"% Trefferws (J&auml;ger)<br />\n");
-			data.append(ammo.getTrefferWS()+"% Trefferws (Capitals)\n");
-			if( ammo.getTorpTrefferWS() != 0 ) {
-				data.append("<br />"+ammo.getTorpTrefferWS()+"% Trefferws (Torpedos)\n");
-			}
-			if( ammo.getAreaDamage() != 0 ) {
-				data.append("<br />Umgebungsschaden ("+ammo.getAreaDamage()+")\n");
-			}
-			if( ammo.getDestroyable() > 0 ) {
-				data.append("<br />Durch Abwehrfeuer zerst&ouml;rbar\n");
-			}
-			if( ammo.getReplaces() != null ) {
-				Ammo replammo = ammo.getReplaces();
-				data.append("<br />Ersetzt <a style=\"font-size:14px\" class=\"forschinfo\" " +
-						"href=\""+Common.buildUrl("details", "module", "iteminfo", "item", replammo.getItemId())+"\">"+
-						replammo.getName()+"</a>\n");
-			}
-		
-			/*
-				Mit welchen Waffen ist das ganze abfeuerbar?
-			*/
-			StringBuilder weapons = new StringBuilder(50);
-			for( Weapon weapon : Weapons.get() ) {
-				if( !Common.inArray(ammo.getType(), weapon.getAmmoType()) ) {
-					continue;
-				}
-		
-				if( weapons.length() == 0 ) {
-					weapons.append(weapon.getName());
-				}
-				else {
-					weapons.append(",<br />\n"+weapon.getName());
-				}
-			}
-
-			t.setVar(	"tech.ammo.data",		data,
-						"tech.ammo.weapons",	weapons );
-								
+				
 			t.parse( "tech.ammo.list", "tech.ammo.listitem", true );
 		
 			t.stop_record();
