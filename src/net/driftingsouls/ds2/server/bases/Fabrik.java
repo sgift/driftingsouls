@@ -677,7 +677,7 @@ public class Fabrik extends DefaultBuilding {
 			{
 				echo.append(bPlanMap.get(entry));
 			}
-			echo.append("<img style=\"vertical-align:middle\" src=\""+entry.getPicture()+"\" alt=\"\" /><a class=\"forschinfo\" href=\"./ds?module=iteminfo&amp;action=details&amp;item="+entry.getId()+"\">"+entry.getName()+"</a>");
+			echo.append("<img style=\"vertical-align:middle\" src=\""+entry.getPicture()+"\" alt=\"\" /><a class=\"forschinfo\" href=\"./ds?module=iteminfo&amp;action=details&amp;item="+entry.getItemId()+"\">"+entry.getName()+"</a>");
 			echo.append("</td>\n");
 			
 			echo.append("<td class=\"noBorderX\" valign=\"top\">\n");
