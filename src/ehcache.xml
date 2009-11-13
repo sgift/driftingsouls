@@ -94,4 +94,12 @@
 			timeToLiveSeconds="10"
 			overflowToDisk="true"
 	/>
+	
+	<cache name="net.driftingsouls.ds2.server.entities.FactoryEntry"
+			maxElementsInMemory="50"
+			eternal="true"
+			timeToIdleSeconds="5"
+			timeToLiveSeconds="10"
+			overflowToDisk="false"
+	/>
 </ehcache>

@@ -244,12 +244,10 @@
 
 {if tech.ammo.list}
 	{!table_begin 900,left}
-		<table class="show" cellpadding="2" cellspacing="2">
+		<table class="show" cellpadding="2" cellspacing="2" width="100%">
 		<tr>
-			<td colspan="2" class="noBorderX">Munition</td>
-			<td class="noBorderX">Kosten</td>
-			<td class="noBorderX" width="210">Daten</td>
-			<td class="noBorderX">Waffen</td>
+			<td colspan="2" class="noBorderX" width="40%">Fabrik-Eintr&auml;ge</td>
+			<td class="noBorderX" width="50%">Kosten</td>
 		</tr>
 		<!-- BEGIN tech.ammo.listitem -->
 			{if tech.ammo.hr}
@@ -270,12 +268,6 @@
 					<!-- BEGIN tech.ammo.buildcosts.listitem -->
 						<img style="vertical-align:middle" src="{res.image}" alt="" />{res.cargo}
 					<!-- END tech.ammo.buildcosts.listitem -->
-				</td>
-				<td class="noBorderX">
-					{tech.ammo.data}
-				</td>
-				<td class="noBorderX">
-					{tech.ammo.weapons}
 				</td>
 		<!-- END tech.ammo.listitem -->
 		</table>

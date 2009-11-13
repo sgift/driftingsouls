@@ -274,6 +274,14 @@ public abstract class Building {
 	}
 	
 	/**
+	 * Gibt <code>true</code> zurueck, falls das Gebaeude eine Fabrik ist.
+	 * @return <code>true</code>, falls es sich um eine Fabrik handelt
+	 */
+	public boolean isFabrik() {
+		return (this instanceof Fabrik);
+	}
+	
+	/**
 	 * Gibt <code>true</code> zurueck, falls das Gebaeude deaktivierbar ist.
 	 * @return <code>true</code>, falls das Gebaeude deaktivierbar ist
 	 */

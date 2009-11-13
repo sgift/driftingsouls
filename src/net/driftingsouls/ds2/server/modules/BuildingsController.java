@@ -172,6 +172,10 @@ public class BuildingsController extends TemplateGenerator {
 			if( building.isUComplex() ) {
 				addinfo.append("Unterirdischer Komplex<br />");	
 			}
+			if( building.isFabrik())
+			{
+				addinfo.append("Fabrik-Geb&auml;ude");
+			}
 			
 			if( building.getPerPlanetCount() != 0 ) {
 
