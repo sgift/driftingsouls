@@ -273,4 +273,12 @@ public class FactoryEntry {
 	public void setRes3(int res3) {
 		this.res3 = res3;
 	}
+	
+	/**
+	 * Setzt das zu diesem Eintrag gehoerende Item.
+	 * @param itemid Die ID des Items
+	 */
+	public void setItemId(int itemid) {
+		this.itemId = itemid;
+	}
 }

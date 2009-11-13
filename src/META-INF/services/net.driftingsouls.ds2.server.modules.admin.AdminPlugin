@@ -31,3 +31,4 @@ net.driftingsouls.ds2.server.modules.admin.EditBaseType
 net.driftingsouls.ds2.server.modules.admin.EditItem
 net.driftingsouls.ds2.server.modules.admin.AddSystem
 net.driftingsouls.ds2.server.modules.admin.DeleteSystem
+net.driftingsouls.ds2.server.modules.admin.EditFactoryEntry

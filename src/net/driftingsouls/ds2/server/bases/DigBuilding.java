@@ -46,7 +46,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 public class DigBuilding extends DefaultBuilding {
 	
 	/**
-	 * Erstellt eine neue Buddelsaetten-Instanz.
+	 * Erstellt eine neue Buddelstaetten-Instanz.
 	 */
 	public DigBuilding() {
 		// EMPTY
@@ -57,6 +57,7 @@ public class DigBuilding extends DefaultBuilding {
 		return true;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private Cargo getProzentProduces()
 	{
 		Cargo production = new Cargo();
@@ -90,6 +91,7 @@ public class DigBuilding extends DefaultBuilding {
 		return production;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Cargo getAllProduces()
 	{
@@ -124,6 +126,7 @@ public class DigBuilding extends DefaultBuilding {
 		return production;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Cargo getProduces()
 	{
