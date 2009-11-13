@@ -876,10 +876,7 @@ public class KSAttackAction extends BasicKSAction {
 		{
 			return false;
 		}
-		else
-		{
-			return true;
-		}
+		return true;
 	}
 
 	private boolean shipHasDocks(ShipTypeData type) {
@@ -887,10 +884,7 @@ public class KSAttackAction extends BasicKSAction {
 		{
 			return false;
 		}
-		else
-		{
-			return true;
-		}
+		return true;
 	}
 
 	private boolean shipHasToBeDefended(BattleShip selectedShip) {
@@ -917,10 +911,7 @@ public class KSAttackAction extends BasicKSAction {
 		{
 			return false;
 		}
-		else
-		{
-			return true;
-		}
+		return true;
 	}
 
 	private boolean shipNeedsDock(ShipTypeData type) {
@@ -928,10 +919,7 @@ public class KSAttackAction extends BasicKSAction {
 		{
 			return false;
 		}
-		else
-		{
-			return true;
-		}
+		return true;
 	}
 
 	private boolean shipIsGKS(ShipTypeData type) {
@@ -939,10 +927,7 @@ public class KSAttackAction extends BasicKSAction {
 		{
 			return false;
 		}
-		else
-		{
-			return true;
-		}
+		return true;
 	}
 
 	private List<BattleShip> getADShipList( Battle battle ) {

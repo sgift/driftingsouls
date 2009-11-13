@@ -130,6 +130,7 @@ public class ErsteigernController extends TemplateGenerator
 		 * 
 		 * @return Die ID der Fraktion
 		 */
+		@SuppressWarnings("unused")
 		public int getFactionID()
 		{
 			return this.factionID;
@@ -404,6 +405,7 @@ public class ErsteigernController extends TemplateGenerator
 		 * Injiziert die DS-Konfiguration.
 		 * @param config Die DS-Konfiguration
 		 */
+		@SuppressWarnings("unused")
 		@Autowired @Required
 		public void setConfiguration(Configuration config) {
 			this.config = config;

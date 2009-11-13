@@ -170,6 +170,7 @@ public class TransportController extends TemplateGenerator {
 	}
 	
 	private abstract static class TransportTarget {
+		@SuppressWarnings("unused")
 		protected int role;
 		protected int id;
 		protected int owner;

@@ -178,42 +178,30 @@ public class PlayerStarmap
 		{
 			return map.getNebulaMap().get(location).getImage();
 		}
-		else
+		List<Base> positionBases = map.getBaseMap().get(location);
+		if(positionBases != null && !positionBases.isEmpty())
 		{
-			List<Base> positionBases = map.getBaseMap().get(location);
-			if(positionBases != null && !positionBases.isEmpty())
-			{
-				Base base = positionBases.get(0);
-				return base.getImage(location, user, isScannable(location));
-			}
-			else 
-			{
-				List<JumpNode> positionNodes = map.getNodeMap().get(location);
-				if(positionNodes != null && !positionNodes.isEmpty())
-				{
-					if(scannableLocations.contains(location))
-					{
-						return "jumpnode/jumpnode";
-					}
-					else
-					{
-						for(JumpNode node: positionNodes)
-						{
-							if(!node.isHidden())
-							{
-								return "jumpnode/jumpnode";
-							}
-						}
-						
-						return "space/space";
-					}
-				}
-				else
-				{
-					return "space/space";
-				}
-			}
+			Base base = positionBases.get(0);
+			return base.getImage(location, user, isScannable(location));
 		}
+		List<JumpNode> positionNodes = map.getNodeMap().get(location);
+		if(positionNodes != null && !positionNodes.isEmpty())
+		{
+			if(scannableLocations.contains(location))
+			{
+				return "jumpnode/jumpnode";
+			}
+			for(JumpNode node: positionNodes)
+			{
+				if(!node.isHidden())
+				{
+					return "jumpnode/jumpnode";
+				}
+			}
+			
+			return "space/space";
+		}
+		return "space/space";
 	}
 	
 	private Set<Location> buildScannableLocations(User user, Map<Location, List<Ship>> locatedShips, Map<Location, Nebel> nebulas)

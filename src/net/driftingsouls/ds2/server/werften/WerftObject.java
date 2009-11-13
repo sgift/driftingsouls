@@ -1415,33 +1415,31 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			
 			return shipdata;
 		}
-		else {
-			int itemcount = allyitems.getItem( itemid ).size();
+		
+		int itemcount = allyitems.getItem( itemid ).size();
 			
-			if( itemcount == 0 ) {
-				MESSAGE.get().append("Kein passendes Item vorhanden");
-				return null;
-			}
-	
-			Item item = (Item)db.get(Item.class, itemid);
-			if( item.getEffect().getType() != ItemEffect.Type.DRAFT_SHIP ) {
-			 	MESSAGE.get().append("Bei dem Item handelt es sich um keinen Schiffsbauplan");
-			 	return null;
-			}
-			IEDraftShip effect = (IEDraftShip)item.getEffect();
-			ShipType shiptype = (ShipType)db.get(ShipType.class, effect.getShipType());
-			shipdata = new ShipBaubar(shiptype);
-			shipdata.setCosts(effect.getBuildCosts());
-			shipdata.setCrew(effect.getCrew());
-			shipdata.setDauer(effect.getDauer());
-			shipdata.setEKosten(effect.getE());
-			shipdata.setRace(effect.getRace());
-			shipdata.setRes1(effect.getTechReq(1));
-			shipdata.setRes2(effect.getTechReq(2));
-			shipdata.setRes3(effect.getTechReq(3));
-			shipdata.setWerftSlots(effect.getWerftSlots());
-			shipdata.setFlagschiff(effect.isFlagschiff());
+		if( itemcount == 0 ) {
+			MESSAGE.get().append("Kein passendes Item vorhanden");
+			return null;
 		}
+		Item item = (Item)db.get(Item.class, itemid);
+		if( item.getEffect().getType() != ItemEffect.Type.DRAFT_SHIP ) {
+		 	MESSAGE.get().append("Bei dem Item handelt es sich um keinen Schiffsbauplan");
+		 	return null;
+		}
+		IEDraftShip effect = (IEDraftShip)item.getEffect();
+		ShipType shiptype = (ShipType)db.get(ShipType.class, effect.getShipType());
+		shipdata = new ShipBaubar(shiptype);
+		shipdata.setCosts(effect.getBuildCosts());
+		shipdata.setCrew(effect.getCrew());
+		shipdata.setDauer(effect.getDauer());
+		shipdata.setEKosten(effect.getE());
+		shipdata.setRace(effect.getRace());
+		shipdata.setRes1(effect.getTechReq(1));
+		shipdata.setRes2(effect.getTechReq(2));
+		shipdata.setRes3(effect.getTechReq(3));
+		shipdata.setWerftSlots(effect.getWerftSlots());
+		shipdata.setFlagschiff(effect.isFlagschiff());
 		
 		return shipdata;
 	}

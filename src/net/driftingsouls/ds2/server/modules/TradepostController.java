@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Configurable
 public class TradepostController extends TemplateGenerator {
+	@SuppressWarnings("unused")
 	private Configuration config;	// never read, but we'll need it for later integreation of pictures i guess
 	private Ship ship = null;
 

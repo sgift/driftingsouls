@@ -191,6 +191,7 @@ public class PortalController extends TemplateGenerator {
 	
 	private static class StartLocations {
 		final int systemID;
+		@SuppressWarnings("unused")
 		final int orderLocationID;
 		final HashMap<Integer,StartLocation> minSysDistance;
 

@@ -1891,6 +1891,7 @@ public class Battle implements Locatable {
 	 * @param ships Schiffe, die zerstoert werden sollen
 	 */
 	//TODO: Optimize ship.getShip().destroy
+	@SuppressWarnings("unused")
 	private void destroyShips(List<BattleShip> ships)
 	{
 		if(ships == null || ships.size() == 0)
@@ -1970,6 +1971,7 @@ public class Battle implements Locatable {
 	}
 	
 	
+	@SuppressWarnings("unused")
 	private void removeShips(List<BattleShip> ships, boolean relocate)
 	{
 		if(ships == null || ships.size() == 0)
@@ -2436,10 +2438,7 @@ public class Battle implements Locatable {
 		{
 			return Collections.unmodifiableList(getOwnShips());
 		}
-		else
-		{
-			return Collections.unmodifiableList(getEnemyShips());
-		}
+		return Collections.unmodifiableList(getEnemyShips());
 	}
 	
 	/**
