@@ -127,7 +127,7 @@ public class EditBuilding implements AdminPlugin
 			building.setBuildCosts(buildcosts);
 			building.setProduces(produces);
 			building.setConsumes(consumes);
-			building.setChanceRess(context.getRequest().getParameterString("chancress"));
+			building.setChanceRess(context.getRequest().getParameterString("chanceress"));
 			building.setShutDown(context.getRequest().getParameterString("shutdown").equals("true") ? true : false);
 		}
 
