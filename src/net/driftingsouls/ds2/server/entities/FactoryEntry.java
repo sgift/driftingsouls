@@ -108,7 +108,7 @@ public class FactoryEntry {
 	
 	/**
 	 * Setzt den Cargo, den der Eintrag ausspucken soll.
-	 * @param cargo
+	 * @param cargo Der Cargo
 	 */
 	public void setProduce(Cargo cargo)
 	{
