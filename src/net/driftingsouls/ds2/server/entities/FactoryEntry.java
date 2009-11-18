@@ -57,6 +57,7 @@ public class FactoryEntry {
 	private Cargo buildCosts;
 	private String buildingid;
 	private String picture;
+	private int count;
 	
 	/**
 	 * Konstruktor.
@@ -122,6 +123,15 @@ public class FactoryEntry {
 	public String getBuildingIds()
 	{
 		return buildingid;
+	}
+	
+	/**
+	 * Gibt die Anzahl der Items zurueck die der Eintrag ausspucken soll.
+	 * @return Die Anzahl der Items
+	 */
+	public int getCount()
+	{
+		return count;
 	}
 	
 	/**

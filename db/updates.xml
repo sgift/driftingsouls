@@ -1300,4 +1300,7 @@
 		
 		UPDATE buildings SET module="net.driftingsouls.ds2.server.bases.Fabrik" WHERE module LIKE "net.driftingsouls.ds2.server.bases.Waffenfabrik";
 	]]></update>
+	<update><![CDATA[
+		ALTER TABLE items_build ADD count int(11) NOT NULL default '1';
+	]]></update>
 </updates>

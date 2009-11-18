@@ -205,8 +205,8 @@ public class Fabrik extends DefaultBuilding {
 					}
 					vars.allvars.get(buildingid).consumptionstats.get(base.getId()).addCargo( tmpcargo );
 					vars.allvars.get(buildingid).stats.get(base.getId()).substractCargo( tmpcargo );
-					vars.allvars.get(buildingid).stats.get(base.getId()).addResource( new ItemID(entry.getItemId()), count );
-					vars.allvars.get(buildingid).productionstats.get(base.getId()).addResource( new ItemID(entry.getItemId()), count);
+					vars.allvars.get(buildingid).stats.get(base.getId()).addResource( new ItemID(entry.getItemId()), count*entry.getCount() );
+					vars.allvars.get(buildingid).productionstats.get(base.getId()).addResource( new ItemID(entry.getItemId()), count*entry.getCount());
 				}
 			}
 		}
@@ -358,7 +358,12 @@ public class Fabrik extends DefaultBuilding {
 				FactoryEntry entry = (FactoryEntry)db.get(FactoryEntry.class, id);
 				
 				if( (count > 0) && vars.allvars.get(building).owneritemsbase.contains(entry) ) {
-					popup.append(count+"x <img style='vertical-align:middle' src='"+entry.getPicture()+"' alt='' />"+entry.getName()+"<br />");
+					String zusatz = "";
+					if(entry.getCount() > 1)
+					{
+						zusatz = "<span style='color:#EECC44' > ["+entry.getCount()+"x] </span>";
+					}
+					popup.append(count+"x <img style='vertical-align:middle' src='"+entry.getPicture()+"' alt='' />"+entry.getName()+zusatz+"<br />");
 				}
 			}
 			
@@ -662,6 +667,13 @@ public class Fabrik extends DefaultBuilding {
 				continue;
 			}
 		
+			String zusatz = "";
+			
+			if( entry.getCount() > 1)
+			{
+				zusatz = "<span style=\"color:#EECC44\" > ["+entry.getCount()+"x] </span>";
+			}
+			
 			echo.append("<tr>\n");
 			if( productlist.containsKey(entry) )
 			{
@@ -677,7 +689,7 @@ public class Fabrik extends DefaultBuilding {
 			{
 				echo.append(bPlanMap.get(entry));
 			}
-			echo.append("<img style=\"vertical-align:middle\" src=\""+entry.getPicture()+"\" alt=\"\" /><a class=\"forschinfo\" href=\"./ds?module=iteminfo&amp;action=details&amp;item="+entry.getItemId()+"\">"+entry.getName()+"</a>");
+			echo.append("<img style=\"vertical-align:middle\" src=\""+entry.getPicture()+"\" alt=\"\" /><a class=\"forschinfo\" href=\"./ds?module=iteminfo&amp;action=details&amp;item="+entry.getItemId()+"\">"+entry.getName()+zusatz+"</a>");
 			echo.append("</td>\n");
 			
 			echo.append("<td class=\"noBorderX\" valign=\"top\">\n");
