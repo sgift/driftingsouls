@@ -45,19 +45,16 @@ public class FactoryEntry {
 	@Id
 	private int id;
 	private String name;
-	private String description;
 	private int res1;
 	private int res2;
 	private int res3;
-	@Column(name="itemid")
-	private int itemId;
 	private BigDecimal dauer;
 	@Column(name="buildcosts")
 	@Type(type="cargo")
 	private Cargo buildCosts;
 	private String buildingid;
-	private String picture;
-	private int count;
+	@Type(type="cargo")
+	private Cargo produce;
 	
 	/**
 	 * Konstruktor.
@@ -84,14 +81,6 @@ public class FactoryEntry {
 	}
 
 	/**
-	 * Gibt die Beschreibung zurueck.
-	 * @return Die Beschreibung
-	 */
-	public String getDescription() {
-		return description;
-	}
-
-	/**
 	 * Gibt die ID zurueck.
 	 * @return Die ID
 	 */
@@ -99,23 +88,6 @@ public class FactoryEntry {
 		return id;
 	}
 
-	/**
-	 * Gibt die Item-ID den zugehoerigen Ammo-Items zurueck.
-	 * @return Die Item-ID
-	 */
-	public int getItemId() {
-		return itemId;
-	}
-
-	/**
-	 * Gibt den Bildpfad zurueck.
-	 * @return Der Bildpfad
-	 */
-	public String getPicture()
-	{
-		return this.picture;
-	}
-	
 	/**
 	 * Gibt die Gebaeude zurueck in denen dieser Eintrag gebaut werden darf.
 	 * @return Die Gebaeudeids
@@ -126,12 +98,21 @@ public class FactoryEntry {
 	}
 	
 	/**
-	 * Gibt die Anzahl der Items zurueck die der Eintrag ausspucken soll.
-	 * @return Die Anzahl der Items
+	 * Gibt den Cargo zurueck den der Eintrag ausspucken soll.
+	 * @return Der Cargo
 	 */
-	public int getCount()
+	public Cargo getProduce()
 	{
-		return count;
+		return (Cargo)produce.clone();
+	}
+	
+	/**
+	 * Setzt den Cargo, den der Eintrag ausspucken soll.
+	 * @param cargo
+	 */
+	public void setProduce(Cargo cargo)
+	{
+		this.produce = cargo;
 	}
 	
 	/**
@@ -227,14 +208,6 @@ public class FactoryEntry {
 	}
 
 	/**
-	 * Setzt die Beschreibung.
-	 * @param description Die Beschreibung
-	 */
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	/**
 	 * Setzt den Namen der Munition.
 	 * @param name Der Name
 	 */
@@ -242,15 +215,6 @@ public class FactoryEntry {
 		this.name = name;
 	}
 
-	/**
-	 * Setzt das Bild fuer diesen Eintrag.
-	 * @param picture Der Bildpfad
-	 */
-	public void setPicture(String picture)
-	{
-		this.picture = picture;
-	}
-	
 	/**
 	 * Setzt die Gebaeudeids, wo dieser Eintrag gebaut werden darf.
 	 * @param buildingids die Ids
@@ -282,13 +246,5 @@ public class FactoryEntry {
 	 */
 	public void setRes3(int res3) {
 		this.res3 = res3;
-	}
-	
-	/**
-	 * Setzt das zu diesem Eintrag gehoerende Item.
-	 * @param itemid Die ID des Items
-	 */
-	public void setItemId(int itemid) {
-		this.itemId = itemid;
 	}
 }

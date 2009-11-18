@@ -34,7 +34,6 @@ import javax.persistence.Entity;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
-import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.config.items.Item;
@@ -205,8 +204,10 @@ public class Fabrik extends DefaultBuilding {
 					}
 					vars.allvars.get(buildingid).consumptionstats.get(base.getId()).addCargo( tmpcargo );
 					vars.allvars.get(buildingid).stats.get(base.getId()).substractCargo( tmpcargo );
-					vars.allvars.get(buildingid).stats.get(base.getId()).addResource( new ItemID(entry.getItemId()), count*entry.getCount() );
-					vars.allvars.get(buildingid).productionstats.get(base.getId()).addResource( new ItemID(entry.getItemId()), count*entry.getCount());
+					Cargo addCargo = entry.getProduce();
+					addCargo.multiply(count, Cargo.Round.FLOOR);
+					vars.allvars.get(buildingid).stats.get(base.getId()).addCargo( addCargo );
+					vars.allvars.get(buildingid).productionstats.get(base.getId()).addCargo( addCargo );
 				}
 			}
 		}
@@ -358,12 +359,15 @@ public class Fabrik extends DefaultBuilding {
 				FactoryEntry entry = (FactoryEntry)db.get(FactoryEntry.class, id);
 				
 				if( (count > 0) && vars.allvars.get(building).owneritemsbase.contains(entry) ) {
-					String zusatz = "";
-					if(entry.getCount() > 1)
+					Cargo production = new Cargo(entry.getProduce());
+					production.setOption(Cargo.Option.SHOWMASS, false);
+					ResourceList reslist = production.getResourceList();
+					popup.append("["+count+"x]  ");
+					for(ResourceEntry res : reslist)
 					{
-						zusatz = "<span style='color:#EECC44' > ["+entry.getCount()+"x] </span>";
+						popup.append("<img style='vertical-align:middle' src='"+res.getImage()+"' alt='' />"+res.getCount1());
 					}
-					popup.append(count+"x <img style='vertical-align:middle' src='"+entry.getPicture()+"' alt='' />"+entry.getName()+zusatz+"<br />");
+					popup.append("<br />");
 				}
 			}
 			
@@ -605,6 +609,9 @@ public class Fabrik extends DefaultBuilding {
 		BigDecimal usedcapacity = new BigDecimal(0, MathContext.DECIMAL32);
 		Map<FactoryEntry,Integer> productlist = new HashMap<FactoryEntry,Integer>();
 		Cargo consumes = new Cargo();
+		Cargo produceCargo = new Cargo();
+		consumes.setOption(Cargo.Option.SHOWMASS, false);
+		produceCargo.setOption(Cargo.Option.SHOWMASS, false);
 		
 		if( wf.getProduces().length > 0 ) {
 			Factory.Task[] plist = wf.getProduces();
@@ -623,10 +630,13 @@ public class Fabrik extends DefaultBuilding {
 			
 				if( ammoCount > 0 ) {
 					Cargo tmpcargo = new Cargo(entry.getBuildCosts());
+					Cargo prodcargo = new Cargo(entry.getProduce());
 					if( ammoCount > 1 ) {
 						tmpcargo.multiply( ammoCount, Cargo.Round.NONE );
+						prodcargo.multiply( ammoCount, Cargo.Round.NONE);
 					}
 					consumes.addCargo( tmpcargo );
+					produceCargo.addCargo( prodcargo );
 				}
 				productlist.put(entry, ammoCount);
 			}
@@ -644,12 +654,18 @@ public class Fabrik extends DefaultBuilding {
 		for( ResourceEntry res : reslist ) {
 			echo.append("<img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+"&nbsp;");
 		}
+		echo.append("<br/>");
+		echo.append("Produktion: ");
+		reslist = produceCargo.getResourceList();
+		for( ResourceEntry res : reslist ) {
+			echo.append("<img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+"&nbsp;");
+		}
 		echo.append("<br /><br />\n");
 		echo.append("<table class=\"noBorderX\" cellpadding=\"2\">");
 		echo.append("<tr>\n");
 		echo.append("<td class=\"noBorderX\" style=\"width:20px\">&nbsp;</td>\n");
-		echo.append("<td class=\"noBorderX\" style=\"font-weight:bold\">Objekt</td>\n");
 		echo.append("<td class=\"noBorderX\" style=\"font-weight:bold\">Kosten</td>\n");
+		echo.append("<td class=\"noBorderX\" style=\"font-weight:bold\">Produktion</td>\n");
 		echo.append("<td class=\"noBorderX\" style=\"width:130px\">&nbsp;</td>\n");
 		echo.append("<td class=\"noBorderX\" style=\"width:30px\">&nbsp;</td>\n");
 		echo.append("<td class=\"noBorderX\" style=\"width:30px\">&nbsp;</td>\n");
@@ -667,12 +683,6 @@ public class Fabrik extends DefaultBuilding {
 				continue;
 			}
 		
-			String zusatz = "";
-			
-			if( entry.getCount() > 1)
-			{
-				zusatz = "<span style=\"color:#EECC44\" > ["+entry.getCount()+"x] </span>";
-			}
 			
 			echo.append("<tr>\n");
 			if( productlist.containsKey(entry) )
@@ -685,17 +695,22 @@ public class Fabrik extends DefaultBuilding {
 			}
 			
 			echo.append("<td class=\"noBorderX\" valign=\"top\">\n");
-			if( bPlanMap.containsKey(entry) )
-			{
-				echo.append(bPlanMap.get(entry));
-			}
-			echo.append("<img style=\"vertical-align:middle\" src=\""+entry.getPicture()+"\" alt=\"\" /><a class=\"forschinfo\" href=\"./ds?module=iteminfo&amp;action=details&amp;item="+entry.getItemId()+"\">"+entry.getName()+zusatz+"</a>");
-			echo.append("</td>\n");
-			
-			echo.append("<td class=\"noBorderX\" valign=\"top\">\n");
 			echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/time.gif\" alt=\"Dauer\" />"+entry.getDauer()+" \n");
 			
-			reslist = entry.getBuildCosts().getResourceList();
+			Cargo buildcosts = new Cargo(entry.getBuildCosts());
+			buildcosts.setOption(Cargo.Option.SHOWMASS, false);
+			reslist = buildcosts.getResourceList();
+			for( ResourceEntry res : reslist )
+			{
+				echo.append("<span class=\"nobr\"><img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+"</span>\n");
+			}
+			
+			echo.append("</td>\n");
+			echo.append("<td class=\"noBorderX\" valign=\"top\">\n");
+			
+			Cargo produceCosts = new Cargo(entry.getProduce());
+			produceCosts.setOption(Cargo.Option.SHOWMASS, false);
+			reslist = produceCosts.getResourceList();
 			for( ResourceEntry res : reslist )
 			{
 				echo.append("<span class=\"nobr\"><img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+"</span>\n");

@@ -437,9 +437,10 @@ public class ForschinfoController extends TemplateGenerator {
 		//
 		// Munition
 		//
-		t.setBlock("_FORSCHINFO","tech.ammo.listitem","tech.ammo.list");
-		t.setBlock("tech.ammo.listitem","tech.ammo.buildcosts.listitem","tech.ammo.buildcosts.list");
-		t.setVar("tech.ammo.list","");
+		t.setBlock("_FORSCHINFO","tech.fac.listitem","tech.fac.list");
+		t.setBlock("tech.fac.listitem","tech.fac.buildcosts.listitem","tech.fac.buildcosts.list");
+		t.setBlock("tech.fac.listitem", "tech.fac.production.listitem", "tech.fac.production.list");
+		t.setVar("tech.fac.list","");
 
 		firstentry = true;
 
@@ -452,24 +453,25 @@ public class ForschinfoController extends TemplateGenerator {
 			FactoryEntry facentry = (FactoryEntry)iter.next();
 			t.start_record();
 	
-			t.setVar(	"tech.ammo.hr",			!firstentry,
-						"tech.ammo.name",		Common._plaintitle(facentry.getName()),
-						"tech.ammo.picture",	facentry.getPicture(),
-						"tech.ammo.description",	Common._text(facentry.getDescription()),
-						"tech.ammo.itemid",		facentry.getItemId(),
-						"tech.ammo.dauer",		facentry.getDauer() );
+			t.setVar(	"tech.fac.hr",			!firstentry,
+						"tech.fac.dauer",		facentry.getDauer() );
 	
 			if( firstentry ) {
 				firstentry = false;
 			}
 			
 			Cargo buildcosts = facentry.getBuildCosts();
-
+			Cargo production = facentry.getProduce();
+			
 			// Produktionskosten	
 			reslist = buildcosts.getResourceList();
-			Resources.echoResList( t, reslist, "tech.ammo.buildcosts.list" );
-				
-			t.parse( "tech.ammo.list", "tech.ammo.listitem", true );
+			Resources.echoResList( t, reslist, "tech.fac.buildcosts.list" );
+
+			// Produktion
+			reslist = production.getResourceList();
+			Resources.echoResList( t, reslist, "tech.fac.production.list" );
+			
+			t.parse( "tech.fac.list", "tech.fac.listitem", true );
 		
 			t.stop_record();
 			t.clear_record();

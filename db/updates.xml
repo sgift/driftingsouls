@@ -1303,4 +1303,14 @@
 	<update><![CDATA[
 		ALTER TABLE items_build ADD count int(11) NOT NULL default '1';
 	]]></update>
+	<update><![CDATA[
+		ALTER TABLE items_build ADD produce varchar(120) NOT NULL default '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,';
+		
+		UPDATE items_build SET produce = CONCAT(produce, CONCAT(itemid, "|1|0|0"));
+		
+		ALTER TABLE items_build DROP description;
+		ALTER TABLE items_build DROP itemid;
+		ALTER TABLE items_build DROP picture;
+		ALTER TABLE items_build DROP count;
+	]]></update>
 </updates>

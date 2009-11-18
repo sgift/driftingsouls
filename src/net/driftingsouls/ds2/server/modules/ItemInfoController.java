@@ -33,13 +33,16 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.ModuleSlots;
 import net.driftingsouls.ds2.server.config.NoSuchSlotException;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
 import net.driftingsouls.ds2.server.config.items.effects.IEDisableShip;
 import net.driftingsouls.ds2.server.config.items.effects.IEDraftShip;
 import net.driftingsouls.ds2.server.config.items.effects.IEModule;
 import net.driftingsouls.ds2.server.config.items.effects.IEModuleSetMeta;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
+import net.driftingsouls.ds2.server.entities.Ammo;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.StatItemLocations;
 import net.driftingsouls.ds2.server.entities.StatUserCargo;
@@ -550,10 +553,85 @@ public class ItemInfoController extends TemplateGenerator {
 			}
 			
 			break;
-		}	
+		}
+		/*
+		
+			EFFECT_AMMO
+			
+		*/
+		case AMMO: {
+			IEAmmo effect = (IEAmmo)item.getEffect();
+			
+			Ammo ammo = effect.getAmmo();
+		
+			if( ammo == null ) {
+				t.setVar(	"entry.name",	"Munition",
+							"entry.data",	"Es liegen keine genaueren Daten zur Munition vor" );
+			
+				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
+			}
+			else {
+				StringBuilder data = new StringBuilder(100);
+				
+				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
+				
+				data.setLength(0);
+				if( ammo.getShotsPerShot() > 1 ) {
+					data.append(ammo.getShotsPerShot()+" Salven<br />\n");
+				}
+				if( ammo.getDamage() != 0 ) {
+					data.append(ammo.getDamage()+" Schaden<br />\n");
+				}
+				if( ammo.getDamage() != ammo.getShieldDamage() ) {
+					data.append(ammo.getShieldDamage()+" Schildschaden<br />\n");
+				}
+				if( ammo.getSubDamage() != 0 ) {
+					data.append(ammo.getSubDamage()+" Subsystemschaden<br />\n");
+					data.append(ammo.getSubWS()+"% Subsystem-Trefferws<br />\n");
+				}
+				data.append(ammo.getSmallTrefferWS()+"% Trefferws (J&auml;ger)<br />\n");
+				data.append(ammo.getTrefferWS()+"% Trefferws (Capitals)\n");
+				if( ammo.getTorpTrefferWS() != 0 ) {
+					data.append("<br />"+ammo.getTorpTrefferWS()+"% Trefferws (Torpedos)\n");
+				}
+				if( ammo.getAreaDamage() != 0 ) {
+					data.append("<br />Umgebungsschaden ("+ammo.getAreaDamage()+")\n");
+				}
+				if( ammo.getDestroyable() > 0 ) {
+					data.append("<br />Durch Abwehrfeuer zerst&ouml;rbar\n");
+				}
+	
+				t.setVar(	"entry.name",	"Daten",
+							"entry.data",	data );
+			
+				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
+				
+				StringBuilder weapons = new StringBuilder(50);
+				for( Weapon weapon : Weapons.get() ) {
+					if( !Common.inArray(ammo.getType(), weapon.getAmmoType()) )
+					{
+						continue;
+					}
+			
+					if( weapons.length() == 0 ) {
+						weapons.append(weapon.getName());
+					}
+					else {
+						weapons.append(",<br />\n"+weapon.getName());
+					}
+				}
+				if( weapons.length() > 0 ) {
+					t.setVar(	"entry.name",	"Waffe",
+								"entry.data",	weapons );
+					t.parse("itemdetails.entrylist", "itemdetails.entry", true);
+				}
+			}
+			
+			break;
+		}
 		/*
 		 * 
-		 *  EFFECT_MODUE_SET_META
+		 *  EFFECT_MODULE_SET_META
 		 * 
 		 */
 		case MODULE_SET_META: {

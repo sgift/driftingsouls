@@ -242,34 +242,33 @@
 	<br />
 {/endif}
 
-{if tech.ammo.list}
+{if tech.fac.list}
 	{!table_begin 900,left}
 		<table class="show" cellpadding="2" cellspacing="2" width="100%">
 		<tr>
-			<td colspan="2" class="noBorderX" width="40%">Fabrik-Eintr&auml;ge</td>
+			<td class="noBorderX">Fabrik-Eintr&auml;ge</td>
+		</tr>
+		<tr>
+			<td colspan="2" class="noBorderX" width="50%">Produktion</td>
 			<td class="noBorderX" width="50%">Kosten</td>
 		</tr>
-		<!-- BEGIN tech.ammo.listitem -->
-			{if tech.ammo.hr}
+		<!-- BEGIN tech.fac.listitem -->
+			{if tech.fac.hr}
 				<tr><td colspan="5" class="noBorderX"><hr noshade="noshade" size="1" style="color:#cccccc" /></td></tr>
 			{/endif}
 			<tr>
 				<td class="noBorderX" width="120">
-					{!link_to $tech.ammo.name, details, module:iteminfo, item:$tech.ammo.itemid}
-					<a class="ok" style="font-size:12pt" href="#" onmouseover="return overlib('<span class=\'verysmallfont\'>{tech.ammo.description}</span>',TIMEOUT,0,DELAY,400,WIDTH,200);" onmouseout="return nd();">
-						<img border="0" style="vertical-align:middle" src="{URL}data/interface/forschung/info.gif" alt="i" />
-					</a>
-				</td>
-				<td class="noBorderX">
-					<img src="{URL}data/ammo/{tech.ammo.picture}" alt="[Kein Bild]" />
-				</td>
-				<td class="noBorderX">
-					<img src="{URL}data/interface/time.gif" alt="Dauer" />{tech.ammo.dauer}
-					<!-- BEGIN tech.ammo.buildcosts.listitem -->
+					<!-- BEGIN tech.fac.production.listitem -->
 						<img style="vertical-align:middle" src="{res.image}" alt="" />{res.cargo}
-					<!-- END tech.ammo.buildcosts.listitem -->
+					<!-- END tech.fac.production.listitem -->
 				</td>
-		<!-- END tech.ammo.listitem -->
+				<td class="noBorderX">
+					<img src="{URL}data/interface/time.gif" alt="Dauer" />{tech.fac.dauer}
+					<!-- BEGIN tech.fac.buildcosts.listitem -->
+						<img style="vertical-align:middle" src="{res.image}" alt="" />{res.cargo}
+					<!-- END tech.fac.buildcosts.listitem -->
+				</td>
+		<!-- END tech.fac.listitem -->
 		</table>
 	{!table_end}
 {/endif}

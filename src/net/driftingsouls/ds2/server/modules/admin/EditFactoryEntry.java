@@ -64,14 +64,11 @@ public class EditFactoryEntry implements AdminPlugin
 			FactoryEntry entry = (FactoryEntry)db.get(FactoryEntry.class, entryid);
 			
 			if(entry != null) {
-				entry.setName(context.getRequest().getParameterString("name"));
-				entry.setPicture(context.getRequest().getParameterString("picture"));
 				entry.setBuildCosts(new Cargo(Cargo.Type.STRING, context.getRequest().getParameterString("buildcosts")));
-				entry.setDescription(context.getRequest().getParameterString("description"));
 				entry.setRes1(context.getRequest().getParameterInt("res1"));
 				entry.setRes2(context.getRequest().getParameterInt("res2"));
 				entry.setRes3(context.getRequest().getParameterInt("res3"));
-				entry.setItemId(context.getRequest().getParameterInt("itemid"));
+				entry.setProduce(new Cargo(Cargo.Type.STRING, context.getRequest().getParameterString("produce")));
 				entry.setDauer(BigDecimal.valueOf(Double.parseDouble(context.getRequest().getParameterString("dauer"))));
 				entry.setBuildingIds(context.getRequest().getParameterString("buildingids"));
 				
@@ -100,10 +97,7 @@ public class EditFactoryEntry implements AdminPlugin
 			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"hidden\" name=\"entryid\" value=\"" + entryid + "\" />\n");
-			echo.append("<tr><td class=\"noBorderS\">Name: </td><td><input type=\"text\" name=\"name\" value=\"" + entry.getName() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Bild: </td><td><input type=\"text\" name=\"picture\" value=\"" + entry.getPicture() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Baukosten: </td><td><input type=\"text\" name=\"buildcosts\" value=\"" + entry.getBuildCosts() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Beschreibung: </td><td><input type=\"text\" name=\"description\" value=\"" + entry.getDescription() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Forschung1: </td><td><select size=\"1\" name=\"res1\">");
 			for (Forschung research: researchs)
 			{
@@ -122,7 +116,7 @@ public class EditFactoryEntry implements AdminPlugin
 				echo.append("<option value=\"" + research.getID() + "\" " + (research.getID() == entry.getRes3() ? "selected=\"selected\"" : "") + ">" + research.getName() + "</option>");
 			}
 			echo.append("</select>");
-			echo.append("<tr><td class=\"noBorderS\">ItemId: </td><td><input type=\"text\" name=\"itemid\" value=\"" + entry.getItemId() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Produktion: </td><td><input type=\"text\" name=\"produce\" value=\"" + entry.getProduce().toString() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Dauer: </td><td><input type=\"text\" name=\"dauer\" value=\"" + entry.getDauer() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">BuildingIDs: </td><td><input type=\"text\" name=\"buildingids\" value=\"" + entry.getBuildingIds() + "\"></td></tr>\n");
 			
