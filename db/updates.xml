@@ -1260,15 +1260,15 @@
 	]]></update>
 	<update><![CDATA[
 		CREATE TABLE `items_build` (
-  			`id` int(11) NOT NULL,
-			`name` varchar(50) collate latin1_general_ci NOT NULL,
-			`description` text collate latin1_general_ci,
+  			`id` int(11) NOT NULL auto_increment,
+			`name` varchar(50) NOT NULL,
+			`description` text,
 			`res1` int(11) NOT NULL default '0',
 			`res2` int(11) NOT NULL default '0',
 			`res3` int(11) NOT NULL default '0',
 			`itemid` tinyint(3) unsigned NOT NULL,
 			`dauer` float NOT NULL default '0.01',
-			`buildcosts` varchar(120) collate latin1_general_ci NOT NULL default '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,',
+			`buildcosts` varchar(120) NOT NULL default '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,',
 			`buildingid` int (11) NOT NULL,
 			`picture` varchar (120),
 			PRIMARY KEY  (`id`)

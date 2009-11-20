@@ -2,10 +2,6 @@ CREATE TABLE `ammo` (
   `id` int(11) unsigned NOT NULL auto_increment,
   `name` varchar(30) NOT NULL default '',
   `description` tinytext NOT NULL,
-  `replaces` int(11) unsigned default NULL,
-  `res1` int(11) NOT NULL default '0',
-  `res2` int(11) NOT NULL default '0',
-  `res3` int(11) NOT NULL default '0',
   `type` varchar(10) NOT NULL default 'rak',
   `damage` smallint(6) unsigned NOT NULL default '0',
   `shielddamage` smallint(6) unsigned NOT NULL default '0',
@@ -18,9 +14,6 @@ CREATE TABLE `ammo` (
   `areadamage` tinyint(3) unsigned NOT NULL default '0',
   `destroyable` float(3,2) unsigned NOT NULL default '0.00',
   `flags` int(10) unsigned NOT NULL default '0',
-  `itemid` tinyint(3) unsigned NOT NULL default '0',
-  `dauer` float NOT NULL default '0.01',
-  `buildcosts` varchar(120) NOT NULL default '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,',
   `picture` varchar(20) NOT NULL default '',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Raketen, Flak, Torpedomunition'; 
