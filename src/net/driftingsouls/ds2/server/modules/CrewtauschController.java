@@ -49,20 +49,10 @@ public class CrewtauschController extends TemplateGenerator {
 		 */
 		public int getCrew();
 		/**
-		 * * Gibt die verfuegbaren Marines zurueck.
-		 * @return Die Marines
-		 */
-		public int getMarines();
-		/**
 		 * Setzt die Crew auf dem Objekt.
 		 * @param crew Die Crew
 		 */
 		public void setCrew(int crew);
-		/**
-		 * * Setzt die Marines auf dem Objekt.
-		 * @param marines Die Marines
-		 */
-		public void setMarines(int marines);
 		/**
 		 * Wird am Ende des Transfervorgangs aufgerufen.
 		 *
@@ -88,11 +78,6 @@ public class CrewtauschController extends TemplateGenerator {
 		 * @return Die maximale Crewmenge (<code>-1</code> = unbegrenzt)
 		 */
 		public int getMaxCrew();
-		/**
-		 * Gibt die maximale Anzahl an Marines auf dem Objekt zurueck.
-		 * @return Die maximale Menge Marines (<code>-1</code> = unbegrenzt)
-		 */
-		public int getMaxMarines();
 	}
 	
 	/**
@@ -113,11 +98,7 @@ public class CrewtauschController extends TemplateGenerator {
 		public int getCrew() {
 			return ship.getCrew();
 		}
-				
-		public int getMarines() {
-			return ship.getMarines();
-		}
-
+		
 		public int getId() {
 			return ship.getId();
 		}
@@ -130,16 +111,8 @@ public class CrewtauschController extends TemplateGenerator {
 			ship.setCrew(crew);
 		}
 		
-		public void setMarines(int marines) {
-			ship.setMarines(marines);
-		}
-
 		public int getMaxCrew() {
 			return ship.getTypeData().getCrew();
-		}
-		
-		public int getMaxMarines() {
-			return ship.getTypeData().getMarines();
 		}
 		
 		public User getOwner() {
@@ -185,24 +158,11 @@ public class CrewtauschController extends TemplateGenerator {
 		public User getOwner() {
 			return base.getOwner();
 		}
-
-		public int getMarines() {
-			return base.getMarines();
-		}
-
-		public int getMaxMarines() {
-			return -1;
-		}
-
-		public void setMarines(int marines) {
-			base.setMarines(marines);
-		}
 	}
 	
 	private Ship ship = null;
 	private Target datat = null;
 	private int maxcrewf;
-	private int maxmarines;
 	
 	/**
 	 * Konstruktor.
@@ -238,7 +198,6 @@ public class CrewtauschController extends TemplateGenerator {
 		
 		Target datat = null;
 		int maxcrewf = 0;
-		int maxmarines = 0;
 		
 		if( mode.equals("ss") ) {
 			Ship aship = (Ship)db.get(Ship.class, tar);
@@ -250,7 +209,6 @@ public class CrewtauschController extends TemplateGenerator {
 			}
 
 			maxcrewf = ship.getTypeData().getCrew();
-			maxmarines = ship.getTypeData().getMarines();
 			datat = new ShipTarget(aship);
 		}
 		else if( mode.equals("sb") ) {
@@ -263,7 +221,6 @@ public class CrewtauschController extends TemplateGenerator {
 			}
 
 			maxcrewf = ship.getTypeData().getCrew();
-			maxmarines = ship.getTypeData().getMarines();
 			datat = new BaseTarget(abase);
 		}
 		else
@@ -280,16 +237,13 @@ public class CrewtauschController extends TemplateGenerator {
 		this.ship = ship;
 		this.datat = datat;
 		this.maxcrewf = maxcrewf;
-		this.maxmarines = maxmarines;
 		
 		return true;	
 	}
 	
 	/**
 	 * Transferiert Crew vom Ausgangsschiff zum Zielschiff/Basis.
-	 * Transferiert Crew/Marines vom Ausgangsschiff zum Zielschiff/Basis.
 	 * @urlparam int send Die Anzahl der zu transferierenden Crew
-	 * @urlparam int sendm Die Anzahl der zu transferierenden Marines
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -319,36 +273,13 @@ public class CrewtauschController extends TemplateGenerator {
 			datat.finishTransfer();
 			ship.recalculateShipStatus();
 		}	
-		parameterNumber("sendm");
-		int sendm = getInteger("sendm");
-		if( sendm < 0 ) {
-			sendm = 0;
-		}
-		if( (datat.getMaxMarines() > -1) && (sendm > datat.getMaxMarines() - datat.getMarines()) ) {
-			sendm = datat.getMaxMarines() - datat.getMarines();
-		}
-		if( sendm > ship.getMarines() ) {
-			sendm = ship.getMarines();
-		}
-			
-		if( sendm > 0 ) {
-			t.setVar(	"marinestausch.transfer",	1,
-						"transfer.way.to",		1,
-						"transfer.mcount",		sendm );
-				
-			ship.setMarines(ship.getMarines()-sendm);
-			datat.setMarines(datat.getMarines()+sendm);
-			datat.finishTransfer();
-			ship.recalculateShipStatus();
-		}
+		
 		redirect();
 	}
 	
 	/**
 	 * Transfer in umgekehrter Richtung.<br>
-	 * Transferiert Crew/Marines vom Zielschiff/Basis zum Ausgangsschiff.
 	 * @urlparam int rec Die Anzahl der zu transferierenden Crew
-	 * @urlparam int recm Die Anzahl der zu transferierenden Marines
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -357,8 +288,6 @@ public class CrewtauschController extends TemplateGenerator {
 		
 		parameterNumber("rec");
 		int rec = getInteger("rec");
-		parameterNumber("recm");
-		int recm = getInteger("recm");
 		
 		if( rec < 0 ) {
 			rec = 0;
@@ -380,25 +309,6 @@ public class CrewtauschController extends TemplateGenerator {
 			datat.finishTransfer();
 			ship.recalculateShipStatus();
 		}
-		if( recm < 0 ) {
-			recm = 0;
-		}
-		if( recm > maxmarines - ship.getMarines() ) {
-			recm = maxmarines - ship.getMarines();
-		}
-		if( recm > datat.getMarines() ) {
-			recm = datat.getMarines();
-		}
-		if( recm > 0 ) {
-			t.setVar(	"marinestausch.transfer",	1,
-						"transfer.way.to",		0,
-						"transfer.mcount",		recm );
-				
-			ship.setMarines(ship.getMarines()+recm);
-			datat.setMarines(datat.getMarines()-recm);
-			datat.finishTransfer();
-			ship.recalculateShipStatus();
-		}
 			
 		redirect();
 	}
@@ -417,14 +327,10 @@ public class CrewtauschController extends TemplateGenerator {
 					"ship.name",		Common._plaintitle(ship.getName()),
 					"ship.crew",		ship.getCrew(),
 					"ship.maxcrew",		maxcrewf,
-					"ship.marines",		ship.getMarines(),
-					"ship.maxmarines",	maxmarines,
 					"target.id",		datat.getId(),
 					"target.name",		datat.getName(),
 					"target.crew",		datat.getCrew(),
 					"target.maxcrew",	(datat.getMaxCrew() > -1 ? datat.getMaxCrew() : "&#x221E;"),
-					"target.marines",	datat.getMarines(),
-					"target.maxmarines",	(datat.getMaxMarines() > -1 ? datat.getMaxMarines() : "&#x221E;"),
 					"global.mode",		mode,
 					"global.mode.ss",	mode.equals("ss"),
 					"global.mode.sb",	mode.equals("sb"),

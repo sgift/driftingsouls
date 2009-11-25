@@ -23,7 +23,7 @@ CREATE TABLE `bases` (
   `coreactive` tinyint(3) unsigned NOT NULL default '0',
   `autogtuacts` text NOT NULL default '',
   `version` int(11) NOT NULL default '0',
-  `marines` int unsigned NOT NULL default '0',
+  `unitcargo` varchar (120),
   `spawnableress` text,
   `spawnressavailable` text,
   PRIMARY KEY  (`id`),

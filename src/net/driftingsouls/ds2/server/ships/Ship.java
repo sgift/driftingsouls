@@ -77,6 +77,7 @@ import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
+import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 import org.apache.commons.lang.StringUtils;
@@ -125,7 +126,8 @@ public class Ship implements Locatable,Transfering {
 	private int system;
 	private String status;
 	private int crew;
-	private int marines;
+	@Type(type="unitcargo")
+	private UnitCargo unitcargo;
 	private int e;
 	@Column(name="s")
 	private int heat;
@@ -495,19 +497,19 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * Gibt die Anzahl Marines auf dem Schiff zurueck.
-	 * @return Die Anzahl Marines
+	 * Gibt den UnitCargo des Schiffes zurueck.
+	 * @return Der UnitCargo
 	 */
-	public int getMarines() {
-		return marines;
+	public UnitCargo getUnits() {
+		return unitcargo;
 	}
 
 	/**
-	 * Setzt die Anzahl Marines auf dem Schiff.
-	 * @param marines Die neue Anzahl Marines
+	 * Setzt den UnitCargo des Schiffes.
+	 * @param unitcargo Der UnitCargo
 	 */
-	public void setMarines(int marines) {
-		this.marines = marines;
+	public void setUnits(UnitCargo unitcargo) {
+		this.unitcargo = unitcargo;
 	}
 	
 	/**
@@ -1120,7 +1122,7 @@ public class Ship implements Locatable,Transfering {
 	 */
 	private int getScaledCrew() {
 		double scale = getAlertScaleFactor();
-		int scaledCrew = (int)Math.ceil((this.crew+this.marines)/scale);
+		int scaledCrew = (int)Math.ceil((this.crew+this.getUnits().getNahrung())/scale);
 		return scaledCrew;
 	}
 
@@ -1256,6 +1258,8 @@ public class Ship implements Locatable,Transfering {
 		shipModules.setCargo(type.getCargo());
 		shipModules.setHeat(type.getHeat());
 		shipModules.setCrew(type.getCrew());
+		shipModules.setMaxUnitSize(type.getMaxUnitSize());
+		shipModules.setUnitSpace(type.getMaxUnitSize());
 		shipModules.setWeapons(type.getWeapons());
 		shipModules.setMaxHeat(type.getMaxHeat());
 		shipModules.setTorpedoDef(type.getTorpedoDef());
@@ -3812,7 +3816,7 @@ public class Ship implements Locatable,Transfering {
 			return 0;
 		}
 		
-		return getTypeData().getReCost();
+		return getTypeData().getReCost() + getUnits().getRE();
 	}
 
 	/**

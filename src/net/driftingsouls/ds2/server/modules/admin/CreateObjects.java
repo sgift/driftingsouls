@@ -49,6 +49,7 @@ import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
+import net.driftingsouls.ds2.server.units.UnitCargo;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -639,6 +640,7 @@ public class CreateObjects implements AdminPlugin {
 			base.setHeight(type.getHeight());
 			base.setMaxTiles(type.getMaxTiles());
 			base.setMaxCargo(type.getCargo());
+			base.setUnits(new UnitCargo());
 			base.setMaxEnergy(type.getEnergy());
 			base.setAvailableSpawnableRess(availablespawnableress);
 			db.persist(base);

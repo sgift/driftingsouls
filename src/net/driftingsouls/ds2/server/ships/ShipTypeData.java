@@ -55,12 +55,6 @@ public interface ShipTypeData extends Cloneable {
 	public int getCrew();
 	
 	/**
-	 * Gibt die Maximalbesetzung an Marines zurueck.
-	 * @return Die Marines
-	 */
-	public int getMarines();
-	
-	/**
 	 * Gibt die Schiffstypenbeschreibung zurueck.
 	 * @return Die Beschreibung
 	 */
@@ -252,6 +246,18 @@ public interface ShipTypeData extends Cloneable {
 	 * @return Die Werftslots
 	 */
 	public int getWerft();
+	
+	/**
+	 * Gibt die maximale Groesze der Einheiten auf diesem Schiff zurueck.
+	 * @return Die maximale Groesze
+	 */
+	public int getMaxUnitSize();
+	
+	/**
+	 * Gibt den Laderaum fuer die Einheiten zurueck.
+	 * @return Der Laderaum
+	 */
+	public int getUnitSpace();
 	
 	/**
 	 * Gibt zurueck, ob es sich um ein bewaffnetes Schiff handelt.

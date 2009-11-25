@@ -62,6 +62,9 @@
 			</a>
 		</td>
 		<td class="schiff">Cargo</td>
+		{if ship.marines}
+		<td class="schiff">Einheiten</td>
+		{/endif}
 	</tr>
 	<tr>
 		<td class="schiffData" style="width:360px" valign="top">
@@ -111,12 +114,6 @@
 				Crew:
 				<span style="color:{ship.crew.color}">
 					{ship.crew}/{shiptype.crew}
-				</span><br />
-			{/endif}
-			{if shiptype.marines}
-				Marines:
-				<span style="color:{ship.marines.color}">
-					{ship.marines}/{shiptype.marines}
 				</span><br />
 			{/endif}
 			Energie:
@@ -292,6 +289,11 @@
 		<td class="schiffWaren" style="width:260px" valign="top">
 			{plugin.cargo}
 		</td>
+		{if ship.marines}
+		<td class="schiffWaren" style="width:260px" valign="top">
+			{plugin.units}
+		</td>
+		{/endif}
 	</tr>
 	</table>
 	<div>

@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.tick.regular.AcademyTick;
 import net.driftingsouls.ds2.server.tick.regular.BaseTick;
 import net.driftingsouls.ds2.server.tick.regular.BattleTick;
 import net.driftingsouls.ds2.server.tick.regular.ForschungsTick;
+import net.driftingsouls.ds2.server.tick.regular.KaserneTick;
 import net.driftingsouls.ds2.server.tick.regular.NPCOrderTick;
 import net.driftingsouls.ds2.server.tick.regular.NPCScriptTick;
 import net.driftingsouls.ds2.server.tick.regular.RTCTick;
@@ -108,6 +109,9 @@ public class RegularTick extends AbstractTickExecuter
 		
 				publishStatus("berechne Akademien");
 				execTick(AcademyTick.class, false);
+				
+				publishStatus("berechne Kasernen");
+				execTick(KaserneTick.class, false);
 		
 				publishStatus("berechne GTU");
 				execTick(RTCTick.class, false);

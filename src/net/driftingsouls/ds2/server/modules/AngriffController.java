@@ -78,6 +78,7 @@ import net.driftingsouls.ds2.server.modules.ks.KSTakeCommandAction;
 import net.driftingsouls.ds2.server.modules.ks.KSUndockAllAction;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.units.UnitCargo;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -195,7 +196,6 @@ public class AngriffController extends TemplateGenerator {
 					"shipinfo.type.cost",		shipType.getCost(),
 					"shipinfo.type.maxenergy",	shipType.getEps(),
 					"shipinfo.type.maxcrew",	shipType.getCrew(),
-					"shipinfo.type.maxmarines",	shipType.getMarines(),
 					"shipinfo.type.weapons",	shipType.isMilitary(),
 					"shipinfo.hull",			Common.ln(ship.getShip().getHull()),
 					"shipinfo.ablativeArmor", 	Common.ln(ship.getShip().getAblativeArmor()),
@@ -205,7 +205,6 @@ public class AngriffController extends TemplateGenerator {
 					"shipinfo.heat",			ship.getShip().getHeat(),
 					"shipinfo.energy",			ship.getShip().getEnergy(),
 					"shipinfo.crew",			ship.getShip().getCrew(),
-					"shipinfo.marines",			ship.getShip().getMarines(),
 					"shipinfo.engine",			ship.getShip().getEngine(),
 					"shipinfo.weapons",			ship.getShip().getWeapons(),
 					"shipinfo.comm",			ship.getShip().getComm(),
@@ -383,6 +382,11 @@ public class AngriffController extends TemplateGenerator {
 					t.parse("shipinfo.ammo.list","shipinfo.ammo.listitem",true);
 				}
 			}
+			
+			// Einheiten
+			UnitCargo unitcargo = ship.getUnits();
+			
+			unitcargo.echoUnitList(t, "shipinfo.units.list", "shipinfo.units.listitem");
 		}
 
 		t.parse(tag, "ship.info");
@@ -789,6 +793,7 @@ public class AngriffController extends TemplateGenerator {
 		t.setBlock("_ANGRIFF","ship.info","none");
 		t.setBlock("ship.info","shipinfo.ammo.listitem","shipinfo.ammo.list");
 		t.setBlock("ship.info","shipinfo.weapons.listitem","shipinfo.weapons.list");
+		t.setBlock("ship.info","shipinfo.units.listitem","shipinfo.units.list");
 		showInfo("ownship.info", ownShip, (!battle.isGuest() ? false:true), "Own", scan.equals("own") );
 		showInfo("enemyship.info", enemyShip, true, "Enemy", scan.equals("enemy") );
 		

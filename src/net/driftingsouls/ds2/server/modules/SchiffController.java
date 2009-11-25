@@ -207,6 +207,10 @@ public class SchiffController extends TemplateGenerator {
 			pluginMapper.put("jdocks", getPluginByName("JDocksDefault"));
 		}
 		
+		if( shiptype.getUnitSpace() > 0 ) {
+			pluginMapper.put("units", getPluginByName("UnitsDefault"));
+		}
+		
 		noob = user.isNoob();
 		
 		// URL fuer Quests setzen
@@ -1272,12 +1276,10 @@ public class SchiffController extends TemplateGenerator {
 					"ship.comm",			ship.getComm(),
 					"ship.sensors.color",	genSubColor(ship.getSensors(), 100),
 					"ship.sensors",			ship.getSensors(),
-					"shiptype.marines",		Common.ln(shiptype.getMarines()),
-					"ship.marines",			Common.ln(ship.getMarines()),
-					"ship.marines.color",	genSubColor(ship.getMarines(), shiptype.getMarines()),
 					"shiptype.crew",		Common.ln(shiptype.getCrew()),
 					"ship.crew",			Common.ln(ship.getCrew()),
 					"ship.crew.color",		genSubColor(ship.getCrew(), shiptype.getCrew()),
+					"ship.marines",			(shiptype.getUnitSpace() > 0) ? true : false,
 					"ship.e",				Common.ln(ship.getEnergy()),
 					"shiptype.eps",			Common.ln(shiptype.getEps()),
 					"ship.e.color",			genSubColor(ship.getEnergy(), shiptype.getEps()),
@@ -1603,6 +1605,16 @@ public class SchiffController extends TemplateGenerator {
 			plugin.output(caller);
 			
 			pluginMapper.remove("cargo");
+		}
+		
+		if( pluginMapper.containsKey("units"))
+		{
+			SchiffPlugin plugin = pluginMapper.get("units");
+			caller.pluginId = "units";
+			caller.target = "plugin.units";
+			plugin.output(caller);
+			
+			pluginMapper.remove("units");
 		}
 		
 		/* 

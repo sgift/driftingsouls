@@ -20,7 +20,9 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Offizier;
@@ -39,6 +41,8 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.units.UnitCargo;
+import net.driftingsouls.ds2.server.units.UnitType;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 /**
@@ -141,73 +145,116 @@ public class KSKapernAction extends BasicKSAction {
 		ShipTypeData enemyShipType = enemyShip.getTypeData();
 
 		User euser = enemyShip.getOwner();
-
-		int savecrew = (int)Math.round(ownShip.getCrew()/10d);
-		if( savecrew <= 0 ) {
-			savecrew = 1;
-		}
-		int acrew = ownShip.getCrew() - savecrew;
-		int dcrew = enemyShip.getCrew();
+		
+		Integer dcrew = enemyShip.getCrew();
+		UnitCargo ownUnits = ownShip.getUnits();
+		UnitCargo enemyUnits = enemyShip.getUnits();
 
 		boolean ok = false;
-
+		boolean att = false;
+		
 		String msg = "";
-		if( (acrew != 0) && (dcrew != 0) ) {
-			battle.logme("Die Crew st&uuml;rmt das Schiff\n");
-			msg = "Die Crew der "+Battle.log_shiplink(ownShip.getShip())+" st&uuml;rmt die "+Battle.log_shiplink(enemyShip.getShip())+"\n";
+		if( !ownUnits.isEmpty() && !enemyUnits.isEmpty() ) {
+			battle.logme("Die Einheiten st&uuml;rmen das Schiff\n");
+			msg = "Die Einheiten der "+Battle.log_shiplink(ownShip.getShip())+" st&uuml;rmen die "+Battle.log_shiplink(enemyShip.getShip())+"\n";
 
+			int attmulti = 1;
 			int defmulti = 1;
-
+			
 			Offizier offizier = Offizier.getOffizierByDest('s', enemyShip.getId());
 			if( offizier != null ) {
-				defmulti = (int)Math.round(offizier.getAbility(Offizier.Ability.SEC)/25d)+1;
+				defmulti = (int)Math.round((offizier.getAbility(Offizier.Ability.COM)+offizier.getAbility(Offizier.Ability.SEC))/25d)+1;
+			}
+			offizier = Offizier.getOffizierByDest('s', ownShip.getId());
+			if( offizier != null)
+			{
+				attmulti = (int)Math.round((offizier.getAbility(Offizier.Ability.COM)+offizier.getAbility(Offizier.Ability.SEC))/35d)+1;
 			}
 
-			if( acrew >= dcrew*3*defmulti ) {
+			UnitCargo toteeigeneUnits = new UnitCargo();
+			UnitCargo totefeindlicheUnits = new UnitCargo();
+			att = true;
+			
+			if(ownUnits.kapern(enemyUnits, toteeigeneUnits, totefeindlicheUnits, dcrew, attmulti, defmulti ))
+			{
 				ok = true;
-				battle.logme("Die Crew gibt das Schiff kampflos auf und l&auml;uft &uuml;ber\n");
-				msg += "Die Crew gibt das Schiff kampflos auf l&auml;uft &uuml;ber.\n";
-			}
-			else {
-				//$dcrew = round(($dcrew*$defmulti - $acrew)/$defmulti);
-				if( Math.round(dcrew*defmulti - acrew) > 0 ) {
-					int oldacrew = acrew;
-					int olddcrew = dcrew;
-					acrew = (int)Math.round(acrew * 0.1);
-					if( acrew < 1 ) {
-						acrew = 1;
+				if(toteeigeneUnits.isEmpty() && totefeindlicheUnits.isEmpty())
+				{
+					battle.logme("Angriff erfolgreich. Schiff wird widerstandslos &uuml;bernommen.\n");
+					msg += "Das Schiff ist kampflos verloren.\n";
+				}
+				else
+				{
+					battle.logme("Angriff erfolgreich.\n");
+					msg += "Das Schiff ist verloren.\n";
+					HashMap<Integer, Long> ownunitlist = toteeigeneUnits.getUnitList();
+					HashMap<Integer, Long> enemyunitlist = totefeindlicheUnits.getUnitList();
+					
+					if(!ownunitlist.isEmpty())
+					{
+						for(Entry<Integer, Long> unit : ownunitlist.entrySet())
+						{
+							UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
+							battle.logme("Angreifer:\n"+unit.getValue()+" "+unittype.getName()+" gefallen\n");
+							msg += "Angreifer:\n"+unit.getValue()+" "+unittype.getName()+" erschossen\n";
+						}
 					}
-
-					dcrew = (int)Math.round((dcrew*defmulti - oldacrew+acrew)/(double)defmulti);
-					battle.logme((oldacrew-acrew)+" Crewmitglieder fallen. "+(olddcrew-dcrew)+" Feinde get&ouml;tet.\nAngriff abgebrochen\n");
-					msg += (oldacrew-acrew)+" Angreifer erschossen. "+(olddcrew-dcrew)+" Crewmitglieder sind gefallen.\nDer Angreifer flieht\n";
-					ok = false;
-
-				} 
-				else {
-					battle.logme(Math.round(dcrew*defmulti)+" Crewmitglieder fallen. "+dcrew+" Feinde get&ouml;tet.\n[color=red]Das Schiff wurde erobert[/color]\n");
-					msg += Math.round(dcrew*defmulti)+" Angreifer erschossen. "+dcrew+" Crewmitglieder sind gefallen.\n[color=red]Das Schiff ist verloren[/color]\n";
-					acrew = acrew - Math.round(dcrew*defmulti);
-					dcrew = 0;
-					ok = true;
+					
+					if(!enemyunitlist.isEmpty())
+					{
+						for(Entry<Integer, Long> unit : enemyunitlist.entrySet())
+						{
+							UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
+							battle.logme("Verteidiger:\n"+unit.getValue()+" "+unittype.getName()+" erschossen\n");
+							msg += "Verteidiger:\n"+unit.getValue()+" "+unittype.getName()+" gefallen\n";
+						}
+					}
+				}
+			}
+			else
+			{
+				battle.logme("Angriff abgebrochen.\n");
+				msg += "Angreifer flieht.\n";
+				HashMap<Integer, Long> ownunitlist = toteeigeneUnits.getUnitList();
+				HashMap<Integer, Long> enemyunitlist = totefeindlicheUnits.getUnitList();
+				
+				if(!ownunitlist.isEmpty())
+				{
+					for(Entry<Integer, Long> unit : ownunitlist.entrySet())
+					{
+						UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
+						battle.logme("Angreifer:\n"+unit.getValue()+" "+unittype.getName()+" gefallen\n");
+						msg += "Angreifer:\n"+unit.getValue()+" "+unittype.getName()+" erschossen\n";
+					}
+				}
+				
+				if(!enemyunitlist.isEmpty())
+				{
+					for(Entry<Integer, Long> unit : enemyunitlist.entrySet())
+					{
+						UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
+						battle.logme("Verteidiger:\n"+unit.getValue()+" "+unittype.getName()+" erschossen\n");
+						msg += "Verteidiger:\n"+unit.getValue()+" "+unittype.getName()+" gefallen\n";
+					}
 				}
 			}
 		} 
-		else if( acrew != 0 ) {
+		else if( !ownUnits.isEmpty() ) {
 			ok = true;
 			battle.logme("Schiff wird widerstandslos &uuml;bernommen\n");
 			msg += "Das Schiff "+Battle.log_shiplink(enemyShip.getShip())+" wird an die "+Battle.log_shiplink(ownShip.getShip())+" &uuml;bergeben\n";
 		}
 
-		if( acrew != 0 ) {
+		if( att ) {
 			battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
 			battle.logenemy(msg);
 			battle.logenemy("]]></action>\n");
 
-			ownShip.getShip().setCrew(acrew+savecrew);
 			ownShip.getShip().setBattleAction(true);
-
-			enemyShip.getShip().setCrew(dcrew);
+			ownShip.setUnits(ownUnits);
+			
+			enemyShip.setUnits(enemyUnits);
+			enemyShip.getShip().setCrew(dcrew.intValue());
 		}
 
 		// Wurde das Schiff gekapert?
@@ -235,20 +282,6 @@ public class KSKapernAction extends BasicKSAction {
 				enemyShip.setWeapons(20);
 			}
 
-			// Angreifer (falls ueberlebende vorhanden) auf dem Schiff stationieren
-			int newshipcrew = enemyShip.getShip().getCrew();
-			if( (acrew != 0) && (dcrew == 0) ) {
-				newshipcrew = acrew/2;
-				if( newshipcrew > enemyShipType.getCrew() ) {
-					newshipcrew = enemyShipType.getCrew();
-				}
-				acrew = acrew -newshipcrew;		
-
-				ownShip.getShip().setCrew(acrew + savecrew);
-
-				battle.logme( (newshipcrew)+" Crewmitglieder werden auf dem gekaperten Schiff stationiert\n" );
-			}
-
 			String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
 
 			enemyShip.getShip().setHistory(enemyShip.getShip().getHistory()+"Im Kampf gekapert am "+currentTime+" durch "+user.getName()+" ("+user.getId()+")\n");
@@ -256,7 +289,6 @@ public class KSKapernAction extends BasicKSAction {
 			enemyShip.getShip().removeFromFleet();
 			enemyShip.getShip().setOwner(user);
 			enemyShip.getShip().setBattleAction(true);
-			enemyShip.getShip().setCrew(newshipcrew);
 			enemyShip.setSide(battle.getOwnSide());
 
 			List<Integer> kaperlist = new ArrayList<Integer>();
@@ -308,7 +340,7 @@ public class KSKapernAction extends BasicKSAction {
 				werft.setLink(null);
 			}
 
-			// Flagschiffeintraege aktuallisieren?
+			// Flagschiffeintraege aktualisieren?
 			UserFlagschiffLocation flagschiffstatus = euser.getFlagschiff();
 
 			if( (flagschiffstatus != null) && (flagschiffstatus.getType() == UserFlagschiffLocation.Type.SHIP) && 

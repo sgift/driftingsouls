@@ -35,6 +35,7 @@ import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.units.UnitCargo;
 
 import org.hibernate.Session;
 import org.hibernate.annotations.Cache;
@@ -309,12 +310,21 @@ public class BattleShip {
 	}
 	
 	/**
-	 * Gibt die Marineanzahl auf dem Schiff zurueck.
-	 * @return Die Marineanzahl
-	 * @see net.driftingsouls.ds2.server.ships.Ship#getMarines()
+	 * Gibt die Einheiten auf dem Schiff zurueck.
+	 * @return Die Einheiten
+	 * @see net.driftingsouls.ds2.server.ships.Ship#getUnits()
 	 */
-	public int getMarines() {
-		return ship.getMarines();
+	public UnitCargo getUnits() {
+		return ship.getUnits();
+	}
+	
+	/**
+	 * Setzt die Einheiten auf dem Schiff.
+	 * @param unitcargo Die neuen Einheiten
+	 * @see net.driftingsouls.ds2.server.ships.Ship#setUnits()
+	 */
+	public void setUnits(UnitCargo unitcargo) {
+		ship.setUnits(unitcargo);
 	}
 
 	/**

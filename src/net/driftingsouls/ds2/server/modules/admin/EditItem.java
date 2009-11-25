@@ -98,9 +98,9 @@ public class EditItem implements AdminPlugin
 			echo.append("<input type=\"hidden\" name=\"itemid\" value=\"" + itemid + "\" />\n");
 			echo.append("<tr><td class=\"noBorderS\">Name: </td><td><input type=\"text\" name=\"name\" value=\"" + item.getName() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Bild: </td><td><input type=\"text\" name=\"picture\" value=\"" + item.getPicture() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Bild (gross): </td><td><input type=\"text\" name=\"largepicture\" value=\"" + (item.getLargePicture() == null ? "" : item.getLargePicture()) + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Bild (gro&szlig;): </td><td><input type=\"text\" name=\"largepicture\" value=\"" + (item.getLargePicture() == null ? "" : item.getLargePicture()) + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Cargo: </td><td><input type=\"text\" name=\"itemcargo\" value=\"" + item.getCargo() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Qualitaet: </td><td><input type=\"text\" name=\"quality\" value=\"" + item.getQuality().toString() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Qualit&auml;t: </td><td><input type=\"text\" name=\"quality\" value=\"" + item.getQuality().toString() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Beschreibung: </td><td><input type=\"text\" name=\"description\" value=\"" + item.getDescription() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Handel: </td><td><input type=\"text\" name=\"handel\" value=\"" + item.getHandel() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Accesslevel: </td><td><input type=\"text\" name=\"accesslevel\" value=\"" + item.getAccessLevel() + "\"></td></tr>\n");

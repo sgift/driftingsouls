@@ -58,6 +58,7 @@ import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
 
 import org.apache.commons.lang.StringUtils;
@@ -89,7 +90,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	private int y;
 	private int system;
 	private int bewohner;
-	private int marines;
+	@Type(type="unitcargo")
+	private UnitCargo unitcargo;
 	private int arbeiter;
 	@Column(name="e")
 	private int energy;
@@ -479,21 +481,21 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
-	 * Gibt die Anzahl der Marines auf der Basis zurueck.
-	 * @return Die Anzahl der Marines
+	 * Gibt dden UnitCargo der Basis zurueck.
+	 * @return Der UnitCargo
 	 */
-	public int getMarines()
+	public UnitCargo getUnits()
 	{
-		return this.marines;
+		return this.unitcargo;
 	}
 	
 	/**
-	 * Setzt die Anzahl der Marines auf der basis.
-	 * @param marines Die neue Anzahl der Marines
+	 * Setzt den UnitCargo der basis.
+	 * @param unitcargo Der neue UnitCargo
 	 */
-	public void setMarines(int marines)
+	public void setUnits(UnitCargo unitcargo)
 	{
-		this.marines = marines;
+		this.unitcargo = unitcargo;
 	}
 	
 	/**
@@ -927,8 +929,9 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 			bewohner += building.getBewohner();
 		}
 	
+		stat.substractResource( Resources.RE, base.getUnits().getRE() );
 		stat.substractResource( Resources.NAHRUNG, base.getBewohner() );
-		stat.substractResource( Resources.NAHRUNG, base.getMarines() );
+		stat.substractResource( Resources.NAHRUNG, base.getUnits().getNahrung() );
 
 		return new BaseStatus(stat, e, bewohner, arbeiter, Collections.unmodifiableMap(buildinglocs), bebon);
 	}
@@ -1228,34 +1231,15 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	/**
 	 * @return Die Bilanz der Basis.
 	 */
-	public int getBalance()
+	public long getBalance()
 	{
-		int balance = 0;
+		Context context = ContextMap.getContext();
 		
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		Integer[] buildings = getBebauung();
-		Integer[] active = getActive();
-		for(int i = 0; i < getBebauung().length; i++)
-		{
-			Integer buildingId = buildings[i];
-			if(buildingId != 0 && active[i] != 0)
-			{
-				Building building = (Building)db.get(Building.class, buildingId);
-				balance += building.getProduces().getResourceCount(Resources.RE);
-				balance -= building.getConsumes().getResourceCount(Resources.RE);
-			}
-		}
+		BaseStatus status = getStatus(context, getId() );
 		
-		int coreId = getCore();
-		Core core = (Core)db.get(Core.class, coreId);
+		Cargo produktion = status.getProduction();
 		
-		if(core != null)
-		{
-			balance += core.getProduces().getResourceCount(Resources.RE);
-			balance -= core.getConsumes().getResourceCount(Resources.RE);
-		}
-		
-		return balance;
+		return produktion.getResourceCount( Resources.RE );
 	}
 	
 	/**
@@ -1290,16 +1274,18 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		}
 		
 		boolean produce = true;
+		
+		// Zuerst sollen die Marines verhungern danach die Bevoelkerung.
+		if(!feedMarines())
+		{
+			message += "Wegen Untern&auml;hrung desertieren ihre Truppen.\n";
+			usefullMessage = true;
+		}
+		
 		if(!feedInhabitants())
 		{
 			produce = false;
 			message += "Wegen einer Hungersnot fliehen ihre Einwohner. Die Produktion f&auml;llt aus.\n";
-			usefullMessage = true;
-		}
-		
-		if(!feedMarines())
-		{
-			message += "Wegen Untern&auml;hrung desertieren ihre Truppen.\n";
 			usefullMessage = true;
 		}
 		
@@ -1666,12 +1652,12 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	
 	private boolean feedMarines() 
 	{
-		int hungryPeople = getMarines();
+		int hungryPeople = getUnits().getNahrung();
 		int fleeingPeople = feedPeople(hungryPeople);
 		
 		if(fleeingPeople > 0)
 		{
-			setMarines(getMarines() - fleeingPeople);
+			getUnits().fleeUnits(fleeingPeople);
 			return false;
 		}
 		

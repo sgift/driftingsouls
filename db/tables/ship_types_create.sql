@@ -38,9 +38,10 @@ CREATE TABLE `ship_types` (
   `srs` tinyint NOT NULL default '1',
   `scanCost` INT NOT NULL default '0',
   `pickingCost` INT NOT NULL default '0',
-  `marines` int unsigned NOT NULL default '0',
   `minCrew`int NOT NULL default '0',
   `lostInEmpChance` double NOT NULL default '0.75',
   `version` int(10) unsigned not null default '0',
+  `maxunitsize` tinyint (4) NOT NULL default '1',
+  `unitspace` int (11) NOT NULL default '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 

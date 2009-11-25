@@ -47,6 +47,7 @@ import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 import org.apache.commons.lang.math.RandomUtils;
@@ -314,9 +315,9 @@ public class AddShips implements AdminPlugin {
 				ship.setCrew(shiptype.getCrew());
 				ship.setShields(shiptype.getShields());
 				ship.setCargo(cargo);
+				ship.setUnits(new UnitCargo());
 				ship.setHistory(history);
 				ship.setAblativeArmor(shiptype.getAblativeArmor());
-				ship.setMarines(shiptype.getMarines());
 				ship.setEngine(100);
 				ship.setWeapons(100);
 				ship.setComm(100);
@@ -406,9 +407,9 @@ public class AddShips implements AdminPlugin {
 						jaeger.setDocked("l "+ship.getId());
 						jaeger.setFleet(fleet);
 						jaeger.setCargo(jcargo);
+						jaeger.setUnits(new UnitCargo());
 						jaeger.setHistory(history);
 						jaeger.setAblativeArmor(jshiptype.getAblativeArmor());
-						jaeger.setMarines(jshiptype.getMarines());
 						jaeger.setEngine(100);
 						jaeger.setWeapons(100);
 						jaeger.setComm(100);

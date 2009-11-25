@@ -54,7 +54,6 @@ public class ShipModules implements ShipTypeData {
 	private long cargo;
 	private int heat;
 	private int crew;
-	private int marines;
 	private String weapons;
 	@Column(name="maxheat")
 	private String maxHeat;
@@ -83,6 +82,8 @@ public class ShipModules implements ShipTypeData {
 	private int pickingCost;
 	private int minCrew;
 	private double lostInEmpChance;
+	private int maxunitsize;
+	private int unitspace;
 	
 	@Version
 	private int version;
@@ -172,18 +173,31 @@ public class ShipModules implements ShipTypeData {
 	}
 	
 	@Override
-	public int getMarines() {
-		return marines;
+	public int getMaxUnitSize() {
+		return maxunitsize;
+	}
+
+	/**
+	 * Setzt die maximale Groesze der Einheiten.
+	 * @param maxunitsize Die maximale Groesze
+	 */
+	public void setMaxUnitSize(int maxunitsize) {
+		this.maxunitsize = maxunitsize;
+	}
+	
+	@Override
+	public int getUnitSpace() {
+		return unitspace;
 	}
 	
 	/**
-	 * Setzt die Anzahl an moeglichen Marines.
-	 * @param marines Die Marinemenge
+	 * Setzt den Laderaum fuer Einheiten.
+	 * @param unitspace Der Laderaum
 	 */
-	public void setMarines(int marines) {
-		this.marines = marines;
+	public void setUnitSpace(int unitspace) {
+		this.unitspace = unitspace;
 	}
-
+	
 	@Override
 	public int getDeutFactor() {
 		return deutFactor;

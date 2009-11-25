@@ -81,8 +81,13 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	}
 	
 	@Override
-	public int getMarines() {
-		return inner.getMarines();
+	public int getMaxUnitSize() {
+		return inner.getMaxUnitSize();
+	}
+	
+	@Override
+	public int getUnitSpace() {
+		return inner.getUnitSpace();
 	}
 
 	@Override

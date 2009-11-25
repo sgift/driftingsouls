@@ -56,7 +56,6 @@ public class ShipType implements ShipTypeData {
 	private long cargo;
 	private int heat;
 	private int crew;
-	private int marines;
 	private String weapons;
 	@Column(name="maxheat")
 	private String maxHeat;
@@ -93,6 +92,8 @@ public class ShipType implements ShipTypeData {
 	private int pickingCost;
 	private int minCrew;
 	private double lostInEmpChance;
+	private int maxunitsize;
+	private int unitspace;
 	
 	@Version
 	private int version;
@@ -130,11 +131,6 @@ public class ShipType implements ShipTypeData {
 		return crew;
 	}
 	
-	@Override
-	public int getMarines(){
-		return marines;
-	}
-
 	@Override
 	public String getDescrip() {
 		return descrip;
@@ -299,6 +295,16 @@ public class ShipType implements ShipTypeData {
 	@Override
 	public int getWerft() {
 		return werft;
+	}
+	
+	@Override
+	public int getMaxUnitSize() {
+		return maxunitsize;
+	}
+	
+	@Override
+	public int getUnitSpace() {
+		return unitspace;
 	}
 	
 	@Override
@@ -470,14 +476,6 @@ public class ShipType implements ShipTypeData {
 	 */
 	public void setJDocks(int docks) {
 		jDocks = docks;
-	}
-
-	/**
-	 * Setzt die Anzahl der Marines, die auf dem Schiff platz haben.
-	 * @param marines Die Marines
-	 */
-	public void setMarines(int marines) {
-		this.marines = marines;
 	}
 
 	/**
@@ -656,7 +654,23 @@ public class ShipType implements ShipTypeData {
 	public void setWerft(int werft)	{
 		this.werft = werft;
 	}
+	
+	/**
+	 * Setzt die maximale Groesze der Einheiten.
+	 * @param maxsize Die maximale Groesze
+	 */
+	public void setMaxUnitSize(int maxsize) {
+		this.maxunitsize = maxsize;
+	}
 
+	/**
+	 * Setzt den maximalen Laderaum der Einheiten.
+	 * @param unitspace Der maximale Laderaum
+	 */
+	public void setUnitSpace(int unitspace) {
+		this.unitspace = unitspace;
+	}
+	
 	/**
 	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer

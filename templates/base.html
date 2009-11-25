@@ -150,6 +150,13 @@
 <tr>
 	<td colspan="5" class="noBorderS">
 		<br />
+		{if base.marines}
+			{!table_begin 100%,left}
+				<!-- BEGIN base.units.listitem -->
+				<img style="vertical-align:middle" src="{res.picture}" alt="" />{!link_to $res.name, default, module:unitinfo, unit:$res.id} {res.count}<br />
+				<!-- END base.units.listitem -->
+			{!table_end}
+		{/endif}
 		{!table_begin 100%,left}
 			Aktuelle Energie: {base.e}<br />
 			Bilanz: {base.estat} 

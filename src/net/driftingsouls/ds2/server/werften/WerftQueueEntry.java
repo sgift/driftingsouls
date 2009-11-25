@@ -45,6 +45,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.units.UnitCargo;
 
 import org.hibernate.annotations.Type;
 
@@ -347,6 +348,7 @@ public class WerftQueueEntry {
 		ship.setCrew(shipd.getCrew());
 		ship.setHull(shipd.getHull());
 		ship.setCargo(cargo);
+		ship.setUnits(new UnitCargo());
 		ship.setEnergy(shipd.getEps());
 		ship.setHistory(history);
 		ship.setName(shipd.getNickname());

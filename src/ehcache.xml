@@ -102,4 +102,20 @@
 			timeToLiveSeconds="10"
 			overflowToDisk="false"
 	/>
+	
+	<cache  name="net.driftingsouls.ds2.server.bases.UnitType"
+			maxElementsInMemory="30"
+			eternal="true"
+			timeToIdleSeconds="60"
+			timeToLiveSeconds="600"
+			overflowToDisk="false"
+  	/>
+  	
+  	<cache name="net.driftingsouls.ds2.server.entities.KaserneEntry"
+			maxElementsInMemory="50"
+			eternal="true"
+			timeToIdleSeconds="5"
+			timeToLiveSeconds="10"
+			overflowToDisk="false"
+	/>
 </ehcache>

@@ -373,10 +373,10 @@ public class SchiffInfoController extends TemplateGenerator {
 					"shiptype.id",			ship.getTypeId(),
 					"shiptype.class",		ShipTypes.getShipClass(ship.getShipClass()).getSingular(),
 					"shiptype.image",		ship.getPicture(),
-					"shiptype.ru",			ship.getRu(),
-					"shiptype.rd",			ship.getRd(),
-					"shiptype.ra",			ship.getRa(),
-					"shiptype.rm",			ship.getRm(),
+					"shiptype.ru",			Common.ln(ship.getRu()),
+					"shiptype.rd",			Common.ln(ship.getRd()),
+					"shiptype.ra",			Common.ln(ship.getRa()),
+					"shiptype.rm",			Common.ln(ship.getRm()),
 					"nahrung.image",		Cargo.getResourceImage(Resources.NAHRUNG),
 					"uran.image",			Cargo.getResourceImage(Resources.URAN),
 					"deuterium.image",		Cargo.getResourceImage(Resources.DEUTERIUM),
@@ -386,19 +386,19 @@ public class SchiffInfoController extends TemplateGenerator {
 					"shiptype.heat",		ship.getHeat(),
 					"shiptype.size",		ship.getSize(),
 					"shiptype.sensorrange",	ship.getSensorRange() + 1,
-					"shiptype.eps",			ship.getEps(),
-					"shiptype.cargo",		ship.getCargo(),
-					"shiptype.crew",		ship.getCrew(),
+					"shiptype.eps",			Common.ln(ship.getEps()),
+					"shiptype.cargo",		Common.ln(ship.getCargo()),
+					"shiptype.crew",		Common.ln(ship.getCrew()),
 					"shiptype.jdocks",		ship.getJDocks(),
 					"shiptype.adocks",		ship.getADocks(),
 					"shiptype.hull",		Common.ln(ship.getHull()),
 					"shiptype.panzerung",	ship.getPanzerung(),
-					"shiptype.ablativearmor",	ship.getAblativeArmor(),
+					"shiptype.ablativearmor",	Common.ln(ship.getAblativeArmor()),
 					"shiptype.shields",		Common.ln(ship.getShields()),
 					"shiptype.deutfactor",	ship.getDeutFactor(),
-					"shiptype.hydro",		ship.getHydro(),
+					"shiptype.hydro",		Common.ln(ship.getHydro()),
 					"shiptype.flagschiff",	shipBuildData != null && shipBuildData.isFlagschiff(),
-					"shiptype.recost",		ship.getReCost(),
+					"shiptype.recost",		Common.ln(ship.getReCost()),
 					"shiptype.torpedodef",	ship.getTorpedoDef(),
 					"shiptype.moduleslots",	modulelist.length,
 					"shiptype.moduleslots.desc",	moduletooltip,
@@ -410,6 +410,13 @@ public class SchiffInfoController extends TemplateGenerator {
 		}
 		else {
 			t.setVar("shiptype.description", Common._text(ship.getDescrip()));
+		}
+		
+		if( ship.getUnitSpace() > 0)
+		{
+			t.setVar( 	"shiptype.units", true,
+						"shiptype.unitspace", 	Common.ln(ship.getUnitSpace()),
+						"shiptype.maxunitsize",	ship.getMaxUnitSize() );
 		}
 		
 		if( shipBuildData != null ) {

@@ -1313,4 +1313,55 @@
 		ALTER TABLE items_build DROP picture;
 		ALTER TABLE items_build DROP count;
 	]]></update>
+	<update><![CDATA[
+		CREATE TABLE `unit_types` (
+  			`id` int(11) NOT NULL auto_increment,
+  			`name` varchar(50) NOT NULL,
+  			`size` tinyint(4) NOT NULL default '1',
+  			`description` text,
+  			`recost` int(11) NOT NULL default '0',
+  			`nahrungcost` int(11) NOT NULL default '1',
+  			`kapervalue` int(11) NOT NULL default '1',
+  			`buildcosts` varchar(120) NOT NULL default '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,',
+  			`dauer` int(11) NOT NULL default '1',
+  			`resid` int(11) NOT NULL default '0',
+  			`picture` varchar(50),
+  			PRIMARY KEY  (`id`)
+		);
+		
+		INSERT INTO unit_types (id, name, size, description, recost, nahrungcost, kapervalue, buildcosts, dauer, resid, picture)
+			VALUES( NULL, "Marine", 1, "Ein Marine", 10, 1, 1, '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6|1000|0|0;16|1|0|0', 10, 74, 'data/interface/arbeitslos.gif');
+		
+		INSERT INTO unit_types (id, name, size, description, recost, nahrungcost, kapervalue)
+			VALUES( NULL, "Panzer", 3, "Ein Panzer", 100, 5, 5, '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6|5000|0|0;16|10|0|0', 20, 74, 'data/interface/arbeitslos.gif');
+		
+		ALTER TABLE ships CHANGE marines unitcargo varchar (120);
+		UPDATE ships set unitcargo = NULL;
+		
+		ALTER TABLE ship_types ADD maxunitsize tinyint (4) NOT NULL default '1';
+		ALTER TABLE ship_types ADD unitspace int (11) NOT NULL default '0';
+		ALTER TABLE ship_types DROP marines;
+		
+		ALTER TABLE ships_modules ADD maxunitsize tinyint (4) NOT NULL default '1';
+		ALTER TABLE ships_modules ADD unitspace int (11) NOT NULL default '0';
+		ALTER TABLE ships_modules DROP marines;
+		
+		ALTER TABLE bases CHANGE marines unitcargo varchar (120);
+		UPDATE bases SET unitcargo = NULL;
+		
+		CREATE TABLE `kaserne` (
+			`id` int(11) unsigned NOT NULL auto_increment,
+			`col` int(11) unsigned NOT NULL,
+			PRIMARY KEY (`id`)
+		);
+		
+		CREATE TABLE `kaserne_queues` (
+			`id` int(11) unsigned NOT NULL auto_increment,
+			`kaserne` int(11) unsigned NOT NULL,
+			`unitid` int(11) unsigned NOT NULL,
+			`count` int(11) unsigned NOT NULL,
+			`remaining` int(11) unsigned NOT NULL,
+			PRIMARY KEY(`id`)
+		);
+	]]></update>
 </updates>

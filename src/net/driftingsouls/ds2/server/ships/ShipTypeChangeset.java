@@ -56,7 +56,6 @@ public class ShipTypeChangeset {
 	private long cargo;
 	private int heat;
 	private int crew;
-	private int marines;
 	private Map<String,Integer[]> weapons = new HashMap<String,Integer[]>();
 	private Map<String,Integer> maxHeat;
 	private int torpedoDef;
@@ -77,6 +76,8 @@ public class ShipTypeChangeset {
 	private int pickingCost;
 	private int minCrew;
 	private double lostInEmpChance;
+	private int maxunitsize;
+	private int unitspace;
 	
 	/**
 	 * Leerer Konstruktor.
@@ -175,9 +176,13 @@ public class ShipTypeChangeset {
 			{
 				this.crew = Integer.parseInt(changeset[1]);
 			}
-			else if( changeset[0].equals("marines") ) 
+			else if( changeset[0].equals("maxunitsize") ) 
 			{
-				this.marines = Integer.parseInt(changeset[1]);
+				this.maxunitsize = Integer.parseInt(changeset[1]);
+			}
+			else if( changeset[0].equals("unitspace") ) 
+			{
+				this.unitspace = Integer.parseInt(changeset[1]);
 			}
 			else if( changeset[0].equals("torpdeff") ) 
 			{
@@ -321,7 +326,8 @@ public class ShipTypeChangeset {
 		this.cargo = context.getRequest().getParameterInt("cargo"+addict);
 		this.heat = context.getRequest().getParameterInt("heat"+addict);
 		this.crew = context.getRequest().getParameterInt("crew"+addict);
-		this.marines = context.getRequest().getParameterInt("marines"+addict);
+		this.maxunitsize = context.getRequest().getParameterInt("maxunitsize"+addict);
+		this.unitspace = context.getRequest().getParameterInt("unitspace"+addict);
 		this.torpedoDef = context.getRequest().getParameterInt("torpdeff"+addict);
 		this.shields = context.getRequest().getParameterInt("shields"+addict);
 		this.size = context.getRequest().getParameterInt("size"+addict);
@@ -380,13 +386,21 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, um wieviel die Marines modifiziert werden sollen.
-	 * @return Die Marines
+	 * Gibt zurueck, um wieviel die maximale Groesze der Einheiten modifiziert werden soll.
+	 * @return Die maximale Groesze
 	 */
-	public int getMarines() {
-		return marines;
+	public int getMaxUnitSize() {
+		return maxunitsize;
 	}
 
+	/**
+	 * Gibt zurueck, um wie viel der Einheiten-Laderaum modifiziert werden soll.
+	 * @return Der Einheiten Laderaum
+	 */
+	public int getUnitSpace() {
+		return unitspace;
+	}
+	
 	/**
 	 * Gibt zurueck, um wieviel der Deutfaktor modifiziert wird.
 	 * @return Der Deutfaktor
@@ -679,7 +693,8 @@ public class ShipTypeChangeset {
 		echo.append("<tr><td class=\"noBorderS\">Cargo: </td><td><input type=\"text\" name=\"cargo" +append+"\" value=\"" + getCargo() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Ueberhitzung: </td><td><input type=\"text\" name=\"heat" +append+"\" value=\"" + getHeat() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Crew: </td><td><input type=\"text\" name=\"crew" +append+"\" value=\"" + getCrew() + "\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Marines: </td><td><input type=\"text\" name=\"marines" +append+"\" value=\"" + getMarines() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Maximale Einheitengr&puml;&suml;e: </td><td><input type=\"text\" name=\"maxunitsize" +append+"\" value=\"" + getMaxUnitSize() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Laderaum f&uml;r Einheiten: </td><td><input type=\"text\" name=\"unitspace" +append+"\" value=\"" + getUnitSpace() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Waffen: </td><td><input type=\"text\" name=\"weapons" +append+"\" value=\"" + weaponstring + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">TorpedoDeff: </td><td><input type=\"text\" name=\"torpdeff" +append+"\" value=\"" + getTorpedoDef() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Schilde: </td><td><input type=\"text\" name=\"shields" +append+"\" value=\"" + getShields() + "\"></td></tr>\n");
@@ -746,8 +761,11 @@ public class ShipTypeChangeset {
 		if ( getCrew() != 0) {
 			itemstring = itemstring + "crew," + getCrew() + "|";
 		}
-		if ( getMarines() != 0) {
-			itemstring = itemstring + "marines," + getMarines() + "|";
+		if ( getMaxUnitSize() != 0) {
+			itemstring = itemstring + "maxunitsize," + getMaxUnitSize() + "|";
+		}
+		if ( getUnitSpace() != 0) {
+			itemstring = itemstring + "unitspace," + getUnitSpace() + "|";
 		}
 		if ( getTorpedoDef() != 0) {
 			itemstring = itemstring + "torpdeff," + getTorpedoDef() + "|";
@@ -901,17 +919,28 @@ public class ShipTypeChangeset {
 			return inner.getCrew();
 		}
 		
-		public int getMarines() {
-			if( getType().getMarines() > 0 ) {
-				int value = inner.getMarines() + ShipTypeChangeset.this.getMarines();
+		public int getMaxUnitSize() {
+			if( getType().getMaxUnitSize() > 0 ) {
+				int value = inner.getMaxUnitSize() + ShipTypeChangeset.this.getMaxUnitSize();
 					if( value < 1 ) {
 						return 1;
 					}
 				return value;
 			}
-			return inner.getMarines();
+			return inner.getMaxUnitSize();
 		}
 
+		public int getUnitSpace() {
+			if( getType().getUnitSpace() > 0 ) {
+				int value = inner.getUnitSpace() + ShipTypeChangeset.this.getUnitSpace();
+					if( value < 1 ) {
+						return 1;
+					}
+				return value;
+			}
+			return inner.getUnitSpace();
+		}
+		
 		public String getDescrip() {
 			return inner.getDescrip();
 		}

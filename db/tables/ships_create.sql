@@ -41,7 +41,7 @@ CREATE TABLE `ships` (
   `onmove` text,
   `respawn` tinyint(4) default NULL,
   `startFighters` tinyint(3) unsigned NOT NULL default '1',
-  `marines` int unsigned NOT NULL default '0',
+  `unitcargo` varchar (120),
   `version` int(10) unsigned not null default '0',
   `showtradepost` tinyint (4) NOT NULL default '0',
   PRIMARY KEY  (`id`),

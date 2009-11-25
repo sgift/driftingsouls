@@ -192,6 +192,7 @@ public class SensorsDefault implements SchiffPlugin {
 							"base.size",		base.getSize(),
 							"base.image",		config.get("URL")+"data/starmap/kolonie"+base.getKlasse()+"_srs.png",
 							"base.transfer",	(base.getOwner().getId() != 0),
+							"base.unittausch",	(base.getOwner().getId() == ship.getOwner().getId() && shiptype.getUnitSpace() > 0),
 							"base.colonize",	((base.getOwner().getId() == 0) || (base.getOwner().getId() == -1)) && shiptype.hasFlag(ShipTypes.SF_COLONIZER),
 							"base.action.repair",	0 );
 
@@ -755,7 +756,7 @@ public class SensorsDefault implements SchiffPlugin {
 						t.setVar("sships.action.transfer",1);
 					}
 
-					//Bemannen, Kapern
+					//Bemannen, Kapern, Einheiten tranferieren
 					if( !disableIFF && (aship.getOwner().getId() != user.getId()) && (ashiptype.getShipClass() != ShipClasses.GESCHUETZ.ordinal()) &&
 						((aship.getOwner().getId() != -1) || (ashiptype.getShipClass() == ShipClasses.SCHROTT.ordinal() || ashiptype.getShipClass() == ShipClasses.FELSBROCKEN.ordinal())) ) {
 						if( (user.getAlly() == null) || (aship.getOwner().getAlly() != user.getAlly()) )
@@ -773,6 +774,9 @@ public class SensorsDefault implements SchiffPlugin {
 					else if( !disableIFF && (aship.getOwner().getId() == user.getId()) && (ashiptype.getCrew() > 0)  )
 					{
 						t.setVar("sships.action.crewtausch",1);
+					}
+					if( (!disableIFF || (aship.getOwner().getId() == user.getId())) && ashiptype.getUnitSpace() > 0 && shiptype.getUnitSpace() > 0 ) {
+						t.setVar("sships.action.unittausch",1);
 					}
 
 					//Offiziere: Captain transferieren

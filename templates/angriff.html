@@ -324,6 +324,13 @@
 								<img onmouseover="return overlib('{ammo.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" src="{ammo.image}" alt="{ammo.name}" />{ammo.count}
 							<!-- END shipinfo.ammo.listitem -->
 						{/endif}
+						{if shipinfo.enemy}
+						{else}
+							<br />Einheiten:<br />
+							<!-- BEGIN shipinfo.units.listitem -->
+								+ <img style="vertical-align:middle" src="{res.picture}" alt="" />{!link_to $res.name, default, module:unitinfo, unit:$res.id} {res.count}<br />
+							<!-- END shipinfo.units.listitem -->
+						{/endif}
 					</div>
 				<!-- END ship.info -->
 				{ownship.info}

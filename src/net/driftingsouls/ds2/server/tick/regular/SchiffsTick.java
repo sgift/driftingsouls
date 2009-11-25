@@ -40,6 +40,7 @@ import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.tick.TickController;
+import net.driftingsouls.ds2.server.units.UnitCargo;
 
 import org.hibernate.FlushMode;
 
@@ -122,7 +123,7 @@ public class SchiffsTick extends TickController {
 
 		this.slog("\tCrew: ");
 		//Crew die noch gefuettert werden muss
-		int crewToFeed = shipd.getCrew() + shipd.getMarines();
+		int crewToFeed = shipd.getCrew() + shipd.getUnits().getNahrung();
 
 		//Faktor fuer den Verbrauch
 		double scaleFactor = shipd.getAlertScaleFactor();
@@ -142,14 +143,14 @@ public class SchiffsTick extends TickController {
 		if(crewToFeed > 0) {
 			this.slog("Crew verhungert - ");
 		}
-		if(crewToFeed >= shipd.getMarines()){
-			crewToFeed = crewToFeed - shipd.getMarines();
-			shipd.setMarines(0);
+		if(crewToFeed >= shipd.getUnits().getNahrung()){
+			crewToFeed = crewToFeed - shipd.getUnits().getNahrung();
+			shipd.setUnits(new UnitCargo());
 			int crew = shipd.getCrew() - crewToFeed;
 			shipd.setCrew(crew);
 		}
 		else {
-			shipd.setMarines(shipd.getMarines() - crewToFeed);
+			shipd.getUnits().fleeUnits(crewToFeed);
 			crewToFeed = 0;
 		}
 		

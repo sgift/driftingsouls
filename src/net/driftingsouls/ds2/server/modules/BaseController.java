@@ -469,8 +469,16 @@ public class BaseController extends TemplateGenerator {
 		}
 		
 		//-----------------------------------------
-		// Energieverbrauch, Bevoelkerung usw.
+		// Energieverbrauch, Bevoelkerung, Einheiten usw.
 		//------------------------------------------
+		
+		if(!base.getUnits().isEmpty())
+		{
+			t.setBlock("_BASE","base.units.listitem","base.units.list");
+
+			t.setVar( "base.marines", true);
+			base.getUnits().echoUnitList(t, "base.units.list", "base.units.listitem");
+		}
 		
 		String baseimg = config.get("URL")+"data/interface/energie2";
 		int e = basedata.getEnergy();

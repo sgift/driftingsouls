@@ -148,6 +148,10 @@
 		{if shiptype.shields}
 	   		Schildst&auml;rke: {shiptype.shields}<br />
 		{/endif}
+		{if shiptype.units}
+			Platz f&uuml;r Einheiten: {shiptype.unitspace}<br />
+			Maximale Einheitengr&ouml;&szlig;e: {shiptype.maxunitsize}<br />
+		{/endif}
 		{if shiptype.deutfactor}
 			Tanker: <img src="{deuterium.image}" alt="Deuterium" />{shiptype.deutfactor} f&uuml;r <img src="{URL}data/interface/energie.gif" alt="Energie" />1<br />
 		{/endif}

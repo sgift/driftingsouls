@@ -37,6 +37,7 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.units.UnitCargo;
 
 /**
  * Aktualisierungstool fuer die Werte eines Schiffes.
@@ -93,6 +94,7 @@ public class EditShip implements AdminPlugin
 			ship.setSensors(context.getRequest().getParameterInt("sensors"));
 			ship.setEngine(context.getRequest().getParameterInt("engine"));
 			ship.setComm(context.getRequest().getParameterInt("comm"));
+			ship.setUnits( new UnitCargo(context.getRequest().getParameterString("unitcargo")));
 			ship.setWeapons(context.getRequest().getParameterInt("weapons"));
 			ship.setHeat(context.getRequest().getParameterInt("heat"));
 			ship.setAlarm(context.getRequest().getParameterInt("alarm"));
@@ -159,11 +161,11 @@ public class EditShip implements AdminPlugin
 				echo.append("<option value=\""+ shiptype.getKey() +"\" " + (shiptype.getKey().equals(ship.getBaseType().getId()) ? "selected=\"selected\"" : "") + " />"+shiptype.getValue()+"</option>");
 			}
 			echo.append("</select></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Huelle: </td><td><input type=\"text\" name=\"hull\" value=\"" + ship.getHull() + "\"></td><td class=\"noBorderS\">/ "+type.getHull()+"</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">H&uuml;lle: </td><td><input type=\"text\" name=\"hull\" value=\"" + ship.getHull() + "\"></td><td class=\"noBorderS\">/ "+type.getHull()+"</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Ablative Panzerung: </td><td><input type=\"text\" name=\"ablativearmor\" value=\"" + ship.getAblativeArmor() + "\"></td><td class=\"noBorderS\">/ "+type.getAblativeArmor()+"</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Schilde: </td><td><input type=\"text\" name=\"shields\" value=\"" + ship.getShields() + "\"></td><td class=\"noBorderS\">/ "+type.getShields()+"</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Crew: </td><td><input type=\"text\" name=\"crew\" value=\"" + ship.getCrew() + "\"></td><td class=\"noBorderS\">/ "+type.getCrew()+"</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Marines: </td><td><input type=\"text\" name=\"marines\" value=\"" + ship.getMarines() + "\"></td><td class=\"noBorderS\">/ "+type.getMarines()+"</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Einheitenladeraum: </td><td><input type=\"text\" name=\"unitcargo\" value=\"" + ship.getUnits().toString() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Energie: </td><td><input type=\"text\" name=\"energy\" value=\"" + ship.getEnergy() + "\"></td><td class=\"noBorderS\">/ "+type.getEps()+"</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Sensoren: </td><td><input type=\"text\" name=\"sensors\" value=\"" + ship.getSensors() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Antrieb: </td><td><input type=\"text\" name=\"engine\" value=\"" + ship.getEngine() + "\"></td></tr>\n");

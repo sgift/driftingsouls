@@ -190,7 +190,6 @@ public class EditGroup implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">Ablative Panzerung: </td><td><input type=\"text\" name=\"ablativearmor\" value=\"" + type.getAblativeArmor() + "\"></td><td class=\"noBorderS\">/ "+type.getAblativeArmor()+"</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Schilde: </td><td><input type=\"text\" name=\"shields\" value=\"" + type.getShields() + "\"></td><td class=\"noBorderS\">/ "+type.getShields()+"</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Crew: </td><td><input type=\"text\" name=\"crew\" value=\"" + type.getCrew() + "\"></td><td class=\"noBorderS\">/ "+type.getCrew()+"</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Marines: </td><td><input type=\"text\" name=\"marines\" value=\"" + type.getMarines() + "\"></td><td class=\"noBorderS\">/ "+type.getMarines()+"</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Energie: </td><td><input type=\"text\" name=\"energy\" value=\"" + type.getEps() + "\"></td><td class=\"noBorderS\">/ "+type.getEps()+"</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Sensoren: </td><td><input type=\"text\" name=\"sensors\" value=\"" + MAX_SENSORS + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Antrieb: </td><td><input type=\"text\" name=\"engine\" value=\"" + MAX_ENGINE + "\"></td></tr>\n");
