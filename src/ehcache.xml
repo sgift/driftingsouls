@@ -103,7 +103,7 @@
 			overflowToDisk="false"
 	/>
 	
-	<cache  name="net.driftingsouls.ds2.server.bases.UnitType"
+	<cache  name="net.driftingsouls.ds2.server.units.UnitType"
 			maxElementsInMemory="30"
 			eternal="true"
 			timeToIdleSeconds="60"

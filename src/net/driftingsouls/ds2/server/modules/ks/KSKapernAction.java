@@ -146,9 +146,11 @@ public class KSKapernAction extends BasicKSAction {
 
 		User euser = enemyShip.getOwner();
 		
-		Integer dcrew = enemyShip.getCrew();
+		Integer dcrew = new Integer(enemyShip.getCrew());
 		UnitCargo ownUnits = ownShip.getUnits();
 		UnitCargo enemyUnits = enemyShip.getUnits();
+		
+		UnitCargo saveunits = ownUnits.trimToMaxSize(enemyShipType.getMaxUnitSize());
 
 		boolean ok = false;
 		boolean att = false;
@@ -245,6 +247,8 @@ public class KSKapernAction extends BasicKSAction {
 			msg += "Das Schiff "+Battle.log_shiplink(enemyShip.getShip())+" wird an die "+Battle.log_shiplink(ownShip.getShip())+" &uuml;bergeben\n";
 		}
 
+		ownUnits.addCargo(saveunits);
+		
 		if( att ) {
 			battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
 			battle.logenemy(msg);

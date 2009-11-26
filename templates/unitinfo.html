@@ -3,6 +3,21 @@
 		{unitinfo.message}<br />
 	{/endif}
 
+	{if unitinfo.list}
+	<table class="noBorderX" cellspacing="3" width="380">	
+	<tr>
+		<td class="noBorderX">Name</td>
+		<td class="noBorderX">Gr&ouml;&szlig;e</td>
+	</tr>
+	<!-- BEGIN unitinfo.unitlist.listitem -->
+	<tr>
+		<td class="noBorderX"><img style="vertical-align:middle" src="{unit.picture}" alt="" />{!link_to $unit.name, default, module:unitinfo, unit:$unit.id}</td>
+		<td class="noBorderX">{unit.groesse}</td>
+	</tr>
+	<!-- END unitinfo.unitlist.listitem -->
+	</table>
+	{/endif}
+	{if unitinfo.details}
 	<table class="noBorderX" cellspacing="3" width="380">	
 	<tr>
 		<td class="noBorderX" style="width:80px">Name</td>
@@ -25,7 +40,15 @@
 	<tr>
 		<td class="noBorderX" style="width:80px">Kaper-Wert</td>
 		<td class="noBorderX">{unit.kapervalue}</td>
+	</tr>
+	<tr>
+		<td class="noBorderX" style="width:80px">Baukosten</td>
+		<td class="noBorderX">{unit.baukosten}</td>
 	</tr>	
+	<tr>
+		<td class="noBorderX" style="width:80px">Ben&ouml;tigte Forschung</td>
+		<td class="noBorderX">{unit.forschung}</td>
+	</tr>
 	<tr>
 		<td class="noBorderX" colspan="2">
 			<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
@@ -37,4 +60,5 @@
 		</td>
 	</tr>
 	</table>
+	{/endif}
 {!table_end}

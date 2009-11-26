@@ -18,8 +18,14 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.util.List;
+
+import net.driftingsouls.ds2.server.cargo.ResourceEntry;
+import net.driftingsouls.ds2.server.entities.Forschung;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -53,6 +59,30 @@ public class UnitInfoController extends TemplateGenerator {
 	}
 	
 	/**
+	 * Zeigt die Einheitenliste an.
+	 */
+	@Action(ActionType.DEFAULT)
+	public void listAction() {
+		TemplateEngine t = getTemplateEngine();
+		org.hibernate.Session db = getDB();
+		List<UnitType> unitlist = Common.cast(db.createQuery("from UnitType").list());
+		
+		t.setVar( "unitinfo.list", 1);
+		
+		t.setBlock("_UNITINFO", "unitinfo.unitlist.listitem", "unitinfo.unitlist.list");
+		
+		for( UnitType unit : unitlist)
+		{
+			t.setVar(	"unit.id",		unit.getId(),
+						"unit.name", 	unit.getName(),
+						"unit.groesse",	unit.getSize(),
+						"unit.picture",	unit.getPicture() );
+			
+			t.parse("unitinfo.unitlist.list", "unitinfo.unitlist.listitem", true);
+		}
+	}
+	
+	/**
 	 * Zeigt Details zu einer Einheit an.
 	 * @urlparam Integer unitid Die ID der anzuzeigenden Einheit
 	 */
@@ -71,15 +101,42 @@ public class UnitInfoController extends TemplateGenerator {
 		
 			return;
 		}
+		String buildcosts = "";
+		buildcosts = buildcosts+"<img style=\"vertical-align:middle\" src=\"data/interface/time.gif\" alt=\"\" />"+unittype.getDauer();
 		
+		for(ResourceEntry res : unittype.getBuildCosts().getResourceList())
+		{
+			buildcosts = buildcosts+"<img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1();
+		}
+		
+		User user = (User)ContextMap.getContext().getActiveUser();
+		Forschung forschung = Forschung.getInstance(unittype.getRes());
+		String forschungstring = "";
+		
+		if(forschung != null && forschung.isVisibile(user))
+		{
+			forschungstring = forschung.getName();
+		}
+		else if(forschung != null)
+		{
+			forschungstring = "Unbekannte Technologie";
+			if(user.getAccessLevel() > 19)
+			{
+				forschungstring = forschungstring + " ["+forschung.getID()+"]";
+			}
+		}
+				
 		String name = Common._plaintitle(unittype.getName());
 		
-		t.setVar(	"unit.picture",		unittype.getPicture(),
+		t.setVar(	"unitinfo.details",	1,
+					"unit.picture",		unittype.getPicture(),
 					"unit.name",		name,
 					"unit.size",		unittype.getSize(),
 					"unit.nahrungcost",	unittype.getNahrungCost(),
 					"unit.recost",		unittype.getReCost(),
 					"unit.kapervalue",	unittype.getKaperValue(),
-					"unit.description",	Common._text(unittype.getDescription()) );
+					"unit.description",	Common._text(unittype.getDescription()),
+					"unit.baukosten",	buildcosts,
+					"unit.forschung",	forschungstring );
 	}
 }

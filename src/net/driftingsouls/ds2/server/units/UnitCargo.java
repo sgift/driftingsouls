@@ -734,6 +734,34 @@ public class UnitCargo implements Cloneable {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Filtert alle Einheiten aus diesem UnitCargo heraus, die groeszer als die angegebene MaximalGroesze sind.
+	 * @param maxsize Die Maximale Groesze die im UnitCargo verbleiben soll
+	 * @return Ein UnitCargo Objekt mit allen rausgefilterten Einheiten
+	 */
+	public UnitCargo trimToMaxSize(int maxsize)
+	{
+		UnitCargo trimedUnits = new UnitCargo();
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
+		if(isEmpty())
+		{
+			return trimedUnits;
+		}
+		
+		List<UnitType> unitlist = Common.cast(db.createQuery("from UnitType").list());
+		
+		for(UnitType unit : unitlist)
+		{
+			if(unit.getSize() > maxsize)
+			{
+				trimedUnits.addUnit(unit.getId(), getUnitCount(unit.getId()));
+				setUnit(unit.getId(), 0);
+			}
+		}
+		
+		return trimedUnits;
 	}
 }
