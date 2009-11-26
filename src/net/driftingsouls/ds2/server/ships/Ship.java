@@ -1259,7 +1259,7 @@ public class Ship implements Locatable,Transfering {
 		shipModules.setHeat(type.getHeat());
 		shipModules.setCrew(type.getCrew());
 		shipModules.setMaxUnitSize(type.getMaxUnitSize());
-		shipModules.setUnitSpace(type.getMaxUnitSize());
+		shipModules.setUnitSpace(type.getUnitSpace());
 		shipModules.setWeapons(type.getWeapons());
 		shipModules.setMaxHeat(type.getMaxHeat());
 		shipModules.setTorpedoDef(type.getTorpedoDef());
