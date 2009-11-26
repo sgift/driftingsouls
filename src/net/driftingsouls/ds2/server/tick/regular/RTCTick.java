@@ -330,7 +330,7 @@ public class RTCTick extends TickController {
 				for( int i=0; i < ships.length; i++ ) {
 					ShipType type = ships[i];
 					
-					this.log("\t* Es wurde eine "+type.getNickname()+" von ID "+winner+" ersteigert");
+					this.log("\t* Es wurde eine "+type.getNickname()+" von ID "+winner.getId()+" ersteigert");
 					
 					cargo = new Cargo();
 					

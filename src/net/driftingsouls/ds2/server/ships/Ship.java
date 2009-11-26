@@ -1122,8 +1122,11 @@ public class Ship implements Locatable,Transfering {
 	 */
 	private int getScaledCrew() {
 		double scale = getAlertScaleFactor();
-		int scaledCrew = (int)Math.ceil((this.crew+this.getUnits().getNahrung())/scale);
-		return scaledCrew;
+		if(this.getUnits() != null)
+		{
+			return (int)Math.ceil((this.crew+this.getUnits().getNahrung())/scale);
+		}
+		return (int)Math.ceil(this.crew/scale);
 	}
 
 	/**
