@@ -395,6 +395,7 @@ public class SchiffInfoController extends TemplateGenerator {
 					"shiptype.panzerung",	ship.getPanzerung(),
 					"shiptype.ablativearmor",	Common.ln(ship.getAblativeArmor()),
 					"shiptype.shields",		Common.ln(ship.getShields()),
+					"shiptype.maxunitsize",	ship.getMaxUnitSize(),
 					"shiptype.deutfactor",	ship.getDeutFactor(),
 					"shiptype.hydro",		Common.ln(ship.getHydro()),
 					"shiptype.flagschiff",	shipBuildData != null && shipBuildData.isFlagschiff(),
@@ -415,8 +416,7 @@ public class SchiffInfoController extends TemplateGenerator {
 		if( ship.getUnitSpace() > 0)
 		{
 			t.setVar( 	"shiptype.units", true,
-						"shiptype.unitspace", 	Common.ln(ship.getUnitSpace()),
-						"shiptype.maxunitsize",	ship.getMaxUnitSize() );
+						"shiptype.unitspace", 	Common.ln(ship.getUnitSpace()) );
 		}
 		
 		if( shipBuildData != null ) {
