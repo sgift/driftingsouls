@@ -79,7 +79,8 @@
 	<td class="Border">{!link_to Crew, changeOrder, order:crew, only:$global.only, low:$global.low, crewless:$global.crewless, kampf_only:$global.kampf_only}</td>
 	<td class="Border">&nbsp;</td>
 	<td class="Border">{!link_to Energie, changeOrder, order:e, only:$global.only, low:$global.low, crewless:$global.crewless, kampf_only:$global.kampf_only}</td>
-	<td class="Border">Fracht</td></tr>
+	<td class="Border">Fracht</td>
+	<td class="Border">Einheiten</td></tr>
 	<!-- BEGIN schiffe.listitem -->
 		<tr>
 		<td class="schiffData">{!link_to $ship.id, default, module:schiff, ship:$ship.id}</td>
@@ -152,6 +153,12 @@
 		{if ship.e.none}
 			<img src="{URL}data/interface/energie.gif" alt="" title="Energie" /><span style="color:red">x</span>
 		{/endif}
+		&nbsp;</td>
+		<td class="schiffData">
+		<!-- BEGIN schiffe.unititem -->
+			<img src="{unit.picture}" alt="" title="{unit.name}" />{!link_to $unit.count, default, module:unitinfo, unit:$unit.id}
+		<!-- END schiffe.unititem -->
+		<img src="{URL}data/interface/leer.gif" alt="" title="Leer" />{ship.unitspace}
 		&nbsp;</td>
 		</tr>
 	<!-- END schiffe.listitem -->

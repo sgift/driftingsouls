@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -40,6 +41,8 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.units.UnitCargo;
+import net.driftingsouls.ds2.server.units.UnitType;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
@@ -253,6 +256,7 @@ public class SchiffeController extends TemplateGenerator {
 
 		t.setBlock("_SCHIFFE","schiffe.listitem","schiffe.list");
 		t.setBlock("schiffe.listitem","schiffe.resitem","schiffe.reslist");
+		t.setBlock("schiffe.listitem","schiffe.unititem","schiffe.unitlist");
 		List<?> ships = db.createQuery(query)
 			.setEntity(0, user)
 			.setMaxResults(MAX_SHIPS_PER_PAGE+1)
@@ -377,6 +381,7 @@ public class SchiffeController extends TemplateGenerator {
 							"ship.hullcolor",		hullcolor,
 							"ship.image",			shiptype.getPicture(),
 							"ship.crew",			ship.getCrew(),
+							"ship.unitspace",		shiptype.getUnitSpace(),
 							"ship.alarm",			alarms[ship.getAlarm()],
 							"ship.offi",			offi,
 							"ship.crewcolor",		crewcolor,
@@ -387,7 +392,8 @@ public class SchiffeController extends TemplateGenerator {
 							"ship.adocks",			shiptype.getADocks(),
 							"ship.jdocks",			shiptype.getJDocks(),
 							"ship.docks",			shiptype.getADocks() + shiptype.getJDocks(),
-							"schiffe.reslist", "" );
+							"schiffe.reslist", "",
+							"schiffe.unitlist", "" 	);
 				
 				if( ship.getFleet() != null ) {
 					t.setVar("ship.fleet.name",Common._plaintitle(ship.getFleet().getName()) );
@@ -486,6 +492,26 @@ public class SchiffeController extends TemplateGenerator {
 				if( (wa == 0) && (low != 0) ) {
 					t.setVar("ship.e.none",1);
 				}
+				
+				UnitCargo unitcargo = ship.getUnits();
+				
+				if(unitcargo != null && !unitcargo.isEmpty())
+				{
+					for(Entry<Integer, Long> unit : unitcargo.getUnitList().entrySet())
+					{
+						UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
+						
+						t.setVar(	"unit.id",			unittype.getId(),
+									"unit.picture",		unittype.getPicture(),
+									"unit.count",		unit.getValue(),
+									"unit.name",		unittype.getName() );
+						
+						t.parse("schiffe.unitlist", "schiffe.unititem", true);
+					}
+					
+					t.setVar( "ship.unitspace", shiptype.getUnitSpace() - unitcargo.getMass());
+				}
+				
 				t.parse("schiffe.list","schiffe.listitem",true);
 				
 			}
