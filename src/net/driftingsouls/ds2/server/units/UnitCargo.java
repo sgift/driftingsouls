@@ -675,13 +675,13 @@ public class UnitCargo implements Cloneable {
 	public boolean kapern(UnitCargo kaperunitcargo, UnitCargo gefalleneeigeneUnits, UnitCargo gefallenefeindlicheUnits, Integer feindCrew, int amulti, int defmulti)
 	{
 		
-		if(getKaperValue()*amulti > (kaperunitcargo.getKaperValue()+feindCrew.intValue())*defmulti*3  )
+		if(getKaperValue()*amulti > (kaperunitcargo.getKaperValue()+10*feindCrew.intValue())*defmulti*3  )
 		{
 			return true;
 		}
-		if(getKaperValue()*amulti > (kaperunitcargo.getKaperValue()+feindCrew.intValue())*defmulti)
+		if(getKaperValue()*amulti > (kaperunitcargo.getKaperValue()+10*feindCrew.intValue())*defmulti)
 		{
-			int totekapervalue = (int)Math.ceil((kaperunitcargo.getKaperValue()+feindCrew.intValue())*defmulti*1.0/ amulti );
+			int totekapervalue = (int)Math.ceil((kaperunitcargo.getKaperValue()+10*feindCrew.intValue())*defmulti*1.0/ amulti );
 			gefallenefeindlicheUnits.addCargo(kaperunitcargo);
 			kaperunitcargo.substractCargo(new UnitCargo(kaperunitcargo));
 			feindCrew = 0;
@@ -691,7 +691,7 @@ public class UnitCargo implements Cloneable {
 		int totekapervalue = (int)Math.ceil((getKaperValue())*amulti*1.0/defmulti);
 		if(totekapervalue > kaperunitcargo.getKaperValue())
 		{
-			feindCrew -= kaperunitcargo.getKaperValue() - totekapervalue;
+			feindCrew -= (kaperunitcargo.getKaperValue() - totekapervalue) / 10;
 			totekapervalue = kaperunitcargo.getKaperValue();
 		}
 		gefalleneeigeneUnits.addCargo(this);
