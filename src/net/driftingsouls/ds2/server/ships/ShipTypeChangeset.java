@@ -933,8 +933,8 @@ public class ShipTypeChangeset {
 		public int getUnitSpace() {
 			if( getType().getUnitSpace() > 0 ) {
 				int value = inner.getUnitSpace() + ShipTypeChangeset.this.getUnitSpace();
-					if( value < 1 ) {
-						return 1;
+					if( value < 0 ) {
+						return 0;
 					}
 				return value;
 			}

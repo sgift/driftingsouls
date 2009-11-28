@@ -460,6 +460,28 @@ public class Offizier extends DSObject {
 	{
 		return (getAbility(Offizier.Ability.NAV) + getAbility(Offizier.Ability.COM)) / 2;
 	}
+	
+	/**
+	 * @param verteidiger <code>true</code>, falls es der Verteidigende Offizier ist.
+	 * @return Kapermultiplikator des Offiziers.
+	 */
+	public int getKaperMulti(boolean verteidiger)
+	{
+		int multi = 0;
+		if(verteidiger)
+		{
+			multi =  (int)Math.floor(((getAbility(Offizier.Ability.COM)+2*getAbility(Offizier.Ability.SEC))/3d) /25d)+1;
+		}
+		else
+		{
+			multi = (int)Math.floor(((2*getAbility(Offizier.Ability.COM)+getAbility(Offizier.Ability.SEC))/3d) /25d)+1;
+		}
+		if(hasSpecial(Special.MOTIVATIONSKUENSTLER))
+		{
+			multi++;
+		}
+		return multi;
+	}
 		
 	/**
 	 * Gibt einen Offizier am angegebenen Aufenthaltsort zurueck. Sollten mehrere

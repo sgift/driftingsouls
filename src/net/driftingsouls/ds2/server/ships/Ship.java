@@ -3818,8 +3818,14 @@ public class Ship implements Locatable,Transfering {
 		{
 			return 0;
 		}
-		
-		return getTypeData().getReCost() + getUnits().getRE();
+		if( getUnits() != null)
+		{
+			return getTypeData().getReCost() + getUnits().getRE();
+		}
+		else
+		{
+			return getTypeData().getReCost();
+		}
 	}
 
 	/**

@@ -165,12 +165,12 @@ public class KSKapernAction extends BasicKSAction {
 			
 			Offizier offizier = Offizier.getOffizierByDest('s', enemyShip.getId());
 			if( offizier != null ) {
-				defmulti = (int)Math.round((offizier.getAbility(Offizier.Ability.COM)+offizier.getAbility(Offizier.Ability.SEC))/25d)+1;
+				defmulti = offizier.getKaperMulti(true);
 			}
 			offizier = Offizier.getOffizierByDest('s', ownShip.getId());
 			if( offizier != null)
 			{
-				attmulti = (int)Math.round((offizier.getAbility(Offizier.Ability.COM)+offizier.getAbility(Offizier.Ability.SEC))/35d)+1;
+				attmulti = offizier.getKaperMulti(false);
 			}
 
 			UnitCargo toteeigeneUnits = new UnitCargo();
