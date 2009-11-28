@@ -381,13 +381,13 @@ public class SchiffsTick extends TickController {
 		shipd.setWeaponHeat("");
 		shipd.setCargo(shipc);
 
-		/*String status = shipd.recalculateShipStatus();
+		String status = shipd.recalculateShipStatus();
 		
 		if(baseShip != null) {
 			baseShip.recalculateShipStatus();
 		}
 		
-		this.slog(status);*/
+		this.slog(status);
 
 		this.slog("\tNeu: crew "+shipd.getCrew()+" e "+e+" status: <");
 
