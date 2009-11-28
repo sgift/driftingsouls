@@ -111,6 +111,7 @@ public class EditUnits implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">Gr&ouml;&szlig;e: </td><td><input type=\"text\" name=\"size\" value=\"" + unit.getSize() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Beschreibung: </td><td><input type=\"text\" name=\"description\" value=\"" + unit.getDescription() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Ben&ouml;tigte Forschung: </td><td><input type=\"text\" name=\"forschung\" value=\"" + unit.getRes() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Dauer: </td><td><input type=\"text\" name=\"dauer\" value=\"" + unit.getDauer() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\"></td><td class=\"noBorderS\">Menge</td><td class=\"noBorderS\">Nutzungen</td></tr>");
 			for(Item item: itemlist)
 			{
