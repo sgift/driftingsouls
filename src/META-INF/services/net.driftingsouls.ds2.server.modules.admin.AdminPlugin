@@ -32,5 +32,5 @@ net.driftingsouls.ds2.server.modules.admin.EditItem
 net.driftingsouls.ds2.server.modules.admin.AddSystem
 net.driftingsouls.ds2.server.modules.admin.DeleteSystem
 net.driftingsouls.ds2.server.modules.admin.EditFactoryEntry
-net.driftingsouls.ds2.server.modules.admin.EditUnits.java
-net.driftingsouls.ds2.server.modules.admin.AddUnit.java
+net.driftingsouls.ds2.server.modules.admin.EditUnits
+net.driftingsouls.ds2.server.modules.admin.AddUnit
