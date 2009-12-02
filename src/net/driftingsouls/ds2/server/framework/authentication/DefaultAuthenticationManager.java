@@ -97,7 +97,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		if(rememberMe)
 		{
 			UUID uuid = UUID.randomUUID();
-			String value = user.getId() + ";" + uuid;
+			String value = user.getId() + "####" + uuid;
 			context.getResponse().setCookie("dsRememberMe", value, 157680000);
 			
 			PermanentSession permanentSession = new PermanentSession();
@@ -285,7 +285,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			return null;
 		}
 		
-		String[] parts = value.split(";");
+		String[] parts = value.split("####");
 		int userId = Integer.parseInt(parts[0]);
 		String token = parts[1];
 		
