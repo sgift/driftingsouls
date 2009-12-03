@@ -285,6 +285,11 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			return null;
 		}
 		
+		if(!value.contains("####"))
+		{
+			return null;
+		}
+		
 		String[] parts = value.split("####");
 		int userId = Integer.parseInt(parts[0]);
 		String token = parts[1];
