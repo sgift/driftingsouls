@@ -389,6 +389,7 @@ public class SchiffInfoController extends TemplateGenerator {
 					"shiptype.eps",			Common.ln(ship.getEps()),
 					"shiptype.cargo",		Common.ln(ship.getCargo()),
 					"shiptype.crew",		Common.ln(ship.getCrew()),
+					"shiptype.nahrungcargo",Common.ln(ship.getNahrungCargo()),
 					"shiptype.jdocks",		ship.getJDocks(),
 					"shiptype.adocks",		ship.getADocks(),
 					"shiptype.hull",		Common.ln(ship.getHull()),

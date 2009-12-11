@@ -23,6 +23,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -119,6 +120,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	private String autoGtuActs;
 	private String spawnableress;
 	private String spawnressavailable;
+	private boolean isloading;
+	private boolean isfeeding;
 	@Version
 	private int version;
 	
@@ -783,6 +786,42 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
+	 * Gibt zurueck, ob diese Basis den Speicher der Schiffe aufladen soll.
+	 * @return <code>true</code>, wenn der Speicher geladen werden soll
+	 */
+	public boolean isLoading()
+	{
+		return isloading;
+	}
+	
+	/**
+	 * Setzt, ob diese Basis den Speicher der Schiffe aufladen soll.
+	 * @param loading <code>true</code>, wenn der Speicher aufgeladen werden soll
+	 */
+	public void setLoading(boolean loading)
+	{
+		this.isloading = loading;
+	}
+	
+	/**
+	 * Gibt zurueck, ob diese Basis die Schiffe im Orbit versorgt.
+	 * @return <code>true</code>, wenn die Schiffe versorgt werden
+	 */
+	public boolean isFeeding()
+	{
+		return isfeeding;
+	}
+	
+	/**
+	 * Setzt, ob diese Basis die Schiffe im Orbit versorgt.
+	 * @param feeding <code>true</code>, wenn die Schiffe versorgt werden sollen
+	 */
+	public void setFeeding(boolean feeding)
+	{
+		this.isfeeding = feeding;
+	}
+	
+	/**
 	 * Gibt den Nettoverbrauch der Basis aus.
 	 * @return Der Nettoverbrauch
 	 */
@@ -930,8 +969,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		}
 	
 		stat.substractResource( Resources.RE, base.getUnits().getRE() );
-		stat.substractResource( Resources.NAHRUNG, base.getBewohner() );
-		stat.substractResource( Resources.NAHRUNG, base.getUnits().getNahrung() );
+		stat.substractResource( Resources.NAHRUNG, (long)Math.ceil(base.getBewohner()/10) );
+		stat.substractResource( Resources.NAHRUNG, (long)Math.ceil(base.getUnits().getNahrung()/10) );
 
 		return new BaseStatus(stat, e, bewohner, arbeiter, Collections.unmodifiableMap(buildinglocs), bebon);
 	}
@@ -1257,6 +1296,39 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 	/**
+	 * Gibt zurueck, wie viel diese Basis an Nahrung bei sich behalten muss um alle Schiffe im Sektor versorgen zu koennen.
+	 * @return Die Nahrung die die Basis behalten muss
+	 */
+	public long getSaveNahrung()
+	{
+		if(!isLoading())
+		{
+			return cargo.getResourceCount(Resources.NAHRUNG);
+		}
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		long savenahrung = 0;
+		
+		List<?> ships = db.createQuery("from Ship where owner=? and system=? and x=? and y=? and isfeeding=1")
+								.setEntity(0, getOwner())
+								.setInteger(1, getSystem())
+								.setInteger(2, getX())
+								.setInteger(3, getY())
+								.list();
+		
+		for(Iterator<?> iter=ships.iterator();iter.hasNext();)
+		{
+			Ship ship = (Ship)iter.next();
+			savenahrung += ship.getFoodConsumption();
+		}
+		
+		if(savenahrung > cargo.getResourceCount(Resources.NAHRUNG))
+		{
+			savenahrung = cargo.getResourceCount(Resources.NAHRUNG);
+		}
+		return savenahrung;
+	}
+	
+	/**
 	 * Laesst die Basis ticken.
 	 * 
 	 * @return Die Ticknachrichten, wenn es welche gab.
@@ -1273,60 +1345,42 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 			usefullMessage = true;
 		}
 		
-		boolean produce = true;
-		
-		// Zuerst sollen die Marines verhungern danach die Bevoelkerung.
-		if(!feedMarines())
-		{
-			message += "Wegen Untern&auml;hrung desertieren ihre Truppen.\n";
-			usefullMessage = true;
-		}
-		
-		if(!feedInhabitants())
-		{
-			produce = false;
-			message += "Wegen einer Hungersnot fliehen ihre Einwohner. Die Produktion f&auml;llt aus.\n";
-			usefullMessage = true;
-		}
-		
 		BaseStatus state = getStatus();
 		immigrate(state);
 		
-		if(produce)
+		if(!rebalanceEnergy(state))
 		{
-			if(!rebalanceEnergy(state))
+			message += "Zu wenig Energie. Die Produktion f&auml;llt aus.\n";
+			usefullMessage = true;
+		}
+		else
+		{
+			String prodmsg = produce(state);
+			if(!prodmsg.equals(""))
 			{
-				message += "Zu wenig Energie. Die Produktion fällt aus.\n";
+				message += prodmsg;
 				usefullMessage = true;
 			}
 			else
 			{
-				if(!produce(state))
+				long automaticSale = automaticSale();
+				long forcedSale = forcedSale(state);
+				long money = automaticSale + forcedSale;
+				if(money > 0)
 				{
-					message += "Zu wenig Resourcen vorhanden. Die Produktion fällt aus.\n";
+					getOwner().transferMoneyFrom(Faction.GTU, money, "Automatischer Warenverkauf Asteroid " + getName(), false, User.TRANSFER_AUTO);	
+				}
+				
+				if(automaticSale > 0)
+				{
+					message += "Ihnen wurden " + automaticSale + " RE f&uuml;r automatische Verk&auml;ufe gut geschrieben.\n";
 					usefullMessage = true;
 				}
-				else
+				
+				if(forcedSale > 0)
 				{
-					long automaticSale = automaticSale();
-					long forcedSale = forcedSale(state);
-					long money = automaticSale + forcedSale;
-					if(money > 0)
-					{
-						getOwner().transferMoneyFrom(Faction.GTU, money, "Automatischer Warenverkauf Asteroid " + getName(), false, User.TRANSFER_AUTO);	
-					}
-					
-					if(automaticSale > 0)
-					{
-						message += "Ihnen wurden " + automaticSale + " RE f&uuml;r automatische Verk&auml;ufe gut geschrieben.\n";
-						usefullMessage = true;
-					}
-					
-					if(forcedSale > 0)
-					{
-						message += "Ihnen wurden " + forcedSale + " RE f&uuml;r erzwungene Verk&auml;ufe gut geschrieben.\n";
-						usefullMessage = true;
-					}
+					message += "Ihnen wurden " + forcedSale + " RE f&uuml;r erzwungene Verk&auml;ufe gut geschrieben.\n";
+					usefullMessage = true;
 				}
 			}
 		}
@@ -1418,7 +1472,11 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 				switch(action.getActID())
 				{
 					case AutoGTUAction.SELL_ALL:
-						sell = cargo.getResourceCount(resource);
+						sell = action.getCount();
+						if(sell > cargo.getResourceCount(resource))
+						{
+							sell = cargo.getResourceCount(resource);
+						}
 						break;
 					case AutoGTUAction.SELL_TO_LIMIT:
 						long maximum = action.getCount();
@@ -1471,6 +1529,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 					cargo.substractResource(resource.getId(), sell);
 					money += getSalePrice(resource.getId(), sell);
 				}
+				if(cargo.getMass() <= maxCargo)
+				{
+					return money;
+				}
 			}
 		}
 		
@@ -1522,15 +1584,20 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		return true;
 	}
 	
-	private boolean produce(BaseStatus state)
+	private String produce(BaseStatus state)
 	{
+		String msg = "";
 		Cargo baseCargo = (Cargo)cargo.clone();
-		Cargo usercargo = new Cargo( Cargo.Type.STRING, getOwner().getCargo());
 		Cargo nettoproduction = getNettoProduction();
 		Cargo nettoconsumption = getNettoConsumption();
 		org.hibernate.Session db = getDB();
+		boolean ok = true;
 		
-		baseCargo.addResource(Resources.NAHRUNG, usercargo.getResourceCount(Resources.NAHRUNG));
+		if(state.getArbeiter() > getBewohner())
+		{
+			return "Sie haben mehr Arbeiter als (maximal)Bev&ouml;lkerung. Die Produktion f&auml;llt aus.";
+		}
+		
 		baseCargo.addResource(Resources.RE, getOwner().getKonto().longValue());
 		
 		for(ResourceEntry entry : nettoproduction.getResourceList())
@@ -1573,7 +1640,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 			//Not enough resources for production
 			if(balance < 0)
 			{
-				return false;
+				msg += "Zu wenig "+entry.getPlainName()+" vorhanden. Die Produktion f&auml;llt aus.\n";
+				ok = false;
 			}
 			
 			if(production > 0)
@@ -1587,24 +1655,11 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 			}
 		}
 		
-		//Try to take all of the special resources food and RE from the pool
+		//Try to take all of the RE from the pool
 		//Only use the asteroid cargo if there's no choice
-		long baseFood = cargo.getResourceCount(Resources.NAHRUNG);
 		long baseRE = cargo.getResourceCount(Resources.RE);
 		
-		long newFood = baseCargo.getResourceCount(Resources.NAHRUNG);
 		long newRE = baseCargo.getResourceCount(Resources.RE);
-		
-		if(newFood > baseFood)
-		{
-			usercargo.setResource(Resources.NAHRUNG, newFood - baseFood);
-			baseCargo.setResource(Resources.NAHRUNG, baseFood);
-		}
-		else
-		{
-			usercargo.setResource(Resources.NAHRUNG, 0);
-		}
-		getOwner().setCargo(usercargo.save());
 		
 		if(newRE > baseRE)
 		{
@@ -1616,8 +1671,23 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 			getOwner().setKonto(BigInteger.ZERO);
 		}
 		
-		this.cargo = baseCargo;
-		return true;
+		if(!feedInhabitants(baseCargo))
+		{
+			msg += "Wegen einer Hungersnot fliehen ihre Einwohner. Die Produktion f&auml;llt aus.\n";
+			ok = false;
+		}
+		
+		// Zuerst sollen die Marines verhungern danach die Bevoelkerung.
+		if(!feedMarines(baseCargo))
+		{
+			msg += "Wegen Unterern&auml;hrung desertieren ihre Truppen.\n";
+		}
+		
+		if(ok)
+		{
+			this.cargo = baseCargo;
+		}
+		return msg;
 	}
 	
 	private void immigrate(BaseStatus state)
@@ -1650,10 +1720,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		}
 	}
 	
-	private boolean feedMarines() 
+	private boolean feedMarines(Cargo baseCargo) 
 	{
-		int hungryPeople = getUnits().getNahrung();
-		int fleeingPeople = feedPeople(hungryPeople);
+		int hungryPeople = (int)Math.ceil(getUnits().getNahrung() / 10);
+		int fleeingPeople = feedPeople(hungryPeople, baseCargo);
 		
 		if(fleeingPeople > 0)
 		{
@@ -1665,10 +1735,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	}
 	
 
-	private boolean feedInhabitants()
+	private boolean feedInhabitants(Cargo baseCargo)
 	{
-		int hungryPeople = getBewohner();
-		int fleeingPeople = feedPeople(hungryPeople);
+		int hungryPeople = (int)Math.ceil(getBewohner() / 10);
+		int fleeingPeople = feedPeople(hungryPeople, baseCargo);
 		
 		if(fleeingPeople > 0)
 		{
@@ -1685,39 +1755,20 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	 * @param hungryPeople People, which should be feed.
 	 * @return People, which got no food.
 	 */
-	private int feedPeople(int hungryPeople)
+	private int feedPeople(int hungryPeople, Cargo baseCargo)
 	{
-		Cargo usercargo = new Cargo( Cargo.Type.STRING, getOwner().getCargo());
-		long food = usercargo.getResourceCount(Resources.NAHRUNG);
-		
-		//First try to feed from pool, then try to feed from cargo, then flee
+		long food = baseCargo.getResourceCount(Resources.NAHRUNG);
 		if(food > hungryPeople)
 		{
 			food -= hungryPeople;
 			hungryPeople = 0;
-			usercargo.setResource(Resources.NAHRUNG, food);
 		}
 		else
 		{
 			hungryPeople -= food;
 			food = 0;
-			usercargo.setResource(Resources.NAHRUNG, food);	
-			food = cargo.getResourceCount(Resources.NAHRUNG);
-			if(food > hungryPeople)
-			{
-				food -= hungryPeople;
-				hungryPeople = 0;
-				cargo.setResource(Resources.NAHRUNG, food);
-			}
-			else
-			{
-				hungryPeople -= food;
-				food = 0;
-				cargo.setResource(Resources.NAHRUNG, food);
-			}
 		}
-		getOwner().setCargo(usercargo.save());
-		
+		baseCargo.setResource(Resources.NAHRUNG, food);
 		return hungryPeople;
 	}
 	

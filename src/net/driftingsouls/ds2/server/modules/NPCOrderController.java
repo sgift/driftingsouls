@@ -156,11 +156,10 @@ public class NPCOrderController extends TemplateGenerator {
 				continue;
 			}
 			
-			User orderuser;
-			try {
-				orderuser = order.getUser();
-			}
-			catch (NullPointerException e){
+			User orderuser = order.getUser();
+			
+			if(orderuser == null)
+			{
 				orderuser =  new User();
 				orderuser.setName("deleted user");
 			}

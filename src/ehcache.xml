@@ -12,6 +12,12 @@
             memoryStoreEvictionPolicy="LRU"
     />
     
+    <cache name="net.driftingsouls.ds2.server.entities.NewsEntry"
+    		maxElementsInMemory="500"
+    		eternal="true"
+    		overflowToDisk="true"
+    />
+    
     <cache name="net.driftingsouls.ds2.server.framework.BasicUser"
     		maxElementsInMemory="500"
     		eternal="true"

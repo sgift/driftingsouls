@@ -1241,6 +1241,7 @@ public class SchiffController extends TemplateGenerator {
 			return;
 		}
 		
+		ship.recalculateShipStatus();
 		offizier = ship.getOffizier();
 		
 		StringBuilder tooltiptext = new StringBuilder(100);

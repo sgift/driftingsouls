@@ -1332,7 +1332,7 @@
 		INSERT INTO unit_types (id, name, size, description, recost, nahrungcost, kapervalue, buildcosts, dauer, resid, picture)
 			VALUES( NULL, "Marine", 1, "Ein Marine", 10, 1, 1, '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6|1000|0|0;16|1|0|0', 10, 74, 'data/interface/arbeitslos.gif');
 		
-		INSERT INTO unit_types (id, name, size, description, recost, nahrungcost, kapervalue)
+		INSERT INTO unit_types (id, name, size, description, recost, nahrungcost, kapervalue, buildcosts, dauer, resid, picture)
 			VALUES( NULL, "Panzer", 3, "Ein Panzer", 100, 5, 5, '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6|5000|0|0;16|10|0|0', 20, 74, 'data/interface/arbeitslos.gif');
 		
 		ALTER TABLE ships CHANGE marines unitcargo varchar (120);
@@ -1363,5 +1363,18 @@
 			`remaining` int(11) unsigned NOT NULL,
 			PRIMARY KEY(`id`)
 		);
+	]]></update>
+	<update><![CDATA[
+		ALTER TABLE ship_types ADD nahrungcargo int(11) NOT NULL default '0';
+		ALTER TABLE ships_modules ADD nahrungcargo int(11) NOT NULL default '0';
+		ALTER TABLE ships ADD nahrungcargo int(11) NOT NULL default '0';
+		ALTER TABLE ships ADD isfeeding tinyint(1) NOT NULL default '1';
+		ALTER TABLE ships ADD isallyfeeding tinyint(1) NOT NULL default '0';
+		ALTER TABLE bases ADD isloading tinyint(1) NOT NULL default '1';
+		ALTER TABLE bases ADD isfeeding tinyint(1) NOT NULL default '1';
+		
+		UPDATE ship_types SET nahrungcargo = (crew+unitspace)/10 * 7 * 14;
+		UPDATE ships SET nahrungcargo = (SELECT nahrungcargo FROM ship_types WHERE ship_types.id = ships.type);
+		UPDATE users SET cargo = '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,';
 	]]></update>
 </updates>

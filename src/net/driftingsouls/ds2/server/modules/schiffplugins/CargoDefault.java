@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
  * Schiffsmodul fuer die Anzeige des Schiffscargos.
@@ -46,6 +47,9 @@ public class CargoDefault implements SchiffPlugin {
 		controller.parameterNumber("load");
 		controller.parameterNumber("setautodeut");
 		controller.parameterNumber("setstartfighter");
+		controller.parameterNumber("usenahrung");
+		controller.parameterNumber("setfeeding");
+		controller.parameterNumber("setallyfeeding");
 		
 		String act = controller.getString("act");
 		String max = controller.getString("max");
@@ -53,6 +57,9 @@ public class CargoDefault implements SchiffPlugin {
 		long unload = controller.getInteger("unload");
 		int setautodeut = controller.getInteger("setautodeut");
 		int setstartfighter = controller.getInteger("setstartfighter");
+		long usenahrung = controller.getInteger("usenahrung");
+		int setfeeding = controller.getInteger("setfeeding");
+		int setallyfeeding = controller.getInteger("setallyfeeding");
 		
 		if( act.equals("load") ) {
 			if( !max.equals("") ) {
@@ -106,6 +113,31 @@ public class CargoDefault implements SchiffPlugin {
 			ship.setEnergy((int)(ship.getEnergy() + unload));
 			ship.setCargo(cargo);
 		}
+		else if( act.equals("usenahrung"))
+		{
+			if( !max.equals("") ) 
+			{
+				usenahrung = 1000000000;
+			}
+			if(usenahrung > 0)
+			{
+				long maxnahrung = ship.getTypeData().getNahrungCargo();
+				Cargo cargo = ship.getCargo();
+				if( (usenahrung + ship.getNahrungCargo()) > maxnahrung)
+				{
+					usenahrung = maxnahrung - ship.getNahrungCargo();
+				}
+				if(usenahrung > cargo.getResourceCount(Resources.NAHRUNG))
+				{
+					usenahrung = cargo.getResourceCount(Resources.NAHRUNG);
+				}
+				ship.setNahrungCargo(ship.getNahrungCargo()+usenahrung);
+				cargo.substractResource(Resources.NAHRUNG, usenahrung);
+				
+				ship.setCargo(cargo);
+				output += usenahrung + " Nahrung in den Speicher transferiert.<br />";
+			}
+		}
 		else if( setautodeut != 0 ) {
 			if( caller.shiptype.getDeutFactor() <= 0 ) {
 				output += "<span style=\"color:red\">Nur Tanker k&ouml;nnen automatisch Deuterium sammeln</span><br />\n";
@@ -126,6 +158,24 @@ public class CargoDefault implements SchiffPlugin {
 			ship.setStartFighters(startfighter != 0 ? true : false);
 			
 			output += "Automatisches Starten von Jägern "+(startfighter != 0 ? "":"de")+"aktiviert<br />\n";
+		}
+		else if( setfeeding != 0 ) 
+		{	
+			controller.parameterNumber("isfeeding");
+			int isfeeding = controller.getInteger("isfeeding");
+			
+			ship.setFeeding(isfeeding != 0 ? true : false);
+			
+			output += "Automatisches Versorgen "+(isfeeding != 0 ? "":"de")+"aktiviert<br />\n";
+		}
+		else if( setallyfeeding != 0)
+		{
+			controller.parameterNumber("isallyfeeding");
+			int isallyfeeding = controller.getInteger("isallyfeeding");
+			
+			ship.setAllyFeeding(isallyfeeding != 0 ? true : false);
+			
+			output += "Automatisches Versorgen von Allianzschiffen "+(isallyfeeding != 0 ? "":"de")+"aktiviert<br />\n";
 		}
 		
 		return output;
@@ -156,6 +206,13 @@ public class CargoDefault implements SchiffPlugin {
 					"schiff.cargo.tanker.autodeut",			ship.getAutoDeut(),
 					"schiff.cargo.traeger",					shiptype.getJDocks() > 0 ? 1 : 0,
 					"schiff.cargo.traeger.startfighter",	ship.startFighters(),
+					"schiff.cargo.versorger",				shiptype.hasFlag(ShipTypes.SF_VERSORGER),
+					"schiff.cargo.versorger.isfeeding",		ship.isFeeding(),
+					"schiff.cargo.versorger.isallyfeeding",	ship.isAllyFeeding(),
+					"schiff.cargo.mangel_nahrung",			(ship.getStatus().indexOf("mangel_nahrung") > 1),
+					"schiff.cargo.speicher",				(shiptype.getNahrungCargo() > 0),
+					"schiff.cargo.speicher.amount",			Common.ln(ship.getNahrungCargo()),
+					"schiff.cargo.speicher.maxamount",		Common.ln(shiptype.getNahrungCargo()),
 					"resource.RES_DEUTERIUM.image",			Cargo.getResourceImage(Resources.DEUTERIUM) );
 		
 		t.parse(caller.target,"_PLUGIN_"+pluginid);

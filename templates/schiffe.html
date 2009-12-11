@@ -87,7 +87,7 @@
 		{if ship.battle}
 			<td class="schiffData"><a href="./ds?module=angriff&amp;sess={global.sess}&amp;battle={ship.battle}&amp;ship={ship.id}"><img style="vertical-align:middle" src="{URL}battle_small.gif" alt="Schlacht" /></a> {ship.name}
 		{else}
-			<td class="schiffData">{ship.name}
+			<td class="schiffData" nowrap>{ship.name}
 		{/endif}
 		{if ship.fleet}
 			<br /><a class="forschinfo" style="font-style:italic" href="javascript:FleetWnd('&amp;fleet={ship.fleet}&amp;act=show')">{ship.fleet.name}</a>
@@ -102,6 +102,7 @@
 			<br />
 			{if ship.adocks}
 				<img src="{URL}data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.adocks.docked}/{ship.adocks}]</a>
+				<br />
 			{/endif}
 			{if ship.jdocks}
 				<img src="{URL}data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.jdocks.docked}/{ship.jdocks}]</a>
@@ -140,7 +141,7 @@
 			{/endif}
 		{/endif}		
 		</td>
-		<td class="schiffData"><span style="color:{ship.crewcolor}">{ship.crew}</span>{ship.offi}</td>
+		<td class="schiffData" nowrap><span style="color:{ship.crewcolor}">{ship.crew}</span>{ship.offi}<br />{if ship.mangel_nahrung}<span style="color:red">{else}<span style="color:green">{/endif}{ship.nahrungcargo}</span><img src="data/resources/Nahrung.gif" alt="" />{if ship.versorger}{if ship.feedingstatus == 1}<img src="data/interface/schiffe/feedingstatus1.gif" />{else}{if ship.feedingstatus == 2}<img src="data/interface/schiffe/feedingstatus2.gif" />{else}<img src="data/interface/schiffe/feedingstatus3.gif" />{/endif}{/endif}{/endif}</td>
 		<td class="schiffData"><img src="{URL}data/interface/alarm/{ship.alarm}.jpg" alt="" /></td>
 		<td class="schiffData">{ship.e}</td>
 		<td class="schiffData">

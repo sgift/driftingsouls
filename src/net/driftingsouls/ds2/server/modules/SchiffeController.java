@@ -41,6 +41,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitType;
 import net.driftingsouls.ds2.server.werften.WerftObject;
@@ -188,7 +189,7 @@ public class SchiffeController extends TemplateGenerator {
 			query += "(locate('mangel_nahrung',s.status)!=0 or locate('mangel_reaktor',s.status)!=0) and locate('nocrew',s.status)=0 and ";
 		}
 		if( crewless != 0 ) {
-			query += "locate('nocrew',s.status)!=0 and ";
+			query += "((s.modules is not null and s.crew < (select crew from ShipModules where id=s.modules)) or s.crew < (select crew from ShipType where id = s.shiptype)) and ";
 		}
 		
 		if( only.equals("kampf") && (showjaeger.equals("0")) ) {
@@ -197,6 +198,9 @@ public class SchiffeController extends TemplateGenerator {
 		
 		if( only.equals("tank") )	{
 			query += "s.shiptype.shipClass=3 order by "+ow;
+		}
+		else if( only.equals("versorger")) {
+			query += "(locate('versorger',s.shiptype.flags)!=0 or (s.modules is not null and locate('versorger',s.modules.flags)!=0)) order by "+ow;
 		}
 		else if( only.equals("def") )	{
 			query += "s.shiptype.shipClass=10 order by "+ow;
@@ -376,12 +380,16 @@ public class SchiffeController extends TemplateGenerator {
 							"ship.type",			ship.getType(),
 							"ship.type.name",		shiptype.getNickname(),
 							"ship.location",		ship.getLocation().displayCoordinates(false),
-							"ship.e",				ship.getEnergy(),
+							"ship.e",				Common.ln(ship.getEnergy()),
 							"ship.hull",			Common.ln(ship.getHull()),
 							"ship.hullcolor",		hullcolor,
 							"ship.image",			shiptype.getPicture(),
-							"ship.crew",			ship.getCrew(),
-							"ship.unitspace",		shiptype.getUnitSpace(),
+							"ship.crew",			Common.ln(ship.getCrew()),
+							"ship.nahrungcargo",	Common.ln(ship.getNahrungCargo()),
+							"ship.mangel_nahrung",	(ship.getStatus().indexOf("mangel_nahrung") > -1),
+							"ship.versorger",		shiptype.hasFlag(ShipTypes.SF_VERSORGER),
+							"ship.feedingstatus",	(ship.isFeeding() && !ship.isAllyFeeding()) ? 1 : (ship.isFeeding()) ? 2 : 3,
+							"ship.unitspace",		Common.ln(shiptype.getUnitSpace()),
 							"ship.alarm",			alarms[ship.getAlarm()],
 							"ship.offi",			offi,
 							"ship.crewcolor",		crewcolor,

@@ -31,7 +31,6 @@ import net.driftingsouls.ds2.server.bases.AutoGTUAction;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
@@ -362,10 +361,7 @@ public class PortalController extends TemplateGenerator {
 
 		String history = "Kolonistenlizenz erworben am "+Common.getIngameTime(ticks)+" ["+Common.date("d.m.Y H:i:s")+"]";		
 		
-		Cargo cargo = new Cargo();
-		cargo.addResource( Resources.NAHRUNG, 100000 );
-		
-		User newuser = new User(username, enc_pw, race, history, cargo, email);
+		User newuser = new User(username, enc_pw, race, history, new Cargo(), email);
 		
 		// Startgeld festlegen
 		

@@ -146,6 +146,11 @@ public class ShipTypes {
 	 */
 	public static final String SF_NICHT_ZERSTOERBAR = "nosuicide";
 	
+	/**
+	 * Das Schiff ist ein Versorger.
+	 */
+	public static final String SF_VERSORGER = "versorger";
+	
 	private static final Map<String,String> shipTypeFlagNames = new HashMap<String,String>();
 	private static final Map<String,String> shipTypeFlagDescs = new HashMap<String,String>();
 	
@@ -171,6 +176,7 @@ public class ShipTypes {
 		shipTypeFlagNames.put(SF_WERFTKOMPLEX, "Werftkomplex");
 		shipTypeFlagNames.put(SF_NICHT_ZERSTOERBAR, "Keine Selbstzerst&ouml;rung");
 		shipTypeFlagNames.put(SF_TRADEPOST, "Handelsposten");
+		shipTypeFlagNames.put(SF_VERSORGER, "Versorger");
 		
 		shipTypeFlagDescs.put(SF_COLONIZER, "Die Eigenschaft Colonzier erm&ouml;glicht es umbewohnte Asteroiden zu kolonisieren");
 		shipTypeFlagDescs.put(SF_ZERSTOERERPANZERUNG, "Die Zerst&ouml;rerpanzerung sorgt daf&uuml;r, dass pro Kampfrunde maximal 33% Schaden gemessen an an der maximalen H&uuml;llenst&auml;rke dem Schiff zugef&uuml;gt werden kann");
@@ -193,6 +199,7 @@ public class ShipTypes {
 		shipTypeFlagDescs.put(SF_WERFTKOMPLEX, "Diese Werft kann sich mit anderen Werften, welche die Eigenschaft Werftkomplex besitzen, zusammenschliessen. Die Ressourcen der Einzelwerften werden dabei gemeinsam genutzt");
 		shipTypeFlagDescs.put(SF_NICHT_ZERSTOERBAR, "Dieses Schiff verf&uuml;gt &uuml;ber keine Selbstzerst&ouml;rungsanlage");
 		shipTypeFlagDescs.put(SF_TRADEPOST, "Bei diesem Schiff handelt es sich um einen Handelsposten");
+		shipTypeFlagDescs.put(SF_VERSORGER, "Dieses Schiff ist ein Versorger und versorgt Schiffe im selben Sektor mit Nahrung");
 	}
 	
 	/**

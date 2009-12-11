@@ -108,11 +108,6 @@
 				{if res.plaincount2 < 0}
 					<img style="vertical-align:middle" src="{res.image}" alt="" /><span style="color:#ff0000" class="error">{res.name} {res.cargo1} {res.cargo2}</span>
 				{/endif}
-				{if res.nahrungspeciallink}
-					<a class="noborder" id="transfernahrung" name="transfernahrung" onclick="javascript:void(overlib('{res.nahrungspeciallink}',REF,'transfernahrung', WIDTH,'300',REFC,'UL',REFP,'UL',FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'tooltip',NOCLOSE,STICKY));" onmouseout="return nd();" href="#">
-						<img style="vertical-align:middle; border:0px" src="{URL}data/interface/right.gif" alt="Nahrung transferieren" />
-					</a>
-				{/endif}
 				<br />
 			<!-- END base.cargo.listitem -->
 			<img src="{URL}data/interface/leer.gif" alt="" />Leer {base.cargo.empty} {base.cstat}<br />
@@ -141,6 +136,21 @@
 					<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
 					{!link_to Alles aktivieren, default, css_style:font-size:14px, css_class:ok, module:activateall, col:$base.id}<br />
 					{!link_to Alles deaktivieren, default, css_style:font-size:14px, css_class:error, module:activateall, col:$base.id, deaconly:1}<br />
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" class="noBorderS" align="center">
+					<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+					{if base.isfeeding}
+					{!link_to Versorgung abschalten, changeFeeding, css_style:font-size:14px, css_class:ok, module:base, col:$base.id, feeding:0}<br />
+						{if base.isloading}
+						{!link_to Auff&uuml;llen abschalten, changeFeeding, css_style:font-size:14px, css_class:ok, module:base, col:$base.id, feeding:2}<br />
+						{else}
+						{!link_to Auff&uuml;llen anschalten, changeFeeding, css_style:font-size:14px, css_class:error, module:base, col:$base.id, feeding:3}<br />
+						{/endif}
+					{else}
+					{!link_to Versorgung anschalten, changeFeeding, css_style:font-size:14px, css_class:error, module:base, col:$base.id, feeding:1}<br />
+					{/endif}
 				</td>
 			</tr>
 			</table>

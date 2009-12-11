@@ -52,6 +52,7 @@ public class ShipModules implements ShipTypeData {
 	private int hull;
 	private int panzerung;
 	private long cargo;
+	private long nahrungcargo;
 	private int heat;
 	private int crew;
 	private String weapons;
@@ -144,6 +145,19 @@ public class ShipModules implements ShipTypeData {
 	 */
 	public void setCargo(long cargo) {
 		this.cargo = cargo;
+	}
+	
+	@Override
+	public long getNahrungCargo() {
+		return nahrungcargo;
+	}
+	
+	/**
+	 * Setzt den NahrungsCargo.
+	 * @param nahrungcargo der Nahrungcargo
+	 */
+	public void setNahrungCargo(long nahrungcargo) {
+		this.nahrungcargo = nahrungcargo;
 	}
 
 	@Override

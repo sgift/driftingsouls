@@ -20,8 +20,24 @@
 	<img style="vertical-align:middle" src="{res.image}" alt="" />{res.name} {res.cargo}
 	<br />
 <!-- END schiff.cargo.reslist.listitem -->
-<img src="{URL}data/interface/leer.gif" alt="Leer" />Leer {schiff.cargo.empty}
+<img src="{URL}data/interface/leer.gif" alt="Leer" />Leer {schiff.cargo.empty}<br />
+{if schiff.cargo.speicher}
+	<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+	Nahrungsspeicher: {if schiff.cargo.mangel_nahrung}<span style="color:red">{else}<span style="color:green">{/endif}{schiff.cargo.speicher.amount}</span> / {schiff.cargo.speicher.maxamount}
+{/endif}
 <hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+{if schiff.cargo.speicher}
+	<form action="./ds" method="post">
+		<div>
+			Nahrung in Speicher transferieren:<br />
+			<input name="cargo_ops[usenahrung]" type="text" size="2" value="0" />
+			{!form_create_hidden plugin, ship:$ship.id, plugin:$global.pluginid}
+			<input type="hidden" name="cargo_ops[act]" value="usenahrung" />
+			<input type="submit" value="Einladen" />
+			<input type="submit" name="cargo_ops[max]" value="max" /><br />
+		</div>
+	</form><br />
+{/endif}
 {if schiff.cargo.batterien}
 	<form action="./ds" method="post">
 		<div>
@@ -66,6 +82,28 @@
 			<label for="cargo_ops_startfighter">aktivieren</label>&nbsp;
 			{!form_create_hidden plugin, ship:$ship.id, plugin:$global.pluginid}
 			<input type="hidden" name="cargo_ops[setstartfighter]" value="1" />
+			<input type="submit" value="ok" />
+		</div>
+	</form>
+{/endif}
+{if schiff.cargo.versorger}
+	<form action="./ds" method="post">
+		<div>
+			Automatisch versorgen:<br />
+			<input id="cargo_ops_isfeeding" name="cargo_ops[isfeeding]" type="checkbox" value="1" {if schiff.cargo.versorger.isfeeding}checked="checked"{/endif} />
+			<label for="cargo_ops_isfeeding">aktivieren</label>&nbsp;
+			{!form_create_hidden plugin, ship:$ship.id, plugin:$global.pluginid}
+			<input type="hidden" name="cargo_ops[setfeeding]" value="1" />
+			<input type="submit" value="ok" />
+		</div>
+	</form>
+	<form action="./ds" method="post">
+		<div>
+			Allianzschiffe automatisch versorgen:<br />
+			<input id="cargo_ops_isallyfeeding" name="cargo_ops[isallyfeeding]" type="checkbox" value="1" {if schiff.cargo.versorger.isallyfeeding}checked="checked"{/endif} />
+			<label for="cargo_ops_isallyfeeding">aktivieren</label>&nbsp;
+			{!form_create_hidden plugin, ship:$ship.id, plugin:$global.pluginid}
+			<input type="hidden" name="cargo_ops[setallyfeeding]" value="1" />
 			<input type="submit" value="ok" />
 		</div>
 	</form>

@@ -12,6 +12,7 @@ CREATE TABLE `ship_types` (
   `panzerung` tinyint(3) unsigned NOT NULL default '0',
   `ablativeArmor` int(11) UNSIGNED NOT NULL default '0',
   `cargo` int(11) NOT NULL default '0',
+  `nahrungcargo` int(11) NOT NULL default '0',
   `heat` int(11) NOT NULL default '0',
   `crew` int(11) NOT NULL default '0',
   `weapons` text NOT NULL,

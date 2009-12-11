@@ -96,6 +96,7 @@ public class EditShiptypes implements AdminPlugin
 			int cargo = request.getParameterInt("cargo");
 			int heat = request.getParameterInt("heat");
 			int crew = request.getParameterInt("crew");
+			int nahrungcargo = request.getParameterInt("nahrungcargo");
 			int shields = request.getParameterInt("shields");
 			int ablativeArmor = request.getParameterInt("ablativearmor");
 			String nickname = request.getParameterString("nickname");
@@ -134,6 +135,7 @@ public class EditShiptypes implements AdminPlugin
 			int oldcrew = shiptype.getCrew();
 			int oldshields = shiptype.getShields();
 			int oldablativearmor = shiptype.getAblativeArmor();
+			long oldnahrungcargo = shiptype.getNahrungCargo();
 			
 			shiptype.setRu(ru);
 			shiptype.setRd(rd);
@@ -144,6 +146,7 @@ public class EditShiptypes implements AdminPlugin
 			shiptype.setHull(hull);
 			shiptype.setCargo(cargo);
 			shiptype.setCrew(crew);
+			shiptype.setNahrungCargo(nahrungcargo);
 			shiptype.setShields(shields);
 			shiptype.setAblativeArmor(ablativeArmor);
 			shiptype.setPanzerung(armor);
@@ -218,6 +221,12 @@ public class EditShiptypes implements AdminPlugin
 				else {
 					factor.put("ablativearmor", ship.getAblativeArmor() / (double) type.getAblativeArmor());
 				}
+				if( type.getNahrungCargo() == nahrungcargo ) {
+					factor.put("nahrungcargo", ship.getNahrungCargo() / (double) oldnahrungcargo);
+				}
+				else {
+					factor.put("nahrungcargo", ship.getNahrungCargo() / (double) type.getNahrungCargo());
+				}
 				try
 				{
 					ship.recalculateModules();
@@ -228,6 +237,7 @@ public class EditShiptypes implements AdminPlugin
 					ship.setCrew((int)Math.floor(type.getCrew() * factor.get("crew")));
 					ship.setShields((int)Math.floor(type.getShields() * factor.get("shields")));
 					ship.setAblativeArmor((int)Math.floor(type.getAblativeArmor() * factor.get("ablativearmor")));
+					ship.setNahrungCargo((long)Math.floor(type.getNahrungCargo() * factor.get("nahrungcargo")));
 					
 					String id = "l " + ship.getId();
 					int fighterDocks = ship.getTypeData().getJDocks();
@@ -359,6 +369,7 @@ public class EditShiptypes implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">H&uuml;lle: </td><td><input type=\"text\" name=\"hull\" value=\"" + ship.getHull() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Panzerung: </td><td><input type=\"text\" name=\"armor\" value=\"" + ship.getPanzerung() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Cargo: </td><td><input type=\"text\" name=\"cargo\" value=\"" + ship.getCargo() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Nahrungsspeicher: </td><td><input type=\"text\" name=\"nahrungcargo\" value=\"" + ship.getNahrungCargo() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Hitze: </td><td><input type=\"text\" name=\"heat\" value=\"" + ship.getHeat() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Crew: </td><td><input type=\"text\" name=\"crew\" value=\"" + ship.getCrew() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Maximale Gr&ouml;&szlig;e f&ouml;r Einheiten: </td><td><input type=\"text\" name=\"maxunitsize\" value=\"" + ship.getMaxUnitSize() + "\"></td></tr>\n");

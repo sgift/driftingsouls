@@ -764,4 +764,39 @@ public class UnitCargo implements Cloneable {
 		
 		return trimedUnits;
 	}
+	
+	/**
+	 * Berechnet, wie viele Einheiten von der angegebenen Menge RE noch versorgt werden koennen.
+	 * Alle zusaetzlichen Einheiten werden aus dem aktuellen UnitCargo entfernt und als extra UnitCargo zurueckgegeben.
+	 * @param restre Die RE die noch zur Versorgung da sind
+	 * @return Ein UnitCargo mit den Einheiten die nicht mehr versorgt werden konnten
+	 */
+	public UnitCargo getMeuterer(int restre)
+	{
+		UnitCargo meuterer = new UnitCargo();
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		List<UnitType> unitlist = Common.cast(db.createQuery("from UnitType").list());
+		
+		for(UnitType unit : unitlist)
+		{
+			if(hasUnit(unit.getId()))
+			{
+				// Es koennen nicht mehr alle Einheiten versorgt werden
+				if(getUnitCount(unit.getId())*unit.getReCost() > restre)
+				{
+					long numunits = restre / unit.getReCost();
+					substractUnit(unit.getId(), numunits);
+					meuterer.addUnit(unit.getId(), numunits);
+					restre -= numunits * unit.getReCost();
+				}
+				else
+				{
+					restre -= getUnitCount(unit.getId()) * unit.getReCost();
+				}
+			}
+		}
+		
+		return meuterer;
+	}
 }

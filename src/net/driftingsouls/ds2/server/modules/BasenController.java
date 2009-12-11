@@ -126,8 +126,6 @@ public class BasenController extends TemplateGenerator {
 			om = "ASC";
 		}
 		
-		Cargo usercargo = new Cargo( Cargo.Type.STRING, user.getCargo() );
-		
 		t.setBlock("_BASEN", "bases.listitem", "bases.list");
 		t.setBlock("bases.listitem", "bases.mangel.listitem", "bases.mangel.list");
 		t.setBlock("bases.listitem", "bases.cargo.listitem", "bases.cargo.list");
@@ -156,7 +154,6 @@ public class BasenController extends TemplateGenerator {
 			*/
 	
 			Cargo cargo = new Cargo(base.getCargo());
-			cargo.addResource( Resources.NAHRUNG, usercargo.getResourceCount( Resources.NAHRUNG ) );
 			cargo.addResource(Resources.RE, user.getKonto().longValue());
 			
 			ResourceList reslist = basedata.getProduction().getResourceList();
@@ -171,7 +168,6 @@ public class BasenController extends TemplateGenerator {
 				}
 			}
 			
-			cargo.substractResource( Resources.NAHRUNG, usercargo.getResourceCount( Resources.NAHRUNG ) );
 			cargo.substractResource(Resources.RE, user.getKonto().longValue());
 			
 			/*

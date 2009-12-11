@@ -20,12 +20,14 @@ package net.driftingsouls.ds2.server.tick.regular;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.Offizier;
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.Resources;
@@ -34,10 +36,10 @@ import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.UnitCargo;
@@ -51,7 +53,7 @@ import org.hibernate.FlushMode;
  */
 public class SchiffsTick extends TickController {
 	private Map<String,ResourceID> esources;
-	private Cargo usercargo;
+	private Map<Base,Long> savelist;
 	private boolean calledByBattle=false;
 
 	@Override
@@ -66,30 +68,25 @@ public class SchiffsTick extends TickController {
 
 	/**
 	 * Consumes food from the given cargo.
-	 * @param cargo Der Cargo von dem aus versorgt werden soll
+	 * @param ship Das Schiff von dem aus versorgt werden soll
 	 * @param crewToFeed Die zu versorgende Crew
 	 * @param scaleFactor Der Skalierungsfaktor beim Nahrungsverbrauch
 	 * @return Crew that couldn't be feed.
 	 */
-	private int consumeFood(Cargo cargo, int crewToFeed, double scaleFactor) {
+	private int consumeFood(Ship ship, int crewToFeed, double scaleFactor) {
 
-		//Nahrung aus dem Pool abziehen
-		if( (Configuration.getIntSetting("DISABLE_FOOD_CONSUMPTION") == 0) && crewToFeed > 0) {
-
-			int crewThatCouldBeFeed = 0;
-			if( crewToFeed > cargo.getResourceCount(Resources.NAHRUNG)*scaleFactor ) {
-				crewThatCouldBeFeed = (int)(cargo.getResourceCount(Resources.NAHRUNG)*scaleFactor);
-				crewToFeed -= crewThatCouldBeFeed;
-
-			}
-			else {
-				crewThatCouldBeFeed = crewToFeed;
-				crewToFeed = 0;
-			}
-			int tmp = (int)Math.ceil(crewThatCouldBeFeed/scaleFactor);
-			cargo.substractResource( Resources.NAHRUNG, tmp );
-			this.log(tmp+" verbraucht");
+		int crewThatCouldBeFeed = 0;
+		if( crewToFeed > ship.getNahrungCargo()*scaleFactor ) {
+			crewThatCouldBeFeed = (int)(ship.getNahrungCargo()*scaleFactor);
+			crewToFeed -= crewThatCouldBeFeed;
 		}
+		else {
+			crewThatCouldBeFeed = crewToFeed;
+			crewToFeed = 0;
+		}
+		int tmp = (int)Math.ceil(crewThatCouldBeFeed/scaleFactor);
+		ship.setNahrungCargo(ship.getNahrungCargo() - tmp);
+		this.log(tmp+" von "+ship.getId()+" verbraucht");
 
 		return crewToFeed;
 	}
@@ -97,60 +94,128 @@ public class SchiffsTick extends TickController {
 
 	private void tickShip( org.hibernate.Session db, Ship shipd ) {
 		this.log(shipd.getName()+" ("+shipd.getId()+"):");
+		boolean recalc = false;
 
 		ShipTypeData shiptd = shipd.getTypeData();
 
 		Cargo shipc = shipd.getCargo();
 
-		this.log("\tAlt: crew "+shipd.getCrew()+" e "+shipd.getEnergy());
-
-		//Nahrungsproduktion - je nach Position Pool oder Cargo
-		if( shiptd.getHydro() > 0 ) {	
-			if(shipd.isUserCargoUsable()) {
-				this.usercargo.addResource( Resources.NAHRUNG, shiptd.getHydro() );
+		this.log("\tAlt: crew "+shipd.getCrew()+" e "+shipd.getEnergy() +" speicher "+shipd.getNahrungCargo());
+		
+		if(shipd.getNahrungCargo() < shiptd.getNahrungCargo())
+		{
+			this.log("\tNahrungsspeicher aufladen");
+			// Vom asti aufladen (wenn noetig)
+			List<?> bases = db.createQuery("from Base where owner=? and system=? and x=? and y=?")
+								.setEntity(0, shipd.getOwner())
+								.setInteger(1, shipd.getSystem())
+								.setInteger(2, shipd.getX())
+								.setInteger(3, shipd.getY())
+								.list();
+			
+			if(bases.size() > 0)
+			{
+				for(Iterator<?> iter=bases.iterator();iter.hasNext();)
+				{
+					Base base = (Base)iter.next();
+					if(savelist.containsKey(base))
+					{
+						Cargo basecargo = base.getCargo();
+						this.log("\tBasis "+base.getId()+" gefunden");
+						long needed = shiptd.getNahrungCargo() - shipd.getNahrungCargo();
+						this.log("\tBenoetige "+needed+" Nahrung");
+						long savenahrung = savelist.get(base);
+						long feednahrung = basecargo.getResourceCount(Resources.NAHRUNG) - savenahrung + shipd.getFoodConsumption();
+						if(feednahrung > needed)
+						{
+							this.log("\tGenug Nahrung auf Asteroid");
+							basecargo.substractResource(Resources.NAHRUNG, needed);
+							shipd.setNahrungCargo(shipd.getNahrungCargo()+needed);
+							this.log("\tSpeicher um "+needed+" aufgefuellt");
+							break;
+						}
+						else
+						{
+							needed = feednahrung;
+							shipd.setNahrungCargo(shipd.getNahrungCargo()+needed);
+							basecargo.substractResource(Resources.NAHRUNG, needed);
+						}
+						savelist.put(base, savenahrung - shipd.getFoodConsumption());
+						base.setCargo(basecargo);
+						this.log("\tSpeicher um "+needed+" aufgefuellt");
+					}
+				}
 			}
-			else {
-				shipc.addResource(Resources.NAHRUNG, shiptd.getHydro());
-			}
+			this.log("\tBasen fertig.");
 		}
 
-		//Cargo meines Mutterschiffs - relevant bei gedockten Schiffen
+		//Mein Mutterschiff - relevant bei gedockten Schiffen
 		Ship baseShip = shipd.getBaseShip();
-		Cargo baseShipCargo = null;
-		if(baseShip != null) {
-			baseShipCargo = baseShip.getCargo();
-		}
 
 		this.slog("\tCrew: ");
 		//Crew die noch gefuettert werden muss
-		int crewToFeed = shipd.getCrew() + shipd.getUnits().getNahrung();
+		int crewToFeed = shipd.getNettoFoodConsumption();
 
 		//Faktor fuer den Verbrauch
 		double scaleFactor = shipd.getAlertScaleFactor();
 
-		//Usercargo, Basisschiffcargo, eigener Cargo - Leerfuttern in der Reihenfolge
-		if(shipd.isUserCargoUsable()) {
-			crewToFeed = consumeFood(this.usercargo, crewToFeed, scaleFactor);
+		//VersorgerCargo, Basisschiffcargo, eigener Cargo - Leerfuttern in der Reihenfolge
+		while(shipd.getVersorger() != null && crewToFeed > 0)
+		{
+			Ship versorger = shipd.getVersorger();
+			crewToFeed = consumeFood(versorger ,crewToFeed, scaleFactor);
 		}
 
-		if(baseShipCargo != null) {
-			crewToFeed = consumeFood(baseShipCargo, crewToFeed, scaleFactor);
+		if(baseShip != null)
+		{
+			crewToFeed = consumeFood(baseShip, crewToFeed, scaleFactor);
 		}
-
-		crewToFeed = consumeFood(shipc, crewToFeed, scaleFactor);
-
+		
+		crewToFeed = consumeFood(shipd, crewToFeed, scaleFactor);
+		
+		// Nahrungsspeicher auf Maximum beschraenken.
+		if(shipd.getNahrungCargo() > shiptd.getNahrungCargo())
+		{
+			shipd.setNahrungCargo(shiptd.getNahrungCargo());
+		}
+		
 		//Crew die nicht versorgt werden konnte verhungern lassen
 		if(crewToFeed > 0) {
-			this.slog("Crew verhungert - ");
+			this.log("Crew verhungert - ");
+			recalc = true;
 		}
-		if(crewToFeed >= shipd.getUnits().getNahrung()){
-			crewToFeed = crewToFeed - shipd.getUnits().getNahrung();
+		if(crewToFeed >= (int)Math.ceil(shipd.getUnits().getNahrung() / 10)){
+			crewToFeed = crewToFeed - (int)Math.ceil(shipd.getUnits().getNahrung() / 10);
 			shipd.setUnits(new UnitCargo());
-			int crew = shipd.getCrew() - crewToFeed;
-			shipd.setCrew(crew);
+			int crew = shipd.getCrew() - crewToFeed*10;
+			if(crew < 0)
+			{
+				shipd.setCrew(0);
+				this.log("Gedockte Schiffe verhungern.");
+				crew = Math.abs(crew);
+				List<Ship> dockedShips = shipd.getLandedShips();
+				for(Iterator<Ship> iter=dockedShips.iterator();iter.hasNext();)
+				{
+					Ship dockShip = iter.next();
+					if(crew > dockShip.getCrew())
+					{
+						crew -= dockShip.getCrew();
+						dockShip.setCrew(0);
+					}
+					else
+					{
+						dockShip.setCrew(dockShip.getCrew()-crew);
+						break;
+					}
+				}
+			}
+			else
+			{
+				shipd.setCrew(crew);
+			}
 		}
 		else {
-			shipd.getUnits().fleeUnits(crewToFeed);
+			shipd.getUnits().fleeUnits(crewToFeed*10);
 			crewToFeed = 0;
 		}
 		
@@ -162,6 +227,7 @@ public class SchiffsTick extends TickController {
 		this.log("MinCrew " + minCrew);
 		if(crew < minCrew && !user.hasFlag(User.FLAG_NO_HULL_DECAY))
 		{
+			recalc = true;
 			this.log("Schiff hat nicht genug Crew; beschaedige Huelle.");
 			ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "nocrewhulldamagescale");
 			double scale = Double.parseDouble(value.getValue());
@@ -220,11 +286,39 @@ public class SchiffsTick extends TickController {
 			}
 			else
 			{
-				User pirate = (User)db.get(User.class, Faction.PIRATE);
-				shipd.setOwner(pirate);
-				
-				this.log("Konto nicht gedeckt; Schiff desertiert zum Piraten.");
-				PM.send(pirate, owner.getId(), "Schiff desertiert", "Die " + shipd.getName() + " ist desertiert, nachdem Sie den Sold der Crew nicht aufbringen konnten. (" + shipd.getLocation().displayCoordinates(false) + ")");
+				BigInteger reCostHelper = BigInteger.valueOf(shiptd.getReCost());
+				// Wartungskosten koennen aufgebracht werden.
+				if(account.compareTo(reCostHelper) >= 0)
+				{
+					this.log("Konto nicht gedeckt; Besatzung meutert.");
+					
+					// Sammel alle Daten zusammmen
+					User pirate = (User)db.get(User.class, Faction.PIRATE);
+					UnitCargo unitcargo = shipd.getUnits();
+					UnitCargo meuterer = unitcargo.getMeuterer(account.intValue() - shiptd.getReCost());
+					
+					if(meuterer.kapern(unitcargo, new UnitCargo(), new UnitCargo(), 0, 1, 1))
+					{
+						shipd.setOwner(pirate);
+						
+						PM.send(pirate, owner.getId(), "Besatzung meutert", "Die Besatzung der " + shipd.getName() + " meutert, nachdem Sie den Sold der Einheiten nicht aufbringen konnten. (" + shipd.getLocation().displayCoordinates(false) + ")");
+					}
+					else
+					{
+						PM.send(pirate, owner.getId(), "Besatzung meutert", "Die Besatzung der " + shipd.getName() + " meutert, nachdem Sie den Sold der Einheiten nicht aufbringen konnten. Die Meuterer wurden vernichtet. (" + shipd.getLocation().displayCoordinates(false) + ")");
+					}
+					shipd.setUnits(unitcargo);
+					owner.setKonto(BigInteger.ZERO);
+				}
+				else
+				{
+					User pirate = (User)db.get(User.class, Faction.PIRATE);
+					shipd.setOwner(pirate);
+					owner.setKonto(BigInteger.ZERO);
+					
+					this.log("Konto nicht gedeckt; Schiff desertiert zum Piraten.");
+					PM.send(pirate, owner.getId(), "Schiff desertiert", "Die " + shipd.getName() + " ist desertiert, nachdem Sie den Sold der Crew nicht aufbringen konnten. (" + shipd.getLocation().displayCoordinates(false) + ")");
+				}
 			}
 		}
 
@@ -242,6 +336,7 @@ public class SchiffsTick extends TickController {
 		}	
 
 		if( e < shiptd.getEps() ) {
+			recalc = true;
 			int rm = shiptd.getRm();
 			if( shiptd.getCrew() > 0 ) {
 				rm = (int)(rm * shipd.getCrew() / (double)shiptd.getCrew());
@@ -344,7 +439,7 @@ public class SchiffsTick extends TickController {
 		// Evt. Deuterium sammeln
 		if( shipd.getAutoDeut() && (shiptd.getDeutFactor() != 0) && (shipd.getCrew() >= shiptd.getCrew()/2) && (e > 0) && (shipc.getMass() < shiptd.getCargo()) ) {
 			this.slog("\tS. Deut: ");
-
+			recalc = true;
 			int nebel = Ships.getNebula(shipd.getLocation());
 
 			if( (nebel >= 0) && (nebel <= 2) ) {
@@ -381,18 +476,15 @@ public class SchiffsTick extends TickController {
 		shipd.setWeaponHeat("");
 		shipd.setCargo(shipc);
 		
-		if(shipd.getAlarm() != 0)
+		this.slog("\tNeu: crew "+shipd.getCrew()+" e "+e+" speicher "+shipd.getNahrungCargo()+" status: <");
+		
+		if(recalc || shipd.getTypeData().hasFlag(ShipTypes.SF_VERSORGER))
 		{
 			shipd.recalculateShipStatus();
 		}
-		/*
-		if(baseShip != null) {
-			baseShip.recalculateShipStatus();
-		}
 		
-		this.slog(status);
-		 */
-		this.slog("\tNeu: crew "+shipd.getCrew()+" e "+e+" status: <");
+		this.slog(shipd.getStatus());
+		
 
 		this.log(">");
 	}
@@ -400,18 +492,31 @@ public class SchiffsTick extends TickController {
 	private void tickUser(org.hibernate.Session db, User auser, String battle) {
 		//List<Integer> idlist = new ArrayList<Integer>();
 
-		long usernstat = Long.parseLong(auser.getNahrungsStat());
 		//long prevnahrung = this.usercargo.getResourceCount(Resources.NAHRUNG);
+		
+		savelist = new HashMap<Base,Long>();
 
 		// Schiffe berechnen
 		List<?> ships = db.createQuery(
-				"from Ship as s left join fetch s.modules " +
-				"where s.id>0 and s.owner=? " +
-				"and system!=0 and "+battle +
-				"order by s.owner,s.docked,s.shiptype asc")
+				"from Ship as s left join fetch s.modules" +
+				" where s.id>0 and s.owner=? " +
+				" and system!=0 and "+battle +
+				"order by locate('versorger', s.shiptype.flags) DESC, " +
+				" locate('versorger',s.modules.flags) DESC, s.shiptype.jDocks DESC," +
+				"s.modules.jDocks DESC,s.shiptype ASC")
 				.setEntity(0, auser)
 				.list();
 
+		List<?> bases = db.createQuery("from Base where owner=?")
+									.setEntity(0,auser)
+									.list();
+		
+		for( Iterator<?> baseiter=bases.iterator();baseiter.hasNext();)
+		{
+			Base base = (Base)baseiter.next();
+			savelist.put(base, base.getSaveNahrung());
+		}
+		
 		this.log(auser.getId()+": Es sind "+ships.size()+" Schiffe zu berechnen ("+battle+")");
 
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
@@ -482,12 +587,6 @@ public class SchiffsTick extends TickController {
 			}
 		}*/
 
-		// Nahrungspool aktualiseren
-		auser.setCargo(this.usercargo.save());
-
-		if( !this.calledByBattle ) {
-			auser.setNahrungsStat(Long.toString(this.usercargo.getResourceCount(Resources.NAHRUNG) - usernstat));
-		}
 	}
 
 	@Override
@@ -521,8 +620,6 @@ public class SchiffsTick extends TickController {
 			battle = "s.battle is null ";
 		}
 
-		this.usercargo = null;
-
 		int index = 0;
 
 		// Ueberhitzung
@@ -542,12 +639,9 @@ public class SchiffsTick extends TickController {
 
 			for( int retry=0; retry < 3; retry++ ) {
 				try {
-					this.usercargo = new Cargo( Cargo.Type.STRING, auser.getCargo() );
-	
+					
 					this.tickUser(db, auser, battle);
 	
-					auser.setCargo(this.usercargo.save());
-					
 					if( !calledByBattle ) {
 						getDB().flush();
 						getContext().commit();

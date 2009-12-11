@@ -124,6 +124,7 @@ public class EditBuilding implements AdminPlugin
 			building.setPerOwner(context.getRequest().getParameterInt("perowner"));
 			building.setDeakable(context.getRequest().getParameterString("deactivable").equals("true") ? true : false);
 			building.setCategory(context.getRequest().getParameterInt("category"));
+			building.setTerrain(context.getRequest().getParameterString("terrain"));
 			building.setBuildCosts(buildcosts);
 			building.setProduces(produces);
 			building.setConsumes(consumes);
@@ -165,6 +166,7 @@ public class EditBuilding implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">Max. pro Spieler: </td><td><input type=\"text\" name=\"perowner\" value=\"" + building.getPerUserCount() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Abschaltbar: </td><td><input type=\"text\" name=\"deactivable\" value=\"" + building.isDeakAble() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Kategorie: </td><td><input type=\"text\" name=\"category\" value=\"" + building.getCategory() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Terrain: </td><td><input type=\"text\" name=\"terrain\" value=\"" + building.getTerrain() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Auto Abschalten: </td><td><input type=\"text\" name=\"shutdown\" value=\"" + building.isShutDown() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">ChanceRess: </td><td><input type=\"text\" name=\"chanceress\" value=\"" + building.getChanceRess() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\"><b>Baukosten</b></td><td class=\"noBorderS\">Menge</td></tr>");

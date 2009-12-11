@@ -64,6 +64,11 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	public long getCargo() {
 		return inner.getCargo();
 	}
+	
+	@Override
+	public long getNahrungCargo() {
+		return inner.getNahrungCargo();
+	}
 
 	@Override
 	public int getChance4Loot() {

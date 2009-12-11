@@ -80,7 +80,7 @@ public class ScanController extends TemplateGenerator {
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		org.hibernate.Session db = getDB();
-		admin = getInteger("admin") != 0 && getUser().getAccessLevel() >= 30;
+		admin = getInteger("admin") != 0 && getUser().getAccessLevel() >= 20;
 		int shipID = -1;
 		
 		if( !admin ) {
@@ -153,7 +153,7 @@ public class ScanController extends TemplateGenerator {
 
 			this.getTemplateEngine().setVar(	
 					"global.admin",	1,
-					"global.baseloc", loc.toString(),
+					"global.baseloc", loc.getSystem()+":"+loc.getX()+"/"+loc.getY(),
 					"global.baserange", range);
 		}
 		

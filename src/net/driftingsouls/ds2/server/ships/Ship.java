@@ -71,6 +71,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextInstance;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
@@ -121,6 +122,7 @@ public class Ship implements Locatable,Transfering {
 	private ShipType shiptype; 
 	@Type(type="cargo")
 	private Cargo cargo;
+	private long nahrungcargo;
 	private int x;
 	private int y;
 	private int system;
@@ -167,6 +169,8 @@ public class Ship implements Locatable,Transfering {
 	private int ablativeArmor;
 	private boolean startFighters;
 	private int showtradepost;
+	private boolean isfeeding;
+	private boolean isallyfeeding;
 
 	@Transient
 	private Offizier offizier;
@@ -334,6 +338,22 @@ public class Ship implements Locatable,Transfering {
 	 */
 	public void setCargo(Cargo cargo) {
 		this.cargo = new Cargo(cargo);
+	}
+	
+	/**
+	 * Gibt die aktuelle Nahrungsmenge im Nahrungslager zurueck.
+	 * @return Die Nahrungsmenge
+	 */
+	public long getNahrungCargo() {
+		return this.nahrungcargo;
+	}
+	
+	/**
+	 * Setzt die aktuelle Nahrungsmenge im Nahrungslager.
+	 * @param nahrungcargo die Nahrungsmenge
+	 */
+	public void setNahrungCargo(long nahrungcargo) {
+		this.nahrungcargo = nahrungcargo;
 	}
 	
 	/**
@@ -694,6 +714,42 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
+	 * Gibt zurueck, ob dieser Versorger aktuell versorgen soll.
+	 * @return <code>true</code>, falls er versorgen soll
+	 */
+	public boolean isFeeding()
+	{
+		return isfeeding;
+	}
+	
+	/**
+	 * Setzt, ob dieser Versorger aktuell versorgen soll.
+	 * @param feeding <code>true</code>, falls der Versorger versorgen soll
+	 */
+	public void setFeeding(boolean feeding)
+	{
+		this.isfeeding = feeding;
+	}
+	
+	/**
+	 * Gibt zuruecl, ob dieser Versorger Allianzschiffe mit versorgt.
+	 * @return <code>true</code>, falls dieser Versorger Allianzschiffe versorgt
+	 */
+	public boolean isAllyFeeding()
+	{
+		return isallyfeeding;
+	}
+	
+	/**
+	 * Setzt, ob dieser Versorger Allianzschiffe mit versorgt.
+	 * @param feeding <code>true</code>, falls dieser Versorger Allianzschiffe versorgen soll
+	 */
+	public void setAllyFeeding(boolean feeding)
+	{
+		this.isallyfeeding = feeding;
+	}
+	
+	/**
 	 * Setzt das Statusfeld des Schiffes.
 	 * @param status das neue Statusfeld
 	 */
@@ -960,7 +1016,7 @@ public class Ship implements Locatable,Transfering {
 			}
 		}
 		
-		// Treibstoffverbrauch bereichnen
+		// Treibstoffverbrauch berechnen
 		if( type.getRm() > 0 ) {
 			long ep = cargo.getResourceCount( Resources.URAN ) * type.getRu() + 
 			cargo.getResourceCount( Resources.DEUTERIUM ) * type.getRd() + 
@@ -1032,62 +1088,222 @@ public class Ship implements Locatable,Transfering {
 		return this.status;
 	}
 
+	/**
+	 * 
+	 */
+	@ContextInstance(ContextInstance.Scope.REQUEST)
+	public static class ContextVars {
+		Map<User,Map<Location, Long>> versorgerstats = new HashMap<User,Map<Location, Long>>();
+
+		/**
+		 * Konstruktor.
+		 */
+		public ContextVars() {
+			// EMPTY
+		}
+	}
+	
+	/**
+	 * Gibt das erstbeste Schiff im Sektor zurueck, dass als Versorger fungiert und noch Nahrung besitzt.
+	 * @return Das Schiff
+	 */
+	public Ship getVersorger()
+	{
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		List<?> versorger = db.createQuery("from Ship as s left join fetch s.modules" +
+				" where (locate('versorger',s.shiptype.flags)!=0 or (s.modules is not null and locate('versorger',s.modules.flags)!=0))" +
+				" and owner=? and s.system=? and s.x=? and s.y=? and s.nahrungcargo > 0 and s.isfeeding != 0 ORDER BY s.nahrungcargo DESC")
+				.setEntity(0, this.owner)
+				.setInteger(1, this.system)
+				.setInteger(2, this.x)
+				.setInteger(3, this.y)
+				.list();
+		
+		if(versorger.iterator().hasNext())
+		{
+			return (Ship)versorger.iterator().next();
+		}
+		
+		if(this.owner.getAlly() != null)
+		{
+			List<?> allyversorger = db.createQuery("from Ship as s left join fetch s.modules" +
+					" where (locate('versorger',s.shiptype.flags)!=0 or (s.modules is not null and locate('versorger',s.modules.flags)!=0))" +
+					" and s.owner.ally=? and s.owner.vaccount!=0 and s.owner.wait4vac=0 and s.system=? and s.x=? and s.y=? and s.nahrungcargo > 0 and s.isfeeding != 0 and s.isallyfeeding != 0 ORDER BY s.nahrungcargo DESC")
+					.setEntity(0, this.owner.getAlly())
+					.setInteger(1, this.system)
+					.setInteger(2, this.x)
+					.setInteger(3, this.y)
+					.list();
+			
+			if(allyversorger.iterator().hasNext())
+			{
+				return (Ship)allyversorger.iterator().next();
+			}
+		}
+		return null;
+	}
+	
+	private long getSectorTimeUntilLackOfFood()
+	{
+		Context context = ContextMap.getContext();
+		ContextVars vars = context.get(ContextVars.class);
+		if(vars.versorgerstats.containsKey(getOwner()))
+		{
+			Map<Location,Long> locations = vars.versorgerstats.get(getOwner());
+			// Sektor wurde schonmal berechnet -> zurueckgeben
+			if(locations.containsKey(getLocation()))
+			{
+				return locations.get(getLocation());
+			}
+		}
+		// Sektor wurde noch nicht berechnet -> berechnen
+		org.hibernate.Session db = context.getDB();
+		
+		List<Ship> ships = Common.cast(db.createQuery("from Ship WHERE owner=? and system=? and x=? and y=? and id >0")
+				.setEntity(0, this.owner)
+				.setInteger(1, this.system)
+				.setInteger(2, this.x)
+				.setInteger(3, this.y)
+				.list());
+		List<Base> bases = Common.cast(db.createQuery("from Base WHERE owner=? and system=? and x=? and y=? and isfeeding=1")
+				.setEntity(0, this.owner)
+				.setInteger(1, this.system)
+				.setInteger(2, this.x)
+				.setInteger(3, this.y)
+				.list());
+		long versorgernahrung = 0;
+		long crewtofeed = 0;
+		for(Iterator<Ship> iter=ships.iterator(); iter.hasNext();)
+		{
+			Ship ship = iter.next();
+			if(ship.getTypeData().hasFlag(ShipTypes.SF_VERSORGER) && ship.isFeeding())
+			{
+				versorgernahrung += ship.getNahrungCargo();
+			}
+			crewtofeed += ship.getNettoFoodConsumption();
+		}
+		for(Iterator<Base> iter=bases.iterator(); iter.hasNext(); )
+		{
+			Base base = iter.next();
+			versorgernahrung += base.getCargo().getResourceCount(Resources.NAHRUNG);
+		}
+		
+		if(vars.versorgerstats.containsKey(getOwner()))
+		{
+			Map<Location,Long> locations = vars.versorgerstats.get(getOwner());
+			
+			locations.put(getLocation(), versorgernahrung / crewtofeed);
+		}
+		else
+		{
+			Map<Location,Long> locations = new HashMap<Location,Long>();
+			
+			locations.put(getLocation(), versorgernahrung / crewtofeed);
+			
+			vars.versorgerstats.put(getOwner(), locations);
+		}
+		
+		return versorgernahrung / crewtofeed;
+	}
+	
 	private boolean lackOfFood() {
-		if( timeUntilLackOfFood() <= MANGEL_TICKS ) {
+		if( timeUntilLackOfFood() <= MANGEL_TICKS && timeUntilLackOfFood() >= 0) {
 			return true;
 		}
 
 		return false;
 	}
 
+	private boolean isBaseInSector() {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		List<?> bases = db.createQuery("from Base where owner=? and system=? and x=? and y=?")
+							.setEntity(0, this.owner)
+							.setInteger(1, this.system)
+							.setInteger(2, this.x)
+							.setInteger(3, this.y)
+							.list();
+		
+		if(bases.size() > 0)
+		{
+			return true;
+		}
+		return false;
+	}
+	
 	private long timeUntilLackOfFood() {
-		Cargo usercargo = new Cargo(Cargo.Type.STRING, this.owner.getCargo());
-		long timeUntilLackOfFood = 0;
+		Ship versorger = getVersorger();
 		int foodConsumption = getNettoFoodConsumption();
-
+		
+		// Allianzversorger werden hierbei rausgefiltert
+		if(versorger != null && versorger.getOwner().getId() != this.owner.getId())
+		{
+			versorger = null;
+		}
+		
+		//Basisschiff beruecksichtigen
+		Ship baseShip = getBaseShip();
+		if( baseShip != null ) {
+			return baseShip.timeUntilLackOfFood();
+		}
+		
 		if( foodConsumption <= 0 ) {
 			return Long.MAX_VALUE;
 		}
-
-		//Den Nahrungsverbrauch berechnen
-		if( isUserCargoUsable() ) {
-			timeUntilLackOfFood = usercargo.getResourceCount(Resources.NAHRUNG) / foodConsumption;
-		}
-		else {
-			//Basisschiff beruecksichtigen
-			Ship baseShip = getBaseShip();
-			if( baseShip != null ) {
-				timeUntilLackOfFood = baseShip.timeUntilLackOfFood();
+		
+		//Den Nahrungsverbrauch berechnen - Ist nen Versorger da ists cool
+		if( versorger != null || isBaseInSector()) {
+			// Sind wir selbst ein Versorger werden wir ja mit berechnet.
+			if( getTypeData().hasFlag(ShipTypes.SF_VERSORGER) || getBaseType().hasFlag(ShipTypes.SF_VERSORGER))
+			{
+				return getSectorTimeUntilLackOfFood();
 			}
-
-			timeUntilLackOfFood += this.cargo.getResourceCount(Resources.NAHRUNG) / foodConsumption;
+			// Ansonsten schmeissen wir noch das drauf was selbst da ist.
+			return getSectorTimeUntilLackOfFood() + this.nahrungcargo / foodConsumption;
 		}
-		return timeUntilLackOfFood;
+		
+		// OK muss alles selbst haben *schnueff*
+		return this.nahrungcargo / foodConsumption;
 	}
 
 	/**
 	 * Calculates the amount of food a ship consumes.
-	 * The calculation is done with respect to hydros.
-	 * 
+	 * @see getFoodConsumption(boolean forceshow)
 	 * @return Amount of food this ship consumes
 	 */
-	private int getFoodConsumption() {
+	public int getFoodConsumption() {
+		return getFoodConsumption(false);
+	}
+	
+	/**
+	 * Calculates the amount of food a ship consumes.
+	 * The calculation is done with respect to hydros / shiptype.
+	 * 
+	 * @param forceshow <code>true</code>, wenn der Verbrauch zurueckgegeben werden soll.
+	 * @return Amount of food this ship consumes
+	 */
+	public int getFoodConsumption(boolean forceshow) {
 		ShipTypeData shiptype = this.getTypeData();
+		if(shiptype.hasFlag(ShipTypes.SF_JAEGER) && isLanded() && !forceshow)
+		{
+			return 0;
+		}
 		int scaledCrew = getScaledCrew();
 		int production = shiptype.getHydro();
 		return scaledCrew-production;
 	}
-
+	
 	/**
 	 * Calculates the amound of food the ship consumes with respect to docked ships.
 	 * 
 	 * @return The amount this ship consumes with respect to docked ships.
 	 */
-	private int getNettoFoodConsumption() {
+	public int getNettoFoodConsumption() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		int foodConsumption = getFoodConsumption();
 		
-		if( getTypeData().getADocks() > 0 || getTypeData().getJDocks() > 0 ) {
+		if( getTypeData().getJDocks() > 0 ) {
 			//Angehaengte Schiffe beruecksichtigen
 			List<?> dockedShips = db.createQuery("from Ship as ship where ship.docked in (?,?)")
 				.setString(0, Integer.toString(this.id))
@@ -1096,7 +1312,7 @@ public class Ship implements Locatable,Transfering {
 			for( Iterator<?> iter=dockedShips.iterator(); iter.hasNext(); ) {
 				Ship dockedShip = (Ship)iter.next();
 					
-				foodConsumption += dockedShip.getNettoFoodConsumption();
+				foodConsumption += dockedShip.getFoodConsumption(true);
 			}
 		}
 		return foodConsumption;
@@ -1109,7 +1325,7 @@ public class Ship implements Locatable,Transfering {
 	 */
 	public double getAlertScaleFactor()
 	{
-		double[] factors = new double[] { 1, 0.9, 0.9 };
+		double[] factors = new double[] { 1, 1.1, 1.1 };
 		
 		return factors[getAlarm()];
 	}
@@ -1124,9 +1340,9 @@ public class Ship implements Locatable,Transfering {
 		double scale = getAlertScaleFactor();
 		if(this.getUnits() != null)
 		{
-			return (int)Math.ceil((this.crew+this.getUnits().getNahrung())/scale);
+			return (int)Math.ceil((this.crew+this.getUnits().getNahrung())*scale/10);
 		}
-		return (int)Math.ceil(this.crew/scale);
+		return (int)Math.ceil(this.crew*scale/10);
 	}
 
 	/**
@@ -1259,6 +1475,7 @@ public class Ship implements Locatable,Transfering {
 		shipModules.setHull(type.getHull());
 		shipModules.setPanzerung(type.getPanzerung());
 		shipModules.setCargo(type.getCargo());
+		shipModules.setNahrungCargo(type.getNahrungCargo());
 		shipModules.setHeat(type.getHeat());
 		shipModules.setCrew(type.getCrew());
 		shipModules.setMaxUnitSize(type.getMaxUnitSize());
@@ -2469,7 +2686,7 @@ public class Ship implements Locatable,Transfering {
 				}
 
 				outLoc = new Location(jmptarget.getSystem(), jmptarget.getX(), jmptarget.getY());
-				nodetarget = outLoc.toString();
+				nodetarget = outLoc.getSystem()+":"+outLoc.getX()+"/"+outLoc.getY();
 			}	
 			else if( target[0].equals("base") ) {
 				String[] shiptarget = StringUtils.split(target[1], ':');
@@ -2873,6 +3090,19 @@ public class Ship implements Locatable,Transfering {
 			.setString("docked", Integer.toString(this.id))
 			.list());
 		return dockshipList;
+	}
+	
+	/**
+	 * Gibt die Liste aller auf diesem Schiff gelandeten Schiffe zurueck.
+	 * @return Die Liste der Schiffe
+	 */
+	public List<Ship> getLandedShips()
+	{
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		List<Ship> landedshipsList = Common.cast(db.createQuery("from Ship where id>0 and docked= :docked")
+				.setString("docked", "l "+this.id)
+				.list());
+		return landedshipsList;
 	}
 	
 	/**
@@ -3570,25 +3800,6 @@ public class Ship implements Locatable,Transfering {
 		return Integer.parseInt(this.docked);
 	}
 
-	/**
-	 * Checks if there is an asteroid of the user in the same starsystem the ship
-	 * is in.
-	 * 
-	 * @return <code>true</code> if the ship can be feed from the pool, <code>false</code> if not
-	 */
-	public boolean isUserCargoUsable() {
-		if( config.getInt("USE_NEW_FOOD_SYSTEM") == 1 ) {
-			org.hibernate.Session db = ContextMap.getContext().getDB();
-			
-			return ((Number)db.createQuery("select count(*) from Base where owner=? and system=?")
-				.setEntity(0, this.owner)
-				.setInteger(1, this.system)
-				.iterate().next()).intValue() != 0;
-		}
-		
-		return true;
-	}
-
 	@Override
 	public String transfer(Transfering to, ResourceID resource, long count) {
 		return new Transfer().transfer(this, to, resource, count);
@@ -3822,10 +4033,7 @@ public class Ship implements Locatable,Transfering {
 		{
 			return getTypeData().getReCost() + getUnits().getRE();
 		}
-		else
-		{
-			return getTypeData().getReCost();
-		}
+		return getTypeData().getReCost();
 	}
 
 	/**
@@ -3878,7 +4086,7 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * @return The energe costs 
+	 * @return The energy costs 
 	 */
 	public int getAlertEnergyCost()
 	{
@@ -3919,7 +4127,7 @@ public class Ship implements Locatable,Transfering {
 	 * 4 nobody except owner is able to see the tradepost.
 	 * @param observer the user who watches the tradepostlist.
 	 * @param relationlist the relations of the observer.
-	 * @return bollean if tradepost is visible
+	 * @return boolean if tradepost is visible
 	 */
 	public boolean isTradepostVisible(User observer, User.Relations relationlist)
 	{

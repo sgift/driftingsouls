@@ -127,14 +127,14 @@ public class SectorTemplateManager {
 			int newy = location.getY() + ship.getInt("y") - res.getInt("y");
 			
 			db.update("INSERT INTO ships ", 
-					" (owner,x,y,system,name,type,cargo,status,crew,e,s,hull,shields,heat,engine,weapons,comm,sensors,docked,alarm,destx,desty,destsystem,destcom,bookmark,jumptarget,autodeut,history, ablativeArmor) ",
+					" (owner,x,y,system,name,type,cargo,status,crew,e,s,hull,shields,heat,engine,weapons,comm,sensors,docked,alarm,destx,desty,destsystem,destcom,bookmark,jumptarget,autodeut,history, ablativeArmor,nahrungcargo) ",
 					" VALUES ",
 					" ('",owner,"','",newx,"','",newy,"','",location.getSystem(),"','",ship.get("name"),"','",ship.getInt("type"),"','",ship.getString("cargo"),"','",ship.get("status"),"', ",
 					 " '",ship.getInt("crew"),"','",ship.getInt("e"),"','",ship.getInt("s"),"','",ship.getInt("hull"),"','",ship.getInt("shields"),"', ",
 					 " '",ship.getString("heat"),"','",ship.getInt("engine"),"','",ship.getInt("weapons"),"','",ship.getInt("comm"),"', ",
 					 " '",ship.getInt("sensors"),"','','",ship.getInt("alarm"),"', ",
 					 " '",ship.getInt("destx"),"','",ship.getInt("desty"),"','",ship.getInt("destsystem"),"','",ship.getString("destcom"),"', ",
-					 " '",ship.getInt("bookmark"),"','",ship.get("jumptarget"),"','",ship.getInt("autodeut"),"','",ship.getString("history"),"','",ship.getString("ablativeArmor"),"')");
+					 " '",ship.getInt("bookmark"),"','",ship.get("jumptarget"),"','",ship.getInt("autodeut"),"','",ship.getString("history"),"','",ship.getString("ablativeArmor"),"','",ship.getInt("nahrungcargo"),"')");
 			int shipid = db.insertID();
 			
 			idtable.put(ship.getInt("id"), shipid);

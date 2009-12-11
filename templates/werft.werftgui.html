@@ -21,7 +21,8 @@
 				<a target="_blank" class="noborder" href="./ds?module=schiffinfo&amp;ship={ship.type.id}">
 					<img src="{ship.type.picture}" alt="{ship.type.name}" title="{ship.type.name}" style="border:0px; float:right; margin-right:5px; margin-left:15px;margin-bottom:10px" />
 				</a>
-				Zustand: <span style="color:{ship.hull.color}">{ship.hull}/{ship.type.hull}</span><br />
+				H&uuml;lle: <span style="color:{ship.hull.color}">{ship.hull}/{ship.type.hull}</span><br />
+				Ablative Panzerung: <span style="color:{ship.ablativearmor.color}">{ship.ablativearmor}/{ship.type.ablativearmor}</span><br />
 				Panzerung: {ship.panzerung}<br />
 				{if ship.type.shields}
 					Schilde: <span style="color:{ship.shields.color}">{ship.shields}/{ship.type.shields}</span><br />

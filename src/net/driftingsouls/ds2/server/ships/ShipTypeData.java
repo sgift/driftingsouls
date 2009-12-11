@@ -37,6 +37,12 @@ public interface ShipTypeData extends Cloneable {
 	public long getCargo();
 	
 	/**
+	 * Gibt die NahrungsCargogroesze zurueck.
+	 * @return Die Nahrungscargogroesze
+	 */
+	public long getNahrungCargo();
+	
+	/**
 	 * Git die Chance auf Loot zurueck.
 	 * @return Die Lootchance
 	 */

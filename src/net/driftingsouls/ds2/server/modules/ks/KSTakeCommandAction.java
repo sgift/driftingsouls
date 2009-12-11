@@ -20,8 +20,10 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import java.io.IOException;
 
+import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
@@ -70,7 +72,10 @@ public class KSTakeCommandAction extends BasicKSAction {
 		}
 		*/
 		battle.setCommander(battle.getOwnSide(), user);
-				
+		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
+		battle.logenemy(user.getNickname()+" hat die Schlacht &uuml;bernommen.");
+		battle.logenemy("]]></action>\n");
+		
 		return RESULT_OK;		
 	}
 }

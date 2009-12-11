@@ -162,6 +162,37 @@ public class BaseController extends TemplateGenerator {
 	
 	/**
 	 * Aendert den Namen einer Basis.
+	 * @urlparam Integer feeding Der neue Versorgungsstatus der Basis
+	 *
+	 */
+	@Action(ActionType.DEFAULT)
+	public void changeFeedingAction() {
+		TemplateEngine t = getTemplateEngine();
+		
+		parameterNumber("feeding");
+		int feeding = getInteger("feeding");
+		if( feeding == 0 ) {
+			base.setFeeding(false);
+			t.setVar("base.message", "Versorgung abgeschaltet!");
+		}
+		else if( feeding == 1 ) {
+			base.setFeeding(true);
+			t.setVar("base.message", "Versorgung angeschaltet.");
+		}
+		else if( feeding == 2 ) {
+			base.setLoading(false);
+			t.setVar("base.message", "Automatisches auff&uuml;llen abgeschaltet!");
+		}
+		else if( feeding == 3 ) {
+			base.setLoading(true);
+			t.setVar("base.message", "Automatisches auff&uuml;llen angeschaltet.");
+		}
+	
+		redirect();
+	}
+	
+	/**
+	 * Aendert den Versorgungsstatus einer Basis.
 	 * @urlparam String newname Der neue Name der Basis
 	 *
 	 */
@@ -323,6 +354,8 @@ public class BaseController extends TemplateGenerator {
 					"base.renametooltip",	tooltip,
 					"base.core",			base.getCore(),
 					"base.core.active",		base.isCoreActive(),
+					"base.isfeeding",		base.isFeeding(),
+					"base.isloading",		base.isLoading(),
 					"base.map.width",		(base.getWidth()*39+20 > 410 ? 410 : base.getWidth()*39+20),
 					"base.cargo.height",	(mapheight < 280 ? "280" : mapheight),
 					"base.cargo.empty",		Common.ln(base.getMaxCargo() - base.getCargo().getMass()) );
@@ -413,31 +446,11 @@ public class BaseController extends TemplateGenerator {
 						"res.image",	res.getImage(),
 						"res.cargo1",	res.getCargo1(),
 						"res.cargo2",	res.getCargo2(),
-						"res.plaincount2",	res.getCount2(),
-						"res.nahrungspeciallink", "" );
-
-			if( res.getId().equals(Resources.NAHRUNG) ) {
-				tooltiptext = new StringBuilder(100);
-				tooltiptext.append(Common.tableBegin(300,"center").replace('"', '\''));
-				tooltiptext.append("<form action='./ds' method='post'>");
-				tooltiptext.append("<div>");
-				tooltiptext.append("Nahrung transferieren: <input name='nahrung' type='text' size='6' value='"+res.getCount1()+"' /><br />");
-				tooltiptext.append("<input name='col' type='hidden' value='"+base.getId()+"' />");
-				tooltiptext.append("<input name='module' type='hidden' value='base' />");
-				tooltiptext.append("<input name='action' type='hidden' value='transferNahrung' />");
-				tooltiptext.append("&nbsp;<input type='submit' value='ok' /><br />");
-				tooltiptext.append("</div>");
-				tooltiptext.append("</form>");
-				tooltiptext.append(Common.tableEnd().replace('"', '\''));
-
-				tooltip = StringEscapeUtils.escapeJavaScript( StringEscapeUtils.escapeHtml(tooltiptext.toString()) );
-
-				t.setVar("res.nahrungspeciallink", tooltip);
-			}
+						"res.plaincount2",	res.getCount2() );
+			
 			t.parse("base.cargo.list", "base.cargo.listitem", true);
 		}
 		
-		basedata.getProduction().setResource( Resources.NAHRUNG, 0 ); // Nahrung landet nicht im lokalen Cargo...
 		long cstat = -basedata.getProduction().getMass();
 		
 		t.setVar(	"base.cstat",		Common.ln(cstat),

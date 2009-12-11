@@ -54,6 +54,7 @@ public class ShipTypeChangeset {
 	private int panzerung;
 	private int ablativeArmor;
 	private long cargo;
+	private long nahrungcargo;
 	private int heat;
 	private int crew;
 	private Map<String,Integer[]> weapons = new HashMap<String,Integer[]>();
@@ -167,6 +168,10 @@ public class ShipTypeChangeset {
 			else if( changeset[0].equals("cargo") ) 
 			{
 				this.cargo = Long.parseLong(changeset[1]);
+			}
+			else if( changeset[0].equals("nahrungcargo") )
+			{
+				this.nahrungcargo = Long.parseLong(changeset[1]);
 			}
 			else if( changeset[0].equals("heat") ) 
 			{
@@ -324,6 +329,7 @@ public class ShipTypeChangeset {
 		this.panzerung = context.getRequest().getParameterInt("panzerung"+addict);
 		this.ablativeArmor = context.getRequest().getParameterInt("ablativearmor"+addict);
 		this.cargo = context.getRequest().getParameterInt("cargo"+addict);
+		this.nahrungcargo = context.getRequest().getParameterInt("nahrungcargo"+addict);
 		this.heat = context.getRequest().getParameterInt("heat"+addict);
 		this.crew = context.getRequest().getParameterInt("crew"+addict);
 		this.maxunitsize = context.getRequest().getParameterInt("maxunitsize"+addict);
@@ -367,6 +373,14 @@ public class ShipTypeChangeset {
 	 */
 	public long getCargo() {
 		return cargo;
+	}
+	
+	/**
+	 * Gibt zurueck, um wieviel der NahrungCargo modifiziert wird.
+	 * @return Der NahrungCargo
+	 */
+	public long getNahrungCargo() {
+		return nahrungcargo;
 	}
 
 	/**
@@ -691,6 +705,7 @@ public class ShipTypeChangeset {
 		echo.append("<tr><td class=\"noBorderS\">Panzerung: </td><td><input type=\"text\" name=\"panzerung" +append+"\" value=\"" + getPanzerung() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Ablative Panzerung: </td><td><input type=\"text\" name=\"ablativearmor" +append+"\" value=\"" + getAblativeArmor() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Cargo: </td><td><input type=\"text\" name=\"cargo" +append+"\" value=\"" + getCargo() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">NahrungCargo: </td><td><input type=\"text\" name=\"nahrungcargo" +append+"\" value=\"" + getNahrungCargo() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Ueberhitzung: </td><td><input type=\"text\" name=\"heat" +append+"\" value=\"" + getHeat() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Crew: </td><td><input type=\"text\" name=\"crew" +append+"\" value=\"" + getCrew() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Maximale Einheitengr&puml;&suml;e: </td><td><input type=\"text\" name=\"maxunitsize" +append+"\" value=\"" + getMaxUnitSize() + "\"></td></tr>\n");
@@ -754,6 +769,9 @@ public class ShipTypeChangeset {
 		}
 		if ( getCargo() != 0) {
 			itemstring = itemstring + "cargo," + getCargo() + "|";
+		}
+		if ( getNahrungCargo() != 0) {
+			itemstring = itemstring + "nahrungcargo," + getNahrungCargo() + "|";
 		}
 		if ( getHeat() != 0) {
 			itemstring = itemstring + "heat," + getHeat() + "|";
@@ -888,6 +906,14 @@ public class ShipTypeChangeset {
 		public long getCargo() {
 			long value = inner.getCargo() + ShipTypeChangeset.this.getCargo();
 			if( value < 0 ) {
+				return 0;
+			}
+			return value;
+		}
+		
+		public long getNahrungCargo() {
+			long value = inner.getNahrungCargo() + ShipTypeChangeset.this.getNahrungCargo();
+			if( value < 0) {
 				return 0;
 			}
 			return value;

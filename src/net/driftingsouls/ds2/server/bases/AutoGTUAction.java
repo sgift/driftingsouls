@@ -90,7 +90,7 @@ public final class AutoGTUAction implements Cloneable {
 	}
 	
 	/**
-	 * Legt fest, dass die Resource komplett verkauft werden soll.
+	 * Legt fest, dass die Resource in angegebener Hoehe verkauft werden soll.
 	 */
 	public static final int SELL_ALL = 0;
 	/**

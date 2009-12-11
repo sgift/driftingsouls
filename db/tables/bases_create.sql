@@ -26,6 +26,8 @@ CREATE TABLE `bases` (
   `unitcargo` varchar (120),
   `spawnableress` text,
   `spawnressavailable` text,
+  `isloading` tinyint(1) NOT NULL default '1',
+  `isfeeding` tinyint(1) NOT NULL default '1',
   PRIMARY KEY  (`id`),
   KEY `owner` (`owner`,`id`),
   KEY `coords` (`x`,`y`,`system`)

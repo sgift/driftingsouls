@@ -90,6 +90,7 @@ public class EditShip implements AdminPlugin
 			ship.setAblativeArmor(context.getRequest().getParameterInt("ablativearmor"));
 			ship.setShields(context.getRequest().getParameterInt("shields"));
 			ship.setCrew(context.getRequest().getParameterInt("crew"));
+			ship.setNahrungCargo(context.getRequest().getParameterInt("nahrungcargo"));
 			ship.setEnergy(context.getRequest().getParameterInt("energy"));
 			ship.setSensors(context.getRequest().getParameterInt("sensors"));
 			ship.setEngine(context.getRequest().getParameterInt("engine"));
@@ -165,6 +166,7 @@ public class EditShip implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">Ablative Panzerung: </td><td><input type=\"text\" name=\"ablativearmor\" value=\"" + ship.getAblativeArmor() + "\"></td><td class=\"noBorderS\">/ "+type.getAblativeArmor()+"</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Schilde: </td><td><input type=\"text\" name=\"shields\" value=\"" + ship.getShields() + "\"></td><td class=\"noBorderS\">/ "+type.getShields()+"</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Crew: </td><td><input type=\"text\" name=\"crew\" value=\"" + ship.getCrew() + "\"></td><td class=\"noBorderS\">/ "+type.getCrew()+"</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Nahrungsspeicher: </td><td><input type=\"text\" name=\"nahrungcargo\" value=\"" + ship.getNahrungCargo() + "\"></td><td class=\"noBorderS\">/ "+type.getNahrungCargo()+"</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Einheitenladeraum: </td><td><input type=\"text\" name=\"unitcargo\" value=\"" + ship.getUnits().toString() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Energie: </td><td><input type=\"text\" name=\"energy\" value=\"" + ship.getEnergy() + "\"></td><td class=\"noBorderS\">/ "+type.getEps()+"</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Sensoren: </td><td><input type=\"text\" name=\"sensors\" value=\"" + ship.getSensors() + "\"></td></tr>\n");

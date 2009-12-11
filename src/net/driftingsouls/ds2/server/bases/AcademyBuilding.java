@@ -374,8 +374,7 @@ public class AcademyBuilding extends DefaultBuilding {
 				t.setVar("trainnewoffi.error", "Nicht genug Silizium");
 				ok = false;
 			}
-			Cargo usercargo = new Cargo( Cargo.Type.STRING, user.getCargo() );
-			if( cargo.getResourceCount( Resources.NAHRUNG )+usercargo.getResourceCount( Resources.NAHRUNG ) < nahrungcosts ) {
+			if( cargo.getResourceCount( Resources.NAHRUNG ) < nahrungcosts ) {
 				t.setVar("trainnewoffi.error", "Nicht genug Nahrung");
 				ok = false;
 			}
@@ -384,12 +383,7 @@ public class AcademyBuilding extends DefaultBuilding {
 				t.setVar("trainnewoffi.train", 1);
 		
 				cargo.substractResource( Resources.SILIZIUM, (int)siliziumcosts );
-				usercargo.substractResource( Resources.NAHRUNG, (int)nahrungcosts );
-				if( usercargo.getResourceCount( Resources.NAHRUNG ) < 0 ) {
-					cargo.substractResource( Resources.NAHRUNG, -usercargo.getResourceCount( Resources.NAHRUNG ) );
-					usercargo.setResource( Resources.NAHRUNG, 0 );	
-				}
-				user.setCargo(usercargo.save());
+				cargo.substractResource( Resources.NAHRUNG, (int)nahrungcosts );
 				academy.setTrain(true);
 				AcademyQueueEntry entry = new AcademyQueueEntry(base, -newo, (int)dauercosts);
 				base.setCargo(cargo);

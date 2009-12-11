@@ -26,7 +26,6 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
-import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.StarSystem;
@@ -155,7 +154,7 @@ public class RTCTick extends TickController {
 					
 					ship.recalculateShipStatus();
 		
-					String msg = "Sie haben "+entryname+" ersteigert.\nDas Objekt wurde ihnen bei "+loc.displayCoordinates(false)+" &uuml;bergeben.\n\nJack Miller\nHan Ronalds";
+					String msg = "Sie haben "+entryname+" f&uumlr; +"+Common.ln(price)+" RE ersteigert.\nDas Objekt wurde ihnen bei "+loc.displayCoordinates(false)+" &uuml;bergeben.\n\nJack Miller\nHan Ronalds";
 					PM.send(gtuuser, winner.getId(), entryname+" ersteigert", msg);
 		
 					if( entry.getOwner() != this.gtuuser ) {				
@@ -204,18 +203,18 @@ public class RTCTick extends TickController {
 		
 					loc = posten.getLocation();
 					
-					String msg = "Sie haben "+entryname+" ersteigert.\nDas Objekt wurde ihnen bei "+loc+" auf dem Handelsposten hinterlegt.\n\nGaltracorp Unlimited";
+					String msg = "Sie haben "+entryname+" f&uumlr; "+Common.ln(price)+" RE ersteigert.\nDas Objekt wurde ihnen bei "+loc.displayCoordinates(false)+" auf dem Handelsposten hinterlegt.\n\nGaltracorp Unlimited";
 					PM.send(gtuuser, winner.getId(), entryname+" ersteigert", msg);
 		
 					if( entry.getOwner() != this.gtuuser ) {				
 						msg = "Es wurde ihr "+entryname+" versteigert.\nDas Objekt wurde dem Gewinner "+winner.getName()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben. Die GTU berechnet ihnen "+gtucost+"% des Gewinnes als Preis. Dies entspricht "+Common.ln(Math.ceil(price*gtucost/100d))+" RE. Ihnen bleiben somit noch "+Common.ln((price-Math.ceil(price*gtucost/100d)))+" RE\n\nJack Miller\nHan Ronalds";
 						PM.send(gtuuser, entry.getOwner().getId(), entryname+" versteigert", msg);
 						
-						msg = "Es wurde "+entryname+" im Auftrag von "+entry.getOwner().getId()+" versteigert.\nDas Objekt wurde bei "+loc+" dem Gewinner "+winner.getId()+" f&uuml;r den Preis von "+Common.ln(price)+" RE hinterlegt. Einnahme: "+Common.ln(Math.ceil(price*gtucost/100d))+" RE ("+gtucost+"%)";
+						msg = "Es wurde "+entryname+" im Auftrag von "+entry.getOwner().getId()+" versteigert.\nDas Objekt wurde bei "+loc.displayCoordinates(false)+" dem Gewinner "+winner.getId()+" f&uuml;r den Preis von "+Common.ln(price)+" RE hinterlegt. Einnahme: "+Common.ln(Math.ceil(price*gtucost/100d))+" RE ("+gtucost+"%)";
 						PM.send(sourceUser, Faction.GTU, entryname+" ersteigert", msg);
 					}
 					else {
-						msg = "Es wurde "+entryname+" versteigert.\nDas Objekt wurde bei "+loc+" dem Gewinner "+winner.getName()+" f&uuml;r den Preis von "+Common.ln(price)+" RE hinterlegt.";
+						msg = "Es wurde "+entryname+" versteigert.\nDas Objekt wurde bei "+loc.displayCoordinates(false)+" dem Gewinner "+winner.getName()+" f&uuml;r den Preis von "+Common.ln(price)+" RE hinterlegt.";
 						PM.send(sourceUser, Faction.GTU, entryname+" ersteigert", msg);
 					}
 					
@@ -294,15 +293,13 @@ public class RTCTick extends TickController {
 			
 				String history = "Indienststellung am "+this.currentTime+" durch "+this.gtuuser.getName()+" (Versteigerung) f&uuml;r "+winner.getName()+" ("+winner.getId()+")\n";
 
-				cargo.addResource(Resources.NAHRUNG, shipd.getCrew()*5);
-				// Kein cutCargo, da sonst ersteigerte Waren entfernt werden koennten
-				
 				Ship ship = new Ship(winner, shipd, loc.getSystem(), loc.getX(), loc.getY());
 				ship.setName("Verkauft");
 				ship.setCrew(shipd.getCrew());
 				ship.setEnergy(shipd.getEps());
 				ship.setHull(shipd.getHull());
 				ship.setCargo(cargo);
+				ship.setNahrungCargo(shipd.getCrew()*7*3);
 				ship.setHistory(history);
 				ship.setEngine(100);
 				ship.setWeapons(100);
@@ -362,10 +359,10 @@ public class RTCTick extends TickController {
 		
 				this.log("[GTU-Paket] END");
 		
-				String msg = "Sie haben ein GTU-Paket ersteigert.\nEs steht bei "+loc+" f&uuml;r sie bereit.\nJack Miller\nHan Ronalds";
+				String msg = "Sie haben ein GTU-Paket f&uuml;r "+Common.ln(paket.getPreis())+" RE ersteigert.\nEs steht bei "+loc.displayCoordinates(false)+" f&uuml;r sie bereit.\nJack Miller\nHan Ronalds";
 				PM.send(gtuuser, winner.getId(), "GTU-Paket ersteigert", msg);
 		
-				msg = "Ein GTU-Paket wurde versteigert.\nEs steht bei "+loc+" f&uuml;r "+winner.getId()+" zum Preis von "+Common.ln(paket.getPreis())+" RE bereit.";
+				msg = "Ein GTU-Paket wurde versteigert.\nEs steht bei "+loc.displayCoordinates(false)+" f&uuml;r "+winner.getId()+" zum Preis von "+Common.ln(paket.getPreis())+" RE bereit.";
 				PM.send(sourceUser, Faction.GTU, "GTU-Paket versteigert", msg);
 		
 				StatGtu stat = new StatGtu(paket);

@@ -236,14 +236,11 @@ public class UeberController extends TemplateGenerator {
 
 		int ticks = getContext().get(ContextCommon.class).getTick();
 		int[] fullbalance = user.getFullBalance();
-		
-		Cargo usercargo = new Cargo( Cargo.Type.STRING, user.getCargo() );
 				
 		t.setVar(	"user.name",				Common._title(user.getName()),
 				  	"user.race",				race,
 				  	"res.nahrung.image",		Cargo.getResourceImage(Resources.NAHRUNG),
 				  	"res.re.image",				Cargo.getResourceImage(Resources.RE),
-				  	"user.nahrung",				Common.ln(usercargo.getResourceCount(Resources.NAHRUNG)),
 				  	"user.nahrung.new", 		Common.ln(fullbalance[0]),
 					"user.nahrung.new.plain", 	fullbalance[0],
 				  	"user.konto",				Common.ln(user.getKonto()),
@@ -330,8 +327,6 @@ public class UeberController extends TemplateGenerator {
 		// Mangel auf Asteroiden checken
 		//------------------------------
 
-		usercargo = new Cargo( Cargo.Type.STRING, user.getCargo() );
-
 		int bw = 0;
 		int bases = 0;
 
@@ -345,17 +340,21 @@ public class UeberController extends TemplateGenerator {
 			BaseStatus basedata = Base.getStatus(getContext(), base);
 			
 			Cargo cargo = new Cargo(base.getCargo());
-			cargo.addResource( Resources.NAHRUNG, usercargo.getResourceCount(Resources.NAHRUNG) );
 			cargo.addResource(Resources.RE, user.getKonto().longValue());
 			
 			boolean mangel = false;
 
 			ResourceList reslist = basedata.getProduction().getResourceList();
 			for( ResourceEntry res : reslist ) {
-				if( (res.getCount1() < 0) && (-(cargo.getResourceCount(res.getId())/res.getCount1()) < 9) ) {
+				if( (res.getCount1() < 0) && (-(cargo.getResourceCount(res.getId())/res.getCount1()) <= 9) ) {
 					mangel = true;
 					break;
 				}
+			}
+			
+			if(basedata.getEnergy() < 0 && base.getEnergy() / -basedata.getEnergy() <=9)
+			{
+				mangel = true;
 			}
 			
 			if( mangel ) {
@@ -378,8 +377,8 @@ public class UeberController extends TemplateGenerator {
 				.setEntity("user", user)
 				.iterate().next();
 
-		shipNoCrew = (Long)db.createQuery("select count(*) from Ship " +
-							"where id>0 and owner= :user and locate('nocrew',status)!=0" )
+		shipNoCrew = (Long)db.createQuery("select count(*) from Ship as s where s.id>0 and s.owner= :user" +
+				" and ((s.modules is not null and s.crew < (select crew from ShipModules where id=s.modules)) or s.crew < (select crew from ShipType where id = s.shiptype))" )
 				.setEntity("user", user)
 				.iterate().next();
 			  

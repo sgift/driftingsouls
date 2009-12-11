@@ -219,7 +219,6 @@ public class KasernenBuilding extends DefaultBuilding {
 			UnitType unittype = (UnitType)db.get(UnitType.class, newunit);
 			
 			Cargo cargo = new Cargo(base.getCargo());
-			Cargo usercargo = new Cargo(Cargo.Type.STRING ,owner.getCargo());
 			Cargo buildcosts = unittype.getBuildCosts();
 			BigInteger konto = owner.getKonto();
 			String msg = "";
@@ -231,47 +230,33 @@ public class KasernenBuilding extends DefaultBuilding {
 				// Wenn nicht alles im eigenen Cargo da ist
 				if( !cargo.hasResource(res.getId(), res.getCount1()*newcount) )
 				{
-					// Ists im UserCargo
-					if( !usercargo.hasResource(res.getId(), res.getCount1()*newcount - cargo.getResourceCount(res.getId())))
+					// Handelt es sich um Geld
+					if(res.getId().equals(Resources.RE))
 					{
-						// TODO: Konto zum UserCargo hinzufuegen?
-						// Handelt es sich um Geld
-						if(res.getId().equals(Resources.RE))
+						// Genug Geld auf dem Konto
+						if(konto.intValue() >= res.getCount1()*newcount - cargo.getResourceCount(res.getId()))
 						{
-							// Genug Geld auf dem Konto
-							if(konto.intValue() >= res.getCount1()*newcount - cargo.getResourceCount(res.getId()) - usercargo.getResourceCount(res.getId()))
-							{
-								// Fresse Cargo und UserCargo leer danach das Konto
-								konto = konto.subtract(BigInteger.valueOf( res.getCount1()*newcount - cargo.getResourceCount(res.getId()) - usercargo.getResourceCount(res.getId()) ));
-								cargo.setResource(res.getId(), 0);
-								usercargo.setResource(res.getId(), 0);
-							}
-							else
-							{
-								// Mensch sind wir echt sooo pleite?
-								ok = false;
-								msg += "Sie haben nicht genug "+res.getPlainName()+"<br />";
-							}
-						
+							// Fresse Cargo leer danach das Konto
+							konto = konto.subtract(BigInteger.valueOf( res.getCount1()*newcount - cargo.getResourceCount(res.getId()) ));
+							cargo.setResource(res.getId(), 0);
 						}
 						else
 						{
-							// Es ist nicht genug da.
+							// Mensch sind wir echt sooo pleite?
 							ok = false;
 							msg += "Sie haben nicht genug "+res.getPlainName()+"<br />";
 						}
-						
+					
 					}
 					else
 					{
-						// Wir haben genug im UserCargo aber nicht genug im eigenen
-						usercargo.substractResource(res.getId(), res.getCount1()*newcount - cargo.getResourceCount(res.getId()));
-						cargo.setResource(res.getId(), 0);
+						// Es handelt sich nicht um Geld und wir haben nicht genug.
+						ok = false;
 					}
 				}
 				else
 				{
-					// Wir haben selber genug
+					// Wir haben genug
 					cargo.substractResource(res.getId(), res.getCount1()*newcount);
 				}
 			}
@@ -279,7 +264,6 @@ public class KasernenBuilding extends DefaultBuilding {
 			if( ok ) {
 				msg += newcount+" "+unittype.getName()+" werden ausgebildet.";
 				
-				owner.setCargo(usercargo.save());
 				base.setCargo(cargo);
 				owner.setKonto(konto);
 				

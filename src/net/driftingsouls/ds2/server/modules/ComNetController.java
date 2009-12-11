@@ -137,7 +137,7 @@ public class ComNetController extends TemplateGenerator {
 		
 		t.setVar("show.read",1);
 		if( !activeChannelObj.isReadable(user) ) {
-			addError( "Sie sind nicht berechtigt diesee Frequenz zu empfangen", Common.buildUrl("default", "channel", activeChannel) );
+			addError( "Sie sind nicht berechtigt diese Frequenz zu empfangen", Common.buildUrl("default", "channel", activeChannel) );
 			setTemplate("");
 			
 			return;			
@@ -220,7 +220,7 @@ public class ComNetController extends TemplateGenerator {
 				t.setVar("read.nextpossible",1);
 			}
 			
-			t.setVar("posts.action","read");
+			//t.setVar("posts.action","read");
 			t.setBlock("_COMNET","posts.listitem","posts.list");
 			
 			for(ComNetEntry entry: entries)
