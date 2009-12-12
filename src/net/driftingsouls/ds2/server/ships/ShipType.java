@@ -319,8 +319,19 @@ public class ShipType implements ShipTypeData {
 		return getWeapons().indexOf('=') > -1;
 	}
 	
+	/**
+	 * @return <code>true</code>, wenn dieses Schiff ein Versorger ist.
+	 */
 	public boolean isVersorger() {
 		return versorger;
+	}
+	
+	/**
+	 * Setzt, ob es sich um einen Versorger handelt.
+	 * @param versorger <code>true</code>, falls es ein Versorger ist
+	 */
+	public void setVersorger(boolean versorger) {
+		this.versorger = versorger;
 	}
 	
 	@Override
