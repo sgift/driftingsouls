@@ -1377,4 +1377,8 @@
 		UPDATE ships SET nahrungcargo = (SELECT nahrungcargo FROM ship_types WHERE ship_types.id = ships.type);
 		UPDATE users SET cargo = '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,';
 	]]></update>
+	<update><![CDATA[
+		ALTER TABLE ship_types ADD versorger tinyint(1) NOT NULL default '0';
+		ALTER TABLE ships_modules ADD versorger tinyint(1) NOT NULL default '0';
+	]]></update>
 </updates>

@@ -85,6 +85,7 @@ public class ShipModules implements ShipTypeData {
 	private double lostInEmpChance;
 	private int maxunitsize;
 	private int unitspace;
+	private boolean versorger;
 	
 	@Version
 	private int version;
@@ -573,6 +574,10 @@ public class ShipModules implements ShipTypeData {
 	@Override
 	public boolean isMilitary() {
 		return getWeapons().indexOf('=') > -1;
+	}
+	
+	public boolean isVersorger() {
+		return versorger;
 	}
 	
 	@Override

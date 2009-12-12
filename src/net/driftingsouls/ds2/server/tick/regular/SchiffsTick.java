@@ -501,8 +501,8 @@ public class SchiffsTick extends TickController {
 				"from Ship as s left join fetch s.modules" +
 				" where s.id>0 and s.owner=? " +
 				" and system!=0 and "+battle +
-				"order by locate('versorger', s.shiptype.flags) DESC, " +
-				" locate('versorger',s.modules.flags) DESC, s.shiptype.jDocks DESC," +
+				"order by s.shiptype.versorger DESC, " +
+				" s.modules.versorger DESC, s.shiptype.jDocks DESC," +
 				"s.modules.jDocks DESC,s.shiptype ASC")
 				.setEntity(0, auser)
 				.list();
