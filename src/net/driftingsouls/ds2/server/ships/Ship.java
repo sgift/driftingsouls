@@ -1112,8 +1112,8 @@ public class Ship implements Locatable,Transfering {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
 		List<?> versorger = db.createQuery("from Ship as s left join fetch s.modules" +
-				" where s.shiptype.versorger!=0 or (s.modules is not null and s.modules.versorger!=0))" +
-				" and owner=? and s.system=? and s.x=? and s.y=? and s.nahrungcargo > 0 and s.isfeeding != 0 ORDER BY s.nahrungcargo DESC")
+				" where s.shiptype.versorger!=0 or (s.modules is not null and s.modules.versorger!=0)" +
+				" and s.owner=? and s.system=? and s.x=? and s.y=? and s.nahrungcargo > 0 and s.isfeeding != 0 ORDER BY s.nahrungcargo DESC")
 				.setEntity(0, this.owner)
 				.setInteger(1, this.system)
 				.setInteger(2, this.x)
@@ -1128,7 +1128,7 @@ public class Ship implements Locatable,Transfering {
 		if(this.owner.getAlly() != null)
 		{
 			List<?> allyversorger = db.createQuery("from Ship as s left join fetch s.modules" +
-					" where s.shiptype.versorger!=0 or (s.modules is not null and s.modules.versorger!=0))" +
+					" where s.shiptype.versorger!=0 or (s.modules is not null and s.modules.versorger!=0)" +
 					" and s.owner.ally=? and s.owner.vaccount!=0 and s.owner.wait4vac=0 and s.system=? and s.x=? and s.y=? and s.nahrungcargo > 0 and s.isfeeding != 0 and s.isallyfeeding != 0 ORDER BY s.nahrungcargo DESC")
 					.setEntity(0, this.owner.getAlly())
 					.setInteger(1, this.system)
