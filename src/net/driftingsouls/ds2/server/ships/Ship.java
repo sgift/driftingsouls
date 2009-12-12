@@ -1177,7 +1177,7 @@ public class Ship implements Locatable,Transfering {
 		for(Iterator<Ship> iter=ships.iterator(); iter.hasNext();)
 		{
 			Ship ship = iter.next();
-			if(ship.getTypeData().hasFlag(ShipTypes.SF_VERSORGER) && ship.isFeeding())
+			if(ship.getTypeData().isVersorger() && ship.isFeeding())
 			{
 				versorgernahrung += ship.getNahrungCargo();
 			}
@@ -1208,7 +1208,8 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	private boolean lackOfFood() {
-		if( timeUntilLackOfFood() <= MANGEL_TICKS && timeUntilLackOfFood() >= 0) {
+		long ticks = timeUntilLackOfFood();
+		if( ticks <= MANGEL_TICKS && ticks >= 0) {
 			return true;
 		}
 
@@ -1255,7 +1256,7 @@ public class Ship implements Locatable,Transfering {
 		//Den Nahrungsverbrauch berechnen - Ist nen Versorger da ists cool
 		if( versorger != null || isBaseInSector()) {
 			// Sind wir selbst ein Versorger werden wir ja mit berechnet.
-			if( getTypeData().hasFlag(ShipTypes.SF_VERSORGER) || getBaseType().hasFlag(ShipTypes.SF_VERSORGER))
+			if( getTypeData().isVersorger() || getBaseType().isVersorger())
 			{
 				return getSectorTimeUntilLackOfFood();
 			}

@@ -272,6 +272,12 @@ public interface ShipTypeData extends Cloneable {
 	public boolean isMilitary();
 	
 	/**
+	 * Gibt zurueck, ob es sich um einen Versorger handelt.
+	 * @return <code>true</code>, falls das Schiff ein Versorger ist
+	 */
+	public boolean isVersorger();
+	
+	/**
 	 * Gibt die ablative Panzerung des Schifftypes zurueck.
 	 * @return Ablative Panzerung
 	 */

@@ -261,6 +261,11 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	}
 	
 	@Override
+	public boolean isVersorger() {
+		return inner.isVersorger();
+	}
+	
+	@Override
 	public int getAblativeArmor() {
 		return inner.getAblativeArmor();
 	}

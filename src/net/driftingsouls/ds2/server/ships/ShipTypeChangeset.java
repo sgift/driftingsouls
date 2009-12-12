@@ -734,6 +734,7 @@ public class ShipTypeChangeset {
 	/**
 	 * @return Das Changeset als Text.
 	 */
+	@Override
 	public String toString()
 	{
 		String itemstring = "";
@@ -1287,6 +1288,10 @@ public class ShipTypeChangeset {
 
 		public boolean isMilitary() {
 			return getWeapons().indexOf('=') > -1;
+		}
+		
+		public boolean isVersorger() {
+			return inner.isVersorger();
 		}
 
 		public ShipTypeData getType() {
