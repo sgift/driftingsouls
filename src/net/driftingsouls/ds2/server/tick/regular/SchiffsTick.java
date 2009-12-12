@@ -39,7 +39,6 @@ import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.UnitCargo;
@@ -94,7 +93,7 @@ public class SchiffsTick extends TickController {
 
 	private void tickShip( org.hibernate.Session db, Ship shipd ) {
 		this.log(shipd.getName()+" ("+shipd.getId()+"):");
-		boolean recalc = false;
+	//	boolean recalc = false;
 
 		ShipTypeData shiptd = shipd.getTypeData();
 
@@ -182,7 +181,7 @@ public class SchiffsTick extends TickController {
 		//Crew die nicht versorgt werden konnte verhungern lassen
 		if(crewToFeed > 0) {
 			this.log("Crew verhungert - ");
-			recalc = true;
+	//		recalc = true;
 		}
 		if(crewToFeed >= (int)Math.ceil(shipd.getUnits().getNahrung() / 10)){
 			crewToFeed = crewToFeed - (int)Math.ceil(shipd.getUnits().getNahrung() / 10);
@@ -227,7 +226,7 @@ public class SchiffsTick extends TickController {
 		this.log("MinCrew " + minCrew);
 		if(crew < minCrew && !user.hasFlag(User.FLAG_NO_HULL_DECAY))
 		{
-			recalc = true;
+	//		recalc = true;
 			this.log("Schiff hat nicht genug Crew; beschaedige Huelle.");
 			ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "nocrewhulldamagescale");
 			double scale = Double.parseDouble(value.getValue());
@@ -336,7 +335,7 @@ public class SchiffsTick extends TickController {
 		}	
 
 		if( e < shiptd.getEps() ) {
-			recalc = true;
+	//		recalc = true;
 			int rm = shiptd.getRm();
 			if( shiptd.getCrew() > 0 ) {
 				rm = (int)(rm * shipd.getCrew() / (double)shiptd.getCrew());
@@ -439,7 +438,7 @@ public class SchiffsTick extends TickController {
 		// Evt. Deuterium sammeln
 		if( shipd.getAutoDeut() && (shiptd.getDeutFactor() != 0) && (shipd.getCrew() >= shiptd.getCrew()/2) && (e > 0) && (shipc.getMass() < shiptd.getCargo()) ) {
 			this.slog("\tS. Deut: ");
-			recalc = true;
+	//		recalc = true;
 			int nebel = Ships.getNebula(shipd.getLocation());
 
 			if( (nebel >= 0) && (nebel <= 2) ) {
@@ -477,12 +476,12 @@ public class SchiffsTick extends TickController {
 		shipd.setCargo(shipc);
 		
 		this.slog("\tNeu: crew "+shipd.getCrew()+" e "+e+" speicher "+shipd.getNahrungCargo()+" status: <");
-		
+		/*
 		if(recalc || shipd.getTypeData().hasFlag(ShipTypes.SF_VERSORGER))
 		{
 			shipd.recalculateShipStatus();
 		}
-		
+		*/
 		this.slog(shipd.getStatus());
 		
 
