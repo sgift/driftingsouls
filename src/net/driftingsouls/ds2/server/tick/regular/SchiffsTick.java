@@ -108,7 +108,7 @@ public class SchiffsTick extends TickController {
 		Map<Location,List<Ship>> versorgerlist = new HashMap<Location,List<Ship>>();
 		
 		List<Ship> ships = Common.cast(db.createQuery("from Ship as s left join fetch s.modules" +
-				" where s.id>0 and s.owner=? and system!=0 " +
+				" where s.id>0 and s.owner=? and system!=0 and (s.shiptype.versorger=1 or s.modules.versorger=1)" +
 				"order by s.shiptype.versorger DESC, " +
 				" s.modules.versorger DESC, s.shiptype.jDocks DESC," +
 				"s.modules.jDocks DESC,s.shiptype ASC")
