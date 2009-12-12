@@ -246,11 +246,12 @@ public class SchiffsTick extends TickController {
 		//Faktor fuer den Verbrauch
 		double scaleFactor = shipd.getAlertScaleFactor();
 
+		Ship versorger = getVersorger(shipd.getLocation());
 		//VersorgerCargo, Basisschiffcargo, eigener Cargo - Leerfuttern in der Reihenfolge
-		while(getVersorger(shipd.getLocation()) != null && crewToFeed > 0)
+		while(versorger != null && crewToFeed > 0)
 		{
-			Ship versorger = shipd.getVersorger();
 			crewToFeed = consumeFood(versorger ,crewToFeed, scaleFactor);
+			versorger = getVersorger(shipd.getLocation());
 		}
 
 		if(baseShip != null)
