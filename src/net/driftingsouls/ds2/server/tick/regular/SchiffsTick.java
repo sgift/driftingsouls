@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -53,6 +54,7 @@ import org.hibernate.FlushMode;
 public class SchiffsTick extends TickController {
 	private Map<String,ResourceID> esources;
 	private Map<Base,Long> savelist;
+	private Map<Location,List<Ship>> versorgerlist;
 	private boolean calledByBattle=false;
 
 	@Override
@@ -78,6 +80,17 @@ public class SchiffsTick extends TickController {
 		if( crewToFeed > ship.getNahrungCargo()*scaleFactor ) {
 			crewThatCouldBeFeed = (int)(ship.getNahrungCargo()*scaleFactor);
 			crewToFeed -= crewThatCouldBeFeed;
+			if(versorgerlist.containsKey(ship.getLocation()))
+			{
+				if(versorgerlist.get(ship.getLocation()).contains(ship))
+				{
+					versorgerlist.get(ship.getLocation()).remove(ship);
+					if(versorgerlist.get(ship.getLocation()).isEmpty())
+					{
+						versorgerlist.remove(ship.getLocation());
+					}
+				}
+			}
 		}
 		else {
 			crewThatCouldBeFeed = crewToFeed;
@@ -89,7 +102,82 @@ public class SchiffsTick extends TickController {
 
 		return crewToFeed;
 	}
-
+	
+	private Map<Location,List<Ship>> getLocationVersorgerList(org.hibernate.Session db,User user)
+	{
+		Map<Location,List<Ship>> versorgerlist = new HashMap<Location,List<Ship>>();
+		
+		List<Ship> ships = Common.cast(db.createQuery("from Ship as s left join fetch s.modules" +
+				" where s.id>0 and s.owner=? and system!=0 " +
+				"order by s.shiptype.versorger DESC, " +
+				" s.modules.versorger DESC, s.shiptype.jDocks DESC," +
+				"s.modules.jDocks DESC,s.shiptype ASC")
+				.setEntity(0, user)
+				.list());
+		
+		for( Ship ship : ships)
+		{
+			if(ship.isFeeding() && ship.getNahrungCargo() > 0)
+			{
+				Location loc = ship.getLocation();
+				if(versorgerlist.containsKey(loc))
+				{
+					versorgerlist.get(loc).add(ship);
+				}
+				else
+				{
+					List<Ship> shiplist = new ArrayList<Ship>();
+					shiplist.add(ship);
+					versorgerlist.put(loc, shiplist);
+				}
+			}
+		}
+		
+		if(user.getAlly() != null)
+		{
+			ships = Common.cast(db.createQuery("from Ship as s left join fetch s.modules" +
+					" where s.id>0 and s.owner.ally=? and s.owner.vaccount!=0 and " +
+					"s.owner.wait4vac=0 and system!=0 " +
+					"order by s.shiptype.versorger DESC, " +
+					" s.modules.versorger DESC, s.shiptype.jDocks DESC," +
+					"s.modules.jDocks DESC,s.shiptype ASC")
+					.setEntity(0, user)
+					.list());
+			
+			for( Ship ship : ships)
+			{
+				if(ship.isFeeding() && ship.isAllyFeeding() && ship.getNahrungCargo() > 0)
+				{
+					Location loc = ship.getLocation();
+					if(versorgerlist.containsKey(loc))
+					{
+						versorgerlist.get(loc).add(ship);
+					}
+					else
+					{
+						List<Ship> shiplist = new ArrayList<Ship>();
+						shiplist.add(ship);
+						versorgerlist.put(loc, shiplist);
+					}
+				}
+			}
+			
+		}
+		
+		return versorgerlist;
+	}
+	
+	private Ship getVersorger(Location loc)
+	{
+		if(versorgerlist.containsKey(loc))
+		{
+			return versorgerlist.get(loc).get(0);
+		}
+		else
+		{
+			return null;
+		}
+	}
 
 	private void tickShip( org.hibernate.Session db, Ship shipd ) {
 		this.log(shipd.getName()+" ("+shipd.getId()+"):");
@@ -159,11 +247,10 @@ public class SchiffsTick extends TickController {
 		double scaleFactor = shipd.getAlertScaleFactor();
 
 		//VersorgerCargo, Basisschiffcargo, eigener Cargo - Leerfuttern in der Reihenfolge
-		while(shipd.getVersorger() != null && crewToFeed > 0)
+		while(getVersorger(shipd.getLocation()) != null && crewToFeed > 0)
 		{
 			Ship versorger = shipd.getVersorger();
 			crewToFeed = consumeFood(versorger ,crewToFeed, scaleFactor);
-			getContext().commit();
 		}
 
 		if(baseShip != null)
@@ -284,7 +371,7 @@ public class SchiffsTick extends TickController {
 				User nobody = (User)db.get(User.class, -1);
 				nobody.transferMoneyFrom(owner.getId(), reCost);
 			}
-			else
+			else if(owner.getId() != Faction.PIRATE)
 			{
 				BigInteger reCostHelper = BigInteger.valueOf(shiptd.getReCost());
 				// Wartungskosten koennen aufgebracht werden.
@@ -506,7 +593,9 @@ public class SchiffsTick extends TickController {
 				"s.modules.jDocks DESC,s.shiptype ASC")
 				.setEntity(0, auser)
 				.list();
-
+		
+		versorgerlist = getLocationVersorgerList(db, auser);
+		
 		List<?> bases = db.createQuery("from Base where owner=?")
 									.setEntity(0,auser)
 									.list();
