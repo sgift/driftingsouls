@@ -21,8 +21,6 @@ package net.driftingsouls.ds2.server.tick.regular;
 import java.math.BigInteger;
 import java.util.List;
 
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.Ordner;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.Handel;
@@ -51,8 +49,6 @@ public class UserTick extends TickController
 	@Override
 	protected void tick()
 	{
-		final double foodPoolDegeneration = getGlobalFoodPoolDegeneration();		
-		
 		long deleteThreshould = Common.time() - 60*60*24*14;
 		log("DeleteThreshould is " + deleteThreshould);
 		List<User> users = Common.cast(db.createQuery("from User").list());
@@ -72,19 +68,6 @@ public class UserTick extends TickController
 					ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "vacpointsperplayedtick");
 					int pointsPerTick = Integer.valueOf(value.getValue());
 					user.setVacpoints(user.getVacpoints() + pointsPerTick);
-					
-					Cargo usercargo = new Cargo( Cargo.Type.STRING, user.getCargo());
-					
-					//Rot food
-					double rottenFoodPercentage = foodPoolDegeneration + user.getFoodpooldegeneration();
-					long food = usercargo.getResourceCount(Resources.NAHRUNG);
-					long rottenFood = (long)(food*(rottenFoodPercentage/100.0));
-					
-					log(user.getId()+": "+rottenFood);
-					
-					usercargo.setResource(Resources.NAHRUNG, food - rottenFood);
-					
-					user.setCargo(usercargo.save());
 					
 					//Delete all pms older than 14 days from inbox
 					Ordner trashCan = Ordner.getTrash(user);
@@ -165,11 +148,5 @@ public class UserTick extends TickController
 				db.evict(user);
 			}
 		}
-	}
-
-	private double getGlobalFoodPoolDegeneration()
-	{
-		ConfigValue foodpooldegenerationConfig = (ConfigValue)db.get(ConfigValue.class, "foodpooldegeneration");
-		return Double.valueOf(foodpooldegenerationConfig.getValue());
 	}
 }

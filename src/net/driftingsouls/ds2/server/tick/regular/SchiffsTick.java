@@ -163,6 +163,7 @@ public class SchiffsTick extends TickController {
 		{
 			Ship versorger = shipd.getVersorger();
 			crewToFeed = consumeFood(versorger ,crewToFeed, scaleFactor);
+			getContext().commit();
 		}
 
 		if(baseShip != null)
