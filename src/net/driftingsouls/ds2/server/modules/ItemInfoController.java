@@ -185,6 +185,24 @@ public class ItemInfoController extends TemplateGenerator {
 			effecttext.append("</span><br />\n");
 		}
 		
+		if( mods.getNahrungCargo() != 0 ) {
+			colorize(effecttext, mods.getNahrungCargo());
+			effecttext.append("Nahrungsspeicher "+mods.getNahrungCargo());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getUnitSpace() != 0 ) {
+			colorize(effecttext, mods.getUnitSpace());
+			effecttext.append("Einheitenladeraum "+mods.getUnitSpace());
+			effecttext.append("</span><br />\n");
+		}
+		
+		if( mods.getMaxUnitSize() != 0 ) {
+			colorize(effecttext, mods.getMaxUnitSize());
+			effecttext.append("Maximale Einheitengr&ouml;&szlig;e "+mods.getMaxUnitSize());
+			effecttext.append("</span><br />\n");
+		}
+		
 		if( mods.getShields() != 0 ) {
 			colorize(effecttext, mods.getShields());
 			effecttext.append("Schilde "+mods.getShields());
