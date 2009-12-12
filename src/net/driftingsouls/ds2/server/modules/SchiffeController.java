@@ -261,6 +261,14 @@ public class SchiffeController extends TemplateGenerator {
 		t.setBlock("_SCHIFFE","schiffe.listitem","schiffe.list");
 		t.setBlock("schiffe.listitem","schiffe.resitem","schiffe.reslist");
 		t.setBlock("schiffe.listitem","schiffe.unititem","schiffe.unitlist");
+		
+		if(listoffset > 0) 
+		{
+			//prefoffset is 0 for first page -> can't use it in if
+			t.setVar("schiffe.hasprevoffset", 1);
+			t.setVar("schiffe.prevoffset", listoffset - MAX_SHIPS_PER_PAGE);
+		}
+		
 		List<?> ships = db.createQuery(query)
 			.setEntity(0, user)
 			.setMaxResults(MAX_SHIPS_PER_PAGE+1)
@@ -273,8 +281,9 @@ public class SchiffeController extends TemplateGenerator {
 			
 			shiplistcount++;
 			
-			if( shiplistcount > MAX_SHIPS_PER_PAGE ) {
-				t.setVar("schiffe.nextoffset", listoffset+MAX_SHIPS_PER_PAGE);
+			if( shiplistcount > MAX_SHIPS_PER_PAGE ) 
+			{
+				t.setVar("schiffe.nextoffset", listoffset + MAX_SHIPS_PER_PAGE);
 				break;	
 			}
 			

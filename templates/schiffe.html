@@ -163,13 +163,16 @@
 		&nbsp;</td>
 		</tr>
 	<!-- END schiffe.listitem -->
-	{if schiffe.nextoffset}
 		<tr>
-			<td class="schiffData" style="text-align:center" colspan="9">
-				{!link_to Weiter -->, default, css_class:ok, only:$global.only, low:$global.low, crewless:$global.crewless, kampf_only:$global.kampf_only, listoffset:$schiffe.nextoffset}
+			<td class="schiffData" style="text-align:center" colspan="10">
+				{if schiffe.hasprevoffset}
+					{!link_to <-- Zur&uuml;ck, default, css_class:ok, only:$global.only, low:$global.low, crewless:$global.crewless, kampf_only:$global.kampf_only, listoffset:$schiffe.prevoffset}
+				{/endif}
+				{if schiffe.nextoffset}
+					{!link_to Weiter -->, default, css_class:ok, only:$global.only, low:$global.low, crewless:$global.crewless, kampf_only:$global.kampf_only, listoffset:$schiffe.nextoffset}
+				{/endif}
 			</td>
 		</tr>
-	{/endif}
 
 	</table>
 	</td>

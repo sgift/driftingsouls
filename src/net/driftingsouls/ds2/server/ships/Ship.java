@@ -4086,7 +4086,11 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
+<<<<<<< local
 	 * @return The energy costs 
+=======
+	 * @return A factor for the energy costs.
+>>>>>>> other
 	 */
 	public int getAlertEnergyCost()
 	{
