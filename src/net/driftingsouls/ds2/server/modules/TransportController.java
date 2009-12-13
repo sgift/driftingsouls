@@ -358,7 +358,6 @@ public class TransportController extends TemplateGenerator {
 		@Override
 		void write() {
 			this.ship.setCargo(getCargo());
-			this.ship.recalculateShipStatus();
 		}
 		
 		@Override

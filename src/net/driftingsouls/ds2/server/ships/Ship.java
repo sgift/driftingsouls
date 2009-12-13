@@ -2168,7 +2168,6 @@ public class Ship implements Locatable,Transfering {
 					posIds.add(Integer.toString(fleetship.getId()));
 				}
 
-				fleetship.recalculateShipStatus();
 			}
 			
 			for( Map.Entry<Location, List<String>> entry : shipDockIds.entrySet() ) {
@@ -2181,7 +2180,6 @@ public class Ship implements Locatable,Transfering {
 					dockedShip.setSystem(loc.getSystem());
 					dockedShip.setX(loc.getX());
 					dockedShip.setY(loc.getY());
-					dockedShip.recalculateShipStatus();
 				}
 			}
 		}
@@ -2500,7 +2498,6 @@ public class Ship implements Locatable,Transfering {
 									.setString(4, Integer.toString(this.id))
 									.executeUpdate();
 							}
-							this.recalculateShipStatus();
 							saveFleetShips();
 
 							ScriptEngine scriptparser = ContextMap.getContext().get(ContextCommon.class).getScriptParser("DSQuestScript");
@@ -2514,8 +2511,6 @@ public class Ship implements Locatable,Transfering {
 							engineBindings.put("SECTOR", loc.toString() );
 
 							Quests.currentEventURL.set("&action=onenter");
-
-							db.refresh(this);
 
 							if( docked != 0 ) {
 								db.createQuery("update Ship set x=? ,y=?, system=? where id>0 and docked in (?,?)")
@@ -2546,7 +2541,6 @@ public class Ship implements Locatable,Transfering {
 								.setString(4, Integer.toString(this.id))
 								.executeUpdate();
 						}
-						this.recalculateShipStatus();
 						saveFleetShips();
 
 
@@ -2579,11 +2573,9 @@ public class Ship implements Locatable,Transfering {
 					dockedShip.setSystem(this.system);
 					dockedShip.setX(this.x);
 					dockedShip.setY(this.y);
-					dockedShip.recalculateShipStatus();
 				}
 			}
 		}
-		this.recalculateShipStatus();
 		saveFleetShips();
 
 		return status;
@@ -2850,10 +2842,7 @@ public class Ship implements Locatable,Transfering {
 				aship.setX(outLoc.getX());
 				aship.setY(outLoc.getY());
 				aship.setSystem(outLoc.getSystem());
-				aship.recalculateShipStatus();
 			}
-
-			ship.recalculateShipStatus();
 		}
 
 		return false;
@@ -3072,7 +3061,6 @@ public class Ship implements Locatable,Transfering {
 			}
 			this.cargo = newcargo;
 		}
-		this.recalculateShipStatus();
 	}
 
 	/**
@@ -3197,7 +3185,6 @@ public class Ship implements Locatable,Transfering {
 		}
 		  
 		this.cargo = cargo;
-		this.recalculateShipStatus();
 		
 		return errors;
 	}
