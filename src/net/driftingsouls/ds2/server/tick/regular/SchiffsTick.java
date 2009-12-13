@@ -214,6 +214,10 @@ public class SchiffsTick extends TickController {
 						this.log("\tBenoetige "+needed+" Nahrung");
 						long savenahrung = savelist.get(base);
 						long feednahrung = basecargo.getResourceCount(Resources.NAHRUNG) - savenahrung + shipd.getFoodConsumption();
+						if(feednahrung > basecargo.getResourceCount(Resources.NAHRUNG))
+						{
+							feednahrung = basecargo.getResourceCount(Resources.NAHRUNG);
+						}
 						if(feednahrung > needed)
 						{
 							this.log("\tGenug Nahrung auf Asteroid");

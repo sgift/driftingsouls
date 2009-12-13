@@ -1308,7 +1308,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		long savenahrung = 0;
 		
-		List<?> ships = db.createQuery("from Ship where owner=? and system=? and x=? and y=? and isfeeding=1")
+		List<?> ships = db.createQuery("from Ship where owner=? and system=? and x=? and y=?")
 								.setEntity(0, getOwner())
 								.setInteger(1, getSystem())
 								.setInteger(2, getX())
