@@ -1111,22 +1111,7 @@ public class Ship implements Locatable,Transfering {
 								.setMaxResults(1)
 								.uniqueResult();
 		
-		if(versorger != null || this.owner.getAlly() == null)
-		{
-			return versorger;
-		}
-		
-		Ship allyVersorger = (Ship)db.createQuery("from Ship as s left join fetch s.modules" +
-												  " where s.shiptype.versorger!=0 or (s.modules is not null and s.modules.versorger!=0)" +
-												  " and s.owner.ally=? and s.owner.vaccount!=0 and s.owner.wait4vac=0 and s.system=? and s.x=? and s.y=? and s.nahrungcargo > 0 and s.isfeeding != 0 and s.isallyfeeding != 0 ORDER BY s.nahrungcargo DESC")
-												  .setEntity(0, this.owner.getAlly())
-												  .setInteger(1, this.system)
-												  .setInteger(2, this.x)
-												  .setInteger(3, this.y)
-												  .setMaxResults(1)
-												  .uniqueResult();
-		
-		return allyVersorger;
+		return versorger;
 	}
 	
 	private long getSectorTimeUntilLackOfFood()
@@ -1221,26 +1206,20 @@ public class Ship implements Locatable,Transfering {
 		return false;
 	}
 	
-	private long timeUntilLackOfFood() {
-		Ship versorger = getVersorger();
-		int foodConsumption = getNettoFoodConsumption();
-		
-		// Allianzversorger werden hierbei rausgefiltert
-		if(versorger != null && versorger.getOwner().getId() != this.owner.getId())
-		{
-			versorger = null;
-		}
-		
+	private long timeUntilLackOfFood() {		
 		//Basisschiff beruecksichtigen
 		Ship baseShip = getBaseShip();
 		if( baseShip != null ) {
 			return baseShip.timeUntilLackOfFood();
 		}
 		
+		int foodConsumption = getNettoFoodConsumption();
 		if( foodConsumption <= 0 ) {
 			return Long.MAX_VALUE;
 		}
 		
+		Ship versorger = getVersorger();
+						
 		//Den Nahrungsverbrauch berechnen - Ist nen Versorger da ists cool
 		if( versorger != null || isBaseInSector()) {
 			// Sind wir selbst ein Versorger werden wir ja mit berechnet.
