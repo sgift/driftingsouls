@@ -1222,13 +1222,9 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	private long timeUntilLackOfFood() {
-		Ship versorger = getVersorger();
 		int foodConsumption = getNettoFoodConsumption();
-		
-		// Allianzversorger werden hierbei rausgefiltert
-		if(versorger != null && versorger.getOwner().getId() != this.owner.getId())
-		{
-			versorger = null;
+		if( foodConsumption <= 0 ) {
+			return Long.MAX_VALUE;
 		}
 		
 		//Basisschiff beruecksichtigen
@@ -1237,10 +1233,13 @@ public class Ship implements Locatable,Transfering {
 			return baseShip.timeUntilLackOfFood();
 		}
 		
-		if( foodConsumption <= 0 ) {
-			return Long.MAX_VALUE;
+		Ship versorger = getVersorger();
+		// Allianzversorger werden hierbei rausgefiltert
+		if(versorger != null && versorger.getOwner().getId() != this.owner.getId())
+		{
+			versorger = null;
 		}
-		
+						
 		//Den Nahrungsverbrauch berechnen - Ist nen Versorger da ists cool
 		if( versorger != null || isBaseInSector()) {
 			// Sind wir selbst ein Versorger werden wir ja mit berechnet.
