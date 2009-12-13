@@ -55,6 +55,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
 
 import org.apache.commons.lang.math.RandomUtils;
@@ -422,6 +423,7 @@ public class PortalController extends TemplateGenerator {
 	 	base.setBewohner(bewohner);
 	 	base.setCargo(new Cargo(Cargo.Type.STRING, this.config.get("REGISTER_BASECARGO")));
 	 	base.setCore(0);
+	 	base.setUnits(new UnitCargo());
 	 	base.setCoreActive(false);
 	 	base.setAutoGTUActs(new ArrayList<AutoGTUAction>());
 	 	
