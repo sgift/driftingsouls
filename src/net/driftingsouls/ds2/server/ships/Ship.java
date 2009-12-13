@@ -1033,22 +1033,12 @@ public class Ship implements Locatable,Transfering {
 			}
 		}
 		
-		// Ist Crew an Bord?
-		if( (type.getCrew() != 0) && (this.crew == 0) ) {
-			status.add("nocrew");	
-		}
-
 		// Die Items nach IFF und Hydros durchsuchen
-		boolean disableIFF = false;
-
-		if( cargo.getItemWithEffect(ItemEffect.Type.DISABLE_IFF) != null ) {
-			disableIFF = true;
-		}
 		
-		if( disableIFF ) {
+		if( cargo.getItemWithEffect(ItemEffect.Type.DISABLE_IFF) != null ) {
 			status.add("disable_iff");
 		}
-
+		
 		// Ist ein Offizier an Bord?
 		Offizier offi = getOffizier();
 		if( offi != null ) {
@@ -1141,6 +1131,8 @@ public class Ship implements Locatable,Transfering {
 	
 	private long getSectorTimeUntilLackOfFood()
 	{
+		System.out.println("getSectorTimeUntilLackOfFood()");
+		long start = System.currentTimeMillis();
 		Context context = ContextMap.getContext();
 		ContextVars vars = context.get(ContextVars.class);
 		if(vars.versorgerstats.containsKey(getOwner()))
@@ -1149,6 +1141,7 @@ public class Ship implements Locatable,Transfering {
 			// Sektor wurde schonmal berechnet -> zurueckgeben
 			if(locations.containsKey(getLocation()))
 			{
+				System.out.println("Fertig: "+(System.currentTimeMillis()- start));
 				return locations.get(getLocation());
 			}
 		}
@@ -1198,7 +1191,7 @@ public class Ship implements Locatable,Transfering {
 			
 			vars.versorgerstats.put(getOwner(), locations);
 		}
-		
+		System.out.println("Fertig: "+(System.currentTimeMillis()- start));
 		return versorgernahrung / crewtofeed;
 	}
 	
@@ -1251,7 +1244,7 @@ public class Ship implements Locatable,Transfering {
 		//Den Nahrungsverbrauch berechnen - Ist nen Versorger da ists cool
 		if( versorger != null || isBaseInSector()) {
 			// Sind wir selbst ein Versorger werden wir ja mit berechnet.
-			if( getTypeData().isVersorger() || getBaseType().isVersorger())
+			if( getTypeData().isVersorger() || getBaseType().isVersorger() && isFeeding())
 			{
 				return getSectorTimeUntilLackOfFood();
 			}

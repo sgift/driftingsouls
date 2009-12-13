@@ -145,12 +145,9 @@ public class NPCOrderController extends TemplateGenerator {
 			
 			t.setVar("transport.status", status);
 			
-			FactionShopOrder order; 
+			FactionShopOrder order = (FactionShopOrder)db.get(FactionShopOrder.class, Integer.parseInt(task.getData1())); 
 			
-			try {
-				order = (FactionShopOrder)db.get(FactionShopOrder.class, Integer.parseInt(task.getData1()));
-			}
-			catch (NullPointerException e)
+			if( order == null)
 			{
 				db.delete(task);
 				continue;
