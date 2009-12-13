@@ -194,7 +194,7 @@ public class SchiffsTick extends TickController {
 		{
 			this.log("\tNahrungsspeicher aufladen");
 			// Vom asti aufladen (wenn noetig)
-			List<?> bases = db.createQuery("from Base where owner=? and system=? and x=? and y=?")
+			List<?> bases = db.createQuery("from Base where owner=? and system=? and x=? and y=? and isfeeding=1")
 								.setEntity(0, shipd.getOwner())
 								.setInteger(1, shipd.getSystem())
 								.setInteger(2, shipd.getX())
