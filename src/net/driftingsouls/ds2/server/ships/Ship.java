@@ -1133,7 +1133,7 @@ public class Ship implements Locatable,Transfering {
 		// Sektor wurde noch nicht berechnet -> berechnen
 		org.hibernate.Session db = context.getDB();
 		
-		List<Ship> ships = Common.cast(db.createQuery("from Ship WHERE owner=? and system=? and x=? and y=? and id >0")
+		List<Ship> ships = Common.cast(db.createQuery("from Ship left outer join shiptype left outer join modules WHERE owner=? and system=? and x=? and y=? and id > 0")
 				.setEntity(0, this.owner)
 				.setInteger(1, this.system)
 				.setInteger(2, this.x)
