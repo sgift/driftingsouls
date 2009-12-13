@@ -1221,16 +1221,16 @@ public class Ship implements Locatable,Transfering {
 		return false;
 	}
 	
-	private long timeUntilLackOfFood() {
-		int foodConsumption = getNettoFoodConsumption();
-		if( foodConsumption <= 0 ) {
-			return Long.MAX_VALUE;
-		}
-		
+	private long timeUntilLackOfFood() {		
 		//Basisschiff beruecksichtigen
 		Ship baseShip = getBaseShip();
 		if( baseShip != null ) {
 			return baseShip.timeUntilLackOfFood();
+		}
+		
+		int foodConsumption = getNettoFoodConsumption();
+		if( foodConsumption <= 0 ) {
+			return Long.MAX_VALUE;
 		}
 		
 		Ship versorger = getVersorger();
