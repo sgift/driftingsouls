@@ -136,12 +136,13 @@ public class SchiffsTick extends TickController {
 		if(user.getAlly() != null)
 		{
 			ships = Common.cast(db.createQuery("from Ship as s left join fetch s.modules" +
-					" where s.id>0 and s.owner.ally=? and s.owner.vaccount!=0 and " +
+					" where s.id>0 and s.owner!=? and s.owner.ally=? and s.owner.vaccount!=0 and " +
 					"s.owner.wait4vac=0 and system!=0 " +
 					"order by s.shiptype.versorger DESC, " +
 					" s.modules.versorger DESC, s.shiptype.jDocks DESC," +
 					"s.modules.jDocks DESC,s.shiptype ASC")
 					.setEntity(0, user)
+					.setEntity(1, user.getAlly())
 					.list());
 			
 			for( Ship ship : ships)
