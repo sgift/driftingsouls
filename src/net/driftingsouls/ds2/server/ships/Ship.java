@@ -1223,7 +1223,7 @@ public class Ship implements Locatable,Transfering {
 		//Den Nahrungsverbrauch berechnen - Ist nen Versorger da ists cool
 		if( versorger != null || isBaseInSector()) {
 			// Sind wir selbst ein Versorger werden wir ja mit berechnet.
-			if( getTypeData().isVersorger() || getBaseType().isVersorger() && isFeeding())
+			if( (getTypeData().isVersorger() || getBaseType().isVersorger()) && isFeeding())
 			{
 				return getSectorTimeUntilLackOfFood();
 			}
@@ -1308,9 +1308,9 @@ public class Ship implements Locatable,Transfering {
 		double scale = getAlertScaleFactor();
 		if(this.getUnits() != null)
 		{
-			return (int)Math.ceil((this.crew+this.getUnits().getNahrung())*scale/10);
+			return (int)Math.ceil((this.crew+this.getUnits().getNahrung())*scale/10.0);
 		}
-		return (int)Math.ceil(this.crew*scale/10);
+		return (int)Math.ceil(this.crew*scale/10.0);
 	}
 
 	/**
