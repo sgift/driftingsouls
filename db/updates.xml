@@ -1388,4 +1388,15 @@
 		ALTER TABLE users DROP nstat;
 		ALTER TABLE users DROP foodpooldegeneration;
 	]]></update>
+	<update><![CDATA[
+		INSERT INTO `config` (
+			`name` ,
+			`value` ,
+			`description`,
+			`version` 
+			)
+			VALUES (
+			'corruption', '0', 'Prozentsatz der Korruption aufs Nettoeinkommen', '0'
+		);
+	]]></update>
 </updates>
