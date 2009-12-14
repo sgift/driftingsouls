@@ -106,15 +106,13 @@ public class SchiffsTick extends TickController {
 	private Map<Location,List<Ship>> getLocationVersorgerList(org.hibernate.Session db,User user)
 	{
 		Map<Location,List<Ship>> versorgerlist = new HashMap<Location,List<Ship>>();
-		
+		this.log("Berechne Versorger");
 		List<Ship> ships = Common.cast(db.createQuery("from Ship as s left join fetch s.modules" +
 				" where s.id>0 and s.owner=? and system!=0 and (s.shiptype.versorger=1 or s.modules.versorger=1)" +
-				"order by s.shiptype.versorger DESC, " +
-				" s.modules.versorger DESC, s.shiptype.jDocks DESC," +
-				"s.modules.jDocks DESC,s.shiptype ASC")
+				"order by s.nahrungcargo DESC")
 				.setEntity(0, user)
 				.list());
-		
+		this.log(ships.size()+" Versorger gefunden");
 		for( Ship ship : ships)
 		{
 			if(ship.isFeeding() && ship.getNahrungCargo() > 0)
@@ -135,16 +133,17 @@ public class SchiffsTick extends TickController {
 		
 		if(user.getAlly() != null)
 		{
+			this.log("Berechne Allianzversorger");
 			ships = Common.cast(db.createQuery("from Ship as s left join fetch s.modules" +
-					" where s.id>0 and s.owner!=? and s.owner.ally=? and s.owner.vaccount!=0 and " +
-					"s.owner.wait4vac=0 and system!=0 " +
-					"order by s.shiptype.versorger DESC, " +
-					" s.modules.versorger DESC, s.shiptype.jDocks DESC," +
-					"s.modules.jDocks DESC,s.shiptype ASC")
+					" where s.id>0 and s.owner!=? and s.owner.ally=? and (s.owner.vaccount=0 or" +
+					" s.owner.wait4vac!=0) and system!=0 and" +
+					" (s.shiptype.versorger=1 or s.modules.versorger=1) and" +
+					" s.isfeeding=1 and s.isallyfeeding=1" +
+					" order by s.nahrungcargo DESC")
 					.setEntity(0, user)
 					.setEntity(1, user.getAlly())
 					.list());
-			
+			this.log(ships.size()+" Schiffe gefunden");
 			for( Ship ship : ships)
 			{
 				if(ship.isFeeding() && ship.isAllyFeeding() && ship.getNahrungCargo() > 0)
@@ -600,6 +599,9 @@ public class SchiffsTick extends TickController {
 				.setEntity(0, auser)
 				.list();
 		
+
+		this.log(auser.getId()+": Es sind "+ships.size()+" Schiffe zu berechnen ("+battle+")");
+
 		versorgerlist = getLocationVersorgerList(db, auser);
 		
 		List<?> bases = db.createQuery("from Base where owner=?")
@@ -612,8 +614,6 @@ public class SchiffsTick extends TickController {
 			savelist.put(base, base.getSaveNahrung());
 		}
 		
-		this.log(auser.getId()+": Es sind "+ships.size()+" Schiffe zu berechnen ("+battle+")");
-
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship ship = (Ship)iter.next();
 			//idlist.add(ship.getId());
