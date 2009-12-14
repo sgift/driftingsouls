@@ -207,9 +207,6 @@ public class User extends BasicUser {
 	@JoinColumn(name="ally", nullable=true)
 	private Ally ally;
 	private BigInteger konto;
-	private String cargo;
-	private double foodpooldegeneration;
-	private String nstat;
 	private int npcpunkte;
 	@OneToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="allyposten", nullable=true)
@@ -260,11 +257,9 @@ public class User extends BasicUser {
 		setName("Kolonist");
 		this.race = race;
 		this.history = history;
-		setCargo(cargo.save());
 		setEmail(email);
 		setUn(name);
 		setFlag(User.FLAG_NOOB);
-		setNahrungsStat("0");
 		setSignup((int)Common.time());
 		setImagePath(BasicUser.getDefaultImagePath());
 		setInactivity(0);
@@ -326,8 +321,6 @@ public class User extends BasicUser {
 				pre+"rang", this.rang,
 				pre+"ally", this.ally != null ? this.ally.getId() : 0,
 				pre+"konto", this.konto,
-				pre+"cargo", this.cargo,
-				pre+"nstat", this.nstat,
 				pre+"npcpunkte", this.npcpunkte,
 				pre+"allyposten", this.allyposten,
 				pre+"gtudropzone", this.gtudropzone,
@@ -363,26 +356,6 @@ public class User extends BasicUser {
 	 */
 	public String getProfileLink() {
 		return getProfileLink("");
-	}
-	
-	/**
-	 * Setzt den Spieler-Cargo auf den angegebenen Cargo-String in der Datenbank.
-	 * Um inkonsistenzen zu vermeiden wird zudem geprueft, ob der urspruengliche
-	 * Cargo-String noch aktuell ist.
-	 * @param cargo Der neue Cargo-String
-	 * @param oldString Der urspruengliche Cargo-String
-	 */
-	@Deprecated
-	public void setCargo(String cargo, String oldString) {
-		setCargo(cargo);
-	}
-	
-	/**
-	 * Setzt den Spieler-Cargo auf den angegebenen Cargo-String in der Datenbank.
-	 * @param cargo Der Cargo-String
-	 */
-	public void setCargo(String cargo) {
-		this.cargo = cargo;
 	}
 	
 	/**
@@ -907,31 +880,7 @@ public class User extends BasicUser {
 	public void setKonto( BigInteger count ) {
 		this.konto = count;
 	}
-	
-	/**
-	 * Gibt den Cargo des Spielers als Cargo-String zurueck.
-	 * @return der Cargo des Spielers
-	 */
-	public String getCargo() {
-		return this.cargo;
-	}
-	
-	/**
-	 * Die Nahrungsbilanz des letzten Ticks.
-	 * @return Die Nahrungsbilanz des letzten Ticks
-	 */
-	public String getNahrungsStat() {
-		return this.nstat;
-	}
-	
-	/**
-	 * Setzt die Nahrungsbilanz des letzten Ticks.
-	 * @param stat Die Nahrungsbilanz des letzten Ticks
-	 */
-	public void setNahrungsStat(String stat) {
-		this.nstat = stat;
-	}
-	
+
 	/**
 	 * Liefert die Anzahl der NPC-Punkte des Benutzers zurueck.
 	 * @return Die Anzahl der NPC-Punkte
@@ -1141,24 +1090,6 @@ public class User extends BasicUser {
 							   .setParameter("research", research)
 							   .setParameter("user", this)
 							   .uniqueResult();
-	}
-	
-	/**
-	 * @return Prozent des Pools, die jeden Tick mehr/weniger verfaulen als der Grundwert angibt.
-	 */
-	public double getFoodpooldegeneration()
-	{
-		return foodpooldegeneration;
-	}
-
-	/**
-	 * Setzt wieviel/mehr weniger Nahrung bei diesem Nutzer pro Tick verfault.
-	 * 
-	 * @param foodpooldegeneration Der Offset.
-	 */
-	public void setFoodpooldegeneration(double foodpooldegeneration)
-	{
-		this.foodpooldegeneration = foodpooldegeneration;
 	}
 	
 	/**

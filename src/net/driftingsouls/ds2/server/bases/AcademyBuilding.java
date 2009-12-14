@@ -30,7 +30,6 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.entities.Academy;
-import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -268,7 +267,6 @@ public class AcademyBuilding extends DefaultBuilding {
 	@Override
 	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
 		org.hibernate.Session db = context.getDB();
-		User user = (User)context.getActiveUser();
 		
 		ConfigValue siliziumcostsConfig = (ConfigValue)db.get(ConfigValue.class, "newoffsiliziumcosts");
 		ConfigValue nahrungcostsConfig = (ConfigValue)db.get(ConfigValue.class, "newoffnahrungcosts");
@@ -442,8 +440,7 @@ public class AcademyBuilding extends DefaultBuilding {
 						t.setVar("trainoffi.error", "Nicht genug Silizium"); 
 					ok = false;
 				}
-				Cargo usercargo = new Cargo( Cargo.Type.STRING, user.getCargo() );
-				if( cargo.getResourceCount( Resources.NAHRUNG )+usercargo.getResourceCount( Resources.NAHRUNG ) < nk ) {
+				if( cargo.getResourceCount( Resources.NAHRUNG ) < nk ) {
 					t.setVar("trainoffi.error", "Nicht genug Nahrung"); 
 					ok = false;
 				}
@@ -458,13 +455,7 @@ public class AcademyBuilding extends DefaultBuilding {
 					t.setVar("trainoffi.train", 1);
 	
 					cargo.substractResource( Resources.SILIZIUM, sk );
-					usercargo.substractResource( Resources.NAHRUNG, nk );
-					if( usercargo.getResourceCount( Resources.NAHRUNG ) < 0 ) {
-						cargo.substractResource( Resources.NAHRUNG, -usercargo.getResourceCount( Resources.NAHRUNG ) );
-						usercargo.setResource( Resources.NAHRUNG, 0 );	
-					}
 	
-					user.setCargo( usercargo.save() );
 					AcademyQueueEntry entry = new AcademyQueueEntry(base,offizier.getID(),dauer,train);
 					
 					offizier.setDest("t", base.getId());

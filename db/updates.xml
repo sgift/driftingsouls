@@ -1383,4 +1383,9 @@
 		UPDATE ship_types SET versorger=1 WHERE locate('versorger', flags);
 		UPDATE ships_modules SET versorger=1 WHERE locate('versorger', flags);
 	]]></update>
+	<update><![CDATA[
+		ALTER TABLE users DROP cargo;
+		ALTER TABLE users DROP nstat;
+		ALTER TABLE users DROP foodpooldegeneration;
+	]]></update>
 </updates>

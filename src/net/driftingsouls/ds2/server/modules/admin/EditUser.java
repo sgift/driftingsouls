@@ -78,7 +78,6 @@ public class EditUser implements AdminPlugin
 			user.setWait4VacationCount(context.getRequest().getParameterInt("wait4vac"));
 			user.setKonto(new BigInteger(context.getRequest().getParameterString("account")));
 			user.setFlags(context.getRequest().getParameterString("flags"));
-			user.setFoodpooldegeneration(Double.valueOf(context.getRequest().getParameterString("foodpooldegeneration")));
 			user.setRang(Byte.valueOf(context.getRequest().getParameterString("rank")));
 			user.setHistory(context.getRequest().getParameterString("history"));
 			user.setNpcPunkte(context.getRequest().getParameterInt("npcpoints"));
@@ -118,7 +117,6 @@ public class EditUser implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderX\">Wait4Vac: </td><td><input type=\"text\" size=\"40\" name=\"wait4vac\" value=\"" + user.getWait4VacationCount() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Konto: </td><td><input type=\"text\" size=\"40\" name=\"account\" value=\"" + user.getKonto() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Flags: </td><td><input type=\"text\" size=\"40\" name=\"flags\" value=\"" + user.getFlags() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Nahrungspool-Verfall (Offset): </td><td><input type=\"text\" size=\"40\" name=\"foodpooldegeneration\" value=\"" + user.getFoodpooldegeneration()+ "\"></td></tr>\n");		
 			echo.append("<tr><td class=\"noBorderX\">Rang: </td><td><select size=\"1\" name=\"rank\" \">");
 			for(Map.Entry<Integer, Rang> rank: Medals.get().raenge().entrySet())
 			{
