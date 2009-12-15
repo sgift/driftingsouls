@@ -38,6 +38,7 @@ import net.driftingsouls.ds2.server.modules.stats.StatBiggestFleet;
 import net.driftingsouls.ds2.server.modules.stats.StatBiggestPopulation;
 import net.driftingsouls.ds2.server.modules.stats.StatBiggestTrader;
 import net.driftingsouls.ds2.server.modules.stats.StatData;
+import net.driftingsouls.ds2.server.modules.stats.StatEinheiten;
 import net.driftingsouls.ds2.server.modules.stats.StatGtuPrice;
 import net.driftingsouls.ds2.server.modules.stats.StatMemberCount;
 import net.driftingsouls.ds2.server.modules.stats.StatOwnCiv;
@@ -117,6 +118,7 @@ public class StatsController extends DSGenerator {
 		registerStat( "Sonstiges", new StatPopulationDensity(), "Besiedlungsdichte", 0 );
 		registerStat( "Sonstiges", new StatShips(), "Schiffe", 0 );
 		registerStat( "Sonstiges", new StatWaren(), "Waren", 0 );
+		registerStat( "Sonstiges", new StatEinheiten(), "Einheiten", 0);
 		registerStat( "Sonstiges", new StatData(), "Diverse Daten", 0 );
 		
 		registerStat( "Eigene K&auml;mpfe", new StatOwnKampf(), "Eigene K&auml;mpfe", 0 );
