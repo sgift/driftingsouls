@@ -1399,4 +1399,7 @@
 			'corruption', '0', 'Prozentsatz der Korruption aufs Nettoeinkommen', '0'
 		);
 	]]></update>
+	<update><![CDATA[
+		ALTER TABLE users ADD corruption float NOT NULL default '0';
+	]]></update>
 </updates>

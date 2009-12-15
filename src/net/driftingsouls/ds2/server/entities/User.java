@@ -221,6 +221,7 @@ public class User extends BasicUser {
 	private String knownItems;
 	private int vacpoints;
 	private int specializationPoints;
+	private double corruption;
 	
 	@Transient
 	private Context context;
@@ -1316,12 +1317,9 @@ public class User extends BasicUser {
 
 	/**
 	 * Verlernt eine Forschung und alle davon abhaengigen Forschungen.
-	 * Ausserdem werden die von den einzelnen Forschungen abhaengigen Gebaeude
-	 * auf den Basen des Spielers zerstoert.
 	 * 
 	 * @param research Die Forschung, die der Spieler fallen lassen will.
 	 */
-	@SuppressWarnings("unchecked")
 	public void dropResearch(Forschung research) 
 	{
 		UserResearch userResearch = getUserResearch(research);
@@ -1341,13 +1339,24 @@ public class User extends BasicUser {
 			dropResearch(dependentResearch);
 		}
 		
-		
-		//Destroy dependent buildings
-		Set<Integer> buildings = new HashSet<Integer>();
-		buildings.addAll((List<Integer>)db.createQuery("select id from Building where techReq=:tech")
-					  					   .setParameter("tech", research.getID())
-					  					   .list());
-
 		db.delete(userResearch);
+	}
+	
+	/**
+	 * Gibt die Korruption speziell fuer diesen Spieler zurueck.
+	 * @return Die Kooruption (0=0%, 1=100%)
+	 */
+	public double getCorruption()
+	{
+		return corruption;
+	}
+	
+	/**
+	 * Setzt die Korruption speziell fuer diesen Spieler.
+	 * @param corruption Die Korruption (0=0%, 1=100%)
+	 */
+	public void setCorruption(double corruption)
+	{
+		this.corruption = corruption;
 	}
 }

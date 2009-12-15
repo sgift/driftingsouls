@@ -237,7 +237,7 @@ public class UeberController extends TemplateGenerator {
 
 		int ticks = getContext().get(ContextCommon.class).getTick();
 		ConfigValue value = (ConfigValue)getDB().get(ConfigValue.class, "corruption");
-		double corruption = Double.valueOf(value.getValue());
+		double corruption = Double.valueOf(value.getValue()) + user.getCorruption();
 
 		int[] fullbalance = user.getFullBalance();
 		if(fullbalance[1] > 0)

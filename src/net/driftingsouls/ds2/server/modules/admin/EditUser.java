@@ -84,6 +84,7 @@ public class EditUser implements AdminPlugin
 			user.setMedals(context.getRequest().getParameterString("medals"));
 			user.setVacpoints(context.getRequest().getParameterInt("vacationpoints"));
 			user.setSpecializationPoints(context.getRequest().getParameterInt("specializationpoints"));
+			user.setCorruption(Double.valueOf(context.getRequest().getParameterString("corruption")));
 			
 			doVacation(user);
 			
@@ -116,6 +117,7 @@ public class EditUser implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderX\">Vacation: </td><td><input type=\"text\" size=\"40\" name=\"vacation\" value=\"" + user.getVacationCount() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Wait4Vac: </td><td><input type=\"text\" size=\"40\" name=\"wait4vac\" value=\"" + user.getWait4VacationCount() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Konto: </td><td><input type=\"text\" size=\"40\" name=\"account\" value=\"" + user.getKonto() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\">Korruption: </td><td><input type=\"text\" size=\"40\" name=\"corruption\" value=\"" + user.getCorruption() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Flags: </td><td><input type=\"text\" size=\"40\" name=\"flags\" value=\"" + user.getFlags() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Rang: </td><td><select size=\"1\" name=\"rank\" \">");
 			for(Map.Entry<Integer, Rang> rank: Medals.get().raenge().entrySet())

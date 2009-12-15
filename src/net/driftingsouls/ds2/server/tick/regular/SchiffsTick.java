@@ -585,7 +585,7 @@ public class SchiffsTick extends TickController {
 		
 		savelist = new HashMap<Base,Long>();
 		ConfigValue value = (ConfigValue)getDB().get(ConfigValue.class, "corruption");
-		double corruption = Double.valueOf(value.getValue());
+		double corruption = Double.valueOf(value.getValue()) + auser.getCorruption();
 
 		// Schiffe berechnen
 		List<?> ships = db.createQuery(
@@ -613,6 +613,13 @@ public class SchiffsTick extends TickController {
 			savelist.put(base, base.getSaveNahrung());
 		}
 		
+		int balance = auser.getFullBalance()[1];
+		
+		if(balance > 0 && corruption > 0)
+		{
+			auser.setKonto(auser.getKonto().subtract(BigInteger.valueOf((long)(balance * corruption))));
+		}
+
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship ship = (Ship)iter.next();
 			
@@ -627,14 +634,6 @@ public class SchiffsTick extends TickController {
 				throw e;
 			}
 		}
-		
-		int balance = auser.getFullBalance()[1];
-		
-		if(balance > 0 && corruption > 0)
-		{
-			auser.setKonto(auser.getKonto().subtract(BigInteger.valueOf((long)(balance * corruption))));
-		}
-
 	}
 
 	@Override
