@@ -86,7 +86,7 @@ public class StatWaren implements Statistic {
 		// Ausgabe des Tabellenkopfs
 		echo.append("<table class=\"noBorderX\" cellspacing=\"1\" cellpadding=\"1\">\n");
 		echo.append("<tr><td class=\"noBorderX\" align=\"left\" colspan=\"3\">Waren:</td></tr>\n");
-		echo.append("<tr><td class=\"noBorderX\" align=\"left\" width=\"200\">&nsbp;</td>\n");
+		echo.append("<tr><td class=\"noBorderX\" align=\"left\" width=\"200\">&nbsp;</td>\n");
 		echo.append("<td class=\"noBorderX\">Alle</td>\n");
 		echo.append("<td class=\"noBorderX\" width=\"15\">&nbsp;</td>\n");
 		echo.append("<td class=\"noBorderX\">Eigene</td>\n");
