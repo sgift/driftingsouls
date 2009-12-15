@@ -63,7 +63,7 @@ public class StatUserUnitCargo {
 	/**
 	 * Erstellt einen neuen Statistikeintrag.
 	 * @param user Der User
-	 * @param cargo Der Cargo
+	 * @param unitcargo Der Cargo
 	 */
 	public StatUserUnitCargo(User user, UnitCargo unitcargo) {
 		setUser(user);
@@ -80,7 +80,7 @@ public class StatUserUnitCargo {
 
 	/**
 	 * Setzt den Cargo des Spielers.
-	 * @param cargo Der Cargo
+	 * @param unitcargo Der Cargo
 	 */
 	public final void setCargo(final UnitCargo unitcargo) {
 		this.unitcargo = unitcargo;

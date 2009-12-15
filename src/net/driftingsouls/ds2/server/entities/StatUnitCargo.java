@@ -55,7 +55,7 @@ public class StatUnitCargo {
 	/**
 	 * Erstellt einen neuen Eintrag.
 	 * @param tick Der Tick
-	 * @param cargo Der Cargo
+	 * @param unitcargo Der Cargo
 	 */
 	public StatUnitCargo(int tick, UnitCargo unitcargo) {
 		this.tick = tick;
@@ -72,7 +72,7 @@ public class StatUnitCargo {
 
 	/**
 	 * Setzt den Cargo.
-	 * @param cargo Der Cargo
+	 * @param unitcargo Der Cargo
 	 */
 	public void setCargo(UnitCargo unitcargo) {
 		this.unitcargo = unitcargo;
