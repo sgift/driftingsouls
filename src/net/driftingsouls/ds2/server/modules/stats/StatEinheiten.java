@@ -23,6 +23,7 @@ import java.io.Writer;
 import java.util.Map.Entry;
 
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -90,7 +91,7 @@ public class StatEinheiten implements Statistic {
 			UnitType type = (UnitType)database.get(UnitType.class, unit.getKey());
 			// Daten zur Einheit ausgeben
       		echo.append("<tr>\n");
-      		echo.append("<td class=\"noBorderX\" style=\"white-space:nowrap\"><img style=\"vertical-align:middle\" src=\""+type.getPicture()+"\" alt=\"\">"+type.getName()+"</td>\n");
+      		echo.append("<td class=\"noBorderX\" style=\"white-space:nowrap\"><img style=\"vertical-align:middle\" src=\""+type.getPicture()+"\" alt=\"\"><a href=\""+Common.buildUrl("default", "module", "unitinfo", "unit", type.getId())+"\" >"+type.getName()+"</a></td>\n");
       		echo.append("<td class=\"noBorderX\">"+unit.getValue()[0]+"</td>\n");
       		echo.append("<td class=\"noBorderX\">&nbsp;</td>\n");
       		echo.append("<td class=\"noBorderX\">"+unit.getValue()[1]+"</td>\n");
