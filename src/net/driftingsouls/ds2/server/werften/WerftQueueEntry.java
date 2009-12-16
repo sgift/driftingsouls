@@ -338,7 +338,6 @@ public class WerftQueueEntry {
 		int y = this.werft.getY();
 		int system = this.werft.getSystem();
 					
-		Cargo cargo = new Cargo();
 		User auser = this.werft.getOwner();
 		
 		String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
@@ -347,7 +346,7 @@ public class WerftQueueEntry {
 		Ship ship = new Ship(auser, (ShipType)db.get(ShipType.class, shipd.getTypeId()), system, x, y);
 		ship.setCrew(shipd.getCrew());
 		ship.setHull(shipd.getHull());
-		ship.setCargo(cargo);
+		ship.setCargo(new Cargo());
 		ship.setUnits(new UnitCargo());
 		ship.setEnergy(shipd.getEps());
 		ship.setHistory(history);
@@ -373,7 +372,7 @@ public class WerftQueueEntry {
 		
 		// Item benutzen
 		if( this.getRequiredItem() > -1 ) {
-			cargo = this.werft.getCargo(true);
+			Cargo cargo = this.werft.getCargo(true);
 			List<ItemCargoEntry> itemlist = cargo.getItem(this.getRequiredItem());
 			boolean ok = false;
 			for( int i=0; i < itemlist.size(); i++ ) {
