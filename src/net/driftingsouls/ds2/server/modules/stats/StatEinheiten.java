@@ -22,13 +22,12 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Map.Entry;
 
+import net.driftingsouls.ds2.server.entities.StatUserUnitCargo;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.StatsController;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitType;
@@ -44,6 +43,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Configurable
 public class StatEinheiten implements Statistic {
+	@SuppressWarnings("unused")
 	private Configuration config;
 	
     /**
@@ -59,21 +59,17 @@ public class StatEinheiten implements Statistic {
     @Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
-		org.hibernate.Session database = context.getDB();
+		org.hibernate.Session db = context.getDB();
 		User user = (User)context.getActiveUser();
 
 		Writer echo = context.getResponse().getWriter();
-	
-		UnitCargo unitcargo = new UnitCargo(db.first("SELECT unitcargo FROM stats_unitcargo ORDER BY tick DESC LIMIT 1").getString("unitcargo"));
 		
-		SQLResultRow userUnitCargo = db.first("SELECT unitcargo FROM stats_user_unitcargo WHERE user_id=",user.getId());
-		UnitCargo owncargo = null;
-		if( !userUnitCargo.isEmpty() ) {
-			owncargo = new UnitCargo(userUnitCargo.getString("unitcargo"));
-		}
-		else {
-			owncargo = new UnitCargo();
+		UnitCargo unitcargo = new UnitCargo((UnitCargo)db.createQuery("SELECT unitcargo FROM StatUnitCargo ORDER BY tick DESC").setMaxResults(1).iterate().next());
+		
+		UnitCargo ownCargo = ((StatUserUnitCargo)db.get(StatUserUnitCargo.class, user.getId())).getCargo();
+		
+		if( ownCargo == null ) {
+			ownCargo = new UnitCargo();
 		}
 
 		// Ausgabe des Tabellenkopfs
@@ -86,9 +82,9 @@ public class StatEinheiten implements Statistic {
 		echo.append("</tr>\n");
 		
 		// Einheitenliste durchlaufen
-		for( Entry<Integer,Long[]> unit : unitcargo.compare(owncargo).entrySet() ) {
+		for( Entry<Integer,Long[]> unit : unitcargo.compare(ownCargo).entrySet() ) {
 			
-			UnitType type = (UnitType)database.get(UnitType.class, unit.getKey());
+			UnitType type = (UnitType)db.get(UnitType.class, unit.getKey());
 			// Daten zur Einheit ausgeben
       		echo.append("<tr>\n");
       		echo.append("<td class=\"noBorderX\" style=\"white-space:nowrap\"><img style=\"vertical-align:middle\" src=\""+type.getPicture()+"\" alt=\"\"><a href=\""+Common.buildUrl("default", "module", "unitinfo", "unit", type.getId())+"\" >"+type.getName()+"</a></td>\n");

@@ -21,22 +21,23 @@ package net.driftingsouls.ds2.server.modules.stats;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.entities.StatModuleLocation;
+import net.driftingsouls.ds2.server.entities.StatUserCargo;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.StatsController;
+import net.driftingsouls.ds2.server.ships.Ship;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -66,21 +67,16 @@ public class StatWaren implements Statistic {
     @Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
-		org.hibernate.Session database = context.getDB();
+		org.hibernate.Session db = context.getDB();
 		User user = (User)context.getActiveUser();
 
 		Writer echo = context.getResponse().getWriter();
 	
-		Cargo cargo = new Cargo(Cargo.Type.STRING, db.first("SELECT cargo FROM stats_cargo ORDER BY tick DESC LIMIT 1").getString("cargo"));
+		Cargo cargo = new Cargo((Cargo)db.createQuery("SELECT cargo FROM StatCargo ORDER BY tick DESC").setMaxResults(1).iterate().next());
 		
-		SQLResultRow userCargo = db.first("SELECT cargo FROM stats_user_cargo WHERE user_id=",user.getId());
-		Cargo owncargo = null;
-		if( !userCargo.isEmpty() ) {
-			owncargo = new Cargo(Cargo.Type.STRING, userCargo.getString("cargo"));
-		}
-		else {
-			owncargo = new Cargo();
+		Cargo ownCargo = ((StatUserCargo)db.get(StatUserCargo.class, user.getId())).getCargo();
+		if( ownCargo == null ) {
+			ownCargo = new Cargo();
 		}
 
 		// Ausgabe des Tabellenkopfs
@@ -96,14 +92,13 @@ public class StatWaren implements Statistic {
 		
 		// Itempositionen auslesen
 		Map<Integer,String[]> reslocationlist = new HashMap<Integer,String[]>();
-		SQLQuery amodule = db.query("SELECT item_id,locations FROM stats_module_locations WHERE user_id=",user.getId());
-		while( amodule.next() ) {
-			reslocationlist.put(amodule.getInt("item_id"), StringUtils.split(amodule.getString("locations"), ';'));
+		List<StatModuleLocation> modules = Common.cast(db.createQuery("FROM StatModuleLocation WHERE user=:user").setEntity("user",user).list());
+		for( StatModuleLocation amodule : modules ) {
+			reslocationlist.put(amodule.getUser().getId(), StringUtils.split(amodule.getLocations(), ';'));
 		}
-		amodule.free();
 		
 		// Caches fuer Schiffe und Basen
-		Map<Integer,SQLResultRow> basecache = new HashMap<Integer,SQLResultRow>();
+		Map<Integer,Base> basecache = new HashMap<Integer,Base>();
 		Map<Integer,String> shipnamecache = new HashMap<Integer,String>();
 		
 		// Diese Grafiken kennzeichen bei Itempositionen den Typ der Position
@@ -111,12 +106,12 @@ public class StatWaren implements Statistic {
 		final String baseimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle;width:15px;height:15px' src='"+config.get("URL")+"data/starmap/asti/asti.png' alt='' title='Asteroid' /></td>";
 	
 		// Resourcenliste durchlaufen
-		ResourceList reslist = cargo.compare(owncargo, false);
+		ResourceList reslist = cargo.compare(ownCargo, false);
 		for( ResourceEntry res : reslist ) {
 			// Wenn die Resource ein Item ist, dann pruefen, ob dieses angezeigt werden darf
 			if( res.getId().isItem() ) {
 				int itemid = res.getId().getItemID();
-				Item item = (Item)database.get(Item.class, itemid);
+				Item item = (Item)db.get(Item.class, itemid);
 				if( item == null ) {
 					continue;
 				}
@@ -158,12 +153,12 @@ public class StatWaren implements Statistic {
 					// Positionstyp Schiff
 					case 's':
 						if( !shipnamecache.containsKey(objectid) ) {
-							SQLResultRow ship = db.first("SELECT name FROM ships WHERE id=",objectid);
-							if( ship.isEmpty() ) {
+							Ship ship = (Ship)db.get(Ship.class, objectid);
+							if( ship == null ) {
 								tooltip.append("</tr>");
 								continue;
 							}
-							shipnamecache.put(objectid, Common._plaintitle(ship.getString("name")));
+							shipnamecache.put(objectid, Common._plaintitle(ship.getName()));
 						}
 						tooltip.append(shipimage+"<td class='noBorderX'>" +
 								"<a style='font-size:14px' class='forschinfo' " +
@@ -174,20 +169,28 @@ public class StatWaren implements Statistic {
 					// Positionstyp Basis 
 					case 'b':
 						if( !basecache.containsKey(objectid) ) {
-							basecache.put(objectid, db.first("SELECT name,x,y,system FROM bases WHERE id=",objectid));
+							Base base = (Base)db.get(Base.class, objectid);
+							if(base != null)
+							{
+								basecache.put(objectid, base);
+							}
 						}
 						tooltip.append(baseimage+"<td class='noBorderX'>" +
 								"<a style='font-size:14px' class='forschinfo' " +
 								"href='"+Common.buildUrl("default", "module", "base", "col", objectid)+"'>"+
-								Common._plaintitle(basecache.get(objectid).getString("name"))+" - "+
-								Location.fromResult(basecache.get(objectid)).displayCoordinates(false)+
+								Common._plaintitle(basecache.get(objectid).getName())+" - "+
+								basecache.get(objectid).getLocation().displayCoordinates(false)+
 								"</a></td>");
 						break;
 					
 					// Positionstyp Gtu-Zwischenlager
 					case 'g':
 						if( !shipnamecache.containsKey(objectid) ) {
-							shipnamecache.put(objectid, Common._plaintitle(db.first("SELECT name FROM ships WHERE id=",objectid).getString("name")));
+							Ship ship = (Ship)db.get(Ship.class, objectid);
+							if(ship != null)
+							{
+								shipnamecache.put(objectid, Common._plaintitle(ship.getName()));
+							}
 						}
 						tooltip.append("<td colspan='2' class='noBorderX' style='font-size:14px'>"+
 								shipnamecache.get(objectid)+"</td>");
