@@ -58,8 +58,6 @@ public class BaseTick extends TickController
 		
 		User sourceUser = (User)db.get(User.class, -1);
 		
-		getContext().commit();
-		
 		// Nun holen wir uns mal die Basen...
 		List<?> bases = db.createQuery("from Base b join fetch b.owner where b.owner!=0 and (b.owner.vaccount=0 or b.owner.wait4vac!=0) order by b.owner").list();
 			
