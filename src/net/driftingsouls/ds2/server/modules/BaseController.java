@@ -29,10 +29,8 @@ import net.driftingsouls.ds2.server.bases.Core;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
-import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -98,66 +96,6 @@ public class BaseController extends TemplateGenerator {
 		setPageTitle(Common._plaintitle(base.getName()));
 		
 		return true;	
-	}
-	
-	/**
-	 * Transferiert Nahrung von/in den Nahrungspool.
-	 * @urlparam Integer nahrung Die Menge der zu transferierenden Nahrung. Negative Werte transferieren Nahrung aus den Pool.
-	 *
-	 */
-	@Action(ActionType.DEFAULT)
-	public void transferNahrungAction() {
-		final int NAHRUNG_CHECKOUT_FACTOR = config.getInt("NAHRUNG_CHECKOUT_FACTOR");
-		
-		User user = (User)getUser();
-		TemplateEngine t = getTemplateEngine();
-
-		parameterNumber("nahrung");
-		long count = getInteger("nahrung");
-	
-		if( (count > 0) && (count > base.getCargo().getResourceCount(Resources.NAHRUNG)) ) {
-			count = base.getCargo().getResourceCount(Resources.NAHRUNG);
-		}
-	
-		Cargo usercargo = new Cargo( Cargo.Type.STRING, user.getCargo());
-
-		if( (count < 0) && (-count*NAHRUNG_CHECKOUT_FACTOR > usercargo.getResourceCount(Resources.NAHRUNG)) ) {
-			count = -usercargo.getResourceCount(Resources.NAHRUNG)/NAHRUNG_CHECKOUT_FACTOR;
-		}
-		
-		if( (count < 0) && (-count + base.getCargo().getMass() > base.getMaxCargo()) ) {
-			count = -base.getMaxCargo()+base.getCargo().getMass();	
-		} 
-		
-		if( count == 0 ) {
-			redirect();
-			return;	
-		}
-		Cargo cargo = new Cargo(base.getCargo());
-		
-		cargo.substractResource( Resources.NAHRUNG, count );
-		
-		ConfigValue foodpooldegenerationConfig = (ConfigValue)getDB().get(ConfigValue.class, "foodpooldegeneration");
-		double transferfactor = 1.0;
-		double foodpooldegeneration = Double.valueOf(foodpooldegenerationConfig.getValue());
-
-		if(count > 0)
-		{
-			transferfactor = 1.0;	
-		}
-		else
-		{
-			transferfactor = 1.0 + (0.1 * foodpooldegeneration);
-		}
-		long foodAddedPool = (long) ((count*NAHRUNG_CHECKOUT_FACTOR)*transferfactor);
-		usercargo.addResource( Resources.NAHRUNG, foodAddedPool );
-	
-		user.setCargo(usercargo.save());
-		base.setCargo(cargo);
-	
-		t.setVar("base.message", "<img src=\""+Cargo.getResourceImage(Resources.NAHRUNG)+"\" alt=\"\" />"+Math.abs(foodAddedPool)+" transferiert" );
-	
-		redirect();
 	}
 	
 	/**

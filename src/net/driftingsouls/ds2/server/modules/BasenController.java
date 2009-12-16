@@ -129,6 +129,7 @@ public class BasenController extends TemplateGenerator {
 		t.setBlock("_BASEN", "bases.listitem", "bases.list");
 		t.setBlock("bases.listitem", "bases.mangel.listitem", "bases.mangel.list");
 		t.setBlock("bases.listitem", "bases.cargo.listitem", "bases.cargo.list");
+		t.setBlock("bases.listitem", "bases.units.listitem", "bases.units.list");
 		
 		List<?> list = db.createQuery("from Base where owner= :user order by "+ow+" "+om)
 			.setEntity("user", user)
@@ -147,7 +148,8 @@ public class BasenController extends TemplateGenerator {
 					"base.e"		, base.getEnergy(),
 					"base.e.diff"	, basedata.getEnergy(),
 					"bases.mangel.list"	, "",
-					"bases.cargo.list"	, "" );
+					"bases.cargo.list"	, "",
+					"bases.units.list"	, "" );
 			
 			/*
 				Mangel + Runden anzeigen
@@ -181,6 +183,10 @@ public class BasenController extends TemplateGenerator {
 				Resources.echoResList(t, reslist, "bases.cargo.list");
 			}
 			
+			/*
+			  	Einheiten anzeigen
+			 */
+			base.getUnits().echoUnitList(t, "bases.units.list", "bases.units.listitem");
 			
 			/*
 				Links auf die einzelnen Gebaeude anzeigen

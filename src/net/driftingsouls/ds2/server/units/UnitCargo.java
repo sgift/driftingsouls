@@ -476,7 +476,7 @@ public class UnitCargo implements Cloneable {
 					continue;
 				}
 				
-				// Item erfolgreich lokalisiert
+				// Einheit erfolgreich lokalisiert
 				found = true;
 				
 				if( unit[1] != unit2[1] ) {

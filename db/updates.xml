@@ -1383,4 +1383,40 @@
 		UPDATE ship_types SET versorger=1 WHERE locate('versorger', flags);
 		UPDATE ships_modules SET versorger=1 WHERE locate('versorger', flags);
 	]]></update>
+	<update><![CDATA[
+		ALTER TABLE users DROP cargo;
+		ALTER TABLE users DROP nstat;
+		ALTER TABLE users DROP foodpooldegeneration;
+	]]></update>
+	<update><![CDATA[
+		INSERT INTO `config` (
+			`name` ,
+			`value` ,
+			`description`,
+			`version` 
+			)
+			VALUES (
+			'corruption', '0', 'Prozentsatz der Korruption aufs Nettoeinkommen', '0'
+		);
+	]]></update>
+	<update><![CDATA[
+		ALTER TABLE users ADD corruption float NOT NULL default '0';
+	]]></update>
+	<update><![CDATA[
+		CREATE TABLE `stats_unitcargo` (
+  			`tick` int(11) NOT NULL auto_increment,
+  			`unitcargo` text NOT NULL,
+  			`version` int(10) unsigned not null default '0',
+  			PRIMARY KEY  (`tick`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Die UnitCargo-Statistik (Gesamtcargo)'; 
+		
+		CREATE TABLE `stats_user_unitcargo` (
+  			`user_id` int(11) NOT NULL default '0',
+  			`unitcargo` text NOT NULL,
+  			`version` int(10) unsigned not null default '0',
+  			PRIMARY KEY  (`user_id`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Die User-UnitCargo-Stats'; 
+		
+		ALTER TABLE stats_user_unitcargo ADD CONSTRAINT stats_user_unitcargo_fk_user_id FOREIGN KEY (user_id) REFERENCES users(id);
+	]]></update>
 </updates>

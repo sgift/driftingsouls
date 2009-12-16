@@ -22,13 +22,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.Academy;
+import net.driftingsouls.ds2.server.entities.Factory;
 import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.Factory;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.tick.TickController;
@@ -59,16 +57,6 @@ public class BaseTick extends TickController
 		org.hibernate.Session db = getDB();
 		
 		User sourceUser = (User)db.get(User.class, -1);
-		
-		// Da wir als erstes mit dem Usercargo rumspielen -> sichern der alten Nahrungswerte
-		List<?> users = db.createQuery("from User where id!=0 and (vaccount=0 or wait4vac!=0)").list();
-		for( Iterator<?> iter = users.iterator(); iter.hasNext(); ) {
-			User auser = (User)iter.next();
-			
-			auser.setNahrungsStat(Long.toString(new Cargo(Cargo.Type.STRING, auser.getCargo()).getResourceCount(Resources.NAHRUNG)));
-		}
-		
-		getContext().commit();
 		
 		// Nun holen wir uns mal die Basen...
 		List<?> bases = db.createQuery("from Base b join fetch b.owner where b.owner!=0 and (b.owner.vaccount=0 or b.owner.wait4vac!=0) order by b.owner").list();

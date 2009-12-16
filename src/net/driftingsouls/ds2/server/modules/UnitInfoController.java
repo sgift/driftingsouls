@@ -86,6 +86,7 @@ public class UnitInfoController extends TemplateGenerator {
 	 * Zeigt Details zu einer Einheit an.
 	 * @urlparam Integer unitid Die ID der anzuzeigenden Einheit
 	 */
+	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();

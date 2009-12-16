@@ -106,15 +106,13 @@ public class SchiffsTick extends TickController {
 	private Map<Location,List<Ship>> getLocationVersorgerList(org.hibernate.Session db,User user)
 	{
 		Map<Location,List<Ship>> versorgerlist = new HashMap<Location,List<Ship>>();
-		
+		this.log("Berechne Versorger");
 		List<Ship> ships = Common.cast(db.createQuery("from Ship as s left join fetch s.modules" +
 				" where s.id>0 and s.owner=? and system!=0 and (s.shiptype.versorger=1 or s.modules.versorger=1)" +
-				"order by s.shiptype.versorger DESC, " +
-				" s.modules.versorger DESC, s.shiptype.jDocks DESC," +
-				"s.modules.jDocks DESC,s.shiptype ASC")
+				"order by s.nahrungcargo DESC")
 				.setEntity(0, user)
 				.list());
-		
+		this.log(ships.size()+" Versorger gefunden");
 		for( Ship ship : ships)
 		{
 			if(ship.isFeeding() && ship.getNahrungCargo() > 0)
@@ -135,16 +133,17 @@ public class SchiffsTick extends TickController {
 		
 		if(user.getAlly() != null)
 		{
+			this.log("Berechne Allianzversorger");
 			ships = Common.cast(db.createQuery("from Ship as s left join fetch s.modules" +
-					" where s.id>0 and s.owner!=? and s.owner.ally=? and s.owner.vaccount!=0 and " +
-					"s.owner.wait4vac=0 and system!=0 " +
-					"order by s.shiptype.versorger DESC, " +
-					" s.modules.versorger DESC, s.shiptype.jDocks DESC," +
-					"s.modules.jDocks DESC,s.shiptype ASC")
+					" where s.id>0 and s.owner!=? and s.owner.ally=? and (s.owner.vaccount=0 or" +
+					" s.owner.wait4vac!=0) and system!=0 and" +
+					" (s.shiptype.versorger=1 or s.modules.versorger=1) and" +
+					" s.isfeeding=1 and s.isallyfeeding=1" +
+					" order by s.nahrungcargo DESC")
 					.setEntity(0, user)
 					.setEntity(1, user.getAlly())
 					.list());
-			
+			this.log(ships.size()+" Schiffe gefunden");
 			for( Ship ship : ships)
 			{
 				if(ship.isFeeding() && ship.isAllyFeeding() && ship.getNahrungCargo() > 0)
@@ -583,11 +582,10 @@ public class SchiffsTick extends TickController {
 	}
 
 	private void tickUser(org.hibernate.Session db, User auser, String battle) {
-		//List<Integer> idlist = new ArrayList<Integer>();
-
-		//long prevnahrung = this.usercargo.getResourceCount(Resources.NAHRUNG);
 		
 		savelist = new HashMap<Base,Long>();
+		ConfigValue value = (ConfigValue)getDB().get(ConfigValue.class, "corruption");
+		double corruption = Double.valueOf(value.getValue()) + auser.getCorruption();
 
 		// Schiffe berechnen
 		List<?> ships = db.createQuery(
@@ -600,6 +598,9 @@ public class SchiffsTick extends TickController {
 				.setEntity(0, auser)
 				.list();
 		
+
+		this.log(auser.getId()+": Es sind "+ships.size()+" Schiffe zu berechnen ("+battle+")");
+
 		versorgerlist = getLocationVersorgerList(db, auser);
 		
 		List<?> bases = db.createQuery("from Base where owner=?")
@@ -612,12 +613,16 @@ public class SchiffsTick extends TickController {
 			savelist.put(base, base.getSaveNahrung());
 		}
 		
-		this.log(auser.getId()+": Es sind "+ships.size()+" Schiffe zu berechnen ("+battle+")");
+		int balance = auser.getFullBalance()[1];
+		
+		if(balance > 0 && corruption > 0)
+		{
+			auser.setKonto(auser.getKonto().subtract(BigInteger.valueOf((long)(balance * corruption))));
+		}
 
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship ship = (Ship)iter.next();
-			//idlist.add(ship.getId());
-
+			
 			try {         
 				this.tickShip( db, ship );
 			}
@@ -629,59 +634,6 @@ public class SchiffsTick extends TickController {
 				throw e;
 			}
 		}
-
-		// Nahrung verarbeiten
-		// Vorerst auskommentiert bis entsprechende Optimierungen es brauchen
-		/*if( Configuration.getIntSetting("DISABLE_FOOD_CONSUMPTION") == 0 ) {
-			Long crewcount ;
-			String idListStr = "";
-			if( idlist.size() > 0 ) {
-				idListStr = " AND id NOT IN ("+Common.implode(",",idlist)+") ";	
-			}
-			crewcount = (Long)db.createQuery("select sum(s.crew) " +
-					"from Ship as s " +
-					"where s.id>0 and s.system!=0 and s.owner=? " +
-					"AND "+battle+idListStr)
-					.setEntity(0, auser)
-					.iterate().next();
-
-			if( crewcount == null ) {
-				crewcount = (long)0;
-			}
-
-			this.log("# base+: "+(prevnahrung-usernstat));
-			this.log("# Verbrauche "+crewcount+" Nahrung");
-			this.log("# "+(prevnahrung-this.usercargo.getResourceCount(Resources.NAHRUNG))+" bereits verbucht");
-			if( crewcount <= this.usercargo.getResourceCount(Resources.NAHRUNG) ) {
-				this.usercargo.substractResource(Resources.NAHRUNG, crewcount);
-			}
-			else {
-				// Nicht genug Nahrung fuer alle -> verhungern
-				crewcount -= this.usercargo.getResourceCount(Resources.NAHRUNG);
-				this.usercargo.setResource(Resources.NAHRUNG, 0);
-				List shiplist = db.createQuery("from Ship as s " +
-						"where s.id>0 and s.system!=0 and s.owner=? " +
-						"and s.crew>0 and "+battle)
-						.setEntity(0, auser)
-						.list();
-				for( Iterator iter=shiplist.iterator(); iter.hasNext(); ) {
-					Ship s = (Ship)iter.next();
-
-					if( s.getCrew() < crewcount ) {
-						s.setCrew(0);
-						s.recalculateShipStatus();
-						this.log(s.getId()+" verhungert");
-					}
-					else {
-						s.setCrew((int)(s.getCrew()-crewcount));
-						s.recalculateShipStatus();
-						this.log(s.getId()+" "+crewcount+" Crew verhungert");
-						break;
-					}
-				}
-			}
-		}*/
-
 	}
 
 	@Override

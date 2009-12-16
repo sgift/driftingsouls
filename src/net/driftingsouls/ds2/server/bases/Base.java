@@ -752,8 +752,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		{
 			Integer[] thisress = spawnress.get(i);
 			int chance = (int)Math.round((double)thisress[0] * chancefactor);
-			int itemid = (int)thisress[1];
-			int maxvalue = (int)thisress[2];
+			int itemid = thisress[1];
+			int maxvalue = thisress[2];
 			for(int a = chances; a <= chance+chances; a++) {
 				spawnressmap.put(a, new Integer[] {itemid, maxvalue});
 			}
@@ -1838,7 +1838,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		}
 		int chance = RandomUtils.nextInt(99) + 1;
 		Integer[] spawnress = spawnableress.get(chance);
-		int item = (int)spawnress[0];
+		int item = spawnress[0];
 		int maxvalue = RandomUtils.nextInt((int)spawnress[1]-1)+1;
 		
 		setSpawnableRessAmount(item, maxvalue);
