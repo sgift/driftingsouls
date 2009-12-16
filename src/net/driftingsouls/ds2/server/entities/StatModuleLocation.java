@@ -27,8 +27,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 /**
- * Ein Statistikeintrag ueber den Gesamtcargo eines Spielers (zum letzten Berechnungszeitpunkt).
- * @author Chirstopher Jung
+ * Ein Statistikeintrag ueber die Positionen der Module eines Spielers (zum letzten Berechnungszeitpunkt).
  *
  */
 @Entity
@@ -58,7 +57,8 @@ public class StatModuleLocation {
 	/**
 	 * Erstellt einen neuen Statistikeintrag.
 	 * @param user Der User
-	 * @param cargo Der Cargo
+	 * @param itemid Die Itemid
+	 * @param locations Die Positionen
 	 */
 	public StatModuleLocation(User user, int itemid, String locations) {
 		setUser(user);
