@@ -101,16 +101,20 @@ public class RestTick extends TickController {
 			
 			if( !base.getUnits().isEmpty())
 			{
-				unitcargo.addCargo(base.getUnits());
-
+				if(base.getOwner().getId() > 0)
+				{
+					unitcargo.addCargo(base.getUnits());
+				}
+				
 				if( !userunitcargos.containsKey(base.getOwner()) ) {
 					userunitcargos.put(base.getOwner(), new UnitCargo(base.getUnits()));
 				}
 				else {
 					userunitcargos.get(base.getOwner()).addCargo( base.getUnits() );
 				}
-				
 			}
+			
+			
 			
 			List<ItemCargoEntry> itemlist = bcargo.getItems();
 			for( int i=0; i < itemlist.size(); i++ ) {
@@ -166,15 +170,17 @@ public class RestTick extends TickController {
 				
 				if( !ship.getUnits().isEmpty())
 				{
-					unitcargo.addCargo(ship.getUnits());
-
+					if(ship.getOwner().getId() > 0)
+					{
+						unitcargo.addCargo(ship.getUnits());
+					}
+					
 					if( !userunitcargos.containsKey(ship.getOwner()) ) {
 						userunitcargos.put(ship.getOwner(), new UnitCargo(ship.getUnits()));
 					}
 					else {
 						userunitcargos.get(ship.getOwner()).addCargo( ship.getUnits() );
 					}
-					
 				}
 				
 				List<ItemCargoEntry> itemlist = scargo.getItems();
