@@ -44,6 +44,53 @@ public class Nebel implements Locatable {
 	private MutableLocation loc;
 	private int type;
 	
+	public enum Types
+	{
+		LOW_DEUT(1, 5), MEDIUM_DEUT(2, 7), STRONG_DEUT(3, 11), 
+		LOW_EMP(4, Integer.MAX_VALUE), MEDIUM_EMP(5, Integer.MAX_VALUE), 
+		STRONG_EMP(6, Integer.MAX_VALUE), DAMAGE(7, 7);
+		
+		private Types(int code, int minScansize)
+		{
+			this.code = code;
+			this.minScansize = minScansize;
+		}
+		
+		public static Types getType(int type)
+		{
+			switch(type)
+			{
+				case 1: return LOW_DEUT;
+				case 2: return MEDIUM_DEUT;
+				case 3: return STRONG_DEUT;
+				case 4: return LOW_EMP;
+				case 5: return MEDIUM_EMP;
+				case 6: return STRONG_EMP;
+				case 7: return DAMAGE;
+				default: throw new IllegalArgumentException("There's no nebula with this type.");
+			}
+		}
+		
+		/**
+		 * @return Der Typcode des Nebels.
+		 */
+		public int getCode()
+		{
+			return this.code;
+		}
+		
+		/**
+		 * @return Die Groesse ab der ein Schiff sichtbar ist in dem Nebel.
+		 */
+		public int getMinScansize()
+		{
+			return this.minScansize;
+		}
+		
+		private final int code;
+		private final int minScansize;
+	}
+	
 	/**
 	 * Konstruktor.
 	 *
@@ -124,16 +171,24 @@ public class Nebel implements Locatable {
 	}
 
 	/**
-	 * 
 	 * @return <code>true</code>, wenn in dem Feld ein EMP-Nebel ist, sonst <code>false</code>
 	 */
 	public boolean isEmp()
 	{
-		if(type == 3 || type == 4 || type == 5)
+		Types nebula = Types.getType(type);
+		if(nebula == Types.LOW_EMP || nebula == Types.MEDIUM_EMP || nebula == Types.STRONG_EMP)
 		{
 			return true;
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * @return <code>true</code>, wenn es ein Schadensnebel ist, sonst <code>false</code>.
+	 */
+	public boolean isDamage()
+	{
+		return Types.DAMAGE == Types.getType(type);
 	}
 }

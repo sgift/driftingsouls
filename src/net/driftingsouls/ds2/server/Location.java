@@ -28,7 +28,7 @@ import net.driftingsouls.ds2.server.ships.Ships;
  * @author Christopher Jung
  *
  */
-public final class Location implements Serializable, Locatable {
+public final class Location implements Serializable, Locatable, Comparable<Location> {
 	private static final long serialVersionUID = -5144442902462679539L;
 	
 	private static final int EMP_NEBULA_LOW = 3;
@@ -259,5 +259,48 @@ public final class Location implements Serializable, Locatable {
 	public boolean isNebula() 
 	{
 		return Ships.getNebula(this) != -1;
+	}
+
+	/**
+	 * Vergleicht den Sektor mit einem anderen.
+	 * Beim Vergleich werden erst System, dann y, dann x getestet.
+	 */
+	@Override
+	public int compareTo(Location o) 
+	{
+		if(system == o.system)
+		{
+			if(y == o.y)
+			{
+				if(y == o.y)
+				{
+					return 0;
+				}
+				else if(y < o.y)
+				{
+					return -1;
+				}
+				else
+				{
+					return 1;
+				}
+			}
+			else if(y < o.y)
+			{
+				return -1;
+			}
+			else
+			{
+				return 1;
+			}
+		}
+		else if(system < o.system)
+		{
+			return -1;
+		}
+		else
+		{
+			return 1;
+		}
 	}
 }
