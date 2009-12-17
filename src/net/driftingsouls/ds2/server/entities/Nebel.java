@@ -101,7 +101,7 @@ public class Nebel implements Locatable {
 				case 5: return MEDIUM_EMP;
 				case 6: return STRONG_EMP;
 				case 7: return DAMAGE;
-				default: throw new IllegalArgumentException("There's no nebula with this type.");
+				default: throw new IllegalArgumentException("There's no nebula with type:" + type);
 			}
 		}
 		
