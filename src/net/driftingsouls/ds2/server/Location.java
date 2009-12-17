@@ -264,6 +264,10 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 	/**
 	 * Vergleicht den Sektor mit einem anderen.
 	 * Beim Vergleich werden erst System, dann y, dann x getestet.
+	 * 
+	 * @param o Vergleichsobjekt.
+	 * 
+	 * @return vgl compareTo in Interface Comparable.
 	 */
 	@Override
 	public int compareTo(Location o) 
