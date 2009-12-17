@@ -972,7 +972,7 @@ public class Ship implements Locatable,Transfering {
 	public ShipTypeData getTypeData() {	
 		ShipModules modules = this.modules;
 			
-		return getShipType(this.shiptype.getId(), modules, false);
+		return getShipType(this.getType(), modules, false);
 	}
 	
 	private static final int MANGEL_TICKS = 9;
@@ -1097,7 +1097,7 @@ public class Ship implements Locatable,Transfering {
 	 * Gibt das erstbeste Schiff im Sektor zurueck, dass als Versorger fungiert und noch Nahrung besitzt.
 	 * @return Das Schiff
 	 */
-	public Ship getVersorger()
+	private Ship getVersorger()
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
@@ -1133,7 +1133,7 @@ public class Ship implements Locatable,Transfering {
 		// Sektor wurde noch nicht berechnet -> berechnen
 		org.hibernate.Session db = context.getDB();
 		
-		List<Ship> ships = Common.cast(db.createQuery("from Ship fetch all properties where owner=? and system=? and x=? and y=? and id > 0")
+		List<Ship> ships = Common.cast(db.createQuery("from Ship as s left join fetch s.modules where s.owner=? and s.system=? and s.x=? and s.y=? and s.id > 0")
 				.setEntity(0, this.owner)
 				.setInteger(1, this.system)
 				.setInteger(2, this.x)

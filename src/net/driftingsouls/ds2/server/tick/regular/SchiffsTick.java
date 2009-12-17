@@ -610,7 +610,10 @@ public class SchiffsTick extends TickController {
 		for( Iterator<?> baseiter=bases.iterator();baseiter.hasNext();)
 		{
 			Base base = (Base)baseiter.next();
-			savelist.put(base, base.getSaveNahrung());
+			if(base.isFeeding())
+			{
+				savelist.put(base, base.getSaveNahrung());
+			}
 		}
 		
 		int balance = auser.getFullBalance()[1];
