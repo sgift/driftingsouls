@@ -21,6 +21,8 @@ package net.driftingsouls.ds2.server.tick.regular;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import net.driftingsouls.ds2.server.DriftingSoulsDBTestCase;
+import net.driftingsouls.ds2.server.werften.WerftObject;
+import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
@@ -46,9 +48,27 @@ public class WertTickTest extends DriftingSoulsDBTestCase
 	{
 		org.hibernate.Session sess = context.getDB();
 		
+		long count = (Long)sess.createQuery("select count(*) from Ship").iterate().next();
+		assertThat(count, is(4L));
+		
+		count = (Long)sess.createQuery("select count(*) from WerftQueueEntry").iterate().next();
+		assertThat(count, is(4L));
+		
+		count = (Long)sess.createQuery("select count(*) from User").iterate().next();
+		assertThat(count, is(3L));
+		
+		count = (Long)sess.createQuery("select count(*) from WerftObject").iterate().next();
+		assertThat(count, is(6L));
+		
+		count = (Long)sess.createQuery("select count(*) from Base").iterate().next();
+		assertThat(count, is(1L));
+		
 		new WerftTick().execute();
 		
-		long count = (Long)sess.createQuery("select count(*) from Ship").iterate().next();
+		count = (Long)sess.createQuery("select count(*) from WerftQueueEntry").iterate().next();
+		assertThat(count, is(0L));
+		
+		count = (Long)sess.createQuery("select count(*) from Ship").iterate().next();
 		assertThat(count, is(8L));
 	}
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataset>
-	<base_types id="1" name="Basistyp" width="5" height="8" maxtiles="40" cargo="1000" energy="1000" terrain="" spawnableress="" />
+	<base_types id="1" name="Basistyp" width="5" height="8" maxtiles="40" cargo="1000" energy="1000" terrain="0" spawnableress="" />
 	
 	<users id="-1" name="Niemand" history="" flags="" />
 	<users id="0" name="Nulluser" history="" flags="" />
@@ -10,9 +10,9 @@
 		cost="3" hull="30000" cargo="1500" heat="2" crew="30" weapons="" maxheat="" 
 		size="14" descrip="" nahrungcargo="30" deutfactor="3" class="3" flags="" modules="" werft="8" />
 
-	<bases id="1" name="Testasti" owner="1" x="5" y="1" system="1" bewohner="1" arbeiter="0" e="1000"
-		maxe="10000" cargo="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0," maxcargo="10000" klasse="1" width="5" height="5" maxtiles="0"
-		terrain="" bebauung="" active="" autogtuacts="" />
+	<bases id="1" name="Testasti" owner="1" x="1" y="1" system="1" bewohner="0" arbeiter="0" e="1000"
+		maxe="10000" cargo="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0," maxcargo="10000" klasse="1" width="5" height="8" maxtiles="40"
+		terrain="" bebauung="" active="" autogtuacts="" unitcargo="" spawnableress="" spawnressavailable="" />
 		
 	<!-- Basiswerft -->
 		
