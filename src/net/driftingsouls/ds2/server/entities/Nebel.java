@@ -44,11 +44,39 @@ public class Nebel implements Locatable {
 	private MutableLocation loc;
 	private int type;
 	
+	/**
+	 * Nebeltyp.
+	 */
 	public enum Types
 	{
-		LOW_DEUT(1, 5), MEDIUM_DEUT(2, 7), STRONG_DEUT(3, 11), 
-		LOW_EMP(4, Integer.MAX_VALUE), MEDIUM_EMP(5, Integer.MAX_VALUE), 
-		STRONG_EMP(6, Integer.MAX_VALUE), DAMAGE(7, 7);
+		/**
+		 * Schwacher Deutnebel.
+		 */
+		LOW_DEUT(1, 5), 
+		/**
+		 * Normaler Deutnebel.
+		 */
+		MEDIUM_DEUT(2, 7), 
+		/**
+		 * Dichter Deutnebel.
+		 */
+		STRONG_DEUT(3, 11), 
+		/**
+		 * Schwacher EMP-Nebel.
+		 */
+		LOW_EMP(4, Integer.MAX_VALUE), 
+		/**
+		 * Normaler EMP-Nebel.
+		 */
+		MEDIUM_EMP(5, Integer.MAX_VALUE), 
+		/**
+		 * Dichter EMP-Nebel.
+		 */
+		STRONG_EMP(6, Integer.MAX_VALUE), 
+		/**
+		 * Schadensnebel.
+		 */
+		DAMAGE(7, 7);
 		
 		private Types(int code, int minScansize)
 		{
@@ -56,6 +84,12 @@ public class Nebel implements Locatable {
 			this.minScansize = minScansize;
 		}
 		
+		/**
+		 * Erzeugt aus Typenids (Datenbank) enums.
+		 * 
+		 * @param type Typenid.
+		 * @return Passendes enum.
+		 */
 		public static Types getType(int type)
 		{
 			switch(type)
