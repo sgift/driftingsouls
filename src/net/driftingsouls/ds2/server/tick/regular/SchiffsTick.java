@@ -628,7 +628,7 @@ public class SchiffsTick extends TickController {
 			
 			try {
 				this.log("DB-Status ist:" + db.isOpen() + "/" + db.isConnected());
-				Transaction tx = db.beginTransaction(); 
+				org.hibernate.Transaction tx = db.beginTransaction(); 
 				this.tickShip( db, ship );
 				tx.commit();
 			}
