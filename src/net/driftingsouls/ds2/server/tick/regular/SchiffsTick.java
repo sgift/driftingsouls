@@ -626,9 +626,9 @@ public class SchiffsTick extends TickController {
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship ship = (Ship)iter.next();
 			
+			org.hibernate.Transaction tx = db.beginTransaction();
 			try {
 				this.log("DB-Status ist:" + db.isOpen() + "/" + db.isConnected());
-				org.hibernate.Transaction tx = db.beginTransaction(); 
 				this.tickShip( db, ship );
 				tx.commit();
 			}
