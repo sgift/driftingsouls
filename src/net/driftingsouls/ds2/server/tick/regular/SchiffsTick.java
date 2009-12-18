@@ -626,7 +626,8 @@ public class SchiffsTick extends TickController {
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship ship = (Ship)iter.next();
 			
-			try {         
+			try {
+				this.log("DB-Status ist:" + db.isOpen() + "/" + db.isConnected());
 				this.tickShip( db, ship );
 			}
 			catch( RuntimeException e ) {
