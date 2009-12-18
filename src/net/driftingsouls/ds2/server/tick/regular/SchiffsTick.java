@@ -638,8 +638,8 @@ public class SchiffsTick extends TickController {
 				Common.mailThrowable(e, "SchiffsTick Exception", "ship: "+ship.getId());
 
 				tx.rollback();
-				db.close();
-				db = getDB();
+				// db.close();
+				// db = getDB();
 			}
 		}
 	}
