@@ -139,7 +139,7 @@ public class BasicContext implements Context
 	@Override
 	public org.hibernate.Session getDB()
 	{
-		if( session == null )
+		if( session == null || !session.isOpen())
 		{
 			initDbConnection(config);
 		}
