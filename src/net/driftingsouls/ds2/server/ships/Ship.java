@@ -117,7 +117,7 @@ public class Ship implements Locatable,Transfering {
 	@JoinColumn(name="owner", nullable=false)
 	private User owner;
 	private String name;
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne//(fetch=FetchType.LAZY)
 	@JoinColumn(name="type", nullable=false)
 	private ShipType shiptype; 
 	@Type(type="cargo")
@@ -972,7 +972,7 @@ public class Ship implements Locatable,Transfering {
 	public ShipTypeData getTypeData() {	
 		ShipModules modules = this.modules;
 			
-		return getShipType(this.getType(), modules, false);
+		return getShipType(this.getBaseType().getId(), modules, false);
 	}
 	
 	private static final int MANGEL_TICKS = 9;

@@ -60,7 +60,7 @@ public class SchiffsTick extends TickController {
 	@Override
 	protected void prepare() {
 		getDB().setFlushMode(FlushMode.MANUAL);
-
+		
 		esources = new LinkedHashMap<String,ResourceID>();
 		esources.put("a", Resources.ANTIMATERIE);
 		esources.put("d", Resources.DEUTERIUM);
@@ -584,7 +584,7 @@ public class SchiffsTick extends TickController {
 	private void tickUser(org.hibernate.Session db, User auser, String battle) {
 		
 		savelist = new HashMap<Base,Long>();
-		ConfigValue value = (ConfigValue)getDB().get(ConfigValue.class, "corruption");
+		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "corruption");
 		double corruption = Double.valueOf(value.getValue()) + auser.getCorruption();
 
 		// Schiffe berechnen
@@ -647,7 +647,7 @@ public class SchiffsTick extends TickController {
 	@Override
 	protected void tick() {
 		org.hibernate.Session db = getDB();
-
+		
 		String userlist = "";
 		String battle = "";
 
