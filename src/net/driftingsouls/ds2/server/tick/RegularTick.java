@@ -160,17 +160,21 @@ public class RegularTick extends AbstractTickExecuter
 	{
 		Context context = getContext();
 		Session db = getDB();
+		context.commit();
 		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "tick");
 		value.setValue("" + 1);
 		context.commit();
+		db.flush();
 	}
 	
 	private void unblockAccs()
 	{
 		Context context = getContext();
 		Session db = getDB();
+		context.commit();
 		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "tick");
 		value.setValue("" + 0);
 		context.commit();
+		db.flush();
 	}
 }
