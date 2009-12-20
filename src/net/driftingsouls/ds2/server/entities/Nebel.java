@@ -95,12 +95,12 @@ public class Nebel implements Locatable {
 			switch(type)
 			{
 				case 1: return LOW_DEUT;
-				case 2: return MEDIUM_DEUT;
-				case 3: return STRONG_DEUT;
-				case 4: return LOW_EMP;
-				case 5: return MEDIUM_EMP;
-				case 6: return STRONG_EMP;
-				case 7: return DAMAGE;
+				case 0: return MEDIUM_DEUT;
+				case 2: return STRONG_DEUT;
+				case 3: return LOW_EMP;
+				case 4: return MEDIUM_EMP;
+				case 5: return STRONG_EMP;
+				case 6: return DAMAGE;
 				default: throw new IllegalArgumentException("There's no nebula with type:" + type);
 			}
 		}
