@@ -1248,7 +1248,6 @@ public class User extends BasicUser {
 			if(count%20 == 0)
 			{
 				db.flush();
-				db.clear();
 			}
 		}
 		
