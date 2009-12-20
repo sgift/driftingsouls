@@ -626,20 +626,13 @@ public class SchiffsTick extends TickController {
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship ship = (Ship)iter.next();
 			
-			org.hibernate.Transaction tx = db.beginTransaction();
 			try {
-				this.log("DB-Status ist:" + db.isOpen() + "/" + db.isConnected());
 				this.tickShip( db, ship );
-				tx.commit();
 			}
 			catch( RuntimeException e ) {
 				this.log("ship "+ship.getId()+" failed: "+e);
 				e.printStackTrace();
 				Common.mailThrowable(e, "SchiffsTick Exception", "ship: "+ship.getId());
-
-				tx.rollback();
-				// db.close();
-				// db = getDB();
 			}
 		}
 	}
@@ -710,7 +703,6 @@ public class SchiffsTick extends TickController {
 					}
 					
 					getContext().rollback();
-					db.clear();
 	
 					this.log("#"+retry+" User "+auser.getId()+" failed: "+e);
 					e.printStackTrace();
