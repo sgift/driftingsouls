@@ -56,27 +56,27 @@ public class Nebel implements Locatable {
 		/**
 		 * Normaler Deutnebel.
 		 */
-		MEDIUM_DEUT(2, 7), 
+		MEDIUM_DEUT(0, 7), 
 		/**
 		 * Dichter Deutnebel.
 		 */
-		STRONG_DEUT(3, 11), 
+		STRONG_DEUT(2, 11), 
 		/**
 		 * Schwacher EMP-Nebel.
 		 */
-		LOW_EMP(4, Integer.MAX_VALUE), 
+		LOW_EMP(3, Integer.MAX_VALUE), 
 		/**
 		 * Normaler EMP-Nebel.
 		 */
-		MEDIUM_EMP(5, Integer.MAX_VALUE), 
+		MEDIUM_EMP(4, Integer.MAX_VALUE), 
 		/**
 		 * Dichter EMP-Nebel.
 		 */
-		STRONG_EMP(6, Integer.MAX_VALUE), 
+		STRONG_EMP(5, Integer.MAX_VALUE), 
 		/**
 		 * Schadensnebel.
 		 */
-		DAMAGE(7, 7);
+		DAMAGE(6, 7);
 		
 		private Types(int code, int minScansize)
 		{
