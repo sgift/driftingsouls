@@ -56,27 +56,27 @@ public class Nebel implements Locatable {
 		/**
 		 * Normaler Deutnebel.
 		 */
-		MEDIUM_DEUT(2, 7), 
+		MEDIUM_DEUT(0, 7), 
 		/**
 		 * Dichter Deutnebel.
 		 */
-		STRONG_DEUT(3, 11), 
+		STRONG_DEUT(2, 11), 
 		/**
 		 * Schwacher EMP-Nebel.
 		 */
-		LOW_EMP(4, Integer.MAX_VALUE), 
+		LOW_EMP(3, Integer.MAX_VALUE), 
 		/**
 		 * Normaler EMP-Nebel.
 		 */
-		MEDIUM_EMP(5, Integer.MAX_VALUE), 
+		MEDIUM_EMP(4, Integer.MAX_VALUE), 
 		/**
 		 * Dichter EMP-Nebel.
 		 */
-		STRONG_EMP(6, Integer.MAX_VALUE), 
+		STRONG_EMP(5, Integer.MAX_VALUE), 
 		/**
 		 * Schadensnebel.
 		 */
-		DAMAGE(7, 7);
+		DAMAGE(6, 7);
 		
 		private Types(int code, int minScansize)
 		{
@@ -95,12 +95,12 @@ public class Nebel implements Locatable {
 			switch(type)
 			{
 				case 1: return LOW_DEUT;
-				case 2: return MEDIUM_DEUT;
-				case 3: return STRONG_DEUT;
-				case 4: return LOW_EMP;
-				case 5: return MEDIUM_EMP;
-				case 6: return STRONG_EMP;
-				case 7: return DAMAGE;
+				case 0: return MEDIUM_DEUT;
+				case 2: return STRONG_DEUT;
+				case 3: return LOW_EMP;
+				case 4: return MEDIUM_EMP;
+				case 5: return STRONG_EMP;
+				case 6: return DAMAGE;
 				default: throw new IllegalArgumentException("There's no nebula with type:" + type);
 			}
 		}
