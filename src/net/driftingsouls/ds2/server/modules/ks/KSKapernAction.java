@@ -153,10 +153,9 @@ public class KSKapernAction extends BasicKSAction {
 		UnitCargo saveunits = ownUnits.trimToMaxSize(enemyShipType.getMaxUnitSize());
 
 		boolean ok = false;
-		boolean att = false;
 		
 		String msg = "";
-		if( !ownUnits.isEmpty() && !enemyUnits.isEmpty() ) {
+		if( !ownUnits.isEmpty() && !(enemyUnits.isEmpty() && enemyShip.getCrew() == 0) ) {
 			battle.logme("Die Einheiten st&uuml;rmen das Schiff\n");
 			msg = "Die Einheiten der "+Battle.log_shiplink(ownShip.getShip())+" st&uuml;rmen die "+Battle.log_shiplink(enemyShip.getShip())+"\n";
 
@@ -175,7 +174,6 @@ public class KSKapernAction extends BasicKSAction {
 
 			UnitCargo toteeigeneUnits = new UnitCargo();
 			UnitCargo totefeindlicheUnits = new UnitCargo();
-			att = true;
 			
 			if(ownUnits.kapern(enemyUnits, toteeigeneUnits, totefeindlicheUnits, dcrew, attmulti, defmulti ))
 			{
@@ -249,17 +247,14 @@ public class KSKapernAction extends BasicKSAction {
 
 		ownUnits.addCargo(saveunits);
 		
-		if( att ) {
-			battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
-			battle.logenemy(msg);
-			battle.logenemy("]]></action>\n");
-
-			ownShip.getShip().setBattleAction(true);
-			ownShip.setUnits(ownUnits);
-			
-			enemyShip.setUnits(enemyUnits);
-			enemyShip.getShip().setCrew(dcrew.intValue());
-		}
+		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
+		battle.logenemy(msg);
+		battle.logenemy("]]></action>\n");
+		ownShip.getShip().setBattleAction(true);
+		ownShip.setUnits(ownUnits);
+		
+		enemyShip.setUnits(enemyUnits);
+		enemyShip.getShip().setCrew(dcrew.intValue());
 
 		// Wurde das Schiff gekapert?
 		if( ok ) {
