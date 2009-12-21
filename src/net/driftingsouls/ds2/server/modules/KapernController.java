@@ -315,9 +315,8 @@ public class KapernController extends TemplateGenerator {
 			
 			UnitCargo saveunits = ownUnits.trimToMaxSize(targetShip.getTypeData().getMaxUnitSize());
 
-			boolean att = false;
 			
-			if( !ownUnits.isEmpty() && !enemyUnits.isEmpty() ) {
+			if( !ownUnits.isEmpty() && !(enemyUnits.isEmpty() && this.targetShip.getCrew() == 0 ) ) {
 				
 				int attmulti = 1;
 				int defmulti = 1;
@@ -334,7 +333,6 @@ public class KapernController extends TemplateGenerator {
 
 				UnitCargo toteeigeneUnits = new UnitCargo();
 				UnitCargo totefeindlicheUnits = new UnitCargo();
-				att = true;
 				
 				if(ownUnits.kapern(enemyUnits, toteeigeneUnits, totefeindlicheUnits, dcrew, attmulti, defmulti ))
 				{
@@ -400,12 +398,10 @@ public class KapernController extends TemplateGenerator {
 
 			ownUnits.addCargo(saveunits);
 			
-			if( att ) {
-				this.ownShip.setUnits(ownUnits);
+			this.ownShip.setUnits(ownUnits);
 				
-				this.targetShip.setUnits(enemyUnits);
-				this.targetShip.setCrew(dcrew.intValue());
-			}
+			this.targetShip.setUnits(enemyUnits);
+			this.targetShip.setCrew(dcrew.intValue());
 
 			// Wurde das Schiff gekapert?
 			if( ok ) {
