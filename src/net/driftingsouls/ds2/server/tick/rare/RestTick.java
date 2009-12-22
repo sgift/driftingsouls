@@ -45,7 +45,6 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipModules;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 
@@ -79,66 +78,75 @@ public class RestTick extends TickController {
 		Map<User,Map<Integer,Set<String>>> useritemlocations = new HashMap<User, Map<Integer, Set<String>>>();
 		Map<User,UnitCargo> userunitcargos = new HashMap<User,UnitCargo>();
 		
-		this.log("\tLese Basen ein");
-		ScrollableResults bases = db.createQuery("from Base as b inner join fetch b.owner where b.owner!=0")
-			.setCacheMode(CacheMode.IGNORE)
-	//		.setFetchSize(50)
-			.scroll(ScrollMode.FORWARD_ONLY);
-		while( bases.next() ) {
-			Base base = (Base)bases.get(0);
-			
-			Cargo bcargo = base.getCargo();
-			if( base.getOwner().getId() > 0 ) {
-				cargo.addCargo( bcargo );
-			}
-						
-			if( !usercargos.containsKey(base.getOwner()) ) {
-				usercargos.put(base.getOwner(), new Cargo(bcargo));
-			}
-			else {
-				usercargos.get(base.getOwner()).addCargo( bcargo );
-			}
-			
-			if( !base.getUnits().isEmpty())
-			{
-				if(base.getOwner().getId() > 0)
-				{
-					unitcargo.addCargo(base.getUnits());
-				}
+		int counter = 0;
+		long baseCount = (Long)db.createQuery("select count(*) from Base where owner!=0").iterate().next();
+		
+		this.log("\tLese "+baseCount+" Basen ein");
+		
+		while(counter < baseCount)
+		{
+			List<?> bases = db.createQuery("from Base as b inner join fetch b.owner where b.owner!=0")
+				.setCacheMode(CacheMode.IGNORE)
+				.setFirstResult(counter)
+				.setFetchSize(50)
+				.list();
+			for( Iterator<?> iter=bases.iterator(); iter.hasNext(); ) {
+				Base base = (Base)iter.next();
 				
-				if( !userunitcargos.containsKey(base.getOwner()) ) {
-					userunitcargos.put(base.getOwner(), new UnitCargo(base.getUnits()));
+				counter++;
+				
+				Cargo bcargo = base.getCargo();
+				if( base.getOwner().getId() > 0 ) {
+					cargo.addCargo( bcargo );
+				}
+							
+				if( !usercargos.containsKey(base.getOwner()) ) {
+					usercargos.put(base.getOwner(), new Cargo(bcargo));
 				}
 				else {
-					userunitcargos.get(base.getOwner()).addCargo( base.getUnits() );
+					usercargos.get(base.getOwner()).addCargo( bcargo );
 				}
-			}
-			
-			
-			
-			List<ItemCargoEntry> itemlist = bcargo.getItems();
-			for( int i=0; i < itemlist.size(); i++ ) {
-				ItemCargoEntry aitem = itemlist.get(i);
-				if( aitem.getItemEffect().getType() != ItemEffect.Type.AMMO ) {
-					if( !useritemlocations.containsKey(base.getOwner()) ) {
-						useritemlocations.put(base.getOwner(), new HashMap<Integer,Set<String>>());
+				
+				if( !base.getUnits().isEmpty())
+				{
+					if(base.getOwner().getId() > 0)
+					{
+						unitcargo.addCargo(base.getUnits());
 					}
-					Map<Integer,Set<String>> itemlocs = useritemlocations.get(base.getOwner());
-					if( !itemlocs.containsKey(aitem.getItemID()) ) {
-						itemlocs.put(aitem.getItemID(), new HashSet<String>());
+					
+					if( !userunitcargos.containsKey(base.getOwner()) ) {
+						userunitcargos.put(base.getOwner(), new UnitCargo(base.getUnits()));
 					}
-					itemlocs.get(aitem.getItemID()).add("b"+base.getId());
-				}	
+					else {
+						userunitcargos.get(base.getOwner()).addCargo( base.getUnits() );
+					}
+				}
+				
+				
+				
+				List<ItemCargoEntry> itemlist = bcargo.getItems();
+				for( int i=0; i < itemlist.size(); i++ ) {
+					ItemCargoEntry aitem = itemlist.get(i);
+					if( aitem.getItemEffect().getType() != ItemEffect.Type.AMMO ) {
+						if( !useritemlocations.containsKey(base.getOwner()) ) {
+							useritemlocations.put(base.getOwner(), new HashMap<Integer,Set<String>>());
+						}
+						Map<Integer,Set<String>> itemlocs = useritemlocations.get(base.getOwner());
+						if( !itemlocs.containsKey(aitem.getItemID()) ) {
+							itemlocs.put(aitem.getItemID(), new HashSet<String>());
+						}
+						itemlocs.get(aitem.getItemID()).add("b"+base.getId());
+					}	
+				}
+				
+		//		db.evict(base);
 			}
-			
-			db.evict(base);
 		}
-		
 		long shipCount = (Long)db.createQuery("select count(*) from Ship where id>0")
 			.iterate()
 			.next();
 		
-		int counter = 0;
+		counter = 0;
 		
 		this.log("\tLese "+shipCount+" Schiffe ein");
 		while( counter < shipCount ) {
@@ -220,8 +228,8 @@ public class RestTick extends TickController {
 						itemlocs.get(itemmodule.getItemID().getItemID()).add("s"+ship.getId());
 					}
 				}
-				db.evict(ship);
-				HibernateFacade.evictAll(db, ShipModules.class);
+			//	db.evict(ship);
+			//	HibernateFacade.evictAll(db, ShipModules.class);
 			}
 		}
 
@@ -324,7 +332,7 @@ public class RestTick extends TickController {
 		
 		db.flush();
 		getContext().commit();
-		HibernateFacade.evictAll(db, StatUserCargo.class, StatUserUnitCargo.class);
+		HibernateFacade.evictAll(db, StatUserCargo.class, StatUserUnitCargo.class, Ship.class, Base.class);
 		
 		this.log("Speichere Module-Location-Stats");
 		db.createQuery("delete from StatItemLocations").executeUpdate();
