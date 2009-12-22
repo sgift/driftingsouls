@@ -82,7 +82,7 @@ public class RestTick extends TickController {
 		this.log("\tLese Basen ein");
 		ScrollableResults bases = db.createQuery("from Base as b inner join fetch b.owner where b.owner!=0")
 			.setCacheMode(CacheMode.IGNORE)
-			.setFetchSize(50)
+	//		.setFetchSize(50)
 			.scroll(ScrollMode.FORWARD_ONLY);
 		while( bases.next() ) {
 			Base base = (Base)bases.get(0);
@@ -306,6 +306,7 @@ public class RestTick extends TickController {
 			User owner = entry.getKey();
 			Cargo userCargo = entry.getValue();
 			StatUserCargo userstat = new StatUserCargo(owner, userCargo);
+			this.log(owner.getId()+":"+userCargo.save());
 			db.persist(userstat);
 		}
 		
@@ -317,12 +318,13 @@ public class RestTick extends TickController {
 			User owner = entry.getKey();
 			UnitCargo userunitcargo = entry.getValue();
 			StatUserUnitCargo userunitstat = new StatUserUnitCargo(owner, userunitcargo);
+			this.log(owner.getId()+":"+userunitcargo.save());
 			db.persist(userunitstat);
 		}
 		
 		db.flush();
 		getContext().commit();
-		HibernateFacade.evictAll(db, StatUserCargo.class);
+		HibernateFacade.evictAll(db, StatUserCargo.class, StatUserUnitCargo.class);
 		
 		this.log("Speichere Module-Location-Stats");
 		db.createQuery("delete from StatItemLocations").executeUpdate();
