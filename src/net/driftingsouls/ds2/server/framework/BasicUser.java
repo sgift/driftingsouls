@@ -29,7 +29,6 @@ import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.lang.StringUtils;
