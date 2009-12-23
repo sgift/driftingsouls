@@ -294,6 +294,10 @@ public abstract class BasicUser {
 		return acl;
 	}
 	
+	/**
+	 * Gibt zurueck, ob der User ein Admin ist.
+	 * @return <code>true</code>, wenn es ein Admin ist
+	 */
 	public boolean isAdmin() {
 		if( ((User)this).isAdmin())
 		{
