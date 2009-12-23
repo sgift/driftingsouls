@@ -45,6 +45,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipModules;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 
@@ -139,7 +140,7 @@ public class RestTick extends TickController {
 					}	
 				}
 				
-		//		db.evict(base);
+				db.evict(base);
 			}
 		}
 		long shipCount = (Long)db.createQuery("select count(*) from Ship where id>0")
@@ -228,8 +229,8 @@ public class RestTick extends TickController {
 						itemlocs.get(itemmodule.getItemID().getItemID()).add("s"+ship.getId());
 					}
 				}
-			//	db.evict(ship);
-			//	HibernateFacade.evictAll(db, ShipModules.class);
+				db.evict(ship);
+				HibernateFacade.evictAll(db, ShipModules.class);
 			}
 		}
 

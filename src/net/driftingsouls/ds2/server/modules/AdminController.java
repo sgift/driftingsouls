@@ -111,7 +111,7 @@ public class AdminController extends DSGenerator {
 	protected boolean validateAndPrepare(String action) {
 		User user = (User)this.getUser();
 		
-		if( user.getAccessLevel() < 30 ) {
+		if( !user.isAdmin() ) {
 			addError("Sie sind nicht berechtigt diese Seite aufzurufen");
 			return false;
 		}

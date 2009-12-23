@@ -491,7 +491,6 @@ public class PortalController extends TemplateGenerator {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void registerAction() {
-		//Database db = getDatabase();
 		Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		

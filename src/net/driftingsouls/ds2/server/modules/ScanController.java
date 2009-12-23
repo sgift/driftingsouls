@@ -80,7 +80,7 @@ public class ScanController extends TemplateGenerator {
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		org.hibernate.Session db = getDB();
-		admin = getInteger("admin") != 0 && getUser().getAccessLevel() >= 20;
+		admin = getInteger("admin") != 0 && getUser().isAdmin();
 		int shipID = -1;
 		
 		if( !admin ) {

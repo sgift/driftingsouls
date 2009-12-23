@@ -165,7 +165,7 @@ public class Ship implements Locatable,Transfering {
 	private String lock;
 	private Integer visibility;
 	private String onmove;
-	private Byte respawn;
+	private Integer respawn;
 	private int ablativeArmor;
 	private boolean startFighters;
 	private int showtradepost;
@@ -905,7 +905,7 @@ public class Ship implements Locatable,Transfering {
 	 * Gibt die Anzahl an Runden bis zu einem Respawn zurueck.
 	 * @return Die Anzahl der Runden bis zu einem Respawn
 	 */
-	public Byte getRespawn() {
+	public Integer getRespawn() {
 		return respawn;
 	}
 
@@ -913,7 +913,7 @@ public class Ship implements Locatable,Transfering {
 	 * Setzt die Anzahl an Runden bis zu einem Respawn.
 	 * @param respawn Die neue Rundenanzahl
 	 */
-	public void setRespawn(Byte respawn) {
+	public void setRespawn(Integer respawn) {
 		this.respawn = respawn;
 	}
 
@@ -3482,7 +3482,7 @@ public class Ship implements Locatable,Transfering {
 		}
 
 		// Falls eine respawn-Zeit gesetzt ist und ein Respawn-Image existiert -> respawn-Task setzen
-		if( this.respawn != null ) {
+		if( this.respawn != 0 ) {
 			Ship negship = (Ship)db.get(Ship.class, -this.id);
 			if( negship != null ) {
 				taskmanager.addTask(Taskmanager.Types.SHIP_RESPAWN_COUNTDOWN, this.respawn, Integer.toString(-this.id), "", "");	

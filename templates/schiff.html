@@ -185,37 +185,6 @@
 					<img src="{URL}data/interface/admin.png" alt="?" />
 				</a>
 			{/endif}
-			{if ship.show.respawn}
-				{if ship.hasrespawn}
-					<a id="shiprespawntip" name="shiprespawntip" class="noborder" onmouseover="javascript:overlib('Respawn-Dauer: {ship.respawn}',REF,'shiprespawntip', REFC,'LR',REFP,'UL',TIMEOUT,0);" onmouseout="return nd();" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=respawn">
-						<img src="{URL}data/interface/respawn_yes.png" alt="" />
-					</a>
-				{else}
-					<script type="text/javascript">
-					<!--
-						function respawntooltip() {
-							var tooltiptext = "";
-							tooltiptext += "{tooltip.respawn.begin}";
-							tooltiptext += "<span style='text-decoration:underline'>Respawn-Daten</span> (<a class='error' onclick='return nd();' href='javascript:void(0)'>X</a>)<br />";
-							tooltiptext += "<form action='"+getDsUrl()+"' method='post'><div>";
-							tooltiptext += "<input type='hidden' name='sess' value='{global.sess}' />";
-							tooltiptext += "<input type='hidden' name='module' value='schiff' />";
-							tooltiptext += "<input type='hidden' name='ship' value='{ship.id}' />";
-							tooltiptext += "<input type='hidden' name='action' value='respawn' />";
-							tooltiptext += "Zeit: <input type='text' name='respawntime' value='{ship.respawn}' size='5' /><br />";
-							tooltiptext += "<input type='submit' value='anlegen' />";
-							tooltiptext += "</div></form>";
-							tooltiptext += "{tooltip.respawn.end}";
-							overlib(tooltiptext,REF,'shiprespawntip', REFC,'UL',REFP,'UL',FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip',STICKY);
-						}		
-					// -->
-					</script>
-				
-					<a id="shiprespawntip" name="shiprespawntip" class="noborder" onclick="respawntooltip();" href="#">
-						<img src="{URL}data/interface/respawn.png" alt="?" />
-					</a>
-				{/endif}
-			{/endif}
 			{if ship.npcislandlink}
 				<a class="noborder" onmouseover="return helpme('zur Insel');" onmouseout="return nd();" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=insel">
 					<img src="{URL}data/interface/schiffe/tunnel.png" alt="Insel der Gl&uuml;cksehligkeit" />

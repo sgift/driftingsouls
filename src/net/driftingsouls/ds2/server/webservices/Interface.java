@@ -23,7 +23,6 @@ import java.util.Map;
 
 import net.driftingsouls.ds2.server.AdminCommands;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 /**
  * Standardwebservice von DS.
@@ -36,46 +35,6 @@ public class Interface extends BasicWebService {
 		validUserValues.put("TBLORDER/clients/jstarmap/bufferedoutput", "boolean");
 	}
 	
-	/**
-	 * Gibt den Namen eines Schiffes eigenen Schiffes zurueck.
-	 * @param shipid Die ID des Schiffes
-	 * @return Der Name
-	 * @throws WebServiceException
-	 */
-	public String identifyShip( int shipid ) throws WebServiceException {
-		requireAuthentication();
-
-		SQLResultRow name = null;
-		if( shipid > 0 ) {
-			name = getDatabase().first("SELECT name FROM ships WHERE owner=",getUser().getId()," AND id=",shipid);
-		}
-		if( name == null || name.isEmpty() ) {
-			throw new WebServiceException("Ungueltige Schiffs-ID");
-		}
-
-		return name.getString("name");
-	}
-
-	/**
-	 * Gibt den Namen einer eigenen Basis zurueck.
-	 * @param baseid Die ID der Basis
-	 * @return Der Name
-	 * @throws WebServiceException
-	 */
-	public String identifyBase( int baseid ) throws WebServiceException {
-		requireAuthentication();
-
-		SQLResultRow name = null;
-		if( baseid > 0 ) {
-			name = getDatabase().first("SELECT name FROM bases WHERE owner=",getUser().getId()," AND id=",baseid);
-		}
-		if( name == null || name.isEmpty() ) {
-			throw new WebServiceException("Ungueltige Basis-ID");
-		}
-
-		return name.getString("name");
-	}
-
 	/**
 	 * Prueft, ob die verwendete Session ok ist.
 	 * @return <code>true</code>, falls die Session OK ist
@@ -91,8 +50,8 @@ public class Interface extends BasicWebService {
 	 */
 	public int hasNewPM() throws WebServiceException {
 		requireAuthentication();
-
-		return getDatabase().first("SELECT count(*) newmsgs FROM transmissionen WHERE empfaenger=",getUser().getId()," AND gelesen=0").getInt("newmsgs");
+		
+		return (Integer)getDB().createQuery("select count(*) newmsgs FROM transmissionen WHERE empfaenger=:empfaenger and gelesen=0").setEntity("empfaenger", getUser().getId()).iterate().next();
 	}
 
 	/**
@@ -112,7 +71,7 @@ public class Interface extends BasicWebService {
 	 * @return <code>true</code>, falls der Spieler Adminrechte besitzt
 	 */
 	public boolean admin_isAdmin() {
-		if( getUser() == null || getUser().getAccessLevel() < 20 ) {
+		if( getUser() == null || !getUser().isAdmin() ) {
 			return false;
 		}
 		return true;

@@ -48,9 +48,6 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -963,198 +960,6 @@ public class SchiffController extends TemplateGenerator {
 		redirect();
 	}
 	
-	private void createRespawnEntry( int shipid, int respawntime ) {
-		Database db = getDatabase();
-		
-		if( respawntime != 0 ) {
-			db.update("UPDATE ships SET respawn='",respawntime,"' WHERE id='",shipid,"'");
-		}
-		else {
-			db.update("UPDATE ships SET respawn=NULL WHERE id='",shipid,"'");
-		}
-		
-		List<String> queryfp = new ArrayList<String>();
-		List<String> querylp = new ArrayList<String>();
-		SQLResultRow ship = db.first("SELECT * FROM ships WHERE id='",shipid,"'");
-			
-		SQLQuery afield = db.query("SHOW FIELDS FROM ships");
-		while( afield.next() ) {
-			queryfp.add("`"+afield.getString("Field")+"`");
-			if( afield.getString("Field").equals("id") ) {
-				querylp.add("'"+(-shipid)+"'");
-			}
-			else {
-				if( (ship.get(afield.getString("Field")) == null) && afield.getString("Null").equals("YES") ) {
-					querylp.add("NULL");
-				}
-				else {
-					String value = ship.getString(afield.getString("Field"));
-					if( ship.get(afield.getString("Field")) instanceof Boolean ) {
-						boolean b = ship.getBoolean(afield.getString("Field"));
-						value = b ? "1" : "0";
-					}
-					querylp.add("'"+db.prepareString(value)+"'");
-				}
-			}
-		}
-		afield.free();
-		
-		db.update("INSERT INTO ships (",Common.implode(",",queryfp),") VALUES (",Common.implode(",",querylp),")");
-		
-		// Moduldaten einfuegen, falls vorhanden
-		SQLResultRow shipmodules = db.first("SELECT * FROM ships_modules WHERE id='",shipid,"'");
-		if( !shipmodules.isEmpty() ) {
-			queryfp.clear();
-			querylp.clear();
-		
-			afield = db.query("SHOW FIELDS FROM ships_modules");
-			while( afield.next() ) {	
-				queryfp.add("`"+afield.getString("Field")+"`");
-				if( afield.getString("Field").equals("id") ) {
-					querylp.add("'"+(-shipid)+"'");
-				}
-				else {
-					if( (shipmodules.get(afield.getString("Field")) == null) && afield.getString("Null").equals("YES") ) {
-						querylp.add("NULL");
-					}
-					else {
-						String value = shipmodules.getString(afield.getString("Field"));
-						if( shipmodules.get(afield.getString("Field")) instanceof Boolean ) {
-							boolean b = shipmodules.getBoolean(afield.getString("Field"));
-							value = b ? "1" : "0";
-						}
-						querylp.add("'"+db.prepareString(value)+"'");
-					}
-				}
-			}
-			afield.free();
-		
-			db.update("INSERT INTO ships_modules (",Common.implode(",",queryfp),") VALUES (",Common.implode(",",querylp),")");
-		}
-		
-		// Offiziere einfuegen, falls vorhanden
-		SQLQuery offizier = db.query("SELECT * FROM offiziere WHERE dest='s ",shipid,"'");
-		while( offizier.next() ) {
-			queryfp.clear();
-			querylp.clear();
-		
-			afield = db.query("SHOW FIELDS FROM offiziere");
-			while( afield.next() ) {
-				queryfp.add("`"+afield.getString("Field")+"`");
-				if( afield.getString("Field").equals("dest") ) {
-					querylp.add("'s "+(-shipid)+"'");
-				}
-				else if( afield.getString("Field").equals("id") ) {
-					querylp.add("NULL");
-				}
-				else {
-					if( (offizier.get(afield.getString("Field")) == null) && afield.getString("Null").equals("YES") ) {
-						querylp.add("NULL");
-					}
-					else {
-						String value = offizier.getString(afield.getString("Field"));
-						if( offizier.get(afield.getString("Field")) instanceof Boolean ) {
-							boolean b = offizier.getBoolean(afield.getString("Field"));
-							value = b ? "1" : "0";
-						}
-						querylp.add("'"+db.prepareString(value)+"'");
-					}
-				}
-			}
-			afield.free();
-		
-			db.update("INSERT INTO offiziere (",Common.implode(",",queryfp),") VALUES (",Common.implode(",",querylp),")");
-		}
-		offizier.free();
-		
-		// Werfteintrag setzen, falls vorhanden
-		SQLResultRow werftentry = db.first("SELECT * FROM werften WHERE shipid='",shipid,"'");
-		if( !werftentry.isEmpty() ) {
-			queryfp.clear();
-			querylp.clear();
-	
-			afield = db.query("SHOW FIELDS FROM werften");
-			while( afield.next() ) {
-				queryfp.add("`"+afield.getString("Field")+"`");
-				if( afield.getString("Field").equals("shipid") ) {
-					querylp.add("'"+(-shipid)+"'");
-				}
-				else if( afield.getString("Field").equals("id") ) {
-					querylp.add("NULL");
-				}
-				else {
-					if( (werftentry.get(afield.getString("Field")) == null) && afield.getString("Null").equals("YES") ) {
-						querylp.add("NULL");
-					}
-					else {
-						String value = werftentry.getString(afield.getString("Field"));
-						if( werftentry.get(afield.getString("Field")) instanceof Boolean ) {
-							boolean b = werftentry.getBoolean(afield.getString("Field"));
-							value = b ? "1" : "0";
-						}
-						querylp.add("'"+db.prepareString(value)+"'");
-					}
-				}
-			}
-			afield.free();
-		
-			db.update("INSERT INTO werften (",Common.implode(",",queryfp),") VALUES (",Common.implode(",",querylp),")");
-		}
-	}
-	
-	private void deleteRespawnEntry( int shipid ) {
-		Ship spawn = (Ship)getDB().get(Ship.class, -shipid);
-		spawn.destroy();
-	}
-	
-	/**
-	 * Setzt die Respawn-Daten des Schiffes. Wenn bereits ein 
-	 * Respawn-Eintrag existiert, wird dieser zurueckgesetzt.
-	 * Andernfalls wird ein neuer Respawn-Eintrag erzeugt.
-	 * @urlparam Integer respawntime Die Zeit in Ticks bis zum Respawn
-	 *
-	 */
-	@Action(ActionType.DEFAULT)
-	public void respawnAction() {
-		Database db = getDatabase();
-		User user = (User)getUser(); 
-		TemplateEngine t = getTemplateEngine();
-		
-		if( user.getAccessLevel() < 20 ) {
-			redirect();
-			return;
-		}
-		
-		int negdata = db.first("SELECT id FROM ships WHERE id='",(-ship.getId()),"'").getInt("id");
-		if( negdata < 0 ) {
-			deleteRespawnEntry(ship.getId());
-			
-			SQLQuery sid = db.query("SELECT id FROM ships WHERE id>0 AND docked IN ('",ship.getId(),"','l ",ship.getId(),"')");
-			while( sid.next() ) {
-				deleteRespawnEntry(sid.getInt("id"));
-			}
-			sid.free();
-			
-			t.setVar("ship.message", "Die Respawn-Daten wurden gel&ouml;scht<br />");
-		}
-		else {
-			parameterNumber("respawntime");
-			int respawntime = getInteger("respawntime");
-			
-			createRespawnEntry(ship.getId(), respawntime);
-			
-			SQLQuery sid = db.query("SELECT id FROM ships WHERE id>0 AND docked IN ('",ship.getId(),"','l ",ship.getId(),"')");
-			while( sid.next() ) {
-				createRespawnEntry(sid.getInt("id"),respawntime);
-			}
-			sid.free();
-			
-			t.setVar("ship.message", "Die Respawn-Daten wurden angelegt<br />");
-		}
-		
-		redirect();
-	}
-	
 	/**
 	 * Transferiert das Schiff ins System 99.
 	 *
@@ -1354,8 +1159,8 @@ public class SchiffController extends TemplateGenerator {
 						"tooltip.execnotes.script",	script );
 		}
 		
-		// Tooltip: Schiffsstatusfeld ;; Button: respawn
-		if( user.getAccessLevel() > 19 ) {
+		// Tooltip: Schiffsstatusfeld
+		if( user.isAdmin() ) {
 			tooltiptext = new StringBuilder(100);
 			tooltiptext.append(Common.tableBegin(200, "left").replace('"', '\''));
 			tooltiptext.append("<span style='text-decoration:underline'>Schiffsstatus:</span><br />"+ship.getStatus().trim().replace(" ", "<br />"));
@@ -1366,19 +1171,6 @@ public class SchiffController extends TemplateGenerator {
 			String tooltipStr = StringEscapeUtils.escapeJavaScript(tooltiptext.toString().replace(">", "&gt;").replace("<", "&lt;"));
 
 			t.setVar("tooltip.admin", tooltipStr );
-				
-			t.setVar(	"tooltip.respawn.begin",	Common.tableBegin(200,"center").replace( '"', '\''),
-						"tooltip.respawn.end",		Common.tableEnd().replace( '"', '\'' ),
-						"ship.respawn",				ship.getRespawn() );
-
-			Ship rentry = (Ship)db.get(Ship.class, -ship.getId());
-			if( rentry != null ) {
-				t.setVar(	"ship.show.respawn",	1,
-							"ship.hasrespawn",		1);	
-			}
-			else {
-				t.setVar( "ship.show.respawn", 1 );	
-			}
 		}
 		
 		if( user.hasFlag( User.FLAG_NPC_ISLAND ) ) {

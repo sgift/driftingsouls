@@ -21,7 +21,6 @@ package net.driftingsouls.ds2.server.webservices;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
 
 /**
  * Basisklasse fuer WebServices.
@@ -40,13 +39,11 @@ public abstract class BasicWebService {
 	}
 	
 	/**
-	 * Gibt eine Instanz der Datenbankverbindung zurueck.
+	 * Gibt eine DatenbankSession zurueck.
 	 * @return Eine Datenbankverbindung
-	 * @deprecated Bitte Hibernate verwenden
 	 */
-	@Deprecated 
-	public Database getDatabase() {
-		return context.getDatabase();
+	public org.hibernate.Session getDB() {
+		return context.getDB();
 	}
 	
 	/**
