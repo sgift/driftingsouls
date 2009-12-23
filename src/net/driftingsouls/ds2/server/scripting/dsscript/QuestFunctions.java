@@ -378,9 +378,6 @@ public class QuestFunctions {
 				else if( value[1].equals("onmove") ) {
 					val = ship.getOnMove();
 				}
-				else if( value[1].equals("respawn") ) {
-					val = ship.getRespawn();
-				}
 			}	
 			else if( value[0].equals("tick") ) {
 				val = ContextMap.getContext().get(ContextCommon.class).getTick();
