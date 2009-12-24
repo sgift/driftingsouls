@@ -51,7 +51,9 @@ public class Interface extends BasicWebService {
 	public int hasNewPM() throws WebServiceException {
 		requireAuthentication();
 		
-		return (Integer)getDB().createQuery("select count(*) newmsgs FROM transmissionen WHERE empfaenger=:empfaenger and gelesen=0").setEntity("empfaenger", getUser().getId()).iterate().next();
+		return ((Number)getDB().createQuery("select count(*) from PM where empfaenger= :user and gelesen=0")
+				.setEntity("user", getUser())
+				.iterate().next()).intValue();
 	}
 
 	/**

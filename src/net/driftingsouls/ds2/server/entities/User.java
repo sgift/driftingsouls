@@ -1080,6 +1080,7 @@ public class User extends BasicUser {
 	 * 
 	 * @return <code>true</code>, wenn der Spieler Admin ist, sonst <code>false</code>.
 	 */
+	@Override
 	public boolean isAdmin()
 	{
 		return getAccessLevel() >= 30;
