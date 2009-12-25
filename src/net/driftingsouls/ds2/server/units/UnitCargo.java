@@ -265,30 +265,31 @@ public class UnitCargo implements Cloneable {
 		if( !units.isEmpty() ) {			
 			for( Long[] unit : units ) {
 				// Nun suchen wir mal unsere Einheiten im UnitCargo
-				Long[] entry = null;
+				boolean found = false;
 				
 				if( !this.units.isEmpty() ) {
-					for( Long[] myunit : this.units ) {
+					for(int i=0; i < this.units.size(); i++)
+					{
+						Long[] myunit = this.units.get(i);
 						if( myunit[0] != unit[0]) {
 							continue;
 						}
-						entry = myunit;
+						found = true;
+						long sum = myunit[1]-unit[1];
+						if( sum != 0 ) {
+							myunit[1] = sum;
+							this.units.set(i, myunit);
+						}
+						else {
+							this.units.remove(myunit);
+						}
 						break;
 					}
 				}
 
 				// Wurde die Einheit evt nicht in unserem UnitCargo gefunden? Dann neu hinzufuegen
-				if( entry == null ) {
+				if( !found ) {
 					this.units.add( new Long[] {unit[0], -unit[1]} );
-				}
-				else {
-					long sum = entry[1]-unit[1];
-					if( sum != 0 ) {
-						entry[1] = sum;
-					}
-					else {
-						this.units.remove(entry);
-					}
 				}
 			}
 		}
@@ -306,25 +307,25 @@ public class UnitCargo implements Cloneable {
 		if( !units.isEmpty() ) {			
 			for( Long[] unit : units ) {
 				// Nun suchen wir mal unsere Einheiten im UnitCargo
-				Long[] entry = null;
+				boolean found = false;
 				
 				if( !this.units.isEmpty() ) {
-					for( Long[] myunit : this.units ) {
+					for(int i=0; i < this.units.size(); i++)
+					{
+						Long[] myunit = this.units.get(i);
 						if( myunit[0] != unit[0])
 						{
 							continue;
 						}
-						entry = myunit;
+						found = true;
+						this.units.set(i, new Long[] {myunit[0], myunit[1]+unit[1]});
 						break;
 					}
 				}
 
 				// Wurde die Einheit evt nicht in unserem UnitCargo gefunden? Dann neu hinzufuegen
-				if( entry == null ) {
+				if( !found ) {
 					this.units.add( new Long[] {unit[0], unit[1]} );
-				}
-				else {
-					entry[1] = entry[1]+unit[1];
 				}
 			}
 		}
