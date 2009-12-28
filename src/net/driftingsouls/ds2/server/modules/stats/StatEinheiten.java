@@ -66,10 +66,13 @@ public class StatEinheiten implements Statistic {
 		
 		UnitCargo unitcargo = new UnitCargo((UnitCargo)db.createQuery("SELECT unitcargo FROM StatUnitCargo ORDER BY tick DESC").setMaxResults(1).iterate().next());
 		
-		UnitCargo ownCargo = ((StatUserUnitCargo)db.get(StatUserUnitCargo.class, user.getId())).getCargo();
+		StatUserUnitCargo statCargo = (StatUserUnitCargo)db.get(StatUserUnitCargo.class, user.getId());
 		
-		if( ownCargo == null ) {
-			ownCargo = new UnitCargo();
+		UnitCargo ownCargo = new UnitCargo();
+		
+		if( statCargo != null ) 
+		{
+			ownCargo = statCargo.getCargo();
 		}
 
 		// Ausgabe des Tabellenkopfs
