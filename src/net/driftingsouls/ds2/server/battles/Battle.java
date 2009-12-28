@@ -338,7 +338,7 @@ public class Battle implements Locatable {
 			
 			double size = type.getSize();
 			if( (aship.getAction() & BS_SECONDROW) != 0 ) {
-				if( aship.getShip().getDocked().length() == 0 ) {
+				if( !aship.getShip().isDocked() && !aship.getShip().isLanded() ) {
 					secondrowcaps += size;
 				}
 			}
@@ -363,7 +363,7 @@ public class Battle implements Locatable {
 					continue;
 				}
 				
-				if( aship.getShip().getDocked().length() == 0 ) {
+				if( !aship.getShip().isDocked() && !aship.getShip().isLanded() ) {
 					secondrowcaps += type.getSize();
 				}	
 			}
@@ -526,7 +526,7 @@ public class Battle implements Locatable {
 			for( int i=0; i < enemyShips.size(); i++ ) {
 				BattleShip aship = enemyShips.get(i);
 				
-				if( ((aship.getShip().getDocked().length() == 0) || (aship.getShip().getDocked().charAt(0) != 'l')) && 
+				if( !aship.getShip().isLanded() && 
 						(aship.getAction() & Battle.BS_DESTROYED) == 0 && (aship.getAction() & Battle.BS_SECONDROW) == 0 ) {
 					return i;
 				}
@@ -547,7 +547,7 @@ public class Battle implements Locatable {
 				foundOld = true;	
 			}
 			else if( foundOld && (aship.getShip().getType() == enemyShip.getShip().getType()) && 
-					((aship.getShip().getDocked().length() == 0) || (aship.getShip().getDocked().charAt(0) != 'l')) && 
+					!aship.getShip().isLanded() && 
 					(aship.getAction() & Battle.BS_DESTROYED) == 0 && (aship.getAction() & Battle.BS_SECONDROW) == 0 ) {
 				return i;
 			}
@@ -560,7 +560,7 @@ public class Battle implements Locatable {
 				break;
 			}
 			if( (aship.getShip().getType() == enemyShip.getShip().getType()) && 
-					((aship.getShip().getDocked().length() == 0) || (aship.getShip().getDocked().charAt(0) != 'l')) && 
+					!aship.getShip().isLanded() && 
 					(aship.getAction() & Battle.BS_DESTROYED) == 0 && (aship.getAction() & Battle.BS_SECONDROW) == 0 ) {
 				return i;
 			}
@@ -790,7 +790,7 @@ public class Battle implements Locatable {
 
 			
 			boolean ownShip = false;
-			if( (shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal()) && aShip.getDocked().length() > 0 ) {
+			if( (shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal()) && (aShip.isDocked() || aShip.isLanded()) ) {
 				battleShip.setAction(battleShip.getAction() | BS_DISABLE_WEAPONS);
 			}
 			
