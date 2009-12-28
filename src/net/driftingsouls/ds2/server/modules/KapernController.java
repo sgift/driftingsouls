@@ -129,7 +129,7 @@ public class KapernController extends TemplateGenerator {
 			return false;
 		}
 		
-		if( (dship.getVisibility() != 0) && (dship.getVisibility() != user.getId()) ) {
+		if( (dship.getVisibility() != null) && (dship.getVisibility() != user.getId()) ) {
 			addError("Sie k&ouml;nnen nur kapern, was sie auch sehen", errorurl);
 					
 			return false;
@@ -306,7 +306,7 @@ public class KapernController extends TemplateGenerator {
 				}
 			}
 			
-			msg.append("Die Einheiten der "+this.ownShip.getName()+" ("+this.ownShip.getId()+"), eine "+this.ownShip.getTypeData().getNickname()+", st&uuml;rmt die "+this.targetShip.getName()+" ("+this.targetShip.getId()+"), eine "+this.targetShip.getTypeData().getNickname()+", bei "+this.targetShip.getLocation().displayCoordinates(false)+"+\n\n");
+			msg.append("Die Einheiten der "+this.ownShip.getName()+" ("+this.ownShip.getId()+"), eine "+this.ownShip.getTypeData().getNickname()+", st&uuml;rmt die "+this.targetShip.getName()+" ("+this.targetShip.getId()+"), eine "+this.targetShip.getTypeData().getNickname()+", bei "+this.targetShip.getLocation().displayCoordinates(false)+"\n\n");
 	
 
 			Integer dcrew = new Integer(this.targetShip.getCrew());
@@ -489,7 +489,7 @@ public class KapernController extends TemplateGenerator {
 		}
 		
 		// Transmisson
-		PM.send( user, this.targetShip.getOwner().getId(), "Kaperversuch", msg.toString() );
+		PM.send( user, targetUser.getId(), "Kaperversuch", msg.toString() );
 		
 		// Wurde das Schiff gekapert?
 		if( ok ) {
