@@ -1097,8 +1097,6 @@ public class Ship implements Locatable,Transfering {
 	
 	private long getSectorTimeUntilLackOfFood()
 	{
-		System.out.println("getSectorTimeUntilLackOfFood()");
-		long start = System.currentTimeMillis();
 		Context context = ContextMap.getContext();
 		ContextVars vars = context.get(ContextVars.class);
 		if(vars.versorgerstats.containsKey(getOwner()))
@@ -1107,14 +1105,13 @@ public class Ship implements Locatable,Transfering {
 			// Sektor wurde schonmal berechnet -> zurueckgeben
 			if(locations.containsKey(getLocation()))
 			{
-				System.out.println("Fertig: "+(System.currentTimeMillis()- start));
 				return locations.get(getLocation());
 			}
 		}
 		// Sektor wurde noch nicht berechnet -> berechnen
 		org.hibernate.Session db = context.getDB();
 		
-		List<Ship> ships = Common.cast(db.createQuery("from Ship as s left join fetch s.modules where s.owner=? and s.system=? and s.x=? and s.y=? and s.id > 0")
+		List<Ship> ships = Common.cast(db.createQuery("from Ship as s left join fetch s.modules left join fetch s.shiptype where s.owner=? and s.system=? and s.x=? and s.y=? and s.id > 0")
 				.setEntity(0, this.owner)
 				.setInteger(1, this.system)
 				.setInteger(2, this.x)
@@ -1157,7 +1154,7 @@ public class Ship implements Locatable,Transfering {
 			
 			vars.versorgerstats.put(getOwner(), locations);
 		}
-		System.out.println("Fertig: "+(System.currentTimeMillis()- start));
+		
 		return versorgernahrung / crewtofeed;
 	}
 	
@@ -3935,7 +3932,7 @@ public class Ship implements Locatable,Transfering {
 	 */
 	public boolean isLanded()
 	{
-		return getDocked().startsWith("l");
+		return getDocked() != null && getDocked().startsWith("l");
 	}
 	
 	/**
