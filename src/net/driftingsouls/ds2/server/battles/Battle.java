@@ -2409,7 +2409,7 @@ public class Battle implements Locatable {
 		
 		Location loc = ship.getShip().getLocation();
 		
-		if(relocate && (!ship.getShip().isLanded() || !ship.getShip().isDocked())) {
+		if(relocate && !ship.getShip().isLanded() && !ship.getShip().isDocked()) {
 			StarSystem sys = (StarSystem)db.get(StarSystem.class, this.system);
 			int maxRetries = 100;
 

@@ -895,7 +895,7 @@ public class AngriffController extends TemplateGenerator {
 				}
 				
 				// Ist das Schiff gedockt?
-				if(!battle.isGuest() || !aship.getShip().isLanded())
+				if(aship.getShip().isDocked() || aship.getShip().isLanded())
 				{
 					int shipid = aship.getShip().getBaseShip().getId();
 					
