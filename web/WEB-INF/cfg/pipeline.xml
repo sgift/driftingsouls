@@ -117,9 +117,6 @@
 		<module name="map">
 			<generator class="net.driftingsouls.ds2.server.modules.MapController" />
 		</module>
-		<module name="mapdata">
-			<generator class="net.driftingsouls.ds2.server.modules.MapDataController" />
-		</module>
 		<module name="npcorder">
 			<generator class="net.driftingsouls.ds2.server.modules.NPCOrderController" />
 		</module>
