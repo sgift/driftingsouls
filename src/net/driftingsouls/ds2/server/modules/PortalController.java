@@ -605,7 +605,7 @@ public class PortalController extends TemplateGenerator {
 			catch( AccountInVacationModeException e ) {
 				t.setVar(	
 						"show.login.vacmode", 1,
-						"login.vacmode.dauer", Common.ticks2Days(e.getDauer()),
+						"login.vacmode.dauer", e.getDauer(),
 						"login.vacmode.username", username,
 						"login.vacmode.password", password);
 				

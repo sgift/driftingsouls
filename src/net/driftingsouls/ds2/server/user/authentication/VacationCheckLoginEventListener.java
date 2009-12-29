@@ -20,8 +20,6 @@ package net.driftingsouls.ds2.server.user.authentication;
 
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.BasicUser;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.authentication.AuthenticationException;
 import net.driftingsouls.ds2.server.framework.authentication.LoginEventListener;
 
@@ -31,21 +29,16 @@ import net.driftingsouls.ds2.server.framework.authentication.LoginEventListener;
  * @author Christopher Jung
  *
  */
-public class VacationCheckLoginEventListener implements LoginEventListener {
+public class VacationCheckLoginEventListener implements LoginEventListener 
+{
 	@Override
-	public void onLogin(BasicUser basicUser) throws AuthenticationException {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-		
+	public void onLogin(BasicUser basicUser) throws AuthenticationException 
+	{		
 		User user = (User)basicUser;
 		
-		if( (user.getVacationCount() > 0) && (user.getWait4VacationCount() == 0) ) {
-			db.createQuery("delete from Session where id=?")
-				.setInteger(0, user.getId())
-				.executeUpdate();
-			
+		if((user.getVacationCount() > 0) && (user.getWait4VacationCount() == 0)) 
+		{
 			throw new AccountInVacationModeException(user.getVacationCount());
 		}
 	}
-
 }

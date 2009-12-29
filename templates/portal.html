@@ -144,6 +144,13 @@
 				</p>
 			</li>	
 		{/endif}
+		{if show.login.vacmode}
+			<li>
+				<p>
+					<span style="color:red; font-weight:bold">Du bist noch f&uuml;r {login.vacmode.dauer} Ticks im Urlaub.</span>
+				</p>
+			</li>		
+		{/endif}
 		
 		{if ! show.register}
 			{if ! show.register.choosesystem}
