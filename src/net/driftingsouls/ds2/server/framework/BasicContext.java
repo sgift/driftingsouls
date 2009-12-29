@@ -228,16 +228,19 @@ public class BasicContext implements Context
 			// wieder geschlossen werden
 			if( this.session != null )
 			{
-				if( transaction.isActive() && !transaction.wasRolledBack() )
+				if(session.isDirty())
 				{
-					try
+					if( transaction.isActive() && !transaction.wasRolledBack() )
 					{
-						transaction.commit();
-					}
-					catch( RuntimeException ex )
-					{
-						transaction.rollback();
-						e = ex;
+						try
+						{
+							transaction.commit();
+						}
+						catch( RuntimeException ex )
+						{
+							transaction.rollback();
+							e = ex;
+						}
 					}
 				}
 				database.close();
