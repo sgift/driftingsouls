@@ -60,7 +60,6 @@ import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
@@ -579,10 +578,22 @@ public class UeberController extends TemplateGenerator {
 			else {
 				t.setVar( "fleet.jaegerfleet", 0 );
 			}
+			
+			Ship baseShip = aship.getBaseShip();
+			
+			String locationText;
+			if(baseShip == null)
+			{
+				locationText = aship.getLocation().displayCoordinates(false); 
+			}
+			else
+			{
+				locationText = baseShip.getLocation().displayCoordinates(false);
+			}
 
 			t.setVar(	"fleet.shipid",		aship.getId(),
 						"fleet.name",		fleet.getName(),
-						"fleet.location",	Ships.getLocationText(aship.getLocation(), false),
+						"fleet.location",	locationText,
 						"fleet.shipcount",	count );
 			t.parse("fleets.list","fleets.listitem",true);
 		}
