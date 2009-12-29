@@ -87,7 +87,7 @@ public class KSFluchtAllAction extends BasicKSAction {
 				continue;
 			}
 			
-			if( aship.getDocked().length() > 0 ) {
+			if( aship.getShip().isLanded() || aship.getShip().isDocked() ) {
 				continue;
 			}
 
@@ -127,7 +127,8 @@ public class KSFluchtAllAction extends BasicKSAction {
 			int remove = 1;
 			for( int j=0; j < ownShips.size(); j++ ) {
 				BattleShip s = ownShips.get(j);
-				if( (s.getDocked().length() > 0) && (s.getDocked().equals(""+aship.getId()) || s.getDocked().equals("l "+aship.getId()) ) ) {
+				if(s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == aship.getId())
+				{
 					s.setAction(s.getAction() | fluchtflag);
 
 					remove++;

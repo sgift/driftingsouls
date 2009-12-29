@@ -166,8 +166,8 @@ public class KapernController extends TemplateGenerator {
 			return false;
 		}
 		
-		if( dship.getDocked().length() > 0 ) {
-			if( dship.getDocked().charAt(0) == 'l' ) {
+		if( dship.isDocked() || dship.isLanded() ) {
+			if( dship.isLanded() ) {
 				addError("Sie k&ouml;nnen gelandete Schiffe weder kapern noch pl&uuml;ndern", errorurl);
 					
 				return false;

@@ -170,7 +170,8 @@ public class KSAttackAction extends BasicKSAction {
 		for( int i=0; i < enemyShips.size(); i++ ) {
 			BattleShip s = enemyShips.get(i);
 
-			if( s.getDocked().equals(Integer.toString(eShip.getId())) || s.getDocked().equals("l "+eShip.getId()) ) {
+			if(s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == eShip.getId())
+			{
 				if( generateStats ) {
 					ShipLost lost = new ShipLost(s.getShip());
 					lost.setDestAlly(oUser.getAlly());
@@ -959,7 +960,7 @@ public class KSAttackAction extends BasicKSAction {
 				else if( (eship.getAction() & Battle.BS_JOIN) != 0 ) {
 					continue;	
 				}
-				else if( eship.getDocked().length() > 0 && (eship.getDocked().charAt(0) == 'l') ) {
+				else if(eship.getShip().isLanded()) {
 					continue;	
 				}
 				else if(eship.isSecondRow())
@@ -1241,7 +1242,7 @@ public class KSAttackAction extends BasicKSAction {
 			return RESULT_ERROR;
 		}
 
-		if( (this.ownShip.getDocked().length() > 0) && (this.ownShip.getDocked().charAt(0) == 'l') )
+		if(this.ownShip.getShip().isLanded())
 		{
 			battle.logme( "Sie k&ouml;nnen nicht mit gelandeten Schiffen feuern\n" );
 			return RESULT_ERROR;

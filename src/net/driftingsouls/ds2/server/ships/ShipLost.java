@@ -80,14 +80,10 @@ public class ShipLost {
 		if( ship.getOwner().getAlly() != null ) {
 			this.ally = ship.getOwner().getAlly().getId();
 		}
-		if( ship.getDocked().length() > 0 ) {
-			String docked = ship.getDocked();
-			if( docked.charAt(0) == 'l' ) {
-				setDocked(Integer.parseInt(docked.substring(2)));
-			}
-			else {
-				setDocked(Integer.parseInt(docked));
-			}
+		
+		Ship baseShip = ship.getBaseShip();
+		if( baseShip != null ) {
+			setDocked(baseShip.getId());
 		}
 		if( ship.getBattle() != null ) {
 			setBattle(ship.getBattle().getId());

@@ -416,30 +416,27 @@ public class SchiffeController extends TemplateGenerator {
 					t.setVar("ship.fleet.name",Common._plaintitle(ship.getFleet().getName()) );
 				}
 				
-				if( ship.getDocked().length() > 0 ) {
-					if( ship.getDocked().charAt(0) != 'l' ) {
-						Ship master = (Ship)db.get(Ship.class, Integer.valueOf(ship.getDocked()));
-						if( master == null ) {
-					 		// Notwendig bis ein Foreign Key fuer Docked exisitert (Ship.dock funktioniert hier nicht mehr)
-					 		ship.setDocked("");
-					 	}
-					 	else {
-							t.setVar(	"ship.docked.name",	master.getName(),
-										"ship.docked.id",	master.getId() );
-					 	}
-					}
-					else {
-					 	Integer dockid = Integer.valueOf(ship.getDocked().substring(2));
-					 	Ship master = (Ship)db.get(Ship.class, dockid);
-					 	if( master == null ) {
-					 		// Notwendig bis ein Foreign Key fuer Docked exisitert (Ship.dock funktioniert hier nicht mehr)
-					 		ship.setDocked("");
-					 	}
-					 	else {
-					 		t.setVar(	"ship.landed.name",	master.getName(),
-					 					"ship.landed.id",	master.getId() );
-					 	}
-					}
+				if( ship.isDocked() ) {
+					Ship master = ship.getBaseShip();
+					if( master == null ) {
+				 		// Notwendig bis ein Foreign Key fuer Docked exisitert (Ship.dock funktioniert hier nicht mehr)
+				 		ship.setDocked("");
+				 	}
+				 	else {
+						t.setVar(	"ship.docked.name",	master.getName(),
+									"ship.docked.id",	master.getId() );
+				 	}
+				}
+				else if(ship.isLanded()) {
+				 	Ship master = ship.getBaseShip();
+				 	if( master == null ) {
+				 		// Notwendig bis ein Foreign Key fuer Docked exisitert (Ship.dock funktioniert hier nicht mehr)
+				 		ship.setDocked("");
+				 	}
+				 	else {
+				 		t.setVar(	"ship.landed.name",	master.getName(),
+				 					"ship.landed.id",	master.getId() );
+				 	}
 				}
 				
  				if( shiptype.getADocks() > 0 ) {

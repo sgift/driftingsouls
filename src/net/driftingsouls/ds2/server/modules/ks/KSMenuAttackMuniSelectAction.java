@@ -83,7 +83,8 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 		if( (enemyShip.getAction() & Battle.BS_DESTROYED) != 0 ) {
 			return RESULT_ERROR;
 		}
-		if( (ownShip.getDocked().length() > 0) && ownShip.getDocked().charAt(0) == 'l' ) {
+		if(ownShip.getShip().isLanded()) 
+		{
 			return RESULT_ERROR;
 		}
 		

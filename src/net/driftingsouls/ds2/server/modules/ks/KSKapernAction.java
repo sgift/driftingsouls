@@ -92,12 +92,14 @@ public class KSKapernAction extends BasicKSAction {
 			return RESULT_ERROR;
 		}
 
-		if( enemyShip.getDocked().length() > 0 ) {
-			if( enemyShip.getDocked().charAt(0) == 'l' ) {
+		if(enemyShip.getShip().isDocked() || enemyShip.getShip().isLanded()) 
+		{
+			if(enemyShip.getShip().isLanded()) 
+			{
 				return RESULT_ERROR;
 			} 
 
-			Ship mastership = (Ship)db.get(Ship.class, Integer.parseInt(enemyShip.getDocked()));
+			Ship mastership = enemyShip.getShip().getBaseShip();
 			if( (mastership.getEngine() != 0) && (mastership.getCrew() != 0) ) {
 				return RESULT_ERROR;
 			}

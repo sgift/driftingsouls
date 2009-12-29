@@ -364,15 +364,6 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt die Dochdaten des Schiffes zurueck.
-	 * @return Die Dockdaten
-	 * @see net.driftingsouls.ds2.server.ships.Ship#getDocked()
-	 */
-	public String getDocked() {
-		return ship.getDocked();
-	}
-
-	/**
 	 * Gibt die Punkte an ablativer Panzerung zurueck, ueber die das Schiff noch verfuegt.
 	 * @return Die ablative Panzerung
 	 */

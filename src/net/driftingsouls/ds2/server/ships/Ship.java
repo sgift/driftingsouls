@@ -2959,7 +2959,7 @@ public class Ship implements Locatable,Transfering {
 		boolean gotmodule = false;
 		for( Ship aship : dockships ) 
 		{
-			if(!aship.getDocked().equals("" + getId()))
+			if(aship.getBaseShipId() != this.getId())
 			{
 				//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
 				continue;
@@ -3605,7 +3605,7 @@ public class Ship implements Locatable,Transfering {
 			int oldlength = message.length();
 			boolean tmp = aship.consign(newowner, testonly );
 			if( tmp && !testonly ) {
-				this.dock( aship.getDocked().charAt(0) == 'l' ? DockMode.START : DockMode.UNDOCK, aship);			
+				this.dock( aship.isLanded() ? DockMode.START : DockMode.UNDOCK, aship);			
 			}
 
 			if( (oldlength > 0) && (oldlength != message.length()) ) {
@@ -3780,12 +3780,7 @@ public class Ship implements Locatable,Transfering {
 			return false;
 		}
 		
-		String motherShip = getDocked();
-		if(motherShip != null && motherShip.startsWith("l")) {
-			return false;
-		}
-		
-		return true;
+		return !isLanded();
 	}
 
 	/**

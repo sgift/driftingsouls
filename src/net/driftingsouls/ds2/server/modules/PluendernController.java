@@ -144,14 +144,14 @@ public class PluendernController extends TemplateGenerator {
 			return false;
 		}
 
-		if( shipTo.getDocked().length() > 0 ) {
-			if( shipTo.getDocked().charAt(0) == 'l' ) {
+		if( shipTo.isDocked() || shipTo.isLanded() ) {
+			if( shipTo.isLanded() ) {
 				addError("Sie k&ouml;nnen gelandete Schiffe weder kapern noch pl&uuml;ndern", errorurl);
 					
 				return false;
 			} 
 
-			Ship mastership = (Ship)db.get(Ship.class, Integer.valueOf(shipTo.getDocked()));
+			Ship mastership = shipTo.getBaseShip();
 			if( ( (mastership.getCrew() != 0) ) && (mastership.getEngine() != 0) && 
 				(mastership.getWeapons() != 0) ) {
 				addError("Das Schiff, an das das feindliche Schiff angedockt hat, ist noch bewegungsf&auml;hig", errorurl);

@@ -669,7 +669,7 @@ public class ScanController extends TemplateGenerator {
 								Ship myship = myships.get(i);
 								
 								if( myship.getOwner().getId() == user.getId() ) {
-									if( (myship.getDocked().length() == 0) || (myship.getDocked().charAt(0) != 'l') ) {
+									if( !myship.isLanded() ) {
 										if( own == 0 ) {
 											fleet[0] = "_fo";
 										}	
@@ -678,7 +678,7 @@ public class ScanController extends TemplateGenerator {
 								}
 								else if( (myship.getOwner().getId() != user.getId()) && (user.getAlly() != null) && (myship.getOwner().getAlly() == user.getAlly()) )
 								{
-									if( (myship.getDocked().length() == 0) || (myship.getDocked().charAt(0) != 'l') )
+									if( !myship.isLanded() )
 									{
 										if( ally == 0 )
 										{
@@ -714,7 +714,7 @@ public class ScanController extends TemplateGenerator {
 										scan = true;
 									}
 									
-									if( ((myship.getDocked().length() == 0) || (myship.getDocked().charAt(0) != 'l')) && scan == true )
+									if( !myship.isLanded() && scan == true )
 									{
 										if( enemy == 0 ) {
 											fleet[2] = "_fe";

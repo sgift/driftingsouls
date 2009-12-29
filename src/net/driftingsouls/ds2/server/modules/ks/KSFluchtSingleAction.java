@@ -64,7 +64,7 @@ public class KSFluchtSingleAction extends BasicKSAction {
 			return RESULT_ERROR;
 		}
 		
-		if( ownShip.getDocked().length() > 0 ) {
+		if( ownShip.getShip().isDocked() || ownShip.getShip().isLanded()) {
 			battle.logme( "Sie k&ouml;nnen nicht mit gedockten/gelandeten Schiffen fliehen\n" );
 			return RESULT_ERROR;
 		}
@@ -113,7 +113,8 @@ public class KSFluchtSingleAction extends BasicKSAction {
 		List<BattleShip> ownShips = battle.getOwnShips();
 		for( int j=0; j < ownShips.size(); j++ ) {
 			BattleShip s = ownShips.get(j);
-			if( (s.getDocked().length() > 0) && (s.getDocked().equals(""+ownShip.getId()) || s.getDocked().equals("l "+ownShip.getId()) ) ) {
+			if(s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == ownShip.getId())
+			{
 				s.setAction(s.getAction() | fluchtflag);
 
 				remove++;

@@ -388,13 +388,10 @@ public class SensorsDefault implements SchiffPlugin {
 			
 			// Die ID des Schiffes, an dem das aktuell ausgewaehlte Schiff angedockt ist
 			int currentDockID = 0;
-			if( ship.getDocked().length() > 0 ) {
-				if( ship.getDocked().charAt(0) == 'l' ) {
-					currentDockID = Integer.parseInt(ship.getDocked().substring(2));
-				}
-				else {
-					currentDockID = Integer.parseInt(ship.getDocked());
-				}
+			Ship baseShip = ship.getBaseShip();
+			if(baseShip != null)
+			{
+				currentDockID = baseShip.getId();
 			}
 			
 			int user_wrapfactor = Integer.parseInt(user.getUserValue("TBLORDER/schiff/wrapfactor"));
@@ -581,7 +578,7 @@ public class SensorsDefault implements SchiffPlugin {
 								"sships.fleet.id",		aship.getFleet() != null ? aship.getFleet().getId() : 0,
 								"sships.type.name",		ashiptype.getNickname().replace("'", ""),
 								"sships.type.image",	ashiptype.getPicture(),
-								"sships.docked.id",		aship.getDocked() );
+								"sships.docked.id",		aship.isDocked() );
 
 					boolean disableIFF = aship.getStatus().contains("disable_iff");
 					t.setVar("sships.disableiff",disableIFF);
@@ -604,10 +601,10 @@ public class SensorsDefault implements SchiffPlugin {
 						t.setVar("sships.fleet.name",Common._plaintitle(aship.getFleet().getName()));
 					}
 					// Gedockte Schiffe zuordnen (gelandete brauchen hier nicht beruecksichtigt werden, da sie von der Query bereits aussortiert wurden)
-					if( !aship.getDocked().isEmpty() ) {
-						Ship master = (Ship)db.get(Ship.class, Integer.valueOf(aship.getDocked()));
+					if( aship.isDocked() ) {
+						Ship master = aship.getBaseShip();
 						if( master == null ) {
-							log.warn("Schiff "+aship.getId()+" hat ungueltigen Dockeintrag '"+aship.getDocked()+"'");
+							log.warn("Schiff "+aship.getId()+" hat ungueltigen Dockeintrag.");
 						}
 						else {
 							t.setVar("sships.docked.name",master.getName());
@@ -806,7 +803,7 @@ public class SensorsDefault implements SchiffPlugin {
 					}
 
 					//Externe Docks: andocken
-					if( aship.getDocked().isEmpty() && ( shiptype.getADocks() > dockCount ) && 
+					if( !aship.isDocked() && ( shiptype.getADocks() > dockCount ) && 
 						( (aship.getOwner().getId() == user.getId() ) || superdock) ) {
 						if( superdock || ( ashiptype.getSize() <= ShipType.SMALL_SHIP_MAXSIZE ) ) {
 							t.setVar("sships.action.aufladen",1);

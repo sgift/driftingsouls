@@ -66,22 +66,22 @@ public class ShipTest extends DriftingSoulsDBTestCase
 	@Test
 	public void testDock()
 	{
-		assertThat(this.container1.getDocked(), is(""));
-		assertThat(this.container2.getDocked(), is(""));
+		assertThat(this.container1.isLanded() || this.container1.isDocked(), is(false));
+		assertThat(this.container2.isLanded() || this.container2.isDocked(), is(false));
 		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
 		assertThat(this.container1.getTypeData().getCargo(), is(1500L));
 		assertThat(this.container2.getTypeData().getCargo(), is(1500L));
 
 		assertThat(this.tanker.dock(this.container1), is(false));
-		assertThat(this.container1.getDocked(), is("" + this.tanker.getId()));
-		assertThat(this.container2.getDocked(), is(""));
+		assertThat("" + this.container1.getBaseShip().getId(), is("" + this.tanker.getId()));
+		assertThat(this.container2.isLanded() || this.container2.isDocked(), is(false));
 		assertThat(this.tanker.getTypeData().getCargo(), is(3000L));
 		assertThat(this.container1.getTypeData().getCargo(), is(0L));
 		assertThat(this.container2.getTypeData().getCargo(), is(1500L));
 
 		assertThat(this.tanker.dock(this.container2), is(false));
-		assertThat(this.container1.getDocked(), is("" + this.tanker.getId()));
-		assertThat(this.container2.getDocked(), is("" + this.tanker.getId()));
+		assertThat("" + this.container1.getBaseShip().getId(), is("" + this.tanker.getId()));
+		assertThat("" + this.container2.getBaseShip().getId(), is("" + this.tanker.getId()));
 		assertThat(this.tanker.getTypeData().getCargo(), is(4500L));
 		assertThat(this.container1.getTypeData().getCargo(), is(0L));
 		assertThat(this.container2.getTypeData().getCargo(), is(0L));
@@ -102,12 +102,12 @@ public class ShipTest extends DriftingSoulsDBTestCase
 		
 		this.context.commit();
 		
-		assertThat(this.container1.getDocked(), is(""));
+		assertThat(this.container1.isLanded() || this.container1.isDocked(), is(false));
 		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
 		assertThat(this.container1.getTypeData().getCargo(), is(1500L));
 
 		assertThat(this.tanker.dock(this.container1), is(false));
-		assertThat(this.container1.getDocked(), is("" + this.tanker.getId()));
+		assertThat("" + this.container1.getBaseShip().getId(), is("" + this.tanker.getId()));
 		assertThat(this.tanker.getTypeData().getCargo(), is(3000L));
 		assertThat(this.container1.getTypeData().getCargo(), is(0L));
 	}
@@ -123,12 +123,12 @@ public class ShipTest extends DriftingSoulsDBTestCase
 		
 		this.context.commit();
 		
-		assertThat(this.container1.getDocked(), is(""));
+		assertThat(this.container1.isLanded() || this.container1.isDocked(), is(false));
 		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
 		assertThat(this.container1.getTypeData().getCargo(), is(1500L));
 
 		assertThat(this.tanker.dock(this.container1), is(true));
-		assertThat(this.container1.getDocked(), is(""));
+		assertThat(this.container1.isLanded() || this.container1.isDocked(), is(false));
 		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
 		assertThat(this.container1.getTypeData().getCargo(), is(1500L));
 	}
@@ -139,15 +139,15 @@ public class ShipTest extends DriftingSoulsDBTestCase
 	@Test
 	public void testDockGroup()
 	{
-		assertThat(this.container1.getDocked(), is(""));
-		assertThat(this.container2.getDocked(), is(""));
+		assertThat(this.container1.isLanded() || this.container1.isDocked(), is(false));
+		assertThat(this.container2.isLanded() || this.container2.isDocked(), is(false));
 		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
 		assertThat(this.container1.getTypeData().getCargo(), is(1500L));
 		assertThat(this.container2.getTypeData().getCargo(), is(1500L));
 
 		assertThat(this.tanker.dock(this.container1, this.container2), is(false));
-		assertThat(this.container1.getDocked(), is("" + this.tanker.getId()));
-		assertThat(this.container2.getDocked(), is("" + this.tanker.getId()));
+		assertThat("" + this.container1.getBaseShip().getId(), is("" + this.tanker.getId()));
+		assertThat("" + this.container2.getBaseShip().getId(), is("" + this.tanker.getId()));
 		assertThat(this.tanker.getTypeData().getCargo(), is(4500L));
 		assertThat(this.container1.getTypeData().getCargo(), is(0L));
 		assertThat(this.container2.getTypeData().getCargo(), is(0L));
@@ -160,8 +160,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 	public void testUndock()
 	{
 		assertThat(this.tanker.dock(this.container1, this.container2), is(false));
-		assertThat(this.container1.getDocked(), is("" + this.tanker.getId()));
-		assertThat(this.container2.getDocked(), is("" + this.tanker.getId()));
+		assertThat("" + this.container1.getBaseShip().getId(), is("" + this.tanker.getId()));
+		assertThat("" + this.container2.getBaseShip().getId(), is("" + this.tanker.getId()));
 		assertThat(this.tanker.getTypeData().getCargo(), is(4500L));
 		assertThat(this.container1.getTypeData().getCargo(), is(0L));
 		assertThat(this.container2.getTypeData().getCargo(), is(0L));
@@ -169,8 +169,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 		this.context.commit();
 
 		this.tanker.undock(this.container1);
-		assertThat(this.container1.getDocked(), is(""));
-		assertThat(this.container2.getDocked(), is("" + this.tanker.getId()));
+		assertThat(this.container1.isLanded() || this.container1.isDocked(), is(false));
+		assertThat("" + this.container2.getBaseShip().getId(), is("" + this.tanker.getId()));
 		assertThat(this.tanker.getTypeData().getCargo(), is(3000L));
 		assertThat(this.container1.getTypeData().getCargo(), is(1500L));
 		assertThat(this.container2.getTypeData().getCargo(), is(0L));
@@ -183,8 +183,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 	public void testUndockAll()
 	{
 		assertThat(this.tanker.dock(this.container1, this.container2), is(false));
-		assertThat(this.container1.getDocked(), is("" + this.tanker.getId()));
-		assertThat(this.container2.getDocked(), is("" + this.tanker.getId()));
+		assertThat("" + this.container1.getBaseShip().getId(), is("" + this.tanker.getId()));
+		assertThat("" + this.container2.getBaseShip().getId(), is("" + this.tanker.getId()));
 		assertThat(this.tanker.getTypeData().getCargo(), is(4500L));
 		assertThat(this.container1.getTypeData().getCargo(), is(0L));
 		assertThat(this.container2.getTypeData().getCargo(), is(0L));
@@ -192,8 +192,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 		this.context.commit();
 
 		this.tanker.undock();
-		assertThat(this.container1.getDocked(), is(""));
-		assertThat(this.container2.getDocked(), is(""));
+		assertThat(this.container1.isLanded() || this.container1.isDocked(), is(false));
+		assertThat(this.container2.isLanded() || this.container2.isDocked(), is(false));
 		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
 		assertThat(this.container1.getTypeData().getCargo(), is(1500L));
 		assertThat(this.container2.getTypeData().getCargo(), is(1500L));
@@ -206,8 +206,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 	public void testUndockList()
 	{
 		assertThat(this.tanker.dock(this.container1, this.container2), is(false));
-		assertThat(this.container1.getDocked(), is("" + this.tanker.getId()));
-		assertThat(this.container2.getDocked(), is("" + this.tanker.getId()));
+		assertThat("" + this.container1.getBaseShip().getId(), is("" + this.tanker.getId()));
+		assertThat("" + this.container2.getBaseShip().getId(), is("" + this.tanker.getId()));
 		assertThat(this.tanker.getTypeData().getCargo(), is(4500L));
 		assertThat(this.container1.getTypeData().getCargo(), is(0L));
 		assertThat(this.container2.getTypeData().getCargo(), is(0L));
@@ -215,8 +215,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 		this.context.commit();
 
 		this.tanker.undock(this.container1, this.container2);
-		assertThat(this.container1.getDocked(), is(""));
-		assertThat(this.container2.getDocked(), is(""));
+		assertThat(this.container1.isLanded() || this.container1.isDocked(), is(false));
+		assertThat(this.container2.isLanded() || this.container2.isDocked(), is(false));
 		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
 		assertThat(this.container1.getTypeData().getCargo(), is(1500L));
 		assertThat(this.container2.getTypeData().getCargo(), is(1500L));
@@ -229,8 +229,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 	public void testStart()
 	{
 		assertThat(this.tanker.land(this.jaeger1, this.jaeger2), is(false));
-		assertThat(this.jaeger1.getDocked(), is("l " + this.tanker.getId()));
-		assertThat(this.jaeger2.getDocked(), is("l " + this.tanker.getId()));
+		assertThat("" + this.jaeger1.getBaseShip().getId(), is("l " + this.tanker.getId()));
+		assertThat("" + this.jaeger2.getBaseShip().getId(), is("l " + this.tanker.getId()));
 		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
 		assertThat(this.jaeger1.getTypeData().getCargo(), is(1500L));
 		assertThat(this.jaeger2.getTypeData().getCargo(), is(1500L));
@@ -238,15 +238,15 @@ public class ShipTest extends DriftingSoulsDBTestCase
 		this.context.commit();
 
 		this.tanker.start(this.jaeger1);
-		assertThat(this.jaeger1.getDocked(), is(""));
-		assertThat(this.jaeger2.getDocked(), is("l " + this.tanker.getId()));
+		assertThat(this.jaeger1.isLanded() || this.jaeger1.isDocked(), is(false));
+		assertThat("" + this.jaeger2.getBaseShip().getId(), is("l " + this.tanker.getId()));
 		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
 		assertThat(this.jaeger1.getTypeData().getCargo(), is(1500L));
 		assertThat(this.jaeger2.getTypeData().getCargo(), is(1500L));
 
 		this.tanker.start(this.jaeger2);
-		assertThat(this.jaeger1.getDocked(), is(""));
-		assertThat(this.jaeger2.getDocked(), is(""));
+		assertThat(this.jaeger1.isLanded() || this.jaeger1.isDocked(), is(false));
+		assertThat(this.jaeger2.isLanded() || this.jaeger2.isDocked(), is(false));
 		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
 		assertThat(this.jaeger1.getTypeData().getCargo(), is(1500L));
 		assertThat(this.jaeger2.getTypeData().getCargo(), is(1500L));
@@ -259,8 +259,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 	public void testStartAll()
 	{
 		assertThat(this.tanker.land(this.jaeger1, this.jaeger2), is(false));
-		assertThat(this.jaeger1.getDocked(), is("l " + this.tanker.getId()));
-		assertThat(this.jaeger2.getDocked(), is("l " + this.tanker.getId()));
+		assertThat("" + this.jaeger1.getBaseShip().getId(), is("l " + this.tanker.getId()));
+		assertThat("" + this.jaeger1.getBaseShip().getId(), is("l " + this.tanker.getId()));
 		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
 		assertThat(this.jaeger1.getTypeData().getCargo(), is(1500L));
 		assertThat(this.jaeger2.getTypeData().getCargo(), is(1500L));
@@ -274,8 +274,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 		context.getDB().refresh(this.jaeger1);
 		context.getDB().refresh(this.jaeger2);
 		
-		assertThat(this.jaeger1.getDocked(), is(""));
-		assertThat(this.jaeger2.getDocked(), is(""));
+		assertThat(this.jaeger1.isLanded() || this.jaeger1.isDocked(), is(false));
+		assertThat(this.jaeger2.isLanded() || this.jaeger2.isDocked(), is(false));
 		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
 		assertThat(this.jaeger1.getTypeData().getCargo(), is(1500L));
 		assertThat(this.jaeger2.getTypeData().getCargo(), is(1500L));
@@ -292,8 +292,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 		
 		// Zwei Container andocken
 		assertThat(this.tanker.dock(this.container1, this.container2), is(false));
-		assertThat(this.container1.getDocked(), is("" + this.tanker.getId()));
-		assertThat(this.container2.getDocked(), is("" + this.tanker.getId()));
+		assertThat("" + this.container1.getBaseShip().getId(), is("" + this.tanker.getId()));
+		assertThat("" + this.container2.getBaseShip().getId(), is("" + this.tanker.getId()));
 
 		this.context.commit();
 

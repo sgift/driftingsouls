@@ -50,7 +50,7 @@ public class KSSecondRowAction extends BasicKSAction {
 		BattleShip ownShip = battle.getOwnShip();
 		
 		if( (ownShip.getAction() & Battle.BS_SECONDROW) != 0 || (ownShip.getAction() & Battle.BS_DESTROYED) != 0 ||
-			( ownShip.getShip().getEngine() == 0 ) || ownShip.getDocked().length() > 0 || (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ||
+			( ownShip.getShip().getEngine() == 0 ) || ownShip.getShip().isLanded() || ownShip.getShip().isLanded() || (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ||
 			( ownShip.getAction() & Battle.BS_JOIN ) != 0 ) {
 			return RESULT_ERROR;
 		}
@@ -162,9 +162,9 @@ public class KSSecondRowAction extends BasicKSAction {
 		for( int i=0; i < ownShips.size(); i++ ) {
 			BattleShip s = ownShips.get(i);
 			
-			if( s.getDocked().equals(Integer.toString(ownShip.getId())) ) {
-				s.setAction(s.getAction() | Battle.BS_SECONDROW | Battle.BS_SECONDROW_BLOCKED);
-							
+			if(s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == ownShip.getId())
+			{
+				s.setAction(s.getAction() | Battle.BS_SECONDROW | Battle.BS_SECONDROW_BLOCKED);	
 				remove++;
 			}
 		}

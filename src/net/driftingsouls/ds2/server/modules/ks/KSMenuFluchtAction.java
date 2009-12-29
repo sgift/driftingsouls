@@ -92,7 +92,7 @@ public class KSMenuFluchtAction extends BasicKSMenuAction {
 	
 			int action = ownShip.getAction();
 			if( (action & Battle.BS_JOIN) == 0 && (action & Battle.BS_DESTROYED) == 0 && 
-				(action & Battle.BS_FLUCHT) == 0 && (ownShip.getDocked().length() == 0) && 
+				(action & Battle.BS_FLUCHT) == 0 && !ownShip.getShip().isLanded() && !ownShip.getShip().isDocked() && 
 				(ownShip.getShip().getEngine() > 0) && 
 				( !ownShip.getShip().isBattleAction() || fluchtmode.equals("next") ) && 
 				gotone && ( (action & Battle.BS_FLUCHTNEXT) == 0 || fluchtmode.equals("current")) ) {
@@ -115,7 +115,7 @@ public class KSMenuFluchtAction extends BasicKSMenuAction {
 				ShipTypeData ashiptype = aship.getTypeData();
 				
 				if( (aship.getAction() & Battle.BS_JOIN ) == 0 && (aship.getAction() & Battle.BS_DESTROYED) == 0 && 
-					(aship.getAction() & Battle.BS_FLUCHT) == 0 && (aship.getDocked().length() == 0) && (aship.getShip().getEngine() > 0) &&
+					(aship.getAction() & Battle.BS_FLUCHT) == 0 && !ownShip.getShip().isLanded() && !ownShip.getShip().isDocked() && (aship.getShip().getEngine() > 0) &&
 					!aship.getShip().isBattleAction() && gotone ) {
 						
 					fluchtidlist++;

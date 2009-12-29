@@ -193,36 +193,26 @@ public class NavigationDefault implements SchiffPlugin {
 		
 		t.setVar(	"global.pluginid",					pluginid,
 					"ship.id",							data.getId(),
-					"schiff.navigation.docked",			data.getDocked(),
-					"schiff.navigation.docked.extern",	data.getDocked().equals("") || (data.getDocked().charAt(0) != 'l'),
+					"schiff.navigation.docked",			data.isDocked() || data.isLanded(),
+					"schiff.navigation.docked.extern",	!data.isLanded(),
 					"schiff.navigation.bookmarked",		data.isBookmark(),
 					"schiff.navigation.dest.x",			data.getDestX(),
 					"schiff.navigation.dest.y",			data.getDestY(),
 					"schiff.navigation.dest.system",	data.getDestSystem(),
 					"schiff.navigation.dest.text",		data.getDestCom() );
 		
-		if(data.getDocked() != null && !data.getDocked().equals("") )
+		if(data.isDocked() || data.isLanded() )
 		{
-			String mastershipid = null;
-			
-			if( data.getDocked().charAt(0) == 'l' ) {
-				String[] docked = data.getDocked().split(" ");
-				mastershipid = docked[1];
-			}
-			else
-			{
-				mastershipid = data.getDocked();
-			}
-			Ship mastership = (Ship)db.get(Ship.class, Integer.parseInt(mastershipid));
+			Ship mastership = data.getBaseShip();
 			
 			if(mastership != null)
 			{
 				t.setVar(	"schiff.navigation.docked.master.name",	mastership.getName(),
-							"schiff.navigation.docked.master.id",	mastershipid );
+							"schiff.navigation.docked.master.id",	mastership.getId() );
 			}
 			else
 			{
-				log.error("Illegal docked entry " + data.getDocked() + " for ship " + data.getId());
+				log.error("Illegal docked entry for ship " + data.getId());
 			}
 		} 
 		else if( datatype.getCost() == 0 )

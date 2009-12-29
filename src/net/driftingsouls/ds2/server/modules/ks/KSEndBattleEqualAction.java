@@ -72,7 +72,7 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 			{
 				if(battle.getBattleValue(Side.OWN) - aship.getBattleValue() > 0)
 				{	
-					if (((aship.getAction() & Battle.BS_SECONDROW_BLOCKED) == 0) && ((aship.getAction() & Battle.BS_SHOT) == 0) && ((aship.getAction() & Battle.BS_SECONDROW) == 0) && (aship.getEngine() > 0 ) && ((aship.getAction() & Battle.BS_DESTROYED) == 0 ) && (aship.getDocked().length() == 0 ) && ((aship.getAction() & Battle.BS_JOIN) == 0) && ((aship.getAction() & Battle.BS_FLUCHT) == 0) )  
+					if (((aship.getAction() & Battle.BS_SECONDROW_BLOCKED) == 0) && ((aship.getAction() & Battle.BS_SHOT) == 0) && ((aship.getAction() & Battle.BS_SECONDROW) == 0) && (aship.getEngine() > 0 ) && ((aship.getAction() & Battle.BS_DESTROYED) == 0 ) && !aship.getShip().isLanded() && !aship.getShip().isDocked() && ((aship.getAction() & Battle.BS_JOIN) == 0) && ((aship.getAction() & Battle.BS_FLUCHT) == 0) )  
 					{
 						battle.removeShip(aship, false);
 						battle.logme(Battle.log_shiplink(aship.getShip()) + "ist durchgebrochen\n");

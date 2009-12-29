@@ -452,7 +452,7 @@ public class AngriffController extends TemplateGenerator {
 		
 					// Ist das gegnerische Schiff zerstoert? Falls ja, dass Angriffsmenue deaktivieren
 					if( ( action.toString().equals("attack") ) &&
-						((enemyShip.getAction() & Battle.BS_DESTROYED) != 0 || (ownShip.getAction() & Battle.BS_FLUCHT) != 0 || (ownShip.getDocked().length() > 0 && ownShip.getDocked().charAt(0) == 'l')) ) {
+						((enemyShip.getAction() & Battle.BS_DESTROYED) != 0 || (ownShip.getAction() & Battle.BS_FLUCHT) != 0 || ownShip.getShip().isLanded()) ) {
 						action.setLength(0);
 					}
 					
@@ -862,7 +862,7 @@ public class AngriffController extends TemplateGenerator {
 				if( showgroups && (aship.getShip().getType() != grouptype) ) {
 					continue;
 				}
-				if( (aship.getDocked().length() > 0)  && battle.isGuest() && (aship.getDocked().charAt(0) == 'l') ) {
+				if(battle.isGuest() && aship.getShip().isLanded() ) {
 					continue;
 				}
 				
@@ -893,19 +893,12 @@ public class AngriffController extends TemplateGenerator {
 	
 					energy += aship.getShip().getEnergy()+"/"+aShipType.getEps()+"</span>";
 				}
-	
+				
 				// Ist das Schiff gedockt?
-				if( aship.getDocked().length() > 0  && (!battle.isGuest() || (aship.getDocked().charAt(0) != 'l') ) ) {
-					String[] docked = StringUtils.split(aship.getDocked(), ' ');
+				if(!battle.isGuest() || !aship.getShip().isLanded())
+				{
+					int shipid = aship.getShip().getBaseShip().getId();
 					
-					int shipid = 0;
-					if( docked.length > 1 ) {
-						shipid = Integer.parseInt(docked[1]);
-					}
-					else {
-						shipid = Integer.parseInt(docked[0]);
-					}
-	
 					for( int j=0; j < ownShips.size(); j++) {
 						if( ownShips.get(j).getId() == shipid ) {
 							t.setVar(	"ship.docked.name",	ownShips.get(j).getName(),
@@ -914,8 +907,6 @@ public class AngriffController extends TemplateGenerator {
 							break;
 						}
 					}
-	
-					
 				}
 	
 				User aUser = aship.getOwner();
@@ -1119,7 +1110,7 @@ public class AngriffController extends TemplateGenerator {
 				}
 				
 				// Gelandete Schiffe nicht anzeigen
-				if( aship.getDocked().length() > 0 && (aship.getDocked().charAt(0) == 'l') ) {
+				if( aship.getShip().isLanded() ) {
 					continue;
 				}
 				
@@ -1138,8 +1129,8 @@ public class AngriffController extends TemplateGenerator {
 				pos++;
 	
 				// Ist das Schiff gedockt?
-				if( (aship.getDocked().length() > 0) && (aship.getDocked().charAt(0) != 'l') ) {
-					int shipid = Integer.parseInt(aship.getDocked());
+				if( aship.getShip().isDocked() ) {
+					int shipid = aship.getShip().getBaseShip().getId();
 	
 					for( int j=0; j < enemyShips.size(); j++ ) {
 						if( enemyShips.get(j).getId() == shipid ) {
@@ -1197,7 +1188,7 @@ public class AngriffController extends TemplateGenerator {
 			for( int i=0; i < enemyShips.size(); i++ ) {
 				BattleShip aship = enemyShips.get(i);
 				
-				if( (aship.getDocked().length() > 0) && (aship.getDocked().charAt(0) == 'l') ) {
+				if( aship.getShip().isLanded() ) {
 					continue;
 				}
 				

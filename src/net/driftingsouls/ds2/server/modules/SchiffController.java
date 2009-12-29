@@ -559,16 +559,7 @@ public class SchiffController extends TemplateGenerator {
 				return;
 			}
 			
-			String target = docked.getDocked();
-			int targetID = 0;
-			if( target.charAt(0) == 'l' ) {
-				targetID = Integer.parseInt(target.substring(2));
-			}
-			else {
-				targetID = Integer.parseInt(target);
-			}
-			
-			Ship targetShip = (Ship)db.get(Ship.class, targetID);
+			Ship targetShip = docked.getBaseShip();
 			
 			targetShip.undock(docked);
 		}

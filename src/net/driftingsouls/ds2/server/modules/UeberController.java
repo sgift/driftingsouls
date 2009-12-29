@@ -572,7 +572,7 @@ public class UeberController extends TemplateGenerator {
 				.setEntity(0, fleet)
 				.iterate().next();;
 			
-			if( !jdocked && (aship.getDocked().indexOf('l') == 0) ) {
+			if( !jdocked && !aship.isLanded() ) {
 				jdocked = true;
 				t.setVar( "fleet.jaegerfleet", 1 );
 			}
