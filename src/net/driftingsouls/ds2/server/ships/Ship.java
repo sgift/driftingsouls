@@ -1140,6 +1140,11 @@ public class Ship implements Locatable,Transfering {
 			versorgernahrung += base.getCargo().getResourceCount(Resources.NAHRUNG);
 		}
 		
+		if(crewtofeed == 0)
+		{
+			crewtofeed = 1;
+		}
+		
 		if(vars.versorgerstats.containsKey(getOwner()))
 		{
 			Map<Location,Long> locations = vars.versorgerstats.get(getOwner());
