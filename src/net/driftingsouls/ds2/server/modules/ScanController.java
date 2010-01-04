@@ -400,6 +400,15 @@ public class ScanController extends TemplateGenerator {
 					continue;	
 				}
 				
+				if( !this.admin && ((scanx != this.ship.getX()) || (scany != this.ship.getY())) && ship.isDocked() )
+				{
+					Ship mship = ship.getBaseShip();
+					if( mship.getTypeData().hasFlag(ShipTypes.SF_SEHR_KLEIN))
+					{
+						continue;
+					}
+				}
+				
 				boolean scanable = false;
 				if(nebel != null){
 					int nebeltype = nebel.getType();
@@ -443,12 +452,12 @@ public class ScanController extends TemplateGenerator {
 								"ship.type.picture",	shiptype.getPicture() );
 				}
 	
-				if( disableIFF ) {
+				if( disableIFF || (ship.isDocked() && ship.getBaseShip().getStatus().contains("disable_iff"))) {
 					t.setVar(	"ship.owner.name",	"Unbekannt",
 								"ship.ownerlink",	0 );
 				}
 				if (scanable){
-				t.parse("ships.list", "ships.listitem", true);
+					t.parse("ships.list", "ships.listitem", true);
 				}
 			}
 		}
@@ -550,6 +559,15 @@ public class ScanController extends TemplateGenerator {
 			// Im Admin-Modus sind alle Schiffe sichtbar
 			if( !this.admin && st.hasFlag(ShipTypes.SF_SEHR_KLEIN) ) {
 				continue;	
+			}
+			
+			if( !this.admin && ship.isDocked() )
+			{
+				Ship mship = ship.getBaseShip();
+				if( mship.getTypeData().hasFlag(ShipTypes.SF_SEHR_KLEIN)) 
+				{
+					continue;
+				}
 			}
 			
 			Location loc = ship.getLocation();
