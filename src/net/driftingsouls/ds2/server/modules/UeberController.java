@@ -388,10 +388,6 @@ public class UeberController extends TemplateGenerator {
 				" and ((s.modules is not null and s.crew < (select crew from ShipModules where id=s.modules)) or s.crew < (select crew from ShipType where id = s.shiptype))" )
 				.setEntity("user", user)
 				.iterate().next();
-			  
-		if( ticktime.indexOf("Bitte warten") > -1 ) {
-			t.setVar("user.nahrung.stat.tick", 1);
-		}
 						  
 		t.setVar(	"schiffe.mangel", Common.ln(sw),
 					"schiffe.nocrew", Common.ln(shipNoCrew) );

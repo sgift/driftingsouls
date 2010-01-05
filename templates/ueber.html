@@ -35,14 +35,10 @@
 				{/endif}
 				<br />
 				Nahrungsbilanz: 
-				{if user.nahrung.stat.tick}
-					&nbsp;-
+				{if user.nahrung.new.plain < 0}
+					&nbsp;<span style="color:red">{user.nahrung.new}</span>
 				{else}
-					{if user.nahrung.new.plain < 0}
-						&nbsp;<span style="color:red">{user.nahrung.new}</span>
-					{else}
-						&nbsp;<span style="color:green">+{user.nahrung.new}</span>
-					{/endif}
+					&nbsp;<span style="color:green">+{user.nahrung.new}</span>
 				{/endif}
 				<br />
 				<img src="{URL}data/interface/forschung/specpoints.gif" alt="Spezialisierungspunkte" />{user.specpoints} / {user.maxspecpoints}
@@ -180,7 +176,7 @@
 			</a> 
 			{schiffe.mangel}
 			 - 
-			<a class="error" href="./ds?module=schiffe&amp;crewless=1" {!overlib <span style='font-size:13px'>Schiffe ohne Crew</span>, mo, delay:300, width:150}>
+			<a class="error" href="./ds?module=schiffe&amp;crewless=1" {!overlib <span style='font-size:13px'>Schiffe ohne volle Crew</span>, mo, delay:300, width:150}>
 				{if schiffe.nocrew}
 					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_nocrew.gif" alt="" />
 				{else}
@@ -189,7 +185,7 @@
 			</a> 
 			{schiffe.nocrew}
 			 - 
-			<a class="error" href="./ds?module=basen" {!overlib <span style='font-size:13px'>Asteroiden mit Vorr&auml;ten welche f&uuml; weniger als 10 Runden reichen</span>, mo, delay:300, width:300}>
+			<a class="error" href="./ds?module=basen" {!overlib <span style='font-size:13px'>Asteroiden mit Vorr&auml;ten welche f&uuml;r weniger als 10 Runden reichen</span>, mo, delay:300, width:300}>
 				{if astis.mangel}
 					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_mangel_asti.gif" alt="" />
 				{else}
