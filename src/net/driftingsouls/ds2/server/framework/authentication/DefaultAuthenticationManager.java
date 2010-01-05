@@ -70,6 +70,11 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			throw new WrongPasswordException();
 		}
 		
+		if( checkTickInProgress(context) && !user.isAdmin())
+		{
+			throw new TickInProgressException();
+		}
+		
 		return finishLogin(user, useGfxPak, rememberMe);
 	}
 	
@@ -300,5 +305,11 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 													   .uniqueResult();
 		
 		return session;
+	}
+	
+	private boolean checkTickInProgress(Context context)
+	{
+		ConfigValue value = (ConfigValue)context.getDB().get(ConfigValue.class, "tick");
+		return !(Integer.parseInt(value.getValue()) == 0);
 	}
 }
