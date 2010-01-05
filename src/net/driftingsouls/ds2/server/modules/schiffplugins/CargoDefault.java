@@ -22,6 +22,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -38,6 +39,7 @@ public class CargoDefault implements SchiffPlugin {
 	public String action(Parameters caller) {
 		Ship ship = caller.ship;
 		SchiffController controller = caller.controller;
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
 		String output = "";
 
@@ -50,6 +52,7 @@ public class CargoDefault implements SchiffPlugin {
 		controller.parameterNumber("usenahrung");
 		controller.parameterNumber("setfeeding");
 		controller.parameterNumber("setallyfeeding");
+		controller.parameterNumber("othership");
 		
 		String act = controller.getString("act");
 		String max = controller.getString("max");
@@ -60,6 +63,7 @@ public class CargoDefault implements SchiffPlugin {
 		long usenahrung = controller.getInteger("usenahrung");
 		int setfeeding = controller.getInteger("setfeeding");
 		int setallyfeeding = controller.getInteger("setallyfeeding");
+		Ship othership = (Ship)db.get(Ship.class, controller.getInteger("othership"));
 		
 		if( act.equals("load") ) {
 			if( !max.equals("") ) {
@@ -137,6 +141,42 @@ public class CargoDefault implements SchiffPlugin {
 				ship.setCargo(cargo);
 				output += usenahrung + " Nahrung in den Speicher transferiert.<br />";
 			}
+		}
+		else if( act.equals("feedcargo"))
+		{
+			if(othership == null)
+			{
+				output += "<span style=\"color:red\">Sie m&uuml;ssen auch eine korrekte ID angeben.</span><br />\n";
+				return output;
+			}
+			
+			if( othership.getOwner().getId() != ship.getOwner().getId())
+			{
+				output += "<span style=\"color:red\">Sie k&ouml;nnen nur von eigenen Schiffen aufladen.</span><br />\n";
+				return output;
+			}
+			
+			usenahrung = ship.getTypeData().getNahrungCargo() - ship.getNahrungCargo();
+			Cargo cargo = othership.getCargo();
+			if(usenahrung > cargo.getResourceCount(Resources.NAHRUNG))
+			{
+				usenahrung = cargo.getResourceCount(Resources.NAHRUNG);
+			}
+			ship.setNahrungCargo(ship.getNahrungCargo()+usenahrung);
+			cargo.substractResource(Resources.NAHRUNG, usenahrung);
+			
+			if( usenahrung > 0)
+			{
+				long feeding = usenahrung / 10000 + 1;
+				for(int i=0; i < feeding; i++)
+				{
+					output += "*mampf*<br />";
+				}
+				output += "*Bauch streichel* Das tat gut.<br />";
+			}
+			
+			othership.setCargo(cargo);
+			output += usenahrung + " Nahrung in den Speicher transferiert.<br />";
 		}
 		else if( setautodeut != 0 ) {
 			if( caller.shiptype.getDeutFactor() <= 0 ) {

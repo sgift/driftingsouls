@@ -38,6 +38,15 @@
 		</div>
 	</form><br />
 {/endif}
+<form action="./ds" method="post">
+		<div>
+			Nahrung von anderem Schiff in Speicher transferieren:<br />
+			Schiffsid: <input name="cargo_ops[othership]" type="text" size="2" value="0" />
+			{!form_create_hidden plugin, ship:$ship.id, plugin:$global.pluginid}
+			<input type="hidden" name="cargo_ops[act]" value="feedcargo" />
+			<input type="submit" value="Auff&uuml;llen" />
+		</div>
+	</form><br />
 {if schiff.cargo.batterien}
 	<form action="./ds" method="post">
 		<div>
