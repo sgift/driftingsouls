@@ -156,6 +156,12 @@ public class CargoDefault implements SchiffPlugin {
 				return output;
 			}
 			
+			if( !othership.getLocation().equals(ship.getLocation()))
+			{
+				output += "<span style=\"color:red\">Die Schiffe m&uuml;ssen sich im selben Sektor befinden.</span><br />\n";
+				return output;
+			}
+			
 			usenahrung = ship.getTypeData().getNahrungCargo() - ship.getNahrungCargo();
 			Cargo cargo = othership.getCargo();
 			if(usenahrung > cargo.getResourceCount(Resources.NAHRUNG))
