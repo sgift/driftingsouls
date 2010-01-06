@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.SectorTemplateManager;
 import net.driftingsouls.ds2.server.bases.AutoGTUAction;
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.PM;
@@ -413,6 +414,7 @@ public class PortalController extends TemplateGenerator {
 			building.cleanup(getContext(), base, bebauung[i]);
 		}
 	 	
+		BaseType basetype = (BaseType)getDB().get(BaseType.class, 1);
 	 	//User newuser = (User)getDB().get(User.class, newid);
 	 	
 	 	base.setEnergy(base.getMaxEnergy());
@@ -421,6 +423,9 @@ public class PortalController extends TemplateGenerator {
 	 	base.setActive(activebuildings);
 	 	base.setArbeiter(arbeiter);
 	 	base.setBewohner(bewohner);
+	 	base.setWidth(basetype.getWidth());
+	 	base.setHeight(basetype.getHeight());
+	 	base.setMaxCargo(basetype.getCargo());
 	 	base.setCargo(new Cargo(Cargo.Type.STRING, this.config.get("REGISTER_BASECARGO")));
 	 	base.setCore(0);
 	 	base.setUnits(new UnitCargo());
