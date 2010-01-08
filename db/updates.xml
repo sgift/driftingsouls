@@ -1419,4 +1419,14 @@
 		
 		ALTER TABLE stats_user_unitcargo ADD CONSTRAINT stats_user_unitcargo_fk_user_id FOREIGN KEY (user_id) REFERENCES users(id);
 	]]></update>
+	<update><![CDATA[
+		CREATE TABLE `cargo_entries_units` (
+		  `id` int NOT NULL auto_increment,
+		  `type` int NOT NULL,
+		  `descid` int(11) NOT NULL,
+		  `unittype` int(11) NOT NULL,
+		  `amount` int(11) NOT NULL,
+		  PRIMARY KEY  (`id`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	]]></update>
 </updates>

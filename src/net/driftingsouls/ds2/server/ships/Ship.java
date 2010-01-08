@@ -4001,6 +4001,15 @@ public class Ship implements Locatable,Transfering {
 		int consumption = typeData.getCost();
 		int heatBuildup = typeData.getHeat();
 		
+		if(consumption == 0 || heatBuildup == 0)
+		{
+			if(isDocked() || isLanded())
+			{
+				return Integer.MAX_VALUE;
+			}
+			return 0;
+		}
+		
 		int distance = Math.min(energy/consumption, (100-heat)/heatBuildup);
 		if(distance < 0)
 		{
