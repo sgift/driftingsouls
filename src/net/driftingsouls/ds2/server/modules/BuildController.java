@@ -25,6 +25,7 @@ import java.util.Map;
 
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
+import net.driftingsouls.ds2.server.bases.Werft;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -36,6 +37,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.werften.BaseWerft;
 
 /**
  * Der Gebaeudebau.
@@ -128,8 +130,22 @@ public class BuildController extends TemplateGenerator {
 			}
 			
 			if( building.getPerPlanetCount() <= buildingcount ) {
-				addError("Sie k&ouml;nnen dieses Geb&auml;de maximal "+building.getPerPlanetCount()+" Mal pro Asteriod bauen");
+				addError("Sie k&ouml;nnen dieses Geb&auml;de maximal "+building.getPerPlanetCount()+" Mal pro Asteroid bauen");
 			
+				redirect();
+				return;
+			}
+		}
+		
+		if( building instanceof Werft)
+		{
+			BaseWerft werft = (BaseWerft)db.createQuery("from BaseWerft where col=?")
+				.setEntity(0, base)
+				.uniqueResult();
+			if( werft != null)
+			{
+				addError("Sie k&ouml;nnen maximal eine Werft pro Asteroid bauen");
+				
 				redirect();
 				return;
 			}
@@ -162,7 +178,7 @@ public class BuildController extends TemplateGenerator {
 		// Pruefe auf richtiges Terrain
 		if( !building.hasTerrain(base.getTerrain()[field]) )
 		{
-			addError("Dieses Gebaeude ist nicht auf diesem Terrainfeld baubar.");
+			addError("Dieses Geb&auml;ude ist nicht auf diesem Terrainfeld baubar.");
 			
 			redirect();
 			return;
