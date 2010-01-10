@@ -270,7 +270,7 @@ public class KapernController extends TemplateGenerator {
 				List<Ship> shiplist = Common.cast(db.createQuery("SELECT t1.id,t1.status,t1.type " + 
 								"FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id " + 
 							 	"WHERE t1.x="+this.targetShip.getX()+" AND t1.y="+this.targetShip.getY()+" AND t1.system="+this.targetShip.getSystem()+" AND " + 
-							 		"t1.owner IN ("+Common.implode(",",ownerlist)+") AND t1.id>0 AND t1.battle is null AND (LOCATE('=',t2.weapons) OR (t1.modules is not null)) AND  " +
+							 		"t1.owner IN ("+Common.implode(",",ownerlist)+") AND t1.id>0 AND t1.battle is null AND  " +
 									"!LOCATE('nocrew',t1.status) AND t1.type=t2.id").list());
 				Iterator<Ship> iter = shiplist.iterator();			
 				while( iter.hasNext() ) {
