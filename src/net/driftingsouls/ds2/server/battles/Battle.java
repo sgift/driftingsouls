@@ -1608,7 +1608,7 @@ public class Battle implements Locatable {
 					ShipTypeData ashipType = aship.getTypeData();
 					if( ashipType.hasFlag(ShipTypes.SF_SECONDROW) && 
 						this.isSecondRowStable(i, aship) ) {
-						aship.setAction(aship.getAction() ^ BS_SECONDROW);
+						aship.setAction(aship.getAction() | BS_SECONDROW);
 					}
 					aship.setAction(aship.getAction() ^ BS_JOIN);
 				}
