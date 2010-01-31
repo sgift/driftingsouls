@@ -73,7 +73,7 @@ public class KSTakeCommandAction extends BasicKSAction {
 		*/
 		battle.setCommander(battle.getOwnSide(), user);
 		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
-		battle.logenemy(user.getNickname()+" hat die Schlacht &uuml;bernommen.");
+		battle.logenemy("[userprofile="+user.getId()+",profile_alog]"+Common._titleNoFormat(user.getName())+"[/userprofile] hat die Schlacht &uuml;bernommen\n\n");
 		battle.logenemy("]]></action>\n");
 		
 		return RESULT_OK;		

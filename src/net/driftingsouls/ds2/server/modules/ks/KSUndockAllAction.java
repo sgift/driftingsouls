@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules.ks;
 
 import java.io.IOException;
+import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
@@ -27,6 +28,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
  * Dockt alle Schiffe vom gerade ausgewaehlten Schiff ab.
@@ -82,6 +84,20 @@ public class KSUndockAllAction extends BasicKSAction {
 			.setString(1, "l " + ownShip.getId())
 			.setString(2, "" + ownShip.getId())
 			.executeUpdate();
+		
+		List<BattleShip> ownShips = battle.getOwnShips();
+		for( int i=0; i < ownShips.size(); i++ ) {
+			BattleShip s = ownShips.get(i);
+			
+			if(s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == ownShip.getId())
+			{
+				if( (s.getAction() & Battle.BS_SECONDROW) != 0 && !s.getTypeData().hasFlag(ShipTypes.SF_SECONDROW))
+				{
+					s.setAction((s.getAction() ^ Battle.BS_SECONDROW) | Battle.BS_SECONDROW_BLOCKED);
+				}
+			}
+		}
+
 		ownShip.getShip().start(new Ship[0]);
 		ownShip.getShip().undock(new Ship[0]);
 
