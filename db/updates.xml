@@ -1429,4 +1429,7 @@
 		  PRIMARY KEY  (`id`)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 	]]></update>
+	<update><![CDATA[
+		INSERT INTO `config` (`name`, `value`, `description`, `version`) VALUES ('gtudefaultdropzone', '2', 'Standard-Dropzone der GTU. Kann von jedem genutzt werden, egal, ob er Asteroiden im System hat.', '0');	
+	]]></update>
 </updates>

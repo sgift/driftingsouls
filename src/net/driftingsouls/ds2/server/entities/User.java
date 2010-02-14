@@ -272,7 +272,6 @@ public class User extends BasicUser {
 		setNpcPunkte(0);
 		setNickname("Kolonist");
 		setPlainname("Kolonist");
-		setGtuDropZone(2);
 		setNpcOrderLocation("");
 		setDisabled(false);
 		setVacationCount(0);
@@ -289,6 +288,10 @@ public class User extends BasicUser {
 		Ordner trash = Ordner.createNewOrdner("Papierkorb", Ordner.getOrdnerByID(0, this), this);
 		trash.setFlags(Ordner.FLAG_TRASH);
 		addResearch(0);
+		
+		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "gtudefaultdropzone");
+		int defaultDropZone = Integer.valueOf(value.getValue());
+		setGtuDropZone(defaultDropZone);
 	}
 	
     /**

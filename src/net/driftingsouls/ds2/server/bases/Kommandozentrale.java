@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.bases;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -42,6 +43,7 @@ import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.StatVerkaeufe;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -82,6 +84,21 @@ public class Kommandozentrale extends DefaultBuilding {
 		db.createQuery("update ShipWerft set linked=null where linked=:base")
 			.setEntity("base", base)
 			.executeUpdate();
+		
+		//Check if we need to change the drop zone of the player to another system
+		User user = (User)db.get(User.class, context.getActiveUser().getId());
+		Set<Integer> systems = user.getAstiSystems();
+		
+		if(!systems.contains(user.getGtuDropZone()))
+		{
+			ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "gtudefaultdropzone");
+			int defaultDropZone = Integer.valueOf(value.getValue());
+			if(user.getGtuDropZone() != defaultDropZone)
+			{
+				PM.send(nullUser, user.getId(), "GTU Dropzone ge&auml;ndert.", "Sie haben ihren letzten Asteroiden in System "+ user.getGtuDropZone() +" aufgegeben. Ihre GTU Dropzone wurde auf System "+ defaultDropZone +" gesetzt.");
+				user.setGtuDropZone(defaultDropZone);
+			}
+		}
 	}
 
 	@Override

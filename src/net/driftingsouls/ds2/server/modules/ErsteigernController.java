@@ -52,6 +52,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.entities.Versteigerung;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.db.Database;
@@ -1401,11 +1402,14 @@ public class ErsteigernController extends TemplateGenerator
 
 		t.setBlock("_ERSTEIGERN", "gtu.dropzones.listitem", "gtu.dropzones.list");
 		
+		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "gtudefaultdropzone");
+		int defaultDropZone = Integer.valueOf(value.getValue());
+		
 		List<?> systems = db.createQuery("from StarSystem order by id asc").list();
 		for( Iterator<?> iter = systems.iterator(); iter.hasNext(); )
 		{
 			StarSystem system = (StarSystem)iter.next();
-			if( system.getDropZone() != null && user.getAstiSystems().contains(system.getID()))
+			if( system.getDropZone() != null && (user.getAstiSystems().contains(system.getID()) || system.getID() == defaultDropZone))
 			{
 				t.setVar("dropzone.system.id", system.getID(), "dropzone.system.name", system
 						.getName(), "dropzone.selected", (user.getGtuDropZone() == system.getID()));
