@@ -43,6 +43,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitType;
+import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 /**
@@ -70,8 +71,7 @@ public class KSKapernAction extends BasicKSAction {
 		}
 
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
+		
 		if( (ownShip.getShip().getWeapons() == 0) || (ownShip.getShip().getEngine() == 0) || 
 				(ownShip.getCrew() <= 0) || (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ||
 				(ownShip.getAction() & Battle.BS_JOIN) != 0 || (enemyShip.getAction() & Battle.BS_FLUCHT) != 0 ||
@@ -148,7 +148,7 @@ public class KSKapernAction extends BasicKSAction {
 
 		User euser = enemyShip.getOwner();
 		
-		Integer dcrew = new Integer(enemyShip.getCrew());
+		Crew dcrew = new UnitCargo.Crew(enemyShip.getCrew());
 		UnitCargo ownUnits = ownShip.getUnits();
 		UnitCargo enemyUnits = enemyShip.getUnits();
 		
@@ -194,21 +194,25 @@ public class KSKapernAction extends BasicKSAction {
 					
 					if(!ownunitlist.isEmpty())
 					{
+						battle.logme("Angreifer:\n");
+						msg += "Angreifer:\n";
 						for(Entry<Integer, Long> unit : ownunitlist.entrySet())
 						{
 							UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
-							battle.logme("Angreifer:\n"+unit.getValue()+" "+unittype.getName()+" gefallen\n");
-							msg += "Angreifer:\n"+unit.getValue()+" "+unittype.getName()+" erschossen\n";
+							battle.logme(unit.getValue()+" "+unittype.getName()+" gefallen\n");
+							msg += unit.getValue()+" "+unittype.getName()+" erschossen\n";
 						}
 					}
 					
 					if(!enemyunitlist.isEmpty())
 					{
+						battle.logme("Verteidiger:\n");
+						msg += "Verteidiger:\n";
 						for(Entry<Integer, Long> unit : enemyunitlist.entrySet())
 						{
 							UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
-							battle.logme("Verteidiger:\n"+unit.getValue()+" "+unittype.getName()+" erschossen\n");
-							msg += "Verteidiger:\n"+unit.getValue()+" "+unittype.getName()+" gefallen\n";
+							battle.logme(unit.getValue()+" "+unittype.getName()+" erschossen\n");
+							msg += unit.getValue()+" "+unittype.getName()+" gefallen\n";
 						}
 					}
 				}
@@ -222,21 +226,25 @@ public class KSKapernAction extends BasicKSAction {
 				
 				if(!ownunitlist.isEmpty())
 				{
+					battle.logme("Angreifer:\n");
+					msg += "Angreifer:\n";
 					for(Entry<Integer, Long> unit : ownunitlist.entrySet())
 					{
 						UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
-						battle.logme("Angreifer:\n"+unit.getValue()+" "+unittype.getName()+" gefallen\n");
-						msg += "Angreifer:\n"+unit.getValue()+" "+unittype.getName()+" erschossen\n";
+						battle.logme(unit.getValue()+" "+unittype.getName()+" gefallen\n");
+						msg += unit.getValue()+" "+unittype.getName()+" erschossen\n";
 					}
 				}
 				
 				if(!enemyunitlist.isEmpty())
 				{
+					battle.logme("Verteidiger:\n");
+					msg += "Verteidiger:\n";
 					for(Entry<Integer, Long> unit : enemyunitlist.entrySet())
 					{
 						UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
-						battle.logme("Verteidiger:\n"+unit.getValue()+" "+unittype.getName()+" erschossen\n");
-						msg += "Verteidiger:\n"+unit.getValue()+" "+unittype.getName()+" gefallen\n";
+						battle.logme(unit.getValue()+" "+unittype.getName()+" erschossen\n");
+						msg += unit.getValue()+" "+unittype.getName()+" gefallen\n";
 					}
 				}
 			}
@@ -256,7 +264,7 @@ public class KSKapernAction extends BasicKSAction {
 		ownShip.setUnits(ownUnits);
 		
 		enemyShip.setUnits(enemyUnits);
-		enemyShip.getShip().setCrew(dcrew.intValue());
+		enemyShip.getShip().setCrew(dcrew.getValue());
 
 		// Wurde das Schiff gekapert?
 		if( ok ) {

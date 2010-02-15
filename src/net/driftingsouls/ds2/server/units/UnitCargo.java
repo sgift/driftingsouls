@@ -41,6 +41,49 @@ public class UnitCargo implements Cloneable {
 	private static final Log log = LogFactory.getLog(UnitCargo.class);
 	
 	/**
+	 * Diese Klasse ist fuer das Kapern gedacht um die verbleibende Crew auf
+	 * dem Schiff ueber Seiteneffekte zurueckgeben zu koennen
+	 */
+	public static class Crew {
+		int wert;
+		
+		/**
+		 * Konstruktor.
+		 */
+		public Crew()
+		{
+			// EMPTY
+		}
+		
+		/**
+		 * Konstruktor.
+		 * @param wert der Wert
+		 */
+		public Crew(int wert)
+		{
+			this.wert = wert;
+		}
+		
+		/**
+		 * Gibt den Wert zurueck.
+		 * @return der aktuell enthaltene Wert
+		 */
+		public int getValue()
+		{
+			return wert;
+		}
+		
+		/**
+		 * Setzt den Wert.
+		 * @param wert der neue Wert
+		 */
+		public void setValue(int wert)
+		{
+			this.wert = wert;
+		}
+	}
+	
+	/**
 	 * Die verschiedenen Optionen des UnitCargo-Objekts.
 	 * @see UnitCargo#setOption(net.driftingsouls.ds2.server.units.UnitCargo.Option, Object)
 	 */
@@ -656,7 +699,10 @@ public class UnitCargo implements Cloneable {
 		HashMap<Integer, Long> unitlist = new HashMap<Integer, Long>();
 		for(Long[] unit : units)
 		{
-			unitlist.put(unit[0].intValue(), unit[1]);
+			if(unit[1] != 0)
+			{
+				unitlist.put(unit[0].intValue(), unit[1]);
+			}
 		}
 		
 		return unitlist;
@@ -673,26 +719,26 @@ public class UnitCargo implements Cloneable {
 	 * @param defmulti Der Multiplikator vom verteidigenden Offizier
 	 * @return <code>true</code>, falls der Kapervorgang verfolgreich war.
 	 */
-	public boolean kapern(UnitCargo kaperunitcargo, UnitCargo gefalleneeigeneUnits, UnitCargo gefallenefeindlicheUnits, Integer feindCrew, int amulti, int defmulti)
+	public boolean kapern(UnitCargo kaperunitcargo, UnitCargo gefalleneeigeneUnits, UnitCargo gefallenefeindlicheUnits, Crew feindCrew, int amulti, int defmulti)
 	{
 		
-		if(getKaperValue()*amulti > (kaperunitcargo.getKaperValue()+10*feindCrew.intValue())*defmulti*3  )
+		if(getKaperValue()*amulti > (kaperunitcargo.getKaperValue()+10*feindCrew.getValue())*defmulti*3  )
 		{
 			return true;
 		}
-		if(getKaperValue()*amulti > (kaperunitcargo.getKaperValue()+10*feindCrew.intValue())*defmulti)
+		if(getKaperValue()*amulti > (kaperunitcargo.getKaperValue()+10*feindCrew.getValue())*defmulti)
 		{
-			int totekapervalue = (int)Math.ceil((kaperunitcargo.getKaperValue()+10*feindCrew.intValue())*defmulti*1.0/ amulti );
+			int totekapervalue = (int)Math.ceil((kaperunitcargo.getKaperValue()+10*feindCrew.getValue())*defmulti*1.0/ amulti );
 			gefallenefeindlicheUnits.addCargo(kaperunitcargo);
 			kaperunitcargo.substractCargo(new UnitCargo(kaperunitcargo));
-			feindCrew = 0;
+			feindCrew.setValue(0);
 			reduziereKaperValue(totekapervalue, gefalleneeigeneUnits);
 			return true;
 		}
 		int totekapervalue = (int)Math.ceil((getKaperValue())*amulti*1.0/defmulti);
 		if(totekapervalue > kaperunitcargo.getKaperValue())
 		{
-			feindCrew -= (kaperunitcargo.getKaperValue() - totekapervalue) / 10;
+			feindCrew.setValue(feindCrew.getValue() - (kaperunitcargo.getKaperValue() - totekapervalue) / 10);
 			totekapervalue = kaperunitcargo.getKaperValue();
 		}
 		gefalleneeigeneUnits.addCargo(this);

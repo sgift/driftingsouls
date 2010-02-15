@@ -45,6 +45,7 @@ import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitType;
+import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 import org.apache.commons.lang.math.RandomUtils;
@@ -271,7 +272,7 @@ public class KapernController extends TemplateGenerator {
 								"FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id " + 
 							 	"WHERE t1.x="+this.targetShip.getX()+" AND t1.y="+this.targetShip.getY()+" AND t1.system="+this.targetShip.getSystem()+" AND " + 
 							 		"t1.owner IN ("+Common.implode(",",ownerlist)+") AND t1.id>0 AND t1.battle is null AND  " +
-									"!LOCATE('nocrew',t1.status) AND t1.type=t2.id").list());
+									"NOT LOCATE('nocrew',t1.status) AND t1.type=t2.id").list());
 				Iterator<Ship> iter = shiplist.iterator();			
 				while( iter.hasNext() ) {
 					if( iter.next().getTypeData().isMilitary() ) {
@@ -309,7 +310,7 @@ public class KapernController extends TemplateGenerator {
 			msg.append("Die Einheiten der "+this.ownShip.getName()+" ("+this.ownShip.getId()+"), eine "+this.ownShip.getTypeData().getNickname()+", st&uuml;rmt die "+this.targetShip.getName()+" ("+this.targetShip.getId()+"), eine "+this.targetShip.getTypeData().getNickname()+", bei "+this.targetShip.getLocation().displayCoordinates(false)+"\n\n");
 	
 
-			Integer dcrew = new Integer(this.targetShip.getCrew());
+			Crew dcrew = new UnitCargo.Crew(this.targetShip.getCrew());
 			UnitCargo ownUnits = this.ownShip.getUnits();
 			UnitCargo enemyUnits = this.targetShip.getUnits();
 			
@@ -401,7 +402,7 @@ public class KapernController extends TemplateGenerator {
 			this.ownShip.setUnits(ownUnits);
 				
 			this.targetShip.setUnits(enemyUnits);
-			this.targetShip.setCrew(dcrew.intValue());
+			this.targetShip.setCrew(dcrew.getValue());
 
 			// Wurde das Schiff gekapert?
 			if( ok ) {

@@ -43,6 +43,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.UnitCargo;
+import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
 
 import org.hibernate.FlushMode;
 
@@ -388,18 +389,22 @@ public class SchiffsTick extends TickController {
 					User pirate = (User)db.get(User.class, Faction.PIRATE);
 					UnitCargo unitcargo = shipd.getUnits();
 					UnitCargo meuterer = unitcargo.getMeuterer(account.intValue() - shiptd.getReCost());
+					Crew dcrew = new UnitCargo.Crew(shipd.getCrew());
 					
-					if(meuterer.kapern(unitcargo, new UnitCargo(), new UnitCargo(), 0, 1, 1))
+					if(meuterer.kapern(unitcargo, new UnitCargo(), new UnitCargo(), dcrew, 1, 1))
 					{
+						shipd.setCrew(dcrew.getValue());
+						shipd.setUnits(meuterer);
 						shipd.setOwner(pirate);
 						
 						PM.send(pirate, owner.getId(), "Besatzung meutert", "Die Besatzung der " + shipd.getName() + " meutert, nachdem Sie den Sold der Einheiten nicht aufbringen konnten. (" + shipd.getLocation().displayCoordinates(false) + ")");
 					}
 					else
 					{
+						shipd.setUnits(unitcargo);
+						shipd.setCrew(dcrew.getValue());
 						PM.send(pirate, owner.getId(), "Besatzung meutert", "Die Besatzung der " + shipd.getName() + " meutert, nachdem Sie den Sold der Einheiten nicht aufbringen konnten. Die Meuterer wurden vernichtet. (" + shipd.getLocation().displayCoordinates(false) + ")");
 					}
-					shipd.setUnits(unitcargo);
 					owner.setKonto(BigInteger.ZERO);
 				}
 				else
