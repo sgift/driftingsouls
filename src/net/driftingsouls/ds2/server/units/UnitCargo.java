@@ -41,7 +41,7 @@ public class UnitCargo implements Cloneable {
 	private static final Log log = LogFactory.getLog(UnitCargo.class);
 	
 	/**
-	 * Diese Klasse ist fuer das Kapern gedacht um die verbleibende Crew auf
+	 * Diese Klasse ist fuer das Kapern gedacht um die verbleibende Crew auf.
 	 * dem Schiff ueber Seiteneffekte zurueckgeben zu koennen
 	 */
 	public static class Crew {
