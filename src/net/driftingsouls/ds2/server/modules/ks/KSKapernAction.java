@@ -156,23 +156,24 @@ public class KSKapernAction extends BasicKSAction {
 
 		boolean ok = false;
 		
+
+		int attmulti = 1;
+		int defmulti = 1;
+		
+		Offizier defoffizier = Offizier.getOffizierByDest('s', enemyShip.getId());
+		if( defoffizier != null ) {
+			defmulti = defoffizier.getKaperMulti(true);
+		}
+		Offizier attoffizier = Offizier.getOffizierByDest('s', ownShip.getId());
+		if( attoffizier != null)
+		{
+			attmulti = attoffizier.getKaperMulti(false);
+		}
+
 		String msg = "";
 		if( !ownUnits.isEmpty() && !(enemyUnits.isEmpty() && enemyShip.getCrew() == 0) ) {
 			battle.logme("Die Einheiten st&uuml;rmen das Schiff\n");
 			msg = "Die Einheiten der "+Battle.log_shiplink(ownShip.getShip())+" st&uuml;rmen die "+Battle.log_shiplink(enemyShip.getShip())+"\n";
-
-			int attmulti = 1;
-			int defmulti = 1;
-			
-			Offizier offizier = Offizier.getOffizierByDest('s', enemyShip.getId());
-			if( offizier != null ) {
-				defmulti = offizier.getKaperMulti(true);
-			}
-			offizier = Offizier.getOffizierByDest('s', ownShip.getId());
-			if( offizier != null)
-			{
-				attmulti = offizier.getKaperMulti(false);
-			}
 
 			UnitCargo toteeigeneUnits = new UnitCargo();
 			UnitCargo totefeindlicheUnits = new UnitCargo();
@@ -184,6 +185,7 @@ public class KSKapernAction extends BasicKSAction {
 				{
 					battle.logme("Angriff erfolgreich. Schiff wird widerstandslos &uuml;bernommen.\n");
 					msg += "Das Schiff ist kampflos verloren.\n";
+					attoffizier.useAbility(Offizier.Ability.COM, 5);
 				}
 				else
 				{
@@ -215,6 +217,8 @@ public class KSKapernAction extends BasicKSAction {
 							msg += unit.getValue()+" "+unittype.getName()+" gefallen\n";
 						}
 					}
+					
+					attoffizier.useAbility(Offizier.Ability.COM, 3);
 				}
 			}
 			else
@@ -247,10 +251,13 @@ public class KSKapernAction extends BasicKSAction {
 						msg += unit.getValue()+" "+unittype.getName()+" gefallen\n";
 					}
 				}
+				
+				defoffizier.useAbility(Offizier.Ability.SEC, 5);
 			}
 		} 
 		else if( !ownUnits.isEmpty() ) {
 			ok = true;
+			attoffizier.useAbility(Offizier.Ability.COM, 5);
 			battle.logme("Schiff wird widerstandslos &uuml;bernommen\n");
 			msg += "Das Schiff "+Battle.log_shiplink(enemyShip.getShip())+" wird an die "+Battle.log_shiplink(ownShip.getShip())+" &uuml;bergeben\n";
 		}

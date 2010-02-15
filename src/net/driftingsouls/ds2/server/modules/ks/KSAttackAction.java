@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -1475,6 +1476,8 @@ public class KSAttackAction extends BasicKSAction {
 					firstentry = false;
 				}
 
+				Offizier attoffizier = Offizier.getOffizierByDest('s', ownShip.getId());
+				
 				/*
 				 * 	Treffer berechnen
 				 */
@@ -1489,6 +1492,19 @@ public class KSAttackAction extends BasicKSAction {
 					if( rnd <= trefferWS )
 					{
 						hit++;
+						int rnd2 = RandomUtils.nextInt(101);
+						if( rnd2 <= 38)
+						{
+							attoffizier.useAbility(Offizier.Ability.WAF, 1);
+						}
+						else if( rnd2 <= 76)
+						{
+							attoffizier.useAbility(Offizier.Ability.COM, 1);
+						}
+						else
+						{
+							attoffizier.useAbility(Offizier.Ability.NAV, 1);
+						}
 					}
 					if( (rnd > trefferWS) && (rnd <= trefferWS+fighterdef) && (this.localweapon.getDouble("destroyable") > 0) )
 					{

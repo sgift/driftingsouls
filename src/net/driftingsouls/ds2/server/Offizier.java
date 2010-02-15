@@ -338,7 +338,7 @@ public class Offizier extends DSObject {
 	 * erfragt werden. Zurueckgegeben wird, wie oft der Skill erfolgreich angewandt wurde.
 	 * 
 	 * @param ability Die Faehigkeit
-	 * @param difficulty Die Schwierigkeit der Aufgabe
+	 * @param difficulty Die Schwierigkeit der Aufgabe, fuer WAF, SEC, COM die Anzahl der Erfahrungspunkte
 	 * @return Die Anzahl der erfolgreichen Anwendungen des Skills
 	 */
 	public int useAbility( Ability ability, int difficulty ) {
@@ -369,10 +369,21 @@ public class Offizier extends DSObject {
 				break;
 			}
 			case WAF:
+				this.wafu = this.wafu + difficulty;
+				int fak = 2;
+				if( this.spec == 2)
+				{
+					fak = 1;
+				}
+				if( this.wafu > this.waf * fak)
+				{
+					this.waf++;
+					this.wafu = 0;
+				}
 				break;
 				
 			case NAV: {
-				int fak = difficulty;
+				fak = difficulty;
 				if( this.spec == 5 ) {
 					fak *= 0.6;
 				}
@@ -395,9 +406,31 @@ public class Offizier extends DSObject {
 				break;
 			}	
 			case SEC:
+				this.secu = this.secu + difficulty;
+				fak = 2;
+				if( this.spec == 2)
+				{
+					fak = 1;
+				}
+				if( this.secu > this.sec * fak)
+				{
+					this.sec++;
+					this.secu = 0;
+				}
 				break;
 				
 			case COM:
+				this.comu = this.comu + difficulty;
+				fak = 2;
+				if( this.spec == 2)
+				{
+					fak = 1;
+				}
+				if( this.comu > this.com * fak)
+				{
+					this.com++;
+					this.comu = 0;
+				}
 				break;
 		}
 		
