@@ -361,6 +361,35 @@ public class RestTick extends TickController {
 		
 		db.flush();
 		getContext().commit();
+		
+		this.log("Berechne Status der Schiffe");
+		
+		shipCount = (Long)db.createQuery("select count(*) from Ship where id>0")
+		.iterate()
+		.next();
+	
+		counter = 0;
+	
+		this.log("\tLese "+shipCount+" Schiffe ein");
+		while( counter < shipCount ) {
+			List<?> ships = db.createQuery("from Ship as s left join fetch s.modules where s.id>0")
+				.setCacheMode(CacheMode.IGNORE)
+				.setFirstResult(counter)
+				.setMaxResults(50)
+				.list();
+			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
+				Ship ship = (Ship)iter.next();
+			
+				counter++;
+			
+				if( counter % 10000 == 0 ) {
+					this.log("\t\t* "+ship.getId());
+				}
+				
+				ship.recalculateShipStatus();
+			}
+		}
+		
 		db.clear();
 		
 		db.setFlushMode(FlushMode.AUTO);
