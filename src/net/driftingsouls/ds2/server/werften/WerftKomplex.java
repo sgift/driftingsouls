@@ -309,9 +309,6 @@ public class WerftKomplex extends WerftObject {
 				}
 				werftCargo.setResource(res.getId(), newCount);
 				werften[i].setCargo(werftCargo, localonly);
-				if( count == 0 ) {
-					break;
-				}
 			}
 			
 			// Falls noch Crew uebrig geblieben ist, diese auf die erst beste Werft schicken
