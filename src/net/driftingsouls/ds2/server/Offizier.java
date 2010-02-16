@@ -161,11 +161,8 @@ public class Offizier extends DSObject {
 	private int spec;
 	private int ingu;
 	private int navu;
-	@SuppressWarnings("unused")
 	private int wafu;
-	@SuppressWarnings("unused")
 	private int secu;
-	@SuppressWarnings("unused")
 	private int comu;
 	
 	@Transient

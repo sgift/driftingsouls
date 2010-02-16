@@ -185,7 +185,10 @@ public class KSKapernAction extends BasicKSAction {
 				{
 					battle.logme("Angriff erfolgreich. Schiff wird widerstandslos &uuml;bernommen.\n");
 					msg += "Das Schiff ist kampflos verloren.\n";
-					attoffizier.gainExperience(Offizier.Ability.COM, 5);
+					if( attoffizier != null)
+					{
+						attoffizier.gainExperience(Offizier.Ability.COM, 5);
+					}
 				}
 				else
 				{
@@ -218,7 +221,10 @@ public class KSKapernAction extends BasicKSAction {
 						}
 					}
 					
-					attoffizier.gainExperience(Offizier.Ability.COM, 3);
+					if( attoffizier != null)
+					{
+						attoffizier.gainExperience(Offizier.Ability.COM, 3);
+					}
 				}
 			}
 			else
@@ -252,12 +258,18 @@ public class KSKapernAction extends BasicKSAction {
 					}
 				}
 				
-				defoffizier.gainExperience(Offizier.Ability.SEC, 5);
+				if( defoffizier != null)
+				{
+					defoffizier.gainExperience(Offizier.Ability.SEC, 5);
+				}
 			}
 		} 
 		else if( !ownUnits.isEmpty() ) {
 			ok = true;
-			attoffizier.gainExperience(Offizier.Ability.COM, 5);
+			if( attoffizier != null)
+			{
+				attoffizier.gainExperience(Offizier.Ability.COM, 5);
+			}
 			battle.logme("Schiff wird widerstandslos &uuml;bernommen\n");
 			msg += "Das Schiff "+Battle.log_shiplink(enemyShip.getShip())+" wird an die "+Battle.log_shiplink(ownShip.getShip())+" &uuml;bergeben\n";
 		}

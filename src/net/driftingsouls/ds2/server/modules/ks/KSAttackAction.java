@@ -1492,18 +1492,21 @@ public class KSAttackAction extends BasicKSAction {
 					if( rnd <= trefferWS )
 					{
 						hit++;
-						int rnd2 = RandomUtils.nextInt(101);
-						if( rnd2 <= 38)
+						if( attoffizier != null)
 						{
-							attoffizier.gainExperience(Offizier.Ability.WAF, 1);
-						}
-						else if( rnd2 <= 76)
-						{
-							attoffizier.gainExperience(Offizier.Ability.COM, 1);
-						}
-						else
-						{
-							attoffizier.gainExperience(Offizier.Ability.NAV, 1);
+							int rnd2 = RandomUtils.nextInt(101);
+							if( rnd2 <= 38)
+							{
+								attoffizier.gainExperience(Offizier.Ability.WAF, 1);
+							}
+							else if( rnd2 <= 76)
+							{
+								attoffizier.gainExperience(Offizier.Ability.COM, 1);
+							}
+							else
+							{
+								attoffizier.gainExperience(Offizier.Ability.NAV, 1);
+							}
 						}
 					}
 					if( (rnd > trefferWS) && (rnd <= trefferWS+fighterdef) && (this.localweapon.getDouble("destroyable") > 0) )

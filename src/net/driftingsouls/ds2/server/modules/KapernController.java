@@ -341,7 +341,10 @@ public class KapernController extends TemplateGenerator {
 					ok = true;
 					if(toteeigeneUnits.isEmpty() && totefeindlicheUnits.isEmpty())
 					{
-						attoffizier.gainExperience(Offizier.Ability.COM, 5);
+						if( attoffizier != null)
+						{
+							attoffizier.gainExperience(Offizier.Ability.COM, 5);
+						}
 						msg.append("Das Schiff ist kampflos verloren.\n");
 					}
 					else
@@ -368,7 +371,10 @@ public class KapernController extends TemplateGenerator {
 							}
 						}
 						
-						attoffizier.gainExperience(Offizier.Ability.COM, 3);
+						if( attoffizier != null)
+						{
+							attoffizier.gainExperience(Offizier.Ability.COM, 3);
+						}
 					}
 				}
 				else
@@ -395,12 +401,18 @@ public class KapernController extends TemplateGenerator {
 						}
 					}
 					
-					defoffizier.gainExperience(Offizier.Ability.SEC, 5);
+					if( defoffizier != null)
+					{
+						defoffizier.gainExperience(Offizier.Ability.SEC, 5);
+					}
 				}
 			} 
 			else if( !ownUnits.isEmpty() ) {
 				ok = true;
-				attoffizier.gainExperience(Offizier.Ability.COM, 5);
+				if(attoffizier != null)
+				{
+					attoffizier.gainExperience(Offizier.Ability.COM, 5);
+				}
 				msg.append("Schiff wird widerstandslos &uuml;bernommen\n");
 			}
 

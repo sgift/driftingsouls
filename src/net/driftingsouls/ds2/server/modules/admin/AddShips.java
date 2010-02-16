@@ -315,12 +315,7 @@ public class AddShips implements AdminPlugin {
 				ship.setCrew(shiptype.getCrew());
 				ship.setShields(shiptype.getShields());
 				ship.setCargo(cargo);
-				long nahrungcargo = (shiptype.getCrew()+shiptype.getUnitSpace())/10 * 7 * 7;
-				if(nahrungcargo > shiptype.getNahrungCargo())
-				{
-					nahrungcargo = shiptype.getNahrungCargo();
-				}
-				ship.setNahrungCargo(nahrungcargo);
+				ship.setNahrungCargo(shiptype.getNahrungCargo());
 				ship.setUnits(new UnitCargo());
 				ship.setHistory(history);
 				ship.setAblativeArmor(shiptype.getAblativeArmor());
