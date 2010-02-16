@@ -330,6 +330,104 @@ public class Offizier extends DSObject {
 			break;
 	}
 	}
+
+	/**
+	 * Gibt dem Offizier Erfahrungspunkte fuer die Faehigkeit.
+	 * 
+	 * @param ability Die Faehigkeit
+	 * @param exp Die Anzahl der Erfahrungspunkte
+	 */
+	public void gainExperience( Ability ability, int exp )
+	{
+		boolean newrang = false;
+
+		switch( ability ) {
+			case ING: {
+				this.ingu = this.ingu + exp;
+				int fak = 2;
+				if( this.spec == 2)
+				{
+					fak = 1;
+				}
+				if( this.ingu > this.ing * fak)
+				{
+					this.ing++;
+					this.ingu = 0;
+					newrang = true;
+				}
+				break;
+			}
+			case WAF:
+				this.wafu = this.wafu + exp;
+				int fak = 2;
+				if( this.spec == 2)
+				{
+					fak = 1;
+				}
+				if( this.wafu > this.waf * fak)
+				{
+					this.waf++;
+					this.wafu = 0;
+					newrang = true;
+				}
+				break;
+				
+			case NAV: {
+				this.navu = this.navu + exp;
+				fak = 2;
+				if( this.spec == 2)
+				{
+					fak = 1;
+				}
+				if( this.navu > this.nav * fak)
+				{
+					this.nav++;
+					this.navu = 0;
+					newrang = true;
+				}
+				break;
+			}	
+			case SEC:
+				this.secu = this.secu + exp;
+				fak = 2;
+				if( this.spec == 2)
+				{
+					fak = 1;
+				}
+				if( this.secu > this.sec * fak)
+				{
+					this.sec++;
+					this.secu = 0;
+					newrang = true;
+				}
+				break;
+				
+			case COM:
+				this.comu = this.comu + exp;
+				fak = 2;
+				if( this.spec == 2)
+				{
+					fak = 1;
+				}
+				if( this.comu > this.com * fak)
+				{
+					this.com++;
+					this.comu = 0;
+					newrang = true;
+				}
+				break;
+		}
+		
+		if( newrang ) {
+			double rangf = (this.ing+this.waf+this.nav+this.sec+this.com)/5.0;
+			int rang = (int)(rangf/125);
+			if( rang > Offiziere.MAX_RANG ) {
+				rang = Offiziere.MAX_RANG;
+			}
+						
+			this.rang = rang;
+		}
+	}
 	
 	/**
 	 * Benutzt einen Skill des Offiziers unter Beruecksichtigung 
@@ -338,7 +436,7 @@ public class Offizier extends DSObject {
 	 * erfragt werden. Zurueckgegeben wird, wie oft der Skill erfolgreich angewandt wurde.
 	 * 
 	 * @param ability Die Faehigkeit
-	 * @param difficulty Die Schwierigkeit der Aufgabe, fuer WAF, SEC, COM die Anzahl der Erfahrungspunkte
+	 * @param difficulty Die Schwierigkeit der Aufgabe
 	 * @return Die Anzahl der erfolgreichen Anwendungen des Skills
 	 */
 	public int useAbility( Ability ability, int difficulty ) {
@@ -369,21 +467,10 @@ public class Offizier extends DSObject {
 				break;
 			}
 			case WAF:
-				this.wafu = this.wafu + difficulty;
-				int fak = 2;
-				if( this.spec == 2)
-				{
-					fak = 1;
-				}
-				if( this.wafu > this.waf * fak)
-				{
-					this.waf++;
-					this.wafu = 0;
-				}
 				break;
 				
 			case NAV: {
-				fak = difficulty;
+				int fak = difficulty;
 				if( this.spec == 5 ) {
 					fak *= 0.6;
 				}
@@ -406,31 +493,9 @@ public class Offizier extends DSObject {
 				break;
 			}	
 			case SEC:
-				this.secu = this.secu + difficulty;
-				fak = 2;
-				if( this.spec == 2)
-				{
-					fak = 1;
-				}
-				if( this.secu > this.sec * fak)
-				{
-					this.sec++;
-					this.secu = 0;
-				}
 				break;
 				
 			case COM:
-				this.comu = this.comu + difficulty;
-				fak = 2;
-				if( this.spec == 2)
-				{
-					fak = 1;
-				}
-				if( this.comu > this.com * fak)
-				{
-					this.com++;
-					this.comu = 0;
-				}
 				break;
 		}
 		

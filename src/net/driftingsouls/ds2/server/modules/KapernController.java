@@ -269,13 +269,14 @@ public class KapernController extends TemplateGenerator {
 				
 				int shipcount = 0;
 				List<Ship> shiplist = Common.cast(db.createQuery("SELECT t1.id,t1.status,t1.type " + 
-								"FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id " + 
+								"FROM ships t1 left join fetch ship_types t2 " + 
 							 	"WHERE t1.x="+this.targetShip.getX()+" AND t1.y="+this.targetShip.getY()+" AND t1.system="+this.targetShip.getSystem()+" AND " + 
 							 		"t1.owner IN ("+Common.implode(",",ownerlist)+") AND t1.id>0 AND t1.battle is null AND  " +
-									"NOT LOCATE('nocrew',t1.status) AND t1.type=t2.id").list());
+									" t1.type=t2.id").list());
 				Iterator<Ship> iter = shiplist.iterator();			
 				while( iter.hasNext() ) {
-					if( iter.next().getTypeData().isMilitary() ) {
+					Ship ship = (Ship)iter.next();
+					if( ship.getTypeData().isMilitary() && ship.getCrew() > 0 ) {
 						shipcount++;	
 					}
 				}
@@ -340,7 +341,7 @@ public class KapernController extends TemplateGenerator {
 					ok = true;
 					if(toteeigeneUnits.isEmpty() && totefeindlicheUnits.isEmpty())
 					{
-						attoffizier.useAbility(Offizier.Ability.COM, 5);
+						attoffizier.gainExperience(Offizier.Ability.COM, 5);
 						msg.append("Das Schiff ist kampflos verloren.\n");
 					}
 					else
@@ -367,7 +368,7 @@ public class KapernController extends TemplateGenerator {
 							}
 						}
 						
-						attoffizier.useAbility(Offizier.Ability.COM, 3);
+						attoffizier.gainExperience(Offizier.Ability.COM, 3);
 					}
 				}
 				else
@@ -394,12 +395,12 @@ public class KapernController extends TemplateGenerator {
 						}
 					}
 					
-					defoffizier.useAbility(Offizier.Ability.SEC, 5);
+					defoffizier.gainExperience(Offizier.Ability.SEC, 5);
 				}
 			} 
 			else if( !ownUnits.isEmpty() ) {
 				ok = true;
-				attoffizier.useAbility(Offizier.Ability.COM, 5);
+				attoffizier.gainExperience(Offizier.Ability.COM, 5);
 				msg.append("Schiff wird widerstandslos &uuml;bernommen\n");
 			}
 
