@@ -1220,7 +1220,7 @@ public class Ship implements Locatable,Transfering {
 
 	/**
 	 * Calculates the amount of food a ship consumes.
-	 * @see getFoodConsumption(boolean forceshow)
+	 * @see #getFoodConsumption(boolean forceshow)
 	 * @return Amount of food this ship consumes
 	 */
 	public int getFoodConsumption() {
@@ -4079,11 +4079,8 @@ public class Ship implements Locatable,Transfering {
 	        		 //shit we are an enemy, we're not allowed to see the tradepost
 	        		 return false;
 	        	 }
-	        	 else
-	        	 {
-	        		 // hey fine, we're allowed to see the tradepost
-	        		 return true;
-	        	 }
+	        	 // hey fine, we're allowed to see the tradepost
+	        	 return true;
 	        case 2:
 	        	// check wether we are a friend of the owner
 	        	 if( (relationlist.fromOther.get(ownerid) == User.Relation.FRIEND) || (ownerid == observerid) )
@@ -4091,11 +4088,8 @@ public class Ship implements Locatable,Transfering {
 	        		 // hey cool we are, let's take a look at the tradepost
 	        		 return true;
 	        	 }
-	        	 else
-	        	 {
-	        		 // damn it, we're not friends, no tradepost for us
-	        		 return false;
-	        	 }
+				// damn it, we're not friends, no tradepost for us
+				 return false;
 	        case 3:
 	        	// check if we are members of the same ally and if the owner has an ally
 	        	 if( ((this.getOwner().getAlly() != null) && observer.getAlly() != null && (this.getOwner().getAlly().getId() == observer.getAlly().getId() )) || (ownerid == observerid) )
@@ -4103,11 +4097,8 @@ public class Ship implements Locatable,Transfering {
 	        		 // same ally, we can see the tradepost, that's fine
 	        		 return true;
 	        	 }
-	        	 else
-	        	 {
-	        		 // no tradepost for us
-	        		 return false;
-	        	 }
+				// no tradepost for us
+				 return false;
 	        case 4:
 	        	// check if we are the owner of the tradepost
 	        	 if(ownerid == observerid)
@@ -4115,11 +4106,8 @@ public class Ship implements Locatable,Transfering {
 	        		 // hey that's funny, it's our tradepost, we are able to see it :D
 	        		 return true;
 	        	 }
-	        	 else
-	        	 {
-	        		 // another one's tradepost, not shown to us
-	        		 return false;
-	        	 }
+				// another one's tradepost, not shown to us
+				 return false;
 	        default:
 	        	// damn it, broken configuration, don't show the tradepost
 	        	 return false;

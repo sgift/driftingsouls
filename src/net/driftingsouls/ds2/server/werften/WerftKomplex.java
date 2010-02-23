@@ -28,6 +28,7 @@ import javax.persistence.Entity;
 import javax.persistence.Transient;
 
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -353,8 +354,37 @@ public class WerftKomplex extends WerftObject {
 	public void setCrew(int crew) {
 		loadData();
 		
-		// Zuerst alles gemaess der vorher vorhandenen Verhaeltnisse verteilen
+		// Zuerst von allen Verfügbaren Basen ziehen
 		int oldCrew = getCrew();
+		int subCrew = oldCrew - crew;
+		
+		for( int i=0; i < werften.length; i++) 
+		{
+			if( ((ShipWerft)werften[i]).getLinkedBase() != null)
+			{
+				Base linked = ((ShipWerft)werften[i]).getLinkedBase();
+				int baseCrew = linked.getBewohner() - linked.getArbeiter();
+				if( baseCrew >= subCrew)
+				{
+					baseCrew -= subCrew;
+					subCrew = 0;
+				}
+				else
+				{
+					subCrew -= baseCrew;
+					baseCrew = 0;
+				}
+				linked.setBewohner(baseCrew + linked.getArbeiter());
+			}
+			if( subCrew == 0)
+			{
+				return;
+			}
+		}
+		crew -= oldCrew - crew - subCrew;
+		
+		
+		// Danach alles gemaess den vorher vorhandenen Verhaeltnissen verteilen
 		double factor = 0;
 		if( oldCrew > 0 ) {
 			factor = crew/(double)oldCrew;
