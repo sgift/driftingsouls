@@ -58,4 +58,6 @@ VALUES (
 	'tick', '0', 'Sperrt Accounts waehrend des Ticks. 0 fuer keine Sperre, 1 fuer Sperre.', '0'
 ), (
 	'gtudefaultdropzone', '75', 'Standard-Dropzone der GTU. Kann von jedem genutzt werden, egal, ob er Asteroiden im System hat.', '0'
+), (
+	'maxverhungern', '100', 'Prozentsatz der Crew die maximal pro Tick verhungert', '0'
 );

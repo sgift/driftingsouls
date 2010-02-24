@@ -174,10 +174,7 @@ public class SchiffsTick extends TickController {
 		{
 			return versorgerlist.get(loc).get(0);
 		}
-		else
-		{
-			return null;
-		}
+		return null;
 	}
 
 	private void tickShip( org.hibernate.Session db, Ship shipd ) {
@@ -226,12 +223,9 @@ public class SchiffsTick extends TickController {
 							this.log("\tSpeicher um "+needed+" aufgefuellt");
 							break;
 						}
-						else
-						{
-							needed = feednahrung;
-							shipd.setNahrungCargo(shipd.getNahrungCargo()+needed);
-							basecargo.substractResource(Resources.NAHRUNG, needed);
-						}
+						needed = feednahrung;
+						shipd.setNahrungCargo(shipd.getNahrungCargo()+needed);
+						basecargo.substractResource(Resources.NAHRUNG, needed);
 						savelist.put(base, savenahrung - shipd.getFoodConsumption());
 						base.setCargo(basecargo);
 						this.log("\tSpeicher um "+needed+" aufgefuellt");
@@ -280,6 +274,13 @@ public class SchiffsTick extends TickController {
 		if(crewToFeed >= (int)Math.ceil(shipd.getUnits().getNahrung() / 10)){
 			crewToFeed = crewToFeed - (int)Math.ceil(shipd.getUnits().getNahrung() / 10);
 			shipd.setUnits(new UnitCargo());
+			ConfigValue maxverhungern = (ConfigValue)db.get(ConfigValue.class, "maxverhungern");
+			int maxverhungernfactor = Integer.parseInt(maxverhungern.getValue());
+			int maxverhungernvalue = (int)(shiptd.getCrew() * (maxverhungernfactor/100.0));
+			if( crewToFeed > maxverhungernvalue/10)
+			{
+				crewToFeed = maxverhungernvalue/10;
+			}
 			int crew = shipd.getCrew() - crewToFeed*10;
 			if(crew < 0)
 			{

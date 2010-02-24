@@ -1432,4 +1432,7 @@
 	<update><![CDATA[
 		INSERT INTO `config` (`name`, `value`, `description`, `version`) VALUES ('gtudefaultdropzone', '2', 'Standard-Dropzone der GTU. Kann von jedem genutzt werden, egal, ob er Asteroiden im System hat.', '0');	
 	]]></update>
+	<update><![CDATA[
+		INSERT INTO `config` (`name`, `value`, `description`, `version`) VALUES ('maxverhungern', '100', 'Prozentsatz der Crew die maximal pro Tick verhungert', '0');
+	]]></update>
 </updates>
