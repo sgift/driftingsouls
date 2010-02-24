@@ -382,9 +382,11 @@ public class WerftKomplex extends WerftObject {
 			}
 		}
 		crew -= oldCrew - crew - subCrew;
-		
+		oldCrew = getCrew();
 		
 		// Danach alles gemaess den vorher vorhandenen Verhaeltnissen verteilen
+		// Da alle Basen bereits ihr Maximum ausgeschoepft haben wird mit getCrew()
+		// nur noch die Crew von den Werften erwischt
 		double factor = 0;
 		if( oldCrew > 0 ) {
 			factor = crew/(double)oldCrew;

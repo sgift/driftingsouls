@@ -269,7 +269,7 @@ public class KapernController extends TemplateGenerator {
 				
 				int shipcount = 0;
 				List<Ship> shiplist = Common.cast(db.createQuery("SELECT t1.id,t1.status,t1.type " + 
-								"FROM ships t1 left join fetch ship_types t2 " + 
+								"FROM Ship t1 left join fetch ship_types t2 " + 
 							 	"WHERE t1.x="+this.targetShip.getX()+" AND t1.y="+this.targetShip.getY()+" AND t1.system="+this.targetShip.getSystem()+" AND " + 
 							 		"t1.owner IN ("+Common.implode(",",ownerlist)+") AND t1.id>0 AND t1.battle is null AND  " +
 									" t1.type=t2.id").list());
