@@ -271,13 +271,13 @@ public class SchiffsTick extends TickController {
 			this.log("Crew verhungert - ");
 	//		recalc = true;
 		
-			if(crewToFeed >= (int)Math.ceil(shipd.getUnits().getNahrung() / 10)){
-				crewToFeed = crewToFeed - (int)Math.ceil(shipd.getUnits().getNahrung() / 10);
+			if(crewToFeed >= (int)Math.ceil(shipd.getUnits().getNahrung() / 10.0)){
+				crewToFeed = crewToFeed - (int)Math.ceil(shipd.getUnits().getNahrung() / 10.0);
 				shipd.setUnits(new UnitCargo());
 				ConfigValue maxverhungern = (ConfigValue)db.get(ConfigValue.class, "maxverhungern");
 				int maxverhungernfactor = Integer.parseInt(maxverhungern.getValue());
 				int maxverhungernvalue = (int)(shiptd.getCrew() * (maxverhungernfactor/100.0));
-				if( crewToFeed > maxverhungernvalue/10)
+				if( crewToFeed > maxverhungernvalue/10.0)
 				{
 					crewToFeed = maxverhungernvalue/10;
 				}
