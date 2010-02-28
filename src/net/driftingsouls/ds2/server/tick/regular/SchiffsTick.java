@@ -270,47 +270,48 @@ public class SchiffsTick extends TickController {
 		if(crewToFeed > 0) {
 			this.log("Crew verhungert - ");
 	//		recalc = true;
-		}
-		if(crewToFeed >= (int)Math.ceil(shipd.getUnits().getNahrung() / 10)){
-			crewToFeed = crewToFeed - (int)Math.ceil(shipd.getUnits().getNahrung() / 10);
-			shipd.setUnits(new UnitCargo());
-			ConfigValue maxverhungern = (ConfigValue)db.get(ConfigValue.class, "maxverhungern");
-			int maxverhungernfactor = Integer.parseInt(maxverhungern.getValue());
-			int maxverhungernvalue = (int)(shiptd.getCrew() * (maxverhungernfactor/100.0));
-			if( crewToFeed > maxverhungernvalue/10)
-			{
-				crewToFeed = maxverhungernvalue/10;
-			}
-			int crew = shipd.getCrew() - crewToFeed*10;
-			if(crew < 0)
-			{
-				shipd.setCrew(0);
-				this.log("Gedockte Schiffe verhungern.");
-				crew = Math.abs(crew);
-				List<Ship> dockedShips = shipd.getLandedShips();
-				for(Iterator<Ship> iter=dockedShips.iterator();iter.hasNext();)
+		
+			if(crewToFeed >= (int)Math.ceil(shipd.getUnits().getNahrung() / 10)){
+				crewToFeed = crewToFeed - (int)Math.ceil(shipd.getUnits().getNahrung() / 10);
+				shipd.setUnits(new UnitCargo());
+				ConfigValue maxverhungern = (ConfigValue)db.get(ConfigValue.class, "maxverhungern");
+				int maxverhungernfactor = Integer.parseInt(maxverhungern.getValue());
+				int maxverhungernvalue = (int)(shiptd.getCrew() * (maxverhungernfactor/100.0));
+				if( crewToFeed > maxverhungernvalue/10)
 				{
-					Ship dockShip = iter.next();
-					if(crew > dockShip.getCrew())
+					crewToFeed = maxverhungernvalue/10;
+				}
+				int crew = shipd.getCrew() - crewToFeed*10;
+				if(crew < 0)
+				{
+					shipd.setCrew(0);
+					this.log("Gedockte Schiffe verhungern.");
+					crew = Math.abs(crew);
+					List<Ship> dockedShips = shipd.getLandedShips();
+					for(Iterator<Ship> iter=dockedShips.iterator();iter.hasNext();)
 					{
-						crew -= dockShip.getCrew();
-						dockShip.setCrew(0);
-					}
-					else
-					{
-						dockShip.setCrew(dockShip.getCrew()-crew);
-						break;
+						Ship dockShip = iter.next();
+						if(crew > dockShip.getCrew())
+						{
+							crew -= dockShip.getCrew();
+							dockShip.setCrew(0);
+						}
+						else
+						{
+							dockShip.setCrew(dockShip.getCrew()-crew);
+							break;
+						}
 					}
 				}
+				else
+				{
+					shipd.setCrew(crew);
+				}
 			}
-			else
-			{
-				shipd.setCrew(crew);
+			else {
+				shipd.getUnits().fleeUnits(crewToFeed*10);
+				crewToFeed = 0;
 			}
-		}
-		else {
-			shipd.getUnits().fleeUnits(crewToFeed*10);
-			crewToFeed = 0;
 		}
 		
 		//Damage ships which don't have enough crew

@@ -30,7 +30,7 @@
 			 
 	<context-param>
 		<param-name>configdir</param-name>
-		<param-value>/home/bktheg/Projects/dsj/web/WEB-INF/cfg/</param-value>
+		<param-value>/home/bktheg/Projects/ds2j/web/WEB-INF/cfg/</param-value>
 		<description>
 			Die DS2-Hauptkonfigurationsverzeichnis
 		</description>
