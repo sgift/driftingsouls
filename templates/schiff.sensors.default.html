@@ -306,7 +306,7 @@
 					{/endif}{if sships.action.crewtausch}
 						<a class="greenborder" onmouseover="return helpme('{sships.type.name} bemannen');" onmouseout="return nd();" href="./ds?module=crewtausch&amp;ship={global.ship}&amp;tar={sships.id}&amp;mode=ss"><img src="{URL}data/interface/schiffe/schiff_bemannen.gif" alt="" /></a>
 					{/endif}{if sships.action.unittausch}
-						<a class="greenborder" onmouseover="return helpme('Mit {sships.type.name} Einheiten austauschen');" onmouseout="return nd();" href="./ds?module=unittausch&amp;to={sships.id}&amp;from={global.ship}&amp;way=stos"><img src="{URL}data/interface/schiffe/schiff_bemannen.gif" alt="" /></a>
+						<a class="greenborder" onmouseover="return helpme('Mit {sships.type.name} Einheiten austauschen');" onmouseout="return nd();" href="./ds?module=unittausch&amp;to={sships.id}&amp;from={global.ship}&amp;way=stos"><img src="{URL}data/interface/schiff_schiffe/unittransfer.gif" alt="" /></a>
 					{/endif}{if sships.action.tcaptain}
 						<a class="greenborder" onmouseover="return helpme('Offizier zu {sships.type.name} transferieren');" onmouseout="return nd();" href="./ds?module=tc&amp;action=shipToShip&amp;ship={global.ship}&amp;target={sships.id}"><img src="{URL}data/interface/schiffe/schiff_captain_transfer.gif" alt="" /></a>
 					{/endif}{if sships.action.aufladen}
