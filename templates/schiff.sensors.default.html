@@ -75,7 +75,7 @@
 			{/endif}{if base.ownbase}
 				<a class="greenborder" onmouseover="return helpme('Crew mit {base.name} austauschen');" onmouseout="return nd();" href="./ds?module=crewtausch&amp;ship={global.ship}&amp;tar={base.id}&amp;mode=sb"><img src="{URL}data/interface/schiffe/schiff_bemannen.gif" alt="" /></a>
 			{/endif}{if base.unittausch}
-				<a class="greenborder" onmouseover="return helpme('mit {base.name} Einheiten austauschen');" onmouseout="return nd();" href="./ds?module=unittausch&amp;to={base.id}&amp;from={global.ship}&amp;way=stob"><img src="{URL}data/interface/schiffe/schiff_bemannen.gif" alt="" /></a>
+				<a class="greenborder" onmouseover="return helpme('mit {base.name} Einheiten austauschen');" onmouseout="return nd();" href="./ds?module=unittausch&amp;to={base.id}&amp;from={global.ship}&amp;way=stob"><img src="{URL}data/interface/schiffe/schiff_unittransfer.gif" alt="" /></a>
 			{/endif}{if base.offiziere.transfer}
 				<a class="greenborder" onmouseover="return helpme('Offizier nach {base.name} transferieren');" onmouseout="return nd();" href="./ds?module=tc&amp;action=shipToBase&amp;ship={global.ship}&amp;target={base.id}"><img src="{URL}data/interface/schiffe/schiff_captain_transfer.gif" alt="" /></a>
 			{/endif}{if base.offiziere.set}
