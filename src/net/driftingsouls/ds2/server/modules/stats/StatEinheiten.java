@@ -20,9 +20,8 @@ package net.driftingsouls.ds2.server.modules.stats;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Map.Entry;
+import java.util.List;
 
-import net.driftingsouls.ds2.server.entities.StatUserUnitCargo;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -64,16 +63,8 @@ public class StatEinheiten implements Statistic {
 
 		Writer echo = context.getResponse().getWriter();
 		
-		UnitCargo unitcargo = new UnitCargo((UnitCargo)db.createQuery("SELECT unitcargo FROM StatUnitCargo ORDER BY tick DESC").setMaxResults(1).iterate().next());
 		
-		StatUserUnitCargo statCargo = (StatUserUnitCargo)db.get(StatUserUnitCargo.class, user.getId());
-		
-		UnitCargo ownCargo = new UnitCargo();
-		
-		if( statCargo != null ) 
-		{
-			ownCargo = statCargo.getCargo();
-		}
+		List<UnitType> unitlist = Common.cast(db.createQuery("from UnitType").list());
 
 		// Ausgabe des Tabellenkopfs
 		echo.append("<table class=\"noBorderX\" cellspacing=\"1\" cellpadding=\"1\">\n");
@@ -85,18 +76,69 @@ public class StatEinheiten implements Statistic {
 		echo.append("</tr>\n");
 		
 		// Einheitenliste durchlaufen
-		for( Entry<Integer,Long[]> unit : unitcargo.compare(ownCargo).entrySet() ) {
+		for( UnitType unittype : unitlist ) {
 			
-			UnitType type = (UnitType)db.get(UnitType.class, unit.getKey());
+			long baseunits = 0;
+			long shipunits = 0;
+			long baseunitsuser = 0;
+			long shipunitsuser = 0;
+			
+			Object baseunitsobject = db.createQuery("select sum(e.amount) from UnitCargoEntry as e, Base as b where e.key.type=:type and e.key.unittype=:unittype and e.key.destid = b.id and b.owner > 0")
+										.setInteger("type", UnitCargo.CARGO_ENTRY_BASE)
+										.setInteger("unittype", unittype.getId())
+										.iterate()
+										.next();
+			
+			if( baseunitsobject != null)
+			{
+				baseunits = (Long)baseunitsobject;
+			}
+			
+			Object shipunitsobject = db.createQuery("select sum(e.amount) from UnitCargoEntry as e, Ship as s where e.key.type=:type and e.key.unittype=:unittype and e.key.destid = s.id and s.owner > 0")
+										.setInteger("type", UnitCargo.CARGO_ENTRY_SHIP)
+										.setInteger("unittype", unittype.getId())
+										.iterate()
+										.next();
+
+			if( shipunitsobject != null)
+			{
+				shipunits = (Long)shipunitsobject;
+			}
+			
+			Object baseunitsuserobject = db.createQuery("select sum(e.amount) from UnitCargoEntry as e, Base as b where e.key.type=:type and e.key.unittype=:unittype and e.key.destid = b.id and b.owner=:user")
+											.setInteger("type", UnitCargo.CARGO_ENTRY_BASE)
+											.setInteger("unittype", unittype.getId())
+											.setEntity("user", user)
+											.iterate()
+											.next();
+			
+			if( baseunitsuserobject != null)
+			{
+				baseunitsuser = (Long)baseunitsuserobject;
+			}
+			
+			Object shipunitsuserobject = db.createQuery("select sum(e.amount) from UnitCargoEntry as e, Ship as s where e.key.type=:type and e.key.unittype=:unittype and e.key.destid = s.id and s.owner=:user")
+											.setInteger("type", UnitCargo.CARGO_ENTRY_SHIP)
+											.setInteger("unittype", unittype.getId())
+											.setEntity("user", user)
+											.iterate()
+											.next();
+			
+			if( shipunitsuserobject != null)
+			{
+				shipunitsuser = (Long)shipunitsuserobject;
+			}
+			
+			
 			// Daten zur Einheit ausgeben
       		echo.append("<tr>\n");
-      		echo.append("<td class=\"noBorderX\" style=\"white-space:nowrap\"><img style=\"vertical-align:middle\" src=\""+type.getPicture()+"\" alt=\"\"><a href=\""+Common.buildUrl("default", "module", "unitinfo", "unit", type.getId())+"\" >"+type.getName()+"</a></td>\n");
-      		echo.append("<td class=\"noBorderX\">"+unit.getValue()[0]+"</td>\n");
+      		echo.append("<td class=\"noBorderX\" style=\"white-space:nowrap\"><img style=\"vertical-align:middle\" src=\""+unittype.getPicture()+"\" alt=\"\"><a href=\""+Common.buildUrl("default", "module", "unitinfo", "unit", unittype.getId())+"\" >"+unittype.getName()+"</a></td>\n");
+      		echo.append("<td class=\"noBorderX\">"+(baseunits+shipunits)+"</td>\n");
       		echo.append("<td class=\"noBorderX\">&nbsp;</td>\n");
-      		echo.append("<td class=\"noBorderX\">"+unit.getValue()[1]+"</td>\n");
+      		echo.append("<td class=\"noBorderX\">"+(baseunitsuser+shipunitsuser)+"</td>\n");
       		echo.append("<td class=\"noBorderX\">&nbsp;</td>\n");
       		
-		} // Ende: Resourcenliste
+		} // Ende: Resourcenliste*/
 		echo.append("</table><br /><br />\n");
 	}
 

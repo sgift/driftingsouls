@@ -1252,18 +1252,11 @@ public class User extends BasicUser {
 		 							.setCacheMode(CacheMode.IGNORE)
 		 							.scroll(ScrollMode.FORWARD_ONLY);
 		
-		int count = 0;
 		while(ships.next())
 		{
 			Ship ship = (Ship)ships.get(0);
 			balance[0] -= ship.getNahrungsBalance();
 			balance[1] -= ship.getBalance();
-			count++;
-			
-			if(count%20 == 0)
-			{
-				db.flush();
-			}
 		}
 		
 		return balance;

@@ -428,7 +428,10 @@ public class PortalController extends TemplateGenerator {
 	 	base.setMaxCargo(basetype.getCargo());
 	 	base.setCargo(new Cargo(Cargo.Type.STRING, this.config.get("REGISTER_BASECARGO")));
 	 	base.setCore(0);
-	 	base.setUnits(new UnitCargo());
+	 	UnitCargo unitcargo = new UnitCargo();
+	 	unitcargo.setTyp(UnitCargo.CARGO_ENTRY_BASE);
+	 	unitcargo.setDestId(base.getId());
+	 	base.setUnits(unitcargo);
 	 	base.setCoreActive(false);
 	 	base.setAutoGTUActs(new ArrayList<AutoGTUAction>());
 	 	

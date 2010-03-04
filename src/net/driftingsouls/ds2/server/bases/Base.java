@@ -91,8 +91,6 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	private int y;
 	private int system;
 	private int bewohner;
-	@Type(type="unitcargo")
-	private UnitCargo unitcargo;
 	private int arbeiter;
 	@Column(name="e")
 	private int energy;
@@ -489,7 +487,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	 */
 	public UnitCargo getUnits()
 	{
-		return this.unitcargo;
+		return new UnitCargo(UnitCargo.CARGO_ENTRY_BASE, id);
 	}
 	
 	/**
@@ -498,7 +496,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	 */
 	public void setUnits(UnitCargo unitcargo)
 	{
-		this.unitcargo = unitcargo;
+		unitcargo.save();
 	}
 	
 	/**

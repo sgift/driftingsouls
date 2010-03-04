@@ -37,9 +37,7 @@ import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
 import net.driftingsouls.ds2.server.entities.StatCargo;
 import net.driftingsouls.ds2.server.entities.StatItemLocations;
-import net.driftingsouls.ds2.server.entities.StatUnitCargo;
 import net.driftingsouls.ds2.server.entities.StatUserCargo;
-import net.driftingsouls.ds2.server.entities.StatUserUnitCargo;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -47,7 +45,6 @@ import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipModules;
 import net.driftingsouls.ds2.server.tick.TickController;
-import net.driftingsouls.ds2.server.units.UnitCargo;
 
 import org.hibernate.CacheMode;
 import org.hibernate.FlushMode;
@@ -74,10 +71,8 @@ public class RestTick extends TickController {
 		
 		this.log("Berechne Gesamtcargo:");
 		Cargo cargo = new Cargo();
-		UnitCargo unitcargo = new UnitCargo();
 		Map<User,Cargo> usercargos = new HashMap<User,Cargo>();
 		Map<User,Map<Integer,Set<String>>> useritemlocations = new HashMap<User, Map<Integer, Set<String>>>();
-		Map<User,UnitCargo> userunitcargos = new HashMap<User,UnitCargo>();
 		
 		int counter = 0;
 		long baseCount = (Long)db.createQuery("select count(*) from Base where owner!=0").iterate().next();
@@ -107,22 +102,6 @@ public class RestTick extends TickController {
 				else {
 					usercargos.get(base.getOwner()).addCargo( bcargo );
 				}
-				
-				if( !base.getUnits().isEmpty())
-				{
-					if(base.getOwner().getId() > 0)
-					{
-						unitcargo.addCargo(base.getUnits());
-					}
-					
-					if( !userunitcargos.containsKey(base.getOwner()) ) {
-						userunitcargos.put(base.getOwner(), new UnitCargo(base.getUnits()));
-					}
-					else {
-						userunitcargos.get(base.getOwner()).addCargo( base.getUnits() );
-					}
-				}
-				
 				
 				
 				List<ItemCargoEntry> itemlist = bcargo.getItems();
@@ -175,21 +154,6 @@ public class RestTick extends TickController {
 				}
 				else {
 					usercargos.get(ship.getOwner()).addCargo( scargo );
-				}
-				
-				if( !ship.getUnits().isEmpty())
-				{
-					if(ship.getOwner().getId() > 0)
-					{
-						unitcargo.addCargo(ship.getUnits());
-					}
-					
-					if( !userunitcargos.containsKey(ship.getOwner()) ) {
-						userunitcargos.put(ship.getOwner(), new UnitCargo(ship.getUnits()));
-					}
-					else {
-						userunitcargos.get(ship.getOwner()).addCargo( ship.getUnits() );
-					}
 				}
 				
 				List<ItemCargoEntry> itemlist = scargo.getItems();
@@ -296,17 +260,13 @@ public class RestTick extends TickController {
 		}
 		
 		StatCargo stat = new StatCargo(this.tick, cargo);
-		StatUnitCargo unitstat = new StatUnitCargo(this.tick, unitcargo);
 		db.persist(stat);
-		db.persist(unitstat);
 		
 		db.flush();
 		getContext().commit();
 		db.evict(stat);
-		db.evict(unitstat);
-
+		
 		this.log("\t"+cargo.save());
-		this.log("\t"+unitcargo.save());
 		
 		this.log("Speichere User-Cargo-Stats");
 		db.createQuery("delete from StatUserCargo").executeUpdate();
@@ -319,21 +279,9 @@ public class RestTick extends TickController {
 			db.persist(userstat);
 		}
 		
-		this.log("Speichere User-UnitCargo-Stats");
-		db.createQuery("delete from StatUserUnitCargo").executeUpdate();
-		
-		for( Map.Entry<User, UnitCargo> entry : userunitcargos.entrySet() )
-		{
-			User owner = entry.getKey();
-			UnitCargo userunitcargo = entry.getValue();
-			StatUserUnitCargo userunitstat = new StatUserUnitCargo(owner, userunitcargo);
-			this.log(owner.getId()+":"+userunitcargo.save());
-			db.persist(userunitstat);
-		}
-		
 		db.flush();
 		getContext().commit();
-		HibernateFacade.evictAll(db, StatUserCargo.class, StatUserUnitCargo.class, Ship.class, Base.class);
+		HibernateFacade.evictAll(db, StatUserCargo.class, Ship.class, Base.class);
 		
 		this.log("Speichere Module-Location-Stats");
 		db.createQuery("delete from StatItemLocations").executeUpdate();

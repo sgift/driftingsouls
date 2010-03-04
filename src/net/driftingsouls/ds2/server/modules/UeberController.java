@@ -239,7 +239,7 @@ public class UeberController extends TemplateGenerator {
 		double corruption = Double.valueOf(value.getValue()) + user.getCorruption();
 
 		int[] fullbalance = user.getFullBalance();
-		if(fullbalance[1] > 0)
+		if(fullbalance[1] > 0 && corruption > 0)
 		{
 			fullbalance[1] *= 1-corruption;
 		}

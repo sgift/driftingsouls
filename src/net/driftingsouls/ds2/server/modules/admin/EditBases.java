@@ -33,7 +33,6 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
-import net.driftingsouls.ds2.server.units.UnitCargo;
 
 /**
  * Aktualisierungstool fuer die Werte eines Spielers.
@@ -78,7 +77,6 @@ public class EditBases implements AdminPlugin
 			base.setEnergy(context.getRequest().getParameterInt("energie"));
 			base.setMaxEnergy(context.getRequest().getParameterInt("maxenergie"));
 			base.setCargo(new Cargo(Cargo.Type.STRING, context.getRequest().getParameterString("cargo")));
-			base.setUnits(new UnitCargo(context.getRequest().getParameterString("unitcargo")));
 			base.setMaxCargo(context.getRequest().getParameterInt("maxcargo"));
 			base.setCore(context.getRequest().getParameterInt("core"));
 			base.setKlasse(context.getRequest().getParameterInt("klasse"));
@@ -130,7 +128,6 @@ public class EditBases implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderX\">Maximale Energie: </td><td><input type=\"text\" size=\"40\" name=\"maxenergie\" value=\"" + base.getMaxEnergy() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Cargo (Cargo-String): </td><td><input type=\"text\" size=\"40\" name=\"cargo\" value=\"" + base.getCargo().toString() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">maximaler Cargo: </td><td><input type=\"text\" size=\"40\" name=\"maxcargo\" value=\"" + base.getMaxCargo() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Einheiten: </td><td><input type=\"text\" size=\"40\" name=\"unitcargo\" value=\"" + base.getUnits().toString() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Core: </td><td><input type=\"text\" size=\"40\" name=\"core\" value=\"" + base.getCore() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Klasse: </td><td><input type=\"text\" size=\"40\" name=\"klasse\" value=\"" + base.getKlasse() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Breite: </td><td><input type=\"text\" size=\"40\" name=\"width\" value=\"" + base.getWidth() + "\"></td></tr>\n");

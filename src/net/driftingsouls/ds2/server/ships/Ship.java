@@ -71,7 +71,6 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextInstance;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
@@ -128,8 +127,6 @@ public class Ship implements Locatable,Transfering {
 	private int system;
 	private String status;
 	private int crew;
-	@Type(type="unitcargo")
-	private UnitCargo unitcargo;
 	private int e;
 	@Column(name="s")
 	private int heat;
@@ -520,7 +517,7 @@ public class Ship implements Locatable,Transfering {
 	 * @return Der UnitCargo
 	 */
 	public UnitCargo getUnits() {
-		return unitcargo;
+		return new UnitCargo(UnitCargo.CARGO_ENTRY_SHIP, id);
 	}
 
 	/**
@@ -528,7 +525,7 @@ public class Ship implements Locatable,Transfering {
 	 * @param unitcargo Der UnitCargo
 	 */
 	public void setUnits(UnitCargo unitcargo) {
-		this.unitcargo = unitcargo;
+		unitcargo.save();
 	}
 	
 	/**
@@ -1060,21 +1057,6 @@ public class Ship implements Locatable,Transfering {
 	}
 
 	/**
-	 * 
-	 */
-	@ContextInstance(ContextInstance.Scope.REQUEST)
-	public static class ContextVars {
-		Map<User,Map<Location, Long>> versorgerstats = new HashMap<User,Map<Location, Long>>();
-
-		/**
-		 * Konstruktor.
-		 */
-		public ContextVars() {
-			// EMPTY
-		}
-	}
-	
-	/**
 	 * Gibt das erstbeste Schiff im Sektor zurueck, dass als Versorger fungiert und noch Nahrung besitzt.
 	 * @return Das Schiff
 	 */
@@ -1098,19 +1080,55 @@ public class Ship implements Locatable,Transfering {
 	private long getSectorTimeUntilLackOfFood()
 	{
 		Context context = ContextMap.getContext();
-		ContextVars vars = context.get(ContextVars.class);
-		if(vars.versorgerstats.containsKey(getOwner()))
-		{
-			Map<Location,Long> locations = vars.versorgerstats.get(getOwner());
-			// Sektor wurde schonmal berechnet -> zurueckgeben
-			if(locations.containsKey(getLocation()))
-			{
-				return locations.get(getLocation());
-			}
-		}
-		// Sektor wurde noch nicht berechnet -> berechnen
+		
 		org.hibernate.Session db = context.getDB();
 		
+		Object unitsnahrung = db.createQuery("select sum(e.amount*t.nahrungcost+s.crew) from UnitCargoEntry as e,UnitType as t, Ship as s where e.key.unittype = t.id and e.key.destid = s.id and e.key.type = 2 and s.system=:system and s.x=:x and s.y=:y and s.owner = :user")
+									.setInteger("system", this.system)
+									.setInteger("x", this.x)
+									.setInteger("y", this.y)
+									.setEntity("user", this.owner)
+									.iterate()
+									.next();
+		
+		// Die bloeden Abfragen muessen sein weil die Datenbank meint NULL anstatt 0 zurueckgeben zu muessen.
+		long unitstofeed = 0;
+		if(unitsnahrung != null)
+		{
+			unitstofeed = (Long)unitsnahrung;
+		}
+		
+		Object crewnahrung = db.createQuery("select sum(crew) from Ship where system=:system and x=:x and y=:y and owner=:user")
+							.setInteger("system", this.system)
+							.setInteger("x", this.x)
+							.setInteger("y", this.y)
+							.setEntity("user", this.owner)
+							.iterate()
+							.next();
+		
+		long crewtofeed = 0;
+		if( crewnahrung != null)
+		{
+			crewtofeed = (Long)crewnahrung;
+		}
+		
+		long nahrungtofeed = (long)Math.ceil((unitstofeed + crewtofeed)/10.0);
+		
+		Object versorger = db.createQuery("select sum(s.nahrungcargo) from Ship as s where s.system=:system and s.x=:x and s.y=:y and s.owner=:user and (s.modules.versorger=1 or s.shiptype.versorger=1) and s.isfeeding=1")
+						.setInteger("system", this.system)
+						.setInteger("x", this.x)
+						.setInteger("y", this.y)
+						.setEntity("user", this.owner)
+						.iterate()
+						.next();
+		
+		long versorgernahrung = 0;
+		if( versorger != null)
+		{
+			versorgernahrung = (Long)versorger;
+		}
+		
+		/*
 		List<Ship> ships = Common.cast(db.createQuery("from Ship as s left join fetch s.modules left join fetch s.shiptype where s.owner=? and s.system=? and s.x=? and s.y=? and s.id > 0")
 				.setEntity(0, this.owner)
 				.setInteger(1, this.system)
@@ -1144,23 +1162,8 @@ public class Ship implements Locatable,Transfering {
 		{
 			crewtofeed = 1;
 		}
-		
-		if(vars.versorgerstats.containsKey(getOwner()))
-		{
-			Map<Location,Long> locations = vars.versorgerstats.get(getOwner());
-			
-			locations.put(getLocation(), versorgernahrung / crewtofeed);
-		}
-		else
-		{
-			Map<Location,Long> locations = new HashMap<Location,Long>();
-			
-			locations.put(getLocation(), versorgernahrung / crewtofeed);
-			
-			vars.versorgerstats.put(getOwner(), locations);
-		}
-		
-		return versorgernahrung / crewtofeed;
+		*/
+		return versorgernahrung / nahrungtofeed;
 	}
 	
 	private boolean lackOfFood() {

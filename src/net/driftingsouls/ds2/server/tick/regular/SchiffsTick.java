@@ -714,7 +714,7 @@ public class SchiffsTick extends TickController {
 					this.log("#"+retry+" User "+auser.getId()+" failed: "+e);
 					e.printStackTrace();
 					Common.mailThrowable(e, "ShipTick #"+retry+" Exception", "User: "+auser.getId()+"\nBattle: "+battle);
-	
+					db.evict(auser);
 					auser = (User)db.get(User.class, auser.getId());
 				}
 				finally {

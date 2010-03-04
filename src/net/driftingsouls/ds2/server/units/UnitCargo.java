@@ -24,11 +24,12 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.FlushMode;
 
 /**
  * Repraesentiert einen UnitCargo, also eine Liste von Einheiten mit jeweils einer bestimmten Menge, in DS.
@@ -39,6 +40,14 @@ import org.apache.commons.logging.LogFactory;
  */
 public class UnitCargo implements Cloneable {
 	private static final Log log = LogFactory.getLog(UnitCargo.class);
+	/**
+	 * Variable zum erkennen eines Baseneintrags.
+	 */
+	public static final int CARGO_ENTRY_BASE = 1;
+	/**
+	 * Variable zum erkennen eines Schiffseintrags.
+	 */
+	public static final int CARGO_ENTRY_SHIP = 2;
 	
 	/**
 	 * Diese Klasse ist fuer das Kapern gedacht um die verbleibende Crew auf.
@@ -94,7 +103,9 @@ public class UnitCargo implements Cloneable {
 		SHOWMASS,
 	};
 	
-	private List<Long[]> units = new ArrayList<Long[]>();
+	private List<UnitCargoEntry> units = new ArrayList<UnitCargoEntry>();
+	private int type;
+	private int destid;
 	
 	private boolean showmass = true;
 	
@@ -113,104 +124,103 @@ public class UnitCargo implements Cloneable {
 	 */
 	public UnitCargo(UnitCargo unitcargo) {
 		
-		List<Long[]> unitArray = unitcargo.getUnitArray();
+		List<UnitCargoEntry> unitArray = unitcargo.getUnitArray();
 		for( int i=0; i < unitArray.size(); i++ ) {
-			Long[] unit = unitArray.get(i);
+			UnitCargoEntry unit = unitArray.get(i);
 		
-			this.units.add(new Long[] {unit[0], unit[1]});
+			this.units.add(unit.clone());
 		}
 		
 		this.showmass = (Boolean)unitcargo.getOption(Option.SHOWMASS);
 	}
 	
-	private Long[] parseUnits(String str) {
-		String[] units = StringUtils.split(str, '|');
-		if( units.length != 2 ) {
-			throw new RuntimeException("Ungueltige Unit '"+str+"'");
-		}
-		return new Long[] {Long.parseLong(units[0]), Long.parseLong(units[1])};
-	}
-	
 	/**
-	 * Erstellt ein neues UnitCargo-Objekt aus einem UnitCargo-String.
-	 * @param source Der UnitCargo-String
+	 * Konstruktor, Stellt einen EinheitenCargo des Zielobjekts zusammen.
+	 * @param type Der Typ des Eintrages
+	 * @param destid Die ID des Zielobjektes
 	 */
-	public UnitCargo(String source ) {
-		this();
-		try {	
-			if( source.length() > 0 ) {
-					
-				String[] myunits = StringUtils.splitPreserveAllTokens(source, ';');
-				int unitcount = 0;
-				for( int i=0; i < myunits.length; i++ ) {
-					if( !myunits[i].equals("") ) { 
-						unitcount++;
-						units.add(parseUnits(myunits[i]));
-					}
-				}
-			}
-		}
-		catch( RuntimeException e ) {
-			log.error("Kann Cargo-String '"+source+"' nicht laden", e);
-			throw e;
-		}
+	public UnitCargo(int type, int destid)
+	{
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		this.units = Common.cast(db.createQuery("from UnitCargoEntry where key.type = :type and key.destid = :destid")
+													.setInteger("type", type)
+													.setInteger("destid", destid)
+													.list());
+		this.type = type;
+		this.destid = destid;
+		
 	}
 	
-	/**
-	 * Schreibt den UnitCargo in einen UnitCargostring.
-	 * @return der String mit dem UnitCargo
-	 */
-	public String getData( ) {
-		
-		StringBuilder unitString = new StringBuilder(units.size()*8);
-		
-		if( !units.isEmpty() ) {
-			for( Long[] aUnit : units ) {
-				if( aUnit[1] != 0 ) {
-					if( unitString.length() != 0 ) {
-						unitString.append(';');
-					}
-					unitString.append(Common.implode("|",aUnit ));
-				}
-			}
-		}
-		
-		return unitString.toString();
-	}
-	
-	protected List<Long[]> getUnitArray() {
+	protected List<UnitCargoEntry> getUnitArray() {
 		return units;
 	}
 	
 	/**
-	 * Gibt den aktuellen UnitCargo als UnitCargo-String zurueck.
-	 * @return Der UnitCargo-String
+	 * Speichert das aktuelle UnitCargoObjekt.
 	 */
-	public String save() {
-		return getData();
+	public void save() {
+		if( this.type == 0 || this.destid == 0)
+		{
+			log.warn("Nicht genug Daten zum speichern eines UnitCargoObjektes");
+			return;
+		}
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		db.setFlushMode(FlushMode.MANUAL);
+		
+		db.createQuery("delete from UnitCargoEntry where key.type = :type and key.destid = :destid")
+						.setInteger("type", this.type)
+						.setInteger("destid", this.destid)
+						.executeUpdate();
+		
+		HibernateFacade.evictAll(db,UnitCargoEntry.class);
+		
+		for( UnitCargoEntry entry : units)
+		{
+			entry.setTyp(this.type);
+			entry.setDestId(this.destid);
+			db.persist(entry);
+		}
+		
+		db.flush();
+		ContextMap.getContext().commit();
+		
+		db.setFlushMode(FlushMode.AUTO);
+	}
+	
+	/**
+	 * Setzt den Typ des UnitCargos.
+	 * @param type der Typ
+	 */
+	public void setTyp(int type)
+	{
+		this.type = type;
 	}
 
+	/**
+	 * Setzt die ID des Zielobjektes.
+	 * @param destid Die ID
+	 */
+	public void setDestId(int destid)
+	{
+		this.destid = destid;
+	}
+	
 	/**
 	 * Fuegt dem UnitCargo die angegebene Einheit in der angegebenen Hoehe hinzu.
 	 * @param unitid Die Einheit
 	 * @param count Die Anzahl an hinzuzufuegenden Einheiten
 	 */
 	public void addUnit( int unitid, long count ) {
-		boolean done = false;
-			
 		for( int i=0; i < units.size(); i++ ) {
-			Long[] aunit = units.get(i);
-			if( unitid == aunit[0]) {
-				aunit[1] = aunit[1]+count;
-				units.set(i, aunit);
-				done = true;
-				break;
+			UnitCargoEntry aunit = units.get(i);
+			if( unitid == aunit.getUnitTypeId()) {
+				aunit.setAmount(aunit.getAmount()+count);
+				return;
 			}
 		}
-		
-		if( !done ) {
-			units.add( new Long[] {Long.valueOf(unitid), count} );
-		}
+
+		units.add( new UnitCargoEntry(this.type, this.destid, unitid, count) );
 	}
 	
 	/**
@@ -220,10 +230,10 @@ public class UnitCargo implements Cloneable {
 	 */
 	public void substractUnit( int unitid, long count ) {
 		for( int i=0; i < units.size(); i++ ) {
-			Long[] aunit = units.get(i);
-			if( unitid == aunit[0]) {
-				aunit[1] = aunit[1]-count;
-				if( aunit[1] == 0 ) {
+			UnitCargoEntry aunit = units.get(i);
+			if( unitid == aunit.getUnitTypeId()) {
+				aunit.setAmount(aunit.getAmount()-count);
+				if( aunit.getAmount() == 0 ) {
 					units.remove(i);
 				}
 					return;
@@ -231,7 +241,7 @@ public class UnitCargo implements Cloneable {
 		}
 	
 		// Diese Anweisung wird nur ausgefuerht, wenn das Item nicht im Cargo vorhanden ist
-		units.add( new Long[] {Long.valueOf(unitid), -count} );
+		units.add( new UnitCargoEntry(this.type,this.destid,unitid,-count) );
 	}
 	
 	/**
@@ -267,9 +277,9 @@ public class UnitCargo implements Cloneable {
 	 */
 	public long getUnitCount( int unitid ) {
 		for( int i=0; i < units.size(); i++ ) {
-			Long[] aunit = units.get(i);
-			if( unitid == aunit[0]) {
-				return aunit[1];
+			UnitCargoEntry aunit = units.get(i);
+			if( unitid == aunit.getUnitTypeId()) {
+				return aunit.getAmount();
 			}
 		}
 		
@@ -281,59 +291,32 @@ public class UnitCargo implements Cloneable {
 	 * @return Die Gesamtmasse
 	 */
 	public long getMass() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 		long tmp = 0;
 		
 		for( int i=0; i < units.size(); i++ ) {
-			UnitType unittype = (UnitType)db.get(UnitType.class, units.get(i)[0].intValue());
+			UnitType unittype = units.get(i).getUnitType();
 			if( unittype == null ) {
-				log.warn("Unbekannte Einheit "+units.get(i)[0]+" geortet");
+				log.warn("Unbekannte Einheit "+units.get(i).getUnitTypeId()+" geortet");
 				continue;
 			}
-			tmp += units.get(i)[1]*unittype.getSize();
+			tmp += units.get(i).getAmount()*unittype.getSize();
 		} 
 		
 		return tmp;
 	}
 	
 	/**
-	 * Zieht vom UnitCargo den angegebenen UntCargo ab.
+	 * Zieht vom UnitCargo den angegebenen UnitCargo ab.
 	 * 
 	 * @param subcargo Der UnitCargo, um dessen Inhalt dieser UnitCargo verringert werden soll
 	 */
 	public void substractCargo( UnitCargo subcargo ) {
 
-		List<Long[]> units = subcargo.getUnitArray();
+		List<UnitCargoEntry> units = subcargo.getUnitArray();
 
 		if( !units.isEmpty() ) {			
-			for( Long[] unit : units ) {
-				// Nun suchen wir mal unsere Einheiten im UnitCargo
-				boolean found = false;
-				
-				if( !this.units.isEmpty() ) {
-					for(int i=0; i < this.units.size(); i++)
-					{
-						Long[] myunit = this.units.get(i);
-						if( myunit[0] != unit[0]) {
-							continue;
-						}
-						found = true;
-						long sum = myunit[1]-unit[1];
-						if( sum != 0 ) {
-							myunit[1] = sum;
-							this.units.set(i, myunit);
-						}
-						else {
-							this.units.remove(myunit);
-						}
-						break;
-					}
-				}
-
-				// Wurde die Einheit evt nicht in unserem UnitCargo gefunden? Dann neu hinzufuegen
-				if( !found ) {
-					this.units.add( new Long[] {unit[0], -unit[1]} );
-				}
+			for( UnitCargoEntry unit : units ) {
+				substractUnit(unit.getUnitTypeId(), unit.getAmount());
 			}
 		}
 	}
@@ -345,31 +328,11 @@ public class UnitCargo implements Cloneable {
 	 */
 	public void addCargo( UnitCargo addcargo ) {
 		
-		List<Long[]> units = addcargo.getUnitArray();
+		List<UnitCargoEntry> units = addcargo.getUnitArray();
 
 		if( !units.isEmpty() ) {			
-			for( Long[] unit : units ) {
-				// Nun suchen wir mal unsere Einheiten im UnitCargo
-				boolean found = false;
-				
-				if( !this.units.isEmpty() ) {
-					for(int i=0; i < this.units.size(); i++)
-					{
-						Long[] myunit = this.units.get(i);
-						if( myunit[0] != unit[0])
-						{
-							continue;
-						}
-						found = true;
-						this.units.set(i, new Long[] {myunit[0], myunit[1]+unit[1]});
-						break;
-					}
-				}
-
-				// Wurde die Einheit evt nicht in unserem UnitCargo gefunden? Dann neu hinzufuegen
-				if( !found ) {
-					this.units.add( new Long[] {unit[0], unit[1]} );
-				}
+			for( UnitCargoEntry unit : units ) {
+				addUnit(unit.getUnitTypeId(),unit.getAmount());
 			}
 		}
 	}
@@ -381,20 +344,14 @@ public class UnitCargo implements Cloneable {
 	 * @param count Die neue Menge
 	 */
 	public void setUnit( int unitid, long count ) {
-		boolean done = false;
 		for( int i=0; i < units.size(); i++ ) {
-			Long[] aunit = units.get(i);
-			if( unitid == aunit[0]) {
-				aunit[1] = count;
-				units.set(i, aunit);
-				done = true;
-				break;
+			UnitCargoEntry aunit = units.get(i);
+			if( unitid == aunit.getUnitTypeId()) {
+				aunit.setAmount(count);
+				return;
 			}
 		}
-		
-		if( !done ) {
-			units.add( new Long[] {Long.valueOf(unitid), count} );
-		}
+		units.add( new UnitCargoEntry(this.type,this.destid,unitid,count) );
 	}
 	
 	/**
@@ -409,8 +366,8 @@ public class UnitCargo implements Cloneable {
 		
 		for( int i=0; i < units.size(); i++ ) 
 		{
-			Long[] aunit = units.get(i);
-			if( aunit[1] > 0 ) 
+			UnitCargoEntry aunit = units.get(i);
+			if( aunit.getAmount() > 0 ) 
 			{
 				return false;
 			}
@@ -450,7 +407,7 @@ public class UnitCargo implements Cloneable {
 	public Object clone() {
 		try {
 			UnitCargo newcargo = (UnitCargo)super.clone();
-			newcargo.units = new ArrayList<Long[]>();
+			newcargo.units = new ArrayList<UnitCargoEntry>();
 			for( int i=0; i < this.units.size(); i++ ) {
 				newcargo.units.add(i, this.units.get(i).clone());
 			}
@@ -464,11 +421,6 @@ public class UnitCargo implements Cloneable {
 		}
 	}
 
-	@Override
-	public String toString() {
-		return save();
-	}
-	
 	/**
 	 * Gibt die Masse einer Einheit in einer bestimmten Menge zurueck.
 	 * 
@@ -506,36 +458,10 @@ public class UnitCargo implements Cloneable {
 			return false;
 		}
 		
-		// Bei vielen Einheiten etwas ineffizient
-		for( int i=0; i < this.units.size(); i++ ) {
-			Long[] unit = this.units.get(i);
-			
-			boolean found = false;
-			
-			for( int j=0; j < c.units.size(); j++ ) {
-				Long[] unit2 = c.units.get(j);
-				
-				// ID vergleichen
-				if( unit[0] != unit2[0] ) {
-					continue;
-				}
-				
-				// Einheit erfolgreich lokalisiert
-				found = true;
-				
-				if( unit[1] != unit2[1] ) {
-					return false;
-				}
-				
-				break;
-			}
-			
-			if( !found ) {
-				return false;
-			}
-		}
-
-		return true;
+		UnitCargo tmpcargo = (UnitCargo)clone();
+		tmpcargo.substractCargo(c);
+		
+		return tmpcargo.isEmpty();
 	}
 	
 	/**
@@ -549,12 +475,11 @@ public class UnitCargo implements Cloneable {
 			return 0;
 		}
 		
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 		int nahrungsverbrauch = 0;
-		for(Long[] aunit : units)
+		for(UnitCargoEntry aunit : units)
 		{
-			UnitType unittype = (UnitType)db.get(UnitType.class, aunit[0].intValue());
-			nahrungsverbrauch += unittype.getNahrungCost()* aunit[1];
+			UnitType unittype = aunit.getUnitType();
+			nahrungsverbrauch += unittype.getNahrungCost()* aunit.getAmount();
 		}
 		
 		return nahrungsverbrauch;
@@ -571,12 +496,11 @@ public class UnitCargo implements Cloneable {
 			return 0;
 		}
 		
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 		int reverbrauch = 0;
-		for(Long[] aunit : units)
+		for(UnitCargoEntry aunit : units)
 		{
-			UnitType unittype = (UnitType)db.get(UnitType.class, aunit[0].intValue());
-			reverbrauch += unittype.getReCost() * aunit[1];
+			UnitType unittype = aunit.getUnitType();
+			reverbrauch += unittype.getReCost() * aunit.getAmount();
 		}
 		
 		return reverbrauch;
@@ -593,12 +517,11 @@ public class UnitCargo implements Cloneable {
 			return 0;
 		}
 		
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 		int kapervalue = 0;
-		for(Long[] aunit : units)
+		for(UnitCargoEntry aunit : units)
 		{
-			UnitType unittype = (UnitType)db.get(UnitType.class, aunit[0].intValue());
-			kapervalue += unittype.getKaperValue() * aunit[1];
+			UnitType unittype = aunit.getUnitType();
+			kapervalue += unittype.getKaperValue() * aunit.getAmount();
 		}
 		
 		return kapervalue;
@@ -646,14 +569,13 @@ public class UnitCargo implements Cloneable {
 			return;
 		}
 		
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 		t.setVar(templateblock,"");
 		
-		for( Long[] aunit : units ) {
-			UnitType unittype = (UnitType)db.get(UnitType.class, aunit[0].intValue());
+		for( UnitCargoEntry aunit : units ) {
+			UnitType unittype = aunit.getUnitType();
 			
-			t.setVar(	"res.id", 			aunit[0],
-						"res.count",		Common.ln(aunit[1]),
+			t.setVar(	"res.id", 			aunit.getUnitTypeId(),
+						"res.count",		Common.ln(aunit.getAmount()),
 						"res.name",			unittype.getName(),
 						"res.picture",		unittype.getPicture() );
 			
@@ -670,20 +592,20 @@ public class UnitCargo implements Cloneable {
 	public HashMap<Integer, Long[]> compare( UnitCargo unitcargo )
 	{
 		HashMap<Integer, Long[]> unitlist = new HashMap<Integer, Long[]>();
-		for(Long[] unit : units)
+		for(UnitCargoEntry unit : units)
 		{
-			unitlist.put(unit[0].intValue(), new Long[] {unit[1], 0l});
+			unitlist.put(unit.getUnitTypeId(), new Long[] {unit.getAmount(), 0l});
 		}
 		
-		for(Long[] unit : unitcargo.getUnitArray())
+		for(UnitCargoEntry unit : unitcargo.getUnitArray())
 		{
-			if(unitlist.containsKey(unit[0].intValue()))
+			if(unitlist.containsKey(unit.getUnitTypeId()))
 			{
-				unitlist.put(unit[0].intValue(), new Long[] {unitlist.get(unit[0].intValue())[0], unit[1]});
+				unitlist.put(unit.getUnitTypeId(), new Long[] {unitlist.get(unit.getUnitTypeId())[0], unit.getAmount()});
 			}
 			else
 			{
-				unitlist.put(unit[0].intValue(), new Long[] {0l, unit[1]});
+				unitlist.put(unit.getUnitTypeId(), new Long[] {0l, unit.getAmount()});
 			}
 		}
 		
@@ -697,11 +619,11 @@ public class UnitCargo implements Cloneable {
 	public HashMap<Integer, Long> getUnitList()
 	{
 		HashMap<Integer, Long> unitlist = new HashMap<Integer, Long>();
-		for(Long[] unit : units)
+		for(UnitCargoEntry unit : units)
 		{
-			if(unit[1] != 0)
+			if(unit.getAmount() != 0)
 			{
-				unitlist.put(unit[0].intValue(), unit[1]);
+				unitlist.put(unit.getUnitTypeId(), unit.getAmount());
 			}
 		}
 		
@@ -738,7 +660,7 @@ public class UnitCargo implements Cloneable {
 		int totekapervalue = (int)Math.ceil((getKaperValue())*amulti*1.0/defmulti);
 		if(totekapervalue > kaperunitcargo.getKaperValue())
 		{
-			feindCrew.setValue(feindCrew.getValue() - (kaperunitcargo.getKaperValue() - totekapervalue) / 10);
+			feindCrew.setValue(feindCrew.getValue() - (totekapervalue - kaperunitcargo.getKaperValue()) / 10);
 			totekapervalue = kaperunitcargo.getKaperValue();
 		}
 		gefalleneeigeneUnits.addCargo(this);

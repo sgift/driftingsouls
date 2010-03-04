@@ -36,7 +36,6 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DSObject;
-import net.driftingsouls.ds2.server.units.HibernateUnitCargoType;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -55,10 +54,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 		@TypeDef(
 				name="cargo",
 				typeClass = HibernateCargoType.class
-		),
-		@TypeDef(
-				name="unitcargo",
-				typeClass = HibernateUnitCargoType.class
 		)
 	}
 )
