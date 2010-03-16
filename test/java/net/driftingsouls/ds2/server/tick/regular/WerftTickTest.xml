@@ -12,7 +12,7 @@
 
 	<bases id="1" name="Testasti" owner="1" x="1" y="1" system="1" bewohner="0" arbeiter="0" e="1000"
 		maxe="10000" cargo="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0," maxcargo="10000" klasse="1" width="5" height="8" maxtiles="40"
-		terrain="" bebauung="" active="" autogtuacts="" unitcargo="" spawnableress="" spawnressavailable="" />
+		terrain="" bebauung="" active="" autogtuacts="" spawnableress="" spawnressavailable="" />
 		
 	<!-- Basiswerft -->
 		

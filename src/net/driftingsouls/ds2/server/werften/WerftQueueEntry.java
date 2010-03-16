@@ -347,7 +347,6 @@ public class WerftQueueEntry {
 		ship.setCrew(shipd.getCrew());
 		ship.setHull(shipd.getHull());
 		ship.setCargo(new Cargo());
-		ship.setUnits(new UnitCargo());
 		ship.setEnergy(shipd.getEps());
 		ship.setHistory(history);
 		ship.setName(shipd.getNickname());

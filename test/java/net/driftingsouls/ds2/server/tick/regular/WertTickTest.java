@@ -70,5 +70,8 @@ public class WertTickTest extends DriftingSoulsDBTestCase
 		
 		count = (Long)sess.createQuery("select count(*) from Ship").iterate().next();
 		assertThat(count, is(8L));
+		
+		count = (Long)sess.createQuery("select count(*) from WerftObject").iterate().next();
+		assertThat(count, is(10L));
 	}
 }
