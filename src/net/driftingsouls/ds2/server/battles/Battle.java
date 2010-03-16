@@ -1220,7 +1220,7 @@ public class Battle implements Locatable {
 		int tick = context.get(ContextCommon.class).getTick();
 		
 		if( shiplist.size() > 1 ) {
-			int addedShips = shiplist.size();
+			int addedShips = shiplist.size()-1;
 			this.logenemy("<action side=\""+this.ownSide+"\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\nDie "+log_shiplink(shipd)+" ist zusammen mit "+addedShips+" weiteren Schiffen der Schlacht beigetreten\n]]></action>\n");
 			this.logme( "Die "+log_shiplink(shipd)+" ist zusammen mit "+addedShips+" weiteren Schiffen der Schlacht beigetreten\n\n" );
 		}
@@ -1556,13 +1556,12 @@ public class Battle implements Locatable {
 					if( config.getInt("DESTROYABLE_SHIPS") != 0 ) {
 						//destroyList.add(aship);
 						destroyShip(aship);
+						continue;
 					}
 					else {
+						aship.setAction(aship.getAction() ^ BS_DESTROYED);
 						continue; //Das Schiff kann nicht zerstoert werden
 					}
-					
-					aship.setAction(aship.getAction() ^ BS_DESTROYED);
-					//continue;
 				}
 				
 				

@@ -444,14 +444,13 @@ public class RestTick extends TickController {
 	
 	@Override
 	protected void tick() {
-		Database database = getContext().getDatabase();
 		org.hibernate.Session db = getDB();
 		
 		this.log("Transmissionen - gelesen+1");
-		database.update("UPDATE transmissionen SET gelesen=gelesen+1 WHERE gelesen>=2");
+		db.createQuery("UPDATE PM SET gelesen = gelesen+1 WHERE gelesen>=2").executeUpdate();
 		
 		this.log("Loesche alte Transmissionen");
-		database.update("DELETE FROM transmissionen WHERE gelesen>=10");
+		db.createQuery("DELETE FROM PM WHERE gelesen>=10").executeUpdate();
 		
 		this.log("Erhoehe Inaktivitaet der Spieler");
 		db.createQuery("update User set inakt=inakt+1 where vaccount=0")
@@ -483,9 +482,6 @@ public class RestTick extends TickController {
 		
 		this.doTasks();
 		getContext().commit();
-		
-		this.log("Zaehle Timeout bei Umfragen runter");
-		database.update("UPDATE surveys SET timeout=timeout-1 WHERE timeout>0");
 	}
 
 }

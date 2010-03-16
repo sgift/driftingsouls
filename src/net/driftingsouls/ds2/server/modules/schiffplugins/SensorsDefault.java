@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.bases.Werft;
+import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.JumpNode;
@@ -36,8 +37,6 @@ import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -108,7 +107,6 @@ public class SensorsDefault implements SchiffPlugin {
 		Offizier offizier = caller.offizier;
 		SchiffController controller = caller.controller;
 		
-		Database database = controller.getDatabase();
 		org.hibernate.Session db = controller.getDB();
 		User user = (User)controller.getUser();
 		TemplateEngine t = controller.getTemplateEngine();
@@ -300,41 +298,43 @@ public class SensorsDefault implements SchiffPlugin {
 			/*
 				Schlachten
 			*/
-			SQLQuery battle = database.query("SELECT * FROM battles WHERE x=",ship.getX()," AND y=",ship.getY()," AND system=",ship.getSystem());
-			while( battle.next() ) {
+			List<Battle> battles = Common.cast(db.createQuery("FROM Battle WHERE x=:x AND y=:y AND system=:system")
+										.setInteger("x", ship.getX())
+										.setInteger("y", ship.getY())
+										.setInteger("system", ship.getSystem())
+										.list());
+			
+			for( Battle battle : battles ) {
 				boolean questbattle = false;
-				if( (battle.getString("visibility") != null) && (battle.getString("visibility").length() > 0) ) {
-					Integer[] visibility = Common.explodeToInteger(",",battle.getString("visibility"));
-					if( Common.inArray(user.getId(),visibility) ) {
-						questbattle = true;
-					}
+				if( battle.isVisibleToUser(user) ) {
+					questbattle = true;
 				}
 				Ally ownAlly = user.getAlly();
 				String party1 = null;
 				String party2 = null;
 				
-				if( battle.getInt("ally1") == 0 ) {
-					User commander = (User)db.get(User.class, battle.getInt("commander1"));
+				if( battle.getAlly(0) == 0 ) {
+					User commander = battle.getCommander(0);
 					party1 = "<a class=\"profile\" href=\""+Common.buildUrl("default", "module", "userprofile", "user", commander.getId())+"\">"+Common._title(commander.getName())+"</a>";
 				} 
 				else {
-					Ally ally = (Ally)db.get(Ally.class, battle.getInt("ally1"));
+					Ally ally = (Ally)db.get(Ally.class, battle.getAlly(0));
 					party1 = "<a class=\"profile\" href=\""+Common.buildUrl("default", "module", "allylist", "details", ally.getId())+"\">"+Common._title(ally.getName())+"</a>";
 				}
 	
-				if( battle.getInt("ally2") == 0 ) {
-					User commander = (User)db.get(User.class, battle.getInt("commander2"));
+				if( battle.getAlly(1) == 0 ) {
+					User commander = battle.getCommander(1);
 					party2 = "<a class=\"profile\" href=\""+Common.buildUrl("default", "module", "userprofile", "user", commander.getId() )+"\">"+Common._title(commander.getName())+"</a>";
 				} 
 				else {
-					Ally ally = (Ally)db.get(Ally.class, battle.getInt("ally2"));
+					Ally ally = (Ally)db.get(Ally.class, battle.getAlly(1));
 					party2 = "<a class=\"profile\" href=\""+Common.buildUrl("default", "module", "allylist", "details", ally.getId())+"\">"+Common._title(ally.getName())+"</a>";
 				}
 				boolean fixedjoin = false;
-				if( (battle.getInt("commander1") == user.getId()) || 
-					(battle.getInt("commander2") == user.getId()) || 
-					( (ownAlly != null) && (battle.getInt("ally1") == ownAlly.getId()) ) || 
-					( (ownAlly != null) && (battle.getInt("ally2") == ownAlly.getId()) ) ) {
+				if( (battle.getCommander(0).getId() == user.getId()) || 
+					(battle.getCommander(1).getId() == user.getId()) || 
+					( (ownAlly != null) && (battle.getAlly(0) == ownAlly.getId()) ) || 
+					( (ownAlly != null) && (battle.getAlly(1) == ownAlly.getId()) ) ) {
 					fixedjoin = true;
 				}
 				boolean viewable = false;
@@ -348,10 +348,10 @@ public class SensorsDefault implements SchiffPlugin {
 				}
 					
 				long shipcount = (Long)db.createQuery("select count(*) from Ship where id>0 and battle= :battle")
-					.setInteger("battle", battle.getInt("id"))
+					.setInteger("battle", battle.getId())
 					.iterate().next();
 					
-				t.setVar(	"battle.id",		battle.getInt("id"),
+				t.setVar(	"battle.id",		battle.getId(),
 							"battle.party1",	party1,
 							"battle.party2",	party2,
 							"battle.side1",		Common._stripHTML(party1).replace("'", ""),
@@ -363,8 +363,7 @@ public class SensorsDefault implements SchiffPlugin {
 							"battle.quest",		questbattle );
 				t.parse("battles.list","battles.listitem",true);
 			}
-			battle.free();
-		
+			
 			/*
 				Subraumspalten (durch Sprungantriebe)
 			*/
@@ -494,15 +493,34 @@ public class SensorsDefault implements SchiffPlugin {
 					(user_wrapfactor != 0) && (mastertype.getGroupwrap() != 0) && 
 					(types.get(typeGroupID) >= mastertype.getGroupwrap()*user_wrapfactor) )  {
 					
-					int fleetlesscount = 0;
-					int ownfleetcount = 0;
+					long fleetlesscount = 0;
+					long ownfleetcount = 0;
 					String groupidlist = ""; 				
 					if( aship.getOwner().getId() == user.getId() ) {
-						fleetlesscount = database.first("SELECT count(*) count FROM ships WHERE id>0 AND system='",ship.getSystem(),"' AND x='",ship.getX(),"' AND y='",ship.getY(),"' AND owner='",user.getId(),"' AND type='",aship.getType(),"' AND !LOCATE('l ',docked) AND !LOCATE('disable_iff',status) AND fleet is null").getInt("count");
+						fleetlesscount = (Long)db.createQuery("SELECT count(*) FROM Ship WHERE id > 0 AND system=:system AND x=:x AND y=:y AND owner=:owner AND shiptype=:shiptype AND LOCATE('l ',docked) = 0 AND LOCATE('disable_iff',status) = 0 AND fleet is null")
+													.setInteger("system", ship.getSystem())
+													.setInteger("x", ship.getX())
+													.setInteger("y", ship.getY())
+													.setEntity("owner", ship.getOwner())
+													.setEntity("shiptype", ship.getBaseType())
+													.iterate().next();
 						if( ship.getFleet() != null ) {
-							ownfleetcount = database.first("SELECT count(*) count FROM ships WHERE id>0 AND system='",ship.getSystem(),"' AND x='",ship.getX(),"' AND y='",ship.getY(),"' AND owner='",user.getId(),"' AND type='",aship.getType(),"'  AND !LOCATE('l ',docked) AND !LOCATE('disable_iff',status) AND fleet=",ship.getFleet().getId()).getInt("count");
+							ownfleetcount = (Long)db.createQuery("SELECT count(*) FROM Ship WHERE id > 0 AND system=:system AND x=:x AND y=:y AND owner=:owner AND shiptype=:shiptype AND LOCATE('l ',docked) = 0 AND LOCATE('disable_iff',status) = 0 AND fleet =:fleet")
+														.setInteger("system", ship.getSystem())
+														.setInteger("x", ship.getX())
+														.setInteger("y", ship.getY())
+														.setEntity("owner", ship.getOwner())
+														.setEntity("shiptype", ship.getBaseType())
+														.setEntity("fleet", ship.getFleet())
+														.iterate().next();
 						}
-						groupidlist = database.first("SELECT GROUP_CONCAT(id SEPARATOR '|') grp FROM ships WHERE id>0 AND system='",ship.getSystem(),"' AND x='",ship.getX(),"' AND y='",ship.getY(),"' AND owner='",user.getId(),"' AND type='",aship.getType(),"'  AND !LOCATE('l ',docked) AND !LOCATE('disable_iff',status)").getString("grp");
+						groupidlist = (String)db.createQuery("SELECT CONCAT(id, '|') FROM Ship WHERE id>0 AND system=:system AND x=:x AND y=:y AND owner=:owner AND shiptype=:shiptype AND LOCATE('l ',docked) = 0 AND LOCATE('disable_iff',status) = 0")
+											.setInteger("system", ship.getSystem())
+											.setInteger("x", ship.getX())
+											.setInteger("y", ship.getY())
+											.setEntity("owner", user)
+											.setEntity("shiptype", aship.getBaseType())
+											.iterate().next();
 					}		
 					
 					t.start_record();
@@ -536,13 +554,26 @@ public class SensorsDefault implements SchiffPlugin {
 					if( (this.showOnly != 0) && firstentry ) {
 						int count = ships.size();		
 						
-						int fleetlesscount = 0;
-						int ownfleetcount = 0;					
+						long fleetlesscount = 0;
+						long ownfleetcount = 0;					
 						if( aship.getOwner().getId() == user.getId() ) {
-							fleetlesscount = database.first("SELECT count(*) count FROM ships WHERE id>0 AND system='",ship.getSystem(),"' AND x='",ship.getX(),"' AND y='",ship.getY(),"' AND owner='",user.getId(),"' AND type='",aship.getType(),"' AND docked='' AND fleet is null").getInt("count");
+							fleetlesscount = (Long)db.createQuery("SELECT count(*) FROM Ship WHERE id > 0 AND system=:system AND x=:x AND y=:y AND owner=:owner AND shiptype=:shiptype AND LOCATE('l ',docked) = 0 AND LOCATE('disable_iff',status) = 0 AND fleet is null")
+														.setInteger("system", ship.getSystem())
+														.setInteger("x", ship.getX())
+														.setInteger("y", ship.getY())
+														.setEntity("owner", ship.getOwner())
+														.setEntity("shiptype", ship.getBaseType())
+														.iterate().next();
 							if( ship.getFleet() != null ) {
-								ownfleetcount = database.first("SELECT count(*) count FROM ships WHERE id>0 AND system='",ship.getSystem(),"' AND x='",ship.getX(),"' AND y='",ship.getY(),"' AND owner='",user.getId(),"' AND type='",aship.getType(),"' AND docked='' AND fleet=",ship.getFleet().getId()).getInt("count");
-							}
+								ownfleetcount = (Long)db.createQuery("SELECT count(*) FROM Ship WHERE id > 0 AND system=:system AND x=:x AND y=:y AND owner=:owner AND shiptype=:shiptype AND LOCATE('l ',docked) = 0 AND LOCATE('disable_iff',status) = 0 AND fleet =:fleet")
+															.setInteger("system", ship.getSystem())
+															.setInteger("x", ship.getX())
+															.setInteger("y", ship.getY())
+															.setEntity("owner", ship.getOwner())
+															.setEntity("shiptype", ship.getBaseType())
+															.setEntity("fleet", ship.getFleet())
+															.iterate().next();
+}
 						}	
 						
 						t.setVar(	"sshipgroup.name",			count+" x "+mastertype.getNickname(),
@@ -772,7 +803,7 @@ public class SensorsDefault implements SchiffPlugin {
 					{
 						t.setVar("sships.action.crewtausch",1);
 					}
-					if( (!disableIFF || (aship.getOwner().getId() == user.getId())) && ashiptype.getUnitSpace() > 0 && shiptype.getUnitSpace() > 0 ) {
+					if( (aship.getOwner().getId() == user.getId()) && ashiptype.getUnitSpace() > 0 && shiptype.getUnitSpace() > 0 ) {
 						t.setVar("sships.action.unittausch",1);
 					}
 

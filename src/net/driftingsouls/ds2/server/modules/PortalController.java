@@ -37,6 +37,7 @@ import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.entities.NewsEntry;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -49,9 +50,6 @@ import net.driftingsouls.ds2.server.framework.authentication.AuthenticationManag
 import net.driftingsouls.ds2.server.framework.authentication.LoginDisabledException;
 import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
 import net.driftingsouls.ds2.server.framework.authentication.WrongPasswordException;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -131,7 +129,7 @@ public class PortalController extends TemplateGenerator {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void passwordLostAction() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		
 		parameterString("username");
@@ -141,33 +139,45 @@ public class PortalController extends TemplateGenerator {
 			t.setVar("show.passwordlost",1);
 		}
 		else {
-			username = db.prepareString(username);
-			SQLResultRow row = db.first("SELECT email,id FROM users WHERE un='",username,"'");
-			String email = row.getString("email");
-			int loguserid = row.getInt("id");
-
-			if( !"".equals(email) ) {
-				String password = Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE));
-				String enc_pw = Common.md5(password);
-				db.update("UPDATE users SET passwort='",enc_pw,"' WHERE un='",username,"'");
-
-				String subject = "Neues Passwort fuer Drifting Souls 2";
-				
-				String message = this.config.get("PWNEW_EMAIL").replace("{username}", getString("username"));
-				message = message.replace("{password}", password);
-				message = message.replace("{date}", Common.date("H:i j.m.Y"));
-				
-				Common.mail( email, subject, message );
-				
-				Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+loguserid+") <"+username+"> Passwortanforderung von Browser <"+getRequest().getUserAgent()+">\n");
-		
-				t.setVar(	"show.passwordlost.msg.ok", 1,
-							"passwordlost.email", email );
+			//username = db.prepareString(username);
+			//SQLResultRow row = db.first("SELECT email,id FROM users WHERE un='",username,"'");
+			//String email = row.getString("email");
+			//int loguserid = row.getInt("id");
+			
+			User user = (User)db.createQuery("from User where un = :username")
+							.setString("username", username)
+							.uniqueResult();
+			if( user != null)
+			{
+				if( !"".equals(user.getEmail()) ) {
+					String password = Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE));
+					String enc_pw = Common.md5(password);
+					
+					user.setPassword(enc_pw);
+					//db.update("UPDATE users SET passwort='",enc_pw,"' WHERE un='",username,"'");
+	
+					String subject = "Neues Passwort fuer Drifting Souls 2";
+					
+					String message = this.config.get("PWNEW_EMAIL").replace("{username}", getString("username"));
+					message = message.replace("{password}", password);
+					message = message.replace("{date}", Common.date("H:i j.m.Y"));
+					
+					Common.mail( user.getEmail(), subject, message );
+					
+					Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+username+"> Passwortanforderung von Browser <"+getRequest().getUserAgent()+">\n");
+			
+					t.setVar(	"show.passwordlost.msg.ok", 1,
+								"passwordlost.email", user.getEmail() );
+				}
+				else {
+					Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+username+"> Passwortanforderung von Browser <"+getRequest().getUserAgent()+">\n");
+	
+					t.setVar("show.passwordlost.msg.error",1);
+				}
 			}
-			else {
-				Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+loguserid+") <"+username+"> Passwortanforderung von Browser <"+getRequest().getUserAgent()+">\n");
-
-				t.setVar("show.passwordlost.msg.error",1);
+			else
+			{
+				Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> <"+username+"> Passwortanforderung von Browser <"+getRequest().getUserAgent()+">\n");
 			}
 		}
 	}
@@ -214,15 +224,14 @@ public class PortalController extends TemplateGenerator {
 	}
 	
 	private StartLocations getStartLocation() {
-		Database db = getDatabase();
-		org.hibernate.Session database = getDB();
+		org.hibernate.Session db = getDB();
 		
 		int systemID = 0;
 		int orderLocationID = 0;
 		int mindistance = 99999;
 		HashMap<Integer,StartLocation> minsysdistance = new HashMap<Integer,StartLocation>();
 		
-		List<?> systems = database.createQuery("from StarSystem order by id asc").list();
+		List<?> systems = db.createQuery("from StarSystem order by id asc").list();
 		for( Iterator<?> iter = systems.iterator(); iter.hasNext(); )
 		{
 			StarSystem system = (StarSystem)iter.next();
@@ -231,12 +240,25 @@ public class PortalController extends TemplateGenerator {
 			for( int i=0; i < locations.length; i++ ) {
 				int dist = 0;
 				int count = 0;
-				SQLQuery adist = db.query("SELECT sqrt((",locations[i].getX(),"-x)*(",locations[i].getX(),"-x)+(",locations[i].getY(),"-y)*(",locations[i].getY(),"-y)) distance FROM bases WHERE owner=0 AND system='",system.getID(),"' AND klasse=1 ORDER BY distance LIMIT 15");
+				Iterator<?> distiter = db.createQuery("SELECT sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y)) FROM Base WHERE owner = 0 AND system = :system AND klasse = 1 ORDER BY sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y))")
+											.setInteger("x", locations[i].getX())
+											.setInteger("y", locations[i].getY())
+											.setInteger("system", system.getID())
+											.setMaxResults(15)
+											.iterate();
+				
+				/*SQLQuery adist = db.query("SELECT sqrt((",locations[i].getX(),"-x)*(",locations[i].getX(),"-x)+(",locations[i].getY(),"-y)*(",locations[i].getY(),"-y)) distance FROM bases WHERE owner=0 AND system='",system.getID(),"' AND klasse=1 ORDER BY distance LIMIT 15");
 				while( adist.next() ) {
 					dist += adist.getInt("distance");
 					count++;
 				}
-				adist.free();
+				adist.free();*/
+				
+				while(distiter.hasNext())
+				{
+					dist += (Double)distiter.next();
+					count++;
+				}
 				
 				if( count < 15 ) {
 					continue;
@@ -257,23 +279,31 @@ public class PortalController extends TemplateGenerator {
 	}
 	
 	private boolean register( String username, String email, int race, int system, String key, ConfigValue keys) {
-		Database db = getDatabase();
-		org.hibernate.Session database = getDB();
+		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		
 		if( "".equals(username) || "".equals(email) ) {
 			return false;
 		}
 		
-		String uname = db.prepareString(username);
+	/*	String uname = db.prepareString(username);
 		SQLResultRow auser = db.first("SELECT * FROM users WHERE un='",uname,"'");
 		SQLResultRow auser2 = db.first("SELECT * FROM users WHERE email='",db.prepareString(email),"'");
-
-		if( !auser.isEmpty() ) {
+	 */
+		User user1 = (User)db.createQuery("from User where un = :username")
+						.setString("username", username)
+						.setMaxResults(1)
+						.uniqueResult();
+		User user2 = (User)db.createQuery("from User where email = :email")
+						.setString("email", email)
+						.setMaxResults(1)
+						.uniqueResult();
+		
+		if( user1 != null ) {
 			t.setVar("show.register.msg.wrongname",1);
 			return false;
 		}
-		if( !auser2.isEmpty() ) {
+		if( user2 != null ) {
 			t.setVar("show.register.msg.wrongemail",1);
 			return false;
 		}
@@ -292,8 +322,8 @@ public class PortalController extends TemplateGenerator {
 			return false;	
 		}
 		
-		StarSystem thissystem = (StarSystem)database.get(StarSystem.class, system);
-		List<StarSystem> systems = Common.cast(database.createQuery("from StarSystem").list());
+		StarSystem thissystem = (StarSystem)db.get(StarSystem.class, system);
+		List<StarSystem> systems = Common.cast(db.createQuery("from StarSystem").list());
 		
 		if( (system == 0) || (thissystem == null) || (thissystem.getOrderLocations().length == 0) ) {
 			t.setBlock("_PORTAL", "register.systems.listitem", "register.systems.list");
@@ -356,7 +386,7 @@ public class PortalController extends TemplateGenerator {
 		String password = Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE));
 		String enc_pw = Common.md5(password);
 
-		int maxid = db.first("SELECT max(id) maxid FROM users").getInt("maxid");
+		int maxid = (Integer)db.createQuery("SELECT max(id) FROM User").iterate().next();
 		int newid = maxid+1;
 
 		int ticks = getContext().get(ContextCommon.class).getTick();
@@ -394,7 +424,7 @@ public class PortalController extends TemplateGenerator {
 	 		}
 	 	}
 
-	 	Base base = (Base)getDB().createQuery("from Base where klasse=1 and owner=0 and system=? order by sqrt((?-x)*(?-x)+(?-y)*(?-y)) ")
+	 	Base base = (Base)db.createQuery("from Base where klasse=1 and owner=0 and system=? order by sqrt((?-x)*(?-x)+(?-y)*(?-y)) ")
 	 		.setInteger(0, system)
 	 		.setInteger(1, orderloc.getX())
 	 		.setInteger(2, orderloc.getX())
@@ -414,7 +444,7 @@ public class PortalController extends TemplateGenerator {
 			building.cleanup(getContext(), base, bebauung[i]);
 		}
 	 	
-		BaseType basetype = (BaseType)getDB().get(BaseType.class, 1);
+		BaseType basetype = (BaseType)db.get(BaseType.class, 1);
 	 	//User newuser = (User)getDB().get(User.class, newid);
 	 	
 	 	base.setEnergy(base.getMaxEnergy());
@@ -428,14 +458,11 @@ public class PortalController extends TemplateGenerator {
 	 	base.setMaxCargo(basetype.getCargo());
 	 	base.setCargo(new Cargo(Cargo.Type.STRING, this.config.get("REGISTER_BASECARGO")));
 	 	base.setCore(0);
-	 	UnitCargo unitcargo = new UnitCargo();
-	 	unitcargo.setTyp(UnitCargo.CARGO_ENTRY_BASE);
-	 	unitcargo.setDestId(base.getId());
-	 	base.setUnits(unitcargo);
+	 	base.setUnits(new UnitCargo());
 	 	base.setCoreActive(false);
 	 	base.setAutoGTUActs(new ArrayList<AutoGTUAction>());
 	 	
-	 	getDB().createQuery("update Offizier set userid=? where dest in (?, ?)")
+	 	db.createQuery("update Offizier set userid=? where dest in (?, ?)")
 	 		.setInteger(0, base.getOwner().getId())
 	 		.setString(1, "b "+base.getId())
 	 		.setString(2, "t "+base.getId())
@@ -448,12 +475,12 @@ public class PortalController extends TemplateGenerator {
 			}
 		}
 	 	
-	 	Nebel nebel = (Nebel)getDB().createQuery("from Nebel where loc.system=? and type<3 order by sqrt((?-loc.x)*(?-loc.x)+(?-loc.y)*(?-loc.y))*(mod(type+1,3)+1)*3")
+	 	Nebel nebel = (Nebel)db.createQuery("from Nebel where loc.system=? and type<3 order by sqrt((?-loc.x)*(?-loc.x)+(?-loc.y)*(?-loc.y))*(mod(type+1,3)+1)*3")
 	 		.setInteger(0, system)
-	 		.setInteger(1, orderloc.getX())
-	 		.setInteger(2, orderloc.getX())
-	 		.setInteger(3, orderloc.getY())
-	 		.setInteger(4, orderloc.getY())
+	 		.setInteger(1, base.getX())
+	 		.setInteger(2, base.getX())
+	 		.setInteger(3, base.getY())
+	 		.setInteger(4, base.getY())
 	 		.setMaxResults(1)
 	 		.uniqueResult();
 
@@ -467,7 +494,7 @@ public class PortalController extends TemplateGenerator {
 		}
 	 	
 		//Willkommens-PM versenden
-	 	User source = (User)getDB().get(User.class, this.config.getInt("REGISTER_PM_SENDER"));
+	 	User source = (User)db.get(User.class, this.config.getInt("REGISTER_PM_SENDER"));
 		PM.send( source, newid, "Willkommen bei Drifting Souls 2", 
 				this.config.get("REGISTER_PM"));
 		
@@ -707,7 +734,7 @@ public class PortalController extends TemplateGenerator {
 	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
-		Database db = getDatabase();
+		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		
 		parameterNumber("archiv");
@@ -724,14 +751,15 @@ public class PortalController extends TemplateGenerator {
 				"show.news.archiv", archiv );
 		t.setBlock("_PORTAL","news.listitem","news.list");
 
-		SQLQuery qhandle = db.query("SELECT * FROM portal_news ORDER BY date DESC LIMIT ",( archiv != 0 ? "5,100" : "5"));
-		while( qhandle.next() ) {
-			t.setVar(	"news.date", Common.date("d.m.Y H:i", qhandle.getInt("date")),
-						"news.title", qhandle.getString("title"),
-						"news.author", qhandle.getString("author"),
-						"news.text", Common._text(qhandle.getString("txt")) );
+		List<NewsEntry> allnews = Common.cast(db.createQuery("FROM NewsEntry ORDER BY date DESC LIMIT :limit")
+												.setInteger("limit", archiv != 0 ? 100 : 5)
+												.list());
+		for(NewsEntry news : allnews ) {
+			t.setVar(	"news.date", Common.date("d.m.Y H:i", news.getDate()),
+						"news.title", news.getTitle(),
+						"news.author", news.getAuthor(),
+						"news.text", Common._text(news.getNewsText()) );
 			t.parse("news.list","news.listitem",true);
 		}
-		qhandle.free();
 	}
 }

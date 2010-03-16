@@ -21,9 +21,11 @@ package net.driftingsouls.ds2.server.modules.ks;
 import java.io.IOException;
 import java.util.List;
 
+import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.Side;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
@@ -65,6 +67,7 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 		}
 		
 		List<BattleShip> shiplist = battle.getShips(Side.OWN);
+		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+ContextMap.getContext().get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
 		for( int key=0; key < shiplist.size(); key++ ) {
 			BattleShip aship = shiplist.get(key);
 			
@@ -82,9 +85,11 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 			}
 			else
 			{
+				battle.logenemy("]]></action>\n");
 				return RESULT_OK;
 			}
 		}
+		battle.logenemy("]]></action>\n");
 		return RESULT_OK;
 		
 	}

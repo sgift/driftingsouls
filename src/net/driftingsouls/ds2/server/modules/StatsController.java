@@ -198,6 +198,7 @@ public class StatsController extends DSGenerator {
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() throws IOException {
 		Database db = getDatabase();
+		org.hibernate.Session database = getDB();
 		
 		int stat = getInteger("stat");
 
@@ -213,10 +214,10 @@ public class StatsController extends DSGenerator {
 		int maxid = 0;
 		if( mystat.stat.getRequiredData() != 0 ) {
 			if( !mystat.stat.generateAllyData() ) {
-				maxid = db.first("SELECT MAX(id) maxid FROM users").getInt("maxid");
+				maxid = (Integer)database.createQuery("SELECT max(id) FROM User").iterate().next();
 			} 
 			else {
-				maxid = db.first("SELECT MAX(id) maxid FROM ally").getInt("maxid");
+				maxid = (Integer)database.createQuery("SELECT max(id) FROM Ally").iterate().next();
 			}
 		}
 		
@@ -254,7 +255,7 @@ public class StatsController extends DSGenerator {
 				bev.put(tmp.getInt("owner"), tmp.getInt("totalcrew"));
 			}
 			tmp.free();
-
+				
 			//Bevoelkerung (Basis) pro User ermitteln (+ zur Besatzung pro User addieren)
 			tmp = db.query("SELECT sum(bewohner) bewohner,owner FROM bases WHERE owner>",MIN_USER_ID," GROUP BY owner");
 			while( tmp.next() ){
@@ -267,17 +268,17 @@ public class StatsController extends DSGenerator {
 				}
 			}
 			tmp.free();
-		} 
+		}
 		else {
 			SQLQuery tmp = db.query("SELECT sum(s.crew) totalcrew, s.owner, count(*) shipcount, u.ally " +
 					"FROM ships s JOIN users u ON s.owner=u.id " +
 					"WHERE s.id>0 AND s.owner>",MIN_USER_ID," AND u.ally IS NOT NULL GROUP BY u.ally");
 			while( tmp.next() ) {
-		  		ships.put(tmp.getInt("ally"), tmp.getInt("shipcount"));
-		  		bev.put(tmp.getInt("ally"), tmp.getInt("totalcrew"));
+				ships.put(tmp.getInt("ally"), tmp.getInt("shipcount"));
+				bev.put(tmp.getInt("ally"), tmp.getInt("totalcrew"));
 			}
 			tmp.free();
-
+		
 			//Bevoelkerung (Basis) pro User ermitteln (+ zur Besatzung pro User addieren)
 			tmp = db.query("SELECT sum(s.bewohner) bewohner,u.ally " +
 					"FROM bases s JOIN users u ON s.owner=u.id " +

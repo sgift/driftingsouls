@@ -475,14 +475,14 @@ public class UnitCargo implements Cloneable {
 			return 0;
 		}
 		
-		int nahrungsverbrauch = 0;
+		double nahrungsverbrauch = 0;
 		for(UnitCargoEntry aunit : units)
 		{
 			UnitType unittype = aunit.getUnitType();
 			nahrungsverbrauch += unittype.getNahrungCost()* aunit.getAmount();
 		}
 		
-		return nahrungsverbrauch;
+		return (int)Math.ceil(nahrungsverbrauch);
 	}
 	
 	/**
@@ -496,14 +496,14 @@ public class UnitCargo implements Cloneable {
 			return 0;
 		}
 		
-		int reverbrauch = 0;
+		double reverbrauch = 0;
 		for(UnitCargoEntry aunit : units)
 		{
 			UnitType unittype = aunit.getUnitType();
 			reverbrauch += unittype.getReCost() * aunit.getAmount();
 		}
 		
-		return reverbrauch;
+		return (int)Math.ceil(reverbrauch);
 	}
 	
 	/**
@@ -754,14 +754,14 @@ public class UnitCargo implements Cloneable {
 				// Es koennen nicht mehr alle Einheiten versorgt werden
 				if(getUnitCount(unit.getId())*unit.getReCost() > restre)
 				{
-					long numunits = restre / unit.getReCost();
+					long numunits = (long)Math.ceil(restre / unit.getReCost());
 					substractUnit(unit.getId(), numunits);
 					meuterer.addUnit(unit.getId(), numunits);
 					restre -= numunits * unit.getReCost();
 				}
 				else
 				{
-					restre -= getUnitCount(unit.getId()) * unit.getReCost();
+					restre -= (long)Math.ceil(getUnitCount(unit.getId()) * unit.getReCost());
 				}
 			}
 		}

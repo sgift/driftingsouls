@@ -41,7 +41,6 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
 import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
@@ -82,7 +81,6 @@ public class PlayerDelete implements AdminPlugin
 	{
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
-		Database database = context.getDatabase();
 		org.hibernate.Session db = context.getDB();
 
 		int userid = context.getRequest().getParameterInt("userid");
@@ -358,7 +356,6 @@ public class PlayerDelete implements AdminPlugin
 			.executeUpdate();
 
 		echo.append("L&ouml;sche Umfrageeintraege...<br />\n");
-		database.update("DELETE FROM survey_voted WHERE user_id=" + userid);
 
 		echo.append("L&ouml;sche Usereintrag...<br />\n");
 		db.delete(user);

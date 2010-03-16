@@ -525,6 +525,8 @@ public class Ship implements Locatable,Transfering {
 	 * @param unitcargo Der UnitCargo
 	 */
 	public void setUnits(UnitCargo unitcargo) {
+		unitcargo.setTyp(UnitCargo.CARGO_ENTRY_SHIP);
+		unitcargo.setDestId(id);
 		unitcargo.save();
 	}
 	

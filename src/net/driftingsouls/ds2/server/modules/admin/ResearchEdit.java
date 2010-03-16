@@ -66,7 +66,6 @@ public class ResearchEdit implements AdminPlugin {
 		int techid = context.getRequest().getParameterInt("techid");
 		int changedata = context.getRequest().getParameterInt("changedata");
 		
-		//Database db = context.getDatabase();
 		org.hibernate.Session db = context.getDB();
 		
 		if( (changedata != 0) && (techid > 0) ) {

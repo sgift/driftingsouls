@@ -1435,4 +1435,11 @@
 	<update><![CDATA[
 		INSERT INTO `config` (`name`, `value`, `description`, `version`) VALUES ('maxverhungern', '100', 'Prozentsatz der Crew die maximal pro Tick verhungert', '0');
 	]]></update>
+	<update><![CDATA[
+		ALTER TABLE unit_types CHANGE nahrungcost nahrungcost float (0) NOT NULL;
+		ALTER TABLE unit_types CHANGE recost recost float (0) NOT NULL;
+	]]></update>
+	<update><![CDATA[
+		ALTER TABLE cargo_entries_units CHANGE descid destid int(11) NOT NULL;
+	]]></update>
 </updates>

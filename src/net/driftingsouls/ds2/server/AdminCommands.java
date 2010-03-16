@@ -101,7 +101,7 @@ public class AdminCommands {
 	public String executeCommand( String cmd ) {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
-		if( (user == null) || (user.getAccessLevel() < 20) ) {
+		if( (user == null) || !user.isAdmin() ) {
 			return "-1";
 		}
 		
@@ -467,8 +467,8 @@ public class AdminCommands {
 
 			User sourceUser = (User)context.getDB().get(User.class, -1);
 			
-			PM.send(sourceUser, battle.getCommander(0).getId(), "Schlacht beendet", "Die Schlacht bei "+battle.getLocation()+" wurde durch die Administratoren beendet");
-			PM.send(sourceUser, battle.getCommander(1).getId(), "Schlacht beendet", "Die Schlacht bei "+battle.getLocation()+" wurde durch die Administratoren beendet");
+			PM.send(sourceUser, battle.getCommander(0).getId(), "Schlacht beendet", "Die Schlacht bei "+battle.getLocation().displayCoordinates(false)+" wurde durch die Administratoren beendet");
+			PM.send(sourceUser, battle.getCommander(1).getId(), "Schlacht beendet", "Die Schlacht bei "+battle.getLocation().displayCoordinates(false)+" wurde durch die Administratoren beendet");
 		
 			battle.load(battle.getCommander(0), null, null, 0);
 			battle.endBattle(0, 0, false);

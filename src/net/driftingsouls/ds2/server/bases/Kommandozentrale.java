@@ -71,6 +71,7 @@ public class Kommandozentrale extends DefaultBuilding {
 		
 		base.setAutoGTUActs(new ArrayList<AutoGTUAction>());
 		User nullUser = (User)context.getDB().get(User.class, 0);
+		User oldUser = base.getOwner();
 		base.setOwner(nullUser);
 		Integer[] active = base.getActive();
 		for(int i = 0; i < active.length; i++)
@@ -86,17 +87,16 @@ public class Kommandozentrale extends DefaultBuilding {
 			.executeUpdate();
 		
 		//Check if we need to change the drop zone of the player to another system
-		User user = (User)db.get(User.class, context.getActiveUser().getId());
-		Set<Integer> systems = user.getAstiSystems();
+		Set<Integer> systems = oldUser.getAstiSystems();
 		
-		if(!systems.contains(user.getGtuDropZone()))
+		if(!systems.contains(oldUser.getGtuDropZone()))
 		{
 			ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "gtudefaultdropzone");
 			int defaultDropZone = Integer.valueOf(value.getValue());
-			if(user.getGtuDropZone() != defaultDropZone)
+			if(oldUser.getGtuDropZone() != defaultDropZone)
 			{
-				PM.send(nullUser, user.getId(), "GTU Dropzone ge&auml;ndert.", "Sie haben ihren letzten Asteroiden in System "+ user.getGtuDropZone() +" aufgegeben. Ihre GTU Dropzone wurde auf System "+ defaultDropZone +" gesetzt.");
-				user.setGtuDropZone(defaultDropZone);
+				PM.send(nullUser, oldUser.getId(), "GTU Dropzone ge&auml;ndert.", "Sie haben ihren letzten Asteroiden in System "+ oldUser.getGtuDropZone() +" aufgegeben. Ihre GTU Dropzone wurde auf System "+ defaultDropZone +" gesetzt.");
+				oldUser.setGtuDropZone(defaultDropZone);
 			}
 		}
 	}

@@ -42,8 +42,8 @@ public class UnitType {
 	private String name;
 	private int size;
 	private String description;
-	private int recost;
-	private int nahrungcost;
+	private double recost;
+	private double nahrungcost;
 	private int kapervalue;
 	@Type(type="cargo")
 	private Cargo buildcosts;
@@ -87,7 +87,7 @@ public class UnitType {
 	 * Gibt die RE-Kosten des Einheitentyps zurueck.
 	 * @return Die RE-Kosten
 	 */
-	public int getReCost() {
+	public double getReCost() {
 		return recost;
 	}
 
@@ -95,7 +95,7 @@ public class UnitType {
 	 * Gibt die Nahrungskosten des Einheitentyps zurueck.
 	 * @return Die Nahrungskosten
 	 */
-	public int getNahrungCost() {
+	public double getNahrungCost() {
 		return nahrungcost;
 	}
 	
@@ -167,7 +167,7 @@ public class UnitType {
 	 * Setzt die RE-Kosten.
 	 * @param reCost Die Kosten
 	 */
-	public void setReCost(int reCost) {
+	public void setReCost(double reCost) {
 		this.recost = reCost;
 	}
 
@@ -175,7 +175,7 @@ public class UnitType {
 	 * Setzt die Nahrungskosten des Einheitentyps.
 	 * @param nahrungcost Die Nahrungskosten
 	 */
-	public void setNahrungCost(int nahrungcost) {
+	public void setNahrungCost(double nahrungcost) {
 		this.nahrungcost = nahrungcost;
 	}
 	/**

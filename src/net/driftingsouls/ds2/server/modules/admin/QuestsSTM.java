@@ -20,13 +20,12 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
 
+import net.driftingsouls.ds2.server.entities.GlobalSectorTemplate;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
@@ -51,29 +50,29 @@ public class QuestsSTM implements AdminPlugin {
 		int scriptid = context.getRequest().getParameterInt("scriptid");
 		int newstm = context.getRequest().getParameterInt("newstm");
 		
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		
 		if( stmid.length() != 0 ) {
 			if( stmaction.equals("new") ) {			
 				echo.append(Common.tableBegin(550,"left"));
-				db.update("INSERT INTO global_sectortemplates (id,x,y,w,h,scriptid) " +
-							"VALUES ('"+stmid+"',"+x+","+y+","+w+","+h+",0)");
-							
+				GlobalSectorTemplate newtemplate = new GlobalSectorTemplate(stmid,x,y,w,h,0);
+				db.persist(newtemplate);
+				
 				echo.append("Sectortemplate hinzugef&uuml;gt");
 				echo.append(Common.tableEnd());	
 				echo.append("<br />\n");
 			}
 			else if( stmaction.equals("edit1") ) {
-				SQLResultRow st = db.first("SELECT * FROM global_sectortemplates WHERE id='"+stmid+"'");
+				GlobalSectorTemplate template = (GlobalSectorTemplate)db.get(GlobalSectorTemplate.class, stmid);
 				
 				echo.append(Common.tableBegin(550,"left"));
 				echo.append("<div align=\"center\">STM-ID bearbeiten:</div><br />\n");
 				echo.append("<form action=\"./ds\" method=\"post\">\n");
-				echo.append("id: <input type=\"text\" name=\"newstmid\" value=\""+st.getString("id")+"\" /><br />\n");
-				echo.append("Pos: <input type=\"text\" name=\"x\" value=\""+st.getInt("x")+"\" size=\"4\" />/\n");
-				echo.append("<input type=\"text\" name=\"y\" value=\""+st.getInt("y")+"\" size=\"4\"  /><br />\n");
-				echo.append("groesse (optional): <input type=\"text\" name=\"w\" value=\""+st.getInt("w")+"\" size=\"4\"  />/\n");
-				echo.append("<input type=\"text\" name=\"h\" value=\""+st.getInt("h")+"\" size=\"4\"  /><br /><br />\n");
+				echo.append("id: <input type=\"text\" name=\"newstmid\" value=\""+template.getId()+"\" /><br />\n");
+				echo.append("Pos: <input type=\"text\" name=\"x\" value=\""+template.getX()+"\" size=\"4\" />/\n");
+				echo.append("<input type=\"text\" name=\"y\" value=\""+template.getY()+"\" size=\"4\"  /><br />\n");
+				echo.append("groesse (optional): <input type=\"text\" name=\"w\" value=\""+template.getWidth()+"\" size=\"4\"  />/\n");
+				echo.append("<input type=\"text\" name=\"h\" value=\""+template.getHeigth()+"\" size=\"4\"  /><br /><br />\n");
 				echo.append("<input type=\"hidden\" name=\"stmid\" value=\""+stmid+"\" />\n");
 				echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
 				echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
@@ -85,11 +84,13 @@ public class QuestsSTM implements AdminPlugin {
 				echo.append("<br />\n");	
 			}
 			else if( stmaction.equals("edit2") ) {
-				db.update("UPDATE global_sectortemplates " +
-							"SET id='"+newstmid+"',x="+x+",y="+y+"," +
-							"w="+w+",h="+h+",scriptid="+scriptid+" " +
-							"WHERE id='"+stmid+"'");
-
+				GlobalSectorTemplate template = (GlobalSectorTemplate)db.get(GlobalSectorTemplate.class, stmid);
+				
+				GlobalSectorTemplate newtemplate = new GlobalSectorTemplate(newstmid, x, y, w, h, scriptid);
+				
+				db.delete(template);
+				db.persist(newtemplate);
+				
 				echo.append(Common.tableBegin(550,"left"));
 				echo.append("Update durchgef&uuml;hrt<br />");
 				echo.append(Common.tableEnd());
@@ -106,7 +107,8 @@ public class QuestsSTM implements AdminPlugin {
 			else if( stmaction.equals("delete2") ) {
 				echo.append(Common.tableBegin(550,"left"));
 			
-				db.update("DELETE FROM global_sectortemplates WHERE id='"+stmid+"'");
+				GlobalSectorTemplate template = (GlobalSectorTemplate)db.get(GlobalSectorTemplate.class, stmid);
+				db.delete(template);
 				echo.append("Sectortemplate '"+stmid+"' gel&ouml;scht");
 			
 				echo.append(Common.tableEnd());
@@ -133,20 +135,20 @@ public class QuestsSTM implements AdminPlugin {
 		}
 		
 		echo.append(Common.tableBegin(550,"left"));
-		SQLQuery st = db.query("SELECT * FROM global_sectortemplates");
-		while( st.next() ) {
-			echo.append("* <a class=\"forschinfo\" href=\"./ds?module=admin&act="+action+"&page="+page+"&stmid="+st.getString("id")+"&stmaction=edit1\">");
-			echo.append(st.getString("id")+"</a> - "+st.getInt("x")+"/"+st.getInt("y"));
-			if( (st.getInt("w") != 0) || (st.getInt("h") != 0) ) {
-				echo.append(" (Groesse: "+st.getInt("w")+"x"+st.getInt("h")+")");	
+		List<GlobalSectorTemplate> templates = Common.cast(db.createQuery("from GlobalSectorTemplate").list());
+		
+		for(GlobalSectorTemplate template : templates ) {
+			echo.append("* <a class=\"forschinfo\" href=\"./ds?module=admin&act="+action+"&page="+page+"&stmid="+template.getId()+"&stmaction=edit1\">");
+			echo.append(template.getId()+"</a> - "+template.getX()+"/"+template.getY());
+			if( (template.getWidth() != 0) || (template.getHeigth() != 0) ) {
+				echo.append(" (Groesse: "+template.getWidth()+"x"+template.getHeigth()+")");	
 			}	
-			if( st.getInt("scriptid") != 0 ) {
-				echo.append(" - Scriptid: "+st.getInt("scriptid"));	
+			if( template.getScriptId() != 0 ) {
+				echo.append(" - Scriptid: "+template.getScriptId());	
 			} 
-			echo.append(" <a class=\"error\" href=\"./ds?module=admin&act="+action+"&page="+page+"&stmid="+st.getString("id")+"&stmaction=delete1\">X</a>");
+			echo.append(" <a class=\"error\" href=\"./ds?module=admin&act="+action+"&page="+page+"&stmid="+template.getId()+"&stmaction=delete1\">X</a>");
 			echo.append("<br />\n");
 		}
-		st.free();
 		echo.append("<br />\n");
 		echo.append("<div align=\"center\"><a class=\"forschinfo\" href=\"./ds?module=admin&act="+action+"&page="+page+"&newstm=1\">&gt; neu &lt;</div>\n");
 		echo.append(Common.tableEnd());

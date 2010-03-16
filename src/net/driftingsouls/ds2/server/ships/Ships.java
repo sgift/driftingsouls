@@ -18,25 +18,14 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
-import net.driftingsouls.ds2.server.Offizier;
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.Nebel;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-
-import org.apache.commons.lang.StringUtils;
 
 /**
  * Diverse Funktionen rund um Schiffe in DS.
@@ -45,7 +34,6 @@ import org.apache.commons.lang.StringUtils;
  *
  */
 public class Ships {
-	private static final int MANGEL_TICKS = 9;
 
 	/**
 	 * Leert den Cache fuer Schiffsdaten.
@@ -62,107 +50,11 @@ public class Ships {
 	 * @return der neue Status-String
 	 */
 	public static String recalculateShipStatus(int shipID) {
-		Database db = ContextMap.getContext().getDatabase();
-
-		SQLResultRow ship = db.first("SELECT id,type,crew,status,cargo,owner,alarm,system,x,y FROM ships WHERE id>0 AND id='",shipID,"'");
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
-		SQLResultRow type = ShipTypes.getShipType(ship);
+		Ship ship = (Ship)db.get(Ship.class, shipID);
 		
-		Cargo cargo = new Cargo( Cargo.Type.STRING, ship.getString("cargo") );
-		
-		List<String> status = new ArrayList<String>();
-		
-		// Alten Status lesen und ggf Elemente uebernehmen
-		String[] oldstatus = StringUtils.split(ship.getString("status"), ' ');
-		
-		if( oldstatus.length > 0 ) {
-			for( int i=0; i < oldstatus.length; i++ ) {
-				String astatus = oldstatus[i];
-				if( !astatus.equals("disable_iff") && !astatus.equals("mangel_nahrung") && 
-					!astatus.equals("mangel_reaktor") && !astatus.equals("offizier") && 
-					!astatus.equals("nocrew") && !astatus.equals("nebel") && !astatus.equals("tblmodules") ) {
-					status.add(astatus);
-				}
-			}
-		}
-		
-		// Treibstoffverbrauch bereichnen
-		if( type.getInt("rm") > 0 ) {
-			long ep = cargo.getResourceCount( Resources.URAN ) * type.getInt("ru") + cargo.getResourceCount( Resources.DEUTERIUM ) * type.getInt("rd") + cargo.getResourceCount( Resources.ANTIMATERIE ) * type.getInt("ra");
-			long er = ep/type.getInt("rm");
-			
-			int turns = 2;
-			if( (ship.getInt("alarm") == 1) && (type.getInt("class") != ShipClasses.GESCHUETZ.ordinal()) ) {
-				turns = 4;	
-			}
-			
-			if( er <= MANGEL_TICKS/turns ) {
-				status.add("mangel_reaktor");
-			}
-		}
-		
-		// Ist Crew an Bord?
-		if( (type.getInt("crew") != 0) && (ship.getInt("crew") == 0) ) {
-			status.add("nocrew");	
-		}
-	
-		// Die Items nach IFF und Hydros durchsuchen
-		boolean disableIFF = false;
-	
-		if( cargo.getItemWithEffect(ItemEffect.Type.DISABLE_IFF) != null ) {
-			disableIFF = true;
-		}
-		
-		if( disableIFF ) {
-			status.add("disable_iff");
-		}
-		
-		Cargo usercargo = new Cargo( Cargo.Type.STRING, db.first("SELECT cargo FROM users WHERE id='"+ship.getInt("owner")+"'").getString("cargo"));
-		
-		// Den Nahrungsverbrauch berechnen
-		if( ship.getInt("crew") > 0 ) {
-			double scale = 1;
-			if( (ship.getInt("alarm") == 1) && (type.getInt("class") != ShipClasses.GESCHUETZ.ordinal()) ) {
-				scale = 0.9;	
-			}
-			
-			int nn = (int)Math.ceil(ship.getInt("crew")/scale) - type.getInt("hydro");
-			if( (nn > 0) || ((nn == 0) && (type.getInt("hydro") == 0)) ) {
-				if( nn == 0 )
-				{
-					nn = 1;
-				}
-				long nr = usercargo.getResourceCount( Resources.NAHRUNG )/nn;
-				
-				if( nr <= MANGEL_TICKS ) {
-					status.add("mangel_nahrung");
-				}
-			}
-		}
-		
-		// Ist ein Offizier an Bord?
-		Offizier offi = Offizier.getOffizierByDest('s', shipID);
-		if( offi != null ) {
-			status.add("offizier");
-		}
-		
-		/*SQLResultRow modules = db.first("SELECT id FROM ships_modules WHERE id="+shipID);
-		if( !modules.isEmpty() ) {
-			status.add("tblmodules");
-		}*/
-		
-		boolean savestatus = true;
-		
-		String statusString = Common.implode(" ", status);
-		if( ship.getString("status").equals(statusString) ) {
-			savestatus = false;
-		}
-	
-		if( savestatus ) {
-			db.tUpdate(1, "UPDATE ships SET status='"+statusString+"' WHERE id>0 AND id='",shipID,"' AND status='",ship.getString("status")+"'");
-		}
-		
-		return statusString;
+		return ship.recalculateShipStatus();
 	}
 
 	/**

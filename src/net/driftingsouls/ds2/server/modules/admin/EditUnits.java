@@ -67,8 +67,8 @@ public class EditUnits implements AdminPlugin
 			unit.setName(context.getRequest().getParameterString("name"));
 			unit.setPicture(context.getRequest().getParameterString("picture"));
 			unit.setDauer(context.getRequest().getParameterInt("dauer"));
-			unit.setNahrungCost(context.getRequest().getParameterInt("nahrungcost"));
-			unit.setReCost(context.getRequest().getParameterInt("recost"));
+			unit.setNahrungCost(Double.parseDouble(context.getRequest().getParameterString("nahrungcost")));
+			unit.setReCost(Double.parseDouble(context.getRequest().getParameterString("recost")));
 			unit.setKaperValue(context.getRequest().getParameterInt("kapervalue"));
 			unit.setSize(context.getRequest().getParameterInt("size"));
 			unit.setDescription(context.getRequest().getParameterString("description"));

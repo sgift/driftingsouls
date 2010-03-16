@@ -496,6 +496,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	 */
 	public void setUnits(UnitCargo unitcargo)
 	{
+		unitcargo.setTyp(UnitCargo.CARGO_ENTRY_BASE);
+		unitcargo.setDestId(id);
 		unitcargo.save();
 	}
 	
