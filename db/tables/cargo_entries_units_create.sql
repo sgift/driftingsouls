@@ -4,4 +4,4 @@ CREATE TABLE `cargo_entries_units` (
   `unittype` int(11) NOT NULL,
   `amount` int(11) NOT NULL,
   PRIMARY KEY  (`type`,`destid`,`unittype`)
-)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
