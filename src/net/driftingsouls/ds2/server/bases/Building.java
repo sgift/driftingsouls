@@ -148,6 +148,10 @@ public abstract class Building {
 	 * @return die Zufalls-Ressourcen
 	 */
 	public String getChanceRess() {
+		if( this.chanceress == null || this.chanceress.equals("null"))
+		{
+			return "";
+		}
 		return chanceress;
 	}
 	
@@ -492,6 +496,10 @@ public abstract class Building {
 	 */
 	public String getTerrain()
 	{
+		if( this.terrain == null || this.terrain.equals("null"))
+		{
+			return "";
+		}
 		return this.terrain;
 	}
 	

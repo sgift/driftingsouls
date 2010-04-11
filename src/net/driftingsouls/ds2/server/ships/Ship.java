@@ -1094,10 +1094,10 @@ public class Ship implements Locatable,Transfering {
 									.next();
 		
 		// Die bloeden Abfragen muessen sein weil die Datenbank meint NULL anstatt 0 zurueckgeben zu muessen.
-		long unitstofeed = 0;
+		double unitstofeed = 0;
 		if(unitsnahrung != null)
 		{
-			unitstofeed = (Long)unitsnahrung;
+			unitstofeed = (Double)unitsnahrung;
 		}
 		
 		Object crewnahrung = db.createQuery("select sum(crew) from Ship where system=:system and x=:x and y=:y and owner=:user")
