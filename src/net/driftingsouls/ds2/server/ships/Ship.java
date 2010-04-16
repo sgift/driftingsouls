@@ -176,6 +176,8 @@ public class Ship implements Locatable,Transfering {
 	
 	@Transient
 	private boolean destroyed = false;
+	@Transient
+	private UnitCargo unitcargo = null;
 	
 	@Transient
 	private Configuration config;
@@ -517,7 +519,11 @@ public class Ship implements Locatable,Transfering {
 	 * @return Der UnitCargo
 	 */
 	public UnitCargo getUnits() {
-		return new UnitCargo(UnitCargo.CARGO_ENTRY_SHIP, id);
+		if(unitcargo == null)
+		{
+			unitcargo = new UnitCargo(UnitCargo.CARGO_ENTRY_SHIP, id);
+		}
+		return unitcargo;
 	}
 
 	/**

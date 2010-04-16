@@ -1442,4 +1442,8 @@
 	<update><![CDATA[
 		ALTER TABLE cargo_entries_units CHANGE descid destid int(11) NOT NULL;
 	]]></update>
+	<update><![CDATA[
+		ALTER TABLE cargo_entries_units DROP `id`;
+		ALTER TABLE cargo_entries_units ADD PRIMARY KEY(`type`,`destid`,`unittype`);
+	]]></update>
 </updates>
