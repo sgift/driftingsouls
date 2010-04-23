@@ -1069,18 +1069,6 @@ public class User extends BasicUser {
 	}
 	
 	/**
-	 * Gibt zurueck, ob der User wegen einer Tickberechnung kurzzeitig blockiert wird.
-	 * @return <code>true</code>, falls er geblockt wird
-	 */
-	public boolean isBlocked() 
-	{
-		Session db = ContextMap.getContext().getDB();
-		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "tick");
-		boolean blocked = Integer.parseInt(value.getValue()) == 1;
-		return !isAdmin() && blocked;
-	}
-	
-	/**
 	 * Gibt an, ob der Spieler ein Admin ist.
 	 * 
 	 * @return <code>true</code>, wenn der Spieler Admin ist, sonst <code>false</code>.

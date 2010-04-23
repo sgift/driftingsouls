@@ -42,8 +42,6 @@ public class HibernateSessionRequestFilter implements Filter
         } 
         catch (Throwable ex) 
         {
-            // Rollback only
-            ex.printStackTrace();
             try 
             {
                 if (sf.getCurrentSession().getTransaction().isActive()) 

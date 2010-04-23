@@ -19,11 +19,11 @@
 package net.driftingsouls.ds2.server.framework.authentication;
 
 /**
- * Fehler beim Authentifizieren weil der Tick gerade den Account gesperrt hat.
+ * Fehler beim Zugriff auf DS, weil gerade ein Tick laeuft.
+ * 
  * @author Christopher Jung
- *
  */
-public class TickInProgressException extends AuthenticationException {
+public class TickInProgressException extends RuntimeException {
 	private static final long serialVersionUID = 7683711830944450958L;
 
 	/**
