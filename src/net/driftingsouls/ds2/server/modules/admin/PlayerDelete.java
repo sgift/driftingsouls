@@ -147,8 +147,6 @@ public class PlayerDelete implements AdminPlugin
 				echo.append("Fehler beim Beenden des Quests " + rquest.getQuest().getId() + ": "+ e);
 				log.error(e, e);
 				echo.append(Common.tableEnd());
-
-				context.rollback();
 			}
 		}
 

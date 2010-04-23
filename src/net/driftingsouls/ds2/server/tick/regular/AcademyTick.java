@@ -23,6 +23,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Transaction;
+
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.bases.AcademyQueueEntry;
 import net.driftingsouls.ds2.server.bases.Base;
@@ -31,7 +33,6 @@ import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 /**
@@ -68,14 +69,17 @@ public class AcademyTick extends TickController {
 	{
 		org.hibernate.Session db = getDB();
 
+		Transaction transaction = db.beginTransaction();
 		final User sourceUser = (User)db.get(User.class, -1);
 
 		List<?> accList = db.createQuery("from Academy " +
 		"where train=1 and (base.owner.vaccount=0 or base.owner.wait4vac!=0)").list();
-		for( Iterator<?> iter=accList.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=accList.iterator(); iter.hasNext(); ) 
+		{
 			Academy acc = (Academy)iter.next();
 
-			try {
+			try 
+			{
 				Base base = acc.getBase();
 
 				log("Akademie "+acc.getBaseId()+":");
@@ -85,7 +89,8 @@ public class AcademyTick extends TickController {
 				String msg = "";
 				
 				// Einen neuen Offizier ausbilden?
-				if( acc.getTrain() ) {
+				if( acc.getTrain() ) 
+				{
 					log("\tAusbildung laeuft");
 					
 					AcademyQueueEntry[] entries = acc.getScheduledQueueEntries();
@@ -134,11 +139,12 @@ public class AcademyTick extends TickController {
 					log("\tKeine Ausbildung vorhanden");
 				}
 
-				getContext().commit();
-				db.evict(acc);
-				HibernateFacade.evictAll(db, Offizier.class);
+				transaction.commit();
+				transaction = db.beginTransaction();
 			}
-			catch( RuntimeException e ) {
+			catch( RuntimeException e ) 
+			{
+				transaction.rollback();
 				this.log("Bearbeitung der Akademie "+acc.getBaseId()+" fehlgeschlagen: "+e);
 				e.printStackTrace();
 				Common.mailThrowable(e, "Academy Tick Exception", "Academy: "+acc.getBaseId());
@@ -158,7 +164,7 @@ public class AcademyTick extends TickController {
 			.setInteger("rang", i)
 			.executeUpdate();
 		}
-
+		transaction.commit();
 		log(count+" Offizier(e) befoerdert");
 	}
 }

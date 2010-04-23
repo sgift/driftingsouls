@@ -52,7 +52,8 @@ public class DefaultServletRequestFilter extends GenericFilterBean implements Fi
 	
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
-		if( !(req instanceof HttpServletRequest) ) {
+		if( !(req instanceof HttpServletRequest) ) 
+		{
 			chain.doFilter(req, resp);
 			log.error(this.getClass().getName()+" konnte Request nicht verarbeiten");
 			return;
@@ -60,91 +61,84 @@ public class DefaultServletRequestFilter extends GenericFilterBean implements Fi
 		
 		HttpServletRequest httpRequest = (HttpServletRequest)req;
 		HttpServletResponse httpResponse = (HttpServletResponse)resp;
-		
-		try {
-			// Refferer verstecken, um abgreifen der sessid zu vermeiden
+				
+		BasicContext context = null;
+		try 
+		{
+			// Hide refferer
 			httpResponse.setHeader("Referer", "http://ds.drifting-souls.net");
 			
 			Request request = new HttpRequest(httpRequest);
 			Response response = new HttpResponse(httpRequest, httpResponse);
 			
-			BasicContext context = null;
+			WebApplicationContext springContext = WebApplicationContextUtils.getRequiredWebApplicationContext(this.getServletContext());
 			
-			try {
-				WebApplicationContext springContext = WebApplicationContextUtils.getRequiredWebApplicationContext(this.getServletContext());
-				
-				context = new BasicContext(request, response);
-				context.putVariable(HttpServlet.class, "response", httpResponse);
-				context.putVariable(HttpServlet.class, "request", httpRequest);
-				context.putVariable(HttpServlet.class, "context", this.getServletContext());
-				context.putVariable(HttpServlet.class, "chain", chain);
-				
-				context.revalidate();
-				
-				try {
-					PipelineConfig config = (PipelineConfig)springContext.getBean("pipelineConfig", PipelineConfig.class);
-					Pipeline pipeline = config.getPipelineForContext(context);
-					
-					if( pipeline != null ) {
-						pipeline.execute(context);
-					}
-					else {
-						throw new Exception("Unable to find a suitable rule for URL '"+context.getRequest().getRequestURL()+(context.getRequest().getQueryString() != null ? "?"+context.getRequest().getQueryString() : "")+"'");
-					}
-					
-					context.getResponse().send();
-				}
-				catch( Throwable e ) {
-					log.error("Fatal Framework Exception", e);
-					
-					context.rollback();
-					
-					mailThrowable(httpRequest, context, e);
-					
-					e.printStackTrace();
-					httpResponse.setContentType("text/html");
-					PrintWriter writer = httpResponse.getWriter();
-					writer.append("<html><head><title>Drifting Souls Server Framework</title></head>");
-					writer.append("<body>");
-					writer.append("<table border=\"0\"><tr><td>\n");
-					writer.append("<div align=\"center\">\n");
-					writer.append("<h1>Drifting Souls Server Framework</h1>");
-					writer.append("Unhandled Exception "+e.getClass().getName()+" during pipeline execution detected<br />\n");
-					writer.append("Reason: "+e.getMessage()+"</div>\n");
-					writer.append("<hr style=\"height:1px; border:0px; background-color:#606060; color:#606060\" />");
-					StackTraceElement[] st = e.getStackTrace();
-					for( int i=0; i < st.length; i++ ) {
-						writer.append(st[i].toString()+"<br />\n");
-					}
-					writer.append("</td></tr></table></body></html>");
-				}
+			context = new BasicContext(request, response);
+			context.putVariable(HttpServlet.class, "response", httpResponse);
+			context.putVariable(HttpServlet.class, "request", httpRequest);
+			context.putVariable(HttpServlet.class, "context", this.getServletContext());
+			context.putVariable(HttpServlet.class, "chain", chain);
+			
+			context.revalidate();
+			PipelineConfig config = (PipelineConfig)springContext.getBean("pipelineConfig", PipelineConfig.class);
+			Pipeline pipeline = config.getPipelineForContext(context);
+			
+			if( pipeline != null ) 
+			{
+				pipeline.execute(context);
 			}
-			finally {
-				if( context != null ) {
-					context.free();
-				}
+			else 
+			{
+				throw new Exception("Unable to find a suitable rule for URL '"+context.getRequest().getRequestURL()+(context.getRequest().getQueryString() != null ? "?"+context.getRequest().getQueryString() : "")+"'");
 			}
+			
+			context.getResponse().send();
 		}
-		catch( Throwable e ) {
+		catch( Throwable e ) 
+		{
 			log.error("Fatal Framework Exception", e);
-			
 			mailThrowable(httpRequest, null, e);
+			httpResponse.setContentType("text/html");
+			PrintWriter writer = httpResponse.getWriter();
+			writer.append("<html><head><title>Drifting Souls Server Framework</title></head>");
+			writer.append("<body>");
+			writer.append("<table border=\"0\"><tr><td>\n");
+			writer.append("<div align=\"center\">\n");
+			writer.append("<h1>Drifting Souls Server Framework</h1>");
+			writer.append("Unhandled Exception "+e.getClass().getName()+"<br />\n");
+			writer.append("Reason: "+e.getMessage()+"</div>\n");
+			writer.append("<hr style=\"height:1px; border:0px; background-color:#606060; color:#606060\" />");
+			StackTraceElement[] st = e.getStackTrace();
+			for( int i=0; i < st.length; i++ ) {
+				writer.append(st[i].toString()+"<br />\n");
+			}
+			writer.append("</td></tr></table></body></html>");
+		}
+		finally 
+		{
+			if( context != null ) 
+			{
+				context.free();
+			}
 		}
 	}
 
-	private void mailThrowable(HttpServletRequest httpRequest, BasicContext context, Throwable t) {
+	private void mailThrowable(HttpServletRequest httpRequest, BasicContext context, Throwable t) 
+	{
 		StringBuilder msg = new StringBuilder(100);
 		msg.append("Time: "+new Date()+"\n");
 		msg.append("URI: "+httpRequest.getRequestURI()+"\n");
 		msg.append("PARAMS:\n");
-		for( Enumeration<?> e=httpRequest.getParameterNames(); e.hasMoreElements(); ) {
+		for( Enumeration<?> e=httpRequest.getParameterNames(); e.hasMoreElements(); ) 
+		{
 			String key = (String)e.nextElement();
 			msg.append("\t* "+key+" = "+httpRequest.getParameter(key)+"\n");
 		}
 		
 		msg.append("QUERY_STRING: "+httpRequest.getQueryString()+"\n");
 
-		if( context != null ) {
+		if( context != null ) 
+		{
 			msg.append("User: "+(context.getActiveUser() != null ? context.getActiveUser().getId() : "none")+"\n");
 		}
 		

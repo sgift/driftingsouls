@@ -18,22 +18,16 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.entities.Academy;
-import net.driftingsouls.ds2.server.entities.Factory;
-import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.tick.TickController;
-import net.driftingsouls.ds2.server.werften.WerftObject;
-import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
-import org.hibernate.StaleObjectStateException;
+import org.hibernate.FlushMode;
+import org.hibernate.Transaction;
 
 /**
  * <h1>Berechnung des Ticks fuer Basen.</h1>
@@ -55,123 +49,63 @@ public class BaseTick extends TickController
 	private void tickBases() 
 	{
 		org.hibernate.Session db = getDB();
-		
+		Transaction transaction = db.beginTransaction();
 		User sourceUser = (User)db.get(User.class, -1);
 		
-		// Nun holen wir uns mal die Basen...
-		List<?> bases = db.createQuery("from Base b join fetch b.owner where b.owner!=0 and (b.owner.vaccount=0 or b.owner.wait4vac!=0) order by b.owner").list();
-			
-		log("Kolonien: "+bases.size());
-		log("");
+		// Get all bases, take everything with them - we need it all.
+		List<Base> bases = Common.cast(db.createQuery("from Base b fetch all properties where b.owner!=0 and (b.owner.vaccount=0 or b.owner.wait4vac!=0) order by b.owner").setFetchSize(5000).list());
+		transaction.commit();	
 		
 		String messages = "";
-		for( Iterator<?> iter = bases.iterator(); iter.hasNext(); ) {
-			Base base = (Base)iter.next();
-			
-			// Muessen ggf noch alte Userdaten geschrieben und neue geladen werden?
-			if( base.getOwner().getId() != this.lastowner ) {
-				HibernateFacade.evictAll(db, 
-						WerftObject.class, 
-						WerftQueueEntry.class, 
-						Forschungszentrum.class,
-						Academy.class,
-						Factory.class);
-				
-				log(base.getOwner().getId()+":");
-				if( this.pmcache.length() != 0 ) {
-					this.pmcache.setLength(0);
-				}
-				
-				try {
-					getContext().commit();
-				}
-				catch( Exception e ) {
-					getContext().rollback();
-					if( e instanceof StaleObjectStateException ) {
-						evictStaleObjects(db, (StaleObjectStateException)e);
-					}
-					HibernateFacade.evictAll(db, PM.class);
-					db.evict(db.get(User.class, this.lastowner));
-					
-					this.log("Base Tick - User #"+this.lastowner+" failed: "+e);
-					e.printStackTrace();
-					Common.mailThrowable(e, "BaseTick - User #"+this.lastowner+" failed: "+e, "");
-				}
-			}
-			
-			if(this.lastowner != base.getOwner().getId() && !messages.trim().equals(""))
+		for(Base base: bases)
+		{
+			transaction = db.beginTransaction();
+			try
 			{
-				PM.send(sourceUser, this.lastowner, "Basis-Tick", messages);
-				messages = "";
-			}
-			
-			this.lastowner = base.getOwner().getId();
-			try 
-			{
-				messages += base.tick();
-				getContext().commit();
-			}
-			catch( Exception e ) 
-			{
-				getContext().rollback();
-				
-				if( e instanceof StaleObjectStateException ) 
+				// Muessen ggf noch alte Userdaten geschrieben und neue geladen werden?
+				if( base.getOwner().getId() != this.lastowner ) 
 				{
-					evictStaleObjects(db, (StaleObjectStateException)e);
+					log(base.getOwner().getId()+":");
+					if( this.pmcache.length() != 0 ) 
+					{
+						this.pmcache.setLength(0);
+					}
 				}
 				
-				this.log("Base Tick - Base #"+base.getId()+" failed: "+e);
-				e.printStackTrace();
-				Common.mailThrowable(e, "BaseTick - Base #"+base.getId()+" Exception", "");
+				if(this.lastowner != base.getOwner().getId() && !messages.trim().equals(""))
+				{
+					PM.send(sourceUser, this.lastowner, "Basis-Tick", messages);
+					messages = "";
+				}
+				
+				this.lastowner = base.getOwner().getId();
+				messages += base.tick();
+				transaction.commit();
 			}
-			finally 
+			catch(Exception e)
 			{
-				db.evict(base);
+				transaction.rollback();
+				e.printStackTrace();
+				Common.mailThrowable(e, "BaseTick Exception", "Base: " + base.getId());
 			}
 		}
 		
+		transaction = db.beginTransaction();
 		if(!messages.isEmpty())
 		{
 			PM.send(sourceUser, this.lastowner, "Basis-Tick", messages);
 		}
-		
-		try 
-		{
-			getContext().commit();
-		}
-		catch( Exception e ) 
-		{
-			getContext().rollback();
-			db.clear();
-			
-			this.log("Base Tick - User #"+this.lastowner+" failed: "+e);
-			e.printStackTrace();
-			Common.mailThrowable(e, "BaseTick - User #"+this.lastowner+" failed: "+e, "");
-		}
-	}
-
-	private void evictStaleObjects(org.hibernate.Session db, StaleObjectStateException e)
-	{
-		// Nicht besonders schoen, da moeglicherweise unangenehme Nebeneffekte auftreten koennen
-		// Eine solche Entity kann aber ebenso negative Effekte auf den Tick haben, wenn diese
-		// nicht entfernt wird
-		Object entity = db.get(e.getEntityName(), e.getIdentifier());
-		if( entity != null ) {
-			db.evict(entity);
-		}
+		transaction.commit();
 	}
 
 	@Override
 	protected void tick() 
 	{
-		try {
-			tickBases();
-			getContext().commit();
-		}
-		catch( Exception e ) {			
-			this.log("Base Tick failed: "+e);
-			e.printStackTrace();
-			Common.mailThrowable(e, "BaseTick Exception", "");
-		}
+		FlushMode oldMode = getDB().getFlushMode();
+		getDB().setFlushMode(FlushMode.MANUAL);
+		tickBases();
+		getDB().flush();
+		getDB().clear();
+		getDB().setFlushMode(oldMode);
 	}
 }

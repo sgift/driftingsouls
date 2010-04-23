@@ -45,7 +45,12 @@ import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
 
+import org.hibernate.CacheMode;
 import org.hibernate.FlushMode;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 /**
  * Berechnung des Ticks fuer Schiffe.
@@ -54,14 +59,13 @@ import org.hibernate.FlushMode;
  */
 public class SchiffsTick extends TickController {
 	private Map<String,ResourceID> esources;
-	private Map<Base,Long> savelist;
 	private Map<Location,List<Ship>> versorgerlist;
 	private boolean calledByBattle=false;
+	private int unflushedShips = 0;
 
 	@Override
-	protected void prepare() {
-		getDB().setFlushMode(FlushMode.MANUAL);
-		
+	protected void prepare() 
+	{
 		esources = new LinkedHashMap<String,ResourceID>();
 		esources.put("a", Resources.ANTIMATERIE);
 		esources.put("d", Resources.DEUTERIUM);
@@ -162,7 +166,6 @@ public class SchiffsTick extends TickController {
 					}
 				}
 			}
-			
 		}
 		
 		return versorgerlist;
@@ -177,7 +180,8 @@ public class SchiffsTick extends TickController {
 		return null;
 	}
 
-	private void tickShip( org.hibernate.Session db, Ship shipd ) {
+	private void tickShip( org.hibernate.Session db, Ship shipd, Map<Location, List<Base>> feedingBases) 
+	{
 		this.log(shipd.getName()+" ("+shipd.getId()+"):");
 	//	boolean recalc = false;
 
@@ -187,52 +191,29 @@ public class SchiffsTick extends TickController {
 
 		this.log("\tAlt: crew "+shipd.getCrew()+" e "+shipd.getEnergy() +" speicher "+shipd.getNahrungCargo());
 		
-		if(shipd.getNahrungCargo() < shiptd.getNahrungCargo())
+		long neededFood = shiptd.getNahrungCargo() - shipd.getNahrungCargo();
+		if(neededFood > 0)
 		{
-			this.log("\tNahrungsspeicher aufladen");
-			// Vom asti aufladen (wenn noetig)
-			List<?> bases = db.createQuery("from Base where owner=? and system=? and x=? and y=? and isfeeding=1")
-								.setEntity(0, shipd.getOwner())
-								.setInteger(1, shipd.getSystem())
-								.setInteger(2, shipd.getX())
-								.setInteger(3, shipd.getY())
-								.list();
-			
-			if(bases.size() > 0)
+			List<Base> bases = feedingBases.get(shipd.getLocation());
+			if(bases != null && bases.size() > 0)
 			{
-				for(Iterator<?> iter=bases.iterator();iter.hasNext();)
+				for(Base base: bases)
 				{
-					Base base = (Base)iter.next();
-					if(savelist.containsKey(base))
+					Cargo baseCargo = base.getCargo();
+					
+					long baseFood = baseCargo.getResourceCount(Resources.NAHRUNG);
+					long takenFood = Math.min(baseFood, neededFood);
+					baseCargo.substractResource(Resources.NAHRUNG, takenFood);
+					neededFood = neededFood - takenFood;
+					shipd.setNahrungCargo(shipd.getNahrungCargo() + takenFood);
+					base.setCargo(baseCargo);
+					
+					if(neededFood == 0)
 					{
-						Cargo basecargo = base.getCargo();
-						this.log("\tBasis "+base.getId()+" gefunden");
-						long needed = shiptd.getNahrungCargo() - shipd.getNahrungCargo();
-						this.log("\tBenoetige "+needed+" Nahrung");
-						long savenahrung = savelist.get(base);
-						long feednahrung = basecargo.getResourceCount(Resources.NAHRUNG) - savenahrung + shipd.getFoodConsumption();
-						if(feednahrung > basecargo.getResourceCount(Resources.NAHRUNG))
-						{
-							feednahrung = basecargo.getResourceCount(Resources.NAHRUNG);
-						}
-						if(feednahrung > needed)
-						{
-							this.log("\tGenug Nahrung auf Asteroid");
-							basecargo.substractResource(Resources.NAHRUNG, needed);
-							shipd.setNahrungCargo(shipd.getNahrungCargo()+needed);
-							this.log("\tSpeicher um "+needed+" aufgefuellt");
-							break;
-						}
-						needed = feednahrung;
-						shipd.setNahrungCargo(shipd.getNahrungCargo()+needed);
-						basecargo.substractResource(Resources.NAHRUNG, needed);
-						savelist.put(base, savenahrung - shipd.getFoodConsumption());
-						base.setCargo(basecargo);
-						this.log("\tSpeicher um "+needed+" aufgefuellt");
+						break;
 					}
 				}
 			}
-			this.log("\tBasen fertig.");
 		}
 
 		//Mein Mutterschiff - relevant bei gedockten Schiffen
@@ -260,17 +241,10 @@ public class SchiffsTick extends TickController {
 		
 		crewToFeed = consumeFood(shipd, crewToFeed, scaleFactor);
 		
-		// Nahrungsspeicher auf Maximum beschraenken.
-		if(shipd.getNahrungCargo() > shiptd.getNahrungCargo())
-		{
-			shipd.setNahrungCargo(shiptd.getNahrungCargo());
-		}
-		
 		//Crew die nicht versorgt werden konnte verhungern lassen
-		if(crewToFeed > 0) {
+		if(crewToFeed > 0) 
+		{
 			this.log("Crew verhungert - ");
-	//		recalc = true;
-		
 			if(crewToFeed >= (int)Math.ceil(shipd.getUnits().getNahrung() / 10.0)){
 				crewToFeed = crewToFeed - (int)Math.ceil(shipd.getUnits().getNahrung() / 10.0);
 				shipd.setUnits(new UnitCargo());
@@ -588,39 +562,25 @@ public class SchiffsTick extends TickController {
 		this.log(">");
 	}
 
-	private void tickUser(org.hibernate.Session db, User auser, String battle) {
-		
-		savelist = new HashMap<Base,Long>();
+	private void tickUser(org.hibernate.Session db, User auser, String battle) 
+	{
+		Map<Location, List<Base>> feedingBases = new HashMap<Location, List<Base>>();
 		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "corruption");
 		double corruption = Double.valueOf(value.getValue()) + auser.getCorruption();
 
-		// Schiffe berechnen
-		List<?> ships = db.createQuery(
-				"from Ship as s left join fetch s.modules" +
-				" where s.id>0 and s.owner=? " +
-				" and system!=0 and "+battle +
-				"order by s.shiptype.versorger DESC, " +
-				" s.modules.versorger DESC, s.shiptype.jDocks DESC," +
-				"s.modules.jDocks DESC,s.shiptype ASC")
-				.setEntity(0, auser)
-				.list();
+		List<Base> bases = Common.cast(db.createQuery("from Base where owner=? and isfeeding=?")
+										 .setEntity(0,auser)
+										 .setInteger(1, 1)
+										 .list());
 		
-
-		this.log(auser.getId()+": Es sind "+ships.size()+" Schiffe zu berechnen ("+battle+")");
-
-		versorgerlist = getLocationVersorgerList(db, auser);
-		
-		List<?> bases = db.createQuery("from Base where owner=?")
-									.setEntity(0,auser)
-									.list();
-		
-		for( Iterator<?> baseiter=bases.iterator();baseiter.hasNext();)
+		for(Base base: bases)
 		{
-			Base base = (Base)baseiter.next();
-			if(base.isFeeding())
+			Location location = base.getLocation();
+			if(!feedingBases.containsKey(location))
 			{
-				savelist.put(base, base.getSaveNahrung());
+				feedingBases.put(location, new ArrayList<Base>());
 			}
+			feedingBases.get(location).add(base);
 		}
 		
 		int balance = auser.getFullBalance()[1];
@@ -629,18 +589,34 @@ public class SchiffsTick extends TickController {
 		{
 			auser.setKonto(auser.getKonto().subtract(BigInteger.valueOf((long)(balance * corruption))));
 		}
-
-		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-			Ship ship = (Ship)iter.next();
-			
-			try {
-				this.tickShip( db, ship );
+		
+		// Schiffe berechnen
+		ScrollableResults ships = db.createQuery(
+				"from Ship as s fetch all properties" +
+				" where s.id>0 and s.owner=? " +
+				" and system!=0 and "+battle +
+				"order by s.shiptype.versorger DESC, " +
+				" s.modules.versorger DESC, s.shiptype.jDocks DESC," +
+				"s.modules.jDocks DESC,s.shiptype ASC")
+				.setEntity(0, auser)
+				.scroll(ScrollMode.FORWARD_ONLY);
+		
+		versorgerlist = getLocationVersorgerList(db, auser);
+		
+		while(ships.next())
+		{
+			Ship ship = (Ship)ships.get(0);
+			try 
+			{
+				this.tickShip(db, ship, feedingBases);
 			}
-			catch( RuntimeException e ) {
+			catch( RuntimeException e ) 
+			{
 				this.log("ship "+ship.getId()+" failed: "+e);
 				e.printStackTrace();
 				Common.mailThrowable(e, "SchiffsTick Exception", "ship: "+ship.getId());
 			}
+			unflushedShips++;
 		}
 	}
 
@@ -648,91 +624,117 @@ public class SchiffsTick extends TickController {
 	protected void tick() {
 		org.hibernate.Session db = getDB();
 		
-		String userlist = "";
 		String battle = "";
+		
+		List<User> userList = new ArrayList<User>();
 
+		Transaction transaction = db.beginTransaction();
 		// Wurden wir von einer Schlacht aufgerufen? (Parameter '--battle $schlachtid')
 		int battleid = getContext().getRequest().getParameterInt("battle");
-		if( battleid != 0 ) {
+		if( battleid != 0 ) 
+		{
 			this.calledByBattle = true;
 			battle = "s.battle="+battleid;
 
-			List<Integer> userIdList = new ArrayList<Integer>();
 			List<?> users = db.createQuery("select distinct owner from Ship where battle=?")
-			.setInteger(0, battleid)
-			.list();
-			for( Iterator<?> iter=users.iterator(); iter.hasNext(); ) {
+							  .setInteger(0, battleid)
+							  .list();
+			for( Iterator<?> iter=users.iterator(); iter.hasNext(); ) 
+			{
 				User auser = (User)iter.next();
-				userIdList.add(auser.getId());
-			}
-
-			if( userIdList.size() > 0 ) {
-				userlist = " and id in ("+Common.implode(",",userIdList)+") ";
+				userList.add(auser);
 			}
 		}
-		else {
+		else 
+		{
 			this.calledByBattle = false;
 			battle = "s.battle is null ";
 		}
+		transaction.commit();
 
-		int index = 0;
-
-		// Ueberhitzung
-		if( !this.calledByBattle ) {
-			db.createQuery("update Ship set heat=heat-(case when heat>=70 then 70 else heat end) " +
-			"where heat>0 and owner in (from User where vaccount=0 or wait4vac>0) and id>0 and system!=0 and battle is null")
-			.executeUpdate();
-		}
-
-		Iterator<?> useriter = db.createQuery("select id from User " +
-				"where id!=0 and (vaccount=0 or wait4vac>0) "+userlist+" order by id asc")
-				.list().iterator();
-		for(; useriter.hasNext(); ) {
-			int auserId = (Integer)useriter.next();
-
-			User auser = (User)db.get(User.class, auserId);
-
-			for( int retry=0; retry < 3; retry++ ) {
-				try {
-					
-					this.tickUser(db, auser, battle);
-	
-					if( !calledByBattle ) {
-						getDB().flush();
-						getContext().commit();
-					}
-					
-					break;
-				}
-				catch( RuntimeException e ) {
-					if( calledByBattle ) {
-						throw e;
-					}
-					
-					getContext().rollback();
-	
-					this.log("#"+retry+" User "+auser.getId()+" failed: "+e);
-					e.printStackTrace();
-					Common.mailThrowable(e, "ShipTick #"+retry+" Exception", "User: "+auser.getId()+"\nBattle: "+battle);
-					db.evict(auser);
-					auser = (User)db.get(User.class, auser.getId());
-				}
-				finally {
-					if( !calledByBattle ) {
-						db.evict(auser);
-					}
-				}
+		transaction = db.beginTransaction();
+		try
+		{
+			// Ueberhitzung
+			if( !this.calledByBattle ) 
+			{
+				db.createQuery("update Ship set heat=heat-(case when heat>=70 then 70 else heat end) " +
+				"where heat>0 and owner in (from User where vaccount=0 or wait4vac>0) and id>0 and system!=0 and battle is null")
+				.executeUpdate();
 			}
+			transaction.commit();
+		}
+		catch (Exception e) 
+		{
+			transaction.rollback();
+		}
+		
+		FlushMode flushMode = db.getFlushMode();
+		CacheMode cacheMode = db.getCacheMode();
+		db.setFlushMode(FlushMode.MANUAL);
+		db.setCacheMode(CacheMode.IGNORE);
 
-			if( !calledByBattle && (index++ % 5 == 0) ) {
-				getDB().flush();
-				getDB().clear();
+		transaction = db.beginTransaction();
+		List<User> users;
+		if(!userList.isEmpty())
+		{
+			users = userList;
+		}
+		else
+		{
+			users = Common.cast(db.createQuery("from User where id!=0 and (vaccount=0 or wait4vac>0) order by id asc")
+						  .list());
+		}
+		
+		for(User auser: users)
+		{
+			try 
+			{
+				this.tickUser(db, auser, battle);
+				transaction.commit();
+				transaction = getDB().beginTransaction();
+			}
+			catch( RuntimeException e ) 
+			{
+				if( calledByBattle ) 
+				{
+					throw e;
+				}
+				
+				transaction.rollback();
+				transaction = getDB().beginTransaction();
+				
+				this.log("User "+auser.getId()+" failed: "+e);
+				e.printStackTrace();
+				Common.mailThrowable(e, "ShipTick Exception", "User: "+auser.getId()+"\nBattle: "+battle);
+			}
+			
+			final int SHIP_FLUSH_SIZE = 50;
+			if(unflushedShips / SHIP_FLUSH_SIZE > 0)
+			{
+				db.flush();
+				db.clear();
+				unflushedShips = 0;
 			}
 		}
+		
+		transaction.commit();
+		
+		db.flush();
+		db.setCacheMode(cacheMode);
+		db.setFlushMode(flushMode);
 
-		getDB().setFlushMode(FlushMode.AUTO);
-
-		db.createQuery("update Ship set crew=0 where id>0 and crew<0").executeUpdate();
+		transaction = db.beginTransaction();
+		try
+		{
+			db.createQuery("update Ship set crew=0 where id>0 and crew<0").executeUpdate();
+			transaction.commit();
+		}
+		catch(Exception e)
+		{
+			transaction.rollback();
+			this.log("Shiptick: Resetting of crew to zero failed.");
+		}
 
 		if( this.calledByBattle ) {
 			return;
@@ -744,12 +746,21 @@ public class SchiffsTick extends TickController {
 		this.log("");
 		this.log("Zerstoere Schiffe mit 'destroy'-status");
 
-		List<?> ships = db.createQuery("from Ship where id>0 and locate('destroy',status)!=0").list();
-		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-			Ship aship = (Ship)iter.next();
-
-			this.log("\tEntferne "+aship.getId());
-			aship.destroy();
+		transaction = db.beginTransaction();
+		try
+		{
+			List<?> ships = db.createQuery("from Ship where id>0 and locate('destroy',status)!=0").list();
+			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
+				Ship aship = (Ship)iter.next();
+	
+				this.log("\tEntferne "+aship.getId());
+				aship.destroy();
+			}
+			transaction.commit();
+		}
+		catch(Exception e)
+		{
+			transaction.rollback();
 		}
 
 		/*
@@ -757,34 +768,49 @@ public class SchiffsTick extends TickController {
 		 */
 		this.log("");
 		this.log("Behandle Schadensnebel");
-		ships = db.createQuery("select s from Ship as s, Nebel as n " +
-		"where s.system=n.loc.system and s.x=n.loc.x and s.y=n.loc.y and n.type=6 and (s.owner.vaccount=0 or s.owner.wait4vac>0) and s.docked not like 'l %'").list();
-		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-			Ship ship = (Ship)iter.next();
-
-			this.log("* "+ship.getId());
-			int[] sub = new int[] {ship.getEngine(),ship.getWeapons(),ship.getComm(),ship.getSensors()};
-
-			for( int i=0; i < sub.length; i++ ) {
-				sub[i] -= 10;
-				if( sub[i] < 0 ) {
-					sub[i] = 0;
+		transaction = db.beginTransaction();
+		
+		try
+		{
+			List<?> ships = db.createQuery("select s from Ship as s, Nebel as n " +
+			"where s.system=n.loc.system and s.x=n.loc.x and s.y=n.loc.y and n.type=6 and (s.owner.vaccount=0 or s.owner.wait4vac>0) and s.docked not like 'l %'").list();
+			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) 
+			{
+				Ship ship = (Ship)iter.next();
+	
+				this.log("* "+ship.getId());
+				int[] sub = new int[] {ship.getEngine(),ship.getWeapons(),ship.getComm(),ship.getSensors()};
+	
+				for( int i=0; i < sub.length; i++ ) 
+				{
+					sub[i] -= 10;
+					if( sub[i] < 0 ) 
+					{
+						sub[i] = 0;
+					}
 				}
-			}
-
-			int hull = ship.getHull();
-			if( hull > 1 ) {
-				hull -= (int)(hull*0.05d);
-				if( hull < 1 ) {
-					hull = 1;
+	
+				int hull = ship.getHull();
+				if( hull > 1 ) 
+				{
+					hull -= (int)(hull*0.05d);
+					if( hull < 1 ) 
+					{
+						hull = 1;
+					}
 				}
+	
+				ship.setEngine(sub[0]);
+				ship.setWeapons(sub[1]);
+				ship.setComm(sub[2]);
+				ship.setSensors(sub[3]);
+				ship.setHull(hull);
 			}
-
-			ship.setEngine(sub[0]);
-			ship.setWeapons(sub[1]);
-			ship.setComm(sub[2]);
-			ship.setSensors(sub[3]);
-			ship.setHull(hull);
+			transaction.commit();
+		}
+		catch(Exception e)
+		{
+			transaction.rollback();
 		}
 	}
 }

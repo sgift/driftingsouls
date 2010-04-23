@@ -18,9 +18,6 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.util.Iterator;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.Kaserne;
@@ -29,6 +26,11 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.UnitType;
+
+import org.hibernate.CacheMode;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
+import org.hibernate.Transaction;
 
 /**
  * <h1>Berechnung des Ticks fuer Kasernen.</h1>
@@ -40,22 +42,23 @@ public class KaserneTick extends TickController {
 	
 	@Override
 	protected void prepare() 
-	{
-		
-	}
+	{}
 
 	@Override
 	protected void tick() 
 	{
 		org.hibernate.Session db = getDB();
+		Transaction transaction = db.beginTransaction();
 
 		final User sourceUser = (User)db.get(User.class, -1);
 
-		List<?> kaserneList = db.createQuery("from Kaserne").list();
-		for( Iterator<?> iter=kaserneList.iterator(); iter.hasNext(); ) {
-			Kaserne kaserne = (Kaserne)iter.next();
+		ScrollableResults kasernen = db.createQuery("from Kaserne").setCacheMode(CacheMode.IGNORE).scroll(ScrollMode.FORWARD_ONLY);
+		while(kasernen.next())
+		{
+			Kaserne kaserne = (Kaserne)kasernen.get(0);
 
-			try {
+			try 
+			{
 				Base base = kaserne.getBase();
 
 				log("Kaserne "+base.getId()+":");
@@ -91,11 +94,13 @@ public class KaserneTick extends TickController {
 					// Nachricht versenden
 					PM.send(sourceUser,base.getOwner().getId(), "Ausbildung abgeschlossen", msg);
 				}
-				
-				getContext().commit();
-				db.evict(kaserne);
+				transaction.commit();
+				transaction = db.beginTransaction();
 			}
-			catch( RuntimeException e ) {
+			catch( RuntimeException e ) 
+			{
+				transaction.rollback();
+				transaction = db.beginTransaction();
 				this.log("Bearbeitung der Kaserne "+kaserne.getBase().getId()+" fehlgeschlagen: "+e);
 				e.printStackTrace();
 				Common.mailThrowable(e, "Kaserne Tick Exception", "Kaserne: "+kaserne.getBase().getId());

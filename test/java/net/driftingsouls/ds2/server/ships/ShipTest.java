@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.entities.User;
 
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
+import org.hibernate.Transaction;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -53,11 +54,13 @@ public class ShipTest extends DriftingSoulsDBTestCase
 	@Before
 	public void loadShips()
 	{
-		this.tanker = (Ship)context.getDB().get(Ship.class, 1);
-		this.container1 = (Ship)context.getDB().get(Ship.class, 2);
-		this.container2 = (Ship)context.getDB().get(Ship.class, 3);
-		this.jaeger1 = (Ship)context.getDB().get(Ship.class, 4);
-		this.jaeger2 = (Ship)context.getDB().get(Ship.class, 5);
+		Transaction transaction = getDB().beginTransaction();
+		this.tanker = (Ship)getDB().get(Ship.class, 1);
+		this.container1 = (Ship)getDB().get(Ship.class, 2);
+		this.container2 = (Ship)getDB().get(Ship.class, 3);
+		this.jaeger1 = (Ship)getDB().get(Ship.class, 4);
+		this.jaeger2 = (Ship)getDB().get(Ship.class, 5);
+		transaction.commit();
 	}
 
 	/**
@@ -66,6 +69,7 @@ public class ShipTest extends DriftingSoulsDBTestCase
 	@Test
 	public void testDock()
 	{
+		Transaction transaction = db.beginTransaction();
 		assertThat(this.container1.isLanded() || this.container1.isDocked(), is(false));
 		assertThat(this.container2.isLanded() || this.container2.isDocked(), is(false));
 		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
@@ -88,6 +92,7 @@ public class ShipTest extends DriftingSoulsDBTestCase
 
 		// Wiederholtes docken sollte nicht funktionieren
 		assertThat(this.tanker.dock(this.container2), is(true));
+		transaction.commit();
 	}
 	
 	/**
@@ -96,11 +101,13 @@ public class ShipTest extends DriftingSoulsDBTestCase
 	@Test
 	public void testDockUserWithSuperDock()
 	{
-		User user2 = (User)this.context.getDB().get(User.class, 2);
+		Transaction transaction = db.beginTransaction();
+		User user2 = (User)this.getDB().get(User.class, 2);
 		user2.setFlag(User.FLAG_SUPER_DOCK);
 		this.tanker.setOwner(user2);
 		
-		this.context.commit();
+		transaction.commit();
+		transaction = db.beginTransaction();
 		
 		assertThat(this.container1.isLanded() || this.container1.isDocked(), is(false));
 		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
@@ -110,6 +117,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 		assertThat("" + this.container1.getBaseShip().getId(), is("" + this.tanker.getId()));
 		assertThat(this.tanker.getTypeData().getCargo(), is(3000L));
 		assertThat(this.container1.getTypeData().getCargo(), is(0L));
+		
+		transaction.commit();
 	}
 	
 	/**
@@ -118,10 +127,12 @@ public class ShipTest extends DriftingSoulsDBTestCase
 	@Test
 	public void testDockUserWithoutSuperDock()
 	{
-		User user2 = (User)this.context.getDB().get(User.class, 2);
+		Transaction transaction = db.beginTransaction();
+		User user2 = (User)this.getDB().get(User.class, 2);
 		this.tanker.setOwner(user2);
 		
-		this.context.commit();
+		transaction.commit();
+		transaction = db.beginTransaction();
 		
 		assertThat(this.container1.isLanded() || this.container1.isDocked(), is(false));
 		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
@@ -131,6 +142,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 		assertThat(this.container1.isLanded() || this.container1.isDocked(), is(false));
 		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
 		assertThat(this.container1.getTypeData().getCargo(), is(1500L));
+		
+		transaction.commit();
 	}
 
 	/**
@@ -139,6 +152,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 	@Test
 	public void testDockGroup()
 	{
+		Transaction transaction = db.beginTransaction();
+		
 		assertThat(this.container1.isLanded() || this.container1.isDocked(), is(false));
 		assertThat(this.container2.isLanded() || this.container2.isDocked(), is(false));
 		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
@@ -151,6 +166,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 		assertThat(this.tanker.getTypeData().getCargo(), is(4500L));
 		assertThat(this.container1.getTypeData().getCargo(), is(0L));
 		assertThat(this.container2.getTypeData().getCargo(), is(0L));
+		
+		transaction.commit();
 	}
 
 	/**
@@ -159,6 +176,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 	@Test
 	public void testUndock()
 	{
+		Transaction transaction = db.beginTransaction();
+		
 		assertThat(this.tanker.dock(this.container1, this.container2), is(false));
 		assertThat("" + this.container1.getBaseShip().getId(), is("" + this.tanker.getId()));
 		assertThat("" + this.container2.getBaseShip().getId(), is("" + this.tanker.getId()));
@@ -166,7 +185,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 		assertThat(this.container1.getTypeData().getCargo(), is(0L));
 		assertThat(this.container2.getTypeData().getCargo(), is(0L));
 
-		this.context.commit();
+		transaction.commit();
+		transaction = db.beginTransaction();
 
 		this.tanker.undock(this.container1);
 		assertThat(this.container1.isLanded() || this.container1.isDocked(), is(false));
@@ -174,6 +194,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 		assertThat(this.tanker.getTypeData().getCargo(), is(3000L));
 		assertThat(this.container1.getTypeData().getCargo(), is(1500L));
 		assertThat(this.container2.getTypeData().getCargo(), is(0L));
+		
+		transaction.commit();
 	}
 	
 	/**
@@ -182,6 +204,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 	@Test
 	public void testUndockAll()
 	{
+		Transaction transaction = db.beginTransaction();
+		
 		assertThat(this.tanker.dock(this.container1, this.container2), is(false));
 		assertThat("" + this.container1.getBaseShip().getId(), is("" + this.tanker.getId()));
 		assertThat("" + this.container2.getBaseShip().getId(), is("" + this.tanker.getId()));
@@ -189,7 +213,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 		assertThat(this.container1.getTypeData().getCargo(), is(0L));
 		assertThat(this.container2.getTypeData().getCargo(), is(0L));
 
-		this.context.commit();
+		transaction.commit();
+		transaction = db.beginTransaction();
 
 		this.tanker.undock();
 		assertThat(this.container1.isLanded() || this.container1.isDocked(), is(false));
@@ -197,6 +222,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
 		assertThat(this.container1.getTypeData().getCargo(), is(1500L));
 		assertThat(this.container2.getTypeData().getCargo(), is(1500L));
+		
+		transaction.commit();
 	}
 	
 	/**
@@ -205,6 +232,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 	@Test
 	public void testUndockList()
 	{
+		Transaction transaction = db.beginTransaction();
+		
 		assertThat(this.tanker.dock(this.container1, this.container2), is(false));
 		assertThat("" + this.container1.getBaseShip().getId(), is("" + this.tanker.getId()));
 		assertThat("" + this.container2.getBaseShip().getId(), is("" + this.tanker.getId()));
@@ -212,7 +241,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 		assertThat(this.container1.getTypeData().getCargo(), is(0L));
 		assertThat(this.container2.getTypeData().getCargo(), is(0L));
 
-		this.context.commit();
+		transaction.commit();
+		transaction = db.beginTransaction();
 
 		this.tanker.undock(this.container1, this.container2);
 		assertThat(this.container1.isLanded() || this.container1.isDocked(), is(false));
@@ -228,6 +258,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 	@Test
 	public void testStart()
 	{
+		Transaction transaction = db.beginTransaction();
+		
 		assertThat(this.tanker.land(this.jaeger1, this.jaeger2), is(false));
 		assertThat("l " + this.jaeger1.getBaseShip().getId(), is("l " + this.tanker.getId()));
 		assertThat("l " + this.jaeger2.getBaseShip().getId(), is("l " + this.tanker.getId()));
@@ -235,7 +267,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 		assertThat(this.jaeger1.getTypeData().getCargo(), is(1500L));
 		assertThat(this.jaeger2.getTypeData().getCargo(), is(1500L));
 
-		this.context.commit();
+		transaction.commit();
+		transaction = db.beginTransaction();
 
 		this.tanker.start(this.jaeger1);
 		assertThat(this.jaeger1.isLanded() || this.jaeger1.isDocked(), is(false));
@@ -258,6 +291,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 	@Test
 	public void testStartAll()
 	{
+		Transaction transaction = db.beginTransaction();
+		
 		assertThat(this.tanker.land(this.jaeger1, this.jaeger2), is(false));
 		assertThat("l " + this.jaeger1.getBaseShip().getId(), is("l " + this.tanker.getId()));
 		assertThat("l " + this.jaeger1.getBaseShip().getId(), is("l " + this.tanker.getId()));
@@ -265,20 +300,23 @@ public class ShipTest extends DriftingSoulsDBTestCase
 		assertThat(this.jaeger1.getTypeData().getCargo(), is(1500L));
 		assertThat(this.jaeger2.getTypeData().getCargo(), is(1500L));
 
-		this.context.commit();
+		transaction.commit();
+		transaction = db.beginTransaction();
 
 		this.tanker.start();
 		
 		// TODO: Refresh ist momentan notwendig, da die Objekte innerhalb 
 		// der Session nicht aktualisiert werden
-		context.getDB().refresh(this.jaeger1);
-		context.getDB().refresh(this.jaeger2);
+		getDB().refresh(this.jaeger1);
+		getDB().refresh(this.jaeger2);
 		
 		assertThat(this.jaeger1.isLanded() || this.jaeger1.isDocked(), is(false));
 		assertThat(this.jaeger2.isLanded() || this.jaeger2.isDocked(), is(false));
 		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
 		assertThat(this.jaeger1.getTypeData().getCargo(), is(1500L));
 		assertThat(this.jaeger2.getTypeData().getCargo(), is(1500L));
+		
+		transaction.commit();
 	}
 	
 	/**
@@ -287,6 +325,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 	@Test
 	public void testGetDockedList()
 	{
+		Transaction transaction = db.beginTransaction();
+		
 		// Ausgangslage: Liste ist leer - keine Schiffe gedockt
 		assertThat(this.tanker.getDockedShips().size(), is(0));
 		
@@ -295,7 +335,8 @@ public class ShipTest extends DriftingSoulsDBTestCase
 		assertThat("" + this.container1.getBaseShip().getId(), is("" + this.tanker.getId()));
 		assertThat("" + this.container2.getBaseShip().getId(), is("" + this.tanker.getId()));
 
-		this.context.commit();
+		db.beginTransaction();
+		transaction = db.beginTransaction();
 
 		// Liste muss beide Container beinhalten
 		assertThat(this.tanker.getDockedShips().size(), is(2));
@@ -303,11 +344,14 @@ public class ShipTest extends DriftingSoulsDBTestCase
 		assertThat(this.tanker.getDockedShips().contains(this.container2), is(true));
 		
 		this.tanker.undock(this.container1);
-		this.context.commit();
+		transaction.commit();
+		transaction = db.beginTransaction();
 		
 		// Die Liste muss nun nur noch den zweiten Container enthalten
 		assertThat(this.tanker.getDockedShips().size(), is(1));
 		assertThat(this.tanker.getDockedShips().contains(this.container1), is(false));
 		assertThat(this.tanker.getDockedShips().contains(this.container2), is(true));
+		
+		transaction.commit();
 	}
 }

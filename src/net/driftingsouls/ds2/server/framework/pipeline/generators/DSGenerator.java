@@ -472,14 +472,17 @@ public abstract class DSGenerator extends Generator {
 	 * Fuehrt eine Aktion aus. Die zur Aktion gehoerende Funktion wird aufgerufen.
 	 * @param action Der Name der Aktion
 	 */
-	protected void redirect( String action ) {
+	protected void redirect( String action ) 
+	{
 		String callAction = action + actionType.getActionExt();
-		try {
+		try 
+		{
 			Method method = getClass().getMethod(callAction);
 			method.setAccessible(true);
 			method.invoke(this);
 		}
-		catch( Exception e ) {
+		catch( Exception e ) 
+		{
 			log.error("Es ist ein Fehler beim Aufruf der Action '"+action+"' aufgetreten", e);
 			addError("Es ist ein Fehler beim Aufruf der Action '"+action+"' aufgetreten:\n"+e.toString());
 			
@@ -488,8 +491,6 @@ public abstract class DSGenerator extends Generator {
 					"ActionType: "+actionType+"\n" +
 					"User: "+(getContext().getActiveUser() != null ? getContext().getActiveUser().getId() : "none")+"\n" +
 					"Query-String: "+getContext().getRequest().getQueryString());
-			
-			getContext().rollback();
 		}
 	}
 	
@@ -573,7 +574,8 @@ public abstract class DSGenerator extends Generator {
 			method.setAccessible(true);
 			method.invoke(this);
 		}
-		catch( InvocationTargetException e ) {
+		catch( InvocationTargetException e ) 
+		{
 			Throwable t = e.getCause();
 			log.error("", t);
 			StackTraceElement[] st = t.getStackTrace();
@@ -602,10 +604,9 @@ public abstract class DSGenerator extends Generator {
 					"ActionType: "+actionType+"\n" +
 					"User: "+(getContext().getActiveUser() != null ? getContext().getActiveUser().getId() : "none")+"\n" +
 					"Query-String: "+getContext().getRequest().getQueryString());
-			
-			getContext().rollback();
 		}
-		catch( NoSuchMethodException e ) {
+		catch( NoSuchMethodException e ) 
+		{
 			log.error("", e);
 			addError("Die Aktion '"+action+"' existiert nicht!");
 		}
@@ -617,7 +618,6 @@ public abstract class DSGenerator extends Generator {
 					"ActionType: "+actionType+"\n"+
 					"User: "+(getContext().getActiveUser() != null ? getContext().getActiveUser().getId() : "none")+"\n" +
 					"Query-String: "+getContext().getRequest().getQueryString());
-			getContext().rollback();
 		}
 		
 		parseSubParameter("");

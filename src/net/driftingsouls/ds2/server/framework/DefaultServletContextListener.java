@@ -22,8 +22,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -38,7 +36,6 @@ public class DefaultServletContextListener implements ServletContextListener {
 	
 	@Override
 	public void contextDestroyed(ServletContextEvent event) {
-		HibernateFacade.free();
 	}
 
 	@Override

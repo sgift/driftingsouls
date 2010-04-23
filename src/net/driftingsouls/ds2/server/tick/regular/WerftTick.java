@@ -21,13 +21,12 @@ package net.driftingsouls.ds2.server.tick.regular;
 import java.util.Iterator;
 import java.util.List;
 
-import net.driftingsouls.ds2.server.bases.Base;
+import org.hibernate.Transaction;
+
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
-import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
@@ -47,56 +46,66 @@ public class WerftTick extends TickController {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	protected void tick() {
 		org.hibernate.Session db = getDB();
+		Transaction transaction = db.beginTransaction();
 		final User sourceUser = (User)db.get(User.class, -1);
 		
 		List<?> werften = db.createQuery("from ShipWerft s inner join fetch s.ship")
 			.list();
-		for( Iterator<?> iter=werften.iterator(); iter.hasNext(); ) {
-			processWerft(sourceUser, (WerftObject)iter.next());
-		}
-		
-		werften = db.createQuery("from BaseWerft b inner join fetch b.base")
-			.list();
-		for( Iterator<?> iter=werften.iterator(); iter.hasNext(); ) {
-			processWerft(sourceUser, (WerftObject)iter.next());
-		}
-		
-		werften = db.createQuery("from WerftKomplex")
-			.list();
-		for( Iterator<?> iter=werften.iterator(); iter.hasNext(); ) {
-			processWerft(sourceUser, (WerftObject)iter.next());
+		werften.addAll(db.createQuery("from BaseWerft b inner join fetch b.base")
+			.list());
+		werften.addAll(db.createQuery("from WerftKomplex")
+			.list());
+		for( Iterator<?> iter=werften.iterator(); iter.hasNext(); ) 
+		{
+			try
+			{
+				processWerft(sourceUser, (WerftObject)iter.next());
+				transaction.commit();
+			}
+			catch(Exception e)
+			{
+				transaction.rollback();
+				transaction = db.beginTransaction();
+			}
 		}
 	}
 
 	private void processWerft(final User sourceUser, WerftObject werft) {
-		try {
+		try 
+		{
 			org.hibernate.Session db = getDB();
 			
-			if( (werft instanceof ShipWerft) && (((ShipWerft)werft).getShipID() < 0) ) {
+			if( (werft instanceof ShipWerft) && (((ShipWerft)werft).getShipID() < 0) ) 
+			{
 				return;
 			}
 			
 			User owner = werft.getOwner();
-			if( (owner.getVacationCount() > 0) && (owner.getWait4VacationCount() == 0) ) {
+			if( (owner.getVacationCount() > 0) && (owner.getWait4VacationCount() == 0) ) 
+			{
 				this.log("xxx Ignoriere Werft "+werft.getWerftID()+" [VAC]");
 				return;
 			}
 			this.log("+++ Werft "+werft.getWerftID()+":");
 			
-			if( !werft.isBuilding() ) {
+			if( !werft.isBuilding() ) 
+			{
 				return;
 			}
 			WerftQueueEntry[] entries = werft.getScheduledQueueEntries();
-			for( int i=0; i < entries.length; i++ ) {
+			for( int i=0; i < entries.length; i++ ) 
+			{
 				WerftQueueEntry entry = entries[i];
 				
 				ShipTypeData shipd = entry.getBuildShipType();
 				
 				this.log("\tAktueller Auftrag: "+shipd.getTypeId()+"; dauer: "+entry.getRemainingTime());
 				
-				if( entry.getRequiredItem() > -1 ) {
+				if( entry.getRequiredItem() > -1 ) 
+				{
 					Item item = (Item)db.get(Item.class, entry.getRequiredItem());
 					this.log("\tItem benoetigt: "+item.getName()+" ("+entry.getRequiredItem()+")");
 				}
@@ -110,7 +119,8 @@ public class WerftTick extends TickController {
 						this.log("\tVoraussetzungen erfuellt - bau geht weiter");
 					}
 				}
-				else {
+				else 
+				{
 					this.log("Bau wegen Arbeitermangel pausiert: "+werft.getWorkerPercentageAvailable());
 				}
 				
@@ -128,12 +138,9 @@ public class WerftTick extends TickController {
 					}
 				}
 			}
-			
-			getContext().commit();
-			db.evict(werft);
-			HibernateFacade.evictAll(db, WerftQueueEntry.class, Ship.class, Base.class, User.class, PM.class);
 		}
-		catch( RuntimeException e ) {
+		catch( RuntimeException e ) 
+		{
 			this.log("Werft "+werft.getWerftID()+" failed: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "WerftTick Exception", "werft: "+werft.getWerftID());

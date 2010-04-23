@@ -35,6 +35,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -78,6 +79,7 @@ import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.units.UnitCargo;
+import net.driftingsouls.ds2.server.units.UnitCargoEntry;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 import org.apache.commons.lang.StringUtils;
@@ -85,6 +87,7 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.ObjectNotFoundException;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,6 +101,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Entity
 @Table(name="ships")
 @Configurable
+@BatchSize(size=50)
 public class Ship implements Locatable,Transfering {
 	private static final Log log = LogFactory.getLog(Ship.class);
 	
@@ -111,15 +115,19 @@ public class Ship implements Locatable,Transfering {
 	private int id;
 	@OneToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="modules", nullable=true)
+	@BatchSize(size=50)
 	private ShipModules modules;
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="owner", nullable=false)
+	@BatchSize(size=50)
 	private User owner;
 	private String name;
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="type", nullable=false)
+	@BatchSize(size=50)
 	private ShipType shiptype; 
 	@Type(type="cargo")
+	@BatchSize(size=50)
 	private Cargo cargo;
 	private long nahrungcargo;
 	private int x;
@@ -142,6 +150,7 @@ public class Ship implements Locatable,Transfering {
 	private int alarm;
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="fleet", nullable=true)
+	@BatchSize(size=50)
 	private ShipFleet fleet;
 	private int destsystem;
 	private int destx;
@@ -150,6 +159,7 @@ public class Ship implements Locatable,Transfering {
 	private boolean bookmark;
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="battle", nullable=true)
+	@BatchSize(size=50)
 	private Battle battle;
 	private boolean battleAction;
 	private String jumptarget;
@@ -167,7 +177,11 @@ public class Ship implements Locatable,Transfering {
 	private int showtradepost;
 	private boolean isfeeding;
 	private boolean isallyfeeding;
-
+	@OneToMany(fetch=FetchType.LAZY)
+	@JoinColumn(name="destid", referencedColumnName="id")
+	@BatchSize(size=50)
+	private List<ShipUnitCargoEntry> units;
+	
 	@Transient
 	private Offizier offizier;
 	
@@ -521,7 +535,13 @@ public class Ship implements Locatable,Transfering {
 	public UnitCargo getUnits() {
 		if(unitcargo == null)
 		{
-			unitcargo = new UnitCargo(UnitCargo.CARGO_ENTRY_SHIP, id);
+			List<UnitCargoEntry> entries = new ArrayList<UnitCargoEntry>();
+			for(UnitCargoEntry entry: units)
+			{
+				entries.add(entry);
+			}
+			unitcargo = new UnitCargo(entries, UnitCargo.CARGO_ENTRY_SHIP, id);
+			//unitcargo = new UnitCargo(UnitCargo.CARGO_ENTRY_SHIP, id);
 		}
 		return unitcargo;
 	}
@@ -3965,10 +3985,12 @@ public class Ship implements Locatable,Transfering {
 		{
 			return 0;
 		}
-		if( getUnits() != null)
+		
+		if(getUnits() != null)
 		{
 			return getTypeData().getReCost() + getUnits().getRE();
 		}
+		
 		return getTypeData().getReCost();
 	}
 

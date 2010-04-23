@@ -56,6 +56,7 @@ import org.hibernate.CacheMode;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +72,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @DiscriminatorValue("default")
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Configurable
+@BatchSize(size=50)
 public class User extends BasicUser {
 	private static final Log log = LogFactory.getLog(User.class);
 	
@@ -1236,7 +1238,7 @@ public class User extends BasicUser {
 		balance[1] = 0;
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<Base> bases = Common.cast(db.createQuery("from Base where owner=:owner")
+		List<Base> bases = Common.cast(db.createQuery("from Base fetch all properties where owner=:owner")
 										 .setParameter("owner", this)
 										 .list());
 		
@@ -1247,7 +1249,7 @@ public class User extends BasicUser {
 		}
 		
 		
-		ScrollableResults ships = db.createQuery("from Ship where owner=:owner and id>0 and battle is null")
+		ScrollableResults ships = db.createQuery("from Ship fetch all properties where owner=:owner and id>0 and battle is null")
 		 							.setParameter("owner", this)
 		 							.setCacheMode(CacheMode.IGNORE)
 		 							.scroll(ScrollMode.FORWARD_ONLY);

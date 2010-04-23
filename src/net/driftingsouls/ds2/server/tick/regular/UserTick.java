@@ -30,6 +30,7 @@ import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 /**
  * Tick fuer Aktionen, die sich auf den gesamten Account beziehen.
@@ -51,6 +52,8 @@ public class UserTick extends TickController
 	{
 		long deleteThreshould = Common.time() - 60*60*24*14;
 		log("DeleteThreshould is " + deleteThreshould);
+		
+		Transaction transaction = db.beginTransaction();
 		List<User> users = Common.cast(db.createQuery("from User").list());
 		for(User user: users)
 		{
@@ -133,19 +136,17 @@ public class UserTick extends TickController
 					}
 				}
 				
-				getContext().commit();
+				transaction.commit();
+				transaction = db.beginTransaction();
 			}
 			catch( Exception e )
 			{
-				getContext().rollback();
+				transaction.rollback();
+				transaction = db.beginTransaction();
 				
 				this.log("User Tick - User #"+user.getId()+" failed: "+e);
 				e.printStackTrace();
 				Common.mailThrowable(e, "UserTick - User #"+user.getId()+" Exception", "");
-			}
-			finally
-			{
-				db.evict(user);
 			}
 		}
 	}

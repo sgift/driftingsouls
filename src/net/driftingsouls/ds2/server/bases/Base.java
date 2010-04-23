@@ -35,6 +35,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
@@ -60,12 +61,14 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.units.UnitCargo;
+import net.driftingsouls.ds2.server.units.UnitCargoEntry;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.CallbackException;
 import org.hibernate.Session;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
@@ -79,6 +82,7 @@ import org.hibernate.classic.Lifecycle;
 @Entity
 @Table(name="bases")
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
+@BatchSize(size=50)
 public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 {
 	@Id @GeneratedValue
@@ -120,6 +124,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	private String spawnressavailable;
 	private boolean isloading;
 	private boolean isfeeding;
+	@OneToMany(fetch=FetchType.LAZY)
+	@JoinColumn(name="destid", referencedColumnName="id")
+	@BatchSize(size=50)
+	private List<BaseUnitCargoEntry> units;
 	@Version
 	private int version;
 	
@@ -487,7 +495,13 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	 */
 	public UnitCargo getUnits()
 	{
-		return new UnitCargo(UnitCargo.CARGO_ENTRY_BASE, id);
+		List<UnitCargoEntry> entries = new ArrayList<UnitCargoEntry>();
+		for(UnitCargoEntry entry: units)
+		{
+			entries.add(entry);
+		}
+		return new UnitCargo(entries, UnitCargo.CARGO_ENTRY_BASE, id);
+		//return new UnitCargo(UnitCargo.CARGO_ENTRY_BASE, id);
 	}
 	
 	/**
@@ -967,11 +981,12 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 			arbeiter += building.getArbeiter();
 			bewohner += building.getBewohner();
 		}
-	
-		stat.substractResource( Resources.RE, base.getUnits().getRE() );
+		
 		stat.substractResource( Resources.NAHRUNG, (long)Math.ceil(base.getBewohner()/10) );
+		
 		stat.substractResource( Resources.NAHRUNG, (long)Math.ceil(base.getUnits().getNahrung()/10) );
-
+		stat.substractResource( Resources.RE, base.getUnits().getRE() );
+		
 		return new BaseStatus(stat, e, bewohner, arbeiter, Collections.unmodifiableMap(buildinglocs), bebon);
 	}
 	
@@ -1308,7 +1323,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		long savenahrung = 0;
 		
-		List<?> ships = db.createQuery("from Ship where owner=? and system=? and x=? and y=?")
+		List<?> ships = db.createQuery("from Ship fetch all properties where owner=? and system=? and x=? and y=?")
 								.setEntity(0, getOwner())
 								.setInteger(1, getSystem())
 								.setInteger(2, getX())
@@ -1346,6 +1361,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		}
 		
 		BaseStatus state = getStatus();
+		
 		immigrate(state);
 		
 		if(!rebalanceEnergy(state))

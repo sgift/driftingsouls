@@ -29,11 +29,12 @@ import java.util.Map;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.SimpleResponse;
 import net.driftingsouls.ds2.server.framework.db.Database;
+import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
 
 /**
  * Basisklasse fuer Ticks.
@@ -50,22 +51,27 @@ public abstract class TickController {
 			
 	private long exectime;
 	private Map<String,Writer> logTargets;
+	private Session db;
 	private Context context;
 	
 	/**
 	 * Erstellt eine neue Instanz.
 	 */
-	public TickController() {
+	public TickController() 
+	{
 		logTargets = new HashMap<String,Writer>();
-		this.context = ContextMap.getContext();
-	
 		exectime = System.currentTimeMillis();
+		db = HibernateUtil.getSessionFactory().openSession();
+		
+		Context context = ContextMap.getContext();
+		this.context = new TickContext(db, context.getRequest(), context.getResponse());
 	}
 	
 	/**
 	 * Beendet den Tick und gibt alle Resourcen wieder frei.
 	 */
 	public void dispose() {
+		this.log("Beende Tick, schliesse Datenbankverbindung.");
 		for( String handle : logTargets.keySet() ) {
 			try {
 				removeLogTarget(handle);
@@ -74,6 +80,8 @@ public abstract class TickController {
 				// EMPTY
 			}
 		}
+		
+		db.close();
 	}
 	
 	/**
@@ -88,53 +96,11 @@ public abstract class TickController {
 	protected abstract void tick();
 	
 	/**
-	 * Blockiert den angegebenen Spieler bzw alle Spieler. Unter
-	 * blockieren ist hierbei die Fehlermeldung "Im Moment werden
-	 * einige Tick-Berechnungen durchgefuehrt" zu verstehen.
-	 * 
-	 * @param userid Der zu sperrende User oder 0 (default) fuer alle User
-	 */
-	protected void block(int userid) {
-		if( userid != 0 ) {
-			getContext().getDB()
-				.createQuery("update User set blocked=1 where id=?")
-				.setInteger(0, userid)
-				.executeUpdate();
-		}
-		else {
-			getContext().getDB()
-				.createQuery("update User set blocked=1")
-				.executeUpdate();
-		}
-	}
-	
-	/**
-	 * Entsperrt den angegebenen Spieler bzw alle Spieler.
-	 * @see #block(int)
-	 * 
-	 * @param userid Der zu entsperrende User oder 0 (default) fuer alle User
-	 */
-	protected void unblock( int userid ) {
-		if( userid != 0 ) {
-			getContext().getDB()
-				.createQuery("update User set blocked=0 where id=?")
-				.setInteger(0, userid)
-				.executeUpdate();
-		}
-		else {
-			getContext().getDB()
-				.createQuery("update User set blocked=0")
-				.executeUpdate();
-		}
-	}
-	
-	/**
 	 * Startet die Tickausfuehrung.
 	 */
 	public void execute() {
 		try {
 			log("-----------------"+Common.date("d.m.Y H:i:s")+"-------------------");
-			
 			prepare();
 			if( getErrorList().length == 0 ) {
 				tick();
@@ -150,25 +116,12 @@ public abstract class TickController {
 				}
 			}
 			
-			if( context.getResponse() instanceof SimpleResponse ) {
-				SimpleResponse response = (SimpleResponse)context.getResponse();
-				if( response.getContent().length() > 0 ) {
-					log("\n-------------Weitere Ausgaben---------------\n");
-					log(response.getContent().toString());
-				}
-				response.setContent("");
-			}
-			
 			log("");
 			log("Execution-Time: "+(System.currentTimeMillis()-exectime)+"s");
-			
-			getContext().commit();
 		}
 		catch( Exception e ) {
-			Common.mailThrowable(e, "Tickabbruch "+this.getClass().getSimpleName(), "");
-			
 			e.printStackTrace();
-			getDB().getTransaction().rollback();
+			Common.mailThrowable(e, "Tickabbruch "+this.getClass().getSimpleName(), "");
 		}
 	}
 	
@@ -258,7 +211,8 @@ public abstract class TickController {
 	 * Gibt den aktuellen Context zurueck.
 	 * @return der Kontext
 	 */
-	public Context getContext() {
+	public Context getContext()
+	{
 		return context;
 	}
 	
@@ -269,15 +223,16 @@ public abstract class TickController {
 	 */
 	@Deprecated
 	public Database getDatabase() {
-		return context.getDatabase();
+		return new Database(getDB().connection());
 	}
 	
 	/**
 	 * Gibt die Hibernate DB-Session des Kontexts zurueck.
 	 * @return die DB-Session
 	 */
-	public org.hibernate.Session getDB() {
-		return context.getDB();
+	public Session getDB() 
+	{
+		return db;
 	}
 	
 	/**

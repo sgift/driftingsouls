@@ -25,9 +25,11 @@ import java.sql.Statement;
 
 import net.driftingsouls.ds2.server.framework.BasicContext;
 import net.driftingsouls.ds2.server.framework.CmdLineRequest;
+import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.SimpleResponse;
-import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
+import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 
+import org.hibernate.Session;
 import org.junit.After;
 import org.junit.Before;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
@@ -38,14 +40,22 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
  *
  */
 public abstract class DriftingSoulsDBTestCase implements DBTestable {
-	protected BasicContext context;
+	protected Context context;
 	protected DBTestCaseAdapter dbTester;
+	protected final Session db;
 
 	/**
 	 * Konstruktor
 	 */
-	public DriftingSoulsDBTestCase() {
+	public DriftingSoulsDBTestCase() 
+	{
 		dbTester = new DBTestCaseAdapter(this);
+		db = HibernateUtil.getSessionFactory().openSession();
+	}
+	
+	public Session getDB()
+	{
+		return db;
 	}
 	
 	/**
@@ -63,7 +73,7 @@ public abstract class DriftingSoulsDBTestCase implements DBTestable {
 		Connection con = this.dbTester.getConnection().getConnection();
 		Statement stmt = con.createStatement();
 		try {
-			stmt.executeUpdate("INSERT INTO config VALUES ('ticks', '1', 'Der aktuelle Tick', 0)");
+			stmt.executeUpdate("INSERT INTO config (`name`, `value`, `description`, `version`) VALUES ('ticks', '1', 'Der aktuelle Tick', 0)");
 		}
 		finally {
 			stmt.close();
@@ -77,9 +87,8 @@ public abstract class DriftingSoulsDBTestCase implements DBTestable {
 	 * @throws Exception
 	 */
 	@After
-	public void tearDown() throws Exception {
-		this.context.free();
-		
+	public void tearDown() throws Exception 
+	{
 		try {
 			Connection con = this.dbTester.getConnection().getConnection();
 			Statement stmt = con.createStatement();
@@ -103,13 +112,12 @@ public abstract class DriftingSoulsDBTestCase implements DBTestable {
 			finally {
 				stmt.close();
 			}
-			
-			HibernateFacade.clearSecondLevelCache();
 		}
 		catch( SQLException e ) {
 			e.printStackTrace();
 		}
 		
 		this.dbTester.tearDown();
+		db.close();
 	}
 }

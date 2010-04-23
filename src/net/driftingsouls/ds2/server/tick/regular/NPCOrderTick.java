@@ -42,6 +42,7 @@ import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 import org.apache.commons.lang.math.RandomUtils;
+import org.hibernate.Transaction;
 
 /**
  * Berechnet NPC-Bestellungen.
@@ -75,35 +76,43 @@ public class NPCOrderTick extends TickController {
 	}
 
 	@Override
-	protected void tick() {
+	protected void tick() 
+	{
 		org.hibernate.Session db = getDB();
 
+		Transaction transaction = db.beginTransaction();
 		final User sourceUser = (User)db.get(User.class, -1);
 		
 		List<?> orders = db.createQuery("from Order where tick=1 order by user").list();
-		for( Iterator<?> iter=orders.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=orders.iterator(); iter.hasNext(); ) 
+		{
 			Order order = (Order)iter.next();
-			try {
+			try 
+			{
 				int owner = order.getUser();
 				User user = (User)getDB().get(User.class, owner);
 					
-				if( (owner != this.lastowner) && this.pmcache.length() > 0 ) {
+				if( (owner != this.lastowner) && this.pmcache.length() > 0 ) 
+				{
 					PM.send(sourceUser, this.lastowner, "NPC-Lieferservice", this.pmcache.toString());
 					pmcache.setLength(0);
 				}
 				lastowner = owner;
 			
 				int type = OFFIZIERSSCHIFF;
-				if( order.getType() > 0 ) {
+				if( order.getType() > 0 ) 
+				{
 					type = order.getType();
 				}
 			
 				ShipTypeData shipd = Ship.getShipType( type );
 			
-				if( order.getType() > 0 ) {
+				if( order.getType() > 0 ) 
+				{
 					this.log("* Order "+order.getId()+" ready: "+shipd.getNickname()+" ("+type+") wird zu User "+order.getUser()+" geliefert");
 				}
-				else {
+				else 
+				{
 					this.log("* Order "+order.getId()+" ready: Offizier wird mittels "+shipd.getNickname()+" ("+type+") wird zu User "+order.getUser()+" geliefert");
 				}
 			
@@ -112,7 +121,8 @@ public class NPCOrderTick extends TickController {
 					.setMaxResults(1)
 					.uniqueResult();
 				Location loc = DEFAULT_LOCATION;
-				if( base != null ) {
+				if( base != null ) 
+				{
 					loc = base.getLocation();
 				}
 				
@@ -120,7 +130,8 @@ public class NPCOrderTick extends TickController {
 				
 				this.log("  Lieferung erfolgt bei "+loc);
 				// Falls ein Schiff geordert wurde oder keine Basis fuer den Offizier existiert (und er braucht somit ein Schiff)...
-				if( (order.getType() > 0) || base == null ) {
+				if( (order.getType() > 0) || base == null ) 
+				{
 					Cargo cargo = new Cargo();
 					cargo.addResource( Resources.DEUTERIUM, shipd.getRd()*10 );
 					cargo.addResource( Resources.URAN, shipd.getRu()*10 );
@@ -151,7 +162,8 @@ public class NPCOrderTick extends TickController {
 				}
 			
 				// Es handelt sich um einen Offizier...
-				if( order.getType() < 0 ) {
+				if( order.getType() < 0 ) 
+				{
 					OrderOffizier offizier = (OrderOffizier)db.get(OrderOffizier.class, (-order.getType()));
 					int special = RandomUtils.nextInt(6)+1;
 
@@ -162,10 +174,12 @@ public class NPCOrderTick extends TickController {
 					offi.setAbility(Offizier.Ability.NAV, offizier.getNav());
 					offi.setAbility(Offizier.Ability.SEC, offizier.getSec());
 					offi.setAbility(Offizier.Ability.COM, offizier.getCom());
-					if( base != null ) {
+					if( base != null ) 
+					{
 						offi.setDest("b", base.getId());
 					}
-					else {
+					else 
+					{
 						offi.setDest("s", id);
 					}
 					offi.setSpecial(Offizier.Special.values()[special]);
@@ -194,7 +208,8 @@ public class NPCOrderTick extends TickController {
 					pmcache.append("\n\n");
 				}
 				// Es wurde nur ein Schiff geordert
-				else {
+				else 
+				{
 					pmcache.append("Die von ihnen bestellte ");
 					pmcache.append(shipd.getNickname());
 					pmcache.append(" wurde geliefert\nSie steht bei ");
@@ -202,16 +217,19 @@ public class NPCOrderTick extends TickController {
 					pmcache.append("\n\n");
 				}
 				
-				if( id != 0 ) {
+				if( id != 0 ) 
+				{
 					Ship ship = (Ship)db.get(Ship.class, id);
 					ship.recalculateShipStatus();
 				}
 			
 				db.delete(order);
-				
-				getContext().commit();
+				transaction.commit();
+				transaction = db.beginTransaction();
 			}
-			catch( RuntimeException e ) {
+			catch( RuntimeException e ) 
+			{
+				transaction.rollback();
 				this.log("Order "+order.getId()+" failed: "+e);
 				e.printStackTrace();
 				Common.mailThrowable(e, "NPCOrderTick Exception", "order: "+order.getId());
@@ -220,7 +238,8 @@ public class NPCOrderTick extends TickController {
 			}
 		}
 		
-		if( pmcache.length() > 0 ) {
+		if( pmcache.length() > 0 ) 
+		{
 			PM.send(sourceUser, lastowner, "NPC-Lieferservice", pmcache.toString());
 		}
 		
@@ -229,6 +248,8 @@ public class NPCOrderTick extends TickController {
 		
 		this.log("Verteile NPC-Punkte...");
 		db.createQuery("update User set npcpunkte=npcpunkte+1 where locate('ordermenu',flags)!=0");
+		
+		transaction.commit();
 	}
 
 }

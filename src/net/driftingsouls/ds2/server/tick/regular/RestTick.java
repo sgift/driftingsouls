@@ -51,6 +51,7 @@ import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 import org.apache.commons.lang.math.RandomUtils;
+import org.hibernate.Transaction;
 
 /**
  * Berechnet sonstige Tick-Aktionen, welche keinen eigenen TickController haben.
@@ -60,20 +61,24 @@ import org.apache.commons.lang.math.RandomUtils;
 public class RestTick extends TickController {
 
 	@Override
-	protected void prepare() {
+	protected void prepare() 
+	{
 		// EMPTY
 	}
 	
 	/*
 		Sprungantrieb
 	*/
-	private void doJumps() {
-		try {
-			org.hibernate.Session db = getContext().getDB();
-			
+	private void doJumps() 
+	{
+		org.hibernate.Session db = getDB();
+		Transaction transaction = db.beginTransaction();
+		try 
+		{
 			this.log("Sprungantrieb");
 			List<?> jumps = db.createQuery("from Jump as j inner join fetch j.ship").list();
-			for( Iterator<?> iter=jumps.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=jumps.iterator(); iter.hasNext(); ) 
+			{
 				Jump jump = (Jump)iter.next();
 				
 				this.log( jump.getShip().getId()+" springt nach "+jump.getLocation());
@@ -92,24 +97,26 @@ public class RestTick extends TickController {
 				
 				db.delete(jump);
 			}
+			transaction.commit();
 		}
-		catch( RuntimeException e ) {
+		catch( RuntimeException e ) 
+		{
+			transaction.rollback();
 			this.log("Fehler beim Verarbeiten der Sprungantriebe: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doJumps failed");
-			
-			getContext().rollback();
-			getDB().clear();
 		}
 	}
 	
 	/*
 		Statistiken
 	*/
-	private void doStatistics() {
-		try {
-			org.hibernate.Session db = getDB();
-		
+	private void doStatistics() 
+	{
+		org.hibernate.Session db = getDB();
+		Transaction transaction = db.beginTransaction();
+		try 
+		{
 			this.log("");
 			this.log("Erstelle Statistiken");
 		
@@ -118,29 +125,32 @@ public class RestTick extends TickController {
 			
 			StatShips stat = new StatShips(shipcount, crewcount);
 			db.persist(stat);
+			transaction.commit();
 		}
-		catch( RuntimeException e ) {
+		catch( RuntimeException e ) 
+		{
+			transaction.rollback();
 			this.log("Fehler beim Anlegen der Statistiken: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doStatistics failed");
-			
-			getContext().rollback();
-			getDB().clear();
 		}
 	}
 
 	/*
 		Vac-Modus
 	*/
-	private void doVacation() {
-		try {
-			org.hibernate.Session db = getDB();
-			
+	private void doVacation() 
+	{
+		org.hibernate.Session db = getDB();
+		Transaction transaction = db.beginTransaction();
+		try 
+		{
 			this.log("");
 			this.log("Bearbeite Vacation-Modus");
 			
 			List<?> vacLeaveUsers = db.createQuery("from User where vaccount=1").list();
-			for( Iterator<?> iter=vacLeaveUsers.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=vacLeaveUsers.iterator(); iter.hasNext(); ) 
+			{
 				User user = (User)iter.next();
 				user.setName(user.getName().replace(" [VAC]", ""));
 				user.setNickname(user.getNickname().replace(" [VAC]", ""));
@@ -152,9 +162,11 @@ public class RestTick extends TickController {
 				.executeUpdate();
 
 			List<User> users = Common.cast(db.createQuery("from User where wait4vac=1").list());
-			for( User user : users ) {
+			for( User user : users ) 
+			{
 				User newcommander = null;
-				if( user.getAlly() != null ) {
+				if( user.getAlly() != null ) 
+				{
 					newcommander = (User)db.createQuery("from User where ally= :ally  and inakt <= 7 and vaccount=0 and (wait4vac>6 or wait4vac=0)")
 						.setEntity("ally", user.getAlly())
 						.setMaxResults(1)
@@ -164,11 +176,13 @@ public class RestTick extends TickController {
 				List<?> battles = db.createQuery("from Battle where commander1= :user or commander2= :user")
 					.setEntity("user", user)
 					.list();
-				for( Iterator<?> iter=battles.iterator(); iter.hasNext(); ) {
+				for( Iterator<?> iter=battles.iterator(); iter.hasNext(); ) 
+				{
 					Battle battle = (Battle)iter.next();
 					battle.load(user, null, null, 0 );
 					
-					if( newcommander != null ) {
+					if( newcommander != null ) 
+					{
 						this.log("\t\tUser"+user.getId()+": Die Leitung der Schlacht "+battle.getId()+" wurde an "+newcommander.getName()+" ("+newcommander.getId()+") uebergeben");
 						
 						battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+getContext().get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
@@ -187,7 +201,8 @@ public class RestTick extends TickController {
 
 						battle.writeLog();
 					}
-					else {
+					else 
+					{
 						this.log("\t\tUser"+user.getId()+": Die Schlacht "+battle.getId()+" wurde beendet");
 					
 						battle.endBattle(0, 0, true);
@@ -199,10 +214,12 @@ public class RestTick extends TickController {
 				String name = user.getName();
 				String nickname = user.getNickname();
 				
-				if( name.length() > 249 ) {
+				if( name.length() > 249 ) 
+				{
 					name = name.substring(0, 249);
 				}
-				if( nickname.length() > 249 ) {
+				if( nickname.length() > 249 ) 
+				{
 					nickname = nickname.substring(0, 249);
 				}
 				
@@ -215,47 +232,63 @@ public class RestTick extends TickController {
 			
 			db.createQuery("update User set wait4vac=wait4vac-1 where wait4vac>0")
 				.executeUpdate();
+			transaction.commit();
 		}
-		catch( RuntimeException e ) {
+		catch( RuntimeException e ) 
+		{
+			transaction.rollback();
 			this.log("Fehler beim Verarbeiten der Vacationdaten: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doVacation failed");
-			
-			getContext().rollback();
-			getDB().clear();
 		}
 	}
 	
 	/*
 	 * Unset Noob Protection for experienced players
 	 */
-	private void doNoobProtection(){
+	private void doNoobProtection()
+	{
 		org.hibernate.Session db = getDB();
+		Transaction transaction = db.beginTransaction();
 		
-		this.log("");
-		this.log("Bearbeite Noob-Protection");
-		
-		List<?> noobUsers = db.createQuery("from User where id>0 and flags LIKE '%" + User.FLAG_NOOB+"%'").list();
-		int noobDays = 30;
-		int noobTime = 24*60*60*noobDays;
-		for( Iterator<?> iter=noobUsers.iterator(); iter.hasNext(); ) {
-			User user = (User)iter.next();
+		try
+		{
+			this.log("");
+			this.log("Bearbeite Noob-Protection");
 			
-			if( !user.hasFlag(User.FLAG_NOOB) ) {
-				continue;
-			}
-			
-			if (user.getSignup() <= Common.time() - noobTime){
-				user.setFlag(User.FLAG_NOOB, false);
-				this.log("Entferne Noob-Schutz bei "+user.getId());
+			List<?> noobUsers = db.createQuery("from User where id>0 and flags LIKE '%" + User.FLAG_NOOB+"%'").list();
+			int noobDays = 30;
+			int noobTime = 24*60*60*noobDays;
+			for( Iterator<?> iter=noobUsers.iterator(); iter.hasNext(); ) 
+			{
+				User user = (User)iter.next();
 				
-				User nullUser = (User)db.get(User.class, 0);
-				PM.send(nullUser, user.getId(), "GCP-Schutz aufgehoben", 
-						"Ihr GCP-Schutz wurde durch das System aufgehoben. " +
-						"Dies passiert automatisch "+noobDays+" Tage nach der Registrierung. " +
-						"Sie sind nun angreifbar, koennen aber auch selbst angreifen.", 
-						PM.FLAGS_AUTOMATIC | PM.FLAGS_IMPORTANT);
+				if( !user.hasFlag(User.FLAG_NOOB) ) 
+				{
+					continue;
+				}
+				
+				if (user.getSignup() <= Common.time() - noobTime)
+				{
+					user.setFlag(User.FLAG_NOOB, false);
+					this.log("Entferne Noob-Schutz bei "+user.getId());
+					
+					User nullUser = (User)db.get(User.class, 0);
+					PM.send(nullUser, user.getId(), "GCP-Schutz aufgehoben", 
+							"Ihr GCP-Schutz wurde durch das System aufgehoben. " +
+							"Dies passiert automatisch "+noobDays+" Tage nach der Registrierung. " +
+							"Sie sind nun angreifbar, koennen aber auch selbst angreifen.", 
+							PM.FLAGS_AUTOMATIC | PM.FLAGS_IMPORTANT);
+				}
 			}
+			transaction.commit();
+		}
+		catch(RuntimeException e)
+		{
+			transaction.rollback();
+			this.log("Fehler beim Aufheben des Noobschutzes: "+e);
+			e.printStackTrace();
+			Common.mailThrowable(e, "RestTick Exception", "doNoobProtecttion failed");
 		}
 	}
 	
@@ -264,11 +297,13 @@ public class RestTick extends TickController {
 		Neue Felsbrocken spawnen lassen
 			
 	*/	
-	private void doFelsbrocken() {
-		try {
-			Database db = getDatabase();
-			org.hibernate.Session database = getDB();
-			
+	private void doFelsbrocken() 
+	{
+		Database db = getDatabase();
+		org.hibernate.Session database = getDB();
+		Transaction transaction = database.beginTransaction();
+		try 
+		{			
 			this.log("");
 			this.log("Fuege Felsbrocken ein");
 				
@@ -279,30 +314,36 @@ public class RestTick extends TickController {
 					"	(SELECT shiptype FROM config_felsbrocken WHERE system=config_felsbrocken_systems.system)" +
 					") present " +
 					"FROM config_felsbrocken_systems ORDER BY system");
-			while( system.next() ) {
+			while( system.next() ) 
+			{
 				int shipcount = system.getInt("present");
 				
 				this.log("\tSystem "+system.getInt("system")+": "+shipcount+" / "+system.getInt("count")+" Felsbrocken");
 				
-				if( system.getInt("count") < shipcount ) {
+				if( system.getInt("count") < shipcount ) 
+				{
 					continue;
 				}
 				
 				List<SQLResultRow> loadout = new ArrayList<SQLResultRow>();
 				SQLQuery aLoadOut = db.query("SELECT * FROM config_felsbrocken WHERE system=",system.getInt("system"));
-				while( aLoadOut.next() ) {
+				while( aLoadOut.next() ) 
+				{
 					loadout.add(aLoadOut.getRow());
 				}
 				aLoadOut.free();
 				
-				while( shipcount < system.getInt("count") ) {
+				while( shipcount < system.getInt("count") ) 
+				{
 					int rnd = RandomUtils.nextInt(100)+1;
 					int currnd = 0;
-					for( int i=0; i < loadout.size(); i++ ) {
+					for( int i=0; i < loadout.size(); i++ ) 
+					{
 						SQLResultRow aloadout = loadout.get(i);
 						currnd += aloadout.getInt("chance");
 		
-						if( currnd < rnd ) {
+						if( currnd < rnd ) 
+						{
 							continue;
 						}
 						
@@ -322,7 +363,8 @@ public class RestTick extends TickController {
 						this.log("\t- Loadout: ");					
 						Cargo cargo = new Cargo(Cargo.Type.STRING, aloadout.getString("cargo"));
 						ResourceList reslist = cargo.getResourceList();
-						for( ResourceEntry res : reslist ) {
+						for( ResourceEntry res : reslist ) 
+						{
 							this.log("\t   *"+res.getName()+" => "+res.getCount1());
 						}
 						
@@ -339,40 +381,47 @@ public class RestTick extends TickController {
 					}
 				}
 			}
+			transaction.commit();
 		}
-		catch( RuntimeException e ) {
+		catch( RuntimeException e ) 
+		{
+			transaction.rollback();
 			this.log("Fehler beim Erstellen der Felsbrocken: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doFelsbrocken failed");
-			
-			getContext().rollback();
-			getDB().clear();
 		}
 	}
 	
 	/*
 		Quests bearbeiten
 	*/
-	private void doQuests() {
-		try {
-			Database db = getContext().getDatabase();
+	private void doQuests() 
+	{
+		try 
+		{
+			Database db = getDatabase();
 			
 			this.log("Bearbeite Quests [ontick]");
 			SQLQuery rquest = db.query("SELECT * FROM quests_running WHERE ontick IS NOT NULL ORDER BY questid");
-			if( rquest.numRows() == 0 ) { 
+			if( rquest.numRows() == 0 ) 
+			{ 
 				rquest.free();
 				return;
 			}
 			ScriptEngine scriptparser = getContext().get(ContextCommon.class).getScriptParser("DSQuestScript");
 			scriptparser.getContext().setErrorWriter(new NullLogger());	
 			
-			while( rquest.next() ) {
-				try {
+			while( rquest.next() ) 
+			{
+				try 
+				{
 					Blob execdata = rquest.getBlob("execdata");
-					if( (execdata != null) && (execdata.length() > 0) ) { 
+					if( (execdata != null) && (execdata.length() > 0) ) 
+					{ 
 						scriptparser.setContext(ScriptParserContext.fromStream(execdata.getBinaryStream()));
 					}
-					else {
+					else 
+					{
 						scriptparser.setContext(new ScriptParserContext());
 					}
 						
@@ -390,13 +439,15 @@ public class RestTick extends TickController {
 						
 					int usequest = Integer.parseInt((String)engineBindings.get("QUEST"));
 						
-					if( usequest != 0 ) {
+					if( usequest != 0 ) 
+					{
 						ScriptParserContext.toStream(scriptparser.getContext(), execdata.setBinaryStream(1));
 						db.prepare("UPDATE quests_running SET execdata=? WHERE id=? ")
 							.update(execdata, rquest.getInt("id"));
 					}
 				}
-				catch( Exception e ) {
+				catch( Exception e ) 
+				{
 					this.log("[FEHLER] Konnte Quest-Tick fuehr Quest "+rquest.getInt("questid")+" (Running-ID: "+rquest.getInt("id")+") nicht ausfuehren."+e);
 					e.printStackTrace();
 					Common.mailThrowable(e, "RestTick Exception", "Quest failed: "+rquest.getInt("questid")+"\nRunning-ID: "+rquest.getInt("id"));
@@ -404,13 +455,11 @@ public class RestTick extends TickController {
 			}
 			rquest.free();
 		}
-		catch( RuntimeException e ) {
+		catch( RuntimeException e ) 
+		{
 			this.log("Fehler beim Verarbeiten der Quests: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doQuests failed");
-			
-			getContext().rollback();
-			getDB().clear();
 		}
 	}
 	
@@ -419,69 +468,69 @@ public class RestTick extends TickController {
  	 * Tasks bearbeiteten (Timeouts)
 	 * 
 	 */
-	private void doTasks() {
-		try {
+	private void doTasks() 
+	{
+		Transaction transaction = getDB().beginTransaction();
+		try 
+		{
 			this.log("Bearbeite Tasks [tick_timeout]");
 			
 			Taskmanager taskmanager = Taskmanager.getInstance();
 			Task[] tasklist = taskmanager.getTasksByTimeout(1);
-			for( int i=0; i < tasklist.length; i++ ) {
+			for( int i=0; i < tasklist.length; i++ ) 
+			{
 				this.log("* "+tasklist[i].getTaskID()+" ("+tasklist[i].getType()+") -> sending tick_timeout");
 				taskmanager.handleTask( tasklist[i].getTaskID(), "tick_timeout" );	
 			}
 			
 			taskmanager.reduceTimeout(1);
+			transaction.commit();
 		}
-		catch( RuntimeException e ) {
+		catch( RuntimeException e ) 
+		{
+			transaction.rollback();
 			this.log("Fehler beim Bearbeiten der Tasks: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doTasks failed");
-			
-			getContext().rollback();
-			getDB().clear();
 		}
 	}
 	
 	@Override
-	protected void tick() {
+	protected void tick() 
+	{
 		org.hibernate.Session db = getDB();
 		
-		this.log("Transmissionen - gelesen+1");
-		db.createQuery("UPDATE PM SET gelesen = gelesen+1 WHERE gelesen>=2").executeUpdate();
-		
-		this.log("Loesche alte Transmissionen");
-		db.createQuery("DELETE FROM PM WHERE gelesen>=10").executeUpdate();
-		
-		this.log("Erhoehe Inaktivitaet der Spieler");
-		db.createQuery("update User set inakt=inakt+1 where vaccount=0")
-			.executeUpdate();
-		
-		this.log("Erhoehe Tickzahl");
-		ConfigValue value = (ConfigValue)getDB().get(ConfigValue.class, "ticks");
-		int ticks = Integer.valueOf(value.getValue()) + 1;
-		value.setValue(Integer.toString(ticks));
-		getContext().commit();
-				
+		Transaction transaction = db.beginTransaction();
+		try
+		{
+			this.log("Transmissionen - gelesen+1");
+			db.createQuery("UPDATE PM SET gelesen = gelesen+1 WHERE gelesen>=2").executeUpdate();
+			
+			this.log("Loesche alte Transmissionen");
+			db.createQuery("DELETE FROM PM WHERE gelesen>=10").executeUpdate();
+			
+			this.log("Erhoehe Inaktivitaet der Spieler");
+			db.createQuery("update User set inakt=inakt+1 where vaccount=0")
+				.executeUpdate();
+			
+			this.log("Erhoehe Tickzahl");
+			ConfigValue value = (ConfigValue)getDB().get(ConfigValue.class, "ticks");
+			int ticks = Integer.valueOf(value.getValue()) + 1;
+			value.setValue(Integer.toString(ticks));
+			transaction.commit();
+		}
+		catch(RuntimeException e)
+		{
+			transaction.rollback();
+			throw e;
+		}
+			
 		this.doJumps();
-		getContext().commit();
-		
 		this.doStatistics();
-		getContext().commit();
-		
 		this.doVacation();
-		getContext().commit();
-		
 		this.doNoobProtection();
-		getContext().commit();
-		
 		this.doFelsbrocken();
-		getContext().commit();
-		
 		this.doQuests();
-		getContext().commit();
-		
 		this.doTasks();
-		getContext().commit();
 	}
-
 }

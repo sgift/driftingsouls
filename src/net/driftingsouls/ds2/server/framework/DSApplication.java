@@ -27,9 +27,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.framework.db.Database;
+import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
@@ -43,6 +45,7 @@ public abstract class DSApplication {
 	
 	private Map<Integer,Writer> logTargets;
 	private int handleCounter;
+	private final Session db;
 	
 	/**
 	 * Konstruktor.
@@ -71,6 +74,8 @@ public abstract class DSApplication {
 		handleCounter = 0;
 		
 		logTargets.put(-1, new OutputStreamWriter(System.out));
+		
+		db = HibernateUtil.getSessionFactory().openSession();
 	}
 	
 	/**
@@ -88,7 +93,7 @@ public abstract class DSApplication {
 	 */
 	@Deprecated
 	public Database getDatabase() {
-		return this.context.getDatabase();
+		return new Database(db.connection());
 	}
 	
 	/**
@@ -96,7 +101,7 @@ public abstract class DSApplication {
 	 * @return die Hibernate-Session
 	 */
 	public org.hibernate.Session getDB() {
-		return this.context.getDB();
+		return db;
 	}
 	
 	/**

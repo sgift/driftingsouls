@@ -23,10 +23,11 @@ import java.util.List;
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.DSApplication;
-import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipModules;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
+
+import org.hibernate.Transaction;
 
 /**
  * Kommandozeilentool zur Neuberechnung von redundanten Schiffsdaten.
@@ -72,6 +73,7 @@ public class RecalcShips extends DSApplication {
 		log("\nBeginne:");
 
 		org.hibernate.Session db = getDB();
+		Transaction transaction = db.beginTransaction();
 
 		if( shipid == null ) {
 			int lastsid = 0;
@@ -105,8 +107,11 @@ public class RecalcShips extends DSApplication {
 					}
 				}
 				
-				getContext().commit();
-				HibernateFacade.evictAll(db, Ship.class, ShipModules.class, Offizier.class, ShipWerft.class);
+				transaction.commit();
+				db.evict(Ship.class);
+				db.evict(ShipModules.class);
+				db.evict(Offizier.class);
+				db.evict(ShipWerft.class);
 			}
 		}
 		else {

@@ -21,6 +21,8 @@ package net.driftingsouls.ds2.server.tick.regular;
 import java.util.Iterator;
 import java.util.List;
 
+import org.hibernate.Transaction;
+
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -64,7 +66,9 @@ public class RTCTick extends TickController {
 		
 		this.currentTime = Common.getIngameTime(ticks);
 		
+		Transaction transaction = getDB().beginTransaction();
 		this.gtuuser = (User)getDB().get(User.class, Faction.GTU);
+		transaction.commit();
 		
 		this.log("tick: "+this.ticks);
 	}
@@ -73,6 +77,7 @@ public class RTCTick extends TickController {
 	protected void tick() {
 		org.hibernate.Session db = getDB();
 
+		Transaction transaction = db.beginTransaction();
 		final User sourceUser = (User)db.get(User.class, -1);
 		
 		/*
@@ -82,11 +87,14 @@ public class RTCTick extends TickController {
 		List<?> entries = db.createQuery("from Versteigerung where tick<= :tick order by id")
 			.setInteger("tick", this.ticks)
 			.list();
-		for( Iterator<?> iter=entries.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=entries.iterator(); iter.hasNext(); ) 
+		{
 			Versteigerung entry = (Versteigerung)iter.next();
 			
-			try {
-				if( entry.getBieter() == this.gtuuser ) {
+			try 
+			{
+				if( entry.getBieter() == this.gtuuser ) 
+				{
 					this.log("Die Versteigerung um "+entry.getObjectName()+" (id: "+entry.getId()+(entry.getOwner() != this.gtuuser ? " - User: "+entry.getOwner().getId() : "")+") wurde um 5 Runden verlaengert. Der Preis wurde um "+(long)(entry.getPreis()*1/10d)+" RE reduziert");
 					entry.setTick(this.ticks+5);
 					entry.setPreis((long)(entry.getPreis()*1/10d));
@@ -101,7 +109,8 @@ public class RTCTick extends TickController {
 				
 				Location loc = system.getDropZone();
 			
-				if( loc == null ) {
+				if( loc == null ) 
+				{
 					system = (StarSystem)db.get(StarSystem.class, 2);
 					
 					loc = system.getDropZone();
@@ -110,7 +119,8 @@ public class RTCTick extends TickController {
 				int gtucost = 100;
 				User targetuser = null;
 				
-				if( entry.getOwner() != this.gtuuser ) {
+				if( entry.getOwner() != this.gtuuser ) 
+				{
 					targetuser = entry.getOwner();
 					
 					gtucost = Integer.parseInt(targetuser.getUserValue("GTU_AUCTION_USER_COST"));
@@ -118,7 +128,8 @@ public class RTCTick extends TickController {
 				
 				String entryname = "";
 				
-				if( entry instanceof VersteigerungSchiff ) {
+				if( entry instanceof VersteigerungSchiff ) 
+				{
 					VersteigerungSchiff shipEntry = (VersteigerungSchiff)entry;
 					
 					ShipType shiptype = shipEntry.getShipType();
@@ -146,7 +157,8 @@ public class RTCTick extends TickController {
 					
 					db.save(ship);
 					
-					if( shiptype.getWerft() != 0 ) {
+					if( shiptype.getWerft() != 0 ) 
+					{
 						ShipWerft werft = new ShipWerft(ship);
 						db.persist(werft);
 						
@@ -158,19 +170,22 @@ public class RTCTick extends TickController {
 					String msg = "Sie haben "+entryname+" f&uumlr; +"+Common.ln(price)+" RE ersteigert.\nDas Objekt wurde ihnen bei "+loc.displayCoordinates(false)+" &uuml;bergeben.\n\nJack Miller\nHan Ronalds";
 					PM.send(gtuuser, winner.getId(), entryname+" ersteigert", msg);
 		
-					if( entry.getOwner() != this.gtuuser ) {				
+					if( entry.getOwner() != this.gtuuser ) 
+					{				
 						msg = "Es wurde ihre "+entryname+" versteigert.\nDas Objekt wurde dem Gewinner "+winner.getName()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben. Die GTU berechnet ihnen "+gtucost+"% des Gewinnes als Preis. Dies entspricht "+Common.ln(Math.ceil(price*gtucost/100d))+" RE. Ihnen bleiben somit noch "+Common.ln(price-Math.ceil(price*gtucost/100d))+" RE\n\nJack Miller\nHan Ronalds";
 						PM.send(gtuuser, entry.getOwner().getId(), entryname+" versteigert", msg);
 						
 						msg = "Es wurde "+entryname+" im Auftrag von "+entry.getOwner().getId()+" versteigert.\nDas Objekt wurde bei "+loc.displayCoordinates(false)+" dem Gewinner "+winner.getId()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben. Einnahme: "+Common.ln(Math.ceil(price*gtucost/100d))+" RE ("+gtucost+"%)";
 						PM.send(sourceUser, Faction.GTU, entryname+" ersteigert", msg);
 					}
-					else {
+					else 
+					{
 						msg = "Es wurde "+entryname+" versteigert.\nDas Objekt wurde bei "+loc.displayCoordinates(false)+" dem Gewinner "+winner.getId()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben.";
 						PM.send(winner, Faction.GTU, entryname+" versteigert", msg);
 					}
 				}
-				else if( entry instanceof VersteigerungResource ) {
+				else if( entry instanceof VersteigerungResource ) 
+				{
 					VersteigerungResource resEntry = (VersteigerungResource)entry;
 					
 					Cargo mycargo = resEntry.getCargo();
@@ -207,14 +222,16 @@ public class RTCTick extends TickController {
 					String msg = "Sie haben "+entryname+" f&uumlr; "+Common.ln(price)+" RE ersteigert.\nDas Objekt wurde ihnen bei "+loc.displayCoordinates(false)+" auf dem Handelsposten hinterlegt.\n\nGaltracorp Unlimited";
 					PM.send(gtuuser, winner.getId(), entryname+" ersteigert", msg);
 		
-					if( entry.getOwner() != this.gtuuser ) {				
+					if( entry.getOwner() != this.gtuuser ) 
+					{				
 						msg = "Es wurde ihr "+entryname+" versteigert.\nDas Objekt wurde dem Gewinner "+winner.getName()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben. Die GTU berechnet ihnen "+gtucost+"% des Gewinnes als Preis. Dies entspricht "+Common.ln(Math.ceil(price*gtucost/100d))+" RE. Ihnen bleiben somit noch "+Common.ln((price-Math.ceil(price*gtucost/100d)))+" RE\n\nJack Miller\nHan Ronalds";
 						PM.send(gtuuser, entry.getOwner().getId(), entryname+" versteigert", msg);
 						
 						msg = "Es wurde "+entryname+" im Auftrag von "+entry.getOwner().getId()+" versteigert.\nDas Objekt wurde bei "+loc.displayCoordinates(false)+" dem Gewinner "+winner.getId()+" f&uuml;r den Preis von "+Common.ln(price)+" RE hinterlegt. Einnahme: "+Common.ln(Math.ceil(price*gtucost/100d))+" RE ("+gtucost+"%)";
 						PM.send(sourceUser, Faction.GTU, entryname+" ersteigert", msg);
 					}
-					else {
+					else 
+					{
 						msg = "Es wurde "+entryname+" versteigert.\nDas Objekt wurde bei "+loc.displayCoordinates(false)+" dem Gewinner "+winner.getName()+" f&uuml;r den Preis von "+Common.ln(price)+" RE hinterlegt.";
 						PM.send(sourceUser, Faction.GTU, entryname+" ersteigert", msg);
 					}
@@ -225,22 +242,26 @@ public class RTCTick extends TickController {
 					
 					db.persist(lager);
 				}
-				else {
+				else 
+				{
 					entryname = "Unbekannter Typ <"+entry.getClass().getName()+">";	
 				}
 			
-				if( entry.getOwner() != this.gtuuser ) {
+				if( entry.getOwner() != this.gtuuser ) 
+				{
 					targetuser.transferMoneyFrom( Faction.GTU, price-(long)Math.ceil(price*gtucost/100d), "Gewinn Versteigerung #2"+entry.getId()+" abzgl. "+gtucost+"% Auktionskosten", false, User.TRANSFER_AUTO );
 				}
 				
 				StatGtu stat = new StatGtu(entry, gtucost);
 				db.persist(stat);
-				
 				db.delete(entry); 
 				
-				getContext().commit();
+				transaction.commit();
+				transaction = db.beginTransaction();
 			}
-			catch( RuntimeException e ) {
+			catch( RuntimeException e ) 
+			{
+				transaction.rollback();
 				this.log("Versteigerung "+entry.getId()+" failed: "+e);
 				e.printStackTrace();
 				Common.mailThrowable(e, "RTCTick Exception", "versteigerung: "+entry.getId());
@@ -256,11 +277,14 @@ public class RTCTick extends TickController {
 		entries = db.createQuery("from PaketVersteigerung where tick<= :tick order by id")
 			.setInteger("tick", this.ticks)
 			.list();
-		for( Iterator<?> iter=entries.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=entries.iterator(); iter.hasNext(); ) 
+		{
 			PaketVersteigerung paket = (PaketVersteigerung)iter.next();
 			
-			try {
-				if( paket.getBieter() == this.gtuuser ) {
+			try 
+			{
+				if( paket.getBieter() == this.gtuuser ) 
+				{
 					this.log("Die Versteigerung eines GTU-Paketes (id: "+paket.getId()+") wurde um 5 Runden verlaengert");
 					paket.setTick(this.ticks+5);
 					
@@ -276,7 +300,8 @@ public class RTCTick extends TickController {
 				
 				Location loc = system.getDropZone();
 	
-				if( loc == null ) {
+				if( loc == null ) 
+				{
 					system = (StarSystem)db.get(StarSystem.class, dropzone);
 					
 					loc = system.getDropZone();
@@ -286,7 +311,8 @@ public class RTCTick extends TickController {
 		
 				ShipType shipd = (ShipType)db.get(ShipType.class, CARGO_TRANSPORTER);
 				
-				if( cargo.getMass() > shipd.getCargo() ) {		
+				if( cargo.getMass() > shipd.getCargo() ) 
+				{		
 					shipd = (ShipType)db.get(ShipType.class, CARGO_TRANSPORTER_LARGE);
 					
 					this.log("\t% Es wird der grosse Transporter verwendet");
@@ -313,9 +339,11 @@ public class RTCTick extends TickController {
 				ResourceList reslist = cargo.getResourceList();
 				int index = 1;
 				
-				for( ResourceEntry res : reslist ) {
+				for( ResourceEntry res : reslist ) 
+				{
 					this.slog(res.getCount1()+" "+Cargo.getResourceName( res.getId() ));
-					if( index < reslist.size() ) {
+					if( index < reslist.size() ) 
+					{
 						this.slog(", ");
 					}
 					
@@ -325,7 +353,8 @@ public class RTCTick extends TickController {
 						
 				ship.recalculateShipStatus();
 		
-				for( int i=0; i < ships.length; i++ ) {
+				for( int i=0; i < ships.length; i++ ) 
+				{
 					ShipType type = ships[i];
 					
 					this.log("\t* Es wurde eine "+type.getNickname()+" von ID "+winner.getId()+" ersteigert");
@@ -348,7 +377,8 @@ public class RTCTick extends TickController {
 					
 					db.save(ship);
 					
-					if( shipd.getWerft() != 0 ) {
+					if( shipd.getWerft() != 0 ) 
+					{
 						ShipWerft werft = new ShipWerft(ship);
 						db.persist(werft);
 						
@@ -370,8 +400,12 @@ public class RTCTick extends TickController {
 				db.persist(stat);
 				
 				db.delete(paket);
+				transaction.commit();
+				transaction = db.beginTransaction();
 			}
-			catch( RuntimeException e ) {
+			catch( RuntimeException e )
+			{
+				transaction.rollback();
 				this.log("Paket "+paket.getId()+" failed: "+e);
 				e.printStackTrace();
 				Common.mailThrowable(e, "RTCTick Exception", "paket: "+paket.getId());
@@ -379,6 +413,7 @@ public class RTCTick extends TickController {
 				throw e;
 			}
 		}
+		
+		transaction.commit();
 	}
-
 }

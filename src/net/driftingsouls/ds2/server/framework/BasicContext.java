@@ -25,14 +25,13 @@ import java.util.Map;
 
 import net.driftingsouls.ds2.server.framework.authentication.AuthenticationManager;
 import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
+import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import net.driftingsouls.ds2.server.framework.pipeline.Error;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Required;
@@ -49,7 +48,6 @@ public class BasicContext implements Context
 {
 	private static final Log log = LogFactory.getLog(BasicContext.class);
 
-	private Database database;
 	private Request request;
 	private Response response;
 	private BasicUser activeUser = null;
@@ -57,10 +55,6 @@ public class BasicContext implements Context
 	private Map<Class<?>, Object> contextSingletons = new HashMap<Class<?>, Object>();
 	private Map<Class<?>, Map<String, Object>> variables = new HashMap<Class<?>, Map<String, Object>>();
 	private List<ContextListener> listener = new ArrayList<ContextListener>();
-	private org.hibernate.Session session;
-	private Transaction transaction;
-
-	private Configuration config;
 	private AuthenticationManager authManager;
 
 	/**
@@ -78,32 +72,6 @@ public class BasicContext implements Context
 		this.response = response;
 	}
 
-	private void initDbConnection(Configuration config)
-	{
-		log.debug("Oeffne DB-Verbindung");
-		
-		session = HibernateFacade.openSession();
-		transaction = session.beginTransaction();
-
-		database = new Database(session.connection());
-
-		if( config.getInt("LOG_QUERIES") != 0 )
-		{
-			database.setQueryLogStatus(true);
-		}
-	}
-
-	/**
-	 * Injiziert die DS-Konfiguration.
-	 * @param config Die DS-Konfiguration
-	 */
-	@Autowired
-	@Required
-	public void setConfiguration(Configuration config)
-	{
-		this.config = config;
-	}
-	
 	/**
 	 * Injiziert den AuthenticationManager zum Validieren von Sessions.
 	 * 
@@ -129,21 +97,13 @@ public class BasicContext implements Context
 	@Override
 	public Database getDatabase()
 	{
-		if( database == null )
-		{
-			initDbConnection(config);
-		}
-		return database;
+		return new Database(HibernateUtil.getSessionFactory().getCurrentSession().connection());
 	}
 
 	@Override
 	public org.hibernate.Session getDB()
 	{
-		if( session == null || !session.isOpen())
-		{
-			initDbConnection(config);
-		}
-		return session;
+		return HibernateUtil.getSessionFactory().getCurrentSession();
 	}
 
 	@Override
@@ -223,27 +183,6 @@ public class BasicContext implements Context
 					e = ex;
 				}
 			}
-
-			// Falls eine DB-Verbindung geoeffnet wurde, muss diese nun auch
-			// wieder geschlossen werden
-			if( this.session != null )
-			{
-				if( transaction.isActive() && !transaction.wasRolledBack() )
-				{
-					try
-					{
-						transaction.commit();
-					}
-					catch( RuntimeException ex )
-					{
-						transaction.rollback();
-						e = ex;
-					}
-				}
-				
-				database.close();
-				session.close();
-			}
 		}
 		finally
 		{
@@ -255,38 +194,6 @@ public class BasicContext implements Context
 		{
 			throw e;
 		}
-	}
-
-	@Override
-	public void rollback()
-	{
-		// Keine Session == nichts zum zurueckrollen
-		if( this.session == null )
-		{
-			return;
-		}
-
-		if( transaction.isActive() )
-		{
-			transaction.rollback();
-		}
-		transaction = session.beginTransaction();
-	}
-
-	@Override
-	public void commit()
-	{
-		// Keine Session == nichts zum committen
-		if( this.session == null )
-		{
-			return;
-		}
-
-		if( transaction.isActive() && !transaction.wasRolledBack() )
-		{
-			transaction.commit();
-		}
-		transaction = session.beginTransaction();
 	}
 
 	@SuppressWarnings("unchecked")

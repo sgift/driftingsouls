@@ -25,6 +25,9 @@ import javax.persistence.Table;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffectFactory;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 /**
  * Repraesentiert einen Item-Typ in DS.
  * 
@@ -33,6 +36,7 @@ import net.driftingsouls.ds2.server.config.items.effects.ItemEffectFactory;
  */
 @Entity
 @Table(name="items")
+@Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
 public class Item {
 	/**
 	 * Enthaelt die moeglichen Qualitaetsstufen eines Items.

@@ -22,7 +22,6 @@ import java.io.File;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.tick.regular.AcademyTick;
 import net.driftingsouls.ds2.server.tick.regular.BaseTick;
 import net.driftingsouls.ds2.server.tick.regular.BattleTick;
@@ -39,6 +38,7 @@ import net.driftingsouls.ds2.server.tick.regular.WerftTick;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -54,6 +54,8 @@ public class RegularTick extends AbstractTickExecuter
 	@Override
 	protected void executeTicks()
 	{
+		log("Starte regular tick.");
+		
 		TimeoutChecker timeout = null;
 		try
 		{
@@ -85,7 +87,9 @@ public class RegularTick extends AbstractTickExecuter
 			
 			File lockFile = new File(this.getConfiguration().get("LOXPATH")+"/regulartick.lock");
 			lockFile.createNewFile();
+			log("Blockiere Accounts");
 			blockAccs();
+			log("Accounts blockiert");
 			try
 			{
 				publishStatus("berechne Nutzer");
@@ -124,7 +128,9 @@ public class RegularTick extends AbstractTickExecuter
 			}
 			finally
 			{
+				log("Hebe Accountblock auf");
 				unblockAccs();
+				log("Accounts frei");
 				if( !lockFile.delete() )
 				{
 					log.warn("Konnte Lockdatei "+lockFile+" nicht loeschen");
@@ -147,6 +153,7 @@ public class RegularTick extends AbstractTickExecuter
 				timeout.interrupt();
 			}
 		}
+		log("Regulartick beendet");
 	}
 
 	@Override
@@ -158,23 +165,19 @@ public class RegularTick extends AbstractTickExecuter
 	
 	private void blockAccs()
 	{
-		Context context = getContext();
 		Session db = getDB();
-		context.commit();
+		Transaction transaction = db.beginTransaction();
 		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "tick");
 		value.setValue("" + 1);
-		context.commit();
-		db.flush();
+		transaction.commit();
 	}
 	
 	private void unblockAccs()
 	{
-		Context context = getContext();
 		Session db = getDB();
-		context.commit();
+		Transaction transaction = db.beginTransaction();
 		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "tick");
 		value.setValue("" + 0);
-		context.commit();
-		db.flush();
+		transaction.commit();
 	}
 }

@@ -74,6 +74,9 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.CacheMode;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -85,6 +88,8 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Entity
 @Table(name="battles")
 @Configurable
+@Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
+@BatchSize(size=50)
 public class Battle implements Locatable {
 	private static final Log log = LogFactory.getLog(Battle.class);
 	

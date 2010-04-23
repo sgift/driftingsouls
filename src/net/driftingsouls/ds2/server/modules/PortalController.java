@@ -751,7 +751,7 @@ public class PortalController extends TemplateGenerator {
 				"show.news.archiv", archiv );
 		t.setBlock("_PORTAL","news.listitem","news.list");
 
-		List<NewsEntry> allnews = Common.cast(db.createQuery("FROM NewsEntry ORDER BY date")
+		List<NewsEntry> allnews = Common.cast(db.createQuery("FROM NewsEntry ORDER BY date DESC")
 												.setMaxResults(archiv != 0 ? 100 : 5)
 												.list());
 		for(NewsEntry news : allnews ) {

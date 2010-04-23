@@ -39,6 +39,7 @@ import net.driftingsouls.ds2.server.framework.DSObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +61,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Entity
 @Table(name="offiziere")
 @Configurable
+@BatchSize(size=50)
 public class Offizier extends DSObject {
 	/**
 	 * Die Attribute eines Offiziers.

@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
+import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -126,7 +126,7 @@ public class EditSystem implements AdminPlugin
 				if (count % 20 == 0)
 				{
 					db.flush();
-					HibernateFacade.evictAll(db, Ship.class);
+					HibernateUtil.getSessionFactory().getCurrentSession().evict(Ship.class);
 				}
 			}
 			
@@ -143,7 +143,7 @@ public class EditSystem implements AdminPlugin
 					battle.setY(system.getHeight());
 				}
 				db.flush();
-				HibernateFacade.evictAll(db, Battle.class);
+				HibernateUtil.getSessionFactory().getCurrentSession().evict(Battle.class);
 			}
 			
 			ScrollableResults bases = db.createQuery("from Base where system = :system").setInteger("system", system.getID()).setCacheMode(CacheMode.IGNORE).scroll(ScrollMode.FORWARD_ONLY);
@@ -159,7 +159,7 @@ public class EditSystem implements AdminPlugin
 					base.setY(system.getHeight());
 				}
 				db.flush();
-				HibernateFacade.evictAll(db, Base.class);
+				HibernateUtil.getSessionFactory().getCurrentSession().evict(Base.class);
 			}
 			
 			echo.append("<p>Update abgeschlossen.</p>");

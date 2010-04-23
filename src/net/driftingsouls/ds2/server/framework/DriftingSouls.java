@@ -21,7 +21,6 @@ package net.driftingsouls.ds2.server.framework;
 import java.util.Date;
 import java.util.Locale;
 
-import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
 import org.apache.commons.logging.Log;
@@ -81,8 +80,6 @@ public class DriftingSouls {
 					throw new Exception("Kann Klasse '"+className+"' nicht booten: Unbekannter Boot-Typ '"+type+"'");
 				}
 			}
-			org.hibernate.Session db = ContextMap.getContext().getDB();
-			User nulluser = (User)db.get(User.class, 0);
 		}
 
 		context.free();

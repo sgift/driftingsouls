@@ -28,21 +28,16 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 
 import net.driftingsouls.ds2.server.ContextCommon;
-import net.driftingsouls.ds2.server.Offizier;
-import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.scripting.EngineIdentifier;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 import org.hibernate.Hibernate;
+import org.hibernate.Transaction;
 
 /**
  * Fuehrt NPC-Aktionsscripte aus.
@@ -86,10 +81,13 @@ public class NPCScriptTick extends TickController {
 		org.hibernate.Session db = getContext().getDB();
 		this.log("Fuehre automatische NPC-Aktionen durch");
 		
+		Transaction transaction = db.beginTransaction();
 		List<User> users = Common.cast(db.createQuery("from User where locate('execnotes',flags)!=0").list());
-		for( User user : users ) {
+		for( User user : users ) 
+		{
 			Writer logger = new NullLogger();
-			if( user.hasFlag( User.FLAG_SCRIPT_DEBUGGING ) ) {
+			if( user.hasFlag( User.FLAG_SCRIPT_DEBUGGING ) ) 
+			{
 				logger = new TickLogger();	
 			}
 
@@ -97,13 +95,16 @@ public class NPCScriptTick extends TickController {
 			List<?> ships = db.createQuery("from Ship where id>0 and owner=? and battle is null and script is not null")
 				.setEntity(0, user)
 				.list();
-			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) 
+			{
 				final Ship ship = (Ship)iter.next();
-				try {
+				try 
+				{
 					this.log("+++ Ship "+ship.getId()+" +++");
 					
 					final String engineName = EngineIdentifier.identifyEngine(ship.getScript());
-					if( engineName == null ) {
+					if( engineName == null ) 
+					{
 						this.log("Unbekannte ScriptEngine");
 						continue;
 					}
@@ -112,12 +113,14 @@ public class NPCScriptTick extends TickController {
 						.getScriptParser(engineName);
 					
 					Blob scriptExecData = ship.getScriptExeData();
-					if( (scriptExecData != null) && (scriptExecData.length() > 0) ) {
+					if( (scriptExecData != null) && (scriptExecData.length() > 0) ) 
+					{
 						scriptparser.setContext(
 								ScriptParserContext.fromStream(scriptExecData.getBinaryStream())
 						);
 					}
-					else {
+					else 
+					{
 						scriptparser.setContext(new ScriptParserContext());
 					}
 					
@@ -126,38 +129,43 @@ public class NPCScriptTick extends TickController {
 					scriptparser.getContext().setAttribute("_SHIP", ship, ScriptContext.ENGINE_SCOPE);
 					scriptparser.eval( ship.getScript() );
 					
-					if( scriptExecData != null ) {
+					if( scriptExecData != null ) 
+					{
 						ScriptParserContext.toStream(scriptparser.getContext(), scriptExecData.setBinaryStream(1));
 					}
-					else {
+					else 
+					{
 						ByteArrayOutputStream out = new ByteArrayOutputStream();
 						ScriptParserContext.toStream(scriptparser.getContext(), out);
 						scriptExecData = Hibernate.createBlob(out.toByteArray());
 					}
 					
 					// Pruefen, ob das Script nicht via !RESETSCRIPT geloescht wurde
-					if( ship.getScript() != null ) {
+					if( ship.getScript() != null ) 
+					{
 						ship.setScriptExeData(scriptExecData);
 					}
 					
-					getContext().commit();
+					transaction.commit();
+					transaction = db.beginTransaction();
 				}
-				catch( Exception e ) {
+				catch( Exception e ) 
+				{
+					transaction.rollback();
+					transaction = db.beginTransaction();
 					this.log("[FEHLER] Kann Script auf Schiff "+ship.getId()+" nicht ausfuehren: "+e);
 					e.printStackTrace();
 					Common.mailThrowable(e, "[DS2J] NPCScriptTick Exception", "Schiff: "+ship.getId()+"\nUser: "+ship.getOwner().getId());
 				}
-				finally {
-					db.evict(ship);
-				}
 			}
-			db.evict(user);
-			HibernateFacade.evictAll(db, Ship.class, Offizier.class, ShipFleet.class, Battle.class, BattleShip.class, Base.class);
 		}
+		
+		transaction.commit();
 	}
 	
 	@Override
-	public void slog(String string) {
+	public void slog(String string) 
+	{
 		super.slog(string);
 	}
 }

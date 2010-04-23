@@ -233,7 +233,7 @@ public class UeberController extends TemplateGenerator {
 		if( Rassen.get().rasse(user.getRace()) != null ) {
 			race = Rassen.get().rasse(user.getRace()).getName();
 		}
-
+		
 		int ticks = getContext().get(ContextCommon.class).getTick();
 		ConfigValue value = (ConfigValue)getDB().get(ConfigValue.class, "corruption");
 		double corruption = Double.valueOf(value.getValue()) + user.getCorruption();
@@ -511,14 +511,13 @@ public class UeberController extends TemplateGenerator {
 		// Interaktives Tutorial
 		//------------------------------
 
-		long shipcount = (Long)db.createQuery("select count(*) from Ship " +
-				"where id>0 and owner= :user")
-			.setEntity("user", user)
-			.iterate().next();
-		
 		int inttutorial = Integer.parseInt(user.getUserValue("TBLORDER/uebersicht/inttutorial"));
 
 		if( inttutorial != 0 ) {
+			long shipcount = (Long)db.createQuery("select count(*) from Ship " +
+			"where id>0 and owner= :user")
+			.setEntity("user", user)
+			.iterate().next();
 			showTutorialPages(bases, shipcount, inttutorial);
 		}
 
@@ -565,7 +564,7 @@ public class UeberController extends TemplateGenerator {
 			
 			Ship aship = (Ship)db.createQuery("from Ship where fleet=?")
 				.setEntity(0, fleet)
-				.iterate().next();;
+				.iterate().next();
 			
 			if( !jdocked && aship.isLanded() ) {
 				jdocked = true;

@@ -30,6 +30,8 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -141,12 +143,7 @@ public abstract class AbstractTickExecuter extends TickController
 			// Alle Exceptions hier fangen und lediglich ausgeben
 			e.printStackTrace();
 		}
-		finally
-		{
-			// Der Inhalt des Ticks wurde geschrieben (commit) oder zurueckgesetzt (rollback)
-			// Daher ist ein clear nun unproblematisch
-			getDB().clear();
-		}
+		
 		this.tickTimes.put(tickname, System.currentTimeMillis()-start);
 	}
 
@@ -232,7 +229,10 @@ public abstract class AbstractTickExecuter extends TickController
 			return;
 		}
 
+		Session db = getDB();
+		Transaction transaction = db.beginTransaction();
 		int ticknr = getContext().get(ContextCommon.class).getTick() + 1;
+		transaction.commit();
 
 		if( !new File(loxpath + "/" + ticknr).isDirectory() )
 		{

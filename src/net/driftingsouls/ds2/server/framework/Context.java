@@ -50,21 +50,6 @@ public interface Context {
 	public org.hibernate.Session getDB();
 	
 	/**
-	 * Fuehrt ein Rollback auf der aktuellen Transaktion durch.
-	 * Anschliessend wird eine neue Transaktion begonnen.
-	 *
-	 */
-	public void rollback();
-	
-	/**
-	 * Schreibt die Aenderungen der aktuellen Transaktion in die
-	 * Datenbank, sofern die Transaktion nicht zurueckgerollt wurde.
-	 * Anschliessend wird eine neue Transaktion begonnen.
-	 *
-	 */
-	public void commit();
-	
-	/**
 	 * Liefert den gerade aktiven User.
 	 * 
 	 * @return Das zum gerade aktiven User gehoerende User-Objekt

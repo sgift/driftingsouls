@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
 
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Immutable;
@@ -39,6 +40,7 @@ import org.hibernate.annotations.Immutable;
 @Table(name="nebel")
 @Immutable
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@BatchSize(size=50)
 public class Nebel implements Locatable {
 	@Id
 	private MutableLocation loc;

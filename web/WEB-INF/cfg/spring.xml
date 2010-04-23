@@ -23,6 +23,7 @@
 	</bean>
 	<bean id="authenticationManager" class="net.driftingsouls.ds2.server.framework.authentication.DefaultAuthenticationManager" lazy-init="true" />
 	<bean class="net.driftingsouls.ds2.server.framework.BasicContext" scope="prototype" lazy-init="true">
+		<!-- <property name="sessionFactory" ref="sessionFactory" /> -->
 		<property name="authenticationManager" ref="authenticationManager" />
 	</bean>
 	

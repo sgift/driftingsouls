@@ -21,13 +21,11 @@ package net.driftingsouls.ds2.server.tick.regular;
 import java.util.Iterator;
 import java.util.List;
 
+import org.hibernate.Transaction;
+
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
-import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 /**
@@ -45,6 +43,7 @@ public class BattleTick extends TickController {
 	@Override
 	protected void tick() {
 		org.hibernate.Session db = getDB();
+		Transaction transaction = db.beginTransaction();
 
 		/*
 				Schlachten
@@ -61,14 +60,14 @@ public class BattleTick extends TickController {
 		.setLong(0, lastacttime)
 		.list();
 
-		for( Iterator<?> iter=battles.iterator(); iter.hasNext(); ) {
-			Battle battle = (Battle)iter.next();
-
-			try {
+		try 
+		{
+			for( Iterator<?> iter=battles.iterator(); iter.hasNext(); ) 
+			{
+				Battle battle = (Battle)iter.next();
 				this.log("+ Naechste Runde bei Schlacht "+battle.getId());
-
 				battle.load( battle.getCommander(0), null, null, 0 );
-
+	
 				//In der ersten Runde verzoegern wir grundsaetzlich - aufgehoben
 				//maximal jedoch einmal, damit Schlachten nicht unendlich lange im System
 				//vorhanden sind
@@ -76,33 +75,33 @@ public class BattleTick extends TickController {
 					if( battle.hasFlag(Battle.FLAG_FIRSTROUND) ) {
 						battle.setFlag(Battle.FLAG_FIRSTROUND, false);
 						getContext().commit();
-
+	
 						continue;
 					}
 				 */
-
-				if( battle.endTurn(false) ) {
+	
+				if( battle.endTurn(false) ) 
+				{
 					// Daten nur aktualisieren, wenn die Schlacht auch weiterhin existiert
 					battle.logenemy("<endturn type=\"all\" side=\"-1\" time=\""+Common.time()+"\" tick=\""+getContext().get(ContextCommon.class).getTick()+"\" />\n");
-
+	
 					battle.writeLog();
-
+	
 					battle.addComMessage(battle.getOwnSide(), "++++ Das Tickscript hat die Runde beendet ++++\n\n");
 					battle.addComMessage(battle.getEnemySide(), "++++ Das Tickscript hat die Runde beendet ++++\n\n");
 				}
-				getContext().commit();
 			}
-			catch( RuntimeException e ) {
-				getContext().rollback();
-
-				this.log("Battle "+battle.getId()+" failed: "+e);
-				e.printStackTrace();
-				Common.mailThrowable(e, "BattleTick Exception", "battle: "+battle.getId());
-			}
-			finally {
-				db.evict(battle);
-				HibernateFacade.evictAll(db, Ship.class, BattleShip.class, ShipFleet.class);
-			}
+			transaction.commit();
+			transaction = db.beginTransaction();
 		}
+		catch( RuntimeException e ) 
+		{
+			transaction.rollback();
+			transaction = db.beginTransaction();
+			e.printStackTrace();
+			Common.mailThrowable(e, "BattleTick Exception", "Battle tick failed.");
+		}
+		
+		transaction.commit();
 	}
 }

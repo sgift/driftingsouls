@@ -27,6 +27,10 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 /**
  * Die Moduldaten eines Schiffes.
  * @author Christopher Jung
@@ -34,6 +38,8 @@ import javax.persistence.Version;
  */
 @Entity
 @Table(name="ships_modules")
+@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@BatchSize(size=50)
 public class ShipModules implements ShipTypeData {
 	@Id
 	private int id;

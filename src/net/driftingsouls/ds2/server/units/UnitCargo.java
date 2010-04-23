@@ -24,12 +24,10 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.FlushMode;
 
 /**
  * Repraesentiert einen UnitCargo, also eine Liste von Einheiten mit jeweils einer bestimmten Menge, in DS.
@@ -152,6 +150,13 @@ public class UnitCargo implements Cloneable {
 		
 	}
 	
+	public UnitCargo(List<UnitCargoEntry> units, int type, int destid)
+	{
+		this.units = units;
+		this.type = type;
+		this.destid = destid;
+	}
+	
 	protected List<UnitCargoEntry> getUnitArray() {
 		return units;
 	}
@@ -159,21 +164,18 @@ public class UnitCargo implements Cloneable {
 	/**
 	 * Speichert das aktuelle UnitCargoObjekt.
 	 */
-	public void save() {
+	public void save() 
+	{
 		if( this.type == 0 || this.destid == 0)
 		{
 			log.warn("Nicht genug Daten zum speichern eines UnitCargoObjektes");
 			return;
 		}
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		db.setFlushMode(FlushMode.MANUAL);
-		
 		db.createQuery("delete from UnitCargoEntry where key.type = :type and key.destid = :destid")
 						.setInteger("type", this.type)
 						.setInteger("destid", this.destid)
 						.executeUpdate();
-		
-		HibernateFacade.evictAll(db,UnitCargoEntry.class);
 		
 		for( UnitCargoEntry entry : units)
 		{
@@ -181,11 +183,6 @@ public class UnitCargo implements Cloneable {
 			entry.setDestId(this.destid);
 			db.persist(entry);
 		}
-		
-		db.flush();
-		ContextMap.getContext().commit();
-		
-		db.setFlushMode(FlushMode.AUTO);
 	}
 	
 	/**

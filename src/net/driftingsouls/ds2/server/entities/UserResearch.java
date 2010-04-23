@@ -26,6 +26,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 /**
  * Repraesentiert eine durch einen Spieler erforschte Technologie.
  * @author Christopher Jung
@@ -33,6 +37,8 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name="userresearch")
+@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@BatchSize(size=50)
 public class UserResearch {
 	@Id @GeneratedValue
 	private int id;

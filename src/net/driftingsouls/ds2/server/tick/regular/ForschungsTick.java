@@ -21,6 +21,8 @@ package net.driftingsouls.ds2.server.tick.regular;
 import java.util.Iterator;
 import java.util.List;
 
+import org.hibernate.Transaction;
+
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.Forschung;
@@ -43,15 +45,19 @@ public class ForschungsTick extends TickController {
 	}
 
 	@Override
-	protected void tick() {
+	protected void tick() 
+	{
 			org.hibernate.Session db = getDB();
+			Transaction transaction = db.beginTransaction();
 			final User sourceUser = (User)db.get(User.class, -1);
 			
 			List<?> fzList = db.createQuery("from Forschungszentrum where dauer<=1 and (base.owner.vaccount=0 or base.owner.wait4vac!=0) and forschung!=null").list();
-			for( Iterator<?> iter=fzList.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=fzList.iterator(); iter.hasNext(); ) 
+			{
 				Forschungszentrum fz = (Forschungszentrum)iter.next();
 				
-				try {
+				try 
+				{
 					Base base = fz.getBase();
 					User user = base.getOwner();
 	
@@ -65,7 +71,8 @@ public class ForschungsTick extends TickController {
 						
 					String msg = "Das Forschungszentrum auf "+base.getName()+" hat die Forschungen an "+forschung.getName()+" abgeschlossen";
 						
-					if( forschung.hasFlag( Forschung.FLAG_DROP_NOOB_PROTECTION) && user.isNoob() ) {
+					if( forschung.hasFlag( Forschung.FLAG_DROP_NOOB_PROTECTION) && user.isNoob() ) 
+					{
 						msg += "\n\n[color=red]Durch die Erforschung dieser Technologie stehen sie nicht l&auml;nger unter GCP-Schutz.\nSie k&ouml;nnen nun sowohl angreifen als auch angegriffen werden![/color]";
 						user.setFlag( User.FLAG_NOOB, false );
 						
@@ -77,11 +84,13 @@ public class ForschungsTick extends TickController {
 					fz.setForschung(null);
 					fz.setDauer(0);
 					
-					getContext().commit();
-					db.evict(fz);
-					db.evict(base);
+					transaction.commit();
+					transaction = db.beginTransaction();
 				}
-				catch( RuntimeException e ) {
+				catch( RuntimeException e ) 
+				{
+					transaction.rollback();
+					transaction = db.beginTransaction();
 					this.log("Forschungszentrum "+fz.getBaseId()+" failed: "+e);
 					e.printStackTrace();
 					Common.mailThrowable(e, "ForschungsTick Exception", "Forschungszentrum: "+fz.getBaseId());
@@ -96,6 +105,7 @@ public class ForschungsTick extends TickController {
 				.executeUpdate();
 			
 			log("Laufende Forschungen: "+count);
+			
+			transaction.commit();
 	}
-
 }

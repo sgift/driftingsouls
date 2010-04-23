@@ -41,15 +41,14 @@ import net.driftingsouls.ds2.server.entities.StatUserCargo;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipModules;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 import org.hibernate.CacheMode;
-import org.hibernate.FlushMode;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
+import org.hibernate.Transaction;
 
 /**
  * Berechnet sonstige Tick-Aktionen, welche keinen eigenen TickController haben.
@@ -60,258 +59,259 @@ public class RestTick extends TickController {
 	private int tick;
 	
 	@Override
-	protected void prepare() {
+	protected void prepare() 
+	{
 		this.tick = ContextMap.getContext().get(ContextCommon.class).getTick();
 	}
 	
 	@Override
-	protected void tick() {
+	protected void tick() 
+	{
 		org.hibernate.Session db = getContext().getDB();
-		db.setFlushMode(FlushMode.MANUAL);
 		
-		this.log("Berechne Gesamtcargo:");
-		Cargo cargo = new Cargo();
-		Map<User,Cargo> usercargos = new HashMap<User,Cargo>();
-		Map<User,Map<Integer,Set<String>>> useritemlocations = new HashMap<User, Map<Integer, Set<String>>>();
-		
-		int counter = 0;
-		long baseCount = (Long)db.createQuery("select count(*) from Base where owner!=0").iterate().next();
-		
-		this.log("\tLese "+baseCount+" Basen ein");
-		
-		while(counter < baseCount)
+		Transaction transaction = db.beginTransaction();
+		try
 		{
-			List<?> bases = db.createQuery("from Base as b inner join fetch b.owner where b.owner!=0")
-				.setCacheMode(CacheMode.IGNORE)
-				.setFirstResult(counter)
-				.setFetchSize(50)
-				.list();
-			for( Iterator<?> iter=bases.iterator(); iter.hasNext(); ) {
-				Base base = (Base)iter.next();
-				
-				counter++;
-				
-				Cargo bcargo = base.getCargo();
-				if( base.getOwner().getId() > 0 ) {
-					cargo.addCargo( bcargo );
+			this.log("Berechne Gesamtcargo:");
+			Cargo cargo = new Cargo();
+			Map<User,Cargo> usercargos = new HashMap<User,Cargo>();
+			Map<User,Map<Integer,Set<String>>> useritemlocations = new HashMap<User, Map<Integer, Set<String>>>();
+			
+			int counter = 0;
+			long baseCount = (Long)db.createQuery("select count(*) from Base where owner!=0").iterate().next();
+			
+			this.log("\tLese "+baseCount+" Basen ein");
+			
+			while(counter < baseCount)
+			{
+				List<?> bases = db.createQuery("from Base as b inner join fetch b.owner where b.owner!=0")
+					.setCacheMode(CacheMode.IGNORE)
+					.setFirstResult(counter)
+					.setFetchSize(50)
+					.list();
+				for( Iterator<?> iter=bases.iterator(); iter.hasNext(); ) {
+					Base base = (Base)iter.next();
+					
+					counter++;
+					
+					Cargo bcargo = base.getCargo();
+					if( base.getOwner().getId() > 0 ) {
+						cargo.addCargo( bcargo );
+					}
+								
+					if( !usercargos.containsKey(base.getOwner()) ) {
+						usercargos.put(base.getOwner(), new Cargo(bcargo));
+					}
+					else {
+						usercargos.get(base.getOwner()).addCargo( bcargo );
+					}
+					
+					
+					List<ItemCargoEntry> itemlist = bcargo.getItems();
+					for( int i=0; i < itemlist.size(); i++ ) {
+						ItemCargoEntry aitem = itemlist.get(i);
+						if( aitem.getItemEffect().getType() != ItemEffect.Type.AMMO ) {
+							if( !useritemlocations.containsKey(base.getOwner()) ) {
+								useritemlocations.put(base.getOwner(), new HashMap<Integer,Set<String>>());
+							}
+							Map<Integer,Set<String>> itemlocs = useritemlocations.get(base.getOwner());
+							if( !itemlocs.containsKey(aitem.getItemID()) ) {
+								itemlocs.put(aitem.getItemID(), new HashSet<String>());
+							}
+							itemlocs.get(aitem.getItemID()).add("b"+base.getId());
+						}	
+					}
+					
+					db.evict(base);
 				}
-							
-				if( !usercargos.containsKey(base.getOwner()) ) {
-					usercargos.put(base.getOwner(), new Cargo(bcargo));
+			}
+			long shipCount = (Long)db.createQuery("select count(*) from Ship where id>0")
+				.iterate()
+				.next();
+			
+			counter = 0;
+			
+			this.log("\tLese "+shipCount+" Schiffe ein");
+			while( counter < shipCount ) {
+				List<?> ships = db.createQuery("from Ship as s left join fetch s.modules where s.id>0")
+					.setCacheMode(CacheMode.IGNORE)
+					.setFirstResult(counter)
+					.setMaxResults(50)
+					.list();
+				for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
+					Ship ship = (Ship)iter.next();
+					
+					counter++;
+					
+					if( counter % 10000 == 0 ) {
+						this.log("\t\t* "+ship.getId());
+					}
+					
+					Cargo scargo = ship.getCargo();
+					if( ship.getOwner().getId() > 0 ) {
+						cargo.addCargo( scargo );
+					}
+					
+					if( !usercargos.containsKey(ship.getOwner()) ) {
+						usercargos.put(ship.getOwner(), new Cargo(scargo));
+					}
+					else {
+						usercargos.get(ship.getOwner()).addCargo( scargo );
+					}
+					
+					List<ItemCargoEntry> itemlist = scargo.getItems();
+					for( int i=0; i < itemlist.size(); i++ ) {
+						ItemCargoEntry aitem = itemlist.get(i);
+						if( aitem.getItemEffect().getType() != ItemEffect.Type.AMMO ) {
+							if( !useritemlocations.containsKey(ship.getOwner()) ) {
+								useritemlocations.put(ship.getOwner(), new HashMap<Integer,Set<String>>());
+							}
+							Map<Integer,Set<String>> itemlocs = useritemlocations.get(ship.getOwner());
+							if( !itemlocs.containsKey(aitem.getItemID()) ) {
+								itemlocs.put(aitem.getItemID(), new HashSet<String>());
+							}
+							itemlocs.get(aitem.getItemID()).add("s"+ship.getId());
+						}	
+					}
+					
+					Ship.ModuleEntry[] modulelist = ship.getModules();
+					
+					for( int i=0; i < modulelist.length; i++ ) {
+						Ship.ModuleEntry amodule = modulelist[i];
+						
+						Module shipmodule = Modules.getShipModule(amodule);
+						if( shipmodule instanceof ModuleItemModule ) {
+							ModuleItemModule itemmodule = (ModuleItemModule)shipmodule;
+							if( ship.getOwner().getId() > 0 ) {
+								cargo.addResource(itemmodule.getItemID(), 1);
+							}
+							usercargos.get(ship.getOwner()).addResource(itemmodule.getItemID(), 1);
+							if( !useritemlocations.containsKey(ship.getOwner()) ) {
+								useritemlocations.put(ship.getOwner(), new HashMap<Integer,Set<String>>());
+							}
+							Map<Integer,Set<String>> itemlocs = useritemlocations.get(ship.getOwner());
+							if( !itemlocs.containsKey(itemmodule.getItemID().getItemID()) ) {
+								itemlocs.put(itemmodule.getItemID().getItemID(), new HashSet<String>());
+							}
+							itemlocs.get(itemmodule.getItemID().getItemID()).add("s"+ship.getId());
+						}
+					}
+					db.evict(ship);
+					db.evict(ShipModules.class);
+				}
+			}
+	
+			this.log("\tLese Zwischenlager ein");
+			ScrollableResults entrylist = db.createQuery("from GtuZwischenlager")
+				.setCacheMode(CacheMode.GET)
+				.scroll(ScrollMode.FORWARD_ONLY);
+			while( entrylist.next() ) {
+				GtuZwischenlager entry = (GtuZwischenlager)entrylist.get(0);
+				
+				Cargo acargo = entry.getCargo1();
+				if( entry.getUser1().getId() > 0 ) {
+					cargo.addCargo( acargo );
+				}
+					
+				if( !usercargos.containsKey(entry.getUser1()) ) {
+					usercargos.put(entry.getUser1(), new Cargo(acargo));
 				}
 				else {
-					usercargos.get(base.getOwner()).addCargo( bcargo );
+					usercargos.get(entry.getUser1()).addCargo( acargo );
 				}
-				
-				
-				List<ItemCargoEntry> itemlist = bcargo.getItems();
+	
+				List<ItemCargoEntry> itemlist = acargo.getItems();
 				for( int i=0; i < itemlist.size(); i++ ) {
 					ItemCargoEntry aitem = itemlist.get(i);
 					if( aitem.getItemEffect().getType() != ItemEffect.Type.AMMO ) {
-						if( !useritemlocations.containsKey(base.getOwner()) ) {
-							useritemlocations.put(base.getOwner(), new HashMap<Integer,Set<String>>());
+						if( !useritemlocations.containsKey(entry.getUser1()) ) {
+							useritemlocations.put(entry.getUser1(), new HashMap<Integer,Set<String>>());
 						}
-						Map<Integer,Set<String>> itemlocs = useritemlocations.get(base.getOwner());
+						Map<Integer,Set<String>> itemlocs = useritemlocations.get(entry.getUser1());
 						if( !itemlocs.containsKey(aitem.getItemID()) ) {
 							itemlocs.put(aitem.getItemID(), new HashSet<String>());
 						}
-						itemlocs.get(aitem.getItemID()).add("b"+base.getId());
-					}	
+						itemlocs.get(aitem.getItemID()).add("g"+entry.getPosten().getId());
+					}
 				}
 				
-				db.evict(base);
-			}
-		}
-		long shipCount = (Long)db.createQuery("select count(*) from Ship where id>0")
-			.iterate()
-			.next();
-		
-		counter = 0;
-		
-		this.log("\tLese "+shipCount+" Schiffe ein");
-		while( counter < shipCount ) {
-			List<?> ships = db.createQuery("from Ship as s left join fetch s.modules where s.id>0")
-				.setCacheMode(CacheMode.IGNORE)
-				.setFirstResult(counter)
-				.setMaxResults(50)
-				.list();
-			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-				Ship ship = (Ship)iter.next();
-				
-				counter++;
-				
-				if( counter % 10000 == 0 ) {
-					this.log("\t\t* "+ship.getId());
+				acargo = entry.getCargo2();
+				if( entry.getUser2().getId() > 0 ) {
+					cargo.addCargo( acargo );
 				}
-				
-				Cargo scargo = ship.getCargo();
-				if( ship.getOwner().getId() > 0 ) {
-					cargo.addCargo( scargo );
-				}
-				
-				if( !usercargos.containsKey(ship.getOwner()) ) {
-					usercargos.put(ship.getOwner(), new Cargo(scargo));
+				if( !usercargos.containsKey(entry.getUser2()) ) {
+					usercargos.put(entry.getUser2(), new Cargo(acargo));
 				}
 				else {
-					usercargos.get(ship.getOwner()).addCargo( scargo );
+					usercargos.get(entry.getUser2()).addCargo( acargo );
 				}
 				
-				List<ItemCargoEntry> itemlist = scargo.getItems();
+				itemlist = acargo.getItems();
 				for( int i=0; i < itemlist.size(); i++ ) {
 					ItemCargoEntry aitem = itemlist.get(i);
 					if( aitem.getItemEffect().getType() != ItemEffect.Type.AMMO ) {
-						if( !useritemlocations.containsKey(ship.getOwner()) ) {
-							useritemlocations.put(ship.getOwner(), new HashMap<Integer,Set<String>>());
+						if( !useritemlocations.containsKey(entry.getUser2()) ) {
+							useritemlocations.put(entry.getUser2(), new HashMap<Integer,Set<String>>());
 						}
-						Map<Integer,Set<String>> itemlocs = useritemlocations.get(ship.getOwner());
+						Map<Integer,Set<String>> itemlocs = useritemlocations.get(entry.getUser2());
 						if( !itemlocs.containsKey(aitem.getItemID()) ) {
 							itemlocs.put(aitem.getItemID(), new HashSet<String>());
 						}
-						itemlocs.get(aitem.getItemID()).add("s"+ship.getId());
+						itemlocs.get(aitem.getItemID()).add("g"+entry.getPosten().getId());
 					}	
 				}
-				
-				Ship.ModuleEntry[] modulelist = ship.getModules();
-				
-				for( int i=0; i < modulelist.length; i++ ) {
-					Ship.ModuleEntry amodule = modulelist[i];
+			}
+			
+			StatCargo stat = new StatCargo(this.tick, cargo);
+			db.persist(stat);
+			transaction.commit();
+			transaction = db.beginTransaction();
+			
+			this.log("\t"+cargo.save());
+			this.log("Speichere User-Cargo-Stats");
+			db.createQuery("delete from StatUserCargo").executeUpdate();
+			
+			for( Map.Entry<User, Cargo> entry: usercargos.entrySet() ) {
+				User owner = entry.getKey();
+				Cargo userCargo = entry.getValue();
+				StatUserCargo userstat = new StatUserCargo(owner, userCargo);
+				this.log(owner.getId()+":"+userCargo.save());
+				db.persist(userstat);
+			}
+			
+			transaction.commit();
+			transaction = db.beginTransaction();
+			
+			this.log("Speichere Module-Location-Stats");
+			db.createQuery("delete from StatItemLocations").executeUpdate();
+			
+			for( Map.Entry<User, Map<Integer, Set<String>>> entry: useritemlocations.entrySet() ) {
+				User owner = entry.getKey();
+				for( Map.Entry<Integer, Set<String>> innerEntry: entry.getValue().entrySet() ) {
+					Set<String> locations = innerEntry.getValue();
+					int itemid = innerEntry.getKey();
 					
-					Module shipmodule = Modules.getShipModule(amodule);
-					if( shipmodule instanceof ModuleItemModule ) {
-						ModuleItemModule itemmodule = (ModuleItemModule)shipmodule;
-						if( ship.getOwner().getId() > 0 ) {
-							cargo.addResource(itemmodule.getItemID(), 1);
+					List<String>locationlist = new ArrayList<String>();
+					for( String loc : locations ) {
+						locationlist.add(loc);
+						
+						// Bei einer durchschnittlichen Zeichenkettenlaenge von 8 passen nicht mehr 10 Orte rein
+						if( locationlist.size() >= 10 ) {
+							break;	
 						}
-						usercargos.get(ship.getOwner()).addResource(itemmodule.getItemID(), 1);
-						if( !useritemlocations.containsKey(ship.getOwner()) ) {
-							useritemlocations.put(ship.getOwner(), new HashMap<Integer,Set<String>>());
-						}
-						Map<Integer,Set<String>> itemlocs = useritemlocations.get(ship.getOwner());
-						if( !itemlocs.containsKey(itemmodule.getItemID().getItemID()) ) {
-							itemlocs.put(itemmodule.getItemID().getItemID(), new HashSet<String>());
-						}
-						itemlocs.get(itemmodule.getItemID().getItemID()).add("s"+ship.getId());
 					}
-				}
-				db.evict(ship);
-				HibernateFacade.evictAll(db, ShipModules.class);
-			}
-		}
-
-		this.log("\tLese Zwischenlager ein");
-		ScrollableResults entrylist = db.createQuery("from GtuZwischenlager")
-			.setCacheMode(CacheMode.GET)
-			.scroll(ScrollMode.FORWARD_ONLY);
-		while( entrylist.next() ) {
-			GtuZwischenlager entry = (GtuZwischenlager)entrylist.get(0);
-			
-			Cargo acargo = entry.getCargo1();
-			if( entry.getUser1().getId() > 0 ) {
-				cargo.addCargo( acargo );
-			}
-				
-			if( !usercargos.containsKey(entry.getUser1()) ) {
-				usercargos.put(entry.getUser1(), new Cargo(acargo));
-			}
-			else {
-				usercargos.get(entry.getUser1()).addCargo( acargo );
-			}
-
-			List<ItemCargoEntry> itemlist = acargo.getItems();
-			for( int i=0; i < itemlist.size(); i++ ) {
-				ItemCargoEntry aitem = itemlist.get(i);
-				if( aitem.getItemEffect().getType() != ItemEffect.Type.AMMO ) {
-					if( !useritemlocations.containsKey(entry.getUser1()) ) {
-						useritemlocations.put(entry.getUser1(), new HashMap<Integer,Set<String>>());
-					}
-					Map<Integer,Set<String>> itemlocs = useritemlocations.get(entry.getUser1());
-					if( !itemlocs.containsKey(aitem.getItemID()) ) {
-						itemlocs.put(aitem.getItemID(), new HashSet<String>());
-					}
-					itemlocs.get(aitem.getItemID()).add("g"+entry.getPosten().getId());
-				}
-			}
-			
-			acargo = entry.getCargo2();
-			if( entry.getUser2().getId() > 0 ) {
-				cargo.addCargo( acargo );
-			}
-			if( !usercargos.containsKey(entry.getUser2()) ) {
-				usercargos.put(entry.getUser2(), new Cargo(acargo));
-			}
-			else {
-				usercargos.get(entry.getUser2()).addCargo( acargo );
-			}
-			
-			itemlist = acargo.getItems();
-			for( int i=0; i < itemlist.size(); i++ ) {
-				ItemCargoEntry aitem = itemlist.get(i);
-				if( aitem.getItemEffect().getType() != ItemEffect.Type.AMMO ) {
-					if( !useritemlocations.containsKey(entry.getUser2()) ) {
-						useritemlocations.put(entry.getUser2(), new HashMap<Integer,Set<String>>());
-					}
-					Map<Integer,Set<String>> itemlocs = useritemlocations.get(entry.getUser2());
-					if( !itemlocs.containsKey(aitem.getItemID()) ) {
-						itemlocs.put(aitem.getItemID(), new HashSet<String>());
-					}
-					itemlocs.get(aitem.getItemID()).add("g"+entry.getPosten().getId());
-				}	
-			}
-		}
-		
-		StatCargo stat = new StatCargo(this.tick, cargo);
-		db.persist(stat);
-		
-		db.flush();
-		getContext().commit();
-		db.evict(stat);
-		
-		this.log("\t"+cargo.save());
-		
-		this.log("Speichere User-Cargo-Stats");
-		db.createQuery("delete from StatUserCargo").executeUpdate();
-		
-		for( Map.Entry<User, Cargo> entry: usercargos.entrySet() ) {
-			User owner = entry.getKey();
-			Cargo userCargo = entry.getValue();
-			StatUserCargo userstat = new StatUserCargo(owner, userCargo);
-			this.log(owner.getId()+":"+userCargo.save());
-			db.persist(userstat);
-		}
-		
-		db.flush();
-		getContext().commit();
-		HibernateFacade.evictAll(db, StatUserCargo.class, Ship.class, Base.class);
-		
-		this.log("Speichere Module-Location-Stats");
-		db.createQuery("delete from StatItemLocations").executeUpdate();
-		
-		for( Map.Entry<User, Map<Integer, Set<String>>> entry: useritemlocations.entrySet() ) {
-			User owner = entry.getKey();
-			for( Map.Entry<Integer, Set<String>> innerEntry: entry.getValue().entrySet() ) {
-				Set<String> locations = innerEntry.getValue();
-				int itemid = innerEntry.getKey();
-				
-				List<String>locationlist = new ArrayList<String>();
-				for( String loc : locations ) {
-					locationlist.add(loc);
 					
-					// Bei einer durchschnittlichen Zeichenkettenlaenge von 8 passen nicht mehr 10 Orte rein
-					if( locationlist.size() >= 10 ) {
-						break;	
-					}
+					StatItemLocations itemstat = new StatItemLocations(owner, itemid, Common.implode(";",locationlist));
+					db.persist(itemstat);
 				}
-				
-				StatItemLocations itemstat = new StatItemLocations(owner, itemid, Common.implode(";",locationlist));
-				db.persist(itemstat);
 			}
+			
+			transaction.commit();
 		}
-		
-		db.flush();
-		getContext().commit();
-		db.clear();
-		
-		db.setFlushMode(FlushMode.AUTO);
+		catch(Exception e)
+		{
+			transaction.rollback();
+		}
 	}
 
 }

@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.HibernateFacade;
+import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -283,7 +283,9 @@ public class EditShiptypes implements AdminPlugin
 					if (count % 20 == 0)
 					{
 						db.flush();
-						HibernateFacade.evictAll(db, Ship.class, ShipModules.class, Offizier.class);
+						HibernateUtil.getSessionFactory().getCurrentSession().evict(Ship.class);
+						HibernateUtil.getSessionFactory().getCurrentSession().evict(ShipModules.class);
+						HibernateUtil.getSessionFactory().getCurrentSession().evict(Offizier.class);
 					}
 				}
 				catch(Exception e)
@@ -293,7 +295,9 @@ public class EditShiptypes implements AdminPlugin
 				}
 			}
 			db.flush();
-			HibernateFacade.evictAll(db, Ship.class, ShipModules.class, Offizier.class);
+			HibernateUtil.getSessionFactory().getCurrentSession().evict(Ship.class);
+			HibernateUtil.getSessionFactory().getCurrentSession().evict(ShipModules.class);
+			HibernateUtil.getSessionFactory().getCurrentSession().evict(Offizier.class);
 
 			ScrollableResults battleShips = db.createQuery("from BattleShip where ship.shiptype=?").setEntity(0, shiptype).setCacheMode(CacheMode.IGNORE).scroll(ScrollMode.FORWARD_ONLY);
 
@@ -333,7 +337,8 @@ public class EditShiptypes implements AdminPlugin
 					if (count % 20 == 0)
 					{
 						db.flush();
-						HibernateFacade.evictAll(db, BattleShip.class, Ship.class);
+						HibernateUtil.getSessionFactory().getCurrentSession().evict(Ship.class);
+						HibernateUtil.getSessionFactory().getCurrentSession().evict(BattleShip.class);
 					}
 				}
 				catch(Exception e)
@@ -342,7 +347,8 @@ public class EditShiptypes implements AdminPlugin
 				}
 			}
 			db.flush();
-			HibernateFacade.evictAll(db, BattleShip.class, Ship.class);
+			HibernateUtil.getSessionFactory().getCurrentSession().evict(Ship.class);
+			HibernateUtil.getSessionFactory().getCurrentSession().evict(BattleShip.class);
 
 			echo.append("<p>Update abgeschlossen.</p>");
 		}

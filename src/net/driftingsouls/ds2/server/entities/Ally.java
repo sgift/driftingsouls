@@ -34,6 +34,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import org.hibernate.Query;
+import org.hibernate.annotations.BatchSize;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
@@ -50,6 +51,7 @@ import net.driftingsouls.ds2.server.tasks.Taskmanager;
  */
 @Entity
 @Table(name="ally")
+@BatchSize(size=50)
 public class Ally {
 	@Id	@GeneratedValue
 	private int id;
