@@ -34,6 +34,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.driftingsouls.ds2.server.framework.BasicContext;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.configuration.PipelineConfig;
 
 import org.apache.commons.logging.Log;
@@ -62,24 +64,17 @@ public class DefaultServletRequestFilter extends GenericFilterBean implements Fi
 		HttpServletRequest httpRequest = (HttpServletRequest)req;
 		HttpServletResponse httpResponse = (HttpServletResponse)resp;
 				
-		BasicContext context = null;
+		Context context = null;
 		try 
 		{
-			// Hide refferer
-			httpResponse.setHeader("Referer", "http://ds.drifting-souls.net");
-			
-			Request request = new HttpRequest(httpRequest);
-			Response response = new HttpResponse(httpRequest, httpResponse);
-			
 			WebApplicationContext springContext = WebApplicationContextUtils.getRequiredWebApplicationContext(this.getServletContext());
 			
-			context = new BasicContext(request, response);
+			context = ContextMap.getContext();
 			context.putVariable(HttpServlet.class, "response", httpResponse);
 			context.putVariable(HttpServlet.class, "request", httpRequest);
 			context.putVariable(HttpServlet.class, "context", this.getServletContext());
 			context.putVariable(HttpServlet.class, "chain", chain);
 			
-			context.revalidate();
 			PipelineConfig config = (PipelineConfig)springContext.getBean("pipelineConfig", PipelineConfig.class);
 			Pipeline pipeline = config.getPipelineForContext(context);
 			
@@ -113,13 +108,6 @@ public class DefaultServletRequestFilter extends GenericFilterBean implements Fi
 				writer.append(st[i].toString()+"<br />\n");
 			}
 			writer.append("</td></tr></table></body></html>");
-		}
-		finally 
-		{
-			if( context != null ) 
-			{
-				context.free();
-			}
 		}
 	}
 

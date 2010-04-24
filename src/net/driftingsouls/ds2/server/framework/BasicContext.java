@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.driftingsouls.ds2.server.framework.authentication.AuthenticationManager;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import net.driftingsouls.ds2.server.framework.pipeline.Error;
@@ -32,9 +31,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Response;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Eine einfache Klasse, welche das <code>Context</code>-Interface implementiert. Die Klasse
@@ -55,7 +52,6 @@ public class BasicContext implements Context
 	private Map<Class<?>, Object> contextSingletons = new HashMap<Class<?>, Object>();
 	private Map<Class<?>, Map<String, Object>> variables = new HashMap<Class<?>, Map<String, Object>>();
 	private List<ContextListener> listener = new ArrayList<ContextListener>();
-	private AuthenticationManager authManager;
 
 	/**
 	 * Erstellt eine neue Instanz der Klasse unter Verwendung eines <code>Request</code> und einer
@@ -70,28 +66,6 @@ public class BasicContext implements Context
 
 		this.request = request;
 		this.response = response;
-	}
-
-	/**
-	 * Injiziert den AuthenticationManager zum Validieren von Sessions.
-	 * 
-	 * @param authManager Der AuthenticationManager
-	 */
-	@Autowired
-	@Required
-	public void setAuthenticationManager(AuthenticationManager authManager)
-	{
-		this.authManager = authManager;
-	}
-
-	@Override
-	public void revalidate()
-	{
-		if( this.activeUser == null )
-		{
-			errorList.clear();
-			this.authManager.authenticateCurrentSession();
-		}
 	}
 
 	@Override

@@ -46,9 +46,14 @@ public class ErrorHandlerFilter implements Filter
 					printBoxedErrorMessage(response, "Die Operation hat sich mit einer anderen &uumlberschnitten. Bitte probier es noch einmal.");
 					return;
 				}
+				else if(e.getCause() instanceof NotLoggedInException)
+				{
+					printBoxedErrorMessage(response, "Du musst eingeloggt sein, um diese Seite zu sehen.");
+				}
 			}
 			
 			Common.mailThrowable(e, "Unexpected exception", "");
+			e.printStackTrace();
 		}
 	}
 

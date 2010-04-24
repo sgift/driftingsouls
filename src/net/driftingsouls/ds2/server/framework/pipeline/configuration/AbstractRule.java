@@ -145,7 +145,6 @@ abstract class AbstractRule implements Rule {
 		
 		if( parameterMap != null ) {
 			parameterMap.apply(context);
-			context.revalidate();
 		}
 		
 		Pipeline pipe = this.executer.execute(context);

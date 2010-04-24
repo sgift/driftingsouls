@@ -147,13 +147,6 @@ public interface Context {
 	public Object getVariable(Class<?> cls, String varname);
 	
 	/**
-	 * Ueberprueft, ob eine neue Session gesetzt wurde und authentifiziert ggf den Benutzer.
-	 * Die Liste der Fehler wird in dem Fall zurueckgesetzt. 
-	 *
-	 */
-	public void revalidate();
-	
-	/**
 	 * Registriert einen Kontext-Observer im Kontextobjekt. Der Observer wird
 	 * fortan ueber Ereignisse des Kontexts informiert
 	 * @param listener Der Listener

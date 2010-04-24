@@ -153,7 +153,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	}
 	
 	@Override
-	public void authenticateCurrentSession() {
+	public boolean authenticateCurrentSession(boolean automaticAccess) {
 		Context context = ContextMap.getContext();
 		
 		try 
@@ -162,13 +162,13 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		} 
 		catch (LoginDisabledException e) 
 		{
-			return;
+			return false;
 		}
 		
 		JavaSession jsession = context.get(JavaSession.class);
 		
 		BasicUser user;
-		if( jsession == null || jsession.getUser() == null ) 
+		if( (jsession == null || jsession.getUser() == null) && !automaticAccess ) 
 		{
 			try
 			{
@@ -176,7 +176,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			}
 			catch(AuthenticationException e)
 			{
-				return;
+				return false;
 			}
 		}
 		else
@@ -186,7 +186,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		
 		if(user == null)
 		{
-			return;
+			return false;
 		}
 		
 		try
@@ -195,7 +195,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		}
 		catch (AccountDisabledException e) 
 		{
-			return;
+			return false;
 		}
 				
 		user.setSessionData(jsession.getUseGfxPak());
@@ -206,7 +206,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			}
 		}
 		catch( AuthenticationException e ) {
-			return;
+			return false;
 		}
 
 		// Inaktivitaet zuruecksetzen
@@ -218,7 +218,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		
 		context.setActiveUser(user);
 		
-		return;
+		return true;
 	}
 	
 	/**

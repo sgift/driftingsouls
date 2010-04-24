@@ -58,8 +58,13 @@ public interface AuthenticationManager {
 	 * Authentifiziert die genutzte Session. Falls die Session ungueltig ist,
 	 * oder ein sonstiger Fehler auftritt wird ein entsprechender Fehlertext dem 
 	 * Context hinzugefuegt.
+	 * Setzt Inaktivitaet zurueck und prueft, ob eine permanente Session vorliegt.
+	 * Diese Funktion kann mit automaticAccess gesteuert werden.
+	 * 
+	 * @param automaticAccess <code>true</code>, if the access is not initiated by the user (e.g. check for new pms).
+	 * @return <code>true</code>, if the user is logged in, <code>false</code> otherwise.
 	 */
-	public void authenticateCurrentSession();
+	public boolean authenticateCurrentSession(boolean automaticAccess);
 	
 	/**
 	 * Checks, if the player is remembered by ds.

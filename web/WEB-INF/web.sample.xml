@@ -50,10 +50,20 @@
 		<filter-name>OpenSessionInView</filter-name>
 		<filter-class>net.driftingsouls.ds2.server.framework.db.HibernateSessionRequestFilter</filter-class>
 	</filter>
+		
+	<filter>
+		<filter-name>Context</filter-name>
+		<filter-class>net.driftingsouls.ds2.server.framework.ContextFilter</filter-class>
+	</filter>
 	
 	<filter>
 		<filter-name>TickInProgress</filter-name>
 		<filter-class>net.driftingsouls.ds2.server.framework.TickFilter</filter-class>
+	</filter>
+	
+	<filter>
+		<filter-name>LoginRequired</filter-name>
+		<filter-class>net.driftingsouls.ds2.server.framework.UserAuthenticationFilter</filter-class>
 	</filter>
 
 	<filter>
@@ -72,7 +82,17 @@
 	</filter-mapping>
 	
 	<filter-mapping>
+		<filter-name>Context</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
+	<filter-mapping>
 		<filter-name>TickInProgress</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
+	<filter-mapping>
+		<filter-name>LoginRequired</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 	
