@@ -28,7 +28,6 @@ public class NewsDetailController extends TemplateGenerator
 	{
 		super(context);
 		
-		requireValidSession(false);
 		setTemplate("newsdetail.html");
 	}
 

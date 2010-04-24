@@ -68,8 +68,6 @@ public class SchiffInfoController extends TemplateGenerator {
 		
 		parameterNumber("ship");
 
-		requireValidSession(false);
-		
 		setTemplate("schiffinfo.html");
 		
 		setPageTitle("Schiffstyp");

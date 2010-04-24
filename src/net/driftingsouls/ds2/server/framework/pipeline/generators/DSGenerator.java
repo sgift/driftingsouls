@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -40,7 +39,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.Response;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.exception.GenericJDBCException;
 import org.hibernate.exception.LockAcquisitionException;
@@ -327,7 +325,6 @@ public abstract class DSGenerator extends Generator {
 	private boolean disableDefaultCSS;
 	private boolean disableDebugOutput;
 	private long startTime;
-	private boolean requireValidSession;
 	private List<String> onLoadFunctions;
 	private Map<String, String> bodyParameters;
 	private Map<String, Object> parameter;
@@ -354,7 +351,6 @@ public abstract class DSGenerator extends Generator {
 		this.startTime = System.currentTimeMillis();
 		
 		this.disableDebugOutput = false;
-		this.requireValidSession = true;
 		this.disableDefaultCSS = false;
 		
 		this.onLoadFunctions = new ArrayList<String>();
@@ -532,27 +528,6 @@ public abstract class DSGenerator extends Generator {
 			action = "default";
 		}
 		
-		BasicUser account = getContext().getActiveUser();
-			
-		// Ungueltige Sessions brauchen nicht extra abgefangen zu werden,
-		// da fuer diese Bereits ein Fehler eingetragen wurde
-		if( requireValidSession) 
-		{
-			if(account == null)
-			{
-				addError( "<a href=\"./ds?module=portal\">Du musst dich einloggen, um die Aktion durchfuehren zu k&ouml;nnen.</a>" );
-			}
-			else
-			{
-				Session db = getDB();
-				User user = (User)db.get(User.class, account.getId());
-				if(user != null && user.isInVacation())
-				{
-					addError("<a href=\"./ds?module=portal\">Dein Account befindet sich noch im Urlaub.</a>");
-				}
-			}
-		}
-		
 		if( getErrorList().length != 0 ) {
 			printErrorListOnly();
 			
@@ -655,15 +630,6 @@ public abstract class DSGenerator extends Generator {
 	
 	protected void printFooter( String action ) throws IOException {
 		actionTypeHandler.printFooter();
-	}
-	
-	/**
-	 * Gibt an, ob fuer die Ausfuehrung einer Aktion eine gueltige Session
-	 * erforderlich ist (also, dass der Benutzer angemeldet ist).
-	 * @param value <code>true</code>, falls eine gueltige Session erforderlich ist
-	 */
-	public void requireValidSession( boolean value ) {
-		requireValidSession = value;
 	}
 	
 	/**

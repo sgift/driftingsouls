@@ -45,7 +45,6 @@ public class NewsController extends TemplateGenerator
 	public NewsController(Context context)
 	{
 		super(context);
-		requireValidSession(false);
 	}
 
 	@Override

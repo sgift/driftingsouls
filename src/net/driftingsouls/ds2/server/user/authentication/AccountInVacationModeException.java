@@ -18,14 +18,13 @@
  */
 package net.driftingsouls.ds2.server.user.authentication;
 
-import net.driftingsouls.ds2.server.framework.authentication.AuthenticationException;
 
 /**
  * Authentifizierungsfehler, da sich der Account noch im Vacationmodus befindet.
  * @author Christopher Jung
  *
  */
-public class AccountInVacationModeException extends AuthenticationException {
+public class AccountInVacationModeException extends RuntimeException {
 	private static final long serialVersionUID = 4226868012372360527L;
 	
 	private int dauer;

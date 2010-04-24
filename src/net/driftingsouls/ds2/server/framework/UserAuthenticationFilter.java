@@ -1,10 +1,7 @@
 package net.driftingsouls.ds2.server.framework;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -20,7 +17,7 @@ import net.driftingsouls.ds2.server.framework.authentication.DefaultAuthenticati
  * 
  * @author Drifting-Souls Team
  */
-public class UserAuthenticationFilter implements Filter 
+public class UserAuthenticationFilter extends SessionBasedFilter
 {
 	@Override
 	public void destroy() 
@@ -49,8 +46,7 @@ public class UserAuthenticationFilter implements Filter
 		}
 		else
 		{
-			String module = request.getParameter("module");
-			if(module != null && !sessionFreeModules.contains(module))
+			if(isSessionNeededByModule(request))
 			{
 				throw new NotLoggedInException();
 			}
@@ -60,18 +56,11 @@ public class UserAuthenticationFilter implements Filter
 	}
 
 	@Override
-	public void init(FilterConfig arg0) throws ServletException 
+	public void init(FilterConfig config) throws ServletException 
 	{
+		super.init(config);
 		this.manager = new DefaultAuthenticationManager();
-		//TODO: Use different urls/servlets for modules which don't need a session.
-		//Then we can set this filter for modules which need sessions and 
-		//don't need to check the module here
-		sessionFreeModules.add("portal");
-		sessionFreeModules.add("news");
-		sessionFreeModules.add("schiffinfo");
-		sessionFreeModules.add("newsdetail");
 	}
 	
 	private AuthenticationManager manager = null;
-	private Set<String> sessionFreeModules = new HashSet<String>();
 }

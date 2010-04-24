@@ -14,6 +14,7 @@ import org.hibernate.StaleObjectStateException;
 import org.hibernate.StaleStateException;
 
 import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
+import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
 
 /**
  * Filter, um zentral alle Fehler abzufangen.
@@ -51,6 +52,22 @@ public class ErrorHandlerFilter implements Filter
 					if(!isAutomaticAccess(request))
 					{
 						printBoxedErrorMessage(response, "Du musst eingeloggt sein, um diese Seite zu sehen.");
+					}
+					return;
+				}
+				else if(e.getCause() instanceof AccountInVacationModeException)
+				{
+					AccountInVacationModeException vacException = (AccountInVacationModeException)e.getCause();
+					if(!isAutomaticAccess(request))
+					{
+						if(vacException.getDauer() > 1)
+						{
+							printBoxedErrorMessage(response, "Du bist noch " + vacException.getDauer() + " Ticks im Vacationmodus.");
+						}
+						else
+						{
+							printBoxedErrorMessage(response, "Du bist noch " + vacException.getDauer() + " Tick im Vacationmodus.");
+						}
 					}
 					return;
 				}

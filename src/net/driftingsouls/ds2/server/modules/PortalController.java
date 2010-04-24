@@ -80,8 +80,6 @@ public class PortalController extends TemplateGenerator {
 	public PortalController(Context context) {
 		super(context);
 
-		requireValidSession(false);
-		
 		setTemplate("portal.html");
 	}
 	
