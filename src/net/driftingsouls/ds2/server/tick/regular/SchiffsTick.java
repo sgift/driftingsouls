@@ -49,7 +49,6 @@ import org.hibernate.CacheMode;
 import org.hibernate.FlushMode;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 /**
@@ -62,7 +61,7 @@ public class SchiffsTick extends TickController {
 	private Map<Location,List<Ship>> versorgerlist;
 	private boolean calledByBattle=false;
 	private int unflushedShips = 0;
-
+	
 	@Override
 	protected void prepare() 
 	{
@@ -811,6 +810,15 @@ public class SchiffsTick extends TickController {
 		catch(Exception e)
 		{
 			transaction.rollback();
+		}
+	}
+	
+	@Override
+	public void dispose() 
+	{
+		if(!calledByBattle)
+		{
+			super.dispose();
 		}
 	}
 }

@@ -57,6 +57,7 @@ public class BaseTick extends TickController
 		transaction.commit();	
 		
 		String messages = "";
+		int count = 0;
 		for(Base base: bases)
 		{
 			transaction = db.beginTransaction();
@@ -81,6 +82,13 @@ public class BaseTick extends TickController
 				this.lastowner = base.getOwner().getId();
 				messages += base.tick();
 				transaction.commit();
+				count++;
+				final int UNFLUSHED_OBJECTS_SIZE = 50;
+				if(count%UNFLUSHED_OBJECTS_SIZE == 0)
+				{
+					//No db.clear here or the session cannot lazy-load the user objects
+					db.flush();
+				}
 			}
 			catch(Exception e)
 			{

@@ -21,7 +21,7 @@
 
 	function checkPMStatus() {
 		var url = getDsUrl();
-		var params = 'module={global.module}&action=hasNewPm';
+		var params = 'module={global.module}&action=hasNewPm&autoAccess=true';
 
 		var myAjax = new Ajax.Request( url, {
 				method: 'get', 

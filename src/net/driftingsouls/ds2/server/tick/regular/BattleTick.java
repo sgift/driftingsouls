@@ -53,12 +53,12 @@ public class BattleTick extends TickController {
 		long lastacttime = Common.time()-1800;
 
 		db.createQuery("update Battle set blockcount=blockcount-1 where blockcount > 0 and lastturn<= ?")
-		.setLong(0, lastacttime)
-		.executeUpdate();
+		  .setLong(0, lastacttime)
+		  .executeUpdate();
 
 		List<?> battles = db.createQuery("from Battle where blockcount<=0 or lastaction<= ?")
-		.setLong(0, lastacttime)
-		.list();
+							.setLong(0, lastacttime)
+							.list();
 
 		try 
 		{
