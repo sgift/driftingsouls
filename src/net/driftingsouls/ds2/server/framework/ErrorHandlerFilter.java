@@ -48,7 +48,11 @@ public class ErrorHandlerFilter implements Filter
 				}
 				else if(e.getCause() instanceof NotLoggedInException)
 				{
-					printBoxedErrorMessage(response, "Du musst eingeloggt sein, um diese Seite zu sehen.");
+					if(!isAutomaticAccess(request))
+					{
+						printBoxedErrorMessage(response, "Du musst eingeloggt sein, um diese Seite zu sehen.");
+					}
+					return;
 				}
 			}
 			
@@ -75,5 +79,16 @@ public class ErrorHandlerFilter implements Filter
 		sb.append("</url>");
 		sb.append(Common.tableEnd());
 		sb.append("</div>\n");
+	}
+	
+	private boolean isAutomaticAccess(ServletRequest request)
+	{
+		String automaticAccessParameter = request.getParameter("autoAccess");
+		if(automaticAccessParameter != null && automaticAccessParameter.equals("true"))
+		{
+			return true;
+		}
+		
+		return false;
 	}
 }
