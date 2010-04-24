@@ -209,8 +209,10 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			return false;
 		}
 
-		// Inaktivitaet zuruecksetzen
-		user.setInactivity(0);
+		if(!automaticAccess)
+		{
+			user.setInactivity(0);
+		}
 		
 		if( jsession.getAttach() != null ) {
 			user.attachToUser(jsession.getAttach());
