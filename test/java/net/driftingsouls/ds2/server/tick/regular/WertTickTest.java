@@ -63,7 +63,10 @@ public class WertTickTest extends DriftingSoulsDBTestCase
 		count = (Long)sess.createQuery("select count(*) from Base").iterate().next();
 		assertThat(count, is(1L));
 		
-		new WerftTick().execute();
+		WerftTick tick = new WerftTick();
+		tick.prepare();
+		tick.execute();
+		tick.dispose();
 		
 		count = (Long)sess.createQuery("select count(*) from WerftQueueEntry").iterate().next();
 		assertThat(count, is(0L));
