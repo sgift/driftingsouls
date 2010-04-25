@@ -89,7 +89,10 @@ public abstract class DriftingSoulsDBTestCase implements DBTestable {
 	@After
 	public void tearDown() throws Exception 
 	{
-		db.getTransaction().commit();
+		if(db.getTransaction().isActive())
+		{
+			db.getTransaction().commit();
+		}
 		try {
 			db.beginTransaction();
 			Connection con = this.dbTester.getConnection().getConnection();
