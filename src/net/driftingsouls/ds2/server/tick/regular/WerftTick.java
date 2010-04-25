@@ -21,8 +21,6 @@ package net.driftingsouls.ds2.server.tick.regular;
 import java.util.Iterator;
 import java.util.List;
 
-import org.hibernate.Transaction;
-
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
@@ -32,6 +30,8 @@ import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
+
+import org.hibernate.Transaction;
 
 /**
  * Berechnung des Ticks fuer Werften.
