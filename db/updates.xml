@@ -1446,4 +1446,15 @@
 		ALTER TABLE cargo_entries_units DROP `id`;
 		ALTER TABLE cargo_entries_units ADD PRIMARY KEY(`type`,`destid`,`unittype`);
 	]]></update>
+	<update><![CDATA[
+		DELETE FROM userresearch WHERE owner NOT IN (select id from users);
+		ALTER TABLE userresearch ADD CONSTRAINT userresearch_fk_users FOREIGN KEY (owner) REFERENCES users (id);
+		
+		CREATE INDEX idx_feeding ON ships(isfeeding);
+		CREATE INDEX idx_allyfeeding ON ships(isallyfeeding);
+		
+		CREATE INDEX idx_feeding ON bases(isfeeding);
+		
+		CREATE INDEX idx_nebulatype ON nebel(type);
+	]]></update>
 </updates>
