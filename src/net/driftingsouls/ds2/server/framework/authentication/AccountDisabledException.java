@@ -23,7 +23,7 @@ package net.driftingsouls.ds2.server.framework.authentication;
  * @author Christopher Jung
  *
  */
-public class AccountDisabledException extends AuthenticationException {
+public class AccountDisabledException extends RuntimeException {
 	private static final long serialVersionUID = 8766749515224459285L;
 
 	/**

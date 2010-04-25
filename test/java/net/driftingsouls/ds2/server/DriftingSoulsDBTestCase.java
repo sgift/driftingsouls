@@ -23,7 +23,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import net.driftingsouls.ds2.server.framework.BasicContext;
 import net.driftingsouls.ds2.server.framework.CmdLineRequest;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.SimpleResponse;
@@ -68,7 +67,7 @@ public abstract class DriftingSoulsDBTestCase implements DBTestable {
 		
 		SimpleResponse response = new SimpleResponse();
 		CmdLineRequest request = new CmdLineRequest(new String[0]);
-		this.context = new BasicContext(request, response);
+		this.context = new TestContext(db, request, response);
 		
 		Connection con = this.dbTester.getConnection().getConnection();
 		Statement stmt = con.createStatement();
