@@ -88,6 +88,7 @@ public abstract class DriftingSoulsDBTestCase implements DBTestable {
 	@After
 	public void tearDown() throws Exception 
 	{
+		db.getTransaction().commit();
 		try {
 			Connection con = this.dbTester.getConnection().getConnection();
 			Statement stmt = con.createStatement();
