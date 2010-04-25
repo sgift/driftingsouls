@@ -52,7 +52,7 @@ public class WerftTick extends TickController {
 		Transaction transaction = db.beginTransaction();
 		final User sourceUser = (User)db.get(User.class, -1);
 		
-		List<?> werften = db.createQuery("from ShipWerft s inner join fetch s.ship")
+		List<WerftObject> werften = db.createQuery("from ShipWerft s inner join fetch s.ship")
 			.list();
 		werften.addAll(db.createQuery("from BaseWerft b inner join fetch b.base")
 			.list());
