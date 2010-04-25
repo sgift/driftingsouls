@@ -79,6 +79,7 @@ public abstract class DriftingSoulsDBTestCase implements DBTestable {
 		}
 		
 		this.dbTester.setUp();
+		db.beginTransaction();
 	}
 
 	/**
@@ -90,6 +91,7 @@ public abstract class DriftingSoulsDBTestCase implements DBTestable {
 	{
 		db.getTransaction().commit();
 		try {
+			db.beginTransaction();
 			Connection con = this.dbTester.getConnection().getConnection();
 			Statement stmt = con.createStatement();
 			try {
@@ -112,9 +114,11 @@ public abstract class DriftingSoulsDBTestCase implements DBTestable {
 			finally {
 				stmt.close();
 			}
+			db.getTransaction().commit();
 		}
 		catch( SQLException e ) {
 			e.printStackTrace();
+			db.getTransaction().rollback();
 		}
 		
 		this.dbTester.tearDown();
