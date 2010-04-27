@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.werften.ShipWerft;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
+import org.hibernate.FlushMode;
 import org.hibernate.Transaction;
 
 /**
@@ -49,6 +50,8 @@ public class WerftTick extends TickController {
 	@SuppressWarnings("unchecked")
 	protected void tick() {
 		org.hibernate.Session db = getDB();
+		FlushMode oldMode = db.getFlushMode();
+		db.setFlushMode(FlushMode.MANUAL);
 		Transaction transaction = db.beginTransaction();
 		final User sourceUser = (User)db.get(User.class, -1);
 		
@@ -58,19 +61,30 @@ public class WerftTick extends TickController {
 			.list());
 		werften.addAll(db.createQuery("from WerftKomplex")
 			.list());
+		int count = 0;
 		for( Iterator<?> iter=werften.iterator(); iter.hasNext(); ) 
 		{
 			try
 			{
 				processWerft(sourceUser, (WerftObject)iter.next());
 				transaction.commit();
+				transaction = db.beginTransaction();
 			}
 			catch(Exception e)
 			{
 				transaction.rollback();
 				transaction = db.beginTransaction();
 			}
+			
+			count++;
+			int MAX_UNFLUSHED_OBJECTS = 50;
+			if(count%MAX_UNFLUSHED_OBJECTS == 0)
+			{
+				db.flush();
+			}
 		}
+		
+		db.setFlushMode(oldMode);
 	}
 
 	private void processWerft(final User sourceUser, WerftObject werft) {

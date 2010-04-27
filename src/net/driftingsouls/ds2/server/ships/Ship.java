@@ -536,9 +536,12 @@ public class Ship implements Locatable,Transfering {
 		if(unitcargo == null)
 		{
 			List<UnitCargoEntry> entries = new ArrayList<UnitCargoEntry>();
-			for(UnitCargoEntry entry: units)
+			if(units != null)
 			{
-				entries.add(entry);
+				for(UnitCargoEntry entry: units)
+				{
+					entries.add(entry);
+				}
 			}
 			unitcargo = new UnitCargo(entries, UnitCargo.CARGO_ENTRY_SHIP, id);
 			//unitcargo = new UnitCargo(UnitCargo.CARGO_ENTRY_SHIP, id);
