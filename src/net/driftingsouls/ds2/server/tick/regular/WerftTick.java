@@ -84,6 +84,7 @@ public class WerftTick extends TickController {
 			}
 		}
 		
+		db.flush();
 		db.setFlushMode(oldMode);
 	}
 
