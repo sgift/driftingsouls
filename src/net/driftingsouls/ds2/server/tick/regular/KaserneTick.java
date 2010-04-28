@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
+import java.util.List;
+
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.Kaserne;
@@ -27,9 +29,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.UnitType;
 
-import org.hibernate.CacheMode;
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
+import org.hibernate.FlushMode;
 import org.hibernate.Transaction;
 
 /**
@@ -48,15 +48,16 @@ public class KaserneTick extends TickController {
 	protected void tick() 
 	{
 		org.hibernate.Session db = getDB();
+		FlushMode oldMode = db.getFlushMode();
+		db.setFlushMode(FlushMode.MANUAL);
 		Transaction transaction = db.beginTransaction();
 
 		final User sourceUser = (User)db.get(User.class, -1);
 
-		ScrollableResults kasernen = db.createQuery("from Kaserne").setCacheMode(CacheMode.IGNORE).scroll(ScrollMode.FORWARD_ONLY);
-		while(kasernen.next())
+		List<Kaserne> kasernen = Common.cast(db.createQuery("from Kaserne").list());
+		int count = 0;
+		for(Kaserne kaserne: kasernen)
 		{
-			Kaserne kaserne = (Kaserne)kasernen.get(0);
-
 			try 
 			{
 				Base base = kaserne.getBase();
@@ -92,7 +93,7 @@ public class KaserneTick extends TickController {
 				if( build )
 				{
 					// Nachricht versenden
-					PM.send(sourceUser,base.getOwner().getId(), "Ausbildung abgeschlossen", msg);
+					PM.send(sourceUser, base.getOwner().getId(), "Ausbildung abgeschlossen", msg);
 				}
 				transaction.commit();
 				transaction = db.beginTransaction();
@@ -107,6 +108,17 @@ public class KaserneTick extends TickController {
 
 				throw e;
 			}
+			
+			count++;
+			final int MAX_UNFLUSHED_OBJECTS = 50;
+			if(count%MAX_UNFLUSHED_OBJECTS == 0)
+			{
+				db.flush();
+			}
 		}
+		
+		db.flush();
+		db.clear();
+		db.setFlushMode(oldMode);
 	}
 }
