@@ -24,15 +24,21 @@ import java.io.Serializable;
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 
 import net.driftingsouls.ds2.server.framework.ContextMap;
+
+import org.hibernate.annotations.DiscriminatorFormula;
 
 /**
  * Diese Klasse repraesentiert alle UnitCargo-Eintraege.
  */
 @Entity
 @Table(name="cargo_entries_units")
+@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
+@DiscriminatorFormula("type")
 public class UnitCargoEntry
 {
 	/**
