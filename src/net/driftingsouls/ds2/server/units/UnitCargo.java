@@ -150,6 +150,13 @@ public class UnitCargo implements Cloneable {
 		
 	}
 	
+	/**
+	 * Ein neuer UnitCargo.
+	 * 
+	 * @param units Die Einheiten in diesem Cargo.
+	 * @param type Cargotyp (Schiff oder Basis).
+	 * @param destid Die Id des Zielobjekts.
+	 */
 	public UnitCargo(List<UnitCargoEntry> units, int type, int destid)
 	{
 		this.units = units;

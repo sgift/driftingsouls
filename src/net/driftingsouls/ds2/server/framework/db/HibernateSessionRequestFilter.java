@@ -14,8 +14,15 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
 import org.hibernate.StaleObjectStateException;
 
+/**
+ * Ein Filter, um eine neue Session zu oeffnen fuer den Request.
+ * Implementiert die SessionInView- und SessionPerRequest-Patterns von Hibernate.
+ * 
+ * @author Drifting-Souls Team
+ */
 public class HibernateSessionRequestFilter implements Filter 
 {
+	@Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException 
     {
         try 
@@ -60,6 +67,7 @@ public class HibernateSessionRequestFilter implements Filter
         }
     }
  
+	@Override
     public void init(FilterConfig filterConfig) throws ServletException 
     {
         log.debug("Initializing filter...");
@@ -67,6 +75,7 @@ public class HibernateSessionRequestFilter implements Filter
         sf = HibernateUtil.getSessionFactory();
     }
  
+	@Override
     public void destroy() {}
  
     private static Log log = LogFactory.getLog(HibernateSessionRequestFilter.class);

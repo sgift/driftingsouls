@@ -14,6 +14,13 @@ import org.hibernate.Session;
  */
 public class TickContext extends BasicContext 
 {
+	/**
+	 * Initialisiert den Tick-Context
+	 * 
+	 * @param db Die fuer den Tick verwendete Session.
+	 * @param request Das Requestobjekt.
+	 * @param response Das Responseobjekt.
+	 */
 	public TickContext(Session db, Request request, Response response)
 	{
 		super(request, response);

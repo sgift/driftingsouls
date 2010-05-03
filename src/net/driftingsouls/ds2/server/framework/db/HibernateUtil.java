@@ -17,6 +17,14 @@ import org.hibernate.dialect.function.StandardSQLFunction;
 import org.scannotation.AnnotationDB;
 import org.scannotation.ClasspathUrlFinder;
 
+/**
+ * Eine Hilfsklasse, um die Hibernate SessionFactory zu initialisieren.
+ * Die Factory wird als Singleton direkt beim Start intialisiert und danach
+ * wiederverwendet
+ *
+ * @see HibernateSessionRequestFilter
+ * @author Drifting-Souls Team
+ */
 public class HibernateUtil 
 {
     static 
@@ -67,6 +75,12 @@ public class HibernateUtil
         }
     }
  
+    /**
+     * Gibt die SessionFactory zurueck.
+     * Zu jeder Zeit existiert nur eine.
+     * 
+     * @return Die SessionFactory.
+     */
     public static SessionFactory getSessionFactory() 
     {
         return sessionFactory;
