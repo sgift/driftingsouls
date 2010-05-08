@@ -26,6 +26,10 @@ public class BaseUnitCargoEntry extends UnitCargoEntry
 	
 	/**
 	 * @see UnitCargoEntry#UnitCargoEntry(int, int, int, long)
+	 * @param type Der Typ des Eintrages
+	 * @param destid Die ID des Zielobjekts
+	 * @param unittype Die ID des Einheitentyps
+	 * @param amount Die Menge
 	 */
 	public BaseUnitCargoEntry(int type, int destid, int unittype, long amount)
 	{
