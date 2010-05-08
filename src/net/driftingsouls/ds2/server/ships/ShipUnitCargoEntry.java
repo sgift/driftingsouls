@@ -15,6 +15,14 @@ import net.driftingsouls.ds2.server.units.UnitCargoEntry;
  */
 @Entity
 @Table(name="cargo_entries_units")
-@DiscriminatorValue(value="" + UnitCargo.CARGO_ENTRY_SHIP)
+@DiscriminatorValue("" + UnitCargo.CARGO_ENTRY_SHIP)
 public class ShipUnitCargoEntry extends UnitCargoEntry 
-{}
+{
+	public ShipUnitCargoEntry()
+	{}
+	
+	public ShipUnitCargoEntry(int type, int destid, int unittype, long amount)
+	{
+		super(type, destid, unittype, amount);
+	}
+}

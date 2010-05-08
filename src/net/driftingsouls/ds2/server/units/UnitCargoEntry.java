@@ -28,9 +28,12 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 
+import net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry;
 
 import org.hibernate.annotations.DiscriminatorFormula;
+import org.hibernate.annotations.ForceDiscriminator;
 
 /**
  * Diese Klasse repraesentiert alle UnitCargo-Eintraege.
@@ -38,8 +41,9 @@ import org.hibernate.annotations.DiscriminatorFormula;
 @Entity
 @Table(name="cargo_entries_units")
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorFormula("type")
-public class UnitCargoEntry
+@DiscriminatorFormula(value="type")
+@ForceDiscriminator
+public abstract class UnitCargoEntry
 {
 	/**
 	 * Diese Klasse repraesentiert einen Primarschluessel fuer einen Cargo-Eintrag.
@@ -117,7 +121,7 @@ public class UnitCargoEntry
 		 */
 		public void setTyp(int type)
 		{
-			this.type = type;
+			//this.type = type;
 		}
 		
 		/**
@@ -278,6 +282,13 @@ public class UnitCargoEntry
 	@Override
 	public UnitCargoEntry clone()
 	{
-		return new UnitCargoEntry(getTyp(),getDestId(),getUnitTypeId(),getAmount());
+		if(getTyp() == UnitCargo.CARGO_ENTRY_BASE)
+		{
+			return new BaseUnitCargoEntry(getTyp(),getDestId(),getUnitTypeId(),getAmount());
+		}
+		else
+		{
+			return new ShipUnitCargoEntry(getTyp(),getDestId(),getUnitTypeId(),getAmount());
+		}
 	}
 }

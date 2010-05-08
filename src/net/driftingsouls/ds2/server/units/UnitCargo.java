@@ -22,9 +22,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -224,7 +226,16 @@ public class UnitCargo implements Cloneable {
 			}
 		}
 
-		units.add( new UnitCargoEntry(this.type, this.destid, unitid, count) );
+		UnitCargoEntry entry;
+		if(this.type == UnitCargo.CARGO_ENTRY_BASE)
+		{
+			entry = new BaseUnitCargoEntry(this.type, this.destid, unitid, count);
+		}
+		else
+		{
+			entry = new ShipUnitCargoEntry(type, destid, unitid, count);
+		}
+		units.add(entry);
 	}
 	
 	/**
@@ -243,9 +254,19 @@ public class UnitCargo implements Cloneable {
 					return;
 			}
 		}
+		
+		UnitCargoEntry entry;
+		if(this.type == UnitCargo.CARGO_ENTRY_BASE)
+		{
+			entry = new BaseUnitCargoEntry(this.type,this.destid,unitid,-count);
+		}
+		else
+		{
+			entry = new ShipUnitCargoEntry(this.type,this.destid,unitid,-count);
+		}
 	
 		// Diese Anweisung wird nur ausgefuerht, wenn das Item nicht im Cargo vorhanden ist
-		units.add( new UnitCargoEntry(this.type,this.destid,unitid,-count) );
+		units.add(entry);
 	}
 	
 	/**
@@ -355,7 +376,17 @@ public class UnitCargo implements Cloneable {
 				return;
 			}
 		}
-		units.add( new UnitCargoEntry(this.type,this.destid,unitid,count) );
+		
+		UnitCargoEntry entry;
+		if(this.type == UnitCargo.CARGO_ENTRY_BASE)
+		{
+			entry = new BaseUnitCargoEntry(this.type,this.destid,unitid,count);
+		}
+		else
+		{
+			entry = new ShipUnitCargoEntry(this.type,this.destid,unitid,count);
+		}
+		units.add(entry);
 	}
 	
 	/**

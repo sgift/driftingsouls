@@ -124,7 +124,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 	private String spawnressavailable;
 	private boolean isloading;
 	private boolean isfeeding;
-	@OneToMany(fetch=FetchType.LAZY)
+	@OneToMany(fetch=FetchType.LAZY, targetEntity=net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry.class)
 	@JoinColumn(name="destid", referencedColumnName="id")
 	@BatchSize(size=50)
 	private List<BaseUnitCargoEntry> units;

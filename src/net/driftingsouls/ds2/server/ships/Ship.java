@@ -177,7 +177,7 @@ public class Ship implements Locatable,Transfering {
 	private int showtradepost;
 	private boolean isfeeding;
 	private boolean isallyfeeding;
-	@OneToMany(fetch=FetchType.LAZY)
+	@OneToMany(fetch=FetchType.LAZY, targetEntity=net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry.class)
 	@JoinColumn(name="destid", referencedColumnName="id")
 	@BatchSize(size=50)
 	private List<ShipUnitCargoEntry> units;
