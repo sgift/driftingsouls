@@ -18,9 +18,15 @@ import net.driftingsouls.ds2.server.units.UnitCargoEntry;
 @DiscriminatorValue("" + UnitCargo.CARGO_ENTRY_BASE)
 public class BaseUnitCargoEntry extends UnitCargoEntry 
 {
+	/**
+	 * Default.
+	 */
 	public BaseUnitCargoEntry()
 	{}
 	
+	/**
+	 * @see UnitCargoEntry#UnitCargoEntry(int, int, int, long)
+	 */
 	public BaseUnitCargoEntry(int type, int destid, int unittype, long amount)
 	{
 		super(type, destid, unittype, amount);
