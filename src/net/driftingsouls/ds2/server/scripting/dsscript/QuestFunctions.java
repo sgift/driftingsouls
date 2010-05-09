@@ -140,7 +140,6 @@ public class QuestFunctions {
 		parser.registerCommand( "GETMONEY", new GetMoney(), ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "CLONEOFFIZIER", new CloneOffizier(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "REMOVEOFFIZIER", new RemoveOffizier(), ScriptParser.Args.PLAIN_REG );
-		parser.registerCommand( "STARTBATTLE", new StartBattle(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "ADDBATTLEVISIBILITY", new AddBattleVisibility(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "ENDBATTLE", new EndBattle(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "GETNOOBSTATUS", new GetNoobStatus(), ScriptParser.Args.PLAIN_REG );
@@ -2043,59 +2042,6 @@ public class QuestFunctions {
 			return CONTINUE;
 		}
 	}
-	
-	static class StartBattle implements SPFunction {
-		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			org.hibernate.Session db = ContextMap.getContext().getDB();
-			
-			int attacker = Value.Int(command[1]);
-			scriptparser.log("attacker(ship): "+attacker+"\n");
-			
-			int defender = Value.Int(command[2]);
-			scriptparser.log("defender(ship): "+defender+"\n");
-			
-			int questbattle = Value.Int(command[3]);
-			scriptparser.log("questbattle: "+questbattle+"\n");
-				
-			Ship attackerShip = (Ship)db.get(Ship.class, attacker);
-			if( (attackerShip == null) || (attackerShip.getId() < 0) ) {
-				return CONTINUE;
-			}
-			
-			Ship defenderShip = (Ship)db.get(Ship.class, defender);
-			if( (defenderShip == null) || (defenderShip.getId() < 0) ) {
-				return CONTINUE;
-			}
-			
-			Battle battle = Battle.create( attackerShip.getOwner().getId(), attacker, defender );
-			
-			scriptparser.setRegister("A", Integer.toString(battle.getId()) );
-			
-			if( questbattle != 0 ) {
-				String questid = scriptparser.getRegister("QUEST");
-				if( questid.charAt(0) != 'r' ) {
-					int userid = Value.Int(scriptparser.getRegister("USER"));
-					RunningQuest runningQuest = (RunningQuest)db.createQuery("from RunningQuest where quest=:quest and user=:user")
-						.setInteger("quest", Integer.parseInt(questid))
-						.setInteger("user", userid)
-						.setMaxResults(1)
-						.uniqueResult();
-					
-					questid = Integer.toString(runningQuest.getId());
-				}
-				else {
-					questid = questid.substring(1);
-				}
-				
-				battle.setQuest(Value.Int(questid));
-				battle.addToVisibility(attackerShip.getOwner().getId());
-				battle.addToVisibility(defenderShip.getOwner().getId());	
-			}
-			
-			return CONTINUE;
-		}
-	}
-	
 	
 	static class AddBattleVisibility implements SPFunction {
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {

@@ -460,13 +460,6 @@ public class UeberController extends TemplateGenerator {
 			
 			battlelist.append("<a class=\"error\" href=\"ds?module=angriff&amp;battle="+battle.getId()+"\">Schlacht "+eparty+" vs "+eparty2+" bei "+battle.getLocation().displayCoordinates(false)+"</a>&nbsp;");
 			
-			
-			if( ( (user.getAccessLevel() >= 20) || user.hasFlag(User.FLAG_QUEST_BATTLES) ) 
-				&& (battle.getQuest() != null) ) {
-				RunningQuest quest = (RunningQuest)db.get(RunningQuest.class, battle.getQuest());
-				battlelist.append("*&nbsp;[Quest: "+quest.getQuest().getName()+"]");
-			}
-			
 			// Nahrunganzeige der Schlacht
 			int nahrung = battle.getNahrungsBalance(user);
 			

@@ -305,10 +305,6 @@ public class SensorsDefault implements SchiffPlugin {
 										.list());
 			
 			for( Battle battle : battles ) {
-				boolean questbattle = false;
-				if( battle.isVisibleToUser(user) ) {
-					questbattle = true;
-				}
 				Ally ownAlly = user.getAlly();
 				String party1 = null;
 				String party2 = null;
@@ -359,8 +355,7 @@ public class SensorsDefault implements SchiffPlugin {
 							"battle.fixedjoin",	fixedjoin,
 							"battle.joinable",	joinable,
 							"battle.viewable",	viewable,
-							"battle.shipcount",	shipcount,
-							"battle.quest",		questbattle );
+							"battle.shipcount",	shipcount);
 				t.parse("battles.list","battles.listitem",true);
 			}
 			

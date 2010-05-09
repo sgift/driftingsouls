@@ -126,9 +126,6 @@
 				<td class="show2" style="width:150px; text-align:center">
 					<span class="smallfont">
 						Schlacht
-						{if battle.quest}
-							<br /><span class="verysmallfont">[Quest]</span>
-						{/endif}
 					</span>
 				</td>
 				<td class="show2" align="center">
@@ -138,19 +135,16 @@
 				<td class="show2"><span class="smallfont">{battle.shipcount} Schiffe</span></td>
 				{if global.awac}<td class="show2">&nbsp;</td>{/endif}
 				<td class="show2">
-					{if battle.quest}
-					{else}
-						{if battle.joinable}
-							{if battle.fixedjoin}
-								<a class="redborder" href="./ds?module=angriff&amp;battle={battle.id}&amp;addship={global.ship}"><img src="{URL}data/interface/schiffe/schiff_battle.gif" alt="teilnehmen" /></a>
-							{else}
-								<a class="redborder" href="javascript:ask('Wollen sie wirklich auf Seiten der {battle.side1} angreifen?',getDsUrl()+'?module=angriff&amp;battle={battle.id}&amp;addship={global.ship}&amp;forcejoin=1')"><img src="{URL}data/interface/schiffe/schiff_battle_side1.gif" alt="teilnehmen auf Seite 2" /></a>
-								<a class="redborder" href="javascript:ask('Wollen sie wirklich auf Seiten der {battle.side2} angreifen?',getDsUrl()+'?module=angriff&amp;battle={battle.id}&amp;addship={global.ship}&amp;forcejoin=2')"><img src="{URL}data/interface/schiffe/schiff_battle_side2.gif" alt="teilnehmen auf Seite 2" /></a>
-							{/endif}
+					{if battle.joinable}
+						{if battle.fixedjoin}
+							<a class="redborder" href="./ds?module=angriff&amp;battle={battle.id}&amp;addship={global.ship}"><img src="{URL}data/interface/schiffe/schiff_battle.gif" alt="teilnehmen" /></a>
+						{else}
+							<a class="redborder" href="javascript:ask('Wollen sie wirklich auf Seiten der {battle.side1} angreifen?',getDsUrl()+'?module=angriff&amp;battle={battle.id}&amp;addship={global.ship}&amp;forcejoin=1')"><img src="{URL}data/interface/schiffe/schiff_battle_side1.gif" alt="teilnehmen auf Seite 2" /></a>
+							<a class="redborder" href="javascript:ask('Wollen sie wirklich auf Seiten der {battle.side2} angreifen?',getDsUrl()+'?module=angriff&amp;battle={battle.id}&amp;addship={global.ship}&amp;forcejoin=2')"><img src="{URL}data/interface/schiffe/schiff_battle_side2.gif" alt="teilnehmen auf Seite 2" /></a>
 						{/endif}
-						{if battle.viewable}
-							<a class="greenborder" href="./ds?module=angriff&amp;battle={battle.id}"><img src="{URL}data/interface/schiffe/schiff_battle_view.gif" alt="ansehen" /></a>
-						{/endif}
+					{/endif}
+					{if battle.viewable}
+						<a class="greenborder" href="./ds?module=angriff&amp;battle={battle.id}"><img src="{URL}data/interface/schiffe/schiff_battle_view.gif" alt="ansehen" /></a>
 					{/endif}
 				</td>
 			</tr>

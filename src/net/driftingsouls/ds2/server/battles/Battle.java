@@ -189,7 +189,6 @@ public class Battle implements Locatable {
 	private int flags;
 	private String onend;
 	private String visibility;
-	private Integer quest;
 	
 	@Version
 	private int version;
@@ -1288,20 +1287,6 @@ public class Battle implements Locatable {
 		*/
 
 		//
-		// Weitere Commander in Folge von Questschlachten feststellen
-		//
-		if( (this.quest != null) && !Common.inArray(user.getId(),this.getCommanders()) && ((this.commander1.getId() < 0) ^ (this.commander2.getId() < 0) ) ) {
-			if( user.hasFlag(User.FLAG_QUEST_BATTLES) || user.getAccessLevel() > 20 ) {
-				if( this.commander1.getId() < 0 )  {
-					this.addCommanders.get(0).add(user.getId());
-				}
-				else {
-					this.addCommanders.get(1).add(user.getId());
-				}	
-			}
-		}
-	
-		//
 		// Darf der Spieler (evt als Gast) zusehen?
 		//
 	
@@ -2000,25 +1985,6 @@ public class Battle implements Locatable {
 			}
 		}
 		return true;
-	}
-	
-	/**
-	 * Gibt die ID des mit der Schlacht verknuepften laufenden Quests zurueck.
-	 * Wenn kein Quest mit der Schlacht verknuepft ist, so wird <code>null</code>
-	 * zurueckgegeben.
-	 * @return Die ID des laufenden Quests oder <code>null</code>
-	 */
-	public Integer getQuest() {
-		return this.quest;
-	}
-	
-	/**
-	 * Setzt die ID des mit der Schlacht verknuepften laufenden Quests.
-	 * <code>null</code> bedeutet, dass kein Quest mit der Schlacht verknuepft ist.
-	 * @param quest Die ID des mit der Schlacht verknuepften laufenden Quests oder <code>null</code>
-	 */
-	public void setQuest( Integer quest ) {
-		this.quest = quest;
 	}
 	
 	/**
