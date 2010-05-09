@@ -1226,7 +1226,7 @@ public class User extends BasicUser {
 		balance[1] = 0;
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<Base> bases = Common.cast(db.createQuery("from Base fetch all properties where owner=:owner")
+		List<Base> bases = Common.cast(db.createQuery("from Base where owner=:owner")
 										 .setParameter("owner", this)
 										 .list());
 		
@@ -1237,7 +1237,7 @@ public class User extends BasicUser {
 		}
 		
 		
-		ScrollableResults ships = db.createQuery("from Ship fetch all properties where owner=:owner and id>0 and battle is null")
+		ScrollableResults ships = db.createQuery("from Ship where owner=:owner and id>0 and battle is null")
 		 							.setParameter("owner", this)
 		 							.setCacheMode(CacheMode.IGNORE)
 		 							.scroll(ScrollMode.FORWARD_ONLY);

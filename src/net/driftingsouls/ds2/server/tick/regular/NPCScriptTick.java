@@ -21,7 +21,6 @@ package net.driftingsouls.ds2.server.tick.regular;
 import java.io.ByteArrayOutputStream;
 import java.io.Writer;
 import java.sql.Blob;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.script.ScriptContext;
@@ -92,12 +91,11 @@ public class NPCScriptTick extends TickController {
 			}
 
 			this.log("+++++++++ User: "+user.getId()+" +++++++++");
-			List<?> ships = db.createQuery("from Ship where id>0 and owner=? and battle is null and script is not null")
-				.setEntity(0, user)
-				.list();
-			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) 
+			List<Ship> ships = Common.cast(db.createQuery("from Ship where id>0 and owner=? and battle is null and script is not null")
+													   .setEntity(0, user)
+													   .list());
+			for(Ship ship: ships) 
 			{
-				final Ship ship = (Ship)iter.next();
 				try 
 				{
 					this.log("+++ Ship "+ship.getId()+" +++");

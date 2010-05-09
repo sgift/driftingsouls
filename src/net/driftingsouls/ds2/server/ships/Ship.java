@@ -76,6 +76,7 @@ import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.Quests;
+import net.driftingsouls.ds2.server.scripting.ShipScriptData;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.units.UnitCargo;
@@ -88,6 +89,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,6 +128,7 @@ public class Ship implements Locatable,Transfering {
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="type", nullable=false)
 	@BatchSize(size=50)
+	@Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
 	private ShipType shiptype; 
 	@Type(type="cargo")
 	@BatchSize(size=50)
@@ -165,8 +169,6 @@ public class Ship implements Locatable,Transfering {
 	private String jumptarget;
 	private byte autodeut;
 	private String history;
-	private String script;
-	private Blob scriptexedata;
 	private String oncommunicate;
 	@Column(name="`lock`")
 	private String lock;
@@ -178,9 +180,13 @@ public class Ship implements Locatable,Transfering {
 	private boolean isfeeding;
 	private boolean isallyfeeding;
 	@OneToMany(fetch=FetchType.LAZY, targetEntity=net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry.class)
-	@JoinColumn(name="destid", referencedColumnName="id")
+	@JoinColumn(name="destid")
 	@BatchSize(size=50)
+	@Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 	private List<ShipUnitCargoEntry> units;
+	@OneToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="id", nullable=true)
+	private ShipScriptData scriptData;
 	
 	@Transient
 	private Offizier offizier;
@@ -219,6 +225,7 @@ public class Ship implements Locatable,Transfering {
 		this.docked = "";
 		this.weaponHeat = "";
 		this.autodeut = 1;
+		this.scriptData = new ShipScriptData();
 	}
 	
 	/**
@@ -252,6 +259,7 @@ public class Ship implements Locatable,Transfering {
 		this.setWeapons(100);
 		this.setComm(100);
 		this.setSensors(100);
+		this.scriptData = new ShipScriptData();
 	}
 	
     /**
@@ -932,33 +940,57 @@ public class Ship implements Locatable,Transfering {
 	 * Gibt das Script des Schiffes zurueck.
 	 * @return Das Script
 	 */
-	public String getScript() {
-		return script;
+	public String getScript() 
+	{
+		return scriptData.getScript();
 	}
 
 	/**
 	 * Setzt das Script des Schiffes.
 	 * @param script Das neue Script
 	 */
-	public void setScript(String script) {
-		this.script = script;
+	public void setScript(String script) 
+	{
+		scriptData.setScript(script);
 	}
-
+	
 	/**
 	 * Gibt die Scriptausfuehrungsdaten zurueck.
 	 * @return Die Scriptausfuehrungsdaten
 	 */
-	public Blob getScriptExeData() {
-		return scriptexedata;
+	public Blob getScriptExeData() 
+	{
+		return scriptData.getScriptexedata();
 	}
 
 	/**
 	 * Setzt die Scriptausfuehrungsdaten.
 	 * @param scriptexedata Die neuen Ausfuehrungsdaten
 	 */
+	public void setScriptExeData(Blob scriptexedata) 
+	{
+		scriptData.setScriptexedata(scriptexedata);
+	}
+
+	/**
+	 * Gibt die Scriptausfuehrungsdaten zurueck.
+	 * @return Die Scriptausfuehrungsdaten
+	 */
+	/*
+	public Blob getScriptExeData() {
+		return scriptexedata;
+	}
+	*/
+
+	/**
+	 * Setzt die Scriptausfuehrungsdaten.
+	 * @param scriptexedata Die neuen Ausfuehrungsdaten
+	 */
+	/*
 	public void setScriptExeData(Blob scriptexedata) {
 		this.scriptexedata = scriptexedata;
 	}
+	*/
 
 	/**
 	 * Gibt die Sichtbarkeitsdaten zurueck.
@@ -3527,6 +3559,8 @@ public class Ship implements Locatable,Transfering {
 		db.createQuery("delete from ShipModules where id=?")
 			.setInteger(0, this.id)
 			.executeUpdate();
+		
+		db.delete(scriptData);
 
 		db.delete(this);
 		

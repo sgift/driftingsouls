@@ -1457,4 +1457,16 @@
 		
 		CREATE INDEX idx_nebulatype ON nebel(type);
 	]]></update>
+	<update><![CDATA[
+		CREATE TABLE `ds2`.`ship_script_data` (
+			`shipid` INT NOT NULL ,
+			`script` TEXT NULL ,
+			`scriptexedata` BLOB NULL ,
+			PRIMARY KEY ( `shipid` ) 
+		) ENGINE = InnoDB;
+		
+		ALTER TABLE ship_script_data ADD CONSTRAINT script_data_fk_ship FOREIGN KEY (shipid) REFERENCES ships (id);
+		
+		INSERT INTO ship_script_data (shipid,script,scriptexedata) SELECT id, scriptexedata FROM ships;
+	]]></update>
 </updates>
