@@ -11,6 +11,7 @@ import javax.servlet.ServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.FlushMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.StaleObjectStateException;
 
@@ -28,6 +29,7 @@ public class HibernateSessionRequestFilter implements Filter
         try 
         {
             log.debug("Starting a database transaction");
+            sf.getCurrentSession().setFlushMode(FlushMode.COMMIT);
             sf.getCurrentSession().beginTransaction();
  
             // Call the next filter (continue request processing)
@@ -62,7 +64,6 @@ public class HibernateSessionRequestFilter implements Filter
                 log.error("Could not rollback transaction after exception!", rbEx);
             }
  
-            // Let others handle it... maybe another interceptor for exceptions?
             throw new ServletException(ex);
         }
     }

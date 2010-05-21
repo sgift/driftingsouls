@@ -105,6 +105,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Table(name="ships")
 @Configurable
 @BatchSize(size=50)
+@Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 public class Ship implements Locatable,Transfering {
 	private static final Log log = LogFactory.getLog(Ship.class);
 	
@@ -186,6 +187,7 @@ public class Ship implements Locatable,Transfering {
 	private List<ShipUnitCargoEntry> units;
 	@OneToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="id", nullable=true)
+	@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 	private ShipScriptData scriptData;
 	
 	@Transient
