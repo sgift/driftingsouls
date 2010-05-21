@@ -1467,6 +1467,6 @@
 		
 		ALTER TABLE ship_script_data ADD CONSTRAINT script_data_fk_ship FOREIGN KEY (shipid) REFERENCES ships (id);
 		
-		INSERT INTO ship_script_data (shipid,script,scriptexedata) SELECT id, scriptexedata FROM ships;
+		INSERT INTO ship_script_data (shipid,script,scriptexedata) SELECT id, script, scriptexedata FROM ships;
 	]]></update>
 </updates>
