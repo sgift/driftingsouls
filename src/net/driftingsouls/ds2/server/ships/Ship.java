@@ -92,6 +92,8 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.Type;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -120,6 +122,7 @@ public class Ship implements Locatable,Transfering {
 	@OneToOne
 	@JoinColumn(name="modules", nullable=true)
 	@BatchSize(size=50)
+	@NotFound(action = NotFoundAction.IGNORE)
 	private ShipModules modules;
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="owner", nullable=false)
