@@ -42,6 +42,11 @@ public class ErrorHandlerFilter implements Filter
 				 ex = e.getCause();
 			}
 			
+			while(ex.getCause() != null)
+			{
+				ex = ex.getCause();
+			}
+			
 			if(ex instanceof TickInProgressException)
 			{
 				printBoxedErrorMessage(response, "Der Tick l&auml;uft. Bitte etwas Geduld.");
