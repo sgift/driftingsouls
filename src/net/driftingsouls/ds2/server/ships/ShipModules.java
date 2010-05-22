@@ -43,7 +43,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 public class ShipModules implements ShipTypeData {
 	@Id
 	private int id;
-	@OneToOne(fetch=FetchType.LAZY)
+	@OneToOne
 	@PrimaryKeyJoinColumn
 	private Ship ship;
 	private String modules;

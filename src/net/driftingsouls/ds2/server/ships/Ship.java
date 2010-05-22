@@ -117,7 +117,7 @@ public class Ship implements Locatable,Transfering {
 	@Id @GeneratedValue(generator="ds-shipid")
 	@GenericGenerator(name="ds-shipid", strategy = "net.driftingsouls.ds2.server.ships.ShipIdGenerator")
 	private int id;
-	@OneToOne(fetch=FetchType.LAZY)
+	@OneToOne
 	@JoinColumn(name="modules", nullable=true)
 	@BatchSize(size=50)
 	private ShipModules modules;
