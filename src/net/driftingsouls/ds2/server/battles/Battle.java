@@ -1394,6 +1394,11 @@ public class Battle implements Locatable {
 				}
 			}
 		}
+		
+		if(this.ownShips.isEmpty() || this.enemyShips.isEmpty())
+		{
+			return false;
+		}
 	
 		//
 		// aktive Schiffe heraussuchen
