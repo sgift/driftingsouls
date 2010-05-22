@@ -87,6 +87,7 @@ public class ErrorHandlerFilter implements Filter
 				return;
 			}
 			
+			printBoxedErrorMessage(response, "Ein genereller Fehler ist aufgetreten. Die Entwickler arbeiten daran ihn zu beheben. Versuch es bitte noch einmal.");
 			Common.mailThrowable(e, "Unexpected exception", "");
 			e.printStackTrace();
 		}
