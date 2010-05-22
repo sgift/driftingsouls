@@ -12,6 +12,7 @@ import javax.servlet.ServletResponse;
 
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.StaleStateException;
+import org.hibernate.exception.GenericJDBCException;
 
 import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
 import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
@@ -29,8 +30,10 @@ public class ErrorHandlerFilter implements Filter
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException 
 	{
+		int tries = 0;
 		try
 		{
+			tries++;
 			chain.doFilter(request, response);
 		}
 		catch(Exception e)
@@ -43,6 +46,11 @@ public class ErrorHandlerFilter implements Filter
 					return;
 				}
 				else if(e.getCause() instanceof StaleStateException || e.getCause() instanceof StaleObjectStateException)
+				{
+					printBoxedErrorMessage(response, "Die Operation hat sich mit einer anderen &uumlberschnitten. Bitte probier es noch einmal.");
+					return;
+				}
+				else if((e.getCause() instanceof GenericJDBCException) && (((GenericJDBCException)e.getCause()).getSQLException().getMessage() != null) && ((GenericJDBCException)e.getCause()).getSQLException().getMessage().startsWith("Beim Warten auf eine Sperre wurde die") ) 
 				{
 					printBoxedErrorMessage(response, "Die Operation hat sich mit einer anderen &uumlberschnitten. Bitte probier es noch einmal.");
 					return;
@@ -108,4 +116,6 @@ public class ErrorHandlerFilter implements Filter
 		
 		return false;
 	}
+	
+	private static int MAX_RETRIES = 10;
 }

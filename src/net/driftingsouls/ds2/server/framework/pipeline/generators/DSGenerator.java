@@ -20,7 +20,6 @@ package net.driftingsouls.ds2.server.framework.pipeline.generators;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -39,9 +38,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.Response;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.StaleObjectStateException;
-import org.hibernate.exception.GenericJDBCException;
-import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -549,50 +545,14 @@ public abstract class DSGenerator extends Generator {
 			method.setAccessible(true);
 			method.invoke(this);
 		}
-		catch( InvocationTargetException e ) 
-		{
-			Throwable t = e.getCause();
-			log.error("", t);
-			StackTraceElement[] st = t.getStackTrace();
-			String stacktrace = "";
-			for( StackTraceElement s : st ) {
-				stacktrace += s.toString()+"\n";
-			}
-			
-			if( t instanceof LockAcquisitionException ) {
-				addError("Die gew&uuml;nschte Aktion konnte nicht erfolgreich durchgef&uuml;hrt werden. Bitte versuchen sie es erneut.");
-			}
-			else if( t instanceof StaleObjectStateException ) {
-				addError("Die gew&uuml;nschte Aktion konnte nicht erfolgreich durchgef&uuml;hrt werden. Bitte versuchen sie es erneut.");
-			}
-			else if( (t instanceof GenericJDBCException) && 
-					(((GenericJDBCException)t).getSQLException().getMessage() != null) &&
-					((GenericJDBCException)t).getSQLException().getMessage().startsWith("Beim Warten auf eine Sperre wurde die") ) {
-				addError("Die gew&uuml;nschte Aktion konnte nicht erfolgreich durchgef&uuml;hrt werden. Bitte versuchen sie es sp&auml;ter erneut.");
-			}
-			else {
-				addError("Es ist ein Fehler in der Action '"+action+"' aufgetreten:\n"+t.toString()+"\n\n"+stacktrace);
-			}
-			
-			Common.mailThrowable(e, "DSGenerator Invocation Target Exception", 
-					"Action: "+action+"\n" +
-					"ActionType: "+actionType+"\n" +
-					"User: "+(getContext().getActiveUser() != null ? getContext().getActiveUser().getId() : "none")+"\n" +
-					"Query-String: "+getContext().getRequest().getQueryString());
-		}
 		catch( NoSuchMethodException e ) 
 		{
 			log.error("", e);
 			addError("Die Aktion '"+action+"' existiert nicht!");
 		}
-		catch( Exception e ) {
-			log.error("", e);
-			addError("Es ist ein Fehler beim Aufruf der Action '"+action+"' aufgetreten:\n"+e.toString());
-			Common.mailThrowable(e, "DSGenerator Exception", 
-					"Action: "+action+"\n" +
-					"ActionType: "+actionType+"\n"+
-					"User: "+(getContext().getActiveUser() != null ? getContext().getActiveUser().getId() : "none")+"\n" +
-					"Query-String: "+getContext().getRequest().getQueryString());
+		catch( Exception e ) 
+		{
+			throw new RuntimeException(e);
 		}
 		
 		parseSubParameter("");
