@@ -475,14 +475,7 @@ public abstract class DSGenerator extends Generator {
 		}
 		catch( Exception e ) 
 		{
-			log.error("Es ist ein Fehler beim Aufruf der Action '"+action+"' aufgetreten", e);
-			addError("Es ist ein Fehler beim Aufruf der Action '"+action+"' aufgetreten:\n"+e.toString());
-			
-			Common.mailThrowable(e, "DSGenerator Invocation Target Exception", 
-					"Redirect-Action: "+action+"\n" +
-					"ActionType: "+actionType+"\n" +
-					"User: "+(getContext().getActiveUser() != null ? getContext().getActiveUser().getId() : "none")+"\n" +
-					"Query-String: "+getContext().getRequest().getQueryString());
+			throw new RuntimeException(e);
 		}
 	}
 	

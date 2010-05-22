@@ -19,9 +19,6 @@
 package net.driftingsouls.ds2.server.framework.pipeline;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Date;
-import java.util.Enumeration;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -32,8 +29,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.driftingsouls.ds2.server.framework.BasicContext;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.configuration.PipelineConfig;
@@ -91,45 +86,7 @@ public class DefaultServletRequestFilter extends GenericFilterBean implements Fi
 		}
 		catch( Throwable e ) 
 		{
-			log.error("Fatal Framework Exception", e);
-			mailThrowable(httpRequest, null, e);
-			httpResponse.setContentType("text/html");
-			PrintWriter writer = httpResponse.getWriter();
-			writer.append("<html><head><title>Drifting Souls Server Framework</title></head>");
-			writer.append("<body>");
-			writer.append("<table border=\"0\"><tr><td>\n");
-			writer.append("<div align=\"center\">\n");
-			writer.append("<h1>Drifting Souls Server Framework</h1>");
-			writer.append("Unhandled Exception "+e.getClass().getName()+"<br />\n");
-			writer.append("Reason: "+e.getMessage()+"</div>\n");
-			writer.append("<hr style=\"height:1px; border:0px; background-color:#606060; color:#606060\" />");
-			StackTraceElement[] st = e.getStackTrace();
-			for( int i=0; i < st.length; i++ ) {
-				writer.append(st[i].toString()+"<br />\n");
-			}
-			writer.append("</td></tr></table></body></html>");
+			throw new RuntimeException(e);
 		}
-	}
-
-	private void mailThrowable(HttpServletRequest httpRequest, BasicContext context, Throwable t) 
-	{
-		StringBuilder msg = new StringBuilder(100);
-		msg.append("Time: "+new Date()+"\n");
-		msg.append("URI: "+httpRequest.getRequestURI()+"\n");
-		msg.append("PARAMS:\n");
-		for( Enumeration<?> e=httpRequest.getParameterNames(); e.hasMoreElements(); ) 
-		{
-			String key = (String)e.nextElement();
-			msg.append("\t* "+key+" = "+httpRequest.getParameter(key)+"\n");
-		}
-		
-		msg.append("QUERY_STRING: "+httpRequest.getQueryString()+"\n");
-
-		if( context != null ) 
-		{
-			msg.append("User: "+(context.getActiveUser() != null ? context.getActiveUser().getId() : "none")+"\n");
-		}
-		
-		Common.mailThrowable(t, (context == null ? "Fatal " : "")+"Framework Exception", msg.toString());
 	}
 }
