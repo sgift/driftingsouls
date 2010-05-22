@@ -18,15 +18,14 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.util.Iterator;
 import java.util.List;
-
-import org.hibernate.Transaction;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.tick.TickController;
+
+import org.hibernate.Transaction;
 
 /**
  * Fuehrt den Tick fuer Schlachten aus.
@@ -56,29 +55,16 @@ public class BattleTick extends TickController {
 		  .setLong(0, lastacttime)
 		  .executeUpdate();
 
-		List<?> battles = db.createQuery("from Battle where blockcount<=0 or lastaction<= ?")
-							.setLong(0, lastacttime)
-							.list();
+		List<Battle> battles = Common.cast(db.createQuery("from Battle where blockcount<=0 or lastaction<= ?")
+											 .setLong(0, lastacttime)
+											 .list());
 
-		try 
+		for(Battle battle: battles) 
 		{
-			for( Iterator<?> iter=battles.iterator(); iter.hasNext(); ) 
+			try 
 			{
-				Battle battle = (Battle)iter.next();
 				this.log("+ Naechste Runde bei Schlacht "+battle.getId());
 				battle.load( battle.getCommander(0), null, null, 0 );
-	
-				//In der ersten Runde verzoegern wir grundsaetzlich - aufgehoben
-				//maximal jedoch einmal, damit Schlachten nicht unendlich lange im System
-				//vorhanden sind
-				/*
-					if( battle.hasFlag(Battle.FLAG_FIRSTROUND) ) {
-						battle.setFlag(Battle.FLAG_FIRSTROUND, false);
-						getContext().commit();
-	
-						continue;
-					}
-				 */
 	
 				if( battle.endTurn(false) ) 
 				{
@@ -90,18 +76,18 @@ public class BattleTick extends TickController {
 					battle.addComMessage(battle.getOwnSide(), "++++ Das Tickscript hat die Runde beendet ++++\n\n");
 					battle.addComMessage(battle.getEnemySide(), "++++ Das Tickscript hat die Runde beendet ++++\n\n");
 				}
+				
+				transaction.commit();
+				transaction = db.beginTransaction();
 			}
-			transaction.commit();
-			transaction = db.beginTransaction();
+			catch( RuntimeException e ) 
+			{
+				transaction.rollback();
+				transaction = db.beginTransaction();
+				e.printStackTrace();
+				Common.mailThrowable(e, "BattleTick Exception", "Battle tick for Battle " + battle.getId() +  " failed.");
+			}
 		}
-		catch( RuntimeException e ) 
-		{
-			transaction.rollback();
-			transaction = db.beginTransaction();
-			e.printStackTrace();
-			Common.mailThrowable(e, "BattleTick Exception", "Battle tick failed.");
-		}
-		
 		transaction.commit();
 	}
 }
