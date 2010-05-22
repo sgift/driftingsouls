@@ -122,7 +122,7 @@ public class KSLeaveSecondRowAction extends BasicKSAction {
 		
 		ownShip.setAction(action);
 		
-		int remove = 1;
+		int remove = 0;
 		for(BattleShip ship: battle.getOwnShips())
 		{
 			if((ship.getShip().isLanded() || ship.getShip().isDocked()) && ship.getShip().getBaseShip().getId() == ownShip.getShip().getId())
