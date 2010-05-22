@@ -81,6 +81,11 @@ public class Kommandozentrale extends DefaultBuilding {
 		
 		base.setActive(active);
 		base.setCoreActive(false);
+		
+		db.createQuery("update Offizier set owner=:owner where dest=:dest")
+		  .setEntity("owner", nullUser)
+		  .setEntity("dest", "b " + base.getId())
+		  .executeUpdate();
 				
 		db.createQuery("update ShipWerft set linked=null where linked=:base")
 			.setEntity("base", base)
