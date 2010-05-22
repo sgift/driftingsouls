@@ -2500,6 +2500,9 @@ public class Battle implements Locatable {
 	 */
 	private static void addToSecondRow(Set<BattleShip> secondRowShips, boolean firstRowExists, boolean firstRowEnemyExists)
 	{
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		
 		for(BattleShip ship: secondRowShips)
 		{
 			if(ship.getSide() == 0)
@@ -2507,6 +2510,18 @@ public class Battle implements Locatable {
 				if(firstRowExists)
 				{
 					ship.setAction(BS_SECONDROW);
+					List<Ship> landedShips = ship.getShip().getLandedShips();
+					for(Ship landedShip: landedShips)
+					{
+						BattleShip aship = (BattleShip)db.createQuery("from BattleShip where ship=:ship")
+														 .setEntity("ship", landedShip)
+														 .uniqueResult();
+						
+						if(aship != null)
+						{
+							aship.setAction(BS_SECONDROW);
+						}
+					}
 				}
 			}
 			else if(ship.getSide() == 1)
@@ -2514,6 +2529,18 @@ public class Battle implements Locatable {
 				if(firstRowEnemyExists)
 				{
 					ship.setAction(BS_SECONDROW);
+					List<Ship> landedShips = ship.getShip().getLandedShips();
+					for(Ship landedShip: landedShips)
+					{
+						BattleShip aship = (BattleShip)db.createQuery("from BattleShip where ship=:ship")
+														 .setEntity("ship", landedShip)
+														 .uniqueResult();
+						
+						if(aship != null)
+						{
+							aship.setAction(BS_SECONDROW);
+						}
+					}
 				}
 			}
 		}
