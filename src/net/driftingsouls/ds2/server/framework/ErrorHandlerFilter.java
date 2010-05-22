@@ -10,12 +10,12 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
+import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
+
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.StaleStateException;
 import org.hibernate.exception.GenericJDBCException;
-
-import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
-import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
 
 /**
  * Filter, um zentral alle Fehler abzufangen.
@@ -30,55 +30,56 @@ public class ErrorHandlerFilter implements Filter
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException 
 	{
-		int tries = 0;
 		try
 		{
-			tries++;
 			chain.doFilter(request, response);
 		}
 		catch(Exception e)
 		{
+			Throwable ex = e;
 			if(e.getCause() != null)
 			{
-				if(e.getCause() instanceof TickInProgressException)
+				 ex = e.getCause();
+			}
+			
+			if(ex instanceof TickInProgressException)
+			{
+				printBoxedErrorMessage(response, "Der Tick l&auml;uft. Bitte etwas Geduld.");
+				return;
+			}
+			else if(ex instanceof StaleStateException || ex instanceof StaleObjectStateException)
+			{
+				printBoxedErrorMessage(response, "Die Operation hat sich mit einer anderen &uumlberschnitten. Bitte probier es noch einmal.");
+				return;
+			}
+			else if((ex instanceof GenericJDBCException) && (((GenericJDBCException)ex).getSQLException().getMessage() != null) && ((GenericJDBCException)ex).getSQLException().getMessage().startsWith("Beim Warten auf eine Sperre wurde die") ) 
+			{
+				printBoxedErrorMessage(response, "Die Operation hat sich mit einer anderen &uumlberschnitten. Bitte probier es noch einmal.");
+				return;
+			}
+			else if(ex instanceof NotLoggedInException)
+			{
+				if(!isAutomaticAccess(request))
 				{
-					printBoxedErrorMessage(response, "Der Tick l&auml;uft. Bitte etwas Geduld.");
-					return;
+					printBoxedErrorMessage(response, "Du musst eingeloggt sein, um diese Seite zu sehen.");
 				}
-				else if(e.getCause() instanceof StaleStateException || e.getCause() instanceof StaleObjectStateException)
+				return;
+			}
+			else if(ex instanceof AccountInVacationModeException)
+			{
+				AccountInVacationModeException vacException = (AccountInVacationModeException)e.getCause();
+				if(!isAutomaticAccess(request))
 				{
-					printBoxedErrorMessage(response, "Die Operation hat sich mit einer anderen &uumlberschnitten. Bitte probier es noch einmal.");
-					return;
-				}
-				else if((e.getCause() instanceof GenericJDBCException) && (((GenericJDBCException)e.getCause()).getSQLException().getMessage() != null) && ((GenericJDBCException)e.getCause()).getSQLException().getMessage().startsWith("Beim Warten auf eine Sperre wurde die") ) 
-				{
-					printBoxedErrorMessage(response, "Die Operation hat sich mit einer anderen &uumlberschnitten. Bitte probier es noch einmal.");
-					return;
-				}
-				else if(e.getCause() instanceof NotLoggedInException)
-				{
-					if(!isAutomaticAccess(request))
+					if(vacException.getDauer() > 1)
 					{
-						printBoxedErrorMessage(response, "Du musst eingeloggt sein, um diese Seite zu sehen.");
+						printBoxedErrorMessage(response, "Du bist noch " + vacException.getDauer() + " Ticks im Vacationmodus.");
 					}
-					return;
-				}
-				else if(e.getCause() instanceof AccountInVacationModeException)
-				{
-					AccountInVacationModeException vacException = (AccountInVacationModeException)e.getCause();
-					if(!isAutomaticAccess(request))
+					else
 					{
-						if(vacException.getDauer() > 1)
-						{
-							printBoxedErrorMessage(response, "Du bist noch " + vacException.getDauer() + " Ticks im Vacationmodus.");
-						}
-						else
-						{
-							printBoxedErrorMessage(response, "Du bist noch " + vacException.getDauer() + " Tick im Vacationmodus.");
-						}
+						printBoxedErrorMessage(response, "Du bist noch " + vacException.getDauer() + " Tick im Vacationmodus.");
 					}
-					return;
 				}
+				return;
 			}
 			
 			Common.mailThrowable(e, "Unexpected exception", "");
@@ -116,6 +117,4 @@ public class ErrorHandlerFilter implements Filter
 		
 		return false;
 	}
-	
-	private static int MAX_RETRIES = 10;
 }
