@@ -3562,7 +3562,10 @@ public class Ship implements Locatable,Transfering {
 			.setInteger(0, this.id)
 			.executeUpdate();
 		
-		db.delete(scriptData);
+		if(scriptData != null)
+		{
+			db.delete(scriptData);
+		}
 
 		db.delete(this);
 		
