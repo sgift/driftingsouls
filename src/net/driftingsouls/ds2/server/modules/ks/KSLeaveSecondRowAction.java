@@ -123,19 +123,18 @@ public class KSLeaveSecondRowAction extends BasicKSAction {
 		ownShip.setAction(action);
 		
 		int remove = 1;
-		List<BattleShip> ownShips = battle.getOwnShips();
-		for( int i=0; i < ownShips.size(); i++ ) {
-			BattleShip s = ownShips.get(i);
-			
-			if(s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == ownShip.getId())
+		for(BattleShip ship: battle.getOwnShips())
+		{
+			if(ship.getShip().isLanded() && ship.getShip().getBaseShip().getId() == ownShip.getShip().getId())
 			{
-				s.setAction((s.getAction() ^ Battle.BS_SECONDROW) | Battle.BS_SECONDROW_BLOCKED);
+				ship.setAction((ship.getAction() ^ Battle.BS_SECONDROW) | Battle.BS_SECONDROW_BLOCKED);
 				remove++;
 			}
 		}
 		
-		if( remove > 1 ) {
-			battle.logme( (remove-1)+" an "+ownShip.getName()+" gedockte Schiffe fliegen zur Front\n" );
+		if( remove > 0 ) 
+		{
+			battle.logme(remove +" an "+ownShip.getName()+" gedockte Schiffe fliegen zur Front\n");
 		}
 		
 		battle.logenemy("]]></action>\n");
