@@ -156,18 +156,21 @@ public abstract class AbstractTickExecuter extends TickController
 	{
 		log.info("Kopiere alle Logs von " + loxpath + " nach " + loxpath + ticknr + "/");
 		File[] files = new File(loxpath).listFiles();
-		for( int i = 0; i < files.length; i++ )
+		if(files != null)
 		{
-			if( files[i].getName().endsWith(".log") )
+			for( int i = 0; i < files.length; i++ )
 			{
-				String filename = files[i].getName();
-				log.info("Kopiere " + filename);
-
-				if( filename.lastIndexOf('/') > -1 )
+				if( files[i].getName().endsWith(".log") )
 				{
-					filename = filename.substring(filename.lastIndexOf('/') + 1);
+					String filename = files[i].getName();
+					log.info("Kopiere " + filename);
+	
+					if( filename.lastIndexOf('/') > -1 )
+					{
+						filename = filename.substring(filename.lastIndexOf('/') + 1);
+					}
+					Common.copyFile(files[i].getAbsolutePath(), loxpath + ticknr + "/" + filename);
 				}
-				Common.copyFile(files[i].getAbsolutePath(), loxpath + ticknr + "/" + filename);
 			}
 		}
 	}
