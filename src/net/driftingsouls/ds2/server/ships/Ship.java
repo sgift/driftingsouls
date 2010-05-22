@@ -3641,6 +3641,16 @@ public class Ship implements Locatable,Transfering {
 			this.removeFromFleet();
 			this.owner = newowner;
 			
+			if(this.isLanded())
+			{
+				this.getBaseShip().start(this);
+			}
+			
+			if(this.isDocked())
+			{
+				this.getBaseShip().undock(this);
+			}
+			
 			db.createQuery("update Offizier set userid=? where dest=?")
 				.setEntity(0, newowner)
 				.setString(1, "s "+this.id)
