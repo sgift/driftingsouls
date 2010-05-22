@@ -1182,6 +1182,12 @@ public class FleetMgntController extends TemplateGenerator {
 	
 		Ship aship = getOneFleetShip();
 		
+		if(aship == null)
+		{
+			t.setVar("fleetmgnt.message", "Die Flotte existiert nicht mehr.");
+			return;
+		}
+		
 		sectors.add("(s.x="+aship.getX()+" and s.y="+aship.getY()+" and s.system="+aship.getSystem()+")");
 
 		t.setVar(	"show.view",	1,
